@@ -1,0 +1,14 @@
+ADD THESE TO STZSTRING
+
+	// Justify the binary string to the left
+	def LeftJustified(nSize, pcCaracter, bTrancate)
+		return oQByteArray.leftJustified(nSize, ascii(pcCaracter), bTrancate).data()
+
+	// Justify the binary string to the right
+	def RightJustified(nSize, pcCaracter, bTrancate)
+		return oQByteArray.RightJustified(nSize, ascii(pcCaracter), bTrancate).data()
+
+	def Simplified(pcStr)
+		oQByteArray.simplified() 
+
+Replaces len bytes from index position pos with alen bytes from the string after.

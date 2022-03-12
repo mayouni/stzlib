@@ -1,0 +1,3 @@
+mandra 1
+mandra 2
+mandra 3

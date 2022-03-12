@@ -1,0 +1,105 @@
+Class QIODevice from QObject
+
+	pObject
+
+	-Func init 
+		pObject = QIODevice_new()
+		return self
+
+	-Func delete
+		pObject = QIODevice_delete(pObject)
+
+	-Func ObjectPointer
+		return pObject
+
+	-Func errorString 
+		return QIODevice_errorString(pObject)
+
+	-Func getChar P1
+		return QIODevice_getChar(pObject,P1)
+
+	+Func isOpen 
+		return QIODevice_isOpen(pObject)
+
+	+Func isReadable 
+		return QIODevice_isReadable(pObject)
+
+	+Func isTextModeEnabled 
+		return QIODevice_isTextModeEnabled(pObject)
+
+	+Func isWritable 
+		return QIODevice_isWritable(pObject)
+
+	-Func openMode P1
+		return QIODevice_openMode(pObject,P1)
+
+	-Func peek P1,P2
+		return QIODevice_peek(pObject,P1,P2)
+
+	-Func putChar P1
+		return QIODevice_putChar(pObject,P1)
+
+	-Func read P1,P2
+		return QIODevice_read(pObject,P1,P2)
+
+	-Func readAll 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QIODevice_readAll(pObject)
+		return pTempObj
+
+	-Func readLine P1,P2
+		return QIODevice_readLine(pObject,P1,P2)
+
+	+Func setTextModeEnabled P1
+		return QIODevice_setTextModeEnabled(pObject,P1)
+
+	-Func ungetChar P1
+		return QIODevice_ungetChar(pObject,P1)
+
+	-Func write P1,P2
+		return QIODevice_write(pObject,P1,P2)
+
+	-Func atEnd 
+		return QIODevice_atEnd(pObject)
+
+	-Func canReadLine 
+		return QIODevice_canReadLine(pObject)
+
+	-Func close 
+		return QIODevice_close(pObject)
+
+	-Func open P1
+		return QIODevice_open(pObject,P1)
+
+	-Func pos 
+		return QIODevice_pos(pObject)
+
+	-Func seek P1
+		return QIODevice_seek(pObject,P1)
+
+	+Func size 
+		return QIODevice_size(pObject)
+
+	?Func setaboutToCloseEvent P1
+		return QIODevice_setaboutToCloseEvent(pObject,P1)
+
+	?Func setbytesWrittenEvent P1
+		return QIODevice_setbytesWrittenEvent(pObject,P1)
+
+	Func setreadChannelFinishedEvent P1
+		return QIODevice_setreadChannelFinishedEvent(pObject,P1)
+
+	Func setreadyReadEvent P1
+		return QIODevice_setreadyReadEvent(pObject,P1)
+
+	Func getaboutToCloseEvent 
+		return QIODevice_getaboutToCloseEvent(pObject)
+
+	Func getbytesWrittenEvent 
+		return QIODevice_getbytesWrittenEvent(pObject)
+
+	Func getreadChannelFinishedEvent 
+		return QIODevice_getreadChannelFinishedEvent(pObject)
+
+	Func getreadyReadEvent 
+		return QIODevice_getreadyReadEvent(pObject)

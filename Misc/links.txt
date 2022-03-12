@@ -1,0 +1,8 @@
+Unicode in Qt:
+https://www.informit.com/articles/article.aspx?p=1405555
+
+Unicode Database in XML
+https://www.unicode.org/Public/5.2.0/ucdxml/
+
+Binary in Python
+https://bitstring.readthedocs.io/en/latest/introduction.html

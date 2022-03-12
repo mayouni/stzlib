@@ -1,0 +1,6 @@
+Class QTextCodec
+	Func codecForName P1
+		return QTextCodec_codecForName(P1)
+
+	Func setCodecForLocale P1
+		return QTextCodec_setCodecForLocale(GetObjectPointerFromRingObject(P1))

@@ -1,0 +1,3 @@
+
+
+class stzMultiString from stzMultilingualString

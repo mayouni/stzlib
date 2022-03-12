@@ -1,0 +1,304 @@
+Class QString2
+
+	pObject
+
+	Func init 
+		pObject = QString2_new()
+		return self
+
+	Func delete
+		pObject = QString2_delete(pObject)
+
+	Func ObjectPointer
+		return pObject
+
+	Func append P1
+		return QString2_append(pObject,P1)
+
+	Func toUtf8 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QString2_toUtf8(pObject)
+		return pTempObj
+
+	Func toLatin1 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QString2_toLatin1(pObject)
+		return pTempObj
+
+	Func toLocal8Bit 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QString2_toLocal8Bit(pObject)
+		return pTempObj
+
+	Func split P1,P2,P3
+		pTempObj = new QStringList
+		pTempObj.pObject = QString2_split(pObject,P1,P2,P3)
+		return pTempObj
+
+	Func split_2 P1,P2,P3
+		pTempObj = new QStringList
+		pTempObj.pObject = QString2_split_2(pObject,GetObjectPointerFromRingObject(P1),P2,P3)
+		return pTempObj
+
+	Func split_3 P1,P2
+		pTempObj = new QStringList
+		pTempObj.pObject = QString2_split_3(pObject,GetObjectPointerFromRingObject(P1),P2)
+		return pTempObj
+
+	Func split_4 P1,P2
+		pTempObj = new QStringList
+		pTempObj.pObject = QString2_split_4(pObject,GetObjectPointerFromRingObject(P1),P2)
+		return pTempObj
+
+	Func unicode 
+		pTempObj = new QChar
+		pTempObj.pObject = QString2_unicode(pObject)
+		return pTempObj
+
+	Func number P1,P2
+		return QString2_number(pObject,P1,P2)
+
+	Func count 
+		return QString2_count(pObject)
+
+	Func left P1
+		return QString2_left(pObject,P1)
+
+	Func mid P1,P2
+		return QString2_mid(pObject,P1,P2)
+
+	Func right P1
+		return QString2_right(pObject,P1)
+
+	Func compare P1,P2
+		return QString2_compare(pObject,P1,P2)
+
+	Func contains P1,P2
+		return QString2_contains(pObject,P1,P2)
+
+	Func indexOf P1,P2,P3
+		return QString2_indexOf(pObject,P1,P2,P3)
+
+	Func insert P1,P2
+		return QString2_insert(pObject,P1,P2)
+
+	Func isRightToLeft 
+		return QString2_isRightToLeft(pObject)
+
+	Func repeated P1
+		return QString2_repeated(pObject,P1)
+
+	Func replace P1,P2,P3
+		return QString2_replace(pObject,P1,P2,P3)
+
+	Func startsWith P1,P2
+		return QString2_startsWith(pObject,P1,P2)
+
+	Func endsWith P1,P2
+		return QString2_endsWith(pObject,P1,P2)
+
+	Func toHtmlEscaped 
+		return QString2_toHtmlEscaped(pObject)
+
+	Func clear 
+		return QString2_clear(pObject)
+
+	Func isNull 
+		return QString2_isNull(pObject)
+
+	Func resize P1
+		return QString2_resize(pObject,P1)
+
+	Func fill P1,P2
+		return QString2_fill(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	#########
+	fromUtf8()
+	fromUtf16()
+	fromLatin1()
+	fromLocal8Bit()
+	fromUtf8()
+	fromUcs4()
+	fromStdU16String()
+	fromStdU32String()
+	fromStdWString()
+
+Class QStringRef
+
+	pObject
+
+	Func init 
+		pObject = QStringRef_new()
+		return self
+
+	Func delete
+		pObject = QStringRef_delete(pObject)
+
+	Func ObjectPointer
+		return pObject
+
+	Func appendTo P1
+		pTempObj = new QStringRef
+		pTempObj.pObject = QStringRef_appendTo(pObject,GetObjectPointerFromRingObject(P1))
+		return pTempObj
+
+	Func at P1
+		pTempObj = new QChar
+		pTempObj.pObject = QStringRef_at(pObject,P1)
+		return pTempObj
+
+	Func clear 
+		return QStringRef_clear(pObject)
+
+	Func compare_2 P1,P2
+		return QStringRef_compare_2(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func compare_3 P1,P2
+		return QStringRef_compare_3(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func constData 
+		pTempObj = new QChar
+		pTempObj.pObject = QStringRef_constData(pObject)
+		return pTempObj
+
+	Func contains P1,P2
+		return QStringRef_contains(pObject,P1,P2)
+
+	Func contains_2 P1,P2
+		return QStringRef_contains_2(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func contains_3 P1,P2
+		return QStringRef_contains_3(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func contains_4 P1,P2
+		return QStringRef_contains_4(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func count 
+		return QStringRef_count(pObject)
+
+	Func count_2 P1,P2
+		return QStringRef_count_2(pObject,P1,P2)
+
+	Func count_3 P1,P2
+		return QStringRef_count_3(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func count_4 P1,P2
+		return QStringRef_count_4(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func data 
+		pTempObj = new QChar
+		pTempObj.pObject = QStringRef_data(pObject)
+		return pTempObj
+
+	Func endsWith P1,P2
+		return QStringRef_endsWith(pObject,P1,P2)
+
+	Func endsWith_2 P1,P2
+		return QStringRef_endsWith_2(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func endsWith_3 P1,P2
+		return QStringRef_endsWith_3(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func endsWith_4 P1,P2
+		return QStringRef_endsWith_4(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func indexOf P1,P2,P3
+		return QStringRef_indexOf(pObject,P1,P2,P3)
+
+	Func indexOf_2 P1,P2,P3
+		return QStringRef_indexOf_2(pObject,GetObjectPointerFromRingObject(P1),P2,P3)
+
+	Func indexOf_3 P1,P2,P3
+		return QStringRef_indexOf_3(pObject,GetObjectPointerFromRingObject(P1),P2,P3)
+
+	Func indexOf_4 P1,P2,P3
+		return QStringRef_indexOf_4(pObject,GetObjectPointerFromRingObject(P1),P2,P3)
+
+	Func isEmpty 
+		return QStringRef_isEmpty(pObject)
+
+	Func isNull 
+		return QStringRef_isNull(pObject)
+
+	Func lastIndexOf P1,P2,P3
+		return QStringRef_lastIndexOf(pObject,P1,P2,P3)
+
+	Func lastIndexOf_2 P1,P2,P3
+		return QStringRef_lastIndexOf_2(pObject,GetObjectPointerFromRingObject(P1),P2,P3)
+
+	Func lastIndexOf_3 P1,P2,P3
+		return QStringRef_lastIndexOf_3(pObject,GetObjectPointerFromRingObject(P1),P2,P3)
+
+	Func lastIndexOf_4 P1,P2,P3
+		return QStringRef_lastIndexOf_4(pObject,GetObjectPointerFromRingObject(P1),P2,P3)
+
+	Func length 
+		return QStringRef_length(pObject)
+
+	Func localeAwareCompare P1
+		return QStringRef_localeAwareCompare(pObject,P1)
+
+	Func localeAwareCompare_2 P1
+		return QStringRef_localeAwareCompare_2(pObject,GetObjectPointerFromRingObject(P1))
+
+	Func position 
+		return QStringRef_position(pObject)
+
+	Func size 
+		return QStringRef_size(pObject)
+
+	Func startsWith P1,P2
+		return QStringRef_startsWith(pObject,P1,P2)
+
+	Func startsWith_2 P1,P2
+		return QStringRef_startsWith_2(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func startsWith_3 P1,P2
+		return QStringRef_startsWith_3(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func startsWith_4 P1,P2
+		return QStringRef_startsWith_4(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func string 
+		return QStringRef_string(pObject)
+
+	Func toLatin1 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QStringRef_toLatin1(pObject)
+		return pTempObj
+
+	Func toLocal8Bit 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QStringRef_toLocal8Bit(pObject)
+		return pTempObj
+
+	Func toString 
+		return QStringRef_toString(pObject)
+
+	Func toUcs4 
+		return QStringRef_toUcs4(pObject)
+
+	Func toUtf8 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QStringRef_toUtf8(pObject)
+		return pTempObj
+
+	Func unicode 
+		pTempObj = new QChar
+		pTempObj.pObject = QStringRef_unicode(pObject)
+		return pTempObj
+
+	Func compare_4 P1,P2,P3
+		return QStringRef_compare_4(pObject,GetObjectPointerFromRingObject(P1),P2,P3)
+
+	Func compare_5 P1,P2,P3
+		return QStringRef_compare_5(pObject,GetObjectPointerFromRingObject(P1),GetObjectPointerFromRingObject(P2),P3)
+
+	Func compare_6 P1,P2,P3
+		return QStringRef_compare_6(pObject,GetObjectPointerFromRingObject(P1),GetObjectPointerFromRingObject(P2),P3)
+
+	Func localeAwareCompare_3 P1,P2
+		return QStringRef_localeAwareCompare_3(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func localeAwareCompare_4 P1,P2
+		return QStringRef_localeAwareCompare_4(pObject,GetObjectPointerFromRingObject(P1),GetObjectPointerFromRingObject(P2))

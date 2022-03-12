@@ -1,0 +1,155 @@
+Class QFileInfo
+
+	pObject
+
+	-Func init 
+		pObject = QFileInfo_new()
+		return self
+
+	-Func delete
+		pObject = QFileInfo_delete(pObject)
+
+	-Func ObjectPointer
+		return pObject
+
+	+Func absoluteDir 
+		pTempObj = new QDir
+		pTempObj.pObject = QFileInfo_absoluteDir(pObject)
+		return pTempObj
+
+	+Func absoluteFilePath 
+		return QFileInfo_absoluteFilePath(pObject)
+
+	+Func absolutePath 
+		return QFileInfo_absolutePath(pObject)
+
+	+Func baseName 
+		return QFileInfo_baseName(pObject)
+
+	+Func bundleName 
+		return QFileInfo_bundleName(pObject)
+
+	Func caching 
+		return QFileInfo_caching(pObject)
+
+	Func canonicalFilePath 
+		return QFileInfo_canonicalFilePath(pObject)
+
+	Func canonicalPath 
+		return QFileInfo_canonicalPath(pObject)
+
+	Func completeBaseName 
+		return QFileInfo_completeBaseName(pObject)
+
+	Func completeSuffix 
+		return QFileInfo_completeSuffix(pObject)
+
+	Func created 
+		pTempObj = new QDateTime
+		pTempObj.pObject = QFileInfo_created(pObject)
+		return pTempObj
+
+	Func dir 
+		pTempObj = new QDir
+		pTempObj.pObject = QFileInfo_dir(pObject)
+		return pTempObj
+
+	Func exists 
+		return QFileInfo_exists(pObject)
+
+	Func fileName 
+		return QFileInfo_fileName(pObject)
+
+	Func filePath 
+		return QFileInfo_filePath(pObject)
+
+	Func group 
+		return QFileInfo_group(pObject)
+
+	Func groupId 
+		return QFileInfo_groupId(pObject)
+
+	Func isAbsolute 
+		return QFileInfo_isAbsolute(pObject)
+
+	Func isBundle 
+		return QFileInfo_isBundle(pObject)
+
+	Func isDir 
+		return QFileInfo_isDir(pObject)
+
+	Func isExecutable 
+		return QFileInfo_isExecutable(pObject)
+
+	Func isFile 
+		return QFileInfo_isFile(pObject)
+
+	Func isHidden 
+		return QFileInfo_isHidden(pObject)
+
+	Func isNativePath 
+		return QFileInfo_isNativePath(pObject)
+
+	Func isReadable 
+		return QFileInfo_isReadable(pObject)
+
+	Func isRelative 
+		return QFileInfo_isRelative(pObject)
+
+	Func isRoot 
+		return QFileInfo_isRoot(pObject)
+
+	Func isSymLink 
+		return QFileInfo_isSymLink(pObject)
+
+	Func isWritable 
+		return QFileInfo_isWritable(pObject)
+
+	Func lastModified 
+		pTempObj = new QDateTime
+		pTempObj.pObject = QFileInfo_lastModified(pObject)
+		return pTempObj
+
+	Func lastRead 
+		pTempObj = new QDateTime
+		pTempObj.pObject = QFileInfo_lastRead(pObject)
+		return pTempObj
+
+	Func makeAbsolute 
+		return QFileInfo_makeAbsolute(pObject)
+
+	Func owner 
+		return QFileInfo_owner(pObject)
+
+	Func ownerId 
+		return QFileInfo_ownerId(pObject)
+
+	Func path 
+		return QFileInfo_path(pObject)
+
+	Func permission P1
+		return QFileInfo_permission(pObject,P1)
+
+	Func permissions 
+		return QFileInfo_permissions(pObject)
+
+	Func refresh 
+		return QFileInfo_refresh(pObject)
+
+	Func setCaching P1
+		return QFileInfo_setCaching(pObject,P1)
+
+	Func setFile P1
+		return QFileInfo_setFile(pObject,P1)
+
+	Func size 
+		return QFileInfo_size(pObject)
+
+	Func suffix 
+		return QFileInfo_suffix(pObject)
+
+	Func swap P1
+		return QFileInfo_swap(pObject,GetObjectPointerFromRingObject(P1))
+
+	Func symLinkTarget 
+		return QFileInfo_symLinkTarget(pObject)

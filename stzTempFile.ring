@@ -1,0 +1,2 @@
+
+class StzTempFile from stzFile

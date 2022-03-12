@@ -1,0 +1,80 @@
+Class QTime
+
+	pObject
+
+	Func init 
+		pObject = QTime_new()
+		return self
+
+	Func delete
+		pObject = QTime_delete(pObject)
+
+	Func ObjectPointer
+		return pObject
+
+	Func addMSecs P1
+		pTempObj = new QTime
+		pTempObj.pObject = QTime_addMSecs(pObject,P1)
+		return pTempObj
+
+	Func addSecs P1
+		pTempObj = new QTime
+		pTempObj.pObject = QTime_addSecs(pObject,P1)
+		return pTempObj
+
+	Func elapsed 
+		return QTime_elapsed(pObject)
+
+	Func hour 
+		return QTime_hour(pObject)
+
+	Func isNull 
+		return QTime_isNull(pObject)
+
+	Func isValid 
+		return QTime_isValid(pObject)
+
+	Func minute 
+		return QTime_minute(pObject)
+
+	Func msec 
+		return QTime_msec(pObject)
+
+	Func msecsSinceStartOfDay 
+		return QTime_msecsSinceStartOfDay(pObject)
+
+	Func msecsTo P1
+		return QTime_msecsTo(pObject,GetObjectPointerFromRingObject(P1))
+
+	Func restart 
+		return QTime_restart(pObject)
+
+	Func second 
+		return QTime_second(pObject)
+
+	Func secsTo P1
+		return QTime_secsTo(pObject,GetObjectPointerFromRingObject(P1))
+
+	Func setHMS P1,P2,P3,P4
+		return QTime_setHMS(pObject,P1,P2,P3,P4)
+
+	Func start 
+		return QTime_start(pObject)
+
+	Func toString P1
+		return QTime_toString(pObject,P1)
+
+	Func currentTime 
+		pTempObj = new QTime
+		pTempObj.pObject = QTime_currentTime(pObject)
+		return pTempObj
+
+	Func fromMSecsSinceStartOfDay P1
+		pTempObj = new QTime
+		pTempObj.pObject = QTime_fromMSecsSinceStartOfDay(pObject,P1)
+		return pTempObj
+
+	Func fromString P1,P2
+		pTempObj = new QTime
+		pTempObj.pObject = QTime_fromString(pObject,P1,P2)
+		return pTempObj

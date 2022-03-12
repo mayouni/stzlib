@@ -1,0 +1,106 @@
+
+LIST
+
+Walkers, Checkers, Finders, Parsers, Yielders and Performers
+                      ^
+		      |____ ItemFinders
+		      |____ PathFinders
+
+	# DEFINING WALKERS
+
+	AddWalker( :Name = :Walker1, :StartingAt = :FirstPosition, :EndingAt = :LastPosition, :NJumps = 3 )
+	Walkers()
+	Walker(:Walker1)
+		WalkerName(:Walker1)
+		WalkerPositions(:Walker1)
+		WalkerItems(:Walker1)
+		WalkerNthPosition(:Walker1, n)
+		WalkerNthItem(:Walker1, n)
+		WalkerJump(:Walker)
+
+	# WALKING THE LIST
+
+	Walk( :AllItems )
+	Walk( :Through  = :Walker1 )
+
+	WalkXT( :Through  = :Walker1, :Return = :WalkedPositions )
+	WalkXT( :Through  = :Walker1, :Return = :WalkedItems )
+	WalkXT( :Through  = :Walker1, :Return = :LastWalkedPosition )
+	WalkXT( :Through  = :Walker1, :Return = :LastWalkedItem )
+
+	# CONDITIONAL WALKINGS
+
+	GENERAL CONSTRAINT: Conditional code must include a reference for
+	the list by containing at least one of these symbols:
+		- @item	: to reference the current item in the loop
+		- @i	: to reference the current position of the loop
+		- @	: to reference the list object itself (same as This)
+		- @type	: to reference the type of the current item
+
+	WalkUntil( 'isNumber(@item)' )
+	WalkUntilXT( 'isNumber(@item)', :Through  = :Walker1 )
+
+		WalkUntilBefore( 'isNumber(@item)' )
+		WalkUntilBeforeXT( 'isNumber(@item)', :Through  = :Walker1 )
+
+	WalkWhile( 'isNumber(@item)' )
+	WalkWhileXT( 'isNumber(@item)', :Through  = :Walker1 )
+
+	WalkWhere( 'isNumber(@item)' ) # Same as: WalkEach()
+	WalkWhere( 'isNumber(@item)', :Through  = :Walker1 )
+
+	# Case of the W postfix (Generalize this)
+
+	WalkW( 'isNumber(@item)' )
+
+		---> WalkWhere( 'isNumber(@item)' )
+		Unless a precision is provided like this:
+
+		WalkW( :While = 'isNumber(@item)' )
+		---> WalkWhile( 'isNumber(@item)' )
+
+		or WalkW( :Until = 'isNumber(@item)' )
+		---> WalkUntil( 'isNumber(@item)' )
+
+	WalkWXT( 'isNumber(@item)', :Through  = :Walker1 )
+
+		---> WalkWhereXT( 'isNumber(@item)', :Through  = :Walker1 )
+		Unless a precision is provided like this:
+
+		WalkWXT( :While = 'isNumber(@item)', :Through  = :Walker1 )
+		---> WalkWhile( 'isNumber(@item)' )
+
+		or WalkWXT( :Until = 'isNumber(@item)', :Through  = :Walker1 )
+		---> WalkUntilXT( 'isNumber(@item)', :Through  = :Walker1 )
+
+	# YIELDING VALUES FROM WALKED ITEMS
+
+	Yield( 'type(@item)' ) # --> All items are walked and yielded
+	YieldXT( 'type(@item)', :Through  = :Walker1 )
+
+	CONSTRAINT: Only code that returns an information about the item
+	is allowed in the condition param --> Code attempting to change
+	the item content or remove it is not allowed!!!
+
+	# CHECKING ITEMS --> Special case of Yielding (returns TRUE/FALSE)
+
+	Check( :That = 'isNumber(@item) and @item >= 0' ) # or Check( :If = ... )
+
+	CheckXT( :That = 'isNumber(@item) and @item >= 0', :Through = :Walker1, :Through  = 'AND' )
+
+	CONSTRAINT: Only code that returns TRUE or FALSE about the item
+	is allowed in the condition param --> Otherwise, raise an error!!!
+
+	# PERFORMING ACTIONS ON ITEMS (UPDATE or REMOVE)
+
+	Perform( :Action = '@item.Uppercase()' )
+	PerformXT( :Action = '@item.Uppercase()', :On = :Walker1 ) # :OnItems, :OnItemsInWalker
+
+
+STRING
+
+DO EXACTLY THE SAME AS IN LIST
+
+WalkForeward/Backward( :StartingAt = 1, :Until/Before = '' )
+                            ^
+WalkUntil('@condition') ____|

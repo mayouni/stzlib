@@ -1,0 +1,43 @@
+Beginning with some basic symbolic arithmetics
+
+Defining visual symbols and using them
+
+Performing context-emotion sensitive computations
+Social-network defined computations
+Performing logical and probabilistic computations
+Performing social computations
+Performing cultural computations
+
+Using natural language with visual symbols
+Visual-to-text transcription and vice-versa
+
+Identifying semantic relationships
+Challenging the Statiquo of established relations
+
+Organizing things in a Semantic Ontology
+Embracing ontological analysis techniques
+Connecting to established semantic ontologies
+Ontological analysis of natural language
+Enhanced database quering with ontolgies
+
+Surfing the waves of the knwoledge domain
+Forgetting and remembering things
+
+Text analysis and semantic modeling
+Semantic disambiguation of symbols and text
+In the pursuit of meaning
+
+Cohabiting with the substance of Metaphor
+
+Designing and using semantic expressions
+
+Constructing Semantic Worlds
+
+Problem definition and solution design
+
+Deploying Rawnaq computaional skills
+Including live data inside the notebook
+Interactive manipulation of functions
+Experiencing different interation styles
+
+Summarizing and deciding of knwoledge acquired

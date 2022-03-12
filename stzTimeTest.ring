@@ -1,0 +1,3 @@
+load "stzlib.ring"
+
+? TimeStamp()

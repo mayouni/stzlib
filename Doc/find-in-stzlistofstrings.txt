@@ -1,0 +1,378 @@
+	  #-------------------------------------------------#
+	 #     FINDING A STRING IN THE LIST OF STRINGS     #
+	#-------------------------------------------------#
+
+	def FindStringCS(pcStr, pCaseSensitive)
+		/* ... */
+
+		#< @FunctionAlternativeForms
+
+		def FindCS(pcStr)
+			return This.FindStringCS(pcStr, pCaseSensitive)
+
+		def FindAllCS(pcStr, pCaseSensitive)
+			return This.FindStringCS(pcStr, pCaseSensitive)
+
+		def FindAllOccurrencesOfStringCS(pcStr, pCaseSensitive)
+			return This.FindStringCS(pcStr, pCaseSensitive)
+
+		def PositionsOfCS(pcStr, pCaseSensitive)
+			return This.FindStringCS(pcStr, pCaseSensitive)
+
+		def PositionsOfStringCS(pcStr, pCaseSensitive)
+			return This.FindStringCS(pcStr, pCaseSensitive)
+
+		def AllPositionsOfStringCS(pcStr, pCaseSensitive)
+			return This.FindStringCS(pcStr, pCaseSensitive)
+
+		#>
+
+	def FindString(pcStr)
+		return This.FindStringCS(pcStr, :CaseSensitive = FALSE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAll(pcStr)
+			return This.FindString(pcStr)
+
+		def FindAllOccurrencesOfString(pcStr)
+			return This.FindString(pcStr)
+
+		def PositionsOf(pcStr)
+			return This.FindString(pcStr)
+
+		def PositionsOfStringC(pcStr)
+			return This.FindString(pcStr)
+
+		def AllPositionsOfString(pcStr)
+			return This.FindString(pcStr)
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #    FINDING NTH OCCURRENCE OF A STRING IN THE LIST OF STRINGS    #
+	#-----------------------------------------------------------------#
+	
+	def FindNthOccurrenceOfStringCS(n, pcStr, pCaseSensitive)
+		if isString(n)
+			if n = :first
+				n = 1
+			but n = :Last
+				n = This.NumberOfOccurrenceCS(pcStr, pCaseSensitive)
+			ok
+		ok
+
+		/* ... */
+
+		def FindNthStringCS(n, pcStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfStringCS(n, pcStr, pCaseSensitive)
+
+		def FindNthOccurrenceCS(n, pcStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfStringCS(n, pcStr, pCaseSensitive)
+
+		def FindNthOccurrenceOfThisStringCS(n, pcStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfStringCS(n, pcStr, pCaseSensitive)
+
+	def FindNthOccurrenceOfString(n, pcStr)
+		return This.FindNthOccurrenceOfStringCS(n, pcStr, :CaseSensitive = TRUE)
+
+		def FindNthString(n, pcStr)
+			return This.FindNthOccurrenceOfString(n, pcStr)
+
+		def FindNthOccurrence(n, pcStr)
+			return This.FindNthOccurrenceOfString(n, pcStr)
+
+		def FindNthOccurrenceOfThisString(n, pcStr)
+			return This.FindNthOccurrenceOfString(n, pcStr)
+
+	def FindFirstOccurrenceOfStringCS(pcStr, pCaseSensitive)
+		This.FindNthOccurrenceOfStringCS(1, pcStr, pCaseSensitive)
+
+		def FindFirstStringCS(pcStr, pCaseSensitiveg)
+			return FindFirstOccurrenceOfStringCS(pcStr, pCaseSensitive)
+
+		def FindFirstOccurrence(n, pcStr)
+			return This.FindNthOccurrenceOfString(n, pcStr)
+
+		def FindFirstOccurrenceOfThisStringCS(pcStr, pCaseSensitive)
+			return FindFirstOccurrenceOfStringCS(pcStr, pCaseSensitive)
+
+	def FindLastOccurrenceOfStringCS(pcStr, pCaseSensitive)
+		This.FindNthOccurrenceOfStringCS(:Last, pcStr, pCaseSensitive)
+
+		def FindLastStringCS(pcStr, pCaseSensitiveg)
+			return FindLastOccurrenceOfStringCS(pcStr, pCaseSensitive)
+
+		def FindFirstOccurrence(n, pcStr)
+			return This.FindNthOccurrenceOfString(n, pcStr)
+
+		def FindLastOccurrenceOfThisStringCS(pcStr, pCaseSensitive)
+			return FindFirstOccurrenceOfStringCS(pcStr, pCaseSensitive)
+
+	  #---------------------------------------------#
+	 #   FINDING MANY STRINGS AT THE SAME TIME     #
+	#---------------------------------------------#
+
+	def FindStringsCS(pacStr, pCaseSensitive)
+		/* ... */
+
+		def FindManyStringsCS(pacStr, pCaseSensitive)
+			return This.FindStringsCS(pacStr, pCaseSensitive)
+
+		def FindManyCS(pacStr, pCaseSensitive)
+			return This.FindStringsCS(pacStr, pCaseSensitive)
+
+		def FindTheseStringsCS(pacStr, pCaseSensitive)
+			return This.FindStringsCS(pacStr, pCaseSensitive)
+
+		def FindTheseCS(pacStr, pCaseSensitive)
+			return This.FindStringsCS(pacStr, pCaseSensitive)
+
+	def FindStrings(pacStr)
+		/* ... */
+
+		def FindManyStrings(pacStr)
+			return This.FindStrings(pacStr)
+
+		def FindManyCS(pacStr)
+			return This.FindStrings(pacStr)
+
+		def FindTheseStrings(pacStr)
+			return This.FindStrings(pacStr)
+
+		def FindThese(pacStr)
+			return This.FindStringsCS(pacStr)
+
+	  #---------------------------------------------------#
+	 #    FINDING STRINGS VERIYING A GIVEN CONDITION     #
+	#---------------------------------------------------#
+
+	def FindStringsWCS(pcCondition, pCaseSensitive)
+		/* ... */
+	
+		#< @FunctionAlternativeForms
+
+		def FindStringsCSW(pcCondition, pCaseSensitive)
+			return This.FindStringsWCS(pcCondition, pCaseSensitive)
+
+		def FindWCS(pcCondition, pCaseSensitive)
+			return This.FindStringsWCS(pcCondition, pCaseSensitive)
+
+			def FindCSW(pcCondition, pCaseSensitive)
+				return This.FindStringsWCS(pcCondition, pCaseSensitive)
+
+		def FindAllWCS(pcCondition, pCaseSensitive)
+			return This.FindStringsWCS(pcCondition, pCaseSensitive)
+
+			def FindAllCSW(pcCondition, pCaseSensitive)
+				return This.FindStringsWCS(pcCondition, pCaseSensitive)
+
+		def RemoveWhereCS(pcCondition, pCaseSensitive)
+			return This.FindStringsWCS(pcCondition, pCaseSensitive)
+
+		def RemoveAllWhereCS(pcCondition, pValue, pCaseSensitive)
+			return This.FindStringsWCS(pcCondition, pCaseSensitive)
+
+		#>
+
+	def FindStringsW(pcCondition)
+		return This.FindStringsWCS(pcCondition, :CaseSensitive = TRUE)
+	
+		#< @FunctionAlternativeForms
+
+		def FindW(pcCondition)
+			return This.FindStringsW(pcCondition)
+
+		def FindAllW(pcCondition)
+			return This.FindStringsW(pcCondition)
+
+		def RemoveWhere(pcCondition)
+			return This.FindStringsW(pcCondition)
+
+		def RemoveAllWhere(pcCondition, pCaseSensitive)
+			return This.FindStringsW(pcCondition)
+		#>
+
+	  #----------------------------------------------------#
+	 #     FINDING A SUBSTRING IN THE LIST OF STRINGS     #
+	#----------------------------------------------------#
+
+	def FindSubStringCS(pcSubStr, pCaseSensitive)
+		/* ... */
+
+		#< @FunctionAlternativeForms
+
+		def FindAllSubstringsCS(pcSubStr, pCaseSensitive)
+			return FindSubStringCS(pcSubStr, pCaseSensitive)
+
+		def FindAllOccurrencesOfSubStringCS(pcSubStr, pCaseSensitive)
+			return FindSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionsOfSubstringCS(pcSubStr, pCaseSensitive)
+			return FindSubStringCS(pcSubStr, pCaseSensitive)
+
+		def AllPositionsOfSubStringCS(pcSubStr, pCaseSensitive)
+			return FindSubStringCS(pcSubStr, pCaseSensitive)
+
+		#>
+
+	def FindSubString(pcSubStr)
+		return This.FindSubStringCS(pcSubStr, :CaseSensitive = FALSE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllOccurrencesOfSubString(pcSubStr)
+			return This.FindSubString(pcSubStr)
+
+		def PositionsOfSubString(pcSubStr)
+			return This.FindSubString(pcSubStr)
+
+		def AllPositionsOfSubString(pcSubStr)
+			return This.FindSubString(pcSubStr)
+
+		#>
+
+	  #-------------------------------------------------------------------#
+	 #    FINDING NTH OCCURRENCE OF A SUBTRING IN THE LIST OF STRINGS    #
+	#-------------------------------------------------------------------#
+	
+	def FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+		if isString(n)
+			if n = :first
+				n = 1
+			but n = :Last
+				n = This.NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
+			ok
+		ok
+
+		/* ... */
+
+		def FindNthSubStringCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfStringCS(n, pcSubStr, pCaseSensitive)
+
+		def FindNthOccurrenceOfThisSubStringCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfStringCS(n, pcSubStr, pCaseSensitive)
+
+	def FindNthOccurrenceOfSubString(n, pcSubStr)
+		return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def FindNthSubString(n, pcSubStr)
+			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
+
+		def FindNthOccurrenceOfThisSubString(n, pcSubStr)
+			rreturn This.FindNthOccurrenceOfSubString(n, pcSubStr)
+	#--
+
+	def FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		return This.FindNthOccurrenceOfSubStringCS(1, pcSubStr, :CaseSensitive = TRUE)
+
+		def FindFirstSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def FindFirstOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+	def FindFirstOccurrenceOfSubString(pcSubStr)
+		return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindFirstSubString(pcSubStr)
+			return This.FindFirstOccurrenceOfSubString(pcSubStr)
+
+		def FindFirstOccurrenceOfThisSubString(pcSubStr)
+			return This.FindFirstOccurrenceOfSubString(pcSubStr)
+
+	#--
+	
+	def FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		return This.FindNthOccurrenceOfSubStringCS(:Last, pcSubStr, :CaseSensitive = TRUE)
+
+		def FindLastSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def FindFirstOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+	def FindLastOccurrenceOfSubString(pcSubStr)
+		return This.FindLastOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindLastSubString(pcSubStr)
+			return This.FindLastOccurrenceOfSubString(pcSubStr)
+
+		def FindLastOccurrenceOfThisSubString(pcSubStr)
+			return This.FindLastOccurrenceOfSubString(pcSubStr)
+
+	  #------------------------------------------------#
+	 #   FINDING MANY SUBSTRINGS AT THE SAME TIME     #
+	#------------------------------------------------#
+
+	def FindSubStringsCS(pacStr, pCaseSensitive)
+		/* ... */
+
+		def FindManySubtringsCS(pacStr, pCaseSensitive)
+			return This.FindSubStringsCS(pacStr, pCaseSensitive)
+
+		def FindTheseSubStringsCS(pacStr, pCaseSensitive)
+			return This.FindSubStringsCS(pacStr, pCaseSensitive)
+
+		def FindTheseSubstringsCS(pacStr, pCaseSensitive)
+			return This.FindSubStringsCS(pacStr, pCaseSensitive)
+
+	def FindSubStrings(pacStr)
+		/* ... */
+
+		def FindManySubStrings(pacStr)
+			return This.FindSubStrings(pacStr)
+
+		def FindManySubStringsCS(pacStr)
+			return This.FindSubStrings(pacStr)
+
+		def FindTheseSubStrings(pacStr)
+			return This.FindSubStrings(pacStr)
+
+		def FindTheseSubStrings(pacStr)
+			return This.FindSubStringsCS(pacStr)
+
+	  #-------------------------------------------------------#
+	 #    FINDING SUBSSTRINGS VERIYING A GIVEN CONDITION     #
+	#-------------------------------------------------------#
+
+	def FindSubStringsWCS(pcCondition, pCaseSensitive)
+		/* ... */
+	
+		#< @FunctionAlternativeForms
+
+		def FindSubStringsCSW(pcCondition, pCaseSensitive)
+			return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
+
+		def FindAllSubStringsWCS(pcCondition, pCaseSensitive)
+			return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
+
+			def FindAllSubStringsCSW(pcCondition, pCaseSensitive)
+				return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
+
+		def FindSubStringsWhereWCS(pcCondition, pCaseSensitive)
+			return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
+
+			def FindSubStringsWhereCSW(pcCondition, pCaseSensitive)
+				return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
+
+		def FindAllSubStringsWhereCS(pcCondition, pCaseSensitive)
+			return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
+
+		#>
+
+	def FindSubStringsW(pcCondition)
+		return This.FindSubStringsWCS(pcCondition, :CaseSensitive = FALSE)
+	
+		#< @FunctionAlternativeForms
+
+		def FindAllSubStringsW(pcCondition)
+			return This.FindSubStringsW(pcCondition)
+
+		def FindSubStringsWhere(pcCondition)
+			return This.FindSubStringsW(pcCondition)
+
+		def FindAllSubStringsWhere(pcCondition)
+			return This.FindSubStringsW(pcCondition)
+
+		#>

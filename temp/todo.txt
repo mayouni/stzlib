@@ -1,0 +1,20 @@
+/*
+----
+stzString:
+For every Database engine, specify the best way we tranfer data
+with it in Ring
+
+read this:
+https://doc.qt.io/archives/qt-4.8/sql-types.html
+
+----
+stzLocale:
+Add support of toCurrencyString (and toDate) methods in RingQt
+
+QString QLocale::toCurrencyString(float value, const QString & symbol = QString()) const
+
+---
+stzString
+Add the support of leftJustified() method for string padding
+
+QString QString::leftJustified(int width, QChar fill = QLatin1Char(' '), bool truncate = false) const

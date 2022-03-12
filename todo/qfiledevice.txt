@@ -1,0 +1,30 @@
+Class QFileDevice from QIODevice
+	Func error 
+		return QFileDevice_error()
+
+	Func flush 
+		return QFileDevice_flush()
+
+	Func handle 
+		return QFileDevice_handle()
+
+	Func map P1,P2,P3
+		return QFileDevice_map(P1,P2,P3)
+
+	Func permissions 
+		return QFileDevice_permissions()
+
+	Func resize P1
+		return QFileDevice_resize(P1)
+
+	Func fileName 
+		return QFileDevice_fileName()
+
+	Func setPermissions P1
+		return QFileDevice_setPermissions(P1)
+
+	Func unmap P1
+		return QFileDevice_unmap(GetObjectPointerFromRingObject(P1))
+
+	Func unsetError 
+		return QFileDevice_unsetError()

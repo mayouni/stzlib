@@ -1,0 +1,245 @@
+Class QByteArray
+
+	--pObject
+
+	--Func init 
+		pObject = QByteArray_new()
+		return self
+
+	--Func delete
+		pObject = QByteArray_delete(pObject)
+
+	--Func ObjectPointer
+		return pObject
+
+	--Func append P1
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_append(pObject,P1)
+		return pTempObj
+
+	--Func at P1
+		return QByteArray_at(pObject,P1)
+
+	Func capacity 
+		return QByteArray_capacity(pObject)
+
+	--Func chop P1
+		return QByteArray_chop(pObject,P1)
+
+	--Func clear 
+		return QByteArray_clear(pObject)
+
+	--Func constData 
+		return QByteArray_constData(pObject)
+
+
+	--Func contains P1
+		return QByteArray_contains(pObject,P1)
+
+	--Func count P1
+		return QByteArray_count(pObject,P1)
+
+	--Func data 
+		return QByteArray_data(pObject)
+
+	--Func endsWith P1
+		return QByteArray_endsWith(pObject,P1)
+
+	--Func fill P1,P2
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_fill(pObject,P1,P2)
+		return pTempObj
+
+	--Func indexOf P1,P2
+		return QByteArray_indexOf(pObject,P1,P2)
+
+	--Func insert P1,P2,P3
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_insert(pObject,P1,P2,P3)
+		return pTempObj
+
+	--Func isEmpty 
+		return QByteArray_isEmpty(pObject)
+
+	--Func isNull 
+		return QByteArray_isNull(pObject)
+
+	--Func lastIndexOf P1,P2
+		return QByteArray_lastIndexOf(pObject,P1,P2)
+
+	--Func left P1
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_left(pObject,P1)
+		return pTempObj
+
+	--Func leftJustified P1,P2,P3
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_leftJustified(pObject,P1,P2,P3)
+		return pTempObj
+
+	--Func length 
+		return QByteArray_length(pObject)
+
+	--Func mid P1,P2
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_mid(pObject,P1,P2)
+		return pTempObj
+
+	--Func prepend P1,P2
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_prepend(pObject,P1,P2)
+		return pTempObj
+
+	--Func push_back P1
+		return QByteArray_push_back(pObject,P1)
+
+	--Func push_front P1
+		return QByteArray_push_front(pObject,P1)
+
+	--Func remove P1,P2
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_remove(pObject,P1,P2)
+		return pTempObj
+
+	--Func repeated P1
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_repeated(pObject,P1)
+		return pTempObj
+
+???	Func replace P1,P2,P3,P4
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_replace(pObject,P1,P2,P3,P4)
+		return pTempObj
+
+	--Func reserve P1
+		return QByteArray_reserve(pObject,P1)
+
+	--Func resize P1
+		return QByteArray_resize(pObject,P1)
+
+	--Func right P1
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_right(pObject,P1)
+		return pTempObj
+
+	Func rightJustified P1,P2,P3
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_rightJustified(pObject,P1,P2,P3)
+		return pTempObj
+
+	--Func setNum P1,P2
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_setNum(pObject,P1,P2)
+		return pTempObj
+
+******	Func setRawData P1,P2
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_setRawData(pObject,P1,P2)
+		return pTempObj
+
+	--Func simplified 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_simplified(pObject)
+		return pTempObj
+
+	--Func size 
+		return QByteArray_size(pObject)
+
+	--Func squeeze 
+		return QByteArray_squeeze(pObject)
+
+	--Func startsWith P1
+		return QByteArray_startsWith(pObject,P1)
+
+	--Func swap P1
+		return QByteArray_swap(pObject,GetObjectPointerFromRingObject(P1))
+
+==============================
+
+	--Func toBase64 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_toBase64(pObject)
+		return pTempObj
+
+	Func toDouble P1
+		return QByteArray_toDouble(pObject,GetObjectPointerFromRingObject(P1))
+
+	Func toFloat P1
+		return QByteArray_toFloat(pObject,GetObjectPointerFromRingObject(P1))
+
+	--Func toHex 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_toHex(pObject)
+		return pTempObj
+
+	Func toInt P1,P2
+		return QByteArray_toInt(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func toLong P1,P2
+		return QByteArray_toLong(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func toLongLong P1,P2
+		return QByteArray_toLongLong(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	--Func toLower 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_toLower(pObject)
+		return pTempObj
+
+	--Func toPercentEncoding P1,P2,P3
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_toPercentEncoding(pObject,GetObjectPointerFromRingObject(P1),GetObjectPointerFromRingObject(P2),P3)
+		return pTempObj
+
+	Func toShort P1,P2
+		return QByteArray_toShort(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func toUInt P1,P2
+		return QByteArray_toUInt(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func toULong P1,P2
+		return QByteArray_toULong(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func toULongLong P1,P2
+		return QByteArray_toULongLong(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	Func toUShort P1,P2
+		return QByteArray_toUShort(pObject,GetObjectPointerFromRingObject(P1),P2)
+
+	--Func toUpper 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_toUpper(pObject)
+		return pTempObj
+
+	--Func trimmed 
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_trimmed(pObject)
+		return pTempObj
+
+	--Func truncate P1
+		return QByteArray_truncate(pObject,P1)
+
+	--Func fromBase64 P1
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_fromBase64(pObject,GetObjectPointerFromRingObject(P1))
+		return pTempObj
+
+	--Func fromHex P1
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_fromHex(pObject,GetObjectPointerFromRingObject(P1))
+		return pTempObj
+
+	--Func fromPercentEncoding P1,P2
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_fromPercentEncoding(pObject,GetObjectPointerFromRingObject(P1),P2)
+		return pTempObj
+
+	Func fromRawData P1,P2
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_fromRawData(pObject,P1,P2)
+		return pTempObj
+
+	Func number P1,P2
+		pTempObj = new QByteArray
+		pTempObj.pObject = QByteArray_number(pObject,P1,P2)
+		return pTempObj

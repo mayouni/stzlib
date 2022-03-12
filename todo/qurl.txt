@@ -1,0 +1,125 @@
+Class QUrl
+
+	pObject
+
+	Func init P1
+		pObject = QUrl_new(P1)
+		return self
+
+	Func delete
+		pObject = QUrl_delete(pObject)
+
+	Func ObjectPointer
+		return pObject
+
+	Func authority P1
+		return QUrl_authority(pObject,P1)
+
+	Func clear 
+		return QUrl_clear(pObject)
+
+	Func errorString 
+		return QUrl_errorString(pObject)
+
+	Func fileName P1
+		return QUrl_fileName(pObject,P1)
+
+	Func fragment P1
+		return QUrl_fragment(pObject,P1)
+
+	Func hasFragment 
+		return QUrl_hasFragment(pObject)
+
+	Func hasQuery 
+		return QUrl_hasQuery(pObject)
+
+	Func host P1
+		return QUrl_host(pObject,P1)
+
+	Func isEmpty 
+		return QUrl_isEmpty(pObject)
+
+	Func isLocalFile 
+		return QUrl_isLocalFile(pObject)
+
+	Func isParentOf P1
+		return QUrl_isParentOf(pObject,GetObjectPointerFromRingObject(P1))
+
+	Func isRelative 
+		return QUrl_isRelative(pObject)
+
+	Func isValid 
+		return QUrl_isValid(pObject)
+
+	Func password P1
+		return QUrl_password(pObject,P1)
+
+	Func path P1
+		return QUrl_path(pObject,P1)
+
+	Func port P1
+		return QUrl_port(pObject,P1)
+
+	Func query P1
+		return QUrl_query(pObject,P1)
+
+	Func resolved P1
+		pTempObj = new QUrl
+		pTempObj.pObject = QUrl_resolved(pObject,GetObjectPointerFromRingObject(P1))
+		return pTempObj
+
+	Func scheme 
+		return QUrl_scheme(pObject)
+
+	Func setAuthority P1,P2
+		return QUrl_setAuthority(pObject,P1,P2)
+
+	Func setFragment P1,P2
+		return QUrl_setFragment(pObject,P1,P2)
+
+	Func setHost P1,P2
+		return QUrl_setHost(pObject,P1,P2)
+
+	Func setPassword P1,P2
+		return QUrl_setPassword(pObject,P1,P2)
+
+	Func setPath P1,P2
+		return QUrl_setPath(pObject,P1,P2)
+
+	Func setPort P1
+		return QUrl_setPort(pObject,P1)
+
+	Func setQuery P1,P2
+		return QUrl_setQuery(pObject,P1,P2)
+
+	Func setScheme P1
+		return QUrl_setScheme(pObject,P1)
+
+	Func setUrl P1,P2
+		return QUrl_setUrl(pObject,P1,P2)
+
+	Func setUserInfo P1,P2
+		return QUrl_setUserInfo(pObject,P1,P2)
+
+	Func setUserName P1,P2
+		return QUrl_setUserName(pObject,P1,P2)
+
+	Func swap P1
+		return QUrl_swap(pObject,GetObjectPointerFromRingObject(P1))
+
+	Func toLocalFile 
+		return QUrl_toLocalFile(pObject)
+
+	Func topLevelDomain P1
+		return QUrl_topLevelDomain(pObject,P1)
+
+	Func userInfo P1
+		return QUrl_userInfo(pObject,P1)
+
+	Func userName P1
+		return QUrl_userName(pObject,P1)
+
+	Func fromLocalFile P1
+		pTempObj = new QUrl
+		pTempObj.pObject = QUrl_fromLocalFile(pObject,P1)
+		return pTempObj

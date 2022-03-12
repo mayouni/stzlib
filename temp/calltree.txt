@@ -1,0 +1,33 @@
+			 o1.SortInAscending()	[ 5, stzTempo25.ring ]
+				   |
+				   V
+			    SortInAscending()	[ 1116, stzList.ring ]
+				   |
+             +---------------------+---------------------+
+             |						 |
+             V                                           V
+	SortableItems()	  		          UnsortableItems()	[ 1095, stzList.ring ]
+						          |
+				 			  V
+						       Minus()		[ 1142, stzList.ring ]
+							  |
+						          V
+			  			      Contains()	[ 1308, stzList.ring ]
+							  |
+							  V
+			  			     FindFirst()	[ 1321, stzList.ring ]
+							  |
+							  V
+  			 			      FindAll()		[ 1355, stzList.ring ]
+							  |
+							  V
+						      IsEqualTo		[ 372, stzObject.ring ]
+							  |
+						          V
+						      IsEqualTo		[ 896, stzList.ring ]
+							  |
+							  V
+  						  HasSameContentAs()	[ 939, stzList.ring ]
+							  |
+							  X
+				        Array Access (Index out of range) !

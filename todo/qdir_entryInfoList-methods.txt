@@ -1,0 +1,20 @@
+	Func entryInfoList P1,P2,P3
+		return QDir_entryInfoList(pObject,GetObjectPointerFromRingObject(P1),P2,P3)
+
+	Func entryInfoList_2 P1,P2
+		return QDir_entryInfoList_2(pObject,P1,P2)
+
+	Func entryList P1,P2,P3
+		pTempObj = new QStringList
+		pTempObj.pObject = QDir_entryList(pObject,GetObjectPointerFromRingObject(P1),P2,P3)
+		return pTempObj
+
+	Func entryList_2 P1,P2
+		pTempObj = new QStringList
+		pTempObj.pObject = QDir_entryList_2(pObject,P1,P2)
+
+	Func setFilter P1
+		return QDir_setFilter(pObject,P1)
+
+	Func setNameFilters P1
+		return QDir_setNameFilters(pObject,GetObjectPointerFromRingObject(P1))

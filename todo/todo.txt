@@ -1,0 +1,186 @@
+1. Review all the TODO tagged as sutch in the code
+
+2. Delete or make alternatives to functions ending with:
+	 ...Of(), ...To(), ...With()
+
+3. change all
+	0+ oTemp.IntegerPart() with
+	oTemp.IntegerPartValue()
+
+
+4. Generalize
+	ApplyCode() for strings...
+
+5. Add alternative
+	NOccurrence --> NTimes
+
+6. And random alternative for every function requiring n
+
+7. Test these (and then --> ensure they also exist for stzList):
+	def ContainsCS(cSubStr, aCaseSensitive) # :CaseSensitive = TRUE or :CaseSensitive = FALSE
+	def Contains(cSubStr)
+	def ContainsNo(cSubStr)
+	def ContainsNoDigits()
+	def ContainsEachCS(paSubStr, pcCaseSensitive)
+	def ContainsEach(paSubStr)
+	def ContainsNoOne(paSubStr)
+	def ContainsNoOneCS(paSubStr, paCaseSensitive)
+	def Contains_N_OccurrencesCS(pcSubstr, n, paCaseSensitive)
+	def ContainsNTimes(n, pcSubStr)
+
+8. decide for functions that make an action and return nothing, what to return?
+
+9. Add RemoveBounds() to stzList
+
+10. Generalize #< @FunctionInverseNames ># or better 'OppositeNames'
+
+11. Rewrite RemoveWhereDigitIs(n) and similar methods (in stzNumber) by a more
+general dynamic method (RemoveWhere(cCondition) like the one made in stzList
+
+
+12. new stzString(s) --> StzStringQ(s) : Generalize!
+
+13. Complete stzNumber.ApplyFormat()
+
+14. Rename Walkthrough to Walker, so we've these 'plugable' services:
+	splitter, parser, walker, tagger, translator...
+
+15. StzWalkhtrough --> better namings to long methods like WalkOnEveryItem_UnderCondition()
+
+16. Add IsQObject(), IsCObject() methods
+
+17. Add ContainsItemOnPath(), Paths(), ItemsAndTheirPaths() and test paths on stzList
+
+18. Generalize: TODO --> raise(:UnsupportedFeatureInThisVersion)
+
+19. GeneralFunctions --> Put them in their respective files
+
+20. Only StzStringQ() no StzString() function (class only)
+
+21. Generalize: to...() must only return objects
+	Example of misuse that we must fix:
+	...toListOfWords() => ...Words() : native ring list
+
+	and if we need to return a stzList of words:
+	...toStzListOfStrings()
+
+22. Generalize: copy() method in all classes
+
+23. Generalize: sString prefix instead of cString ( c is for cChar)
+
+24. Generalize this eval-code syntax: RemoveLeadingSubstringIf('{ cChar = "e" }')
+
+25. Revise operator() method in all classes
+
+26. Generalize FunctionNegativeForm :
+	Contains() --> ContainsNo()
+	IsString() --> IsNotString()
+	etc..
+
+27. Generalise: whenever we have a Qt object as an attribute in the class region,
+and that we call that attribute in methods, like this:
+
+	def RemoveFirstOccurrence(cString)
+		@oQStrList.removeOne(cString)
+	
+	# A cleaner way is: This.QStringListObject().removeOne(cString)
+
+28. Homogenize the semantics of ArabicNumber, ArabicNumerals, ArabaicDecimalDigit
+
+29. Generalise: ...QR(pcReturnType)
+
+30. Decide : leave the _ in _HexNumberPrefix() like functions or not?
+--> Decision made: NO
+
+31. Generalize: p prefix in all function parameters
+
+32. Revise all uses of ring functions left() and right() and replace them with
+stzString.LeftNChars(n) and stzString.RightNChars(n)
+
+33. Generalize : #< @FunctionFluentVersions def ....Q() #/>
+
+34. Generalise : use { }, by convention, inside evaluated conditions like in:
+? o1.SplitAtCondition('{ StzNumberQ(""+ nPosition).IsMultipleOf(3) }')
+
+35. Revise the "" in StzNumberQ(""+ n)
+
+36. Add String (& list) services
+	Tagger
+	Counter (position, value)
+	Formatter
+	Indexer
+	Translator
+	Partitionner
+
+37. Diff(str1, str2)
+
+38. Any object in list should be treated as a list of values (of attributes) -->
+General priniciple for cheching object identity and equality, and also to
+become able to listify an object
+
+39. Manage object equality
+
+40. Manage negatives in sections (-3, -1)
+--> Review: it's better to disable the use of negative numbers but rethink it and see...
+
+41. In stzList, some methods are used to validate the well-formatting of
+lists of otions used with ...XT(paOptions) methods. The format is defined
+inside the Is...OptionList() inside stzList, but should:
+	- move to be specified in a constant globally
+	- should include, along with the keys (name of option), the
+	  possible type we can give to their values.
+	Example: aNumberToListOptions = [ :NumberIsContainedInString = [ TRUE, FALSE ] ]
+
+42. Change all nStart params by nStartPos for more expressiveness
+
+43. Reflecting on a new appoach of StringParts, StringBoxes, StringMetaLayers, and StringTags
+
+44. Concerning transformation, put ..To and ..From in all calsses
+
+45. Reorganize error messages in an stzError object
+
+46. Harmonize the use of _ in some methods names: AllItemsAre_ListsOf_NItems()...
+
+47. Review the section ApplyCode() in stzList
+
+48. Rethink long function names like AllItemsAre_ListsHaving_SameNumberOfItems() in stzList
+--> Think of using Computer-natural Code (CnC) instead:
+	StzListQ(aList).AllItems().Are(:Lists).Having(:Same, NumberOfItems())
+
+49. Review all .NLeftChars(n) and see if .NFirstChars(n) should be used instead
+--> Same thing for .NRightChars(n) and .NLastChars(n)
+--> This revision gets sense when multilingual strings are used
+
+50. Generalize the Yield function as used in StzListOfLists
+
+51. In the ...W(cCondition) function: allow using @item and other options
+(like the counter @i, and @list in stzListOfLists.YieldW())
+
+52. When using type(value) --> "NUMBER" for example, the type is return in uppercase.
+In many places we used in a condition like on "NUMBER" do... :
+What if this is changed in Ring in the future to be lowercase?!
+--> secure it softanza-wide by forcing it to lower case, or better
+to uppercase, to preserver Ring standard.
+
+53. Generalize: Accept input of stzStrings for any input that is a string
+	--> do the same for stzList and lists, stzNumbers and numbers,
+	    ans stzObjects and objects
+
+54. Add conditional functions to all other classes (future), including
+stzListOfNumbers (now). Example:
+	StzListOfNumbersQ([ 5, 2, 8, 1, 12 ]) {
+		NumbersWhere("@number <= 5") # --> [5, 2, 1 ]
+	}
+
+56. Implement all the CaseSensitive features of stzString in StzListOfStrings
+	--> start wit hthat:
+	FindNthNextOccurrenceCS(2, :Of = "A", :StartingAt = 3, :CS = FALSE)
+
+57. Review all the functions for extreme values
+
+58. Make the same functions for PseudoWords as it exists for Words
+
+59. Reflect on the difference between a Walker and
+a Parser (identifies the strcuture to make it walkable)
+
+60. Do not allow: ( :startat := start ), but ( :startat = :first or :last )
