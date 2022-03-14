@@ -1291,13 +1291,13 @@ class stzList from stzObject
 		*/
 
 		if NOT IsNumberOrString(n)
-			raise("Invalid param type! n must be a number of string (:first, :last, :end, :start).")
+			raise("Invalid param type! n must be a number.")
 		ok
 
-		if n = :Last or :End
+		if n = :Last or n = :LastItem
 			n = This.NumberOfItems()
 
-		but n = :First or :Start
+		but n = :First or n = :FirstItem
 			n = 1
 		ok
 
@@ -2146,9 +2146,9 @@ class stzList from stzObject
 	//>>>>>>>  REMOVING AN ITEM BY SPECIFYING ITS POSITION
 
 	def RemoveItemAtPosition(n)
-		if n = :First
+		if n = :First or n = :FirstItem
 			n = 1
-		but n = :Last
+		but n = :Last or n = :LastItem
 			n = This.NumberOfItems()
 		ok
 
@@ -6451,6 +6451,8 @@ class stzList from stzObject
 	# designing an overall solution of the Equality problem
 	# in SoftanzaLib
 
+	# UPDATE: Lists are now findable (only objects are left)
+
 	def FindNthOccurrence(n, pItem) 
 		if isList(pItem) and StzListQ(pItem).IsOfParamList()
 			pItem = pItem[2]
@@ -6482,7 +6484,7 @@ class stzList from stzObject
 		Therefore, it's better for performance, when items are findable by Ring,
 		to rely on the Ring find() function, which returns only the 1st occurrence
 		(and this is what we need here). Otherwise (in case of finding lists and
-		(onjects), let's and make our own implementation that stops when the first
+		(onjects), we make our own implementation that stops when the first
 		occurrence of the item is found!
 		*/
 
@@ -6893,10 +6895,10 @@ class stzList from stzObject
 		if isList(nStart) and StzListQ(nStart).IsStartingAtParamList()
 
 			if isString(nStart[2])
-				if nStart[2] = :Start
+				if nStart[2] = :First or nStart[2] = :FirstItem
 					nStart = 1
 
-				but nStart[2] = :End
+				but nStart[2] = :Last or nStart[2] = :LastItem
 					nStart = This.NumberOfItems()
 
 				else
@@ -8582,9 +8584,9 @@ class stzList from stzObject
 
 	def Section(n1,n2)
 
-		if n1 = :start { n1 = 1 }
+		if n1 = :First or n1 = :FirstItem { n1 = 1 }
 
-		if n2 = :end { n2 = This.NumberOfItems() }
+		if n2 = :Last or n2 = :LastItem { n2 = This.NumberOfItems() }
 
 		if n1 = 0 or n2 = 0
 			raise("Zeros are not allowed!")
@@ -8607,13 +8609,57 @@ class stzList from stzObject
 		return aResult	
 
 		def SectionQ(n1, n2)
-			return new stzList( This.Section(n1, n2) )
+			return This.SectionQR(n1, n2, :stzList)
+
+		def SectionQR(n1, n2, pcReturntype)
+			switch pcReturnType
+
+			on :stzList
+				return new stzList( This.Section(n1, n2) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Section(n1, n2) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Section(n1, n2) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.Section(n1, n2) )
+
+			on :stzListOfObjects
+				return new stzListOfObjects( This.Section(n1, n2) )
+
+			other
+				raise("Unsupported return type!")
+			off
 
 	def Range(pnStart, pnRange)
 		return This.Section( pnStart, pnStart + pnRange-1)
 
 		def RangeQ(pnStart, pnRange)
-			return new stzList( This.Range(pnStart, pnRange) )
+			return This.RangeQR(pnStart, pnRange, :stzList)
+
+		def RangeQR(pnStart, pnRange, pcReturntype)
+			switch pcReturnType
+
+			on :stzList
+				return new stzList( This.Range(pnStart, pnRange) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Range(pnStart, pnRange) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Range(pnStart, pnRange) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.Range(pnStart, pnRange) )
+
+			on :stzListOfObjects
+				return new stzListOfObjects( This.Range(pnStart, pnRange) )
+
+			other
+				raise("Unsupported return type!")
+			off
 
 	  #-------------------#
 	 #     MULTINGUAL    #
@@ -9031,7 +9077,8 @@ class stzList from stzObject
 		   ( isString(This[1]) and This[1] = :StartingAt ) and
 
 		   ( isNumber(This[2]) or
-		     ( isString(This[2]) and StzStringQ(This[2]).IsOneOfThese([ :Start, :End ]) ) )
+		     ( isString(This[2]) and StzStringQ(This[2]).IsOneOfThese([
+					:First, :FirstItem, :Last, :LastItem ]) ) )
 
 			return TRUE
 
@@ -9064,9 +9111,10 @@ class stzList from stzObject
 			( isString(This[2]) and
 
 		       	  Q(This[2]).IsOneOfThese([
-				:Start, :StartOfSubString, :StartOfWord,
+				:StartOfList, :StartOfString, :StartOfSubString, :StartOfWord,
 				:StartOfSentence, :StartOfLine, :StartOfParagraph,
-				:End, :EndOfSubString, :EndOfWord,
+
+				:EndOfList, :EndOfString, :EndOfSubString, :EndOfWord,
 				:EndOfSentence, :EndOfLine, :EndOfParagraph ]) ) ) )
 
 			return TRUE
@@ -9085,14 +9133,13 @@ class stzList from stzObject
 			( isString(This[2]) and
 
 		       	  Q(This[2]).IsOneOfThese([
-				:Start, :StartOfSubString, :StartOfWord,
+				:StartOfList, :StartOfString, :StartOfSubString, :StartOfWord,
 				:StartOfSentence, :StartOfLine, :StartOfParagraph,
 
-				:End, :EndOfSubString, :EndOfWord,
+				:EndOfList, :EndOfString, :EndOfSubString, :EndOfWord,
 				:EndOfSentence, :EndOfLine, :EndOfParagraph,
 
-				:Foreward, :BackWard ]) ) ) )
-
+				:Foreward, :BackWard ]) ) ) ) # TODO: check if these two are necessary!
 
 			return TRUE
 
@@ -9104,6 +9151,16 @@ class stzList from stzObject
 	def IsOfParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Of )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOnParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :On )
 
 			return TRUE
 

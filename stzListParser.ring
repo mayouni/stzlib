@@ -64,7 +64,7 @@ class stzListParser
 		   ( StzListQ(pnStart).IsStartingAtParamList() or
 		     StzListQ(pnStart).IsFromParamList() )
 
-			if pnStart[2] = :Start
+			if pnStart[2] = :First
 				pnStart[2] = 1
 
 			else
@@ -76,7 +76,7 @@ class stzListParser
 
 		if isList(pnEnd) and StzListQ(pnEnd).IsToParamList()
 
-			if pnEnd[2] = :End
+			if pnEnd[2] = :Last
 				pnEnd = len(This.List())
 			else
 				pnEnd = pnEnd[2]
@@ -88,11 +88,11 @@ class stzListParser
 			pnStep = pnStep[2]
 		ok
 
-		if pnStart = :Start
+		if pnStart = :First
 			pnStart = 1
 		ok
 
-		if pnEnd = :End
+		if pnEnd = :Last
 			pnEnd = len(This.List())
 		ok
 

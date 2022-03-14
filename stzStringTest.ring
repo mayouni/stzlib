@@ -36,11 +36,10 @@ o1 = new stzString("<<Go!>>")
 ? o1.BoundsRemoved("<<", ">>") # --> "Go!"
 
 /*-----------------
-*/
+
 o1 = new stzString("@str = Q(@str).Uppercased()")
 ? o1.BeginsWithOneOfTheseCS([ "@str =", "@str=" ], :CS = TRUE) # --> TRUE
 
-return
 /*-----------------
 
 o1 = new stzString("Baba, Mama, and Dada")
@@ -1451,7 +1450,7 @@ o1 = new stzString("Der Fluß")
 # http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 
 /*----------------- FIX THIS
-*/
+
 // WalkUntil has not same output in stzString and stzList!
 
 # In stzString only the last position is returned
@@ -2264,6 +2263,7 @@ StzStringQ( "a + b - c / d = 0" ) {
 ? _@("Smart Customs Hackathon").Section(:From = 7, :To = :End)	# --> Customs Hackathon
 
 /*-------------------
+*/
 
 StzStringQ("Tunisia is back! People united.") {
 
@@ -2271,6 +2271,7 @@ StzStringQ("Tunisia is back! People united.") {
 	? Content() + NL	# --> Tunisia is back! Tunisians united.
 
 	? Section(3, 7)		# --> nisia
+
 	? Section(7, 3) + NL	# --> nisia
 
 	? Section(:From = 3, :To = :EndOfWord)	# --> nisia
@@ -2278,11 +2279,12 @@ StzStringQ("Tunisia is back! People united.") {
 
 	? Section(:From = 9, :To = :EndOfSentence) + NL	# --> is back!
 
-	? Section(:From = :Start, :To = :End) + NL	# --> Tunisia is back! Tunisians united.
+	? Section(:From = :FirstChar, :To = :EndOfString) + NL	# --> Tunisia is back! Tunisians united.
 
 	ReplaceFirst("Tunisia", :With = "Egypt") 
 	Replace( "Tunisians", :With = "Egyptians")
 	? Content()	# --> Egypt is back! Egyptians united.
+
 }
 
 /*----------------

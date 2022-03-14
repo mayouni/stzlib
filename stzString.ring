@@ -2166,9 +2166,9 @@ class stzString from stzObject
 
 	def FindNthMarquer(n)
 		if isString(n)
-			if n = :First
+			if n = :FirstChar or n = :StartOfString
 				n = 1
-			but n = :Last
+			but n = :LastChar or n = :EndOfString
 				n = This.NumberOfMarquers()
 			ok
 		ok
@@ -2353,7 +2353,7 @@ class stzString from stzObject
 			pnStartingAt = pnStartingAt[2]
 		ok
 
-		return This.SectionQ(:Start, pnStartingAt).Marquers()
+		return This.SectionQ(1, pnStartingAt).Marquers()
 
 		def PreviousMarquersQ(pnStartingAt)
 			return This.PreviousMarquersQR(pnstartingAt, :stzList)
@@ -2390,7 +2390,7 @@ class stzString from stzObject
 			pnStartingAt = pnStartingAt[2]
 		ok
 
-		oStr = This.SectionQ(:Start,  pnStartingAt)
+		oStr = This.SectionQ(1,  pnStartingAt)
 
 		aPositions = oStr.MarquersPositions()
 		
@@ -3264,7 +3264,7 @@ class stzString from stzObject
 
 	def RemoveNLeftChars(n)
 		if This.IsLeftToRight()
-			This.RemoveSection( :Start, n )
+			This.RemoveSection( 1, n )
 
 		else
 			This.RemoveSection( This.NumberOfChars() - n + 1, :End )
@@ -3315,7 +3315,7 @@ class stzString from stzObject
 
 	def RemoveNRightChars(n)
 		if This.IsRightToLeft()
-			This.RemoveSection( :Start, n)
+			This.RemoveSection( 1, n)
 		else
 			This.RemoveSection( This.NumberOfChars() - n + 1, :End )
 		ok
@@ -4296,9 +4296,13 @@ class stzString from stzObject
 
 		# If the params are strings then interpret them as numbers
 
-		if nStartPos = :Start { nStartPos = 1 }
+		if nStartPos = :FirstChar or nStartPos = :StartOfString
+			 nStartPos = 1
+		ok
 
-		if nEndPos = :End or nEndPos = :EndOfString { nEndPos = This.NumberOfChars() }
+		if nEndPos = :LastChar or nEndPos = :EndOfString
+			nEndPos = This.NumberOfChars()
+		ok
 
 		if isNumber(nStartPos) and nStartPos > 0 and nEndPos = :EndOfSentence
 			return This.ToStzText().ForwardToEndOfSentence( :StartingAt = nStartPos )
@@ -5048,20 +5052,25 @@ class stzString from stzObject
 		# Evaluating the params
 		# Note: same code as Section() method -> Think of how we call it once
 
-		if nStartPos = :Start and nEndPos = :End
+		if ( nStartPos = :FirstChar or nStartPos = :StartOfString ) and
+		   ( nEndPos   = :LastChar  or nEndPos   = :LastOfString  )
+
 			return This.Content()
 
-		but nStartPos = :End and nEndPos = :Start
+		but ( nStartPos = :LastChar or nStartPos = :EndOfString ) and
+		    ( nEndPos = :FirstChar  or nEndPos = :StartOfString )
+
 			return This.CharsReversed()
 		ok
 
-		if nStartPos = :Start
+		if nStartPos = :FirstChar or nStartPos = :StartOfString
 			nStartPos = 1
 
-		but nEndPos = :End
+		but nEndPos = :LastChar or nEndPos = :EndOfString
 			nEndPos = This.NumberOfChars()
 
-		but nEndPos = :EndOfWord
+		but nEndPos = :EndOfWord # TODO: Move it to stzText
+					 # --> string shouldn't be aware of words!
 			
 			if  This[nStartPos] != " "
 				
@@ -5080,7 +5089,8 @@ class stzString from stzObject
 				nEndPos = nStartPos
 			ok
 
-		but nEndPos = :EndOfSentence
+		but nEndPos = :EndOfSentence # TODO: Move it to stzText
+					     # --> string shouldn't be aware of sentences!
 
 			if  This[nStartPos] != "." and This[nStartPos] != "!" and This[nStartPos] != "?"
 				
@@ -5462,14 +5472,14 @@ class stzString from stzObject
 				pcNewSubStr = pcNewSubStr[2]
 			ok
 	
-			if n = :First
+			if n = :FirstChar or n = :StartOfString
 				if This.IsLeftToRight()
 				 	n = 1
 				else # IsRightToLeft()
 					n = This.NumberOfChars()
 				ok
 	
-			but n = :Last
+			but n = :LastChat or n = :EndOfString
 				if This.IsLeftToRight()
 				 	n = This.NumberOfChars()
 				else # IsRightToLeft()
@@ -5732,10 +5742,10 @@ class stzString from stzObject
 
 	def ReplaceNthChar(n, pSubStr)
 
-		if n = :Last
+		if n = :LastChar or n = :EndOfString
 			n = This.NumberOfChars()
 
-		but n = :First
+		but n = :FirstChar or n = :StartOfString
 			n = 1
 		ok
 
@@ -6190,10 +6200,10 @@ class stzString from stzObject
 
 	def NthOccurrenceCS(n, pcSubstr, pCaseSensitive) # --> Returns 0 if nothing found
 		/*
-		Let's be permissive: if the user misses the right order of parmas
+		Let's be permissive: if the user misses the right order of params
 		( --> enters the string before the number ) then fix it silently
 
-		TODO: generealise this feature!
+		TODO: generealize this feature!
 		*/
 
 		if isString(n) and isNumber(pcSubStr)
@@ -6204,9 +6214,9 @@ class stzString from stzObject
 
 		# Also, let's facilitate the syntax a bit further
 
-		if n = :First
+		if n = :FirstChar or n = :StartOfString
 			n = 1
-		but n = :Last
+		but n = :LastChar or n = :EndOfString
 			n = This.NumberOfOccurrence(pcSubStr)
 		ok
 
@@ -8784,9 +8794,10 @@ class stzString from stzObject
 
 	def RemoveNthCharW(n, pcCondition)
 
-		if n = :Last
+		if n = :LastChar or n = :EndOfString
 			n = This.NumberOfChars()
-		but n = :First
+
+		but n = :FirstChar or n = :StartOfString
 			n = 1
 		ok
 		
@@ -8895,19 +8906,19 @@ class stzString from stzObject
 	#----------------------------------#
 	
 	// Removes a portion of the string defined by its start and end positions
-	def RemoveSection(pnStart, pnEnd)
+	def RemoveSection(n1, n2)
 
-		if pnStart = :Start { pnStart = 1 }
-		if pnEnd = :End { pnEnd = This.NumberOfChars() }
+		if n1 = :FirstChar or n1 = :StartOfString { n1 = 1 }
+		if n2 = :LastChar  or n2 = :EndOfString { n2 = This.NumberOfChars() }
 
-		This.ReplaceSection( pnStart, pnEnd, "" )
+		This.ReplaceSection( n1, n2, "" )
 
-		def RemoveSectionQ(pnStart, pnEnd)
-			This.RemoveSection(pnStart, pnEnd)
+		def RemoveSectionQ(n1, n2)
+			This.RemoveSection(n1, n2)
 			return This
 
-	def SectionRemoved(pnStart, pnEnd)
-		cResult = This.Copy().RemoveSectionQ(pnStart, pnEnd).Content()
+	def SectionRemoved(n1, n2)
+		cResult = This.Copy().RemoveSectionQ(n1, n2).Content()
 		return cResult
 	
 	def RemoveManySections(paListOfSections)
@@ -8928,8 +8939,8 @@ class stzString from stzObject
 	// a range of n chars
 	def RemoveRange(nStart, nNumberOfChars)
 
-		if nStart = :Start { nStart = 1 }
-		if nNumberOfChars = :End { nNumberOfChars = This.NumberOfChars() - nStart + 1 }
+		if nStart = :FirstChar or nStart = :StartOfString { nStart = 1 }
+		if nNumberOfChars = :EndOfString { nNumberOfChars = This.NumberOfChars() - nStart + 1 }
 
 		This.RemoveSection(nStart, nStart + nNumberOfChars - 1)
 
@@ -9488,11 +9499,11 @@ class stzString from stzObject
 
 		ok
 
-	  #----------------------------#
-	 #    ALIGNING & JUSTIYING    #
-	#----------------------------#
+	  #----------------------------------------------------#
+	 #    ALIGNING THE STRING IN A CONTAINER OF N CHARS   #
+	#----------------------------------------------------#
 
-	// Aligns the text to the left of the container of width nTargetWidth
+	// Aligns the text to the left of the container of width nWidth
 	// Note: if the width is smaller then the string, nothing is done!
 
 	def Align(nWidth, cChar, cDirection)
@@ -9509,36 +9520,37 @@ class stzString from stzObject
 		on :Center
 			return This.AlignCenter(nWidth, cChar)
 
-		on :Justify
-			return This.Justify(nWidth, cChar) # TODO
-			# --> Justifies WORDS along the nWidth
+		on :Justified
+			return This.Justify(nWidth, cChar)
 
-		on :Along
-			return This.AlignALong(nWidth, cChar)
-			# --> Justifies CHARS along the nWidth
 		other
 			raise(stzStringError(:UnsupportedStringJustificationDirection))
 		end
 
-	def AlignQ(nWidth, cChar, cDirection)
-		This.Align(nWidth, cChar, cDirection)
-		return This
+		def AlignQ(nWidth, cChar, cDirection)
+			This.Align(nWidth, cChar, cDirection)
+			return This
+	
+	def Aligned(nWidth, cChar, cDirection)
+		cResult = This.Copy().AlignQ(nWidth, cChar, cDirection).Content()
+		return cResult
 
-	def AlignLeft(nWidth, cChar)
+	def LeftAlign(nWidth, cChar)
 
 		/*
 		Managing the special case of the arabic char (Shaddah)
-		which can alter the alignment of text, because Qt
+		which can alter the justification of text, because Qt
 		treats it as a spearate char with its own position in
 		the resulting string, while it must set on top of chars!
 
-		Note: The same case of arabic 7araket is not managed
-		in this version (In the future, an extended arabic
-		library will manage those (and other) specificities
-		or arabic.
+		Note: The same case of arabic diacritics (7araket)
+		 is not managed in this version (In the future,
+		an extended arabic library will manage those (and other)
+		specificities or arabic.
 
 		Warning: In this version, if your arabic text contains
-		7arakets, then the alignbment won't be correct!
+		arabic diactritics (7arakets), then the alignbment
+		won't be correct!
  		*/
 
 		nWidth += This.NumberOfOccurrenceOf(ArabicShaddah())
@@ -9561,11 +9573,22 @@ class stzString from stzObject
 			This.Update( cJustified )
 		ok
 
-	def AlignLeftQ(nWidth, cChar)
-		This.LeftAlign(nWidth, cChar)
-		return This
+		def LeftAlignQ(nWidth, cChar)
+			This.LeftAlign(nWidth, cChar)
+			return This
 
-	def AlignRight(nWidth, cChar)
+		def AlignLeft(nWidth, cChar)
+			This.LeftAlign(nWidth, cChar)
+
+			def AlignLeftQ(nWidth, cChar)
+				This.AlignLeft(nWidth, cChar)
+				return This
+
+	def LeftAligned(nWidth, cChar, cDirection)
+		cResult = This.Copy().LeftAlignQ(nWidth, cChar, cDirection).Content()
+		return cResult
+
+	def RightAlign(nWidth, cChar)
 
 		# See comment in LeftAlign() method
  
@@ -9586,12 +9609,23 @@ class stzString from stzObject
 			This.Update( cJustified )
 		ok
 
-	def AlignRightQ(nWidth, cChar)
-		
-		This.RightAlign(nWidth, cChar)
-		return This
+		def RightAlignQ(nWidth, cChar)
+			
+			This.RightAlign(nWidth, cChar)
+			return This
 
-	def AlignCenter(nWidth, cChar)
+		def AlignRight(nWidth, cChar)
+			This.RightAlign(nWidth, cChar)
+
+			def AlignRightQ(nWidth, cChar)
+				This.AlignRight(nWidth, cChar)
+				return This
+
+	def RightAligned(nWidth, cChar, cDirection)
+		cResult = This.Copy().RightAlignQ(nWidth, cChar, cDirection).Content()
+		return cResult
+
+	def CenterAlign(nWidth, cChar)
 
 		# See comment in LeftAlign() method
  
@@ -9622,14 +9656,22 @@ class stzString from stzObject
 			This.Update( cResult )
 		ok
 
-	def AlignCenterQ(nWidth, cChar)
-		This.CenterAlign(nWidth, cChar)
-		return This
+		def CenterAlignQ(nWidth, cChar)
+			This.CenterAlign(nWidth, cChar)
+			return This
 
-	def Justify(nWidth, cChar) # TODO
-		// Rename it JustifyWords?
+		def AlignCenter(nWidth, cChar)
+			This.CenterAlign(nWidth, cChar)
 
-	def AlignALong(nWidth, cChar) // Name it JustifyChars?
+			def AlignCenterQ(nWidth, cChar)
+				This.AlignCenter(nWidth, cChar)
+				return This
+
+	def CenterAligned(nWidth, cChar, cDirection)
+		cResult = This.Copy().CenterAlignQ(nWidth, cChar, cDirection).Content()
+		return cResult
+
+	def Justify(nWidth, cChar)
 
 		# See comment in LeftAlign() method
  
@@ -9670,9 +9712,12 @@ class stzString from stzObject
 
 		This.Update( cResult )
 
-	def AlignALongQ(nWidth, cChar)
-		This.DistributeOver(nWidth, cChar)
-		return This
+		def JustifyQ(nWidth, cChar)
+			This.Justify(nWidth, cChar)
+			return This
+
+	def Justified(nWidth, cChar)
+		cResult = This.Copy().JustifyQ(nWidth, cChar).Content()
 
 	  #----------------------------------#
 	 #    TEXT ENCODING & CONVERTING    #

@@ -3317,7 +3317,7 @@ class stzText from stzObject
 
 		ok
 
-		if nStart < 1 or nStart > This.NumberOfChars()
+		if nStart < 1 or nStart > This.ToStzString().NumberOfChars()
 			return NULL
 		ok
 
@@ -3925,3 +3925,4 @@ class stzText from stzObject
 	def DiacriticsRemovedInLocale(pLocale)
 		cResult = This.Copy().RemoveDiacriticsInLocaleQ(pLocale).Content()
 		return This
+

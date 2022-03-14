@@ -131,16 +131,16 @@ o1 = new stzListOfStrings([ "village", "town", "country" ])
 # ---> [ [ "village", 7 ], [ "town", 4 ], [ "country", 7 ] ]
 
 /*-------------------
-
+*/
 o1 = new stzListOfStrings([ "village", "قرية", "નગર" ])
 
-? o1.ForEachStringYield('[ @str, T(@str).Script() ]') # T --> StzTextQ() -- TODO: W() for stzWord()
+? o1.Yield('[ @str, T(@str).Script() ]') # T --> StzTextQ() -- TODO: W() for stzWord()
 # ---> [ [ "village", :Latin ], [ "town", :Arabic ], [ "country", :Gujarati ] ]
 
 /*-------------------
 
 # Be careful: there is a difference between finding a string
-# and finding a substring in a lits of string
+# and finding a substring in a lists of string
 
 # Let's explain this by example
 
@@ -409,7 +409,10 @@ o1 = new stzListOfStrings([ "TOM", "SAM", "DAN" ])
 /*---------------
 
 o1 = new stzListOfStrings([ "tom", "sam", "dan" ])
-? o1.Unicodes()
+? @@(o1.Unicodes())
+#--> [ [ 116,111,109 ],[ 115,97,109 ],[ 100,97,110 ] ]
+
+# Same as
 
 ? ListOfStringsToUnicodes([ "tom", "sam", "dan" ])
 
@@ -470,8 +473,8 @@ o1 = new stzListOfStrings([
 	"TUNIS", "GAFSA", "SFAX", "BEJA", "GABES", "REGUEB"
 ])
 
-? o1.IsUppercase()
-? o1.AllStringsAreUppercase()
+? o1.IsUppercase() # --> TRUE
+? o1.AllStringsAreUppercase() # --> TRUE
 
 /*------------------
 
@@ -530,15 +533,25 @@ o1 = new stzListOfStrings([
 	"gabes", "Tunis", "Tunis",
 	"regueb", "tuta", "regueb", "tunis" ])
 
-? o1.FindAllCSQ("tunis", :cs = false).Section( 1, :end)
+? @@(o1.FindAll("tunis"))
+#--> [ 1,2,3,4,6,7,9,10,14 ]
 
-#? o1.FindAllExceptNthCS("tunis", :First, :CS = FALSE)
-#? o1.FindAllExceptNthCS("tunis", 3, :cs = false )
+? @@(o1.FindAllCS("tunis", :CS = TRUE))
+#--> [ 6,7,14 ]
 
-#? o1.FindAll("Tunis")
-#? o1.FindAllCS("Tunis", :CS = FALSE)
+? o1.FindAllCS("tunis", :cs = false)
+# --> [ 1, 2, 3, 4, 6, 7, 9, 10, 14 ]
 
-/* --------------
+? o1.FindAllExceptNthCS("tunis", :FirstString, :CS = FALSE)
+# --> [ 1, 2, 3, 4, 6, 7, 9, 10, 14 ]
+
+? o1.FindAllExceptNthCS("tunis", :LastString, :CS = FALSE)
+# --> [ 1, 2, 4, 6, 7, 9, 10 ]
+
+? o1.FindAllExceptNthCS("tunis", 3, :cs = false )
+# --> [ 1, 2, 4, 6, 7, 9, 10, 14 ]
+
+/* -------------
 
 o1 = new stzListOfStrings([
 	"TuNIS", "Tunis", "TUNIS", "TUNIS",
@@ -546,26 +559,47 @@ o1 = new stzListOfStrings([
 	"gabes", "Tunis", "Tunis",
 	"regueb", "tuta", "regueb", "tunis" ])
 
+# Positions where strings were duplicated
 ? o1.Duplicates()
-#? o1.IsDuplicatedStringCS( "tunis", :CS = TRUE )
+#--> [ 4, 7, 9, 10, 13, 14 ]
+
+? o1.DuplicatedStrings()
+#--> [ "Tunis", "TUNIS", "tunis", "regueb" ]
+
+? o1.IsDuplicatedStringCS( "tunis", :CS = TRUE ) #--> TRUE
 #? o1.DuplicatedStringsCS( :CS = true )
 
 o1.RemoveDuplicatesCS( :CS = TRUE )
-#o1.RemoveDuplicatesQ().Content()
-#o1.DuplicatesRemoved()
-? o1.Content()
+? @@(o1.Content())
+#--> [ "TuNIS","Tunis","TUNIS","gatufsa","tunis","gabes","regueb","tuta" ]
 
 /* --------------
 
 o1 = new stzListOfStrings(  [ "Tunis", "gatufsa", "tunis", "gabes", "tunis", "regueb", "tuta", "regueb" ])
 o1.SortInDescending()
-? o1.Content()
+? @@(o1.Content())
+#--> [ "tuta","tunis","tunis","regueb","regueb","gatufsa","gabes","Tunis" ]
 
-#? o1.ConcatenateUsing(" ")
-#? QStringListContent( o1.QStringListObject().filter("Tu", 1) )
-# 
-? o1.FindNthOccurrenceCS(2, "tunis", :CS = TRUE)
-//? o1.StringsContainingCS("Tu", :cs = true)
+/*--------------
+
+o1 = new stzListOfStrings(  [ "Tunis", "gatufsa", "tunis", "gabes", "tunis", "regueb", "tuta", "regueb" ])
+? o1.ConcatenateUsing(" ")
+#--> Tunis gatufsa tunis gabes tunis regueb tuta regueb
+
+/*--------------
+
+o1 = new stzListOfStrings(  [ "Tunis", "gatufsa", "tunis", "gabes", "tunis", "regueb", "tuta", "regueb" ])
+? o1.FindNthOccurrenceCS(2, "tunis", :CS = TRUE) #--> 5
+
+? @@(o1.StringsContainingCS("tu", :CS = TRUE)) # Same as o1.FilterCS("tu", :CS = TRUE)
+#--> [ "gatufsa","tunis","tunis","tuta" ]
+
+? o1.UniqueStringsContainingCS("tu", :CS = TRUE)
+#--> [ "gatufsa","tunis","tunis","tuta" ]
+
+
+
+
 
 /* ------------------
 
