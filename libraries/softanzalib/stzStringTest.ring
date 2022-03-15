@@ -71,7 +71,7 @@ o1.RemoveBounds("<<",">>")
 ? o1.Content() # --> word
 
 /*-----------------
-*/
+
 
 StzStringQ("softanza") {
 	

@@ -102,14 +102,9 @@ load "stzCurrency.ring"
 load "stzLocaleAbbreviationString.ring"
 #load "stzLocaleAbbreviationStringError.ring"
 
-load "stzConstraint.ring"
+
 
 load "stzUnicodeData.ring"
-
-# load "stzDataModel.ring"
-# load "stzDataSource.ring"
-# load "stzConnexion.ring"
-# load "stzDataRepo.ring"
 
 load "stzQuery.ring"
 
@@ -126,7 +121,6 @@ load "stzCounterError.ring"
 load "stzDate.ring"
 load "stzTime.ring"
 
-load "stzEvent.ring"
 
 load "stzFile.ring"
 load "stzFileError.ring"
