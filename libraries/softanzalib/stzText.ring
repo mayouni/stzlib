@@ -3061,6 +3061,46 @@ class stzText from stzObject
 
 		#>
 	
+	  #---------------------#
+	 #    REMOVING WORD    # 
+	#---------------------#
+
+	def RemoveAllWord(pcWord)
+		// TODO
+
+	def RemoveAllOccurrencesOfWord(pcWord)
+		return This.FindAllWord(pcWord)
+
+	def RemoveAllWordCS(pcWord, pCaseSensitive)
+		// TODO
+
+	def RemoveAllOccurrencesOfWordCS(pcWord, pCaseSensitive)
+		return This.FindAllWordCS(pcWord, pCaseSensitive)
+		
+	def RemoveFirstWord(pcWord)
+		// TODO
+
+	def RemoveFirstWordCS(pcWord, pCaseSensitive)
+		// TODO
+
+	def RemoveLastWord(pcWord)
+		// TODO
+
+	def RemoveLastWordCS(pcWord, pCaseSensitive)
+		// TODO
+
+	def RemoveNthWord(pcWord)
+		// TODO
+
+	def RemoveNthWordCS(pcWord, pCaseSensitive)
+		// TODO	
+
+	def RemoveManyWords(pacWords)
+		// TODO
+
+	def RemoveManyWordsCS(pacWords)
+		// TODO
+
 	  #--------------------------------------#
 	 #     FORWARD TO START OF NTH WORD     #
         #--------------------------------------#
