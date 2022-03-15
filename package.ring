@@ -5,11 +5,11 @@ aPackageInfo = [
 	:developer = "Mansour Ayouni",
 	:email = "kalidianow@gmail.com",
 	:license = "MIT License",
-	:version = "1.0.2",
+	:version = "1.0.3",
 	:ringversion = "1.16",
 	:versions = 	[
 		[
-			:version = "1.0.2",
+			:version = "1.0.3",
 			:branch = "master"
 		]
 	],
@@ -35,7 +35,8 @@ aPackageInfo = [
 		"setup.ring",
 		"uninstall.ring",
 		"LICENSE",
-		"README.md"
+		"README.md",
+		"softanzalib.zip"
 	],
 	:ringfolderfiles = 	[
 		"bin/load/stzlib.ring"
