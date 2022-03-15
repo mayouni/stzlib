@@ -25,6 +25,10 @@ SoftanzaLib is an accelerative library for Ring applications.
 1. Unicode and locales support
 2. ...
 
+# Examples
+
+...
+
 # Classes
 
 1. The character, string and text domain

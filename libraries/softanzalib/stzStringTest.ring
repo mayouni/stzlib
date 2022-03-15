@@ -32,6 +32,111 @@ o1.Simplify()
 
 /*-----------------
 
+o1 = new stzString("من كان في زمنه من أصحابه فهو من أكبر المحظوظين")
+o1.RemoveNthOccurrence(:Last, "من")
+? o1.Content()
+# --> Gives من كان في زمنه من أصحابه فهو  أكبر المحظوظين
+
+/*-----------------
+
+o1 = new stzString("**A1****A2***A3")
+o1.RemoveNthOccurrence(:Last, "A")
+? o1.Content() # --> **A1****A2***3
+
+/*-----------------
+
+o1 = new stzString("**A1****A2***A3")
+o1.RemoveNthOccurrenceCS(:Last, "a", :CaseSensitive = FALSE)
+? o1.Content() # --> **A1****A2***3
+
+/*-----------------
+
+o1 = new stzString("**A1****A2***A3")
+o1.RemoveLast("A")
+? o1.Content() # --> **A1****A2***3
+
+/*-----------------
+
+o1 = new stzString("**A1****A2***A3")
+o1.RemoveFirst("A")
+? o1.Content() # --> **1****A2***A3
+
+/*-----------------
+
+o1 = new stzString("<<word>>")
+
+? o1.IsBoundedBy("<<", ">>") # --> TRUE
+
+o1.RemoveBounds("<<",">>")
+? o1.Content() # --> word
+
+/*-----------------
+
+StzStringQ("softanza") {
+	
+	@Constraints = [
+
+		:MustBeUppercase 	= '{ Q(@str).IsUppercase() }',
+		:MustNotExceed10Chars 	= '{ Q(@str).NumberOfChars() <= 10 }',
+		:MustBeginWithLetterS	= '{ Q(@str).BeginsWithCS("A", :CS = FALSE) }'
+
+	]
+
+	 VerifyConstraint(:MustBeUppercase)
+
+}
+/*--------------- REFACORED: test it again
+
+# When the string is initiated with a non-null value,
+# then the constraint is immediately active
+
+StzStringQ("tunisia") {
+
+//	CanNotBe(:NumberInString)
+	MustBe('Uppercase()')
+
+//	MustHave("NumberOfChars() <= 7")
+//	CanNotHave("NumberOfChars() = 3")
+
+//	Update("tunis") // "11223" is not lowercase nor uppercase!
+
+}
+
+/*--------------- //////////////////   ERROR: Fix constraints
+
+# but when the string is initiated with a NULL value,
+# then the constraint understands that it will be
+# applicable in the future when the string gets updated
+
+StzStringQ(NULL) {
+	MustBe(:UpperCase)
+}
+
+? "--> Passed"
+
+/*
+StzListQ([ "a", "b" ]).MustBe(:IsSet)
+? "--> Passed"
+
+StzStringQ("12340").MustBe(:IsNumberInString)
+? "--> Passed"
+
+StzListQ([ "a", "b", "b" ]).CanNotBe(:IsSet)
+? "--> Passed"
+
+StzStringQ("18").CanNotBe(:IsNumberInString)
+? "--> Passed"
+/*
+
+? StzStringQ("isChar").IsIsMethod()
+
+/*
+
+? IsTrue(:CaseSensitive = TRUE)
+? IsFalse(:CaseSensitive = FALSE)
+
+/*-----------------
+
 o1 = new stzString("<<Go!>>")
 ? o1.BoundsRemoved("<<", ">>") # --> "Go!"
 
@@ -1631,57 +1736,7 @@ o1 = new stzString("12")
 /*---------------
 
 o1 = new stzString("abc;123;gafsa;ykj")
-? o1.NthSubstringAfterSplittingStringUsing(3, ";")
-
-/*--------------- REFACORED: test it again
-
-# When the string is initiated with a non-null value,
-# then the constraint is immediately active
-
-StzStringQ("tunisia") {
-
-	CanNotBe(:NumberInString)
-	MustBe(:Lowercase)
-
-	MustHave("NumberOfChars() <= 7")
-	CanNotHave("NumberOfChars() = 3")
-
-	Update("tunis") // "11223" is not lowercase nor uppercase!
-
-}
-
-/*--------------- //////////////////   ERROR: Fix constraints
-
-# but when the string is initiated with a NULL value,
-# then the constraint understands that it will be
-# applicable in the future when the string gets updated
-
-StzStringQ(NULL) {
-	MustBe(:UpperCase)
-}
-
-? "--> Passed"
-
-/*
-StzListQ([ "a", "b" ]).MustBe(:IsSet)
-? "--> Passed"
-
-StzStringQ("12340").MustBe(:IsNumberInString)
-? "--> Passed"
-
-StzListQ([ "a", "b", "b" ]).CanNotBe(:IsSet)
-? "--> Passed"
-
-StzStringQ("18").CanNotBe(:IsNumberInString)
-? "--> Passed"
-/*
-
-? StzStringQ("isChar").IsIsMethod()
-
-/*
-
-? IsTrue(:CaseSensitive = TRUE)
-? IsFalse(:CaseSensitive = FALSE)
+? o1.NthSubstringAfterSplittingStringUsing(3, ";") #--> gafsa
 
 /*------------------ *///////////////////////////////////////////////////////////////////////
 /*
@@ -2263,7 +2318,6 @@ StzStringQ( "a + b - c / d = 0" ) {
 ? _@("Smart Customs Hackathon").Section(:From = 7, :To = :End)	# --> Customs Hackathon
 
 /*-------------------
-*/
 
 StzStringQ("Tunisia is back! People united.") {
 

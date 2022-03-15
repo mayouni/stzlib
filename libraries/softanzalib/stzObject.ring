@@ -937,7 +937,6 @@ class stzObject
 			return FALSE
 		ok
 
-
 	  #---------------------------------------------#
 	 #   CHECKING TYPE OF OBJECT (VIA CLASSNAME)   #
 	#---------------------------------------------#

@@ -254,9 +254,6 @@ func StringIsArabicWord(pcStr)
 func StringIsCharName(pcStr)
 	return StzStringQ(pcStr).IsCharName()
 
-
-
-
 # Used for natural-coding
 
 func String(pcStr)
@@ -355,7 +352,7 @@ func StringCase(pcStr)
 class stzString from stzObject
 
 	@oQString
-	@cConstraint
+	@Constraints = []
 
 	@cLanguage = :English	# Set explicitly using SetLanguage()
 				# TODO (future): Infere the language from the string
@@ -369,31 +366,36 @@ class stzString from stzObject
 	 #   CHECKING CONSTRAINTS   #
 	#--------------------------#
 
-	def EnforceConstraint(pcConstraint)
-		@cConstraint = StzStringQ(pcConstraint).RemoveBoundsQ("{","}").RemoveFirstBoundQ(NL).SimplifyQ().Content()
-		This.CheckConstraint()
+	def Constraints()
+		return @Constraints
 
-	def Constraint()
-		return @cConstraint
+	def VerifyConstraint(pcName)
 
-	def CheckConstraint()
+		cCondition = This.Constraints()[ pcName ]
 
-		cConstraint = This.Constraint()
+		if cCondition = NULL
+			raise("Inexsitant contraint!")
+		ok
 
-		# Composing the constraint Ring expression
+? cCondition
+		cCondition = StzStringQ(cCondition).SimplifyQ().RemoveBoundsQ("{","}").Content()
 
-		cCode = "if " + cConstraint + NL +
-				TAB + " // Pass" + NL +
-			"else" + NL +
-				TAB + "raise('Constraint unverified!')" + NL +
-			"ok"
+		cCode  = 'bCheck = (' + cCondition + ')'
+? cCode		eval(cCode)
 
-		# Evalutating that expression
+		if bCheck = FALSE
+			raise("Unverified constraint!")
+		else
+			return TRUE
+		ok
 
-		@ = This
+	def VerifyConstraints()
 
-		eval(cCode)
-				
+		for aPair in This.Constraints()
+			cConstraintName = aPair[1]
+			This.VerifyConstraint(cConstraintName)
+		next
+
 	  #-----------------------------#
 	 #     SPECIAL CONSTRAINTS     #
 	#-----------------------------#
@@ -405,9 +407,9 @@ class stzString from stzObject
 
 		# The constraint is activated only if the string is not null
 
-		//if NOT This.IsEmpty()
-			return This.ObjectMustBe(pcIsMethod, :InObject = This)
-		//ok
+	//	if NOT This.IsEmpty()
+			
+	//	ok
 
 	def CanNotBe(pcIsMethod)
 		# The constraint is activated only if the string is not null
@@ -2801,33 +2803,13 @@ class stzString from stzObject
 		#< @FunctionCasesensitivityForm
 
 		def IsBoundedByCS(pcSubstr1, pcSubstr2, pCaseSensitive)
+			if This.BeginsWithCS(pcSubstr1, pCaseSensitive) and
+			   This.EndsWithCS(pcSubStr2, pCaseSensitive)
 
-			if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveParamList()
-				pCaseSensitive = pCaseSensitive[2]
-			ok
-	
-			if pCaseSensitive = FALSE
-				pcSubStr1 = StzStringQ(pcSubStr1).Lowercased()
-				pcSubstr2 = StzStringQ(pcSubStr2).Lowercased()
-				oString = This.Copy().LowercaseQ()
-			else
-				oString = This
-			ok
-	
-			oSubStr1 = new stzString(pcSubstr1)
-			oSubStr2 = new stzString(pcSubstr2)
-	
-			if (oString.NLeftChars(oSubstr1.NumberOfChars()) = pcSubstr1 and
-			   oString.NRightChars(oSubStr2.NumberOfChars()) = pcSubstr2) or
-	
-			   (oString.NRightChars(oSubstr1.NumberOfChars()) = pcSubStr1 and
-			    oString.NLeftChars(oSubStr2.NumberOfChars()) = pcSubstr2)
-	
 				return TRUE
 			else
 				return FALSE
 			ok
-		#>
 
 	// Returns the bounds of the string up to n Chars
 	def BoundsUpToNChars(n)
@@ -2889,7 +2871,14 @@ class stzString from stzObject
 		#> @FunctionCasesensitivityForm
 
 		def RemoveBoundsCS(pcSubstr1, pcSubstr2, pCaseSensitive)
-			
+
+			if This.IsBoundedByCS(pcSubstr1, pcSubstr2, pCaseSensitive)
+				This.RemoveFirstCS(pcSubStr1, pCaseSensitive)
+				This.RemoveLastCS(pcSubStr2, pCaseSensitive)
+			ok
+
+
+/*			
 			oSubStr1 = new stzString(pcSubstr1)
 			oSubStr2 = new stzString(pcSubstr2)
 	
@@ -2918,7 +2907,7 @@ class stzString from stzObject
 				This.RemoveNLastChars( oLastBound.NumberOfChars() )
 	
 			ok
-				
+	*/			
 			#< @FunctionFluentForm
 	
 			def RemoveBoundsCSQ(pcSubstr1, pcSubstr2, pCaseSensitive)
@@ -4666,7 +4655,7 @@ class stzString from stzObject
 		@oQString.insert(nPos-1, pcSubStr)
 
 		# The string has changed, check constraints...
-		This.CheckConstraint()
+		This.VerifyConstraints()
 
 		#< @FunctionFluentForm
 		
@@ -5472,19 +5461,11 @@ class stzString from stzObject
 				pcNewSubStr = pcNewSubStr[2]
 			ok
 	
-			if n = :FirstChar or n = :StartOfString
-				if This.IsLeftToRight()
-				 	n = 1
-				else # IsRightToLeft()
-					n = This.NumberOfChars()
-				ok
+			if n = :First
+				n = 1
 	
-			but n = :LastChat or n = :EndOfString
-				if This.IsLeftToRight()
-				 	n = This.NumberOfChars()
-				else # IsRightToLeft()
-					n = 1
-				ok
+			but n = :Last
+				n = This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 	
 			ok
 	
@@ -6038,7 +6019,7 @@ class stzString from stzObject
 		@oQString = new QString2()
 		@oQString.append(pcNewText)
 
-		This.CheckConstraint()
+		This.VerifyConstraints()
 
 		#< @FunctionAlternativeForms
 
@@ -8460,7 +8441,7 @@ class stzString from stzObject
 			return This
 
 	  #----------------------------------------------------#
-	 #     REMOVING THE NTH OCCURRENCE OF A SUBSTRING    #
+	 #     REMOVING THE NTH OCCURRENCE OF A SUBSTRING     #
 	#----------------------------------------------------#
 
 	def RemoveNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
@@ -8481,22 +8462,22 @@ class stzString from stzObject
 				This.RemoveNthCS(n, pcSubStr, pCaseSensitive)
 				return This
 
-	def RemoveNthOccurrence(n, pcSubStr, pcNewSubStr)
+	def RemoveNthOccurrence(n, pcSubStr)
 		This.RemoveNthOccurrenceCS(n, pcSubStr, :Casesensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def RemoveNthOccurrenceQ(n, pcSubStr, pcNewSubStr)
-			This.RemoveNthOccurrence(n, pcSubStr, pcNewSubStr)
+		def RemoveNthOccurrenceQ(n, pcSubStr)
+			This.RemoveNthOccurrence(n, pcSubStr)
 			return This
 	
 		#>
 
-		def RemoveNth(n, pcSubStr, pcNewSubStr)
-			This.RemoveNthOccurrence(n, pcSubStr, pcNewSubStr)
+		def RemoveNth(n, pcSubStr)
+			This.RemoveNthOccurrence(n, pcSubStr)
 
-			def RemoveNthQ(n, pcSubStr, pcNewSubStr)
-				This.RemoveNth(n, pcSubStr, pcNewSubStr)
+			def RemoveNthQ(n, pcSubStr)
+				This.RemoveNth(n, pcSubStr)
 				return This
 
 	  #-------------------------------------------------#
@@ -8521,13 +8502,13 @@ class stzString from stzObject
 				This.RemoveFirstCS(pcSubStr, pCaseSensitive)
 				return This
 
-	def RemoveFirstOccurrence(pcSubStr, pcNewSubStr)
+	def RemoveFirstOccurrence(pcSubStr)
 		This.RemoveFirstOccurrenceCS(pcSubStr, :Casesensitive = TRUE)
 
 		#< @FunctionFluentForm
 
 		def RemoveFirstOccurrenceQ(pcSubStr, pcNewSubStr)
-			This.RemoveFirstOccurrence(pcSubStr, pcNewSubStr)
+			This.RemoveFirstOccurrence(pcSubStr)
 			return This
 	
 		#>
@@ -8573,7 +8554,7 @@ class stzString from stzObject
 		#>
 
 		def RemoveLast(pcSubStr)
-			This.RemoveLast(pcSubStr)
+			This.RemoveLastOccurrence(pcSubStr)
 
 			def RemoveLastQ(pcSubStr)
 				This.RemoveLast(pcSubStr)

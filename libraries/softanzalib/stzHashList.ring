@@ -548,6 +548,10 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				This.RemoveByKey(pcKey)
 				return This
 
+	def RemovePairsByKeys(pacKeys)
+		for pcKey in pacKeys
+			This.RemovePairByKey(pcKey)
+		next
 	def RemoveAllPairsWithValue(pValue)
 		aPos = This.FindAllValue(pValue)
 
