@@ -17,17 +17,17 @@ aPackageInfo = [
 		[
 			:name = "ringqt",
 			:version = "1.0",
-			:providerusername = ""
+			:providerusername = "ringpackages"
 		],
 		[
 			:name = "stdlib",
 			:version = "1.0",
-			:providerusername = ""
+			:providerusername = "ringpackages"
 		],
 		[
 			:name = "internetlib",
 			:version = "1.0",
-			:providerusername = ""
+			:providerusername = "ringpackages"
 		]
 	],
 	:files = 	[
