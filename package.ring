@@ -21,8 +21,11 @@ aPackageInfo = [
 		]
 	],
 	:files = 	[
-		"lib.ring",
 		"main.ring",
+		"LICENSE",
+		"README.md"
+	],
+	:ringfolderfiles = 	[
 		"bin/load/stzlib.ring",
 		"libraries/softanzalib/Cache/abc.txt",
 		"libraries/softanzalib/Cache/hi.txt",
@@ -405,12 +408,7 @@ aPackageInfo = [
 		"libraries/softanzalib/todo/qvoice.txt",
 		"libraries/softanzalib/todo/temp.ring",
 		"libraries/softanzalib/todo/todo.txt",
-		"libraries/softanzalib/todo/todos.txt",
-		"LICENSE",
-		"README.md"
-	],
-	:ringfolderfiles = 	[
-
+		"libraries/softanzalib/todo/todos.txt"
 	],
 	:windowsfiles = 	[
 
