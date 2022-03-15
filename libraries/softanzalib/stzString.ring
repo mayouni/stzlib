@@ -342,7 +342,7 @@ func StringCases()
 	return [ :Lowercase, :Uppercase, :Capitalcase, :Titlecase, :Foldercase ]
 
 func StringCase(pcStr)
-	return _@(pcStr).StringCase()
+	return Q(pcStr).StringCase()
 
 
   /////////////////
@@ -371,31 +371,51 @@ class stzString from stzObject
 
 	def VerifyConstraint(pcName)
 
+		@str = This.Content()
+
 		cCondition = This.Constraints()[ pcName ]
 
 		if cCondition = NULL
 			raise("Inexsitant contraint!")
 		ok
 
-? cCondition
-		cCondition = StzStringQ(cCondition).SimplifyQ().RemoveBoundsQ("{","}").Content()
+		StzStringQ(cCondition) {
 
-		cCode  = 'bCheck = (' + cCondition + ')'
-? cCode		eval(cCode)
+			ReplaceManyCS([ "@string", "@this" ], :With = @str, :CS = FALSE)
+			Simplify()
+			RemoveBounds("{", "}")
 
-		if bCheck = FALSE
-			raise("Unverified constraint!")
-		else
-			return TRUE
-		ok
+			cCondition = Content()
+		}
+
+		cCode  = 'bResult = ""+ (' + cCondition + ')'
+		eval(cCode)
+
+		return bResult
 
 	def VerifyConstraints()
-
+		bResult = TRUE
 		for aPair in This.Constraints()
 			cConstraintName = aPair[1]
-			This.VerifyConstraint(cConstraintName)
+			if This.VerifyConstraint(cConstraintName) = FALSE
+				bResult = FALSE
+				exit
+			ok
 		next
 
+		if bResult = FALSE
+			raise("Unverified constraint!")
+		ok
+
+	def VerifyConstraintsXT()
+		anResult = []
+		for aPair in This.Constraints()
+			cConstraintName = aPair[1]
+			anResult + This.VerifyConstraint(cConstraintName)
+	
+		next
+
+		return anResult	
 	  #-----------------------------#
 	 #     SPECIAL CONSTRAINTS     #
 	#-----------------------------#
@@ -4703,6 +4723,8 @@ class stzString from stzObject
 	def InsertAfter(nPos, pcSubStr)
 		@oQString.insert(nPos, pcSubStr)
 
+		VerifyConstraints()
+
 		#< @FunctionFluentForm
 		
 		def InsertAfterQ(nPos, pcSubStr)
@@ -4956,7 +4978,7 @@ class stzString from stzObject
 
 	def InsertBeforeSubstring(pcSubStr, pcNewSubStr)
 
-		nLenSubStr = _@(pcSubStr).NumberOfChars()
+		nLenSubStr = Q(pcSubStr).NumberOfChars()
 		anPos = StzListOfNumbersQ( This.FindAll(cSubStr) ).AddToEachQ(nLenSubStr).Content()
 		aParts = This.SplitBeforePositions(anPos)
 	
@@ -5840,7 +5862,7 @@ class stzString from stzObject
 			aValues = []
 
 			for var in acVars
-
+				// TODO
 			next
 
 			
@@ -5857,6 +5879,7 @@ class stzString from stzObject
 		cString = " " + This.String() + " "
 
 		This.FindMany(acVars)
+		// TODO
 
 	def InterpolateUsing(paValues)
 		/*
@@ -5867,7 +5890,7 @@ class stzString from stzObject
 
 		if This.ContainsMarkers()
 			acMarkers = This.ExtractMarkers()
-
+			// TODO
 		ok
 
 	def ContainsMarkers()
@@ -5936,7 +5959,9 @@ class stzString from stzObject
 			This.ExecuteAndReturn()
 
 	def IsValidRingCode()
+	
 		try
+			// Be careful: could contain code that changes the string!
 			eval(This.String())
 			return TRUE
 		catch
@@ -5974,8 +5999,7 @@ class stzString from stzObject
 
 	// Resizes the string and fills the new Chars with cChar
 	def Fill(n, cChar)
-		cStr = This.SplitForward(n)	// TEST: fix behavior!
-		return cStr
+		// TODO
 
 		#< @FunctionFluentForm
 
@@ -5994,8 +6018,6 @@ class stzString from stzObject
 		else
 			cResult = This.SplitForward(n)
 		ok
-
-		//objAssign(cResult)
 
 		This.Update(cResult)
 		
@@ -7273,7 +7295,6 @@ class stzString from stzObject
 
 		#>
 
-
 	  #-------------------#
 	 #     SPLITTING     #
 	#-------------------#
@@ -7879,12 +7900,16 @@ class stzString from stzObject
 	#---
 
 	def PartsAsSubstringsClassified(pcClassifier)
+		// TODO
 
 	def PartsAsSectionsClassified(pcClassifier)
+		// TODO
 
 	def PartsAsSubStringsAndSectionsClassified(pcClassifier)
+		// TODO
 
 	def PartsAsSectionsAndSubstringsClassified(pcClassifier)
+		// TODO
 
 	  #-----------------------------#
 	 #     DIVIDING THE STRING     #
@@ -8637,15 +8662,15 @@ class stzString from stzObject
 
 	def RemovePreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 		
-		if isList(nStart) and _@(nStart).IsStartingAtParamList()
+		if isList(nStart) and Q(nStart).IsStartingAtParamList()
 			nStart = nStart[2]
 		ok
 
-		if isList(pcSubStr) and _@(pcSubStr).IsOfParamList()
+		if isList(pcSubStr) and Q(pcSubStr).IsOfParamList()
 			pcSubStr = pcSubStr[2]
 		ok
 
-		if isList(pcNewSubStr) and _@(pcNewSubStr).IsWithParamList()
+		if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithParamList()
 			pcNewSubStr = pcNewSubStr[2]
 		ok
 
@@ -8841,46 +8866,6 @@ class stzString from stzObject
 
 		def LastCharRemovedWQ(pcCondition)
 			return new stzString( This.LastCharRemovedW(pcCondition) )
-
-	  #---------------------#
-	 #    REMOVING WORD    # 
-	#---------------------#
-
-	def RemoveAllWord(pcWord)
-		// TODO
-
-	def RemoveAllOccurrencesOfWord(pcWord)
-		return This.FindAllWord(pcWord)
-
-	def RemoveAllWordCS(pcWord, pCaseSensitive)
-		// TODO
-
-	def RemoveAllOccurrencesOfWordCS(pcWord, pCaseSensitive)
-		return This.FindAllWordCS(pcWord, pCaseSensitive)
-		
-	def RemoveFirstWord(pcWord)
-		// TODO
-
-	def RemoveFirstWordCS(pcWord, pCaseSensitive)
-		// TODO
-
-	def RemoveLastWord(pcWord)
-		// TODO
-
-	def RemoveLastWordCS(pcWord, pCaseSensitive)
-		// TODO
-
-	def RemoveNthWord(pcWord)
-		// TODO
-
-	def RemoveNthWordCS(pcWord, pCaseSensitive)
-		// TODO	
-
-	def RemoveManyWords(pacWords)
-		// TODO
-
-	def RemoveManyWordsCS(pacWords)
-		// TODO
 
 	  #----------------------------------#
 	 #    REMOVING A SECTION OF CHARS   # 

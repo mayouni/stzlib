@@ -71,6 +71,7 @@ o1.RemoveBounds("<<",">>")
 ? o1.Content() # --> word
 
 /*-----------------
+*/
 
 StzStringQ("softanza") {
 	
@@ -82,9 +83,11 @@ StzStringQ("softanza") {
 
 	]
 
-	 VerifyConstraint(:MustBeUppercase)
+	VerifyConstraints()
+
 
 }
+
 /*--------------- REFACORED: test it again
 
 # When the string is initiated with a non-null value,
