@@ -54,7 +54,7 @@ func QByteArrayToListOfUnicodes(oQByteArray)
 		oListOfBytes = new stzListOfBytes(oQByteArray)
 		return oListOfBytes.Unicodes()
 	else
-		raise(stzListOfBytesError(:CanNotConvertQByteArray))
+		stzRaise(stzListOfBytesError(:CanNotConvertQByteArray))
 	ok
 
 func QByteArrayToListOfChars(oQByteArray)
@@ -79,7 +79,7 @@ func NumberInPointer(ptr)
 		BinStr = pointer2string(ptr, 0, len(int2bytes(0)) )
 		return bytes2int(BinStr)
 	else
-		raise("Value you provided is not of type Pointer!")
+		stzRaise("Value you provided is not of type Pointer!")
 	ok
 
 class stzListOfBytes from stzObject
@@ -286,7 +286,7 @@ class stzListOfBytes from stzObject
 		if oCaract.IsAscii()
 			return @oQByteArray.fill(oCaract.AsciiCode(), This.NumberOfBytes()).data()
 		else
-			return raise(stzListOfBytesError(:CanNotFillBytesWithNonAsciiChar))
+			return stzRaise(stzListOfBytesError(:CanNotFillBytesWithNonAsciiChar))
 		ok
 
 	def FillWithAsciiChar_UpToNBytes(pcChar, nBytes)
@@ -323,7 +323,7 @@ class stzListOfBytes from stzObject
 		if IsListOfBytes(oOtherListOfBytes)
 			@oQByteArray.swap(ToQByteArrayObject(oOtherListOfBytes))
 		else
-			raise(stzListOfBytesError(:CanNotSwapWithNonListOfBytes))
+			stzRaise(stzListOfBytesError(:CanNotSwapWithNonListOfBytes))
 		ok
 
 	// Encodes the main list of bytes in a base64 string
@@ -396,7 +396,7 @@ class stzListOfBytes from stzObject
 				pcPercentAsciiChar = "%"
 			ok
 		else
-			raise(stzListOfBytesError(:CanNotTransformListOfBytesToPercentEncoding))
+			stzRaise(stzListOfBytesError(:CanNotTransformListOfBytesToPercentEncoding))
 		ok
 
 		// Preparing the required objects for the Qt QByteArray method
@@ -426,7 +426,7 @@ class stzListOfBytes from stzObject
 				pcPercentAsciiChar = "%"
 			ok
 		else
-			raise(stzListOfBytesError(:CanNotTransformPercentEncodingToListOfBytes))
+			stzRaise(stzListOfBytesError(:CanNotTransformPercentEncodingToListOfBytes))
 		ok
 
 		// Preparing the required objects for the Qt QByteArray method

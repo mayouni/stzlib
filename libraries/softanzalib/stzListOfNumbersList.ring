@@ -12,7 +12,7 @@ class stzListOfNumbersList
 			@aContent = paListOfNumbersList
 
 		else
-			raise("Can not create the stzListOfNumbersList object!")
+			stzRaise("Can not create the stzListOfNumbersList object!")
 		ok
 
 	def Content()

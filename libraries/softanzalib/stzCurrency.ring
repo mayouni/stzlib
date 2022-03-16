@@ -87,7 +87,7 @@ class stzCurrency
 			// TODO
 
 		else
-			raise(stzCurrencyError(:UnsupportedCurrencyIdentifier))
+			stzRaise(stzCurrencyError(:UnsupportedCurrencyIdentifier))
 		ok
 
 	def ISOSymbol()
@@ -131,7 +131,7 @@ class stzCurrency
 				return aCountryInfo[2]
 			ok
 		next
-		raise(stzCurrencyError(:UnknowanCountry))
+		stzRaise(stzCurrencyError(:UnknowanCountry))
 
 	PRIVATE
 

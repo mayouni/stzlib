@@ -1524,7 +1524,7 @@ Diacritics
 			oChar = new stzChar(cStr)
 			return oChar.Content()
 		else
-			raise(stzCharError(:CanNotTransformStringToChar))
+			stzRaise(stzCharError(:CanNotTransformStringToChar))
 		ok
 
 	func TurnedDigitUnicodes()

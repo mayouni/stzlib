@@ -1,5 +1,8 @@
 load "stzlib.ring"
 
+
+? StzListQ( :ReturnedAs = :stzList ).IsReturnedAsParamList()
+
 /*-----------------
 
 ? StzListQ([]).IsListOfStrings() # --> FALSE
@@ -1417,7 +1420,7 @@ o1 - [ "b", "c" ]
 ? o1.Content()
 
 /*--------------- TODO: Works only for strings --> Move it to stzListOfStrings
-*/
+
 o1 = new stzList(["file1", "file2", "file3" ])
 o1 * ".ring"	# --> [ "file1.ring", "file2.ring", "file3.ring" ]
 //o1 + ".ring"	# --> [ "file1", "file2", "file3", ".ring" ]

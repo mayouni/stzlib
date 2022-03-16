@@ -169,21 +169,21 @@ class stzChainOfValue from stzObject
 	#------------------
 
 	def _Which()
-		return This.ToStzType()
+		return This.ToStzObject()
 
 		#< @FunctionAlternativeForm
 
 	def _That()
-		return This.ToStzType()
+		return This.ToStzObject()
 
 	def _AND()
-		return This.ToStzType()
+		return This.ToStzObject()
 
 	def _OR()
-		return This.ToStzType()
+		return This.ToStzObject()
 
 	def _But()
-		return This.ToStzType()
+		return This.ToStzObject()
 
 	#-------------------
 
@@ -441,7 +441,7 @@ class stzChainOfValue from stzObject
 
 	#-------------------
 
-	def ToStzType()
+	def ToStzObject()
 		switch Upper(type(This.Value()))
 		on "NUMBER"
 			return new stzList(This.Value())

@@ -39,7 +39,7 @@ class stzListOfUnicodes from stzObject
 			@anUnicodes = aListOfNumbers
 
 		else
-			raise("Can't create the list of unicodes!")
+			stzRaise("Can't create the list of unicodes!")
 		ok
 
 	def Content()

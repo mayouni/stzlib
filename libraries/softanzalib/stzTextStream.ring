@@ -58,7 +58,7 @@ class stzTextStream from stzObject
 		on :ReadCorruptData	n = 2
 		on :WriteFailed		n = 3
 		other
-			raise(stzTextStreamError(:UnsupportedStatus))
+			stzRaise(stzTextStreamError(:UnsupportedStatus))
 		off
 
 		return TRUE

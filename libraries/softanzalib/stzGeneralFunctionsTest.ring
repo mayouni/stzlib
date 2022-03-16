@@ -33,7 +33,7 @@ load "stzlib.ring"
 # In particular, it is used in the stzList.IsListOf(pcType) method.
 
 /*-------------------
-
+*/
 # Getting the data type of a given value
 
 ? _(5).@.DataType()		# --> :Number

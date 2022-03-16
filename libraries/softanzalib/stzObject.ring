@@ -556,11 +556,8 @@ func StzClassesXT()
 	func StzClassesAndTheirPluralForm()
 		return StzClassesXT()
 
-func PluralOfStzClass(cClass)
+func PluralOfStzClassName(cClass)
 	return StzClassesXT()[cClass]
-
-	func PluralOfStzType(cType)
-		return StzClassesXT()[cClass]
 
 func IsStzClass(pcClass)
 	return _(pcClass).@.ExistsIn( StzClasses() )
@@ -871,10 +868,10 @@ class stzObject
 			eval(cCode)
 
 		but IsNullString(pObject)
-			raise("Can't create a stzObject from an empty string!")
+			stzRaise("Can't create a stzObject from an empty string!")
 		
 		else
-			raise("Type error: you must provide an object or an object varname inside a string!")
+			stzRaise("Type error: you must provide an object or an object varname inside a string!")
 		ok
 
 	def Object()

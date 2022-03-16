@@ -22,5 +22,5 @@ class stzByte from stzObject
 				aByte + a8Bits[i]
 			next i
 		else
-			raise(stzByteError(:CanNotCreateTheByte))
+			stzRaise(stzByteError(:CanNotCreateTheByte))
 		ok

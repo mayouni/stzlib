@@ -18,7 +18,7 @@ func QTimeToString(oQTime, cFormat)
 	if IsQTime(oQTime)
 		return oQTime.ToString(cFormat)
 	else
-		raise(stzTimeError(:CanNotTransformQTimeToString))
+		stzRaise(stzTimeError(:CanNotTransformQTimeToString))
 	ok
 
 class stzTime from stzObject
@@ -31,7 +31,7 @@ class stzTime from stzObject
 		but isString(pTime)
 			// TODO
 		else
-			raise(stzTimeError(:CanNotCreateTimeObject))
+			stzRaise(stzTimeError(:CanNotCreateTimeObject))
 		ok
 
 	def Content()

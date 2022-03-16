@@ -22,7 +22,7 @@ class stzSet from stzObject
 	def init(paList)
 
 		if NOT isList(paList)
-			raise(stzSetError(:CanNotCreateSet))
+			stzRaise(stzSetError(:CanNotCreateSet))
 		ok
 
 		oTempList = new stzList(paList)
@@ -50,7 +50,7 @@ class stzSet from stzObject
 		ok
 
 		If NOT LsitIsSet(paOtherSet)
-			raise(stzSetError(:CanNotUpdateSetWithNonSet))
+			stzRaise(stzSetError(:CanNotUpdateSetWithNonSet))
 		ok
 
 		@aContent = paOtherSet
@@ -103,7 +103,7 @@ class stzSet from stzObject
 	def UnionWith(paOtherSet)
 		// If necessary, transform the provided list to a set
 		if NOT ListIsSet(paOtherSet)
-			raise(stzSetError(:CanNotComputeUnionWithNoSet))
+			stzRaise(stzSetError(:CanNotComputeUnionWithNoSet))
 		ok
 
 		aUnion = this.Content()
@@ -131,7 +131,7 @@ class stzSet from stzObject
 	def UnionWithMany(paListOfSets)
 
 		if NOT ListIsListOfSets(paListOfSets)
-			raise(stzSetError(:CanNotComputeUnionWithNonSets))
+			stzRaise(stzSetError(:CanNotComputeUnionWithNonSets))
 		ok
 
 		aUnion = this.Content()

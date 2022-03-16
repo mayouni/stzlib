@@ -71,7 +71,7 @@ func PossibleWordInstancesXT(pcWord, cWordPositionInSentence)
 	*/
 
 	if NOT StzStringQ(pcWord).IsWord()
-		raise("Invalid word!")
+		stzRaise("Invalid word!")
 	ok
 
 	aResult = []
@@ -100,7 +100,7 @@ func PossibleWordInstancesXT(pcWord, cWordPositionInSentence)
 		next
 	
 	other
-		raise(:CanNotGeneratePossibleWordInstances)
+		stzRaise(:CanNotGeneratePossibleWordInstances)
 		
 	off
 
@@ -494,7 +494,7 @@ class stzText from stzObject
 			@cContent = pStr.Content()
 
 		else
-			raise("Can't create stzText object! You must provide a string or a stzString object.")
+			stzRaise("Can't create stzText object! You must provide a string or a stzString object.")
 		ok
 
 	  #----------------#
@@ -516,7 +516,7 @@ class stzText from stzObject
 
 	def Update(pOtherString)
 		if Not IsStringOrList(pOtherString)
-			raise("Inccorect param type! You must provide a string.")
+			stzRaise("Inccorect param type! You must provide a string.")
 		ok
 
 		if isList(pOtherString) and
@@ -572,7 +572,7 @@ class stzText from stzObject
 		*/
 
 		if This.NumberOfScripts() = 0
-			raise("Information about script is unavilable!")
+			stzRaise("Information about script is unavilable!")
 
 		but This.NumberOfScripts() = 1
 			return This.Scripts()[1]
@@ -1210,7 +1210,7 @@ class stzText from stzObject
 
 	def WordsExcept(pacWords)
 		if NOT (isList(pacWords) and IsListOfStrings(pacWords) )
-			raise("Incorrect param type!")
+			stzRaise("Incorrect param type!")
 		ok
 
 		acWords = StzListOfStringsQ(pacWords).Lowercased()
@@ -1251,7 +1251,7 @@ class stzText from stzObject
 		but WordsIdentificationMode() = :Quick
 			oWords = oCopy.RemovePunctuationsQ().SplitQ(" ")
 		else
-			raise("Unkowan word identification mode!")
+			stzRaise("Unkowan word identification mode!")
 		ok
 
 		# ? (clock() - t0) / clockspersecond()
@@ -1270,6 +1270,10 @@ class stzText from stzObject
 			return This.WordsQR(:stzList)
 	
 		def WordsQR(pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 	
 			on :stzList
@@ -1292,6 +1296,10 @@ class stzText from stzObject
 			return This.SetOfWordsQR(:stzList)
 	
 		def SetOfWordsQR(pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 			on :stzList
 				return new stzList( This.SetOfWords() )
@@ -1309,6 +1317,10 @@ class stzText from stzObject
 			return This.SetOfWords()
 
 			def UniqueWordsQR(pcType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.UniqueWords())
@@ -1316,7 +1328,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.UniqueWords())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 
 			def UniqueWordsQ()
@@ -1333,6 +1345,10 @@ class stzText from stzObject
 		#< @FunctionFluentForm
 
 		def WordsSortedInAscendingQR(pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 			on :stzListOfStrings
 				return new stzListOfStrings(This.WordsSortedInAscending())
@@ -1340,7 +1356,7 @@ class stzText from stzObject
 			on :stzList
 				return new stzList(This.WordsSortedInAscending())
 			other
-				raise("Unsupported returned type!")
+				stzRaise("Unsupported returned type!")
 			off
 
 		def WordsSortedInAscendingQ()
@@ -1354,6 +1370,10 @@ class stzText from stzObject
 			return This.WordsSortedInAscending()
 
 			def WordsInAscendingQR(pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 				switch pcType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.WordsInAscending())
@@ -1361,7 +1381,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.WordsInAscending())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def WordsInAscendingQ()
@@ -1371,6 +1391,10 @@ class stzText from stzObject
 			return This.WordsSortedInAscending()
 
 			def WordsInAscendingOrderQR(pcType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.WordsInAscendingOrder())
@@ -1378,7 +1402,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.WordsInAscendingOrder())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def WordsInAscendingOrderQ()
@@ -1395,6 +1419,10 @@ class stzText from stzObject
 		#< @FunctionFluentForm
 
 		def WordsSortedInDescendingQR(pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 			on :stzListOfStrings
 				return new stzListOfStrings(This.WordsSortedInDescending())
@@ -1402,7 +1430,7 @@ class stzText from stzObject
 			on :stzList
 				return new stzList(This.WordsSortedInDescending())
 			other
-				raise("Unsupported returned type!")
+				stzRaise("Unsupported returned type!")
 			off
 
 		def WordsSortedInDescendingQ()
@@ -1423,7 +1451,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.WordsInDescendingOrder())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def WordsInDesscendingOrderQ()
@@ -1433,6 +1461,10 @@ class stzText from stzObject
 			return This.WordsSortedInDescending()
 
 			def WordsInDescendingQR(pcType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.WordsInDescending())
@@ -1440,7 +1472,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.WordsInDescending())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def WordsInDescendingQ()
@@ -1457,6 +1489,10 @@ class stzText from stzObject
 		#< @FunctionFluentForm
 
 		def UniqueWordsSortedInAscendingQR(pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 			on :stzListOfStrings
 				return new stzListOfStrings(This.UniqueWordsSortedInAscending())
@@ -1464,7 +1500,7 @@ class stzText from stzObject
 			on :stzList
 				return new stzList(This.UniqueWordsSortedInAscending())
 			other
-				raise("Unsupported returned type!")
+				stzRaise("Unsupported returned type!")
 			off
 
 		def UniqueWordsSortedInAscendingQ()
@@ -1485,7 +1521,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.UniqueWordsInAscendingOrder())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def UniqueWordsInAscendingOrderQ()
@@ -1495,6 +1531,10 @@ class stzText from stzObject
 			return This.UniqueWordsSortedInAscending()
 
 			def UniqueWordsInAscendingQR(pcType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.UniqueWordsInAscending())
@@ -1502,7 +1542,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.UniqueWordsInAscending())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def UniqueWordsInAscendingQ()
@@ -1519,7 +1559,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.SetOfWordsSortedInAscending())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def SetOfWordsSortedInAscendingQ()
@@ -1529,6 +1569,10 @@ class stzText from stzObject
 			return This.SetOfWordsSortedInAscending()
 
 			def SetOfWordsInAscendingOrderQR(pcType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.SetOfWordsInAscendingOrder())
@@ -1536,7 +1580,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.SetOfWordsInAscendingOrder())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def SetOfWordsInAscendingOrderQ()
@@ -1546,6 +1590,10 @@ class stzText from stzObject
 			return This.SetOfWordsSortedInAscending()
 
 			def SetOfWordsInAscendingQR(pcType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.SetOfWordsInAscending())
@@ -1553,7 +1601,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.SetOfWordsInAscending())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def SetOfWordsInAscendingQ()
@@ -1570,6 +1618,10 @@ class stzText from stzObject
 		#< @FunctionFluentForm
 
 		def UniqueWordsSortedInDescendingQR(pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 			on :stzListOfStrings
 				return new stzListOfStrings(This.UniqueWordsSortedInDescending())
@@ -1577,7 +1629,7 @@ class stzText from stzObject
 			on :stzList
 				return new stzList(This.UniqueWordsSortedInDescending())
 			other
-				raise("Unsupported returned type!")
+				stzRaise("Unsupported returned type!")
 			off
 
 		def UniqueWordsSortedInDescendingQ()
@@ -1598,7 +1650,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.UniqueWordsInDescendingOrder())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def UniqueWordsInDescendingOrderQ()
@@ -1608,6 +1660,10 @@ class stzText from stzObject
 			return This.UniqueWordsSortedInDescending()
 
 			def UniqueWordsInDescendingQR(pcType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+		
 				switch pcType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.UniqueWordsInDescending())
@@ -1615,7 +1671,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.UniqueWordsInDescending())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def UniqueWordsInDescendingQ()
@@ -1625,6 +1681,10 @@ class stzText from stzObject
 			return This.UniqueWordsSortedInDescending()
 
 			def SetOfWordsSortedInDescendingQR(pcType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.SetOfWordsSortedInDescending())
@@ -1632,7 +1692,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.SetOfWordsSortedInDescending())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def SetOfWordsSortedInDescendingQ()
@@ -1642,6 +1702,10 @@ class stzText from stzObject
 			return This.SetOfWordsSortedInDescending()
 
 			def SetOfWordsInDescendingOrderQR(pcType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.SetOfWordsInDescendingOrder())
@@ -1649,7 +1713,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.SetOfWordsInDescendingOrder())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def SetOfWordsInDescendingOrderQ()
@@ -1659,6 +1723,10 @@ class stzText from stzObject
 			return This.SetOfWordsSortedInDescending()
 
 			def SetOfWordsInDescendingQR(pcType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.SetOfWordsInDescending())
@@ -1666,7 +1734,7 @@ class stzText from stzObject
 				on :stzList
 					return new stzList(This.SetOfWordsInDescending())
 				other
-					raise("Unsupported returned type!")
+					stzRaise("Unsupported returned type!")
 				off
 	
 			def SetOfWordsInDescendingQ()
@@ -1687,7 +1755,7 @@ class stzText from stzObject
 			3. ReplaceMarquersWithWords()
 		*/
 
-		def ReversWordsQ()
+		def ReversWordsQR(pcReturnType)
 			This.ReverseWords()
 			return This
 
@@ -1719,6 +1787,10 @@ class stzText from stzObject
 		#< @FunctionFluentForm
 
 			def WordsPositionsQR(pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzListOfNumbers
 					return new stzListOfNumbers( This.WordsPositions() )
@@ -1727,7 +1799,7 @@ class stzText from stzObject
 					return new stzList( This.WordsPositions() )
 
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 			def WordsPositionsQ()
@@ -1741,6 +1813,10 @@ class stzText from stzObject
 			return This.WordsPositions()
 
 			def WordsOccurrencesQR(pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzListOfNumbers
 					return new stzListOfNumbers( This.WordsPositions() )
@@ -1749,7 +1825,7 @@ class stzText from stzObject
 					return new stzList( This.WordsPositions() )
 
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 			def WordsOccurrencesQ()
@@ -1876,7 +1952,7 @@ class stzText from stzObject
 	def NumberOfOccurrenceOfWord(pcWord)
 
 		if NOT ( isString(pcWord) and StringIsWord(pcWord) )
-			raise(stzStringError(:CanNotComputeNumberOfOccurrenceOfWord))
+			stzRaise(stzStringError(:CanNotComputeNumberOfOccurrenceOfWord))
 		ok
 
 		# This solution (the line hereafter) takes 2.53s, a lot!
@@ -1948,13 +2024,13 @@ class stzText from stzObject
 	def WordFrequency(pcWord)
 
 		if This.ToStzString().IsEmpty()
-			raise("Can't compute WordFrequency()! String is empty.")
+			stzRaise("Can't compute WordFrequency()! String is empty.")
 		ok
 
 		n = This.NumberOfWords()
 
 		if n = 0
-			raise("Can't compute WordFrequency()! String contains nos words.")
+			stzRaise("Can't compute WordFrequency()! String contains nos words.")
 		ok
 
 		n = This.NumberOfOccurrenceOfWord(pcWord) / This.NumberOfWords()
@@ -1990,6 +2066,10 @@ class stzText from stzObject
 			return This.WordsFrequenciesQR(:stzList)
 
 		def WordsFrequenciesQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.WordsFrequencies() )
@@ -1998,7 +2078,7 @@ class stzText from stzObject
 				return new stzListOfNumbers( This.WordsFrequencies() )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	def UniqueWordsFrequencies()
@@ -2016,6 +2096,10 @@ class stzText from stzObject
 			return This.UniqueWordsFrequenciesQR(:stzList)
 
 		def UniqueWordsFrequenciesQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.UniqueWordsFrequencies() )
@@ -2024,7 +2108,7 @@ class stzText from stzObject
 				return new stzListOfNumbers( This.UniqueWordsFrequencies() )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	def WordsAndTheirFrequencies()
@@ -2306,7 +2390,7 @@ class stzText from stzObject
 
 	def TopTenFrequentWordsAmongTheseWords(pacWords)
 		if len(pacWords) < 10
-			raise("Number of words in pacWords must be greater then 10!")
+			stzRaise("Number of words in pacWords must be greater then 10!")
 		ok
 
 		return This.NMostFrequentWordsAmong(10, pacWords)
@@ -2355,7 +2439,7 @@ class stzText from stzObject
 
 	def TopFiveFrequentWordsAmongTheseWords(pacWords)
 		if len(pacWords) < 5
-			raise("Number of words in pacWords must be greater then 5!")
+			stzRaise("Number of words in pacWords must be greater then 5!")
 		ok
 
 		return This.NMostFrequentWordsAmong(5, pacWords)
@@ -2403,7 +2487,7 @@ class stzText from stzObject
 
 	def TopThreeFrequentWordsAmongTheseWords(pacWords)
 		if len(pacWords) < 3
-			raise("Number of words in pacWords must be greater then 3!")
+			stzRaise("Number of words in pacWords must be greater then 3!")
 		ok
 
 		return This.NMostFrequentWordsAmong(3, pacWords)
@@ -2542,7 +2626,7 @@ class stzText from stzObject
 		# Controlling the type of the options list
 
 		if NOT ( isList(paOptions) and StzListQ(paOptions).IsHashList() )
-			raise("Incorrect type of the option list!")
+			stzRaise("Incorrect type of the option list!")
 		ok
 
 		# We are sure sofar we provided a hashlist. Let's analyze it.
@@ -2552,7 +2636,7 @@ class stzText from stzObject
 		# Three options must be provided
 
 	        if NOT oHashList.KeysQ().IsMadeOfOneOrMoreOfThese([ :By, :Except, :StopWords ])
-			raise("Incorrect options!")
+			stzRaise("Incorrect options!")
 		ok
 
 		# We are sure sofar options are provided, let's retrieve them
@@ -2574,7 +2658,7 @@ class stzText from stzObject
 				:AscendingOrder, :AscendingOrderOfWords,
 				:DescendingOrder, :DescendingOrderOfWords ]) )
 	
-				raise("Incorrect param format!")
+				stzRaise("Incorrect param format!")
 			ok
 		ok
 
@@ -2589,7 +2673,7 @@ class stzText from stzObject
 				  ( isList(pExceptValue)) and
 				    ( IsListOfStrings(pExceptValue) or len(pExceptValue) = 0 ) )
 
-				raise("Incorrect param format!")
+				stzRaise("Incorrect param format!")
 			ok		
 		ok
 
@@ -2607,7 +2691,7 @@ class stzText from stzObject
 					:MustBeRemoved, :MustNotBeRemoved
 				 ]) )
 
-				raise("Incorrect param format!")
+				stzRaise("Incorrect param format!")
 			ok
 		ok
 
@@ -3534,13 +3618,17 @@ class stzText from stzObject
 			return This.SentencesQR(:stzList)
 
 		def SentencesQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Sentences() )
 			on :stzListOfStrings
 				return new stzListOfStrings( This.Sentences() )
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 	
 		#>
@@ -3559,13 +3647,17 @@ class stzText from stzObject
 			return This.ParagraphsQR(:stzList)
 
 		def ParagraphsQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Paragraphs() )
 			on :stzListOfStrings
 				return new stzListOfStrings( This.Paragraphs() )
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 	
 		#>
@@ -3823,7 +3915,7 @@ class stzText from stzObject
 			# but check this!
 	
 		other
-			raise("Can't remove diacritics for that script!")
+			stzRaise("Can't remove diacritics for that script!")
 		off
 	
 		def RemoveDiacriticsQ()
@@ -3966,3 +4058,47 @@ class stzText from stzObject
 		cResult = This.Copy().RemoveDiacriticsInLocaleQ(pLocale).Content()
 		return This
 
+	  #---------------#
+	 #   INTITIALS   #
+	#---------------#
+
+	def Initials()
+		aResult = This.ToStzString().
+			       SplitQR(:Using = " ", :stzListOfStrings).
+			       Yield('Q(@str).FirstChar()')
+
+		return aResult
+
+		def InitialsQ()
+			return This.InitialsQR(:stzList)
+
+		def InitialsQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Initials() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Initials() )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.Initials() )
+
+			on :stzString
+				return new stzString( This.InitialsQR(:stzListOfStrings).Concatenated() )
+
+			on :stzText
+				return new stzText( This.InitialsQR(:stzListOfStrings).Concatenated() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+	def InitialsAsString()
+		return This.InitialsQR(:stzString).Content()
+
+	def InitialsAsText()
+		return This.InitialsQR(:stzText).Content()

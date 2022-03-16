@@ -183,7 +183,7 @@ func StringRepresentsSignedNumber(cNumber)
 
 func IsBit(n)
 	if NOT isNumber(n)
-		raise("Param must be a number!")
+		stzRaise("Param must be a number!")
 	ok
 
 	if n = 0 or n = 1
@@ -195,7 +195,7 @@ func IsBit(n)
 
 func Min(n1,n2) # for more numbers, use stzListOfNumbers.Min()
 	if NOT (isNumber(n1) and isNumber(n2))
-		raise("Param must be a number!")
+		stzRaise("Param must be a number!")
 	ok
 
 	if n1 <= n2
@@ -206,7 +206,7 @@ func Min(n1,n2) # for more numbers, use stzListOfNumbers.Min()
 
 func Max(n1,n2) # for more numbers, use stzListOfNumbers.Max()
 	if NOT (isNumber(n1) and isNumber(n2))
-		raise("Param must be a number!")
+		stzRaise("Param must be a number!")
 	ok
 
 	if n1 >= n2
@@ -227,7 +227,7 @@ func Double(n)
 			return Double(n)
 
 		else
-			raise("Invalid param type! n must be a number.")
+			stzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -251,7 +251,7 @@ func Triple(n)
 			return Triple(n)
 
 		else
-			raise("Invalid param type! n must be a number.")
+			stzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -267,7 +267,7 @@ func Quadruple(n)
 			return Quadruple(n)
 
 		else
-			raise("Invalid param type! n must be a number.")
+			stzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -283,7 +283,7 @@ func Quintuple(n)
 			return Quintuple(n)
 
 		else
-			raise("Invalid param type! n must be a number.")
+			stzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -299,7 +299,7 @@ func Sextuple(n)
 			return Sextuple(n)
 
 		else
-			raise("Invalid param type! n must be a number.")
+			stzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -315,7 +315,7 @@ func Septuple(n)
 			return Septuple(n)
 
 		else
-			raise("Invalid param type! n must be a number.")
+			stzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -331,7 +331,7 @@ func Octuple(n)
 			return Octuple(n)
 
 		else
-			raise("Invalid param type! n must be a number.")
+			stzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -347,7 +347,7 @@ func Nonuple(n)
 			return Nonuple(n)
 
 		else
-			raise("Invalid param type! n must be a number.")
+			stzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -363,7 +363,7 @@ func Decuple(n)
 			return Decuple(n)
 
 		else
-			raise("Invalid param type! n must be a number.")
+			stzRaise("Invalid param type! n must be a number.")
 
 		ok
 	
@@ -438,7 +438,7 @@ func StringToNumber(cNumber) # TESTING IN PROGESS
 		// TODO
 			
 	other
-		raise(stzNumberError(:UnsupportedNumberForm))
+		stzRaise(stzNumberError(:UnsupportedNumberForm))
 	ok
 
 func NumberToString(n)
@@ -499,7 +499,7 @@ func GetUnitsDozensAndHundreds(pNumber)	// Or simplier : GetMicroStructure(pNumb
 
 			pcNumber = pcNumber[2] + pcNumber[3] + pcNumber[4]
 		else
-			raise("Can't proceed! The lenght of the number should not exceed 3.")
+			stzRaise("Can't proceed! The lenght of the number should not exceed 3.")
 		ok
 	ok
 
@@ -550,7 +550,7 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 	switch pcFrom
 	on :FromDecimalForm
 		if NOT StringRepresentsNumberInDecimalForm(pcNumber)
-			raise(stzNumberError(:CanNotConvertNumberFromDecimalInThisForm))
+			stzRaise(stzNumberError(:CanNotConvertNumberFromDecimalInThisForm))
 		ok
 
 		oStzNumber = new stzNumber(pcNumber)
@@ -568,12 +568,12 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 		on :ToOctalForm
 			return oStzNumber.ToOctalForm()
 		other
-			raise(stzNumberError(:UnsupportedNumberConversionTargetForm1))
+			stzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm1))
 		off
 
 	on :FromBinaryForm
 		if NOT NumberIsInBinaryForm(pcNumber)
-			raise(stzNumberError(:CanNotConvertNumberFromBinaryInThisForm))
+			stzRaise(stzNumberError(:CanNotConvertNumberFromBinaryInThisForm))
 		ok
 
 		oBinNumber = new stzBinaryNumber(pcNumber)
@@ -592,12 +592,12 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 		on :ToOctalForm
 			return oBinNumber.ToOctalForm()
 		other
-			raise(stzNumberError(:UnsupportedNumberConversionTargetForm))
+			stzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm))
 		off
 
 	on :FromHexForm
 		if NOT StringContainsNumberInHexForm(pcNumber)
-			raise(stzNumberError(:CanNotConvertNumberFromHexInThisForm))
+			stzRaise(stzNumberError(:CanNotConvertNumberFromHexInThisForm))
 		ok
 
 		oHexNumber = new stzHexNumber(pcNumber)
@@ -615,12 +615,12 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 		on :ToOctalForm
 			return oHexNumber.ToOctalForm()
 		other
-			raise(stzNumberError(:UnsupportedNumberConversionTargetForm))
+			stzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm))
 		off
 
 	on :FromOctalForm
 		if NOT NumberIsInOctalForm(pcNumber)
-			raise(stzNumberError(:CanNotConvertNumberFromOctalInThisForm))
+			stzRaise(stzNumberError(:CanNotConvertNumberFromOctalInThisForm))
 		ok
 
 		oOctalNumber = new stzOctalNumber(pcNumber)
@@ -642,11 +642,11 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 			return pcNumber
 
 		other
-			raise(stzNumberError(:UnsupportedNumberConversionTargetForm))
+			stzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm))
 		off
 
 	other
-		raise(stzNumberError(:UnsupportedNumberConversionSourceForm))
+		stzRaise(stzNumberError(:UnsupportedNumberConversionSourceForm))
 	off
 		
 func NumberIsEven(n)
@@ -721,15 +721,15 @@ class stzNumber from stzObject
 							@cNumber = pNumber
 						ok
 					else
-						raise(stzNumberError(:CanNotCreateDecimalNumber2))
+						stzRaise(stzNumberError(:CanNotCreateDecimalNumber2))
 					ok
 	
 				else
-					raise(stzNumberError(:CanNotCreateDecimalNumber1))
+					stzRaise(stzNumberError(:CanNotCreateDecimalNumber1))
 				ok
 			ok
 		else
-			raise(stzNumberError(:CanNotCreateStzNumberObject))
+			stzRaise(stzNumberError(:CanNotCreateStzNumberObject))
 		ok
 
 	  #-------------------------#
@@ -1305,17 +1305,17 @@ class stzNumber from stzObject
 	def RoundTo(pRound)
 
 		if NOT NumberIsCalculable(This.Number())
-			raise(stzNumberError(:CanNotRoundSutchLargeNumber))
+			stzRaise(stzNumberError(:CanNotRoundSutchLargeNumber))
 		ok
 
 		if NOT IsNumberOrString(pRound)
-			raise("Incorrect param type!")
+			stzRaise("Incorrect param type!")
 		ok
 
 		if isNumber(pRound) 
 		
 			if pRound < 0
-				raise("Inccorect value! Round can't be negative.")
+				stzRaise("Inccorect value! Round can't be negative.")
 
 			but pRound > RingMaxRound()
 				pRound = RingMaxRound()
@@ -1329,7 +1329,7 @@ class stzNumber from stzObject
 			if pRound = :Max
 				pRound = NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
 			else
-				raise("Incorrect param type!")
+				stzRaise("Incorrect param type!")
 			ok
 		ok
 
@@ -2057,14 +2057,14 @@ class stzNumber from stzObject
 
 	def AllFactors()
 		if NOT This.IsInteger()
-			raise("Factors can't be computed for a non integer!")
+			stzRaise("Factors can't be computed for a non integer!")
 		ok
 
 		// Returns the factors of just the integer part!
 		if This.NumericValue() > 0
 			return factors(This.IntegerPartValue())
 		else
-			raise("For factors(n), n must must be positive!")
+			stzRaise("For factors(n), n must must be positive!")
 		ok
 
 		def AllFactorsQ()
@@ -2259,7 +2259,7 @@ class stzNumber from stzObject
 			return oQString.number(This.IntegerValue(),n)
 
 		else
-			raise(stzNumberError(:CanNotConvertNumberToSpecifiedBase))
+			stzRaise(stzNumberError(:CanNotConvertNumberToSpecifiedBase))
 		ok
 
 	# Converting decimal number to bytes
@@ -3309,7 +3309,7 @@ class stzNumber from stzObject
 	def ListifyXT(paOptions)
 
 		if NOT StzListQ(paOptions).IsNumberListifyParamList()
-			raise("Unsupported option list!")
+			stzRaise("Unsupported option list!")
 
 		else
 			# By default, or if specified, add the number
@@ -3332,7 +3332,7 @@ class stzNumber from stzObject
 				return aResult
 
 			else
-				raise("Unsupported option value!")
+				stzRaise("Unsupported option value!")
 			ok
 
 		ok
@@ -3504,7 +3504,7 @@ class stzNumber from stzObject
 			if oTemp1.IsInteger() and oTemp2.IsInteger()
 				nResult = n1 % n2
 			else
-				raise("Can't calculate the modulo. The two numbers must be integers!")
+				stzRaise("Can't calculate the modulo. The two numbers must be integers!")
 			ok
 	
 		on "^"

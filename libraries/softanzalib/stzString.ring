@@ -1,12 +1,11 @@
 
-# 			SOFTANZA STRING LIBRARY (V0.9)
-#		An advanced UNICODE-aware string library for Ring
-#			 Part of the Softanza Framework
+# 		    SOFTANZA LIBRARY (V1.0) - STZSTRING
+#		An accelerative library for Ring applications
 
 #---------------------------------------------------------------------------#
 #									    #
 # 	Description	: The core class for managing Unicode strings       #
-#	Version		: V0.9 (July,2020)				    #
+#	Version		: V1.0 (2020-2022)				    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
 #---------------------------------------------------------------------------#
@@ -63,7 +62,7 @@ func QStringToString(oQStr)
 	if IsQString(oQStr)
 		return oQStr.left(oQStr.count())
 	else
-		raise(stzStringError(:CanNotTransformQStringToString))
+		stzRaise(stzStringError(:CanNotTransformQStringToString))
 	ok
 	
 func QStringToStzString(oQString)
@@ -292,11 +291,11 @@ func BothStringsAreEqual(pcStr1, pcStr2)
 
 func StringsAreEqualCS(paStrings, pCaseSensitive)
 	if NOT ListIsListOfStrings(paStrings)
-		raise("You must provide a list of strings!")
+		stzRaise("You must provide a list of strings!")
 	ok
 
 	if NOT len(paStrings) > 1
-		raise("You must provide at least two strings in the list!")
+		stzRaise("You must provide at least two strings in the list!")
 	ok
 
 	if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveParamList()
@@ -352,36 +351,44 @@ func StringCase(pcStr)
 class stzString from stzObject
 
 	@oQString
-	@Constraints = []
+	@@aConstraints = []
 
 	@cLanguage = :English	# Set explicitly using SetLanguage()
 				# TODO (future): Infere the language from the string
 
 	// Initializes the content of the softanza string object
 	def init(pcStr)
+
 		@oQString = new QString2()
 		@oQString.append(pcStr)
 
 	  #--------------------------#
 	 #   CHECKING CONSTRAINTS   #
 	#--------------------------#
+	
+	# TODO: Generalize this feature to other classes
 
-	def Constraints()
-		return @Constraints
+	def EnforcedConstraints()
+		return @@aConstraints
 
-	def VerifyConstraint(pcName)
+		def Constraints()
+			return This.EnforcedConstraints()
+
+	def VerifyConstraint(pcConstraintName)
 
 		@str = This.Content()
 
-		cCondition = This.Constraints()[ pcName ]
+		cCondition = Constraints()[ :OnStzString ][ pcConstraintName ]
 
 		if cCondition = NULL
-			raise("Inexsitant contraint!")
+			stzRaise("Inexsitant contraint!")
 		ok
+
+		CompileConstraint(cCondition)
 
 		StzStringQ(cCondition) {
 
-			ReplaceManyCS([ "@string", "@this" ], :With = @str, :CS = FALSE)
+			ReplaceCS("@string", :With = @str, :CS = FALSE)
 			Simplify()
 			RemoveBounds("{", "}")
 
@@ -391,69 +398,24 @@ class stzString from stzObject
 		cCode  = 'bResult = ""+ (' + cCondition + ')'
 		eval(cCode)
 
-		return bResult
+		if bResult = FALSE
+			stzRaise([
+				:Where = "stzString.ring > VerifyCondition()",
+				:What  = "Execution is cancelled by Softanza",
+				:Why   = "A constraint on the string object is not verified!",
+				:Todo  = "Check that constraint (" + pcName + ") and adjust your logic accordingly ;)"
+
+			])
+		ok
 
 	def VerifyConstraints()
 		bResult = TRUE
+
 		for aPair in This.Constraints()
 			cConstraintName = aPair[1]
-			if This.VerifyConstraint(cConstraintName) = FALSE
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		if bResult = FALSE
-			raise("Unverified constraint!")
-		ok
-
-	def VerifyConstraintsXT()
-		anResult = []
-		for aPair in This.Constraints()
-			cConstraintName = aPair[1]
-			anResult + This.VerifyConstraint(cConstraintName)
-	
-		next
-
-		return anResult	
-	  #-----------------------------#
-	 #     SPECIAL CONSTRAINTS     #
-	#-----------------------------#
-
-	// TODO: Reveview the following methods by reference to what provides
-	// the stzConstraint class...
-
-	def MustBe(pcIsMethod)
-
-		# The constraint is activated only if the string is not null
-
-	//	if NOT This.IsEmpty()
+			This.VerifyConstraint(cConstraintName) = FALSE
 			
-	//	ok
-
-	def CanNotBe(pcIsMethod)
-		# The constraint is activated only if the string is not null
-
-		if NOT This.IsEmpty()
-
-			return This.ObjectCanNotBe(pcIsMethod, :InObject = This)
-		ok
-
-	def MustHave(pcExpression)
-		# The constraint is activated only if the string is not null
-
-		if NOT This.IsEmpty()
-
-			return This.ObjectMustHave(pcExpression, :InObject = This)
-		ok
-
-	def CanNotHave(pcExpression)
-		# The constraint is activated only if the string is not null
-
-		if NOT This.IsEmpty()
-
-			return This.ObjectCanNotHave(pcExpression, :OnObject = This)
-		ok
+		next
 
 	  #-------------------------------#
 	 #     APPENDING & PEPENDING     #
@@ -687,27 +649,27 @@ class stzString from stzObject
 		*/
 	
 		if NOT ( isList(paLocale) and len(paLocale) = 2 )
-			raise("Incorrect format!")
+			stzRaise("Incorrect format!")
 		ok
 	
 		if NOT isString(paLocale[1])
-			raise("Incorrect format!")
+			stzRaise("Incorrect format!")
 		ok
 	
 		if NOT ( _(paLocale[1]).Q.IsOneOfThese([ :InThisLocale, :InLocale ]) )
-			raise("Incorrect format!")
+			stzRaise("Incorrect format!")
 		ok
 	
 		if NOT ( isString(paLocale[2]) or (isList([paLocale[2]]) and len(paLocale[2]) = 2) )
-			raise("Incorrect format!")
+			stzRaise("Incorrect format!")
 		ok
 	
 		if isString(paLocale[2]) and NOT StzStringQ(paLocale[2]).IsLocaleAbbreviation()
-			raise("Incorrect format!")
+			stzRaise("Incorrect format!")
 		ok
 	
 		if isList(paLocale[2]) and NOT StzListQ(paLocale[2]).IsLocaleList()
-			raise("Incorrect format!")
+			stzRaise("Incorrect format!")
 		ok
 	
 		return _@(pcStr).LowercasedInLocale(paLocale[2]) = This.String()
@@ -1183,127 +1145,6 @@ class stzString from stzObject
 	def IsCaseFoldedOf(pcStr)
 		return This.CaseFolded() = pcStr
 		
-	  #-----------------#
-	 #      CHARS      #
-	#-----------------#
-
-	// Returns the string as a list of Chars
-	def Chars()
-		aResult = []
-		for i = 1 to This.NumberOfChars()
-			aResult + This.NthChar(i)
-		next
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def ToListOfChars()
-			return This.Chars()
-
-			#< @FunctionFluentForm
-
-			def ToListOfCharsQR(pcType)
-				switch pcType
-				on :stzList
-					return new stzList( This.Chars() )
-
-				on :stzListOfChars
-					return new stzListOfChars( This.Chars() )
-
-				on :stzListOfStrings
-					return new stzListOfStrings( This.Chars() )
-
-				other
-					raise("Unsupported type!")
-				off 
-
-			def ToListOfCharsQ()
-				return This.ToListOfCharsQR(:stzListOfChars)
-
-			def ToStzListOfChars()
-				return This.ToListOfCharsQR(:stzListOfChars)
-
-
-			#>
-	
-		#>
-
-		#< @FunctionFluentForm
-
-		def CharsQ()
-			return This.CharsQR(:stzList)
-
-		def CharsQR(pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Chars() )
-
-			on :stzListOfChars
-				return new stzListOfChars( This.Chars() )
-
-			on :stzListOfSrings
-				return new stzListOfStrings( This.Chars() )
-			other
-				raise("Unsupported type!")
-			off
-
-		#>
-			
-	def ToListOfStzChars()
-		aResult = []
-		for i = 1 to This.NumberOfChars()
-		# Warning: Note that using 'for in' yields erronous
-		# result for strings coded on more then 1 byte
-			aResult + new stzChar(This[i])
-		next
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def ToListOfStzCharsQ()
-			return new stzList( This.ToListOfStzChars() )
-
-		#>
-
-	  #---------------------------------------------#
-	 #      CHARS VERIFYING A GIVEN CONDITION      #
-	#---------------------------------------------#
-	
-	def CharsW(pcCondition)
-		cCondition = StzStringQ(pcCondition).ReplaceAllCSQ("@char", "@item", :CS = FALSE).SimplifyQ().Content()	
-		return StzListQ( This.ToListOfChars() ).ItemsW(cCondition)
-
-		def CharsWhere(pcCondition)
-			return This.CharsW(pcCondition)
-
-		def OnlyW(pcCondition)
-			return This.CharsW(pcCondition)
-
-		# The use of Item instead of Char is required by some
-		# features of natural-coding (namely the IsA() function
-		# is stzChainOfTruth class
-		def ItemsW(pcCondition)
-			return GetCharsW(pcCondition)
-
-		def ItemsWhere(pcCondition)
-			return GetCharsW(pcCondition)
-
-
-	def NumberOfCharsW(pcCondition)
-		return len( This.CharsW(pcCondition) )
-
-		def NumberOfCharsWhere(pcCondition)
-			return This.NumberOfCharsW(pcCondition)
-
-		# Items-based naming as required for natural-coding
-
-		def NumberOfItemsW(pcCondition)
-			return This.NumberOfCharsW(pcCondition)
-
-		def NumberOfItemsWhere(pcCondition)
-			return This.NumberOfCharsW(pcCondition)
-
-
 	  #------------------------#
 	 #      CONTRACTIONS      #
 	#------------------------#
@@ -1438,8 +1279,11 @@ class stzString from stzObject
 				return new stzListOfChars( This.UniqueLetters() )
 
 			def UniqueLettersQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
-		
 				on :stzListOfChars
 					return new stzListOfChars( This.UniqueLetters() )
 		
@@ -1540,6 +1384,10 @@ class stzString from stzObject
 		return aResult
 
 		def MarquersQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 
 			on :stzListOfStrings
@@ -1549,13 +1397,17 @@ class stzString from stzObject
 				return new stzList(This.Marquers())
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	def UniqueMarquers()
 		return StzListQ(This.Marquers()).UniqueItems()
 
 		def UniqueMarquersQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 
 			on :stzListOfStrings
@@ -1565,13 +1417,17 @@ class stzString from stzObject
 				return new stzList(This.UniqueMarquers())
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def SetOfMarquers()
 			return This.UniqueMarquers()
 
 			def SetOfMarquersQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
 				switch pcReturnType
 	
 				on :stzListOfStrings
@@ -1581,7 +1437,7 @@ class stzString from stzObject
 					return new stzList(This.SetOfMarquers())
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 	def NumberOfMarquers()
@@ -1635,6 +1491,10 @@ class stzString from stzObject
 			return This.MarquersPositionsQR(:stzListOfNumbers)
 
 		def MarquersPositionsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 
 			on :stzListOfNumbers
@@ -1644,7 +1504,7 @@ class stzString from stzObject
 				return new stzList(This.MarquersPositions())
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -1657,6 +1517,10 @@ class stzString from stzObject
 				return This.MarquersOccurrencesQR(:stzListOfNumbers)
 	
 			def MarquersOccurrencesQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 	
 				on :stzListOfNumbers
@@ -1666,7 +1530,7 @@ class stzString from stzObject
 					return new stzList(This.MarquersOccurrences())
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -1691,6 +1555,10 @@ class stzString from stzObject
 			return This.MarquersAndPositionsQR(:stzList)
 
 		def MarquersAndPositionsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.MarquersAndPositions() )
@@ -1699,7 +1567,7 @@ class stzString from stzObject
 				return new stzHashList( This.MarquersAndPositions() )
 
 			other
-				raise("Insupported returned type!")
+				stzRaise("Insupported returned type!")
 			off
 
 		#>
@@ -1713,6 +1581,10 @@ class stzString from stzObject
 				return This.MarquersAndPositionsQ()
 
 			def MarquersAndOccurrencesQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				return This.MarquersAndPositionsQR(pcReturnType)
 		#>
 
@@ -1739,6 +1611,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def MarquersAndTheirPositionsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 
 			on :stzHashList
@@ -1748,7 +1624,7 @@ class stzString from stzObject
 				return new stzList( This.MarquersAndTheirPositions() )
 
 			other
-				raise("Invalid param type!")
+				stzRaise("Invalid param type!")
 			off
 
 		#>
@@ -1779,6 +1655,10 @@ class stzString from stzObject
 			return This.OccurrencesOfMarquerQR(pcMarquer, :stzList)
 
 		def OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.OccurrencesOfMarquer(pcMArquer) )
@@ -1787,7 +1667,7 @@ class stzString from stzObject
 				return new stzListOfNumbers( This.OccurrencesOfMarquer(pcMArquer) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 
 			off
 		#>
@@ -1801,6 +1681,10 @@ class stzString from stzObject
 				return This.PositionsOfMarquerQR(pcMarquer, :stzList)
 	
 			def PositionsOfMarquerQR(pcMarquer, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.PositionsOfMarquer(pcMArquer) )
@@ -1809,7 +1693,7 @@ class stzString from stzObject
 					return new stzListOfNumbers( This.PositionsOfMarquer(pcMArquer) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 	
 				off
 
@@ -1892,6 +1776,10 @@ class stzString from stzObject
 			return This.MarquersAndSectionsQR(:stzList)
 
 		def MarquersAndSectionsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.MarquersAndSections() )
@@ -1900,7 +1788,7 @@ class stzString from stzObject
 				return new stzHashList( This.MarquersAndSections() )
 
 			other
-				raise("Insupported returned type!")
+				stzRaise("Insupported returned type!")
 			off
 
 		#>
@@ -1937,6 +1825,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def MarquersAndTheirSectionsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 
 			on :stzHashList
@@ -1946,7 +1838,7 @@ class stzString from stzObject
 				return new stzList( This.MarquersAndTheirSections() )
 
 			other
-				raise("Invalid param type!")
+				stzRaise("Invalid param type!")
 			off
 
 		#>
@@ -2160,7 +2052,7 @@ class stzString from stzObject
 
 	def NthMarquer(n)
 		if NOT isNumber(n)
-			raise("Incorrect param type! n should be a number.")
+			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
 		try
@@ -2234,6 +2126,10 @@ class stzString from stzObject
 			return This.NextMarquersQR(pnstartingAt, :stzList)
 
 		def NextMarquersQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NextMarquers(pnStartingAt) )
@@ -2242,7 +2138,7 @@ class stzString from stzObject
 				return new stzListOfStrings( This.NextMarquers(pnStartingAt) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	def NthNextMarquer(n, pnStartingAt)
@@ -2317,6 +2213,10 @@ class stzString from stzObject
 			return This.NthNextMarquerAndItsPositionQR(n, pnStartingAt, pnStartingAt, :stzList)
 
 		def NthNextMarquerAndItsPositionQR(n, pnStartingAt, pnStartingAt, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NthNextMarquerAndItsPosition(n, pnStartingAt) )
@@ -2325,7 +2225,7 @@ class stzString from stzObject
 				return new stzHashList( This.NthNextMarquerAndItsPosition(n, pnStartingAt) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -2381,6 +2281,10 @@ class stzString from stzObject
 			return This.PreviousMarquersQR(pnstartingAt, :stzList)
 
 		def PreviousMarquersQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.PreviousMarquers(pnStartingAt) )
@@ -2389,7 +2293,7 @@ class stzString from stzObject
 				return new stzListOfStrings( This.PreviousMarquers(pnStartingAt) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	def NthPreviousMarquer(n, pnStartingAt)
@@ -2453,6 +2357,10 @@ class stzString from stzObject
 			return This.NthPreviousMarquerAndItsPositionQR(n, pnStartingAt, pcReturnType)
 
 		def NthPreviousMarquerAndItsPositionQR(n, pnStartingAt, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NthPreviousMarquerAndItsPosition(n, pnStartingAt) )
@@ -2461,7 +2369,7 @@ class stzString from stzObject
 				return new stzHashList( This.NthPreviousMarquerAndItsPosition(n, pnStartingAt) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -2538,6 +2446,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def ToSetOfCharsQR(pcType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 
 			on :stzSet
@@ -2812,9 +2724,9 @@ class stzString from stzObject
 	def BytecodesPerChar()
 		return This.ToStzListOfBytes().BytecodesPerChar()
 
-	  #------------------------------#
+	  #==============================#
 	 #     BOUNDS OF THE STRING     #
-	#------------------------------#
+	#==============================#
 
 	// Verifies if the string is bounded by substrings 1 and 2 
 	def IsBoundedBy(pcSubstr1, pcSubstr2)
@@ -2874,6 +2786,39 @@ class stzString from stzObject
 
 		#>
 
+	  #------------------------------------#
+	 #     ADDING BOUNDS TO THE STRING    #
+	#------------------------------------#
+
+	def AddBounds(pcSubStr1, pcSubStr2)
+		if BothAreStrings(pcSubStr1, pcSubStr2)
+			cResult = pcSubStr1 + This.String() + pcSubStr2
+			This.UpdateWith( cResult )
+		ok
+
+		def AddBoundsQ(pcSubStr1, pcSubStr2)
+			This.AddBounds(pcSubStr1, pcSubStr2)
+			return This
+
+		def BoundWith(pcSubStr1, pcSubStr2)
+			This.AddBounds(pcSubStr1, pcSubStr2)
+
+			def BoundWithQ(pcSubStr1, pcSubStr2)
+				This.BoundWith(pcSubStr1, pcSubStr2)
+				return This
+
+	def StringWithBoundsAdded(pcSubStr1, pcSubStr2)
+		cResult = This.Copy().AddBoundsQ(pcSubStr1, pcSubStr2).Content()
+
+		def StringBoundedWith(pcSubStr1, pcSubStr2)
+			return This.StringWithBoundsAdded(pcSubStr1, pcSubStr2)
+
+		def BoundedWith()
+			return This.StringWithBoundsAdded(pcSubStr1, pcSubStr2)
+
+		def BoundsAdded()
+			return This.StringWithBoundsAdded(pcSubStr1, pcSubStr2)
+
 	  #-------------------------------#
 	 #     REMOVING BOTH BOUNDS      #
 	#-------------------------------#
@@ -2896,38 +2841,7 @@ class stzString from stzObject
 				This.RemoveFirstCS(pcSubStr1, pCaseSensitive)
 				This.RemoveLastCS(pcSubStr2, pCaseSensitive)
 			ok
-
-
-/*			
-			oSubStr1 = new stzString(pcSubstr1)
-			oSubStr2 = new stzString(pcSubstr2)
-	
-			if This.IsBoundedByCS(pcSubstr1, pcSubstr2, pCaseSensitive)
-	
-				# Define first and last bounds
-	
-				cFirstBound = ""
-				cLastBound = ""
-	
-				if This.NFirstChars(oSubStr1.NumberOfChars()) = pcSubstr1
-					cFirstBound = pcSubstr1
-					cLastBound = pcSubstr2
-	
-				else
-					cFirstBound = pcSubstr2
-					cLastBound = pcSubstr1
-				ok
-	
-				oFirstBound = new stzString(cFirstBound)
-				oLastBound = new stzString(cLastBound)
-	
-				# Remove the bounds
-	
-				This.RemoveNFirstChars( oFirstBound.NumberOfChars() )
-				This.RemoveNLastChars( oLastBound.NumberOfChars() )
-	
-			ok
-	*/			
+		
 			#< @FunctionFluentForm
 	
 			def RemoveBoundsCSQ(pcSubstr1, pcSubstr2, pCaseSensitive)
@@ -3142,9 +3056,35 @@ class stzString from stzObject
 			cResult = This.Copy().RemoveLastBoundCSQ(pcSubStr, pCaseSensitive).Content()
 			return cResult
 
-	  #----------------------------#
+
+	  #-----------------------------#
+	 #     IDENTIFYING BOUNDS      # TODO (future)
+	#-----------------------------#
+	
+	def Bounds()
+		/* EXAMPLE
+
+		o1 = new stzString("<<word>>")
+		
+		? o1.Bounds() # !--> [ "<<", ">>" ]
+		*/
+
+	def LeftBound()
+		// TODO (future)
+
+	def RightBound()
+		// TODO (future)
+
+	def FirstBound()
+		// TODO (future)
+		# For general use with left-to-right and right-toleft strings
+
+	def LastBound()
+		// TODO (future)
+		
+	  #============================#
 	 #   REMOVING N FIRST CHARS   #
-	#----------------------------#
+	#============================#
 
 	def RemoveNFirstChars(n)
 		if This.IsRightToLeft()
@@ -3438,13 +3378,17 @@ class stzString from stzObject
 		ok
 
 		def RepeatedLeadingCharQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzChar
 				return new stzChar(This.RepeatedLeadingChar())
 			on :stzString
 				return new stzString(This.RepeatedLeadingChar())
 			other
-				raise("Unsupported returned type!")
+				stzRaise("Unsupported returned type!")
 			off
 
 		def RepeatedLeadingCharQ()
@@ -3454,6 +3398,10 @@ class stzString from stzObject
 			return This.RepeatedLeadingChar()
 
 			def LeadingRepeatedCharQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				return This.RepeatedLeadingCharQR(pcReturnType)
 
 			def LeadingRepeatedCharQ()
@@ -3463,6 +3411,10 @@ class stzString from stzObject
 			return This.RepeatedLeadingChar()
 
 			def LeadingCharQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				return This.RepeatedLeadingCharQR(pcReturnType)
 
 			def LeadingCharQ()
@@ -3504,13 +3456,17 @@ class stzString from stzObject
 		ok
 
 		def RepeatedTrailingCharQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzChar
 				return new stzChar(This.RepeatedTrailingChar())
 			on :stzString
 				return new stzString(This.RepeatedTrailingChar())
 			other
-				raise("Unsupported returned type!")
+				stzRaise("Unsupported returned type!")
 			off
 
 		def RepeatedTrailingCharQ()
@@ -3520,6 +3476,10 @@ class stzString from stzObject
 			return This.RepeatedTrailingChar()
 
 			def TrailingRepeatedCharQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				return This.RepeatedTrailingCharQR(pcReturType)
 
 			def TrailingRepeatedCharQ()
@@ -3529,6 +3489,10 @@ class stzString from stzObject
 			return This.RepeatedTrailingChar()
 
 			def TrailingCharQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				return This.RepeatedTrailingCharQR(pcReturnType)
 
 			def TrailingCharQ()
@@ -4407,7 +4371,7 @@ class stzString from stzObject
 
 				return This.Range(nStartPos, nRange)
 			else
-				raise("Incorrect params!")
+				stzRaise("Incorrect params!")
 			ok
 
 		#>
@@ -4828,7 +4792,7 @@ class stzString from stzObject
 			oListOfProvidedOptions = new stzList(aListOfProvidedOptions)
 		
 			if NOT oListOfProvidedOptions.IsMadeOfSome(aPossibleOptions)
-				raise(stzStringError(:UnsupportedOptionsWhileInsertingListOfStrings))
+				stzRaise(stzStringError(:UnsupportedOptionsWhileInsertingListOfStrings))
 			ok
 		
 			# If some options are provided then we take them
@@ -5192,13 +5156,13 @@ class stzString from stzObject
 			cType = type(pCaseSensitive)
 
 			if NOT ( cType = "NUMBER" or cType = "LIST" )
-				raise(StzStringError(:IncorrectFormatOfCaseSensitiveParamList))
+				stzRaise(StzStringError(:IncorrectFormatOfCaseSensitiveParamList))
 			ok
 
 			if isNumber(pCaseSensitive) and NOT
 			   ( pCaseSensitive = 0 or pCaseSensitive = 1)
 
-				raise(StzStringError(:IncorrectFormatOfCaseSensitiveParamList))
+				stzRaise(StzStringError(:IncorrectFormatOfCaseSensitiveParamList))
 			ok
 
 			if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveParamList()
@@ -5434,7 +5398,7 @@ class stzString from stzObject
 	def ReplaceManyOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
 
 		if NOT IsListOfStrings(pacSubstrings) and isList(paNewSubStrings)
-		   raise("Incorrect params!")
+		   stzRaise("Incorrect params!")
 		ok
 
 		if isList(paNewSubStrings) and
@@ -5935,12 +5899,31 @@ class stzString from stzObject
 		def ExtractMArkersAndTheirPositions()
 			return This.ExtractMarkersXT()
 
+	  #---------------------------------------------#
+	 #    CHECKING IF THE STRING IS A RING CODE    # 
+	#---------------------------------------------#
+
+	def IsValidRingCode()
+
+		try
+			eval(This.Copy().Content())
+			return TRUE
+		catch
+			return FALSE
+		done
+
+		def IsEvaluableRingCode()
+			return This.IsValidRingCode()
+
+		def IsRingCode()
+			return This.IsValidRingCode()
+
 	  #------------------------------------------------#
 	 #    EXECUTING RING CODE HOSTED IN THE STRING    # 
 	#------------------------------------------------#
 
 	def Execute()
-		if This.IsRingCode()
+		if This.IsValidRingCode()
 			eval(This.String())
 		ok
 
@@ -5957,16 +5940,6 @@ class stzString from stzObject
 
 		def RunAndReturn()
 			This.ExecuteAndReturn()
-
-	def IsValidRingCode()
-	
-		try
-			// Be careful: could contain code that changes the string!
-			eval(This.String())
-			return TRUE
-		catch
-			return FALSE
-		done
 
 	  #----------------------------#
 	 #     CLEARING THE STRING    #
@@ -6115,7 +6088,7 @@ class stzString from stzObject
 		if NOT 	isNumber(pCaseSensitive) and
 			( pCaseSensitive = 0 or pCaseSensitive = 1 )
 
-			raise("Invalid param. pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+			stzRaise("Invalid param. pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 
 		else
 			return @oQString.startsWith(pcSubStr, pCaseSensitive)
@@ -6160,7 +6133,7 @@ class stzString from stzObject
 		if NOT 	isNumber(pCaseSensitive) and
 			( pCaseSensitive = 0 or pCaseSensitive = 1 )
 
-			raise("Invalid param. pCaseSensitive must be TRUE or FALSE (0 or 1).")
+			stzRaise("Invalid param. pCaseSensitive must be TRUE or FALSE (0 or 1).")
 
 		else
 
@@ -6276,7 +6249,7 @@ class stzString from stzObject
 		if NOT 	isNumber(pCaseSensitive) and
 			( pCaseSensitive = 0 or pCaseSensitive = 1 )
 
-			raise("Invalid param. pCaseSensitive must be TRUE or FALSE (0 or 1).")
+			stzRaise("Invalid param. pCaseSensitive must be TRUE or FALSE (0 or 1).")
 
 		else
 		
@@ -6998,7 +6971,7 @@ class stzString from stzObject
 				return oStzListOfChars.BoxedXT(paOptions)
 	
 			else
-				raise(stzStringError(:IncorrectParameter))
+				stzRaise(stzStringError(:IncorrectParameter))
 			ok
 		
 		else
@@ -7087,7 +7060,7 @@ class stzString from stzObject
 				return @oQString.contains(cSubStr, pCaseSensitive)
 
 			else
-				raise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+				stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 	
 			ok
 
@@ -7519,6 +7492,10 @@ class stzString from stzObject
 			return This.SplitQR(cSep, :stzList)
 
 		def SplitQR(cSep, pcReturnType )
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Split(cSep) )
@@ -7527,7 +7504,7 @@ class stzString from stzObject
 				return new stzListOfStrings( This.Split(cSep) )
 	
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 	
 			off
 
@@ -7545,7 +7522,7 @@ class stzString from stzObject
 
 	def SplitToPartsOfNCharsXT(n, pDirection)
 		if n > this.NumberOfChars()
-			raise("Can't proceed! Range of the part ("+ n +") must not exceed the lenght of the string ("+this.NumberOfChars()+").")
+			stzRaise("Can't proceed! Range of the part ("+ n +") must not exceed the lenght of the string ("+this.NumberOfChars()+").")
 		ok
 
 		if ( pDirection = :Forward or pDirection = :Backward ) OR
@@ -7581,7 +7558,7 @@ class stzString from stzObject
 			return aResult
 
 		else
-			raise("Incorrect paDirection format!")
+			stzRaise("Incorrect paDirection format!")
 		ok
 
 	def SplitToPartsOfNCharsXTQ(n, pDirection)
@@ -7687,7 +7664,7 @@ class stzString from stzObject
 
 			return This.NthSubstringAfterSplittingStringUsing(n, acSep[2])
 		else
-			raise("Incorrect param types!")
+			stzRaise("Incorrect param types!")
 		ok
 
 		#< @FunctionFluentForm
@@ -7766,7 +7743,7 @@ class stzString from stzObject
 		*/
 
 		if NOT isString(pClassifier) or isList(pClassifier)
-			raise("Incorrect param type!")
+			stzRaise("Incorrect param type!")
 		ok
 
 		if isList(pClassifier) and
@@ -7776,7 +7753,7 @@ class stzString from stzObject
 			pClassifier = pClassifier[2]
 
 			if NOT isString(pCalssifier)
-				raise("Incorrect param type!")
+				stzRaise("Incorrect param type!")
 			ok
 		ok
 
@@ -8014,7 +7991,7 @@ class stzString from stzObject
 		copy is sorted in ASCENDING order. If so, then the string itself
 		is actually sorted in DESCENDING order!
 		*/
-		oTemp = new stzString( This.ReversedChars() )
+		oTemp = new stzString( This.CharsReversed() )
 		if oTemp.CharsAreSortedInAscending()
 			return TRUE
 		else
@@ -8097,7 +8074,7 @@ class stzString from stzObject
 			nQtResult = @oQString.compare(pcOtherStr, bCaseSensitive)
 
 		else
-			raise("Incorrect value of pCaseSensitive! Should be 0 or 1 (TRUE or FALSE).")
+			stzRaise("Incorrect value of pCaseSensitive! Should be 0 or 1 (TRUE or FALSE).")
 		ok
 	
 		if  nQtResult = 0
@@ -8527,6 +8504,13 @@ class stzString from stzObject
 				This.RemoveFirstCS(pcSubStr, pCaseSensitive)
 				return This
 
+		def RemoveFromStartCS(pcSubStr, pCaseSensitive)
+			This.RemoveFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+
+			def RemoveFromStartCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveFromStartCS(pcSubStr, pCaseSensitive)
+				return This
+
 	def RemoveFirstOccurrence(pcSubStr)
 		This.RemoveFirstOccurrenceCS(pcSubStr, :Casesensitive = TRUE)
 
@@ -8543,6 +8527,13 @@ class stzString from stzObject
 
 			def RemoveFirstQ(pcSubStr)
 				This.RemoveFirst(pcSubStr)
+				return This
+
+		def RemoveFromStart(pcSubStr)
+			This.RemoveFirstOccurrence(pcSubStr)
+
+			def RemoveFromStartQ(pcSubStr)
+				This.RemoveFromStart(pcSubStr)
 				return This
 
 	  #--------------------------------------------------#
@@ -8567,6 +8558,13 @@ class stzString from stzObject
 				This.RemoveLastCS(pcSubStr, pCaseSensitive)
 				return This
 
+		def RemoveFromEndCS(pcSubStr, pCaseSensitive)
+			This.RemoveLastOccurrenceCS(pcSubStr, pCaseSensitive)
+
+			def RemoveFromEndCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveFromEndCS(pcSubStr, pCaseSensitive)
+				return This
+
 	def RemoveLastOccurrence(pcSubStr)
 		This.RemoveLastOccurrenceCS(pcSubStr, :Casesensitive = TRUE)
 
@@ -8583,6 +8581,13 @@ class stzString from stzObject
 
 			def RemoveLastQ(pcSubStr)
 				This.RemoveLast(pcSubStr)
+				return This
+
+		def RemoveFromEnd(pcSubStr)
+			This.RemoveLastOccurrence(pcSubStr)
+
+			def RemoveFromEndQ(pcSubStr)
+				This.RemoveFromEnd(pcSubStr, pCaseSensitive)
 				return This
 
 	   #----------------------------------------------------#
@@ -8727,9 +8732,9 @@ class stzString from stzObject
 			This.RemovePreviousOccurrence(pcSubStr, nStart, pcNewSubStr)
 			return This
 
-	  #---------------------------------------------#
-	 #    REMOVING LEFT OCCURRENCE OF SUBSTRING    # 
-	#---------------------------------------------#
+	  #-----------------------------------------------#
+	 #    REMOVING LEFT OCCURRENCE OF A SUBSTRING    # 
+	#-----------------------------------------------#
 
 	def RemoveLeftOccurrenceCS(pcSubStr, pCaseSensitive)
 		if This.IsLeftToRight()
@@ -8740,16 +8745,32 @@ class stzString from stzObject
 			This.RemoveNthOccurrenceCS( n, pcSubStr, pCaseSensitive)
 		ok
 
-	def RemoveLeftOccurrenceCSQ(pcSubStr, pCaseSensitive)
-		This.RemoveLeftOccurrenceCS(pcSubStr, pCaseSensitive)
-		return This
+		def RemoveLeftOccurrenceCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveLeftOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This
+
+		def RemoveFromLeftCS(pcSubStr, pCaseSensitive)
+			This.RemoveLeftOccurrenceCS(pcSubStr, pCaseSensitive)
+
+			def RemoveFromLeftCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
+				return This
+
+	#-- CASE-INSENSITIVE
 
 	def RemoveLeftOccurrence(pcSubStr)
-		This.RemoveLeftOccurrenceCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveLeftOccurrenceCS(pcSubStr, :CaseSensitive = FALSE)
 
-	def RemoveLeftOccurrenceQ(pcSubStr)
-		This.RemoveLeftOccurrence(pcSubStr)
-		return This
+		def RemoveLeftOccurrenceQ(pcSubStr)
+			This.RemoveLeftOccurrence(pcSubStr)
+			return This
+
+		def RemoveFromLeft(pcSubStr)
+			This.RemoveLeftOccurrence(pcSubStr)
+
+			def RemoveFromLeftQ(pcSubStr)
+				This.RemoveFromLeft(pcSubStr, pCaseSensitive)
+				return This
 
 	  #---------------------------------------------#
 	 #    REMOVING RIGHT OCCURRENCE OF SUBSTRING   # 
@@ -8765,16 +8786,30 @@ class stzString from stzObject
 			This.RemoveNthOccurrenceCS( n, pcSubStr, pCaseSensitive)
 		ok
 
-	def RemoveRightOccurrenceCSQ(pcSubStr, pCaseSensitive)
-		This.RemoveRightOccurrenceCS(pcSubStr, pCaseSensitive)
-		return This
+		def RemoveRightOccurrenceCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveRightOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This
+
+		def RemoveFromRightCS(pcSubStr, pCaseSensitive)
+			This.RemoveRightOccurrenceCS(pcSubStr, pCaseSensitive)
+
+			def RemoveFromRightCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
+				return This
 
 	def RemoveRightOccurrence(pcSubStr)
 		This.RemoveRightOccurrenceCS(pcSubStr, :CaseSensitive = TRUE)
 
-	def RemoveRightOccurrenceQ(pcSubStr)
-		This.RemoveRightOccurrence(pcSubStr)
-		return This
+		def RemoveRightOccurrenceQ(pcSubStr)
+			This.RemoveRightOccurrence(pcSubStr)
+			return This
+
+		def RemoveFromRight(pcSubStr)
+			This.RemoveRightOccurrence(pcSubStr)
+
+			def RemoveFromRightQ(pcSubStr)
+				This.RemoveFromRight(pcSubStr)
+				return This
 
 	  #----------------------------#
 	 #     REMOVING NTH CHAR      #
@@ -9038,6 +9073,9 @@ class stzString from stzObject
 		cResult = This.Copy().RemoveSpacesQ().Content()
 		return cResult
 
+		def WithoutSpaces()
+			return This.SpacesRemoved()
+
 	def RemoveLeftSpaces()
 		This.TrimLeft()
 
@@ -9048,6 +9086,9 @@ class stzString from stzObject
 	def LeftSpacesRemoved()
 		cResult = This.Copy().RemoveLeftSpacesQ().Content()
 		return cResult
+
+		def WithoutLeftSpaces()
+			return This.LeftSpacesRemoved()
 
 	def RemoveRightSpaces()
 		This.TrimRight()
@@ -9060,6 +9101,9 @@ class stzString from stzObject
 		cResult = This.Copy().RemoveRightSpacesQ().Content()
 		return cResult
 
+		def WithoutRightSpaces()
+			return This.RightSpacesRemoved()
+
 	def RemoveLeadingSpaces()
 		This.TrimStart()
 
@@ -9071,6 +9115,9 @@ class stzString from stzObject
 		cResult = This.Copy().RemoveLeadingSpacesQ().Content()
 		return cResult
 
+		def WithoutLeadingSpaces()
+			return This.LeadingSpacesRemoved()
+
 	def RemoveTrailingSpaces()
 		This.TrimEnd()
 
@@ -9081,6 +9128,9 @@ class stzString from stzObject
 	def TrailingSpacesRemoved()
 		cResult = This.Copy().RemoveTrailingSpacesQ().Content()
 		return cResult
+
+		def WithoutTrailingSpaces()
+			return This.TrailingSpacesRemoved()
 
 	  #------------------------------------------------#
 	 #    GETTING POSITION AFTER A GIVEN SUBSTRING    #
@@ -9137,6 +9187,10 @@ class stzString from stzObject
 			return This.CentralCharQR(:stzChar)
 	
 		def CentralCharQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzChar
 				return new stzChar( This.CentralChar() )
@@ -9438,7 +9492,7 @@ class stzString from stzObject
 	def ListifyXT(paOptions)
 
 		if NOT StzListQ(paOptions).IsStringListifyParamList()
-			raise("Unsupported option list!")
+			stzRaise("Unsupported option list!")
 		else
 			# By default, or if specified, add the string
 			# as a string (without any casting) inside the list
@@ -9459,7 +9513,7 @@ class stzString from stzObject
 					return aResult
 	
 				else
-					raise("Unsupported option value!")
+					stzRaise("Unsupported option value!")
 				ok
 			ok
 
@@ -9490,7 +9544,7 @@ class stzString from stzObject
 			return This.Justify(nWidth, cChar)
 
 		other
-			raise(stzStringError(:UnsupportedStringJustificationDirection))
+			stzRaise(stzStringError(:UnsupportedStringJustificationDirection))
 		end
 
 		def AlignQ(nWidth, cChar, cDirection)
@@ -9838,6 +9892,10 @@ class stzString from stzObject
 		return acResult
 
 		def CharNamesQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			if pcReturnType = :stzList
 				return new stzList(This.CharNames())
 
@@ -9845,7 +9903,7 @@ class stzString from stzObject
 				return new stzListOfString(This.CharNames())
 
 			else
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			ok
 
 		def CharNamesQ()
@@ -10022,7 +10080,7 @@ class stzString from stzObject
 	def IsNativeLanguageName() # Locale-specific
 		if This.IsEmpty() { return FALSE }
 
-		raise(stzStringError(:UnsupportedFeatureInThisVersion)) # TODO
+		stzRaise(stzStringError(:UnsupportedFeatureInThisVersion)) # TODO
 
 	def IsCountryIdentifier()
 		return 	This.IsCountryNumber() or
@@ -10066,7 +10124,7 @@ class stzString from stzObject
 	def IsNativeCountryName() # Locale-specific
 		if This.IsEmpty() { return FALSE }
 
-		raise(stzString(:UnsupportedFeatureInThisVersion))
+		stzRaise(stzString(:UnsupportedFeatureInThisVersion))
 
 	def IsCountryPhoneCode()
 		if This.IsEmpty() { return FALSE }
@@ -10264,7 +10322,7 @@ class stzString from stzObject
 	def IsBp64LocaleAbbreviation() # Like "ar-TN" for example
 		if This.IsEmpty() { return FALSE }
 
-		raise(:UnsupportedFeatureInThisVersion)
+		stzRaise(:UnsupportedFeatureInThisVersion)
 
 	def IsDayName() # In english
 
@@ -10281,10 +10339,10 @@ class stzString from stzObject
 		return This.IsEqualToCS(StzLocaleQ(pLocale).NativeDayName(), :CaseSensitive = FALSE)
 
 	def IsMonthName() # In english
-		raise(:UnsupportedFeatureInThisVersion)
+		stzRaise(:UnsupportedFeatureInThisVersion)
 
 	def IsNativeMonthName() # Locale-specific
-		raise(:UnsupportedFeatureInThisVersion)
+		stzRaise(:UnsupportedFeatureInThisVersion)
 
 	  #------------------------#
 	 #    NUMBER IN STRING    #
@@ -10794,9 +10852,146 @@ class stzString from stzObject
 			ok
 		ok
 
-	  #------------#
-	 #    CHAR    #
-	#------------#
+	  #==============#
+	 #    CHARS     #
+	#==============#
+
+	// Returns the string as a list of Chars
+	def Chars()
+		aResult = []
+		for i = 1 to This.NumberOfChars()
+			aResult + This.NthChar(i)
+		next
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ToListOfChars()
+			return This.Chars()
+
+			#< @FunctionFluentForm
+
+			def ToListOfCharsQR(pcType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcType
+				on :stzList
+					return new stzList( This.Chars() )
+
+				on :stzListOfChars
+					return new stzListOfChars( This.Chars() )
+
+				on :stzListOfStrings
+					return new stzListOfStrings( This.Chars() )
+
+				other
+					stzRaise("Unsupported type!")
+				off 
+
+			def ToListOfCharsQ()
+				return This.ToListOfCharsQR(:stzListOfChars)
+
+			def ToStzListOfChars()
+				return This.ToListOfCharsQR(:stzListOfChars)
+
+
+			#>
+	
+		#>
+
+		#< @FunctionFluentForm
+
+		def CharsQ()
+			return This.CharsQR(:stzList)
+
+		def CharsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Chars() )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.Chars() )
+
+			on :stzListOfSrings
+				return new stzListOfStrings( This.Chars() )
+			other
+				stzRaise("Unsupported type!")
+			off
+
+		#>
+			
+	def ToListOfStzChars()
+		aResult = []
+		for i = 1 to This.NumberOfChars()
+		# Warning: Note that using 'for in' yields erronous
+		# result for strings coded on more then 1 byte
+			aResult + new stzChar(This[i])
+		next
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ToListOfStzCharsQ()
+			return new stzList( This.ToListOfStzChars() )
+
+		#>
+
+	  #---------------------------------------------#
+	 #      CHARS VERIFYING A GIVEN CONDITION      #
+	#---------------------------------------------#
+	
+	def CharsW(pcCondition)
+		cCondition = StzStringQ(pcCondition).ReplaceAllCSQ("@char", "@item", :CS = FALSE).SimplifyQ().Content()	
+		return StzListQ( This.ToListOfChars() ).ItemsW(cCondition)
+
+		def CharsWhere(pcCondition)
+			return This.CharsW(pcCondition)
+
+		def OnlyW(pcCondition)
+			return This.CharsW(pcCondition)
+
+		# The use of Item instead of Char is required by some
+		# features of natural-coding (namely the IsA() function
+		# is stzChainOfTruth class
+		def ItemsW(pcCondition)
+			return GetCharsW(pcCondition)
+
+		def ItemsWhere(pcCondition)
+			return GetCharsW(pcCondition)
+
+	  #-------------------------------------------------------#
+	 #      NUMBER OF CHARS VERIFYING A GIVEN CONDITION      #
+	#-------------------------------------------------------#
+
+	def NumberOfCharsW(pcCondition)
+		return len( This.CharsW(pcCondition) )
+
+		def NumberOfCharsWhere(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
+		def CountCharsW(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
+		def CountCharsWhere(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
+		# Items-based naming as required for natural-coding
+
+		def NumberOfItemsW(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
+		def NumberOfItemsWhere(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
+	  #-----------------------#
+	 #   STRING IS A CHAR?   #
+	#-----------------------#
 
 	def IsChar()
 		if This.NumberOfChars() = 1
@@ -10817,6 +11012,10 @@ class stzString from stzObject
 		else
 			return FALSE
 		ok
+
+	  #---------------------------#
+	 #   STRING MADE OF CHARS?   #
+	#---------------------------#
 
 	def IsMadeOfChar(c)
 		if ( NOT This.IsEmpty() ) and  StringIsChar(c)
@@ -10852,14 +11051,16 @@ class stzString from stzObject
 		if ListIsListOfChars(acChars)
 			return This.IsMadeOfSome(acChars)
 		else
-			raise("You must provide a list of chars!")
+			stzRaise("You must provide a list of chars!")
 		ok
 
-	def IsCharInString()
-		if This.NumberOfChars() = 3 and
-		   (This.IsBoundedBy("'", "'") or
-		   This.IsBoundedBy('"', '"'))
-			return StzStringQ(This[2]).IsChar()
+	   #------------------------------------------------#
+	 #   STRING IS A CHAR IN A COMPUTABLE FORM ("c")   #
+	#-------------------------------------------------#
+
+	def IsCharInComputableForm()
+		if This.IsChar() and This.IsInComputableForm()
+			return TRUE
 		else
 			return FALSE
 		ok
@@ -10873,13 +11074,37 @@ class stzString from stzObject
 			return FALSE
 		ok
 
+	  #------------------#
+	 #   UNIQUE CHARS   #
+	#------------------#
+
 	def UniqueChars()
 		return This.ToSetOfChars()
 
 		#< @FunctionFluentForm
 
-		def UniqueCharsQ()
-			return new stzList( This.UniqueChars() )
+			def UniqueCharsQ()
+			return This.UniqueCharsQR(:stzList)
+		#>
+
+		def UniqueCharsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.UniqueChars() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.UniqueChars() )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.UniqueChars() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 		#>
 
@@ -10889,31 +11114,15 @@ class stzString from stzObject
 			def RemoveDuplicatedCharsQ()
 				This.RemoveDuplicatedChars()
 				return This
-			
-	def LastChar()
-		return This[ This.NumberOfChars() ]
-
-		#< @FunctionFluentForm
-
-		def LastCharQ()
-			return new stzChar( This.LastChar() )
 	
-		#>
-
-	def FirstChar()
-		return This[1]
-
-		#< @FunctionFluentForm
-
-		def FirstCharQ()
-			return new stzChar( This.FirstChar() )
-
-		#>
+	  #-------------------------------#
+	 #   CHAR AT A GIVEN POSITION    #
+	#-------------------------------#	
 	
 	// Returs the Char at the given position
 	def NthChar(nPos)
 		if NOT isNumber(nPos)
-			raise("Incorrect param type! n should be a number.")
+			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
 		if nPos = 0 or nPos > This.NumberOfChars()
@@ -10925,13 +11134,17 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 		
 		def NthCharQR(nPos, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzChar
 				return new stzChar( This.NthChar(nPos) )
 			on :stzString
 				return new stzString( This.NthChar(nPos) )
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def NthCharQ(nPos)
@@ -10944,25 +11157,146 @@ class stzString from stzObject
 		def CharAt(nPos)
 			return This.NthChar(nPos)
 
-			#< @FunctionFluentForm
-
 			def CharAtQR(nPos, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				return This.NthCharQR(nPos, pcReturnType)
 	
 			def CharAtQ(nPos)
 				return This.CharAtQR(nPos, :stzChar)
-	
-			#>
-		#>
 
 		def CharAtPosition(n)
 			return This.NthChar(nPos)
 
 			def CharAtPositionQR(n, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				return This.NthCharQR(nPos, pcReturnType)
 
 			def CharAtPositionQ(n, pcReturnType)
 				return This.CharAtPositionQR(n, :stzChar)
+
+		#>
+
+	  #---------------------------#
+	 #   FIRST AND LAST CHARS    #
+	#---------------------------#
+		
+	def FirstChar()
+		return This[1]
+
+		#< @FunctionFluentForm
+
+		def FirstCharQ()
+			return This.FirstCharQR(:stzString)
+
+		def FirstCharQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzString
+				return new stzString( This.FirstChar() )
+			on :stzChar
+				return new stzChar( This.FirstChar() )
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def LastChar()
+		return This[ This.NumberOfChars() ]
+
+		#< @FunctionFluentForm
+
+		def LastCharQ()
+			return This.LastCharQR(:stzString)
+
+		def LastCharQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzString
+				return new stzString( This.LastChar() )
+			on :stzChar
+				return new stzChar( This.LastChar() )
+			other
+				stzRaise("Unsupported return type!")
+			off
+	
+		#>
+
+	  #---------------------------#
+	 #   LEFT AND RIGHT CHARS    #
+	#---------------------------#
+		
+	def LeftChar()
+		if This.IsLeftToRight()
+			return This.FirstChar()
+		else
+			return This.LastChar()
+		ok
+
+		#< @FunctionFluentForm
+
+		def LeftCharQ()
+			return This.LeftCharQR(:stzString)
+
+		def LeftCharQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzString
+				return new stzString( This.LeftChar() )
+			on :stzChar
+				return new stzChar( This.LeftChar() )
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def RightChar()
+		if This.IsLeftToRight()
+			return This.LastChar()
+		else
+			return This.FirstChar()
+		ok
+
+		#< @FunctionFluentForm
+
+		def RightCharQ()
+			return This.RightCharQR(:stzString)
+
+		def RightCharQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzString
+				return new stzString( This.RightChar() )
+			on :stzChar
+				return new stzChar( This.RightChar() )
+			other
+				stzRaise("Unsupported return type!")
+			off
+	
+		#>
+
+	  #-----------------------#
+	 #   NUMBER OF CHARS     #
+	#-----------------------#
 
 	def NumberOfChars()
 		return @oQString.count()
@@ -10982,24 +11316,31 @@ class stzString from stzObject
 		def NumberOfSpacesQ()
 			return new stzNumber(This.NumberOfSpaces())
 
+	  #-----------------------#
+	 #   IS IT A LERRER?     #
+	#-----------------------#
+
 	def IsLetter()
 		if This.IsChar() and StzCharQ(This.Content()).IsLetter()
 			return TRUE
 		else
 			return FALSE
 		ok
+		
+	  #------------------------------------------------------#
+	 #    STRING IS IN A COMPUTABLE FORM ("str" or 'str')   #
+	#------------------------------------------------------#
 
-	  #-------------------------------------------------#
-	 #    COUNTING CHARS VERIFYING A GIVEN CONDITION   #
-	#-------------------------------------------------#
+	def IsInComputableForm()
+		if This.NumberOfChars() > 2 and
+		   (This.IsBoundedBy("'", "'") or
+		    This.IsBoundedBy('"', '"'))
 
-	def CountCharsW(pcCondition)
-		cCondition = StzStringQ(pcCondition).ReplaceAllCSQ("@Char", "@item", :CS = FALSE).Content()
-		return StzListQ( This.ToListOfChars() ).CountItemsW(cCondition)
-
-		def CountCharsWhere(pcCondition)
-			return This.CountCharsW(pcCondition)
-
+			return TRUE
+		else
+			return FALSE
+		ok
+	
 	  #-------------------------#
 	 #    MADE OF SUBSTRINGS   #
 	#-------------------------#
@@ -11031,7 +11372,7 @@ class stzString from stzObject
 		if ListIsListOfChars(acChars)
 			return This.IsMadeOf(acChars)
 		else
-			raise("You must provide a list of chars!")
+			stzRaise("You must provide a list of chars!")
 		ok
 
 	
@@ -11083,7 +11424,10 @@ class stzString from stzObject
 			return This
 	
 		def MultiplyByQR(pValue, pcType)	
-	
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			This.MultiplyBy(pValue)
 	
 			switch pcType
@@ -11368,7 +11712,7 @@ class stzString from stzObject
 			# Do nothing, takes default options for boxing
 
 		else
-			raise(stzStringError(:CanNotBoxTheString))
+			stzRaise(stzStringError(:CanNotBoxTheString))
 		ok
 
 		#< @FunctionFluentForm
@@ -11528,7 +11872,7 @@ class stzString from stzObject
 	def IsItemOfThisList(paList)
 
 		if NOT isList(paList)
-			raise("Invalid param type! You must provide a list.")
+			stzRaise("Invalid param type! You must provide a list.")
 		ok
 
 		bResult = StzListQ(paList).Contains(This.String())
@@ -11586,7 +11930,7 @@ class stzString from stzObject
 			# --> Reconsider them after solving the Equality
 			# problem between all types in Ring
 
-			raise("Unsupported type!")
+			stzRaise("Unsupported type!")
 
 		ok
 
@@ -11607,7 +11951,7 @@ class stzString from stzObject
 			pOtherStzStr = oTemp
 
 		else
-			raise(stzStringError(:CanNotSwapWithNonStzStringObject))
+			stzRaise(stzStringError(:CanNotSwapWithNonStzStringObject))
 		ok
 
 		#< @FunctionFluentForm
@@ -11637,15 +11981,21 @@ class stzString from stzObject
 	
 		#>
 
-	def StringWithReversedChars()
+	def StringWithCharsReversed()
 		cResult = This.Copy().ReverseCharsQ().Content()
 		return cResult
 
 		def CharsReversed()
-			return This.ReversedChars()
+			return This.StringWithCharsReversed()
 
 		def Reversed()
-			return This.ReversedChars()
+			return This.StringWithCharsReversed()
+
+		def StringWithReversedChars()
+			return This.StringWithCharsReversed()
+
+		def ReversedChars()
+			return This.StringWithCharsReversed()
 
 	  #------------------------#
 	 #   HASHING THE STRING   #
@@ -11679,7 +12029,7 @@ class stzString from stzObject
 			cHashed = sha224( This.String() )
 
 		other
-			raise("Unsupported hashing algorithm!")
+			stzRaise("Unsupported hashing algorithm!")
 		off
 
 		This.Update( cHashed )
@@ -11907,7 +12257,7 @@ class stzString from stzObject
 
 		oBinary = new stzString(cBinary)
 		if NOT oBinary.IsMadeOf(["0", "1"])
-			raise(stzStringError(:CanNotCompressStringUsingBinary))
+			stzRaise(stzStringError(:CanNotCompressStringUsingBinary))
 		ok
 
 		cCompressed = ""
@@ -11933,6 +12283,14 @@ class stzString from stzObject
 			return This
 
 		#>
+
+	  #--------------------------------------------------------------#
+	 #    CHECKING IF THE STRING CORRESPONDS TO A STZ CLASS NAME    #
+	#--------------------------------------------------------------#
+
+	def IsStzClassName()
+		bResult = This.LowercaseQ().ExistsIn( StzClasses() )
+		return bResult
 
 	  #---------------------------------#
 	 #    CHECKING A LIST IN STRING    #
@@ -12210,7 +12568,7 @@ class stzString from stzObject
 				   oCondition.ExistsInList(aListOfConditions) AND
 				   isString(value) )
 
-					raise(stzStringError(:UnsupportedExpressionInOverloadedMinusOperator))
+					stzRaise(stzStringError(:UnsupportedExpressionInOverloadedMinusOperator))
 				ok
 					
 				if cFirstOrLast = :FirstCharIf
@@ -12232,19 +12590,19 @@ class stzString from stzObject
 						ok
 
 					but cCondition = :LesserThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :GreaterThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :LesserOrEqualThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :GreaterOrEqualThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 					
 					but cCondition = :DifferentThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 					ok
 
 				but cFirstOrLast = :LastCharIf
@@ -12265,19 +12623,19 @@ class stzString from stzObject
 						ok
 
 					but cCondition = :LesserThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :GreaterThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :LesserOrEqualThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :GreaterOrEqualThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 					
 					but cCondition = :DifferentThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 					ok
 
 				ok
@@ -12499,15 +12857,4 @@ class stzString from stzObject
 		nDistance = fabs(nPos2 - nPos1) + 1
 		return nDistance
 
-	# Get defined params in list
-	def pvtGetParamInList(pList,pParam)
-		cResult = ""
-		for i=1 to len(pList)
-			if type(pList[i]) = "LIST"
-				if pList[i][1] = pParam
-					cResult = pList[i][2]
-					exit
-				ok
-			ok
-		next i
-		return cResult	
+

@@ -86,7 +86,7 @@ class stzFile from stzObject
 			// If file do not exist, creates it
 			oQFile.open_3(QIODevice_WriteOnly | QIODevice_Text)
 		other
-			raise(stzFileError(:CanNotProceedWithOpeningMode))
+			stzRaise(stzFileError(:CanNotProceedWithOpeningMode))
 		off
 	
 		// In all cases (file exists and has been successfully opened,
@@ -110,7 +110,7 @@ class stzFile from stzObject
 		if This.IsReadable()
 			return oQFile.readAll().data()
 		else
-			raise(stzFileError(:CanNotReadFileContent))
+			stzRaise(stzFileError(:CanNotReadFileContent))
 		ok
 
 	def Content()
@@ -146,7 +146,7 @@ class stzFile from stzObject
 
 			oQFile.write(pcText,n)
 		else
-			raise(stzFileError(:CanNotWriteToFile))
+			stzRaise(stzFileError(:CanNotWriteToFile))
 		ok
 
 	def WriteLine(pcText)
@@ -154,7 +154,7 @@ class stzFile from stzObject
 			pcText + NL
 			This.Write(pcText)
 		else
-			raise(stzFileError(:CanNotWriteToFile))
+			stzRaise(stzFileError(:CanNotWriteToFile))
 		ok
 	/*
 	INFO:
@@ -172,24 +172,24 @@ class stzFile from stzObject
 		if This.Exists()
 			return oQfile.rename(pcNewName)
 		else
-			raise(stzFileError(:CanNotRenameInexistantFile))
+			stzRaise(stzFileError(:CanNotRenameInexistantFile))
 		ok
 
 	def Remove()
 		if This.Exists()
 			return oQFile.remove()
 		else
-			raise(stzFileError(:CanNotRemoveInexistantFile))
+			stzRaise(stzFileError(:CanNotRemoveInexistantFile))
 		ok
 
 	def CopyAs(pcNewName)
 		if FileExists(pcNewName)
-			raise(stzFileError(:CanNotCopyFileToExistantName))
+			stzRaise(stzFileError(:CanNotCopyFileToExistantName))
 		ok
 		if This.Exists()
 			return oQFile.copy(pcNewName)
 		else
-			raise(stzFileError(:CanNotCopyInexistantFile))
+			stzRaise(stzFileError(:CanNotCopyInexistantFile))
 		ok
 
 	  #----------#

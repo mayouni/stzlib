@@ -42,7 +42,7 @@ def RemoveBinaryPrefix(pcBinaryPrefix)
 		_acBinaryPrefixes = StzStringQ(_acBinaryPrefixes).RemoveQ(pcBinaryPrefix).Content()
 
 	else
-		raise('You can not remove common hex prefixes: "x", "0x", and "U+"!')
+		stzRaise('You can not remove common hex prefixes: "x", "0x", and "U+"!')
 	ok
 
 def RemoveManyBinaryPrefixes(pacBinaryPrefixes)
@@ -56,7 +56,7 @@ def SetBinaryNumberPrefix(pcBinaryPrefix)
 		_cBinaryNumberPrefix = pcBinaryPrefix
 
 	else
-		raise("Incorrect hex number prefix!")
+		stzRaise("Incorrect hex number prefix!")
 	ok
 
 	#< @FunctionAlternativeForm
@@ -104,11 +104,11 @@ class stzBinaryNumber from stzObject
 					@cBinaryNumber = cNumber
 					
 				else
-					raise(stzBinaryNumberError(:CanNotCreateBinaryNumber1))
+					stzRaise(stzBinaryNumberError(:CanNotCreateBinaryNumber1))
 				ok
 			ok
 		else
-			raise(stzBinaryNumberError(:CanNotCreateBinaryNumber2))
+			stzRaise(stzBinaryNumberError(:CanNotCreateBinaryNumber2))
 		ok
 
   	  #------------#

@@ -106,7 +106,7 @@ func ListIsLocaleList(paList)
 func CallMethod( pcMethod, paOnObjects )
 
 	if NOT ( paOnObjects[1] = "on" and StzListQ(paOnObjects[2]).IsListOfStrings() )
-		raise(stzObjectError(:CanNotProcessMethodCall))
+		stzRaise(stzObjectError(:CanNotProcessMethodCall))
 	ok
 
 	aResult = []
@@ -375,7 +375,7 @@ class stzList from stzObject
 
 	def Item(n)
 		if NOT isNumber(n)
-			raise("Incorrect param type! n should be a number.")
+			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
 		return This.Content()[n]
@@ -545,7 +545,7 @@ class stzList from stzObject
 		aResult = []
 		// Items can be added only at a position bigger then NumberOfItems()
 		if n < This.NumberOfItems() + 1
-			raise("Can't add the item at this position! n must be bigger than NumberOfItems()")
+			stzRaise("Can't add the item at this position! n must be bigger than NumberOfItems()")
 		else
 			/*
 			If we want to add an item at a position bigger then NumberOfItems()
@@ -925,7 +925,7 @@ class stzList from stzObject
 		ok
 
 		if IsNotList(paOtherItems)
-			raise("Incorrect param type! paOtherItems must be a list.")
+			stzRaise("Incorrect param type! paOtherItems must be a list.")
 		ok
 
 		anPositions = This.FindAll(pItem)
@@ -1089,7 +1089,7 @@ class stzList from stzObject
 		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
 		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
-			raise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
+			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfParamList()
@@ -1217,7 +1217,7 @@ class stzList from stzObject
 		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
 		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
-			raise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
+			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfParamList()
@@ -1291,7 +1291,7 @@ class stzList from stzObject
 		*/
 
 		if NOT IsNumberOrString(n)
-			raise("Invalid param type! n must be a number.")
+			stzRaise("Invalid param type! n must be a number.")
 		ok
 
 		if n = :Last or n = :LastItem
@@ -1302,7 +1302,7 @@ class stzList from stzObject
 		ok
 
 		if n < 1 or n > This.NumberOfItems()
-			raise("the Nth position you provided is out of range!")
+			stzRaise("the Nth position you provided is out of range!")
 		ok
 
 		cValue = ""
@@ -1320,13 +1320,13 @@ class stzList from stzObject
 				try
 					eval(cCode)
 				catch
-					raise("Syntax error in the replacement code!")
+					stzRaise("Syntax error in the replacement code!")
 				done
 			ok
 		ok
 
 		if n < 1 or n > This.NumberOfItems()
-			raise("Out of range!") # TODO: change with stzListError
+			stzRaise("Out of range!") # TODO: change with stzListError
 		ok
 
 		This.List()[n] = cValue
@@ -1566,11 +1566,11 @@ class stzList from stzObject
 	def ReplaceAllItemsW(pCondition, pValue) # TODO: Made change, test this!
 
 		if NOT ( isString(pCondition) or isList(pCondition) )
-			raise("Incorrect param type! pCondition must be string or list.")
+			stzRaise("Incorrect param type! pCondition must be string or list.")
 		ok
 
 		if NOT ( isString(pValue) or isList(pValue) )
-			raise("Incorrect param type! pValue must be string or list.")
+			stzRaise("Incorrect param type! pValue must be string or list.")
 		ok 
 
 		if isList(pCondition) and StzListQ(pCondition).IsWhereParamList()
@@ -1977,7 +1977,7 @@ class stzList from stzObject
 		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
 		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
-			raise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
+			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfParamList()
@@ -2092,7 +2092,7 @@ class stzList from stzObject
 		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
 		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
-			raise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
+			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfParamList()
@@ -2271,7 +2271,7 @@ class stzList from stzObject
 
 		if (pnstart < 1) or (pnStart + pnRange -1 > nLen) or
 		   ( pnStart = nLen and pnRange != 1 )
-			raise("Out of range!")
+			stzRaise("Out of range!")
 		ok
 
 		if pnStart = 1
@@ -2960,10 +2960,10 @@ class stzList from stzObject
 				next
 
 			but ItemsAreAllObjects()
-				raise("Can't compare between objects!")
+				stzRaise("Can't compare between objects!")
 			
 			else
-				raise("Unsupported type!")
+				stzRaise("Unsupported type!")
 			ok
 		else
 			bResult = FALSE
@@ -3060,7 +3060,7 @@ class stzList from stzObject
 			return This.ItemsAreAllSoftanzaObjects()
 
 		other
-			raise("Unsupported parameter!")
+			stzRaise("Unsupported parameter!")
 		off
 
 	def ItemsAre(pcDesc)
@@ -3382,7 +3382,7 @@ class stzList from stzObject
 		if NOT ( StzNumberQ(pnStart).IsBetween(1, This.NumberOfItems()) and
 			 StzNumberQ(pnEnd).IsBetween(1, This.NumberOfItems()) )
 
-			raise("Start or end of walker outside list range!")
+			stzRaise("Start or end of walker outside list range!")
 		ok
 
 		//oWalkers = new stzHashList(This.Walkers())
@@ -3396,7 +3396,7 @@ class stzList from stzObject
 
 		// If oWalkers.ContainsKey(pcName)
 		if NOT bNewName
-			raise(stzListError(:CanNotAddWalkerAlreadyExistant))
+			stzRaise(stzListError(:CanNotAddWalkerAlreadyExistant))
 		else
 			oWalk = new stzWalker(pnStart, pnEnd, panStepping)
 			@aWalkers + [ pcName, oWalk.Content() ]
@@ -3455,7 +3455,7 @@ class stzList from stzObject
 					return 0
 				ok
 			else
-				raise("Syntax error! Your persocode must contain the keyword '@item'.")
+				stzRaise("Syntax error! Your persocode must contain the keyword '@item'.")
 			ok
 		ok
 
@@ -3491,7 +3491,7 @@ class stzList from stzObject
 					return 1 : i
 				ok
 			else
-				raise("Syntax error! Your persocode must contain the keyword 'Item'.")
+				stzRaise("Syntax error! Your persocode must contain the keyword 'Item'.")
 			ok
 		ok
 
@@ -3518,7 +3518,7 @@ class stzList from stzObject
 				ok
 			next
 		else
-			raise("Unsupported type!")
+			stzRaise("Unsupported type!")
 		ok
 
 	def WalkEachW(pcCondition)
@@ -3540,7 +3540,7 @@ class stzList from stzObject
 				return aResult
 			ok
 		else
-			raise("Syntax error! Your persocode must contain the keyword 'Item'.")
+			stzRaise("Syntax error! Your persocode must contain the keyword 'Item'.")
 		ok
 
 	def WalkNForwardNBackward(pnForward, pnBackward)
@@ -3548,13 +3548,13 @@ class stzList from stzObject
 
 	def WalkNStepsForwardNStepsBackward(pnForward, pnBackward)	
 		if pnForward < 0 or pnBackward < 0
-			raise("Can't proceed. nForward and nBackward must not be negative!")
+			stzRaise("Can't proceed. nForward and nBackward must not be negative!")
 
 		but pnForward > This.NumberOfItems() or pnBackward > This.NumberOfItems()
-			raise("Can't proceed. nForward and nBackward must not exceed the number of items!")
+			stzRaise("Can't proceed. nForward and nBackward must not exceed the number of items!")
 
 		but pnBackward > pnForward
-			raise("Can't proceed. nBackward must not be greater then nForward!")
+			stzRaise("Can't proceed. nBackward must not be greater then nForward!")
 
 		but pnForward = pnBackward
 			return [1]
@@ -3635,7 +3635,7 @@ class stzList from stzObject
 
 	def WalkNProgressiveStepsForward(n)
 		if n < 0
-			raise("Can't proceed. n must be positive!")
+			stzRaise("Can't proceed. n must be positive!")
 		but n = 0
 			return [1]
 		else
@@ -3656,7 +3656,7 @@ class stzList from stzObject
 
 	def WalkNProgressiveStepsBackward(n)
 		if n < 0
-			raise("Can't proceed. n must be positive!")
+			stzRaise("Can't proceed. n must be positive!")
 		but n = 0
 			return [ This.NumberOfItems() ]
 		else
@@ -3732,7 +3732,7 @@ class stzList from stzObject
 		*/
 
 		if NOT isList(paOtherList)
-			raise("Invalid param type! paOtherList must be a list.")
+			stzRaise("Invalid param type! paOtherList must be a list.")
 		ok
 
 		if len(paOtherList) = len(This.List()) and
@@ -3870,7 +3870,7 @@ class stzList from stzObject
 	def HasSameContentAs(paOtherList)
 
 		if NOT isList(paOtherList)
-			raise("Invalid param type! paOtherList should be a list.")
+			stzRaise("Invalid param type! paOtherList should be a list.")
 		ok
 
 		# The two lists must have same number of items
@@ -3898,6 +3898,10 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def PositionsQR(pItem, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Positions(pItem) )
@@ -3906,7 +3910,7 @@ class stzList from stzObject
 				return new stzListOfNumbers( This.Positions(pItem) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def PositionsQ(pItem)
@@ -3920,6 +3924,10 @@ class stzList from stzObject
 			return This.Positions(pItem)
 
 			def OccurrencesQR(pItem, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				return This.PositionsQR(pItem, pcReturnType)
 
 			def OccurrencesQ(pItem)
@@ -3944,7 +3952,7 @@ class stzList from stzObject
 				aResult + [ item, This.NumberOfOccurrence(item) ]
 			next	
 		else
-			raise("Unsupported indexing paramater!")
+			stzRaise("Unsupported indexing paramater!")
 		ok
 
 		return aResult
@@ -5179,7 +5187,7 @@ class stzList from stzObject
 				   (cFirstOrLast = :FirstItemIf or cFirstOrLast = :LastItemIf) AND
 				   oCondition.ExistsInList(aListOfConditions) )
 
-					raise(stzListError(:UnsupportedExpressionInOverloadedMinusOperator))
+					stzRaise(stzListError(:UnsupportedExpressionInOverloadedMinusOperator))
 				ok
 					
 				if cFirstOrLast = :FirstItemIf
@@ -5198,19 +5206,19 @@ class stzList from stzObject
 						ok
 
 					but cCondition = :LesserThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :GreaterThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :LesserOrEqualThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :GreaterOrEqualThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :DifferentThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 					
 					ok
 
@@ -5230,16 +5238,16 @@ class stzList from stzObject
 						ok
 
 					but cCondition = :LesserThan
-						raise(stzListError(:UnsupportedFeattureInThisVersion))
+						stzRaise(stzListError(:UnsupportedFeattureInThisVersion))
 
 					but cCondition = :GreaterThan
-						raise(stzListError(:UnsupportedFeattureInThisVersion))
+						stzRaise(stzListError(:UnsupportedFeattureInThisVersion))
 
 					but cCondition = :LesserOrEqualThan
-						raise(stzListError(:UnsupportedFeattureInThisVersion))
+						stzRaise(stzListError(:UnsupportedFeattureInThisVersion))
 
 					but cCondition = :GreaterOrEqualThan
-						raise(stzListError(:UnsupportedFeattureInThisVersion))
+						stzRaise(stzListError(:UnsupportedFeattureInThisVersion))
 					
 					ok
 
@@ -5368,7 +5376,7 @@ class stzList from stzObject
 	def ExtendToPositionNWith(n, pItem)
 
 		if n <= This.NumberOfItems()
-			raise(stzListError(:CanNotExtendTheList))
+			stzRaise(stzListError(:CanNotExtendTheList))
 
 		else
 			for i = This.NumberOfItems()+1 to n
@@ -5398,7 +5406,7 @@ class stzList from stzObject
 			next
 
 		else
-			raise("paOtherList must be of type LIST!")
+			stzRaise("paOtherList must be of type LIST!")
 		ok
 
 		def ExtendWithOtherListQ(paOtherList)
@@ -5522,6 +5530,9 @@ class stzList from stzObject
 			return new stzSet( This.ToSet() )
 	
 		def ToSetQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
 	
 			switch pcReturnType
 			on :stzList
@@ -5529,7 +5540,7 @@ class stzList from stzObject
 			on :stzSet
 				return new stzSet( This.ToSet() )
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 	
 	def ToStzSet()
@@ -5689,7 +5700,7 @@ class stzList from stzObject
 	def DuplicatesOfItem(pItem)
 		aResult = []
 		if NOT This.IsDuplicated(pItem)
-			raise("This item ("+ pItem + ") is not duplicated!")
+			stzRaise("This item ("+ pItem + ") is not duplicated!")
 		else
 			aResult = This.FindAllExceptFirst(pItem)
 		ok
@@ -5791,7 +5802,7 @@ class stzList from stzObject
 			return bResult
 		other
 			# For now, number and object type are not concerned
-			raise("Unsupported type!")
+			stzRaise("Unsupported type!")
 		off
 
 		#< @FunctionAlternativeForm
@@ -5825,7 +5836,7 @@ class stzList from stzObject
 
 			else
 				# Object and number types are not managed
-				raise("Unsupported type!")
+				stzRaise("Unsupported type!")
 			ok
 		next
 
@@ -5883,7 +5894,7 @@ class stzList from stzObject
 	def ContainsMany(paSetOfItems)
 		
 		if IsNotList(paSetOfItems)
-			raise("Incorrect param type! You must provide a list.")
+			stzRaise("Incorrect param type! You must provide a list.")
 		ok
 
 		bResult = TRUE
@@ -6166,7 +6177,7 @@ class stzList from stzObject
 				return new stzObject(item)
 
 			other
-				raise("Unsupported type!")
+				stzRaise("Unsupported type!")
 			off
 
 	def Paths()
@@ -6427,7 +6438,7 @@ class stzList from stzObject
 	def SwapItems(n1,n2)
 		if n1 < 1 or n1 > This.NumberOfItems() or
 		   n2 < 1 or n2 > This.NumberOfItems()
-			raise("Out of range!")
+			stzRaise("Out of range!")
 		ok
 
 		aResult = This.Content()
@@ -6606,6 +6617,10 @@ class stzList from stzObject
 			return This.FindAllOccurrencesQR(pItem, :stzList)
 
 		def FindAllOccurrencesQR(pItem, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.FindAll(pItem) )
@@ -6613,7 +6628,7 @@ class stzList from stzObject
 			on :stzListOfNumbers
 				return new stzListOfNumbers( This.FindAll(pItem) )
 			other
-				raise("Unsupported type!")
+				stzRaise("Unsupported type!")
 			off
 
 		#>
@@ -6629,6 +6644,10 @@ class stzList from stzObject
 				return This.FindAllQR(pItem, :stzList)
 	
 			def FindAllQR(pItem, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.FindAll(pItem) )
@@ -6636,7 +6655,7 @@ class stzList from stzObject
 				on :stzListOfNumbers
 					return new stzListOfNumbers( This.FindAll(pItem) )
 				other
-					raise("Unsupported type!")
+					stzRaise("Unsupported type!")
 				off
 	
 			#>
@@ -6668,6 +6687,10 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindManyQR(paItems, pcType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			if pcType = :stzList
 				return new stzList( This.FindMany(paItems) )
 
@@ -6675,7 +6698,7 @@ class stzList from stzObject
 				return new stzListOfNumbers( This.FindMany(paItems) )
 
 			else
-				raise("Unsupported type!")
+				stzRaise("Unsupported type!")
 			ok
 
 		def FindManyQ(paItems)
@@ -6712,12 +6735,16 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindAllExceptFirstQR(pItem, pcType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			if pcType = :stzList
 				return new stzList( This.FindAllExceptFirst(pItem) )
 			but pcType = :stzListOfNumbers
 				return new stzListOfNumbers( This.FindAllExceptFirst(pItem) )
 			else
-				raise("Unsupported type!")
+				stzRaise("Unsupported type!")
 			ok
 
 		def FindAllExceptFirstQ(pItem)
@@ -6733,12 +6760,16 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptFirstQR(pItem, pcType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				if pcType = :stzList
 					return new stzList( This.FindExceptFirst(pItem) )
 				but pcType = :stzListOfNumbers
 					return new stzListOfNumbers( This.FindExceptFirst(pItem) )
 				else
-					raise("Unsupported type!")
+					stzRaise("Unsupported type!")
 				ok
 	
 			def FindExceptFirstQ(pItem)
@@ -6754,12 +6785,16 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindAllExceptLastQR(pItem, pcType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			if pcType = :stzList
 				return new stzList( This.FindAllExceptLast(pItem) )
 			but pcType = :stzListOfNumbers
 				return new stzListOfNumbers( This.FindAllExceptLast(pItem) )
 			else
-				raise("Unsupported type!")
+				stzRaise("Unsupported type!")
 			ok
 
 		def FindAllExceptLastQ(pItem)
@@ -6775,12 +6810,16 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptLastQR(pItem, pcType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				if pcType = :stzList
 					return new stzList( This.FindExceptLast(pItem) )
 				but pcType = :stzListOfNumbers
 					return new stzListOfNumbers( This.FindExceptLast(pItem) )
 				else
-					raise("Unsupported type!")
+					stzRaise("Unsupported type!")
 				ok
 	
 			def FindExceptLastQ(pItem)
@@ -6881,11 +6920,11 @@ class stzList from stzObject
 
 	def FindNthPreviousOccurrence(n, pItem, nStart)
 		if NOT isNumber(n)
-			raise("Incorrect param type! n should be a number.")
+			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
 		if n < 1 or n > This.NumberOfItems()
-			raise("Out of range! n should be between 1 and This.NumberOfItems().")
+			stzRaise("Out of range! n should be between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfParamList()
@@ -6915,7 +6954,7 @@ class stzList from stzObject
 		ok
 
 		if nStart < 1 or nStart > This.NumberOfItems()
-			raise("Out of range! nStart should be between 1 and This.NumberOfItems().")
+			stzRaise("Out of range! nStart should be between 1 and This.NumberOfItems().")
 		ok
 
 		if nStart = 1
@@ -7028,7 +7067,7 @@ class stzList from stzObject
 			cCondition = pCondition[2]
 	
 		else
-			raise("Invalid param format!")
+			stzRaise("Invalid param format!")
 		ok
 	
 		# Performing the finding
@@ -7063,6 +7102,10 @@ class stzList from stzObject
 			return This.FindAllItemsWQR(pCondition, :stzList)
 	
 		def FindAllItemsWQR(pCondition, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.FindAllItemsW(pCondition) )
@@ -7071,7 +7114,7 @@ class stzList from stzObject
 				return new stzListOfNumbers( This.FindAllItemsW(pCondition) )
 	
 			other
-				raise("Unsupported type!")
+				stzRaise("Unsupported type!")
 			off
 		#>
 
@@ -7086,6 +7129,10 @@ class stzList from stzObject
 				return This.FindAllWQR(pCondition, :stzList)
 
 			def FindAllWQR(pCondition, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.FindAllW(pCondition) )
@@ -7094,7 +7141,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.FindAllW(pCondition) )
 		
 				other
-					raise("Unsupported type!")
+					stzRaise("Unsupported type!")
 				off
 			#>
 
@@ -7107,6 +7154,10 @@ class stzList from stzObject
 				return This.FindWQR(pCondition, :stzList)
 
 			def FindWQR(pCondition, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.FindW(pCondition) )
@@ -7115,7 +7166,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.FindW(pCondition) )
 		
 				other
-					raise("Unsupported type!")
+					stzRaise("Unsupported type!")
 				off
 			#>
 
@@ -7128,6 +7179,10 @@ class stzList from stzObject
 				return This.FindWhereQR(pCondition, :stzList)
 
 			def FindWhereQR(pCondition, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.FindWhere(pCondition) )
@@ -7136,7 +7191,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.FindWhere(pCondition) )
 		
 				other
-					raise("Unsupported type!")
+					stzRaise("Unsupported type!")
 				off
 			#>
 
@@ -7149,6 +7204,10 @@ class stzList from stzObject
 				return This.FindAllWhereQR(pCondition, :stzList)
 
 			def FindAllWhereQR(pCondition, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.FindAllWhere(pCondition) )
@@ -7157,7 +7216,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.FindAllWhere(pCondition) )
 		
 				other
-					raise("Unsupported type!")
+					stzRaise("Unsupported type!")
 				off
 			#>
 
@@ -7170,6 +7229,10 @@ class stzList from stzObject
 				return This.FindAllItemsWhereQR(pCondition, :stzList)
 
 			def FindAllItemsWhereQR(pCondition, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.FindAllItemsWhere(pCondition) )
@@ -7178,7 +7241,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.FindAllItemsWhere(pCondition) )
 		
 				other
-					raise("Unsupported type!")
+					stzRaise("Unsupported type!")
 				off
 			#>
 
@@ -7202,7 +7265,7 @@ class stzList from stzObject
 
 	def ItemsAtPositions(panPositions)
 		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			raise("Incorrect param type! You must provide a list of numbers.")
+			stzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
 		aResult = []
@@ -7248,7 +7311,7 @@ class stzList from stzObject
 				cCondition = pCondition[2]
 	
 			else
-				raise('Syntax error! Enter :Where and not "' + pCondition[1]+'"')
+				stzRaise('Syntax error! Enter :Where and not "' + pCondition[1]+'"')
 			ok
 		ok
 	
@@ -7336,7 +7399,7 @@ class stzList from stzObject
 	def NthItemW(n, pCondition)
 
 		if NOT ( isNumber(n) and StzNumberQ(n).IsBetween(1, This.NumberOfItems() ) )
-			raise("Out of range! n must be between 1 and This.NumberOfItems()" )
+			stzRaise("Out of range! n must be between 1 and This.NumberOfItems()" )
 		ok
 
 		# Checking the provided param for the pCondition, by retriving
@@ -7352,7 +7415,7 @@ class stzList from stzObject
 			cCondition = pCondition[2]
 
 		else
-			raise("Incorrect pCondition param!")
+			stzRaise("Incorrect pCondition param!")
 		ok
 	
 		# Performing the required job
@@ -7392,7 +7455,7 @@ class stzList from stzObject
 				return new stzObject(item)
 
 			other
-				raise("Unsupported type!")
+				stzRaise("Unsupported type!")
 			off
 
 		#>
@@ -7430,7 +7493,7 @@ class stzList from stzObject
 				return new stzObject(item)
 
 			other
-				raise("Unsupported type!")
+				stzRaise("Unsupported type!")
 			off
 
 		#>
@@ -7458,7 +7521,7 @@ class stzList from stzObject
 				return new stzObject(item)
 
 			other
-				raise("Unsupported type!")
+				stzRaise("Unsupported type!")
 			off
 
 		#>
@@ -7533,6 +7596,10 @@ class stzList from stzObject
 			return This.NumbersQR(:stzList)
 
 		def NumbersQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Numbers() )
@@ -7541,7 +7608,7 @@ class stzList from stzObject
 				return new stzListOfNumbers( This.Numbers() )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -7555,6 +7622,10 @@ class stzList from stzObject
 				return This.OnlyNumbersQR(:stzList)
 	
 			def OnlyNumbersQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.OnlyNumbers() )
@@ -7563,7 +7634,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.OnmlyNumbers() )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -7589,6 +7660,10 @@ class stzList from stzObject
 			return This.NonNumbersQR(:stzList)
 
 		def NonNumbersQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NonNumbers() )
@@ -7597,7 +7672,7 @@ class stzList from stzObject
 				return new stzListOfNumbers( This.NonNumbers() )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def OnlyNonNumbers()
@@ -7607,6 +7682,10 @@ class stzList from stzObject
 				return This.OnlyNonNumbersQR(:stzList)
 	
 			def OnlyNonNumbersQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.OnlyNonNumbers() )
@@ -7615,7 +7694,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.OnlyNonNumbers() )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 	def RemoveNonNumbers()
@@ -7650,6 +7729,10 @@ class stzList from stzObject
 			return This.StringsQR(:stzList)
 
 		def StringsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Strings() )
@@ -7658,7 +7741,7 @@ class stzList from stzObject
 				return new stzListOfNumbers( This.Strings() )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -7672,6 +7755,10 @@ class stzList from stzObject
 				return This.OnlyStringsQR(:stzList)
 	
 			def OnlyStringsQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.OnlyStrings() )
@@ -7680,7 +7767,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.OnmlyStrings() )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -7706,6 +7793,10 @@ class stzList from stzObject
 			return This.NonStringsQR(:stzList)
 
 		def NonStringsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NonStrings() )
@@ -7714,7 +7805,7 @@ class stzList from stzObject
 				return new stzListOfStrings( This.NonStrings() )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def OnlyNonStrings()
@@ -7724,6 +7815,10 @@ class stzList from stzObject
 				return This.OnlyNonStringsQR(:stzList)
 	
 			def OnlyNonStringsQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.OnlyNonStrings() )
@@ -7732,7 +7827,7 @@ class stzList from stzObject
 					return new stzListOfStrings( This.OnlyNonStrings() )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 	def RemoveNonStrings()
@@ -7767,6 +7862,10 @@ class stzList from stzObject
 			return This.ListsQR(:stzList)
 
 		def ListsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Lists() )
@@ -7775,7 +7874,7 @@ class stzList from stzObject
 				return new stzListOfLists( This.Lists() )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -7789,6 +7888,10 @@ class stzList from stzObject
 				return This.OnlyListsQR(:stzList)
 	
 			def OnlyListsQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.OnlyLists() )
@@ -7797,7 +7900,7 @@ class stzList from stzObject
 					return new stzListOfLists( This.OnmlyLists() )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -7823,6 +7926,10 @@ class stzList from stzObject
 			return This.NonListsQR(:stzList)
 
 		def NonListsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NonLists() )
@@ -7831,7 +7938,7 @@ class stzList from stzObject
 				return new stzListOfLists( This.NonLists() )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def OnlyNonLists()
@@ -7841,6 +7948,10 @@ class stzList from stzObject
 				return This.OnlyNonListsQR(:stzList)
 	
 			def OnlyNonListsQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.OnlyNonLists() )
@@ -7849,7 +7960,7 @@ class stzList from stzObject
 					return new stzListOfLists( This.OnlyNonLists() )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 	def RemoveNonLists()
@@ -7884,6 +7995,10 @@ class stzList from stzObject
 			return This.ObjectsQR(:stzList)
 
 		def ObjectsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Objects() )
@@ -7892,7 +8007,7 @@ class stzList from stzObject
 				return new stzListOfObjects( This.Objects() )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -7906,6 +8021,10 @@ class stzList from stzObject
 				return This.OnlyObjectsQR(:stzList)
 	
 			def OnlyObjectsQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.OnlyObjects() )
@@ -7914,7 +8033,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.OnmlyNumbers() )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -7940,6 +8059,10 @@ class stzList from stzObject
 			return This.NonObjectsQR(:stzList)
 
 		def NonObjectsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NonObjects() )
@@ -7948,7 +8071,7 @@ class stzList from stzObject
 				return new stzListOfObjects( This.NonObjects() )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def OnlyNonObjects()
@@ -7958,6 +8081,10 @@ class stzList from stzObject
 				return This.OnlyNonObjectsQR(:stzList)
 	
 			def OnlyNonObjectsQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.OnlyNonObjects() )
@@ -7966,7 +8093,7 @@ class stzList from stzObject
 					return new stzListOfObjects( This.OnlyNonObjects() )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 	def RemoveNonObjects()
@@ -7994,10 +8121,10 @@ class stzList from stzObject
 	 #     CHECKING IF ALL ITEMS ARE     #
 	#-----------------------------------#
 
-	def AllItemsAre(pcCondition)
+	def AllItemsVerifyW(pcCondition)
 		/* Examples
-
-			AllItemsAre('isString()')
+			o1 = new stzList([ "one", "two", "three" ])
+			? o1.AllItemsVerifyW('isString()') # --> TRUE
 		*/
 
 		pcCondition = StzStringQ(pcCondition).SimplifyQ().RemoveBoundsQ("{","}").Content()
@@ -8018,17 +8145,26 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def AllItemsAreW(pcCondition)
-			return This.AllItemsAre(pcCondition)
+		def AllItemsVerify(pcCondition)
+			return This.AllItemsVerifyW(pcCondition)
 
 		def ContainsOnly(pcCondition)
-			return This.AllItemsAre(pcCondition)
+			return This.AllItemsVerifyW(pcCondition)
 
-		def AllItemsVerify(pcCondition)
-			return This.AllItemsAre(pcCondition)
+		def ContainsOnlyW(pcCondition)
+			return This.AllItemsVerifyW(pcCondition)
 
 		def AllItemsVerifyThisCondition(pcCondition)
-			return This.AllItemsAre(pcCondition)
+			return This.AllItemsVerifyW(pcCondition)
+
+		def AllItemsVerifyThisConditionW(pcCondition)
+			return This.AllItemsVerifyW(pcCondition)
+
+		def AllItemsAre(pcCondition)
+			return This.AllItemsVerifyW(pcCondition)
+
+		def AllItemsAreW(pcCondition)
+			return This.AllItemsVerifyW(pcCondition)
 
 		#>
 
@@ -8037,6 +8173,12 @@ class stzList from stzObject
 
 	def AllItemsAreStrings()
 		return This.AllItemsAreW('{ isString(@item) }')
+
+	def AllItemsAreNonNullStrings()
+		return This.AllItemsAreW('{ isString(@item) and @item != NULL }')
+
+	def AllItemsAreValidRingCodes()
+		return This.AllItemsAreW('{ isString(@item) and Q(@item).IsValidRingCode() }')
 
 	def AllItemsAreNumbers()
 		return This.AllItemsAreW('{ isNumber(@item) }')
@@ -8049,6 +8191,9 @@ class stzList from stzObject
 
 	def AllItemsAreStzObjects()
 		return This.AllItemsAreW('{ IsStzObject(@item) }')
+
+	def AllItemsAreStzClassNames()
+		return This.AllItemsAreW('{ isString(@item) and StringIsStzClassName(@item) }')
 
 	def AllItemsAreQObjects()
 		return This.AllItemsAreW('{ IsQObject(@item) }')
@@ -8071,7 +8216,7 @@ class stzList from stzObject
 				cCondition = pCondition[2]
 	
 			else
-				raise('Syntax error! Enter :Where and not "' + pCondition[1]+'"')
+				stzRaise('Syntax error! Enter :Where and not "' + pCondition[1]+'"')
 			ok
 		ok
 	
@@ -8113,7 +8258,7 @@ class stzList from stzObject
 				cCondition = pCondition[2]
 	
 			else
-				raise('Syntax error! Enter :Where and not "' + pCondition[1]+'"')
+				stzRaise('Syntax error! Enter :Where and not "' + pCondition[1]+'"')
 			ok
 		ok
 	
@@ -8155,7 +8300,7 @@ class stzList from stzObject
 				cCondition = pCondition[2]
 	
 			else
-				raise('Syntax error! Enter :Where and not "' + pCondition[1]+'"')
+				stzRaise('Syntax error! Enter :Where and not "' + pCondition[1]+'"')
 			ok
 		ok
 	
@@ -8273,6 +8418,10 @@ class stzList from stzObject
 			This.SplitToPartsOfNItemsEachQR(n, :stzList)
 
 		def SplitToPartsOfNItemsEachQR(n, pcType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 			on :stzList
 				return new stzLists( This.SplitToPartsOfNItemsEach(n) )
@@ -8280,7 +8429,7 @@ class stzList from stzObject
 			on :stzListOfLists
 				return new stzListOfLists( This.SplitToPartsOfNItemsEach(n) )
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -8319,13 +8468,17 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def SplitToPartsOfNItemsQR(n, pcType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 			on :stzList
 				return new stzList( This.SplitToPartsOfNItems(n) )
 			on :stzListOfLists
 				return new stzListOfLists( This.SplitToPartsOfNItems(n) )
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 
@@ -8356,6 +8509,10 @@ class stzList from stzObject
 				return This.SplitToPartsOfNItemsQR(n, :stzList)
 	
 			def SplitToPartsOfQR(n, pcType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				return This.SplitToPartsOfNItemsQR(n, pcType)
 
 			#>
@@ -8371,6 +8528,10 @@ class stzList from stzObject
 				return This.SplitToPartsQR(n, :stzList)
 	
 			def SplitToPartsQR(n, pcType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				return This.SplitToPartsOfNItemsQR(n, pcType)
 		#>
 
@@ -8589,16 +8750,16 @@ class stzList from stzObject
 		if n2 = :Last or n2 = :LastItem { n2 = This.NumberOfItems() }
 
 		if n1 = 0 or n2 = 0
-			raise("Zeros are not allowed!")
+			stzRaise("Zeros are not allowed!")
 		ok
 	
 		if n1 < 1 or n2 > This.NumberOfItems()
-			raise("Out of range! Acceptable values [1.."+
+			stzRaise("Out of range! Acceptable values [1.."+
 	                       this.NumberOfItems() + "]")
 		ok
 	
 		if n1 > n2
-			raise("Can't proceed! n1 must be smaller then n2")
+			stzRaise("Can't proceed! n1 must be smaller then n2")
 		ok
 	
 		aResult = []
@@ -8612,6 +8773,10 @@ class stzList from stzObject
 			return This.SectionQR(n1, n2, :stzList)
 
 		def SectionQR(n1, n2, pcReturntype)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 
 			on :stzList
@@ -8630,7 +8795,7 @@ class stzList from stzObject
 				return new stzListOfObjects( This.Section(n1, n2) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	def Range(pnStart, pnRange)
@@ -8640,6 +8805,10 @@ class stzList from stzObject
 			return This.RangeQR(pnStart, pnRange, :stzList)
 
 		def RangeQR(pnStart, pnRange, pcReturntype)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 
 			on :stzList
@@ -8658,7 +8827,7 @@ class stzList from stzObject
 				return new stzListOfObjects( This.Range(pnStart, pnRange) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	  #-------------------#
@@ -8825,20 +8994,20 @@ class stzList from stzObject
 		# The acBeneficiaryItems param should be a list of strings
 
 		if NOT StzListQ(acBeneficiaryItems).IsListOfStrings()     
-			raise(stzListError(:CanNoteDistributeItemsOverTheList1))
+			stzRaise(stzListError(:CanNoteDistributeItemsOverTheList1))
 		ok
 
 		# Controlling the validity of the syntax of anShareOfEachItem param
 
 		if NOT isList(anShareOfEachItem)
-			raise("Incorrect param types!")
+			stzRaise("Incorrect param types!")
 		ok
 
 		if NOT ( len(anShareOfEachItem) = 2 and
 			anShareOfEachItem[1] = :Using and
 			ListIsListOfNumbers(anShareOfEachItem[2]) )
 
-				raise("Incorrect param form!")
+				stzRaise("Incorrect param form!")
 
 		ok
 
@@ -8849,7 +9018,7 @@ class stzList from stzObject
 		   	  ListOfNumbersSum(anShareOfEachItem[2]) = This.NumberOfItems()
 			)
 
-			raise(stzListError(:CanNoteDistributeItemsOverTheList2))
+			stzRaise(stzListError(:CanNoteDistributeItemsOverTheList2))
 		ok
 
 		# Now, we can perform the distribution
@@ -9270,6 +9439,63 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsRaiseParamList()
+		if This.NumberOfItems() <= 4 and
+		   This.IsHashList() and
+		   This.ToStzHashList().KeysQ().IsMadeOfSome([ :Where, :What, :Why, :Todo ]) and
+		   This.ToStzHashList().ValuesQ().AllItemsVerifyW("isString(@item) and @item != NULL")
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+		
+	def IsConstraintsParamList()
+		/* EXAMPLE
+		[
+			:OnStzString = [
+				:MustBeUppercase 	= '{ Q(@str).IsUppercase() }',
+				:MustNotExceed@n@Chars 	= '{ Q(@str).NumberOfChars() <= n }',
+				:MustBeginWithLetter@c@	= '{ Q(@str).BeginsWithCS(c, :CS = FALSE) }'
+			],
+		
+			:OnStzNumber = [
+				:MustBeStrictlyPositive = '{ @number > 0 }'
+			],
+		
+			:OnStzList = [
+				:MustBeAHashList = '{ Q(@list).IsHashList() }'
+			]
+		]
+		*/
+		
+		try
+			VerifyConstraints([
+				:MustBeAHashList,
+				:KeysMustBeOnStzTypes,
+				:ValuesMustBeRingCodeInStrings
+			])
+
+			return TRUE
+
+		catch
+			return FALSE
+		done
+
+	def IsReturnedAsParamList()
+
+		if This.NumberOfItems() = 2 and
+		   This.AllItemsAreStrings() and
+		   This[1] = :ReturnedAs and
+		   StzStringQ(This[2]).IsStzClassName()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	  #--------------------------------#
 	 #     GETTING TYPES OF ITEMS     #
 	#--------------------------------#
@@ -9397,14 +9623,14 @@ class stzList from stzObject
 		*/
 
 		if NOT isString(pcCode)
-			raise("Invalid param type! Condition must be a string.")
+			stzRaise("Invalid param type! Condition must be a string.")
 		ok
 
 		oCode = new stzString(pcCode)
 		oCode.ReplaceAllCS("@string", "@str", :CaseSensitive = FALSE)
 
 		if NOT oCode.ContainsCS("@str", :CS = FALSE)
-			raise("Incorrect parm! Condition should contain '@str' or '@string'.")
+			stzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
 		ok
 
 		cCode = oCode.RemoveBoundsQ("{","}").Trimmed()
@@ -9422,7 +9648,7 @@ class stzList from stzObject
 
 		if NOT oCode.BeginsWithOneOfTheseCS( [ "@str =", "@str=" ], :CaseSensitive = FALSE )
 
-			raise("Syntax error! Condition should begin with '@str =' or '@string ='.")
+			stzRaise("Syntax error! Condition should begin with '@str =' or '@string ='.")
 		ok
 
 		@i = 0
@@ -9468,14 +9694,14 @@ class stzList from stzObject
 		*/
 
 		if NOT isString(pcCode)
-			raise("Invalid param type! Condition must be a string.")
+			stzRaise("Invalid param type! Condition must be a string.")
 		ok
 
 		oCode = new stzString(pcCode)
 		oCode.ReplaceAllCS("@string", "@str", :CaseSensitive = FALSE)
 
 		if NOT oCode.ContainsCS("@str", :CS = FALSE)
-			raise("Incorrect parm! Condition should contain '@str' or '@string'.")
+			stzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
 		ok
 
 
@@ -9496,6 +9722,10 @@ class stzList from stzObject
 			return This.ForEachStringYieldQR(pcCode, :stzList)
 
 		def ForEachStringYieldQR(pcCode, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.ForEachStringYield(pcCode) )
@@ -9504,7 +9734,7 @@ class stzList from stzObject
 				return new stzListOfStrings( This.ForEachStringYield(pcCode) )
 			
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def ForEachStringReturn(pcCode)
@@ -9514,6 +9744,10 @@ class stzList from stzObject
 				return This.ForEachStringYieldQ(pcCode)
 
 				def ForEachStringReturnQR(pcCode, pcReturnType)
+					if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+						pcReturnType = pcReturnType[2]
+					ok
+
 					return This.ForEachStringYieldQR(pcCode, pcReturnType)
 
 /////////////////////////////////////////////////////////

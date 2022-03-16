@@ -14,6 +14,7 @@ Programming, by Heart! By: M.Ayouni╭
 ━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
   ╰╯
 '
+give a
 /*-----------------
 
 ? Basmalah() # --> ﷽
@@ -30,7 +31,42 @@ o1 = new stzString("   ﷽ ")
 o1.Simplify()
 ? o1.Content()
 
-/*-----------------
+/*=============================
+
+# To remove a substring form left or right you can
+# use RemoveFromLeft() and RemoveFromRight() functions.
+
+o1 = new stzString("let's say welcome to everyone!")
+o1.RemoveFromLeft("let's say ")
+? o1.Content() # --> welcome to everyone!
+
+# But when right-to-left strings are used, this can be
+# confusing, because left is no longer at the start
+# and right is no longer at the end of the string.
+
+# So, if you wan to retrieve a substring from the
+# beginnning of an arabic text, you should use
+# RemoveFromRight() instead...
+
+o1 = new stzString("أللّهم ارزقنا حسن الخاتمة")
+o1.RemoveFromRight("أللّهم ")
+? o1.Content() # --> ارزقنا حسن الخاتمة
+
+# To avoid this complication, Softanza provides a more
+# general (semantic) solution working both for
+# left-to-right and right-to-left strings:
+# the RemoveFromStart() and RemoveFromEnd() functions.
+
+o1 = new stzString("let's say welcome to everyone!")
+o1.RemoveFromStart("let's say ")
+? o1.Content() # --> welcome to everyone!
+
+# and the same code for arabic:
+o1 = new stzString("أللّهم ارزقنا حسن الخاتمة")
+o1.RemoveFromStart("أللّهم ")
+? o1.Content() # --> ارزقنا حسن الخاتمة
+
+/*========================
 
 o1 = new stzString("من كان في زمنه من أصحابه فهو من أكبر المحظوظين")
 o1.RemoveNthOccurrence(:Last, "من")
@@ -61,7 +97,7 @@ o1 = new stzString("**A1****A2***A3")
 o1.RemoveFirst("A")
 ? o1.Content() # --> **1****A2***A3
 
-/*-----------------
+/*==================
 
 o1 = new stzString("<<word>>")
 
@@ -70,25 +106,116 @@ o1 = new stzString("<<word>>")
 o1.RemoveBounds("<<",">>")
 ? o1.Content() # --> word
 
-/*-----------------
+/*---------------
 
+o1 = new stzString("word")
+o1.AddBounds("<<",">>")	# --> or BoundWith()
+? o1.Content()
+#--> <<word>>
 
-StzStringQ("softanza") {
-	
-	@Constraints = [
+/*--------------- TODO (future)
 
-		:MustBeUppercase 	= '{ Q(@str).IsUppercase() }',
-		:MustNotExceed10Chars 	= '{ Q(@str).NumberOfChars() <= 10 }',
-		:MustBeginWithLetterS	= '{ Q(@str).BeginsWithCS("A", :CS = FALSE) }'
+o1 = new stzString("<<word>>")
 
-	]
+? o1.Bounds() # !--> [ "<<", ">>" ]
 
-	VerifyConstraints()
+? o1.LeftBound() # !--> "<<"
+? o1.RightBound() # !--> ">>"
 
+# And also FirstBound() and LastBound() for general
+# use with left-to-right and right-toleft strings
 
+/*==================
+
+*/
+aList = [
+	:Where = "file.ring",
+	:What  = "Describes what happend",
+	:Why   = "Describes why it happened",
+	:Todo  = "Posposes an action to do"
+]
+
+StzListQ(aList).IsRaiseParamList() # --> TRUE
+
+# Internally, StzList checks for a number of conditions
+
+StzListQ(aList) {
+	? NumberOfItems() <= 4 # --> TRUE
+	? IsHashList() # --> TRUE
+	? ToStzHashList().KeysQ().IsMadeOfSome([ :Where, :What, :Why, :Todo ]) # --> TRUE
+	? ToStzHashList().ValuesQ().AllItemsVerifyW("isString(@item) and @item != NULL") # --> TRUE
 }
 
-/*--------------- REFACORED: test it again
+# In a better world, those conditions could be expressed us
+# constraints on the list object like this:
+
+StzListQ(aList) {
+	:MustHave@4@Items,
+	:MustBeAHashList,
+	:AKeyMustBeOneOfThese = [ :Where, :What, :Why, :Todo ],
+	:ValuesMustBeNonNullStrings
+}
+
+# To make it happen, those constraints should be defined once at
+# the global level, and then reused every where inside a stzList
+
+
+
+
+/*-----------------
+
+? stzRaise("Simple error message!")
+# --> Simple error message! 
+
+/*-----------------
+
+? stzRaise([
+	:InFile	= "stzString.ring"
+	:What 	= "Describes what happend",
+	:Why  	= "Describes why it happened",
+	:Todo 	= "Posposes an action to solve the error",
+])
+# --> Line 47 in file file.ring:
+#	  What : Describes what happend
+#	  Why  : Describes why it happened
+#	  Todo : Posposes an action to do
+#
+
+/*-----------------/////////////////////////////////////////////////////////////////////
+*/
+# Constarints are defined at the global level and then reused every where
+# inside your softanza objects
+
+DefineConstraints([
+	:OnStzString = [
+		:MustBeUppercase 	= '{ Q(@str).IsUppercase() }',
+		:MustNotExceed@n@Chars 	= '{ Q(@str).NumberOfChars() <= n }',
+		:MustBeginWithLetter@c@	= '{ Q(@str).BeginsWithCS(c, :CS = FALSE) }'
+	],
+
+	:OnStzNumber = [
+		:MustBeStrictlyPositive = '{ @number > 0 }'
+	],
+
+	:OnStzList = [
+		:MustBeAHashList = '{ Q(@list).IsHashList() }'
+	]
+
+]
+
+# Let's use the constraints defined in a StzString object
+
+StzStringQ("SOFTANZA") {
+
+	EnforeConstraints([
+		:MustBeUppercase,
+		:MustNotExceed10Chars
+	])
+
+	? "Passed"
+}
+
+/*--------------- REFACTORED: test it again
 
 # When the string is initiated with a non-null value,
 # then the constraint is immediately active
@@ -590,7 +717,7 @@ o1 = new stzString("I Work For My Tomorrow")
 
 /*----------------------
 
-? StzStringQ("geksjhsy").ReversedChars()	# --> yshjskeg
+? StzStringQ("geksjhsy").CharsReversed()	# --> yshjskeg
 
 /*----------------------
 

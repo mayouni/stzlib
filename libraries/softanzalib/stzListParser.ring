@@ -25,11 +25,11 @@ class stzListParser
 	def init(paList)
 
 		if NOT isList(paList)
-			raise("Can't create the stzListParser object! You should provide a list.")
+			stzRaise("Can't create the stzListParser object! You should provide a list.")
 		ok
 
 		if len(paList) = 0
-			raise("Can't create the stzListParser object! The list you provided is empty.")
+			stzRaise("Can't create the stzListParser object! The list you provided is empty.")
 		ok
 
 		@aList = paList

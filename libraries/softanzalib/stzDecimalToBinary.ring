@@ -36,11 +36,11 @@ class stzDecimalToBinary from stzObject
 				@cDecimalNumber = cNumber
 	
 			else
-				raise(stzDecimalToBinaryError(:CanNotCreateDecimalNumberFromInvalidString))
+				stzRaise(stzDecimalToBinaryError(:CanNotCreateDecimalNumberFromInvalidString))
 			ok
 		else
 			
-			raise(stzDecimalToBinaryError(:CanNotCreateDecimalNumberFromInvalidType))
+			stzRaise(stzDecimalToBinaryError(:CanNotCreateDecimalNumberFromInvalidType))
 		ok
 
 	def ToStzNumber()

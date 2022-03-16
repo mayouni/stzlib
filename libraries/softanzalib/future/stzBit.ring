@@ -10,11 +10,11 @@ class stzBit from stzObject
 
 	def init(n)
 		if NOT isNumber(n)
-			raise(stzError(:UnsupportedType))
+			stzRaise(stzError(:UnsupportedType))
 		ok
 
 		if NOT IsBit(n)
-			raise(stzBitError(:IncorrectValue))
+			stzRaise(stzBitError(:IncorrectValue))
 		else
 			nValue = n
 		ok
