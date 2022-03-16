@@ -13,7 +13,7 @@ class stzSplitter from stzObject
 		if isNumber(p)
 
 			if p < 0
-				raise("p must be positive!") # --> TODO: stzListError
+				stzRaise("p must be positive!") # --> TODO: stzListError
 			ok
 
 			@nNumberOfItems = p
@@ -25,7 +25,7 @@ class stzSplitter from stzObject
 			@nNumberOfItems = StzStringQ(p).NumberOfChars()
 
 		else
-			raise("Unsupported param value!")
+			stzRaise("Unsupported param value!")
 		ok
 
 	def NumberOfItems()
@@ -45,10 +45,14 @@ class stzSplitter from stzObject
 		but isList(p) and ListIsListOfNumbers(p)
 			return This.SplitBeforeN(p)
 		else
-			raise("Incorrect param! Provide a number or list of numbers.")
+			stzRaise("Incorrect param! Provide a number or list of numbers.")
 		ok
 
 		def SplitBeforeQR(n, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBefore(n) )
@@ -57,7 +61,7 @@ class stzSplitter from stzObject
 				return new stzListOfLists( This.SplitBefore(n) )
 	
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def SplitBeforeQ(n)
@@ -80,6 +84,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentForm
 
 		def SplitBeforePosistionsQR(panPositions, pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 			on :stzList
 				return new stzList( This.SplitBeforePositions(panPositions) )
@@ -106,6 +114,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentForm
 
 		def SplitBeforePositionQR(n, pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 			on :stzList
 				return new stzList( This.SplitBeforePosition(n) )
@@ -114,7 +126,7 @@ class stzSplitter from stzObject
 				return new stzListOfLists( This.SplitBeforePosition(n) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def SplitBeforePositionQ(n)
@@ -128,6 +140,10 @@ class stzSplitter from stzObject
 			return This.SplitBeforePosition(n)
 
 			def SplitBeforeNQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.SplitBeforeN(n) )
@@ -136,7 +152,7 @@ class stzSplitter from stzObject
 					return new stzListOfLists( This.SplitBeforeN(n) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 			def SplitBeforeNQ(n)
@@ -161,6 +177,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentForm
 
 		def SplitAfterPosistionsQR(panPositions, pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 			on :stzList
 				return new stzList( This.SplitAfterPositions(panPositions) )
@@ -187,6 +207,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentForm
 
 		def SplitAfterPositionQR(n, pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcType
 			on :stzList
 				return new stzList( This.SplitAfterPosition(n) )
@@ -195,7 +219,7 @@ class stzSplitter from stzObject
 				return new stzListOfLists( This.SplitAfterPosition(n) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def SplitAfterPositionQ(n)
@@ -209,6 +233,10 @@ class stzSplitter from stzObject
 			return This.SplitAfterPosition(n)
 
 			def SplitAfterNQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.SplitAfterN(n) )
@@ -217,7 +245,7 @@ class stzSplitter from stzObject
 					return new stzListOfLists( This.SplitAfterN(n) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 			def SplitAfterNQ(n)
@@ -237,12 +265,16 @@ class stzSplitter from stzObject
 			return This.SplitAtPositions(p)
 	
 		else
-			raise("Unsupported param! You must provide a number or a list of numbers!")
+			stzRaise("Unsupported param! You must provide a number or a list of numbers!")
 		ok
 
 		#< @FunctionFluentForm
 
 			def SplitAtQR(p, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.SplitAt(p) )
@@ -251,7 +283,7 @@ class stzSplitter from stzObject
 					return new stzListOfLists( This.SplitAt(p) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 			def SplitAtQ(n)
@@ -277,6 +309,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentForm
 
 			def SplitAtPositionsQR(panPositions, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.SplitAtPositions(panPositions) )
@@ -285,7 +321,7 @@ class stzSplitter from stzObject
 					return new stzListOfLists( This.SplitAtPositions(panPositions) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 			def SplitAtPositionsQ(panPositions)
@@ -303,6 +339,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentForm
 
 		def SplitAtPositionQR(n, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtPosition(n) )
@@ -311,7 +351,7 @@ class stzSplitter from stzObject
 				return new stzListOfLists( This.SplitAtPosition(n) )
 	
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def SplitAtPositionQ(n)
@@ -335,6 +375,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentForms
 
 		def SplitWQR(pcCondition, pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcCondition
 			on :stzList
 				return new stzList( This.SplitW(pcCondition) )
@@ -355,6 +399,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeWQR(pcCondition, pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcCondition
 			on :stzList
 				return new stzList( This.SplitBeforeW(pcCondition) )
@@ -377,6 +425,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentFrom
 
 		def SplitAfterWQR(pcCondition, pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcCondition
 			on :stzList
 				return new stzList( This.SplitAfterW(pcCondition) )
@@ -399,6 +451,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentFrom
 
 		def SplitatAfterWQR(pcCondition, pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcCondition
 			on :stzList
 				return new stzList( this.SplitAtW(pcCondition) )
@@ -439,6 +495,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentFrom
 
 		def SplitToPartsOfNItemsQR(n, pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcCondition
 			on :stzList
 				return new stzList( This.SplitToPartsOfNItems(n) )
@@ -478,6 +538,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentFrom
 
 		def SplitToNPartsQR(n, pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcCondition
 			on :stzList
 				return new stzList( This.SplitToNParts(n) )
@@ -533,6 +597,10 @@ class stzSplitter from stzObject
 		#< @FunctionFluentFrom
 
 		def GetPairsFromPositionsQR(panPositions, pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcCondition
 			on :stzList
 				return new stzList( This.GetPairsFromPositions(panPositions) )

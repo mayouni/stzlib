@@ -402,7 +402,7 @@ class stzCountry
 			// TODO
 
 		else
-			raise(stzCountryError(:UnsupportedCountryIdentifier))
+			stzRaise(stzCountryError(:UnsupportedCountryIdentifier))
 		ok
 
 	def QtNumber()

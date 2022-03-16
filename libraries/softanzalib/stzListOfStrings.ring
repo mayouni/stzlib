@@ -18,7 +18,7 @@ func IsQStringListObject(p)
 
 func QStringListToList(oQStrList)
 	if NOT IsQStringList(oQStrList)
-		raise(stzListOfStringsError(:CanNotTransformQStringListToRingList))
+		stzRaise(stzListOfStringsError(:CanNotTransformQStringListToRingList))
 	ok
 
 	aResult = []
@@ -39,7 +39,7 @@ func QStringListContent(poQStrList)
 			next
 			return aResult
 		else
-			raise("A QStringList Qt object is exepected as a param!")
+			stzRaise("A QStringList Qt object is exepected as a param!")
 		ok
 
 	func QStringListToRingList(poQStrList)
@@ -100,7 +100,7 @@ class stzListOfStrings from stzObject
 			next
 
 		other
-			raise(stzListOfStringsError(:CanNotCreateListOfStrings))
+			stzRaise(stzListOfStringsError(:CanNotCreateListOfStrings))
 		ok
 		
 	  #---------------#
@@ -315,6 +315,10 @@ class stzListOfStrings from stzObject
 			return This.StringItemsAtPositionsQR(panPositions, :stzList)
 
 		def StringItemsAtPositionsQR(panPositions, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.StringItemsAtPositions(panPositions) )
@@ -323,7 +327,7 @@ class stzListOfStrings from stzObject
 				return new stzList( This.StringItemsAtPositions(panPositions) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def StringItemsAtThesePositions(panPositions)
@@ -333,6 +337,10 @@ class stzListOfStrings from stzObject
 				return This.StringItemsAtThesePositionsQR(panPositions, :stzList)
 	
 			def StringItemsAtThesePositionsQR(panPositions, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringItemsAtThesePositions(panPositions) )
@@ -341,7 +349,7 @@ class stzListOfStrings from stzObject
 					return new stzList( This.StringItemsAtThesePositions(panPositions) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def StringsAtPositions(panPositions)
@@ -351,6 +359,10 @@ class stzListOfStrings from stzObject
 				return This.StringsAtPositionsQR(panPositions, :stzList)
 	
 			def StringsAtPositionsQR(panPositions, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringsAtPositions(panPositions) )
@@ -359,7 +371,7 @@ class stzListOfStrings from stzObject
 					return new stzList( This.StringsAtPositions(panPositions) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def StringsAtThesePositions(panPositions)
@@ -369,6 +381,10 @@ class stzListOfStrings from stzObject
 				return This.StringsAtThesePositionsQR(panPositions, :stzList)
 	
 			def StringsAtThesePositionsQR(panPositions, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringsAtThesePositions(panPositions) )
@@ -377,7 +393,7 @@ class stzListOfStrings from stzObject
 					return new stzList( This.StringsAtThesePositions(panPositions) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 	  #-------------------------------------------------------------#
@@ -388,7 +404,7 @@ class stzListOfStrings from stzObject
 		if isString(pcStrItem)
 			This.QStringListObject().append(pcStrItem)
 		else
-			raise( stzListOfStringsError(:CanNotAddNonStringItem) )
+			stzRaise( stzListOfStringsError(:CanNotAddNonStringItem) )
 		ok
 
 		def AddStringItemQ(pcStrItem)
@@ -431,7 +447,7 @@ class stzListOfStrings from stzObject
 		if isString(pcStrItem)
 			This.QStringListObject().prepend(pcStrItem)
 		else
-			raise( stzListOfStringsError(:CanNotAddNonStringItem) )
+			stzRaise( stzListOfStringsError(:CanNotAddNonStringItem) )
 		ok
 		
 		def PrependQ(pcStrItem)
@@ -525,7 +541,7 @@ class stzListOfStrings from stzObject
 		if isString(pcStr)
 			This.QStringListObject().insert(n-1, pcStr)
 		else
-			raise( stzListOfStringsError(:CanNotInsertNonStringItem) )
+			stzRaise( stzListOfStringsError(:CanNotInsertNonStringItem) )
 		ok
 
 	def InsertBeforeQ(n, pcStr)
@@ -609,7 +625,7 @@ class stzListOfStrings from stzObject
 			next
 
 		else
-			raise("Param you provided is not a list of strings!")
+			stzRaise("Param you provided is not a list of strings!")
 	
 		ok
 
@@ -1062,6 +1078,10 @@ class stzListOfStrings from stzObject
 				return FindAllCSQR(pcStrItem, pCaseSensitive, :stzList)
 
 			def FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.FindAllCS(pcStrItem, pCaseSensitive) )
@@ -1070,7 +1090,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfNumbers( This.FindAllCS(pcStrItem, pCaseSensitive) )
 
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def FindAllOccurrencesOfStringItemCS(pcStrItem, pCaseSensitive)
@@ -1190,7 +1210,7 @@ class stzListOfStrings from stzObject
 
 	def NumberOfOccurrenceOfManyStringItemsCS(pacStrItems, pCaseSensitive)
 		if NOT ListIsListOfStrings(pacStrItems)
-			raise("Incorrect param type! pacStrItems mus tbe a list of strings.")
+			stzRaise("Incorrect param type! pacStrItems mus tbe a list of strings.")
 		ok
 
 		pacStrItems = StzListQ(pacStrItems).DuplicatesRemoved()
@@ -1209,6 +1229,10 @@ class stzListOfStrings from stzObject
 			return This.NumberOfOccurrenceOfManyStringItemsCSQR(pacStrItems, pCaseSensitive, :stzList)
 
 		def NumberOfOccurrenceOfManyStringItemsCSQR(pacStrItems, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NumberOfOccurrenceOfManyStringItemsCS(pacStrItems, pCaseSensitive) )
@@ -1217,7 +1241,7 @@ class stzListOfStrings from stzObject
 				return new stzListOfNumbers( This.NumberOfOccurrenceOfManyStringItemsCS(pacStrItems, pCaseSensitive) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -1243,6 +1267,10 @@ class stzListOfStrings from stzObject
 			return This.NumberOfOccurrenceOfManyStringItemsCSXT(pacStrItems, pCaseSensitive, :stzList)
 
 		def NumberOfOccurrenceOfManyStringItemsCSXTQR(pacStrItems, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NumberOfOccurrenceOfManyStringItemsCSXT(pacStrItems, pCaseSensitive) )
@@ -1251,7 +1279,7 @@ class stzListOfStrings from stzObject
 				return new stzListOfNumbers( This.NumberOfOccurrenceOfManyStringItemsCSXT(pacStrItems, pCaseSensitive) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -2479,7 +2507,7 @@ class stzListOfStrings from stzObject
 	def NumberOfOccurrenceOfManySubstringsCS(pacSubStr, pCaseSensitive)
 
 		if NOT StzListQ(paSubStr).IsListOfStrings()
-			raise("Syntax Error: 1st param must be a list of strings!")
+			stzRaise("Syntax Error: 1st param must be a list of strings!")
 		ok
 
 		pacSubStr = StzListQ(pacSubStr).DuplicatesRemoved()
@@ -2501,7 +2529,7 @@ class stzListOfStrings from stzObject
 	def NumberOfOccurrenceOfManySubstringsCSXT(pacSubStr, pCaseSensitive)
 
 		if NOT StzListQ(paSubStr).IsListOfStrings()
-			raise("Syntax Error: 1st param must be a list of strings!")
+			stzRaise("Syntax Error: 1st param must be a list of strings!")
 		ok
 
 		pacSubStr = StzListQ(pacSubStr).DuplicatesRemoved()
@@ -2589,7 +2617,7 @@ class stzListOfStrings from stzObject
 			return QStringListContent(oQList)
 
 		else
-			raise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+			stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
 		#< @FunctionfluentForm
@@ -2598,6 +2626,10 @@ class stzListOfStrings from stzObject
 			return This.StringItemssContainingSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 		def StringItemssContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.StringItemssContainingSubStringCS(pcSubStr, pCaseSensitive) )
@@ -2606,7 +2638,7 @@ class stzListOfStrings from stzObject
 				return new stzListOfStrings( This.StringItemssContainingSubStringCS(pcSubStr, pCaseSensitive) )
 
 			other
-				raise("Unsupported param type!")
+				stzRaise("Unsupported param type!")
 			off
 
 		#>
@@ -2618,6 +2650,10 @@ class stzListOfStrings from stzObject
 				return This.StringsContainingSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def StringsContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+		
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringsContainingSubStringCS(pcSubStr, pCaseSensitive) )
@@ -2626,7 +2662,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.StringsContainingSubStringCS(pcSubStr, pCaseSensitive) )
 	
 				other
-					raise("Unsupported param type!")
+					stzRaise("Unsupported param type!")
 				off
 
 		def StringItemsContainingCS(pcSubStr, pCaseSensitive)
@@ -2636,6 +2672,10 @@ class stzListOfStrings from stzObject
 				return This.StringItemsContainingCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def StringItemsContainingCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringItemsContainingCS(pcSubStr, pCaseSensitive) )
@@ -2644,7 +2684,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.StringItemsContainingCS(pcSubStr, pCaseSensitive) )
 	
 				other
-					raise("Unsupported param type!")
+					stzRaise("Unsupported param type!")
 				off
 
 		def StringsContainingCS(pcSubStr, pCaseSensitive)
@@ -2654,6 +2694,10 @@ class stzListOfStrings from stzObject
 				return This.StringsContainingCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def StringsContainingCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringsContainingCS(pcSubStr, pCaseSensitive) )
@@ -2662,7 +2706,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.StringsContainingCS(pcSubStr, pCaseSensitive) )
 	
 				other
-					raise("Unsupported param type!")
+					stzRaise("Unsupported param type!")
 				off
 
 		def FilterStringItemsCS(pcSubStr, pCaseSensitive)
@@ -2680,6 +2724,10 @@ class stzListOfStrings from stzObject
 				return This.FilterStringItemsCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def FilterStringItemsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.FilterStringItemsCS(pcSubStr, pCaseSensitive) )
@@ -2688,7 +2736,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.FilterStringItemsCS(pcSubStr, pCaseSensitive) )
 	
 				other
-					raise("Unsupported param type!")
+					stzRaise("Unsupported param type!")
 				off
 
 		def FilterStringsCS(pcSubStr, pCaseSensitive)
@@ -2698,6 +2746,10 @@ class stzListOfStrings from stzObject
 				return This.FilterStringsCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def FilterStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.FilterStringsCS(pcSubStr, pCaseSensitive) )
@@ -2706,7 +2758,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.FilterStringsCS(pcSubStr, pCaseSensitive) )
 	
 				other
-					raise("Unsupported param type!")
+					stzRaise("Unsupported param type!")
 				off
 
 		def FilterCS(pcSubStr, pCaseSensitive)
@@ -2716,6 +2768,10 @@ class stzListOfStrings from stzObject
 				return This.FilterStringsCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def FilterCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.FilterCS(pcSubStr, pCaseSensitive) )
@@ -2724,7 +2780,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.FilterCS(pcSubStr, pCaseSensitive) )
 	
 				other
-					raise("Unsupported param type!")
+					stzRaise("Unsupported param type!")
 				off
 
 	  #-----------------------------------------------------#
@@ -2743,7 +2799,7 @@ class stzListOfStrings from stzObject
 			aResult = StzListQ( aResult ).DuplicatesRemoved()
 
 		else
-			raise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+			stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
 		#< @FunctionfluentForm
@@ -2752,6 +2808,10 @@ class stzListOfStrings from stzObject
 			return This.UniqueStringItemssContainingSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 		def UniqueStringItemssContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.UniqueStringItemssContainingSubStringCS(pcSubStr, pCaseSensitive) )
@@ -2760,7 +2820,7 @@ class stzListOfStrings from stzObject
 				return new stzListOfStrings( This.UniqueStringItemssContainingSubStringCS(pcSubStr, pCaseSensitive) )
 
 			other
-				raise("Unsupported param type!")
+				stzRaise("Unsupported param type!")
 			off
 
 		#>
@@ -2772,6 +2832,10 @@ class stzListOfStrings from stzObject
 				return This.UniqueStringsContainingSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def UniqueStringsContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.UniqueStringsContainingSubStringCS(pcSubStr, pCaseSensitive) )
@@ -2780,7 +2844,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.UniqueStringsContainingSubStringCS(pcSubStr, pCaseSensitive) )
 	
 				other
-					raise("Unsupported param type!")
+					stzRaise("Unsupported param type!")
 				off
 
 		def UniqueStringItemsContainingCS(pcSubStr, pCaseSensitive)
@@ -2790,6 +2854,10 @@ class stzListOfStrings from stzObject
 				return This.UniqueStringItemsContainingCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def UniqueStringItemsContainingCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.UniqueStringItemsContainingCS(pcSubStr, pCaseSensitive) )
@@ -2798,7 +2866,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.UniqueStringItemsContainingCS(pcSubStr, pCaseSensitive) )
 	
 				other
-					raise("Unsupported param type!")
+					stzRaise("Unsupported param type!")
 				off
 
 		def UniqueStringsContainingCS(pcSubStr, pCaseSensitive)
@@ -2808,6 +2876,10 @@ class stzListOfStrings from stzObject
 				return This.UniqueStringsContainingCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def UniqueStringsContainingCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.UniqueStringsContainingCS(pcSubStr, pCaseSensitive) )
@@ -2816,7 +2888,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.UniqueStringsContainingCS(pcSubStr, pCaseSensitive) )
 	
 				other
-					raise("Unsupported param type!")
+					stzRaise("Unsupported param type!")
 				off
 
   	  #-----------------------------------------------------#
@@ -2842,6 +2914,10 @@ class stzListOfStrings from stzObject
 			return This.StringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, :stzList)
 
 		def StringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.StringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive) )
@@ -2850,7 +2926,7 @@ class stzListOfStrings from stzObject
 				return new stzListOfStrings( This.StringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -2871,7 +2947,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.StringsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def StringItemsContainingNTimesCS(n, pcSubStr, pCaseSensitive)
@@ -2881,6 +2957,10 @@ class stzListOfStrings from stzObject
 				return This.StringItemsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, :stzList)
 		
 			def StringItemsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringItemsContainingNTimesCS(n, pcSubstr, pCaseSensitive) )
@@ -2889,7 +2969,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.StringItemsContainingNTimesCS(n, pcSubstr, pCaseSensitive) )
 		
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def StringsContainingNTimesCS(n, pcSubStr, pCaseSensitive)
@@ -2899,6 +2979,10 @@ class stzListOfStrings from stzObject
 				return This.StringsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, :stzList)
 		
 			def StringsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringsContainingNTimesCS(n, pcSubstr, pCaseSensitive) )
@@ -2907,7 +2991,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.StringsContainingNTimesCS(n, pcSubstr, pCaseSensitive) )
 		
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -2923,6 +3007,10 @@ class stzListOfStrings from stzObject
 			return This.StringItemsContainingNTimesTheSubstringQR(n, pcSubstr, :stzList)
 
 		def StringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.StringItemsContainingNTimesTheSubstring(n, pcSubstr) )
@@ -2931,7 +3019,7 @@ class stzListOfStrings from stzObject
 				return new stzListOfStrings( This.StringItemsContainingNTimesTheSubstring(n, pcSubstr) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -2944,6 +3032,10 @@ class stzListOfStrings from stzObject
 				return This.StringsContainingNTimesTheSubstringQR(n, pcSubstr, :stzList)
 	
 			def StringsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringsContainingNTimesTheSubstringCS(n, pcSubstr) )
@@ -2952,7 +3044,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.StringsContainingNTimesTheSubstring(n, pcSubstr) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def StringItemsContainingNTimes(n, pcSubStr)
@@ -2962,6 +3054,10 @@ class stzListOfStrings from stzObject
 				return This.StringItemsContainingNTimesQR(n, pcSubstr, :stzList)
 		
 			def StringItemsContainingNTimesQR(n, pcSubstr, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringItemsContainingNTimes(n, pcSubstr) )
@@ -2970,7 +3066,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.StringItemsContainingNTimes(n, pcSubstr) )
 		
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def StringsContainingNTimes(n, pcSubStr)
@@ -2980,6 +3076,10 @@ class stzListOfStrings from stzObject
 				return This.StringsContainingNTimesQR(n, pcSubstr, :stzList)
 		
 			def StringsContainingNTimesQR(n, pcSubstr, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringsContainingNTimes(n, pcSubstr) )
@@ -2988,7 +3088,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.StringsContainingNTimes(n, pcSubstr) )
 		
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -3009,6 +3109,10 @@ class stzListOfStrings from stzObject
 			return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, :stzList)
 
 		def UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive) )
@@ -3017,7 +3121,7 @@ class stzListOfStrings from stzObject
 				return new stzListOfStrings( This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -3030,6 +3134,10 @@ class stzListOfStrings from stzObject
 				return This.UniqueStringsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, :stzList)
 	
 			def UniqueStringsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.UniqueStringsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive) )
@@ -3038,7 +3146,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.UniqueStringsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def UniqueStringItemsContainingNTimesCS(n, pcSubStr, pCaseSensitive)
@@ -3048,6 +3156,10 @@ class stzListOfStrings from stzObject
 				return This.UniqueStringItemsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, :stzList)
 		
 			def UniqueStringItemsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.UniqueStringItemsContainingNTimesCS(n, pcSubstr, pCaseSensitive) )
@@ -3056,7 +3168,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.UniqueStringItemsContainingNTimesCS(n, pcSubstr, pCaseSensitive) )
 		
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def UniqueStringsContainingNTimesCS(n, pcSubStr, pCaseSensitive)
@@ -3066,6 +3178,10 @@ class stzListOfStrings from stzObject
 				return This.UniqueStringsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, :stzList)
 		
 			def UniqueStringsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.UniqueStringsContainingNTimesCS(n, pcSubstr, pCaseSensitive) )
@@ -3074,7 +3190,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.UniqueStringsContainingNTimesCS(n, pcSubstr, pCaseSensitive) )
 		
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -3090,6 +3206,10 @@ class stzListOfStrings from stzObject
 			return This.UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, :stzList)
 
 		def UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr) )
@@ -3098,7 +3218,7 @@ class stzListOfStrings from stzObject
 				return new stzListOfStrings( This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -3111,6 +3231,10 @@ class stzListOfStrings from stzObject
 				return This.UniqueStringsContainingNTimesTheSubstringQR(n, pcSubstr, :stzList)
 	
 			def UniqueStringsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.UniqueStringsContainingNTimesTheSubstringCS(n, pcSubstr) )
@@ -3119,7 +3243,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.UniqueStringsContainingNTimesTheSubstring(n, pcSubstr) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def UniqueStringItemsContainingNTimes(n, pcSubStr)
@@ -3129,6 +3253,10 @@ class stzListOfStrings from stzObject
 				return This.UniqueStringItemsContainingNTimesQR(n, pcSubstr, :stzList)
 		
 			def UniqueStringItemsContainingNTimesQR(n, pcSubstr, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.UniqueStringItemsContainingNTimes(n, pcSubstr) )
@@ -3137,7 +3265,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.UniqueStringItemsContainingNTimes(n, pcSubstr) )
 		
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def UniqueStringsContainingNTimes(n, pcSubStr)
@@ -3147,6 +3275,10 @@ class stzListOfStrings from stzObject
 				return This.UniqueStringsContainingNTimesQR(n, pcSubstr, :stzList)
 		
 			def UniqueStringsContainingNTimesQR(n, pcSubstr, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.UniqueStringsContainingNTimes(n, pcSubstr) )
@@ -3155,7 +3287,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfStrings( This.UniqueStringsContainingNTimes(n, pcSubstr) )
 		
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -3184,6 +3316,10 @@ class stzListOfStrings from stzObject
 			return This.StringItemsContainingNTimesTheSubstringCSXTQR(n, pcSubstr, pCaseSensitive, :stzList)
 
 		def StringItemsContainingNTimesTheSubstringCSXTQR(n, pcSubstr, pCaseSensitive, pcReturn)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.StringItemsContainingNTimesTheSubstringCSXT(n, pcSubstr, pCaseSensitive) )
@@ -3192,7 +3328,7 @@ class stzListOfStrings from stzObject
 				return new stzHashList( This.StringItemsContainingNTimesTheSubstringCSXT(n, pcSubstr, pCaseSensitive) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -3205,6 +3341,10 @@ class stzListOfStrings from stzObject
 				return This.StringsContainingNTimesTheSubstringCSXTQR(n, pcSubstr, pCaseSensitive, :stzList)
 	
 			def StringsContainingNTimesTheSubstringCSXTQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringsContainingNTimesTheSubstringCSXT(n, pcSubstr, pCaseSensitive) )
@@ -3213,7 +3353,7 @@ class stzListOfStrings from stzObject
 					return new stzHashList( This.StringsContainingNTimesTheSubstringCSXT(n, pcSubstr, pCaseSensitive) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def StringItemsContainingNTimesCSXT(n, pcSubStr, pCaseSensitive)
@@ -3223,6 +3363,10 @@ class stzListOfStrings from stzObject
 				return This.StringItemsContainingNTimesCSXTQR(n, pcSubstr, pCaseSensitive, :stzList)
 		
 			def StringItemsContainingNTimesCSXTQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringItemsContainingNTimesCSXT(n, pcSubstr, pCaseSensitive) )
@@ -3231,7 +3375,7 @@ class stzListOfStrings from stzObject
 					return new stzHashList( This.StringItemsContainingNTimesCSXT(n, pcSubstr, pCaseSensitive) )
 		
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def StringsContainingNTimesCSXT(n, pcSubStr, pCaseSensitive)
@@ -3241,6 +3385,10 @@ class stzListOfStrings from stzObject
 				return This.StringsContainingNTimesCSXTQR(n, pcSubstr, pCaseSensitive, :stzList)
 		
 			def StringsContainingNTimesCSXTQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringsContainingNTimesCSXT(n, pcSubstr, pCaseSensitive) )
@@ -3249,7 +3397,7 @@ class stzListOfStrings from stzObject
 					return new stzHashList( This.StringsContainingNTimesCSXT(n, pcSubstr, pCaseSensitive) )
 		
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -3265,6 +3413,10 @@ class stzListOfStrings from stzObject
 			return This.StringItemsContainingNTimesTheSubstringXTQR(n, pcSubstr, :stzList)
 
 		def StringItemsContainingNTimesTheSubstringXTQR(n, pcSubstr, pcReturn)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.StringItemsContainingNTimesTheSubstringXT(n, pcSubstr) )
@@ -3273,7 +3425,7 @@ class stzListOfStrings from stzObject
 				return new stzHashList( This.StringItemsContainingNTimesTheSubstringXT(n, pcSubstr) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -3286,6 +3438,10 @@ class stzListOfStrings from stzObject
 				return This.StringsContainingNTimesTheSubstringXTQR(n, pcSubstr, :stzList)
 	
 			def StringsContainingNTimesTheSubstringXTQR(n, pcSubstr, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringsContainingNTimesTheSubstringCSXT(n, pcSubstr) )
@@ -3294,7 +3450,7 @@ class stzListOfStrings from stzObject
 					return new stzHashList( This.StringsContainingNTimesTheSubstringXT(n, pcSubstr) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def StringItemsContainingNTimesXT(n, pcSubStr)
@@ -3304,6 +3460,10 @@ class stzListOfStrings from stzObject
 				return This.StringItemsContainingNTimesXTQR(n, pcSubstr, :stzList)
 		
 			def StringItemsContainingNTimesXTQR(n, pcSubstr, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringItemsContainingNTimesXT(n, pcSubstr) )
@@ -3312,7 +3472,7 @@ class stzListOfStrings from stzObject
 					return new stzHashList( This.StringItemsContainingNTimesXT(n, pcSubstr) )
 		
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def StringsContainingNTimesXT(n, pcSubStr)
@@ -3322,6 +3482,10 @@ class stzListOfStrings from stzObject
 				return This.StringsContainingNTimesXTQR(n, pcSubstr, :stzList)
 		
 			def StringsContainingNTimesXTQR(n, pcSubstr, pcReturn)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.StringsContainingNTimesXT(n, pcSubstr) )
@@ -3330,7 +3494,7 @@ class stzListOfStrings from stzObject
 					return new stzHashList( This.StringsContainingNTimesXT(n, pcSubstr) )
 		
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -3366,7 +3530,7 @@ class stzListOfStrings from stzObject
 		ok
 
 		if NOT (isNumber(n) and n <= This.NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive))
-			raise("Incorrect param! n must be a number <= number of occurrences of the substring in all the strings.")
+			stzRaise("Incorrect param! n must be a number <= number of occurrences of the substring in all the strings.")
 		ok
 
 		aPositionsXT = This.FindSubStringCS(pcSubStr, pCaseSensitive)
@@ -3523,7 +3687,7 @@ class stzListOfStrings from stzObject
 		*/
 
 		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
-			raise("Incorrect param type! You must provide a list of strings.")
+			stzRaise("Incorrect param type! You must provide a list of strings.")
 		ok
 
 		if len(pacSubStr) = 0
@@ -4320,7 +4484,7 @@ class stzListOfStrings from stzObject
 
 	def ReplaceStringItemsCS(paStr, pcNewStr, pCaseSensitive)
 		if NOT IsListOfStrings(paStr)
-			raise("Incorrect param type! You must provide a list of strings.")
+			stzRaise("Incorrect param type! You must provide a list of strings.")
 		ok
 
 		for str in paStr
@@ -4459,7 +4623,7 @@ class stzListOfStrings from stzObject
 
 	def ReplaceStringItemsByManyCS(paStr, pacNewStr, pCaseSensitive)
 		if NOT IsListOfStrings(paStr)
-			raise("Incorrect param type! You must provide a list of strings.")
+			stzRaise("Incorrect param type! You must provide a list of strings.")
 		ok
 
 		i = 0
@@ -6211,7 +6375,7 @@ class stzListOfStrings from stzObject
 	def RemoveStringItemsCS(paStrItems, pCaseSensitive)
 
 		if NOT IsListOfStrings(paStrItems)
-			raise("Incorrect param type! You must provide a list of strings.")
+			stzRaise("Incorrect param type! You must provide a list of strings.")
 		ok
 
 		for str in paStrItems
@@ -7047,7 +7211,7 @@ class stzListOfStrings from stzObject
 
 	def RemoveSubStringsCS(paSubStr, pCaseSensitive)
 		if NOT IsListOfStrings(paSubStr)
-			raise("Incorrect param type! You must provide a list of strings.")
+			stzRaise("Incorrect param type! You must provide a list of strings.")
 		ok
 
 		for str in paSubStr
@@ -7460,14 +7624,14 @@ class stzListOfStrings from stzObject
 		*/
 
 		if NOT isString(pcCode)
-			raise("Invalid param type! Condition must be a string.")
+			stzRaise("Invalid param type! Condition must be a string.")
 		ok
 
 		oCode = new stzString(pcCode)
 		oCode.ReplaceAllCS("@string", "@str", :CaseSensitive = FALSE)
 
 		if NOT oCode.ContainsCS("@str", :CS = FALSE)
-			raise("Incorrect parm! Condition should contain '@str' or '@string'.")
+			stzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
 		ok
 
 		cCode = oCode.RemoveBoundsQ("{","}").Trimmed()
@@ -7485,7 +7649,7 @@ class stzListOfStrings from stzObject
 
 		if NOT oCode.BeginsWithOneOfTheseCS( [ "@str =", "@str=" ], :CaseSensitive = FALSE )
 
-			raise("Syntax error! Condition should begin with '@str =' or '@string ='.")
+			stzRaise("Syntax error! Condition should begin with '@str =' or '@string ='.")
 		ok
 
 		@i = 0
@@ -7605,14 +7769,14 @@ class stzListOfStrings from stzObject
 		*/
 
 		if NOT isString(pcCode)
-			raise("Invalid param type! Condition must be a string.")
+			stzRaise("Invalid param type! Condition must be a string.")
 		ok
 
 		oCode = new stzString(pcCode)
 		oCode.ReplaceAllCS("@string", "@str", :CaseSensitive = FALSE)
 
 		if NOT oCode.ContainsCS("@str", :CS = FALSE)
-			raise("Incorrect parm! Condition should contain '@str' or '@string'.")
+			stzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
 		ok
 
 		aResult = []
@@ -7633,6 +7797,10 @@ class stzListOfStrings from stzObject
 			return This.ForEachStringYieldQR(pcCode, :stzList)
 
 		def ForEachStringItemYieldQR(pcCode, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.ForEachStringItemYield(pcCode) )
@@ -7644,7 +7812,7 @@ class stzListOfStrings from stzObject
 				return new stzListOfNumbers( This.ForEachStringItemYield(pcCode) )
 	
 		other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 		off
 
 		#>
@@ -7658,6 +7826,10 @@ class stzListOfStrings from stzObject
 				return This.ForEachStringYieldQR(pcCode, :stzList)
 	
 			def ForEachStringYieldQR(pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.ForEachStringYield(pcCode) )
@@ -7669,7 +7841,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfNumbers( This.ForEachStringYield(pcCode) )
 		
 			other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 			off
 
 		def Yield(pcCode)
@@ -7679,6 +7851,10 @@ class stzListOfStrings from stzObject
 				return This.YieldQR(pcCode, :stzList)
 	
 			def YieldQR(pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.Yield(pcCode) )
@@ -7690,7 +7866,7 @@ class stzListOfStrings from stzObject
 					return new stzListOfNumbers( This.Yield(pcCode) )
 		
 			other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -7901,6 +8077,10 @@ class stzListOfStrings from stzObject
 			return This.UniqueCharsQR(:stzList)
 
 		def UniqueCharsQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzListLists( This.UniqueChars() )
@@ -7912,7 +8092,7 @@ class stzListOfStrings from stzObject
 				return new stzListOfChars( This.UniqueChars() )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	  #------------------------------------------------------------#
@@ -7936,6 +8116,10 @@ class stzListOfStrings from stzObject
 			return This.CommonCharsQR(:stzList)
 	
 		def CommonCharsQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Commonchars() )
@@ -7944,7 +8128,7 @@ class stzListOfStrings from stzObject
 			on :stzListOfStrings
 				return new stzListOfStrings( This.CommonChars() )
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	  #==================#
@@ -8228,7 +8412,7 @@ class stzListOfStrings from stzObject
 
 		else
 
-			raise(stzListOfStringsError(:paBoxOptions))
+			stzRaise(stzListOfStringsError(:paBoxOptions))
 		ok		
 
 		def BoxXTQ(paBoxOptions)
@@ -8342,7 +8526,7 @@ class stzListOfStrings from stzObject
 	def Combinations()
 	
 		if This.NumberOfStrings() < 2
-			raise("Can't compute combinations for that list!")
+			stzRaise("Can't compute combinations for that list!")
 		ok
 	
 		# t0 = clock()
@@ -8420,6 +8604,10 @@ class stzListOfStrings from stzObject
 			return new stzListOfLists( This.Split(cSep) )
 
 		def SplitQR(cSep, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzListOfLists
 				return new stzListOfLists( This.Split(cSep) )
@@ -8428,7 +8616,7 @@ class stzListOfStrings from stzObject
 				return new stzList( This.Split(cSep) )
 
 			other
-				raise("Unsupported type!")
+				stzRaise("Unsupported type!")
 			off
 
 		#>
@@ -8482,7 +8670,7 @@ class stzListOfStrings from stzObject
 
 			return This.NthSubstringsAfterSplittingStringsUsing(n, acSep[2])
 		else
-			raise("Incorrect param types!")
+			stzRaise("Incorrect param types!")
 		ok
 
 		#< @FunctionFluentForm
@@ -8539,6 +8727,10 @@ class stzListOfStrings from stzObject
 		#< @FunctionFluentForm
 
 		def UnicodesQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzListOfUnicodes
 				return new stzListOfUnicodes( This.Unicodes() )
@@ -8547,7 +8739,7 @@ class stzListOfStrings from stzObject
 			on :stzListOfLists
 				return new stzListOfLists( This.Unicodes() )
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 				
 		def UnicodesQ()
@@ -8574,6 +8766,25 @@ class stzListOfStrings from stzObject
 		next
 
 		return acResult
+
+		def ScriptsQ()
+			return This.ScriptsQR(:stzList)
+
+		def ScriptsQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Scripts() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Scripts() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 
 	  #------------#
@@ -8709,7 +8920,7 @@ class stzListOfStrings from stzObject
 				   (cFirstOrLast = :FirstItemIf or cFirstOrLast = :LastItemIf) AND
 				   oCondition.ExistsInList(aListOfConditions) )
 
-					raise(stzListError(:UnsupportedExpressionInOverloadedMinusOperator))
+					stzRaise(stzListError(:UnsupportedExpressionInOverloadedMinusOperator))
 				ok
 					
 				if cFirstOrLast = :FirstStringIf
@@ -8728,19 +8939,19 @@ class stzListOfStrings from stzObject
 						ok
 
 					but cCondition = :LesserThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :GreaterThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :LesserOrEqualThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :GreaterOrEqualThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 
 					but cCondition = :DifferentThan
-						raise(:UnsupportedFeatureInThisVersion)
+						stzRaise(:UnsupportedFeatureInThisVersion)
 					
 					ok
 
@@ -8760,16 +8971,16 @@ class stzListOfStrings from stzObject
 						ok
 
 					but cCondition = :LesserThan
-						raise(stzListError(:UnsupportedFeattureInThisVersion))
+						stzRaise(stzListError(:UnsupportedFeattureInThisVersion))
 
 					but cCondition = :GreaterThan
-						raise(stzListError(:UnsupportedFeattureInThisVersion))
+						stzRaise(stzListError(:UnsupportedFeattureInThisVersion))
 
 					but cCondition = :LesserOrEqualThan
-						raise(stzListError(:UnsupportedFeattureInThisVersion))
+						stzRaise(stzListError(:UnsupportedFeattureInThisVersion))
 
 					but cCondition = :GreaterOrEqualThan
-						raise(stzListError(:UnsupportedFeattureInThisVersion))
+						stzRaise(stzListError(:UnsupportedFeattureInThisVersion))
 					
 					ok
 

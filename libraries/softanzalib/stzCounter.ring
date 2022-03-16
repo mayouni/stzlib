@@ -35,7 +35,7 @@ class stzCounter from stzObject
 			# Do nothing, defaults are used
 
 		else
-			raise(stzCounterError(:CanNotCreateCounter))
+			stzRaise(stzCounterError(:CanNotCreateCounter))
 		ok		
 
 	def CountTo(nNumber)

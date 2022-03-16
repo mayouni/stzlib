@@ -25,7 +25,7 @@ class stzListOfEntities
 				if This.ContainsName(paEntity[:name]) and
 				   This.ContainsType(paEntity[:type])
 
-					raise(stzListOfEntitiesError(:CanNotAddThisEntityTwice))
+					stzRaise(stzListOfEntitiesError(:CanNotAddThisEntityTwice))
 
 				else
 					paEntity[:name] = StzStringQ(paEntity[:name]).Lowercased()
@@ -35,10 +35,10 @@ class stzListOfEntities
 				ok
 
 			else
-				raise(stzListOfEntitiesError(:CanNotAddEntityWithoutName))
+				stzRaise(stzListOfEntitiesError(:CanNotAddEntityWithoutName))
 			ok
 		else
-			raise(stzListOfEntitiesError(:CanNotAddNotAHashList))
+			stzRaise(stzListOfEntitiesError(:CanNotAddNotAHashList))
 		ok
 
 	def EntitiesNames()

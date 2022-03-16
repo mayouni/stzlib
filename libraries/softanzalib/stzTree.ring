@@ -129,11 +129,11 @@ class stzTree from stzObject
 
 	def Init(paTree)
 		if len(paTree) = 0
-			raise("Can't initialise the tree. The list you provided is empty!")
+			stzRaise("Can't initialise the tree. The list you provided is empty!")
 		ok
 
 		if isList( paTree[1] )
-			raise("Can't initialise the tree. The root must not be a list.")
+			stzRaise("Can't initialise the tree. The root must not be a list.")
 		ok
 
 		aTree = paTree
@@ -146,7 +146,7 @@ class stzTree from stzObject
 			aTree[1] = pcValue
 			return TRUE
 		else
-			raise("Can't set the root of the tree with a value of type LIST.")
+			stzRaise("Can't set the root of the tree with a value of type LIST.")
 		ok
 
 	def Add(paPath,pValue)	// Add([0,2,1],"X")

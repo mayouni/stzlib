@@ -14,7 +14,7 @@ class stzListInString from stzObject
 
 	def init(pcListInString)
 		if NOT StringIsListInString(pcListInString)
-			raise("Syntax error! The list is not correct.")
+			stzRaise("Syntax error! The list is not correct.")
 		else
 			@cListInString = pcListInString
 			cCode = '@aList = ' + pcListInString
@@ -32,6 +32,10 @@ class stzListInString from stzObject
 			return new stzList(This.List())
 
 		def ListQR(pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			cCode = "oResult = new " + pcType + "(This.List())"
 			eval(cCode)
 			return oResult

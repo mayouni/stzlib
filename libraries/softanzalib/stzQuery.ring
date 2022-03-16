@@ -55,7 +55,7 @@ class stzQuery from stzObject
 				nStart = nSteps+1
 				nEnd = This.NumberOfItems()
 			else
-				raise("Unsupported syntax of pItem!")
+				stzRaise("Unsupported syntax of pItem!")
 			ok
 		ok
 
@@ -72,7 +72,7 @@ class stzQuery from stzObject
 				but oTempPrecedent.Contains( oTempValue.OnlyLetters() )
 					nStart += nSteps
 				else
-					raise("Unsupported syntax of pValue!")
+					stzRaise("Unsupported syntax of pValue!")
 				ok
 			ok
 		ok
@@ -91,7 +91,7 @@ class stzQuery from stzObject
 					but oTempPrecedent.Contains( oTempValue.OnlyLetters() )
 						nValue = This[i-nSteps]
 					else
-						raise("Unsupported syntax of pValue!")
+						stzRaise("Unsupported syntax of pValue!")
 					ok
 				ok
 
@@ -102,7 +102,7 @@ class stzQuery from stzObject
 				aValue = pValue
 
 			else
-				raise("Insupported value!")
+				stzRaise("Insupported value!")
 			ok
 
 			// Adding the request result dependening on the condition

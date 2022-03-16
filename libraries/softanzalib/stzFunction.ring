@@ -134,7 +134,7 @@ class stzFunction from stzObject
 		if bStartedUp
 			eval( CallingCodeFor(paValue) )
 		else
-			raise("fucntion is not started. Use startup() before ApplyFor()!")
+			stzRaise("fucntion is not started. Use startup() before ApplyFor()!")
 		ok
 
 	def ApplyForMany(paMany)

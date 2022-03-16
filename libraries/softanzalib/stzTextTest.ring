@@ -1,7 +1,26 @@
 load "stzlib.ring"
 
-/*-----------------
-*/
+/*-------------------
+
+? StringIsStzClassName("stzlist")
+? StzStringQ("stzlist").IsStzClassName()
+
+/*==================
+
+StzTextQ("Programming Without Code Technology") {
+
+	? Initials()
+	# --> [ "P", "W", "C", "T" ]
+
+	? InitialsAsString()
+	# --> PWCT
+
+	# Or you can return any type you need using the QR() construct:
+	? InitialsQR(:stzString).Content()
+}
+
+/*==================
+
 str = "
 “General Punctuation”! ; This means there is more to know, right?!
 Well.. there is a set of supplemental “Punctuation” in Unicode.

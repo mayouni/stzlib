@@ -8,7 +8,7 @@ class stzListOfSets from stzListOfLists
 		if oTempList.AllItemsAreSets()
 			@aContent = paListOfSets
 		else
-			raise(stzListOfSetsError(:CanNotCreateListOfSets))
+			stzRaise(stzListOfSetsError(:CanNotCreateListOfSets))
 			//aSets = oTempList.Transform( :AllItems, :ThatAreLists, :ToSets )
 		ok
 

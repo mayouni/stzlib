@@ -1,4 +1,57 @@
 
+	
+
+
+func stzRaise(paMessage)
+
+	if NOT IsStringOrList(paMessage)
+		stzRaise("Error in stzRaise param type!")
+	ok
+
+	if isString(paMessage)
+		stzRaise(paMessage)
+	ok
+
+	if isList(paMessage) and StzListQ(paMessage).IsRaiseParamList()
+		cWhere = paMessage[ :Where ]
+		cWhat  = paMessage[ :What   ]
+		cWhy   = paMessage[ :Why    ]
+		cTodo  = paMessage[ :Todo   ]
+
+	
+
+		if NOT StzListQ([ cWhere, cWhat, cWhy, cTodo ]).IsListOfStrings()
+			stzRaise("Error in stzRaise param type!")
+		ok
+	
+		cFile = StzStringQ(cWhere).WithoutSpaces()
+		if isNull(cWhere)
+			stzRaise("Error in stzRaise --> Where the error happened!")
+		ok
+	
+		cWhat = StzStringQ(cWhat).Simplified()
+		cwhay = StzStringQ(cWhy).Simplified()
+		cTodo = StzStringQ(cTodo).Simplified()
+	
+		cErrorMsg = "in file " + paMessage[:Where] + ":" + NL
+	
+		if cWhat != NULL
+			cErrorMsg += "   What : " + paMessage[:What] + NL
+		ok
+	
+		if cWhy != NULL
+			cErrorMsg += "   Why  : " + paMessage[:Why]  + NL
+		ok
+	
+		if cTodo != NULL
+			cErrorMsg += "   Todo : " + paMessage[:Todo] + NL
+		ok
+
+		stzRaise(cErrorMsg)
+	else
+		stzRaise("Error in stzRaise > Incorrect param type!")
+	ok
+
 func IsNumberOrString(p)
 	if isNumber(p) or isString(p)
 		return TRUE
@@ -84,19 +137,22 @@ func InfereDataTypeFromString(pcStr)
 
 	ok
 
-	if IsRingDataType(pcStr) or IsStzDataType(pcStr) or IsStzDataType("stz" + pcStr)
+	if StringIsStzClassName(pcStr) or
+	   StringIsStzClassName(pcStr) or
+	   StringIsStzClassName("stz" + pcStr)
+
 		return pcStr
 
 	ok
 
-	if IsRingDataType( _(pcStr).Q.LastCharRemovedW('@char = "s"') ) or
-	   IsStzDataType( _(pcStr).Q.LastCharRemovedW('@char = "s"') )
+	if StringIsStzClassName( Q(pcStr).LastCharRemovedW('@char = "s"') ) or
+	   StringIsStzClassName( Q(pcStr).LastCharRemovedW('@char = "s"') )
 
-		return _(pcStr).Q.LastCharRemovedW('@char = "s"')
+		return Q(pcStr).LastCharRemovedW('@char = "s"')
 
 	ok
 
-	if _(pcStr).Q.IsOneOfThese( ListOfListsOfStzTypes() )
+	if Q(pcStr).IsOneOfThese( StzClasses() )
 		return pcStr
 	ok
 
@@ -203,11 +259,8 @@ func IsRingType(pcString)
 	def IsRingDataType(pcString)
 		return IsRingType(pcString)
 
-func IsStzType(pcString)
-	return StzStringQ(pcString).LowercaseQ().ExistsIn( StzTypes() )
-
-	def IsstzDataType(pcString)
-		return IsStzType(pcString)
+func StringIsStzClassName(pcString)
+	return StzStringQ(pcString).IsStzClassName()
 
 func StringIsChar(pcStr)
 	oStzString = new stzString(pcStr)
@@ -282,7 +335,7 @@ func StzLen(p)
 		return p.NumberOfItems()
 
 	else
-		raise("Unsupported parameter type!")
+		stzRaise("Unsupported parameter type!")
 	ok
 
 func Unicode(p)
@@ -300,7 +353,7 @@ func Unicode(p)
 		return StringsUnicodes(p)
 
 	else
-		raise("Incorrect param type!")
+		stzRaise("Incorrect param type!")
 	ok
 
 	#< @FunctionAlternativeForm

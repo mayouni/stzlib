@@ -36,7 +36,7 @@ class stzLocaleAbbreviationString
 		# If the string is empty or contains spaces then it can not be a locale
 
 		if oStr.IsEmpty() or oStr.ContainsSpaces()
-			raise("Can't create locale abbreviation object!")
+			stzRaise("Can't create locale abbreviation object!")
 		ok
 
 		# If the string is "C" then it's correct
@@ -52,26 +52,26 @@ class stzLocaleAbbreviationString
 		# it can't be a locale abbreviation
 		if oStr.NumberOfChars() < 5 OR
 		   oStr.NumberOfChars() > 12
-			raise("Can't create locale abbreviation object!")
+			stzRaise("Can't create locale abbreviation object!")
 		ok
 
 		# If the string contains no separators ('_' or '-') then
 		# it can't be a locale abbreviation
 		if oStr.ContainsNo("_") AND oStr.ContainsNo("-")
-			raise("Can't create locale abbreviation object!")
+			stzRaise("Can't create locale abbreviation object!")
 		ok
 
 		# If the string contains the two separators ('_' and '-') in
 		# the same time, then it can't be a locale abbreviation
 		if oStr.Contains("_") AND oStr.Contains("-")
-			raise("Can't create locale abbreviation object!")
+			stzRaise("Can't create locale abbreviation object!")
 		ok
 
 		# If the string contains more then 2 separators then it
 		# is not a correct locale
 		if (oStr.Contains("_") and oStr.NumberOfOccurrence(:Of = "_") > 2) or
 		   (oStr.Contains("-") and oStr.NumberOfOccurrence(:Of = "-") > 2)
-			raise("Can't create locale abbreviation object!")
+			stzRaise("Can't create locale abbreviation object!")
 		ok
 
 		# At this level, and before we can argue that the string is
@@ -178,7 +178,7 @@ class stzLocaleAbbreviationString
 
 		catch
 				
-			raise("Can't create the locale abbreviation object!")
+			stzRaise("Can't create the locale abbreviation object!")
 		done
 	
 	  #-----------------------------#

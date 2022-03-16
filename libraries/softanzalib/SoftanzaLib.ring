@@ -102,8 +102,6 @@ load "stzCurrency.ring"
 load "stzLocaleAbbreviationString.ring"
 #load "stzLocaleAbbreviationStringError.ring"
 
-
-
 load "stzUnicodeData.ring"
 
 load "stzQuery.ring"
@@ -150,3 +148,6 @@ load "stzListOfEntitiesError.ring"
 load "stzText.ring"
 
 load "stzStringArt.ring"
+
+load "stzConstraints.ring"
+load "stzConstraintsData.ring"

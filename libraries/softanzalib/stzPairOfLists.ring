@@ -12,7 +12,7 @@ class stzPairOfLists
 
 	def init(paList1, paList2)
 		if NOT BothAreLists(paList1, paList2)
-			raise("Can not create object!")
+			stzRaise("Can not create object!")
 		ok
 
 		@aList1 = paList1
@@ -96,5 +96,5 @@ class stzPairOfLists
 				return new stzHashList( This.Associate() )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off

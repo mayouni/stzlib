@@ -15,7 +15,7 @@ func SetHilightChar(c)
 	if IsStringIsChar(c)
 		_cHilightChar = c
 	else
-		raise(:CanNotSetHilightChar)
+		stzRaise(:CanNotSetHilightChar)
 	ok
 	
 func ListIsListOfChars(paList)
@@ -79,7 +79,7 @@ class stzListOfChars from stzObject
 			@cString = pValue
 			@aStzChars = This.ListOfChars()
 		else
-			raise(stzListOfCharsError(:CanNotCreateListOfChars))
+			stzRaise(stzListOfCharsError(:CanNotCreateListOfChars))
 		ok
 
 	def Content()
@@ -114,7 +114,7 @@ class stzListOfChars from stzObject
 			@cString = This.ToString() # TODO: Add it to stzList
 			@aStzChars = This.ToListOfStzChars()
 		else
-			raise(stzListOfCharsError(:CanNotUpdateListOfChars)) # TODO
+			stzRaise(stzListOfCharsError(:CanNotUpdateListOfChars)) # TODO
 		ok
 
 		#< @FunctionAlternativeForm
@@ -456,7 +456,7 @@ class stzListOfChars from stzObject
 			
 
 		else
-			raise(stzListOfCharsError(:CanNotBoxTheListOfChars))
+			stzRaise(stzListOfCharsError(:CanNotBoxTheListOfChars))
 		ok
 
 	  #-----------------#

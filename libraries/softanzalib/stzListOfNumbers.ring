@@ -141,6 +141,10 @@ class stzListOfNumbers from stzList
 			return This.MinQR(n, :stzNumber)
 
 		def MinQR(n, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzNumber
 				return new stzNumber( This.Min(n) )
@@ -149,7 +153,7 @@ class stzListOfNumbers from stzList
 				return new stzString( This.Min(n) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def MinNumber()
@@ -167,7 +171,7 @@ class stzListOfNumbers from stzList
 					return new stzString( This.MinNumber(n) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 	def FindMin()
@@ -201,6 +205,10 @@ class stzListOfNumbers from stzList
 			return MinNumbersQR(n, :stzList)
 
 		def MinNumbersQR(n, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.MinNumbers(n) )
@@ -212,7 +220,7 @@ class stzListOfNumbers from stzList
 				return StzListOfNumbersQ(This.MinNumbers()).ToStzListOfStrings()
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -225,6 +233,10 @@ class stzListOfNumbers from stzList
 				return This.NMinNumbersQR(n, :stzList)
 
 			def NMinNumbersQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.NMinNumbers(n) )
@@ -236,7 +248,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.NMinNumbers()).ToStzListOfStrings()
 
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 		#>
 
@@ -248,7 +260,6 @@ class stzListOfNumbers from stzList
 		next
 
 		aResult = StzListQ(aResult).FlattenQ().SortInAscendingQ().Content()
-//SortedInAscending()
 
 		return aResult
 
@@ -258,6 +269,10 @@ class stzListOfNumbers from stzList
 			return This.FindMinNumbersQR(n, :stzList)
 
 		def FindMinNumbersQR(n, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.FindMinNumbers(n) )
@@ -269,7 +284,7 @@ class stzListOfNumbers from stzList
 				return StzListOfNumbersQ(This.FindMinNumbers()).ToStzListOfStrings()
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -282,6 +297,10 @@ class stzListOfNumbers from stzList
 				return This.FindNMinNumbersQR(n, :stzList)
 	
 			def FindNMinNumbersQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.FindNMinNumbers(n) )
@@ -293,7 +312,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.FindNMinNumbers()).ToStzListOfStrings()
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def PositionsOfMinNumbers(n)
@@ -303,6 +322,10 @@ class stzListOfNumbers from stzList
 				return This.PositionsOfMinNumbersQR(n, :stzList)
 	
 			def PositionsOfMinNumbersQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.PositionsOfMinNumbers(n) )
@@ -314,7 +337,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.PositionsOfMinNumbers()).ToStzListOfStrings()
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def PositionsOfNMinNumbers(n)
@@ -324,6 +347,10 @@ class stzListOfNumbers from stzList
 				return This.PositionsOfNMinNumbersQR(n, :stzList)
 	
 			def PositionsOfNMinNumbersQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.PositionsOfNMinNumbers(n) )
@@ -335,7 +362,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.PositionsOfNMinNumbers()).ToStzListOfStrings()
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 		#>
 
@@ -350,6 +377,10 @@ class stzListOfNumbers from stzList
 			return This.MaxQR(n, :stzNumber)
 
 		def MaxQR(n, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzNumber
 				return new stzNumber( This.Max(n) )
@@ -358,7 +389,7 @@ class stzListOfNumbers from stzList
 				return new stzString( This.Max(n) )
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		def MaxNumber()
@@ -368,6 +399,10 @@ class stzListOfNumbers from stzList
 				return This.MaxNumberQR(n, :stzNumber)
 	
 			def MaxNumberQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzNumber
 					return new stzNumber( This.MaxNumber(n) )
@@ -376,7 +411,7 @@ class stzListOfNumbers from stzList
 					return new stzString( This.MaxNumber(n) )
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 	def FindMax()
@@ -405,6 +440,10 @@ class stzListOfNumbers from stzList
 			return This.TopQR(n, :stzList)
 	
 		def TopQR(n, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Top(n) )
@@ -416,7 +455,7 @@ class stzListOfNumbers from stzList
 				return StzListOfNumbersQ(This.Top(n)).ToStzListOfStrings()
 
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -428,6 +467,10 @@ class stzListOfNumbers from stzList
 				return This.TopNumbersQR(n, :stzList)
 	
 			def TopNumbersQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.TopNumbers(n) )
@@ -439,7 +482,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.TopNumbers(n)).ToStzListOfStrings()
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 	
 		def NTopNumbers(n)
@@ -449,6 +492,10 @@ class stzListOfNumbers from stzList
 				return This.NTopNumbersQR(n, :stzList)
 	
 			def NTopNumbersQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.NTopNumbers(n) )
@@ -460,7 +507,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.NTopNumbers(n)).ToStzListOfStrings()
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def TopNNumbers(n)
@@ -470,6 +517,10 @@ class stzListOfNumbers from stzList
 				return This.TopNNumbersQR(n, :stzList)
 	
 			def TopNNumbersQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.TopNNumbers(n) )
@@ -481,7 +532,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.TopNNumbers(n)).ToStzListOfStrings()
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def MaxNumbers(n)
@@ -493,6 +544,10 @@ class stzListOfNumbers from stzList
 				return This.MaxNumbersQR(n, :stzList)
 	
 			def MaxNumbersQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.MaxNumbers(n) )
@@ -504,7 +559,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.MaxNumbers(n)).ToStzListOfStrings()
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def MaxNNumbers(n)
@@ -514,6 +569,10 @@ class stzListOfNumbers from stzList
 				return This.MaxNNumbersQR(n, :stzList)
 	
 			def MaxNNumbersQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.MaxNNumbers(n) )
@@ -525,7 +584,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.MaxNNumbers(n)).ToStzListOfStrings()
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 
 		def NMaxNumbers(n)
@@ -535,6 +594,10 @@ class stzListOfNumbers from stzList
 				return This.NMaxNumbersQR(n, :stzList)
 	
 			def NMaxNumbersQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.NMaxNumbers(n) )
@@ -546,7 +609,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.NMaxNumbers(n)).ToStzListOfStrings()
 	
 				other
-					raise("Unsupported return type!")
+					stzRaise("Unsupported return type!")
 				off
 		#>
 

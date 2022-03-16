@@ -1627,7 +1627,7 @@ func SetDefaultLocaleSeparator(c)
 	if c = "-" or c = "_"
 		_cDefaultLocaleSeparator = c
 	else
-		raise(stzLocaleError(:UnsupportedLocaleSeparator))
+		stzRaise(stzLocaleError(:UnsupportedLocaleSeparator))
 	ok
 
 func SetLocaleDefaultSeparator(c)
@@ -1814,7 +1814,7 @@ class stzLocale from stzObject
 		but IsList(pLocale)
 			if NOT ( isList(pLocale) and StzListQ(pLocale).IsLocaleList() )
 	
-				raise("Can't create the stzLocale object!")
+				stzRaise("Can't create the stzLocale object!")
 			ok
 	
 			cLangName    = pLocale[ :Language ]
@@ -2296,7 +2296,7 @@ class stzLocale from stzObject
 	
 			return DefaultDaysOfWeek()[""+ nNthDay ]
 		else
-			raise(stzLocaleError(:CanNotDefineNthDayOfWeek))
+			stzRaise(stzLocaleError(:CanNotDefineNthDayOfWeek))
 		ok
 
 	def FirstDayOfWeek()
@@ -2636,5 +2636,5 @@ class stzLocale from stzObject
 			return @oQLocale.currencySymbol(2)	# --> NativeName() In Softanza
 
 		other
-			raise(stzLocaleError(:CanNotProvideCurrencySymbol))
+			stzRaise(stzLocaleError(:CanNotProvideCurrencySymbol))
 		off

@@ -23,7 +23,7 @@ class stzOctalNumber from stzObject
 			ok
 
 		else
-			raise(stzOctalNumberError(:CanNotCreateOctalNumber))
+			stzRaise(stzOctalNumberError(:CanNotCreateOctalNumber))
 		ok
 
 	def Content()

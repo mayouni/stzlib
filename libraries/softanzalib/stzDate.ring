@@ -152,7 +152,7 @@ class stzDate from stzObject
 		// Reading the years part and controlling it so it does not exceed 9999
 		nYears = 0+ right(cResult, len(cResult)-6)	
 		if nYears > 9999
-			raise("Can't proceed. The years part ("+ nYears + ") must be under 9999!")
+			stzRaise("Can't proceed. The years part ("+ nYears + ") must be under 9999!")
 		ok
 			
 		// Everything is ok, returning the new date
@@ -200,7 +200,7 @@ class stzDate from stzObject
 
 		// Checking the maximum number of years allowed (9999)
 		if nYears > 9999
-			raise("Can't proceed. The years part ("+ nYears + ") must be under 9999!")
+			stzRaise("Can't proceed. The years part ("+ nYears + ") must be under 9999!")
 		ok
 
 		// Constructing the new date and returning it
@@ -220,7 +220,7 @@ class stzDate from stzObject
 
 		// Checking the maxim number of years allowed (9999)
 		if nYears > 9999
-			raise("Can't proceed. The years part in stzDate can't exceed 9999!")
+			stzRaise("Can't proceed. The years part in stzDate can't exceed 9999!")
 		ok
 
 		// Constructing the new date and returning it

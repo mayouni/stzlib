@@ -60,7 +60,7 @@ class stzWalker from stzObject
 				:Name, :StartingAt, :EndingAt, :Step, :Direction
 			   ]) ) )
 
-			raise("Can not create stzWalker object! Incorrect param format.")
+			stzRaise("Can not create stzWalker object! Incorrect param format.")
 		ok
 
 		# Defalult values
@@ -177,7 +177,7 @@ class stzWalker from stzObject
 			 Q(pcDirection).IsToParamList() and
 			 Q(pcDirection).IsOneOfThese([ :Foreward, :Backward]) )
 
-			raise("Incorrect param!")
+			stzRaise("Incorrect param!")
 
 		ok
 
@@ -300,7 +300,7 @@ class stzWalker from stzObject
 		ok
 
 		if NOT ( isNumber(n) and n <= This.NumberOfSteps() )
-			raise("Incorrect param!")
+			stzRaise("Incorrect param!")
 		ok
 
 		return This.Steps()[n]

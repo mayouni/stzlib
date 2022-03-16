@@ -65,7 +65,7 @@ class stzTextEncoding from stzObject
 			oQTextCodec.codecforname(pcEncodingName)
 			cEncodingName = pcEncodingName
 		else
-			raise(stzTextEncodingError(:UnsupportedTextEncoding))
+			stzRaise(stzTextEncodingError(:UnsupportedTextEncoding))
 		ok
 
 	def EncodingName()

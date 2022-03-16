@@ -70,11 +70,11 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				@aContent = p
 
 			else
-				raise("The list you provided is not a hash list!")
+				stzRaise("The list you provided is not a hash list!")
 			ok
 
 		other
-			raise("Unsupported form of the input of the hashlist!")
+			stzRaise("Unsupported form of the input of the hashlist!")
 		off
 
 	  #-------------#
@@ -132,6 +132,10 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.ValuesQR(:stzList)
 
 		def ValuesQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Values() )
@@ -147,12 +151,12 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			//on :stzListOfObjects # TODO
 				//return new stzListOfObjects( This.Values() )
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	def NthKey(n)
 		if NOT isNumber(n)
-			raise("Incorrect param type! n should be a number.")
+			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
 		return This.Content()[n][1]
@@ -174,7 +178,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def Value(n)
 		if NOT isNumber(n)
-			raise("Incorrect param type! n should be a number.")
+			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
 		return This.NthValue(n)
@@ -184,7 +188,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def NthPair(n)
 		if NOT isNumber(n)
-			raise("Incorrect param type! n should be a number.")
+			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
 		return This.Content()[n]
@@ -313,7 +317,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			This.UpdateNthKey(n, paNewPair[1])
 			This.UpdateNthValue(n, paNewPair[2])
 		else
-			raise("Key must be a string!")
+			stzRaise("Key must be a string!")
 		ok
 
 	def UpdateNthPairQ(n, paNewPair)
@@ -328,7 +332,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			This.UpdateNthKey(n, paNewPair[1])
 			This.UpdateNthValue(n, paNewPair[2])
 		else
-			raise("Key must be a string!")
+			stzRaise("Key must be a string!")
 		ok
 
 	def UpdatePairQ(paPair, paNewPair)
@@ -457,7 +461,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				aPair = paPair
 			next
 		else
-			raise("Syntax error! The value you provided is not a string key pair.")
+			stzRaise("Syntax error! The value you provided is not a string key pair.")
 		ok
 
 	def UpdateAllPairsWithQ(paPair)
@@ -484,7 +488,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		if IsPairAndKeyIsString(paNewPair)
 			@aContent + paNewPair
 		else
-			raise("Syntax error! The value you provided is not a string key pair.")
+			stzRaise("Syntax error! The value you provided is not a string key pair.")
 		ok
 
 		def AddPairQ(paNewPair)
@@ -603,7 +607,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			next
 			return nResult
 		else
-			raise("Can't search the list." + NL + "Because paPair is not a pair!")
+			stzRaise("Can't search the list." + NL + "Because paPair is not a pair!")
 		ok
 
 	def ContainsPair(paPair)
@@ -642,7 +646,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 			but isObject(pvalue)
 				// TODO
-				raise("Uncovered case!")
+				stzRaise("Uncovered case!")
 			ok
 		next
 		return aResult

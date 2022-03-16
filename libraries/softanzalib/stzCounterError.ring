@@ -5,8 +5,8 @@ func stzCounterError(pcError)
 	on :CanNotCreateCounter
 		cErrorMsg += "   What : Can't create the Counter object!" + NL
 		cErrorMsg += "   Why  : The options list you provided is not well formed." + NL
-		cErrorMsg += "   Todo : Provide a well formed list as defined in the method signature."
+		cErrorMsg += "   Todo : Provide a well formed list as defined in the method signature." + NL
 
 	off
 
-	return cErrorMsg + NL
+	return cErrorMsg

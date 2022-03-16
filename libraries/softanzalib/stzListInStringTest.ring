@@ -27,8 +27,8 @@ class Person name
 
 /*---------------------
 */
-? PluralOfStzClass("stzList") # --> :stzLists
-? PluralOfStzClass("stzListOfStrings") # --> :stzListsOfStrings
+? PluralOfStzClassName("stzList") # --> :stzLists
+? PluralOfStzClassName("stzListOfStrings") # --> :stzListsOfStrings
 
 //? QR([ "H", "USS", "EI", "N" ], :stzListOfStrings).Concatenated()
 /*

@@ -236,7 +236,7 @@ class stzScript
 			// TODO
 
 		else
-			raise(stzScriptError(:UnsupportedScriptIdentifier))
+			stzRaise(stzScriptError(:UnsupportedScriptIdentifier))
 		ok
 
 	def Script()

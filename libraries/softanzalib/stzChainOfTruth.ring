@@ -67,13 +67,17 @@ func Q(p)
 		return Q(p)
 
 func QR(p, pcType)
-	if IsStzType(pcType)
+	if NOT isString(pcType)
+		stzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
+	ok
+
+	if StringIsStzClassName(pcType)
 		cCode = "oResult = new " + pcType + "(" + @@(p) + ")"
 		eval(cCode)
 
 		return oResult
 	else
-		raise("Unsupported Softanza type!")
+		stzRaise("Unsupported Softanza type!")
 	ok
 
 func TheLetter(c)
@@ -495,7 +499,7 @@ class stzChainOfTruth from stzObject
 		try
 			eval(cCode)
 		catch
-			raise("Syntax Error. check the code you provided as a param of Which()...")
+			stzRaise("Syntax Error. check the code you provided as a param of Which()...")
 		done
 
 		if This.ShouldBeNegated()
@@ -557,7 +561,7 @@ class stzChainOfTruth from stzObject
 		try
 			eval(cCode)
 		catch
-			raise("Syntax error! Check the condition you provided in the parma.")
+			stzRaise("Syntax error! Check the condition you provided in the parma.")
 		done
 
 		if This.ShouldBeNegated()

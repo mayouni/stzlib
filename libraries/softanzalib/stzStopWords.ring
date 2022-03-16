@@ -49,6 +49,10 @@ func StopWords()
 		return StopWordsQR(:stzList)
 	
 	func StopWordsQR(pcReturnType)
+		if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+			pcReturnType = pcReturnType[2]
+		ok
+
 		switch pcReturnType
 		on :stzList
 			return new stzList(StopWords())
@@ -57,7 +61,7 @@ func StopWords()
 			return new stzListOfStrings(StopWords())
 
 		other
-			raise("Unsupported return type!")
+			stzRaise("Unsupported return type!")
 		off
 
 	#>
@@ -78,6 +82,10 @@ func StopWordsLanguages()
 		return StopWordsLanguagesQR(:stzList)
 	
 	func StopWordsLanguagesQR(pcReturnType)
+		if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+			pcReturnType = pcReturnType[2]
+		ok
+
 		switch pcReturnType
 		on :stzList
 			return new stzList(StopWordsLanguages())
@@ -86,7 +94,7 @@ func StopWordsLanguages()
 			return new stzListOfStrings(StopWordsLanguages())
 
 		other
-			raise("Unsupported return type!")
+			stzRaise("Unsupported return type!")
 		off
 
 	#>
@@ -100,6 +108,10 @@ func StopWordsLanguages()
 			return StopWordsAvailableLanguagesQR(:stzList)
 		
 		func StopWordsAvailableLanguagesQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList(StopWordsAvailableLanguages())
@@ -108,7 +120,7 @@ func StopWordsLanguages()
 				return new stzListOfStrings(StopWordsAvailableLanguages())
 	
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	func AvailbaleLanguagesForStopWords()
@@ -118,6 +130,10 @@ func StopWordsLanguages()
 			return AvailbaleLanguagesForStopWordsQR(:stzList)
 		
 		func AvailbaleLanguagesForStopWordsQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList(AvailbaleLanguagesForStopWords())
@@ -126,7 +142,7 @@ func StopWordsLanguages()
 				return new stzListOfStrings(AvailbaleLanguagesForStopWords())
 	
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	#>
@@ -219,7 +235,7 @@ func StopWordsIn(pcLang)
 	on :Persian or :Farsi
 		return PersianStopWords()
 	other
-		raise("Sorry! Stopwords are unavailable for this language.")
+		stzRaise("Sorry! Stopwords are unavailable for this language.")
 	off
 
 	#< @FunctionFluentForm
@@ -228,6 +244,10 @@ func StopWordsIn(pcLang)
 		return StopWordsInQR(pcLang, :stzList)
 		
 	func StopWordsInQR(pcLang, pcReturnType)
+		if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+			pcReturnType = pcReturnType[2]
+		ok
+
 		switch pcReturnType
 		on :stzList
 			return new stzList(StopWordsIn(pcLang))
@@ -236,7 +256,7 @@ func StopWordsIn(pcLang)
 			return new stzListOfStrings(StopWordsIn(pcLang))
 	
 		other
-			raise("Unsupported return type!")
+			stzRaise("Unsupported return type!")
 		off
 	#>
 
@@ -249,6 +269,10 @@ func StopWordsIn(pcLang)
 			return StopWordsOfQR(pcLang, :stzList)
 		
 		func StopWordsOfQR(pcLang, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList(StopWordsOf(pcLang))
@@ -257,7 +281,7 @@ func StopWordsIn(pcLang)
 				return new stzListOfStrings(StopWordsOf(pcLang))
 		
 			other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 			off
 
 	#>
@@ -271,6 +295,10 @@ func ArabicStopWords()
 		return ArabicStopWordsQR(pcLang, :stzList)
 		
 	func ArabicStopWordsQR(pcLang, pcReturnType)
+		if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+			pcReturnType = pcReturnType[2]
+		ok
+
 		switch pcReturnType
 		on :stzList
 			return new stzList(ArabicStopWords(pcLang))
@@ -279,7 +307,7 @@ func ArabicStopWords()
 			return new stzListOfStrings(ArabicStopWords(pcLang))
 		
 		other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 		off
 
 	#>
@@ -298,6 +326,10 @@ func EnglishStopWords()
 		return EnglishStopWordsQR(pcLang, :stzList)
 		
 	func EnglishStopWordsQR(pcLang, pcReturnType)
+		if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+			pcReturnType = pcReturnType[2]
+		ok
+
 		switch pcReturnType
 		on :stzList
 			return new stzList(EnglishStopWords(pcLang))
@@ -306,7 +338,7 @@ func EnglishStopWords()
 			return new stzListOfStrings(EnglishStopWords(pcLang))
 		
 		other
-				raise("Unsupported return type!")
+				stzRaise("Unsupported return type!")
 		off
 
 	#>

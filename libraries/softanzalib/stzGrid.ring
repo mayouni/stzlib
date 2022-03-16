@@ -227,8 +227,8 @@ class stzGrid from stzObject
 			return 1+ StzNumberQ( ""+ (This.NumberOfHLines()/2) ).IntegerPart()
 
 		else
-			raise("The grid has no central HLine!")
-			raise(stzGridError(:CanNotDefineRankOfCentralHorizontalLine))
+			stzRaise("The grid has no central HLine!")
+			stzRaise(stzGridError(:CanNotDefineRankOfCentralHorizontalLine))
 		ok
 
 	def CentralHLine()
@@ -246,7 +246,7 @@ class stzGrid from stzObject
 			return 1+ StzNumberQ( ""+ (This.NumberOfVLines()/2) ).IntegerPart()		
 
 		else
-			raise("The grid has no central VLine!")
+			stzRaise("The grid has no central VLine!")
 		ok
 
 	def CentralVLine()
@@ -281,7 +281,7 @@ class stzGrid from stzObject
 		If This.HasCentralNode()
 			return This.Node( This.RankOfCentralNode() )
 		else
-			raise("The grid has no central Node!")
+			stzRaise("The grid has no central Node!")
 		ok
 
 	def RankOfCentralNode()
@@ -370,7 +370,7 @@ class stzGrid from stzObject
 		if This.HasCentralNode()
 			This.SetNode( :CentralVLine, :CentralHLine, pNode)
 		else
-			raise("The grid has no central Node!")
+			stzRaise("The grid has no central Node!")
 		ok
 
 	def SetNodeAtRank(n, pValue)
@@ -509,7 +509,7 @@ class stzGrid from stzObject
 			next i
 		
 		else
-			raise("The grid has no central region!")
+			stzRaise("The grid has no central region!")
 		ok
 
 	def SetCenter(pNode)
@@ -570,7 +570,7 @@ class stzGrid from stzObject
 		*/
 
 		# TODO
-		raise("TODO feature!")
+		stzRaise("TODO feature!")
 
 	def ReverseVLinesQ()
 		This.ReverseVLines()
@@ -816,7 +816,7 @@ class stzGrid from stzObject
 				[ (This.NumberOfVLines() / 2) , (This.NumberOfHLines() / 2) ],
 				[ (This.NumberOfVLines() / 2) + 1 , (This.NumberOfHLines() / 2) + 1 ])
 		else
-			raise("The grid has no central region!")
+			stzRaise("The grid has no central region!")
 		ok
 		return aPositions
 
@@ -899,7 +899,7 @@ class stzGrid from stzObject
 		if n=0 or n=1
 			Opacity = n
 		else
-			raise("Opacity can be eighter 0 or 1!")
+			stzRaise("Opacity can be eighter 0 or 1!")
 		ok
 
 	def Opacity()

@@ -9,7 +9,7 @@ class stzListOfHashLists from stzObject
 			@aListOfHashLists = paList
 
 		else
-			raise("Can't create stzListOfHashLists object!")
+			stzRaise("Can't create stzListOfHashLists object!")
 		ok
 
 	def Content()

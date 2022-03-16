@@ -72,7 +72,7 @@ class stzMultilingualString from StzString
 			if NOT (StringIsLanguageName(pcLang) or
 				StringIsLanguageAbbreviation(pcLang))
 	
-				raise(stzMultilingualStringError(:UnsupportedLanguageNameOrAbbreviation))
+				stzRaise(stzMultilingualStringError(:UnsupportedLanguageNameOrAbbreviation))
 			ok
 
 			# Transform the language name or abbreviation to the form

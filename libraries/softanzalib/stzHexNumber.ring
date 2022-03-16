@@ -75,7 +75,7 @@ class stzHexNumber from stzObject
 			@cHexNumberWithoutPrefix = StzStringQ(@cHexNumber).RemoveCSQ( "U+", :CS = FALSE ).Content()
 
 		else
-			raise(stzHexNumberError(:CanNotCreateHexNumber))
+			stzRaise(stzHexNumberError(:CanNotCreateHexNumber))
 		ok
 
 	def Content()
