@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-? StzStringQ("MustHave@32@Chars").ExtractBetween("@","@")
+
 
 /*
 StzStringQ("softanza") {

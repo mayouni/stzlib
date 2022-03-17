@@ -2312,27 +2312,27 @@ class stzList from stzObject
 
 	//>>>>>>> REMOVING A SECTION OF ITEMS
 
-	def RemoveSection(pnStart, pnEnd)
-		if isList(pnStart) and StzListQ(pnStart).IsFromParamList()
-			pnStart = pnStart[2]
+	def RemoveSection(n1, n2)
+		if isList(n1) and StzListQ(n1).IsFromParamList()
+			n1 = n1[2]
 		ok
 
-		if isList(pnEnd) and StzListQ(pnEnd).IsToParamList()
-			pnEnd = pnEnd[2]
+		if isList(n2) and StzListQ(n2).IsToParamList()
+			n2 = n2[2]
 		ok
 
-		This.RemoveRange( pnStart, pnEnd - pnStart + 1 )
+		This.RemoveRange( n1, n2 - n1 + 1 )
 
 		#< @FunctionFluentForm
 
-		def RemoveSectionQ(pnStart, pnEnd)
-			This.RemoveSection(pnStart, pnEnd)
+		def RemoveSectionQ(n1, n2)
+			This.RemoveSection(n1, n2)
 			return This
 
 		#>
 
-	def SectionRemoved(pnStart, pnEnd)
-		aResult = This.Copy().RemoveSectionQ(pnStart, pnEnd)
+	def SectionRemoved(n1, n2)
+		aResult = This.Copy().RemoveSectionQ(n1, n2)
 		return aResult
 
 	//>>>>>>> REMOVING MANY SECTIONS OF ITEMS
@@ -6886,15 +6886,15 @@ class stzList from stzObject
 	#-------------------------------------------------#
 
 	def FindNthNextOccurrence( n, pItem, nStart )
-		if isList(pItem) and _@(pItem).IsOfParamList()
+		if isList(pItem) and Q(pItem).IsOfParamList()
 			pItem = pItem[2]
 		ok
 
-		if isList(nStart) and _@(nStart).IsStartingAtParamList()
+		if isList(nStart) and Q(nStart).IsStartingAtParamList()
 			nStart = nStart[2]
 		ok
 
-		oSection = StzListQ( This.Section(nStart, :end) )
+		oSection = StzListQ( This.Section(nStart, :LastItem) )
 
 		nNumberOfOccurrences = oSection.NumberOfOccurrence( pItem )
 

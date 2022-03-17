@@ -182,8 +182,8 @@ class stzListOfBytes from stzObject
 		return @oQByteArray.mid(nStart - 1, nBytes).data()
 
 	// Returns the list of bytes between positions nStart and nEnd
-	def Section(nStart, nEnd)
-		return This.Range( nStart, nEnd - nStart + 1 )
+	def Section(n1, n2)
+		return This.Range( n1, n2 - n1 + 1 )
 
 	// Replaces nBytesFromMainStr bytes from the main list of bytes, starting at
 	// position nStartingAtPosition, with nWithNBytes bytes from the provided substring
