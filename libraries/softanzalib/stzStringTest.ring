@@ -1,8 +1,10 @@
 load "stzlib.ring"
 
-/*
-?
-'
+/*-----------------
+
+? SoftanzaLogo()
+/* --> 
+
 ╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
 ┃╭━╮┃╭━╮┃╭━━┫╭╮╭╮┃╭━╮┃┃╰╮┃┣━━╮━┃╭━╮┃
 ┃╰━━┫┃╱┃┃╰━━╋╯┃┃╰┫┃╱┃┃╭╮╰╯┃╱╭╯╭┫┃╱┃┃
@@ -13,8 +15,7 @@ load "stzlib.ring"
 Programming, by Heart! By: M.Ayouni╭
 ━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
   ╰╯
-'
-give a
+
 /*-----------------
 
 ? Basmalah() # --> ﷽
@@ -31,7 +32,28 @@ o1 = new stzString("   ﷽ ")
 o1.Simplify()
 ? o1.Content()
 
-/*=============================
+/*=================
+
+StzStringQ("MustHave@32@Chars") {
+	? NumberOfOccurrenceCS("@", :cs = true) #--> 2
+	? FindAll("@") #--> [9, 12]
+
+	? FindNext("@", :startingat = 5) #--> 9
+	? FindNextNth(2, "@", :startingat = 5) #--> 12
+
+	? FindPrevious("@", :startingat = 10) #--> 9
+	? FindPreviousNth(2, "@", :startingat = 12) #--> 9
+}
+
+/*----------------
+*/
+o1 = new stzString("MustHave@32@CharsAnd@8@Spaces")
+? o1.SubstringsBetween("@","@") #--> ["32", "8" ]
+
+o1 = new stzString("MustHave32CharsAnd8Spaces")
+? o1.SubstringsBetween("@","@") #--> [ ]
+
+/*=================
 
 # To remove a substring form left or right you can
 # use RemoveFromLeft() and RemoveFromRight() functions.
@@ -125,9 +147,9 @@ o1 = new stzString("<<word>>")
 # And also FirstBound() and LastBound() for general
 # use with left-to-right and right-toleft strings
 
-/*==================
+/*==================////////////////////////
 
-*/
+
 aList = [
 	:Where = "file.ring",
 	:What  = "Describes what happend",
@@ -181,8 +203,8 @@ StzListQ(aList) {
 #	  Todo : Posposes an action to do
 #
 
-/*-----------------/////////////////////////////////////////////////////////////////////
-*/
+/*-----------------/////////////////////////////////////////////////////////////////////*/
+/*
 # Constarints are defined at the global level and then reused every where
 # inside your softanza objects
 

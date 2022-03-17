@@ -1,10 +1,25 @@
 
-	
+_cSoftanzaLogo =
+'
+╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
+┃╭━╮┃╭━╮┃╭━━┫╭╮╭╮┃╭━╮┃┃╰╮┃┣━━╮━┃╭━╮┃
+┃╰━━┫┃╱┃┃╰━━╋╯┃┃╰┫┃╱┃┃╭╮╰╯┃╱╭╯╭┫┃╱┃┃
+╰━━╮┃┃╱┃┃╭━━╯╱┃┃╱┃╰━╯┃┃╰╮┃┃╭╯╭╯┃╰━╯┃
+┃╰━╯┃╰━╯┃┃╱╱╱╱┃┃╱┃╭━╮┃┃╱┃┃┣╯━╰━┫╭━╮┃
+╰━━━┻━━━┻╯╱╱╱╱╰╯╱╰╯╱╰┻╯╱╰━┻━━━━┻╯╱╰━
 
+Programming, by Heart! By: M.Ayouni╭
+━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
+  ╰╯
+'
+	
+func SoftanzaLogo()
+	return _cSoftanzaLogo
 
 func stzRaise(paMessage)
 
-	if NOT IsStringOrList(paMessage)
+	if NOT (isString(paMessage) or isList(paMessage) )
+
 		stzRaise("Error in stzRaise param type!")
 	ok
 
@@ -85,12 +100,12 @@ func IsNumberOrObject(p)
 func IsStringOrList(p)
 	if isString(p) or isList(p)
 		return TRUE
-		else
+	else
 		return FALSE
 	ok
 
 	def IsListOrString(p)
-		return This.IsStringOrList(p)
+		return IsStringOrList(p)
 
 func IsStringOrObject(p)
 	if isString(p) or isObject(p)
@@ -100,7 +115,7 @@ func IsStringOrObject(p)
 	ok
 
 	def IsObjectOrString(p)
-		return This.IsStringOrObject(p)
+		return IsStringOrObject(p)
 
 func IsListOrObject(p)
 	if isList(p) or isObject(p)

@@ -223,6 +223,7 @@ class stzChainOfTruth from stzObject
 	#---------------------------------------------------------------#
 
 	def Is(pThing)
+? "inn"
 
 		/* Examples
 
@@ -419,7 +420,7 @@ class stzChainOfTruth from stzObject
 			cIsMethodCall = cIsMethod + "()"
 			cCode = "bPass = _(" + ComputableForm(cValue) + ").@.NumberOfItemsW('{ _(@item).@." + cIsMethodCall + " }') > 1"
 
-? cCode			eval(cCode)
+//? cCode			eval(cCode)
 
 # ? cCode ? bPass
 			if bResult = TRUE and bPass

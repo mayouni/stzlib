@@ -2475,15 +2475,7 @@ class stzString from stzObject
 	#-----------------------------------------------#
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfParamList()
-			pcSubStr = pcSubStr[2]
-		ok
-
-		oCopy = This.Copy()
-		oCopy.RemoveAllCS(pcSubStr, pCaseSensitive)
-	
-		nResult = ( This.NumberOfChars() - oCopy.NumberOfChars() ) / StzStringQ(pcSubStr).NumberOfChars()
-	
+		nResult = len( This.FindAllCS(pcSubStr, pCaseSensitive) )
 		return nResult
 
 		#< @FunctionAlternativeForm
@@ -4256,81 +4248,81 @@ class stzString from stzObject
 	 #   SECTION (OR SLICE) & RANGE   #
 	#--------------------------------#
 
-	// Returns a subset of the string between nStartPos and nEndPos positions
-	def Section(nStartPos, nEndPos)
+	// Returns a subset of the string between n1 and n2 positions
+	def Section(n1, n2)
 
-		if isList(nStartPos) and StzListQ(nStartPos).IsFromParamList()
-			nStartPos = nStartPos[2]
+		if isList(n1) and StzListQ(n1).IsFromParamList()
+			n1 = n1[2]
 		ok
 
-		if isList(nEndPos) and StzListQ(nEndPos).IsToParamList()
-			nEndPos = nEndPos[2]
+		if isList(n2) and StzListQ(n2).IsToParamList()
+			n2 = n2[2]
 		ok
 
 		# If the params are strings then interpret them as numbers
 
-		if nStartPos = :FirstChar or nStartPos = :StartOfString
-			 nStartPos = 1
+		if n1 = :FirstChar or n1 = :StartOfString
+			 n1 = 1
 		ok
 
-		if nEndPos = :LastChar or nEndPos = :EndOfString
-			nEndPos = This.NumberOfChars()
+		if n2 = :LastChar or n2 = :EndOfString
+			n2 = This.NumberOfChars()
 		ok
 
-		if isNumber(nStartPos) and nStartPos > 0 and nEndPos = :EndOfSentence
-			return This.ToStzText().ForwardToEndOfSentence( :StartingAt = nStartPos )
+		if isNumber(n1) and n1 > 0 and n2 = :EndOfSentence
+			return This.ToStzText().ForwardToEndOfSentence( :StartingAt = n1 )
 		ok
 
-		if isNumber(nStartPos) and nStartPos > 0 and nEndPos = :EndOfLine
-			return This.ForwardToEndOfLine( :StartingAt = nStartPos )
+		if isNumber(n1) and n1 > 0 and n2 = :EndOfLine
+			return This.ForwardToEndOfLine( :StartingAt = n1 )
 		ok
 
-		if isNumber(nStartPos) and nStartPos > 0 and nEndPos = :EndOfWord
-			return This.ToStzText().ForwardToEndOfWord( :StartingAt = nStartPos )
+		if isNumber(n1) and n1 > 0 and n2 = :EndOfWord # TODO: should move to stzText?
+			return This.ToStzText().ForwardToEndOfWord( :StartingAt = n1 )
 		ok
 		
 		# Now the params are numbers, let's fix any anomaly
 
-		if nStartPos = 0 or nEndPos = 0
+		if n1 = 0 or n2 = 0
 			return NULL
 		ok
 
-		if nStartPos < 0
-			nStartPos = -nStartPos
-			nStartPos = This.NumberOfChars() - nStartPos + 1
+		if n1 < 0
+			n1 = -n1
+			n1 = This.NumberOfChars() - n1 + 1
 		ok
 	
-		if nEndPos < 0
-			nEndPos = -nEndPos
-			nEndPos = This.NumberOfChars() - nEndPos + 1
+		if n2 < 0
+			n2 = -n2
+			n2 = This.NumberOfChars() - n2 + 1
 		ok
 
-		if nStartPos > nEndPos
-			nTemp = nStartPos
-			nStartPos = nEndPos
-			nEndPos = nTemp
+		if n1 > n2
+			nTemp = n1
+			n1 = n2
+			n2 = nTemp
 		ok
 
 		# Finally, we're ready to extract the section
 
-		return @oQString.mid( (nStartPos-1) , (nEndPos - nStartPos+1) )
+		return @oQString.mid( (n1 - 1) , (n2 - n1 + 1) )
 
 		#< @FunctionFluentForm
 
-		def SectionQ(nStartPos, nEndPos)
-			return new stzString( This.Section(nStartPos, nEndPos) )
+		def SectionQ(n1, n2)
+			return new stzString( This.Section(n1, n2) )
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def Slice(nStartPos, nEndPos)
-			return This.Section(nStartPos, nEndPos)
+		def Slice(n1, n2)
+			return This.Section(n1, n2)
 
 			#< @FunctionFluentForm
 
-			def SliceQ(nStartPos, nEndPos)
-				return This.SectionQ(nStartPos, nEndPos)
+			def SliceQ(n1, n2)
+				return This.SectionQ(n1, n2)
 
 			#>
 		#>	
@@ -4489,114 +4481,6 @@ class stzString from stzObject
 
 		#>
 
-	   #------------------------------------------------------------------------#
-	  #      EXTRACTING SUBSTRINGS ENCLOSED BETWEEN TWO OTHER SUBSTRINGS       # 
-	 #      --> SECTIONS OF STRINGS ENCLOSED BETWEEN TWO SUBSTRINGS           #
-	#------------------------------------------------------------------------#
-
-	// Extracts all the Sections enclosed between two sperators inside the string
-	// --> Works recursively to extract any level of deep enclosings
-	// --> Returns a list of strings
-	def ExtractBetweenSubstringsCS(pSubstr1, pSubStr2, pCaseSensitive)
-		/*
-		Example:
-
-		o1 = new stzString('[ "A", cStr, [ :hi1, :bye1 ], n, 5, obj, [ "hi2", "bye2" ], "C", aList ]')
-		? o1.ExtractBetween("[", "]")
-		*/
-
-		if This.ContainsNo(pSubStr1) or This.ContainsNo(pSubStr2)
-			return [ ]
-		ok
-
-		acResult = []
-		n1 = 1
-		n2 = 1
-
-		oSep1 = new stzString(pSubStr1)
-		nLenSep1 = oSep1.NumberOfChars()
-
-		oCopy = This.Copy()
-
-		bContinue = TRUE
-		While bContinue
-			n1 = oCopy.FindFirst(pSubStr1)
-			n2 = oCopy.FindFirst(pSubStr2)
-			
-			cSection = oCopy.Section(n1+1, n2-1)
-			if n1 > 0 and n2 > 0
-				acResult + cSection
-			else
-				bContinue = FALSE
-			ok
-
-			oCopy.Update( oCopy.Section(n2+1, :end ) )
-
-		end
-
-		if len(acResult) = 1
-			return acResult[1]
-		else
-			return acResult
-		ok
-
-		def ExtractBetweenSubstringsCSQ(pSubStr1, pSubStr2, pCaseSensitive)
-			return stzListOfStrings( This.ExtractBetweenSubstringsCS(pSubStr1, pSubStr2, pCaseSensitive) )
-			
-		def SectionsCS(pSubStr1, pSubStr2, pCaseSensitive)
-			return This.ExtractBetweenSubstringsCS(pSubstr1, pSubStr2, pCaseSensitive)
-
-			def SectionsCSQ(pSubStr1, pSubStr2, pCaseSensitive)
-				return new stzListOfStrings( This.SectionsCS(pSubStr1, pSubStr2, pCaseSensitive) )
-
-		def ExtractBetweenCS(pSubstr1, pSubStr2, pCaseSensitive)
-			return This.ExtractBetweenSubstringsCS(pSubstr1, pSubStr2, pCaseSensitive)
-	
-			def ExtractBetweenCSQ(pSubstr1, pSubStr2, pCaseSensitive)
-				return new stzString( This.ExtractBetweenCS(pSubstr1, pSubStr2, pCaseSensitive) )
-	
-	def ExtractBetweenSubstrings(pSubStr1, pSubStr2)
-		/*
-		NOTE: Currently this function extracts substrings in simple
-		casesensitive like this:
-
-		o1 = new stzString("amd[bmi]kmc")
-		? o1.ExtractBetween("[","]") # --> "bmi"
-
-		But it can not manage deep compbinations like this:
-
-		o1 = new StzString( '[ "A", "T", [ :hi, [ "deep1", [] ], :bye ], 5, obj1, "C", "A", obj2, "A", 2 ]' )
-		? o1.ExtractBetween("[","]")
-
-		--> TODO in future
-
-		WARNING: if you use it now it would generate a stackoverflow!
-		--> TODO: manage this by raising an error message!
-		
-		*/
-
-		return This.ExtractBetweenSubstringsCS(pSubStr1, pSubStr2, :CaseSensitive = TRUE)
-
-		def ExtractBetweenSubstringsQ(pSubStr1, pSubStr2)
-			return stzListOfStrings( This.ExtractBetweenSubstrings(pSubStr1, pSubStr2) )
-
-		def Sections(pSubStr1, pSubStr2)
-			return This.ExtractBetweenSubstrings(pSubStr1, pSubStr2)
-
-			def SectionsQ(pSubStr1, pSubStr2)
-				return new stzListOfStrings( This.Sections(pSubStr1, pSubStr2) )
-
-		def ExtractBetween(pSubstr1, pSubStr2)
-			if BothAreNumbers(pSubstr1, pSubStr2)
-				return This.Section(pSubstr1, pSubStr2)
-	
-			but BothAreStrings(pSubstr1, pSubStr2)
-				return This.ExtractBetweenSubstrings(pSubstr1, pSubStr2)
-			ok
-	
-			def ExtractBetweenQ(pSubstr1, pSubStr2)
-				return new stzString( This.ExtractBetween(pSubstr1, pSubStr2) )
-	
 	  #----------------------------#
 	 #    REPEATING THE STRING    #
 	#----------------------------#
@@ -6334,7 +6218,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def FindAllNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		def NextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
@@ -6348,7 +6232,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindNext(pcSubStr, pnStartingAt)
+		def FindAllNext(pcSubStr, pnStartingAt)
 			return This.FindNextOccurrences(pcSubStr, pnStartingAt)
 
 		def NextOccurrences(pcSubStr, pnStartingAt)
@@ -6372,10 +6256,29 @@ class stzString from stzObject
 		
 		return anPositions
 
+		#< @FunctionAlternativeForms
+
+		def FindAllPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
+
 	def FindPreviousOccurrences(pcSubStr, pnStartingAt)
 		aResult = This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def FindAllPrevious(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
+
+		def PreviousOccurrences(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
+
+		#>
 
 	   #-----------------------------------------------------#
 	  #      FINDING NTH NEXT OCCURRENCE OF A SUBSTRING     #
@@ -6391,7 +6294,7 @@ class stzString from stzObject
 			nStart = nStart[2]
 		ok
 
-		oString = This.SectionQ(nStart, :End)
+		oString = This.SectionQ(nStart, :LastChar)
 
 		nNumberOfOccurrences = oString.NumberOfOccurrenceCS( pcSubStr, pCaseSensitive )
 
@@ -6405,33 +6308,69 @@ class stzString from stzObject
 			return 0
 		ok
 
-		def FindNextNthOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
-			return This.FindNthNextOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
+		def FindNextNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
-		def NthNextOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
-			return This.FindNthNextOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
+		def FindNextNthCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
-		def NextNthOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
-			return This.FindNthNextOccurrence( n, pcSubStr, nStart, pCaseSensitive )
+		def FindNthNextCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
-	def FindNthNextOccurrence( n, pcSubStr, nStart )
-		return This.FindNthNextOccurrenceCS( n, pcSubStr, nStart, :CaseSensitive = TRUE )
+		def PositionOfNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
-		def FindNextNthOccurrence( n, pcSubStr, nStart )
-			return This.FindNthNextOccurrence( n, pcSubStr, nStart, :CaseSensitive = TRUE )
+		def PositionOfNextNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
-		def NthNextOccurrence( n, pcSubStr, nStart )
-			return This.FindNthNextOccurrence( n, pcSubStr, nStart, :CaseSensitive = TRUE )
+		def PositionOfNextNthCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
-		def NextNthOccurrence( n, pcSubStr, nStart )
-			return This.FindNthNextOccurrence( n, pcSubStr, nStart )
+		def PositionOfNthNextCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		def NthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		def NextNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+
+	def FindNthNextOccurrence(n, pcSubStr, nStart)
+		return This.FindNthNextOccurrenceCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+
+		def FindNextNthOccurrence(n, pcSubStr, nStart)
+			return This.FindNthNextOccurrence(n, pcSubStr, nStart)
+
+		def FindNextNth(n, pcSubStr, nStart)
+			return This.FindNthNextOccurrence(n, pcSubStr, nStart)
+
+		def FindNthNext(n, pcSubStr, nStart)
+			return This.FindNthNextOccurrence(n, pcSubStr, nStart)
+
+		def PositionOfNthNextOccurrence(n, pcSubStr, nStart)
+			return This.FindNthNextOccurrence(n, pcSubStr, nStart)
+
+		def PositionOfNextNthOccurrence(n, pcSubStr, nStart)
+			return This.FindNthNextOccurrence(n, pcSubStr, nStart)
+
+		def PositionOfNextNth(n, pcSubStr, nStart)
+			return This.FindNthNextOccurrence(n, pcSubStr, nStart)
+
+		def PositionOfNthNext(n, pcSubStr, nStart)
+			return This.FindNthNextOccurrence(n, pcSubStr, nStart)
+
+		def NthNextOccurrence(n, pcSubStr, nStart)
+			return This.FindNthNextOccurrence(n, pcSubStr, nStart)
+
+		def NextNthOccurrence(n, pcSubStr, nStart)
+			return This.FindNthNextOccurrence(n, pcSubStr, nStart)
 
 	   #---------------------------------------------------------#
 	  #      FINDING NTH PREVIOUS OCCURRENCE OF A SUBSTRING     #
 	 #      STARTING AT A GIVEN POSITION                       #
 	#---------------------------------------------------------#
 
-	def FindPreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+	def FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfParamList()
 			pcSubStr = pcSubStr[2]
@@ -6441,7 +6380,7 @@ class stzString from stzObject
 			nStart = nStart[2]
 		ok
 
-		oString = This.SectionQ(1, nStart - 1)
+		oString = This.SectionQ(1, nStart)
 
 		anPositions = oString.FindAllCS(pcSubStr, pCaseSensitive)
 		nNumberOfOccurrences = len(anPositions)
@@ -6454,29 +6393,62 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindNthPreviousOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
-			return This.FindPreviousNthOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
-	
-		def PreviousNthOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
-			return This.FindPreviousNthOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
-	
-		def NthPreviousOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
-			return This.FindPreviousNthOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
+		def FindPreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
-		#>
+		def FindPreviousNthCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
-	def FindPreviousNthOccurrence( n, pcSubStr, nStart )
-		return This.FindPreviousNthOccurrenceCS( n, pcSubStr, nStart, :CaseSensitive = TRUE )
+		def FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
-		def FindNthPreviousOccurrence( n, pcSubStr, nStart )
-			return This.FindPreviousNthOccurrence( n, pcSubStr, nStart )
+		def PositionOfNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
-		def NthPreviousOccurrence( n, pcSubStr, nStart )
-			return This.FindPreviousNthOccurrence( n, pcSubStr, nStart )
+		def PositionOfPreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
-		def PreviousNthOccurrence( n, pcSubStr, nStart )
-			return This.FindPreviousNthOccurrence( n, pcSubStr, nStart )
+		def PositionOfPreviousNthCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
+		def PositionOfNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		def NthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		def PreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+
+	def FindNthPreviousOccurrence(n, pcSubStr, nStart)
+		return This.FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+
+		def FindPreviousNthOccurrence(n, pcSubStr, nStart)
+			return This.FindNthPreviousOccurrence(n, pcSubStr, nStart)
+
+		def FindPreviousNth(n, pcSubStr, nStart)
+			return This.FindNthPreviousOccurrence(n, pcSubStr, nStart)
+
+		def FindNthPrevious(n, pcSubStr, nStart)
+			return This.FindNthPreviousOccurrence(n, pcSubStr, nStart)
+
+		def PositionOfNthPreviousOccurrence(n, pcSubStr, nStart)
+			return This.FindNthPreviousOccurrence(n, pcSubStr, nStart)
+
+		def PositionOfPreviousNthOccurrence(n, pcSubStr, nStart)
+			return This.FindNthPreviousOccurrence(n, pcSubStr, nStart)
+
+		def PositionOfPreviousNth(n, pcSubStr, nStart)
+			return This.FindNthPreviousOccurrence(n, pcSubStr, nStart)
+
+		def PositionOfNthPrevious(n, pcSubStr, nStart)
+			return This.FindNthPreviousOccurrence(n, pcSubStr, nStart)
+
+		def NthPreviousOccurrence(n, pcSubStr, nStart)
+			return This.FindNthPreviousOccurrence(n, pcSubStr, nStart)
+
+		def PreviousNthOccurrence(n, pcSubStr, nStart)
+			return This.FindNthPreviousOccurrence(n, pcSubStr, nStart)
 	   #-------------------------------------------------#
 	  #      FINDING NEXT OCCURRENCE OF A SUBSTRING     #
 	 #      STARTING AT A GIVEN POSITION               #
@@ -6485,14 +6457,58 @@ class stzString from stzObject
 	def FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 		return This.FindNextNthOccurrenceCS(1, pcSubStr, nStart, pCaseSensitive)
 	
-		def NextOccurrenceCS( pcSubStr, nStart, pCaseSensitive )
+		def FindNextCS(pcSubStr, nStart, pCaseSensitive)
 			return This.FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 
-	def FindNextOccurrence( pcSubStr, nStart )
+		def FindNextFirstCS()
+			return This.FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+		def FindFirstNextCS()
+			return This.FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+		def PositionOfNextFirstCS()
+			return This.FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+		def PositionOfFirstNextCS()
+			return This.FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+		def NextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+		def NextFirstOccurrenceCS()
+			return This.FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+		def FirstNextOccurrenceCS()
+			return This.FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+	#-- CASE-INSENSITIVE
+
+	def FindNextOccurrence(pcSubStr, nStart)
 		return This.FindNextOccurrenceCS(pcSubStr, nStart, :CaseSensitive = TRUE)
 	
-		def NextOccurrence( pcSubStr, nStart )
-			return This.FindNextOccurrence( pcSubStr, nStart )
+		def FindNext(pcSubStr, nStart)
+			return This.FindNextOccurrence(pcSubStr, nStart)
+
+		def FindNextFirst()
+			return This.FindNextOccurrenceCS(pcSubStr, nStart)
+
+		def FindFirstNext()
+			return This.FindNextOccurrence(pcSubStr, nStart)
+
+		def PositionOfNextFirst()
+			return This.FindNextOccurrenceC(pcSubStr, nStart)
+
+		def PositionOfFirstNext()
+			return This.FindNextOccurrence(pcSubStr, nStart)
+
+		def NextOccurrence(pcSubStr, nStart)
+			return This.FindNextOccurrence(pcSubStr, nStart)
+
+		def NextFirstOccurrence()
+			return This.FindNextOccurrenceCS(pcSubStr, nStart)
+
+		def FirstNextOccurrence()
+			return This.FindNextOccurrenceCS(pcSubStr, nStart)
 
 	   #-----------------------------------------------------#
 	  #      FINDING PREVIOUS OCCURRENCE OF A SUBSTRING     #
@@ -6502,14 +6518,58 @@ class stzString from stzObject
 	def FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 		return This.FindPreviousNthOccurrenceCS(1, pcSubStr, nStart, pCaseSensitive)
 	
-		def PreviousOccurrenceCS( pcSubStr, nStart, pCaseSensitive )
+		def FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 			return This.FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 
-	def FindPreviousOccurrence( pcSubStr, nStart )
+		def FindPreviousFirstCS()
+			return This.FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+		def FindFirstPreviousCS()
+			return This.FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+		def PositionOfPreviousFirstCS()
+			return This.FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+		def PositionOfFirstPreviousCS()
+			return This.FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+		def PreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+		def PreviousFirstOccurrenceCS()
+			return This.FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+		def FirstPreviousOccurrenceCS()
+			return This.FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+	#-- CASE-INSENSITIVE
+
+	def FindPreviousOccurrence(pcSubStr, nStart)
 		return This.FindPreviousOccurrenceCS(pcSubStr, nStart, :CaseSensitive = TRUE)
 	
-		def PreviousOccurrence( pcSubStr, nStart )
-			return This.FindPreviousOccurrence( pcSubStr, nStart )
+		def FindPrevious(pcSubStr, nStart)
+			return This.FindPreviousOccurrence(pcSubStr, nStart)
+
+		def FindPreviousFirst()
+			return This.FindPreviousOccurrenceCS(pcSubStr, nStart)
+
+		def FindFirstPrevious()
+			return This.FindPreviousOccurrence(pcSubStr, nStart)
+
+		def PositionOfPreviousFirst()
+			return This.FindPreviousOccurrenceC(pcSubStr, nStart)
+
+		def PositionOfFirstPrevious()
+			return This.FindPreviousOccurrence(pcSubStr, nStart)
+
+		def PreviousOccurrence(pcSubStr, nStart)
+			return This.FindPreviousOccurrence(pcSubStr, nStart)
+
+		def PreviousFirstOccurrence()
+			return This.FindPreviousOccurrenceCS(pcSubStr, nStart)
+
+		def FirstPreviousOccurrence()
+			return This.FindPreviousOccurrenceCS(pcSubStr, nStart)
 
 	  #-------------------------------------------------#
 	 #      FINDING ALL OCCURRENCES OF A SUBSTRING     #
@@ -6851,6 +6911,194 @@ class stzString from stzObject
 		])
 		*/
 
+	   #------------------------------------------------------------------------#
+	  #      EXTRACTING SUBSTRINGS ENCLOSED BETWEEN TWO OTHER SUBSTRINGS       # 
+	 #      --> SECTIONS OF STRINGS ENCLOSED BETWEEN TWO SUBSTRINGS           #
+	#------------------------------------------------------------------------#
+
+	def SubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
+		? o1.SubstringsBoundedBy("<<", ">>", :CS = FALSE)
+
+		# --> [ "word1", "word2" ]
+		*/
+		aResult = []
+
+		n1 = 1
+		n2 = 1
+
+		nLen1 = StzStringQ(pcSubStr1).NumberOfChars()
+		nLen2 = StzStringQ(pcSubstr2).NumberOfChars()
+
+		while TRUE
+
+			n1 = This.FindNextCS(pcSubStr1, :StartingAt = n1, pCaseSensitive)
+
+			if n1 = 0 or n1 > This.NumberOfChars()
+				exit
+			ok
+
+			n2 = This.FindNextCS(pcSubStr2, :StartingAt = n1 + nLen1, pCaseSensitive)
+
+			if n2 = 0 or n2 > This.NumberOfChars()
+				exit
+			ok
+
+			aResult + This.Section(n1 + nLen1, n2 - 1)
+
+			n1 = n2 + nLen2
+
+		end
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def SubstringsBoundedWithCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubstringsBoundedWithCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
+
+		def SubstringsBoundedWithCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+			
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SubstringsBoundedByCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+			def SubstringsBoundedByCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubstringsBoundedByCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
+
+			def SubstringsBoundedByCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.SubstringsBoundedByCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.SubstringsBoundedByCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off				
+
+		def SubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+			def SubstringsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubstringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
+
+			def SubstringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.SubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.SubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+			#>
+
+	#-- CASE-INSENSITIVE
+
+	def SubstringsBoundedWith(pcSubStr1, pcSubStr2)
+		return This.SubstringsBoundedWithCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def SubstringsBoundedWithQ(pcSubStr1, pcSubStr2)
+			return This.SubstringsBoundedWithQR(pcSubStr1, pcSubStr2, :stzList)
+		
+		def SubstringsBoundedWithQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+			
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SubstringsBoundedBy(pcSubStr1, pcSubStr2)
+			return This.SubstringsBoundedWith(pcSubStr1, pcSubStr2)
+
+			def SubstringsBoundedByQ(pcSubStr1, pcSubStr2)
+				return This.SubstringsBoundedByQR(pcSubStr1, pcSubStr2, :stzList)
+
+			def SubstringsBoundedByQR(pcSubStr1, pcSubStr2, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.SubstringsBoundedBy(pcSubStr1, pcSubStr2) )
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.SubstringsBoundedBy(pcSubStr1, pcSubStr2) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off				
+
+		def SubstringsBetween(pcSubStr1, pcSubStr2)
+			return This.SubstringsBoundedWith(pcSubStr1, pcSubStr2)
+
+			def SubstringsBetweenQ(pcSubStr1, pcSubStr2)
+				return This.SubstringsBetweenQR(pcSubStr1, pcSubStr2, :stzList)
+
+			def SubstringsBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.SubstringsBetween(pcSubStr1, pcSubStr2) )
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.SubstringsBetween(pcSubStr1, pcSubStr2) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+		#>
+
 	  #------------------------------------------------#
 	 #      VISUALLY FINDING CHARS IN THE STRING      #
 	#------------------------------------------------#
@@ -6931,12 +7179,10 @@ class stzString from stzObject
 		def VizFind(pcSubStr)
 			return This.VizFindSubstring(pcSubStr)
 
-
 	  #----------------------------------------------------#
 	 #      VISUALLY FINDING AND BOXING A SUBSTRING       # TODO: Review this
 	#----------------------------------------------------#
 
-/*
 	def VizFindAllXT(pcSubstr, paOptions) # TODO
 		
 		# Example:
@@ -7024,7 +7270,7 @@ class stzString from stzObject
 
 	def VizRoundFindAll(pcSubStr)
 		return This.VizRoundFindAllCS(pcSubStr, :CaseSensitive = TRUE)
-*/	
+	
 	  #--------------------------------#
 	 #      CONTAINING SUBSTRINGS     #
 	#--------------------------------#
