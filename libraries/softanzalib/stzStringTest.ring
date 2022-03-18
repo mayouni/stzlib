@@ -33,6 +33,32 @@ o1.Simplify()
 ? o1.Content()
 
 /*=================
+*/
+# While finding occurrences of a substring inside a string,
+# Softanza can return the positions or the sections of
+# those substrings:
+
+o1 = new stzString("how many many are there? So many!")
+? @@( o1.FindPositions("many") )	#--> [ 5, 10, 29 ]
+? @@( o1.FindSections("many") )	#--> [ [ 5, 9 ], [ 10, 14 ], [ 29, 33 ] ]
+
+
+# Softanza can also find substrings bounded between other substrings
+# and return their positions, their sections, or their content:
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+? @@( o1.FindAnyBetween("<<",">>") )		# --> [ 9, 26, 41 ]
+? @@( o1.FindAnySectionsBetween("<<",">>") )	# --> [ [ 9, 10 ], [ 26, 27 ], [ 41, 42 ] ]
+? @@( o1.AnySubstringBetween("<<", ">>") )	# --> [ "word", "noword", "word" ]
+
+# Or when you want to find not any bounded-substring but a speciefic one,
+# just provide it to the following functions to get, for all its occurrences,
+# the positions or the sections:
+
+? @@( o1.FindBetween("word", "<<", ">>") )		# --> [ 9, 41 ]
+? @@( o1.FindSectionsBetween("word", "<<", ">>") )	# --> [ [ 9, 16 ], [ 41, 48 ] ]
+
+/*=================
 
 StzStringQ("MustHave@32@Chars") {
 	? NumberOfOccurrenceCS("@", :cs = true) #--> 2
@@ -46,7 +72,7 @@ StzStringQ("MustHave@32@Chars") {
 }
 
 /*----------------
-*/
+
 o1 = new stzString("MustHave@32@CharsAnd@8@Spaces")
 ? o1.SubstringsBetween("@","@") #--> ["32", "8" ]
 

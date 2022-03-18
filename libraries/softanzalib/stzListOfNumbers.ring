@@ -88,15 +88,15 @@ func MultiplicationsYieldingN_WithoutCommutation(n)
 ////////////////
 
 class stzListOfNumbers from stzList
-	@aContent
+	@anContent
 
 	def init(paList)
 		if isList(paList) and StzListQ(paList).IsListOfNumbers()
-			@aContent = paList
+			@anContent = paList
 		ok
 
 	def Content()
-		aResult = @aContent
+		aResult = @anContent
 
 		return aResult
 
@@ -849,38 +849,12 @@ class stzListOfNumbers from stzList
 
 		#>
 
-	  #----------------------------------------#
-	 #     ADDING A NUMBEr TO EACH NUMBER     #
-	#----------------------------------------#
-
-	def AddToEveryItem(n)
-		for item in This.ListOfNumbers()
-			item += n
-		next
-
-		def AddToEveryItemQ(n)
-			This.AddToEveryItem(n)
-			return This
-
-	def SubstractFromEveryItem(n)
-		for item in This.ListOfNumbers()
-			item -= n
-		next
-
-		def SubstractFromEveryItemQ(n)
-
-			This.SubstractFromEveryItem(n)
-			return This
-
-		def RetrieveFromEveryItem(n)
-			return This.SubstractFromEveryItem(n)
-
-			def RetrieveFromEveryItemQ(n)
-				This.RetrieveFromEveryItem(n)
-				return This
+	  #========================================#
+	 #     ADDING A NUMBER TO EACH NUMBER     #
+	#========================================#
 
 	def AddToEach(n)
-		for number in This.ListOfNumbers()
+		for number in @anContent
 			number += n
 		next
 
@@ -888,74 +862,33 @@ class stzListOfNumbers from stzList
 			This.AddToEach(n)
 			return This
 
-		def AugmentEachNumberBy(n)
-			This.AddToEach(n)
-
-			def AugmentEachNumberByQ(n)
-				This.AugmentEachNumberBy(n)
-				return This
-
-		def AddNToEach(n)
-			This.AddToEach(n)
-
-			def AddNToEachQ(n)
-				This.AddNToEach(n)
-				return This
-
 	def AddedToEach(n)
 		aResult = This.Copy().AddToEachQ(n).Content()
 		return aResult
-
-		def EachNumberAugmentedBy(n)
-			return This.AddedToEach(n)
-
-		def NAddedToEach(n)
-			return This.AddedToEach(n)
 
 	  #------------------------------------------------#
 	 #     SUBSTRACTING A NUMBER FROM EACH NUMBER     #
 	#------------------------------------------------#
 
-	def SubstractFromEach(n)
-		for number in This.ListOfNumbers()
+	def SubstratcFromEach(n)
+		for number in @anContent
 			number -= n
 		next
 
-		def SubstractFromEachQ(n)
-			This.SubstractFromEach(n)
+		def SubstratcFromEachQ(n)
+			This.SubstratcFromEach(n)
 			return This
 
-		def SubstractEachNumberBy(n)
-			This.SubstractFromEach(n)
-
-			def SubstractEachNumberByQ(n)
-				This.SubstractEachNumberBy(n)
-				return This
-
-		def SubstratcNFromEach(n)
-			This.SubstractFromEach(n)
-
-			def SubstratcNFromEachQ(n)
-				This.SubstratcNFromEach(n)
-				return This
-
-	def EachNumberSubstractedBy(n)
-		aResult = This.Copy().SubstratcEachNumberByQ(n).Content()
-
+	def SubstratcedFromEach(n)
+		aResult = This.Copy().SubstratcFromEachQ(n).Content()
 		return aResult
-
-		def EachSubstractedBy(n)
-			return This.EachNumberSubstractedBy(n)
-
-		def NSubstractedFromEach(n)
-			return This.EachNumberSubstractedBy(n)
 
 	  #---------------------------------------------#
 	 #     MULTIPLYING EACH NUMBER BY A NUMBER     #
 	#---------------------------------------------#
 
 	def MultiplyEachBy(n)
-		for number in This.ListOfNumbers()
+		for number in @anContent
 			number *= n
 		next
 
@@ -963,20 +896,308 @@ class stzListOfNumbers from stzList
 			This.MultiplyEachBy(n)
 			return This
 
-		def MultiplyEachNumberBy(n)
-			This.MultiplyEachBy(n)
-
-			def MultiplyEachNumberByQ(n)
-				This.MultiplyEachNumberBy(n)
-				return This
-
-	def EachNumberMultipliedBy(n)
-		aResult = This.Copy().MultiplyEachNumberByQ(n).Content()
-
+	def EachMultipliedBy(n)
+		aResult = This.Copy().MultiplyEachByQ(n).Content()
 		return aResult
 
-		def EachMultipliedBy(n)
-			return This.EachNumberMultipliedBy(n)
+	  #------------------------------------------#
+	 #     DIVIDING EACH NUMBER BY A NUMBER     # 
+	#------------------------------------------#
+
+	def DevideEachBy(n)
+		for number in @anContent
+			number /= n
+		next
+
+		def DevideEachByQ(n)
+			This.DevideEachBy(n)
+			return This
+
+	def EachDevidedBy(n)
+		aResult = This.Copy().DevideEachByQ(n).Content()
+		return aResult
+
+	  #====================================#
+	 #   ADDING MANY NUMBERS ONE BY ONE   #
+	#====================================#
+
+	def AddManyOneByOne(paNumbers)
+
+		if NOT (isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+			stzRaise("Incorrect param type! You must provide a list of numbers.")
+		ok
+
+		nLen1 = len(@anContent)
+		nLen2 = len(paNumbers)
+
+		i = 0
+		for number in @anContent
+			i++
+
+			if i <= nLen1 and i <= nLen2
+				number += paNumbers[i]
+			ok
+
+		next
+
+		def AddManyOneByOneQ(paNumbers)
+			This.AddManyOneByOne(paNumbers)
+			return This
+
+	def ManyAddOneByOne(paNumbers)
+		aResult = This.Copy().AddManyOneByOneQ(n).Content()
+		return aResult
+
+	  #------------------------------------------#
+	 #   SUBSTRACTING MANY NUMBERS ONE BY ONE   #
+	#------------------------------------------#
+
+	def SubstractManyOneByOne(paNumbers)
+
+		if NOT (isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+			stzRaise("Incorrect param type! You must provide a list of numbers.")
+		ok
+
+		nLen1 = len(@anContent)
+		nLen2 = len(paNumbers)
+
+		i = 0
+		for number in @anContent
+			i++
+
+			if i <= nLen1 and i <= nLen2
+				number -= paNumbers[i]
+			ok
+
+		next
+
+		def SubstractManyOneByOneQ(paNumbers)
+			This.SubstractManyOneByOne(paNumbers)
+			return This
+
+	def ManySubstractedOneByOne(paNumbers)
+		aResult = This.Copy().SubstractManyOneByOneQ(n).Content()
+		return aResult
+
+	  #----------------------------------------------------------------------#
+	 #   MULTIPLYING THE NUMBERS OF THE LIST WITH MANY NUMBERS ONE BY ONE   #
+	#----------------------------------------------------------------------#
+
+	def MultiplyWithManyOneByOne(paNumbers)
+
+		if NOT (isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+			stzRaise("Incorrect param type! You must provide a list of numbers.")
+		ok
+
+		nLen1 = len(@anContent)
+		nLen2 = len(paNumbers)
+
+		i = 0
+		for number in @anContent
+			i++
+
+			if i <= nLen1 and i <= nLen2
+				number *= paNumbers[i]
+			ok
+
+		next
+
+		def MultiplyWithManyOneByOneQ(paNumbers)
+			This.MultiplyWithManyOneByOne(paNumbers)
+			return This
+
+		def MultiplyByManyOneByOne(paNumbers)
+			return This.MultiplyWithManyOneByOne(paNumbers)
+
+	def MultipliedWithManyOneByOne(paNumbers)
+		aResult = This.Copy().MultiplyWithManyOneByOneQ(n).Content()
+		return aResult
+
+		def MultipliedByManyOneByOne(paNumbers)
+			return This.MultipliedWithManyOneByOne(paNumbers)
+
+
+	  #-------------------------------------------------------------------#
+	 #   DEVIDING THE NUMBERS OF THE LIST WITH MANY NUMBERS ONE BY ONE   #
+	#-------------------------------------------------------------------#
+
+	def DivideByManyOneByOne(paNumbers)
+
+		if NOT (isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+			stzRaise("Incorrect param type! You must provide a list of numbers.")
+		ok
+
+		nLen1 = len(@anContent)
+		nLen2 = len(paNumbers)
+
+		i = 0
+		for number in @anContent
+			i++
+
+			if i <= nLen1 and i <= nLen2
+				number /= paNumbers[i]
+			ok
+
+		next
+
+		def DivideByManyOneByOneQ(paNumbers)
+			This.DivideByManyOneByOne(paNumbers)
+			return This
+
+	def DividedByManyOneByOne(paNumbers)
+		aResult = This.Copy().DivideByManyOneByOneQ(n).Content()
+		return aResult
+
+	  #===================================================#
+	 #   ADDING NUMBER TO EACH UNDER A GIVEN CONDITION   #
+	#===================================================#
+
+	def AddToEachW(n, pcCondition)
+		if NOT isNumber(n)
+			stzRaise("Incorrect param type! n must be a number.")
+		ok
+
+
+		if isList(pcCondition) and Q(pcCondition).IsWhereParamList()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			stzRaise("Incorrect param type! pcConition must be a string.")
+		ok
+
+		cCondition = StzStringQ(pcCondition).
+			     SimplifyQ().RemoveBoundsQ("{","}").
+			     ReplaceCSQ("@item", :With = "@number", :CS = FALSE).Content()
+
+		cCode = "bOk = (" + cCondition + ")"
+
+		@i = 0
+		for @number in @anContent
+			@i++
+			eval(cCode)
+			if bOk
+				@number += n
+			ok
+		next
+
+		def AddToEachWQ(n)
+			This.AddToEachW(n)
+			return This
+
+	def AddedToEachW(n)
+		aResult = This.Copy().AddToEachWQ(n).Content()
+		return aResult
+
+	  #--------------------------------------------------------#
+	 #   SUBSTRACT NUMBER FROM EACH UNDER A GIVEN CONDITION   #
+	#--------------------------------------------------------#
+
+	def SubstractFromEachW(n, pcCondition)
+		This.AddToEachW(-n, pcCondition)
+
+		def SubstractFromEachWQ(n)
+			This.SubstractFromEachW(n)
+			return This
+
+	def SubstractedFromEachW(n)
+		aResult = This.Copy().SubstractFromEachWQ(n).Content()
+		return aResult
+	
+	  #--------------------------------------------------------------------#
+	 #   MULTIPLYING NUMBERS BY AN OTHER NUMBER UNDER A GIVEN CONDITION   #
+	#--------------------------------------------------------------------#
+
+	def MultiplyEachWithW(n, pcCondition)
+
+		if NOT isNumber(n)
+			stzRaise("Incorrect param type! n must be a number.")
+		ok
+
+
+		if isList(pcCondition) and Q(pcCondition).IsWhereParamList()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			stzRaise("Incorrect param type! pcConition must be a string.")
+		ok
+
+		cCondition = StzStringQ(pcCondition).
+			     SimplifyQ().RemoveBoundsQ("{","}").
+			     ReplaceCSQ("@item", :With = "@number", :CS = FALSE).Content()
+
+		cCode = "bOk = (" + cCondition + ")"
+
+		@i = 0
+		for @number in @anContent
+			@i++
+			eval(cCode)
+			if bOk
+				@number *= n
+			ok
+		next
+
+		def MultiplyEachWithWQ(n)
+			This.MultiplyEachWithW(n)
+			return This
+
+		def MultiplyEachByW()
+			This.MultiplyEachWithW(n, pcCondition)
+
+			def MultiplyEachByWQ()
+				This.MultiplyEachByW()
+				return This
+
+	def EachMultipliedWithW(n)
+		aResult = This.Copy().MultiplyEachWithWQ(n).Content()
+		return aResult
+
+		def EachMultipliedByW(n)
+			return This.EachMultipliedWithW(n)
+
+	  #-------------------------------------------------------------------#
+	 #   DEVIDE EACH NUMBER BY AN OTHER NUMBER UNDER A GIVEN CONDITION   #
+	#-------------------------------------------------------------------#
+
+	def DivideEachWithW(n, pcCondition)
+		This.MultiplyEachWithW( 1/n, pcCondition )
+
+		def DivideEachWithWQ(n)
+			This.DivideEachWithW(n)
+			return This
+
+		def DivideEachByW(n, pcCondition)
+			This.DivideEachWithW(n, pcCondition)
+
+	def EachDividedWithW(n)
+		aResult = This.Copy().DivideEachWithWQ(n).Content()
+		return aResult
+
+		def EachDividedByW(n)
+			return This.EachDividedWithW(n)
+	
+	  #=====================================================#
+	 #     UPDATING THE LIST WITH A NEW LIST OF NUMBERS    #
+	#=====================================================#
+
+	def Update(pnNewListOfNumbers)
+
+		if isList(pnNewListOfNumbers) and StzListQ(pnNewListOfNumbers).IsWithParamList()
+			pnNewListOfNumbers = pnNewListOfNumbers[2]
+		ok
+
+		if NOT ( isList(pnNewListOfNumbers) and
+			 Q(pnNewListOfNumbers).IsListOfNumbers() )
+
+			stzRaise("Incorrect param type!")
+		ok
+
+		@anContent = pnNewListOfNumbers
+
+	  #---------------------------------------#
+	 #     REVERSING THE LIST OF NUMBERS     #
+	#---------------------------------------#
 
 	def Reverse()
 		aResult = This.ToStzList().Reversed()
@@ -1000,26 +1221,3 @@ class stzListOfNumbers from stzList
 
 		def NumbersReversed()
 			return This.Reversed()
-
-	def Update(pnNewNumber)
-
-		if isList(pnNewNumber) and StzListQ(pnNewNumber).IsWithParamList()
-			pnNewNumber = pnNewNumber[2]
-		ok
-
-		@aContent = pnNewNumber
-
-	  #------------------------------------------#
-	 #     DIVIDING EACH NUMBER BY A NUMBER     # // TODO: complete it
-	#------------------------------------------#
-
-	def DivideEachBy(n)
-		for number in This.ListOfNumbers()
-			number = number / n
-		next
-
-		def DivideEachByQ(n)
-			This.DivideEachBy(n)
-			return This
-
-	
