@@ -100,7 +100,12 @@ class stzListOfStrings from stzObject
 			next
 
 		other
-			stzRaise(stzListOfStringsError(:CanNotCreateListOfStrings))
+			stzRaise([
+				:Where = "stzListOfStrings (104) > Init()",
+				:What = "Can't create the list of strings.",
+				:Why  = "Items of the list you provided are not all strings.",
+				:Todo = "Provide a list formed exclusively from strings."
+			])
 		ok
 		
 	  #---------------#
@@ -8609,14 +8614,23 @@ class stzListOfStrings from stzObject
 			ok
 
 			switch pcReturnType
-			on :stzListOfLists
-				return new stzListOfLists( This.Split(cSep) )
 
 			on :stzList
 				return new stzList( This.Split(cSep) )
 
+			on :stzListOfLists
+				return new stzListOfLists( This.Split(cSep) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.Split(cSep) )
+
 			other
-				stzRaise("Unsupported type!")
+				stzRaise([
+					:Where = "stzListOfStrings (8620) > SplitQR()",
+					:What  = "Can't cast the object to the type you requested!",
+					:Why   = "The type you required is not supported",
+					:Todo  = "Opt for an other type, implement it by yourself, or create the type of object uisng new."
+				])
 			off
 
 		#>

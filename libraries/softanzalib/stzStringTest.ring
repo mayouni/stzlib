@@ -33,7 +33,7 @@ o1.Simplify()
 ? o1.Content()
 
 /*=================
-*/
+
 # While finding occurrences of a substring inside a string,
 # Softanza can return the positions or the sections of
 # those substrings:
@@ -58,7 +58,49 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? @@( o1.FindBetween("word", "<<", ">>") )		# --> [ 9, 41 ]
 ? @@( o1.FindSectionsBetween("word", "<<", ">>") )	# --> [ [ 9, 16 ], [ 41, 48 ] ]
 
-/*=================
+/*================= TODO (NOW)
+*/
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.ReplaceAnyBetween("<<", ">>", :With = "word")
+? o1.Content()  # !--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.ReplaceBetween("noword", "<<", ">>", :With = "word")
+? o1.Content()  # !--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
+
+/*================= TODO
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.RemoveAnyBetween("<<", ">>")
+? o1.Content()	# !--> "bla bla <<>> bla bla <<>> bla <<>>"
+
+/*---------------- TODO
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.RemoveBetween("noword", "<<", ">>")
+? o1.Content()	# !--> "bla bla <<word>> bla bla <<>> bla <<word>>"
+
+/*------------------- TODO (future)
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.RemoveAnyBetweenXT("<<", ">>", [ :RemoveBounds = TRUE ])
+? o1.Content()  # !--> "bla bla  bla bla  bla "
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.RemoveAnyBetweenXT("<<", ">>", [ :RemoveBounds = TRUE, :Simplify = TRUE ])
+? o1.Content()  # !--> "bla bla bla bla bla "
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.RemoveAnyBetween@("<<", ">>", '{ @str = Q(@str).Remove("<<>>")Q.Simplied()}')
+? o1.Content()  # !--> "bla bla bla bla bla "
+
+/*----------------
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.RemoveBetween("noword", "<<", ">>")
+? o1.Content()	"bla bla <<word>> bla bla <<>> bla <<word>>"
+
+/*================
 
 StzStringQ("MustHave@32@Chars") {
 	? NumberOfOccurrenceCS("@", :cs = true) #--> 2

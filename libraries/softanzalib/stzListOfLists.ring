@@ -249,10 +249,10 @@ class stzListOfLists from stzObject
 		#>
 
 	  #--------------------------#
-	 #   ITEMS AT POSITION N    #
+	 #   LISTS AT POSITION N    #
 	#--------------------------#
 
-	def ItemsAtPositionN(n)
+	def ListAtPositionN(n)
 		aResult = []
 
 		for aList in This.ListOfLists()
@@ -367,9 +367,9 @@ class stzListOfLists from stzObject
 			return This.IndexOn(:NumberOfOccurrence)[pEntry]
 		ok
 
-	  #-----------------#
-	 #   OCCURRENCE    #
-	#-----------------#
+	  #------------------------------------------#
+	 #   OCCURRENCE  OF AN ENTRY IN THE INDEX   #
+	#------------------------------------------#
 
 	def NumberOfOccurrenceOfEntry(pEntry)
 		return len(o1.IndexOn(:Position)[pEntry])
@@ -505,4 +505,41 @@ class stzListOfLists from stzObject
 
 	def ToStzListQ()
 		return new stzList( This.Content() )
+
+	def ToStzListOfStrings()
+		aResult = []
+
+		for list in This.ListOfLists()
+			aResult + @@( list ) # @@ --> ComputableForm( list )
+		next
+
+		return aResult
+
+	  #---------------------------------#
+	 #    SORTING THE LIST OF LISTS    #
+	#---------------------------------#
+
+	/*
+
+	NOTE: Sorting is delegated to stzListOfStrings (Qt-based).
+	Hence, the each list of this stzLitsOflists is transformed
+	to a string containing its computable form (see ToStzListOfString())
+
+	*/
+
+	def SortInAscending()
+		return This.ToStzListOfStrings().SortInAscending()
+
+	def IsSortedInAscending()
+		return This.ToStzListOfStrings().IsSortedInAscending()
+
+	def SortInDescending()
+		return This.ToStzListOfStrings().SortInAscending()
+
+	def IsSortedInDescending()
+		return This.ToStzListOfStrings().IsSortedInDescending()
+
+	def SoringOrder()
+		return This.ToStzListOfStrings().SortingOrder()
+
 

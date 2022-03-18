@@ -8,7 +8,7 @@ o1 = new stzListOfLists([
 	[ 5, 6, 7 ]
 ])
 
-? o1.ItemsAtPositionN(4)
+? o1.ListAtPositionN(4)
 
 # ? o1.ListsOfSize(2)
 # ? o1.PositionsOfListsOfSize(2)

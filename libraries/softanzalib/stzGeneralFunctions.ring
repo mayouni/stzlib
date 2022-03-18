@@ -17,6 +17,14 @@ func SoftanzaLogo()
 	return _cSoftanzaLogo
 
 func stzRaise(paMessage)
+	/*
+	WARNING: Do not use stzRaise to raise errors here
+	--> Stackoverflow!
+
+	Hence, this is the unique place in the library
+	where we use the native ring raise() function.
+
+	*/
 
 	if NOT (isString(paMessage) or isList(paMessage) )
 
@@ -24,7 +32,7 @@ func stzRaise(paMessage)
 	ok
 
 	if isString(paMessage)
-		stzRaise(paMessage)
+		raise(paMessage)
 	ok
 
 	if isList(paMessage) and StzListQ(paMessage).IsRaiseParamList()
@@ -36,12 +44,12 @@ func stzRaise(paMessage)
 	
 
 		if NOT StzListQ([ cWhere, cWhat, cWhy, cTodo ]).IsListOfStrings()
-			stzRaise("Error in stzRaise param type!")
+			raise("Error in stzRaise param type!")
 		ok
 	
 		cFile = StzStringQ(cWhere).WithoutSpaces()
 		if isNull(cWhere)
-			stzRaise("Error in stzRaise --> Where the error happened!")
+			raise("Error in stzRaise --> Where the error happened!")
 		ok
 	
 		cWhat = StzStringQ(cWhat).Simplified()
@@ -62,9 +70,9 @@ func stzRaise(paMessage)
 			cErrorMsg += "   Todo : " + paMessage[:Todo] + NL
 		ok
 
-		stzRaise(cErrorMsg)
+		raise(cErrorMsg)
 	else
-		stzRaise("Error in stzRaise > Incorrect param type!")
+		raise("Error in stzRaise > Incorrect param type!")
 	ok
 
 func IsNumberOrString(p)
