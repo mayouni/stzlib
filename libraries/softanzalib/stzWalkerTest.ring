@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*-------------------
-
+*/
 o1 = new stzWalker([])
 
 o1 {

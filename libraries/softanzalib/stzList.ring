@@ -2215,7 +2215,7 @@ class stzList from stzObject
 	def RemoveItemsAtPositions(panPositions)
 		panPositions = sort(panPositions)
 
-		for i = panPositions to 1 step -1
+		for i = len(panPositions) to 1 step -1
 			del(This.List(), panPositions[i])
 
 		next

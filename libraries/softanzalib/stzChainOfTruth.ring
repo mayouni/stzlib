@@ -223,7 +223,7 @@ class stzChainOfTruth from stzObject
 	#---------------------------------------------------------------#
 
 	def Is(pThing)
-? "inn"
+
 
 		/* Examples
 
@@ -410,7 +410,7 @@ class stzChainOfTruth from stzObject
 			# as produced, normally, by the @ softanza object
 			
 			eval(cCode)
-# ? cCode ? bResult
+
 			# Let's leverage the result we got to apply the sepeciefic
 			# semantics of IsA() as explained above
 
@@ -420,9 +420,9 @@ class stzChainOfTruth from stzObject
 			cIsMethodCall = cIsMethod + "()"
 			cCode = "bPass = _(" + ComputableForm(cValue) + ").@.NumberOfItemsW('{ _(@item).@." + cIsMethodCall + " }') > 1"
 
-//? cCode			eval(cCode)
+				eval(cCode)
+	
 
-# ? cCode ? bPass
 			if bResult = TRUE and bPass
 				This.SetChainToReturn(TRUE)
 			else

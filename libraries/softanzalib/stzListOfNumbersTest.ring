@@ -6,7 +6,7 @@ load "stzlib.ring"
 ? StzListOfNumbersQ( 1:5 ).Reversed() # --> 5:1
 
 /*--------------
-*/
+
 StzListOfNumbersQ([ 2, 10, 7, 4, 19, 7, 19 ]) {
 
 	# Let's play with max numbers in the list
@@ -35,14 +35,56 @@ StzListOfNumbersQ([ 2, 10, 7, 4, 19, 7, 19 ]) {
 
 }
 
-/*--------------
+/*==================
 
-StzListOfNumbersQ([ 2, 4, 6 ]) {
+StzListOfNumbersQ([ 1, 2, 3 ]) {
+	? Content() # --> [ 1, 2, 3 ]
+ 
 	AddToEach(3)
-	? Content() # --> [ 5, 7, 9 ]
+	? Content() # --> [ 4, 5, 6 ]
+
+	MultiplyEachBy(3)
+	? Content() # --> [ 12, 15, 18 ]
+
+	DevideEachBy(3)
+	? Content() # --> [ 4, 5, 6 ]
 }
 
-? StzListOfNumbersQ([ 2, 4, 6 ]).AddedToEach(3) # --> [ 5, 7, 9 ]
+/*-------------------
+
+StzListOfNumbers([ 2, 4, 8 , 10 , 12 ]) {
+
+	AddManyOneByOne([ 8, 6, 2, 0, -2 ])
+	? Content() #--> [ 10, 10, 10 , 10 , 10 ]
+
+	SubstractManyOneByOne([ 5, 5, 5, 5, 5 ])
+	? Content() # --> [ 5, 5, 5, 5, 5 ]
+
+	MultiplyByManyOneByOne([ 1, 2, 3, 4, 5 ])
+	? Content() # --> [ 5, 10, 15, 20, 25 ]
+
+	DivideByManyOneByOne([ 5, 5, 5, 5, 5 ])
+	? Content() # --> [ 1, 2, 3, 4, 5 ])
+
+}
+
+/*-------------------
+
+o1 = new stzListOfNumbers([ 4, 7, 36, 9, 20 ])
+o1.AddToEachW( 1, :Where = '{ Q(@number).IsDividableBy(4) and @number <= 20 }' )
+? @@(o1.Content()) # --> [ 5, 7, 36, 9, 21 ]
+
+*-------------------
+*/
+o1 = new stzListOfNumbers([ 4, 14, 24, 34 ])
+o1.SubstractFromEachW( 10, :Where = '{ @number > 20 }' )
+? @@(o1.Content()) # --> [ 4, 14, 14, 24 ]
+
+/*-------------------
+
+o1 = new stzListOfNumbers([ 5, 15, 25, 35 ])
+o1.DivideEachByW( 5, :Where = '{ @number > 20 }' )
+? @@(o1.Content()) # --> [ 5, 15, 5, 7 ]
 
 /*--------------
 
@@ -61,7 +103,7 @@ o1 = new stzListOfNumbers([ 12, 10, 98, 23, 98, 7 ])
 /*--------------
 
 o1 = new stzListOfNumbers(1:8)
-o1.AddToEveryItem(2)
+o1.AddToEveryNumber(2)
 ? ListToCode( o1.Content() ) # --> [ 3, 4, 5, 6, 7, 8, 9, 10 ]
 
 /*--------------
