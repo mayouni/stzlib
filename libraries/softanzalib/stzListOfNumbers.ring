@@ -904,17 +904,17 @@ class stzListOfNumbers from stzList
 	 #     DIVIDING EACH NUMBER BY A NUMBER     # 
 	#------------------------------------------#
 
-	def DevideEachBy(n)
+	def DivideEachBy(n)
 		for number in @anContent
 			number /= n
 		next
 
-		def DevideEachByQ(n)
-			This.DevideEachBy(n)
+		def DivideEachByQ(n)
+			This.DivideEachBy(n)
 			return This
 
-	def EachDevidedBy(n)
-		aResult = This.Copy().DevideEachByQ(n).Content()
+	def EachDividedBy(n)
+		aResult = This.Copy().DivideEachByQ(n).Content()
 		return aResult
 
 	  #====================================#
@@ -1157,7 +1157,7 @@ class stzListOfNumbers from stzList
 			return This.EachMultipliedWithW(n)
 
 	  #-------------------------------------------------------------------#
-	 #   DEVIDE EACH NUMBER BY AN OTHER NUMBER UNDER A GIVEN CONDITION   #
+	 #   DIVIDE EACH NUMBER BY AN OTHER NUMBER UNDER A GIVEN CONDITION   #
 	#-------------------------------------------------------------------#
 
 	def DivideEachWithW(n, pcCondition)
