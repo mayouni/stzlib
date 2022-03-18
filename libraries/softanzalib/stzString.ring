@@ -6887,6 +6887,7 @@ class stzString from stzObject
 
 		return This.FindManyCSXT(pacSubStr, :CaseSensitive = TRUE)
 
+#-------------------------------------------------------------------------------------------
 	  #---------------------------------------#
 	 #      FINDING BY FORMAT (REGEXP)       # TODO
 	#---------------------------------------#
@@ -6895,7 +6896,6 @@ class stzString from stzObject
 	def FindByFormat(paFormat)
 		// TODO: Use Regular expressions
 
-#-------------------------------------------------------------------------------------------
 
 	def FindInside(pcTemplate) // TODO
 		/*
@@ -7165,7 +7165,7 @@ class stzString from stzObject
 		
 		(we used here the simple form of the function)
 
-		#--> [ [ 
+		#--> [ [ 9, 10 ], [ 26, 27 ], [ 41, 42 ] ]
 		*/
 
 		# Getting all the occurrences of pcSubStr in the string

@@ -5,8 +5,8 @@ aPackageInfo = [
 	:developer = "Mansour Ayouni",
 	:email = "kalidianow@gmail.com",
 	:license = "MIT License",
-	:version = "1.0.5",
-	:ringversion = "1.17",
+	:version = "1.0.6",
+	:ringversion = "1.16",
 	:versions = 	[
 		[
 			:version = "1.0.5",
