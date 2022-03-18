@@ -8373,8 +8373,64 @@ class stzList from stzObject
 
 		return aResult
 
+		#< @FunctionFluentForm
+
+		def SplitQ(pItem)
+			return This.SplitQR(pItem, :stzList)
+
+		def SplitQR(pItem, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Split(pItem) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.Split(pItem) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.Split(pItem) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Split(pItem) )
+ 
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Split(pItem) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeNames
 
 		def SplitUsing(pItem)
+			This.Split(pItem)
+
+			def SplitUsingQ(pItem)
+				return This.SplitUsingQR(pItem, pcReturnType)
+	
+			def SplitUsingQR(pItem, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.SplitUsing(pItem) )
+	
+				on :stzListOfLists
+					return new stzListOfLists( This.SplitUsing(pItem) )
+	
+				on :stzListOfPairs
+					return new stzListOfPairs( This.SplitUsing(pItem) )
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.SplitUsing(pItem) )
+	 
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.SplitUsing(pItem) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+
+		#>
 
 	  #------------------------------------#
 	 #    SPLITTING TO PARTS OF N ITEMS   #
@@ -8422,12 +8478,22 @@ class stzList from stzObject
 				pcReturnType = pcReturnType[2]
 			ok
 
-			switch pcType
+			switch pcReturnType
 			on :stzList
-				return new stzLists( This.SplitToPartsOfNItemsEach(n) )
+				return new stzList( This.SplitToPartsOfNItemsEach(n) )
 
 			on :stzListOfLists
 				return new stzListOfLists( This.SplitToPartsOfNItemsEach(n) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.SplitToPartsOfNItemsEach(n) )
+	
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitToPartsOfNItemsEach(n) )
+	
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.SplitToPartsOfNItemsEach(n) )
+
 			other
 				stzRaise("Unsupported return type!")
 			off
@@ -8467,16 +8533,27 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def SplitToPartsOfNItemsQR(n, pcType)
+		def SplitToPartsOfNItemsQR(n, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			switch pcType
+			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitToPartsOfNItems(n) )
+
 			on :stzListOfLists
 				return new stzListOfLists( This.SplitToPartsOfNItems(n) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.SplitToPartsOfNItems(n) )
+	
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitToPartsOfNItems(n) )
+	
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.SplitToPartsOfNItems(n) )
+
 			other
 				stzRaise("Unsupported return type!")
 			off

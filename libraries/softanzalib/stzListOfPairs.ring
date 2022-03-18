@@ -50,3 +50,20 @@ class stzListOfPairs from stzObject
 		next
 		return bResult
 
+	def IsSortable()
+		/*
+
+		*/
+
+	def SortInAscending()
+
+		def SortInAscendingQ()
+			This.SortInAscending()
+			return This
+
+	def SortInDescending()
+
+		def SortInDescendingQ()
+			This.SortInDescending()
+			return This
+

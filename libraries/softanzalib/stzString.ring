@@ -5258,7 +5258,22 @@ class stzString from stzObject
 				This.ReplaceAllOfTheseCS(pacSubstr, pNewSubstr, pCaseSensitive)
 				return This
 
+		def ReplaceManySubstringsCS(pacSubstr, pNewSubstr, pCaseSensitive)
+			This.ReplaceManyCS(pacSubstr, pNewSubstr, pCaseSensitive)
+
+			def ReplaceManySubstringsCSQ(pacSubstr, pNewSubstr, pCaseSensitive)
+				This.ReplaceManySubstringsCS(pacSubstr, pNewSubstr, pCaseSensitive)
+				return This
 		#>
+
+	def ManySubstringsRemovedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+		acResult = This.Copy().RemoveManySubstringsCSQ(pacSubstr, pNewSubstr, pCaseSensitive).Content()
+		return acResult
+
+		def ManyRemovedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+			return This.ManySubstringsRemovedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+
+	#-- CASE-INSENSITIVE
 
 	def ReplaceMany(pacSubstr, pcNewSubstr)
 		This.ReplaceManyCS( pacSubstr, pcNewSubstr, :CaseSensitive = TRUE )
@@ -5279,7 +5294,21 @@ class stzString from stzObject
 				This.ReplaceAllOfThese(pacSubStr, pcNewSubStr)
 				return This
 
+		def ReplaceManySubstrings(pacSubstr, pNewSubstr)
+			This.ReplaceMany(pacSubstr, pNewSubstr)
+
+			def ReplaceManySubstringsQ(pacSubstr, pNewSubstr)
+				This.ReplaceManySubstrings(pacSubstr, pNewSubstr)
+				return This
+
 		#>
+
+	def ManySubstringsRemoved(pacSubstr, pNewSubstr)
+		acResult = This.Copy().RemoveManySubstringsQ(pacSubstr, pNewSubstr).Content()
+		return acResult
+
+		def ManyRemoved(pacSubstr, pNewSubstr)
+			return This.ManySubstringsRemoved(pacSubstr, pNewSubstr)
 
 	  #---------------------------------------------------------------#
 	 #    REPLACING SUBSTRINGS BY MANY NEW SUBSTRINGS, ONE BY ONE    #
@@ -5308,9 +5337,21 @@ class stzString from stzObject
 			This.ReplaceManyOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
 			return This
 
+		def ReplaceSubstringsOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
+			This.ReplaceManyOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
+
+			def ReplaceSubstringsOneByOneCSQ(pacSubstrings, paNewSubStrings, pCaseSensitive)
+				This.ReplaceSubstringsOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
+				return This
+
 	def ManySubStringsReplacedOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
 		cResult = This.Copy().ReplaceManyOneByOneCSQ(pacSubstrings, paNewSubStrings, pCaseSensitive)
 		return cResult
+
+		def SubstringsReplacedOneByOneCS(pacSubStrings, paNewSubStrings, pCaseSensitive)
+			return This.ManySubStringsReplacedOneByOneCS(pacSubStrings, paNewSubStrings, pCaseSensitive)
+
+	#-- CASE-INSENSITIVE
 
 	def ReplaceManyOneByOne(pacSubstrings, paNewSubStrings)
 		This.ReplaceManyOneByOneCS(pacSubStrings, paNewSubStrings, :CaseSensitive = TRUE)
@@ -5319,9 +5360,20 @@ class stzString from stzObject
 			This.ReplaceManyOneByOne(pacSubstrings, paNewSubStrings)
 			return This
 
+		def ReplaceSubstringsOneByOne(pacSubstrings, paNewSubStrings)
+			This.ReplaceManyOneByOne(pacSubstrings, paNewSubStrings)
+
+			def ReplaceSubstringsOneByOneQ(pacSubstrings, paNewSubStrings)
+				This.ReplaceSubstringsOneByOne(pacSubstrings, paNewSubStrings)
+				return This
+
 	def ManySubStringsReplaceOneByOne(pacSubstrings, paNewSubStrings)
 		cResult = This.Copy().ReplaceManyOneByOneQ(pacSubstrings, paNewSubStrings)
 		return cResult
+
+		def SubStringsReplacedOneByOne(pacSubStrings, paNewSubStrings)
+			return This.ManySubStringsReplacedOneByOne(pacSubStrings, paNewSubStrings)
+
 
 	  #----------------------------------------------------#
 	 #     REPLACING THE NTH OCCURRENCE OF A SUBSTRING    #
@@ -6845,6 +6897,9 @@ class stzString from stzObject
 
 		return aResult
 
+		def FindManySubStringsCS(pacSubStr, pCaseSensitive)
+			return This.FindManyCS(pacSubStr, pCaseSensitive)
+
 	def FindMany(pacSubStr)
 		/*
 		o1 = new stzString("My name is Mansour. What's your name please?")
@@ -6855,6 +6910,9 @@ class stzString from stzObject
 		*/
 
 		return This.FindManyCS(pacSubStr, :CaseSensitive = TRUE)
+
+		def FindManySubStrings(pacSubStr)
+			return This.FindMany(pacSubStr)
 
 	def FindManyCSXT(pacSubStr, pCaseSensitive)
 		/*
@@ -6873,7 +6931,13 @@ class stzString from stzObject
 
 		return aResult
 
+		def FindManySubstringsCSXT(pacSubStr, pCaseSensitive)
+			return This.FindManyCSXT(pacSubStr, pCaseSensitive)
+
 		def FindManyXTCS(pacSubStr, pCaseSensitive)
+			return This.FindManyCSXT(pacSubStr, pCaseSensitive)
+
+		def FindManySubstringsXTCS(pacSubStr, pCaseSensitive)
 			return This.FindManyCSXT(pacSubStr, pCaseSensitive)
 
 	def FindManyXT(pacSubStr)
@@ -6886,6 +6950,9 @@ class stzString from stzObject
 		*/
 
 		return This.FindManyCSXT(pacSubStr, :CaseSensitive = TRUE)
+
+		def FindManySubstringsXT(pacSubStr)
+			return This.FindManyXT(pacSubStr)
 
 #-------------------------------------------------------------------------------------------
 	  #---------------------------------------#
@@ -10911,14 +10978,29 @@ class stzString from stzObject
 		return cResult
 	
 	def RemoveManySections(paListOfSections)
-		// TODO
+		
+		# Sections must be a list of pairs sorted in descending
+
+		# Remove the pairs in descending order
+
 
 		def RemoveManySectionsQ(paListOfSections)
 			This.RemoveManySections(paListOfSections)
+			return This
+
+		def RemoveSections(paListOfSections)
+			This.RemoveManySections(paListOfSections)
+
+			def RemoveSectionsQ(paListOfSections)
+				This.RemoveSections
+				return This
 
 	def ManySectionsRemoved(paListOfSections)
 		cResult = This.Copy().RemoveManySectionsQ(paListOfSections).Content()
 		return This
+
+		def SectionsRemoved(paListOfSections)
+			return This.ManySectionsRemoved(paListOfSections)
 
 	  #--------------------------------#
 	 #    REMOVING A RANGE OF CHARS   # 
@@ -10942,14 +11024,24 @@ class stzString from stzObject
 		return cResult
 
 	def RemoveManyRanges(paListOfRanges)
-		// TODO
+		// TODO ///////////////////////////////// NOW ////////////////////
 
 		def RemoveManyRangesQ(paListOfRanges)
 			This.RemoveManySections(paListOfRanges)
 
+		def RemoveRanges(paListOfRanges)
+			This.RemoveRanges(paListOfRanges)
+
+			def RemoveRangesQ(paListOfRanges)
+				This.RemoveRanges(paListOfRanges)
+				return This
+
 	def ManyRangesRemoved(paListOfRanges)
 		cResult = This.Copy().RemoveManyRangesQ(paListOfRanges).Content()
 		return This
+
+		def RangedRemoved(paListOfRanges)
+			return This.ManyRangesRemoved(paListOfRanges)
 
 	  #----------------------------------------------------------#
 	 #    TRIMMING & REMOVING SPACES, AND SIMPLIFYING STRING    # 
