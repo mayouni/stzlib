@@ -3572,6 +3572,7 @@ class stzText from stzObject
 	If they suit for your case, then use them. Otherwise, use Words() and
 	expect yoursel to pay for performance.
 
+
 	*/
 
 	  #---------------------#
@@ -3828,7 +3829,7 @@ class stzText from stzObject
 				return This
 	
 	def RemovePunctuationExcept(paChars)
-		This.RemoveCharsWhere('StzCharQ(@char).isPunctuation() and NOT Q(@char).IsOneOfThese(' + @@(paChars) + ')')
+		This.ToStzString().RemoveCharsWhere('StzCharQ(@char).isPunctuation() and NOT Q(@char).IsOneOfThese(' + @@(paChars) + ')')
 
 		def RemovePunctuationExceptQ(paChars)
 			This.RemovePunctuationExcept(paChars)
@@ -3893,16 +3894,16 @@ class stzText from stzObject
 		switch This.Script()
 	
 		on :Latin
-			This.ReplaceCharsW(
+			This.ToStzString().ReplaceCharsW(
 				:Where = '{ StzCharQ(@char).IsLatinDiacritic() }',
 				:With  = '{ StzCharQ(@char).LatinDiacriticRemoved() }'
 			)
 	
 		on :Arabic
-			This.RemoveCharsW('{ StzCharQ(@char).IsArabicDiacritic() }')
+			This.ToStzString().RemoveCharsW('{ StzCharQ(@char).IsArabicDiacritic() }')
 	
 		on :Greek
-			This.ReplaceCharsW(
+			This.ToStzString().ReplaceCharsW(
 				:Where = '{ StzCharQ(@char).IsGreekDiacritic() }',
 				:With  = 'StzCharQ(@char).RemoveGreekDiacritic()'
 			)
@@ -3910,7 +3911,7 @@ class stzText from stzObject
 			# but check this!
 	
 		on :Hebrew
-			RemoveCharsWhere('{ StzCharQ(@char).IsHebrewDiacritic() }')
+			This.ToStzString()RemoveCharsWhere('{ StzCharQ(@char).IsHebrewDiacritic() }')
 			# TODO: I assumed that hebrew works like arabic for diacritics,
 			# but check this!
 	

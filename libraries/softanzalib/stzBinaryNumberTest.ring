@@ -10,7 +10,7 @@ o1 = new stzBinaryNumber("0b01110111100111010.11101111")
 ? o1.ToDecimalForm()	# --> 31356143.93359375
 
 /*-------------------
-
+*/
 // Creating a binary number from a decimal form
 
 o1 = new stzBinaryNumber("")

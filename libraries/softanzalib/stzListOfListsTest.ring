@@ -1,5 +1,9 @@
 load "stzlib.ring"
 
+
+
+/*----------
+
 o1 = new stzListOfLists([
 	[ 1, 2, 3 ],
 	[ 4, 5, 6, 7, 8 ],
@@ -8,20 +12,24 @@ o1 = new stzListOfLists([
 	[ 5, 6, 7 ]
 ])
 
-? o1.ListAtPositionN(4)
+? o1.NthList(4) 		#--> [3, 5]
 
-# ? o1.ListsOfSize(2)
-# ? o1.PositionsOfListsOfSize(2)
+? @@( o1.ItemsAtPositionN(2) ) 	# --> [ 2, 5, 0, 5, 6 ]
 
-# ? o1.Sizes()
-# ? o1.SmallestSize()
-# ? o1.BiggestSize()
+? @@( o1.ListsOfSize(2) )		# --> [ [9,0], [3,5] ]
+? o1.PositionsOfListsOfSize(2)	# --> [     3,    4  ]
 
-# ? o1.SmallestLists()
-# ? o1.PositionsOfSmallestLists()
+? @@( o1.Sizes() )			# --> [ 3, 5, 2, 2, 3 ]
+? o1.SmallestSize()		# --> 2
+? o1.BiggestSize()		# --> 5
 
-//? o1.ListsW('StzListQ(@list).NumberOfItems() <= 3')
-//? o1.Yield('{ len(@list) }')
+? @@( o1.SmallestLists() )	# --> [ [9,0], [3,5] ]
+? o1.PositionsOfSmallestLists()	# --> [     3,    4  ]
+
+? @@( o1.ListsW('StzListQ(@list).NumberOfItems() <= 3') )
+# --> [ [ 1, 2, 3 ], [ 9, 0 ], [ 3, 5 ], [ 5, 6, 7 ] ]
+
+? @@( o1.Yield('{ len(@list) }') ) # --> [ 3, 5, 2, 2, 3 ]
 
 /*----------
 
@@ -37,7 +45,7 @@ next
 ? o1.MergeAndFlattenQ().Content()
 ? o1.MergedAnsFlattened()
 
-/*----------
+/*---------- ERROR: Undefined function
 
 // Indexing those three lists
 
@@ -49,7 +57,7 @@ o1 = new stzListOfLists([ a1, a2, a3 ])
 
 # First on the positions occuppied by each item in each list
 
-aIndex = o1.IndexOn(:Position)
+aIndex = o1.IndexOn(:Position)	# ERROR: Undefined function
 
 # Gives:
 #	[ :A = [ [1,1], [1,3], [2,1], [3,3] ],

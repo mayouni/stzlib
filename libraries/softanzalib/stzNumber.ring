@@ -62,8 +62,6 @@
 	_cMaxCalculableRealNumber = "9_999_999_999_999.9"
 	_nMaxNumberOfDigitsInUnsignedRealNumber = 14
 	
-	_cOctalNumberPrefix = "0o"
-	
 	_cMoneyNumberPrefix = "0m"
 
 	_cNumberFractionalSeparator = "."
@@ -136,18 +134,6 @@ func MaxCalculableRealNumber()
 		
 func MinCalculableRealNumber()
 	return -1 * MaxCalculableRealNumber()
-	
-
-	
-func OctalNumberPrefix()
-	return _cOctalNumberPrefix
-
-	#< @FunctionAlternativeForm
-
-	func OctalPrefix()
-		return OctalNumberPrefix()
-
-	#>
 	
 func MoneyNumberPrefix()
 	return _cMoneyNumberPrefix

@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*---------------
+
 # The keys of a hashlist must be unique. Otherwise you won't be able to
 # create the hashlist objectS
 
@@ -58,3 +60,9 @@ o1.RemoveByKey(:age)
 o1 = new stzHashList([ :name = "Hussein", :age = 1, :grandftaher = "Hussein" ])
 o1.RemoveAllPairsWithValue("Hussein")
 ? o1.Content() # --> [ :age = 1 ]
+
+/*-------------
+*/
+o1 = new stzHashList([ :name = "Hussein", :age = 1, :grandftaher = "Hussein" ])
+o1.AddPair( :mother = "Cherihen" )
+o1.Show()

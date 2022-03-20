@@ -7,6 +7,28 @@ from octal to binary and vice-versa. It is easier to handle
 input and output in the octal form.
 */
 
+_aOctalPrefixes = [ "o", "0o" ]
+_cOctalNumberPrefix = "0o"
+
+func OctalPrefixes()
+	return _aOctalPrefixes
+
+func OctalPrefix()
+	return _cOctalNumberPrefix
+
+	def OctalNumberPrefix()
+		return This.OctalPrefix()
+
+func SetOctalPrefix(cPrefix)
+	if StzListQ( OctalPrefixes() ).ContainsCS(cPrefix, :CaseSensitive = FALSE)
+		_cOctalPrefix = cPrefix
+	else
+		stzRaise("Incorrect octal prefix!")
+	ok
+
+	def SetOctalNumberPrefix(cPrefix)
+		SetOctalPrefix(cPrefix)
+
 func StzOctalNumberQ(cNumber)
 	return new stzOctalNumber(cNumber)
 
@@ -14,13 +36,8 @@ class stzOctalNumber from stzObject
 	@cOctalNumber
 
 	def init(pNumber)
-		if isString(pNumber)
-			if pNumber = ""
-				@cOctalNumber = OctalPrefix()
-
-			but StringRepresentsNumberInOctalForm(pNumber)
+		if isString(pNumber) and StzListQ(pNumber).RepresentsNumberInOctalForm()
 				@cOctalNumber = pNumber
-			ok
 
 		else
 			stzRaise(stzOctalNumberError(:CanNotCreateOctalNumber))
@@ -28,6 +45,9 @@ class stzOctalNumber from stzObject
 
 	def Content()
 		return @cOctalNumber
+
+	def WithPrefix()
+		return OctalPrefix() + This.Content()
 	
 	def ToStzNumber()
 		return new stzNumber(This.ToDecimalForm())

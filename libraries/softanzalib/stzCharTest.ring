@@ -1,7 +1,8 @@
 load "stzlib.ring"
 
+/*------------------
 
-? StzCharQ("⸁").Name() # --> ERROR related to @chexnumberwithoutprefix 
+? StzCharQ("⸁").Name() # --> RIGHT ANGLE DOTTED SUBSTITUTION MARKER 
 
 /*------------------
 
@@ -36,9 +37,9 @@ o1 = new stzChar(12500)
 
 ? StzCharQ(" ").UnicodeCategory()	# --> separator_space
 
-/*------------------- TODO: fix it!
+/*-------------------
 
-? IsUnicodeHex("U+33B2")
+? IsUnicodeHex("U+33B2") #--> TRUE
 
 /*-------------------
 
@@ -51,14 +52,14 @@ o1 = new stzChar("ARABIC LETTER SEEN")
 o1 = new stzChar("ROMAN NUMERAL THREE")	# TODO: fix performance lag!
 ? o1.Content() # --> Ⅲ
 
-/*-------------------
+/*------------------- REFACTORED: chars names are now histed in a string
 
-? CharsNames()
+? CharsNames()	# ERROR or PERF: fix it:
 
 /*-------------------
 
 ? Unicode("ↈ") # --> 8584
-StzCharQ("ↈ").Name()	# --> ROMAN NUMERAL ONE HUNDRED THOUSAND
+? StzCharQ("ↈ").Name()	# --> ROMAN NUMERAL ONE HUNDRED THOUSAND
 
 /*-------------------
 
@@ -106,15 +107,15 @@ StzCharQ("ↈ").Name()	# --> ROMAN NUMERAL ONE HUNDRED THOUSAND
 
 /*-------------------
 
-? StzCharQ("R").IsCharOf("Ring") # --> TRUE
-? StzCharQ("R").IsLetterOf("Ring") # --> TRUE
+? StzCharQ("R").IsCharOf("Ring") 	# --> TRUE
+? StzCharQ("R").IsLetterOf("Ring") 	# --> TRUE
 
 /*-------------------
 
 ? StzCharQ("R").UnicodeCategoryNumber() # --> 14
 
-? StzStringQ("RiNG").IsLowercase() # --> FALSE
-? StzCharQ("R").IsLetter() # --> TRUE
+? StzStringQ("RiNG").IsLowercase()	# --> FALSE
+? StzCharQ("R").IsLetter() 		# --> TRUE
 
 /*-------------------
 
@@ -134,7 +135,7 @@ StzCharQ("ↈ").Name()	# --> ROMAN NUMERAL ONE HUNDRED THOUSAND
 
 /*-------------------
 
-//? ArabicDiacriticsXT()
+? ArabicDiacriticsXT()
 ? ArabicDiacriticsUnicodes()
 
 /*-------------------
@@ -212,7 +213,7 @@ StzCharQ("ↈ").Name()	# --> ROMAN NUMERAL ONE HUNDRED THOUSAND
 
 /*-------------
 
-? StzCharQ("🌹").Name() # --> ERROR: Can not create char object!
+//? StzCharQ("🌹").Name() # --> ERROR: Can not create char object!
 ? Unicode("🌹") # --> [ 63, 63 ]
 ? @("🌹").CharName() # ?--> QUESTION MARK
 
@@ -235,7 +236,8 @@ StzCharQ("ↈ").Name()	# --> ROMAN NUMERAL ONE HUNDRED THOUSAND
 
 ? StzCharQ("a").IsAsciiLetter() # --> TRUE
 
-/*-------------
+/*---------
+
 
 ? StzCharQ("ỳ").IsDiacritic() # --> TRUE
 ? StzCharQ("ỳ").Name() # --> LATIN SMALL LETTER Y WITH GRAVE
