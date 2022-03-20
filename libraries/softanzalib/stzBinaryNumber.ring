@@ -25,34 +25,9 @@ func BinaryNumberPrefix()
 def BinaryPrefixes()
 	return _acBinaryPrefixes
 
-def AddBinaryPrefix(pcBinaryPrefix)
-	if isString(pcBinaryPrefix)
-		_acBinaryPrefixes + pcBinaryPrefix
-	ok
-
-def AddManyBinaryPrefixes(pacBinaryPrefixes)
-	for cBinaryPrefix in pacBinaryPrefixes
-		if StzStringQ(cBinaryPrefix).IsNotOneOfThese(["b", "0b"])
-			AddHexPrefix(cBinaryPrefix)
-		ok
-	next
-
-def RemoveBinaryPrefix(pcBinaryPrefix)
-	if isString(pcBinaryPrefix) and StzStringQ(pcBinaryPrefix).IsNotOneOfThese(["b", "0b"])
-		_acBinaryPrefixes = StzStringQ(_acBinaryPrefixes).RemoveQ(pcBinaryPrefix).Content()
-
-	else
-		stzRaise('You can not remove common hex prefixes: "x", "0x", and "U+"!')
-	ok
-
-def RemoveManyBinaryPrefixes(pacBinaryPrefixes)
-	for cBinaryPrefix in pacBinaryPrefixes
-		RemoveHexPrefix(cBinaryPrefix)
-	next
-
 def SetBinaryNumberPrefix(pcBinaryPrefix)
 
-	if isString(pcBinaryPrefix) and _@(pcBinaryPrefix).IsOneOfThese(BinaryPrefixes())
+	if isString(pcBinaryPrefix) and StzStringQ(pcBinaryPrefix).IsOneOfThese(BinaryPrefixes())
 		_cBinaryNumberPrefix = pcBinaryPrefix
 
 	else
@@ -67,7 +42,7 @@ def SetBinaryNumberPrefix(pcBinaryPrefix)
 	#>
 
 class stzBinaryNumber from stzObject
-	@cBinaryNumber	# Holds the number representation ("b100110001" or "0b100010001")
+	@cBinaryNumber = ""	# Holds the binary number without prefix
 	
 	/*
 	The binary number can be created by:
@@ -96,20 +71,13 @@ class stzBinaryNumber from stzObject
 	#------------#
 
 	def init(cNumber)
-		if isString(cNumber)
-			if cNumber = ""
-				@cBinaryNumber = BinaryPrefix()
-			else
-				if StringRepresentsNumberInBinaryForm(cNumber)
-					@cBinaryNumber = cNumber
+		if isString(cNumber) and StzStringQ(cNumber).RepresentsNumberInBinaryForm()
+				@cBinaryNumber = cNumber
 					
-				else
-					stzRaise(stzBinaryNumberError(:CanNotCreateBinaryNumber1))
-				ok
-			ok
 		else
-			stzRaise(stzBinaryNumberError(:CanNotCreateBinaryNumber2))
+				stzRaise("Can't create binary number!")
 		ok
+
 
   	  #------------#
 	 #    INFO    #
@@ -117,6 +85,9 @@ class stzBinaryNumber from stzObject
 
 	def Content()
 		return @cBinaryNumber
+
+	def WithPrefix()
+		return BinaryPrefix() + This.Content()
 
 	def BinaryNumber()
 		return Content()
@@ -265,12 +236,6 @@ class stzBinaryNumber from stzObject
 		def ToOctal()
 			return This.ToOctalForm()
 
-	def ToOctalFormWithoutPrefix()
-		return This.ToStzNumber().ToOctalFormWithoutPrefix()
-
-		def ToOctalWithoutPrefix()
-			return This.ToOctalFormWithoutPrefix()
-
 	def ToHexForm()
 		return This.ToStzNumber().ToHexForm()
 
@@ -282,12 +247,6 @@ class stzBinaryNumber from stzObject
 
 		def ToUnicodeHex()
 			return This.ToUnicodeHexForm()
-
-	def ToHexFormWithoutPrefix()
-		return This.ToStzNumber().ToHexFormWithoutPrefix()
-
-		def ToHexWithoutPrefix()
-			return This.ToHexFormWithoutPrefix()
 
 	def ToScientificNotationForm()
 		return This.ToStzNumber().ToScientificNotationForm()

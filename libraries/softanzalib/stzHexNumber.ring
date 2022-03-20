@@ -62,17 +62,31 @@ def HexPrefixes()
 	def HexNumberPrefixes()
 		return HexPrefixes()
 
+def SetHexPrefix(pcPrefix)
+	if find(HexPrefixes(), pcPrefix) > 0
+		_cHexNumberPrefix = pcPrefix
+	else
+		stzRaise("Unsupported hex prefix!")
+	ok
+
 class stzHexNumber from stzObject
-	@cHexNumber	# Without prefix!
+	@cHexNumber
+	# Stored Without prefix! Prefixes are used only when exporting the
+	# request using WithPrefix()
 
 	def init(pNumber)
-		if StringRepresentsNumberInHexForm(pNumber)
-			@cHexNumber = pNumber
-			@cHexNumberWithoutPrefix = StzStringQ(@cHexNumber).RemoveQ( HexPrefix() ).Content()
+		if isString(pNumber) and StzStringQ(pNumber).RepresentsNumberInHexForm()
+
+			oHexNumber = StzStringQ(pNumber)
+
+			for cHexPrefix in HexPrefixes()
+				oHexNumber.RemoveFromLeft(cHexPrefix)
+			next
+				
+			@cHexNumber = oHexNumber.Content()
 
 		but StringRepresentsNumberInUnicodeHexForm(pNumber)
-			@cHexNumber = pNumber
-			@cHexNumberWithoutPrefix = StzStringQ(@cHexNumber).RemoveCSQ( "U+", :CS = FALSE ).Content()
+			@cHexNumber = StzStringQ(@cHexNumber).RemoveCSQ( "U+", :CS = FALSE ).Content()
 
 		else
 			stzRaise(stzHexNumberError(:CanNotCreateHexNumber))
@@ -81,14 +95,18 @@ class stzHexNumber from stzObject
 	def Content()
 		return @cHexNumber
 
-	def HexNumber()
-		return Content()
-
 	def WithoutPrefix()
-		return @cHexNumberWithoutPrefix
+		return This.Content()
+
+	def WithPrefix()
+		return HexPrefix() + This.WithoutPrefix()
+
+	def HexNumber()
+		return This.WithPrefix()
+
 
 	def IntegerPart()
-		oStzStr = new stzString(This.WithoutPrefix())
+		oStzStr = new stzString(This.HexNumber())
 
 		if oStzStr.Contains(".")
 			return oStzStr.SplittedUsing(".")[1]

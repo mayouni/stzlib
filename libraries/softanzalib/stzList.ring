@@ -2806,7 +2806,7 @@ class stzList from stzObject
 		return aResult
 
 	def IsPair()
-		return This.NumberOfItems = 2
+		return This.NumberOfItems() = 2
 
 	def IsPairOStrings()
 		return This.IsPair() and This.IsListOfStrings()
@@ -2819,6 +2819,9 @@ class stzList from stzObject
 
 	def IsPairOfObjects()
 		return This.IsPair() and This.IsListOfObjects()
+
+	def IsPairAndKeyIsString()
+		return This.IsPair() and isString(This[1])
 
 	def IsListOfObjects()
 		bResult = TRUE
@@ -2923,8 +2926,32 @@ class stzList from stzObject
 
 		ok
 		
+	def IsListOfPairs()
+		bResult = This.AllItemsAreW('Q(@item).IsPair()')
+		return bResult
 
-	def IsTree() # TODO
+	def IsListOfPairsOfNumbers()
+		bResult = This.IsListOfPairs() and This.AllItemsAreNumbers()
+		return bResult
+
+	def IsListOfPairsOfStrings()
+		bResult = This.IsListOfPairs() and This.AllItemsAreStrings()
+		return bResult
+
+	def IsListOfPairsOfObjects()
+		bResult = This.IsListOfPairs() and This.AllItemsAreObjects()
+		return bResult
+
+	def IsTree()
+		if NOT This.IsEmpty()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStzTree()
+		// TODO
 
 	def IsTable() # TODO
 

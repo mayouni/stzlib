@@ -152,7 +152,13 @@ func RemoveDiacritic(pcChar)
 
 
 func CharsNames()
-	return _aCharsNames
+	oStr = new stzString(UnicodeNamesHostedInString())
+
+	aResult = oStr.SplitQR(NL, :stzListOfStrings).
+		SplitQ(TAB).Content()
+
+	return aResult
+
 
 #---- Functions used for natural-coding
 # TODO: generate all the possible functions based on stzChar methods

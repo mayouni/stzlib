@@ -37,7 +37,7 @@ class stzListOfLists from stzObject
 		return @aContent
 
 	def ListOfLists()
-		return Content()
+		return This.Content()
 
 	def Copy()
 		oCopy = new stzListOfLists( This.Content() )
@@ -45,6 +45,20 @@ class stzListOfLists from stzObject
 
 	def NumberOfLists()
 		return len(@aContent)
+
+	def Update( paList )
+
+		if isList(paList) and Q(paList).IsListOfLists()
+
+			@aContent = paList
+
+		else
+			stzRaise([
+				:File = "stzListOfLists (541) > Update()",
+				:What = "Can't update the list of lists!",
+				:Why  = "The value you provided is not a list of lists."
+			])
+		ok
 
 	  #----------------#
 	 #   ADD LISTS    #
@@ -205,8 +219,14 @@ class stzListOfLists from stzObject
 	def SmallestSize()
 		return StzListOfNumbersQ( StzSetQ(This.Sizes()).Content() ).Min()
 
+		def MinSize()
+			return This.SmallestSize()
+
 	def BiggestSize()
 		return StzListOfNumbersQ( StzSetQ(This.Sizes()).Content() ).Max()
+
+		def MaxSize()
+			return This.BiggestSize()
 
 	  #--------------------------------#
 	 #   SMALLEST AND BIGGEST LISTS   #
@@ -218,11 +238,30 @@ class stzListOfLists from stzObject
 	def BiggestLists()
 		return This.ListsW('{ len(@list) = This.BiggestSize() }')
 
-	def PositionsOfSmallestLists()
+
+	def FindSmallestLists()
 		return This.PositionsW('{ len(@list) = This.SmallestSize() }')
 
-	def PositionsOfBiggestLists()
+		def FindMinLists()
+			return This.FindSmallestLists()
+
+		def PositionsOfSmallestLists()
+			return This.FindSmallestLists()
+
+		def PositionsOfMinLists()
+			return This.FindSmallestLists()
+
+	def FindBiggestLists()
 		return This.PositionsW('{ len(@list) = This.BiggestSize() }')
+
+		def FindMaxLists()
+			return This.FindBiggestLists()
+
+		def PositionsOfBiggestLists()
+			return This.FindBiggestLists()
+
+		def PositionsOfMaxLists()
+			return This.FindBiggestLists()
 
 	  #---------------------#
 	 #   LISTS OF SIZE N   #
@@ -249,10 +288,10 @@ class stzListOfLists from stzObject
 		#>
 
 	  #--------------------------#
-	 #   LISTS AT POSITION N    #
+	 #   ITEMS AT POSITION N    #
 	#--------------------------#
 
-	def ListAtPositionN(n)
+	def ItemsAtPositionN(n)
 		aResult = []
 
 		for aList in This.ListOfLists()
@@ -303,7 +342,7 @@ class stzListOfLists from stzObject
 		*/
 
 		aIndexes = []
-		for list in Content()
+		for list in This.Content()
 			oTempList = new stzList( list )
 			aIndexes + oTempList.IndexOn(pcOn)
 		next
@@ -506,7 +545,7 @@ class stzListOfLists from stzObject
 	def ToStzListQ()
 		return new stzList( This.Content() )
 
-	def ToStzListOfStrings()
+	def ToListOfStrings()
 		aResult = []
 
 		for list in This.ListOfLists()
@@ -515,31 +554,9 @@ class stzListOfLists from stzObject
 
 		return aResult
 
-	  #---------------------------------#
-	 #    SORTING THE LIST OF LISTS    #
-	#---------------------------------#
+		def Stringify()
+			return This.ToListOfStrings()
 
-	/*
-
-	NOTE: Sorting is delegated to stzListOfStrings (Qt-based).
-	Hence, the each list of this stzLitsOflists is transformed
-	to a string containing its computable form (see ToStzListOfString())
-
-	*/
-
-	def SortInAscending()
-		return This.ToStzListOfStrings().SortInAscending()
-
-	def IsSortedInAscending()
-		return This.ToStzListOfStrings().IsSortedInAscending()
-
-	def SortInDescending()
-		return This.ToStzListOfStrings().SortInAscending()
-
-	def IsSortedInDescending()
-		return This.ToStzListOfStrings().IsSortedInDescending()
-
-	def SoringOrder()
-		return This.ToStzListOfStrings().SortingOrder()
-
+	def ToStzListOfStrings()
+		return new stzListOfStrings( This.Stringify() )
 

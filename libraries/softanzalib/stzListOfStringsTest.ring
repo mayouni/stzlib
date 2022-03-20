@@ -417,7 +417,7 @@ o1 = new stzListOfStrings([ "tom", "sam", "dan" ])
 ? ListOfStringsToUnicodes([ "tom", "sam", "dan" ])
 
 /*---------------
-*/
+
 cUnicodeNames = "0020;SPACE
 0021;EXCLAMATION MARK
 0022;QUOTATION MARK

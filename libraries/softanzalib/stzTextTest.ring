@@ -1,9 +1,110 @@
 load "stzlib.ring"
 
+/*------------------ // Retest after adding ReplaceAllCharsW() in stzString
+
+? StzTextQ("évènement").DiacriticsRemoved()
+? StzTextQ("Zoölogy").DiacriticsRemoved()
+
+/*------------------ // Retest after adding ReplaceAllCharsW() in stzString
+
+? StzTextQ("مُسْتَحَقَّاتُُ").Scripts()
+? StzTextQ("مُسْتَحَقَّاتُُ").Script()
+
+
+? StzTextQ("مُسْتَحَقَّاتُُ").DiacriticsRemoved()
+
+? StzTextQ("مُسْتَحَقَّاتُُ").RemoveDiacriticsQ().Content()
+
 /*-------------------
 
 ? StringIsStzClassName("stzlist")
 ? StzStringQ("stzlist").IsStzClassName()
+
+/*------------------
+
+? StzStringQ("和平").Script() # --> :Han
+
+? StzStringQ("和平 210").Script() # --> :Han
+? StzStringQ("和平 210").Scripts() # --> [ :Han, :Common ]
+
+? StzStringQ("和平 is 'peace' in chineese!").Script() # --> :Hybrid
+? StzStringQ("和平 is 'peace' in chineese!").Scripts() # --> [ :Han, :Common, :Latin ]
+# --> Returns :Hybrid
+
+/*------------------
+
+? StzStringQ("سلام").ScriptIs(:Arabic) # --> TRUE
+? StzStringQ("Peace").ScriptIs(:Latin) # --> TRUE
+? StzStringQ("和平").ScriptIs(:Han) # --> TRUE (China)
+? StzStringQ("શાંતિ").ScriptIs(:Gujarati) # --> TRUE (India, Pakistan)
+
+/*--------------------
+
+# Is this arabic word diacriticized?
+? StzStringQ("سَلَامُُ").ContainsDiacritics() # TRUE
+
+# The word contains some letters and diacritics
+# Let's see what is the script of one letter
+
+? StzStringQ("س").Script() # --> :Arabic
+
+# And what is the script of a diacritic, the Fat7ah
+# for example (the small line above the letter سَـ
+? StzStringQ(ArabicFat7ah()).Script() # --> :Inherited
+
+# In fact, Unicode considers it as an inherited script
+# because it inherits is script from a previous char.
+
+# Now, if we ask for the script of the hole word, that
+# contains both arabic letters (arabic script) and
+# inherited scripts (the arabic diacritics), Softanza
+# makes no mistaks (and corrects Unicode in this regard)
+# and says it is an arabic script
+
+? StzStringQ("سَلَامُُ").Script() # --> :Arabic
+
+# And even if you include some chars belonging to
+# :Common script, like space for example, the result
+# is as expected, an :Arabic script
+? StzStringQ("السَّلَامُ عَلَيْكُمْ").Script() # --> :Arabic
+? StzStringQ("السلام عليكم").Script() # --> :Arabic
+
+/*--------------------
+
+# Now, let's see how diacritics can be removed from a french text
+? StzStringQ("C'était un énoncé accentuée, à vrai-dire, extrâ!").DiacriticsRemoved()
+# and than from an arabic text
+? StzStringQ("السَّلَامُ عَلَيْكُمْ").DiacriticsRemoved()
+
+# Which is a useful feature when you are building the index of a search
+# application, since diacritics corrospond to sound variations of the
+# main letters.
+
+/*-------------------
+
+? StzStringQ(" 4  ُ  ").Scripts() # --> [ :Common, :Inherited ]
+? StzStringQ(" 4  ُ  ").Script()	 # --> :Inherited
+
+/*-------------------
+
+? StzStringQ(" 4  ُ  ").IsScript(:Hybrid) # --> TRUE
+? StzStringQ("  ").IsScript(:Common) # --> TRUE
+? StzStringQ(ArabicDhammah()).IsScript(:Inherited) # --> TRUE
+
+/*-------------------
+
+o1 = new stzString("latin 4  ُ  ")
+? o1.Scripts()
+? o1.Script()
+
+? StzStringQ("latin 4  ُ  ").ScriptIs(:Latin)
+
+/*-------------------
+
+o1 = new stzString("Abc285XY&من")
+? o1.Scripts()
+? o1.ScriptIs(:Hybrid)
+
 
 /*==================
 

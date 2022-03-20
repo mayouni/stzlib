@@ -183,4 +183,4 @@ stzListOfNumbers (now). Example:
 59. Reflect on the difference between a Walker and
 a Parser (identifies the strcuture to make it walkable)
 
-60. Do not allow: ( :startat := start ), but ( :startat = :first or :last )
+60. stzRaise: Move all the error messages to stzError files and manage multilinguage

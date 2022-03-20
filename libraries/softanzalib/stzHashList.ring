@@ -12,8 +12,8 @@
 func StzHashListQ(paList)
 	return new stzHashList(paList)
 
-func IsPairAndKeyIsString(paPair)
-	if isList(paPair) and len(paPair) = 2 and isString(paPair[1])
+func ListIsPairAndKeyIsString(paPair)
+	if isList(paPair) and Q(paPair).IsPairAndKeyIsString()
 		return TRUE
 	else
 		return FALSE
@@ -312,7 +312,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		# Now, let's do the job
 
-		if IsPairAndKeyIsString(paNewPair)
+		if ListIsPairAndKeyIsString(paNewPair)
 
 			This.UpdateNthKey(n, paNewPair[1])
 			This.UpdateNthValue(n, paNewPair[2])
@@ -325,7 +325,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return This
 
 	def UpdatePair(paPair, paNewPair)
-		if IsPairAndKeyIsString(paNewPair) and
+		if ListIsPairAndKeyIsString(paNewPair) and
 		   This.ContainsPair(paPair)
 			n = This.FindPair(paPair)
 
@@ -480,15 +480,16 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		This.ReverseKeysAndValues()
 		return This
 
-	  #-------------#
-	 #     ADD     #
-	#-------------#
+	  #----------------------#
+	 #     ADDING A PAIR     #
+	#----------------------#
 
 	def AddPair(paNewPair)
-		if IsPairAndKeyIsString(paNewPair)
+		if ListIsPairAndKeyIsString(paNewPair)
+
 			@aContent + paNewPair
 		else
-			stzRaise("Syntax error! The value you provided is not a string key pair.")
+			stzRaise("Syntax error! The value you provided is not a pair with its key beeing a string.")
 		ok
 
 		def AddPairQ(paNewPair)

@@ -58,8 +58,68 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? @@( o1.FindBetween("word", "<<", ">>") )		# --> [ 9, 41 ]
 ? @@( o1.FindSectionsBetween("word", "<<", ">>") )	# --> [ [ 9, 16 ], [ 41, 48 ] ]
 
+/*================
+
+o1 = new stzString("**word1***word2**word3***")
+? o1.Sections([ [1,2], [8, 10], [16, 17], [23, 25] ])
+#--> [ "**", "***", "**", "***" ]
+
+o1.RemoveManySections([
+	[1,2], [8, 10], [16, 17], [23, 25]
+])
+
+? o1.Content() # --> "word1word2word3"
+
+/*----------------------
+
+o1 = new stzString("**word1***word2**word3***")
+? o1.Ranges([ [1,2], [8, 3], [16, 2], [23, 3] ])
+#--> [ "**", "***", "**", "***" ]
+
+o1.RemoveRanges([ [1,2], [8, 3], [16, 2], [23, 3] ])
+? o1.Content()
+#--> "word1word2word3"
+
+/*-----------------
+
+o1 = new stzString("..AA..aa..BB..bb")
+
+o1.RemoveSectionsW(
+	[ [3, 4], [7,8], [11,12], [15,16] ],
+	:Where = '{ Q( @section ).IsLowercase() }'
+)
+
+? o1.Content()
+#--> "..AA....BB.."
+
+/*-----------------
+
+o1 = new stzString("..AA..aa..BB..bb")
+
+o1.RemoveRangesW(
+	[ [3, 2], [7,2], [11,2], [15,2] ],
+	:Where = '{ Q( @range ).IsLowercase() }'
+)
+
+? o1.Content()
+#--> "..AA....BB.."
+
+/*=================
+
+# Let's pufify this nostalogic text from the "x" chars nlown everywhere in the string:
+
+o1 = new stzString("
+	The xCommodore X64X, also known as the XC64 or the CBMx 64, is an x8-bit
+	home computer introduced in January 1982x by CommodoreXx International 
+")
+
+o1.Simplify() # Jst to remove spaces I put for readabiliy
+
+o1.RemoveCharsWhereCS('{ @char = "X" }', :CS = true)
+? o1.Content()
+
 /*================= TODO (NOW)
-*/
+
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.ReplaceAnyBetween("<<", ">>", :With = "word")
 ? o1.Content()  # !--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
@@ -215,8 +275,7 @@ o1 = new stzString("<<word>>")
 # And also FirstBound() and LastBound() for general
 # use with left-to-right and right-toleft strings
 
-/*==================////////////////////////
-
+/*==================//////////////////////// REVIEW AFTER CONSTRAINT IMPLEMENTED
 
 aList = [
 	:Where = "file.ring",
@@ -236,7 +295,7 @@ StzListQ(aList) {
 	? ToStzHashList().ValuesQ().AllItemsVerifyW("isString(@item) and @item != NULL") # --> TRUE
 }
 
-# In a better world, those conditions could be expressed us
+# In a better world, those conditions could be expressed as
 # constraints on the list object like this:
 
 StzListQ(aList) {
@@ -1517,40 +1576,57 @@ StzStringQ("__和平__a__و") {
 
 /*-------------------
 
-? StzStringQ('myfunc()').IsAlmostAFunctionCall()
-? StzStringQ('my_func("name")').IsAlmostAFunctionCall()
+? StzStringQ('myfunc()').IsAlmostAFunctionCall()	#--> TRUE
+? StzStringQ('my_func("name")').IsAlmostAFunctionCall()	#--> TRUE
 
 /*-------------------
 
-? StzStringQ("G").IsLetter()
-? UppercaseOf("b")
-? LowercaseOf("B")
-? FoldcaseOf("sinus")
+? StzStringQ("G").IsLetter() 	#	--> TRUE
+? UppercaseOf("b")		# --> B
+? LowercaseOf("B")		# --> b
+? FoldcaseOf("sinus")		# !!! Undefined function
 
 /*-------------------
+
+# Are you confused between chars, bytes, unicodes (or unicode code points), and bytecodes?!
+# Here how Softanza can help you see them all in all clarity:
 
 StzStringQ("s㊱m") {
 	? Chars()
+	# --> [ "s", "㊱", "m" ]
 
 	? Unicodes()
+	# --> [ 115, 12977, 109 ]
+
 	? UnicodesPerChar()
+	# --> [ [ "s", 115 ], [ "㊱", 12977 ], [ "m", 109 ] ]
+
+	? SizeInBytes() # --> 5
 
 	? Bytes()
+	# --> [ "s", "�", "�", "�", "m" ]
 	? BytesPerChar()
+	# --> [ [ "s", [ "s" ] ], [ "㊱", [ "�", "�", "�" ] ], [ "m", [ "m" ] ] ]
+	? NumberOfBytesOfChar()
+	# -->  [ [ "s", 1 ], [ "㊱", 3 ], [ "m", 1 ] ]
 
 	? Bytecodes()
+	# --> [ 115, -29, -118, -79, 109 ]
 	? BytecodesPerChar()
+	# --> [ [ "s", [ 115 ] ], [ "㊱", [ -29, -118, -79 ] ], [ "m", [ 109 ] ] ]
 }
 
 /*-------------------
 
-? StzStringQ("sAlut").IsLowercase()
+? StzStringQ("sAlut").IsLowercase() #--> FALSE
 
 /*-------------------
 
 ? StzStringQ("@char___@char___@char").ReplaceAllQ("@char","@item").Content()
+# --> @item___@item___@item
 
-/*------------------- Check error!
+
+/*------------------ RETEST AFTER ADDING ReplaceSections() ////////////////////////////////
 
 StzStringQ( "Text processing with Ring" ) {
 	ReplaceAllCharsW(
@@ -1636,109 +1712,9 @@ o1 = new stzString("Ring Programming Language")
 
 /*------------------
 
-? StzStringQ("évènement").DiacriticsRemoved()
-? StzStringQ("Zoölogy").DiacriticsRemoved()
-
-/*------------------
-
-? StzStringQ("مُسْتَحَقَّاتُُ").Scripts()
-? StzStringQ("مُسْتَحَقَّاتُُ").Script()
-
-
-? StzStringQ("مُسْتَحَقَّاتُُ").DiacriticsRemoved()
-
-? StzStringQ("مُسْتَحَقَّاتُُ").RemoveDiacriticsQ().Content()
-
-/*------------------
-
 o1 = new stzString("original text before hashing")
 o1.Hash(:MD5)
 ? o1.Content()
-
-/*------------------
-
-? StzStringQ("和平").Script() # --> :Han
-
-? StzStringQ("和平 210").Script() # --> :Han
-? StzStringQ("和平 210").Scripts() # --> [ :Han, :Common ]
-
-? StzStringQ("和平 is 'peace' in chineese!").Script() # --> :Hybrid
-? StzStringQ("和平 is 'peace' in chineese!").Scripts() # --> [ :Han, :Common, :Latin ]
-# --> Returns :Hybrid
-
-/*------------------
-
-? StzStringQ("سلام").ScriptIs(:Arabic) # --> TRUE
-? StzStringQ("Peace").ScriptIs(:Latin) # --> TRUE
-? StzStringQ("和平").ScriptIs(:Han) # --> TRUE (China)
-? StzStringQ("શાંતિ").ScriptIs(:Gujarati) # --> TRUE (India, Pakistan)
-
-/*--------------------
-
-# Is this arabic word diacriticized?
-? StzStringQ("سَلَامُُ").ContainsDiacritics() # TRUE
-
-# The word contains some letters and diacritics
-# Let's see what is the script of one letter
-
-? StzStringQ("س").Script() # --> :Arabic
-
-# And what is the script of a diacritic, the Fat7ah
-# for example (the small line above the letter سَـ
-? StzStringQ(ArabicFat7ah()).Script() # --> :Inherited
-
-# In fact, Unicode considers it as an inherited script
-# because it inherits is script from a previous char.
-
-# Now, if we ask for the script of the hole word, that
-# contains both arabic letters (arabic script) and
-# inherited scripts (the arabic diacritics), Softanza
-# makes no mistaks (and corrects Unicode in this regard)
-# and says it is an arabic script
-
-? StzStringQ("سَلَامُُ").Script() # --> :Arabic
-
-# And even if you include some chars belonging to
-# :Common script, like space for example, the result
-# is as expected, an :Arabic script
-? StzStringQ("السَّلَامُ عَلَيْكُمْ").Script() # --> :Arabic
-? StzStringQ("السلام عليكم").Script() # --> :Arabic
-
-/*--------------------
-
-# Now, let's see how diacritics can be removed from a french text
-? StzStringQ("C'était un énoncé accentuée, à vrai-dire, extrâ!").DiacriticsRemoved()
-# and than from an arabic text
-? StzStringQ("السَّلَامُ عَلَيْكُمْ").DiacriticsRemoved()
-
-# Which is a useful feature when you are building the index of a search
-# application, since diacritics corrospond to sound variations of the
-# main letters.
-
-/*-------------------
-
-? StzStringQ(" 4  ُ  ").Scripts() # --> [ :Common, :Inherited ]
-? StzStringQ(" 4  ُ  ").Script()	 # --> :Inherited
-
-/*-------------------
-
-? StzStringQ(" 4  ُ  ").IsScript(:Hybrid) # --> TRUE
-? StzStringQ("  ").IsScript(:Common) # --> TRUE
-? StzStringQ(ArabicDhammah()).IsScript(:Inherited) # --> TRUE
-
-/*-------------------
-
-o1 = new stzString("latin 4  ُ  ")
-? o1.Scripts()
-? o1.Script()
-
-? StzStringQ("latin 4  ُ  ").ScriptIs(:Latin)
-
-/*-------------------
-
-o1 = new stzString("Abc285XY&من")
-? o1.Scripts()
-? o1.ScriptIs(:Hybrid)
 
 /*-------------------
 
@@ -1790,7 +1766,8 @@ StzListQ([ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]) {
 	? WalkUntil('@item = "x"') # --> 0
 }
 
-/*
+/*====================================
+
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 
 ? o1.PartsAsSubstrings( :By = '@.CharCase()' )	# or simply o1.Parts('@.CharCase()')
@@ -1846,26 +1823,48 @@ o1 = new stzString("AM23-X ")
 #    ]
 
 /*-----------------
-
+*/
 o1 = new stzString("Abc285XY&من")
 
-? o1.Structure(:ByIsLetter)
+? @@( o1.Parts(:Using = "StzCharQ(@char).IsLetter()") )
+
+/*
 # --> Gives:
 # [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
 
-? o1.Structure(:ByOrientation)
+? o1.Parts(:Using = "@.Orientation()")
 # --> Gives:
 # [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
 
-? o1.Structure(:ByIsUppercase)
+? o1.Parts(:Using = "@.IsUppercase()")
 # --> Gives:
 # [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
 
-? o1.Structure(:ByCharCase)
+? o1.Parts(:Using = "@.CharCase()")
 # --> Gives:
 # [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
 
-/*---------------
+/*------------------------
+
+o1 = new stzString("Abc285XY&من")
+
+? o1.PartsAsSubstrings( :Using = '@.IsLetter()' )
+--> Gives:
+[ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
+
+? o1.PartsAsSubstrings( :By = '@.Orientation()' )
+--> Gives:
+[ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
+
+? o1.PartsAsSubstrings( :Using = '@.IsUppercase()' )
+--> Gives:
+[ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
+
+? o1.PartsAsSubstrings(:Using = '@.CharCase()' )
+--> Gives:
+[ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
+
+/*========================
 
 StzStringQ( "Text processing with Ring" ) {
 
@@ -1926,7 +1925,7 @@ o1 = new stzString("SoftAnza Libraray")
 	_@(@Char).Lowercased() = "a"
 }') # --> Gives [ 5, 8, 14, 16 ]
 
-/*------------------
+/*------------------ TODO: review this choice!!!
 
 # By culture, Softanza is a permissive library.
 

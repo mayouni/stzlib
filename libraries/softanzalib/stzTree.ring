@@ -1,5 +1,8 @@
 load "stdlib.ring"
+
 /*
+NOTE: stzStree is different by design from the Tree class prvided by StdLib of Ring.
+
 Name		Definition
 ------		-----------
 Root		First element of the Tree.
@@ -42,101 +45,29 @@ myTree {
 }
 */
 
-/*
-cTree = "
-	Skills
-		Writing
-		Programming
-	Places
-		Africa
-			Tunisia
-			Algeria
-			Morroco
-		Europe
-			France
-			Italy
-			Spain
-	Misc
-		Name
-		Job
-		Age
-"
-
-myTree =
-[ 
-	:Root = "Mansour",
-		:Skills = [
-			"Wrinting",
-			"Programming"
-		],
-	
-		:Places = [
-			:Africa = [
-				"Tunisia",
-				"Algeria",
-				"Marocoo"
-			],
-	
-			:Europe = [
-				"France",
-				"Spain",
-				"Italy"
-			]
-		],
-	
-		:Misc = [
-			"Name",
-			"Job",
-			"Age"
-		]
-	
-]
-
-? myTree[:Places][:Africa][1]
-? find(myTree, "Programming")
-
-oTree = new stzTree {
-	AddNode("Skills") {
-		AddLeaf("Programming")
-		AddLeaf("Writing")
-	}
-
-	AddNode("Places") {
-		AddNode("Africa") {
-			AddLeaf("Tunisia")
-			AddLeaf("Algeria")
-			AddLeaf("Marrocco")
-		}
-
-		AddNode("Europe") {
-			AddLeaf("France")
-			AddLeaf("Spain")
-			AddLeaf("Italy")
-		}
-	}
-
-	
-}
-
-
-
-oTree = new stzTree(myTree)
-oTree.Show()
-*/
+func StzTreeQ(paTree)
+	return new stzTree(paTree)
 
 class stzTree from stzObject
-	aTree = []
+	@aContent = []
 
 	def Init(paTree)
-		if len(paTree) = 0
-			stzRaise("Can't initialise the tree. The list you provided is empty!")
+		if NOT isList(paTree) and StzListQ(paTree).IsStzTree()
+			stzRaise([
+				:Where	= "stzTree (136) > Initt(paTree)",
+				:What	= "Can't create the stzTree object!",
+				:Why	= "The value you provided (paTree) is not a well format list.",
+				:Todo	= "Look to the examples in stzTreeTest.ring file and adjust your input accordingly."
+			])
 		ok
 
-		if isList( paTree[1] )
-			stzRaise("Can't initialise the tree. The root must not be a list.")
-		ok
+		@aContent = paTree
 
-		aTree = paTree
+	def Content()
+		return @aContent
+
+	def Copy()
+		return new stzTree( This.Content() )
 
 	def Root()
 		return aTree[1]
@@ -150,58 +81,109 @@ class stzTree from stzObject
 		ok
 
 	def Add(paPath,pValue)	// Add([0,2,1],"X")
+		// TODO
+
 	def Modify(paPath,pValue)
+		// TODO
 	
 	def InsertBefore(paPath,pValue)
-	def InsertAfter(paPath,pValue)
+		// TODO
 
+	def InsertAfter(paPath,pValue)
+		// TODO
 
 	def isNode(paPath)
+		// TODO
 
 	def GetNode(paPath)
+		// TODO
 
 	def GetTheNodeNumber(n)
+		// TODO
 
 	def GetNodes()
+		// TODO
 
 	def getElement(paPath)
+		// TODO
 
 	def getTheElementNumber(n)
+		// TODO
 
 	def GetElements()
+		// TODO
 
 	def isLeaf(paPath)
+		// TODO
+
 	def GetLeaf(paPath)
+		// TODO
+
 	def SetLeaf(paPath,pValue)
+		// TODO
+
 	def GetTheLeafNumber(n)
+		// TODO
+
 	def SetTheLeafNumber(n,pValue)
+		// TODO
 
 	def GetBranch(paPath)
-	def GetTheBranchNumber(n)
+		// TODO
+
+	def GetNthBranch(n)
+		// TODO
 	
 	def Clear()	// Removes all the elements of the tree
 			// => The tree remains empty
 
+		// TODO
+
 	def RemoveElementByName(pcName)
+		// TODO
+
 	def RemoveElementByPath(paPath)
+		// TODO
+
 	def RemoveTheElementNumber(n)
+		// TODO
 
 	def RemoveNodeByName(pcName)
+		// TODO
+
 	def RemoveNodeByPayth(paPath)	// If paPath points to a Leaf
-					// => Return FALSE
+					// => does nothing
+
+		// TODO
+
 	def RemoveNodeByNumber(n)	// Idem
+		// TODO
 	
 	def RemoveLeafByPath(paPath)
+		// TODO
+
 	def RemoveLeafByValue(pValue)	// Search for the value in Leafs,
-				// and if found, Removes the leaf
+					// and if found, Removes the leaf
+		// TODO
+
 	def RemoveLeafByNumber(n)
+		// TODO
 
 	def FindAll(pValue)
+		// TODO
+
 	def FindLeaf(pValue)	// Same as Find(pValue)
+		// TODO
+
 	def FindNode(pcNode)
+		// TODO
+
 	def FindElement(pValue)	// Returns False if it does not exists
 				// And True otherwise. In this case,
 				// it says also if it is a Leaf or Node,
 				// and gives its Path.
+
+		// TODO
+
 	def show()
-		? aTree
+		? @@( This.Content() )

@@ -3074,232 +3074,6 @@ class stzString from stzObject
 	def LastBound()
 		// TODO (future)
 		
-	  #============================#
-	 #   REMOVING N FIRST CHARS   #
-	#============================#
-
-	def RemoveNFirstChars(n)
-		if This.IsRightToLeft()
-			This.RemoveNRightChars(n)
-		else
-			This.RemoveNLeftChars(n)
-		ok
-		
-		#< @FunctionFluentForm
-
-		def RemoveNFirstCharsQ(n)
-			This.RemoveNFirstChars(n)
-			return This
-	
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def RemoveFirstNChars(n)
-			This.RemoveNFirstChars(n)
-
-			#< @FuncFluentForm
-	
-			def RemoveFirstNCharsQ(n)
-				This.RemoveNFirstCharsQ(n)
-	
-			#>
-
-		#>
-	
-	def NFirstCharsRemoved(n)
-		cRresult = This.Copy().RemoveNFirstCharsQ(n).Content()
-		return cResult
-
-		def FirstNCharsRemoved(n)
-			return This.NFirstCharsRemoved(n)
-
-	def RemoveFirstChar()
-		This.RemoveNFirstChars(1)
-
-		def RemoveFirstCharQ()
-			This.RemoveFirstChar()
-			return This
-
-	def FirstCharRemoved()
-		cResult = This.Copy().RemoveFirstCharQ().Content()
-		return cResult
-
-	def RemoveLeadingChar(c)
-		This.RemoveFirstChar()
-
-		def RemoveLeadingCharQ(c)
-			This.RemoveLeadingChar(c)
-			return This
-
-	def LeadingCharRemoved(c)
-		cResult = This.copy().RemoveLeadingCharQ(c).Content()
-		return cResult
-
-	  #---------------------------#
-	 #   REMOVING N LAST CHARS   #
-	#---------------------------#
-
-	def RemoveNLastChars(n)
-
-		if This.IsLeftToRight()
-			This.RemoveNRightChars(n)
-		else
-			This.RemoveNLeftChars(n)
-		ok	
-
-		#< @FunctionFluentForm
-
-		def RemoveNLastCharsQ(n)
-			This.RemoveNLastChars(n)
-			return This
-	
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def RemoveLastNChars(n)
-			This.RemoveNLastChars(n)
-
-			#< @FuncFluentForm
-	
-			def RemoveLastNCharsQ(n)
-				This.RemoveNLastCharsQ(n)
-	
-			#>
-
-		#>
-	
-	def NLastCharsRemoved(n)
-		cResult = This.Copy().RemoveNLastCharsQ(n).Content()
-		return cResult
-
-		def LastNCharsRemoved(n)
-			return This.NLastCharsRemoved(n)
-
-	def RemoveLastChar()
-		This.RemoveNLastChars(1)
-
-		def RemoveLastCharQ()
-			This.RemoveLastChar()
-			return This
-
-	def LastCharRemoved()
-		cResult = This.Copy().RemoveLastCharQ().Content()
-		return cResult
-
-	def RemoveTrailingChar(c)
-		This.RemoveLastChar()
-
-		def RemoveTrailingCharQ(c)
-			This.RemoveTrailingChar(c)
-			return This
-
-	def TrailingCharRemoved(c)
-		cResult = This.copy().RemoveTrailingCharQ(c).Content()
-		return cResult
-
-	  #---------------------------#
-	 #   REMOVING N LEFT CHARS   #
-	#---------------------------#
-
-	def RemoveNLeftChars(n)
-		if This.IsLeftToRight()
-			This.RemoveSection( 1, n )
-
-		else
-			This.RemoveSection( This.NumberOfChars() - n + 1, :End )
-		ok
-
-		#< @FunctionFluentForm
-
-		def RemoveNLeftCharsQ(n)
-			This.RemoveNLeftChars(n)
-			return This
-	
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def RemoveLeftNChars(n)
-			This.RemoveNLeftChars(n)
-
-			#< @FuncFluentForm
-	
-			def RemoveLeftNCharsQ(n)
-				This.RemoveNLeftCharsQ(n)
-	
-			#>
-		#>
-	
-	def NLeftCharsRemoved(n)
-		cResult = This.Copy().RemoveNLeftCharsQ(n).Content()
-		return cResult
-
-		def LeftNCharsRemoved(n)
-			return This.NLeftCharsRemoved(n)
-
-	def RemoveLeftChar()
-		This.RemoveNLeftChars(1)
-
-		def RemoveLeftCharQ()
-			This.RemoveLeftChar()
-			return This
-
-	def LeftCharRemoved()
-		cResult = This.Copy().RemoveLeftCharQ().Content()
-		return cResult
-
-	  #----------------------------#
-	 #   REMOVING N RIGHT CHARS   #
-	#----------------------------#
-
-	def RemoveNRightChars(n)
-		if This.IsRightToLeft()
-			This.RemoveSection( 1, n)
-		else
-			This.RemoveSection( This.NumberOfChars() - n + 1, :End )
-		ok
-
-		#< @FunctionFluentForm
-
-		def RemoveNRightCharsQ(n)
-			This.RemoveNRightChars(n)
-			return This
-	
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def RemoveRightNChars(n)
-			This.RemoveNRightChars(n)
-
-			#< @FuncFluentForm
-	
-			def RemoveRightNCharsQ(n)
-				This.RemoveNRightCharsQ(n)
-	
-			#>
-		#>
-	
-	def NRightCharsRemoved(n)
-		cResult = This.Copy().RemoveNRightCharsQ(n).Content()
-		return cResult
-
-		def RightNCharsRemoved(n)
-			return This.NRightCharsRemoved(n)
-
-	def RemoveRightChar()
-		This.RemoveNRightChars(1)
-
-		def RemoveRightCharQ()
-			This.RemoveRightChar()
-			return This
-
-	def RightCharRemoved()
-		cResult = This.Copy().RemoveRightCharQ().Content()
-		return cResult
-
 	  #----------------------------#
 	 #   REPEATED LEADING CHARS   #
 	#----------------------------#
@@ -4481,6 +4255,40 @@ class stzString from stzObject
 
 		#>
 
+	  #----------------------------------------#
+	 #   MANY SECTIONS (OR SLICES) & RANGES   #
+	#----------------------------------------#
+
+	def Sections(paSections)
+		aResult = []
+
+		for aSection in paSections
+			aResult + This.Section( aSection[1], aSection[2] )
+		next
+
+		return aResult
+
+		def ManySections(paSections)
+			return This.Sections(paSections)
+
+		def Slices(paSections)
+			return This.Sections(paSections)
+
+		def ManySlices(paSections)
+			return This.Sections(paSections)
+
+	def Ranges(paRanges)
+		aResult = []
+
+		for aRange in paRanges
+			aResult + This.Range( aRange[1], aRange[2] )
+		next
+
+		return aResult
+
+		def ManyRanges(paSections)
+			return This.Ranges(paRanges)
+
 	  #----------------------------#
 	 #    REPEATING THE STRING    #
 	#----------------------------#
@@ -4883,113 +4691,6 @@ class stzString from stzObject
 			return This	
 	
 		#>
-
-	  #-----------------------------------------#
-	 #     REPLACING A SECTION OF THE STRING   #
-	#-----------------------------------------#
-
-	// Replaces a Section of chars in the string (defined by its start
-	// and end positions) by a given substring
-		
-	def ReplaceSection(nStartPos, nEndPos, cNewSubStr)
-
-		if isList(nStartPos) and StzListQ(nStartPos).IsFromParamList()
-			nStartPos = nStartPos[2]
-		ok
-
-		if isList(nEndPos) and StzListQ(nEndPos).IsToParamList()
-			nEndPos = nEndPos[2]
-		ok
-
-		if isList(cNewSubStr) and
-		  ( StzListQ(cNewSubStr).IsWithParamList() or
-		    StzListQ(cNewSubStr).IsByParamList() )
-
-			cNewSubStr = cNewSubStr[2]
-		ok
-
-		# Evaluating the params
-		# Note: same code as Section() method -> Think of how we call it once
-
-		if ( nStartPos = :FirstChar or nStartPos = :StartOfString ) and
-		   ( nEndPos   = :LastChar  or nEndPos   = :LastOfString  )
-
-			return This.Content()
-
-		but ( nStartPos = :LastChar or nStartPos = :EndOfString ) and
-		    ( nEndPos = :FirstChar  or nEndPos = :StartOfString )
-
-			return This.CharsReversed()
-		ok
-
-		if nStartPos = :FirstChar or nStartPos = :StartOfString
-			nStartPos = 1
-
-		but nEndPos = :LastChar or nEndPos = :EndOfString
-			nEndPos = This.NumberOfChars()
-
-		but nEndPos = :EndOfWord # TODO: Move it to stzText
-					 # --> string shouldn't be aware of words!
-			
-			if  This[nStartPos] != " "
-				
-				oString = StzStringQ( This.Section(nStartPos, :End))
-				nEndPos = nStartPos
-				n = ListLastItem( oString.CharsQ().WalkUntil("@item = ' '") )
-
-				if nStartPos + n < This.NumberOfChars()
-					nEndPos += n - 2
-				else
-					nEndPos += n - 1
-				ok
-
-
-    			else
-				nEndPos = nStartPos
-			ok
-
-		but nEndPos = :EndOfSentence # TODO: Move it to stzText
-					     # --> string shouldn't be aware of sentences!
-
-			if  This[nStartPos] != "." and This[nStartPos] != "!" and This[nStartPos] != "?"
-				
-				oString = StzStringQ( This.Section(nStartPos, :End))
-				nEndPos = nStartPos
-				n = ListLastItem(oString.CharsQ().WalkUntil("@item = '.' or Item = '!' or Item = '?'"))
-
-				nEndPos += n - 1
-
-    			else
-				nEndPos = nStartPos
-			ok
-
-		but nEndPos = :EndOfLine
-
-			oString = StzStringQ( This.Section(nStartPos, :End))
-			nEndPos = oString.CharsQ().WalkUntil("@item = NL") - 1
-		ok
-
-		// Replacing the section
-		
-		cResult = NULL
-	
-		if (nStartPos > 0 and nEndPos > 0) and
-		   (nStartPos <= This.NumberOfChars() and nEndPos <= This.NumberOfChars()) and
-		   (nStartPos <= nEndPos)
-
-			nLen = pvtDistance(nStartPos, nEndPos)
-			cResult = @oQString.replace(nStartPos-1, nLen, cNewSubStr)
-
-			This.Update( cResult )
-		ok
-
-		#< @FunctionFluentForm
-
-		def ReplaceSectionQ(nPosStart, nPosEnd, cNewSubStr)
-			This.ReplaceSection(nPosStart, nPosEnd, cNewSubStr)
-			return This
-
-		#>
 	
 	  #-------------------------------------------------#
 	 #     REPLACING ALL OCCURRENCES OF A SUBSTRING    #
@@ -5120,16 +4821,107 @@ class stzString from stzObject
 		#>
 
 	  #-------------------------------------------------------------------------#
-	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TOW OTHER SUBSTRINGS  #
+	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  # TODO: Test it!
 	#-------------------------------------------------------------------------#
 
-"here"
+	def ReplaceBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+		aSections = This.FindSectionsBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+		This.ReplaceSections(aSections, pcNewSubStr)
+
+		def ReplaceBetweenCSQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+			This.ReplaceBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+			return This
+
+		def ReplaceSubStringBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+			This.ReplaceBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+
+			def ReplaceSubStringBetweenCSQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+				This.ReplaceSubStringBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+				return This
+
+	def SubstringBetweenReplacedCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+		cResult = This.ReplaceBetweenCSQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive).Content()
+		return cResult
+
+	#-- CASE-INSENSITIVE
+
+	def ReplaceBetween(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+		This.ReplaceBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, :CaseSensitive = TRUE)
+		
+		def ReplaceBetweenQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+			This.ReplaceBetween(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+			return This
+
+		def ReplaceSubStringBetween(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+			This.ReplaceBetween(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+
+			def ReplaceSubStringBetweenQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+				This.ReplaceSubStringBetween(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+				return This
+
+	def SubstringBetweenReplaced(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+		cResult = This.ReplaceBetweenQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr).Content()
+		return cResult
+
+	  #------------------------------------------#
+	 #   REPLACING A CHAR AT A GIVEN POSITION   #
+	#------------------------------------------#
+
+	def ReplaceCharAtPosition(n, pcNewSubStr)
+		This.ReplcaceSection([n, n], pcNewSubStr)
+
+		def ReplaceCharAtPositionQ(n, pcNewSubStr)
+			This.ReplaceCharAtPosition(n, pcNewSubStr)
+			return This
+
+		def ReplaceCharAt(n, pcNewSubStr)
+
+		def ReplaceCharAtThisPosition(n, pcNewSubStr)
+
+	def CharReplacedAtPsoition(n, pcNewSubStr)
+		cResult = This.Copy().ReplaceCharAtPositionQ(n, pcNewSubStr).Content()
+		return cResult
+
+		def CharReplacedAtThisPsoition(n, pcNewSubStr)
+			return This.CharReplacedAtPsoition(n, pcNewSubStr)
+
+		def CharAtPositionNReplaced(n, pcNewSubStr)
+			return This.CharReplacedAtPsoition(n, pcNewSubStr)
+
+	  #----------------------------------------#
+	 #   REPLACING CHARS AT GIVEN POSITIONS   #
+	#----------------------------------------#
+
+	def ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+		aSections = StzListQ(panPositions).AssociatedWith(panPositions)
+		This.ReplcaceSections(aSections, pcNewSubStr)
+
+		def ReplaceCharsAtPositionsQ(panPositions, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+			return This
+
+		def ReplaceCharsAt(panPositions, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+
+		def ReplaceCharsAtThesePositions(panPositions, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+
+	def CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+		cResult = This.Copy().ReplaceCharsAtPositionsQ(panPositions, pcNewSubStr).Content()
+		return cResult
+
+		def CharsReplacedAtThesePsoitions(panPositions, pcNewSubStr)
+			return This.CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+
+		def CharsAtThesePositionsReplaced(panPositions, pcNewSubStr)
+			return This.CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+
 
 	  #--------------------------------------------------------------------#
 	 #     REPLACING ALL CHARS WITH A SUBSTRING UNDER A GIVEN CONDITION   #
 	#--------------------------------------------------------------------#
 
-	def ReplaceAllCharsW(pCondition, pValue) // TODO: fix performance lag!
+	def ReplaceAllCharsW(pcCondition, pValue) // TODO: fix performance lag!
 		/*
 		Example:
 
@@ -5146,23 +4938,21 @@ class stzString from stzObject
 		--> Returns: "Text process*ng w*th R*ng"
 		*/
 
-		if isString(pCondition)
-			cCondition = pCondition
-
-		but isList(pCondition) and _@(pCondition).IsWhereParamList()
-			cCondition = pCondition[2]
+		if isList(pcCondition) and Q(pcCondition).IsWhereParamList()
+			pcCondition = pcCondition[2]
 		ok
 
-		cCondition = StzStringQ(pCondition[2]).ReplaceAllCSQ("@char","@item", :CS = FALSE).Content()
-		pCondition[2] = cCondition
+		pcCondition = StzStringQ(pcCondition).
+				ReplaceAllCSQ("@char","@item", :CS = FALSE).
+				SimplifyQ().
+				RemoveBoundsQ("{","}").
+				Content()
 
-		cValue = StzStringQ(pValue[2]).ReplaceAllCSQ("@char","@item", :CS = FALSE).Content()
-		pValue[2] = cValue
+		anPositions = This.FindCharsW(pcCondition)
 
-		cResult = StzListQ( This.Chars() ).ReplaceAllItemsWQ(pCondition, pValue).ToListOfStringsQ().ConcatenateQ().Content()
-	
-		This.Update( cResult )
+		This.ReplaceCharsAtPositions(anPositions, pValue)
 
+		
 		#< @FunctionFluentForm
 
 		def ReplaceAllCharsWQ(pCondition, pSubStr)
@@ -5266,12 +5056,12 @@ class stzString from stzObject
 				return This
 		#>
 
-	def ManySubstringsRemovedCS(pacSubstr, pNewSubstr, pCaseSensitive)
-		acResult = This.Copy().RemoveManySubstringsCSQ(pacSubstr, pNewSubstr, pCaseSensitive).Content()
+	def ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+		acResult = This.Copy().ReplaceManySubstringsCSQ(pacSubstr, pNewSubstr, pCaseSensitive).Content()
 		return acResult
 
-		def ManyRemovedCS(pacSubstr, pNewSubstr, pCaseSensitive)
-			return This.ManySubstringsRemovedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+		def ManyReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+			return This.ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
 
 	#-- CASE-INSENSITIVE
 
@@ -5303,12 +5093,12 @@ class stzString from stzObject
 
 		#>
 
-	def ManySubstringsRemoved(pacSubstr, pNewSubstr)
-		acResult = This.Copy().RemoveManySubstringsQ(pacSubstr, pNewSubstr).Content()
+	def ManySubstringsReplaced(pacSubstr, pNewSubstr)
+		acResult = This.Copy().ReplaceManySubstringsQ(pacSubstr, pNewSubstr).Content()
 		return acResult
 
-		def ManyRemoved(pacSubstr, pNewSubstr)
-			return This.ManySubstringsRemoved(pacSubstr, pNewSubstr)
+		def ManyReplaced(pacSubstr, pNewSubstr)
+			return This.ManySubstringsReplaced(pacSubstr, pNewSubstr)
 
 	  #---------------------------------------------------------------#
 	 #    REPLACING SUBSTRINGS BY MANY NEW SUBSTRINGS, ONE BY ONE    #
@@ -6846,35 +6636,184 @@ class stzString from stzObject
 
 		#>
 
-	   #----------------------------------------#
-	  #    FINDING ALL OCCURRENCES OF A CHAR   #
-	 #    VERIFYING A GIVEN CONDITION         #
-	#----------------------------------------#
+	   #---------------------------------------------------------------------#
+	  #    FINDING ALL OCCURRENCES OF A CHAR VERIFYING A GIVEN CONDITION    #
+	#----------------------------------------------------------------------#
 
 	def FindAllCharsW(pcCondition)
-		cCondition = StzStringQ(pcCondition).ReplaceAllCSQ("@char", "@item", :CS = FALSE).Content()
-		return StzListQ( This.ToListOfChars() ).FindAllItemsW(cCondition)
-		
+
+		cCondition = StzStringQ(pcCondition).
+				ReplaceAllCSQ("@item", "@char", :CS = FALSE).
+				SimplifyQ().
+				RemoveBoundsQ("{","}").
+				Content()
+
+		cCondition = "bOk = ( " + cCondition + " )"
+
+		anResult = []
+
+		@char = ""
+		for @i = 1 to This.NumberOfChars()
+			@char = This[@i]
+
+			eval(cCondition)
+
+			if bOk
+				anResult + @i
+			ok
+
+		next
+
+		return anResult
+
+		#< @FunctionFluentForm
+
+		def FindAllCharsWQ(pcCondition, pcReturnType)
+			return This.FindAllCharsWQR(pcCondition, :stzList)
+
+		def FindAllCharsWQR(pcCondition, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindAllCharsW(pcCondition) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindAllCharsW(pcCondition) )
+
+			other
+				return stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def FindAllCharsWhere(pcCondition)
 			return This.FindAllCharsW(pcCondition)
+
+			def FindAllCharsWhereQ(pcCondition, pcReturnType)
+				return This.FindAllCharsWhereQR(pcCondition, :stzList)
+	
+			def FindAllCharsWhereQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindAllCharsWhere(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindAllCharsWhere(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
 
 		def FindCharsW(pcCondition)
 			return This.FindAllCharsW(pcCondition)
 
-			def FindCharsWhere(pcCondition)
-				return This.FindCharsW(pcCondition)
+			def FindCharsWQ(pcCondition, pcReturnType)
+				return This.FindCharsWQR(pcCondition, :stzList)
+	
+			def FindCharsWQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindCharsW(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindCharsW(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
+
+		def FindCharsWhere(pcCondition)
+			return This.FindCharsW(pcCondition)
+
+			def FindCharsWhereQ(pcCondition, pcReturnType)
+				return This.FindCharsWhereQR(pcCondition, :stzList)
+	
+			def FindCharsWhereQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindCharsWhere(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindCharsWhere(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
 
 		def CharsPositionsW(pCondition)
 			return This.FindAllCharsW(pcCondition)
 
+			def CharsPositionsWQ(pcCondition, pcReturnType)
+				return This.CharsPositionsWQR(pcCondition, :stzList)
+	
+			def CharsPositionsWQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.CharsPositionsW(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.CharsPositionsW(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
+
 		def CharsPositionsWhere(pCondition)
 			return This.FindAllCharsW(pcCondition)
+
+			def CharsPositionsWhereQ(pcCondition, pcReturnType)
+				return This.CharsPositionsWhereQR(pcCondition, :stzList)
+	
+			def CharsPositionsWhereQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.CharsPositionsWhere(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.CharsPositionsWhere(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
 
 		def FindCharsPositionsW(pcCondition)
 			return This.FindAllCharsW(pcCondition)
 
+			def FindCharsPositionsWQ(pcCondition, pcReturnType)
+				return This.FindCharsPositionsWQR(pcCondition, :stzList)
+	
+			def FindCharsPositionsWQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindCharsPositionsW(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindCharsPositionsW(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
+
 		def FindCharsPositionsWhere(pcCondition)
 			return This.FindAllCharsW(pcCondition)
+
+			def FindCharsPositionsWhereQ(pcCondition, pcReturnType)
+				return This.FindCharsPositionsWhereQR(pcCondition, :stzList)
+	
+			def FindCharsPositionsWhereQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindCharsPositionsWhere(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindCharsPositionsWhere(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
+
+		#>
 
 	  #--------------------------------------------------#
 	 #      FINDING MANY SYBSTRINGS IN THE SAME TIME    # 
@@ -9749,12 +9688,13 @@ class stzString from stzObject
 	The classifier is what we should provide to the method as a param.
 	And it's called here a pcClassifier.
 
-	A classifier is provided by one of the methods of the stzChar class.
+	A classifier is provided as a conditional code containing the @char keyword.
 
 	For example:
 
 	o1 = new stzString("TUNIS gafsa NABEUL beja")
-	? o1.Sutructure(:By = '@.CharCase()' )
+	? o1.Parts(:By = 'Q(@char).CharCase()' )	# NOTE: Parts() is the simple
+							# form of PartsAsSubstrings()
 
 	Uses the CharCase() method in stzChar as a classifier.	
 
@@ -9779,42 +9719,72 @@ class stzString from stzObject
 
 		o1 = new stzString("Abc285XY&من")
 
-		? o1.PartsAsSubstrings( :Using = '@.IsLetter()' )
+		? o1.PartsAsSubstrings( :Using = 'Q(@char).IsLetter()' )
 		--> Gives:
 		[ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
 
-		? o1.PartsAsSubstrings( :By = '@.Orientation()' )
+		? o1.PartsAsSubstrings( :By = 'Q(@char).Orientation()' )
 		--> Gives:
 		[ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
 
-		? o1.PartsAsSubstrings( :Using = '@.IsUppercase()' )
+		? o1.PartsAsSubstrings( :Using = 'Q(@char).IsUppercase()' )
 		--> Gives:
 		[ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
 
-		? o1.PartsAsSubstrings(:Using = '@.CharCase()' )
+		? o1.PartsAsSubstrings(:Using = 'Q(@char).CharCase()' )
 		--> Gives:
 		[ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
 
 		*/
 
-		if NOT isString(pClassifier) or isList(pClassifier)
-			stzRaise("Incorrect param type!")
-		ok
-
-		if isList(pClassifier) and
-		   ( StzListQ(pClassifier).IsWithParamList() or
-		     StzListQ(pClassifier).IsByParamList() )
+		if isList(pClassifier) and StzListQ(pClassifier).IsUsingParamList()
 
 			pClassifier = pClassifier[2]
 
-			if NOT isString(pCalssifier)
+			if NOT isString(pClassifier)
 				stzRaise("Incorrect param type!")
 			ok
 		ok
 
-		n = StzStringQ(pClassifier).WalkUntil(' @char = "(" ')
-		
+		cCode = StzStringQ(pClassifier).
+				SimplifyQ().
+				RemoveBoundsQ("{","}").
+				ReplaceCSQ("@item", "@char", :CaseSensitive = FALSE).
+				Content()
 
+		cCode = "cClassifier = ( '' + " + cCode + " )"
+
+		aClassifiers = []
+		aResult = []
+		cPart = ""
+
+		for i = 1 to This.NumberOfChars()
+			@char = This[i]
+			# Evaluation the cClassifier variable
+? cCode			eval(cCode)
+? cClassifier	
+			# If the classier is met for the 1st time, add it,
+			# and add the corresponding part to the hash list
+
+			n = find(aClassifiers, cClassifier)
+			if n = 0
+
+				aClassifiers + cClassifier
+
+				cPart = This[i]
+				aResult + [ cClassifier, [ cPart ] ]
+
+			# If the classifer exists, then just add the part
+
+			else
+
+				aResult[ cClassifier ] + cPart
+			ok
+		next i
+
+		return aResult
+
+/*
 		cPart = This.FirstChar()
 		aParts = []
 		bEndOfString = FALSE
@@ -9852,6 +9822,7 @@ class stzString from stzObject
 		end
 
 		return aParts
+*/
 
 		#< @FunctionFluentForm
 
@@ -10367,24 +10338,10 @@ class stzString from stzObject
 	def IsSplittableUsing(pcSubStr)
 		return This.IsSplittableUsingCS(pcSubStr, pCaseSensitive)
 
-	  #------------------------------#
+	  #==============================#
 	 #    REMOVING ALL SUBSTRINGS   # 
-	#------------------------------#
+	#==============================#
 
-	def RemoveAll(pSubStr) # replace with @oQString.remove() when added to RingQt
-		This.ReplaceAll(pSubStr , "")
-
-		def RemoveAllQ(pSubStr)
-			This.RemoveAll(pSubStr)
-			return This
-
-		def Remove(pSubStr)
-			This.RemoveAll(pSubStr)
-
-			def RemoveQ(pSubStr)
-				This.Remove(pSubStr)
-				return This
-	
 	def RemoveAllCS(pSubStr, pCaseSensitive)
 		This.ReplaceAllCS(pSubstr, "", pCaseSensitive)
 
@@ -10398,6 +10355,78 @@ class stzString from stzObject
 			def RemoveCSQ(pSubStr, pCaseSensitive)
 				This.RemoveCS(pSubStr, pCaseSensitive)
 				return This
+
+		def RemoveSubstringCS(pcSubStr, pCaseSensitive)
+			This.RemoveAllCS(pcSubStr, pCaseSensitive)
+
+			def RemoveSubstringCSQ(pSubStr, pCaseSensitive)
+				This.RemoveSubstringCS(pSubStr, pCaseSensitive)
+				return This
+
+		def RemoveAllOccurrencesOfSubstringCS(pcSubStr, pCaseSensitive)
+			This.RemoveAllCS(pcSubStr, pCaseSensitive)
+
+			def RemoveAllOccurrencesOfSubstringQ(pSubStr, pCaseSensitive)
+				This.RemoveAllOccurrencesOfSubstring(pSubStr, pCaseSensitive)
+				return This
+
+	#-- CASE-INSENSITIVE
+
+	def RemoveAll(pcSubStr) # replace with @oQString.remove() when added to RingQt
+		This.ReplaceAll(pcSubStr , "")
+
+		def RemoveAllQ(pcSubStr)
+			This.RemoveAll(pcSubStr)
+			return This
+
+		def Remove(pcSubStr)
+			This.RemoveAll(pcSubStr)
+
+			def RemoveQ(pcSubStr)
+				This.Remove(pcSubStr)
+				return This
+
+		def RemoveSubstring(pcSubStr)
+			This.RemoveAll(pcSubStr)
+
+
+		def RemoveAllOccurrencesOfSubstring(pcSubStr)
+			This.RemoveAll(pcSubStr)
+	
+	  #----------------------------------------------#
+	 #   REMOVING MANY SUBSTRING AT THE SAME TIME   #
+	#----------------------------------------------#
+
+	def RemoveManyCS(pacSubStr, pCaseSensitive)
+		for cSubstr in paCsubstr
+			This.RemoveAllCS(cSubstr, pCaseSensitive)
+		next
+
+		def RemoveManyCSQ(pacSubStr, pCaseSensitive, pCaseSensitive)
+			This.RemoveManyCS(pacSubStr, pCaseSensitive)
+			return This
+
+		def RemoveAllOfTheseCS(pacSubStr, pCaseSensitive)
+			This.RemoveMany(pacSubStr)
+
+			def RemoveAllOfTheseCSQ(pacSubStr, pCaseSensitive)
+				This.RemoveAllOfTheseCS(pacSubstr, pCaseSensitive)
+				return This
+
+		def RemoveManySubstringsCS(pcSubStr, pCaseSensitive)
+			This.RemoveAllCS(pcSubStr, pCaseSensitive)
+
+			def RemoveManySubstringsCSQ(pSubStr, pCaseSensitive)
+				This.RemoveManySubstringsCS(pSubStr, pCaseSensitive)
+				return This
+
+	def ManySubstringsRemovedCS(pacSubStr, pCaseSensitive)
+		return This.Copy().RemoveManySubstringsCS(pacSubStr, pCaseSensitive).Content()
+
+		def SubstringsRemovedCS(pacSubStr, pCaseSensitive)
+			return This. ManySubstringsRemovedCS(pacSubStr, pCaseSensitive)
+
+	#-- CASEèSENSITIVE
 
 	def RemoveMany(pacSubStr)
 		for cSubstr in paCsubstr
@@ -10414,31 +10443,292 @@ class stzString from stzObject
 			def RemoveAllOfTheseQ(pacSubstr)
 				This.RemoveAllOfThese(pacSubstr)
 				return This
-	
-	def RemoveManyCS(pacSubStr, pCaseSensitive)
-		for cSubstr in paCsubstr
-			This.RemoveAllCS(cSubstr, pCaseSensitive)
-		next
 
-		def RemoveManyCSQ(pacS, pCaseSensitive, pCaseSensitive)
-			This.RemoveManyCS(pacSubStr, pCaseSensitive)
-			return This
-
-		def RemoveAllOfTheseCS(pacSubstr, pCaseSensitive)
+		def RemoveManySubstrings(pcSubStr)
 			This.RemoveMany(pacSubStr)
 
-			def RemoveAllOfTheseCSQ(pacSubstr, pCaseSensitive)
-				This.RemoveAllOfTheseCS(pacSubstr, pCaseSensitive)
+			def RemoveManySubstringsQ(pSubStr)
+				This.RemoveManySubstrings(pSubStr, pCaseSensitive)
 				return This
+
+	def ManySubstringsRemoved(pacSubStr)
+		return This.Copy().RemoveManySubstrings(pacSubStr).Content()
+
+		def SubstringsRemoved(pacSubStr)
+			return This. ManySubstringsRemoved(pacSubStr)
+
+	  #---------------------------------------#
+	 #   REMOVING CHAR AT A GIVEN POSITION   #
+	#---------------------------------------#
+
+	def RemoveCharAtPosition(n)
+		This.ReplaceNthChar(n, "")
+
+		cResult = This.CharsQR(:stzListOfStrings).
+				RemoveStringAtPositionQ(n).
+				Concatenated()
+
+		This.Update( cResult )
+
+		def RemoveCharAtPositionQ(n)
+			This.RemoveCharAtPosition(n)
+			return This
+
+		def RemoveCharAt(n)
+			This.RemoveCharAtPosition(n)
+
+			def RemoveCharAtQ(n)
+				This.RemoveCharAt(n)
+				return This
+
+		def RemoveNthChar(n)
+			This.RemoveCharAtPosition(n)
+
+	def CharAtPositionRemoved(n)
+		return This.Copy().RemoveCharAtPositionQ(n).Content()
+
+		def NthCharRemoved(n)
+			return This.CharAtPositionRemoved(n)
+
+	  #---------------------------------#
+	 #   REMOVING FIRST & LAST CHARS   #
+	#---------------------------------#
+
+	def RemoveFirstChar()
+		This.RemoveNthChar(1)
+
+		def RemoveFirstCharQ()
+			This.RemoveFirstChar()
+			return This
+
+	def FirstCharRemoved()
+		return This.Copy().RemoveFirstCharQ().Content()
+
+	#--
+
+	def RemoveLastChar()
+		This.RemoveNthChar(:Last)
+
+		def RemoveLastCharQ()
+			This.RemoveLastChar()
+			return This
+
+	def LastCharRemoved()
+		return This.Copy().RemoveLasttCharQ().Content()
+
+	  #---------------------------------#
+	 #   REMOVING LEFT & RIGHT CHARS   #
+	#---------------------------------#
+
+	def RemoveLeftChar()
+		This.RemoveNLeftChars(1)
+
+		def RemoveLeftCharQ()
+			This.RemoveLeftChar()
+			return This
+
+	def LeftCharRemoved()
+		cResult = This.Copy().RemoveLeftCharQ().Content()
+		return cResult
+
+	def RemoveRightChar()
+		This.RemoveNRightChars(1)
+
+		def RemoveRightCharQ()
+			This.RemoveRightChar()
+			return This
+
+	def RightCharRemoved()
+		cResult = This.Copy().RemoveRightCharQ().Content()
+		return cResult
+
+	  #----------------------------#
+	 #   REMOVING N FIRST CHARS   #
+	#----------------------------#
+
+	def RemoveNFirstChars(n)
+		if This.IsRightToLeft()
+			This.RemoveNRightChars(n)
+		else
+			This.RemoveNLeftChars(n)
+		ok
+		
+		#< @FunctionFluentForm
+
+		def RemoveNFirstCharsQ(n)
+			This.RemoveNFirstChars(n)
+			return This
+	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveFirstNChars(n)
+			This.RemoveNFirstChars(n)
+
+			#< @FuncFluentForm
+	
+			def RemoveFirstNCharsQ(n)
+				This.RemoveNFirstCharsQ(n)
+	
+			#>
+
+		#>
+	
+	def NFirstCharsRemoved(n)
+		cRresult = This.Copy().RemoveNFirstCharsQ(n).Content()
+		return cResult
+
+		def FirstNCharsRemoved(n)
+			return This.NFirstCharsRemoved(n)
+
+	  #---------------------------#
+	 #   REMOVING N LAST CHARS   #
+	#---------------------------#
+
+	def RemoveNLastChars(n)
+
+		if This.IsLeftToRight()
+			This.RemoveNRightChars(n)
+		else
+			This.RemoveNLeftChars(n)
+		ok	
+
+		#< @FunctionFluentForm
+
+		def RemoveNLastCharsQ(n)
+			This.RemoveNLastChars(n)
+			return This
+	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveLastNChars(n)
+			This.RemoveNLastChars(n)
+
+			#< @FuncFluentForm
+	
+			def RemoveLastNCharsQ(n)
+				This.RemoveNLastCharsQ(n)
+	
+			#>
+
+		#>
+	
+	def NLastCharsRemoved(n)
+		cResult = This.Copy().RemoveNLastCharsQ(n).Content()
+		return cResult
+
+		def LastNCharsRemoved(n)
+			return This.NLastCharsRemoved(n)
+
+	  #---------------------------#
+	 #   REMOVING N LEFT CHARS   #
+	#---------------------------#
+
+	def RemoveNLeftChars(n)
+		if This.IsLeftToRight()
+			This.RemoveSection( 1, n )
+
+		else
+			This.RemoveSection( This.NumberOfChars() - n + 1, :End )
+		ok
+
+		#< @FunctionFluentForm
+
+		def RemoveNLeftCharsQ(n)
+			This.RemoveNLeftChars(n)
+			return This
+	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveLeftNChars(n)
+			This.RemoveNLeftChars(n)
+
+			#< @FuncFluentForm
+	
+			def RemoveLeftNCharsQ(n)
+				This.RemoveNLeftCharsQ(n)
+	
+			#>
+		#>
+	
+	def NLeftCharsRemoved(n)
+		cResult = This.Copy().RemoveNLeftCharsQ(n).Content()
+		return cResult
+
+		def LeftNCharsRemoved(n)
+			return This.NLeftCharsRemoved(n)
+
+	  #----------------------------#
+	 #   REMOVING N RIGHT CHARS   #
+	#----------------------------#
+
+	def RemoveNRightChars(n)
+		if This.IsRightToLeft()
+			This.RemoveSection( 1, n)
+		else
+			This.RemoveSection( This.NumberOfChars() - n + 1, :End )
+		ok
+
+		#< @FunctionFluentForm
+
+		def RemoveNRightCharsQ(n)
+			This.RemoveNRightChars(n)
+			return This
+	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveRightNChars(n)
+			This.RemoveNRightChars(n)
+
+			#< @FuncFluentForm
+	
+			def RemoveRightNCharsQ(n)
+				This.RemoveNRightCharsQ(n)
+	
+			#>
+		#>
+	
+	def NRightCharsRemoved(n)
+		cResult = This.Copy().RemoveNRightCharsQ(n).Content()
+		return cResult
+
+		def RightNCharsRemoved(n)
+			return This.NRightCharsRemoved(n)
 
 	  #---------------------------------------------#
 	 #    REMOVING A GIVEN CHAR FROM THE STRING    # 
 	#---------------------------------------------#
 
-	def RemoveChar(pcChar)
-		if StringIsChar(pcChar)
-			This.RemoveCharsW('@char = ' + @@(pcChar))
+	def RemoveCharCS(pcChar, pCaseSensitive) # TODO (future): accept also stzChar objects
+		if NOT StringIsChar(pcChar)
+			stzRaise("Incorrect param type! You must provide a string containing char")
 		ok
+
+		This.RemoveCharsCSW('@char = ' + @@(pcChar), pCaseSensitive)
+
+		def RemoveCharCSQ(pcChar, pCaseSensitive)
+			This.RemoveCharCS(pcChar, pCaseSensitive)
+			return This
+
+	def CharRemovedCS(pcChar, pCaseSensitive)
+		cResult = This.Copy().RemoveCharCSQ(pcChar, pCaseSensitive).Content()
+		return cResult
+
+	#-- CASE-INSENSITIVE
+
+	def RemoveChar(pcChar)
+		if NOT StringIsChar(pcChar)
+			stzRaise("Incorrect param type! You must provide a string containing char")
+		ok
+
+		This.RemoveCharsW('@char = ' + @@(pcChar))
 
 		def RemoveCharQ(pcChar)
 			This.RemoveChar(pcChar)
@@ -10448,15 +10738,297 @@ class stzString from stzObject
 		cResult = This.Copy().RemoveCharQ(pcChar).Content()
 		return cResult
 
-	  #---------------------------------------------#
-	 #    REMOVING CHARS UNDER A GIVEN CONDITION   # 
-	#---------------------------------------------#
+	  #----------------------------------#
+	 #    REMOVING A SECTION OF CHARS   # 
+	#----------------------------------#
+	
+	// Removes a portion of the string defined by its start and end positions
+	def RemoveSection(n1, n2)
 
-	def RemoveCharsWhere(pcCondition)
-		cCondition = StzStringQ(pcCondition).ReplaceAllCSQ("@char", "@item", :CS = FALSE).Content()
-		cResult = StzListQ( This.ToListOfChars() ).RemoveItemsWhereQ(cCondition).ToStzListOfStrings().ConcatenateQ().Content()
+		if n1 = :FirstChar or n1 = :StartOfString { n1 = 1 }
+		if n2 = :LastChar  or n2 = :EndOfString { n2 = This.NumberOfChars() }
 
-		This.Update( cResult )
+		This.ReplaceSection( n1, n2, "" )
+
+		def RemoveSectionQ(n1, n2)
+			This.RemoveSection(n1, n2)
+			return This
+
+	def SectionRemoved(n1, n2)
+		cResult = This.Copy().RemoveSectionQ(n1, n2).Content()
+		return cResult
+	
+	  #-------------------------------------------------------#
+	 #    REMOVING MANY SECTIONS OF CHARS AT THE SAME TIME   # 
+	#-------------------------------------------------------#
+
+	def RemoveManySections(paListOfSections)
+		if isList(paListOfSections) and Q(paListOfSections).IsListOfPairsOfNumbers()
+			stzRaise([
+				:Where = "stzString (10747) > RemoveManySections(paListOfSections)",
+				:What  = "Can't remove many sections from the string.",
+				:Why   = "The value is you provided (paListOfSections) is not a list of pairs of numbers."
+			])
+		ok
+
+		/* EXAMPLE
+		
+		o1 = new stzString("**word1***word2**word3***")
+		? o1.Sections([ [1,2], [8, 10], [16, 17], [23, 25] ])
+		#--> [ "**", "***", "**", "***" ]
+		
+		o1.RemoveManySections([
+			[1,2], [8, 10], [16, 17], [23, 25]
+		])
+		
+		? o1.Content() # --> "blablablablabla"
+
+		*/
+
+		# For each section, remove the section, and then adjust the positions
+		# inside the other sections that come after it, to reflect the
+		# changed content of the string
+
+		n = 0
+		nNumberOfSections = len(paListOfSections)
+		
+		for aSection in paListOfSections
+			nNumberOfCharsInSection = aSection[2] - aSection[1] + 1
+			n++
+			# Remove the section
+			This.RemoveSection(aSection[1], aSection[2])
+
+			# Adjust the positions of the remaing sections
+			for i = n + 1 to nNumberOfSections
+				# If this section comes to the right of the section
+				# removed, then adjust the positions
+				if paListOfSections[i][1] > aSection[2]
+						paListOfSections[i][1] -= nNumberOfCharsInSection
+						paListOfSections[i][2] -= nNumberOfCharsInSection
+				ok
+			next
+
+		next
+
+		def RemoveManySectionsQ(paListOfSections)
+			This.RemoveManySections(paListOfSections)
+			return This
+
+		def RemoveSections(paListOfSections)
+			This.RemoveManySections(paListOfSections)
+
+			def RemoveSectionsQ(paListOfSections)
+				This.RemoveSections(paListOfSections)
+				return This
+
+	def ManySectionsRemoved(paListOfSections)
+		cResult = This.Copy().RemoveManySectionsQ(paListOfSections).Content()
+		return This
+
+		def SectionsRemoved(paListOfSections)
+			return This.ManySectionsRemoved(paListOfSections)
+
+	  #--------------------------------#
+	 #    REMOVING A RANGE OF CHARS   # 
+	#--------------------------------#
+
+	// Removes a portion of the string defined by a start position and
+	// a range of n chars
+	def RemoveRange(nStart, nNumberOfChars)
+
+		if nStart = :FirstChar or nStart = :StartOfString { nStart = 1 }
+		if nNumberOfChars = :EndOfString { nNumberOfChars = This.NumberOfChars() - nStart + 1 }
+
+		This.RemoveSection(nStart, nStart + nNumberOfChars - 1)
+
+		def RemoveRangeQ(nStart, nNumberOfChars)
+			This.RemoveRange(nStart, nNumberOfChars)
+			return This
+
+	def RangeRemoved(nStart, nNumberOfChars)
+		cResult = This.RemoveRangeQ(nStart, nNumberOfChars).Content()
+		return cResult
+
+	  #-----------------------------------------------------#
+	 #    REMOVING MANY RANGES OF CHARS AT THE SAME TIME   # 
+	#-----------------------------------------------------#
+
+	def RemoveManyRanges(paListOfRanges)
+
+		# Tranform ranges to sections and then use RemoveManySections()
+
+		aSections = []
+		for aRange in paListOfRanges
+			n1 = aRange[1]
+			n2 = aRange[1] + aRange[2] - 1
+
+			aSections + [ n1, n2 ]
+		next
+		
+		This.RemoveManySections(aSections)
+
+		def RemoveManyRangesQ(paListOfRanges)
+			This.RemoveManySections(paListOfRanges)
+
+		def RemoveRanges(paListOfRanges)
+			This.RemoveManyRanges(paListOfRanges)
+
+			def RemoveRangesQ(paListOfRanges)
+				This.RemoveRanges(paListOfRanges)
+				return This
+
+	def ManyRangesRemoved(paListOfRanges)
+		cResult = This.Copy().RemoveManyRangesQ(paListOfRanges).Content()
+		return This
+
+		def RangedRemoved(paListOfRanges)
+			return This.ManyRangesRemoved(paListOfRanges)
+
+	  #-------------------------------------------------------------#
+	 #    REMOVING SECTIONS OF CHARS VERIFYING A GIVEN CONDITION   # 
+	#-------------------------------------------------------------#
+
+	def RemoveSectionsW(paSections, pcCondition)
+		/* EXAMPLE
+
+		o1 = new stzString("..AA..aa..BB..bb")
+		o1.RemoveSectionsW(
+			[3, 4], [7,8], [11,12], [15,16],
+			:Wehre = '{ Q(This(@section)).IsLowercase() }'
+		)
+
+		#--> "..AA....BB.."
+		*/
+
+		if isList(pcCondition) and StzListQ(pcCondition).IsWhereParamList()
+			pcCondition = pcCondition[2]
+
+		else
+			// TODO: add this check everywhere in the library!
+			stzRaise("Incorrect condition format!")
+		ok
+
+		pcCondition = StzStringQ(pcCondition).
+				SimplifyQ().
+				RemoveBoundsQ("{","}").
+				Content()
+
+		cCode = "bOk = ( " + pcCondition + " )"
+
+		aSubStrings = This.Sections(paSections)
+
+		aSectionsToRemove = []
+		for i = 1 to len( paSections )
+			@n1 = paSections[i][1]
+			@n2 = paSections[i][2]
+
+			@range = aSubStrings[i]
+
+			eval(cCode)
+
+			if bOk
+				aSectionsToRemove + [ @n1, @n2 ]
+			ok
+		next
+
+		This.RemoveManySections(aSectionsToRemove)
+
+		#< @FunctionFluentForm
+
+		def RemoveSectionsWQ(paSections, pcCondition)
+			This.RemoveSectionsW(paSections, pcCondition)
+			return This
+
+		def RemoveSectionsWhere(paSections, pcCondition)
+			This.RemoveSectionsW(paSections, pcCondition)
+
+			def RemoveSectionsWhereQ(paSections, pcCondition)
+				This.RemoveSectionsWhere(paSections, pcCondition)
+				return This
+
+		def RemoveManySectionsW(paSections, pcCondition)
+			This.RemoveSectionsW(paSections, pcCondition)
+	
+			def RemoveManySectionsWQ(paSections, pcCondition)
+				This.RemoveManySectionsW(paSections, pcCondition)
+				return This
+
+		def RemoveManySectionsWhere(paSections, pcCondition)
+			This.RemoveSectionsW(paSections, pcCondition)
+
+			def RemoveManySectionsWhereQ(paSections, pcCondition)
+				This.RemoveManySectionsWhere(paSections, pcCondition)
+				return This
+
+	def ManySectionsRemovedW(paSections, pcCondition)
+		cResult = This.Copy().RemoveManySectionsQ(paSections, pcCondition).Content()
+		return cResult
+
+		def ManySectionsRemovedWhere(paSections, pcCondition)
+			return This.ManySectionsRemovedW(paSections, pcCondition)
+
+	  #----------------------------------------------------------------#
+	 #    REMOVING MANY RANGES OF CHARS VERIFYING A GIVEN CONDITION   # 
+	#----------------------------------------------------------------#
+
+	def RemoveManyRangesW(paListOfRanges, pcCondition)
+
+		# Tranform ranges to sections and then use RemoveManySectionsW()
+
+		aSections = []
+		for aRange in paListOfRanges
+			n1 = aRange[1]
+			n2 = aRange[1] + aRange[2] - 1
+
+			aSections + [ n1, n2 ]
+		next
+		
+		This.RemoveManySectionsW(aSections, pcCondition)
+
+		def RemoveManyRangesWQ(paListOfRanges, pcCondition)
+			This.RemoveManyRangesW(paListOfRanges, pcCondition)
+
+		def RemoveRangesW(paListOfRanges, pcCondition)
+			This.RemoveManyRangesW(paListOfRanges, pcCondition)
+
+			def RemoveRangesWQ(paListOfRanges, pcCondition)
+				This.RemoveRangesW(paListOfRanges, pcCondition)
+				return This
+
+	def ManyRangesRemovedW(paListOfRanges, pcCondition)
+		cResult = This.Copy().RemoveManyRangesWQ(paListOfRanges, pcCondition).Content()
+		return cResult
+
+		def RangedRemovedW(paListOfRanges, pcCondition)
+			return This.ManyRangesRemovedW(paListOfRanges, pcCondition)
+
+	  #-------------------------------------------------#
+	 #    REMOVING CHARS VERIFYING A GIVEN CONDITION   # 
+	#-------------------------------------------------#
+
+	def RemoveCharsWhereCS(pcCondition, pCaseSensitive)
+		if isList( pCaseSensitive ) and Q( pCaseSensitive ).IsCaseSensitiveParamList()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		# TODO: Add this check to all pCaseSensitive methods
+		if NOT IsBoolean( pCaseSensitive )
+			stzRaise("pCaseSensitive must be TRUE or FALSE!")
+		ok
+
+		if pCaseSensitive
+			anPositions = This.FindAllCharsWhereQR( pcCondition, :stzList ).SortedInDescending()
+		else
+			oCopy = This.LowercaseQ()
+			cCondition = StzStringQ(pcCondition).Lowercased()
+
+			anPositions = oCopy.FindAllCharsWhereQR( cCondition, :stzList ).SortedInDescending()
+			
+		ok
+
+		for n in anPositions
+			This.RemoveCharAtPosition(n)
+		next
 
 		#< @FunctionFluentForm
 
@@ -10478,6 +11050,283 @@ class stzString from stzObject
 				return This
 
 			#>
+
+#-------------------------------------------------------------------------------------
+
+	  #-----------------------------------#
+	 #    REPLACING A SECTION OF CHARS   # 
+	#-----------------------------------#
+	
+	// Replaces a portion of the string defined by its start and end positions
+	def ReplaceSection(n1, n2, pcNewSubStr)
+
+		if n1 = :FirstChar or n1 = :StartOfString { n1 = 1 }
+		if n2 = :LastChar  or n2 = :EndOfString { n2 = This.NumberOfChars() }
+
+		if isList(pcNewSubStr) and ( Q(pcNewSubStr).IsWithParamList() or
+		   Q(pcNewSubStr).IsByParamList() )
+
+			pcNewSubStr = pcNewSubStr[2]
+		ok
+
+
+		QStringObject().replace(n1 - 1, n2 - n1 + 1, pcNewSubStr)
+
+		def ReplaceSectionQ(n1, n2, pcNewSubStr)
+			This.ReplaceSection(n1, n2, pcNewSubStr)
+			return This
+
+	def SectionReplaced(n1, n2, pcNewSubStr)
+		cResult = This.Copy().ReplaceSectionQ(n1, n2, pcNewSubStr).Content()
+		return cResult
+	
+	  #--------------------------------------------------------#
+	 #    REPLACING MANY SECTIONS OF CHARS AT THE SAME TIME   # 
+	#--------------------------------------------------------#
+
+	def ReplaceManySections(paListOfSections, pcNewSubStr)
+		if isList(paListOfSections) and Q(paListOfSections).IsListOfPairsOfNumbers()
+			stzRaise([
+				:Where = "stzString (10747) > ReplaceManySections(paListOfSections, pcNewSubStr)",
+				:What  = "Can't Replace many sections from the string.",
+				:Why   = "The value is you provided (paListOfSections) is not a list of pairs of numbers."
+			])
+		ok
+
+		/* EXAMLE
+		
+		o1 = new stzString("**word1***word2**word3***")
+		? o1.Sections([ [1,2], [8, 10], [16, 17], [23, 25] ])
+		#--> [ "**", "***", "**", "***" ]
+		
+		o1.ReplaceManySections([ [1,2], [8, 10], [16, 17], [23, 25] ], "_"
+		
+		? o1.Content() # --> "_word1_word2_word3_"
+
+		*/
+
+		# For each section, Replace the section, and then adjust the positions
+		# inside the other sections that come after it, to reflect the
+		# changed content of the string
+
+		n = 0
+		nNumberOfSections = len(paListOfSections)
+		
+		for aSection in paListOfSections
+			nNumberOfCharsInSection = aSection[2] - aSection[1] + 1
+			n++
+			# Replace the section
+			This.ReplaceSection(aSection[1], aSection[2], pcNewSubStr)
+
+			# Adjust the positions of the remaing sections
+			for i = n + 1 to nNumberOfSections
+				# If this section comes to the right of the section
+				# Replaced, then adjust the positions
+				if paListOfSections[i][1] > aSection[2]
+						paListOfSections[i][1] -= nNumberOfCharsInSection
+						paListOfSections[i][2] -= nNumberOfCharsInSection
+				ok
+			next
+
+		next
+
+		def ReplaceManySectionsQ(paListOfSections, pcNewSubStr)
+			This.ReplaceManySections(paListOfSections, pcNewSubStr)
+			return This
+
+		def ReplaceSections(paListOfSections, pcNewSubStr)
+			This.ReplaceManySections(paListOfSections, pcNewSubStr)
+
+			def ReplaceSectionsQ(paListOfSections, pcNewSubStr)
+				This.ReplaceSections(paListOfSections, pcNewSubStr)
+				return This
+
+	def ManySectionsReplaced(paListOfSections, pcNewSubStr)
+		cResult = This.Copy().ReplaceManySectionsQ(paListOfSections, pcNewSubStr).Content()
+		return This
+
+		def SectionsReplaced(paListOfSections, pcNewSubStr)
+			return This.ManySectionsReplaced(paListOfSections, pcNewSubStr)
+
+	  #---------------------------------#
+	 #    REPLACING A RANGE OF CHARS   # 
+	#---------------------------------#
+
+	// Replaces a portion of the string defined by a start position and
+	// a range of n chars
+	def ReplaceRange(nStart, nNumberOfChars, pcNewSubStr)
+
+		if nStart = :FirstChar or nStart = :StartOfString { nStart = 1 }
+		if nNumberOfChars = :EndOfString { nNumberOfChars = This.NumberOfChars() - nStart + 1 }
+
+		This.ReplaceSection(nStart, nStart + nNumberOfChars - 1, pcNewSubStr)
+
+		def ReplaceRangeQ(nStart, nNumberOfChars, pcNewSubStr)
+			This.ReplaceRange(nStart, nNumberOfChars, pcNewSubStr)
+			return This
+
+	def RangeReplaced(nStart, nNumberOfChars, pcNewSubStr)
+		cResult = This.ReplaceRangeQ(nStart, nNumberOfChars, pcNewSubStr).Content()
+		return cResult
+
+	  #------------------------------------------------------#
+	 #    REPLACING MANY RANGES OF CHARS AT THE SAME TIME   # 
+	#------------------------------------------------------#
+
+	def ReplaceManyRanges(paListOfRanges, pcNewSubStr)
+
+		# Tranform ranges to sections and then use ReplaceManySections()
+
+		aSections = []
+		for aRange in paListOfRanges
+			n1 = aRange[1]
+			n2 = aRange[1] + aRange[2] - 1
+
+			aSections + [ n1, n2 ]
+		next
+		
+		This.ReplaceManySections(aSections, pcNewSubStr)
+
+		def ReplaceManyRangesQ(paListOfRanges, pcNewSubStr)
+			This.ReplaceManySections(paListOfRanges, pcNewSubStr)
+
+		def ReplaceRanges(paListOfRanges, pcNewSubStr)
+			This.ReplaceManyRanges(paListOfRanges, pcNewSubStr)
+
+			def ReplaceRangesQ(paListOfRanges, pcNewSubStr)
+				This.ReplaceRanges(paListOfRanges, pcNewSubStr)
+				return This
+
+	def ManyRangesReplaced(paListOfRanges, pcNewSubStr)
+		cResult = This.Copy().ReplaceManyRangesQ(paListOfRanges, pcNewSubStr).Content()
+		return This
+
+		def RangedReplaced(paListOfRanges, pcNewSubStr)
+			return This.ManyRangesReplaced(paListOfRanges, pcNewSubStr)
+
+	  #--------------------------------------------------------------#
+	 #    REPLACING SECTIONS OF CHARS VERIFYING A GIVEN CONDITION   # 
+	#--------------------------------------------------------------#
+
+	def ReplaceSectionsW(paSections, pcNewSubStr, pcCondition)
+		/* EXAMPLE
+
+		o1 = new stzString("..AA..aa..BB..bb")
+		o1.ReplaceSectionsW(
+			[3, 4], [7,8], [11,12], [15,16],
+			:With = "_",
+			:Wehre = '{ Q(This(@section)).IsLowercase() }'
+		)
+
+		#--> "..AA.._..BB.._"
+		*/
+
+		if isList(pcCondition) and StzListQ(pcCondition).IsWhereParamList()
+			pcCondition = pcCondition[2]
+
+		else
+			// TODO: add this check everywhere in the library!
+			stzRaise("Incorrect condition format!")
+		ok
+
+		pcCondition = StzStringQ(pcCondition).
+				SimplifyQ().
+				ReplaceBoundsQ("{","}").
+				Content()
+
+		cCode = "bOk = ( " + pcCondition + " )"
+
+		aSubStrings = This.Sections(paSections)
+
+		aSectionsToReplace = []
+		for i = 1 to len( paSections )
+			@n1 = paSections[i][1]
+			@n2 = paSections[i][2]
+
+			@range = aSubStrings[i]
+
+			eval(cCode)
+
+			if bOk
+				aSectionsToReplace + [ @n1, @n2 ]
+			ok
+		next
+
+		This.ReplaceManySections(aSectionsToReplace, pcNewSubStr)
+
+		#< @FunctionFluentForm
+
+		def ReplaceSectionsWQ(paSections, pcNewSubStr, pcCondition)
+			This.ReplaceSectionsW(paSections, pcNewSubStr, pcCondition)
+			return This
+
+		def ReplaceSectionsWhere(paSections, pcNewSubStr, pcCondition)
+			This.ReplaceSectionsW(paSections, pcNewSubStr, pcCondition)
+
+			def ReplaceSectionsWhereQ(paSections, pcNewSubStr, pcCondition)
+				This.ReplaceSectionsWhere(paSections, pcNewSubStr, pcCondition)
+				return This
+
+		def ReplaceManySectionsW(paSections, pcNewSubStr, pcCondition)
+			This.ReplaceSectionsW(paSections, pcNewSubStr, pcCondition)
+	
+			def ReplaceManySectionsWQ(paSections, pcNewSubStr, pcCondition)
+				This.ReplaceManySectionsW(paSections, pcNewSubStr, pcCondition)
+				return This
+
+		def ReplaceManySectionsWhere(paSections, pcNewSubStr, pcCondition)
+			This.ReplaceSectionsW(paSections, pcNewSubStr, pcCondition)
+
+			def ReplaceManySectionsWhereQ(paSections, pcNewSubStr, pcCondition)
+				This.ReplaceManySectionsWhere(paSections, pcNewSubStr, pcCondition)
+				return This
+
+	def ManySectionsReplacedW(paSections, pcNewSubStr, pcCondition)
+		cResult = This.Copy().ReplaceManySectionsWQ(paSections, pcNewSubStr, pcCondition).Content()
+		return cResult
+
+		def ManySectionsReplacedWhere(paSections, pcCondition)
+			return This.ManySectionsReplacedW(paSections, pcCondition)
+
+	  #-----------------------------------------------------------------#
+	 #    REPLACING MANY RANGES OF CHARS VERIFYING A GIVEN CONDITION   # 
+	#-----------------------------------------------------------------#
+
+	def ReplaceManyRangesW(paListOfRanges, pcNewSubStr, pcCondition)
+
+		# Tranform ranges to sections and then use ReplaceManySectionsW()
+
+		aSections = []
+		for aRange in paListOfRanges
+			n1 = aRange[1]
+			n2 = aRange[1] + aRange[2] - 1
+
+			aSections + [ n1, n2 ]
+		next
+		
+		This.ReplaceManySectionsW(aSections, pcNewSubStr, pcCondition)
+
+		def ReplaceManyRangesWQ(paListOfRanges, pcNewSubStr, pcCondition)
+			This.ReplaceManyRangesW(paListOfRanges, pcNewSubStr, pcCondition)
+
+		def ReplaceRangesW(paListOfRanges, pcNewSubStr, pcCondition)
+			This.ReplaceManyRangesW(paListOfRanges, pcNewSubStr, pcCondition)
+
+			def ReplaceRangesWQ(paListOfRanges, pcNewSubStr, pcCondition)
+				This.ReplaceRangesW(paListOfRanges, pcNewSubStr, pcCondition)
+				return This
+
+	def ManyRangesReplacedW(paListOfRanges, pcNewSubStr, pcCondition)
+		cResult = This.Copy().ReplaceManyRangesWQ(paListOfRanges, pcNewSubStr, pcCondition).Content()
+		return cResult
+
+		def RangedReplacedW(paListOfRanges, pcNewSubStr, pcCondition)
+			return This.ManyRangesReplacedW(paListOfRanges, pcNewSubStr, pcCondition)
+
+#-------------------------------------------------------------------------------------
+	  #----------------------------------------#
+	 #    REMOVING NUMBERS FROM THE STRING    # 
+	#----------------------------------------#
 
 	def RemoveNumbers()
 		cResult = ""
@@ -10537,9 +11386,9 @@ class stzString from stzObject
 				This.RemoveNth(n, pcSubStr)
 				return This
 
-	  #-------------------------------------------------#
+	  #------------------------------------------------#
 	 #    REMOVING FIRST OCCURRENCE OF A SUBSTRING    #
-	#-------------------------------------------------#
+	#------------------------------------------------#
 
 	def RemoveFirstOccurrenceCS(pcSubStr, pCaseSensitive)
 		This.ReplaceNthOccurrenceCS(1, pcSubStr, "", pCaseSensitive)
@@ -10559,13 +11408,6 @@ class stzString from stzObject
 				This.RemoveFirstCS(pcSubStr, pCaseSensitive)
 				return This
 
-		def RemoveFromStartCS(pcSubStr, pCaseSensitive)
-			This.RemoveFirstOccurrenceCS(pcSubStr, pCaseSensitive)
-
-			def RemoveFromStartCSQ(pcSubStr, pCaseSensitive)
-				This.RemoveFromStartCS(pcSubStr, pCaseSensitive)
-				return This
-
 	def RemoveFirstOccurrence(pcSubStr)
 		This.RemoveFirstOccurrenceCS(pcSubStr, :Casesensitive = TRUE)
 
@@ -10582,13 +11424,6 @@ class stzString from stzObject
 
 			def RemoveFirstQ(pcSubStr)
 				This.RemoveFirst(pcSubStr)
-				return This
-
-		def RemoveFromStart(pcSubStr)
-			This.RemoveFirstOccurrence(pcSubStr)
-
-			def RemoveFromStartQ(pcSubStr)
-				This.RemoveFromStart(pcSubStr)
 				return This
 
 	  #--------------------------------------------------#
@@ -10613,13 +11448,6 @@ class stzString from stzObject
 				This.RemoveLastCS(pcSubStr, pCaseSensitive)
 				return This
 
-		def RemoveFromEndCS(pcSubStr, pCaseSensitive)
-			This.RemoveLastOccurrenceCS(pcSubStr, pCaseSensitive)
-
-			def RemoveFromEndCSQ(pcSubStr, pCaseSensitive)
-				This.RemoveFromEndCS(pcSubStr, pCaseSensitive)
-				return This
-
 	def RemoveLastOccurrence(pcSubStr)
 		This.RemoveLastOccurrenceCS(pcSubStr, :Casesensitive = TRUE)
 
@@ -10636,13 +11464,6 @@ class stzString from stzObject
 
 			def RemoveLastQ(pcSubStr)
 				This.RemoveLast(pcSubStr)
-				return This
-
-		def RemoveFromEnd(pcSubStr)
-			This.RemoveLastOccurrence(pcSubStr)
-
-			def RemoveFromEndQ(pcSubStr)
-				This.RemoveFromEnd(pcSubStr, pCaseSensitive)
 				return This
 
 	   #----------------------------------------------------#
@@ -10804,13 +11625,6 @@ class stzString from stzObject
 			This.RemoveLeftOccurrenceCS(pcSubStr, pCaseSensitive)
 			return This
 
-		def RemoveFromLeftCS(pcSubStr, pCaseSensitive)
-			This.RemoveLeftOccurrenceCS(pcSubStr, pCaseSensitive)
-
-			def RemoveFromLeftCSQ(pcSubStr, pCaseSensitive)
-				This.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
-				return This
-
 	#-- CASE-INSENSITIVE
 
 	def RemoveLeftOccurrence(pcSubStr)
@@ -10819,13 +11633,6 @@ class stzString from stzObject
 		def RemoveLeftOccurrenceQ(pcSubStr)
 			This.RemoveLeftOccurrence(pcSubStr)
 			return This
-
-		def RemoveFromLeft(pcSubStr)
-			This.RemoveLeftOccurrence(pcSubStr)
-
-			def RemoveFromLeftQ(pcSubStr)
-				This.RemoveFromLeft(pcSubStr, pCaseSensitive)
-				return This
 
 	  #---------------------------------------------#
 	 #    REMOVING RIGHT OCCURRENCE OF SUBSTRING   # 
@@ -10845,13 +11652,6 @@ class stzString from stzObject
 			This.RemoveRightOccurrenceCS(pcSubStr, pCaseSensitive)
 			return This
 
-		def RemoveFromRightCS(pcSubStr, pCaseSensitive)
-			This.RemoveRightOccurrenceCS(pcSubStr, pCaseSensitive)
-
-			def RemoveFromRightCSQ(pcSubStr, pCaseSensitive)
-				This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
-				return This
-
 	def RemoveRightOccurrence(pcSubStr)
 		This.RemoveRightOccurrenceCS(pcSubStr, :CaseSensitive = TRUE)
 
@@ -10859,189 +11659,407 @@ class stzString from stzObject
 			This.RemoveRightOccurrence(pcSubStr)
 			return This
 
-		def RemoveFromRight(pcSubStr)
-			This.RemoveRightOccurrence(pcSubStr)
+	  #-------------------------------------#
+	 #   REMOVING A SUBSTRING FROM LEFT    #
+	#-------------------------------------#
 
-			def RemoveFromRightQ(pcSubStr)
-				This.RemoveFromRight(pcSubStr)
-				return This
+	def RemoveFromLeftCS(pcSubStr, pCaseSensitive)
+		if This.BeginsWithCS(pcSubStr, pCaseSensitive)
+			n1 = 1
+			n2 = StzStringQ(pcSubStr).NumberOfChars()
+			This.RemoveSection(n1, n2)
+		ok
 
-	  #----------------------------#
-	 #     REMOVING NTH CHAR      #
-	#----------------------------#
-
-	def RemoveNthChar(n)
-		This.ReplaceNthChar(n, "")
-
-		def RemoveNthCharQ(n)
-			This.RemoveNthChar(n)
+		def RemoveFromLeftCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
 			return This
 
-	def NthCharRemoved(n)
-		cResult = This.Copy().RemoveNthCharQ(n).Content()
+		def RemovSubStringFromLeftCS(pcSubStr, pCaseSensitive)
+			This.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
+
+			def RemovSubStringFromLeftCSQ(pcSubStr, pCaseSensitive)
+				This.RemovSubStringFromLeftCS(pcSubStr, pCaseSensitive)
+				return This
+
+	def RemovedFromLeftCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveFromLeftCSQ(pcSubStr, pCaseSensitive)
 		return cResult
 
-		def NthCharRemoveQ(n)
-			return new stzString(This.NthCharRemoved(n))
+		def SubStringRemovedFromLeftCS(pcSubStr, pCaseSensitive)
+			return This.RemovedFromLeftCS(pcSubStr, pCaseSensitive)
 
-	  #----------------------------------------------------#
-	 #     REMOVING NTH CHAR UNDER A GIVEN CONDITION      #
-	#----------------------------------------------------#
+	#-- CASE-INSENSITIVE
 
-	def RemoveNthCharW(n, pcCondition)
+	def RemoveFromLeft(pcSubStr)
+		This.RemoveFromLeftCS(pcSubStr, :CaseSensitive = TRUE)
 
-		if n = :LastChar or n = :EndOfString
-			n = This.NumberOfChars()
+		def RemoveFromLeftQ(pcSubStr)
+			This.RemoveFromLeft(pcSubStr)
+			return This
 
-		but n = :FirstChar or n = :StartOfString
-			n = 1
+		def RemovSubStringFromLeft(pcSubStr)
+			This.RemoveFromLeft(pcSubStr)
+
+			def RemovSubStringFromLeftQ(pcSubStr)
+				This.RemovSubStringFromLeft(pcSubStr)
+				return This
+
+	def RemovedFromLeft(pcSubStr)
+		cResult = This.Copy().RemoveFromLeftQ(pcSubStr)
+		return cResult
+
+		def SubStringRemovedFromLeft(pcSubStr)
+			return This.RemovedFromLeft(pcSubStr)
+
+	  #-------------------------------------#
+	 #   REMOVING A SUBSTRING FROM RIGHT   #
+	#-------------------------------------#
+
+	def RemoveFromRightCS(pcSubStr, pCaseSensitive)
+		if This.BeginsWithCS(pcSubStr, pCaseSensitive)
+			nLen = StzStringQ(pcSubStr).NumberOfChars()
+			n1 = This.NumberOfChars() - nLen + 1
+			n2 = This.NumberOfChars()
+			This.RemoveSection(n1, n2)
 		ok
-		
-		pcCondition = StzStringQ(pcCondition).LowercaseQ().SimplifyQ().RemoveBoundsQ("{","}").Content()
 
-		@i = 0
-		for @char in [ This[n] ]
-			@i++
-			cCode = 'bRemove = (' + pcCondition + ')'
+		def RemoveFromRightCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
+			return This
+
+		def RemoveRightCS(pcSubStr, pCaseSensitive)
+			This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
+
+			def RemoveRightCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveRightCS(pcSubStr, pCaseSensitive)
+				return This
+
+		def RemovSubStringFromRightCS(pcSubStr, pCaseSensitive)
+			This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
+
+			def RemovSubStringFromRightCSQ(pcSubStr, pCaseSensitive)
+				This.RemovSubStringFromRightCS(pcSubStr, pCaseSensitive)
+				return This
+
+	def RemovedFromRightCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveFromRightCSQ(pcSubStr, pCaseSensitive)
+		return cResult
+
+		def SubStringRemovedFromRightCS(pcSubStr, pCaseSensitive)
+			return This.RemovedFromRightCS(pcSubStr, pCaseSensitive)
+
+	#-- CASE-INSENSITIVE
+
+	def RemoveFromRight(pcSubStr)
+		This.RemoveFromRightCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def RemoveFromRightQ(pcSubStr)
+			This.RemoveFromRight(pcSubStr)
+			return This
+
+		def RemoveRight(pcSubStr)
+			This.RemoveFromRight(pcSubStr)
+
+			def RemoveRightQ(pcSubStr)
+				This.RemoveRight(pcSubStr)
+				return This
+
+		def RemovSubStringFromRight(pcSubStr)
+			This.RemoveFromRight(pcSubStr)
+
+			def RemovSubStringFromRightQ(pcSubStr)
+				This.RemovSubStringFromRight(pcSubStr)
+				return This
+
+	def RemovedFromRight(pcSubStr)
+		cResult = This.Copy().RemoveFromRightQ(pcSubStr)
+		return cResult
+
+		def SubStringRemovedFromRight(pcSubStr)
+			return This.RemovedFromRight(pcSubStr)	
+
+	  #-------------------------------------#
+	 #   REMOVING A SUBSTRING FROM START   #
+	#-------------------------------------#
+
+	def RemoveFromStartCS(pcSubStr, pCaseSensitive)
+		if This.IsLeftToRight()
+			This.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
+		else
+			This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
+		ok
+
+		def RemoveFromStartCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveFromStartCS(pcSubStr, pCaseSensitive)
+			return This
+
+		def RemovSubStringFromStartCS(pcSubStr, pCaseSensitive)
+			This.RemoveFromStartCS(pcSubStr, pCaseSensitive)
+
+			def RemovSubStringFromStartCSQ(pcSubStr, pCaseSensitive)
+				This.RemovSubStringFromStartCS(pcSubStr, pCaseSensitive)
+				return This
+
+	def RemovedFromStartCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveFromStartCSQ(pcSubStr, pCaseSensitive)
+		return cResult
+
+		def SubStringRemovedFromStartCS(pcSubStr, pCaseSensitive)
+			return This.RemovedFromStartCS(pcSubStr, pCaseSensitive)
+
+	#-- CASE-INSENSITIVE
+
+	def RemoveFromStart(pcSubStr)
+		This.RemoveFromStartCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def RemoveFromStartQ(pcSubStr)
+			This.RemoveFromStart(pcSubStr)
+			return This
+
+		def RemovSubStringFromStart(pcSubStr)
+			This.RemoveFromStart(pcSubStr)
+
+			def RemovSubStringFromStartQ(pcSubStr)
+				This.RemovSubStringFromStart(pcSubStr)
+				return This
+
+	def RemovedFromStart(pcSubStr)
+		cResult = This.Copy().RemoveFromStartQ(pcSubStr)
+		return cResult
+
+		def SubStringRemovedFromStart(pcSubStr)
+			return This.RemovedFromStart(pcSubStr)
+
+	  #-----------------------------------#
+	 #   REMOVING A SUBSTRING FROM END   #
+	#-----------------------------------#
+
+	def RemoveFromEndCS(pcSubStr, pCaseSensitive)
+		if This.IsLeftToRight()
+			This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
+		else
+			This.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
+		ok
+
+		def RemoveFromEndCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveFromEndCS(pcSubStr, pCaseSensitive)
+			return This
+
+		def RemovSubStringFromEndCS(pcSubStr, pCaseSensitive)
+			This.RemoveFromEndCS(pcSubStr, pCaseSensitive)
+
+			def RemovSubStringFromEndCSQ(pcSubStr, pCaseSensitive)
+				This.RemovSubStringFromEndCS(pcSubStr, pCaseSensitive)
+				return This
+
+	def RemovedFromEndCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveFromEndCSQ(pcSubStr, pCaseSensitive)
+		return cResult
+
+		def SubStringRemovedFromEndCS(pcSubStr, pCaseSensitive)
+			return This.RemovedFromEndCS(pcSubStr, pCaseSensitive)
+
+	#-- CASE-INSENSITIVE
+
+	def RemoveFromEnd(pcSubStr)
+		This.RemoveFromEndCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def RemoveFromEndQ(pcSubStr)
+			This.RemoveFromEnd(pcSubStr)
+			return This
+
+		def RemovSubStringFromEnd(pcSubStr)
+			This.RemoveFromEnd(pcSubStr)
+
+			def RemovSubStringFromEndQ(pcSubStr)
+				This.RemovSubStringFromEnd(pcSubStr)
+				return This
+
+	def RemovedFromEnd(pcSubStr)
+		cResult = This.Copy().RemoveFromEndQ(pcSubStr)
+		return cResult
+
+		def SubStringRemovedFromEnd(pcSubStr)
+			return This.RemovedFromEnd(pcSubStr)
+
+	  #--------------------------------------------------------#
+	 #    REMOVING CHARS FROM LEFT UNDER A GIVEN CONDITION    # 
+	#--------------------------------------------------------#
+
+	def RemoveCharsFromLeftW(pcCondition)
+		if isList(pcCondition) and StzListQ(pcCondition).IsWhereParamList()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			stzRaise("Incorrect param type! Condition should be in a string.")
+		ok
+
+		pcCondition = StzStringQ(pcCondition).
+				SimplifyQ().
+				RemoveBoundsQ("{","}").
+				ReplaceQ("@item", "@char").
+				Content()
+
+		cCode = "bOk = ( " + pcCondition + " )"
+
+		cSubStrToRemove = ""
+
+		for @i = 1 to This.NumberOfChars()
+			@char = This[i]
 			eval(cCode)
-
-			if bRemove
-				This.RemoveNthChar(n)
+			if bOk
+				cSubStrToRemove += @charName
 			ok
 		next
 
-		def RemoveNthCharWQ(n, pcCondition)
-				This.RemoveNthCharW(n, pcCondition)
+		This.RemoveSubStringFromLeft(cSubStrToRemove)
+
+		def RemoveCharsFromLeftWWQ(pcCondition)
+			This.RemoveCharsFromLeftW(pcCondition)
+			return This
+
+		def RemoveFromLeftW(pcCondition)
+			This.RemoveCharsFromLeftW(pcCondition)
+
+			def RemoveFromLeftWQ(pcCondition)
+				This.RemoveFromLeftW(pcCondition)
 				return This
 
-		def RemoveNthCharWhere(n, pcCondition)
-			This.RemoveNthCharW(n, pcCondition)
-			
-			def RemoveNthCharWhereQ(n, pcCondition)
-				This.RemoveNthCharW(n, pcCondition)
+		def RemoveLeftW(pcCondition)
+			This.RemoveFromLeftW(pcCondition)
+
+			def RemoveLeftWQ(pcCondition)
+				This.RemoveLeftW(pcCondition)
 				return This
 
-	def NthCharRemovedW(n, pcCondition)
-		cResult = This.Copy().RemoveNthCharWQ(n, pcCondition).Content()
+	def CharsRemovedFromLeft(pcCondition)
+		cResult = This.Copy().RemoveCharsFromLeftWQ(pcCondition).Content()
 		return cResult
 
-		def NthCharRemovedWQ(n, pcCondition)
-			return new stzString( This.NthCharRemovedW(n, pcCondition) )
+	  #---------------------------------------------------------#
+	 #    REMOVING CHARS FROM RIGHT UNDER A GIVEN CONDITION    # 
+	#---------------------------------------------------------#
 
-	def RemoveFirstCharW(pcCondition)
-		This.RemoveNthCharW(1, pcCondition)
+	def RemoveCharsFromRightW(pcCondition)
+		if isList(pcCondition) and StzListQ(pcCondition).IsWhereParamList()
+			pcCondition = pcCondition[2]
+		ok
 
-		def RemoveFirstCharWQ(pcCondition)
-			This.RemoveFirstCharW(pcCondition)
+		if NOT isString(pcCondition)
+			stzRaise("Incorrect param type! Condition should be in a string.")
+		ok
+
+		pcCondition = StzStringQ(pcCondition).
+				SimplifyQ().
+				RemoveBoundsQ("{","}").
+				ReplaceQ("@item", "@char").
+				Content()
+
+		cCode = "bOk = ( " + pcCondition + " )"
+
+		cSubStrToRemove = ""
+
+		for @i = 1 to This.NumberOfChars()
+			@char = This[i]
+			eval(cCode)
+			if bOk
+				cSubStrToRemove += @charName
+			ok
+		next
+
+		This.RemoveSubStringFromRight(cSubStrToRemove)
+
+		def RemoveCharsFromRightWWQ(pcCondition)
+			This.RemoveCharsFromRightW(pcCondition)
 			return This
 
-	def FirstCharRemovedW(pcCondition)
-		cResult = This.Copy().RemoveFirstCharWQ(pcCondition).Content()
-		return cResult
+		def RemoveFromRightW(pcCondition)
+			This.RemoveCharsFromRightW(pcCondition)
 
-		def FirstCharRemovedWQ(pcCondition)
-			return new stzString( This.FirstCharRemovedW(pcCondition) )
-
-	def RemoveLastCharW(pcCondition)
-		//This.RemoveNthCharW(:Last, pcCondition)
-		This.RemoveNthCharW(This.NumberOfChars(), pcCondition)
-
-		def RemoveLastCharWQ(pcCondition)
-			This.RemoveLastCharW(pcCondition)
-			return This
-
-	def LastCharRemovedW(pcCondition)
-		cResult = This.Copy().RemoveLastCharWQ(pcCondition).Content()
-		return cResult
-
-		def LastCharRemovedWQ(pcCondition)
-			return new stzString( This.LastCharRemovedW(pcCondition) )
-
-	  #----------------------------------#
-	 #    REMOVING A SECTION OF CHARS   # 
-	#----------------------------------#
-	
-	// Removes a portion of the string defined by its start and end positions
-	def RemoveSection(n1, n2)
-
-		if n1 = :FirstChar or n1 = :StartOfString { n1 = 1 }
-		if n2 = :LastChar  or n2 = :EndOfString { n2 = This.NumberOfChars() }
-
-		This.ReplaceSection( n1, n2, "" )
-
-		def RemoveSectionQ(n1, n2)
-			This.RemoveSection(n1, n2)
-			return This
-
-	def SectionRemoved(n1, n2)
-		cResult = This.Copy().RemoveSectionQ(n1, n2).Content()
-		return cResult
-	
-	def RemoveManySections(paListOfSections)
-		
-		# Sections must be a list of pairs sorted in descending
-
-		# Remove the pairs in descending order
-
-
-		def RemoveManySectionsQ(paListOfSections)
-			This.RemoveManySections(paListOfSections)
-			return This
-
-		def RemoveSections(paListOfSections)
-			This.RemoveManySections(paListOfSections)
-
-			def RemoveSectionsQ(paListOfSections)
-				This.RemoveSections
+			def RemoveFromRightWQ(pcCondition)
+				This.RemoveFromRightW(pcCondition)
 				return This
 
-	def ManySectionsRemoved(paListOfSections)
-		cResult = This.Copy().RemoveManySectionsQ(paListOfSections).Content()
-		return This
+		def RemoveRightW(pcCondition)
+			This.RemoveFromRightW(pcCondition)
 
-		def SectionsRemoved(paListOfSections)
-			return This.ManySectionsRemoved(paListOfSections)
-
-	  #--------------------------------#
-	 #    REMOVING A RANGE OF CHARS   # 
-	#--------------------------------#
-
-	// Removes a portion of the string defined by a start position and
-	// a range of n chars
-	def RemoveRange(nStart, nNumberOfChars)
-
-		if nStart = :FirstChar or nStart = :StartOfString { nStart = 1 }
-		if nNumberOfChars = :EndOfString { nNumberOfChars = This.NumberOfChars() - nStart + 1 }
-
-		This.RemoveSection(nStart, nStart + nNumberOfChars - 1)
-
-		def RemoveRangeQ(nStart, nNumberOfChars)
-			This.RemoveRange(nStart, nNumberOfChars)
-			return This
-
-	def RangeRemoved(nStart, nNumberOfChars)
-		cResult = This.RemoveRangeQ(nStart, nNumberOfChars).Content()
-		return cResult
-
-	def RemoveManyRanges(paListOfRanges)
-		// TODO ///////////////////////////////// NOW ////////////////////
-
-		def RemoveManyRangesQ(paListOfRanges)
-			This.RemoveManySections(paListOfRanges)
-
-		def RemoveRanges(paListOfRanges)
-			This.RemoveRanges(paListOfRanges)
-
-			def RemoveRangesQ(paListOfRanges)
-				This.RemoveRanges(paListOfRanges)
+			def RemoveRightWQ(pcCondition)
+				This.RemoveRightW(pcCondition)
 				return This
 
-	def ManyRangesRemoved(paListOfRanges)
-		cResult = This.Copy().RemoveManyRangesQ(paListOfRanges).Content()
-		return This
+	def CharsRemovedFromRight(pcCondition)
+		cResult = This.Copy().RemoveCharsFromRightWQ(pcCondition).Content()
+		return cResult
 
-		def RangedRemoved(paListOfRanges)
-			return This.ManyRangesRemoved(paListOfRanges)
+	  #---------------------------------------------------------#
+	 #    REMOVING CHARS FROM START UNDER A GIVEN CONDITION    # 
+	#---------------------------------------------------------#
+
+	def RemoveCharsFromStartW(pcCondition)
+		if This.IsLeftToRight()
+			This.RemoveCharsFromLeftW(pcCondition)
+
+		else
+			This.RemoveCharsFromRightW(pcCondition)
+		ok
+
+
+		def RemoveCharsFromStartWWQ(pcCondition)
+			This.RemoveCharsFromStartW(pcCondition)
+			return This
+
+		def RemoveFromStartW(pcCondition)
+			This.RemoveCharsFromStartW(pcCondition)
+
+			def RemoveFromStartWQ(pcCondition)
+				This.RemoveFromStartW(pcCondition)
+				return This
+
+		def RemoveStartW(pcCondition)
+			This.RemoveFromStartW(pcCondition)
+
+			def RemoveStartWQ(pcCondition)
+				This.RemoveStartW(pcCondition)
+				return This
+
+	def CharsRemovedFromStart(pcCondition)
+		cResult = This.Copy().RemoveCharsFromStartWQ(pcCondition).Content()
+		return cResult
+
+	  #---------------------------------------------------------#
+	 #    REMOVING CHARS FROM END UNDER A GIVEN CONDITION    # 
+	#---------------------------------------------------------#
+
+	def RemoveCharsFromEndW(pcCondition)
+		if This.IsLeftToRight()
+			This.RemoveCharsFromRighttW(pcCondition)
+
+		else
+			This.RemoveCharsFromLeftW(pcCondition)
+		ok
+
+		def RemoveCharsFromEndWWQ(pcCondition)
+			This.RemoveCharsFromEndW(pcCondition)
+			return This
+
+		def RemoveFromEndW(pcCondition)
+			This.RemoveCharsFromEndW(pcCondition)
+
+			def RemoveFromEndWQ(pcCondition)
+				This.RemoveFromEndW(pcCondition)
+				return This
+
+		def RemoveEndW(pcCondition)
+			This.RemoveFromEndW(pcCondition)
+
+			def RemoveEndWQ(pcCondition)
+				This.RemoveEndW(pcCondition)
+				return This
+
+	def CharsRemovedFromEnd(pcCondition)
+		cResult = This.Copy().RemoveCharsFromEndWQ(pcCondition).Content()
+		return cResult
 
 	  #----------------------------------------------------------#
 	 #    TRIMMING & REMOVING SPACES, AND SIMPLIFYING STRING    # 
@@ -12694,14 +13712,18 @@ class stzString from stzObject
 
 		# Rule 2: String should be prefixed with a binary prefix
 
-		n = len( BinaryNumberPrefix() )
+		bTemp = FALSE
 
-		str = This.Section( n + 1, This.NumberOfChars())
-		oTempStr = new stzString(str)
+		for cBinPrefix in BinaryPrefixes()
+			oCopy = This.Copy()
+			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
 
-		if This.NLeftChars(n) != BinaryNumberPrefix()
-			return FALSE
-		ok
+			if oCopy.StartsWithCS(cBinPrefix, :CaseSensitive = FALSE)
+				bTemp = TRUE
+				exit
+			ok
+		next
+		if bTemp = FALSE { return FALSE }
 
 		# Rule 3: String shouldn't be just one of these chars
 
@@ -12767,14 +13789,18 @@ class stzString from stzObject
 
 		# Rule 2: String should be prefixed with a hex prefix
 
-		n = len( HexNumberPrefix() )
+		bTemp = FALSE
 
-		str = This.Section( n + 1, This.NumberOfChars() )
-		oTempStr = new stzString(str)
+		for cHexPrefix in HexPrefixes()
+			oCopy = This.Copy()
+			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
 
-		if This.NLeftChars(n) != HexNumberPrefix()
-			return FALSE
-		ok
+			if oCopy.StartsWithCS(cHexPrefix, :CaseSensitive = FALSE)
+				bTemp = TRUE
+				exit
+			ok
+		next
+		if bTemp = FALSE { return FALSE }
 
 		# Rule 3: String shouldn't be formed of these chars alone
 
@@ -12853,14 +13879,18 @@ class stzString from stzObject
 
 		# Rule 2: String should be prefixed with an octal prefix
 
-		n = len( OctalNumberPrefix() )
+		bTemp = FALSE
 
-		str = This.Section( n + 1, This.NumberOfChars())
-		oTempStr = new stzString(str)
+		for cOctalPrefix in OctalPrefixes()
+			oCopy = This.Copy()
+			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
 
-		if This.NLeftChars(n) != OctalNumberPrefix()
-			return FALSE
-		ok
+			if oCopy.StartsWithCS(cOctalPrefix, :CaseSensitive = FALSE)
+				bTemp = TRUE
+				exit
+			ok
+		next
+		if bTemp = FALSE { return FALSE }
 
 		# Rule 3: String shouldn't be formed of these chars alone
 
@@ -12944,6 +13974,34 @@ class stzString from stzObject
 		next
 		return aResult
 
+		#< @FunctionFluentForm
+
+		def CharsQ()
+			return This.CharsQR(:stzList)
+
+		def CharsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Chars() )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.Chars() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Chars() )
+			other
+				stzRaise([
+					:Where = "stzString (13237) > CharsQR()",
+					:What  = "Unsupported type!"
+				])
+			off
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def ToListOfChars()
@@ -12979,31 +14037,6 @@ class stzString from stzObject
 
 			#>
 	
-		#>
-
-		#< @FunctionFluentForm
-
-		def CharsQ()
-			return This.CharsQR(:stzList)
-
-		def CharsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Chars() )
-
-			on :stzListOfChars
-				return new stzListOfChars( This.Chars() )
-
-			on :stzListOfSrings
-				return new stzListOfStrings( This.Chars() )
-			other
-				stzRaise("Unsupported type!")
-			off
-
 		#>
 			
 	def ToListOfStzChars()
@@ -14306,7 +15339,7 @@ class stzString from stzObject
 
 		# Applies to latin script only
 
-		if NOT This.ScriptIs(:Latin)
+		if NOT This.ToStzText().ScriptIs(:Latin)
 			return This.String()
 		ok
 

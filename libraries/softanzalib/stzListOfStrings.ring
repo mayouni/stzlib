@@ -655,7 +655,7 @@ class stzListOfStrings from stzObject
 	
 	def ConcatenatedUsing(pcSep)
 		aResult = This.Copy().ConcatenateUsingQ(pcSep).Content()
-		return This
+		return aResult
 
 	  #--------------------------------------#
 	 #     REVERSING THE LIST OF STRINGS    #
