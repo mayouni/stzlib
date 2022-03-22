@@ -482,16 +482,18 @@ func SubstringsNotAllowedInEndOfWord()
  ///   CLASS   ///
 /////////////////
 
-class stzText from stzObject
-	@cContent
+class stzText from stzString
+	@oQString
+
 	@cLanguage = DefaultLanguage()
 
 	def init(pcStr)
 		if isString(pcStr)
-			@cContent = pcStr
+			@oQString = new QString2()
+			@oQString.append(pcStr)
 
 		but IsStzString(pcStr)
-			@cContent = pStr.Content()
+			@oQString = pcStr.QStringObject()
 
 		else
 			stzRaise("Can't create stzText object! You must provide a string or a stzString object.")
@@ -501,32 +503,12 @@ class stzText from stzObject
 	 #    GENERAL     #
 	#----------------#
 
-	def Content()
-		return @cContent
-
 	def Text()
 		return This.Content()
-
-	def ToStzString()
-		return new stzString(This.Text())
 
 	def Copy()
 		oCopy = new stzText(This.Content())
 		return oCopy
-
-	def Update(pOtherString)
-		if Not IsStringOrList(pOtherString)
-			stzRaise("Inccorect param type! You must provide a string.")
-		ok
-
-		if isList(pOtherString) and
-		   ( StzListQ(pOtherString).IsWithParamList() or
-		     StzListQ(pOtherString).IsByParamList() )
-
-			pOtherString = pOtherString[2]
-		ok
-
-		@cContent = pOtherString
 
 	  #--------------------#
 	 #      LANGUAGE      #
@@ -617,10 +599,9 @@ class stzText from stzObject
 		
 	def Scripts()
 		aResult = []
-		oString = This.ToStzString()
 
-		for i = 1 to oString.NumberOfChars()
-			aResult + oString.CharAtQ(i).Script()
+		for i = 1 to This.NumberOfChars()
+			aResult + This.CharAtQ(i).Script()
 		next
 
 		aResult = StzListQ(aResult).ToSet()
@@ -631,12 +612,12 @@ class stzText from stzObject
 		return len(This.Scripts())
 
 	def ScriptOfNthChar(n)
-		return This.ToStzString().CharAtQ(n).Script()
+		return This.CharAtQ(n).Script()
 
 	def ScriptsPerChar()
 		aResult = []
 
-		for c in This.ToStzString().UniqueChars()
+		for c in This.UniqueChars()
 			aResult + StzCharQ(c).Script()
 		next
 
@@ -1142,7 +1123,7 @@ class stzText from stzObject
 	#---------------------------------------------#
 
 	def OnlyScript(pcScript)
-		acListOfChars = StzListQ( This.ToStzString().ToListOfChars() ).CharsW('
+		acListOfChars = StzListQ( This.ToListOfChars() ).CharsW('
 			StzCharQ(@item).Script() = pcScript
 		')
 
@@ -1151,7 +1132,7 @@ class stzText from stzObject
 		
 	# TODO: Not optimised for large texts!
 	def OnlyArabic()
-		acListOfChars = StzListQ( This.ToStzString().ToListOfChars() ).ItemsW('
+		acListOfChars = StzListQ( This.ToListOfChars() ).ItemsW('
 			StzCharQ(@item).IsNeutral() or
 			StzCharQ(@item).IsSpace() or
 			StzCharQ(@item).IsArabic()
@@ -1161,7 +1142,7 @@ class stzText from stzObject
 		return cResult
 
 	def OnlyLatin()
-		acListOfChars = StzListQ( This.ToStzString().ToListOfChars() ).ItemsW('
+		acListOfChars = StzListQ( This.ToListOfChars() ).ItemsW('
 			StzCharQ(@item).IsNeutral() or
 			StzCharQ(@item).IsSpace() or
 			StzCharQ(@item).IsLatin()
@@ -1191,14 +1172,14 @@ class stzText from stzObject
 		return bResult
 
 	def IsArabicWord()
-		if This.ToStzString().IsWord() and This.ScriptIs(:Arabic)
+		if This.IsWord() and This.ScriptIs(:Arabic)
 			return TRUE
 		else
 			return FALSE
 		ok
 
 	def IsLatinWord()
-		if This.ToStzString().IsWord() and This.ScriptIs(:Latin)
+		if This.IsWord() and This.ScriptIs(:Latin)
 			return TRUE
 		else
 			return FALSE
@@ -1241,7 +1222,7 @@ class stzText from stzObject
 
 		*/
 
-		oCopy = This.ToStzString().LowercaseQ() # Words are managed in lowercase in Softanza
+		oCopy = This.LowercaseQ() # Words are managed in lowercase in Softanza
 
 		# t0 = clock()
 
@@ -1249,7 +1230,7 @@ class stzText from stzObject
 			oWords = This.RemovePunctuationExceptQ( WordNonLetterChars() ).SimplifyQ().SplitQ(" ")
 
 		but WordsIdentificationMode() = :Quick
-			oWords = This.RemovePunctuationsQ().ToStzStringQ().SplitQ(" ")
+			oWords = This.RemovePunctuationsQ().SplitQ(" ")
 		else
 			stzRaise("Unkowan word identification mode!")
 		ok
@@ -1797,7 +1778,7 @@ class stzText from stzObject
 		aResult = []
 
 		for cWord in This.UniqueWords()
-			aResult + [ cWord, This.ToStzString().FindAllCS(cWord, :CS = FALSE) ]
+			aResult + [ cWord, This.FindAllCS(cWord, :CS = FALSE) ]
 		next
 
 		aResult = StzHashListQ( aResult ).ValuesQ().MergeQ().SortedInAscending()
@@ -1890,7 +1871,7 @@ class stzText from stzObject
 		aResult = []
 
 		for cWord in This.UniqueWords()
-			aResult + [ cWord, This.ToStzString().FindAllCS(cWord, :CS = FALSE) ]
+			aResult + [ cWord, This.FindAllCS(cWord, :CS = FALSE) ]
 		next
 
 		return aResult
@@ -1961,7 +1942,7 @@ class stzText from stzObject
 		aResult = []
 
 		for cWord in This.UniqueWords()
-			aResult + [ cWord, This.ToStzString().NumberOfOccurrencesCS(cWord, :CS = FALSE) ]
+			aResult + [ cWord, This.NumberOfOccurrencesCS(cWord, :CS = FALSE) ]
 		next
 
 		return aResult
@@ -1982,7 +1963,7 @@ class stzText from stzObject
 
 		# t0 = clock()
 
-		oCopy = This.ToStzString().LowercaseQ().SimplifyQ()
+		oCopy = This.LowercaseQ().SimplifyQ()
 		cWord = StzStringQ(pcWord).Lowercased()
 
 		acSeps = WordSeparators()
@@ -2043,7 +2024,7 @@ class stzText from stzObject
 
 	def WordFrequency(pcWord)
 
-		if This.ToStzString().IsEmpty()
+		if This.IsEmpty()
 			stzRaise("Can't compute WordFrequency()! String is empty.")
 		ok
 
@@ -2606,13 +2587,9 @@ class stzText from stzObject
 			
 	def RemoveWords()
 
-		oString = This.ToStzString()
-		
 		for cWord in This.Words()
-			oString - cWord
+			This - cWord
 		next
-
-		This.Update( :With = oString.Content() )
 
 		def RemoveWordsQ()
 			This.RemoveWords()
@@ -3107,7 +3084,7 @@ class stzText from stzObject
         #--------------------------------#
 
 	def NumberOfLetters()
-		nResult = This.ToStzString().NumberOfLetters()
+		nResult = This.NumberOfLetters()
 		return nResult
 
 	def ForwardToEndOfWord(nStart) # Starting at position n
@@ -3128,11 +3105,9 @@ class stzText from stzObject
 
 		ok
 
-		oStringCopy = This.ToStzString()
-
 		# Checking the range of possible values for nStart param
 
-		if nStart < 1 or nStart > oStringCopy.NumberOfChars()
+		if nStart < 1 or nStart > This.NumberOfChars()
 			return NULL
 		ok
 
@@ -3145,13 +3120,13 @@ class stzText from stzObject
 		while bInside
 			i++
 						 
-			if i = oStringCopy.NumberOfChars() or
-			   oStringCopy.CharAtQ(i).IsWordSeparator()
+			if i = This.NumberOfChars() or
+			   This.CharAtQ(i).IsWordSeparator()
 
 				bInside = FALSE
 			
 			else
-				cResult += oStringCopy.NthChar(i)
+				cResult += This.NthChar(i)
 			ok
 				
 		end
@@ -3243,8 +3218,6 @@ class stzText from stzObject
 			return NULL
 		ok
 
-		oStringCopy = This.ToStzString()
-
 		# Computing the rest of the word
 
 		bInside = TRUE
@@ -3254,12 +3227,12 @@ class stzText from stzObject
 		while bInside
 			i--
 					 
-			if i = 0 or oStringCopy.CharAtQ(i).IsWordSeparator()
+			if i = 0 or This.CharAtQ(i).IsWordSeparator()
 
 				bInside = FALSE
 			
 			else
-				cResult += oStringCopy.NthChar(i)
+				cResult += This.NthChar(i)
 			ok
 				
 		end
@@ -3280,7 +3253,7 @@ class stzText from stzObject
 	def FindAllOccurrencesOfWordCS(pcWord, pCaseSensitive)
 		acPossibleWords = PossibleInstancesOfWord(pcWord)
 
-		? acPossibleWords
+		/* ... */
 
 
 		#< @FunctionAlternativeForms
@@ -3465,8 +3438,6 @@ class stzText from stzObject
 			return NULL
 		ok
 
-		oStringCopy = This.ToStzString()
-
 		bInside = TRUE
 		cResult = ""
 		i = nStart - 1
@@ -3474,18 +3445,18 @@ class stzText from stzObject
 		while bInside
 			i++
 						 
-			if i = oStringCopy.NumberOfChars() or
-			   oStringCopy.CharAtQ(i).IsSentenceSeparator()
+			if i = This.NumberOfChars() or
+			   This.CharAtQ(i).IsSentenceSeparator()
 			   
 				bInside = FALSE
 
 			else
-				cResult += oStringCopy.NthChar(i)
+				cResult += This.NthChar(i)
 			ok	
 		end
 
 		if cResult != NULL
-			return cResult + oStringCopy.NthChar(i)
+			return cResult + This.NthChar(i)
 		else
 			return NULL
 		ok
@@ -3529,14 +3500,12 @@ class stzText from stzObject
 			return NULL
 		ok
 
-		oStringCopy = ToStzString()
-
 		# If the counting starts at a sentence separator
 		# then let's save it to add to the final result
 
 		cSentenceSep = ""
 
-		if oStringCopy.CharAtQ(nStart).IsSentenceSeparator()
+		if This.CharAtQ(nStart).IsSentenceSeparator()
 			cSentenceSep = This[ nStart ]
 			nStart--
 		ok
@@ -3551,7 +3520,7 @@ class stzText from stzObject
 		while bInside
 			i--
 					 
-			if i = 0 or oStringCopy.CharAtQ(i).IsSentenceSeparator()
+			if i = 0 or This.CharAtQ(i).IsSentenceSeparator()
 				bInside = FALSE
 		
 			else
@@ -3642,7 +3611,7 @@ class stzText from stzObject
 
 	def Sentences()
 		cSep = SentenceSeparator()
-		return This.ToStzString().Split(cSep)
+		return This.Split(cSep)
 
 		#< @FunctionFluentForm
 
@@ -3671,7 +3640,7 @@ class stzText from stzObject
 
 	def Paragraphs()
 		cSep = ParagraphSeparator()
-		return This.ToStzString.Split( cSep )
+		return This.Split( cSep )
 
 		#< @FunctionFluentForm
 
@@ -3701,7 +3670,7 @@ class stzText from stzObject
 	def NumberOfPunctuations()
 		nResult = 0
 
-		acStzChars = This.ToStzString().ToListOfStzChars()
+		acStzChars = This.ToListOfStzChars()
 
 		for oChar in acStzChars
 			if oChar.IsPunctuation()
@@ -3714,7 +3683,7 @@ class stzText from stzObject
 	def Punctuations()
 		aResult = []
 
-		acStzChars = This.ToStzString().ToListOfStzChars()
+		acStzChars = This.ToListOfStzChars()
 
 		for oChar in acStzChars
 			if oChar.IsPunctuation()
@@ -3732,7 +3701,7 @@ class stzText from stzObject
 	def UniquePunctuations()
 		aResult = []
 
-		acStzChars = This.ToStzString().ToListOfStzChars()
+		acStzChars = This.ToListOfStzChars()
 
 		for oChar in acStzChars
 			cChar = oChar.Content()
@@ -3749,7 +3718,7 @@ class stzText from stzObject
 	def NumberOfGeneralPunctuations()
 		nResult = 0
 
-		acStzChars = This.ToStzString().ToListOfStzChars()
+		acStzChars = This.ToListOfStzChars()
 
 		for oChar in acStzChars
 			if oChar.IsGeneralPunctuation()
@@ -3762,7 +3731,7 @@ class stzText from stzObject
 	def GeneralPunctuations()
 		aResult = []
 
-		acStzChars = This.ToStzString().ToListOfStzChars()
+		acStzChars = This.ToListOfStzChars()
 
 		for oChar in acStzChars
 			if oChar.IsGeneralPunctuation()
@@ -3778,7 +3747,7 @@ class stzText from stzObject
 	def UniqueGeneralPunctuations()
 		aResult = []
 
-		acStzChars = This.ToStzString().ToListOfStzChars()
+		acStzChars = This.ToListOfStzChars()
 
 		for oChar in acStzChars
 			cChar = oChar.Content()
@@ -3793,7 +3762,7 @@ class stzText from stzObject
 	def NumberOfSupplementalPunctuations()
 		nResult = 0
 
-		acStzChars = This.ToStzString().ToListOfStzChars()
+		acStzChars = This.ToListOfStzChars()
 
 		for oChar in acStzChars
 			if oChar.IsSupplementalPunctuation()
@@ -3806,7 +3775,7 @@ class stzText from stzObject
 	def SupplementalPunctuations()
 		aResult = []
 
-		acStzChars = This.ToStzString().ToListOfStzChars()
+		acStzChars = This.ToListOfStzChars()
 
 		for oChar in acStzChars
 			if oChar.IsSupplementalPunctuation()
@@ -3822,7 +3791,7 @@ class stzText from stzObject
 	def UniqueSupplementalPunctuations()
 		aResult = []
 
-		acStzChars = This.ToStzString().ToListOfStzChars()
+		acStzChars = This.ToListOfStzChars()
 
 		for oChar in acStzChars
 			cChar = oChar.Content()
@@ -3836,17 +3805,7 @@ class stzText from stzObject
 #------------------------
 
 	def RemovePunctuation()
-		cResult = ""
-
-		for i = 1 to This.NumberOfChars()
-			c = This.NthChar(i)
-
-			if NOT StzCharQ(c).IsPunctuation()
-				cResult += c
-			ok
-		next
-
-		This.Update( cResult )
+		This.RemoveCharsWhere('{ StzCharQ(@char).IsPunctuation() }')
 
 		def RemovePunctuationQ()
 			This.RemovePunctuation()
@@ -3860,7 +3819,7 @@ class stzText from stzObject
 				return This
 	
 	def RemovePunctuationExcept(paChars)
-		This.ToStzString().RemoveCharsWhere('StzCharQ(@char).isPunctuation() and NOT Q(@char).IsOneOfThese(' + @@(paChars) + ')')
+		This.RemoveCharsWhere('StzCharQ(@char).isPunctuation() and NOT Q(@char).IsOneOfThese(' + @@(paChars) + ')')
 
 		def RemovePunctuationExceptQ(paChars)
 			This.RemovePunctuationExcept(paChars)
@@ -3942,7 +3901,7 @@ class stzText from stzObject
 			# but check this!
 	
 		on :Hebrew
-			This.ToStzString()RemoveCharsWhere('{ StzCharQ(@char).IsHebrewDiacritic() }')
+			This.ToStzString().RemoveCharsWhere('{ StzCharQ(@char).IsHebrewDiacritic() }')
 			# TODO: I assumed that hebrew works like arabic for diacritics,
 			# but check this!
 	
@@ -4000,27 +3959,6 @@ class stzText from stzObject
 		cResult = This.Copy().RemoveArabicDiacriticsQ().Content()
 		return cResult
 
-/////////////////////////////////////
-/*
-	def RemoveArabic7araket()
-		if This.ScriptIs(:Arabic)
-			cResult = ""
-	
-			aStzChars = This.ToListOfStzChars()
-
-			for oChar in aStzChars
-				if NOT oChar.IsArabic7arakah()
-					cResult += oChar.Content()
-				ok
-			next
-	
-			This.Update( cResult )
-		ok
-	
-		def RemoveArabic7araketQ()
-			This.RemoveArabic7araket()
-			return This
-*/
 /////////////////////////////////////
 
 	# Greek diacritics
@@ -4095,8 +4033,7 @@ class stzText from stzObject
 	#---------------#
 
 	def Initials()
-		aResult = This.ToStzString().
-			       SplitQR(:Using = " ", :stzListOfStrings).
+		aResult = This.SplitQR(:Using = " ", :stzListOfStrings).
 			       Yield('Q(@str).FirstChar()')
 
 		return aResult

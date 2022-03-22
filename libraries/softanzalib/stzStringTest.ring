@@ -82,13 +82,13 @@ o1 = new stzString(' [ "ا", "ب", "ج" ] ')
 
 return
 /*=================
-
+*/
 # While finding occurrences of a substring inside a string,
 # Softanza can return the positions or the sections of
 # those substrings:
 
 o1 = new stzString("how many many are there? So many!")
-? @@( o1.FindPositions("many") )	#--> [ 5, 10, 29 ]
+? @@( o1.FindPositions("many") )#--> [ 5, 10, 29 ]
 ? @@( o1.FindSections("many") )	#--> [ [ 5, 9 ], [ 10, 14 ], [ 29, 33 ] ]
 
 
@@ -1857,7 +1857,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 
-? @@( o1.UniqueParts('{
+? @@( o1.Parts('{
 	StzCharQ(@char).Script()
 }') )
 
@@ -1890,7 +1890,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 /*---
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? o1.UniquePartsQ('StzCharQ(@char).Script()').ToStzHashList().Classify()	# TODO
+? o1.UniquePartsQ('StzCharQ(@char).Script()').ToStzHashList().Classify()
 # --> [
 #	:latin	 	= [ "Hanine", "is", "a", "nice", "years", "old", "girl" ],
 #	:common		= [ " ", " 7 ", "-", "!" ],
@@ -2065,27 +2065,6 @@ o1 = new stzString("SoftAnza Libraray")
 o1 = new stzString("SoftAnza Libraray")
 
 ? o1.FindAllCharsWhere('{ Q(@Char).Lowercased() = "a" }') # --> Gives [ 5, 8, 14, 16 ]
-
-
-/*------------------ TODO: review this choice!!!
-
-# By culture, Softanza is a permissive library.
-
-# In the following example, you use the method
-# FindNthOccurrence(n, substr) to get the position
-# of the nth occurrence of subsrt in the string.
-
-# But what if you forgot the right order of the
-# two params and entered the string before the number
-# like this: FindNthOccurrence(substr, n)?
-
-# It works!
-
-# Demonstration:
-
-o1 = new stzString("ya sayda arem haya arem")
-? o1.FindNthOccurrence(2, "arem") # --> Gives 20
-? o1.FindNthOccurrence("arem", 2) # --> Gives 20
 
 /*---------------
 

@@ -4329,7 +4329,7 @@ class stzString from stzObject
 		@oQString.insert(nPos-1, pcSubStr)
 
 		# The string has changed, check constraints...
-		This.VerifyConstraints()
+		//This.VerifyConstraints()
 
 		#< @FunctionFluentForm
 		
@@ -5767,7 +5767,7 @@ class stzString from stzObject
 		@oQString = new QString2()
 		@oQString.append(pcNewText)
 
-		This.VerifyConstraints()
+		//This.VerifyConstraints()
 
 		#< @FunctionAlternativeForms
 
@@ -5928,28 +5928,12 @@ class stzString from stzObject
 	#----------------------------------------------------#
 
 	def NthOccurrenceCS(n, pcSubstr, pCaseSensitive) # --> Returns 0 if nothing found
-		/*
-		Let's be permissive: if the user misses the right order of params
-		( --> enters the string before the number ) then fix it silently
-
-		TODO: generealize this feature!
-		*/
-
-		if isString(n) and isNumber(pcSubStr)
-			temp = n
-			n = pcSubStr
-			pcSubStr = temp
-		ok
-
-		# Also, let's facilitate the syntax a bit further
 
 		if n = :FirstChar or n = :StartOfString
 			n = 1
 		but n = :LastChar or n = :EndOfString
 			n = This.NumberOfOccurrence(pcSubStr)
 		ok
-
-		# And why not beautify the expression
 
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfParamList()
 			pcSubStr = pcSubStr[2]
@@ -7937,13 +7921,17 @@ class stzString from stzObject
 	def FindSectionsOfSubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		
 		anStartPositions = This.FindSubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		nLen = StzStringQ(pcSubStr1).NumberOfChars()
+		
+		anResult = []
+		for n in anStartPositions
+			n1 = n
+			n2 = This.FindNextOccurrenceCS( :Of = pcSubStr2, :StartingAt = n1, pCaseSensitive )
+			nLen = n2 - n1
 
-		anEndPositions = StzListOfNumbersQ(anStartPositions).AddedToEach(nLen-1)
+			anResult + [ n1, n2 ]
+		next
 
-		aResult = StzListQ(anStartPositions).AssociatedWith(anEndPositions)
-
-		return aResult
+		return anResult
 
 		#< @FunctionFluentForm
 
@@ -9078,7 +9066,7 @@ class stzString from stzObject
 			if isNumber(pCaseSensitive) and
 			   (pCaseSensitive = 0 or pCaseSensitive = 1)
 
-				return @oQString.contains(cSubStr, pCaseSensitive)
+				return QStringObject().contains(cSubStr, pCaseSensitive)
 
 			else
 				stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
@@ -10147,24 +10135,21 @@ class stzString from stzObject
 	/* Note:
 
 	This method analyzes the string, by sequentially partitioning
-	its content, using a given "partinonner. Hence, it serves
-	in answering this kinf of question:
+	its content, using a given "partinonner". Hence, it serves
+	in answering this kind of question:
 
 	How is the string composed in term of some char criteria
 	(beeing, for example, lowercase or uppercase, or left-oriented
 	or right-oriented).
 
 	The partionner is what we should provide to the method as
-	a param. Hence, it's called here a pcPartionner.
-
-	A Partionner is provided as a conditional code containing the
-	@char keyword.
+	a param as a conditional code containing the @char keyword.
 
 	For example:
 
 	o1 = new stzString("TUNIS gafsa NABEUL beja")
-	? o1.Parts(:By = 'Q(@char).CharCase()' ) # NOTE: Parts() is the simple
-						 # form of PartsAsSubstrings()
+	? o1.Parts(:Using = 'Q(@char).CharCase()' ) # NOTE: Parts() is the simple
+						    # form of PartsAsSubstrings()
 
 	Uses the CharCase() method in stzChar as a partionner.	
 
@@ -10182,25 +10167,6 @@ class stzString from stzObject
 	]
 
 	*/
-
-	def UniqueParts(pcPartionner)
-		aResult = This.PartsQ(pcPartionner).DuplicatesRemoved()
-		return aResult
-
-		def UniquePartsQ(pcPartionner)
-			return This.UniquePartsQR(pcPartionner, :stzList)
-
-		def UniquePartsQR(pcPartionner, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList(This.UniqueParts(pcPartionner))
-
-			on :stzListOfStrings
-				return new stzListOfStrings(This.UniqueParts(pcPartionner))
-
-			other
-				stzRaise("Unsupported return type!")
-			off
 
 	def PartsAsSubstrings(pcPartionner)
 		/*
@@ -10292,8 +10258,24 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def PartsAsSubstringsQ(pcPartionner)
-			return new stzList( This.PartsAsSubstrings(pcPartionner) )
+		def PartsAsSubstringsQ(pcPractionner)
+			return PartsAsSubstringsQ(pcPractionner, :stzList)
+
+		def PartsAsSubstringsQR(pcPartionner, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnTyp).IsUsingParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.PartsAsSubstrings(pcPartionner) )
+
+			on :stzHashList
+				return new stzHashList( This.PartsAsSubStrings(pcPartionner) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
 	
 		#>
 
@@ -10341,7 +10323,56 @@ class stzString from stzObject
 		next
 	
 		return aResult
-	
+
+		def PartsAsSectionsQ(pcPractionner)
+			return PartsAsSectionsQ(pcPractionner, :stzList)
+
+		def PartsAsSectionsQR(pcPartionner, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnTyp).IsUsingParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.PartsAsSections(pcPartionner) )
+
+			on :stzHashList
+				return new stzHashList( This.PartsAsSections(pcPartionner) )
+
+			on :stzHashList@C
+				return new stzHashList( This.PartsAsSections@C(pcPartionner) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+	def PartsAsSections@C(pcPartionner)
+		oPartsAsSections = This.PartsAsSectionsQ(:stzHashlList)
+		aResult = oPartsAsSections.Classify@C(pcPartionner)
+
+		return aResult
+
+		def PartsAsSections@CQ(pcPractionner)
+			return PartsAsSections@CQR(pcPractionner, :stzList)
+
+		def PartsAsSections@CQR(pcPartionner, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnTyp).IsUsingParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.PartsAsSections@C(pcPartionner) )
+
+			on :stzHashList
+				return new stzHashList( This.PartsAsSections@C(pcPartionner) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+	#--
+
 	def PartsAsSubstringsAndSections(pcPartionner)
 		aSubstrings = This.PartsSubstrings(pcPartionner)
 		aSections   = This.PartsSections(pcPartionner)
@@ -10366,7 +10397,32 @@ class stzString from stzObject
 
 		return aResult
 
-	#---
+	  #------------------------------------#
+	 #     UNIQUE PARTS OF THE STRING     #
+	#------------------------------------#
+
+	def UniqueParts(pcPartionner)
+		aResult = This.PartsQ(pcPartionner).DuplicatesRemoved()
+		return aResult
+
+		def UniquePartsQ(pcPartionner)
+			return This.UniquePartsQR(pcPartionner, :stzList)
+
+		def UniquePartsQR(pcPartionner, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.UniqueParts(pcPartionner))
+
+			on :stzListOfStrings
+				return new stzListOfStrings(This.UniqueParts(pcPartionner))
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+	  #---------------------------------------#
+	 #     PARTS OF THE STRING CLASSIFIED    #
+	#---------------------------------------#
 
 	def PartsAsSubstringsClassified(pcPartionner)
 		// TODO
@@ -13397,7 +13453,7 @@ class stzString from stzObject
 	// The following method is mainly used by stzChar class to
 	// create a characrer object from text
 	def UnicodeOfCharN(n)
-		oTempQStr = new QString()
+		oTempQStr = new QString2()
 		oTempQStr.append(This[n])
 		return oTempQStr.unicode().unicode()
 		/*

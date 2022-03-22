@@ -1,5 +1,42 @@
 load "stzlib.ring"
 
+/*----------------
+*/
+
+# While working with stzHashLists, there may be a special need where you
+# want to find a given item inside values that are of type list.
+
+# Let's understand it by example:
+
+	o1 = new stzHashList([
+		:Positive	= [ :happy, :nice, :glad, :beatiful, :wanderful ],
+		:Neutral  	= [ :is, :will, :can, :some ],
+		:Negative	= [ :no, :not, :must, :difficult, :problem ]
+	])
+
+# If you need to find the value :nice, you won't be able to get using:
+	? @@(o1.FindValue(:nice))	#--> [ ]
+
+
+# That's because there is no sutch value equal to the string :nice in all
+# the three pairs of the hashlist.
+
+# In fact, these values are all of type list. So you want tho find one of them
+# you should provide it as a hole list, like that:
+
+	? @@( o1.FindValue([ :is, :will, :can, :some ]) )	#--> [ 2 ]
+
+# Now, because finding directly a value (which is an item of a value of type list)
+# is something that you will need in practice, in many data-driven applications,
+# Softanza proposes the extension ...InList() to all the functions related to
+# finding values in hashlists.
+
+# Hence, you can find :nice directly by saying:
+
+	? @@( o1.FindValueInList(:nice)	) #--> [ 1 ]
+
+/*==================
+
 o1 = new stzHashList([
 	:egypt		= :africa,
 	:tunisia	= :africa,
