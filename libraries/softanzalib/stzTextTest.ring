@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+NOTE: THIS CLASS IS NOT READY FOR TESTING
+
 /*------------------ // Retest after adding ReplaceAllCharsW() in stzString
 
 ? StzTextQ("évènement").DiacriticsRemoved()
@@ -482,4 +484,50 @@ StzTextQ( "Hanine حنين is a nice جميلة وعمرها 7 years-old سنو�
 }
 
 
-#	   
+/*-------------- REFACTORED: FIXING IS IN PROGRESS
+
+//TODO >>> stzLocale
+
+o1 = new stzText("this is my first experience with that company")
+#o1 = new stzString("من عالمك إلى عالمي على مسؤوليّتي")
+? o1.RemoveStopWordsInQ(:Latin).Content()
+
+
+/*--------------
+
+o1 = new stzString("this is just عربي latin script")
+? o1.ToStzText().Scripts()
+#--> [
+#	:latin,
+#	:common,
+#	:arabic
+#    ]
+
+/*-------------- ERROR: FIXING IN PROGRESS
+
+o1 = new stzText("Ring 17")
+? o1.IsWord() #--> TRUE
+
+o1 = new stzText("Ring_17")
+? o1.IsWord() #--> TRUE
+
+o1 = new stzText("حُسَيْــــنْ")
+? o1.IsArabicWord()
+
+? StringIsWord("حُسَيْــــنْ")
+
+/*-------------
+
+o1 = new stzText("softanza")
+? o1.ContainsOnlyLetters() #--> TRUE
+
+/*--------------
+
+o1 = new stzText("Python Ruby Ring Julia")
+? o1.ContainsWord("Ring")
+
+
+/*-----------------
+
+o1 = new stzText("Ring Python Ruby Julia")
+? o1.WordsQR(:stzString).Content()

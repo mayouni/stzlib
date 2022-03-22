@@ -121,6 +121,17 @@ class stzHashList from stzObject # Also called stzAssociativeList
 	def KeysListQ()
 		return This.KeysQ()
 
+	def KeysForValue(pValue)
+		aResult = []
+
+		for aPair in This.HashList()
+			if Q(aPair[2]).IsStrictlyEqualTo(pValue)
+				aResult + aPair[1]
+			ok
+		next
+
+		return aResult
+			
 	def Values()
 		aResult = []
 		for i = 1 to This.NumberOfPairs()
@@ -203,18 +214,23 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return new stzNumber(This.Pair(n))
 
 	def KeyInPair(paPair)
-		if IsPairAndKeyIsString(paPair) and
+		if isList(paPair) and ListIsPairAndKeyIsString(paPair) and
 		   This.ContainsPair(paPair)
 			return paPair[1]
+
+		else
+			stzRaise("Invalid param type!")
 		ok
 
 	def KeyInPairQ(paPair)
 		return new stzString( This.KeyInPair(paPair) )
 
 	def ValueInPair(paPair)
-		if IsPairAndKeyIsString(paPair) and
+		if isList(paPair) and ListIsPairAndKeyIsString(paPair) and
 	           This.ContainsPair(paPair)
 			return paPair[2]
+		else
+			stzRaise("Invalide param type!")
 		ok
 
 	def ValueInPairQ(paPair)
@@ -312,7 +328,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		# Now, let's do the job
 
-		if ListIsPairAndKeyIsString(paNewPair)
+		if isList(paNewPair) and ListIsPairAndKeyIsString(paNewPair)
 
 			This.UpdateNthKey(n, paNewPair[1])
 			This.UpdateNthValue(n, paNewPair[2])
@@ -325,7 +341,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return This
 
 	def UpdatePair(paPair, paNewPair)
-		if ListIsPairAndKeyIsString(paNewPair) and
+		if isList(paPair) and ListIsPairAndKeyIsString(paNewPair) and
 		   This.ContainsPair(paPair)
 			n = This.FindPair(paPair)
 
@@ -456,7 +472,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return This
 
 	def UpdateAllPairsWith(paPair)
-		if IsPairAndKeyIsString(paPair)
+		if isList(paPair) and ListIsPairAndKeyIsString(paPair)
 			for aPair in This.Content()
 				aPair = paPair
 			next
@@ -481,11 +497,11 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return This
 
 	  #----------------------#
-	 #     ADDING A PAIR     #
+	 #     ADDING A PAIR    #
 	#----------------------#
 
 	def AddPair(paNewPair)
-		if ListIsPairAndKeyIsString(paNewPair)
+		if isList(paNewPair) and ListIsPairAndKeyIsString(paNewPair)
 
 			@aContent + paNewPair
 		else
@@ -496,9 +512,9 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			This.AddPair(paNewPair)
 			return This
 
-	  #----------------#
-	 #     INSERT     #
-	#----------------#
+	  #------------------#
+	 #     INSERTING    #
+	#------------------#
 
 	def InsertBefore(n, paPair)
 		if n > 1 and n <= This.NumberOfPairs()
@@ -594,7 +610,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		ok
 
 	def FindPair(paPair)
-		if IsPairAndKeyIsString(paPair)
+		if isList(paPair) and ListIsPairAndKeyIsString(paPair)
 			nResult = 0
 			n = 0
 			for aPair in Content()
@@ -637,9 +653,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				ok
 
 			but isList(pValue)
-? "inn2"
-? type(aPair)
-? @@(aPair)
+
 			oStzList = new stzList(aPair)
 				if oStzList.IsStrictlyEqualTo(pValue)
 					aResult + n
@@ -723,6 +737,32 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			ok
 		next i
 		return cResult
+
+	  #---------------------#
+	 #     CLASSIFYING     #
+	#---------------------#
+
+	def UniqueValues()
+		aResult = This.ValuesQ().DuplicatesRemoved()
+		return aResult
+
+	def ValuesAtPositions(anPositions)
+		aResult = This.ValuesQ().ItemsAtPositions(anPositions)
+		return aResult
+
+	def Classify()
+		aResult = []
+		aValues = This.UniqueValues()
+
+		for value in aValues
+			aResult + [ value, This.KeysForValue(value) ]
+		next
+
+		return aResult
+
+	def Klass(pcClass)
+		aResult = This.KeysForValue(pcClass)
+		return aResult
 
 	  #---------------#
 	 #     QUERY     #

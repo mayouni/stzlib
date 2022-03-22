@@ -1,3 +1,12 @@
+# 			SOFTANZA LIBRARY (V1.0)
+#---------------------------------------------------------------------------#
+#									    #
+# 	Description	: The core class for managing softanza numbers      #
+#	Version		: V1.1.0.6 (March, 2022)			    #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
+#									    #
+#===========================================================================#
+
 /*
 	This class expects you to provide it with a number hosted in a string.
 
@@ -1220,6 +1229,12 @@ class stzNumber from stzObject
 	def ToStzString()
 		return new stzString(This.Number())
 
+	def Stringify()
+		return This.Content()
+
+		def Stringified()
+			return This.Stringify()
+	
 	def NumberOfDigitsInFractionalPart()
 		if NOT This.HasFractionalPart()
 			return 0

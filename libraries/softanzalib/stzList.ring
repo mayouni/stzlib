@@ -1,11 +1,15 @@
-# 			SOFTANZA LIBRARY (V1.16)
+# 			SOFTANZA LIBRARY (V1.0)
 #---------------------------------------------------------------------------#
 #									    #
 # 	Description	: The core class for managing softanza lists        #
-#	Version		: V1.13 (July,2020)				    #
+#	Version		: V1.1.0.6 (March, 2022)			    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
-#---------------------------------------------------------------------------#
+#===========================================================================#
+
+  /////////////////////
+ ///   FUNCTIONS   ///
+/////////////////////
 
 func StzListQ(paList)
 	return new stzList(paList)
@@ -126,9 +130,9 @@ func AreBothChars(p1, p2)
 		return FALSE
 	ok
 
-func BothAreChars(p1, p2)
-	return AreBothChars(p1, p2)
-
+	func BothAreChars(p1, p2)
+		return AreBothChars(p1, p2)
+	
 func AreBothAsciiChars(p1, p2)
 	if IsAsciiChar(p1) and IsAsciiChar(p2)
 		return TRUE
@@ -136,17 +140,17 @@ func AreBothAsciiChars(p1, p2)
 		return FALSE
 	ok
 
-func BothAreAsciiChars(p1, p2)
-	return AreBothAsciiChars(p1, p2)
+	func BothAreAsciiChars(p1, p2)
+		return AreBothAsciiChars(p1, p2)
 
 func AreBothEqual(p1, p2)
 	return AreEqual([ p1, p2 ])
 
-func BothAreEqual(p1, p2)
-	return AreEqual([ p1, p2 ])
-
-	def BothAreNotEqual(p1, p2)
-		return NOT BothAreEqual(p1, p2)
+	func BothAreEqual(p1, p2)
+		return AreEqual([ p1, p2 ])
+	
+		def BothAreNotEqual(p1, p2)
+			return NOT BothAreEqual(p1, p2)
 
 func AreEqual(paItems)
 	return StzListQ(paItems).NumberOfOccurrence(paItems[1]) = len(paItems)
@@ -172,15 +176,6 @@ func HaveSameContent(paItems) // TODO
 	
 
 	*/
-
-def NumberStringify(n)
-	return ""+ n
-
-def ListStringify(aList)
-	return StzListQ(aList).Stringified()
-
-def ObjectStringify(pObject)
-	return StzObjectQ(pObject).Stringied()
 
 func HaveBothSameType(p1, p2)
 	return type(p1) = type(p2)
@@ -314,6 +309,132 @@ func ListOfNTimes(n, pItem)
 	next
 	return aResult
 
+func ContinuousListOfChars(cChar1, cChar2)
+	anUnicodes = []
+	for i = CharUnicode(cChar1) to CharUnicode(cChar2)
+		anUnicodes + i
+	next
+
+	aResult = []
+
+	if StzListOfNumbersQ(anUnicodes).IsContinuous()
+
+		for n in anUnicodes
+			aResult + StzCharQ(n).Content()
+		next
+	
+		return aResult
+
+	else
+		stzRaise( "The chars you privided don't form a continuous list!")
+	ok
+
+	func ContinuousList(cChar1, cChar2)
+		return ContinuousListOfChars(cChar1, cChar2)
+
+func @C(pcContinuousListInString)
+
+	if isString(pcContinuousListInString) and
+	   StzStringQ(pcContinuousListInString).IsContinuousListInString()
+
+		aListMembers = StzStringQ(pcContinuousListInString).
+				Split( :Using = ":" )
+			
+		cMember1 = aListMembers[1]
+		cMember2 = aListMembers[2]
+
+		cCode = "p1 = " + cMember1
+		eval(cCode)
+
+		cCode = "p2 = " + cMember2
+		eval(cCode)
+		
+		cNormalSyntax = "[ "
+
+		if ( isString(p1) and StringIsChar(p1) ) and
+		   ( isString(p2) and StringIsChar(p2) )
+				
+			n1 = CharUnicode(p1)
+			n2 = CharUnicode(p2)
+
+			if n1 <= n2
+				for n = n1 to n2
+					cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
+					if n < n2
+						cNormalSyntax += ", "
+					ok
+				next
+
+			but n1 > n2
+				for n = n1 to n2 step -1
+					cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
+					if n > n2
+						cNormalSyntax += ", "
+					ok
+				next
+			ok
+
+			cNormalSyntax += " ]"
+
+		but isNumber(p1) and isNumber(p2)
+
+			n1 = p1
+			n2 = p2
+
+			if n1 <= n2
+				for n = n1 to n2
+					cNormalSyntax += (""+ n)
+					if n < n2
+						cNormalSyntax += ", "
+					ok
+				next
+
+			but n1 > n2
+				for n = n1 to n2 stzp -1
+					cNormalSyntax += (""+ n)
+					if n > n2
+						cNormalSyntax += ", "
+					ok
+				next
+
+			ok
+
+			cNormalSyntax = " ]"
+		ok
+
+		cCode = "aResult = " + cNormalSyntax
+		eval(cCode)
+
+		return aResult
+
+	else
+		stzRaise("Incorrect param!")
+	ok
+		
+
+
+func ContinuousListInString(pcStr)
+		/*
+		? @C(' "A":"D" ')	# We've used the short form @C@() here.
+		#--> Returns the list [ "A", "B", "C", "D" ]
+
+		? @C(' "ا" : "ج" ')
+		# --> Returns the list [ "", "", "", "", "", "" ]
+		*/
+
+		if NOT ( isString(pcStr) and StzStringQ(pcStr).IsContinuousListInString() )
+			stzRaise("Incorrect param!")
+		ok
+
+	
+
+	def @C@(pcStr)
+		return ContinuousListInString(pcStr)
+
+  /////////////////
+ ///   CLASS   ///
+/////////////////
+
 class stzList from stzObject
 	@aContent = []
 
@@ -324,7 +445,15 @@ class stzList from stzObject
 	#--------------#
 
 	def init(paList)
-		@aContent = paList
+		if isList(paList)
+			@aContent = paList
+
+		but isString(paList) and StzStringQ(paList).IsListInString()
+			cCode = "@aContent = " + paList
+			eval(cCode)
+		else
+			stzRaise("Can't create the stzList object!")
+		ok
 
 	def IsAList()
 		return TRUE
@@ -362,6 +491,9 @@ class stzList from stzObject
 
 		def NumberOfItemsQ()
 			return new stzNumber(This.NumberOfItems())
+
+		def Size()
+			return This.NumberOfItems()
 	
 	def Items()
 		return This.Content()
@@ -3770,6 +3902,8 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsEqual(paOtherList)
+			return This.IsEqualTo(paOtherList)
 
 		def IsNotEqualTo(paOtherList)
 			return NOT This.IsEqualTo(paOtherList)
@@ -3784,12 +3918,14 @@ class stzList from stzObject
 
 		
 		if This.IsEqualTo(paOtherList) and
-		   //This.ItemsHaveSameOrderAs(paOtherList)
 		   This.HasSameSortingOrderAs(paOtherList)
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		def IsStrictlyEqual(paOtherList)
+			return This.IsStrictlyEqualTo(paOtherList)
 
 	def IsQuietEqualTo(paOtherList)
 
@@ -3806,11 +3942,14 @@ class stzList from stzObject
 
 		return FALSE
 
+		def IsQuietEqual(paOtherList)
+			return This.IsQuietEqualTo(paOtherList)
+
 	def ItemsHaveSameOrderAs(paOtherList)
 		bResult = TRUE
 
 		for i = 1 to min( len(This.List()), len(paOtherList) )
-			if _(This[i]).@.IsNotEqualTo(paOtherList[i])
+			if Q(This[i]).IsNotEqualTo(paOtherList[i])
 				bResult = FALSE
 				exit
 			ok
@@ -3818,6 +3957,9 @@ class stzList from stzObject
 
 		return bResult
 	
+		def ItemsHaveSameOrder(paOtherList)
+			return This.ItemsHaveSameOrderAs(paOtherList)
+
 	def AllItemsAreNumbersOrStrings()
 		bResult = TRUE
 		for item in This.List()
@@ -3842,6 +3984,10 @@ class stzList from stzObject
 		next i
 
 		return bResult
+
+		def IsReverse(paOtherList)
+			return This.IsReverseOf(paOtherList)
+
 
 	def ReverseItems()	# NOTE: we can't use REVERSE() because
 				# it is reserved by Ring
@@ -3878,8 +4024,14 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def HasMoreNumberOfItems(paOtherList)
+			return This.HasMoreNumberOfItemsThen(paOtherList)
+
 	def IsLargerThen(paOtherList)
 		return This.HasMoreNumberOfItemsThen(paOtherList)
+
+		def IsLarger(paOtherList)
+			return This.IsLargerThen(paOtherList)
 
 	def HasLessNumberOfItemsThen(paOtherList)
 		if This.NumberOfItems() < len(paOtherList)
@@ -3888,11 +4040,21 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def HasLessNumberOfItems(paOtherList)
+			return This.HasLessNumberOfItemsThen(paOtherList)
+
+
 	def IsShorterThen(paOtherList)
 		return This.HasLessNumberOfItemsThen(paOtherList)
 
+		def IsShorter(paOtherList)
+			return This.IsShorterThen(paOtherList)
+
 	def HasSameTypeAs(p)
 		return isList(p)
+
+		def HasSameType(p)
+			return This.HasSameTypeAs(p)
 
 	def HasSameContentAs(paOtherList)
 
@@ -3915,6 +4077,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 				
+		def HasSameContent(paOtherList)
+			return This.HasSameContentAs(paOtherList)
+
 	def Positions(pItem)
 		if isList(pItem) and StzListQ(pItem).IsOfParamList()
 			pItem = pItem[2]
@@ -3960,6 +4125,317 @@ class stzList from stzObject
 			def OccurrencesQ(pItem)
 				return ThiS.OccurrencesQR(pItem, :stzListOfNumbers)
 		#>
+
+	  #-------------------------------------#
+	 #    CLASSIFYING (OR CATEGORIZING)    #
+	#-------------------------------------#
+
+	def AllItemsAreContinuousLists()
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT ( isList(item) and StzListQ(item).IsContinuous() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def Classify()
+
+		/* EXAMPLE
+
+		aList = [
+			:Arabic,
+			:Arabic,
+			:French,
+			:English,
+			:Spanish,
+			:Spanish,
+			:English,
+			:Arabic
+		]
+		
+		StzListQ(aList) {
+		 	? Classify()
+			#--> [
+			# 	:Arabic  = [ 1, 2, 8 ],
+			# 	:French  = [ 3 ],
+			# 	:Enslish = [ 4, 7 ],
+			#    	:Spanish = [ 5, 6 ]
+			#    ]
+		}
+		*/
+
+		aClasses = This.Classes()
+
+		cClass   = ""
+		aResult  = []
+
+		for pClass in aCLasses
+			anPositions = This.FindAll(pClass)
+
+			cClass = Q(pClass).Stringified()
+
+			aResult + [ cClass, anPositions ]
+
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ClassifyQ()
+			return This.ClassifyQR(:stzList)
+
+		def ClassifyQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Classify() )
+
+			on :stzHashList
+				return new stzHashList( This.Classify() )
+
+			other
+				stzRaise("Unssupported return type!")
+
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def Categorize()
+			return This.Classify()
+
+			def CategorizeQ()
+				return This.CategorizeQR(:stzList)
+	
+			def CategorizeQR(pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.Categorize() )
+	
+				on :stzHashList
+					return new stzHashList( This.Categorize() )
+	
+				other
+					stzRaise("Unssupported return type!")
+	
+				off
+
+		def Categorise()
+			return This.Classify()
+
+			def CategoriseQ()
+				return This.CategoriseQR(:stzList)
+	
+			def CategoriseQR(pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.Categorise() )
+	
+				on :stzHashList
+					return new stzHashList( This.Categorise() )
+	
+				other
+					stzRaise("Unssupported return type!")
+	
+				off
+
+		#>
+
+	#--
+
+	def Classify@C()	# Specific for continuous list
+				# returs classes in the "_:_" syntax
+
+		/* EXAMPLE
+		o1 = new stzList([
+			1:5, 3:9, 1:5, 10:15, 3:9, 12:20, 10:15, 1:5, 12:20
+		])
+		
+		? o1.Classify()	# Same as Categorize()
+		#--> [
+		#	[ "1:5",   [1, 3, 8 ] ],	
+		#	[ "3:9",   [2, 5 ] ],
+		#	[ "10:15", [4, 7 ] ],
+		#	[ "12:20", [6, 9 ]
+		#    ]
+
+		*/
+
+		if NOT This.AllItemsAreContinuousLists()
+			stzRaise("Items are not all continuous lists!")
+		ok
+
+		aResult = []
+
+		aClasses = This.Classes()
+
+		for pClass in aClasses
+			anPositions = This.FindAll(pClass)
+			cClass = ""
+
+			cClass = ""+ pClass[1] + ":" + pClass[len(pClass)]
+
+			aResult + [ cClass, anPositions ]
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def Classify@CQ()
+			return This.Classify@CQR(:stzList)
+
+		def Classify@CQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Classify@C() )
+
+			on :stzHashList
+				return new stzHashList( This.Classify@C() )
+
+			other
+				stzRaise("Unssupported return type!")
+
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def Categorize@C()
+			return This.Classify@C()
+
+			def Categorize@CQ()
+				return This.Categorize@CQR(:stzList)
+	
+			def Categorize@CQR(pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.Categorize@C() )
+	
+				on :stzHashList
+					return new stzHashList( This.Categorize@C() )
+	
+				other
+					stzRaise("Unssupported return type!")
+	
+				off
+
+		def Categorise@C()
+			return This.Classify@C()
+
+			def Categorise@CQ()
+				return This.Categorise@CQR(:stzList)
+	
+			def Categorise@CQR(pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.Categorise@C() )
+	
+				on :stzHashList
+					return new stzHashList( This.Categorise@C() )
+	
+				other
+					stzRaise("Unssupported return type!")
+	
+				off
+
+		#>
+
+	#--
+
+	def Classes()
+		aResult = This.UniqueItems()
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ClassesQ()
+			return This.ClassesQR(:stzList)
+
+		def ClassesQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Classes() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Classes() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+		#>
+
+		@< @FunctionAlternativeForm
+
+		def Categories()
+			return This.Classes()
+
+			def CategoriesQ()
+				return This.ClassesQR(:stzList)
+	
+			def CategoriesQR(pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.Categories() )
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.Categories() )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+
+	#--
+
+	def NumberOfClasses()
+		return len( This.Classes() )
+
+		def NumberOfCategories()
+			return This.NumberOfClasses()
+
+	def Klass(pcClass)
+		return This.Classify()[pcClass]
+
+		def Category(pcClass)
+
+	def Klass@C(pcClass)
+		return This.Classify@C()[pcClass]
 
 	  #------------------#
 	 #     INDEXING     #
@@ -5667,6 +6143,7 @@ class stzList from stzObject
 	#--------------------#
 
 	def RemoveDuplicates()
+
 		aResult = []
 
 		# If we are lucky, the list contains only strings so we
@@ -5678,11 +6155,20 @@ class stzList from stzObject
 		else
 			# Otherwise we do the job manually in Ring
 
-			for item in This.List()
-				
-				if NOT StzListQ(aResult).Contains(item)
-					aResult + item
+			acStrList = []
+			for i = 1 to This.NumberOfItems()
+				cItemInStr = @@( This[i] )
+
+				if find(acStrList, cItemInStr) = 0
+					acStrList + cItemInStr
 				ok
+			next
+
+			acStrList = StzListOfStringsQ( acStrList ).DuplicatesRemoved()
+	
+			for str in acStrList
+				cCode = "aResult + " + str
+				eval(cCode)
 			next
 		ok
 
@@ -5876,6 +6362,8 @@ class stzList from stzObject
 
 		#>
 
+	#--
+
 	def ContainsEach(paItems)
 		bResult = TRUE
 
@@ -5915,8 +6403,7 @@ class stzList from stzObject
 		def IsNotOneOfThese(paList)
 			return NOT This.IsOneOfThese(paList)
 
-
-#---------------
+	#--
 
 	def ContainsMany(paSetOfItems)
 		
@@ -5958,6 +6445,8 @@ class stzList from stzObject
 
 		def IsMadeOfOneOrMoreOf(paSetOfItems)
 			return This.ContainsSome(paSetOfItems)
+
+	#--
 
 	def ContainsAny(pSetOfItems)
 		/*
@@ -6007,8 +6496,7 @@ class stzList from stzObject
 		def IsMadeOfOnlyOneOfThese(paItems)
 			return This.ContainsOnlyOne(paItems)
 
-
-#--------------
+	#--
 
 	def ContainsNumbers()
 		bResult = FALSE
@@ -6031,7 +6519,7 @@ class stzList from stzObject
 		def ContainsNoNumbersAtAnyLevel()
 			return NOT This.ContainsContainsNumbersAtSameLevel()
 
-#--------------
+	#--
 
 	def ContainsStrings()
 		bResult = FALSE
@@ -6580,64 +7068,38 @@ class stzList from stzObject
 		#>
 	
 	def FindAllOccurrences(pItem)
-		/* WARNING
-		We don't use the Ring find() function here because it works only
-		for finding numbers and strings (and not lists and objects).
+		/* NOTE
+		We don't use the Ring find() function here because it works
+		only for finding numbers and strings (and not lists and objects).
 
 		Also, it only returns the first occurrence and stops there.
+
+		This function finds numbers, strings, and lists.
+		Objects will be managed in the future.
+
 		*/
 
 		if isList(pItem) and StzListQ(pItem).IsOfParamList()
 			pItem = pItem[2]
 		ok
 
-		anResult = []	# Eventual positions of the occurrences of pItem
+		anResult = []
 
-		n = 0
-		for item in This.List()
-			n++
-			if type(item) = type(pItem)		
-				if IsNumberOrString(item) and
-				   IsNumberOrString(pItem)
+		aStrList = []
+		for i = 1 to This.NumberOfItems()
+			aStrList + @@( This[i] )
+		next
 
-					if item = pItem
-						anResult + n
-					ok
-				else
-					# This block manages the case of non comparable
-					# data types by Ring, namely Lists and Objects.
-
-					# One of the two (item and pItem) is not Ring
-					# comparable (is a list or an object). That's
-					# why, direct comparaison with 'item = pItem'
-					# is impossible.
-
-					# Here we use the special Q() function that
-					# transforms the current item to its
-					# corresponding stz object (to a stzList
-					# if the item is a list, and to a stzObject if
-					# the item is an object), then calls the
-					# IsStrictlyEqualTo() method on it.
-
-					if Q(item).IsStrictlyEqualTo(pItem)
-						anResult + n
-					ok
-
-					# NOTE: This same suscint code could be used also
-					# for data types that are comparable by Ring (which
-					# are managed in the first if-block above), since
-					# Q(item) transforms them to stzNumer or stzString
-					# objects, for which IsStrictlyEqualTo() exists...
-
-					# But, I prefere leaving it like this, for better
-					# performance in case of numbers and strings, and
-					# to make the solution proposed here more knowldgeable.
-				ok
+		i = 0
+		for str in aStrList
+			i++
+			if str = @@(pItem)
+				anResult + i
 			ok
 		next
-			
+
 		return anResult
-		
+
 		#< @FunctionFluentForm
 
 		def FindAllOccurrencesQ(pItem)
@@ -8406,6 +8868,10 @@ class stzList from stzObject
 			return This.SplitQR(pItem, :stzList)
 
 		def SplitQR(pItem, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Split(pItem) )
@@ -8437,6 +8903,10 @@ class stzList from stzObject
 				return This.SplitUsingQR(pItem, pcReturnType)
 	
 			def SplitUsingQR(pItem, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				switch pcReturnType
 				on :stzList
 					return new stzList( This.SplitUsing(pItem) )
@@ -8501,6 +8971,10 @@ class stzList from stzObject
 			This.SplitToPartsOfNItemsEachQR(n, :stzList)
 
 		def SplitToPartsOfNItemsEachQR(n, pcType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -8600,6 +9074,10 @@ class stzList from stzObject
 				return This.SplitToPartsOfNItemsQR(n, :stzList)
 	
 			def SplitToPartsOfNQR(n, pcType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
 				return This.SplitToPartsOfNItemsQR(n, pcType)
 
 			#>
@@ -8667,19 +9145,7 @@ class stzList from stzObject
 		#>
 
 	def SplitBeforePosition(n)
-		oSplitter = new stzSplitter(This.List())
-		aSplitted = oSplitter.SplitBeforePositions(panPositions)
-
-		# Tranforming the sections of positions contained in aSplitted
-		# to sublists of the actual items corresponding to those sections
-
-		aResult = []
-
-		for aSection in aSplitted
-			aResult + This.Section( aSection[1], aSection[2] )
-		next
-
-		return aResult		
+		return This.SplitBeforePositions([n])		
 
 		#< @FunctionFluentForm
 
@@ -8691,7 +9157,7 @@ class stzList from stzObject
 		#< @FunctionAlternativeForm
 
 		def SplitBefore(n)
-			return  This.SplitBeforePositions(n)
+			return  This.SplitBeforePosition(n)
 
 			#< @FunctionFluentForm
 
@@ -8729,11 +9195,7 @@ class stzList from stzObject
 		#>
 
 	def SplitAfterPosition(n)
-		/* TODO
-
-		...
-
-		*/
+		return This.SplitAfterPosistions([n])
 
 		#< @FunctionFluentForm
 
@@ -8749,34 +9211,11 @@ class stzList from stzObject
 
 		#>
 
-	  #------------------------------------#
-	 #    SPLITTING AT A GIVEN POSITION   #
-	#------------------------------------#
-
-	def SplitAtPositions(panPositions)
-		/* TODO
-
-		...
-
-		*/	
-
-		#< @FunctionFluentForm
-
-		def SplitAtPositionsQ(panPositions)
-			return new stzList( This.SplitAtPositions(panPositions) )
-
-		#>
-
 	  #---------------------------#
 	 #    SPLITTING TO N PARTS   #
 	#---------------------------#
 
 	def SplitToNParts(n)
-		/* TODO
-
-		...
-
-		*/
 
 		aResult = []
 	
@@ -8797,51 +9236,49 @@ class stzList from stzObject
 
 		#>
 
-	  #----------------------------------------#
-	 #    SPLITTING UNDER A GIVEN CONDITION   #
-	#----------------------------------------#
-
-	def SplitAtW(pCondition)
-		/* TODO
-
-		...
-
-		*/	
-
-		#< @FunctionFluentForm
-
-		def SplitAtWQ(pCondition)
-			return new stzList( This.SplitAtW(pCondition) )
-
-		#>
+	  #-----------------------------------------------------------#
+	 #    SPLITTING BEFORE AN ITEM VERIFYING A GIVEN CONDITION   #
+	#-----------------------------------------------------------#
 
 	def SplitBeforeW(pCondition)
-		/* TODO
+		anPositions = This.FindW(pcCondition)
+		aResult = This.SplitBeforePositions(anPositions)
 
-		...
-
-		*/	
-
-		#< @FunctionFluentForm
+		return aResult	
 
 		def SplitBeforeWQ(pCondition)
 			return new stzList( This.SplitBeforeW(pCondition) )
 
-		#>
+		def SplittedBeforeW(pcCondition)
+			return This.SplitBeforeW(pCondition)
+
+		def SplitBeforeWhere(pCondition)
+			return This.SplitBeforeW(pCondition)
+
+		def SplittedBeforeWhere(pcCondition)
+			return This.SplitBeforeW(pCondition)
+
+	  #-----------------------------------------------------------#
+	 #    SPLITTING AFTER AN ITEM VERIFYING A GIVEN CONDITION    #
+	#-----------------------------------------------------------#
 
 	def SplitAfterW(pCondition)
-		/* TODO
+		anPositions = This.FindW(pcCondition)
+		aResult = This.SplitAfterPositions(anPositions)
 
-		...
-
-		*/	
-
-		#< @FunctionFluentForm
+		return aResult	
 
 		def SplitAfterWQ(pCondition)
 			return new stzList( This.SplitAfterW(pCondition) )
 
-		#>
+		def SplittedAfterW(pcCondition)
+			return This.SplitAfterW(pCondition)
+
+		def SplitAfterWhere(pCondition)
+			return This.SplitAfterW(pCondition)
+
+		def SplittedAfterWhere(pcCondition)
+			return This.SplitAfterW(pCondition)
 
 	  #-------------------------#
 	 #     Section & RANGE     #
@@ -9854,7 +10291,34 @@ class stzList from stzObject
 
 					return This.ForEachStringYieldQR(pcCode, pcReturnType)
 
-/////////////////////////////////////////////////////////
+	  #-----------#
+	 #   MISC.   #
+	#-----------#
+
+	def ToStzListOfChars()
+		if NOT This.IsListOfChars()
+			stzRaise("Can't cast the list into a stzListOfChars!")
+		ok
+
+		return new stzListOfChars( This.Content() )
+
+	def IsContinuous()
+		/*
+		EXAMPLE:
+
+		? StzListQ( 3:7 ).IsContinuous()	#--> TRUE
+		? StzListQ( "B":"E" ).IsContinuous()	#--> TRUE
+
+		*/
+
+		if This.IsListOfNumbers()
+			return This.ToStzListOfNumbers().IsContinuous()
+
+		but This.IsListOfChars()
+			return This.ToStzListOfChars().IsContinuous()
+		else
+			return FALSE
+		ok
 
 	  #--------------------------------#
 	 #    USUED FOR NATURAL-CODING    #

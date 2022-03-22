@@ -1,12 +1,21 @@
 load "stzlib.ring"
 
+/*--------------
+*/
+o1 = new stzListOfNumbers([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ])
+o1.Cumulate()
+? @@( o1.Content() ) #--> [ 1, 2, 5, 9, 14, 20, 27, 35, 44 ]
+
+/*--------------
+
+? StzListOfNumbersQ( 12:22 ).IsContinuous()	#--> TRUE
 
 /*--------------
 
 ? StzListOfNumbersQ( 1:5 ).Reversed() # --> 5:1
 
 /*--------------
-*/
+
 StzListOfNumbersQ([ 2, 10, 7, 4, 19, 7, 19 ]) {
 
 	# Let's play with max numbers in the list
@@ -36,7 +45,7 @@ StzListOfNumbersQ([ 2, 10, 7, 4, 19, 7, 19 ]) {
 }
 
 /*==================
-*/
+
 # Adding a number to each number in the list of numbers
 
 StzListOfNumbersQ([ 1, 2, 3 ]) {
@@ -53,7 +62,7 @@ StzListOfNumbersQ([ 1, 2, 3 ]) {
 }
 
 /*-------------------
-*/
+
 # Adding many numbers, one by one, to the list of numbers
 
 StzListOfNumbers([ 2, 4, 8 , 10 , 12 ]) {
@@ -73,7 +82,7 @@ StzListOfNumbers([ 2, 4, 8 , 10 , 12 ]) {
 }
 
 /*-------------------
-*/
+
 # Adding a number to each number verifying a given condition
 
 o1 = new stzListOfNumbers([ 4, 7, 36, 9, 20 ])
@@ -81,7 +90,7 @@ o1.AddToEachW( 1, :Where = '{ Q(@number).IsDividableBy(4) and @number <= 20 }' )
 ? @@(o1.Content()) # --> [ 5, 7, 36, 9, 21 ]
 
 /*-------------------
-*/
+
 o1 = new stzListOfNumbers([ 4, 14, 24, 34 ])
 o1.SubstractFromEachW( 10, :Where = '{ @number > 20 }' )
 ? @@(o1.Content()) # --> [ 4, 14, 14, 24 ]

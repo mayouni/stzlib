@@ -1,3 +1,12 @@
+# 			SOFTANZA LIBRARY (V1.0)
+#---------------------------------------------------------------------------#
+#									    #
+# 	Description	: The core class for managing softanza objects      #
+#	Version		: V1.1.0.6 (March, 2022)			    #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
+#									    #
+#===========================================================================#
+
 /*
 	a stzObject is created:
 		- by providing an exiting Ring object or,
@@ -111,6 +120,10 @@
 
 	- we can use any of its methods to be called on ...
 */
+
+  ///////////////////
+ //   FUNCTIONS   //
+///////////////////
 
 func StzObjectQ(pObject)
 	return new stzObject(pObject)
@@ -851,6 +864,11 @@ func ObjectToList(cObjectVarName)
 func ObjectListify(cObjectVarName)
 	return StzObjectQ(cObjectVarName).ObjectListify()
 
+
+  ///////////////
+ //   CLASS   //
+///////////////
+
 class stzObject
 	@oObject
 	@cObjectVarName
@@ -988,3 +1006,9 @@ class stzObject
 
 	def HasSameTypeAs(p)
 		return isObject(p)
+
+	def Stringify()
+		return StzListQ( This.Listify() ).ToCode()
+
+		def Stringified()
+			return This.Stringify()

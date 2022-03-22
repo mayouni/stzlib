@@ -151,15 +151,6 @@ func RemoveDiacritic(pcChar)
 	return StzCharQ(pcChar).DiacriticRemoved()
 
 
-func CharsNames()
-	oStr = new stzString(UnicodeNamesHostedInString())
-
-	aResult = oStr.SplitQR(NL, :stzListOfStrings).
-		SplitQ(TAB).Content()
-
-	return aResult
-
-
 #---- Functions used for natural-coding
 # TODO: generate all the possible functions based on stzChar methods
 
@@ -622,11 +613,20 @@ class stzChar from stzObject
 		def CharType()
 			return This.UnicodeCategory()
 
+			def CharTypeQ()
+				return new stzString( This.CharType() )
+
 		def Type()
 			return This.UnicodeCategory()
 
+			def TypeQ()
+				return new stzString( This.Type() )
+
 		def Category()
 			return This.UnicodeCategory()
+
+			def CategoryQ()
+				return new stzString( This.Category() )
 		#>
 
 	def IsLetter()
@@ -796,7 +796,8 @@ class stzChar from stzObject
 		--> A faster solution hereafter...
 		*/
 
-		bResult = find( PunctuationUnicodes(), This.Unicode() )
+		bResult = This.CharTypeQ().ContainsCS("punctuation", :CaseSensitive = FALSE)
+		return bResult
 
 	def IsGeneralPunctuation()
 		bResult = find( GeneralPunctuationUnicodes(), This.Unicode() ) > 0

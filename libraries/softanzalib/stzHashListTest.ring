@@ -1,5 +1,34 @@
 load "stzlib.ring"
 
+o1 = new stzHashList([
+	:egypt		= :africa,
+	:tunisia	= :africa,
+	:saudi_arabia	= :asia,
+	:spain		= :europe,
+	:canada		= :america,
+	:france		= :europe,
+	:poland		= :europe,
+	:niger		= :africa,
+	:iraq		= :asia,
+	:japan		= :asia,
+	:panama		= :america,
+	:argentina	= :america
+])
+
+
+
+
+? @@( o1.Classify() )
+#--> [ 
+#	:africa 	= [ "egypt", "tunisia", "niger" 	],
+#	:asia 		= [ "saudi_arabia", "iraq", "japan" 	],
+#	:america 	= [ "canada", "panama", :argentina	],
+#	:europe 	= [ "france", :spain, "poland" 		]
+#    ]
+
+? @@( o1.Klass(:asia) )
+#--> [ "saudi_arabia", "iraq", "japan" ]
+
 /*---------------
 
 # The keys of a hashlist must be unique. Otherwise you won't be able to
@@ -62,7 +91,7 @@ o1.RemoveAllPairsWithValue("Hussein")
 ? o1.Content() # --> [ :age = 1 ]
 
 /*-------------
-*/
+
 o1 = new stzHashList([ :name = "Hussein", :age = 1, :grandftaher = "Hussein" ])
 o1.AddPair( :mother = "Cherihen" )
 o1.Show()

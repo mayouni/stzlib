@@ -1246,10 +1246,10 @@ class stzText from stzObject
 		# t0 = clock()
 
 		if WordsIdentificationMode() = :Strict
-			oWords = oCopy.RemovePunctuationExceptQ( WordNonLetterChars() ).SimplifyQ().SplitQ(" ")
+			oWords = This.RemovePunctuationExceptQ( WordNonLetterChars() ).SimplifyQ().SplitQ(" ")
 
 		but WordsIdentificationMode() = :Quick
-			oWords = oCopy.RemovePunctuationsQ().SplitQ(" ")
+			oWords = This.RemovePunctuationsQ().ToStzStringQ().SplitQ(" ")
 		else
 			stzRaise("Unkowan word identification mode!")
 		ok
@@ -1269,12 +1269,16 @@ class stzText from stzObject
 		def WordsQ()
 			return This.WordsQR(:stzList)
 	
-		def WordsQR(pcType)
+		def WordsQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			switch pcType
+			switch pcReturnType
 	
 			on :stzList
 				return new stzList( This.Words() )
@@ -1295,12 +1299,12 @@ class stzText from stzObject
 		def SetOfWordsQ()
 			return This.SetOfWordsQR(:stzList)
 	
-		def SetOfWordsQR(pcType)
+		def SetOfWordsQR(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			switch pcType
+			switch pcReturnType
 			on :stzList
 				return new stzList( This.SetOfWords() )
 	
@@ -1316,12 +1320,12 @@ class stzText from stzObject
 		def UniqueWords()
 			return This.SetOfWords()
 
-			def UniqueWordsQR(pcType)
+			def UniqueWordsQR(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				switch pcType
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.UniqueWords())
 
@@ -1344,12 +1348,12 @@ class stzText from stzObject
 
 		#< @FunctionFluentForm
 
-		def WordsSortedInAscendingQR(pcType)
+		def WordsSortedInAscendingQR(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			switch pcType
+			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfStrings(This.WordsSortedInAscending())
 
@@ -1369,12 +1373,12 @@ class stzText from stzObject
 		def WordsInAscending()
 			return This.WordsSortedInAscending()
 
-			def WordsInAscendingQR(pcType)
+			def WordsInAscendingQR(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
-				switch pcType
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.WordsInAscending())
 	
@@ -1390,12 +1394,12 @@ class stzText from stzObject
 		def WordsInAscendingOrder()
 			return This.WordsSortedInAscending()
 
-			def WordsInAscendingOrderQR(pcType)
+			def WordsInAscendingOrderQR(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				switch pcType
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.WordsInAscendingOrder())
 	
@@ -1418,12 +1422,12 @@ class stzText from stzObject
 
 		#< @FunctionFluentForm
 
-		def WordsSortedInDescendingQR(pcType)
+		def WordsSortedInDescendingQR(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			switch pcType
+			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfStrings(This.WordsSortedInDescending())
 
@@ -1443,8 +1447,12 @@ class stzText from stzObject
 		def WordsInDescendingOrder()
 			return This.WordsSortedInDescending()
 
-			def WordsInDescendingOrderQR(pcType)
-				switch pcType
+			def WordsInDescendingOrderQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.WordsInDescendingOrder())
 	
@@ -1460,12 +1468,12 @@ class stzText from stzObject
 		def WordsInDescending()
 			return This.WordsSortedInDescending()
 
-			def WordsInDescendingQR(pcType)
+			def WordsInDescendingQR(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				switch pcType
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.WordsInDescending())
 	
@@ -1488,12 +1496,12 @@ class stzText from stzObject
 
 		#< @FunctionFluentForm
 
-		def UniqueWordsSortedInAscendingQR(pcType)
+		def UniqueWordsSortedInAscendingQR(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			switch pcType
+			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfStrings(This.UniqueWordsSortedInAscending())
 
@@ -1513,8 +1521,12 @@ class stzText from stzObject
 		def UniqueWordsInAscendingOrder()
 			return This.UniqueWordsSortedInAscending()
 
-			def UniqueWordsInAscendingOrderQR(pcType)
-				switch pcType
+			def UniqueWordsInAscendingOrderQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.UniqueWordsInAscendingOrder())
 	
@@ -1530,12 +1542,12 @@ class stzText from stzObject
 		def UniqueWordsInAscending()
 			return This.UniqueWordsSortedInAscending()
 
-			def UniqueWordsInAscendingQR(pcType)
+			def UniqueWordsInAscendingQR(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				switch pcType
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.UniqueWordsInAscending())
 	
@@ -1551,8 +1563,12 @@ class stzText from stzObject
 		def SetOfWordsSortedInAscending()
 			return This.UniqueWordsSortedInAscending()
 
-			def SetOfWordsSortedInAscendingQR(pcType)
-				switch pcType
+			def SetOfWordsSortedInAscendingQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.SetOfWordsSortedInAscending())
 	
@@ -1568,12 +1584,12 @@ class stzText from stzObject
 		def SetOfWordsInAscendingOrder()
 			return This.SetOfWordsSortedInAscending()
 
-			def SetOfWordsInAscendingOrderQR(pcType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+			def SetOfWordsInAscendingOrderQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				switch pcType
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.SetOfWordsInAscendingOrder())
 	
@@ -1589,12 +1605,12 @@ class stzText from stzObject
 		def SetOfWordsInAscending()
 			return This.SetOfWordsSortedInAscending()
 
-			def SetOfWordsInAscendingQR(pcType)
+			def SetOfWordsInAscendingQR(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				switch pcType
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.SetOfWordsInAscending())
 	
@@ -1617,12 +1633,12 @@ class stzText from stzObject
 
 		#< @FunctionFluentForm
 
-		def UniqueWordsSortedInDescendingQR(pcType)
+		def UniqueWordsSortedInDescendingQR(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			switch pcType
+			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfStrings(This.UniqueWordsSortedInDescending())
 
@@ -1642,8 +1658,12 @@ class stzText from stzObject
 		def UniqueWordsInDescendingOrder()
 			return This.UniqueWordsSortedInDescending()
 
-			def UniqueWordsInDescendingOrderQR(pcType)
-				switch pcType
+			def UniqueWordsInDescendingOrderQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.UniqueWordsInDescendingOrder())
 	
@@ -1659,12 +1679,12 @@ class stzText from stzObject
 		def UniqueWordsInDescending()
 			return This.UniqueWordsSortedInDescending()
 
-			def UniqueWordsInDescendingQR(pcType)
+			def UniqueWordsInDescendingQR(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 		
-				switch pcType
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.UniqueWordsInDescending())
 	
@@ -1680,12 +1700,12 @@ class stzText from stzObject
 		def SetOfWordsSortedInDescending()
 			return This.UniqueWordsSortedInDescending()
 
-			def SetOfWordsSortedInDescendingQR(pcType)
+			def SetOfWordsSortedInDescendingQR(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				switch pcType
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.SetOfWordsSortedInDescending())
 	
@@ -1701,12 +1721,12 @@ class stzText from stzObject
 		def SetOfWordsInDescendingOrder()
 			return This.SetOfWordsSortedInDescending()
 
-			def SetOfWordsInDescendingOrderQR(pcType)
+			def SetOfWordsInDescendingOrderQR(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				switch pcType
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.SetOfWordsInDescendingOrder())
 	
@@ -1722,12 +1742,12 @@ class stzText from stzObject
 		def SetOfWordsInDescending()
 			return This.SetOfWordsSortedInDescending()
 
-			def SetOfWordsInDescendingQR(pcType)
+			def SetOfWordsInDescendingQR(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				switch pcType
+				switch pcReturnType
 				on :stzListOfStrings
 					return new stzListOfStrings(This.SetOfWordsInDescending())
 	
@@ -3589,10 +3609,10 @@ class stzText from stzObject
 			return StopWordLanguage(This.String())
 		ok
 
-	def RemoveStopWordsForScript(pcScript)
+	def RemoveStopWordsInScript(pcScript)
 
 		cCode =
-			"for str in " + pcScript + "StopWords()" + NL +
+			"for str in StopWordsIn(:" + pcScript + ")" + NL +
 				tab + "This.RemoveAll(str)" + NL +
 			"next"
 	
@@ -3604,6 +3624,17 @@ class stzText from stzObject
 				This.RemoveAll(str)
 			next
 		*/
+
+		def RemoveStopWordsInScriptQ(pcScript)
+			This.RemoveStopWordsInScriptQR(pcScript)
+			return This
+
+		def RemoveStopWordsIn(pcScript)
+			This.RemoveStopWordsInScript(pcScript)
+
+			def RemoveStopWordsInQ(pcScript)
+				This.RemoveStopWordsIn(pcScript)
+				return This
 
 	  #---------------------#
 	 #      SENTENCES      #

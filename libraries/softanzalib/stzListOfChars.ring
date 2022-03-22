@@ -1,4 +1,13 @@
 
+# 			SOFTANZA LIBRARY (V1.0)
+#---------------------------------------------------------------------------#
+#									    #
+# 	Description	: The core class for managing lists of chars        #
+#	Version		: V1.1.0.6 (March, 2022)			    #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
+#									    #
+#===========================================================================#
+
 _cHilightChar = "•"
 
   /////////////////////
@@ -12,7 +21,7 @@ func HilightChar()
 	return _cHilightChar
 	
 func SetHilightChar(c)
-	if IsStringIsChar(c)
+	if StringIsChar(c)
 		_cHilightChar = c
 	else
 		stzRaise(:CanNotSetHilightChar)
@@ -472,6 +481,22 @@ class stzListOfChars from stzObject
 
 		return aResult
 
+		def UnicodesQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Unicodes() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Unicodes() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
 	def CharsAndUnicodes()
 		aResult = []
 
@@ -494,3 +519,34 @@ class stzListOfChars from stzObject
 		next
 
 		return acResult
+
+	 #-----------#
+	 #   MISC.   #
+	#-----------#
+
+	def AllCharsAreNumbers()
+		bResult = TRUE
+
+		for c in This.ListOfChars()
+			if NOT StzCharQ(c).IsNumber()
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def AllCharsAreLetters()
+		bResult = TRUE
+
+		for c in This.ListOfChars()
+			if NOT StzCharQ(c).IsLetter()
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsContinuous()
+		return This.UnicodesQR(:stzListOfNumbers).IsContinuous()
