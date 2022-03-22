@@ -1,3 +1,12 @@
+# 			SOFTANZA LIBRARY (V1.0)
+#---------------------------------------------------------------------------#
+#									    #
+# 	Description	: The core class for managing lists of numbers      #
+#	Version		: V1.1.0.6 (March, 2022)			    #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
+#									    #
+#===========================================================================#
+
 /*
 Short term objective:
 	Max() Min() Mean() Sum()
@@ -776,10 +785,11 @@ class stzListOfNumbers from stzList
 	 #     CLIPPING THE LIST OF NUMBERS     #
 	#--------------------------------------#
 
-	// Limits the values of the list by adjusting the numbers outside
-	// the provided range (nMin, nMax). Each item lesser then nMin
-	// becomes equal to nMin. And each item greater then nMax becomes
-	// equal to nMax. See example below...
+	# Limits the values of the list by adjusting the numbers outside
+	# the provided range (nMin, nMax). Each number lesser then nMin
+	# becomes equal to nMin. And each number greater then nMax becomes
+	# equal to nMax.
+
 	def Clip(nMin, nMax)
 		/*
 		o1 = new stzListOfNumbers([1, 2, 3, 4, 5, 6, 7, 8 ])
@@ -795,9 +805,24 @@ class stzListOfNumbers from stzList
 			ok
 		next
 
-	def ClipQ(nMin, nMax)
-		This.Clip(nMin, nMax)
-		return This
+		def ClipQ(nMin, nMax)
+			return This.ClipQR(nMin, nMax, pcReturnType)
+
+		def ClipQR(nMin, nMax, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Clip(nMin, nMax) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Clip(nMin, nMax) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 	  #-----------------------------------------#
 	 #     REPLACING A SECTION OF THE LIST     #
@@ -810,28 +835,77 @@ class stzListOfNumbers from stzList
 			ok
 		next
 		
-	def ReplaceSectionWithQ(n1, n2, n)
-		This.UpdateSectionWith(n1, n2, n)
-		return This
+		def ReplaceSectionWithQ(n1, n2, n)
+			return This.ReplaceSectionWithQR(n1, n2, n)
 
-	def ReplaceSectionWithFunction(n1, n2, pcFunc)
-		// TODO
+		def ReplaceSectionWithQR(n1, n2, n)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ReplaceSectionWith(n1, n2, n) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.ReplaceSectionWith(n1, n2, n) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 	  #----------------------------#
 	 #     CUMULATING NUMBERS     #
 	#----------------------------#
 
 	def Cumulate()
-		// TODO
+		aResult = []
+
+		for i = 3 to This.NumberOfNumbers()
+			@anContent[i] += @anContent[i-1]
+		next
+			
+		def CumulateQ()
+			return This.CumulateQR()
+
+		def CumulateQR()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Cumulate() )
+
+			on :stzListOfNumbers
+				return new stzList( This.Cumulate(n1) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 	def Cumulated()
-		// TODO
+		anResult = This.Copy().CumulateQ().Content()
+		return anResult
 
 	  #-----------------#
 	 #     UNICODE     #
 	#-----------------#
 
-	// Gets the unicode numbers contained in the list
+	# Gets the unicode numbers contained in the list
+
+	# Don't be confused with StzListOfChars().Unicodes() that
+	# returns the unicodes of all the chars in the list.
+
+	#--> If you need to get the unicodes of all the numbers here
+	# in the list of numbers, then you should cast it to a
+	# stzListOfChars object and then use Unicodes() on it:
+
+	#     This.ToStzListOfChars(...).Unicodes()
+
+	# to avoid sutch confusion, it is better to use the aternative
+	# name OnlyUnicodes()
+
 	def Unicodes()
 		aResult = []
 		for n in This.ListOfNumbers()
@@ -842,12 +916,46 @@ class stzListOfNumbers from stzList
 
 		return aResult
 
-		#< @FunctionFluentForm
-
 		def UnicodesQ()
-			return new stzListOfUnicodes( This.Unicodes() )
+			return This.UnicodesQR(:stzList)
 
-		#>
+		def UnicodesQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Unicodes() )
+
+			on :stzListOfNumbers
+				return new stzList( This.Unicodes() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		def OnlyUnicodes()
+			return This.OnlyUnicodes()
+
+			def OnlyUnicodesQ()
+				return This.CumulateQR(:stzList)
+
+			def OnlyUnicodesQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.OnlyUnicodes() )
+	
+				on :stzListOfNumbers
+					return new stzList( This.OnlyUnicodes() )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
 
 	  #========================================#
 	 #     ADDING A NUMBER TO EACH NUMBER     #
@@ -1221,3 +1329,50 @@ class stzListOfNumbers from stzList
 
 		def NumbersReversed()
 			return This.Reversed()
+
+	#-----------#
+	#   MISC.   #
+	#-----------#
+
+	def ToStzListOfChars()
+		return new stzListOfChars( This.Content() )
+
+	def NumberOfNumbers()
+		return len( This.Content() )
+
+	def IsContinuous()
+		
+		oList = This.ToStzList()
+
+		if NOT oList.IsSorted()
+			return FALSE
+		ok
+
+		nPrecedent = 1
+		nCurrent   = 1
+
+		if oList.IsSortedInAscending()
+			
+			for i = 2 to This.NumberOfNumbers()
+				nPrecdent = This[i-1]
+				nCurrent  = This[i]
+				if nCurrent < nPrecedent
+					return FALSE
+				ok
+			next
+
+			return TRUE
+
+		but oList.IsSortedInDescending()
+
+			for i = 2 to This.NumberOfNumbers()
+				nPrecdent = This[i-1]
+				nCurrent  = This[i]
+				if nCurrent > nPrecedent
+					return FALSE
+				ok
+			next
+
+			return TRUE
+
+		ok

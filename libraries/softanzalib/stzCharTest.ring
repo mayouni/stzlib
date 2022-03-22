@@ -1,5 +1,8 @@
 load "stzlib.ring"
 
+
+? StzCharQ(" ").CharType() #--> separator_space
+
 /*------------------
 
 ? StzCharQ("⸁").Name() # --> RIGHT ANGLE DOTTED SUBSTITUTION MARKER 
@@ -51,10 +54,6 @@ o1 = new stzChar("ARABIC LETTER SEEN")
 
 o1 = new stzChar("ROMAN NUMERAL THREE")	# TODO: fix performance lag!
 ? o1.Content() # --> Ⅲ
-
-/*------------------- REFACTORED: chars names are now histed in a string
-
-? CharsNames()	# ERROR or PERF: fix it:
 
 /*-------------------
 

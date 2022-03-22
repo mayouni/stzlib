@@ -16,6 +16,20 @@ Programming, by Heart! By: M.Ayouni╭
 func SoftanzaLogo()
 	return _cSoftanzaLogo
 
+func Stringify(p)
+	if isString(p)
+		return p
+
+	but isNumber(p)
+		return "" + p
+
+	but isList(p)
+		return ComputableForm(p) # Same as @@(p)
+
+	but isObject(p)
+		return ComputableForm( p.Listified() ) # TODO ?
+	ok
+
 func stzRaise(paMessage)
 	/*
 	WARNING: Do not use stzRaise to raise errors here
@@ -28,11 +42,11 @@ func stzRaise(paMessage)
 
 	if NOT (isString(paMessage) or isList(paMessage) )
 
-		stzRaise("Error in stzRaise param type!")
+		raise("Error in stzRaise param type!" + NL)
 	ok
 
 	if isString(paMessage)
-		raise(paMessage)
+		raise(paMessage + NL)
 	ok
 
 	if isList(paMessage) and StzListQ(paMessage).IsRaiseParamList()

@@ -1137,10 +1137,10 @@ class stzListOfStrings from stzObject
 
 		#>
 
-	   #-----------------------------------------------####################
+	   #-----------------------------------------------#
 	  #  FINDING ALL OCCURRENCE OF A STRING-ITEM IN   #
 	 #  THE LIST EXCEPT FIRST OR LAST OCCURRENCE     #
-#########-----------------------------------------------#
+	#-----------------------------------------------#
 	/*
 	NOTE: These functions were made to be used in RemoveDuplicates()
 	*/
@@ -8626,7 +8626,7 @@ class stzListOfStrings from stzObject
 
 			other
 				stzRaise([
-					:Where = "stzListOfStrings (8620) > SplitQR()",
+					:Where = "stzListOfStrings (8611) > SplitQR()",
 					:What  = "Can't cast the object to the type you requested!",
 					:Why   = "The type you required is not supported",
 					:Todo  = "Opt for an other type, implement it by yourself, or create the type of object uisng new."
@@ -8834,6 +8834,18 @@ class stzListOfStrings from stzObject
 	def MultipliedBy(pcStr)
 		aResult = This.Copy().MultiplyByQ(pcStr).Content()
 		return aResult
+
+	def ContainsNoEmptyStrings()
+		bResult = TRUE
+
+		for str in This.ListOfStrings()
+			if str = NULL
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
 
 	  #------------------------------#
 	 #     OPERATORS OVERLOADING    # 

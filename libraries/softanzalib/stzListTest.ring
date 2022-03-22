@@ -1,7 +1,165 @@
 load "stzlib.ring"
 
+/*---------------
 
-? StzListQ( :ReturnedAs = :stzList ).IsReturnedAsParamList()
+o1 = new stzList([ 1, 2, 1, 1, 2, 3, 3, 3 ])
+? o1.DuplicatesRemoved() #--> [ 1, 2, 3 ]
+
+/*---------------
+
+o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
+? o1.FindAll(1:3) 	#--> [1, 3, 4]
+
+? o1.Contains(7:10)	#--> TRUE	
+
+/*---------------
+
+o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
+
+o1.Removeduplicates()
+? o1.Content() #--> [ 1:3, 4:6, 7:10 ]
+
+/*===============
+
+# In Ring, you can declare a "continuous" list of chars
+# from "A" to "F" like this:
+
+StzListQ("A":"F") {
+	? Content()
+	#--> Gives [ "A", "B", "C", "D", "E", "F" ]
+
+	? ItemAtPosition(4) #--> "D"
+}
+
+# This beeing working only for ASCII chars, Softanza comes
+# with this solution for any "continuous" UNIOCDE chars:
+
+StzListQ(' "ا" : "ج" ') {
+	? Content()
+	#--> Gives [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+
+	? ItemAtPosition(4) #--> "ت"
+}
+
+/*===========
+
+? StzListQ(1:5).IsContinuous()		 #--> TRUE
+? StzListQ([ "A","B" ]).IsContinuous()	 #--> TRUE
+? StzListQ(' "ا" : "ج" ').IsContinuous() #--> TRUE
+
+/*-----------------
+
+# As we all know, Ring provides us with this elegant syntax:
+
+aList = "A" : "D"
+? @@( aList )	#--> [ "A", "B", "C", "D" ]
+
+# Unfortunaltely, this is limited to ASCII chars.
+# And if we use it with other UNICODE chars we get
+# just the first char:
+
+aList = "ا" : "ج"
+? @@( aList )	# --> "ا"
+
+# Fortunately, Softanza solves this by the following function:
+
+? @@( ContinuousList("ا" , "ج") )
+#--> Gives [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+
+# You won't need it but it manages ASCIIs as well:
+
+? ContinuousList("A", "D")	#--> [ "A", "B", "C", "D" ]
+
+# Interestingly, this short form mimics the "_" : "_" Ring syntax:
+
+? @C('"ا" : "ج"')	# "C" for "Continuous"
+#--> Gives [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+
+? @C(' "ج" : "ا" ')
+#--> Gives [ "ج", "ث", "ت", "ة", "ب", "ا" ]
+
+/*================
+
+aList = [
+	:Arabic,
+	:Arabic,
+	:French,
+	:English,
+	:Spanish,
+	:Spanish,
+	:English,
+	:Arabic
+]
+
+StzListQ(aList) {
+ 	? Classify()
+		#--> [
+		# 	:Arabic  = [ 1, 2, 8 ],
+		# 	:French  = [ 3 ],
+		# 	:Enslish = [ 4, 7 ],
+		#    	:Spanish = [ 5, 6 ]
+		#    ]
+
+	? Classes() 		#--> [ :Arabic, :French, :English, :Spanish ]
+	? NumberOfClasses() 	#--> 4
+}
+
+/*-----------------
+
+o1 = new stzList([
+	1982, 1964, 1992, 1982, 1964, 2001, 1982, 1992, 2000
+])
+
+? o1.Classify()
+	#--> [
+	# 	:1982 = [ 1, 4, 7 ],
+	# 	:1964 = [ 2, 5 ],
+	# 	:1992 = [ 3, 8 ],
+	# 	:2001 = [ 6 ],
+	# 	:2000 = [ 9 ]
+	#    ]
+
+# NOTE that classes are transformed to strings!
+
+/*-----------------
+
+o1 = new stzList([
+	1:5, 3:9, 1:5, 10:15, 3:9, 12:20, 10:15, 1:5, 12:20
+])
+
+? o1.Classify()	# Same as Categorize()
+#--> [
+#	[ "[ 1, 2, 3, 4, 5 ]",   [1, 3, 8 ] ],	
+#	[ "[ 3, 4, 5, 6, 7, 8, 9 ]",   [2, 5 ] ],
+#	[ "[ 10, 11, 12, 13, 14, 15 ]", [4, 7 ] ],
+#	[ "[ 12, 13, 14, 15, 16, 17, 18, 19, 20 ]", [6, 9 ]
+#    ]
+
+# Note that lists are transformed to strings so we can use them
+# as keys for idenfifying the their positions in the hash string.
+
+# Hence we can say:
+
+? o1.Klass("[ 1, 2, 3, 4, 5 ]") #--> [1, 3, 8 ]
+# Here, I used "K" because "Class" is a reserved name by Ring.
+# If you don't like that, please use Category() instead.
+
+# If you prefer getting the classes in "continuous form" (i.e. "1:5"
+# instead of "[1, 2, 3, 4, 5 ]", then use this:
+
+? o1.Classify@C() #--> "@C" for "Continuous" lists
+#--> [
+#	[ "1:5",   [1, 3, 8 ] ],	
+#	[ "3:9",   [2, 5 ] ],
+#	[ "10:15", [4, 7 ] ],
+#	[ "12:20", [6, 9 ]
+#    ]
+
+? o1.Klass@C("1:5") #--> [1, 3, 8]
+
+/*----------------
+
+? StzListQ( :ReturnedAs = :stzList ).IsReturnedAsParamList() #--> TRUE
 
 /*-----------------
 
