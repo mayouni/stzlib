@@ -170,10 +170,12 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
-		return This.Content()[n][1]
+		if n > 0
+			return This.Content()[n][1]
+		ok
 
-	def NthKeyQ(n)
-		return new stzNumber(This.NthKey())
+		def NthKeyQ(n)
+			return new stzNumber(This.NthKey())
 
 	def Key(n)
 		return This.NthKey(n)
@@ -306,27 +308,12 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		ok
 
 	def UpdateNthPair(n, paNewPair)
-		/*
-		Let's be permissive: if the user misses the correct order of parmas
-		( --> enters the string before the number ) then fix it silently
-
-		*/
-
-		if isList(n) and isNumber(paNewPair)
-			temp = n
-			n = paNewPair
-			paNewPair = temp
-		ok
-
-		# Also, let's facilitate the syntax a bit further
 
 		if n = :First
 			n = 1
 		but n = :Last
 			n = This.NumberOfPairs()
 		ok
-
-		# Now, let's do the job
 
 		if isList(paNewPair) and ListIsPairAndKeyIsString(paNewPair)
 
@@ -356,19 +343,11 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return This
 
 	def UpdateNthKey(n, pcValue)
-		/*
-		Let's be permissive: if the user misses the correct order of parmas
-		( --> enters the string before the number ) then fix it silently
-
-		*/
-
 		if isList(n) and isNumber(pcValue)
 			temp = n
 			n = pcValue
 			pcValue = temp
 		ok
-
-		# Also, let's facilitate the syntax a bit further
 
 		if n = :First
 			n = 1
@@ -407,19 +386,6 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return This
 
 	def UpdateNthValue(n, pValue)
-		/*
-		Let's be permissive: if the user misses the correct order of parmas
-		( --> enters the string before the number ) then fix it silently
-
-		*/
-
-		if isNumber(pValue) and (NOT isNumber(n))
-			temp = n
-			n = pValue
-			pcValue = temp
-		ok
-
-		# Also, let's facilitate the syntax a bit further
 
 		if n = :First
 			n = 1
@@ -427,7 +393,6 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			n = This.NumberOfValues()
 		ok
 
-		# Now, let's do the job
 
 		@aContent[n][2] = pValue
 
@@ -634,6 +599,10 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return FALSE
 		ok
 
+	  #---------------------#
+	 #    FINDING VALUE    #
+	#---------------------#
+
 	def ContainsValue(pValue)
 		if len( This.FindValue(pValue) ) > 0
 			return TRUE
@@ -645,24 +614,15 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		aResult = []
 		n = 0
+
 		for aPair in This.Content()
 			n++
-			if IsNumberOrString(pValue)
-				if ValueInPair(aPair) = pValue
-					aResult + n
-				ok
 
-			but isList(pValue)
-
-			oStzList = new stzList(aPair)
-				if oStzList.IsStrictlyEqualTo(pValue)
-					aResult + n
-				ok
-
-			but isObject(pvalue)
-				// TODO
-				stzRaise("Uncovered case!")
+			oStzList = new stzList(aPair[2])
+			if oStzList.IsEqualTo(pValue)
+				aResult + n
 			ok
+
 		next
 		return aResult
 
@@ -671,32 +631,15 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		def FindAllOccurrencesOfValue(pValue)
 			return This.FindValue(pValue)
 
-		def FindAllValue(pValue)
-			return This.FindValue(pValue)
-
 		#>
 
 	def FindNthOccurrenceOfValue(n, pValue)
-		/*
-		Let's be permissive: if the user misses the correct order of parmas
-		( --> enters the string before the number ) then fix it silently
-		*/
-
-		if isNumber(pValue) and (NOT isNumber(n))
-			temp = n
-			n = pValue
-			pValue = temp
-		ok
-
-		# Also, let's facilitate the syntax a bit further
 
 		if n = :First
 			n = 1
 		but n = :Last
 			n = This.NumberOfOccurreceOfValue(pValue)
 		ok
-
-		# Now, let's do the job
 
 		return This.FindValue(pValue)[n]
 
@@ -716,14 +659,11 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return aResult
 
 	def FindFirstKeyByValue(pValue)
-		cResult = ""
-		for i = 1 to This.NumberOfPairs()
-			if Q(This.Value(i)).IsEqualTo(pValue)
-				cResult = This.Key(i)
-				exit
-			ok
-		next i
-		return cResult
+		nResult = 0
+		if This.ContainsKeyByValue(pValue)
+			nResult = This.FindKeysBayValue(pValue)[1]
+		ok
+		return nResult
 
 	def FindKeyByValue(pValue)
 		return This.FindFirstKeyByValue(pValue)
@@ -737,6 +677,130 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			ok
 		next i
 		return cResult
+
+	def KeyByValue(pValue)
+		n = This.FindKeyByValue(pValue)
+		return This.Key( n )
+
+	def KeysByValue(pValue)
+		anPos = This.FindKeysByValue()
+		aResult = []
+
+		for n in anPos
+			aResult + This.KeyByValue(n)
+		next
+
+		return aResult
+
+	  #----------------------------------#
+	 #   FINDING VALUE HOSTED IN LIST   #
+	#----------------------------------#
+	/* EXAMPLE
+
+	o1 = new stzHashList([
+		:Positive	= [ :happy, :nice, :glad, :can, :beatiful, :wanderful ],
+		:Neutral  	= [ :is, :will, :can, :some ],
+		:Negative	= [ :no, :not, :must, :difficult, :problem ]
+	])
+
+	? o1.FindValueInList(:nice) #--> [ 1 ]
+	? o1.FindValueInList(:can)  #--> [ 1, 2 ]
+	*/
+
+	def ContainsValueInList(pValue)
+		if len( This.FindValueInList(pValue) ) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def FindValueInList(pValue)
+
+		aResult = []
+		n = 0
+		for aPair in This.Content()
+			n++
+			if isList(aPair[2])
+
+				oStzList = new stzList(aPair[2])
+				if oStzList.Contains(pValue)
+					aResult + n
+				ok
+			ok
+
+		next
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllOccurrencesOfValueInList(pValue)
+			return This.FindValueInList(pValue)
+
+		#>
+
+	def FindNthOccurrenceOfValueInList(n, pValue)
+
+		if n = :First
+			n = 1
+		but n = :Last
+			n = This.NumberOfOccurreceOfValueInList(pValue)
+		ok
+
+
+		return This.FindValueInList(pValue)[n]
+
+	def FindFirstOccurrenceOfValueInList(pValue) 
+		return This.FindNthValueInList(1, pValue)
+
+	def FindLastOccurrenceOfValueInList(pValue)
+		return This.FindNthOccurrenceOfValueInList(:Last, pValue)
+
+	def FindKeysByValueInList(pValue)
+		anPos = This.FindValueInList(pValue)
+		anResult = []
+		for n in anPos
+			anResult + n
+		next
+		return anResult
+
+	def NumberOfKeysByValueInList() ###
+		return len( This.FindKeysByValueInList(pValue) )
+
+	def FindFirstKeyByValueInList(pValue)
+
+		if This.ContainsValueInList(pValue)
+			return This.FindKeysByValueInList(pValue)[1]
+		else
+			return 0
+		ok
+
+	def FindKeyByValueInList(pValue)
+		return This.FindFirstKeyByValueInList(pValue)
+
+	def FindLastKeyByValueInlist(pValue)
+		n = This.NumberOfKeysByValueInList()
+
+		if This.ContainsValueInList(pValue)
+			return This.FindKeysByValueInList(pValue)[n]
+		else
+			return 0
+		ok
+
+
+	def KeyByValueInList(pValue)
+		n = This.FindKeyByValueInList(pValue)
+
+		return This.Key( n )
+
+	def KeysByValueInList(pValue)
+		anPos = This.FindKeysByValueInList()
+		aResult = []
+
+		for n in anPos
+			aResult + This.Key(n)
+		next
+
+		return aResult
 
 	  #---------------------#
 	 #     CLASSIFYING     #

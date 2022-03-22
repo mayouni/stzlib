@@ -3847,12 +3847,6 @@ class stzList from stzObject
 			try
 				cCode = "aResult + " + cExpression
 				cCode = StzStringQ(cCode).ReplaceAllCSQ( "Item", "This.Item("+ nStep + ")", :CS = FALSE ).Content()
-/*
-				on :InfoAbout
-					cCode = "aResult + " + acExpression[2] +
-						"( This.Item(" + nStep + ") )"
-				off
-*/
 
 				eval( cCode )
 			catch
@@ -3886,15 +3880,13 @@ class stzList from stzObject
 	def IsEqualTo(paOtherList)
 		/*
 		Two lists are equal when they have:
-			1. same number of items AND
-			2. same content
+			1. same type
+			2. same number of items AND
+			3. same content
 		*/
 
-		if NOT isList(paOtherList)
-			stzRaise("Invalid param type! paOtherList must be a list.")
-		ok
-
-		if len(paOtherList) = len(This.List()) and
+		if isList(paOtherList) and
+		   len(paOtherList) = len(This.List()) and
 		   This.HasSameContentAs(paOtherList)
 
 			return TRUE
@@ -4436,6 +4428,35 @@ class stzList from stzObject
 
 	def Klass@C(pcClass)
 		return This.Classify@C()[pcClass]
+
+	def NumberOfOccurrenceOfClass(pcClass)
+		nResult = StzListQ( This.Classes() ).NumberOfOccurrence( pcClass )
+		return nResult
+
+	def ClassFrequency(pcClass)
+		nResult = This.NumberOfOccurrenceOfClass(pcClass) / This.NumberOfClasses()
+
+	def ClassesFrequencies()
+		anResult = []
+		for cClass in This.Classes()
+			anResult + This.ClassFrequency(pcClass)
+		next
+		return anResult
+	def ClassesAndTheirFrequencies()
+		acClasses 	= This.Classes()
+		anFrequencies 	= This.ClassesFrequencies()
+
+		aResult = StzLisQ( acClasses ).AssociatedWith( anFrequencies )
+
+		return aResult
+
+	def FrequenciesAndTheirClasses()
+		acClasses 	= This.Classes()
+		anFrequencies 	= This.ClassesFrequencies()
+
+		aResult = StzLisQ( anFrequencies ).AssociatedWith( acClasses )
+
+		return aResult
 
 	  #------------------#
 	 #     INDEXING     #

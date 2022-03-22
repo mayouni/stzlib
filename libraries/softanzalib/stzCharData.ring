@@ -371,12 +371,22 @@ Diacritics
 	 #   PUNCTUATION   #
 	#-----------------#
 
+	# WARNING : The two unicode blocks GENERAL_PUNC and SUPPLEMENTAL_PUNCT
+	# do not contain basic punctuations like ",",";", and so on.
+	# Those are classified in the category "Other Punctuation". Listed here:
+	# https://www.compart.com/en/unicode/category/Po
+
+	# TODO --> Add them to this list of unicodes herefater, otherwise the
+	# use of Punctuations() function would lead the user to error...
+
+	_anOtherPunctuationUnicodes	= [] # TODO: Comptete it
 	_anGeneralPunctuationUnicodes   = 8192  : 8303
 	_anSupplementalPunctuationCodes = 11766 : 11903
 
 	_anPunctuationUnicodes = ListsMerge([
 		_anGeneralPunctuationUnicodes,
-		_anSupplementalPunctuationCodes
+		_anSupplementalPunctuationCodes,
+		_anOtherPunctuationUnicodes
 	])
 
 	  #-------------------#
@@ -1782,7 +1792,12 @@ Diacritics
 	func PunctuationUnicodes()
 		return _anPunctuationUnicodes
 	
-	func PunctuationChars()
+	func PunctuationChars()	# TODO: Review its content
+			  	# Some punctuations are not present (".", ",", ";"...")
+				# Read the note at the beginning of this file while
+				# defining the content of the _anPunctuationUniCodes
+				# global variable (needs to be completed!)
+
 		aResult = []
 	
 		for n in PunctuationUnicodes()

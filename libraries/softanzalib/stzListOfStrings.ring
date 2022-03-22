@@ -7869,6 +7869,9 @@ class stzListOfStrings from stzObject
 				
 				on :stzListOfNumbers
 					return new stzListOfNumbers( This.Yield(pcCode) )
+
+				on :stzHashList
+					return new stzHashList( This.Yield(pcCode) )
 		
 			other
 					stzRaise("Unsupported return type!")

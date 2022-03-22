@@ -120,7 +120,7 @@ func StzCharToQChar(oChar)
 	return oQChar.QCharObject()
 
 func QCharToQString(oQChar)
-	oQStr = new QString()
+	oQStr = new QString2()
 	oQStr.append_2(oQChar)
 	return oQStr
 
