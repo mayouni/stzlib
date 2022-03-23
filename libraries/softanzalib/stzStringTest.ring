@@ -39,50 +39,96 @@ o1 = new stzString('[ "A","B", "C", "D", ]')
 #--> [ '[ "A"', '"B"', ' "C"', ' "D"', ' ]' ]
 
 /*=================
+*/
+# IDENTIFYING LISTS INSIDE A STRING
 
-o1 = new stzString('[ "A","B", "C", "D" ]')
-? o1.IsListInString() #--> TRUE
+# In many situations (especially in advanced AI and ML applications),
+# you may need to host a list inside a string, do whatever operations
+# on it as as string, and then evaluate it back, in real time, to
+# transform it to a vibrant Ring list again!
 
-o1 = new stzString(' "A":"D" ')
-? o1.IsListInString() #--> TRUE
+# Whatever syntax is used (noramal [_,_,_] or short _:_), Softanza
+# can recognize any Ring list you would host inside a string:
 
-o1 = new stzString('[ "ا", "ب", "ج" ]')
-? o1.IsListInString() #--> TRUE
+? StzStringQ('[1,2,3]').IsListInString()		#--> TRUE
+? StzStringQ('1:3').IsListInString()			#--> TRUE
 
-o1 = new stzString(' "ا":"ج" ')
-? o1.IsListInString() #--> TRUE
+? StzStringQ(' "A":"C" ').IsListInString()		#--> TRUE
+? StzStringQ(' "ا":"ج" ').IsListInString()		#--> TRUE
 
-/*-----------------
+# It tells you if the syntax used is normal or short:
 
-o1 = new stzString(' "A":"D"')
-? o1.IsContinuousListInString()	#--> TRUE
+? StzStringQ('[1,2,3]').IsListInNormalForm()		#--> TRUE
+? StzStringQ('1:3').IsListInShortForm()			#--> TRUE
 
-//o1 = new stzString(' "ا":"ج" ')
-? o1.IsContinuousListInShortForm()	#--> TRUE
+? StzStringQ(' "A":"C" ').IsListInShortForm()		#--> TRUE
+? StzStringQ(' "ا":"ج" ').IsListInShortForm()		#--> TRUE
 
-//o1 = new stzString(' "ج":"ا" ')
-? o1.IsContinuousListInShortForm()	#--> TRUE
+# And knows about the list beeing continuous or not:
 
-//o1 = new stzString(' 8:12 ')
-? o1.IsContinuousListInShortForm()	#--> TRUE
+? StzStringQ('[1,3]').IsContinuousListInString()	#--> TRUE
+? StzStringQ('1:3').IsContinuousListInString()		#--> TRUE
 
-//o1 = new stzString(' 12:8 ')
-? o1.IsContinuousListInShortForm()	#--> TRUE
+? StzStringQ(' "A":"C" ').IsContinuousListInString()	#--> TRUE
+? StzStringQ(' "ا":"ج" ').IsContinuousListInString()	#--> TRUE
+
+	# REMINDER: A continuous list can be made of contiguous
+	#  chars (base on their unciode codepints) or numbers,
+	# and you can identify them using the stzList.IsContinuous():
+
+	? StzListQ(1:3).IsContinuous()		#--> TRUE
+	? StzListQ("A":"E").IsContinuous()	#--> TRUE
 
 
-/*-----------------
+# Back to list IN STRINGS!
 
-o1 = new stzString(' "ا":"ج" ')
-? o1.IsListInString()
-? o1.IsContinuousListInShortForm()
+# Not only Softanza can see if the list in string is continuous
+# or not, it can also see in what syntax thery are:
 
-o1 = new stzString(' [ "ا", "ب", "ج" ] ')
-? o1.IsListInString()
-? o1.IsContinuousListInShortForm()
+? StzStringQ('[1,3]').IsContinuousListInNormalForm()	#--> TRUE
+? StzStringQ('1:3').IsContinuousListInShortForm()	#--> TRUE
+
+? StzStringQ(' "A":"C" ').IsContinuousListInShortForm()	#--> TRUE
+? StzStringQ(' "ا":"ج" ').IsContinuousListInShortForm()	#--> ERROR should return TRUE
+
+# Now, what about tranforming one form to another: possible in
+# both directions, from normal to short, and from short to normal!
+
+? @@( StzStringQ('[1,3]').ToListInShortForm() )		#--> "1:3"
+? @@( StzStringQ('1:3').ToListInNormalForm() )		#--> "[1, 2, 3]"
+
+? StzStringQ(' ["A","B","C","D"] ').ToListInShortForm()	#--> "A" : "D"
+? StzStringQ(' "ا":"ج" ').ToListInShortForm()		#--> "ا" : "ج"
+
+# And by default, of course, the normal form is used:
+
+? @@( StzStringQ('[1,2,3]').ToListInString() )	#--> "[1, 2, 3]"
+? @@( StzStringQ('1:3').ToListInString() )	#--> "[1, 2, 3]"
+
+? StzStringQ(' "A":"C" ').ToListInString()	#--> [ "A", "B", "C" ]
+? StzStringQ(' "ا":"ج" ').ToListInString()	#--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+
+# If you prefer (or need) the short form, there is an interesting
+# alternative to the ToListInShortForm() alternative that uses
+# the simple @C prefix, like this:
+
+? @@( StzStringQ('[1,3]').ToListInString@C() )		#--> "1 : 3" ERRRRROR
+? @@( StzStringQ('1:3').ToListInString@C() )		#--> "1 : 3"
+
+? StzStringQ(' ["A","B","C","D"] ').ToListInString@C()	#--> "A" : "D"
+? StzStringQ(' [ "ا", "ب", "ة", "ت" ] ').ToListInString@C()
+							#--> Gives "ا" : "ت"
+
+# Finally, as a "cerise sur le gâteau", you can evaluate
+# the string in list in real time like this:
+
+? StzStringQ('1:3').ToList()	   #--> [1, 2, 3]
+? StzStringQ(' "A":"C" ').ToList() #--> ["A", "B", "C"]
+? StzStringQ(' "ا":"ج" ').ToList() #--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
 return
 /*=================
-*/
+
 # While finding occurrences of a substring inside a string,
 # Softanza can return the positions or the sections of
 # those substrings:
@@ -167,8 +213,8 @@ o1.Simplify() # Jst to remove spaces I put for readabiliy
 o1.RemoveCharsWhereCS('{ @char = "X" }', :CS = true)
 ? o1.Content()
 
-/*================= TODO (NOW)
-
+/*================= TODO
+*/
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.ReplaceAnyBetween("<<", ">>", :With = "word")
 ? o1.Content()  # !--> "bla bla <<word>> bla bla <<word>> bla <<word>>"

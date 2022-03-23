@@ -333,6 +333,8 @@ func ContinuousListOfChars(cChar1, cChar2)
 	func ContinuousList(cChar1, cChar2)
 		return ContinuousListOfChars(cChar1, cChar2)
 
+#-------------- TO BE REMOVED
+/*
 func @C(pcContinuousListInString)
 
 	if isString(pcContinuousListInString) and
@@ -411,26 +413,7 @@ func @C(pcContinuousListInString)
 	else
 		stzRaise("Incorrect param!")
 	ok
-		
-
-
-func ContinuousListInString(pcStr)
-		/*
-		? @C(' "A":"D" ')	# We've used the short form @C@() here.
-		#--> Returns the list [ "A", "B", "C", "D" ]
-
-		? @C(' "ا" : "ج" ')
-		# --> Returns the list [ "", "", "", "", "", "" ]
-		*/
-
-		if NOT ( isString(pcStr) and StzStringQ(pcStr).IsContinuousListInShortForm() )
-			stzRaise("Incorrect param!")
-		ok
-
-	
-
-	def @C@(pcStr)
-		return ContinuousListInString(pcStr)
+*/
 
   /////////////////
  ///   CLASS   ///
@@ -450,8 +433,8 @@ class stzList from stzObject
 			@aContent = paList
 
 		but isString(paList) and StzStringQ(paList).IsListInString()
-			cCode = "@aContent = " + paList
-			eval(cCode)
+			@aContent = StzStringQ(paList).ToList()
+
 		else
 			stzRaise("Can't create the stzList object!")
 		ok

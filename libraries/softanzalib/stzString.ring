@@ -15958,10 +15958,119 @@ class stzString from stzObject
 	*/
 
 	def IsListInString()
-		cCode = "aTempList = " + This.String()
-		eval(cCode)
 
-		return isList(aTempList)
+		# A list can not be written with less then 2 chars ('[]')
+
+		if This.SimplifyQ().NumberOfChars() < 2
+			return FALSE
+		ok
+
+		bResult = FALSE
+
+		# Case 1 : The list is in normal [_,_,_] fprm
+
+		if This.SimplifyQ().IsBoundedBy("[","]") and
+			This.Contains(",")
+
+			cCode = "aTempList = " + This.String()
+			eval(cCode)
+
+			bResult = isList(aTempList)
+
+		else
+
+		# Case 2 : The list is in short _:_ form
+
+			if This.ContainsOneOccurrence(:of = ":")
+
+				# the : separator in _:_ can not be at the
+				# beginning or the end of the list in string
+
+				n = This.FindFirst(":")
+				if NOT ( n > 1 and n < This.NumberOfChars() )
+
+					bResult = FALSE
+
+				ok
+
+				# The list is in short form, let's analyze it
+				# and tranform it to a normal syntax
+
+				aListMembers = This.Split( :Using = ":" )
+					
+				cMember1 = aListMembers[1]
+				cMember2 = aListMembers[2]
+		
+				cCode = "pMember1 = " + cMember1
+				eval(cCode)
+		
+				cCode = "pMember2 = " + cMember2
+				eval(cCode)
+		
+				cNormalSyntax = "[ "
+	
+				if ( isString(pMember1) and StringIsChar(pMember1) ) and
+				   ( isString(pMember2) and StringIsChar(pMember2) )
+						
+					n1 = CharUnicode(pMember1)
+					n2 = CharUnicode(pMember2)
+		
+					if n1 <= n2
+						for n = n1 to n2
+							cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
+							if n < n2
+								cNormalSyntax += ", "
+							ok
+						next
+		
+					but n1 > n2
+						for n = n1 to n2 step -1
+							cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
+							if n > n2
+								cNormalSyntax += ", "
+							ok
+						next
+					ok
+		
+					cNormalSyntax += " ]"
+		
+				but isNumber(pMember1) and isNumber(pMember2)
+
+					n1 = pMember1
+					n2 = pMember2
+		
+					if n1 <= n2
+
+						for n = n1 to n2
+							cNormalSyntax += (""+ n)
+							if n < n2
+								cNormalSyntax += ", "
+							ok
+						next
+		
+					but n1 > n2
+
+						for n = n1 to n2 stzp -1
+							cNormalSyntax += (""+ n)
+							if n > n2
+								cNormalSyntax += ", "
+							ok
+						next
+		
+					ok
+		
+					cNormalSyntax += " ]"
+				ok
+
+				cCode = "aTempList = " + cNormalSyntax
+				eval(cCode)
+
+				bResult = isList(aTempList)
+
+			ok  
+		ok
+
+		return bResult
 
 	def IsListInNormalForm()
 		if NOT This.IsListInString()
@@ -15988,13 +16097,10 @@ class stzString from stzObject
 	#--------------------------------------------#
 
 	def IsContinuousListInString()
-		bResult = FALSE
 
-		if This.IsListInString()
-			cCode = "aTempList = " + This.String()
-			eval(cCode)
-			bResult = StzListQ(aTempList).IsContinuous()
-		ok
+		cCode = "aTempList = " + This.ToListInNormalForm()
+		eval(cCode)
+		bResult = StzListQ(aTempList).IsContinuous()
 
 		return bResult
 
@@ -16056,8 +16162,8 @@ class stzString from stzObject
 					SplitQ(",").
 					FirstAndLastItems()
 
-			cMember1 = acMembers[1]
-			cMember2 = acMembers[2]
+			cMember1 = StzStringQ(acMembers[1]).Simplified()
+			cMember2 = StzStringQ(acMembers[2]).Simplified()
 
 			cResult = cMember1 + " : " + cMember2
 		ok
@@ -16075,16 +16181,82 @@ class stzString from stzObject
 		ok
 
 		if This.IsListInNormalForm()
-			cResult = This.Content()
+			cResult = This.Simplified()
 
-		else # The list in string is in short form
+		but This.IsListInShortForm()
 
-			cCode = "aTempList = " + This.String()
+			# The list is in short form, let's analyze it
+			# and tranform it to a normal syntax
+
+			aListMembers = This.Split( :Using = ":" )
+					
+			cMember1 = aListMembers[1]
+			cMember2 = aListMembers[2]
+		
+			cCode = "pMember1 = " + cMember1
 			eval(cCode)
+		
+			cCode = "pMember2 = " + cMember2
+			eval(cCode)
+		
+			cNormalSyntax = "[ "
+	
+			if ( isString(pMember1) and StringIsChar(pMember1) ) and
+			   ( isString(pMember2) and StringIsChar(pMember2) )
+						
+				n1 = CharUnicode(pMember1)
+				n2 = CharUnicode(pMember2)
+		
+				if n1 <= n2
+					for n = n1 to n2
+						cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
+						if n < n2
+							cNormalSyntax += ", "
+						ok
+					next
+		
+				but n1 > n2
+					for n = n1 to n2 step -1
+						cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
+						if n > n2
+							cNormalSyntax += ", "
+						ok
+					next
+				ok
+		
+				cNormalSyntax += " ]"
+		
+			but isNumber(pMember1) and isNumber(pMember2)
 
-			cResult = StzListQ(aTempList).Stringified()
+				n1 = pMember1
+				n2 = pMember2
+		
+				if n1 <= n2
 
-		ok
+					for n = n1 to n2
+						cNormalSyntax += (""+ n)
+						if n < n2
+							cNormalSyntax += ", "
+						ok
+					next
+		
+				but n1 > n2
+
+					for n = n1 to n2 stzp -1
+						cNormalSyntax += (""+ n)
+						if n > n2
+							cNormalSyntax += ", "
+						ok
+					next
+		
+				ok
+		
+				cNormalSyntax += " ]"
+			ok
+
+			cResult = cNormalSyntax
+
+		ok  
 
 		return cResult
 
@@ -16099,7 +16271,7 @@ class stzString from stzObject
 			stzRaise("Can't evaluate the list in string!")
 		ok
 
-		cCode = "aResult = " + This.String()
+		cCode = "aResult = " + This.ToListInNormalForm()
 		eval(cCode)
 
 		return aResult
