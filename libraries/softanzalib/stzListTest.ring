@@ -20,7 +20,7 @@ o1.Removeduplicates()
 ? o1.Content() #--> [ 1:3, 4:6, 7:10 ]
 
 /*===============
-
+*/
 # In Ring, you can declare a "continuous" list of chars
 # from "A" to "F" like this:
 
@@ -31,6 +31,7 @@ StzListQ("A":"F") {
 	? ItemAtPosition(4) #--> "D"
 }
 
+/*
 # This beeing working only for ASCII chars, Softanza comes
 # with this solution for any "continuous" UNIOCDE chars:
 
