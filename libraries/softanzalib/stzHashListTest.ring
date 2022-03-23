@@ -1,7 +1,36 @@
 load "stzlib.ring"
 
+o1 = new stzHashList([
+	:one 	= :red,
+	:two 	= :white,
+	:three 	= :white,
+	:four 	= :green,
+	:five 	= :red,
+	:six 	= :green,
+	:seven 	= :white,
+	:eight	= :yellow
+])
+
+? o1.Classes() 		#--> [ :red, :white, :green, :yellow ]
+? o1.NumberOfClasses()	#--> 4
+? o1.Klass(:white)	#--> [ :two, :three, :seven ]
+
+? o1.KlassFreq()	#--> 3/8
+
+# ? o1.ClassesAndTheirFrequencies	// same as ClassesXT()
+#--> [ :red = 3, :white = 2, :green = 2, :yello = 1 ]
+
+# ? o1.StrongestClass()	#--> :white
+# ? o1.WeakestClass()	#--> :yellow
+
+# ? o1.Top3Classes()	#--> [ :white, :red, :green ]
+# ? o1.Top3ClassesXT()	#--> [ :white = 3, :red = 2, :red = 2 ]
+
 /*----------------
-*/
+
+SAME EXAMPLE ABOVE SHOULD WORK FOR ....INLIST() EXTENSION
+
+/*----------------
 
 # While working with stzHashLists, there may be a special need where you
 # want to find a given item inside values that are of type list.

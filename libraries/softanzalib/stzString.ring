@@ -1,5 +1,5 @@
-# 		    SOFTANZA LIBRARY (V1.0) - STZSTRING
-#		An accelerative library for Ring applications
+# 		    SOFTANZA LIBRARY (V1.0) - STZSTRING			    #
+#		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
 #									    #
 # 	Description	: The core class for managing Unicode strings       #
@@ -15958,184 +15958,151 @@ class stzString from stzObject
 	*/
 
 	def IsListInString()
+		cCode = "aTempList = " + This.String()
+		eval(cCode)
 
-		cNormalSyntax = This.String()
+		return isList(aTempList)
 
-		# Case where the list syntax is "_":"_" (Continuous list)
-
-		if This.ContainsNo("[") and This.ContainsNo("]") and
-		   This.NumberOfOccurrence(":") = 1 and This.FindFirst(":") > 1
-
-			aListMembers = This.Copy().SimplifyQ().Splitted( :Using = ":" )
-		
-			cMember1 = aListMembers[1]
-			cMember2 = aListMembers[2]
-
-			cCode = "p1 = " + cMember1
-			eval(cCode)
-
-			cCode = "p2 = " + cMember2
-			eval(cCode)
-
-			if ( isString(p1) and StringIsChar(p1) ) and
-			   ( isString(p2) and StringIsChar(p2) )
-				
-				n1 = CharUnicode(p1)
-				n2 = CharUnicode(p2)
-
-				cNormalSyntax = "[ "
-
-				if n1 <= n2
-					for n = n1 to n2
-						cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
-						if n < n2
-							cNormalSyntax += ", "
-						ok
-					next
-
-				but n1 > n2
-
-					for n = n1 to n2 step -1
-						cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
-						if n > n2
-							cNormalSyntax += ", "
-						ok
-					next
-
-				ok
-
-				cNormalSyntax += " ]"
-
-			but isNumber(p1) and isNumber(p2)
-
-				n1 = p1
-				n2 = p2
-
-				cNormalSyntax = "[ "
-
-				if n1 <= n2
-
-					for n = n1 to n2
-						cNormalSyntax += (""+ n)
-						if n < n2
-							cNormalSyntax += ", "
-						ok
-					next
-
-				but n1 > n2
-
-					for n = n1 to n2 step -1
-						cNormalSyntax += (""+ n)
-						if n > n2
-							cNormalSyntax += ", "
-						ok
-					next
-				ok
-
-				cNormalSyntax += " ]"
-
-			else
-				return FALSE
-			ok
-
-		# Case where the list syntax is a normal syntax ("[ _, _, _ ]")
-		else
-
-
-			oCopy = new stzString(This.Content())
-			oCopy.SimplifyQ()
-
-			if NOT oCopy.IsBoundedBy("[","]")
-				stzRaise("Syntax Error. The list in string must be bounded by [ and ]")
-			ok
-
-			aListMembers = oCopy.RemoveBoundsQ("[","]").SplitQ(",").Content()
-
-			for str in aListMembers
-				if StzStringQ(str).WithoutSpaces() = NULL
-					stzRaise("Syntax error.The List is not well formed (contains a comma (', ') without an item).")
-				ok
-			next
-			
-			cNormalSyntax = This.String()
+	def IsListInNormalForm()
+		if NOT This.IsListInString()
+			return FALSE
 		ok
 
-		cCode = "aList = " + cNormalSyntax
+		if This.SimplifyQ().IsBoundedBy("[","]")
+			return TRUE
+		else
+			return FALSE
+		ok
 
-		eval(cCode)
-		return isList(aList)
+	def IsListInShortForm()
+		if This.IsListInString() and
+		   NOT This.IsListInNormalForm()
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	  #--------------------------------------------#
+	 #    CHECKING A CONTINUOUS LIST IN STRING    #
+	#--------------------------------------------#
 
 	def IsContinuousListInString()
 		bResult = FALSE
-		cNormalSyntax = This.String()
 
-		# Case where the list syntax is "_":"_" (Continuous list)
-
-		if This.ContainsNo("[") and This.ContainsNo("]") and
-		   This.NumberOfOccurrence(":") = 1 and This.FindFirst(":") > 1
-
-			aListMembers = This.Copy().SimplifyQ().Splitted( :Using = ":" )
-		
-			cMember1 = aListMembers[1]
-			cMember2 = aListMembers[2]
-
-			cCode = "p1 = " + cMember1
+		if This.IsListInString()
+			cCode = "aTempList = " + This.String()
 			eval(cCode)
-
-			cCode = "p2 = " + cMember2
-			eval(cCode)
-
-			if ( ( isString(p1) and StringIsChar(p1) ) and
-			   ( isString(p2) and StringIsChar(p2) ) ) OR
-
-			   ( isNumber(p1) and isNumber(p2) )
-
-				bResult = TRUE
-			ok
-			
+			bResult = StzListQ(aTempList).IsContinuous()
 		ok
 
 		return bResult
 
-	  #----------------------------------------------#
-	 #     CALLING A STRING METHOD FROM OUTSIDE     #
-	#----------------------------------------------#
+		def IsContinguousListInString()
+			return This.IsContinuousListInString()
 
-	// A special function used to call the String object from the outside and
-	// tell it to execute the defined method that is send as a parameter
-	// See StringList.lstApplyFunc for more details
-	def runMethod(cMeth, pParam)
-		? ":::" ? pParam ? type(pParam)
-		aMethods = methods(self)
-		aParam = []
-
-		if type(pParam) = "LIST"
-			aParam = pParam
+	def IsContinuousListInNormalForm()
+	
+		if This.IsContinuousListInString() and
+		   This.IsListInNormalForm()
+		  
+			return TRUE
 		else
-			aParam + pParam
+			return FALSE
 		ok
 
-		//? aParam ? type(aParam)
-	
-		for m in aMethods
-			if cMeth != "runMethod" and
-			   cMeth != "init" and
-			   isPrivateMethod(self,cMeth) = FALSE and
-			   cMeth = m
-				cCode = "return " + m + "("
-				if len(aParam)>0
-					for i=1 to len(aParam)-1
-						if aParam[i] != NULL {
-						cCode = " " + cCode + aParam[i] + ", " }
-					next i
-					if aParam[i] != NULL {
-					cCode += aParam[i] + " " } # Adds the last param
-				ok
-				cCode += ")"
-				
-				return eval(cCode)
-			ok
-		end
+		def IsContiguousListInNormalForm()
+			return This.IsContinuousListInNormalForm()
+
+	def IsContinuousListInShortForm()
+
+		if This.IsContinuousListInString() and
+		   This.IsListInShortForm()
+		   
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsContiguousListInShortForm()
+			return This.IsContiguousListInShortForm()
+
+	  #---------------------------------------------------------------#
+	 #   CPNVERTING CONTINUOUS LISTS BETWEEN NORMAL AND SHORT FORMS   #
+	#---------------------------------------------------------------#
+
+	def ToListInShortForm()
+		
+		if NOT This.IsContinuousListInString()
+			stzRaise([
+				:Where = "stzString (16034) > ToStringListInShortForm()",
+				:What  = "Can't convert the list in string to short form!",
+				:Why   = "The list in string is not continuous list."
+			])
+		ok
+
+		cResult = ""
+
+		if This.IsListInShortForm()
+			cResult  =  This.Copy().
+					RemoveSpacesQ().
+					ReplaceQ(":", " : ").
+					Content()
+
+		but This.IsListInNormalForm()
+
+			acMembers = This.SimplifyQ().
+					RemoveBoundsQ("[","]").
+					SplitQ(",").
+					FirstAndLastItems()
+
+			cMember1 = acMembers[1]
+			cMember2 = acMembers[2]
+
+			cResult = cMember1 + " : " + cMember2
+		ok
+
+		return cResult
+
+	def ToListInNormalForm()
+
+		If NOT This.IsListInString()
+			stzRaise([
+				:Where = "stzString (16034) > ToStringListInNormalForm()",
+				:What  = "Can't convert the string to short form list!",
+				:Why   = "The string is not a list in string."
+			])
+		ok
+
+		if This.IsListInNormalForm()
+			cResult = This.Content()
+
+		else # The list in string is in short form
+
+			cCode = "aTempList = " + This.String()
+			eval(cCode)
+
+			cResult = StzListQ(aTempList).Stringified()
+
+		ok
+
+		return cResult
+
+	def ToListInstring()
+		return This.ToListInNormalForm()
+
+	def ToListInString@C()
+		return This.ToListInShortForm()
+
+	def ToList()
+		if NOT This.IsListInString()
+			stzRaise("Can't evaluate the list in string!")
+		ok
+
+		cCode = "aResult = " + This.String()
+		eval(cCode)
+
+		return aResult
 
 	  #----------------------------#
 	 #  OPERATORS OVERLOADING     #
@@ -16626,5 +16593,11 @@ class stzString from stzObject
 			return acResult
 		ok
 
+	def FirstAndLastChars()
+		aResult = [ This.FirstChar(), This.LastChar() ]
+		return aResult
 
+	def LastAndFirstChars()
+		aResult = [ This.LastChar(), FirstChar() ]
+		return aResult
 

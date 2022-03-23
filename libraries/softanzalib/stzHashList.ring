@@ -1,3 +1,12 @@
+# 		    SOFTANZA LIBRARY (V1.0) - STZSTRING			    #
+#		An accelerative library for Ring applications		    #
+#---------------------------------------------------------------------------#
+#									    #
+# 	Description	: The core class for managing hash lists            #
+#	Version		: V1.0 (2020-2022)				    #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
+#									    #
+#---------------------------------------------------------------------------#
 
 /*
 	Example 1:

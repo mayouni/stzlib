@@ -58,27 +58,27 @@ o1 = new stzString(' "A":"D"')
 ? o1.IsContinuousListInString()	#--> TRUE
 
 //o1 = new stzString(' "ا":"ج" ')
-? o1.IsContinuousListInString()	#--> TRUE
+? o1.IsContinuousListInShortForm()	#--> TRUE
 
 //o1 = new stzString(' "ج":"ا" ')
-? o1.IsContinuousListInString()	#--> TRUE
+? o1.IsContinuousListInShortForm()	#--> TRUE
 
 //o1 = new stzString(' 8:12 ')
-? o1.IsContinuousListInString()	#--> TRUE
+? o1.IsContinuousListInShortForm()	#--> TRUE
 
 //o1 = new stzString(' 12:8 ')
-? o1.IsContinuousListInString()	#--> TRUE
+? o1.IsContinuousListInShortForm()	#--> TRUE
 
 
 /*-----------------
 
 o1 = new stzString(' "ا":"ج" ')
 ? o1.IsListInString()
-? o1.IsContinuousListInString()
+? o1.IsContinuousListInShortForm()
 
 o1 = new stzString(' [ "ا", "ب", "ج" ] ')
 ? o1.IsListInString()
-? o1.IsContinuousListInString()
+? o1.IsContinuousListInShortForm()
 
 return
 /*=================
