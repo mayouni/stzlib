@@ -291,9 +291,16 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		def NumberOfOccurrencesOfValueQ(pValue)
 			return NumberOfOccurrenceOfValueQ(pValue)
 
-	  #----------------#
-	 #     UPDATE     #
-	#----------------#
+	def UniqueValues()
+		aResult = This.ValuesQ().DuplicatesRemoved()
+		return aResult
+
+	def ValuesAtPositions(anPositions)
+		aResult = This.ValuesQ().ItemsAtPositions(anPositions)
+		return aResult
+	  #------------------#
+	 #     UPDATING     #
+	#------------------#
 
 	def Update( paNewHashList )
 		if isList(paNewHashList) and
@@ -802,31 +809,335 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		return aResult
 
-	  #---------------------#
-	 #     CLASSIFYING     #
-	#---------------------#
+	  #---------------------------#
+	 #     CLASSIFYING VALUES    #
+	#---------------------------#
 
-	def UniqueValues()
-		aResult = This.ValuesQ().DuplicatesRemoved()
-		return aResult
+	def Classes()
+		acResult = []
 
-	def ValuesAtPositions(anPositions)
-		aResult = This.ValuesQ().ItemsAtPositions(anPositions)
-		return aResult
+		for value in This.UniqueValues()
+			acResult + Q(value).Stringified()
+		next
+
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def ClassesQ()
+			return This.ClassesQR(:stzList)
+
+		def ClassesQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Classes() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Classes() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeNames
+
+		def Categories()
+			return This.Classes()
+
+			def CategoriesQ()
+				return This.CategoriesQR(:stzList)
+
+			def CategoriesQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.Categories() )
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.Categories() )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+	
+		#>
+
+	def NumberOfClasses()
+		return len( This.CLasses() )
+
+		def NumberOfCategories()
+			return This.NumberOfClasses()
 
 	def Classify()
-		aResult = []
-		aValues = This.UniqueValues()
 
-		for value in aValues
-			aResult + [ value, This.KeysForValue(value) ]
+		aResult = []
+		aClasses = This.Classes()
+
+		for cClass in aValues
+			aResult + [ cClass, This.KeysForValue(value) ]
 		next
 
 		return aResult
 
+		#< @FunctionFluentForm
+
+		def ClassifyQ()
+			return This.ClassifyQR(pcReturnType)
+
+		def ClassifyQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+	
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Classify() )
+
+			on :stzHashList
+				return new stzHashList( This.Classify() )
+	
+			other
+				stzRaise("Unsupported return type!")
+			off						
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def CategoriseQ()
+			return This.CategoriseQR(pcReturnType)
+
+		def CategoriseQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+	
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Categorise() )
+
+			on :stzHashList
+				return new stzHashList( This.Categorise() )
+	
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		def CategorizeQ()
+			return This.CategorizeQR(pcReturnType)
+
+		def CategorizeQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+	
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Categorize() )
+
+			on :stzHashList
+				return new stzHashList( This.Categorize() )
+	
+			other
+				stzRaise("Unsupported return type!")
+			off
+						
+		#>
+
 	def Klass(pcClass)
 		aResult = This.KeysForValue(pcClass)
 		return aResult
+
+		def KlassQR(pcClass, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzString	
+				return new stzString( This.Klass() )
+
+			on :stzText
+				return new stzText( This.Klass() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		def Category(pcClass)
+			return This.Klass(pcClass)
+
+	  #---------------------------------------#
+	 #     CLASSIFYING VALUES INSIDE LISTS   #
+	#---------------------------------------#
+
+	def ClassesInList()
+		acResult = []
+
+		for value in This.UniqueValuesInList()
+			acResult + Q(value).Stringified()
+		next
+
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def ClassesInListQ()
+			return This.ClassesInListsQR(:stzList)
+
+		def ClassesInListQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ClassesInList() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.ClassesInList() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeNames
+
+		def CategoriesInList()
+			return This.ClassesInList()
+
+			def CategoriesInListQ()
+				return This.CategoriesInListQR(:stzList)
+
+			def CategoriesInListQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.CategoriesInList() )
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.CategoriesInList() )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+	
+		#>
+
+	def NumberOfClassesInList()
+		return len( This.CLassesInList() )
+
+		def NumberOfCategoriesInList()
+			return This.NumberOfClassesInList()
+
+	def ClassifyInList()
+
+		aResult = []
+		aClasses = This.ClassesInList()
+
+		for cClass in aClasses
+			aResult + [ cClass, This.KeysForValue(value) ]
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ClassifyInListQ()
+			return This.ClassifyInListQR(pcReturnType)
+
+		def ClassifyInListQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+	
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ClassifyInList() )
+
+			on :stzHashList
+				return new stzHashList( This.ClassifyInList() )
+	
+			other
+				stzRaise("Unsupported return type!")
+			off						
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def CategoriseInListQ()
+			return This.CategoriseInListQR(pcReturnType)
+
+		def CategoriseInListQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+	
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.CategoriseInList() )
+
+			on :stzHashList
+				return new stzHashList( This.CategoriseInList() )
+	
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		def CategorizeInListQ()
+			return This.CategorizeInListQR(pcReturnType)
+
+		def CategorizeInListQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+	
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.CategorizeInList() )
+
+			on :stzHashList
+				return new stzHashList( This.CategorizeInList() )
+	
+			other
+				stzRaise("Unsupported return type!")
+			off
+						
+		#>
+
+	def KlassInList(pcClass)
+		aResult = This.KeysForValueInList(pcClass)
+		return aResult
+
+		def KlassInListQR(pcClass, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzString	
+				return new stzString( This.KlassInList() )
+
+			on :stzText
+				return new stzText( This.KlassInList() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		def CategoryInList(pcClass)
+			return This.KlassInList(pcClass)
 
 	  #---------------#
 	 #     QUERY     #
