@@ -1,11 +1,12 @@
-# 			SOFTANZA LIBRARY (V1.0)
+# 		    SOFTANZA LIBRARY (V1.0) - STZSTRING			    #
+#		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
 #									    #
 # 	Description	: The core class for managing softanza lists        #
-#	Version		: V1.1.0.6 (March, 2022)			    #
+#	Version		: V1.0 (2020-2022)				    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
-#===========================================================================#
+#---------------------------------------------------------------------------#
 
   /////////////////////
  ///   FUNCTIONS   ///
@@ -335,7 +336,7 @@ func ContinuousListOfChars(cChar1, cChar2)
 func @C(pcContinuousListInString)
 
 	if isString(pcContinuousListInString) and
-	   StzStringQ(pcContinuousListInString).IsContinuousListInString()
+	   StzStringQ(pcContinuousListInString).IsContinuousListInShortForm()
 
 		aListMembers = StzStringQ(pcContinuousListInString).
 				Split( :Using = ":" )
@@ -422,7 +423,7 @@ func ContinuousListInString(pcStr)
 		# --> Returns the list [ "", "", "", "", "", "" ]
 		*/
 
-		if NOT ( isString(pcStr) and StzStringQ(pcStr).IsContinuousListInString() )
+		if NOT ( isString(pcStr) and StzStringQ(pcStr).IsContinuousListInShortForm() )
 			stzRaise("Incorrect param!")
 		ok
 
@@ -4118,9 +4119,9 @@ class stzList from stzObject
 				return ThiS.OccurrencesQR(pItem, :stzListOfNumbers)
 		#>
 
-	  #-------------------------------------#
+	  #=====================================#
 	 #    CLASSIFYING (OR CATEGORIZING)    #
-	#-------------------------------------#
+	#=====================================#
 
 	def AllItemsAreContinuousLists()
 		bResult = TRUE
@@ -4251,15 +4252,134 @@ class stzList from stzObject
 
 	#--
 
-	def Classify@C()	# Specific for continuous list
-				# returs classes in the "_:_" syntax
+	def Classes()
+		aResult = This.UniqueItems()
+		return aResult
 
+		#< @FunctionFluentForm
+
+		def ClassesQ()
+			return This.ClassesQR(:stzList)
+
+		def ClassesQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Classes() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Classes() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+		#>
+
+		@< @FunctionAlternativeForm
+
+		def Categories()
+			return This.Classes()
+
+			def CategoriesQ()
+				return This.ClassesQR(:stzList)
+	
+			def CategoriesQR(pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.Categories() )
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.Categories() )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+
+	#--
+
+	def NumberOfClasses()
+		return len( This.Classes() )
+
+		def NumberOfClassesQ()
+			return new stzNumber( This.NumberOfClasses() )
+
+		def NumberOfCategories()
+			return This.NumberOfClasses()
+
+			def NumberOfCategoriesQ()
+				return new stzNumber( This.NumberOfCategories() )
+
+	def Klass(pcClass)
+		return This.Classify()[pcClass]
+
+		def KlassQ(pcClass)
+			return new stzString(This.Klass(pcClass))
+
+		def Category(pcClass)
+			return This.Klass(pcClass)
+
+			def CategoryQ(pcClass)
+				return new stzString(This.Category(pcClass))
+
+	def NumberOfOccurrenceOfClass(pcClass)
+		nResult = StzListQ( This.Classes() ).NumberOfOccurrence( pcClass )
+		return nResult
+
+	def ClassFrequency(pcClass)
+		nResult = This.NumberOfOccurrenceOfClass(pcClass) / This.NumberOfClasses()
+
+		def ClassFreq(pcClass)
+
+	def ClassesFrequencies()
+		anResult = []
+		for cClass in This.Classes()
+			anResult + This.ClassFrequency(pcClass)
+		next
+		return anResult
+
+		def ClassesFreq()
+			return This.ClassesFrequencies()
+
+	def ClassesAndTheirFrequencies()
+		acClasses 	= This.Classes()
+		anFrequencies 	= This.ClassesFrequencies()
+
+		aResult = StzLisQ( acClasses ).AssociatedWith( anFrequencies )
+
+		return aResult
+
+		def ClassesAndTheirFreq()
+			return This.ClassesAndTheirFrequencies()
+
+		def ClassesXT()
+			return This.ClassesAndTheirFrequencies()
+
+	   #--------------------------------------------------------#
+	  #   CLASSIFYING: SPECIEFIC CASE OF LISTS MADE OF LISTS   #
+	 #   OF NUMBERS IN WHICH THE _:_ SYNTAX IS PREFERRED      #
+	#--------------------------------------------------------#
+
+	# @C prefix is used to say this function returns its
+	# result with list of numbers in the _:_ Continuous
+	# List syntax provided by Ring. See example hereafter.
+
+	def Classify@C()	# Specific for lists of lists of numbers
+				# Returs classes in the "_:_" syntax
+				# @C for Continuous lists
+	
 		/* EXAMPLE
 		o1 = new stzList([
 			1:5, 3:9, 1:5, 10:15, 3:9, 12:20, 10:15, 1:5, 12:20
 		])
 		
-		? o1.Classify()	# Same as Categorize()
+		? o1.Classify@C()	# Same as Categorize()
 		#--> [
 		#	[ "1:5",   [1, 3, 8 ] ],	
 		#	[ "3:9",   [2, 5 ] ],
@@ -4269,24 +4389,20 @@ class stzList from stzObject
 
 		*/
 
-		if NOT This.AllItemsAreContinuousLists()
-			stzRaise("Items are not all continuous lists!")
-		ok
-
 		aResult = []
 
-		aClasses = This.Classes()
+		acClasses = This.Classes()
 
-		for pClass in aClasses
-			anPositions = This.FindAll(pClass)
-			cClass = ""
+		for cClass in acClasses
+			if StzStringQ(cClass).IsContinuousListInShortForm()
+				cCode = 'aTempList = ' + cClass
+				eval(cCode)
 
-			cClass = ""+ pClass[1] + ":" + pClass[len(pClass)]
-
-			aResult + [ cClass, anPositions ]
+				cClass = "" + aTempList[1] + " : " + aTempList[ len(aTempList) ]
+			ok
 		next
 
-		return aResult
+		return acClasses
 
 		#< @FunctionFluentForm
 
@@ -4361,28 +4477,36 @@ class stzList from stzObject
 
 		#>
 
-	#--
+	def Classes@C()
+		acClasses = This.Classes()
 
-	def Classes()
-		aResult = This.UniqueItems()
-		return aResult
+		for cClass in acClasses
+			if StzStringQ(cClass).IsContinuousListInShortForm()
+				cCode = 'aTempList = ' + cClass
+				eval(cCode)
+
+				cClass = "" + aTempList[1] + " : " + aTempList[ len(aTempList) ]
+			ok
+		next
+
+		return acClasses
 
 		#< @FunctionFluentForm
 
-		def ClassesQ()
-			return This.ClassesQR(:stzList)
+		def Classes@CQ()
+			return This.Classes@CQR(:stzList)
 
-		def ClassesQR(pcReturnType)
+		def Classes@CQR(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.Classes() )
+				return new stzList( This.Classes@C() )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.Classes() )
+				return new stzListOfStrings( This.Classes@C() )
 
 			other
 				stzRaise("Unsupported return type!")
@@ -4391,72 +4515,94 @@ class stzList from stzObject
 
 		@< @FunctionAlternativeForm
 
-		def Categories()
-			return This.Classes()
+		def Categories@C()
+			return This.Classes@C()
 
-			def CategoriesQ()
-				return This.ClassesQR(:stzList)
+			def Categories@CQ()
+				return This.Classes@CQR(:stzList)
 	
-			def CategoriesQR(pcReturnType)
+			def Categories@CQR(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.Categories() )
+					return new stzList( This.Categories@C() )
 	
 				on :stzListOfStrings
-					return new stzListOfStrings( This.Categories() )
+					return new stzListOfStrings( This.Categories@C() )
 	
 				other
 					stzRaise("Unsupported return type!")
 				off
 
-	#--
-
-	def NumberOfClasses()
-		return len( This.Classes() )
-
-		def NumberOfCategories()
-			return This.NumberOfClasses()
-
-	def Klass(pcClass)
-		return This.Classify()[pcClass]
-
-		def Category(pcClass)
-
 	def Klass@C(pcClass)
 		return This.Classify@C()[pcClass]
 
-	def NumberOfOccurrenceOfClass(pcClass)
-		nResult = StzListQ( This.Classes() ).NumberOfOccurrence( pcClass )
+		def Klass@CQ(pcClass)
+			return new stzString( This.Klass@C(pcClass) )
+
+		def Category@C(pcClass)
+			return This.Klass@C(pcClass)
+
+			def Category@CQ(pcClass)
+				return new stzString( This.Category@C(pcClass) )
+
+	def NumberOfOccurrenceOfClass@C(pcClass)
+		nResult = StzListQ( This.Classes@C() ).NumberOfOccurrence( pcClass )
 		return nResult
 
-	def ClassFrequency(pcClass)
-		nResult = This.NumberOfOccurrenceOfClass(pcClass) / This.NumberOfClasses()
+	def ClassFrequency@C(pcClass)
+		nResult = This.NumberOfOccurrenceOfClass@C(pcClass) / This.NumberOfClasses()
+		return nResult
 
-	def ClassesFrequencies()
+		def ClassFreq@C(pcClass)
+			return This.ClassFrequency@C(pcClass)
+
+	def ClassesFrequencies@C()
 		anResult = []
-		for cClass in This.Classes()
-			anResult + This.ClassFrequency(pcClass)
+		for cClass in This.Classes@C()
+			anResult + This.ClassFrequency@C(pcClass)
 		next
 		return anResult
-	def ClassesAndTheirFrequencies()
-		acClasses 	= This.Classes()
+
+		def ClassesFreq@C()
+			return This.ClassesFrequencies@C()
+
+	def ClassesAndTheirFrequencies@C()
+		acClasses 	= This.Classes@C()
 		anFrequencies 	= This.ClassesFrequencies()
 
 		aResult = StzLisQ( acClasses ).AssociatedWith( anFrequencies )
 
 		return aResult
 
-	def FrequenciesAndTheirClasses()
-		acClasses 	= This.Classes()
-		anFrequencies 	= This.ClassesFrequencies()
+		def ClassesAndTheirFreq@C()
+			return This.ClassesAndTheirFrequencies@C()
 
-		aResult = StzLisQ( anFrequencies ).AssociatedWith( acClasses )
+		def ClassesXT@C()
+			return This.ClassesAndTheirFrequencies@C()
 
-		return aResult
+	  #-----------------------------------------------------#
+	 #   THE LIST IS MADE OF CONTIGUOUS CHARS OR NUMBERS   #
+	#-----------------------------------------------------#
+
+	def IsContinuous()
+		bResult = FALSE
+
+		if This.IsListOfNumbers()
+			bResult = This.ToStzListOfNumbers().IsContinuous()
+
+		but This.IsListOfChars()
+			bResult = This.ToStzListOfChars().IsContinuous()
+
+		ok
+
+		return bResult
+
+		def IsContiguous()
+			return IsContinuous()
 
 	  #------------------#
 	 #     INDEXING     #
@@ -10323,23 +10469,13 @@ class stzList from stzObject
 
 		return new stzListOfChars( This.Content() )
 
-	def IsContinuous()
-		/*
-		EXAMPLE:
+	def FirstAndLastItems()
+		aResult = [ This.FirstItem(), This.LastItem() ]
+		return aResult
 
-		? StzListQ( 3:7 ).IsContinuous()	#--> TRUE
-		? StzListQ( "B":"E" ).IsContinuous()	#--> TRUE
-
-		*/
-
-		if This.IsListOfNumbers()
-			return This.ToStzListOfNumbers().IsContinuous()
-
-		but This.IsListOfChars()
-			return This.ToStzListOfChars().IsContinuous()
-		else
-			return FALSE
-		ok
+	def LastAndFirstItems()
+		aResult = [ This.LastItem(), FirstItem() ]
+		return aResult
 
 	  #--------------------------------#
 	 #    USUED FOR NATURAL-CODING    #

@@ -1,11 +1,12 @@
-# 			SOFTANZA LIBRARY (V1.0)
+# 		    SOFTANZA LIBRARY (V1.0) - STZSTRING			    #
+#		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
 #									    #
 # 	Description	: The core class for managing lists of numbers      #
-#	Version		: V1.1.0.6 (March, 2022)			    #
+#	Version		: V1.0 (2020-2022)				    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
-#===========================================================================#
+#---------------------------------------------------------------------------#
 
 /*
 Short term objective:
@@ -1376,3 +1377,6 @@ class stzListOfNumbers from stzList
 			return TRUE
 
 		ok
+
+		def IsContiguous()
+			return This.IsContinuous()
