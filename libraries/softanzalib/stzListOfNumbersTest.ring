@@ -1,14 +1,24 @@
 load "stzlib.ring"
 
 /*--------------
+
+? StzListOfNumbersQ( 12:22 ).SortingOrder()	#--> :Ascending
+? StzListOfNumbersQ( 17:8 ).SortingOrder()	#--> :Descending
+
+/*--------------
 */
-o1 = new stzListOfNumbers([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ])
-o1.Cumulate()
-? @@( o1.Content() ) #--> [ 1, 2, 5, 9, 14, 20, 27, 35, 44 ]
+? StzListOfNumbersQ( 12:22 ).IsContiguous()	#--> TRUE
+? StzListOfNumbersQ( 17:8 ).IsContiguous()	#--> TRUE
+
+? StzListOfNumbers([10, 12, 18]).IsContiguous()	#--> FALSE
+? StzListOfNumbers([10, 11, 10]).IsContiguous()	#--> FALSE
+
 
 /*--------------
 
-? StzListOfNumbersQ( 12:22 ).IsContinuous()	#--> TRUE
+o1 = new stzListOfNumbers([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ])
+o1.Cumulate()
+? @@( o1.Content() ) #--> [ 1, 2, 5, 9, 14, 20, 27, 35, 44 ]
 
 /*--------------
 

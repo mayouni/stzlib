@@ -310,7 +310,7 @@ func ListOfNTimes(n, pItem)
 	next
 	return aResult
 
-func ContinuousListOfChars(cChar1, cChar2)
+func ContiguousListOfChars(cChar1, cChar2)
 	anUnicodes = []
 	for i = CharUnicode(cChar1) to CharUnicode(cChar2)
 		anUnicodes + i
@@ -318,7 +318,7 @@ func ContinuousListOfChars(cChar1, cChar2)
 
 	aResult = []
 
-	if StzListOfNumbersQ(anUnicodes).IsContinuous()
+	if StzListOfNumbersQ(anUnicodes).IsContiguous()
 
 		for n in anUnicodes
 			aResult + StzCharQ(n).Content()
@@ -327,93 +327,27 @@ func ContinuousListOfChars(cChar1, cChar2)
 		return aResult
 
 	else
-		stzRaise( "The chars you privided don't form a continuous list!")
+		stzRaise( "The chars you privided don't form a contiguous list!")
 	ok
 
-	func ContinuousList(cChar1, cChar2)
+	func ContiguousList(cChar1, cChar2)
 		return ContinuousListOfChars(cChar1, cChar2)
 
-#-------------- TO BE REMOVED
-/*
-func @C(pcContinuousListInString)
+	func ContinuousListOfChars(cChar1, cChar2)
+		return ContiguousListOfChars(cChar1, cChar2)
 
-	if isString(pcContinuousListInString) and
-	   StzStringQ(pcContinuousListInString).IsContinuousListInShortForm()
+	func ContinuousList(cChar1, cChar2)
+		return ContiguousList(cChar1, cChar2)
 
-		aListMembers = StzStringQ(pcContinuousListInString).
-				Split( :Using = ":" )
-			
-		cMember1 = aListMembers[1]
-		cMember2 = aListMembers[2]
+func @C(pList)
 
-		cCode = "p1 = " + cMember1
-		eval(cCode)
-
-		cCode = "p2 = " + cMember2
-		eval(cCode)
-		
-		cNormalSyntax = "[ "
-
-		if ( isString(p1) and StringIsChar(p1) ) and
-		   ( isString(p2) and StringIsChar(p2) )
-				
-			n1 = CharUnicode(p1)
-			n2 = CharUnicode(p2)
-
-			if n1 <= n2
-				for n = n1 to n2
-					cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
-					if n < n2
-						cNormalSyntax += ", "
-					ok
-				next
-
-			but n1 > n2
-				for n = n1 to n2 step -1
-					cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
-					if n > n2
-						cNormalSyntax += ", "
-					ok
-				next
-			ok
-
-			cNormalSyntax += " ]"
-
-		but isNumber(p1) and isNumber(p2)
-
-			n1 = p1
-			n2 = p2
-
-			if n1 <= n2
-				for n = n1 to n2
-					cNormalSyntax += (""+ n)
-					if n < n2
-						cNormalSyntax += ", "
-					ok
-				next
-
-			but n1 > n2
-				for n = n1 to n2 stzp -1
-					cNormalSyntax += (""+ n)
-					if n > n2
-						cNormalSyntax += ", "
-					ok
-				next
-
-			ok
-
-			cNormalSyntax = " ]"
-		ok
-
-		cCode = "aResult = " + cNormalSyntax
-		eval(cCode)
-
+	if isString(pList) and StzStringQ(pList).IsListInShortForm()
+		aResult = StzStringQ(pList).ToList()
 		return aResult
 
 	else
-		stzRaise("Incorrect param!")
+		stzRaise("Can't process the param you provided! It must be list in string in _:_ form.")
 	ok
-*/
 
   /////////////////
  ///   CLASS   ///
@@ -4106,17 +4040,20 @@ class stzList from stzObject
 	 #    CLASSIFYING (OR CATEGORIZING)    #
 	#=====================================#
 
-	def AllItemsAreContinuousLists()
+	def AllItemsAreContiguousLists()
 		bResult = TRUE
 
 		for item in This.List()
-			if NOT ( isList(item) and StzListQ(item).IsContinuous() )
+			if NOT ( isList(item) and StzListQ(item).IsContiguous() )
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		def AllItemsAreContinuousLists()
+			return This.AllItemsAreContiguousLists()
 
 	def Classify()
 
@@ -4144,7 +4081,7 @@ class stzList from stzObject
 		}
 		*/
 
-		aClasses = This.Classes()
+		aClasses = This.UniqueItems()
 
 		cClass   = ""
 		aResult  = []
@@ -4236,8 +4173,10 @@ class stzList from stzObject
 	#--
 
 	def Classes()
-		aResult = This.UniqueItems()
-		return aResult
+
+		aClasses = StzHashListQ( This.Classify() ).Keys()
+		return aClasses
+
 
 		#< @FunctionFluentForm
 
@@ -4350,7 +4289,7 @@ class stzList from stzObject
 	#--------------------------------------------------------#
 
 	# @C prefix is used to say this function returns its
-	# result with list of numbers in the _:_ Continuous
+	# result with list of numbers in the _:_ Contiguous
 	# List syntax provided by Ring. See example hereafter.
 
 	def Classify@C()	# Specific for lists of lists of numbers
@@ -4372,20 +4311,13 @@ class stzList from stzObject
 
 		*/
 
-		aResult = []
+		acClasses@C = This.Classes@C()
 
-		acClasses = This.Classes()
+		aPositions = StzHashListQ( This.Classify() ).Values()
 
-		for cClass in acClasses
-			if StzStringQ(cClass).IsContinuousListInShortForm()
-				cCode = 'aTempList = ' + cClass
-				eval(cCode)
+		aResult = StzListQ(acClasses@C).AssociatedWith(aPositions)
 
-				cClass = "" + aTempList[1] + " : " + aTempList[ len(aTempList) ]
-			ok
-		next
-
-		return acClasses
+		return aResult
 
 		#< @FunctionFluentForm
 
@@ -4464,12 +4396,8 @@ class stzList from stzObject
 		acClasses = This.Classes()
 
 		for cClass in acClasses
-			if StzStringQ(cClass).IsContinuousListInShortForm()
-				cCode = 'aTempList = ' + cClass
-				eval(cCode)
 
-				cClass = "" + aTempList[1] + " : " + aTempList[ len(aTempList) ]
-			ok
+			cClass = StzStringQ(cClass).ToListInShortForm()
 		next
 
 		return acClasses
@@ -4521,7 +4449,17 @@ class stzList from stzObject
 				off
 
 	def Klass@C(pcClass)
-		return This.Classify@C()[pcClass]
+		if isString(pcClass) and StzStringQ(pcClass).IsListInShortForm()
+			aMembers = StzStringQ(pcClass).SplitQ(":").FirstAndLastItems()
+
+			cMember1 = StzStringQ(aMembers[1]).WithoutSpaces()
+			cMember2 = StzStringQ(aMembers[2]).WithoutSpaces()
+
+			cClass = cMember1 + " : " + cMember2
+
+			return This.Classify@C()[cClass]
+
+		ok
 
 		def Klass@CQ(pcClass)
 			return new stzString( This.Klass@C(pcClass) )
@@ -4571,21 +4509,22 @@ class stzList from stzObject
 	 #   THE LIST IS MADE OF CONTIGUOUS CHARS OR NUMBERS   #
 	#-----------------------------------------------------#
 
-	def IsContinuous()
+	def IsContiguous()
 		bResult = FALSE
 
 		if This.IsListOfNumbers()
-			bResult = This.ToStzListOfNumbers().IsContinuous()
+
+			bResult = This.ToStzListOfNumbers().IsContiguous()
 
 		but This.IsListOfChars()
-			bResult = This.ToStzListOfChars().IsContinuous()
+			bResult = This.ToStzListOfChars().IsContiguous()
 
 		ok
 
 		return bResult
 
-		def IsContiguous()
-			return IsContinuous()
+		def IsContinuous()
+			return IsContiguous()
 
 	  #------------------#
 	 #     INDEXING     #
@@ -6237,6 +6176,9 @@ class stzList from stzObject
 		cResult = StzStringQ( list2code( This.List() ) ).Simplified()
 
 		return cResult
+
+		def ToCodeQ()
+			return new stzString( This.ToCode() )
 
 	def ToString()
 

@@ -66,35 +66,35 @@ o1 = new stzString('[ "A","B", "C", "D", ]')
 
 # And knows about the list beeing continuous or not:
 
-? StzStringQ('[1,3]').IsContinuousListInString()	#--> TRUE
-? StzStringQ('1:3').IsContinuousListInString()		#--> TRUE
+? StzStringQ('[1,3]').IsContiguousListInString()	#--> TRUE
+? StzStringQ('1:3').IsContiguousListInString()		#--> TRUE
 
-? StzStringQ(' "A":"C" ').IsContinuousListInString()	#--> TRUE
-? StzStringQ(' "ا":"ج" ').IsContinuousListInString()	#--> TRUE
+? StzStringQ(' "A":"C" ').IsContiguousListInString()	#--> TRUE
+? StzStringQ(' "ا":"ج" ').IsContiguousListInString()	#--> TRUE
 
 	# REMINDER: A continuous list can be made of contiguous
 	#  chars (base on their unciode codepints) or numbers,
 	# and you can identify them using the stzList.IsContinuous():
 
-	? StzListQ(1:3).IsContinuous()		#--> TRUE
-	? StzListQ("A":"E").IsContinuous()	#--> TRUE
+	? StzListQ(1:3).IsContiguous()		#--> TRUE
+	? StzListQ("A":"E").IsContiguous()	#--> TRUE
 
 
 # Back to list IN STRINGS!
 
-# Not only Softanza can see if the list in string is continuous
+# Not only Softanza can see if the list in string is contiguous
 # or not, it can also see in what syntax thery are:
 
-? StzStringQ('[1,3]').IsContinuousListInNormalForm()	#--> TRUE
-? StzStringQ('1:3').IsContinuousListInShortForm()	#--> TRUE
+? StzStringQ('[1,3]').IsContiguousListInNormalForm()	#--> TRUE
+? StzStringQ('1:3').IsContiguousListInShortForm()	#--> TRUE
 
-? StzStringQ(' "A":"C" ').IsContinuousListInShortForm()	#--> TRUE
-? StzStringQ(' "ا":"ج" ').IsContinuousListInShortForm()	#--> ERROR should return TRUE
+? StzStringQ(' "A":"C" ').IsContiguousListInShortForm()	#--> TRUE
+? StzStringQ(' "ا":"ج" ').IsContiguousListInShortForm()	#--> TRUE
 
 # Now, what about tranforming one form to another: possible in
 # both directions, from normal to short, and from short to normal!
 
-? @@( StzStringQ('[1,3]').ToListInShortForm() )		#--> "1:3"
+? @@( StzStringQ('[1,2,3]').ToListInShortForm() )	#--> "1:3"
 ? @@( StzStringQ('1:3').ToListInNormalForm() )		#--> "[1, 2, 3]"
 
 ? StzStringQ(' ["A","B","C","D"] ').ToListInShortForm()	#--> "A" : "D"
@@ -112,12 +112,13 @@ o1 = new stzString('[ "A","B", "C", "D", ]')
 # alternative to the ToListInShortForm() alternative that uses
 # the simple @C prefix, like this:
 
-? @@( StzStringQ('[1,3]').ToListInString@C() )		#--> "1 : 3" ERRRRROR
+? @@( StzStringQ('[1,2, 3]').ToListInString@C() ) #--> "1 : 3"
+
 ? @@( StzStringQ('1:3').ToListInString@C() )		#--> "1 : 3"
 
 ? StzStringQ(' ["A","B","C","D"] ').ToListInString@C()	#--> "A" : "D"
-? StzStringQ(' [ "ا", "ب", "ة", "ت" ] ').ToListInString@C()
-							#--> Gives "ا" : "ت"
+? StzStringQ(' [ "ا", "ب", "ة", "ت" ] ').ToListInString@C() #--> "ا" : "ت"
+
 
 # Finally, as a "cerise sur le gâteau", you can evaluate
 # the string in list in real time like this:
@@ -126,7 +127,6 @@ o1 = new stzString('[ "A","B", "C", "D", ]')
 ? StzStringQ(' "A":"C" ').ToList() #--> ["A", "B", "C"]
 ? StzStringQ(' "ا":"ج" ').ToList() #--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
-return
 /*=================
 
 # While finding occurrences of a substring inside a string,

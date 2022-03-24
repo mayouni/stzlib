@@ -1,14 +1,17 @@
 load "stzlib.ring"
 
-/*
+? StzListOfStringsQ(' "A":"E" ').Content()
+
+/*------------------- ERRORS: fix'em
+
 o1 = new stzListOfStrings([ "WATCH", "see", "Watch", "Observe", "watch" ])
-? o1.StringsWCS('{ @str = "watch" }', :CS = TRUE) # --> "watch"
+? o1.StringsW('{ @str = "watch" }') # --> "watch"
 
-? o1.StringsWCS('{ @str = "watch" }', :CS = FALSE)
+? o1.StringsW('{ @str = "watch" }')
 # --> [ "WATCH", "Watch", "watch" ]
-
-? o1.StringsPositionsWCS('{ @str = "watch" }', :CS = FALSE)
-
+? "---"
+? o1.StringsPositionsW('{ @str = "watch" }')
+? "---"
 //o1.StringsAndTheirPositionsW
 //o1.StringAndTheirSectionsW
 
@@ -131,7 +134,7 @@ o1 = new stzListOfStrings([ "village", "town", "country" ])
 # ---> [ [ "village", 7 ], [ "town", 4 ], [ "country", 7 ] ]
 
 /*-------------------
-*/
+
 o1 = new stzListOfStrings([ "village", "قرية", "નગર" ])
 
 ? o1.Yield('[ @str, T(@str).Script() ]') # T --> StzTextQ() -- TODO: W() for stzWord()
