@@ -2,7 +2,6 @@
 /*
 
 While Ring provides the following C-standard modes:
-UPDATE - Ring 1.16 supports this!
 
 	"r" : Reading (The file must exist)
 	"w" : writing (create empty file / overwrite)
@@ -26,6 +25,7 @@ file names):
 Softanza provides just three easy-to-recognize modes of opening files,
 based on a subset of what is possible with RingQt (so we take advantage
 from its support of UNICODE file names among other features):
+UPDATE - Ring 1.16 supports UNICODE names for files!
 
 	:ReadOnly	Reads file content	    ->	Works only for existing files
 	:WriteToEnd	Writes to the end of file   ->	If file do not exist, creates it

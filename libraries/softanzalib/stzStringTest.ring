@@ -2136,8 +2136,9 @@ o1.RemoveCharsWhereQ('{
 
 ? o1.Content() #--> "Use these two lettersand "
 
-/*---------------
+/*--------------- FIXING IN PROCESS
 */
+? "START"
 o1 = new stzString("Use these two letters: س and ص.")
 
 o1.ReplaceAllCharsWhere(

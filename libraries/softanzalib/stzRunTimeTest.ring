@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-/*-------------------
+
 
 cCode = "
 	for i=1 to 100_000_000
