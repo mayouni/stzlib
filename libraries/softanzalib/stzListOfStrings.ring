@@ -1719,50 +1719,12 @@ class stzListOfStrings from stzObject
 	 #    FINDING STRINGS (AS ITEMS) VERIYING A GIVEN CONDITION     #
 	#--------------------------------------------------------------#
 
-	def FindStringItemsWCS(pcCondition, pCaseSensitive)
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveParamList()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
+	def FindStringItemsW(pcCondition)
 
-		acResult = []
-
-		if pCaseSensitive = TRUE
-
-			acResult = This.ToStzList().FindW(pcCondition)
-
-		else
-			acList = This.Lowercased()
-			cStr = StzStringQ(pcStr).Lowercased()
-
-			acResult = StzListQ(acList).FindW(cStr)
-		ok
+		acResult = This.ToStzList().FindW(pcCondition)
 
 		return acResult
-	
-		#< @FunctionAlternativeForms
 
-		def FindStringsWCS(pcCondition, pCaseSensitive)
-			return This.FindStringItemsWCS(pcCondition, pCaseSensitive)
-	
-		def FindWCS(pcCondition, pCaseSensitive)
-			return This.FindStringItemsWCS(pcCondition, pCaseSensitive)
-
-		def FindAllWCS(pcCondition, pCaseSensitive)
-			return This.FindStringItemsWCS(pcCondition, pCaseSensitive)(pcCondition, pCaseSensitive)
-
-		def FindWhereCS(pcCondition, pCaseSensitive)
-			return This.FindStringItemsWCS(pcCondition, pCaseSensitive)(pcCondition, pCaseSensitive)
-
-		def FindAllWhereCS(pcCondition, pValue, pCaseSensitive)
-			return This.FindStringItemsWCS(pcCondition, pCaseSensitive)(pcCondition, pCaseSensitive)
-
-		#>
-
-	#-- CASE-INSENSITIVE
-
-	def FindStringItemsW(pcCondition)
-		return This.FindStringItemsWCS(pcCondition, :CaseSensitive = TRUE)
-	
 		#< @FunctionAlternativeForms
 
 		def FindStringsW(pcCondition)
@@ -3791,8 +3753,8 @@ class stzListOfStrings from stzObject
 	 #    FINDING SUBSTRINGS VERIYING A GIVEN CONDITION     #
 	#------------------------------------------------------#
 
-	def FindSubStringsWCS(pcCondition, pCaseSensitive)
-		/* Exemple
+	def FindSubStringsW(pcCondition)
+	/* EXAMPLE
 
 		o1 = new stzListOfStrings([
 			"How many roads must a man walk down",
@@ -3805,7 +3767,7 @@ class stzListOfStrings from stzObject
 			"The answer is blowin' in the wind"
 		]
 
-		o1.FindSubStringsWCS('@substr = many' , :CaseSensitive = FALSE)
+		o1.FindSubStringsW('Q(@substr).Lowercased() = many')
 		# --> [
 		#	"1" = [ 5 ],
 		#	"3" = [ 5 ],
@@ -3816,33 +3778,8 @@ class stzListOfStrings from stzObject
 
 		// TODO
 
-		return aResult
-	
-		#< @FunctionAlternativeForms
+		return aResult	
 
-		def FindSubStringsCSW(pcCondition, pCaseSensitive)
-			return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
-
-		def FindAllSubStringsWCS(pcCondition, pCaseSensitive)
-			return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
-
-			def FindAllSubStringsCSW(pcCondition, pCaseSensitive)
-				return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
-
-		def FindSubStringsWhereWCS(pcCondition, pCaseSensitive)
-			return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
-
-			def FindSubStringsWhereCSW(pcCondition, pCaseSensitive)
-				return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
-
-		def FindAllSubStringsWhereCS(pcCondition, pCaseSensitive)
-			return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
-
-		#>
-
-	def FindSubStringsW(pcCondition)
-		return This.FindSubStringsWCS(pcCondition, :CaseSensitive = FALSE)
-	
 		#< @FunctionAlternativeForms
 
 		def FindAllSubStringsW(pcCondition)
@@ -5335,38 +5272,11 @@ class stzListOfStrings from stzObject
 	 #    REPLACING STRINGS (AS ITEMS) VERIYING A GIVEN CONDITION     #
 	#----------------------------------------------------------------#
 
-	def ReplaceStringItemsWCS(pcCondition, pcNewStr, pCaseSensitive)
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveParamList()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		anPositions = This.FindStringItemsWCS(pcCondition, pCaseSensitive)
-		This.ReplaceStringItemsAtThesePositions(anPositions, :With = pcNewStr)
-	
-		#< @FunctionAlternativeForms
-
-		def ReplaceStringsWCS(pcCondition, pcNewStr, pCaseSensitive)
-			return This.ReplaceStringItemsWCS(pcCondition, pcNewStr, pCaseSensitive)
-	
-		def ReplaceWCS(pcCondition, pcNewStr, pCaseSensitive)
-			return This.ReplaceStringItemsWCS(pcCondition, pcNewStr, pCaseSensitive)
-
-		def ReplaceAllWCS(pcCondition, pcNewStr, pCaseSensitive)
-			return This.ReplaceStringItemsWCS(pcCondition, pcNewStr, pCaseSensitive)(pcCondition, pCaseSensitive)
-
-		def ReplaceWhereCS(pcCondition, pcNewStr, pCaseSensitive)
-			return This.ReplaceStringItemsWCS(pcCondition, pCaseSensitive)(pcCondition, pCaseSensitive)
-
-		def ReplaceAllWhereCS(pcCondition, pcNewStr, pCaseSensitive)
-			return This.ReplaceStringItemsWCS(pcCondition, pCaseSensitive)(pcCondition, pCaseSensitive)
-
-		#>
-
-	#-- CASE-INSENSITIVE
-
 	def ReplaceStringItemsW(pcCondition, pcNewStr)
-		This.ReplaceStringItemsWCS(pcCondition, pcNewStr, :CaseSensitive = TRUE)
-	
+
+		anPositions = This.FindStringItemsW(pcCondition)
+		This.ReplaceStringItemsAtThesePositions(anPositions, pcNewStr)
+		
 		#< @FunctionAlternativeForms
 
 		def ReplaceStringsW(pcCondition, pcNewStr)
@@ -5824,46 +5734,9 @@ class stzListOfStrings from stzObject
 	 #    REPLACING SUBSTRINGS VERIYING A GIVEN CONDITION    #
 	#------------------------------------------------------#
 
-	def ReplaceSubStringsWCS(pcCondition, pcNewStr, pCaseSensitive)
-		anPositions = This.FindSubStringsW(pcCondition, pCaseSensitive)
+	def ReplaceSubStringsW(pcCondition, pcNewStr)
+		anPositions = This.FindSubStringsW(pcCondition)
 		This.ReplaceSubStringsAtThesePositions(anPositions, pcNewStr)
-
-		#< @FunctionFluentForm
-
-		def ReplaceSubStringsWCSQ(pcCondition, pcNewStr, pCaseSensitive)
-			This.ReplaceSubStringsWCS(pcCondition, pcNewStr, pCaseSensitive)
-			return This
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def ReplaceAllSubStringsWCS(pcCondition, pcNewStr, pCaseSensitive)
-			This.ReplaceSubStringsWCS(pcCondition, pcNewStr, pCaseSensitive)
-
-			def ReplaceAllSubStringsWCSQ(pcCondition, pcNewStr, pCaseSensitive)
-				This.ReplaceAllSubStringsWCS(pcCondition, pcNewStr, pCaseSensitive)
-				return This
-
-		def ReplaceSubStringsWhereCS(pcCondition, pcNewStr, pCaseSensitive)
-			This.ReplaceSubStringsWCS(pcCondition, pcNewStr, pCaseSensitive)
-
-			def ReplaceSubStringsWhereCSQ(pcCondition, pcNewStr, pCaseSensitive)
-				This.ReplaceSubStringsWhereCS(pcCondition, pcNewStr, pCaseSensitive)
-				return This
-
-		def ReplaceAllSubStringsWhereCS(pcCondition, pcNewStr, pCaseSensitive)
-			This.ReplaceSubStringsWCS(pcCondition, pcNewStr, pCaseSensitive)
-
-			def ReplaceAllSubStringsWhereCSQ(pcCondition, pcNewStr, pCaseSensitive)
-				This.ReplaceAllSubStringsWhereCS(pcCondition, pcNewStr, pCaseSensitive)
-				return This
-
-		#>
-
-	#-- CASE-INSENSITIVE
-
-	def ReplaceSubStringsW(pcCondition)
-		This.ReplaceSubStringsWCS(pcCondition, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -6533,53 +6406,9 @@ class stzListOfStrings from stzObject
 	 #    REMOVING STRINGS VERIYING A GIVEN CONDITION     #
 	#----------------------------------------------------#
 
-	def RemoveStringItemsWCS(pcCondition, pCaseSensitive)
-		anPositions = This.FindW(pcCondition, pCaseSensitive)
-		This.RemoveStringItemsAtThesePositions()
-
-		#< @FunctionFluentForm
-
-		def RemoveStringItemsWCSQ(pcCondition, pCaseSensitive)
-			This.RemoveStringItemsWCS(pcCondition, pCaseSensitive)
-			return This
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def RemoveStringsWCS(pcCondition, pCaseSensitive)
-			This.RemoveStringItemsWCS(pcCondition, pCaseSensitive)
-
-			def RemoveStringsWCSQ(pcCondition, pCaseSensitive)
-				This.RemoveStringsWCS(pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveAllWCS(pcCondition, pCaseSensitive)
-			This.RemoveStringItemsWCS(pcCondition, pCaseSensitive)
-
-			def RemoveAllWCSQ(pcCondition, pCaseSensitive)
-				This.RemoveAllWCS(pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveWhereCS(pcCondition, pCaseSensitive)
-			This.RemoveStringItemsWCS(pcCondition, pCaseSensitive)
-
-			def RemoveWhereCSQ(pcCondition, pCaseSensitive)
-				This.RemoveWhereCS(pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveAllWhereCS(pcCondition, pCaseSensitive)
-			This.RemoveStringItemsWCS(pcCondition, pCaseSensitive)
-
-			def RemoveAllWhereCSQ(pcCondition, pCaseSensitive)
-				This.RemoveAllWhereCS(pcCondition, pCaseSensitive)
-				return This
-
-		#>
-
-	#-- CASE-INSENSITIVE
-
 	def RemoveStringItemsW(pcCondition)
-		This.RemoveStringItemsWCS(pcCondition, pCaseSensitive)
+		anPositions = This.FindW(pcCondition)
+		This.RemoveStringItemsAtThesePositions()
 
 		#< @FunctionFluentForm
 
@@ -7549,47 +7378,9 @@ class stzListOfStrings from stzObject
 	 #    REMOVING SUBSTRINGS VERIYING A GIVEN CONDITION    #
 	#------------------------------------------------------#
 
-	def RemoveSubStringsWCS(pcCondition, pCaseSensitive)
-		anPositions = This.FindSubStringsW(pcCondition, pCaseSensitive)
-		This.RemoveSubStringsAtThesePositions(anPositions)
-
-		#< @FunctionFluentForm
-
-		def RemoveSubStringsWCSQ(pcCondition, pCaseSensitive)
-			This.RemoveSubStringsWCS(pcCondition, pCaseSensitive)
-			return This
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def RemoveAllSubStringsWCS(pcCondition, pCaseSensitive)
-			This.RemoveSubStringsWCS(pcCondition, pCaseSensitive)
-
-			def RemoveAllSubStringsWCSQ(pcCondition, pCaseSensitive)
-				This.RemoveAllSubStringsWCS(pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveSubStringsWhereCS(pcCondition, pCaseSensitive)
-			This.RemoveSubStringsWCS(pcCondition, pCaseSensitive)
-
-			def RemoveSubStringsWhereCSQ(pcCondition, pCaseSensitive)
-				This.RemoveSubStringsWhereCS(pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveAllSubStringsWhereCS(pcCondition, pCaseSensitive)
-			This.RemoveSubStringsWCS(pcCondition, pCaseSensitive)
-
-			def RemoveAllSubStringsWhereCSQ(pcCondition, pCaseSensitive)
-				This.RemoveAllSubStringsWhereCS(pcCondition, pCaseSensitive)
-				return This
-
-		#>
-
-	#-- CASE-INSENSITIVE
-
 	def RemoveSubStringsW(pcCondition)
-		This.RemoveSubStringsWCS(pcCondition, :CaseSensitive = TRUE)
-
+		anPositions = This.FindSubStringsW(pcCondition)
+		This.RemoveSubStringsAtThesePositions(anPositions)
 		#< @FunctionFluentForm
 
 		def RemoveSubStringsWQ(pcCondition)
@@ -7718,7 +7509,7 @@ class stzListOfStrings from stzObject
 	 #    A CONDTION IS VERIFIED                    #
 	#----------------------------------------------#
 
-	def ForEachStringItemPerformW(pcCode, pcConsition)
+	def ForEachStringItemPerformW(pcCode, pcCondition)
 		if isList(pcCondition) and Q(pcCondition).IsWhereParamList()
 			pcCondition = pcCondition[2]
 		ok
@@ -7729,41 +7520,18 @@ class stzListOfStrings from stzObject
 		oListOfStrings.ForEachStringItemPerform(pcCode)
 
 		def ForEachStringPerformW(pcCode, pcCondition)
-			This.ForEachStringItemPerformW(pcCode, pcConsition)
+			This.ForEachStringItemPerformW(pcCode, pcCondition)
 
 		def PerformW(pcCode, pcCondition)
-			This.ForEachStringItemPerformW(pcCode, pcConsition)
+			This.ForEachStringItemPerformW(pcCode, pcCondition)
 
-	def StringsW(pCondition)
-		return This.StringsWCS(pCondition, :CaseSensitive = TRUE)
-
-	def StringsWCS(pcCondition, pCaseSensitive)
-		pcCondition = StzStringQ(pcCondition).ReplaceManyCSQ(
-			[ "@str", "@string" ],
-			:With = "@item", pCaseSensitive ).Content()
-		
-		if pCaseSensitive = TRUE
-			acResult = This.ToStzList().ItemsW(pcCondition)
-
-		else
-			oCopy = This.Copy().LowercaseQ()
-			anPos = oCopy.ToStzList().ItemsPositionsW(pcCondition)
-
-			acResult = This.StringsAtPositions(anPos)
-
-		ok
-
-		return acResult
+	def StringsW(pcCondition)
+		anPositions = This.FindW(pcCondition)
+		aStrings = This.StringsAtPositions(pcCondition)
 
 	def StringsPositionsW(pcCondition)
 		acStrings = This.StringsW(pcCondition)
 		anPos = This.FindMany(acStrings)
-
-		return anPos
-
-	def StringsPositionsWCS(pcCondition, pCaseSensitive)
-		acStrings = This.StringsWCS(pcCondition, pCaseSensitive)
-		anPos = This.FindManyCS(acStrings, pCaseSensitive)
 
 		return anPos
 

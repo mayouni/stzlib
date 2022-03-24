@@ -77,19 +77,16 @@ class stzListOfChars from stzObject
 	@cString
 
 	def init(pValue)
-		if isList(pValue)
-			if ListIsListOfChars(pValue)
-				@aContent = pValue
-			ok
+		if isList(pValue) and ListIsListOfChars(pValue)
+			@aContent = pValue
 
-		but isString(pValue)
-			oTempStr = new stzString(pValue)
-			@aContent = oTempStr.Chars()
-			@cString = pValue
-			@aStzChars = This.ListOfChars()
+		but isString(pValue) and StzStringQ(pValue).IsListInString()
+			@aContent = StzStringQ(pValue).ToList()
+
 		else
 			stzRaise(stzListOfCharsError(:CanNotCreateListOfChars))
 		ok
+
 
 	def Content()
 		return @aContent
@@ -548,8 +545,8 @@ class stzListOfChars from stzObject
 
 		return bResult
 
-	def IsContinuous()
-		return This.UnicodesQR(:stzListOfNumbers).IsContinuous()
+	def IsContiguous()
+		return This.UnicodesQR(:stzListOfNumbers).IsContiguous()
 
-		def IsContinguous()
-			return This.IsContinuous()
+		def IsContinuous()
+			return This.IsContiguous()

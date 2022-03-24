@@ -1,5 +1,6 @@
 load "stzlib.ring"
 
+
 /*---------------
 
 o1 = new stzList([ 1, 2, 1, 1, 2, 3, 3, 3 ])
@@ -20,8 +21,8 @@ o1.Removeduplicates()
 ? o1.Content() #--> [ 1:3, 4:6, 7:10 ]
 
 /*===============
-*/
-# In Ring, you can declare a "continuous" list of chars
+
+# In Ring, you can declare a "contiguous" list of chars
 # from "A" to "F" like this:
 
 StzListQ("A":"F") {
@@ -31,9 +32,9 @@ StzListQ("A":"F") {
 	? ItemAtPosition(4) #--> "D"
 }
 
-/*
+
 # This beeing working only for ASCII chars, Softanza comes
-# with this solution for any "continuous" UNIOCDE chars:
+# with this solution for any "contiguous" UNIOCDE chars:
 
 StzListQ(' "ا" : "ج" ') {
 	? Content()
@@ -44,9 +45,9 @@ StzListQ(' "ا" : "ج" ') {
 
 /*===========
 
-? StzListQ(1:5).IsContinuous()		 #--> TRUE
-? StzListQ([ "A","B" ]).IsContinuous()	 #--> TRUE
-? StzListQ(' "ا" : "ج" ').IsContinuous() #--> TRUE
+? StzListQ(1:5).IsContiguous()		 #--> TRUE
+? StzListQ([ "A","B" ]).IsContiguous()	 #--> TRUE
+? StzListQ(' "ا" : "ج" ').IsContiguous() #--> TRUE
 
 /*-----------------
 
@@ -64,20 +65,17 @@ aList = "ا" : "ج"
 
 # Fortunately, Softanza solves this by the following function:
 
-? @@( ContinuousList("ا" , "ج") )
+? @@( ContiguousList("ا" , "ج") )
 #--> Gives [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
 # You won't need it but it manages ASCIIs as well:
 
-? ContinuousList("A", "D")	#--> [ "A", "B", "C", "D" ]
+? ContiguousList("A", "D")	#--> [ "A", "B", "C", "D" ]
 
 # Interestingly, this short form mimics the "_" : "_" Ring syntax:
 
-? @C('"ا" : "ج"')	# "C" for "Continuous"
-#--> Gives [ "ا", "ب", "ة", "ت", "ث", "ج" ]
-
-? @C(' "ج" : "ا" ')
-#--> Gives [ "ج", "ث", "ت", "ة", "ب", "ا" ]
+? @C('"ا" : "ج"')	#--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+? @C(' "ج" : "ا" ') 	#--> [ "ج", "ث", "ت", "ة", "ب", "ا" ]
 
 /*================
 
@@ -123,7 +121,7 @@ o1 = new stzList([
 # NOTE that classes are transformed to strings!
 
 /*-----------------
-
+*/
 o1 = new stzList([
 	1:5, 3:9, 1:5, 10:15, 3:9, 12:20, 10:15, 1:5, 12:20
 ])
@@ -137,24 +135,27 @@ o1 = new stzList([
 #    ]
 
 # Note that lists are transformed to strings so we can use them
-# as keys for idenfifying the their positions in the hash string.
+# as keys for idenfifying their positions in the hash string.
 
 # Hence we can say:
 
 ? o1.Klass("[ 1, 2, 3, 4, 5 ]") #--> [1, 3, 8 ]
+
 # Here, I used "K" because "Class" is a reserved name by Ring.
 # If you don't like that, please use Category() instead.
 
-# If you prefer getting the classes in "continuous form" (i.e. "1:5"
-# instead of "[1, 2, 3, 4, 5 ]", then use this:
+# If you prefer getting the classes in "short form" (i.e. "1:5"
+# instead of normal form "[1, 2, 3, 4, 5 ]", then use this:
 
-? o1.Classify@C() #--> "@C" for "Continuous" lists
+? o1.Classify@C() #--> "@C" for "Contiguous"
 #--> [
-#	[ "1:5",   [1, 3, 8 ] ],	
-#	[ "3:9",   [2, 5 ] ],
-#	[ "10:15", [4, 7 ] ],
-#	[ "12:20", [6, 9 ]
+#	[ "1 : 5",   [1, 3, 8 ] ],	
+#	[ "3 : 9",   [2, 5 ] ],
+#	[ "10 : 15", [4, 7 ] ],
+#	[ "12 : 20", [6, 9 ]
 #    ]
+
+? o1.Classes@C() #--> [ "1 : 5", "3 : 9", "10 : 15", "12 : 20" ]
 
 ? o1.Klass@C("1:5") #--> [1, 3, 8]
 

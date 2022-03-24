@@ -103,6 +103,8 @@ class stzListOfNumbers from stzList
 	def init(paList)
 		if isList(paList) and StzListQ(paList).IsListOfNumbers()
 			@anContent = paList
+		else
+			stzRaise("Can't create a stzListOfNumbers object!")
 		ok
 
 	def Content()
@@ -1331,8 +1333,8 @@ class stzListOfNumbers from stzList
 		def NumbersReversed()
 			return This.Reversed()
 
-	#-----------#
-	#   MISC.   #
+	  #-----------#
+	 #   MISC.   #
 	#-----------#
 
 	def ToStzListOfChars()
@@ -1341,42 +1343,36 @@ class stzListOfNumbers from stzList
 	def NumberOfNumbers()
 		return len( This.Content() )
 
-	def IsContinuous()
-		
-		oList = This.ToStzList()
-
-		if NOT oList.IsSorted()
+	def IsContiguous()
+		if This.NumberOfNumbers() < 2
 			return FALSE
 		ok
 
-		nPrecedent = 1
-		nCurrent   = 1
+		bResult = TRUE
 
-		if oList.IsSortedInAscending()
-			
+		if This.SortingOrder() = :Ascending
+
 			for i = 2 to This.NumberOfNumbers()
-				nPrecdent = This[i-1]
-				nCurrent  = This[i]
-				if nCurrent < nPrecedent
-					return FALSE
+	
+				if NOT ( This[i] = This[i-1] + 1 )
+					bResult = FALSE
+					exit
 				ok
 			next
 
-			return TRUE
-
-		but oList.IsSortedInDescending()
+		else # SortingOrder --> :Descending
 
 			for i = 2 to This.NumberOfNumbers()
-				nPrecdent = This[i-1]
-				nCurrent  = This[i]
-				if nCurrent > nPrecedent
-					return FALSE
+
+				if NOT ( This[i] = This[i-1] - 1 )
+					bResult = FALSE
+					exit
 				ok
 			next
-
-			return TRUE
-
 		ok
 
-		def IsContiguous()
-			return This.IsContinuous()
+		return bResult
+
+
+		def IsContignous()
+			return This.IsContiguous()

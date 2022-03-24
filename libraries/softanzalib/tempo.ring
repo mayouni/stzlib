@@ -1,8 +1,7 @@
 
 load "stzlib.ring"
-#------------------------------------
 
-/*----------
+
 
 o1 = new stzString("In these days, to be happy is a real challenge!
  I'm not sure how problems will leave us a window for this.

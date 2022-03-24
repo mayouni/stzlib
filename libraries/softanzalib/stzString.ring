@@ -16093,23 +16093,23 @@ class stzString from stzObject
 		ok
 
 	  #--------------------------------------------#
-	 #    CHECKING A CONTINUOUS LIST IN STRING    #
+	 #    CHECKING A CONTIGUOUS LIST IN STRING    #
 	#--------------------------------------------#
 
-	def IsContinuousListInString()
+	def IsContiguousListInString()
 
 		cCode = "aTempList = " + This.ToListInNormalForm()
 		eval(cCode)
-		bResult = StzListQ(aTempList).IsContinuous()
+		bResult = StzListQ(aTempList).IsContiguous()
 
 		return bResult
 
-		def IsContinguousListInString()
-			return This.IsContinuousListInString()
+		def IsContinuousListInString()
+			return This.IsContiguousListInString()
 
-	def IsContinuousListInNormalForm()
+	def IsContiguousListInNormalForm()
 	
-		if This.IsContinuousListInString() and
+		if This.IsContiguousListInString() and
 		   This.IsListInNormalForm()
 		  
 			return TRUE
@@ -16117,12 +16117,12 @@ class stzString from stzObject
 			return FALSE
 		ok
 
-		def IsContiguousListInNormalForm()
-			return This.IsContinuousListInNormalForm()
+		def IsContinuousListInNormalForm()
+			return This.IsContiguousListInNormalForm()
 
-	def IsContinuousListInShortForm()
+	def IsContiguousListInShortForm()
 
-		if This.IsContinuousListInString() and
+		if This.IsContiguousListInString() and
 		   This.IsListInShortForm()
 		   
 			return TRUE
@@ -16130,7 +16130,7 @@ class stzString from stzObject
 			return FALSE
 		ok
 
-		def IsContiguousListInShortForm()
+		def IsContinuousListInShortForm()
 			return This.IsContiguousListInShortForm()
 
 	  #---------------------------------------------------------------#
@@ -16138,12 +16138,12 @@ class stzString from stzObject
 	#---------------------------------------------------------------#
 
 	def ToListInShortForm()
-		
-		if NOT This.IsContinuousListInString()
+	
+		if NOT This.IsContiguousListInString()
 			stzRaise([
-				:Where = "stzString (16034) > ToStringListInShortForm()",
+				:Where = "stzString (16140) > ToStringListInShortForm()",
 				:What  = "Can't convert the list in string to short form!",
-				:Why   = "The list in string is not continuous list."
+				:Why   = "The list in string is not contiguous list."
 			])
 		ok
 
@@ -16157,15 +16157,24 @@ class stzString from stzObject
 
 		but This.IsListInNormalForm()
 
-			acMembers = This.SimplifyQ().
-					RemoveBoundsQ("[","]").
-					SplitQ(",").
-					FirstAndLastItems()
+			cCode = "aTempList = " + This.String()
+			eval(cCode)
 
-			cMember1 = StzStringQ(acMembers[1]).Simplified()
-			cMember2 = StzStringQ(acMembers[2]).Simplified()
+			if StzListQ(aTempList).IsContiguous()
 
-			cResult = cMember1 + " : " + cMember2
+				acMembers = This.SimplifyQ().
+						RemoveBoundsQ("[","]").
+						SplitQ(",").
+						FirstAndLastItems()
+						
+				cMember1 = StzStringQ(acMembers[1]).Simplified()
+				cMember2 = StzStringQ(acMembers[len(acMembers)]).Simplified()
+
+				cResult = cMember1 + " : " + cMember2
+
+			else
+				cResult = This.Simplified()
+			ok
 		ok
 
 		return cResult
@@ -16174,7 +16183,7 @@ class stzString from stzObject
 
 		If NOT This.IsListInString()
 			stzRaise([
-				:Where = "stzString (16034) > ToStringListInNormalForm()",
+				:Where = "stzString (16182) > ToStringListInNormalForm()",
 				:What  = "Can't convert the string to short form list!",
 				:Why   = "The string is not a list in string."
 			])
@@ -16198,7 +16207,7 @@ class stzString from stzObject
 		
 			cCode = "pMember2 = " + cMember2
 			eval(cCode)
-		
+	
 			cNormalSyntax = "[ "
 	
 			if ( isString(pMember1) and StringIsChar(pMember1) ) and

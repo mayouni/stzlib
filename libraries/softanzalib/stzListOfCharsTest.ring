@@ -1,8 +1,8 @@
 load "stzlib.ring"
 
-? StzListOfCharsQ("A":"E").IsContinuous() # --> TRUE
-? StzListOfCharsQ("1":"5").IsContinuous() # --> TRUE
-? StzListOfCharsQ("ا":"ي").IsContinuous() # --> TRUE
+? StzListOfCharsQ("A":"E").IsContiguous() # --> TRUE
+? StzListOfCharsQ("1":"5").IsContiguous() # --> TRUE
+? StzListOfCharsQ('"ا":"ج"').IsContiguous() # --> TRUE
 
 /*-------------
 
