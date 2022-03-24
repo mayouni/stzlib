@@ -1959,6 +1959,8 @@ class stzString from stzObject
 			return This.MarquersAndSectionsSortedInDescending()
 
 	def SortMarquersInAscending()
+		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+
 		/* Example
 
 		Q("My name is #2, may age is #1, and my job is #3.") {
@@ -1991,6 +1993,8 @@ class stzString from stzObject
 		return cResult
 
 	def SortMarquersInDescending()
+		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+
 		/* Example
 
 		Q("My name is #2, may age is #1, and my job is #3.") {
@@ -3528,6 +3532,8 @@ class stzString from stzObject
 	#-----------------------------#
 
 	def ReplaceRepeatedLeadingCharWith(c)
+		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+
 		/* Example:
 
 		StzStringQ("___VAR---").ReplaceRepeatedLeadingCharWith("-")
@@ -3667,6 +3673,8 @@ class stzString from stzObject
 	#------------------------------#
 
 	def ReplaceRepeatedTrailingCharWith(c)
+		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+
 		/* Example:
 
 		StzStringQ("___VAR---").ReplaceRepeatedTrailingCharBy("_")
@@ -4911,6 +4919,8 @@ class stzString from stzObject
 	#------------------------------------------#
 
 	def ReplaceCharAtPosition(n, pcNewSubStr)
+		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+
 		This.ReplaceSection(n, n, pcNewSubStr)
 
 		def ReplaceCharAtPositionQ(n, pcNewSubStr)
@@ -4922,6 +4932,8 @@ class stzString from stzObject
 		def ReplaceCharAtThisPosition(n, pcNewSubStr)
 
 	def CharReplacedAtPsoition(n, pcNewSubStr)
+		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+
 		cResult = This.Copy().ReplaceCharAtPositionQ(n, pcNewSubStr).Content()
 		return cResult
 
@@ -4936,10 +4948,13 @@ class stzString from stzObject
 	#----------------------------------------#
 
 	def ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+
 		anPos = sort(panPositions)
 
 		for i = len(anPos) to 1 step -1
 			nPos = anPos[i]
+
 			This.ReplaceCharAtPosition(nPos, pcNewSubStr)
 		next
 
@@ -4968,7 +4983,12 @@ class stzString from stzObject
 	 #     REPLACING ALL CHARS WITH A SUBSTRING UNDER A GIVEN CONDITION   #
 	#--------------------------------------------------------------------#
 
-	def ReplaceAllCharsW(pcCondition, pValue) // TODO: fix performance lag!
+	def ReplaceAllCharsW(pcCondition, pcNewSubStr)
+		#< @MotherFunctions:
+		#	This.FindAllCharsW()  > @RingBased
+		#	This.ReplaceSection() > @QtBased
+		#>
+
 		/*
 		Example:
 
@@ -4985,73 +5005,59 @@ class stzString from stzObject
 		--> Returns: "Text process*ng w*th R*ng"
 		*/
 
-		if isList(pcCondition) and StzListQ(pcCondition).IsWhereParamList()
-			pcCondition = pcCondition[2]
-
-			if NOT isString(pcCondition)
-				stzRaise("Incorrect param type! pcCondition must be a string.")
-			ok
-		ok
-
-		pcCondition = StzStringQ(pcCondition).
-				SimplifyQ().
-				RemoveBoundsQ("{","}").
-				Content()
-
 		anPositions = This.FindCharsW(pcCondition)
 
-		This.ReplaceCharsAtPositions(anPositions, pValue)
+		This.ReplaceCharsAtPositions(anPositions, pcNewSubStr)
 
-		
 		#< @FunctionFluentForm
 
-		def ReplaceAllCharsWQ(pCondition, pSubStr)
-			This.ReplaceAllCharsWhere(pCondition, pSubStr)
+		def ReplaceAllCharsWQ(pCondition, pcNewSubStr)
+			This.ReplaceAllCharsWhere(pCondition, pcNewSubStr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceAllWhere(pCondition, pSubStr)
-			This.ReplaceAllCharsW(pCondition, pSubStr)
+		def ReplaceAllWhere(pCondition, pcNewSubStr)
+			This.ReplaceAllCharsW(pCondition, pcNewSubStr)
 
 			#< @FunctionFluentForm
 
-			def ReplaceAllWhereQ(pCondition, pSubStr)
-				This.ReplaceAllWhere(pCondition, pSubStr)
+			def ReplaceAllWhereQ(pCondition, pcNewSubStr)
+				This.ReplaceAllWhere(pCondition, pcNewSubStr)
 				return This
 			#>
 
-		def ReplaceAllCharsWhere(pCondition, pSubStr)
-			This.ReplaceAllCharsW(pCondition, pSubStr)
+		def ReplaceAllCharsWhere(pCondition, pcNewSubStr)
+			This.ReplaceAllCharsW(pCondition, pcNewSubStr)
 
 			#< @FunctionFluentForm
 
-			def ReplaceAllCharsWhereQ(pCondition, pSubStr)
-				This.ReplaceAllCharsWhere(pCondition, pSubStr)
-				return This
-
-			#>
-
-		def ReplaceCharsW(pCondition, pSubStr)
-			This.ReplaceAllCharsW(pCondition, pSubStr)
-
-			#< @FunctionFluentForm
-
-			def ReplaceCharsWQ(pCondition, pSubStr)
-				This.ReplaceCharsW(pCondition, pSubStr)
+			def ReplaceAllCharsWhereQ(pCondition, pcNewSubStr)
+				This.ReplaceAllCharsWhere(pCondition, pcNewSubStr)
 				return This
 
 			#>
 
-		def ReplaceCharsWhere(pCondition, pSubStr)
-			This.ReplaceAllCharsW(pCondition, pSubStr)
+		def ReplaceCharsW(pCondition, pcNewSubStr)
+			This.ReplaceAllCharsW(pCondition, pcNewSubStr)
 
 			#< @FunctionFluentForm
 
-			def ReplaceCharsWhereQ(pCondition, pSubStr)
-				This.ReplaceCharsWhere(pCondition, pSubStr)
+			def ReplaceCharsWQ(pCondition, pcNewSubStr)
+				This.ReplaceCharsW(pCondition, pcNewSubStr)
+				return This
+
+			#>
+
+		def ReplaceCharsWhere(pCondition, pcNewSubStr)
+			This.ReplaceAllCharsW(pCondition, pcNewSubStr)
+
+			#< @FunctionFluentForm
+
+			def ReplaceCharsWhereQ(pCondition, pcNewSubStr)
+				This.ReplaceCharsWhere(pCondition, pcNewSubStr)
 				return This
 
 			#>
@@ -5219,45 +5225,46 @@ class stzString from stzObject
 	 #     REPLACING THE NTH OCCURRENCE OF A SUBSTRING    #
 	#----------------------------------------------------#
 
-		def ReplaceNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfParamList(pcSubStr)
-				pcSubStr = pcSubStr[2]
-			ok
-	
-			if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithParamList()
-				pcNewSubStr = pcNewSubStr[2]
-			ok
-	
-			if n = :First
-				n = 1
-	
-			but n = :Last
-				n = This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
-	
-			ok
-	
-			n = This.FindNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
-	
-			if n > 0
-				oSubStr = new stzString(pcSubStr)
-				This.ReplaceSection( n, n + oSubStr.NumberOfChars()-1, pcNewSubStr)
-			ok
-	
-			#< @FunctionFluentForm
-	
-			def ReplaceNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-				This.ReplaceNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-				return This
+	def ReplaceNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
 		
-			#>
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfParamList(pcSubStr)
+			pcSubStr = pcSubStr[2]
+		ok
 
-			def ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-				This.ReplaceNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithParamList()
+			pcNewSubStr = pcNewSubStr[2]
+		ok
+	
+		if n = :First
+			n = 1
+	
+		but n = :Last
+			n = This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+	
+		ok
+	
+		n = This.FindNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+	
+		if n > 0
+			oSubStr = new stzString(pcSubStr)
+			This.ReplaceSection( n, n + oSubStr.NumberOfChars()-1, pcNewSubStr)
+		ok
+	
+		#< @FunctionFluentForm
+	
+		def ReplaceNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+		
+		#>
 
-				def ReplaceNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-					This.ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-					return This
+		def ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
 
 	def ReplaceNthOccurrence(n, pcSubStr, pcNewSubStr)
 		This.ReplaceNthOccurrenceCS(n, pcSubStr, pcNewSubStr, :Casesensitive = TRUE)
@@ -5490,6 +5497,7 @@ class stzString from stzObject
 	#-------------------------#
 
 	def ReplaceNthChar(n, pSubStr)
+		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
 
 		if n = :LastChar or n = :EndOfString
 			n = This.NumberOfChars()
@@ -6677,10 +6685,10 @@ class stzString from stzObject
 	def FindAllCharsW(pcCondition)
 		if isList(pcCondition) and StzListQ(pcCondition).IsWhereParamList()
 			pcCondition = pcCondition[2]
+		ok
 
-			if NOT isString(pcCondition)
-				stzRaise("Incorrect param type! pcCondition must be a string.")
-			ok
+		if NOT isString(pcCondition)
+			stzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
 		cCondition = StzStringQ(pcCondition).
@@ -11295,6 +11303,7 @@ class stzString from stzObject
 	
 	// Removes a portion of the string defined by its start and end positions
 	def RemoveSection(n1, n2)
+		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
 
 		if n1 = :FirstChar or n1 = :StartOfString { n1 = 1 }
 		if n2 = :LastChar  or n2 = :EndOfString { n2 = This.NumberOfChars() }
@@ -11599,7 +11608,7 @@ class stzString from stzObject
 			This.This.RemoveCharsWhere(pcCondition)
 
 			def RemoveAllcharsWQ(pcCondition)
-				This.RemoveAllcharsWhere(pcCondition)
+				This.RemoveAllCharsWhere(pcCondition)
 				return This
 
 	  #-----------------------------------#
@@ -11607,23 +11616,68 @@ class stzString from stzObject
 	#-----------------------------------#
 	
 	// Replaces a portion of the string defined by its start and end positions
+
 	def ReplaceSection(n1, n2, pcNewSubStr)
+		#< @MotherFunction = YES | @QtBased #>
+
+		# Checking the correctness of n1 and n2 params
+
+		if NOT BothAreNumbers(n1, n2)
+			stzRaise("Incorrect param types! n1 and n2 must be numbers.")
+		ok
 
 		if n1 = :FirstChar or n1 = :StartOfString { n1 = 1 }
 		if n2 = :LastChar  or n2 = :EndOfString { n2 = This.NumberOfChars() }
 
-		if isList(pcNewSubStr) and ( Q(pcNewSubStr).IsWithParamList() or
-		   Q(pcNewSubStr).IsByParamList() )
+		# Checking the correctness of pcNewSubStr param
 
-			pcNewSubStr = pcNewSubStr[2]
+		bWellFormed = FALSE
+
+		if isString(pcNewSubStr)
+			bWellFormed = TRUE
+
+		but isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithOrByParamList()
+			
+			if isString(pcNewSubStr[2])
+				bWellFormed = TRUE
+				# Detecting the case where a conditonal value is provided
+				# via the :With@ or :By@ keywords
+	
+				if Q(pcNewSubStr[1]).IsOneOfThese([ :With@, :By@ ])
+					pcNewSubStr = pcNewSubStr[2]
+	
+					cCode = Q(pcNewSubStr).
+						SimplifyQ().
+						RemoveBoundsQ("{","}").
+						ReplaceCS("@section", This.Section(n1, n2), :CS=FALSE)
+						Content()
+	
+					cCode = "pcNewSubStr = " + cCode
+					eval(cCode)
+	
+				else
+					pcNewSubStr = pcNewSubStr[2]
+				ok
+
+			ok
+
 		ok
 
+		if NOT bWellFormed
+			stzRaise("Incorrect param type! pcNewSubStr must be a string.")
+		ok
 
+		# Doing the job
+? pcNewSubStr
 		QStringObject().replace(n1 - 1, n2 - n1 + 1, pcNewSubStr)
+
+		#< @FunctionFluentForm
 
 		def ReplaceSectionQ(n1, n2, pcNewSubStr)
 			This.ReplaceSection(n1, n2, pcNewSubStr)
 			return This
+
+		#>
 
 	def SectionReplaced(n1, n2, pcNewSubStr)
 		cResult = This.Copy().ReplaceSectionQ(n1, n2, pcNewSubStr).Content()

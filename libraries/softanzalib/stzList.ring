@@ -3485,6 +3485,10 @@ class stzList from stzObject
 	def Walker(pcWalker)
 		return This.Walkers()[pcWalker]
 
+	  #---------------#
+	 #    WALKERS    #
+	#---------------#
+
 	def WalkUntil(pcCondition )
 		return This.WalkUntilXT(pcCondition, :Return = :LastPosition)
 
@@ -9982,21 +9986,10 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-
 	def IsWithParamList()
 		if This.NumberOfItems() = 2 and
 
-		   ( isString(This[1]) and  This[1] = :With )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsUsingParamList()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Using )
+		   ( isString(This[1]) and  Q(This[1]).IsOneOfThese([ :With, :With@ ]) )
 
 			return TRUE
 
@@ -10008,6 +10001,22 @@ class stzList from stzObject
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  Q(This[1]).IsOneOfThese([ :By, :By@ ]) )
 		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsWithOrByParamList()
+		return This.IsWithParamList() OR This.IsByParamList()
+
+		def IsByOrWithParamList()
+			return This.IsWithOrByParamList()
+
+	def IsUsingParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Using )
+
 			return TRUE
 
 		else

@@ -26,10 +26,10 @@ o1 {
 # Softanza tends to be permissive as part of its FELXIBILITY design goal.
 # Let's show this by an example.
 
-# A Walker is defined by its starting position, ending position, and number of
+# A Walker can be defined by its starting position, ending position, and number of
 # positions per step, like this:
 
-oWalker = new stzWalker([ :StartingAt = 1, :EndingAt = 8, :Step = 2 ])
+oWalker = new stzWalker([ :Direction = :Forward, :StartingAt = 1, :EndingAt = 8, :Step = 2 ])
 ? oWalker.Positions() # --> [ 1, 3, 5, 8 ]
 /*
 # Now, if you do not provide a paramter, Softanza gives a default value to it:
