@@ -2569,15 +2569,15 @@ class stzLocale from stzObject
 	
 		# Lowercasing all the string first
 
-		cStr = _@(pcStr).Lowercased()
+		cStr = StzStringQ(pcStr).Lowercased()
 
 		# Getting the positions of the words in the string
 		anWordsPositions = StzTextQ(cStr).WordsPositions()
 
 		# Capitalizing the 1st char of each word
 		cResult = StzStringQ(pcStr).ReplaceCharsWQ(
-			:Where  = '_Q(@i).ExistsIn(' + @@(anWordsPositions) + ')',
-			:With@  = '_Q(@char).Uppercased()'
+			:Where  = 'Q(@i).ExistsIn(' + @@(anWordsPositions) + ')',
+			:With@  = 'Q(@char).Uppercased()'
 		).Content()
 
 		return cResult

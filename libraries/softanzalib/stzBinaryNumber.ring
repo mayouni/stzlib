@@ -205,7 +205,7 @@ class stzBinaryNumber from stzObject
 			nCurrentTotal = ( nCurrentTotal + (0+ bit) ) / 2
 		next
 
-		return StzStringQ( ""+ nCurrentTotal ).RemoveTrailingCharQ('0').Content()
+		return StzStringQ( ""+ nCurrentTotal ).RemoveTrailingRepeatedCharQ('0').Content()
 
 		def FractionalPartToDecimal()
 			return This.FractionalPartToDecimalForm()

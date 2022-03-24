@@ -2858,7 +2858,7 @@ class stzList from stzObject
 	def IsPair()
 		return This.NumberOfItems() = 2
 
-	def IsPairOStrings()
+	def IsPairOfStrings()
 		return This.IsPair() and This.IsListOfStrings()
 
 	def IsPairOfNumbers()

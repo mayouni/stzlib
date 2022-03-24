@@ -39,7 +39,7 @@ o1 = new stzString('[ "A","B", "C", "D", ]')
 #--> [ '[ "A"', '"B"', ' "C"', ' "D"', ' ]' ]
 
 /*=================
-*/
+
 # IDENTIFYING LISTS INSIDE A STRING
 
 # In many situations (especially in advanced AI and ML applications),
@@ -213,8 +213,8 @@ o1.Simplify() # Jst to remove spaces I put for readabiliy
 o1.RemoveCharsWhereCS('{ @char = "X" }', :CS = true)
 ? o1.Content()
 
-/*================= TODO
-*/
+/*================= WORK IN PROGESS*******************************************
+
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.ReplaceAnyBetween("<<", ">>", :With = "word")
 ? o1.Content()  # !--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
@@ -1721,23 +1721,32 @@ StzStringQ("s㊱m") {
 # --> @item___@item___@item
 
 
-/*------------------ RETEST AFTER ADDING ReplaceSections() ////////////////////////////////
+/*------------------
 
 StzStringQ( "Text processing with Ring" ) {
 	ReplaceAllCharsW(
 		:Where = '{ @char = "i" }',
-		:With = '{ "*" }' # TODO: Replace with expression like :With = {'Unicode(@char)'}	
+		:With = "*"	
 	)
 
 	? Content()
-} # --> Returns: "Text process*ng w*th R*ng"
+} # --> "Text process*ng w*th R*ng"
 
-/*-------------------
+/*------------------- ERROR: FIX and add support of :With@ = "{ Condition }"
+
+StzStringQ("1a2b3c") {
+	ReplaceAllCharsW(
+		:Where = '{ isString(@char) and stzStringQ(@char).isLowercase() }',
+		:With  = "*"
+	)
+
+	? Content()
+}
 
 StzStringQ("1a2b3c") {
 	ReplaceAllCharsW(
 		:Where = '{ StzCharQ(@char).IsLetter() and StzCharQ(@char).isLowercase() }',
-		:With  = '{ StzCharQ(@char).Uppercased() }'
+		:With@  = '{ StzCharQ(@char).Uppercased() }'
 	)
 
 	? Content()
@@ -1746,22 +1755,13 @@ StzStringQ("1a2b3c") {
 StzStringQ("1a2b3c") {
 	ReplaceAllCharsW(
 		:Where = '{ _(@char).@.isLetter() and _(@char).@.IsLowercase() }',
-		:With  = '{ _(@char).@.Uppercased() }'
+		:With@  = '{ _(@char).@.Uppercased() }'
 	)
 
 	? Content()
 }
 
-StzStringQ("1a2b3c") {
-	ReplaceAllCharsW(
-		:Where = '{ isString(@char) and stzStringQ(@char).isLowercase() }',
-		:With  = '{ "*" }'
-	)
-
-	? Content()
-}
-
-/*--------------------
+/*-------------------- // ERROR : fix it
 
 ? StzStringQ("سَلَامُُ").IsMadeOfSomeOfThese( ListsMerge([ ArabicLetters(), Arabic7araket() ] ) )
 
@@ -1776,18 +1776,18 @@ StzStringQ("1a2b3c") {
 /*-------------------
 
 ? "TIBA -->"
-? StzStringQ("TIBA").Invert()
+? StzStringQ("TIBA").Inverted()
 ? ""
 ? "HANEEN -->"
-? StzStringQ("HANEEN").Invert()
+? StzStringQ("HANEEN").Inverted()
 ? "LIFE -->"
-? StzStringQ("LIFE").Invert()
+? StzStringQ("LIFE").Inverted()
 ? ""
 ? "GAYA -->"
-? StzStringQ("GAYA").Invert()
+? StzStringQ("GAYA").Inverted()
 ? ""
 ? "TELLAVIX (Y908$) -->"
-? StzStringQ("TELLAVIX (Y908$)").Invert()
+? StzStringQ("TELLAVIX (Y908$)").Inverted()
 
 /*------------------
 
@@ -1797,26 +1797,27 @@ o1 = new stzString("Ring Programming Language")
 
 /*------------------
 
-? StzStringQ("abc سلام abc").ContainsScript(:Arabic)	# TRUE
-? StzStringQ("abc سلام abc").ContainsArabicScript()	# TRUE
+? StzTextQ("abc سلام abc").ContainsScript(:Arabic)	#--> TRUE
+? StzTextQ("abc سلام abc").ContainsArabicScript()	#--> TRUE
+# NOTE: Scripts are now moved from stzString to stzText
+/*------------------
+
+? StzStringQ("évènement").ReplaceNthCharQ(3, "*").Content()		#--> év*nement
+? StzStringQ("évènement").ReplaceNthCharQ(3, :With = "*").Content()	#--> év*nement
 
 /*------------------
 
-? StzStringQ("évènement").ReplaceNthCharQ(3, "*").Content()
-? StzStringQ("évènement").ReplaceNthCharQ(3, :With = "*").Content()
-
-/*------------------
-
-o1 = new stzString("original text before hashing")
-o1.Hash(:MD5)
-? o1.Content()
+StzStringQ("original text before hashing") {
+	Hash(:MD5)
+	? Content() #--> 8ffad81de2e13a7b68c7858e4d60e263
+}
 
 /*-------------------
+*/
 
-? StzStringQ("ring").StringCase() # --> :Lowercase
-? StzStringQ("RING").StringCase() # --> :Uppercase
-? StzStringQ("Ring").StringCase() # --> :Titlecase
-
+//? StzStringQ("ring").StringCase() # --> :Lowercase
+//? StzStringQ("RING").StringCase() # --> :Uppercase
+//? StzStringQ("Ring").StringCase() # --> :Titlecase-----------------------------
 
 /*-----------------
 
@@ -1865,39 +1866,88 @@ StzListQ([ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]) {
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 
-? o1.PartsAsSubstrings( :By = '@.CharCase()' )	# or simply o1.Parts('@.CharCase()')
-# --> [
-#	[ "H",  :uppercase ], [ "anine", :lowercase ], [ " حنين ", NULL ],
-#	[ "is", :lowercase ], [ " ", NULL ], [ "a", :lowercase ],
-#	[ " ", NULL ], [ "nice", :lowercase ], [ " جميلة وعمرها 7 ", NULL ],
-#	[ "years", :lowercase ], [ "-", NULL ], [ "old", lowercase ], [ " سنوات ", NULL ],
-#	[ "girl!", :lowercase ], [ "girl!", :lowercase ]
-#     ]
+? @@(o1.PartsAsSubstrings( :Using = 'StzCharQ(@char).CharCase()' ))	# or simply o1.Parts('StzCharQ(@char)')
+# [
+# 	[ "H", "uppercase" ],
+# 	[ "anine", "lowercase" ],
+# 	[ "o حنين o", NULL ],
+# 	[ "is", "lowercase" ],
+# 	[ " ", NULL ],
+# 	[ "a", "lowercase" ],
+# 	[ " ", NULL ],
+# 	[ "nice", "lowercase" ],
+# 	[ "o جميلة وعمرها 7 o", NULL ],
+# 	[ "years", "lowercase" ],
+# 	[ "-", NULL ],
+# 	[ "old", "lowercase" ],
+# 	[ "o سنوات o", NULL ],
+# 	[ "girl", "lowercase" ],
+# 	[ "!", NULL ]
+# ]
 
-? o1.PartsAsSections( :By = '@.CharCase()' )
-# --> [
-# 	[ [ 1,  1], :uppercase 	],
-# 	[ [ 2,  6], :lowercase 	],
-#	[ [ 7, 12], NULL 	],
-# 	[ [13, 14], :lowercase 	],
-# 	[ [15, 15], NULL 	],
-# 	[ [16, 16], :lowercase 	],
-# 	[ [17, 17], :NULL 	],
-# 	[ [18, 21], :lowercase 	],
-# 	[ [22, 37], NULL 	],
-# 	[ [38, 42], :lowercase 	],
-# 	[ [43, 43], NULL 	],
-# 	[ [44, 46], :lowercase	],
-# 	[ [47, 53], NULL 	],
-# 	[ [54, 58], :lowercase 	],
-# 	[ [59, 63], :lowercase 	]
-#     ]
+? @@(o1.PartsAsSections( :Using = 'StzCharQ(@char).CharCase()' ))
 
-? o1.PartsAsSubstringsAndSections( :By = '@.CharCase()' )
+#--> [
+# 	[ [ 1, 1 ], 	"uppercase" 	],
+# 	[ [ 2, 6 ], 	"lowercase" 	],
+# 	[ [ 7, 12 ], 	NULL 		],
+# 	[ [ 13, 14 ], 	"lowercase"	],
+# 	[ [ 15, 15 ], 	NULL 		],
+# 	[ [ 16, 16 ], 	"lowercase" 	],
+# 	[ [ 17, 17 ], 	NULL		],
+# 	[ [ 18, 21 ], 	"lowercase" 	],
+# 	[ [ 22, 37 ], 	NULL		],
+# 	[ [ 38, 42 ], 	"lowercase" 	],
+# 	[ [ 43, 43 ], 	NULL		],
+# 	[ [ 44, 46 ], 	"lowercase" 	],
+# 	[ [ 47, 53 ], 	NULL 		],
+# 	[ [ 54, 57 ], 	"lowercase"  	],
+# 	[ [ 58, 58 ], 	NULL 		]
+#    ]
 
-? o1.PartsAsSectionsAndSubstrings( :By = '@.CharCase()' )
+? @@( o1.PartsAsSubstringsAndSections( :Using = 'StzCharQ(@char).CharCase()' ) )
 
-//? o1.PartsClassified( :By = '@.CharCase()' )
+#-->
+# [ 	
+# 	[ "H", 				[ 1, 1 ], 	"uppercase" 	],
+# 	[ "anine", 			[ 2, 6 ], 	"lowercase" 	],
+# 	[ "o حنين o", 			[ 7, 12 ], 	NULL		],
+# 	[ "is", 			[ 13, 14 ], 	"lowercase" 	],
+# 	[ " ", 				[ 15, 15 ], 	NULL		],
+# 	[ "a", 				[ 16, 16 ], 	"lowercase" 	],
+# 	[ " ", 				[ 17, 17 ], 	NULL		],
+# 	[ "nice", 			[ 18, 21 ], 	"lowercase" 	],
+# 	[ "o جميلة وعمرها 7 o", 	[ 22, 37 ], 	NULL		],
+# 	[ "years", 			[ 38, 42 ], 	"lowercase" 	],
+# 	[ "-", 				[ 43, 43 ], 	NULL		],
+# 	[ "old", 			[ 44, 46 ], 	"lowercase" 	],
+# 	[ "o سنوات o", 			[ 47, 53 ], 	NULL		],
+# 	[ "girl", 			[ 54, 57 ], 	"lowercase" 	],
+# 	[ "!", 				[ 58, 58 ], 	NULL		]
+# ]
+
+? @@( o1.PartsAsSectionsAndSubstrings( :Using = 'StzCharQ(@char).CharCase()' ) )
+
+#-->
+# [ 	
+# 	[ [ 1, 1 ],	"H", 			"uppercase" 	],
+# 	[ [ 2, 6 ],	"anine", 		"lowercase" 	],
+# 	[ [ 7, 12 ],	"o حنين o", 		NULL		],
+# 	[ [ 13, 14 ],	"is", 			"lowercase" 	],
+# 	[ [ 15, 15 ],	" ", 			NULL		],
+# 	[ [ 16, 16 ],	"a", 			"lowercase" 	],
+# 	[ [ 17, 17 ],	" ", 			NULL		],
+# 	[ [ 18, 21 ],	"nice", 		"lowercase" 	],
+# 	[ [ 22, 37 ],	"o جميلة وعمرها 7 o", 	 NULL		],
+# 	[ [ 38, 42 ],	"years", 		"lowercase" 	],
+# 	[ [ 43, 43 ],	"-", 			NULL		],
+# 	[ [ 44, 46 ],	"old", 			"lowercase" 	],
+# 	[ [ 47, 53 ],	"o سنوات o", 		NULL		],
+# 	[ [ 54, 57 ],	"girl", 		"lowercase" 	],
+# 	[ [ 58, 58 ],	"!", 			NULL		]
+# ]
+
+//? o1.PartsClassified( :Using = 'StzCharQ(@char)' )  # TODO
 
 /*-----------------
 
@@ -1959,7 +2009,6 @@ o1 = new stzString("AM23-X ")
 #    ]
 
 /*-----------------
-
 
 o1 = new stzString("Abc285XY&من")
 ? o1.Parts('{

@@ -890,8 +890,8 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		aResult = []
 		aClasses = This.Classes()
 
-		for cClass in aValues
-			aResult + [ cClass, This.KeysForValue(value) ]
+		for cClass in aClasses
+			aResult + [ cClass, This.KeysForValue(cClass) ]
 		next
 
 		return aResult
