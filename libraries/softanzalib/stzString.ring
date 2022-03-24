@@ -5006,8 +5006,9 @@ class stzString from stzObject
 		*/
 
 		anPositions = This.FindCharsW(pcCondition)
-
+? "-->"
 		This.ReplaceCharsAtPositions(anPositions, pcNewSubStr)
+? "--<"
 
 		#< @FunctionFluentForm
 
@@ -6683,6 +6684,8 @@ class stzString from stzObject
 	#----------------------------------------------------------------------#
 
 	def FindAllCharsW(pcCondition)
+		#< @MotherFunction = YES | @RingBased #>
+
 		if isList(pcCondition) and StzListQ(pcCondition).IsWhereParamList()
 			pcCondition = pcCondition[2]
 		ok
