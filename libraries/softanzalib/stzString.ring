@@ -207,7 +207,7 @@ func StringToUnicodes(pcStr)
 		return StringToUnicodes(pcStr)
 	
 func StringInvert(cStr)
-	return StzStringQ(cStr).Invert()
+	return StzStringQ(cStr).Inverted()
 	
 func StringScript(cStr)
 	return StzStringQ(cStr).Script()
@@ -339,7 +339,8 @@ func StringCases()
 	return [ :Lowercase, :Uppercase, :Capitalcase, :Titlecase, :Foldercase ]
 
 func StringCase(pcStr)
-	return Q(pcStr).StringCase()
+
+	return StzStringQ(pcStr).StringCase()
 
 
   /////////////////
@@ -495,22 +496,29 @@ class stzString from stzObject
 	#-------------------------------#
 
 	def StringCase()
+
 		if This.IsLowercase()
+? "ici 1"
 			return :Lowercase
 
 		but This.IsUppercase()
+? "ici 2"
 			return :Uppercase
 
 		but This.IsCapitalcase()
+? "ici 3"
 			return :Capitalcase
 
 		but This.IsTitlecase()
+? "ici 4"
 			return :Titlecase
 
 		but This.IsFoldercase()
+? "ici 5"
 			return :Foldercase
 
 		else
+? "ici 6"
 			return :Hybridcase
 		ok
 
@@ -885,7 +893,8 @@ class stzString from stzObject
 		#>
 
 	def IsCapitalcase()
-		return ActiveLocale().StringIsCapitalcased(This.String())
+		oLocale = ActiveLocale()
+		return oLocale.StringIsCapitalcased(This.String())
 
 		#< @FunctionAlternativeFormForm
 
@@ -3359,12 +3368,22 @@ class stzString from stzObject
 			def RemoveLeadingRepeatedCharQ(c)
 				This.RemoveLeadingRepeatedChar(c)
 				return This
+
+		def RemoveLeadingChar(c)
+			This.RemoveRepeatedLeadingChar(c)
+
+			def RemoveLeadingCharQ(c)
+				This.RemoveLeadingChar(c)
+				return This
 	
 	def RepeatedLeadingCharRemoved(c)
 		cResult = This.Copy().RemoveRepeatedLeadingCharQ(c).Content()
 		return cResult
 
 		def LeadingRepeatedCharRemoved(c)
+			return This.RepeatedLeadingCharRemoved(c)
+
+		def LeadingCharRemoved(c)
 			return This.RepeatedLeadingCharRemoved(c)
 
 	  #--------------------------------------#
@@ -3420,11 +3439,21 @@ class stzString from stzObject
 				This.RemoveTrailingRepeatedChar(c)
 				return This
 	
+		def RemoveTrailingChar(c)
+			This.RemoveRepeatedTrailingChar(c)
+
+			def RemoveTrailingCharQ(c)
+				This.RemoveTrailingChar(c)
+				return This
+
 	def RepeatedTrailingCharRemoved(c)
 		cResult = This.Copy().RemoveRepeatedTrailingCharQ(c).Content()
 		return cResult
 
 		def TrailingRepeatedCharRemoved(c)
+			return This.RepeatedTrailingCharRemoved(c)
+
+		def TrailingCharRemoved(c)
 			return This.RepeatedTrailingCharRemoved(c)
 
 	  #--------------------------------------------------#
@@ -5471,7 +5500,7 @@ class stzString from stzObject
 
 		if isList(pSubStr) and
 		   len(pSubStr) = 2 and
-		   ListIsPairOfStrings(pSubStr)
+		   StzListQ(pSubStr).IsPairOfStrings()
 
 			if pSubStr[1] = :With
 				pSubStr = pSubStr[2]
@@ -10374,25 +10403,25 @@ class stzString from stzObject
 	#--
 
 	def PartsAsSubstringsAndSections(pcPartionner)
-		aSubstrings = This.PartsSubstrings(pcPartionner)
-		aSections   = This.PartsSections(pcPartionner)
+		aSubstrings = This.PartsAsSubstrings(pcPartionner)
+		aSections   = This.PartsAsSections(pcPartionner)
 
 		aResult = []
 
 		for i = 1 to len(aSubstrings)
-			aResult + [ aSubstrings[1], aSections[1], aSections[2] ]
+			aResult + [ aSubstrings[i][1], aSections[i][1], aSections[i][2] ]
 		next
 
 		return aResult
 
 	def PartsAsSectionsAndSubstrings(pcPartionner)
-		aSubstrings = This.PartsSubstrings(pcPartionner)
-		aSections   = This.PartsSections(pcPartionner)
+		aSubstrings = This.PartsAsSubstrings(pcPartionner)
+		aSections   = This.PartsAsSections(pcPartionner)
 
 		aResult = []
 
 		for i = 1 to len(aSubstrings)
-			aResult + [ aSections[1], aSubstrings[1], aSubstrings[2] ]
+			aResult + [ aSections[i][1], aSubstrings[i][1], aSubstrings[i][2] ]
 		next
 
 		return aResult
