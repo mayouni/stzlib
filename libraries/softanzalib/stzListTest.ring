@@ -121,7 +121,7 @@ o1 = new stzList([
 # NOTE that classes are transformed to strings!
 
 /*-----------------
-*/
+
 o1 = new stzList([
 	1:5, 3:9, 1:5, 10:15, 3:9, 12:20, 10:15, 1:5, 12:20
 ])
@@ -781,7 +781,8 @@ o1 = new stzList([ :Char, :String, :Number, :List, :Object, :CObject, :QObject, 
 ? o1.RemoveItemsAtThesePositionsQ( 6:8 ).Content()
 # --> [ :Char, :String, :Number, :List, :Object ]
 
-/*----------------------- TODO: fix some erronous outputs //////////////////////////////
+/*----------------------- TODO: REFACTORED: Revisit after comleting stzWalker //////////////////////////////
+
 
 o1 = new stzList([ 12, 24, 36, "A", "B", 12, "C", "D", "E", 24, "F", 25, "G", "H" ])
 o1 {

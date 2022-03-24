@@ -1846,7 +1846,7 @@ o1 = new stzString("Der Fluß")
 # --? TODO: support the special cases documented in unicode here:
 # http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 
-/*----------------- FIX THIS
+/*----------------- FIX THIS : Revisit this after completing stzWalker
 
 // WalkUntil has not same output in stzString and stzList!
 
@@ -2137,15 +2137,31 @@ o1.RemoveCharsWhereQ('{
 ? o1.Content() #--> "Use these two lettersand "
 
 /*---------------
+*/
+o1 = new stzString("Use these two letters: س and ص.")
+
+o1.ReplaceAllCharsWhere(
+	:Where = '{ @char != " " and StzCharQ(@Char).IsArabicLetter() }',
+	:With = "*"
+)
+
+? o1.Content() #--> "Use these two letters: * and *."
+
+/*---------------
+
+? StzCharQ("س").Name() #--> ARABIC LETTER SEEN
+? StzCharQ("ص").Name() #--> ARABIC LETTER SAD
+
+/*---------------
 
 o1 = new stzString("Use these two letters: س and ص.")
 
 o1.ReplaceAllCharsWhere(
-	:Where = '{ NOT StzCharQ(@Char).IsLatinLetter() }',
-	:With = "-"
+	:Where = '{ @char != " " and StzCharQ(@Char).IsArabicLetter() }',
+	:With@ = 'StzCharQ(@char).Name()'
 )
 
-? o1.Content() #--> "Use-these-two-letters----and---"
+? o1.Content() #--> "Use these two letters: * and *."
 
 /*--------------
 
@@ -2155,11 +2171,11 @@ o1 = new stzString("SoftAnza Libraray")
 	@Char = "a"
 }') # --> Gives 3
 
-/*-------------- !!!! ERROR: FIXING IS IN PROGRESS !
+/*--------------
 
 o1 = new stzString("SoftAnza Libraray")
 
-? o1.FindAllCharsWhere('{ Q(@Char).Lowercased() = "a" }') # --> Gives [ 5, 8, 14, 16 ]
+? o1.FindAllCharsWhere('{ StzCharQ(@Char).Lowercased() = "a" }') # --> Gives [ 5, 8, 14, 16 ]
 
 /*---------------
 
@@ -2174,7 +2190,6 @@ o1 = new stzString("12")
 o1 = new stzString("abc;123;gafsa;ykj")
 ? o1.NthSubstringAfterSplittingStringUsing(3, ";") #--> gafsa
 
-return
 /*------------------
 
 ? StzStringQ("SOFTANZA IS AWSOME!").BoxedXT([
