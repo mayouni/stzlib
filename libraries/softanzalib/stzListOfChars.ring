@@ -83,6 +83,9 @@ class stzListOfChars from stzObject
 		but isString(pValue) and StzStringQ(pValue).IsListInString()
 			@aContent = StzStringQ(pValue).ToList()
 
+		but isString(pValue)
+			@aContent = pValue
+
 		else
 			stzRaise(stzListOfCharsError(:CanNotCreateListOfChars))
 		ok

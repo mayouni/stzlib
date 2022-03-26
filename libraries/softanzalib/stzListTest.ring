@@ -747,7 +747,7 @@ o1 = new stzList( [ 0, 8, 0, 0, 1, 8, 0, 0 ] )
 
 o1 = new stzList( [ 0, 8, 0, 0, 1, 8, 0, 0 ] )
 ? o1.PreviousNthOccurrence(3, :Of = 0, :StartingAt = 5) # --> 1
-? o1.PreviousNthOccurrence(2, :Of = 8, :StartingAt = :End) # --> 2
+? o1.PreviousNthOccurrence(2, :Of = 8, :StartingAt = :LastItem) # --> 2
 
 /*-----------------------
 
@@ -1233,42 +1233,6 @@ StzListQ( [1, "a", 2, "b", 3, "c" ]) {
 
 o1 = new stzList([ "a", "b", 3, "c"])
 ? o1.AllItemsExcept(3)
-
-/*-------------------
-
-// TODO: fix errors()
-
-? StzListQ([]).IsTextBoxedParamList() # Returns TRUE but should return FALSE!
-
-// The existant options are :
-
-	aListOfBoxOptions = [
-		:Line,
-		:AllCorners,
-		:Corners,
-		:Width,
-		:TextAdjustedTo,
-		:EachChar,
-		:EachWord,
-		:Hilighted,
-		:HilightedIf,
-		:Numbered
-	]
-
-? StzStringQ("TEXT1").BoxedXT([
-	:Line = :Thin,	# or :Dashed
-		
-	:AllCorners = :Round, # can also be :Rectangualr
-	# :Corners = [ :Round, :Rectangular, :Round, :Rectangular ],
-		
-	:Width = 17,
-	:TextAdjustedTo = :Center, # or :Left or :Right or :Along,
-			
-	:EachChar = FALSE ,# TRUE,
-	:Hilighted = [ 1, 3 ], # Hilight the 1st and 3rd chars,
-
-	:Numbered = TRUE
-])
 
 /*---------------
 
