@@ -2520,7 +2520,7 @@ class stzLocale from stzObject
 				# "A la Recherche du temps perdu"
 
 				cResult = This.ToUppercase( StzStringQ(pcStr)[1] ) +
-					  This.ToLowercase( StzStringQ(pcStr).Section(2,:end) )
+					  This.ToLowercase( StzStringQ(pcStr).Section(2,:LastChar) )
 			ok
 
 			return cResult

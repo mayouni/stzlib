@@ -100,7 +100,7 @@ StzListOfStringsQ([ "one", "two", "three", "two", "four" ]) {
 }
 
 /*-------------------
-
+*/
 o1 = new stzListOfStrings([ "village", "town", "country" ])
 o1.ForEachStringPerform('{ @str = Q(@str).Uppercased() }')
 ? o1.Content() # --> [ "VILLAGE", "TOWN", "COUNTRY" ]

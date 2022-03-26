@@ -5,14 +5,13 @@ func StzEntityQ(pcStr)
 class stzEntity
 	@aEntity
 
-
 	def init(paEntity)
 		if ListIsHashList(paEntity)
-			if StzHashList(paEntity).ContainsKey(:name)
+			if StzHashListQ(paEntity).ContainsKey(:name)
 				# NOTE: All properties are lowercased by using stzHashList
 				# In fact, stzHashList automatically lowercaseس all its keys
 
-				aEntity =  StzHashList(paEntity).Content()
+				aEntity =  StzHashListQ(paEntity).Content()
 
 				# 'name' is compulsory and it must be a valid word
 				if NOT (isString(aEntity[:name]) and StringIsWord(aEntity[:name]))
@@ -22,7 +21,7 @@ class stzEntity
 				# if 'type' is not provided then it is automatically added
 				# and set to 'undefined'
 
-				if StzHashList(aEntity).FindKey(:type) = 0
+				if StzHashListQ(aEntity).FindKey(:type) = 0
 					insert(aEntity, 1, :type = 'undefined')
 
 				else

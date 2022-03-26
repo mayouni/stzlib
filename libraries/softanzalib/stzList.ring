@@ -491,7 +491,7 @@ class stzList from stzObject
 				return This.NFirstItemsQ(n)
 
 	def NLastItems(n)
-		return This.Section( This.NumberOfItems() - n + 1, :End)
+		return This.Section( This.NumberOfItems() - n + 1, :LastItem)
 
 		def NLastItemsQ(n)
 			return new stzList( This.NLastItems(n) )
@@ -1086,7 +1086,7 @@ class stzList from stzObject
 			pStartingAt = pStartingAt[2]
 		ok
 
-		oSection   = This.SectionQ(pStartingAt, :End)
+		oSection   = This.SectionQ(pStartingAt, :LastItem)
 		aPositions = oSection.FindAll(pItem)
 
 		aPositions = StzListOfNumbersQ(aPositions).AddToEachQ(pStartingAt - 1).Content()
@@ -1156,7 +1156,7 @@ class stzList from stzObject
 			pStartingAt = pStartingAt[2]
 		ok
 			
-		oSection = This.SectionQ(pStartingAt, :End)
+		oSection = This.SectionQ(pStartingAt, :LastItem)
 
 		anPositions = oSection.FindAllQR(pItem, :stzListOfNumbers).AddToEachQ(pStartingAt-1).Content()
 
@@ -1974,7 +1974,7 @@ class stzList from stzObject
 			pStartingAt = pStartingAt[2]
 		ok
 
-		oSection   = This.SectionQ(pStartingAt, :End)
+		oSection   = This.SectionQ(pStartingAt, :LastItem)
 		aPositions = oSection.FindAll(pItem)
 
 		aPositions = StzListOfNumbersQ(aPositions).AddToEachQ(pStartingAt - 1).Content()
@@ -2038,7 +2038,7 @@ class stzList from stzObject
 			pStartingAt = pStartingAt[2]
 		ok
 			
-		oSection = This.SectionQ(pStartingAt, :End)
+		oSection = This.SectionQ(pStartingAt, :LastItem)
 
 		anPositions = oSection.FindAllQR(pItem, :stzListOfNumbers).AddToEachQ(pStartingAt-1).Content()
 
@@ -7602,7 +7602,7 @@ class stzList from stzObject
 			pnStartingAt = pnStartingAt[2]
 		ok
 
-		oSection = This.SectionQ(pnStartingAt, :End)
+		oSection = This.SectionQ(pnStartingAt, :LastItem)
 
 		anPositions = oSection.FindAll(pItem)
 		
@@ -9708,7 +9708,7 @@ class stzList from stzObject
 			# :Corners = [ :Round, :Rectangular, :Round, :Rectangular ],
 		
 			:Width = 17,
-			:TextAdjustedTo = :Center # or :Left or :Right or :Along,
+			:TextAdjustedTo = :Center # or :Left or :Right or :Justified,
 			
 			:EachChar = FALSE # TRUE,
 			:Hilighted = [ 1, 3 ] # Hilight the 1st and 3rd chars,
@@ -9837,7 +9837,8 @@ class stzList from stzObject
 		ok
 
 		aListOfOptions = [
-			:NumberInStringIsTransformedToNumber
+			:NumberInStringIsTransformedToNumber,
+			:ListInstringIsTransformedToList
 		] 
 
 		if This.IsHashList() and
@@ -10138,6 +10139,16 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsDirectionParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Direction ) and
+		   ( isString( This[2] ) and Q(This[2]).IsOneOfThese([ :Forward, :Backward ]) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
 	  #--------------------------------#
 	 #     GETTING TYPES OF ITEMS     #
 	#--------------------------------#

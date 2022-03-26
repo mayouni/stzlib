@@ -2279,12 +2279,7 @@ class stzChar from stzObject
 		ok
 
 	def IsArabic7arakah()
-		oList = new stzList( Arabic7araket() )
-		if oList.Contains( This.Content() )
-			return TRUE
-		else
-			return FALSE
-		ok
+		return This.IsArabicDiacritic()
 
 	def IsNotArabic7arakah()
 		return NOT This.IsArabic7arakah()

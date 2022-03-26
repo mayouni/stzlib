@@ -1,21 +1,65 @@
-
 load "stzlib.ring"
+
+
+? StzStringQ("PARIS").BoxedXT([
+	:AllCorners = :Round,
+	:Width = 15,
+	:TextAdjustedTo = :Center
+])
+#-->
+# ╭───────────────╮
+# │     PARIS     │
+# ╰───────────────╯
+
+? StzStringQ("PARIS").BoxedXT([
+	:AllCorners = :Round,
+	:Width = 15,
+	:TextAdjustedTo = :Left
+])
+#-->
+# ╭───────────────╮
+# │ PARIS         │
+# ╰───────────────╯
+
+? StzStringQ("PARIS").BoxedXT([
+	:AllCorners = :Round,
+	:Width = 15,
+	:TextAdjustedTo = :Right
+])
+#-->
+# ╭───────────────╮
+# │         PARIS │
+# ╰───────────────╯
+
+? StzStringQ("PARIS").BoxedXT([
+	:AllCorners = :Round,
+	:Width = 15,
+	:TextAdjustedTo = :Justified
+])
 
 /*----------------
 
-o1 = new stzstring("abcDEFgehij")
-o1.ReplaceSection(4, 6, :with = "***")
-? o1.Content()
+StzStringQ("PARIS") {
+	LeftAlign(15, "-")
+	? Content() #--> PARIS----------
+}
 
-/*---------------
-*/
-o1 = new stzstring("abcDEFgehij")
-? o1.Section(4,6)
-/*
-o1.ReplaceSection(4, 6, :with@ = "Q(@section).Lowercased()")
-? o1.Content()
+StzStringQ("PARIS") {
+	RightAlign(15, "-")
+	? Content() #--> ----------PARIS
+}
 
-/*
+StzStringQ("PARIS") {
+	CenterAlign(15, "-")
+	? Content() #--> -----PARIS-----
+}
+
+StzStringQ("PARIS") {
+	Justify(15, "-")
+	? Content() #--> P---A---R--I--S
+}
+
+/*------------------------
 
 o1 = new stzString("In these days, to be happy is a real challenge!
  I'm not sure how problems will leave us a window for this.
