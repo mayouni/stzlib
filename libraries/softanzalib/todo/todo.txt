@@ -184,3 +184,5 @@ stzListOfNumbers (now). Example:
 a Parser (identifies the strcuture to make it walkable)
 
 60. stzRaise: Move all the error messages to stzError files and manage multilinguage
+
+61. For each function, add @FunctionMissSppelledForms section and return an error message with the correct function name
