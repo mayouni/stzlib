@@ -981,17 +981,17 @@ class stzListOfNumbers from stzList
 	 #     SUBSTRACTING A NUMBER FROM EACH NUMBER     #
 	#------------------------------------------------#
 
-	def SubstratcFromEach(n)
+	def SubstractFromEach(n)
 		for number in @anContent
 			number -= n
 		next
 
-		def SubstratcFromEachQ(n)
-			This.SubstratcFromEach(n)
+		def SubstractFromEachQ(n)
+			This.SubstractFromEach(n)
 			return This
 
-	def SubstratcedFromEach(n)
-		aResult = This.Copy().SubstratcFromEachQ(n).Content()
+	def SubstractedFromEach(n)
+		aResult = This.Copy().SubstractFromEachQ(n).Content()
 		return aResult
 
 	  #---------------------------------------------#

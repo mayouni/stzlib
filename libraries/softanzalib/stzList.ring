@@ -121,15 +121,18 @@ func CallMethod( pcMethod, paOnObjects )
 	next
 	return aResult
 
-func CallFunction( pcFunc, paOnItems )
-	// TODO
+def AreChars(paChars)
+	bResult = TRUE
+	for c in paChars
+		if NOT isString(c) and StringIsChar(c)
+			bResult = FALSE
+			exit
+		ok
+	next
+	return bResult
 
 func AreBothChars(p1, p2)
-	if StringIsChar(p1) and StringIsChar(p2)
-		return TRUE
-	else
-		return FALSE
-	ok
+	return AreChars([ p1, p2 ])
 
 	func BothAreChars(p1, p2)
 		return AreBothChars(p1, p2)
@@ -183,30 +186,7 @@ func HaveBothSameType(p1, p2)
 
 func IsEmptyList(paList)
 	return StzListQ(paList).IsEmpty()
-
-func IsVizFindParamList(paList)
-	return StzListQ(paList).IsVizFindParamList()
-
-	func ListIsVizFindParamList(paList)
-		return IsVizFindParamList(paList)
-
-func IsSplitParamList(paList)
-	return StzListQ(paList).IsSplitParamList()
-
-	def ListIsSplitParamList(paList)
-		return IsSplitParamList(paList)
-
-func IsNumberListifyParamList(paList)
-	return StzListQ(paList).IsNumberListifyList()
-
-	def ListIsNumberListifyParamList(paList)
-		return IsNumberListifyParamList(paList)
 		
-func IsStringListifyParamList(paList)
-	return StzListQ(paList).IsStringListifyParamList()
-
-	func ListIsStringListifyParamList(paList)
-		return IsStringListifyParamList(paList)
 
 func ListShow(paList)
 	StzListQ(paList).Show()
@@ -294,6 +274,7 @@ func NoOneOfTheseIsAString(paList)
 	next
 	
 	return bResult
+
 
 func List@(paList)
 	if isList(paList)
@@ -1645,8 +1626,22 @@ class stzList from stzObject
 		cCondition = StzStringQ(cCondition).RemoveBoundsQ("{","}").Simplified()
 
 		# NOTE: Don't change the name of var @i
+
+		Previous@i = 0
+		Next@i = 0
+
 		for @i = 1 to This.NumberOfItems()
+
 			@item = This[@i]
+
+			if @i <= This.NumberOfItems()
+				Next@i = @i + 1
+			ok
+
+			if @i > 1
+				Previous@i = @i - 1
+			ok
+
 			cCode = 'bReplaceIt = ( ' + cCondition + ' )'
 
 			eval(cCode)
@@ -1746,15 +1741,7 @@ class stzList from stzObject
 				This.RemoveItemAtPosition(i)
 			next
 		ok
-/*
-		oCopy = This.Copy()
 
-		while oCopy.Contains(pItem)
-			del( oCopy.List(), oCopy.FindFirstOccurrence(pItem) )
-		end
-
-		This.Update( oCopy.List() )
-*/
 		#< @FunctionFluentForm
 
 		def RemoveAllQ(pItem)
@@ -5037,7 +5024,7 @@ class stzList from stzObject
 			return This.RepeatedTrailingItems()
 
 			def TrailingItemsQ()
-				return This.return new stzList(This.TrailingItems())
+				return new stzList(This.TrailingItems())
 
 	def NumberOfRepeatedTrailingItems()
 		if This.HasRepeatedTrailingItems()
@@ -7662,20 +7649,26 @@ class stzList from stzObject
 		aResult = []
 
 		@i = 0
+		Previous@i = 0
+		Next@i = 0
 	
 		for @item in This.List()
+
 			@i++
-	
+
+			if @i <= This.NumberOfItems()
+				Next@i = @i + 1
+			ok
+
+			if @i > 1
+				Previous@i = @i - 1
+			ok
+
 			cCode = "if (" + cCondition + ")" + NL +
 				tab + "aResult + @i" + NL +
 				"ok"
 	
-			try
-				eval(cCode)
-			catch
-				# do nothing --> In case of error, pass silently.
-				
-			done
+			eval(cCode)
 	
 		next
 	
@@ -7906,11 +7899,23 @@ class stzList from stzObject
 		aResult = []
 
 		@i = 0
+		Previous@i = 0
+		Next@i = 0
+
 		for @item in This.List()
 			@i++
+			if @i <= This.NumberOfItems()
+				Next@i = @i + 1
+			ok
+
+			if @i > 1
+				Previous@i = @i - 1
+			ok
+
 			cCode = "if (" + cCondition + ")" + NL +
 				tab + "aResult + @Item" + NL +
 				"ok"
+
 			eval(cCode)
 		next
 
@@ -8009,9 +8014,19 @@ class stzList from stzObject
 		aResult = []
 
 		@i = 0
+		Previous@i = 0
+		Next@i = 0
 
 		for @item in This.List()
 			@i++
+			if @i <= This.NumberOfItems()
+				Next@i = @i + 1
+			ok
+
+			if @i > 1
+				Previous@i = @i - 1
+			ok
+
 			cCode = "bFound = (@i = n) and (" + cCondition + ")"
 
 			eval(cCode)
@@ -8716,11 +8731,27 @@ class stzList from stzObject
 
 		bResult = TRUE
 
+		@i = 0
+		Previous@i = 0
+		Next@i = 0
+
 		for @item in This.List()
+			@i++
+
+			if @i <= This.NumberOfItems()
+				Next@i = @i + 1
+			ok
+
+			if @i > 1
+				Previous@i = @i - 1
+			ok
+
 			cCode = 'if NOT ( ' + pcCondition + ' )' + NL +
 				'	bResult = FALSE' + NL +
 				'ok'
+
 			eval(cCode)
+
 			if bResult = FALSE
 				exit
 			ok
@@ -9743,7 +9774,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsVizFindParamList() # --> TODO: Move it to VizFind() function
+	def IsBoxParamList()
 
 		if This.IsEmpty()
 			return TRUE
@@ -9760,10 +9791,13 @@ class stzList from stzObject
 			:Casesensitive,
 			:CS,
 
-			:Hilighted,
-			:HilightedIf,
+			:Numbered,
+			:Spacified,
 
-			:Numbered
+			:Shadowed,
+			:ShadowChar,
+			:ShadowOrientation
+			
 		]
 
 		if StzNumberQ(This.NumberOfItems()).IsBetween(1, len(aListOfBoxOptions)) and

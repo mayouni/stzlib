@@ -4071,3 +4071,14 @@ class stzText from stzString
 
 	def InitialsAsText()
 		return This.InitialsQR(:stzText).Content()
+
+	#-----------#
+	#   MISC.   #
+	#-----------#
+
+	def IsEmpty()
+		if This.ContainsOnlySpaces()
+			return TRUE
+		else
+			return FALSE
+		ok

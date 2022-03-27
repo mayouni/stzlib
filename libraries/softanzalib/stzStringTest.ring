@@ -243,8 +243,10 @@ o1.RemoveCharsWhereCS('{ @char = "X" }', :CS = true)
 ? o1.Content()
 
 /*================= WORK IN PROGESS*******************************************
-
+*/
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+? @@( o1.FindAnySectionsBetween("<<",">>") )
+/*
 o1.ReplaceAnyBetween("<<", ">>", :With = "word")
 ? o1.Content()  # !--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
 
@@ -2230,7 +2232,7 @@ o1 = new stzString("abc;123;gafsa;ykj")
 ? o1.NthSubstringAfterSplittingStringUsing(3, ";") #--> gafsa
 #--> To be used in natural coding.
 
-/*------------------
+/*===================
 
 ? StzStringQ("SOFTANZA IS AWSOME!").BoxedXT([
 	:Line = :Thin,	# or :Dashed
@@ -2246,7 +2248,7 @@ o1 = new stzString("abc;123;gafsa;ykj")
 #    └─────────────────────╯
 
 /*------------------
-
+*/
 StzStringQ("RING") {
 	? Content()
 	? Boxed()
@@ -2319,7 +2321,130 @@ StzStringQ("MY BEAUTIFUL RING") {
 #   │ MY BEAUTIFUL RING │
 #   └───────────────────╯
 
-/*---------------
+*-----------------
+*/
+
+? StzStringQ("PARIS").BoxedXT([
+	:AllCorners = :Round,
+	:Width = 20,
+	:TextAdjustedTo = :Center
+])
+#-->
+# ╭────────────────────╮
+# │       PARIS        │
+# ╰────────────────────╯
+
+? StzStringQ("PARIS").BoxedXT([
+	:AllCorners = :Round,
+	:Width = 20,
+	:TextAdjustedTo = :Left
+])
+#-->
+# ╭────────────────────╮
+# │ PARIS              │
+# ╰────────────────────╯
+
+? StzStringQ("PARIS").BoxedXT([
+	:AllCorners = :Round,
+	:Width = 20,
+	:TextAdjustedTo = :Right
+])
+#-->
+# ╭────────────────────╮
+# │              PARIS │
+# ╰────────────────────╯
+
+? StzStringQ("PARIS").BoxedXT([
+	:AllCorners = :Round,
+	:Width = 20,
+	:TextAdjustedTo = :Justified
+])
+#-->
+# ╭────────────────────╮
+# │ P    A   R   I   S │
+# ╰────────────────────╯
+
+
+/*-----------------
+
+StzStringQ("ONE BO TAF") {
+
+#	? BoxedRound()
+#	? BoxedEachCharRound()
+
+#	? BoxedEachCharXT([ :AllCorners = :Round, :Numbered = TRUE ])
+
+	? VizFindAll("F")
+#	? VizRoundFindAllCS("o", :cs = false)
+
+#	? VizRoundFindAll("B")
+#	? VizRoundFindAllCS("b", :cs = false)
+
+#	? VizFindAllXT("o", [
+#		:CS = FALSE, :Line = :Dashed, :AllCorners = :Round, :Numbered = TRUE ])
+
+	# ? BoxedEachWord()
+
+}
+
+/*---------------------
+
+# You can box the entire string like this:
+? StzStringQ("RINGORIALAND").BoxedXT([])
+#-->
+# ┌──────────────┐
+# │ RINGORIALAND │
+# └──────────────┘
+
+# Or box it char by char like this:
+
+? StzStringQ("RINGORIALAND").BoxedXT([ :EachChar = TRUE ])
+
+# -->
+# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+# │ R │ I │ N │ G │ O │ R │ I │ A │ L │ A │ N │ D │
+# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
+
+/*---------------------
+
+# Boxing work great for latin chars, but for latin chars,
+# it would break:
+
+? StzStringQ("乇乂丅尺卂 丅卄工匚匚").BoxedXT([
+	:Line = :Dashed,
+	:AllCorners = :Rectangular,
+
+	:TextAdjustedTo = :Center
+])
+#-->
+# ┌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+# ┊ 乇乂丅尺卂 丅卄工匚匚 ┊
+# └╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+
+# That is because chars in non-latin script won't have necessarily
+# same width. In fact, this is related to the font used to render()
+# the chars on the screen. Hence, if you use a fixed-width font,
+# the boxing will work correclt (TODO: check this!).
+
+# As a configuration option that helps in solving this issue (without
+# switching ta a fixed-width font, Softanza provide the width option
+# that you can adjust manually and get a nice result like this:
+
+? StzStringQ("乇乂丅尺卂 丅卄工匚匚").BoxedXT([
+	:Line = :Dashed,
+	:AllCorners = :Rectangular,
+
+	:Width = 21,
+	:TextAdjustedTo = :Center
+])
+#-->
+# ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+# ┊ 乇乂丅尺卂 丅卄工匚匚 ┊
+# └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+
+returns
+
+/*==================
 
 ? StzStringQ("ar_TN-tun").ContainsEachCS(["_", "-"],:CS = TRUE)	#--> TRUE
 ? StzStringQ("ar_TN-tun").ContainsBoth("_", "-") #--> TRUE
@@ -2560,7 +2685,7 @@ o1 = new stzString("eeebxeTuniseee")
 /*-----------------
 
 o1 = new stzString("___VAR---")
-o1.ReplaceRepeatedLeadingChar("-")
+o1.ReplaceThisRepeatedLeadingChar("-")
 ? o1.Content()
 
 /*----------------- TODO (future)
@@ -2587,102 +2712,16 @@ o1 = new stzString("bbxeTuniseee")
 ? o1.HasRepeatedLeadingChars()
 
 /*-----------------
-
+*/
 o1 = new stzString("eeebxeTuniseee")
 o1 {
-	ReplaceLeadingChar(".") # 'eeeTUNIS' --> '...TUNIS'
+	ReplaceThisLeadingChar("e", :With = ".") # 'eeeTUNIS' --> '...TUNIS'
+
 	//ReplaceLeadingSubstring("</") # 'eeeeeeeTUNIS' --> '</TUNIS'
 
 	? Content()
 }
 
-/*-----------------
-*/
-
-? StzStringQ("PARIS").BoxedXT([
-	:AllCorners = :Round,
-	:Width = 20,
-	:TextAdjustedTo = :Right
-])
-
-/*-----------------
-
-StzStringQ("ONE BO TAF") {
-
-#	? BoxedRound()
-#	? BoxedEachCharRound()
-
-#	? BoxedEachCharXT([ :AllCorners = :Round, :Numbered = TRUE ])
-
-	? VizFindAll("F")
-#	? VizRoundFindAllCS("o", :cs = false)
-
-#	? VizRoundFindAll("B")
-#	? VizRoundFindAllCS("b", :cs = false)
-
-#	? VizFindAllXT("o", [
-#		:CS = FALSE, :Line = :Dashed, :AllCorners = :Round, :Numbered = TRUE ])
-
-	# ? BoxedEachWord()
-
-}
-
-/*---------------------
-
-# You can box the entire string like this:
-? StzStringQ("RINGORIALAND").BoxedXT([])
-#-->
-# ┌──────────────┐
-# │ RINGORIALAND │
-# └──────────────┘
-
-# Or box it char by char like this:
-
-? StzStringQ("RINGORIALAND").BoxedXT([ :EachChar = TRUE ])
-
-# -->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-# │ R │ I │ N │ G │ O │ R │ I │ A │ L │ A │ N │ D │
-# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
-
-/*---------------------
-
-# Boxing work great for latin chars, but for latin chars,
-# it would break:
-
-? StzStringQ("乇乂丅尺卂 丅卄工匚匚").BoxedXT([
-	:Line = :Dashed,
-	:AllCorners = :Rectangular,
-
-	:TextAdjustedTo = :Center
-])
-#-->
-# ┌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
-# ┊ 乇乂丅尺卂 丅卄工匚匚 ┊
-# └╌╌╌╌╌╌╌╌╌╌╌╌╌┘
-
-# That is because chars in non-latin script won't have necessarily
-# same width. In fact, this is related to the font used to render()
-# the chars on the screen. Hence, if you use a fixed-width font,
-# the boxing will work correclt (TODO: check this!).
-
-# As a configuration option that helps in solving this issue (without
-# switching ta a fixed-width font, Softanza provide the width option
-# that you can adjust manually and get a nice result like this:
-
-? StzStringQ("乇乂丅尺卂 丅卄工匚匚").BoxedXT([
-	:Line = :Dashed,
-	:AllCorners = :Rectangular,
-
-	:Width = 21,
-	:TextAdjustedTo = :Center
-])
-#-->
-# ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
-# ┊ 乇乂丅尺卂 丅卄工匚匚 ┊
-# └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
-
-return
 /*-------------------
 
 ? (StzStringQ("XRingoriaLand") - [ "X", "oria", "Land" ]).Content()	# --> Ring
