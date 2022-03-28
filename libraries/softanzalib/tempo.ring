@@ -60,10 +60,56 @@ o1 = new stzString("RIN   GOR   IALAN  D")
 o1.Spacify()
 ? o1.Content() #--> R I N G O R I A L A N D
 
+/*---------------
+
+o1 = new stzString("so    fta   nza    ")
+
+o1.SpacifyN(3)
+? o1.Content() #--> s   o   f   t   a   n   z   a
+
 /*===============
-*/
+
 o1 = new stzString("aaa;bbb;ccc;ddd")
-? o1.Split( :Using = ";")
+? o1.Split(:Using = ";") #--> [ "aaa", "bbb", "ccc", "ddd" ]
+
+/*--------------
+
+SplitXT() provides us with these options (with their defaults):
+	:CaseSensitive = TRUE,
+
+	:SkipEmptyParts = FALSE,
+
+	:IncludeLeadingSep = TRUE,
+	:IncludeTrailingSep = TRUE,
+
+	:ExcludeLeadingSubstrings_FromSplittedParts = [],
+	:ExcludeTrailingSubstrings_FromSplittedParts = [],
+
+	:ExcludeLeadingSequenceOfNChars_FromSplittedParts = [],
+	:ExcludeTrailingSequenceOfNChars_FromSplittedParts = []
+
+*/
+
+o1 = new stzString("")
+? o1.SplitXT("", [] )
+
+
+/*
+? o1.SplitXT( :Using = ";", [ ] )
+/*
+	:CaseSensitive = 0,
+
+	:SkipEmptyParts = 0,
+
+	:IncludeLeadingSep = 0,
+	:IncludeTrailingSep = 0,
+
+	:ExcludeLeadingSubstrings_FromSplittedParts = [""],
+	:ExcludeTrailingSubstrings_FromSplittedParts = [""],
+
+	:ExcludeLeadingSequenceOfNChars_FromSplittedParts = [:anynumberof,"c"],
+	:ExcludeTrailingSequenceOfNChars_FromSplittedParts = [ 1,"c" ]
+])
 
 /*===============
 

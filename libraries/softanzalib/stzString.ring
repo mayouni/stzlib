@@ -5222,7 +5222,9 @@ class stzString from stzObject
 		ok
 
 		pcCondition = StzStringQ(pcCondition).ReplaceCSQ("@char", "@item", :CS = FALSE).Content()
-		cResult = StzListQ( This.Chars() ).InsertAfterWQ( pcCondition, pcSubStr ).ToStzListOfStrings().Concatenated()
+
+		cResult = This.CharsQ().InsertAfterWQ( pcCondition, pcSubStr ).ToStzListOfStrings().Concatenated()
+
 		This.Update(cResult)
 
 		def InsertAfterWQ( pcCondition, pcSubStr )
@@ -6765,7 +6767,7 @@ class stzString from stzObject
 
 		ok
 	
-		@oQString = new QString2()
+		@oQString.clear()
 		@oQString.append(pcNewText)
 
 		//This.VerifyConstraints()
@@ -9981,6 +9983,10 @@ class stzString from stzObject
 			return This.VizFindBoxedXT(pcSubStr, paOptions)
 		ok
 
+		if StzHashListQ(paOptions).KeysQ().ContainsBoth(:CaseSensitive, :CS)
+			stzRaise("Incorrect options! :CaseSensitive and its short form :CS must not be used both.")
+		ok
+
 		# Unfying the :CaseSensitive / :CS keyword
 
 		n = StzHashListQ(paOptions).FindKey(:CS)
@@ -10440,6 +10446,22 @@ class stzString from stzObject
 	#-------------------#
 
 	def SplitXT(cSep, paOptions)
+		if This.IsEmpty()
+			return NULL
+		ok
+
+		# Checking types pf the params
+
+		if NOT ( isString(cSep) or
+		
+			isList(cSep) and StzListQ(cSep).IsUsingParamList() )
+
+			stzRaise("Incorrect param type! cSep must be a string.")
+		ok
+
+		if NOT ( isList(paOptions) and StzListQ(paOptions).IsHashList() )
+			stzRaise("Incorrect param type! paOptions must be a hashlist.")
+		ok
 
 		if isList(cSep) and StzListQ(cSep).IsUsingParamList()
 			cSep = cSep[2]
@@ -10449,166 +10471,211 @@ class stzString from stzObject
 			return []
 		ok
 
-		# t0 = clock() // Very fast: takes almost 0.01s
+		if NOT StzHashListQ(paOptions).KeysQ().IsMadeOfSome([
+				:CaseSensitive,
+				:CS,
+				:SkipEmptyParts,
 
-		/*
-		Example:
-		paOptions --> [ :CaseSensitive = TRUE,
-				:SkipEmptyParts = TRUE,
+				:IncludeLeadingSep,
+				:IncludeTrailingSep,
 
-				:IncludeLeadingSep = FALSE,
-				:IncludeTrailingSep = FALSE,
+				:ExcludeLeadingSubstrings_FromSplittedParts,
+				:ExcludeTrailingSubstrings_FromSplittedParts,
 
-				:ExcludeLeadingSubstrings_FromSplittedParts = [ "<", "{" ],
-				:ExcludeTrailingSubstrings_FromSplittedParts = [ "/>", "}" ],
+				:ExcludeLeadingSequenceOfNChars_FromSplittedParts,
+				:ExcludeTrailingSequenceOfNChars_FromSplittedParts
+			      ])
 
-				:ExcludeLeadingSequenceOfNChars_FromSplittedParts = [ 3, "<" ],
-				:ExcludeTrailingSequenceOfNChars_FromSplittedParts = [ :AnyNumberOf, "<" ]
-			      ]
-		*/
+			stzRaise("Incorrect param! paOptions must be a wellformed hashlist.")
+		ok
+
+		if StzHashListQ(paOptions).KeysQ().ContainsBoth(:CaseSensitive, :CS)
+			stzRaise("Incorrect options! :CaseSensitive and its short form :CS must not be used both.")
+		ok
+
+		# Unfying the :CaseSensitive / :CS keyword
+
+		n = StzHashListQ(paOptions).FindKey(:CS)
+		if n > 0
+			paOptions[n][1] = :CaseSensitive
+		ok
 
 		# Reading options
 
-		bCaseSensitive = paOptions[ :CaseSensitive ]
-		if bCaseSensitive = NULL { bCaseSensitive = FALSE }
-
-		#--
-
-		bSkipEmptyParts = paOptions[ :SkipEmptyParts ]
-		if bCaseSensitive = NULL { bSkipEmptyParts = FALSE }
-
-		#--
-
-		bIncludeLeadingSep = paOptions[ :IncludeLeadingSep ]
-		if bIncludeLeadingSep = NULL { bIncludeLeadingSep = FALSE }
-
-		bIncludeTrailingSep = paOptions[ :IncludeTrailingSep ]
-		if bIncludeTrailingSep = NULL { bIncludeTrailingSep = FALSE }
-
-		#--
-
-		acExcludeLeadingSubstrings_FromSplittedParts = paOptions[
-			:ExcludeLeadingSubstrings_FromSplittedParts ]
-
-		if acExcludeLeadingSubstrings_FromSplittedParts = NULL
-			acExcludeLeadingSubstrings_FromSplittedParts = []
+		if StzHashListQ(paOptions).ContainsKey(:CaseSensitive)
+			bCaseSensitive = paOptions[ :CaseSensitive ]
+		else
+			bCaseSensitive = TRUE
 		ok
 
-		if ( isList(acExcludeLeadingSubstrings_FromSplittedParts) and
-		     len(acExcludeLeadingSubstrings_FromSplittedParts) = 0 ) or
-
-		   (NOT StzListQ(acExcludeLeadingSubstrings_FromSplittedParts).
-				IsListOfStrings() )
-
-			acExcludeLeadingSubstrings_FromSplittedParts = []
+		if NOT isBoolean(bCaseSensitive)
+			stzRaise("Incorrect value! bCaseSensitive must be a boolean.")
 		ok
+
+		#--
+
+		if StzHashListQ(paOptions).ContainsKey(:SkipEmptyParts)
+			bSkipEmptyParts = paOptions[ :SkipEmptyParts ]
+		else
+			bSkipEmptyParts = FALSE
+		ok
+
+		if NOT isBoolean(bSkipEmptyParts)
+			stzRaise("Incorrect value! bSkipEmptyParts must be a boolean.")
+		ok
+
+		#--
+
+		if StzHashListQ(paOptions).ContainsKey(:IncludeLeadingSep)
+			bIncludeLeadingSep = paOptions[ :IncludeLEadingSep ]
+		else
+			bIncludeLeadingSep = FALSE
+		ok
+
+		if NOT isBoolean(bIncludeLeadingSep)
+			stzRaise("Incorrect value! bIncludeLeadingSep must be a boolean.")
+		ok
+
+		#--
+
+		if StzHashListQ(paOptions).ContainsKey(:IncludeTrailingSep)
+			bIncludeTrailingSep = paOptions[ :IncludeTrailingSep ]
+		else
+			bIncludeTrailingSep = FALSE
+		ok
+
+		if NOT isBoolean(bIncludeTrailingSep)
+			stzRaise("Incorrect value! bIncludeTrailingSep must be a boolean.")
+		ok
+
+		#--
+
+		if StzHashListQ(paOptions).ContainsKey(:ExcludeLeadingSubstrings_FromSplittedParts)
+			acExcludeLeadingSubstrings_FromSplittedParts =
+			paOptions[ :ExcludeLeadingSubstrings_FromSplittedParts ]
+		else
+			acExcludeLeadingSubstrings_FromSplittedParts = []
 		
-		#--
-
-		acExcludeTrailingSubstrings_FromSplittedParts = paOptions[
-			:ExcludeTrailingSubstrings_FromSplittedParts ]
-
-		if acExcludeTrailingSubstrings_FromSplittedParts = NULL
-			acExcludeTrailinSubstrings_FromSplittedParts = []
 		ok
 
-		if ( isList(acExcludeTrailingSubstrings_FromSplittedParts) and
-		     len(acExcludeTrailingSubstrings_FromSplittedParts) = 0 ) or
+		if NOT isList(acExcludeLeadingSubstrings_FromSplittedParts)
+			stzRaise("Incorrect value! :ExcludeLeadingSubstrings_FromSplittedParts must be a list")
+		ok
 
-		   (NOT StzListQ(acExcludeTrailingSubstrings_FromSplittedParts).
-				IsListOfStrings() )
+		if NOT ( ( len(acExcludeLeadingSubstrings_FromSplittedParts) = 0 ) or
 
+			 ( StzListQ(acExcludeLeadingSubstrings_FromSplittedParts).IsListOfStrings() )
+		       )
+
+			stzRaise("Inccorect value! :ExcludeLeadingSubstrings_FromSplittedParts must be an empty list or a list of strings")
+		ok
+
+		#--
+
+		if StzHashListQ(paOptions).ContainsKey(:ExcludeTrailingSubstrings_FromSplittedParts)
+			acExcludeTrailingSubstrings_FromSplittedParts =
+			paOptions[ :ExcludeTrailingSubstrings_FromSplittedParts ]
+		else
 			acExcludeTrailingSubstrings_FromSplittedParts = []
-		ok
 		
+		ok
+
+		if NOT isList(acExcludeTrailingSubstrings_FromSplittedParts)
+			stzRaise("Incorrect value! :ExcludeTrailingSubstrings_FromSplittedParts must be a list")
+		ok
+
+		if NOT ( ( len(acExcludeTrailingSubstrings_FromSplittedParts) = 0 ) or
+
+			 ( StzListQ(acExcludeTrailingSubstrings_FromSplittedParts).IsListOfStrings() )
+		       )
+
+			stzRaise("Inccorect value! :ExcludeTrailingSubstrings_FromSplittedParts must be an empty list or a list of strings")
+		ok
+
 		#--
 
-		acExcludeLeadingSequenceOfNChars_FromSplittedParts = paOptions[
-			:ExcludeLeadingSequenceOfNChars_FromSplittedParts ]
+		// Example: [ 3, "#" ] or [ :AnyNumberOf, "#" ]
+		if StzHashListQ(paOptions).ContainsKey(:ExcludeLeadingSequenceOfNChars_FromSplittedParts)
+			acExcludeLeadingSequenceOfNChars_FromSplittedParts =
+			paOptions[ :ExcludeLeadingSequenceOfNChars_FromSplittedParts ]
 
-		if acExcludeLeadingSequenceOfNChars_FromSplittedParts = NULL
+		else
 			acExcludeLeadingSequenceOfNChars_FromSplittedParts = []
 		ok
 
-			# Example: [ 3, "#" ] or [ :AnyNumberOf, "#" ]
+		if NOT isList(acExcludeLeadingSequenceOfNChars_FromSplittedParts)
+			stzRaise("Incorrect value! :acExcludeLeadingSequenceOfNChars_FromSplittedParts must be a list")
+		ok
 
-		if isList(acExcludeTrailingSubstrings_FromSplittedParts) and
-		   len(acExcludeTrailingSubstrings_FromSplittedParts) = 2
+		if NOT ( len(acExcludeLeadingSequenceOfNChars_FromSplittedParts) = 0 or
+	  		 len(acExcludeLeadingSequenceOfNChars_FromSplittedParts) = 2 )
 
-			# Checking the first member (either number or string)
+			stzRaise("Inccorect value! :acExcludeLeadingSequenceOfNChars_FromSplittedParts must be an empty list or a list of 2 items")
+		ok
 
-		   	if isNumber(acExcludeTrailingSubstrings_FromSplittedParts[1])
-				# Do nothing: provided value is accepted
+		if len(acExcludeLeadingSequenceOfNChars_FromSplittedParts) = 2
+			if NOT ( isString(acExcludeLeadingSequenceOfNChars_FromSplittedParts[2]) and
+				 StringIsChar(acExcludeLeadingSequenceOfNChars_FromSplittedParts[2]) )
 
-		  	but isString(acExcludeTrailingSubstrings_FromSplittedParts[1])
-				if acExcludeTrailingSubstrings_FromSplittedParts[1] = :AnyNumberOf 
-					# Do nothing: provided value is accepted
-				else
-					# If any string other then :AnyNumberOf is used,
-					# then don't accept it --> Set default to empty
-					acExcludeTrailingSubstrings_FromSplittedParts = [] 
-				ok
+				stzRaise("Incorrect value! the second item of :acExcludeLeadingSequenceOfNChars_FromSplittedParts must be a char")
 			ok
+		ok
 
-			# Checking the second member, must be a char
+		if len(acExcludeLeadingSequenceOfNChars_FromSplittedParts) = 2
+			if NOT ( ( isString(acExcludeLeadingSequenceOfNChars_FromSplittedParts[1]) and
+				acExcludeLeadingSequenceOfNChars_FromSplittedParts[1] = :AnyNumberOf ) or
 
-			if isString(acExcludeTrailingSubstrings_FromSplittedParts[2])
-				if StzStringQ(acExcludeTrailingSubstrings_FromSplittedParts[2]).IsChar()
-					# Do nothing
-				else
-					acExcludeTrailingSubstrings_FromSplittedParts = [] 
-				ok
+				isNumber(acExcludeLeadingSequenceOfNChars_FromSplittedParts[1])
+			       )
+
+				stzRaise("Incorrect value! the second item of :acExcludeLeadingSequenceOfNChars_FromSplittedParts must be a char")
 			ok
-		else
-			acExcludeTrailingSubstrings_FromSplittedParts = [] 
 		ok
 
 		#--
 
-		acExcludeTrailingSequenceOfNChars_FromSplittedParts = paOptions[
-			:ExcludeTrailingSequenceOfNChars_FromSplittedParts ]
+		if StzHashListQ(paOptions).ContainsKey(:ExcludeTrailingSequenceOfNChars_FromSplittedParts)
+			acExcludeTrailingSequenceOfNChars_FromSplittedParts =
+			paOptions[ :ExcludeTrailingSequenceOfNChars_FromSplittedParts ]
 
-		if acExcludeTrailingSequenceOfNChars_FromSplittedParts = NULL
+		else
 			acExcludeTrailingSequenceOfNChars_FromSplittedParts = []
 		ok
 
-			# Example: [ 3, "#" ] or [ :AnyNumberOf, "#" ]
-
-		if isList(acExcludeTrailingSubstrings_FromSplittedParts) and
-		   len(acExcludeTrailingSubstrings_FromSplittedParts) = 2
-
-			# Checking the first member (either number or string)
-
-		   	if isNumber(acExcludeTrailingSubstrings_FromSplittedParts[1])
-				# Do nothing: provided value is accepted
-
-		  	but isString(acExcludeTrailingSubstrings_FromSplittedParts[1])
-				if acExcludeTrailingSubstrings_FromSplittedParts[1] = :AnyNumberOf 
-					# Do nothing: provided value is accepted
-				else
-					# If any string other then :AnyNumberOf is used,
-					# then don't accept it --> Set default to empty
-					acExcludeTrailingSubstrings_FromSplittedParts = [] 
-				ok
-			ok
-
-			# Checking the second member, must be a char
-
-			if isString(acExcludeTrailingSubstrings_FromSplittedParts[2])
-				if StzStringQ(acExcludeTrailingSubstrings_FromSplittedParts[2]).IsChar()
-					# Do nothing
-				else
-					acExcludeTrailingSubstrings_FromSplittedParts = [] 
-				ok
-			ok
-		else
-			acExcludeTrailingSubstrings_FromSplittedParts = [] 
+		if NOT isList(acExcludeTrailingSequenceOfNChars_FromSplittedParts)
+			stzRaise("Incorrect value! :acExcludeTrailingSequenceOfNChars_FromSplittedParts must be a list")
 		ok
+
+		if NOT ( len(acExcludeTrailingSequenceOfNChars_FromSplittedParts) = 0 or
+	  		 len(acExcludeTrailingSequenceOfNChars_FromSplittedParts) = 2 )
+
+			stzRaise("Inccorect value! :acExcludeTrailingSequenceOfNChars_FromSplittedParts must be an empty list or a list of 2 items")
+		ok
+
+		if len(acExcludeTrailingSequenceOfNChars_FromSplittedParts) = 2
+			if NOT ( isString(acExcludeTrailingSequenceOfNChars_FromSplittedParts[2]) and
+				 StringIsChar(acExcludeTrailingSequenceOfNChars_FromSplittedParts[2]) )
+
+				stzRaise("Incorrect value! the second item of :acExcludeTrailingSequenceOfNChars_FromSplittedParts must be a char")
+			ok
+		ok
+
+		if len(acExcludeTrailingSequenceOfNChars_FromSplittedParts) = 2
+			if NOT ( ( isString(acExcludeTrailingSequenceOfNChars_FromSplittedParts[1]) and
+				acExcludeTrailingSequenceOfNChars_FromSplittedParts[1] = :AnyNumberOf ) or
+
+				isNumber(acExcludeTrailingSequenceOfNChars_FromSplittedParts[1])
+			       )
+
+				stzRaise("Incorrect value! the second item of :acExcludeTrailingSequenceOfNChars_FromSplittedParts must be a char")
+			ok
+		ok	
+
+		#--
 
 		# Performing the splitting
 
-		# --> bCaseSensitive and bSkipEmptyParts options are
-		# made for free by RingQt
+		# --> bCaseSensitive and bSkipEmptyParts options are done by Qt for free
 	
 		oQStringList = @oQString.split(cSep, bSkipEmptyParts, bCaseSensitive)
 		oStzListOfStr = new stzListOfStrings( QStringListToRingList(oQStringList) )
@@ -10616,7 +10683,7 @@ class stzString from stzObject
 		# Managinng :IncludeLeadingSep option
 
 		if bIncludeLeadingSep = FALSE
-			if StzStringQ(aResult[1]).IsEqualToCS(cSep, bCaseSensitive)
+			if oStzListOfStr.FirstStringQ().IsEqualToCS(cSep, bCaseSensitive)
 				oStzListOfStr.RemoveFirstString()
 			ok
 		ok
@@ -10624,65 +10691,99 @@ class stzString from stzObject
 		# Managing :IncludeTrailingSep
 
 		if bIncludeTrailingSep = FALSE
-			if StzStringQ(aResult[len(aResult)]).IsEqualToCS(cSep, bCaseSensitive)
+			if oStzListOfStr.LastStringQ().IsEqualToCS(cSep, bCaseSensitive)
 				oStzListOfStr.RemoveLastString()
 			ok
 		ok
 
 		# Managing :ExcludeLeadingSubstrings_FromSplittedParts option
 
-		for str in oStzListOfStr.Content()
-			for cSubStr in acExcludeLeadingSubstrings_FromSplittedParts
-
-				str = StzStringQ(str).
-					RemoveFromStartCSQ(cSubStr, bCaseSensitive).
-					Content()
+		if len(acExcludeLeadingSubstrings_FromSplittedParts) > 1
+			for str in oStzListOfStr.Content()
+				for cSubStr in acExcludeLeadingSubstrings_FromSplittedParts
+	
+					str = StzStringQ(str).
+						RemoveFromStartCSQ(cSubStr, bCaseSensitive).
+						Content()
+				next
 			next
-		next
+		ok
 
 		# Managing :ExcludeTrailingSubstrings_FromSplittedParts option
 
-		for str in oStzListOfStr.Content()
-			for cSubStr in acExcludeTrailingSubstrings_FromSplittedParts
-
-				str = StzStringQ(str).
-					RemoveFromEndCSQ(cSubStr, bCaseSensitive).
-					Content()
+		if len(acExcludeTrailingSubstrings_FromSplittedParts) > 1
+			for str in oStzListOfStr.Content()
+				for cSubStr in acExcludeTrailingSubstrings_FromSplittedParts
+	
+					str = StzStringQ(str).
+						RemoveFromEndCSQ(cSubStr, bCaseSensitive).
+						Content()
+				next
 			next
-		next
+		ok
 
 		# Managing ExcludeLeadingSequenceOfNChars_FromSplittedParts option
-		# Example --> [ :AnyNumberOf, "<" ]
-
-		n = acExcludeLeadingSequenceOfNChars_FromSplittedParts[1]
-		c = acExcludeLeadingSequenceOfNChars_FromSplittedParts[2]
-
-		for str in oStzListOfStr.Content()
-
-			if n = :AnyNumberOf
-
-				str = StzStringQ(str).
-				      RemoveLeadingCharCSQ(c, bCaseSensitive).
-				      Content()
-
-			else
-
-				if ( Q(c) * n ).IsEqualCS( This.FirstNChars(n), bCaseSensitive )
-
+		
+		if len(acExcludeLeadingSequenceOfNChars_FromSplittedParts) = 2
+			n = acExcludeLeadingSequenceOfNChars_FromSplittedParts[1]
+			c = acExcludeLeadingSequenceOfNChars_FromSplittedParts[2]
+	
+			for str in oStzListOfStr.Content()
+	
+				if n = :AnyNumberOf
+	
 					str = StzStringQ(str).
-					      RemoveFirstNCharsQ(n).
+					      RemoveLeadingCharCSQ(c, bCaseSensitive).
 					      Content()
+	
+				else
+	
+					if ( Q(c) * n ).IsEqualCS( This.FirstNChars(n), bCaseSensitive )
+	
+						str = StzStringQ(str).
+						      RemoveFirstNCharsQ(n).
+						      Content()
+					ok
+	
 				ok
+			next
 
-			ok
-		next
-
+		ok
 
 		# Managing :ExcludeTrailingSequenceOfNChars_FromSplittedParts
+	
+		if len(acExcludeTrailingSequenceOfNChars_FromSplittedParts) = 2
+			n = acExcludeTrailingSequenceOfNChars_FromSplittedParts[1]
+			c = acExcludeTrailingSequenceOfNChars_FromSplittedParts[2]
+	
+			for str in oStzListOfStr.Content()
+	
+				if n = :AnyNumberOf
+	
+					str = StzStringQ(str).
+					      RemoveTrailingCharCSQ(c, bCaseSensitive).
+					      Content()
+	
+				else
+	
+					if ( Q(c) * n ).IsEqualCS( This.LastNChars(n), bCaseSensitive )
+	
+						str = StzStringQ(str).
+						      RemoveLastNCharsQ(n).
+						      Content()
+					ok
+	
+				ok
+			next
 
-		# ? ( clock() - t0 ) / clockspersecond()
+		ok
 
+
+		# Returning the result of splitting
+		aResult = oStzListOfStr.Content()
 		return aResult
+
+		#< @FunctionFluentForm
 
 		def SplitXTQ(cSep, paOptions)
 			return This.SplitXTQR(cSep, paOptions, :stzList)
@@ -10696,6 +10797,8 @@ class stzString from stzObject
 			other
 				stzRaise("Unsupported return type!")
 			off
+
+		#>
 
 		def SplittedXT(cSep, paOptions)
 			return This.SplitXT(cSep, paOptions)
@@ -13935,9 +14038,9 @@ class stzString from stzObject
 		cResult = This.Copy().RemoveCharsFromEndWQ(pcCondition).Content()
 		return cResult
 
-	  #----------------------------------------------------------#
-	 #    TRIMMING & REMOVING SPACES, AND SIMPLIFYING STRING    # 
-	#----------------------------------------------------------#
+	  #-------------------------------------------------------------------------#
+	 #    TRIMMING & REMOVING SPACES, SIMPLIFYING AND SPACIFYING THE STRING    # 
+	#-------------------------------------------------------------------------#
 
 	def Trim()
 		This.Update( This.QStringObject().trimmed() )
@@ -14103,48 +14206,38 @@ class stzString from stzObject
 		return cResult
 
 
-/*	def RemoveRightSpaces()
-		This.TrimRight()
+	def Spacify()
+		/* EXAMPLE
 
-		def RemoveRightSpacesQ()
-			This.RemoveRightSpaces()
+		? StzStringQ("RINGORIALAND").Spacified()
+		#--> R I N G O R I A L A N D
+
+		*/
+
+		This.SpacifyN(1)
+
+		def SpacifyQ()
+			This.Spacify()
 			return This
 
-	def RightSpacesRemoved()
-		cResult = This.Copy().RemoveRightSpacesQ().Content()
+	def Spacified()
+		cResult = This.Copy().SpacifyQ().Content()
 		return cResult
 
-		def WithoutRightSpaces()
-			return This.RightSpacesRemoved()
+	def SpacifyN(n)
+		This.RemoveSpaces()
 
-	def RemoveLeadingSpaces()
-		This.TrimStart()
+		cInterSpaces = ( Q(" ") * n ).Content()
+		This.InsertAfterW('@i = Previous@i + 1', cInterSpaces)
+		
 
-		def RemoveLeadingSpacesQ()
-			This.RemoveLeadingSpaces()
+		def SpacifyNQ(n)
+			This.SpacifyN(n)
 			return This
 
-	def LeadingSpacesRemoved()
-		cResult = This.Copy().RemoveLeadingSpacesQ().Content()
-		return cResult
+	def SpacifiedN(n)
+		return This.Copy().SpacifyQ(n).Content()
 
-		def WithoutLeadingSpaces()
-			return This.LeadingSpacesRemoved()
-
-/*	def RemoveTrailingSpaces()
-		This.TrimEnd()
-
-		def RemoveTrailingSpacesQ()
-			This.RemoveTrailingSpaces()
-			return This
-
-	def TrailingSpacesRemoved()
-		cResult = This.Copy().RemoveTrailingSpacesQ().Content()
-		return cResult
-
-		def WithoutTrailingSpaces()
-			return This.TrailingSpacesRemoved()
-*/
 	  #------------------------------------------------#
 	 #    GETTING POSITION AFTER A GIVEN SUBSTRING    #
 	#------------------------------------------------#
@@ -18147,27 +18240,6 @@ class stzString from stzObject
 	  #-----------#
 	 #   MISC.   #
 	#-----------#
-
-	def Spacify()
-		/* EXAMPLE
-
-		? StzStringQ("RINGORIALAND").Spacified()
-		#--> R I N G O R I A L A N D
-
-		*/
-
-		This {
-			InsertAfterW('@i = Previous@i + 1', " ")
-			Simplify()
-		}
-
-		def SpacifyQ()
-			This.Spacify()
-			return This
-
-	def Spacified()
-		cResult = This.Copy().SpacifyQ().Content()
-		return cResult
 		
 	def HasSameTypeAs(p)
 		return isString(p)
