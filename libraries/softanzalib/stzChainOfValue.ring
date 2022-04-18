@@ -122,11 +122,11 @@ class stzChainOfValue from stzObject
 		return @cType
 
 	def Copy()
-		return new stzChainOfValue( This.VarName )
+		return new stzChainOfValue( This.VarName() )
 
 	def Update(pValue)
 		if isList(pValue) and
-		   ( StzListQ(pValue).IsWithParamList() or StzListQ(pValue).IsUsingParamList() )
+		   ( StzListQ(pValue).IsWithNamedParamList() or StzListQ(pValue).IsUsingNamedParamList() )
 
 			pValue = pValue[2]
 

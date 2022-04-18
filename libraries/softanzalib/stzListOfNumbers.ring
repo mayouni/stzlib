@@ -1,3 +1,4 @@
+#---------------------------------------------------------------------------#
 # 		    SOFTANZA LIBRARY (V1.0) - STZSTRING			    #
 #		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
@@ -101,7 +102,9 @@ class stzListOfNumbers from stzList
 	@anContent
 
 	def init(paList)
-		if isList(paList) and StzListQ(paList).IsListOfNumbers()
+		if isList(paList) and
+		   ( Q(paList).IsEmpty() or Q(paList).IsListOfNumbers() )
+
 			@anContent = paList
 		else
 			stzRaise("Can't create a stzListOfNumbers object!")
@@ -114,6 +117,58 @@ class stzListOfNumbers from stzList
 
 	def ListOfNumbers()
 		return Content()
+
+		def Numbers()
+			return This.Content()
+
+			def NumbersQ()
+				return This.NumbersQR(:stzList)
+
+			def NumbersQR(pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamType()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				if NOT isString(pcReturnType)
+					stzRaise("Incorrect param! pcReturnType must be a string.")
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.Numbers() )
+
+				on :stzListOfStrings
+					return new stzListOfStrings( This.Numbers() )
+
+				other
+					stzRaise("Unsupported return type!")
+				off
+
+	def NumbersW(pcCondition)
+		return This.YieldW('@number', pcCondition)
+
+		def NumbersWQ(pcCondition)
+			return NumbersWQR(pcCondition, :stzList)
+
+		def NumbersWQR(pcCondition, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamType()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NumbersW(pcCondition) )
+
+			on :stzListOfNumbers
+				return new stzListOfStrings( This.NumbersW(pcCondition) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 	def Copy()
 		oCopy = new stzListOfNumbers( This.Content() )
@@ -142,6 +197,12 @@ class stzListOfNumbers from stzList
 		def AllNumbersTurnedToStrings()
 			return This.NumbersTurnedToStrings()
 
+	def NumberAt(n)
+		return This.ItemAt(n)	# Inherited from stzList
+
+		def NumberAtPosition(n)
+			return This.NumberAt(n)
+
 	  #-------------------------#
 	 #     MINIMUM NUMBER(S)   #
 	#-------------------------#
@@ -153,7 +214,7 @@ class stzListOfNumbers from stzList
 			return This.MinQR(n, :stzNumber)
 
 		def MinQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -187,9 +248,12 @@ class stzListOfNumbers from stzList
 				off
 
 	def FindMin()
-		aResult = This.ToStzList().FindAllW('{ @item = ' + This.Min() + ' }')
+		nMin = This.Min()
+		anResult = This.FindAll(nMin)
+		return anResult
 
-		return aResult
+		def FindAllMin()
+			return This.FindMin()
 
 		def FindMinNumber()
 			return This.FindMin()
@@ -217,7 +281,7 @@ class stzListOfNumbers from stzList
 			return MinNumbersQR(n, :stzList)
 
 		def MinNumbersQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -245,7 +309,7 @@ class stzListOfNumbers from stzList
 				return This.NMinNumbersQR(n, :stzList)
 
 			def NMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -281,7 +345,7 @@ class stzListOfNumbers from stzList
 			return This.FindMinNumbersQR(n, :stzList)
 
 		def FindMinNumbersQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -309,7 +373,7 @@ class stzListOfNumbers from stzList
 				return This.FindNMinNumbersQR(n, :stzList)
 	
 			def FindNMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -334,7 +398,7 @@ class stzListOfNumbers from stzList
 				return This.PositionsOfMinNumbersQR(n, :stzList)
 	
 			def PositionsOfMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -359,7 +423,7 @@ class stzListOfNumbers from stzList
 				return This.PositionsOfNMinNumbersQR(n, :stzList)
 	
 			def PositionsOfNMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -389,7 +453,7 @@ class stzListOfNumbers from stzList
 			return This.MaxQR(n, :stzNumber)
 
 		def MaxQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -411,7 +475,7 @@ class stzListOfNumbers from stzList
 				return This.MaxNumberQR(n, :stzNumber)
 	
 			def MaxNumberQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -427,8 +491,12 @@ class stzListOfNumbers from stzList
 				off
 
 	def FindMax()
-		aResult = This.ToStzList().FindAllW('{ @item = ' + This.Max() + ' }')
+		nMax = This.Max()
+		anResult = This.FindAll(nMax)
+		return anResult
 
+		def FindAllMax()
+			return This.FindMax()
 		return aResult
 
 		def FindMaxNumber()
@@ -452,7 +520,7 @@ class stzListOfNumbers from stzList
 			return This.TopQR(n, :stzList)
 	
 		def TopQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -479,7 +547,7 @@ class stzListOfNumbers from stzList
 				return This.TopNumbersQR(n, :stzList)
 	
 			def TopNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -504,7 +572,7 @@ class stzListOfNumbers from stzList
 				return This.NTopNumbersQR(n, :stzList)
 	
 			def NTopNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -529,7 +597,7 @@ class stzListOfNumbers from stzList
 				return This.TopNNumbersQR(n, :stzList)
 	
 			def TopNNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -556,7 +624,7 @@ class stzListOfNumbers from stzList
 				return This.MaxNumbersQR(n, :stzList)
 	
 			def MaxNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -581,7 +649,7 @@ class stzListOfNumbers from stzList
 				return This.MaxNNumbersQR(n, :stzList)
 	
 			def MaxNNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -606,7 +674,7 @@ class stzListOfNumbers from stzList
 				return This.NMaxNumbersQR(n, :stzList)
 	
 			def NMaxNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -720,6 +788,114 @@ class stzListOfNumbers from stzList
 			return This.TopNumbersAndTheirPositions(n)
 		#>
 
+	  #----------------------------------------------------#
+	 #     NEAREST NUMBER IN THE LIST TO A GIVEN NUMBER   #
+	#----------------------------------------------------#
+
+	def NearestTo(n) 
+		# Let n = 12
+		# Let This = [ 2, 7, 18, 10, 25, 4 ]
+
+		anDif = []
+		for nbr in This.ListOfNumbers()
+			nDif = n - nbr
+			if nDif < 0 { nDif = -nDif }
+			anDif + nDif
+		next
+
+		#--> anDif = [ -10, -5, 6, -2, 13, -8]
+		#--> anDif = [  10,  5, 6,  2, 13, 8 ]
+
+		anDifCopy = anDif
+
+		anDifCopy = sort(anDifCopy)
+		#--> anDif = [  2, 5, 6, 8, 10, 13]
+		nMinDif = anDifCopy[1] #--> 2
+
+		nMinPos = find( anDif, nMinDif)
+
+		#--> anDif = [  10, 5, 6, 2, 13, 8 ]
+		#             ------------^--------
+		#                         4
+
+		nResult = This.Content()[ nMinPos ]
+		#--> [ 2, 7, 18, 10, 25, 4 ]
+		#     -----------^---------
+
+		return nResult
+			
+	  #---------------------------------------------------#
+	 #   FARTHEST NUMBER IN THE LIST TO A GIVEN NUMBER   #
+	#---------------------------------------------------#
+
+	def FarthestTo(n) 
+		# Let n = 12
+		# Let This = [ 2, 7, 18, 10, 25, 4 ]
+
+		anDif = []
+		for nbr in This.ListOfNumbers()
+			nDif = n - nbr
+			if nDif < 0 { nDif = -nDif }
+			anDif + nDif
+		next
+
+		#--> anDif = [ -10, -5, 6, -2, 13, -8]
+		#--> anDif = [  10,  5, 6,  2, 13, 8 ]
+
+		anDifCopy = anDif
+
+		anDifCopy = sort(anDifCopy)
+		#--> anDif = [  2, 5, 6, 8, 10, 13]
+		nMinDif = anDifCopy[len(anDifCopy)] #--> 13
+
+		nMinPos = find( anDif, nMinDif)
+
+		#--> anDif = [  10, 5, 6, 2, 13, 8 ]
+		#             ---------------^------
+		#                            6
+
+		nResult = This.Content()[ nMinPos ]
+		#--> [ 2, 7, 18, 10, 25, 4 ]
+		#     ---------------^------
+
+		return nResult
+
+	  #----------------------------------------#
+	 #     "ABSOLUTING' THE LIST OF NUMBERS   #
+	#----------------------------------------#
+
+	def Absolute()
+		for n in This.ListOfNumbers()
+			if n < 0
+				n = -n
+			ok
+		next
+
+		def AbsoluteQ()
+			This.Absolute()
+			return This
+
+	def Absoluted()
+		return This.Copy().AbsoluteQ().Content()
+
+	  #----------------------------------------#
+	 #     "NEGATING' THE LIST OF NUMBERS     #
+	#----------------------------------------#
+
+	def Negate()
+		for n in This.ListOfNumbers()
+			if n > 0
+				n = -n
+			ok
+		next
+
+		def NegateQ()
+			This.Negate()
+			return This
+
+	def Negated()
+		return This.Copy().NegateQ().Content()
+
 	  #---------------------------#
 	 #     BASIC CALCULATIONS    #
 	#---------------------------#
@@ -740,7 +916,7 @@ class stzListOfNumbers from stzList
 		return nResult
 
 	def Mean()
-		return Sum() / (This.ToStzList().NumberOfItems())
+		return Sum() / (This.NumberOfNumbers())
 
 	def MeanByCoefficient(paList)
 		// [ 16, 18, 20, 17 ]
@@ -748,7 +924,7 @@ class stzListOfNumbers from stzList
 		i = 0
 
 		aProduct = []
-		for i=1 to This.ToStzList().NumberOfItems()
+		for i=1 to This.NumberOfNumbers()
 			aProduct + This.ListOfNumbers()[i] * paList[i]
 		next
 
@@ -812,7 +988,7 @@ class stzListOfNumbers from stzList
 			return This.ClipQR(nMin, nMax, pcReturnType)
 
 		def ClipQR(nMin, nMax, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -832,7 +1008,7 @@ class stzListOfNumbers from stzList
 	#-----------------------------------------#
 
 	def ReplaceSectionWith(n1, n2, n)
-		for i = 1 to This.NumberOfItems()
+		for i = 1 to This.NumberOfNumber()
 			if i >= n1 and i <= n2
 				This.Content()[i] = n
 			ok
@@ -842,7 +1018,7 @@ class stzListOfNumbers from stzList
 			return This.ReplaceSectionWithQR(n1, n2, n)
 
 		def ReplaceSectionWithQR(n1, n2, n)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -872,7 +1048,7 @@ class stzListOfNumbers from stzList
 			return This.CumulateQR()
 
 		def CumulateQR()
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -923,7 +1099,7 @@ class stzListOfNumbers from stzList
 			return This.UnicodesQR(:stzList)
 
 		def UnicodesQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -945,7 +1121,7 @@ class stzListOfNumbers from stzList
 				return This.CumulateQR(:stzList)
 
 			def OnlyUnicodesQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -965,8 +1141,9 @@ class stzListOfNumbers from stzList
 	#========================================#
 
 	def AddToEach(n)
-		for number in @anContent
-			number += n
+		
+		for i = 1 to This.NumberOfNumbers()
+			@anContent[i] += n
 		next
 
 		def AddToEachQ(n)
@@ -999,7 +1176,7 @@ class stzListOfNumbers from stzList
 	#---------------------------------------------#
 
 	def MultiplyEachBy(n)
-		for number in @anContent
+		for number in This.Content()
 			number *= n
 		next
 
@@ -1016,7 +1193,7 @@ class stzListOfNumbers from stzList
 	#------------------------------------------#
 
 	def DivideEachBy(n)
-		for number in @anContent
+		for number in This.Content()
 			number /= n
 		next
 
@@ -1038,11 +1215,11 @@ class stzListOfNumbers from stzList
 			stzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
-		nLen1 = len(@anContent)
+		nLen1 = This.NumberOfNumbers()
 		nLen2 = len(paNumbers)
 
 		i = 0
-		for number in @anContent
+		for number in This.Content()
 			i++
 
 			if i <= nLen1 and i <= nLen2
@@ -1069,11 +1246,11 @@ class stzListOfNumbers from stzList
 			stzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
-		nLen1 = len(@anContent)
+		nLen1 = This.NumberOfNumbers()
 		nLen2 = len(paNumbers)
 
 		i = 0
-		for number in @anContent
+		for number in This.Content()
 			i++
 
 			if i <= nLen1 and i <= nLen2
@@ -1096,15 +1273,15 @@ class stzListOfNumbers from stzList
 
 	def MultiplyWithManyOneByOne(paNumbers)
 
-		if NOT (isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
 			stzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
-		nLen1 = len(@anContent)
+		nLen1 = This.NumberOfNumbers()
 		nLen2 = len(paNumbers)
 
 		i = 0
-		for number in @anContent
+		for number in This.Content()
 			i++
 
 			if i <= nLen1 and i <= nLen2
@@ -1127,7 +1304,6 @@ class stzListOfNumbers from stzList
 		def MultipliedByManyOneByOne(paNumbers)
 			return This.MultipliedWithManyOneByOne(paNumbers)
 
-
 	  #-------------------------------------------------------------------#
 	 #   DEVIDING THE NUMBERS OF THE LIST WITH MANY NUMBERS ONE BY ONE   #
 	#-------------------------------------------------------------------#
@@ -1138,11 +1314,11 @@ class stzListOfNumbers from stzList
 			stzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
-		nLen1 = len(@anContent)
+		nLen1 = This.NumberOfNumbers()
 		nLen2 = len(paNumbers)
 
 		i = 0
-		for number in @anContent
+		for number in This.ListOfNumbers()
 			i++
 
 			if i <= nLen1 and i <= nLen2
@@ -1169,26 +1345,41 @@ class stzListOfNumbers from stzList
 		ok
 
 
-		if isList(pcCondition) and Q(pcCondition).IsWhereParamList()
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParamList()
 			pcCondition = pcCondition[2]
 		ok
 
 		if NOT isString(pcCondition)
-			stzRaise("Incorrect param type! pcConition must be a string.")
+			stzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		cCondition = StzStringQ(pcCondition).
-			     SimplifyQ().RemoveBoundsQ("{","}").
-			     ReplaceCSQ("@item", :With = "@number", :CS = FALSE).Content()
+		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzListOfNumbers)
 
 		cCode = "bOk = (" + cCondition + ")"
+		oCode = new stzString(cCode)
 
 		@i = 0
-		for @number in @anContent
+		for @number in This.ListOfNumbers()
 			@i++
-			eval(cCode)
-			if bOk
-				@number += n
+			bEval = TRUE
+
+			if @i = This.NumberOfNumbers() and
+			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[i+1]", :CS = FALSE )
+
+				bEval = FALSE
+			ok
+
+			if @i = 1 and
+			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[i-1]", :CS = FALSE )
+
+				bEval = FALSE
+			ok
+
+			if bEval
+				eval(cCode)
+				if bOk
+					@number += n
+				ok
 			ok
 		next
 
@@ -1226,26 +1417,41 @@ class stzListOfNumbers from stzList
 		ok
 
 
-		if isList(pcCondition) and Q(pcCondition).IsWhereParamList()
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParamList()
 			pcCondition = pcCondition[2]
 		ok
 
 		if NOT isString(pcCondition)
-			stzRaise("Incorrect param type! pcConition must be a string.")
+			stzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		cCondition = StzStringQ(pcCondition).
-			     SimplifyQ().RemoveBoundsQ("{","}").
-			     ReplaceCSQ("@item", :With = "@number", :CS = FALSE).Content()
-
+		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzListOfNumbers)
 		cCode = "bOk = (" + cCondition + ")"
+		oCode = new stzString(cCode)
 
 		@i = 0
-		for @number in @anContent
+		for @number in This.ListOfNumbers()
 			@i++
-			eval(cCode)
-			if bOk
-				@number *= n
+			bEval = TRUE
+
+			if @i = This.NumberOfNumbers() and
+			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[i+1]", :CS = FALSE )
+
+				bEval = FALSE
+
+			ok
+
+			if @ = 1 and
+			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[i-1]", :CS = FALSE )
+
+				bEval = TRUE
+			ok
+
+			if bEval
+				eval(cCode)
+				if bOk
+					@number *= n
+				ok
 			ok
 		next
 
@@ -1292,19 +1498,49 @@ class stzListOfNumbers from stzList
 	 #     UPDATING THE LIST WITH A NEW LIST OF NUMBERS    #
 	#=====================================================#
 
-	def Update(pnNewListOfNumbers)
+	def Update(panNewListOfNumbers)
 
-		if isList(pnNewListOfNumbers) and StzListQ(pnNewListOfNumbers).IsWithParamList()
+		if isList(panNewListOfNumbers) and StzListQ(panNewListOfNumbers).IsWithNamedParamList()
 			pnNewListOfNumbers = pnNewListOfNumbers[2]
 		ok
 
-		if NOT ( isList(pnNewListOfNumbers) and
-			 Q(pnNewListOfNumbers).IsListOfNumbers() )
+		if NOT ( isList(panNewListOfNumbers) and
+			 Q(panNewListOfNumbers).IsListOfNumbers() )
 
 			stzRaise("Incorrect param type!")
 		ok
 
-		@anContent = pnNewListOfNumbers
+		@anContent = panNewListOfNumbers
+
+		def UpdateWith(panNewListOfNumbers)
+			if NOT ( isList(panNewListOfNumbers) and
+				 Q(panNewListOfNumbers).IsListOfNumbers() )
+
+				stzRaise("Incorrect param! You must provide a list of numbers.")
+			ok
+
+			@anContent = panNewListOfNumbers
+
+
+	  #-----------------------------------------------------------#
+	 #     REPLACING A NUMBER AT A GIVEN POSITION IN THE LIST    #
+	#-----------------------------------------------------------#
+
+	def ReplaceNumberAtPosition(n, pnNewNumber)
+
+		if NOT isNumber(n)
+			stzRaise("Incorrect param! n must be a number.")
+		ok
+
+		if isList(pnNewNumber) and Q(pnNewNumber).IsWithOrByNamedParamList()
+			pnNewNumber = pnNewNumber[2]
+		ok
+
+		if NOT isNumber(pnNewNumber)
+			stzRaise("Incorrect param! pnNewNumber must be a number.")
+		ok
+
+		@anContent[n] = pnNewNumber
 
 	  #---------------------------------------#
 	 #     REVERSING THE LIST OF NUMBERS     #
@@ -1333,9 +1569,142 @@ class stzListOfNumbers from stzList
 		def NumbersReversed()
 			return This.Reversed()
 
-	  #-----------#
+	  #=========================================#
+	 #   PERFORMING AN ACTION ON EACH NUMBER   #
+	#=========================================#
+
+	def Perform(pcCode)
+		# Must begin with '@number ='
+
+		This.PerformOnThesePositions(1:This.NumberOfNumbers(), pcCode)
+
+		#--
+
+		def PerformQ(pcCode)
+			This.Perform(pcCode)
+			return This
+
+	  #------------------------------------------------------#
+	 #   PERFORMING ACTIONS ON NUMBERS IN GIVEN POSITIONS   #
+	#------------------------------------------------------#
+
+	def PerformOn(panPositions, pcCode)
+
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+			stzRaise("Invalid param type! panPositions must be a list of numbers.")
+		ok
+
+		if NOT isString(pcCode)
+			stzRaise("Invalid param type! pcCode must be a string.")
+		ok
+
+		oCode = new stzString( StzCCodeQ(pcCode).UnifiedFor(:stzListOfNumbers) )
+
+		if NOT oCode.BeginsWithOneOfTheseCS(
+			[ "@number =", "@number=",
+			  "@number +=", "@number+=",
+			  "@number -=", "@number-=",
+			  "@number *=", "@number*=",
+			  "@number /=", "@number/="
+			],
+
+			:CaseSensitive = FALSE )
+
+			stzRaise("Syntax error! pcCode must begin with '@item ='.")
+		ok
+
+		cCode = oCode.Content()
+		
+		for @i in panPositions
+
+			@number = This[ @i ]
+			bEval = TRUE
+
+			if @i = This.NumberOfNumbers() and
+			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i+1]", :CS=FALSE )
+
+				bEval = FALSE
+
+			but @i = 1 and
+			    oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i-1]", :CS=FALSE )
+
+				bEval = FALSE
+			
+			ok
+
+			if bEval
+
+			eval(cCode)
+				This.ReplaceNumberAtPosition(@i, :With = @number)
+			ok
+
+		next
+
+		#--
+
+		def PerformOnQ(panPositions, pcCode)
+			This.PerformOn(panPositions, pcCode)
+			return This
+
+		def PerformOnPositions(panPositions, pcCode)
+			This.PerformOn(panPositions, pcCode)
+
+			def PerformOnPositionsQ(panPositions, pcCode)
+				This.PerformOnPositions(panPositions, pcCode)
+				return This
+
+		def PerformOnThesePositions(panPositions, pcCode)
+			This.PerformOn(panPositions, pcCode)
+
+			def PerformOnThesePositionsQ(panPositions, pcCode)
+				This.PerformOnThesePositions(panPositions, pcCode)
+				return This
+
+	  #--------------------------------------------------------#
+	 #   PERFORMING AN ACTION ON NUMBERS IN GIVEN SECTIONS    #
+	#--------------------------------------------------------#
+
+	def PerformOnSections(paSections, pcCode)
+
+		anPositions = StzListOfPairsQ(paSections).
+				ExpandedIfPairsOfNumbersQ().MergeQ().
+				RemoveDuplicatesQ().SortedInAscending()
+
+		This.PerformOnPositions(anPositions, pcCode)
+
+		#--
+
+		def PerformOnSectionsQ(paSections, pcCode)
+			This.PerformOnSections(paSections, pcCode)
+			return This
+
+		def PerformOnTheseSections(paSections, pcCode)
+			This.PerformOnSections(paSections, pcCode)
+
+			def PerformOnTheseSectionsQ(paSections, pcCode)
+				This.PerformOnTheseSections(paSections, pcCode)
+				return This
+
+	  #-----------------------------------------------------------------#
+	 #   PERFORMING AN ACTION ON NUMBERS VERIFYING A GIVEN CONDITION   #
+	#-----------------------------------------------------------------#
+
+	def PerformW(pcAction, pcCondition)
+
+		This.UpdateWith(
+			This.NumbersQ().
+			PerformWQ(pcAction, pcCondition).Content()
+		)		
+
+		#--
+
+		def PerformWQ(paParams)
+			This.PerformW(paParams)
+			return This
+
+	  #===========#
 	 #   MISC.   #
-	#-----------#
+	#===========#
 
 	def ToStzListOfChars()
 		return new stzListOfChars( This.Content() )
@@ -1350,7 +1719,7 @@ class stzListOfNumbers from stzList
 
 		bResult = TRUE
 
-		if This.SortingOrder() = :Ascending
+		if This.ToStzList().SortingOrder() = :Ascending
 
 			for i = 2 to This.NumberOfNumbers()
 	
@@ -1374,5 +1743,5 @@ class stzListOfNumbers from stzList
 		return bResult
 
 
-		def IsContignous()
+		def IsContinuous()
 			return This.IsContiguous()

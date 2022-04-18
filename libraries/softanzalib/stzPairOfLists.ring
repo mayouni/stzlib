@@ -5,7 +5,7 @@
 func StzPairOfListsQ(paList1, paList2)
 	return new stzPairOfLists(paList1, paList2)
 
-class stzPairOfLists
+class stzPairOfLists from stzPair
 
 	@aList1
 	@aList2
@@ -22,9 +22,6 @@ class stzPairOfLists
 		return [ @aList1, @aList2 ]
 
 		def PairOfLists()
-			return This.Content()
-
-		def Pair()
 			return This.Content()
 
 	def FirstList()

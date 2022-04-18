@@ -211,7 +211,7 @@ func Max(n1,n2) # for more numbers, use stzListOfNumbers.Max()
 	ok
 
 func Double(n)
-	if isList(n) and StzListQ(n).IsOfParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParamList()
 		n = n[2]
 	ok
 			
@@ -235,7 +235,7 @@ func Double(n)
 	*/
 
 func Triple(n)
-	if isList(n) and StzListQ(n).IsOfParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParamList()
 		n = n[2]
 	ok
 			
@@ -251,7 +251,7 @@ func Triple(n)
 		ok
 
 func Quadruple(n)
-	if isList(n) and StzListQ(n).IsOfParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParamList()
 		n = n[2]
 	ok
 
@@ -267,7 +267,7 @@ func Quadruple(n)
 		ok
 
 func Quintuple(n)
-	if isList(n) and StzListQ(n).IsOfParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParamList()
 		n = n[2]
 	ok
 
@@ -283,7 +283,7 @@ func Quintuple(n)
 		ok
 
 func Sextuple(n)
-	if isList(n) and StzListQ(n).IsOfParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParamList()
 		n = n[2]
 	ok
 
@@ -299,7 +299,7 @@ func Sextuple(n)
 		ok
 
 func Septuple(n)
-	if isList(n) and StzListQ(n).IsOfParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParamList()
 		n = n[2]
 	ok
 
@@ -315,7 +315,7 @@ func Septuple(n)
 		ok
 
 func Octuple(n)
-	if isList(n) and StzListQ(n).IsOfParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParamList()
 		n = n[2]
 	ok
 
@@ -331,7 +331,7 @@ func Octuple(n)
 		ok
 
 func Nonuple(n)
-	if isList(n) and StzListQ(n).IsOfParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParamList()
 		n = n[2]
 	ok
 
@@ -347,7 +347,7 @@ func Nonuple(n)
 		ok
 
 func Decuple(n)
-	if isList(n) and StzListQ(n).IsOfParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParamList()
 		n = n[2]
 	ok
 
@@ -473,7 +473,7 @@ func StringRepresentsNumberInOctalForm(pNumber)
 
 func StringRepresentsNumberInScientificNotation(pNumber)
 	// TODO
-		   
+
 # Takes a number of 3 digits and returns the following hashlist:
 # [ :Units = ..., :Dozens = ..., :Hundreds = ... ]
 
@@ -763,7 +763,7 @@ class stzNumber from stzObject
 
 	def Update(pNumber)
 		if isList(pNumber) and
-		   ( StzListQ(pNumber).IsWithParamList() or StzListQ(pNumber).IsUsingParamList() )
+		   ( StzListQ(pNumber).IsWithNamedParamList() or StzListQ(pNumber).IsUsingNamedParamList() )
 
 			pNumber = pNumber[2]
 
@@ -2835,7 +2835,7 @@ class stzNumber from stzObject
 		oStzStr = This.ToStzString()
 
 		if oStzStr.RepeatedLeadingcharIs("0")
-			This.Update( oStzStr.RemoveRepeatedLeadingCharQ("0").Content() )
+			This.Update( oStzStr.RemoveThisRepeatedLeadingCharQ("0").Content() )
 		ok
 
 		if This.IsReal()
@@ -3309,7 +3309,7 @@ class stzNumber from stzObject
 
 	def ListifyXT(paOptions)
 
-		if NOT StzListQ(paOptions).IsNumberListifyParamList()
+		if NOT StzListQ(paOptions).IsNumberListifyOptionsParamList()
 			stzRaise("Unsupported option list!")
 
 		else
@@ -3464,6 +3464,16 @@ class stzNumber from stzObject
 			return anResult
 		ok
 	
+	def RepeatNtimes(n)
+		aResult = []
+		for i = 1 to n
+			aResult + This.Number()
+		next
+		return aResult
+
+		def RepeatedNTimes(n)
+			return This.RepeatNtimes(n)
+
 	  #-------------------------------------#
 	 #    INTERNAL KITCHEN OF THE CLASS    #
 	#-------------------------------------#

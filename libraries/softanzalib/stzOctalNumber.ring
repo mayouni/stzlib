@@ -32,7 +32,7 @@ func SetOctalPrefix(cPrefix)
 func StzOctalNumberQ(cNumber)
 	return new stzOctalNumber(cNumber)
 
-class stzOctalNumber from stzObject
+class stzOctalNumber from stzString
 	@cOctalNumber
 
 	def init(pNumber)

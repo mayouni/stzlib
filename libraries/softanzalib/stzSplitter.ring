@@ -2,7 +2,7 @@
 func StzSplitterQ(p)
 	return new stzSplitter2(p)
 
-class stzSplitter from stzObject
+class stzSplitter from stzList
 	@nNumberOfItems
 
 	  #--------------------------------#

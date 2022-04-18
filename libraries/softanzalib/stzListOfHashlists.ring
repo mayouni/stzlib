@@ -1,11 +1,13 @@
 func StzListOfHashListsQ(paList)
 	return new stzListOfHashLists(paList)
 	
-class stzListOfHashLists from stzObject
+class stzListOfHashLists from stzList
 	@aListOfHashLists
 
 	def init(paList)
-		if StzListQ(paList).IsListOfHashLists()
+		if isList(paList) and
+		   ( Q(paList).IsEmpty() or Q(paList).IsListOfHashLists() )
+
 			@aListOfHashLists = paList
 
 		else

@@ -434,10 +434,7 @@ class stzCountry
 		return @aCountryInfo[4]
 
 	def LocaleAbbreviation()
-		return LocaleAbbreviationsXT()[ This.Country() ][1][1]
-
-		def DefaultLocaleAbbreviation()
-			return This.LocaleAbbreviation()
+		return LocaleAbbreviationsXT()[ This.Country() ][1][1][2]
 
 	def PhoneCode()
 		return @aCountryInfo[5]
@@ -463,13 +460,7 @@ class stzCountry
 
 	def DefaultLanguageAbbreviation()
 		return StzLanguageQ(This.Language()).Abbreviation()
-/*
-		for aLangInfo in LocaleLanguagesXT()
-			if aLangInfo[2] = This.DefaultLanguage()
-				return aLangInfo[3]
-			ok
-		next
-*/
+
 		def LanguageAbbreviation()
 			return This.DefaultLanguageAbbreviation()
 

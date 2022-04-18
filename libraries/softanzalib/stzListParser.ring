@@ -2,7 +2,7 @@
 func StzListParserQ(paList)
 	return new stzListParser(paList)
 
-class stzListParser
+class stzListParser from stzParser
 	@aList = []
 	@anParsedPositions = []
 
@@ -61,8 +61,8 @@ class stzListParser
 	def Parse(pnStart, pnEnd, pnStep)
 
 		if isList(pnStart) and 
-		   ( StzListQ(pnStart).IsStartingAtParamList() or
-		     StzListQ(pnStart).IsFromParamList() )
+		   ( StzListQ(pnStart).IsStartingAtNamedParamList() or
+		     StzListQ(pnStart).IsFromNamedParamList() )
 
 			if pnStart[2] = :First
 				pnStart[2] = 1
@@ -74,7 +74,7 @@ class stzListParser
 			
 		ok
 
-		if isList(pnEnd) and StzListQ(pnEnd).IsToParamList()
+		if isList(pnEnd) and StzListQ(pnEnd).IsToNamedParamList()
 
 			if pnEnd[2] = :Last
 				pnEnd = len(This.List())
@@ -84,7 +84,7 @@ class stzListParser
 
 		ok
 
-		if isList(pnStep) and StzListQ(pnStep).IsStepParamList()
+		if isList(pnStep) and StzListQ(pnStep).IsStepNamedParamList()
 			pnStep = pnStep[2]
 		ok
 

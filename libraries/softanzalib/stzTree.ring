@@ -48,7 +48,7 @@ myTree {
 func StzTreeQ(paTree)
 	return new stzTree(paTree)
 
-class stzTree from stzObject
+class stzTree from stzList
 	@aContent = []
 
 	def Init(paTree)

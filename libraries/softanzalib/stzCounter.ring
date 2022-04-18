@@ -1,5 +1,14 @@
-func IsCounterParamList(paParams)
-	return StzListQ(paParams).IsCounterParamList()
+func IsCounterNamedParamList(paParams)
+	if isList(paParams) and
+	   StzNumberQ( Q(paParams).NumberOfItems() ).IsBetween(1, 4) and
+
+	   Q(paParams).IsHashList() and
+	   StzHashListQ(paParams).KeysListQ().IsMadeOfSome([ :StartAt, :AfterYouSkip, :RestartAt, :Step ])
+	
+			return TRUE
+		else
+			return FALSE
+		ok
 
 func StzCounterQ(paParams)
 	return new stzCounter(paParams)
@@ -13,7 +22,7 @@ class stzCounter from stzObject
 	def init(paParams)
 
 		if isList(paParams) and
-		   IsCounterParamList(paParams)
+		   IsCounterNamedParamList(paParams)
 
 			if paParams[ :StartAt ] != NULL
 				@nStartAt = paParams[ :StartAt ]

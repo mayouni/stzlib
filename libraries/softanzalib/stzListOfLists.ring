@@ -12,22 +12,35 @@ func StzListOfListsQ(paList)
 func ListsMerge(paListOfLists)
 	return StzListOfListsQ(paListOfLists).Merge()
 
+	func ListsMergeQ(paListOfLists)
+		return new stzList( ListsMerge(paListOfLists) )
+
 func ListsFlatten(paListOfLists)
 	return StzListOfListsQ(paListOfLists).Flatten()
+
+	func ListsFlattenQ(paListOfLists)
+		return new stzList( ListsFlatten(paListOfLists) )
 
 	func ListsMergeAndFlatten(paListOfLists)
 		return ListsFlatten(paListOfLists)
 
+		func ListsMergeAndFlattenQ(paListOfLists)
+			return new stzList( ListsMergeAndFlatten(paListOfLists) )
 
-class stzListOfLists from stzObject
+
+class stzListOfLists from stzList
 
 	@aContent = []
 
 	def init(paList)
+		if isList(paList) and
+		   ( Q(paList).IsEmpty() or Q(paList).IsListOfLists() )
 
-		for list in paList
-			@aContent + list
-		next
+			@aContent = paList
+
+		else
+			stzRaise("Can't create the stzListOfLists object!")
+		ok
 
 	  #--------------#
 	 #   GENERAL    #
@@ -423,14 +436,14 @@ class stzListOfLists from stzObject
 			return This.NthOccurrenceOfEntry(n, pEntry)
 
 	def FirstOccurrenceOfEntry(pEntry)
-		return NthOccurenceOfEntry(1, pEntry)
+		return NthOccurrenceOfEntry(1, pEntry)
 
 	def LastOccurrenceOfEntry(pEntry)
 		return NthOccurrenceOfEntry(This.NumberOfOccurrenceOfEntry(pEntry), pEntry)
 
-	  #----------------------#
-	 #   MERGE & FLATTEN    #
-	#----------------------#
+	  #--------------------------#
+	 #   MERGING & FLATTENING   #
+	#--------------------------#
 
 	def Merge() # Breaks if an items is of type Object!
 		
@@ -560,3 +573,52 @@ class stzListOfLists from stzObject
 	def ToStzListOfStrings()
 		return new stzListOfStrings( This.Stringify() )
 
+	  #-----------#
+	 #   MISC.   #
+	#-----------#
+		
+	def ToListsInString()
+		acResult = []
+		for aList in This.ListOfLists()
+			acResult + StzListQ(aList).ToListInString()
+		next
+
+		return acResult
+
+		def ToListsInStringQ()
+			return new stzString( This.ToListsInString() )
+
+		def ToListInStringInNormalForm()
+			return This.ToListsInString()
+
+			def ToListInStringInNormalFormQ()
+				return new stzString( This.ToListInStringInNormalForm() )
+
+		def ToListInNormalForm()
+			return This.ToListsInString()
+
+			def ToListInNormalFormQ()
+				return new stzString( This.ToListInNormalForm() )
+
+	def ToListInStringInShortForm()
+		acResult = []
+		for aList in This.ListOfLists()
+			acResult + StzListQ(aList).ToListInStringInShortForm()
+		next
+
+		return acResult
+
+		def ToListInStringInShortFormQ()
+			return new stzString( This.ToListInStringInShortForm() )
+
+		def ToListInShortForm()
+			return This.ToListInStringInShortForm()
+
+			def ToListInShortFormQ()
+				return new stzString( This.ToListInShortForm() )
+
+		def ToListInString@C()
+			return This.ToListInStringInShortForm()
+	
+			def ToListInString@CQ()
+				return new stzString( This.ToListInString@C() )

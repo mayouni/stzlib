@@ -2,11 +2,17 @@
 func StzListOfEntitiesQ()
 	return new stzListOfEntities()
 
-class stzListOfEntities
+class stzListOfEntities from stzList
 	@aListOfEntities = []
 
-	def init()
-		return This
+	def init(paList)
+		if isList(paList) and
+		   ( Q(paList).IsEmpty() or Q(paList).IsListOfHashLists() )
+
+			@aListOfEntities = paList
+		else
+			stzRaise("Can't create the stzListOfEntitities object! You must provide a list of hashlists.")
+		ok
 
 	def Content()
 		return @aListOfEntities

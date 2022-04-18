@@ -3,7 +3,7 @@
 func StzNaturalCodeQ()
 	return new stzNaturalCode
 
-class stzNaturalCode from stzObject
+class stzNaturalCode from stzString
 	@cCode
 	@EndPoint
 

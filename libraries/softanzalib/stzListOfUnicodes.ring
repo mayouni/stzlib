@@ -28,18 +28,24 @@ func IsUnicode(n)
 func UnicodesToString(anUnicodes)
 	return StzListOfUnicodesQ(anUnicodes).ToString()
 
-class stzListOfUnicodes from stzObject
+class stzListOfUnicodes from stzListOfNumbers
 	@anUnicodes
 
-	def init(aListOfNumbers)
-		if ListIsListOfNumbers(aListOfNumbers) and
-		   StzListOfNumbersQ(aListOfNumbers).Min() >= 0 and
-		   StzListOfNumbersQ(aListOfNumbers).Max() <= 1114111
+	def init(aList)
 
-			@anUnicodes = aListOfNumbers
+		if isList(aList) and ( Q(aList).IsEmpty() or Q(aList).IsListOfNumbers() )
+
+			if len(aList) > 0
+		  
+		   		if StzListOfNumbersQ(aListOfNumbers).Min() >= 0 and
+		   		   StzListOfNumbersQ(aListOfNumbers).Max() <= 1114111
+
+					@anUnicodes = aListOfNumbers
+				ok
+			ok
 
 		else
-			stzRaise("Can't create the list of unicodes!")
+			stzRaise("Can't create the stzListOfUnicodes object!")
 		ok
 
 	def Content()

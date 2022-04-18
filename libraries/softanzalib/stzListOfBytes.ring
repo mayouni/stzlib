@@ -96,6 +96,9 @@ class stzListOfBytes from stzObject
 
 		but IsQByteArrayObject(pValue)
 			@oQByteArray = pValue
+
+		else
+			stzRaise("Can't create the stzListOfBytes object!")
 		ok
 
 	// Returns the text represented by the list of bytes content
@@ -459,7 +462,7 @@ class stzListOfBytes from stzObject
 
 	def Update(pcString)
 		if isList(pcString) and
-		   ( StzListQ(pcString).IsWithParamList() or StzListQ(pcString).IsUsingParamList() )
+		   ( StzListQ(pcString).IsWithNamedParamList() or StzListQ(pcString).IsUsingNamedParamList() )
 
 			pcString = pcString[2]
 

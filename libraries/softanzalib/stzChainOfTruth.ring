@@ -33,23 +33,14 @@ func _(p)
 func Q(p)
 
 	if isString(p)
-		if StzStringQ(p).RepresentsNumberInHexForm()
-			return new stzHexNumber(p)
-
-		but StzStringQ(p).RepresentsNumberInBinaryForm()
-			return new stzBinaryNumber(p)
-
-		but StzStringQ(p).RepresentsNumberInOctalForm()
-			return new stzOctalNumber(p)
-
-		else
-			return new stzString(p)
-		ok
+		return new stzString(p)
 
 	but isNumber(p)
 		return new stzNumber(p)
+
 	but isList(p)
 		return new stzList(p)
+
 	but isObject(p)
 		return new stzObject(p)
 	ok

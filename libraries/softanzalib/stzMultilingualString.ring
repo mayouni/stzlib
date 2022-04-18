@@ -1,21 +1,5 @@
-load "stzlib.ring"
-/*
-? IsMultingualString([
-			:en = "house",
-			:fr = "maison",
-			:ar = "منزل"
-		      ])
-
-o1 = new stzMultilingualString([
-				:en = "house",
-				:fr = "maison",
-				:ar = "منزل"
-			      ])
-
-o1 {
-	? ar_en()
-}
-*/
+# TODO: Review this class on the light of the changes made in stzLocale,
+# stzLanguage, stzScript, and stzCountry classes
 
 /*
 List of languages by alphabets and nations to implement in SoftanzaLib:
@@ -30,7 +14,7 @@ func ListIsMultingualString(paString)
 	oStzList = new stzList(paString)
 	return oStzList.IsMultilingualString()
 
-class stzMultilingualString from StzString
+class stzMultilingualString from StzMultiString
 		aContent = []
 		oHashList
 

@@ -30,7 +30,7 @@ one which will indicate how many bytes it'll take up.
 /*
 General note:
 A the Char level, SoftanzaLib uses the term Digit and not Number
-except when this is required to refere to a standard unicode feature
+except when this is required to refer to a standard unicode feature
 or 'unavoidable' Qt feature.
 */
 
@@ -44,7 +44,7 @@ func StzCharQ(p)
 
 func IsAsciiChar(c)
 	return StzCharQ(c).IsAscii()
-
+		
 func CharToUnicode(c)
 	return StzCharQ(c).Unicode()
 
@@ -300,7 +300,7 @@ class stzChar from stzObject
 
 	def Update( pChar )
 		if isList(pChar) and
-		   ( StzListQ(pChar).IsWithParamList() or StzListQ(pChar).IsUsingParamList() )
+		   ( StzListQ(pChar).IsWithNamedParamList() or StzListQ(pChar).IsUsingNamedParamList() )
 
 			pValue = pValue[2]
 

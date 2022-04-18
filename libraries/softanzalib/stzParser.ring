@@ -3,7 +3,7 @@
 func StzParserQ(paList)
 	return new StzParser(paList)
 
-class stzParser from stzObject
+class stzParser from stzList
 	@nStart
 	@nEnd
 	@nSteps
@@ -53,15 +53,15 @@ class stzParser from stzObject
 		This.Parse( This.StartOfParsing(), n, This.NumberOfSteps() )
 
 	def Parse(pnStart, pnEnd, pnSteps)
-		if isList(pnStart) and StzListQ(pnStart).IsStartingAtParamList()
+		if isList(pnStart) and StzListQ(pnStart).IsStartingAtNamedParamList()
 			pnStart = pnStart[2]
 		ok
 
-		if isList(pnEnd) and StzListQ(pnEnd).IsToParamList()
+		if isList(pnEnd) and StzListQ(pnEnd).IsToNamedParamList()
 			pnEnd = pnEnd[2]
 		ok
 		
-		if isList(pnSteps) and StzListQ(pnSteps).IsStepParamList()
+		if isList(pnSteps) and StzListQ(pnSteps).IsStepNamedParamList()
 			pnSteps = pnSteps[2]
 		ok
 

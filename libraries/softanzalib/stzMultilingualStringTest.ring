@@ -1,3 +1,7 @@
+# TODO: Review this class on the light of the changes made in stzLocale,
+# stzLanguage, stzScript, and stzCountry classes
+
+
 load "stzlib.ring"
 /*
 ? LongToShortLanguageAbbreviation("ara")

@@ -1,10 +1,15 @@
 
-LIST
+STZLIST > CLASS CORE SERVICES
 
-Walkers, Checkers, Finders, Parsers, Yielders and Performers
+Importer, Duplicator, Tagger, Transformer.
+
+   1        2        3         4        5          6              7
+Walkers, Checkers, Finders, Parsers, Yielders, Performers, and Removers
                       ^
-		      |____ ItemFinders
-		      |____ PathFinders
+		      |____ ItemFinders (DONE)
+		      |____ SectionFinders (DONE)
+		      |____ PathFinders (FUTURE)
+		      |____ PatternFinders (FUTURE)
 
 	# DEFINING WALKERS
 

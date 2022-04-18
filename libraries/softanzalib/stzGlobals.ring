@@ -1,6 +1,4 @@
 
-cSingleSpace = " "
-cDoubleSpace = "  "
 
 _aRingDataTypes = [ :number, :string, :list, :object, :cobject ]
 
@@ -303,6 +301,27 @@ _acRingKeywords = [
 ]
 
 _nQuietEqualityRatio = 0.09
+
+func Space()
+	return NSpaces(1)
+
+	func SingleSpace()
+		return Space()
+
+	func BlankSpace()
+		return Space()
+
+func DoubleSpace()
+	return NSpaces(2)
+
+	func DoubleBlankSpace()
+		return DoubleSpace()
+
+func NSpaces(n)
+	return copy(" ", n)
+
+	def NBlankSpaces(n)
+		return NSpaces()
 
 func QuietEqualityRatio()
 	return _nQuietEqualityRatio

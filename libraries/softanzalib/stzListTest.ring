@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+? StzListQ( 4:8 ).ToListInString() 		#--> "[ 4, 5, 6, 7, 8 ]"
+? StzListQ( 4:8 ).ToListInStringInShortForm() 	#--> "4 : 8"
 
 /*---------------
 
@@ -161,7 +163,7 @@ o1 = new stzList([
 
 /*----------------
 
-? StzListQ( :ReturnedAs = :stzList ).IsReturnedAsParamList() #--> TRUE
+? StzListQ( :ReturnedAs = :stzList ).IsReturnedAsNamedParamList() #--> TRUE
 
 /*-----------------
 
@@ -539,7 +541,7 @@ o1 = new stzList([ "a", "b", "e", "a", "c", "v", "e" ])
 o1 = new stzList([ "a", "b", "e", "a", "c", "v", "e" ])
 ? o1.FindMany([ "a", "c" ]) # --> [1, 4, 5]
 
-o1 - [ "a", "c" ] # Same as: o1.RemoveManyAtPositions([ 1, 4, 5 ])
+o1 - [ "a", "c" ] # Same as: o1.RemoveItemsAtPositions([ 1, 4, 5 ])
 
 ? o1.Content() # --> [ "b", "e", "v", "e" ]
 
@@ -878,10 +880,11 @@ StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 }
 
 /*----------------------- TODO: fix error
-
+*/
 # All these return TRUE
 
 ? StzListQ([ :DefaultLocale ]).IsLocaleList()
+/*
 ? StzListQ([ :SystemLocale ]).IsLocaleList()
 ? StzListQ([ :CLocale ]).IsLocaleList()
 
@@ -889,7 +892,7 @@ StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 
 ? StzListQ([ :Language = :Arabic, :Country = :Tunisia ]).IsLocaleList()
 ? StzListQ([ :Country = :Tunisia ]).IsLocaleList()
-
+*/
 /*----------------------- TODO: fix error
 
 # All these return TRUE
@@ -1077,14 +1080,14 @@ class Person name
 # by two given substrings, or even by many of them. So, we say:
 
 oStr = new stzString("|<- Scope of Life ->|")
-? oStr.IsBoundedManyTimesBy([ ["|","|"], ["<",">"], ["-","-"] ]) # --> TRUE
+? oStr.IsBoundedSuccsessivelyBy([ ["|","|"], ["<",">"], ["-","-"] ]) # --> TRUE
 
 # And then we can delete these bounds:
 ? oStr.ManyBoundsRemoved([ ["|","|"], ["<",">"], ["-","-"] ]) # --> " Scope of Life "
 
 # The same semantics apply to lists, like this:
 oList = new stzList([ "|", "<", "-", "Scope", "of", "Life", "-", ">", "|" ])
-? oList.IsBoundedManyTimesBy([ ["|","|"], ["<",">"], ["-","-"] ]) # --> TRUE
+? oList.IsBoundedSuccsessivelyBy([ ["|","|"], ["<",">"], ["-","-"] ]) # --> TRUE
 
 # And we can remove all these boundes, exactly like we did for strings:
 ? oList.ManyBoundsRemoved([ ["|","|"], ["<",">"], ["-","-"] ]) # --> [ "Scope", "of", "Life" ]
@@ -1461,7 +1464,7 @@ o1.InsertBeforeWhere( '{ StzStringQ(@item).IsLowercase() }', "*" )
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
 
-o1.InsertAfterAtManyPositions([ 2, 4, 5 ], "*")
+o1.InsertAfterManyPositions([ 2, 4, 5 ], "*")
 ? o1.Content()
 # Returns [ "a", "b", "*", "c", "d", "*", "e" ]
 
@@ -1469,7 +1472,7 @@ o1.InsertAfterAtManyPositions([ 2, 4, 5 ], "*")
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
 
-o1.InsertBeforeAtManyPositions([ 2, 4, 5 ], "*")
+o1.InsertBeforeManyPositions([ 2, 4, 5 ], "*")
 ? o1.Content()
 # Returns [ "a", "*", "b",  "c", "*", "d", "*", "e" ]
 
@@ -1565,11 +1568,6 @@ o1 = new stzList([ "medianet", "st2i", "webgenetix", "equinoxes", "groupe-lsi",
 
 /*-----------------
 
-o1 = new stzList([ :Direction = :Forward, :CS = TRUE ])
-? o1.IsSplitParamList()
-
-/*-----------------
-
 //? ListReverse([ 1, 2, 3 ])
 
 o1 = new stzList([ "tunis", 1:3, 1:3, "gafsa", "tunis", "tunis", 1:3, "gabes", "tunis", "regueb", "regueb" ])
@@ -1590,12 +1588,6 @@ o1 = new stzList([ "tunis", 1:3, 1:3, "gafsa", "tunis", "tunis", 1:3, "gabes", "
 o1 = new stzList([ "poetry", "music", "theater", "stranger" ])
 o1 - [ "poetry", "music" ]
 ? o1.Content() # --> [ "theater", "stranger" ]
-
-/*---------------------
-
-o1 = new stzList([ "poetry", "music", "theater", "stranger" ])
-o1 - [[ :LastItemIf, :EqualTo, "stranger" ]]
-? o1.Content() # --> [ "poetry", "music", "theater" ]
                                               
 /*---------------------
 
@@ -1681,13 +1673,6 @@ o1 = new stzList([ :Water, :Milk, :Cofee, :Tea, :Sugar, :Honey ])
 
 // Removing one thing
 o1 - :Honey
-
-// Removing the first item if it is equal to :Water
-o1 - [[ :FirstItemIf, :EqualTo, :Water ]]
-
-// Remove the last item if it is equal to :Tea
-// And showing the final content of the list
-? (o1 - [[ :LastItemIf, :EqualTo, :Sugar ]]).Content()
 
 ? o1.IsStrictlyEqualTo([ :water, :coca, :milk, :spice, :cofee, :tea, :honey ])
 
@@ -1829,15 +1814,15 @@ o1 = new stzList([ :en = "house", :fr = "maison", :ar = "منزل" ])
 
 o1 = new stzList([ "green", "red", "blue" ])
 
-? o1.IncludesOneOfThese(["red", "t", "cv"])
+? o1.ContainsOneOfThese(["red", "t", "cv"])
 
-// Checking inclusion (all these return TRUE)
-? o1.IsIncludedIn([ "green", "red", "blue", "magenta", "gray" ])
+// Checking containment (all these return TRUE)
+? o1.IsContainedIn([ "green", "red", "blue", "magenta", "gray" ])
 
-? o1.Includes([ "red", "blue" ])
+? o1.Contains([ "red", "blue" ])
 
-? o1.IncludesOneOfThese([ "yelloW", "GREEN", "magenta" ])
-? o1.IncludesNoOneOfThese([ "yellow", "magenta", "gray" ]) + NL
+? o1.ContainsOneOfThese([ "yelloW", "GREEN", "magenta" ])
+? o1.ContainsNoOneOfThese([ "yellow", "magenta", "gray" ]) + NL
 
 // Checking common and different items
 ? o1.CommonItemsWith([ "yellow", "red", "blue", "gray" ]) 
