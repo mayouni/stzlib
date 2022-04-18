@@ -1880,3 +1880,6 @@ Diacritics
 
 	func InvisibleChars()
 		return UnicodesToChars( InvisibleUnicodes() )
+
+	func Heart()
+		return "♥"

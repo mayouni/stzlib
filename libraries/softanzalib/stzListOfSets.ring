@@ -2,14 +2,15 @@
 class stzListOfSets from stzListOfLists
 	@aContent
 
-	def init(paListOfSets)
-		oTempList = new stzList(paListOfSets)
+	def init(paList)
 
-		if oTempList.AllItemsAreSets()
+		if isList(paList) and
+		   ( Q(paList).IsEmpty() or Q(paList).IsListOfSets() )
+
 			@aContent = paListOfSets
+
 		else
 			stzRaise(stzListOfSetsError(:CanNotCreateListOfSets))
-			//aSets = oTempList.Transform( :AllItems, :ThatAreLists, :ToSets )
 		ok
 
 	def Content()

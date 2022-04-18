@@ -5,8 +5,8 @@ func stzNumberError(pcError)
 
 	on :CanNotCreateStzNumberObject
 		cErrorMsg += "   What : Can't create the number from the provided value." + NL
-		cErrorMsg += "   Why  : Value you provided is either empty string or not a string at all." + NL
-		cErrorMsg += "   Todo : Provide a number in a string of a valid form (decimal, hexadecimal, octal, or binary)."
+		cErrorMsg += "   Why  : Value you provided is not in correct." + NL
+		cErrorMsg += "   Todo : Provide a decimal number, or a number in a string of a valid form (decimal, hexadecimal, octal, or binary)."
 
 	on :CanNotCreateDecimalNumber1
 		cErrorMsg += "   What : Can not create decimal number!" + NL

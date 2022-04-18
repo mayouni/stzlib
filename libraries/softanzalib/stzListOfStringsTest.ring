@@ -1,6 +1,12 @@
 load "stzlib.ring"
 
-? StzListOfStringsQ(' "A":"E" ').Content()
+o1 = new stzListOfStrings([ "str1", "", "str2", "str3", "", "" ])
+o1.RemoveEmptyStrings()
+? o1.Content() #--> [ "str1", "str2", "str3" ]
+
+/*------------------- ERROR
+
+//? StzListOfStringsQ(' "A":"E" ').Content()
 
 /*------------------- ERRORS: fix'em
 
@@ -99,9 +105,10 @@ StzListOfStringsQ([ "one", "two", "three", "two", "four" ]) {
 	? Content() # --> [ "one","three" ]
 }
 
-/*-------------------
-*/
+/*------------------- TODO: Check it --> Retirns nothing!----------------------------
+
 o1 = new stzListOfStrings([ "village", "town", "country" ])
+
 o1.ForEachStringPerform('{ @str = Q(@str).Uppercased() }')
 ? o1.Content() # --> [ "VILLAGE", "TOWN", "COUNTRY" ]
 

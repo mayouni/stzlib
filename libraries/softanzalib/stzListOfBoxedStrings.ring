@@ -1,12 +1,14 @@
 
 
-class stzListOfBoxedStrings from stzObject
+class stzListOfBoxedStrings from stzListOfStrings
 
 	@aListOfStrings
 	@aListOfBoxedStrings
 
 	func init(paListOfStrings, paBoxOptions)
-		if StzListQ(paListOfStrings).IsListOfStrings()
+		if isList(paListOfStrings) and
+		   ( Q(paListOfStrings).IsEmpty() or Q(paListOfStrings).IsListOfNumbers() )
+
 			@aListOfStrings = paListOfStrings
 			@aListOfBoxedStrings = This.pvtBoxedXT(paBoxOptions)
 
@@ -46,7 +48,7 @@ class stzListOfBoxedStrings from stzObject
 		╰───┴───┴─•─┴───╯	
 		*/
 		
-		if StzListQ(paBoxOptions).IsTextBoxedParamList()
+		if StzListQ(paBoxOptions).IsTextBoxedOptionsParamList()
 
 			# Reading the type of line (thin or dashed)
 

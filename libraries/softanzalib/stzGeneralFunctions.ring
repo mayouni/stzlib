@@ -49,7 +49,7 @@ func stzRaise(paMessage)
 		raise(paMessage + NL)
 	ok
 
-	if isList(paMessage) and StzListQ(paMessage).IsRaiseParamList()
+	if isList(paMessage) and StzListQ(paMessage).IsRaiseNamedParamList()
 		cWhere = paMessage[ :Where ]
 		cWhat  = paMessage[ :What   ]
 		cWhy   = paMessage[ :Why    ]
@@ -201,7 +201,7 @@ func DataType(p)
 	return lower(type(p))
 
 
-# DO TWO VARIABLES HAVE SAME TYPE
+# DO TWO VARIABLES HAVE SAME TYPE?
 
 func BothAreNumbers(p1, p2)
 	if isNumber(p1) and isNumber(p2)
@@ -283,10 +283,57 @@ func BothAreStzObjects(p1, p2)
 	func AreBothStzObjects(p1, p2)
 		return BothAreStzObjects(p1, p2)
 
-# 'SAMEBILITY" OF TWO OBJECTS
+# ARE TWO OBJECTS THE SAME?
 
 func AreSameObject(pcObjectName1, pcObjectName2) # TODO
 	return StzObjectQ(pcObjectName1).IsEqualTo( pcObjectName2 )
+
+# REPEATING A THING N TIME
+
+func RepeatNTimes(n, pThing)
+	switch type(pThing)
+	on "STRING"
+		return StzStringQ(pThing).RepeatedNTimes(n)
+
+	on "LIST"
+		return StzListQ(pThing).RepeatedNTimes(n)
+
+	on "NUMBER"
+		return StzNumberQ(pThing).RepeatedNTimes(n)
+
+	on "OBJECT"
+		return StzObjectQ(pThing).RepeatedNTimes(n)
+	off
+
+func One(pThing)
+	return pThing
+
+func Two(pThing)
+	return RepeatNTimes(2, pThing)
+
+func Three(pThing)
+	return RepeatNTimes(3, pThing)
+
+func Four(pThing)
+	return RepeatNTimes(4, pThing)
+
+func Five(pThing)
+	return RepeatNTimes(5, pThing)
+
+func Six(pThing)
+	return RepeatNTimes(6, pThing)
+
+func Seven(pThing)
+	return RepeatNTimes(7, pThing)
+
+func Eight(pThing)
+	return RepeatNTimes(8, pThing)
+
+func Nine(pThing)
+	return RepeatNTimes(9, pThing)
+
+func Ten(pThing)
+	return RepeatNTimes(10, pThing)
 
 # OTHER STAFF
 
@@ -429,3 +476,24 @@ func YaAllah()
 
 func YaMuhammed()
 	return "يا مُحَمَّدْ"
+
+func NTimes(n, pThing)
+	result = NULL
+
+	if isString(pThing)
+		cResult = copy(pThing, n)
+		return cResult
+
+	but isNumber(pThing)
+		cTemp = copy( ""+ pThing, n )
+		nResult = 0+ cTemp
+		return nResult
+
+	but isList(pThing) or isObject(pThing)
+		aResult = []
+		for i = 1 to n
+			aResult + pThing
+		next
+		return aResult
+
+	ok 

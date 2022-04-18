@@ -99,20 +99,36 @@ class stzHashList from stzObject # Also called stzAssociativeList
 	def NumberOfPairs()
 		return len(This.Content())
 
-	def NumberOfPairsQ()
-		new stzNumber(This.NumberOfPairs())
+		def NumberOfPairsQ()
+			new stzNumber(This.NumberOfPairs())
 
 	def Pairs()
 		return Content()
 
-	def PairsList()
-		return This.Pairs()
+		def PairsQ()
+			return This.PairsQR(:stzList)
 
-	def PairsQ()
-		return new stzList( This.Pairs() )
+		def PairsQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
 
-	def PairsListQ()
-		return This.PairsQ()
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+
+			on :stzList
+				return new stzList( This.Pairs() )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.Keys() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
 
 	def Keys()
 		aResult = []
@@ -121,14 +137,29 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		next
 		return aResult
 
-	def KeysQ()
-		return new stzList( This.Keys() )
+		def KeysQ()
+			return This.KeysQR(:stzList)
 
-	def KeysList()
-		return This.Keys()
+		def KeysQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
 
-	def KeysListQ()
-		return This.KeysQ()
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+
+			on :stzList
+				return new stzList( This.Keys() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Keys() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 	def KeysForValue(pValue)
 		aResult = []
@@ -140,6 +171,30 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		next
 
 		return aResult
+
+		def KeysForValueQ()
+			return This.KeysForValueQR(:stzList)
+
+		def KeysForValueQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+
+			on :stzList
+				return new stzList( This.KeysForValue() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.KeysForValue() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
 			
 	def Values()
 		aResult = []
@@ -152,7 +207,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.ValuesQR(:stzList)
 
 		def ValuesQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -218,11 +273,11 @@ class stzHashList from stzObject # Also called stzAssociativeList
 	def NthPairQ(n)
 		return new stzNumber(This.NthPair(n))
 
-	def Pair(n)
+	def PairAt(n)
 		return This.NthPair(n)
 
 	def PairQ(n)
-		return new stzNumber(This.Pair(n))
+		return new stzNumber(This.PairAt(n))
 
 	def KeyInPair(paPair)
 		if isList(paPair) and ListIsPairAndKeyIsString(paPair) and
@@ -313,7 +368,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def Update( paNewHashList )
 		if isList(paNewHashList) and
-		   ( StzListQ(paNewHashList).IsWithParamList() or StzListQ(paNewHashList).IsUsingParamList() )
+		   ( StzListQ(paNewHashList).IsWithNamedParamList() or StzListQ(paNewHashList).IsUsingNamedParamList() )
 
 			paNewHashList = paNewHashList[2]
 
@@ -837,7 +892,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.ClassesQR(:stzList)
 
 		def ClassesQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -862,7 +917,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return This.CategoriesQR(:stzList)
 
 			def CategoriesQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -902,7 +957,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.ClassifyQR(pcReturnType)
 
 		def ClassifyQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 	
@@ -924,7 +979,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.CategoriseQR(pcReturnType)
 
 		def CategoriseQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 	
@@ -943,7 +998,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.CategorizeQR(pcReturnType)
 
 		def CategorizeQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 	
@@ -965,7 +1020,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return aResult
 
 		def KlassQR(pcClass, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1002,7 +1057,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.ClassesInListsQR(:stzList)
 
 		def ClassesInListQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1027,7 +1082,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return This.CategoriesInListQR(:stzList)
 
 			def CategoriesInListQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -1067,7 +1122,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.ClassifyInListQR(pcReturnType)
 
 		def ClassifyInListQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 	
@@ -1089,7 +1144,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.CategoriseInListQR(pcReturnType)
 
 		def CategoriseInListQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 	
@@ -1108,7 +1163,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.CategorizeInListQR(pcReturnType)
 
 		def CategorizeInListQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 	
@@ -1130,7 +1185,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return aResult
 
 		def KlassInListQR(pcClass, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 

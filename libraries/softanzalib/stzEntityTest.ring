@@ -1,5 +1,6 @@
 load "stzlib.ring"
 
+
 /*---------------
 
 # If type is provided NULL then it is atotmatically set to "undefined"

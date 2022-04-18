@@ -1,5 +1,5 @@
 
-Class stzTable from stzObject
+Class stzTable from stzList
 	aTable = []
 
 	def init(paTable)

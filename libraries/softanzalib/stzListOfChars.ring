@@ -70,14 +70,21 @@ func ListOfLetters(paList)
  ///   CLASS   ///
 /////////////////
 
-class stzListOfChars from stzObject
+class stzListOfChars from stzListOfStrings
 	@aContent
 	
 	@aStzChars
 	@cString
 
 	def init(pValue)
-		if isList(pValue) and ListIsListOfChars(pValue)
+
+		if isList(pValue) and
+		   ( Q(pValue).IsEmpty() or Q(pValue).IsListOfNumbers() )
+
+			@aContent = pValue
+
+		but isList(pValue) and Q(pValue).IsListOfChars()
+
 			@aContent = pValue
 
 		but isString(pValue) and StzStringQ(pValue).IsListInString()
@@ -112,7 +119,7 @@ class stzListOfChars from stzObject
 
 	def Update(paOtherListOfChars)
 		if isList(paOtherListOfChars) and
-		   ( StzListQ(paOtherListOfChars).IsWithParamList() or StzListQ(paOtherListOfChars).IsUsingParamList() )
+		   ( StzListQ(paOtherListOfChars).IsWithNamedParamList() or StzListQ(paOtherListOfChars).IsUsingNamedParamList() )
 
 			pcString = pcString[2]
 
@@ -280,7 +287,7 @@ class stzListOfChars from stzObject
 		╰───┴───┴─•─┴───╯	
 		*/
 		
-		if StzListQ(paBoxOptions).IsTextBoxedParamList()
+		if StzListQ(paBoxOptions).IsTextBoxedOptionsParamList()
 
 			# Reading the type of line (thin or dashed)
 
@@ -482,7 +489,7 @@ class stzListOfChars from stzObject
 		return aResult
 
 		def UnicodesQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 

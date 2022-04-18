@@ -209,11 +209,11 @@ func ListIsListOfStrings(paList)
 	func IsListOfStrings(paList)
 		return ListIsListOfStrings(paList)
 
-func IsRangeParamList(paList)
-	return StzListQ(paList).IsRangeParamList()
+func IsRangeNamedParamList(paList)
+	return StzListQ(paList).IsRangeNamedParamList()
 
-	func ListIsRangeParamList(paList)
-		return This.IsRangeParamList(paList)
+	func ListIsRangeNamedParamList(paList)
+		return This.IsRangeNamedParamList(paList)
 
 func ListToCode(paList)
 	return StzListQ( paList ).ToCode()
@@ -496,7 +496,7 @@ class stzList from stzObject
 
 	def Update(paNewList)
 		if isList(paNewList) and
-		   ( StzListQ(paNewList).IsWithParamList() or StzListQ(paNewList).IsUsingParamList() )
+		   ( StzListQ(paNewList).IsWithNamedParamList() or StzListQ(paNewList).IsUsingNamedParamList() )
 
 			paNewList = paNewList[2]
 
@@ -579,7 +579,7 @@ class stzList from stzObject
 			stzRaise("Can't add the item at this position! n must be bigger than NumberOfItems()")
 		else
 			/*
-			If we want to add an item at a position bigger then NumberOfItems()
+			If we add an item at a position bigger then NumberOfItems()
 			then the list is extended and the positions in between are filled
 			with NULL or 0s, depending on wether the list IsHybrid() or it
 			ContainsOnlyNumbers()
@@ -774,7 +774,7 @@ class stzList from stzObject
 
 	def ReplaceAllItems(pNewItem)
 		if isList(pNewItem) and
-		   ( StzListQ(pNewItem).IsWithParamList() or StzListQ(pNewItem).IsByParamList() )
+		   ( StzListQ(pNewItem).IsWithNamedParamList() or StzListQ(pNewItem).IsByNamedParamList() )
 			pNewItem = pNewItem[2]
 		ok
 
@@ -784,7 +784,7 @@ class stzList from stzObject
 
 	def ReplaceAllOccurrencesOfItem(pItem, pNewItem)
 			
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
@@ -845,7 +845,7 @@ class stzList from stzObject
 	def ReplaceManyItems(paItems, pNewItem)
 
 		for item in paItems
-			This.ReplaceAllOccurrences(:Of = item, :With = pNewItem)
+			This.ReplaceAllOccurrences(item, pNewItem)
 		next
 
 		def ReplaceManyItemsQ(paItems, pNewItem)
@@ -882,13 +882,13 @@ class stzList from stzObject
 		
 	def ReplaceManyItemsXT(paItems, paListOfNewItems)
 		
-		if isList(paItems) and StzListQ(paItems).IsOfParamList()
+		if isList(paItems) and StzListQ(paItems).IsOfNamedParamList()
 			paItems = paItems[2]
 		ok
 
 		if isList(paListOfNewItems) and
-		   ( StzListQ(paListOfNewItems).IsWithParamList() OR
-		     StzListQ(paListOfNewItems).IsByParamList() )
+		   ( StzListQ(paListOfNewItems).IsWithNamedParamList() OR
+		     StzListQ(paListOfNewItems).IsByNamedParamList() )
 
 			paListOfNewItems = paListOfNewItems[2]
 		ok
@@ -949,8 +949,8 @@ class stzList from stzObject
 		*/
 
 		if isList(paOtherItems) and
-		   ( StzListQ(paOtherItems).IsWithParamList() OR
-		     StzListQ(paOtherItems).IsByParamList() )
+		   ( StzListQ(paOtherItems).IsWithNamedParamList() OR
+		     StzListQ(paOtherItems).IsByNamedParamList() )
 		
 			paOtherItems = paOtherItems[2]
 		ok
@@ -967,7 +967,7 @@ class stzList from stzObject
 			if i > len(paOtherItems)
 				i = 1
 			ok
-			This.ReplaceItemAtPosition(nPos, :With = paOtherItems[i])
+			This.ReplaceItemAtPosition(nPos, paOtherItems[i])
 			
 		next
 
@@ -982,13 +982,13 @@ class stzList from stzObject
 	//>>>>>>> REPLACING NTH OCCURRENCE OF AN ITEM
 
 	def ReplaceNthOccurrence(n, pItem, pValue)
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
 		if isList(pValue) and
-		   ( StzListQ(pValue).IsWithParamList() OR
-		     StzListQ(pValue).IsByParamList() )
+		   ( StzListQ(pValue).IsWithNamedParamList() OR
+		     StzListQ(pValue).IsByNamedParamList() )
 		
 			pValue = pValue[2]
 		ok
@@ -1051,63 +1051,80 @@ class stzList from stzObject
 	//>>>>>>>  REPLACING NEXT NTH OCCURRENCE OF AN ITEM
 	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
 
-	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pStartingAt)
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
 		if isList(pNewItem) and
-		   ( StzListQ(pNewItem).IsWithParamList() OR
-		     StzListQ(pNewItem).IsByParamList() )
+		   ( StzListQ(pNewItem).IsWithNamedParamList() OR
+		     StzListQ(pNewItem).IsByNamedParamList() )
 
 			pNewItem = pNewItem[2]
 		ok
 
-		if isList(pStartingAt) and StzListQ(pStartingAt).IsStartingAtParamList()
-			pStartingAt = pStartingAt[2]
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+			pnStartingAt = pnStartingAt[2]
 		ok
 
-		oSection   = This.SectionQ(pStartingAt, :LastItem)
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstItem ], :CS = FALSE)
+
+				pnStartingAt = 1
+			
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param! pnStartingAt must be a number.")
+		ok
+
+		oSection   = This.SectionQ(pnStartingAt, :LastItem)
 		aPositions = oSection.FindAll(pItem)
 
-		aPositions = StzListOfNumbersQ(aPositions).AddToEachQ(pStartingAt - 1).Content()
+		aPositions = StzListOfNumbersQ(aPositions).AddToEachQ(pnStartingAt - 1).Content()
 		nPosition = aPositions[n]
 
 		This.ReplaceItemAtPosition(nPosition, pNewItem)
 
-		def ReplaceNextNthOccurrenceQ(n, pItem, pNewItem, pStartingAt)
-			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pStartingAt)
+		def ReplaceNextNthOccurrenceQ(n, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 			return This
 
-		def ReplaceNthNextOccurrence(n, pItem, pNewItem, pStartingAt)
-			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pStartingAt)
+		def ReplaceNthNextOccurrence(n, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 
-			def ReplaceNthNextOccurrenceQ(n, pItem, pNewItem, pStartingAt)
-				This.ReplaceNthNextOccurrence(n, pItem, pNewItem, pStartingAt)
+			def ReplaceNthNextOccurrenceQ(n, pItem, pNewItem, pnStartingAt)
+				This.ReplaceNthNextOccurrence(n, pItem, pNewItem, pnStartingAt)
 				return This
 
-	def NthNextOccurrenceReplaced(n, pItem, pNewItem, pStartingAt)
-		aResult = This.Copy().ReplaceNthNextOccurrenceQ(n, pItem, pNewItem, pStartingAt).Content()
+	def NthNextOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
+		aResult = This.Copy().ReplaceNthNextOccurrenceQ(n, pItem, pNewItem, pnStartingAt).Content()
 		return aResult
 
-		def NextNthOccurrenceReplaced(n, pItem, pNewItem, pStartingAt)
-			return This.NthNextOccurrenceReplaced(n, pItem, pNEwItem, pStartingAt)
+		def NextNthOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
+			return This.NthNextOccurrenceReplaced(n, pItem, pNEwItem, pnStartingAt)
 
-	def ReplaceNextOccurence(pItem, pNewItem, pStartingAt)
-		This.ReplaceNextNthOccurence(1, pItem, pNewItem, pStartingAt)
+	def ReplaceNextOccurrence(pItem, pNewItem, pnStartingAt)
+		This.ReplaceNextNthOccurrence(1, pItem, pNewItem, pnStartingAt)
 
-		def ReplaceNextOccurenceQ(pItem, pNewItem, pStartingAt)
-			This.ReplaceNextOccurence(pItem, pNewItem, pStartingAt)
+		def ReplaceNextOccurrenceQ(pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextOccurrence(pItem, pNewItem, pnStartingAt)
 			return This
 
-	def NextOccurenceReplaced(pItem, pNewItem, pStartingAt)
-		aResult = This.Copy().ReplaceNextOccurenceQ(pItem, pNewItem, pStartingAt).Content()
+	def NextOccurrenceReplaced(pItem, pNewItem, pnStartingAt)
+		aResult = This.Copy().ReplaceNextOccurrenceQ(pItem, pNewItem, pnStartingAt).Content()
 		return aResult
 
 	//>>>>>>>  REPLACING MANY NEXT NTH OCCURRENCES OF AN ITEM
 	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
 
-	def ReplaceNextNthOccurrences(panList, pItem, pNewItem, pStartingAt)
+	def ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 		/* Example
 
 		StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
@@ -1123,23 +1140,40 @@ class stzList from stzObject
 			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
 		if isList(pNewItem) and
-		   ( StzListQ(pNewItem).IsWithParamList() or StzListQ(pNewItem).IsByParamList() )
+		   ( StzListQ(pNewItem).IsWithNamedParamList() or StzListQ(pNewItem).IsByNamedParamList() )
 
 			pNewItem = pNewItem[2]
 		ok
-
-		if isList(pStartingAt) and StzListQ(pStartingAt).IsStartingAtParamList()
-			pStartingAt = pStartingAt[2]
+		
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+			pnStartingAt = pnStartingAt[2]
 		ok
-			
-		oSection = This.SectionQ(pStartingAt, :LastItem)
 
-		anPositions = oSection.FindAllQR(pItem, :stzListOfNumbers).AddToEachQ(pStartingAt-1).Content()
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstItem ], :CS = FALSE)
+
+				pnStartingAt = 1
+			
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfItems()
+			ok
+		ok
+	
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param! pnStartingAt must be a number.")
+		ok
+
+		oSection = This.SectionQ(pnStartingAt, :LastItem)
+
+		anPositions = oSection.FindAllQR(pItem, :stzListOfNumbers).AddToEachQ(pnStartingAt-1).Content()
 
 		anPositionsToBeReplaced = []
 		i = 0
@@ -1150,92 +1184,109 @@ class stzList from stzObject
 			ok
 		next
 
-		This.ReplaceAllItemsAtThesePositions(anPositionsToBeReplaced, :With = pNewItem)
+		This.ReplaceAllItemsAtThesePositions(anPositionsToBeReplaced, pNewItem)
 
 		#< @FunctionFluentForm
 
-		def ReplaceNextNthOccurrencesQ(panList, pItem, pNewItem, pStartingAt)
-			This.ReplaceNextNthOccurrences(panList, pItem, pNewItem, pStartingAt)
+		def ReplaceNextNthOccurrencesQ(panList, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceNthNextOccurrences(panList, pItem, pNewItem, pStartingAt)
-			This.ReplaceNextNthOccurrences(panList, pItem, pNewItem, pStartingAt)
+		def ReplaceNthNextOccurrences(panList, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 
-			def ReplaceNthNextOccurrencesQ(panList, pItem, pNewItem, pStartingAt)
-				This.ReplaceNthNextOccurrences(panList, pItem, pNewItem, pStartingAt)
+			def ReplaceNthNextOccurrencesQ(panList, pItem, pNewItem, pnStartingAt)
+				This.ReplaceNthNextOccurrences(panList, pItem, pNewItem, pnStartingAt)
 				return This
 		#>
 
-	def NextNthOccurrencesReplaced(panList, pItem, pNewItem, pStartingAt)
-		aResult = This.ReplaceNextNthOccurrencesQ(panList, pItem, pNewItem, pStartingAt).Content()
+	def NextNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
+		aResult = This.ReplaceNextNthOccurrencesQ(panList, pItem, pNewItem, pnStartingAt).Content()
 		return aResult
 
-		def NthNextOccurrencesReplaced(panList, pItem, pNewItem, pStartingAt)
-			return This.NextNthOccurrencesReplaced(panList, pItem, pNewItem, pStartingAt)
+		def NthNextOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
+			return This.NextNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 
 	//>>>>>>>  REPLACING PREVIOUS NTH OCCURRENCE OF AN ITEM
 	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
 
-	def ReplacePreviousNthOccurrence(n, pItem, pNewItem, pStartingAt)
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+	def ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
 		if isList(pNewItem) and
-		   ( StzListQ(pNewItem).IsWithParamList() OR
-		     StzListQ(pNewItem).IsByParamList() )
+		   ( StzListQ(pNewItem).IsWithNamedParamList() OR
+		     StzListQ(pNewItem).IsByNamedParamList() )
 
 			pNewItem = pNewItem[2]
 		ok
 
-		if isList(pStartingAt) and StzListQ(pStartingAt).IsStartingAtParamList()
-			pStartingAt = pStartingAt[2]
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+			pnStartingAt = pnStartingAt[2]
 		ok
 
-		oSection   = This.SectionQ(1, pStartingAt)
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstItem ], :CS = FALSE)
+
+				pnStartingAt = 1
+			
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param! pnStartingAt must be a number.")
+		ok
+
+		oSection   = This.SectionQ(1, pnStartingAt)
 		aPositions = oSection.FindAll(pItem)
 
 		nPosition = aPositions[ len(aPositions) - n + 1 ]
 
 		This.ReplaceItemAtPosition(nPosition, pNewItem)
 
-		def ReplacePreviousNthOccurrenceQ(n, pItem, pNewItem, pStartingAt)
-			This.ReplacePreviousNthOccurrence(n, pItem, pNewItem, pStartingAt)
+		def ReplacePreviousNthOccurrenceQ(n, pItem, pNewItem, pnStartingAt)
+			This.ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 			return This
 
-		def ReplaceNthPreviousOccurrence(n, pItem, pNewItem, pStartingAt)
-			This.ReplacePreviousNthOccurrence(n, pItem, pNewItem, pStartingAt)
+		def ReplaceNthPreviousOccurrence(n, pItem, pNewItem, pnStartingAt)
+			This.ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 
-			def ReplaceNthPreviousOccurrenceQ(n, pItem, pNewItem, pStartingAt)
-				This.ReplaceNthPreviousOccurrence(n, pItem, pNewItem, pStartingAt)
+			def ReplaceNthPreviousOccurrenceQ(n, pItem, pNewItem, pnStartingAt)
+				This.ReplaceNthPreviousOccurrence(n, pItem, pNewItem, pnStartingAt)
 				return This
 
-	def NthPreviousOccurrenceReplaced(n, pItem, pNewItem, pStartingAt)
-		aResult = This.Copy().ReplaceNthPreviousOccurrenceQ(n, pItem, pNewItem, pStartingAt).Content()
+	def NthPreviousOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
+		aResult = This.Copy().ReplaceNthPreviousOccurrenceQ(n, pItem, pNewItem, pnStartingAt).Content()
 		return aResult
 
-		def PreviousNthOccurrenceReplaced(n, pItem, pNewItem, pStartingAt)
-			return This.NthPreviousOccurrenceReplaced(n, pItem, pStartingAt)
+		def PreviousNthOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
+			return This.NthPreviousOccurrenceReplaced(n, pItem, pnStartingAt)
 
-	def ReplacePreviousOccurence(pItem, pNewItem, pStartingAt)
-		This.ReplacePreviousNthOccurence(1, pItem, pNewItem, pStartingAt)
+	def ReplacePreviousOccurrence(pItem, pNewItem, pnStartingAt)
+		This.ReplacePreviousNthOccurrence(1, pItem, pNewItem, pnStartingAt)
 
-		def ReplacePreviousOccurenceQ(pItem, pNewItem, pStartingAt)
-			This.ReplacePreviousOccurence(pItem, pNewItem, pStartingAt)
+		def ReplacePreviousOccurrenceQ(pItem, pNewItem, pnStartingAt)
+			This.ReplacePreviousOccurrence(pItem, pNewItem, pnStartingAt)
 			return This
 
-	def PreviousOccurenceReplaced(pItem, pNewItem, pStartingAt)
-		aResult = This.Copy().ReplacePreviousOccurenceQ(pItem, pNewItem, pStartingAt).Content()
+	def PreviousOccurrenceReplaced(pItem, pNewItem, pnStartingAt)
+		aResult = This.Copy().ReplacePreviousOccurrenceQ(pItem, pNewItem, pnStartingAt).Content()
 		return aResult
 
 	//>>>>>>>  REPLACING MANY PREVIOUS NTH OCCURRENCES OF AN ITEM
 	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
 
-	def ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pStartingAt)
+	def ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 		/* Example
 
 		StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
@@ -1251,21 +1302,38 @@ class stzList from stzObject
 			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
 		if isList(pNewItem) and
-		   ( StzListQ(pNewItem).IsWithParamList() or StzListQ(pNewItem).IsByParamList() )
+		   ( StzListQ(pNewItem).IsWithNamedParamList() or StzListQ(pNewItem).IsByNamedParamList() )
 
 			pNewItem = pNewItem[2]
 		ok
 
-		if isList(pStartingAt) and StzListQ(pStartingAt).IsStartingAtParamList()
-			pStartingAt = pStartingAt[2]
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+			pnStartingAt = pnStartingAt[2]
 		ok
+
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstItem ], :CS = FALSE)
+
+				pnStartingAt = 1
 			
-		oSection = This.SectionQ(1, pStartingAt)
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param! pnStartingAt must be a number.")
+		ok
+
+		oSection = This.SectionQ(1, pnStartingAt)
 
 		anPositions = oSection.FindAllQ(pItem).ItemsReversed()
 
@@ -1278,32 +1346,32 @@ class stzList from stzObject
 			ok
 		next
 
-		This.ReplaceAllItemsAtThesePositions(anPositionsToBeReplaced, :With = pNewItem)
+		This.ReplaceAllItemsAtThesePositions(anPositionsToBeReplaced, pNewItem)
 
 		#< @FunctionFluentForm
 
-		def ReplacePreviousNthOccurrencesQ(panList, pItem, pNewItem, pStartingAt)
-			This.ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pStartingAt)
+		def ReplacePreviousNthOccurrencesQ(panList, pItem, pNewItem, pnStartingAt)
+			This.ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceNthPreviousOccurrences(panList, pItem, pNewItem, pStartingAt)
-			This.ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pStartingAt)
+		def ReplaceNthPreviousOccurrences(panList, pItem, pNewItem, pnStartingAt)
+			This.ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 
-			def ReplaceNthPreviousOccurrencesQ(panList, pItem, pNewItem, pStartingAt)
-				This.ReplaceNthPreviousOccurrences(panList, pItem, pNewItem, pStartingAt)
+			def ReplaceNthPreviousOccurrencesQ(panList, pItem, pNewItem, pnStartingAt)
+				This.ReplaceNthPreviousOccurrences(panList, pItem, pNewItem, pnStartingAt)
 				return This
 		#>
 
-	def PreviousNthOccurrencesReplaced(panList, pItem, pNewItem, pStartingAt)
-		aResult = This.ReplacePreviousNthOccurrencesQ(panList, pItem, pNewItem, pStartingAt).Content()
+	def PreviousNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
+		aResult = This.ReplacePreviousNthOccurrencesQ(panList, pItem, pNewItem, pnStartingAt).Content()
 		return aResult
 
-		def NthPreviousOccurrencesReplaced(panList, pItem, pNewItem, pStartingAt)
-			return This.PreviousNthOccurrencesReplaced(panList, pItem, pNewItem, pStartingAt)
+		def NthPreviousOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
+			return This.PreviousNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 
 	//>>>>>>>   REPLACING ITEM BY POSITION
 
@@ -1339,8 +1407,8 @@ class stzList from stzObject
 		cValue = ""
 
 		if isList(pValue) and
-		   ( StzListQ(pValue).IsWithParamList() or
-		     StzListQ(pValue).IsByParamList() )
+		   ( StzListQ(pValue).IsWithNamedParamList() or
+		     StzListQ(pValue).IsByNamedParamList() )
 
 			cValue = pValue[2]
 			
@@ -1371,14 +1439,14 @@ class stzList from stzObject
 		#>
 	
 	def ItemAtPositionNReplacedWith(n, pValue)
-		aResult = This.Copy().ReplaceItemAtPositionQ( n, :With = pValue ).Content()
+		aResult = This.Copy().ReplaceItemAtPositionQ( n, pValue ).Content()
 		return aResult
 
 		def NthItemReplacedWith(n, pValue)
 			return This.ItemAtPositionNReplacedWith(n, pValue)
 
 	def ReplaceFirstItem(pValue)
-		This.ReplaceItemAtPosition(1, :With = pValue)
+		This.ReplaceItemAtPosition(1, pValue)
 
 		#< @FunctionFluentForm
 
@@ -1400,7 +1468,7 @@ class stzList from stzObject
 		return aResult
 
 	def ReplaceLastItem(pValue)
-		This.ReplaceItemAtPosition( This.NumberOfItems(), :With = pValue)
+		This.ReplaceItemAtPosition( This.NumberOfItems(), pValue)
 
 		#< @FunctionFluentForm	
 
@@ -1535,8 +1603,19 @@ class stzList from stzObject
 		aResult = This.ReplaceSectionQ(n1, n2, paOtherList).Content()
 		return aResult
 
-	def ReplaceManySections(paSections, paOtherLists)
-		// TODO
+	def ReplaceManySections(panSections, paOtherLists)
+
+		i = 0
+		for anSection in panSections
+			i++
+			if i <= len(paOtherLists)
+				pItem = paOtherLists[i]
+			else
+				pItem = NULL
+			ok
+
+			This.ReplaceSection(anSection, pItem)
+		next
 
 		def ReplaceManySectionsQ(paSections, paOtherLists)
 			This.ReplaceManySections(paSections, paOtherLists)
@@ -1604,7 +1683,7 @@ class stzList from stzObject
 			stzRaise("Incorrect param type! pValue must be string or list.")
 		ok 
 
-		if isList(pCondition) and StzListQ(pCondition).IsWhereParamList()
+		if isList(pCondition) and StzListQ(pCondition).IsWhereNamedParamList()
 			cCondition = pCondition[2]
 		ok
 
@@ -1617,45 +1696,56 @@ class stzList from stzObject
 		cReplace = :With
 
 		if isList(pValue) and
-		   ( StzListQ(pValue).IsByParamList() or StzListQ(pValue).IsWithParamList() )
+		   ( StzListQ(pValue).IsByNamedParamList() or StzListQ(pValue).IsWithNamedParamList() )
 
 			cReplace = pValue[1]
-			cValue = pValue[2]
+			pValue = pValue[2]
 		ok
 
-		cCondition = StzStringQ(cCondition).RemoveBoundsQ("{","}").Simplified()
+		if cReplace = :With@
+			if NOT isString(pValue)
+				stzRaise("Uncorrect value! The value provided after :With@ must be a string containing a Ring expression.")
+			ok
+		ok
 
-		# NOTE: Don't change the name of var @i
+		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzList)
+		oCondition = new stzString(cCondition)
 
-		Previous@i = 0
-		Next@i = 0
+		# NOTE: Don't change the name of vars @i and @item
+		# because they'r used by the evaluated conditional-code.
 
 		for @i = 1 to This.NumberOfItems()
 
 			@item = This[@i]
+			bEval = TRUE
 
-			if @i <= This.NumberOfItems()
-				Next@i = @i + 1
+			if @i = This.NumberOfItems() and
+			   oCondition.Copy().RemoveSpacesQ().ContainsCS("This[i+1]", :CS = FALSE)
+
+				bEval = FALSE
 			ok
 
-			if @i > 1
-				Previous@i = @i - 1
+			if @i = 1 and
+			   oCondition.Copy().RemoveSpacesQ().ContainsCS("This[i-1]", :CS = FALSE)
+
+				bEval = FALSE
 			ok
 
-			cCode = 'bReplaceIt = ( ' + cCondition + ' )'
-
-			eval(cCode)
-
-			if bReplaceIt
-				if cReplace = :With
-					This.ReplaceItemAtPosition(@i, cValue)
-	
-				but cReplace = :With@
-					cValue = StzStringQ(cValue).RemoveBoundsQ("{","}").Simplified()
-					cCode = "value = " + cValue
-					eval(cCode)
-					This.ReplaceItemAtPosition(@i, value)	
-	
+			if bEval
+				cCode = 'bOk = ( ' + cCondition + ' )'
+				eval(cCode)
+			
+				if bOk
+					if cReplace = :With
+						This.ReplaceItemAtPosition(@i, pValue)
+		
+					but cReplace = :With@
+						cValue = StzCCodeQ(pValue).UnifiedFor(:stzList)
+						cCode = "value = " + cValue
+						eval(cCode)
+						This.ReplaceItemAtPosition(@i, value)	
+		
+					ok
 				ok
 			ok
 
@@ -1952,56 +2042,73 @@ class stzList from stzObject
 	//>>>>>>>  REMOVING NEXT NTH OCCURRENCE OF AN ITEM
 	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
 
-	def RemoveNextNthOccurrence(n, pItem, pStartingAt)
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+	def RemoveNextNthOccurrence(n, pItem, pnStartingAt)
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
-		if isList(pStartingAt) and StzListQ(pStartingAt).IsStartingAtParamList()
-			pStartingAt = pStartingAt[2]
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+			pnStartingAt = pnStartingAt[2]
 		ok
 
-		oSection   = This.SectionQ(pStartingAt, :LastItem)
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstItem ], :CS = FALSE)
+
+				pnStartingAt = 1
+			
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param! pnStartingAt must be a number.")
+		ok
+
+		oSection   = This.SectionQ(pnStartingAt, :LastItem)
 		aPositions = oSection.FindAll(pItem)
 
-		aPositions = StzListOfNumbersQ(aPositions).AddToEachQ(pStartingAt - 1).Content()
+		aPositions = StzListOfNumbersQ(aPositions).AddToEachQ(pnStartingAt - 1).Content()
 		nPosition = aPositions[n]
 
 		This.RemoveItemAtPosition(nPosition)
 
-		def RemoveNextNthOccurrenceQ(n, pItem, pStartingAt)
-			This.RemoveNextNthOccurrence(n, pItem, pStartingAt)
+		def RemoveNextNthOccurrenceQ(n, pItem, pnStartingAt)
+			This.RemoveNextNthOccurrence(n, pItem, pnStartingAt)
 			return This
 
-		def RemoveNthNextOccurrence(n, pItem, pStartingAt)
-			This.RemoveNextNthOccurrence(n, pItem, pStartingAt)
+		def RemoveNthNextOccurrence(n, pItem, pnStartingAt)
+			This.RemoveNextNthOccurrence(n, pItem, pnStartingAt)
 
-			def RemoveNthNextOccurrenceQ(n, pItem, pStartingAt)
-				This.RemoveNthNextOccurrence(n, pItem, pStartingAt)
+			def RemoveNthNextOccurrenceQ(n, pItem, pnStartingAt)
+				This.RemoveNthNextOccurrence(n, pItem, pnStartingAt)
 				return This
 
-	def NthNextOccurrenceRemoved(n, pItem, pStartingAt)
-		aResult = This.Copy().RemoveNthNextOccurrenceQ(n, pItem, pStartingAt).Content()
+	def NthNextOccurrenceRemoved(n, pItem, pnStartingAt)
+		aResult = This.Copy().RemoveNthNextOccurrenceQ(n, pItem, pnStartingAt).Content()
 		return aResult
 
-		def NextNthOccurrenceRemoved(n, pItem, pStartingAt)
-			return This.NthNextOccurrenceRemoved(n, pItem, pStartingAt)
+		def NextNthOccurrenceRemoved(n, pItem, pnStartingAt)
+			return This.NthNextOccurrenceRemoved(n, pItem, pnStartingAt)
 
-	def RemoveNextOccurence(pItem, pStartingAt)
-		This.RemoveNextNthOccurence(1, pItem, pStartingAt)
+	def RemoveNextOccurrence(pItem, pnStartingAt)
+		This.RemoveNextNthOccurrence(1, pItem, pnStartingAt)
 
-		def RemoveNextOccurenceQ(pItem, pStartingAt)
-			This.RemoveNextOccurence(pItem, pStartingAt)
+		def RemoveNextOccurrenceQ(pItem, pnStartingAt)
+			This.RemoveNextOccurrence(pItem, pnStartingAt)
 			return This
 
-	def NextOccurenceRemoved(pItem, pStartingAt)
-		aRrsult = This.Copy().RemoveNextOccurenceQ(pItem, pStartingAt).Content()
+	def NextOccurrenceRemoved(pItem, pnStartingAt)
+		aRrsult = This.Copy().RemoveNextOccurrenceQ(pItem, pnStartingAt).Content()
 		return This
 
 	//>>>>>>>  REMOVING MANY NEXT NTH OCCURRENCES OF AN ITEM
 	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
 
-	def RemoveNextNthOccurrences(panList, pItem, pStartingAt)
+	def RemoveNextNthOccurrences(panList, pItem, pnStartingAt)
 		/* Example
 
 		StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
@@ -2017,17 +2124,34 @@ class stzList from stzObject
 			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
-		if isList(pStartingAt) and StzListQ(pStartingAt).IsStartingAtParamList()
-			pStartingAt = pStartingAt[2]
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+			pnStartingAt = pnStartingAt[2]
 		ok
-			
-		oSection = This.SectionQ(pStartingAt, :LastItem)
 
-		anPositions = oSection.FindAllQR(pItem, :stzListOfNumbers).AddToEachQ(pStartingAt-1).Content()
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstItem ], :CS = FALSE)
+
+				pnStartingAt = 1
+			
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfItems()
+			ok
+		ok
+	
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param! pnStartingAt must be a number.")
+		ok
+
+		oSection = This.SectionQ(pnStartingAt, :LastItem)
+
+		anPositions = oSection.FindAllQR(pItem, :stzListOfNumbers).AddToEachQ(pnStartingAt-1).Content()
 
 		anPositionsToBeRemoved = []
 		i = 0
@@ -2042,81 +2166,98 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def RemoveNextNthOccurrencesQ(panList, pItem, pStartingAt)
-			This.RemoveNextNthOccurrences(panList, pItem, pStartingAt)
+		def RemoveNextNthOccurrencesQ(panList, pItem, pnStartingAt)
+			This.RemoveNextNthOccurrences(panList, pItem, pnStartingAt)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def RemoveNthNextOccurrences(panList, pItem, pStartingAt)
-			This.RemoveNextNthOccurrences(panList, pItem, pStartingAt)
+		def RemoveNthNextOccurrences(panList, pItem, pnStartingAt)
+			This.RemoveNextNthOccurrences(panList, pItem, pnStartingAt)
 
-			def RemoveNthNextOccurrencesQ(panList, pItem, pStartingAt)
-				This.RemoveNthNextOccurrences(panList, pItem, pStartingAt)
+			def RemoveNthNextOccurrencesQ(panList, pItem, pnStartingAt)
+				This.RemoveNthNextOccurrences(panList, pItem, pnStartingAt)
 				return This
 		#>
 
-	def NextNthOccurrencesRemoved(panList, pItem, pStartingAt)
-		aResult = This.RemoveNextNthOccurrencesQ(panList, pItem, pStartingAt).Content()
+	def NextNthOccurrencesRemoved(panList, pItem, pnStartingAt)
+		aResult = This.RemoveNextNthOccurrencesQ(panList, pItem, pnStartingAt).Content()
 		return aResult
 
-		def NthNextOccurrencesRemoved(panList, pItem, pStartingAt)
-			return This.NextNthOccurrencesRemoved(panList, pItem, pStartingAt)
+		def NthNextOccurrencesRemoved(panList, pItem, pnStartingAt)
+			return This.NextNthOccurrencesRemoved(panList, pItem, pnStartingAt)
 
 	//>>>>>>>  REMOVING PREVIOUS NTH OCCURRENCE OF AN ITEM
 	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
 
-	def RemovePreviousNthOccurrence(n, pItem, pStartingAt)
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+	def RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
-		if isList(pStartingAt) and StzListQ(pStartingAt).IsStartingAtParamList()
-			pStartingAt = pStartingAt[2]
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+			pnStartingAt = pnStartingAt[2]
 		ok
 
-		oSection   = This.SectionQ(1, pStartingAt)
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstItem ], :CS = FALSE)
+
+				pnStartingAt = 1
+			
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param! pnStartingAt must be a number.")
+		ok
+
+		oSection   = This.SectionQ(1, pnStartingAt)
 		aPositions = oSection.FindAll(pItem)
 
 		nPosition = aPositions[ len(aPositions) - n + 1 ]
 
 		This.RemoveItemAtPosition(nPosition)
 
-		def RemovePreviousNthOccurrenceQ(n, pItem, pStartingAt)
-			This.RemovePreviousNthOccurrence(n, pItem, pStartingAt)
+		def RemovePreviousNthOccurrenceQ(n, pItem, pnStartingAt)
+			This.RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
 			return This
 
-		def RemoveNthPreviousOccurrence(n, pItem, pStartingAt)
-			This.RemovePreviousNthOccurrence(n, pItem, pStartingAt)
+		def RemoveNthPreviousOccurrence(n, pItem, pnStartingAt)
+			This.RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
 
-			def RemoveNthPreviousOccurrenceQ(n, pItem, pStartingAt)
-				This.RemoveNthPreviousOccurrence(n, pItem, pStartingAt)
+			def RemoveNthPreviousOccurrenceQ(n, pItem, pnStartingAt)
+				This.RemoveNthPreviousOccurrence(n, pItem, pnStartingAt)
 				return This
 
-	def NthPreviousOccurrenceRemoved(n, pItem, pStartingAt)
-		aResult = This.Copy().RemoveNthPreviousOccurrenceQ(n, pItem, pStartingAt).Content()
+	def NthPreviousOccurrenceRemoved(n, pItem, pnStartingAt)
+		aResult = This.Copy().RemoveNthPreviousOccurrenceQ(n, pItem, pnStartingAt).Content()
 		return This
 
-		def PreviousNthOccurrenceRemoved(n, pItem, pStartingAt)
-			return This.NthPreviousOccurrenceRemoved(n, pItem, pStartingAt)
+		def PreviousNthOccurrenceRemoved(n, pItem, pnStartingAt)
+			return This.NthPreviousOccurrenceRemoved(n, pItem, pnStartingAt)
 
-	def RemovePreviousOccurence(pItem, pStartingAt)
-		This.RemovePreviousNthOccurence(1, pItem, pStartingAt)
+	def RemovePreviousOccurrence(pItem, pnStartingAt)
+		This.RemovePreviousNthOccurrence(1, pItem, pnStartingAt)
 
-		def RemovePreviousOccurenceQ(pItem, pStartingAt)
-			This.RemovePreviousOccurence(pItem, pStartingAt)
+		def RemovePreviousOccurrenceQ(pItem, pnStartingAt)
+			This.RemovePreviousOccurrence(pItem, pnStartingAt)
 			return This
 
-	def PreviousOccurenceRemoved(pItem, pStartingAt)
-		aResult = This.Copy().RemovePreviousOccurenceQ(pItem, pStartingAt).Content()
+	def PreviousOccurrenceRemoved(pItem, pnStartingAt)
+		aResult = This.Copy().RemovePreviousOccurrenceQ(pItem, pnStartingAt).Content()
 		return This
 
 	//>>>>>>>  REMOVING MANY PREVIOUS NTH OCCURRENCES OF AN ITEM
 	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
 
-	def RemovePreviousNthOccurrences(panList, pItem, pStartingAt)
+	def RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
 		/* Example
 
 		StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
@@ -2132,15 +2273,32 @@ class stzList from stzObject
 			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
-		if isList(pStartingAt) and StzListQ(pStartingAt).IsStartingAtParamList()
-			pStartingAt = pStartingAt[2]
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+			pnStartingAt = pnStartingAt[2]
 		ok
+
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstItem ], :CS = FALSE)
+
+				pnStartingAt = 1
 			
-		oSection = This.SectionQ(1, pStartingAt)
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param! pnStartingAt must be a number.")
+		ok
+
+		oSection = This.SectionQ(1, pnStartingAt)
 
 		anPositions = oSection.FindAllQ(pItem).ItemsReversed()
 
@@ -2157,28 +2315,28 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def RemovePreviousNthOccurrencesQ(panList, pItem, pStartingAt)
-			This.RemovePreviousNthOccurrences(panList, pItem, pStartingAt)
+		def RemovePreviousNthOccurrencesQ(panList, pItem, pnStartingAt)
+			This.RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def RemoveNthPreviousOccurrences(panList, pItem, pStartingAt)
-			This.RemovePreviousNthOccurrences(panList, pItem, pStartingAt)
+		def RemoveNthPreviousOccurrences(panList, pItem, pnStartingAt)
+			This.RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
 
-			def RemoveNthPreviousOccurrencesQ(panList, pItem, pStartingAt)
-				This.RemoveNthPreviousOccurrences(panList, pItem, pStartingAt)
+			def RemoveNthPreviousOccurrencesQ(panList, pItem, pnStartingAt)
+				This.RemoveNthPreviousOccurrences(panList, pItem, pnStartingAt)
 				return This
 		#>
 
-	def PreviousNthOccurrencesRemoved(panList, pItem, pStartingAt)
-		aResult = This.RemovePreviousNthOccurrencesQ(panList, pItem, pStartingAt).Content()
+	def PreviousNthOccurrencesRemoved(panList, pItem, pnStartingAt)
+		aResult = This.RemovePreviousNthOccurrencesQ(panList, pItem, pnStartingAt).Content()
 		return aResult
 
-		def NthPreviousOccurrencesRemoved(panList, pItem, pStartingAt)
-			return This.PreviousNthOccurrencesRemoved(panList, pItem, pStartingAt)
+		def NthPreviousOccurrencesRemoved(panList, pItem, pnStartingAt)
+			return This.PreviousNthOccurrencesRemoved(panList, pItem, pnStartingAt)
 
 	//>>>>>>>  REMOVING AN ITEM BY SPECIFYING ITS POSITION
 
@@ -2288,12 +2446,6 @@ class stzList from stzObject
 				This.RemoveAllItemsAtThesePositions(panPositions)
 				return This
 
-		def RemoveManyAtPositions(panPositions)
-			This.RemoveItemsAtPositions(panPositions)
-
-			def RemoveManyAtPositionsQ(panPositions)
-				This.RemoveManyAtPositions(panPositions)
-				return This
 		#>
 		
 	def ItemsAtThesePositionsRemoved(panPositions)
@@ -2336,8 +2488,15 @@ class stzList from stzObject
 
 	//>>>>>>> REMOVING MANY RANGES OF ITEMS
 
-	def RemoveManyRanges(paRanges)
-		// TODO
+	def RemoveManyRanges(panRanges)
+
+		for anRange in panRanges
+			anRange = RangeToSection(anRange)
+		next
+
+		anSections = panRanges
+
+		This.RemoveManySections(anSections)
 
 		def RemoveManyRangesQ(paRanges)
 			This.RemoveManyRanges(paRanges)
@@ -2350,11 +2509,11 @@ class stzList from stzObject
 	//>>>>>>> REMOVING A SECTION OF ITEMS
 
 	def RemoveSection(n1, n2)
-		if isList(n1) and StzListQ(n1).IsFromParamList()
+		if isList(n1) and StzListQ(n1).IsFromNamedParamList()
 			n1 = n1[2]
 		ok
 
-		if isList(n2) and StzListQ(n2).IsToParamList()
+		if isList(n2) and StzListQ(n2).IsToNamedParamList()
 			n2 = n2[2]
 		ok
 
@@ -2374,8 +2533,79 @@ class stzList from stzObject
 
 	//>>>>>>> REMOVING MANY SECTIONS OF ITEMS
 
-	def RemoveManySections(paRanges)
-		// TODO
+	def RemoveManySections(paSections)
+
+		/*
+		This problem seems to be complicated, since:
+
+		- the user can provide sections in any order,
+		may be ones with intersections like [ 3, 6] and
+		[ 5, 7], or may be adjascent and unordered ones
+		like [7, 5] and [ 3, 4], and so on
+
+		- every removal of an item will change the size of
+		the list making the counter of the next position
+		to be removed somehow cumbersome!
+
+		- and many other difficulties you will face when
+		you delve in to coding but we don't want to go
+		to sutch detail here.
+
+		But when we visualise the problem, we can see it is
+		not that difficult to solve:
+
+			Note: ignore the directions signs (<--> for
+			the moment, they will be used in an other
+			context, and kept here to not forget them).
+
+		So: Imagine that you are one of the items of the list.
+		You are in a competition and your T-Shirt contains
+		the number of your position in the list.
+
+		The game: You need to go from up to down and stay alive.
+		But pay attention: if you encounter a [xxx] obstacle,
+		then you are captured! (In other terms, you, the item,
+		are removed).
+
+			   1     2     3     4     5     6     7
+			[ "A",  "B",  "C",  "D",  "E",  "F",  "G" ]
+			---.-----.-----.-----.-----.-----.-----.---
+                           | <-- | <-- | <- [x] -> | --> | <-- |
+		[3, 5]     | <-- |     [xxxxxxxxxxx]     | <-- |
+		[2, 4]     |     [xxxxxxxxxxx]           | <-- |   
+		[7, 7]     | <--   <--   <--   <--   <-- |    [x]
+		[3, 4]     |           [xxxxx]           | 
+                [3, 4]     |           [xxxxx]           |
+		[3, 4]     |           [xxxxx]           |
+                           | <--   <--   <--   <--   <-- | 
+		        ---V-----.-----.-----.-----.-----V-----.---
+			[ "A",   .     .     .     .    "F"    . ]
+
+		When we adopt this gamified approach, and think visually
+		of the probem/competition in hand, it becomes obvious how
+		to solve it in two quick steps:
+
+		1). If an item position (say position 1 of item "A")
+		    for example, does not exist in any of the sections
+		    (nor as a first or last number of that section),
+		    then the item remains and won't be removed!
+
+		2) Otherwise, the item is removed.
+
+		In computer terms, it's just ONE conditional statement and
+		we are done! See the code...
+	
+		*/
+
+		anPositions = ListsMergeQ(paSections).DuplicatesRemoved()
+
+		for i = 1 to This.NumberOfItems()
+			if find(anPositions, i) = 0
+				aResult + This[i]
+			ok
+		next
+
+		return aResult
 
 		def RemoveManySectionsQ(paRanges)
 			This.RemoveManySections(paRanges)
@@ -2474,10 +2704,10 @@ class stzList from stzObject
 
 		#>
 
-	def IsBoundedManyTimesBy(paPairsOfBounds)
+	def IsBoundedSuccsessivelyBy(paPairsOfBounds)
 		/*
 		o1 = new stzList([ "|", "<", "-", "Scope of Life", "-", ">", "|" ])
-		? o1.IsBoundedManyTimesBy([ ["|","|"], ["<",">"], ["-","-"] ])
+		? o1.IsBoundedSuccsessivelyBy([ ["|","|"], ["<",">"], ["-","-"] ])
 
 		!--> TRUE
 		*/
@@ -2964,20 +3194,46 @@ class stzList from stzObject
 		ok
 		
 	def IsListOfPairs()
-		bResult = This.AllItemsAreW('Q(@item).IsPair()')
+		bResult = This.Check( :That = 'isList(@item) and Q(@item).IsPair()' )
 		return bResult
 
 	def IsListOfPairsOfNumbers()
-		bResult = This.IsListOfPairs() and This.AllItemsAreNumbers()
-		return bResult
+		if This.IsListOfPairs() and
+		   Check('Q(@EachItem).IsPairOfNumbers()' ) = TRUE
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsListOfSections()
+			return This.IsListOfPairsOfNumbers()
 
 	def IsListOfPairsOfStrings()
-		bResult = This.IsListOfPairs() and This.AllItemsAreStrings()
-		return bResult
+		if This.IsListOfPairs() and
+		   Check('Q(@EachItem).IsPairOfStrings()' ) = TRUE
+
+			return TRUE
+		else
+			return FALSE
+		ok
+	def IsListOfPairsOfLists()
+		if This.IsListOfPairs() and
+		   Check('Q(@EachItem).IsPairOfLists()' ) = TRUE
+
+			return TRUE
+		else
+			return FALSE
+		ok
 
 	def IsListOfPairsOfObjects()
-		bResult = This.IsListOfPairs() and This.AllItemsAreObjects()
-		return bResult
+		if This.IsListOfPairs() and
+		   Check('Q(@EachItem).IsPairOfObject()' ) = TRUE
+
+			return TRUE
+		else
+			return FALSE
+		ok
 
 	def IsTree()
 		if NOT This.IsEmpty()
@@ -3035,215 +3291,24 @@ class stzList from stzObject
 
 		return bResult
 
-	   #-----------------------------------------#
-	  #    TODO: CHANGE WITH ...W(pExpression)  #
-	#-----------------------------------------#
-
-	def ItemsAreAll(pcDesc) # Replace with an evalated code alternative
-		switch pcDescription
-		on :Numbers
-			return This.ItemsAreAllNumbers()
-		on :Digits
-			return This.ItemsAreAllDigits()
-		on :Zeros
-			return This.ItemsAreAllZeros()
-
-		on :Strings
-			return This.ItemsAreAllStrings()
-
-		on :NullStrings
-			return This.ItemsAreAllNullStrings()
-
-		on :NumbersOrStringsHostingNumbers or
-		   :NumbersOrNumbersInStrings
-			return This.ItemsAreAllNumbersOrNumbersInStrings()
-
-		on :NumbersHostedInStrings or
-		   :NumbersInStrings or
-		   :StringsHostingNumbers
-			return This.ItemsAreAllNumbersInStrings()
-
-		on :Lists
-			return This.ItemsAreAllLists()
-
-		on :EmptyLists
-			return This.ItemsAreAllEmptyLists()
-
-		on :UnaryLists
-			return This.ItemsAreAllUnaryLists()
-
-		on :DeepLists
-			return This.ItemsAreAllDeepLists()
-
-		on :PureLists
-			return This.ItemsAreAllPureLists()
-
-		on :HybridLists
-			return This.ItemsAreAllHybridLists()
-
-		on :OddLists
-			return This.ItemsAreAllOddLists()
-
-		on :EvenLists
-			return This.ItemsAreAllEvenLists()
-
-		on :OddLists
-			return This.ItemsAreAllOddLists()
-
-		on :SortedLists
-			return This.ItemsAreAllSortedLists()
-
-		on :SortedInAscendingLists
-			return This.ItemsAreAllSortedInAscendingOrder()
-
-		on :SortedInDescendingLists
-			return This.ItemsAreAllSortedInDescendingOrder()
-
-		on :NumberOnlyLists
-			return This.ItemsAreAllNumberOnlyLists()
-
-		on :NumberAndNumberInStringLists
-			return This.ItemsAreAllNumberAndNumberInStringLists()
-
-		on :StringOnlyLists
-			return This.ItemsAreAllStrings()
-
-		on :ObjectOnlyLists
-			return This.ItemsAreAllObjects()
-
-		on :RingObjectOnlyLists
-			return This.ItemsAreAllRingObjects()
-
-		on :SoftanzaObjectLists
-			return This.ItemsAreAllSoftanzaObjects()
-
-		on :Objects
-			return This.ItemsAreAllObjects()
-
-		on :SoftanzaObjects
-			return This.ItemsAreAllSoftanzaObjects()
-
-		other
-			stzRaise("Unsupported parameter!")
-		off
-
-	def ItemsAre(pcDesc)
-		switch pcDesc
-		on :AllNumbers
-
-			return This.ItemsAreAllNumbers()
-
-		on :NumbersAndStringsHostingNumbers or
-		   :NumbersAndNumbersInStrings
-
-			return This.ItemsAreNumbersOrNumbersInStrings()
-
-		on :NumbersHostedInStrings or
-		   :NumbersInStrings or
-		   :StringsHostingNumbers
-			// TODO
-
-		on :AllStrings
-			// TODO
-
-		on :AllNullStrings
-			// TODO
-
-		on :StringsAndHaveSameNumberOfChars
-			// TODO
-
-		on :AllLists
-			// TODO
-
-		on :ListsAndHaveSameNumberOfItems
-			// TODO
-
-		on :AllObjects
-			// TODO
-
-		on :AllRingObjects
-			// TODO
-
-		on :AllSoftanzaObjects
-			// TODO
-
-		off
-
-	def ItemsHaveSame(pcDesc)
-		switch pcDesc
-		on :Type
-			return This.ItemsHaveSameType()
-
-		on :Value
-			return Thi.ItemsHaveSameValue()
-
-		on :NumberOfItems
-			return This.ItemsAreLists_And_HaveSameNumberOfItems()
-
-		on :NumberOfChars
-			return This.ItemsAreStrings_And_HaveSameNumberOfChars()
-		off
-
-	def ItemsAreAllNumbers()
-		return This.ContainsOnlyNumbers()
-
-	def ItemsAreAllStrings()
-		return This.ContainsOnlyStrings()
-
-	def ItemsAreAllLists()
-		return This.ContainsOnlyLists()
-
-	def ItemsAreAllEmptyLists()
-		return This.ContainsOnlyEmptyLists()
-
-	def ItemsAreAllUnaryLists()
-		return This.ContainsInlyUnaryLists() //***
-
-	def ItemsAreAllDeepLists()
-		return This.ContainsOnlyDeepLists() // ***
-
-	def ItemsAreAllPureLists()
-		return This.ContainsOnlyPureLists() // ***
-
-	def ItemsAreAllHybridLists()
-		return This.ContainsOnlyHybridLists() // ***
-
-	def ItemsAreAllOddLists()
-		return This.ContainsOnlyOddLists() // ***
-
-	def ItemsAreAllEvenLists()
-		return This.ContainsOnlyEvenLists() // ***
-
-	def ItemsAreAllSortedLists()
-		return This.ContainsOnlySortedLists() // ***
-
-	def ItemsAreAllSortedInAscendingLists()
-		return This.ContainsOnlySortedInAscendingLists() // ***
-
-	def ItemsAreAllSortedInDescendingLists()
-		return This.ContainsOnlySortedInDescendingLists() // ***
-
-	def ItemsAreLists_And_HaveSameNumberOfItems()
-		return This.ContainsOnlyLists_That_HaveSameNumberOfItems()
-	
-	def ItemsAreNumbers_And_StringsHostingNumbers()
-		// TODO
-
-	def ItemsAreNumbersHostedInStrings()
-		// TODO
-
-	def ItemsAreStringsHostingNumbers()
-		return ItemsAreNumbersHostedInStrings()
-
-	def ItemsAreAllObjects()
-		return This.ContainsOnlyObjects()
-
-	def ItemsAreAllSoftanzaObjects()
-		return This.ContainsOnlySoftanzaObjects()
-
 	  #----------------------#
 	 #     LIST CONTENT     #
 	#----------------------#
+
+	/* NOTE
+
+	All the functions in this section could be implemented easily
+	using Condition-Coding. So for example, ContainsOnlyNumbers()
+	can be solved like this:
+
+		This.Check( :That = 'type(@item) = "NUMBER"' )
+
+	Despite of this, we provide them here, because they are implemented
+	in brute Ring code, and not in run-time evaluated code like in Check(),
+	which is better for performance (especially when these functions are
+	used in large lists and in deep for-loops.
+
+	*/
 
 	def ContainsOnlyNumbers()
 		if len(This.OnlyNumbers()) = This.NumberOfItems()
@@ -3252,22 +3317,17 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def ContainsOnlyTRUEItems()
-		return This.OnlyOnes()
+		def ItemsAreAllNumbers()
+			return This.ContainsOnlyNumbers()
 
-	def ContainsOnlyFALSEItems()
-		return This.ContainsOnlyZeros()
+		def AllItemsAreNumbers()
+			return This.ContainsOnlyNumbers()
+
+		def IsMadeOfNumbers()
+			return This.ContainsOnlyNumbers()
 
 	def ContainsOnlyOddNumbers()
-		/*
-		Should be rather implemented like this:
-		if len(This.OddNumbers()) = This.NumberOfItems() // Todo: OddNumbers()
-			return TRUE
-		else
-			return FALSE
-		ok
-		*/
-
+		
 		bResult = TRUE
 		for item in This.Content()
 			oTempNumber = new stzNumber(item)
@@ -3276,17 +3336,18 @@ class stzList from stzObject
 				exit
 			ok
 		next
-		return bResult	
+		return bResult
+
+		def ItemsAreAllOddNumbers()
+			return This.ContainsOnlyOddNumbers()
+
+		def AllItemsAreOddNumbers()
+			return This.ContainsOnlyOddNumbers()
+
+		def IsMadeOfOddNumbers()
+			return This.ContainsOnlyOddNumbers()
 
 	def ContainsOnlyEvenNumbers()
-		/*
-		Should be rather implemented like this:
-		if len(This.OnlyEvenNumbers()) = This.NumberOfItems() // Todo: OnlyEvenNumbers()
-			return TRUE
-		else
-			return FALSE
-		ok
-		*/
 
 		bResult = TRUE
 		for item in This.Content()
@@ -3296,17 +3357,18 @@ class stzList from stzObject
 				exit
 			ok
 		next
-		return bResult	
+		return bResult
+
+		def ItemsAreAllEvenNumbers()
+			return This.ContainsOnlyEvenNumbers()
+
+		def AllItemsAreEvenNumbers()
+			return This.ContainsOnlyEvenNumbers()
+
+		def IsMadeOfEvenNumbers()
+			return This.ContainsOnlyEvenNumbers()
 
 	def ContainsOnlyDigits()
-		/*
-		Should be rather implemented like this:
-		if len(This.OnlyDigits()) = This.NumberOfItems() // Todo: OnlyDigits()
-			return TRUE
-		else
-			return FALSE
-		ok
-		*/
 
 		aDigits = 0:9
 		oTempList = new stzList(aDigits)
@@ -3322,49 +3384,38 @@ class stzList from stzObject
 
 		return bResult
 
-	def ContainsOnlyPositiveNumbers()
-		if len(This.OnlyPositiveNumbers()) = This.NumberOfItems() // Todo: OnlyPositiveNumbers()
-			return TRUE
-		else
-			return FALSE
-		ok
+		def ItemsAreAllDigits()
+			return This.ContainsOnlyDigits()
 
-	def ContainsOnlyNegativeNumbers()
-		if len(This.OnlyNegativeNumbers()) = This.NumberOfItems() // Todo: OnlyNegativeNumbers()
-			return TRUE
-		else
-			return FALSE
-		ok
+		def AllItemsAreDigits()
+			return This.ContainsOnlyDigits()
 
-	def ContainsOnlyZeros()
-		if len(This.OnlyZeros()) = This.NumberOfItems() // Todo: OnlyZeros()
-			return TRUE
-		else
-			return FALSE
-		ok
-			
-	def ContainsOnlyOnes()
-		if len(This.OnlyOnes()) = This.NumberOfItems() // Todo: OnlyOnes()
-			return TRUE
-		else
-			return FALSE
-		ok
+		def IsMadeOfDigits()
+			return This.ContainsOnlyDigits()
 
 	def ContainsOnlyStrings()
-		if len(This.OnlyStrings()) = This.NumberOfItems()
-			return TRUE
-		else
-			return FALSE
-		ok
+		bResult = FALSE
 
-	def BothAreNumbers()
-		if This.NumberOfItems() = 2 and isNumber(This[1]) and isNumber(This[2])
-			return TRUE
-		else
-			return FALSE
-		ok
+		for item in This.List()
+			if NOT isString(item)
+				bResult = FALSE
+				exit
+			ok
+		next
 
-	def AllItemsAreEqualTo(pValue)
+		return bResult
+
+
+		def ItemsAreAllStrings()
+			return This.ContainsOnlyStrings()
+
+		def AllItemsAreStrings()
+			return This.ContainsOnlyStrings()
+
+		def IsMadeOfStrings()
+			return This.ContainsOnlyStrings()
+
+	def ItemsAreAllEqualTo(pValue)
 		bResult = TRUE
 		for item in This.List()
 			if item != pValue
@@ -3373,6 +3424,12 @@ class stzList from stzObject
 			ok
 		next
 		return bResult
+
+		def AllItemsAreEqualTo(pValue)
+			return This.AllItemsAreEqualTo(pValue)
+
+		def IsMadeOfItemsEqualTo(pValue)
+			return This.AllItemsAreEqualTo(pValue)
 
 	def ContainsOnlyNullStrings()
 		bResult = TRUE
@@ -3384,12 +3441,47 @@ class stzList from stzObject
 		next
 		return bResult
 
+		def ContainsOnlyEmptyStrings()
+			return This.ContainsOnlyNullStrings()
+
+		def ItemsAreAllNullStrings()
+			return This.ContainsOnlyNullStrings()
+
+		def ItemsAreAllEmptyStrings()
+			return This.ContainsOnlyNullStrings()
+
+		def AllItemsAreNullStrings()
+			return This.ContainsOnlyNullStrings()
+
+		def AllItemsAreEmptyStrings()
+			return This.ContainsOnlyNullStrings()
+
+		def IsMadeOfNullStrings()
+			return This.ContainsOnlyNullStrings()
+
+		def IsMadeOfEmptyStrings()
+			return This.ContainsOnlyNullStrings()
+
 	def ContainsOnlyLists()
-		if len(This.OnlyLists()) = This.NumberOfItems()
-			return TRUE
-		else
-			return FALSE
-		ok
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT isList(item)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def ItemsAreAllLists()
+			return This.ContainsOnlyLists()
+
+		def AllItemsAreLists()
+			return This.ContainsOnlyLists()
+
+		def IsMadeOfLists()
+			return This.ContainsOnlyLists()
 
 	def ContainsOnlyEmptyLists()
 		bResult = TRUE
@@ -3401,7 +3493,16 @@ class stzList from stzObject
 		next
 		return bResult
 
-	def ContainsOnlyLists_That_HaveSameNumberOfItems()
+		def ItemsAreAllEmptyLists()
+			return This.ContainsOnlyEmptyLists()
+
+		def AllItemsAreEmptyLists()
+			return This.ContainsOnlyEmptyLists()
+
+		def MadeOfEmptyLists()
+			return This.ContainsOnlyEmptyLists()
+
+	def ContainsOnlyListsWithSameNumberOfItems()
 		bResult = TRUE
 		if This.ContainsOnlyLists()
 			for i=2 to This.NumberOfItems()
@@ -3415,30 +3516,80 @@ class stzList from stzObject
 		ok
 		return bResult
 
+		def ItemsAreAllListsWithSameNumberOfItems()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
+		def AllItemsAreListsWithSameNumberOfItems()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
+		def IsMadeOfListsWithSameNumberOfItems()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
 	def ContainsOnlyObjects()
-		if len(This.OnlyObjects()) = This.NumberOfItems()
-			return TRUE
-		else
-			return FALSE
-		ok
+		bResult = TRUE
 
-	def ContainsOnlyRingObjects()
-		if len(This.OnlyRingObjects()) = This.NumberOfItems() // Todo: OnlyObjects()
-			return TRUE
-		else
-			return FALSE
-		ok
+		for item in This.List()
+			if NOT isObject(item)
+				bResult = FALSE
+				exit
+			ok
+		next
 
+		return bResult
 
-	def ContainsOnlyStzObjects()
-		if len(This.OnlyStzObjects()) = This.NumberOfItems()
-			return TRUE
-		else
-			return FALSE
-		ok
+		def ItemsAreAllObjects()
+			return This.ContainsOnlyObjects()
+
+		def AllItemsAreObjects()
+			return This.ContainsOnlyObjects()
+
+		def IsMadeOfObjects()
+			return This.ContainsOnlyObjects()
+
+	def ContainsOnlyValidRingCodes()
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT( isString(item) and Q(@item).IsValidRingCode() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def AllItemsAreValidRingCodes()
+			return This.ContainsOnlyValidRingCodes()
+
+		def ItemsAreAllValidRingCodes()
+			return This.ContainsOnlyValidRingCodes()
+
+		def IsMadeOfValidRingCodes()
+			return This.ContainsOnlyValidRingCodes()
+
+	def ContainsOnlyStzCalssNames()
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT( isString(item) and Q(@item).IsStzClassName() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def AllItemsAreStzClassNames()
+			return This.ContainsOnlyStzCalssNames()
+
+		def ItemsAreAllStzClassNames()
+			return This.ContainsOnlyStzCalssNames()
+
+		def IsMadeOfStzClassNames()
+			return This.ContainsOnlyStzCalssNames()
 
 	  #---------------#
-	 #    WALKERS    #
+	 #    WALKERS    # // TODO: to be redesigned using stzWalker class
 	#---------------#
 
 	def AddWalker(pcName, pnStart, pnEnd, panStepping)
@@ -3473,7 +3624,7 @@ class stzList from stzObject
 		return This.Walkers()[pcWalker]
 
 	  #---------------#
-	 #    WALKERS    #
+	 #    WALKERS    # // TODO: To be delegated to stzWalker when finalized
 	#---------------#
 
 	def WalkUntil(pcCondition )
@@ -3497,13 +3648,12 @@ class stzList from stzObject
 		*/
 
 		if isString(pcCondition)
-			oStzString = new stzString(pcCondition)
 
-			oStzString.RemoveBounds("{","}")
+			oCode = new stzString( StzCCodeQ(pcCondition).UnifiedFor(:stzList) )
 
 			bFound = FALSE
 
-			if oStzString.ContainsCS( "@item", :CaseSensitive = FALSE )
+			if oCode.ContainsCS( "@item", :CaseSensitive = FALSE )
 				i = 0			
 				cCode =
 				"for @item in This.List()" + NL +
@@ -3538,11 +3688,9 @@ class stzList from stzObject
 		? aWalk6 # --> 1:3
 		*/
 		if isString(pcCondition)
-			oStzString = new stzString(pcCondition)
+			oCode = This.CCPurifedQ(pcCondition)
 
-			oStzString.RemoveBounds("{","}")
-
-			if oStzString.ContainsCS( "@item", :CaseSensitive = FALSE )
+			if oCode.ContainsCS( "@item", :CaseSensitive = FALSE )
 				i = 0	
 				cCode =
 				"for @item in This.List()" + NL +
@@ -3743,48 +3891,1371 @@ class stzList from stzObject
 			return aResult
 		ok
 
-	  #-----------------#
-	 #     YIELDERS    #
-	#-----------------#
+	  #===========================================#
+	 #   EXPANDING THE LIST OF PAIR OF NUMBERS   #
+	#===========================================#
 
-	def Yield(cExpression, pcWalker)
-		cExpression = StzStringQ(cExpression).RemoveBoundsQ("{","}").Content()
+	/* Example
+		o1 = new stzList([ 12, 7 ])
+		? o1.ExpandedIfPairOfNumbers() #--> [ 12, 11, 10, 9, 8, 7 ]
+	*/
+
+	def ExpandIfPairOfNumbers() # TODO: Should be delegated to stzPairOfNumbers
+		if This.IsPairOfNumbers()
+			n1 = This[1]
+			n2 = This[2]
+
+			anResult = n1 : n2
+
+			This.UpdateWith( anResult )
+		ok
+
+		def ExpandIfPairOfNumbersQ()
+			This.ExpandIfPairOfNumbers()
+			return This
+
+	def ExpandedIfPairOfNumbers()
+		bResult = This.Copy().ExpandIfPairOfNumbersQ().Content()
+		return bResult
+
+	  #========================================================#
+	 #   CHECKING IF ALL THE ITEMS VERIFY A GIVEN CONDITION   #
+	#========================================================#
+
+	def CheckW(pcCondition)
+		#< @MotherFunction = CheckOnPositionsW > @RingBased #>
+
+		/* EXAMPLE
+
+		o1 = new stzList([ "BING", "BINGO", "BINGOO", "BINGOOO", "BINGOOOO" ])
+		? o1.CheckW( :That = '{ @NextItem = @item + "O" }' )	#--> TRUE
+
+		*/
+
+		bResult = This.CheckOnPositionsW(1:This.NumberOfItems(), pcCondition)
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def Check(pcCondition)
+			return This.CheckW(pcCondition)
+
+		def Verify(pcCondition)
+			return This.CheckW(pcCondition)
+
+		def EachItemVerifyW(pcCondition)
+			return This.CheckW(pcCondition)
+
+		def EachItemVerify(pcCondition)
+			return This.CheckW(pcCondition)
+
+		def AllItemsVerifyW(pcCondition)
+			return This.CheckW(pcCondition)
+
+		def AllItemsVerify(pcCondition)
+			return This.CheckW(pcCondition)
+
+		def AllItemsAreW(pcCondition)
+			return This.CheckW(pcCondition)
+
+		#>
+
+	  #-------------------------------------------------------------------#
+	 #   CHECKING IF ITEMS AT GIVEN POSITIONS VERIFY A GIVEN CONDITION   #
+	#-------------------------------------------------------------------#
+
+	def CheckOnW(panPositions, pcCondition)
+		#< @MotherFunction = YES | @RingBased #>
+
+		/* EXAMPLE
+
+		o1 = new stzList([ "Word1", "كلمة 2", "Word3", "كلمة 4", "Word5", "كلمة 6" ])
+		? o1.CheckOnW([1, 3, 5], :That = 'Q(@item).IsLeftToRight()' ) #--> TRUE
+
+		*/
+		if This.IsEmpty()
+			return FALSE
+		ok
+
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+			stzRaise("Invalid param type! panPositions must be a list of numbers.")
+		ok
+
+		if len(panPositions) = 0
+			return FALSE
+		ok
+
+		if isList(pcCondition) and Q(pcCondition).IsThatOrWhereNamedParamList()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pccondition)
+			stzRaise("Incorrect param! pcCondition must be a string.")
+		ok
+
+		cCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzList)
+		if StzStringQ(cCondition).WithoutSpaces() = ''
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		cCode = "bOk = (" + cCondition + ")"
+
+		oCode = StzStringQ(cCode)
+
+
+		for @i in panPositions
+
+			@item = This[ @i ]
+			bEval = TRUE
+
+			if @i = This.NumberOfItems() and
+			   oCode.Copy().RemoveSpacesQ().ContainsCS("This[@i+1]", :CS=FALSE)
+
+				bEval = FALSE
+
+			but @i = 1 and
+			    oCode.Copy().RemoveSpacesQ().ContainsCS("This[@i-1]", :CS=FALSE)
+
+				bEval = FALSE
+			ok
+
+			if bEval
+
+				eval(cCode)
+
+				if bOk = FALSE
+					bResult = FALSE
+					exit
+				ok
+			ok
+
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def CheckOn(panPositions, pcCondition)
+			return This.CheckOnW(panPositions, pcCondition)
+
+		def CheckOnPositionsW(panPositions, pcCondition)
+			return This.CheckOnW(panPositions, pcCondition)
+
+		def CheckOnThesePositionsW(panPositions, pcCondition)
+			return This.CheckOnW(panPositions, pcCondition)
+
+		def CheckOnPositions(panPositions, pcCondition)
+			return This.CheckOnW(panPositions, pcCondition)
+
+
+		def VerifyOn(panPositions, pcCondition)
+			return This.CheckOnW(panPositions, pcCondition)
+
+		def VerifyOnPositionsW(panPositions, pcCondition)
+			return This.CheckOnW(panPositions, pcCondition)
+
+		def VerifyOnThesePositionsW(panPositions, pcCondition)
+			return This.CheckOnW(panPositions, pcCondition)
+
+		def VerifyOnPositions(panPositions, pcCondition)
+			return This.CheckOnW(panPositions, pcCondition)
+
+		#>
+
+	  #------------------------------------------------------------------#
+	 #   CHECKING IF ITEMS AT GIVEN SECTIONS VERIFY A GIVEN CONDITION   #
+	#------------------------------------------------------------------#
+
+	def CheckOnSectionsW(paSections, pcCondition)
+		#< @MotherFunction = CheckOnPositionsW > @RingBased #>
+
+
+		# Checking correctness of paSections param
+
+		if NOT ( isList(paSections) and
+			 Q(paSections).IsListOfPairsOfNumbers() )
+
+			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+		ok
+
+		if len(paSections) = 0
+			return FALSE
+		ok
+
+		# Getting all the positions from the provided sections
+		# Example: [ [2,5], [7,9 ] --> [ 2, 3, 4, 5, 7, 8, 9 ]
+
+		aSectionsExpanded = []
+		for aPair in paSections
+			aSectionsExpanded + StzListQ(aPair).ExpandedIfPairOfNumbers()
+		next
+
+		anPositionsMerged = ListsMerge( aSectionsExpanded )
+
+		anPositions = StzListQ(anPositionsMerged).ToSet()
+
+		return This.CheckOn(anPositions, pcCondition)
+
+		#< @FunctionAlternativeForm
+
+		def CheckOnSections(paSections, pcCondition)
+			return This.CheckOnSectionsW(paSections, pcCondition)
+
+		def CheckOnTheseSectionsW(paSections, pcCondition)
+			return This.CheckOnSectionsW(paSections, pcCondition)
+
+		def CheckOnTheseSections(paSections, pcCondition)
+			return This.CheckOnSectionsW(paSections, pcCondition)
+
+		def VerifyOnSections(paSections, pcCondition)
+			return This.CheckOnSectionsW(paSections, pcCondition)
+
+		def VerifyOnTheseSectionsW(paSections, pcCondition)
+			return This.CheckOnSectionsW(paSections, pcCondition)
+
+		def VerifyOnTheseSections(paSections, pcCondition)
+			return This.CheckOnSectionsW(paSections, pcCondition)
+
+		#>
+
+	  #=========================================#
+	 #   YIELDING INFORMATION FROM EACH ITEM   #
+	#=========================================#
+
+	def Yield(pcCode)
+		return This.YieldFrom( 1:This.NumberOfItems(), pcCode )
+
+		#< @FunctionFluentForm
+
+		def YieldQ(pcCode)
+			return This.YieldQR(pcCode, :stzList)
+	
+		def YieldQR(pcCode, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Yield(pcCode) )
+	
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Yield(pcCode) )
+				
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Yield(pcCode) )
+
+			on :stzHashList
+				return new stzHashList( This.Yield(pcCode) )
+		
+		other
+				stzRaise("Unsupported return type!")
+		off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def YieldFromEachItem(pcCode)
+			return This.Yield(pcCode)
+
+			def YieldFromEachItemQ(pcCode)
+				return This.YieldFromEachItemQR(pcCode, :stzList)
+		
+			def YieldFromEachItemQR(pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.YieldFromEachItem(pcCode) )
+		
+				on :stzListOfStrings
+					return new stzListOfStrings( This.YieldFromEachItem(pcCode) )
+					
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.YieldFromEachItem(pcCode) )
+	
+				on :stzHashList
+					return new stzHashList( This.YieldFromEachItem(pcCode) )
+			
+			other
+					stzRaise("Unsupported return type!")
+			off
+
+		def Harvest(pcCode)
+			return This.Yield(pcCode)
+
+			def HervestQ(pcCode)
+				return This.YieldFromEachItemQR(pcCode, :stzList)
+		
+			def HarvestQR(pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.Harvest(pcCode) )
+		
+				on :stzListOfStrings
+					return new stzListOfStrings( This.Harvest(pcCode) )
+					
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.Harvest(pcCode) )
+	
+				on :stzHashList
+					return new stzHashList( This.Harvest(pcCode) )
+			
+			other
+					stzRaise("Unsupported return type!")
+			off
+
+		def HarvestFromEachItem(pcCode)
+			return This.Yield(pcCode)
+
+			def HarvestFromEachItemQ(pcCode)
+				return This.HarvestFromEachItemQR(pcCode, :stzList)
+		
+			def HarvestFromEachItemQR(pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.HarvestFromEachItem(pcCode) )
+		
+				on :stzListOfStrings
+					return new stzListOfStrings( This.HarvestFromEachItem(pcCode) )
+					
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.HarvestFromEachItem(pcCode) )
+	
+				on :stzHashList
+					return new stzHashList( This.HarvestFromEachItem(pcCode) )
+			
+			other
+					stzRaise("Unsupported return type!")
+			off
+		#>
+
+	  #--------------------------------------------------------#
+	 #   YIELDING INFORMATION FROM ITEMS AT GIVEN POSITIONS   #
+	#--------------------------------------------------------#
+
+	def YieldFrom(panPositions, pcCode)
+
+		if NOT isList(panPositions) and Q(panPositions).IsListOfNumbers()
+			stzRaise("Incorrect param! paPositions must be a list of numbers.")
+		ok
+
+		if len(panPositions) = 0
+			return []
+		ok
+
+		panPositions = sort(panPositions)
+
+		if NOT isString(pcCode)
+			stzRaise("Invalid param type! Condition must be a string.")
+		ok
+
+		cCode = StzCCodeQ(pcCode).UnifiedFor(:stzList)
+
+		if StzStringQ(pcCode).WithoutSpaces() = 0
+			aTemp = []
+			for i = 1 to len(panPositions)
+				aTemp + NULL
+			next
+			return aTemp
+		ok
+
+		cCode = "aResult + ( " + cCode + " )"
+		oCode = StzStringQ(cCode)
+		
 		aResult = []
 
-		for nStep in This.Walker(pcWalker)
+		for @i in panPositions
+			@item = This[ @i ]
 
-			try
-				cCode = "aResult + " + cExpression
-				cCode = StzStringQ(cCode).ReplaceAllCSQ( "Item", "This.Item("+ nStep + ")", :CS = FALSE ).Content()
+			bEval = TRUE
 
-				eval( cCode )
-			catch
-				aResult + NULL
-			done
+			if @i = This.NumberOfItems() and
+			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i+1]", :CS=FALSE )
+
+				bEval = FALSE
+
+			but @i = 1 and
+			    oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i-1]", :CS=FALSE )
+
+				bEval = FALSE
+			
+			ok
+
+			if bEval
+				eval(cCode) # Populates aResult with the yielded information
+			ok
 
 		next
 
 		return aResult
 
-	  #-------------------#
-	 #     PERFORMERS    #
-	#-------------------#
 
-	def Perform(pcFunc, pcWalker)
-		try
-			for nStep in This.Walker(pcWalker)
-				cCode = "This.ReplaceItem(" + i + ", " + pcFunc + "( This.Item(" + nStep + ") )"
-				eval( cCode )
-			next i
-			return TRUE
-		catch
+		#< @FunctionFluentForm
 
-			return FALSE
-		done
+		def YieldFromQ(paPositions, pcCode)
+			return This.YieldFromQR(paPositions, pcCode, :stzList)
+	
+		def YieldFromQR(paPositions, pcCode, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
 
-	  #-----------------------------------#
-	 #     COMPARISON TO ANOTHER LIST    #
-	#-----------------------------------#
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.YieldFrom(paPositions, pcCode) )
+	
+			on :stzListOfStrings
+				return new stzListOfStrings( This.YieldFrom(paPositions, pcCode) )
+				
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.YieldFrom(paPositions, pcCode) )
+		
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def YieldFromPositions(panPositions, pcCode)
+			return This.YieldFrom(panPositions, pcCode)
+
+			def YieldFromPositionsQ(paPositions, pcCode)
+				return This.YieldFromPositionsQR(paPositions, pcCode, :stzList)
+		
+			def YieldFromPositionsQR(paPositions, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.YieldFromPositions(paPositions, pcCode) )
+		
+				on :stzListOfStrings
+					return new stzListOfStrings( This.YieldFromPositions(paPositions, pcCode) )
+					
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.YieldFromPositions(paPositions, pcCode) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+
+		def YieldFromItemsAt(panPositions, pcCode)
+			return This.YieldFrom(panPositions, pcCode)
+
+			def YieldFromItemsAtQ(paPositions, pcCode)
+				return This.YieldFromItemsAtQR(paPositions, pcCode, :stzList)
+		
+			def YieldFromItemsAtQR(paPositions, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.YieldFromItemsAt(paPositions, pcCode) )
+		
+				on :stzListOfStrings
+					return new stzListOfStrings( This.YieldFromItemsAt(paPositions, pcCode) )
+					
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.YieldFromItemsAt(paPositions, pcCode) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+
+		def YieldFromItemsAtPositions(panPositions, pcCode)
+			return This.YieldOn(panPositions, pcCode)
+
+			def YieldFromItemsAtPositionsQ(paPositions, pcCode)
+				return This.YieldFromItemsAtPositionsQR(paPositions, pcCode, :stzList)
+		
+			def YieldFromItemsAtPositionsQR(paPositions, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.YieldFromItemsAtPositions(paPositions, pcCode) )
+		
+				on :stzListOfStrings
+					return new stzListOfStrings( This.YieldFromItemsAtPositions(paPositions, pcCode) )
+					
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.YieldFromItemsAtPositions(paPositions, pcCode) )
+	
+				on :stzHashList
+					return new stzHashList( This.YieldFromItemsAtPositions(paPositions, pcCode) )
+			
+			other
+					stzRaise("Unsupported return type!")
+			off
+
+		def HarvestFrom(panPositions, pcCode)
+			return This.HarvestFrom(panPositions, pcCode)
+
+			def HarvestFromQ(paPositions, pcCode)
+				return This.HarvestFromQR(paPositions, pcCode, :stzList)
+		
+			def HarvestFromQR(paPositions, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.HarvestFrom(paPositions, pcCode) )
+		
+				on :stzListOfStrings
+					return new stzListOfStrings( This.HarvestFrom(paPositions, pcCode) )
+					
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.HarvestFrom(paPositions, pcCode) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+
+		def HarvestFromPositions(panPositions, pcCode)
+			return This.HarvestFrom(panPositions, pcCode)
+
+			def HarvestFromPositionsQ(paPositions, pcCode)
+				return This.HarvestFromPositionsQR(paPositions, pcCode, :stzList)
+		
+			def HarvestFromPositionsQR(paPositions, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.HarvestFromPositions(paPositions, pcCode) )
+		
+				on :stzListOfStrings
+					return new stzListOfStrings( This.HarvestFromPositions(paPositions, pcCode) )
+					
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.HarvestFromPositions(paPositions, pcCode) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+
+		def HarvestFromItemsAt(panPositions, pcCode)
+			return This.HarvestFrom(panPositions, pcCode)
+
+			def HarvestFromItemsAtQ(paPositions, pcCode)
+				return This.HarvestFromItemsAtQR(paPositions, pcCode, :stzList)
+		
+			def HarvestFromItemsAtQR(paPositions, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.HarvestFromItemsAt(paPositions, pcCode) )
+		
+				on :stzListOfStrings
+					return new stzListOfStrings( This.HarvestFromItemsAt(paPositions, pcCode) )
+					
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.HarvestFromItemsAt(paPositions, pcCode) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+
+		def HarvestFromItemsAtPositions(panPositions, pcCode)
+			return This.HarvestOn(panPositions, pcCode)
+
+			def HarvestFromItemsAtPositionsQ(paPositions, pcCode)
+				return This.HarvestFromItemsAtPositionsQR(paPositions, pcCode, :stzList)
+		
+			def HarvestFromItemsAtPositionsQR(paPositions, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.HarvestFromItemsAtPositions(paPositions, pcCode) )
+		
+				on :stzListOfStrings
+					return new stzListOfStrings( This.HarvestFromItemsAtPositions(paPositions, pcCode) )
+					
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.HarvestFromItemsAtPositions(paPositions, pcCode) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+		#>
+
+	  #------------------------------------------------------#
+	 #   YIELDING INFORMATION ON ITEMS IN GIVEN SECTIONS    #
+	#------------------------------------------------------#
+
+	def YieldFromSections(paSections, pcCode)
+		if NOT isList(paSections) and Q(paSections).IsListOfPairsOfNumbers()
+			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+		ok
+
+		# Getting all the positions from the provided sections
+		# Example: [ [2,5], [7,9 ] ] --> [ 2, 3, 4, 5, 7, 8, 9 ]
+
+		anSectionsExpanded = StzListQ(paSections).PerformQ('{
+			@item = Q(@item).ExpandedIfPairOfNumbers()
+		}').Content()
+	
+		anPositions = ListsMergeQ( anSectionsExpanded ).DuplicatesRemoved()
+
+		return This.YieldFrom(anPositions, pcCode)
+
+		#< @FunctionFluentForm
+
+		def YieldFromSectionsQ(paSections, pcCode)
+			return This.YieldFromSectionsQR(paPositions, pcCode, :stzList)
+	
+		def YieldFromSectionsQR(paPositions, pcCode, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.YieldFromSections(paPositions, pcCode) )
+	
+			on :stzListOfStrings
+				return new stzListOfStrings( This.YieldFromSections(paPositions, pcCode) )
+				
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.YieldFromSections(paPositions, pcCode) )
+		
+			other
+				stzRaise("Unsupported return type!")
+			off			
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def HarvestFromSections(paSections, pcCode)
+			return This.YieldFromSections(paSections, pcCode)
+
+			def HarvestFromSectionsQ(paSections, pcCode)
+				return This.HarvestFromSectionsQR(paSections, pcCode, :stzList)
+
+			def HarvestFromSectionsQR(paSections, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				if NOT isString(pcReturnType)
+					stzRaise("Incorrect param! pcReturnType must be a string.")
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.HarvestFromSections(paSections, pcCode) )
+
+				on :stzListOfLists
+					return new stzListOfLists( This.HarvestFromSections(paSections, pcCode) )
+	
+				other
+					stzRaise("Unsupported param type!")
+				off
+	
+		def YieldSections(paSections, pcCode)
+			return This.YieldFromSections(paSections, pcCode)
+
+			def YieldSectionsQ(paSections, pcCode)
+				return This.YieldSectionsQR(paSections, pcCode, :stzList)
+
+			def YieldSectionsQR(paSections, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				if NOT isString(pcReturnType)
+					stzRaise("Incorrect param! pcReturnType must be a string.")
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.YieldSections(paSections, pcCode) )
+
+				on :stzListOfLists
+					return new stzListOfLists( This.YieldSections(paSections, pcCode) )
+	
+				other
+					stzRaise("Unsupported param type!")
+				off
+
+		def HarvestSections(paSections, pcCode)
+			return This.YieldFromSections(paSections, pcCode)
+
+			def HarvestSectionsQ(paSections, pcCode)
+				return This.HarvestSectionsQR(paSections, pcCode, :stzList)
+
+			def HarvestSectionsQR(paSections, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				if NOT isString(pcReturnType)
+					stzRaise("Incorrect param! pcReturnType must be a string.")
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.HarvestSections(paSections, pcCode) )
+
+				on :stzListOfLists
+					return new stzListOfLists( This.HarvestSections(paSections, pcCode) )
+	
+				other
+					stzRaise("Unsupported param type!")
+				off
+		#>
+
+	def YieldFromSectionsOneByOne(paSections, pcCode)
+		if NOT isList(paSections) and Q(paSections).IsListOfPairsOfNumbers()
+			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+		ok
+
+		aResult = []
+
+		anSectionsExpanded = []
+		for aSection in paSections
+			anSectionsExpanded + Q(aSection).ExpandedIfPairOfNumbers()
+		next
+
+		for anPositions in anSectionsExpanded
+			aResult + This.YieldFromPositions(anPositions, pcCode)
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def YieldFromSectionsOneByOneQ(paSections, pcCode)
+			return This.YieldFromSectionsOneByOneQR(paSections, pcCode, :stzList)
+
+		def YieldFromSectionsOneByOneQR(paSections, pcCode, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.YieldFromSectionsOneByOneQ(paSections, pcCode) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.YieldFromSectionsOneByOneQ(paSections, pcCode) )
+
+			other
+				stzRaise("Unsupported param type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def HarvestFromSectionsOneByOne(paSections, pcCode)
+			return This.YieldFromSections(paSections, pcCode)
+
+			def HarvestFromSectionsOneByOneQ(paSections, pcCode)
+				return This.HarvestFromSectionsOneByOneQR(paSections, pcCode, :stzList)
+
+			def HarvestFromSectionsOneByOneQR(paSections, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				if NOT isString(pcReturnType)
+					stzRaise("Incorrect param! pcReturnType must be a string.")
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.HarvestFromSectionsOneByOne(paSections, pcCode) )
+
+				on :stzListOfLists
+					return new stzListOfLists( This.HarvestFromSectionsOneByOne(paSections, pcCode) )
+	
+				other
+					stzRaise("Unsupported param type!")
+				off
+				
+		def HarvestSectionsOneByOne(paSections, pcCode)
+			return This.YieldFromSections(paSections, pcCode)
+
+			def HarvestSectionsOneByOneQ(paSections, pcCode)
+				return This.HarvestSectionsOneByOneQR(paSections, pcCode, :stzList)
+
+			def HarvestSectionsOneByOneQR(paSections, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				if NOT isString(pcReturnType)
+					stzRaise("Incorrect param! pcReturnType must be a string.")
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.HarvestSectionsOneByOne(paSections, pcCode) )
+
+				on :stzListOfLists
+					return new stzListOfLists( This.HarvestSectionsOneByOne(paSections, pcCode) )
+	
+				other
+					stzRaise("Unsupported param type!")
+				off
+
+		def YieldSectionsOneByOne(paSections, pcCode)
+			return This.YieldFromSections(paSections, pcCode)
+
+			def YieldSectionsOneByOneQ(paSections, pcCode)
+				return This.YieldSectionsOneByOneQR(paSections, pcCode, :stzList)
+
+			def YieldSectionsOneByOneQR(paSections, pcCode, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				if NOT isString(pcReturnType)
+					stzRaise("Incorrect param! pcReturnType must be a string.")
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.YieldSectionsOneByOne(paSections, pcCode) )
+
+				on :stzListOfLists
+					return new stzListOfLists( This.YieldSectionsOneByOne(paSections, pcCode) )
+	
+				other
+					stzRaise("Unsupported param type!")
+				off
+
+		#>
+
+	  #----------------------------------------------------------------#
+	 #   YIELDING INFORMATION ON ITEMS VERIFYiNG A GIVEN CONDITION    #
+	#----------------------------------------------------------------#
+
+	def YieldW(pcCode, pcCondition)
+		/*
+		o1 = new stzList([ 1, 2, 3, 4, 5, 6, 7 ])
+		? o1.YieldW('@NextItem', :if = 'StzNumberQ(@item).IsMultipleOf(2)')
+		*/
+		if NOT isString(pcCode)
+			stzRaise("Incorrect param! pcCode must be a string.")
+		ok
+
+		if isList(pcCondition) and Q(pcCondition).IsWhereOrIfParamList()
+			pcCondition = pccondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			stzRaise("Incorrect param! pcCondition must be astring.")
+		ok
+
+		anPositions = This.FindW(pcCondition)
+
+		return This.YieldFrom(anPositions, pcCode)
+
+		#< @FunctionFluentForm
+
+		def YieldWQ(pcCode, pcCondition)
+				return This.YieldWQR(paPositions, pcCode, :stzList)
+		
+			def YieldWQR(pcCode, pcCondition, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.YieldW(pcCode, pcCondition) )
+		
+				on :stzListOfStrings
+					return new stzListOfStrings( This.YieldW(pcCode, pcCondition) )
+					
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.YieldW(pcCode, pcCondition) )
+	
+				on :stzHashList
+					return new stzHashList( This.YieldW(pcCode, pcCondition) )
+			
+			other
+					stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#> @FunctionAlternativeForm
+
+		def HarvestW(pcCode, pcCondition)
+			return This.YieldW(pcCode, pcCondition)
+
+			def HervestWQ(pcCode, pcCondition)
+				return This.HarvestWQR(pcCode, pcCondition, :stzList)
+
+			def HervestWQR(pcCode, pcCondition, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				if NOT isString(pcReturnType)
+					stzRaise("IncorrectType! pcReturnType must be a string.")
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.HarvestW(pcCode, pcCondition) )
+
+				on :stzListOfLists
+					return new stzListOfLists( This.HarvestW(pcCode, pcCondition) )
+
+				other
+					stzRaise("Unsupported return type!")
+				off
+		#>
+
+	  #=======================================#
+	 #   PERFORMING AN ACTION ON EACH ITEM   #
+	#=======================================#
+
+	def Perform(pcCode)
+		# Must begin with '@item ='
+
+		/* Example
+
+		aWhatIs = [ :Ring = "programming language", :Softanza = "Ring library", :Qt = "C++ framework" ]
+		
+		o1 = new stzList([ "Ring", "Softanza", "Qt" ])
+		o1.Perform('{ @item += " is a " + aWhatIs[@item] }')
+		
+		? o1.Content()
+		# ---> [ "Ring is a programming language", "Softanza is a Ring library", "Qt is a C++ framework" ]
+
+		*/
+
+		This.PerformOnThesePositions(1:This.NumberOfItems(), pcCode)
+
+		#--
+
+		def PerformQ(pcCode)
+			This.Perform(pcCode)
+			return This
+
+		def PerformQR(pcCode, pcReturnType)
+			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return This
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Perform(pcCode) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Perform(pcCode) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.Perform(pcCode) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.Perform(pcCode) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+	  #---------------------------------------------------#
+	 #   PERFORMIN ACTIONS ON CHARS IN GIVEN POSITIONS   #
+	#---------------------------------------------------#
+
+	def PerformOn(panPositions, pcCode)
+		#< @MotherFunction > ReplaceItemAtPosition() | @RingBased #>
+
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+			stzRaise("Invalid param type! panPositions must be a list of numbers.")
+		ok
+
+		if len(panPositions) = 0
+			return
+		ok
+
+		if NOT isString(pcCode)
+			stzRaise("Invalid param type! pcCode must be a string.")
+		ok
+
+		oCode = new stzString( StzCCodeQ(pcCode).UnifiedFor(:stzList) )
+		
+		if oCode.WithoutSpaces() = ''
+			return
+		ok
+
+		if NOT oCode.BeginsWithOneOfTheseCS(
+			[ "@item =", "@item=",
+			  "@item +=", "@item+=",
+			  "@item -=", "@item-=",
+			  "@item *=", "@item*=",
+			  "@item /=", "@item/="
+			],
+
+			:CaseSensitive = FALSE )
+
+			stzRaise("Syntax error! pcCode must begin with '@item ='.")
+		ok
+
+		cCode = oCode.Content()
+		oCode = StzStringQ(cCode)
+
+		@i = 0
+		
+		for @i in panPositions
+
+			@item = This[ @i ]
+			bEval = TRUE
+
+			if @i = This.NumberOfItems() and
+			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i+1]", :CS=FALSE )
+
+				bEval = FALSE
+
+			but @i = 1 and
+			    oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i-1]", :CS=FALSE )
+
+				bEval = FALSE
+			
+			ok
+
+			if bEval
+
+			eval(cCode)
+				This.ReplaceItemAtPosition(@i, :With = @item)
+			ok
+
+		next
+
+		#--
+
+		def PerformOnQ(panPositions, pcCode)
+			This.PerformOn(panPositions, pcCode)
+			return This
+
+		def PerformOnQR(panPositions, pcCode)
+			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return This
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.PerformOn(panPositions, pcCode) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.PerformOn(panPositions, pcCode) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.PerformOn(panPositions, pcCode) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.PerformOn(panPositions, pcCode) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#--
+
+		def PerformOnPositions(panPositions, pcCode)
+			This.PerformOn(panPositions, pcCode)
+
+			def PerformOnPositionsQ(panPositions, pcCode)
+				This.PerformOnPositions(panPositions, pcCode)
+				return This
+	
+			def PerformOnPositionsQR(panPositions, pcCode, pcReturnType)
+				if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				if NOT isString(pcReturnType)
+					stzRaise("Incorrect param! pcReturnType must be a string.")
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return This
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.PerformOnPositions(panPositions, pcCode) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.PerformOnPositions(panPositions, pcCode) )
+	
+				on :stzListOfLists
+					return new stzListOfLists( This.PerformOnPositions(panPositions, pcCode) )
+	
+				on :stzListOfPairs
+					return new stzListOfPairs(This.PerformOnPositions(panPositions, pcCode) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+
+		#--
+
+		def PerformOnThesePositions(panPositions, pcCode)
+			This.PerformOn(panPositions, pcCode)
+
+			def PerformOnThesePositionsQ(panPositions, pcCode)
+				This.PerformOnThesePositions(panPositions, pcCode)
+				return This
+
+			def PerformOnThesePositionsQR(panPositions, pcCode, pcReturnType)
+				if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				if NOT isString(pcReturnType)
+					stzRaise("Incorrect param! pcReturnType must be a string.")
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return This
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.PerformOnThesePositions(panPositions, pcCode) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.PerformOnThesePositions(panPositions, pcCode) )
+	
+				on :stzListOfLists
+					return new stzListOfLists( This.PerformOnThesePositions(panPositions, pcCode) )
+	
+				on :stzListOfPairs
+					return new stzListOfPairs( This.PerformOnThesePositions(panPositions, pcCode) )
+	
+				other
+					stzRaise("Unsupported return type!")
+	
+				off
+
+	  #------------------------------------------------------#
+	 #   PERFORMING AN ACTION ON ITEMS AT GIVEN SECTIONS    #
+	#------------------------------------------------------#
+
+	def PerformOnSections(paSections, pcCode)
+
+		# Checking correctness of paSections param
+
+		If NOT isString(pcCode)
+			stzRaise("Incorrect param! pcCode must be a string.")
+		ok
+
+		if NOT ( isList(paSections) and
+
+			 Q(paSections).EachItemVerifyW(
+				:That = 'isList(@item) and Q(@item).IsPairOfNumbers()' )
+		         )
+
+			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+		ok
+
+		# Getting all the positions from the provided sections
+		# Example: [ [2,5], [7,9 ] ] --> [ 2, 3, 4, 5, 7, 8, 9 ]
+
+		anSectionsExpanded = StzListQ(paSections).PerformQ('{
+			@item = Q(@item).ExpandedIfPairOfNumbers()
+		}').Content()
+	
+		anPositions = ListsMergeQ( anSectionsExpanded ).DuplicatesRemoved()
+
+		This.PerformOn(anPositions, pcCode)
+
+		#--
+
+		def PerformOnSectionsQ(paSections, pcCode)
+			This.PerformOnSections(paSections, pcCode)
+			return This
+
+		def PerformOnSectionsQR(paSections, pcCode, pcReturnType)
+			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return This
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.PerformOnSections(paSections, pcCode) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.PerformOnSections(paSections, pcCode) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.PerformOnSections(paSections, pcCode) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.PerformOnSections(paSections, pcCode) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#--
+
+		def PerformOnTheseSections(paSections, pcCode)
+			This.PerformOnSections(paSections, pcCode)
+
+			def PerformOnTheseSectionsQ(paSections, pcCode)
+				This.PerformOnTheseSections(paSections, pcCode)
+				return This
+
+			def PerformOnTheseSectionsQR(paSections, pcCode, pcReturnType)
+				if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				if NOT isString(pcReturnType)
+					stzRaise("Incorrect param! pcReturnType must be a string.")
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return This
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.PerformOnTheseSections(paSections, pcCode) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.PerformOnTheseSections(paSections, pcCode) )
+	
+				on :stzListOfLists
+					return new stzListOfLists( This.PerformOnTheseSections(paSections, pcCode) )
+	
+				on :stzListOfPairs
+					return new stzListOfPairs( This.PerformOnTheseSections(paSections, pcCode) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+	
+	  #---------------------------------------------------------------#
+	 #   PERFORMING AN ACTION ON ITEMS VERIFYING A GIVEN CONDITION   #
+	#---------------------------------------------------------------#
+
+	def PerformW(pcAction, pcCondition)
+		
+		if NOT isString(pcAction)
+			stzRaise("Incorrect type! pcAction must be a string.")
+		ok
+		
+		if isList(pcCondition) and Q(pcCondition).IsIfOrWhereNamedParamList()
+
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			stzRaise("Incorrect type! pcCondition must be a string.")
+		ok
+
+		# No need to purify the pcCondition code here,
+		# FindItemsW() will do it
+
+		anPositions = This.FindItemsW(pcCondition)
+
+		# Do not purify pcAction code here,
+		# PerformOn() will do it
+
+		This.PerformOn(anPositions, pcAction)
+
+		#--
+
+		def PerformWQ(pcAction, pcCondition)
+			This.PerformW(pcAction, pcCondition)
+			return This
+
+		def PerformWQR(pcAction, pcCondition, pcReturnType)
+			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return This
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.PerformW(pcAction, pcCondition) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.PerformW(pcAction, pcCondition) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.PerformW(pcAction, pcCondition) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.PerformW(pcAction, pcCondition) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+	  #===========================================#
+	 #     COMPARING THE LIST TO ANOTHER LIST    #
+	#===========================================#
 
 	def IsEqualTo(paOtherList)
 		/*
@@ -3982,7 +5453,7 @@ class stzList from stzObject
 			return This.HasSameContentAs(paOtherList)
 
 	def Positions(pItem)
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
@@ -4508,6 +5979,7 @@ class stzList from stzObject
 			bResult = This.ToStzListOfNumbers().IsContiguous()
 
 		but This.IsListOfChars()
+
 			bResult = This.ToStzListOfChars().IsContiguous()
 
 		ok
@@ -5263,140 +6735,84 @@ class stzList from stzObject
 	 #   REPLACING LEADING ITEMS   #
 	#-----------------------------#
 
-	def ReplaceRepeatedLeadingItemWith(pItem)
+	def ReplaceRepeatedLeadingItem(pItem)
 		/* Example:
 
-		StzListQ([ '_', '_', '_', 'V', 'A', 'R', '-', '-', '-' ]).ReplaceRepeatedLeadingItemWith("-")
+		StzListQ([ '_', '_', '_', 'V', 'A', 'R', '-', '-', '-' ]).ReplaceRepeatedLeadingItem(:With = "-")
 
 		--> Gives: [ '-', '-', '-', 'V', 'A', 'R', '-', '-', '-' ]
 		*/
+
+		if isList(pItem) and Q(pItem).IsWithOrByNamedParamlist()
+			pItem = pItem[2]
+		ok
 
 		if This.HasRepeatedLeadingItems()
 			n = This.NumberOfRepeatedLeadingItems()
 
 			for i = 1 to n
-				This.ReplaceItemAtPosition(i, :With = pItem)
+				This.ReplaceItemAtPosition(i, pItem)
 			next
 
 		ok
 
-		def ReplaceRepeatedLeadingItemWithQ(pItem)
-			This.ReplaceRepeatedLeadingItemWith(pItem)
+		def ReplaceRepeatedLeadingItemQ(pItem)
+			This.ReplaceRepeatedLeadingItem(pItem)
 			return This
-
-		def ReplaceRepeatedLeadingItemBy(pItem)
-			This.ReplaceRepeatedLeadingItemWith(pItem)
-
-			def ReplaceRepeatedLeadingItemByQ(pItem)
-				This.ReplaceRepeatedLeadingItemBy(pItem)
-				return This
 					
-		def ReplaceLeadingRepeatedItemWith(pItem)
-			This.ReplaceRepeatedLeadingItemWith(pItem)
+		def ReplaceLeadingRepeatedItem(pItem)
+			This.ReplaceRepeatedLeadingItem(pItem)
 
-			def ReplaceLeadingRepeatedItemWithQ(pItem)
+			def ReplaceLeadingRepeatedItemQ(pItem)
 				This.ReplaceLeadingRepeatedItemWith(pItem)
 				return This
-
-			def ReplaceLeadingRepeatedItemBy(pItem)
-				This.ReplaceLeadingRepeatedItemWith(pItem)
-
-				def ReplaceLeadingRepeatedItemByQ(pItem)
-					This.ReplaceLeadingRepeatedItemBy(pItem)
-					return This
 						
-		def ReplaceLeadingRepeatedItemsWith(pItem)
-			This.ReplaceRepeatedLeadingItemWith(pItem)
+		def ReplaceLeadingRepeatedItems(pItem)
+			This.ReplaceRepeatedLeadingItem(pItem)
 
-			def ReplaceLeadingRepeatedItemsWithQ(pItem)
-				This.ReplaceLeadingRepeatedItemsWith(pItem)
+			def ReplaceLeadingRepeatedItemsQ(pItem)
+				This.ReplaceLeadingRepeatedItems(pItem)
 				return This
-		
-			def ReplaceLeadingRepeatedItemsBy(pItem)
-				This.ReplaceLeadingRepeatedItemsWith(pItem)
-
-				def ReplaceLeadingRepeatedItemsByQ(pItem)
-					This.ReplaceLeadingRepeatedItemsBy(pItem)
-					return This
 	
-		def ReplaceLeadingItemWith(pItem)
-			This.ReplaceRepeatedLeadingItemWith(pItem)
+		def ReplaceLeadingItem(pItem)
+			This.ReplaceRepeatedLeadingItem(pItem)
 
-			def ReplaceLeadingItemWithQ(pItem)
-				This.ReplaceLeadingItemWith(pItem)
+			def ReplaceLeadingItemQ(pItem)
+				This.ReplaceLeadingItem(pItem)
 				return This
-		
-			def ReplaceLeadingItemBy(pItem)
-				This.ReplaceLeadingItemWith(pItem)
 
-				def ReplaceLeadingItemByQ(pItem)
-					This.ReplaceLeadingItemBy(pItem)
-					return This
+		def ReplaceThisLeadingItem(pItem)
+			This.ReplaceRepeatedLeadingItem(pItem)
+
+			def ReplaceThisLeadingItemQ(pItem)
+				This.ReplaceThisLeadingItem(pItem)
+				return This
+
+		def ReplaceThisRepeatedLeadingItem(pItem)
+			This.ReplaceRepeatedLeadingItem(pItem)
+
+			def ReplaceThisRepeatedLeadingItemQ(pItem)
+				This.ReplaceThisRepeatedLeadingItem(pItem)
+				return This
 	
-		def ReplaceRepeatedLeadingItemsWith(pItem)
-			This.ReplaceRepeatedLeadingItemWith(pItem)
-
-			def ReplaceRepeatedLeadingcharsWithQ(pItem)
-				This.ReplaceRepeatedLeadingItemsWith(pItem)
-				return This
-		
-			def ReplaceRepeatedLeadingItemsBy(pItem)
-				This.ReplaceRepeatedLeadingItemsWith(pItem)
-
-				def ReplaceRepeatedLeadingcharsByQ(pItem)
-					This.ReplaceRepeatedLeadingItemsBy(pItem)
-					return This
-		
-		def ReplaceLeadingItemsWith(pItem)
-			This.ReplaceRepeatedLeadingItemWith(pItem)
-
-			def ReplaceLeadingItemsWithQ(pItem)
-				This.ReplaceLeadingItemsWith(pItem)
-				return This
-		
-			def ReplaceLeadingItemsBy(pItem)
-				This.ReplaceLeadingItemsWith(pItem)
-
-				def ReplaceLeadingItemsByQ(pItem)
-					This.ReplaceLeadingItemsWith(pItem)
-					return This
-	
-	def RepeatedLeadingItemReplacedWith(pItem)
-		aRresult = This.Copy().ReplaceRepeatedLeadingItemWithQ(pItem).Content()
+	def RepeatedLeadingItemReplaced(pItem)
+		aResult = This.Copy().ReplaceRepeatedLeadingItemQ(pItem).Content()
 		return aResult
 
-		def RepeatedLeadingItemReplacedBy(pItem)
-			return This.RepeatedLeadingItemReplacedWith(pItem)
-
-		def LeadingRepeatedItemReplacedWith(pItem)
-			return This.RepeatedLeadingItemReplacedWith(pItem)
+		def LeadingRepeatedItemReplaced(pItem)
+			return This.RepeatedLeadingItemReplaced(pItem)
 		
-		def LeadingRepeatedItemReplacedBy(pItem)
-			return This.RepeatedLeadingItemReplacedWith(pItem)
-		
-		def LeadingItemReplacedWith(pItem)
-			return This.RepeatedLeadingItemReplacedWith(pItem)
-		
-		def LeadingItemReplacedBy(pItem)
-			return This.RepeatedLeadingItemReplacedWith(pItem)
+		def LeadingItemReplaced(pItem)
+			return This.RepeatedLeadingItemReplaced(pItem)
 			
-		def RepeatedLeadingItemsReplacedWith(pItem)
-			return This.RepeatedLeadingItemReplacedWith(pItem)
+		def RepeatedLeadingItemsReplaced(pItem)
+			return This.RepeatedLeadingItemReplaced(pItem)
 		
-		def RepeatedLeadingItemsReplacedBy(pItem)
-			return This.RepeatedLeadingItemReplacedWith(pItem)
-		
-		def LeadingRepeatedItemsReplacedWith(pItem)
-			return This.RepeatedLeadingItemReplacedWith(pItem)
-		
-		def LeadingRepeatedItemsReplacedBy(pItem)
-			return This.RepeatedLeadingItemReplacedWith(pItem)
-		
-		def LeadingItemsReplacedWith(pItem)
-			return This.RepeatedLeadingItemReplacedWith(pItem)
-		
-		def LeadingItemsReplacedBy(pItem)
-			return This.RepeatedLeadingItemReplacedWith(pItem)
+		def LeadingRepeatedItemsReplaced(pItem)
+			return This.RepeatedLeadingItemReplaced(pItem)
+	
+		def LeadingItemsReplaced(pItem)
+			return This.RepeatedLeadingItemReplaced(pItem)
 				
 	  #------------------------------#
 	 #   REPLACING TRAILING ITEMS   #
@@ -5407,276 +6823,161 @@ class stzList from stzObject
 
 		stzListQ([ "_","_","_","V","A","R","-","-","-" ]).ReplaceRepeatedTrailingItemBy("_")
 
-		Give --> [ "_","_","_","V","A","R","_","_","_" ]
+		Gives --> [ "_","_","_","V","A","R","_","_","_" ]
 		*/
+
+		if isList(pItem) and Q(pItem).IsWithOrByNamedParamlist()
+			pItem = pItem[2]
+		ok
 
 		if This.HasRepeatedTrailingItems()
 			n = This.NumberOfRepeatedTrailingItems()
 
 			n = This.NumberOfItems() - n + 1
 			for i = n to This.NumberOfItems()
-				This.ReplaceItemAtPosition(i, :With = pItem)
+				This.ReplaceItemAtPosition(i, pItem)
 			next
 
 		ok
 
-		def ReplaceRepeatedTrailingItemWithQ(pItem)
-			This.ReplaceRepeatedTrailingItemWith(pItem)
+		def ReplaceRepeatedTrailingItemQ(pItem)
+			This.ReplaceRepeatedTrailingItem(pItem)
 			return This
 	
-		def ReplaceRepeatedTrailingItemBy(pItem)
-			This.ReplaceRepeatedTrailingItemWith(pItem)
+		def ReplaceTrailingRepeatedItem(pItem)
+			This.ReplaceRepeatedTrailingItem(pItem)
 
-			def ReplaceRepeatedTrailingItemByQ(pItem)
-				This.ReplaceRepeatedTrailingItemBy(pItem)
+			def ReplaceTrailingRepeatedItemQ(pItem)
+				This.ReplaceTrailingRepeatedItem(pItem)
+				return This	
+	
+		def ReplaceTrailingItem(pItem)
+			This.ReplaceRepeatedTrailingItem(pItem)
+
+			def ReplaceTrailingItemQ(pItem)
+				This.ReplaceTrailingItem(pItem)
 				return This
 	
-		def ReplaceTrailingRepeatedItemWith(pItem)
-			This.ReplaceRepeatedTrailingItemWith(pItem)
+		def ReplaceRepeatedTrailingItems(pItem)
+			This.ReplaceRepeatedTrailingItem(pItem)
 
-			def ReplaceTrailingRepeatedItemWithQ(pItem)
-				This.ReplaceTrailingRepeatedItemWith(pItem)
-				return This
-	
-		def ReplaceTrailingRepeatedItemBy(pItem)
-			This.ReplaceRepeatedTrailingItemWith(pItem)
-
-			def ReplaceTrailingRepeatedItemByQ(pItem)
-				This.ReplaceTrailingRepeatedItemBy(pItem)
-				return This				
-	
-		def ReplaceTrailingItemWith(pItem)
-			This.ReplaceRepeatedTrailingItemWith(pItem)
-
-			def ReplaceTrailingItemWithQ(pItem)
-				This.ReplaceTrailingItemWith(pItem)
-				return This
-	
-		def ReplaceTrailingItemBy(pItem)
-			This.ReplaceRepeatedTrailingItemWith(pItem)
-
-			def ReplaceTrailingItemByQ(pItem)
-				This.ReplaceTrailingItemBy(pItem)
-				return This
-	
-		def ReplaceRepeatedTrailingItemsWith(pItem)
-			This.ReplaceRepeatedTrailingItemWith(pItem)
-
-			def ReplaceRepeatedTrailingItemsWithQ(pItem)
-				This.ReplaceRepeatedTrailingItemsWith(pItem)
+			def ReplaceRepeatedTrailingItemsQ(pItem)
+				This.ReplaceRepeatedTrailingItems(pItem)
 				return This
 		
-			def ReplaceRepeatedTrailingItemsBy(pItem)
-				This.ReplaceRepeatedTrailingItemsWith(pItem)
+			def ReplaceTrailingRepeatedItems(pItem)
+				This.ReplaceRepeatedTrailingItems(pItem)
 
-				def ReplaceRepeatedTrailingItemsByQ(pItem)
-					This.ReplaceRepeatedTrailingItemsBy(pItem)
-					return This
-		
-			def ReplaceTrailingRepeatedItemsWith(pItem)
-				This.ReplaceRepeatedTrailingItemsWith(pItem)
-
-				def ReplaceTrailingRepeatedItemsWithQ(pItem)
-					This.ReplaceTrailingRepeatedItemsWith(pItem)
-					return This
-		
-			def ReplaceTrailingRepeatedItemsBy(pItem)
-				This.ReplaceRepeatedTrailingItemsWith(pItem)
-
-				def ReplaceTrailingRepeatedItemsByQ(pItem)
-					This.ReplaceTrailingRepeatedItemsBy(pItem)
+				def ReplaceTrailingRepeatedItemsQ(pItem)
+					This.ReplaceTrailingRepeatedItems(pItem)
 					return This
 	
-	def RepeatedTrailingItemReplacedWith(pItem)
-		aResult = This.Copy().ReplaceRepeatedTrailingItemWithQ(pItem).Content()
+	def RepeatedTrailingItemReplaced(pItem)
+		aResult = This.Copy().ReplaceRepeatedTrailingItemQ(pItem).Content()
 		return aResult
 
-		def RepeatedTrailingItemReplacedBy(pItem)
-			return This.RepeatedTrailingItemReplacedWith(pItem)
+		def TrailingRepeatedItemReplaced(pItem)
+			return This.RepeatedTrailingItemReplaced(pItem)
 
-		def TrailingRepeatedItemReplacedWith(pItem)
-			return This.RepeatedTrailingItemReplacedWith(pItem)
-
-		def TrailingRepeatedItemReplacedBy(pItem)
-			return This.RepeatedTrailingItemReplacedWith(pItem)
-
-		def TrailingItemReplacedWith(pItem)
-			return This.RepeatedTrailingItemReplacedWith(pItem)
+		def TrailingItemReplaced(pItem)
+			return This.RepeatedTrailingItemReplaced(pItem)
 
 		def TrailingItemReplacedBy(pItem)
-			return This.RepeatedTrailingItemReplacedWith(pItem)
+			return This.RepeatedTrailingItemReplaced(pItem)
 	
-		def RepeatedTrailingItemsReplacedWith(pItem)
-			return This.RepeatedTrailingItemReplacedWith(pItem)
+		def RepeatedTrailingItemsReplaced(pItem)
+			return This.RepeatedTrailingItemReplaced(pItem)
 
-		def RepeatedTrailingItemsReplacedBy(pItem)
-			return This.RepeatedTrailingItemReplacedWith(pItem)
+		def TrailingRepeatedItemsReplaced(pItem)
+			return This.RepeatedTrailingItemReplacedh(pItem)
 
-		def TrailingRepeatedItemsReplacedWith(pItem)
-			return This.RepeatedTrailingItemReplacedWith(pItem)
-
-		def TrailingRepeatedItemsReplacedBy(pItem)
-			return This.RepeatedTrailingItemReplacedWith(pItem)
-
-		def TrailingItemsReplacedWith(pItem)
-			return This.RepeatedTrailingItemReplacedWith(pItem)
-
-		def TrailingItemsReplacedBy(pItem)
-			return This.RepeatedTrailingItemReplacedWith(pItem)
+		def TrailingItemsReplaced(pItem)
+			return This.RepeatedTrailingItemReplaced(pItem)
 	
 	  #---------------------------------------------------#
 	 #   REPLACING REPEATED LEADING AND TRAILING ITEMS   #
 	#---------------------------------------------------#
 
-	def ReplaceRepeatedLeadingItemAndTrailingItemWith(pItem1, pItem2)
+	def ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
 		This.ReplaceRepeatedLeadingItemWith(pItem1)
 		This.ReplaceRepeatedTrailingItemWith(pItem2)
 
-		def ReplaceRepeatedLeadingItemAndTrailingItemWithQ(pItem1, pItem2)
-			This.ReplaceRepeatedLeadingItemAndTrailingItemWith(pItem1, pItem2)
+		def ReplaceRepeatedLeadingItemAndTrailingItemQ(pItem1, pItem2)
+			This.ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
+			return This
+
+		def ReplaceRepeatedTrailingItemAndLeadingItem(pItem1, pItem2)
+			This.ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
+
+			def ReplaceRepeatedTrailingItemAndLeadingItemQ(pItem1, pItem2)
+				This.ReplaceRepeatedTrailingItemAndLeadingItem(pItem1, pItem2)
+				return This
+	
+		def ReplaceLeadingItemAndTrailingItem(pItem1, pItem2)
+			This.ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
+
+			def ReplaceLeadingItemAndTrailingItemQ(pItem1, pItem2)
+				This.ReplaceLeadingItemAndTrailingItem(pItem1, pItem2)
+				return This
+	
+		def ReplaceTrailingItemAndLeadingItem(pItem1, pItem2)
+			This.ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
+
+			def ReplaceTrailingItemAndLeadingItemQ(pItem1, pItem2)
+				This.ReplaceTrailingItemAndLeadingItem(pItem1, pItem2)
+				return This
+	
+	def RepeatedLeadingcharAndTrailingItemReplaced(pItem1, pItem2)
+		aResult = This.Copy().ReplaceRepeatedLeadingItemAndTrailingItemQ(pItem1, pItem2).Content()
+		return aResult
+	
+		def RepeadtedTrailingItemAndLeadingItemReplaced(pItem1, pItem2)
+			This.RepeatedLeadingcharAndTrailingItemReplaced(pItem1, pItem2)
+	
+		def TrailingItemAndLeadingItemReplaced(pItem1, pItem2)
+			This.RepeatedLeadingcharAndTrailingItemReplaced(pItem1, pItem2)
+	
+	def ReplaceRepeatedLeadingAndTrailingItems(pItem)
+		This.ReplaceRepeatedLeadingItem(pItem)
+		This.ReplaceRepeatedTrailingItem(pItem)
+
+		def ReplaceRepeatedLeadingAndTrailingItemsQ(pItem)
+			This.ReplaceRepeatedLeadingAndTrailingItems(pItem)
 			return This
 	
-		def ReplaceRepeatedLeadingItemAndTrailingItemBy(pItem1, pItem2)
-			This.ReplaceRepeatedLeadingItemAndTrailingItemWith(pItem1, pItem2)
+		def ReplaceLeadingAndTrailingItems(pItem)
+			This.ReplaceRepeatedLeadingAndTrailingItems(pItem)
 
-			def ReplaceRepeatedLeadingItemAndTrailingItemByQ(pItem1, pItem2)
-				This.ReplaceRepeatedLeadingItemAndTrailingItemBy(pItem1, pItem2)
-				return This
-
-		def ReplaceRepeatedTrailingItemAndLeadingItemWith(pItem1, pItem2)
-			This.ReplaceRepeatedLeadingItemAndTrailingItemWith(pItem1, pItem2)
-
-			def ReplaceRepeatedTrailingItemAndLeadingItemWithQ(pItem1, pItem2)
-				This.ReplaceRepeatedTrailingItemAndLeadingItemWith(pItem1, pItem2)
-				return This
-
-		def ReplaceRepeatedTrailingItemAndLeadingItemBy(pItem1, pItem2)
-			This.ReplaceRepeatedLeadingItemAndTrailingItemWith(pItem1, pItem2)
-
-			def ReplaceRepeatedTrailingItemAndLeadingItemByQ(pItem1, pItem2)
-				This.ReplaceRepeatedTrailingItemAndLeadingItemBy(pItem1, pItem2)
+			def ReplaceLeadingAndTrailingItemsQ(pItem)
+				This.ReplaceLeadingAndTrailingItems(pItem)
 				return This
 	
-		def ReplaceLeadingItemAndTrailingItemWith(pItem1, pItem2)
-			This.ReplaceRepeatedLeadingItemAndTrailingItemWith(pItem1, pItem2)
+		def ReplaceRepeatedTrailingAndLeadingItems(pItem)
+			This.ReplaceRepeatedLeadingAndTrailingItems(pItem)
 
-			def ReplaceLeadingItemAndTrailingItemWithQ(pItem1, pItem2)
-				This.ReplaceLeadingItemAndTrailingItemWith(pItem1, pItem2)
+			def ReplaceRepeatedTrailingAndLeadingItemQ(pItem)
+				This.ReplaceRepeatedTrailingAndLeadingItems(pItem)
 				return This
 	
-		def ReplaceLeadingItemAndTrailingItemBy(pItem1, pItem2)
-			This.ReplaceRepeatedLeadingItemAndTrailingItemWith(pItem1, pItem2)
+		def ReplaceTrailingAndLeadingItems(pItem)
+			This.ReplaceRepeatedLeadingAndTrailingItems(pItem)
 
-			def ReplaceLeadingItemAndTrailingItemByQ(pItem1, pItem2)
-				This.ReplaceLeadingItemAndTrailingItemBy(pItem1, pItem2)
+			def ReplaceTrailingAndLeadingItemsQ(pItem)
+				This.ReplaceTrailingAndLeadingItems(pItem)
 				return This
 	
-		def ReplaceTrailingItemAndLeadingItemWith(pItem1, pItem2)
-			This.ReplaceRepeatedLeadingItemAndTrailingItemWith(pItem1, pItem2)
-
-			def ReplaceTrailingItemAndLeadingItemWithQ(pItem1, pItem2)
-				This.ReplaceTrailingItemAndLeadingItemWith(pItem1, pItem2)
-				return This
-	
-		def ReplaceTrailingItemAndLeadingItemBy(pItem1, pItem2)
-			This.ReplaceRepeatedLeadingItemAndTrailingItemWith(pItem1, pItem2)
-
-			def ReplaceTrailingItemAndLeadingItemByQ(pItem1, pItem2)
-				This.ReplaceTrailingItemAndLeadingItemBy(pItem1, pItem2)
-				return This
-	
-	def RepeatedLeadingcharAndTrailingItemReplacedWith(pItem1, pItem2)
-		aResult = This.Copy().ReplaceRepeatedLeadingItemAndTrailingItemWithQ(pItem1, pItem2).Content()
+	def RepeatedLeadingAndTrailingItemsReplaced(pItem)
+		aResult = This.Copy().ReplaceRepeatedLeadingAndTrailingItemsQ(pItem).Content()
 		return aResult
 
-		def RepeatedLeadingItemAndTrailingItemReplacedBy(pItem1, pItem2)
-			return This.RepeatedLeadingcharAndTrailingItemReplacedWith(pItem1, pItem2)
+		def RepeatedTrailingAndLeadingItemsReplaced(pItem)
+			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem)
+
+		def LeadingAndTrailingItemsReplaced(pItem)
+			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem)
 	
-		def LeadingItemAndTrailingItemReplacedWith(pItem1, pItem2)
-			return This.RepeatedLeadingcharAndTrailingItemReplacedWith(pItem1, pItem2)
-
-			def LeadingItemAndTrailingItemReplacedBy(pItem1, pItem2)
-				return This.LeadingItemAndTrailingItemReplacedWith(pItem1, pItem2)
-	
-		def RepeadtedTrailingItemAndLeadingItemReplacedWith(pItem1, pItem2)
-			This.RepeatedLeadingcharAndTrailingItemReplacedWith(pItem1, pItem2)
-
-			def RepeadtedTrailingItemAndLeadingItemReplacedBy(pItem1, pItem2)
-				return This.RepeadtedTrailingItemAndLeadingItemReplacedWith(pItem1, pItem2)
-	
-		def TrailingItemAndLeadingItemReplacedWith(pItem1, pItem2)
-			This.RepeatedLeadingcharAndTrailingItemReplacedWith(pItem1, pItem2)
-
-			def TrailingItemAndLeadingItemReplacedBy(pItem1, pItem2)
-				return This.TrailingItemAndLeadingItemReplacedWith(pItem1, pItem2)
-	
-	def ReplaceRepeatedLeadingAndTrailingItemsWith(pItem)
-		This.ReplaceRepeatedLeadingItemWith(pItem)
-		This.ReplaceRepeatedTrailingItemWith(pItem)
-
-		def ReplaceRepeatedLeadingAndTrailingItemsWithQ(pItem)
-			This.ReplaceRepeatedLeadingAndTrailingItemsWith(pItem)
-			return This
-	
-		def ReplaceRepeatedLeadingAndTrailingItemsBy(pItem)
-			This.ReplaceRepeatedLeadingAndTrailingItemsWith(pItem)
-
-			def ReplaceRepeatedLeadingAndTrailingItemsByQ(pItem)
-				This.ReplaceRepeatedLeadingAndTrailingItemsBy(pItem)
-				return This
-	
-		def ReplaceLeadingAndTrailingItemsWith(pItem)
-			This.ReplaceRepeatedLeadingAndTrailingItemsWith(pItem)
-
-			def ReplaceLeadingAndTrailingItemsWithQ(pItem)
-				This.ReplaceLeadingAndTrailingItemsWith(pItem)
-				return This
-	
-		def ReplaceRepeatedTrailingAndLeadingItemsWith(pItem)
-			This.ReplaceRepeatedLeadingAndTrailingItemsWith(pItem)
-
-			def ReplaceRepeatedTrailingAndLeadingItemsWithQ(pItem)
-				This.ReplaceRepeatedTrailingAndLeadingItemsWith(pItem)
-				return This
-	
-		def ReplaceLeadingAndTrailingItemsBy(pItem)
-			This.ReplaceRepeatedLeadingAndTrailingItemsWith(pItem)
-
-			def ReplaceLeadingAndTrailingItemsByQ(pItem)
-				This.ReplaceLeadingAndTrailingItemsBy(pItem)
-				return This
-	
-		def ReplaceTrailingAndLeadingItemsWith(pItem)
-			This.ReplaceRepeatedLeadingAndTrailingItemsWith(pItem)
-
-			def ReplaceTrailingAndLeadingItemsWithQ(pItem)
-				This.ReplaceTrailingAndLeadingItemsWith(pItem)
-				return This
-	
-	def RepeatedLeadingAndTrailingItemsReplacedWith(pItem)
-		aResult = This.Copy().ReplaceRepeatedLeadingAndTrailingItemsWithQ(pItem).Content()
-		return aRresult
-
-		def RepeatedLeadingAndTrailingItemsReplacedBy(pItem)
-			return This.RepeatedLeadingAndTrailingItemsReplacedWith(pItem)
-
-		def RepeatedTrailingAndLeadingItemsReplacedWith(pItem)
-			return This.RepeatedLeadingAndTrailingItemsReplacedWith(pItem)
-
-			def RepeatedTrailingAndLeadingItemsReplacedBy(pItem)
-				return This.RepeatedTrailingAndLeadingItemsReplacedWith(pItem)
-	
-		def LeadingAndTrailingItemsReplacedWith(pItem)
-			return This.RepeatedLeadingAndTrailingItemsReplacedWith(pItem)
-
-			def LeadingAndTrailingItemsReplacedBy(pItem)
-				return This.LeadingAndTrailingItemsReplacedWith(pItem)
-	
-		def TrailingAndLeadingItemsReplacedWith(pItem)
-			return This.RepeatedLeadingAndTrailingItemsReplacedWith(pItem)
-
-			def TrailingAndLeadingItemsReplacedBy(pItem)
-				return This.TrailingAndLeadingItemsReplacedWith(pItem)
+		def TrailingAndLeadingItemsReplaced(pItem)
+			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem)
 
 	  #------------------------------#
 	 #     OPERATORS OVERLOADING    #
@@ -5735,115 +7036,10 @@ class stzList from stzObject
 			if isNumber(pValue) or isString(pValue)
 				This.RemoveItemAtPositionQ( find(This.List(), pValue) )
 
-			ok
-
-			if StzListQ(pValue).IsListOfLists() and len(pValue) = 1
-				
-				/*
-				Example:
-
-				o1 = new stzList([ 5, 7, 3, 0 ])
-				o1 - [[ :LastItemIf, :EqualTo, 0 ]]
-
-				Gives -> [ 5, 7, 3 ]
-
-				NB: We use the two brackets here to differenciate
-				the syntax from when we use only one bracket:
-
-					 o1 - [ 0, 3, 7 ] --> [ 5 ]
-
-				which means : remove these items from the main list
-				*/
-
-				aListOfConditions = [
-					:EqualTo, :LesserThan, :GreaterThan,
-					:LesserThanOrEqual, :GreaterThanOrEqual,
-					:DifferentThan ]
-
-				cFirstOrLast = pValue[1][1]
-				cCondition = pValue[1][2]
-				value = pValue[1][3]
-
-				oCondition = new stzString(cCondition)
-
-				if NOT ( len(pValue[1]) = 3 AND
-				   (cFirstOrLast = :FirstItemIf or cFirstOrLast = :LastItemIf) AND
-				   oCondition.ExistsInList(aListOfConditions) )
-
-					stzRaise(stzListError(:UnsupportedExpressionInOverloadedMinusOperator))
-				ok
-					
-				if cFirstOrLast = :FirstItemIf
-
-					if cCondition = :EqualTo
-						if IsNumberOrString(value)
-							if This.FirstItem() = value
-								This.RemoveFirstItem()
-							ok
-
-						but isList(value)
-							oList = value
-							if oList.IsEqualTo(cFirstOrLast)
-								This.RemoveFirstItem()
-							ok
-						ok
-
-					but cCondition = :LesserThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-
-					but cCondition = :GreaterThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-
-					but cCondition = :LesserOrEqualThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-
-					but cCondition = :GreaterOrEqualThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-
-					but cCondition = :DifferentThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-					
-					ok
-
-				but cFirstOrLast = :LastItemIf
-
-					if cCondition = :EqualTo
-						if IsNumberOrString(value)
-							if This.LastItem() = value
-								This.RemoveLastItem()
-							ok
-
-						but isList(value)
-							oList = value
-							if value.IsEqualTo(cFirstOrLast)
-								This.RemoveLastItem()
-							ok
-						ok
-
-					but cCondition = :LesserThan
-						stzRaise(stzListError(:UnsupportedFeattureInThisVersion))
-
-					but cCondition = :GreaterThan
-						stzRaise(stzListError(:UnsupportedFeattureInThisVersion))
-
-					but cCondition = :LesserOrEqualThan
-						stzRaise(stzListError(:UnsupportedFeattureInThisVersion))
-
-					but cCondition = :GreaterOrEqualThan
-						stzRaise(stzListError(:UnsupportedFeattureInThisVersion))
-					
-					ok
-
-				ok
-				
-			ok
-
-			# if we whave this syntax: o1 - [ 5, 3 ]
-
-			if isList(pValue)
+			but isList(pValue)
 				if len(pValue) > 0
 					anPositions = This.FindMany(pValue)
-					This.RemoveManyAtPositions(anPositions)
+					This.RemoveItemsAtPositions(anPositions)
 				ok
 			ok
 
@@ -6171,30 +7367,32 @@ class stzList from stzObject
 		def ToCodeQ()
 			return new stzString( This.ToCode() )
 
-	def ToString()
+		def ToListInString()
+			return This.ToCode()
 
-		return This.ToCode()
-		
-		#< @FunctionAlternativeForm
+			def ToListInStringQ()
+				return new stzString(This.ToListInString())
 
-		def Stringify()
-			return This.ToString()
+		def ToString()
+			return This.ToCode()
 
-			def StringifyQ()
+			def ToStringQ()
 				return new stzString( This.ToString() )
-
-		def Stringified()
-			return This.ToString()
-	
-		#< @FunctionFluentForm
-
-		def ToStringQ()
-			return new stzString( This.ToString() )
 
 			def ToStzString()
 				return This.ToStringQ()
 
-		#>
+		def Stringify()
+			return This.ToCode()
+
+			def StringifyQ()
+				return new stzString( This.Stringify() )
+
+	def Codified()
+		return This.ToCode()
+
+		def Stringified()
+			return This.ToString()
 
 	def IsSet()
 		bIsSet = TRUE
@@ -6212,7 +7410,7 @@ class stzList from stzObject
 	#-----------------------------------------------------#
 
 	def NumberOfOccurrence(pItem)
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
@@ -6233,26 +7431,21 @@ class stzList from stzObject
 		# can rely on Qt to remove its duplicates
 
 		if This.IsListOfStrings()
+
 			aResult = StzListOfStringsQ( This.List() ).DuplicatesRemoved()
 
 		else
+
 			# Otherwise we do the job manually in Ring
-
-			acStrList = []
-			for i = 1 to This.NumberOfItems()
-				cItemInStr = @@( This[i] )
-
-				if find(acStrList, cItemInStr) = 0
-					acStrList + cItemInStr
-				ok
-			next
-
-			acStrList = StzListOfStringsQ( acStrList ).DuplicatesRemoved()
 	
-			for str in acStrList
-				cCode = "aResult + " + str
-				eval(cCode)
+			aListOfStr = This.ItemsStringified()
+			aListOfStr = StzListOfStringsQ( aListOfStr ).DuplicatesRemoved()
+
+			for str in aListOfStr
+				eval("item = " + str)
+				aResult + item
 			next
+			
 		ok
 
 		This.Update( aResult )
@@ -6261,6 +7454,25 @@ class stzList from stzObject
 			This.RemoveDuplicates()
 			return This
 	
+	def ItemsStringified()
+		acResult = []
+
+		for item in This.List()
+			
+			if isString(item)
+				acResult + item
+			but isNumber(item)
+				acResult + ("" + item)
+			but isList(item)
+				acResult + @@( item )
+			but isObject(item)
+				// Do nothing (TODO)
+			ok
+
+		next
+
+		return acResult
+
 	def DuplicatesRemoved()
 		aResult = This.Copy().RemoveDuplicatesQ().Content()
 		return aResult
@@ -6840,8 +8052,12 @@ class stzList from stzObject
 	// for each list: its path, level and position.
 	def ItemsThatAreLists_AtAnyLevel_XT()
 		
-		aResult = []	aPath = []
-		nLevel = -1 nPosition = -1
+		aResult = []
+		aPath = []
+
+		nLevel = -1
+		nPosition = -1
+
 		for c in list2code(This.Content())
 			if c = "["
 				nLevel++
@@ -6972,15 +8188,19 @@ class stzList from stzObject
 	#---------------------------#
 
 	def Levels()
+		// TODO
 
 	def NthLevel(n)
+		// TODO
 
 	def ContentOfLevel(n)
+		// TODO
 
 		def ItemsOfLevel(n)
 			return This.ContentOfLevel(n)
 
 	def LevelsAndTheirItems()
+		// TODO
 
 	  #-----------------------------------------------------------#
 	 #   SUBLISTS OF THE LIST --> LISTS IN LEVEL 1 OF THE LIST   #
@@ -7063,7 +8283,7 @@ class stzList from stzObject
 	# UPDATE: Lists are now findable (only objects are left)
 
 	def FindNthOccurrence(n, pItem) 
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
@@ -7162,7 +8382,7 @@ class stzList from stzObject
 
 		*/
 
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
@@ -7458,11 +8678,11 @@ class stzList from stzObject
 	#-------------------------------------------------#
 
 	def FindNthNextOccurrence( n, pItem, nStart )
-		if isList(pItem) and Q(pItem).IsOfParamList()
+		if isList(pItem) and Q(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
-		if isList(nStart) and Q(nStart).IsStartingAtParamList()
+		if isList(nStart) and Q(nStart).IsStartingAtNamedParamList()
 			nStart = nStart[2]
 		ok
 
@@ -7499,11 +8719,11 @@ class stzList from stzObject
 			stzRaise("Out of range! n should be between 1 and This.NumberOfItems().")
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsOfParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
-		if isList(nStart) and StzListQ(nStart).IsStartingAtParamList()
+		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParamList()
 
 			if isString(nStart[2])
 				if nStart[2] = :First or nStart[2] = :FirstItem
@@ -7585,8 +8805,25 @@ class stzList from stzObject
 	#-----------------------------------------#
 
 	def FindNextOccurrences(pItem, pnStartingAt)
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtParamList()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
 			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstItem ], :CS = FALSE)
+
+				pnStartingAt = 1
+			
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
@@ -7613,8 +8850,26 @@ class stzList from stzObject
 	#---------------------------------------------#
 
 	def FindPreviousOccurrences(pcSubStr, pnStartingAt)
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtParamList()
+
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
 			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstItem ], :CS = FALSE)
+
+				pnStartingAt = 1
+			
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
 		oSection = This.SectionQ(1, pnStartingAt)
@@ -7625,55 +8880,67 @@ class stzList from stzObject
 
 	   #---------------------------------------------------#
 	  #   FINDING ALL ITEMS VERIFYING A GIVEN CONDITION   #
-	#---------------------------------------------------#
+	#----------------------------------------------------#
 
-	def FindAllItemsW(pCondition)
-	
-		# Checking the provided param
-	
-		if isString(pCondition)
-			cCondition = pCondition
-	
-		but isList(pCondition) and StzListQ(pCondition).IsWhereParamList()
-	
-			cCondition = pCondition[2]
-	
-		else
-			stzRaise("Invalid param format!")
+	def FindAllItemsW(pcCondition)
+		/* WARNING
+
+		We can't use this solution:
+
+			anPositions = This.YieldW('@position', pcCondition)
+			return anPositions
+
+		because YieldW() uses the current function FindW() --> Stackoverfolw!
+		*/
+		
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParamList()
+			pcCondition = pcCondition[2]
 		ok
-	
-		# Performing the finding
-	
-		cCondition = StzStringQ(cCondition).RemoveBoundsQ("{","}").Simplified()
 
-		aResult = []
+		if NOT isString(pcCondition)
+			stzRaise("Incorrect param! pcCondition must be a string.")
+		ok
+
+		if pcCondition = NULL
+			return 1 : This.NumberOfItems()
+		ok
+
+		cCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzList)
+
+		cCode = "bOk = ( " + cCondition + " )"
+		oCode = new stzString(cCode)
+
+		anResult = []
 
 		@i = 0
-		Previous@i = 0
-		Next@i = 0
-	
 		for @item in This.List()
-
 			@i++
 
-			if @i <= This.NumberOfItems()
-				Next@i = @i + 1
+			bEval = TRUE
+
+			if @i = This.NumberOfItems() and
+			   oCode.ContainsCS("@NextItem", :CS = FALSE)
+
+				bEval = FALSE
 			ok
 
-			if @i > 1
-				Previous@i = @i - 1
+			if @i = 1 and
+			   oCode.ContainsCS("@PreviousItem", :CS = FALSE)
+
+				bEval = FALSE
 			ok
 
-			cCode = "if (" + cCondition + ")" + NL +
-				tab + "aResult + @i" + NL +
-				"ok"
-	
-			eval(cCode)
-	
+			if bEval
+				eval(cCode)
+				if bOk
+					anResult + @i
+				ok
+			ok
+
 		next
-	
-		return aResult
-			
+
+		return anResult
+
 		#< @FunctionFluentForm
 	
 		def FindAllItemsWQ(pCondition)
@@ -7835,6 +9102,18 @@ class stzList from stzObject
 		def ItemsPositionsWhere(pCondition)
 			return This.FindAllItemsW(pCondition)
 
+		def PositionsW(pCondition)
+			return This.FindAllItemsW(pCondition)
+
+		def PositionsOfItemsW(pCondition)
+			return This.FindAllItemsW(pCondition)
+
+		def PositionsWhere(pCondition)
+			return This.FindAllItemsW(pCondition)
+
+		def PositionsOfItemsWhere(pCondition)
+			return This.FindAllItemsW(pCondition)
+
 	#>
 
   	  #--------------------------------------#
@@ -7868,99 +9147,44 @@ class stzList from stzObject
 		-> Finding items return their positions as numbers
 	*/
 
-	def ItemsW(pCondition)
+	def ItemsW(pcCondition)
+		/* WARNING
 
-		/*
-		Example:
-		StzListQ([ 1, "a", 2, "b", 3, "c" ]).ItemsW('{ isString(@item) }')
-		
-		Gives : [ "a", "b", "c" ]
+		Do not use this solution:
+
+			return This.YieldW('@item', pcCondition)
+
+		--> Stackoverflow!
 		*/
 
-		# Checking the provided param for the pCondition
-	
-		if isString(pCondition)
-			cCondition = pCondition
-	
-		but isList(pCondition) and len(pCondition) = 2 and
-		    isString(pCondition[2])
-	
-			if pCondition[1] = :Where 
-				cCondition = pCondition[2]
-	
-			else
-				stzRaise('Syntax error! Enter :Where and not "' + pCondition[1]+'"')
-			ok
-		ok
-	
-		# Performing the required job
-	
-		cCondition = StzStringQ(cCondition).RemoveBoundsQ("{","}").Simplified()
-		aResult = []
 
-		@i = 0
-		Previous@i = 0
-		Next@i = 0
-
-		for @item in This.List()
-			@i++
-			if @i <= This.NumberOfItems()
-				Next@i = @i + 1
-			ok
-
-			if @i > 1
-				Previous@i = @i - 1
-			ok
-
-			cCode = "if (" + cCondition + ")" + NL +
-				tab + "aResult + @Item" + NL +
-				"ok"
-
-			eval(cCode)
-		next
+		anPositions = FindAllItemsW(pcCondition)
+		aResult = ItemsAtThesePositions(anPositions)
 
 		return aResult
 
-		#< @FunctionFluentForm
+		def ItemsWQ(pcCondition)
+			return ItemsWQR(pcCondition, :stzList)
 
-		def ItemsWQ(pCondition)
-			return new stzList( This.ItemsW(pCondition) )
+		def ListsWQR(pcCondition, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamType()
+				pcReturnType = pcReturnType[2]
+			ok
 
-		#>
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
 
-		#< @FunctionAlternativeForms
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ItemsW(pcCondition) )
 
-		def ItemsWhere(pCondition)
-			return This.ItemsW(pCondition)
+			on :stzListOfNumbers
+				return new stzListOfStrings( This.ItemsW(pcCondition) )
 
-			#< @FunctionFluentForm
-
-			def ItemsWhereQ(pCondition)
-				return new stzList( This.ItemsW(pCondition) )
-
-			#>
-
-		def AllItemsW(pCondition)
-			return This.ItemsW(pCondition)
-
-			#< @FunctionFluentForm
-
-			def AllItemsWQ(pCondition)
-				return new stzList( This.AllItemsW(pCondition) )
-
-			#>
-
-		def AllItemsWhere(pCondition)
-			return This.ItemsW(pCondition)
-
-			#< @FunctionFluentForm
-
-			def AllItemsWhereQ(pCondition)
-				return new stzList( This.AllItemsWhere(pCondition) )
-
-			#>
-		
-		#>
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 	def UniqueItemsW(pCondition)
 
@@ -7976,65 +9200,14 @@ class stzList from stzObject
 			def UniqueItemsWhereQ(pCondition)
 				return new stzList( This.UniqueItemsWhere(pcCondition) )
 
-	def NumberOfItemsW(pCondition)
-		return len( This.ItemsW(pCondition) )
-
-		def NumberOfUniqueItemsW(pCondition)
-			return len( This.UniqueItemsW(pCondition) )
-
 	def AllItemsExcept(pItem)
 		aResult = This.ItemsW('{ NOT BothAreEqual(@item, ' + ComputableForm(pItem) + ') }')
 		return aResult
 
-	def NthItemW(n, pCondition)
+	def NthItemW(n, pcCondition)
 
-		if NOT ( isNumber(n) and StzNumberQ(n).IsBetween(1, This.NumberOfItems() ) )
-			stzRaise("Out of range! n must be between 1 and This.NumberOfItems()" )
-		ok
-
-		# Checking the provided param for the pCondition, by retriving
-		# its value depending on the format used:
-		# 	- NthItemW(2, '{ isNumber(@item) }"), or
-		# 	- NthItemW(2, :Where = '{ isNumber(@item) }")
-		# Note the use of :Where in the second case (more expressive syntax)	
-	
-		if isString(pCondition)
-			cCondition = pCondition
-		
-		but isList(pCondition) and StzListQ(pCondition).IsWhereParamList()
-			cCondition = pCondition[2]
-
-		else
-			stzRaise("Incorrect pCondition param!")
-		ok
-	
-		# Performing the required job
-	
-		cCondition = StzStringQ(cCondition).RemoveBoundsQ("{","}").Simplified()
-		aResult = []
-
-		@i = 0
-		Previous@i = 0
-		Next@i = 0
-
-		for @item in This.List()
-			@i++
-			if @i <= This.NumberOfItems()
-				Next@i = @i + 1
-			ok
-
-			if @i > 1
-				Previous@i = @i - 1
-			ok
-
-			cCode = "bFound = (@i = n) and (" + cCondition + ")"
-
-			eval(cCode)
-
-			if bFound
-				return @item
-			ok
-		next
+		cResult = ItemsW(pcCondition)[n]
+		return cResult
 
 		#< @FunctionFluentForm
 
@@ -8183,12 +9356,32 @@ class stzList from stzObject
 		def ItemsWhereXT()
 			return This.ItemsAndTheirPositionsW(pcCondition)
 
-	  #------------------------------------------------#
-	 #     GETTING & REMOVING ITEMS OF GIVEN TYPE     #
-	#------------------------------------------------#
+	  #-------------------------------------------------#
+	 #     GETTING & REMOVING ITEMS OF TYPE NUMBER     #
+	#-------------------------------------------------#
+
+	def NumberOfNumbers()
+		return len( This.Numbers() )
 
 	def Numbers()
-		return This.ItemsW('isNumber(@item)')
+		/* WARNING
+
+		Do not use this solution:
+
+			return This.ItemsW('isNumber(@item)')
+
+		#--> Stackovervlow!
+		*/
+
+		aResult = []
+
+		for item in This.List()
+			if isNumber(item)
+				aResult + item
+			ok
+		next
+		
+		return aResult
 
 		#< @FunctionFluentForm
 
@@ -8231,7 +9424,7 @@ class stzList from stzObject
 					return new stzList( This.OnlyNumbers() )
 	
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.OnmlyNumbers() )
+					return new stzListOfNumbers( This.OnlyNumbers() )
 	
 				other
 					stzRaise("Unsupported return type!")
@@ -8240,7 +9433,17 @@ class stzList from stzObject
 		#>
 
 	def RemoveNumbers()
-		This.RemoveItemsW('isNumber(@item)')
+		anPositions = []
+
+		i = 0
+		for item in This.List()
+			i++
+			if isNumber(item)
+				anPositions + i
+			ok
+		next
+
+		This.RemoveItemsAtThesePositions(anPositions)
 
 		def RemoveNumbersQ()
 			This.RemoveNumbers()
@@ -8254,7 +9457,16 @@ class stzList from stzObject
 				return This
 
 	def NonNumbers()
-		return This.ItemsW('NOT isNumber(@item)')
+
+		aResult = []
+
+		for item in This.List()
+			if NOT isNumber(item)
+				aResult + item
+			ok
+		next
+		
+		return aResult		
 
 		def NonNumbersQ()
 			return This.NonNumbersQR(:stzList)
@@ -8298,7 +9510,17 @@ class stzList from stzObject
 				off
 
 	def RemoveNonNumbers()
-		This - This.NonNumbers()
+		anPositions = []
+
+		i = 0
+		for item in This.List()
+			i++
+			if NOT isNumber(item)
+				anPositions + i
+			ok
+		next
+
+		This.RemoveItemsAtThesePositions(anPositions)
 
 		def RemoveNonNumbersQ()
 			This.RemoveNonNumbers()
@@ -8318,10 +9540,32 @@ class stzList from stzObject
 				This.RemoveAllExceptNumbers()
 				return This
 		
-	#-----
+	  #-------------------------------------------------#
+	 #     GETTING & REMOVING ITEMS OF TYPE STRING     #
+	#-------------------------------------------------#
+
+	def NumberOfStrings()
+		return len( This.Strings() )
 
 	def Strings()
-		return This.ItemsW('isString(@item)')
+		/* WARNING
+
+		Do not use this solution:
+
+			return This.ItemsW('isString(@item)')
+
+		#--> Stackovervlow!
+		*/
+
+		aResult = []
+
+		for item in This.List()
+			if isString(item)
+				aResult + item
+			ok
+		next
+		
+		return aResult
 
 		#< @FunctionFluentForm
 
@@ -8337,8 +9581,8 @@ class stzList from stzObject
 			on :stzList
 				return new stzList( This.Strings() )
 
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Strings() )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Strings() )
 
 			other
 				stzRaise("Unsupported return type!")
@@ -8364,7 +9608,7 @@ class stzList from stzObject
 					return new stzList( This.OnlyStrings() )
 	
 				on :stzListOfStrings
-					return new stzListOfNumbers( This.OnmlyStrings() )
+					return new stzListOfStrings( This.OmlyStrings() )
 	
 				other
 					stzRaise("Unsupported return type!")
@@ -8373,7 +9617,17 @@ class stzList from stzObject
 		#>
 
 	def RemoveStrings()
-		This.RemoveItemsW('isString(@item)')
+		anPositions = []
+
+		i = 0
+		for item in This.List()
+			i++
+			if isString(item)
+				anPositions + i
+			ok
+		next
+
+		This.RemoveItemsAtThesePositions(anPositions)
 
 		def RemoveStringsQ()
 			This.RemoveStrings()
@@ -8387,7 +9641,16 @@ class stzList from stzObject
 				return This
 
 	def NonStrings()
-		return This.ItemsW('NOT isString(@item)')
+
+		aResult = []
+
+		for item in This.List()
+			if NOT isString(item)
+				aResult + item
+			ok
+		next
+		
+		return aResult		
 
 		def NonStringsQ()
 			return This.NonStringsQR(:stzList)
@@ -8401,7 +9664,7 @@ class stzList from stzObject
 			on :stzList
 				return new stzList( This.NonStrings() )
 
-			on :stzListOfNumbers
+			on :stzListOfStrings
 				return new stzListOfStrings( This.NonStrings() )
 
 			other
@@ -8431,7 +9694,17 @@ class stzList from stzObject
 				off
 
 	def RemoveNonStrings()
-		This - This.NonStrings()
+		anPositions = []
+
+		i = 0
+		for item in This.List()
+			i++
+			if NOT isString(item)
+				anPositions + i
+			ok
+		next
+
+		This.RemoveItemsAtThesePositions(anPositions)
 
 		def RemoveNonStringsQ()
 			This.RemoveNonStrings()
@@ -8451,10 +9724,32 @@ class stzList from stzObject
 				This.RemoveAllExceptStrings()
 				return This
 
-	#----
+	  #-----------------------------------------------#
+	 #     GETTING & REMOVING ITEMS OF TYPE LIST     #
+	#-----------------------------------------------#
+
+	def NumberOfLists()
+		return len( This.Lists() )
 
 	def Lists()
-		return This.ItemsW('isList(@item)')
+		/* WARNING
+
+		Do not use this solution:
+
+			return This.ItemsW('isList(@item)')
+
+		#--> Stackovervlow!
+		*/
+
+		aResult = []
+
+		for item in This.List()
+			if isList(item)
+				aResult + item
+			ok
+		next
+		
+		return aResult
 
 		#< @FunctionFluentForm
 
@@ -8497,7 +9792,7 @@ class stzList from stzObject
 					return new stzList( This.OnlyLists() )
 	
 				on :stzListOfLists
-					return new stzListOfLists( This.OnmlyLists() )
+					return new stzListOfLists( This.OnlyLists() )
 	
 				other
 					stzRaise("Unsupported return type!")
@@ -8506,7 +9801,17 @@ class stzList from stzObject
 		#>
 
 	def RemoveLists()
-		This.RemoveItemsW('isList(@item)')
+		anPositions = []
+
+		i = 0
+		for item in This.List()
+			i++
+			if isList(item)
+				anPositions + i
+			ok
+		next
+
+		This.RemoveItemsAtThesePositions(anPositions)
 
 		def RemoveListsQ()
 			This.RemoveLists()
@@ -8520,7 +9825,16 @@ class stzList from stzObject
 				return This
 
 	def NonLists()
-		return This.ItemsW('NOT isList(@item)')
+
+		aResult = []
+
+		for item in This.List()
+			if NOT isList(item)
+				aResult + item
+			ok
+		next
+		
+		return aResult		
 
 		def NonListsQ()
 			return This.NonListsQR(:stzList)
@@ -8564,7 +9878,17 @@ class stzList from stzObject
 				off
 
 	def RemoveNonLists()
-		This - This.NonLists()
+		anPositions = []
+
+		i = 0
+		for item in This.List()
+			i++
+			if NOT isList(item)
+				anPositions + i
+			ok
+		next
+
+		This.RemoveItemsAtThesePositions(anPositions)
 
 		def RemoveNonListsQ()
 			This.RemoveNonLists()
@@ -8584,27 +9908,49 @@ class stzList from stzObject
 				This.RemoveAllExceptLists()
 				return This
 
-	#---
+	  #-------------------------------------------------#
+	 #     GETTING & REMOVING ITEMS OF TYPE OBJECT     #
+	#-------------------------------------------------#
+
+	def NumberOfObjects()
+		return len( This.Objects() )
 
 	def Objects()
-		return This.ItemsW('isObject(@item)')
+		/* WARNING
+
+		Do not use this solution:
+
+			return This.ItemsW('isObject(@item)')
+
+		#--> Stackovervlow!
+		*/
+
+		aResult = []
+
+		for item in This.Object()
+			if isObject(item)
+				aResult + item
+			ok
+		next
+		
+		return aResult
 
 		#< @FunctionFluentForm
 
 		def ObjectsQ()
-			return This.ObjectsQR(:stzList)
+			return This.ObjectsQR(:stzObject)
 
 		def ObjectsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsReturnedAsParamObject()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
-			on :stzList
-				return new stzList( This.Objects() )
+			on :stzObject
+				return new stzObject( This.Objects() )
 
-			on :stzListOfObjects
-				return new stzListOfObjects( This.Objects() )
+			on :stzObjectOfObjects
+				return new stzObjectOfObjects( This.Objects() )
 
 			other
 				stzRaise("Unsupported return type!")
@@ -8618,19 +9964,19 @@ class stzList from stzObject
 			return This.Objects()
 
 			def OnlyObjectsQ()
-				return This.OnlyObjectsQR(:stzList)
+				return This.OnlyObjectsQR(:stzObject)
 	
 			def OnlyObjectsQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsReturnedAsParamObject()
 					pcReturnType = pcReturnType[2]
 				ok
 
 				switch pcReturnType
-				on :stzList
-					return new stzList( This.OnlyObjects() )
+				on :stzObject
+					return new stzObject( This.OnlyObjects() )
 	
-				on :stzListOfObjects
-					return new stzListOfNumbers( This.OnmlyNumbers() )
+				on :stzObjectOfObjects
+					return new stzObjectOfObjects( This.OnlyObjects() )
 	
 				other
 					stzRaise("Unsupported return type!")
@@ -8639,7 +9985,17 @@ class stzList from stzObject
 		#>
 
 	def RemoveObjects()
-		This.RemoveItemsW('isObject(@item)')
+		anPositions = []
+
+		i = 0
+		for item in This.Object()
+			i++
+			if isObject(item)
+				anPositions + i
+			ok
+		next
+
+		This.RemoveItemsAtThesePositions(anPositions)
 
 		def RemoveObjectsQ()
 			This.RemoveObjects()
@@ -8653,22 +10009,31 @@ class stzList from stzObject
 				return This
 
 	def NonObjects()
-		return This.ItemsW('NOT isObject(@item)')
+
+		aResult = []
+
+		for item in This.Object()
+			if NOT isObject(item)
+				aResult + item
+			ok
+		next
+		
+		return aResult		
 
 		def NonObjectsQ()
-			return This.NonObjectsQR(:stzList)
+			return This.NonObjectsQR(:stzObject)
 
 		def NonObjectsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsReturnedAsParamObject()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
-			on :stzList
-				return new stzList( This.NonObjects() )
+			on :stzObject
+				return new stzObject( This.NonObjects() )
 
-			on :stzListOfObjects
-				return new stzListOfObjects( This.NonObjects() )
+			on :stzObjectOfObjects
+				return new stzObjectOfObjects( This.NonObjects() )
 
 			other
 				stzRaise("Unsupported return type!")
@@ -8678,26 +10043,36 @@ class stzList from stzObject
 			return This.NonObjects()
 
 			def OnlyNonObjectsQ()
-				return This.OnlyNonObjectsQR(:stzList)
+				return This.OnlyNonObjectsQR(:stzObject)
 	
 			def OnlyNonObjectsQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsReturnedAsParamObject()
 					pcReturnType = pcReturnType[2]
 				ok
 
 				switch pcReturnType
-				on :stzList
-					return new stzList( This.OnlyNonObjects() )
+				on :stzObject
+					return new stzObject( This.OnlyNonObjects() )
 	
-				on :stzListOfObjects
-					return new stzListOfObjects( This.OnlyNonObjects() )
+				on :stzObjectOfObjects
+					return new stzObjectOfObjects( This.OnlyNonObjects() )
 	
 				other
 					stzRaise("Unsupported return type!")
 				off
 
 	def RemoveNonObjects()
-		This - This.NonObjects()
+		anPositions = []
+
+		i = 0
+		for item in This.Object()
+			i++
+			if NOT isObject(item)
+				anPositions + i
+			ok
+		next
+
+		This.RemoveItemsAtThesePositions(anPositions)
 
 		def RemoveNonObjectsQ()
 			This.RemoveNonObjects()
@@ -8717,126 +10092,11 @@ class stzList from stzObject
 				This.RemoveAllExceptObjects()
 				return This
 
-	  #-----------------------------------#
-	 #     CHECKING IF ALL ITEMS ARE     #
-	#-----------------------------------#
-
-	def AllItemsVerifyW(pcCondition)
-		/* Examples
-			o1 = new stzList([ "one", "two", "three" ])
-			? o1.AllItemsVerifyW('isString()') # --> TRUE
-		*/
-
-		pcCondition = StzStringQ(pcCondition).SimplifyQ().RemoveBoundsQ("{","}").Content()
-
-		bResult = TRUE
-
-		@i = 0
-		Previous@i = 0
-		Next@i = 0
-
-		for @item in This.List()
-			@i++
-
-			if @i <= This.NumberOfItems()
-				Next@i = @i + 1
-			ok
-
-			if @i > 1
-				Previous@i = @i - 1
-			ok
-
-			cCode = 'if NOT ( ' + pcCondition + ' )' + NL +
-				'	bResult = FALSE' + NL +
-				'ok'
-
-			eval(cCode)
-
-			if bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def AllItemsVerify(pcCondition)
-			return This.AllItemsVerifyW(pcCondition)
-
-		def ContainsOnly(pcCondition)
-			return This.AllItemsVerifyW(pcCondition)
-
-		def ContainsOnlyW(pcCondition)
-			return This.AllItemsVerifyW(pcCondition)
-
-		def AllItemsVerifyThisCondition(pcCondition)
-			return This.AllItemsVerifyW(pcCondition)
-
-		def AllItemsVerifyThisConditionW(pcCondition)
-			return This.AllItemsVerifyW(pcCondition)
-
-		def AllItemsAre(pcCondition)
-			return This.AllItemsVerifyW(pcCondition)
-
-		def AllItemsAreW(pcCondition)
-			return This.AllItemsVerifyW(pcCondition)
-
-		#>
-
-	def AllItemsAreNull()
-		return This.AllItemsAreW('{ isString(@item) and @item = NULL }')
-
-	def AllItemsAreStrings()
-		return This.AllItemsAreW('{ isString(@item) }')
-
-	def AllItemsAreNonNullStrings()
-		return This.AllItemsAreW('{ isString(@item) and @item != NULL }')
-
-	def AllItemsAreValidRingCodes()
-		return This.AllItemsAreW('{ isString(@item) and Q(@item).IsValidRingCode() }')
-
-	def AllItemsAreNumbers()
-		return This.AllItemsAreW('{ isNumber(@item) }')
-
-	def AllItemsAreLists()
-		return This.AllItemsAreW('{ isList(@item) }')
-
-	def AllItemsAreObjects()
-		return This.AllItemsAreW('{ isObject(@item) }')
-
-	def AllItemsAreStzObjects()
-		return This.AllItemsAreW('{ IsStzObject(@item) }')
-
-	def AllItemsAreStzClassNames()
-		return This.AllItemsAreW('{ isString(@item) and StringIsStzClassName(@item) }')
-
-	def AllItemsAreQObjects()
-		return This.AllItemsAreW('{ IsQObject(@item) }')
-
 	  #--------------------------------------------------#
 	 #     COUNTING ITEMS VERIFYING A GIVEN CONDITION   #
 	#--------------------------------------------------#
 
 	def CountItemsW(pCondition)	# TODO: check if it is same as NumberOfItemsW()
-
-		# Checking the pCondition param
-
-		if isString(pCondition)
-			cCondition = pCondition
-	
-		but isList(pCondition) and len(pCondition) = 2 and
-		    isString(pCondition[2])
-	
-			if pCondition[1] = :Where 
-				cCondition = pCondition[2]
-	
-			else
-				stzRaise('Syntax error! Enter :Where and not "' + pCondition[1]+'"')
-			ok
-		ok
-	
-		# Performing the required job
 
 		return len(This.ItemsW(pCondition))
 		
@@ -8851,38 +10111,20 @@ class stzList from stzObject
 		def NumberOfOccurrencesW(pCondition)
 			return This.CountItemsW(pCondition)
 
+		def NumberOfItemsW(pCondition)
+			return This.CountItemsW(pCondition)
 		#>
-		
+			
+	def NumberOfUniqueItemsW(pCondition)
+		return len( This.UniqueItemsW(pCondition) )
+
 	  #--------------------------------------------------------------------#
 	 #  INSERTING ITEM AFTER OR BEFORE ITEMS VERIFYING A GIVEN CONDITION  #
 	#--------------------------------------------------------------------#
 
 	def InsertAfterW( pCondition, pNewItem )
-		/*
-		o1.InsertAfterW( "*", :Where = '{ StzStringQ(item).IsUppercase() }' )
-		*/
-
-		# Checking the provided param for the Expression
-	
-		if isString(pCondition)
-			cCondition = pCondition
-	
-		but isList(pCondition) and len(pCondition) = 2 and
-		    isString(pCondition[2])
-	
-			if pCondition[1] = :Where 
-				cCondition = pCondition[2]
-	
-			else
-				stzRaise('Syntax error! Enter :Where and not "' + pCondition[1]+'"')
-			ok
-		ok
-	
-		# Performing the required job
-
-		cCondition = StzStringQ(cCondition).RemoveBoundsQ("{","}").Simplified()
-
-		This.InsertAfterAtManyPositions( This.FindAllItemsW(cCondition), pNewItem )
+		anPositions = This.FindItemsW(cCondition)
+		This.InsertAfterManyPositions( anPositions, pNewItem )
 
 		#< @FunctionFluentForm
 
@@ -8904,27 +10146,8 @@ class stzList from stzObject
 		o1.InsertBeforeW( :Where = '{ StzStringQ(item).IsUppercase() }', "*" )
 		*/
 
-		# Checking the provided param for the pCondition
-	
-		if isString(pCondition)
-			cCondition = pCondition
-	
-		but isList(pCondition) and len(pCondition) = 2 and
-		    isString(pCondition[2])
-	
-			if pCondition[1] = :Where 
-				cCondition = pCondition[2]
-	
-			else
-				stzRaise('Syntax error! Enter :Where and not "' + pCondition[1]+'"')
-			ok
-		ok
-	
-		# Performing the required job
-
-		cCondition = StzStringQ(cCondition).RemoveBoundsQ("{","}").Simplified()
-
-		This.InsertBeforeAtManyPositions(This.FindAllItemsW(cCondition), pNewItem )
+		anPositions = This.FindItemsW(pcCondition)
+		This.InsertBeforeAtThesePositions( anPositions, pNewItem )
 
 		#< @FunctionFluentForm
 
@@ -8945,42 +10168,52 @@ class stzList from stzObject
 	 #  INSERTING MANY ITEMS AFTER OR BEFORE A GIVEN SET OF POSITIONS  #
 	#-----------------------------------------------------------------#
 
-	def InsertAfterAtManyPositions(panPositions, pItem)
+	def InsertAfterManyPositions(panPositions, pItem)
 
 		for i = 1 to len(panPositions)
 			n = panPositions[i] + i - 1
 			This.InsertAfter(n, pItem)
 		next
 
-		#< @FunctionFluentForm
+		#--
 
-		def InsertAfterAtManyPositionsQ(panPositions, pItem)
-			This.InsertAfterAtManyPositions(panPositions, pItem)
+		def InsertAfterManyPositionsQ(panPositions, pItem)
+			This.InsertAfterManyPositions(panPositions, pItem)
 			return This
 
-		#>
+		def InsertAfterThesePositions(panPositions, pItem)
+			This.InsertAfterManyPositions(panPositions, pItem)
 
-	def InsertBeforeAtManyPositions(panPositions, pItem)
+			def InsertAfterThesePositionsQ(panPositions, pItem)
+				This.InsertAfterThesePositions(panPositions, pItem)
+				return This
+
+	def InsertBeforeManyPositions(panPositions, pItem)
 	
 		for i = 1 to len(panPositions)
 			n = panPositions[i] + i - 1
 			This.InsertBefore(n, pItem)
 		next
 
-		#< @FunctionFluentForm
+		#--
 
-		def InsertBeforeAtManyPositionsQ(panPositions, pItem)
-			This.InsertBeforeAtManyPositions(panPositions, pItem)
+		def InsertBeforeManyPositionsQ(panPositions, pItem)
+			This.InsertBeforeManyPositions(panPositions, pItem)
 			return This
 
-		#>
+		def InsertBeforeThesePositions(panPositions, pItem)
+			This.InsertBeforeManyPositions(panPositions, pItem)
+
+			def InsertBeforeThesePositionsQ(panPositions, pItem)
+				This.InsertBeforeThesePositions(panPositions, pItem)
+				return This
 
 	  #----------------------------------------------#
 	 #    SPLITTING THE LIST USING THE GIVEN ITEM   #
 	#----------------------------------------------#
 
 	def Split(pItem)
-		if isList(pItem) and StzList(pItem).IsUsingParamList()
+		if isList(pItem) and StzList(pItem).IsUsingNamedParamList()
 			pItem = pItem[2]
 		ok
 
@@ -9227,7 +10460,7 @@ class stzList from stzObject
 			#>
 
 		def SplitToParts(n)
-			if isList(n) and StzListQ(n).IsOfParamList()
+			if isList(n) and StzListQ(n).IsOfNamedParamList()
 				n = n[2]
 			ok
 
@@ -9413,9 +10646,21 @@ class stzList from stzObject
 
 	def Section(n1,n2)
 
-		if n1 = :First or n1 = :FirstItem { n1 = 1 }
+		if isString(n1)
+			if n1 = :First or n1 = :FirstItem
+				n1 = 1
+			ok
+		ok
 
-		if n2 = :Last or n2 = :LastItem { n2 = This.NumberOfItems() }
+		if isString(n2)
+			if n2 = :Last or n2 = :LastItem
+				n2 = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT BothAreNumbers(n1, n2)
+			stzRaise("Incorrect params! n1 and n2 must be numbers.")
+		ok
 
 		if n1 = 0 or n2 = 0
 			stzRaise("Zeros are not allowed!")
@@ -9436,6 +10681,8 @@ class stzList from stzObject
 		next i
 		
 		return aResult	
+
+		#< @FunctionFluentForm
 
 		def SectionQ(n1, n2)
 			return This.SectionQR(n1, n2, :stzList)
@@ -9465,6 +10712,42 @@ class stzList from stzObject
 			other
 				stzRaise("Unsupported return type!")
 			off
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def Slice(n1, n2)
+			return This.Section(n1, n2)
+
+			def SliceQ(n1, n2)
+				return This.SliceQR(n1, n2, :stzList)
+	
+			def SliceQR(n1, n2, pcReturntype)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+	
+				on :stzList
+					return new stzList( This.Slice(n1, n2) )
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.Slice(n1, n2) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.Slice(n1, n2) )
+	
+				on :stzListOfLists
+					return new stzListOfLists( This.Slice(n1, n2) )
+	
+				on :stzListOfObjects
+					return new stzListOfObjects( This.Slice(n1, n2) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+		#>
 
 	def Range(pnStart, pnRange)
 		return This.Section( pnStart, pnStart + pnRange-1)
@@ -9534,7 +10817,7 @@ class stzList from stzObject
 		oHash = new stzHashList(This.List())
 		aValues = oHash.Values()
 		oList = new stzList(aValues)
-		if NOT oList.AllItemsAre_Strings()
+		if NOT oList.AllItemsAreStrings()
 			return FALSE
 		ok
 
@@ -9557,9 +10840,10 @@ class stzList from stzObject
 	def IsLocaleList()
 
 		if This.NumberOfItems() = 1 and isString(This[1]) and
-		   (	This[1] = :Default or This[1] = :DefaultLocale or
-			This[1] = :System or This[1] = :SystemLocale or
-			This[1] = "C" or This[1] = :CLocale	)
+
+		   Q(This[1]).IsOneOfThese([ :Default, :DefaultLocale,
+				 :System, :SystemLocale, :c, "C", :CLocale
+		   ])
 
 			return TRUE
 		ok
@@ -9704,31 +10988,79 @@ class stzList from stzObject
 
 		return aResult
 	
-	   #-----------------------------------#
-	  #   CHECKING PARAM & OPTION LISTS   #
-	#------------------------------------#
+	  #---------------------------------#
+	 #   CHECKING OPTION PARAM LISTS   #
+	#---------------------------------#
 
-	def IsCaseSensitiveParamList()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and (This[1] = :Casesensitive or This[1] = :CS) ) and
-		   IsBoolean(This[2])
+	def IsRemoveAtOptionsParamList()
+		bResult = FALSE
 
-			return TRUE
-		else
-			return FALSE
+		if This.IsHashList() and
+
+		   This.ToStzHashList().KeysQ().IsMadeOfSome([
+			:RemoveNCharsBefore, :RemoveNCharsAfter,
+			:RemoveThisSubStringBefore,:RemoveThisSubStringAfter,
+			:RemoveThisCharBefore,:RemoveThisCharBefore,
+			:RemoveThisBound, :RemoveThisBoundingSubString,
+			:CaseSensitive, :CS ])
+
+			if This.ToStzHashList().
+				KeysQR(:stzListOfStrings).
+				ContainsBothCS(:CaseSensitive, :CS, :CS = FALSE)
+
+				stzRaise("Incorrect format! :CaseSensitive and :CS can not be used both in the same time")
+			ok
+
+			if This.ToStzHashList().
+				KeysQR(:stzListOfStrings).
+				ContainsBothCS(:RemoveThisBound, :RemoveThisBoundingSubString, :CS = FALSE)
+
+				stzRaise("Incorrect format! :RemoveThisBound and :RemoveThisBoundingSubString can not be used both in the same time")
+			ok
+
+			bOk1 = FALSE
+			nRemoveNCharsBefore = This.Content()[ :RemoveNCharsBefore ]
+			cType = type(nRemoveNCharsBefore)
+		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsBefore = NULL )
+				bOk1 = TRUE
+			ok
+
+			bOk2 = FALSE
+			nRemoveNCharsAfter = This.Content()[ :RemoveNCharsAfter ]
+			cType = type(nRemoveNCharsAfter)
+		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsAfter = NULL )
+				bOk2 = TRUE
+			ok
+
+			bOk3 = FALSE
+			cRemoveSubStringBefore = This.Content()[ :RemoveSubStringBefore ]
+			cType = type(cRemoveSubStringBefore)
+		   	if cType = "STRING"
+				bOk3 = TRUE
+			ok
+
+			bOk4 = FALSE
+			cRemoveSubStringAfter = This.Content()[ :RemoveSubStringAfter ]
+			cType = type(cRemoveSubStringAfter)
+		   	if cType = "STRING"
+				bOk4 = TRUE
+			ok
+
+			bOk5 = FALSE
+			cRemoveThisBound = This.Content()[ :cRemoveThisBound ]
+			cType = type(cRemoveThisBound)
+		   	if cType = "STRING"
+				bOk5 = TRUE
+			ok
+
+			if bOk1 and bOk2 and bOk3 and bOk4 and bOk5
+				bResult = TRUE
+			ok
 		ok
 
-	def IsCounterParamList()  # --> TODO: Move it to stzCounter class
-		if StzNumberQ(This.NumberOfItems()).IsBetween(1, 4) and
-		   This.IsHashList() and
-		   StzHashListQ(This.Content()).KeysListQ().IsMadeOfSome([ :StartAt, :AfterYouSkip, :RestartAt, :Step ])
-	
-			return TRUE
-		else
-			return FALSE
-		ok	
+		return bResult
 
-	def IsTextBoxedParamList() # --> TODO: Move it to TextBoxed() function
+	def IsTextBoxedOptionsParamList()
 		/*
 		Example:
 
@@ -9774,7 +11106,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsBoxParamList()
+	def IsBoxOptionsParamList()
 
 		if This.IsEmpty()
 			return TRUE
@@ -9809,46 +11141,8 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
-	 
-	def IsSplitParamList()  # --> TODO: Move it to Split() function
 
-		oKeys = StzListQ(This.ToStzHashList().KeysQ())
-
-		if This.IsHashList() and
-		   ( oKeys.IsMadeOfSome([ :CaseSensitive, :Direction ])  OR
-		     oKeys.IsMadeOfSome([ :CS, :Direction ]) )
-
-			if This.List()[ :CaseSensitive ] != NULL
-				if NOT ( This.List()[ :CaseSensitive ] = TRUE or
-				   	 This.List()[ :CaseSensitive ] = FALSE )
-	
-					return FALSE
-				ok
-			ok
-			
-			if This.List()[ :CS ] != NULL
-
-				if NOT ( This.List()[ :CS ] = TRUE or
-				         This.List()[ :CS ] = FALSE )
-	
-					return FALSE
-				ok
-			ok
-
-			if This.List()[ :Direction ] != NULL
-
-				if NOT ( This.List()[ :Direction ] = :Forward or
-				   	 This.List()[ :Direction ] = :Backward )
-
-					return FALSE
-				ok
-			ok
-
-		ok
-
-		return TRUE
-
-	def IsNumberListifyParamList() # --> TODO: Move it to NumberListify() function
+	def IsNumberListifyOptionsParamList()
 		if This.IsEmpty()
 			return TRUE
 		ok
@@ -9865,7 +11159,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsStringListifyParamList() # --> Move it to StringListify() function
+	def IsStringListifyOptionsParamList()
 		if This.IsEmpty()
 			return TRUE
 		ok
@@ -9883,252 +11177,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsRangeParamList()
-
-		if This.IsEmpty()
-			return TRUE
-		ok
-
-		if NOT (This.IsHashList() and This.NumberOfItems() <= 2)
-			return FALSE
-		ok
-
-		if This.NumberOfItems() = 1
-
-			if This[1][1] = :Start or This[1][1] = :Range
-				return TRUE
-			ok
-		ok
-
-		if This.NumberOfItems() = 2
-
-			if StzHashListQ( This.List() ).KeysQ().IsEqualTo([ :Start, :Range ]) and
-			   StzHashListQ( This.List() ).ValuesQ().BothAreNumbers()
-
-				return TRUE
-
-			else
-
-				return FALSE
-			ok
-		ok
-
-	def IsStartingAtParamList()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :StartingAt ) and
-
-		   ( isNumber(This[2]) or
-		     ( isString(This[2]) and StzStringQ(This[2]).IsOneOfThese([
-					:First, :FirstItem, :Last, :LastItem ]) ) )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsExceptParamList()
-		# Used initially by ReplaceWordsWithMarquersExceptXT(pcByOption, paExcept)
-		# TODO: generalize to all the functions we want to provide exceptions to it
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Except ) and
-
-		   ( isString(This[2]) or ( isList(This[2]) and ListIsListOfStrings(This[2])) )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsFromParamList()
-		if This.NumberOfItems() = 2 and
-
-		   ( isString(This[1]) and  This[1] = :From ) and
-
-		     ( 	isNumber(This[2] or
-
-			( isString(This[2]) and
-
-		       	  Q(This[2]).IsOneOfThese([
-				:StartOfList, :StartOfString, :StartOfSubString, :StartOfWord,
-				:StartOfSentence, :StartOfLine, :StartOfParagraph,
-
-				:EndOfList, :EndOfString, :EndOfSubString, :EndOfWord,
-				:EndOfSentence, :EndOfLine, :EndOfParagraph ]) ) ) )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsToParamList()
-		if This.NumberOfItems() = 2 and
-
-		   ( isString(This[1]) and  This[1] = :To ) and
-
-		     ( 	isNumber(This[2] or
-
-			( isString(This[2]) and
-
-		       	  Q(This[2]).IsOneOfThese([
-				:StartOfList, :StartOfString, :StartOfSubString, :StartOfWord,
-				:StartOfSentence, :StartOfLine, :StartOfParagraph,
-
-				:EndOfList, :EndOfString, :EndOfSubString, :EndOfWord,
-				:EndOfSentence, :EndOfLine, :EndOfParagraph,
-
-				:Foreward, :BackWard ]) ) ) ) # TODO: check if these two are necessary!
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	
-	def IsOfParamList()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Of )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsOnParamList()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :On )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-
-	def IsWhereParamList()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Where ) and
-		   isString( This[2] )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsWithParamList()
-		if This.NumberOfItems() = 2 and
-
-		   ( isString(This[1]) and  Q(This[1]).IsOneOfThese([ :With, :With@ ]) )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsByParamList()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  Q(This[1]).IsOneOfThese([ :By, :By@ ]) )
-		  
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsWithOrByParamList()
-		return This.IsWithParamList() OR This.IsByParamList()
-
-		def IsByOrWithParamList()
-			return This.IsWithOrByParamList()
-
-	def IsUsingParamList()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Using )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsAtParamList()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :At ) and
-
-		
-		   ( isNumber(This[2]) or
-		     ( isString(This[2]) and Q(This[2].IsOneOfThese([
-				:First, :Last,
-				:FirstPosition, :LastPosition,
-				:FirstItem, :LastItem ]) ) ) )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsAtPositionParamList()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AtPosition ) and
-
-		   ( isNumber(This[2]) or
-		     ( isString(This[2]) and Q(This[2].IsOneOfThese([
-				:First, :Last,
-				:FirstPosition, :LastPosition ]) ) ) )
-
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStepParamList()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  Q(This[1]).IsOneOfThese([ :Step, :Steps ]) ) and
-		   isNumber( This[2] )
-		  
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-		def IsStepsParamList()
-			return This.IsStepParamList()
-
-	def IsNameParamList()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Name ) and
-		   isString(This[2])
-		  
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsRaiseParamList()
-		if This.NumberOfItems() <= 4 and
-		   This.IsHashList() and
-		   This.ToStzHashList().KeysQ().IsMadeOfSome([ :Where, :What, :Why, :Todo ]) and
-		   This.ToStzHashList().ValuesQ().AllItemsVerifyW("isString(@item) and @item != NULL")
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-		
-	def IsConstraintsParamList()
+	def IsConstraintsOptionsParamList()
 		/* EXAMPLE
 		[
 			:OnStzString = [
@@ -10160,7 +11209,423 @@ class stzList from stzObject
 			return FALSE
 		done
 
-	def IsReturnedAsParamList()
+	   #--------------------------------#
+	  #   CHECKING NAMED PARAM LISTS   #
+	#---------------------------------#
+
+	def IsCaseSensitiveNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and (This[1] = :Casesensitive or This[1] = :CS) ) and
+		   IsBoolean(This[2])
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsRangeNamedParamList()
+
+		if This.IsEmpty()
+			return TRUE
+		ok
+
+		if NOT (This.IsHashList() and This.NumberOfItems() <= 2)
+			return FALSE
+		ok
+
+		if This.NumberOfItems() = 1
+
+			if This[1][1] = :Start or This[1][1] = :Range
+				return TRUE
+			ok
+		ok
+
+		if This.NumberOfItems() = 2
+
+			if StzHashListQ( This.List() ).KeysQ().IsEqualTo([ :Start, :Range ]) and
+			   StzHashListQ( This.List() ).ValuesQ().BothAreNumbers()
+
+				return TRUE
+
+			else
+
+				return FALSE
+			ok
+		ok
+
+	def IsStartingAtNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :StartingAt ) and
+
+		   ( isNumber(This[2]) or
+		     ( isString(This[2]) and StzStringQ(This[2]).IsOneOfThese([
+					:First, :FirstPosition, :FirstItem,
+					:Last, :LastPosition, :LastItem,
+					:FirstChar, :LastChar,
+					:FirstString, :LastString,
+					:FirstNumber, :LastNumber ]) ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsExceptNamedParamList()
+		# Used initially by ReplaceWordsWithMarquersExceptXT(pcByOption, paExcept)
+		# TODO: generalize to all the functions we want to provide exceptions to it
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :Except ) and
+
+		   ( isString(This[2]) or ( isList(This[2]) and ListIsListOfStrings(This[2])) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromNamedParamList()
+		if This.NumberOfItems() = 2 and
+
+		   ( isString(This[1]) and  This[1] = :From ) and
+
+		     ( 	isNumber(This[2] or
+
+			( isString(This[2]) and
+
+		       	  Q(This[2]).IsOneOfThese([
+				:StartOfList, :StartOfString, :StartOfSubString, :StartOfWord,
+				:StartOfSentence, :StartOfLine, :StartOfParagraph,
+
+				:EndOfList, :EndOfString, :EndOfSubString, :EndOfWord,
+				:EndOfSentence, :EndOfLine, :EndOfParagraph ]) ) ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToNamedParamList()
+		if This.NumberOfItems() = 2 and
+
+		   ( isString(This[1]) and  This[1] = :To ) and
+
+		     ( 	isNumber(This[2] or
+
+			( isString(This[2]) and
+
+		       	  Q(This[2]).IsOneOfThese([
+				:StartOfList, :StartOfString, :StartOfSubString, :StartOfWord,
+				:StartOfSentence, :StartOfLine, :StartOfParagraph,
+
+				:EndOfList, :EndOfString, :EndOfSubString, :EndOfWord,
+				:EndOfSentence, :EndOfLine, :EndOfParagraph,
+
+				:Foreward, :BackWard ]) ) ) ) # TODO: check if these two are necessary!
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromPositionNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and This[1] = :FromPosition and
+
+		   ( isNumber(This[2]) or
+			( isString(This[2]) and
+				Q(This[2]).IsOneOfThese([
+					:First, :Last, :FirstPosition, :LastPosition,
+					:FirstChar, :LastChar,
+					:FirstString, :LastString,
+					:FirstStringItem, :LastStringItem,
+					:FirstNumber, :LastNumber,
+					:FirstList, :LastList,
+					:FirstPair, :LastPair,
+					:FirstObject, :LastObject,
+
+					:FirstSubString, :LastSubString,
+					:FirstSubList, :LastSubList ])
+			)
+		   )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToPositionNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and This[1] = :ToPosition and
+
+		   ( isNumber(This[2]) or
+			( isString(This[2]) and
+				Q(This[2]).IsOneOfThese([
+					:First, :Last, :FirstPosition, :LastPosition,
+					:FirstChar, :LastChar,
+					:FirstString, :LastString,
+					:FirstStringItem, :LastStringItem,
+					:FirstNumber, :LastNumber,
+					:FirstList, :LastList,
+					:FirstPair, :LastPair,
+					:FirstObject, :LastObject,
+
+					:FirstSubString, :LastSubString,
+					:FirstSubList, :LastSubList  ])
+			)
+		   )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOfNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Of )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOnNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :On )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+
+	def IsWhereNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Where ) and
+		   isString( This[2] )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsThatNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :That ) and
+		   isString( This[2] )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsThatOrWhereNamedParamList()
+		if This.IsThatNamedParamList() or This.IsWhatNamedParamList()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsWhereOrThatNamedParamList()
+			return This.IsThatOrWhereNamedParamList()
+
+	def IsIfNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   This[1] = :If and
+		   isString(This[2])
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsIfOrWhereNamedParamList()
+		return This.IsIfNamedParamList() or This.IsWhereNamedParamList()
+
+		def IsWhereOrIfParamList()
+			return This.IsIfOrWhereNamedParamList()
+
+	def IsWithNamedParamList()
+		if This.NumberOfItems() = 2 and
+
+		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :With, :With@ ]) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsByNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :By, :By@ ]) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsWithOrByNamedParamList()
+		return This.IsWithNamedParamList() OR This.IsByNamedParamList()
+
+		def IsByOrWithParamList()
+			return This.IsWithOrByNamedParamList()
+
+	def IsUsingNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Using )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and This[1] = :ToPosition and
+
+		   ( isNumber(This[2]) or
+			( isString(This[2]) and
+				Q(This[2]).IsOneOfThese([
+					:First, :Last,
+					:FirstPosition, :LastPosition,
+
+					:FirstItem, :LastItem,
+					:FirstChar, :LastChar,
+					:FirstString, :LastString,
+					:FirstStringItem, :LastStringItem,
+					:FirstNumber, :LastNumber,
+					:FirstList, :LastList,
+					:FirstPair, :LastPair,
+					:FirstObject, :LastObject,
+
+					:FirstSubString, :LastSubString,
+					:FirstSubList, :LastSubList,
+					
+					:FirstWord, :LastWord,
+					:FirstSentence, :LastSentence,
+					:FirstLine, :LastLine,
+					:FirstParagraph, :LastParagraph ])
+			)
+		   )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUsingOrAtOrWhereNamedParamList()
+		if This.IsUsingNamedParamList() or
+		   This.IsAtNamedParamList() or
+		   This.IsWhereNamedParamList()
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsUsingOrWhereOrAtNamedParamList()
+			return This.IsUsingOrAtOrWhereNamedParamList()
+
+		def IsAtOrUsingOrWhereNamedParamList()
+			return This.IsUsingOrAtOrWhereNamedParamList()
+
+		def IsAtOrWhereOrUsingNamedParamList()
+			return This.IsUsingOrAtOrWhereNamedParamList()
+
+		def IsWhereOrAtOrUsingNamedParamList()
+			return This.IsUsingOrAtOrWhereNamedParamList()
+
+		def IsWhereOrUsingOrAtNamedParamList()
+			return This.IsUsingOrAtOrWhereNamedParamList()
+
+	def IsAtPositionNamedParamList()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtPosition ) and
+
+		 	  	( isNumber(This[2]) or
+		    			( isString(This[2]) and Q(This[2].IsOneOfThese([
+						:First, :Last,
+						:FirstPosition, :LastPosition,
+	
+						:OfFirstItem, :OfLastItem,
+						:OfFirstChar, :OfLastChar,
+						:OfFirstString, :OfLastString,
+						:OfFirstStringItem, :OfLastStringItem,
+						:OfFirstNumber, :OfLastNumber,
+						:OfFirstList, :OfLastList,
+						:OfFirstPair, :OfLastPair,
+						:OfFirstObject, :OfLastObject,
+	
+						:OfFirstSubString, :OfLastSubString,
+						:OfFirstSubList, :OfLastSubList,
+						
+						:OfFirstWord, :OfLastWord,
+						:OfFirstSentence, :OfLastSentence,
+						:OfFirstLine, :OfLastLine,
+						:OfFirstParagraph, :OLastParagraph ])
+					)
+			) 	)
+
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStepNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  Q(This[1]).IsOneOfThese([ :Step, :Steps ]) ) and
+		   isNumber( This[2] )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsStepsParamList()
+			return This.IsStepNamedParamList()
+
+	def IsNameNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Name ) and
+		   isString(This[2])
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsRaiseNamedParamList()
+		if This.NumberOfItems() <= 4 and
+		   This.IsHashList() and
+		   This.ToStzHashList().KeysQ().IsMadeOfSome([ :Where, :What, :Why, :Todo ]) and
+		   This.ToStzHashList().ValuesQ().AllItemsVerifyW("isString(@item) and @item != NULL")
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsReturnedAsNamedParamList()
 
 		if This.NumberOfItems() = 2 and
 		   This.AllItemsAreStrings() and
@@ -10173,7 +11638,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsDirectionParamList()
+	def IsDirectionNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Direction ) and
 		   ( isString( This[2] ) and Q(This[2]).IsOneOfThese([ :Forward, :Backward ]) )
@@ -10455,6 +11920,13 @@ class stzList from stzObject
 	def LastAndFirstItems()
 		aResult = [ This.LastItem(), FirstItem() ]
 		return aResult
+
+	def ToListInStringInShortForm()
+		cResult = This.ToCodeQ().ToListInShortForm()
+		return cResult
+
+		def ToListInShortForm()
+			return This.ToListInStringInShortForm()
 
 	  #--------------------------------#
 	 #    USUED FOR NATURAL-CODING    #

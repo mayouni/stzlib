@@ -6,7 +6,7 @@ o1 {
 func Parser(nStart, nEnd, nStep)
 	return new StzParser(nStart, nEnd, nStep)
 
-class stzParser from stzObject
+class stzParser from stzList
 	aContent = []
 	nCurrentPosition
 

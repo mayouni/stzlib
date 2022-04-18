@@ -34,7 +34,7 @@ func FellowingRandomJumps(paJumps)
 func WhileWalking(cWalker)
 	return cWalker
 
-class stzWalker from stzObject
+class stzWalker from stzList
 	@cName
 	@nStartPosition
 	@nEndPosition
@@ -174,7 +174,7 @@ class stzWalker from stzObject
 	def SetWalkingDirection(pcDirection)
 		
 		if NOT ( isString(pcDirection) and
-			 Q(pcDirection).IsToParamList() and
+			 Q(pcDirection).IsToNamedParamList() and
 			 Q(pcDirection).IsOneOfThese([ :Foreward, :Backward]) )
 
 			stzRaise("Incorrect param!")

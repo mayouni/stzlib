@@ -1012,3 +1012,17 @@ class stzObject
 
 		def Stringified()
 			return This.Stringify()
+
+	  #-----------#
+	 #   MISC.   #
+	#-----------#
+
+	def RepeatNtimes(n)
+		aResult = []
+		for i = 1 to n
+			aResult + This.Object()
+		next
+		return aResult
+
+		def RepeatedNTimes(n)
+			return This.RepeatNtimes(n)

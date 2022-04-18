@@ -7,4 +7,4 @@ Read this to understand the logic of :
 https://courses.lumenlearning.com/ivytech-collegealgebra/chapter/using-scientific-notation/
 */
 
-class stzNumberInScientificNotation from stzObject // TODO
+class stzNumberInScientificNotation from stzString // TODO

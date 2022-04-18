@@ -5,7 +5,7 @@ func StzListInStringQ(pcString)
 func StringIsListInString(pcString)
 	return StzStringQ(pcString).IsListInString()
 
-class stzListInString from stzObject
+class stzListInString from stzString
 	@cListInString
 	@aList
 
@@ -32,7 +32,7 @@ class stzListInString from stzObject
 			return new stzList(This.List())
 
 		def ListQR(pcType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 

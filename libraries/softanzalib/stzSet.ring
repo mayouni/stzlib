@@ -12,7 +12,7 @@
 func StzSetQ(paList)
 	return new stzSet(paList)
 
-class stzSet from stzObject
+class stzSet from stzList
 	@aContent = []
 
 	  #-----------#
@@ -43,7 +43,7 @@ class stzSet from stzObject
 
 	def Update(paOtherSet)
 		if isList(paOtherSet) and
-		   ( StzListQ(paOtherSet).IsWithParamList() or StzListQ(paOtherSet).IsUsingParamList() )
+		   ( StzListQ(paOtherSet).IsWithNamedParamList() or StzListQ(paOtherSet).IsUsingNamedParamList() )
 
 			paOtherSet = paOtherSet[2]
 

@@ -1,9 +1,22 @@
 load "stzlib.ring"
 
+# CHANGED HAVE BEEN MADE ELSWHERE, NOT REPORTED YET HERE!
 
+/*-----------
+
+? StzListQ( 4:8 ).ToListInString() 		#--> "[ 4, 5, 6, 7, 8 ]"
+? StzListQ( 4:8 ).ToListInStringInShortForm() 	#--> "4 : 8"
+
+/*-----------
+*/
+o1 = new stzListOfLists([ 1:3, 4:5, 6:7 ])
+//? o1.ToListInString()			#--> "[ [ 1, 2, 3 ], [ 4, 5 ], [ 6, 7 ] ]"
+
+
+//? o1.ToListInStringInShortForm() #--> [ "1 : 3", "4 : 5", "6 : 7" ]
 
 /*----------
-
+*/
 o1 = new stzListOfLists([
 	[ 1, 2, 3 ],
 	[ 4, 5, 6, 7, 8 ],

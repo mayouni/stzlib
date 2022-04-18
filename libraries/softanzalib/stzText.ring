@@ -507,8 +507,10 @@ class stzText from stzString
 		return This.Content()
 
 	def Copy()
-		oCopy = new stzText(This.Content())
-		return oCopy
+		return new stzText(This.Content())
+
+	def ToStzString()
+		return new stzString( This.Content() )
 
 	  #--------------------#
 	 #      LANGUAGE      #
@@ -1251,7 +1253,7 @@ class stzText from stzString
 			return This.WordsQR(:stzList)
 	
 		def WordsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1429,7 +1431,7 @@ class stzText from stzString
 			return This.WordsSortedInDescending()
 
 			def WordsInDescendingOrderQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -1503,7 +1505,7 @@ class stzText from stzString
 			return This.UniqueWordsSortedInAscending()
 
 			def UniqueWordsInAscendingOrderQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -1545,7 +1547,7 @@ class stzText from stzString
 			return This.UniqueWordsSortedInAscending()
 
 			def SetOfWordsSortedInAscendingQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -1566,7 +1568,7 @@ class stzText from stzString
 			return This.SetOfWordsSortedInAscending()
 
 			def SetOfWordsInAscendingOrderQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -1640,7 +1642,7 @@ class stzText from stzString
 			return This.UniqueWordsSortedInDescending()
 
 			def UniqueWordsInDescendingOrderQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -2913,7 +2915,7 @@ class stzText from stzString
 			return This.WordsReplacedCS(pacWords, pacNewWords, pCaseSensitive)
 		
 
-	#==> Without CaseSensitive
+	#==> WITHOUT CASESENSITIVITY
 
 	def ReplaceWords(pacWords, pacNewWords)
 		This.ReplaceWordsWithMarquers()
@@ -3014,7 +3016,7 @@ class stzText from stzString
 		cResult = This.Copy().ReplaceWordCSQ(pcWord, pcNewWord, pCaseSensitive).Content()
 		return cResult
 
-	#==> Without CaseSensitive
+	#==> WITHOUT CASESENSITIVITY
 
 	def ReplaceWord(pcWord, pcNewWord)
 		This.ReplaceWordsCS(pcWord, pcNewWord, :CaseSensitive = TRUE)
@@ -4042,7 +4044,7 @@ class stzText from stzString
 			return This.InitialsQR(:stzList)
 
 		def InitialsQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -4071,6 +4073,22 @@ class stzText from stzString
 
 	def InitialsAsText()
 		return This.InitialsQR(:stzText).Content()
+
+	  #------------------------#
+	 #      CONTRACTIONS      #
+	#------------------------#
+
+	def Expand()
+		// TODO
+
+		/*
+		don't	--> do not
+		we've	--> we have
+		did'nt	--> did not
+		*/
+
+	def Abbreviate()
+		// TODO: inverse of Expand()
 
 	#-----------#
 	#   MISC.   #

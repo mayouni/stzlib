@@ -1,51 +1,56 @@
 load "stzlib.ring"
 
-SetDefaultLocale("ar-TN")
-? DefaultLocale().Abbreviation()
 
 /*---------------
 
-StzLocaleQ([ :Country = :palau ]) {
-	? CountryName()	# !!! return NULL	!--> palau
+o1 = new stzLocale("de-DE")
+? o1.Abbreviation()
+
+/*---------------
+
+SetDefaultLocale("ar-TN")
+? DefaultLocale() #--> ar-TN
+
+/*---------------
+
+StzLocaleQ([ :Country = :tunisia ]) {
+	? Abbreviation()	#--> ar_TN
+	? CountryName()		# !--> tunisia
 }
+
+/*---------------
 
 StzCountryQ(:palau) {
 	? Name()		# --> palau
-	? LocaleAbbreviation()	# --> pau_PW	!!! Generated not necessarily good
+
+	? LocaleAbbreviation() # --> "en-PW"
 }
-
-/*---------------
-
-o1 = new QLocale("sm-WS")
-? o1.name()
-//? o1.country()
-
-? StzCountryQ( "" + o1.country() ).Name()
-? o1.nativeLanguageName()
-
-? StzScriptQ(""+ o1.script()).Name()
-? StzScriptQ(""+ o1.script()).abbreviation()
 
 /*---------------
 
 o1 = new QLocale("ja-PW")
-? o1.country()
+? o1.country() #--> 108
 
-? StzCountryQ("108").Name()	# --> japan
+? StzCountryQ("108").Name() # --> japan
 
 /*---------------
 
 StzLocaleQ("ja-JP") {
 	? CountryName()		# --> japan
-	? LanguageName()	# !--> japanese
+	? LanguageName()	# --> japanese
 }
-
 
 /*---------------
 
 StzLocaleQ("en-PW") {
 	? CountryName()		# --> palau
 	? LanguageName()	# --> english
+}
+
+/*--------------- ERROR: returns NULL!
+
+StzLocaleQ([ :Country = :palau ]) {
+	? CountryName()	# !--> palau
 }
 
 /*---------------
@@ -70,7 +75,7 @@ StzLocaleQ("zh-CN") {
 }
 /*----------------
 
-? StzLocaleQ("sm-WS").Name()
+? StzLocaleQ("sm-WS").CountryName() #--> NULL! (se why)
 
 /*----------------
 
@@ -108,58 +113,23 @@ oQLocale = new QLocale("cmn-CN")
 --> TODO: Verify this bug for all the other locales (see next code)
 
 /*----------------
+*
+// Check the name of China in country names!
+? StzLocaleQ([ :Language = :Chinese ]).CountryName() #--> NULL ! Todo: Why?
+? StzLocaleQ([ :Country = :China ]).CountryName() #--> NULL ! Todo: Why?
+? StzCountryQ(:China).Language() #--> Chinese
 
-# There are 261 locales for withc Qt returns a different locale than
-# the one that is expected by the user who provided the abbreviation.
-
-
-n = 0
-for aItem in LocaleCountriesAndTheirAbbreviations()
-	
-	cCountry = aItem[1]
-	cAbbr = aItem[2]
-
-	oQLocale = new QLocale(cAbbr)
-	cQLocale = oQLocale.name()
-
-	if cAbbr != cQLocale
-		n++
-		? cCountry + " !--> " + cAbbr + " --> " + cQLocale
-	ok
-	
-next
-? NL + "(" + n + " items)"
-/*----------------
-
-// To get the list of countries and their abbreviations we say:
-? LocalecountriesAndTheirAbbreviations()
-
-/*----------------
-
-// To show them in a structered way, we can delegate the display to stzHashList and say:
-StzHashListQ( LocalecountriesAndTheirAbbreviations() ).Show()
-# so we get -->
-#	afghanistan: "fa_AF"
-#	albania: "sq_AL"
-#	algeria: "ar_DZ"
-#	american_samoa: "sm_AS"
-#	andorra: "ca_AD"
-#	etc.
-
-/*----------------
-
-//? StzLocaleQ([ :Language = :Chinese ]).CountryName()
-? StzLocaleQ([ :Country = :China ]).CountryName()
-//? StzCountryQ(:China).Language()
 /*----------------------
 
+# All these return the abbreviation ru_RU
+
 ? StzLocaleQ([ :Language = :Russian, :Script = :Latin, :Country = :Russia ]).Abbreviation()
-//? StzLocaleQ([ :Language = :Russian ]).Abbreviation()
-//? StzLocaleQ([ :Script = :Latin ]).Abbreviation()
-//? StzLocaleQ([ :Country = :Russia ]).Abbreviation()
-//? StzLocaleQ([ :Language = :Russian, :Script = :Latin ]).Abbreviation()
-//? StzLocaleQ([ :Language = :Russian, :Country = :Russia ]).Abbreviation()
-//? StzLocaleQ([ :Script = :Latin, :Country = :Russia ]).Abbreviation()
+? StzLocaleQ([ :Language = :Russian ]).Abbreviation()
+? StzLocaleQ([ :Script = :Latin ]).Abbreviation()
+? StzLocaleQ([ :Country = :Russia ]).Abbreviation()
+? StzLocaleQ([ :Language = :Russian, :Script = :Latin ]).Abbreviation()
+? StzLocaleQ([ :Language = :Russian, :Country = :Russia ]).Abbreviation()
+? StzLocaleQ([ :Script = :Latin, :Country = :Russia ]).Abbreviation()
 
 /*----------------------
 
@@ -247,7 +217,7 @@ StzLocaleQ([ :Script = :Latin, :Country = :Russia ]) {
 
 /*-----------------------
 
-? _("ar_arab_tn").@.ContainsNTimes(2,"_")	# --> TRUE
+? Q("ar_arab_tn").ContainsNTimes(2,"_")	# --> TRUE
 
 /*-----------------------
 
@@ -329,9 +299,9 @@ o1 = new stzLocale("ar-TN")
 
 
 /*-------------//// functional error ////
-
+*/
 StzLocaleQ([ :Language = :French ]) {
-	//? Country()
+	? Country()
 
 	? ToTitlecase("in search of lost time")
 	
@@ -348,7 +318,7 @@ StzStringQ("tunisian dinar") {
 }
 
 /*-------------
-
+*/
 StzLocaleQ([ :Country = :Qatar ]) {
 
 	? CurrencyName()		# --> Qatari Riyal
@@ -561,9 +531,7 @@ o1 = new stzLocale("ro")
 ? o1.LanguageName() + NL
 
 ? o1.CountryNumber()
-? o1.CountryName() + NL
-
-? GetLocaleSeparator("ar_TN")
+? o1.CountryName()
 
 /*-------------
 
@@ -586,8 +554,6 @@ o1 = new stzLocale([ :Script = "Mongolian" ])
 ? GetCountryNumber("tunisia")
 
 ? SystemLocale() + NL # Gives fr_FR
-
-? SystemLocaleAsStzObject().LanguageName() + NL # Gives french
 
 ? CountriesforWhichDefaultLanguageIs(:russian)
 # Gives [ :antarctica, :antarctica, :kyrgyzstan, :russia ]
@@ -613,7 +579,6 @@ o1 = new stzString("2")
 /*-------------
 
 ? SystemLocale()
-? SystemLocaleAsStzObject().LanguageName()
 
 o1 = new stzLocale([ :Language = "arabic", :Country = "tunisia" ])
 ? o1.LanguageName()
@@ -772,10 +737,9 @@ o1 {
 //}
 
 /*-------------
-*/
 
 StzLocaleQ("en_GB") {
-	? Separator()
+	? Separator()		#--> "_"
 	SetSeparator("-")
-	? Abbreviation()
+	? Abbreviation()	#--> "en-GB"
 }

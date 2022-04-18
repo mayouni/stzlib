@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-
+/*------------ ERROR: function undefined --> ToSetOfHashLists
 aList = [
 
 	[ :number = 1, :name = "teeba", :age = 10 	],
@@ -19,7 +19,7 @@ o1 = new stzListOfHashLists( aList )
 */
 
 /*----------------
-
+*/
 aList = [
 	[ :name = "Avionav", 	:type = "Company", 	:domain = "Aeorospace" 	],
 	[ :name = "Photoshop", 	:type = "software", 	:domain = "Graphics" 	],

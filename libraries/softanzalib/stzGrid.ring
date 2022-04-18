@@ -692,14 +692,19 @@ class stzGrid from stzObject
 		cStr = ""
 		if @bShowRanks = TRUE
 			cStr = "" +
-			StzCounterQ([:StartAt = 1, :WhenYouReach = 10, :RestartAt = 0, :Step = 1 ]).CountingTo( This.NumberOfVLines() )[n] + cSingleSpace
+			StzCounterQ([
+				:StartAt = 1,
+				:WhenYouReach = 10,
+				:RestartAt = 0,
+				:Step = 1 ]).
+			CountingTo( This.NumberOfVLines() )[n] + SingleSpace()
 		ok
 
 		for i = 1 to This.NumberOfVLines()
 			cStr += This.HLine(n)[i]
 
 			if i < This.NumberOfVLines()
-				cStr += cSingleSpace
+				cStr += SingleSpace()
 			ok
 		next
 		? cStr
@@ -730,14 +735,19 @@ class stzGrid from stzObject
 		if @bShowRanks = TRUE
 			aTemp = []
 
-			oCounter = new stzCounter([ :StartAt=1, :WhenYouReach = 10, :RestartAt = 1, :Step = 1 ])
+			oCounter = new stzCounter([
+				:StartAt=1,
+				:WhenYouReach = 10,
+				:RestartAt = 1,
+				:Step = 1 ])
+
 			aTemp = oCounter.CountingTo( This.NumberOfVLines() )
 
-			cStr = cDoubleSpace
+			cStr = DoubleSpace()
 			for j = 1 to len(aTemp)
 				cStr += ""+ aTemp[j]
 				if j < len(aTemp)
-					cStr += cSingleSpace
+					cStr += SingleSpace()
 				ok
 			next
 	
