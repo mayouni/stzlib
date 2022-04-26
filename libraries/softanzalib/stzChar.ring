@@ -101,6 +101,9 @@ func IsQChar(p)
 		return FALSE
 	ok
 
+	func IsQCharObject(p)
+		return IsQChar(p)
+
 func QCharToString(oQChar)
 	if IsQChar(oQChar)
 		oChar = new stzChar(oQChar.unicode())

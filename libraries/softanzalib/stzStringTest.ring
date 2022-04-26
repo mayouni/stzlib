@@ -1751,16 +1751,17 @@ StzStringQ("1a2b3c") {
 ? StzStringQ("TELLAVIX (Y908$)").Inverted()
 
 /*------------------
-*/
+
 o1 = new stzString("Ring Programming Language")
-? o1.WalkBackward( :StartingAt = 12, :UntilBefore = '{ @char = " " }' ) # --> 5
-? o1.WalkForeward( :StartingAt =  6, :UntilBefore = '{ @char = "r" }' ) # --> 9
+? o1.WalkBackwardW( :StartingAt = 12, :UntilBefore = '{ @char = " " }' ) # --> 5
+? o1.WalkForewardW( :StartingAt =  6, :UntilBefore = '{ @char = "r" }' ) # --> 9
 
 /*------------------
 
 ? StzTextQ("abc سلام abc").ContainsScript(:Arabic)	#--> TRUE
 ? StzTextQ("abc سلام abc").ContainsArabicScript()	#--> TRUE
 # NOTE: Scripts are now moved from stzString to stzText
+
 /*------------------
 
 ? StzStringQ("évènement").ReplaceNthCharQ(3, "*").Content()		#--> év*nement
@@ -1778,9 +1779,9 @@ StzStringQ("original text before hashing") {
 ? StzStringQ("ring").StringCase() # --> :Lowercase
 ? StzStringQ("RING").StringCase() # --> :Uppercase
 
-/*------------- Error: fix it
+/*------------- TODO: Error: fix it
 
-? StzStringQ("Ring And Php").StringCase() # --> :Titlecase-----------------------------
+? StzStringQ("Ring And Php").StringCase() # --> :Titlecase ///////////////////////
 
 /*-----------------
 
@@ -1791,15 +1792,15 @@ StzStringQ( "Text processing with Ring" ) {
 		:With = "*"
 	)
 
-	? Content()
+	? Content() #--> Text process*ng w*th R*ng
 }
 
 /*-----------------
 
 o1 = new stzString("A la recherche du temps perdu")
-? o1.Titlecased()
+? o1.Titlecased() #--> A la recherche du temps perdu
 
-/*-----------------////////////////////////
+/*-----------------//////////////////////// TODO: Fix stzLocale and then retest
 
 o1 = new stzString("Der Fluß")
 ? o1.Lowercased() # --> der fluß
@@ -1809,7 +1810,7 @@ o1 = new stzString("Der Fluß")
 # --? TODO: support the special cases documented in unicode here:
 # http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 
-/*----------------- FIX THIS : Revisit this after completing stzWalker
+/*----------------- FIX THIS : Revisit this after completing stzWalker ///////////////////
 
 // WalkUntil has not same output in stzString and stzList!
 
@@ -1825,7 +1826,7 @@ StzListQ([ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]) {
 	? WalkUntil('@item = "x"') # --> 0
 }
 
-/*====================================
+/*========== STRING PARTS ===========
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 
@@ -2135,10 +2136,13 @@ o1 = new stzString("SoftAnza Libraray")
 	@Char = "a"
 }') # --> Gives 3
 
+? o1.CountCharsWhere('{
+	Q(@Char).IsEqualToCS("a", :CS = FALSE)
+}') # --> Gives 4
+
 /*--------------
 
 o1 = new stzString("SoftAnza Libraray")
-
 ? o1.FindAllCharsWhere('{ StzCharQ(@Char).Lowercased() = "a" }')
 # --> Gives [ 5, 8, 14, 16 ]
 
@@ -2152,7 +2156,7 @@ o1 = new stzString("12")
 ])
 #--> Returns [ 12 ]
 
-/*---------------
+/*--------------- // TODO: Retest after completing Split() ///////////////////
 
 o1 = new stzString("abc;123;gafsa;ykj")
 ? o1.SplitQ(";").NthItem(3)
@@ -2185,7 +2189,7 @@ StzStringQ("RING") {
 	? BoxedRoundDashed()
 
 	? EachCharBoxed()
-	? VizFindAll("I")
+	//? VizFindBoxed("I")	#--> TODO: Add VizFindBoxed()
 }
 
 #--> RING
@@ -2205,7 +2209,6 @@ StzStringQ("RING") {
 #   │ R │ I │ N │ G │
 #   └───┴─•─┴───┴───┘
 
-
 /*------------------
 
 StzStringQ("MY BEAUTIFUL RING") {
@@ -2213,10 +2216,10 @@ StzStringQ("MY BEAUTIFUL RING") {
 	? Boxed()
 	? BoxedRound()
 
-	//? BoxedEachChar()
-	//? BoxedEachCharRound()
+	// ? BoxedEachChar()		# TODO: Add it
+	// ? BoxedEachCharRound()	# TODO: Add it
 
-	? VizFindAll("I")
+	// ? VizFindBoxed("I")	# TODO: Add it
 
 	? BoxedDashed()
 	? BoxedDashedRound()
@@ -2250,71 +2253,45 @@ StzStringQ("MY BEAUTIFUL RING") {
 #   │ MY BEAUTIFUL RING │
 #   └───────────────────╯
 
-*-----------------
-
+/*-----------------
 
 ? StzStringQ("PARIS").BoxedXT([
 	:AllCorners = :Round,
 	:Width = 20,
 	:TextAdjustedTo = :Center
 ])
-#-->
-# ╭────────────────────╮
-# │       PARIS        │
-# ╰────────────────────╯
 
 ? StzStringQ("PARIS").BoxedXT([
 	:AllCorners = :Round,
 	:Width = 20,
 	:TextAdjustedTo = :Left
 ])
-#-->
-# ╭────────────────────╮
-# │ PARIS              │
-# ╰────────────────────╯
 
 ? StzStringQ("PARIS").BoxedXT([
 	:AllCorners = :Round,
 	:Width = 20,
 	:TextAdjustedTo = :Right
 ])
-#-->
-# ╭────────────────────╮
-# │              PARIS │
-# ╰────────────────────╯
 
 ? StzStringQ("PARIS").BoxedXT([
 	:AllCorners = :Round,
 	:Width = 20,
 	:TextAdjustedTo = :Justified
 ])
+
 #-->
+# ╭────────────────────╮
+# │ PARIS              │
+# ╰────────────────────╯
+# ╭────────────────────╮
+# │       PARIS        │
+# ╰────────────────────╯
 # ╭────────────────────╮
 # │ P    A   R   I   S │
 # ╰────────────────────╯
-
-
-/*-----------------
-
-StzStringQ("ONE BO TAF") {
-
-#	? BoxedRound()
-#	? BoxedEachCharRound()
-
-#	? BoxedEachCharXT([ :AllCorners = :Round, :Numbered = TRUE ])
-
-	? VizFindAll("F")
-#	? VizRoundFindAllCS("o", :cs = false)
-
-#	? VizRoundFindAll("B")
-#	? VizRoundFindAllCS("b", :cs = false)
-
-#	? VizFindAllXT("o", [
-#		:CS = FALSE, :Line = :Dashed, :AllCorners = :Round, :Numbered = TRUE ])
-
-	# ? BoxedEachWord()
-
-}
+# ╭────────────────────╮
+# │              PARIS │
+# ╰────────────────────╯
 
 /*---------------------
 
@@ -2363,26 +2340,30 @@ StzStringQ("ONE BO TAF") {
 	:Line = :Dashed,
 	:AllCorners = :Rectangular,
 
-	:Width = 21,
+	:Width = 25,
 	:TextAdjustedTo = :Center
 ])
-#-->
+#--> TODO: Fix the output to return this
 # ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
 # ┊ 乇乂丅尺卂 丅卄工匚匚 ┊
 # └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
-
-returns
 
 /*==================
 
 ? StzStringQ("ar_TN-tun").ContainsEachCS(["_", "-"],:CS = TRUE)	#--> TRUE
 ? StzStringQ("ar_TN-tun").ContainsBoth("_", "-") #--> TRUE
 
-/*---------------
+/*==================
+
+o1 = new stzString("a")
+o1.MultiplyBy([ "b", "c", "d" ])
+? o1.Content() #--> "abacad"
+
+/*--------------
 
 o1 = new stzString("a")
 o1 * [ "b", "c", "d" ]
-? o1.Content()	#--> Gives 'abacad'
+? o1.Content() #--> abacad
 
 /*---------------
 
@@ -2396,21 +2377,7 @@ o1 = new stzString("ab-ac-ad")
 ? o1 / "-" # Same as ? o1.Split("-")
 #--> [ "ab", "ac", "ad" ]
 
-
-/*--------------
-
-o1 = new stzString("a")
-o1.MultiplyBy([ "b", "c", "d" ])
-? o1.Content() #--> "abacad"
-
-/*--------------
-
-o1 = new stzString("a")
-o1 * [ "b", "c", "d" ]
-? o1.Content() #--> abacad
-
-
-/*--------------
+/*==================
 
 o1 = new stzString("happy-holidays")
 ? o1.IsLowercase() #--> TRUE
@@ -2418,7 +2385,7 @@ o1 = new stzString("happy-holidays")
 o1 = new stzString("HOLIDAYS!")
 ? o1.IsUppercase() #--> TRUE
 
-/*---------------- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< TESTING
+/*==================
 
 StzStringQ("What a tutorial! Very instructive tutorial.") {
 
@@ -2459,21 +2426,16 @@ StzStringQ("What a tutorial! Very instructive tutorial.") {
 	# 	"al! Very instructive tutori", "al."
 	#     ]
 
-	? NthSubString( 3, :AfterSplittingStringUsing = " " )
-	#--> "tutorial!"
-
-
 }
-return
 
-/*------------------
+/*==================
 
 str = "   سلام"
 o1 = new stzString(str)
 
-? o1.HasRepeatedLeadingChars()
-? "'" + o1.RepeatedLeadingChar() + "'"
-o1.TrimRight() ? o1.Content()
+? o1.HasRepeatedLeadingChars()		#--> TRUE
+? @@( o1.RepeatedLeadingChar() )	#--> " "
+o1.TrimRight() ? o1.Content()		#--> سلام
 
 /*------------------
 
@@ -2484,8 +2446,8 @@ o1 = new stzString("eeeTUNIS") #
 /*------------------
 
 o1 = new stzString("exeeeeeTUNIS") # 	
-? o1.RepeatedLeadingChar() # --> '' NULL
-? o1.RepeatedLeadingChars() # --> '' NULL
+? @@( o1.RepeatedLeadingChar() )	# --> ""
+? @@( o1.RepeatedLeadingChars() )	# --> ""
 
 /*-------------------
 
@@ -2495,43 +2457,44 @@ o1 {
 	? @@( Content() ) #--> "same   "
 }
 
-# Try also: TrimRigh(), TrimStart(), TrimEnd()
+# Try also: TrimRight(), TrimStart(), TrimEnd()
+# RemoveLeadingSpaces(), and RemoveTrailingSpaces
 
-/*------------------------
+/*========================
 
 # Arabic Shaddah ("ّ ") is a considedred by Unicode as a diacritic,
 # say a special vocal sign that decorates the consonent letters like
 # a, e, and i in latin languages.
 
-? StzCharQ(ArabicShaddah()).IsArabicDiacritic()
+? StzCharQ(ArabicShaddah()).IsArabicDiacritic() #--> TRUE
 
 # Diacrirtcs in arabic are:
-? Arabic7araket() # TODO: error
+? @@( Arabic7araket() ) # [ "ُ ", "َ ", "ِ ", "ْ " ]
 
 # As you see, ("ّ ") is not one of them. That's because the Shaddah
-# is actually a letter:
+# is actually a letter and NOT really a diacritic:
 
 ? StzCharQ(ArabicShaddah()).IsLetter() #--> TRUE
 
-# Arabs use it as a short form for a stressed letter like the "د" in
-# the following word (that we read as mawaDDati --> with a stressed D)
+# In fact, Arabs use it as a short form for a stressed letter like the "د" in
+# the word "مودّتي" (that we read as "mawaDDati" --> with a stressed D)
 
-# Hence when we aske Softanza for the list of letters in this word:
+# Hence, when we ask Softanza for the list of letters in this word:
 
 str = "مودّتي"
-? Q(str).Letters()
-#--> Gives ["م", "و", "د", "ّ", "ت", "ي" ]
+? @@( Q(str).Letters() )
+#--> Gives ["م", "و", "د", " ّ", "ت", "ي" ]
 
-# the ("ّ ") is managed here conforming to UNICODE. But if you want to manage
-# it the right way, then you can use this extended form:
+# the ("ّ ") is managed here conforming to UNICODE and appears as a letter.
+# But if we want to manage it the right way, then this extended form is provided:
 
-? Q(str).LettersXT([ :ManageArabicShaddah = TRUE ])
+? @@( Q(str).LettersXT([ :ManageArabicShaddah = TRUE ]) )
+#o--> [ "م", "و", "د", "د", "ت", "ي" ]
 
-
-return
+# Which is the right list of letters, without the shaddah being one of them!
 
 /*------------------------
-
+*/
 str = "قَالُوا ادْعُ لَنَا رَبَّكَ يُبَيِّن لَّنَا مَا هِيَ إِنَّ الْبَقَرَ 
 تَشَابَهَ عَلَيْنَا وَإِنَّا إِن شَاءَ اللَّهُ لَمُهْتَدُونَ (70)
  قَالَ إِنَّهُ يَقُولُ إِنَّهَا بَقَرَةٌ لَّا ذَلُولٌ تُثِيرُ الْأَرْضَ وَلَا
@@ -2554,7 +2517,7 @@ str = "قَالُوا ادْعُ لَنَا رَبَّكَ يُبَيِّن لّ
 
 o1 = new stzString(str)
 //? o1.ToSetOfChars()
-? o1.Letters()
+? o1.UniqueLettersXT([ :ManageArabicShaddah = TRUE ])
 //? o1.UniqueLetters()
 
 /*----------------

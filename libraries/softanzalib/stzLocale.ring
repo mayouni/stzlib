@@ -7,7 +7,7 @@ https://docs.oracle.com/cd/E19253-01/817-2521/overview-39/index.html
 func StzLocaleQ(p)
 	return new stzLocale(p)
 
-func IsQLocaleObject(p)
+func IsQLocal(p)
 
 	if isObject(p) and classname(p) = "qlocale"
 		return TRUE
@@ -15,11 +15,19 @@ func IsQLocaleObject(p)
 		return FALSE
 	ok
 
+	func IsQLocaleObject(p)
+		return IsQLocale()
+
 func QLocaleToStzLocale(oQLocale)
 	return new stzLocale(oQLocale)
 
+	func QLocaleObjectToStzLoclae(QLocale)
+
 func StzLocaleToQLocale(oLocale)
 	return oLocale.QLocaleObject()
+
+	func StzLoclaeToQLocaleObject(oLocale)
+		return StzLocaleToQLocale(oLocale)
 
 func SystemLocale() # Returned as a string
 	oQLocale = new QLocale("C")

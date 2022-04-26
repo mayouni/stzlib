@@ -21,14 +21,17 @@ func IsListOfBytes(p)
 		return FALSE
 	ok
 
-func IsQByteArrayObject(p)
+func IsQByteArray(p)
 	if isObject(p) and classname(p) = :QByteArray
 		return TRUE
 	else
 		return FALSE
 	ok
 
-func ToQByteArrayObject(p)
+	func IsQByteArrayObject(p)
+		return IsQByteArray(p)
+
+func ToQByteArray(p)
 	if IsListOfBytes(p)
 		if IsQByteArrayObject(p)
 			return p
@@ -49,6 +52,9 @@ func ToQByteArrayObject(p)
 		ok
 	ok
 
+	func ToQByteArrayObject(p)
+		return ToQByteArray(p)
+
 func QByteArrayToListOfUnicodes(oQByteArray)
 	if IsQByteArrayObject(oQByteArray)
 		oListOfBytes = new stzListOfBytes(oQByteArray)
@@ -56,6 +62,9 @@ func QByteArrayToListOfUnicodes(oQByteArray)
 	else
 		stzRaise(stzListOfBytesError(:CanNotConvertQByteArray))
 	ok
+
+	func QByteArrayObjectToListOfUnicodes(oQByteArray)
+		return QByteArrayToListOfUnicodes(oQByteArray)
 
 func QByteArrayToListOfChars(oQByteArray)
 	/*
@@ -67,9 +76,15 @@ func QByteArrayToListOfChars(oQByteArray)
 	oListOfBytes = new stzListOfBytes(oQByteArray)
 	return oListOfBytes.ToStzString().Chars()
 
+	func QByteArrayObjectToListOfChars(oQByteArray)
+		return QByteArrayToListOfChars(oQByteArray)
+
 func QByteArrayToListOfUnicodesPerChar(oQByteArray)
 	oListOfBytes = new stzListOfBytes(oQByteArray)
 	return oQByteArray.UnicodesPerChar()
+
+	func QByteArrayObjectToListOfUnicodesPerChar(oQByteArray)
+		return QByteArrayToListOfUnicodesPerChar(oQByteArray)
 	
 
 // The fellowing function is Used to retrive the numeric value hosted in

@@ -37,10 +37,10 @@ class stzListOfUnicodes from stzListOfNumbers
 
 			if len(aList) > 0
 		  
-		   		if StzListOfNumbersQ(aListOfNumbers).Min() >= 0 and
-		   		   StzListOfNumbersQ(aListOfNumbers).Max() <= 1114111
+		   		if StzListOfNumbersQ(aList).Min() >= 0 and
+		   		   StzListOfNumbersQ(aList).Max() <= 1114111
 
-					@anUnicodes = aListOfNumbers
+					@anUnicodes = aList
 				ok
 			ok
 

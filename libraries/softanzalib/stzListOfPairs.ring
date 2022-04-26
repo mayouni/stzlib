@@ -7,7 +7,7 @@ func RangeToSection(paRange)
 		n1 = paRange[1]
 		n2 = paRange[2]
 
-		aResult = [ n1, n1 + n2 ]
+		aResult = [ n1, n1 + n2 - 1 ]
 		return aResult
 	else
 		stzRaise("Incorrect param! paRange must be a pair of numbers.")
@@ -18,7 +18,7 @@ func SectionToRange(paRange)
 		n1 = paRange[1]
 		n2 = paRange[2]
 
-		aResult = [ n1, n2 - n1 ]
+		aResult = [ n1, n2 - n1 + 1 ]
 		return aResult
 	else
 		stzRaise("Incorrect param! paRange must be a pair of numbers.")
@@ -40,7 +40,7 @@ func ListThatHasLessNumberOfItems(paList1, paList2)
 		return paList2
 	ok
 
-class stzListOfPairs
+class stzListOfPairs from stzList
 	@aContent = []
 
 	def init(paLists)
@@ -226,3 +226,18 @@ class stzListOfPairs
 
 		return bResult
 
+	  #---------------------------------------------#
+	 #   CHECHKING IF AN ITEM EXISTS IN ANY PAIR   #
+	#---------------------------------------------#
+
+	def ContainsInAnyPair(pItem)
+		bResult = FALSE
+		
+		for aPair in This.ListOfPairs()
+			if StzListQ(aPair).Contains(pItem)
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
