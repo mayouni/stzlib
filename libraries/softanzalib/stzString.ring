@@ -51,24 +51,42 @@ func StringToQString(cStr)
 	return oStr.QStringObject()
 	
 func IsQString(p)
+
 	if isObject(p) and ( classname(p) = "qstring" or classname(p) = "qstring2" )
 		return TRUE
 	else
 		return FALSE
 	ok
+
+	#--
+
+	def IsQStringObject(p)
+		return IsQString(p)
 	
 func QStringContent(oQStr)
-	return QStringToString(oQStr)
-	
-func QStringToString(oQStr)
-	if IsQString(oQStr)
+
+	try
 		return oQStr.left(oQStr.count())
-	else
+	catch
 		stzRaise(stzStringError(:CanNotTransformQStringToString))
-	ok
+	done
+
+	#--
+
+	func QStringObjectContent(oQStr)
+		return QStringContent(oQStr)
+
+	func QStringToString(oQStr)
+		return QStringContent(oQStr)
+
+	func QStringObjectToString(oQStr)
+		return QStringContent(oQStr)
 	
 func QStringToStzString(oQString)
 	return new stzString(QStringToString(oQString))
+
+	func QStringObjectToStzString(oQString)
+		return QStringToStzString(oQString)
 	
 func StringIsEmpty(pcStr)
 	return pcStr = ""
@@ -361,9 +379,16 @@ class stzString from stzObject
 
 	// Initializes the content of the softanza string object
 	def init(pcStr)
+		if isString(pcStr)
+			@oQString = new QString2()
+			@oQString.append(pcStr)
 
-		@oQString = new QString2()
-		@oQString.append(pcStr)
+		but IsQString(pcStr)
+			@oQString = pcStr
+
+		else
+			stzRaise("Can't create the stzString object! You must provide a string (or a QString).")
+		ok
 
 	  #--------------------------#
 	 #   CHECKING CONSTRAINTS   #
@@ -1235,7 +1260,7 @@ class stzString from stzObject
 			on :stzList
 				return new stzList( This.Letters() )
 
-			on :stzListOfStings
+			on :stzListOfStrings
 				return new stzListOfStrings( This.Letters() )
 
 			on :stzListOfChars
@@ -1295,7 +1320,7 @@ class stzString from stzObject
 			on :stzList
 				return new stzList( This.LettersXT(paOptions) )
 
-			on :stzListOfStings
+			on :stzListOfStrings
 				return new stzListOfStrings( This.LettersXT(paOptions) )
 
 			on :stzListOfChars
@@ -1306,7 +1331,7 @@ class stzString from stzObject
 			off
 
 	def UniqueLettersXT(paOptions)
-		return This.LettersXTQ(paOptions).DuplicatesRemoved()
+		return This.LettersXTQR(paOptions, :stzListOfStrings).DuplicatesRemoved()
 
 		def UniqueLettersXTQ(paOptions)
 			return This.UniqueLettersXTQR(paOptions, :stzList)
@@ -1324,7 +1349,7 @@ class stzString from stzObject
 			on :stzList
 				return new stzList( This.UniqueLettersXT(paOptions) )
 
-			on :stzListOfStings
+			on :stzListOfStrings
 				return new stzListOfStrings( This.UniqueLettersXT(paOptions) )
 
 			on :stzListOfChars
@@ -1353,7 +1378,7 @@ class stzString from stzObject
 				on :stzList
 					return new stzList( This.ToSetOfLettersXT(paOptions) )
 	
-				on :stzListOfStings
+				on :stzListOfStrings
 					return new stzListOfStrings( This.ToSetOfLettersXT(paOptions) )
 	
 				on :stzListOfChars
@@ -1430,7 +1455,7 @@ class stzString from stzObject
 
 		for n in anPos
 			n1 = n + 1
-			n2 = This.WalkForeward( :StartingAt = n+1, :Until = '{ NOT StzStringQ(@char).RepresentsNumberInDecimalForm() }' )
+			n2 = This.WalkForewardW( :StartingAt = n+1, :Until = '{ NOT StzStringQ(@char).RepresentsNumberInDecimalForm() }' )
 
 			if n1 != n2
 
@@ -5829,6 +5854,80 @@ class stzString from stzObject
 
 		#>
 
+	  #---------------------------------------------------#
+	 #    INSERTING A SUBSTRING (BEFORE) EVERY N CHARS   #
+	#---------------------------------------------------#
+
+	def InsertBeforeEveryNChars(n, pcSubStr)
+
+		if NOT isNumber(n)
+			stzRaise("Incorrect param! n must be a number.")
+		ok
+
+		if NOT isString(pcSubStr)
+			stzRaise("Incorrect param! pcSubStr must be a string.")
+		ok
+
+		anPositions = []
+
+		if n = 1
+			anPositions = [ 1 ]
+
+		else
+		
+			for i = 2 to This.NumberOfChars() step n
+				anPositions + [ i - 1 ]
+			next
+		ok
+
+		This.InsertBeforeThesePositions(anPositions, " ")
+
+		def InsertBeforeEveryNCharsQ(n, pcSubStr)
+			This.InsertBeforeEveryNChars(n, pcSubStr)
+			return This
+
+		def InsertEveryNChars(n, pcSubStr)
+			This.InsertBeforeEveryNChars(n, pcSubStr)
+
+			def InsertEveryNCharsQ(n, pcSubStr)
+				This.InsertAfterEveryNChars(n, pcSubStr)
+				return This
+	
+		def InsertSubStringEveryNChars(n, pcSubStr)
+			This.InsertEveryNChars(n, pcSubStr)
+
+			def InsertSubStringEveryNCharsQ(n, pcSubStr)
+				This.InsertEveryNChars(n, pcSubStr)
+				return This
+
+	  #---------------------------------------------------#
+	 #    INSERTING A SUBSTRING (AFTER) EVERY N CHARS    #
+	#---------------------------------------------------#
+
+	def InsertAfterEveryNChars(n, pcSubStr)
+
+		if NOT isNumber(n)
+			stzRaise("Incorrect param! n must be a number.")
+		ok
+
+		if NOT isString(pcSubStr)
+			stzRaise("Incorrect param! pcSubStr must be a string.")
+		ok
+
+		anPositions = []
+
+		if n > 1
+			for i = 1 to This.NumberOfChars() - 1 step n
+				anPositions + ( i + 1 )
+			next
+		ok
+
+		This.InsertAfterThesePositions(anPositions, " ")
+
+		def InsertAfterEveryNCharsQ(n, pcSubStr)
+			This.InsertAfterEveryNChars(n, pcSubStr)
+			return This
+
 	   #--------------------------------------------------------#
 	  #    INSERTING A SUBSTRING AFTER A POSITION DEFINED      #
 	 #    BY A GIVEN CONDITION APPLIED ON THE STRING CHARS    #
@@ -8956,10 +9055,14 @@ class stzString from stzObject
 				off
 		#>
 
+	  #------------------------------------------------------------#
+	 #    FINDING MANY SYBSTRINGS IN THE SAME TIME -- EXTENDED    # 
+	#------------------------------------------------------------#
+
 	def FindManyXT(pacSubStr, paOptions)
 		/*
 		o1 = new stzString("My name is Mansour. What's your name please?")
-		? o1.FindManyCSXT( [ "name", "your", "please" ], :CS = TRUE )
+		? o1.FindManyXT( [ "name", "your", "please" ], [ :CS = TRUE ] )
 
 		--> [ "name" = [ 4, 33 ], "your" = [ 28 ], "please" = [ 38 ] ]
 
@@ -8996,6 +9099,11 @@ class stzString from stzObject
 			IsBoolean(paOptions[:CaseSensitive])
 
 			bCaseSensitive = paOptions[:CaseSensitive]
+
+		but StzHashListQ(paOptions).ContainsKey(:CS) and
+			IsBoolean(paOptions[:CS])
+
+			bCaseSensitive = paOptions[:CS]
 		ok
 
 		bRemoveEmpty = FALSE
@@ -17225,7 +17333,14 @@ return
 
 		def ToHexQ()
 			return new stzString( This.ToHex() )
-	
+
+	def ToHexSpacified()
+		cHex = This.ToHex()
+		n = ceil( StzStringQ(cHex).NumberOfChars() / This.NumberOfBytes() )
+
+		cResult = StzStringQ(cHex).InsertAfterEveryNCharsQ(n, " ").Content()
+		return cResult
+
 	def FromHex(cHex)
 		@oQString = new QString2()
 		@oQString.append(hex2str(cHex))
@@ -18419,19 +18534,7 @@ return
 	def CharsW(pcCondition)
 		aResult = This.YieldW('@char', pcCondition)
 		return aResult
-/*
-		if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParamList()
-			pcCondition = pcCondition[2]
 
-			if NOT isString(pcCondition)
-				stzRaise("Incorrect param type! pcCondition must be a string.")
-			ok
-		ok
-
-		cCondition = StzStringQ(pcCondition).ReplaceAllCSQ("@char", "@item", :CS = FALSE).SimplifyQ().Content()	
-		aResult = StzListQ( This.ToListOfChars() ).ItemsW(cCondition)
-		return aResult
-*/
 		def CharsWhere(pcCondition)
 			return This.CharsW(pcCondition)
 
@@ -19503,14 +19606,112 @@ return
 		def FromURL(cURL)
 			return This.ImportedFromURL(cURL)
 
+	  #----------------------------------------------------#
+	 #     WALKING THE STRING AND RETURNING SOMETHING     #
+	#----------------------------------------------------#
+
+	def WalkXT(paOptions)
+
+		if NOT isList(paOptions) and Q(paOptions).IsHashList()
+			stzRaise("Incorrect param! paOptions must be a hashlist.")
+		ok
+
+		if NOT (  len(paOptions) = 0 or
+
+			  StzHashListQ(paOptions).
+			  KeysQR(:stzListOfStrings).IsMadeOfSomeCS([
+				:From, :FromPosition, :To, :ToPosition, :Step, :Return
+			  ], :CS = FALSE)
+			)
+
+			stzRaise("Incorrect value!")
+		ok
+
+		oKeys = StzHashListQ(paOptions).KeysQR(:stzListOfStrings)
+
+		if oKeys.ContainsBothCS(:From, :FromPosition, :CS = FALSE)
+			stzRaise("Incorrect value! paOptions must not contain both :From and :FromPosition keys.")
+		ok
+
+		if oKeys.ContainsBothCS(:To, :ToPosition, :CS = FALSE)
+			stzRaise("Incorrect value! paOptions must not contain both :To and :ToPosition keys.")
+		ok
+
+		if oKeys.ContainsCS(:From, :CS = FALSE)
+			n = StzHashListQ(paOptions).FindKey(:From)
+			paOptions[n][1] = :FromPosition
+		ok
+
+		if oKeys.ContainsCS(:To, :CS = FALSE)
+			n = StzHashListQ(paOptions).FindKey(:To)
+			paOptions[n][1] = :ToPosition
+		ok
+
+		pnFromPosition = 1
+		if paOptions[ :FromPosition ] != NULL
+			pnFromPosition = paOptions[ :FromPosition ]
+		ok
+
+		if isString(pnFromPosition)
+
+		   	if Q(pnFromPosition).IsOneOfTheseCS([ :First, :FirstChar ], :CS = FALSE)
+				pnFromPosition = 1
+			ok
+
+		   	if Q(pnToPosition).IsOneOfTheseCS([ :Last, :LastChar ], :CS = FALSE)
+				pnFromPosition = This.NumberOfChars()
+			ok
+
+		ok
+
+		pnToPosition = This.NumberOfChars()
+		if paOptions[ :ToPosition ] != NULL
+			pnToPosition = paOptions[ :ToPosition ]
+		ok
+
+		pnStep = 1
+		if paOptions[ :Step ] != NULL
+			pnstep = paOptions[ :Step ]
+		ok
+
+		pcReturn = :WalkedChars
+		if paOptions[ :Return ] != NULL
+			pcReturn = paOptions[ :Return ]
+		ok
+
+		# Doing the job
+
+		anPositions = []
+		acChars = []
+
+		for i = pnFromPosition to pnToPosition step pnStep
+			anPositions + i
+			acChars + This[i]
+		next
+
+		aResult = []
+
+
+		if pcReturn = :WalkedPositions
+			aResult = anPositions
+
+		but pcReturn = :WalkedChars
+			aResult = acChars
+		ok
+
+		return aResult
+
+	def Walk( pnFromPosition, pnToPosition, pnStep, pcReturn )
+		return This.WalkXT([ pnFromPosition, pnToPosition, pnStep, pcReturn ])
+
 	  #--------------------------------------------#
-	 #   WALKING STARTING FROM N UNTIL CHAR IS    # TODO: Reclassifiy with stzWalker
+	 #   WALKING STARTING FROM N UNTIL CHAR IS    # TODO: Redo with stzWalker
 	#--------------------------------------------#
 
-	def WalkBackward( paStartingAt, pcCondition )
+	def WalkBackwardW( paStartingAt, pcCondition )
 		/*
 		str = "Ring Programming Languge"
-		StzStringQ(str).WalkBackward( :StartingAt = 12, :Until = '{ @char = " " }' )
+		StzStringQ(str).WalkBackwardW( :StartingAt = 12, :Until = '{ @char = " " }' )
 
 		--> Returns 5
 		*/
@@ -19543,10 +19744,10 @@ return
 	def WalkUntil(pcCondition)
 		return This.WalkForeward(:StartingAt = 1, :Until = pcCondition)
 
-	def WalkForeward( paStartingAt, pcCondition )
+	def WalkForewardW( paStartingAt, pcCondition )
 		/*
 		str = "Ring Programming Languge"
-		StzStringQ(str).WalkForeward( :StartingAt = 6, :UntilBefore = '{ @char = "r" }' )
+		StzStringQ(str).WalkForewardW( :StartingAt = 6, :UntilBefore = '{ @char = "r" }' )
 
 		--> Returns 9
 		*/
@@ -19580,6 +19781,7 @@ return
 		ok
 
 		return nResult
+
 
 	  #-----------------------------------#
 	 #     TURNING STRING UP OR DOWN     #
@@ -21116,6 +21318,9 @@ return
 	  #--------------------------------#
 	 #     USED FOR NATURAL-CODING    #
 	#--------------------------------#
+
+	def IsStzString()
+		return TRUE
 
 	def IsAlmostAFunctionCall()
 		# Why almost? Because it doesn't analyse the correctness of the params

@@ -483,7 +483,6 @@ class stzList from stzObject
 			def LastNItemsQ(n)
 				return This.NLastItemsQ(n)
 
-
 	  #--------------------#
 	 #      UPDATING      #
 	#--------------------#
@@ -623,9 +622,9 @@ class stzList from stzObject
 
 		#>
 
-	  #----------------------------------------------------#
-	 #     INSERTING AN ITEM BEFORE A GIVEN POSITION      #
-	#----------------------------------------------------#
+	  #===================================================#
+	 #     INSERTING AN ITEM BEFORE A GIVEN POSITION     #
+	#===================================================#
 
 	def InsertBeforePosition(n, pItem)
 		if n >= 1 and n <= This.NumberOfItems()
@@ -704,83 +703,64 @@ class stzList from stzObject
 	 #     OTHER INSERTING FORMS      # TODO
 	#--------------------------------#
 
-	def InsertAfterEachNumberOfSteps(n, pcStr) // TODO
+	def InsertAfterEachNumberOfSteps(n, pItem) // TODO
 		/* Example : InsertAfterEachNumberOfSteps(2, "*")
 		a = [ "A" , "B" , "C"  , "D" , "E" , "F" , "G" ]
 		-->
 		a = [ "A" , "B" , "*" , "D" , "E" , "*" , "F" , "G" ]
 		*/
 
-	def InsertAfterEachSequenceOfSteps(paSteps, pcStr) // TODO
+	def InsertAfterEachSequenceOfSteps(paSteps, pItem) // TODO
 		/* Example : InsertAfterEachSequenceOfSteps([2,1], pcStr)
 		a = [ "A" , "B" , "C"  , "D" , "E" , "F" , "G" ]
 		-->
 		a = [ "A" , "B" , "*" , "D" , "*" "E" , "F" , "*" , "G" , "*" ]
 		*/
 
-	def InsertRandomlyBefore(pcSubStr)
-		n = random( This.NumberOfChars() )
-		This.InsertBefore(n, pcSubStr)
+	def InsertRandomlyBefore(pItem)
+		n = random( This.NumberOfItems() )
+		This.InsertBefore(n, pItem)
 
 		#< @FunctionFluentForm
 
-		def InsertRandomlyBeforeQ(pcSubStr)
-			This.InsertRandomlyBefore(pcSubStr)
+		def InsertRandomlyBeforeQ(pItem)
+			This.InsertRandomlyBefore(pItem)
 			return This
 
 		#>
 
-	def InsertRandomlyAfter(pcSubStr)
-		n = random( This.NumberOfChars() )
-		This.InsertAfter(n, pcSubStr)
+	def InsertRandomlyAfter(pItem)
+		n = random( This.NumberOfItems() )
+		This.InsertAfter(n, pItem)
 
 		#< @FunctionFluentForm
 
-		def InsertRandomlyAfterQ(pcSubStr)
-			This.InsertRandomlyAfter(pcSubStr)
+		def InsertRandomlyAfterQ(pItem)
+			This.InsertRandomlyAfter(pItem)
 			return This
 
 		#>
 
-	  #---------------------------#
-	 #      REPLACING ITEMS      #
-	#---------------------------#
-
-	/* TODO: content of this section should be reorganized to
-	   reflect this structure (same should be done in Remove section):
-
-	REPLACING AN ITEM (OR MANY ITEMS)
-		BY SPECIFYING ITS (OR THEIR) VALUE(S)
-	
-		BY SPECIFYING ITS (OR THEIR) POSITION(S) IN THE LIST
-	
-	REPLACING NTH OCCURRENCE (OR MANY NTH OCCURRENCES) OF AN ITEM
-		BY SPECIFYING THIS NTH OCCURRENCE (OR THESE NTH OCCURRENCES)
-		AND THE VALUE OF THAT ITEM
-	
-	REPLACING A SECTION (OR MANY SECTIONS) OF THE LIST
-		BY SPECIFYING ITS (OR THEIR) START AND END POSITIONS
-	
-	REPLACING A RANGE (OR MANY RANGES OF THE LIST)
-		BY SPECIFYING ITS (OR THEIR) START AND RANGE
-	
-	REPLACING ITEMS UNDER A GIVEN CONDITION
-	
-	REMOVING ALL ITEMS OF THE LIST (--> EMPTY LIST)
-
-	*/
-
-	//>>>>>>> REPLACING ALL ITEMS OR SOME OCCURRENCES OF AN ITEM
+	  #=========================================#
+	 #   REPLACING ALL ITEMS WITH A NEW ITEM   #
+	#=========================================#
 
 	def ReplaceAllItems(pNewItem)
-		if isList(pNewItem) and
-		   ( StzListQ(pNewItem).IsWithNamedParamList() or StzListQ(pNewItem).IsByNamedParamList() )
-			pNewItem = pNewItem[2]
-		ok
 
-		for item in This.List()
-			item = pItem
+		for i = 1 to This.NumberOfItems()
+			This.ReplaceItemAtPosition(i, pNewItem)
 		next
+
+		#< @FunctionFluentForm
+
+		def ReplaceAllItemsQ(pNewItem)
+			This.ReplaceAllItems(pNewItem)
+			return This
+		#>
+
+	  #-------------------------------------------#
+	 #   REPLACING ALL OCCURRENCES OF A ITEM     #
+	#-------------------------------------------#
 
 	def ReplaceAllOccurrencesOfItem(pItem, pNewItem)
 			
@@ -794,18 +774,25 @@ class stzList from stzObject
 			This.ReplaceItemAtPosition(n, pNewItem)
 		next
 
-		def ReplaceAllOccurrencesOfItemQ(pItem, pNewItem)
+		#< @FunctionFluentForm
+
+		def ReplaceAllOccurrencesOfItemQ(pItem, pNewIteme)
 			This.ReplaceAllOccurrencesOfItem(pItem, pNewItem)
 			return This
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def ReplaceItem(pItem, pNewItem)
 			This.ReplaceAllOccurrencesOfItem(pItem, pNewItem)
 
 			def ReplaceItemQ(pItem, pNewItem)
-				This.ReplaceItem(pItem, pNewItem)
+				This.ReplaceItem(pItem, pNewIteme)
 				return This
 
-		def ReplaceOccurrences(pItem, pNewItem)
+		#--
+
+		def ReplaceOccurrences(pItem, pNewIteme)
 			This.ReplaceAllOccurrencesOfItem(pItem, pNewItem)
 
 			def ReplaceOccurrencesQ(pItem, pNewItem)
@@ -823,124 +810,123 @@ class stzList from stzObject
 			This.ReplaceAllOccurrencesOfItem(pItem, pNewItem)
 
 			def ReplaceAllQ(pItem, pNewItem)
-				This.ReplaceAll(pItem, pNewItem)
+				This.ReplaceAll(pItem, pNewIteme)
 				return This
 
 		def Replace(pItem, pNewItem)
 			This.ReplaceAllOccurrencesOfItem(pItem, pNewItem)
 
-			def ReplaceQ(pItem, pNewItem)
+			def ReplaceQ(pItem, pNewIteme)
 				This.Replace(pItem, pNewItem)
 				return This
 
+		#>
+
 	def ItemReplacedBy(pItem, pNewItem)
-		aResult = This.Copy().ReplaceItemQ(pItem, pNewItem).Content()
+
+		aResult =  This.Copy().
+				ReplaceItemQ(pItem, pNewItem).
+				Content()
+
 		return aResult
 
 		def AllOccurrencesOfItemReplacedBy(pItem, pNewItem)
 			return ItemReplacedBy(pItem, pNewItem)
 
-	//>>>>>>> REPLACING MANY ITEMS AT THE SAME TIME
+	  #---------------------------------------------#
+	 #    REPLACING MANY ITEMS AT THE SAME TIME    #
+	#---------------------------------------------#
 
-	def ReplaceManyItems(paItems, pNewItem)
+	def ReplaceManyItems(pacItems, pNewItem)
 
-		for item in paItems
-			This.ReplaceAllOccurrences(item, pNewItem)
+		for item in pacItems
+			This.ReplaceAllOccurrences(:Of = item, pNewItem)
 		next
 
-		def ReplaceManyItemsQ(paItems, pNewItem)
-			This.ReplaceManyItems(paItems, pNewItem)
+		#< @FunctionFluentForm
+
+		def ReplaceManyItemsQ(pacItems, pNewItem)
+			This.ReplaceManyItems(pacItems, pNewItem)
 			return This
 
-		def ReplaceMany(paItems, pNewItem)
-			This.ReplaceManyItems(paItems, pNewItem)
+		#>
 
-			def ReplaceManyQ(paItems, pNewItem)
-				This.ReplaceMany(paItems, pNewItem)
+		#< @FunctionAlternativeForms
+
+		def ReplaceMany(pacItems, pNewItem)
+			This.ReplaceManyItems(pacItems, pNewItem)
+
+			def ReplaceManyQ(pacItems, pNewItem)
+				This.ReplaceMany(pacItems, pNewItem)
 				return This
 
-		def ReplaceAllOfThese(paItems, pNewItem)
-			This.ReplaceManyItems(paItems, pNewItem)
+		def ReplaceAllOfThese(pacItems, pNewItem)
+			This.ReplaceManyItems(pacItems, pNewItem)
 
-			def ReplaceAllOfTheseQ(paItems, pNewItem)
-				This.ReplaceAllOfThese(paItems, pNewItem)
+			def ReplaceAllOfTheseQ(pacItems, pNewItem)
+				This.ReplaceAllOfThese(pacItems, pNewItem)
 				return This
 
-		def ReplaceTheseItems(paItems, pNewItem)
-			This.ReplaceManyItems(paItems, pNewItem)
+		#--
 
-			def ReplaceTheseItemsQ(paItems, pNewItem)
-				This.ReplaceTheseItems(paItems, pNewItem)
+		def ReplaceTheseItems(pacItems, pNewItem)
+			This.ReplaceManyItems(pacItems, pNewItem)
+
+			def ReplaceTheseItemsQ(pacItems, pNewItem)
+				This.ReplaceTheseItems(pacItems, pNewItem)
 				return This
 
-	def ManyItemsReplaced(paItems, pNewItem)
-		aResult = This.Copy().ReplaceTheseItemsQ(paItems, pNewItem).Content()
+		#>
+
+	def ManyItemsReplaced(pacItems, pNewItem)
+
+		aResult  = This.Copy().
+				ReplaceTheseItemsQ(pacItems, pNewItem).
+				Content()
+
 		return aResult
 
-		def TheseItemsReplaced(paItems, pNewItem)
-			return This.ManyItemsReplaced(paItems, pNewItem)
-		
-	def ReplaceManyItemsXT(paItems, paListOfNewItems)
-		
-		if isList(paItems) and StzListQ(paItems).IsOfNamedParamList()
-			paItems = paItems[2]
+		def TheseItemsReplaced(pacItems, pNewItem)
+			return This.ManyItemsReplaced(pacItems, pNewItem)
+	
+	  #------------------------------------------------------#
+	 #    REPLACING MANY ITEMS BY MANY OTHERS ONE BY ONE    #
+	#------------------------------------------------------#
+
+	def ReplaceManyOneByOne(pacItems, pacNewItems)
+		if NOT isList(pacItems)
+			stzRaise("Uncorrect param! pacItems must be a list.")
 		ok
 
-		if isList(paListOfNewItems) and
-		   ( StzListQ(paListOfNewItems).IsWithNamedParamList() OR
-		     StzListQ(paListOfNewItems).IsByNamedParamList() )
-
-			paListOfNewItems = paListOfNewItems[2]
+		if isList(pacNewItems) and Q(pacNewItems).IsWithOrByNamedParamList()
+			pacNewItems = pacNewItems[2]
 		ok
 
-		if IsNotList(paItems) and isList(paListOfNewItems)
-			This.ReplaceItemByAlternance(paItems, paListOfNewItems)
-
-		else
-			for i = 1 to len(paItems)
-				if i <= len(paListOfNewItems)
-					This.ReplaceAllOccurrences(paItems[i], paListOfNewItems[i])
-				ok
-			next
+		if NOT isList(pacNewItems)
+			stzRaise("Uncorrect param! pacNewItems must be a list.")
 		ok
 
-		def ReplaceManyItemsXTQ(paItems, paListOfNewItems)
-			This.ReplaceManyXT(paItems, paListOfNewItems)
-			return This
+		i = 0
+		for item in pacItems
 
-		def ReplaceManyXT(paItems, paListOfNewItems)
-			This.ReplaceManyItemsXT(paItems, paListOfNewItems)
+			i++
+			cNewStr = NULL
 
-			def ReplaceManyXTQ(paItems, paListOfNewItems)
-				This.ReplaceManyXT(paItems, paListOfNewItems)
-				return This
+			if i <= len(pacNewItems)
+				cNewStr = pacNewItems[i]
+			ok
 
-		def ReplaceAllOfTheseXT(paItems, paListOfNewItems)
-			This.ReplaceManyItemsXT(paItems, paListOfNewItems)
+			This.Replace(item, cNewStr)
 
-			def ReplaceAllOfTheseXTQ(paItems, paListOfNewItems)
-				This.ReplaceAllOfTheseXT(paItems, paListOfNewItems)
-				return This
+		next
 
-		def ReplaceTheseItemsXT(paItems, paListOfNewItems)
-			This.ReplaceManyItemsXT(paItems, paListOfNewItems)
-
-			def ReplaceTheseItemsXTQ(paItems, paListOfNewItems)
-				This.ReplaceTheseItemsXT(paItems, paListOfNewItems)
-				return This
-
-	def ManyItemsReplacedXT(paItems, paListOfNewItems)
-		aResult = This.Copy().ReplaceManyItemsXTQ(paItems, paListOfNewItems).Content()
-		return aResult
-
-		def TheseItemsReplacedXT(paItems, paListOfNewItems)
-			return This.ManyItemsReplacedXT(paItems, paListOfNewItems)
-
-	//>>>>>>> REPLACING AN ITEM BY ALTERNANCE
+	  #------------------------------------#
+	 #   REPLACING AN ITEM BY ALTERNANCE   #
+	#------------------------------------#
 
 	def ReplaceItemByAlternance(pItem, paOtherItems)
 		/*
-		StzListQ([ "A", "A", "َََA", "A", "A" ]) {
+		StzListQ([ "A", "A", "A", "A", "A" ]) {
 			ReplaceItemByAlternance("A", :With = [ "#1", "#2" ])
 			? Content()
 
@@ -949,8 +935,7 @@ class stzList from stzObject
 		*/
 
 		if isList(paOtherItems) and
-		   ( StzListQ(paOtherItems).IsWithNamedParamList() OR
-		     StzListQ(paOtherItems).IsByNamedParamList() )
+		   StzListQ(paOtherItems).IsWithOrByNamedParamList()
 		
 			paOtherItems = paOtherItems[2]
 		ok
@@ -971,94 +956,222 @@ class stzList from stzObject
 			
 		next
 
+		#< @FunctionFluentForm
+
 		def ReplaceItemByALternanceQ(pItem, paOtherItems)
 			This.ReplaceItemByALternance(pItem, paOtherItems)
 			return This
 
+		#>
+
 	def ItemReplacedByAlternance(pItem, paOtherItems)
-		aResult = This.Copy().ReplaceItemByALternanceQ(pItem, paOtherItems).Content()
+
+		aResult  = This.Copy().
+				ReplaceItemByALternanceQ(pItem, paOtherItems).
+				Content()
+
 		return aResult
+	
+	   #------------------------------------------------#
+	  #   REPLACING THE NEXT OCCURRENCES OF A ITEM     #
+         #   STARTING AT A GIVEN POSITION                 #
+	#------------------------------------------------#
 
-	//>>>>>>> REPLACING NTH OCCURRENCE OF AN ITEM
+	def ReplaceNextOccurrences(pItem, pOtherItem, pnStartingAt)
 
-	def ReplaceNthOccurrence(n, pItem, pValue)
+		anPositions = This.FindNextOccurrences(pItem, pnStartingAt)
+		This.ReplaceItemsAtPositions(anPositions, pOtherItem)
+
+		def ReplaceNextOccurrencesQ(pItem, pOtherItem, pnStartingAt)
+			This.ReplaceNextOccurrences(pItem, pOtherItem, pnStartingAt)
+			return This
+
+		def ReplaceNext(pItem, pOtherItem, pnStartingAt)
+			This.ReplaceNextOccurrences(pItem, pOtherItem, pnStartingAt)
+
+			def ReplaceNextQ(pItem, pOtherItem, pnStartingAt)
+				This.ReplaceNext(pItem, pOtherItem, pnStartingAt)
+				return This
+
+	def NextOccurrencesReplacedQ(pItem, pOtherItem, pnStartingAt)
+
+		acResult = This.Copy().
+				ReplaceNextOccurrencesQ(pItem, pOtherItem, pnStartingAt).
+				Content()
+
+		return acResult
+
+	   #--------------------------------------------------#
+	  #   REPLACING THE PREVIOUS OCCURRENCES OF A ITEM   #
+         #   STARTING AT A GIVEN POSITION                   #
+	#--------------------------------------------------#
+
+	def ReplacePreviousOccurrences(pItem, pOtherItem, pnStartingAt)
+
+		anPositions = This.FindPreviousOccurrences(pItem, pnStartingAt)
+		This.ReplaceItemsAtPositions(anPositions, pOtherItem)
+
+		def ReplacePreviousOccurrencesQ(pItem, pOtherItem, pStartingAt)
+			This.ReplacePreviousOccurrences(pItem, pOtherItem, pnStartingAt)
+			return This
+
+		def ReplacePrevious(pItem, pOtherItem, pnStartingAt)
+			This.ReplacePreviousOccurrences(pItem, pOtherItem, pnStartingAt)
+
+			def ReplacePreviousQ(pItem, pOtherItem, pnStartingAt)
+				This.ReplacePrevious(pItem, pOtherItem, pnStartingAt)
+				return This
+
+	def PreviousOccurrencesReplacedQ(pItem, pOtherItem, pnStartingAt)
+
+		acResult = This.Copy().
+				ReplacePreviousOccurrencesQ(pItem, pOtherItem, pnStartingAt).
+				Content()
+
+		return acResult
+
+	  #-----------------------------------------#
+	 #   REPLACING NTH OCCURRENCE OF A ITEM    #
+	#-----------------------------------------#
+
+	def ReplaceNthOccurrence(n, pItem, pOtherItem)
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
-		if isList(pValue) and
-		   ( StzListQ(pValue).IsWithNamedParamList() OR
-		     StzListQ(pValue).IsByNamedParamList() )
+		if isList(pOtherItem) and
+		   StzListQ(pOtherItem).IsWithOrByNamedParamList()
 		
-			pValue = pValue[2]
+			pOtherItem = pOtherItem[2]
 		ok
 
 		nItemPosition = This.FindNthOccurrence(n, pItem)
+		This.ReplaceItemAtPosition(nItemPosition, pOtherItem)
 
-		This.ReplaceItemAtPosition(nItemPosition, pValue)
-
-		def ReplaceNthOccurrenceQ(n, pItem, pValue)
-			This.ReplaceNthOccurrence(n, pItem, pValue)
+		def ReplaceNthOccurrenceQ(n, pItem, pOtherItem)
+			This.ReplaceNthOccurrence(n, pItem, pOtherItem)
 			return This
 
-		def ReplaceNth(n, pItem, pValue)
-			This.ReplaceNthOccurrence(n, pItem, pValue)
+		#< @FunctionAlternativeForms
 
-			def ReplaceNthQ(n, pItem, pValue)
-				This.ReplaceNth(n, pItem, pValue)
+		def ReplaceNthOccurrenceOfItem(n, pcStrItem, pOtherItem)
+			This.ReplaceNthOccurrence(n, pItem, pOtherItem)
+
+			def ReplaceNthOccurrenceOfItemQ(n, pcStrItem, pOtherItem)
+				This.ReplaceNthOccurrenceOfItem(n, pcStrItem, pOtherItem)
 				return This
 
-	def NthOccurrenceReplaced(n, pItem, pValue)
-		aResult = This.Copy().ReplaceNthOccurrenceQ(n, pItem, pValue).Content()
+		def ReplaceNthOccurrenceOfThisItem(n, pcStrItem, pOtherItem)
+			This.ReplaceNthOccurrence(n, pItem, pOtherItem)
+
+			def ReplaceNthOccurrenceOfThisItemQ(n, pcStrItem, pOtherItem)
+				This.ReplaceNthOccurrenceOfThisItem(n, pcStrItem, pOtherItem)
+				return This
+			
+		#>
+
+	def NthOccurrenceReplaced(n, pItem, pOtherItem)
+
+		aResult  = This.Copy().
+				ReplaceNthOccurrenceQ(n, pItem, pOtherItem).
+				Content()
+
 		return aResult
 
-	def ReplaceFirstOccurrence(pItem, pValue)
-		This.ReplaceNthOccurrence(1, pItem, pValue)
+	  #---------------------------------------------#
+	 #   REPLACING FIRST OCCURRENCE OF A ITEM    #
+	#---------------------------------------------#
 
-		def ReplaceFirstOccurrenceQ(pItem, pValue)
-			This.ReplaceFirstOccurrence(pItem, pValue)
+	def ReplaceFirstOccurrence(pItem, pOtherItem)
+		This.ReplaceNthOccurrence(1, pItem, pOtherItem)
+
+		def ReplaceFirstOccurrenceQ(pItem, pOtherItem)
+			This.ReplaceFirstOccurrence(pItem, pOtherItem)
 			return This
 
-		def ReplaceFirst(pItem, pValue)
-			This.ReplaceFirstOccurrence(pItem, pValue)
+		#< @FunctionAlternativeForms
 
-			def ReplaceFirstQ(pItem, pValue)
-				This.Replacefirst(pItem, pValue)
+		def ReplaceFirstOccurrenceOfItem(pcStrItem, pOtherItem)
+			This.ReplaceFirstOccurrence(pItem, pOtherItem)
+
+			def ReplaceFirstOccurrenceOfItemQ(pcStrItem, pOtherItem)
+				This.ReplaceFirstOccurrenceOfItem(pcStrItem, pOtherItem)
 				return This
 
-	def FirstOccurrenceReplaced(pItem, pValue)
-		aResult = This.Copy().ReplaceFirstOccurrenceQ(pItem, pValue).Content()
+		def ReplaceFirstOccurrenceOfThisItem(pcStrItem, pOtherItem)
+			This.ReplaceFirstOccurrence(pItem, pOtherItem)
+
+			def ReplaceFirstOccurrenceOfThisItemQ(pcStrItem, pOtherItem)
+				This.ReplaceFirstOccurrenceOfThisItem(pcStrItem, pOtherItem)
+				return This
+			
+		#>
+
+	def FirstOccurrenceReplaced(pItem, pOtherItem)
+		aResult  = This.Copy().
+				ReplaceFirstOccurrenceQ(pItem, pOtherItem).
+				Content()
+
 		return aResult
 
-	def ReplaceLastOccurrence(pItem, pValue)
-		This.ReplaceNthOccurrence(:Last, pItem, pValue)
+	  #-----------------------------------------#
+	 #   REPLACING LAST OCCURRENCE OF A ITEM   #
+	#-----------------------------------------#
 
-		def ReplaceLastOccurrenceQ(pItem, pValue)
-			This.ReplaceLastOccurrence(pItem, pValue)
+	def ReplaceLastOccurrence(pItem, pOtherItem)
+		n = This.FindLastOccurrence(pItem)
+
+		This.ReplaceItemAtPosition(n, pOtherItem)
+
+		def ReplaceLastOccurrenceQ(pItem, pOtherItem)
+			This.ReplaceLastOccurrence(pItem, pOtherItem)
 			return This
 
-		def ReplaceLast(pItem, pValue)
-			This.ReplaceLastOccurrence(pItem, pValue)
+		#< @FunctionAlternativeForms
 
-			def ReplaceLastQ(pItem, pValue)
-				This.ReplaceLast(pItem, pValue)
+		def ReplaceLastOccurrenceOfItem(pcStrItem, pOtherItem)
+			This.ReplaceLastOccurrence(pItem, pOtherItem)
+
+			def ReplaceLastOccurrenceOfItemQ(pcStrItem, pOtherItem)
+				This.ReplaceLastOccurrenceOfItem(pcStrItem, pOtherItem)
 				return This
 
-	def LastOccurrenceReplaced(pItem, pValue)
-		aResult = This.Copy().ReplaceLastOccurrenceQ(pItem, pValue).Content()
+		def ReplaceLastOccurrenceOfThisItem(pcStrItem, pOtherItem)
+			This.ReplaceLastOccurrence(pItem, pOtherItem)
+
+			def ReplaceLastOccurrenceOfThisItemQ(pcStrItem, pOtherItem)
+				This.ReplaceLastOccurrenceOfThisItem(pcStrItem, pOtherItem)
+				return This
+
+		#>
+
+	def LastOccurrenceReplaced(pItem, pOtherItem)
+
+		aResult  = This.Copy().
+				ReplaceLastOccurrenceQ(pItem, pOtherItem).
+				Content()
+
 		return aResult
 
-	//>>>>>>>  REPLACING NEXT NTH OCCURRENCE OF AN ITEM
-	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
+	   #-----------------------------------------------#
+	  #    REPLACING NEXT NTH OCCURRENCE OF A ITEM    #
+	 #    STARTING AT A GIVEN POSITION IN THE LIST   #
+	#-----------------------------------------------#
 
 	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+
+		# Checking params correctness
+
+		if NOT isNumber(n)
+			stzRaise("Incorrect param! n must be a number.")
+		ok
+
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
 			pItem = pItem[2]
 		ok
 
 		if isList(pNewItem) and
-		   ( StzListQ(pNewItem).IsWithNamedParamList() OR
-		     StzListQ(pNewItem).IsByNamedParamList() )
+		   StzListQ(pNewItem).IsWithOrByNamedParamList()
 
 			pNewItem = pNewItem[2]
 		ok
@@ -1068,13 +1181,13 @@ class stzList from stzObject
 		ok
 
 		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstItem ], :CS = FALSE)
+			if Q(pnStartingAt).IsOneOfThese([
+				:First, :FirstPosition, :FirstItem ], :CS = FALSE)
 
 				pnStartingAt = 1
 			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastItem ], :CS = FALSE)
+			but Q(pnStartingAt).IsOneOfThese([
+				:Last, :LastPosition, :LastItem ], :CS = FALSE)
 
 				pnStartingAt = This.NumberOfItems()
 			ok
@@ -1084,31 +1197,42 @@ class stzList from stzObject
 			stzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
-		oSection   = This.SectionQ(pnStartingAt, :LastItem)
-		aPositions = oSection.FindAll(pItem)
+		# Doing the job
 
-		aPositions = StzListOfNumbersQ(aPositions).AddToEachQ(pnStartingAt - 1).Content()
-		nPosition = aPositions[n]
+		oSection   = This.SectionQR(pnStartingAt, This.NumberOfItems(), :stzList)
+		anPositions = oSection.FindAll(pItem)
+
+		anPositions = StzListOfNumbersQ(anPositions).AddToEachQ(pnStartingAt - 1).Content()
+		nPosition = anPositions[n]
 
 		This.ReplaceItemAtPosition(nPosition, pNewItem)
 
-		def ReplaceNextNthOccurrenceQ(n, pItem, pNewItem, pnStartingAt)
-			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+		def ReplaceNextNthOccurrenceQ(n, pItem, pnStartingAt, pNewItem)
+			This.ReplaceNextNthOccurrence(n, pItem, pnStartingAt, pNewItem)
 			return This
 
-		def ReplaceNthNextOccurrence(n, pItem, pNewItem, pnStartingAt)
-			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+		def ReplaceNthNextOccurrence(n, pItem, pnStartingAt, pNewItem)
+			This.ReplaceNextNthOccurrence(n, pItem, pnStartingAt, pNewItem)
 
-			def ReplaceNthNextOccurrenceQ(n, pItem, pNewItem, pnStartingAt)
-				This.ReplaceNthNextOccurrence(n, pItem, pNewItem, pnStartingAt)
+			def ReplaceNthNextOccurrenceQ(n, pItem, pnStartingAt, pNewItem)
+				This.ReplaceNthNextOccurrence(n, pItem, pnStartingAt, pNewItem)
 				return This
 
-	def NthNextOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
-		aResult = This.Copy().ReplaceNthNextOccurrenceQ(n, pItem, pNewItem, pnStartingAt).Content()
+	def NextNthOccurrenceReplaced(n, pItem, pnStartingAt, pNewItem)
+
+		aResult  = This.Copy().
+				ReplaceNthNextOccurrenceQ(n, pItem, pnStartingAt, pNewItem).
+				Content()
+
 		return aResult
 
-		def NextNthOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
-			return This.NthNextOccurrenceReplaced(n, pItem, pNEwItem, pnStartingAt)
+		def NthNextOccurrenceReplaced(n, pItem, pnStartingAt, pNewItem)
+			return This.NextNthOccurrenceReplaced(n, pItem, pnStartingAt, pNewItem)
+
+	   #------------------------------------------------#
+	  #    REPLACING NEXT OCCURRENCE OF A ITEM         #
+	 #    STARTING AT A GIVEN POSITION IN THE LIST    #
+	#------------------------------------------------#
 
 	def ReplaceNextOccurrence(pItem, pNewItem, pnStartingAt)
 		This.ReplaceNextNthOccurrence(1, pItem, pNewItem, pnStartingAt)
@@ -1118,17 +1242,23 @@ class stzList from stzObject
 			return This
 
 	def NextOccurrenceReplaced(pItem, pNewItem, pnStartingAt)
-		aResult = This.Copy().ReplaceNextOccurrenceQ(pItem, pNewItem, pnStartingAt).Content()
+
+		aResult  = This.Copy().
+				ReplaceNextOccurrenceQ(pItem, pNewItem, pnStartingAt).
+				Content()
+
 		return aResult
 
-	//>>>>>>>  REPLACING MANY NEXT NTH OCCURRENCES OF AN ITEM
-	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
+	   #-----------------------------------------------------#
+	  #    REPLACING MANY NEXT NTH OCCURRENCES OF A ITEM    #
+	 #    STARTING AT A GIVEN POSITION IN THE LIST         #
+	#-----------------------------------------------------#
 
 	def ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 		/* Example
 
-		StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-			ReplaceNexNthOccurrences([2, 3], :of = "A", :with = "*",  :StartingAt = 3)
+		StzListOfQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
+			ReplaceNextNthOccurrences([2, 3], :of = "A", :with = "*",  :StartingAt = 3)
 			? Content() # !--> [ "A" , "B", "A", "C", "*", "D", "*" ]
 		}		
 
@@ -1145,35 +1275,38 @@ class stzList from stzObject
 		ok
 
 		if isList(pNewItem) and
-		   ( StzListQ(pNewItem).IsWithNamedParamList() or StzListQ(pNewItem).IsByNamedParamList() )
+		   StzListQ(pNewItem).IsWithOrByNamedParamList()
 
 			pNewItem = pNewItem[2]
 		ok
-		
+
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
 		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstItem ], :CS = FALSE)
+			if Q(pnStartingAt).IsOneOfThese([
+				:First, :FirstPosition, :FirstItem ], :CS = FALSE)
 
 				pnStartingAt = 1
 			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastItem ], :CS = FALSE)
+			but Q(pnStartingAt).IsOneOfThese([
+				:Last, :LastPosition, :LastItem ], :CS = FALSE)
 
 				pnStartingAt = This.NumberOfItems()
 			ok
 		ok
-	
+
 		if NOT isNumber(pnStartingAt)
 			stzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
-
+			
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
 
-		anPositions = oSection.FindAllQR(pItem, :stzListOfNumbers).AddToEachQ(pnStartingAt-1).Content()
+		anPositions = oSection.
+			      FindAllQR(pItem, :stzListOfNumbers).
+			      AddToEachQ(pnStartingAt-1).
+			      Content()
 
 		anPositionsToBeReplaced = []
 		i = 0
@@ -1205,14 +1338,20 @@ class stzList from stzObject
 		#>
 
 	def NextNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
-		aResult = This.ReplaceNextNthOccurrencesQ(panList, pItem, pNewItem, pnStartingAt).Content()
+
+		aResult = This.
+			  ReplaceNextNthOccurrencesQ(panList, pItem, pNewItem, pnStartingAt).
+			  Content()
+
 		return aResult
 
 		def NthNextOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 			return This.NextNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 
-	//>>>>>>>  REPLACING PREVIOUS NTH OCCURRENCE OF AN ITEM
-	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
+	   #---------------------------------------------------#
+	  #    REPLACING PREVIOUS NTH OCCURRENCE OF A ITEM    #
+	 #    STARTING AT A GIVEN POSITION IN THE LIST       #
+	#---------------------------------------------------#
 
 	def ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
@@ -1220,8 +1359,7 @@ class stzList from stzObject
 		ok
 
 		if isList(pNewItem) and
-		   ( StzListQ(pNewItem).IsWithNamedParamList() OR
-		     StzListQ(pNewItem).IsByNamedParamList() )
+		   StzListQ(pNewItem).IsWithOrByNamedParamList()
 
 			pNewItem = pNewItem[2]
 		ok
@@ -1231,13 +1369,13 @@ class stzList from stzObject
 		ok
 
 		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstItem ], :CS = FALSE)
+			if Q(pnStartingAt).IsOneOfThese([
+				:First, :FirstPosition, :FirstItem ], :CS = FALSE)
 
 				pnStartingAt = 1
 			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastItem ], :CS = FALSE)
+			but Q(pnStartingAt).IsOneOfThese([
+				:Last, :LastPosition, :LastItem ], :CS = FALSE)
 
 				pnStartingAt = This.NumberOfItems()
 			ok
@@ -1247,7 +1385,7 @@ class stzList from stzObject
 			stzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
-		oSection   = This.SectionQ(1, pnStartingAt)
+		oSection   = This.SectionQR(1, pnStartingAt, :stzList)
 		aPositions = oSection.FindAll(pItem)
 
 		nPosition = aPositions[ len(aPositions) - n + 1 ]
@@ -1266,11 +1404,20 @@ class stzList from stzObject
 				return This
 
 	def NthPreviousOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
-		aResult = This.Copy().ReplaceNthPreviousOccurrenceQ(n, pItem, pNewItem, pnStartingAt).Content()
+
+		aResult =  This.Copy().
+				ReplaceNthPreviousOccurrenceQ(n, pItem, pNewItem, pnStartingAt).
+				Content()
+
 		return aResult
 
 		def PreviousNthOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
 			return This.NthPreviousOccurrenceReplaced(n, pItem, pnStartingAt)
+
+	   #-----------------------------------------------#
+	  #    REPLACING PREVIOUS OCCURRENCE OF A ITEM    #
+	 #    STARTING AT A GIVEN POSITION IN THE LIST   #
+	#-----------------------------------------------#
 
 	def ReplacePreviousOccurrence(pItem, pNewItem, pnStartingAt)
 		This.ReplacePreviousNthOccurrence(1, pItem, pNewItem, pnStartingAt)
@@ -1280,18 +1427,23 @@ class stzList from stzObject
 			return This
 
 	def PreviousOccurrenceReplaced(pItem, pNewItem, pnStartingAt)
-		aResult = This.Copy().ReplacePreviousOccurrenceQ(pItem, pNewItem, pnStartingAt).Content()
+
+		aResult =  This.Copy().
+				ReplacePreviousOccurrenceQ(pItem, pNewItem, pnStartingAt).
+				Content()
 		return aResult
 
-	//>>>>>>>  REPLACING MANY PREVIOUS NTH OCCURRENCES OF AN ITEM
-	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
+	   #---------------------------------------------------------#
+	  #     REPLACING MANY PREVIOUS NTH OCCURRENCES OF A ITEM   #
+	 #    STARTING AT A GIVEN POSITION IN THE LIST             #
+	#---------------------------------------------------------#
 
 	def ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 		/* Example
 
 		StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 			ReplacePreviousNthOccurrences([2, 3], :of = "A", :with = "*",  :StartingAt = 5)
-			? Content() # !--> [ "A" , "B", "*", "C", "*", "D", "A" ]
+			? Content() # !--> [ "*" , "B", "*", "C", "A", "D", "A" ]
 		}		
 
 		*/
@@ -1317,13 +1469,13 @@ class stzList from stzObject
 		ok
 
 		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstItem ], :CS = FALSE)
+			if Q(pnStartingAt).IsOneOfThese([
+				:First, :FirstPosition, :FirstItem ], :CS = FALSE)
 
 				pnStartingAt = 1
 			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastItem ], :CS = FALSE)
+			but Q(pnStartingAt).IsOneOfThese([
+				:Last, :LastPosition, :LastItem ], :CS = FALSE)
 
 				pnStartingAt = This.NumberOfItems()
 			ok
@@ -1332,7 +1484,7 @@ class stzList from stzObject
 		if NOT isNumber(pnStartingAt)
 			stzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
-
+			
 		oSection = This.SectionQ(1, pnStartingAt)
 
 		anPositions = oSection.FindAllQ(pItem).ItemsReversed()
@@ -1367,15 +1519,21 @@ class stzList from stzObject
 		#>
 
 	def PreviousNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
-		aResult = This.ReplacePreviousNthOccurrencesQ(panList, pItem, pNewItem, pnStartingAt).Content()
+
+		aResult =  This.
+			   ReplacePreviousNthOccurrencesQ(panList, pItem, pNewItem, pnStartingAt).
+			   Content()
+
 		return aResult
 
 		def NthPreviousOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 			return This.PreviousNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 
-	//>>>>>>>   REPLACING ITEM BY POSITION
+	  #--------------------------------#
+	 #   REPLACING ITEM BY POSITION   #
+	#--------------------------------#
 
-	def ReplaceItemAtPosition(n, pValue)
+	def ReplaceItemAtPosition(n, pcOtherItem)
 		/* Example 1:
 
 			o1 = new stzList([ "ONE", "two" ])
@@ -1385,7 +1543,7 @@ class stzList from stzObject
 		Example 2:
 
 			o1 = new stzList([ "A", "b", "C" ])
-			o1.ReplaceItemAtPosition(2, :With@ = "_(@item).Q.Uppercased()")
+			o1.ReplaceItemAtPosition(2, :With@ = "upper(@item)")
 			? o1.Content()	# --> [ "A", "B", "C" ]
 		*/
 
@@ -1393,294 +1551,553 @@ class stzList from stzObject
 			stzRaise("Invalid param type! n must be a number.")
 		ok
 
-		if n = :Last or n = :LastItem
-			n = This.NumberOfItems()
+		if isString(n)
+			if Q(n).IsOneOfThese([
+				:First, :FirstPosition, :FirstItem ])
+				  
+				n = 1
 
-		but n = :First or n = :FirstItem
-			n = 1
+			but Q(n).IsOneOfThese([
+				:Last, :LastPosition, :LastItem ])
+
+				n = This.NumberOfItems()
+			ok
 		ok
 
 		if n < 1 or n > This.NumberOfItems()
 			stzRaise("the Nth position you provided is out of range!")
 		ok
 
-		cValue = ""
+		if isList(pcOtherItem) and Q(pcOtherItem).IsWithOrByNamedParamList()
 
-		if isList(pValue) and
-		   ( StzListQ(pValue).IsWithNamedParamList() or
-		     StzListQ(pValue).IsByNamedParamList() )
+			if Q(pcOtherItem[1]).LastChar() = "@"
 
-			cValue = pValue[2]
-			
-			if pValue[1] = :With@ or pValue[1] = :By@
+				cCode = StzCCodeQ(pcOtherItem[2]).UnifiedFor(:stzList)
+				cCode = "pcOtherItem = " + cCode
 
-				cCode = 'cValue = ' + Q(cValue).LowercaseQ().SimplifyQ().RemoveBoundsQ("{","}").ReplaceQ("@item","This[n]").Content()
+				@item = This.ItemAtPosition(n)
+				eval(cCode)
 
-				try
-					eval(cCode)
-				catch
-					stzRaise("Syntax error in the replacement code!")
-				done
-			ok
-		ok
-
-		if n < 1 or n > This.NumberOfItems()
-			stzRaise("Out of range!") # TODO: change with stzListError
-		ok
-
-		This.List()[n] = cValue
-
-		#< @FunctionFluentForm
-
-		def ReplaceItemAtPositionQ(n, pValue)
-			This.ReplaceItemAtPosition(n, pValue)
-			return This
-
-		#>
-	
-	def ItemAtPositionNReplacedWith(n, pValue)
-		aResult = This.Copy().ReplaceItemAtPositionQ( n, pValue ).Content()
-		return aResult
-
-		def NthItemReplacedWith(n, pValue)
-			return This.ItemAtPositionNReplacedWith(n, pValue)
-
-	def ReplaceFirstItem(pValue)
-		This.ReplaceItemAtPosition(1, pValue)
-
-		#< @FunctionFluentForm
-
-		def ReplaceFirstItemQ(pValue)
-			This.ReplaceFirstItemWith(pValue)
-			return This
-
-		#>
-
-		def ReplaceFirstItemWith(pValue)
-			This.ReplaceItemAtPosition(pValue)
-			
-			def ReplaceFirstItemWithQ(pValue)
-				This.ReplaceFirstItemWith(pValue)
-				return This
-		
-	def FirstItemReplacedWith(pValue)
-		aResult = This.Copy().ReplaceFirstItemWithQ( pValue ).Content()
-		return aResult
-
-	def ReplaceLastItem(pValue)
-		This.ReplaceItemAtPosition( This.NumberOfItems(), pValue)
-
-		#< @FunctionFluentForm	
-
-		def ReplaceLastItemQ(pValue)
-			This.ReplaceLastItem(pValue)
-			return This
-
-		#>
-
-		def ReplaceLastItemWith(pValue)
-			This.ReplaceLastItem(pValue)
-
-			def ReplaceLastItemWithQ(pValue)
-				This.ReplaceLastItemWith(pValue)
-				return This
-
-	def LastItemReplacedWith(pValue)
-		aResult = This.Copy().ReplaceLastItemWithQ( pValue ).Content()
-		return aResult
-
-	//>>>>>>>   REPLACING MANY ITEMS BY POSITION
-
-	def ReplaceItemsAtPositions(panPositions, pValue)
-		for n in panPositions
-			This.ReplaceItemAtPosition(n, pValue)
-		next
-
-		def ReplaceItemsAtPositionsQ(panPositions, pValue)
-			This.ReplaceItemsAtPositions(panPositions, pValue)
-			return This
-
-		def ReplaceItemsAtThesePositions(panPositions, pValue)
-			This.ReplaceItemsAtPositions(panPositions, pValue)
-		
-			def ReplaceItemsAtThesePositionsQ(panPositions, pValue)
-				This.ReplaceItemsAtThesePositions(panPositions, pValue)
-				return This
-
-		def ReplaceAllItemsAtPositions(panPositions, pValue)
-			This.ReplaceItemsAtPositions(panPositions, pValue)
-		
-			def ReplaceAllItemsAtPositionsQ(panPositions, pValue)
-				This.ReplaceAllItemsAtPositions(panPositions, pValue)
-				return This
-
-		def ReplaceAllItemsAtThesePositions(panPositions, pValue)
-			This.ReplaceItemsAtPositions(panPositions, pValue)
-		
-			def ReplaceAllItemsAtThesePositionsQ(panPositions, pValue)
-				This.ReplaceAllItemsAtThesePositions(panPositions, pValue)
-				return This
-
-		def ReplaceTheseItemsAtPositions(panPositions, pValue)
-			This.ReplaceItemsAtPositions(panPositions, pValue)
-
-			def ReplaceTheseItemsAtPositionsQ(panPositions, pValue)
-				This.ReplaceTheseItemsAtPositions(panPositions, pValue)
-				return This
-
-		def ReplaceTheseItemsAtThesePositions(panPositions, pValue)
-			This.ReplaceItemsAtPositions(panPositions, pValue)
-
-			def ReplaceTheseItemsAtThesePositionsQ(panPositions, pValue)
-				This.ReplaceTheseItemsAtThesePositions(panPositions, pValue)
-				return This
-
-		def ReplaceAllTheseItemsAtPositions(panPositions, pValue)
-			This.ReplaceItemsAtPositions(panPositions, pValue)
-
-			def ReplaceAllTheseItemsAtPositionsQ(panPositions, pValue)
-				This.ReplaceAllTheseItemsAtPositions(panPositions, pValue)
-				return This
-
-		def ReplaceAllTheseItemsAtThesePositions(panPositions, pValue)
-			This.ReplaceItemsAtPositions(panPositions, pValue)
-
-			def ReplaceAllTheseItemsAtThesePositionsQ(panPositions, pValue)
-				This.ReplaceAllTheseItemsAtThesePositions(panPositions, pValue)
-				return This
-
-		def ReplaceManyAtPositions(panPositions, pValue)
-			This.ReplaceItemsAtPositions(panPositions, pValue)
-			
-			def ReplaceManyAtPositionsQ(panPositions, pValue)
-				This.ReplaceManyAtPositions(panPositions, pValue)
-				return This
-
-	def ItemsAtThesePositionsRplaced(panPositions, pValue)
-		aResult = This.Copy().ReplaceItemsAtPositionsQ(panPositions, pValue).Content()
-		return aResult
-
-	//>>>>>>> REPLACING A RANGE (OR MORE) OF THE LIST
-
-	def ReplaceRange(nStart, nRange, paOtherList)
-		This.ReplaceSection(nStart, nStart + nRange - 1)
-
-		def ReplaceRangeQ(nStart, nRange, paOtherList)
-			This.ReplaceRangeQ(nStart, nRange, paOtherList)
-
-	def RangeReplaced(nStart, nRange, paOtherList)
-		aResult = This.Copy().ReplaceRangeQ(nStart, nRange, paOtherList).Content()
-		return aResult
-
-	def ReplaceManyRanges(panRanges, paOtherList)
-		// TODO
-
-		def ReplaceManyRangesQ(panRanges, paOtherList)
-			This.ReplaceManyRanges(panRanges, paOtherList)
-			return This
-
-	def ManyRangesReplaced(panRanges, paOtherList)
-		aResult = This.Copy().ReplaceManyRangesQ(panRanges, paOtherList).Content()
-		return aResult
-
-	//>>>>>>> REPLACING A SECTION (OR MORE) OF THE LIST
-
-	def ReplaceSection(n1, n2, paOtherList)
-
-		This.RemoveSection(n1, n2)
-	
-		n = n1 - 1
-		for i = 1 to len(paOtherList)
-			This.InsertAfter(n, paOtherList[i])
-			n++
-		next
-
-		def ReplaceSectionQ(n1, n2, paOtherList)
-			This.ReplaceSection(n1, n2, paOtherList)
-			return This
-
-	def SectionReplaced(n1, n2, paOtherList)
-		aResult = This.ReplaceSectionQ(n1, n2, paOtherList).Content()
-		return aResult
-
-	def ReplaceManySections(panSections, paOtherLists)
-
-		i = 0
-		for anSection in panSections
-			i++
-			if i <= len(paOtherLists)
-				pItem = paOtherLists[i]
 			else
-				pItem = NULL
+				pcOtherItem = pcOtherItem[2]
 			ok
 
-			This.ReplaceSection(anSection, pItem)
-		next
+		ok
 
-		def ReplaceManySectionsQ(paSections, paOtherLists)
-			This.ReplaceManySections(paSections, paOtherLists)
-			return This
+		# Doing the job
 
-	def ManySectionsReplaced(paSections)
-		aResult = This.Copy().ReplaceManySectionsQ(paSections, paOtherLists).Content()
-		return aResult
-
-	//>>>>>>> REPLACING ALL ITEMS IN THE LIST WITH A GIVEN VALUE
-
-	def ReplaceAllItemsWith(pValue)
-		aResult = []
-		for i = 1 to This.NumberOfItems()
-			aResult + pValue
-		next
-
-		This.Update( aResult )
+		@aContent[n] = pcOtherItem
 
 		#< @FunctionFluentForm
 
-		def ReplaceAllItemsWithQ(pValue)
-			This.ReplaceAllItemsWith(pValue)
+		def ReplaceItemAtPositionQ(n, pOtherItem)
+			This.ReplaceItemAtPosition(n, pOtherItem)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceAt(n, pOtherItem)
+			This.ReplaceItemAtPosition(n, pOtherItem)
+
+			def ReplaceAtQ(n, pOtherItem)
+				This.ReplaceAt(n, pOtherItem)
+				return This
+
+		def ReplaceAtPosition(n, pOtherItem)
+			This.ReplaceItemAtPosition(n, pOtherItem)
+
+			def ReplaceAtPositionQ(n, pOtherItem)
+				This.ReplaceAtPosition(n, pOtherItem)
+				return This
+
+		def ReplaceItemAt(n, pOtherItem)
+			This.ReplaceItemAtPosition(n, pOtherItem)
+
+			def ReplaceItemAtQ(n, pOtherItem)
+				This.ReplaceItemAt(n, pOtherItem)
+				return This
+
+		#>
+	
+	def ItemAtPositionNReplacedWith(n, pOtherItem)
+		aResult = This.Copy().ReplaceItemAtPositionQ( n, pOtherItem ).Content()
+		return aResult
+
+		def NthItemReplacedWith(n, pOtherItem)
+			return This.ItemAtPositionNReplacedWith(n, pOtherItem)
+
+	  #---------------------------------------#
+	 #   REPLACING MANY ITEMS BY POSITION    #
+	#---------------------------------------#
+
+	def ReplaceItemsAtPositions(panPositions, pOtherItem)
+
+		for n in panPositions
+			This.ReplaceItemAtPosition(n, pOtherItem)
+		next
+
+		#< @FunctionFluentForm
+
+		def ReplaceItemsAtPositionsQ(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceAllWith(pValue)
-			This.ReplaceAllItemsWith(pValue)
+		def ReplaceManyAt(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
 
-			#< @FunctionFluentForm
-
-			def ReplaceAllWithQ(pValue)
-				This.ReplaceAll(pValue)
+			def ReplaceManyAtQ(panPositions, pOtherItem)
+				This.ReplaceManyAt(panPositions, pOtherItem)
 				return This
-			#>
 
-		def ReplaceWith(pValue)
-			This.ReplaceAllItemsWith(pValue)
+		def ReplaceManyAtPositions(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
 
-			#< @FunctionFluentForm
-
-			def ReplaceWithQ(pValue)
-				This.ReplaceWith(pValue)
+			def ReplaceManyAtPositionsQ(panPositions, pOtherItem)
+				This.ReplaceManyAtPositions(panPositions, pOtherItem)
 				return This
-			#>
+
+		def ReplaceManyItemsAt(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+
+			def ReplaceManyItemsAtQ(panPositions, pOtherItem)
+				This.ReplaceManyItemsAt(panPositions, pOtherItem)
+				return This
+
+		def ReplaceManyItemsAtPositions(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+
+			def ReplaceManyItemsAtPositionsQ(panPositions, pOtherItem)
+				This.ReplaceManyItemsAtPositions(panPositions, pOtherItem)
+				return This
+
+		def ReplaceManyAtThesePositions(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+
+			def ReplaceManyAtThesePositionsQ(panPositions, pOtherItem)
+				This.ReplaceManyAtThesePositions(panPositions, pOtherItem)
+				return This
+
+		def ReplaceManyItemsAtThesePositions(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+
+			def ReplaceManyItemsAtThesePositionsQ(panPositions, pOtherItem)
+				This.ReplaceManyItemsAtThesePositions(panPositions, pOtherItem)
+				return This
+
+		#--
+
+		def ReplaceItemsAtThesePositions(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+		
+			def ReplaceItemsAtThesePositionsQ(panPositions, pOtherItem)
+				This.ReplaceItemsAtThesePositions(panPositions, pOtherItem)
+				return This
+
+		#--
+
+		def ReplaceAllItemsAtPositions(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+		
+			def ReplaceAllItemsAtPositionsQ(panPositions, pOtherItem)
+				This.ReplaceAllItemsAtPositions(panPositions, pOtherItem)
+				return This
+
+		#--
+
+		def ReplaceAllItemsAtThesePositions(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+		
+			def ReplaceAllItemsAtThesePositionsQ(panPositions, pOtherItem)
+				This.ReplaceAllItemsAtThesePositions(panPositions, pOtherItem)
+				return This
+
+		#--
+
+		def ReplaceTheseItemsAtPositions(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+
+			def ReplaceTheseItemsAtPositionsQ(panPositions, pOtherItem)
+				This.ReplaceTheseItemsAtPositions(panPositions, pOtherItem)
+				return This
+
+		#--
+
+		def ReplaceTheseItemsAtThesePositions(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+
+			def ReplaceTheseItemsAtThesePositionsQ(panPositions, pOtherItem)
+				This.ReplaceTheseItemsAtThesePositions(panPositions, pOtherItem)
+				return This
+
+		#--
+
+		def ReplaceAllTheseItemsAtPositions(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+
+			def ReplaceAllTheseItemsAtPositionsQ(panPositions, pOtherItem)
+				This.ReplaceAllTheseItemsAtPositions(panPositions, pOtherItem)
+				return This
+
+		#--
+
+		def ReplaceAllTheseItemsAtThesePositions(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+
+			def ReplaceAllTheseItemsAtThesePositionsQ(panPositions, pOtherItem)
+				This.ReplaceAllTheseItemsAtThesePositions(panPositions, pOtherItem)
+				return This
 
 		#>
 
-	def AllItemsReplacedWith(pValue)
-		aResult = This.Copy().ReplaceAllItemsWith(pValue)
+	def ItemsAtThesePositionsRplaced(panPositions, pOtherItem)
+		aResult = This.Copy().ReplaceItemsAtPositionsQ(panPositions, pOtherItem).Content()
 		return aResult
 
-	//>>>>>>> REPLACING ITEMS UNDER A GIVEN CONDITION
+	  #---------------------------------------------------#
+	 #    REPLACING A SECTION OF ITEMS BY A GIVEN ITEM   #
+	#---------------------------------------------------#
 
-	def ReplaceAllItemsW(pCondition, pValue) # TODO: Made change, test this!
+	def ReplaceSection(n1, n2, pNewItem)
+		/* EXAMPLE
+
+		o1 = new stzList([ "A", "B", "_", "_", "_", "D" ])
+		o1.ReplaceSection(3, 5, "C")
+		? o1.Content() #--> [ "A", "B", "C", "D" ]
+
+		*/
+
+		if isList(pNewItem) and Q(pNewItem).IsWithOrByNamedParamList()
+			pNewItem = pNewItem[2]
+		ok
+
+		This.RemoveSectionQ(n1, n2)
+		This.InsertBefore(n1, pNewItem)
+
+		def ReplaceSectionQ(n1, n2, pNewItem)
+			This.ReplaceSection(n1, n2, pNewItem)
+			return This
+
+	def ReplaceManySections(panSections, pNewItem)
+		for anSection in panSections
+			This.ReplaceSection(anSection, pNewItem)
+		next
+
+		def ReplaceManySectionsQ(panSections, pNewItem)
+			This.ReplaceManySections(panSections, pNewItem)
+			return This
+		
+	  #------------------------------------------------------#
+	 #   REPLACING EACH ITEM IN SECTION BY ONE GIVEN ITEM   #
+	#------------------------------------------------------#
+
+	def ReplaceEachItemInSection(n1, n2, pNewItem)
+		/* EXAMPLE
+
+		o1 = new stzList([ "A", "B", "_", "_", "_", "D" ])
+		o1.ReplaceEachItemInSection(3, 5, "C")
+		? o1.Content() #--> [ "A", "B", "C", "C", "C", "D" ]
+
+		*/
+
+		This.ReplaceItemsAtThesePositions(n1 : n2, pNewItem)
+
+		def ReplaceEachItemInSectionQ(n1, n2, pNewItem)
+			This.ReplaceEachItemInSection(n1, n2, pNewItem)
+			return This
+
+	def EachItemInSectionReplaced(n1, n2, pNewItem)
+		acResult = This.Copy().ReplaceEachItemInSectionQ(n1, n2, pNewItem).Content()
+		return acResult
+
+		def EachItemReplacedInSection(n1, n2, pNewItem)
+			return This.EachItemInSectionReplaced(n1, n2, pNewItem)
+	
+	  #----------------------------------------------------------#
+	 #   REPLACING EACH ITEM IN MANY SECTIONS BY A GIVEN ITEM   #
+	#----------------------------------------------------------#
+
+	def ReplaceEachItemInManySections(panSections, pNewItem)
+		for anSection in panSections
+			n1 = anSection[1]
+			n2 = anSection[2]
+			This.ReplaceEachItemInSection(n1, n2, pNewItem)
+		next
+
+		def ReplaceEachItemInManySectionsQ(panSections, pNewItem)
+			This.ReplaceEachItemInManySections(panSections, pNewItem)
+			return This
+
+	def EachItemInManySectionsReplaced(panSections, pNewItem)
+
+		acResult = This.Copy().
+				ReplaceEachItemInManySectionsQ(panSections, pNewItem).
+				Content()
+
+		return acResult
+
+	   #-----------------------------------------------#
+	  #   REPLACING A SECTION OF ITEMS IN THE LIST    #
+	 #   BY MANY ITEMS ONE BY ONE    	         #
+	#-----------------------------------------------#
+
+	def ReplaceSectionOneByOne(n1, n2, paOtherListOfItems)
+		/* EXAMPLE
+
+		o1 = new stzList([ "A", "B", "_", "_", "_", "F" ])
+		o1.ReplaceSectionOneByOne(3, 5, [ "C", "D", "F" ])
+		? o1.Content() #--> [ "A", "B", "C", "D", "E", "F" ]
+
+		*/
+		i = 0
+
+		for n = n1 to n2
+			i++
+			if i <= len(paOtherListOfItems)
+				item = paOtherListOfItems[i]
+			else
+				item = NULL
+			ok
+
+			This.ReplaceItemAtPosition(n, item)
+		next
+
+		def ReplaceSectionOneByOneQ(n1, n2, paOtherListOfItems)
+			This.ReplaceSectionOneByOne(n1, n2, paOtherListOfItems)
+			return This
+
+	def SectionReplacedOneByOne(n1, n2, paOtherListOfItems)
+		aResult = This.ReplaceSectionOneByOneQ(n1, n2, paOtherListOfItems).Content()
+		return aResult
+
+	   #---------------------------------------------------#
+	  #   REPLACING MANY SECTIONS OF ITEMS IN THE LIST    #
+	 #   BY MANY ITEMS ONE BY ONE                        #
+	#---------------------------------------------------#
+
+	def ReplaceManySectionsOneOnyOne(panSections, paOtherListOfItems)
+		for anSection in panSections
+			n1 = panSections[1]
+			n2 = panSections[2]
+			This.ReplaceSectionOneByOne(n1, n2, paOtherListOfItems)
+		next
+
+		def ReplaceManySectionsOneOnyOneQ(panSections, paOtherListOfItems)
+			This.ReplaceManySectionsOneOnyOne(panSections, paOtherListOfItems)
+			return This
+
+	def ManySectionsReplacedOneByOne(panSections, paOtherListOfStr)
+		acResult = This.Copy().
+				ReplaceManySectionsOneOnyOneQ(panSections, paOtherListOfItems).
+				Content()
+
+		return acResult
+
+	  #--------------------------------------------#
+	 #   REPLACING A RANGE OF ITEMS IN THE LIST   #
+	#--------------------------------------------#
+
+	def ReplaceRange(n, nRange, pNewItem)
+
+		anSection = RangeToSection(n, nRange)
+		n1 = anSection[1]
+		n2 = anSection[2]
+
+		This.ReplaceSection(n1, n2, pNewItem)
+
+		def ReplaceRangeQ(n, nRange, pNewItem)
+			This.ReplaceRange(n, nRange, pNewItem)
+			return This
+
+	def RangeReplaced(n, nRange, pNewItem)
+		acResult = This.Copy().ReplaceRangeQ(n, nRange, pNewItem).Content()
+		return acResult
+
+	  #------------------------------------------------#
+	 #   REPLACING MANY RANGES OF ITEMS IN THE LIST   #
+	#------------------------------------------------#
+
+	def ReplaceManyRanges(panRanges, pNewItem)
+		for anRange in panRanges
+			n = anRange[1]
+			nRange = anRange[2]
+			This.ReplaceRange(n, nRange, pNewItem)
+		next
+
+		def ReplaceManyRangesQ(panRanges, pNewItem)
+			This.ReplaceManyRanges(panRanges, pNewItem)
+			return This
+
+	def ManyRangesReplaced(panRanges, pNewItem)
+		acResult = This.Copy().ReplaceManyRangesQ(panRanges, pNewItem).Content()
+		return acResult
+
+	  #-----------------------------------------------------------#		
+	 #   REPLACING EACH ITEM IN A RANGE BY THE SAME GIVEN ITEM   #
+	#-----------------------------------------------------------#
+
+	def ReplaceEachItemInRange(n, nRange, pNewItem)
+
+		anSection = RangeToSection([n, nRange])
+		anPositions = sort( StzListOfPairsQ(anSection).ExpandedIfPairsOfNumbers() )
+
+		This.ReplaceItemsAtThesePositions(anPositions, pNewItem)
+
+		def ReplaceEachItemInRangeQ(n, nRange, pNewItem)
+			This.ReplaceEachItemInRange(n, nRange, pNewItem)
+			return This
+
+	def EachItemInRangeReplaced(n, nRange, pNewItem)
+
+		acResult = This.Copy().ReplaceEachItemInRangeQ(n, nRange, pNewItem).Content()
+		return acResult
+
+		def EachItemReplacedInRange(n, nRange, pNewItem)
+			return This.EachItemInRangeReplaced(n, nRange, pNewItem)
+		
+	  #---------------------------------------------------------------#		
+	 #   REPLACING EACH ITEM IN MANY RANGES BY THE SAME GIVEN ITEM   #
+	#---------------------------------------------------------------#
+
+	def ReplaceEachItemInManyRanges(panRanges, pNewItem)
+
+		for anRange in panRanges
+			anSection = RangeToSection(anRange)
+			n1 = anSection[1]
+			n2 = anSection[2]
+			This.ReplaceEachItemInSection(n1, n2, pNewItem)
+		next
+
+		def ReplaceEachItemInManyRangesQ(panRanges, pNewItem)
+			This.ReplaceEachItemInManyRanges(panRanges, pNewItem)
+			return This
+
+	def EachItemInManyRangesReplaced(panRanges, pNewItem)
+
+		acResult =  This.Copy().
+				ReplaceEachItemInManyRangesQ(panRanges, pNewItem).
+				Content()
+
+		return acResult
+
+		def EachItemReplacedInManyRanges(panRanges, pNewItem)
+			return This.EachItemInManyRangesReplaced(panRanges, pNewItem)
+	
+	   #--------------------------------------------#
+	  #   REPLACING A RANGE OF ITEMS IN THE LIST   #
+	 #   WITH MANY ITEMS ONE BY ONE               #
+	#--------------------------------------------#
+
+	def ReplaceRangeOneByOne(n, nRange, paOtherListOfItems)
+
+		anSection = RangeToSection([n, nRange])
+		n1 = anSection[1]
+		n2 = anSection[2]
+
+		i = 0
+		for n = n1 to n2
+			i++
+			if i <= len(paOtherListOfItems)
+				item = paOtherListOfItems[i]
+			else
+				item = NULL
+			ok
+
+			This.ReplaceItemAtPosition(n, item)
+		next
+
+		def ReplaceRangeOneByOneQ(n, nRange, paOtherListOfItems)
+			This.ReplaceRangeOneByOne(n, nRange, paOtherListOfItems)
+			return This
+
+	def RangeReplacedOneByOne(n, nRange, paOtherListOfItems)
+		aResult = This.ReplaceRangeOneByOneQ(n, nRange, paOtherListOfItems).Content()
+		return aResult
+
+	   #------------------------------------------------#
+	  #   REPLACING MANY RANGES OF ITEMS IN THE LIST   #
+	 #   WITH MANY ITEMS ONE BY ONE                   #
+	#------------------------------------------------#
+
+	def ReplaceManyRangesOneOnyOne(panRanges, paOtherListOfItems)
+		for anRange in panRanges
+			anSection = RangeToSection(anRange)
+			n1 = anSections[1]
+			n2 = anSections[2]
+			This.ReplaceRangeOneByOne(n, nRange, paOtherListOfItems)
+		next
+
+		def ReplaceManyRangesOneOnyOneQ(panRanges, paOtherListOfItems)
+			This.ReplaceManyRangesOneOnyOne(panRanges, paOtherListOfItems)
+			return This
+
+	def ManyRangesReplacedOneByOne(panRanges, paOtherListOfItems)
+		
+		acResult = This.Copy().
+				ReplaceManyRangesOneOnyOneQ(panRanges, paOtherListOfItems).
+				Content()
+
+		return acResult
+
+	  #-----------------------------------------------------------#
+	 #   REPLACING ALL ITEMS IN THE LIST WITH A GIVEN NEW ITEM   #
+	#-----------------------------------------------------------#
+
+	def ReplaceAllItemsWith(pOtherItem)
+		aResult = []
+		for i = 1 to This.NumberOfItems()
+			aResult + pOtherItem
+		next
+
+		This.Update( aResult )
+
+		#< @FunctionFluentForm
+
+		def ReplaceAllItemsWithQ(pOtherItem)
+			This.ReplaceAllItemsWith(pOtherItem)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceAllWith(pOtherItem)
+			This.ReplaceAllItemsWith(pOtherItem)
+
+			def ReplaceAllWithQ(pOtherItem)
+				This.ReplaceAll(pOtherItem)
+				return This
+
+		def ReplaceWith(pOtherItem)
+			This.ReplaceAllItemsWith(pOtherItem)
+
+			def ReplaceWithQ(pOtherItem)
+				This.ReplaceWith(pOtherItem)
+				return This
+
+		#>
+
+	def AllItemsReplacedWith(pOtherItem)
+		aResult = This.Copy().ReplaceAllItemsWith(pOtherItem)
+		return aResult
+
+	  #----------------------------------------------#
+	 #   REPLACING ITEMS UNDER A GIVEN CONDITION    #
+	#----------------------------------------------#
+
+	def ReplaceItemsW(pCondition, pOtherItem)
 
 		if NOT ( isString(pCondition) or isList(pCondition) )
 			stzRaise("Incorrect param type! pCondition must be string or list.")
 		ok
 
-		if NOT ( isString(pValue) or isList(pValue) )
-			stzRaise("Incorrect param type! pValue must be string or list.")
+		if NOT ( isString(pOtherItem) or isList(pOtherItem) )
+			stzRaise("Incorrect param type! pOtherItem must be string or list.")
 		ok 
 
 		if isList(pCondition) and StzListQ(pCondition).IsWhereNamedParamList()
@@ -1688,22 +2105,22 @@ class stzList from stzObject
 		ok
 
 		# There are two possible forms of replacement: With and With@
-		# The first one is used to replace with normal string, while the
+		# The first one is used to replace with normal value, while the
 		# second one to replace with@ a dynamic code.
 
 		# By default, the first form is used.
 
 		cReplace = :With
 
-		if isList(pValue) and
-		   ( StzListQ(pValue).IsByNamedParamList() or StzListQ(pValue).IsWithNamedParamList() )
+		if isList(pOtherItem) and
+		   ( StzListQ(pOtherItem).IsByNamedParamList() or StzListQ(pOtherItem).IsWithNamedParamList() )
 
-			cReplace = pValue[1]
-			pValue = pValue[2]
+			cReplace = pOtherItem[1]
+			pOtherItem = pOtherItem[2]
 		ok
 
 		if cReplace = :With@
-			if NOT isString(pValue)
+			if NOT isString(pOtherItem)
 				stzRaise("Uncorrect value! The value provided after :With@ must be a string containing a Ring expression.")
 			ok
 		ok
@@ -1720,13 +2137,13 @@ class stzList from stzObject
 			bEval = TRUE
 
 			if @i = This.NumberOfItems() and
-			   oCondition.Copy().RemoveSpacesQ().ContainsCS("This[i+1]", :CS = FALSE)
+			   oCondition.Copy().RemoveSpacesQ().Contains("This[i+1]", :CS = FALSE)
 
 				bEval = FALSE
 			ok
 
 			if @i = 1 and
-			   oCondition.Copy().RemoveSpacesQ().ContainsCS("This[i-1]", :CS = FALSE)
+			   oCondition.Copy().RemoveSpacesQ().Contains("This[i-1]", :CS = FALSE)
 
 				bEval = FALSE
 			ok
@@ -1737,10 +2154,10 @@ class stzList from stzObject
 			
 				if bOk
 					if cReplace = :With
-						This.ReplaceItemAtPosition(@i, pValue)
+						This.ReplaceItemAtPosition(@i, pOtherItem)
 		
 					but cReplace = :With@
-						cValue = StzCCodeQ(pValue).UnifiedFor(:stzList)
+						cValue = StzCCodeQ(pOtherItem).UnifiedFor(:stzList)
 						cCode = "value = " + cValue
 						eval(cCode)
 						This.ReplaceItemAtPosition(@i, value)	
@@ -1753,84 +2170,43 @@ class stzList from stzObject
 	
 		#< @FunctionFluentForm
 
-		def ReplaceAllItemsWQ(pCondition, pValue)
-			This.ReplaceAllItemsW(pCondition, pValue)
+		def ReplaceItemsWQ(pCondition, pOtherItem)
+			This.ReplaceItemsW(pCondition, pOtherItem)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceAllW(pCondition, pValue)
-			This.ReplaceAllItemsW(pCondition, pValue)
+		def ReplaceW(pCondition, pOtherItem)
+			This.ReplaceItemsW(pCondition, pOtherItem)
 
-			#< @FunctionFluentForm
-
-			def ReplaceAllWQ(pCondition, pValue)
-				This.ReplaceAllWithW(pCondition, pValue)
+			def ReplaceWQ(pCondition, pOtherItem)
+				This.ReplaceW(pCondition, pOtherItem)
 				return This
-
-			#>
-
-		def ReplaceW(pCondition, pValue)
-			This.ReplaceAllItemsW(pCondition, pValue)
-
-			#< @FunctionFluentForm
-
-			def ReplaceWQ(pCondition, pValue)
-				This.ReplaceW(pValue, pCondition)
-				return This
-
-			#>
 
 		#>
 
-	def AllItemsReplacedW(pCondition, pValue)
-		aResult = This.Copy().ReplaceAllItemsW(pCondition, pValue)
+	def ItemsReplacedW(pCondition, pOtherItem)
+		aResult = This.Copy().ReplaceItemsW(pCondition, pOtherItem)
 		return aResult
 
-		def ItemsReplacedW(pcCondition, pValue)
-			return This.AllItemsReplacedW(pcCondition, pValue)
-
-	  #-------------------------#
-	 #     REMOVING ITEMS      #
-	#-------------------------#
-
-	/* TODO: content of this section should be reorganized to
-	   reflect this structure (same should be done in Replace section):
-
-	REMOVING AN ITEM (OR MANY ITEMS)
-		BY SPECIFYING ITS (OR THEIR) VALUE(S)
-	
-		BY SPECIFYING ITS (OR THEIR) POSITION(S) IN THE LIST
-	
-	REMOVING NTH OCCURRENCE (OR MANY NTH OCCURRENCES) OF AN ITEM
-		BY SPECIFYING THIS NTH OCCURRENCE (OR THESE NTH OCCURRENCES)
-		AND THE VALUE OF THAT ITEM
-	
-	REMOVING A SECTION (OR MANY SECTIONS) OF THE LIST
-		BY SPECIFYING ITS (OR THEIR) START AND END POSITIONS
-	
-	REMOVING A RANGE (OR MANY RANGES OF THE LIST)
-		BY SPECIFYING ITS (OR THEIR) START AND RANGE
-	
-	REMOVING ITEMS UNDER A GIVEN CONDITION
-	
-	REMOVING ALL ITEMS OF THE LIST (--> EMPTY LIST)
-	*/
-
-	//>>>>>>> RREMOVING ALL OR SOME OCCURRENCES OF AN ITEM
+	  #===========================================================#
+	 #   REMOVING ALL OCCURRENCE OF A GIVEN STRING IN THE LIST   #
+	#===========================================================#
 
 	def RemoveAll(pItem)
-
-		aPositions = This.FindAll(pItem)
-		nLen = len(aPositions)
-
-		if nLen > 0
-			for i = nLen to 1 step -1
-				This.RemoveItemAtPosition(i)
-			next
+		if isList(pItem) and Q(pItem).IsOfNamedParamList()
+			pItem = pItem[2]
 		ok
+
+		anPositions = This.FindAll(pItem)
+
+		for i = len(anPositions) to 1 step -1
+			n = anPositions[i]
+			This.RemoveItemAtPosition(n)
+		next
+
 
 		#< @FunctionFluentForm
 
@@ -1845,24 +2221,20 @@ class stzList from stzObject
 		def RemoveAllOccurrences(pItem)
 			This.RemoveAll(pItem)
 
-			#< @FunctionFluentForm
-
 			def RemoveAllOccurrencesQ(pItem)
 				This.RemoveAllOccurrences(pItem)
 				return This
 
-			#>
+		#--
 
 		def RemoveAllOccurrencesOfItem(pItem)
 			This.RemoveAll(pItem)
-
-			#< @FunctionFluentForm
 
 			def RemoveAllOccurrencesOfItemQ(pItem)
 				This.RemoveAllOccurrencesOfItem(pItem)
 				return This
 
-			#>
+		#--
 
 		def Remove(pItem)
 			This.RemoveAll(pItem)
@@ -1871,6 +2243,8 @@ class stzList from stzObject
 				This.Remove(pItem)
 				return This
 
+		#--
+
 		def RemoveItem(pItem)
 			This.RemoveAll(pItem)
 
@@ -1878,8 +2252,10 @@ class stzList from stzObject
 				This.RemoveItem(pItem)
 				return This
 
+		#--
+
 	def AllOccurrencesOfThisItemRemoved(pItem)
-		aResult = This.Copy().RemoveAllOccurrencesOfQ(pItem).Content()
+		aResult = This.Copy().RemoveAllOccurrencesQ(pItem).Content()
 		return aResult
 
 		def AllOccurrencesRemoved(pItem)
@@ -1888,9 +2264,13 @@ class stzList from stzObject
 		def ItemRemoved(pItem)
 			return This.AllOccurrencesOfThisItemRemoved(pItem)
 
+	  #--------------------------------------------------------#
+	 #   REMOVING GIVEN OCCURRENCES OF A STRING IN THE LIST   #
+	#--------------------------------------------------------#
+
 	def RemoveOccurrences(panOccurrences, pItem)
 		for n in panOccurrences
-			This.RemoveOccurrence(n, pItem)
+			This.RemoveNthOccurrence(n, pItem)
 		next
 
 		#< @FunctionFluentForm
@@ -1903,12 +2283,30 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
+		def RemoveManyOccurrences(paOccurrences, pItem)
+			This.RemoveOccurrences(panOccurrences, pItem)
+
+			def RemoveManyOccurrencesQ(paOccurrences, pItem)
+				This.RemoveManyOccurrences(paOccurrences, pItem)
+				return This
+
+		#--
+
 		def RemoveOccurrencesOfItem(paOccurrences, pItem)
 			This.RemoveOccurrences(panOccurrences, pItem)
 
 			def RemoveOccurrencesOfItemQ(paOccurrences, pItem)
 				This.RemoveOccurrencesOfItem(paOccurrences, pItem)
 				return This
+
+		def RemoveManyOccurrencesOfItem(paOccurrences, pItem)
+			This.RemoveOccurrences(panOccurrences, pItem)
+
+			def RemoveManyOccurrencesOfItemQ(paOccurrences, pItem)
+				This.RemoveManyOccurrencesOfItem(paOccurrences, pItem)
+				return This
+
+		#--
 
 		def RemoveTheseOccurrences(panOccurrences, pItem)
 			This.RemoveOccurrences(panOccurrences, pItem)
@@ -1936,111 +2334,215 @@ class stzList from stzObject
 		def TheseOccurrencesOfThisItemRemoved(panOccurrences, pItem)
 			return This.OccurrencesRemoved(panOccurrences, pItem)
 
-	//>>>>>>> REMOVING MANY ITEMS AT THE SAME TIME
+		def ManyOccurrencesOfThisItemRemoved(panOccurrences, pItem)
+			return This.OccurrencesRemoved(panOccurrences, pItem)
 
-	def RemoveMany(paItems)
-		for item in paItems
+		def ManyOccurrencesRemoved(panOccurrences, pItem)
+			return This.OccurrencesRemoved(panOccurrences, pItem)
+
+	  #--------------------------------------------#
+	 #   REMOVING MANY STRINGS AT THE SAME TIME   #
+	#--------------------------------------------#
+
+	def RemoveMany(pacItems)
+
+		for item in pacItems
 			This.RemoveAll(item)
 		next
 
 		#< @FunctionFluentForm
 
-		def RemoveManyQ(paItems)
-			This.RemoveMany(paItems)
+		def RemoveManyQ(pacItems)
+			This.RemoveMany(pacItems)
 			return This
 
 		#>
 
-		def RemoveAllOfThese(paItems)
-			This.RemoveMany(paItems)
+		def RemoveAllOfThese(pacItems)
+			This.RemoveMany(pacItems)
 
-			def RemoveAllOfTheseQ(paItems)
-				This.RemoveAllOfThese(paItems)
+			def RemoveAllOfTheseQ(pacItems)
+				This.RemoveAllOfThese(pacItems)
 				return This
 
-		def RemoveThese(paItems)
-			This.RemoveMany(paItems)
+		def RemoveThese(pacItems)
+			This.RemoveMany(pacItems)
 
-			def RemoveTheseQ(paItems)
-				This.RemoveThese(paItems)
+			def RemoveTheseQ(pacItems)
+				This.RemoveThese(pacItems)
 				return This
 
-		def RemoveTheseItems(paItems)
-			This.RemoveMany(paItems)
+		#--
 
-			def RemoveTheseItemsQ(paItems)
-				This.RemoveTheseItems(paItems)
+		def RemoveTheseItems(pacItems)
+			This.RemoveMany(pacItems)
+
+			def RemoveTheseItemsQ(pacItems)
+				This.RemoveTheseItems(pacItems)
 				return This
+
 		#>
 
-	def TheseItemsRemoved(paItems)
-		aResult = This.Copy().RemoveTheseItemsQ(paItems).Content()
+	def TheseItemsRemoved(pacItems)
+
+		aResult =  This.Copy().
+				RemoveTheseItemsQ(pacItems).
+				Content()
+
 		return aResult
 
-		def AllOfTheseItemsRemoved(paItems)
-			return This.TheseItemsRemoved(paItems)
+		#--
 
-		def ManyItemsRemoved(paItems)
-			return This.TheseItemsRemoved(paItems)
+		def AllOfTheseItemsRemoved(pacItems)
+			return This.TheseItemsRemoved(pacItems)
 
-	//>>>>>>> REMOVING NTH OCCURRENCE OF AN ITEM
+		#--
 
-	def RemoveNthOccurrence(n, pItem)
-		if This.NumberOfOccurrence(pItem) >= n
-			del( This.List(), This.FindNthOccurrence(n, pItem) )
+		def ManyItemsRemoved(pacItems)
+			return This.TheseItemsRemoved(pacItems)
+
+	  #---------------------------------------------#
+	 #   REMOVING THE NTH OCCURRENCE OF A STRING   #
+	#---------------------------------------------#
+
+	def RemoveNth(n, pItem)
+		n = This.FindNthOccurrence(n, pItem)
+		This.RemoveItemAtPosition( n )
+
+
+		#< @FunctionFluentForm
+
+		def RemoveNthQ(n, pItem)
+			This.RemoveNth(n, pItem)
+			return This
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveNthOccurrence(n, pItem)
+			This.RemoveNth(n, pItem)
+
+			def RemoveNthOccurrenceQ(n, pItem, pCaseSensitive)
+				This.RemoveNthOccurrence(n, pItem)
+				return This
+
+		#--
+
+		def RemoveNthOccurrenceOfItem(n, pItem)
+			This.RemoveNth(n, pItem)
+
+			def RemoveNthOccurrenceOfItemQ(n, pItem)
+				This.RemoveNthOccurrenceOfItem(n, pItem)
+				return This
+
+		#--
+
+		def RemoveOccurrence(n, pItem)
+			This.RemoveNth(n, pItem)
+
+			def RemoveOccurrenceQ(n, pItem)
+				This.RemoveOccurrence(n, pItem)
+				return This
+
+	def NthOccurrenceOfThisItemRemoved(n, pItem)
+		aResult = This.Copy().RemoveNthOccurrencesQ(n, pItem).Content()
+		return aResult
+
+	  #-----------------------------------------------#
+	 #   REMOVING THE FIRST OCCURRENCE OF A STRING   #
+	#-----------------------------------------------#
+
+	def RemoveFirst(pItem)
+
+		This.RemoveItemAtPosition( This.FindFirstOccurrence(pItem) )
+
+
+		#< @FunctionFluentForm
+
+		def RemoveFirstQ(pItem)
+			This.RemoveFirst(pItem)
+			return This
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveFirstOccurrences(pItem)
+			This.RemoveFirst(pItem)
+
+			def RemoveFirstOccurrencesQ(pItem)
+				This.RemoveFirstOccurrences(pItem)
+				return This
+
+		#--
+
+		def RemoveFirstOccurrencesOfItem(pItem)
+			This.RemoveFirst(pItem)
+
+			def RemoveFirstOccurrencesOfItemQ(pItem)
+				This.RemoveFirstOccurrencesOfItem(pItem)
+				return This
+
+		#--
+
+	def FirstOccurrenceOfThisItemRemoved(pItem)
+		aResult = This.Copy().RemoveFirstOccurrencesQ(pItem).Content()
+		return aResult
+
+		def FirstOccurrenceRemoved(pItem)
+			return This.FirstOccurrenceOfThisItemRemoved(pItem)
+
+	  #----------------------------------------------#
+	 #   REMOVING THE LAST OCCURRENCE OF A STRING   #
+	#----------------------------------------------#
+
+	def RemoveLast(pItem)
+		n = This.FindLastOccurrence(pItem)
+
+		if n <= This.NumberOfItems()
+			This.RemoveItemAtPosition( n )
 		ok
 
 		#< @FunctionFluentForm
 
-		def RemoveNthOccurrenceQ(n, pItem)
-			This.RemoveNthOccurrence(n, pItem)
+		def RemoveLastQ(pItem)
+			This.RemoveLast(pItem)
 			return This
-
+	
 		#>
 
-		def RemoveNth(n, pItem)
-			This.RemoveNthOccurrence(n, pItem)
+		#< @FunctionAlternativeForms
 
-			def RemoveNthQ(n, pItem)
-				This.RemoveNth(n, pItem)
+		def RemoveLastOccurrences(pItem)
+			This.RemoveLast(pItem)
+
+			def RemoveLastOccurrencesQ(pItem)
+				This.RemoveLastOccurrences(pItem)
 				return This
 
-	def NthOccurrenceRemoved(n, pItem)
-		aResult = This.Copy().RemoveNthOccurrenceQ(n, pItem)
-		return This
+		#--
 
-	def RemoveFirstOccurrence(pItem)
-		This.RemoveNthOccurrence(1, pItem)
+		def RemoveLastOccurrencesOfItem(pItem)
+			This.RemoveLast(pItem)
 
-		#< @FunctionFluentForm
+			def RemoveLastOccurrencesOfItemQ(pItem)
+				This.RemoveLastOccurrencesOfItem(pItem)
+				return This
 
-		def RemoveFirstOccurrenceQ(pItem)
-			This.RemoveFirstOccurrence(pItem)
-			return This
+		#--
 
-		#>
-
-	def FirstOccurrenceRemoved(pItem)
-		aResult = This.Copy().RemoveFirstOccurrenceQ(pItem).Content()
+	def LastOccurrenceOfThisItemRemoved(pItem)
+		aResult = This.Copy().RemoveLastOccurrencesQ(pItem).Content()
 		return aResult
 
-	def RemoveLastOccurrence(pItem)
-		This.RemoveItemAtPosition( This.FindLastOccurrence(pItem) )
+		def LastOccurrenceRemoved(pItem)
+			return This.LastOccurrenceOfThisItemRemoved(pItem)
 
-		#< @FunctionFluentForm
-
-		def RemoveLastOccurrenceQ(pItem)
-			This.RemoveLastOccurrence(pItem)
-			return This
-
-		#>
-
-	def LastOccurrenceRemoved(pItem)
-		aResult = This.Copy().RemoveLastOccurrenceQ(pItem).Content()
-		return This
-
-	//>>>>>>>  REMOVING NEXT NTH OCCURRENCE OF AN ITEM
-	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
+	   #----------------------------------------------#
+	  #   REMOVING NEXT NTH OCCURRENCE OF A STRING   #
+	 #   STARTING AT A GIVEN POSITION IN THE LIST   #
+	#----------------------------------------------#
 
 	def RemoveNextNthOccurrence(n, pItem, pnStartingAt)
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
@@ -2053,12 +2555,12 @@ class stzList from stzObject
 
 		if isString(pnStartingAt)
 			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstItem ], :CS = FALSE)
+				:First, :FirstPosition, :FirstItem, :FirstItem ], :CS = FALSE)
 
 				pnStartingAt = 1
 			
 			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastItem ], :CS = FALSE)
+				:Last, :LastPosition, :LastItem, :LastItem ], :CS = FALSE)
 
 				pnStartingAt = This.NumberOfItems()
 			ok
@@ -2088,11 +2590,20 @@ class stzList from stzObject
 				return This
 
 	def NthNextOccurrenceRemoved(n, pItem, pnStartingAt)
-		aResult = This.Copy().RemoveNthNextOccurrenceQ(n, pItem, pnStartingAt).Content()
+
+		aResult  = This.Copy().
+				RemoveNthNextOccurrenceQ(n, pItem, pnStartingAt).
+				Content()
+
 		return aResult
 
 		def NextNthOccurrenceRemoved(n, pItem, pnStartingAt)
 			return This.NthNextOccurrenceRemoved(n, pItem, pnStartingAt)
+
+	   #-----------------------------------------------#
+	  #   REMOVING NEXT OCCURRENCE OF A STRING        #
+	 #   STARTING AT A GIVEN POSITION IN THE LIST    #
+	#-----------------------------------------------#
 
 	def RemoveNextOccurrence(pItem, pnStartingAt)
 		This.RemoveNextNthOccurrence(1, pItem, pnStartingAt)
@@ -2102,11 +2613,17 @@ class stzList from stzObject
 			return This
 
 	def NextOccurrenceRemoved(pItem, pnStartingAt)
-		aRrsult = This.Copy().RemoveNextOccurrenceQ(pItem, pnStartingAt).Content()
+
+		aRrsult =  This.Copy().
+				RemoveNextOccurrenceQ(pItem, pnStartingAt).
+				Content()
+
 		return This
 
-	//>>>>>>>  REMOVING MANY NEXT NTH OCCURRENCES OF AN ITEM
-	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
+	   #----------------------------------------------------#
+	  #   REMOVING MANY NEXT NTH OCCURRENCES OF A STRING   #
+	 #   STARTING AT A GIVEN POSITION IN THE LIST         #
+	#----------------------------------------------------#
 
 	def RemoveNextNthOccurrences(panList, pItem, pnStartingAt)
 		/* Example
@@ -2134,24 +2651,27 @@ class stzList from stzObject
 
 		if isString(pnStartingAt)
 			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstItem ], :CS = FALSE)
+				:First, :FirstPosition, :FirstItem, :FirstItem ], :CS = FALSE)
 
 				pnStartingAt = 1
 			
 			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastItem ], :CS = FALSE)
+				:Last, :LastPosition, :LastItem, :LastItem ], :CS = FALSE)
 
 				pnStartingAt = This.NumberOfItems()
 			ok
 		ok
-	
+
 		if NOT isNumber(pnStartingAt)
 			stzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
-
+			
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
 
-		anPositions = oSection.FindAllQR(pItem, :stzListOfNumbers).AddToEachQ(pnStartingAt-1).Content()
+		anPositions  = 	oSection.
+				FindAllQR(pItem, :stzListOfNumbers).
+				AddToEachQ(pnStartingAt-1).
+				Content()
 
 		anPositionsToBeRemoved = []
 		i = 0
@@ -2162,7 +2682,7 @@ class stzList from stzObject
 			ok
 		next
 
-		This.RemoveAllItemsAtThesePositions(anPositionsToBeRemoved)
+		This.RemoveItemsAtThesePositions(anPositionsToBeRemoved)
 
 		#< @FunctionFluentForm
 
@@ -2180,17 +2700,30 @@ class stzList from stzObject
 			def RemoveNthNextOccurrencesQ(panList, pItem, pnStartingAt)
 				This.RemoveNthNextOccurrences(panList, pItem, pnStartingAt)
 				return This
+
+		def RemoveNextOccurrences(panList, pItem, pnStartingAt)
+			This.RemoveNextNthOccurrences(panList, pItem, pnStartingAt)
+
+			def RemoveNextOccurrencesQ(panList, pItem, pnStartingAt)
+				This.RemoveNthNextOccurrences(panList, pItem, pnStartingAt)
+				return This
 		#>
 
 	def NextNthOccurrencesRemoved(panList, pItem, pnStartingAt)
-		aResult = This.RemoveNextNthOccurrencesQ(panList, pItem, pnStartingAt).Content()
+
+		aResult =  This.
+			   RemoveNextNthOccurrencesQ(panList, pItem, pnStartingAt).
+			   Content()
+
 		return aResult
 
 		def NthNextOccurrencesRemoved(panList, pItem, pnStartingAt)
 			return This.NextNthOccurrencesRemoved(panList, pItem, pnStartingAt)
 
-	//>>>>>>>  REMOVING PREVIOUS NTH OCCURRENCE OF AN ITEM
-	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
+	   #--------------------------------------------------#
+	  #   REMOVING PREVIOUS NTH OCCURRENCE OF A STRING   #
+	 #   STARTING AT A GIVEN POSITION IN THE LIST       #
+	#--------------------------------------------------#
 
 	def RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
@@ -2203,12 +2736,12 @@ class stzList from stzObject
 
 		if isString(pnStartingAt)
 			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstItem ], :CS = FALSE)
+				:First, :FirstPosition, :FirstItem, :FirstItem ], :CS = FALSE)
 
 				pnStartingAt = 1
 			
 			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastItem ], :CS = FALSE)
+				:Last, :LastPosition, :LastItem, :LastItem ], :CS = FALSE)
 
 				pnStartingAt = This.NumberOfItems()
 			ok
@@ -2237,11 +2770,20 @@ class stzList from stzObject
 				return This
 
 	def NthPreviousOccurrenceRemoved(n, pItem, pnStartingAt)
-		aResult = This.Copy().RemoveNthPreviousOccurrenceQ(n, pItem, pnStartingAt).Content()
+
+		aResult =  This.Copy().
+				RemoveNthPreviousOccurrenceQ(n, pItem, pnStartingAt).
+				Content()
+
 		return This
 
 		def PreviousNthOccurrenceRemoved(n, pItem, pnStartingAt)
 			return This.NthPreviousOccurrenceRemoved(n, pItem, pnStartingAt)
+
+	   #----------------------------------------------#
+	  #   REMOVING PREVIOUS OCCURRENCE OF A STRING   #
+	 #   STARTING AT A GIVEN POSITION IN THE LIST   #
+	#----------------------------------------------#
 
 	def RemovePreviousOccurrence(pItem, pnStartingAt)
 		This.RemovePreviousNthOccurrence(1, pItem, pnStartingAt)
@@ -2251,11 +2793,17 @@ class stzList from stzObject
 			return This
 
 	def PreviousOccurrenceRemoved(pItem, pnStartingAt)
-		aResult = This.Copy().RemovePreviousOccurrenceQ(pItem, pnStartingAt).Content()
+
+		aResult =  This.Copy().
+				RemovePreviousOccurrenceQ(pItem, pnStartingAt).
+				Content()
+
 		return This
 
-	//>>>>>>>  REMOVING MANY PREVIOUS NTH OCCURRENCES OF AN ITEM
-	//>>>>>>>  STARTING AT A GIVEN POSITION IN THE LIST
+	   #--------------------------------------------------------#
+	  #   REMOVING MANY PREVIOUS NTH OCCURRENCES OF A STRING   #
+	 #   STARTING AT A GIVEN POSITION IN THE LIST             #
+	#--------------------------------------------------------#
 
 	def RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
 		/* Example
@@ -2283,12 +2831,12 @@ class stzList from stzObject
 
 		if isString(pnStartingAt)
 			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstItem ], :CS = FALSE)
+				:First, :FirstPosition, :FirstItem, :FirstItem ], :CS = FALSE)
 
 				pnStartingAt = 1
 			
 			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastItem ], :CS = FALSE)
+				:Last, :LastPosition, :LastItem, :LastItem ], :CS = FALSE)
 
 				pnStartingAt = This.NumberOfItems()
 			ok
@@ -2297,7 +2845,7 @@ class stzList from stzObject
 		if NOT isNumber(pnStartingAt)
 			stzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
-
+			
 		oSection = This.SectionQ(1, pnStartingAt)
 
 		anPositions = oSection.FindAllQ(pItem).ItemsReversed()
@@ -2311,7 +2859,7 @@ class stzList from stzObject
 			ok
 		next
 
-		This.RemoveAllItemsAtThesePositions(anPositionsToBeRemoved)
+		This.RemoveItemsAtThesePositions(anPositionsToBeRemoved)
 
 		#< @FunctionFluentForm
 
@@ -2323,6 +2871,15 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
+		def RemovePreviousOccurrences(panList, pItem, pnStartingAt)
+			This.RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
+
+			def RemovePreviousOccurrencesQ(panList, pItem, pnStartingAt)
+				This.RemovePreviousOccurrences(panList, pItem, pnStartingAt)
+				return This
+
+		#--
+
 		def RemoveNthPreviousOccurrences(panList, pItem, pnStartingAt)
 			This.RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
 
@@ -2332,22 +2889,48 @@ class stzList from stzObject
 		#>
 
 	def PreviousNthOccurrencesRemoved(panList, pItem, pnStartingAt)
-		aResult = This.RemovePreviousNthOccurrencesQ(panList, pItem, pnStartingAt).Content()
+
+		aResult = This.
+			  RemovePreviousNthOccurrencesQ(panList, pItem, pnStartingAt).
+			  Content()
+
 		return aResult
 
 		def NthPreviousOccurrencesRemoved(panList, pItem, pnStartingAt)
 			return This.PreviousNthOccurrencesRemoved(panList, pItem, pnStartingAt)
 
-	//>>>>>>>  REMOVING AN ITEM BY SPECIFYING ITS POSITION
+	  #---------------------------------------------------#
+	 #   REMOVING A STRING BY SPECIFYING ITS POSITION    #
+	#---------------------------------------------------#
 
 	def RemoveItemAtPosition(n)
-		if n = :First or n = :FirstItem
-			n = 1
-		but n = :Last or n = :LastItem
-			n = This.NumberOfItems()
+
+		# Checking param correctness
+
+		if isString(n)
+			if Q(n).IsOneOfThese([
+				:First, :FirstPosition,
+			      	:FirstItem, :FirstItem ])
+				  
+				n = 1
+
+			but Q(n).IsOneOfThese([
+				:Last, :LastPosition,
+			     	:LastItem, :LastItem ])
+
+				n = This.NumberOfItems()
+			ok
 		ok
 
-		del(This.List(), n)
+		if NOT isNumber(n)
+			stzRaise("Incorrect param! n must be a number.")
+		ok
+
+		# Doing the job
+
+		if n <= This.NumberOfItems()
+			del( @aContent, n )
+		ok
 
 		#< @FunctionFluentForm
 
@@ -2357,7 +2940,30 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
+
+		def RemoveAt(n)
+			This.RemoveItemAtPosition(n)
+
+			def RemoveAtQ(n)
+				This.RemoveAt(n)
+				return This
+
+		def RemoveAtPosition(n)
+			This.RemoveItemAtPosition(n)
+
+			def RemoveAtPositionQ(n)
+				This.RemoveAtPosition(n)
+				return This
+
+		def RemoveItemAt(n)
+			This.RemoveItemAtPosition(n)
+
+			def RemoveItemAtQ(n)
+				This.RemoveItemAt(n)
+				return This
+
+		#--
 
 		def RemoveNthItem(n)
 			This.RemoveItemAtPosition(n)
@@ -2375,6 +2981,10 @@ class stzList from stzObject
 		def NthItemRemoved(n)
 			return This.ItemAtPositionNRemoved(n)
 
+	  #----------------------------------------#
+	 #    REMOVING FIRST STRING IN THE LIST   #
+	#----------------------------------------#
+
 	def RemoveFirstItem()
 		This.RemoveItemAtPosition(1)
 
@@ -2389,6 +2999,10 @@ class stzList from stzObject
 	def FirstItemRemoved()
 		aResult = This.Copy().RemoveFirstItemQ(n).Content()
 		return aResult
+
+	  #---------------------------------------#
+	 #    REMOVING LAST STRING IN THE LIST   #
+	#---------------------------------------#
 
 	def RemoveLastItem()
 		This.RemoveItemAtPosition( This.NumberOfItems() )
@@ -2405,13 +3019,16 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveLastItemQ(n).Content()
 		return aResult
 
-	//>>>>>>>  REMOVING MANY ITEMS BY SPECIFYING THEIR POSITIONS
+	  #-------------------------------------------------------#
+	 #  REMOVING MANY STRINGS BY SPECIFYING THEIR POSITIONS  #
+	#-------------------------------------------------------#
 
 	def RemoveItemsAtPositions(panPositions)
-		panPositions = sort(panPositions)
+		anPositions = StzListQ(panPositions).SortedInDescending()
 
-		for i = len(panPositions) to 1 step -1
-			del(This.List(), panPositions[i])
+		for i = 1 to len( anPositions )
+			n = anPositions[i]
+			This.RemoveItemAtPosition(n)
 
 		next
 
@@ -2425,6 +3042,50 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def RemoveManyAt(panPositions)
+			This.RemoveItemsAtPositions(panPositions)
+
+			def RemoveManyAtQ(panPositions)
+				This.RemoveManyAt(panPositions)
+				return This
+
+		def RemoveManyAtPositions(panPositions)
+			This.RemoveItemsAtPositions(panPositions)
+
+			def RemoveManyAtPositionsQ(panPositions)
+				This.RemoveManyAtPositions(panPositions)
+				return This
+
+		def RemoveManyItemsAt(panPositions)
+			This.RemoveItemsAtPositions(panPositions)
+
+			def RemoveManyItemsAtQ(panPositions)
+				This.RemoveManyItemsAt(panPositions)
+				return This
+
+		def RemoveManyItemsAtPositions(panPositions)
+			This.RemoveItemsAtPositions(panPositions)
+
+			def RemoveManyItemsAtPositionsQ(panPositions)
+				This.RemoveManyItemsAtPositions(panPositions)
+				return This
+
+		def RemoveManyAtThesePositions(panPositions)
+			This.RemoveItemsAtPositions(panPositions)
+
+			def RemoveManyAtThesePositionsQ(panPositions)
+				This.RemoveManyAtThesePositions(panPositions)
+				return This
+
+		def RemoveManyItemsAtThesePositions(panPositions)
+			This.RemoveItemsAtPositions(panPositions)
+
+			def RemoveManyItemsAtThesePositionsQ(panPositions)
+				This.RemoveManyItemsAtThesePositions(panPositions)
+				return This
+
+		#--
+
 		def RemoveItemsAtThesePositions(panPositions)
 			This.RemoveItemsAtPositions(panPositions)
 
@@ -2432,18 +3093,11 @@ class stzList from stzObject
 				This.RemoveItemsAtThesePositions(panPositions)
 				return This
 
-		def RemoveAllItemsAtPositions(panPositions)
+		def RemoveAtPositions(panPositions)
 			This.RemoveItemsAtPositions(panPositions)
 
-			def RemoveAllItemsAtPositionsQ(panPositions)
-				This.RemoveAllItemsAtPositions(panPositions)
-				return This
-
-		def RemoveAllItemsAtThesePositions(panPositions)
-			This.RemoveItemsAtPositions(panPositions)
-
-			def RemoveAllItemsAtThesePositionsQ(panPositions)
-				This.RemoveAllItemsAtThesePositions(panPositions)
+			def RemoveAtPositionsQ(panPositions)
+				This.RemoveAtPositions(panPositions)
 				return This
 
 		#>
@@ -2452,16 +3106,61 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveItemsAtThesePositionsQ(panPositions).Content()
 		return aResult
 
-	//>>>>>>> REMOVING A RANGE OF ITEMS
+	  #---------------------------------#
+	 #   REMOVING A RANGE OF STRINGS   #
+	#---------------------------------#
 
 	def RemoveRange(pnStart, pnRange)
 	
+		# Checking the correctness of the pnStart param
+
+		if isList(pnStart) and Q(pnStart).IsFromNamedParamList()
+			pnStart = pnStart[2]
+		ok
+
+		if isString(pnStart)
+			if Q(pnStart).IsOneOfThese([
+					:First, :FirstPosition,
+				      	:FirstItem, :FirstItem ])
+				  
+				pnStart = 1
+
+			but Q(pnStart).IsOneOfThese([
+					:Last, :LastPosition,
+				      	:LastItem, :LastItem ])
+
+				n = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT isNumber(pnStart)
+			stzRaise("Incorrect param! n must be a number.")
+		ok
+
+		# Checking the correctness of the pnRange param
+
+		if isList(pnRange) and
+		   isItem(pnRange[1]) and
+
+		   ( Q(pnRange[1]).IsOneOfTheseCS([ :UpToN, :UpToNItems, :UpToNItems ]) )
+
+		   	pnRange = pnRange[2]
+		ok
+	
+		if NOT isNumber(pnRange)
+			stzRaise("Incorrect param type! pnRange must be a number.")
+		ok
+
+		# Checking the correctness of the range of the two params
+
 		nLen = This.NumberOfItems()
 
-		if (pnstart < 1) or (pnStart + pnRange -1 > nLen) or
+		if (pnStart < 1) or (pnStart + pnRange -1 > nLen) or
 		   ( pnStart = nLen and pnRange != 1 )
 			stzRaise("Out of range!")
 		ok
+
+		# Doing the job
 
 		if pnStart = 1
 			aResult = This[1]
@@ -2486,15 +3185,16 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveRangeQ(pnStart, pnRange)
 		return aResult
 
-	//>>>>>>> REMOVING MANY RANGES OF ITEMS
+	  #-------------------------------------#
+	 #   REMOVING MANY RANGES OF STRINGS   #
+	#-------------------------------------#
 
 	def RemoveManyRanges(panRanges)
 
+		anSections = []
 		for anRange in panRanges
-			anRange = RangeToSection(anRange)
+			anSections + RangeToSection(anRange)
 		next
-
-		anSections = panRanges
 
 		This.RemoveManySections(anSections)
 
@@ -2506,16 +3206,56 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveManyRangesQ(paRanges).Content()
 		return aResult
 
-	//>>>>>>> REMOVING A SECTION OF ITEMS
+	  #-----------------------------------#
+	 #   REMOVING A SECTION OF STRINGS   #
+	#-----------------------------------#
 
 	def RemoveSection(n1, n2)
-		if isList(n1) and StzListQ(n1).IsFromNamedParamList()
+
+		# Checking params correctness
+
+		if isList(n1) and
+			( Q(n1).IsFromNamedParamList() or Q(n1).IsFromNamedParamList()  or
+			  Q(n1).IsFromPositionNamedParamList() )
+
 			n1 = n1[2]
 		ok
 
-		if isList(n2) and StzListQ(n2).IsToNamedParamList()
+		if isList(n2) and ( Q(n2).IsToNamedParamList() or Q(n2).IsToPositionNamedParamList() )
 			n2 = n2[2]
 		ok
+
+		if isString(n1) and
+			( Q(n1).IsOneOfThese([
+				:First, :FirstPosition,
+				:FirstItem, :FirstItem ])
+			)
+
+			n1 = 1
+		ok
+
+		if isString(n2) and
+			( Q(n2).IsOneOfThese([
+				:Last, :LastPosition,
+				:LastItem, :LastItem ])
+			)
+ 
+			n2 = This.NumberOfItems()
+		ok
+
+		if NOT isNumber(n1) and isNumber(n2)
+			stzRaise("Incorrect param type! n1 and n2 must be numbers.")
+		ok
+
+		if NOT  ( StzNumberQ(n1).IsBetween(1, This.NumberOfItems() ) and
+			  StzNumberQ(n2).IsBetween(1, This.NumberOfItems() )
+			)
+
+			stzRaise("Out of range!")
+		ok
+
+		# Doing the job (Qt-side)
+
 
 		This.RemoveRange( n1, n2 - n1 + 1 )
 
@@ -2531,81 +3271,25 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveSectionQ(n1, n2)
 		return aResult
 
-	//>>>>>>> REMOVING MANY SECTIONS OF ITEMS
+	  #---------------------------------------#
+	 #   REMOVING MANY SECTIONS OF STRINGS   #
+	#---------------------------------------#
 
 	def RemoveManySections(paSections)
 
-		/*
-		This problem seems to be complicated, since:
+		if NOT ( isList(paSections) and
+			 Q(paSections).IsListOfPairs() and
+			 Q(paSections).MergeQ().AllItemsAreNumbers() )
 
-		- the user can provide sections in any order,
-		may be ones with intersections like [ 3, 6] and
-		[ 5, 7], or may be adjascent and unordered ones
-		like [7, 5] and [ 3, 4], and so on
+			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+		ok
 
-		- every removal of an item will change the size of
-		the list making the counter of the next position
-		to be removed somehow cumbersome!
+		anPositions = StzListOfPairsQ(paSections).
+				ExpandedIfPairsOfNumbersQ().
+				MergeQ().RemoveDuplicatesQ().Content()
 
-		- and many other difficulties you will face when
-		you delve in to coding but we don't want to go
-		to sutch detail here.
 
-		But when we visualise the problem, we can see it is
-		not that difficult to solve:
-
-			Note: ignore the directions signs (<--> for
-			the moment, they will be used in an other
-			context, and kept here to not forget them).
-
-		So: Imagine that you are one of the items of the list.
-		You are in a competition and your T-Shirt contains
-		the number of your position in the list.
-
-		The game: You need to go from up to down and stay alive.
-		But pay attention: if you encounter a [xxx] obstacle,
-		then you are captured! (In other terms, you, the item,
-		are removed).
-
-			   1     2     3     4     5     6     7
-			[ "A",  "B",  "C",  "D",  "E",  "F",  "G" ]
-			---.-----.-----.-----.-----.-----.-----.---
-                           | <-- | <-- | <- [x] -> | --> | <-- |
-		[3, 5]     | <-- |     [xxxxxxxxxxx]     | <-- |
-		[2, 4]     |     [xxxxxxxxxxx]           | <-- |   
-		[7, 7]     | <--   <--   <--   <--   <-- |    [x]
-		[3, 4]     |           [xxxxx]           | 
-                [3, 4]     |           [xxxxx]           |
-		[3, 4]     |           [xxxxx]           |
-                           | <--   <--   <--   <--   <-- | 
-		        ---V-----.-----.-----.-----.-----V-----.---
-			[ "A",   .     .     .     .    "F"    . ]
-
-		When we adopt this gamified approach, and think visually
-		of the probem/competition in hand, it becomes obvious how
-		to solve it in two quick steps:
-
-		1). If an item position (say position 1 of item "A")
-		    for example, does not exist in any of the sections
-		    (nor as a first or last number of that section),
-		    then the item remains and won't be removed!
-
-		2) Otherwise, the item is removed.
-
-		In computer terms, it's just ONE conditional statement and
-		we are done! See the code...
-	
-		*/
-
-		anPositions = ListsMergeQ(paSections).DuplicatesRemoved()
-
-		for i = 1 to This.NumberOfItems()
-			if find(anPositions, i) = 0
-				aResult + This[i]
-			ok
-		next
-
-		return aResult
+		This.RemoveItemsAtPositions(anPositions)
 
 		def RemoveManySectionsQ(paRanges)
 			This.RemoveManySections(paRanges)
@@ -2615,10 +3299,12 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveManySectionsQ(paRanges).Content()
 		return aResult
 
-	//>>>>>>> REMOVING ALL ITEMS IN THE LIST
+	  #--------------------------------------#
+	 #   REMOVING ALL STRINGS IN THE LIST   #
+	#--------------------------------------#
 	
 	def RemoveAllItems()
-		This.Update( [] )
+		@aContent = []
 
 		#< @FunctionFluentForm
 
@@ -2628,17 +3314,30 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def Clear()
+			This.RemoveAllItems()
+
+			def ClearQ()
+				This.Clear()
+				return This
+
+		#>
+
 	def AllItemsRemoved()
 		return []
 
-	//>>>>>>> REMOVING ITEMS UNDER A GIVEN CONDITION
+	  #----------------------------------------------#
+	 #   REMOVING STRINGS UNDER A GIVEN CONDITION   #
+	#----------------------------------------------#
 
-	def RemoveAllW(pCondition)
+	def RemoveW(pCondition)
 		/*
 		Example:
 
-		o1 = new stzList([ 1, "a", 2, "b", 3, "c" ])
-		o1.RemoveAllItemsW(:Where = '{ isNumber(@item) }')
+		o1 = new stzList([ "1", "a", "2", "b", "3", "c" ])
+		o1.RemoveAllItemsW(:Where = '{ StzCharQ(@item).IsANumber() }')
 		? o1.Content()
 
 		# --> Gives: [ "a", "b", "c" ]
@@ -2651,41 +3350,30 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def RemoveAllWQ(pCondition)
-			This.RemoveItemsW(pCondition)
+		def RemoveWQ(pCondition)
+			This.RemoveW(pCondition)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def RemoveItemsWhere(pCondition)
-			This.RemoveAllW(pCondition)
-
-			def RemoveItemsWhereQ(pCondition)
-				This.RemoveItemsWhere(pCondition)
-				return This
-
 		def RemoveItemsW(pCondition)
-			This.RemoveItemsWhere(pCondition)
+			This.RemoveW(pCondition)
 
 			def RemoveItemsWQ(pCondition)
 				This.RemoveItemsW(pCondition)
 				return This
 
-		def RemoveW(pCondition)
-			This.RemoveItemsWhere(pCondition)
+		#>
 
-	def AllItemsRemovedW(pCondition)
+	def ItemsRemovedW(pCondition)
 		aResult = This.Copy().RemoveItemsWQ(pCondition).Content()
 		return aResult
 
-		def ItemsRemovedW(pcondition)
-			return This.AllItemsRemovedW(pCondition)
-
-	  #----------------------------#
+	  #============================#
 	 #     BOUNDS OF THE LIST     #
-	#----------------------------#
+	#============================#
 
 	def IsBoundedBy(pItem1, pItem2)
 		if This.FirstItem() = pItem1 and This.LastItem() = pItem2
@@ -3394,7 +4082,8 @@ class stzList from stzObject
 			return This.ContainsOnlyDigits()
 
 	def ContainsOnlyStrings()
-		bResult = FALSE
+
+		bResult = TRUE
 
 		for item in This.List()
 			if NOT isString(item)
@@ -7353,16 +8042,13 @@ class stzList from stzObject
 		This function relies on Ring native list2code() function that
 		 translates only number, string, and list items of a list to code.
 
-		It just embellifies its output.
-
 		TODO: In the futur, we need to make it possible the identification
 		of objects items also and the transliteration of their names in
 		the output (now, they are just generated as empty chras).
 		*/
 		
-		cResult = StzStringQ( list2code( This.List() ) ).Simplified()
+		return list2code( This.List() )
 
-		return cResult
 
 		def ToCodeQ()
 			return new stzString( This.ToCode() )
@@ -7418,10 +8104,149 @@ class stzList from stzObject
 
 		def NumberOfOccurrences(pItem)
 			return This.NumberOfOccurrence(pItem)
+		
+	  #-------------------------------------------#
+	 #     STRINGIFYING ALL ITEMS OF THE LIST    #
+	#-------------------------------------------#
+
+	def ItemsStringified()
+		acResult = []
+
+		for item in This.List()
+			
+			if isString(item)
+				acResult + item
+			but isNumber(item)
+				acResult + ("" + item)
+			but isList(item)
+				acResult + @@( item )
+			but isObject(item)
+				// Do nothing (TODO)
+			ok
+
+		next
+
+		return acResult
 	
-	  #--------------------#
-	 #     DUPLICATES     #
-	#--------------------#
+	  #===============================#
+	 #   FINDING DUPPLICATED ITEMS   #
+	#===============================#
+
+	def FindDuplicatedItems(pItem)
+
+		if isList(pItem) and Q(pItem).IsOfNamedParamList()
+			pItem = pItem[2]
+		ok
+
+		aResult = []
+
+		if NOT This.IsDuplicated(pItem)
+			stzRaise("This item ("+ pItem + ") is not duplicated!")
+		ok
+
+		aResult = This.FindAllExceptFirst(pItem)
+		
+		return aResult
+
+		def FindDuplicatedItemsQ(pItem)
+			return This.DuplicatedItems
+
+		def FindDuplicatedItemsQR(pItem, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindDuplicatedItems(pItem) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindDuplicatedItems(pItem) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+	
+	  #-----------------------#
+	 #   DUPPLICATED ITEMS   #
+	#-----------------------#
+
+	def DuplicatedItems()
+		aResult = []
+		for item in This.Content()
+			if IsDuplicated(item) and 
+			   StzListQ( aResult ).ContainsNo( item )
+			
+				aResult + item
+			ok
+		next
+		return aResult
+
+		def DuplicatedItemsQ()
+			return new stzList( This.DuplicatedItems() )
+	
+	def DuplicatedItemsXT()
+		aResult = []
+		/* aResult will take the form:
+		[
+			[ "A", [ 5, 8, 10] ], => A is duplicated at positions 5, 8, and 10
+			[ "B", [ 3 ] ],	  => B is duplicated at position 3
+		 	[ ... ]
+		]
+		*/
+		
+		for item in This.DuplicatedItems()
+			aResult + [ item, This.DuplicatesOfItem(item) ]
+		next
+
+		return aResult
+
+	  #----------------------------------------#
+	 #   CHECHKING IF AN ITEM IS DUPLICATED   #
+	#----------------------------------------#
+
+	def IsDuplicated(pItem)
+		if len(This.FindAll(pItem)) > 1
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsDuplicateItem(pItem)
+		return This.IsDuplicated(pItem)
+
+	def IsDuplicatedNTimes(pItem, n)
+		if This.NumberOfDuplicates(pItem) = n
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsDuplicatedItemNTimes(pItem, n)
+		return This.IsDuplicatedNTimes(pItem, n)
+
+	  #--------------------------------------------#
+	 #   HOW MANY TIMES AN ITEM IS DUPLICATED ?   #
+	#--------------------------------------------#
+
+	def NumberOfDuplicationsOfItem(pItem)
+		if This.Contains(pItem)
+			return This.NumberOfOccurrence(pItem) - 1
+		else
+			return 0
+		ok
+
+		def NumberOfDuplications(pItem)
+			return This.NumberOfDuplicationsOfItem(pItem)
+
+	  #-------------------------------#
+	 #   REMOVING DUPLICATED ITEMS   #
+	#-------------------------------#
 
 	def RemoveDuplicates()
 
@@ -7453,121 +8278,14 @@ class stzList from stzObject
 		def RemoveDuplicatesQ()
 			This.RemoveDuplicates()
 			return This
-	
-	def ItemsStringified()
-		acResult = []
-
-		for item in This.List()
-			
-			if isString(item)
-				acResult + item
-			but isNumber(item)
-				acResult + ("" + item)
-			but isList(item)
-				acResult + @@( item )
-			but isObject(item)
-				// Do nothing (TODO)
-			ok
-
-		next
-
-		return acResult
 
 	def DuplicatesRemoved()
 		aResult = This.Copy().RemoveDuplicatesQ().Content()
 		return aResult
 
-	def Duplicates()
-		aResult = []
-		for item in This.DuplicatedItems()
-			
-			for i in This.FindAllExceptFirst(item)
-				aResult + i
-			next i
-			
-		next
-		return sort(aResult)
-
-		def DuplicatesQ()
-			return new stzList( This.Duplicates() )
-	
-	def DuplicatedItems()
-		aResult = []
-		for item in This.Content()
-			if IsDuplicated(item) and 
-			   StzListQ( aResult ).ContainsNo( item )
-			
-				aResult + item
-			ok
-		next
-		return aResult
-
-		def DuplicatedItemsQ()
-			return new stzList( This.DuplicatedItems() )
-	
-	def DuplicatesOfItem(pItem)
-		aResult = []
-		if NOT This.IsDuplicated(pItem)
-			stzRaise("This item ("+ pItem + ") is not duplicated!")
-		else
-			aResult = This.FindAllExceptFirst(pItem)
-		ok
-
-		return aResult
-
-		def DuplicatesOfItemQ(pItem)
-			return new stzList( This.DuplicatesOfItem(pItem) )
-	
-	def DuplicatedItemsAndTheirDuplicates()
-		aResult = []
-		/* aResult will take the form:
-		[
-			[ "A", [ 5, 8, 10] ],	=> A is duplicated at positions 5, 8, and 10
-			[ "B", [ 3 ] ],	=> B is duplicated at position 3
-		 	[ ... ]
-		]
-		*/
-		
-		for item in This.DuplicatedItems()
-			aResult + [ item, This.DuplicatesOfItem(item) ]
-		next
-
-		return aResult
-
-	def IsDuplicated(pItem)
-		if len(This.FindAll(pItem)) > 1
-			return TRUE
-		else
-			return FALSE
-		ok
-
-	def IsDuplicateItem(pItem)
-		return This.IsDuplicated(pItem)
-
-	def IsDuplicatedNTimes(pItem, n)
-		if This.NumberOfDuplicates(pItem) = n
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsDuplicatedItemNTimes(pItem, n)
-		return This.IsDuplicatedNTimes(pItem, n)
-
-	def NumberOfDuplicatesOfItem(pItem)
-		if This.Contains(pItem)
-			return This.NumberOfOccurrence(pItem) - 1
-		else
-			return 0
-		ok
-
-	def NumberOfDuplicates(pItem)
-		return This.NumberOfDuplicatesOfItem(pItem)
-
-	  #--------------------#
+	  #====================#
 	 #     CONTAINMENT    #
-	#--------------------#
+	#====================#
 	/*
 		Review the function namings and make the same semantics
 		here and in stzString class.
@@ -7591,6 +8309,8 @@ class stzList from stzObject
 		def ContainsItem(pItem)
 			return This.Contains(pItem)
 	
+	#--
+
 	def IsContainedIn(p)
 		switch type(p)
 		
@@ -7622,41 +8342,7 @@ class stzList from stzObject
 			return This.IsContainedIn(p)
 
 		#>
-
-		def IsNotContainedIn(p)
-			return NOT This.IsContainedIn(p)
 	
-	def IsContainedInOneOfThese(paList)
-		bResult = TRUE
-
-		for item in paList
-			if isList(item)
-				if NOT StzListQ(item).IsContainedIn( This.List() )
-					bResult = FALSE
-					exit
-				ok
-
-			but isString(item)
-				if NOT StzStringQ(item).IsContainedIn( This.List() )
-					bResult = FALSE
-					exit
-				ok
-
-			else
-				# Object and number types are not managed
-				stzRaise("Unsupported type!")
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionNegationForm
-
-		def IsNotContainedInOneOfThese(paList)
-			return NOT This.IsContainedInOneOfThese(paList)
-
-		#>
-
 	#--
 
 	def ContainsEach(paItems)
@@ -7673,30 +8359,28 @@ class stzList from stzObject
 
 		def ContainsEachOneOfThese(paItems)
 			return This.ContainsEach(paItems)
+	#--
 
-			def ContainsNoOne(paItem)
-				return NOT This.ContainsEach(paItems)
+	def ContainsNoOne()
+		return NOT This.ContainsEach(paItems)
 
-			def ContainsNoOneOfThese(paItems)
-				return NOT This.ContainsEach(paItems)
+	#--
 
 	def ContainsBoth(pItem1, pItem2)
 		return This.ContainsEach( [pItem1, pItem2] )
+
+	#--
 	
 	def EachItemExistsIn(paList)
 		return StzListQ(paList).ContainsEach(This.List())
 
-		def NoOneExistsIn(paList)
-			return NOT This.EachItemExistsIn(paList)
-
-		def NoItemExistsIn(paList)
-			return NOT This.EachItemExistsIn(paList)
+	#--
 
 	def IsOneOfThese(paList)
 		return StzListQ(paList).Contains( This.List() )
 
-		def IsNotOneOfThese(paList)
-			return NOT This.IsOneOfThese(paList)
+	def IsNotOneOfThese(paList)
+		return NOT This.IsOneOfThese(paList)
 
 	#--
 
@@ -7723,11 +8407,20 @@ class stzList from stzObject
 		def IsMadeOfThese(paSetOfItems)
 			return This.ContainsMany(paSetOfItems)
 
-		def IsMadeOfEachOneOfThese(paSetOfItems)
-			return This.ContainsMany(paSetOfItems)
+	#--
 
-	def ContainsSome(paSetOfItems)
-		return This.ToSetQR( :stzList ).ExistsIn( paSetOfItems )
+	def ContainsSome(paItems)
+		bResult = FALSE
+
+		for item in paItems
+			if This.Contains(item)
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
+
 
 		def IsMadeOfSome(paSetOfItems)
 			return This.ContainsSome(paSetOfItems)
@@ -7775,6 +8468,8 @@ class stzList from stzObject
 		def ContainsOne(pSetOItems)
 			return This.ContainsAny(pSetOfItems)
 
+	#--
+
 	def ContainsOnlyOne(paItems)
 		bResult = FALSE
 		for item in paItems
@@ -7789,6 +8484,18 @@ class stzList from stzObject
 			return This.ContainsOnlyOne(paItems)
 
 		def IsMadeOfOnlyOneOfThese(paItems)
+			return This.ContainsOnlyOne(paItems)
+
+		def ContainsAnItemFrom(paItems)
+			return This.ContainsOnlyOne(paItems)
+
+		def ContainsAnItemFromThese(paItems)
+			return This.ContainsOnlyOne(paItems)
+
+		def ContainsOneItemFrom(paItems)
+			return This.ContainsOnlyOne(paItems)
+
+		def ContainsOneItemFromThese(paItems)
 			return This.ContainsOnlyOne(paItems)
 
 	#--
@@ -8280,16 +8987,48 @@ class stzList from stzObject
 	# designing an overall solution of the Equality problem
 	# in SoftanzaLib
 
-	# UPDATE: Lists are now findable (only objects are left)
+	# UPDATE: Lists are now findable (only objects are left for future)
 
 	def FindNthOccurrence(n, pItem) 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
-			pItem = pItem[2]
+
+		if isString(n)
+			if n = :First or n = :FirstOccurrence
+				n = 1
+
+			but n = :Last or n = :LastOccurrence
+				n = This.NumberOfOccurrence(pItem)
+			ok
 		ok
 
-		if len(This.FindAll(pitem)) > 0
-			return This.FindAll(pItem)[n]
+		if NOT isNumber(n)
+			stzRaise("Incorrect param type! n must be a number.")
 		ok
+
+		anPos = This.FindAll(pItem)
+
+		nResult = 0
+
+		if n <= len(anPos)
+			nResult = anPos[n]
+		ok
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNthItem(n, pItem)
+			return This.FindNthOccurrence(n, pItem)
+
+		def FindNthOccurrenceOfItem(n, pItem)
+			return This.FindNthOccurrence(n, pItem)
+
+		def FindNthOccurrenceOfThisItem(n, pItem)
+			return This.FindNthOccurrence(n, pItem)
+
+		def FindNth(n, pItem)
+			return This.FindNthOccurrence(n, pItem)
+
+		#>
 
 	def FindFirstOccurrence(pItem)
 		/*
@@ -8361,7 +9100,16 @@ class stzList from stzObject
 		#>
 
 	def FindLastOccurrence(pItem)
-		return This.FindNthOccurrence( This.NumberOfOccurrence(pItem), n )
+		nResult = 0
+
+		anPositions = This.FindAll(pItem)
+		n = len(anPositions)
+
+		if n > 0
+			nResult = anPositions[n]
+		ok
+
+		return nResult
 
 		#< @FunctionAlternativeForm
 
@@ -8629,7 +9377,7 @@ class stzList from stzObject
 
 	def VizFindAllOccurrences(pItem) # TODO: Made some changes, retest it!
 		
-		cResult = @@( This.Content() ) # @@() or ComputableForm() or CF()
+		cResult = This.ToCodeQ().Simplified()
 		anPositions = Q(cResult).FindAll( @@(pItem) )
 
 		nLen = StzStringQ(cResult).NumberOfChars()
@@ -9540,12 +10288,14 @@ class stzList from stzObject
 				This.RemoveAllExceptNumbers()
 				return This
 		
-	  #-------------------------------------------------#
-	 #     GETTING & REMOVING ITEMS OF TYPE STRING     #
-	#-------------------------------------------------#
+	  #------------------------------#
+	 #     ITEMS OF TYPE STRING     #
+	#------------------------------#
 
 	def NumberOfStrings()
 		return len( This.Strings() )
+
+	#----
 
 	def Strings()
 		/* WARNING
@@ -9616,6 +10366,8 @@ class stzList from stzObject
 
 		#>
 
+	#----
+
 	def RemoveStrings()
 		anPositions = []
 
@@ -9639,6 +10391,7 @@ class stzList from stzObject
 			def RemoveOnlyStringsQ()
 				This.RemoveOnlyStrings()
 				return This
+	#----
 
 	def NonStrings()
 
@@ -9693,6 +10446,8 @@ class stzList from stzObject
 					stzRaise("Unsupported return type!")
 				off
 
+	#----
+
 	def RemoveNonStrings()
 		anPositions = []
 
@@ -9723,6 +10478,211 @@ class stzList from stzObject
 			def RemoveAllExceptStringsQ()
 				This.RemoveAllExceptStrings()
 				return This
+
+	def ListWithNonStringsRemoved()
+		return This.Copy().RemoveNonStringsQ().Content()
+
+	#---- LOWERCASING THE STRINGS CONTAINED IN THE LIST
+
+	def LowercaseStrings()
+		for i = 1 to This.NumberOfItems()
+			item = This[i]
+
+			if isString(item)
+				cStrLow = Q(item).Lowercased()
+				This.ReplaceItemAtPosition(i, :With = cStrLow)
+			ok
+		next
+
+		def LowercaseStringsQ()
+			This.LowercaseStrings()
+			return This
+
+	def ListWithStringsLowercased()
+		aResult = This.Copy().LowercaseStringsQ().Content()
+		return aResult
+
+	def StringsLowercased()
+		aResult = []
+
+		for i = 1 to This.NumberOfItems()
+			item = This[i]
+
+			if isString(item)
+				cStrLow = Q(item).Lowercased()
+				aResult + cStrLow
+			ok
+		next
+
+		return aResult
+
+
+	#---- UPPERCASING THE STRINGS CONTAINED IN THE LIST
+
+	def UppercaseStrings()
+		for i = 1 to This.NumberOfItems()
+			item = This[i]
+
+			if isString(item)
+				cStrUpp = Q(item).Uppercased()
+				This.ReplaceItemAtPosition(i, :With = cStrUpp)
+			ok
+		next
+
+		def UppercaseStringsQ()
+			This.UppercaseStrings()
+			return This
+
+	def ListWithStringsUppercased()
+		aResult = This.Copy().UppercaseStringsQ().Content()
+		return aResult
+
+	def StringsUppercased()
+		aResult = []
+
+		for i = 1 to This.NumberOfItems()
+			item = This[i]
+
+			if isString(item)
+				cStrUpp = Q(item).Uppercased()
+				aResult + cStrUpp
+			ok
+		next
+
+		return aResult
+	
+	#---- TITLECASING THE STRINGS CONTAINED IN THE LIST
+
+	def TitlecaseStrings()
+		for i = 1 to This.NumberOfItems()
+			item = This[i]
+
+			if isString(item)
+				cStrTtl = Q(item).Titlecased()
+				This.ReplaceItemAtPosition(i, :With = cStrTtl)
+			ok
+		next
+
+		def TitlecaseStringsQ()
+			This.TitlecaseStrings()
+			return This
+
+	def ListWithStringsTitlecased()
+		aResult = This.Copy().TitlecaseStringsQ().Content()
+		return aResult
+
+	def StringsTitlecased()
+		aResult = []
+
+		for i = 1 to This.NumberOfItems()
+			item = This[i]
+
+			if isString(item)
+				cStrTtl = Q(item).Titlecased()
+				aResult + cStrTtl
+			ok
+		next
+
+		return aResult
+
+
+	#---- CAPITALCASING THE STRINGS CONTAINED IN THE LIST
+
+	def CapitaliseStrings()
+		for i = 1 to This.NumberOfItems()
+			item = This[i]
+
+			if isString(item)
+				cStrCap = Q(item).Capitalised()
+				This.ReplaceItemAtPosition(i, :With = cStrTtl)
+			ok
+		next
+
+		def CapitaliseStringsQ()
+			This.CapitaliseStrings()
+			return This
+
+		def CapitalizeStrings()
+			This.CapitaliseStrings()
+
+			def CapitalizeStringsQ()
+				This.CapitalizeStrings()
+				return This
+
+	def ListWithStringsCapitalised()
+		aResult = This.Copy().CapitaliseStringsQ().Content()
+		return aResult
+
+		def ListWithStringsCapitalized()
+			return This.ListWithStringsCapitalised()
+
+	def StringsCapitalised()
+		aResult = []
+
+		for i = 1 to This.NumberOfItems()
+			item = This[i]
+
+			if isString(item)
+				cStrCap = Q(item).Capitalised()
+				aResult + cStrTtl
+			ok
+		next
+
+		return aResult
+
+		def StringsCapitalized()
+			return This.StringsCapitalised()
+
+	  #-------------------------------------#
+	 #   ITEMS OF TYPE LISTS OF STRINGS    #
+	#-------------------------------------#
+
+	def ListsOfStrings()
+		aResult = []
+		for item in this.List()
+			if isList(item) and Q(item).IsListOfStrings()
+				aResult + item
+			ok
+		next
+
+		return aResult
+
+	def NumberOfListsOfStrings()
+		return len(This.ListsOfStrings())
+
+	#----
+
+	def LowercaseListsOfStrings()
+		for item in This.List()
+			if isList(item) and Q(item).IsListOfStrings()
+				item = StzListOfStringsQ(item).Lowercased()
+			ok
+		next
+
+		def LowercaseListsOfStringsQ()
+			This.LowercaseListsOfStrings()
+			return This
+
+	def ListWithListsOfStringsLowercased()
+		return This.Copy().LowercaseListsOfStringsQ().Content()
+
+	def ListsOfStringsLowercased()
+
+	#----
+
+	def UppercaseListsOfStrings()
+		for item in This.List()
+			if isList(item) and Q(item).IsListOfStrings()
+				item = StzListOfStringsQ(item).Uppercased()
+			ok
+		next
+
+		def UppercaseListsOfStringsQ()
+			This.LowercaseListsOfStrings()
+			return This
+
+	def ListWithListsOfStringsUppercased()
+		return This.Copy().UppercaseListsOfStringsQ().Content()
 
 	  #-----------------------------------------------#
 	 #     GETTING & REMOVING ITEMS OF TYPE LIST     #
@@ -11289,7 +12249,7 @@ class stzList from stzObject
 	def IsFromNamedParamList()
 		if This.NumberOfItems() = 2 and
 
-		   ( isString(This[1]) and  This[1] = :From ) and
+		   ( isString(This[1]) and  (This[1] = :From or This[1] = :FromPosition)  ) and
 
 		     ( 	isNumber(This[2] or
 
@@ -11308,10 +12268,13 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsFromPositionNamedParamList()
+			return This.IsFromNamedParamList()
+
 	def IsToNamedParamList()
 		if This.NumberOfItems() = 2 and
 
-		   ( isString(This[1]) and  This[1] = :To ) and
+		   ( isString(This[1]) and  (This[1] = :To or This[1] = :ToPosition) ) and
 
 		     ( 	isNumber(This[2] or
 
@@ -11332,59 +12295,11 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsFromPositionNamedParamList()
-		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and This[1] = :FromPosition and
+		def IsToPositionNamedParamList()
+			return This.IsToNamedParamList()
 
-		   ( isNumber(This[2]) or
-			( isString(This[2]) and
-				Q(This[2]).IsOneOfThese([
-					:First, :Last, :FirstPosition, :LastPosition,
-					:FirstChar, :LastChar,
-					:FirstString, :LastString,
-					:FirstStringItem, :LastStringItem,
-					:FirstNumber, :LastNumber,
-					:FirstList, :LastList,
-					:FirstPair, :LastPair,
-					:FirstObject, :LastObject,
-
-					:FirstSubString, :LastSubString,
-					:FirstSubList, :LastSubList ])
-			)
-		   )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsToPositionNamedParamList()
-		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and This[1] = :ToPosition and
-
-		   ( isNumber(This[2]) or
-			( isString(This[2]) and
-				Q(This[2]).IsOneOfThese([
-					:First, :Last, :FirstPosition, :LastPosition,
-					:FirstChar, :LastChar,
-					:FirstString, :LastString,
-					:FirstStringItem, :LastStringItem,
-					:FirstNumber, :LastNumber,
-					:FirstList, :LastList,
-					:FirstPair, :LastPair,
-					:FirstObject, :LastObject,
-
-					:FirstSubString, :LastSubString,
-					:FirstSubList, :LastSubList  ])
-			)
-		   )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
+	
+	
 
 	def IsOfNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -11631,6 +12546,17 @@ class stzList from stzObject
 		   This.AllItemsAreStrings() and
 		   This[1] = :ReturnedAs and
 		   StzStringQ(This[2]).IsStzClassName()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsReturnParamList()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and Q(This[1]).IsEqualToCS(:Return) and
+		   isString(This[2])
 
 			return TRUE
 
@@ -11934,6 +12860,9 @@ class stzList from stzObject
 
 	def DataType()
 		return :List
+
+	def IsStzList()
+		return TRUE
 
 	#--- ITEM
 

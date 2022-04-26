@@ -14,12 +14,18 @@ func IsQTime(p)
 		return FALSE
 	ok
 
+	func IsQTimeObject(p)
+		return IsQTime(op)
+
 func QTimeToString(oQTime, cFormat)
 	if IsQTime(oQTime)
 		return oQTime.ToString(cFormat)
 	else
 		stzRaise(stzTimeError(:CanNotTransformQTimeToString))
 	ok
+
+	func QTimeObjectToString(oQTime, cFormat)
+		return QTimeToString(oQTime, cFormat)
 
 class stzTime from stzObject
 	oQTime

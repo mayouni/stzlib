@@ -354,31 +354,6 @@ func CharIsLetter(pcStr)
 	oStzChar = new stzChar(pcStr)
 	return oStzChar.IsLetter()
 
-/*
-The following two functions ( IsTrue() and IsFalse() ) are made
-to simplify code like this:
-
-	def StartsWithCS(pcSubStr, pCaseSensitive)
-		bResult = TRUE
-
-		if pCaseSensitive = TRUE
-			// do this
-		else
-			// do that
-		ok
-
-So it becomes wrtitten more expressively like this:
-
-	def StartsWithCS(pcSubStr, pCaseSensitive)
-		bResult = TRUE
-
-		if IsTrue(pCaseSensitive)
-			// do this
-		else
-			// do that
-		ok
-
-*/
 func IsTrue(p)
 	if isNumber(p) and p = 1
 		return TRUE
@@ -450,7 +425,8 @@ func Unicode(p)
 func Scripts(paListStr)
 	return StzListOfStringsQ(paListStr).Scripts()
 
-func ComputableForm(pValue) # TODO: case of object --> return its name
+// Computable form, spacified (equivalent of ring listtocode() function)
+func ComputableFormSP(pValue) # TODO: case of object --> return its name
 
 	if isNumber(pValue)
 		return pValue
@@ -462,14 +438,58 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 		return ListToCode(pValue)
 	ok
 
+	#< @FunctionFluentForm
+
+	func ComputableFormSPQ(pValue)
+		return new stzString( ComputableFormSP(pValue) )
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func @@S(pValue)
+		return ComputableForm(pValue)
+
+		func @@SQ(pValue)
+			return new stzString( @@(pValue) )
+
+	func C@S(pValue)
+		return ComputableFormSP(pValue)
+
+		func C@SQ(pValue)
+			return new stzString( C@S(pValue) )
+
+	func CFS(pValue)
+		return ComputableFormSP(pValue)
+
+		func CFSQ(pValue)
+			return new stzString( CFS(pValue) )
+
+	#>
+
+func ComputableForm(pValue)
+	return ComputableFormSPQ(pValue).Simplified()
+
+	func ComputableFormsQ(pValue)
+		return new stzString( ComputableForm(pValue) )
+
 	func @@(pValue)
 		return ComputableForm(pValue)
+
+		func @@Q(pValue)
+			return new stzString( @@(pValue) )
 
 	func C@(pValue)
 		return ComputableForm(pValue)
 
+		func C@Q(pValue)
+			return new stzString( C@(pValue) )
+
 	func CF(pValue)
 		return ComputableForm(pValue)
+
+		func CFQ(pValue)
+			return new stzString( CF(pValue) )
 
 func YaAllah()
 	return "يَا أَلله"

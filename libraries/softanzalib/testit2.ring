@@ -5,7 +5,7 @@ load "stzlib.ring"
 #----------------#
 
 /*------- CONTAINING A SUBSTRING BOUNDED BY A GIVEN SUBSTRING
-*/
+
 	o1 = new stzString("lorem__ipsum__lorem")
 	? o1. ContainsSubStringBoundedBy("ipsum", "__") 		#--> TRUE
 	? o1.ContainsSubStringBoundedByCS("IPSUM", "__", :CS = FALSE) 	#--> TRUE
@@ -124,6 +124,7 @@ load "stzlib.ring"
 
 /*------- FINDING NEXT/PREVIOUS OCCURRENCE(S) OF A STRING
 
+	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_" ])
 	? o1.FindNext("_", :StartingAt = 2)	 #--> 3
 	? o1.FindPrevious("_", :StartingAt = 4)	 #--> 3
 	
@@ -162,8 +163,11 @@ load "stzlib.ring"
 
 /*------- REPLACING MANY STRINGS AT THE SAME TIME
 
-	o1 = new stzListOfStrings([ "Tunis", "CAIRO", "Bagdad" ])
-	o1.ReplaceManyXT([ :tunis, :cairo, :bagdad ], :With = "♥")
+	o1 = new stzListOfStrings([ "TUNIS", "CAIRO", "bagdad" ])
+	o1.ReplaceMany([ "Tunis", "Cairo", "Bagdad" ], :With = "♥")
+	? @@( o1.Content() ) #--> [ "Tunis", "CAIRO", "Bagdad" ]
+
+	o1.ReplaceManyCS([ "Tunis", "Cairo", "Bagdad" ], :With = "♥", :CS = FALSE)
 	? @@( o1.Content() ) #--> [ "♥", "♥", "♥" ]
 
 /*------- REPLACING MANY STRINGS BY MANY OTHERS ONE BY ONE
@@ -188,10 +192,10 @@ load "stzlib.ring"
 
 	o1 = new stzListOfStrings([ "___", "Moon", "___", "Star", "___" ])
 	o1.ReplaceNthOccurrence(2, :Of = "___", :With = "Sun")
-	? @@( o1.Content() ) #--> [ "___", "Moon", "Sun", "Star", "___" ]
+	? @@( o1.Content() ) + NL #--> [ "___", "Moon", "Sun", "Star", "___" ]
 
 	o1.ReplaceFirstOccurrence(:Of = "___", :With = "Earth")
-	? @@( o1.Content() ) #--> [ "Earth", "Moon", "Sun", "Star", "___" ]
+	? @@( o1.Content() ) + NL #--> [ "Earth", "Moon", "Sun", "Star", "___" ]
 
 	o1.ReplaceLastOccurrence(:Of = "___", :With = "Mars")
 	? @@( o1.Content() ) #--> [ "Earth", "Moon", "Sun", "Star", "Mars" ]
@@ -200,28 +204,28 @@ load "stzlib.ring"
 
 	o1 = new stzListOfStrings([ "_", "_", "C", "_", "E", "_", "G", "_", "_" ])
 	o1.ReplaceNextOccurrence(:Of = "_", :With = "H", :StartingAt = 7)
-	//? @@( o1.Content() )
+	? @@( o1.Content() ) + NL
 	#--> [ "_", "_", "C", "_", "E", "_", "G", "H", "_" ]
 
 #--
 
 	o1.ReplacePreviousOccurrence(:Of = "_", :With = "D", :StartingAt = 5)
-	//? @@( o1.Content() )
+	? @@( o1.Content() ) + NL
 	#--> [ "_", "_", "C", "D", "E", "_", "G", "H", "_" ]
 #--
 
 	o1.ReplaceNextNthOccurrence(2, :Of = "_", :With = "F", :StartingAt = 3 )
-	//? @@( o1.Content() ) #--> [ "_", "_", "C", "_", "E", "F", "G", "_" ]
+	? @@( o1.Content() ) + NL #--> [ "_", "_", "C", "_", "E", "F", "G", "_" ]
 	#--> [ "_", "_", "C", "D", "E", "_", "G", "H", "F" ]
 #--
 
 	o1.ReplacePreviousNthOccurrence(2, :Of = "_", :With = "B", :StartingAt = 5 )
-	//? @@( o1.Content() ) #--> [ "_", "B", "C", "_", "E", "F", "G", "_" ]
+	? @@( o1.Content() ) + NL #--> [ "_", "B", "C", "_", "E", "F", "G", "_" ]
 	#--> [ "B", "_", "C", "D", "E", "_", "G", "H", "F" ]
 #--
 
 	o1.ReplaceNextOccurrences( :Of = "_", :With = "*", :StartingAt = 1 )
-	? @@( o1.Content() )
+	? @@( o1.Content() ) + NL
 	#--> [ "B", "*", "C", "D", "E", "*", "G", "H", "F" ]
 
 	o1.ReplacePreviousOccurrences( :Of = "*", :With = Heart(), :StartingAt = :LastString )

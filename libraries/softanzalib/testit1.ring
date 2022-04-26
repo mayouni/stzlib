@@ -1,14 +1,102 @@
 load "stzlib.ring"
 
+/*------
+*/
+	o1 = new stzList([ "A", "B", "C", "D", "E" ])
+	? o1.ContainsSome([ "B", "D", "V" ]) #--> TRUE
+
+
+	o1 = new stzListOfStrings([ "A", "B", "C", "D", "E" ])
+	? o1.ContainsSome([ "B", "D", "V" ]) #--> TRUE
+
+/*------
+
+	o1 = new stzList([ "from", 1, "to", 10, "step", 2 ])
+
+	? o1.ListWithStringsUppercased()
+	#--> [ "FROM", 1, "TO", 10, "STEP", 2 ]
+
+	? o1.StringsUppercased()
+	#--> [ "FROM","TO", "STEP" ]
+
+/*------
+
+	o1 = new stzList([ "FROM", 1, "TO", 10, "STEP", 2 ])
+ 
+	? o1.ListWithStringsLowercased()
+	#--> [ "from", 1, "to", 10, "step", 2 ]
+
+	? o1.StringsLowercased()
+	#--> [ "from","to", "step" ]
+
+/*------
+
+	o1 = new stzList([ "from", 1, "to", 10, "step", 2 ])
+
+	? o1.ListWithStringsTitlecased()
+	#--> [ "From", 1, "To", 10, "Step", 2 ]
+
+	? o1.StringsTitlecased()
+	#--> [ "From","To", "Step" ]
+
+/*------
+
+	o1 = new stzString("e28c98")
+	o1.InsertEveryNChars(2, " ")
+	? o1.Content()
+
+/*------
+
+	o1 = new stzString("ring programming language")
+	? o1.Walk(:From = 6, :To = 16, :Step = 2, :Return = :WalkedChars)
+	#--> [ "p", "o", "r", "m", "i", "g" ]
+
+	? o1.WalkXT([])
+	#--> [ 	"r","i","n","g"," ",
+	# 	"p","r","o","g","r","a","m","m","i","n","g"," ",
+	# 	"l","a","n","g","u","a","g","e" ]
+
+	? o1.WalkXT([ :From = 6, :To = 16, :Step = 2, :Return = :WalkedPositions ])
+	#--> [ 6, 8, 10, 12, 14, 16 ]
+
+	? o1.WalkXT([ :From = 6, :To = 16, :Step = 2, :Return = :WalkedChars ])
+	#--> [ "p", "o", "r", "m", "i", "g" ]
+
+/*------
+
+	? Q("⌘").CharName()		#--> PLACE OF INTEREST SIGN
+	? Q("⌘").ToHex()		#--> e28c98
+	? Q("⌘").NumberOfChars()	#--> 1
+	? Q("⌘").NumberOfBytes()	#--> 3
+	? Q("⌘").ToHexSpacified()	#--> e2 8c 98 
+
+/*------
+
+	SetHilightChar(Heart())
+
+	? StzListOfCharsQ("TEXT").BoxedXT([
+		:Line = :Thin,	# or :Dashed
+		
+		:AllCorners = :Round, # can also be :Rectangualr
+
+		# Or you can specify evey corner like this:
+		# :Corners = [ :Round, :Rectangular, :Round, :Rectangular ],
+
+		:Hilighted = [ 3 ] # The 3rd char is hilighted
+		
+	])
+
+#--> 	╭───┬───┬───┬───╮
+#	│ T │ E │ X │ T │
+#	╰───┴───┴─♥─┴───╯
+
   #------------------------------#
  #   CONTAINMENT IN STZSTRING   #
 #------------------------------#
 
-/*
-
 Planets = [
-	:Earth, :Venus, :Mercury, :Mars,
-	:Jupiter, :Saturn, :Uranus, :Neptune
+	"earth", "venus", "mercury", "mars",
+	"jupiter", "saturn", "uranus", "neptune"
 ]
 
 o1 = new stzString("
@@ -20,32 +108,29 @@ o1 = new stzString("
 	were 56 million kilometers at closest approach.
 ")
 
-? o1.ContainsSomeCS(Planets , :CS = FALSE) #--> TRUE
-? o1.ContainsSomeCS(Planets , :CS = TRUE) #--> FALSE
+? o1.ContainsSomeCS(Planets , :CS = FALSE) 	#--> TRUE
+? o1.ContainsSomeCS(Planets , :CS = TRUE) 	#--> FALSE
+
+? @@( o1.FindManyXT(Planets, [ :CS = FALSE, :RemoveEmpty = FALSE ]) ) + NL
+#--> [
+#	[ "earth", 	[ 20, 149 ] 	],
+# 	[ "venus", 	[ ] 		],
+# 	[ "mercury", 	[ ] 		],
+# 	[ "mars", 	[ 92, 159 ] 	],
+# 	[ "jupiter", 	[ ] 		],
+# 	[ "saturn", 	[ ] 		],
+# 	[ "uranus", 	[ ] 		],
+# 	[ "neptune", 	[ ]		 ]
+#   ]
 
 ? @@( o1.FindManyXT(Planets, [ :CS = FALSE, :RemoveEmpty = TRUE ]) ) + NL
-
-#--> [
-#	:Earth 	= [ 20, 149 ],
-#	:Mars = [ 92, 159 ]
-#   ]
-
-? @@( o1.FindManyXT(Planets, [ :CS = FALSE, :RemoveEmpty = FALSE ]) )
-#--> [
-#	:Earth 	= [ 20, 149 ],
-#	:Venus = [ ],
-#	:Mercury = [ ],
-#	:Mars = [ 92, 159 ],
-#	:Jupiter = [ ],
-#	:Saturn = [ ],
-#	:Uranus = [ ],
-#	:Neptune = [ ]
-#   ]
+#--> [ [ "earth", [ 20, 149 ] ], [ "mars", [ 92, 159 ] ] ]
 
   #-------------------------------------------------------------#
  #   CONTAINMENT IN STZTEXT & KNOWLEDGE PROGRAMMING (TODO)     #
 #-------------------------------------------------------------#
-/*
+/*---
+
 StzEntityClassQ(
 	:ClassName 	= :Planets,
 
@@ -106,59 +191,58 @@ o1 = new stzList(["a","b", "C", "D", "e"])
 
 ? @@( o1.YieldFromPositions([], '@item' ) ) #--> [ ]
 
-
 /*===== VERIFYING A STATEMENT ON LISTS, LISTS OF STRINGS & STRINGS =========== OK
 
 o1 = new stzList([ "A", "B", "C", "D", "E" ])
 
-? o1.Verify( :That = 'Q(@EachItem).IsUppercase()' )	#--> TRUE
+? o1.Check( :That = 'Q(@EachItem).IsUppercase()' )	#--> TRUE
 
 o1 = new stzList("A":"E")
-? o1.Verify( :That = 'Q(@EachItem).IsUppercase()' )	#--> TRUE
+? o1.Check( :That = 'Q(@EachItem).IsUppercase()' )	#--> TRUE
 
 #--
 
 o1 = new stzListOfStrings([ "A", "B", "C", "D", "E" ])
 
-? o1.Verify( :That = 'Q(@EachString).IsUppercase()' )	#--> TRUE
+? o1.Check( :That = 'Q(@EachString).IsUppercase()' )	#--> TRUE
 
 o1 = new stzListOfStrings([ "A", "B", "C", "D", "E" ])
-? o1.Verify( :That = 'Q(@EachString).IsUppercase()' )	#--> TRUE
+? o1.Check( :That = 'Q(@EachString).IsUppercase()' )	#--> TRUE
 
 #-- OK
 
 o1 = new stzString("RINGORIALAND")
-? o1.Verify( :That = 'Q(@EachItem).IsUppercase()' )	#--> TRUE
+? o1.Check( :That = 'Q(@EachItem).IsUppercase()' )	#--> TRUE
 
 o1 = new stzString("ringorialand")
-? o1.Verify( :That = 'Q(@EachItem).IsLowercase()' ) 	#--> TRUE
+? o1.Check( :That = 'Q(@EachItem).IsLowercase()' ) 	#--> TRUE
 
 /*----- OK
 
 o1 = new stzList([ "BING", "BINGO", "BINGOO", "BINGOOO", "BINGOOOO" ])
-? o1.Verify( :That = '{ @NextItem = @item + "O" }' )	#--> TRUE
+? o1.Check( :That = '{ @NextItem = @item + "O" }' )	#--> TRUE
 
-? o1.Verify( :That = '{ @Item = @PreviousItem + "O" }')	#--> TRUE
+? o1.Check( :That = '{ @Item = @PreviousItem + "O" }')	#--> TRUE
 
 o1 = new stzList([ 2, 4, 8, 16, 32, 64, 128, 256 ])
-? o1.Verify( :That = '{ Q(@NextItem).IsDoubleOf(@item) }') #--> TRUE
+? o1.Check( :That = '{ Q(@NextItem).IsDoubleOf(@item) }') #--> TRUE
 
 #-- OK
 
 o1 = new stzString("0123456789")
-? o1.Verify( :That = '{ (0+ @NextChar) = (0+ @Char) + 1 }' )	#--> TRUE
+? o1.Check( :That = '{ (0+ @NextChar) = (0+ @Char) + 1 }' )	#--> TRUE
 
-? o1.Verify( :That = '{ (0+ @PreviousChar) = (0+ @Char) - 1 }' ) #--> TRUE
+? o1.Check( :That = '{ (0+ @PreviousChar) = (0+ @Char) - 1 }' ) #--> TRUE
 
 o1 = new stzString("1248")
-? o1.Verify( :That = '{ Q( 0+@NextChar ).IsDoubleOf( 0+@char ) }') #--> TRUE
+? o1.Check( :That = '{ Q( 0+@NextChar ).IsDoubleOf( 0+@char ) }') #--> TRUE
 
 /*----- OK
 
 o1 = new stzList([ "BING", "BINGO", "BINGOO", "BINGOOO", "BINGOOOO" ])
-? o1.Verify( :That = '{ @NextItem = @CurrentItem + "O" }' ) #--> TRUE
+? o1.Check( :That = '{ @NextItem = @CurrentItem + "O" }' ) #--> TRUE
 # Can also be expressed like this (but this too long):
-? o1.Verify( :That = '{ ItemAt(@NextPosition) = ItemAt(@CurrentPosition) + "O" }' ) #--> TRUE
+? o1.Check( :That = '{ ItemAt(@NextPosition) = ItemAt(@CurrentPosition) + "O" }' ) #--> TRUE
 
 o1 = new stzListOfStrings([ "BING", "BINGO", "BINGOO", "BINGOOO", "BINGOOOO" ])
 ? o1.Check( :That = '{ @NextString = @CurrentString + "O" }' ) #--> TRUE
@@ -166,67 +250,70 @@ o1 = new stzListOfStrings([ "BING", "BINGO", "BINGOO", "BINGOOO", "BINGOOOO" ])
 /*----- OK
 
 o1 = new stzString("0123456789")
-? o1.Verify( :That = '{ 0+@NextChar = 0+@CurrentChar + 1 }' ) #--> TRUE
+? o1.Check( :That = '{ 0+@NextChar = 0+@CurrentChar + 1 }' ) #--> TRUE
 
 o1 = new stzListOfStrings([ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
-? o1.Verify( :That = '{ 0+@NextChar = 0+@CurrentChar + 1 }' ) #--> TRUE
+? o1.Check( :That = '{ 0+@NextChar = 0+@CurrentChar + 1 }' ) #--> TRUE
 
 o1 = new stzString("AaBbCcDdEe")
-? o1.Verify( :That = '{ Q(@NextChar).HasDifferentCaseAs(@CurrentChar) }' ) #--> TRUE
+? o1.Check( :That = '{ Q(@NextChar).HasDifferentCaseAs(@CurrentChar) }' ) #--> TRUE
 
 o1 = new stzListOfStrings([ "A", "a", "B", "b", "C", "c", "D", "d", "E", "e" ])
-? o1.Verify( :That = '{ Q(@NextString).HasDifferentCaseAs(@CurrentString) }' ) #--> TRUE
+? o1.Check( :That = '{ Q(@NextString).HasDifferentCaseAs(@CurrentString) }' ) #--> TRUE
 
 /*----- CHECK ON POSITIONS (ON LISTS & STRINGS) ---- OK
 
 o1 = new stzList([ "Word1", "كلمة 2", "Word3", "كلمة 4", "Word5", "كلمة 6" ])
 
-? o1.VerifyOnPositions([1, 3, 5], :That = 'Q(@item).IsLeftToRight()' ) 	#--> TRUE
-? o1.VerifyOnPositions([2, 4], :That = 'Q(@item).IsRightToLeft()' ) 	#--> TRUE
-? o1.Verify(:That = '{ Q(@item).Orientation() != Q(@NextItem).Orientation() }') #--> TRUE
+? o1.CheckOnPositions([1, 3, 5], :That = 'Q(@item).IsLeftToRight()' ) 	#--> TRUE
+? o1.CheckOnPositions([2, 4], :That = 'Q(@item).IsRightToLeft()' ) 	#--> TRUE
+? o1.Check(:That = '{ Q(@item).Orientation() != Q(@NextItem).Orientation() }') #--> TRUE
 
 #--
 
 o1 = new stzListOfStrings([ "Word1", "كلمة 2", "Word3", "كلمة 4", "Word5", "كلمة 6" ])
 
-? o1.VerifyOn([1, 3, 5], :That = 'Q(@string).IsLeftToRight()' ) 	#--> TRUE
-? o1.VerifyOn([2, 4], :That = 'Q(@string).IsRightToLeft()' ) 	#--> TRUE
-? o1.Verify(:That = '{ Q(@string).Orientation() != Q(@NextString).Orientation() }') #--> TRUE
+? o1.CheckOn([1, 3, 5], :That = 'Q(@string).IsLeftToRight()' ) 	#--> TRUE
+? o1.CheckOn([2, 4], :That = 'Q(@string).IsRightToLeft()' ) 	#--> TRUE
+? o1.Check(:That = '{ Q(@string).Orientation() != Q(@NextString).Orientation() }') #--> TRUE
 
 #-- OK
 
 o1 = new stzString("aa3bb67dd0")
-? o1.VerifyOn([ 3, 6, 7, 10], :That = 'StzCharQ(@char).IsANumber()' ) #--> TRUE
+? o1.CheckOn([ 3, 6, 7, 10], :That = 'StzCharQ(@char).IsANumber()' ) #--> TRUE
 
 o1 = new stzListOfStrings([ "a", "a", "3", "b", "b", "6", "7", "d", "d", "0" ])
-? o1.VerifyOn([ 3, 6, 7, 10], :That = 'StzCharQ(@char).IsANumber()' ) #--> TRUE
+? o1.CheckOn([ 3, 6, 7, 10], :That = 'StzCharQ(@char).IsANumber()' ) #--> TRUE
 
 /*----- OK
 
 o1 = new stzList([ [1,2], [5,6], [8,8] ])
 
 ? o1.IsListOfPairs() #--> TRUE
-? o1.Check(:That = 'Q(@EachItem).IsPairOfNumbers()' ) #--> TRUE
+? o1.Check( :That = 'Q(@EachItem).IsPairOfNumbers()' ) #--> TRUE
 
 /*----- OK
 
 o1 = new stzList([ "UPP1", "UPP2", "low3", "low4", "UPP5", "UPP6", "low7", "UPP8" ])
-? o1.VerifyOnSections(
+? o1.CheckOnSections(
 	[ [1,2], [5,6], [8,8] ], :That = 'Q(@EachItem).IsUppercase()' )	#--> TRUE
 
 o1 = new stzListOfStrings([ "UPP1", "UPP2", "low3", "low4", "UPP5", "UPP6", "low7", "UPP8" ])
-? o1.VerifyOnSections(
-	[ [1,2], [5,6], [8,8] ], :That = 'Q(@EachString).IsUppercase()' )	#--> TRUE
+? o1.CheckOnSections(
+	[ [1,2], [5,6], [8,8] ], :That = 'Q(@EachString).IsUppercase()' ) #--> TRUE
 
 o1 = new stzString("aaaAAAAaaAAAaaA")
-? o1.VerifyOnSections([ [1,3], [8,9], [13,14] ], :That = 'Q(@EachChar).IsLowercase()') #--> TRUE
+? o1.CheckOnSections([ [1,3], [8,9], [13,14] ], :That = 'Q(@EachChar).IsLowercase()') #--> TRUE
 
 /*----- OK
 
 o1 = new stzList([ ".", ".", ".", 8, 12, 10, ".", ".", ".", 7, 9 ,12, ".", ".", 56, 30, 12 ])
 
 ? o1.CheckOnSections(
-	[ [ 4, 6], [10, 12], [15, 17] ], :That = 'Q(@EachItem).IsANumber()' ) #--> TRUE
+	[ [ 4, 6], [10, 12], [15, 17] ],
+
+	:That = 'Q(@EachItem).IsANumber()'
+) #--> TRUE
 
 ? o1.CheckOnTheseSections(
 	[ [1,3], [7,9], [13,14] ],
@@ -270,10 +357,10 @@ o1 = new stzString("...456...012..567")
 /*------
 
 o1 = new stzListOfNumbers([ 12, 24, 48, 96, 192 ])
-? o1.Verify( :That = '@EachNumber = @NextNumber / 2') #--> TRUE
+? o1.Check( :That = '@EachNumber = @NextNumber / 2') #--> TRUE
 
 o1 = new stzListOfPairs([ [ "A1", 10 ], [ "A2", 20 ], [ "A3", 30 ], [ "A4", 40 ] ])
-? o1.Verify( :That = 'Q(@EachPair[1]).IsAString() and Q(@EachPair[2]).IsANumber()' ) #--> TRUE
+? o1.Check( :That = 'Q(@EachPair[1]).IsAString() and Q(@EachPair[2]).IsANumber()' ) #--> TRUE
 
 /*==== YIELD FROM ALL ITEMS OF LIST =========== OK
 
@@ -388,7 +475,6 @@ o1 = new stzString("aaaAAAaaAAaA")
   #------------------------#
  #  PERFORM ON ALL ITEMS  #
 #------------------------#
-
 /*---
 
 o1 = new stzList([ 1, 2, 3, 4, 5 ])
@@ -460,6 +546,7 @@ o1.Perform('{ @item += " is a " + aWhatIs[@item] }')
   #------------------------#
  #  PERFORM ON POSITIONS  #
 #------------------------#
+/*---
 
 o1 = new stzList([ "ONE", "two", "THREE", "four", "FIVE" ])
 o1.PerformOnPositions([2, 4], '@item = upper(@item)')
@@ -486,6 +573,7 @@ o1.PerformOnPositions( [ 3, 6, 7, 9 ], '@number += 1' )
   #-------------------------#
  #   PERFORM ON SECTIONS   #
 #-------------------------#
+/*---
 
 o1 = new stzList([ "file1", "file2", 12500, 1104, "file3", "file4", "file5", 5400 ])
 o1.PerformOnSections([ [1,2], [5,7] ], '@item += ".txt"')
@@ -522,6 +610,7 @@ o1.PerformOnSections([ [1,3], [7,8], [11,14]], '@char = upper(@char)' )
   #------------------------#
  #  PERFORM ON CONDITION  #
 #------------------------#
+/*---
 
 o1 = new stzList(["a","b", "C", "D", "e"])
 o1.PerformW( '@item = upper(@item)', :If = 'islower(@item)' )
@@ -569,7 +658,7 @@ o1.PerformW( '@item = upper(@item)', :If = 'islower(@item)' )
   #-----------------------------------------------------#
  #   SWAPING and MOVING STRINGS IN A LIST OF STRINGS   #
 #-----------------------------------------------------#
-/*------- OK
+/*---
 
 o1 = new stzListOfStrings([ "A1", "A5", "A3", "A4", "A2" ])
 o1.SwapBetween(2, 5)
@@ -591,6 +680,7 @@ o1.MoveString( :FromPosition = 2, :ToPosition = 5)
   #-------------------------#
  #   INSERTING IN STRING   #
 #-------------------------#
+/*---
 
 o1 = new stzString("123456789")
 o1.InsertBefore(4, "*")
@@ -631,7 +721,7 @@ o1.InsertAfterW('StzNumberQ(@char).IsEven()' , "*")
 ? o1.Content() #--> "12*34*56*78*9"
 
 /*--------------- OK
-*
+
 o1 = new stzString("RINGORIALAND")
 o1.InsertAfterW('{ @i = 8 }', " ")
 ? o1.Content() #--> RINGORIA LAND
@@ -643,7 +733,7 @@ o1.InsertAfterW('{ @i = @PreviousPosition + 1 }', " ")
   #------------------------#
  #   SPACIFYING STRINGS   #
 #------------------------#
-/*----
+/*--
 
 o1 = new stzString("RINGORIALAND")
 o1.Spacify()
@@ -688,7 +778,7 @@ o1.SpacifyUsing("  ")
   #---------------------------------------#
  #   MANAGING LEADING & TRAILING CHARS   #
 #---------------------------------------#
-/*----
+/*---
 
 o1 = new stzString("aaaAAARing")
 o1.ReplaceThisRepeatedLeadingCharCS("a", :With = "o", :CaseSensitive = TRUE)
@@ -718,19 +808,19 @@ o1.ReplaceLeadingCharsCS(:With = "O", :CS = FALSE)
 o1 = new stzString("RINGaaaAAA")
 o1.ReplaceTrailingCharsCS( :With = "O", :CS = TRUE)
 ? o1.Content()
-#--> Gives: "RINGaaaOOO"
+#--> "RINGaaaOOO"
 
 o1 = new stzString("RINGaaaAAA")
 o1.ReplaceTrailingCharsCS( :With = "O", :CS = FALSE)
 ? o1.Content()
-#--> Gives: "RINGOOOOOO"
+#--> "RINGOOOOOO"
 
 /*----------- OK
 
 o1 = new stzString("aaaAAARING!")
 o1.ReplaceThisLeadingCharCS( "a", :With = "O", :CS = TRUE)
 ? o1.Content()
-#--> Gives: "OOOAAARING!"
+#--> "OOOAAARING!"
 
 /*------------ OK
 
@@ -792,6 +882,7 @@ StzStringQ("   clean code        ") {
  #   VIZ-FINDING A SUBSTRING IN THE STRING    #
 #--------------------------------------------#
 /*---
+
 # The VizFindXT function accepts these options
 
 # 	:CaseSensitive	= TRUE or FALSE
@@ -863,6 +954,7 @@ o1 = new stzString("RINGing")
   #----------------------#
  #   BOXING A STRING    #
 #----------------------#
+/*---
 
 StzStringQ("RING") {
 
@@ -881,7 +973,7 @@ StzStringQ("RING") {
   #----------------------------------------------------#
  #   ALINGING & JUSTIFYING A STRING IN A CONTAINER    #
 #----------------------------------------------------#
-/*
+/*---
 
 StzStringQ("PARIS") {
 	LeftAlign(15, "-")
@@ -911,6 +1003,7 @@ StzStringQ("PARIS") {
   #-----------------------------------------------#
  #   FINDING A SUBSTRING IN A LIST OF STRINGS    #
 #-----------------------------------------------#
+/*---
 
 o1 = new stzListOfStrings([
 	"How many roads must a Man walk down",
@@ -936,6 +1029,7 @@ o1 = new stzListOfStrings([
   #--------------------------------------------------------------#
  #   INSERTING A CHAR, AT, BEFORE, AND AFTER A GIVEN POSITION   #
 #--------------------------------------------------------------#
+/*---
 
 o1 = new stzString("123ABC")
 ? o1.CharAt(4) 		#--> "A"
@@ -969,7 +1063,7 @@ o1.InsertAt(4, " ")
 /*--------- OK
 
 o1 = new stzString("__WWW__WWW_WWW__")
-? o1.FindSections("WWW")
+? @@( o1.FindSections("WWW") )
 #--> [ [3,5], [8,10], [12,14] ]
 
 /*---------- OK
@@ -981,6 +1075,7 @@ o1 = new stzString("RAMADAN")
   #-------------------------------------------#
  #   SPACIFYING CHARS AND GIVEN SUBSTRINGS   #
 #-------------------------------------------#
+/*---
 
 o1 = new stzString("Please spacifythese wordssoIcan read them!")
 o1.SpacifyChars()
@@ -1015,6 +1110,7 @@ o1.SpacifyChars()
   #-------------------------------------------#
  #   BOUNDING SUBSTRINGS INSIDE THE STRING   #
 #-------------------------------------------#
+/*---
 
 o1 = new stzString("Let's bound this word, this word and this word!")
 o1.BoundSubStringWith("word", "<<", ">>")
@@ -1107,6 +1203,7 @@ func Sentiment(pcWord)
   #---------#
  #  MISC.  #
 #---------#
+/*---
 
 o1 = new stzListOfNumbers([ 5, 4, 3 ])
 o1.SubstractFromEach(1)
@@ -1164,11 +1261,11 @@ o1 = new stzList([ 1:3, 3:5, 1:3, 6:8, 3:5 ])
 
 /*--------------- OK
 
-o1 = new stzList([ "str1", 14,[ "A", "B", "C"], 8, "str2" ])
+o1 = new stzList([ "str1", 14, [ "A", "B", "C"], 8, "str2" ])
 ? o1.ItemsStringified()
 #--> [ "str1", "14", '[ "A", "B", "C" ]', "8", "str2" ]
 
 /*--------------- OK
 
-? StzListQ([ 1:3, 3:5, 1:3, 6:8, 3:5 ]).DuplicatesRemoved()
+? @@( StzListQ([ 1:3, 3:5, 1:3, 6:8, 3:5 ]).DuplicatesRemoved() )
 #--> [ [ 1, 2, 3 ], [ 3, 4, 5 ], [ 6, 7, 8 ] ]

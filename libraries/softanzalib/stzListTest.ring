@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*---------------
+
 ? StzListQ( 4:8 ).ToListInString() 		#--> "[ 4, 5, 6, 7, 8 ]"
 ? StzListQ( 4:8 ).ToListInStringInShortForm() 	#--> "4 : 8"
 
@@ -20,7 +22,7 @@ o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
 o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
 
 o1.Removeduplicates()
-? o1.Content() #--> [ 1:3, 4:6, 7:10 ]
+? @@( o1.Content() ) #--> [ 1:3, 4:6, 7:10 ]
 
 /*===============
 
@@ -157,12 +159,15 @@ o1 = new stzList([
 #	[ "12 : 20", [6, 9 ]
 #    ]
 
-? o1.Classes@C() #--> [ "1 : 5", "3 : 9", "10 : 15", "12 : 20" ]
+# TODO: retest after completing stzSplit()
 
-? o1.Klass@C("1:5") #--> [1, 3, 8]
-
+	//? o1.Classes@C() #--> [ "1 : 5", "3 : 9", "10 : 15", "12 : 20" ]
+	
+	//? o1.Klass@C("1:5") #--> [1, 3, 8]
+	
 /*----------------
 
+? StzStringQ(:stzList).IsStzClassName() #--> TRUE
 ? StzListQ( :ReturnedAs = :stzList ).IsReturnedAsNamedParamList() #--> TRUE
 
 /*-----------------
@@ -172,12 +177,12 @@ o1 = new stzList([
 
 /*-----------------
 
-? StzListQ([ [ "name", "Mansour"], [ "age", 45] ]).IsHashList() # --> TRUE
-? StzListQ([ :name ="Mansour", :age = 45 ]).IsHashList() # --> TRUE
+? StzListQ([ [ "name", "Mansour"], [ "age", 45] ]).IsHashList()	# --> TRUE
+? StzListQ([ :name ="Mansour", :age = 45 ]).IsHashList()	# --> TRUE
 
 # But
 
-? StzListQ([ "name" = "Mansour", "age" = 45 ]).IsHashList() # --> FALSE
+? StzListQ([ "name" = "Mansour", "age" = 45 ]).IsHashList()	# --> FALSE
 
 /*-----------------
 
@@ -230,7 +235,6 @@ o1 - o1.ItemsW('IsNotNumber(@item)')
 
 StzListQ([ "by", "except"]) { 
 	? IsMadeOfOneOrMoreOfThese([ :by, :except, :stopwords ]) # --> TRUE
-	# return FALSE --> ERROR  should return TRUE
 
 	# Same as
 	? IsMadeOfSome([ :by, :except, :stopwords ]) # --> TRUE
@@ -249,31 +253,33 @@ StzListQ([ "by", "except", "stopwords"]) {
 }
 
 /*-----------------
-*/
-//? list2code([ "q", "r", [ 2, 1 ] ])
 
-//? StzListQ([ "q", "r", [ 2, 1 ] ]).ToCode()
-/*
-? StzListQ([ "q", "r", [ 2, 1 ] ]).Contains("x")
-/*
-? StzListQ([ "q", "r", [ 2, 1] ]).HasSameContentAs([ "q", "r", [ 2, 1] ])
-//? StzListQ([ "q", "r", [ 2, 1] ]).IsEqualTo([ "q", "r", [2, 1] ])
+? StzListQ([ "q", "r", [ 2, 1 ] ]).ToCode()
+#--> [
+#	"q",
+#	"r",
+#	[
+#		2,
+#		1
+#	]
+#    ]
 
-/*----------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+/*-----------------
 
-o1 = new stzList([ 
-	:By = :OrderOfOccurrenceOfWords,
-	:Except = [ :names, :actually ]//, # try also :Except = :names
-	//:StopWords = :MustBeRemoved # try also :MustNotBeRemoved
-])
+? StzListQ([ "q", "r", [ 2, 1 ] ]).Contains([ 2, 1 ]) #--> TRUE
+? StzListQ([ "q", "r", [ 2, 1] ]).HasSameContentAs([ "r", [ 2, 1], "q" ]) #--> TRUE
+? StzListQ([ "q", "r", [ 2, 1] ]).HasSameSortingOrderAs([ "r", [ 2, 1], "q" ]) #--> FALSE
 
-
-? o1.IsReplaceWordsWithMarquersParamList()
+? StzListQ([ "q", "r", [ 2, 1] ]).IsEqualTo([ "q", "r", [2, 1] ]) #--> TRUE
 
 
 /*-----------------
 
-? StzListQ([]).IsListOfStrings() # --> TRUE
+? StzListQ([]).Contains(NULL)		#--> FALSE
+? StzListQ([NULL]).Contains(NULL)	#--> TRUE
+
+? StzListQ([]).IsListOfStrings()	# --> FALSE
+
 ? StzListQ([ NULL, NULL, NULL]).IsListOfStrings() # --> TRUE
 
 /*-----------------
@@ -281,6 +287,7 @@ o1 = new stzList([
 o1 = new stzList([ "fa", "bo" , "wy" , "wo" ])
 o1 - [ "bo", "wo" ]
 ? o1.Content()
+#--> [ "fa", "wy" ]
 
 /*-----------------
 
@@ -293,15 +300,14 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	? VizFind("A")
 }
 
-# --> Returns a string like this:
-
+# -->
 #	 [ "A", "B", "D", "A", "C", "A", "E", "B", "D", "A", "F", "C" ]
 #	  --^--------------^---------^-------------------^------------
 
 # WARINING: works only for list of chars
 # TODO : Generalize it for list of strings and other types
 
-/*------------------
+/*------------------ TODO: Add this function
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	? VizFindXT("A")
@@ -343,9 +349,9 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 #   "D" :  ------------^-----------------------------^----------------- (2)
 
 /*------------------
-
-StzListQ([ "A" , "B", "C", "A", "D", "A" ]) {
-	ReplaceNextNthOccurrence(2, "A", "*", :StartingAt = 2)
+*/
+StzListOfStringsQ([ "A" , "B", "C", "A", "D", "A" ]) {
+	ReplaceNextNthOccurrence(2, "A", :With = "*", :StartingAt = 2 )
 	? Content() # --> [ "A" , "B", "C", "A", "D", "*" ]
 }
 
@@ -880,7 +886,7 @@ StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 }
 
 /*----------------------- TODO: fix error
-*/
+
 # All these return TRUE
 
 ? StzListQ([ :DefaultLocale ]).IsLocaleList()
@@ -1574,12 +1580,12 @@ o1 = new stzList([ "tunis", 1:3, 1:3, "gafsa", "tunis", "tunis", 1:3, "gabes", "
 //o1.ReverseItems() # Note: Softanza does not use Reverse() because it is reserved by Ring
 //? o1.Content()
 //? o1.NumberOfDuplicates("tunis")
-? o1.Duplicates()
+? o1.DuplicatedItems()
 
 ? o1.DuplicatedItems() # TODO: CaseSensitive! in stzListOfStrings + Objects are not covered!
 ? o1.DuplicatesOfItem(1:3)
 
-//? o1.DuplicatedItemsAndTheirDuplicates()
+//? o1.DuplicatedItemsXT()
 //? o1.RemoveDuplicatesQ().Content()
 //? o1.DuplicatesRemoved()
 

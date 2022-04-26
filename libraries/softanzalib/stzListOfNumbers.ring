@@ -1706,6 +1706,9 @@ class stzListOfNumbers from stzList
 	 #   MISC.   #
 	#===========#
 
+	def IsStzListOfNumbers()
+		return TRUE
+
 	def ToStzListOfChars()
 		return new stzListOfChars( This.Content() )
 

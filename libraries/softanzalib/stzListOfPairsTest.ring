@@ -1,5 +1,8 @@
 load "stzlib.ring"
 
+o1 = new stzListOfPairs([ ["A", "B"], ["C", "♥"], ["E", "F"] ])
+? o1.ContainsInAnyPair("♥") # TRUE
+
 /*------
 
 o1 = new stzListOfPairs([

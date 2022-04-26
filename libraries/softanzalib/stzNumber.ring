@@ -39,8 +39,8 @@
 	for the value), i.e. double has 15 decimal digits of precision.
 	
 	Double range is '2.2250738585072014 E – 308' to '1.7976931348623158 E + 308'.
-	Subsequently the size and length varies accordingly. It has nothing to do with the
-	language one is using.
+	Subsequently the size and length varies accordingly.
+	It has nothing to do with the language one is using.
 	
 	<Ilir>
 		±2.23 x 10-308 to ±1.80 x 10 308
@@ -3349,6 +3349,9 @@ class stzNumber from stzObject
 	  #--------------------------------#
 	 #    USUED FOR NATURAL-CODING    #
 	#--------------------------------#
+
+	def IsStzNumber()
+		return TRUE
 
 	def DataType()
 		return :Number
