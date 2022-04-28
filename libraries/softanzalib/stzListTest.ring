@@ -242,8 +242,6 @@ StzListQ([ "by", "except"]) {
 
 /*-----------------
 
-# البعض من الشّيء يمتدّ من اللّاشيءِ إلى الشَّيء كلّه، وما بينهما.
-
 StzListQ([ "by", "except", "stopwords"]) { 
 	//? IsMadeOfThese([ :by, :except, :stopwords ])
 	? IsMadeOfSome([ :by, :except, :stopwords ]) # TRUE
@@ -255,6 +253,18 @@ StzListQ([ "by", "except", "stopwords"]) {
 /*-----------------
 
 ? StzListQ([ "q", "r", [ 2, 1 ] ]).ToCode()
+#--> [
+#	"q",
+#	"r",
+#	[
+#		2,
+#		1
+#	]
+#    ]
+
+? @@( [ "q", "r", [ 2, 1 ] ] ) #--> [ "q", "r", [ 2, 1 ] ]
+
+? @@S( [ "q", "r", [ 2, 1 ] ] ) # S for Spacified
 #--> [
 #	"q",
 #	"r",
@@ -349,7 +359,7 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 #   "D" :  ------------^-----------------------------^----------------- (2)
 
 /*------------------
-*/
+
 StzListOfStringsQ([ "A" , "B", "C", "A", "D", "A" ]) {
 	ReplaceNextNthOccurrence(2, "A", :With = "*", :StartingAt = 2 )
 	? Content() # --> [ "A" , "B", "C", "A", "D", "*" ]
@@ -372,12 +382,12 @@ StzListQ([ -1 , 2, 3, 4 ]) {
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	ReplaceNextNthOccurrences([2, 3], :of = "A", :with = "*",  :StartingAt = 3)
-	? Content() # !--> [ "A" , "B", "A", "C", "*", "D", "*" ]
+	? @@( Content() ) # --> [ "A" , "B", "A", "C", "*", "D", "*" ]
 }
 
-
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	? NextNthOccurrencesReplaced([2, 3], :of = "A", :with = "*",  :StartingAt = 3)
+	? @@( NextNthOccurrencesReplaced([2, 3], :of = "A", :with = "*",  :StartingAt = 3) )
+	#--> [ "A", "B", "A", "C", "*", "D", "*" ]
 }
 
 /*------------------
@@ -385,14 +395,14 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
 	ReplacePreviousNthOccurrences([1, 2, 3], :of = "A", :with = "*",  :StartingAt = 5)
-	? Content() # !--> [ "*" , "B", "*", "C", "*", "D", "A" ]
+	? @@( Content() ) # --> [ "*" , "B", "*", "C", "*", "D", "A" ]
 }
 
 /*------------------
-
+*/
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	ReplacePreviousNthOccurrences([1, 3], "A", [ "*", "#" ], :StartingAt = 5)
-	? Content() # !--> [ "A" , "B", "#", "C", "*", "D", "A" ]
+	ReplacePreviousNthOccurrencesOneByOne([3, 1], "A", :With = [ "#3", "#1" ], :StartingAt = 5)
+	? @@( Content() ) # --> [ "A" , "B", "#", "C", "*", "D", "A" ]
 }
 /*------------------
 

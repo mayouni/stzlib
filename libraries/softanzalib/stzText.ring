@@ -1192,7 +1192,8 @@ class stzText from stzString
 	*/
 
 	def WordsExcept(pacWords)
-		if NOT (isList(pacWords) and IsListOfStrings(pacWords) )
+		if NOT ( isList(pacWords) and IsListOfStrings(pacWords) )
+
 			stzRaise("Incorrect param type!")
 		ok
 
@@ -1955,6 +1956,7 @@ class stzText from stzString
 	def NumberOfOccurrenceOfWord(pcWord)
 
 		if NOT ( isString(pcWord) and StringIsWord(pcWord) )
+
 			stzRaise(stzStringError(:CanNotComputeNumberOfOccurrenceOfWord))
 		ok
 
@@ -2625,6 +2627,7 @@ class stzText from stzString
 		# Controlling the type of the options list
 
 		if NOT ( isList(paOptions) and StzListQ(paOptions).IsHashList() )
+
 			stzRaise("Incorrect type of the option list!")
 		ok
 
@@ -2688,7 +2691,8 @@ class stzText from stzString
 
 			         StzStringQ(pStopWordsValue).IsOneOfThese([
 					:MustBeRemoved, :MustNotBeRemoved
-				 ]) )
+				 	])
+			       )
 
 				stzRaise("Incorrect param format!")
 			ok
@@ -3292,7 +3296,10 @@ class stzText from stzString
 			return This.FindAllOccurrencesOfWord(pcWord)
 		
 		def PositionsOfWord(pcWord)
-			return return This.FindAllOccurrencesOfWord(pcWord)
+			return This.FindAllOccurrencesOfWord(pcWord)
+
+		def WordPosition(pcWord)
+			return This.FindAllOccurrencesOfWord(pcWord)
 
 		#>
 	

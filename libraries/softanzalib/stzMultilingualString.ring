@@ -53,8 +53,9 @@ class stzMultilingualString from StzMultiString
 
 		def tr(pcLang)
 			# Check that pcLang corresponds to a supported language name or abbreviation
-			if NOT (StringIsLanguageName(pcLang) or
-				StringIsLanguageAbbreviation(pcLang))
+			if NOT ( StringIsLanguageName(pcLang) or
+			         StringIsLanguageAbbreviation(pcLang)
+			       )
 	
 				stzRaise(stzMultilingualStringError(:UnsupportedLanguageNameOrAbbreviation))
 			ok

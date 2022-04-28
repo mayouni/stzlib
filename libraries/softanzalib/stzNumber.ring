@@ -178,7 +178,7 @@ func StringRepresentsSignedNumber(cNumber)
 
 func IsBit(n)
 	if NOT isNumber(n)
-		stzRaise("Param must be a number!")
+		stzRaise("Incorrect param! n must be a number!")
 	ok
 
 	if n = 0 or n = 1
@@ -188,9 +188,10 @@ func IsBit(n)
 
 	ok
 
-func Min(n1,n2) # for more numbers, use stzListOfNumbers.Min()
-	if NOT (isNumber(n1) and isNumber(n2))
-		stzRaise("Param must be a number!")
+func Min(n1,n2) # for more then 2 numbers, use stzListOfNumbers.Min()
+
+	if NOT BothAreNumbers(n1, n2)
+		stzRaise("Incorrect param! n1 and n2 must be a number!")
 	ok
 
 	if n1 <= n2
@@ -200,8 +201,9 @@ func Min(n1,n2) # for more numbers, use stzListOfNumbers.Min()
 	ok
 
 func Max(n1,n2) # for more numbers, use stzListOfNumbers.Max()
-	if NOT (isNumber(n1) and isNumber(n2))
-		stzRaise("Param must be a number!")
+
+	if NOT BothAreNumbers(n1, n2)
+		stzRaise("Incorrect param! Param must be a number!")
 	ok
 
 	if n1 >= n2
@@ -2092,7 +2094,7 @@ class stzNumber from stzObject
 
 	def IsDividableBy(n)	// Main Number and n must be integers!
 		oNumber = new stzNumber(n)
-		if NOT (This.IsInteger() and oNumber.IsInteger())
+		if NOT ( This.IsInteger() and oNumber.IsInteger() )
 			return FALSE
 		ok
 

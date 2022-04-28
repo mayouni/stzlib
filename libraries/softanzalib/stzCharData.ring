@@ -1883,3 +1883,15 @@ Diacritics
 
 	func Heart()
 		return "♥"
+
+	func Smile()
+		return "😆"
+
+	func Handshake()
+		return "🤝"
+
+	func Sun()
+		return "🌞"
+
+	func Star()
+		return "★"

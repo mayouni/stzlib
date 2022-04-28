@@ -604,10 +604,10 @@ o1 = new stzString("ABTCADNBBABEFACCC")
 #  "X" :  ----------------- (0)
 
 /*======================
-
+*/
 ? Q("RINGO").HasCentralChar()		# --> TRUE
 ? Q("RINGO").CentralChar()		# --> N
-? Q("RINGO").CentralCharPosition()	# --> 3
+? Q("RINGO").PositionOfCentralChar()	# --> 3
 ? Q("RINGO").HasThisCharInTheCenter("N") # --> TRUE
 
 /*----------------------

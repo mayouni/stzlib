@@ -87,8 +87,17 @@ class stzListOfChars from stzListOfStrings
 
 			@aContent = pValue
 
-		but isString(pValue) and StzStringQ(pValue).IsListInString()
-			@aContent = StzStringQ(pValue).ToList()
+		but isString(pValue)
+			try
+				aList = StzStringQ(pValue).ToList()
+				if Q(aList).IsListOfChars()
+					@aContent = aList
+				else
+					stzRaise("The list in the string you provided is not a list of chars!")
+				ok
+			catch
+				stzRaise("Can't transform the string you provided into a list of chars!")
+			done
 
 		but isString(pValue)
 			@aContent = pValue
@@ -125,7 +134,7 @@ class stzListOfChars from stzListOfStrings
 
 		ok
 
-		if LsitIsListOfChars(paOtherListOfChars)
+		if ListIsListOfChars(paOtherListOfChars)
 			@aContent = paOtherListOfChars
 			@cString = This.ToString() # TODO: Add it to stzList
 			@aStzChars = This.ToListOfStzChars()

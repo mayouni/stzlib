@@ -124,7 +124,7 @@ func CallMethod( pcMethod, paOnObjects )
 def AreChars(paChars)
 	bResult = TRUE
 	for c in paChars
-		if NOT isString(c) and StringIsChar(c)
+		if NOT ( isString(c) and StringIsChar(c) )
 			bResult = FALSE
 			exit
 		ok
@@ -347,8 +347,12 @@ class stzList from stzObject
 		if isList(paList)
 			@aContent = paList
 
-		but isString(paList) and StzStringQ(paList).IsListInString()
-			@aContent = StzStringQ(paList).ToList()
+		but isString(paList)
+			try
+				@aContent = StzStringQ(paList).ToList()
+			catch
+				stzRaise("Can't transform the string to a list!")
+			done
 
 		else
 			stzRaise("Can't create the stzList object!")
@@ -1267,7 +1271,7 @@ class stzList from stzObject
 		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
 		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
-			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
+			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
@@ -1448,10 +1452,11 @@ class stzList from stzObject
 
 		*/
 
-		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
-		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
+		if NOT ( isList(panList) and StzListQ(panList).IsListOfNumbers() and
 
-			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
+		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
+
+			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
@@ -2638,7 +2643,7 @@ class stzList from stzObject
 		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
 		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
-			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
+			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
@@ -2818,7 +2823,7 @@ class stzList from stzObject
 		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
 		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
-			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfItems().")
+			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
@@ -4284,7 +4289,8 @@ class stzList from stzObject
 	def AddWalker(pcName, pnStart, pnEnd, panStepping)
 
 		if NOT ( StzNumberQ(pnStart).IsBetween(1, This.NumberOfItems()) and
-			 StzNumberQ(pnEnd).IsBetween(1, This.NumberOfItems()) )
+		         StzNumberQ(pnEnd).IsBetween(1, This.NumberOfItems())
+		       )
 
 			stzRaise("Start or end of walker outside list range!")
 		ok
@@ -4938,7 +4944,7 @@ class stzList from stzObject
 
 	def YieldFrom(panPositions, pcCode)
 
-		if NOT isList(panPositions) and Q(panPositions).IsListOfNumbers()
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
 			stzRaise("Incorrect param! paPositions must be a list of numbers.")
 		ok
 
@@ -5205,7 +5211,7 @@ class stzList from stzObject
 	#------------------------------------------------------#
 
 	def YieldFromSections(paSections, pcCode)
-		if NOT isList(paSections) and Q(paSections).IsListOfPairsOfNumbers()
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -5328,7 +5334,7 @@ class stzList from stzObject
 		#>
 
 	def YieldFromSectionsOneByOne(paSections, pcCode)
-		if NOT isList(paSections) and Q(paSections).IsListOfPairsOfNumbers()
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -9028,6 +9034,9 @@ class stzList from stzObject
 		def FindNth(n, pItem)
 			return This.FindNthOccurrence(n, pItem)
 
+		def NthOccurrence(n, pItem)
+			return This.FindNthOccurrence(n, pItem)
+
 		#>
 
 	def FindFirstOccurrence(pItem)
@@ -9096,6 +9105,9 @@ class stzList from stzObject
 
 		def FindFirst(pItem)
 			return This.FindFirstOccurrence(pItem)
+
+		def FirstOccurrence(pItem)
+			return This.FindFirstOccurrence(pItem)
 	
 		#>
 
@@ -9114,6 +9126,9 @@ class stzList from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindLast(pItem)
+			return This.FindLastOccurrence(pItem)
+
+		def LastOccurrence(pItem)
 			return This.FindLastOccurrence(pItem)
 
 		#>
@@ -11917,7 +11932,8 @@ class stzList from stzObject
 
 		if NOT ( len(anShareOfEachItem) = 2 and
 			anShareOfEachItem[1] = :Using and
-			ListIsListOfNumbers(anShareOfEachItem[2]) )
+			ListIsListOfNumbers(anShareOfEachItem[2])
+		       )
 
 				stzRaise("Incorrect param form!")
 
@@ -11926,9 +11942,9 @@ class stzList from stzObject
 		# The sum of numbers in anShareOfEachItem should be equal to the
 		# number of items of the main list
 
-		if NOT 	( StzListQ(anShareOfEachItem[2]).IsListOfNumbers() AND
-		   	  ListOfNumbersSum(anShareOfEachItem[2]) = This.NumberOfItems()
-			)
+		if NOT ( StzListQ(anShareOfEachItem[2]).IsListOfNumbers() AND
+		         ListOfNumbersSum(anShareOfEachItem[2]) = This.NumberOfItems()
+		       )
 
 			stzRaise(stzListError(:CanNoteDistributeItemsOverTheList2))
 		ok

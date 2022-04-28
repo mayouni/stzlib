@@ -6,10 +6,10 @@ Class stzTable from stzList
 		if len(paTable)=2 and
 		isInteger(paTable[1]) and
 		isInteger(paTable[2])
-			// Creating an empty table()
+			// TODO: Creating an empty table()
 
 		but isString(paTable)
-			// Extracting a table from the string
+			// TODO: Extracting a table from the string
 
 		else
 			// The table is provided as a parameter
@@ -18,9 +18,11 @@ Class stzTable from stzList
 		ok
 
 	def IsWellFormatted()
-		if NOT isList(aTable) or
-		   NOT EachItemIsList(aTable) or	# --> Should go to stzList
-		   NumberOfLevels() > 2	# --> Depth() : Should go to stzList
+
+		if ( NOT isList(aTable) ) or
+		   ( NOT EachItemIsList(aTable) ) or	# --> Should go to stzList
+		   ( NumberOfLevels() > 2 )	# --> Depth() : Should go to stzList
+
 			return FALSE
 		else
 			return TRUE

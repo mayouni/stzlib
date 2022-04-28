@@ -40,7 +40,7 @@ func stzRaise(paMessage)
 
 	*/
 
-	if NOT (isString(paMessage) or isList(paMessage) )
+	if NOT ( isString(paMessage) or isList(paMessage) )
 
 		raise("Error in stzRaise param type!" + NL)
 	ok
@@ -212,6 +212,54 @@ func BothAreNumbers(p1, p2)
 
 	func AreBothNumbers(p1, p2)
 		return BothAreNumbers(p1, p2)
+
+func BothAreNumbersInStrings(p1, p2) # NOTE: hex and octal numbers are excluded
+
+	if BothAreStrings(p1, p2) and Q(p1).IsDecimalNumberInString() and Q(p2).IsDecimalNumberInString()
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+func BothAreCharsInComputableForm(p1, p2)
+
+	bResult = FALSE
+
+	if BothAreStringsInComputableForm(p1, p2)
+		c1 = '"'
+		c2 = "'"
+
+		bOk1 = StzStringQ(p1).RemoveManyQ([ c1, c2 ]).IsAChar()
+		bOk2 = StzStringQ(p2).RemoveManyQ([ c1, c2 ]).IsAChar()
+
+		if bOk1 and bOk2
+			bResult = TRUE
+		ok
+	ok
+
+	return bResult
+	
+	 
+func BothAreStringsInComputableForm(p1, p2)
+	c1 = '"'
+	c2 = "'"
+
+	if BothAreStrings(p1, p2) and
+
+	   ( ( Q(p1).FirstChar() = c1 and Q(p1).LastChar() = c1 ) or
+	     ( Q(p1).LastChar()  = c2 and Q(p1).LastChar() = c2 )
+	   ) and
+
+	   ( ( Q(p2).FirstChar() = c1 and Q(p2).LastChar() = c1 ) or
+	     ( Q(p2).LastChar()  = c2 and Q(p2).LastChar() = c2 )
+	   )
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
 
 func BothAreStzNumbers(p1, p2)
 	if IsStzNumber(p1) and IsStzNumber(p2)
@@ -448,7 +496,7 @@ func ComputableFormSP(pValue) # TODO: case of object --> return its name
 	#< @FunctionAlternativeForms
 
 	func @@S(pValue)
-		return ComputableForm(pValue)
+		return ComputableFormSP(pValue)
 
 		func @@SQ(pValue)
 			return new stzString( @@(pValue) )

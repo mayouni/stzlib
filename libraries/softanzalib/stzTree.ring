@@ -52,9 +52,9 @@ class stzTree from stzList
 	@aContent = []
 
 	def Init(paTree)
-		if NOT isList(paTree) and StzListQ(paTree).IsStzTree()
+		if NOT ( isList(paTree) and StzListQ(paTree).IsStzTree() )
 			stzRaise([
-				:Where	= "stzTree (136) > Initt(paTree)",
+				:Where	= "stzTree > Init(paTree)",
 				:What	= "Can't create the stzTree object!",
 				:Why	= "The value you provided (paTree) is not a well format list.",
 				:Todo	= "Look to the examples in stzTreeTest.ring file and adjust your input accordingly."
