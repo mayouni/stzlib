@@ -106,6 +106,19 @@ class stzListOfNumbers from stzList
 		   ( Q(paList).IsEmpty() or Q(paList).IsListOfNumbers() )
 
 			@anContent = paList
+
+		but isString(paList)
+			try
+				aList = Q(paList).ToList()
+				if StzListQ(aList).IsListOfNumbers()
+					@anContent = aList
+				else
+					stzRaise("The list in the string you provided is not a list of numbers!")
+				ok
+
+			catch
+				stzRaise("Can't transform the string into a llist of numbers!")
+			done
 		else
 			stzRaise("Can't create a stzListOfNumbers object!")
 		ok
@@ -259,7 +272,7 @@ class stzListOfNumbers from stzList
 			return This.FindMin()
 
 		def PositionOfMin()
-			return return This.FindMin()
+			return This.FindMin()
 
 		def PositionOfMinNumber()
 			return This.FindMin()
@@ -416,6 +429,31 @@ class stzListOfNumbers from stzList
 					stzRaise("Unsupported return type!")
 				off
 
+		def MinNumbersPositions(n)
+			return This.FindMinNumbers(n)
+
+			def MinNumbersPositionsQ(n)
+				return This.MinNumbersPositionsQR(n, :stzList)
+	
+			def MinNumbersPositionsQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.MinNumbersPositions(n) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.MinNumbersPositions(n) )
+	
+				on :stzListOfStrings
+					return StzListOfNumbersQ(This.MinNumbersPositions()).ToStzListOfStrings()
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+
 		def PositionsOfNMinNumbers(n)
 			return This.FindMinNumbers(n)
 
@@ -440,6 +478,32 @@ class stzListOfNumbers from stzList
 				other
 					stzRaise("Unsupported return type!")
 				off
+
+		def NMinNumbersPositions(n)
+			return This.FindMinNumbers(n)
+
+			def NMinNumbersPositionsQ(n)
+				return This.NMinNumbersPositionsQR(n, :stzList)
+	
+			def NMinNumbersPositionsQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.NMinNumbersPositions(n) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.NMinNumbersPositions(n) )
+	
+				on :stzListOfStrings
+					return StzListOfNumbersQ(This.NMinNumbersPositions()).ToStzListOfStrings()
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+
 		#>
 
 	  #-------------------------#
@@ -754,10 +818,19 @@ class stzListOfNumbers from stzList
 		def PositionsOfTop(n)
 			return This.FindTop(n)
 
+		def TopPositions(n)
+			return This.FindTop(n)
+
 		def PositionsOfTopNumbers(n)
 			return This.FindTop(n)
 
+		def TopNumbersPositions()
+			return This.FindTop(n)
+
 		def PositionsOfTopNNumbers(n)
+			return This.FindTop(n)
+
+		def TopNNumbersPositions(n)
 			return This.FindTop(n)
 
 		#> @EndOfFunctionAlternativeForms
@@ -1211,7 +1284,7 @@ class stzListOfNumbers from stzList
 
 	def AddManyOneByOne(paNumbers)
 
-		if NOT (isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
 			stzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
@@ -1242,7 +1315,7 @@ class stzListOfNumbers from stzList
 
 	def SubstractManyOneByOne(paNumbers)
 
-		if NOT (isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
 			stzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
@@ -1310,7 +1383,7 @@ class stzListOfNumbers from stzList
 
 	def DivideByManyOneByOne(paNumbers)
 
-		if NOT (isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
 			stzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
@@ -1505,7 +1578,8 @@ class stzListOfNumbers from stzList
 		ok
 
 		if NOT ( isList(panNewListOfNumbers) and
-			 Q(panNewListOfNumbers).IsListOfNumbers() )
+			 Q(panNewListOfNumbers).IsListOfNumbers()
+		       )
 
 			stzRaise("Incorrect param type!")
 		ok
@@ -1514,7 +1588,8 @@ class stzListOfNumbers from stzList
 
 		def UpdateWith(panNewListOfNumbers)
 			if NOT ( isList(panNewListOfNumbers) and
-				 Q(panNewListOfNumbers).IsListOfNumbers() )
+				 Q(panNewListOfNumbers).IsListOfNumbers()
+			       )
 
 				stzRaise("Incorrect param! You must provide a list of numbers.")
 			ok

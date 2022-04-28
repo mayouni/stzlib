@@ -122,12 +122,23 @@ class stzListOfStrings from stzList
 				@oQStrList.append(str)	
 			next
 
-		but isString(pList) and Q(pList).IsContiguousListInString()
-			acListOfStr = Q(pList).ToList()
-			@oQStrList = new QStringList()
-			for str in acListOfStr
-				@oQStrList.append(str)
-			next
+		but isString(pList)
+
+			try
+				aList = StzStringQ(pList).ToList()
+
+				if StzListQ(aList).IsListOfStrings()
+					@oQStrList = new QStringList()
+					for str in aList
+						@oQStrList.append(str)
+					next
+
+				else
+					stzRaise("The list in the string you provided is not a list of strings!")
+				ok
+			catch
+				stzRaise("Can't transform the string to a list!")
+			done
 			
 		else
 			stzRaise([
@@ -465,9 +476,9 @@ class stzListOfStrings from stzList
 			stzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
-		if NOT  ( StzNumberQ(n1).IsBetween(1, This.NumberOfStrings() ) and
-			  StzNumberQ(n2).IsBetween(1, This.NumberOfStrings() )
-			)
+		if NOT  ( StzNumberQ(n1).IsBetween(1, This.NumberOfStrings()) and
+			StzNumberQ(n2).IsBetween(1, This.NumberOfStrings())
+		        )
 
 			stzRaise("Out of range!")
 		ok
@@ -1414,13 +1425,13 @@ class stzListOfStrings from stzList
 			n2 = This.NumberOfStrings()
 		ok
 
-		if NOT isNumber(n1) and isNumber(n2)
+		if NOT BothAreNumbers(n1, n2)
 			stzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
-		if NOT  ( StzNumberQ(n1).IsBetween(1, This.NumberOfStrings() ) and
-			  StzNumberQ(n2).IsBetween(1, This.NumberOfStrings() )
-			)
+		if NOT  ( StzNumberQ(n1).IsBetween(1, This.NumberOfStrings()) and
+			StzNumberQ(n2).IsBetween(1, This.NumberOfStrings())
+		        )
 
 			stzRaise("Out of range!")
 		ok
@@ -1792,7 +1803,7 @@ class stzListOfStrings from stzList
 	
 	*/
 
-	def FindStringItemCS(pcStrItem, pCaseSensitive)
+	def FindAllCS(pcStrItem, pCaseSensitive)
 
 		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParamList()
 			pCaseSensitive = pCaseSensitive[2]
@@ -1814,74 +1825,303 @@ class stzListOfStrings from stzList
 
 		return anResult
 
+		#< @FunctionFluentForm
+
+		def FindAllCSQ(pcStrItem, pCaseSensitive)
+			return FindAllCSQR(pcStrItem, pCaseSensitive, :stzList)
+
+		def FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindAllCS(pcStrItem, pCaseSensitive) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindAllCS(pcStrItem, pCaseSensitive) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+		#>
+
 		#< @FunctionAlternativeForms
 
+		def FindStringItemCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def FindStringItemCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def FindStringItemCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+
 		def FindStringCS(pcStrItem, pCaseSensitive)
-			return This.FindStringItemCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def FindStringCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def FindStringCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
 
 		def FindCS(pcStrItem, pCaseSensitive)
-			return This.FindStringItemCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
 
-		def FindAllCS(pcStrItem, pCaseSensitive)
-			return This.FindStringItemCS(pcStrItem, pCaseSensitive)
+			def FindCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
 
-			def FindAllCSQ(pcStrItem, pCaseSensitive)
-				return FindAllCSQR(pcStrItem, pCaseSensitive, :stzList)
-
-			def FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAllCS(pcStrItem, pCaseSensitive) )
-
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindAllCS(pcStrItem, pCaseSensitive) )
-
-				other
-					stzRaise("Unsupported return type!")
-				off
+			def FindCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
 
 		def FindAllOccurrencesOfStringItemCS(pcStrItem, pCaseSensitive)
-			return This.FindStringItemCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def FindAllOccurrencesOfStringItemCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def FindAllOccurrencesOfStringItemCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+
+		def FindAllOccurrencesOfStringCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def FindAllOccurrencesOfStringCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def FindAllOccurrencesOfStringCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
 
 		def PositionsOfCS(pcStrItem, pCaseSensitive)
-			return This.FindStringItemCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def PositionsOfCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def PositionsOfCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
 
 		def PositionsOfStringItemCS(pcStrItem, pCaseSensitive)
-			return This.FindStringItemCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def PositionsOfStringItemCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def PositionsOfStringItemCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+
+		def StringItemPositionsCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def StringItemPositionsCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def StringItemPositionsCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+
+		def PositionsOfStringCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def PositionsOfStringCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def PositionsOfStringCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+
+		def StringPositionsCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def StringPositionsCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def StringPositionsCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
 
 		def AllPositionsOfStringItemCS(pcStrItem, pCaseSensitive)
-			return This.FindStringItemCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def AllPositionsOfStringItemCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def AllPositionsOfStringItemCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+
+		def AllStringItemPositionsCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def AllStringItemPositionsCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def AllStringItemPositionsCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+
+		def AllPositionsOfStringCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def AllPositionsOfStringCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def AllPositionsOfStringCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+
+		def AllStringPositionsCS(pcStrItem, pCaseSensitive)
+			return This.FindAllCS(pcStrItem, pCaseSensitive)
+
+			def AllStringPositionsCSQ(pcStrItem, pCaseSensitive)
+				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
+
+			def AllStringPositionsCSQR(pcStrItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVE
 
-	def FindStringItem(pcStrItem)
-		return This.FindStringItemCS(pcStrItem, :CaseSensitive = TRUE)
+	def FindAll(pcStrItem)
+		return This.FindallCS(pcStrItem, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def FindAllQ(pcStrItem)
+			return FindAllQR(pcStrItem, :stzList)
+
+		def FindAllQR(pcStrItem, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindAll(pcStrItem) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindAll(pcStrItem) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+		#>
 
 		#< @FunctionAlternativeForms
 
-		def FindString(pcStrItem)
-			return This.FindStringItem(pcStrItem)
+		def FindStringItem(pcStrItem)
+			return This.FindAll(pcStrItem)
 
-		def FindAll(pcStrItem)
-			return This.FindStringItem(pcStrItem)
+			def FindStringItemQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def FindStringItemQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
+
+		def FindString(pcStrItem)
+			return This.FindAll(pcStrItem)
+
+			def FindStringQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def FindStringQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
 
 		def FindAllOccurrencesOfStringItem(pcStrItem)
-			return This.FindStringItem(pcStrItem)
+			return This.FindAll(pcStrItem)
+
+			def FindAllOccurrencesOfStringItemQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def FindAllOccurrencesOfStringItemQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
+
+		def FindAllOccurrencesOfString(pcStrItem)
+			return This.FindAll(pcStrItem)
+
+			def FindAllOccurrencesOfStringQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def FindAllOccurrencesOfStringQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
 
 		def PositionsOf(pcStrItem)
-			return This.FindStringItem(pcStrItem)
+			return This.FindAll(pcStrItem)
 
-		def PositionsOfStringItem(pcStr)
-			return This.FindStringItem(pcStrItem)
+			def PositionsOfQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def PositionsOfQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
+
+		def PositionsOfStringItem(pcStrItem)
+			return This.FindAll(pcStrItem)
+
+			def PositionsOfStringItemQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def PositionsOfStringItemQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
+
+		def StringItemPositions(pcStrItem)
+			return This.FindAll(pcStrItem)
+
+			def StringItemPositionsQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def StringItemPositionsQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
+
+		def PositionsOfString(pcStrItem)
+			return This.FindAll(pcStrItem)
+
+			def PositionsOfStringQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def PositionsOfStringQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
+
+		def StringPositions(pcStrItem)
+			return This.FindAll(pcStrItem)
+
+			def StringPositionsQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def StringPositionsQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
 
 		def AllPositionsOfStringItem(pcStrItem)
-			return This.FindStringItem(pcStrItem)
+			return This.FindAll(pcStrItem)
+
+			def AllPositionsOfStringItemQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def AllPositionsOfStringItemQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
+
+		def AllStringItemPositions(pcStrItem)
+			return This.FindAll(pcStrItem)
+
+			def AllStringItemPositionsQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def AllStringItemPositionsQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
+
+		def AllPositionsOfString(pcStrItem)
+			return This.FindAll(pcStrItem)
+
+			def AllPositionsOfStringQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def AllPositionsOfStringQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
+
+		def AllStringPositions(pcStrItem)
+			return This.FindAll(pcStrItem)
+
+			def AllStringPositionsQ(pcStrItem)
+				return This.FindAllQ(pcStrItem)
+
+			def AllStringPositionsQR(pcStrItem, pcReturnType)
+				return This.FindAllQR(pcStrItem, pcReturnType)
 
 		#>
 
@@ -2466,6 +2706,9 @@ class stzListOfStrings from stzList
 		def FindNthCS(n, pcStrItem, pCaseSensitive)
 			return This.FindNthOccurrenceOfStringItemCS(n, pcStrItem, pCaseSensitive)
 
+		def NthOccurrenceCS(n, pcStrItem, pCaseSensitive)
+			return This.FindNthOccurrenceOfStringItemCS(n, pcStrItem, pCaseSensitive)
+
 		#>
 
 	#--- WITHOUT CASESENSITIVITY
@@ -2492,6 +2735,9 @@ class stzListOfStrings from stzList
 			return This.FindNthOccurrenceOfStringItem(n, pcStrItem)
 
 		def FindNth(n, pcStrItem)
+			return This.FindNthOccurrenceOfStringItem(n, pcStrItem)
+
+		def NthOccurrence(n, pcStrItem)
 			return This.FindNthOccurrenceOfStringItem(n, pcStrItem)
 
 		#>
@@ -2527,6 +2773,9 @@ class stzListOfStrings from stzList
 		def FindFirstCS(pcStrItem, pCaseSensitive)
 			return This.FindFirstOccurrenceOfStringItemCS(pcStrItem, pCaseSensitive)
 
+		def FirstOccurrenceCS(pcStrItem, pCaseSensitive)
+			return This.FindFirstOccurrenceOfStringItemCS(pcStrItem, pCaseSensitive)
+
 		#>
 
 	#--- WITHOUT CASESENSITIVITY
@@ -2557,6 +2806,10 @@ class stzListOfStrings from stzList
 
 		def FindFirst(pcStrItem)
 			return This.FindFirstOccurrenceOfStringItem(pcStrItem)
+
+		def FirstOccurrence(pcStrItem)
+			return This.FindFirstOccurrenceOfStringItem(pcStrItem)
+
 
 		#>
 
@@ -2595,6 +2848,9 @@ class stzListOfStrings from stzList
 		def FindLastCS(pcStrItem, pCaseSensitive)
 			return This.FindLastOccurrenceOfStringItemCS(pcStrItem, pCaseSensitive)
 
+		def LastOccurrenceCS(pcStrItem, pCaseSensitive)
+			return This.FindLastOccurrenceOfStringItemCS(pcStrItem, pCaseSensitive)
+
 		#>
 
 	#--- WITHOUT CASESENSITIVITY
@@ -2628,6 +2884,9 @@ class stzListOfStrings from stzList
 			return This.FindLastOccurrenceOfStringItem(pcStrItem)
 
 		def FindLast(pcStrItem)
+			return This.FindLastOccurrenceOfStringItem(pcStrItem)
+
+		def LastOccurrence(pcStrItem)
 			return This.FindLastOccurrenceOfStringItem(pcStrItem)
 
 		#>
@@ -3261,13 +3520,25 @@ class stzListOfStrings from stzList
 		def StringsPositionsW(pcCondition)
 			return This.FindStringItemsW(pcCondition)
 
+		def PositionsOfStringsW(pcCondition)
+			return This.FindStringItemsW(pcCondition)
+
 		def StringsPositionsWhere(pcCondition)
+			return This.FindStringItemsW(pcCondition)
+
+		def PositionsOfStringsWhere(pcCondition)
 			return This.FindStringItemsW(pcCondition)
 
 		def StringItemsPositionsW(pcCondition)
 			return This.FindStringItemsW(pcCondition)
 
+		def PositionsOfStringItemsW(pcCondition)
+			return This.FindStringItemsW(pcCondition)
+
 		def StringItemsPositionsWhere(pcCondition)
+			return This.FindStringItemsW(pcCondition)
+
+		def PositionsOfStringItemsWhere(pcCondition)
 			return This.FindStringItemsW(pcCondition)
 
 		#>
@@ -3358,28 +3629,58 @@ class stzListOfStrings from stzList
 			def PositionsOfNthNextStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 	
+		def NextNthStringItemPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextStringItemPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfNextNthStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 			def PositionsOfNthNextStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 	
+		def NextNthStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfNextNthCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 			def PositionsOfNthNextCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 	
+		def NextNthPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfNextNthOccurrenceCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 			def PositionsOfNthNextOccurrenceCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 	
+		def NextNthOccurrencePositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextOccurrencePositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 			def PositionsOfNthNextOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def NextNthOccurrenceOfStringItemPosistionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextOccurrenceOfStringItemPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 		def PositionsOfNextNthOccurrenceOfStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
@@ -3388,10 +3689,22 @@ class stzListOfStrings from stzList
 			def PositionsOfNthNextOccurrenceOfStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 		
+		def NextNthOccurrenceOfStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextOccurrenceOfStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfNextNthOccurrenceOfThisStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 			def PositionsOfNthNextOccurrenceOfThisStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def NextNthOccurrenceOfThisStringItemPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextOccurrenceOfThisStringItemPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 		def PositionsOfNextNthOccurrenceOfThisStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
@@ -3399,7 +3712,13 @@ class stzListOfStrings from stzList
 
 			def PositionsOfNthNextOccurrenceOfThisStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
-		
+
+		def NextNthOccurrenceOfThisStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextOccurrenceOfThisStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
 		#>
 
 	#--- WITHOUT CASESENSITIVITY
@@ -3413,10 +3732,10 @@ class stzListOfStrings from stzList
 		def FindNextNthOccurrenceOfString(n, pcStrItem, pnStartingAt)
 			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
-		def FindNthNextOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+		def FindNthNextOccurrenceOfStringItem(n, pcStrItem, pnStartingAt, pnStartingAt)
 			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
-		def FindNthNextOccurrenceOfString(n, pcStrItem, pnStartingAt)
+		def FindNthNextOccurrenceOfString(n, pcStrItem, pnStartingAt, pnStartingAt)
 			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 		def FindNextNth(n, pcStrItem, pnStartingAt)
@@ -3461,28 +3780,58 @@ class stzListOfStrings from stzList
 			def PositionsOfNthNextStringItem(n, pcStrItem, pnStartingAt)
 				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 	
+		def NextNthStringItemPositions(n, pcStrItem, pnStartingAt)
+			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthNextStringItemPositions(n, pcStrItem, pnStartingAt)
+				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
 		def PositionsOfNextNthString(n, pcStrItem, pnStartingAt)
 			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def PositionsOfNthNextString(n, pcStrItem, pnStartingAt)
 				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 	
+		def NextNthStringPositions(n, pcStrItem, pnStartingAt)
+			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthNextStringPositions(n, pcStrItem, pnStartingAt)
+				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
 		def PositionsOfNextNth(n, pcStrItem, pnStartingAt)
 			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def PositionsOfNthNext(n, pcStrItem, pnStartingAt)
 				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 	
+		def NextNthPositions(n, pcStrItem, pnStartingAt)
+			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthNextPositions(n, pcStrItem, pnStartingAt)
+				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
 		def PositionsOfNextNthOccurrence(n, pcStrItem, pnStartingAt)
 			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def PositionsOfNthNextOccurrence(n, pcStrItem, pnStartingAt)
 				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 	
+		def NextNthOccurrencePositions(n, pcStrItem, pnStartingAt)
+			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthNextOccurrencePositions(n, pcStrItem, pnStartingAt)
+				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
 		def PositionsOfNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def PositionsOfNthNextOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+		def NextNthOccurrenceOfStringItemPosistions(n, pcStrItem, pnStartingAt)
+			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthNextOccurrenceOfStringItemPositions(n, pcStrItem, pnStartingAt)
 				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 		def PositionsOfNextNthOccurrenceOfString(n, pcStrItem, pnStartingAt)
@@ -3491,16 +3840,34 @@ class stzListOfStrings from stzList
 			def PositionsOfNthNextOccurrenceOfString(n, pcStrItem, pnStartingAt)
 				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 		
+		def NextNthOccurrenceOfStringPositions(n, pcStrItem, pnStartingAt)
+			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthNextOccurrenceOfStringPositions(n, pcStrItem, pnStartingAt)
+				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
 		def PositionsOfNextNthOccurrenceOfThisStringItem(n, pcStrItem, pnStartingAt)
 			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def PositionsOfNthNextOccurrenceOfThisStringItem(n, pcStrItem, pnStartingAt)
 				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
+		def NextNthOccurrenceOfThisStringItemPositions(n, pcStrItem, pnStartingAt)
+			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthNextOccurrenceOfThisStringItemPositions(n, pcStrItem, pnStartingAt)
+				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
 		def PositionsOfNextNthOccurrenceOfThisString(n, pcStrItem, pnStartingAt)
 			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def PositionsOfNthNextOccurrenceOfThisString(n, pcStrItem, pnStartingAt)
+				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+		def NextNthOccurrenceOfThisStringPositions(n, pcStrItem, pnStartingAt)
+			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthNextOccurrenceOfThisStringPositions(n, pcStrItem, pnStartingAt)
 				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 		
 		#>
@@ -3565,27 +3932,48 @@ class stzListOfStrings from stzList
 		def PositionsOfNextStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 	
+		def NextStringItemPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfNextStringCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 	
+		def NextStringPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfNextCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 	
 		def PositionsOfNextOccurrenceCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
-	
+
+		def NextOccurrencePositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
+		def NextOccurrenceOfStringItemPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfNextOccurrenceOfStringCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def NextOccurrenceOfStringPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 		
 		def PositionsOfNextOccurrenceOfThisStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
+		def NextOccurrenceOfThisStringItemPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfNextOccurrenceOfThisStringCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
-		
+
+		def NextOccurrenceOfThisStringPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+	
 		#>
 
 	#--- WITHOUT CASESENSITIVITY
@@ -3604,7 +3992,7 @@ class stzListOfStrings from stzList
 
 		def FindNextOccurrence(pcStrItem, pnStartingAt)
 			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
-
+	
 		def FindNextStringItem(pcStrItem, pnStartingAt)
 			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
@@ -3620,25 +4008,46 @@ class stzListOfStrings from stzList
 		def PositionsOfNextStringItem(pcStrItem, pnStartingAt)
 			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
+		def NextStringItemPositions(pcStrItem, pnStartingAt)
+			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
 		def PositionsOfNextString(pcStrItem, pnStartingAt)
 			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
+		def NextStringPositions(pcStrItem, pnStartingAt)
+			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
 		def PositionsOfNext(pcStrItem, pnStartingAt)
 			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
 		def PositionsOfNextOccurrence(pcStrItem, pnStartingAt)
 			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
-	
+
+		def NextOccurrencePositions(pcStrItem, pnStartingAt)
+			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
 		def PositionsOfNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 
+		def NextOccurrenceOfStringItemPositions(pcStrItem, pnStartingAt)
+			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
 		def PositionsOfNextOccurrenceOfString(pcStrItem, pnStartingAt)
+			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
+		def NextOccurrenceOfStringPositions(pcStrItem, pnStartingAt)
 			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 		
 		def PositionsOfNextOccurrenceOfThisStringItem(pcStrItem, pnStartingAt)
 			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 
+		def NextOccurrenceOfThisStringItemPositions(pcStrItem, pnStartingAt)
+			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
 		def PositionsOfNextOccurrenceOfThisString(pcStrItem, pnStartingAt)
+			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
+		def NextOccurrenceOfThisStringPositions(pcStrItem, pnStartingAt)
 			return This.FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 		
 		#>
@@ -3728,35 +4137,65 @@ class stzListOfStrings from stzList
 
 			def PositionsOfNthPreviousStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindPreviousNthOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
-	
+
+		def PreviousNthStringItemPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthPreviousStringItemPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfPreviousNthStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousNthOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
 			def PositionsOfNthPreviousStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindPreviousNthOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 	
+		def PreviousNthStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthPreviousStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfPreviousNthCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 			def PositionsOfNthPreviousCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
-	
+
 		def PositionsOfPreviousNthOccurrenceCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 			def PositionsOfNthPreviousOccurrenceCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
-	
+
+		def PreviousNthOccurrencePositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthPreviousOccurrencePositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 			def PositionsOfNthPreviousOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
+		def PreviousNthOccurrenceOfStringItemPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthPreviousOccurrenceOfStringItemPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfPreviousNthOccurrenceOfStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 			def PositionsOfNthPreviousOccurrenceOfStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def PreviousNthOccurrenceOfStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthPreviousOccurrenceOfStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 		
 		def PositionsOfPreviousNthOccurrenceOfThisStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
@@ -3765,12 +4204,24 @@ class stzListOfStrings from stzList
 			def PositionsOfNthPreviousOccurrenceOfThisStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
+		def PreviousNthOccurrenceOfThisStringItemPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthPreviousOccurrenceOfThisStringItemPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfPreviousNthOccurrenceOfThisStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 			def PositionsOfNthPreviousOccurrenceOfThisStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
-		
+
+		def PreviousNthOccurrenceOfThisStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthPreviousOccurrenceOfThisStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3785,94 +4236,136 @@ class stzListOfStrings from stzList
 			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
 
 		def FindNthPreviousOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 		def FindNthPreviousOccurrenceOfString(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 		def FindPreviousNth(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def FindNthPrevious(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 		def FindPreviousNthOccurrence(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def FindNthPreviousOccurrence(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 	
 		def FindPreviousNthStringItem(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def FindNthPreviousStringItem(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 	
 		def FindPreviousNthString(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def FindNthPreviousString(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 	
 		def FindPreviousNthOccurrenceOfThisStringItem(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def FindNthPreviousOccurrenceOfThisStringItem(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 	
 		def FindPreviousNthOccurrenceOfThisString(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def FindNthPreviousOccurrenceOfThisString(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 	
 		def PositionsOfPreviousNthStringItem(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 
 			def PositionsOfNthPreviousStringItem(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(pcStrItem)
-	
+				return This.FindPreviousNthOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
+		def PreviousNthStringItemPositions(n, pcStrItem, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
+			def NthPreviousStringItemPositions(n, pcStrItem, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
 		def PositionsOfPreviousNthString(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 
 			def PositionsOfNthPreviousString(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(pcStrItem)
+				return This.FindPreviousNthOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
+		def PreviousNthStringPositions(n, pcStrItem, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
+			def NthPreviousStringPositions(n, pcStrItem, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
 		def PositionsOfPreviousNth(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def PositionsOfNthPrevious(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
-	
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
 		def PositionsOfPreviousNthOccurrence(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def PositionsOfNthPreviousOccurrence(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
-	
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+		def PreviousNthOccurrencePositions(n, pcStrItem, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthPreviousOccurrencePositions(n, pcStrItem, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
 		def PositionsOfPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def PositionsOfNthPreviousOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+		def PreviousNthOccurrenceOfStringItemPositions(n, pcStrItem, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthPreviousOccurrenceOfStringItemPositions(n, pcStrItem, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 		def PositionsOfPreviousNthOccurrenceOfString(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def PositionsOfNthPreviousOccurrenceOfString(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+		def PreviousNthOccurrenceOfStringPositions(n, pcStrItem, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthPreviousOccurrenceOfStringPositions(n, pcStrItem, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 		
 		def PositionsOfPreviousNthOccurrenceOfThisStringItem(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def PositionsOfNthPreviousOccurrenceOfThisStringItem(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+		def PreviousNthOccurrenceOfThisStringItemPositions(n, pcStrItem, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthPreviousOccurrenceOfThisStringItemPositions(n, pcStrItem, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 		def PositionsOfPreviousNthOccurrenceOfThisString(n, pcStrItem, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 			def PositionsOfNthPreviousOccurrenceOfThisString(n, pcStrItem, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+		def PreviousNthOccurrenceOfThisStringPositions(n, pcStrItem, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
+
+			def NthPreviousOccurrenceOfThisStringPositions(n, pcStrItem, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 		
 		#>
 
@@ -3935,30 +4428,51 @@ class stzListOfStrings from stzList
 		def PositionsOfPreviousStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 	
+		def PreviousStringItemPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfPreviousStringCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
-	
+
+		def PreviousStringPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfPreviousCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 	
 		def PositionsOfPreviousOccurrenceCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def PreviousOccurrencePositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 	
 		def PositionsOfPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
+		def PreviousOccurrenceOfStringItemPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
 		def PositionsOfPreviousOccurrenceOfStringCS(pcStrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
-		
+
+		def PreviousOccurrenceOfStringPositionsCS(pcStrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+	
 		def PositionsOfPreviousOccurrenceOfThisStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def PreviousOccurrenceOfThisStringItemPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
 		def PositionsOfPreviousOccurrenceOfThisStringCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
-		
+
+		def PreviousOccurrenceOfThisStringPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
+	
 		#>
 
-	#---
+	#--- WITHOUT CASESENSITIVITY
 
 	def FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 
@@ -3974,7 +4488,7 @@ class stzListOfStrings from stzList
 
 		def FindPreviousOccurrence(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
-
+	
 		def FindPreviousStringItem(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
@@ -3982,35 +4496,56 @@ class stzListOfStrings from stzList
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
 		def FindPreviousOccurrenceOfThisStringItem(pcStrItem, pnStartingAt, pnStartingAt)
-			return This.FindPreviousOccurrenceOfStringItem(pcStrItem)
+			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
 		def FindPreviousOccurrenceOfThisString(pcStrItem, pnStartingAt)
+			return This.FindPreviousOccurrenceOfStringItem(pcStrItem)
+	
+		def PositionsOfPreviousStringItemC(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
-		def PositionsOfPreviousStringItem(pcStrItem, pnStartingAt)
+		def PreviousStringItemPositions(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
-	
+
 		def PositionsOfPreviousString(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
-	
+
+		def PreviousStringPositions(pcStrItem, pnStartingAt)
+			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
 		def PositionsOfPrevious(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
 		def PositionsOfPreviousOccurrence(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
+		def PreviousOccurrencePositions(pcStrItem, pnStartingAt)
+			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
 		def PositionsOfPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 
-		def PositionsOfPreviousOccurrenceOfString(pcStrItem, pnStartingAt)
+		def PreviousOccurrenceOfStringItemPositions(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
-		
+
+		def PositionsOfPreviousOccurrenceOfString(pcStrItem, pnStartingAt, pnStartingAt)
+			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
+		def PreviousOccurrenceOfStringPositions(pcStrItem, pnStartingAt, pnStartingAt)
+			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+	
 		def PositionsOfPreviousOccurrenceOfThisStringItem(pcStrItem, pnStartingAt)
+			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+
+		def PreviousOccurrenceOfThisStringItemPositions(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 
 		def PositionsOfPreviousOccurrenceOfThisString(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
-		
+
+		def PreviousOccurrenceOfThisStringPositions(pcStrItem, pnStartingAt)
+			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
+	
 		#>
 
 	  #------------------------------------------------------------------------------#
@@ -4075,12 +4610,17 @@ class stzListOfStrings from stzList
 
 		#< @FunctionAlternativeForms
 
-			def FindAllNextCS(pcStrItem, pnStartingAt, pCaseSensitive)
-				return This.FindNextOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
+		def FindAllNextCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
-			def FindNextAllCS(pcStrItem, pnStartingAt, pCaseSensitive)
-				return This.FindNextOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
+		def FindNextAllCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
+		def PositionsOfNextOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def NextOccurrencesPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
 		#>
 
@@ -4117,11 +4657,17 @@ class stzListOfStrings from stzList
 
 		#< @FunctionAlternativeForms
 
-			def FindAllNext(pcStrItem, pnStartingAt)
-				return This.FindNextOccurrences(pcStrItem, pnStartingAt)
+		def FindAllNext(pcStrItem, pnStartingAt)
+			return This.FindNextOccurrences(pcStrItem, pnStartingAt)
 
-			def FindNextAll(pcStrItem, pnStartingAt)
-				return This.FindNextOccurrences(pcStrItem, pnStartingAt)
+		def FindNextAll(pcStrItem, pnStartingAt)
+			return This.FindNextOccurrences(pcStrItem, pnStartingAt)
+
+		def PositionsOfNextOccurrences(pcStrItem, pnStartingAt)
+			return This.FindNextOccurrences(pcStrItem, pnStartingAt)
+
+		def NextOccurrencesPositions(pcStrItem, pnStartingAt)
+			return This.FindNextOccurrences(pcStrItem, pnStartingAt)
 
 		#>
 
@@ -4189,11 +4735,17 @@ class stzListOfStrings from stzList
 
 		#< @FunctionAlternativeForms
 
-			def FindAllPreviousCS(pcStrItem, pnStartingAt, pCaseSensitive)
-				return This.FindPreviousOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
+		def FindAllPreviousCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
-			def FindPreviousAllCS(pcStrItem, pnStartingAt, pCaseSensitive)
-				return This.FindPreviousOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
+		def FindPreviousAllCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def PositionsOfPreviousOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def PreviousOccurrencesPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
 		#>
 
@@ -4230,11 +4782,17 @@ class stzListOfStrings from stzList
 
 		#< @FunctionAlternativeForms
 
-			def FindAllPrevious(pcStrItem, pnStartingAt)
-				return This.FindPreviousOccurrences(pcStrItem, pnStartingAt)
+		def FindAllPrevious(pcStrItem, pnStartingAt)
+			return This.FindPreviousOccurrences(pcStrItem, pnStartingAt)
 
-			def FindPreviousAll(pcStrItem, pnStartingAt)
-				return This.FindPreviousOccurrences(pcStrItem, pnStartingAt)
+		def FindPreviousAll(pcStrItem, pnStartingAt)
+			return This.FindPreviousOccurrences(pcStrItem, pnStartingAt)
+
+		def PositionsOfPreviousOccurrences(pcStrItem, pnStartingAt)
+			return This.FindPreviousOccurrences(pcStrItem, pnStartingAt)
+
+		def PreviousOccurrencesPositions(pcStrItem, pnStartingAt)
+			return This.FindNextOccurrences(pcStrItem, pnStartingAt)
 
 		#>
 
@@ -4283,7 +4841,13 @@ class stzListOfStrings from stzList
 		def PositionsOfSubstringCS(pcSubStr, pCaseSensitive)
 			return FindSubStringCS(pcSubStr, pCaseSensitive)
 
+		def SubstringPositionsCS(pcSubStr, pCaseSensitive)
+			return FindSubStringCS(pcSubStr, pCaseSensitive)
+
 		def AllPositionsOfSubStringCS(pcSubStr, pCaseSensitive)
+			return FindSubStringCS(pcSubStr, pCaseSensitive)
+
+		def AllSubstringPositionsCS(pcSubStr, pCaseSensitive)
 			return FindSubStringCS(pcSubStr, pCaseSensitive)
 
 		#>
@@ -4295,14 +4859,23 @@ class stzListOfStrings from stzList
 
 		#< @FunctionAlternativeForms
 
-		def FindAllOccurrencesOfSubString(pcSubStr)
-			return This.FindSubString(pcSubStr)
+		def FindAllSubstrings(pcSubStr)
+			return FindSubString(pcSubStr)
 
-		def PositionsOfSubString(pcSubStr)
-			return This.FindSubString(pcSubStr)
+		def FindAllOccurrencesOfSubString(pcSubStr)
+			return FindSubString(pcSubStr)
+
+		def PositionsOfSubstring(pcSubStr)
+			return FindSubString(pcSubStr)
+
+		def SubstringPositions(pcSubStr)
+			return FindSubString(pcSubStr)
 
 		def AllPositionsOfSubString(pcSubStr)
-			return This.FindSubString(pcSubStr)
+			return FindSubString(pcSubStr)
+
+		def AllSubstringPositions(pcSubStr)
+			return FindSubString(pcSubStr)
 
 		#>
 
@@ -6031,11 +6604,23 @@ class stzListOfStrings from stzList
 
 			def PositionsOfNthNextSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-	
+
+		def NextNthSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+			def NthNextSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
 		def PositionsOfNextNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
 
 			def PositionsOfNthNextOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def NthOccurrenceOfSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def NthNextOccurrenceOfSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
 
 		def PositionsOfNextNthOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
@@ -6043,7 +6628,13 @@ class stzListOfStrings from stzList
 
 			def PositionsOfNthNextOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-	
+
+		def NextNthOccurrenceOfThisSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def NthNextOccurrenceOfThisSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -6062,7 +6653,7 @@ class stzListOfStrings from stzList
 
 			def FindNthNextSubString(n, pcSubStr, pnStartingAt)
 				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-	
+		
 		def FindNextNthOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
 			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
 
@@ -6074,17 +6665,35 @@ class stzListOfStrings from stzList
 
 			def PositionsOfNthNextSubString(n, pcSubStr, pnStartingAt)
 				return This.FindNextNthOccurrenceOfSubString(pcSubStr)
-		
+
+		def NextNthSubStringPositions(n, pcSubStr, pnStartingAt)
+			return This.FindNextNthOccurrenceOfSubString(pcSubStr)
+
+			def NthNextSubStringPositions(n, pcSubStr, pnStartingAt)
+				return This.FindNextNthOccurrenceOfSubString(pcSubStr)
+
 		def PositionsOfNextNthOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
 			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
 
 			def PositionsOfNthNextOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
 				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-	
+
+		def NthOccurrenceOfSubStringPosition(n, pcSubStr, pnStartingAt)
+			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+			def NthNextOccurrenceOfSubStringPositions(n, pcSubStr, pnStartingAt)
+				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
 		def PositionsOfNextNthOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
 			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
 
 			def PositionsOfNthNextOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
+				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+		def NextNthOccurrenceOfThisSubStringPositions(n, pcSubStr, pnStartingAt)
+			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+			def NthNextOccurrenceOfThisSubStringPositions(n, pcSubStr, pnStartingAt)
 				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
 	
 		#>
@@ -6132,6 +6741,9 @@ class stzListOfStrings from stzList
 			
 		def PositionsOfNextSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def NextSubStringPositionsCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
 			
 		def PositionsOfNextOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
@@ -6157,7 +6769,10 @@ class stzListOfStrings from stzList
 		
 		def PositionsOfNextSubString(pcSubStr, pnStartingAt)
 			return This.FindNextOccurrenceOfSubString(pcSubStr)
-		
+
+		def NextSubStringPositions(pcSubStr, pnStartingAt)
+			return This.FindNextOccurrenceOfSubString(pcSubStr)
+
 		def PositionsOfNextOccurrenceOfSubString(pcSubStr, pnStartingAt)
 			return This.FindNextOccurrenceOfSubString(pcSubStr)
 		
@@ -6242,7 +6857,13 @@ class stzListOfStrings from stzList
 
 			def PositionsOfNthPreviousSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
 				return This.FindPreviousNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-			
+
+		def PreviousNthSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+			def NthPreviousSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
 		def PositionsOfPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
 
@@ -6285,6 +6906,13 @@ class stzListOfStrings from stzList
 
 			def PositionsOfNthPreviousSubString(n, pcSubStr, pnStartingAt)
 				return This.FindPreviousNthOccurrenceOfSubString(pcSubStr)
+
+		def PreviousNthSubStringPositions(n, pcSubStr, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfSubString(pcSubStr)
+
+			def NthPreviousSubStringPositions(n, pcSubStr, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfSubString(pcSubStr)
+
 	
 		def PositionsOfPreviousNthOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
 			return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
@@ -6343,7 +6971,10 @@ class stzListOfStrings from stzList
 		
 		def PositionsOfPreviousSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-	
+
+		def PreviousSubStringPositionsCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
 		def PositionsOfPreviousOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
 		
@@ -6367,6 +6998,9 @@ class stzListOfStrings from stzList
 			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
 		
 		def PositionsOfPreviousSubString(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
+
+		def PreviousSubStringPositions(pcSubStr, pnStartingAt)
 			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
 
 		def PositionsOfPreviousOccurrenceOfSubString(pcSubStr, pnStartingAt)
@@ -6733,12 +7367,12 @@ class stzListOfStrings from stzList
 		def TheseStringItemsReplaced(pacStrings, pcNewString)
 			return This.ManyStringsReplaced(pacStrings, pcNewString)
 
-	  #--------------------------------------------------------#
-	 #    REPLACING MANY STRINGS BY MANY OTHERS ONE BY ONE    #
-	#--------------------------------------------------------#
+	  #-------------------------------------------------------------#
+	 #    REPLACING MANY STRING-ITEMS BY MANY OTHERS ONE BY ONE    #
+	#-------------------------------------------------------------#
 
 	def ReplaceManyOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
-		if NOT isList(pacStrings) and Q(pacStrings).IsListOfStrings()
+		if NOT ( isList(pacStrings) and Q(pacStrings).IsListOfStrings() )
 			stzRaise("Uncorrect param! pacStrings must be a list of strings.")
 		ok
 
@@ -6746,7 +7380,7 @@ class stzListOfStrings from stzList
 			pacNewStrings = pacNewStrings[2]
 		ok
 
-		if NOT isList(pacNewStrings) and Q(pacNewStrings).IsListOfStrings()
+		if NOT ( isList(pacNewStrings) and Q(pacNewStrings).IsListOfStrings() )
 			stzRaise("Uncorrect param! pacNewStrings must be a list of strings.")
 		ok
 
@@ -6764,14 +7398,58 @@ class stzListOfStrings from stzList
 
 		next
 
+		#< @FunctionFluentForm
+
+		def ReplaceManyOneByOneCSQ(pacStrings, pacNewStrings, pCaseSensitive)
+			This.ReplaceManyOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceManyStringsOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+			This.ReplaceManyOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+		def ReplaceManyStringItemsOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+			This.ReplaceManyOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+		#>
+
+	def ManyStringsReplacedOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+		acResult = This.Copy().ReplaceManyOneByOneCSQ(pacStrings, pacNewStrings, pCaseSensitive).Content()
+		return acResult
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceManyOneByOne(pacStrings, pacNewStrings)
 		This.ReplaceManyOneByOneCS(pacStrings, pacNewStrings, :CS = TRUE)
 
-	  #--------------------------------------#
-	 #   REPLACING A STRING BY ALTERNANCE   #
-	#--------------------------------------#
+		#< @FunctionFluentForm
+
+		def ReplaceManyOneByOneQ(pacStrings, pacNewStrings)
+			This.ReplaceManyOneByOne(pacStrings, pacNewStrings)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceManyStringsOneByOne(pacStrings, pacNewStrings)
+			This.ReplaceManyOneByOne(pacStrings, pacNewStrings)
+
+		def ReplaceManyStringItemsOneByOne(pacStrings, pacNewStrings)
+			This.ReplaceManyOneByOne(pacStrings, pacNewStrings)
+
+		#>
+
+	def ManyStringsReplacedOneByOne(pacStrings, pacNewStrings)
+		acResult = This.Copy().ReplaceManyOneByOneQ(pacStrings, pacNewStrings).Content()
+		return acResult
+
+	  #---------------------------------------------------------#
+	 #  REPLACING A STRING-ITEM BY MANY OTHERS BY ALTERNANCE   #
+	#---------------------------------------------------------#
 
 	def ReplaceStringByAlternanceCS(pcString, pacOtherStrings, pCaseSensitive)
 		/*
@@ -6807,7 +7485,7 @@ class stzListOfStrings from stzList
 
 		#< @FunctionFluentForm
 
-		def ReplaceStringByALternanceCSQ(pcString, pacOtherStrings, pCaseSensitive)
+		def ReplaceStringByAlternanceCSQ(pcString, pacOtherStrings, pCaseSensitive)
 			This.ReplaceStringByALternanceCS(pcString, pacOtherStrings, pCaseSensitive)
 			return This
 
@@ -6870,7 +7548,7 @@ class stzListOfStrings from stzList
 	
 	   #-----------------------------------------------------#
 	  #   REPLACING THE NEXT OCCURRENCES OF A STRING-ITEM   #
-         #   STARTING AT A GIVEN POSITION                      #
+           #   STARTING AT A GIVEN POSITION                      #
 	#-----------------------------------------------------#
 
 	def ReplaceNextOccurrencesCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
@@ -6901,7 +7579,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextOccurrences(pcString, pcOtherString, pnStartingAt)
-		ReplaceNextOccurrencesCS(pcString, pcOtherString, pnStartingAt, :CS = TRUE)
+		This.ReplaceNextOccurrencesCS(pcString, pcOtherString, pnStartingAt, :CS = TRUE)
 
 		def ReplaceNextOccurrencesQ(pcString, pcOtherString, pnStartingAt)
 			This.ReplaceNextOccurrences(pcString, pcOtherString, pnStartingAt)
@@ -6976,9 +7654,9 @@ class stzListOfStrings from stzList
 
 		return acResult
 
-	  #-------------------------------------------#
-	 #   REPLACING NTH OCCURRENCE OF A STRING    #
-	#-------------------------------------------#
+	  #------------------------------------------------#
+	 #   REPLACING NTH OCCURRENCE OF A STRING-ITEM    #
+	#------------------------------------------------#
 
 	def ReplaceNthOccurrenceCS(n, pcString, pcOtherString, pCaseSensitive)
 		if isList(pcString) and StzListQ(pcString).IsOfNamedParamList()
@@ -7344,11 +8022,11 @@ class stzListOfStrings from stzList
 
 		# Doing the job
 
-		oSection   = This.SectionQR(pnStartingAt, This.NumberOfStrings(), :stzListOfStrings)
+		oSection    = This.SectionQR(pnStartingAt, This.NumberOfStrings(), :stzListOfStrings)
 		anPositions = oSection.FindAllCS(pcString, pCaseSensitive)
 
-		anPositions = StzListOfNumbersQ(anPositions).AddToEachQ(pnStartingAt - 1).Content()
-		nPosition = anPositions[n]
+		anPositions = StzListOfNumbersQ(anPositions).AddToEachQ(pnStartingAt).Content()
+		nPosition   = anPositions[n]
 
 		This.ReplaceStringAtPosition(nPosition, pcNewString)
 
@@ -7401,10 +8079,10 @@ class stzListOfStrings from stzList
 		def NthNextOccurrenceReplaced(n, pcString, pnStartingAt, pcNewString)
 			return This.NextNthOccurrenceReplaced(n, pcString, pnStartingAt, pcNewString)
 
-	   #------------------------------------------------#
-	  #    REPLACING NEXT OCCURRENCE OF A STRING       #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST    #
-	#------------------------------------------------#
+	   #---------------------------------------------------#
+	  #    REPLACING NEXT OCCURRENCE OF A STRING-ITEM     #
+	 #    STARTING AT A GIVEN POSITION IN THE LIST       #
+	#---------------------------------------------------#
 
 	def ReplaceNextOccurrenceCS(pcString, pcNewString, pnStartingAt, pCaseSensitive)
 		This.ReplaceNextNthOccurrenceCS(1, pcString, pcNewString, pnStartingAt, pCaseSensitive)
@@ -7438,10 +8116,10 @@ class stzListOfStrings from stzList
 
 		return aResult
 
-	   #-------------------------------------------------------#
-	  #    REPLACING MANY NEXT NTH OCCURRENCES OF A STRING    #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST           #
-	#-------------------------------------------------------#
+	   #------------------------------------------------------------#
+	  #    REPLACING MANY NEXT NTH OCCURRENCES OF A STRING-ITEM    #
+	 #    STARTING AT A GIVEN POSITION IN THE LIST                #
+	#------------------------------------------------------------#
 
 	def ReplaceNextNthOccurrencesCS(panList, pcString, pcNewString, pnStartingAt, pCaseSensitive)
 		/* Example
@@ -7453,10 +8131,11 @@ class stzListOfStrings from stzList
 
 		*/
 
-		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
-		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfStrings() + ")") = len(panList) )
+		if NOT ( isList(panList) and StzListQ(panList).IsListOfNumbers() and
+		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfStrings() + ")") = len(panList)
+		       )
 
-			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfStrings().")
+			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfStrings().")
 		ok
 
 		if isList(pcString) and StzListQ(pcString).IsOfNamedParamList()
@@ -7490,7 +8169,7 @@ class stzListOfStrings from stzList
 			stzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 			
-		oSection = This.SectionQ(pnStartingAt, :LastString)
+		oSection = This.SectionQR(pnStartingAt, :LastString, :stzListOfStrings)
 
 		anPositions = oSection.
 			      FindAllCSQR(pcString, pCaseSensitive, :stzListOfNumbers).
@@ -7715,10 +8394,11 @@ class stzListOfStrings from stzList
 
 		*/
 
-		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
-		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfStrings() + ")") = len(panList) )
+		if NOT ( isList(panList) and StzListQ(panList).IsListOfNumbers() and
+		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfStrings() + ")") = len(panList)
+		       )
 
-			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfStrings().")
+			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfStrings().")
 		ok
 
 		if isList(pcString) and StzListQ(pcString).IsOfNamedParamList()
@@ -7752,7 +8432,7 @@ class stzListOfStrings from stzList
 			stzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 			
-		oSection = This.SectionQ(1, pnStartingAt)
+		oSection = This.SectionQR(1, pnStartingAt, :stzListOfStrings)
 
 		anPositions = oSection.FindAllCSQ(pcString, pCaseSensitive).Reversed()
 
@@ -7958,9 +8638,45 @@ class stzListOfStrings from stzList
 
 	def ReplaceStringsAtPositions(panPositions, pcOtherString)
 
-		for n in panPositions
-			This.ReplaceStringAtPosition(n, pcOtherString)
-		next
+		if isList(pcOtherString) and Q(pcOtherString).IsListOfStrings() and
+		   NOT Q(pcOtherString).IsWithOrByNamedParamList()
+
+			This.ReplaceStringsAtPositionsByMany1B1(panPositions, pcOtherString)
+			return
+		ok
+
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+
+			stzRaise("Incorrect param! panPositions must be a list of numbers.")
+		ok
+
+		bDynamic = FALSE
+
+		if isList(pcOtherString) and Q(pcOtherString).IsWithOrByNamedParamList()
+			if StzStringQ(pcOtherString[1]).LastChar() = "@"
+				bDynamic = TRUE
+			ok
+		ok
+
+		if bDynamic
+			acStrings = []
+			for n in panPositions
+				@string = This.StringAtPosition(n)
+				cCode = 'str = ' + StzCCodeQ(pcOtherString[2]).UnifiedFor(:stzListOfStrings)
+				eval(cCode)
+				acStrings + str
+			next
+
+			This.ReplaceStringsAtPositions1B1(panPositions, acStrings)
+		else
+
+			anPositions = StzListQ(panPositions).SortedInDescending()
+			
+			for n in anPositions
+				This.ReplaceStringAtPosition(n, pcOtherString)
+			next
+		ok
+			
 
 		#< @FunctionFluentForm
 
@@ -8028,7 +8744,7 @@ class stzListOfStrings from stzList
 			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
 
 			def ReplaceManyStringItemsAtQ(panPositions, pcOtherString)
-				This.ReplaceManyStringItemssAt(panPositions, pcOtherString)
+				This.ReplaceManyStringItemsAt(panPositions, pcOtherString)
 				return This
 
 		def ReplaceManyStringItemsAtPositions(panPositions, pcOtherString)
@@ -8159,12 +8875,205 @@ class stzListOfStrings from stzList
 
 		#>
 
-	def StringsAtThesePositionsRplaced(panPositions, pcOtherString)
+	def StringsAtThesePositionsReplaced(panPositions, pcOtherString)
 		aResult = This.Copy().ReplaceStringsAtPositionsQ(panPositions, pcOtherString).Content()
 		return aResult
 
 		def StringItemsAtThesePositionsReplaced(panPositions, pcOtherString)
 			return This.StringsAtThesePositionsReplaced(panPositions, pcOtherString)
+
+	  #---------------------------------------------------------------------------#
+	 #  REPLACING STRINGS AT GIVEN POSITIONS BY OTHER GIVEN STRINGS ONE BY ONE   #
+	#---------------------------------------------------------------------------#
+
+	def ReplaceStringsAtPositionsOneByOne(panPositions, pacOtherStrings)
+
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+
+			stzRaise("Incorrect param! panPositions must be a list of numbers.")
+		ok
+
+		if NOT ( isList(pacOtherStrings) and
+				( Q(pacOtherStrings).IsListOfStrings() or
+			 	  Q(pacOtherStrings).IsWithOrByNamedParamList()
+				)
+			)
+
+			stzRaise("Incorrect param! pacOtherStrings must be a list of strings.")
+		ok
+
+		if Q(pacOtherStrings).IsWithOrByNamedParamList()
+			pacOtherStrings = pacOtherStrings[2]
+		ok
+
+		nLen = len(panPositions)
+		i = 0
+		for n in panPositions
+			i++
+			if i <= nLen
+				This.ReplaceStringAtPosition(n, pacOtherStrings[i])
+			ok
+		next
+
+		#< @FunctionFluentForm
+
+		def ReplaceStringsAtPositionsOneByOneQ(panPositions, pacOtherStrings)
+			This.ReplaceStringsAtPositionsOneByOne(panPositions, pacOtherStrings)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceStringsAtPositions1B1(panPositions, pacOtherStrings)
+			This.ReplaceStringsAtPositionsOneByOne(panPositions, pacOtherStrings)
+
+			def ReplaceStringsAtPositions1B1Q(panPositions, pacOtherStrings)
+				This.ReplaceStringsAtPositions1B1(panPositions, pacOtherStrings)
+				return This
+
+		def ReplaceStringItemsAtPositionsOneByOne(panPositions, pacOtherStrings)
+			This.ReplaceStringsAtPositionsOneByOne(panPositions, pacOtherStrings)
+
+			def ReplaceStringItemsAtPositionsOneByOneQ(panPositions, pacOtherStrings)
+				This.ReplaceStringItemsAtPositionsOneByOne(panPositions, pacOtherStrings)
+				return This
+
+		def ReplaceStringItemsAtPositions1B1(panPositions, pacOtherStrings)
+			This.ReplaceStringsAtPositionsOneByOne(panPositions, pacOtherStrings)
+
+			def ReplaceStringItemsAtPositions1B1Q(panPositions, pacOtherStrings)
+				This.ReplaceStringItemsAtPositions1B1(panPositions, pacOtherStrings)
+				return This
+
+		def ReplaceStringsAtPositionsByManyOtherStringsOneByOne(panPositions, pacOtherStrings)
+			This.ReplaceStringsAtPositionsOneByOne(panPositions, pacOtherStrings)
+
+			def ReplaceStringsAtPositionsByManyOtherStringsOneByOneQ(panPositions, pacOtherStrings)
+				This.ReplaceStringsAtPositionsByManyOtherStringsOneByOne(panPositions, pacOtherStrings)
+				return This
+
+		def ReplaceStringsAtPositionsByManyOtherStrings1B1(panPositions, pacOtherStrings)
+			This.ReplaceStringsAtPositionsOneByOne(panPositions, pacOtherStrings)
+
+			def ReplaceStringsAtPositionsByManyOtherStrings1B1Q(panPositions, pacOtherStrings)
+				This.ReplaceStringsAtPositionsByManyOtherStrings1B1(panPositions, pacOtherStrings)
+				return This
+
+		#>
+
+	def StringsAtPositionsReplacedOneByOne(panPositions, pacOtherStrings)
+		acResult = This.Copy().RepalceStringsAtPositionsOneByOneQ(panPositions, pacOtherStrings).Content()
+		return acResult
+
+		def StringItemsAtPositionsReplacedOneByOne(panPositions, pacOtherStrings)
+			return This.StringsAtPositionsReplacedOneByOne(panPositions, pacOtherStrings)
+
+		def StringsAtPositionsReplaced1B1(panPositions, pacOtherStrings)
+			return This.StringsAtPositionsReplacedOneByOne(panPositions, pacOtherStrings)
+
+		def StringItemsAtPositionsReplaced1B1(panPositions, pacOtherStrings)
+			return This.StringsAtPositionsReplacedOneByOne(panPositions, pacOtherStrings)
+
+	  #-----------------------------------------------------------------------------#
+	 #  REPLACING STRINGS AT GIVEN POSITIONS BY OTHER GIVEN STRINGS BY ALTERNANCE  #
+	#-----------------------------------------------------------------------------#
+
+	def ReplaceStringsAtPositionsByAlternance(panPositions, pacOtherStrings)
+     
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+
+			stzRaise("Incorrect param! panPositions must be a list of numbers.")
+		ok
+
+		if NOT ( isList(pacOtherStrings) and
+				( Q(pacOtherStrings).IsListOfStrings() or
+			 	  Q(pacOtherStrings).IsWithOrByNamedParamList()
+				)
+			)
+
+			stzRaise("Incorrect param! pacOtherStrings must be a list of strings.")
+		ok
+
+		if Q(pacOtherStrings).IsWithOrByNamedParamList()
+			pacOtherStrings = pacOtherStrings[2]
+		ok
+
+		i = 0
+		nLenPos = len(panPositions)
+		nLenOtherStr = len(pacOtherStrings)
+
+		for n in panPositions
+			i++
+			if i > nLenOtherStr
+				i = 1
+			ok
+
+			if i <= nLenPos
+				This.ReplaceStringAtPosition(n, :With = pacOtherStrings[i])
+			ok
+
+		next
+
+		#< @FunctionFluentForm
+
+		def ReplaceStringsAtPositionsByAlternanceQ(panPositions, pacOtherStrings)
+			This.ReplaceStringsAtPositionsByAlternance(panPositions, pacOtherStrings)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceStringsAtPositions1B0(panPositions, pacOtherStrings)
+			This.ReplaceStringsAtPositionsByAlternance(panPositions, pacOtherStrings)
+
+			def ReplaceStringsAtPositions1B0Q(panPositions, pacOtherStrings)
+				This.ReplaceStringsAtPositions1B0(panPositions, pacOtherStrings)
+				return This
+
+		def ReplaceStringItemsAtPositionsByAlternance(panPositions, pacOtherStrings)
+			This.ReplaceStringsAtPositionsByAlternance(panPositions, pacOtherStrings)
+
+			def ReplaceStringItemsAtPositionsByAlternanceQ(panPositions, pacOtherStrings)
+				This.ReplaceStringItemsAtPositionsByAlternance(panPositions, pacOtherStrings)
+				return This
+
+		def ReplaceStringItemsAtPositions1B0(panPositions, pacOtherStrings)
+			This.ReplaceStringsAtPositionsByAlternance(panPositions, pacOtherStrings)
+
+			def ReplaceStringItemsAtPositions1B0Q(panPositions, pacOtherStrings)
+				This.ReplaceStringItemsAtPositions1B0(panPositions, pacOtherStrings)
+				return This
+
+		def ReplaceStringsAtPositionsByManyOtherStringsByAlternance(panPositions, pacOtherStrings)
+			This.ReplaceStringsAtPositionsByAlternance(panPositions, pacOtherStrings)
+
+			def ReplaceStringsAtPositionsByManyOtherStringsByAlternanceQ(panPositions, pacOtherStrings)
+				This.ReplaceStringsAtPositionsByManyOtherStringsByAlternance(panPositions, pacOtherStrings)
+				return This
+
+		def ReplaceStringsAtPositionsByManyOtherStrings1B0(panPositions, pacOtherStrings)
+			This.ReplaceStringsAtPositionsByAlternance(panPositions, pacOtherStrings)
+
+			def ReplaceStringsAtPositionsByManyOtherStrings1B0Q(panPositions, pacOtherStrings)
+				This.ReplaceStringsAtPositionsByManyOtherStrings1B0(panPositions, pacOtherStrings)
+				return This
+
+		#>
+
+	def StringsAtPositionsReplacedByALternance(panPositions, pacOtherStrings)
+		acResult = This.Copy().RepalceStringsAtPositionsByAlternanceQ(panPositions, pacOtherStrings).Content()
+		return acResult
+
+		def StringItemsAtPositionsReplacedByALternance(panPositions, pacOtherStrings)
+			return This.StringsAtPositionsReplacedByALternance(panPositions, pacOtherStrings)
+
+		def StringsAtPositionsReplaced1B0(panPositions, pacOtherStrings)
+			return This.StringsAtPositionsReplacedByALternance(panPositions, pacOtherStrings)
+
+		def StringItemsAtPositionsReplaced1B0(panPositions, pacOtherStrings)
+			return This.StringsAtPositionsReplacedByALternance(panPositions, pacOtherStrings)
 
 	  #-------------------------------------------------------#
 	 #    REPLACING A SECTION OF STRINGS BY A GIVEN STRING   #
@@ -8178,6 +9087,14 @@ class stzListOfStrings from stzList
 		? o1.Content() #--> [ "A", "B", "C", "D" ]
 
 		*/
+
+		if isList(pcNewStr) and Q(pcNewStr).IsWithOrByNamedParamList()
+			pcNewStr = pcNewStr[2]
+		ok
+
+		if NOT isString(pcNewStr)
+			stzRaise("Incorrect param! pcNewStr must be a string.")
+		ok
 
 		This.RemoveSectionQ(n1, n2)
 		This.InsertBefore(n1, pcNewStr)
@@ -8234,9 +9151,9 @@ class stzListOfStrings from stzList
 		def EachStringItemReplacedInSection(n1, n2, pcNewStr)
 			return This.EachStringInSectionReplaced(n1, n2, pcNewStr)
 	
-	  #----------------------------------------------------------------#
+	  #--------------------------------------------------------------#
 	 #   REPLACING EACH STRING IN MANY SECTIONS BY A GIVEN STRING   #
-	#----------------------------------------------------------------#
+	#--------------------------------------------------------------#
 
 	def ReplaceEachStringInManySections(panSections, pcNewStr)
 		for anSection in panSections
@@ -8275,32 +9192,56 @@ class stzListOfStrings from stzList
 	def ReplaceSectionOneByOne(n1, n2, pacOtherListOfStr)
 		/* EXAMPLE
 
-		o1 = new stzListOfStrings([ "A", "B", "_", "_", "_", "F" ]
+		o1 = new stzListOfStrings([ "A", "B", "_", "_", "_" ])
 		o1.ReplaceSectionOneByOne(3, 5, [ "C", "D", "F" ])
 		? o1.Content() #--> [ "A", "B", "C", "D", "E", "F" ]
 
 		*/
-	
-		i = 0
 
-		for n = n1 to n2
-			i++
-			if i <= len(pacOtherListOfStr)
-				str = pacOtherListOfStr[i]
-			else
-				str = NULL
+		if isString(n1)
+
+			if Q(n1).IsOnOfTheseCS([
+				:First, :FirstPosition, :FirstString, :FirstStringItem ]
+				, :CS = FALSE)
+
+				n1 = 1
 			ok
 
-			This.ReplaceItemAtPosition(n, str)
-		next
+			if Q(n2).IsOnOfTheseCS([
+				:Last, :LastPosition, :LastString, :LastStringItem ]
+				, :CS = FALSE)
+
+				n1 = This.NumberOfStrings()
+			ok
+		ok
+
+		if isString(n2)
+
+		ok
+
+		if NOT BothAreNumbers(n1, n2)
+			stzRaise("Incorrect params! n1 and n2 must be numbers.")
+		ok
+
+		This.ReplaceStringItemsAtPositionsOneByOne(n1 : n2, pacOtherListOfStr)
 
 		def ReplaceSectionOneByOneQ(n1, n2, pacOtherListOfStr)
 			This.ReplaceSectionOneByOne(n1, n2, pacOtherListOfStr)
 			return This
 
+		def ReplaceSection1By1(n1, n2, pacOtherListOfStr)
+			This.ReplaceSectionOneByOne(n1, n2, pacOtherListOfStr)
+
+			def ReplaceSection1By1Q(n1, n2, pacOtherListOfStr)
+				This.ReplaceSection1By1(n1, n2, pacOtherListOfStr)
+				return This
+
 	def SectionReplacedOneByOne(n1, n2, pacOtherListOfStr)
 		aResult = This.ReplaceSectionOneByOneQ(n1, n2, pacOtherListOfStr).Content()
 		return aResult
+
+		def SectionReplaced1By1(n1, n2, pacOtherListOfStr)
+			return This.SectionReplacedOneByOne(n1, n2, pacOtherListOfStr)
 
 	   #-----------------------------------------------------#
 	  #   REPLACING MANY SECTIONS OF STRINGS IN THE LIST    #
@@ -8308,9 +9249,22 @@ class stzListOfStrings from stzList
 	#-----------------------------------------------------#
 
 	def ReplaceManySectionsOneOnyOne(panSections, pacOtherListOfStr)
+
+		if NOT ( isList(panSections) and Q(panSections).IsListOfPairsOfNumbers() )
+
+			stzRaise("Incorrect param! panSections must be a list of pairs of numbers.")
+		ok
+
+		if NOT ( isList(pacOtherListOfStr) and Q(pacOtherListOfStr).IsListOfStrings() )
+
+			stzRaise("Incorrect param! panSections must be a list of strings.")
+		ok
+
+
 		for anSection in panSections
-			n1 = panSections[1]
-			n2 = panSections[2]
+			n1 = anSection[1]
+			n2 = anSection[2]
+
 			This.ReplaceSectionOneByOne(n1, n2, pacOtherListOfStr)
 		next
 
@@ -9954,10 +10908,11 @@ class stzListOfStrings from stzList
 
 		*/
 
-		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
-		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfStrings() + ")") = len(panList) )
+		if NOT ( isList(panList) and StzListQ(panList).IsListOfNumbers() and
+		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfStrings() + ")") = len(panList)
+		       )
 
-			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfStrings().")
+			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfStrings().")
 		ok
 
 		if isList(pcString) and StzListQ(pcString).IsOfNamedParamList()
@@ -10209,10 +11164,11 @@ class stzListOfStrings from stzList
 
 		*/
 
-		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
-		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfStrings() + ")") = len(panList) )
+		if NOT ( isList(panList) and StzListQ(panList).IsListOfNumbers() and
+		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfStrings() + ")") = len(panList)
+		       )
 
-			stzRaise("Incorrect param! panList must a list of numbers between 1 and This.NumberOfStrings().")
+			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfStrings().")
 		ok
 
 		if isList(pcString) and StzListQ(pcString).IsOfNamedParamList()
@@ -10584,7 +11540,7 @@ class stzListOfStrings from stzList
 			This.RemoveStringsAtPositions(panPositions)
 
 			def RemoveManyStringItemsAtQ(panPositions)
-				This.RemoveManyStringItemssAt(panPositions)
+				This.RemoveManyStringItemsAt(panPositions)
 				return This
 
 		def RemoveManyStringItemsAtPositions(panPositions)
@@ -10764,13 +11720,13 @@ class stzListOfStrings from stzList
 			n2 = This.NumberOfStrings()
 		ok
 
-		if NOT isNumber(n1) and isNumber(n2)
+		if NOT ( isNumber(n1) and isNumber(n2) )
 			stzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
-		if NOT  ( StzNumberQ(n1).IsBetween(1, This.NumberOfStrings() ) and
-			  StzNumberQ(n2).IsBetween(1, This.NumberOfStrings() )
-			)
+		if NOT ( StzNumberQ(n1).IsBetween(1, This.NumberOfStrings()) and
+		         StzNumberQ(n2).IsBetween(1, This.NumberOfStrings())
+		       )
 
 			stzRaise("Out of range!")
 		ok
@@ -12478,7 +13434,8 @@ class stzListOfStrings from stzList
 		#>
 
 	def YieldFromSectionsOneByOne(paSections, pcCode)
-		if NOT isList(paSections) and Q(paSections).IsListOfPairsOfNumbers()
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+
 			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -12703,6 +13660,7 @@ class stzListOfStrings from stzList
 	def PerformOn(panPositions, pcCode)
 
 		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+
 			stzRaise("Invalid param type! panPositions must be a list of numbers.")
 		ok
 
@@ -13271,6 +14229,42 @@ class stzListOfStrings from stzList
 					stzRaise("Unsupported return type!")
 				off
 
+		def PositionsOfDuplicatedStringsCS(pCaseSensitive)
+			return This.FindDuplicatedStringsCS(pCaseSensitive)
+
+			def PositionsOfDuplicatedStringsCSQ(pCaseSensitive)
+				return This.PositionsOfDuplicatedStringsCSQR(pCaseSensitive, :stzList)
+
+			def PositionsOfDuplicatedStringsCSQR(pCaseSensitive, pCaseSensitive)
+				return This.FindDuplicatedStringItemsCSQR(pCaseSensitive, pcReturntype)
+
+		def DuplicatedStringsPositionsCS(pCaseSensitive)
+			return This.FindDuplicatedStringsCS(pCaseSensitive)
+
+			def DuplicatedStringsPositionsCSQ(pCaseSensitive)
+				return This.PositionsOfDuplicatedStringsCSQR(pCaseSensitive, :stzList)
+
+			def DuplicatedStringsPositionsCSQR(pCaseSensitive, pCaseSensitive)
+				return This.FindDuplicatedStringItemsCSQR(pCaseSensitive, pcReturntype)
+
+		def PositionsOfDuplicatedStringItemsCS(pCaseSensitive)
+			return This.FindDuplicatedStringsCS(pCaseSensitive)
+
+			def PositionsOfDuplicatedStringItemsCSQ(pCaseSensitive)
+				return This.PositionsOfDuplicatedStringsCSQR(pCaseSensitive, :stzList)
+
+			def PositionsOfDuplicatedStringItemsCSQR(pCaseSensitive, pCaseSensitive)
+				return This.FindDuplicatedStringItemsCSQR(pCaseSensitive, pcReturntype)
+
+		def DuplicatedStringItemsPositionsCS(pCaseSensitive)
+			return This.FindDuplicatedStringsCS(pCaseSensitive)
+
+			def DuplicatedStringItemsPositionsCSQ(pCaseSensitive)
+				return This.PositionsOfDuplicatedStringsCSQR(pCaseSensitive, :stzList)
+
+			def DuplicatedStringItemsPositionsCSQR(pCaseSensitive, pCaseSensitive)
+				return This.FindDuplicatedStringItemsCSQR(pCaseSensitive, pcReturntype)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -13331,6 +14325,42 @@ class stzListOfStrings from stzList
 				other
 					stzRaise("Unsupported return type!")
 				off
+
+		def PositionsOfDuplicatedStrings()
+			return This.FindDuplicatedStrings()
+
+			def PositionsOfDuplicatedStringsQ()
+				return This.PositionsOfDuplicatedStringsQR(:stzList)
+
+			def PositionsOfDuplicatedStringsQR(pCaseSensitive)
+				return This.FindDuplicatedStringItemsQR(pcReturntype)
+
+		def DuplicatedStringsPositions()
+			return This.FindDuplicatedStrings()
+
+			def DuplicatedStringsPositionsQ()
+				return This.PositionsOfDuplicatedStringsQR(:stzList)
+
+			def DuplicatedStringsPositionsQR(pCaseSensitive)
+				return This.FindDuplicatedStringItemsQR(pcReturntype)
+
+		def PositionsOfDuplicatedStringItems()
+			return This.FindDuplicatedStrings()
+
+			def PositionsOfDuplicatedStringItemsQ()
+				return This.PositionsOfDuplicatedStringsQR(:stzList)
+
+			def PositionsOfDuplicatedStringItemsQR(pCaseSensitive)
+				return This.FindDuplicatedStringItemsQR(pcReturntype)
+
+		def DuplicatedStringItemsPositions()
+			return This.FindDuplicatedStrings()
+
+			def DuplicatedStringItemsPositionsQ()
+				return This.PositionsOfDuplicatedStringsQR(:stzList)
+
+			def DuplicatedStringItemsPositionsQR(pCaseSensitive)
+				return This.FindDuplicatedStringItemsQR(pcReturntype)
 
 		#>
 
@@ -13431,7 +14461,42 @@ class stzListOfStrings from stzList
 					stzRaise("Unsupported return type!")
 				off
 
-		
+		def PositionsOfDuplicatedStringCS(pcString, pCaseSensitive)
+			return This.FindDuplicatedStringCS(pcString, pCaseSensitive)
+
+			def PositionsOfDuplicatedStringCSQ(pcString, pCaseSensitive)
+				return This.PositionsOfDuplicatedStringCSQR(pcString, pCaseSensitive, :stzList)
+
+			def PositionsOfDuplicatedStringCSQR(pcString, pCaseSensitive, pcReturnType)
+				return This.FindDuplicatedCSQR(pcString, pCaseSensitive, pcReturnType)
+
+		def DuplicatedStringPositionsCS(pcString, pCaseSensitive)
+			return This.FindDuplicatedStringCS(pcString, pCaseSensitive)
+
+			def DuplicatedStringPositionsCSQ(pcString, pCaseSensitive)
+				return This.PositionsOfDuplicatedStringCSQR(pcString, pCaseSensitive, :stzList)
+
+			def DuplicatedStringPositionsCSQR(pcString, pCaseSensitive, pcReturnType)
+				return This.FindDuplicatedCSQR(pcString, pCaseSensitive, pcReturnType)
+
+		def PositionsOfDuplicatedStringItemCS(pcString, pCaseSensitive)
+			return This.FindDuplicatedStringItemCS(pcString, pCaseSensitive)
+
+			def PositionsOfDuplicatedStringItemCSQ(pcString, pCaseSensitive)
+				return This.PositionsOfDuplicatedStringItemCSQR(pcString, pCaseSensitive, :stzList)
+
+			def PositionsOfDuplicatedStringItemCSQR(pcString, pCaseSensitive, pcReturnType)
+				return This.FindDuplicatedCSQR(pcString, pCaseSensitive, pcReturnType)
+
+		def DuplicatedStringItemPositionsCS(pcString, pCaseSensitive)
+			return This.FindDuplicatedStringCS(pcString, pCaseSensitive)
+
+			def DuplicatedStringItemPositionsCSQ(pcString, pCaseSensitive)
+				return This.PositionsOfDuplicatedStringCSQR(pcString, pCaseSensitive, :stzList)
+
+			def DuplicatedStringItemPositionsCSQR(pcString, pCaseSensitive, pcReturnType)
+				return This.FindDuplicatedCSQR(pcString, pCaseSensitive, pcReturnType)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -13520,6 +14585,42 @@ class stzListOfStrings from stzList
 					stzRaise("Unsupported return type!")
 				off
 
+		def PositionsOfDuplicatedString(pcString)
+			return This.FindDuplicatedString(pcString)
+
+			def PositionsOfDuplicatedStringQ(pcString)
+				return This.PositionsOfDuplicatedStringQR(pcString, :stzList)
+
+			def PositionsOfDuplicatedStringQR(pcString, pcReturnType)
+				return This.FindDuplicatedQR(pcString, pcReturnType)
+
+		def DuplicatedStringPositions(pcString)
+			return This.FindDuplicatedString(pcString)
+
+			def DuplicatedStringPositionsQ(pcString)
+				return This.PositionsOfDuplicatedStringQR(pcString, :stzList)
+
+			def DuplicatedStringPositionsQR(pcString, pcReturnType)
+				return This.FindDuplicatedQR(pcString, pcReturnType)
+
+		def PositionsOfDuplicatedStringItem(pcString)
+			return This.FindDuplicatedStringItem(pcString)
+
+			def PositionsOfDuplicatedStringItemQ(pcString)
+				return This.PositionsOfDuplicatedStringItemQR(pcString, :stzList)
+
+			def PositionsOfDuplicatedStringItemQR(pcString, pcReturnType)
+				return This.FindDuplicatedQR(pcString, pcReturnType)
+
+		def DuplicatedStringItemPositions(pcString)
+			return This.FindDuplicatedString(pcString)
+
+			def DuplicatedStringItemPositionsQ(pcString)
+				return This.PositionsOfDuplicatedStringQR(pcString, :stzList)
+
+			def DuplicatedStringItemPositionsQR(pcString, pcReturnType)
+				return This.FindDuplicatedQR(pcString, pcReturnType)
+
 		#>
 
 	  #----------------------------#
@@ -13536,6 +14637,8 @@ class stzListOfStrings from stzList
 		anResult = sort( ListsMerge( anPositions ) )
 
 		return anResult
+
+		#< @FunctionFluentForm
 
 		def FindDuplicatesCSQ(pCaseSensitive)
 			return This.FindDuplicatesCSQR(pCaseSensitive, :stzList)
@@ -13559,12 +14662,37 @@ class stzListOfStrings from stzList
 			other
 				stzRaise("Unsupported return type!")
 			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PositionsOfDuplicatesCS(pCaseSensitive)
+			return This.FindDuplicatesCS(pCaseSensitive)
+
+			def PositionsOfDuplicatesCSQ(pCaseSensitive)
+				return This.PositionsOfDuplicatesCSQR(pCaseSensitive, :stzList)
+
+			def PositionsOfDuplicatesCSQR(pCaseSensitive, pcReturnType)
+				return This.FindDuplicatesCSQR(pCaseSensitive, pcReturnType)
+
+		def DuplicatesPositionsCS(pCaseSensitive)
+			return THis.FindDuplicatesCS(pCaseSensitive)
+
+			def DuplicatesPositionsCSQ(pCaseSensitive)
+				return This.DuplicatesPositionsCSQR(pCaseSensitive, :stzList)
+
+			def DuplicatesPositionsCSQR(pCaseSensitive, pcReturnType)
+				return This.FindDuplicatesCSQR(pCaseSensitive, pcReturnType)
+
+		#>
 
 	##-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicates()
 				
 		return This.FindDuplicatesCS( :CaseSensitive = TRUE )
+
+		#< @FunctionFluentForm
 
 		def FindDuplicatesQ()
 			return This.FindDuplicatesQR(:stzList)
@@ -13588,6 +14716,29 @@ class stzListOfStrings from stzList
 			other
 				stzRaise("Unsupported return type!")
 			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PositionsOfDuplicates()
+			return This.FindDuplicates()
+
+			def PositionsOfDuplicatesQ()
+				return This.PositionsOfDuplicatesQR(:stzList)
+
+			def PositionsOfDuplicatesQR(pCaseSensitive, pcReturnType)
+				return This.FindDuplicatesQR(pcReturnType)
+
+		def DuplicatesPositions()
+			return THis.FindDuplicates()
+
+			def DuplicatesPositionsCQ()
+				return This.DuplicatesPositionsQR(:stzList)
+
+			def DuplicatesPositionsQR(pcReturnType)
+				return This.FindDuplicatesQR(pcReturnType)
+
+		#>
 
 	  #-----------------------------------------------#
 	 #   FINDING DUPLICATES OF A GIVEN STRING-ITEM   #
@@ -13601,12 +14752,24 @@ class stzListOfStrings from stzList
 		def FindDuplicatesOfStringItemCS(pcStr, pCaseSensitive)
 			return This.FindDuplicatesOfStringCS(pcStr, pCaseSensitive)
 
+		def PositionsOfDuplicatesOfStringItemCS(pcStr, pCaseSensitive)
+			return This.FindDuplicatesOfStringCS(pcStr, pCaseSensitive)
+
+		def DuplicatesOfStringItemPositionsCS(pcStr, pCaseSensitive)
+			return This.FindDuplicatesOfStringCS(pcStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesOfString(pcStr)
 		return This.FindDuplicatesOfStringCS(pcStr, :CaseSensitive = TRUE)
 
 		def FindDuplicatesOfStringItem(pcStr)
+			return This.FindDuplicatesOfString(pcStr)
+
+		def PositionsOfDuplicatesOfStringItem(pcStr)
+			return This.FindDuplicatesOfString(pcStr)
+
+		def DuplicatesOfStringItemPositions(pcStr)
 			return This.FindDuplicatesOfString(pcStr)
 
 	  #------------------------------------#
@@ -13621,6 +14784,8 @@ class stzListOfStrings from stzList
 		next
 
 		return aResult
+
+		#< @FunctionFluentForm
 
 		def FindDuplicatesXTCSQ(pCaseSensitive)
 			return This.FindDuplicatesXTCSQR(pCaseSensitive, :stzList)
@@ -13644,11 +14809,24 @@ class stzListOfStrings from stzList
 			other
 				stzRaise("Unsupported return type!")
 			off
+		#>
+
+		#< @FuntionAlternativeForms
+
+		def PositionsOfDuplicatesXTCS(pCaseSensitive)
+			return This.FindDuplicatesXTCS(pCaseSensitive)
+
+		def DuplicatesPositionsXTCS(pCaseSensitive)
+			return This.FindDuplicatesXTCS(pCaseSensitive)
+
+		#>
 
 	##-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesXT()
 		return This.FindDuplicatesXTCS( :CaseSensitive = TRUE )
+
+		#< @functionFluentForm
 
 		def FindDuplicatesXTQ()
 			return This.FindDuplicatesXTQR(:stzList)
@@ -13672,6 +14850,17 @@ class stzListOfStrings from stzList
 			other
 				stzRaise("Unsupported return type!")
 			off
+		#>
+
+		#< @FuntionAlternativeForms
+
+		def PositionsOfDuplicatesXT()
+			return This.FindDuplicatesXT()
+
+		def DuplicatesPositionsXT()
+			return This.FindDuplicatesXT()
+
+		#>
 
 	  #----------------------------------------------------#
 	 #   REMOVING ALL DUPLICATES IN THE LIST of STRINGS   #
@@ -13829,7 +15018,8 @@ class stzListOfStrings from stzList
 	#----------------------------------------------------#
 
 	def RemoveDuplicatesOfStringsCS(pacStr, pCaseSensitive)
-		if NOT (isList(pacStr) and Q(pacStr).IsListOfStrings())
+		if NOT (isList(pacStr) and Q(pacStr).IsListOfStrings() )
+
 			stzRaise("Incorrect param! pacStr must be a list of strings.")
 		ok
 

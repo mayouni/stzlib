@@ -261,7 +261,13 @@ class stzListOfLists from stzList
 		def PositionsOfSmallestLists()
 			return This.FindSmallestLists()
 
+		def SmallestListsPositions()
+			return This.FindSmallestLists()
+
 		def PositionsOfMinLists()
+			return This.FindSmallestLists()
+
+		def MinListsPositions()
 			return This.FindSmallestLists()
 
 	def FindBiggestLists()
@@ -273,7 +279,13 @@ class stzListOfLists from stzList
 		def PositionsOfBiggestLists()
 			return This.FindBiggestLists()
 
+		def BiggestListsPositions()
+			return This.FindBiggestLists()
+
 		def PositionsOfMaxLists()
+			return This.FindBiggestLists()
+
+		def MaxListsPositions()
 			return This.FindBiggestLists()
 
 	  #---------------------#
@@ -295,6 +307,9 @@ class stzListOfLists from stzList
 
 		#< @FunctionAlternativeForm
 
+		def ListsOfSizeNPositions(n)
+			return This.PositionsOfListsOfSizeN(n)
+
 		def PositionsOfListsOfSize(n)
 			return This.PositionsOfListsOfSizeN(n)
 
@@ -314,6 +329,85 @@ class stzListOfLists from stzList
 		next
 
 		return aResult
+
+		#< @FunctionFluentForm
+
+		def ItemsAtPositionNQ(n)
+			return This.ItemsAtPositionNQR(n, :stzList)
+
+		def ItemsAtPositionsNQR(n, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ItemsAtPositionN(n) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.ItemsAtPositionN(n) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.ItemsAtPositionN(n) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ItemsAt(n)
+			return This.ItemsAtPositionN(n)
+
+			def ItemsAtQ(n)
+				return This.ItemsAtPositionNQR(n, :stzList)
+
+			def ItemsAtQR(n, pcReturnType)
+				return This.ItemsAtPositionNQR(n, pcReturnType)
+
+		def ItemsAtPosition(n)
+			return This.ItemsAtPositionN(n)
+
+			def ItemsAtPositionQ(n)
+				return This.ItemsAtPositionQR(n, :stzList)
+
+			def ItemsAtPositionQR(n, pcReturnType)
+				return This.ItemsAtPositionQR(n, pcReturnType)
+
+		def ListsAtPositionN(n)
+			return This.ItemsAtPositionN(n)
+
+			def ListsAtPositionNQ(n)
+				return This.ListsAtPositionNQR(n, :stzList)
+
+			def ListsAtPositionNQR(n, pcReturnType)
+				return This.ListsAtPositionNQR(n, pcReturnType)
+
+		def ListsAt(n)
+			return This.ItemsAtPositionN(n)
+
+			def ListsAtQ(n)
+				return This.ListsAtQR(n, :stzList)
+
+			def ListsAtQR(n, pcReturnType)
+				return This.ListsAtQR(n, pcReturnType)
+
+		def ListsAtPosition(n)
+			return This.ItemsAtPositionN(n)
+
+			def ListsAtPositionQ(n)
+				return This.ListsAtPositionQR(n, :stzList)
+
+			def ListsAtPositionQR(n, pcReturnType)
+				return This.ListsAtPositionQR(n, pcReturnType)
+
+		#>
 
 	  #---------------#
 	 #   INDEXING    #

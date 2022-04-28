@@ -49,7 +49,7 @@ class stzSet from stzList
 
 		ok
 
-		If NOT LsitIsSet(paOtherSet)
+		If NOT ListIsSet(paOtherSet)
 			stzRaise(stzSetError(:CanNotUpdateSetWithNonSet))
 		ok
 

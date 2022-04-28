@@ -14,7 +14,7 @@ class stzEntity
 				aEntity =  StzHashListQ(paEntity).Content()
 
 				# 'name' is compulsory and it must be a valid word
-				if NOT (isString(aEntity[:name]) and StringIsWord(aEntity[:name]))
+				if NOT ( isString(aEntity[:name]) and StringIsWord(aEntity[:name]) )
 					stzRaise(stzEntityError(:CanNotCreateEntityObjectWithIncorrectName))
 				ok
 

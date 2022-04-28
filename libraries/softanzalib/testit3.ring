@@ -10,7 +10,7 @@ load "stzlib.ring"
 	# 	"D"
 	#     ]
 
-	? @@WS( "A" : "D" ) # Computable form without spaces
+	? @@( "A" : "D" ) # Computable form without spaces
 	#--> [ "A", "B", "C", "D" ]
 
 /*----------
@@ -58,16 +58,16 @@ load "stzlib.ring"
 
 	o1 = new stzList([ "A", "B", "_", "_", "_", "D" ])
 	o1.RemoveSection(3, 5)
-	? @@WS( o1.Content() )	#--> [ "A", "B", "D" ]
+	? @@( o1.Content() )	#--> [ "A", "B", "D" ]
 	
 	o1.InsertBefore(3, "C")
-	? @@WS( o1.Content() )	#--> [ "A", "B", "C", "D" ]
+	? @@( o1.Content() )	#--> [ "A", "B", "C", "D" ]
 
 /*----------
 
 	o1 = new stzList([ "A", "B", "_", "_", "_", "D" ])
 	o1.ReplaceSection(3, 5, :With = "C")
-	? @@WS( o1.Content() ) #--> [ "A", "B", "C", "D" ]
+	? @@( o1.Content() ) #--> [ "A", "B", "C", "D" ]
 
 /*----------
 

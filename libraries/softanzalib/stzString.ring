@@ -1753,7 +1753,7 @@ class stzString from stzObject
 		#>
 
 	  #----------------------------#
-	 #      FINDING MARQUERS      #
+	 #      FINDING A MARQUER     #
 	#----------------------------#
 
 	def OccurrencesOfMarquer(pcMarquer)
@@ -1788,53 +1788,41 @@ class stzString from stzObject
 			off
 		#>
 
+		#< @FunctionAlternativeForms
+
 		def PositionsOfMarquer(pcMarquer)
 			return This.OccurrencesOfMarquer(pcMarquer)
 
 			def PositionsOfMarquerQ(pcMarquer)
-				return This.PositionsOfMarquerQR(pcMarquer, :stzList)
+				return This.OccurrencesOfMarquerQ(pcMarquer)
 	
 			def PositionsOfMarquerQR(pcMarquer, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
+				return This.OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
 
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.PositionsOfMarquer(pcMArquer) )
+		def MarquerPositions(pcMarquer)
+			return This.OccurrencesOfMarquer(pcMarquer)
+
+			def MarquerPositionsQ(pcMarquer)
+				return This.OccurrencesOfMarquerQ(pcMarquer)
 	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.PositionsOfMarquer(pcMArquer) )
-	
-				other
-					stzRaise("Unsupported return type!")
-	
-				off
+			def MarquerPositionsQR(pcMarquer, pcReturnType)
+				return This.OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
 
 		def FindMarquer(pcMarquer)
 			return This.OccurrencesOfMarquer(pcMarquer)
 
 			def FindMarquerQ(pcMarquer)
-				return This.FindMarquerQR(pcMarquer, :stzList)
+				return This.OccurrencesOfMarquerQ(pcMarquer)
 	
 			def FindMarquerQR(pcMarquer, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
+				return This.OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
 
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindMarquer(pcMArquer) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindMarquer(pcMArquer) )
-	
-				other
-					stzRaise("Unsupported return type!")
-	
-				off
 
 			#>
+
+	  #-------------------------------------#
+	 #    GETTING A MARQUER BY POSITION    #
+	#-------------------------------------#
 
 	def MarquerByPosition(pnPosition)
 		aMarquers = This.MarquersAndTheirPositions()
@@ -2245,6 +2233,9 @@ class stzString from stzObject
 		def NthMarquerPosition(n)
 			return This.FindNthMarquer(n)
 
+		def PositionOfNthMarquer(n)
+			return This.FindNthMarquer(n)
+
 	def FindFirstMarquer()
 		return This.FindNthMarquer(1)
 
@@ -2252,6 +2243,9 @@ class stzString from stzObject
 			return This.FindFirstMarquer()
 
 		def FirstMarquerPosition()
+			return This.FindFirstMarquer()
+
+		def PositionOfFirstMarquer()
 			return This.FindFirstMarquer()
 
 	def FindLastMarquer()
@@ -2262,6 +2256,10 @@ class stzString from stzObject
 
 		def LastMarquerPosition()
 			return This.FindLastMarquer()
+
+		def PositionOfLastMarquer()
+			return This.FindLastMarquer()
+
 
 	#----- NEXT MARQUERS
 
@@ -2348,7 +2346,13 @@ class stzString from stzObject
 		def NthNextMarquerPosition(n, pnStartingAt)
 			return This.FindNthNextMarquer(n, pnStartingAt)
 
+		def PositionOfNthNextMarquer(n, pnStartingAt)
+			return This.FindNthNextMarquer(n, pnStartingAt)
+
 		def NextNthMarquerPosition(n, pnStartingAt)
+			return This.FindNthNextMarquer(n, pnStartingAt)
+
+		def PositionOfNextNthMarquer(n, pnStartingAt)
 			return This.FindNthNextMarquer(n, pnStartingAt)
 
 	def NthNextMarquerAndItsPosition(n, pnStartingAt)
@@ -2392,6 +2396,9 @@ class stzString from stzObject
 		return This.FindNthNextMarquer(1, pnStartingAt)
 
 		def NextMarquerPosition(pnStartingAt)
+			return This.FindNextMarquer(pnStartingAt)
+
+		def PositionOfNextMarquer(pnStartingAt)
 			return This.FindNextMarquer(pnStartingAt)
 
 		def NextMarquerOccurrence(pnStartingAt)
@@ -2490,7 +2497,13 @@ class stzString from stzObject
 		def NthPreviousMarquerPosition(n, pnStartingAt)
 			return This.FindNthPreviousMarquer(n, pnStartingAt)
 
+		def PositionOfNthPreviousMarquer(n, pnStartingAt)
+			return This.FindNthPreviousMarquer(n, pnStartingAt)
+
 		def PreviousNthMarquerPosition(n, pnStartingAt)
+			return This.FindNthPreviousMarquer(n, pnStartingAt)
+
+		def PositionOfPreviousNthMarquer(n, pnStartingAt)
 			return This.FindNthPreviousMarquer(n, pnStartingAt)
 
 		#>
@@ -2537,6 +2550,9 @@ class stzString from stzObject
 		def PreviousMarquerPosition(pnStartingAt)
 			return This.FindPreviousMarquer(pnStartingAt)
 
+		def PositionOfPreviousMarquer(pnStartingAt)
+			return This.FindPreviousMarquer(pnStartingAt)
+
 		def PreviousMarquerOccurrence(pnStartingAt)
 			return This.FindPreviousMarquer(pnStartingAt)
 
@@ -2560,7 +2576,6 @@ class stzString from stzObject
 
 			def PreviousMarquerAndItsOccurrenceQ(pnStartingAt)
 				return new stzString( This.PreviousMarquerAndItsOccurrence(pnStartingAt) )
-
 
 	  #------------------#
 	 #      TO TEXT     #
@@ -5961,7 +5976,8 @@ class stzString from stzObject
 	#------------------------------------------------#
 
 	 def InsertAfterThesePositions(panPositions, pcSubStr)
-		if NOT isList(panPositions) and Q(paPositions).IsListOfNumbers()
+		if NOT ( isList(panPositions) and Q(paPositions).IsListOfNumbers() )
+
 			stzRaise("Incorrect param! paPositions must be a list of numbers.")
 		ok
 
@@ -5985,7 +6001,9 @@ class stzString from stzObject
 	#-------------------------------------------------#
 
 	 def InsertBeforeThesePositions(panPositions, pcSubStr)
-		if NOT isList(panPositions) and Q(panPositions).IsListOfNumbers()
+
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+
 			stzRaise("Incorrect param! panPositions must be a list of numbers.")
 		ok
 
@@ -6564,7 +6582,8 @@ class stzString from stzObject
 
 		# Checking the correctness of panPositions param
 
-		if NOT isList(panPositions) and Q(panPositions).IsListOfNumbers()
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+
 			stzRaise("Incorrect param! panPositions must be list of numbers.")
 		ok
 
@@ -6843,7 +6862,7 @@ class stzString from stzObject
 
 	def ReplaceManyOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
 
-		if NOT IsListOfStrings(pacSubstrings) and isList(paNewSubStrings)
+		if NOT ( IsListOfStrings(pacSubstrings) and isList(paNewSubStrings) )
 		   stzRaise("Incorrect params!")
 		ok
 
@@ -7669,6 +7688,12 @@ class stzString from stzObject
 		def FindNthOccurrenceCS(n, pcSubstr, pCaseSensitive)
 			return This.NthOccurrenceCS(n, pcSubstr, pCaseSensitive)
 
+		def PositionOfNthOccurrenceCS(n, pcSubstr, pCaseSensitive)
+			return This.NthOccurrenceCS(n, pcSubstr, pCaseSensitive)
+
+		def NthOccurrencePositionCS(n, pcSubstr, pCaseSensitive)
+			return This.NthOccurrenceCS(n, pcSubstr, pCaseSensitive)
+
 		#>
 
 	def NthOccurrence(n, pcSubstr)
@@ -7679,6 +7704,12 @@ class stzString from stzObject
 		def FindNthOccurrence(n, pcSubstr)
 			return This.NthOccurrence(n, pcSubStr)
 	
+		def PositionOfNthOccurrence(n, pcSubstr)
+			return This.NthOccurrence(n, pcSubstr)
+
+		def NthOccurrencePosition(n, pcSubstr)
+			return This.NthOccurrence(n, pcSubstr)
+
 		#>
 
 	  #---------------------------------------------------#
@@ -7728,6 +7759,23 @@ class stzString from stzObject
 		def FirstSubStringCS(pcSubStr, pCaseSensitive)
 			return This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def PositionOfFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+
+		def FirstOccurrencePositionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfFirstCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfFirstSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+
+		def FirstSubStringPositionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	def FindFirstOccurrence(pcSubstr)
@@ -7746,7 +7794,23 @@ class stzString from stzObject
 
 		def FirstSubString(pcSubStr)
 			return This.FindFirstOccurrence(pcSubStr)
-	
+
+		#--
+
+		def PositionOfFirstOccurrence(pcSubStr)
+			return This.FindFirstOccurrence(pcSubStr)
+
+		def FirstOccurrencePosition(pcSubStr)
+			return This.FindFirstOccurrence(pcSubStr)
+
+		def PositionOfFirst(pcSubStr)
+			return This.FindFirstOccurrence(pcSubStr)
+
+		def PositionOfFirstSubString(pcSubStr)
+			return This.FindFirstOccurrence(pcSubStr)
+
+		def FirstSubStringPosition(pcSubStr)
+			return This.FindFirstOccurrence(pcSubStr)	
 		#>
 
 	  #-------------------------------------------------#
@@ -7775,6 +7839,22 @@ class stzString from stzObject
 		def LastSubStringCS(pcSubStr, pCaseSensitive)
 			return This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive)
 			
+		#--
+
+		def PositionOfLastOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive)
+
+		def LastOccurrencePositionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfLastCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfLastSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive)
+
+		def LastSubStringPositionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive)
 		#>
 
 	def FindLastOccurrence(pcSubStr)
@@ -7792,6 +7872,23 @@ class stzString from stzObject
 			return This.FindLastOccurrence(pcSubStr)
 
 		def LastSubString(pcSubStr)
+			return This.FindLastOccurrence(pcSubStr)
+
+		#--
+
+		def PositionOfLastOccurrence(pcSubStr)
+			return This.FindLastOccurrence(pcSubStr)
+
+		def LastOccurrencePosition(pcSubStr)
+			return This.FindLastOccurrence(pcSubStr)
+
+		def PositionOfLast(pcSubStr)
+			return This.FindLastOccurrence(pcSubStr)
+
+		def PositionOfLastSubString(pcSubStr)
+			return This.FindLastOccurrence(pcSubStr)
+
+		def LastSubStringPosition(pcSubStr)
 			return This.FindLastOccurrence(pcSubStr)
 
 		#>
@@ -7819,10 +7916,13 @@ class stzString from stzObject
 		def NextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
+		def NextPositionsCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
 		def FindNextOccurrencesOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		def NextOccurrencesOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def NextPositionsOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
@@ -7836,10 +7936,13 @@ class stzString from stzObject
 		def NextOccurrences(pcSubStr, pnStartingAt)
 			return This.FindNextOccurrences(pcSubStr, pnStartingAt)
 
+		def NextPositions(pcSubStr, pnStartingAt)
+			return This.FindNextOccurrences(pcSubStr, pnStartingAt)
+
 		def FindNextOccurrencesOfSubString(pcSubStr, pnStartingAt)
 			return This.FindNextOccurrences(pcSubStr, pnStartingAt)
 
-		def NextOccurrencesOfSubString(pcSubStr, pnStartingAt)
+		def NextPositionsOfSubString(pcSubStr, pnStartingAt)
 			return This.FindNextOccurrences(pcSubStr, pnStartingAt)
 
 		#>
@@ -7865,11 +7968,14 @@ class stzString from stzObject
 		def PreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		def FindPreviousOccurrencesOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def PreviousPositionsCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		def PreviousOccurrencesOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def FindPreviousOccurrencesOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PreviousPositionsOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
 
@@ -7882,11 +7988,14 @@ class stzString from stzObject
 		def PreviousOccurrences(pcSubStr, pnStartingAt)
 			return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
 
+		def PreviousPositionsC(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
+
 		def FindPreviousOccurrencesOfSubString(pcSubStr, pnStartingAt)
 			return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
 
-		def PreviousOccurrencesOfSubString(pcSubStr, pnStartingAt)
-			return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
+		def PreviousPositionsOfSubString(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrencesC(pcSubStr, pnStartingAt)
 
 		#>
 
@@ -9074,7 +9183,7 @@ class stzString from stzObject
 			stzRaise("Incorrect param! pacSubStr must be a list of strings.")
 		ok
 
-		if NOT ( isList(paOptions) and Q(paOptions).IsHashList())
+		if NOT ( isList(paOptions) and Q(paOptions).IsHashList() )
 			stzRaise("Incorrect param! paOptions must be a hashlist.")
 		ok
 
@@ -12567,7 +12676,7 @@ class stzString from stzObject
 			anRemoveTheseSplittedParts = [0]
 		ok
 
-		if NOT (isList(anRemoveTheseSplittedParts) and Q(anRemoveTheseSplittedParts).IsListOfNumbers() )
+		if NOT ( isList(anRemoveTheseSplittedParts) and Q(anRemoveTheseSplittedParts).IsListOfNumbers() )
 			stzRaise("Incorret value! :RemoveTheseSplittedParts must be a list of numbers.")
 		ok
 
@@ -12579,7 +12688,7 @@ class stzString from stzObject
 			acRemoveTheseLeadingSubstringsInEachPart = [""]
 		ok
 
-		if NOT (isList(acRemoveTheseLeadingSubstringsInEachPart) and Q(acRemoveTheseLeadingSubstringsInEachPart).IsListOfStrings() )
+		if NOT ( isList(acRemoveTheseLeadingSubstringsInEachPart) and Q(acRemoveTheseLeadingSubstringsInEachPart).IsListOfStrings() )
 			stzRaise("Incorret value! :RemoveTheseLeadingSubstringsInEachPart must be a list of strings.")
 		ok
 
@@ -12591,7 +12700,7 @@ class stzString from stzObject
 			acRemoveTheseTrailingSubstringsInEachPart = [""]
 		ok
 
-		if NOT (isList(acRemoveTheseTrailingSubstringsInEachPart) and Q(acRemoveTheseTrailingSubstringsInEachPart).IsListOfStrings() )
+		if NOT ( isList(acRemoveTheseTrailingSubstringsInEachPart) and Q(acRemoveTheseTrailingSubstringsInEachPart).IsListOfStrings() )
 			stzRaise("Incorret value! :RemoveTheseTrailingSubstringsInEachPart must be a list of strings.")
 		ok
 
@@ -12675,7 +12784,7 @@ class stzString from stzObject
 			acPerformOnEachPartW = ["",""]
 		ok
 
-		if NOT (isList(acPerformOnEachPartW) and Q(acPerformOnEachPartW).IsPairOfStrings() )
+		if NOT ( isList(acPerformOnEachPartW) and Q(acPerformOnEachPartW).IsPairOfStrings() )
 			stzRaise("Incorret value! :PerformOnEachPartW must be a pair of strings.")
 		ok
 
@@ -13192,7 +13301,8 @@ return
 		
 		# Checking the correctness of n param
 		
-		if NOT isNumber(n) and  n <= this.NumberOfChars()
+		if NOT ( isNumber(n) and  n <= this.NumberOfChars() )
+
 			stzRaise("Invalid param! n must be a number <= number of chars of the string.")
 		ok
 
@@ -13462,7 +13572,8 @@ return
 	
 	def SplitAfterPositions(paPositions)
 
-		if NOT isList(paPositions) and StzListQ(paPositions).IsListOfNumbers()
+		if NOT ( isList(paPositions) and StzListQ(paPositions).IsListOfNumbers() )
+
 			stzRaise("Incorrect param type!")
 		ok
 
@@ -15273,6 +15384,7 @@ return
 		*/
 
 		if NOT( isList(paListOfSections) and Q(paListOfSections).IsListOfSections() )
+
 			stzRaise([
 				:Where = "stzString > ReplaceManySections()",
 				:What  = "Can't Replace many sections from the string.",
@@ -16692,9 +16804,9 @@ return
 	def PositionAfterNthOccurrence(n, cSubStr)
 		return This.PositionAfterNthOccurrenceCS(n, cSubStr, :CaseSensitive = TRUE)
 
-	  #---------------------------------------------------#
-	 #    GETTING POSITION BEFORE  A GIVEN SUBSTRING     #
-	#---------------------------------------------------#
+	  #--------------------------------------------------#
+	 #    GETTING POSITION BEFORE A GIVEN SUBSTRING     #
+	#--------------------------------------------------#
 
 	def PositionBeforeCS(cSubStr, pCaseSensitive)
 		return This.PositionBeforeNthOccurrenceCS(1, cSubStr, pCaseSensitive)
@@ -16708,17 +16820,44 @@ return
 	def PositionBeforeNthOccurrence(n, cSubStr)
 		return This.PositionBeforeNthOccurrenceCS(n, cSubStr, pCaseSensitive)
 
-	  #--------------------#
-	 #    CENTRAL CHAR    #
-	#--------------------#
+	  #------------------------------#
+	 #   FINDING THE CENTRAL CHAR   #
+	#------------------------------#
 	
 	// Returns the position (if any) of the central Char in the string
-	def CentralCharPosition()
+	def FindCentralChar()
+		nResult = 0
 
 		oNumberOfChars = new stzNumber(This.NumberOfChars())
 		if oNumberOfChars.IsOdd()
-			return ( This.NumberOfChars() + 1 ) / 2
+			nResult = ( This.NumberOfChars() + 1 ) / 2
 		ok
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def FindMiddleChar()
+			return This.FindCentralChar()
+
+		def PositionOfCentralChar()
+			return This.FindCentralChar()
+
+		def CentralCharposition()
+			return This.FindCentralChar()
+
+		def PositionOfMiddleChar()
+			return This.FindCentralChar()
+
+		def MiddleCharposition()
+			return This.FindCentralChar()
+
+
+		#>
+
+	  #------------------------------#
+	 #   GETTING THE CENTRAL CHAR   #
+	#------------------------------#
 
 	def CentralChar()
 		if This.CentralCharPosition() != NULL
@@ -16742,32 +16881,65 @@ return
 				return new stzListOfBytes( This.CentralChar() )
 			off
 
+		def MiddleChar()
+			return This.CentralChar()
+
+	  #-----------------------------------------------#
+	 #   DOES THE STRING CONTAIN ANY CENTRAL CHAR?   #
+	#-----------------------------------------------#
+
 	def ContainsCentralChar()
 		return This.NumberOfCharsQ().IsNotEven()
+
+		def ContainsMiddleChar()
+			return This.ContainsCentralChar()
 
 		def HasCentralChar()
 			return This.ContainsCentralChar()
 
+		def HasMiddleChar()
+			return This.ContainsCentralChar()
+
+	  #---------------------------------------------------#
+	 #   DOES THE STRING CONTAIN A GIVEN CENTRAL CHAR?   #
+	#---------------------------------------------------#
+
 	def ContainsThisCharInTheCenter(c)
 		return This.CentralChar() = c
+
+		def ContainsThisCharInTheMiddle(c)
+			return This.ContainsThisCharInTheCenter()
 
 		def HasThisCharInTheCenter(c)
 			return This.ContainsThisCharInTheCenter(c)
 
-	  #------------------------#
-	 #    MIDDLE SUBSTRING    #
-	#------------------------#
+		def HasThisCharInTheMiddle(c)
+			return This.ContainsThisCharInTheMiddle(c)
+
+	  #----------------------------------------------------#
+	 #    DOES THE STRING CONTAIN ANY MIDDLE SUBSTRING?    #
+	#----------------------------------------------------#
 
 	def ContainsMiddleSubstring()
-		if This.MiddleSubstring() = NULL
-			return FALSE
+		if This.NumberOfCharsQ().IsOdd()
+			return TRUE
 
 		else
-			return TRUE
+			return FALSE
 		ok
 
 		def HasMiddleSubstring()
 			return This.ContainsMiddleSubstring()
+
+		def ContainsCentralSubString()
+			return This.ContainsMiddleSubstring()
+
+		def HasCentralSubString()
+			return This.ContainsMiddleSubstring()
+
+	  #---------------------------------------------------------#
+	 #    DOES THE STRING CONTAIN A GIVEN MIDDLE SUBSTRING?    #
+	#---------------------------------------------------------#
 
 	def HasThisSubstringInTheMiddle(pcSubStr)
 		if IsStzString(pcSubStr)
@@ -16783,11 +16955,125 @@ return
 		def ContainsThisSubstringInTheMiddle(c)
 			return This.HasThisSubstringInTheMiddle(c)
 
-	def MiddleSubstringPosition()
-		// TODO
-		
-	def MiddleSubstring()
-		return This[ This.MiddleSubstringPosition() ]
+		def HasThisSubstringInTheCenter(pcSubStr)
+			return This.HasThisSubstringInTheMiddle(c)
+
+		def ContainsThisSubstringInTheCenter(c)
+			return This.HasThisSubstringInTheMiddle(c)
+
+	  #---------------------------------------------------#
+	 #    GETTING THE MIDDLE SUBSTRING UP TO N CHARS     #
+	#---------------------------------------------------#
+
+	def MiddleSubstringWithNChars(n)
+		if NOT isNumber(n)
+			stzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		nNumberOfChars = This.NumberOfChars()
+
+		if NOT n <= nNumberOfChars
+			stzRaise("Out of range!")
+		ok
+
+		cResult = ""
+
+		nNumberOfCharsWithoutmiddle = nNumberOfChars - n
+		if StzNumberQ( nNumberOfCharsWithoutmiddle ).IsEven()
+
+			nNumberOfCharsOfOnePart = nNumberOfCharsWithoutmiddle / 2
+			n1 = nNumberOfCharsOfOnePart + 1
+			n2 = nNumberOfChars - nNumberOfCharsOfOnePart
+
+			cResult = This.Section( n1, n2 )
+		ok
+
+		return cResult
+
+		#< @FunctionALternativeForms
+
+		def CentralSubstringWithNChars(n)
+			return This.MiddleSubstringWithNChars(n)
+
+		def MiddleSubstringUpToNChars(n)
+			return This.MiddleSubstringWithNChars(n)
+
+		def MiddleSubstringN(n)
+			return This.MiddleSubstringWithNChars(n)
+
+		def CentralSubstringUpToNChars(n)
+			return This.MiddleSubstringWithNChars(n)
+
+		def CentralSubstringN(n)
+			return This.MiddleSubstringWithNChars(n)
+
+
+		#>
+
+	  #---------------------------------------------------#
+	 #    FINDING THE MIDDLE SUBSTRING UP TO N CHARS     #
+	#---------------------------------------------------#
+
+	def FindMiddleSubstringWithNChars(n)
+		if NOT isNumber(n)
+			stzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		nNumberOfChars = This.NumberOfChars()
+
+		if NOT n <= nNumberOfChars
+			stzRaise("Out of range!")
+		ok
+
+		nResult = 0
+
+		nNumberOfCharsWithoutmiddle = nNumberOfChars - n
+		if StzNumberQ( nNumberOfCharsWithoutmiddle ).IsEven()
+
+			nNumberOfCharsOfOnePart = nNumberOfCharsWithoutmiddle / 2
+			nResult = nNumberOfCharsOfOnePart + 1
+		ok
+
+		return nResult
+
+		#< @FunctionALternativeForms
+
+		def FindCentralSubstringWithNChars(n)
+			return This.FindMiddleSubstringWithNChars(n)
+
+		def FindMiddleSubstringUpToNChars(n)
+			return This.FindMiddleSubstringWithNChars(n)
+
+		def FindMiddleSubstringN(n)
+			return This.FindMiddleSubstringWithNChars(n)
+
+		def FindCentralSubstringUpToNChars(n)
+			return This.FindMiddleSubstringWithNChars(n)
+
+		def FindCentralSubstringN(n)
+			return This.FindMiddleSubstringWithNChars(n)
+
+		#--
+
+		def PositionOfMiddleSubstringWithNChars(n)
+			return This.FindMiddleSubstringWithNChars(n)
+
+		def PositionOfCentralSubstringWithNChars(n)
+			return This.FindMiddleSubstringWithNChars(n)
+
+		def PositionOfMiddleSubstringUpToNChars(n)
+			return This.FindMiddleSubstringWithNChars(n)
+
+		def PositionOfMiddleSubstringN(n)
+			return This.FindMiddleSubstringWithNChars(n)
+
+		def PositionOfCentralSubstringUpToNChars(n)
+			return This.FindMiddleSubstringWithNChars(n)
+
+		def PositionOfCentralSubstringN(n)
+			return This.FindMiddleSubstringWithNChars(n)
+
+		#>
 
 	  #--------------------------------#
 	 #   GETTING STRING ORIENTATION   #
@@ -17246,8 +17532,11 @@ return
 
 		nPoints = nWidth - This.NumberOfChars()
 		aTemp = []
+
 		for i = 1 to This.NumberOfChars() - 1
-			if NOT (CharIsArabicShaddah(This[i]) or CharIsArabic7arakah(This[i]))
+
+			if NOT ( CharIsArabicShaddah(This[i]) or CharIsArabic7arakah(This[i]) )
+
 				aTemp + This[i]
 			else
 				if len(aTemp) != 0
@@ -17896,13 +18185,81 @@ return
 	 #    NUMBER IN STRING    #
 	#------------------------#
 
+	def RepresentsDecimalNumber()
+		oCopy = This.RemoveSpacesQ()
+
+		if oCopy.RepresentsNumberInDecimalForm()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsDecimalNumberInString()
+			return This.RepresentsDecimalNumber()
+
+	def RepresentsBinaryNumber()
+		oCopy = This.RemoveSpacesQ()
+
+		if oCopy.RepresentsNumberInBinaryForm()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsBinaryNumberInString()
+			return This.RepresentsBinaryNumber()
+
+	def RepresentsOctalNumber()
+		oCopy = This.RemoveSpacesQ()
+
+		if oCopy.RepresentsNumberInOctalForm()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsOctalNumberInString()
+			return This.RepresentsOctalNumber()
+
+	def RepresentsHexNumber()
+		oCopy = This.RemoveSpacesQ()
+
+		if oCopy.RepresentsNumberInHexForm()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsHexNumberInString()
+			return This.RepresentsHexNumber()
+
+	def RepresentsScientificNotationNumber()
+		oCopy = This.RemoveSpacesQ()
+
+		if oCopy.RepresentsNumberInScientificNotation()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsScientificNotationNumberInString()
+			return This.RepresentsScientificNotationNumber()
+
+
 	def RepresentsNumber()
 
-		if This.RepresentsNumberInDecimalForm() or
-		   This.RepresentsNumberInBinaryForm() or
-		   This.RepresentsNumberInOctalForm() or
-		   This.RepresentsNumberInHexForm() or
-		   This.RepresentsNumberInScientificNotation()
+		oCopy = This.RemoveSpacesQ()
+
+		if oCopy.RepresentsNumberInDecimalForm() or
+		   oCopy.RepresentsNumberInBinaryForm() or
+		   oCopy.RepresentsNumberInOctalForm() or
+		   oCopy.RepresentsNumberInHexForm() or
+		   oCopy.RepresentsNumberInScientificNotation()
 			
 			return TRUE
 
@@ -18593,6 +18950,9 @@ return
 		else
 			return FALSE
 		ok
+
+		def IsAChar()
+			return This.IsChar()
 
 	def IsNullOrChar()
 		return This.IsNull() or This.IsChar()
@@ -19612,7 +19972,8 @@ return
 
 	def WalkXT(paOptions)
 
-		if NOT isList(paOptions) and Q(paOptions).IsHashList()
+		if NOT ( isList(paOptions) and Q(paOptions).IsHashList() )
+
 			stzRaise("Incorrect param! paOptions must be a hashlist.")
 		ok
 
@@ -19622,7 +19983,7 @@ return
 			  KeysQR(:stzListOfStrings).IsMadeOfSomeCS([
 				:From, :FromPosition, :To, :ToPosition, :Step, :Return
 			  ], :CS = FALSE)
-			)
+		       )
 
 			stzRaise("Incorrect value!")
 		ok
@@ -20149,7 +20510,7 @@ return
 					
 			cMember1 = aListMembers[1]
 			cMember2 = aListMembers[2]
-		
+
 			cCode = "pMember1 = " + cMember1
 			eval(cCode)
 		
@@ -20239,14 +20600,105 @@ return
 			return new stzString( This.ToListInString@C() )
 
 	def ToList()
-		if NOT This.IsListInString()
-			stzRaise("Can't evaluate the list in string!")
+
+		# Case where we have a normal list syntax
+
+		if This.TrimQ().IsBoundedBy("[","]")
+			cCode = "aResult = " + This.Content()
+			eval(cCode)
+			return aResult
 		ok
 
-		cCode = "aResult = " + This.ToListInNormalForm()
-		eval(cCode)
+		# Case where we have a continuous list syntax:
+		#  ? StzStringQ(' "Thing 1" : "Thing 3" ').ToList()
 
-		return aResult
+		cPart = NULL
+
+		cPart1 = NULL
+		cLastChar1 = NULL
+
+		cPart2 = NULL
+		cLastChar2 = NULL
+
+		oThisWS = This.ReplaceManyQ([": ", " :"], :With = " : ").SimplifyQ()
+		
+		if oThisWS.NumberOfOccurrence(:Of = ":") = 1 and oThisWS.MiddleChar() = ":"
+
+			aListMembers = QStringListToList( QStringObject().split(":", 0, 0) )
+			oMember1 = StzStringQ(aListMembers[1]).TrimQ()
+			oMember2 = StzStringQ(aListMembers[2]).TrimQ()
+
+			cMember1 = oMember1.Content()
+			cMember2 = oMember2.Content()
+
+			if BothAreNumbersInStrings(cMember1, cMember2)
+				cLastChar1 = cMember1
+				cLastChar2 = cMember2
+
+			but BothAreCharsInComputableForm(cMember1, cMember2)
+				cLastChar1 = cMember1
+				cLastChar2 = cMember2
+
+			but BothAreStringsInComputableForm(cMember1, cMember2)
+
+				c1 = '"'
+				c2 = "'"
+
+				oMember1.RemoveManyQ([c1, c2])
+				oMember2.RemoveManyQ([c1, c2])
+
+				cLastChar1 = oMember1.LastChar()
+				cLastChar2 = oMember2.LastChar()
+	
+				nLenMember1 = oMember1.NumberOfChars()
+				
+				if nLenMember1 > 1
+					cPart1 = oMember1.Section(1, nLenMember1 - 1)
+				ok
+	
+				nLenMember2 = oMember2.NumberOfChars()
+	
+				if nLenMember2 > 1
+					cPart2 = oMember2.Section(1, nLenMember2 - 1)
+				ok
+
+				if ( cPart1 = NULL     or cPart2 = NULL ) and
+				   ( cLastChar1 = NULL or cLastChar2 = NULL )
+
+					stzRaise("Syntax error! parts must not be null.")
+				ok
+
+				if cPart1 != cPart2
+					stzRaise("Syntax error! The two parts must be the same.")
+				ok
+	
+				cPart = cPart1
+			else
+				stzRaise("Syntax error! Can't transoform the string into list.")
+			ok
+
+		else
+			stzRaise("Syntax error! Can't transoform the string into list.")
+
+		ok
+
+		
+		# Composing the contiguous list for cLastChar1 to cLastChar2
+	
+		oString = StzStringQ( cLastChar1 + " : " + cLastChar2 )
+
+		cCode = "aList = " + oString.ToListInNormalForm()
+		eval(cCode)
+	
+		# Adding the other parts
+	
+		if cPart != NULL
+			for item in aList
+				item = cPart + item
+			next
+		ok
+
+		return aList
 
 		def ToListQ()
 			return new stzList( This.ToList() )
@@ -20735,7 +21187,9 @@ return
 		#>
 
 	def YieldFromSectionsOneByOne(paSections, pcCode)
-		if NOT isList(paSections) and Q(paSections).IsListOfPairsOfNumbers()
+
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+
 			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -21543,3 +21997,6 @@ return
 		aResult = [ This.LastChar(), FirstChar() ]
 		return aResult
 
+	def IsListOfCharsInComputableForm()
+
+		// TODO

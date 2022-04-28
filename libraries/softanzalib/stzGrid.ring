@@ -162,6 +162,9 @@ class stzGrid from stzObject
 		aPosition = [ nVLine, nHLine ]
 		return aPosition
 
+		def NodePosition(n)
+			return PositionOfNode(n)
+
 	  #-----------------------------------------#
 	 #     NUMBERED VLines, HLines & GRID     #
 	#-----------------------------------------#
@@ -274,9 +277,9 @@ class stzGrid from stzObject
 			return  aPosition
 		ok
 
-	def CentralNodePosition()
-		return This.PositionOfCentralNode()
-
+		def CentralNodePosition()
+			return This.PositionOfCentralNode()
+	
 	def CentralNode()
 		If This.HasCentralNode()
 			return This.Node( This.RankOfCentralNode() )
