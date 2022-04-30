@@ -8547,8 +8547,12 @@ class stzListOfStrings from stzList
 			ok
 		ok
 
-		if n < 1 or n > This.NumberOfStrings()
-			stzRaise("the Nth position you provided is out of range!")
+		if NOT isNumber(n)
+			stzRaise("Incorrect param! n must be a number.")
+		ok
+
+		if NOT (  Q(n).IsBetween(1, This.NumberOfStrings()) )
+			stzRaise("Position out of range!")
 		ok
 
 		if isList(pcOtherStr) and Q(pcOtherStr).IsWithOrByNamedParamList()
@@ -8893,6 +8897,10 @@ class stzListOfStrings from stzList
 			stzRaise("Incorrect param! panPositions must be a list of numbers.")
 		ok
 
+		if StzListOfNumbersQ(panPositions).Max() > This.NumberOfStrings()
+			stzRaise("Incorrect value! panPositions contains at least one value out of range.")
+		ok
+
 		if NOT ( isList(pacOtherStrings) and
 				( Q(pacOtherStrings).IsListOfStrings() or
 			 	  Q(pacOtherStrings).IsWithOrByNamedParamList()
@@ -8909,6 +8917,11 @@ class stzListOfStrings from stzList
 		nLen = len(panPositions)
 		i = 0
 		for n in panPositions
+			if NOT (  Q(n).IsBetween(1, This.NumberOfStrings()) )
+	
+				stzRaise("At least one position is out of range!")
+			ok
+
 			i++
 			if i <= nLen
 				This.ReplaceStringAtPosition(n, pacOtherStrings[i])
@@ -9103,7 +9116,7 @@ class stzListOfStrings from stzList
 			This.ReplaceSection(n1, n2, pcNewStr)
 			return This
 
-	def ReplaceManySections(panSections, pcNewString)
+/*	def ReplaceManySections(panSections, pcNewString)
 		for anSection in panSections
 			This.ReplaceSection(anSection, pcNewString)
 		next
@@ -9111,7 +9124,39 @@ class stzListOfStrings from stzList
 		def ReplaceManySectionsQ(panSections, pcNewString)
 			This.ReplaceManySections(panSections, pcNewString)
 			return This
-		
+	*/
+	  #-----------------------------------------------------------#
+	 #    REPLACING MANY SECTIONS OF STRINGS BY A GIVEN STRING   #
+	#-----------------------------------------------------------#
+	
+	def ReplaceManySections(panSections, pcNewStr)
+
+		if NOT ( isList(panSections) and StzListQ(panSections).IsListOfPairsOfNumbers() )
+			stzRaise("Incorrect param! panSections must be a list of pairs of numbers.")
+		ok
+
+		if isList(pcNewStr) and Q(pcNewStr).IsWithOrByNamedParamList()
+			pcNewStr = pcNewStr[2]
+		ok
+
+		if NOT isString(pcNewStr)
+			stzRaise("Incorrect param! pcNewStr must be a string.")
+		ok
+
+		anPositions = []
+		for anSection in panSections
+			n1 = anSection[1]
+			n2 = anSection[2]
+			anTemp = n1:n2
+			for n in anTemp
+				anPositions + n
+			next
+		next
+
+		anPositions = StzListQ(anPositions).RemoveDuplicatesQ().SortedInAscending()
+
+		This.ReplaceStringsAtPositions(anPositions, pcNewStr)
+
 	  #----------------------------------------------------------#
 	 #   REPLACING EACH STRING IN SECTION BY ONE GIVEN STRING   #
 	#----------------------------------------------------------#
@@ -9207,16 +9252,16 @@ class stzListOfStrings from stzList
 				n1 = 1
 			ok
 
-			if Q(n2).IsOnOfTheseCS([
-				:Last, :LastPosition, :LastString, :LastStringItem ]
-				, :CS = FALSE)
-
-				n1 = This.NumberOfStrings()
-			ok
 		ok
 
 		if isString(n2)
 
+			if Q(n2).IsOnOfTheseCS([
+				:Last, :LastPosition, :LastString, :LastStringItem ]
+				, :CS = FALSE)
+
+				n2 = This.NumberOfStrings()
+			ok
 		ok
 
 		if NOT BothAreNumbers(n1, n2)
@@ -9243,6 +9288,47 @@ class stzListOfStrings from stzList
 		def SectionReplaced1By1(n1, n2, pacOtherListOfStr)
 			return This.SectionReplacedOneByOne(n1, n2, pacOtherListOfStr)
 
+	   #-------------------------------------------------#
+	  #   REPLACING A SECTION OF STRINGS IN THE LIST    #
+	 #   BY MANY STRINGS BY ALTERNANCE    	           #
+	#-------------------------------------------------#
+
+	def ReplaceSectionByAlternance(n1, n2, pacOtherListOfStr)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([ "A", "B", "_", "_", "_", "_", "_", "C" ])
+		o1.ReplaceSectionByAlternance(3, 7, [ "#1", "#2", "#3" ])
+
+		? @@( o1.Content() ) #--> [ "A", "B", "#1", "#2", "#3", "#1", "#2", "C" ]
+		*/
+
+		if isString(n1)
+
+			if Q(n1).IsOnOfTheseCS([
+				:First, :FirstPosition, :FirstString, :FirstStringItem ]
+				, :CS = FALSE)
+
+				n1 = 1
+			ok
+
+		ok
+
+		if isString(n2)
+
+			if Q(n2).IsOnOfTheseCS([
+				:Last, :LastPosition, :LastString, :LastStringItem ]
+				, :CS = FALSE)
+
+				n2 = This.NumberOfStrings()
+			ok
+		ok
+
+		if NOT BothAreNumbers(n1, n2)
+			stzRaise("Incorrect params! n1 and n2 must be numbers.")
+		ok
+
+		This.ReplaceStringItemsAtPositionsByAlternance(n1 : n2, pacOtherListOfStr)
+
 	   #-----------------------------------------------------#
 	  #   REPLACING MANY SECTIONS OF STRINGS IN THE LIST    #
 	 #   BY MANY STRINGS ONE BY ONE                        #
@@ -9260,13 +9346,27 @@ class stzListOfStrings from stzList
 			stzRaise("Incorrect param! panSections must be a list of strings.")
 		ok
 
+		anPositions = []
 
 		for anSection in panSections
 			n1 = anSection[1]
 			n2 = anSection[2]
 
-			This.ReplaceSectionOneByOne(n1, n2, pacOtherListOfStr)
+			if NOT (  Q(n1).IsBetween(1, This.NumberOfStrings()) and
+				  Q(n2).IsBetween(1, This.NumberOfStrings())
+			       )
+				
+				stzRaise("At least one position is out of range!")
+			ok
+
+			anPositions + ( n1 : n2 )
 		next
+
+		anPositions = StzListQ( anPositions ).
+				MergeQ().RemoveDuplicatesQ().
+				SortedInAscending()
+
+		This.ReplaceStringsAtPositionsOneByOne(anPositions, pacOtherListOfStr)
 
 		def ReplaceManySectionsOneOnyOneQ(panSections, pacOtherListOfStr)
 			This.ReplaceManySectionsOneOnyOne(panSections, pacOtherListOfStr)
@@ -9279,13 +9379,57 @@ class stzListOfStrings from stzList
 
 		return acResult
 
+	   #-----------------------------------------------------#
+	  #   REPLACING MANY SECTIONS OF STRINGS IN THE LIST    #
+	 #   BY MANY STRINGS BY ALTERNANCE                     #
+	#-----------------------------------------------------#
+
+	def ReplaceManySectionsByAlternance(panSections, pacOtherListOfStr)
+
+		if NOT ( isList(panSections) and Q(panSections).IsListOfPairsOfNumbers() )
+
+			stzRaise("Incorrect param! panSections must be a list of pairs of numbers.")
+		ok
+
+		if NOT ( isList(pacOtherListOfStr) and Q(pacOtherListOfStr).IsListOfStrings() )
+
+			stzRaise("Incorrect param! panSections must be a list of strings.")
+		ok
+
+		anPositions = []
+
+		for anSection in panSections
+			n1 = anSection[1]
+			n2 = anSection[2]
+
+			anPositions + ( n1 : n2 )
+		next
+
+		anPositions = StzListQ( anPositions ).
+				MergeQ().RemoveDuplicatesQ().
+				SortedInAscending()
+
+		This.ReplaceStringsAtPositionsByAlternance(anPositions, pacOtherListOfStr)
+
+		def ReplaceManySectionsByAlternanceQ(panSections, pacOtherListOfStr)
+			This.ReplaceManySectionsByAlternance(panSections, pacOtherListOfStr)
+			return This
+
+	def ManySectionsReplacedByAlternance(panSections, pacOtherListOfStr)
+		acResult = This.Copy().
+				ReplaceManySectionsByAlternanceQ(panSections, pacOtherListOfStr).
+				Content()
+
+		return acResult
+
 	  #----------------------------------------------#
 	 #   REPLACING A RANGE OF STRINGS IN THE LIST   #
 	#----------------------------------------------#
 
 	def ReplaceRange(n, nRange, pcNewStr)
 
-		anSection = RangeToSection(n, nRange)
+		anSection = RangeToSection([ n, nRange ])
+
 		n1 = anSection[1]
 		n2 = anSection[2]
 
@@ -9304,11 +9448,10 @@ class stzListOfStrings from stzList
 	#--------------------------------------------------#
 
 	def ReplaceManyRanges(panRanges, pcNewStr)
-		for anRange in panRanges
-			n = anRange[1]
-			nRange = anRange[2]
-			This.ReplaceRange(n, nRange, pcNewStr)
-		next
+
+		anSections = RangesToSections(panRanges)
+
+		This.ReplaceManySections(anSections, pcNewStr)
 
 		def ReplaceManyRangesQ(panRanges, pcNewStr)
 			This.ReplaceManyRanges(panRanges, pcNewStr)
@@ -9318,16 +9461,28 @@ class stzListOfStrings from stzList
 		acResult = This.Copy().ReplaceManyRangesQ(panRanges, pcNewStr).Content()
 		return acResult
 
+	   #-----------------------------------------------------#
+	  #   REPLACING MANY RANGES OF STRINGS IN THE LIST    #
+	 #   BY MANY STRINGS BY ALTERNANCE                     #
+	#-----------------------------------------------------#
+
+	def ReplaceManyRangesByAlternance(panRanges, pacOtherListOfStr)
+		anSections = RangesToSections(panRanges)
+
+		This.ReplaceManySectionsByAlternance(anSections, pacOtherListOfStr)
+
 	  #---------------------------------------------------------------#		
 	 #   REPLACING EACH STRING IN A RANGE BY THE SAME GIVEN STRING   #
 	#---------------------------------------------------------------#
 
 	def ReplaceEachStringInRange(n, nRange, pcNewStr)
 
-		anSection = RangeToSection([n, nRange])
-		anPositions = sort( StzListOfPairsQ(anSection).ExpandedIfPairsOfNumbers() )
+		anSection = RangeToSection([ n, nRange ])
 
-		This.ReplaceStringsAtThesePositions(anPositions, pcNewStr)
+		n1 = anSection[1]
+		n2 = anSection[2]
+
+		This.ReplaceEachStringInSection(n1, n2, pcNewStr)
 
 		def ReplaceEachStringInRangeQ(n, nRange, pcNewStr)
 			This.ReplaceEachStringInRange(n, nRange, pcNewStr)
@@ -9361,10 +9516,9 @@ class stzListOfStrings from stzList
 	def ReplaceEachStringInManyRanges(panRanges, pcNewStr)
 
 		for anRange in panRanges
-			anSection = RangeToSection(anRange)
-			n1 = anSection[1]
-			n2 = anSection[2]
-			This.ReplaceEachStringInSection(n1, n2, pcNewStr)
+			n = anRange[1]
+			nRange = anRange[2]
+			This.ReplaceEachStringInRange(n, nRange, pcNewStr)
 		next
 
 		def ReplaceEachStringInManyRangesQ(panRanges, pcNewStr)
@@ -9402,21 +9556,11 @@ class stzListOfStrings from stzList
 
 	def ReplaceRangeOneByOne(n, nRange, pacOtherListOfStr)
 
-		anSection = RangeToSection([n, nRange])
+		anSection = RangeToSection([ n, nRange ])
 		n1 = anSection[1]
 		n2 = anSection[2]
 
-		i = 0
-		for n = n1 to n2
-			i++
-			if i <= len(pacOtherListOfStr)
-				str = pacOtherListOfStr[i]
-			else
-				str = NULL
-			ok
-
-			This.ReplaceItemAtPosition(n, str)
-		next
+		This.ReplaceSectionOneByOne(n1, n2, pacOtherListOfStr)
 
 		def ReplaceRangeOneByOneQ(n, nRange, pacOtherListOfStr)
 			This.ReplaceRangeOneByOne(n, nRange, pacOtherListOfStr)
@@ -9426,18 +9570,40 @@ class stzListOfStrings from stzList
 		aResult = This.ReplaceRangeOneByOneQ(n, nRange, pacOtherListOfStr).Content()
 		return aResult
 
+	   #----------------------------------------------#
+	  #   REPLACING A RANGE OF STRINGS IN THE LIST   #
+	 #   WITH MANY STRINGS BY ALTERNANCE            #
+	#----------------------------------------------#
+
+	def ReplaceRangeByAlternance(n, nRange, pacOtherListOfStr)
+
+		anSection = RangeToSection([ n, nRange ])
+		n1 = anSection[1]
+		n2 = anSection[2]
+
+		This.ReplaceSectionByAlternance(n1, n2, pacOtherListOfStr)
+
+		def ReplaceRangeByAlternanceQ(n, nRange, pacOtherListOfStr)
+			This.ReplaceRangeByAlternance(n, nRange, pacOtherListOfStr)
+			return This
+
+	def RangeReplacedByAlternance(n, nRange, pacOtherListOfStr)
+		aResult = This.ReplaceRangeByAlternanceQ(n, nRange, pacOtherListOfStr).Content()
+		return aResult
+
 	   #--------------------------------------------------#
 	  #   REPLACING MANY RANGES OF STRINGS IN THE LIST   #
 	 #   WITH MANY STRINGS ONE BY ONE                   #
 	#--------------------------------------------------#
 
 	def ReplaceManyRangesOneOnyOne(panRanges, pacOtherListOfStr)
+		
+		anSections = []
 		for anRange in panRanges
-			anSection = RangeToSection(anRange)
-			n1 = anSections[1]
-			n2 = anSections[2]
-			This.ReplaceRangeOneByOne(n, nRange, pacOtherListOfStr)
+			anSections + RangeToSection(anRange)
 		next
+
+		This.ReplaceManySectionsOneOnyOne(anSections, pacOtherListOfStr)
 
 		def ReplaceManyRangesOneOnyOneQ(panRanges, pacOtherListOfStr)
 			This.ReplaceManyRangesOneOnyOne(panRanges, pacOtherListOfStr)

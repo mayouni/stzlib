@@ -1909,7 +1909,7 @@ class stzList from stzObject
 
 	def ReplaceRange(n, nRange, pNewItem)
 
-		anSection = RangeToSection(n, nRange)
+		anSection = RangeToSection([ n, nRange ])
 		n1 = anSection[1]
 		n2 = anSection[2]
 
@@ -1948,7 +1948,7 @@ class stzList from stzObject
 
 	def ReplaceEachItemInRange(n, nRange, pNewItem)
 
-		anSection = RangeToSection([n, nRange])
+		anSection = RangeToSection([ n, nRange ])
 		anPositions = sort( StzListOfPairsQ(anSection).ExpandedIfPairsOfNumbers() )
 
 		This.ReplaceItemsAtThesePositions(anPositions, pNewItem)
@@ -2000,7 +2000,7 @@ class stzList from stzObject
 
 	def ReplaceRangeOneByOne(n, nRange, paOtherListOfItems)
 
-		anSection = RangeToSection([n, nRange])
+		anSection = RangeToSection([ n, nRange ])
 		n1 = anSection[1]
 		n2 = anSection[2]
 

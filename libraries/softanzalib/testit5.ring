@@ -1,8 +1,8 @@
 load "stzlib.ring"
 
 
-/*==== CREATING CONTIGUOUS LISTS USING A SHORT FORM
-*/
+/*==== CREATING CONTIGUOUS LISTS USING A SHORT FORM OF A LIST PROVIDED IN A STRING
+
 	? BothAreStringsInComputableForm("'str1'" , '"str2"') #--> TRUE
 	
 	? StzStringQ(' 2 : 5 ').ToList()
@@ -60,7 +60,6 @@ load "stzlib.ring"
 
 	? @@( o1.Content() ) #--> [ "A", "♥", "B", "😆", "C", "🌞", "D", "★" ]
 
-
 /*==== REPLACING A STRING BY MANY OTHERS BY ALTERNANCE
 
 	o1 = new stzListOfStrings([ "A", "A", "A", "A", "A" ])
@@ -84,7 +83,6 @@ load "stzlib.ring"
 
 	? @@( o1.Content() ) #--> [ "♥", "♥", "♥", "♥", "♥", "♥" ]
 
-
 /*==== REPLACING NTH OCCURRENCE OF A STRING-ITEM
 
 	o1 = new stzListOfStrings([ "A", "♥", "A", "♥", "C", "♥" ]) 
@@ -98,7 +96,6 @@ load "stzlib.ring"
 	o1.ReplaceFirstOccurrence(:Of = "B", :With = "A")
 
 	? @@( o1.Content() ) #--> [ "A", "♥", "B", "♥", "C", "♥" ]
-
 
 /*==== REPLACING LAST OCCURRENCE OF A STRING     #
 
@@ -178,7 +175,6 @@ load "stzlib.ring"
 
 #--
 
-
 	o1 = new stzListOfStrings([ "ONE", "two", "THREE", "four" ])
 	o1.ReplaceStringsAtPositions([ 2, 4 ], :With@ = 'upper(@string)' )
 
@@ -192,7 +188,6 @@ load "stzlib.ring"
 
 	? @@( o1.Content() ) #--> [ "Heart", "♥", "Star", "★", "Sun", "🌞" ]
 
-
 /*==== REPLACING STRINGS AT GIVEN POSITIONS BY OTHER GIVEN STRINGS BY ALTERNANCE
 
 	o1 = new stzListOfStrings([ "A", "_", "B", "_", "C", "_", "D" ])
@@ -200,6 +195,7 @@ load "stzlib.ring"
 	# Short form: ReplaceStringsAtPositions1B0()
 
 	? @@( o1.Content() ) #--> [ "A", "#1", "B", "#2", "C", "#1", "D" ]
+#____________________________________________________________________________________
 
 /*==== REPLACING A SECTION OF STRINGS BY A GIVEN STRING
 
@@ -207,62 +203,96 @@ load "stzlib.ring"
 	o1.ReplaceSection(3, 5, :With = "C")
 	? @@( o1.Content() ) #--> [ "A", "B", "C", "D" ]
 	
-/*==== REPLACING EACH STRING IN SECTION BY ONE GIVEN STRING
+#--
+	o1 = new stzListOfStrings([ "A", "B", "_", "_", "_", "D" ])
+	o1.ReplaceRange(3, 3, :With = "C")
+	? @@( o1.Content() ) #--> [ "A", "B", "C", "D" ]
+
+
+/*---- REPLACING MANY SECTIONS OF STRINGS BY A GIVEN STRING
+
+	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "C" ])
+	o1.ReplaceManySections([ [2, 3], [5, 7] ], :With = "♥")
+	? @@( o1.Content() ) #--> [ "A", "♥", "♥", "B", "♥", "♥", "♥", "C" ]
+
+/*--
+
+	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "C" ])
+	o1.ReplaceManyRanges([ [2, 2], [5, 3] ], :With = "♥")
+	? @@( o1.Content() ) #--> [ "A", "♥", "♥", "B", "♥", "♥", "♥", "C" ]
+
+/*---- REPLACING EACH STRING IN SECTION BY ONE GIVEN STRING
 
 	o1 = new stzListOfStrings([ "A", "B", "_", "_", "_", "D" ])
 	o1.ReplaceEachStringInSection(3, 5, "♥")
 	? @@( o1.Content() ) #--> [ "A", "B", "♥", "♥", "♥", "D" ]
+#--
+	o1 = new stzListOfStrings([ "A", "B", "_", "_", "_", "D" ])
+	o1.ReplaceEachStringInRange(3, 3, "♥")
+	? @@( o1.Content() ) #--> [ "A", "B", "♥", "♥", "♥", "D" ]
 
-/*==== REPLACING EACH STRING IN MANY SECTIONS BY A GIVEN STRING
+/*---- REPLACING EACH STRING IN MANY SECTIONS BY A GIVEN STRING
 
 	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "D" ])
 	o1.ReplaceEachStringInManySections([ [2, 3], [5, 7] ], "♥")
 	? @@( o1.Content() ) #--> [ "A", "♥", "♥", "B", "♥", "♥", "♥", "D" ]
+#--
+	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "D" ])
+	o1.ReplaceEachStringInManyRanges([ [2, 2], [5, 3] ], "♥")
+	? @@( o1.Content() ) #--> [ "A", "♥", "♥", "B", "♥", "♥", "♥", "D" ]
 
-/*==== REPLACING A SECTION OF STRINGS IN THE LIST
-/*==== BY MANY STRINGS ONE BY ONE
+/*---- REPLACING A SECTION OF STRINGS IN THE LIST
+/*---- BY MANY STRINGS ONE BY ONE
 
 	o1 = new stzListOfStrings([ "A", "B", "_", "_", "_" ])
-	o1.ReplaceSectionOneByOne(3, 5, [ "C", "D", "F" ])
-	? o1.Content() #--> [ "A", "B", "C", "D", "E", "F" ]
+	o1.ReplaceSectionOneByOne(3, 5, [ "C", "D", "E" ])
+	? @@( o1.Content() ) #--> [ "A", "B", "C", "D", "E", "E" ]
 	
-/*==== REPLACING MANY SECTIONS OF STRINGS IN THE LIST
-/*==== BY MANY STRINGS ONE BY ONE
-*/
+#--
+	o1 = new stzListOfStrings([ "A", "B", "_", "_", "_" ])
+	o1.ReplaceRangeOneByOne(3, 3, [ "C", "D", "E" ])
+	? @@( o1.Content() ) #--> [ "A", "B", "C", "D", "E", "E" ]
+
+/*---- REPLACING A RANGE OF STRINGS IN THE LIST
+/*---- BY MANY STRINGS BY ALTERNANCE
+
+	o1 = new stzListOfStrings([ "A", "B", "_", "_", "_", "_", "_", "C" ])
+	o1.ReplaceSectionByAlternance(3, 7, [ "#1", "#2", "#3" ])
+
+	? @@( o1.Content() ) #--> [ "A", "B", "#1", "#2", "#3", "#1", "#2", "C" ]
+	
+#--
+	o1 = new stzListOfStrings([ "A", "B", "_", "_", "_", "_", "_", "C" ])
+	o1.ReplaceRangeByAlternance(3, 5, [ "#1", "#2", "#3" ])
+
+	? @@( o1.Content() ) #--> [ "A", "B", "#1", "#2", "#3", "#1", "#2", "C" ]
+
+/*---- REPLACING MANY SECTIONS OF STRINGS IN THE LIST
+/*---- BY MANY STRINGS ONE BY ONE
+
 	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "D" ])
 	o1.ReplaceManySectionsOneOnyOne([ [2, 3], [5, 7] ], [ "#1", "#2", "#3", "#4", "#5" ] )
-	? o1.Content() #--> [ "A", "B", "C", "D", "E", "F" ]
+	? @@( o1.Content() ) #--> [ "A", "#1", "#2", "B", "#3", "#4", "#5", "D" ]
+#--
 
-/*==== REPLACING A RANGE OF STRINGS IN THE LIST
+	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "D" ])
+	o1.ReplaceManyRangesOneOnyOne([ [2, 2], [5, 3] ], [ "#1", "#2", "#3", "#4", "#5" ] )
+	? @@( o1.Content() ) #--> [ "A", "#1", "#2", "B", "#3", "#4", "#5", "D" ]
 
-	def ReplaceRange(n, nRange, pcNewStr)
+/*---- REPLACING MANY SECTIONS OF STRINGS IN THE LIST
+/*---- BY MANY STRINGS BY ALTERNANCE 
+*/
+	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "D" ])
+	o1.ReplaceManySectionsByAlternance([ [2, 3], [5, 7] ], [ "#1", "#2", "#3" ] )
+	? @@( o1.Content() ) #--> [ "A", "#1", "#2", "B", "#3", "#1", "#2", "D" ]
 
+#--
 
-/*==== REPLACING MANY RANGES OF STRINGS IN THE LIST
+	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "D" ])
+	o1.ReplaceManyRangesByAlternance([ [2, 2], [5, 3] ], [ "#1", "#2", "#3" ] )
+	? @@( o1.Content() ) #--> [ "A", "#1", "#2", "B", "#3", "#1", "#2", "D" ]
 
-	def ReplaceManyRanges(panRanges, pcNewStr)
-
-	
-/*==== REPLACING EACH STRING IN A RANGE BY THE SAME GIVEN STRING   #
-
-	def ReplaceEachStringInRange(n, nRange, pcNewStr)
-
-		
-/*==== REPLACING EACH STRING IN MANY RANGES BY THE SAME GIVEN STRING   #
-
-	def ReplaceEachStringInManyRanges(panRanges, pcNewStr)
-
-
-/*==== REPLACING A RANGE OF STRINGS IN THE LIST
-/*==== WITH MANY STRINGS ONE BY ONE
-
-	def ReplaceRangeOneByOne(n, nRange, pacOtherListOfStr)
-
-
-/*==== REPLACING MANY RANGES OF STRINGS IN THE LIST
-/*==== WITH MANY STRINGS ONE BY ONE
-
-	def ReplaceManyRangesOneOnyOne(panRanges, pacOtherListOfStr)
+#____________________________________________________________________________________
 
 
 /*==== REPLACING ALL STRINGS IN THE LIST WITH A GIVEN NEW STRING
@@ -274,40 +304,93 @@ load "stzlib.ring"
 
 	def ReplaceStringsW(pCondition, pcOtherString)
 
+/*==== REPLACING A RANGE OF STRINGS BY A GIVEN STRING
+
+	o1 = new stzListOfStrings([ "A", "B", "_", "_", "_", "D" ])
+	o1.ReplaceRange(3, 3, :With = "C")
+	? @@( o1.Content() ) #--> [ "A", "B", "C", "D" ]
+
+/*---- REPLACING MANY RANGES OF STRINGS BY A GIVEN STRING
+
+	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "C" ])
+	o1.ReplaceManyRanges([ [2, 2], [5, 3] ], :With = "♥")
+
+	? @@( o1.Content() ) #--> [ "A", "♥", "♥", "B", "♥", "♥", "♥", "C" ]
+
+/*---- REPLACING EACH STRING IN RANGE BY ONE GIVEN STRING
+
+	o1 = new stzListOfStrings([ "A", "B", "_", "_", "_", "D" ])
+	o1.ReplaceEachStringInRange(3, 3, :With = "♥")
+	? @@( o1.Content() ) #--> [ "A", "B", "♥", "♥", "♥", "D" ]
+
+/*---- REPLACING EACH STRING IN MANY RANGES BY A GIVEN STRING
+
+	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "D" ])
+	o1.ReplaceEachStringInManyRanges([ [2, 2], [5, 3] ], "♥")
+	? @@( o1.Content() ) #--> [ "A", "♥", "♥", "B", "♥", "♥", "♥", "D" ]
+
+/*---- REPLACING A RANGE OF STRINGS IN THE LIST
+/*---- BY MANY STRINGS ONE BY ONE
+
+	o1 = new stzListOfStrings([ "A", "B", "_", "_", "_" ])
+	o1.ReplaceRangeOneByOne(3, 3, [ "C", "D", "F" ])
+	? @@( o1.Content() ) #--> [ "A", "B", "C", "D", "E", "F" ]
+
+/*---- REPLACING A RANGE OF STRINGS BY MANY OTHER STRINGS BY ALTERNANCE
+
+	o1 = new stzListOfStrings([ "A", "_", "_", "_", "_", "_", "C" ])
+	o1.ReplaceRangeByAlternance(2, 5, :With = [ "#1", "#2", "#3" ])
+	? @@( o1.Content() ) #--> [ "A", "#1", "#2", "#3", "#1", "#2", "C" ]
+
+/*---- REPLACING MANY RANGES OF STRINGS IN THE LIST
+/*---- BY MANY STRINGS ONE BY ONE
+	
+	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "D" ])
+	o1.ReplaceManyRangesOneOnyOne([ [2, 2], [5, 3] ], [ "#1", "#2", "#3", "#4", "#5" ] )
+	? @@( o1.Content() ) #--> [ "A", "#1", "#2", "B", "#3", "#4", "#5", "D" ]
+
+/*---- REPLACING MANY RANGES OF STRINGS IN THE LIST
+/*---- BY MANY STRINGS BY ALTERNANCE 
+
+	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "D" ])
+	o1.ReplaceManyRangesByAlternance([ [2, 2], [5, 3] ], [ "#1", "#2", "#3" ] )
+	? @@( o1.Content() ) #--> [ "A", "#1", "#2", "B", "#3", "#1", "#2", "D" ]
 
 /*==== REPLACING SUBSTRINGS IN EACH STRING IN THE LIST OF STRINGS
 
 	def ReplaceSubStringCS(pcSubStr, pcNewStr, pCaseSensitive)
 
-/*==== REPLACING MANY SUBSTRINGS FROM EACH STRING IN THE LIST OF STRINGS
+/*---- REPLACING MANY SUBSTRINGS FROM EACH STRING IN THE LIST OF STRINGS
 
 	def ReplaceSubStringsCS(pacSubStr, pcNewStr, pCaseSensitive)
 
 
-/*==== REPLACING MANY SUBSTRINGS BY MANY OTHERS ONE BY ONE
+/*---- REPLACING MANY SUBSTRINGS BY MANY OTHERS ONE BY ONE
 
 	def ReplaceManySubStringsOneByOneCS(pacSubStr, pacNewStr, pCaseSensitive)
 
 
-/*==== REPLACING NEXT NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION  #
+/*---- REPLACING NEXT NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION  #
 
 	def ReplaceNextNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
 
-/*==== REPLACING NEXT OCCURRENCE OF SUBSTRING STARTING AT A GIVEN POSITION
+/*---- REPLACING NEXT OCCURRENCE OF SUBSTRING STARTING AT A GIVEN POSITION
 
 	def ReplaceNextSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
 
 
-/*==== REPLACING PREVIOUS NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION
+/*---- REPLACING PREVIOUS NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION
 
 	def ReplacePreviousNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
 
 
-/*==== REPLACING PREVIOUS OCCURRENCE OF SUBSTRING STARTING AT A GIVEN POSITION
+/*---- REPLACING PREVIOUS OCCURRENCE OF SUBSTRING STARTING AT A GIVEN POSITION
 
 	def ReplacePreviousSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
 
 
-/*==== REPLACING SUBSTRINGS VERIYING A GIVEN CONDITION
+/*---- REPLACING SUBSTRINGS VERIYING A GIVEN CONDITION
 
 	def ReplaceSubStringsW(pcCondition, pcNewStr)
+
+? StzListQ([ [2,5], [7, 10], [12, 15] ]).IsListOfPairsOfNumbers() #--> TRUE
