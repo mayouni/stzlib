@@ -1,6 +1,5 @@
 load "stzlib.ring"
 
-
 /*==== CREATING CONTIGUOUS LISTS USING A SHORT FORM OF A LIST PROVIDED IN A STRING
 
 	? BothAreStringsInComputableForm("'str1'" , '"str2"') #--> TRUE
@@ -281,7 +280,7 @@ load "stzlib.ring"
 
 /*---- REPLACING MANY SECTIONS OF STRINGS IN THE LIST
 /*---- BY MANY STRINGS BY ALTERNANCE 
-*/
+
 	o1 = new stzListOfStrings([ "A", "_", "_", "B", "_", "_", "_", "D" ])
 	o1.ReplaceManySectionsByAlternance([ [2, 3], [5, 7] ], [ "#1", "#2", "#3" ] )
 	? @@( o1.Content() ) #--> [ "A", "#1", "#2", "B", "#3", "#1", "#2", "D" ]

@@ -477,7 +477,7 @@ func Scripts(paListStr)
 func ComputableFormSP(pValue) # TODO: case of object --> return its name
 
 	if isNumber(pValue)
-		return pValue
+		return ""+ pValue
 
 	but isString(pValue)
 		return '"' + pValue + '"'
