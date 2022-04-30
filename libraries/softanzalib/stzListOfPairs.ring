@@ -13,16 +13,30 @@ func RangeToSection(paRange)
 		stzRaise("Incorrect param! paRange must be a pair of numbers.")
 	ok
 
-func SectionToRange(paRange)
-	if isList(paRange) and Q(paRange).IsPairOfNumbers()
-		n1 = paRange[1]
-		n2 = paRange[2]
+func RangesToSections(panRanges)
+	anSections = []
+	for anRange in panRanges
+		anSections + RangeToSection(anRange)
+	next
+	return anSections
 
-		aResult = [ n1, n2 - n1 + 1 ]
-		return aResult
+func SectionToRange(panSection)
+	if isList(panSection) and Q(panSection).IsPairOfNumbers()
+		n1 = panSection[1]
+		n2 = panSection[2]
+
+		anResult = [ n1, n2 - n1 + 1 ]
+		return anResult
 	else
 		stzRaise("Incorrect param! paRange must be a pair of numbers.")
 	ok
+
+func SectionsToRanges(panSections)
+	anRanges = []
+	for anSection in panSections
+		anRanges + SectionToRange(anSection)
+	next
+	return anRanges
 
 func ListThatHasMoreNumberOfItems(paList1, paList2)
 	oList1 = new stzList(aList1)
