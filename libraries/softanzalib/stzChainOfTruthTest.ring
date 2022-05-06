@@ -39,7 +39,7 @@ ok
 ? _("Ring").IsA(:String).Containing('in')._
 
 /*----------------- ok
-
+*/
 # This returns FALSE:
 
 ? _(1854).IsA(:String).Containing('in')._
