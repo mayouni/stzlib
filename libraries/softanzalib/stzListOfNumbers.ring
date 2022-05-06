@@ -1710,7 +1710,7 @@ class stzListOfNumbers from stzList
 			if bEval
 
 			eval(cCode)
-				This.ReplaceNumberAtPosition(@i, :With = @number)
+				This.ReplaceNumberAtPosition(@i, @number)
 			ok
 
 		next

@@ -844,7 +844,7 @@ class stzList from stzObject
 	def ReplaceManyItems(pacItems, pNewItem)
 
 		for item in pacItems
-			This.ReplaceAllOccurrences(:Of = item, pNewItem)
+			This.ReplaceAllOccurrences(item, pNewItem)
 		next
 
 		#< @FunctionFluentForm
@@ -4147,6 +4147,9 @@ class stzList from stzObject
 		def AllItemsAreNullStrings()
 			return This.ContainsOnlyNullStrings()
 
+		def AllItemsAreNull()
+			return This.ContainsOnlyNullStrings()
+
 		def AllItemsAreEmptyStrings()
 			return This.ContainsOnlyNullStrings()
 
@@ -5662,7 +5665,7 @@ class stzList from stzObject
 			if bEval
 
 			eval(cCode)
-				This.ReplaceItemAtPosition(@i, :With = @item)
+				This.ReplaceItemAtPosition(@i, @item)
 			ok
 
 		next
@@ -6995,6 +6998,33 @@ class stzList from stzObject
 	def SortedInDescending()
 		aResult = This.Copy().SortInDescendingQ().Content()
 		return aResult
+
+	def SortInReverseOrder()
+		switch This.SortingOrder()
+		on :Ascending
+			This.SortInDescending()
+
+		on: Descending
+			This.SortInAscending()
+		off
+
+		def SortInReverseOrderQ()
+			This.SortInReverse()
+			return This
+
+		def SortInReverse()
+			This.SortInReverseOrder()
+
+			def SortInReverseQ()
+				This.SortInReverse()
+				return This
+
+	def SortedInReverse()
+		aResult = This.Copy().SortInReverseQ().Content()
+		return aResult
+
+		def SortedInReverseOrder()
+			return This.SortedInReverse()
 
 	  #---------------------------------------#
 	 #     ASSOCIATE WITH AN ANOTHER LIST    #
@@ -10505,7 +10535,7 @@ class stzList from stzObject
 
 			if isString(item)
 				cStrLow = Q(item).Lowercased()
-				This.ReplaceItemAtPosition(i, :With = cStrLow)
+				This.ReplaceItemAtPosition(i, cStrLow)
 			ok
 		next
 
@@ -10540,7 +10570,7 @@ class stzList from stzObject
 
 			if isString(item)
 				cStrUpp = Q(item).Uppercased()
-				This.ReplaceItemAtPosition(i, :With = cStrUpp)
+				This.ReplaceItemAtPosition(i, cStrUpp)
 			ok
 		next
 
@@ -10574,7 +10604,7 @@ class stzList from stzObject
 
 			if isString(item)
 				cStrTtl = Q(item).Titlecased()
-				This.ReplaceItemAtPosition(i, :With = cStrTtl)
+				This.ReplaceItemAtPosition(i, cStrTtl)
 			ok
 		next
 
@@ -10609,7 +10639,7 @@ class stzList from stzObject
 
 			if isString(item)
 				cStrCap = Q(item).Capitalised()
-				This.ReplaceItemAtPosition(i, :With = cStrTtl)
+				This.ReplaceItemAtPosition(i, cStrTtl)
 			ok
 		next
 
@@ -12750,7 +12780,7 @@ class stzList from stzObject
 			@i++
 			eval(cCode)
 
-			This.ReplaceStringAtPosition(@i, :With = @str )	
+			This.ReplaceStringAtPosition(@i, @str )	
 		next
 
 		#< @FunctionFluentForm

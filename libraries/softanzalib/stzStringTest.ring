@@ -267,7 +267,7 @@ o1.RemoveBoundsOfSubString("<<", ">>", "word")
 ? o1.Content() #--> "bla bla word bla bla word bla word"
 
 /*------
-
+*/
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.ReplaceBetween("noword", "<<", ">>", :With = "word")
 ? o1.Content()  # !--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
@@ -604,7 +604,13 @@ o1 = new stzString("ABTCADNBBABEFACCC")
 #  "X" :  ----------------- (0)
 
 /*======================
-*/
+
+o1 = new stzString("Softanza embraces ♥♥♥ simplicty and flexibility")
+o1.ReplaceSubStringAtPosition(19, "♥♥♥", :With = "Ring")
+? o1.Content() #--> Softanza embraces Ring simplicty and flexibility
+
+/*======================
+
 ? Q("RINGO").HasCentralChar()		# --> TRUE
 ? Q("RINGO").CentralChar()		# --> N
 ? Q("RINGO").PositionOfCentralChar()	# --> 3
@@ -2493,8 +2499,8 @@ str = "مودّتي"
 
 # Which is the right list of letters, without the shaddah being one of them!
 
-/*------------------------
-*/
+/*------------------------ TODO: Fix performance issue!
+
 str = "قَالُوا ادْعُ لَنَا رَبَّكَ يُبَيِّن لَّنَا مَا هِيَ إِنَّ الْبَقَرَ 
 تَشَابَهَ عَلَيْنَا وَإِنَّا إِن شَاءَ اللَّهُ لَمُهْتَدُونَ (70)
  قَالَ إِنَّهُ يَقُولُ إِنَّهَا بَقَرَةٌ لَّا ذَلُولٌ تُثِيرُ الْأَرْضَ وَلَا

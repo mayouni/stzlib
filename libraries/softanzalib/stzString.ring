@@ -416,7 +416,7 @@ class stzString from stzObject
 
 		StzStringQ(cCondition) {
 
-			ReplaceCS("@string", :With = @str, :CS = FALSE)
+			ReplaceCS("@string", @str, :CS = FALSE)
 			Simplify()
 			RemoveBounds("{", "}")
 
@@ -840,10 +840,9 @@ class stzString from stzObject
 		anPositions + 1
 		anPositions = sort(anPositions)
 		
-
 		for n in anPositions
 			cCapitalizedChar = oStr.CharAtPositionQ(n).Uppercased()
-			oStr.ReplaceCharAtPosition(n, :With = cCapitalizedChar)
+			oStr.ReplaceCharAtPosition(n, cCapitalizedChar)
 		next
 
 		This.Update( oStr.Content() )
@@ -909,7 +908,7 @@ class stzString from stzObject
 
 		for n in anPositions
 			cCapitalizedChar = oStr.CharAtPositionQ(n).UppercasedInLocale(pLocale)
-			oStr.ReplaceCharAtPosition(n, :With = cCapitalizedChar)
+			oStr.ReplaceCharAtPosition(n, cCapitalizedChar)
 		next
 
 		This.Update( oStr.Content() )
@@ -1426,7 +1425,7 @@ class stzString from stzObject
 	
 			While bContinue
 	
-				n = This.ReplaceLast("#0", :With = "#")
+				n = This.ReplaceLast("#0", "#")
 	
 				if This.ContainsNo("#0")
 					bContinue = FALSE
@@ -1566,7 +1565,7 @@ class stzString from stzObject
 		n = 1
 
 		for cMarquer in acMarquers
-			n = This.FindNextOccurrence( :Of = cMarquer, :StartingAt = n )
+			n = This.FindNextOccurrence( cMarquer, n )
 			/* WARNING: Don't use:
 			n = This.FindNextMarquer(cMarquer)
 			--> Circular call --> Stackoverflow
@@ -2106,7 +2105,7 @@ class stzString from stzObject
 			n1 = aMarquersSections[i][2][1]
 			n2 = aMarquersSections[i][2][2]
 
-			This.ReplaceSection(:From = n1, :To = n2, :With = cMarquer)
+			This.ReplaceSection(n1, n2, cMarquer)
 		next
 
 		def SortMarquersInAscendingQ()
@@ -2144,7 +2143,7 @@ class stzString from stzObject
 			n1 = aMarquersSections[i][2][1]
 			n2 = aMarquersSections[i][2][2]
 
-			This.ReplaceSection(:From = n1, :To = n2, :With = cMarquer)
+			This.ReplaceSection(n1, n2, cMarquer)
 		next
 
 		def SortMarquersInDescendingQ()
@@ -2169,7 +2168,7 @@ class stzString from stzObject
 			acMarquers + ( "#" + i )
 		next
 
-		This.ReplaceManyOneByOneCS( acSubStrings, :With = acMarquers, pCaseSensitive )
+		This.ReplaceManyOneByOneCS( acSubStrings, acMarquers, pCaseSensitive )
 
 		def ReplaceSubstringsWithMarquersCSQ(pacSubstrings, pCaseSensitive)
 			This.ReplaceSubstringsWithMarquersCS(pacSubstrings, pCaseSensitive)
@@ -2225,7 +2224,7 @@ class stzString from stzObject
 			ok
 		ok
 
-		return This.FindNthOccurrence( n, :Of = "#" )
+		return This.FindNthOccurrence( n, "#" )
 
 		def NthMarquerOccurrence(n)
 			return This.FindNthMarquer(n)
@@ -6285,9 +6284,9 @@ class stzString from stzObject
 	
 		#>
 	
-	  #-------------------------------------------------#
+	  #=================================================#
 	 #     REPLACING ALL OCCURRENCES OF A SUBSTRING    #
-	#-------------------------------------------------#
+	#=================================================#
 	
 	def ReplaceAllCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		#< @MotherFunction = YES | @QtBased #>
@@ -6334,13 +6333,8 @@ class stzString from stzObject
 				if Q(pcNewSubStr[1]).IsOneOfThese([ :With@, :By@ ])
 					pcNewSubStr = pcNewSubStr[2]
 	
-					cCode = Q(pcNewSubStr).
-						SimplifyQ().
-						RemoveBoundsQ("{","}").
-						Content()
-	
-					cCode = "pcNewSubStr = " + cCode
-					eval(cCode)
+					This.ReplaceSubStringCS@(pcSubStr, pcNewSubStr, pCaseSensitive)
+					return
 	
 				else
 					pcNewSubStr = pcNewSubStr[2]
@@ -6458,6 +6452,582 @@ class stzString from stzObject
 		
 		#>
 
+	  #-------------------------------------------#
+	 #     REPLACING MANY SUBSTRINGS AT ONCE     #
+	#-------------------------------------------#
+
+	def ReplaceManyCS(pacSubstr, pNewSubstr, pCaseSensitive)
+		/* Example 1:
+	
+		o1 = new stzString( "a + b - c / d = 0")
+		 o1.ReplaceManyCS( ["+", "-", "=", "/" ], "*", :CaseSensitive = FALSE )
+		 ? o1.Content()
+	
+		--> Gives: "a * b * c * d = 0"
+	
+		Example 2:
+	
+		o1 = new stzString( "Tunis is my town. Tunisa is my nation!")
+		o1.ReplaceManyCS( [ "Tunis", "Tunisia" ], :EachChar = "*" )
+		? o1.Content()
+	
+		*/
+
+		for str in pacSubstr
+			This.ReplaceAllCS( str, pNewSubStr, pCaseSensitive )
+		next
+	
+		#< @FunctionFluentForm
+	
+		def ReplaceManyCSQ(pacSubstr, pNewSubstr, pCaseSensitive)
+			This.ReplaceManyCS(pacSubstr, pNewSubstr, pCaseSensitive)
+			return This
+		
+		#>
+
+		def ReplaceAllOfTheseCS(pacSubstr, pNewSubstr, pCaseSensitive)
+			This.ReplaceManyCS(pacSubstr, pNewSubstr, pCaseSensitive)
+
+			def ReplaceAllOfTheseCSQ(pacSubstr, pNewSubstr, pCaseSensitive)
+				This.ReplaceAllOfTheseCS(pacSubstr, pNewSubstr, pCaseSensitive)
+				return This
+
+		def ReplaceManySubstringsCS(pacSubstr, pNewSubstr, pCaseSensitive)
+			This.ReplaceManyCS(pacSubstr, pNewSubstr, pCaseSensitive)
+
+			def ReplaceManySubstringsCSQ(pacSubstr, pNewSubstr, pCaseSensitive)
+				This.ReplaceManySubstringsCS(pacSubstr, pNewSubstr, pCaseSensitive)
+				return This
+		#>
+
+	def ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+		acResult = This.Copy().ReplaceManySubstringsCSQ(pacSubstr, pNewSubstr, pCaseSensitive).Content()
+		return acResult
+
+		def ManyReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+			return This.ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+
+	#---
+
+	def ReplaceMany(pacSubstr, pcNewSubstr)
+		This.ReplaceManyCS( pacSubstr, pcNewSubstr, :CaseSensitive = TRUE )
+
+		#< @FunctionFluentFormn
+
+		def ReplaceManyQ(pacSubStr, pcNewSubStr)
+			This.ReplaceMany(pacSubstr, pcNewSubstr)
+			return This
+		#>
+
+		#< @FunctionAlternativeForm
+	
+		def ReplaceAllOfThese(pacSubStr, pcNewSubStr)
+			This.ReplaceMany(pacSubstr, pcNewSubstr)
+
+			def ReplaceAllOfTheseQ(pacSubStr, pcNewSubStr)
+				This.ReplaceAllOfThese(pacSubStr, pcNewSubStr)
+				return This
+
+		def ReplaceManySubstrings(pacSubstr, pNewSubstr)
+			This.ReplaceMany(pacSubstr, pNewSubstr)
+
+			def ReplaceManySubstringsQ(pacSubstr, pNewSubstr)
+				This.ReplaceManySubstrings(pacSubstr, pNewSubstr)
+				return This
+
+		#>
+
+	def ManySubstringsReplaced(pacSubstr, pNewSubstr)
+		acResult = This.Copy().ReplaceManySubstringsQ(pacSubstr, pNewSubstr).Content()
+		return acResult
+
+		def ManyReplaced(pacSubstr, pNewSubstr)
+			return This.ManySubstringsReplaced(pacSubstr, pNewSubstr)
+
+	  #--------------------------------------------#
+	 #  REPLACING A SUBSTRING BY MANY SUBSTRINGS  #
+	#--------------------------------------------#
+
+	def ReplaceByManyCS(pcSubStr, pacNewSubStrings, pCaseSensitive)
+
+		/* EXAMPLE
+
+		o1 = new stzString("ring php ruby ring python ring")
+		o1.ReplaceByMany("ring", :By = [ "♥", "♥♥", "♥♥♥" ])
+	
+		? o1.Content() #--> "♥ php ruby ♥♥ python ♥♥♥"
+
+		*/
+
+		if isList(pacNewSubStrings) and Q(pacNewSubStrings).IsWithOrByNamedParamList()
+			pacNewSubStrings = pacNewSubStrings[2]
+		ok
+
+		if NOT Q(pacNewSubStrings).IsListOfStrings()
+			stzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
+		ok
+
+		anPositions = This.FindCS(pcSubStr, pCaseSensitive)
+		nMin = Min( len(anPositions), len(pacNewSubStrings) )
+
+		for i = nMin to 1 step -1
+			n = anPositions[i]
+			cNewSubStr = pacNewSubStrings[i]
+			This.ReplaceSubStringAtPositionNCS(n, pcSubStr, cNewSubStr, pCaseSensitive)
+		next
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceByMany(pcSubStr, pacNewSubStrings)
+		This.ReplaceByManyCS(pcSubStr, pacNewSubStrings, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------------------#
+	 #  REPLACING A SUBSTRING BY MANY SUBSTRINGS -- EXTENDED (RETURN TO FIRST)  #
+	#--------------------------------------------------------------------------#
+
+	def ReplaceByManyCSXT(pcSubStr, pacNewSubStrings, pCaseSensitive)
+
+		/* EXAMPLE
+
+		o1 = new stzString("ring php ring ruby ring python ring")
+		o1.ReplaceByManyXT("ring", :By = [ "#1", "#2" ])
+
+		? o1.Content() #--> "#1 php #2 ruby #1 python #2"
+
+		*/
+
+		if isList(pacNewSubStrings) and Q(pacNewSubStrings).IsWithOrByNamedParamList()
+			pacNewSubStrings = pacNewSubStrings[2]
+		ok
+
+		if NOT Q(pacNewSubStrings).IsListOfStrings()
+			stzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
+		ok
+
+		anPositions = This.FindCSQ(pcSubStr, pCaseSensitive).SortedInDescending()
+		acNewSubStrings = StzListQ(pacNewSubStrings).SortedInDescending()
+		
+		i = 0
+		for n in anPositions
+			i++
+			if i > len(acNewSubStrings)
+				i = 1
+			ok
+
+			cNewSubStr = acNewSubStrings[i]
+			This.ReplaceSubStringAtPositionNCS(n, pcSubStr, cNewSubStr, pCaseSensitive)
+			
+		next
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceByManyXT(pcSubStr, pacNewSubStrings)
+		This.ReplaceByManyCSXT(pcSubStr, pacNewSubStrings, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------#
+	 #  REPLACING MANY SUBSTRINGS BY MANY OTHER SUBSTRINGS  #
+	#------------------------------------------------------#
+
+	def ReplaceManyByManyCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("ring qt softanza pyhton kandaji csharp ring")
+		o1.ReplaceManyByMany([ "ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥", "♥♥♥" ])
+
+		? o1.Content() #--> "♥ qt ♥♥ pyhton ♥♥♥ csharp ♥"
+		*/
+
+		if isList(pacNewSubStrings) and Q(pacNewSubStrings).IsWithOrByNamedParamList()
+			pacNewSubStrings = pacNewSubStrings[2]
+		ok
+
+		if NOT Q(pacNewSubStrings).IsListOfStrings()
+			stzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
+		ok	
+
+		i = 0
+		for cSubStr in pacSubStrings
+			cNewSubStr = NULL
+			i++
+			if i <= len(pacNewSubStrings)
+				cNewSubStr = pacNewSubStrings[i]
+			ok
+
+			if cNewSubStr != NULL
+				This.ReplaceCS(cSubStr, cNewSubStr, pCaseSensitive)
+			ok
+
+		next
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceManyByMany(pacSubStrings, pacNewSubStrings)
+		This.ReplaceManyByManyCS(pacSubStrings, pacNewSubStrings, :CaseSensitive = TRUE)
+
+
+	  #-------------------------------------------------------------------#
+	 #  REPLACING SOME OCCURRENCES OF A SUBSTRING BY AN OTHER SUBSTRING  #
+	#-------------------------------------------------------------------#
+
+	def ReplaceSomeCS(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("ring php ring ruby ring python ring csharp ring")
+		o1.ReplaceSome([ 1, 5], "ring", :By = "♥♥♥")
+	
+		? o1.Content() #--> "♥♥♥ php ring ruby ring python ring csharp ♥♥♥"
+		*/
+
+		anAllPositions = This.FindAllCS(pcSubStr, pCaseSensitive)
+
+		anPositions = []
+
+		for n in panOccurrences
+			anPositions + anAllPositions[n]
+		next
+
+		anPositions = StzListQ(anPositions).SortedInDescending()
+
+		for n in anPositions
+			This.ReplaceSubStringAtPositionNCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		next
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceSomeOccurrencesCS(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSomeCS(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceSomeOccurrencesOfSubStringCS(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSomeCS(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceSome(panOccurrencess, pcSubStr, pcNewSubStr)
+		This.ReplaceSomeCS(panOccurrencess, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceSomeOccurrences(panOccurrences, pcSubStr, pcNewSubStr)
+			This.ReplaceSome(panOccurrences, pcSubStr, pcNewSubStr)
+
+		def ReplaceSomeOccurrencesOfSubString(panOccurrences, pcSubStr, pcNewSubStr)
+			This.ReplaceSome(panOccurrences, pcSubStr, pcNewSubStr)
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #  REPLACING SOME OCCURRENCES OF A SUBSTRING BY MANY OTHER SUBSTRINGS  #
+	#----------------------------------------------------------------------#
+
+	def ReplaceSomeByManyCS(panOccurrences, pcSubStr, pacNewSubStrings, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("ring php ring ruby ring python ring csharp ring")
+		o1.ReplaceSomeByMany([ 1, 3, 5], "ring", :By = [ "#1", "#3", "#5" ])
+	
+		? o1.Content() #--> "#1 php ring ruby #3 python ring csharp #5"
+		*/
+
+		if isList(pacNewSubStrings) and Q(pacNewSubStrings).IsWithOrByNamedParamList()
+			pacNewSubStrings = pacNewSubStrings[2]
+		ok
+
+		if NOT Q(pacNewSubStrings).IsListOfStrings()
+			stzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
+		ok	
+
+		nMin = Min( len(panOccurrences), len(pacNewSubStrings) )
+		anOccurrences = StzListQ(panOccurrences).SortedInDescending()
+		acNewSubStrings = StzListQ(pacNewSubStrings).SortedInDescending()
+
+		for i = 1 to nMin
+			n = anOccurrences[i]
+			cNewSubStr = acNewSubStrings[i]
+
+			This.ReplaceNthOccurrenceCS(n, pcSubStr, cNewSubStr, pCaseSensitive)
+			
+		next
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceSomeByMany(panOccurrences, pcSubStr, pacNewSubStr)
+		This.ReplaceSomeByManyCS(panOccurrences, pcSubStr, pacNewSubStr, :CaseSensitive = TRUE)
+
+	  #------------------------------------------#
+	 #     REPLACING SUBSTRING AT POSITION N    #
+	#------------------------------------------#
+
+	def ReplaceSubStringAtPositionNCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		nLen = StzStringQ(pcSubStr).NumberOfChars()
+
+		if This.RangeQ(n, nLen ).IsEqualToCS(pcSubStr, pCaseSensitive)
+			This.ReplaceRange(n, nLen, pcNewSubStr)
+		ok
+
+		def ReplaceSubStringAtPositionNCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringAtPositionNCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+		def ReplaceSubStringAtPositionCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringAtPositionNCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceSubStringAtPositionCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.ReplaceSubStringAtPositionCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+	def SubStringAtPositionNReplacedCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceSubStringAtPositionNCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		return cResult
+
+		def SubStringAtPositionReplacedCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.SubStringAtPositionNReplacedCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceSubStringAtPositionN(n, pcSubStr, pcNewSubStr)
+		This.ReplaceSubStringAtPositionNCS(n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+
+		def ReplaceSubStringAtPositionNQ(n, pcSubStr, pcNewSubStr)
+			This.ReplaceSubStringAtPositionN(n, pcSubStr, pcNewSubStr)
+			return This
+
+		def ReplaceSubStringAtPosition(n, pcSubStr, pcNewSubStr)
+			This.ReplaceSubStringAtPositionN(n, pcSubStr, pcNewSubStr)
+
+			def ReplaceSubStringAtPositionQ(n, pcSubStr, pcNewSubStr)
+				This.ReplaceSubStringAtPosition(n, pcSubStr, pcNewSubStr)
+				return This
+
+	def SubStringAtPositionNReplaced(n, pcSubStr, pcNewSubStr)
+		cResult = This.Copy().ReplaceSubStringAtPositionNQ(n, pcSubStr, pcNewSubStr)
+		return cResult
+
+	  #----------------------------------------------------------------------------#
+	 #   REPALCING A SUBSTRING AT A SOME GIVEN POSITIONS BY AN OTHER SUBSTRING    #
+	#----------------------------------------------------------------------------#
+
+	def ReplaceSubStringAtPositionsCS(panPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		/* EXAMPLE
+		o1 = new stzString("ring ruby ring php ring")
+		o1.ReplaceSubstringAtPositions([ 1, 20], "ring", :By = "♥♥♥")
+
+		? o1.Content() #--> "♥♥♥ ruby ring php ♥♥♥"
+		*/
+
+		anPositions = StzListQ(panPositions).SortedInDescending()
+
+		for n in anPositions
+			This.ReplaceSubStringAtPositionNCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		next
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceSubStringAtPositions(panPositions, pcSubStr, pcNewSubStr)
+		This.ReplaceSubStringAtPositionsCS(panPositions, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+
+	  #-------------------------------------------------------------------------------#
+	 #   REPALCING A SUBSTRING AT A SOME GIVEN POSITIONS BY MANY OTHER SUBSTRINGS    #
+	#-------------------------------------------------------------------------------#
+
+	def ReplaceSubStringAtPositionsByManyCS(panPositions, pcSubStr, pacNewSubStrings, pCaseSensitive)
+
+		/* EXAMPLE
+		o1 = new stzString("ring php ring ruby ring python ring csharp ring")
+		o1.ReplaceSubstringAtPositionsByMany([ 10, 20, 32], "ring", :By = [ "♥", "♥♥", "♥♥♥" ])
+
+		? o1.Content() #--> "ring php ♥ ruby ♥♥ python ♥♥♥ csharp ring"		*/
+
+		if isList(pacNewSubStrings) and Q(pacNewSubStrings).IsWithOrByNamedParamList()
+			pacNewSubStrings = pacNewSubStrings[2]
+		ok
+
+		if NOT Q(pacNewSubStrings).IsListOfStrings()
+			stzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
+		ok	
+
+		anPositions = StzListQ(panPositions).SortedInDescending()
+		acNewSubStrings = StzListQ(pacNewSubStrings).SortedInDescending()
+
+		nMin = Min( len(anPositions), len(acNewSubStrings) )
+
+		for i = 1 to nMin
+			n = anPositions[i]
+			cNewSubStr = acNewSubStrings[i]
+
+			This.ReplaceSubStringAtPositionNCS(n, pcSubStr, cNewSubStr, pCaseSensitive)
+		next
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceSubStringAtPositionsByMany(panPositions, pcSubStr, pacNewSubStrings)
+		This.ReplaceSubStringAtPositionsByManyCS(panPositions, pcSubStr, pacNewSubStrings, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------------------#
+	 #   REPLACING A SUBSTRING WITH A DYNAMIC VALUE (using With@ or :By@)   #
+	#----------------------------------------------------------------------#
+
+	def ReplaceSubStringCS@(pcSubStr, pcDynamicStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("ring php ring ruby ring pyhton ring")
+		o1.ReplaceSubString@( "ring", :By@ = '{ "#" + @Occurrence }' )
+
+		? o1.Content() #--> "#1 php #2 ruby #3 pyhton #4"
+
+		*/
+
+		if isList(pcDynamicStr) and Q(pcDynamicStr).IsWithOrByNamedParamList()
+			pcDynamicStr = pcDynamicStr[2]
+		ok
+
+		if NOT isString(pcDynamicStr)
+			stzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
+		ok	
+
+		anPositions = This.FindAllCSQ(pcSubStr, pCaseSensitive).SortedInDescending()
+
+
+		@SubString = pcSubStr
+
+		@NumberOfOccurrences = len(anPositions)
+		@NumberOfOccurrence  = @NumberOfOccurrences
+		@NumberOfSubStrings  = @NumberOfOccurrences
+		@NumberOfSubStrings = @NumberOfOccurrence
+
+		i = 0
+		@CurrentPosition = 0
+		@PreviousPosition = 0
+		@NextPosition = 0
+
+		acNewSubStr = []
+
+		for @Position in anPositions
+
+			@CurrentPosition = @Position
+
+			i++
+			@Occurrence = i
+			@CurrentOccurrence = i
+
+			if i > 1
+				@PreviousPosition = anPositions[i - 1]
+				@PreviousOccurrence = i - 1
+			ok
+
+			if i < @NumberOfOccurrence
+				@NextPosition = anPositions[i + 1]
+				@NextOccurrence = i + 1
+			ok
+			
+			cDynamicStr = StzStringQ(pcDynamicStr).
+					SimplifyQ().
+					RemoveBoundsQ("{", "}").
+					Content()
+
+			cCode = 'cTempStr = ( ' + cDynamicStr + ' )'
+			eval(cCode)
+
+			acNewSubStr + cTempStr
+
+		next
+
+	acNewSubStr = StzListQ(acNewSubStr).SortedInDescending()
+
+	i = 0
+	for @Position in anPositions
+		i++
+		cNewSubStr = acNewSubStr[i]
+		This.ReplaceSubStringAtPositionNCS(@Position, pcSubStr, cNewSubStr, pCaseSensitive)
+	next
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceSubString@(pcSubStr, pcDynamicStr)
+		This.ReplaceSubStringCS@(pcSubStr, pcDynamicStr, :CaseSensitive = TRUE)
+
+
+	  #---------------------------------------------------#
+	 #   REPLACING A SUBSTRING UNDER A GIVEN CONDITION   #
+	#---------------------------------------------------#
+
+	def ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("ring php ring ruby ring pyhton ring")
+		o1.ReplaceSubStringW("ring", :Where = '{ Q(@Position).IsMultipleOf(10) }', :With = "♥♥♥")
+
+		? o1.Content() #--> "ring php ♥♥♥ ruby ♥♥♥ pyhton ring"
+
+		*/
+
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParamList()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			stzRaise("Incorrect param! pcCondition must be a string.")
+		ok
+
+		anPositions = This.FindAllCS(pcSubStr, pCaseSensitive)
+
+		@SubString = pcSubStr
+
+		@NumberOfOccurrences = len(anPositions)
+		@NumberOfOccurrence  = @NumberOfOccurrences
+		@NumberOfSubStrings  = @NumberOfOccurrences
+		@NumberOfSubStrings = @NumberOfOccurrence
+
+		i = 0
+		@CurrentPosition = 0
+		@PreviousPosition = 0
+		@NextPosition = 0
+
+		cCondition = StzStringQ(pcCondition).
+				SimplifyQ().
+				RemoveBoundsQ("{", "}").
+				Content()
+
+		anPositionsW = []
+
+
+		i = 0
+		for @Position in anPositions
+
+			i++
+			@CurrentPosition = @Position
+
+			@Occurrence = i
+			@CurrentOccurrence = i
+
+			if i > 1
+				@PreviousPosition = anPositions[i - 1]
+				@PreviousOccurrence = i - 1
+			ok
+
+			if i < @NumberOfOccurrence
+				@NextPosition = anPositions[i + 1]
+				@NextOccurrence = i + 1
+			ok
+
+			cCode = "bOk = ( " + cCondition + " )"
+			eval(cCode)
+
+			if bOk
+				anPositionsW + @Position
+			ok
+
+		next
+
+		This.ReplaceSubStringAtPositionsCS(anPositionsW, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+
+	def ReplaceSubStringW(pcSubStr, pcCondition, pcNewSubStr)
+		This.ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, :CaseSensitive = TRUE)
+		return This
+		
 	  #-------------------------------------------------------------------------#
 	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	#-------------------------------------------------------------------------#
@@ -6544,9 +7114,9 @@ class stzString from stzObject
 		cResult = This.ReplaceAnyBetweenQ(pcSubStr1, pcSubStr2, pcNewSubstr).Content()
 		return cResult
 
-	  #------------------------------------------#
+	  #==========================================#
 	 #   REPLACING A CHAR AT A GIVEN POSITION   #
-	#------------------------------------------#
+	#==========================================#
 
 	def ReplaceCharAtPosition(n, pcNewSubStr)
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
@@ -6764,98 +7334,6 @@ class stzString from stzObject
 
 		#>
 
-	  #-------------------------------------------#
-	 #     REPLACING MANY SUBSTRINGS AT ONCE     #
-	#-------------------------------------------#
-
-	def ReplaceManyCS(pacSubstr, pNewSubstr, pCaseSensitive)
-		/* Example 1:
-	
-		o1 = new stzString( "a + b - c / d = 0")
-		 o1.ReplaceManyCS( ["+", "-", "=", "/" ], "*", :CaseSensitive = FALSE )
-		 ? o1.Content()
-	
-		--> Gives: "a * b * c * d = 0"
-	
-		Example 2:
-	
-		o1 = new stzString( "Tunis is my town. Tunisa is my nation!")
-		o1.ReplaceManyCS( [ "Tunis", "Tunisia" ], :EachChar = "*" )
-		? o1.Content()
-	
-		*/
-
-		for str in pacSubstr
-			This.ReplaceAllCS( str, pNewSubStr, pCaseSensitive )
-		next
-	
-		#< @FunctionFluentForm
-	
-		def ReplaceManyCSQ(pacSubstr, pNewSubstr, pCaseSensitive)
-			This.ReplaceManyCS(pacSubstr, pNewSubstr, pCaseSensitive)
-			return This
-		
-		#>
-
-		def ReplaceAllOfTheseCS(pacSubstr, pNewSubstr, pCaseSensitive)
-			This.ReplaceManyCS(pacSubstr, pNewSubstr, pCaseSensitive)
-
-			def ReplaceAllOfTheseCSQ(pacSubstr, pNewSubstr, pCaseSensitive)
-				This.ReplaceAllOfTheseCS(pacSubstr, pNewSubstr, pCaseSensitive)
-				return This
-
-		def ReplaceManySubstringsCS(pacSubstr, pNewSubstr, pCaseSensitive)
-			This.ReplaceManyCS(pacSubstr, pNewSubstr, pCaseSensitive)
-
-			def ReplaceManySubstringsCSQ(pacSubstr, pNewSubstr, pCaseSensitive)
-				This.ReplaceManySubstringsCS(pacSubstr, pNewSubstr, pCaseSensitive)
-				return This
-		#>
-
-	def ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
-		acResult = This.Copy().ReplaceManySubstringsCSQ(pacSubstr, pNewSubstr, pCaseSensitive).Content()
-		return acResult
-
-		def ManyReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
-			return This.ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
-
-	#---
-
-	def ReplaceMany(pacSubstr, pcNewSubstr)
-		This.ReplaceManyCS( pacSubstr, pcNewSubstr, :CaseSensitive = TRUE )
-
-		#< @FunctionFluentFormn
-
-		def ReplaceManyQ(pacSubStr, pcNewSubStr)
-			This.ReplaceMany(pacSubstr, pcNewSubstr)
-			return This
-		#>
-
-		#< @FunctionAlternativeForm
-	
-		def ReplaceAllOfThese(pacSubStr, pcNewSubStr)
-			This.ReplaceMany(pacSubstr, pcNewSubstr)
-
-			def ReplaceAllOfTheseQ(pacSubStr, pcNewSubStr)
-				This.ReplaceAllOfThese(pacSubStr, pcNewSubStr)
-				return This
-
-		def ReplaceManySubstrings(pacSubstr, pNewSubstr)
-			This.ReplaceMany(pacSubstr, pNewSubstr)
-
-			def ReplaceManySubstringsQ(pacSubstr, pNewSubstr)
-				This.ReplaceManySubstrings(pacSubstr, pNewSubstr)
-				return This
-
-		#>
-
-	def ManySubstringsReplaced(pacSubstr, pNewSubstr)
-		acResult = This.Copy().ReplaceManySubstringsQ(pacSubstr, pNewSubstr).Content()
-		return acResult
-
-		def ManyReplaced(pacSubstr, pNewSubstr)
-			return This.ManySubstringsReplaced(pacSubstr, pNewSubstr)
-
 	  #---------------------------------------------------------------#
 	 #    REPLACING SUBSTRINGS BY MANY NEW SUBSTRINGS, ONE BY ONE    #
 	#---------------------------------------------------------------#
@@ -6920,6 +7398,73 @@ class stzString from stzObject
 		def SubStringsReplacedOneByOne(pacSubStrings, paNewSubStrings)
 			return This.ManySubStringsReplacedOneByOne(pacSubStrings, paNewSubStrings)
 
+	  #------------------------------------------------------------------#
+	 #    REPLACING SUBSTRINGS BY MANY NEW SUBSTRINGS, BY ALTERNANCE    #
+	#------------------------------------------------------------------#
+
+	def ReplaceManyByAlternanceCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
+
+		if NOT ( IsListOfStrings(pacSubstrings) and isList(paNewSubStrings) )
+		   stzRaise("Incorrect params!")
+		ok
+
+		if isList(paNewSubStrings) and
+		   ( (StzListQ(paNewSubStrings).IsWithNamedParamList() or
+		     StzListQ(paNewSubStrings).IsByNamedParamList()) and IsListOfStrings(paNewSubStrings[2]) )
+
+			paNewSubStrings = paNewSubStrings[2]
+		ok
+
+		i = 0
+		for cSubStr in pacSubstrings
+			i++
+			if i > len(paNewSubStrings)
+				i = 1
+			ok
+
+			This.ReplaceAllCS(cSubStr, paNewSubStrings[i], pCaseSensitive )
+		next
+
+		def ReplaceManyByAlternanceCSQ(pacSubstrings, paNewSubStrings, pCaseSensitive)
+			This.ReplaceManyByAlternanceCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
+			return This
+
+		def ReplaceSubstringsByAlternanceCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
+			This.ReplaceManyByAlternanceCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
+
+			def ReplaceSubstringsByAlternanceCSQ(pacSubstrings, paNewSubStrings, pCaseSensitive)
+				This.ReplaceSubstringsByAlternanceCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
+				return This
+
+	def ManySubStringsReplacedByAlternanceCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
+		cResult = This.Copy().ReplaceManyByAlternanceCSQ(pacSubstrings, paNewSubStrings, pCaseSensitive)
+		return cResult
+
+		def SubstringsReplacedByAlternanceCS(pacSubStrings, paNewSubStrings, pCaseSensitive)
+			return This.ManySubStringsReplacedByAlternanceCS(pacSubStrings, paNewSubStrings, pCaseSensitive)
+
+	#---
+
+	def ReplaceManyByAlternance(pacSubstrings, paNewSubStrings)
+		This.ReplaceManyByAlternanceCS(pacSubStrings, paNewSubStrings, :CaseSensitive = TRUE)
+
+		def ReplaceManyByAlternanceQ(pacSubstrings, paNewSubStrings)
+			This.ReplaceManyByAlternance(pacSubstrings, paNewSubStrings)
+			return This
+
+		def ReplaceSubstringsByAlternance(pacSubstrings, paNewSubStrings)
+			This.ReplaceManyByAlternance(pacSubstrings, paNewSubStrings)
+
+			def ReplaceSubstringsByAlternanceQ(pacSubstrings, paNewSubStrings)
+				This.ReplaceSubstringsByAlternance(pacSubstrings, paNewSubStrings)
+				return This
+
+	def ManySubStringsReplaceByAlternance(pacSubstrings, paNewSubStrings)
+		cResult = This.Copy().ReplaceManyByAlternanceQ(pacSubstrings, paNewSubStrings)
+		return cResult
+
+		def SubStringsReplacedByAlternance(pacSubStrings, paNewSubStrings)
+			return This.ManySubStringsReplacedByAlternance(pacSubStrings, paNewSubStrings)
 
 	  #----------------------------------------------------#
 	 #     REPLACING THE NTH OCCURRENCE OF A SUBSTRING    #
@@ -10408,7 +10953,7 @@ class stzString from stzObject
 		anResult = []
 		for n in anStartPositions
 			n1 = n
-			n2 = This.FindNextOccurrenceCS( :Of = pcSubStr2, :StartingAt = n1, pCaseSensitive )
+			n2 = This.FindNextOccurrenceCS( pcSubStr2, n1, pCaseSensitive )
 
 			n1 += StzStringQ(pcSubStr1).NumberOfChars()
 			n2 -= 1
@@ -14075,7 +14620,7 @@ return
 			This.SplitToNParts(n)
 
 		on "STRING"
-			n = This.NumberOfOccurrence(:Of = pDividor)
+			n = This.NumberOfOccurrence(pDividor)
 			oTempStr = StzStringQ(pDividor) * n
 			
 			if oTempStr.IsEqualTo(This.String())
@@ -14448,7 +14993,7 @@ return
 			return FALSE
 		ok
 
-		n = This.NumberOfOccurrenceCS( :Of = pcSubStr, pCaseSensitive )
+		n = This.NumberOfOccurrenceCS( pcSubStr, pCaseSensitive )
 
 		oStr = StzStringQ(pcSubStr) * n
 
@@ -14478,7 +15023,7 @@ return
 			return FALSE
 		ok
 
-		bResult = StzStringQ(pcOtherString).NumberOfOccurrenceCS( :Of = This.String(), pCaseSensitive ) > 1
+		bResult = StzStringQ(pcOtherString).NumberOfOccurrenceCS( This.String(), pCaseSensitive ) > 1
 		return bResult
 
 	def IsSplitterOf(pcOtherString)
@@ -15214,7 +15759,7 @@ return
 		ok
 
 		cCondition = StzStringQ(cCondition).
-				ReplaceCSQ("@range", :With = "@section", :CS = FALSE).
+				ReplaceCSQ("@range", "@section", :CS = FALSE).
 				Content()
 
 		This.RemoveManySectionsW(aSections, cCondition)
@@ -15326,33 +15871,32 @@ return
 
 		# Checking the correctness of pcNewSubStr param
 
-		if isString(pcNewSubStr)
-			cNewSubStr = pcNewSubStr
-	
-		but isList(pcNewSubstr) and Q(pcNewSubStr).IsWithNamedParamList()
-			cNewSubStr = pcNewSubStr[2]
+		if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithOrByNamedParamList()
 
-			if pcNewSubStr[1] = :With@
+			pcNewSubStr = pcNewSubStr[2]
 
-				cCode = StzStringQ(cNewSubStr).
+			if pcNewSubStr[1] = :With@ or pcNewSubStr[1] = :By@
+
+				cCode = StzStringQ(pcNewSubStr).
 					SimplifyQ().
 					RemoveBoundsQ("{","}").
 					Content()
 
 				@section = This.Section(n1, n2)
-				cCode = "cNewSubStr = " + cCode
+				cCode = "pcNewSubStr = " + cCode
 
 				eval(cCode)
 			
 			ok
+		ok
 
-		else
+		if NOT isString(pcNewSubStr)
 			stzRaise("Incorrect param type! pcNewSubStr must be a string.")
 		ok
 
 		# Doing the job
 
-		QStringObject().replace(n1 - 1, n2 - n1 + 1, cNewSubStr)
+		QStringObject().replace(n1 - 1, n2 - n1 + 1, pcNewSubStr)
 
 		#< @FunctionFluentForm
 
@@ -17401,7 +17945,7 @@ return
 		won't be correct!
  		*/
 
-		nWidth += This.NumberOfOccurrence( :Of = ArabicShaddah() )
+		nWidth += This.NumberOfOccurrence( ArabicShaddah() )
 
 		# Computing the alignment using Qt
 
@@ -17440,7 +17984,7 @@ return
 
 		# See comment in LeftAlign() method
  
-		nWidth += This.NumberOfOccurrence( :Of = ArabicShaddah() )
+		nWidth += This.NumberOfOccurrence( ArabicShaddah() )
 
 		# Computing the justification using Qt
 
@@ -17477,7 +18021,7 @@ return
 
 		# See comment in LeftAlign() method
  
-		nWidth += This.NumberOfOccurrence( :Of = ArabicShaddah() )
+		nWidth += This.NumberOfOccurrence( ArabicShaddah() )
 
 		# Computing the justification using Qt
 
@@ -17522,7 +18066,7 @@ return
 
 		# See comment in LeftAlign() method
  
-		nWidth += This.NumberOfOccurrence( :Of = ArabicShaddah() )
+		nWidth += This.NumberOfOccurrence( ArabicShaddah() )
 
 		# Computing the justification using Qt
 
@@ -18109,7 +18653,7 @@ return
 			return This.IsScriptNumber()
 
 	def IsLocaleAbbreviation()
-		cThisString = This.Copy().ReplaceQ("_", :With = "-").Content()
+		cThisString = This.Copy().ReplaceQ("_", "-").Content()
 		oLocalesInString = StzStringQ( LocaleAbbreviationsHostedInString() )
 		bResult = oLocalesInString.ContainsCS( cThisString, :CaseSensitive = FALSE )
 
@@ -20266,7 +20810,7 @@ return
 
 		# Case 2 : The list is in short _:_ form
 
-			if This.ContainsOneOccurrence(:of = ":")
+			if This.ContainsOneOccurrence(":")
 
 				# the : separator in _:_ can not be at the
 				# beginning or the end of the list in string
@@ -20620,9 +21164,9 @@ return
 		cPart2 = NULL
 		cLastChar2 = NULL
 
-		oThisWS = This.ReplaceManyQ([": ", " :"], :With = " : ").SimplifyQ()
+		oThisWS = This.ReplaceManyQ([": ", " :"], " : ").SimplifyQ()
 		
-		if oThisWS.NumberOfOccurrence(:Of = ":") = 1 and oThisWS.MiddleChar() = ":"
+		if oThisWS.NumberOfOccurrence(":") = 1 and oThisWS.MiddleChar() = ":"
 
 			aListMembers = QStringListToList( QStringObject().split(":", 0, 0) )
 			oMember1 = StzStringQ(aListMembers[1]).TrimQ()

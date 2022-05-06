@@ -2631,7 +2631,7 @@ class stzNumber from stzObject
 		return This.Contains("1")
 
 	def ContainsSeveral(pcDigit)
-		return StzStringQ(This.Content()).NumberOfOccurrence(:Of = pcDigit) > 1
+		return StzStringQ(This.Content()).NumberOfOccurrence(pcDigit) > 1
 
 		def ContainsMany(pcDigit)
 			return This.ContainsSeveral(pcDigit)
