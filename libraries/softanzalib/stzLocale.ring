@@ -219,10 +219,10 @@ class stzLocale from stzObject
 	
 			ok
 
-			pLocale = StzStringQ(pLocale).ReplaceQ("_", :With = "-").Content()
+			pLocale = StzStringQ(pLocale).ReplaceQ("_", "-").Content()
 			oLocale = new stzString(pLocale)
 
-			if oLocale.ContainsOneOccurrence(:Of = "-")
+			if oLocale.ContainsOneOccurrence("-")
 				
 				aParts = oLocale.Split("-")
 				oPart1 = StzStringQ(aParts[1])
@@ -527,7 +527,7 @@ class stzLocale from stzObject
 	def CurrencyName()
 		for aCountryInfo in LocaleCountriesXT()
 			if aCountryInfo[1] = This.CountryNumber()
-				return StzStringQ(aCountryInfo[7]).ReplaceQ("_", :With = " ").Capitalized()
+				return StzStringQ(aCountryInfo[7]).ReplaceQ("_", " ").Capitalized()
 			ok
 		next
 
@@ -1012,7 +1012,7 @@ class stzLocale from stzObject
 
 		for n in anPositions
 			cCapitalizedChar = oStr.CharAtPositionQ(n).Uppercased()
-			oStr.ReplaceCharAtPosition(n, :With = cCapitalizedChar)
+			oStr.ReplaceCharAtPosition(n, cCapitalizedChar)
 		next
 
 		return oStr.Content()
