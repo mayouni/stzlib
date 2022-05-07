@@ -170,8 +170,8 @@ load "stzlib.ring"
 	o1.ReplaceManyCS([ "Tunis", "Cairo", "Bagdad" ], :With = "♥", :CS = FALSE)
 	? @@( o1.Content() ) #--> [ "♥", "♥", "♥" ]
 
-/*------- REPLACING MANY STRINGS BY MANY OTHERS ONE BY ONE
-
+/*------- REPLACING MANY STRINGS BY MANY OTHERS (ONE BY ONE)
+*/
 	o1 = new stzListOfStrings([ :tunis, "ALGERIA", :cairo, "LIBYA", :bagdad ])
 	
 	o1.ReplaceManyOneByOne([ :tunis,   :cairo, :bagdad ],

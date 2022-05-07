@@ -2168,7 +2168,7 @@ class stzString from stzObject
 			acMarquers + ( "#" + i )
 		next
 
-		This.ReplaceManyOneByOneCS( acSubStrings, acMarquers, pCaseSensitive )
+		This.ReplaceManyCS( acSubStrings, acMarquers, pCaseSensitive )
 
 		def ReplaceSubstringsWithMarquersCSQ(pacSubstrings, pCaseSensitive)
 			This.ReplaceSubstringsWithMarquersCS(pacSubstrings, pCaseSensitive)
@@ -6948,7 +6948,6 @@ class stzString from stzObject
 	def ReplaceSubString@(pcSubStr, pcDynamicStr)
 		This.ReplaceSubStringCS@(pcSubStr, pcDynamicStr, :CaseSensitive = TRUE)
 
-
 	  #---------------------------------------------------#
 	 #   REPLACING A SUBSTRING UNDER A GIVEN CONDITION   #
 	#---------------------------------------------------#
@@ -7334,138 +7333,6 @@ class stzString from stzObject
 
 		#>
 
-	  #---------------------------------------------------------------#
-	 #    REPLACING SUBSTRINGS BY MANY NEW SUBSTRINGS, ONE BY ONE    #
-	#---------------------------------------------------------------#
-
-	def ReplaceManyOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
-
-		if NOT ( IsListOfStrings(pacSubstrings) and isList(paNewSubStrings) )
-		   stzRaise("Incorrect params!")
-		ok
-
-		if isList(paNewSubStrings) and
-		   ( (StzListQ(paNewSubStrings).IsWithNamedParamList() or
-		     StzListQ(paNewSubStrings).IsByNamedParamList()) and IsListOfStrings(paNewSubStrings[2]) )
-
-			paNewSubStrings = paNewSubStrings[2]
-		ok
-
-		n = Min( len(pacSubstrings), len(paNewSubStrings) )
-
-		for i = 1 to n
-			This.ReplaceAllCS(pacSubstrings[i], paNewSubStrings[i], pCaseSensitive )
-		next
-
-		def ReplaceManyOneByOneCSQ(pacSubstrings, paNewSubStrings, pCaseSensitive)
-			This.ReplaceManyOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
-			return This
-
-		def ReplaceSubstringsOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
-			This.ReplaceManyOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
-
-			def ReplaceSubstringsOneByOneCSQ(pacSubstrings, paNewSubStrings, pCaseSensitive)
-				This.ReplaceSubstringsOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
-				return This
-
-	def ManySubStringsReplacedOneByOneCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
-		cResult = This.Copy().ReplaceManyOneByOneCSQ(pacSubstrings, paNewSubStrings, pCaseSensitive)
-		return cResult
-
-		def SubstringsReplacedOneByOneCS(pacSubStrings, paNewSubStrings, pCaseSensitive)
-			return This.ManySubStringsReplacedOneByOneCS(pacSubStrings, paNewSubStrings, pCaseSensitive)
-
-	#---
-
-	def ReplaceManyOneByOne(pacSubstrings, paNewSubStrings)
-		This.ReplaceManyOneByOneCS(pacSubStrings, paNewSubStrings, :CaseSensitive = TRUE)
-
-		def ReplaceManyOneByOneQ(pacSubstrings, paNewSubStrings)
-			This.ReplaceManyOneByOne(pacSubstrings, paNewSubStrings)
-			return This
-
-		def ReplaceSubstringsOneByOne(pacSubstrings, paNewSubStrings)
-			This.ReplaceManyOneByOne(pacSubstrings, paNewSubStrings)
-
-			def ReplaceSubstringsOneByOneQ(pacSubstrings, paNewSubStrings)
-				This.ReplaceSubstringsOneByOne(pacSubstrings, paNewSubStrings)
-				return This
-
-	def ManySubStringsReplaceOneByOne(pacSubstrings, paNewSubStrings)
-		cResult = This.Copy().ReplaceManyOneByOneQ(pacSubstrings, paNewSubStrings)
-		return cResult
-
-		def SubStringsReplacedOneByOne(pacSubStrings, paNewSubStrings)
-			return This.ManySubStringsReplacedOneByOne(pacSubStrings, paNewSubStrings)
-
-	  #------------------------------------------------------------------#
-	 #    REPLACING SUBSTRINGS BY MANY NEW SUBSTRINGS, BY ALTERNANCE    #
-	#------------------------------------------------------------------#
-
-	def ReplaceManyByAlternanceCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
-
-		if NOT ( IsListOfStrings(pacSubstrings) and isList(paNewSubStrings) )
-		   stzRaise("Incorrect params!")
-		ok
-
-		if isList(paNewSubStrings) and
-		   ( (StzListQ(paNewSubStrings).IsWithNamedParamList() or
-		     StzListQ(paNewSubStrings).IsByNamedParamList()) and IsListOfStrings(paNewSubStrings[2]) )
-
-			paNewSubStrings = paNewSubStrings[2]
-		ok
-
-		i = 0
-		for cSubStr in pacSubstrings
-			i++
-			if i > len(paNewSubStrings)
-				i = 1
-			ok
-
-			This.ReplaceAllCS(cSubStr, paNewSubStrings[i], pCaseSensitive )
-		next
-
-		def ReplaceManyByAlternanceCSQ(pacSubstrings, paNewSubStrings, pCaseSensitive)
-			This.ReplaceManyByAlternanceCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
-			return This
-
-		def ReplaceSubstringsByAlternanceCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
-			This.ReplaceManyByAlternanceCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
-
-			def ReplaceSubstringsByAlternanceCSQ(pacSubstrings, paNewSubStrings, pCaseSensitive)
-				This.ReplaceSubstringsByAlternanceCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
-				return This
-
-	def ManySubStringsReplacedByAlternanceCS(pacSubstrings, paNewSubStrings, pCaseSensitive)
-		cResult = This.Copy().ReplaceManyByAlternanceCSQ(pacSubstrings, paNewSubStrings, pCaseSensitive)
-		return cResult
-
-		def SubstringsReplacedByAlternanceCS(pacSubStrings, paNewSubStrings, pCaseSensitive)
-			return This.ManySubStringsReplacedByAlternanceCS(pacSubStrings, paNewSubStrings, pCaseSensitive)
-
-	#---
-
-	def ReplaceManyByAlternance(pacSubstrings, paNewSubStrings)
-		This.ReplaceManyByAlternanceCS(pacSubStrings, paNewSubStrings, :CaseSensitive = TRUE)
-
-		def ReplaceManyByAlternanceQ(pacSubstrings, paNewSubStrings)
-			This.ReplaceManyByAlternance(pacSubstrings, paNewSubStrings)
-			return This
-
-		def ReplaceSubstringsByAlternance(pacSubstrings, paNewSubStrings)
-			This.ReplaceManyByAlternance(pacSubstrings, paNewSubStrings)
-
-			def ReplaceSubstringsByAlternanceQ(pacSubstrings, paNewSubStrings)
-				This.ReplaceSubstringsByAlternance(pacSubstrings, paNewSubStrings)
-				return This
-
-	def ManySubStringsReplaceByAlternance(pacSubstrings, paNewSubStrings)
-		cResult = This.Copy().ReplaceManyByAlternanceQ(pacSubstrings, paNewSubStrings)
-		return cResult
-
-		def SubStringsReplacedByAlternance(pacSubStrings, paNewSubStrings)
-			return This.ManySubStringsReplacedByAlternance(pacSubStrings, paNewSubStrings)
-
 	  #----------------------------------------------------#
 	 #     REPLACING THE NTH OCCURRENCE OF A SUBSTRING    #
 	#----------------------------------------------------#
@@ -7473,7 +7340,7 @@ class stzString from stzObject
 	def ReplaceNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
 		
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParamList(pcSubStr)
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParamList()
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -7602,16 +7469,38 @@ class stzString from stzObject
 
 	def ReplaceNextNthOccurrenceCS(n, pcSubStr, nStart, pcNewSubStr, pCaseSensitive)
 		
-		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParamList()
-			nStart = nStart[2]
-		ok
-
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParamList()
 			pcSubStr = pcSubStr[2]
 		ok
 
+		if NOT isString(pcSubStr)
+			stzRaise("Incorrect param! pcSubStr must be a string.")
+		ok
+
 		if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithNamedParamList()
 			pcNewSubStr = pcNewSubStr[2]
+		ok
+
+		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParamList()
+			if Q(nStart[1]).IsOneOfThese([ :StartingAt, :StartingAtPosition ])
+				nStart = nStart[2]
+
+			but nStart[1] = :StartingAtOccurrence
+
+				nStart = This.FindNthOccurrenceCS(nStart[2] + 1, pcSubStr, pCaseSensitive)
+			ok
+			
+		ok
+
+		if isString(nStart)
+			switch nStart
+			on :First or :FirstOccurrence
+				nStart = This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+
+			on :FirstPosition or :FirstChar
+				nStart = 1
+
+			off
 		ok
 
 		cPart1 = This.Section(1, nStart - 1)
@@ -7671,17 +7560,46 @@ class stzString from stzObject
 	#--------------------------------------------------------#
 
 	def ReplacePreviousNthOccurrenceCS(n, pcSubStr, nStart, pcNewSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("ring php ring ruby ring python ring")
+		o1.ReplacePreviousNthOccurrence(2, :Of = "ring", :StartingAtOccurrence = 3, :By = "♥♥♥")
 		
-		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParamList()
-			nStart = nStart[2]
-		ok
+		? o1.Content() #--> ♥♥♥ php ring ruby ring python ring
+		*/
 
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParamList()
 			pcSubStr = pcSubStr[2]
 		ok
 
+		if NOT isString(pcSubStr)
+			stzRaise("Incorrect param! pcSubStr must be a string.")
+		ok
+
 		if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithNamedParamList()
 			pcNewSubStr = pcNewSubStr[2]
+		ok
+
+		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParamList()
+			if Q(nStart[1]).IsOneOfThese([ :StartingAt, :StartingAtPosition ])
+				nStart = nStart[2]
+
+			but nStart[1] = :StartingAtOccurrence
+
+				nStart = This.FindNthOccurrenceCS(nStart[2], pcSubStr, pCaseSensitive)
+			ok
+			
+		ok
+
+		if isString(nStart)
+			switch nStart
+			on :Last or :LastOccurrence
+				nStart = This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive)
+
+			on :LastPosition or :LastChar
+				nStart = This.NumberOfChars()
+
+			off
 		ok
 
 		oPart1 = This.SectionQ(1, nStart - 1)
