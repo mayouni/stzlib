@@ -12261,7 +12261,10 @@ class stzList from stzObject
 
 	def IsStartingAtNamedParamList()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :StartingAt ) and
+
+		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
+					:StartingAt, :StartingAtPosition,
+					:StartingAtOccurrence ]) ) and
 
 		   ( isNumber(This[2]) or
 		     ( isString(This[2]) and StzStringQ(This[2]).IsOneOfThese([
@@ -12269,7 +12272,8 @@ class stzList from stzObject
 					:Last, :LastPosition, :LastItem,
 					:FirstChar, :LastChar,
 					:FirstString, :LastString,
-					:FirstNumber, :LastNumber ]) ) )
+					:FirstNumber, :LastNumber,
+					:FirstOccurrence, :LastOccurrence ]) ) )
 
 			return TRUE
 
