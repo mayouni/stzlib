@@ -631,8 +631,8 @@ o1 = new stzListOfStrings([ "CAIRO", "TUNIS", "PARIS" ])
 # 	│ PARIS │
 # 	╰───────╯
 
-/*-------------- TODO: Fix it --> Returns nothing
-
+/*-------------- ERROR: Fix it!
+*/
 o1 = new stzListOfStrings([ "CAIRO", "TUNIS", "PARIS" ])
 
 ? o1.BoxXT([ :AllCorners = :Round, :EachChar = TRUE ])

@@ -7062,6 +7062,10 @@ class stzListOfStrings from stzList
 			pcString = pcString[2]
 		ok
 
+		if NOT isString(pcString)
+			stzRaise("Incorrect param! pcString must be a string.")
+		ok
+
 		anPositions = This.FindAllCS(pcString, pCaseSensitive)
 
 		for n in anPositions
@@ -7233,9 +7237,9 @@ class stzListOfStrings from stzList
 		def AllOccurrencesOfStringItemReplacedBy(pcString, pcNewString)
 			return StringReplacedBy(pcString, pcNewString)
 
-	  #-----------------------------------------------#
-	 #    REPLACING MANY STRINGS AT THE SAME TIME    #
-	#-----------------------------------------------#
+	  #-------------------------------------------------------------------#
+	 #  REPLACING MANY STRINGS AT THE SAME TIME BY A GIVEN OTHER STRING  #
+	#-------------------------------------------------------------------#
 
 	def ReplaceManyStringsCS(pacStrings, pcNewString, pCaseSensitive)
 
@@ -7380,188 +7384,384 @@ class stzListOfStrings from stzList
 		def TheseStringItemsReplaced(pacStrings, pcNewString)
 			return This.ManyStringsReplaced(pacStrings, pcNewString)
 
-	  #-------------------------------------------------------------#
-	 #    REPLACING MANY STRING-ITEMS BY MANY OTHERS ONE BY ONE    #
-	#-------------------------------------------------------------#
+	  #------------------------------------------------#
+	 #  REPLACING MANY STRINGS BY MANY OTHER STRINGS  #
+	#------------------------------------------------#
 
-	def ReplaceManyOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+	def ReplaceStringsByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
 		if NOT ( isList(pacStrings) and Q(pacStrings).IsListOfStrings() )
-			stzRaise("Uncorrect param! pacStrings must be a list of strings.")
+			stzRaise("Incorrect param! pacStrings must be a list of strings.")
 		ok
 
 		if isList(pacNewStrings) and Q(pacNewStrings).IsWithOrByNamedParamList()
 			pacNewStrings = pacNewStrings[2]
 		ok
 
-		if NOT ( isList(pacNewStrings) and Q(pacNewStrings).IsListOfStrings() )
-			stzRaise("Uncorrect param! pacNewStrings must be a list of strings.")
+		if NOT Q(pacNewStrings).IsListOfStrings()
+			stzRaise("Incorrect param! pacNewStrings must be a list of strings.")
 		ok
 
 		i = 0
-		for str in pacStrings
-
+		for cStr in pacStrings
 			i++
-			cNewStr = NULL
-
 			if i <= len(pacNewStrings)
 				cNewStr = pacNewStrings[i]
+				This.ReplaceStringCS(cStr, cNewStr, pCaseSensitive)
+			ok
+		next
+
+		#< @FunctionFluentForm
+
+		def ReplaceStringsByManyCSQ(pacStrings, pacNewStrings, pCaseSensitive)
+			This.ReplaceStringsByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceStringItemsByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+			This.ReplaceStringsByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+		#>
+
+	def StringsReplacedByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+		acResult = This.Copy().
+				ReplaceStringsByManyCS(pacStrings, pacNewStrings, pCaseSensitive).
+				Contnet()
+
+		return acResult
+
+		def StringItemsReplacedByManyCS(acStrings, pacNewStrings, pCaseSensitive)
+			return This.StringsReplacedByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceStringsByMany(pacStrings, pacNewStrings)
+		This.ReplaceStringsByManyCS(pacStrings, pacNewStrings, :CaseSensitivity = TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceStringsByManyQ(pacStrings, pacNewStrings)
+			This.ReplaceStringsByMany(pacStrings, pacNewStrings)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceStringItemsByMany(pacStrings, pacNewStrings)
+			This.ReplaceStringsByMany(pacStrings, pacNewStrings)
+
+		#>
+
+	def StringsReplacedByMany(pacStrings, pacNewStrings)
+		acResult = This.Copy().
+				ReplaceStringsByMany(pacStrings, pacNewStrings).
+				Contnet()
+
+		return acResult
+
+		def StringItemsReplacedByMany(acStrings, pacNewStrings)
+			return This.StringsReplacedByMany(pacStrings, pacNewStrings)
+
+
+	  #------------------------------------------------------------#
+	 #  REPLACING MANY STRINGS BY MANY OTHER STRINGS -- EXTENDED  #
+	#------------------------------------------------------------#
+
+	def ReplaceStringsByManyCSXT(pacStrings, pacNewStrings, pCaseSensitive)
+
+		if NOT ( isList(pacStrings) and Q(pacStrings).IsListOfStrings() )
+			stzRaise("Incorrect param! pacStrings must be a list of strings.")
+		ok
+
+		if isList(pacNewStrings) and Q(pacNewStrings).IsWithOrByNamedParamList()
+			pacNewStrings = pacNewStrings[2]
+		ok
+
+		if NOT Q(pacNewStrings).IsListOfStrings()
+			stzRaise("Incorrect param! pacNewStrings must be a list of strings.")
+		ok
+
+		i = 0
+		for cStr in pacStrings
+			i++
+			if i > len(pacNewStrings)
+				i = 1
 			ok
 
-			This.ReplaceCS(str, cNewStr, pCaseSensitive)
+			cNewStr = pacNewStrings[i]
+			This.ReplaceStringCS(cStr, cNewStr, pCaseSensitive)
 
 		next
 
 		#< @FunctionFluentForm
 
-		def ReplaceManyOneByOneCSQ(pacStrings, pacNewStrings, pCaseSensitive)
-			This.ReplaceManyOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+		def ReplaceStringsByManyCSXTQ(pacStrings, pacNewStrings, pCaseSensitive)
+			This.ReplaceStringsByManyCSXT(pacStrings, pacNewStrings, pCaseSensitive)
 			return This
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
-		def ReplaceManyStringsOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
-			This.ReplaceManyOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+		def ReplaceStringItemsByManyCSXT(pacStrings, pacNewStrings, pCaseSensitive)
+			This.ReplaceStringsByManyCSXT(pacStrings, pacNewStrings, pCaseSensitive)
 
-		def ReplaceManyStringItemsOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
-			This.ReplaceManyOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+	def StringsReplacedByManyCSXT(pacStrings, pacNewStrings, pCaseSensitive)
+		acResult = This.Copy().
+				This.
+				ReplaceStringsByManyCSXTQ(pacStrings, pacNewStrings, pCaseSensitive).
+				Content()
 
-		#>
-
-	def ManyStringsReplacedOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
-		acResult = This.Copy().ReplaceManyOneByOneCSQ(pacStrings, pacNewStrings, pCaseSensitive).Content()
 		return acResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceManyOneByOne(pacStrings, pacNewStrings)
-		This.ReplaceManyOneByOneCS(pacStrings, pacNewStrings, :CS = TRUE)
+	def ReplaceStringsByManyXT(pacStrings, pacNewStrings)
+		This.ReplaceStringsByManyCSXT(pacStrings, pacNewStrings, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def ReplaceManyOneByOneQ(pacStrings, pacNewStrings)
-			This.ReplaceManyOneByOne(pacStrings, pacNewStrings)
+		def ReplaceStringsByManyXTQ(pacStrings, pacNewStrings)
+			This.ReplaceStringsByManyXT(pacStrings, pacNewStrings)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceStringItemsByManyXT(pacStrings, pacNewStrings)
+			This.ReplaceStringsByManyXT(pacStrings, pacNewStrings)
+
+		#>
+
+	def StringsReplacedByManyXT(pacStrings, pacNewStrings)
+		acResult = This.Copy().
+				This.
+				ReplaceStringsByManyXTQ(pacStrings, pacNewStrings).
+				Content()
+
+		return acResult
+
+		def StringItemsReplacedByManyXT(pacStrings, pacNewStrings)
+			return This.StringsReplacedByManyXT(pacStrings, pacNewStrings)
+
+	  #----------------------------------------------#
+	 #    REPLACING A STRING-ITEM BY MANY OTHERS    #
+	#----------------------------------------------#
+
+	def ReplaceByManyCS(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([ "ring", "php", "ruby", "ring", "python", "ring" ])
+		o1.ReplaceByMany("ring", :By = [ "♥", "♥♥", "♥♥♥" ])
+	
+		? o1.Content() #--> [ "♥", "php", "ruby", "♥♥", "python", "♥♥♥" ]
+
+		*/
+
+		if isList(pacNewSubStringItems) and Q(pacNewSubStringItems).IsWithOrByNamedParamList()
+			pacNewSubStringItems = pacNewSubStringItems[2]
+		ok
+
+		if NOT Q(pacNewSubStringItems).IsListOfStrings()
+			stzRaise("Incorrect param! pacNewSubStringItems must be a list of strings.")
+		ok
+
+		anPositions = This.FindCS(pcStrItem, pCaseSensitive)
+		nMin = Min( len(anPositions), len(pacNewSubStringItems) )
+
+		for i = nMin to 1 step -1
+			n = anPositions[i]
+			cNewStrItem = pacNewSubStringItems[i]
+			This.ReplaceStringItemAtPositionN(n, cNewStrItem)
+		next
+
+		#< @FunctionFluentForm
+
+		def ReplaceByManyCSQ(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+			This.ReplaceByManyCS(pcStrItem, pacNewSubStringItems, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceManyStringsOneByOne(pacStrings, pacNewStrings)
-			This.ReplaceManyOneByOne(pacStrings, pacNewStrings)
+		def ReplaceStringItemByManyCS(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+			This.ReplaceByManyCS(pcStrItem, pacNewSubStringItems, pCaseSensitive)
 
-		def ReplaceManyStringItemsOneByOne(pacStrings, pacNewStrings)
-			This.ReplaceManyOneByOne(pacStrings, pacNewStrings)
+			def ReplaceStringItemByManyCSQ(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+				This.ReplaceStringItemByManyCS(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+				retutn This
+
+		def ReplaceStringByManyCS(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+			This.ReplaceByManyCS(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+
+			def ReplaceStringByManyCSQ(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+				This.ReplaceStringItemByManyCS(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+				retutn This
 
 		#>
 
-	def ManyStringsReplacedOneByOne(pacStrings, pacNewStrings)
-		acResult = This.Copy().ReplaceManyOneByOneQ(pacStrings, pacNewStrings).Content()
+	def StringReplacedByManyCS(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+		acResult = This.Copy().ReplaceByManyCSQ(pcStrItem, pacNewSubStringItems, pCaseSensitive).Content()
 		return acResult
 
-	  #---------------------------------------------------------#
-	 #  REPLACING A STRING-ITEM BY MANY OTHERS BY ALTERNANCE   #
-	#---------------------------------------------------------#
+		def StringItemRepacedByManyCS(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+			return This.StringReplacedCS(pcStrItem, pacNewSubStringItems, pCaseSensitive)
 
-	def ReplaceStringByAlternanceCS(pcString, pacOtherStrings, pCaseSensitive)
-		/*
-		StzListOfStringsQ([ "A", "A", "A", "A", "A" ]) {
-			ReplaceStringByAlternance("A", :With = [ "#1", "#2" ])
-			? Content()
+	#-- WITHOUT CASESENSITIVITY
 
-		}
-		# --> [ "#1", "#2", "#1", "#2", "#1" ]
+	def ReplaceByMany(pcStrItem, pacNewSubStringItems)
+		This.ReplaceByManyCS(pcStrItem, pacNewSubStringItems, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceByManyQ(pcStrItem, pacNewSubStringItems)
+			This.ReplaceByMany(pcStrItem, pacNewSubStringItems)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceStringItemByMany(pcStrItem, pacNewSubStringItems)
+			This.ReplaceByMany(pcStrItem, pacNewSubStringItems)
+
+			def ReplaceStringItemByManyQ(pcStrItem, pacNewSubStringItems)
+				This.ReplaceStringItemByMany(pcStrItem, pacNewSubStringItems)
+				retutn This
+
+		def ReplaceStringByMany(pcStrItem, pacNewSubStringItems)
+			This.ReplaceByMany(pcStrItem, pacNewSubStringItems)
+
+			def ReplaceStringByManyQ(pcStrItem, pacNewSubStringItems)
+				This.ReplaceStringItemByMany(pcStrItem, pacNewSubStringItems)
+				retutn This
+
+		#>
+
+	def StringReplacedByMany(pcStrItem, pacNewSubStringItems)
+		acResult = This.Copy().ReplaceByManyQ(pcStrItem, pacNewSubStringItems).Content()
+		return acResult
+
+		def StringItemRepacedByMany(pcStrItem, pacNewSubStringItems)
+			return This.StringReplaced(pcStrItem, pacNewSubStringItems)
+
+	  #-------------------------------------------------------#
+	 #  REPLACING A STRING-ITEM BY MANY OTHERS -- EXTENDED   #
+	#-------------------------------------------------------#
+
+	def ReplaceByManyCSXT(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([ "ring", "php", "ring", "ruby", "ring", "python", "ring" ])
+		o1.ReplaceByManyXT("ring", :By = [ "#1", "#2" ])
+	
+		? o1.Content() #--> [ "#1", "php", "#2", "ruby", "#1", "python", "#2" ]
+
 		*/
 
-		if isList(pacOtherStrings) and
-		   StzListQ(pacOtherStrings).IsWithOrByNamedParamList()
-		
-			pacOtherStrings = pacOtherStrings[2]
+		if isList(pacNewSubStringItems) and Q(pacNewSubStringItems).IsWithOrByNamedParamList()
+			pacNewSubStringItems = pacNewSubStringItems[2]
 		ok
 
-		if IsNotList(pacOtherStrings)
-			stzRaise("Incorrect param type! paOtherStrings must be a list.")
+		if NOT Q(pacNewSubStringItems).IsListOfStrings()
+			stzRaise("Incorrect param! pacNewSubStringItems must be a list of strings.")
 		ok
 
-		anPositions = This.FindAllCS(pcString, pCaseSensitive)
+		anPositions = This.FindAllCS(pcStrItem, pCaseSensitive)
 
 		i = 0
 		for nPos in anPositions
 			i++
-			if i > len(pacOtherStrings)
+			if i > len(pacNewSubStringItems)
 				i = 1
 			ok
-			This.ReplaceStringAtPosition(nPos, pacOtherStrings[i])
+
+			This.ReplaceStringAtPosition(nPos, pacNewSubStringItems[i])
 			
 		next
 
 		#< @FunctionFluentForm
 
-		def ReplaceStringByAlternanceCSQ(pcString, pacOtherStrings, pCaseSensitive)
-			This.ReplaceStringByALternanceCS(pcString, pacOtherStrings, pCaseSensitive)
+		def ReplaceByManyCSXTQ(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+			This.ReplaceByManyCSXT(pcStrItem, pacNewSubStringItems, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceStringItemByAlternanceCS(pcString, pacOtherStrings, pCaseSensitive)
-			This.ReplaceStringByAlternanceCS(pcString, pacOtherStrings, pCaseSensitive)
+		def ReplaceStringItemByManyCSXT(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+			This.ReplaceByManyCSXT(pcStrItem, pacNewSubStringItems, pCaseSensitive)
 
-			def ReplaceStringItemByAlternanceCSQ(pcString, pacOtherStrings, pCaseSensitive)
-				This.ReplaceStringItemByAlternanceCS(pcString, pacOtherStrings, pCaseSensitive)
-				return This
+			def ReplaceStringItemByManyCSXTQ(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+				This.ReplaceStringItemByManyCSXT(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+				retutn This
+
+		def ReplaceStringByManyCSXT(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+			This.ReplaceByManyCSXT(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+
+			def ReplaceStringByManyCSXTQ(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+				This.ReplaceStringItemByManyCSXT(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+				retutn This
+
 		#>
 
-	def StringReplacedByAlternanceCS(pcString, pacOtherStrings, pCaseSensitive)
+	def StringReplacedByManyCSXT(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+		acResult = This.Copy().ReplaceByManyCSXTQ(pcStrItem, pacNewSubStringItems, pCaseSensitive).Content()
+		return acResult
 
-		aResult  = This.Copy().
-				ReplaceStringByALternanceCSQ(pcString, pacOtherStrings, pCaseSensitive).
-				Content()
-
-		return aResult
-
-		def StringItemReplaceByAlternanceCS(pcString, pacOtherStrings, pCaseSensitive)
-			return This.StringReplacedByAlternanceCS(pcString, pacOtherStrings, pCaseSensitive)
+		def StringItemRepacedByManyCSXT(pcStrItem, pacNewSubStringItems, pCaseSensitive)
+			return This.StringReplacedCSXT(pcStrItem, pacNewSubStringItems, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceStringByAlternance(pcString, pacOtherStrings)
-		This.ReplaceStringByAlternanceCS(pcString, pacOtherStrings, :CS = TRUE)
+	def ReplaceByManyXT(pcStrItem, pacNewSubStringItems)
+		This.ReplaceByManyCSXT(pcStrItem, pacNewSubStringItems, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def ReplaceStringByALternanceQ(pcString, pacOtherStrings)
-			This.ReplaceStringByALternance(pcString, pacOtherStrings)
+		def ReplaceByManyXTQ(pcStrItem, pacNewSubStringItems)
+			This.ReplaceByManyXT(pcStrItem, pacNewSubStringItems)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceStringItemByAlternance(pcString, pacOtherStrings)
-			This.ReplaceStringByAlternance(pcString, pacOtherStrings)
+		def ReplaceStringItemByManyXT(pcStrItem, pacNewSubStringItems)
+			This.ReplaceByManyXT(pcStrItem, pacNewSubStringItems)
 
-			def ReplaceStringItemByAlternanceQ(pcString, pacOtherStrings)
-				This.ReplaceStringItemByAlternance(pcString, pacOtherStrings)
-				return This
+			def ReplaceStringItemByManyXTQ(pcStrItem, pacNewSubStringItems)
+				This.ReplaceStringItemByManyXT(pcStrItem, pacNewSubStringItems)
+				retutn This
+
+		def ReplaceStringByManyXT(pcStrItem, pacNewSubStringItems)
+			This.ReplaceByManyXT(pcStrItem, pacNewSubStringItems)
+
+			def ReplaceStringByManyXTQ(pcStrItem, pacNewSubStringItems)
+				This.ReplaceStringItemByManyXT(pcStrItem, pacNewSubStringItems)
+				retutn This
+
 		#>
 
-	def StringReplacedByAlternance(pcString, pacOtherStrings)
+	def StringReplacedByManyXT(pcStrItem, pacNewSubStringItems)
+		acResult = This.Copy().ReplaceByManyXTQ(pcStrItem, pacNewSubStringItems).Content()
+		return acResult
 
-		aResult  = This.Copy().
-				ReplaceStringByALternanceQ(pcString, pacOtherStrings).
-				Content()
+		def StringItemRepacedByManyXT(pcStrItem, pacNewSubStringItems)
+			return This.StringReplacedXT(pcStrItem, pacNewSubStringItems)
 
-		return aResult
-
-		def StringItemReplaceByAlternance(pcString, pacOtherStrings)
-			return This.StringReplacedByAlternance(pcString, pacOtherStrings)
-	
 	   #-----------------------------------------------------#
 	  #   REPLACING THE NEXT OCCURRENCES OF A STRING-ITEM   #
-           #   STARTING AT A GIVEN POSITION                      #
+         #   STARTING AT A GIVEN POSITION                      #
 	#-----------------------------------------------------#
 
 	def ReplaceNextOccurrencesCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
@@ -8529,13 +8729,10 @@ class stzListOfStrings from stzList
 
 	def ReplaceStringAtPosition(n, pcOtherStr)
 		/* Example 1:
-
 			o1 = new stzListOfStrings([ "ONE", "two" ])
 			o1.ReplaceStringAtPosition(2, :With = "TWO")
 			? o1.Content	# --> [ "ONE", "TWO" ]
-
 		Example 2:
-
 			o1 = new stzListOfStrings([ "A", "b", "C" ])
 			o1.ReplaceStringAtPosition(2, :With@ = "upper(@string)")
 			? o1.Content()	# --> [ "A", "B", "C" ]
@@ -9897,6 +10094,46 @@ class stzListOfStrings from stzList
 
 		def ManySubStringsRepalced(pacSubStr, pcNewStr)
 			return This.SubStringsRepalced(pacSubStr, pcNewStr)
+
+	  #-------------------------------------------------------#
+	 #   REPLACING MANY SUBSTRING BY MANY OTHER SUBSTRINGS   #
+	#-------------------------------------------------------#
+
+	def ReplaceSubStringsByManyCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+
+		if NOT isList(pacSubStrings) and Q(pacSubStrings).IsListOfStrings()
+			stzRaise("Incorrect param! paSubStrings must be a list of strings.")
+		ok
+
+		if isList(pacNewSubStrings) and Q(pacNewSubStrings).IsWithOrByNamedParamList()
+			pacNewSubStrings = pacNewSubStrings[2]
+		ok
+
+		if NOT Q(pacNewSubStrings).IsListOfStrings()
+			stzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
+		ok
+
+		i = 0
+		for cSubStr in pacSubStrings
+			i++
+			if i <= len(pacNewSubStrings)
+				cNewSubStr = pacNewSubStrings[i]
+				This.ReplaceSubStringCS(cSubStr, cNewSubStr, pCaseSensitive)
+			ok
+		next
+
+		def ReplaceSubStringsByManyCSQ(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+			This.ReplaceSubStringsByManyCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+			return This
+
+	#-- WITHOUT CASESENSITIVE
+
+	def ReplaceSubStringsByMany(pacSubStrings, pacNewSubStrings)
+		This.ReplaceSubStringsByManyCS(pacSubStrings, pacNewSubStrings, :CaseSensitive = TRUE)
+
+		def ReplaceSubStringsByManyQ(pacSubStrings, pacNewSubStrings)
+			This.ReplaceSubStringsByMany(pacSubStrings, pacNewSubStrings)
+			return This
 
 	  #-----------------------------------------------------------------------------------------#
 	 #  REPLACING A SUBSTRING AT POSITION N IN THE STRING AT POSITION N WITH A NEW SUBSTRING   #
