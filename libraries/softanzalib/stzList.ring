@@ -187,21 +187,62 @@ func HaveBothSameType(p1, p2)
 func IsEmptyList(paList)
 	return StzListQ(paList).IsEmpty()
 		
-
 func ListShow(paList)
 	StzListQ(paList).Show()
 
 func AreNumbers(paList)
 	return StzListQ(paList).ContainsOnlyNumbers()
 
+	def AllAreNumbers(paList)
+		return AreNumbers(paList)
+
+	def AreAllNumbers(paList)
+		return AreNumbers(paList)
+
+	def TheseAreNumbers(paList)
+		return AreNumbers(paList)
+
+	def AllTheseAreNumbers(paList)
+		return AreNumbers(paList)
+
 func AreStrings(paList)
 	return StzListQ(paList).ContainsOnlyStrings()
+
+	def AllAreStrings(paList)
+		return AreStrings(paList)
+
+	def AreAllStrings(paList)
+		return AreStrings(paList)
+
+	def TheseAreStrings(paList)
+		return AreStrings(paList)
+
+	def AllTheseAreStrings(paList)
+		return AreStrings(paList)
 
 func AreLists(paList)
 	return StzListQ(paList).ContainsOnlyLists()
 
+	def AllAreLists(paList)
+		return AreLists(paList)
+
+	def AreAllLists(paList)
+		return AreLists(paList)
+
+	def TheseAreLists(paList)
+		return AreLists(paList)
+
 func AreObjects(paList)
 	return StzListQ(paList).ContainsOnlyObjects()
+
+	def AllAreObjects(paList)
+		return AreObjects(paList)
+
+	def AreAllObjects(paList)
+		return AreObjects(paList)
+
+	def TheseAreObjects(paList)
+		return AreObjects(paList)
 
 func ListIsListOfStrings(paList)
 	return StzListQ(paList).IsListOfStrings()
@@ -254,15 +295,6 @@ func BothAreNull(p1, p2)
 
 func BothAreNotNull(p1, p2)
 	return TheseAreNotNull([ p1, p2 ])
-
-func AllTheseAreStrings(paList)
-	return StzListQ(paList).AllItemsAreStrings()
-
-	func AllOfTheseAreStrings(paList)
-		return AllTheseAreStrings(paList)
-
-	func TheseAreStrings(paList)
-		return AllTheseAreStrings(paList)
 
 func NoOneOfTheseIsAString(paList)
 	bResult = TRUE
