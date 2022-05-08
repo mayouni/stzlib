@@ -897,7 +897,7 @@ class stzList from stzObject
 	 #    REPLACING MANY ITEMS BY MANY OTHERS ONE BY ONE    #
 	#------------------------------------------------------#
 
-	def ReplaceManyOneByOne(pacItems, pacNewItems)
+	def ReplaceManyByMany(pacItems, pacNewItems)
 		if NOT isList(pacItems)
 			stzRaise("Uncorrect param! pacItems must be a list.")
 		ok

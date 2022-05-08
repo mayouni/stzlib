@@ -174,7 +174,7 @@ load "stzlib.ring"
 */
 	o1 = new stzListOfStrings([ :tunis, "ALGERIA", :cairo, "LIBYA", :bagdad ])
 	
-	o1.ReplaceManyOneByOne([ :tunis,   :cairo, :bagdad ],
+	o1.ReplaceManyByMany([ :tunis,   :cairo, :bagdad ],
 			:By  = [ "TUNISIA", "EGYPT", "IRAQ"  ])
 	
 	? o1.Content() #--> [ "TUNISIA", "ALGERIA", "EGYPT", "LIBYA", "IRAQ" ]
