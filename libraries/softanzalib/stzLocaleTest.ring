@@ -13,7 +13,7 @@ SetDefaultLocale("ar-TN")
 
 /*---------------
 
-StzLocaleQ([ :Country = :tunisia ]) {
+StzLocaleQ([ :Country = :Ttunisia ]) {
 	? Abbreviation()	#--> ar_TN
 	? CountryName()		# !--> tunisia
 }
@@ -75,7 +75,7 @@ StzLocaleQ("zh-CN") {
 }
 /*----------------
 
-? StzLocaleQ("sm-WS").CountryName() #--> NULL! (se why)
+? StzLocaleQ("sm-WS").CountryName() #--> NULL! (see why)
 
 /*----------------
 
@@ -132,6 +132,7 @@ oQLocale = new QLocale("cmn-CN")
 ? StzLocaleQ([ :Script = :Latin, :Country = :Russia ]).Abbreviation()
 
 /*----------------------
+*/
 
 StzLocaleQ([ :Country = :Iran ]) {
 	? Abbreviation()			 # --> fa_IR

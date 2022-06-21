@@ -17,6 +17,35 @@ _cHilightChar = "•"
 func StzListOfCharsQ(p)
 	return new stzListOfChars(p)
 	
+func LC(p)
+	if isList(p)
+		return StzListQ(p).OnlyChars()
+
+	but isString(p) and Q(p).IsListInString()
+		aResult = Q(p).ToListQ().OnlyChars()
+		return aResult
+
+	but isNumber(p)
+		aResult = []
+		for i = 1 to p
+			aResult + ""
+		next
+		return aResult
+
+	ok
+
+	func LCQ(p)
+		return Q(LC(p))
+
+		func QLC(p)
+			return LCQ(p)
+
+	func LoC(p)
+		return LC(p)
+
+		func LoCQ(p)
+			return LCQ(p)
+
 func HilightChar()
 	return _cHilightChar
 	

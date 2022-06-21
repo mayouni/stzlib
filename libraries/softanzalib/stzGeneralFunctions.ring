@@ -565,3 +565,6 @@ func NTimes(n, pThing)
 		return aResult
 
 	ok 
+
+	def NTimesQ(n, pThing)
+		return Q(NTimes(n, pThing))

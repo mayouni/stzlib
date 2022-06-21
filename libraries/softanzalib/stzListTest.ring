@@ -1632,15 +1632,15 @@ o1 = new stzList([ "A", 1:3, obj, "B", [ "C", 4:5, [ "V", 6:8, ["T", 9:12 ,"K"] 
 # NOTE: lists are merged only when they are lists of lists (Why? Think of it - TODO)
 
 /*----------------------
-
+*/
 o1 = new stzList([ :Water, :Milk, :Cofee, :Tea, :Sugar, " ",:Honey ])
 ? o1.WalkUntil("Item = :Milk")
 ? o1.WalkUntil("Item = ' '")
 
 /*---------------------- TODO: refactored: reveiw it after completing stzWalker
-
+*/
 StzListQ( "A":"J" ) {
-	AddWalker( Named(:Walker1), StartingAt(1), EndingAt(10), NStep(1) )
+	AddWalker( :Named = :Walker1, :StartingAt = 1, :EndingAt = 10, :NStep = 1 )
 	? WalkedItems( :By = :Walker1 )
 	? WalkerPositions( :By = :Walker1 )
 	? WalkedLastItem( :By = :Walker1 )
@@ -1966,16 +1966,11 @@ o1 = new stzList(aList)
 #? o1.SublistsAtAnyLevel_Have_SameNumberOfItems()
 
 /*--------------------------
-
+*/
 o1 = new stzList(  [	:name, :age, 	:job		])
 ? o1.AssociateWith([ 	"Ali", 	24, 	"Programmer" 	])
 ? o1.Content()
 # --> [ :name = "Ali", :age = 24, :job = "Programmer"	]
-
-/*--------------------------
-
-o1 = new stzList(1:3)
-? o1.ExtendWithOtherListAt(4:6,2)
 
 /*--------------------------
 

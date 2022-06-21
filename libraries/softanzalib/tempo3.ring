@@ -1,152 +1,215 @@
 load "stzlib.ring"
 
+o1 = new stzListOfStrings([
+	"what's your name please",
+	"mabrooka",
+	"your name and my name are not the same",
+	"i see",
+	"nice to meet you",
+	"mabrooka"
+])
 
-/*==== REPLACING ALL OCCURRENCES OF A SUBSTRING IN THE LIST WITH A NEW SUBSTRING
+? @@( o1.FindSubStrings([ "name", "mabrooka"]) ) + NL
+#-->
+#  [
+#	# "name" is found here
+#	[
+#		[ 1, [ 13 ] ], [ 3, [ 6, 18 ] ]
+#	],
+#
+#	# and "mabrooka" is found here
+#	[
+#		[ 2, [ 1 ] ], [ 6, [ 1 ] ]
+#	]
+#  ]
 
-	o1 = new stzListOfStrings([ "My heart and", "your heart", "and their hearts" ])
-	o1.ReplaceSubString("heart", :With = "♥")
+? @@( o1.FindSubStringsXT([ "name", "mabrooka"]) )
+#-->
+#  [
+#	# "name" is found here
+#	[
+#		[ 1, 13 ], [ 3, 6 ], [ 3, 18 ]
+#	],
+#
+#	# and "mabrooka" is found here
+#	[
+#		[ 2, 1 ], [ 6, 1 ]
+#	]
+#  ]
 
-	? @@( o1.Content() ) #--> [ "My ♥ and", "your ♥", "and their ♥s" ]
+/*------------------
 
+o1 = new stzListOfStrings([
+	"What's your name please",
+	"Mabrooka",
+	"Your name and my name are not the same",
+	"I see",
+	"Nice to meet you",
+	"Mabrooka"
+])
 
-/*---- REPLACING MANY SUBSTRING IN THE LIST WITH A NEW SUBSTRING
+? o1.FindNthOccurrenceOfSubString(2, "name")
+#--> [ 3, 6 ]
 
-	o1 = new stzListOfStrings([ "My heart and", "your sun", "and their stars" ])
-	o1.ReplaceSubStrings([ "heart", "sun", "star" ], :With = "♥")
+/*------------------
 
-	? @@( o1.Content() ) #--> [ "My ♥ and", "your ♥", "and their ♥s" ]
-
-/*--- REPLACING A SUBSTRING AT POSITION N WITH A NEW SUBSTRING
-
-	o1 = new stzListOfStrings([ "Lorem", "Lorem heart ipsum", "Ipsum" ])
-	o1.ReplaceSubStringAtPosition(2, "heart", :With = "♥")
-
-	? @@( o1.Content() ) #--> [ "Lorem", "Lorem ♥ ipsum", "Ipsum" ]
-
-/*--- REPLACING MANY SUBSTRINGS AT POSITION N WITH A NEW SUBSTRING 
-
-	o1 = new stzListOfStrings([ "Lorem", "Lorem heart ipsum", "Ipsum" ])
-	o1.ReplaceSubStringsAtPosition(2, [ "Lorem", "heart", "ipsum" ], :With = "♥")
-
-	? @@( o1.Content() ) #--> [ "Lorem", "♥ ♥ ♥", "Ipsum" ]
-
-/*--- REPLACING A SUBSTRING AT POSITIONS WITH A NEW SUBSTRING 
-
-	o1 = new stzListOfStrings([ "Heart Lorem Ipsum", "Lorem ♥ Ipsum", "Lorem Ipsum Heart" ])
-	o1.ReplaceSubStringAtPositions([1, 3], "Heart", :With = "♥")
-
-	? @@( o1.Content() ) #--> [ "♥ Lorem Ipsum", "Lorem ♥ Ipsum", "Lorem Ipsum ♥" ]
-
-/*--- REPLACING MANY SUBSTRINGS AT POSITIONS WITH A NEW SUBSTRING
-
-	o1 = new stzListOfStrings([ "Country Lorem Ipsum", "Lorem ♥ Ipsum", "Lorem Ipsum Nation" ])
-	o1.ReplaceSubStringsAtPositions([1, 3], [ "Country", "Nation" ], :With = "♥")
-
-	? @@( o1.Content() ) #--> [ "♥ Lorem Ipsum", "Lorem ♥ Ipsum", "Lorem Ipsum ♥" ]
-
-/*--- REPLACING A SUBSTRING AT POSITIONS WITH MANY NEW SUBSTRINGS ONE BY ONE
-
-	o1 = new stzListOfStrings([ "This is a ___!", "This is a star!", "This is a ___!" ])
-	o1.ReplaceSubStringAtPositionsOneByOne([ 1, 3 ], "___", :With = [ "♥", "🌞" ])
+o1 = new stzListOfStrings([
+	"What's your name please?",
+	"Mabrooka!",
+	"Your name and my name are not the same...",
+	"I see.",
+	"Nice to meet you,",
+	"Mabrooka!"
+])
 	
-	? @@( o1.Content() ) #--> [ "This is a ♥!", "This is a star!", "This is a 🌞!" ]
+? @@( o1.FindSubstring("name") ) + NL
+#--> [ [ 1, [ 13 ] ], [ 3, [6, 18 ] ] ]
+
+# For your convinience, you can get the result in an exmpanded form:
+? @@( o1.FindSubStringXT("name") )
+#--> [ [ 1, 13 ], [ 3, 6 ], [ 3, 18 ] ]
+
+/*------------------
+
+o1 = new stzListOfStrings([
+	"___ ring ___",
+	"___ ring ___ ring",
+	"___ ruby ___ ring",
+	"___ ring ___ ruby ___ ring"
+])
+
+? o1.NumberOfOccurrenceOfManySubStrings([ "ring", "ruby", "python" ])
+#--> [ 6, 2, 0 ]
+
+? @@( o1.NumberOfOccurrenceOfManySubStringsXT([ "ring", "ruby", "python" ]) )
+#--> [
+#	[ [ 1, 1], [2, 2], [3, 1], [4, 2] ], 	#<<< Occurrence of "ring"
+#	[ [ 3, 1 ], , [ 4, 1 ] ], 				#<<< Occurrences of "ruby"
+#	[  ] 					#<<< No occurrences at all for "pyhthon"
+#   ]
+
+/*--------------
+
+o1 = new stzListOfStrings([ "ring php", "php", "ring php ring" ])
+
+# How many occurrence are there of the substring "ring" in the list?
+? o1.NumberOfOccurrenceOfSubString("ring") #--> 3
+
+# Show these 3 in detail, string by string:
+? @@( o1.NumberOfOccurrenceOfSubStringXT("ring") )
+#--> [ [ 1, 1 ], [ 3, 2 ] ]
+
+#====================== DISTRIBUTING ITEMS OVER THE ITEMS OF AN OTHER LIST
+
+/*
+Softanza can distribute the items of a list over the items of an other,
+called metaphorically 'Beneficiary Items'  as they benfit from that
+distribution.
+		
+The distribution is defined by the share of each item.
+		
+The share of each item determines how many items should be given to
+the each beneficiary item.
+		
+Let's see:	
+
+o1 = new stzList([ :water, :coca, :milk, :spice, :cofee, :tea, :honey ] )
+? @@( o1.DistributeOver([ :arem, :mohsen, :hamma ]) ) + NL
+# Gives:
+# [
+#	:arem   = [ :water, :coca ],
+#	:mohsen = [ :milk, :spice, :cofee ],
+#	:hamma  = [ :tea, honey ]
+# ]
+
+# Same can be made using the extended form of the function, that allows
+# us to specify how the items are explicitely shared:
+
+? @@( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 3, 2, 2 ] ) ) + NL
+
+# And so you can change the share at your will:
+? @@( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 1, 2, 4 ] ) ) + NL
+#--> 
+# [
+#	[ "arem",   [ "water" ] ],
+#	[ "mohsen", [ "coca", "milk" ] ],
+#	[ "hamma",  [ "spice", "cofee", "tea", "honey" ] ]
+# ]
+
+# But if you try to share more items then it exists in the list (1 + 2 + 6 > 7!):
+? @@( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 1, 2, 6 ] ) )
+# Softanza won't let you do so and tells you why:
+
+#   What : Can't distribute the items of the main list over the items of the provided list!
+#   Why  : Sum of items to be distributed (in anShareOfEachItem) must be equal to number of items of the main list.
+#   Todo : Provide a share list where the sum of its items is equal to the number of items of the list.
 
 
-/*--- REPLACING MANY SUBSTRINGS AT POSITIONS WITH MANY NEW SUBSTRINGS ONE BY ONE
+/*-----------------
 
-	o1 = new stzListOfStrings([ "This is a heart!", "This is a ★!", "This is a sun!" ])
-	o1.ReplaceSubStringsAtPositionsOneByOne( [1, 3], [ "heart", "sun" ], :With = [ "♥", "🌞" ])
-	
-	? @@( o1.Content() ) #--> [ "This is a ♥!", "This is a ★!", "This is a 🌞!" ]
+# The distribution of the items of a list can be made directly using
+# the "/" operator on the list object:
 
-/*--- REPLACING A SUBSTRING AT POSITIONS WITH A NEW SUBSTRING BY ALTERNANCE
+o1 = new stzList(' "♥1" : "♥6" ')
+? @@( o1 / 8 )
+#--> [ [ "♥1" ], [ "♥2" ], [ "♥3" ], [ "♥4" ], [ "♥5" ], [ "♥6" ], [ ], [ ] ]
 
-	o1 = new stzListOfStrings([ "This is a ___!", "This is a ___!", "This is a ___!" ])
-	o1.ReplaceSubStringAtPositionsByAlternance([ 1, 2, 3 ], "___", :With = [ "🌞", "♥" ])
-	
-	? @@( o1.Content() ) #--> [ "This is a 🌞!", "This is a ♥!", "This is a 🌞!" ]
+# NOTE
+#--> The beneficiary items can be of any type. In practice, they are
+# strings and hence the returned result is a hashlist.
 
+/*-----------------
 
-/*--- REPLACING MANY SUBSTRINGS AT POSITIONS WITH A NEW SUBSTRING BY ALTERNANCE
+o1 = new stzList(1:12)
+? @@( o1.DistributeOver([ "Mansoor", "Teeba", "Haneen", "Hussein", "Sherihen" ]) )
+#-->
+# [
+#	[ "Mansoor",  [ 1, 2, 3 ] ],
+#	[ "Teeba",    [ 4, 5, 6 ] ],
+#	[ "Haneen",   [ 7, 8    ] ],
+#	[ "Hussein",  [ 9, 10   ] ],
+#	[ "Sherihen", [ 11, 12  ] ]
+# ]
 
-	o1 = new stzListOfStrings([ "This is a heart!", "This is a sun!", "This is a sun!" ])
-	o1.ReplaceSubStringsAtPositionsByAlternance( [1, 2, 3], [ "heart", "sun" ], :With = [ "♥", "🌞" ])
-	
-	? @@( o1.Content() ) #--> [ "This is a ♥!", "This is a 🌞!", "This is a ♥!" ]
+/*-----------------
 
-/*--- REPLACING A SUBSTRING BY MANY SUBSTRINGS ONE BY ONE
+o1 = new stzList(' "♥1" : "♥9" ')
+? @@( o1 / [ "Mansoor", "Teeba", "Haneen" ] )
+#-->
+# [
+#	[ "Mansoor", 	[ "♥1", "♥2", "♥3" ] ],
+#	[ "Teeba", 	[ "♥4", "♥5", "♥6" ] ],
+#	[ "Haneen", 	[ "♥7", "♥8", "♥9" ] ]
+# ]
 
-	o1 = new stzListOfStrings([ "lorem heart", "heart ipsum", "heart ipsum heart" ])
-	o1.ReplaceSubStringBySubStringsOneByOne("heart", [ "♥", "🌞", "★" ])
+/*-----------------
 
-	? @@( o1.Content() ) #--> [ "lorem ♥", "🌞 ipsum", "★ ipsum ★" ]
+o1 = new stzListOfStrings([ "php", "ring php ring python ring", "python" ])
 
-/*--- REPLACING MANY SUBSTRINGS INSIDE THE STRING AT POSITION N BY MANY OTHER SUBSTRINGS ONE BY ONE
-
-	o1 = new stzListOfStrings([ "Who're you?", "Your heart is made of sun and stars, you'r the nearest to sun of all the stars", "You're the own light of sun and stars!"])
-	o1.ReplaceSubStringsAtPositionNOneByOne( 2, [ "heart", "sun", "star" ], [ "♥", "🌞", "★" ] )
-
-	? @@S( o1.Content() )	// "S" for Spacified, so the list is printed line by line ;)
-	#--> [ 	"Who're you?",
-	# 	"Your ♥ is made of 🌞 and ★s, you'r the nearest to 🌞 of all the ★s",
-	# 	"You're the own light of sun and stars!"
-	#    ]
-
-/*--- FINDING THE POSITIONS OF A GIVEN SUBSTRING IN THE STRING AT POSITION N
-
-	o1 = new stzListOfStrings([ "Who're you?", "Your heart is made of sun and stars, you're the sun, you're the star of all the stars", "You're the own light of sun and stars!"])
-	? @@( o1.FindSubStringAtPositionN(2, "star") )
-	#--> [ 31, 65, 81 ]
-
-/*--- REPLACING A SUBSTRING AT POSITION N IN THE STRING AT POSITION N WITH A NEW SUBSTRING
-
-	o1 = new stzListOfStrings([ "<<", "heart lorem heart ipsum heart and heart", ">>" ])
-	o1.ReplaceSubStringAtPositionN2InStringAtPositionN1(2, 13, "heart", "♥♥♥")
-
-	? @@( o1.Content() ) #--> [ "<<", "heart lorem ♥♥♥ ipsum heart and heart", ">>" ]
-
-/*--- REPLACING A SUBSTRING AT SOME POSITIONS IN THE STRING AT POSITION N WITH A NEW SUBSTRING
-
-	o1 = new stzListOfStrings([ "<<", "heart lorem heart ipsum heart and heart", ">>" ])
-	o1.ReplaceSubStringAtPositionsInStringAtPositionN(2, [ 13, 25 ], "heart", "♥♥♥")
-	
-	? @@( o1.Content() ) #--> [ "<<", "heart lorem ♥♥♥ ipsum ♥♥♥ and heart", ">>" ]
-
-/*--- REPLACING A SUBSTRING INSIDE THE STRING AT POSITION N BY MANY OTHER SUBSTRINGS BY ALTERNANCE
-*/
-	o1 = new stzListOfStrings([ "<<", "heart lorem heart ipsum heart and heart", ">>" ])
-	o1.ReplaceSubStringAtPositionNByALternance(2, "heart", :With = [ "#1", "#2" ])
-
-	? @@( o1.Content() )
-	#--> [ "<<", "#1 lorem #2 ipsum #1 and #2", ">>"  ]
-
-/*--- REPLACING MANY SUBSTRINGS INSIDE THE STRING AT POSITION N BY MANY OTHER SUBSTRINGS BY ALTERNANCE
-
-	o1 = new stzListOfStrings([ "Who're you?", "Your heart is made of sun and stars, you're the sun, you're the star of all the stars", "You're the own light of sun and stars!"])
-	o1.ReplaceSubStringsAtPositionNByAlternance( 2, [ "heart", "sun", "star" ], [ "#1", "#2" ] )
-
-	? @@S( o1.Content() )	// "S" for Spacified, so the list is printed line by line ;)
-	#--> [ 	"Who're you?",
-	# 	"Your #1 is made of #1 and #1s, you're the #2, you're the #2 of all the #3",
-	# 	"You're the own light of sun and stars!"
-	#    ]
-
-/*--- REPLACING MANY SUBSTRINGS BY MANY OTHER SUBSTRINGS ONE BY ONE
-
-	o1 = new stzListOfStrings([ "lorem heart ipsum sun", "heart and sun", "lorem ipsum heart" ])
-	o1.ReplaceSubStringsByManySubStringsOneByOne([ "heart", "sun" ], :By = [ "♥", "🌞" ])
-
-	? @@( o1.Content() ) #--> [ "lorem ♥ ipsum 🌞", "♥ and 🌞", "lorem ipsum ♥" ]
-
-/*--- REPLACING A SUBSTRING BY MANY SUBSTRINGS BY ALTERNANCE   #
-
-	o1.ReplaceSubStringByManySubStringsByAlternance(pcSubStr, pacNewSubStr)
+		o1.ReplaceInStringN(2, "ring", :With = "♥")
+		? o1.Content()
+		#--> [ "php", "♥ php ♥ python ♥", "python" ]
 
 
-/*--- REPLACING MANY SUBSTRINGS BY MANY OTHER SUBSTRINGS BY ALTERNANCE   #
+/*
+o1 = new stzListOfStrings([ "php", "php ring python", "python" ])
+o1.ReplaceInStringNSubstringAtPositionN(2, 5, "ring", "♥" )
+? o1.Content()
+#--> [ "php", "php ♥ python", "python" ]
 
+		o1 = new stzListOfStrings([ "php", "ring php ring python ring", "python" ])
+		o1.ReplaceInStringNTheNthOccurrence(2, 1, "ring", "♥" )
+		? o1.Content()
+		#--> [ "php", "ring php ring python ♥", "python" ]
 
-	o1.ReplaceSubStringsByManySubStringsByAlternance(pacSubStr, pacNewSubStr)
+		o1 = new stzListOfStrings([ "php", "ring php ring python ring", "python" ])
+		o1.ReplaceInStringNTheFirstOccurrence(2, "ring", "♥" )
+		? o1.Content()
+		#--> [ "php", "♥ php ring python ring", "python" ]
 
+		o1 = new stzListOfStrings([ "php", "ring php ring python ring", "python" ])
+		o1.ReplaceInStringNTheLastOccurrence(2, "ring", "♥" )
+		? o1.Content()
+		#--> [ "php", "ring php ring python ♥", "python" ]
 
 

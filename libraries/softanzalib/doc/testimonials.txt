@@ -2,9 +2,37 @@
 Outnull said:
 -------------
 
+"I just discovered your library, SoftanzaLib, and it looks very impressive! What a feat."
+
 "Great job! Very well thought out developer ergonomics,
 consistent with the Ring programming experience.
 All of these examples were clear and easy to understand."
 
 In reaction to:
 https://bit.ly/3MRTs2e
+
+"Exciting.
+Ring is a powerful and fun language, and your Softanza library is a great contribution."
+
+Mahmoud Fayed (Ring designer)
+-----------------------------
+
+"I felt that the library is working like a Magic :D"
+In reaction to this:
+https://bit.ly/3wiI61G
+
+"Examples look very natural and easy to follow"
+In reaction to this:
+https://bit.ly/3LbJVC0
+
+"SoftanzaLib is based on interesting design & huge efforts.
+I am sure it will be useful to the community in developing many applications."
+
+Bert Meriani
+------------
+
+"A very interesting observation about Unicode Character Tables.
+Lots of different languages have the same Letter Glyph but different Unicode hex values.
+Good detective work."
+
+

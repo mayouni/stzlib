@@ -617,7 +617,7 @@ o1 = new stzListOfStrings(  [ "Tunis", "gatufsa", "tunis", "gabes", "tunis", "re
 # 	╰───┴───┴───┴───┴───╯
 
 /*--------------
-
+*/
 o1 = new stzListOfStrings([ "CAIRO", "TUNIS", "PARIS" ])
 ? o1.BoxedRound()
 
@@ -632,7 +632,7 @@ o1 = new stzListOfStrings([ "CAIRO", "TUNIS", "PARIS" ])
 # 	╰───────╯
 
 /*-------------- ERROR: Fix it!
-*/
+
 o1 = new stzListOfStrings([ "CAIRO", "TUNIS", "PARIS" ])
 
 ? o1.BoxXT([ :AllCorners = :Round, :EachChar = TRUE ])
@@ -652,41 +652,99 @@ o1.ReplaceStringAtPosition(3,"fongo")
 ? @@( o1.Content() )
 #--> [ "bingo", "tongo", "fongo" ]
 
-/* ----------------------
+/*----------------------
 
 o1 = new stzListOfStrings(["12-120-0", "100-10-76", "87-458-20"])
 o1.ReplaceSubString("-", :With = "_")
 ? o1.Content()
 #--> [ "12_120_0", "100_10_76", "87_458_20" ]
 
-
-/* -------------------
+/*====================
 
 o1 = new stzListOfStrings([ "aabc", "abxaaxcccz", "aattaacvv" ])
 ? @@( o1.FindSubString("aa") )
-#--> [ "1" = [ 1 ], "2" = [ 4 ], "3" = [ 1, 5 ] ]
+#--> [ [ 1, [ 1 ] ], [ 2, [ 4 ] ], [ 3, [ 1, 5 ] ] ]
 
-/* -------------------
+/*-------------------
+
+o1 = new stzListOfStrings([
+	"What's your name please",
+	"Mabrooka",
+	"Your name and my name are not the same",
+	"I see",
+	"Nice to meet you",
+	"Mabrooka"
+])
+
+? @@( o1.FindSubString("name") )
+#--> [
+#	[ 1, [ 13 ]    ],
+#	[ 3, [ 6, 18 ] ]
+#    ]
+
+? @@( o1.FindNthOccurrenceOfSubString(3, "name") )
+#--> [ 2, 18 ]
+
+/*-------------------
+
+o1 = new stzListOfStrings([
+	"What's your name please",
+	"Mabrooka",
+	"Your name and my name are not the same",
+	"I see",
+	"Nice to meet you",
+	"Mabrooka"
+])
+
+? @@( o1.FindSubStringsCS([ "name", "mabrooka" ], :CaseSensitive = FALSE) )
+#-->
+# [
+#	[ [ 1, [ 13 ] ], [ 3, [ 6, 18 ] ] ],	#>>> "name" is found here
+#	[ [ 2, [ 1 ] ], [ 6, [ 1 ] ] ]		#>>> "mabrooka" is found here
+# ]
+
+/*=======================
 
 o1 = new stzListOfStrings([ "aabc", "abxaaxcccz", "aattaacvv" ])
-? o1.NumberOfOccurrence("a") 			#--> 0
-? o1.NumberOfOccurrenceOfSubstring( "aa" )	#--> 4 
+? o1.NumberOfOccurrence("aabc") 		 #--> 1
+? o1.NumberOfOccurrenceOfStringItem("aabc")	 #--> 1
 
-? @@( o1.FindSubstring( "aa" ) )
-#--> [ [ "1", [ 1 ] ], [ "2", [ 4 ] ], [ "3", [ 1, 5 ] ] ]
+/*===================
 
-? o1.NumberOfOccurrenceOfManySubstrings(["a","f","x"])
+o1 = new stzListOfStrings([ "ring php", "php", "ring php ring" ])
+
+# How many occurrence are there of the substring "ring" in the list?
+? o1.NumberOfOccurrenceOfSubString("ring") #--> 3
+
+# Show these 3 in detail, string by string:
+? @@( o1.NumberOfOccurrenceOfSubStringXT("ring") )
+#--> [ [ 1, 1 ], [ 3, 2 ] ]
+
+/*--------------------
+
+o1 = new stzListOfStrings([ "aabc", "abxaaxcccz", "aattaacvv" ])
+? o1.NumberOfOccurrenceOfSubString("aa") #--> 4
+? @@(o1.NumberOfOccurrenceOfSubStringXT("aa"))
+#--> [ [ 1, 1 ], [ 2, 1 ], [ 3, 2 ] ]
+
+/*===================
+
+o1 = new stzListOfStrings([ "aabc", "abxaaxcccz", "aattaacvv" ])
+? @@( o1.NumberOfOccurrenceOfManySubstrings(["a","f","x"]) ) 
 #--> [ 9, 0, 2 ]
+? @@( o1.NumberOfOccurrenceOfManySubstringsXT(["a","f","x"]) ) 
+#--> [
+#	[ [ 1, 2 ], [ 2, 3 ], [ 3, 4 ] ], #>>> There are 2"a"s in string 1, 3 in string 2, and 4 in string 
+#	[ ],				  #>>> "f" does'nt exist!
+#	[ [ 2, 2 ] ]			  #>>> There is 2 "x"s in string number 2
+#    ]
 
-? @@(o1.NumberOfOccurrenceOfManySubstringsXT(["a","f","x"]))
-#--> [ [ "a", 9 ], [ "f", 0 ], [ "x", 2 ] ]
-
-//*====================
+/*====================
 
 o1 = new stzListOfStrings([ "aabc", "abxaaxcccz", "aattaacvv" ])
 ? o1.ContainsSubStringInEachString("aa") #--> TRUE
 
-? @@( o1.UniqueChars() )
+? @@( o1.UniqueChars() )	# Todo: fix performance lag!
 #--> [ "a", "b", "c", "x", "z", "t", "v" ]
 
 

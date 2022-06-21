@@ -53,11 +53,38 @@ Support all the features of NumPy
  ///  FUNCTIONS  ///
 ///////////////////
 
-func StzListOfNumbers(paListOfNumbers)
-	return new stzListOfNumbers(paListOfNumbers)
-
 func StzListOfNumbersQ(paListOfNumbers)
 	return new stzListOfNumbers(paListOfNumbers)
+
+func LN(p)
+	if isList(p)
+		return StzListQ(p).OnlyNumbers()
+
+	but isString(p) and Q(p).IsListInString()
+		aResult = Q(p).ToListQ().OnlyNumbers()
+		return aResult
+
+	but isNumber(p)
+		aResult = []
+		for i = 1 to p
+			aResult + 0
+		next
+		return aResult
+
+	ok
+
+	func LNQ(p)
+		return Q(LN(p))
+
+		func QLN(p)
+			return LNQ(p)
+
+	func LoN(p)
+		return LN(p)
+
+		func LoNQ(p)
+			return LNQ(p)
+
 
 func ListOfNumbersSum(paListOfNumbers)
 	oListOfNumbers = new stzListOfNumbers(paListOfNumbers)
@@ -1823,3 +1850,55 @@ class stzListOfNumbers from stzList
 
 		def IsContinuous()
 			return This.IsContiguous()
+
+	  #------------------------------#
+	 #     OPERATORS OVERLOADING    # 
+	#------------------------------#
+
+	/*
+		TODO: Operators should carry same semantics in all classes...
+	*/
+
+	def operator(pcOp, pValue)
+		
+		if pcOp = "[]"
+
+			if isNumber(pValue)
+				return This.NumberAt(pValue)
+
+			ok
+
+		but pcOp = "="
+			return This.ToStzList().IsEqualTo(value)
+
+		but pcOp = "=="
+			return This.ToStzList().IsStrictlyEqualTo(value)
+		
+
+		but pcOp = "/" and type(pValue) = "NUMBER"
+			// Divides the list on pValue sublists (a list of lists)
+			return This.ToStzList().SplitToNParts(pValue)
+
+		but pcOp = "-"
+			if isNumber(pValue)
+				anTemp = This.ToStzList().RemoveNthQ( find(This.ListOfStrings(), pValue) ).Content()
+				This.Update( anTemp )
+
+			but isList(pValue) and Q(pValue).IsListofNumbers()
+				if len(pValue) > 0
+					oStzList = This.ToStzList()
+					anPositions = oStzList.FindMany(pValue)
+					oStzList.RemoveItemsAtPositions(anPositions)
+					anTemp = oStzList.Content()
+					This.Update( anTemp )
+				ok
+			ok
+
+		but pcOp = "*"
+			anTemp = This.ToStzList().MultiplyByQ(pValue).Content()
+			This.Update( anTemp )
+
+		but pcOp = "+"
+			anTemp = This.ToStzList().AddItemQ(pValue).Content()
+			This.Update( anTemp )
+		ok

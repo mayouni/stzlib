@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-# LESSON 	: THE ART OF REPLACING SUBSTRINGS IN SOFTANZA
+# LESSON 	: THE ART OF REPLACING SUBSTRINGS IN SOFTANZA STRINGS
 # OBJECTIVE	: PRACTICING 21 WAYS OF REPLACING SUBSTRINGS
 # DURATION	: 5 MINUTES
 
@@ -180,7 +180,7 @@ load "stzlib.ring"
 		? o1.Content() #--> "♥♥♥ ruby ring php ♥♥♥"
 
 /*--	(9) REPALCING A SUBSTRING AT A SOME GIVEN POSITIONS BY MANY OTHER SUBSTRINGS
-
+*/
 		o1 = new stzString("ring php ring ruby ring python ring csharp ring")
 		o1.ReplaceSubstringAtPositionsByMany([ 10, 20, 32], "ring", :By = [ "♥", "♥♥", "♥♥♥" ])
 
@@ -189,7 +189,7 @@ load "stzlib.ring"
 #-------------------------------------------------#
 #  E)- CASES WHEN "MANY" SUBSTRINGS ARE ENVLOVED  #
 #-------------------------------------------------#
-
+/*
 	Everytime many substrings are to be replaced by many others, three cases can be faced.
 	Let's present them by example.
 

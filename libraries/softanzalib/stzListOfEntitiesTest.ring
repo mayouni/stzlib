@@ -30,7 +30,7 @@ o1 = new stzListOfEntities() {
 # is the name of a fruit!)
 
 /*-------------------
-
+*/
 o1 = new stzListOfEntities() {
 	AddEntity([ :name = "Apple", :type = "Company" ])
 	AddEntity([ :name = "Microsoft", :type = "Company" ])
@@ -43,7 +43,7 @@ o1 = new stzListOfEntities() {
 }
 
 /*-------------------
-
+*/
 o1 = new stzListOfEntities() {
 	AddEntity([ :name = "Apple", :type = "Company" ])
 	AddEntity([ :name = "Jobs", :type = "People" ])

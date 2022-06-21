@@ -1212,7 +1212,7 @@ o1 = new stzString("ritekode")
 
 # Here we take an example of a greek word
 
-? T("Σίσυφος").Script()		# --> greek
+? TQ("Σίσυφος").Script()		# --> greek
 ? Q("Σίσυφος").StringCase()	# --> capitalcase
 ? Q("ΣΊΣΥΦΟΣ").StringCase()	# --> uppercase
 ? Q("ΣΊΣΥΦΟΣ").Lowercased()	# --> σίσυφοσ
@@ -1227,7 +1227,7 @@ o1 = new stzString("ritekode")
 # Let's take this example of a turkish letter ı that should be
 # uppercased to İ and not I
 
-? T("ı").Script()	# latin (in fact this is a turk letter)
+? TQ("ı").Script()	# latin (in fact this is a turk letter)
 ? _@("ı").StringCase()	# lowercase
 ? _@("İ").StringCase()	# uppercase
 
@@ -1636,10 +1636,10 @@ StzStringQ("__和平__a__و") {
 
 /*--------------------
 
-# T is an abbreviation of StzTextQ()
+# TQ is an abbreviation of StzTextQ()
 
-? T("عربي").Script() # --> arabic
-? T("ring").Script() # --> latin
+? TQ("عربي").Script() # --> arabic
+? TQ("ring").Script() # --> latin
 
 /*-------------------
 
@@ -1854,7 +1854,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 # 	[ "girl", "lowercase" ],
 # 	[ "!", NULL ]
 # ]
-
+/*
 ? @@(o1.PartsAsSections( :Using = 'StzCharQ(@char).CharCase()' ))
 
 #--> [
@@ -1967,7 +1967,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 #--> Gives [ "حنين", "جميلة", "وعمرها", "سنوات" ]
 
 /*-----------------
-
+*/
 o1 = new stzString("AM23-X ")
 ? o1.Parts('StzCharQ(@char).CharType()')
 # --> [
@@ -2014,7 +2014,7 @@ o1 = new stzString("maliNIGERtogoSENEGAL")
 #    ]
 
 /*-----------------
-
+*/
 o1 = new stzString("Abc285XY&من")
 ? o1.Parts( :Using = 'StzCharQ(@char).IsLetter()' )
 # --> Gives:
