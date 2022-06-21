@@ -5178,13 +5178,30 @@ class stzListOfStrings from stzList
 
 		return aResult
 
+		#< @FunctionFluentForm
+
+		def FindSubStringXTCSQ(pcSubStr, pCaseSensitive)
+			return new stzList( This.FindSubStringXTCS(pcSubStr, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def FindSubStringCSXT(pcSubStr, pCaseSensitive)
 			return This.FindSubStringXTCS(pcSubStr, pCaseSensitive)
+
+			def FindSubStringCSXTQ(pcSubStr, pCaseSensitive)
+				return new stzList( This.FindSubStringCSXT(pcSubStr, pCaseSensitive) )
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringXT(pcSubStr)
 		return This.FindSubStringXTCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringXTQ(pcSubStr)
+			return new stzList( This.FindSubStringXT(pcSubStr) )
 
 	  #============================================================================#
 	 #   FINDING THE POSITIONS OF A GIVEN SUBSTRING IN THE STRING AT POSITION N   #
@@ -6803,22 +6820,56 @@ class stzListOfStrings from stzList
 
 		return aResult
 
+		#< @FunctionFluentForm
+
+		def FindSubStringsCSQ(pacSubStr, pCaseSensitive)
+			return new stzList( This.FindSubStringsCS(pacSubStr, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def FindManySubtringsCS(pacStr, pCaseSensitive)
 			return This.FindSubStringsCS(pacStr, pCaseSensitive)
 
+			def FindManySubtringsCSQ(pacStr, pCaseSensitive)
+				return new stzList( This.FindManySubtringsCS(pacStr, pCaseSensitive) )
+
 		def FindTheseSubStringsCS(pacStr, pCaseSensitive)
 			return This.FindSubStringsCS(pacStr, pCaseSensitive)
+
+			def FindTheseSubStringsCSQ(pacStr, pCaseSensitive)
+				return new stzList( This.FindTheseSubStringsCS(pacStr, pCaseSensitive) )
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStrings(pacStr)
 		return This.FindSubStringsCS(pacStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
+		def FindSubStringsQ(pacStr)
+			return new stzList( This.FindsubStrings(pacStr) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def FindManySubStrings(pacStr)
 			return This.FindSubStrings(pacStr)
 
+			def FindManySubStringsQ(pacStr)
+				return new stzList( This.FindSubStrings(pacStr) )
+
 		def FindTheseSubStrings(pacStr)
 			return This.FindSubStrings(pacStr)
+
+			def FindTheseSubStringsQ(pacStr)
+				return new stzList( This.FindTheseSubStrings(pacStr) )
+
+		#>
 
 	  #-----------------------------------------------------------#
 	 #   FINDING MANY SUBSTRINGS AT THE SAME TIME -- EXTENDED    #
@@ -6860,13 +6911,62 @@ class stzListOfStrings from stzList
 
 		return aResult
 
+		#< @FunctionFluentForm
+
+		def FindSubStringsXTCSQ(pacSubStr, pCaseSensitive)
+			return new stzList( This.FindSubStringsXTCS(pacSubStr, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def FindSubStringsCSXT(pacSubStr, pCaseSensitive)
 			return This.FindSubStringsXTCS(pacSubStr, pCaseSensitive)
+
+			def FindSubStringsCSXTQ(pacSubStr, pCaseSensitive)
+				return new stzList( This.FindSubStringsCSXT(pacSubStr, pCaseSensitive) )
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringsXT(pacSubStr)
 		return This.FindSubStringsXTCS(pacSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringsXTQ(pacSubStr)
+			return new stzList( This.FindSubStringsXT(pacSubStr) )
+
+	  #------------------------------------------------#
+	 #   FINDING N FIRST OCCURRENCES OF A SUBSTRING   #
+	#------------------------------------------------#
+
+	def FindNFirstOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([
+			"___ ring ___ ring",
+			"ring ___ ring ___ ring",
+			"___ ring"
+		])
+
+		? o1.FindNFirstOccurrencesOfSubString(4, "ring")
+		#--> [ [ 1, 5 ], [ 1, 14 ], [ 2, 1], [ 2, 10 ] ]
+
+		*/
+
+		aResult = This.FindSubStringXTCSQ(pcSubStr, pCaseSensitive).Range(1, n)
+		return aResult
+
+		def FindFirstNOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNFirstOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNFirstOccurrencesOfSubString(n, pcSubStr)
+		return This.FindNFirstOccurrencesOfSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def FindFirstNOccurrencesOfSubString(n, pcSubStr)
+			return This.FindNFirstOccurrencesOfSubString(n, pcSubStr)
 
 	   #---------------------------------------------------------#
 	  #      CHECKING IF EACH STRING OF THE LIST OF STRINGS     #
