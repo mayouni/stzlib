@@ -1,5 +1,18 @@
 load "stzlib.ring"
 
+/*-----------------------
+*/
+o1 = new stzListOfStrings([
+	"___ ring ___ ring",
+	"ring ___ ring ___ ring",
+	"___ ring"
+])
+
+? @@( o1.FindNFirstOccurrencesOfSubString(4, "ring") )
+#--> [ [ 1, 5 ], [ 1, 14 ], [ 2, 1], [ 2, 10 ] ]
+
+/*-----------------------
+
 o1 = new stzListOfStrings([
 	"what's your name please",
 	"mabrooka",
