@@ -10,7 +10,7 @@ decimals(12) # TODO: should return numbers above in string form with the max rou
 ? o1.Cotangent() 	# --> 0.016440378687
 
 /*-----------------------
-*/
+
 ? StzNumberQ(1).UpTo(7) 	# --> 1:7
 ? StzNumberQ(7).DownTo(1)	# --> 7:1
 
@@ -102,7 +102,7 @@ o1 = new stzNumber("12500")
 
 o1 = new stzNumber(24)
 ? o1.SubstractQ(12).Content()
-//? o1.AddManyXT([ "4.65775", "3", "2" ], :ReturnIntermediateResults = TRUE)
+? o1.AddManyXT([ "4.65775", "3", "2" ], :ReturnIntermediateResults = TRUE)
 //? o1.SubstractManyXT([ "12", "10.6532", "3" ], :ReturnIntermediateResults = TRUE )
 //? o1.Content()
 /*
@@ -134,7 +134,9 @@ o1 = new stzNumber("369900990099")
 ? o1.NumberOfDigitsInIntegerPart()
 ? o1.Round()
 
-/*
+/*--------------
+
+o1 = new stzNumber(12590)
 ? o1.ApplyFormatXT([
 	# Precision
 	:RestrictFractionalPart = FALSE,
@@ -200,7 +202,8 @@ o1 = new stzNumber("4")
 o1 = new stzNumber("  12543 110 ")
 ? o1.RemoveSpacesFrom(:TheLeft)
 
-/*
+/*------
+
 o1 = new stzNumber("715")
 o1 {
 	? Number()
@@ -212,6 +215,7 @@ o1 {
 
 
 /*
+
 o1 = new stzNumber(12_531_078_512_456)
 ? o1.Structure()
 ? o1.AllUnits()
@@ -231,7 +235,9 @@ o1 {
 o1 = new stzNumber("2345")
 ? o1.Sign()
 ? o1.IsPositive()
-/*
+
+/*----
+*/
 o1 = new stzNumber("27 898 116.56")
 ? o1.Structure(:AsListOfLists)
 /*

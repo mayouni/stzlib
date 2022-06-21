@@ -15,6 +15,41 @@
 func StzListQ(paList)
 	return new stzList(paList)
 
+func L(p)
+
+	if isList(p)
+		return p
+
+	but isString(p)
+
+		if Q(p).IsListInString()
+			return Q(p).ToList()
+
+		but Q(p).ContainsNoSpaces()
+			return Q(p).Chars()
+
+		but Q(p).ContainsSpaces()
+			return Q(p) / " "
+		ok
+
+	but isObject(p)
+		return StzObject(p).ObjectAttributesAndValues()
+
+	but isNumber(p)
+		aResult = []
+		for i = 1 to p
+			aResult + NULL
+		next
+
+		return aResult
+
+	else
+		stzRaise("Incorrect param! Can't tranform param to list.")
+	ok
+
+	func LQ(p)
+		return new stzList(L(p))
+
 func IsNotList(paList)
 	return NOT isList(paList)
 
@@ -1883,11 +1918,11 @@ class stzList from stzObject
 	 #   BY MANY ITEMS ONE BY ONE    	         #
 	#-----------------------------------------------#
 
-	def ReplaceSectionOneByOne(n1, n2, paOtherListOfItems)
+	def ReplaceSectionByMany(n1, n2, paOtherListOfItems)
 		/* EXAMPLE
 
 		o1 = new stzList([ "A", "B", "_", "_", "_", "F" ])
-		o1.ReplaceSectionOneByOne(3, 5, [ "C", "D", "F" ])
+		o1.ReplaceSectionByMany(3, 5, [ "C", "D", "F" ])
 		? o1.Content() #--> [ "A", "B", "C", "D", "E", "F" ]
 
 		*/
@@ -1904,12 +1939,12 @@ class stzList from stzObject
 			This.ReplaceItemAtPosition(n, item)
 		next
 
-		def ReplaceSectionOneByOneQ(n1, n2, paOtherListOfItems)
-			This.ReplaceSectionOneByOne(n1, n2, paOtherListOfItems)
+		def ReplaceSectionByManyQ(n1, n2, paOtherListOfItems)
+			This.ReplaceSectionByMany(n1, n2, paOtherListOfItems)
 			return This
 
-	def SectionReplacedOneByOne(n1, n2, paOtherListOfItems)
-		aResult = This.ReplaceSectionOneByOneQ(n1, n2, paOtherListOfItems).Content()
+	def SectionReplacedByMany(n1, n2, paOtherListOfItems)
+		aResult = This.ReplaceSectionByManyQ(n1, n2, paOtherListOfItems).Content()
 		return aResult
 
 	   #---------------------------------------------------#
@@ -1917,20 +1952,20 @@ class stzList from stzObject
 	 #   BY MANY ITEMS ONE BY ONE                        #
 	#---------------------------------------------------#
 
-	def ReplaceManySectionsOneOnyOne(panSections, paOtherListOfItems)
+	def ReplaceManySectionsByMany(panSections, paOtherListOfItems)
 		for anSection in panSections
 			n1 = panSections[1]
 			n2 = panSections[2]
-			This.ReplaceSectionOneByOne(n1, n2, paOtherListOfItems)
+			This.ReplaceSectionByMany(n1, n2, paOtherListOfItems)
 		next
 
-		def ReplaceManySectionsOneOnyOneQ(panSections, paOtherListOfItems)
-			This.ReplaceManySectionsOneOnyOne(panSections, paOtherListOfItems)
+		def ReplaceManySectionsByManyQ(panSections, paOtherListOfItems)
+			This.ReplaceManySectionsByMany(panSections, paOtherListOfItems)
 			return This
 
-	def ManySectionsReplacedOneByOne(panSections, paOtherListOfStr)
+	def ManySectionsReplacedByMany(panSections, paOtherListOfStr)
 		acResult = This.Copy().
-				ReplaceManySectionsOneOnyOneQ(panSections, paOtherListOfItems).
+				ReplaceManySectionsByManyQ(panSections, paOtherListOfItems).
 				Content()
 
 		return acResult
@@ -1959,20 +1994,30 @@ class stzList from stzObject
 	 #   REPLACING MANY RANGES OF ITEMS IN THE LIST   #
 	#------------------------------------------------#
 
-	def ReplaceManyRanges(panRanges, pNewItem)
+	def ReplaceRanges(panRanges, pNewItem)
 		for anRange in panRanges
 			n = anRange[1]
 			nRange = anRange[2]
 			This.ReplaceRange(n, nRange, pNewItem)
 		next
 
-		def ReplaceManyRangesQ(panRanges, pNewItem)
+		def ReplaceRangesQ(panRanges, pNewItem)
 			This.ReplaceManyRanges(panRanges, pNewItem)
 			return This
 
-	def ManyRangesReplaced(panRanges, pNewItem)
+		def ReplaceManyRanges(panRanges, pNewItem)
+			This.ReplaceRanges(panRanges, pNewItem)
+
+			def ReplaceManyRangesQ(panRanges, pNewItem)
+				This.ReplaceManyRanges(panRanges, pNewItem)
+				return This
+
+	def RangesReplaced(panRanges, pNewItem)
 		acResult = This.Copy().ReplaceManyRangesQ(panRanges, pNewItem).Content()
 		return acResult
+
+		def ManyRangesReplaced(panRanges, pNewItem)
+			return This.RangesReplaced(panRanges, pNewItem)
 
 	  #-----------------------------------------------------------#		
 	 #   REPLACING EACH ITEM IN A RANGE BY THE SAME GIVEN ITEM   #
@@ -2030,7 +2075,7 @@ class stzList from stzObject
 	 #   WITH MANY ITEMS ONE BY ONE               #
 	#--------------------------------------------#
 
-	def ReplaceRangeOneByOne(n, nRange, paOtherListOfItems)
+	def ReplaceRangeByMany(n, nRange, paOtherListOfItems)
 
 		anSection = RangeToSection([ n, nRange ])
 		n1 = anSection[1]
@@ -2048,12 +2093,12 @@ class stzList from stzObject
 			This.ReplaceItemAtPosition(n, item)
 		next
 
-		def ReplaceRangeOneByOneQ(n, nRange, paOtherListOfItems)
-			This.ReplaceRangeOneByOne(n, nRange, paOtherListOfItems)
+		def ReplaceRangeByManyQ(n, nRange, paOtherListOfItems)
+			This.ReplaceRangeByMany(n, nRange, paOtherListOfItems)
 			return This
 
-	def RangeReplacedOneByOne(n, nRange, paOtherListOfItems)
-		aResult = This.ReplaceRangeOneByOneQ(n, nRange, paOtherListOfItems).Content()
+	def RangeReplacedByMany(n, nRange, paOtherListOfItems)
+		aResult = This.ReplaceRangeByManyQ(n, nRange, paOtherListOfItems).Content()
 		return aResult
 
 	   #------------------------------------------------#
@@ -2061,22 +2106,22 @@ class stzList from stzObject
 	 #   WITH MANY ITEMS ONE BY ONE                   #
 	#------------------------------------------------#
 
-	def ReplaceManyRangesOneOnyOne(panRanges, paOtherListOfItems)
+	def ReplaceManyRangesByMany(panRanges, paOtherListOfItems)
 		for anRange in panRanges
 			anSection = RangeToSection(anRange)
 			n1 = anSections[1]
 			n2 = anSections[2]
-			This.ReplaceRangeOneByOne(n, nRange, paOtherListOfItems)
+			This.ReplaceRangeByMany(n, nRange, paOtherListOfItems)
 		next
 
-		def ReplaceManyRangesOneOnyOneQ(panRanges, paOtherListOfItems)
-			This.ReplaceManyRangesOneOnyOne(panRanges, paOtherListOfItems)
+		def ReplaceManyRangesByManyQ(panRanges, paOtherListOfItems)
+			This.ReplaceManyRangesByMany(panRanges, paOtherListOfItems)
 			return This
 
-	def ManyRangesReplacedOneByOne(panRanges, paOtherListOfItems)
+	def RangesReplacedByMany(panRanges, paOtherListOfItems)
 		
 		acResult = This.Copy().
-				ReplaceManyRangesOneOnyOneQ(panRanges, paOtherListOfItems).
+				ReplaceManyRangesByManyQ(panRanges, paOtherListOfItems).
 				Content()
 
 		return acResult
@@ -3213,9 +3258,9 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def RemoveRangeQ(pcStart, pnRange)
+		def RemoveRangeQ(pnStart, pnRange)
 			This.RemoveRange(pnStart, pnRange)
-
+			return This
 		#>
 
 	def RangeRemoved(pnStart, pnRange)
@@ -7741,7 +7786,7 @@ class stzList from stzObject
 	#------------------------------#
 
 	/*
-		TODO: Operators should carry same semantics in all classes...
+		TODO: Operators should adopt same semantics in all classes...
 	*/
 
 	def operator(pcOp, pValue)
@@ -7785,9 +7830,15 @@ class stzList from stzObject
 		but pcOp = "=="
 			return This.IsStrictlyEqualTo(value)
 
-		but pcOp = "/" and type(pValue) = "NUMBER"
-			// Divides the list on pValue sublists (a list of lists)
-			return This.SplitToNParts(pValue)
+		// Divides the list on pValue sublists (a list of lists)
+		but pcOp = "/" 
+
+			if isNumber(pValue)
+				return This.SplitToNParts(pValue)
+
+			but isList(pValue)
+				return This.DistributeOver(pValue)
+			ok
 
 		but pcOp = "-"
 			if isNumber(pValue) or isString(pValue)
@@ -7887,86 +7938,148 @@ class stzList from stzObject
 			This.Minus(paOtherList)
 			return This
 
-	  #---------------------------#
-	 #     EXTENDING THE LIST    #
-	#---------------------------#
+	  #----------------------------------------------#
+	 #     EXTENDING THE LIST TO A GIVEN PSOTION    #
+	#----------------------------------------------#
 
 	def ExtendToPosition(n)
-		if This.ContainsOnlyNumbers()
-			This.ExtendToPositionNWith(n,0)
+		if This.IsListOfNumbers()
+			This.ExtendToPositionXT(n, :With = 0)
+
 		else
-			This.ExtendToPositionNWith(n,NULL)
+			This.ExtendToPositionXT(n, :With = "")
 		ok
 
 		def ExtendToPositionQ(n)
 			This.ExtendToPosition(n)
 			return This
-	
-	def ExtendToN(n)
-		This.ExtendToPosition(n)
 
-		def ExtendToNQ(n)
-			This.ExtendToN(n)
-			return This
-	
-	def ExtendToPositionNWith(n, pItem)
+		def ExtendToPositionN(n)
+			This.ExtendToPosition(n)
+			
+			def ExtendToPositionNQ(n)
+				This.ExtendToPositionN(n)
+				return This
+
+		def ExtendTo(n)
+			This.ExtendToPosition(n)
+			
+			def ExtendToQ(n)
+				This.ExtendTo(n)
+				return This
+
+		def ExtendToN(n)
+			This.ExtendToPosition(n)
+			
+			def ExtendToNQ(n)
+				This.ExtendToN(n)
+				return This
+
+	def ExtendedToPosition(n)
+		aResult = This.Copy().ExtendToPositionQ(n).Content()
+		return aResult
+
+		def ExtendedToPositionN(n)
+			return This.ExtendedToPosition(n)
+
+		def ExtendedTo(n)
+			return This.ExtendedToPosition(n)
+
+		def ExtendedToN(n)
+			return This.ExtendedToPosition(n)
+
+	  #------------------------------------------------------------------#
+	 #  EXTENDING THE LIST TO A GIVEN PSOTION (XT) WITH A GIVEN VALUE   #
+	#------------------------------------------------------------------#
+
+	def ExtendToPositionXT(n, pWith)
+		if NOT isNumber(n)
+			stzRaise("Incorrect param! n must be a number.")
+		ok
+
+		bDynamic = FALSE
+		if isList(pWith) and Q(pWith).IsWithOrByNamedPAramList()
+			if Q(pWith[1]).LastChar() = "@"
+				bDynamic = TRUE
+			ok
+
+			pWith = pWith[2]
+		ok
 
 		if n <= This.NumberOfItems()
 			stzRaise(stzListError(:CanNotExtendTheList))
-
-		else
-			for i = This.NumberOfItems()+1 to n
-				This + pItem
-			next
 		ok
 
-		def ExtendToPositionNWithQ(n, pItem)
-			This.ExtendToPositionNWith(n, pItem)
-			return This
-	
-	def ExtendToNWith(n, pItem)
-		This.ExtendToPositionNWith(n, pItem)
+		if NOT bDynamic
+			for i = This.NumberOfItems() + 1 to n
+				This + pWith
+			next
+		else
+			if isString(pWith) and Q(pWith).WithoutSpaces() = "@items"
 
-		def ExtendToNWithQ(n, pItem)
-			This.ExtendToNWith(n, pItem)
-			return This
-	
-	// Extending a list with the items of an other list
-	def ExtendWithOtherList(paOtherList)
-		// The main list is extended with the other list
+				u = 0
+				for i = This.NumberOfItems() + 1 to n
+					u++
+					This + This[u]
+				next
 
-		if type(paOtherList) = "LIST"
+			but isList(pWith)
+
+				u = 0
+				for i = This.NumberOfItems() + 1 to n
+					u++
+
+					if u <= len(pWith)
+						This + pWith[u]
+					else
+						if Q(pWith).IsListOfNumbers()
+							This + 0
+						else
+							This + NULL
+						ok
+					ok
+				next
+			ok
+		ok
+	
+		def ExtendToPositionXTQ(n)
+			This.ExtendToPositionXT(n)
+			return This
+
+		def ExtendToPositionNXT(n, pWith)
+			This.ExtendToPositionXT(n, pWith)
 			
-			for item in paOtherList
-				This.AddItem(item)
-			next
+			def ExtendToPositionNXTQ(n, pWith)
+				This.ExtendToPositionNXT(n, pWith)
+				return This
 
-		else
-			stzRaise("paOtherList must be of type LIST!")
-		ok
+		def ExtendToXT(n, pWith)
+			This.ExtendToPositionXT(n, pWith)
+			
+			def ExtendToXTQ(n, pWith)
+				This.ExtendToXT(n, pWith)
+				return This
 
-		def ExtendWithOtherListQ(paOtherList)
-			This.ExtendWithOtherList(paOtherList)
-			return This
-	
-	def ExtendWith(paOtherList)
-		This.ExtendWithOtherList(paOtherList)
+		def ExtendToNXT(n, pWith)
+			This.ExtendToPositionXT(n, pWith)
+			
+			def ExtendToNXTQ(n, pWith)
+				This.ExtendToNXT(n, pWith)
+				return This
 
-		def ExtendWithQ(paOtherList)
-			This.ExtendWith(paOtherList)
-			return This
-	
-	def ExtendWithMany(paManyOtherLists)
-		for aList in paManyOtherLists
-			for item in aList
-				This.Add(item)
-			next
-		next
+	def ExtendedToPositionXT(n, pWith)
+		aResult = This.Copy().ExtendToPositionQ(n, pWith).Content()
+		return aResult
 
-		def ExtendWithManyQ(paManyOtherLists)
-			This.ExtendWithMany(paManyOtherLists)
-			return This
-	
+		def ExtendedToPositionNXT(n, pWith)
+			return This.ExtendedToPositionXT(n, pWith)
+
+		def ExtendedToXT(n, pWith)
+			return This.ExtendedToPositionXT(n, pWith)
+
+		def ExtendedToNXT(n, pWith)
+			return This.ExtendedToPositionXT(n, pWith)
+
 	  #-------------------------#
 	 #     MERGING THE LIST    #
 	#-------------------------#
@@ -8427,6 +8540,10 @@ class stzList from stzObject
 
 		def ContainsEachOneOfThese(paItems)
 			return This.ContainsEach(paItems)
+
+		def ContainsAll(paItems)
+			return This.ContainsEach(paItems)
+
 	#--
 
 	def ContainsNoOne()
@@ -8565,6 +8682,26 @@ class stzList from stzObject
 
 		def ContainsOneItemFromThese(paItems)
 			return This.ContainsOnlyOne(paItems)
+
+	#--
+
+	def ContainsN(n, paItems)
+		bResult = FALSE
+		m = 0
+		for pItem in paItems
+			if This.Contains(pItem)
+				m++
+				if n = m
+					bResult = TRUE
+					exit
+				ok
+			ok
+		next
+
+		return bResult
+
+		def ContainsNOf(n, paItems)
+			return This.ContainsN(n, paItems)
 
 	#--
 
@@ -10662,7 +10799,6 @@ class stzList from stzObject
 
 		return aResult
 
-
 	#---- CAPITALCASING THE STRINGS CONTAINED IN THE LIST
 
 	def CapitaliseStrings()
@@ -11618,9 +11754,17 @@ class stzList from stzObject
 	
 		nParts = ceil( This.NumberOfItems() / n )
 
-		for i = 1 to This.NumberOfItems() step nParts
+		nLen = This.NumberOfItems()
+		nMax = Max( n, nLen )
+
+		for i = 1 to nMax step nParts
 			
-			aTemp = This.Range(i, nParts)
+			if i <= nLen
+				aTemp = This.Range(i, nParts)
+			else
+				aTemp = []
+			ok
+
 			aResult + aTemp	
 		next
 
@@ -11946,29 +12090,29 @@ class stzList from stzObject
 	def NumberOfDifferentItemsWith(paItems)
 		return len(This.DifferentItmesWith(paItems))
 
-	  #---------------------------------------------#
-	 #    DISTRIBUTING THE ITEMS OF THE LIST     #
-	#---------------------------------------------#
+	  #----------------------------------------#
+	 #   DISTRIBUTING THE ITEMS OF THE LIST   #
+	#----------------------------------------#
 
-	def DistributeOver( acBeneficiaryItems, anShareOfEachItem )
+	def DistributeOverXT( acBeneficiaryItems, anShareOfEachItem )
 
 		/* Explanation
 	
 		Distributes the items of the main list over the items of the
-		provided list (called metaphorically 'acBeneficiaryItems' here
-		as they benfit from that distribution).
+		provided list, called metaphorically 'Beneficiary Items'
+		(anShareOfEachItem) here as they 'benfit' from that distribution).
 		
 		The distribution is defined by the share of each item.
 		
-		The share of each item, defined by anShareOfEachItem, determines
-		how many items should be given to the beneficiaries.
+		The share of each item, defined by a list of numbers (anShareOfEachItem),
+		determines how many items should be given to the beneficiaries.
 		
-		--> Returns a hashlist as demonstrated by the following example:
-		
-		Example:
+		--> The beneficiary items can be of any type. In practice, they are
+		strings and hence the returned result is a hashlist as demonstrated by
+		the following example:
 	
 		o1 = new stzList([ :water, :coca, :milk, :spice, :cofee, :tea, :honey ] )
-		? o1.DistributeOver([ :arem, :mohsen, :hamma ], :Using = [ 2, 3, 2 ] )
+		? o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 2, 3, 2 ] )
 	
 		Gives:
 	
@@ -11980,40 +12124,32 @@ class stzList from stzObject
 	
 		*/
 
-		# The acBeneficiaryItems param should be a list of strings
+		if isList(anShareOfEachItem) and Q(anShareOfEachItem).IsUsingNamedParamList()
+			anShareOfEachItem = anShareOfEachItem[2]
+		ok
 
-		if NOT StzListQ(acBeneficiaryItems).IsListOfStrings()     
+		# The acBeneficiaryItems param should be non empty list of items:
+
+		if NOT ( isList(acBeneficiaryItems) and  len( acBeneficiaryItems) > 0 )
 			stzRaise(stzListError(:CanNoteDistributeItemsOverTheList1))
 		ok
 
 		# Controlling the validity of the syntax of anShareOfEachItem param
 
-		if NOT isList(anShareOfEachItem)
-			stzRaise("Incorrect param types!")
-		ok
-
-		if NOT ( len(anShareOfEachItem) = 2 and
-			anShareOfEachItem[1] = :Using and
-			ListIsListOfNumbers(anShareOfEachItem[2])
-		       )
-
-				stzRaise("Incorrect param form!")
-
+		if NOT ( isList(anShareOfEachItem) and
+			 Q(anShareOfEachItem).IsListOfNumbers() and
+			 len(anShareOfEachItem) > 0 )
+			stzRaise("Incorrect param! anShareOfEachItem must be a non empty list of numbers.")
 		ok
 
 		# The sum of numbers in anShareOfEachItem should be equal to the
 		# number of items of the main list
 
-		if NOT ( StzListQ(anShareOfEachItem[2]).IsListOfNumbers() AND
-		         ListOfNumbersSum(anShareOfEachItem[2]) = This.NumberOfItems()
-		       )
-
+		if NOT ListOfNumbersSum(anShareOfEachItem) = This.NumberOfItems()
 			stzRaise(stzListError(:CanNoteDistributeItemsOverTheList2))
 		ok
 
 		# Now, we can perform the distribution
-
-		anShareOfEachItem = anShareOfEachItem[2]
 
 		aResult = []
 		i = 0
@@ -12026,6 +12162,37 @@ class stzList from stzObject
 
 		return aResult
 	
+	def DistributeOver( acBeneficiaryItems )
+		nLenList = This.NumberOfItems()
+		nLenBenef = len(acBeneficiaryItems)
+
+		anShare = []
+
+		if nLenBenef >= nLenList
+			for i = 1 to nLenList
+				anShare + 1
+			next
+
+		else
+			n = floor( nLenList / nLenBenef )
+
+			for i = 1 to nLenBenef	
+				anShare + n
+			next
+
+			nRest = nLenList - ( n * nLenBenef )
+
+			if nRest > 0
+				for i = 1 to nRest
+					anShare[i]++
+				next
+			ok
+			
+		ok
+
+		aResult = This.DistributeOverXT( acBeneficiaryItems, :Using = anShare)
+		return aResult
+
 	  #---------------------------------#
 	 #   CHECKING OPTION PARAM LISTS   #
 	#---------------------------------#
@@ -12247,9 +12414,9 @@ class stzList from stzObject
 			return FALSE
 		done
 
-	   #--------------------------------#
-	  #   CHECKING NAMED PARAM LISTS   #
-	#---------------------------------#
+	  #================================#
+	 #   CHECKING NAMED PARAM LISTS   #
+	#================================#
 
 	def IsCaseSensitiveNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -12260,6 +12427,9 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsCaseSensitiveParamList()
+			return This.IsCaseSensitiveNamedParamList()
 
 	def IsRangeNamedParamList()
 
@@ -12291,6 +12461,9 @@ class stzList from stzObject
 			ok
 		ok
 
+		def IsRangeParamList()
+			return This.IsRangeNamedParamList()
+
 	def IsStartingAtNamedParamList()
 		if This.NumberOfItems() = 2 and
 
@@ -12313,6 +12486,63 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsStartingAtParamList()
+			return This.IsStartingAtNamedParamList()
+
+	def IsInStringNNamedParamList()
+		if This.NumberOfItems() = 2 and
+
+		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
+					:InStringAt, :InStringItemAt,
+					:inStringAtPosition, :InStringItemAtPosition,
+					:InStringN, :InStringItemN ]) ) and
+
+		   ( isNumber(This[2]) or
+		     ( isString(This[2]) and StzStringQ(This[2]).IsOneOfThese([
+					:First, :FirstPosition, :FirstItem,
+					:Last, :LastPosition, :LastItem,
+					:FirstString, :LastString,
+					:FirstStringItem, :LastStringItem ]) ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsInStringNParamList()
+			return This.IsInStringNNamedParamList()
+
+		def IsInStringItemNNamedParamList()
+			return This.IsInStringNNamedParamList()
+
+		def IsInStringItemNParamList()
+			return This.IsInStringNNamedParamList()
+
+		def IsInStringAtPositionNNamedParamList()
+			return This.IsInStringNNamedParamList()
+
+		def IsInStringAtPositionNParamList()
+			return This.IsInStringNNamedParamList()
+
+		def IsInStringItemAtPositionNNamedParamList()
+			return This.IsInStringNNamedParamList()
+
+		def IsInStringItemAtPositionNParamList()
+			return This.IsInStringNNamedParamList()
+
+		def IsInStringAtPositionNamedParamList()
+			return This.IsInStringNNamedParamList()
+
+		def IsInStringAtPositionParamList()
+			return This.IsInStringNNamedParamList()
+
+		def IsInStringItemAtPositionNamedParamList()
+			return This.IsInStringNNamedParamList()
+
+		def IsInStringItemAtPositionParamList()
+			return This.IsInStringNNamedParamList()
+
 	def IsExceptNamedParamList()
 		# Used initially by ReplaceWordsWithMarquersExceptXT(pcByOption, paExcept)
 		# TODO: generalize to all the functions we want to provide exceptions to it
@@ -12327,6 +12557,9 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsExceptParamList()
+			return This.IsExceptNamedParamList()
 
 	def IsFromNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -12350,7 +12583,13 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsFromParamList()
+			return This.IsFromNamedParamList()
+
 		def IsFromPositionNamedParamList()
+			return This.IsFromNamedParamList()
+
+		def IsFromPositionParamList()
 			return This.IsFromNamedParamList()
 
 	def IsToNamedParamList()
@@ -12377,12 +12616,15 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsToNamedList()
+			return This.IsToNamedParamList()
+
 		def IsToPositionNamedParamList()
 			return This.IsToNamedParamList()
 
+			def IsToPositionParamList()
+				return This.IsToNamedParamList()
 	
-	
-
 	def IsOfNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Of )
@@ -12392,6 +12634,9 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsOfParamList()
+			return This.IsOfNamedParamList()
 
 	def IsOnNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -12403,6 +12648,8 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsOnParamList()
+			return This.IsOnNamedParamList()
 
 	def IsWhereNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -12415,6 +12662,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsWhereParamList()
+			return This.IsWhereNamedParamList()
+
 	def IsThatNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :That ) and
@@ -12426,6 +12676,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsThatParamList()
+			return This.IsThatNamedParamList()
+
 	def IsThatOrWhereNamedParamList()
 		if This.IsThatNamedParamList() or This.IsWhatNamedParamList()
 			return TRUE
@@ -12434,6 +12687,12 @@ class stzList from stzObject
 		ok
 
 		def IsWhereOrThatNamedParamList()
+			return This.IsThatOrWhereNamedParamList()
+
+		def IsThatOrWhereParamList()
+			return This.IsThatOrWhereNamedParamList()
+
+		def IsWhereOrThatParamList()
 			return This.IsThatOrWhereNamedParamList()
 
 	def IsIfNamedParamList()
@@ -12447,8 +12706,17 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsIfParamList()
+			return This.IsIfNamedParamList()
+
 	def IsIfOrWhereNamedParamList()
 		return This.IsIfNamedParamList() or This.IsWhereNamedParamList()
+
+		def IsWhereOrIfNamedParamList()
+			return This.IsIfOrWhereNamedParamList()
+
+		def IsIfOrWhereParamList()
+			return This.IsIfOrWhereNamedParamList()
 
 		def IsWhereOrIfParamList()
 			return This.IsIfOrWhereNamedParamList()
@@ -12464,6 +12732,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsWhithParamList()
+			return This.IsWithNamedParamList()
+
 	def IsByNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :By, :By@ ]) )
@@ -12474,11 +12745,20 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsByParamList()
+			return This.IsByNamedParamList()
+
 	def IsWithOrByNamedParamList()
 		return This.IsWithNamedParamList() OR This.IsByNamedParamList()
 
-		def IsByOrWithParamList()
+		def IsByOrWithNamedParamList()
 			return This.IsWithOrByNamedParamList()
+
+		def IswithOrByParamList()
+			return This.IsWithOrByNamedParamList()
+
+		def IsByOrWithParamList()
+			return This.IsIfOrWhereNamedParamList()
 
 	def IsUsingNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -12489,6 +12769,9 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsUsingParamList()
+			return This.IsUsingNamedParamList()
 
 	def IsAtNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -12525,6 +12808,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsAtParamList()
+			return This.IsAtNamedParamList()
+
 	def IsUsingOrAtOrWhereNamedParamList()
 		if This.IsUsingNamedParamList() or
 		   This.IsAtNamedParamList() or
@@ -12535,19 +12821,37 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsUsingOrAtOrWhereParamList()
+			return This.IsUsingOrAtOrWhereNamedParamList()
+
 		def IsUsingOrWhereOrAtNamedParamList()
+			return This.IsUsingOrAtOrWhereNamedParamList()
+
+		def IsUsingOrWhereOrAtParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
 		def IsAtOrUsingOrWhereNamedParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
+		def IsAtOrUsingOrWhereParamList()
+			return This.IsUsingOrAtOrWhereNamedParamList()
+
 		def IsAtOrWhereOrUsingNamedParamList()
+			return This.IsUsingOrAtOrWhereNamedParamList()
+
+		def IsAtOrWhereOrUsingParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
 		def IsWhereOrAtOrUsingNamedParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
+		def IsWhereOrAtOrUsingParamList()
+			return This.IsUsingOrAtOrWhereNamedParamList()
+
 		def IsWhereOrUsingOrAtNamedParamList()
+			return This.IsUsingOrAtOrWhereNamedParamList()
+
+		def IsWhereOrUsingOrAtParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
 	def IsAtPositionNamedParamList()
@@ -12585,6 +12889,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsAtPositionParamList()
+			return This.IsAtPositionNamedParamList()
+
 	def IsStepNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  Q(This[1]).IsOneOfThese([ :Step, :Steps ]) ) and
@@ -12610,6 +12917,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsNameParamList()
+			return This.IsNameNamedParamList()
+
 	def IsRaiseNamedParamList()
 		if This.NumberOfItems() <= 4 and
 		   This.IsHashList() and
@@ -12621,6 +12931,9 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsRaiseParamList()
+			return This.IsRaiseNamedParamList()
 
 	def IsReturnedAsNamedParamList()
 
@@ -12635,7 +12948,10 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsReturnParamList()
+		def IsReturnedAsParamList()
+			return This.IsAtNamedParamList()
+
+	def IsReturnNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   isString(This[1]) and Q(This[1]).IsEqualToCS(:Return) and
 		   isString(This[2])
@@ -12645,6 +12961,9 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsReturnParamList()
+			return This.IsReturnNamedParamList()
 
 	def IsDirectionNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -12656,9 +12975,13 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
-	  #--------------------------------#
+
+		def IsirectionParamList()
+			return This.IsirectionNamedParamList()
+
+	  #================================#
 	 #     GETTING TYPES OF ITEMS     #
-	#--------------------------------#
+	#================================#
 
 	/*
 		NOTE: Ring returns types in UPPERCASEn using the type) function.

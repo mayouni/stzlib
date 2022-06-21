@@ -924,6 +924,12 @@ class stzObject
 		next
 		return aResult
 
+		def AttributesAndTheirValues()
+			return This.ObjectAttributesAndValues()
+
+		def ObjectAttributesAndTheirValues()
+			return This.ObjectAttributesAndValues()
+
 	def ObjectMethods()
 		return methods(This.Object())
 

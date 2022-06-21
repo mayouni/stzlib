@@ -4,7 +4,7 @@
 #-------------------------------------------------------------------------------#
 #										#
 # 	Description	: The core class for managing lists of strings		#
-#	Version		: V1.0 (2020-2022)						#
+#	Version		: V1.0 (2020-2022)					#
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		   	#
 #-------------------------------------------------------------------------------#
 
@@ -14,6 +14,35 @@
 
 func StzListOfStringsQ(paList)
 	return new stzListOfStrings(paList)
+
+func LS(p)
+	if isList(p)
+		return StzListOfNumbersQ(p).OnlyStrings()
+
+	but isString(p) and Q(p).IsListInString()
+		aResult = Q(p).ToListQ().OnlyStrings()
+		return aResult
+
+	but isNumber(p)
+		aResult = []
+		for i = 1 to p
+			aResult + ""
+		next
+		return aResult
+
+	ok
+
+	func LSQ(p)
+		return Q(LS(p))
+
+		func QLS(p)
+			return LSQ(p)
+
+	func LoS(p)
+		return LS(p)
+
+		func LoSQ(p)
+			return LSQ(p)
 
 func IsQStringList(p)
 	if isObject(p) and classname(p) = "qstringlist"
@@ -268,6 +297,14 @@ class stzListOfStrings from stzList
 		def NumberOfStrings()
 			return This.NumberOfStringItems()
 
+		def Size()
+			return This.NumberOfStringItems()
+
+		def SizeInStrings()
+			return This.NumberOfStringItems()
+
+		def SizeInStringItems()
+			return This.NumberOfStringItems()
 
 	  #------------------------------------------------------------#
 	 #    GETTING THE SIZE IN BYTES OF THE LIST AND ITS ITEMS     #
@@ -418,6 +455,18 @@ class stzListOfStrings from stzList
 
 			def StringAtPositionNQ(n)
 				return new stzString( This.StringAtPositionN(n) )
+
+		def String(n)
+			return This.StringItemAt(n)
+
+			def StringQ(n)
+				return new stzString( This.String(n) )
+
+		def StringN(n)
+			return This.StringItemAt(n)
+
+			def StringNQ(n)
+				return new stzString( This.StringN(n) )
 
 		#>
 
@@ -2139,7 +2188,7 @@ class stzListOfStrings from stzList
 		#>
 
 	  #-----------------------------------------------------------------#
-	 #  FINDING ALL OCCURRENCE OF A STRING-ITEM EXCEPT NTH OCCURRENCE  #
+	 #  FINDING ALL OCCURRENCES OF A STRING-ITEM EXCEPT NTH OCCURRENCE  #
 	#-----------------------------------------------------------------#
 	/*
 	NOTE: These functions were made to be used in RemoveDuplicates()
@@ -2355,10 +2404,9 @@ class stzListOfStrings from stzList
 
 		#>
 		
-	   #----------------------------------------------------#
-	  #    NUMBER OF OCCURRENCE OF A STRING (AS AN ITEM)   #
-	 #    IN THE LIST OF STRINGS                          #
-	#----------------------------------------------------#
+	  #----------------------------------------------------------------#
+	 #  NUMBER OF OCCURRENCE OF A STRING-ITEM IN THE LIST OF STRINGS  #
+	#----------------------------------------------------------------#
 
 	def NumberOfOccurrenceOfStringItemCS(pcStrItem, pCaseSensitive)
 		return len( This.FindStringItemCS(pcStrItem, pCaseSensitive) )
@@ -3503,9 +3551,9 @@ class stzListOfStrings from stzList
 		def ContainsOneStringItemFromThese(paStrings)
 			return This.ContainsOnlyOne(paStrings)
 
-	  #--------------------------------------------------------------#
-	 #    FINDING STRINGS (AS ITEMS) VERIYING A GIVEN CONDITION     #
-	#--------------------------------------------------------------#
+	  #--------------------------------------------------------#
+	 #    FINDING STRING-ITEMS VERIYING A GIVEN CONDITION     #
+	#--------------------------------------------------------#
 
 	def FindStringItemsW(pcCondition)
 
@@ -3556,10 +3604,9 @@ class stzListOfStrings from stzList
 
 		#>
 
-	   #------------------------------------------------------------#
-	  #    FINDING NEXT NTH OCCURRENCE OF A STRING (AS AN ITEM)    #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST                #
-	#------------------------------------------------------------#
+	  #-----------------------------------------------------------------------------#
+	 #  FINDING NEXT NTH OCCURRENCE OF A STRING-ITEM STARTING AT A GIVEN POSITION  #           #
+	#-----------------------------------------------------------------------------#
 
 	def FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
@@ -3885,10 +3932,9 @@ class stzListOfStrings from stzList
 		
 		#>
 
-	   #------------------------------------------------------------#
-	  #    FINDING NEXT OCCURRENCE OF A STRING (AS AN ITEM)        #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST                #
-	#------------------------------------------------------------#
+	  #-------------------------------------------------------------------------#
+	 #  FINDING NEXT OCCURRENCE OF A STRING-ITEM STARTING AT A GIVEN POSITION  #
+	#-------------------------------------------------------------------------#
 
 	def FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
@@ -4065,10 +4111,9 @@ class stzListOfStrings from stzList
 		
 		#>
 
-	   #----------------------------------------------------------------#
-	  #    FINDING PREVIOUS NTH OCCURRENCE OF A STRING (AS AN ITEM)    #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST                    #
-	#----------------------------------------------------------------#
+	  #---------------------------------------------------------------------------------#
+	 #  FINDING PREVIOUS NTH OCCURRENCE OF A STRING-ITEM STARTING AT A GIVEN POSITION  #
+	#---------------------------------------------------------------------------------#
 
 	def FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
@@ -4382,10 +4427,9 @@ class stzListOfStrings from stzList
 		
 		#>
 
-	   #------------------------------------------------------------#
-	  #    FINDING PREVIOUS OCCURRENCE OF A STRING (AS AN ITEM)    #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST                #
-	#------------------------------------------------------------#
+	  #-----------------------------------------------------------------------------#
+	 #  FINDING PREVIOUS OCCURRENCE OF A STRING-ITEM STARTING AT A GIVEN POSITION  #
+	#-----------------------------------------------------------------------------#
 
 	def FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
@@ -4809,6 +4853,205 @@ class stzListOfStrings from stzList
 
 		#>
 
+	  #=================================================================#
+	 #   NUMBER OF OCCURRENCE OF A SUBSTRING IN THE LIST OF STRINGS    #
+	#=================================================================#
+
+	def NumberOfOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([ "ring php", "ring php ring", "ring" ])
+		? o1.NumberOfOccurrenceOfSubString("ring")
+		#--> 4
+
+		*/
+
+		anPositions = This.FindSubStringCS(pcSubStr, pCaseSensitive)
+		#--> [ [ 1, [ 1 ] ], [ 3, [ 1, 10 ] ] ]
+		#           --v--         ----v----
+		#             1               2
+		
+		nResult = 0
+
+		for aList in anPositions
+			nResult += len(aList[2])
+		next
+
+		return nResult
+
+		def NumberOfOccurrencesOfSubStringCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfOccurrenceOfSubString(pcSubStr)
+		return This.NumberOfOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def NumberOfOccurrencesOfSubString(pcSubStr)
+			return This.NumberOfOccurrenceOfSubString(pcSubStr)
+
+	  #----------------------------------------------------#
+	 #   NUMBER OF OCCURRENCE OF A SUBSTRING -- EXTENDED  #
+	#----------------------------------------------------#
+
+	def NumberOfOccurrenceOfSubStringXTCS(pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([ "ring php", "php", "ring php ring" ])
+		? o1.NumberOfOccurrenceOfSubStringXT("ring")
+		#--> [ [ 1, 1 ], [ 3, 2 ] ]
+
+		*/
+
+		anPositions = This.FindSubStringCS(pcSubStr, pCaseSensitive)
+		#--> [ [ 1, [ 1 ] ], [ 3, [ 1, 10 ] ] ]
+		#           --v--         ----v----
+		#             1               2
+		
+		aResult = []
+
+		for aList in anPositions
+			aResult + [ aList[1], len(aList[2]) ]
+		next
+
+		return aResult
+
+		def NumberOfOccurrencesOfSubStringXTCS(pcSubStr, pCaseSensitive)
+			return This. NumberOfOccurrenceOfSubStringXTCS(pcSubStr, pCaseSensitive)
+
+		#-- ..XTCS() or CSXT(): both will work ;)
+
+		def NumberOfOccurrenceOfSubStringCSXT(pcSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubStringXTCS(pcSubStr, pCaseSensitive)
+
+		def NumberOfOccurrencesOfSubStringCSXT(pcSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubStringXTCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfOccurrenceOfSubStringXT(pcSubStr)
+		return This.NumberOfOccurrenceOfSubStringXTCS(pcSubStr, :CaseSensitive = TRUe)
+
+		def NumberOfOccurrencesOfSubStringXT(pcSubStr)
+			return This.NumberOfOccurrenceOfSubStringXT(pcSubStr)
+
+	  #-------------------------------------------------------------------#
+	 #   NUMBER OF OCCURRENCE OF MANY SUBSTRINGS IN THE LIST OF STRINGS  #
+	#-------------------------------------------------------------------#
+
+	def NumberOfOccurrenceOfManySubStringsCS(pacSubStrings, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([
+			"___ ring ___",
+			"___ ring ___ ring",
+			"___ ruby ___ ring",
+			"___ ring ___ ruby ___ ring"
+		])
+
+		? o1.NumberOfOccurrenceOfManySubStrings([ "ring", "ruby", "python" ])
+		#--> [ 6, 2, 0 ]
+
+		*/
+
+		anResult = []
+
+		for cSubStr in pacSubStrings
+			anResult + This.NumberOfOccurrenceOfSubStringCS(cSubStr, pCaseSensitive)
+		next
+
+		return anResult
+
+		def NumberOfOccurrencesOfManySubStringsCS(pacSubStrings, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStrings, pCaseSensitive)
+
+		def NumberOfOccurrenceOfSubStringsCS(pacSubStrings, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStrings, pCaseSensitive)
+
+		def NumberOfOccurrencesOfSubStringsCS(pacSubStrings, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStrings, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfOccurrenceOfManySubStrings(pacSubStrings)
+		return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStrings, :CaseSensitive = TRUE)
+
+		def NumberOfOccurrencesOfManySubStrings(pacSubStrings)
+			return This.NumberOfOccurrenceOfManySubStrings(pacSubStrings)
+
+		def NumberOfOccurrenceOfSubStrings(pacSubStrings)
+			return This.NumberOfOccurrenceOfManySubStrings(pacSubStrings)
+
+		def NumberOfOccurrencesOfSubStrings(pacSubStrings)
+			return This.NumberOfOccurrenceOfManySubStrings(pacSubStrings)
+
+	  #---------------------------------------------------------#
+	 #   NUMBER OF OCCURRENCE OF MANY SUBSTRINGS -- EXTENDED   #
+	#---------------------------------------------------------#
+
+	def NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([
+			"___ ring ___",
+			"___ ring ___ ring",
+			"___ ruby ___ ring",
+			"___ ring ___ ruby ___ ring"
+		])
+
+		? o1.NumberOfOccurrenceOfManySubStringsXT([ "ring", "ruby", "python" ])
+		#--> [
+		#	[ [ 1, 1], [2, 2], [3, 1], [4, 2] ], 	#<<< Occurrence of "ring"
+		#	[ [ 3, 1 ], [ 4, 1 ] ], 				#<<< Occurrences of "ruby"
+		#	[  ] 					#<<< No occurrences at all for "pyhthon"
+		#   ]
+		*/
+
+		anResult = []
+
+		for cSubStr in pacSubStrings
+			anResult + This.NumberOfOccurrenceOfSubStringXTCS(cSubStr, pCaseSensitive)
+		next
+
+		return anResult
+
+		def NumberOfOccurrencesOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+
+		def NumberOfOccurrenceOfSubStringsCSXT(pacSubStrings, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+
+		def NumberOfOccurrencesOfSubStringsCSXT(pacSubStrings, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+
+		#-- ...CSXT or ...XTCS, no problem at all ;)
+
+		def NumberOfOccurrenceOfManySubStringsXTCS(pacSubStrings, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+
+		def NumberOfOccurrencesOfManySubStringsXTCS(pacSubStrings, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+
+		def NumberOfOccurrenceOfSubStringsXTCS(pacSubStrings, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+
+		def NumberOfOccurrencesOfSubStringsXTCS(pacSubStrings, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfOccurrenceOfManySubStringsXT(pacSubStrings)
+		return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, :CaseSensitive = TRUE)
+
+		def NumberOfOccurrencesOfManySubStringsXT(pacSubStrings)
+			return This.NumberOfOccurrenceOfManySubStringsXT(pacSubStrings)
+
+		def NumberOfOccurrenceOfSubStringsXT(pacSubStrings)
+			return This.NumberOfOccurrenceOfManySubStringsXT(pacSubStrings)
+
+		def NumberOfOccurrencesOfSubStringsXT(pacSubStrings)
+			return This.NumberOfOccurrenceOfManySubStringsXT(pacSubStrings)
+
 	  #====================================================#
 	 #     FINDING A SUBSTRING IN THE LIST OF STRINGS     #
 	#====================================================#
@@ -4825,8 +5068,11 @@ class stzListOfStrings from stzList
 			"Mabrooka!"
 		])
 	
-		? @@( o1.FindSubstringCS("name", :CaseSensitive = TRUE) )
-			#--> [ "1" = [ 13 ], "3" = [ 6, 18 ] ]
+		? @@( o1.FindSubstringCS("name") )
+		#--> [ [ 1, [ 13 ] ], [ 3, [6, 18 ] ] ]
+		# "name" is found in string 1 at position 13, and
+		# in string 2 at positions 6 and 18.
+
 		*/
 
 		aResult = []
@@ -4837,8 +5083,9 @@ class stzListOfStrings from stzList
 			
 			anPos = StzStringQ(str).FindAllCS(pcSubStr, pCaseSensitive)
 			if len(anPos) > 0
-				aResult + [ ""+ i, anPos ]
+				aResult + [ i, anPos ]
 			ok
+
 		next
 
 		return aResult
@@ -4846,22 +5093,22 @@ class stzListOfStrings from stzList
 		#< @FunctionAlternativeForms
 
 		def FindAllSubstringsCS(pcSubStr, pCaseSensitive)
-			return FindSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindSubStringCS(pcSubStr, pCaseSensitive)
 
 		def FindAllOccurrencesOfSubStringCS(pcSubStr, pCaseSensitive)
-			return FindSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindSubStringCS(pcSubStr, pCaseSensitive)
 
 		def PositionsOfSubstringCS(pcSubStr, pCaseSensitive)
-			return FindSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindSubStringCS(pcSubStr, pCaseSensitive)
 
 		def SubstringPositionsCS(pcSubStr, pCaseSensitive)
-			return FindSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindSubStringCS(pcSubStr, pCaseSensitive)
 
 		def AllPositionsOfSubStringCS(pcSubStr, pCaseSensitive)
-			return FindSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindSubStringCS(pcSubStr, pCaseSensitive)
 
 		def AllSubstringPositionsCS(pcSubStr, pCaseSensitive)
-			return FindSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindSubStringCS(pcSubStr, pCaseSensitive)
 
 		#>
 
@@ -4873,138 +5120,184 @@ class stzListOfStrings from stzList
 		#< @FunctionAlternativeForms
 
 		def FindAllSubstrings(pcSubStr)
-			return FindSubString(pcSubStr)
+			return This.FindSubString(pcSubStr)
 
 		def FindAllOccurrencesOfSubString(pcSubStr)
-			return FindSubString(pcSubStr)
+			return This.FindSubString(pcSubStr)
 
 		def PositionsOfSubstring(pcSubStr)
-			return FindSubString(pcSubStr)
+			return This.FindSubString(pcSubStr)
 
 		def SubstringPositions(pcSubStr)
-			return FindSubString(pcSubStr)
+			return This.FindSubString(pcSubStr)
 
 		def AllPositionsOfSubString(pcSubStr)
-			return FindSubString(pcSubStr)
+			return This.FindSubString(pcSubStr)
 
 		def AllSubstringPositions(pcSubStr)
-			return FindSubString(pcSubStr)
+			return This.FindSubString(pcSubStr)
 
 		#>
 
-	  #-----------------------------------------------------------------#
-	 #   NUMBER OF OCCURRENCE OF A SUBSTRING IN THE LIST OF STRINGS    #
-	#-----------------------------------------------------------------#
+	  #----------------------------------------------------------#
+	 #  FINDING A SUBSTRING IN THE LIST OF STRINGS -- EXTENDED  #
+	#----------------------------------------------------------#
 
-	def NumberOfOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-		/* REMINDER
+	def FindSubStringXTCS(pcSubStr, pCaseSensitive)
+		/* RATIONALE
 
-		o1 = new stzListOfStrings([
-			"How many roads must a man walk down",
-			"Before you call him a man?",
-			"How many seas must a white dove sail",
-			"Before she sleeps in the sand?",
-			"And how many times must the cannonballs fly",
-			"Before they're forever banned?",
-			"The answer, my friend, is blowin' in the wind",
-			"The answer is blowin' in the wind"
-		])
+		Like FindSubString(), this function returns the positions of
+		a given substring in the list of strings, but expands the result.
 
-		? @@( o1.FindSubStringCS("man", :CS = FALSE) )
-		# --> [
-			"1" = [ 5, 23 ],
-			"2" = [ 23 ],
-			"3" = [ 5 ],
-			"5" = [ 9 ]
-		     ]
+		Hence, if the first returns [ [ 1, [ 13 ] ], [ 3, [6, 18 ] ] ] for
+		example (see sample in the FindSubStringCS() function above),
+
+		then FindSubStringCSXT() returns the same information but in a
+		slightly different form:
+		[ [ 1, 13 ], [ 3, 6 ], [ 3, 18 ] ]
+
+		This makes it more practical to iterate over the positions and
+		do whatever operation needed on them. See an example for using
+		this in the ReplaceSubStringByManyCS().
+
 		*/
 
-		nResult = 0
-		anPositions = This.FindSubStringCS(pcSubStr, pCaseSensitive)
-
-		for aPair in anPositions
-			nResult += len(aPair[2])
-		next
-
-		return nResult
-
-		def NumberOfOccurrencesOfSubStringCS(pcSubStr, pCaseSensitive)
-			return This.NumberOfOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def NumberOfOccurrenceOfSubString(pcSubStr)
-		return This.NumberOfOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
-
-		def NumberOfOccurrencesOfSubString(pcSubStr)
-			return This.NumberOfOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
-	
-	   #-------------------------------------------------------------------------#
-	  #    NUMBER OF OCCURRENCE OF MANY SUBSTRINGS INSIDE THE LIST OF STRINGS   #
-	 #-------------------------------------------------------------------------#
-
-	def NumberOfOccurrenceOfManySubstringsCS(pacSubStr, pCaseSensitive)
-
-		if NOT StzListQ(pacSubStr).IsListOfStrings()
-			stzRaise("Syntax Error: 1st param must be a list of strings!")
-		ok
-
-		pacSubStr = StzListOfStringsQ(pacSubStr).DuplicatesRemoved()
+		aPositions = This.FindSubStringCS(pcSubStr, pCaseSensitive)
 
 		aResult = []
+		i = 0
 
-		for cSubStr in pacSubstr
-			aResult + This.NumberOfOccurrenceOfSubstringCS(cSubStr, pCaseSensitive)
+		for aList in aPositions
+			
+			for nPos in aList[2]
+				i++
+				aResult + [ aList[1], nPos ]	
+			next
+			
 		next
 
 		return aResult
 
-		def NumberOfOccurrencesOfManySubstringsCS(pacSubStr, pCaseSensitive)
-			return This.NumberOfOccurrenceOfManySubstringsCS(pacSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-	
-	def NumberOfOccurrenceOfManySubstrings(pacSubStr)
-		return This.NumberOfOccurrenceOfManySubstringsCS(pacSubStr, :CaseSensitive = TRUE)
-
-		def NumberOfOccurrencesOfManySubstrings(pacSubStr)
-		return This.NumberOfOccurrenceOfManySubstrings(pacSubStr)
-
-	   #------------------------------------------------------------------------------------#
-	  #    NUMBER OF OCCURRENCE OF MANY SUBSTRINGS INSIDE THE LIST OF STRINGS -- EXTENDED  #
-	 #------------------------------------------------------------------------------------#
-
-	def NumberOfOccurrenceOfManySubstringsCSXT(pacSubStr, pCaseSensitive)
-
-		if NOT StzListQ(pacSubStr).IsListOfStrings()
-			stzRaise("Syntax Error: 1st param must be a list of strings!")
-		ok
-
-		pacSubStr = StzListOfStringsQ(pacSubStr).DuplicatesRemoved()
-
-		aResult = []
-
-		for cSubStr in pacSubstr
-
-			aResult + [ cSubStr, This.NumberOfOccurrenceOfSubstringCS(cSubStr, pCaseSensitive) ]
-		next
-
-		return aResult
-
-		def NumberOfOccurrencesOfManySubstringsCSXT(pacSubStr, pCaseSensitive)
-			return This.NumberOfOccurrenceOfManySubstringsCSXT(pacSubStr, pCaseSensitive)
+		def FindSubStringCSXT(pcSubStr, pCaseSensitive)
+			return This.FindSubStringXTCS(pcSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NumberOfOccurrenceOfManySubstringsXT(pacSubStr)
-		return This.NumberOfOccurrenceOfManySubstringsCSXT(pacSubStr, :CaseSensitive = TRUE)
+	def FindSubStringXT(pcSubStr)
+		return This.FindSubStringXTCS(pcSubStr, :CaseSensitive = TRUE)
 
-		def NumberOfOccurrencesOfManySubstringsXT(pacSubStr, pCaseSensitive)
-			return This.NumberOfOccurrenceOfManySubstringsXT(pacSubStr, pCaseSensitive)
+	  #============================================================================#
+	 #   FINDING THE POSITIONS OF A GIVEN SUBSTRING IN THE STRING AT POSITION N   #
+	#============================================================================#
 
-	  #-------------------------------------------------------------------#
+	def FindInStringNSubStringCS(n, pcSubStr, pCaseSensitive)
+		anResult = This.StringAtPositionNQ(n).FindCS(pcSubStr, pCaseSensitive)
+		return anResult
+
+		#< @FunctionFluentForm
+
+		def FindInStringNSubStringCSQ(n, pcSubStr, pCaseSensitive)
+			return This.FindInStringNSubStringCSQR(n, pcSubStr, pCaseSensitive, :stzList)
+
+		def FindInStringNSubStringCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindInStringNSubStringCS(n, pcSubStr, pCaseSensitive) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindInStringNSubStringCS(n, pcSubStr, pCaseSensitive) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def FindSubStringInStringAtPositionNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindInStringNSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def FindSubStringInStringAtPositionNCSQ(n, pcSubStr, pCaseSensitive)
+				return This.FindSubStringInStringAtPositionNCSQR(n, pcSubStr, pCaseSensitive, :stzList)
+
+			def FindSubStringInStringAtPositionNCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindInStringNSubStringCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
+
+		def FindSubStringInStringAtPosotionCS(n, pcSubStr, pCaseSensitive)
+			return This.FindInStringNSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def FindSubStringInStringAtPosotionCSQ(n, pcSubStr, pCaseSensitive)
+				return This.FindSubStringInStringAtPositionCSQR(n, pcSubStr, pCaseSensitive, :stzList)
+
+			def FindSubStringInStringAtPositionCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindSubStringAtPositionNCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInStringNSubString(n, pcSubStr)
+		return This.FindInStringNSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def FindInStringNSubStringQ(n, pcSubStr)
+			return This.FindInStringNSubStringQR(n, pcSubStr, :stzList)
+
+		def FindInStringNSubStringQR(n, pcSubStr, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindInStringNSubString(n, pcSubStr) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindInStringNSubString(n, pcSubStr) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def FindSubStringInStringAtPositionN(n, pcSubStr)
+			return This.FindInStringNSubString(n, pcSubStr)
+
+			def FindSubStringInStringAtPositionNQ(n, pcSubStr)
+				return This.FindSubStringInStringAtPositionNQR(n, pcSubStr, :stzList)
+
+			def FindSubStringInStringAtPositionNQR(n, pcSubStr, pcReturnType)
+				return This.FindSubStringAtPositionNQR(n, pcSubStr, pcReturnType)
+
+		def FindSubStringInStringAtPosition(n, pcSubStr)
+			return This.FindInStringNSubString(n, pcSubStr)
+
+			def FindSubStringInStringAtPosotionQ(n, pcSubStr)
+				return This.FindInStringNSubStringQR(n, pcSubStr, :stzList)
+
+			def FindSubStringInStringAtPositionQR(n, pcSubStr, pcReturnType)
+				return This.FFindInStringNSubStringQR(n, pcSubStr, pcReturnType)
+
+		#>
+
+	  #===================================================================#
 	 #  CHECKING IF THE LIST CONTAINS A GIVEN SUSBTRING IN ITS STRINGS   #
-	#-------------------------------------------------------------------#
+	#===================================================================#
 
 	def ContainsSubstringCS(pcSubStr, pCaseSensitive)
 		if This.NumberOfOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive) > 0
@@ -5018,6 +5311,19 @@ class stzListOfStrings from stzList
 
 	def ContainsSubString(pcSubStr)
 		return This.ContainsSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS N TIMES A GIVEN SUSBTRING   #
+	#------------------------------------------------------------#
+
+	def ContainsNTimesSubStringCS(n, pcSubStr, pCaseSensitive)
+		nOccurr = This.NumberOfOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		return nOccurr = n
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsNTimesSubString(n, pcSubStr)
+		return This.ContainsNTimesSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
 
 	  #--------------------------------------------------------------------#
 	 #  CHECKING IF EACH STRING-ITEM CONTAINS N TIMES A GIVEN SUSBTRING   #
@@ -5635,9 +5941,9 @@ class stzListOfStrings from stzList
 					stzRaise("Unsupported param type!")
 				off
 
-  	  #-----------------------------------------------------#
-	 #     STRINGS CONTAINING N TIMES A GIVEN SUBSTRING    #
-	#-----------------------------------------------------#
+  	  #--------------------------------------------------#
+	 #   STRINGS CONTAINING N TIMES A GIVEN SUBSTRING   #
+	#--------------------------------------------------#
 
 	def StringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
 		acResult = TRUE
@@ -5941,7 +6247,7 @@ class stzListOfStrings from stzList
 
 		#>
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr)
 		return This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, :CaseSensitive = TRUE)
@@ -6146,6 +6452,44 @@ class stzListOfStrings from stzList
 					stzRaise("Unsupported return type!")
 				off
 
+		#-- ..CSXT or XTCS? You can use them both ;)
+
+		def StringItemsContainingNTimesTheSubstringXTCS(n, pcSubstr, pCaseSensitive)
+			return This. StringItemsContainingNTimesTheSubstringCSXT(n, pcSubstr, pCaseSensitive)
+
+			def StringItemsContainingNTimesTheSubstringXTCSQ(n, pcSubstr, pCaseSensitive)
+				return This.StringItemsContainingNTimesTheSubstringXTCS(n, pcSubstr, pCaseSensitive, :stzList)
+	
+			def StringItemsContainingNTimesTheSubstringXTCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				return This.StringItemsContainingNTimesTheSubstringCSXTQR(n, pcSubstr, pCaseSensitive, pcReturn)
+
+		def StringsContainingNTimesTheSubstringXTCS(n, pcSubstr, pCaseSensitive)
+			return This.StringsContainingNTimesTheSubstringCSXT(n, pcSubstr, pCaseSensitive)
+
+			def StringsContainingNTimesTheSubstringXTCSQ(n, pcSubstr, pCaseSensitive)
+				return This.StringsContainingNTimesTheSubstringCSXTQ(n, pcSubstr, pCaseSensitive)
+	
+			def StringsContainingNTimesTheSubstringXTCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				return This.StringsContainingNTimesTheSubstringCSXTQR(n, pcSubstr, pCaseSensitive, pcReturn)
+
+		def StringItemsContainingNTimesXTCS(n, pcSubStr, pCaseSensitive)
+			return This.StringItemsContainingNTimesCSXT(n, pcSubStr, pCaseSensitive)
+
+			def StringItemsContainingNTimesXTCSQ(n, pcSubstr, pCaseSensitive)
+				return This.StringItemsContainingNTimesCSXTQ(n, pcSubstr, pCaseSensitive)
+		
+			def StringItemsContainingNTimesXTCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				return This.StringItemsContainingNTimesCSXTQR(n, pcSubstr, pCaseSensitive, pcReturn)
+
+		def StringsContainingNTimesXTCS(n, pcSubStr, pCaseSensitive)
+			return This.StringsContainingNTimesCSXT(n, pcSubStr, pCaseSensitive)
+
+			def StringsContainingNTimesXTCSQ(n, pcSubstr, pCaseSensitive)
+				return This.StringsContainingNTimesCSXTQ(n, pcSubstr, pCaseSensitive)
+		
+			def StringsContainingNTimesXTCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				return This.StringsContainingNTimesCSXTQR(n, pcSubstr, pCaseSensitive, pcReturn)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITTY
@@ -6262,8 +6606,17 @@ class stzListOfStrings from stzList
 			"Mabrooka"
 		])
 
-		o1.FindNthOccurrenceOfSubStringCS(2, "name", :CaseSensitive = TRUE)
-		#--> [ "3" = 6 ]
+		? o1.FindNthOccurrenceOfSubString(2, "name")
+		#--> [ 3, 6 ]
+		# The substring "name" is found in string 2, at position 6
+
+		REMINDER
+
+		? o1.FindSubStringXT("name")
+		#--> [
+		#	[ 1, 13 ], [ 3, 6 ], [ 3, 18 ], [ 6, 18 ]
+		#    ]
+
 		*/
 
 		# Checking param correctness
@@ -6281,32 +6634,9 @@ class stzListOfStrings from stzList
 			stzRaise("Incorrect param! n must be a number.")
 		ok
 
-		if NOT n <= This.NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
-			stzRaise("Incorrect value! n must be a number <= number of occurrences of the substring in all the strings.")
-		ok
-
 		# Doing the job
 
-		aPositionsXT = This.FindSubStringCS(pcSubStr, pCaseSensitive)
-
-		# position is searched for inside aPositionsXT
-
-		anResult = []
-		i = 0
-		for aPair in aPositionsXT
-			cLevel = aPair[1]
-			anPositions = aPair[2]
-			q = 0
-
-			for nPos in anPositions
-				i++
-				q++
-				if i = n
-					anResult = [ cLevel, anPositions[q] ]
-					exit 2
-				ok
-			next
-		next
+		anResult = This.FindSubStringXTCS(pcSubStr, pCaseSensitive)[n]
 
 		return anResult
 
@@ -6314,6 +6644,15 @@ class stzListOfStrings from stzList
 			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
 
 		def FindNthOccurrenceOfThisSubStringCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def PositionOfNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def PositionOfNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def PositionOfNthOccurrenceOfThisSubStringCS(n, pcSubStr, pCaseSensitive)
 			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -6325,6 +6664,15 @@ class stzListOfStrings from stzList
 			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
 
 		def FindNthOccurrenceOfThisSubString(n, pcSubStr)
+			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
+
+		def PositionOfNthOccurrenceOfSubString(n, pcSubStr)
+			return This.FindNthOccurrenceOfSng(n, pcSubStr)
+
+		def PositionOfNthOccurrence(n, pcSubStr)
+			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
+
+		def PositionOfNthOccurrenceOfThisSubString(n, pcSubStr)
 			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
 
 	  #-------------------------------------------------------------------#
@@ -6340,6 +6688,15 @@ class stzListOfStrings from stzList
 		def FindFirstOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
 			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
 
+		def PositionOfFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfFirstSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfFirstOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstOccurrenceOfSubString(pcSubStr)
@@ -6349,6 +6706,15 @@ class stzListOfStrings from stzList
 			return This.FindFirstOccurrenceOfSubString(pcSubStr)
 
 		def FindFirstOccurrenceOfThisSubString(pcSubStr)
+			return This.FindFirstOccurrenceOfSubString(pcSubStr)
+
+		def PositionOfFirstOccurrenceOfSubString(pcSubStr)
+			return This.FindFirstOccurrenceOfSubString(pcSubStr)
+
+		def PositionOfFirstSubString(pcSubStr)
+			return This.FindFirstOccurrenceOfSubString(pcSubStr)
+
+		def PositionOfFirstOccurrenceOfThisSubString(pcSubStr)
 			return This.FindFirstOccurrenceOfSubString(pcSubStr)
 
 	  #-------------------------------------------------------------------#
@@ -6364,6 +6730,16 @@ class stzListOfStrings from stzList
 		def FindLastOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
 			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
 
+		def PositionOfLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfLastSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfLastOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+
 	#-- WITHOUT CASESENSITIVE
 
 	def FindLastOccurrenceOfSubString(pcSubStr)
@@ -6375,12 +6751,21 @@ class stzListOfStrings from stzList
 		def FindLastOccurrenceOfThisSubString(pcSubStr)
 			return This.FindLastOccurrenceOfSubString(pcSubStr)
 
+		def PositionOfLastOccurrenceOfSubString(pcSubStr)
+			return This.FindLastOccurrenceOfSubString(pcSubStr)
+
+		def PositionOfLastSubString(pcSubStr)
+			return This.FindLastOccurrenceOfSubString(pcSubStr)
+
+		def PositionOfLastOccurrenceOfThisSubString(pcSubStr)
+			return This.FindLastOccurrenceOfSubString(pcSubStr)
+
 	  #------------------------------------------------#
 	 #   FINDING MANY SUBSTRINGS AT THE SAME TIME     #
 	#------------------------------------------------#
 
-	def FindSubStringsCS(pacStr, pCaseSensitive)
-		/* Example
+	def FindSubStringsCS(pacSubStr, pCaseSensitive)
+		/* EXAMPLE
 
 		o1 = new stzListOfStrings([
 			"What's your name please",
@@ -6391,11 +6776,32 @@ class stzListOfStrings from stzList
 			"Mabrooka"
 		])
 
-		o1.FindSubStringsCS("name", :CaseSensitive = TRUE)
-		#--> [ "1" = [ 13 ], "3" = [ 6, 16, 21 ] ]
+		#-->
+		#  [
+		#	# "name" is found here
+		#	[
+		#		[ 1, [ 13 ] ], [ 3, [ 6, 18 ] ]
+		#	],
+		#
+		#	# and "mabrooka" is found here
+		#	[
+		#		[ 2, [ 1 ] ], [ 6, [ 1 ] ]
+		#	]
+		# ]
+
 		*/
 
-		/* ... */
+		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+			stzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+		ok
+
+		aResult = []
+
+		for cSubStr in pacSubStr
+			aResult + This.FindSubStringCS(cSubStr, pCaseSensitive)
+		next
+
+		return aResult
 
 		def FindManySubtringsCS(pacStr, pCaseSensitive)
 			return This.FindSubStringsCS(pacStr, pCaseSensitive)
@@ -6414,12 +6820,12 @@ class stzListOfStrings from stzList
 		def FindTheseSubStrings(pacStr)
 			return This.FindSubStrings(pacStr)
 
-	  #----------------------------------------------------------#
-	 #   FINDING MANY SUBSTRINGS AT THE SAME TIME -- EXTENDED   #
-	#----------------------------------------------------------#
+	  #-----------------------------------------------------------#
+	 #   FINDING MANY SUBSTRINGS AT THE SAME TIME -- EXTENDED    #
+	#-----------------------------------------------------------#
 
-	def FindSubstringsCSXT(pacSubStr, pCaseSensitive)
-		/* Example
+	def FindSubStringsXTCS(pacSubStr, pCaseSensitive)
+		/* EXAMPLE
 
 		o1 = new stzListOfStrings([
 			"What's your name please",
@@ -6430,70 +6836,41 @@ class stzListOfStrings from stzList
 			"Mabrooka"
 		])
 
-		o1.FindManySubstringsCSXT("name", :CaseSensitive = TRUE)
-		#--> [
-		#	:name = [ "1" = [ 13 ], "3" = [ 6, 21 ] ],
-		#	:nice = [ "3" = [ 16 ]
-		#    ]
+		? o1.FindSubStringsXT([ "name", "mabrooka"])
+		#-->
+		#  [
+		#	# "name" is found here
+		#	[
+		#		[ 1, 13 ], [ 3, 6 ], [ 3, 18 ]
+		#	],
+		#
+		#	# and "mabrooka" is found here
+		#	[
+		#		[ 2, 1 ], [ 6, 1 ]
+		#	]
+		#  ]
+
 		*/
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
-			stzRaise("Incorrect param type! You must provide a list of strings.")
-		ok
-
-		if len(pacSubStr) = 0
-			return []
-		ok
-
-		pacSubStr = StzListQ(pacSubStr).ToSet()
 		aResult = []
 
 		for cSubStr in pacSubStr
-			anPos = This.FindSubstringCS(cSubStr, pCaseSensitive)
-			if len(anPos) > 0
-				aResult + [ cSubStr, anPos ]
-			ok
+			aResult + This.FindSubStringXTCS(cSubStr, pCaseSensitive)
 		next
 
 		return aResult
 
-		#< @FunctionAlternativeForms
-
-		def FindSubStringsXTCS(pacStr, pCaseSensitive)
-			return This.FindSubStringsCSXT(pacStr, pCaseSensitive)
-
-		def FindManySubStringsCSXT(pacStr, pCaseSensitive)
-			return This.FindSubStringsCSXT(pacStr, pCaseSensitive)
-
-			def FindManySubStringsXTCS(pacStr, pCaseSensitive)
-				return This.FindSubStringsCSXT(pacStr, pCaseSensitive)
-
-		def FindTheseSubStringsCSXT(pacStr, pCaseSensitive)
-			return This.FindSubStringsCSXT(pacStr, pCaseSensitive)
-
-			def FindTheseSubStringsXTCS(pacStr, pCaseSensitive)
-				return This.FindSubStringsCSXT(pacStr, pCaseSensitive)
-
-		#>
+		def FindSubStringsCSXT(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsXTCS(pacSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindSubstringsXT(pacSubStr)
-		return This.FindSubstringsCSXT(pacSubStr, :CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def FindManySubStringsXT(pacStr)
-			return This.FindSubStringsXT(pacStr)
-
-		def FindTheseSubStringsXT(pacStr)
-			return This.FindSubStringsXT(pacStr)
-
-		#>
+	def FindSubStringsXT(pacSubStr)
+		return This.FindSubStringsXTCS(pacSubStr, :CaseSensitive = TRUE)
 
 	   #---------------------------------------------------------#
 	  #      CHECKING IF EACH STRING OF THE LIST OF STRINGS     #
-	 #      CONTAINS EACH THE PROVIDED SUBSTRINGS              #
+	 #      CONTAINS EACH ONE OF THE PROVIDED SUBSTRINGS       #
 	#---------------------------------------------------------#
 
 	def ContainsSubStringsCS(pacSubStr, pCaseSensitive)
@@ -7030,9 +7407,41 @@ class stzListOfStrings from stzList
 
 	def ReplaceAllStrings(pcNewString)
 
-		for i = 1 to This.NumberOfStrings()
-			This.ReplaceStringAtPosition(i, pcNewString)
-		next
+		bDynamic = FALSE
+
+		if isList(pcNewString) and Q(pcNewString).IsWithOrByNamedParamList()
+
+			if Q(pcNewString[1]).LastChar() = "@"
+				bDynamic = TRUE
+			ok
+
+			pcNewString = pcNewString[2]
+			
+		ok
+
+		if NOT isString(pcNewString)
+			stzRaise("Incorrect param! pcNewString must be a string.")
+		ok
+
+		if NOT bDynamic
+			for i = 1 to This.NumberOfStrings()
+				This.ReplaceStringAtPosition(i, pcNewString)
+			next
+	
+		else
+			
+			cDynamicExpr = StzCCodeQ(pcNewString).UnifiedFor(:stzListOfStrings)
+
+			for i = 1 to This.NumberOfStrings()
+
+				@string = This.StringAtPosition(i)
+				cCode = 'cNewStr = ' + cDynamicExpr
+				eval(cCode)
+
+				This.ReplaceStringAtPosition(i, cNewStr)
+			next
+
+		ok
 
 		#< @FunctionFluentForm
 
@@ -7480,7 +7889,6 @@ class stzListOfStrings from stzList
 		def StringItemsReplacedByMany(acStrings, pacNewStrings)
 			return This.StringsReplacedByMany(pacStrings, pacNewStrings)
 
-
 	  #------------------------------------------------------------#
 	 #  REPLACING MANY STRINGS BY MANY OTHER STRINGS -- EXTENDED  #
 	#------------------------------------------------------------#
@@ -7827,10 +8235,9 @@ class stzListOfStrings from stzList
 
 		return acResult
 
-	   #---------------------------------------------------------#
-	  #   REPLACING THE PREVIOUS OCCURRENCES OF A STRING-ITEM   #
-       #   STARTING AT A GIVEN POSITION                          #
-	#--------------------------------------------------------#
+	  #--------------------------------------------------------------------------------#
+	 #  REPLACING PREVIOUS OCCURRENCES OF A STRING-ITEM STARTING AT A GIVEN POSITION  #                        #
+	#--------------------------------------------------------------------------------#
 
 	def ReplacePreviousOccurrencesCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
 
@@ -8195,10 +8602,9 @@ class stzListOfStrings from stzList
 
 		return aResult
 
-	   #-------------------------------------------------#
-	  #    REPLACING NEXT NTH OCCURRENCE OF A STRING    #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST     #
-	#-------------------------------------------------#
+	  #----------------------------------------------------------------------------#
+	 #   REPLACING NEXT NTH OCCURRENCE OF A STRING STARTING AT A GIVEN POSITION   #
+	#----------------------------------------------------------------------------#
 
 	def ReplaceNextNthOccurrenceCS(n, pcString, pcNewString, pnStartingAt, pCaseSensitive)
 
@@ -8306,10 +8712,9 @@ class stzListOfStrings from stzList
 		def NthNextOccurrenceReplaced(n, pcString, pnStartingAt, pcNewString)
 			return This.NextNthOccurrenceReplaced(n, pcString, pnStartingAt, pcNewString)
 
-	   #---------------------------------------------------#
-	  #    REPLACING NEXT OCCURRENCE OF A STRING-ITEM     #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST       #
-	#---------------------------------------------------#
+	  #---------------------------------------------------------------------------#
+	 #  REPLACING NEXT OCCURRENCE OF A STRING-ITEM STARTING AT A GIVEN POSITION  #
+	#---------------------------------------------------------------------------#
 
 	def ReplaceNextOccurrenceCS(pcString, pcNewString, pnStartingAt, pCaseSensitive)
 		This.ReplaceNextNthOccurrenceCS(1, pcString, pcNewString, pnStartingAt, pCaseSensitive)
@@ -8343,10 +8748,9 @@ class stzListOfStrings from stzList
 
 		return aResult
 
-	   #------------------------------------------------------------#
-	  #    REPLACING MANY NEXT NTH OCCURRENCES OF A STRING-ITEM    #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST                #
-	#------------------------------------------------------------#
+	  #-------------------------------------------------------------------------------------#
+	 #  REPLACING MANY NEXT NTH OCCURRENCES OF A STRING-ITEM STARTING AT A GIVEN POSITION  #
+	#-------------------------------------------------------------------------------------#
 
 	def ReplaceNextNthOccurrencesCS(panList, pcString, pcNewString, pnStartingAt, pCaseSensitive)
 		/* Example
@@ -8478,10 +8882,9 @@ class stzListOfStrings from stzList
 		def NthNextOccurrencesReplaced(panList, pcString, pcNewString, pnStartingAt)
 			return This.NextNthOccurrencesReplaced(panList, pcString, pcNewString, pnStartingAt)
 
-	   #-----------------------------------------------------#
-	  #    REPLACING PREVIOUS NTH OCCURRENCE OF A STRING    #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST         #
-	#-----------------------------------------------------#
+	  #------------------------------------------------------------------------------#
+	 #  REPLACING PREVIOUS NTH OCCURRENCE OF A STRING STARTING AT A GIVEN POSITION  #
+	#------------------------------------------------------------------------------#
 
 	def ReplacePreviousNthOccurrenceCS(n, pcString, pcNewString, pnStartingAt, pCaseSensitive)
 		if isList(pcString) and StzListQ(pcString).IsOfNamedParamList()
@@ -8571,10 +8974,9 @@ class stzListOfStrings from stzList
 		def PreviousNthOccurrenceReplaced(n, pcString, pcNewString, pnStartingAt)
 			return This.NthPreviousOccurrenceReplaced(n, pcString, pnStartingAt)
 
-	   #-------------------------------------------------#
-	  #    REPLACING PREVIOUS OCCURRENCE OF A STRING    #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST     #
-	#-------------------------------------------------#
+	   #--------------------------------------------------------------------------#
+	  #  REPLACING PREVIOUS OCCURRENCE OF A STRING STARTING AT A GIVEN POSITION  #
+	#---------------------------------------------------------------------------#
 
 	def ReplacePreviousOccurrenceCS(pcString, pcNewString, pnStartingAt, pCaseSensitive)
 		This.ReplacePreviousNthOccurrenceCS(1, pcString, pcNewString, pnStartingAt, pCaseSensitive)
@@ -8606,10 +9008,9 @@ class stzListOfStrings from stzList
 				Content()
 		return aResult
 
-	   #-----------------------------------------------------------#
-	  #     REPLACING MANY PREVIOUS NTH OCCURRENCES OF A STRING   #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST               #
-	#-----------------------------------------------------------#
+	  #---------------------------------------------------------------------------------------#
+	 #     REPLACING MANY PREVIOUS NTH OCCURRENCES OF A STRING STARTING AT A GIVEN POSITION  #
+	#---------------------------------------------------------------------------------------#
 
 	def ReplacePreviousNthOccurrencesCS(panList, pcString, pcNewString, pnStartingAt, pCaseSensitive)
 		/* Example
@@ -8737,9 +9138,9 @@ class stzListOfStrings from stzList
 		def NthPreviousOccurrencesReplaced(panList, pcString, pcNewString, pnStartingAt)
 			return This.PreviousNthOccurrencesReplaced(panList, pcString, pcNewString, pnStartingAt)
 
-	  #----------------------------------#
+	  #==================================#
 	 #   REPLACING STRING BY POSITION   #
-	#----------------------------------#
+	#==================================#
 
 	def ReplaceStringAtPosition(n, pcOtherStr)
 		/* Example 1:
@@ -8867,6 +9268,20 @@ class stzListOfStrings from stzList
 
 			def ReplaceStringItemAtQ(n, pcOtherString)
 				This.RemoveStringItemAt(n, pcOtherString)
+				return This
+
+		def ReplaceStringN(n, pcOtherString)
+			This.ReplaceStringAtPosition(n, pcOtherString)
+
+			def ReplaceStringNQ(n, pcOtherString)
+				This.ReplaceStringN(n, pcOtherString)
+				return This
+
+		def ReplaceStringItemN(n, pcOtherString)
+			This.ReplaceStringAtPosition(n, pcOtherString)
+
+			def ReplaceStringItemNQ(n, pcOtherString)
+				This.ReplaceStringN(n, pcOtherString)
 				return This
 
 		#>
@@ -10052,11 +10467,43 @@ class stzListOfStrings from stzList
 
 	def ReplaceSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			
-		i = 0
+		bDynamic = FALSE
+
+		if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithOrByNamedParamList()
+			if Q(pcNewSubStr[1]).LastChar() = "@"
+				bDynamic = TRUE
+			ok
+
+			pcNewSubStr = pcNewSubStr[2]
+
+		ok
+
+		if NOT isString(pcNewSubStr)
+			stzRaise("Incorrect param! pcNewSubStr must be a string.")
+		ok
+
+		cDynamicExpr = NULL
+
+		if bDynamic
+			cDynamicExpr = StzStringQ(pcNewSubStr).SimplifyQ().
+					RemoveBoundsQ("{","}").Content()
+		ok
+
+		@SubString = pcSubStr
+		@i = 0
 		for str in This.ListOfStrings()
-			i++
+			@i++
+			@StringPosition = @i
+			
+			if bDynamic
+				cCode = 'pcNewSubStr = ' + cDynamicExpr
+				eval(cCode)
+			ok
+
+			@NewSubString = pcNewSubStr
+
 			cNewSubStr = StzStringQ(str).ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
-			This.ReplaceStringAtPosition(i, cNewSubStr)
+			This.ReplaceStringAtPosition(@i, cNewSubStr)
 		next
 
 		def ReplaceSubStringCSQ(pcSubStr, pcNewStr, pCaseSensitive)
@@ -10080,1557 +10527,346 @@ class stzListOfStrings from stzList
 		acResult = This.Copy().ReplaceSubStringQ(pcSubStr, pcNewStr).Content()
 		return acResult
 
-	  #--------------------------------------------------------------#
-	 #  REPLACING MANY SUBSTRING IN THE LIST WITH A NEW SUBSTRING   #
-	#--------------------------------------------------------------#
+	  #------------------------------------------------#
+	 #  REPLACING MANY SUBSTRINGS BY A GIVEN STRING   #
+	#------------------------------------------------#
 
-	def ReplaceSubStringsCS(pacSubStr, pcNewStr, pCaseSensitive)
+	def ReplaceManySubStringsCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
 
-		for cSubStr in pacSubStr
-			This.ReplaceSubStringCS(cSubStr, pcNewStr, pCaseSensitive)
+		bDynamic = FALSE
+		if isList(pcNewsubStr) and Q(pcNewSubStr).IsWithOrByParamList()
+			if Q(pcNewSubStr[1]).LastChar() = "@"
+				bDynamic = TRUE
+				pcNewSubStr = pcNewSubStr[2]
+			ok
+		ok
+
+		@i = 0
+		@Position = 0
+		@SubStringPosition = 0
+		@NextPosition = 0
+		@PreviousPosition = 0
+		@NextI = 0
+		@PreviousI = 0
+
+		for str in pacSubStrings
+			if NOT bDynamic
+				This.ReplaceSubStringCS(str, pcNewSubStr, pCaseSensitive)
+			else
+				@i++
+				@Position = @i
+				@SubStringPosition = @i
+
+				@NextPosition = @Position++
+				@NextI = @NextPosition
+
+				@PreviousPosition = @Position--
+				@PreviousI = @PreviousPosition
+				
+				cDynamicExpr = StzStringQ(pcNewSubStr).SimplifyQ().RemoveBoundsQ("{","}").Content()
+				cCode = 'cNewStr = ( ' + cDynamicExpr + ' )'
+
+				try
+					eval(cCode)
+				catch
+				done
+
+				This.ReplaceSubStringCS(str, cNewStr, pCaseSensitive)
+			ok
 		next
 
-		def ReplaceSubStringsCSQ(pacSubStr, pcNewStr, pCaseSensitive)
-			This.ReplaceSubStringsCS(pacSubStr, pcNewStr, pCaseSensitive)
+		def ReplaceManySubStringsCSQ(pacSubStrings, pcNewSubStr, pCaseSensitive)
+			This.ReplaceManySubStringsCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
 			return This
 
-		def ReplaceManySubStringsCS(pacSubStr, pcNewStr, pCaseSensitive)
-			This.ReplaceSubStringsCS(pacSubStr, pcNewStr, pCaseSensitive)
+		def RepalceSubStringsCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
+			This.ReplaceManySubStringsCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
 
-			def ReplaceManySubStringsCSQ(pacSubStr, pcNewStr, pCaseSensitive)
-				This.ReplaceManySubStringsCS(pacSubStr, pcNewStr, pCaseSensitive)
+			def RepalceSubStringsCSQ(pacSubStrings, pcNewSubStr, pCaseSensitive)
+				This.RepalceSubStringsCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
 				return This
 
-	def SubStringsRepalcedCS(pacSubStr, pcNewStr, pCaseSensitive)
-		acResult = This.ReplaceSubStringsCSQ(pacSubStr, pcNewStr, pCaseSensitive).Content()
+	def ManySubStringsReplacedCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
+		acResult = This.Copy().ReplaceManySubStringsCSQ(pacSubStrings, pcNewSubStr, pCaseSensitive).Content()
 		return acResult
 
-		def ManySubStringsRepalcedCS(pacSubStr, pcNewStr, pCaseSensitive)
-			return This.SubStringsRepalcedCS(pacSubStr, pcNewStr, pCaseSensitive)
+		def SubStringsReplacedCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
+			return This.ManySubStringsReplacedCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceSubStrings(pacSubStr, pcNewStr)
-		This.ReplaceSubStringsCS(pacSubStr, pcNewStr, :CaseSensitive = TRUE)
+	def ReplaceManySubStrings(pacSubStrings, pcNewSubStr)
+		This.ReplaceManySubStringsCS(pacSubStrings, pcNewSubStr, :CaseSensitive = TRUE)
 
-		def ReplaceSubStringsCQ(pacSubStr, pcNewStr)
-			This.ReplaceSubStrings(pacSubStr, pcNewStr)
+		def ReplaceManySubStringsQ(pacSubStrings, pcNewSubStr)
+			This.ReplaceManySubStrings(pacSubStrings, pcNewSubStr)
 			return This
 
-		def ReplaceManySubStrings(pacSubStr, pcNewStr)
-			This.ReplaceSubStrings(pacSubStr, pcNewStr)
+		def RepalceSubStrings(pacSubStrings, pcNewSubStr)
+			This.ReplaceManySubStrings(pacSubStrings, pcNewSubStr)
 
-			def ReplaceManySubStringsCQ(pacSubStr, pcNewStr)
-				This.ReplaceManySubStrings(pacSubStr, pcNewStr)
+			def RepalceSubStringsQ(pacSubStrings, pcNewSubStr)
+				This.RepalceSubStrings(pacSubStrings, pcNewSubStr)
 				return This
 
-	def SubStringsRepalced(pacSubStr, pcNewStr)
-		acResult = This.ReplaceSubStringsQ(pacSubStr, pcNewStr).Content()
+	def ManySubStringsReplaced(pacSubStrings, pcNewSubStr)
+		acResult = This.Copy().ReplaceManySubStringsQ(pacSubStrings, pcNewSubStr).Content()
 		return acResult
 
-		def ManySubStringsRepalced(pacSubStr, pcNewStr)
-			return This.SubStringsRepalced(pacSubStr, pcNewStr)
+		def SubStringsReplaced(pacSubStrings, pcNewSubStr)
+			return This.ManySubStringsReplaced(pacSubStrings, pcNewSubStr)
 
-	  #-------------------------------------------------------#
-	 #   REPLACING MANY SUBSTRING BY MANY OTHER SUBSTRINGS   #
-	#-------------------------------------------------------#
+	  #-----------------------------------------------#
+	 #    REPLACING SUBSTRINGS BY MANY SUBSTRINGS	 #
+	#-----------------------------------------------#
 
-	def ReplaceSubStringsByManyCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+	def ReplaceSubStringByManyCS(pcSubStr, pacNewSubStrings, pCaseSensitive)
+		/* EXAMPLE 1
 
-		if NOT isList(pacSubStrings) and Q(pacSubStrings).IsListOfStrings()
-			stzRaise("Incorrect param! paSubStrings must be a list of strings.")
-		ok
+		o1 = new stzListOfStrings([ "heart ___ heart", "___ heart ___ heart ___ heart", "heart" ])
+		o1.ReplaceSubStringByMany( "heart", :With = L('{ "♥1" : "♥6" }') )
+		
+		? @@( o1.Content() )
+		#--> [ "♥1 ___ ♥2", "___ ♥3 ___ ♥4 ___ ♥5", "♥6" ]
 
-		if isList(pacNewSubStrings) and Q(pacNewSubStrings).IsWithOrByNamedParamList()
+		EXAMPLE 2
+
+		o1 = new stzListOfStrings([ "heart ___ heart", "___ heart ___ heart ___ heart", "heart" ])
+		o1.ReplaceSubStringByMany( "heart", :With = [ "♥1", "♥2", "♥3" ]') )
+		
+		? @@( o1.Content() )
+		#--> [ "♥1 ___ ♥2", "___ ♥3 ___ heart ___ heart", "heart" ]
+
+		*/
+
+		if isList(pacNewSubStrings) and Q(pacNewSubStrings).IsWithOrByNamedPAramList()
 			pacNewSubStrings = pacNewSubStrings[2]
 		ok
 
-		if NOT Q(pacNewSubStrings).IsListOfStrings()
+		if NOT ( isList(pacNewSubStrings) and Q(pacNewSubStrings).IsListOfStrings() )
 			stzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
 		ok
 
-		i = 0
-		for cSubStr in pacSubStrings
-			i++
-			if i <= len(pacNewSubStrings)
-				cNewSubStr = pacNewSubStrings[i]
-				This.ReplaceSubStringCS(cSubStr, cNewSubStr, pCaseSensitive)
-			ok
-		next
+		# [ "heart ___ heart", "___ heart ___ heart ___ heart", "heart" ]
 
-		def ReplaceSubStringsByManyCSQ(pacSubStrings, pacNewSubStrings, pCaseSensitive)
-			This.ReplaceSubStringsByManyCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
-			return This
+		# [ "♥1", "♥2", "♥3" ]
+		nLen = len(pacNewSubStrings)
 
-	#-- WITHOUT CASESENSITIVE
+		aPositions = This.NFirstOccurrencesOfSubStringXTCS(nLen, pcSubStr, pCaseSensitive)
+		#--> [ [ 1, 1], [ 1, 11 ], [ 2, 5] ]
 
-	def ReplaceSubStringsByMany(pacSubStrings, pacNewSubStrings)
-		This.ReplaceSubStringsByManyCS(pacSubStrings, pacNewSubStrings, :CaseSensitive = TRUE)
-
-		def ReplaceSubStringsByManyQ(pacSubStrings, pacNewSubStrings)
-			This.ReplaceSubStringsByMany(pacSubStrings, pacNewSubStrings)
-			return This
-
-	  #-------------------------------------------------------------------#
-	 #   REPLACING MANY SUBSTRING BY MANY OTHER SUBSTRINGS -- EXTENDED   #
-	#-------------------------------------------------------------------#
-
-	def ReplaceSubStringsByManyCSXT(pacSubStrings, pacNewSubStrings, pCaseSensitive)
-
-		if NOT isList(pacSubStrings) and Q(pacSubStrings).IsListOfStrings()
-			stzRaise("Incorrect param! paSubStrings must be a list of strings.")
-		ok
-
-		if isList(pacNewSubStrings) and Q(pacNewSubStrings).IsWithOrByNamedParamList()
-			pacNewSubStrings = pacNewSubStrings[2]
-		ok
-
-		if NOT Q(pacNewSubStrings).IsListOfStrings()
-			stzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
-		ok
-
-		i = 0
-		for cSubStr in pacSubStrings
-			i++
-			if i > len(pacNewSubStrings)
-				i = 1
-			ok
-
-			cNewSubStr = pacNewSubStrings[i]
-			This.ReplaceSubStringCS(cSubStr, cNewSubStr, pCaseSensitive)
-
-		next
-
-		def ReplaceSubStringsByManyCSXTQ(pacSubStrings, pacNewSubStrings, pCaseSensitive)
-			This.ReplaceSubStringsByManyCSXT(pacSubStrings, pacNewSubStrings, pCaseSensitive)
-			return This
-
-	#-- WITHOUT CASESENSITIVE
-
-	def ReplaceSubStringsByManyXT(pacSubStrings, pacNewSubStrings)
-		This.ReplaceSubStringsByManyCSXT(pacSubStrings, pacNewSubStrings, :CaseSensitive = TRUE)
-
-		def ReplaceSubStringsByManyXTQ(pacSubStrings, pacNewSubStrings)
-			This.ReplaceSubStringsByManyXT(pacSubStrings, pacNewSubStrings)
-			return This
-
-	  #-----------------------------------------------------------------------------------------#
-	 #  REPLACING A SUBSTRING AT POSITION N IN THE STRING AT POSITION N WITH A NEW SUBSTRING   #
-	#-----------------------------------------------------------------------------------------#
-
-	def ReplaceSubStringAtPositionN2InStringAtPositionN1CS(n1, n2, pcSubStr, pcNewSubStr, pCaseSensitive)
-		/* EXAMPLE
-		o1 = new stzListOfStrings([ "<<", "heart lorem heart ipsum heart and heart", ">>" ])
-		o1.ReplaceSubStringAtPositionN2InStringAtPositionN1(2, 13, "heart", "♥♥♥")
-	
-		? @@( o1.Content() ) #--> [ "<<", "heart lorem ♥♥♥ ipsum heart and heart", ">>" ]
-		*/
-
-		cNewStr  = This.StringAtPositionNQ(n1).
-				ReplaceSubStringAtPositionCSQ(n2, pcSubStr, pcNewSubStr, pCaseSensitive).
-				Content()
-
-		This.ReplaceStringAtPositionN(n1, cNewStr)
-
-		def ReplaceSubStringAtPositionN2InStringAtPositionN1CSQ(n1, n2, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionNInStringAtPositionNCS(n1, n2, pcSubStr, pcNewSubStr, pCaseSensitive)
-			return This
-
-	def SubStringAtPositionN2InStringAtPositionN1ReplacedCS(n1, n2, pcSubStr, pcNewSubStr, pCaseSensitive)
-
-		acResult = This.Copy().
-				ReplaceSubStringAtPositionN2InStringAtPositionN1CSQ(n1, n2, pcSubStr, pcNewSubStr, pCaseSensitive).
-				Content()
-
-		return acResult
-
+		This.ReplaceSubStringAtPositions(aPositions, pcSubStr)
+			
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceSubStringAtPositionN2InStringAtPositionN1(n1, n2, pcSubStr, pcNewSubStr)
-		This.ReplaceSubStringAtPositionN2InStringAtPositionN1CS(n1, n2, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
-
-		def ReplaceSubStringAtPositionN2InStringAtPositionN1Q(n1, n2, pcSubStr, pcNewSubStr)
-			This.ReplaceSubStringAtPositionN2InStringAtPositionN1(n1, n2, pcSubStr, pcNewSubStr)
-			return This
-
-	def SubStringAtPositionN2InStringAtPositionN1Replaced(n1, n2, pcSubStr, pcNewSubStr)
-
-		acResult = This.Copy().
-				ReplaceSubStringAtPositionN2InStringAtPositionN1Q(n1, n2, pcSubStr, pcNewSubStr).
-				Content()
-
-		return acResult
-
-	  #--------------------------------------------------------------------------------------------------#
-	 #  REPLACING MANY SUBSTRINGS AT GIVEN POSITIONS IN THE STRING AT POSITION N WITH A NEW SUBSTRING   #
-	#--------------------------------------------------------------------------------------------------#
-
-	def ReplaceSubStringAtPositionsInStringAtPositionNCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-		/* EXAMPLE
-		o1 = new stzListOfStrings([ "<<", "heart lorem heart ipsum heart and heart", ">>" ])
-		o1.ReplaceSubStringAtPositionsInStringAtPositionNCS(2, [ 13, 25 ], "heart", "♥♥♥")
-	
-		? @@( o1.Content() ) #--> [ "<<", "heart lorem ♥♥♥ ipsum ♥♥♥ and heart", ">>" ]
-		*/
-
-		nDiff = StzStringQ(pcNewSubStr).NumberOfChars() - StzStringQ(pcSubStr).NumberOfChars()
-
-		for i = 2 to len(panSubStrPositions)
-			panSubStrPositions[i] += nDiff
-			nDiff += nDiff
-		next
-
-		for nPos in panSubStrPositions
-			This.ReplaceSubStringAtPositionN2InStringAtPositionN1CS(n, nPos, pcSubStr, pcNewSubStr, pCaseSensitive)		
-		next
-
-		#< @FunctionFluentForm
-
-		def ReplaceSubStringAtPositionsN2InStringAtPositionNCSQ(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionsN2InStringAtPositionNCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def ReplaceSubStringAtPositionsInStringAtPositionCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.This.ReplaceSubStringAtPositionsN2InStringAtPositionNCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-
-			def ReplaceSubStringAtPositionsInStringAtPositionCSQ(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-				This.ReplaceSubStringAtPositionsInStringAtPositionCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-				return This
-
-		def ReplaceSubStringAtThesePositionsInStringAtPositionNCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionsN2InStringAtPositionNCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-
-			def ReplaceSubStringAtThesePositionsInStringAtPositionNCSQ(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-				This.ReplaceSubStringAtThesePositionsInStringAtPositionNCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-				return This
-
-		def ReplaceSubStringAtThesePositionsInStringAtPositionCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionsN2InStringAtPositionNCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-
-			def ReplaceSubStringAtThesePositionsInStringAtPositionCSQ(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-				This.ReplaceSubStringAtThesePositionsInStringAtPositionCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-				return This
-
-		#>
-
-	def SubStringAtThesePositionsInStringAtPositionNReplacedCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-
-		acResult = This.Copy().
-				ReplaceSubStringAtPositionsN2InStringAtPositionNCSQ(n, panSubStrPositions, pcSubStr, pcNewSubStr, pCaseSensitive).
-				Content()
-
-		return acResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringAtPositionsInStringAtPositionN(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-		This.ReplaceSubStringAtPositionsInStringAtPositionNCS(n, panSubStrPositions, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def ReplaceSubStringAtPositionsN2InStringAtPositionNQ(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-			This.ReplaceSubStringAtPositionsN2InStringAtPositionN(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def ReplaceSubStringAtPositionsInStringAtPosition(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-			This.This.ReplaceSubStringAtPositionsN2InStringAtPositionNC(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-
-			def ReplaceSubStringAtPositionsInStringAtPositionQ(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-				This.ReplaceSubStringAtPositionsInStringAtPosition(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-				return This
-
-		def ReplaceSubStringAtThesePositionsInStringAtPositionN(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-			This.ReplaceSubStringAtPositionsN2InStringAtPositionN(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-
-			def ReplaceSubStringAtThesePositionsInStringAtPositionNQ(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-				This.ReplaceSubStringAtThesePositionsInStringAtPositionN(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-				return This
-
-		def ReplaceSubStringAtThesePositionsInStringAtPosition(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-			This.ReplaceSubStringAtPositionsN2InStringAtPositionN(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-
-			def ReplaceSubStringAtThesePositionsInStringAtPositionQ(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-				This.ReplaceSubStringAtThesePositionsInStringAtPosition(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-				return This
-
-		#>
-
-	def SubStringAtThesePositionsInStringAtPositionNReplaced(n, panSubStrPositions, pcSubStr, pcNewSubStr)
-
-		acResult = This.Copy().
-				ReplaceSubStringAtPositionsN2InStringAtPositionNQ(n, panSubStrPositions, pcSubStr, pcNewSubStr).
-				Content()
-
-		return acResult
-
-	  #---------------------------------------------------------------------------#
-	 #  REPLACING A SUBSTRING IN THE STRING AT POSITION N WITH A NEW SUBSTRING   #
-	#---------------------------------------------------------------------------#
-
-	def ReplaceSubStringAtPositionCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-		/*
-		o1 = new stzListOfStrings([ "<<", "heart1 lorem", "heart2 ipsum", "heart3 lorem", ">>" ])
-		o1.ReplaceSubStringsAtPosition([2, 3, 4], [ "heart1", "heart2", "heart3" ], :With = "♥")
-	
-		? @@( o1.Content() ) #--> [ "<<", "♥ lorem", "♥ ipsum", "♥ lorem", ">>" ]
-		*/
-
-		cNewStr  = This.StringAtPositionQ(n).
-				ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).
-				Content()
-
-		This.ReplaceStringAtPosition(n, cNewStr)
-
-		#< @FunctionFluentForm
-
-		def ReplaceSubStringAtPositionCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def ReplaceSubStringAtPositionNCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-
-			def ReplaceSubStringAtPositionNCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-				This.ReplaceSubStringAtPositionNCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-				return This
-		#>
-
-	def SubStringAtPositionReplacedCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceSubStringAtPositionCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive).Content()
-		return acResult
-
-		def SubStringAtPositionNReplacedCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-			return This.SubStringAtPositionReplacedCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringAtPosition(n, pcSubStr, pcNewSubStr)
-		This.ReplaceSubStringAtPositionCS(n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
-		return This
-
-		#< @FunctionFluentForm
-
-		def ReplaceSubStringAtPositionQ(n, pcSubStr, pcNewSubStr)
-			This.ReplaceSubStringAtPosition(n, pcSubStr, pcNewSubStr)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def ReplaceSubStringAtPositionN(n, pcSubStr, pcNewSubStr)
-			This.ReplaceSubStringAtPosition(n, pcSubStr, pcNewSubStr)
-
-			def ReplaceSubStringAtPositionNQ(n, pcSubStr, pcNewSubStr)
-				This.ReplaceSubStringAtPositionN(n, pcSubStr, pcNewSubStr)
-				return This
-		#>
-
-	def SubStringAtPositionReplaced(n, pcSubStr, pcNewSubStr)
-		acResult = This.Copy().ReplaceSubStringAtPositionQ(n, pcSubStr, pcNewSubStr).Content()
-		return acResult
-
-		def SubStringAtPositionNReplacedQ(n, pcSubStr, pcNewSubStr)
-			return This.SubStringAtPositionReplaced(n, pcSubStr, pcNewSubStr)
-
-	  #-------------------------------------------------------------------------------#
-	 #  REPLACING MANY SUBSTRINGS IN THE STRING AT POSITION N WITH A NEW SUBSTRING   #
-	#-------------------------------------------------------------------------------#
-
-	def ReplaceSubStringsAtPositionCS(paPositions, pacSubStr, pcNewSubStr, pCaseSensitive)
-		/* EXAMPLE
-
-		o1 = new stzListOfStrings([ "<<", "heart1 lorem heart2 ipsum heart3", ">>" ])
-		o1.ReplaceSubStringsAtPosition(2, [ "heart1", "heart2", "heart3" ], :With = "♥")
-	
-		? @@( o1.Content() ) #--> [ "<<", "♥ lorem ♥ ipsum ♥", ">>" ]
-		*/
-
-		for str in pacSubStr
-			This.ReplaceSubStringAtPositionsCS(paPositions, str, pcNewSubStr, pCaseSensitive)
-		next
-
-		def ReplaceSubStringsAtPositionCSQ(n, pacSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsAtPositionCS(n, pacSubStr, pcNewSubStr, pCaseSensitive)
-			return This
-
-		def ReplaceManySubStringsAtPositionCS(n, pacSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceManySubStringsAtPositionCS(n, pacSubStr, pcNewSubStr, pCaseSensitive)
-			return This
-
-			def  ReplaceManySubStringsAtPositionCSQ(n, pacSubStr, pcNewSubStr, pCaseSensitive)
-				This. ReplaceManySubStringsAtPositionCS(n, pacSubStr, pcNewSubStr, pCaseSensitive)
-				return This
-
-	def SubStringsAtPositionReplacedCS(n, pacSubStr, pcNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceSubStringsAtPositionCSQ(n, pacSubStr, pcNewSubStr, pCaseSensitive)
-		return acResult
-
-		def ManySubStringsAtPositionReplacedCS(n, pacSubStr, pcNewSubStr, pCaseSensitive)
-			return This.SubStringsAtPositionReplacedCS(n, pacSubStr, pcNewSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringsAtPosition(n, pacSubStr, pcNewSubStr)
-		This.ReplaceSubStringsAtPositionCS(n, pacSubStr, pcNewSubStr, :CS = TRUE)
-
-		def ReplaceSubStringsAtPositionCQ(n, pacSubStr, pcNewSubStr)
-			This.ReplaceSubStringsAtPositionC(n, pacSubStr, pcNewSubStr)
-			return This
-
-		def ReplaceManySubStringsAtPosition(n, pacSubStr, pcNewSubStr)
-			This.ReplaceManySubStringsAtPosition(n, pacSubStr, pcNewSubStr)
-			return This
-
-			def  ReplaceManySubStringsAtPositionQ(n, pacSubStr, pcNewSubStr)
-				This. ReplaceManySubStringsAtPosition(n, pacSubStr, pcNewSubStr)
-				return This
-
-	def SubStringsAtPositionReplaced(n, pacSubStr, pcNewSubStr)
-		acResult = This.Copy().ReplaceSubStringsAtPositionQ(n, pacSubStr, pcNewSubStr)
-		return acResult
-
-		def ManySubStringsAtPositionReplaced(n, pacSubStr, pcNewSubStr)
-			return This.SubStringsAtPositionReplaced(n, pacSubStr, pcNewSubStr)
-
-	  #-------------------------------------------------------------------------------#
-	 #  REPLACING A SUBSTRING IN THE STRING AT MANY POSITIONS WITH A NEW SUBSTRING   #
-	#-------------------------------------------------------------------------------#
-
-	def ReplaceSubStringAtPositionsCS(panPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-		
-		for n in panPositions
-			This.ReplaceSubStringAtPositionCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-		next
-
-		def ReplaceSubStringAtPositionsCSQ(panPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionsCS(panPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-			return This
-
-	def SubStringAtPositionsRepalcedCS(panPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceSubStringAtPositionsCSQ(panPositions, pcSubStr, pcNewSubStr, pCaseSensitive).Content()
-		return acResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringAtPositions(panPositions, pcSubStr, pcNewSubStr)
-		This.ReplaceSubStringAtPositionsCS(panPositions, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
-
-		def ReplaceSubStringAtPositionsQ(panPositions, pcSubStr, pcNewSubStr)
-			This.ReplaceSubStringAtPositions(panPositions, pcSubStr, pcNewSubStr)
-			return This
-
-	def SubStringAtPositionsRepalced(panPositions, pcSubStr, pcNewSubStr)
-		acResult = This.Copy().ReplaceSubStringAtPositionsQ(panPositions, pcSubStr, pcNewSubStr).Content()
-		return acResult
-
-	  #------------------------------------------------------------------------------#
-	 #  REPLACING MANY SUBSTRINGS IN THE STRING AT POSITIONS WITH A NEW SUBSTRING   #
-	#------------------------------------------------------------------------------#
-
-	def ReplaceSubStringsAtPositionsCS(panPositions, pacSubStr, pcNewSubStr, pCaseSensitive)
-
-		for str in pacSubStr
-			This.ReplaceSubStringAtPositionsCS(panPositions, str, pcNewSubStr, pCaseSensitive)
-		next
-
-		def ReplaceSubStringsAtPositionsCSQ(panPositions, pacSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsAtPositionsCS(panPositions, pacSubStr, pcNewSubStr, pCaseSensitive)
-			return This
-
-		def ReplaceManySubStringsAtPositionsCS(panPositions, pacSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsAtPositionsCS(panPositions, pacSubStr, pcNewSubStr, pCaseSensitive)
-
-	def SubStringsAtPositionsReplacedCS(panPositions, pacSubStr, pcNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceSubStringsAtPositionsCSQ(panPositions, pacSubStr, pcNewSubStr, pCaseSensitive).Content()
-		return acResult
-
-		def ManySubStringsAtPositionsReplacedCS(panPositions, pacSubStr, pcNewSubStr, pCaseSensitive)
-			return This.SubStringsAtPositionsReplacedCS(panPositions, pacSubStr, pcNewSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringsAtPositions(panPositions, pacSubStr, pcNewSubStr)
-		This.ReplaceSubStringsAtPositionsCS(panPositions, pacSubStr, pcNewSubStr, :CaseSensitive = TRUE)
-
-		def ReplaceSubStringsAtPositionsQ(panPositions, pacSubStr, pcNewSubStr)
-			This.ReplaceSubStringsAtPositions(panPositions, pacSubStr, pcNewSubStr)
-			return This
-
-		def ReplaceManySubStringsAtPositionsQ(panPositions, pacSubStr, pcNewSubStr)
-			This.ReplaceSubStringsAtPositions(panPositions, pacSubStr, pcNewSubStr)
-	
-	def SubStringsAtPositionsReplaced(panPositions, pacSubStr, pcNewSubStr)
-		acResult = This.Copy().ReplaceSubStringsAtPositionsQ(panPositions, pacSubStr, pcNewSubStr).Content()
-		return acResult
-
-		def ManySubStringsAtPositionsReplaced(panPositions, pacSubStr, pcNewSubStr)
-			return This.SubStringsAtPositionsReplaced(panPositions, pacSubStr, pcNewSubStr)
-
-	  #-------------------------------------------------------------------------------------#
-	 #  REPLACING A SUBSTRING IN THE STRING AT POSITIONS WITH A NEW SUBSTRING ONE BY ONE   #
-	#-------------------------------------------------------------------------------------#
-
-	def ReplaceSubStringAtPositionsOneByOneCS(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-	
-		if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParamList()
-			pacNewSubStr = pacNewSubStr[2]
-		ok
-
-		if NOT ( isList(pacNewSubStr) and Q(pacNewSubStr).IsListOfStrings() )
-			stzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
-		ok
-
-		i = 0
-		for n in anPositions
-			i++
-
-			cNewSubStr = NULL
-			if i <= len(anPositions)
-				cNewSubStr = pacNewSubStr[i]
-			ok
-
-			if cNewSubStr != NULL
-				This.ReplaceSubStringAtPositionCS(n, pcSubStr, cNewSubStr, pCaseSensitive)
-			ok
-		next
-
-		def ReplaceSubStringAtPositionsOneByOneCSQ(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionsOneByOneCS(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-			return This
-
-	def SubStringAtPositionsReplacedOneByOneCS(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceSubStringAtPositionsOneByOneCSQ(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive).Content()
-		return acResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringAtPositionsOneByOne(anPositions, pcSubStr, pacNewSubStr)
-		This.ReplaceSubStringAtPositionsOneByOneCS(anPositions, pcSubStr, pacNewSubStr, :CaseSensitive = TRUE)
-		return This
-
-		def ReplaceSubStringAtPositionsOneByOneQ(anPositions, pcSubStr, pacNewSubStr)
-			This.ReplaceSubStringAtPositionsOneByOne(anPositions, pcSubStr, pacNewSubStr)
-			return This
-
-	def SubStringAtPositionsReplacedOneByOne(anPositions, pcSubStr, pacNewSubStr)
-		acResult = This.Copy().ReplaceSubStringAtPositionsOneByOneQ(anPositions, pcSubStr, pacNewSubStr).Content()
-		return acResult
-	
-	  #-----------------------------------------------------------------------------------------#
-	 #  REPLACING MANY SUBSTRINGS IN THE STRING AT POSITIONS WITH A NEW SUBSTRING ONE BY ONE   #
-	#-----------------------------------------------------------------------------------------#
-
-	def ReplaceSubStringsAtPositionsOneByOneCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-		
-		for str in pacSubStr
-			This.ReplaceSubStringAtPositionsOneByOneCS(anPositions, str, pacNewSubStr, pCaseSensitive)
-		next
-
-		def ReplaceSubStringsAtPositionsOneByOneCSQ(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsAtPositionsOneByOneCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-			return This
-
-		def ReplaceManySubStringsAtPositionsOneByOneCS(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsAtPositionsOneByOneCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-
-			def ReplaceManySubStringsAtPositionsOneByOneCSQ(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-				This.ReplaceManySubStringsAtPositionsOneByOneCS(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-				return This
-
-	def SubStringsAtPositionsReplacedOneByOnesCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceSubStringsAtPositionsOneByOneCSQ(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive).Content()
-		return acResult
-
-		def ManySubStringsAtPositionsReplacedOneByOnesCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-			return This.SubStringsAtPositionsReplacedOneByOnesCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringsAtPositionsOneByOne(anPositions, pacSubStr, pacNewSubStr)
-		This.ReplaceSubStringsAtPositionsOneByOneCS(anPositions, pacSubStr, pacNewSubStr, :CaseSensitive = TRUE)
-
-		def ReplaceSubStringsAtPositionsOneByOneQ(anPositions, pacSubStr, pacNewSubStr)
-			This.ReplaceSubStringsAtPositionsOneByOne(anPositions, pacSubStr, pacNewSubStr)
-			return This
-
-		def ReplaceManySubStringsAtPositionsOneByOne(anPositions, pcSubStr, pacNewSubStr)
-			This.ReplaceSubStringsAtPositionsOneByOne(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-
-			def ReplaceManySubStringsAtPositionsOneByOneQ(anPositions, pcSubStr, pacNewSubStr)
-				This.ReplaceManySubStringsAtPositionsOneByOne(anPositions, pcSubStr, pacNewSubStr)
-				return This
-
-	def SubStringsAtPositionsReplacedOneByOnes(anPositions, pacSubStr, pacNewSubStr)
-		acResult = This.Copy().ReplaceSubStringsAtPositionsOneByOneQ(anPositions, pacSubStr, pacNewSubStr).Content()
-		return acResult
-
-		def ManySubStringsAtPositionsReplacedOneByOnes(anPositions, pacSubStr, pacNewSubStr)
-			return This.SubStringsAtPositionsReplacedOneByOnes(anPositions, pacSubStr, pacNewSubStr)
-
-	  #----------------------------------------------------------------------------------------#
-	 #  REPLACING A SUBSTRING IN THE STRING AT POSITIONS WITH A NEW SUBSTRING BY ALTERNANCE   #
-	#----------------------------------------------------------------------------------------#
-
-	def ReplaceSubStringAtPositionsByAlternanceCS(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-		if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParamList()
-			pacNewSubStr = pacNewSubStr[2]
-		ok
-
-		if NOT ( isList(pacNewSubStr) and Q(pacNewSubStr).IsListOfStrings() )
-			stzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
-		ok
-
-		i = 0
-		for n in anPositions
-
-			i++
-			if i > len(pacNewSubStr)
-				i = 1
-			ok
-
-			cNewSubStr = pacNewSubStr[i]
-
-			This.ReplaceSubStringAtPositionCS(n, pcSubStr, cNewSubStr, pCaseSensitive)
-
-		next
-
-		def ReplaceSubStringAtPositionsByAlternanceCSQ(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionsByAlternanceCS(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-			return This
-
-	def SubStringAtPositionsReplacedByAlternanceCS(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceSubStringAtPositionsByAlternanceCSQ(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-		return acResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringAtPositionsByAlternance(anPositions, pcSubStr, pacNewSubStr)
-		This.ReplaceSubStringAtPositionsByAlternanceCS(anPositions, pcSubStr, pacNewSubStr, :CaseSensitive = TRUE)
-		
-		def ReplaceSubStringAtPositionsByAlternanceQ(anPositions, pcSubStr, pacNewSubStr)
-			This.ReplaceSubStringAtPositionsByAlternance(anPositions, pcSubStr, pacNewSubStr)
-			return This
-
-	def SubStringAtPositionsReplacedByAlternance(anPositions, pcSubStr, pacNewSubStr)
-		acResult = This.Copy().ReplaceSubStringAtPositionsByAlternanceQ(anPositions, pcSubStr, pacNewSubStr)
-		return acResult
-
-	  #--------------------------------------------------------------------------------------------#
-	 #  REPLACING MANY SUBSTRINGS IN THE STRING AT POSITIONS WITH A NEW SUBSTRING BY ALTERNANCE   #
-	#--------------------------------------------------------------------------------------------#
-
-	def ReplaceSubStringsAtPositionsByAlternanceCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-
-		for str in pacSubStr
-			This.ReplaceSubStringAtPositionsByAlternanceCS(anPositions, str, pacNewSubStr, pCaseSensitive)
-		next
-
-		def ReplaceSubStringsAtPositionsByAlternanceCSQ(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsAtPositionsByAlternanceCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-			return This
-
-		def ReplaceManySubStringsAtPositionsByAlternanceCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsAtPositionsByAlternanceCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-
-			def ReplaceManySubStringsAtPositionsByAlternanceCSQ(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-				This.ReplaceManySubStringsAtPositionsByAlternanceCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-				return This
-
-	def SubStringsAtPositionsReplacedByAlternanceCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceSubStringsAtPositionsByAlternanceCSQ(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive).Content()
-		return acResult
-
-		def ManySubStringsAtPositionsReplacedByAlternanceCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-			return This.SubStringsAtPositionsReplacedByAlternanceCS(anPositions, pacSubStr, pacNewSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringsAtPositionsByAlternance(anPositions, pacSubStr, pacNewSubStr)
-		This.ReplaceSubStringsAtPositionsByAlternanceCS(anPositions, pacSubStr, pacNewSubStr, :CaseSensitive = TRUE)
-
-		def ReplaceSubStringsAtPositionsByAlternanceQ(anPositions, pacSubStr, pacNewSubStr)
-			This.ReplaceSubStringsAtPositionsByAlternance(anPositions, pacSubStr, pacNewSubStr)
-			return This
-
-		def ReplaceManySubStringsAtPositionsByAlternance(anPositions, pacSubStr, pacNewSubStr)
-			This.ReplaceSubStringsAtPositionsByAlternance(anPositions, pacSubStr, pacNewSubStr)
-
-			def ReplaceManySubStringsAtPositionsByAlternanceCQ(anPositions, pacSubStr, pacNewSubStr)
-				This.ReplaceManySubStringsAtPositionsByAlternance(anPositions, pacSubStr, pacNewSubStr)
-				return This
-
-	def SubStringsAtPositionsReplacedByAlternance(anPositions, pacSubStr, pacNewSubStr)
-		acResult = This.Copy().ReplaceSubStringsAtPositionsByAlternanceQ(anPositions, pacSubStr, pacNewSubStr).Content()
-		return acResult
-
-		def ManySubStringsAtPositionsReplacedByAlternance(anPositions, pacSubStr, pacNewSubStr)
-			return This.SubStringsAtPositionsReplacedByAlternance(anPositions, pacSubStr, pacNewSubStr)
-
-	  #--------------------------------------------------------#
-	 #  REPLACING A SUBSTRING BY MANY SUBSTRINGS ONE BY ONE   #
-	#--------------------------------------------------------#
-
-	def ReplaceSubStringBySubStringsOneByOneCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-		/*
-		o1 = new stzListOfStrings([ "lorem heart", "heart ipsum", "heart ipsum heart" ])
-		o1.ReplaceSubStringBySubStringsOneByOne("heart", :With = [ "♥", "🌞", "★" ])
-	
-		? @@( o1.Content() ) #--> [ "lorem ♥", "🌞 ipsum", "★ ipsum ★" ]
-		
-		*/
-
-		if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParamList()
-			pacNewSubStr = pacNewSubStr[2]
-		ok
-
-		if NOT ( isList(pacNewSubStr) and Q(pacNewSubStr).IsListOfStrings() )
-			stzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
-		ok
-
-		aPositionsXT = This.FindSubStringCS(pcSubStr, pCaseSensitive)
-
-		anPositions = []
-		for aPair in aPositionsXT
-			anPositions + ( 0+ aPair[1] )
-		next
-
-		i = 0
-		for n in anPositions
-			i++
-			cNewStr = NULL
-			if i <= len(pacNewSubStr)
-				cNewStr = pacNewSubStr[i]
-			ok
-
-			if cNewStr != NULL
-				This.ReplaceSubStringAtPositionCS(n, pcSubStr, cNewStr, pCaseSensitive)
-			ok
-		next
-
-		def ReplaceSubStringBySubStringsOneByOneCSQ(pcSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringBySubStringsOneByOneCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-			return This
-
-		def ReplaceSubStringByManySubStringsOneByOneCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringBySubStringsOneByOneCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-
-			def ReplaceSubStringByManySubStringsOneByOneCSQ(pcSubStr, pacNewSubStr, pCaseSensitive)
-				This.ReplaceSubStringByManySubStringsOneByOneCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-				return This
-
-	def SubStringReplacedBySubStringsOneByOneCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceSubStringBySubStringsOneByOneCSQ(pcSubStr, pacNewSubStr, pCaseSensitive)
-		return acResult
-
-		def SubStringReplacedByManySubStringsOneByOneCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-			return This.SubStringReplacedBySubStringsOneByOneCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringBySubStringsOneByOne(pcSubStr, pacNewSubStr)
-		This.ReplaceSubStringBySubStringsOneByOneCS(pcSubStr, pacNewSubStr, :CaseSensitive = TRUE)
-
-		def ReplaceSubStringBySubStringsOneByOneQ(pcSubStr, pacNewSubStr)
-			This.ReplaceSubStringBySubStringsOneByOne(pcSubStr, pacNewSubStr)
-			return This
-
-		def ReplaceSubStringByManySubStringsOneByOne(pcSubStr, pacNewSubStr)
-			This.ReplaceSubStringBySubStringsOneByOne(pcSubStr, pacNewSubStr)
-
-			def ReplaceSubStringByManySubStringsOneByOneCQ(pcSubStr, pacNewSubStr)
-				This.ReplaceSubStringByManySubStringsOneByOne(pcSubStr, pacNewSubStr)
-				return This
-
-	def SubStringReplacedBySubStringsOneByOne(pcSubStr, pacNewSubStr)
-		acResult = This.Copy().ReplaceSubStringBySubStringsOneByOneQ(pcSubStr, pacNewSubStr)
-		return acResult
-
-		def SubStringReplacedByManySubStringsOneByOne(pcSubStr, pacNewSubStr)
-			return This.SubStringReplacedBySubStringsOneByOne(pcSubStr, pacNewSubStr)
-
-	  #-------------------------------------------------------------------------------------------------#
-	 #  REPLACING MANY SUBSTRINGS INSIDE THE STRING AT POSITION N BY MANY OTHER SUBSTRINGS ONE BY ONE  #
-	#-------------------------------------------------------------------------------------------------#
-
-	def ReplaceSubStringsAtPositionNOneByOneCS(n, pacSubStr, pacNewSubStr, pCaseSensitive)
-		/* EXAMPLE
-
-		o1 = new stzListOfStrings([ "Who're you?", "your heart is made of sun and stars", "You're the own light of sun and stars!"])
-		o1.ReplaceSubStringsAtPositionNOneByOne( 2, [ "heart", "sun", star"], ["♥", "🌞", "★"] )
-
-		? @@( o1.Content() ) #--> [ "Who're you?", "Your ♥ is made of 🌞 and ★s", "You're the own light of sun and stars!"]
-		*/
-
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
-			stzRaise("Incorrect param type! pacSubStr must be a list of strings.")
-		ok
-
-		if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParamList()
-			pacNewSubStr = pacNewSubStr[2]
-		ok
-
-		if NOT ( isList(pacNewSubStr) and Q(pacNewSubStr).IsListOfStrings() )
-			stzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
-		ok
-
-		i = 0
-		for cSubStr in pacSubStr
-			cNewSubStr = NULL
-
-			i++
-			if i <= len(pacNewSubStr)
-				cNewSubStr = pacNewSubStr[i]
-			ok
-
-			if cNewSubStr != NULL
-				This.ReplaceSubStringAtPositionNCS(n, cSubStr, cNewSubStr, pCaseSensitive)
-			ok
-		next
-		
-		#< @FunctionFluentForm
-
-		def ReplaceSubStringsAtPositionNOneByOneCSQ(n, pacSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsAtPositionNOneByOneCS(n, pacSubStr, pacNewSubStr, pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def ReplaceSubStringsAtPositionOneByOneCS(n, pacSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsAtPositionNOneByOneCS(n, pacSubStr, pacNewSubStr, pCaseSensitive)
-
-			def ReplaceSubStringsAtPositionOneByOneCSQ(n, pacSubStr, pacNewSubStr, pCaseSensitive)
-				This.ReplaceSubStringsAtPositionOneByOneCS(n, pacSubStr, pacNewSubStr, pCaseSensitive)
-				return This
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringsAtPositionNOneByOne(n, pacSubStr, pacNewSubStr)
-		This.ReplaceSubStringsAtPositionNOneByOneCS(n, pacSubStr, pacNewSubStr, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def ReplaceSubStringsAtPositionNOneByOneQ(n, pacSubStr, pacNewSubStr)
-			This.ReplaceSubStringsAtPositionNOneByOne(n, pacSubStr, pacNewSubStr)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def ReplaceSubStringsAtPositionOneByOne(n, pacSubStr, pacNewSubStr)
-			This.ReplaceSubStringsAtPositionNOneByOne(n, pacSubStr, pacNewSubStr)
-
-			def ReplaceSubStringsAtPositionOneByOneQ(n, pacSubStr, pacNewSubStr)
-				This.ReplaceSubStringsAtPositionOneByOne(n, pacSubStr, pacNewSubStr)
-				return This
-
-		#>
+	def ReplaceSubStringByMany(pcSubStr, pacNewSubStrings)
+		This.ReplaceSubStringByManyCS(pcSubStr, pacNewSubStrings, :CaseSensitive = TRUE)
 
 	  #----------------------------------------------------------------------------#
-	 #   FINDING THE POSITIONS OF A GIVEN SUBSTRING IN THE STRING AT POSITION N   #
+	 #    REPLACING A SUBSTRING BY MANY SUBSTRINGS -- EXTENDED (REETURN TO FIST)   #
 	#----------------------------------------------------------------------------#
 
-	def FindSubStringAtPositionNCS(n, pcSubStr, pCaseSensitive)
-		anResult = This.StringAtPositionNQ(n).FindCS(pcSubStr, pCaseSensitive)
-		return anResult
-
-		#< @FunctionFluentForm
-
-		def FindSubStringAtPositionNCSQ(n, pcSubStr, pCaseSensitive)
-			return This.FindSubStringAtPositionNCSQR(n, pcSubStr, pCaseSensitive, :stzList)
-
-		def FindSubStringAtPositionNCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindSubStringAtPositionNCS(n, pcSubStr, pCaseSensitive) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindSubStringAtPositionNCS(n, pcSubStr, pCaseSensitive) )
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def FindSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
-			return This.FindSubStringAtPositionNCS(n, pcSubStr, pCaseSensitive)
-
-			def FindSubStringAtPositionCSQ(n, pcSubStr, pCaseSensitive)
-				return This.FindSubStringAtPositionCSQR(n, pcSubStr, pCaseSensitive, :stzList)
-
-			def FindSubStringAtPositionCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindSubStringAtPositionNCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
-
-		def FindSubStringInStringAtPositionNCS(n, pcSubStr, pCaseSensitive)
-			return This.FindSubStringAtPositionNCS(n, pcSubStr, pCaseSensitive)
-
-			def FindSubStringInStringAtPositionNCSQ(n, pcSubStr, pCaseSensitive)
-				return This.FindSubStringInStringAtPositionNCSQR(n, pcSubStr, pCaseSensitive, :stzList)
-
-			def FindSubStringInStringAtPositionNCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindSubStringAtPositionNCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
-
-		def FindSubStringInStringAtPosotionCS(n, pcSubStr, pCaseSensitive)
-			return This.FindSubStringAtPositionNCS(n, pcSubStr, pCaseSensitive)
-
-			def FindSubStringInStringAtPosotionCSQ(n, pcSubStr, pCaseSensitive)
-				return This.FindSubStringInStringAtPosotionCSQR(n, pcSubStr, pCaseSensitive, :stzList)
-
-			def FindSubStringInStringAtPosotionCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindSubStringAtPositionNCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindSubStringAtPositionN(n, pcSubStr)
-		return This.FindSubStringAtPositionNCS(n, pcSubStr, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def FindSubStringAtPositionNQ(n, pcSubStr)
-			return This.FindSubStringAtPositionNQR(n, pcSubStr, :stzList)
-
-		def FindSubStringAtPositionNQR(n, pcSubStr, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindSubStringAtPositionN(n, pcSubStr) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindSubStringAtPositionN(n, pcSubStr) )
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def FindSubStringAtPosition(n, pcSubStr)
-			return This.FindSubStringAtPositionN(n, pcSubStr)
-
-			def FindSubStringAtPositionQ(n, pcSubStr)
-				return This.FindSubStringAtPositionQR(n, pcSubStr, :stzList)
-
-			def FindSubStringAtPositionQR(n, pcSubStr, pcReturnType)
-				return This.FindSubStringAtPositionNQR(n, pcSubStr, pcReturnType)
-
-		def FindSubStringInStringAtPositionN(n, pcSubStr)
-			return This.FindSubStringAtPositionN(n, pcSubStr)
-
-			def FindSubStringInStringAtPositionNQ(n, pcSubStr)
-				return This.FindSubStringInStringAtPositionNQR(n, pcSubStr, :stzList)
-
-			def FindSubStringInStringAtPositionNQR(n, pcSubStr, pcReturnType)
-				return This.FindSubStringAtPositionNQR(n, pcSubStr, pcReturnType)
-
-		def FindSubStringInStringAtPosotion(n, pcSubStr)
-			return This.FindSubStringAtPositionN(n, pcSubStr)
-
-			def FindSubStringInStringAtPosotionQ(n, pcSubStr)
-				return This.FindSubStringInStringAtPosotionQR(n, pcSubStr, :stzList)
-
-			def FindSubStringInStringAtPosotionQR(n, pcSubStr, pcReturnType)
-				return This.FindSubStringAtPositionNQR(n, pcSubStr, pcReturnType)
-
-		#>
-
-//////////////////////////////////////////////////////////////////
-	  #---------------------------------------------------------------------------------------------#
-	 #  REPLACING A SUBSTRING INSIDE THE STRING AT POSITION N BY MANY OTHER SUBSTRINGS ONE BY ONE  #
-	#---------------------------------------------------------------------------------------------#
-
-	def ReplaceSubStringAtPositionNOneByOneCS(n, pcSubStr, pacNewSubStr, pCaseSensitive)
-
-	  #------------------------------------------------------------------------------------------------#
-	 #  REPLACING A SUBSTRING INSIDE THE STRING AT POSITION N BY MANY OTHER SUBSTRINGS BY ALTERNANCE  #
-	#------------------------------------------------------------------------------------------------#
-
-	def ReplaceSubStringAtPositionNByManyByAlternanceCS(n, pcSubStr, pacNewSubStr, pCaseSensitive)
+	def ReplaceSubStringByManyCSXT(pcSubStr, pacNewSubStrings, pCaseSensitive)
 		/* EXAMPLE
-		o1 = new stzListOfStrings([ "<<", "heart lorem heart ipsum heart and heart", ">>" ])
-		o1.ReplaceSubStringAtPositionNByALternance(2, "heart", [ "#1", "#2" ])
-
-		? @@( o1.Content() )
-		#--> [ "<<", "#1 lorem #2 ipsum #1 and #2", ">>"  ]
-
+		o1 = new stzListOfStrings([ "heart ipsum heart", "lorem heart ipsum heart lorem heart", "heart" ])
+		o1.ReplaceSubStringByManyXT( "heart", :With = L('{ "♥1" : "♥3" }') )
+		
+		? @@( o1.Content() ) #--> [ "♥1 ipsum ♥2", "lorem ♥3 ipsum ♥1 lorem ♥2", "♥3" ]
 		*/
 
-		if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParamList()
-			pacNewSubStr = pacNewSubStr[2]
+		if isList(pacNewSubStrings) and Q(pacNewSubStrings).IsWithOrByNamedPAramList()
+			pacNewSubStrings = pacNewSubStrings[2]
 		ok
 
-		if NOT ( isList(pacNewSubStr) and Q(pacNewSubStr).IsListOfStrings() )
-			stzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
+		if NOT ( isList(pacNewSubStrings) and Q(pacNewSubStrings).IsListOfStrings() )
+			stzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
 		ok
 
-		if len(pacNewSubStr) = 0
-			return
+		anPositions = This.FindSubStringCS(pcSubStr, pCaseSensitive)
+
+		nNumberOfSubStrings = This.NumberOfSubStringsCS(pcSubStr, pCaseSensitive)
+
+		acNewSubStrings = pacNewSubStrings
+
+		if len(acNewSubStrings) < nNumberOfSubStrings
+			acNewSubStrings = Q(pacNewSubStrings).
+					  ExtendToXTQ( nNumberOfSubStrings, :With@ = '@items' ).
+					  Content()
 		ok
 
-		cNewStr = This.StringAtPositionNQ(n).ReplaceSubStringByManyByAlternanceQ(pcSubStr, pacNewSubStr)
-		This.ReplaceStringAtPosisionN(n, cNewStr)
+		This.ReplaceSubStringByManyCS(pcSubStr, acNewSubStrings, pCaseSensitive)
 
-		#< @FunctionFluentForm
-
-		def ReplaceSubStringAtPositionNByAlternanceCSQ(n, pcSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionNByAlternanceCS(n, pcSubStr, pacNewSubStr, pCaseSensitive)
+		def ReplaceSubStringByManyCSXTQ(pcSubStr, pacNewSubStrings, pCaseSensitive)
+			This.ReplaceSubStringByManyCSXT(pcSubStr, pacNewSubStrings, pCaseSensitive)
 			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def ReplaceSubStringAtPositionByAlternanceCS(n, pcSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionNByAlternanceCS(n, pcSubStr, pacNewSubStr, pCaseSensitive)
-
-			def ReplaceSubStringAtPositionByAlternanceCSQ(n, pcSubStr, pacNewSubStr, pCaseSensitive)
-				This.ReplaceSubStringAtPositionByAlternanceCS(n, pcSubStr, pacNewSubStr, pCaseSensitive)
-				return This
-		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceSubStringAtPositionNByAlternance(n, pcSubStr, pacNewSubStr)
-		This.ReplaceSubStringAtPositionNByAlternanceCS(n, pcSubStr, pacNewSubStr, :CaseSensitive = TRUE)
+	def ReplaceSubStringByManyXT(pcSubStr, pacNewSubStrings)
+		This.ReplaceSubStringByManyCSXT(pcSubStr, pacNewSubStrings, :CaseSensitive = TRUE)
 
-		#< @FunctionFluentForm
-
-		def ReplaceSubStringAtPositionNByAlternanceQ(n, pcSubStr, pacNewSubStr)
-			This.ReplaceSubStringAtPositionNByAlternance(n, pcSubStr, pCaseSensitive)
+		def ReplaceSubStringByManyXTQ(pcSubStr, pacNewSubStrings)
+			This.ReplaceSubStringByManyXT(pcSubStr, pacNewSubStrings)
 			return This
 
-		#>
+	  #==============================================================================#
+	 #  REPLACING, INSIDE A GIVEN STRING, ALL THE OCCURRENCES OF A GIVEN SUBSTRING  #
+	#==============================================================================#
 
-		#< @FunctionAlternativeForm
-
-		def ReplaceSubStringAtPositionByAlternance(n, pcSubStr, pacNewSubStr)
-			This.ReplaceSubStringAtPositionNByAlternance(n, pcSubStr, pacNewSubStr)
-
-			def ReplaceSubStringAtPositionByAlternanceQ(n, pcSubStr, pacNewSubStr)
-				This.ReplaceSubStringAtPositionByAlternance(n, pcSubStr, pacNewSubStr)
-				return This
-		#>
-
-	  #----------------------------------------------------------------------------------------------------#
-	 #  REPLACING MANY SUBSTRINGS INSIDE THE STRING AT POSITION N BY MANY OTHER SUBSTRINGS BY ALTERNANCE  #
-	#----------------------------------------------------------------------------------------------------#
-
-	def ReplaceSubStringsAtPositionNByAlternanceCS(n, pacSubStr, pacNewSubStr, pCaseSensitive)
+	def ReplaceInStringNCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 		/* EXAMPLE
-
-		o1 = new stzListOfStrings([ "Who're you?", "Your heart is made of sun and stars, you're the sun, you're the star of all the stars", "You're the own light of sun and stars!"])
-		o1.ReplaceSubStringsAtPositionNByAlternance( 2, [ "heart", "sun", "star" ], [ "#1", "#2" ] )
-	
-		? @@S( o1.Content() )	// "S" for Spacified, so the list is printed line by line ;)
-		#--> [ 	"Who're you?",
-		# 	"Your #1 is made of #1 and #1s, you're the #2, you're the #2 of all the #3",
-		# 	"You're the own light of sun and stars!"
-		#    ]
-	
+		o1 = new stzListOfStrings([ "php", "ring php ring python ring", "python" ])
+		o1.ReplaceInStringN(2, "ring", :With = "♥")
+		? o1.Content()
+		#--> [ "php", "♥ php ♥ python ♥", "python" ]
 		*/
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
-			stzRaise("Incorrect param type! pacSubStr must be a list of strings.")
-		ok
+		cNewStr = This.StringQ(n).
+				ReplaceAllCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).
+				Content()
 
-		if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParamList()
-			pacNewSubStr = pacNewSubStr[2]
-		ok
+		This.ReplaceStringN(n, cNewStr)
 
-		if NOT ( isList(pacNewSubStr) and Q(pacNewSubStr).IsListOfStrings() )
-			stzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
-		ok
+		def ReplaceInStringNCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceInStringNCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
 
-		for cSubStr in pacSubStr
+	#-- WITHOUT CASESENSITIVITY
 
-			anPositions = This.FindSubStringAtPositionNCS(n, cSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionsByAlternanceCS(anPositions, cSubStr, pacNewSubStr, pCaseSensitive)
-
-		next
+	def ReplaceInStringN(n, pcSubStr, pcNewSubStr)
+		This.ReplaceInStringNCS(n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
 		
-		#< @FunctionFluentForm
-
-		def ReplaceSubStringsAtPositionNByALternanceCSQ(n, pacSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsAtPositionNByAlternanceCS(n, pacSubStr, pacNewSubStr, pCaseSensitive)
+		def ReplaceInStringNQ(n, pcSubStr, pcNewSubStr)
+			This.ReplaceInStringN(n, pcSubStr, pcNewSubStr)
 			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def ReplaceSubStringsAtPositionByAlternanceCS(n, pacSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsAtPositionNByAlternanceCS(n, pacSubStr, pacNewSubStr, pCaseSensitive)
-
-			def ReplaceSubStringsAtPositionByAlternanceCSQ(n, pacSubStr, pacNewSubStr, pCaseSensitive)
-				This.ReplaceSubStringsAtPositionByAlternanceCS(n, pacSubStr, pacNewSubStr, pCaseSensitive)
-				return This
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringsAtPositionNByAlternance(n, pacSubStr, pacNewSubStr)
-		This.ReplaceSubStringsAtPositionNByAlternanceCS(n, pacSubStr, pacNewSubStr, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def ReplaceSubStringsAtPositionNByAlternanceQ(n, pacSubStr, pacNewSubStr)
-			This.ReplaceSubStringsAtPositionNByAlternance(n, pacSubStr, pacNewSubStr)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def ReplaceSubStringsAtPositionByAlternance(n, pacSubStr, pacNewSubStr)
-			This.ReplaceSubStringsAtPositionNByAlternance(n, pacSubStr, pacNewSubStr)
-
-			def ReplaceSubStringsAtPositionByAlternanceQ(n, pacSubStr, pacNewSubStr)
-				This.ReplaceSubStringsAtPositionByAlternance(n, pacSubStr, pacNewSubStr)
-				return This
-
-		#>
- 
- 	  #------------------------------------------------------------------#
-	 #  REPLACING MANY SUBSTRINGS BY MANY OTHER SUBSTRINGS ONE BY ONE   #
-	#------------------------------------------------------------------#
-
-	def ReplaceSubStringsByManySubStringsOneByOneCS(pacSubStr, pacNewSubStr, pCaseSensitive)
-		/*
-		o1 = new stzListOfStrings([ "lorem heart ipsum sun", "heart and sun", "lorem ipsum heart" ])
-		o1.ReplaceSubStringsByManySubStringsOneByOne([ "heart", "sun" ], :By = [ "♥", "🌞" ])
-
-		? @@( o1.Content() ) #--> [ "lorem ♥ ipsum 🌞", "♥ and 🌞", "lorem ipsum ♥" ]
-		*/
-
-		for i = 1 to This.NumberOfStrings()
-			This.ReplaceSubStringsAtPositionOneByOneCS(i, pacSubStr, pacNewSubStr, pCaseSensitive)
-		next
-
-		def ReplaceManySubStringsByManySubStringsOneByOneCSQ(pacSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsByManySubStringsOneByOneCS(pacSubStr, pacNewSubStr, pCaseSensitive)
-			return This
-
-	def SubStringsReplacedByManySubStringsOneByOneCS(pacSubStr, pacNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceManySubStringsByManySubStringsOneByOneCSQ(pacSubStr, pacNewSubStr, pCaseSensitive).Content()
-		return acResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringsByManySubStringsOneByOne(pacSubStr, pacNewSubStr)
-		This.ReplaceSubStringsByManySubStringsOneByOneCS(pacSubStr, pacNewSubStr, :CaseSensitive = TRUE)
-
-		def ReplaceManySubStringsByManySubStringsOneByOneQ(pacSubStr, pacNewSubStr)
-			This.ReplaceSubStringsByManySubStringsOneByOne(pacSubStr, pacNewSubStr)
-			return This
-
-	def SubStringsReplacedByManySubStringsOneByOne(pacSubStr, pacNewSubStr)
-		acResult = This.Copy().ReplaceManySubStringsByManySubStringsOneByOneQ(pacSubStr, pacNewSubStr).Content()
-		return acResult
-
-	  #-----------------------------------------------------------#
-	 #  REPLACING A SUBSTRING BY MANY SUBSTRINGS BY ALTERNANCE   #
-	#-----------------------------------------------------------#
-
-	def ReplaceSubStringByManySubStringsByAlternanceCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-		aPositionsXT = This.FindSubStringCS(pcSubStr, pCaseSensitive)
-
-		anPositions = []
-		for aPair in aPositionsXT
-			anPositions + ( 0+ aPair[1] )
-		next
-
-		This.ReplaceSubStringAtPositionsByAlternanceCS(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-			
-		def ReplaceSubStringByManySubStringsByAlternanceCSQ(pcSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringByManySubStringsByAlternanceCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-
-	def SubStringReplacedByManySubStringsByAlternanceCS(anPositions, pcSubStr, pacNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceSubStringByManySubStringsByAlternanceCSQ(pcSubStr, pacNewSubStr, pCaseSensitive)
-		return acResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringByManySubStringsByAlternance(pcSubStr, pacNewSubStr)
-		This.ReplaceSubStringByManySubStringsByAlternanceCS(pcSubStr, pacNewSubStr, :CaseSensitive = TRUE)
-		
-		def ReplaceSubStringByManySubStringsByAlternanceQ(pcSubStr, pacNewSubStr)
-			This.ReplaceSubStringByManySubStringsByAlternance(pcSubStr, pacNewSubStr)
-
-	def SubStringReplacedByManySubStringsByAlternance(anPositions, pcSubStr, pacNewSubStr)
-		acResult = This.Copy().ReplaceSubStringByManySubStringsByAlternanceQ(pcSubStr, pacNewSubStr)
-		return acResult
 
 	  #---------------------------------------------------------------------#
-	 #  REPLACING MANY SUBSTRINGS BY MANY OTHER SUBSTRINGS BY ALTERNANCE   #
+	 #  REPLACING, INSIDE A GIVEN STRING, A SUBSTRING AT A GIVEN POSITION  #
 	#---------------------------------------------------------------------#
 
-	def ReplaceSubStringsByManySubStringsByAlternanceCS(pacSubStr, pacNewSubStr, pCaseSensitive)
+	def ReplaceInStringNSubStringAtPositionNCS(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr, pCaseSensitive)
+		/* EXAMPLE
 
-		for str in pacSubStr
-			This.ReplaceSubStringByManySubStringsByAlternanceCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-		next
+		o1 = new stzListOfStrings([ "php", "php ring python", "python" ])
+		o1.ReplaceInStringNSubstringAtPositionN(2, 5, "ring", "♥" )
+		? o1.Content()
+		#--> [ "php", "php ♥ python", "python" ]
+	
+		*/
 
-		def ReplaceSubStringsByManySubStringsByAlternanceCSQ(pacSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsByManySubStringsByAlternanceCS(pacSubStr, pacNewSubStr, pCaseSensitive)
+		cNewStr = This.StringQ(pnStringNumber).
+				ReplaceSubStringAtPositionCSQ(pnSubStringPosition, pcSubStr, pcNewSubStr, pCaseSensitive).
+				Content()
+
+		This.ReplaceStringAt(pnStringNumber, cNewStr)
+
+		def ReplaceInStringNSubStringAtPositionNCSQ(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceInStringNSubStringAtPositionNCS(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
-		def ReplaceManySubStringsByManySubStringsByAlternanceCS(pacSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsByManySubStringsByAlternanceCS(pacSubStr, pacNewSubStr, pCaseSensitive)
+		#< @FunctionAlternativeForm
 
-			def ReplaceManySubStringsByManySubStringsByAlternanceCSQ(pacSubStr, pacNewSubStr, pCaseSensitive)
-				This.ReplaceManySubStringsByManySubStringsByAlternanceCS(pacSubStr, pacNewSubStr, pCaseSensitive)
+		def ReplaceInStringNSubStringAtPositionCS(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceInStringNSubStringAtPositionNCS(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceInStringNSubStringAtPositionCSQ(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.ReplaceInStringNSubStringAtPositionCS(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr, pCaseSensitive)
 				return This
+		#>
 
-	def SubStringsReplacedByManySubStringsByAlternanceCS(pacSubStr, pacNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceSubStringsByManySubStringsByAlternanceQ(pacSubStr, pacNewSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def ReplaceInStringNSubStringAtPositionN(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr)
+		This.ReplaceInStringNSubStringAtPositionNCS(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+
+		def ReplaceInStringNSubStringAtPositionNQ(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr)
+			This.ReplaceInStringNSubStringAtPositionN(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr)
+			return This
+	
+		#< @FunctionAlternativeForm
+
+		def ReplaceInStringNSubStringAtPosition(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr)
+			This.ReplaceInStringNSubStringAtPositionN(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr)
+
+			def ReplaceInStringNSubStringAtPositionQ(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr)
+				This.ReplaceInStringNSubStringAtPosition(pnStringNumber, pnSubStringPosition, pcSubStr, pcNewSubStr)
+				return This
+		#>
+
+	  #-----------------------------------------------------------------------------#
+	 #  REPLACING, INSIDE A GIVEN STRING, THE NTH OCCURRENCE OF A GIVEN SUBSTRING  #
+	#-----------------------------------------------------------------------------#
+
+	def ReplaceInStringNTheNthOccurrenceCS(pnStringNumber, pnOccurrence, pcSubStr, pcNewSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([ "php", "ring php ring python ring", "python" ])
+		o1.ReplaceInStringNTheNthOccurrence(2, 3, "ring", "♥" )
+		? o1.Content()
+		#--> [ "php", "ring php ring python ♥", "python" ]
+	
+		*/
+
+		cNewStr = This.StringQ(pnStringNumber).
+				ReplaceNthOccurrenceCSQ(pnOccurrence, pcSubStr, pcNewSubStr, pCaseSensitive).
+				Content()
+
+		This.ReplaceStringAt(pnStringNumber, cNewStr)
+
+		def ReplaceInStringNTheNthOccurrenceCSQ(pnStringNumber, pnOccurrence, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceInStringNTheNthOccurrenceCS(pnStringNumber, pnOccurrence, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def ReplaceInStringNTheNthOccurrence(pnStringNumber, pnOccurrence, pcSubStr, pcNewSubStr)
+		This.ReplaceInStringNTheNthOccurrenceCS(pnStringNumber, pnOccurrence, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+
+		def ReplaceInStringNTheNthOccurrenceQ(pnStringNumber, pnOccurrence, pcSubStr, pcNewSubStr)
+			This.ReplaceInStringNTheNthOccurrence(pnStringNumber, pnOccurrence, pcSubStr, pcNewSubStr)
+			return This
+	
+	  #-------------------------------------------------------------------------------#
+	 #  REPLACING, INSIDE A GIVEN STRING, THE FIRST OCCURRENCE OF A GIVEN SUBSTRING  #
+	#-------------------------------------------------------------------------------#
+
+	def ReplaceInStringNTheFirstOccurrenceCS(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
+		This.ReplaceInStringNTheNthOccurrenceCS(pnStringNumber, 1, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceInStringNTheFirstOccurrenceCSQ(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceInStringNTheFirstOccurrenceCS(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceSubStringsByManySubStringsByAlternance(pacSubStr, pacNewSubStr)
-		This.ReplaceSubStringsByManySubStringsByAlternanceCS(pacSubStr, pacNewSubStr, :CaseSensitive = TRUE)
+	def ReplaceInStringNTheFirstOccurrence(pnStringNumber, pcSubStr, pcNewSubStr)
+		This.ReplaceInStringNTheFirstOccurrenceCS(pnStringNumber, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
 
-		def ReplaceSubStringsByManySubStringsByAlternanceQ(pacSubStr, pacNewSubStr)
-			This.ReplaceSubStringsByManySubStringsByAlternance(pacSubStr, pacNewSubStr)
+		def ReplaceInStringNTheFirstOccurrenceQ(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceInStringNTheFirstOccurrence(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
-		def ReplaceManySubStringsByManySubStringsByAlternance(pacSubStr, pacNewSubStr)
-			This.ReplaceSubStringsByManySubStringsByAlternance(pacSubStr, pacNewSubStr)
+	  #------------------------------------------------------------------------------#
+	 #  REPLACING, INSIDE A GIVEN STRING, THE LAST OCCURRENCE OF A GIVEN SUBSTRING  #
+	#------------------------------------------------------------------------------#
 
-			def ReplaceManySubStringsByManySubStringsByAlternanceQ(pacSubStr, pacNewSubStr)
-				This.ReplaceManySubStringsByManySubStringsByAlternance(pacSubStr, pacNewSubStr)
-				return This
+	def ReplaceInStringNTheLastOccurrenceCS(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
+		This.ReplaceInStringNTheNthOccurrenceCS(pnStringNumber, :Last, pcSubStr, pcNewSubStr, pCaseSensitive)
 
-	def SubStringsReplacedByManySubStringsByAlternance(pacSubStr, pacNewSubStr)
-		acResult = This.Copy().ReplaceSubStringsByManySubStringsByAlternanceQ(pacSubStr, pacNewSubStr)
-//////////////////////////////////////////////////////////////////
-
-	  #-----------------------------------------------------------------------------#
-	 #  REPLACING NEXT NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION  #
-	#-----------------------------------------------------------------------------#
-
-	def ReplaceNextNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-		anPos = This.FindNextNthSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-		This.ReplaceSubStringAtThisPosition(anPos, pcNewSubStr, pCaseSensitive)
-
-		#< @FunctionFluentForm
-
-		def ReplaceNextNthSubStringCSQ(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			This.ReplaceNextNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
+		def ReplaceInStringNTheLastOccurrenceCSQ(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceInStringNTheLastOccurrenceCS(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
-		#>
 
-		#< @FunctionAlternativeForms
+	#-- WITHOUT CASESENSITIVITY
 
-		def ReplaceNthNextSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			This.ReplaceNextNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
+	def ReplaceInStringNTheLastOccurrence(pnStringNumber, pcSubStr, pcNewSubStr)
+		This.ReplaceInStringNTheLastOccurrenceCS(pnStringNumber, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
 
-			def ReplaceNthNextSubStringCSQ(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				This.ReplaceNthNextSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				return This
-
-		def ReplaceNextNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			This.ReplaceNextNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-
-			def ReplaceNextNthOccurrenceOfSubStringCSQ(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				This.ReplaceNextNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				return This
-
-		def ReplaceNthNextOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			This.ReplaceNextNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-
-			def ReplaceNthNextOccurrenceOfSubStringCSQ(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				This.ReplaceNthNextOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				return This
-
-		#>
-
-	#--- WITHOUT CASESENSITIVITY
-
-	def ReplaceNextNthSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-		This.ReplaceNextNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def ReplaceNextNthSubStringQ(n, pcSubStr, pcNewSubStr, pnStartingAt)
-			This.ReplaceNextNthSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
+		def ReplaceInStringNTheLastOccurrenceQ(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceInStringNTheLastOccurrence(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
-		#>
 
-		#< @FunctionAlternativeForms
-
-		def ReplaceNthNextSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-			This.ReplaceNextNthSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-
-			def ReplaceNthNextSubStringQ(n, pcSubStr, pcNewSubStr, pnStartingAt)
-				This.ReplaceNthNextSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-				return This
-
-		def ReplaceNextNthOccurrenceOfSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-			This.ReplaceNextNthSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-
-			def ReplaceNextNthOccurrenceOfSubStringQ(n, pcSubStr, pcNewSubStr, pnStartingAt)
-				This.ReplaceNextNthOccurrenceOfSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-				return This
-
-		def ReplaceNthNextOccurrenceOfSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-			This.ReplaceNextNthSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-
-			def ReplaceNthNextOccurrenceOfSubStringQ(n, pcSubStr, pcNewSubStr, pnStartingAt)
-				This.ReplaceNthNextOccurrenceOfSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-				return This
-
-		#>
-
-	  #-------------------------------------------------------------------------#
-	 #   REPLACING NEXT OCCURRENCE OF SUBSTRING STARTING AT A GIVEN POSITION   #
-	#-------------------------------------------------------------------------#
-
-	def ReplaceNextSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-		This.ReplaceNextNthSubStringCS(1, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-
-		#< @FunctionFluentForm
-
-		def ReplaceNextSubStringCSQ(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			This.ReplaceNextSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			return This
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def ReplaceNextOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			This.ReplaceNextSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-
-			def ReplaceNextOccurrenceOfSubStringCSQ(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				This.ReplaceNextOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				return This
-
-		#>
-
-	#--- WITHOUT CASESENSITIVITY
-
-	def ReplaceNextSubString(pcSubStr, pcNewSubStr, pnStartingAt)
-		This.ReplaceNextSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def ReplaceNextSubStringQ(pcSubStr, pcNewSubStr, pnStartingAt)
-			This.ReplaceNextSubString(pcSubStr, pcNewSubStr, pnStartingAt)
-			return This
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def ReplaceNextOccurrenceOfSubString(pcSubStr, pcNewSubStr, pnStartingAt)
-			This.ReplaceNextSubString(pcSubStr, pcNewSubStr, pnStartingAt)
-
-			def ReplaceNextOccurrenceOfSubStringQ(pcSubStr, pcNewSubStr, pnStartingAt)
-				This.ReplaceNextOccurrenceOfSubString(pcSubStr, pcNewSubStr, pnStartingAt)
-				return This
-
-		#>
-
-	  #---------------------------------------------------------------------------------#
-	 #  REPLACING PREVIOUS NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION  #
-	#---------------------------------------------------------------------------------#
-
-	def ReplacePreviousNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-		anPos = This.FindPreviousNthSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-		This.ReplaceSubStringAtPosition( anPos, pcNewSubStr)
-
-		#< @FunctionFluentForm
-
-		def ReplacePreviousNthSubStringCSQ(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			This.ReplacePreviousNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			return This
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def ReplaceNthPreviousSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			This.ReplacePreviousNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-
-			def ReplaceNthPreviousSubStringCSQ(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				This.ReplaceNthPreviousSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				return This
-
-		def ReplacePreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			This.ReplacePreviousNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-
-			def ReplacePreviousNthOccurrenceOfSubStringCSQ(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				This.ReplacePreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				return This
-
-		def ReplaceNthPreviousOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			This.ReplacePreviousNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-
-			def ReplaceNthPreviousOccurrenceOfSubStringCSQ(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				This.ReplaceNthPreviousOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				return This
-
-		#>
-
-	#--- WITHOUT CASESENSITIVITY
-
-	def ReplacePreviousNthSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-		This.ReplacePreviousNthSubStringCS(n, pcSubStr, pcNewSubStr, pnStartingAt, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def ReplacePreviousNthSubStringQ(n, pcSubStr, pcNewSubStr, pnStartingAt)
-			This.ReplacePreviousNthSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-			return This
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def ReplaceNthPreviousSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-			This.ReplacePreviousNthSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-
-			def ReplaceNthPreviousSubStringQ(n, pcSubStr, pcNewSubStr, pnStartingAt)
-				This.ReplaceNthPreviousSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-				return This
-
-		def ReplacePreviousNthOccurrenceOfSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-			This.ReplacePreviousNthSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-
-			def ReplacePreviousNthOccurrenceOfSubStringQ(n, pcSubStr, pcNewSubStr, pnStartingAt)
-				This.ReplacePreviousNthOccurrenceOfSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-				return This
-
-		def ReplaceNthPreviousOccurrenceOfSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-			This.ReplacePreviousNthSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-
-			def ReplaceNthPreviousOccurrenceOfSubStringQ(n, pcSubStr, pcNewSubStr, pnStartingAt)
-				This.ReplaceNthPreviousOccurrenceOfSubString(n, pcSubStr, pcNewSubStr, pnStartingAt)
-				return This
-
-		#>
-
-	  #-----------------------------------------------------------------------------#
-	 #   REPLACING PREVIOUS OCCURRENCE OF SUBSTRING STARTING AT A GIVEN POSITION   #
-	#-----------------------------------------------------------------------------#
-
-	def ReplacePreviousSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-		This.ReplacePreviousNthSubStringCS(1, pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-
-		#< @FunctionFluentForm
-
-		def ReplacePreviousSubStringCSQ(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			This.ReplacePreviousSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			return This
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def ReplacePreviousOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-			This.ReplacePreviousSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-
-			def ReplacePreviousOccurrenceOfSubStringCSQ(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				This.ReplacePreviousOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, pCaseSensitive)
-				return This
-
-		#>
-
-	#--- WITHOUT CASESENSITIVITY
-
-	def ReplacePreviousSubString(pcSubStr, pcNewSubStr, pnStartingAt)
-		This.ReplacePreviousSubStringCS(pcSubStr, pcNewSubStr, pnStartingAt, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def ReplacePreviousSubStringQ(pcSubStr, pcNewSubStr, pnStartingAt)
-			This.ReplacePreviousSubString(pcSubStr, pcNewSubStr, pnStartingAt)
-			return This
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def ReplacePreviousOccurrenceOfSubString(pcSubStr, pcNewSubStr, pnStartingAt)
-			This.ReplacePreviousSubString(pcSubStr, pcNewSubStr, pnStartingAt)
-
-			def ReplacePreviousOccurrenceOfSubStringQ(pcSubStr, pcNewSubStr, pnStartingAt)
-				This.ReplacePreviousOccurrenceOfSubString(pcSubStr, pcNewSubStr, pnStartingAt)
-				return This
-
-		#>
-
-	  #------------------------------------------------------#
-	 #    REPLACING SUBSTRINGS VERIYING A GIVEN CONDITION   #
-	#------------------------------------------------------#
-
-	def ReplaceSubStringsW(pcCondition, pcNewStr)
-		anPositions = This.FindSubStringsW(pcCondition)
-		This.ReplaceSubStringsAtThesePositions(anPositions, pcNewStr)
-
-		#< @FunctionFluentForm
-
-		def ReplaceSubStringsWQ(pcCondition)
-			This.ReplaceSubStringsW(pcCondition)
-			return This
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def ReplaceAllSubStringsW(pcCondition)
-			This.ReplaceSubStringsW(pcCondition)
-
-			def ReplaceAllSubStringsWQ(pcCondition)
-				This.ReplaceAllSubStringsW(pcCondition)
-				return This
-
-		def ReplaceSubStringsWhere(pcCondition)
-			This.ReplaceSubStringsW(pcCondition)
-
-			def ReplaceSubStringsWhereQ(pcCondition)
-				This.ReplaceSubStringsWhere(pcCondition)
-				return This
-
-		def ReplaceAllSubStringsWhere(pcCondition)
-			This.ReplaceSubStringsW(pcCondition)
-
-			def ReplaceAllSubStringsWhereQ(pcCondition)
-				This.ReplaceAllSubStringsWhere(pcCondition)
-				return This
-
-		#>
 
 	  #================================================================#
 	 #   REMOVING ALL OCCURRENCE OF A GIVEN STRING-ITEM IN THE LIST   #
@@ -13243,7 +12479,7 @@ class stzListOfStrings from stzList
 
 		#< @FunctionFluentForm
 
-		def RemoveRangeQ(pcStart, pnRange)
+		def RemoveRangeQ(pnStart, pnRange)
 			This.RemoveRange(pnStart, pnRange)
 
 		#>
@@ -16410,6 +15646,18 @@ class stzListOfStrings from stzList
 		def DuplicatesPositionsXTCS(pCaseSensitive)
 			return This.FindDuplicatesXTCS(pCaseSensitive)
 
+		#-- ...XTCS or ...CSXT? No problem at all ;)
+
+		def FindDuplicatesCSXT(pCaseSensitive)
+			return This.FindDuplicatesXTCS(pCaseSensitive)
+
+		def PositionsOfDuplicatesCSXT(pCaseSensitive)
+			return This.FindDuplicatesXTCS(pCaseSensitive)
+
+		def DuplicatesPositionsCSXT(pCaseSensitive)
+			return This.FindDuplicatesXTCS(pCaseSensitive)
+
+
 		#>
 
 	##-- WITHOUT CASESENSITIVITY
@@ -17622,17 +16870,17 @@ class stzListOfStrings from stzList
 			ok	
 			
 		// Add an item at the beginning of the list
-		but pOp = "<<"
+		but pcOp = "<<"
 			This.Prepend(value)
 
 		// Add an item at the end of the list
-		but pOp = ">>"
+		but pcOp = ">>"
 			This.Append(value)
 
-		but pOp = "="
+		but pcOp = "="
 			return This.ToStzList().IsEqualTo(value)
 
-		but pOp = "=="
+		but pcOp = "=="
 			return This.ToStzList().IsStrictlyEqualTo(value)
 		
 

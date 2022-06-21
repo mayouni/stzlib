@@ -84,6 +84,32 @@
 func StzNumberQ(cNumber)
 	return new stzNumber(cNumber)
 
+func N(p)
+	if isNumber(p)
+		return p
+
+	but isString(p)
+		if Q(p).IsNumberInString()
+			return 0+ p
+		but Q(p).IsListInString()
+			return len( Q(p).ToList() )
+
+		else
+			return Q(p).NumberOfChars()
+		ok
+
+	but isList(p)
+		return len(p)
+
+	but isObject(p)
+		return len( Q(p).ObjectAttributes() )
+	ok
+
+	func NQ(p)
+		return new stzNumber( N(p) )
+
+		func QN(p)
+			return NQ(p)
 func IsNotNumber(n)
 	return NOT isNumber(n)
 

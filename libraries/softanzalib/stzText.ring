@@ -40,8 +40,24 @@ func DefaultLanguage()
 func StzTextQ(pcStr)
 	return new stzText(pcStr)
 
-func T(pcStr)
-	return new stzText(pcStr)
+func T(p)
+	if isString(p)
+		return p
+	but isNumber(p)
+		return "" + p
+
+	but isList(p)
+		return Q(p).ToCode()
+
+	but isObject(p)
+		return Q(p).ObjectAttributesAndValuesQ().ToCode()
+
+	ok
+
+	func TQ(pcStr)
+		return new stzText( T(p) )
+
+		func QT(pcStr)
 
 # Useful four finding instances of WORDS (an not substrings!) inside a string
 func PossibleWordInstancesXT(pcWord, cWordPositionInSentence)

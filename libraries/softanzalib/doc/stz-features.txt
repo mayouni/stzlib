@@ -1,0 +1,20 @@
+Mansour Ayouni’s profile photo
+Mansour Ayouni<kalidianow@gmail.com>
+17 Nov 2021, 17:03:23
+to Bert Mariani, The Ring Programming Language
+Hello Bert,
+
+Thank you for your message!
+
+In a nutshell, the library does the following:
+
+Adds the support of Unicode in string management
+Enriches the four native types of Ring with for new types (stzNumber, stzString, stzList, and stzObject)
+Adds new types like the char type (in stzChar), list of bytes type (stzListOfBytes), and stzHashList
+Provides more data structures to work with like sets (stzSet), trees (stzTree), grids (stzGrid), and tables (stzTable).
+For every type, it includes a convenience class for managing a listof that type. For example: stzListOfNumbers, stzListOfStrings, and even stzListOfLists!
+Leverages the conversion between types, like for example the conversion between stzHexNumber and stzBinaryNumber and many other
+Empowers application developers with advanced features like indexing (used for search), caching (used for performance), and translation (for multilingual apps).
+Covers many of the features of RingQt that are lacking to Ring, by simplifying their use, like operations on dates, time, calendars, and many others.
+Some of the features of RingQt, like Locales, are made both easier and more accurate, since the standard implementation contains many inconsistencies and sometimes some mistakes.
+Along with some innovations (I'm keeping secret until now ;), that are unique in revamping the programming experience for the rest of us.

@@ -41,7 +41,7 @@ ok
 /*----------------- ok
 */
 # This returns FALSE:
-
+/*
 ? _(1854).IsA(:String).Containing('in')._
 
 /*----------------- ok
@@ -89,7 +89,7 @@ class Person
 /*----------------- ERRO
 
 # These return TRUE
-
+*/
 ? _("ring").Is('Lowercase()').Containing("in")._
 ? _("ring").Is('Lowercase()').Having('NumberOfchars() = 4')._
 
@@ -178,7 +178,7 @@ _("G").IsThe(:Lowercase).Of("g")._
 ? _("G").IsAString().Which(:IsLetter)._
 
 /*-----------------
-*/
+
 ? _("Ring").IsAString()//.Containing(TheLetter("G")).In('Lowercase()')
 //? _("Ring").IsAString().Containing("in").Whaterver('StringCase()').ItHas()
 
