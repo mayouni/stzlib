@@ -5312,6 +5312,962 @@ class stzListOfStrings from stzList
 
 		#>
 
+	  #-------------------------------------------------------------------#
+	 #    FINDING NTH OCCURRENCE OF A SUBTRING IN THE LIST OF STRINGS    #
+	#-------------------------------------------------------------------#
+	
+	def FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		/* Example
+
+		o1 = new stzListOfStrings([
+			"What's your name please",
+			"Mabrooka",
+			"Your name and my name are not the same",
+			"I see",
+			"Nice to meet you",
+			"Mabrooka"
+		])
+
+		? o1.FindNthOccurrenceOfSubString(2, "name")
+		#--> [ 3, 6 ]
+		# The substring "name" is found in string 2, at position 6
+
+		REMINDER
+
+		? o1.FindSubStringXT("name")
+		#--> [
+		#	[ 1, 13 ], [ 3, 6 ], [ 3, 18 ], [ 6, 18 ]
+		#    ]
+
+		*/
+
+		# Checking param correctness
+
+		if isString(n)
+			if Q(n).IsOneOfThese([ :First, :FirstOccurrence ]) 
+				n = 1
+
+			but Q(n).IsOneOfThese([ :Last, :LastOccurrence ])
+				n = This.NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
+			ok
+		ok
+
+		if NOT isNumber(n)
+			stzRaise("Incorrect param! n must be a number.")
+		ok
+
+		# Doing the job
+
+		anResult = This.FindSubStringXTCS(pcSubStr, pCaseSensitive)[n]
+
+		return anResult
+
+		def FindNthSubStringCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def FindNthOccurrenceOfThisSubStringCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def PositionOfNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def PositionOfNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def PositionOfNthOccurrenceOfThisSubStringCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthOccurrenceOfSubString(n, pcSubStr)
+		return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def FindNthSubString(n, pcSubStr)
+			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
+
+		def FindNthOccurrenceOfThisSubString(n, pcSubStr)
+			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
+
+		def PositionOfNthOccurrenceOfSubString(n, pcSubStr)
+			return This.FindNthOccurrenceOfSng(n, pcSubStr)
+
+		def PositionOfNthOccurrence(n, pcSubStr)
+			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
+
+		def PositionOfNthOccurrenceOfThisSubString(n, pcSubStr)
+			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
+
+	  #-------------------------------------------------------------------#
+	 #   FINDING FIRST OCCURRENCE OF A SUBTRING IN THE LIST OF STRINGS   #
+	#-------------------------------------------------------------------#
+	
+	def FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		return This.FindNthOccurrenceOfSubStringCS(1, pcSubStr, pCaseSensitive)
+
+		def FindFirstSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def FindFirstOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfFirstSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfFirstOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstOccurrenceOfSubString(pcSubStr)
+		return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindFirstSubString(pcSubStr)
+			return This.FindFirstOccurrenceOfSubString(pcSubStr)
+
+		def FindFirstOccurrenceOfThisSubString(pcSubStr)
+			return This.FindFirstOccurrenceOfSubString(pcSubStr)
+
+		def PositionOfFirstOccurrenceOfSubString(pcSubStr)
+			return This.FindFirstOccurrenceOfSubString(pcSubStr)
+
+		def PositionOfFirstSubString(pcSubStr)
+			return This.FindFirstOccurrenceOfSubString(pcSubStr)
+
+		def PositionOfFirstOccurrenceOfThisSubString(pcSubStr)
+			return This.FindFirstOccurrenceOfSubString(pcSubStr)
+
+	  #-------------------------------------------------------------------#
+	 #    FINDING LAST OCCURRENCE OF A SUBTRING IN THE LIST OF STRINGS   #
+	#-------------------------------------------------------------------#
+		
+	def FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		return This.FindNthOccurrenceOfSubStringCS(:Last, pcSubStr, pCaseSensitive)
+
+		def FindLastSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def FindLastOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfLastSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfLastOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVE
+
+	def FindLastOccurrenceOfSubString(pcSubStr)
+		return This.FindLastOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindLastSubString(pcSubStr)
+			return This.FindLastOccurrenceOfSubString(pcSubStr)
+
+		def FindLastOccurrenceOfThisSubString(pcSubStr)
+			return This.FindLastOccurrenceOfSubString(pcSubStr)
+
+		def PositionOfLastOccurrenceOfSubString(pcSubStr)
+			return This.FindLastOccurrenceOfSubString(pcSubStr)
+
+		def PositionOfLastSubString(pcSubStr)
+			return This.FindLastOccurrenceOfSubString(pcSubStr)
+
+		def PositionOfLastOccurrenceOfThisSubString(pcSubStr)
+			return This.FindLastOccurrenceOfSubString(pcSubStr)
+
+	  #------------------------------------------------#
+	 #   FINDING MANY SUBSTRINGS AT THE SAME TIME     #
+	#------------------------------------------------#
+
+	def FindSubStringsCS(pacSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([
+			"What's your name please",
+			"Mabrooka",
+			"Your name and my name are not the same",
+			"I see",
+			"Nice to meet you",
+			"Mabrooka"
+		])
+
+		#-->
+		#  [
+		#	# "name" is found here
+		#	[
+		#		[ 1, [ 13 ] ], [ 3, [ 6, 18 ] ]
+		#	],
+		#
+		#	# and "mabrooka" is found here
+		#	[
+		#		[ 2, [ 1 ] ], [ 6, [ 1 ] ]
+		#	]
+		# ]
+
+		*/
+
+		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+			stzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+		ok
+
+		aResult = []
+
+		for cSubStr in pacSubStr
+			aResult + This.FindSubStringCS(cSubStr, pCaseSensitive)
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def FindSubStringsCSQ(pacSubStr, pCaseSensitive)
+			return new stzList( This.FindSubStringsCS(pacSubStr, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindManySubtringsCS(pacStr, pCaseSensitive)
+			return This.FindSubStringsCS(pacStr, pCaseSensitive)
+
+			def FindManySubtringsCSQ(pacStr, pCaseSensitive)
+				return new stzList( This.FindManySubtringsCS(pacStr, pCaseSensitive) )
+
+		def FindTheseSubStringsCS(pacStr, pCaseSensitive)
+			return This.FindSubStringsCS(pacStr, pCaseSensitive)
+
+			def FindTheseSubStringsCSQ(pacStr, pCaseSensitive)
+				return new stzList( This.FindTheseSubStringsCS(pacStr, pCaseSensitive) )
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStrings(pacStr)
+		return This.FindSubStringsCS(pacStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def FindSubStringsQ(pacStr)
+			return new stzList( This.FindsubStrings(pacStr) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindManySubStrings(pacStr)
+			return This.FindSubStrings(pacStr)
+
+			def FindManySubStringsQ(pacStr)
+				return new stzList( This.FindSubStrings(pacStr) )
+
+		def FindTheseSubStrings(pacStr)
+			return This.FindSubStrings(pacStr)
+
+			def FindTheseSubStringsQ(pacStr)
+				return new stzList( This.FindTheseSubStrings(pacStr) )
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #   FINDING MANY SUBSTRINGS AT THE SAME TIME -- EXTENDED    #
+	#-----------------------------------------------------------#
+
+	def FindSubStringsXTCS(pacSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([
+			"What's your name please",
+			"Mabrooka",
+			"Your name and my name are not the same",
+			"I see",
+			"Nice to meet you",
+			"Mabrooka"
+		])
+
+		? o1.FindSubStringsXT([ "name", "mabrooka"])
+		#-->
+		#  [
+		#	# "name" is found here
+		#	[
+		#		[ 1, 13 ], [ 3, 6 ], [ 3, 18 ]
+		#	],
+		#
+		#	# and "mabrooka" is found here
+		#	[
+		#		[ 2, 1 ], [ 6, 1 ]
+		#	]
+		#  ]
+
+		*/
+
+		aResult = []
+
+		for cSubStr in pacSubStr
+			aResult + This.FindSubStringXTCS(cSubStr, pCaseSensitive)
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def FindSubStringsXTCSQ(pacSubStr, pCaseSensitive)
+			return new stzList( This.FindSubStringsXTCS(pacSubStr, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def FindSubStringsCSXT(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsXTCS(pacSubStr, pCaseSensitive)
+
+			def FindSubStringsCSXTQ(pacSubStr, pCaseSensitive)
+				return new stzList( This.FindSubStringsCSXT(pacSubStr, pCaseSensitive) )
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStringsXT(pacSubStr)
+		return This.FindSubStringsXTCS(pacSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringsXTQ(pacSubStr)
+			return new stzList( This.FindSubStringsXT(pacSubStr) )
+
+	  #------------------------------------------------#
+	 #   FINDING N FIRST OCCURRENCES OF A SUBSTRING   #
+	#------------------------------------------------#
+
+	def FindNFirstOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([
+			"___ ring ___ ring",
+			"ring ___ ring ___ ring",
+			"___ ring"
+		])
+
+		? o1.FindNFirstOccurrencesOfSubString(4, "ring")
+		#--> [ [ 1, 5 ], [ 1, 14 ], [ 2, 1], [ 2, 10 ] ]
+
+		*/
+
+		aResult = This.FindSubStringXTCSQ(pcSubStr, pCaseSensitive).FirstNItems(n)
+		return aResult
+
+		def FindFirstNOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNFirstOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNFirstOccurrencesOfSubString(n, pcSubStr)
+		return This.FindNFirstOccurrencesOfSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def FindFirstNOccurrencesOfSubString(n, pcSubStr)
+			return This.FindNFirstOccurrencesOfSubString(n, pcSubStr)
+
+	  #----------------------------------------------#
+	 #   FINDING GIVEN OCCURRENCES OF A SUBSTRING   #
+	#----------------------------------------------#
+
+	def FindTheseOccurrencesOfSubStringCS(panOccurrences, pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([
+			"___ ring ___ ring",
+			"ring ___ ring ___ ring",
+			"___ ring"
+		])
+
+		? o1.FindTheseOccurrencesOfSubString([1, 3, 5 ], "ring")
+		#--> 
+
+		*/
+
+		anPositions = This.FindSubStringXTCS(pcSubStr, pCaseSensitive)
+
+		aResult = Q(anPositions).ItemsAtPositions(panOccurrences)
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindTheseOccurrencesOfSubString(panOccurrences, pcSubStr)
+		return This.FindTheseOccurrencesOfSubStringCS(panOccurrences, pcSubStr, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------#
+	 #   FINDING N LAST OCCURRENCES OF A SUBSTRING   #
+	#------------------------------------------------#
+
+	def FindNLastOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([
+			"___ ring ___ ring",
+			"ring ___ ring ___ ring",
+			"___ ring"
+		])
+
+		? o1.FindNLastOccurrencesOfSubString(3, "ring")
+		#--> [ [ 2, 10 ], [ 2, 19], [ 3, 5 ] ]
+
+		*/
+
+		aResult = This.FindSubStringXTCSQ(pcSubStr, pCaseSensitive).LastNItems(n)
+		return aResult
+
+		def FindLastNOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNLastOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNLastOccurrencesOfSubString(n, pcSubStr)
+		return This.FindNLastOccurrencesOfSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def FindLastNOccurrencesOfSubString(n, pcSubStr)
+			return This.FindNLastOccurrencesOfSubString(n, pcSubStr)
+
+	   #---------------------------------------------------------#
+	  #      CHECKING IF EACH STRING OF THE LIST OF STRINGS     #
+	 #      CONTAINS EACH ONE OF THE PROVIDED SUBSTRINGS       #
+	#---------------------------------------------------------#
+
+	def ContainsSubStringsCS(pacSubStr, pCaseSensitive)
+
+		bResult = TRUE
+
+		for str in pacStr
+			if NOT This.ContainsSubStringCS(str, pCaseSensitive)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForm
+
+		def ContainsEachSubstringCS(pacSubStr, pCaseSensitive)
+			return This.ContainsSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsEachSubStringOfTheseCS(pacSubStr, pCaseSensitive)
+			return This.ContainsStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsEachSubStringOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
+			return This.ContainsStringsCS(pacSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsSubStrings(pacSubStr)
+
+		return This.ContainsSubStrings(pacSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def ContainsEachSubstring(pacSubStr)
+			return This.ContainsSubStrings(pacSubStr)
+
+		def ContainsEachSubStringOfThese(pacSubStr)
+			return This.ContainsSubStrings(pacSubStr)
+
+		def ContainsEachSubStringOfTheseSubStrings(pacSubStr)
+			return This.ContainsSubStrings(pacSubStr)
+
+		#>
+
+	   #---------------------------------------------------#
+	  #    FINDING NEXT NTH OCCURRENCE OF A SUBSTRING     #
+	 #    STARTING AT A GIVEN POSITION [ LEVEL, POS]     #
+	#---------------------------------------------------#
+
+	def FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		# Checking param correctness
+
+		if isString(n)
+			if Q(n).IsOneOfThese([ :First, :FirstSubString ])
+				  
+				n = 1
+
+			but Q(n).IsOneOfThese([ :Last, :LastSubString ])
+
+				This.NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
+			ok
+		ok
+
+		if NOT isNumber(n)
+			stzRaise("Incorrect param! n must be a number.")
+		ok
+
+		#--
+
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstPosition, :FirstString, :FirstStringItem ], :CS = FALSE)
+
+				pnStartingAt = 1
+			
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastPosition, :LastString, :LastStringItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfStrings()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+
+		# Doing the job
+
+		oListOfStr = This.SectionQR(pnStartingAt, :LastItem, :stzListOfStrings)
+		aResult = oListOfStr.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNthNextOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def FindNextNthSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def FindNthNextSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+		
+		def FindNextNthOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def FindNthNextOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+		
+		def PositionsOfNextNthSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+			def PositionsOfNthNextSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def NextNthSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+			def NthNextSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionsOfNextNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def PositionsOfNthNextOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def NthOccurrenceOfSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def NthNextOccurrenceOfSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def PositionsOfNextNthOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def PositionsOfNthNextOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def NextNthOccurrenceOfThisSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def NthNextOccurrenceOfThisSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNextNthOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
+
+		return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, :CS = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNthNextOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
+			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+		def FindNextNthSubString(n, pcSubStr, pnStartingAt)
+			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+			def FindNthNextSubString(n, pcSubStr, pnStartingAt)
+				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+		
+		def FindNextNthOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
+			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+			def FindNthNextOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
+				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+		
+		def PositionsOfNextNthSubString(n, pcSubStr, pnStartingAt)
+			return This.FindNextNthOccurrenceOfSubString(pcSubStr)
+
+			def PositionsOfNthNextSubString(n, pcSubStr, pnStartingAt)
+				return This.FindNextNthOccurrenceOfSubString(pcSubStr)
+
+		def NextNthSubStringPositions(n, pcSubStr, pnStartingAt)
+			return This.FindNextNthOccurrenceOfSubString(pcSubStr)
+
+			def NthNextSubStringPositions(n, pcSubStr, pnStartingAt)
+				return This.FindNextNthOccurrenceOfSubString(pcSubStr)
+
+		def PositionsOfNextNthOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
+			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+			def PositionsOfNthNextOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
+				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+		def NthOccurrenceOfSubStringPosition(n, pcSubStr, pnStartingAt)
+			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+			def NthNextOccurrenceOfSubStringPositions(n, pcSubStr, pnStartingAt)
+				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+		def PositionsOfNextNthOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
+			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+			def PositionsOfNthNextOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
+				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+		def NextNthOccurrenceOfThisSubStringPositions(n, pcSubStr, pnStartingAt)
+			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+
+			def NthNextOccurrenceOfThisSubStringPositions(n, pcSubStr, pnStartingAt)
+				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
+	
+		#>
+
+	   #------------------------------------------------------------#
+	  #    FINDING NEXT OCCURRENCE OF A SUBSTRING (AS AN ITEM)     #
+	 #    STARTING AT A GIVEN POSITION IN THE LIST                #
+	#------------------------------------------------------------#
+
+	def FindNextOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstPosition, :FirstString, :FirstStringItem ], :CS = FALSE)
+
+				pnStartingAt = 1
+			
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastPosition, :LastString, :LastStringItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfStrings()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+
+		oListOfStr = This.SectionQR(pnStartingAt, :LastItem, :stzListOfSubStrings)
+		aResult = oListOfStr.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+	
+		def FindNextSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		
+		def FindNextOccurrenceOfThisSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+			
+		def PositionsOfNextSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def NextSubStringPositionsCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+			
+		def PositionsOfNextOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		
+		def PositionsOfNextOccurrenceOfThisSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNextOccurrenceOfSubString(pcSubStr, pnStartingAt)
+
+		return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, :CS = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNextSubString(pcSubStr, pnStartingAt)
+			return This.FindNextOccurrenceOfSubString(pcSubStr)
+		
+		def FindNextOccurrenceOfThisSubString(pcSubStr, pnStartingAt)
+			return This.FindNextOccurrenceOfSubString(pcSubStr)
+		
+		def PositionsOfNextSubString(pcSubStr, pnStartingAt)
+			return This.FindNextOccurrenceOfSubString(pcSubStr)
+
+		def NextSubStringPositions(pcSubStr, pnStartingAt)
+			return This.FindNextOccurrenceOfSubString(pcSubStr)
+
+		def PositionsOfNextOccurrenceOfSubString(pcSubStr, pnStartingAt)
+			return This.FindNextOccurrenceOfSubString(pcSubStr)
+		
+		def PositionsOfNextOccurrenceOfThisSubString(pcSubStr, pnStartingAt)
+			return This.FindNextOccurrenceOfSubString(pcSubStr)
+		
+		#>
+
+	   #-------------------------------------------------------------------#
+	  #    FINDING PREVIOUS NTH OCCURRENCE OF A SUBSTRING (AS AN ITEM)    #
+	 #    STARTING AT A GIVEN POSITION IN THE LIST                       #
+	#-------------------------------------------------------------------#
+
+	def FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+		# Checking param correctness
+
+		if isString(n)
+			if Q(n).IsOneOfThese([ :First, :FirstSubString ])
+				  
+				n = 1
+
+			but Q(n).IsOneOfThese([ :Last, :LastSubString ])
+
+				This.NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
+			ok
+		ok
+
+		if NOT isNumber(n)
+			stzRaise("Incorrect param! n must be a number.")
+		ok
+
+		#--
+
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstPosition, :FirstString, :FirstStringItem ], :CS = FALSE)
+
+				pnStartingAt = 1
+			
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastPosition, :LastString, :LastStringItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfStrings()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+
+		# Doing the job
+
+		oListOfStr = This.SectionQR(pnStartingAt, :LastItem, :stzListOfSubStrings)
+		nNumOcc = oListOfStr.NumberOfOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		aResult = oListOfStr.FindNthOccurrenceOfSubStringCS(nNumOcc - n, pcSubStr, pCaseSensitive)
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNthPreviousOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+	
+		def FindPreviousNthSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def FindNthPreviousSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+		
+		def FindPreviousNthOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def FindNthPreviousOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+	
+		def PositionsOfPreviousNthSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+			def PositionsOfNthPreviousSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PreviousNthSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+			def NthPreviousSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionsOfPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def PositionsOfNthPreviousOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+		
+		def PositionsOfPreviousNthOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+			def PositionsOfNthPreviousOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+		
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindPreviousNthOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
+
+		return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, :CS = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNthPreviousOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
+
+		def FindPreviousNthSubString(n, pcSubStr, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
+
+			def FindNthPreviousSubString(n, pcSubStr, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
+	
+		def FindPreviousNthOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
+
+			def FindNthPreviousOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
+	
+		def PositionsOfPreviousNthSubString(n, pcSubStr, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfSubString(pcSubStr)
+
+			def PositionsOfNthPreviousSubString(n, pcSubStr, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfSubString(pcSubStr)
+
+		def PreviousNthSubStringPositions(n, pcSubStr, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfSubString(pcSubStr)
+
+			def NthPreviousSubStringPositions(n, pcSubStr, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfSubString(pcSubStr)
+
+	
+		def PositionsOfPreviousNthOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
+
+			def PositionsOfNthPreviousOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
+		
+		def PositionsOfPreviousNthOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
+			return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
+
+			def PositionsOfNthPreviousOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
+				return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
+
+		#>
+
+	   #---------------------------------------------------------------#
+	  #    FINDING PREVIOUS OCCURRENCE OF A SUBSTRING (AS AN ITEM)    #
+	 #    STARTING AT A GIVEN POSITION IN THE LIST                   #
+	#---------------------------------------------------------------#
+
+	def FindPreviousOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if isString(pnStartingAt)
+			if Q(pnStartingAt).IsOneOfTheseCS([
+				:First, :FirstPosition, :FirstString, :FirstStringItem ], :CS = FALSE)
+
+				pnStartingAt = 1
+			
+			but Q(pnStartingAt).IsOneOfTheseCS([
+				:Last, :LastPosition, :LastString, :LastStringItem ], :CS = FALSE)
+
+				pnStartingAt = This.NumberOfStrings()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+
+		oListOfStr = This.SectionQR(pnStartingAt, :LastString, :stzListOfSubStrings)
+		aResult = oListOfStr.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+	
+		def FindPreviousSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		
+		def FindPreviousOccurrenceOfThisSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		
+		def PositionsOfPreviousSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PreviousSubStringPositionsCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def PositionsOfPreviousOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		
+		def PositionsOfPreviousOccurrenceOfThisSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindPreviousOccurrenceOfSubString(pcSubStr, pnStartingAt)
+
+		return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindPreviousSubString(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
+		
+		def FindPreviousOccurrenceOfThisSubString(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
+		
+		def PositionsOfPreviousSubString(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
+
+		def PreviousSubStringPositions(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
+
+		def PositionsOfPreviousOccurrenceOfSubString(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
+
+		def PositionsOfPreviousOccurrenceOfThisSubString(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
+
+		#>
+
 	  #===================================================================#
 	 #  CHECKING IF THE LIST CONTAINS A GIVEN SUSBTRING IN ITS STRINGS   #
 	#===================================================================#
@@ -6603,933 +7559,6 @@ class stzListOfStrings from stzList
 				other
 					stzRaise("Unsupported return type!")
 				off
-
-		#>
-
-	  #-------------------------------------------------------------------#
-	 #    FINDING NTH OCCURRENCE OF A SUBTRING IN THE LIST OF STRINGS    #
-	#-------------------------------------------------------------------#
-	
-	def FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-		/* Example
-
-		o1 = new stzListOfStrings([
-			"What's your name please",
-			"Mabrooka",
-			"Your name and my name are not the same",
-			"I see",
-			"Nice to meet you",
-			"Mabrooka"
-		])
-
-		? o1.FindNthOccurrenceOfSubString(2, "name")
-		#--> [ 3, 6 ]
-		# The substring "name" is found in string 2, at position 6
-
-		REMINDER
-
-		? o1.FindSubStringXT("name")
-		#--> [
-		#	[ 1, 13 ], [ 3, 6 ], [ 3, 18 ], [ 6, 18 ]
-		#    ]
-
-		*/
-
-		# Checking param correctness
-
-		if isString(n)
-			if Q(n).IsOneOfThese([ :First, :FirstOccurrence ]) 
-				n = 1
-
-			but Q(n).IsOneOfThese([ :Last, :LastOccurrence ])
-				n = This.NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
-			ok
-		ok
-
-		if NOT isNumber(n)
-			stzRaise("Incorrect param! n must be a number.")
-		ok
-
-		# Doing the job
-
-		anResult = This.FindSubStringXTCS(pcSubStr, pCaseSensitive)[n]
-
-		return anResult
-
-		def FindNthSubStringCS(n, pcSubStr, pCaseSensitive)
-			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-		def FindNthOccurrenceOfThisSubStringCS(n, pcSubStr, pCaseSensitive)
-			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-		def PositionOfNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-		def PositionOfNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
-			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-		def PositionOfNthOccurrenceOfThisSubStringCS(n, pcSubStr, pCaseSensitive)
-			return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindNthOccurrenceOfSubString(n, pcSubStr)
-		return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
-
-		def FindNthSubString(n, pcSubStr)
-			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
-
-		def FindNthOccurrenceOfThisSubString(n, pcSubStr)
-			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
-
-		def PositionOfNthOccurrenceOfSubString(n, pcSubStr)
-			return This.FindNthOccurrenceOfSng(n, pcSubStr)
-
-		def PositionOfNthOccurrence(n, pcSubStr)
-			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
-
-		def PositionOfNthOccurrenceOfThisSubString(n, pcSubStr)
-			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
-
-	  #-------------------------------------------------------------------#
-	 #   FINDING FIRST OCCURRENCE OF A SUBTRING IN THE LIST OF STRINGS   #
-	#-------------------------------------------------------------------#
-	
-	def FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-		return This.FindNthOccurrenceOfSubStringCS(1, pcSubStr, pCaseSensitive)
-
-		def FindFirstSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def FindFirstOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def PositionOfFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def PositionOfFirstSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def PositionOfFirstOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindFirstOccurrenceOfSubString(pcSubStr)
-		return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
-
-		def FindFirstSubString(pcSubStr)
-			return This.FindFirstOccurrenceOfSubString(pcSubStr)
-
-		def FindFirstOccurrenceOfThisSubString(pcSubStr)
-			return This.FindFirstOccurrenceOfSubString(pcSubStr)
-
-		def PositionOfFirstOccurrenceOfSubString(pcSubStr)
-			return This.FindFirstOccurrenceOfSubString(pcSubStr)
-
-		def PositionOfFirstSubString(pcSubStr)
-			return This.FindFirstOccurrenceOfSubString(pcSubStr)
-
-		def PositionOfFirstOccurrenceOfThisSubString(pcSubStr)
-			return This.FindFirstOccurrenceOfSubString(pcSubStr)
-
-	  #-------------------------------------------------------------------#
-	 #    FINDING LAST OCCURRENCE OF A SUBTRING IN THE LIST OF STRINGS   #
-	#-------------------------------------------------------------------#
-		
-	def FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-		return This.FindNthOccurrenceOfSubStringCS(:Last, pcSubStr, pCaseSensitive)
-
-		def FindLastSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def FindLastOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def PositionOfLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def PositionOfLastSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def PositionOfLastOccurrenceOfThisSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-
-	#-- WITHOUT CASESENSITIVE
-
-	def FindLastOccurrenceOfSubString(pcSubStr)
-		return This.FindLastOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
-
-		def FindLastSubString(pcSubStr)
-			return This.FindLastOccurrenceOfSubString(pcSubStr)
-
-		def FindLastOccurrenceOfThisSubString(pcSubStr)
-			return This.FindLastOccurrenceOfSubString(pcSubStr)
-
-		def PositionOfLastOccurrenceOfSubString(pcSubStr)
-			return This.FindLastOccurrenceOfSubString(pcSubStr)
-
-		def PositionOfLastSubString(pcSubStr)
-			return This.FindLastOccurrenceOfSubString(pcSubStr)
-
-		def PositionOfLastOccurrenceOfThisSubString(pcSubStr)
-			return This.FindLastOccurrenceOfSubString(pcSubStr)
-
-	  #------------------------------------------------#
-	 #   FINDING MANY SUBSTRINGS AT THE SAME TIME     #
-	#------------------------------------------------#
-
-	def FindSubStringsCS(pacSubStr, pCaseSensitive)
-		/* EXAMPLE
-
-		o1 = new stzListOfStrings([
-			"What's your name please",
-			"Mabrooka",
-			"Your name and my name are not the same",
-			"I see",
-			"Nice to meet you",
-			"Mabrooka"
-		])
-
-		#-->
-		#  [
-		#	# "name" is found here
-		#	[
-		#		[ 1, [ 13 ] ], [ 3, [ 6, 18 ] ]
-		#	],
-		#
-		#	# and "mabrooka" is found here
-		#	[
-		#		[ 2, [ 1 ] ], [ 6, [ 1 ] ]
-		#	]
-		# ]
-
-		*/
-
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
-			stzRaise("Incorrect param type! pacSubStr must be a list of strings.")
-		ok
-
-		aResult = []
-
-		for cSubStr in pacSubStr
-			aResult + This.FindSubStringCS(cSubStr, pCaseSensitive)
-		next
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def FindSubStringsCSQ(pacSubStr, pCaseSensitive)
-			return new stzList( This.FindSubStringsCS(pacSubStr, pCaseSensitive) )
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def FindManySubtringsCS(pacStr, pCaseSensitive)
-			return This.FindSubStringsCS(pacStr, pCaseSensitive)
-
-			def FindManySubtringsCSQ(pacStr, pCaseSensitive)
-				return new stzList( This.FindManySubtringsCS(pacStr, pCaseSensitive) )
-
-		def FindTheseSubStringsCS(pacStr, pCaseSensitive)
-			return This.FindSubStringsCS(pacStr, pCaseSensitive)
-
-			def FindTheseSubStringsCSQ(pacStr, pCaseSensitive)
-				return new stzList( This.FindTheseSubStringsCS(pacStr, pCaseSensitive) )
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindSubStrings(pacStr)
-		return This.FindSubStringsCS(pacStr, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def FindSubStringsQ(pacStr)
-			return new stzList( This.FindsubStrings(pacStr) )
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def FindManySubStrings(pacStr)
-			return This.FindSubStrings(pacStr)
-
-			def FindManySubStringsQ(pacStr)
-				return new stzList( This.FindSubStrings(pacStr) )
-
-		def FindTheseSubStrings(pacStr)
-			return This.FindSubStrings(pacStr)
-
-			def FindTheseSubStringsQ(pacStr)
-				return new stzList( This.FindTheseSubStrings(pacStr) )
-
-		#>
-
-	  #-----------------------------------------------------------#
-	 #   FINDING MANY SUBSTRINGS AT THE SAME TIME -- EXTENDED    #
-	#-----------------------------------------------------------#
-
-	def FindSubStringsXTCS(pacSubStr, pCaseSensitive)
-		/* EXAMPLE
-
-		o1 = new stzListOfStrings([
-			"What's your name please",
-			"Mabrooka",
-			"Your name and my name are not the same",
-			"I see",
-			"Nice to meet you",
-			"Mabrooka"
-		])
-
-		? o1.FindSubStringsXT([ "name", "mabrooka"])
-		#-->
-		#  [
-		#	# "name" is found here
-		#	[
-		#		[ 1, 13 ], [ 3, 6 ], [ 3, 18 ]
-		#	],
-		#
-		#	# and "mabrooka" is found here
-		#	[
-		#		[ 2, 1 ], [ 6, 1 ]
-		#	]
-		#  ]
-
-		*/
-
-		aResult = []
-
-		for cSubStr in pacSubStr
-			aResult + This.FindSubStringXTCS(cSubStr, pCaseSensitive)
-		next
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def FindSubStringsXTCSQ(pacSubStr, pCaseSensitive)
-			return new stzList( This.FindSubStringsXTCS(pacSubStr, pCaseSensitive) )
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def FindSubStringsCSXT(pacSubStr, pCaseSensitive)
-			return This.FindSubStringsXTCS(pacSubStr, pCaseSensitive)
-
-			def FindSubStringsCSXTQ(pacSubStr, pCaseSensitive)
-				return new stzList( This.FindSubStringsCSXT(pacSubStr, pCaseSensitive) )
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindSubStringsXT(pacSubStr)
-		return This.FindSubStringsXTCS(pacSubStr, :CaseSensitive = TRUE)
-
-		def FindSubStringsXTQ(pacSubStr)
-			return new stzList( This.FindSubStringsXT(pacSubStr) )
-
-	  #------------------------------------------------#
-	 #   FINDING N FIRST OCCURRENCES OF A SUBSTRING   #
-	#------------------------------------------------#
-
-	def FindNFirstOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
-		/* EXAMPLE
-
-		o1 = new stzListOfStrings([
-			"___ ring ___ ring",
-			"ring ___ ring ___ ring",
-			"___ ring"
-		])
-
-		? o1.FindNFirstOccurrencesOfSubString(4, "ring")
-		#--> [ [ 1, 5 ], [ 1, 14 ], [ 2, 1], [ 2, 10 ] ]
-
-		*/
-
-		aResult = This.FindSubStringXTCSQ(pcSubStr, pCaseSensitive).FirstNItems(n)
-		return aResult
-
-		def FindFirstNOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
-			return This.FindNFirstOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindNFirstOccurrencesOfSubString(n, pcSubStr)
-		return This.FindNFirstOccurrencesOfSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
-
-		def FindFirstNOccurrencesOfSubString(n, pcSubStr)
-			return This.FindNFirstOccurrencesOfSubString(n, pcSubStr)
-
-	  #------------------------------------------------#
-	 #   FINDING N LAST OCCURRENCES OF A SUBSTRING   #
-	#------------------------------------------------#
-
-	def FindNLastOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
-		/* EXAMPLE
-
-		o1 = new stzListOfStrings([
-			"___ ring ___ ring",
-			"ring ___ ring ___ ring",
-			"___ ring"
-		])
-
-		? o1.FindNLastOccurrencesOfSubString(3, "ring")
-		#--> [ [ 2, 10 ], [ 2, 19], [ 3, 5 ] ]
-
-		*/
-
-		aResult = This.FindSubStringXTCSQ(pcSubStr, pCaseSensitive).LastNItems(n)
-		return aResult
-
-		def FindLastNOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
-			return This.FindNLastOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindNLastOccurrencesOfSubString(n, pcSubStr)
-		return This.FindNLastOccurrencesOfSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
-
-		def FindLastNOccurrencesOfSubString(n, pcSubStr)
-			return This.FindNLastOccurrencesOfSubString(n, pcSubStr)
-
-	   #---------------------------------------------------------#
-	  #      CHECKING IF EACH STRING OF THE LIST OF STRINGS     #
-	 #      CONTAINS EACH ONE OF THE PROVIDED SUBSTRINGS       #
-	#---------------------------------------------------------#
-
-	def ContainsSubStringsCS(pacSubStr, pCaseSensitive)
-
-		bResult = TRUE
-
-		for str in pacStr
-			if NOT This.ContainsSubStringCS(str, pCaseSensitive)
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForm
-
-		def ContainsEachSubstringCS(pacSubStr, pCaseSensitive)
-			return This.ContainsSubStringsCS(pacSubStr, pCaseSensitive)
-
-		def ContainsEachSubStringOfTheseCS(pacSubStr, pCaseSensitive)
-			return This.ContainsStringsCS(pacSubStr, pCaseSensitive)
-
-		def ContainsEachSubStringOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
-			return This.ContainsStringsCS(pacSubStr, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ContainsSubStrings(pacSubStr)
-
-		return This.ContainsSubStrings(pacSubStr, :CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForm
-
-		def ContainsEachSubstring(pacSubStr)
-			return This.ContainsSubStrings(pacSubStr)
-
-		def ContainsEachSubStringOfThese(pacSubStr)
-			return This.ContainsSubStrings(pacSubStr)
-
-		def ContainsEachSubStringOfTheseSubStrings(pacSubStr)
-			return This.ContainsSubStrings(pacSubStr)
-
-		#>
-
-	   #---------------------------------------------------#
-	  #    FINDING NEXT NTH OCCURRENCE OF A SUBSTRING     #
-	 #    STARTING AT A GIVEN POSITION [ LEVEL, POS]     #
-	#---------------------------------------------------#
-
-	def FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-
-		# Checking param correctness
-
-		if isString(n)
-			if Q(n).IsOneOfThese([ :First, :FirstSubString ])
-				  
-				n = 1
-
-			but Q(n).IsOneOfThese([ :Last, :LastSubString ])
-
-				This.NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
-			ok
-		ok
-
-		if NOT isNumber(n)
-			stzRaise("Incorrect param! n must be a number.")
-		ok
-
-		#--
-
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstPosition, :FirstString, :FirstStringItem ], :CS = FALSE)
-
-				pnStartingAt = 1
-			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastPosition, :LastString, :LastStringItem ], :CS = FALSE)
-
-				pnStartingAt = This.NumberOfStrings()
-			ok
-		ok
-
-		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param type! pnStartingAt must be a number.")
-		ok
-
-		# Doing the job
-
-		oListOfStr = This.SectionQR(pnStartingAt, :LastItem, :stzListOfStrings)
-		aResult = oListOfStr.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-		return nResult
-
-		#< @FunctionAlternativeForms
-
-		def FindNthNextOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-		def FindNextNthSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-			def FindNthNextSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-		
-		def FindNextNthOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-			def FindNthNextOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-		
-		def PositionsOfNextNthSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-			def PositionsOfNthNextSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindNextNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def NextNthSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-			def NthNextSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindNextNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def PositionsOfNextNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-			def PositionsOfNthNextOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-		def NthOccurrenceOfSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-			def NthNextOccurrenceOfSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-		def PositionsOfNextNthOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-			def PositionsOfNthNextOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-		def NextNthOccurrenceOfThisSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-			def NthNextOccurrenceOfThisSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindNextNthOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
-
-		return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, :CS = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def FindNthNextOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
-			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-
-		def FindNextNthSubString(n, pcSubStr, pnStartingAt)
-			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-
-			def FindNthNextSubString(n, pcSubStr, pnStartingAt)
-				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-		
-		def FindNextNthOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
-			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-
-			def FindNthNextOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
-				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-		
-		def PositionsOfNextNthSubString(n, pcSubStr, pnStartingAt)
-			return This.FindNextNthOccurrenceOfSubString(pcSubStr)
-
-			def PositionsOfNthNextSubString(n, pcSubStr, pnStartingAt)
-				return This.FindNextNthOccurrenceOfSubString(pcSubStr)
-
-		def NextNthSubStringPositions(n, pcSubStr, pnStartingAt)
-			return This.FindNextNthOccurrenceOfSubString(pcSubStr)
-
-			def NthNextSubStringPositions(n, pcSubStr, pnStartingAt)
-				return This.FindNextNthOccurrenceOfSubString(pcSubStr)
-
-		def PositionsOfNextNthOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
-			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-
-			def PositionsOfNthNextOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
-				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-
-		def NthOccurrenceOfSubStringPosition(n, pcSubStr, pnStartingAt)
-			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-
-			def NthNextOccurrenceOfSubStringPositions(n, pcSubStr, pnStartingAt)
-				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-
-		def PositionsOfNextNthOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
-			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-
-			def PositionsOfNthNextOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
-				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-
-		def NextNthOccurrenceOfThisSubStringPositions(n, pcSubStr, pnStartingAt)
-			return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-
-			def NthNextOccurrenceOfThisSubStringPositions(n, pcSubStr, pnStartingAt)
-				return This.FindNextNthOccurrenceOfSubString(n, pcSubStr)
-	
-		#>
-
-	   #------------------------------------------------------------#
-	  #    FINDING NEXT OCCURRENCE OF A SUBSTRING (AS AN ITEM)     #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST                #
-	#------------------------------------------------------------#
-
-	def FindNextOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstPosition, :FirstString, :FirstStringItem ], :CS = FALSE)
-
-				pnStartingAt = 1
-			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastPosition, :LastString, :LastStringItem ], :CS = FALSE)
-
-				pnStartingAt = This.NumberOfStrings()
-			ok
-		ok
-
-		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param type! pnStartingAt must be a number.")
-		ok
-
-		oListOfStr = This.SectionQR(pnStartingAt, :LastItem, :stzListOfSubStrings)
-		aResult = oListOfStr.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		return nResult
-
-		#< @FunctionAlternativeForms
-	
-		def FindNextSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-		
-		def FindNextOccurrenceOfThisSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-			
-		def PositionsOfNextSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def NextSubStringPositionsCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-			
-		def PositionsOfNextOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-		
-		def PositionsOfNextOccurrenceOfThisSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-		
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindNextOccurrenceOfSubString(pcSubStr, pnStartingAt)
-
-		return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, :CS = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def FindNextSubString(pcSubStr, pnStartingAt)
-			return This.FindNextOccurrenceOfSubString(pcSubStr)
-		
-		def FindNextOccurrenceOfThisSubString(pcSubStr, pnStartingAt)
-			return This.FindNextOccurrenceOfSubString(pcSubStr)
-		
-		def PositionsOfNextSubString(pcSubStr, pnStartingAt)
-			return This.FindNextOccurrenceOfSubString(pcSubStr)
-
-		def NextSubStringPositions(pcSubStr, pnStartingAt)
-			return This.FindNextOccurrenceOfSubString(pcSubStr)
-
-		def PositionsOfNextOccurrenceOfSubString(pcSubStr, pnStartingAt)
-			return This.FindNextOccurrenceOfSubString(pcSubStr)
-		
-		def PositionsOfNextOccurrenceOfThisSubString(pcSubStr, pnStartingAt)
-			return This.FindNextOccurrenceOfSubString(pcSubStr)
-		
-		#>
-
-	   #-------------------------------------------------------------------#
-	  #    FINDING PREVIOUS NTH OCCURRENCE OF A SUBSTRING (AS AN ITEM)    #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST                       #
-	#-------------------------------------------------------------------#
-
-	def FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-		# Checking param correctness
-
-		if isString(n)
-			if Q(n).IsOneOfThese([ :First, :FirstSubString ])
-				  
-				n = 1
-
-			but Q(n).IsOneOfThese([ :Last, :LastSubString ])
-
-				This.NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
-			ok
-		ok
-
-		if NOT isNumber(n)
-			stzRaise("Incorrect param! n must be a number.")
-		ok
-
-		#--
-
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstPosition, :FirstString, :FirstStringItem ], :CS = FALSE)
-
-				pnStartingAt = 1
-			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastPosition, :LastString, :LastStringItem ], :CS = FALSE)
-
-				pnStartingAt = This.NumberOfStrings()
-			ok
-		ok
-
-		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param type! pnStartingAt must be a number.")
-		ok
-
-		# Doing the job
-
-		oListOfStr = This.SectionQR(pnStartingAt, :LastItem, :stzListOfSubStrings)
-		nNumOcc = oListOfStr.NumberOfOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-		aResult = oListOfStr.FindNthOccurrenceOfSubStringCS(nNumOcc - n, pcSubStr, pCaseSensitive)
-
-		return nResult
-
-		#< @FunctionAlternativeForms
-
-		def FindNthPreviousOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-	
-		def FindPreviousNthSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-			def FindNthPreviousSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-		
-		def FindPreviousNthOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-			def FindNthPreviousOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-	
-		def PositionsOfPreviousNthSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-			def PositionsOfNthPreviousSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindPreviousNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def PreviousNthSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-			def NthPreviousSubStringPositionsCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindPreviousNthOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def PositionsOfPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-			def PositionsOfNthPreviousOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-		
-		def PositionsOfPreviousNthOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-
-			def PositionsOfNthPreviousOccurrenceOfThisSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
-		
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindPreviousNthOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
-
-		return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, :CS = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def FindNthPreviousOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
-
-		def FindPreviousNthSubString(n, pcSubStr, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
-
-			def FindNthPreviousSubString(n, pcSubStr, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
-	
-		def FindPreviousNthOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
-
-			def FindNthPreviousOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
-	
-		def PositionsOfPreviousNthSubString(n, pcSubStr, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfSubString(pcSubStr)
-
-			def PositionsOfNthPreviousSubString(n, pcSubStr, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfSubString(pcSubStr)
-
-		def PreviousNthSubStringPositions(n, pcSubStr, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfSubString(pcSubStr)
-
-			def NthPreviousSubStringPositions(n, pcSubStr, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfSubString(pcSubStr)
-
-	
-		def PositionsOfPreviousNthOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
-
-			def PositionsOfNthPreviousOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
-		
-		def PositionsOfPreviousNthOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
-			return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
-
-			def PositionsOfNthPreviousOccurrenceOfThisSubString(n, pcSubStr, pnStartingAt)
-				return This.FindPreviousNthOccurrenceOfSubString(n, pcSubStr)
-
-		#>
-
-	   #---------------------------------------------------------------#
-	  #    FINDING PREVIOUS OCCURRENCE OF A SUBSTRING (AS AN ITEM)    #
-	 #    STARTING AT A GIVEN POSITION IN THE LIST                   #
-	#---------------------------------------------------------------#
-
-	def FindPreviousOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstPosition, :FirstString, :FirstStringItem ], :CS = FALSE)
-
-				pnStartingAt = 1
-			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastPosition, :LastString, :LastStringItem ], :CS = FALSE)
-
-				pnStartingAt = This.NumberOfStrings()
-			ok
-		ok
-
-		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param type! pnStartingAt must be a number.")
-		ok
-
-		oListOfStr = This.SectionQR(pnStartingAt, :LastString, :stzListOfSubStrings)
-		aResult = oListOfStr.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		return nResult
-
-		#< @FunctionAlternativeForms
-	
-		def FindPreviousSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-		
-		def FindPreviousOccurrenceOfThisSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-		
-		def PositionsOfPreviousSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def PreviousSubStringPositionsCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-
-		def PositionsOfPreviousOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-		
-		def PositionsOfPreviousOccurrenceOfThisSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-		
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindPreviousOccurrenceOfSubString(pcSubStr, pnStartingAt)
-
-		return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def FindPreviousSubString(pcSubStr, pnStartingAt)
-			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
-		
-		def FindPreviousOccurrenceOfThisSubString(pcSubStr, pnStartingAt)
-			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
-		
-		def PositionsOfPreviousSubString(pcSubStr, pnStartingAt)
-			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
-
-		def PreviousSubStringPositions(pcSubStr, pnStartingAt)
-			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
-
-		def PositionsOfPreviousOccurrenceOfSubString(pcSubStr, pnStartingAt)
-			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
-
-		def PositionsOfPreviousOccurrenceOfThisSubString(pcSubStr, pnStartingAt)
-			return This.FindPreviousOccurrenceOfSubString(pcSubStr)
 
 		#>
 
@@ -10841,6 +10870,64 @@ class stzListOfStrings from stzList
 			This.ReplaceSubStringByManyXT(pcSubStr, pacNewSubStrings)
 			return This
 
+	  #-----------------------------------------------#
+	 #   REPLACING A SUBSTRING AT A GIVEN POSITION   #
+	#-----------------------------------------------#
+
+	def ReplaceSubStringAtPositionCS(panPosition, pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([
+			"___ ring ___ ring",
+			"ring ___ ring ___ ring",
+			"___ ring"
+		])
+
+		o1.ReplaceSubStringAtPosition([2, 10 ], :With = "♥♥♥")
+		? o1.Content()
+		#--> [
+		#	"___ ring ___ ring",
+		#	"ring ___ ♥♥♥ ___ ring",
+		#	"___ ring"
+		#    ]
+
+		*/
+
+		if NOT ( isList(panPositions) and Q(panPositions).IsPairOfNumbers() )
+			stzRaise("Incorrect param type! panPositions must be a pair of numbers.")
+		ok
+
+		anPositions = This.FindSubSstringXTCS(pcSubStr, pCaseSensitive)
+		#--> [ [ 1, 5 ], [ 1, 14 ], [ 2, 1 ], [ 2, 10 ], [ 2, 19 ], [ 3, 5 ] ]
+
+		n = Q(anPositions).Find(panPosition)
+		This.ReplaceNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+		def ReplaceSubStringAtPositionCSQ(panPosition, pcSubStr, pCaseSensitive)
+			This.ReplaceSubStringAtPositionCS(panPosition, pcSubStr, pCaseSensitive)
+			return This
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceSubstringAtPosition(panPosition, pcSubStr)
+		return This.ReplaceSubStringAtPositionCS(panPosition, pcSubStr, :CaseSensitive = TRUE)
+
+		def ReplaceSubstringAtPositionQ(panPosition, pcSubStr)
+			This.ReplaceSubstringAtPosition(panPosition, pcSubStr)
+			return This
+
+	  #----------------------------------------------#
+	 #   REPLACING A SUBSTRING AT GIVEN POSITIONS   #
+	#----------------------------------------------#
+
+	def ReplaceSubStringAtPositions(panPositions, pcSubStr, pCaseSensitive)
+		
+		if NOT ( isList(panPosistions) and Q(panPositions).IsListOfPairsOfNumbers() )
+			stzRaise("Incorrect param type! panPositions must be a list of pairs of numbers.")
+		ok
+
+		// TODO
+		
 	  #==============================================================================#
 	 #  REPLACING, INSIDE A GIVEN STRING, ALL THE OCCURRENCES OF A GIVEN SUBSTRING  #
 	#==============================================================================#
