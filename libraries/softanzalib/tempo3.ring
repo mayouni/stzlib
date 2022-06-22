@@ -1,7 +1,72 @@
 load "stzlib.ring"
 
 /*-----------------------
+
+# In softanza the ..ed() form returns the expected result
+# from the function without altering the object content:
+
+o1 = new stzList(' "♥1" : "♥3" ')
+? @@( o1.ItemsReversed() )
+#--> Returns [ "♥3", "♥2", "♥1" ]
+# But the object content is left as-is:
+? @@( o1.Content() )
+#--> [ "♥1", "♥2", "♥3" ]
+
+# Using the function directly with ...ed() will definetly alter
+# the object content, without returning anything:
+o1.ReverseItems() # The items are reversed but nothing is returned
+# Let's see the object content:
+? @@( o1.Content() )
+#--> [ "♥3", "♥2", "♥1" ]
+
+# If you want to alter the object and then return it to continue
+# working on it, then use the ...Q() form like this:
+? o1.ReverseItemsQ().ToStzListOfStrings().ConcatenatedUsing("~")
+# returns a string containing "♥1~♥2~♥3"
+
+#--> Initially the object contained [ "♥3", "♥2", "♥1" ]. It's then
+# reversed and became [ "♥3", "♥2", "♥1" ]. Finally, the stzList object
+# is transformed to a stzListOfStrings object so it can be concatenated
+# and returned as a string containing "♥1~♥2~♥3".
+
+/*-----------------------
+
+o1 = new stzList(1:3)
+? o1.ReversedItems()
+#--> [ 3, 2, 1 ]
+
+/*-----------------------
 */
+# In softanza the ..ed() form returns the expected result
+# from the function without altering the object content:
+
+o1 = new stzListOfPairs([ [ "A1", "A2" ], [ "B1", "B2" ], ["C1", "C2" ] ])
+? @@( o1.Reversed() ) + NL
+#--> Returns [ [ "C1", "C2" ], [ "B1", "B2" ], [ "A1", "A2" ] ]
+
+o1.ReverseItemsInPairs()
+? @@( o1.Content() )
+#--> [ [ "A2", "A1" ], [ "B2", "B1" ], [ "C2", "C1" ] ]
+
+# If you need it, when you have lists of different sizes, the same code
+# works for general lists (and not only for pairs like in the code above),
+# by undertaking a slight semantic adaptation:
+
+o1 = new stzListOfLists([ [ "A1", "A2", "A3" ], [ "B1", "B2" ], ["C1", "C2" ] ])
+? @@( o1.Reversed() ) + NL
+#--> Returns [ [ "C1", "C2" ], [ "B1", "B2" ], [ "A1", "A2" ] ]
+
+o1.ReverseItemsInLists()
+? @@( o1.Content() )
+#--> [ [ "A2", "A1" ], [ "B2", "B1" ], [ "C2", "C1" ] ]
+
+# Note that this is a not a casual, but general feature you will find it anywhere
+# in Softanza: you can go from speciefic to more general, or from general to more
+# specific using nearly the same code and the same semantics.
+# PS: CONSISTENCY is one of the 7 design goals of SoftanzaLib.
+
+/*-----------------------
+
 o1 = new stzListOfStrings([
 	"___ ring ___ ring",
 	"ring ___ ring ___ ring",
@@ -10,6 +75,9 @@ o1 = new stzListOfStrings([
 
 ? @@( o1.FindNFirstOccurrencesOfSubString(4, "ring") )
 #--> [ [ 1, 5 ], [ 1, 14 ], [ 2, 1], [ 2, 10 ] ]
+
+? @@( o1.FindNLastOccurrencesOfSubString(3, "ring") )
+#--> [ [ 2, 10 ], [ 2, 19 ], [ 3, 5 ] ]
 
 /*-----------------------
 
