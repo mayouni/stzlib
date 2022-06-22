@@ -1691,6 +1691,20 @@ class stzList from stzObject
 				This.ReplaceItemAt(n, pOtherItem)
 				return This
 
+		def ReplaceNthItem(n, pOtherItem)
+			This.ReplaceItemAtPosition(n, pOtherItem)
+
+			def ReplaceNthItemQ(n, pOtherItem)
+				This.ReplaceNthItem(n, pOtherItem)
+				return This
+
+		def ReplaceNth(n, pOtherItem)
+			This.ReplaceItemAtPosition(n, pOtherItem)
+
+			def ReplaceNthQ(n, pOtherItem)
+				This.ReplaceNth(n, pOtherItem)
+				return This
+
 		#>
 	
 	def ItemAtPositionNReplacedWith(n, pOtherItem)
@@ -6149,6 +6163,9 @@ class stzList from stzObject
 		def ReverseItemsQ()
 			This.ReverseItems()
 			return This
+
+			def ReverseQ()
+				return This.ReverseItemsQ()
 
 	def ReversedItems()
 		aResult = This.Copy().ReverseItemsQ().Content()

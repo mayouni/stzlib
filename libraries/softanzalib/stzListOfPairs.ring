@@ -76,7 +76,7 @@ class stzListOfPairs from stzList
 		return This.Content()
 
 	def Copy()
-		return new stzPair( This.Content() )
+		return new stzListOfPairs( This.Content() )
 
 	def ToStzList()
 		return new stzList( This.Pair() )
@@ -181,6 +181,69 @@ class stzListOfPairs from stzList
 
 		return aResult
 
+	  #-----------------------------------------#
+	 #   REVERSING THE THE PAIRS OF THE LIST   #
+	#-----------------------------------------#
+
+	def ReversePairs()	
+
+		aResult = []
+		
+		for i = This.NumberOfPairs() to 1 step -1
+			aResult + This[i]
+		next
+
+		This.Update( aResult )
+
+		def ReversePairsQ()
+			This.ReversePairs()
+			return This
+
+			def ReverseQ()
+				return This.ReverseItemsQ()
+
+	def ReversedPairs()
+		aResult = This.Copy().ReversePairsQ().Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def PairsReversed()
+			return This.ReversedPairs()
+
+		def Reversed()
+			return This.ReversedPairs()
+
+		#>
+
+	  #--------------------------------------------------#
+	 #   REVERSING ITEMS INSIDE THE PAIRS OF THE LIST   #
+	#--------------------------------------------------#
+
+	def ReverseItemsInPairs()
+		for aPair in This.ListOfPairs()
+			aPair = Q(aPair).Reversed()
+		next
+
+		def ReverseItemsInPairsQ()
+			This.ReverseItemsInPairs()
+			return This
+
+		def ReversePairsContent()
+			This.ReverseItemsInPairs()
+
+			def ReversePairsContentQ()
+				This.ReversePairsContent()
+				return This
+
+	def ItemsInPairsReversed()
+		aResult = This.Copy().ReverseItemsInPairsQ().Content()
+		return aResult
+
+		def PairsContentReversed()
+			return This.ItemsInPairsReversed()
+
+	
 	  #---------------------------------------------------------------#
 	 #   CHECKING IF THE PAIRS ARE SECTIONS AND IF THEY ARE SORTED   #
 	#---------------------------------------------------------------#

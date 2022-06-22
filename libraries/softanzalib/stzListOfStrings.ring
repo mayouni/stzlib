@@ -6954,7 +6954,7 @@ class stzListOfStrings from stzList
 
 		*/
 
-		aResult = This.FindSubStringXTCSQ(pcSubStr, pCaseSensitive).Range(1, n)
+		aResult = This.FindSubStringXTCSQ(pcSubStr, pCaseSensitive).FirstNItems(n)
 		return aResult
 
 		def FindFirstNOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
@@ -6967,6 +6967,38 @@ class stzListOfStrings from stzList
 
 		def FindFirstNOccurrencesOfSubString(n, pcSubStr)
 			return This.FindNFirstOccurrencesOfSubString(n, pcSubStr)
+
+	  #------------------------------------------------#
+	 #   FINDING N LAST OCCURRENCES OF A SUBSTRING   #
+	#------------------------------------------------#
+
+	def FindNLastOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzListOfStrings([
+			"___ ring ___ ring",
+			"ring ___ ring ___ ring",
+			"___ ring"
+		])
+
+		? o1.FindNLastOccurrencesOfSubString(3, "ring")
+		#--> [ [ 2, 10 ], [ 2, 19], [ 3, 5 ] ]
+
+		*/
+
+		aResult = This.FindSubStringXTCSQ(pcSubStr, pCaseSensitive).LastNItems(n)
+		return aResult
+
+		def FindLastNOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNLastOccurrencesOfSubStringCS(n, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNLastOccurrencesOfSubString(n, pcSubStr)
+		return This.FindNLastOccurrencesOfSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def FindLastNOccurrencesOfSubString(n, pcSubStr)
+			return This.FindNLastOccurrencesOfSubString(n, pcSubStr)
 
 	   #---------------------------------------------------------#
 	  #      CHECKING IF EACH STRING OF THE LIST OF STRINGS     #

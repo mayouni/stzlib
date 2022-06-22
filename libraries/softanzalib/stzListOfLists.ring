@@ -438,6 +438,83 @@ class stzListOfLists from stzList
 
 		#>
 
+	  #-----------------------------------------#
+	 #   REVERSING THE THE ITEMS OF THE LIST   #
+	#-----------------------------------------#
+
+	# To avoid confusion, it's better to use the alternative forms
+	# ReverseItems() and ItemsReversed()
+
+	def ReverseLists()	
+
+		aResult = []
+		
+		for i = This.NumberOfLists() to 1 step -1
+			aResult + This[i]
+		next
+
+		This.Update( aResult )
+
+		def ReverseListsQ()
+			This.ReverseLists()
+			return This
+
+			def ReverseQ()
+				return This.ReverseListsQ()
+
+		def ReverseItems()
+			This.ReverseLists()
+
+			def ReverseItemsQ()
+				This.ReverseItems()
+				return This
+
+	def ReversedLists()
+		aResult = This.Copy().ReverseListsQ().Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ListsReversed()
+			return This.ReversedLists()
+
+		def Reversed()
+			return This.ReversedLists()
+
+		def ReversedItems()
+			return This.ReversedLists()
+
+		#>
+
+	  #--------------------------------------#
+	 #   REVERSING ITEMS INSIDE THE LISTS   #
+	#--------------------------------------#
+
+	def ReverseItemsInLists()
+		i = 0
+		for aList in This.ListOfLists()
+			i++
+			@aContent[i] = Q(aList).Reversed()
+		next
+
+		def ReverseItemsInListsQ()
+			This.ReverseItemsInLists()
+			return This
+
+		def ReverseListsContent()
+			This.ReverseItemsInLists()
+
+			def ReverseListsContentQ()
+				This.ReverseListsContent()
+				return This
+
+	def ItemsInListsReversed()
+		aResult = This.Copy().ReverseItemsInListsQ().Content()
+		return aResult
+
+		def ListsContentReversed()
+			return This.ItemsInListsReversed()
+
 	  #---------------#
 	 #   INDEXING    #
 	#---------------#
