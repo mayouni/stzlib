@@ -2,6 +2,20 @@ load "stzlib.ring"
 
 /*-----------------------
 
+o1 = new stzListOfStrings([
+	"___ ring ___ ring",
+	"ring ___ ring ___ ring",
+	"___ ring"
+])
+
+? @@( o1.FindSubStringXT("ring") )
+#--> [ [ 1, 5 ], [ 1, 14 ], [ 2, 1 ], [ 2, 10 ], [ 2, 19 ], [ 3, 5 ] ]
+
+? @@( o1.FindTheseOccurrencesOfSubString([1, 3, 5 ], "ring") )
+#--> [ [ 1, 5 ], [ 2, 1 ], [ 2, 19 ] ]
+
+/*-----------------------
+
 # In softanza the ..ed() form returns the expected result
 # from the function without altering the object content:
 
@@ -36,7 +50,7 @@ o1 = new stzList(1:3)
 #--> [ 3, 2, 1 ]
 
 /*-----------------------
-*/
+
 # In softanza the ..ed() form returns the expected result
 # from the function without altering the object content:
 
