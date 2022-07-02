@@ -1246,167 +1246,6 @@ class stzString from stzObject
 		cResult = This.ToStzText().LanguageIfStopWord()
 		return cResult
 
-	  #===================#
-	 #      LETTERS      #
-	#===================#
-
-	// Returns the letters contained in the string
-	def Letters()
-		# t0 = clock()
-
-		acResult = This.CharsW('StzCharQ(@char).IsLetter()')
-		return acResult
-
-
-
-		# ? ( clock() - t0 ) / clockspersecond()
-
-		return acResult
-
-		def LettersQ()
-			return This.LettersQR(:stzList)
-
-		def LettersQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				stzRaise("Icorrect param! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Letters() )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.Letters() )
-
-			on :stzListOfChars
-				return new stzListOfChars( This.Letters() )
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-
-	def LettersXT(paOptions)
-		if NOT isList(paOptions)
-			stzRaise("Incorrect param type! paOptions must be a list.")
-		ok
-
-		if len(paOptions) = 0
-			return This.Letters()
-		ok
-
-		if paOptions[ :ManageArabicShaddah ] = TRUE
-
-			# MANAGING THE SPECIAL CASE OF ARABIC SHADDAH ("ّ ")
-	
-			# In fact, arabic shaddah is a letter (and so isLetter()
-			# should return TRUE), but the shaddah should'nt appear in
-			# the list of letters as sutch ("ّ ") but as the letter that
-			# comes right before it!
-	
-			acResult = This.Letters()
-
-			if This.Contains(ArabicShaddah())
-				anPos = StzListOfStringsQ(acResult).FindAll(ArabicShaddah())
-
-				for n in anPos
-					if n > 1
-						acResult[n] = acResult[n-1]
-					ok
-				next
-	
-			ok
-		ok
-
-		return acResult
-
-		def LettersXTQ(paOptions)
-			return This.LettersXTQR(paOptions, :stzList)
-
-		def LettersXTQR(paOptions, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				stzRaise("Icorrect param! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.LettersXT(paOptions) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.LettersXT(paOptions) )
-
-			on :stzListOfChars
-				return new stzListOfChars( This.LettersXT(paOptions) )
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-
-	def UniqueLettersXT(paOptions)
-		return This.LettersXTQR(paOptions, :stzListOfStrings).DuplicatesRemoved()
-
-		def UniqueLettersXTQ(paOptions)
-			return This.UniqueLettersXTQR(paOptions, :stzList)
-
-		def UniqueLettersXTQR(paOptions, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				stzRaise("Icorrect param! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.UniqueLettersXT(paOptions) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.UniqueLettersXT(paOptions) )
-
-			on :stzListOfChars
-				return new stzListOfChars( This.UniqueLettersXT(paOptions) )
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-
-		def ToSetOfLettersXT(paOptions)
-			return This.UniqueLettersXT(paOptions)
-
-			def ToSetOfLettersXTQ(paOptions)
-				return This.ToSetOfLettersXTQR(paOptions, :stzList)
-	
-			def ToSetOfLettersXTQR(paOptions, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					stzRaise("Icorrect param! pcReturnType must be a string.")
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.ToSetOfLettersXT(paOptions) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.ToSetOfLettersXT(paOptions) )
-	
-				on :stzListOfChars
-					return new stzListOfChars( This.ToSetOfLettersXT(paOptions) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
-
 	  #=================#
 	 #      LINES      #
 	#=================#
@@ -2609,7 +2448,7 @@ class stzString from stzObject
 
 	def ToSetOfChars()
 
-		t0 = clock()
+		//t0 = clock()
 
 		aResult = []
 
@@ -2623,7 +2462,7 @@ class stzString from stzObject
 
 		next
 
-		? ( clock() - t0 ) / clockspersecond()
+		//? ( clock() - t0 ) / clockspersecond()
 
 		return aResult
 
@@ -6942,7 +6781,7 @@ class stzString from stzObject
 
 		# Keeping only the adequate number of positsions and new substrings
 		# --> Avoids incorrect results when the number of provided positions is
-		#     different from the number of prpovided new substrings
+		#     different from the number of provided new substrings
 
 		nMin = Min( len(panPositions), len(pacNewSubStrings) )
 
@@ -7855,6 +7694,53 @@ class stzString from stzObject
 	def PreviousOccurrenceReplaced(pcSubStr, nStart, pcNewSubStr)
 		return This.Copy().ReplacePreviousOccurrenceQ(pcSubStr, nStart, pcNewSubStr).Content()
 
+	  #----------------------------------------------------#
+	 #  REPLACING THE FIRST N OCCURRENCES OF A SUBSTRING  #
+	#----------------------------------------------------#
+
+	def ReplaceFirstNOccurrencesCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		anPos = This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+		This.ReplaceSubStringAtPositionsCS(anPos, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceFirstNOccurrencesCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceFirstNOccurrencesCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+		def ReplaceNFirstOccurrencesCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceFirstNOccurrencesCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceNFirstOccurrencesCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.ReplaceNFirstOccurrencesCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+	def FirstNOccurrencesReplacedCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		return This.Copy().ReplaceFirstNOccurrencesCSQ(n, pcNewSubStr, pcSubStr, pCaseSensitive).Content()
+
+		def NFirstOccurrencesReplacedCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.FirstNOccurrencesReplacedCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceFirstNOccurrences(n, pcSubStr, pcNewSubStr)
+		This.ReplaceFirstNOccurrencesCS(n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+
+		def ReplaceFirstNOccurrencesQ(n, pcSubStr, pcNewSubStr)
+			This.ReplaceFirstNOccurrences(n, pcSubStr, pcNewSubStr)
+			return This
+
+		def ReplaceNFirstOccurrences(n, pcSubStr, pcNewSubStr)
+			This.ReplaceFirstNOccurrences(n, pcSubStr, pcNewSubStr)
+
+			def ReplaceNFirstOccurrencesQ(n, pcSubStr, pcNewSubStr)
+				This.ReplaceNFirstOccurrences(n, pcSubStr, pcNewSubStr)
+				return This
+
+	def FirstNOccurrencesReplaced(n, pcSubStr, pcNewSubStr)
+		return This.Copy().ReplaceFirstNOccurrencesQ(n, pcSubStr, pcNewSubStr).Content()
+
+		def NFirstOccurrencesReplaced(n, pcSubStr, pcNewSubStr)
+			return This.FirstNOccurrencesReplaced(n, pcSubStr, pcNewSubStr)
+
 	  #-------------------------#
 	 #    REPLACING NTH CHAR   # 
 	#-------------------------#
@@ -8249,7 +8135,7 @@ class stzString from stzObject
 
 		def BeginsWithCS(pcSubStr, pCaseSensitive)
 			return This.StartsWithCS(pcSubStr, pCaseSensitive)
-	
+
 	def StartsWith(pcSubStr)
 		return @oQString.startsWith(pcSubStr, 0)
 
@@ -8324,19 +8210,58 @@ class stzString from stzObject
 			return This.EndsWithOneOfThese(paSubStr)
 
 	  #----------------------------------------------------#
-	 #      FINDING THE NTH OCCURRENCE OF SUBSTRING       #
+	 #  GETTING THE SUBSTRING OCCURRENCE BY ITS POSITION  #
 	#----------------------------------------------------#
+
+	def SubStringOccurrenceByPositionCS(nPos, pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+		o1 = new stzString("ring __ ring __ ring __ ring")
+		? o1.SubStringOccurrenceByPosition(9, "ring") #--> 2
+		*/
+
+		nResult = 0
+
+		anPositions = This.FindSubStringCS(pcSubStr, pCaseSensitive)
+		i = 0
+		for n in anPositions
+			i++
+			if n = nPos
+				nResult = i
+				exit
+			ok
+		next
+
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringOccurrenceByPosition(nPos, pcSubStr)
+		return This.SubStringOccurrenceByPositionCS(nPos, pcSubStr, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------#
+	 #   FINDING THE NTH OCCURRENCE OF SUBSTRING   #
+	#---------------------------------------------#
 
 	def NthOccurrenceCS(n, pcSubstr, pCaseSensitive) # --> Returns 0 if nothing found
 
-		if n = :FirstChar or n = :StartOfString
-			n = 1
-		but n = :LastChar or n = :EndOfString
-			n = This.NumberOfOccurrence(pcSubStr)
-		ok
-
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParamList()
 			pcSubStr = pcSubStr[2]
+		ok
+
+		if NOT isString(pcSubStr)
+			stzRaise("Incorrect param type! pcSubStr must be as a string.")
+		ok
+
+		if isString(n)
+			if Q(n).Lowercased() = "first"
+				n = 1
+
+			but Q(n).Lowercased() = "last"
+				n = This.NumberOfOccurrenceCs(pcSubStr, pCaseSensitive)
+
+			else
+				n = 0
+			ok
 		ok
 
 		if n >= 1 and n <= This.NumberOfOccurrenceCS(pcSubstr, pCaseSensitive)
@@ -8357,6 +8282,12 @@ class stzString from stzObject
 		def NthOccurrencePositionCS(n, pcSubstr, pCaseSensitive)
 			return This.NthOccurrenceCS(n, pcSubstr, pCaseSensitive)
 
+		def SubStringPositionByOccurrenceCS(n, pcSubStr, pCaseSensitive)
+			return This.NthOccurrenceCS(n, pcSubstr, pCaseSensitive)
+
+		def FindSubStringByOccurrenceCS(n, pcSubStr, pCaseSensitive)
+			return This.NthOccurrenceCS(n, pcSubstr, pCaseSensitive)
+
 		#>
 
 	def NthOccurrence(n, pcSubstr)
@@ -8371,6 +8302,12 @@ class stzString from stzObject
 			return This.NthOccurrence(n, pcSubstr)
 
 		def NthOccurrencePosition(n, pcSubstr)
+			return This.NthOccurrence(n, pcSubstr)
+
+		def SubStringPositionByOccurrence(n, pcSubStr)
+			return This.NthOccurrence(n, pcSubstr)
+
+		def FindSubStringByOccurrence(n, pcSubStr)
 			return This.NthOccurrence(n, pcSubstr)
 
 		#>
@@ -8439,6 +8376,8 @@ class stzString from stzObject
 		def FirstSubStringPositionCS(pcSubStr, pCaseSensitive)
 			return This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
 
+		def FirstCS(pcSubStr)
+			return This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
 		#>
 
 	def FindFirstOccurrence(pcSubstr)
@@ -8458,6 +8397,9 @@ class stzString from stzObject
 		def FirstSubString(pcSubStr)
 			return This.FindFirstOccurrence(pcSubStr)
 
+		def First(pcSubStr)
+			return This.FindFirstOccurrence(pcSubStr)
+
 		#--
 
 		def PositionOfFirstOccurrence(pcSubStr)
@@ -8473,7 +8415,8 @@ class stzString from stzObject
 			return This.FindFirstOccurrence(pcSubStr)
 
 		def FirstSubStringPosition(pcSubStr)
-			return This.FindFirstOccurrence(pcSubStr)	
+			return This.FindFirstOccurrence(pcSubStr)
+	
 		#>
 
 	  #-------------------------------------------------#
@@ -8502,6 +8445,9 @@ class stzString from stzObject
 		def LastSubStringCS(pcSubStr, pCaseSensitive)
 			return This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive)
 			
+		def LastCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive)
+
 		#--
 
 		def PositionOfLastOccurrenceCS(pcSubStr, pCaseSensitive)
@@ -8518,6 +8464,7 @@ class stzString from stzObject
 
 		def LastSubStringPositionCS(pcSubStr, pCaseSensitive)
 			return This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	def FindLastOccurrence(pcSubStr)
@@ -8537,6 +8484,9 @@ class stzString from stzObject
 		def LastSubString(pcSubStr)
 			return This.FindLastOccurrence(pcSubStr)
 
+		def Last(pcSubStr)
+			return This.FindLastOccurrence(pcSubStr)
+
 		#--
 
 		def PositionOfLastOccurrence(pcSubStr)
@@ -8554,6 +8504,174 @@ class stzString from stzObject
 		def LastSubStringPosition(pcSubStr)
 			return This.FindLastOccurrence(pcSubStr)
 
+		#>
+
+	  #----------------------------------------------------#
+	 #   FINDING THE FIRST N OCCURRENCES OF A SUBSTRING   #
+	#----------------------------------------------------#
+
+	def FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+		return This.FindAllCSQ(pcSubStr, pCaseSensitive).Section(1, n)
+
+		def FindNFirstOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		def PositionsOfFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		def PositionsOfNFirstOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		def FirstNthCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		def NthFirstCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstNOccurrences(n, pcSubStr)
+		return This.FindFirstNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def FindNFirstOccurrences(n, pcSubStr)
+			return This.FindFirstNOccurrences(n, pcSubStr)
+
+		def PositionsOfFirstNOccurrences(n, pcSubStr)
+			return This.FindFirstNOccurrences(n, pcSubStr)
+
+		def PositionsOfNFirstOccurrences(n, pcSubStr)
+			return This.FindFirstNOccurrences(n, pcSubStr)
+
+		def FirstNth(n, pcSubStr)
+			return This.FindFirstNOccurrences(n, pcSubStr)
+
+		def NthFirst(n, pcSubStr)
+			return This.FindFirstNOccurrences(n, pcSubStr)
+
+	  #---------------------------------------------------#
+	 #   FINDING THE LAST N OCCURRENCES OF A SUBSTRING   #
+	#---------------------------------------------------#
+
+	def FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+		nLen = This.NumberOfStrings()
+		return This.FindAllCSQ(pcSubStr, pCaseSensitive).Section(nLan - n + 1, nLen)
+
+		def FindNLastOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		def PositionsOfLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		def PositionsOfNLastOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		def LastNthCS(n, pcSubStr)
+			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		def NthLastCS(n, pcSubStr)
+			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastNOccurrences(n, pcSubStr)
+		return This.FindLastNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def FindNLastOccurrences(n, pcSubStr)
+			return This.FindLastNOccurrences(n, pcSubStr)
+
+		def PositionsOfLastNOccurrences(n, pcSubStr)
+			return This.FindLastNOccurrences(n, pcSubStr)
+
+		def PositionsOfNLastOccurrences(n, pcSubStr)
+			return This.FindLastNOccurrences(n, pcSubStr)
+
+		def LastNth(n)
+			return This.FindLastNOccurrences(n, pcSubStr)
+
+		def NthLast(n)
+			return This.FindLastNOccurrences(n, pcSubStr)
+
+	  #--------------------------------------------------------------------#
+	 #   FINDING THE POSITIONS OF SOME OCCURRENCES OF A GIVEN SUBSTRING   #
+	#--------------------------------------------------------------------#
+
+	def FindOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+		o1 = new stzString("ring __ ring __ ring __ ring")
+		? o1.FindOccurrences([ 2, 3 ], "ring") #--> [ 9, 17 ]
+		*/
+
+		anPositions = This.FindAllCS(pcSubStr, pCaseSensitive)
+		anResult = Q(anPositions).ItemsAt(panOccurr)
+		return anResult
+
+		#< @FunctionFluentForms
+
+		def FindOccurrencesCSQ(panOccurr, pcSubStr, pCaseSensitive)
+				return This.FindOccurrencesCSQR(panOccurr, pcSubStr, :stzList, pCaseSensitive)
+				
+		def FindOccurrencesCSQR(panOccurr, pcSubStr, pcReturnType, pCaseSensitive)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAs(pcReturnType)
+				pcReturnType = pcReturnType[2]
+			ok
+		
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive) )
+		
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive) )
+		
+			on :stzPair
+				return new stzPair( This.FindOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive) )
+		
+			on :stzPairOfNumbers
+				return new stzPairOfNumbers( This.FindOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive) )
+		
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+			return This.FindOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+
+			def FindTheseOccurrencesCSQ(panOccurr, pcSubStr, pCaseSensitive)
+				return This.FindOccurrencesCSQR(panOccurr, pcSubStr, :stzList, pCaseSensitive)
+					
+			def FindTheseOccurrencesCSQR(panOccurr, pcSubStr, pcReturnType, pCaseSensitive)
+				return  This.FindOccurrencesCSQR(panOccurr, pcSubStr, pcReturnType, pCaseSensitive)
+	
+		#>
+
+	#-- WTHOUT CASESENSITIVITY
+
+	def FindOccurrences(panOccurr, pcSubStr)
+		return This.FindOccurrencesCS(panOccurr, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForms
+
+		def FindOccurrencesQ(panOccurr, pcSubStr)
+				return This.FindOccurrencesQR(panOccurr, pcSubStr, :stzList)
+				
+		def FindOccurrencesQR(panOccurr, pcSubStr, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindTheseOccurrences(panOccurr, pcSubStr)
+			return This.FindOccurrences(panOccurr, pcSubStr)
+
+			def FindTheseOccurrencesQ(panOccurr, pcSubStr)
+				return This.FindOccurrencesQR(panOccurr, pcSubStr, :stzList)
+					
+			def FindTheseOccurrencesQR(panOccurr, pcSubStr, pcReturnType)
+				return  This.FindOccurrencesCSQR(panOccurr, pcSubStr, pcReturnType, pCaseSensitive)
+	
 		#>
 
 	   #---------------------------------------------#
@@ -9085,34 +9203,6 @@ class stzString from stzObject
 					stzRaise("Unsupported return type!")
 				off
 
-		def FindOccurrencesCS(pcSubStr, pCaseSensitive)
-			return This.FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
-
-			def FindOccurrencesCSQ(pcSubStr, pCaseSensitive)
-					return This.FindOccurrencesCSQR(pcSubStr, :stzList, pCaseSensitive)
-				
-			def FindOccurrencesCSQR(pcSubStr, pcReturnType, pCaseSensitive)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAs(pcReturnType)
-					pcReturnType = pcReturnType[2]
-				ok
-		
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindOccurrencesCS(pcSubStr, pCaseSensitive) )
-		
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindOccurrencesCS(pcSubStr, pCaseSensitive) )
-		
-				on :stzPair
-					return new stzPair( This.FindOccurrencesCS(pcSubStr, pCaseSensitive) )
-		
-				on :stzPairOfNumbers
-					return new stzPairOfNumbers( This.FindOccurrencesCS(pcSubStr, pCaseSensitive) )
-		
-				other
-					stzRaise("Unsupported return type!")
-				off
-
 		def FindSubstringCS(pcSubStr, pCaseSensitive)
 			return This.FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
 
@@ -9315,34 +9405,6 @@ class stzString from stzObject
 	
 				on :stzPairOfNumbers
 					return new stzPairOfNumbers( This.FindAll(pcSubStr) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
-
-		def FindOccurrences(pcSubStr)
-			return This.FindAllOccurrences(pcSubStr)
-
-			def FindOccurrencesQ(pcSubStr)
-				return This.FindOccurrencesQR(pcSubStr, :stzList)
-			
-			def FindOccurrencesQR(pcSubStr, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAs(pcReturnType)
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindOccurrences(pcSubStr) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindOccurrences(pcSubStr) )
-	
-				on :stzPair
-					return new stzPair( This.FindOccurrences(pcSubStr) )
-	
-				on :stzPairOfNumbers
-					return new stzPairOfNumbers( This.FindOccurrences(pcSubStr) )
 	
 				other
 					stzRaise("Unsupported return type!")
@@ -12735,6 +12797,9 @@ class stzString from stzObject
 		def ContainsAtCS(n, pcSubStr, pCaseSensitive)
 			return This.ContainsSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
 
+		def SubStringExistsAtPositionCS(n, pcSubStr, pCaseSensitive)
+			return This.ContainsSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubStringAtPosition(n, pcSubStr)
@@ -12744,6 +12809,9 @@ class stzString from stzObject
 			return This.ContainsSubStringAtPosition(n, pcSubStr)
 
 		def ContainsAt(n, pcSubStr)
+			return This.ContainsSubStringAtPosition(n, pcSubStr)
+
+		def SubStringExistsAtPosition(n, pcSubStr)
 			return This.ContainsSubStringAtPosition(n, pcSubStr)
 
 	  #------------------------------------------------#
@@ -15221,6 +15289,141 @@ return
 			This.RemoveAll(pcSubStr)
 	
 	  #----------------------------------------------#
+	 #   REMOVING SOME OCCURRENCES OF A SUBSTRING   #
+	#----------------------------------------------#
+
+	def RemoveOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+		/*
+		o1 = new stzString("ring __ ring __ ring __ ring")
+		o1.RemoveOccurrences([2, 3], "ring")
+		? o1.Content() #--> "ring __  __  __ ring"
+		*/
+
+		anPos = This.FindOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+		This.RemoveSubStringAtPositionsCS(anPos, pcSubStr, pCaseSensitive)
+
+		def RemoveOccurrencesCSQ(panOccurr, pcSubStr, pCaseSensitive)
+			This.RemoveOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+			return This
+
+		def RemoveTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+			This.RemoveOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+
+			def RemoveTheseOccurrencesCSQ(panOccurr, pcSubStr, pCaseSensitive)
+				This.RemoveTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+
+	def TheseOccurrencesRemovedCS(panOccurr, pcSubStr, pCaseSensitive)
+		return This.Copy().RemoveOccurrencesCSQ(panOccurr, pcSubStr, pCaseSensitive).Content()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveOccurrences(panOccurr, pcSubStr)
+		This.RemoveOccurrencesCS(panOccurr, pcSubStr, :CaseSensitive = TRUE)
+
+		def RemoveOccurrencesQ(panOccurr, pcSubStr)
+			This.RemoveOccurrences(panOccurr, pcSubStr)
+			return This
+
+		def RemoveTheseOccurrences(panOccurr, pcSubStr)
+			This.RemoveOccurrences(panOccurr, pcSubStr)
+
+			def RemoveTheseOccurrencesQ(panOccurr, pcSubStr)
+				This.RemoveTheseOccurrences(panOccurr, pcSubStr)
+
+	def TheseOccurrencesRemoved(panOccurr, pcSubStr)
+		return This.Copy().RemoveOccurrencesQ(panOccurr, pcSubStr, pCaseSensitive).Content()
+
+	  #-------------------------------------------------#
+	 #   REMOVING FIRST N OCCURRENCES OF A SUBSTRING   #
+	#-------------------------------------------------#
+
+	def RemoveFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+		This.RemoveTheseOccurrencesCS( 1 : n, pcSubStr, pCaseSensitive )
+
+		def RemoveFirstNOccurrencesCSQ(n, pcSubStr, pCaseSensitive)
+			This.RemoveFirstNOccurrencesCSQ(n, pcSubStr, pCaseSensitive)
+			return This
+
+		def RemoveNFirstOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			This.RemoveFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+			def RemoveNFirstOccurrencesCSQ(n, pcSubStr, pCaseSensitive)
+				This.RemoveNFirstOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+	def FirstNOccurrencesRemovedCS(n, pcSubStr, pCaseSensitive)
+		return This.Copy().RemoveFirstNOccurrencesCSQ(n, pcSubStr, pCaseSensitive).Content()
+
+		def NFirstOccurrencesRemovedCS(n, pcSubStr, pCaseSensitive)
+			return This.FirstNOccurrencesRemovedCS(n, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveFirstNOccurrences(n, pcSubStr)
+		This.RemoveFirstNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def RemoveFirstNOccurrencesQ(n, pcSubStr, pCaseSensitive)
+			This.RemoveFirstNOccurrencesQ(n, pcSubStr, pCaseSensitive)
+			return This
+
+		def RemoveNFirstOccurrences(n, pcSubStr, pCaseSensitive)
+			This.RemoveFirstNOccurrences(n, pcSubStr, pCaseSensitive)
+
+			def RemoveNFirstOccurrencesQ(n, pcSubStr, pCaseSensitive)
+				This.RemoveNFirstOccurrences(n, pcSubStr, pCaseSensitive)
+
+	def FirstNOccurrencesRemoved(n, pcSubStr)
+		return This.Copy().RemoveFirstNOccurrencesQ(n, pcSubStr, pCaseSensitive).Content()
+
+		def NFirstOccurrencesRemoved(n, pcSubStr)
+			return This.FirstNOccurrencesRemoved(n, pcSubStr)
+
+	  #------------------------------------------------#
+	 #   REMOVING LAST N OCCURRENCES OF A SUBSTRING   #
+	#------------------------------------------------#
+
+	def RemoveLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+		nNumberOfOccurr = This.NumberOfOccurrencesCS(pcSubStr, pCaseSensitive)
+		n1 = nNumberOfOccurr - n + 1
+		This.RemoveTheseOccurrencesCS( n1 : nNumberOfOccurr , pcSubStr, pCaseSensitive )
+
+		def RemoveLastNOccurrencesCSQ(n, pcSubStr, pCaseSensitive)
+			This.RemoveLastNOccurrencesCSQ(n, pcSubStr, pCaseSensitive)
+			return This
+
+		def RemoveNLastOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			This.RemoveLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+			def RemoveNLastOccurrencesCSQ(n, pcSubStr, pCaseSensitive)
+				This.RemoveNLastOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+	def LastNOccurrencesRemovedCS(n, pcSubStr, pCaseSensitive)
+		return This.Copy().RemoveLastNOccurrencesCSQ(n, pcSubStr, pCaseSensitive).Content()
+
+		def NLastOccurrencesRemovedCS(n, pcSubStr, pCaseSensitive)
+			return This.LastNOccurrencesRemovedCS(n, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveLastNOccurrences(n, pcSubStr)
+		This.RemoveLastNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def RemoveLastNOccurrencesQ(n, pcSubStr, pCaseSensitive)
+			This.RemoveLastNOccurrencesQ(n, pcSubStr, pCaseSensitive)
+			return This
+
+		def RemoveNLastOccurrences(n, pcSubStr, pCaseSensitive)
+			This.RemoveLastNOccurrences(n, pcSubStr, pCaseSensitive)
+
+			def RemoveNLastOccurrencesQ(n, pcSubStr, pCaseSensitive)
+				This.RemoveNLastOccurrences(n, pcSubStr, pCaseSensitive)
+
+	def LastNOccurrencesRemoved(n, pcSubStr)
+		return This.Copy().RemoveLastNOccurrencesQ(n, pcSubStr, pCaseSensitive).Content()
+
+		def NLastOccurrencesRemoved(n, pcSubStr)
+			return This.LastNOccurrencesRemoved(n, pcSubStr)
+
+	  #----------------------------------------------#
 	 #   REMOVING MANY SUBSTRING AT THE SAME TIME   #
 	#----------------------------------------------#
 
@@ -15336,6 +15539,38 @@ return
 		cResult = This.RemoveBetweenQ(pcSubStr,pcBound1, pcBound2).Content()
 		return cResult
 
+	  #-----------------------------------------------------#
+	 #   REMOVING A SUBSTRING AT A SOME GIVEN POSITIONS    #
+	#-----------------------------------------------------#
+
+	def RemoveSubStringAtPositionsCS(panPositions, pcSubStr, pCaseSensitive)
+
+		/* EXAMPLE
+		o1 = new stzString("ring php ring ruby ring python rping cshar ring")
+		o1.RemoveSubstringAtPositions([ 10, 20, 32, 44 ], "ring")
+
+		? o1.Content() #--> "ring php ruby python csharp"
+		*/
+
+		if NOT isList(panPositions) and Q(panPositions).IsListOfNumbers()
+			stzRaise("Incorrect param! panPositions must be a list of numbers.")
+		ok
+
+		anPositions = Q(panPositions).SortedInAscending()
+
+		# Doing the job
+
+		for i = len(anPositions) to 1 step -1
+			n = anPositions[i]
+
+			This.RemoveSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
+		next
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveSubStringAtPositions(panPositions, pcSubStr)
+		This.RemoveSubStringAtPositionsCS(panPositions, pcSubStr, :CaseSensitive = TRUE)
+
 	  #---------------------------------------#
 	 #   REMOVING CHAR AT A GIVEN POSITION   #
 	#---------------------------------------#
@@ -15391,6 +15626,47 @@ return
 
 	def LastCharRemoved()
 		return This.Copy().RemoveLastCharQ().Content()
+
+
+	  #---------------------------------------------------------#
+	 #   REMOVING FIRST & LAST CHARS UPAON A GIVEN CONDITION   #
+	#---------------------------------------------------------#
+
+	def RemoveFirstCharW(pcCondition)
+		cCode = StzStringQ(pcCondition).RemoveSpacesQ().BoundsRemoved("{","}")
+		cCode = 'bOk = ' + cCode
+		eval(cCode)
+
+		if bOk
+			This.RemoveFirstChar()
+		ok
+
+		def RemoveFirstCharWQ(pcCondition)
+			This.RemoveFirstCharW(pcCondition)
+			return This
+
+	def FirstCharRemovedW(pcCondition)
+		return This.Copy().RemoveFirstCharWQ(pcCondition).Content()
+
+	#--
+
+	def RemoveLastCharW(pcCondition)
+		@char = @@(This.LastChar())
+		cCode = StzStringQ(pcCondition).RemoveSpacesQ().BoundsRemoved("{","}")
+		cCode = 'bOk = (' + cCode + ')'
+
+		eval(cCode)
+
+		if bOk
+			This.RemoveLastChar()
+		ok
+
+		def RemoveLastCharWQ(pcCondition)
+			This.RemoveLastCharW(pcCondition)
+			return This
+
+	def LastCharRemovedW(pcCondition)
+		return This.Copy().RemoveLastCharWQ(pcCondition).Content()
 
 	  #---------------------------------#
 	 #   REMOVING LEFT & RIGHT CHARS   #
@@ -18373,12 +18649,30 @@ return
 
 		return aResult
 
-	def UnicodesPerChar()
+		def CharsAndTheirUnicodes()
+			return This.CharsAndUnicodes()
+
+		def UnicodesPerChar()
+			return This.CharsAndUnicodes()
+
+	def UnicodesAndChars()
 		aResult = []
+
 		for i = 1 to This.NumberOfChars()
-			aResult + [ This[i], Unicodes()[i] ]
+			aResult + [ This.UnicodeOfCharN(i), This[i] ]
 		next
+
 		return aResult
+
+		def UnicodesAndTheirChars()
+			return This.UnicodesAndChars()
+
+		def UnicodesXT()
+			return This.UnicodesAndChars()
+
+	
+		def CharsPerUnicode()
+			return This.UnicodesAndChars()
 
 	  #-------------------#
 	 #    CHARS NAMES    #
@@ -18410,6 +18704,9 @@ return
 
 		def CharNamesQ()
 			return This.CharNamesQR(:stzListOfStrings)
+
+		def CharsAndTheirNames()
+			return This.CharsNames()
 
 	def CharName()
 		return This.CharsNames()[1]
@@ -19613,6 +19910,7 @@ return
 		if This.NumberOfChars() = 1
 			return TRUE
 		else
+				
 			return FALSE
 		ok
 
@@ -22353,7 +22651,28 @@ return
 				next
 					
 				return acResult
+
+			but ListIsHashList(pValue) and StzHashListQ(pValue).ValuesQ().IsListOfNumbers()
+				aResult = []
+
+				# The sum of shares must be equal to the number of chars
+				
+				if NOT StzHashListQ(pValue).ValuesQR(:stzListOfNumbers).Sum() = This.NumberOfChars()
+					stzRaise("Incorrect values! The sum of numbers must be equal to the number of chars!")
+				ok
+
+				n = 1
+				for aPair in pValue
+					
+					cShare = This.Range(n, aPair[2])
+					n += aPair[2]
+
+					aResult + [ aPair[1], cShare ]
+				next
+
 			ok
+
+			return aResult
 					
 		// String % n : returns the rest of letters after dividing String / n
 

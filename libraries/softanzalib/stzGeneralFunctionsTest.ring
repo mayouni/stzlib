@@ -1,8 +1,34 @@
 load "stzlib.ring"
 
-/*-------------------
-*/
-# Softanza can do its best to infere the datatype included
+/*--------------
+
+? InfereDataTypeFromString(:ListsOfObjects) #--> :List
+
+/*--------------
+
+? Q([ 1, 2, 3 ]).IsListOf(:Numbers)		#--> TRUE
+? Q([ "A", "B", "C" ]).IsListOf(:Strings)	#--> TRUE
+
+o1 = new stzNumber(10)
+? Q([ o1, o1, o1 ]).IsListOf(:StzNumbers)	#--> TRUE
+
+o1 = new stzString("A")
+? Q([ o1, o1, o1 ]).IsListOf(:StzStrings)	#--> TRUE
+
+? Q([ [1,2], [3,4], [5,6] ]).IsListOf(:ListsOfNumbers)	#--> TRUE
+? Q([ [1,2], [3,4], [5,6] ]).IsListOf(:PairsOfNumbers)	#--> TRUE
+
+/*------------------- InfereDataTypeFromString
+
+# NOTE: the function is useful for internal features of SoftanzaLib,
+# inorder to enable the goal of expressive code.
+
+# In particular, it is used in the stzList.IsListOf(pcType) method.
+
+# From a particular string, it tries to detect the most relevant
+# Ring or Softanza type.
+
+# So, Softanza can do its best to infere the datatype included
 # in a string, whatever form the string takes: lowercase or
 # uppercase, and singular or plural!
 
@@ -18,19 +44,17 @@ load "stzlib.ring"
 ? InfereDataTypeFromString(:StzNumber)	# --> :StzNumber
 ? InfereDataTypeFromString(:StzNumbers)	# --> :StzNumber
 
-? InfereDataTypeFromString(:ListOfNumbers)	# --> :ListOfNumbers
-? InfereDataTypeFromString(:ListsOfNumbers)	# --> :ListOfNumbers
+? InfereDataTypeFromString(:ListOfNumbers)	# --> :List
+? InfereDataTypeFromString(:ListsOfNumbers)	# --> :List
+
+? InfereDataTypeFromString(:PairOfNumbers)	# --> :List
+? InfereDataTypeFromString(:PairsOfNumbers)	# --> :List
 
 ? InfereDataTypeFromString(:StzListOfNumbers)	# --> :StzListOfNumbers
 ? InfereDataTypeFromString(:StzListsOfNumbers)	# --> :StzListOfNumbers
 
-? InfereDataTypeFromString(:ListOfStzStrings)	# --> :ListOfStzStrings
-? InfereDataTypeFromString(:ListsOfStzStrings)	# --> :ListOfStzStrings
-
-# NOTE: This function is useful for internal features of SoftanzaLib,
-# inorder to enable the goal of expressive code.
-
-# In particular, it is used in the stzList.IsListOf(pcType) method.
+? InfereDataTypeFromString(:ListOfStzStrings)	# --> :List
+? InfereDataTypeFromString(:ListsOfStzStrings)	# --> :List
 
 /*-------------------
 */

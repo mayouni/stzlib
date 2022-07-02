@@ -43,6 +43,7 @@ func StzTextQ(pcStr)
 func T(p)
 	if isString(p)
 		return p
+
 	but isNumber(p)
 		return "" + p
 
@@ -54,10 +55,8 @@ func T(p)
 
 	ok
 
-	func TQ(pcStr)
+	func TQ(p)
 		return new stzText( T(p) )
-
-		func QT(pcStr)
 
 # Useful four finding instances of WORDS (an not substrings!) inside a string
 func PossibleWordInstancesXT(pcWord, cWordPositionInSentence)
@@ -3571,6 +3570,167 @@ class stzText from stzString
 
 		#>
 
+	  #===================#
+	 #      LETTERS      #
+	#===================#
+
+	// Returns the letters contained in the text
+	def Letters()
+		# t0 = clock()
+
+		acResult = This.CharsW('StzCharQ(@char).IsLetter()') # Inherited from stzString
+
+		# ? ( clock() - t0 ) / clockspersecond()
+
+		return acResult
+
+		def LettersQ()
+			return This.LettersQR(:stzList)
+
+		def LettersQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Icorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Letters() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Letters() )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.Letters() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+	def LettersXT(paOptions)
+		if NOT isList(paOptions)
+			stzRaise("Incorrect param type! paOptions must be a list.")
+		ok
+
+		if len(paOptions) = 0
+			return This.Letters()
+		ok
+
+		if paOptions[ :ManageArabicShaddah ] = TRUE
+
+			# MANAGING THE SPECIAL CASE OF ARABIC SHADDAH ("ّ ")
+	
+			# In fact, arabic shaddah is a letter (and so isLetter()
+			# should return TRUE), but the shaddah should'nt appear in
+			# the list of letters as sutch ("ّ ") but as the letter that
+			# comes right before it!
+	
+			acResult = This.Letters()
+
+			if This.Contains(ArabicShaddah()) # Inherited from stzString
+				anPos = StzListOfStringsQ(acResult).FindAll(ArabicShaddah())
+
+				for n in anPos
+					if n > 1
+						acResult[n] = acResult[n-1]
+					ok
+				next
+	
+			ok
+		ok
+
+		return acResult
+
+		def LettersXTQ(paOptions)
+			return This.LettersXTQR(paOptions, :stzList)
+
+		def LettersXTQR(paOptions, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Icorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.LettersXT(paOptions) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.LettersXT(paOptions) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.LettersXT(paOptions) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+	def UniqueLetters()
+		return This.LettersQR(:stzListOfStrings).DuplicatesRemoved()
+
+	def UniqueLettersXT(paOptions)
+		return This.LettersXTQR(paOptions, :stzListOfStrings).DuplicatesRemoved()
+
+		def UniqueLettersXTQ(paOptions)
+			return This.UniqueLettersXTQR(paOptions, :stzList)
+
+		def UniqueLettersXTQR(paOptions, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Icorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.UniqueLettersXT(paOptions) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.UniqueLettersXT(paOptions) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.UniqueLettersXT(paOptions) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		def ToSetOfLettersXT(paOptions)
+			return This.UniqueLettersXT(paOptions)
+
+			def ToSetOfLettersXTQ(paOptions)
+				return This.ToSetOfLettersXTQR(paOptions, :stzList)
+	
+			def ToSetOfLettersXTQR(paOptions, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				if NOT isString(pcReturnType)
+					stzRaise("Icorrect param! pcReturnType must be a string.")
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.ToSetOfLettersXT(paOptions) )
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.ToSetOfLettersXT(paOptions) )
+	
+				on :stzListOfChars
+					return new stzListOfChars( This.ToSetOfLettersXT(paOptions) )
+	
+				other
+					stzRaise("Unsupported return type!")
+				off
+
 	  #--------------------#
 	 #    PSEUDO-WORDS    #
 	#--------------------#
@@ -3579,12 +3739,13 @@ class stzText from stzString
 	
 	PseudoWords are an effective alternative of Words. It's a quick-win
 	that you can use in many cases, but the result is not as accurate as
-	Words() provides (many controls are made to better identify words).
+	Words() provides where many controls are made to better identify words.
 
 	In fact, pseudo-words are just substrings separated by spaces, no more.
 
 	If they suit for your case, then use them. Otherwise, use Words() and
 	expect yoursel to pay for performance.
+
 
 
 	*/

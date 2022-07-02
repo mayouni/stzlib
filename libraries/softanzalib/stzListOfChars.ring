@@ -100,17 +100,18 @@ func ListOfLetters(paList)
 /////////////////
 
 class stzListOfChars from stzListOfStrings
-	@aContent
+	@aContent = []
 	
 	@aStzChars
 	@cString
 
 	def init(pValue)
 
-		if isList(pValue) and
-		   ( Q(pValue).IsEmpty() or Q(pValue).IsListOfNumbers() )
+		if isList(pValue) and Q(pValue).IsListOfNumbers()
 
-			@aContent = pValue
+			for nUnicode in pValue
+				@aContent + StzCharQ(nUnicode).Content()
+			next
 
 		but isList(pValue) and Q(pValue).IsListOfChars()
 
