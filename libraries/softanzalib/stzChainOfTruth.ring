@@ -29,48 +29,6 @@ func WorldEntities()
 func _(p)
 	return new stzChainOfTruth(p)
 
-# Returns the softanza object related to the type of p
-func Q(p)
-
-	if isString(p)
-		return new stzString(p)
-
-	but isNumber(p)
-		return new stzNumber(p)
-
-	but isList(p)
-		return new stzList(p)
-
-	but isObject(p)
-		return new stzObject(p)
-	ok
-
-	func _Q(p)
-		return Q(p)
-
-	func _@(p)
-		return Q(p)
-
-	func @(p)
-		return Q(p)
-
-	func Softanzify(p)
-		return Q(p)
-
-func QR(p, pcType)
-	if NOT isString(pcType)
-		stzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
-	ok
-
-	if StringIsStzClassName(pcType)
-		cCode = "oResult = new " + pcType + "(" + @@(p) + ")"
-		eval(cCode)
-
-		return oResult
-	else
-		stzRaise("Unsupported Softanza type!")
-	ok
-
 func TheLetter(c)
 	if isString(c) and StringIsChar(c) and StzCharQ(c).IsLetter()
 		return c

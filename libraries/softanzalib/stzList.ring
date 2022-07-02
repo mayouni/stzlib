@@ -476,6 +476,19 @@ class stzList from stzObject
 		#>
 
 	def Item(n)
+
+		if isString(n)
+			if Q(n).Lowercased() = "first"
+				n = 1
+
+			but Q(n).Lowercased() = "last"
+				n = This.NumberOfItems()
+
+			else
+				n = 0
+			ok
+		ok
+
 		if NOT isNumber(n)
 			stzRaise("Incorrect param type! n should be a number.")
 		ok
@@ -863,13 +876,6 @@ class stzList from stzObject
 
 		#--
 
-		def ReplaceOccurrences(pItem, pNewIteme)
-			This.ReplaceAllOccurrencesOfItem(pItem, pNewItem)
-
-			def ReplaceOccurrencesQ(pItem, pNewItem)
-				This.ReplaceOccurrences(pItem, pNewItem)
-				return This
-
 		def ReplaceAllOccurrences(pItem, pNewItem)
 			This.ReplaceAllOccurrencesOfItem(pItem, pNewItem)
 
@@ -903,6 +909,82 @@ class stzList from stzObject
 
 		def AllOccurrencesOfItemReplacedBy(pItem, pNewItem)
 			return ItemReplacedBy(pItem, pNewItem)
+
+	  #------------------------------------------------#
+	 #   REPLACING SOME OCCURRENCES OF A GIVEN ITEM   #
+	#------------------------------------------------#
+
+	def ReplaceTheseOccurrences(panOccurr, pItem, pNewItem)
+
+		anPositions = This.FindAllQ(pItem).ItemsAt(panOccurr)
+		This.ReplaceItemsAtPositions(anPositions, pNewItem)
+
+		def ReplaceTheseOccurrencesQ(panOccurr, pItem, pNewItem)
+			This.ReplaceTheseOccurrences(panOccurr, pItem, pNewItem)
+			return This
+
+		def ReplaceOccurrences(panOccurr, pItem, pNewItem)
+			This.ReplaceTheseOccurrences(panOccurr, pItem, pNewItem)
+
+			def ReplaceOccurrencesQ(panOccurr, pItem, pNewItem)
+				This.ReplaceOccurrences(panOccurr, pItem, pNewItem)
+				return This
+
+
+	def TheseOccurrencesReplaced(panOccurr, pItem, pNewItem)
+		This.ReplaceTheseOccurrencesQ(panOccurr, pItem, pNewItem)
+		return This
+
+		def OccurrencesReplaced(panOccurr, pItem, pNewItem)
+			return This.TheseOccurrencesReplaced(panOccurr, pItem, pNewItem)
+
+	  #----------------------------------------------#
+	 #   REPLACING FIRST N OCCURRENCES OF AN ITEM   #
+	#----------------------------------------------#
+
+	def ReplaceFirstNOccurrences(n, pItem, pNewItem)
+		This.ReplaceTheseOccurrences( 1 : n, pItem, pNewItem )
+
+		def ReplaceFirstNOccurrencesQ(n, pItem, pNewItem)
+			This.ReplaceFirstNOccurrences(n, pItem, pNewItem)
+			return This
+
+		def ReplaceNFirstOccurrences(n, pItem, pNewItem)
+			This.ReplaceFirstNOccurrences(n, pItem, pNewItem)
+
+			def ReplaceNFirstOccurrencesQ(n, pItem, pNewItem)
+				This.ReplaceNFirstOccurrences(n, pItem, pNewItem)
+
+	def FirstNOccurrencesReplaced(n, pItem, pNewItem)
+		return This.Copy().ReplaceFirstNOccurrencesQ(n, pItem, pNewItem).Content()
+
+		def NFirstOccurrencesReplaced(n, pItem, pNewItem)
+			return This.FirstNOccurrencesReplaced(n, pItem, pNewItem)
+
+	  #---------------------------------------------#
+	 #   REPLACING LAST N OCCURRENCES OF AN ITEM   #
+	#---------------------------------------------#
+
+	def ReplaceLastNOccurrences(n, pItem, pNewItem)
+		nNumberOfOccurr = This.NumberOfOccurrences(pItem)
+		n1 = nNumberOfOccurr - n + 1
+		This.ReplaceTheseOccurrences( n1 : nNumberOfOccurr, pItem, pNewItem )
+
+		def ReplaceLastNOccurrencesQ(n, pItem, pNewItem)
+			This.ReplaceLastNOccurrences(n, pItem, pNewItem)
+			return This
+
+		def ReplaceNLastOccurrences(n, pItem, pNewItem)
+			This.ReplaceLastNOccurrences(n, pItem, pNewItem)
+
+			def ReplaceNLastOccurrencesQ(n, pItem, pNewItem)
+				This.ReplaceNLastOccurrences(n, pItem, pNewItem)
+
+	def LastNOccurrencesReplaced(n, pItem, pNewItem)
+		return This.Copy().ReplaceLastNOccurrencesQ(n, pItem, pNewItem).Content()
+
+		def NLastOccurrencesReplaced(n, pItem, pNewItem)
+			return This.LastNOccurrencesReplaced(n, pItem, pNewItem)
 
 	  #---------------------------------------------#
 	 #    REPLACING MANY ITEMS AT THE SAME TIME    #
@@ -3120,6 +3202,7 @@ class stzList from stzObject
 	#-------------------------------------------------------#
 
 	def RemoveItemsAtPositions(panPositions)
+
 		anPositions = StzListQ(panPositions).SortedInDescending()
 
 		for i = 1 to len( anPositions )
@@ -3966,8 +4049,8 @@ class stzList from stzObject
 
 		pcType = InfereDataTypeFromString(pcType)
 
-		if This.NumberOfItemsW('_(@item).Q.DataType() = "' + pcType + '"') = This.NumberOfItems() or
-		   This.AllItemsAreW('isList(@item) and _(@item).Q.Is' + pcType + '()') or
+		if This.NumberOfItemsW('Q(@item).DataType() = "' + pcType + '"') = This.NumberOfItems() or
+		   This.AllItemsAreW('isList(@item) and Q(@item).Is' + pcType + '()') or
 		   This.AllItemsAreW('isObject(@item) and Is' + pcType + '(@item)')
 
 			return TRUE
@@ -4938,6 +5021,9 @@ class stzList from stzObject
 
 			on :stzHashList
 				return new stzHashList( This.Yield(pcCode) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.Yield(pcCode) )
 		
 		other
 				stzRaise("Unsupported return type!")
@@ -6076,7 +6162,6 @@ class stzList from stzObject
 			1. they are equal (in the sense of IsEqualTo() method)
 			2. they have same order of items (ItemsHaveSameOrder())
 		*/
-
 		
 		if This.IsEqualTo(paOtherList) and
 		   This.HasSameSortingOrderAs(paOtherList)
@@ -9250,79 +9335,44 @@ class stzList from stzObject
 		def FindNth(n, pItem)
 			return This.FindNthOccurrence(n, pItem)
 
+		def Nth(n, pItem)
+			return This.FindNthOccurrence(n, pItem)
+
 		def NthOccurrence(n, pItem)
+			return This.FindNthOccurrence(n, pItem)
+
+		def ItemPositionByOccurrence(n, pItem)
 			return This.FindNthOccurrence(n, pItem)
 
 		#>
 
 	def FindFirstOccurrence(pItem)
-		/*
-		WARNING:	
-		
-		The Ring find() function, used partially here, works only for
-		numbers and strings. And it returns only the first occurrence of the
-		item in the list.
 
-		EXPLANATION OF THE SOLUTION:
+		acThis = []
+		for item in This.List()
+			acThis + @@( item )
+		next
+	
+		cItem = @@( pItem )
+		n = StzListOfStringsQ(acThis).FindFirstOccurrence(cItem)
+		return n
 
-		Here, we can solve ithe FindFirstOccurrence() method like this:
-		 	return This.FindNthOccurrence(1, pItem)
 
-		or like this:
-		 	return This.FindAll(pItem)[1]
-
-		But these two options find all the occurrences of the item,
-		and then reads the first one to return it.
-
-		Therefore, it's better for performance, when items are findable by Ring,
-		to rely on the Ring find() function, which returns only the 1st occurrence
-		(and this is what we need here). Otherwise (in case of finding lists and
-		(onjects), we make our own implementation that stops when the first
-		occurrence of the item is found!
-		*/
-
-		nResult = 0	# Eventual position of the 1st occurrence of pItem
-
-		if isNumber(pItem) or isString(pItem)
-
-			# Delegate the finding operation to Ring find() function
-			nResult = find( This.List(), pItem)
-		else
-			# Some items of the list, or/and the provided pItem itself,
-			# are not Ring findable (they are lists or objects):
-			# so let's do the job by our selves!
-
-			n = 0
-			for item in This.List()
-				n++	
-			
-				if isNumber(pItem) or isString(pItem)
-
-					if item = pItem
-						nResult = n
-						exit
-					ok
-			
-				else
-					if Q(item).IsStrictlyEqualTo(pItem)
-						nResult = n
-						exit
-					ok
-						
-				ok
-
-			next
-			
-		ok
-
-		return nResult
-
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def FindFirst(pItem)
 			return This.FindFirstOccurrence(pItem)
 
 		def FirstOccurrence(pItem)
+			return This.FindFirstOccurrence(pItem)
+
+		def First(pItem)
+			return This.FindFirstOccurrence(pItem)
+
+		def PositionOfFirst(pItem)
+			return This.FindFirstOccurrence(pItem)
+
+		def PositionOfFirstOccurrence(pItem)
 			return This.FindFirstOccurrence(pItem)
 	
 		#>
@@ -9339,12 +9389,21 @@ class stzList from stzObject
 
 		return nResult
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def FindLast(pItem)
 			return This.FindLastOccurrence(pItem)
 
 		def LastOccurrence(pItem)
+			return This.FindLastOccurrence(pItem)
+
+		def Last(pItem)
+			return This.FindLastOccurrence(pItem)
+
+		def PositionOfLast(pItem)
+			return This.FindLastOccurrence(pItem)
+
+		def PositionOfLastOccurrence(pItem)
 			return This.FindLastOccurrence(pItem)
 
 		#>
@@ -9435,6 +9494,70 @@ class stzList from stzObject
 		# is reservd name of the native Ring function find()!
 		#>
 	
+	def FindFirstNOccurrences(n, pItem)
+		anPositions = This.FindAll(pItem)
+		return Q(anPositions).Section(1, n)
+
+		def FindNFirstOccurrences(n, pItem)
+			return This.FindFirstNOccurrences(n, pItem)
+
+		def NFirst(n, pItem)
+			return This.FindFirstNOccurrences(n, pItem)
+
+		def FirstN(n, pItem)
+			return This.FindFirstNOccurrences(n, pItem)
+
+		def PositionOfNFirstOccurrences(n, pItem)
+			return This.FindFirstNOccurrences(n, pItem)
+
+		def PositionOfFirstNOccurrences(n, pItem)
+			return This.FindFirstNOccurrences(n, pItem)
+
+	def FindLastNOccurrences(n, pItem)
+		anPositions = This.FindAll(pItem)
+
+		nNumberOfOccurr = len(anPositions)
+		n1 = nNumberOfOccurr - n + 1
+
+		return Q(anPositions).Section(n1, nNumberOfOccurr)
+
+		def FindNLastOccurrences(n, pItem)
+			return FindLastNOccurrences(n, pItem)
+
+		def NLast(n, pItem)
+			return This.FindLastNOccurrences(n, pItem)
+
+		def LastN(n, pItem)
+			return This.FindLastNOccurrences(n, pItem)
+
+
+	def FindTheseOccurrences(panOccurr, pItem)
+		anPositions = This.FindAll(pItem)
+		return Q(anPositions).ItemsAt(panOccurr)
+
+		def FindOccurrences(panOccurr, pItem)
+			return This.FindTheseOccurrences(panOccurr, pItem)
+
+	def ItemOccurrenceByPosition(nPos, pItem)
+		/* EXAMPLE
+		o1 = new stzString([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
+		? o1.ItemOccurrenceByPosition(5, "ring") #--> 3
+		*/
+
+		anPositions = This.FindAll(pItem)
+
+		nResult = 0
+		i = 0
+		for n in anPositions
+			i++
+			if n = nPos
+				nResult = i
+				exit
+			ok
+		next
+
+		return nResult
+		
 	def FindMany(paItems)
 		/*
 		o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
@@ -10100,9 +10223,6 @@ class stzList from stzObject
 	#--------------------------------------#
 
 	def ItemsAtPositions(panPositions)
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			stzRaise("Incorrect param type! You must provide a list of numbers.")
-		ok
 
 		aResult = []
 
@@ -10113,6 +10233,9 @@ class stzList from stzObject
 		return aResult
 
 		def ItemsAtThesePositions(panPositions)
+			return This.ItemsAtPositions(panPositions)
+
+		def ItemsAt(panPositions)
 			return This.ItemsAtPositions(panPositions)
 
 

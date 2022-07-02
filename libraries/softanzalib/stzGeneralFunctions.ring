@@ -160,39 +160,33 @@ func ListOfListsOfStzTypes() # TODO: complete the list
 	]
 
 func InfereDataTypeFromString(pcStr)
+	cStr = Q(pcStr).Lowercased()
 
-	pcStr = _(pcStr).Q.Lowercased()
+	if cStr = :number or cStr = :numbers or Q(cStr).BeginsWith(:Number)
+		return :Number
 
-	if  _(pcStr).Q.BeginsWith("listsofstz")
-		pcStr = _(pcStr).Q.ReplaceFirstOccurrenceQ("listsofstz", :With = "listofstz").Content()
+	but cStr = :string or cStr = :strings or Q(cStr).BeginsWith(:String)
+		return :String
 
-	but _(pcStr).Q.BeginsWith("listsof")
-		pcStr = _(pcStr).Q.ReplaceFirstOccurrenceQ("listsof", :With = "listof").Content()
+	but cStr = :list or cStr = :lists or Q(cStr).BeginsWith(:List) or
+	    cStr = :pair or cStr = :pairs or Q(cStr).BeginsWith(:pair)
+		return :List
 
-	but _(pcStr).Q.BeginsWith("stzlistsof")
-		pcStr = _(pcStr).Q.ReplaceFirstOccurrenceQ("stzlistsof", :With = "stzlistof").Content()
-
-	ok
-
-	if StringIsStzClassName(pcStr) or
-	   StringIsStzClassName(pcStr) or
-	   StringIsStzClassName("stz" + pcStr)
-
-		return pcStr
+	but cStr = :object or cStr = :objects or Q(cStr).BeginsWith(:Object)
+		return :Object
 
 	ok
 
-	if StringIsStzClassName( Q(pcStr).LastCharRemovedW('@char = "s"') ) or
-	   StringIsStzClassName( Q(pcStr).LastCharRemovedW('@char = "s"') )
 
-		return Q(pcStr).LastCharRemovedW('@char = "s"')
+	if Q(cStr).BeginsWithCS("stz", :CS = FALSE)
+
+		for aPair in StzClassesXT()
+			if aPair[1] = cStr or aPair[2] = cStr
+				return aPair[1]
+			ok
+		next
 
 	ok
-
-	if Q(pcStr).IsOneOfThese( StzClasses() )
-		return pcStr
-	ok
-
 
 	func InfereTypeFromString(pcStr)
 		return InfereDataTypeFromString(pcStr)
@@ -545,6 +539,9 @@ func YaAllah()
 func YaMuhammed()
 	return "يا مُحَمَّدْ"
 
+func SalatNabee()
+	return "صلّى الله على نبيّه الأكرم"
+
 func NTimes(n, pThing)
 	result = NULL
 
@@ -568,3 +565,144 @@ func NTimes(n, pThing)
 
 	def NTimesQ(n, pThing)
 		return Q(NTimes(n, pThing))
+
+func NHearts(n)
+	return NTimes(n, Heart())
+
+	func 2Hearts()
+		return NHearts(2)
+
+	func 3Hearts()
+		return NHearts(3)
+
+	func 5Hearts()
+		return NHearts(5)
+
+	func 7Hearts()
+		return NHearts(7)
+
+	func 9Hearts()
+		return NHearts(9)
+
+func NStars(n)
+	return NTimes(n, Star())
+
+	func 2Stars()
+		return NStars(2)
+
+	func 3Stars()
+		return NStars(3)
+
+	func 5Stars()
+		return NStars(5)
+
+	func 7Stars()
+		return NStars(7)
+
+	func 9Stars()
+		return NStars(9)
+
+func IfWith@Eval(p)
+
+	if isList(p) and Q(p).IsWithNamedParamList()
+
+		if Q(p[1]).LastChar() = "@"
+				
+			cCode = 'cValue = (' +
+				 Q(p[2]).BoundsRemoved("{","}") +
+				')'
+
+			eval(cCode)
+			p = cValue
+
+		else
+			p = p[2]
+		ok
+	
+	ok
+
+	return p
+
+	func EvalIfWith@(p)
+		return IfWith@Eval(p)
+
+# Returns the softanza object related to the type of p
+func Q(p)
+
+	if isString(p)
+		return new stzString(p)
+
+	but isNumber(p)
+		return new stzNumber(p)
+
+	but isList(p)
+		return new stzList(p)
+
+	but isObject(p)
+		return new stzObject(p)
+	ok
+
+	func _Q(p)
+		return Q(p)
+
+	func _@(p)
+		return Q(p)
+
+	func @(p)
+		return Q(p)
+
+	func Softanzify(p)
+		return Q(p)
+
+func QR(p, pcType)
+	if NOT isString(pcType)
+		stzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
+	ok
+
+	if StringIsStzClassName(pcType)
+		cCode = "oResult = new " + pcType + "(" + @@(p) + ")"
+		eval(cCode)
+
+		return oResult
+	else
+		stzRaise("Unsupported Softanza type!")
+	ok
+
+func QQ(p)
+	if isString(p)
+		if Q(p).IsNumberInString()
+			return new stzNumber(p)
+
+		but Q(p).IsListInString() # TODO: check Q(' "A" : "C" ').IsListInString()
+			return new stzList(p)
+			# TODO: check new stzList("[1, 2, 3]")
+
+		but Q(p).IsChar()
+			return new stzChar(p)
+
+		ok
+
+	but isList(p)
+		oQTemp = Q(p)
+		if oQTemp.IsListOfNumbers()
+			return new stzListOfNumbers(p)
+
+		but oQTemp.IsListOfChars()
+			return new stzListOfChars(p)
+
+		but oQTemp.IsListOfStrings()
+			return new stzListOfStrings(p)
+
+		but oQTemp.IsListOfHashLists()
+			return new stzListOfHashLists(p)
+
+		but oQTemp.IsListOfPairs()
+			return new stzListOfPairs(p)
+
+		but oQTemp.IsListOfLists()
+			return new stzListOfLists(p)
+		ok
+
+	else
+		return Q(p)
+	ok

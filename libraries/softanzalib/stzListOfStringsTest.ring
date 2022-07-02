@@ -1,20 +1,215 @@
 load "stzlib.ring"
 
-/*-------------------
 
-? StzStringQ("salem").IsEqualToCS("SALEM", :CS = FALSE)
+/*================== FINDING SUBSTRINGS
 
-/*-------------------
+o1 = new stzListOfStrings([
+	"___ ring ___ ring",
+	"ring ___ ring ___ ring",
+	"___ ring"
+])
+
+? @@( o1.FindSubString("ring") )
+#--> [ [ 1, [ 5, 14 ] ], [ 2, [ 1, 10, 19 ] ], [ 3, [ 5 ] ] ]
+
+? @@( o1.FindSubStringXT("ring") )
+#--> [ [ 1, 5 ], [ 1, 14 ], [ 2, 1 ], [ 2, 10 ], [ 2, 19 ], [ 3, 5 ] ]
+
+? @@( o1.FindTheseOccurrencesOfSubString([1, 3, 5 ], "ring") )
+#--> [ [ 1, 5 ], [ 2, 1 ], [ 2, 19 ] ]
+
+/*-----------------------
+
+o1 = new stzListOfStrings([
+	"___ ring ___ ring",
+	"ring ___ ring ___ ring",
+	"___ ring"
+])
+
+? @@( o1.FindNFirstOccurrencesOfSubString(4, "ring") )
+#--> [ [ 1, 5 ], [ 1, 14 ], [ 2, 1], [ 2, 10 ] ]
+
+? @@( o1.FindNLastOccurrencesOfSubString(3, "ring") )
+#--> [ [ 2, 10 ], [ 2, 19 ], [ 3, 5 ] ]
+
+/*-----------------------
+
+o1 = new stzListOfStrings([
+	"what's your name please",
+	"mabrooka",
+	"your name and my name are not the same",
+	"i see",
+	"nice to meet you",
+	"mabrooka"
+])
+
+? @@( o1.FindSubStrings([ "name", "mabrooka"]) ) + NL
+#-->
+#  [
+#	# "name" is found here
+#	[
+#		[ 1, [ 13 ] ], [ 3, [ 6, 18 ] ]
+#	],
+#
+#	# and "mabrooka" is found here
+#	[
+#		[ 2, [ 1 ] ], [ 6, [ 1 ] ]
+#	]
+#  ]
+
+? @@( o1.FindSubStringsXT([ "name", "mabrooka"]) )
+#-->
+#  [
+#	# "name" is found here
+#	[
+#		[ 1, 13 ], [ 3, 6 ], [ 3, 18 ]
+#	],
+#
+#	# and "mabrooka" is found here
+#	[
+#		[ 2, 1 ], [ 6, 1 ]
+#	]
+#  ]
+
+/*------------------
+
+o1 = new stzListOfStrings([
+	"What's your name please",
+	"Mabrooka",
+	"Your name and my name are not the same",
+	"I see",
+	"Nice to meet you",
+	"Mabrooka"
+])
+
+? o1.FindNthOccurrenceOfSubString(2, "name")
+#--> [ 3, 6 ]
+
+/*------------------
+
+o1 = new stzListOfStrings([
+	"What's your name please?",
+	"Mabrooka!",
+	"Your name and my name are not the same...",
+	"I see.",
+	"Nice to meet you,",
+	"Mabrooka!"
+])
+	
+? @@( o1.FindSubstring("name") ) + NL
+#--> [ [ 1, [ 13 ] ], [ 3, [6, 18 ] ] ]
+
+# For your convinience, you can get the result in an exmpanded form:
+? @@( o1.FindSubStringXT("name") )
+#--> [ [ 1, 13 ], [ 3, 6 ], [ 3, 18 ] ]
+
+/*------------------
+
+o1 = new stzListOfStrings([
+	"___ ring ___",
+	"___ ring ___ ring",
+	"___ ruby ___ ring",
+	"___ ring ___ ruby ___ ring"
+])
+
+? o1.NumberOfOccurrenceOfManySubStrings([ "ring", "ruby", "python" ])
+#--> [ 6, 2, 0 ]
+
+? @@( o1.NumberOfOccurrenceOfManySubStringsXT([ "ring", "ruby", "python" ]) )
+#--> [
+#	[ [ 1, 1], [2, 2], [3, 1], [4, 2] ], 	#<<< Occurrence of "ring"
+#	[ [ 3, 1 ], , [ 4, 1 ] ], 		#<<< Occurrences of "ruby"
+#	[  ] 					#<<< No occurrences at all for "pyhthon"
+#   ]
+
+/*--------------
+
+o1 = new stzListOfStrings([ "ring php", "php", "ring php ring" ])
+
+# How many occurrence are there of the substring "ring" in the list?
+? o1.NumberOfOccurrenceOfSubString("ring") #--> 3
+
+# Show these 3 in detail, string by string:
+? @@( o1.NumberOfOccurrenceOfSubStringXT("ring") )
+#--> [ [ 1, 1 ], [ 3, 2 ] ]
+
+/*================= REPLACING SUBSTRINGS
+
+o1 = new stzListOfStrings([
+	"___ ring ___ ring",
+	"ring ___ ring ___ ring",
+	"___ ring"
+])
+
+o1.ReplaceSubStringAtPosition( [2, 10], "ring", "♥♥♥" )
+
+? @@(o1.Content() )
+# --> [ "___ ring ___ ring", "ring ___ ♥♥♥ ___ ring", "___ ring" ]
+
+/*-----------------------
+
+o1 = new stzListOfStrings([
+	"___ ring ___ ring",
+	"ring ___ ring ___ ring",
+	"___ ring"
+])
+
+o1.ReplaceNthOccurrenceOfSubString(4, "ring", "♥♥♥")
+
+? @@(o1.Content() )
+#--> [ "___ ring ___ ring", "ring ___ ♥♥♥ ___ ring", "___ ring" ]
+
+/*============= REPLACING SUBSTRINGS INSIDE A GIVEN STRING OF THE LIST
+
+o1 = new stzListOfStrings([ "php", "ring php ring python ring", "python" ])
+
+o1.ReplaceInStringN(2, "ring", :With = "♥")
+? o1.Content()
+#--> [ "php", "♥ php ♥ python ♥", "python" ]
+
+/*-----------------
+
+o1 = new stzListOfStrings([ "php", "php ring python", "python" ])
+o1.ReplaceSubStringAtPosition([2, 5], "ring", "♥" )
+? o1.Content()
+#--> [ "php", "php ♥ python", "python" ]
+
+/*-----------------
+
+o1 = new stzListOfStrings([ "php", "ring php ring python ring", "python" ])
+o1.ReplaceInStringNTheNthOccurrence(2, 3, "ring", "♥" )
+? o1.Content()
+#--> [ "php", "ring php ring python ♥", "python" ]
+
+/*-----------------
+
+o1 = new stzListOfStrings([ "php", "ring php ring python ring", "python" ])
+o1.ReplaceInStringNTheFirstOccurrence(2, "ring", "♥" )
+? o1.Content()
+#--> [ "php", "♥ php ring python ring", "python" ]
+
+/*-----------------
+
+o1 = new stzListOfStrings([ "php", "ring php ring python ring", "python" ])
+o1.ReplaceInStringNTheLastOccurrence(2, "ring", "♥" )
+? o1.Content()
+#--> [ "php", "ring php ring python ♥", "python" ]
+
+/*====================
+
+? StzStringQ("salem").IsEqualToCS("SALEM", :CS = FALSE) #--> TRUE
+
+/*===================
 
 o1 = new stzListOfStrings([ "str1", '', "str2", "str3", '', '' ])
 o1.RemoveEmptyStrings()
 ? o1.Content() #--> [ "str1", "str2", "str3" ]
 
-/*-------------------
+/*===================
 
 ? StzListOfStringsQ(' "A":"E" ').Content()
 
-/*-------------------
+/*===================
 
 o1 = new stzListOfStrings([ "WATCH", "see", "Watch", "Observe", "watch" ])
 ? o1.StringsW('{ @string = "watch" }') # --> "watch"

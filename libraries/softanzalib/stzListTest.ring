@@ -1,5 +1,38 @@
 load "stzlib.ring"
 
+/*=======================
+
+# In Softanza, you can find lists inside lists:
+o1 = new stzList([ "A", "B", [1, 2], "C", "D", [1, 2], "E" ])
+? o1.FindAll([1, 2])	#--> [3, 6]
+? o1.FindFirst([1, 2])	#--> 3
+
+# And you can go deep and find even more complicated lists:
+o1 = new stzList([
+		"A", "B",
+		[ 1, ["v", ["u"] ], 2 ],
+		"C", "D",
+		[ 1, ["v", ["u"] ], 2 ],
+		"E"
+])
+
+? o1.FindAll( [ 1, ["v", ["u"] ], 2 ] ) #--> [ 3, 6]
+? o1.FindFirst([ 1, ["v", ["u"] ], 2 ])	#--> 3
+
+/*-----------------------
+
+o1 = new stzList([ 1, 2 ])
+? o1.IsEqualTo([ 1, 2 ])	 #--> TRUE
+? o1.IsEqualTo([ 2, 1 ])	 #--> TRUE
+? o1.IsStrictlyEqualTo([ 2, 1 ]) #--> FALSE
+
+/*-----------------------
+
+o1 = new stzList([ [1,2], [3, [1], 4], [5,6], [ 2, 10 ], [3,4], [3, [1], 4] ])
+? o1.FindAll( [3, [1], 4] ) #--> [2, 6]
+
+? o1.FindFirst( [3, [1], 4] ) #--> 2
+
 /*---------------
 
 ? StzListQ( 4:8 ).ToListInString() 		#--> "[ 4, 5, 6, 7, 8 ]"
@@ -401,9 +434,10 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 /*------------------
 */
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	ReplacePreviousNthOccurrencesOneByOne([3, 1], "A", :With = [ "#3", "#1" ], :StartingAt = 5)
+	ReplacePreviousNthOccurrences([3, 1], "A", :With = [ "#3", "#1" ], :StartingAt = 5)
 	? @@( Content() ) # --> [ "A" , "B", "#", "C", "*", "D", "A" ]
 }
+stop
 /*------------------
 
 StzListQ([ "A", "-", "-", "A", "-", "A", "-", "A" ]) {
@@ -1692,14 +1726,92 @@ o1 - :Honey
 
 ? o1.IsStrictlyEqualTo([ :water, :coca, :milk, :spice, :cofee, :tea, :honey ])
 
-/*---------------------
+#====================== DISTRIBUTING ITEMS OVER THE ITEMS OF AN OTHER LIST
 
-o1 = stzListQ([ :water, :coca, :milk, :spice, :cofee, :tea, :honey ])
-? o1.DistributeOver([ :arem, :mohsen, :hamma ], :Using = [ 2, 3, 2 ] )
-		# Gives [ :arem   = [ :water, :coca ],
-		# 	  :mohsen = [ :milk, :spice, :cofee ],
-		# 	  :hamma  = [ :tea, honey ]
+/*
+Softanza can distribute the items of a list over the items of an other,
+called metaphorically 'Beneficiary Items'  as they benfit from that
+distribution.
+		
+The distribution is defined by the share of each item.
+		
+The share of each item determines how many items should be given to
+the each beneficiary item.
+		
+Let's see:	
+*/
+/*
+o1 = new stzList([ "water", "coca", "milk", "spice", "cofee", "tea", "honey" ] )
+? @@( o1.DistributeOver([ "arem", "mohsen", "hamma" ]) ) + NL
+#--> :
+# [
+#	[ "arem",   [ "water", "coca", "milk" ] ],
+#	[ "mohsen", [ "spice", "cofee" ],
+#	[ "hamma",  [ "tea", "honey" ]
+# ]
 
+# Same can be made using the extended form of the function, that allows
+# us to specify how the items are explicitly shared:
+
+? @@( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 3, 2, 2 ] ) ) + NL
+
+
+# And so you can change the share at your will:
+? @@( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 1, 2, 4 ] ) ) + NL
+#--> 
+# [
+#	[ "arem",   [ "water" ] ],
+#	[ "mohsen", [ "coca", "milk" ] ],
+#	[ "hamma",  [ "spice", "cofee", "tea", "honey" ] ]
+# ]
+
+# But if you try to share more items then it exists in the list (1 + 2 + 6 > 7!):
+? @@( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 1, 2, 6 ] ) )
+# Softanza won't let you do so and tells you why:
+
+#   	What : Can't distribute the items of the main list over the items of
+#	       the provided list!
+#   	Why  : Sum of items to be distributed (in anShareOfEachItem) must be
+#	       equal to number of items of the main list.
+#   	Todo : Provide a share list where the sum of its items is equal to
+#	       the number of items of the list.
+
+/*-----------------
+
+# The distribution of the items of a list can be made directly using
+# the "/" operator on the list object:
+
+o1 = new stzList(' "♥1" : "♥6" ')
+? @@( o1 / 8 )
+#--> [ [ "♥1" ], [ "♥2" ], [ "♥3" ], [ "♥4" ], [ "♥5" ], [ "♥6" ], [ ], [ ] ]
+
+# NOTE
+#--> The beneficiary items can be of any type. In practice, they are
+# strings and hence the returned result is a hashlist.
+
+/*-----------------
+
+o1 = new stzList(1:12)
+? @@( o1.DistributeOver([ "Mansoor", "Teeba", "Haneen", "Hussein", "Sherihen" ]) )
+#-->
+# [
+#	[ "Mansoor",  [ 1, 2, 3 ] ],
+#	[ "Teeba",    [ 4, 5, 6 ] ],
+#	[ "Haneen",   [ 7, 8    ] ],
+#	[ "Hussein",  [ 9, 10   ] ],
+#	[ "Sherihen", [ 11, 12  ] ]
+# ]
+
+/*-----------------
+
+o1 = new stzList(' "♥1" : "♥9" ')
+? @@( o1 / [ "Mansoor", "Teeba", "Haneen" ] )
+#-->
+# [
+#	[ "Mansoor", 	[ "♥1", "♥2", "♥3" ] ],
+#	[ "Teeba", 	[ "♥4", "♥5", "♥6" ] ],
+#	[ "Haneen", 	[ "♥7", "♥8", "♥9" ] ]
+# ]
 
 /*---------------------
 

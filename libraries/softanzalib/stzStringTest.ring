@@ -267,7 +267,7 @@ o1.RemoveBoundsOfSubString("<<", ">>", "word")
 ? o1.Content() #--> "bla bla word bla bla word bla word"
 
 /*------
-*/
+
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.ReplaceBetween("noword", "<<", ">>", :With = "word")
 ? o1.Content()  # !--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
@@ -1967,7 +1967,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 #--> Gives [ "حنين", "جميلة", "وعمرها", "سنوات" ]
 
 /*-----------------
-*/
+
 o1 = new stzString("AM23-X ")
 ? o1.Parts('StzCharQ(@char).CharType()')
 # --> [
@@ -2014,7 +2014,7 @@ o1 = new stzString("maliNIGERtogoSENEGAL")
 #    ]
 
 /*-----------------
-*/
+
 o1 = new stzString("Abc285XY&من")
 ? o1.Parts( :Using = 'StzCharQ(@char).IsLetter()' )
 # --> Gives:
@@ -2465,39 +2465,6 @@ o1 {
 
 # Try also: TrimRight(), TrimStart(), TrimEnd()
 # RemoveLeadingSpaces(), and RemoveTrailingSpaces
-
-/*========================
-
-# Arabic Shaddah ("ّ ") is a considedred by Unicode as a diacritic,
-# say a special vocal sign that decorates the consonent letters like
-# a, e, and i in latin languages.
-
-? StzCharQ(ArabicShaddah()).IsArabicDiacritic() #--> TRUE
-
-# Diacrirtcs in arabic are:
-? @@( Arabic7araket() ) # [ "ُ ", "َ ", "ِ ", "ْ " ]
-
-# As you see, ("ّ ") is not one of them. That's because the Shaddah
-# is actually a letter and NOT really a diacritic:
-
-? StzCharQ(ArabicShaddah()).IsLetter() #--> TRUE
-
-# In fact, Arabs use it as a short form for a stressed letter like the "د" in
-# the word "مودّتي" (that we read as "mawaDDati" --> with a stressed D)
-
-# Hence, when we ask Softanza for the list of letters in this word:
-
-str = "مودّتي"
-? @@( Q(str).Letters() )
-#--> Gives ["م", "و", "د", " ّ", "ت", "ي" ]
-
-# the ("ّ ") is managed here conforming to UNICODE and appears as a letter.
-# But if we want to manage it the right way, then this extended form is provided:
-
-? @@( Q(str).LettersXT([ :ManageArabicShaddah = TRUE ]) )
-#o--> [ "م", "و", "د", "د", "ت", "ي" ]
-
-# Which is the right list of letters, without the shaddah being one of them!
 
 /*------------------------ TODO: Fix performance issue!
 
@@ -3221,8 +3188,5 @@ o1 = new stzString("🐨")
 
 // TODO: Reflect on this: NumberOfChars() is actually NumberOfCodePoints()
 
-/*---------------
 
-? Q("Приве́тو ب नमस्ते שָׁלוֹם****sd(((").Letters()
-# --> П, р, и, в, е, т, و , ب, न, म, स, त, ש, ל, ו, ם, s, d
 

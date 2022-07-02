@@ -531,31 +531,38 @@ func StzClassesXT()
 		[ :stzNumber, :stzNumbers ],
 		[ :stzDecimalToBinary, :stzDecimalsToBinary ],
 		[ :stzListOfNumbers, :stzListsOfNumbers ],
+		[ :stzPairOfNumbers, :stzPairsOfNumbers ],
 		[ :stzListOfUnicodes, :stzListsOfUnicodes ],
 		[ :stzBinaryNumber, :stzBinaryNumbers ],
 		[ :stzHexNumber, :stzHexNumbers ],
 		[ :stzOctalNumber, :stzOctalNumbers ],
 		[ :stzString, :stzStrings ],
 		[ :stzListOfStrings, :stzListsOfStrings ],
+		[ :stzPairOfStrings, :stzPairsOfStrings ], # TODO: Add stzPairOfStrings class
 		[ :stzListInString, :stzListsInString ],
 		[ :stzListOfBytes, :stzListsOfBytes ],
 		[ :stzMultilingualString, :stzMultilingualStrings ],
 		[ :stzMultiString, :stzMultiStrings ],
 		[ :stzChar, :stzChars ],
 		[ :stzListOfChars, :stzListsOfChars ],
+		[ :stzPairOfChars, :stzPairsOfChars ],  # TODO: Add stzPairOfchars class
 		[ :stzList, :stzLists ],
+		[ :stzPairOfLists, :stzPairsOfLists ],
 		[ :stzHashList, :stzHashLists ],
+		[ :stzPairOfHashLists, :stzPairsOfHashLists ],  # TODO: Add stzPairOfHashLists class
 		[ :stzAssociativeList, :stzAssociativeLists ],
 		[ :stzListOfHashLists, :stzListsOfHashLists ],
 		[ :stzSet, :stzSets ],
 		[ :stzlistOfSets, :stzlistsOfSets ],
+		[ :stzPairOfSets, :stzPairsOfSets ], # TODO: Add stzPairOfSets class
 		[ :stzListOfLists, :stzListsOfLists ],
 		[ :stzListOfPairs, :stzListsOfPairs ],
 		[ :stzTree, :stzTrees ],
 		[ :stzWalker, :stzWalkers ],
 		[ :stzTable, :stzTables ],
 		[ :stzLocale, :stzLocales ],
-		[ :stzConstraint, :stzConstraints ]
+		[ :stzConstraint, :stzConstraints ],
+		[ :stzListOfObjects, :stzListsOfObjects ]
 	]
 
 	return aStzClassesXT
