@@ -1,6 +1,90 @@
 load "stzlib.ring"
 
+/*----------------
 
+o1 = new stzList([ [ "ONE", "TWO" ], [ "THREE", "FOUR" ], [ "FIVE", "SIX" ] ])
+? o1.IsListOfLists()		#--> TRUE
+? o1.IsListOfPairs()		#--> TRUE
+? o1.IsListOfPairsOfStrings()	#--> TRUE
+
+/*----------------
+
+o1 = new stzList([ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ])
+? o1.IsListOfLists()		#--> TRUE
+? o1.IsListOfPairs()		#--> TRUE
+? o1.IsListOfPairsOfNumbers()	#--> TRUE
+
+/*----------------
+
+o1 = Q("AB♥♥C♥♥D♥♥E")
+? o1.SplitToPartsOfNCharsXT(2, :ExcludeRemaining = TRUE)
+#--> [ "AB", "♥♥", "C♥", "♥D", "♥♥" ]
+
+? o1.SplitToPartsOfNCharsXT(2, :ExcludeRemaining = FALSE)
+#--> [ "AB", "♥♥", "C♥", "♥D", "♥♥", "E" ]
+
+? o1.SplitToPartsOfNChars(2)
+#--> [ "AB", "♥♥", "C♥", "♥D", "♥♥" ]
+
+/*----------------
+
+o1 = new stzString("ABCDE")
+? @@( o1.SubStrings() )
+#--> [ "A", "B", "C", "D", "E", "AB", "CD", "ABC", "ABCD", "ABCDE" ]
+
+/*================
+*/
+o1 = new stzString("<<word>> and {{word}}")
+? @@( o1.BoundsOf( "word", :UpToNChars = 2 ) )
+#--> [ [ "<<", ">>" ], [ "{{", "}}" ] ]
+
+/*----------------
+*/
+o1 = new stzString("<<word>> and {{word}}")
+? @@( o1.BoundsOf( "word", :UpToNChars = [ 2, 2 ]  ) )
+#--> [ [ "<<", ">>" ], [ "{{", "}}" ] ]
+
+/*----------------
+*/
+o1 = new stzString("<<word>>> and  {word}}")
+? @@( o1.BoundsOf( "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ]  ) )
+#--> [ [ "<<", ">>>" ], [ "{", "}}" ] ]
+
+/*----------------
+
+o1 = new stzList([ "<<", ">>" ])
+? o1.AreBoundsOf("word", :In = "<<word>>", :UpToNChars = 2)
+
+/*----------------
+
+o1 = new stzString("_")
+? o1.IsBoundOf("word", :In = "_word_", :UpToNChars = 2)
+
+/*----------------
+
+o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
+? o1.AreBoundsOf("word", :In = "<<word>> and __word__", :UpToNChars = [2, 2]) #--> TRUE
+
+/*----------------||||||||||||
+
+o1 = new stzString("aa♥♥aa bb♥♥bb")
+? o1.SubStringIsBoundedBy("♥♥", [ [ "aa", "aa" ] ])
+//o1.SubString("♥♥", :IsBoundedBy = "aa")
+
+/*----------------
+
+o1 = Q("AB♥♥c♥♥_♥♥")
+? o1.SubStrings()
+
+/*
+? o1.FindW('{
+	Q(@SubString).NumberOfChars() = 2 and
+	Q(@SubString).IsBoundedBy@_( "Q(@Char).IsLowercase()", "_" ) 
+
+}')
+/*
+? o1.FindAll("AA") #--> [ 7, 11 ]
+? o1.FindW(' @SubString = "AA" ') #--> [ 7, 11 ]
 
 /*----------------
 
@@ -56,13 +140,79 @@ Q("℺℻ℚ") {
 
 /*----------------
 
-*/
+? len("طيبة")
+? StzStringQ("طيبة").NumberOfChars()
+
+/*----------------
+
+o1 = Q("TAYOUBAAOOAA")
+? o1.LastAndFirstChars() #--> [ "A", "T" ]
+
+/*----------------
+
+o1 = new stzList([ "A", "B", "♥", "♥", "C", "♥", "♥", "D", "♥","♥" ])
+? o1.FindW('{ @CurrentItem = @NextItem }')	#--> [ 3, 6, 9 ]
+
+? o1.FindFirstW(' @CurrentItem = @NextItem ')	#--> 3
+? o1.FindLastW(' @CurrentItem = @NextItem ')	#--> 9
+? o1.FindNthW(2, ' @CurrentItem = @NextItem ')	#--> 6
+
+/*---------------- TODO: FIX ERROR!
+
+o1 = new stzList("A":"E")
+? o1 / 3
+
+/*---------------- TODO. Logical error in SplitToNParts()
+
+o1 = Q("ABCDEFGHIJ")
+? o1 / 10	#!--> [ "A" ,"B", "C", "D", "E", "F", "G", "H", "I", "J" ]
+? o1 / 9	#!--> [ "AB", "C", "D", "E", "F", "G", "H", "I", "J" ]
+? o1 / 8	#!--> [ "AB", "CD", "E", "F", "G", "H", "I", "J" ]
+? o1 / 7	#!--> [ "ABC", "DE"", "F", "G", "H", "I", "J" ]
+? o1 / 6	#!--> [ "ABC", "DEF", "G", "H", "I", "J" ]
+
+/*----------------
+
+o1 = Q("AB♥♥C♥♥D♥♥")
+? o1.FindCharsW(' @Char = "♥" ') #--> [ 3, 4, 6, 7, 9, 10 ]
+
+? o1.FindCharsW(' @CurrentChar = @NextChar ')	 #--> [ 3, 6, 9 ] 
+? o1.FindNthCharW(2, '@CurrentChar = @NextChar') #--> 6
+? o1.FindFirstCharW('@CurrentChar = @NextChar')	 #--> 3
+? o1.FindLastCharW('@CurrentChar = @NextChar')	 #--> 9
+
+/*----------------
+
+@T = Q("TAYOUBA")
+? @T.Section( :From = "A", :To = "B" ) #--> AYOUB
+? @T.Section( :From = :FirstChar, :To = @T.First("A") )
+
+/*----------------
 
 o1 = new stzString("SOFTANZA")
 ? o1.Section( :From = o1.PositionOfFirst("A"), :To = :LastChar ) #--> ANZA
 ? o1.Section( :From = o1.First("A"), :To = :LastChar ) #--> ANZA
 
+/*----------------
+
+o1 = Q("TAYOUBTA")
+? o1.SectionsXT( :From = "T", :To = "A" )
+
+o1 = Q("TAYTOUBTA")
+? o1.SectionsXT( :From = "T", :To = "A" )
+
+o1 = Q("TAYTOAUBTA")
+? o1.SectionsXT( :From = "T", :To = "A" )
+
+/*----------------///////////////////////////////////////////////
+
+o1 = Q([ "T","A","Y","T","O", "A", "U", "B", "T", "A" ])
+//? o1.Section("A", "T")
 /*
+? @@( o1.SectionsXT( :From = "T", :To = "A" ) )
+#--> [ ["T", "A"], [ "T", "A", "Y", "O", "U", "B", "T", "A" ], ["T", "A"] ]
+
+/*----------------
 
 o1 = new StzListOfLists([ [ "_", "♥", "_" ], [ "_", "_", "_" ],  [ "_", "♥", "_" ] ])
 ? o1.ContainsInEachList("♥")

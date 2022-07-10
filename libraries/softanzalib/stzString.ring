@@ -1246,6 +1246,25 @@ class stzString from stzObject
 		cResult = This.ToStzText().LanguageIfStopWord()
 		return cResult
 
+	  #-----------------------------------------------#
+	 #  GETTING THE LIST OF ALL POSSIBLE SUBSTRINGS  #
+	#-----------------------------------------------#
+
+	def SubStrings()
+
+		acResult = []
+
+		for i = 1 to This.NumberOfChars()
+			acResult + This.PartsOfNChars(i)
+		next
+
+		acResult = ListsMerge(acResult)
+
+		return acResult
+
+		def PossibleSubStrings()
+			return This.SubStrings()
+
 	  #=================#
 	 #      LINES      #
 	#=================#
@@ -2994,17 +3013,6 @@ class stzString from stzObject
 				return FALSE
 			ok
 
-	// Returns the bounds of the string up to n Chars
-	def BoundsUpToNChars(n)
-		return [ This.NFirstChars(n), This.NLastChars(n) ]
-
-		#< @FunctionFluentForm
-	
-		def BoundsUpToNCharsQ(n)
-			return new stzList( This.BoundsUpToNChars(n) )
-
-		#>
-
 	def IsBoundedSuccsessivelyBy(paPairsOfBounds)
 		/*
 		o1 = new stzString("|<- Scope of Life ->|")
@@ -3070,30 +3078,181 @@ class stzString from stzObject
 		def BoundsAdded()
 			return This.StringWithBoundsAdded(pcSubStr1, pcSubStr2)
 
-	  #------------------------------------------#
-	 #     IDENTIFYING BOUNDS OF THE STRING     # TODO (future)
-	#------------------------------------------#
+	  #-------------------------------------#
+	 #  IDENTIFYING BOUNDS OF A SUBSTRING  #
+	#-------------------------------------#
 	
-	def Bounds()
+	def SubStringIsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 		/* EXAMPLE
-
-		o1 = new stzString("<<word>>")
-		
-		? o1.Bounds() # !--> [ "<<", ">>" ]
+		o1 = new stzString("aa♥♥aa bbb♥♥bbb")
+		? o1.SubStringIsBoundedBy("♥♥", ["aa", "aa"])	#--> TRUE
+		? o1.SubStringIsBoundedBy("♥♥", [ ["aa", "aa"], ["bb", "bb"] ] )
 		*/
 
-	def LeftBound()
+		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+			pacBounds = [ pacBounds ]
+		ok
+
+		if NOT ( isList(pacBounds) and Q(pacBounds).AllItemsArePairsOfStrings() )
+			StzRaise("Incorrect param type! pacBounds must be lists of pairs of strings.")
+		ok
+
+		bResult = FALSE
+#----------->
+		for acPair in pacBounds
+			anUpToNChars = [ Q(acPair[1]).NumberOfChars(),
+					 Q(acPair[2]).NumberOfChars() ]
+	
+			acBounds = This.BoundsOfCS(pcSubStr, anUpToNChars, pCaseSensitive)
+	
+			
+			bResult = Q(pacBounds).AllItemsExistIn(acBounds)
+		next
+		return bResult
+		
+
+	def SubStringIsBoundedBy(pcSubStr, pacBounds)
+		return This.SubStringIsBoundedByCS(pcSubStr, pacBounds, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------#
+	 #  GETIING BOUNDS OF A SUBSTRING UP TO N CHARS  #
+	#-----------------------------------------------#
+
+	def BoundsOfCS(pcSubStr, panUpToNChars, pCaseSensitive)
+		/* EXAMPLES
+
+		#-- EXAMPLE 1
+
+		o1 = new stzString("<<word>> and __word__")
+		? @@( o1.BoundsOf( "word", :UpToNChars = 2 ) )
+		#--> [ [ "<<", ">>" ], [ "__", "__" ] ]
+		
+		#-- EXAMPLE 2
+		
+		o1 = new stzString("<<word>> and __word__")
+		? @@( o1.BoundsOf( "word", :UpToNChars = [ 2, 2 ]  ) )
+		#--> [ [ "<<", ">>" ], [ "__", "__" ] ]
+		
+		#-- EXAMPLE 3
+	
+		o1 = new stzString("<<word>>> and  _word__")
+		? o1.BoundsOf( "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ]  )
+
+		*/
+
+		if islist(panUpToNChars) and Q(panUpToNChars).IsUpToNCharsNamedParamList()
+			value = panUpToNChars[2]
+			if isNumber(value)
+				
+				panUpToNChars = [ value, value ]
+
+			but isList(value) 
+				if Q(value).IsPairOfNumbers()
+
+					panUpToNChars = value
+
+				but Q(value).IsListOfPairsOfNumbers()
+					panUpToNChars = panUpToNChars[2]
+				ok
+
+			ok	
+		ok
+
+		if NOT ( Q(panUpToNChars).IsPairOfNumbers() or
+			 Q(panUpToNChars).IsListOfPairsOfNumbers() )
+
+			StzRaise("Incorrect param type! panUpToNChars must be a pair of numbers.")
+		ok
+
+		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
+		#--> [ 3, 14 ]
+
+		anLenBounds = []
+
+		if Q(panUpToNChars).IsPairOfNumbers()
+			for i = 1 to len(anPos)
+				anLenBounds + panUpToNChars
+			next
+
+		else // case where Q(panUpToNChars).IsListOfPairsOfNumbers()
+			anLenBounds = panUpToNChars
+		ok
+
+		# Doing the job
+
+		acResult = []
+
+		i = 0
+		for n in anPos
+			i++
+			nLenBound1 = anLenBounds[i][1]
+			nLenBound2 = anLenBounds[i][2]
+
+			if n > nLenBound1 and n < This.NumberOfChars() - nLenBound2 + 1
+				cBefore = This.Section( n - nLenBound1, n - 1 )
+				cAfter  = This.Range( n + Q(pcSubStr).NumberOfChars(), nLenBound2 )
+
+				if Q(cBefore).NumberOfChars() = nLenBound1 and
+				   Q(cAfter).NumberOfChars() = nLenBound2
+
+					acResult + [ cBefore, cAfter ]
+				ok
+			ok
+		next
+
+		return acResult
+
+		def BoundsUpToNCharsCS(n, pcOfSubString, pCaseSensitive)
+			if isList(pcOfSubString) and Q(pcOfSubString).IsOfNamedParamList()
+				cSubStr = pcOfSubString[2]
+			ok
+
+			if NOT isString(cSubStr)
+				StzRaise("Incorrect param type! pcSubString must be a string.")
+			ok
+
+			return This.BoundsOfCS(cSubStr, :UpToNChars = n, pCaseSensitive)
+
+	def BoundsOf(pcSubStr, pnUpToNChars)
+		return This.BoundsOfCS(pcSubStr, pnUpToNChars, :CaseSensitive = TRUE)
+
+		def BoundsUpToNChars(n, pcOfSubString)
+			return This.BoundsUpToNChars(n, pcOfSubString, :CaseSensitive = TRUE)
+
+	#-----------------------------
+
+	def LeftBoundsOfCS(pcStr, pCaseSensitive)
 		// TODO (future)
 
-	def RightBound()
+	def RightBoundsOfCS(pcStr, pCaseSensitive)
 		// TODO (future)
 
-	def FirstBound()
+	def FirstBoundsOfCS(pcStr, pCaseSensitive)
 		// TODO (future)
 		# For general use with left-to-right and right-toleft strings
 
-	def LastBound()
+	def LastBoundsOfCS(pcStr, pCaseSensitive)
 		// TODO (future)
+
+	   #------------------------------------------------------#
+	  #  IDENTIFYING IF THE STRING IS BOUNDING A SUBSTRING  #
+	 #  INSIDE AN OTHER STRING # TODO (future)             #
+	#-----------------------------------------------------#
+
+	def IsBoundOfCS(pcSubStr, pcInString, pCaseSensitive)
+		/* EXAMPLE
+		o1 = new stzString("_")
+		? o1.IsBoundOf("RING", "I LOVE _RING_")
+		#--> TRUE
+		*/
+
+	def IsLeftBoundOfCS(pcSubStr, pcInString, pCaseSensitive)
+
+	def IsRightBoundOfCS(pcSubStr, pcInString, pCaseSensitive)
+
+	def IsFirstBoundOfCS(pcSubStr, pcInString, pCaseSensitive)
+
+	def IsLastBoundOfCS(pcSubStr, pcInString, pCaseSensitive)
 
 	  #--------------------------------------------#
 	 #     REMOVING BOTH BOUNDS FROM THE STRING   #
@@ -5292,9 +5451,9 @@ class stzString from stzObject
 	
 		#>
 
-	  #--------------------------------#
-	 #   SECTION (OR SLICE) & RANGE   #
-	#--------------------------------#
+	  #------------------------------------------------#
+	 #   GETTING A SECTION (OR SLICE) OF THE STRING   #
+	#------------------------------------------------#
 
 	// Returns a subset of the string between n1 and n2 positions
 	def Section(n1, n2)
@@ -5309,16 +5468,28 @@ class stzString from stzObject
 
 		# If the params are strings then interpret them as numbers
 
-		if n1 = :FirstChar or n1 = :StartOfString
-			 n1 = 1
+		if isString(n1)
+			if n1 = :FirstChar or n1 = :StartOfString
+				 n1 = 1
+			ok
+		ok
+	
+		if isString(n2)
+			if n2 = :LastChar or n2 = :EndOfString
+				n2 = This.NumberOfChars()
+			ok
 		ok
 
-		if n2 = :LastChar or n2 = :EndOfString
-			n2 = This.NumberOfChars()
+		if NOT isNumber(n1)
+			n1 = This.FindFirst(n1)
+		ok
+
+		if NOT isNumber(n2)
+			n2 = This.FindFirst(n2)
 		ok
 
 		if NOT BothAreNumbers(n1, n2)
-			stzRaise("Incorrect params! n1 and n2 should be numbers and n1 <= n2.")
+			stzRaise("Incorrect params! n1 and n2 must be numbers and n1 <= n2.")
 		ok
 
 		if n1 > n2
@@ -5384,6 +5555,10 @@ class stzString from stzObject
 
 			#>
 		#>	
+
+	  #-----------------------------------#
+	 #   GETTING A RANGE OF THE STRING   #
+	#-----------------------------------#
 
 	// Returns a subset of the string starting from nStart and ranging over nRange Chars
 	def Range(nStartPos, nRange)
@@ -5539,11 +5714,12 @@ class stzString from stzObject
 
 		#>
 
-	  #----------------------------------------#
-	 #   MANY SECTIONS (OR SLICES) & RANGES   #
-	#----------------------------------------#
+	  #---------------------------------------#
+	 #   GETIING MANY SECTIONS (OR SLICES)   #
+	#---------------------------------------#
 
 	def Sections(paSections)
+
 		aResult = []
 
 		for aSection in paSections
@@ -5560,6 +5736,57 @@ class stzString from stzObject
 
 		def ManySlices(paSections)
 			return This.Sections(paSections)
+
+	  #---------------------------------------------------#
+	 #   GETIING MANY SECTIONS (OR SLICES) -- EXTENDED   #
+	#---------------------------------------------------#
+
+	def SectionsXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("TAYOUBTA")
+		? o1.SectionsXT( :From = "T", :To = "A" )
+		#--> [ "TA", "TAYOUBTA", "TA" ]
+
+		*/
+
+		if isList(pcSubStr1) and Q(pcSubStr1).IsFromParamList()
+			pcSubStr1 = pcSubStr1[2]
+		ok
+
+		if isList(pcSubStr2) and Q(pcSubStr2).IsToNamedParamList()
+			pcSubStr2 = pcSubStr2[2]
+		ok
+
+		anSections = []
+
+		anPos1 = This.FindAllCS(pcSubStr1, pCaseSensitive) #--> [ 1, 7 ]
+		anPos2 = This.FindAllCS(pcSubStr2, pCaseSensitive) #--> [ 2, 8 ]
+
+		for n1 in anPos1
+			for n2 in anPos2
+				if n1 < n2
+					anSections + [ n1, n2 ]
+				ok
+			next
+		next
+
+		#--> [ [ 1, 2 ], [ 1, 8 ], [ 7, 8 ] ]
+
+		acResult = This.Sections(anSections)
+		return acResult
+
+		def SectionsCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SectionsXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SectionsXT(pcSubStr1, pcSubStr2)
+		return This.SectionsXTCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+	  #--------------------------------------#
+	 #   GETTING MANY RANGES OF THE STRING  #
+	#--------------------------------------#
 
 	def Ranges(paRanges)
 		aResult = []
@@ -8288,6 +8515,10 @@ class stzString from stzObject
 		def FindSubStringByOccurrenceCS(n, pcSubStr, pCaseSensitive)
 			return This.NthOccurrenceCS(n, pcSubstr, pCaseSensitive)
 
+		def NthCS(n, pcSubStr)
+			return This.NthOccurrenceCS(n, pcSubstr)
+
+
 		#>
 
 	def NthOccurrence(n, pcSubstr)
@@ -8308,6 +8539,9 @@ class stzString from stzObject
 			return This.NthOccurrence(n, pcSubstr)
 
 		def FindSubStringByOccurrence(n, pcSubStr)
+			return This.NthOccurrence(n, pcSubstr)
+
+		def Nth(n, pcSubStr)
 			return This.NthOccurrence(n, pcSubstr)
 
 		#>
@@ -9553,9 +9787,252 @@ class stzString from stzObject
 
 		#>
 
-	   #---------------------------------------------------------------------#
-	  #    FINDING ALL OCCURRENCES OF A CHAR VERIFYING A GIVEN CONDITION    #
+	  #----------------------------------------------------------------------#
+	 #  FINDING ALL OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
 	#----------------------------------------------------------------------#
+
+	def FindAllW(pcCondition)
+		#< @MotherFunction = YES | @RingBased #>
+
+		if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParamList()
+			pcCondition = pcCondition[2]
+		ok
+
+		if isString(pcCondition)
+			if Q(pcCondition).ContainsOneOfTheseCS([ "@Char", "@NextChar", "@PreviousChar" ], :CS = FALSE) and
+			   Q(pcCondition).ContainsNoOneOfTheseCS([ "@SubString", "@NextSubString", "@PreviousSubString" ], :CS = FALSE)
+
+				return This.FindAllCharsW(pcCondition)
+
+			but Q(pcCondition).ContainsOneOfTheseCS([ "@Char", "@NextChar", "@PreviousChar" ], :CS = FALSE) and
+			   Q(pcCondition).ContainsOneOfTheseCS([ "@SubString", "@NextSubString", "@PreviousSubString" ], :CS = FALSE)
+
+				StzRaise("Incorrect condition! Condition can't contains chars and substrings keywords.")
+			ok
+		else
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		if NOT Q(pcCondition).ContainsOneOfTheseCS([ "@SubString", "@NextSubString", "@PreviousSubString" ], :CS = FALSE)
+			stzRaise("Incorrect param type! pcCondition must be a string containing keword @SubString.")
+		ok
+? "--->"
+		cCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzString)
+
+		cCode = "bOk = ( " + cCondition + " )"
+		oCode = new stzString(cCode)
+? cCode
+		acSubStrings = This.SubStrings()
+		nLen = len(acSubStrings)
+		anResult = []
+
+		for @i = 1 to nLen
+			@SubString = acSubStrings[@i]
+			bEval = TRUE
+
+			if @i = nLen and
+			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i+1]", :CS = FALSE )
+
+				bEval = FALSE
+			ok
+
+			if @i = 1 and
+			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i-1]", :CS = FALSE )
+
+				bEval = FALSE
+			ok
+
+			if bEval
+
+				eval(cCode)
+
+				if bOk
+					anResult + @i
+				ok
+			ok
+
+		next
+
+		return anResult
+
+		#< @FunctionFluentForm
+
+		def FindAllWQ(pcCondition)
+			return This.FindAllWQR(pcCondition, :stzList)
+
+		def FindAllWQR(pcCondition, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindAllW(pcCondition) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindAllW(pcCondition) )
+
+			other
+				return stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindAllWhere(pcCondition)
+			return This.FindAllW(pcCondition)
+
+			def FindAllWhereQ(pcCondition)
+				return This.FindAllWhereQR(pcCondition, :stzList)
+	
+			def FindAllWhereQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindAllWhere(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindAllWhere(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
+
+		def FindW(pcCondition)
+			return This.FindAllW(pcCondition)
+
+			def FindWQ(pcCondition)
+				return This.FindWQR(pcCondition, :stzList)
+	
+			def FindWQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindW(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindW(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
+
+		def FindWhere(pcCondition)
+			return This.FindW(pcCondition)
+
+			def FindWhereQ(pcCondition)
+				return This.FindWhereQR(pcCondition, :stzList)
+	
+			def FindWhereQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindWhere(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindWhere(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
+
+		def SubStringsPositionsW(pCondition)
+			return This.FindAllW(pcCondition)
+
+			def SubStringsPositionsWQ(pcCondition)
+				return This.SubStringsPositionsWQR(pcCondition, :stzList)
+	
+			def SubStringsPositionsWQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.SubStringsPositionsW(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.SubStringsPositionsW(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
+
+		def SubStringsPositionsWhere(pCondition)
+			return This.FindAllW(pcCondition)
+
+			def SubStringsPositionsWhereQ(pcCondition)
+				return This.SubStringsPositionsWhereQR(pcCondition, :stzList)
+	
+			def SubStringsPositionsWhereQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.SubStringsPositionsWhere(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.SubStringsPositionsWhere(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
+
+		def FindSubStringsPositionsW(pcCondition)
+			return This.FindAllSubStringsW(pcCondition)
+
+			def FindSubStringsPositionsWQ(pcCondition)
+				return This.FindSubStringsPositionsWQR(pcCondition, :stzList)
+	
+			def FindSubStringsPositionsWQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindSubStringsPositionsW(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindSubStringsPositionsW(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
+
+		def FindSubStringsPositionsWhere(pcCondition)
+			return This.FindAllSubStringsW(pcCondition)
+
+			def FindSubStringsPositionsWhereQ(pcCondition)
+				return This.FindSubStringsPositionsWhereQR(pcCondition, :stzList)
+	
+			def FindSubStringsPositionsWhereQR(pcCondition, pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindSubStringsPositionsWhere(pcCondition) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindSubStringsPositionsWhere(pcCondition) )
+	
+				other
+					return stzRaise("Unsupported return type!")
+				off
+			
+		#>
+
+	def FindNthSubStringW(n, pcCondition)
+
+		anPos = This.FindSubStringsW(pcCondition)
+		nLen = len(anPos)
+
+		if isString(n)
+			if n = :FirstChar or n = :First
+				n = 1
+			but n = :LastChar or n = :Last
+				n = nLen
+			ok
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		nResult = anPos[n]
+		return nResult
+
+	def FindFirstSubStringW(pcCondition)
+		return This.FindNthSubStringW(1, pcCondition)
+
+	def FindLastSubStringW(pcCondition)
+		return This.FindNthCharW(:LastChar, pcCondition)
+
+	  #-----------------------------------------------------------------#
+	 #  FINDING ALL OCCURRENCES OF A CHAR VERIFYING A GIVEN CONDITION  #
+	#-----------------------------------------------------------------#
 
 	def FindAllCharsW(pcCondition)
 		#< @MotherFunction = YES | @RingBased #>
@@ -9750,27 +10227,34 @@ class stzString from stzObject
 				other
 					return stzRaise("Unsupported return type!")
 				off
-
-		def FindW(pcCondition)
-			return This.FindAllCharsW(pcCondition)
-
-			def FindWQ(pcCondition)
-				return This.FindWQR(pcCondition, :stzList)
-	
-			def FindWQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindW(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindW(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
 			
-
 		#>
+
+	def FindNthCharW(n, pcCondition)
+
+		anPos = This.FindCharsW(pcCondition)
+		nLen = len(anPos)
+
+		if isString(n)
+			if n = :FirstChar or n = :First
+				n = 1
+			but n = :LastChar or n = :Last
+				n = nLen
+			ok
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		nResult = anPos[n]
+		return nResult
+
+	def FindFirstCharW(pcCondition)
+		return This.FindNthCharW(1, pcCondition)
+
+	def FindLastCharW(pcCondition)
+		return This.FindNthCharW(:LastChar, pcCondition)
 
 	  #--------------------------------------------------#
 	 #      FINDING MANY SYBSTRINGS IN THE SAME TIME    # 
@@ -14023,15 +14507,68 @@ return
 		def SplittedCS(pcSep, pCaseSensitive)
 			return This.SplitCS(pcSep, pCaseSensitive)
 
-	  #---------------------------------------#
-	 #     SPLITTING TO PARTS OF N CHARS    #
-	#---------------------------------------#
+	  #-----------------------------------------------#
+	 #   SPLITTING THE STRING TO PARTS OF N CHARS    #
+	#-----------------------------------------------#
+
+	def SplitToPartsOfNChars(n)
+		return This.SplitToPartsOfNCharsXT(n, :ExcludeRemainingPart = TRUE)
+
+		#< @FunctionFluentForm
+
+		def SplitTOPartsOfNCharsQ(n)
+			return This.SplitToPartsOfNCharsQR(n, pcReturnType)
+
+		def SplitToPartsOfNCharsQR(n, pcReturnType)
+			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsOneOf(StzClasses()) )
+				StzRaise("Incorrect param! pcReturnType must be a string containing a Softanza class name.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitToPartsOfNChars(n) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitToPartsOfNChars(n) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PartsOfNChars(n)
+			return This.SplitToPartsOfNChars(n)
+
+			def PartsOfNCharsQ(n)
+				return This.SubStringsOfNCharsQR(n, pcReturnType)
+
+			def PartsOfNCcharsQR(n, pcReturnType)
+				return This.SplitToPartsOfNCharsXTQR(n, pcReturnType)
+		
+		#>
+
+	def SplittedToPartsOfNChars(n)
+		return This.SplitToPartsOfNChars(n)
+
+	  #-----------------------------------------------#
+	 #   SPLITTING TO PARTS OF N CHARS -- EXTENDED   #
+	#-----------------------------------------------#
 
 	// Splits the string to parts of n Chars
 
-
-	def SplitToPartsOfNCharsXT(n, pcDirection)
+	def SplitToPartsOfNCharsXT(n, pExcludeRemaining)
 		#< @MotherFunction = YES | @RingBased #>
+
+		/* EXAMPLE
+
+		o1 = Q("AB♥♥C♥♥D♥♥")
+		? o1.SplitToPartsOfNChars(3, [ :ExcludeRemainingPart = TRUE ])
+		#--> [ "AB♥", "♥C♥", "♥D♥" ]
+
+		*/
 		
 		# Checking the correctness of n param
 		
@@ -14042,167 +14579,76 @@ return
 
 		# Checking the correctness of pcDirection param
 
-		bCorrect = FALSE
+		if NOT  ( isList(pExcludeRemaining) and len(pExcludeRemaining) = 2 and
+			  Q(pExcludeRemaining[1]).IsOneOfThese([ :ExcludeRemaining, :ExcludeRemainingPart ]) and
+			  Q(pExcludeRemaining[2]).IsOneOfThese([ TRUE, FALSE ])
+		       	)
 
-		if isString(pcDirection) and Q(pcDirection).IsOneOfThese([ :Forward, :Backward ])
-			bCorrect = TRUE
+			StzRaise("Incorrect syntax! paOptions must take the form :ExcludeRemaining = TRUE.")
 
-		but isList(pcDirection) and Q(pcDirection).IsDirectionNamedParamList()
-			bCorrect = TRUE
-			pcDirection = pcDirection[2]
 		ok
-
-		if NOT bCorrect
-			stzRaise("Incorrect param! pcDirection must be a string equal to :Forward or :Backward.")
-		ok
-
-		# Doing the job
 
 		aResult = []
-		nWhatRemains = 0
 	
-		if pcDirection = :Backward
+		# Adding the parts
 
-			# Adding the parts
+		for i = 1 to this.NumberOfChars() step n
+			cRange = This.Range(i,n)
+			if Q(cRange).NumberOfChars() = n
+				aResult + cRange
+			ok
+		next
 
-			for i = this.NumberOfChars() to 0 step -n
-				if this.Range(i+1,n) != ""
-					aResult + this.Range(i+1,n)
-				ok
-			next
-	
+		bExcludeRemaining = pExcludeRemaining[2]
+		if bExcludeRemaining = FALSE
 			# Adding the remaing part of the string
 
-			nWhatRemains = NumberOfChars() - len(aResult) * n
-			aResult + This.LeftNChars(nWhatRemains)	
-		
-		else #--> Direction = :Forward
-
-			# Adding the parts
-
-			for i = 1 to this.NumberOfChars() step n
-				aResult + this.Range(i,n)
-			next
+			nWhatRemains = This.NumberOfChars() - len(aResult) * n
+			aResult + This.LastNChars(nWhatRemains)	
 
 		ok
 	
 		return aResult
 
-		
-
-		def SplitToPartsOfNCharsXTQ(n, pDirection)
-			return This.SplitToPartsOfNCharsXTQR(n, pDirection, :stzList)
-
-		def SplitToPartsOfNCharsXTQR(n, pDirection, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitToPartsOfNCharsXT(n, pDirection) )
-	
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitToPartsOfNCharsXT(n, pDirection) )
-	
-			other
-				stzRaise("Unsupported return type!")
-	
-			off
-
-		def SplittedToPartsOfNCharsXT(n, pDirection)
-			return This.SplitToPartsOfNCharsXT(n, pDirection)
-
-
-	def SplitForwardToPartsOfNChars(n)
-		#< @MotherFunction = SplitToPartsOfNCharsXT() > @RingBased #>
-
-		return This.SplitToPartsOfNCharsXT(n, :Forward)
-	
 		#< @FunctionFluentForm
 
-		def SplitForwardToPartsOfNCharsQ(n)
-			return This.SplitForwardToPartsOfNCharsQR(n, :stzList)
+		def SplitToPartsOfNCharsXTQ(n, pExcludeRemaining)
+			return This.SplitToPartsOfNCharsXTQR(n, pExcludeRemaining, :stzList)
 
-		def SplitForwardToPartsOfNCharsQR(n, pcReturnType)
+		def SplitToPartsOfNCharsXTQR(n, pExcludeRemaining, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SplitForwardToPartsOfNChars(n) )
+				return new stzList( This.SplitToPartsOfNCharsXT(n, pExcludeRemaining) )
 	
 			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitForwardToPartsOfNChars(n) )
+				return new stzListOfStrings( This.SplitToPartsOfNCharsXT(n, pExcludeRemaining) )
 	
 			other
 				stzRaise("Unsupported return type!")
 	
 			off
-			
+
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SplitToPartsOfNChars(n)
-			return This.SplitForwardToPartsOfNChars(n)
+		def PartsOfNCharsXT(n, pExcludeRemaining)
+			return This.SplitToPartsOfNCharsXT(n, pExcludeRemaining)
 
-			def SplitToPartsOfNCharsQ(n)
-				return This.SplitToPartsOfNCharsQR(n, :stzList)
-	
-			def SplitToPartsOfNCharsQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.SplitToPartsOfNChars(n) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.SplitToPartsOfNChars(n) )
-		
-				other
-					stzRaise("Unsupported return type!")
-		
-				off	
+			defPartsOfNCharsXTQ(n, pExcludeRemaining)
+				return This.SplitToSubStringsOfNCharsXTQR(n, pExcludeRemaining, pcReturnType)
 
-		def SplittedToPartsOfNChars()
-			return This.SplitForwardToPartsOfNChars(n)
-
-		def SplittedForwardToPartsOfNChars(n)
-			return This.SplitForwardToPartsOfNChars(n)
+			def PartsOfNCharsXTQR(n, pExcludeRemaining, pcReturnType)
+				return This.SplitToPartsOfNCharsXTQR(n, pExcludeRemaining, pcReturnType)
 
 		#>
 
-	def SplitBackwardToPartsOfNChars(n)
-		#< @MotherFunction = SplitToPartsOfNCharsXT() > @RingBased #>
-
-		return This.SplitToPartsOfNCharsXT(n, :Backward)
-
-		def SplitBackwardToPartsOfNCharsQ(n)
-			return This.SplitBackwardToPartsOfNCharsQR(n, :stzList)
-	
-		def SplitBackwardToPartsOfNCharsQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-	
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitBackwardToPartsOfNChars(n) )
-		
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitBackwardToPartsOfNChars(n) )
-		
-			other
-				stzRaise("Unsupported return type!")
-		
-			off
-
-		def SplittedBackwardToPartsOfNChars(n)
-			return This.SplitBackwardToPartsOfNChars(n)
+	def SplittedToPartsOfNCharsXT(n, pExcludeRemaining)
+		return This.SplitToPartsOfNCharsXT(n, pExcludeRemaining)
 
 	   #-----------------------------#
 	  #     SPLITTING TO N PARTS    #
