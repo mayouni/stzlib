@@ -13049,38 +13049,25 @@ class stzListOfStrings from stzList
 		def IsBoundedByTheseTwoStringItems(pcString1, pcString2)
 			return This.IsBoundedBy(pcString1, pcString2)
 
-	  #------------------------------------------------------------#
-	 #     GETTING THE N STRINGS BOUNDING THE LIST OF STRINGS     #
-	#------------------------------------------------------------#
+	  #-------------------------------------------------------------------------------#
+	 #  CHECKING IF THE LIST IS MADE OF 2 STRINGS THAT ARE BOUNDS OF A GIVEN STRING  #
+	#-------------------------------------------------------------------------------#
 
-	def BoundsUpToNStrings(n)
-		return [ This.NFirstStrings(n), This.NLastStrings(n) ]
+	def AreBoundsOfCS(pcStr, pIn, pnUpToNChars, pCaseSensitive)
+		/* EXAMPLE
 
-		#< @FunctionFluentForm
-	
-		def BoundsUpToNStringsQ(n)
-			return new stzList( This.BoundsUpToNStrings(n) )
+		o1 = new stzListOfStrings([ [ "aa", "aa" ], [ "bb", "bb" ] ])
+		? o1.AreBoundsOf("word", :In = "aaWORDbb and bbWORDbb", :UpToNChars = 2)
+		#--> TRUE
 
-		#>
+		*/
 
-		#< @FunctionAlternativeForms
+		// TODO
 
-		def BoundsUpToNStringItems(n)
-			return This.BoundsUpToNStrings(n)
+	#-- WITHOUT CASESNESITIVITY
 
-		def BoundingStringsUpToN(n)
-			return This.BoundsUpToNStrings(n)
-
-		def BoundingStringItemsUpToN(n)
-			return This.BoundsUpToNStrings(n)
-
-		def BoundingStringsUpTN(n)
-			return This.BoundsUpToNStrings(n)
-
-		def BoundingStringItemsUpTo(n)
-			return This.BoundsUpToNStrings(n)
-
-		#>
+	def AreBoundsOf(pcStr, pIn, pnUpToNChars)
+		return  This.AreBoundsOfCS(pcStr, pIn, pnUpToNChars, :CS = TRUE)
 
 	  #-----------------------------------------------------------------------------#
 	 #     CHECKING IF THE LIST IS "BOUNDED' SUCCSESSIVELY BY THE GIVEN STRINGS    #
@@ -14942,13 +14929,13 @@ class stzListOfStrings from stzList
 			bEval = TRUE
 
 			if @i = This.NumberOfStrings() and
-			   oCondition.ContainsCS("@NextString", :CS = FALSE )
+			   oCondition.RemoveSpacesQ().ContainsCS("This[@i+1]", :CS = FALSE )
 
 				bEval = FALSE
 			ok
 
 			if @i = 1 and
-			   oCondition.ContainsCS("@PreviousString", :CS = FALSE )
+			   oCondition.RemoveSpacesQ().ContainsCS("This[@i-1]", :CS = FALSE )
 
 				bEval = FALSE
 			ok
@@ -14959,13 +14946,13 @@ class stzListOfStrings from stzList
 				if bOk
 
 					if @i = This.NumberOfStrings() and
-					   oAction.ContainsCS("@NextString", :CS = FALSE)
+					   oAction.RemoveSpacesQ().ContainsCS("This[@i+1]", :CS = FALSE)
 
 						bEval = FALSE
 					ok
 
 					if @i = 1 and
-					   oAction.ContainsCS("@PreviousString", :CS = FALSE)
+					   oAction.ContainsCS("This[@i-1]", :CS = FALSE)
 
 						bEval = FALSE
 					ok

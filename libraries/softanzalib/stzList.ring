@@ -3945,14 +3945,79 @@ class stzList from stzObject
 	def IsPairOfStrings()
 		return This.IsPair() and This.IsListOfStrings()
 
+	def IsListOfPairsOfStrings()
+		/*
+		Coud be solved nicely like this:
+
+			if This.IsListOfPairs() and
+			   Check('Q(@EachItem).IsPairOfStrings()' ) = TRUE
+	
+				return TRUE
+			else
+				return FALSE
+			ok
+
+		But the following solution is more performant...
+		*/
+
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT ( isList(item) and Q(item).IsPairOfStrings() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
 	def IsPairOfNumbers()
 		return This.IsPair() and This.IsListOfNumbers()
+
+	def IsListOfPairsOfNumbers()
+
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT ( isList(item) and Q(item).IsPairOfNumbers() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
 
 	def IsPairOfLists()
 		return This.IsPair() and This.IsListOfLists()
 
+	def IsListOfPairsOfLists()
+
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT ( isList(item) and Q(item).IsPairOfLists() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
 	def IsPairOfObjects()
 		return This.IsPair() and This.IsListOfObjects()
+
+	def IsListOfPairsOfObjects()
+
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT ( isList(item) and Q(item).IsPairOfObjects() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
 
 	def IsPairAndKeyIsString()
 		return This.IsPair() and isString(This[1])
@@ -4061,46 +4126,26 @@ class stzList from stzObject
 		ok
 		
 	def IsListOfPairs()
+		/*
+		Could be solved nicely like this:
+
 		bResult = This.Check( :That = 'isList(@item) and Q(@item).IsPair()' )
 		return bResult
 
-	def IsListOfPairsOfNumbers()
-		if This.IsListOfPairs() and
-		   Check('Q(@EachItem).IsPairOfNumbers()' ) = TRUE
+		But the following solution is more performant:
+		*/
 
-			return TRUE
-		else
-			return FALSE
-		ok
+		bResult = TRUE
 
-		def IsListOfSections()
-			return This.IsListOfPairsOfNumbers()
+		for item in This.List()
+			if NOT ( isList(item) and len(item) = 2 )
+				bResult = FALSE
+				exit
+			ok
+		next
 
-	def IsListOfPairsOfStrings()
-		if This.IsListOfPairs() and
-		   Check('Q(@EachItem).IsPairOfStrings()' ) = TRUE
+		return bResult
 
-			return TRUE
-		else
-			return FALSE
-		ok
-	def IsListOfPairsOfLists()
-		if This.IsListOfPairs() and
-		   Check('Q(@EachItem).IsPairOfLists()' ) = TRUE
-
-			return TRUE
-		else
-			return FALSE
-		ok
-
-	def IsListOfPairsOfObjects()
-		if This.IsListOfPairs() and
-		   Check('Q(@EachItem).IsPairOfObject()' ) = TRUE
-
-			return TRUE
-		else
-			return FALSE
-		ok
 
 	def IsTree()
 		if NOT This.IsEmpty()
@@ -4353,6 +4398,81 @@ class stzList from stzObject
 
 		def IsMadeOfLists()
 			return This.ContainsOnlyLists()
+
+	def AllItemsArePairs()
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT ( isList(item) and Q(item).IsPair() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def IsMadeOfPairs()
+			return This.AllItemsArePairs()
+
+	def AllItemsArePairsOfNumbers()
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT ( isList(item) and Q(item).IsPairOfNumbers() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def IsMadeOfPairsOfNumbers()
+			return This.AllItemsArePairsOfNumbers()
+
+	def AllItemsArePairsOfStrings()
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT ( isList(item) and Q(item).IsPairOfStrings() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def IsMadeOfPairsOfStrings()
+			return This.AllItemsArePairsOfStrings()
+
+	def AllItemsArePairsOfLists()
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT ( isList(item) and Q(item).IsPairOfLists() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def IsMadeOfPairsOfLists()
+			return This.AllItemsArePairsOfLists()
+
+	def AllItemsArePairsOfObjects()
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT ( isList(item) and Q(item).IsPairOfObjects() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def IsMadeOfPairsOfObjects()
+			return This.AllItemsArePairsOfObjects()
 
 	def ContainsOnlyEmptyLists()
 		bResult = TRUE
@@ -4873,9 +4993,7 @@ class stzList from stzObject
 		bResult = TRUE
 
 		cCode = "bOk = (" + cCondition + ")"
-
 		oCode = StzStringQ(cCode)
-
 
 		for @i in panPositions
 
@@ -8658,16 +8776,23 @@ class stzList from stzObject
 
 	#--
 	
-	def EachItemExistsIn(paList)
-		return StzListQ(paList).ContainsEach(This.List())
+	def EachItemExistsIn(paOtherList)
+		bResult = StzListQ(paOtherList).ContainsEach(This.List())
+		return bResult
+
+		def ItemsExistIn(paOtherList)
+			return This.EachItemExistsIn(paOtherList)
+
+		def AllItemsExistIn(paOtherList)
+			return This.EachItemExistsIn(paOtherList)
 
 	#--
 
-	def IsOneOfThese(paList)
-		return StzListQ(paList).Contains( This.List() )
+	def IsOneOfThese(paOtherList)
+		return StzListQ(paOtherList).Contains( This.List() )
 
-	def IsNotOneOfThese(paList)
-		return NOT This.IsOneOfThese(paList)
+	def IsNotOneOfThese(paOtherList)
+		return NOT This.IsOneOfThese(paOtherList)
 
 	#--
 
@@ -9346,6 +9471,8 @@ class stzList from stzObject
 
 		#>
 
+
+
 	def FindFirstOccurrence(pItem)
 
 		acThis = []
@@ -9377,6 +9504,7 @@ class stzList from stzObject
 	
 		#>
 
+	
 	def FindLastOccurrence(pItem)
 		nResult = 0
 
@@ -9488,6 +9616,18 @@ class stzList from stzObject
 					stzRaise("Unsupported type!")
 				off
 	
+			#>
+
+		def FindItem(pItem)
+			return This.FindAllOccurrences(pItem)
+
+			#< @FunctionFluentForm
+
+			def FindItemQ(pItem)
+				return This.FindItemQR(pItem, :stzList)
+	
+			def FindItemQR(pItem, pcReturnType)
+				return This.FindAllQR(pItem, pcReturnType)
 			#>
 
 		# WARNING: We can not add an alternative name calle Find() because this is
@@ -9980,8 +10120,8 @@ class stzList from stzObject
 		
 		return anPositions
 
-	   #---------------------------------------------------#
-	  #   FINDING ALL ITEMS VERIFYING A GIVEN CONDITION   #
+	  #---------------------------------------------------#
+	 #   FINDING ALL ITEMS VERIFYING A GIVEN CONDITION   #
 	#----------------------------------------------------#
 
 	def FindAllItemsW(pcCondition)
@@ -10021,13 +10161,13 @@ class stzList from stzObject
 			bEval = TRUE
 
 			if @i = This.NumberOfItems() and
-			   oCode.ContainsCS("@NextItem", :CS = FALSE)
+			   oCode.RemoveSpacesQ().ContainsCS("This[@i+1]", :CS = FALSE)
 
 				bEval = FALSE
 			ok
 
 			if @i = 1 and
-			   oCode.ContainsCS("@PreviousItem", :CS = FALSE)
+			   oCode.RemoveSpacesQ().ContainsCS("This[@i-1]", :CS = FALSE)
 
 				bEval = FALSE
 			ok
@@ -10217,6 +10357,52 @@ class stzList from stzObject
 			return This.FindAllItemsW(pCondition)
 
 	#>
+
+	def FindFirstW(pcCondition)
+		return This.FindNthW(1, pcCondition)
+
+		def FindFirstItemW(pcCondition)
+			return This.FindFirstW(pcCondition)
+
+		def FindFirstOccurrenceW(pcCondition)
+			return This.FindFirstW(pcCondition)
+
+	def FindLastW(pcCondition)
+		return FindNthW(:LastOccurrence, pcCondition)
+
+		def FindLastItemW(pcCondition)
+			return This.FindLastW(pcCondition)
+
+		def FindLastOccurrenceW(pcCondition)
+			return This.FindLastW(pcCondition)
+
+	def FindNthW(n, pcCondition)
+
+		anTemp = This.FindW(pcCondition)
+		nLen = len(anTemp)
+
+		if isString(n)
+			if ( n = :First or n = :FirstOccurrence )
+				n = 1
+
+			but ( n = :Last or n = :LastOccurrence )
+				n = nLen
+			ok
+		ok
+
+		nResult = 0
+
+		if nLen > 0
+			nResult = anTemp[n]
+		ok
+
+		return nResult
+
+		def FindNthItemW(pcCondition)
+			return This.FindNthW(n, pcCondition)
+
+		def FindNthOccurrenceW(pcCondition)
+			return This.FindNthW(n, pcCondition)
 
   	  #--------------------------------------#
 	 #   GETTING ITEMS AT GIVEN POSITIONS   #
@@ -11961,11 +12147,19 @@ class stzList from stzObject
 		def SplittedAfterWhere(pcCondition)
 			return This.SplitAfterW(pCondition)
 
-	  #-------------------------#
-	 #     Section & RANGE     #
-	#-------------------------#
+	  #------------------------------------------------#
+	 #    GETTING A SECTION (OR SLICE) OF THE LIST    #
+	#------------------------------------------------#
 
-	def Section(n1,n2)
+	def Section(n1, n2)
+
+		if isList(n1) and StzListQ(n1).IsFromNamedParamList()
+			n1 = n1[2]
+		ok
+
+		if isList(n2) and StzListQ(n2).IsToNamedParamList()
+			n2 = n2[2]
+		ok
 
 		if isString(n1)
 			if n1 = :First or n1 = :FirstItem
@@ -11977,6 +12171,18 @@ class stzList from stzObject
 			if n2 = :Last or n2 = :LastItem
 				n2 = This.NumberOfItems()
 			ok
+		ok
+
+		if NOT isNumber(n1)
+
+			n1 = This.FindFirst(n1)
+
+		ok
+
+		if NOT isNumber(n2)
+			n2 = This.WalkUntil( '@item > ' + n1 )
+			
+
 		ok
 
 		if NOT BothAreNumbers(n1, n2)
@@ -12070,6 +12276,75 @@ class stzList from stzObject
 				off
 		#>
 
+	  #---------------------------------------#
+	 #   GETIING MANY SECTIONS (OR SLICES)   #
+	#---------------------------------------#
+
+	def Sections(paSections)
+
+		aResult = []
+
+		for aSection in paSections
+			aResult + This.Section( aSection[1], aSection[2] )
+		next
+
+		return aResult
+
+		def ManySections(paSections)
+			return This.Sections(paSections)
+
+		def Slices(paSections)
+			return This.Sections(paSections)
+
+		def ManySlices(paSections)
+			return This.Sections(paSections)
+
+	  #---------------------------------------------------#
+	 #   GETIING MANY SECTIONS (OR SLICES) -- EXTENDED   #
+	#---------------------------------------------------#
+
+	def SectionsXT(pItem1, pItem2)
+		/* EXAMPLE
+
+		o1 = new stzList([ "T", "A", "Y", "O", "U", "B", "T", "A" ])
+		? o1.SectionsXT( :From = "T", :To = "A" )
+		#--> [ ["T", "A"], [ "T", "A", "Y", "O", "U", "B", "T", "A" ], ["T", "A"] ]
+
+		*/
+
+		if isList(pItem1) and Q(pItem1).IsFromParamList()
+			pItem1 = pItem1[2]
+		ok
+
+		if isList(pItem2) and Q(pItem2).IsToNamedParamList()
+			pItem2 = pItem2[2]
+		ok
+
+		anSections = []
+
+		anPos1 = This.FindAll(pItem1) #--> [ 1, 7 ]
+		anPos2 = This.FindAll(pItem2) #--> [ 2, 8 ]
+
+		for n1 in anPos1
+			for n2 in anPos2
+				if n1 < n2
+					anSections + [ n1, n2 ]
+				ok
+			next
+		next
+
+		#--> [ [ 1, 2 ], [ 1, 8 ], [ 7, 8 ] ]
+
+		acResult = This.Sections(anSections)
+		return acResult
+
+		def SectionsCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SectionsXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	  #-----------------------------------#
+	 #    GETTING A RANGE OF THE LIST    #
+	#-----------------------------------#
+
 	def Range(pnStart, pnRange)
 		return This.Section( pnStart, pnStart + pnRange-1)
 
@@ -12101,6 +12376,22 @@ class stzList from stzObject
 			other
 				stzRaise("Unsupported return type!")
 			off
+
+	  #------------------------------------#
+	 #   GETTING MANY RANGES OF THE LIST  #
+	#------------------------------------#
+
+	def Ranges(paRanges)
+		aResult = []
+
+		for aRange in paRanges
+			aResult + This.Range( aRange[1], aRange[2] )
+		next
+
+		return aResult
+
+		def ManyRanges(paSections)
+			return This.Ranges(paRanges)
 
 	  #-------------------#
 	 #     MULTINGUAL    #
@@ -12791,6 +13082,19 @@ class stzList from stzObject
 		def IsOnParamList()
 			return This.IsOnNamedParamList()
 
+	def IsInNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :In )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsInParamList()
+			return This.IsInNamedParamList()
+
 	def IsWhereNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Where ) and
@@ -13119,6 +13423,34 @@ class stzList from stzObject
 		def IsirectionParamList()
 			return This.IsirectionNamedParamList()
 
+	def IsUpToNCharsNamedParamList()
+		if This.NumberOfItems() = 2 and
+ 		   isString(This[1]) and  This[1] = :UpToNChars
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+		   
+		def IsUpToNCharsParamList()
+			return This.IsUpToNCharsNamedParamList()
+
+	def IsUpToNItemsNamedParamList()
+		if ( This.NumberOfItems() = 2 ) and
+ 		   ( isString(This[1]) and  This[1] = :UpToNItems ) and
+		   ( isList(This[2]) and Q(This[2]).IsPairOfNumbers() )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsUpToNItemsParamList()
+			return This.IsUpToNCharsNamedParamList()
+
+
 	  #================================#
 	 #     GETTING TYPES OF ITEMS     #
 	#================================#
@@ -13398,6 +13730,27 @@ class stzList from stzObject
 
 		def ToListInShortForm()
 			return This.ToListInStringInShortForm()
+
+	def BoundsOf(pItem, pnUpToNItems)
+		// TODO
+		
+	def AreBoundsOf(pItem, pIn, pnUpToNChars)
+		/* EXAMPLE
+
+		o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
+		? o1.AreBoundsOf("word", :In = "<<word>> and __word__", :UpToNChars = 2)
+		#--> TRUE
+
+		*/
+
+		if isList(pIn) and Q(pIn).IsInNamedParamList()
+			pIn = pIn[2]
+		ok
+
+		aBounds = Q(pIn).BoundsOf(pItem, pnUpToNChars)
+		nResult = This.ExistsIn(aBounds)
+
+		return nResult
 
 	  #--------------------------------#
 	 #    USUED FOR NATURAL-CODING    #

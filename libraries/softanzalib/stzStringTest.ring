@@ -2763,8 +2763,6 @@ o1 = new stzString("<script>func return :done<script/>")
 
 ? o1.IsBoundedBy("<script>", "<script/>") # returns TRUE
 
-? o1.BoundsUpToNChars(8) # returns [ "<script>", "<script/>" ]
-
 o1.RemoveBoundsQ("<script>", "<script/>")
 ? o1.Content()
 
