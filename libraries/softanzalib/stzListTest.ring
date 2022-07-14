@@ -432,12 +432,12 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 }
 
 /*------------------
-*/
+
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	ReplacePreviousNthOccurrences([3, 1], "A", :With = [ "#3", "#1" ], :StartingAt = 5)
-	? @@( Content() ) # --> [ "A" , "B", "#", "C", "*", "D", "A" ]
+	? @@( Content() ) # --> [ [ "#3", "#1" ], "B", "A", "C", [ "#3", "#1" ], "D", "A" ]
 }
-stop
+
 /*------------------
 
 StzListQ([ "A", "-", "-", "A", "-", "A", "-", "A" ]) {
@@ -1129,18 +1129,19 @@ class Person name
 # For example, in strings, we can check if the string is bounded
 # by two given substrings, or even by many of them. So, we say:
 
-oStr = new stzString("|<- Scope of Life ->|")
-? oStr.IsBoundedSuccsessivelyBy([ ["|","|"], ["<",">"], ["-","-"] ]) # --> TRUE
+oStr = new stzString("|<--Scope of Life-->|")
+? oStr.IsBoundedBy( "|<--", "-->|" ) # --> TRUE
 
 # And then we can delete these bounds:
-? oStr.ManyBoundsRemoved([ ["|","|"], ["<",">"], ["-","-"] ]) # --> " Scope of Life "
+? oStr.BoundsRemoved("|<--", "-->|") # --> "Scope of Life"
 
 # The same semantics apply to lists, like this:
-oList = new stzList([ "|", "<", "-", "Scope", "of", "Life", "-", ">", "|" ])
-? oList.IsBoundedSuccsessivelyBy([ ["|","|"], ["<",">"], ["-","-"] ]) # --> TRUE
 
-# And we can remove all these boundes, exactly like we did for strings:
-? oList.ManyBoundsRemoved([ ["|","|"], ["<",">"], ["-","-"] ]) # --> [ "Scope", "of", "Life" ]
+oList = new stzList([ "|<--", "Scope", "of", "Life", "-->|" ])
+? oList.IsBoundedBy( "|<--", "-->|" ) # --> TRUE
+
+# And we can remove all these bounds, exactly like we did for strings:
+? oList.BoundsRemoved("|<--", "-->|") # --> [ "Scope", "of", "Life" ]
 
 /*-----------------------
 
@@ -1666,17 +1667,17 @@ o1 = new stzList([ "A", 1:3, obj, "B", [ "C", 4:5, [ "V", 6:8, ["T", 9:12 ,"K"] 
 # NOTE: lists are merged only when they are lists of lists (Why? Think of it - TODO)
 
 /*----------------------
-*/
+
 o1 = new stzList([ :Water, :Milk, :Cofee, :Tea, :Sugar, " ",:Honey ])
-? o1.WalkUntil("Item = :Milk")
-? o1.WalkUntil("Item = ' '")
+? o1.WalkUntil('@Item = :Milk') #--> [ 1, 2 ]
+? o1.WalkUntil('@Item = " "')	#--> [ 1, 2, 3, 4, 5, 6 ]
 
 /*---------------------- TODO: refactored: reveiw it after completing stzWalker
 */
 StzListQ( "A":"J" ) {
 	AddWalker( :Named = :Walker1, :StartingAt = 1, :EndingAt = 10, :NStep = 1 )
 	? WalkedItems( :By = :Walker1 )
-	? WalkerPositions( :By = :Walker1 )
+	? WalkedPositions( :By = :Walker1 )
 	? WalkedLastItem( :By = :Walker1 )
 	? WalkedLastPosition( :By = :Walker1 )
 	? NumberOfWalkedItems( :By = :Walker1 )
