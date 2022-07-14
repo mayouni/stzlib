@@ -13069,39 +13069,6 @@ class stzListOfStrings from stzList
 	def AreBoundsOf(pcStr, pIn, pnUpToNChars)
 		return  This.AreBoundsOfCS(pcStr, pIn, pnUpToNChars, :CS = TRUE)
 
-	  #-----------------------------------------------------------------------------#
-	 #     CHECKING IF THE LIST IS "BOUNDED' SUCCSESSIVELY BY THE GIVEN STRINGS    #
-	#-----------------------------------------------------------------------------#
-
-	def IsBoundedSuccsessivelyByCS(paPairsOfBounds, pCaseSensitive)
-		/*
-		o1 = new stzListOfStrings([ "|", "<", "-", "Scope of Life", "-", ">", "|" ])
-		? o1.IsBoundedSuccsessivelyBy([ ["|","|"], ["<",">"], ["-","-"] ])
-
-		!--> TRUE
-		*/
-
-		bResult = TRUE
-	
-		oCopy = This.Copy()
-	
-		for aPair in paPairsOfBounds
-	
-			if NOT oCopy.IsBoundedByCS(aPair[1], aPair[2], pCaseSensitive)
-				bResult = FALSE
-				exit
-			else
-				oCopy.RemoveBoundsCS(aPair[1], aPair[2], pCaseSensitive)
-			ok
-		next
-	
-		return bResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def IsBoundedSuccsessivelyBy(paPairsOfBounds)
-		return This.IsBoundedSuccsessivelyByCS(paPairsOfBounds, :CaseSensitive = TRUE)
-
 	  #------------------------------------#
 	 #     REMOVING BOUNDING STRINGS      #
 	#------------------------------------#

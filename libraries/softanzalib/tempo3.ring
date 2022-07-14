@@ -33,32 +33,33 @@ o1 = new stzString("ABCDE")
 #--> [ "A", "B", "C", "D", "E", "AB", "CD", "ABC", "ABCD", "ABCDE" ]
 
 /*================
-*/
+
 o1 = new stzString("<<word>> and {{word}}")
-? @@( o1.BoundsOf( "word", :UpToNChars = 2 ) )
+? o1.BoundsOf( "word", :UpToNChars = 2 )
 #--> [ [ "<<", ">>" ], [ "{{", "}}" ] ]
 
 /*----------------
-*/
-o1 = new stzString("<<word>> and {{word}}")
-? @@( o1.BoundsOf( "word", :UpToNChars = [ 2, 2 ]  ) )
+
+o1 = new stzString("<<word>>> and {{word}}}")
+? o1.BoundsOf( "word", :UpToNChars = [ 2, 3 ] )
 #--> [ [ "<<", ">>" ], [ "{{", "}}" ] ]
 
 /*----------------
-*/
+
 o1 = new stzString("<<word>>> and  {word}}")
-? @@( o1.BoundsOf( "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ]  ) )
+? o1.BoundsOf( "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ] )
 #--> [ [ "<<", ">>>" ], [ "{", "}}" ] ]
+
+/*================
+*/
+? Q("_").IsBoundOf( "world", :In = "hello _world_! and <world>" ) #--> TRUE
+//? Q("<").IsBoundOf( "world", :In = "hello _world_! and <world>" ) #--> FALSE
+//? Q([ "<", ">" ]).AreBoundsOf( "world", :In = "hello _world_! and <<world>" ) #--> TRUE
 
 /*----------------
 
 o1 = new stzList([ "<<", ">>" ])
 ? o1.AreBoundsOf("word", :In = "<<word>>", :UpToNChars = 2)
-
-/*----------------
-
-o1 = new stzString("_")
-? o1.IsBoundOf("word", :In = "_word_", :UpToNChars = 2)
 
 /*----------------
 

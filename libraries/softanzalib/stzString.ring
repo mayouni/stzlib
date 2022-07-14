@@ -2999,51 +2999,50 @@ class stzString from stzObject
 	#==============================#
 
 	// Verifies if the string is bounded by substrings 1 and 2 
+	def IsBoundedByCS(pcSubstr1, pcSubstr2, pCaseSensitive)
+		if This.BeginsWithCS(pcSubstr1, pCaseSensitive) and
+		   This.EndsWithCS(pcSubStr2, pCaseSensitive)
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def IsBoundedBy(pcSubstr1, pcSubstr2)
 		return This.IsBoundedByCS(pcSubstr1, pcSubstr2, :Casesensitive = TRUE)
 
-		#< @FunctionCasesensitivityForm
+	  #--------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS BOUNDING OF A GIVEN STRING  #
+	#--------------------------------------------------------#
 
-		def IsBoundedByCS(pcSubstr1, pcSubstr2, pCaseSensitive)
-			if This.BeginsWithCS(pcSubstr1, pCaseSensitive) and
-			   This.EndsWithCS(pcSubStr2, pCaseSensitive)
-
-				return TRUE
-			else
-				return FALSE
-			ok
-
-	def IsBoundedSuccsessivelyBy(paPairsOfBounds)
-		/*
-		o1 = new stzString("|<- Scope of Life ->|")
-		? o1.IsBoundedSuccsessivelyBy([ ["|","|"], ["<",">"], ["-","-"] ])
-
-		--> TRUE
+	def IsBoundOfCS(pcSubStr, pcInStr, pCaseSensitive)
+		/* EXAMPLE
+		o1 = new stzString("_")
+		? o1.IsBoundOf("world", :In = "hello _world_ and <world>!")
+		#--> TRUE
 		*/
 
-		return This.IsBoundedSuccsessivelyByCS(paPairsOfBounds, :Casesensitive = TRUE)
+		pcStr = pcInStr[2]
+		acBounds = Q(pcStr).BoundsOfCS(pcSubStr, :UpToNChars = This.NumberOfChars(), pCaseSensitive )
+		#--> [ [ "_", "_" ], [ "<", ">" ] ]
 
-		#< @FunctionCasesensitiveForm
+		bResult = Q(acBounds).Contains( [ This.String(), This.String() ] )
+		return bResult
 
-		def IsBoundedSuccsessivelyByCS(paPairsOfBounds, pCaseSensitive)
+	#-- WITHOUT CASESNESITUVURT
 
-			bResult = TRUE
-	
-			oCopy = This.Copy()
-	
-			for aPair in paPairsOfBounds
-	
-				if NOT oCopy.IsBoundedByCS(aPair[1], aPair[2], pCaseSensitive)
-					bResult = FALSE
-					exit
-				else
-					oCopy.RemoveBoundsCS(aPair[1], aPair[2], pCaseSensitive)
-				ok
-			next
-	
-			return bResult
+	def IsBoundOf(pcSubStr, pcInStr)
+		bResult = This.IsBoundOfCS(pcSubStr, pcInStr, :CaseSensitive = TRUE)
+		return bResult
 
-		#>
+	def IsFirstBoundOfCS(pcOtherStr, pCaseSensitive)
+
+	def IsLastBoundOfCS(pcOtherStr, pCaseSensitive)
+
+	def IsLeftBoundOfCS(pcOtherStr, pCaseSensitive)
+
+	def IsRightBoundOfCS(pcOtherStr, pCaseSensitive)
 
 	  #------------------------------------#
 	 #     ADDING BOUNDS TO THE STRING    #
@@ -3098,7 +3097,7 @@ class stzString from stzObject
 		ok
 
 		bResult = FALSE
-#----------->
+
 		for acPair in pacBounds
 			anUpToNChars = [ Q(acPair[1]).NumberOfChars(),
 					 Q(acPair[2]).NumberOfChars() ]
@@ -3167,6 +3166,10 @@ class stzString from stzObject
 		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
 		#--> [ 3, 14 ]
 
+		panUpToNChars = StzListQ(panUpToNChars).
+				ExtendToXTQ( len(anPos), :With = Q(panUpToNChars).LastItem() ).
+				Content()
+
 		anLenBounds = []
 
 		if Q(panUpToNChars).IsPairOfNumbers()
@@ -3233,26 +3236,6 @@ class stzString from stzObject
 
 	def LastBoundsOfCS(pcStr, pCaseSensitive)
 		// TODO (future)
-
-	   #------------------------------------------------------#
-	  #  IDENTIFYING IF THE STRING IS BOUNDING A SUBSTRING  #
-	 #  INSIDE AN OTHER STRING # TODO (future)             #
-	#-----------------------------------------------------#
-
-	def IsBoundOfCS(pcSubStr, pcInString, pCaseSensitive)
-		/* EXAMPLE
-		o1 = new stzString("_")
-		? o1.IsBoundOf("RING", "I LOVE _RING_")
-		#--> TRUE
-		*/
-
-	def IsLeftBoundOfCS(pcSubStr, pcInString, pCaseSensitive)
-
-	def IsRightBoundOfCS(pcSubStr, pcInString, pCaseSensitive)
-
-	def IsFirstBoundOfCS(pcSubStr, pcInString, pCaseSensitive)
-
-	def IsLastBoundOfCS(pcSubStr, pcInString, pCaseSensitive)
 
 	  #--------------------------------------------#
 	 #     REMOVING BOTH BOUNDS FROM THE STRING   #

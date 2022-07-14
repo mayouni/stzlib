@@ -3571,30 +3571,6 @@ class stzList from stzObject
 
 		#>
 
-	def IsBoundedSuccsessivelyBy(paPairsOfBounds)
-		/*
-		o1 = new stzList([ "|", "<", "-", "Scope of Life", "-", ">", "|" ])
-		? o1.IsBoundedSuccsessivelyBy([ ["|","|"], ["<",">"], ["-","-"] ])
-
-		!--> TRUE
-		*/
-
-		bResult = TRUE
-	
-		oCopy = This.Copy()
-	
-		for aPair in paPairsOfBounds
-	
-			if NOT oCopy.IsBoundedBy(aPair[1], aPair[2])
-				bResult = FALSE
-				exit
-			else
-				oCopy.RemoveBounds(aPair[1], aPair[2])
-			ok
-		next
-	
-		return bResult
-
 	  #--------------------------#
 	 #     REMOVING BOUNDS      #
 	#-------------------------#
@@ -13734,11 +13710,11 @@ class stzList from stzObject
 	def BoundsOf(pItem, pnUpToNItems)
 		// TODO
 		
-	def AreBoundsOf(pItem, pIn, pnUpToNChars)
+	def AreBoundsOf(pItem, pIn)
 		/* EXAMPLE
 
 		o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
-		? o1.AreBoundsOf("word", :In = "<<word>> and __word__", :UpToNChars = 2)
+		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
 		#--> TRUE
 
 		*/
@@ -13747,10 +13723,30 @@ class stzList from stzObject
 			pIn = pIn[2]
 		ok
 
-		aBounds = Q(pIn).BoundsOf(pItem, pnUpToNChars)
-		nResult = This.ExistsIn(aBounds)
+		aThis = [] 
+
+		if This.IsPair()
+			aThis = [ This.Content() ]
+		else
+
+		ok
+
+		if NOT Q(aThis).IsListOfPairs()
+			StzRaise("Incorrect param type! pIn must be a list of pairs.")
+		ok
+
+		nUpToNChars = []
+
+		for aPair in aThis
+			nUpToNChars + [ len(aPair[1]), len(aPair[2]) ]
+		next
+
+		aBounds = Q(pIn).BoundsOf(pItem, nUpToNChars)
+		nResult = Q(aThis).ExistsIn(aBounds)
 
 		return nResult
+
+	def AreManyBoundsOf(pItem, pIn)
 
 	  #--------------------------------#
 	 #    USUED FOR NATURAL-CODING    #

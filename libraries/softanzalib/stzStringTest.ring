@@ -1479,12 +1479,6 @@ o1 = new stzString("{{{ Scope of Life }}}")
 
 /*--------------------
 
-o1 = new stzString("|<- Scope of Life ->|")
-? o1.IsBoundedSuccsessivelyBy([ ["|","|"], ["<",">"], ["-","-"] ]) # --> TRUE
-? o1.ManyBoundsRemoved([ ["|","|"], ["<",">"], ["-","-"] ]) # --> " Scope of Life "
-
-/*--------------------
-
 o1 = new stzString('"name"')
 ? o1.IsBoundedBy('"','"')	#--> TRUE
 
