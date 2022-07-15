@@ -10665,7 +10665,7 @@ class stzListOfStrings from stzList
 		cDynamicExpr = NULL
 
 		if bDynamic
-			cDynamicExpr = StzStringQ(pcNewSubStr).SimplifyQ().
+			cDynamicExpr = StzStringQ(pcNewSubStr).TrimQ().
 					RemoveBoundsQ("{","}").Content()
 		ok
 
@@ -10744,7 +10744,7 @@ class stzListOfStrings from stzList
 				@PreviousPosition = @Position--
 				@PreviousI = @PreviousPosition
 				
-				cDynamicExpr = StzStringQ(pcNewSubStr).SimplifyQ().RemoveBoundsQ("{","}").Content()
+				cDynamicExpr = StzStringQ(pcNewSubStr).TrimQ().RemoveBoundsQ("{","}").Content()
 				cCode = 'cNewStr = ( ' + cDynamicExpr + ' )'
 
 				try
@@ -17113,9 +17113,9 @@ class stzListOfStrings from stzList
 
 			but isString(pValue)
 
-				if StzStringQ(pValue).SimplifyQ().IsBoundedBy("{","}")
+				if StzStringQ(pValue).TrimQ().IsBoundedBy("{","}")
 
-					pcCondition = StzStringQ(pValue).SimplifyQ().BoundsRemoved("{","}")
+					pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved("{","}")
 					anResult = []
 	
 					@i = 0

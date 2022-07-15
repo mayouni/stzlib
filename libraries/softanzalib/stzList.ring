@@ -7993,9 +7993,9 @@ class stzList from stzObject
 				return Item(pValue)
 
 			but isString(pValue) and
-			    StzStringQ(pValue).SimplifyQ().IsBoundedBy("{","}")
+			    StzStringQ(pValue).TrimQ().IsBoundedBy("{","}")
 
-				pcCondition = StzStringQ(pValue).SimplifyQ().BoundsRemoved("{","}")
+				pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved("{","}")
 				anResult = []
 
 				@i = 0
@@ -13634,7 +13634,7 @@ class stzList from stzObject
 		ok
 
 
-		cCode = oCode.SimplifyQ().BoundsRemoved("{","}")
+		cCode = oCode.TrimQ().BoundsRemoved("{","}")
 		cCode = 'aResult + ( ' + cCode + ' )'
 
 		aResult = []

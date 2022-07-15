@@ -86,10 +86,18 @@ o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 ? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] ) #--> TRUE
 ? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE
 
-/*=================
+/*================= POSSIBLE SUBSTRINGS IN THE STRING
 
-o1 = Q("AB♥♥c♥♥_♥♥")
-? o1.SubStrings()
+o1 = Q("ABC")
+? @@( o1.SubStrings() )
+#--> [ "A", "B", "C", "AB", "ABC" ]
+
+/*----------------
+*/
+o1 = Q("AB♥♥c♥♥c♥♥")
+//? @@( o1.FindAll("♥♥") ) #--> [ 3, 6, 9 ]
+
+? @@( o1.FindSubStringW('{ @SubString = "♥♥    " }') ) #--> [ 7, 11 ]
 
 /*
 ? o1.FindW('{
@@ -98,8 +106,7 @@ o1 = Q("AB♥♥c♥♥_♥♥")
 
 }')
 /*
-? o1.FindAll("AA") #--> [ 7, 11 ]
-? o1.FindW(' @SubString = "AA" ') #--> [ 7, 11 ]
+
 
 /*----------------
 

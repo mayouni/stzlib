@@ -1262,8 +1262,36 @@ class stzString from stzObject
 
 		return acResult
 
-		def PossibleSubStrings()
-			return This.SubStrings()
+		def SubStringsQ()
+			return This.SubStringsQR(:stzList)
+
+		def SubStringsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SubStrings() )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SubStrings() )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+	def UniqueSubStrings()
+		acResult = This.SubStringsQ().DuplicatesRemoved()
+		return acResult
+
+		def UniqueSubStringsQ()
+			return new stzList( This.UniqueSubStrings() )
+
+		def UniqueSubStringsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.UniqeSubStrings() )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.UniqueSubStrings() )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
 
 	  #=================#
 	 #      LINES      #
@@ -8013,7 +8041,7 @@ class stzString from stzObject
 				pSubStr = pSubStr[2]
 
 			but pSubStr[1] = :With@
-				cCode = 'pSubStr = ' + StzStringQ(pSubStr[2]).SimplifyQ().RemoveBoundsQ("{","}").Content()
+				cCode = 'pSubStr = ' + StzStringQ(pSubStr[2]).TrimQ().RemoveBoundsQ("{","}").Content()
 				eval(cCode)
 			ok
 		ok
@@ -9814,6 +9842,24 @@ class stzString from stzObject
 	 #  FINDING ALL OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
 	#----------------------------------------------------------------------#
 
+	def FindSubStringW(pcCondition)
+		if isList(pcCondition) and Q(pccondition).IsWhereNamedParamList()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		cCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzString)
+		oCondition = Q(cCondition).TrimQ().RemoveBoundsQ("{","}")
+? oCondition.Content()
+		if NOT oCondition.ContainsCS("@SubString", :CS = FALSE)
+			StzRaise("Syntax error! pcCondition must contain keyword @SubString")
+		ok
+
+
+	
 	def FindAllW(pcCondition)
 		#< @MotherFunction = YES | @RingBased #>
 
@@ -21594,7 +21640,7 @@ return
 			@char = This[ nCurrentPosition ]
 			@i = nCurrentPosition
 
-			cCondition = StzStringQ(pcCondition[2]).SimplifyQ().RemoveBoundsQ("{","}").Content()
+			cCondition = StzStringQ(pcCondition[2]).TrimQ().RemoveBoundsQ("{","}").Content()
 
 			cCode = "if " + cCondition + NL +
 				TAB + "exit" + NL +
@@ -21629,7 +21675,7 @@ return
 			@char = This[ nCurrentPosition ]
 			@i = nCurrentPosition
 
-			cCondition = StzStringQ(pcCondition[2]).SimplifyQ().RemoveBoundsQ("{","}").Content()
+			cCondition = StzStringQ(pcCondition[2]).TrimQ().RemoveBoundsQ("{","}").Content()
 
 			cCode = "if " + cCondition + NL +
 				TAB + "exit" + NL +
@@ -21747,7 +21793,7 @@ return
 
 	def IsListInString()
 
-		This.SimplifyQ().RemoveBounds("{","}")
+		This.TrimQ().RemoveBounds("{","}")
 
 		# A list can not be written with less then 2 chars ('[]')
 
@@ -21871,7 +21917,7 @@ return
 			return FALSE
 		ok
 
-		if This.SimplifyQ().IsBoundedBy("[","]")
+		if This.TrimQ().IsBoundedBy("[","]")
 			return TRUE
 		else
 			return FALSE
@@ -21956,15 +22002,15 @@ return
 
 			if StzListQ(aTempList).IsContiguous()
 
-				This.SimplifyQ().RemoveBoundsQ("[","]")
+				This.TrimQ().RemoveBoundsQ("[","]")
 				acMembers = QStringObject().split(",", 0, 0)
 				acMembers = QStringListToList(acMembers)
 				acMembers = StzListQ(acMembers).FirstAndLastItems()
 
 				/*
-				TODO : replace wth this when Split() is finsiehd.
+				TODO : replace wth this when Split() is finished.
 
-				acMembers = This.SimplifyQ().
+				acMembers = This.TrimQ().
 						RemoveBoundsQ("[","]").
 						SplitQ(",").
 						FirstAndLastItems()
@@ -22117,7 +22163,7 @@ return
 		*/
 
 
-		This.SimplifyQ().RemoveBounds("{","}")
+		This.TrimQ().RemoveBounds("{","}")
 
 		# Case where we have a normal list syntax
 
@@ -23028,8 +23074,8 @@ return
 				return This.NthChar(pValue)
 							
 			but isString(pValue)
-				if StzStringQ(pValue).SimplifyQ().IsBoundedBy("{","}")
-					pcCondition = StzStringQ(pValue).SimplifyQ().BoundsRemoved("{","}")
+				if StzStringQ(pValue).TrimQ().IsBoundedBy("{","}")
+					pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved("{","}")
 					anResult = []
 
 					@char = ""
