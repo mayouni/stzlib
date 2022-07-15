@@ -3083,13 +3083,24 @@ class stzString from stzObject
 	
 	def SubStringIsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 		/* EXAMPLE
-		o1 = new stzString("aa♥♥aa bbb♥♥bbb")
-		? o1.SubStringIsBoundedBy("♥♥", ["aa", "aa"])	#--> TRUE
-		? o1.SubStringIsBoundedBy("♥♥", [ ["aa", "aa"], ["bb", "bb"] ] )
-		*/
 
+		o1 = new stzString("aa♥♥aaa bb♥♥bbb")
+		
+		? o1.SubStringIsBoundedBy("♥♥", "aa") #--> TRUE
+		? o1.SubStringIsBoundedBy("♥♥", "bb") #--> TRUE
+		
+		? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] ) #--> TRUE
+		? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE		*/
+		
 		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-			pacBounds = [ pacBounds ]
+
+			aTemp = []
+			aTemp + pacBounds
+			pacBounds = aTemp
+
+		but isString(pacBounds)
+			aTemp = [ [ pacBounds, pacBounds ] ]
+			pacBounds = aTemp
 		ok
 
 		if NOT ( isList(pacBounds) and Q(pacBounds).AllItemsArePairsOfStrings() )
@@ -9828,12 +9839,12 @@ class stzString from stzObject
 		if NOT Q(pcCondition).ContainsOneOfTheseCS([ "@SubString", "@NextSubString", "@PreviousSubString" ], :CS = FALSE)
 			stzRaise("Incorrect param type! pcCondition must be a string containing keword @SubString.")
 		ok
-? "--->"
+
 		cCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzString)
 
 		cCode = "bOk = ( " + cCondition + " )"
 		oCode = new stzString(cCode)
-? cCode
+
 		acSubStrings = This.SubStrings()
 		nLen = len(acSubStrings)
 		anResult = []
