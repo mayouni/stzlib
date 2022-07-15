@@ -59,7 +59,7 @@ func stzListError(pcError)
 
 	on :CanNotExtendTheList " because n < NumberOfItems()!"
 		cErrorMsg += "   What : Can't extend the list to the provided position!" + NL
-		cErrorMsg += "   Why  : The position you provide should be gretaer then the list number of items." + NL
+		cErrorMsg += "   Why  : The position you provide should be greater then the list number of items." + NL
 		cErrorMsg += "   Todo : Provide a position greater then the list number of items, and try again ;)"
 
 	on :CanNotAddWalkerAlreadyExistant
