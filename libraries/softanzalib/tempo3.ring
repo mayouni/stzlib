@@ -32,8 +32,8 @@ o1 = new stzString("ABCDE")
 ? @@( o1.SubStrings() )
 #--> [ "A", "B", "C", "D", "E", "AB", "CD", "ABC", "ABCD", "ABCDE" ]
 
-/*================
-*/
+/*================ WORKING WITH BOUNDS
+
 o1 = new stzString("<<word>> and {{word}}")
 ? o1.BoundsOf( "word", :UpToNChars = 2 )
 #--> [ [ "<<", ">>" ], [ "{{", "}}" ] ]
@@ -50,8 +50,8 @@ o1 = new stzString("<<word>>> and  {word}}")
 ? o1.BoundsOf( "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ] )
 #--> [ [ "<<", ">>>" ], [ "{", "}}" ] ]
 
-/*================
-*/
+/*----------------
+
 o1 = new stzList([ "<<", ">>" ])
 ? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
 #--> TRUE
@@ -76,13 +76,17 @@ o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ], [ "@", "@" ] ])
 ? Q([ ["<",">"], ["_","_"] ]).AreBoundsOf( "world", :In = "hello _world_ and <world>" ) #--> TRUE
 
 
-/*----------------||||||||||||
-
-o1 = new stzString("aa♥♥aa bb♥♥bb")
-? o1.SubStringIsBoundedBy("♥♥", [ [ "aa", "aa" ] ])
-//o1.SubString("♥♥", :IsBoundedBy = "aa")
-
 /*----------------
+
+o1 = new stzString("aa♥♥aaa bb♥♥bbb")
+
+? o1.SubStringIsBoundedBy("♥♥", "aa") #--> TRUE
+? o1.SubStringIsBoundedBy("♥♥", "bb") #--> TRUE
+
+? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] ) #--> TRUE
+? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE
+
+/*=================
 
 o1 = Q("AB♥♥c♥♥_♥♥")
 ? o1.SubStrings()
