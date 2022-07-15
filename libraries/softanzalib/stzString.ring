@@ -3139,19 +3139,47 @@ class stzString from stzObject
 
 		*/
 
+		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
+		#--> [ 3, 14 ]
+
+		if isList(panUpToNChars) and
+		   len(panUpToNChars) = 1 and
+		   Q(panUpToNChars[1]).IsPairOfNumbers()
+
+			panUpToNChars = panUpToNChars[1]
+		ok
+
 		if islist(panUpToNChars) and Q(panUpToNChars).IsUpToNCharsNamedParamList()
 			value = panUpToNChars[2]
 			if isNumber(value)
+				if value <= 0
+					StzRaise("Incorrect param value! panUpToNChars must not be negative or zero.")
+				ok
 				
 				panUpToNChars = [ value, value ]
 
 			but isList(value) 
+				if len(value) = 0
+					StzRaise("Incorrect param! panUpToNChars list must not be empty.")
+				ok
+
 				if Q(value).IsPairOfNumbers()
 
 					panUpToNChars = value
 
 				but Q(value).IsListOfPairsOfNumbers()
+
 					panUpToNChars = panUpToNChars[2]
+
+					# Avoinding case like [ [ 2, 3 ] ]
+					if len(value) = 1
+						panUpToNChars = panUpToNChars[1]
+					else
+					# Avoiding case not same number of bounds and occurrences
+						if len(value) > len(anPos)
+							panUpToNChars = Q(panUpToNChars).RangeQ(1, len(anPos) ).Content()
+						ok
+					ok
 				ok
 
 			ok	
@@ -3163,13 +3191,14 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! panUpToNChars must be a pair of numbers.")
 		ok
 
-		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
-		#--> [ 3, 14 ]
 
-		panUpToNChars = StzListQ(panUpToNChars).
-				ExtendToXTQ( len(anPos), :With = Q(panUpToNChars).LastItem() ).
-				Content()
+		if len(anPos) > len(panUpToNChars)
+			panUpToNChars = StzListQ(panUpToNChars).
+					ExtendToXTQ( len(anPos), :With = Q(panUpToNChars).LastItem() ).
+					Content()
 
+		ok
+	
 		anLenBounds = []
 
 		if Q(panUpToNChars).IsPairOfNumbers()

@@ -8689,26 +8689,24 @@ class stzList from stzObject
 	#--
 
 	def IsContainedIn(p)
+
+		bResult = FALSE
+
 		switch type(p)
-		
-		on "LIST"
-			bResult = TRUE
-			for item in This.List()
-				if NOT StzListQ(p).Contains(item)
-					bResult = FALSE
-					exit
-				ok
-			next
-			return bResult
+		on "LIST"	
+			bResult = Q(p).Contains( This.List() )
 
 		on "STRING"
 			cListStringified = This.ToCode()
 			bResult = StzStringQ(p).Contains(cListStringified)
-			return bResult
+
 		other
 			# For now, number and object type are not concerned
 			stzRaise("Unsupported type!")
 		off
+
+		return bResult
+
 
 		#< @FunctionAlternativeForm
 
@@ -13711,7 +13709,14 @@ class stzList from stzObject
 		// TODO
 		
 	def AreBoundsOf(pItem, pIn)
-		/* EXAMPLE
+
+		/* EXAMPLE 1
+
+		o1 = new stzList([ "<<", ">>" ])
+		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
+		#--> TRUE
+
+		EXAMPLE 2
 
 		o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
 		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
@@ -13719,34 +13724,30 @@ class stzList from stzObject
 
 		*/
 
+		if NOT ( This.IsPair() or This.IsListOfPairs() )
+			StzRaise("Can't check bounds! List must be a pair or a list of pairs.")
+		ok
+
 		if isList(pIn) and Q(pIn).IsInNamedParamList()
 			pIn = pIn[2]
 		ok
 
-		aThis = [] 
-
-		if This.IsPair()
+		anUpToNChars = []
+		if This.IsPair() and NOT This.IsListOfPairs()
+			anUpToNChars = [ len(This[1]), len(This[2]) ]
 			aThis = [ This.Content() ]
+
 		else
-
+			for aPair in This.Content()
+				anUpToNChars + [ len(aPair[1]), len(aPair[2]) ]
+			next
+			aThis = This.Content()
 		ok
 
-		if NOT Q(aThis).IsListOfPairs()
-			StzRaise("Incorrect param type! pIn must be a list of pairs.")
-		ok
-
-		nUpToNChars = []
-
-		for aPair in aThis
-			nUpToNChars + [ len(aPair[1]), len(aPair[2]) ]
-		next
-
-		aBounds = Q(pIn).BoundsOf(pItem, nUpToNChars)
-		nResult = Q(aThis).ExistsIn(aBounds)
-
-		return nResult
-
-	def AreManyBoundsOf(pItem, pIn)
+		aBounds = Q(pIn).BoundsOf(pItem, anUpToNChars)
+	
+		bResult = Q(aThis).AllItemsExistIn(aBounds)
+		return bResult
 
 	  #--------------------------------#
 	 #    USUED FOR NATURAL-CODING    #
@@ -13775,7 +13776,8 @@ class stzList from stzObject
 		def IsAnItemIn(paList)
 			return This.IsItemOf(paList)
 
-	# 
+	#--
+
 	def IsMember()
 		return TRUE
 
