@@ -8413,7 +8413,7 @@ class stzList from stzObject
 	
 		def ToHashListQ()
 			return This.ToStzHashList()
-	
+		
 	def ToCode()
 		/*
 		This function relies on Ring native list2code() function that
@@ -8435,21 +8435,6 @@ class stzList from stzObject
 
 			def ToListInStringQ()
 				return new stzString(This.ToListInString())
-
-		def ToString()
-			return This.ToCode()
-
-			def ToStringQ()
-				return new stzString( This.ToString() )
-
-			def ToStzString()
-				return This.ToStringQ()
-
-		def Stringify()
-			return This.ToCode()
-
-			def StringifyQ()
-				return new stzString( This.Stringify() )
 
 	def Codified()
 		return This.ToCode()
@@ -13682,6 +13667,32 @@ class stzList from stzObject
 	  #-----------#
 	 #   MISC.   #
 	#-----------#
+
+	def ToString()
+		acStrings = []
+		for item in This.List()
+			cItem = ""
+			if isString(item)
+				cItem = item
+			but isNumber(item)
+				cItem = ""+ item
+			but isList(item)
+				cItem = StzStringQ(item).ToCode()
+			but isObject(item)
+				StzRaise("Can't transforme an object to string!")
+			ok
+
+			acStrings + cItem
+		next
+
+		cResult = StzListOfStringsQ(acStrings).ConcatenatedUsing(NL)
+		return cResult
+
+		def ToStringQ()
+			return new stzString(This.ToString())
+
+		def ToStzString()
+			return This.ToString()
 
 	def ToStzListOfChars()
 		if NOT This.IsListOfChars()

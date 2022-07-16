@@ -88,16 +88,62 @@ o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 
 /*================= POSSIBLE SUBSTRINGS IN THE STRING
 
-o1 = Q("ABC")
+o1 = Q("ABAAC")
 ? @@( o1.SubStrings() )
-#--> [ "A", "B", "C", "AB", "ABC" ]
+#--> [
+# 	"A", "B", "C", "B", "B", "D", "A",
+# 	"AB", "CB", "BD", "ABC", "BBD",
+# 	"ABCB", "ABCBB", "ABCBBD", "ABCBBDA"
+# ]
+
+? @@( o1.SubStringsAndTheirPositions() ) # TODO: Optimise performance!
+#--> [
+# 	[ "A", [ 1, 3, 4 ] ], [ "B", [ 2 ] ], [ "C", [ 5 ] ],
+# 	[ "AB", [ 1 ] ], [ "AA", [ 3 ] ], [ "ABA", [ 1 ] ],
+# 	[ "ABAA", [ 1 ] ], [ "ABAAC", [ 1 ] ] ]
+
+/*----------------
+
+str =
+"one
+two
+three"
+
+? @@(str)
+/*-->
+"one
+two
+three"
+*/
+
+/*----------------
+
+? @@( Q([ "abc", 120, "cdef", 14, "opjn", 988 ]).ToString() )
+/*-->
+abc
+120
+cdef
+14
+opjn
+988
+*/
+
+/*----------------
+
+? QQ(["abc","cdef","opjn"]).ToString() // QQ() generates a stzListOfStrings object
+/*-->
+abc
+cdef
+opjn
+*/
 
 /*----------------
 */
-o1 = Q("AB♥♥c♥♥c♥♥")
+o1 = new stzString("Av♥♥c♥♥")
 //? @@( o1.FindAll("♥♥") ) #--> [ 3, 6, 9 ]
+//? @@( o1.FindSubStringW('{ @SubString = "♥♥" }') ) #--> [ 3, 6, 9 ]
 
-? @@( o1.FindSubStringW('{ @SubString = "♥♥    " }') ) #--> [ 7, 11 ]
+? @@( o1.FindSubStringW('{ len(@SubString) = 2 }') )
 
 /*
 ? o1.FindW('{

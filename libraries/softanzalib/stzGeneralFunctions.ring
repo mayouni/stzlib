@@ -510,7 +510,7 @@ func ComputableFormSP(pValue) # TODO: case of object --> return its name
 	#>
 
 func ComputableForm(pValue)
-	return ComputableFormSPQ(pValue).Simplified()
+	return ComputableFormSPQ(pValue).Trimmed()
 
 	func ComputableFormsQ(pValue)
 		return new stzString( ComputableForm(pValue) )
