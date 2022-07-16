@@ -1275,23 +1275,53 @@ class stzString from stzObject
 				StzRaise("Unsupported return type!")
 			off
 
-	def UniqueSubStrings()
-		acResult = This.SubStringsQ().DuplicatesRemoved()
+	  #-----------------------------------------#
+	 #  GETTING THE LIST OF UNIQUE SUBSTRINGS  #
+	#-----------------------------------------#
+
+	def UniqueSubStringsCS(pCaseSensitive)
+		acResult = This.SubStringsQR(:stzListOfStrings).DuplicatesRemovedCS(pCaseSensitive)
 		return acResult
+
+		def UniqueSubStringsCSQ(pCaseSensitive)
+			return new stzList( This.UniqueSubStringsCS(pCaseSensitive) )
+
+		def UniqueSubStringsCSQR(pcReturnType, pCaseSensitive)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.UniqeSubStringsCS(pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.UniqueSubStringsCS(pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def UniqueSubStrings()
+		return This.UniqueSubStringsCS(:CaseSensitive = TRUE)
 
 		def UniqueSubStringsQ()
 			return new stzList( This.UniqueSubStrings() )
 
 		def UniqueSubStringsQR(pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.UniqeSubStrings() )
-			on :stzListOfStrings
-				return new stzListOfStrings( This.UniqueSubStrings() )
-			other
-				StzRaise("Unsupported return type!")
-			off
+			return This.UniqueSubStringsCSQR(pcReturnType, pCaseSensitive)
 
+	  #-----------------------------------------------------#
+	 #  GETTING THE LIST OF UNIQUE SUBSTRINGS -- EXTENDED  #
+	#-----------------------------------------------------#
+
+	def SubStringsAndTheirPositions()
+		aResult = []
+
+		for cSubStr in This.UniqueSubStrings()
+			aResult + [ cSubStr, This.FindAll(cSubStr) ]
+		next
+
+		return aResult
+
+		def SubStringsXT()
+			return This.SubStringsAndTheirPositions()
 
 	  #=================#
 	 #      LINES      #
@@ -9853,10 +9883,41 @@ class stzString from stzObject
 
 		cCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzString)
 		oCondition = Q(cCondition).TrimQ().RemoveBoundsQ("{","}")
-? oCondition.Content()
+
 		if NOT oCondition.ContainsCS("@SubString", :CS = FALSE)
 			StzRaise("Syntax error! pcCondition must contain keyword @SubString")
 		ok
+
+		oCopy = oCondition
+		oCopy.RemoveAllSpacesQ()
+
+		aResult = []
+
+		if oCopy.StartsWithCS('@SubString="', :CS = FALSE) and
+		   oCopy.EndsWith('"')
+
+			n1 = oCondition.FirstOccurrence('"') + 1
+			n2 = oCondition.NumberOfChars()-1
+			cSubStr = oCondition.Section( n1,  n2)
+
+			aResult = This.FindAll(cSubStr)
+
+		else
+
+			acSubStrings = This.UniqueSubStrings()
+? acSubStrings
+			for @SubString in acSubStrings
+				cCode = 'bOk = (' + oCondition.Content() + ')'
+? cCode
+				eval(cCode)
+? bOk
+				if bOk
+					aResult + [ @SubString, This.FindAll(@SubString) ]
+				ok
+			next
+		ok
+
+		return aResult
 
 
 	
@@ -17963,6 +18024,13 @@ return
 		def RemoveSpacesQ()
 			This.RemoveSpaces()
 			return This
+
+		def RemoveAllSpaces()
+			This.RemoveSpaces()
+
+			def RemoveAllspacesQ()
+				This.RemoveSpaces()
+				return This
 
 	def SpacesRemoved()
 		cResult = This.Copy().RemoveSpacesQ().Content()

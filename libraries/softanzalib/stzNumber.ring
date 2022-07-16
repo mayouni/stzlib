@@ -1260,6 +1260,9 @@ class stzNumber from stzObject
 	def Stringify()
 		return This.Content()
 
+		def ToString()
+			return This.Content()
+
 		def Stringified()
 			return This.Stringify()
 	

@@ -365,6 +365,16 @@ class stzListOfStrings from stzList
 	 #    CONVERTING THE LIST OF STRINGS TO...   #
 	#-------------------------------------------#
 
+	def ToString()
+		cResult = This.ConcatenatedUsing(NL)
+		return cResult
+
+		def ToStringQ()
+			return new stzString( This.ToString() )
+
+		def ToStzString()
+			return This.ToStringQ()
+
 	def ToListOfStzStrings()
 		aResult = []
 		for str in This.ListOfStrings()
