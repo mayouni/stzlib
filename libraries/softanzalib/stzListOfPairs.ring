@@ -78,6 +78,14 @@ class stzListOfPairs from stzList
 	def Copy()
 		return new stzListOfPairs( This.Content() )
 
+	def UpdateWith(paListOfPairs)
+		if isList(paListOfPairs) and Q(paListOfPairs).IsListOfPairs()
+			@aContent = paListOfPairs
+
+		else
+			StzRaise("Can't update the list pairs! The value you provided is not a list of pairs.")
+		ok
+
 	def ToStzList()
 		return new stzList( This.Pair() )
 
@@ -99,26 +107,198 @@ class stzListOfPairs from stzList
 		next
 		return bResult
 
+	  #----------------------------#
+	 #  FIRST ITEMS OF EACH PAIR  #
+	#----------------------------#
+
+	def FirstItems()
+
+		aResult = []
+
+		for aPair in This.ListOfPairs()
+			aResult + aPair[1]
+		next
+
+		return aResult
+
+		def FirstItemsOfEachPair()
+			return This.FirstItems()
+
+		def FirstItemsInEachPair()
+			return This.FirstItems()
+
+	  #-----------------------------#
+	 #  SECOND ITEMS OF EACH PAIR  #
+	#-----------------------------#
+
+	def SecondItems()
+
+		aResult = []
+
+		for aPair in This.ListOfPairs()
+			aResult + aPair[2]
+		next
+
+		return aResult
+
+		def SecondItemsOfEachPair()
+			return This.SecondItems()
+
+		def SecondItemsInEachPair()
+			return This.SecondItems()
+
+	  #---------------------------------------------#
+	 #  CHECKING IF THE LIST OF PAIRS IS SORTABLE  #
+	#---------------------------------------------#
+
 	def IsSortable()
 		/*
-		TODO
+		To be sortable, the pairs must not contains same items.
 		*/
 
-	def SortInAscending()
+		aAllItems = ListsMerge( This.Content() )
 
-		/* TODO */
+		if Q(aAllItems).IsSet()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	  #------------------------------#
+	 #  SORTING PAIRS IN ASCENDING  #
+	#------------------------------#
+
+	def SortInAscending()
+		/*
+		o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+		o1.SortInAscending()
+		? o1.Content()
+		#--> [ [1,3], [4, 7], [8, 9] ]
+
+		*/
+
+		if NOT This.IsSortable()
+			StzRaise("Can't sort the list of pairs! Because pairs are not made of distinct items.")
+		ok
+
+		aResult = []
+
+		# Sort each pair in ascending
+		#--> [ [4, 7], [1, 3], [8, 9] ]		: Note that [3,1] became [1, 3]
+
+		for aPair in This.ListOfPairs()
+			aPair = Q(aPair).SortedInAscending()
+		next
+
+		# Take the list of the first items of each pair
+		#--> [ 4, 1, 8 ]
+
+		aFirstItems = This.FirstItems()
+
+		# Sort it in ascending
+		#--> [ 1, 4, 8 ]
+
+		aFirstItemsSorted = Q(aFirstItems).SortedInAscending()
+
+		# Rearrange the pairs accrodingly
+		#--> [ [1, 3], [4, 7], [8, 9] ]
+
+		for n in aFirstItemsSorted
+			i = find(aFirstItems, n)
+			aResult + This[i]
+		next
+
+		# Update the list of pairs
+		This.UpdateWith(aResult)
 
 		def SortInAscendingQ()
 			This.SortInAscending()
 			return This
 
-	def SortInDescending()
+	def SortedInAscending()
+		oCopy = This.Copy()
+		oCopy.SortInAscending()
+		aResult = oCopy.Content()
 
-		/* TODO */
+		return aResult
+
+	def IsSortedInAscending()
+		aSorted = This.SortedInAscending()
+		cSorted = StzListQ(aSorted).ToCode()
+		
+		bResult = This.ToStzList().ToCodeQ().IsEqualTo(cSorted)
+
+		return bResult
+
+	  #-------------------------------#
+	 #  SORTING PAIRS IN DESCENDING  #
+	#-------------------------------#
+
+	def SortInDescending()
+		/*
+		o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+		o1.SortInDescending()
+		? o1.Content()
+		#--> [ [8, 9], [4, 7], [1,3] ]
+
+		*/
+
+		if NOT This.IsSortable()
+			StzRaise("Can't sort the list of pairs! Because pairs are not made of distinct items.")
+		ok
+
+		aResult = []
+
+		# Sort each pair in descending
+		#--> [ [7, 4], [3, 1], [9, 8] ]
+
+		for aPair in This.ListOfPairs()
+			aPair = Q(aPair).SortedInDescending()
+		next
+
+		# Take the list of the first items of each pair
+		#--> [ 7, 3, 9 ]
+
+		aFirstItems = This.FirstItems()
+
+		# Sort it in descending
+		#--> [ 9, 7, 3 ]
+
+		aFirstItemsSorted = Q(aFirstItems).SortedInDescending()
+
+		# Rearrange the pairs accrodingly
+		#--> [  [9, 8], [7, 4], [3, 1] ]
+
+		for n in aFirstItemsSorted
+			i = find(aFirstItems, n)
+			aResult + This[i]
+		next
+
+		# Update the list of pairs
+		This.UpdateWith(aResult)
 
 		def SortInDescendingQ()
 			This.SortInDescending()
 			return This
+
+	def SortedInDescending()
+		oCopy = This.Copy()
+		oCopy.SortInDescending()
+		aResult = oCopy.Content()
+
+		return aResult
+
+	def IsSortedInDescending()
+		aSorted = This.SortedInDescending()
+		cSorted = StzListQ(aSorted).ToCode()
+		
+		bResult = This.ToStzList().ToCodeQ().IsEqualTo(cSorted)
+
+		return bResult
+
+	  #------------------------------------------------------------------#
+	 #  RETRUNING AN EXPANDED LIST OF NUMBERS OUT OF THE LIST OF PAIRS  #
+	#------------------------------------------------------------------#
 
 	def ExpandedIfPairsOfNumbers()
 		aResult = []

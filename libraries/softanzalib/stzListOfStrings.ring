@@ -256,7 +256,6 @@ class stzListOfStrings from stzList
 					stzRaise("Unsupported return type!")
 				off
 					
-
 	def StringsW(pcCondition)
 		return This.YieldW('@string', pcCondition)
 
@@ -278,6 +277,35 @@ class stzListOfStrings from stzList
 
 			on :stzListOfStrings
 				return new stzListOfStrings( This.StringsW(pcCondition) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+	def UniqueStringsW(pcCondition)
+		acResult = This.YieldWQR('@string', pcCondition, :stzListOfStrings).
+				DuplicatesRemoved()
+
+		return acResult
+
+		def UniqueStringsWQ(pcCondition)
+			return UniqueStringsWQR(pcCondition, :stzList)
+
+		def UniqueStringsWQR(pcCondition, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamType()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.UniqueStringsW(pcCondition) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.UniqueStringsW(pcCondition) )
 
 			other
 				stzRaise("Unsupported return type!")

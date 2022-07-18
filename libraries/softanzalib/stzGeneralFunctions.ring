@@ -467,8 +467,8 @@ func Unicode(p)
 func Scripts(paListStr)
 	return StzListOfStringsQ(paListStr).Scripts()
 
-// Computable form, spacified (equivalent of ring listtocode() function)
-func ComputableFormSP(pValue) # TODO: case of object --> return its name
+// Computable form, (equivalent of ring listtocode() function)
+func ComputableForm(pValue) # TODO: case of object --> return its name
 
 	if isNumber(pValue)
 		return ""+ pValue
@@ -482,38 +482,12 @@ func ComputableFormSP(pValue) # TODO: case of object --> return its name
 
 	#< @FunctionFluentForm
 
-	func ComputableFormSPQ(pValue)
-		return new stzString( ComputableFormSP(pValue) )
+	func ComputableFormQ(pValue)
+		return new stzString( ComputableForm(pValue) )
 
 	#>
 
 	#< @FunctionAlternativeForms
-
-	func @@S(pValue)
-		return ComputableFormSP(pValue)
-
-		func @@SQ(pValue)
-			return new stzString( @@(pValue) )
-
-	func C@S(pValue)
-		return ComputableFormSP(pValue)
-
-		func C@SQ(pValue)
-			return new stzString( C@S(pValue) )
-
-	func CFS(pValue)
-		return ComputableFormSP(pValue)
-
-		func CFSQ(pValue)
-			return new stzString( CFS(pValue) )
-
-	#>
-
-func ComputableForm(pValue)
-	return ComputableFormSPQ(pValue).Trimmed()
-
-	func ComputableFormsQ(pValue)
-		return new stzString( ComputableForm(pValue) )
 
 	func @@(pValue)
 		return ComputableForm(pValue)
@@ -521,17 +495,39 @@ func ComputableForm(pValue)
 		func @@Q(pValue)
 			return new stzString( @@(pValue) )
 
-	func C@(pValue)
-		return ComputableForm(pValue)
-
-		func C@Q(pValue)
-			return new stzString( C@(pValue) )
-
 	func CF(pValue)
 		return ComputableForm(pValue)
 
 		func CFQ(pValue)
 			return new stzString( CF(pValue) )
+
+	#>
+
+func ComputableFormSimplified(pValue)
+	cResult = ComputableForm(pValue)
+
+	return cResult
+
+	func ComputableFormSimplifiedQ(pValue)
+		return new stzString( ComputableFormSimplified(pValue) )
+
+	func @@SF(pValue)
+		return ComputableFormSimplified(pValue)
+
+		func @@SFQ(pValue)
+			return new stzString( @@(pValue) )
+
+	func @@S(pValue)
+		return ComputableFormSimplified(pValue)
+
+		func @@SQ(pValue)
+			return new stzString( @@(pValue) )
+
+	func CFS(pValue)
+		return ComputableFormSimplified(pValue)
+
+		func CFSQ(pValue)
+			return new stzString( CFS(pValue) )
 
 func YaAllah()
 	return "يَا أَلله"

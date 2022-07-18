@@ -2,6 +2,56 @@ load "stzlib.ring"
 
 /*----------------
 
+o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+? o1.FirstItems()	#--? [ 4, 3, 8 ]
+? o1.SecondItems()	#--> [ 7, 1, 9 ]
+
+/*----------------
+
+o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+o1.SortInAscending()
+? o1.Content()
+#--> [ [1,3], [4, 7], [8, 9] ]
+
+/*----------------
+
+o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+o1.SortInDescending()
+? o1.Content()
+#--> [ [9,8], [7,4], [3,1] ]
+
+/*----------------
+*
+o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+? o1.IsSortedInAscending() #--> FALSE
+
+o1 = new stzListOfPairs([ [1,3], [4, 7], [8, 9] ])
+? o1.IsSortedInAscending() #--> TRUE
+
+/*----------------
+*/
+o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+? o1.IsSortedInDescending() #--> FALSE
+
+o1 = new stzListOfPairs([ [9,8], [7,4], [3,1] ])
+? o1.IsSortedInDescending() #--> TRUE
+
+/*----------------
+
+o1 = new stzList(1:10)
+//? o1.Sections([ [3,5], [7,8] ])		#--> [ [3, 4, 5], [7, 8] ]
+? o1.AntiSections([ [3,5], [1,2], [7,8] ])	#--> [ [1, 2], [6], [9, 10] ]
+
+/*
+o1 = new stzString("1234567890")
+? o1.Sections([ [3,5], [7,8] ])
+? o1.AntiSections([ [3,5], [7,8] ])	# o1.SectionsOtherThan([3,5], [7,8] ])
+
+
+
+
+/*----------------
+
 o1 = new stzList([ [ "ONE", "TWO" ], [ "THREE", "FOUR" ], [ "FIVE", "SIX" ] ])
 ? o1.IsListOfLists()		#--> TRUE
 ? o1.IsListOfPairs()		#--> TRUE
@@ -138,12 +188,99 @@ opjn
 */
 
 /*----------------
-*/
-o1 = new stzString("Av♥♥c♥♥")
-//? @@( o1.FindAll("♥♥") ) #--> [ 3, 6, 9 ]
-//? @@( o1.FindSubStringW('{ @SubString = "♥♥" }') ) #--> [ 3, 6, 9 ]
 
-? @@( o1.FindSubStringW('{ len(@SubString) = 2 }') )
+o1 = new stzListOfStrings(["A", "AA", "B", "BB", "C", "CC", "CC" ])
+? o1.StringsW('len(@string) = 2') 	#--> [ "AA", "BB", "CC", "CC" ])
+? o1.UniqueStringsW('len(@string) = 2')	#--> [ "AA", "BB", "CC" ]
+
+/*----------------
+
+o1 = new stzListOfStrings([
+	"A", "v", "♥", "c",
+	"Av", "♥♥", "c♥", "Av♥",
+	"♥c♥",
+	"Av♥♥", "Av♥♥c",
+	"Av♥♥c♥",
+	"Av♥♥c♥♥"
+])
+
+? o1.StringsW(' Q(@String).NumberOfChars() = 2 ')
+#--> [ "Av", "♥♥", "c♥" ]
+
+? o1.StringsW(' Q(@String).BeginsWith("A") and Q(@String).NumberOfChars() > 4 ')
+#--> [ "Av♥♥c", "Av♥♥c♥", "Av♥♥c♥♥" ]
+
+/*----------------
+
+o1 = new stzString("Av♥♥c♥♥")
+? o1.FindAll("♥♥") #--> [ 3, 6 ]
+? o1.FindSubStringW('{ @SubString = "♥♥" }') #--> [ 3, 6 ]
+
+/*----------------
+
+o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
+? o1.SubstringsBetween("<<", ">>")
+#--> [ "word1", "word2" ]
+
+o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
+? o1.SubstringsBetween('"', '"')
+#--> [ "    value ", " 12   " ]
+
+/*----------------
+
+o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
+//? o1.SubStringsBetweenXT('"','"')
+#--> [ [ "    value ", 15 ], [ " 12   ", 41 ] ]
+
+? @@( o1.FindSubStringsBetweenXT('"','"') )
+#--> [ 15, [ "    value " ], [ 41, " 12   " ] ]
+
+/*----------------
+
+o1 = new stzString("blabla bla <<word>> bla bla <<word>>")
+? o1.FindSectionsBetween("word", "<<", ">>")
+#--> [ [14, 17], [31, 34] ]
+
+/*----------------
+
+o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
+? o1.FindAnyBetween("<<", ">>")
+#--> [ 14, 32 ]
+
+o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
+? o1.FindAnySectionsBetween("<<", ">>")
+#--> [ [14, 18], [32, 36] ]
+
+/*----------------
+
+o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
+? o1.FindAnySectionsBetweenXT("<<", ">>")
+#--> [ [ "word1", [14, 18] ], [ "word2", [32, 36] ] ]
+*/
+o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
+? o1.FindAnySectionsBetween('"', '"')
+
+	
+/*----------------
+
+o1 = new stzString(' var   txt  = "    nice    "   ')
+? o1.FindAnySectionsBetween('"', '"')
+#--> [16, 27]
+
+o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
+? o1.FindAnySectionsBetween('"', '"')
+#--> [ [16, 25], [42, 47] ]
+
+/*----------------
+
+? ComputableFormSimplified('len    var1 = "    value "  and var2 =  " 12   " ')
+
+//aList = Q('len    var1 = "    value "  and var2 =  " 12   " ').SubStringsBetween('"','"')
+
+/*----------------
+
+o1 = new stzString("Av♥♥c♥♥")
+? @@S( o1.FindSubStringW('{ Q(@SubString).NumberOfChars() = 2 }') )
 
 /*
 ? o1.FindW('{
@@ -152,7 +289,6 @@ o1 = new stzString("Av♥♥c♥♥")
 
 }')
 /*
-
 
 /*----------------
 

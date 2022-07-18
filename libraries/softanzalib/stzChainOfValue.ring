@@ -314,7 +314,7 @@ class stzChainOfValue from stzObject
 		return This
 
 	def DoThis(pcCode)
-		@cCode = StzStringQ(pcCode).RemoveBoundsQ("{","}").Simplified()
+		@cCode = StzStringQ(pcCode).TrimQ().BoundsRemoved("{","}")
 
 		@bCodeHasBeenCalled = TRUE
 		@cCodeCaller = :Dothis
