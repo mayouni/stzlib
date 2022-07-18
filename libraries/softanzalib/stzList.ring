@@ -3435,7 +3435,6 @@ class stzList from stzObject
 
 		# Doing the job (Qt-side)
 
-
 		This.RemoveRange( n1, n2 - n1 + 1 )
 
 		#< @FunctionFluentForm
@@ -3470,13 +3469,18 @@ class stzList from stzObject
 
 		This.RemoveItemsAtPositions(anPositions)
 
-		def RemoveManySectionsQ(paRanges)
-			This.RemoveManySections(paRanges)
+		def RemoveManySectionsQ(paSections)
+			This.RemoveManySections(paSections)
 			return This
 
-	def ManySectionsRemoved(paRanges)
-		aResult = This.Copy().RemoveManySectionsQ(paRanges).Content()
+		def RemoveSections(paSections)
+			This.RemoveManySections(paSections)
+
+	def ManySectionsRemoved(paSections)
+		aResult = This.Copy().RemoveManySectionsQ(paSections).Content()
 		return aResult
+
+		def SectionsRemoved(paSections)
 
 	  #--------------------------------------#
 	 #   REMOVING ALL STRINGS IN THE LIST   #
@@ -12300,6 +12304,21 @@ class stzList from stzObject
 		def SectionsCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SectionsXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
+	  #----------------------------------------------------------#
+	 #   GETIING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS   #
+	#----------------------------------------------------------#
+
+	def AntiSections(paSections)
+		if isList(paSections) and Q(paSections).IsOfNamedParamList()
+			paSections = paSections[2]
+		ok
+
+		if NOT Q(paSections).IsListOfPairsOfNumbers()
+			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+		ok
+
+		aSorted = StzListOfPairsQ(paSections).SortedInAscending()
+? aSorted
 	  #-----------------------------------#
 	 #    GETTING A RANGE OF THE LIST    #
 	#-----------------------------------#

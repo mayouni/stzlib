@@ -1305,7 +1305,7 @@ class stzString from stzObject
 			return new stzList( This.UniqueSubStrings() )
 
 		def UniqueSubStringsQR(pcReturnType)
-			return This.UniqueSubStringsCSQR(pcReturnType, pCaseSensitive)
+			return This.UniqueSubStringsCSQR(pcReturnType, :CaseSensitive = TRUE)
 
 	  #-----------------------------------------------------#
 	 #  GETTING THE LIST OF UNIQUE SUBSTRINGS -- EXTENDED  #
@@ -9904,16 +9904,15 @@ class stzString from stzObject
 
 		else
 
-			acSubStrings = This.UniqueSubStrings()
-? acSubStrings
-			for @SubString in acSubStrings
-				cCode = 'bOk = (' + oCondition.Content() + ')'
-? cCode
-				eval(cCode)
-? bOk
-				if bOk
-					aResult + [ @SubString, This.FindAll(@SubString) ]
-				ok
+			cCondition = oCondition.
+					ReplaceCSQ("@SubString", :With = "@String", :CS = TRUE).
+					Content()
+
+			acSubStrings = This.UniqueSubStringsQR(:stzListOfStrings).
+					StringsWQ(cCondition).Content()
+
+			for cSubStr in acSubStrings
+				aResult + [ cSubStr, This.FindAll(cSubStr) ]
 			next
 		ok
 
@@ -10977,8 +10976,8 @@ class stzString from stzObject
 		def FindBetween(pcSubStr, pcSubStr1, pcSubStr2)
 			return This.FindSubstringBoundedWith(pcSubStr, pcSubStr1, pcSubStr2)
 
-			def FindBetweenQ(pcSubStr, pcSubStr1, pcSubStr2)
-				return This.FindBetweenQR(pcSubStr, pcSubStr1, pcSubStr2, :stzList)
+			def FindBetweenQ(pcSubStr1, pcSubStr2)
+				return This.FindBetweenQR( pcSubStr1, pcSubStr2, :stzList)
 
 			def FindBetweenQR(pcSubStr, pcSubStr1, pcSubStr2, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
@@ -11228,19 +11227,10 @@ class stzString from stzObject
 		/* EXAMPLE
 
 		o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
-		? o1.SubstringsBoundedBy("<<", ">>", :CS = FALSE)
+		? o1.FindAnyBetween( "<<", ">>" )
+		#--> [ 14, 32 ]
 
-		# --> [ "word1", "word2" ]
-
-		The simple form if this method is:
-
-		FindBetween( pcStr, pcSubStr1, pcSubStr2)
-		--> Finds all occurrences of pcStr bounded by pcSubStr1 and pcSubStr2
-
-		Remember that:
-
-		FindAnyBetween( pcSubStr1, pcSubStr )
-		--> Finds any substring bounded by pcSubStr1 and pcSubStr2
+		? o1.FindAnyBetweenXT( [ "word1", 14 ], [ "word2", 32 ] ] ) // TODO
 
 		*/
 		aResult = []
@@ -11268,7 +11258,7 @@ class stzString from stzObject
 				exit
 			ok
 
-			aResult + n1 //This.Section(n1 + nLen1, n2 - 1)
+			aResult + ( n1 + nLen1 )
 
 			n1 = n2 + nLen2
 
@@ -11735,27 +11725,95 @@ class stzString from stzObject
 
 		#>
 
+	  #----------------------------------------------------------------------------------#
+	 #   FINDING OCCURRENCES OF ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED  #
+	#----------------------------------------------------------------------------------#
+
+	def FindSubstringsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+		aResult = []
+		anPositions  = This.FindSubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		acSubStrings = This.SubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		for i = 1 to len(anPositions)
+			aResult + [ anPositions[i], acSubStrings[i] ]
+		next
+
+		return aResult
+
+		def FindSubstringsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.FindSubstringsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def FindSubstringsBoundedWithCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.FindSubstringsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+			def FindSubstringsBoundedWithXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.FindSubstringsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubstringsBetweenXT(pcSubStr1, pcSubStr2)
+		return This.FindSubstringsBetweenCSXT(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+	  #-------------------------------------------------------------------------------#
+	 #   FINDING SECTIONS OF ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED  #
+	#-------------------------------------------------------------------------------#
+
+	def FindSectionsOfSubstringsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+		aResult = []
+		anPositions  = This.FindSubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		acSubStrings = This.SubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		for i = 1 to len(anPositions)
+			cSubStr = acSubStrings[i]
+			n1 = anPositions[i]
+			n2 = n1 + StzStringQ(cSubStr).NumberOfChars() - 1
+			aResult + [ [ n1, n2 ], cSubStr ]
+		next
+
+		return aResult
+
+		def FindSectionsOfSubstringsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.FindSubstringsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def FindSectionsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.FindSubstringsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def FindSectionsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.FindSubstringsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSectionsOfSubstringsBetweenXT(pcSubStr1, pcSubStr2)
+		return This.FindSectionsOfSubstringsBetweenCSXT(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+		def FindSectionsBetweenXT(pcSubStr1, pcSubStr2)
+			return This.FindSubstringsBetweenXT(pcSubStr1, pcSubStr2)
+
 	   #-------------------------------------------------------------#
 	  #   FINDING ALL OCCURRENCES OF A SUBSTRING BETWEEN            #
 	 #   TWO OTHER SUBSTRINGS AND RETURN THEIR RELATIVE SECTIONS   #
 	#-------------------------------------------------------------#
 
 	def FindSectionsOfSubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		
-		anStartPositions = This.FindSubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		
-		anResult = []
-		for n in anStartPositions
-			n1 = n
-			n2 = This.FindNextOccurrenceCS( pcSubStr2, n1, pCaseSensitive )
+		/* EXAMPLE
+		o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
+		? o1.FindBetween("<<", ">>")
+		#--> [ [14,18] , [32,36] ]
+		*/
 
-			n1 += StzStringQ(pcSubStr1).NumberOfChars()
-			n2 -= 1
+		acBetweenXT = This.FindSubstringsBoundedWithXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		#--> [ [ 14, "word1" ], [ 32, "word2" ] ]
 
-			anResult + [ n1, n2 ]
+		aResult = []
+		for aPair in acBetweenXT
+			n1 = aPair[1]
+			n2 = n1 + Q(aPair[2]).NumberOfChars() - 1
+			aResult + [ n1, n2 ]
 		next
 
-		return anResult
+		return aResult
 
 		#< @FunctionFluentForm
 
@@ -11811,20 +11869,7 @@ class stzString from stzObject
 				return This.FindSectionsOfSubstringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 			def FindSectionsOfSubstringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsOfSubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsOfSubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 
 		def FindSectionsBetweenSubstringsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.FindSectionsOfSubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -11833,20 +11878,7 @@ class stzString from stzObject
 				return This.FindSectionsBetweenSubstringsCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 			def FindSectionsBetweenSubstringsCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsBetweenSubstringsCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsBetweenSubstringsCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 
 		def FindSectionsBetweenTheseSubStringsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.FindSectionsSubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -11855,20 +11887,7 @@ class stzString from stzObject
 				return This.FindSectionsBetweenTheseSubStringsCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 			def FindSectionsBetweenTheseSubStringsCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsBetweenTheseSubStringsCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsBetweenTheseSubStringsCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 
 		def FindSectionsBetweenTheseTwoSubStringsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.FindSectionsSubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -11877,20 +11896,7 @@ class stzString from stzObject
 				return This.FindSectionBetweenTheseTwoSubStringsCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 			def FindSectionsBetweenTheseTwoSubStringsCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsBetweenTheseTwoSubStringsCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsBetweenTheseTwoSubStringsCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 
 		#--
 
@@ -11901,20 +11907,7 @@ class stzString from stzObject
 				return This.FindSectionsOfAnySubstringBoundedWithCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 			def FindSectionsOfAnySubstringBoundedWithCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsOfAnySubstringBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsOfAnySubstringBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 
 		def FindSectionsOfAnySubstringBoundedByCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.FindSectionsOfSubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -11923,20 +11916,7 @@ class stzString from stzObject
 				return This.FindSectionsOfAnySubstringBoundedByCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 			def FindSectionsOfAnySubstringBoundedByCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsOfAnySubstringBoundedByCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsOfanySubstringBoundedByCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off			
+				return This.FindSectionsOfSubstringsBoundedByCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 
 		def FindSectionsOfAnySubstringBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.FindSectionsOfSubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -11945,20 +11925,7 @@ class stzString from stzObject
 				return This.FindSectionsOfAnySubstringBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 			def FindSectionsOfAnySubstringBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsOfAnySubstringBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsOfAnySubstringBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 
 		def FindAnySectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.FindSectionsOfSubstringsBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -11967,20 +11934,7 @@ class stzString from stzObject
 				return This.FindAnySectionsCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 			def FindAnySectionsCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAnySectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindAnySectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -12015,20 +11969,7 @@ class stzString from stzObject
 				return This.FindSectionsOfSubstringsBoundedWithQR(pcSubStr1, pcSubStr2, :stzList)
 
 			def FindSectionsOfSubstringsBoundedWithQR(pcSubStr1, pcSubStr2, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsOfSubstringsBoundedWith(pcSubStr1, pcSubStr2) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsOfSubstringsBoundedWith(pcSubStr1, pcSubStr2) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByQR(pcSubStr1, pcSubStr2, pcReturnType)
 
 		def FindSectionsOfSubstringsBetween(pcSubStr1, pcSubStr2)
 			return This.FindSectionsOfSubstringsBoundedBy(pcSubStr1, pcSubStr2)
@@ -12037,20 +11978,7 @@ class stzString from stzObject
 				return This.FindSectionsOfSubstringsBetweenQR(pcSubStr1, pcSubStr2, :stzList)
 
 			def FindSectionsOfSubstringsBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsOfSubstringsBetween(pcSubStr1, pcSubStr2) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsOfSubstringsBetween(pcSubStr1, pcSubStr2) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByQR(pcSubStr1, pcSubStr2, pcReturnType)
 
 		def FindSectionsBetweenSubstrings(pcSubStr1, pcSubStr2)
 			return This.FindSectionsOfSubstringsBoundedBy(pcSubStr1, pcSubStr2)
@@ -12059,20 +11987,7 @@ class stzString from stzObject
 				return This.FindSectionsBetweenSubstringsQR(pcSubStr1, pcSubStr2, :stzList)
 
 			def FindSectionsBetweenSubstringsQR(pcSubStr1, pcSubStr2, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsBetweenSubstrings(pcSubStr1, pcSubStr2) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsBetweenSubstrings(pcSubStr1, pcSubStr2) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByQR(pcSubStr1, pcSubStr2, pcReturnType)
 
 		def FindSectionsBetweenTheseSubStrings(pcSubStr1, pcSubStr2)
 			return This.FindSectionsOfSubstringsBoundedBy(pcSubStr1, pcSubStr2)
@@ -12081,20 +11996,7 @@ class stzString from stzObject
 				return This.FindSectionsBetweenTheseSubStringsQR(pcSubStr1, pcSubStr2, :stzList)
 
 			def FindSectionsBetweenTheseSubStringsQR(pcSubStr1, pcSubStr2, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsBetweenTheseSubStrings(pcSubStr1, pcSubStr2) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsBetweenTheseSubStrings(pcSubStr1, pcSubStr2) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByQR(pcSubStr1, pcSubStr2, pcReturnType)
 
 		def FindSectionsBetweenTheseTwoSubStrings(pcSubStr1, pcSubStr2)
 			return This.FindSectionsOfSubstringsBoundedBy(pcSubStr1, pcSubStr2)
@@ -12103,20 +12005,7 @@ class stzString from stzObject
 				return This.FindSectionBetweenTheseTwoSubStringsQR(pcSubStr1, pcSubStr2, :stzList)
 
 			def FindSectionsBetweenTheseTwoSubStringsQR(pcSubStr1, pcSubStr2, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsBetweenTheseTwoSubStrings(pcSubStr1, pcSubStr2) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsBetweenTheseTwoSubStrings(pcSubStr1, pcSubStr2) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByQR(pcSubStr1, pcSubStr2, pcReturnType)
 
 		#--
 
@@ -12127,20 +12016,7 @@ class stzString from stzObject
 				return This.FindSectionsOfAnySubstringBoundedWithQR(pcSubStr1, pcSubStr2, :stzList)
 
 			def FindSectionsOfAnySubstringBoundedWithQR(pcSubStr1, pcSubStr2, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsOfAnySubstringBoundedWith(pcSubStr1, pcSubStr2) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsOfAnySubstringBoundedWith(pcSubStr1, pcSubStr2) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByQR(pcSubStr1, pcSubStr2, pcReturnType)
 
 		def FindSectionsOfAnySubstringBoundedBy(pcSubStr1, pcSubStr2)
 			return This.FindSectionsOfSubstringsBoundedBy(pcSubStr1, pcSubStr2)
@@ -12149,20 +12025,7 @@ class stzString from stzObject
 				return This.FindSectionsOfAnySubstringBoundedByQR(pcSubStr1, pcSubStr2, :stzList)
 
 			def FindSectionsOfAnySubstringBoundedByQR(pcSubStr1, pcSubStr2, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsOfAnySubstringBoundedBy(pcSubStr1, pcSubStr2) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsOfanySubstringBoundedBy(pcSubStr1, pcSubStr2) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off			
+				return This.FindSectionsOfSubstringsBoundedByQR(pcSubStr1, pcSubStr2, pcReturnType)		
 
 		def FindSectionsOfAnySubstringBetween(pcSubStr1, pcSubStr2)
 			return This.FindSectionsOfSubstringsBoundedBy(pcSubStr1, pcSubStr2)
@@ -12171,20 +12034,7 @@ class stzString from stzObject
 				return This.FindSectionsOfAnySubstringBetweenQR(pcSubStr1, pcSubStr2, :stzList)
 
 			def FindSectionsOfAnySubstringBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSectionsOfAnySubstringBetween(pcSubStr1, pcSubStr2) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsOfAnySubstringBetween(pcSubStr1, pcSubStr2) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByQR(pcSubStr1, pcSubStr2, pcReturnType)
 
 		def FindAnySectionsBetween(pcSubStr1, pcSubStr2)
 			return This.FindSectionsOfSubstringsBoundedBy(pcSubStr1, pcSubStr2)
@@ -12193,22 +12043,38 @@ class stzString from stzObject
 				return This.FindAnySectionsBetweenQR(pcSubStr1, pcSubStr2, :stzList)
 
 			def FindAnySectionsBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAnySectionsBetween(pcSubStr1, pcSubStr2) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.FindAnySectionsBetween(pcSubStr1, pcSubStr2) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.FindSectionsOfSubstringsBoundedByQR(pcSubStr1, pcSubStr2, pcReturnType)
 
 		#>
+
+	  #---------------------------------------------------------#
+	 #   FINDING SECTIONS BETWEEN TWO SUBSTRINGS -- EXTENDED   #
+	#---------------------------------------------------------#
+
+	def FindAnySectionsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		/* EXAMPLE
+		o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
+		? o1.FindBetweenXT("<<", ">>")
+		#--> [ [ "word1", [14,18] ], [ "word2", [32,36] ] ]
+		*/
+
+		acBetweenXT = This.FindSubstringsBoundedWithXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		#--> [ [ 14, "word1" ], [ 32, "word2" ] ]
+
+		aResult = []
+		for aPair in acBetweenXT
+			n1 = aPair[1]
+			n2 = n1 + Q(aPair[2]).NumberOfChars() - 1
+			aResult + [ aPair[2], [ n1, n2 ] ]
+		next
+
+		return aResult
+
+		def FindAnySectionsBteweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.FindAnySectionsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	def FindAnySectionsBetweenXT(pcSubStr1, pcSubStr2)
+		return This.FindAnySectionsBetweenXTCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
 	  #------------------------------------------------------------------#
 	 #   EXTRACTING SUBSTRINGS ENCLOSED BETWEEN TWO OTHER SUBSTRINGS    # 
@@ -12704,6 +12570,30 @@ class stzString from stzObject
 					stzRaise("Unsupported return type!")
 				off
 		#>
+
+	  #----------------------------------------------------------------------------#
+	 #   EXTRACTING SUBSTRINGS ENCLOSED BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED  #
+	#----------------------------------------------------------------------------#
+
+	def SubStringsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		aResult = []
+
+		acSubStrings = This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		acPositions  = This.FindSubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		for i = 1 to len(acSubStrings)
+			aResult + [ acSubStrings[i], acPositions[i] ]
+		next
+
+		return aResult
+
+		def SubStringsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubStringsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenXT(pcSubStr1, pcSubStr2)
+		return This.SubStringsBetweenXTCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
 	  #------------------------------------------------#
 	 #      VISUALLY FINDING CHARS IN THE STRING      #
@@ -15071,8 +14961,8 @@ return
 	/* Note:
 
 	This method analyzes the string, by sequentially partitioning
-	its content, using a given "partinonner". Hence, it serves
-	in answering this kind of question:
+	its content, using a given "partition expression", pr "partionner,
+	for short. Hence, it serves in answering this kind of question:
 
 	How is the string composed in term of some char criteria
 	(beeing, for example, lowercase or uppercase, or left-oriented
@@ -18058,6 +17948,22 @@ return
 	def Simplified()
 		cResult = This.Copy().SimplifyQ().Content()
 		return cResult
+
+	  #-------------------------------------------------#
+	 #   SIMPLIFYING THE STRING EXCEPT SOME SECTIONS   #
+	#-------------------------------------------------#
+
+	def SimplifyExcept(paSections)
+		/* EXAMPLE
+
+		o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
+		o1.SimplifyExcept( [ [], [] ] )
+
+		#--> 'var txt = "    nice    "'
+
+		*/
+
+		acBetweenXT = This.
 
 	  #----------------------------------------#
 	 #   SPACIFYING THE CHARS OF THE STRING   #
