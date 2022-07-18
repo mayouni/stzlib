@@ -29,7 +29,7 @@ o1 = new stzListOfPairs([ [1,3], [4, 7], [8, 9] ])
 ? o1.IsSortedInAscending() #--> TRUE
 
 /*----------------
-*/
+
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 ? o1.IsSortedInDescending() #--> FALSE
 
@@ -39,16 +39,27 @@ o1 = new stzListOfPairs([ [9,8], [7,4], [3,1] ])
 /*----------------
 
 o1 = new stzList(1:10)
-//? o1.Sections([ [3,5], [7,8] ])		#--> [ [3, 4, 5], [7, 8] ]
-? o1.AntiSections([ [3,5], [1,2], [7,8] ])	#--> [ [1, 2], [6], [9, 10] ]
+o1 = new stzList(1:10)
+? o1.AntiSections( :Of = [ [3,5], [7,8] ])
+#--> [ [1, 2], [6], [9, 10] ]
 
-/*
-o1 = new stzString("1234567890")
-? o1.Sections([ [3,5], [7,8] ])
-? o1.AntiSections([ [3,5], [7,8] ])	# o1.SectionsOtherThan([3,5], [7,8] ])
+o1 = new stzList("A":"J")
+? o1.AntiSections( :Of = [ [3,5], [7,8] ])
+#--> [ ["A", "B"], ["F"], ["I", "J"] ]
 
+/*----------------
 
+? SectionToRange([3, 4]) #--> [3, 2]
+? RangeToSection([3, 2]) #--> [3, 4]
 
+? SectionsToRanges([ [3, 4], [8, 10] ]) #--> [ [3, 2], [8, 3] ]
+? RangesToSections([ [3, 2], [8, 3] ])  #--> [ [3, 4], [8, 10] ]
+
+/*----------------
+*/
+o1 = new stzString("ABCDEFGHIJ")
+? o1.AntiSections( :Of = [ [3,5], [7,8] ] )
+#--> [ "AB", "F", "IJ" ]
 
 /*----------------
 

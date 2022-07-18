@@ -12309,6 +12309,12 @@ class stzList from stzObject
 	#----------------------------------------------------------#
 
 	def AntiSections(paSections)
+		/* EXAMPLE
+		o1 = new stzList("A":"J")
+		? o1.AntiSections( :Of = [ [3,5], [7,8] ])
+		#--> [ ["A", "B"], ["F"], ["I", "J"] ]
+		*/
+
 		if isList(paSections) and Q(paSections).IsOfNamedParamList()
 			paSections = paSections[2]
 		ok
@@ -12318,7 +12324,43 @@ class stzList from stzObject
 		ok
 
 		aSorted = StzListOfPairsQ(paSections).SortedInAscending()
-? aSorted
+		#--> [ [3,5], [7,8] ]
+
+		aAntiSections = []
+		n1 = 1
+
+		i = 0
+		bLastPair = FALSE
+
+		for aPair in aSorted
+			i++
+			if i = len(aSorted)
+				bLastPair = TRUE
+			ok
+
+			if aPair[1] > n1
+				n2 =  aPair[1] - 1
+				aAntiSections + [ n1, n2 ]
+			ok
+
+			if NOT bLastPair
+				n1 = aPair[2] + 1
+			ok
+		next
+
+		nLast = asorted[ len(aSorted) ][2]
+		nSize = This.NumberOfItems()
+
+		if nLast < nSize
+			aAntiSections + [ nLast + 1, nSize ]
+		ok
+
+		aResult = This.Sections(aAntiSections)
+		return aResult
+
+		def SectionsOtherThan(paSections)
+			return This.AntiSections(paSections)
+
 	  #-----------------------------------#
 	 #    GETTING A RANGE OF THE LIST    #
 	#-----------------------------------#
@@ -12370,6 +12412,19 @@ class stzList from stzObject
 
 		def ManyRanges(paSections)
 			return This.Ranges(paRanges)
+
+	  #--------------------------------------------------------#
+	 #   GETIING THE ANTI-RANGES OF A GIVEN SET OF SECTIONS   #
+	#--------------------------------------------------------#
+
+	def AntiRanges(paRanges)
+		aSections = RangesToSections(paRanges)
+		aResult = This.AntiSections(aSections)
+
+		return aResult
+
+		def RangesOtherThan(paRanges)
+			return This.AntiRanges()
 
 	  #-------------------#
 	 #     MULTINGUAL    #
