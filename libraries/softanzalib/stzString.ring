@@ -5818,6 +5818,63 @@ class stzString from stzObject
 		def ManySlices(paSections)
 			return This.Sections(paSections)
 
+	  #----------------------------------------------------------#
+	 #   GETIING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS   #
+	#----------------------------------------------------------#
+
+	def AntiSections(paSections)
+		/* EXAMPLE
+		o1 = new stzList("ABCDEFGHIJ")
+		? o1.AntiSections( :Of = [ [3,5], [7,8] ])
+		#--> [ "AB", "F", "IJ" ]
+		*/
+
+		if isList(paSections) and Q(paSections).IsOfNamedParamList()
+			paSections = paSections[2]
+		ok
+
+		if NOT Q(paSections).IsListOfPairsOfNumbers()
+			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+		ok
+
+		aSorted = StzListOfPairsQ(paSections).SortedInAscending()
+		#--> [ [3,5], [7,8] ]
+
+		aAntiSections = []
+		n1 = 1
+
+		i = 0
+		bLastPair = FALSE
+
+		for aPair in aSorted
+			i++
+			if i = len(aSorted)
+				bLastPair = TRUE
+			ok
+
+			if aPair[1] > n1
+				n2 =  aPair[1] - 1
+				aAntiSections + [ n1, n2 ]
+			ok
+
+			if NOT bLastPair
+				n1 = aPair[2] + 1
+			ok
+		next
+
+		nLast = asorted[ len(aSorted) ][2]
+		nSize = This.NumberOfChars()
+
+		if nLast < nSize
+			aAntiSections + [ nLast + 1, nSize ]
+		ok
+
+		aResult = This.Sections(aAntiSections)
+		return aResult
+
+		def SectionsOtherThan(paSections)
+			return This.AntiSections(paSections)
+
 	  #---------------------------------------------------#
 	 #   GETIING MANY SECTIONS (OR SLICES) -- EXTENDED   #
 	#---------------------------------------------------#
@@ -5880,6 +5937,19 @@ class stzString from stzObject
 
 		def ManyRanges(paSections)
 			return This.Ranges(paRanges)
+
+	  #--------------------------------------------------------#
+	 #   GETIING THE ANTI-RANGES OF A GIVEN SET OF SECTIONS   #
+	#--------------------------------------------------------#
+
+	def AntiRanges(paRanges)
+		aSections = RangesToSections(paRanges)
+		aResult = This.AntiSections(aSections)
+
+		return aResult
+
+		def RangesOtherThan(paRanges)
+			return This.AntiRanges()
 
 	  #----------------------------#
 	 #    REPEATING THE STRING    #
@@ -20789,6 +20859,9 @@ return
 			return This.NumberOfChars()
 
 		def SizeInChars()
+			return This.NumberOfChars()
+
+		def NumberOfItems()
 			return This.NumberOfChars()
 
 	
