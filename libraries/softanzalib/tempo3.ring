@@ -1,5 +1,43 @@
 load "stzlib.ring"
 
+/*---------
+
+o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
+? o1.NumberOfSectionsBetween("word", "<<", ">>") #--> 3
+
+? o1.FindSectionsBetween("word", "<<", ">>")
+#--> [ [11, 14], [28, 31], [41, 44] ]
+
+? o1.FindNthSectionBetween(2, "word", "<<", ">>")
+#--> [28, 31]
+
+? o1.FindFirstSectionBetween("word", "<<", ">>") // Same as FindSectionBetween()
+#--> [11, 14]
+
+? o1.FindLastSectionBetween("word", "<<", ">>")
+#--> [41, 44]
+
+/*---------
+
+o1 = new stzString("123 ABC 901 DEF")
+o1.ReplaceSections([ [1, 3], [9, 11] ], "***")
+? o1.Content() #--> #--> *** ABC *** DEF
+
+/*---------------- TODO: Correct this!
+
+o1 = new stzString("12345 ABC 901 DEF")
+
+o1.ReplaceSections(
+	[ [1, 5], [11, 13] ],
+
+	:With@ = '{
+		NTimes( Q(@Section).Size(), "*")
+	}'
+)
+
+? o1.Content()
+#--> ***** ABC *** DEF
+
 /*----------------
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
@@ -36,30 +74,49 @@ o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 o1 = new stzListOfPairs([ [9,8], [7,4], [3,1] ])
 ? o1.IsSortedInDescending() #--> TRUE
 
-/*----------------
-
-o1 = new stzList(1:10)
-o1 = new stzList(1:10)
-? o1.AntiSections( :Of = [ [3,5], [7,8] ])
-#--> [ [1, 2], [6], [9, 10] ]
+/*======================
 
 o1 = new stzList("A":"J")
-? o1.AntiSections( :Of = [ [3,5], [7,8] ])
+? o1.Sections( [ [3,5], [7,8] ] )
+#--> [ [ "C", "D", "E" ], [ "F" ], [ "G", "H" ] ]
+
+? o1.AntiSections( :Of = [ [3,5], [7,8] ] )
 #--> [ ["A", "B"], ["F"], ["I", "J"] ]
 
+? o1.FindAntiSections( :Of = [ [3,5], [7,8] ] )
+#--> [ [1, 2], [6, 6], [9, 10] ]
+
+? o1.SectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
+#--> [ [ "A", "B" ], [ "C", "D", "E" ], [ "F" ], [ "G", "H" ], [ "I", "J" ] ]
+
+? o1.FindSectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
+#--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 6 ], [ 7, 8 ], [ 9, 10 ] ]
+
 /*----------------
+
+o1 = new stzString("ABCDEFGHIJ")
+? o1.Sections( [ [3,5], [7,8] ] )
+#--> [ "CDE", "GH" ]
+
+? o1.AntiSections( :Of = [ [3,5], [7,8] ] )
+#--> [ "AB", "F", "IJ"]
+
+? o1.FindAntiSections( :Of = [ [3,5], [7,8] ] )
+#--> [ [1, 2], [6, 6], [9, 10] ]
+
+? o1.SectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
+#--> [ "AB", "CDE", "F", "GH", "IJ"]
+
+? o1.FindSectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
+#--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 6 ], [ 7, 8 ], [ 9, 10 ] ]
+
+/*======================
 
 ? SectionToRange([3, 4]) #--> [3, 2]
 ? RangeToSection([3, 2]) #--> [3, 4]
 
 ? SectionsToRanges([ [3, 4], [8, 10] ]) #--> [ [3, 2], [8, 3] ]
 ? RangesToSections([ [3, 2], [8, 3] ])  #--> [ [3, 4], [8, 10] ]
-
-/*----------------
-*/
-o1 = new stzString("ABCDEFGHIJ")
-? o1.AntiSections( :Of = [ [3,5], [7,8] ] )
-#--> [ "AB", "F", "IJ" ]
 
 /*----------------
 
@@ -94,11 +151,12 @@ o1 = new stzString("ABCDE")
 #--> [ "A", "B", "C", "D", "E", "AB", "CD", "ABC", "ABCD", "ABCDE" ]
 
 /*================ WORKING WITH BOUNDS
-
+*/
 o1 = new stzString("<<word>> and {{word}}")
 ? o1.BoundsOf( "word", :UpToNChars = 2 )
 #--> [ [ "<<", ">>" ], [ "{{", "}}" ] ]
 
+STOP()
 /*----------------
 
 o1 = new stzString("<<word>>> and {{word}}}")
@@ -136,7 +194,6 @@ o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ], [ "@", "@" ] ])
 ? Q([ "<", ">" ]).AreBoundsOf( "world", :In = "hello _world_ and <world>" ) #--> TRUE
 ? Q([ ["<",">"], ["_","_"] ]).AreBoundsOf( "world", :In = "hello _world_ and <world>" ) #--> TRUE
 
-
 /*----------------
 
 o1 = new stzString("aa♥♥aaa bb♥♥bbb")
@@ -162,20 +219,6 @@ o1 = Q("ABAAC")
 # 	[ "A", [ 1, 3, 4 ] ], [ "B", [ 2 ] ], [ "C", [ 5 ] ],
 # 	[ "AB", [ 1 ] ], [ "AA", [ 3 ] ], [ "ABA", [ 1 ] ],
 # 	[ "ABAA", [ 1 ] ], [ "ABAAC", [ 1 ] ] ]
-
-/*----------------
-
-str =
-"one
-two
-three"
-
-? @@(str)
-/*-->
-"one
-two
-three"
-*/
 
 /*----------------
 
@@ -240,7 +283,7 @@ o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
 /*----------------
 
 o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
-//? o1.SubStringsBetweenXT('"','"')
+? o1.SubStringsBetweenXT('"','"')
 #--> [ [ "    value ", 15 ], [ " 12   ", 41 ] ]
 
 ? @@( o1.FindSubStringsBetweenXT('"','"') )
@@ -264,24 +307,25 @@ o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
 
 /*----------------
 
-o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
-? o1.FindAnySectionsBetweenXT("<<", ">>")
-#--> [ [ "word1", [14, 18] ], [ "word2", [32, 36] ] ]
+
 */
+
 o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
-? o1.FindAnySectionsBetween('"', '"')
+//? o1.FindAnySectionsBetween('"', '"') #--> [ [24 ,41], [56, 63] ]
 
-	
-/*----------------
+//aAntiSections = o1.FindAntiSections([ [24 ,41], [56, 63] ])
+//? o1.Sections(aAntiSections)
 
-o1 = new stzString(' var   txt  = "    nice    "   ')
-? o1.FindAnySectionsBetween('"', '"')
-#--> [16, 27]
+? o1.FindAntiSectionsBetween('"','"')
 
-o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
-? o1.FindAnySectionsBetween('"', '"')
-#--> [ [16, 25], [42, 47] ]
+/*
+o1.ReplaceSections([ [24 ,41], [56, 63] ], :With@ = ' Q(@Section).Simplified() ')
+? o1.Content()
 
+//o1.ReplaceSectionsExcept(aBetween, :With@ = ' Q(@Section).Simplified() ')
+
+*/
+STOP()
 /*----------------
 
 ? ComputableFormSimplified('len    var1 = "    value "  and var2 =  " 12   " ')
