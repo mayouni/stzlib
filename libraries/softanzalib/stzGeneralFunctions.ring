@@ -702,3 +702,6 @@ func QQ(p)
 	else
 		return Q(p)
 	ok
+
+func STOP()
+	StzRaise( NL + "----------------" + "STOPPED!" )

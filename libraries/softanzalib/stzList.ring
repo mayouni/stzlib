@@ -8280,9 +8280,9 @@ class stzList from stzObject
 		def ExtendedToNXT(n, pWith)
 			return This.ExtendedToPositionXT(n, pWith)
 
-	  #-------------------------#
-	 #     MERGING THE LIST    #
-	#-------------------------#
+	  #----------------------------------------------------#
+	 #     MERGING THE LIST - IF IT IS A LIST OF LISTS    #
+	#----------------------------------------------------#
 
 	def Merge()
 		if This.IsListOfLists()
@@ -8297,6 +8297,27 @@ class stzList from stzObject
 	def Merged()
 		aResult = This.Copy().MergeQ().Content()
 		return This
+
+	#-----------------------------------------#
+	#   MERGING THE LIST WITH AN OTHER LIST   #
+	#-----------------------------------------#
+
+	def MergeWith(paOtherList)
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param! paOtherList must be a list.")
+		ok
+
+		for item in paOtherList
+			This.Add(item)
+		next
+
+		def MergeWithQ(paOtherList)
+			This.MergeWith(paOtherList)
+			return This
+
+	def MergedWith(paOtherList)
+		aResult = This.Copy().MergeWithQ(paOtherList).Content()
+		return aResult
 
 	  #----------------------------#
 	 #     FLATTENING THE LIST    #
@@ -8323,7 +8344,6 @@ class stzList from stzObject
 	eval(cCode)
 
 	This.Update( aResult )
-
 
 		def FlattenQ()
 			This.Flatten()
@@ -12308,11 +12328,15 @@ class stzList from stzObject
 	 #   GETIING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS   #
 	#----------------------------------------------------------#
 
-	def AntiSections(paSections)
+	def FindAntiSections(paSections)
 		/* EXAMPLE
 		o1 = new stzList("A":"J")
 		? o1.AntiSections( :Of = [ [3,5], [7,8] ])
 		#--> [ ["A", "B"], ["F"], ["I", "J"] ]
+
+		? o1.FindAntiSections( :Of = [ [3,5], [7,8] ])
+		#--> [ [1, 2], [6, 6], [9, 10] ]
+
 		*/
 
 		if isList(paSections) and Q(paSections).IsOfNamedParamList()
@@ -12355,11 +12379,126 @@ class stzList from stzObject
 			aAntiSections + [ nLast + 1, nSize ]
 		ok
 
-		aResult = This.Sections(aAntiSections)
+		aResult = aAntiSections
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def FindAntiSectionsQ(paSections)
+			return This.FindAntiSectionsQR(paSections, :stzList)
+
+		def FindAntiSectionsQR(paSections, pcReturnType)
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindAntiSections(paSections) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.FindAntiSections(paSections) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.FindAntiSections(paSections) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def AntiSections(paSections)
+		/* EXAMPLE
+		o1 = new stzList("A":"J")
+		? o1.AntiSections( :Of = [ [3,5], [7,8] ])
+		#--> [ ["A", "B"], ["F"], ["I", "J"] ]
+		*/
+
+		aResult = This.Sections(This.FindAntiSections(paSections))
 		return aResult
 
 		def SectionsOtherThan(paSections)
 			return This.AntiSections(paSections)
+
+		#< @FunctionFluentForm
+
+		def AntiSectionsQ(paSections)
+			return new stzList( This.AntiSections(paSections) )
+
+		#>
+
+	def FindSectionsAndAntiSections(paSections)
+		aAntiSections = This.FindAntiSections(paSections)
+
+		for aList in aAntiSections
+			if len(aList) = 1
+				aList + aList[1]
+
+			but len(aList) > 2
+				n1 = aList[1]
+				n2 = aList[len(aList)]
+				aList = [n1, n2]
+			ok
+		next
+
+		aAllSections = aAntiSections
+		for aPair in paSections
+				aAllSections + aPair
+		next
+
+		aAllSections = StzListOfPairsQ(aAllSections).SortedInAscending()
+
+		aResult = aAllSections
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def FindSectionsAndAntiSectionsQ(paSections)
+			return This.FindSectionsAndAntiSectionsQR(paSections, :stzList)
+
+		def FindSectionsAndAntiSectionsQR(paSections, pcReturnType)
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindSectionsAndAntiSections(paSections) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.FindSectionsAndAntiSections(paSections) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.FindSectionsAndAntiSectionss(paSections) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def SectionsAndAntiSections(paSections)
+		aAllSections = This.FindSectionsAndAntiSections(paSections)
+		aResult = This.Sections(aAllSections)
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def SectionsAndAntiSectionsQ(paSections)
+			return new stzList( This.SectionsAntiSections(paSections) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AllSectionsIncluding(paSections)
+			return This.SectionsAndAntiSections(paSections)
+
+			def AllSectionsIncludingQ(paSections)
+				return new stzList( This.AllSectionsIncluding(paSections) )
+	
+		#>
 
 	  #-----------------------------------#
 	 #    GETTING A RANGE OF THE LIST    #
@@ -12425,6 +12564,36 @@ class stzList from stzObject
 
 		def RangesOtherThan(paRanges)
 			return This.AntiRanges()
+
+		#< @FunctionFluentForm
+
+		def AntiRangesQ(paRanges)
+			return new stzList( This.AntiRanges(paRanges) )
+
+		#>
+
+	def RangesAndAntiRanges(paRanges)
+		aSections = SectionsToRanges(paRanges)
+		aResult = This.SectionsAndAntiSections(aSections)
+		
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def RangesAndAntiRangesQ(paRanges)
+			return new stzList( This.RangesAndAntiRanges(paRanges) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AllRangesIncluding(paRanges)
+			return This.RangesAndAntiRanges(paRanges)
+
+			def AllRangesIncludingQ(paRanges)
+				return new stzList( This.AllRangesIncluding(paRanges) )
+	
+		#>
 
 	  #-------------------#
 	 #     MULTINGUAL    #

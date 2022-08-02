@@ -155,8 +155,16 @@ class stzListOfPairs from stzList
 		/*
 		To be sortable, the pairs must not contains same items.
 		*/
+		aCopy = This.ListOfPairs()
 
-		aAllItems = ListsMerge( This.Content() )
+		for aPair in aCopy
+
+			if aPair[1] = aPair[2]
+				aPair = aPair[1]
+			ok
+		next
+
+		aAllItems = ListsMerge( aCopy )
 
 		if Q(aAllItems).IsSet()
 			return TRUE
@@ -176,11 +184,11 @@ class stzListOfPairs from stzList
 		#--> [ [1,3], [4, 7], [8, 9] ]
 
 		*/
-
+/*
 		if NOT This.IsSortable()
 			StzRaise("Can't sort the list of pairs! Because pairs are not made of distinct items.")
 		ok
-
+*/
 		aResult = []
 
 		# Sort each pair in ascending
