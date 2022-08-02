@@ -151,12 +151,11 @@ o1 = new stzString("ABCDE")
 #--> [ "A", "B", "C", "D", "E", "AB", "CD", "ABC", "ABCD", "ABCDE" ]
 
 /*================ WORKING WITH BOUNDS
-*/
+
 o1 = new stzString("<<word>> and {{word}}")
 ? o1.BoundsOf( "word", :UpToNChars = 2 )
 #--> [ [ "<<", ">>" ], [ "{{", "}}" ] ]
 
-STOP()
 /*----------------
 
 o1 = new stzString("<<word>>> and {{word}}}")
@@ -220,7 +219,7 @@ o1 = Q("ABAAC")
 # 	[ "AB", [ 1 ] ], [ "AA", [ 3 ] ], [ "ABA", [ 1 ] ],
 # 	[ "ABAA", [ 1 ] ], [ "ABAAC", [ 1 ] ] ]
 
-/*----------------
+/*=================
 
 ? @@( Q([ "abc", 120, "cdef", 14, "opjn", 988 ]).ToString() )
 /*-->
@@ -241,7 +240,7 @@ cdef
 opjn
 */
 
-/*----------------
+/*=================
 
 o1 = new stzListOfStrings(["A", "AA", "B", "BB", "C", "CC", "CC" ])
 ? o1.StringsW('len(@string) = 2') 	#--> [ "AA", "BB", "CC", "CC" ])
@@ -264,13 +263,13 @@ o1 = new stzListOfStrings([
 ? o1.StringsW(' Q(@String).BeginsWith("A") and Q(@String).NumberOfChars() > 4 ')
 #--> [ "Av♥♥c", "Av♥♥c♥", "Av♥♥c♥♥" ]
 
-/*----------------
+/*================
 
 o1 = new stzString("Av♥♥c♥♥")
 ? o1.FindAll("♥♥") #--> [ 3, 6 ]
 ? o1.FindSubStringW('{ @SubString = "♥♥" }') #--> [ 3, 6 ]
 
-/*----------------
+/*===============
 
 o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
 ? o1.SubstringsBetween("<<", ">>")
@@ -289,7 +288,7 @@ o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
 ? @@( o1.FindSubStringsBetweenXT('"','"') )
 #--> [ 15, [ "    value " ], [ 41, " 12   " ] ]
 
-/*----------------
+/*================
 
 o1 = new stzString("blabla bla <<word>> bla bla <<word>>")
 ? o1.FindSectionsBetween("word", "<<", ">>")
@@ -307,24 +306,78 @@ o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
 
 /*----------------
 
+o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
+aSections = o1.FindAnySectionsBetween('"', '"')
+#--> [ [24 ,41], [56, 63] ]
 
+aAntiSections = o1.FindAntiSections(aSections)
+#--> [ [1, 23], [42, 55], [64, 66] ]
+
+? o1.Sections(aAntiSections)
+#--> [
+#	' this code:   txt1  = "',
+#	'"   and txt2="',
+#	'"  '
+#    ]
+
+/*----------------
 */
+o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
+aBetween = o1.FindAnySectionsBetween('"', '"')
+#--> [ [24 ,41], [56, 63] ]
+
+//? o1.Sections( aBetween )
+#--> [ '    withspaces    ', 'nospaces' ]
+
+//? o1.SectionsXT( aBetween )
+#--> [
+#	[ '    withspaces    ', [24 ,41] ],
+#	[ ''nospaces', [56, 63] ]
+#    ]
+
+//? o1.AntiSections( aBetween )
+#--> [
+#	' this code:   txt1  = "',
+#	'"   and txt2="',
+#	'"  '
+#    ]
+
+//? o1.AntiSectionsXT( aBetween )
+#--> [
+#	[ ' this code:   txt1  = "', [1, 23] ],
+#	[ '"   and txt2="', [42, 55] ],
+#	[ '"  ', [64, 66] ]
+#    ]
+
+//? o1.SectionsAndAntiSections( aBetween )
+#--> [
+#	' this code:   txt1  = "',
+#	'    withspaces    ',
+#	'"   and txt2="',
+#	'nospaces',
+#	'"  '
+#    ]
+
+? o1.SectionsAndAntiSectionsXT( aBetween )
+#--> [
+#	[ ' this code:   txt1  = "', [1, 23] ],
+#	[ '    withspaces    ', [24, 41] ],
+#	[ '"   and txt2="', [42, 55] ],
+#	[ 'nospaces', [56, 63] ],
+#	[ '"  ', [64, 66] ]
+#    ]
+
+/*---------------
+-
 
 o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
-//? o1.FindAnySectionsBetween('"', '"') #--> [ [24 ,41], [56, 63] ]
 
-//aAntiSections = o1.FindAntiSections([ [24 ,41], [56, 63] ])
-//? o1.Sections(aAntiSections)
-
-? o1.FindAntiSectionsBetween('"','"')
-
-/*
 o1.ReplaceSections([ [24 ,41], [56, 63] ], :With@ = ' Q(@Section).Simplified() ')
 ? o1.Content()
 
 //o1.ReplaceSectionsExcept(aBetween, :With@ = ' Q(@Section).Simplified() ')
 
-*/
+
 STOP()
 /*----------------
 
