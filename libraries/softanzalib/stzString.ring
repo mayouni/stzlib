@@ -5863,6 +5863,75 @@ class stzString from stzObject
 
 		#>
 
+	  #--------------------------------------------------#
+	 #   GETIING MANY SECTIONS (OR SLICES) -- EXTENDED  #
+	#--------------------------------------------------#
+
+	def SectionsXT(paSections)
+
+		aResult = []
+
+		for aSection in paSections
+			cSection = This.Section( aSection[1], aSection[2] )
+			aResult + [ cSection, aSection ]
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def SectionsXTQ(paSections)
+			return This.SectionsXTQR(paSections, pcReturnType)
+
+		def SectionsXTQR(paSections, pcReturnType)
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SectionsXT(paSections) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SectionsXT(paSections) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ManySectionsXT(paSections)
+			return This.SectionsXT(paSections)
+
+			def ManySectionsXTQ(paSections)
+				return This.SectionsXTQ(paSections)
+	
+			def ManySectionsXTQR(paSections, pcReturnType)
+				return This.SectionsXTQR(paSections, pcReturnType)
+
+		def SlicesXT(paSections)
+			return This.SectionsXT(paSections)
+
+			def SlicesXTQ(paSections)
+				return This.SectionsXTQ(paSections)
+	
+			def SlicesXTQR(paSections, pcReturnType)
+				return This.SectionsXTQR(paSections, pcReturnType)
+
+		def ManySlicesXT(paSections)
+			return This.SectionsXT(paSections)
+
+			def ManySlicesXTQ(paSections)
+				return This.SectionsXTQ(paSections)
+	
+			def ManySlicesXTQR(paSections, pcReturnType)
+				return This.SectionsXTQR(paSections, pcReturnType)
+
+		#>
+
 	  #----------------------------------------------------------#
 	 #   FINDING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS   #
 	#----------------------------------------------------------#
@@ -5969,6 +6038,53 @@ class stzString from stzObject
 
 		#>
 
+	  #---------------------------------------------------------------------#
+	 #   GETIING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS -- EXTENDED  #
+	#---------------------------------------------------------------------#
+
+	def AntiSectionsXT(paSections)
+
+		aAntiSections = This.FindAntiSections(paSections)
+		aResult = This.SectionsXT( aAntiSections )
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def AntiSectionsXTQ(paSections)
+			return This.AntiSectionsXTQR(paSections, pcReturnType)
+
+		def AntiSectionsXTQR(paSections, pcReturnType)
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.AntiSectionsXT(paSections) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.AntiSectionsXT(paSections) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SectionsOtherThanXT(paSections)
+			return This.AntiSectionsXT(paSections)
+
+			def SectionsOtherThanXTQ(paSections)
+				return This.AntiSectionsXTQ(paSections)
+	
+			def SectionsOtherThanXTQR(paSections, pcReturnType)
+				return This.AntiSectionsXTQR(paSections, pcReturnType)
+
+		#>
+
 	  #---------------------------------------------------------#
 	 #   GETIING NTH ANTI-SECTION OF A GIVEN SET OF SECTIONS   #
 	#---------------------------------------------------------#
@@ -6071,9 +6187,60 @@ class stzString from stzObject
 
 		#>
 
-	  #---------------------------------------------------#
-	 #   GETIING MANY SECTIONS (OR SLICES) -- EXTENDED   #
-	#---------------------------------------------------#
+	  #------------------------------------------------------------------------------#
+	 #   GETTING SECTIONS AND ANTI-SECTIONS OF A GIVEN SET OF SECTIONS -- EXTENDED  #
+	#------------------------------------------------------------------------------#
+		
+	def SectionsAndAntiSectionsXT(paSections)
+		aSectionsAntiSections = This.FindSectionsAndAntiSections(paSections)
+
+		aResult = []
+
+		for aSection in aSectionsAntiSections
+			aResult + [ This.Section(aSection[1], aSection[2]), aSection ]
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def SectionsAndAntiSectionsXTQ(paSections)
+			return This.SectionsAndAntiSectionsXTQR(paSections, pcReturnType)
+
+		def SectionsAndAntiSectionsXTQR(paSections, pcReturnType)
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SectionsAndAntiSectionsXT(paSections) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SectionsAndAntiSectionsXT(paSections) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def AllSectionsIncludingXT(paSections)
+			return This.SectionsAndAntiSectionsXT(paSections)
+
+			def AllSectionsIncludingXTQ(paSections)
+				return This.SectionsAndAntiSectionsXTQ(paSections)
+	
+			def AllSectionsIncludingXTQR(paSections, pcReturnType)
+				return This.SectionsAndAntiSectionsXTQR(paSections, pcReturnType)
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #   GENERATING ALL POSSIBLE SECTIONS BETWEEN TOW SUBSTRINGS  #
+	#------------------------------------------------------------#
 
 	def SectionsFromToCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		/* EXAMPLE
@@ -6110,28 +6277,34 @@ class stzString from stzObject
 		acResult = This.Sections(anSections)
 		return acResult
 
-		def AllPossibleSectionsFromTo(pcSubStr1, pcSubStr2, pCaseSensitive)
+		def AllPossibleSectionsFromToCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SectionsFromToCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
-		def AllPossibleSections(pcSubStr1, pcSubStr2, pCaseSensitive)
+		def AllPossibleSectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SectionsFromToCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
-		def PossibleSectionsFromTo(pcSubStr1, pcSubStr2, pCaseSensitive)
+		def PossibleSectionsFromToCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SectionsFromToCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
-		def PossibleSections(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SectionsFromToCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-
-		def SectionsXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SectionsFromToCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-
-		def SectionsCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+		def PossibleSectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SectionsFromToCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SectionsXT(pcSubStr1, pcSubStr2)
-		return This.SectionsXTCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def SectionsFromTo(pcSubStr1, pcSubStr2)
+		return This.SectionsFromToCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+		def AllPossibleSectionsFromTo(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SectionsFromTo(pcSubStr1, pcSubStr2)
+
+		def AllPossibleSections(pcSubStr1, pcSubStr2)
+			return This.SectionsFromTo(pcSubStr1, pcSubStr2)
+
+		def PossibleSectionsFromTo(pcSubStr1, pcSubStr2)
+			return This.SectionsFromTo(pcSubStr1, pcSubStr2)
+
+		def PossibleSections(pcSubStr1, pcSubStr2)
+			return This.SectionsFromToCS(pcSubStr1, pcSubStr2)
 
 	  #--------------------------------------#
 	 #   GETTING MANY RANGES OF THE STRING  #
@@ -11432,7 +11605,7 @@ class stzString from stzObject
 		#--> [ [11, "word1"], [29, "word2"], [43, "word2"] ]
 		*/
 
-		aBetweenXT = This.FindAnyBetweenXTCS("<<", ">>", pCaseSensitive)
+		aBetweenXT = This.FindAnyBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		aResult = []
 		for aPair in aBetweenXT
@@ -11561,72 +11734,6 @@ class stzString from stzObject
 
 	def FindAnySectionsBetweenXT(pcSubStr1, pcSubStr2)
 		return This.FindAnySectionsBetweenXTCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
-
-	  #---------------------------------------------#
-	 #   FINDING ANTISECTIONS BETWEEN TWO BOUNDS   #
-	#---------------------------------------------#
-
-	def FindAntiSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		aSections = This.FindSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		aAntiSections = This.FindAntiSections(aSections)
-
-		aResult = aAntiSections
-		return aResult
-
-	def FindAntiSectionsBetween(pcSubStr, pcBound1, pcBound2)
-		return This.FindAntiSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
-
-	  #--------------------------------------------------------#
-	 #   FINDING ANTISECTIONS BETWEEN TWO BOUNDS -- EXTENDED  #
-	#--------------------------------------------------------#
-
-	def FindAntiSectionsBetweenXTCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		return This.FindAntiSectionsXT( This.FindSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive) )
-
-		def FindAntiSectionsBetweenCSXT(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-			return This.FindAntiSectionsBetweenXTCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-
-	def FindAntiSectionsBetweenXT(pcSubStr, pcBound1, pcBound2)
-		return This.FindAntiSectionsBetweenXTCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
-
-	  #----------------------------------------------------------#
-	 #   FINDING SECTIONS AND ANTISECTIONS BETWEEN TWO BOUNDS   #
-	#----------------------------------------------------------#
-
-	def FindSectionsAndAntiSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		aSections = This.FindSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		aAntiSections = This.FindAntiSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-
-		aResult = StzListOfPairsQ(aSections).
-			  MergeWithQ(aAntiSections).
-			  SortInAscendingQ().
-			  Content()
-
-		return aResult
-
-	def FindSectionsAndAntiSectionsBetween(pcSubStr, pcBound1, pcBound2)
-		return This.FindSectionsAndAntiSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
-
-	  #---------------------------------------------------------------------#
-	 #   FINDING SECTIONS AND ANTISECTIONS BETWEEN TWO BOUNDS -- EXTENDED  #
-	#---------------------------------------------------------------------#
-
-	def FindSectionsAndAntiSectionsBetweenCSXT(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		aSections = This.FindSectionsAndAntiSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		
-		aResult = []
-
-		for aSection in aSections
-			aResult + [ aSection, This.Section(aSection[1], aSection[2]) ]
-		next
-
-		return aResult
-
-		def FindSectionsAndAntiSectionsBetweenXTCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-			return This.FindSectionsAndAntiSectionsBetweenCSXT(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-
-	def FindSectionsAndAntiSectionsBetweenXT(pcSubStr, pcBound1, pcBound2)
-		return This.FindSectionsAndAntiSectionsBetweenCSXT(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
 
 	  #------------------------------------------------------------------#
 	 #   EXTRACTING SUBSTRINGS ENCLOSED BETWEEN TWO OTHER SUBSTRINGS    # 

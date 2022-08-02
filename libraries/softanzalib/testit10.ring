@@ -41,10 +41,10 @@ o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 
 o1 = new stzString("bla bla <<word1>> bla bla <<word2>> bla <<word3>>")
 
-? o1.FindAnyBetween("<<", ">>")
+//? o1.FindAnyBetween("<<", ">>")
 #--> [11, 29, 43]
 
-? o1.FindAnyBetweenXT("<<", ">>")
+//? o1.FindAnyBetweenXT("<<", ">>")
 #--> [ [11, "word1"], [29, "word2"], [43, "word2"] ]
 
 ? o1.FindAnySectionsBetween("<<", ">>")
@@ -52,7 +52,6 @@ o1 = new stzString("bla bla <<word1>> bla bla <<word2>> bla <<word3>>")
 
 ? o1.FindAnySectionsBetweenXT("<<", ">>")
 #--> [ [ "word1", [11, 15] ], [ "word2", [29, 33] ], [ "word3", [43, 47] ] ]
-
 
 /*---------------
 
@@ -81,7 +80,6 @@ aSectionsBetween = o1.FindAnySectionsBetween("<<", ">>")
 #	[ [48, 49], ">>" ]
 #    ]
 
-
 /*---------------
 
 o1 = new stzList([ 3, 7 ])
@@ -93,42 +91,6 @@ o1 = new stzListOfPairs([ [3, 5], [8, 10] ])
 o1.MergeWith([ [1, 2], [6, 7] ])
 ? o1.SortedInAscending()
 #--> [ [1, 2], [3, 5], [6, 7], [8, 10] ]
-
-/*---------------
-
-o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
-? o1.FindSectionsBetween("word", "<<", ">>")
-#--> [ [11, 14], [28, 31], [41, 44] ]
-
-? o1.FindAntiSectionsBetween("word", "<<", ">>")
-#--> [ [1, 10], [15, 27], [32, 40], [45, 46] ]
-
-? o1.FindAntiSectionsBetweenXT("word", "<<", ">>")
-#--> [
-#	[ [ 1, 10], "bla bla <<" ],
-#	[ [15, 27], ">> bla bla <<" ],
-#	[ [32, 40], ">> bla <<"],
-#	[ [45, 46], ">>" ]
-#    ]
-
-? o1.FindSectionsAndAntiSectionsBetween("word", "<<", ">>")
-#--> [ [1, 10], [11, 14], [15, 27], [28, 31], [32, 40], [41, 44], [45, 46] ]
-
-? o1.FindSectionsAndAntiSectionsBetweenXT("word", "<<", ">>")
-#--> [
-#	[ [ 1, 10], "bla bla <<" ],
-#	[ [11, 14], "word" ],
-#	[ [15, 27], ">> bla bla <<" ],
-#	[ [28, 31], "word" ],
-#	[ [32, 40], ">> bla <<"],
-#	[ [41, 44], "word" ],
-#	[ [45, 46], ">>" ]
-#    ]
-
-/*---------------
-
-ANY
-
 
 /*---------------
 
