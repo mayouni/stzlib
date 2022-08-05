@@ -9845,9 +9845,9 @@ class stzList from stzObject
 			#>
 		#>
 		
-	  #-------------------------------------------------------#
+	  #=======================================================#
 	 #    VISUALLY FINDING ALL OCCURRENCES OF A GIVEN ITEM   #
-	#-------------------------------------------------------#
+	#=======================================================#
 
 	# NOTE: Works only if items are chars (string of 1 char each)
 	# TODO: Implement a more general solution for longer items
@@ -12898,6 +12898,9 @@ class stzList from stzObject
 
 		return bResult
 
+		def IsRemoveAtOptionsNamedParam()
+			return This.IsRemoveAtOptionsParamList()
+
 	def IsTextBoxedOptionsParamList()
 		/*
 		Example:
@@ -12944,6 +12947,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsTextBoxedOptionsNamedParam()
+			return This.IsTextBoxedOptionsParamList()
+
 	def IsBoxOptionsParamList()
 
 		if This.IsEmpty()
@@ -12980,6 +12986,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsBoxOptionsNamedParam()
+			return This.IsBoxOptionsParamList()
+
 	def IsNumberListifyOptionsParamList()
 		if This.IsEmpty()
 			return TRUE
@@ -12996,6 +13005,9 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsNumberListifyOptionsNamedParam()
+			return This.IsNumberListifyOptionsParamList()
 
 	def IsStringListifyOptionsParamList()
 		if This.IsEmpty()
@@ -13014,6 +13026,9 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsStringListifyOptionsNamedParam()
+			return This.IsStringListifyOptionsParamList()
 
 	def IsConstraintsOptionsParamList()
 		/* EXAMPLE
@@ -13047,6 +13062,9 @@ class stzList from stzObject
 			return FALSE
 		done
 
+		def IsConstraintsOptionsNamedParam()
+			return This.IsConstraintsOptionsParamList()
+
 	  #================================#
 	 #   CHECKING NAMED PARAM LISTS   #
 	#================================#
@@ -13062,6 +13080,9 @@ class stzList from stzObject
 		ok
 
 		def IsCaseSensitiveParamList()
+			return This.IsCaseSensitiveNamedParamList()
+
+		def IsCaseSensitiveNamedParam()
 			return This.IsCaseSensitiveNamedParamList()
 
 	def IsRangeNamedParamList()
@@ -13097,6 +13118,10 @@ class stzList from stzObject
 		def IsRangeParamList()
 			return This.IsRangeNamedParamList()
 
+		def IsRangeNamedParam()
+			return This.IsRangeNamedParamList()
+
+
 	def IsStartingAtNamedParamList()
 		if This.NumberOfItems() = 2 and
 
@@ -13122,6 +13147,9 @@ class stzList from stzObject
 		def IsStartingAtParamList()
 			return This.IsStartingAtNamedParamList()
 
+		def IsStartingAtNamedParam()
+			return This.IsStartingAtNamedParamList()
+
 	def IsInStringNNamedParamList()
 		if This.NumberOfItems() = 2 and
 
@@ -13143,10 +13171,16 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsInStringNNamedParam()
+			return This.IsInStringNNamedParamList()
+
 		def IsInStringNParamList()
 			return This.IsInStringNNamedParamList()
 
 		def IsInStringItemNNamedParamList()
+			return This.IsInStringNNamedParamList()
+
+		def IsInStringItemNNamedParam()
 			return This.IsInStringNNamedParamList()
 
 		def IsInStringItemNParamList()
@@ -13155,10 +13189,16 @@ class stzList from stzObject
 		def IsInStringAtPositionNNamedParamList()
 			return This.IsInStringNNamedParamList()
 
+		def IsInStringAtPositionNNamedParam()
+			return This.IsInStringNNamedParamList()
+
 		def IsInStringAtPositionNParamList()
 			return This.IsInStringNNamedParamList()
 
 		def IsInStringItemAtPositionNNamedParamList()
+			return This.IsInStringNNamedParamList()
+
+		def IsInStringItemAtPositionNNamedParam()
 			return This.IsInStringNNamedParamList()
 
 		def IsInStringItemAtPositionNParamList()
@@ -13194,6 +13234,10 @@ class stzList from stzObject
 		def IsExceptParamList()
 			return This.IsExceptNamedParamList()
 
+		def IsExceptNamedParam()
+			return This.IsExceptNamedParamList()
+
+
 	def IsFromNamedParamList()
 		if This.NumberOfItems() = 2 and
 
@@ -13225,6 +13269,13 @@ class stzList from stzObject
 		def IsFromPositionParamList()
 			return This.IsFromNamedParamList()
 
+		def IsFromNamedParam()
+			return This.IsFromNamedParamList()
+
+		def IsFromPositionNamedParam()
+			return This.IsFromNamedParamList()
+
+
 	def IsToNamedParamList()
 		if This.NumberOfItems() = 2 and
 
@@ -13255,9 +13306,15 @@ class stzList from stzObject
 		def IsToPositionNamedParamList()
 			return This.IsToNamedParamList()
 
-			def IsToPositionParamList()
-				return This.IsToNamedParamList()
-	
+		def IsToPositionParamList()
+			return This.IsToNamedParamList()
+
+		def IsToNamedParam()
+			return This.IsToNamedParamList()
+
+		def IsToPositionNamedParam()
+			return This.IsToNamedParamList()
+
 	def IsOfNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Of )
@@ -13270,6 +13327,10 @@ class stzList from stzObject
 
 		def IsOfParamList()
 			return This.IsOfNamedParamList()
+
+		def IsOfNamedParam()
+			return This.IsOfNamedParamList()
+
 
 	def IsOnNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -13284,6 +13345,10 @@ class stzList from stzObject
 		def IsOnParamList()
 			return This.IsOnNamedParamList()
 
+		def IsOnNamedPAram()
+			return This.IsOnNamedParamList()
+
+
 	def IsInNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :In )
@@ -13296,6 +13361,10 @@ class stzList from stzObject
 
 		def IsInParamList()
 			return This.IsInNamedParamList()
+
+		def IsInNamedParam()
+			return This.IsInNamedParamList()
+
 
 	def IsWhereNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -13311,6 +13380,9 @@ class stzList from stzObject
 		def IsWhereParamList()
 			return This.IsWhereNamedParamList()
 
+		def IsWhereNamedParam()
+			return This.IsWhereNamedParamList()
+
 	def IsThatNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :That ) and
@@ -13324,6 +13396,10 @@ class stzList from stzObject
 
 		def IsThatParamList()
 			return This.IsThatNamedParamList()
+
+		def IsThatNamedParam()
+			return This.IsThatNamedParamList()
+
 
 	def IsThatOrWhereNamedParamList()
 		if This.IsThatNamedParamList() or This.IsWhatNamedParamList()
@@ -13341,6 +13417,13 @@ class stzList from stzObject
 		def IsWhereOrThatParamList()
 			return This.IsThatOrWhereNamedParamList()
 
+		def IsThatOrWhereNamedParam()
+			return This.IsThatOrWhereNamedParamList()
+
+		def IsWhereOrThatNamedParam()
+			return This.IsThatOrWhereNamedParamList()
+
+
 	def IsIfNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   This[1] = :If and
@@ -13355,6 +13438,10 @@ class stzList from stzObject
 		def IsIfParamList()
 			return This.IsIfNamedParamList()
 
+		def IsIfNamedParam()
+			return This.IsIfNamedParamList()
+
+
 	def IsIfOrWhereNamedParamList()
 		return This.IsIfNamedParamList() or This.IsWhereNamedParamList()
 
@@ -13365,6 +13452,12 @@ class stzList from stzObject
 			return This.IsIfOrWhereNamedParamList()
 
 		def IsWhereOrIfParamList()
+			return This.IsIfOrWhereNamedParamList()
+
+		def IsIfOrWhereNamedParam()
+			return This.IsIfOrWhereNamedParamList()
+
+		def IsWhereOrIfNamedParam()
 			return This.IsIfOrWhereNamedParamList()
 
 	def IsWithNamedParamList()
@@ -13381,6 +13474,9 @@ class stzList from stzObject
 		def IsWhithParamList()
 			return This.IsWithNamedParamList()
 
+		def IsWhithNamedParam()
+			return This.IsWithNamedParamList()
+
 	def IsByNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :By, :By@ ]) )
@@ -13394,6 +13490,10 @@ class stzList from stzObject
 		def IsByParamList()
 			return This.IsByNamedParamList()
 
+		def IsByNamedParam()
+			return This.IsByNamedParamList()
+
+
 	def IsWithOrByNamedParamList()
 		return This.IsWithNamedParamList() OR This.IsByNamedParamList()
 
@@ -13405,6 +13505,12 @@ class stzList from stzObject
 
 		def IsByOrWithParamList()
 			return This.IsIfOrWhereNamedParamList()
+
+		def IsWithOrByNamedParam()
+			return This.IsWithOrByNamedParamList()
+
+		def IsByOrWithNamedParam()
+			return This.IsWithOrByNamedParamList()
 
 	def IsUsingNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -13418,6 +13524,10 @@ class stzList from stzObject
 
 		def IsUsingParamList()
 			return This.IsUsingNamedParamList()
+
+		def IsUsingNamedParam()
+			return This.IsUsingNamedParamList()
+
 
 	def IsAtNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -13457,6 +13567,10 @@ class stzList from stzObject
 		def IsAtParamList()
 			return This.IsAtNamedParamList()
 
+		def IsAtNamedParam()
+			return This.IsAtNamedParamList()
+
+
 	def IsUsingOrAtOrWhereNamedParamList()
 		if This.IsUsingNamedParamList() or
 		   This.IsAtNamedParamList() or
@@ -13470,36 +13584,56 @@ class stzList from stzObject
 		def IsUsingOrAtOrWhereParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
+			def IsUsingOrAtOrWhereNamedParam()
+				return This.IsUsingOrAtOrWhereNamedParamList()
+	
+
 		def IsUsingOrWhereOrAtNamedParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
+			def IsUsingOrWhereOrAtNamedParam()
+				return This.IsUsingOrAtOrWhereNamedParamList()
+	
 		def IsUsingOrWhereOrAtParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
-
+	
 		def IsAtOrUsingOrWhereNamedParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
+			def IsAtOrUsingOrWhereNamedParam()
+				return This.IsUsingOrAtOrWhereNamedParamList()
+	
 		def IsAtOrUsingOrWhereParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
-
+	
 		def IsAtOrWhereOrUsingNamedParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
+			def IsAtOrWhereOrUsingNamedParam()
+				return This.IsUsingOrAtOrWhereNamedParamList()
+	
 		def IsAtOrWhereOrUsingParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
 		def IsWhereOrAtOrUsingNamedParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
+			def IsWhereOrAtOrUsingNamedParam()
+				return This.IsUsingOrAtOrWhereNamedParamList()
+	
 		def IsWhereOrAtOrUsingParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
 		def IsWhereOrUsingOrAtNamedParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
+			def IsWhereOrUsingOrAtNamedParam()
+				return This.IsUsingOrAtOrWhereNamedParamList()
+	
 		def IsWhereOrUsingOrAtParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
 
+	
 	def IsAtPositionNamedParamList()
 		if This.NumberOfItems() = 2 and
 			( isString(This[1]) and  This[1] = :AtPosition ) and
@@ -13538,6 +13672,9 @@ class stzList from stzObject
 		def IsAtPositionParamList()
 			return This.IsAtPositionNamedParamList()
 
+		def IsAtPositionNamedParam()
+			return This.IsAtPositionNamedParamList()
+
 	def IsStepNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  Q(This[1]).IsOneOfThese([ :Step, :Steps ]) ) and
@@ -13551,6 +13688,10 @@ class stzList from stzObject
 
 		def IsStepsParamList()
 			return This.IsStepNamedParamList()
+
+		def IsStepsNamedPAram()
+			return This.IsStepNamedParamList()
+
 
 	def IsNameNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -13566,6 +13707,9 @@ class stzList from stzObject
 		def IsNameParamList()
 			return This.IsNameNamedParamList()
 
+		def IsNameParam()
+			return This.IsNameNamedParamList()
+
 	def IsRaiseNamedParamList()
 		if This.NumberOfItems() <= 4 and
 		   This.IsHashList() and
@@ -13579,6 +13723,9 @@ class stzList from stzObject
 		ok
 
 		def IsRaiseParamList()
+			return This.IsRaiseNamedParamList()
+
+		def IsRaiseNamedParam()
 			return This.IsRaiseNamedParamList()
 
 	def IsReturnedAsNamedParamList()
@@ -13597,6 +13744,9 @@ class stzList from stzObject
 		def IsReturnedAsParamList()
 			return This.IsAtNamedParamList()
 
+		def IsReturnedAsNamedParam()
+			return This.IsAtNamedParamList()
+
 	def IsReturnNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   isString(This[1]) and Q(This[1]).IsEqualToCS(:Return) and
@@ -13611,6 +13761,9 @@ class stzList from stzObject
 		def IsReturnParamList()
 			return This.IsReturnNamedParamList()
 
+		def IsReturnNamedParam()
+			return This.IsReturnNamedParamList()
+
 	def IsDirectionNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Direction ) and
@@ -13622,8 +13775,11 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsirectionParamList()
-			return This.IsirectionNamedParamList()
+		def IsDirectionParamList()
+			return This.IsDirectionNamedParamList()
+
+		def IsDirectionNamedParam()
+			return This.IsDirectionNamedParamList()
 
 	def IsUpToNCharsNamedParamList()
 		if This.NumberOfItems() = 2 and
@@ -13636,6 +13792,9 @@ class stzList from stzObject
 		ok
 		   
 		def IsUpToNCharsParamList()
+			return This.IsUpToNCharsNamedParam()
+
+		def IsUpToNCharsNamedParam()
 			return This.IsUpToNCharsNamedParamList()
 
 	def IsUpToNItemsNamedParamList()
@@ -13652,6 +13811,48 @@ class stzList from stzObject
 		def IsUpToNItemsParamList()
 			return This.IsUpToNCharsNamedParamList()
 
+		def IsUpToNItemsNamedParam()
+			return This.IsUpToNCharsNamedParamList()
+
+	def IsBeforeNamedParamList()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :Before )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsBeforeNamedParam()
+			return This.BeforeNamedParamList()
+
+	def IsAfterNamedParamList()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :After )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAfterNamedParam()
+			return This.BeforeNamedParamList()
+
+	def IsBeforeOrAfterNamedParamList()
+		if This.IsBeforeNamedPAramList() or This.IsAfterNamedParamList()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAfterOrBeforeNamedParamList()
+			return This.IsBeforeOrAfterNamedParamList()
+
+		def IsAfterOrBeforeNamedParam()
+			return This.IsBeforeOrAfterNamedParamList()
+
+		def IsAfterOrBeforeNamed()
+			return This.IsBeforeOrAfterNamedParamList()
 
 	  #================================#
 	 #     GETTING TYPES OF ITEMS     #
