@@ -23,20 +23,47 @@ o1 = new stzString("123 ABC 901 DEF")
 o1.ReplaceSections([ [1, 3], [9, 11] ], "***")
 ? o1.Content() #--> #--> *** ABC *** DEF
 
-/*---------------- TODO: Correct this!
+/*----------------
 
-o1 = new stzString("12345 ABC 901 DEF")
+o1 = new stzString("12345 ABC 123 DEF")
+o1.ReplaceSection( 11, 13, :With@ = ' NTimes( Q(@Section).Size(), "*" ) ' )
+? o1.Content()
+#--> ***** ABC 123 DEF
+o1.ReplaceSection( 1, 5, :With@ = ' NTimes( Q(@Section).Size(), "*" ) ' )
+? o1.Content()
+#--> ***** ABC *** DEF
+
+STOP()
+/*----------------
+
+o1 = new stzString("12345 ABC 1234 DEF")
 
 o1.ReplaceSections(
-	[ [1, 5], [11, 13] ],
+	[ [1, 5] , [11, 14] ],
+
+	:With = '***'
+)
+
+? o1.Content()
+
+STOP()
+/*----------------
+
+o1 = new stzString("12345 ABC 123 DEF")
+
+o1.ReplaceSections(
+	[ [1, 5] , [11, 13] ],
 
 	:With@ = '{
-		NTimes( Q(@Section).Size(), "*")
+		NTimes( Q(@Section).Size(), "*" )
 	}'
 )
 
 ? o1.Content()
+
 #--> ***** ABC *** DEF
+
+STOP()
 
 /*----------------
 
@@ -321,35 +348,35 @@ aAntiSections = o1.FindAntiSections(aSections)
 #    ]
 
 /*----------------
-*/
+
 o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
 aBetween = o1.FindAnySectionsBetween('"', '"')
 #--> [ [24 ,41], [56, 63] ]
 
-//? o1.Sections( aBetween )
+? o1.Sections( aBetween )
 #--> [ '    withspaces    ', 'nospaces' ]
 
-//? o1.SectionsXT( aBetween )
+? o1.SectionsXT( aBetween )
 #--> [
 #	[ '    withspaces    ', [24 ,41] ],
 #	[ ''nospaces', [56, 63] ]
 #    ]
 
-//? o1.AntiSections( aBetween )
+? o1.AntiSections( aBetween )
 #--> [
 #	' this code:   txt1  = "',
 #	'"   and txt2="',
 #	'"  '
 #    ]
 
-//? o1.AntiSectionsXT( aBetween )
+? o1.AntiSectionsXT( aBetween )
 #--> [
 #	[ ' this code:   txt1  = "', [1, 23] ],
 #	[ '"   and txt2="', [42, 55] ],
 #	[ '"  ', [64, 66] ]
 #    ]
 
-//? o1.SectionsAndAntiSections( aBetween )
+? o1.SectionsAndAntiSections( aBetween )
 #--> [
 #	' this code:   txt1  = "',
 #	'    withspaces    ',
@@ -368,23 +395,56 @@ aBetween = o1.FindAnySectionsBetween('"', '"')
 #    ]
 
 /*---------------
--
 
-o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
+? Q(" this code:   txt1  = ").Simplified()
+#--> "this code: txt1 ="
 
-o1.ReplaceSections([ [24 ,41], [56, 63] ], :With@ = ' Q(@Section).Simplified() ')
+/*---------------
+
+o1 = new stzString(' this code:   txt1  = "<    withspaces    >"   and txt2="<nospaces>"  ')
+aAntiSections = o1.FindAntiSections( o1.FindAnySectionsBetween('"','"') )
+
+o1.ReplaceSections(aAntiSections, :With = '|***|')
 ? o1.Content()
+#--> '|***|<    withspaces    >|***|<nospaces>|***|'
 
-//o1.ReplaceSectionsExcept(aBetween, :With@ = ' Q(@Section).Simplified() ')
+/*----------------
 
+o1 = new stzString(' this code    :   txt1  = "<    leave spaces    >"   and this    code:  txt2 =   "< leave spaces >"  ')
+aAntiSections = o1.FindAntiSections( o1.FindAnySectionsBetween('"','"') )
+
+o1.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
+? o1.Content()
+#--> this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"
+
+
+/*----------------
+
+o1 = new stzString("ONE")
+
+? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***THREE")	#--> TRUE
+? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***THREE")	#--> FALSE
 
 STOP()
+
+*----------------
+*/
+o1 = new stzString("ONE")
+
+? o1.Occurs( :Before = "TWO", :In = [ "***", "ONE", "***", "TWO", "***", "THREE" ])	#--> TRUE
+? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***", "THREE" ])	#--> FALSE
+
+STOP()
+
 /*----------------
 
 ? ComputableFormSimplified('len    var1 = "    value "  and var2 =  " 12   " ')
+#--> 'len var1 = "    value " and var2 = " 12   "'
 
-//aList = Q('len    var1 = "    value "  and var2 =  " 12   " ').SubStringsBetween('"','"')
+? ComputableFormSimplified("len    var1 = '    value '  and var2 =  ' 12   ' ")
+#--> 'len var1 = "    value " and var2 = " 12   "'
 
+STOP()
 /*----------------
 
 o1 = new stzString("Av♥♥c♥♥")

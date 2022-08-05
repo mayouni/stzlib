@@ -504,7 +504,31 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 	#>
 
 func ComputableFormSimplified(pValue)
-	cResult = ComputableForm(pValue)
+	if isNumber(pValue)
+		return ""+ pValue
+
+	but isString(pValue)
+		oStr = new stzString(pValue)
+		aAntiSections = oStr.FindAntiSections( oStr.FindAnySectionsBetween('"','"') )
+		
+		oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
+		#--> this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"
+		
+		cChar = ""
+
+		if Q('"').
+		   Occurs( :Before = "'", :In = pValue )
+			cChar = '"'
+
+		else
+			cChar = "'"
+		ok
+
+		cResult = cChar + oStr.Content() + cChar
+
+	but isList(pValue)
+		return ListToCode(pValue)
+	ok
 
 	return cResult
 

@@ -9750,7 +9750,7 @@ class stzString from stzObject
 		def FirstNextOccurrenceCS()
 			return This.FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindNextOccurrence(pcSubStr, nStart)
 		return This.FindNextOccurrenceCS(pcSubStr, nStart, :CaseSensitive = TRUE)
@@ -9811,7 +9811,7 @@ class stzString from stzObject
 		def FirstPreviousOccurrenceCS()
 			return This.FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindPreviousOccurrence(pcSubStr, nStart)
 		return This.FindPreviousOccurrenceCS(pcSubStr, nStart, :CaseSensitive = TRUE)
@@ -10109,8 +10109,6 @@ class stzString from stzObject
 
 		return aResult
 
-
-	
 	def FindAllW(pcCondition)
 		#< @MotherFunction = YES | @RingBased #>
 
@@ -10639,7 +10637,7 @@ class stzString from stzObject
 
 		#>
 
-	#-- CASE-SENSITIVE
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindMany(pacSubStr)
 		/*
@@ -10811,6 +10809,119 @@ class stzString from stzObject
 				off
 
 		#>
+
+	  #================================================================================#
+	 #  CHECKING IF STRING OCCURES BEFORE/AFTER A GIVEN SUBSTRING IN AN OTHER STRING  #
+	#================================================================================#
+
+	def OccursCS( pcBeforeOrAfter, pIn, pCaseSensitive )
+		# TODO: Generalise this fuction so pcIn can also be a list
+		# TODO: Implement the same function in all other types
+
+		/* EXAMPLE
+
+		o1 = new stzString("ONE")
+
+		? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***")	#--> TRUE
+		? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***")	#--> FALSE
+
+		? o1.Occurs( :Before = "two", :In = [ "***", "ONE", "***", "TWO", "***" ])
+		#--> TRUE
+		? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***" ])
+		#--> FALSE
+
+		*/
+		cBeforeOrAfter = ""
+
+		if isList(pcBeforeOrAfter) and Q(pcBeforeOrAfter).IsBeforeOrAfterNamedParamList()
+			cTemp = pcBeforeOrAfter[1]
+
+			pcBeforeOrAfter = pcBeforeOrAfter[2]
+		ok
+
+		if NOT isString(pcBeforeOrAfter)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		ok
+
+		if NOT ( isString(pIn) or isList(pIn) )
+			StzRaise("Incorrect param type! pcIn must be a string or list.")
+		ok
+	
+
+		if isString(pIn)
+			oStr = new stzString(pcIn)
+	
+			nThis  = oStr.FindFirstCS( This.Content(), pCaseSensitive )
+			nOther = oStr.FindFirstCS( pcBeforeOrAfter, pCaseSensitive )
+
+		but isList(pIn)
+			if Q(pIn).IsListOfStrings()
+				oListStr = new stzListOfStrings(pIn)
+
+				nThis  = oListStr.FindFirstCS( This.Content(), pCaseSensitive )
+				nOther = oListStr.FindFirstCS( pcBeforeOrAfter, pCaseSensitive )
+			else
+				if pCaseSensitive[2] = TRUE
+					oList = new stzList(pIn)
+	
+					nThis  = oList.FindFirst( This.Content() )
+					nOther = oList.FindFirst( pcBeforeOrAfter )
+						
+				else
+					oList = new stzList(pIn)
+					oList.Lowercase()
+
+					nThis  = oList.FindFirst( This.ContentQ().Lowercased() )
+					nOther = oList.FindFirst( pcBeforeOrAfter )
+
+				ok
+			ok
+
+		ok
+
+		bResult = FALSE
+
+		if cTemp = :After
+			bResult = nThis > nOther
+
+		but cTemp = :Before
+			bResult = nThis < nOther
+		ok
+
+		return bResult
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def Occurs(pcBeforeOrAfter, pcIn)
+		return This.OccursCS(pcBeforeOrAfter, pcIn, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING OCCURES BEFORE A GIVEN SUBSTRING IN AN OTHER STRING  #
+	#------------------------------------------------------------------------------#
+
+	def OccursBeforeCS( pcSubStr, pcIn, pCaseSensitive )
+		return This.OccursCS( :Before = pcSubStr, pcIn, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def OccursBefore(pcSubStr, pCIn)
+		return This.OccursBeforeCS( pcSubStr, pcIn, :CaseSensitive = TRUE )
+
+	  #-----------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING OCCURES AFTER A GIVEN SUBSTRING IN AN OTHER STRING  #
+	#-----------------------------------------------------------------------------#
+
+	def OccursAfterCS( pcSubStr, pcIn, pCaseSensitive )
+		return This.OccursCS( :After = pcSubStr, pcIn, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def OccursAfter(pcSubStr, pCIn)
+		return This.OccursAfterCS( pcSubStr, pcIn, :CaseSensitive = TRUE )
 
 	  #===================================================#
 	 #   FINDING BY PATTERN (AN ALTERNATIVE TO REGEXP)   # TODO (FUTURE
@@ -15953,6 +16064,12 @@ return
 	def ReplaceSection(n1, n2, pcNewSubStr)
 		#< @MotherFunction = YES | @QtBased #>
 
+		# Let's take a copy of pcNewSubStr and work on it locally
+		# to avoid bugs when using conditional code (using :with@)
+		# TODO: Generalize this!
+
+		pcNewSubStrCopy = pcNewSubStr
+
 		# Checking the correctness of n1 and n2 params
 
 		if isList(n1) and Q(n1).IsFromNamedParamList()
@@ -15977,32 +16094,34 @@ return
 
 		# Checking the correctness of pcNewSubStr param
 
-		if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithOrByNamedParamList()
 
-			if pcNewSubStr[1] = :With@ or pcNewSubStr[1] = :By@
+		if isList(pcNewSubStrCopy) and Q(pcNewSubStrCopy).IsWithOrByNamedParamList()
 
-				cCode = StzStringQ(pcNewSubStr[2]).
+			if pcNewSubStrCopy[1] = :With@ or pcNewSubStrCopy[1] = :By@
+
+				cCode = StzStringQ(pcNewSubStrCopy[2]).
 					TrimQ().
 					RemoveBoundsQ("{","}").
 					Content()
 
 				@section = This.Section(n1, n2)
-				cCode = "pcNewSubStr = " + cCode
+
+				cCode = "pcNewSubStrCopy = " + cCode
 
 				eval(cCode)
 			else
-				pcNewSubStr = pcNewSubStr[2]
+				pcNewSubStrCopy = pcNewSubStrCopy[2]
 
 			ok
 		ok
 
-		if NOT isString(pcNewSubStr)
+		if NOT isString(pcNewSubStrCopy)
 			stzRaise("Incorrect param type! pcNewSubStr must be a string.")
 		ok
 
 		# Doing the job
 
-		QStringObject().replace(n1 - 1, n2 - n1 + 1, pcNewSubStr)
+		QStringObject().replace(n1 - 1, n2 - n1 + 1, pcNewSubStrCopy)
 
 		#< @FunctionFluentForm
 
@@ -16038,8 +16157,8 @@ return
 			stzRaise([
 				:Where = "stzString > ReplaceManySections()",
 				:What  = "Can't Replace many sections from the string.",
-				:Why   = "The value you provided is not list of sections.",
-				:Todo  = "Provide a list of pairs of numbers."
+				:Why   = "The value you provided is not a list of sections.",
+				:Todo  = "Provide a list of sections as pairs of numbers!"
 			])
 		ok
 
@@ -16049,8 +16168,14 @@ return
 		nNumberOfSections = len(aListOfSections)
 		
 		for i = len(aListOfSections) to 1 step -1
+
 			aSection = aListOfSections[i]
-			This.ReplaceSection(aSection[1], aSection[2], pcNewSubStr)
+
+			n1 = aSection[1]
+			n2 = aSection[2]
+
+			This.ReplaceSection(n1, n2, pcNewSubStr)
+
 		next
 
 		def ReplaceManySectionsQ(paListOfSections, pcNewSubStr)
