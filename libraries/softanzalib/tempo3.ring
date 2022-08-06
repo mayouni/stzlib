@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*=========
+
 o1 = new stzList([
 	"me",
 	"other",
@@ -462,9 +464,19 @@ STOP()
 
 /*----------------
 */
+? Q("*").OccursForTheFirstTime( :In = "a*b*c*d", :AtPosition = 2 ) #--> TRUE
+? Q("*").OccursForTheLastTime( :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 6 ) #--> TRUE
 
-? Q("*").OccursForTheNTime( 1, :In = "a*b*c*d", :AtPosition = 2 )
-? Q("*").OccursForTheFirstTime( :In = "a*b*c*d", :AtPosition = 2 )
+/*
+? Q("*").OccursForTheNthTime( 1, :In = "a*b*c*d", :AtPosition = 2 ) #--> TRUE
+? Q("*").OccursForTheNthTime( 2, :In = "a*b*c*d", :AtPosition = 4 ) #--> TRUE
+? Q("*").OccursForTheNthTime( 3, :In = "a*b*c*d", :AtPosition = 6 ) #--> TRUE
+
+? Q("*").OccursForTheNthTime( 1, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 2 ) #--> TRUE
+? Q("*").OccursForTheNthTime( 2, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 4 ) #--> TRUE
+? Q("*").OccursForTheNthTime( 3, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 6 ) #--> TRUE
+
+//? Q("*").OccursForTheFirstTime( :In = "a*b*c*d", :AtPosition = 2 )
 
 /*----------------
 
