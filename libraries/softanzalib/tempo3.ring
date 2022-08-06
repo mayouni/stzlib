@@ -1,6 +1,24 @@
 load "stzlib.ring"
 
-/*---------
+o1 = new stzList([
+	"me",
+	"other",
+	[ "other", "me", [ "me" ], "other" ],
+	"other"
+])
+
+o1.DeepReplace("me", :By = "you")
+? @@( o1.Content() )
+#--> [
+#	"you",
+#	"other",
+#	[ "other", "me", [ "you" ], "other" ],
+#	"other"
+#    ]
+
+STOP()
+
+/*=========
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 ? o1.NumberOfSectionsBetween("word", "<<", ">>") #--> 3
@@ -428,13 +446,25 @@ o1 = new stzString("ONE")
 STOP()
 
 *----------------
-*/
+// ADD IT TO stzNumber, stzList and stzObject classes
+
 o1 = new stzString("ONE")
 
 ? o1.Occurs( :Before = "TWO", :In = [ "***", "ONE", "***", "TWO", "***", "THREE" ])	#--> TRUE
 ? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***", "THREE" ])	#--> FALSE
 
 STOP()
+
+/*----------------
+
+? Q("*").OccursNTimes(3, :In = "a*b*c*d") #--> TRUE
+? Q("*").OccursNTimes(3, :In = [ "a", "*", "b", "*", "c", "*", "d" ]) #--> TRUE
+
+/*----------------
+*/
+
+? Q("*").OccursForTheNTime( 1, :In = "a*b*c*d", :AtPosition = 2 )
+? Q("*").OccursForTheFirstTime( :In = "a*b*c*d", :AtPosition = 2 )
 
 /*----------------
 

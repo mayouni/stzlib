@@ -10810,9 +10810,10 @@ class stzString from stzObject
 
 		#>
 
-	  #================================================================================#
-	 #  CHECKING IF STRING OCCURES BEFORE/AFTER A GIVEN SUBSTRING IN AN OTHER STRING  #
-	#================================================================================#
+	   #=====================================================#
+	  #   CHECKING IF STRING OCCURES BEFORE/AFTER A GIVEN   #
+	 #   SUBSTRINGING AN OTHER STRING OR LIST              #
+	#=====================================================#
 
 	def OccursCS( pcBeforeOrAfter, pIn, pCaseSensitive )
 		# TODO: Generalise this fuction so pcIn can also be a list
@@ -10853,7 +10854,7 @@ class stzString from stzObject
 	
 
 		if isString(pIn)
-			oStr = new stzString(pcIn)
+			oStr = new stzString(pIn)
 	
 			nThis  = oStr.FindFirstCS( This.Content(), pCaseSensitive )
 			nOther = oStr.FindFirstCS( pcBeforeOrAfter, pCaseSensitive )
@@ -10896,32 +10897,91 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVTY
 
-	def Occurs(pcBeforeOrAfter, pcIn)
-		return This.OccursCS(pcBeforeOrAfter, pcIn, :CaseSensitive = TRUE)
+	def Occurs(pcBeforeOrAfter, pIn)
+		return This.OccursCS(pcBeforeOrAfter, pIn, :CaseSensitive = TRUE)
 
-	  #------------------------------------------------------------------------------#
-	 #  CHECKING IF THE STRING OCCURES BEFORE A GIVEN SUBSTRING IN AN OTHER STRING  #
-	#------------------------------------------------------------------------------#
+		
 
-	def OccursBeforeCS( pcSubStr, pcIn, pCaseSensitive )
-		return This.OccursCS( :Before = pcSubStr, pcIn, pCaseSensitive)
+	   #-----------------------------------------------#
+	  #   CHECKING IF STRING OCCURES BEFORE A GIVEN   #
+	 #   SUBSTRINGING AN OTHER STRING OR LIST        #
+	#-----------------------------------------------#
 
-	#-- WITHOUT CASESENSITIVTY
-
-	def OccursBefore(pcSubStr, pCIn)
-		return This.OccursBeforeCS( pcSubStr, pcIn, :CaseSensitive = TRUE )
-
-	  #-----------------------------------------------------------------------------#
-	 #  CHECKING IF THE STRING OCCURES AFTER A GIVEN SUBSTRING IN AN OTHER STRING  #
-	#-----------------------------------------------------------------------------#
-
-	def OccursAfterCS( pcSubStr, pcIn, pCaseSensitive )
-		return This.OccursCS( :After = pcSubStr, pcIn, pCaseSensitive)
+	def OccursBeforeCS( pcSubStr, pIn, pCaseSensitive )
+		return This.OccursCS( :Before = pcSubStr, pIn, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVTY
 
-	def OccursAfter(pcSubStr, pCIn)
-		return This.OccursAfterCS( pcSubStr, pcIn, :CaseSensitive = TRUE )
+	def OccursBefore(pcSubStr, pIn)
+		return This.OccursBeforeCS( pcSubStr, pIn, :CaseSensitive = TRUE )
+
+	   #----------------------------------------------#
+	  #   CHECKING IF STRING OCCURES AFTER A GIVEN   #
+	 #   SUBSTRINGING AN OTHER STRING OR LIST       #
+	#----------------------------------------------#
+
+	def OccursAfterCS( pcSubStr, pIn, pCaseSensitive )
+		return This.OccursCS( :After = pcSubStr, pIn, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def OccursAfter(pcSubStr, pIn)
+		return This.OccursAfterCS( pcSubStr, pIn, :CaseSensitive = TRUE )
+
+	  #-------------------------------------------------------------------#
+	 #   CHECKING IF STRING OCCURES N TIMES IN AN OTHER STRING OR LIST   #
+	#-------------------------------------------------------------------#
+
+	def OccursNTimesCS( n, pIn, pCaseSensitive )
+
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		ok
+
+		if NOT ( isString(pIn) or isList(pIn) )
+			StzRaise("Incorrect param type! pcIn must be a string or list.")
+		ok
+	
+		nOccurrence = 0
+
+		if isString(pIn)
+			oStr = new stzString(pIn)
+			nOccurrence  = oStr.NumberOfOccurrenceCS( This.Content(), pCaseSensitive )
+
+		but isList(pIn)
+			if Q(pIn).IsListOfStrings()
+				oListStr = new stzListOfStrings(pIn)
+				nOccurrence  = oListStr.NumberOfOccurrenceCS( This.Content(), pCaseSensitive )
+
+			else
+				if pCaseSensitive[2] = TRUE
+					oList = new stzList(pIn)
+					nOccurrence  = oList.NumberOfOccurrence( This.Content() )
+		
+				else
+					oList = new stzList(pIn)
+					oList.Lowercase()
+
+					nThis  = oList.FindFirst( This.ContentQ().Lowercased() )
+					nOccurrence  = oList.NumberOfOccurrence( This.Content() )
+		
+				ok
+			ok
+
+		ok
+
+		bResult = FALSE
+
+		if nOccurrence = n
+			bResult = TRUE
+		ok
+
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def OccursNTimes( n, pIn )
+		return This.OccursNTimesCS( n, pIn, :CaseSensitive = TRUE )
 
 	  #===================================================#
 	 #   FINDING BY PATTERN (AN ALTERNATIVE TO REGEXP)   # TODO (FUTURE

@@ -2369,6 +2369,41 @@ class stzList from stzObject
 		aResult = This.Copy().ReplaceItemsW(pCondition, pOtherItem)
 		return aResult
 
+	#----------------------------------#
+	#  REPLACING AN ITEM AT ANY LEVEL  #
+	#----------------------------------#
+
+	def DeepReplace(pItem, pByValue)
+		/* EXAMPLE
+
+		o1 = new stzList([
+			"me",
+			"other",
+			[ "other", "me", [ "me" ], "other" ],
+			"other"
+		])
+		
+		o1.DeepReplace("me", :By = "you")
+		? o1.Content()
+		#--> [
+		#	"you",
+		#	"other",
+		#	[ "other", "me", [ "you" ], "other" ],
+		#	"other"
+		#    ]
+		
+		*/
+
+		cValue = @@(pItem)
+		cByValue = @@(pByValue)
+
+		cCode = This.ToCodeQ().ReplaceQ( cValue, cByValue ).Content()
+		cCode = ' aResult = ' + cCode
+
+		eval(cCode)
+		This.Update( aResult )
+
+
 	  #===========================================================#
 	 #   REMOVING ALL OCCURRENCE OF A GIVEN STRING IN THE LIST   #
 	#===========================================================#
