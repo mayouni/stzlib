@@ -2369,10 +2369,11 @@ class stzList from stzObject
 		aResult = This.Copy().ReplaceItemsW(pCondition, pOtherItem)
 		return aResult
 
-	#----------------------------------#
-	#  REPLACING AN ITEM AT ANY LEVEL  #
+	  #----------------------------------#
+	 #  REPLACING AN ITEM AT ANY LEVEL  #
 	#----------------------------------#
 
+	// Replaces an item at any nested level of the list by a new value
 	def DeepReplace(pItem, pByValue)
 		/* EXAMPLE
 
@@ -2403,6 +2404,9 @@ class stzList from stzObject
 		eval(cCode)
 		This.Update( aResult )
 
+		def DeepReplaceQ(pItem, pByValue)
+			This.DeepReplace(pItem, pByValue)
+			return This
 
 	  #===========================================================#
 	 #   REMOVING ALL OCCURRENCE OF A GIVEN STRING IN THE LIST   #
@@ -11056,9 +11060,26 @@ class stzList from stzObject
 			This.LowercaseStrings()
 			return This
 
+		def Lowercase()
+			This.LowercaseStrings()
+
+			def LowercaseQ()
+				This.Lowercase()
+				return This
+
+		def ApplyLowercase()
+			This.LowercaseStrings()
+
+			def ApplyLowercaseQ()
+				This.ApplyLowercase()
+				return This
+
 	def ListWithStringsLowercased()
 		aResult = This.Copy().LowercaseStringsQ().Content()
 		return aResult
+
+		def Lowercased()
+			return This.ListWithStringsLowercased()
 
 	def StringsLowercased()
 		aResult = []
@@ -11091,9 +11112,26 @@ class stzList from stzObject
 			This.UppercaseStrings()
 			return This
 
+		def Uppercase()
+			This.UppercaseStrings()
+
+			def UppercaseQ()
+				This.Uppercase()
+				return This
+
+		def ApplyUppercase()
+			This.UppercaseStrings()
+
+			def ApplyUppercaseQ()
+				This.ApplyUppercase()
+				return This
+
 	def ListWithStringsUppercased()
 		aResult = This.Copy().UppercaseStringsQ().Content()
 		return aResult
+
+		def Uppercased()
+			return This.ListWithStringsUppercased()
 
 	def StringsUppercased()
 		aResult = []
@@ -11125,9 +11163,26 @@ class stzList from stzObject
 			This.TitlecaseStrings()
 			return This
 
+		def Titlecase()
+			This.TitlecaseStrings()
+
+			def TitlecaseQ()
+				This.Titlecase()
+				return This
+
+		def ApplyTitlecase()
+			This.TitlecaseStrings()
+
+			def ApplyTitlecaseQ()
+				This.ApplyTitlecase()
+				return This
+
 	def ListWithStringsTitlecased()
 		aResult = This.Copy().TitlecaseStringsQ().Content()
 		return aResult
+
+		def Titlecased()
+			return This.ListWithStringsTitlecased()
 
 	def StringsTitlecased()
 		aResult = []
@@ -11166,11 +11221,38 @@ class stzList from stzObject
 				This.CapitalizeStrings()
 				return This
 
+		def Capitalise()
+			This.CapitaliseStrings()
+
+			def CapitaliseQ()
+				This.CapitaliseStrings()
+				return This
+
+		def Capitalize()
+			This.CapitalizeStrings()
+
+			def CapitalizeQ()
+				This.Capitalize()
+				return This
+
+		def ApplyCapitalcase()
+			This.CapitalizeStrings()
+
+			def ApplyCapitalcaseQ()
+				This.ApplyCapitalcase()
+				return This
+
 	def ListWithStringsCapitalised()
 		aResult = This.Copy().CapitaliseStringsQ().Content()
 		return aResult
 
 		def ListWithStringsCapitalized()
+			return This.ListWithStringsCapitalised()
+
+		def Capitalised()
+			return This.ListWithStringsCapitalised()
+
+		def Capitalized()
 			return This.ListWithStringsCapitalised()
 
 	def StringsCapitalised()
@@ -13566,7 +13648,7 @@ class stzList from stzObject
 
 	def IsAtNamedParamList()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and This[1] = :ToPosition and
+		   isString(This[1]) and This[1] = :At and
 
 		   ( isNumber(This[2]) or
 			( isString(This[2]) and
@@ -13605,6 +13687,71 @@ class stzList from stzObject
 		def IsAtNamedParam()
 			return This.IsAtNamedParamList()
 
+	def IsAtPositionNamedParamList()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtPosition ) and
+
+		 	  	( isNumber(This[2]) or
+		    			( isString(This[2]) and Q(This[2].IsOneOfThese([
+						:First, :Last,
+						:FirstPosition, :LastPosition,
+	
+						:FirstItem, :LastItem,
+						:FirstChar, :LastChar,
+						:FirstString, :LastString,
+						:FirstStringItem, :LastStringItem,
+						:FirstNumber, :LastNumber,
+						:FirstList, :LastList,
+						:FirstPair, :LastPair,
+						:FirstObject, :LastObject,
+	
+						:FirstSubString, :LastSubString,
+						:FirstSubList, :LastSubList,
+						
+						:FirstWord, :LastWord,
+						:FirstSentence, :LastSentence,
+						:FirstLine, :LastLine,
+						:FirstParagraph, :LastParagraph ])
+					)
+			) 	)
+
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsAtPositionParamList()
+			return This.IsAtPositionNamedParamList()
+
+		def IsAtPositionNamedParam()
+			return This.IsAtPositionNamedParamList()
+
+	def IsAtOrAtPositionNamedParamList()
+		if This.IsAtNamedParamList() or
+		   This.IsAtPositionNamedParamList()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsAtPositionOrAtNamedParamList()
+			return This.IsAtOrAtPositionNamedParamList()
+
+		def IsAtOrAtPositionParamList()
+			return This.IsAtOrAtPositionNamedParamList()
+
+		def IsAtPositionOrAtParamList()
+			return This.IsAtOrAtPositionNamedParamList()
+
+		def IsAtOrAtPositionNamedParam()
+			return This.IsAtOrAtPositionNamedParamList()
+
+		def IsAtPositionOrAtNamedParam()
+			return This.IsAtOrAtPositionNamedParamList()
 
 	def IsUsingOrAtOrWhereNamedParamList()
 		if This.IsUsingNamedParamList() or
@@ -13667,48 +13814,6 @@ class stzList from stzObject
 	
 		def IsWhereOrUsingOrAtParamList()
 			return This.IsUsingOrAtOrWhereNamedParamList()
-
-	
-	def IsAtPositionNamedParamList()
-		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtPosition ) and
-
-		 	  	( isNumber(This[2]) or
-		    			( isString(This[2]) and Q(This[2].IsOneOfThese([
-						:First, :Last,
-						:FirstPosition, :LastPosition,
-	
-						:OfFirstItem, :OfLastItem,
-						:OfFirstChar, :OfLastChar,
-						:OfFirstString, :OfLastString,
-						:OfFirstStringItem, :OfLastStringItem,
-						:OfFirstNumber, :OfLastNumber,
-						:OfFirstList, :OfLastList,
-						:OfFirstPair, :OfLastPair,
-						:OfFirstObject, :OfLastObject,
-	
-						:OfFirstSubString, :OfLastSubString,
-						:OfFirstSubList, :OfLastSubList,
-						
-						:OfFirstWord, :OfLastWord,
-						:OfFirstSentence, :OfLastSentence,
-						:OfFirstLine, :OfLastLine,
-						:OfFirstParagraph, :OLastParagraph ])
-					)
-			) 	)
-
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-		def IsAtPositionParamList()
-			return This.IsAtPositionNamedParamList()
-
-		def IsAtPositionNamedParam()
-			return This.IsAtPositionNamedParamList()
 
 	def IsStepNamedParamList()
 		if This.NumberOfItems() = 2 and

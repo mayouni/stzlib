@@ -10900,8 +10900,6 @@ class stzString from stzObject
 	def Occurs(pcBeforeOrAfter, pIn)
 		return This.OccursCS(pcBeforeOrAfter, pIn, :CaseSensitive = TRUE)
 
-		
-
 	   #-----------------------------------------------#
 	  #   CHECKING IF STRING OCCURES BEFORE A GIVEN   #
 	 #   SUBSTRINGING AN OTHER STRING OR LIST        #
@@ -10982,6 +10980,104 @@ class stzString from stzObject
 
 	def OccursNTimes( n, pIn )
 		return This.OccursNTimesCS( n, pIn, :CaseSensitive = TRUE )
+
+	   #----------------------------------------------------#
+	  #  CHECKING IF STRING OCCURS FOR THE NTH TIME,       #
+	 #  IN AN OTHER STRING OR LIST, AT A GIVEN POSITION   #
+	#----------------------------------------------------#
+
+	def OccursForTheNthTimeCS(n, pIn, pnAt, pCaseSensitive)
+		/* EXAMPLE
+
+		? Q("*").OccursForTheNthTime( 1, :In = "a*b*c*d", :AtPosition = 2 )
+		#--> TRUE
+
+		? Q("*").OccursForTheNthTime( 3, :In = "a*b*c*d", :AtPosition = 6 )
+		#--> TRUE
+
+		*/
+
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		ok
+
+		if NOT ( isString(pIn) or isList(pIn) )
+			StzRaise("Incorrect param type! pcIn must be a string or list.")
+		ok
+
+		if isList(pnAt) and Q(pnAt).IsAtOrAtPositionNamedParam()
+			pnAt = pnAt[2]
+		ok
+	
+		if NOT isNumber(pnAt)
+			StzRaise("Incorrect param type! pAt must be a number.")
+		ok
+
+		nNthOccurrence = 0
+
+		if isString(pIn)
+			oStr = new stzString(pIn)
+			nNthOccurrence = oStr.NthOccurrenceCS( n, This.String(), pCaseSensitive)
+	
+		but isList(pIn)
+			if Q(pIn).IsListOfStrings()
+				oListStr = new stzListOfStrings(pIn)
+				nNthOccurrence  = oListStr.NthOccurrenceCS( n, This.String(), pCaseSensitive)
+
+			else
+				if pCaseSensitive[2] = TRUE
+					oList = new stzList(pIn)
+					nNthOccurrence  = oList.NthOccurrence( n, This.String() )
+		
+				else
+					oList = new stzList(pIn)
+					oList.Lowercase()
+
+					nNthOccurrence  = oList.NthOccurrence( n, This.String() )
+		
+				ok
+			ok
+
+		ok
+
+
+		if nNthOccurrence = pnAt
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def OccursForTheNthTime(n, pIn, pnAt)
+		return This.OccursForTheNthTimeCS(n, pIn, pnAt, :CaseSensitive = TRUE)
+
+	   #----------------------------------------------------#
+	  #  CHECKING IF STRING OCCURS FOR THE FIRST TIME,     #
+	 #  IN AN OTHER STRING OR LIST, AT A GIVEN POSITION   #
+	#----------------------------------------------------#
+
+	def OccursForTheFirstTimeCS(pIn, pnAt, pCaseSensitive)
+		return This.OccursForTheNthTimeCS(1, pIn, pnAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def OccursForTheFirstTime(pIn, pnAt)
+		return This.OccursForTheFirstTimeCS(pIn, pnAt, :CaseSensitive = TRUE)
+
+	   #----------------------------------------------------#
+	  #  CHECKING IF STRING OCCURS FOR THE LAST TIME,      #
+	 #  IN AN OTHER STRING OR LIST, AT A GIVEN POSITION   #
+	#----------------------------------------------------#
+
+	def OccursForTheLastTimeCS(pIn, pnAt, pCaseSensitive)
+		return This.OccursForTheNthTimeCS(:Last, pIn, pnAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def OccursForTheLastTime(pIn, pnAt)
+		return This.OccursForTheLastTimeCS(pIn, pnAt, :CaseSensitive = TRUE)
 
 	  #===================================================#
 	 #   FINDING BY PATTERN (AN ALTERNATIVE TO REGEXP)   # TODO (FUTURE
