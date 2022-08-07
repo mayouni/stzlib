@@ -5800,7 +5800,8 @@ class stzList from stzObject
 
 		anPositions = This.FindW(pcCondition)
 
-		return This.YieldFrom(anPositions, pcCode)
+		aResult = This.YieldFrom(anPositions, pcCode)
+		return aResult
 
 		#< @FunctionFluentForm
 
@@ -10196,6 +10197,7 @@ class stzList from stzObject
 
 			if bEval
 				eval(cCode)
+
 				if bOk
 					anResult + @i
 				ok

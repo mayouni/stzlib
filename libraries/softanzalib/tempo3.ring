@@ -1,5 +1,19 @@
 load "stzlib.ring"
 
+/*-------------
+
+? @@( [ "ONE", "TWO", "THREE" ] )
+#--> [
+#	"ONE",
+#	"TWO",
+#	"THREE"
+#    ]
+
+? @@S( [ "ONE", "TWO", "THREE" ] )	#-- S for Simplified
+#--> [ "ONE", "TWO", "THREE" ]
+
+STOP()
+
 /*=========
 
 o1 = new stzList([
@@ -438,7 +452,7 @@ o1.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
 #--> this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"
 
 
-/*----------------
+/*==============
 
 o1 = new stzString("ONE")
 
@@ -463,11 +477,10 @@ STOP()
 ? Q("*").OccursNTimes(3, :In = [ "a", "*", "b", "*", "c", "*", "d" ]) #--> TRUE
 
 /*----------------
-*/
+
 ? Q("*").OccursForTheFirstTime( :In = "a*b*c*d", :AtPosition = 2 ) #--> TRUE
 ? Q("*").OccursForTheLastTime( :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 6 ) #--> TRUE
 
-/*
 ? Q("*").OccursForTheNthTime( 1, :In = "a*b*c*d", :AtPosition = 2 ) #--> TRUE
 ? Q("*").OccursForTheNthTime( 2, :In = "a*b*c*d", :AtPosition = 4 ) #--> TRUE
 ? Q("*").OccursForTheNthTime( 3, :In = "a*b*c*d", :AtPosition = 6 ) #--> TRUE
@@ -476,10 +489,57 @@ STOP()
 ? Q("*").OccursForTheNthTime( 2, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 4 ) #--> TRUE
 ? Q("*").OccursForTheNthTime( 3, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 6 ) #--> TRUE
 
-//? Q("*").OccursForTheFirstTime( :In = "a*b*c*d", :AtPosition = 2 )
+/*----------------
+
+aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
+
+? Q("shirt").OccursForTheFirstTime( :In = aShoppingCart, :At = 1 )	#--> TRUE
+? Q("shoes").OccursForTheFirstTime( :In = aShoppingCart, :At = 2 )	#--> TRUE
+? Q("shirt").OccursForTheFirstTime( :In = aShoppingCart, :At = 3 )	#--> FALSE
+? Q("bag").OccursForTheFirstTime( :In = aShoppingCart, :At = 4 )	#--> TRUE
+? Q("hat").OccursForTheFirstTime( :In = aShoppingCart, :At = 5 )	#--> TRUE
+? Q("shoes").OccursForTheFirstTime( :In = aShoppingCart, :At = 6 )	#--> FALSE
+
+STOP()
 
 /*----------------
 
+aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
+
+? Q(aShoppingCart).FindW(
+	'Q(@item).OccursForTheFirstTime( :In = aShoppingCart, :At = @CurrentPosition )')
+#--> [ 1, 2, 4, 5 ]
+
+STOP()
+
+/*----------------
+
+  load "stzlib.ring"
+
+  # Suppose a customer added all these items to his shopping cart in an
+  # ecommerce website:
+
+  aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
+
+  # You are asked, as a programmer of the website, to extract the number of times
+  # each item has been added...
+
+  # In Softanza, using the Yielder Metaphor, you can solve it naturally like this:
+
+  ? Q(aShoppingCart).YieldW('
+	[ @item, This.NumberOfOccurrence( :Of = @item ) ]',
+
+	:Where = '
+	Q(@item).OccursForTheFirstTime( :In = aShoppingCart, :At = @CurrentPosition )'
+  )
+
+  #--> [ [ "Shirt", 2 ], [ "shoes", 2 ], [ "bag", 1 ], [ "hat", 1 ] ]
+
+
+STOP()
+
+/*=========
+*/
 ? ComputableFormSimplified('len    var1 = "    value "  and var2 =  " 12   " ')
 #--> 'len var1 = "    value " and var2 = " 12   "'
 
@@ -487,12 +547,13 @@ STOP()
 #--> 'len var1 = "    value " and var2 = " 12   "'
 
 STOP()
-/*----------------
+
+/*=================
 
 o1 = new stzString("Av♥♥c♥♥")
-? @@S( o1.FindSubStringW('{ Q(@SubString).NumberOfChars() = 2 }') )
+? @@Q( o1.FindSubStringW('{ Q(@SubString).NumberOfChars() = 2 }') ).Simplified()
+#--> [ [ "Av", [ 1 ] ], [ "♥♥", [ 3, 6 ] ], [ "c♥", [ 5 ] ] ]
 
-/*
 ? o1.FindW('{
 	Q(@SubString).NumberOfChars() = 2 and
 	Q(@SubString).IsBoundedBy@_( "Q(@Char).IsLowercase()", "_" ) 
