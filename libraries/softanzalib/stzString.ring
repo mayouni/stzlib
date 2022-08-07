@@ -11135,6 +11135,9 @@ class stzString from stzObject
 
 		#< @FunctionFlunentForm
 
+		def FindSectionsCSQ(pcSubStr, pCaseSensitive)
+			return This.FindSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
+
 		def FindSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
 				pcReturnType = pcReturnType[2]

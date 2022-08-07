@@ -527,7 +527,7 @@ func ComputableFormSimplified(pValue)
 		cResult = cChar + oStr.Content() + cChar
 
 	but isList(pValue)
-		return ListToCode(pValue)
+		return @@Q(pValue).Simplified()
 	ok
 
 	return cResult
@@ -547,11 +547,7 @@ func ComputableFormSimplified(pValue)
 		func @@SQ(pValue)
 			return new stzString( @@(pValue) )
 
-	func CFS(pValue)
-		return ComputableFormSimplified(pValue)
 
-		func CFSQ(pValue)
-			return new stzString( CFS(pValue) )
 
 func YaAllah()
 	return "يَا أَلله"

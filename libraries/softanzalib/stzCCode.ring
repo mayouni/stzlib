@@ -105,7 +105,7 @@ class stzCCode
 		#--
 
 			# 4) Unifying all kewords referring to the current position
-			#    by rpalcing them all by @i
+			#    by rpalacing them all by @i
 
 			ReplaceManyCSQ([ " @position ", " @CurrentPosition " ],
 
@@ -132,7 +132,7 @@ class stzCCode
 			).
 
 			# 5) Unifying all kewords referring to the current item
-			#    by rpalcing them all by @item
+			#    by repalcing them all by @item
 
 			ReplaceManyCSQ([		
 				" @EachItem ", " @CurrentItem ",
@@ -247,7 +247,7 @@ class stzCCode
 			).
 
 			# 6) Unifying all kewords referring to the next position
-			#    by repalcing them all by (@i + 1)
+			#    by replacing them all by (@i + 1)
 
 			ReplaceManyCSQ([ " @NextPosition " ],
 
@@ -269,7 +269,7 @@ class stzCCode
 			).
 
 			# 7) Unifying all kewords referring to the previous position
-			#    by rpalcing them all by (@i - 1)
+			#    by replacing them all by (@i - 1)
 
 			ReplaceManyCSQ([ " @PreviousPosition " ],
 
@@ -291,7 +291,7 @@ class stzCCode
 			).
 
 			# 8) Unifying all kewords referring to the next item
-			#    by rpalcing them all by This[@i+1]
+			#    by replacing them all by This[@i+1]
 
 			ReplaceManyCSQ([
 				" @NextItem ",
@@ -350,7 +350,7 @@ class stzCCode
 			).
 
 			# 9) Unifying all kewords referring to the previous item 
-			#    by rpalcing them all by This[ @i-1 ]
+			#    by replacing them all by This[ @i-1 ]
 
 			ReplaceManyCSQ([
 				" @PreviousItem ",
