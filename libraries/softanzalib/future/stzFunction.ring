@@ -22,10 +22,10 @@ def FunctionParam( pcFunctionCall )
 def FunctionParamType( pcFunctionCall )
 	cParam = FunctionParam(pcFunctionCall)
 
-	if StzStringQ( cParam ).IsBoundedBy('"','"')
+	if StzStringQ( cParam ).IsBoundedBy('"')
 		cType = "STRING"
 	
-	but StzStringQ( cParam ).IsBoundedBy("[","]")
+	but StzStringQ( cParam ).IsBoundedBy([ "[","]" ])
 		cType = "LIST"
 	
 	but StzStringQ(cParam).IsNumberInString()

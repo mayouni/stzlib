@@ -267,34 +267,39 @@ o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 /*================= POSSIBLE SUBSTRINGS IN THE STRING
 
 o1 = Q("ABAAC")
-? @@( o1.SubStrings() )
+? @@S( o1.SubStrings() )
 #--> [
 # 	"A", "B", "C", "B", "B", "D", "A",
 # 	"AB", "CB", "BD", "ABC", "BBD",
 # 	"ABCB", "ABCBB", "ABCBBD", "ABCBBDA"
 # ]
 
-? @@( o1.SubStringsAndTheirPositions() ) # TODO: Optimise performance!
+? @@S( o1.SubStringsAndTheirPositions() ) # TODO: Optimise performance!
 #--> [
 # 	[ "A", [ 1, 3, 4 ] ], [ "B", [ 2 ] ], [ "C", [ 5 ] ],
 # 	[ "AB", [ 1 ] ], [ "AA", [ 3 ] ], [ "ABA", [ 1 ] ],
 # 	[ "ABAA", [ 1 ] ], [ "ABAAC", [ 1 ] ] ]
 
+STOP()
+
 /*=================
 
 ? @@( Q([ "abc", 120, "cdef", 14, "opjn", 988 ]).ToString() )
+
 /*-->
-abc
+"abc
 120
 cdef
 14
 opjn
-988
+988"
+
 */
 
 /*----------------
 
 ? QQ(["abc","cdef","opjn"]).ToString() // QQ() generates a stzListOfStrings object
+
 /*-->
 abc
 cdef
@@ -307,7 +312,9 @@ o1 = new stzListOfStrings(["A", "AA", "B", "BB", "C", "CC", "CC" ])
 ? o1.StringsW('len(@string) = 2') 	#--> [ "AA", "BB", "CC", "CC" ])
 ? o1.UniqueStringsW('len(@string) = 2')	#--> [ "AA", "BB", "CC" ]
 
-/*----------------
+STOP()
+
+/*---------------- TODO: Optimise for performance!
 
 o1 = new stzListOfStrings([
 	"A", "v", "♥", "c",
@@ -324,11 +331,15 @@ o1 = new stzListOfStrings([
 ? o1.StringsW(' Q(@String).BeginsWith("A") and Q(@String).NumberOfChars() > 4 ')
 #--> [ "Av♥♥c", "Av♥♥c♥", "Av♥♥c♥♥" ]
 
+STOP()
+
 /*================
 
 o1 = new stzString("Av♥♥c♥♥")
 ? o1.FindAll("♥♥") #--> [ 3, 6 ]
 ? o1.FindSubStringW('{ @SubString = "♥♥" }') #--> [ 3, 6 ]
+
+STOP()
 
 /*===============
 
@@ -340,14 +351,24 @@ o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
 ? o1.SubstringsBetween('"', '"')
 #--> [ "    value ", " 12   " ]
 
+STOP()
+
 /*----------------
 
 o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
-? o1.SubStringsBetweenXT('"','"')
-#--> [ [ "    value ", 15 ], [ " 12   ", 41 ] ]
+? @@S( o1.SubStringsBetween('"','"') )
+#--> [ " value ", " 12 " ]
 
-? @@( o1.FindSubStringsBetweenXT('"','"') )
-#--> [ 15, [ "    value " ], [ 41, " 12   " ] ]
+? @@S( o1.SubStringsBetweenXT('"','"') )
+#--> [ [ " value ", [ 16, 25 ] ], [ " 12 ", [ 42, 47 ] ] ]
+
+? @@S( o1.FindSubStringsBetween('"','"') )
+#--> [ 16, 42 ]
+
+? @@S( o1.FindSubStringsBetweenXT('"','"') )
+#--> [ [ 16, " value " ], [ 42, " 12 " ] ]
+
+STOP()
 
 /*================
 
@@ -451,7 +472,6 @@ o1.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
 ? o1.Content()
 #--> this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"
 
-
 /*==============
 
 o1 = new stzString("ONE")
@@ -462,7 +482,8 @@ o1 = new stzString("ONE")
 STOP()
 
 *----------------
-// ADD IT TO stzNumber, stzList and stzObject classes
+
+// TODO: ADD IT TO stzNumber, stzList and stzObject classes
 
 o1 = new stzString("ONE")
 
@@ -539,7 +560,7 @@ STOP()
 STOP()
 
 /*=========
-*/
+
 ? ComputableFormSimplified('len    var1 = "    value "  and var2 =  " 12   " ')
 #--> 'len var1 = "    value " and var2 = " 12   "'
 
@@ -551,8 +572,17 @@ STOP()
 /*=================
 
 o1 = new stzString("Av♥♥c♥♥")
-? @@Q( o1.FindSubStringW('{ Q(@SubString).NumberOfChars() = 2 }') ).Simplified()
+? @@S( o1.FindSubStringW('{ Q(@SubString).NumberOfChars() = 2 }') )
 #--> [ [ "Av", [ 1 ] ], [ "♥♥", [ 3, 6 ] ], [ "c♥", [ 5 ] ] ]
+
+/*----------------
+*/
+? Q("-♥-").IsBoundedBy("-", "-")
+? Q("♥").IsBoundedBy([ "-", "-" ], :In = "... -♥- ...")
+
+/*----------------
+
+o1 = new stzString("Av♥♥c♥♥")
 
 ? o1.FindW('{
 	Q(@SubString).NumberOfChars() = 2 and

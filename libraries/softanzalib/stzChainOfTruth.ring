@@ -799,10 +799,10 @@ class stzChainOfTruth from stzObject
 	def pvtFunctionParamType( pcFunctionCall )
 		cParam = pvtFunctionParam(pcFunctionCall)
 
-		if StzStringQ( cParam ).IsBoundedBy('"','"')
+		if StzStringQ( cParam ).IsBoundedBy('"')
 			cType = "STRING"
 	
-		but StzStringQ( cParam ).IsBoundedBy("[","]")
+		but StzStringQ( cParam ).IsBoundedBy([ "[","]" ])
 			cType = "LIST"
 	
 		but StzStringQ( cParam).IsNumberInString()

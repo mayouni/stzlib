@@ -56,11 +56,14 @@ class stzListInString from stzString
 
 		for oStzStr in aoStzStr
 			
-			if oStzStr.IsBoundedBy('"', '"') or
-			   oStzStr.IsBoundedBy("'", "'") or
-			   oStzStr.IsBoundedBy(':', NULL)
+			if oStzStr.IsBoundedBy('"') or
+			   oStzStr.IsBoundedBy("'") or
+			   oStzStr.IsBoundedBy([ ':', NULL ])
 				aResult + [
-					oStzStr.RemoveBoundsQ('"','"').RemoveBoundsQ("'","'").Content(),
+
+					oStzStr.RemoveBoundsQ('"').
+						RemoveBoundsQ("'").Content(),
+
 					:IsValue,
 					:IsString
 				]
@@ -71,9 +74,13 @@ class stzListInString from stzString
 					:IsValue,
 					:IsNumber
 				]
+
 			else
 				# The item is a variable name
-				cVarName = oStzStr.RemoveBoundsQ('"','"').RemoveBoundsQ("'","'").Content()
+				cVarName = oStzStr.RemoveBoundsQ('"').
+						RemoveBoundsQ("'").
+						Content()
+
 				cCode = 'cType = lower(type(' + cVarName + '))'
 				eval(cCode)
 
@@ -108,13 +115,16 @@ class stzListInString from stzString
 
 		for oStzStr in aoStzStr
 			
-			if NOT ( oStzStr.IsBoundedBy('"', '"') or
-			   oStzStr.IsBoundedBy("'", "'") or
-			   oStzStr.IsBoundedBy(':', NULL) or
+			if NOT ( oStzStr.IsBoundedBy('"') or
+			   oStzStr.IsBoundedBy("'") or
+			   oStzStr.IsBoundedBy([ ':', NULL ]) or
 			   oStzStr.IsNumberInString() )
 	
 				# The item is a variable name
-				cVarName = oStzStr.RemoveBoundsQ('"','"').RemoveBoundsQ("'","'").Content()
+				cVarName = oStzStr.RemoveBoundsQ('"').
+						RemoveBoundsQ("'").
+						Content()
+
 				cCode = 'cType = lower(type(' + cVarName + '))'
 				eval(cCode)
 

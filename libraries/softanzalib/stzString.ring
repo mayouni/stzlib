@@ -3057,9 +3057,42 @@ class stzString from stzObject
 	#==============================#
 
 	// Verifies if the string is bounded by substrings 1 and 2 
-	def IsBoundedByCS(pcSubstr1, pcSubstr2, pCaseSensitive)
-		if This.BeginsWithCS(pcSubstr1, pCaseSensitive) and
-		   This.EndsWithCS(pcSubStr2, pCaseSensitive)
+	def IsBoundedByCS(pacBounds, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("-♥-")
+		? o1.IsBoundedBy("-") #--> TRUE
+
+		o1 = new stzString("-♥_")
+		? o1.IsBoundedBy([ "-", "_" ]) #--> TRUE
+
+		*/
+
+		// Managing this special syntax:
+		// ? Q("♥").IsBoundedBy([ "-", :In = "-♥-" ])
+
+		if isList(pacBounds) and Q(pacBounds).IsPair() and
+		   isList(pacBounds[2]) andQ(pacBounds[2]).IsPair() and
+		   Q(pacBounds[2]).IsInNamedParam()
+		   
+			return This.IsBoundedByInCS(pacBounds[1], pacBounds[2][2], pCaseSensitive)
+
+		ok
+
+		if isString(pacBounds)
+			cBound1 = pacBounds
+			cBound2 = pacBounds
+
+		but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+			cBound1 = pacBounds[1]
+			cBound2 = pacBounds[2]
+
+		else
+			StzRaise("Incorrect param type! pacBounds must be a string or a list of pairs.")
+		ok
+
+		if This.BeginsWithCS(cBound1, pCaseSensitive) and
+		   This.EndsWithCS(cBound2, pCaseSensitive)
 			return TRUE
 		else
 			return FALSE
@@ -3067,8 +3100,57 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def IsBoundedBy(pcSubstr1, pcSubstr2)
-		return This.IsBoundedByCS(pcSubstr1, pcSubstr2, :Casesensitive = TRUE)
+	def IsBoundedBy(pacBounds)
+		return This.IsBoundedByCS(pacBounds, :CaseSensitive = TRUE)
+
+	   #--------------------------------------------------------#
+	  #  CHECKING IF THE STRING IS BOUNDED BY A GIVEN PAIR OF  #
+	 #  SUBSTRINGS INSIDE A GIVEN STRING                      #
+	#--------------------------------------------------------#
+
+	def IsboundedByInCS(pacBounds, pIn, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("♥")
+		? o1.IsBoundedBy([ "-", "-" ], :In = "... -♥- ...")
+		#--> TRUE
+
+		*/
+
+		if NOT ( isList(pacBounds) and Q(pacBounds).IsPairOfStrings() )
+			StzRaise("Incorrect param type! paBounds must be a pair of strings.")
+		ok
+
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		ok
+		if NOT ( isString(pIn) or isList(pIn) )
+			StzRaise("Incorrect param type! pIn must be a string or list.")
+		ok
+
+		bResult = FALSE
+
+		if isString(pIn)
+			oStr = new stzString(pIn)
+			bResult = oStr.SubStringIsBoundedByCS( This.String(), paBounds, pCaseSensitive )
+
+		but isList(pIn)
+			// TODO
+			StzRaise("Insupported feature in this version!")
+
+			if Q(pIn).IsListOfStrings()
+
+			else
+
+			ok
+		ok
+		
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsboundedByIn(pacBounds, pIn)
+		return This.IsboundedByInCS(pacBounds, pIn, :CaseSensitive = TRUE)
 
 	  #--------------------------------------------------------#
 	 #  CHECKING IF THE STRING IS BOUNDING OF A GIVEN STRING  #
@@ -3095,45 +3177,59 @@ class stzString from stzObject
 		return bResult
 
 	def IsFirstBoundOfCS(pcOtherStr, pCaseSensitive)
+		// TODO
 
 	def IsLastBoundOfCS(pcOtherStr, pCaseSensitive)
+		// TODO
 
 	def IsLeftBoundOfCS(pcOtherStr, pCaseSensitive)
+		// TODO
 
 	def IsRightBoundOfCS(pcOtherStr, pCaseSensitive)
+		// TODO
 
 	  #------------------------------------#
 	 #     ADDING BOUNDS TO THE STRING    #
 	#------------------------------------#
 
-	def AddBounds(pcSubStr1, pcSubStr2)
-		if BothAreStrings(pcSubStr1, pcSubStr2)
-			cResult = pcSubStr1 + This.String() + pcSubStr2
-			This.UpdateWith( cResult )
+	def AddBounds(pacBounds)
+		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+			cBound1 = pacBounds[1]
+			cBound2 = pacBounds[2]
+
+		but isString(pacBounds)
+			cBound1 = pacBounds
+			cBound2 = pacBounds
+
+		else
+			StzString("Incorrect param type! pacBounds mus tbe a string or pair of strings.")
 		ok
 
-		def AddBoundsQ(pcSubStr1, pcSubStr2)
-			This.AddBounds(pcSubStr1, pcSubStr2)
+		cResult = cBound1 + This.String() + cBound2
+		This.UpdateWith( cResult )
+
+		def AddBoundsQ(pacBounds)
+			This.AddBounds(pacBounds)
 			return This
 
-		def BoundWith(pcSubStr1, pcSubStr2)
-			This.AddBounds(pcSubStr1, pcSubStr2)
+		def BoundWith(pacBounds)
+			This.AddBounds(pacBounds)
 
-			def BoundWithQ(pcSubStr1, pcSubStr2)
-				This.BoundWith(pcSubStr1, pcSubStr2)
+			def BoundWithQ(pacBounds)
+				This.BoundWith(pacBounds)
 				return This
 
-	def StringWithBoundsAdded(pcSubStr1, pcSubStr2)
-		cResult = This.Copy().AddBoundsQ(pcSubStr1, pcSubStr2).Content()
+	def StringWithBoundsAdded(pacBounds)
+		cResult = This.Copy().AddBoundsQ(pacBounds).Content()
 
-		def StringBoundedWith(pcSubStr1, pcSubStr2)
-			return This.StringWithBoundsAdded(pcSubStr1, pcSubStr2)
+		def StringBoundedWith(pacBounds)
+			return This.StringWithBoundsAdded(pacBounds)
 
 		def BoundedWith()
-			return This.StringWithBoundsAdded(pcSubStr1, pcSubStr2)
+			return This.StringWithBoundsAdded(pacBounds)
 
 		def BoundsAdded()
-			return This.StringWithBoundsAdded(pcSubStr1, pcSubStr2)
+			return This.StringWithBoundsAdded(pacBounds)
 
 	  #-------------------------------------#
 	 #  IDENTIFYING BOUNDS OF A SUBSTRING  #
@@ -3339,51 +3435,73 @@ class stzString from stzObject
 	 #     REMOVING BOTH BOUNDS FROM THE STRING   #
 	#--------------------------------------------#
 
-	def RemoveBoundsCS(pcSubstr1, pcSubstr2, pCaseSensitive)
+	def RemoveBoundsCS(pacBounds, pCaseSensitive)
+		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+			cBound1 = pacBounds[1]
+			cBound2 = pacBounds[2]
 
-		if This.IsBoundedByCS(pcSubstr1, pcSubstr2, pCaseSensitive)
-			This.RemoveFirstCS(pcSubStr1, pCaseSensitive)
-			This.RemoveLastCS(pcSubStr2, pCaseSensitive)
+		but isString(pacBounds)
+			cBound1 = pacBounds
+			cBound2 = pacBounds
+
+		else
+			StzString("Incorrect param type! pacBounds mus tbe a string or pair of strings.")
+		ok
+
+		if This.IsBoundedByCS(pacBounds, pCaseSensitive)
+			This.RemoveFirstCS(cBound1, pCaseSensitive)
+			This.RemoveLastCS(cBound2, pCaseSensitive)
 		ok
 		
 		#< @FunctionFluentForm
 	
-		def RemoveBoundsCSQ(pcSubstr1, pcSubstr2, pCaseSensitive)
-			This.RemoveBoundsCS(pcSubstr1, pcSubstr2, pCaseSensitive)
+		def RemoveBoundsCSQ(pacBounds, pCaseSensitive)
+			This.RemoveBoundsCS(pacBounds, pCaseSensitive)
 			return This
 		
 		#>
 
-	def BoundsRemovedCS(pcSubstr1, pcSubstr2, pCaseSensitive)
-		cResult = This.Copy().RemoveBoundsCSQ(pcSubstr1, pcSubstr2, pCaseSensitive).Content()
+	def BoundsRemovedCS(pacBounds, pCaseSensitive)
+		cResult = This.Copy().RemoveBoundsCSQ(pacBounds, pCaseSensitive).Content()
 		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveBounds(pcSubstr1, pcSubstr2)
-		This.RemoveBoundsCS(pcSubstr1, pcSubstr2, :CaseSensitive = TRUE)
+	def RemoveBounds(pacBounds)
+		This.RemoveBoundsCS(pacBounds, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def RemoveBoundsQ(pcSubstr1, pcSubstr2)
-			This.RemoveBounds(pcSubstr1, pcSubstr2)
+		def RemoveBoundsQ(pacBounds)
+			This.RemoveBounds(pacBounds)
 			return This
 		#>
 
-	def BoundsRemoved(pcSubstr1, pcSubstr2)
-		cResult = This.Copy().RemoveBoundsQ(pcSubstr1, pcSubstr2).Content()
+	def BoundsRemoved(pacBounds)
+		cResult = This.Copy().RemoveBoundsQ(pacBounds).Content()
 		return cResult
 
 	  #------------------------------------------------------------#
 	 #   REMOVING BOUNDS OF A GIVEN SUBSTRING INSIDE THE STRING   #
 	#------------------------------------------------------------#
 
-	def RemoveBoundsOfSubStringCS(pcBound1, pcBound2, pcSubStr, pCaseSensitive)
+	def RemoveBoundsOfSubStringCS(pacBounds, pcSubStr, pCaseSensitive)
+		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+			cBound1 = pacBounds[1]
+			cBound2 = pacBounds[2]
+
+		but isString(pacBounds)
+			cBound1 = pacBounds
+			cBound2 = pacBounds
+
+		else
+			StzString("Incorrect param type! pacBounds mus tbe a string or pair of strings.")
+		ok
 
 		anSections = This.FindSectionsOfSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
-		nLen1 = StzStringQ(pcBound1).NumberOfChars()
-		nLen2 = StzStringQ(pcBound2).NumberOfChars()
+		nLen1 = StzStringQ(cBound1).NumberOfChars()
+		nLen2 = StzStringQ(cBound2).NumberOfChars()
 
 		anBoundsSections = []
 
@@ -3403,95 +3521,95 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 	
-		def RemoveBoundsOfSubStringCSQ(pcBound1, pcBound2, pcSubStr, pCaseSensitive)
-			This.RemoveBoundsOfSubStringCS(pcBound1, pcBound2, pcSubStr, pCaseSensitive)
+		def RemoveBoundsOfSubStringCSQ(pacBounds, pcSubStr, pCaseSensitive)
+			This.RemoveBoundsOfSubStringCS(pacBounds, pcSubStr, pCaseSensitive)
 			return This
 		
 		#>
 
-	def BoundsOfSubStringRemovedCS(pcBound1, pcBound2, pcSubStr, pCaseSensitive)
-		cResult = This.Copy().RemoveBoundsOfSubStringCSQ(pcBound1, pcBound2, pcSubStr, pCaseSensitive)
+	def BoundsOfSubStringRemovedCS(pacBounds, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveBoundsOfSubStringCSQ(pacBounds, pcSubStr, pCaseSensitive)
 		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveBoundsOfSubString(pcBound1, pcBound2, pcSubStr)
-		This.RemoveBoundsOfSubStringCS(pcBound1, pcBound2, pcSubStr, :CaseSensitive = TRUE)
+	def RemoveBoundsOfSubString(pacBounds, pcSubStr)
+		This.RemoveBoundsOfSubStringCS(pacBounds, pcSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def RemoveBoundsOfSubStringQ(pcBound1, pcBound2, pcSubStr)
-			This.RemoveBoundsOfSubString(pcBound1, pcBound2, pcSubStr)
+		def RemoveBoundsOfSubStringQ(pacBounds, pcSubStr)
+			This.RemoveBoundsOfSubString(pacBounds, pcSubStr)
 			return This
 		#>
 
-	def BoundsOfSubStringRemoved(pcBound1, pcBound2, pcSubStr)
-		cResult = This.Copy().RemoveBoundsOfSubStringQ(pcBound1, pcBound2, pcSubStr).Content()
+	def BoundsOfSubStringRemoved(pacBounds, pcSubStr)
+		cResult = This.Copy().RemoveBoundsOfSubStringQ(pacBounds, pcSubStr).Content()
 		return cResult
 
 	  #--------------------------------------------#
 	 #     REMOVING MANY BOUNDS FROM THE STRING   #
 	#--------------------------------------------#
 
-	def RemoveManyBoundsCS(paPairsOfBounds, pCaseSensitive)
-		for aPair in paPairsOfBounds
-			This.RemoveBoundsCS(aPair[1], aPair[2], pCaseSensitive)
+	def RemoveManyBoundsCS(paBoundsOrPairsOfBounds, pCaseSensitive)
+		for BoundOrPairOfBounds in paBoundsOrPairsOfBounds
+			This.RemoveBoundsCS(BoundOrPairOfBounds, pCaseSensitive)
 		next
 
-		def RemoveManyBoundsCSQ(paPairsOfBounds, pCaseSensitive)
-			This.RemoveManyBoundsCS(paPairsOfBounds, pCaseSensitive)
+		def RemoveManyBoundsCSQ(paBoundsOrPairsOfBounds, pCaseSensitive)
+			This.RemoveManyBoundsCS(paBoundsOrPairsOfBounds, pCaseSensitive)
 			return This
 
-	def ManyBoundsRemovedCS(paPairsOfBounds, pCaseSensitive)
-		cResult = This.Copy().RemoveManyBoundsCSQ(paPairsOfBounds, pCaseSensitive).Content()
+	def ManyBoundsRemovedCS(paBoundsOrPairsOfBounds, pCaseSensitive)
+		cResult = This.Copy().RemoveManyBoundsCSQ(paBoundsOrPairsOfBounds, pCaseSensitive).Content()
 		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveManyBounds(paPairsOfBounds)
-		This.RemoveManyBoundsCS(paPairsOfBounds, :CaseSensitive = TRUE)
+	def RemoveManyBounds(paBoundsOrPairsOfBounds)
+		This.RemoveManyBoundsCS(paBoundsOrPairsOfBounds, :CaseSensitive = TRUE)
 
-		def RemoveManyBoundsQ(paPairsOfBounds)
-			This.RemoveManyBounds(paPairsOfBounds)
+		def RemoveManyBoundsQ(paBoundsOrPairsOfBounds)
+			This.RemoveManyBounds(paBoundsOrPairsOfBounds)
 			return This
 		
-	def ManyBoundsRemoved(paPairsOfBounds)
-		cResult = This.Copy().RemoveManyBoundsQ(paPairsOfBounds).Content()
+	def ManyBoundsRemoved(paBoundsOrPairsOfBounds)
+		cResult = This.Copy().RemoveManyBoundsQ(paBoundsOrPairsOfBounds).Content()
 		return cResult
 
 	  #-----------------------------------------------------------------#
 	 #     REMOVING MANY BOUNDS OF A GIVEN SUBSTRING FROM THE STRING   #
 	#-----------------------------------------------------------------#
 
-	def RemoveManyBoundsOfSubStringCS(paPairsOfBounds, pcSubStr, pCaseSensitive)
-		for aPair in paPairsOfBounds
-			This.RemoveBoundsOfSubStringCS(aPair[1], aPair[2], pcSubStr,pCaseSensitive)
+	def RemoveManyBoundsOfSubStringCS(paBoundsOrPairsOfBounds, pcSubStr, pCaseSensitive)
+		for BoundOrPairOfBounds in paBoundsOrPairsOfBounds
+			This.RemoveBoundsOfSubStringCS(BoundOrPairOfBounds, pcSubStr,pCaseSensitive)
 		next
 
-		def RemoveManyBoundsOfSubStringCSQ(paPairsOfBounds, pcSubStr, pCaseSensitive)
-			This.RemoveManyBoundsOfSubStringCS(paPairsOfBounds, pcSubStr, pCaseSensitive)
+		def RemoveManyBoundsOfSubStringCSQ(paBoundsOrPairsOfBounds, pcSubStr, pCaseSensitive)
+			This.RemoveManyBoundsOfSubStringCS(paBoundsOrPairsOfBounds, pcSubStr, pCaseSensitive)
 			return This
 
-	def ManyBoundsOfSubStringRemovedCS(paPairsOfBounds, pcSubStr, pCaseSensitive)
-		cResult = This.Copy().RemoveManyBoundsOfSubStringCSQ(paPairsOfBounds, pcSubStr, pCaseSensitive).Content()
+	def ManyBoundsOfSubStringRemovedCS(paBoundsOrPairsOfBounds, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveManyBoundsOfSubStringCSQ(paBoundsOrPairsOfBounds, pcSubStr, pCaseSensitive).Content()
 		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveManyBoundsOfSubString(paPairsOfBounds)
-		This.RemoveManyBoundsOfSubStringCS(paPairsOfBounds, pcSubStr,  :CaseSensitive = TRUE)
+	def RemoveManyBoundsOfSubString(paBoundsOrPairsOfBounds)
+		This.RemoveManyBoundsOfSubStringCS(paBoundsOrPairsOfBounds, pcSubStr,  :CaseSensitive = TRUE)
 
-		def RemoveManyBoundsOfSubStringQ(paPairsOfBounds)
-			This.RemoveManyBoundsOfSubString(paPairsOfBounds)
+		def RemoveManyBoundsOfSubStringQ(paBoundsOrPairsOfBounds)
+			This.RemoveManyBoundsOfSubString(paBoundsOrPairsOfBounds)
 			return This
 		
-	def ManyBoundsOfSubStringRemoved(paPairsOfBounds)
-		cResult = This.Copy().RemoveManyBoundsOfSubStringQ(paPairsOfBounds).Content()
+	def ManyBoundsOfSubStringRemoved(paBoundsOrPairsOfBounds)
+		cResult = This.Copy().RemoveManyBoundsOfSubStringQ(paBoundsOrPairsOfBounds).Content()
 		return cResult
 
-	  #--------------------------------------------------------#
+	  #-------------------------------------------------------#
 	 #  REMOVING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
-	#--------------------------------------------------------#
+	#-------------------------------------------------------#
 
 	def RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 		aSections = This.FindSectionsOfAnySubstringBoundedWithCS(pcBound1, pcBound2, pCaseSensitive)
@@ -8882,17 +9000,19 @@ class stzString from stzObject
 	// Verifies if the string begins with a given substring
 
 	def StartsWithCS(pcSubStr, pCaseSensitive)
+
 		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParamList()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT 	isNumber(pCaseSensitive) and
-			( pCaseSensitive = 0 or pCaseSensitive = 1 )
+		if NOT ( isNumber(pCaseSensitive) and
+			( pCaseSensitive = 0 or pCaseSensitive = 1 ) )
 
 			stzRaise("Invalid param. pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 
 		else
-			return @oQString.startsWith(pcSubStr, pCaseSensitive)
+			bResult = @oQString.startsWith(pcSubStr, pCaseSensitive)
+			return bResult
 		ok
 
 		def BeginsWithCS(pcSubStr, pCaseSensitive)
@@ -8931,14 +9051,15 @@ class stzString from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT 	isNumber(pCaseSensitive) and
-			( pCaseSensitive = 0 or pCaseSensitive = 1 )
+		if NOT ( isNumber(pCaseSensitive) and
+			( pCaseSensitive = 0 or pCaseSensitive = 1 ) )
 
 			stzRaise("Invalid param. pCaseSensitive must be TRUE or FALSE (0 or 1).")
 
 		else
 
-			return @oQString.endsWith(pcSubStr, pCaseSensitive)
+			bResult = @oQString.endsWith(pcSubStr, pCaseSensitive)
+			return bResult
 		ok
 
 		def FinishsWithCS(pcSubStr, pCaseSensitive)
