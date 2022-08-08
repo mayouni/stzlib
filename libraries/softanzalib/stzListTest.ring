@@ -1121,28 +1121,29 @@ o2 = new stzList([ 10, [ "A", "B"], 12, obj ])
 class Person name
 
 /*-----------------------
-
+*/
 # Softanza works consistently on lists and strings: What works
-# for a string, would hopefully work for a list, when it makes
+# for a string, would generally work for a list, when it makes
 # sense, using the same semantics.
 
 # For example, in strings, we can check if the string is bounded
 # by two given substrings, or even by many of them. So, we say:
 
 oStr = new stzString("|<--Scope of Life-->|")
-? oStr.IsBoundedBy( "|<--", "-->|" ) # --> TRUE
+? oStr.IsBoundedBy([ "|<--", "-->|" ]) # --> TRUE
 
 # And then we can delete these bounds:
-? oStr.BoundsRemoved("|<--", "-->|") # --> "Scope of Life"
+? oStr.BoundsRemoved([ "|<--", "-->|" ]) # --> "Scope of Life"
 
 # The same semantics apply to lists, like this:
 
 oList = new stzList([ "|<--", "Scope", "of", "Life", "-->|" ])
-? oList.IsBoundedBy( "|<--", "-->|" ) # --> TRUE
+? oList.IsBoundedBy([ "|<--", "-->|" ]) # --> TRUE
 
 # And we can remove all these bounds, exactly like we did for strings:
-? oList.BoundsRemoved("|<--", "-->|") # --> [ "Scope", "of", "Life" ]
+? oList.BoundsRemoved([ "|<--", "-->|" ]) # --> [ "Scope", "of", "Life" ]
 
+STOP()
 /*-----------------------
 
 o1 = new stzList([ "{", "A", "B", "C", "}" ])

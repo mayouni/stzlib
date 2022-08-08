@@ -13050,18 +13050,30 @@ class stzListOfStrings from stzList
 	 #     CHECKING IF THE LIST IS "BOUNDED' BY TWO GIVEN STRINGS     #
 	#================================================================#
 
-	def IsBoundedByCS(pcString1, pcString2, pCaseSensitive)
+	def IsBoundedByCS(pacBounds, pCaseSensitive)
 		bResult = FALSE
 
-		if This.FirstStringQ().IsEqualToCS(pcString1, pCaseSensitive) and
-		   This.FirstStringQ().IsEqualToCS(pcString2, pCaseSensitive)
+		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+			cBound1 = pacBounds[1]
+			cBound2 = pacBounds[2]
+
+		but isString(pacBounds)
+			cBound1 = pacBounds
+			cBound2 = pacBounds
+
+		else
+			StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+		ok
+
+		if This.FirstStringQ().IsEqualToCS(cBound1, pCaseSensitive) and
+		   This.FirstStringQ().IsEqualToCS(cBound2, pCaseSensitive)
 
 			bResult = TRUE
 
 		ok
 
-		if This.FirstStringQ().IsEqualToCS(pcString2, pCaseSensitive) and
-		   This.FirstStringQ().IsEqualToCS(pcString1, pCaseSensitive)
+		if This.FirstStringQ().IsEqualToCS(cBound1, pCaseSensitive) and
+		   This.FirstStringQ().IsEqualToCS(cBound2, pCaseSensitive)
 
 			bResult = TRUE
 
@@ -13069,23 +13081,23 @@ class stzListOfStrings from stzList
 
 		return bResult
 
-		def IsBoundedByTheseTwoStringsCS(pcString1, pcString2, pCaseSensitive)
-			return IsBoundedByCS(pcString1, pcString2, pCaseSensitive)
+		def IsBoundedByTheseTwoStringsCS(pacBounds, pCaseSensitive)
+			return IsBoundedByCS(pacBounds, pCaseSensitive)
 
-		def IsBoundedByTheseTwoStringItemsCS(pcString1, pcString2, pCaseSensitive)
-			return IsBoundedByCS(pcString1, pcString2, pCaseSensitive)
+		def IsBoundedByTheseTwoStringItemsCS(pacBounds, pCaseSensitive)
+			return IsBoundedByCS(pacBounds, pCaseSensitive)
 
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def IsBoundedBy(pcString1, pcString2)
-		return This.IsBoundedByCS(pcString1, pcString2, :CaseSensitive = TRUE)
+	def IsBoundedBy(pacBounds)
+		return This.IsBoundedByCS(pacBounds, :CaseSensitive = TRUE)
 
-		def IsBoundedByTheseTwoStrings(pcString1, pcString2)
-			return This.IsBoundedBy(pcString1, pcString2)
+		def IsBoundedByTheseTwoStrings(pacBounds)
+			return This.IsBoundedBy(pacBounds)
 
-		def IsBoundedByTheseTwoStringItems(pcString1, pcString2)
-			return This.IsBoundedBy(pcString1, pcString2)
+		def IsBoundedByTheseTwoStringItems(pacBounds)
+			return This.IsBoundedBy(pacBounds)
 
 	  #-------------------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS MADE OF 2 STRINGS THAT ARE BOUNDS OF A GIVEN STRING  #
@@ -17151,7 +17163,7 @@ class stzListOfStrings from stzList
 
 			but isString(pValue)
 
-				if StzStringQ(pValue).TrimQ().IsBoundedBy("{","}")
+				if StzStringQ(pValue).TrimQ().IsBoundedBy(["{", "}" ])
 
 					pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved("{","}")
 					anResult = []

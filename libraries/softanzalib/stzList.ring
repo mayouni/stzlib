@@ -3597,7 +3597,16 @@ class stzList from stzObject
 	 #     BOUNDS OF THE LIST     #
 	#============================#
 
-	def IsBoundedBy(pItem1, pItem2)
+	def IsBoundedBy(paBounds)
+		if isList(paBounds) and Q(paBounds).IsPair()
+			pItem1 = paBounds[1]
+			pItem2 = paBounds[2]
+
+		else
+			pItem1 = paBounds
+			pItem2 = paBounds
+		ok
+	
 		if This.FirstItem() = pItem1 and This.LastItem() = pItem2
 			return TRUE
 		else
@@ -3618,19 +3627,19 @@ class stzList from stzObject
 	 #     REMOVING BOUNDS      #
 	#-------------------------#
 
-	def RemoveBounds(pItem1, pItem2)
-		if This.IsBoundedBy(pItem1, pItem2)
+	def RemoveBounds(paBounds)
+		if This.IsBoundedBy(paBounds)
 			This.RemoveFirstItem()
 			This.RemoveLastItem()
 		ok
 
-		def RemoveBoundsQ(pItem1, pItem2)
-			This.RemoveBounds(pItem1, pItem2)
+		def RemoveBoundsQ(paBounds)
+			This.RemoveBounds(paBounds)
 			return This
 
-	def BoundsRemoved(pItem1, pItem2)
+	def BoundsRemoved(paBounds)
 
-		aResult = This.Copy().RemoveBoundsQ(pItem1, pItem2).Content()
+		aResult = This.Copy().RemoveBoundsQ(paBounds).Content()
 		return aResult
 
 		/* WARNING: Subtle bug in Ring (Show to Mahmoud)
@@ -3651,7 +3660,7 @@ class stzList from stzObject
 		
 	def RemoveManyBounds(paPairsOfBounds)
 		for aPair in paPairsOfBounds
-			This.RemoveBounds(aPair[1], aPair[2])
+			This.RemoveBounds(aPair)
 		next
 
 		def RemoveManyBoundsQ(paPairsOfBounds)
@@ -8037,9 +8046,9 @@ class stzList from stzObject
 				return Item(pValue)
 
 			but isString(pValue) and
-			    StzStringQ(pValue).TrimQ().IsBoundedBy("{","}")
+			    StzStringQ(pValue).TrimQ().IsBoundedBy([ "{", "}" ])
 
-				pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved("{","}")
+				pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved([ "{", "}" ])
 				anResult = []
 
 				@i = 0

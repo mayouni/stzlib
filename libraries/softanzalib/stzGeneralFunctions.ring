@@ -508,6 +508,7 @@ func ComputableFormSimplified(pValue)
 		return ""+ pValue
 
 	but isString(pValue)
+
 		oStr = new stzString(pValue)
 		aAntiSections = oStr.FindAntiSections( oStr.FindAnySectionsBetween('"','"') )
 		
