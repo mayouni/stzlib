@@ -54,7 +54,7 @@ class stzCCode
 		on :stzListOfObjects	cKeyWord = "@object"	
 		off
 
-		cCode = StzStringQ(This.Code()).TrimQ().BoundsRemoved("{","}")
+		cCode = StzStringQ(This.Code()).TrimQ().BoundsRemoved([ "{","}" ])
 
 		cCode = " " + cCode + " "	# DO NOT REMOVE THIS LINE! NOR THE LEADING
 						# AND TRAILING SPACE YOU SEE INSIDE THE CODE

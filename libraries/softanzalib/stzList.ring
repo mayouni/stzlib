@@ -1326,7 +1326,12 @@ class stzList from stzObject
 		if isList(pNewItem) and
 		   StzListQ(pNewItem).IsWithOrByNamedParamList()
 
-			pNewItem = pNewItem[2]
+			if Q(pNewItem[1]).LastChar() = "@"
+				cCode = 'pNewtItem = ' + pNewItem[2]
+				eval(cCode)
+			else
+				pNewItem = pNewItem[2]
+			ok
 		ok
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
@@ -1429,8 +1434,12 @@ class stzList from stzObject
 
 		if isList(pNewItem) and
 		   StzListQ(pNewItem).IsWithOrByNamedParamList()
-
-			pNewItem = pNewItem[2]
+			if Q(pNewItem[1]).LastChar() = "@"
+				cCode = 'pNewtItem = ' + pNewItem[2]
+				eval(cCode)
+			else
+				pNewItem = pNewItem[2]
+			ok
 		ok
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
@@ -1514,7 +1523,13 @@ class stzList from stzObject
 		if isList(pNewItem) and
 		   StzListQ(pNewItem).IsWithOrByNamedParamList()
 
-			pNewItem = pNewItem[2]
+			if Q(pNewItem[1]).LastChar() = "@"
+				cCode = 'pNewtItem = ' + pNewItem[2]
+				eval(cCode)
+
+			else
+				pNewItem = pNewItem[2]
+			ok
 		ok
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
@@ -1615,7 +1630,13 @@ class stzList from stzObject
 		if isList(pNewItem) and
 		   ( StzListQ(pNewItem).IsWithNamedParamList() or StzListQ(pNewItem).IsByNamedParamList() )
 
-			pNewItem = pNewItem[2]
+			if Q(pNewItem[1]).LastChar() = "@"
+				cCode = 'pNewtItem = ' + pNewItem[2]
+				eval(cCode)
+
+			else
+				pNewItem = pNewItem[2]
+			ok
 		ok
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
@@ -2315,13 +2336,13 @@ class stzList from stzObject
 			bEval = TRUE
 
 			if @i = This.NumberOfItems() and
-			   oCondition.Copy().RemoveSpacesQ().Contains("This[i+1]", :CS = FALSE)
+			   oCondition.Copy().RemoveSpacesQ().ContainsCS("This[i+1]", :CS = FALSE)
 
 				bEval = FALSE
 			ok
 
 			if @i = 1 and
-			   oCondition.Copy().RemoveSpacesQ().Contains("This[i-1]", :CS = FALSE)
+			   oCondition.Copy().RemoveSpacesQ().ContainsCS("This[i-1]", :CS = FALSE)
 
 				bEval = FALSE
 			ok
@@ -2329,12 +2350,14 @@ class stzList from stzObject
 			if bEval
 				cCode = 'bOk = ( ' + cCondition + ' )'
 				eval(cCode)
-			
+
+
 				if bOk
-					if cReplace = :With
+
+					if cReplace = :With or cReplace = :By
 						This.ReplaceItemAtPosition(@i, pOtherItem)
 		
-					but cReplace = :With@
+					but cReplace = :With@ or cReplace = :By@
 						cValue = StzCCodeQ(pOtherItem).UnifiedFor(:stzList)
 						cCode = "value = " + cValue
 						eval(cCode)
@@ -6575,7 +6598,7 @@ class stzList from stzObject
 		for pClass in aCLasses
 			anPositions = This.FindAll(pClass)
 
-			cClass = Q(pClass).Stringified()
+			cClass = @@S( pClass )
 
 			aResult + [ cClass, anPositions ]
 
@@ -6774,9 +6797,9 @@ class stzList from stzObject
 	 #   OF NUMBERS IN WHICH THE _:_ SYNTAX IS PREFERRED      #
 	#--------------------------------------------------------#
 
-	# @C prefix is used to say this function returns its
-	# result with list of numbers in the _:_ Contiguous
-	# List syntax provided by Ring. See example hereafter.
+	# @C prefix is used to say this function returns its result
+	# with list of numbers in the _:_ Contiguous List syntax
+	# provided by Ring. See example hereafter.
 
 	def Classify@C()	# Specific for lists of lists of numbers
 				# Returs classes in the "_:_" syntax
@@ -6882,7 +6905,6 @@ class stzList from stzObject
 		acClasses = This.Classes()
 
 		for cClass in acClasses
-
 			cClass = StzStringQ(cClass).ToListInShortForm()
 		next
 
@@ -6935,17 +6957,14 @@ class stzList from stzObject
 				off
 
 	def Klass@C(pcClass)
+		aResult = []
+
 		if isString(pcClass) and StzStringQ(pcClass).IsListInShortForm()
-			aMembers = StzStringQ(pcClass).SplitQ(":").FirstAndLastItems()
-
-			cMember1 = StzStringQ(aMembers[1]).WithoutSpaces()
-			cMember2 = StzStringQ(aMembers[2]).WithoutSpaces()
-
-			cClass = cMember1 + " : " + cMember2
-
-			return This.Classify@C()[cClass]
-
+			cClass =Q(pcClass).WithoutSpaces()
+			aResult = This.Classify@C()[cClass]
 		ok
+
+		return aResult
 
 		def Klass@CQ(pcClass)
 			return new stzString( This.Klass@C(pcClass) )
@@ -8509,11 +8528,18 @@ class stzList from stzObject
 			def ToListInStringQ()
 				return new stzString(This.ToListInString())
 
-	def Codified()
-		return This.ToCode()
+	def ToCodeSimplified()
+		cResult = StzStringQ( This.ToCode() ).Simplified()
+		return cResult
 
-		def Stringified()
-			return This.ToString()
+		def ToCodeSimplifiedQ()
+			return new stzString( This.ToCodeSimplified() )
+
+		def ToCodeS()
+			return This.ToCodeSimplified()
+
+			def ToCodeSQ()
+				return new stzString( This.ToCodeS() )
 
 	def IsSet()
 		bIsSet = TRUE
@@ -9083,9 +9109,9 @@ class stzList from stzObject
 	def ContainsAtAnyLevel(pItem) # TODO
 		// TODO
 
-	  #----------------------#
+	  #======================#
 	 #    LIST STRUCTURE    #
-	#----------------------#
+	#======================#
 
 	/*
 	TODO:
@@ -9117,7 +9143,7 @@ class stzList from stzObject
 			return new stzList( This.FirstList() )
 
 	def ListsPaths()
-		return This.ItemsThatAreLists_AtAnyLevel_TheirPaths()
+		return This.ItemsThatAreLists_AtAnyLevel_TheirPaths() # TODO: Refactor this!
 
 		def ListsPathsQ()
 			return new stzList( This.ListsPaths() )
@@ -10157,6 +10183,7 @@ class stzList from stzObject
 	#----------------------------------------------------#
 
 	def FindAllItemsW(pcCondition)
+
 		/* WARNING
 
 		We can't use this solution:
@@ -10175,7 +10202,7 @@ class stzList from stzObject
 			stzRaise("Incorrect param! pcCondition must be a string.")
 		ok
 
-		if pcCondition = NULL
+		if Q(pcCondition).RemoveSpacesQ().IsOneOfThese([ NULL, "{}" ])
 			return 1 : This.NumberOfItems()
 		ok
 
@@ -10266,7 +10293,8 @@ class stzList from stzObject
 			#>
 
 		def FindW(pCondition)
-			return This.FindAllItemsW(pCondition)
+			aResult = This.FindAllItemsW(pCondition)
+			return aResult
 
 			#< @FunctionFluentForm
 
@@ -10479,33 +10507,55 @@ class stzList from stzObject
 		*/
 
 
-		anPositions = FindAllItemsW(pcCondition)
-		aResult = ItemsAtThesePositions(anPositions)
+		anPositions = This.FindAllItemsW(pcCondition)
+		aResult = This.ItemsAtThesePositions(anPositions)
 
 		return aResult
 
 		def ItemsWQ(pcCondition)
 			return ItemsWQR(pcCondition, :stzList)
 
-		def ListsWQR(pcCondition, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamType()
+		def ItemsWQR(pcCondition, pcReturnType)
+			if isList(pcCondition) and Q(pcCondition).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
+			if NOT (isString(pcReturnType) and Q(pcReturnType).IsStzType() )
+				StzRaise("Incorrect param type! pcCondition must be a string containing a Softanza type.")
 			ok
 
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.ItemsW(pcCondition) )
 
-			on :stzListOfNumbers
+			on :stzListOfStrings
 				return new stzListOfStrings( This.ItemsW(pcCondition) )
 
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.ItemsW(pcCondition) )
+			
+			on :stzListOfLists
+				return new stzListOfLists( This.ItemsW(pcCondition) )
+
+			on :stzListOfObjects
+				return new stzListOfObjects( This.ItemsW(pcCondition) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.ItemsW(pcCondition) )
+
+			on :stzListOfHashLists
+				return new stzListOfHashLists( This.ItemsW(pcCondition) )
+
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
+
+			def OnlyW(pcCondition)
+				return This.ItemsW(pcCondition)
+
+			def OnlyWhere(pcCondition)
+				return This.ItemsW(pcCondition)
+
 
 	def UniqueItemsW(pCondition)
 
@@ -10593,7 +10643,7 @@ class stzList from stzObject
 		#>
 
 	def LastItemW(pCondition)
-		return This.AllItemsW(pCondition)[ len(This.AllItemsW(pCondition)) ]
+		return This.ItemsW(pCondition)[ len(This.ItemsW(pCondition)) ]
 
 		#< @FunctionFluentForm
 
@@ -11706,9 +11756,12 @@ class stzList from stzObject
 	 #     COUNTING ITEMS VERIFYING A GIVEN CONDITION   #
 	#--------------------------------------------------#
 
-	def CountItemsW(pCondition)	# TODO: check if it is same as NumberOfItemsW()
+	def CountItemsW(pCondition)
+		aItems = This.FindW(pCondition)
 
-		return len(This.ItemsW(pCondition))
+		nResult = len(aItems)
+
+		return nResult
 		
 		#< @AlternativeFunctionNames
 
@@ -11732,26 +11785,26 @@ class stzList from stzObject
 	 #  INSERTING ITEM AFTER OR BEFORE ITEMS VERIFYING A GIVEN CONDITION  #
 	#--------------------------------------------------------------------#
 
-	def InsertAfterW( pCondition, pNewItem )
-		anPositions = This.FindItemsW(cCondition)
+	def InsertAfterW( pcCondition, pNewItem )
+		anPositions = This.FindItemsW(pcCondition)
 		This.InsertAfterManyPositions( anPositions, pNewItem )
 
 		#< @FunctionFluentForm
 
-		def InsertAfterWQ( pCondition, pNewItem )
+		def InsertAfterWQ( pcCondition, pNewItem )
 			This.InsertAfterW( pCondition, pNewItem )
 			return This
 
 		#>
 
-		def InsertAfterWhere(pCondition, pNewItem)
+		def InsertAfterWhere(pcCondition, pNewItem)
 			This.InsertAfterW(pCondition, pNewItem)
 
-			def InsertAfterWhereQ(pCondition, pNewItem)
-				This.InsertAfterWhere(pCondition, pNewItem)
+			def InsertAfterWhereQ(pcCondition, pNewItem)
+				This.InsertAfterWhere(pcCondition, pNewItem)
 				return This
 
-	def InsertBeforeW( pCondition, pNewItem )
+	def InsertBeforeW( pcCondition, pNewItem )
 		/*
 		o1.InsertBeforeW( :Where = '{ StzStringQ(item).IsUppercase() }', "*" )
 		*/
@@ -11761,17 +11814,17 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def InsertBeforeWQ( pCondition, pNewItem )
-			This.InsertBeforeW( pCondition, pNewItem )
+		def InsertBeforeWQ( pcCondition, pNewItem )
+			This.InsertBeforeW( pcCondition, pNewItem )
 			return This
 
 		#>
 
-		def InsertBeforeWhere(pCondition, pNewItem)
-			This.InsertBeforeW(pCondition, pNewItem)
+		def InsertBeforeWhere(pcCondition, pNewItem)
+			This.InsertBeforeW(pcCondition, pNewItem)
 
-			def InsertBeforeWhereQ(pCondition, pNewItem)
-				This.InsertBeforeWhere(pCondition, pNewItem)
+			def InsertBeforeWhereQ(pcCondition, pNewItem)
+				This.InsertBeforeWhere(pcCondition, pNewItem)
 				return This
 
 	  #-----------------------------------------------------------------#
@@ -14287,6 +14340,9 @@ class stzList from stzObject
 			return new stzString(This.ToString())
 
 		def ToStzString()
+			return This.ToString()
+
+	def Stringified()
 			return This.ToString()
 
 	def ToStzListOfChars()

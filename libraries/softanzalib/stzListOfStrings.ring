@@ -8876,7 +8876,7 @@ class stzListOfStrings from stzList
 		oSection    = This.SectionQR(pnStartingAt, This.NumberOfStrings(), :stzListOfStrings)
 		anPositions = oSection.FindAllCS(pcString, pCaseSensitive)
 
-		anPositions = StzListOfNumbersQ(anPositions).AddToEachQ(pnStartingAt).Content()
+		anPositions = StzListOfNumbersQ(anPositions).AddToEachQ(pnStartingAt-1).Content()
 		nPosition   = anPositions[n]
 
 		This.ReplaceStringAtPosition(nPosition, pcNewString)
@@ -9361,6 +9361,7 @@ class stzListOfStrings from stzList
 	#==================================#
 
 	def ReplaceStringAtPosition(n, pcOtherStr)
+
 		/* Example 1:
 			o1 = new stzListOfStrings([ "ONE", "two" ])
 			o1.ReplaceStringAtPosition(2, :With = "TWO")
