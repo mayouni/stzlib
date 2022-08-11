@@ -16381,7 +16381,7 @@ return
 
 				cCode = StzStringQ(pcNewSubStrCopy[2]).
 					TrimQ().
-					RemoveBoundsQ("{","}").
+					RemoveBoundsQ([ "{","}" ]).
 					Content()
 
 				@section = This.Section(n1, n2)
@@ -21391,32 +21391,34 @@ return
 		bResult = This.LowercaseQ().ExistsIn( StzClasses() )
 		return bResult
 
+		def IsStzType()
+			return This.IsStzClassName()
+
 	  #---------------------------------#
 	 #    CHECKING A LIST IN STRING    #
 	#---------------------------------#
-	/*
-	EXAMPLE
-
-	o1 = new stzString('[ "A","B", "C", "D" ]')
-	? o1.IsListInString() #--> TRUE
-	
-	o1 = new stzString(' "A":"D" ')
-	? o1.IsListInString() #--> TRUE
-	
-	o1 = new stzString('[ "ا", "ب", "ج" ]')
-	? o1.IsListInString() #--> TRUE
-	
-	o1 = new stzString(' "ا":"ج": ')
-	? o1.IsListInString() #--> TRUE
-	*/
 
 	def IsListInString()
+		/* EXAMPLES
+	
+		o1 = new stzString('[ "A","B", "C", "D" ]')
+		? o1.IsListInString() #--> TRUE
+		
+		o1 = new stzString(' "A":"D" ')
+		? o1.IsListInString() #--> TRUE
+		
+		o1 = new stzString('[ "ا", "ب", "ج" ]')
+		? o1.IsListInString() #--> TRUE
+		
+		o1 = new stzString(' "ا":"ج": ')
+		? o1.IsListInString() #--> TRUE
+		*/
 
-		This.TrimQ().RemoveBounds("{","}")
+		oCopy = This.RemoveSpacesQ().RemoveBoundsQ([ "{","}" ]).
 
-		# A list can not be written with less then 2 chars ('[]')
+		# A list can not be written with less then 2 chars
 
-		if This.NumberOfChars() < 2
+		if oCopy.NumberOfChars() < 2
 			return FALSE
 		ok
 
@@ -21424,10 +21426,10 @@ return
 
 		# Case 1 : The list is in normal [_,_,_] fprm
 
-		if This.IsBoundedBy("[","]") and
-			This.Contains(",")
+		if oCopy.IsBoundedBy([ "[","]" ]) and
+			oCopy.Contains(",")
 
-			cCode = "aTempList = " + This.String()
+			cCode = "aTempList = " + oCopy.Content()
 			eval(cCode)
 
 			bResult = isList(aTempList)
@@ -21436,13 +21438,13 @@ return
 
 		# Case 2 : The list is in short _:_ form
 
-			if This.ContainsOneOccurrence(":")
+			if oCopy.ContainsOneOccurrence(":")
 
 				# the : separator in _:_ can not be at the
 				# beginning or the end of the list in string
 
-				n = This.FindFirst(":")
-				if NOT ( n > 1 and n < This.NumberOfChars() )
+				n = oCopy.FindFirst(":")
+				if NOT ( n > 1 and n < oCopy.NumberOfChars() )
 
 					bResult = FALSE
 
@@ -21450,18 +21452,18 @@ return
 
 				# The list is in short form, let's analyze it
 				# and tranform it to a normal syntax
-
-				
-				aListMembers = QStringListToList( This.QStringObject().split( ":", 0, 0 ) )
-				# NOTE: could be written { aListMembers = This.Split( :Using = ":" ) } atfer
+	
+				aListMembers = QStringListToList( oCopy.QStringObject().split( ":", 0, 0 ) )
+				# NOTE: could be written { aListMembers = oCopy.Split( :Using = ":" ) } atfer
 				# terminating Split() funtion in Softanza.
 
 				cMember1 = aListMembers[1]
 				cMember2 = aListMembers[2]
-		
+
 				cCode = "pMember1 = " + cMember1
+
 				eval(cCode)
-		
+	
 				cCode = "pMember2 = " + cMember2
 				eval(cCode)
 	
@@ -21469,7 +21471,7 @@ return
 	
 				if ( isString(pMember1) and StringIsChar(pMember1) ) and
 				   ( isString(pMember2) and StringIsChar(pMember2) )
-						
+					
 					n1 = CharUnicode(pMember1)
 					n2 = CharUnicode(pMember2)
 		
@@ -21491,7 +21493,7 @@ return
 					ok
 		
 					cNormalSyntax += " ]"
-		
+	
 				but isNumber(pMember1) and isNumber(pMember2)
 
 					n1 = pMember1
@@ -21519,9 +21521,12 @@ return
 		
 				ok
 
-				cNormalSyntax += " ]"
+				if Q(cNormalSyntax).LastChar() != "]"
+					cNormalSyntax += " ]"
+				ok
 
 				cCode = "aTempList = " + cNormalSyntax
+
 				eval(cCode)
 
 				bResult = isList(aTempList)
@@ -21536,7 +21541,7 @@ return
 			return FALSE
 		ok
 
-		if This.TrimQ().IsBoundedBy("[","]")
+		if This.TrimQ().IsBoundedBy([ "[","]" ])
 			return TRUE
 		else
 			return FALSE
@@ -21544,7 +21549,7 @@ return
 
 	def IsListInShortForm()
 		if This.IsListInString() and
-		   NOT This.IsListInNormalForm()
+		  ( NOT This.IsListInNormalForm() )
 
 			return TRUE
 		else
@@ -21621,7 +21626,7 @@ return
 
 			if StzListQ(aTempList).IsContiguous()
 
-				This.TrimQ().RemoveBoundsQ("[","]")
+				This.TrimQ().RemoveBoundsQ([ "[","]" ])
 				acMembers = QStringObject().split(",", 0, 0)
 				acMembers = QStringListToList(acMembers)
 				acMembers = StzListQ(acMembers).FirstAndLastItems()
@@ -21639,7 +21644,7 @@ return
 				cMember1 = StzStringQ(acMembers[1]).Simplified()
 				cMember2 = StzStringQ(acMembers[len(acMembers)]).Simplified()
 
-				cResult = cMember1 + " : " + cMember2
+				cResult = cMember1 + ":" + cMember2
 
 			else
 				cResult = This.Simplified()
@@ -21781,12 +21786,11 @@ return
 		TODO: Generelise it!
 		*/
 
-
-		This.TrimQ().RemoveBounds("{","}")
+		This.TrimQ().RemoveBounds( [ "{", "}" ] )
 
 		# Case where we have a normal list syntax
 
-		if This.TrimQ().IsBoundedBy("[","]")
+		if This.TrimQ().IsBoundedBy( [ "[", "]" ] )
 			cCode = "aResult = " + This.Content()
 			eval(cCode)
 			return aResult
@@ -21866,7 +21870,6 @@ return
 			stzRaise("Syntax error! Can't transoform the string into list.")
 
 		ok
-
 		
 		# Composing the contiguous list for cLastChar1 to cLastChar2
 	
@@ -23206,3 +23209,4 @@ return
 	def IsListOfCharsInComputableForm()
 
 		// TODO
+

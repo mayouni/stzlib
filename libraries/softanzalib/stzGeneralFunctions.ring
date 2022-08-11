@@ -504,17 +504,18 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 	#>
 
 func ComputableFormSimplified(pValue)
+
+	cResult = ""
+
 	if isNumber(pValue)
-		return ""+ pValue
+		cResult = ""+ pValue
 
 	but isString(pValue)
+		# NOTE: strings inside the pValue must be enclosed
+		# between two "s anf not between two 's.
 
 		oStr = new stzString(pValue)
-		aAntiSections = oStr.FindAntiSections( oStr.FindAnySectionsBetween('"','"') )
-		
-		oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
-		#--> this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"
-		
+
 		cChar = ""
 
 		if Q('"').
@@ -525,10 +526,20 @@ func ComputableFormSimplified(pValue)
 			cChar = "'"
 		ok
 
-		cResult = cChar + oStr.Content() + cChar
+		if oStr.ContainsNo('"')
+			cResult = cChar + Q(pValue).Simplified() + cChar
+		else
+
+			aAntiSections = oStr.FindAntiSections( oStr.FindAnySectionsBetween('"','"') )
+		
+			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
+			#--> this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"
+
+			cResult = cChar + oStr.Content() + cChar
+		ok
 
 	but isList(pValue)
-		return @@Q(pValue).Simplified()
+		cResult = @@Q(pValue).Simplified()
 	ok
 
 	return cResult
