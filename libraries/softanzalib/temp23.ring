@@ -1,158 +1,39 @@
+	  #====================================================#
+	 #    SPLITTING THE STRING USING A GIVEN SUBSTRING    #
+	#====================================================#
 
-/*
-This class is a numrical solution to splitting things.
-
-A splitter recieves a number N positions. If it is a list then its
-number of items is considered as N.
-
-Then the splitter initializes an internal list of numbers from 1 to N.
-
-Then the several splitting features are provided (see class methods).
-
-Each of these methods returns a list pof sections (as pairs of numbers).
-
-In practice, stzSplitter is called from inside a stzString or stzList. In this
-case, the returned sections are passed to stzString.Sections() or stzList.Sections()
-to provide us with the splitted parts of the string or the list.
-	
-*/
-
-func StzSplitterQ(p)
-	return new stzSplitter(p)
-
-class stzSplitter
-	@nNumberOfPositions
-
-	  #--------------------------------#
-	 #    INITIALIZING THE SPLITTER   #
-	#--------------------------------#
-
-	def init(n)
-		if isNumber(n)
-
-			if n < 0
-				stzRaise("p must be positive!") # --> TODO: stzListError
-			ok
-
-			@nNumberOfPositions = n
-
-		but isList(n) and Q(n).IsListOfNumbers() and
-		    Q(n).IsContiguous() and n[1] = 1
-
-			@nNumberOfPositions = len(n)
-
-		else
-			stzRaise("Incorrect param type! n must be a number.")
+	def SplitCS(pSubStr, pCaseSensitive)
+		if isList(pcSubStr) and Q(pcSubStr).IsUsingNamedParam()
+			pcSubStr = pcSubStr[2]
 		ok
 
-	def NumberOfPositions()
-		return @nNumberOfPositions
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
 
-		def NumberOfItems()
-			return This.NumberOfPositions()
-
-	def Content()
-		aResult = 1:This.NumberOfPositions()
+		aResult = QStringListToList( This.QStringObject().split(pcSubStr, 0, pCaseSensitive[2]) )
 		return aResult
 
-	  #========================================#
-	 #    SPLITTING : THE GENERIC FUNCTION    #
-	#========================================#
+	def 
+	  #=======================#
+	 #    SPLITTING USING    #
+	#=======================#
 
-	def Split(p)
-	
-		if isList(p)
+	def SplitUsingCS(pcSubStr, pCaseSensitive)
 
-			if len(p) = 2 and
-			   isString(p[1]) and
-			   Q(p[1]).IsOneOfTheseCS([
-				:At, :AtPosition, :AtPositions,
-				:Before, :BeforePosition, :BeforePositions,
-				:After, :AfterPosition, :AfterPositions,
-				:ToPartsOfNItems, :ToPartsOfExactlyNItems,
-				:ToNParts
-			   ], :CS = FALSE)
-	
-				cTemp = Q(p[1]).Lowercased()
+		anPositions = This.FindAllCS(pcSubStr, pCaseSensitive)
+		aResult = This.SplitAtPositions(anPositions)
 
-				switch cTemp
-	
-				#--
-				on :At
-					return This.SplitAt(p[2])
-				
-				on :AtPosition
-					return This.SplitAtPosition(p[2])
+		return aResult
 
-				on :AtPositions
-					return This.SplitAtPositions(p[2])
-
-				#--
-				on :Before
-					return This.SplitBefore(p[2])
-				
-				on :BeforePosition
-					return This.SplitBeforePosition(p[2])
-
-				on :BeforePositions
-					return This.SplitBeforePositions(p[2])
-
-				#--
-				on :After
-					return This.SplitAfter(p[2])
-				
-				on :BeforePosition
-					return This.SplitAfterPosition(p[2])
-
-				on :BeforePositions
-					return This.SplitAfterPositions(p[2])
-
-				#--
-				on :ToPartsOfNItems
-					return This.SplitToPartsOfNItems(p[2])
-
-				on :ToPartsOfExactlyNItems
-					return This.SplitToPartsOfExactlyNItems(p[2])
-	
-				on :ToNParts
-					return This.SplitToNParts(p[2])
-
-				off
-			else
-
-				if Q(p).AllItemsAreNumbers()
-					return This.SplitAtPositions(p)
-				else
-					StzRaise("Incorrect param type! p must be a number or list of numbers.")
-				ok
-			ok
-			
-		else
-
-			return This.SplitAt(p)
-		ok
-
-	  #====================#
+	  #--------------------#
 	 #    SPLITTING AT    #
-	#====================#
+	#--------------------#
 
-	def SplitAt(n)
+	def SplitAtCS(pcSubStr, pCaseSensitive)
 
-		if isList(n) and Q(n).IsListOfNumbers()
-			return This.SplitAtPositions(n)
-		ok
-
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		nLen = This.NumberOfPositions()
-
-		if n > 1 and n < nLen
-			aResult = [ [ 1, n-1], [n+1, nLen ] ]
-		else
-			aResult = This.Content()
-		ok
+		anPositions = This.FindAllCS(pcSubStr, pCaseSensitive)
+		aResult = This.SplitAtPositions(anPositions)
 
 		return aResult
 
@@ -204,10 +85,6 @@ class stzSplitter
 
 		def SplitBeforePosition(n)
 			return This.SplitBefore(n)
-
-	  #-------------------------------------#
-	 #   SPLITTING BEFORE MANY POSITIONS   #
-	#-------------------------------------#
 
 	def SplitBeforePositions(panPositions)
 
@@ -367,7 +244,7 @@ class stzSplitter
 	 #   SPLITTING TO PARTS OF N ITEMS   #
 	#===================================#
 
-	def SplitToPartsOfNPositions(n)
+	def SplitToPartsOfNItems(n)
 
 		nLen = This.NumberOfPositions()
 
@@ -393,13 +270,10 @@ class stzSplitter
 		#< @FunctionAlternativeForm
 
 		def SplitToPartsOfN(n)
-			return This.SplitToPartsOfNPositions(n)
+			This.SplitToPartsOfNItems(n)
 
 		def SplitToPartsOf(n)
-			return This.SplitToPartsOfNPositions(n)
-
-		def SplitToPartsOfNItems(n)
-			return This.SplitToPartsOfNPositions(n)
+			This.SplitToPartsOfNItems(n)
 
 		#>
 
@@ -407,26 +281,21 @@ class stzSplitter
 	 #    SPLITTING TO PARTS OF N ITEMS -- EXTENDED    #
 	#-------------------------------------------------#
 
-	def SplitToPartsOfNPositionsXT(n, bExcludeRemainingPart)
-		aSections = This.SplitToPartsOfNPositions(n)
+	def SplitToPartsOfNItemsXT(n, bExcludeRemainingPart)
+		aSections = This.SplitToNParts(n)
 		
-		nLen = len(aSections)
-		aLastPair = aSections[ nLen ]
-
-		if (aLastPair[2] - aLastPair[1] + 1) != n
-			del( aSections, nLen )
+		if len(aSections) > 2
+			anLast = aSections[ len(aSections) ]
+	
+			if anLast[1] = anLast[2]
+				del(aSections, len(aSections))
+			ok
 		ok
 
 		return aSections
 
-		def SplitToPartsOfNItemsXT(n, bExcludeRemainingPart)
-			return This.SplitToPartsOfNPositionsXT(n, bExcludeRemainingPart)
-
-	def SplitToPartsOfExactlyNPositions(n)
-		return This.SplitToPartsOfNPositionsXT(n, :ExcludeRemainingPart = TRUE)
-
 		def SplitToPartsOfExactlyNItems(n)
-			return This.SplitToPartsOfNPositionsXT(n, :ExcludeRemainingPart = TRUE)
+			return This.SplitToPartsOfNItemsXT(n, :ExcludeRemainingPart = TRUE)
 
 	  #----------------------------#
 	 #    SPLITTING TO N PARTS    #
@@ -456,46 +325,3 @@ class stzSplitter
 
 		return aResult
 
-	  #=======================================================#
-	 #   Utility functions used by the other methods above   #
-	#=======================================================#
-
-	def GetPairsFromPositions(panPositions) # TODO: A general function, can move to stzListOfNumbers
-		/*
-		Main list 	--> 1:10
-		panPositions	--> [ 3, 6, 8 ]
-		List of pairs	--> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
-		*/
-
-		nLen = This.NumberOfPositions()
-		panPositions + nLen
-
-		# Eliminating doubble positions
-		aPos = StzListQ(panPositions).ToSet()
-
-		# Eliminating extreme cases
-		aPos = StzListQ(panPositions).RemoveItemsWQ('@item < 1 or @item > ' + nLen).Content()
-		
-		if StzListQ(aPos).IsEmpty()
-			return [ [] ]
-		ok
-		
-		# Adding 1 and (NumberOfItems()) if inexistant
-		if aPos[1] != 1 { aPos + 1 }
-		if aPos[len(aPos)] != 10 { aPos + nLen }
-		
-		# Sorting the list
-		aPos = sort(aPos)
-		
-		# Getting the pairs of that list
-		aPairs = []
-		for i = 1 to len(aPos) - 1
-			aPairs + [ aPos[i], aPos[i+1] ]
-		next
-
-		aPairs = Q(aPairs).RemoveLastItemQ().Content()
-
-		return aPairs
-
-	def ToStzList()
-		return StzListQ(This.Content())

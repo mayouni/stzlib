@@ -19,7 +19,7 @@ class stzListProvidedAsString from stzObject
 		oTempString = new stzString(cTempString)
 		cTempString = oTempString.RemoveSpaces()
 		oTempString = new stzString(cTempString)
-		aItems = oTempString.SplitForward(",")
+		aItems = oTempString.Split( :Using = ",")
 
 	  #------------------------------------#
 	 #     LIST OF VALUES OR VARIABLES    #

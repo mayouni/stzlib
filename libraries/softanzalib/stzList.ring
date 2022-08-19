@@ -9778,20 +9778,21 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def FindManyQR(paItems, pcType)
+		def FindManyQR(paItems, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			if pcType = :stzList
+			switch pcReturnType
+			on :stzList
 				return new stzList( This.FindMany(paItems) )
 
-			but pcType = :stzListOfNumbers
+			on :stzListOfNumbers
 				return new stzListOfNumbers( This.FindMany(paItems) )
 
-			else
-				stzRaise("Unsupported type!")
-			ok
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 		def FindManyQ(paItems)
 			return This.FindManyQR(paItems, :stzListOfNumbers)
@@ -9826,18 +9827,20 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def FindAllExceptFirstQR(pItem, pcType)
+		def FindAllExceptFirstQR(pItem, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			if pcType = :stzList
+			switch pcReturnType
+			on :stzList
 				return new stzList( This.FindAllExceptFirst(pItem) )
-			but pcType = :stzListOfNumbers
+
+			on :stzListOfNumbers
 				return new stzListOfNumbers( This.FindAllExceptFirst(pItem) )
-			else
-				stzRaise("Unsupported type!")
-			ok
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 		def FindAllExceptFirstQ(pItem)
 			return This.FindAllExceptFirstQR(pItem, :stzListOfNumbers)
@@ -9851,18 +9854,20 @@ class stzList from stzObject
 
 			#< @FunctionFluentForm
 	
-			def FindExceptFirstQR(pItem, pcType)
+			def FindExceptFirstQR(pItem, pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				if pcType = :stzList
+				switch pcReturnType
+				on :stzList
 					return new stzList( This.FindExceptFirst(pItem) )
-				but pcType = :stzListOfNumbers
+
+				on :stzListOfNumbers
 					return new stzListOfNumbers( This.FindExceptFirst(pItem) )
-				else
-					stzRaise("Unsupported type!")
-				ok
+				other
+					stzRaise("Unsupported return type!")
+				off
 	
 			def FindExceptFirstQ(pItem)
 				return This.FindAllExceptFirstQR(pItem, :stzListOfNumbers)
@@ -9876,18 +9881,20 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def FindAllExceptLastQR(pItem, pcType)
+		def FindAllExceptLastQR(pItem, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			if pcType = :stzList
+			switch pcReturnType
+			on :stzList
 				return new stzList( This.FindAllExceptLast(pItem) )
-			but pcType = :stzListOfNumbers
+
+			on :stzListOfNumbers
 				return new stzListOfNumbers( This.FindAllExceptLast(pItem) )
-			else
-				stzRaise("Unsupported type!")
-			ok
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 		def FindAllExceptLastQ(pItem)
 			return This.FindAllExceptLastQR(pItem, :stzListOfNumbers)
@@ -9901,18 +9908,21 @@ class stzList from stzObject
 
 			#< @FunctionFluentForm
 	
-			def FindExceptLastQR(pItem, pcType)
+			def FindExceptLastQR(pItem, pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				if pcType = :stzList
+				switch pcReturnType
+				on :stzList
 					return new stzList( This.FindExceptLast(pItem) )
-				but pcType = :stzListOfNumbers
+
+				on :stzListOfNumbers
 					return new stzListOfNumbers( This.FindExceptLast(pItem) )
-				else
-					stzRaise("Unsupported type!")
-				ok
+
+				other
+					stzRaise("Unsupported param type!")
+				off
 	
 			def FindExceptLastQ(pItem)
 				return This.FindAllExceptLastQR(pItem, :stzListOfNumbers)
@@ -11956,74 +11966,6 @@ class stzList from stzObject
 	 #    SPLITTING TO PARTS OF N ITEMS   #
 	#------------------------------------#
 	
-	def SplitToPartsOfNItemsEach(n)
-
-		oSplitter = new stzSplitter(This.List())
-		aSplitted = oSplitter.SplitToPartsOfNItemsEach(n)
-
-		if isString(aSplitted) and aSplitted = NULL
-			return NULL
-
-		but len(aSplitted) = 1
-			aResult = []
-			aResult + This.List()
-
-		but len(aSplitted) = This.NumberOfItems()
-			aResult = []
-
-			for item in This.List()
-				aResult + [ item ]
-			next
-
-		else
-			# Tranforming the sections of positions contained in aSplitted
-			# to sublists of the actual items corresponding to those sections
-	
-			aResult = []
-	
-			for aSection in aSplitted
-				aResult + This.Section( aSection[1], aSection[2] )
-			next
-		ok
-
-		return aResult
-
-		#< @FunctionFluentForm
-		
-		def SplitToPartsOfNItemsEachQ(n)
-			This.SplitToPartsOfNItemsEachQR(n, :stzList)
-
-		def SplitToPartsOfNItemsEachQR(n, pcType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitToPartsOfNItemsEach(n) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitToPartsOfNItemsEach(n) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.SplitToPartsOfNItemsEach(n) )
-	
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitToPartsOfNItemsEach(n) )
-	
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SplitToPartsOfNItemsEach(n) )
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-
-		#>
-
 	def SplitToPartsOfNItems(n)
 		oSplitter = new stzSplitter(This.List())
 		aSplitted = oSplitter.SplitToPartsOfNItems(n)
@@ -12096,12 +12038,12 @@ class stzList from stzObject
 			def SplitToPartsOfNQ(n)
 				return This.SplitToPartsOfNItemsQR(n, :stzList)
 	
-			def SplitToPartsOfNQR(n, pcType)
+			def SplitToPartsOfNQR(n, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.SplitToPartsOfNItemsQR(n, pcType)
+				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
 
 			#>
 
@@ -12113,12 +12055,12 @@ class stzList from stzObject
 			def SplitToPartsOfQ(n)
 				return This.SplitToPartsOfNItemsQR(n, :stzList)
 	
-			def SplitToPartsOfQR(n, pcType)
+			def SplitToPartsOfQR(n, pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.SplitToPartsOfNItemsQR(n, pcType)
+				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
 
 			#>
 
@@ -12132,12 +12074,12 @@ class stzList from stzObject
 			def SplitToPartsQ(n)
 				return This.SplitToPartsQR(n, :stzList)
 	
-			def SplitToPartsQR(n, pcType)
+			def SplitToPartsQR(n, pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.SplitToPartsOfNItemsQR(n, pcType)
+				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
 		#>
 
 	  #---------------------------------------#
@@ -12199,7 +12141,7 @@ class stzList from stzObject
 		oSplitter = new stzSplitter(This.List())
 		aSplitted = oSplitter.SplitAfterPositions(panPositions)
 
-		# Tranforming the sections of positions contained in aSplitted
+		# Transforming the sections of positions contained in aSplitted
 		# to sublists of the actual items corresponding to those sections
 
 		aResult = []
@@ -13308,16 +13250,7 @@ class stzList from stzObject
 
 		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
 					:StartingAt, :StartingAtPosition,
-					:StartingAtOccurrence ]) ) and
-
-		   ( isNumber(This[2]) or
-		     ( isString(This[2]) and StzStringQ(This[2]).IsOneOfThese([
-					:First, :FirstPosition, :FirstItem,
-					:Last, :LastPosition, :LastItem,
-					:FirstChar, :LastChar,
-					:FirstString, :LastString,
-					:FirstNumber, :LastNumber,
-					:FirstOccurrence, :LastOccurrence ]) ) )
+					:StartingAtOccurrence ]) )
 
 			return TRUE
 
@@ -13337,14 +13270,7 @@ class stzList from stzObject
 		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
 					:InStringAt, :InStringItemAt,
 					:inStringAtPosition, :InStringItemAtPosition,
-					:InStringN, :InStringItemN ]) ) and
-
-		   ( isNumber(This[2]) or
-		     ( isString(This[2]) and StzStringQ(This[2]).IsOneOfThese([
-					:First, :FirstPosition, :FirstItem,
-					:Last, :LastPosition, :LastItem,
-					:FirstString, :LastString,
-					:FirstStringItem, :LastStringItem ]) ) )
+					:InStringN, :InStringItemN ]) )
 
 			return TRUE
 
@@ -13402,9 +13328,7 @@ class stzList from stzObject
 		# TODO: generalize to all the functions we want to provide exceptions to it
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Except ) and
-
-		   ( isString(This[2]) or ( isList(This[2]) and ListIsListOfStrings(This[2])) )
+		   ( isString(This[1]) and This[1] = :Except )
 
 			return TRUE
 
@@ -13421,19 +13345,7 @@ class stzList from stzObject
 
 	def IsFromNamedParamList()
 		if This.NumberOfItems() = 2 and
-
-		   ( isString(This[1]) and  (This[1] = :From or This[1] = :FromPosition)  ) and
-
-		     ( 	isNumber(This[2] or
-
-			( isString(This[2]) and
-
-		       	  Q(This[2]).IsOneOfThese([
-				:StartOfList, :StartOfString, :StartOfSubString, :StartOfWord,
-				:StartOfSentence, :StartOfLine, :StartOfParagraph,
-
-				:EndOfList, :EndOfString, :EndOfSubString, :EndOfWord,
-				:EndOfSentence, :EndOfLine, :EndOfParagraph ]) ) ) )
+		   ( isString(This[1]) and  (This[1] = :From or This[1] = :FromPosition)  )
 
 			return TRUE
 
@@ -13460,21 +13372,7 @@ class stzList from stzObject
 	def IsToNamedParamList()
 		if This.NumberOfItems() = 2 and
 
-		   ( isString(This[1]) and  (This[1] = :To or This[1] = :ToPosition) ) and
-
-		     ( 	isNumber(This[2] or
-
-			( isString(This[2]) and
-
-		       	  Q(This[2]).IsOneOfThese([
-				:StartOfList, :StartOfString, :StartOfSubString, :StartOfWord,
-				:StartOfSentence, :StartOfLine, :StartOfParagraph,
-
-				:EndOfList, :EndOfString, :EndOfSubString, :EndOfWord,
-				:EndOfSentence, :EndOfLine, :EndOfParagraph,
-
-				:Foreward, :BackWard ]) ) ) ) # TODO: check if these two are necessary!
-
+		   ( isString(This[1]) and  (This[1] = :To or This[1] = :ToPosition) )
 			return TRUE
 
 		else
@@ -13712,33 +13610,7 @@ class stzList from stzObject
 
 	def IsAtNamedParamList()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and This[1] = :At and
-
-		   ( isNumber(This[2]) or
-			( isString(This[2]) and
-				Q(This[2]).IsOneOfThese([
-					:First, :Last,
-					:FirstPosition, :LastPosition,
-
-					:FirstItem, :LastItem,
-					:FirstChar, :LastChar,
-					:FirstString, :LastString,
-					:FirstStringItem, :LastStringItem,
-					:FirstNumber, :LastNumber,
-					:FirstList, :LastList,
-					:FirstPair, :LastPair,
-					:FirstObject, :LastObject,
-
-					:FirstSubString, :LastSubString,
-					:FirstSubList, :LastSubList,
-					
-					:FirstWord, :LastWord,
-					:FirstSentence, :LastSentence,
-					:FirstLine, :LastLine,
-					:FirstParagraph, :LastParagraph ])
-			)
-		   )
-
+		   isString(This[1]) and This[1] = :At
 			return TRUE
 
 		else
@@ -13751,34 +13623,19 @@ class stzList from stzObject
 		def IsAtNamedParam()
 			return This.IsAtNamedParamList()
 
+	def IsAtOrUsingNamedParam()
+		if This.IsAtNamedPAram() or This.IsUsingNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsUsingOrAtNamedParam()
+			return This.IsAtOrUsingNamedParam()
+
 	def IsAtPositionNamedParamList()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtPosition ) and
-
-		 	  	( isNumber(This[2]) or
-		    			( isString(This[2]) and Q(This[2].IsOneOfThese([
-						:First, :Last,
-						:FirstPosition, :LastPosition,
-	
-						:FirstItem, :LastItem,
-						:FirstChar, :LastChar,
-						:FirstString, :LastString,
-						:FirstStringItem, :LastStringItem,
-						:FirstNumber, :LastNumber,
-						:FirstList, :LastList,
-						:FirstPair, :LastPair,
-						:FirstObject, :LastObject,
-	
-						:FirstSubString, :LastSubString,
-						:FirstSubList, :LastSubList,
-						
-						:FirstWord, :LastWord,
-						:FirstSentence, :LastSentence,
-						:FirstLine, :LastLine,
-						:FirstParagraph, :LastParagraph ])
-					)
-			) 	)
-
+			( isString(This[1]) and  This[1] = :AtPosition )
 
 			return TRUE
 
@@ -14003,8 +13860,7 @@ class stzList from stzObject
 
 	def IsUpToNItemsNamedParamList()
 		if ( This.NumberOfItems() = 2 ) and
- 		   ( isString(This[1]) and  This[1] = :UpToNItems ) and
-		   ( isList(This[2]) and Q(This[2]).IsPairOfNumbers() )
+ 		   ( isString(This[1]) and  This[1] = :UpToNItems )
 		  
 			return TRUE
 
@@ -14028,7 +13884,7 @@ class stzList from stzObject
 		ok
 
 		def IsBeforeNamedParam()
-			return This.BeforeNamedParamList()
+			return This.IsBeforeNamedParamList()
 
 	def IsAfterNamedParamList()
 		if ( This.NumberOfItems() = 2 ) and
@@ -14040,7 +13896,7 @@ class stzList from stzObject
 		ok
 
 		def IsAfterNamedParam()
-			return This.BeforeNamedParamList()
+			return This.IsAfterNamedParamList()
 
 	def IsBeforeOrAfterNamedParamList()
 		if This.IsBeforeNamedPAramList() or This.IsAfterNamedParamList()
