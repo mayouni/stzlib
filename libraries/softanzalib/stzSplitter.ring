@@ -1,299 +1,171 @@
 
-func StzSplitterQ(p)
-	return new stzSplitter2(p)
+/*
+This class is a numrical solution to splitting things.
 
-class stzSplitter from stzList
-	@nNumberOfItems
+A splitter recieves a number N positions. If it is a list then its
+number of items is considered as N.
+
+Then the splitter initializes an internal list of numbers from 1 to N.
+
+Then the several splitting features are provided (see class methods).
+
+Each of these methods returns a list pof sections (as pairs of numbers).
+
+In practice, stzSplitter is called from inside a stzString or stzList. In this
+case, the returned sections are passed to stzString.Sections() or stzList.Sections()
+to provide us with the splitted parts of the string or the list.
+	
+*/
+
+func StzSplitterQ(p)
+	return new stzSplitter(p)
+
+class stzSplitter
+	@nNumberOfPositions
 
 	  #--------------------------------#
 	 #    INITIALIZING THE SPLITTER   #
 	#--------------------------------#
 
-	def init(p)
-		if isNumber(p)
+	def init(n)
+		if isNumber(n)
 
-			if p < 0
+			if n < 0
 				stzRaise("p must be positive!") # --> TODO: stzListError
 			ok
 
-			@nNumberOfItems = p
+			@nNumberOfPositions = n
 
-		but isList(p)
-			@nNumberOfItems = len(p)
+		but isList(n) and Q(n).IsListOfNumbers() and
+		    Q(n).IsContiguous() and n[1] = 1
 
-		but isString(p)
-			@nNumberOfItems = StzStringQ(p).NumberOfChars()
+			@nNumberOfPositions = len(n)
 
 		else
-			stzRaise("Unsupported param value!")
+			stzRaise("Incorrect param type! n must be a number.")
 		ok
 
-	def NumberOfItems()
-		return @nNumberOfItems
+	def NumberOfPositions()
+		return @nNumberOfPositions
+
+		def NumberOfItems()
+			return This.NumberOfPositions()
 
 	def Content()
-		aResult = 1:This.NumberOfItems()
+		aResult = 1:This.NumberOfPositions()
 		return aResult
 
-	  #------------------------#
-	 #    SPLITTING BEFORE    #
-	#------------------------#
+	  #========================================#
+	 #    SPLITTING : THE GENERIC FUNCTION    #
+	#========================================#
 
-	def SplitBefore(p)
-		if isNumber(p)
-			return This.SplitBeforePositions(p)
-		but isList(p) and ListIsListOfNumbers(p)
-			return This.SplitBeforeN(p)
+	def Split(p)
+	
+		if isList(p)
+
+			if len(p) = 2 and
+			   isString(p[1]) and
+			   Q(p[1]).IsOneOfTheseCS([
+				:At, :AtPosition, :AtPositions,
+				:Before, :BeforePosition, :BeforePositions,
+				:After, :AfterPosition, :AfterPositions,
+				:ToPartsOfNItems, :ToPartsOfExactlyNItems,
+				:ToNParts
+			   ], :CS = FALSE)
+	
+				cTemp = Q(p[1]).Lowercased()
+
+				switch cTemp
+	
+				#--
+				on :At
+					return This.SplitAt(p[2])
+				
+				on :AtPosition
+					return This.SplitAtPosition(p[2])
+
+				on :AtPositions
+					return This.SplitAtPositions(p[2])
+
+				#--
+				on :Before
+					return This.SplitBefore(p[2])
+				
+				on :BeforePosition
+					return This.SplitBeforePosition(p[2])
+
+				on :BeforePositions
+					return This.SplitBeforePositions(p[2])
+
+				#--
+				on :After
+					return This.SplitAfter(p[2])
+				
+				on :BeforePosition
+					return This.SplitAfterPosition(p[2])
+
+				on :BeforePositions
+					return This.SplitAfterPositions(p[2])
+
+				#--
+				on :ToPartsOfNItems
+					return This.SplitToPartsOfNItems(p[2])
+
+				on :ToPartsOfExactlyNItems
+					return This.SplitToPartsOfExactlyNItems(p[2])
+	
+				on :ToNParts
+					return This.SplitToNParts(p[2])
+
+				off
+			else
+
+				if Q(p).AllItemsAreNumbers()
+					return This.SplitAtPositions(p)
+				else
+					StzRaise("Incorrect param type! p must be a number or list of numbers.")
+				ok
+			ok
+			
 		else
-			stzRaise("Incorrect param! Provide a number or list of numbers.")
+
+			return This.SplitAt(p)
 		ok
 
-		def SplitBeforeQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitBefore(n) )
-	
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitBefore(n) )
-	
-			other
-				stzRaise("Unsupported return type!")
-			off
-
-		def SplitBeforeQ(n)
-			return This.SplitBeforeQR(n, :stzListOfPairs)
-
-	  #------------------------------------------------#
-	 #    SPLITTING BEFORE A GIVEN SET OF POSITIONS   #
-	#------------------------------------------------#
-
-	def SplitBeforePositions(panPositions)
-
-		aPairs = This.GetPairsFromPositions(panPositions)
-
-		for i = 1 to len(aPairs) - 1
-			aPairs[i][2]--
-		next
-
-		return aPairs
-
-		#< @FunctionFluentForm
-
-		def SplitBeforePosistionsQR(panPositions, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitBeforePositions(panPositions) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitBeforePositions(panPositions) )
-
-			other
-				return "Unsupported return type!"
-			off
-
-		def SplitBeforePositionsQ(panPositions)
-			return This.SplitBeforePosistionsQR(panPositions, :stzListOfPairs)
-
-		#>
-
-	  #----------------------------------------#
-	 #    SPLITTING BEFORE A GIVEN POSITION   #
-	#----------------------------------------#
-
-	def SplitBeforePosition(n)
-		return This.SplitBeforePositions([n])
-
-		#< @FunctionFluentForm
-
-		def SplitBeforePositionQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitBeforePosition(n) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitBeforePosition(n) )
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-
-		def SplitBeforePositionQ(n)
-			return This.SplitBeforePosition(n, :stzListOfPairs)
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def SplitBeforeN(n)
-			return This.SplitBeforePosition(n)
-
-			def SplitBeforeNQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.SplitBeforeN(n) )
-	
-				on :stzListOfLists
-					return new stzListOfLists( This.SplitBeforeN(n) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
-
-			def SplitBeforeNQ(n)
-				return This.SplitBeforeNQR(n, :stzListOfPairs)
-	
-		#>
-
-	  #-----------------------------------------------#
-	 #    SPLITTING AFTER A GIVEN SET OF POSITIONS   #
-	#-----------------------------------------------#
-
-	def SplitAfterPositions(panPositions)
-
-		aPairs = This.GetPairsFromPositions(panPositions)
-
-		for i = 2 to len(aPairs)
-			aPairs[i][1]++
-		next
-
-		return aPairs
-
-		#< @FunctionFluentForm
-
-		def SplitAfterPosistionsQR(panPositions, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitAfterPositions(panPositions) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitAfterPositions(panPositions) )
-
-			other
-				return "Unsupported return type!"
-			off
-
-		def SplitAfterPositionsQ(panPositions)
-			return This.SplitAfterPosistionsQR(panPositions, :stzListOfPairs)
-
-		#>
-
-	  #----------------------------------------#
-	 #    SPLITTING AFTER A GIVEN POSITION    #
-	#----------------------------------------#
-
-	def SplitAfterPosition(n)
-		return This.SplitAfterPositions([n])
-
-		#< @FunctionFluentForm
-
-		def SplitAfterPositionQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitAfterPosition(n) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitAfterPosition(n) )
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-
-		def SplitAfterPositionQ(n)
-			return This.SplitAfterPosition(n, :stzListOfPairs)
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def SplitAfterN(n)
-			return This.SplitAfterPosition(n)
-
-			def SplitAfterNQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.SplitAfterN(n) )
-	
-				on :stzListOfLists
-					return new stzListOfLists( This.SplitAfterN(n) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
-
-			def SplitAfterNQ(n)
-				return This.SplitAfterNQR(n, :stzListOfPairs)
-	
-		#>
-
-	  #--------------------#
+	  #====================#
 	 #    SPLITTING AT    #
-	#--------------------#
+	#====================#
 
-	def SplitAt(p)
-		if isNumber(p)
-			return This.SplitAtPosistion(p)
+	def SplitAt(n)
 
-		but isList(p) and ListIsListOfNumbers(p)
-			return This.SplitAtPositions(p)
-	
-		else
-			stzRaise("Unsupported param! You must provide a number or a list of numbers!")
+		if isList(n) and Q(n).IsListOfNumbers()
+			return This.SplitAtPositions(n)
 		ok
 
-		#< @FunctionFluentForm
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
 
-			def SplitAtQR(p, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.SplitAt(p) )
-	
-				on :stzListOfLists
-					return new stzListOfLists( This.SplitAt(p) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+		nLen = This.NumberOfPositions()
 
-			def SplitAtQ(n)
-				return This.SplitAtNQR(n, :stzListOfPairs)
+		if n > 1 and n < nLen
+			aResult = [ [ 1, n-1], [n+1, nLen ] ]
+		else
+			aResult = This.Content()
+		ok
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def SplitAtPosition(n)
+			return This.SplitAt(n)
 
 		#>
 
-	  #--------------------------------------------#
-	 #    SPLITTING AT A GIVEN SET OF POSITIONS   #
-	#--------------------------------------------#
+	  #---------------------------------#
+	 #   SPLITTING AT MANY POSITIONS   #
+	#---------------------------------#
 
 	def SplitAtPositions(panPositions)
 
@@ -306,184 +178,210 @@ class stzSplitter from stzList
 
 		return aPairs
 
-		#< @FunctionFluentForm
+	  #========================#
+	 #    SPLITTING BEFORE    #
+	#========================#
 
-			def SplitAtPositionsQR(panPositions, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-					pcReturnType = pcReturnType[2]
-				ok
+	def SplitBefore(n)
+		if isList(n)
+			if Q(n).IsWhereNamedParam()
+				return This.SplitBeforeW(n)
 
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.SplitAtPositions(panPositions) )
-	
-				on :stzListOfLists
-					return new stzListOfLists( This.SplitAtPositions(panPositions) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
-
-			def SplitAtPositionsQ(panPositions)
-				return This.SplitAtPositionsQR(panPositions, :stzListOfPairs)
-
-		#>
-
-	  #------------------------------------#
-	 #    SPLITTING AT A GIVEN POSITION   #
-	#------------------------------------#
-
-	def SplitAtPosition(n)
-		return This.SplitAtePositions([n])
-
-		#< @FunctionFluentForm
-
-		def SplitAtPositionQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
+			else
+				return This.SplitBeforePositions(n)
 			ok
+		ok
 
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitAtPosition(n) )
-	
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitAtPosition(n) )
-	
-			other
-				stzRaise("Unsupported return type!")
-			off
+		nLen = This.NumberOfPositions()
 
-		def SplitAtPositionQ(n)
-			return This.SplitAtPositionQR(n, :stzListOfPairs)
+		if n > 1 and n < nLen
+			aResult = [ [ 1, n-1], [n, nLen ] ]
+		else
+			aResult = This.Content()
+		ok
 
-		#>
+		return aResult
 
-	  #---------------------------------------#
+		def SplitBeforePosition(n)
+			return This.SplitBefore(n)
+
+	  #-------------------------------------#
+	 #   SPLITTING BEFORE MANY POSITIONS   #
+	#-------------------------------------#
+
+	def SplitBeforePositions(panPositions)
+
+		aPairs = This.GetPairsFromPositions(panPositions)
+		/*
+		Main list 	 --> 1:10
+		panPositions	 --> [ 3, 6, 8 ]
+		List of pairs	 --> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
+		Eexpected result --> [ [ 1, 2 ], [ 3, 5 ], [ 6, 7 ], [ 8, 10 ] ]
+
+		- We should leave the last pair as is
+		- For all the others, just retrived 1 from aPair[2]
+		*/
+
+		nLen = len(aPairs)
+		aResult = []
+
+		for i = 1 to nLen - 1
+			n1 = aPairs[i][1]
+			n2 = aPairs[i][2] - 1
+
+			aResult + [ n1, n2 ]
+		next
+
+		aLastPair = aPairs[nLen]
+		aResult + [ aLastPair[1], aLastPair[2] ]
+
+		return aResult
+
+	  #=======================#
+	 #    SPLITTING AFTER    #
+	#=======================#
+
+	def SplitAfter(n)
+		if isList(n)
+			if Q(n).IsWhereNamedParam()
+				return This.SplitAfterW(n)
+
+			else
+				return This.SplitAfterPositions(n)
+			ok
+		ok
+
+		nLen = This.NumberOfPositions()
+
+		if n > 1 and n < nLen
+			aResult = [ [ 1, n], [n+1, nLen ] ]
+		else
+			aResult = This.Content()
+		ok
+
+		return aResult
+
+		def SplitAfterPosition(n)
+			return This.SplitAfter(n)
+
+	def SplitAfterPositions(panPositions)
+
+		aPairs = This.GetPairsFromPositions(panPositions)
+		/*
+		Main list 	 --> 1:10
+		panPositions	 --> [ 3, 6, 8 ]
+		List of pairs	 --> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
+		Eexpected result --> [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ], [ 9, 10 ] ]
+
+		- We should leave the first pair as is
+		- For all the others, just retrived 1 to aPair[1]
+		*/
+
+		nLen = len(aPairs)
+		
+		aFirstPair = aPairs[1]
+		aResult = [ [ aFirstPair[1], aFirstPair[2] ] ]
+
+		for i = 2 to nLen
+			n1 = aPairs[i][1] + 1
+			n2 = aPairs[i][2]
+
+			aResult + [ n1, n2 ]
+		next
+
+		return aResult
+
+	  #=======================================#
 	 #    SPLITTING UNDER A GIVEN CONDTION   #
-	#---------------------------------------#
+	#=======================================#
 
 	def SplitW(pcCondition)
 		/*
-		? StzSplitterQ(1:5).SplitW('_(@item).@.IsMultipleOf(2)')
+		? StzSplitterQ(1:5).SplitW('Q(@item).IsMultipleOf(2)')
 		*/
 
-		anPositions = StzListQ(This.Content()).ItemsW(pcCondition)
+		if isList(pcCondition)
 
-		return This.SplitBeforeW(anPositions)
+			if Q(pcCondition).IsWhereNamedParam()
+				return This.SplitAtW(pcCondition[2])
 
-		#< @FunctionFluentForms
+			but Q(pcCondition).IsAtNamedParam()
+				return This.SplitAtW(pcCondition[2])
 
-		def SplitWQR(pcCondition, pcType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
+			but Q(pcCondition).IsBeforeNamedParam()
+				return This.SplitBeforeW(pcCondition[2])
+
+			but Q(pcCondition).IsAfterNamedParam()
+				return This.SplitAfterW(pcCondition[2])
+
 			ok
-
-			switch pcCondition
-			on :stzList
-				return new stzList( This.SplitW(pcCondition) )
-			on :stzListOfList
-				return new stzListOfLists( This.SplitW(pcCondition) )
-			off
-
-		def SplitWQ(pcCondition)
-			return This.SplitWQR(pcCondition, :stzList)
-
-		#>
-
-	def SplitBeforeW(pcCondition)
-		anPositions = StzListQ(This.Content()).ItemsW(pcCondition)
-		return This.SplitBeforePositions(anPositions)
-
-
-		#< @FunctionFluentForms
-
-		def SplitBeforeWQR(pcCondition, pcType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcCondition
-			on :stzList
-				return new stzList( This.SplitBeforeW(pcCondition) )
-			on :stzListOfList
-				return new stzListOfLists( This.SplitBeforeW(pcCondition) )
-			off
-
-		def SplitBeforeWQ(pcCondition)
-			return This.SplitBeforeWQR(pcCondition, :stzList)
-
-		#>
-
-	  #---------------------------------------#
-	 #    SPLITTING AFTER A GIVEN CONDTION   #
-	#---------------------------------------#
-
-	def SplitAfterW(pcCondition)
-		return This.SplitAfterPositions(panPositions)
-
-		#< @FunctionFluentFrom
-
-		def SplitAfterWQR(pcCondition, pcType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcCondition
-			on :stzList
-				return new stzList( This.SplitAfterW(pcCondition) )
-			on :stzListOfList
-				return new stzListOfLists( This.SplitAfterW(pcCondition) )
-			off
-
-		def SplitAfterWQ(pcCondition)
-			return This.SplitAfterWQR(pcCondition, :stzListOfPairs)
-
-		#>
+		
+		else
+			return This.SplitAtW(pcCondition)
+		ok
 
 	  #------------------------------------#
 	 #    SPLITTING AT A GIVEN CONDTION   #
 	#------------------------------------#
 
 	def SplitAtW(pcCondition)
-		return This.SplitAtPositions(panPositions)
+		cCondition = ""
 
-		#< @FunctionFluentFrom
+		if isString(pcCondition)
+			cCondition = pcCondition
 
-		def SplitatAfterWQR(pcCondition, pcType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
+		but isList(pcCondition)
+			cCondition = pcCondition[2]
+		ok
 
-			switch pcCondition
-			on :stzList
-				return new stzList( this.SplitAtW(pcCondition) )
-			on :stzListOfList
-				return new stzListOfLists( This.SplitAtW(pcCondition) )
-			off
+		cCondition = Q(cCondition).ReplaceCSQ("@position", :By = "@item", :CS = FALSE).Content()
 
-		def SplitAtWQ(pcCondition)
-			return This.SplitAtWQR(pcCondition, :stzListOfPairs)
+		anPositions = StzListQ(This.Content()).ItemsW(cCondition)
+		return This.SplitAtPositions(anPositions)
 
-		#>
+	  #----------------------------------------#
+	 #    SPLITTING BEFORE A GIVEN CONDTION   #
+	#----------------------------------------#
 
-	  #------------------------------------#
-	 #    SPLITTING TO PARTS OF N ITEMS   #
-	#------------------------------------#
+	def SplitBeforeW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsBeforeNamedParam()
+			pcCondition = pcCondition[2]
+		ok
 
-	def SplitToPartsOfNItems(n)
+		anPositions = StzListQ(This.Content()).ItemsW(pcCondition)
+		return This.SplitBeforePositions(anPositions)
 
-		if NOT _(n).@.IsBetween(1, This.NumberOfItems() )
+	  #---------------------------------------#
+	 #    SPLITTING AFTER A GIVEN CONDTION   #
+	#---------------------------------------#
+
+	def SplitAfterW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsBeforeNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
+		anPositions = StzListQ(This.Content()).ItemsW(pcCondition)
+		return This.SplitAfterPositions(anPositions)
+
+	  #===================================#
+	 #   SPLITTING TO PARTS OF N ITEMS   #
+	#===================================#
+
+	def SplitToPartsOfNPositions(n)
+
+		nLen = This.NumberOfPositions()
+
+		if NOT ( ( isNumber(n) ) and Q(n).IsBetween(1, nLen ) )
 			return [ [] ]
 
 		else
 			aResult = []
 
-			for i = 1 to This.NumberOfItems() step n
+			for i = 1 to nLen step n
 				nTemp = i + n-1
 
-				if nTemp > This.NumberOfItems()
-					nTemp = This.NumberOfItems()
+				if nTemp > nLen
+					nTemp = nLen
 				ok
 
 				aResult + [ i, nTemp ]
@@ -492,24 +390,43 @@ class stzSplitter from stzList
 			return aResult
 		ok
 
-		#< @FunctionFluentFrom
+		#< @FunctionAlternativeForm
 
-		def SplitToPartsOfNItemsQR(n, pcType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
+		def SplitToPartsOfN(n)
+			return This.SplitToPartsOfNPositions(n)
 
-			switch pcCondition
-			on :stzList
-				return new stzList( This.SplitToPartsOfNItems(n) )
-			on :stzListOfList
-				return new stzListOfLists( This.SplitToPartsOfNItems(n) )
-			off
+		def SplitToPartsOf(n)
+			return This.SplitToPartsOfNPositions(n)
 
-		def SplitToPartsOfNItemsQ(n)
-			return This.SplitToPartsOfNItems(n, :stzListOfPairs)
+		def SplitToPartsOfNItems(n)
+			return This.SplitToPartsOfNPositions(n)
 
 		#>
+
+	  #-------------------------------------------------#
+	 #    SPLITTING TO PARTS OF N ITEMS -- EXTENDED    #
+	#-------------------------------------------------#
+
+	def SplitToPartsOfNPositionsXT(n, bExcludeRemainingPart)
+		aSections = This.SplitToPartsOfNPositions(n)
+		
+		nLen = len(aSections)
+		aLastPair = aSections[ nLen ]
+
+		if (aLastPair[2] - aLastPair[1] + 1) != n
+			del( aSections, nLen )
+		ok
+
+		return aSections
+
+		def SplitToPartsOfNItemsXT(n, bExcludeRemainingPart)
+			return This.SplitToPartsOfNPositionsXT(n, bExcludeRemainingPart)
+
+	def SplitToPartsOfExactlyNPositions(n)
+		return This.SplitToPartsOfNPositionsXT(n, :ExcludeRemainingPart = TRUE)
+
+		def SplitToPartsOfExactlyNItems(n)
+			return This.SplitToPartsOfNPositionsXT(n, :ExcludeRemainingPart = TRUE)
 
 	  #----------------------------#
 	 #    SPLITTING TO N PARTS    #
@@ -517,11 +434,15 @@ class stzSplitter from stzList
 
 	def SplitToNParts(n)
 
-		if NOT _(n).@.IsBetween(1, This.NumberOfItems() )
+		nNumberOfPositions = This.NumberOfPositions()
+
+		if NOT Q(n).IsBetween(1, nNumberOfPositions )
 			return [ [] ]
 		ok
 
-		nLen = 0+ _( This.NumberOfItems() / n ).@.IntegerPart()
+		nLen =  ( nNumberOfPositions - ( nNumberOfPositions % n ) ) / n
+		# Replace with the following when ready:
+		# nLen = 0+ Q( This.NumberOfItems() / n ).IntegerPart()
 
 		aResult = []
 
@@ -529,49 +450,31 @@ class stzSplitter from stzList
 			aResult + [ i, i + nLen-1 ]
 		next
 
-		if aResult[ len(aResult) ][2] != This.NumberOfItems()
-			aResult[ len(aResult) ][2] = This.NumberOfItems()
+		if aResult[ len(aResult) ][2] != nNumberOfPositions
+			aResult[ len(aResult) ][2] = nNumberOfPositions
 		ok
 
 		return aResult
 
-		#< @FunctionFluentFrom
-
-		def SplitToNPartsQR(n, pcType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcCondition
-			on :stzList
-				return new stzList( This.SplitToNParts(n) )
-			on :stzListOfList
-				return new stzListOfLists( This.SplitToNParts(n) )
-			off
-
-		def SplitToNPartsQ(n)
-			return This.SplitToNParts(n, :stzListOfPairs)
-
-		#>
-
-	  #-------------------------------------------------------#
+	  #=======================================================#
 	 #   Utility functions used by the other methods above   #
-	#-------------------------------------------------------#
+	#=======================================================#
 
-	def GetPairsFromPositions(panPositions)
+	def GetPairsFromPositions(panPositions) # TODO: A general function, can move to stzListOfNumbers
 		/*
 		Main list 	--> 1:10
 		panPositions	--> [ 3, 6, 8 ]
 		List of pairs	--> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
 		*/
 
-		panPositions + This.NumberOfItems()
+		nLen = This.NumberOfPositions()
+		panPositions + nLen
 
 		# Eliminating doubble positions
 		aPos = StzListQ(panPositions).ToSet()
 
 		# Eliminating extreme cases
-		aPos = StzListQ(panPositions).RemoveItemsWQ('@item < 1 or @item > ' + This.NumberOfItems()).Content()
+		aPos = StzListQ(panPositions).RemoveItemsWQ('@item < 1 or @item > ' + nLen).Content()
 		
 		if StzListQ(aPos).IsEmpty()
 			return [ [] ]
@@ -579,7 +482,7 @@ class stzSplitter from stzList
 		
 		# Adding 1 and (NumberOfItems()) if inexistant
 		if aPos[1] != 1 { aPos + 1 }
-		if aPos[len(aPos)] != 10 { aPos + This.NumberOfItems() }
+		if aPos[len(aPos)] != 10 { aPos + nLen }
 		
 		# Sorting the list
 		aPos = sort(aPos)
@@ -590,29 +493,9 @@ class stzSplitter from stzList
 			aPairs + [ aPos[i], aPos[i+1] ]
 		next
 
-		aPairs = _@(aPairs).RemoveLastItemQ().Content()
+		aPairs = Q(aPairs).RemoveLastItemQ().Content()
 
 		return aPairs
-
-		#< @FunctionFluentFrom
-
-		def GetPairsFromPositionsQR(panPositions, pcType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcCondition
-			on :stzList
-				return new stzList( This.GetPairsFromPositions(panPositions) )
-			on :stzListOfList
-				return new stzListOfLists( This.GetPairsFromPositions(panPositions) )
-			off
-
-		def GetPairsFromPositionsQ(panPositions)
-			return This.GetPairsFromPositions(n, :stzListOfPairs)
-
-		#>
-
 
 	def ToStzList()
 		return StzListQ(This.Content())

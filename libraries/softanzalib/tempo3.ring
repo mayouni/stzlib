@@ -171,7 +171,7 @@ o1 = new stzString("ABCDEFGHIJ")
 ? o1.FindSectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
 #--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
-/*======================
+/*=================
 
 ? SectionToRange([3, 4]) #--> [3, 2]
 ? RangeToSection([3, 2]) #--> [3, 4]
@@ -179,7 +179,7 @@ o1 = new stzString("ABCDEFGHIJ")
 ? SectionsToRanges([ [3, 4], [8, 10] ]) #--> [ [3, 2], [8, 3] ]
 ? RangesToSections([ [3, 2], [8, 3] ])  #--> [ [3, 4], [8, 10] ]
 
-/*----------------
+/*=================
 
 o1 = new stzList([ [ "ONE", "TWO" ], [ "THREE", "FOUR" ], [ "FIVE", "SIX" ] ])
 ? o1.IsListOfLists()		#--> TRUE
@@ -193,19 +193,28 @@ o1 = new stzList([ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ])
 ? o1.IsListOfPairs()		#--> TRUE
 ? o1.IsListOfPairsOfNumbers()	#--> TRUE
 
+/*=================
+*/
+o1 = new stzString("AB♥CD♥EF♥GH")
+? o1.Split("♥") #--> [ "AA", "CD", "EF", "GH" ]
+
+? o1.SplitAfter("♥")
+
 /*----------------
 
-o1 = Q("AB♥♥C♥♥D♥♥E")
+o1 = new stzString("AB♥♥C♥♥D♥♥E")
 ? o1.SplitToPartsOfNCharsXT(2, :ExcludeRemaining = TRUE)
 #--> [ "AB", "♥♥", "C♥", "♥D", "♥♥" ]
 
-? o1.SplitToPartsOfNCharsXT(2, :ExcludeRemaining = FALSE)
+? o1.SplitToPartsOfNChars(2)
 #--> [ "AB", "♥♥", "C♥", "♥D", "♥♥", "E" ]
 
-? o1.SplitToPartsOfNChars(2)
+? o1.SplitToPartsOfNCharsXT(2, :ExcludeRemaining = TRUE)
 #--> [ "AB", "♥♥", "C♥", "♥D", "♥♥" ]
 
 /*----------------
+
+/*=================
 
 o1 = new stzString("ABCDE")
 ? @@( o1.SubStrings() )
@@ -575,10 +584,22 @@ o1 = new stzString("Av♥♥c♥♥")
 ? @@S( o1.FindSubStringW('{ Q(@SubString).NumberOfChars() = 2 }') )
 #--> [ [ "Av", [ 1 ] ], [ "♥♥", [ 3, 6 ] ], [ "c♥", [ 5 ] ] ]
 
-/*----------------
-*/
-? Q("-♥-").IsBoundedBy("-", "-")
-? Q("♥").IsBoundedBy([ "-", "-" ], :In = "... -♥- ...")
+/*=================
+
+o1 = new stzString("I love ")
+o1.AddSubString("Ring")
+? o1.Content() #--> I love Ring
+
+#-----------------
+
+o1 = new stzString("Ring")
+o1.ExtendToNChars(10, :Using = ".")
+? o1.Content() #--> "Ring.........."
+
+/*=================
+
+? Q("-♥-").IsBoundedBy("-")
+? Q("♥").IsBoundedBy("-", :In = "... -♥- ...")
 
 /*----------------
 
@@ -645,8 +666,9 @@ Q("℺℻ℚ") {
 
 /*----------------
 
-? len("طيبة")
-? StzStringQ("طيبة").NumberOfChars()
+? len("طيبة") #--> 8
+? StzStringQ("طيبة").NumberOfChars() #--> 4
+? StzStringQ("طيبة").NumberOfBytes() #--> 8
 
 /*----------------
 

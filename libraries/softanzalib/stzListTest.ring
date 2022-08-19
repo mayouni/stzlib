@@ -1580,31 +1580,48 @@ o1 = new stzList(["c", "c++", "C#", "RING", "python", "ruby"])
 ? o1.CountW('{ isLower(@item) }') #--> 3
 o1.NumberOfOccurrenceW('{  }') #--> 6
 
+/*==============
+
+o1 = new stzSplitter( 1:5 )
+
+? @@S(o1.SplitToPartsOfNItems(2))
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ] ]
+
+? @@S(o1.SplitBeforePositions( [ 3, 5 ] ))
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ] ]
+
+? @@S(o1.SplitAfterPositions( [ 3, 5 ] ))
+#--> [ [ 1, 3 ], [ 4, 5 ], [ 5, 5 ] ]
+
 /*-------------
-*/
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
 
-? @@S( o1.SplitToPartsOfNItemsEach(2) )
-# [ ["a","b"], ["c","d"] ]
-
 ? @@S( o1.SplitToPartsOfNItems(2) )
-# Returns [ ["a","b"], ["c", "d"], ["e"] ]
-
+#--> [ [ "a", "b" ], [ "c", "d" ], [ "e" ] ]
 
 ? @@S( o1.SplitAfterPositions([ 3, 5 ]) )
+#--> [ [ "a", "b", "c" ], [ "d", "e" ], [ "e" ] ]
 
-? @@S( o1.SplitBeforePositions([ 1, 5 ]) )
+? @@S( o1.SplitBeforePositions([ 3, 5 ]) )
 # Returns [ ["a","b"], ["c", "d"], ["e"] ]
 
 /*-------------
+*/
+o1 = new stzString("abcde")
 
-o1 = new stzList("A":"J")
+? @@S( o1.SplitToPartsOfNChars(2) )
+#--> [ "ab", "cd", "e" ]
+? @@S( o1.SplitToPartsOfNCharsXT(2, :ExcludeRemaining = TRUE) )
+#--> [ "ab", "cd" ]
 
-? o1.SplitBeforePositions([3,7])
-# --> [ [ "A", "B" ], [ "C", "D", "E", "F" ], [ "G", "H", "I", "J" ] ]
+? @@S( o1.SplitAfterPositions([ 3, 5 ]) )
+#--> [ "abc", "de", "e" ]
 
-/*---------------
+? @@S( o1.SplitBeforePositions([ 3, 5 ]) )
+# Returns [ "ab", "cd", "e" ]
+
+/*================
 
 o1 = new stzList([ "a", "b", "a", "a", "c", "d", "a" ])
 o1.RemoveOccurrences([ 4, 1, 3 ], "a")

@@ -805,6 +805,10 @@ class stzNumber from stzObject
 	#-------------------#
 
 	def IsMultipleOf(n)
+		if This.NumericValue() = 0
+			return FALSE
+		ok
+
 		if This.NumericValue() % n = 0
 			return TRUE
 		else
@@ -2321,6 +2325,9 @@ class stzNumber from stzObject
 	  #-----------------------------------------------------------#
 	 #    UNITS, HUNDREDS, THOUSANDS, MILLIONS, AND BILLIONS     #
 	#-----------------------------------------------------------#
+	/*
+	TODO: Refactor StructureXT() and Structure() to avoid duplicated code.
+	*/
 
 	def StructureXT()
 	/*
@@ -2365,7 +2372,7 @@ class stzNumber from stzObject
 			
 		aStructure = [ :aHundreds = [], :aThousands = [], :aMillions = [], :aBillions = [], :aTrillions = [] ]
 
-		aTemp = oStzIntegerPart.SplitBackwardToPartsOf(3)
+		aTemp = oStzIntegerPart.SplitToNPartsQ(3).Reversed()
 
 		switch len(aTemp)
 		on 0
@@ -2390,11 +2397,11 @@ class stzNumber from stzObject
 			cBillions  = aTemp[4]
 
 		on 5
-				cHundreds  = aTemp[1]
-				cThousands = aTemp[2]
-				cMillions  = aTemp[3]
-				cBillions  = aTemp[4]
-				cTrillions = aTemp[5]
+			cHundreds  = aTemp[1]
+			cThousands = aTemp[2]
+			cMillions  = aTemp[3]
+			cBillions  = aTemp[4]
+			cTrillions = aTemp[5]
 
 		off
 
@@ -2428,7 +2435,7 @@ class stzNumber from stzObject
 			
 		aStructure = [ :aHundreds = [], :aThousands = [], :aMillions = [], :aBillions = [], :aTrillions = [] ]
 
-		aTemp = oStzIntegerPart.SplitBackwardToPartsOf(3)
+		aTemp = oStzIntegerPart.SplitToNPartsQ(3).Reversed()
 
 		switch len(aTemp)
 		on 0
