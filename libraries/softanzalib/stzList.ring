@@ -7163,9 +7163,9 @@ class stzList from stzObject
 	def HasSameWidthAs(paOtherList)
 		return HasSameNumberOfItemsAs(paOtherList)
 
-	  #-------------------------#
-	 #     SORTING THE LIST    #
-	#-------------------------#
+	  #=============================#
+	 #  SORTING ORDER OF THE LIST  #
+	#=============================#
 
 	def SortingOrder()
 		cResult = :Unsorted
@@ -7192,6 +7192,10 @@ class stzList from stzObject
 		def HasSameOrderAs(paOtherList)
 			return This.HasSameSortingOrderAs(paOtherList)
 
+	  #-----------------------------------#
+	 #  IS THE LIST SORTED OR UNSORTED?  #
+	#-----------------------------------#
+ 
 	def IsSorted()
 		if This.IsSortedInAscending() or
 		   This.IsSortedInDescending()
@@ -7251,7 +7255,10 @@ class stzList from stzObject
 		def ItemsAreNotSorted()
 			return NOT This.IsUnsorted()
 
-
+	  #-------------------------------------#
+	 #  SORTABLE ITEMS & UNSORTABLE ITEMS  #
+	#-------------------------------------#
+ 
 	def SortableItems()
 		/*
 		Only numbers, strings, stzNumbers, and stzStrings are sortable.
@@ -7291,6 +7298,10 @@ class stzList from stzObject
 		next
 		return aResult
 
+	  #------------------------------------#
+	 #  SORTING THE STRING IN ASSCENDING  #
+	#------------------------------------#
+ 
 	def SortInAscending()
 		/*
 		Ring native sort() function can sort a list made:
@@ -7324,7 +7335,11 @@ class stzList from stzObject
 		def SortInAscendingQ()
 			This.SortInAscending()
 			return This
-			
+		
+	  #------------------------------------#
+	 #  SORTING THE STRING IN DESCENDING  #
+	#------------------------------------#
+ 	
 	def SortedInAscending()
 		aResult = This.Copy().SortInAscendingQ().Content()
 		return aResult
@@ -7344,6 +7359,10 @@ class stzList from stzObject
 		aResult = This.Copy().SortInDescendingQ().Content()
 		return aResult
 
+	  #-------------------------------------------#
+	 #  SORTING THE STRING IN THE REVERSE ORDER  #
+	#-------------------------------------------#
+ 
 	def SortInReverseOrder()
 		switch This.SortingOrder()
 		on :Ascending
@@ -7370,6 +7389,84 @@ class stzList from stzObject
 
 		def SortedInReverseOrder()
 			return This.SortedInReverse()
+
+	  #----------------------------------------#
+	 #  SORTING THE STRING BY - IN ASCENDING  #
+	#----------------------------------------#
+ 
+	def SortInAscendingBy(pcExpr)
+		/* EXAMPLE
+		o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
+		o1.SortBy('len(@item)')
+		? o1.Content()
+
+		#--> [ "a", "ab", "abc", "abcd", "abcde" ]
+
+		*/
+? @@S(This.Content())
+		cCode = "value = " + StzCCodeQ(pcExpr).UnifiedFor(:stzList)
+
+		aTemp = []
+		for @item in This.List()
+			eval(cCode)
+			aTemp + value
+		next
+
+? @@S(aTemp)
+
+		aTempSorted = Q(aTemp).SortedInAscending()
+? @@S(aTemp)
+		aResult = []
+		for item in aTempSorted
+			n = find(aTemp, item)
+			aResult + This[n]
+		next
+
+		This.UpdateWith( aResult )
+
+		#< @FunctionFluentForm
+
+		def SortInAscendingByQ(pcExpr)
+			This.SortInAscendingBy(pcExpr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SortBy(pcExpr)
+			This.SortInAscendingBy(pcExpr)
+
+			def SortByQ(pcExpr)
+				This.SortBy(pcExpr)
+				return This
+		#>
+
+	def SortedInAscendingBy(pcExpr)
+		aResult = This.Copy().SortInAscendingByQ(pcExpr).Content()
+		return aResult
+
+		def SortedBy(pcExpr)
+			return This.SortedInAscendingBy(pcExpr)
+
+	  #-----------------------------------------#
+	 #  SORTING THE STRING BY - IN DESCENDING  #
+	#-----------------------------------------#
+ 
+	def SortInDescendingBy(pcExpr)
+		This.SortInAscendingBy(pcExpr)
+		This.ReverseQ()
+
+		def SortInDescendingByQ(pcExpr)
+			This.SortInDescendingBy(pcExpr)
+			return This
+
+	def SortedInDescendingBy(pcExpr)
+		aResult = This.Copy().SortInDescendingByQ(pcExpr).Content()
+		return aResult
+
+		def SortedInDescendingByQ(pcExpr)
+			return This.SortedInDescendingBy(pcExpr)
 
 	  #---------------------------------------#
 	 #     ASSOCIATE WITH AN ANOTHER LIST    #
@@ -8393,6 +8490,12 @@ class stzList from stzObject
 	
 	# Works if items are numbers, strings and lists (not for objects!)
 	# --> TODO: make it for objects also after making equality
+
+	# WARNING: This uses a risky implementation that it replaces empty
+	# brackes in ListToCode() with a srambled text, and then this same
+	# scrambled text is replaced with []...
+	# --> TODO: think of a better implementation!
+
 	def Flatten() 
 
 	aResult = []

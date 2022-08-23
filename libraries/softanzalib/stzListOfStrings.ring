@@ -1669,6 +1669,77 @@ class stzListOfStrings from stzList
 		
 		return cResult
  
+	  #----------------------------------------#
+	 #  SORTING THE STRING BY - IN ASCENDING  #
+	#----------------------------------------#
+ 
+	def SortInAscendingBy(pcExpr) # TODO: use same functin in stzList
+		/* EXAMPLE
+		o1 = new stzListOfStrings([ "a", "abcde", "abc", "ab", "abcd" ])
+		o1.SortBy('len(@item)')
+		? o1.Content()
+
+		#--> [ "a", "ab", "abc", "abcd", "abcde" ]
+
+		*/
+
+		/* ... */
+
+		def SortBy(pcExpr) # TODO
+
+	def SortedByInAscendingBy(pcExpr) # TODO
+		/* ... */
+
+		def SortedBy(pcExpr)
+			return This.SortedByInAscendingBy(pcExpr)
+
+	  #-----------------------------------------#
+	 #  SORTING THE STRING BY - IN DESCENDING  #
+	#-----------------------------------------#
+ 
+	def SortInDescendingBy(pcExpr) # TODO
+		/* ... */
+
+	  #---------------------------------------#
+	 #     ASSOCIATE WITH AN ANOTHER LIST    #
+	#---------------------------------------#
+
+	// Returns an Associative List (HashList) from the main list and an other list
+
+	def AssociateWith(paOtherList)
+		aResult = []
+		for i = 1 to This.NumberOfItems()
+			OtherItem = NULL
+			if i <= len(paOtherList)
+				OtherItem = paOtherList[i]
+			ok
+
+			aResult + [ This[i], OtherItem ]
+		next
+
+		This.Update( aResult )
+
+		/*
+			Example:
+			o1 = new stzList([ "Name", "Age", "Job" ])
+			o1.AssociateWith([ "Ali", 24, "Programmer" ])
+			? o1.Content()
+
+			Returns:
+			[ "Name" = "Ali", "Age" = 24, "Job" = "Programmer" ]
+
+			TEST: What idf the first list contains items that are not strings?
+			This leads to a ListOfLists but not to a HashList!
+		*/
+
+		def AssociateWithQ(paOtherList)
+			This.AssociateWith(paOtherList)
+			return This
+
+	def AssociatedWith(paOtherList)
+		aResult = This.Copy().AssociateWithQ(paOtherList).Content()
+		return aResult
+
 	  #----------------------------------------------------#
 	 #     SORTING THE CHARS OF EACH STRING IN THE LIST   #
 	#----------------------------------------------------#
