@@ -1252,15 +1252,23 @@ class stzString from stzObject
 
 	def SubStrings()
 
-		acResult = []
+		nLen = This.NumberOfChars()
+		aTemp = []
 
-		for i = 1 to This.NumberOfChars()
-			acResult + This.PartsOfNChars(i)
+		for i = 1 to nLen
+			aTemp + This.Section(i, nLen)
 		next
 
-		acResult = ListsMerge(acResult)
+		aResult = []
 
-		return acResult
+		for str in aTemp
+			for i = 1 to Q(str).NumberOfChars()
+				aResult + Q(str).SplitToPartsOfNChars(i)
+			next 
+		next
+
+		aResult = Q(aResult).FlattenQ().RemoveDuplicatesQ().Content() //SortedBy('Q(@item).NumberOfChars()')
+		return aResult
 
 		def SubStringsQ()
 			return This.SubStringsQR(:stzList)
@@ -1275,46 +1283,24 @@ class stzString from stzObject
 				StzRaise("Unsupported return type!")
 			off
 
-	  #-----------------------------------------#
-	 #  GETTING THE LIST OF UNIQUE SUBSTRINGS  #
-	#-----------------------------------------#
+	def SubStringsOfNChars(n)
+		nLenStr	   = This.NumberOfChars()
+		nRest      =  nLenStr % n
+		nLenSubStr = ( nLenStr - nRest ) / n
 
-	def UniqueSubStringsCS(pCaseSensitive)
-		acResult = This.SubStringsQR(:stzListOfStrings).DuplicatesRemovedCS(pCaseSensitive)
+		acResult = This.SplitToPartsOfExactlyNChars(nLenSubStr)
+
 		return acResult
 
-		def UniqueSubStringsCSQ(pCaseSensitive)
-			return new stzList( This.UniqueSubStringsCS(pCaseSensitive) )
-
-		def UniqueSubStringsCSQR(pcReturnType, pCaseSensitive)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.UniqeSubStringsCS(pCaseSensitive) )
-			on :stzListOfStrings
-				return new stzListOfStrings( This.UniqueSubStringsCS(pCaseSensitive) )
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def UniqueSubStrings()
-		return This.UniqueSubStringsCS(:CaseSensitive = TRUE)
-
-		def UniqueSubStringsQ()
-			return new stzList( This.UniqueSubStrings() )
-
-		def UniqueSubStringsQR(pcReturnType)
-			return This.UniqueSubStringsCSQR(pcReturnType, :CaseSensitive = TRUE)
 
 	  #-----------------------------------------------------#
-	 #  GETTING THE LIST OF UNIQUE SUBSTRINGS -- EXTENDED  #
+	 #  GETTING THE LIST OF SUBSTRINGS -- EXTENDED  #
 	#-----------------------------------------------------#
 
 	def SubStringsAndTheirPositions()
 		aResult = []
 
-		for cSubStr in This.UniqueSubStrings()
+		for cSubStr in This.SubStrings()
 			aResult + [ cSubStr, This.FindAll(cSubStr) ]
 		next
 
@@ -10236,7 +10222,7 @@ class stzString from stzObject
 					ReplaceCSQ("@SubString", :With = "@String", :CS = TRUE).
 					Content()
 
-			acSubStrings = This.UniqueSubStringsQR(:stzListOfStrings).
+			acSubStrings = This.SubStringsQR(:stzListOfStrings).
 					StringsWQ(cCondition).Content()
 
 			for cSubStr in acSubStrings
@@ -13767,6 +13753,7 @@ class stzString from stzObject
 			other
 				stzRaise("Unsupported return type!")
 			off
+
 
 	  #---------------------------------------#
 	 #     PARTS OF THE STRING CLASSIFIED    #

@@ -86,7 +86,7 @@ o1 = new stzString("ABCD1234EF")
 ? Q(0).IsMultipleOf(3) #--> FALSE
 
 /*------------------
-*/
+
 o1 = new stzString("123456789012")
 ? @@S( o1.SplitW( 'Q(0+@char).IsMultipleOf(3)' ) )
 #--> [ "12", "45", "78", "012" ]
@@ -128,3 +128,33 @@ o1 = new stzString("__3__6__9__")
 
 ? @@S( o1.SplitAfterW( :Where = 'Q(0+@char).IsMultipleOf(3)' ) )
 #--> [ "__3", "__6", "__9", "__" ]
+
+/*==================
+
+o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
+o1.SortInAscendingBy('len(@item)')
+? o1.Content()
+
+#--> [ "a", "ab", "abc", "abcd", "abcde" ]
+
+/*------------------
+
+o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
+o1.SortInDescendingBy('len(@item)')
+? o1.Content()
+
+#--> [ "abcde", "abcd", "abc", "ab", "a" ]
+
+/*==================
+*/
+o1 = new stzList([ "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ])
+? o1.SortedBy(' Q(@item).NumberOfChars() ')
+/*
+o1 = new stzString("abcd")
+? o1.SubStrings()
+
+/*------------------
+
+
+o1 = new stzString( "ABCabcEFGijHI" )
+? o1.SplitW( 'Q(@SubString).IsLowercase()' )
