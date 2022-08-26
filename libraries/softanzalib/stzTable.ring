@@ -160,17 +160,86 @@ Class stzTable
 		nResult = This.NumberOfCol() * This.NumberOfLines()
 		return nResult
 
-	def Cell(pCol,nLine)
+	def Cell(pCol, nLine)
+
 		if type(pCol) = "NUMBER"
-			return line(nLine)[pCol]
+			return This.Line(nLine)[pCol]
 
 		but type(pCol) = "STRING"
-			return line(nLine)[findCol(pCol)]
+			return This.Line(nLine)[ This.FindCol(pCol) ]
 		ok
+
+		def CellQ(pCol, nLine)
+			return Q( This.Cell(pCol, nLine) )
 	
-	  #------------------#
-	 #  FINDING THINGS  #
-	#------------------#
+	def Cells()
+		aResult = []
+
+		for v = 1 to This.NumberOfLines()
+			for u = 1 to This.NumberOfCol()
+				aResult + This.Cell(u, v)
+			next u
+		next
+
+		return aResult
+
+	def CellsAndTheirPositions()
+		aResult = []
+
+		for v = 1 to This.NumberOfLines()
+			for u = 1 to This.NumberOfCol()
+				aResult + [ This.Cell(u, v), [u, v ] ]
+			next u
+		next
+
+		return aResult
+
+		def CellsAndPositions()
+			return This.CellsAndTheirPositions()
+
+		def CellsXT()
+			return This.CellsAndTheirPositions()
+
+	def PositionsAndCells()
+		aResult = []
+
+		for v = 1 to This.NumberOfLines()
+			for u = 1 to This.NumberOfCol()
+				aResult + [ [u, v ], This.Cell(u, v) ]
+			next
+		next
+
+		return aResult
+
+	def CellsToHashList()
+		aResult = []
+
+		for v = 1 to This.NumberOfLines()
+			for u = 1 to This.NumberOfCol()
+				aResult + [ @@S([u, v ]), This.Cell(u, v) ]
+			next
+		next
+
+		return aResult
+
+		def CellsToHashListQ()
+			return This.CellsToHashListQR( :stzList )
+
+		def CellsToHashListQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.CellsToHashList() )
+
+			on :stzHashList
+				return new stzHashList( This.CellsToHashList() )
+
+			other
+				StzRaise("Insupported return type!")
+			off
+
+	  #================================#
+	 #  FINDING A COLUMN BY ITS NAME  #
+	#================================#
 
 	def FindCol(pcColName)
 		pcColName = Q(pcColName).Uppercased()
@@ -179,6 +248,10 @@ Class stzTable
 
 		def FindColumn(pcColName)
 			return This.FindCol(pcColName)
+
+	  #--------------------------------#
+	 #  FINDING A LINE BY ITS VALUE  #
+	#-------------------------------#
 
 	def FindLine(paLine)
 		n = Q(This.Lines()).FindAll(paLine)
@@ -192,7 +265,253 @@ Class stzTable
 
 		return n
 
-	def FindInColCS(n, pValue, pCaseSensitive)
+	  #=============================================#
+	 #  FINDING ALL CELLS FORMED OF A GIVEN VALUE  #
+	#=============================================#
+
+	def FindCellsCS(pCellValue, pCaseSensitive)
+		aResult = []
+
+		oHashList = new stzHashList( This.CellsToHashList() )
+		acCellPos = oHashList.FindKeysByValue(pCellValue)
+
+		cCode = 'aResult = ' + @@S(acCellPos)
+		eval(cCode)
+
+		return aResult
+
+		return aResult
+
+	def FindCells(pValue)
+		return This.FindCellsCS(pValue, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------#
+	 #  NUMBER OF OCCURRENCE OF A CELL IN THE TABLE  #
+	#-----------------------------------------------#
+
+	def NumberOfOccurrenceCS(pCellValue, pCaseSensitive)
+		if isList(pCellValue) and Q(pCellValue).IsOfNamedParam()
+			pCellValue = pCellValue[2]
+		ok
+
+		nResult = len( This.FindCellsCS(pCellValue, pCaseSensitive) )
+		return nResult
+
+		def NumberOfOccurrencesCS(pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCellCS(pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCellCS(pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pCellValue, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfOccurrence(pCellValue)
+		return This.NumberOfOccurrenceCS(pCellValue, :CaseSensitive = TRUE)
+
+		def NumberOfOccurrences(pCellValue)
+			return This.NumberOfOccurrence(pCellValue)
+
+		def NumberOfOccurrenceOfCell(pCellValue)
+			return This.NumberOfOccurrence(pCellValue)
+
+		def NumberOfOccurrencesOfCell(pCellValue)
+			return This.NumberOfOccurrence(pCellValue)
+
+	  #----------------------------------------------------#
+	 #  NUMBER OF OCCURRENCE OF A CELL IN A GIVEN COLUMN  #
+	#----------------------------------------------------#
+
+	def NumberOfOccurrenceInColCS(pCol, pCellValue, pCaseSensitive)
+		if isList(pCellValue) and Q(pCellValue).IsOfNamedParam()
+			pCellValue = pCellValue[2]
+		ok
+
+		nResult = len( This.FindCellsInColCS(pCol, pCellValue, pCaseSensitive) )
+		return nResult
+
+		def NumberOfOccurrencesInColCS(pCol, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInColCS(pCol, pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCellInColCS(pCol, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInColCS(pCol, pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCellInColCS(pCol, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInColCS(pCol, pCellValue, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfOccurrenceInCol(pCol, pCellValue)
+		return This.NumberOfOccurrenceInColCS(pCol, pCellValue, :CaseSensitive = TRUE)
+
+		def NumberOfOccurrencesInCol(pCol, pCellValue)
+			return This.NumberOfOccurrenceInCol(pCol, pCellValue)
+
+		def NumberOfOccurrenceOfCellInCol(pCol, pCellValue)
+			return This.NumberOfOccurrenceInCol(pCol, pCellValue)
+
+		def NumberOfOccurrencesOfCellInCol(pCol, pCellValue)
+			return This.NumberOfOccurrenceInCol(pCol, pCellValue)
+
+	  #--------------------------------------------------#
+	 #  NUMBER OF OCCURRENCE OF A CELL IN A GIVEN LINE  #
+	#--------------------------------------------------#
+
+	def NumberOfOccurrenceInLineCS(n, pCellValue, pCaseSensitive)
+		if isList(pCellValue) and Q(pCellValue).IsOfNamedParam()
+			pCellValue = pCellValue[2]
+		ok
+
+		nResult = len( This.FindCellsInLineCS(n, pCellValue, pCaseSensitive) )
+		return nResult
+
+		def NumberOfOccurrencesInLineCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInLineCS(n, pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCellInLineCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInLineCS(n, pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCellInLineCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInLineCS(n, pCellValue, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfOccurrenceInLine(n, pCellValue)
+		return This.NumberOfOccurrenceInLineCS(n, pCellValue, :CaseSensitive = TRUE)
+
+		def NumberOfOccurrencesInLine(n, pCellValue)
+			return This.NumberOfOccurrenceInLine(n, pCellValue)
+
+		def NumberOfOccurrenceOfCellInLine(n, pCellValue)
+			return This.NumberOfOccurrenceInLine(n, pCellValue)
+
+		def NumberOfOccurrencesOfCellInLine(n, pCellValue)
+			return This.NumberOfOccurrenceInLine(n, pCellValue)
+
+	  #=========================================================#
+	 #  FINDING THE NTH OCCURRENCE OF A CELL INSIDE THE TABLE  #
+	#=========================================================#
+
+	def FindNthCellCS(n, pCellValue, pCaseSensitive)
+		if isList(pCellValue) and Q(pCellValue).IsOfNamedParam()
+			pCellValue = pCellValue[2]
+		ok
+
+		if isString(n)
+			if n = :First or :FirstCell
+				n = 1
+			but n = :Last or :LastCell
+
+				n = This.NumberOfCells()
+			ok
+		ok
+
+		aPositions = This.FindCellsCS(pCellValue, pCaseSensitive)
+
+		nResult = 0
+
+		if n > 0 and n <= len(aPositions)
+			nResult = aPositions[n]
+		ok
+
+		return nResult
+
+		def FindNthOccurrenceCS(n, pCellValue, pCaseSensitive)
+			return This.FindNthCellCS(n, pCellValue, pCaseSensitive)
+
+	def FindNthCell(n, pCellValue)
+		return This.FindNthCellCS(n, pCellValue, :CaseSensitive = TRUE)
+
+		def FindNthOccurrence(n, pCellValue)
+			return This.FindNthCell(n, pCellValue)
+
+	#---
+
+	def FindFirstCellCS(pCellValue, pCaseSensitive)
+		return This.FindNthCellCS(1, pCellValue, pCaseSensitive)
+
+		def FindCellCS(pCellValue, pCaseSensitive)
+			return This.FindFirstCellCS(pCellValue, pCaseSensitive)
+
+		def FindFirstOccurrenceCS(pCellValue, pCaseSensitive)
+			return This.FindFirstCellCS(pCellValue, pCaseSensitive)
+
+	def FindFirstCell(pCellValue)
+		return This.FindFirstCellCS(pCellValue, :CaseSensitive = TRUE)
+
+		def FindCell(pCellValue)
+			return This.FindFirstCell(pCellValue)
+
+		def FindFirstOccurrence(pCellValue)
+			return This.FindFirstCell(pCellValue)
+
+
+	#---
+
+	def FindLastCellCS(pCellValue, pCaseSensitive)
+		return This.FindNthCellCS(:Last, pCellValue, pCaseSensitive)
+
+		def FindLastOccurrenceCS(pCellValue, pCaseSensitive)
+			return This.FindLastCellCS(pCellValue, pCaseSensitive)
+
+
+	def FindLastCell(pCellValue)
+		return This.FindLastCellCS(pCellValue, :CaseSensitive = TRUE)
+
+		def FindLastOccurrence(pCellValue)
+			return This.FindLastCell(pCellValue)
+
+	  #=================================#
+	 #  FINDING CELLS IN A GIVEN LINE  #
+	#=================================#
+
+	def FindCellsInLineCS(n, pValue, pCaseSensitive)
+
+		if isString(n)
+			n = This.FindLine(n)
+		ok
+
+		aResult = []
+
+		i = 0
+		for cell in This.Line(n)
+			i++
+
+			if isString(cell) or
+			   (isList(cell) and Q(cell).IsListOfStrings())
+
+				if isString(pValue)
+					if Q(cell).IsEqualToCS(pValue, pCaseSensitive)
+						aResult + [n, i]
+					ok
+				ok
+
+			else
+				if Q(cell).IsEqualTo(pValue)
+					aResult + [n, i]
+				ok
+			ok
+		next
+
+		return aResult
+
+		def FindInLineCS(n, pValue, pCaseSensitive)
+			return This.FindCellsInLineCS(n, pValue, pCaseSensitive)
+
+	def FindCellsInLine(n, pValue)
+		return This.FindInLineCS(n, pValue, :CaseSensitive = TRUE)
+
+		def FindInLine(n, pValue)
+			return This.FindCellsInLine(n, pValue)
+
+	  #-----------------------------------#
+	 #  FINDING CELLS IN A GIVEN COLUMN  #
+	#-----------------------------------#
+
+	def FindCellsInColCS(n, pValue, pCaseSensitive)
+
 		if isString(n)
 			n = This.FindCol(n)
 		ok
@@ -202,45 +521,41 @@ Class stzTable
 		i = 0
 		for cell in This.Col(n)
 			i++
-			if isString(cell)
-				if Q(cell).ContainsCS(pValue, pCaseSensitive)
-					aResult + [n, i]
-				ok
-			else
-				if Q(cell).Contains(pValue)
-					aResult + [n, i]
+
+			if isString(cell) or
+			   (isList(cell) and Q(cell).IsListOfStrings())
+
+				if isString(pValue)
+					if Q(cell).IsEqualToCS(pValue, pCaseSensitive)
+						aResult + [n, i]
+					ok
 				ok
 
+			else
+				if Q(cell).IsEqualTo(pValue)
+					aResult + [n, i]
+				ok
 			ok
 		next
 
 		return aResult
 
-	def FindInCol(n, pValue)
-		return This.FindInColCS(n, pValue, :CaseSensitive = TRUE)
+		def FindInColCS(n, pValue, pCaseSensitive)
+			return This.FindCellsInColCS(n, pValue, pCaseSensitive)
 
-	def FindInLine(n, pValue)
+	def FindCellsInCol(n, pValue)
+		return This.FindCellsInColCS(n, pValue, :CaseSensitive = TRUE)
 
-	def FindInCS(pValue, pCaseSensitive)
-		aResult = []
+		def FindInCol(n, pValue)
+			return This.FindCellsInCol(n, pValue)
 
-		for i = 1 to This.NumberOfCol()
-			aPairs = This.FindInColCS(i, pValue, pCaseSensitive)
-			for pair in aPairs
-				if len(pair) != 0
-					aResult + pair
-				ok
-			next
-		next
 
-		return aResult
-
-	def FindIn(pValue)
-		return This.FindInCS(pValue, :CaseSensitive = TRUE)
-
-	  #---------------------#
+	  #=====================#
 	 #  SHOWING THE TABLE  #
-	#---------------------#
+	#=====================#
+	/* 
+	TODO: Enhance it using the StzString.ExtendToNChars() function.
+	*/
 
 	def Show()
 		? This.ToString()
@@ -266,7 +581,12 @@ Class stzTable
 		aLine = line(n)
 	
 		for x = 1 to len(aLine)
-			cLine += aLine[x]
+			if isList(aLine[x])
+				cLine += @@S(aLine[x])
+			else
+				cLine += aLine[x]
+			ok
+
 			if x < This.NumberOfCols()
 				cLine += TAB
 			ok

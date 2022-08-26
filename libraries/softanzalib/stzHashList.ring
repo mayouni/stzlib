@@ -609,16 +609,22 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		for pcKey in pacKeys
 			This.RemovePairByKey(pcKey)
 		next
-	def RemoveAllPairsWithValue(pValue)
+
+	def RemovePairsByValue(pValue)
 		aPos = This.FindAllValue(pValue)
 
 		aResult = StzListQ( This.HashList() ).RemoveItemsAtThesePositionsQ( aPos ).Content()
 		This.Update(aResult)
 
-		def RemoveAllPairsWithValueQ(pValue)
-			This.RemoveAllPairsWithValue(pValue)
+		def RemovePairsByValueQ(pValue)
+			This.RemovePairsByValue(pValue)
 			return This
-	
+
+	def RemovePairsByValues(paValues)
+		for value in paValues
+			This.RemovePairsByValue(value)
+		next
+
 	  #-----------------#
 	 #     FINDING     #
 	#-----------------#
@@ -682,19 +688,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		ok
 
 	def FindValue(pValue)
-
-		aResult = []
-		n = 0
-
-		for aPair in This.Content()
-			n++
-
-			oStzList = new stzList(aPair[2])
-			if oStzList.IsEqualTo(pValue)
-				aResult + n
-			ok
-
-		next
+		aResult = ValuesQ().FindAll(pValue)
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -721,18 +715,23 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return This.FindNthOccurrenceOfValue(:Last, pValue)
 
 	def FindKeysByValue(pValue)
+
 		aResult = []
-		for v in This.Values()
-			if v = pValue
-				aResult + v
+		i = 0
+
+		for value in This.Values()
+			i++
+
+			if Q(value).IsEqualTo(pValue)
+				aResult + This.NthKey(i)
 			ok
 		next
 		return aResult
 
 	def FindFirstKeyByValue(pValue)
 		nResult = 0
-		if This.ContainsKeyByValue(pValue)
-			nResult = This.FindKeysBayValue(pValue)[1]
+		if This.ContainsValue(pValue)
+			nResult = This.FindKeysByValue(pValue)[1]
 		ok
 		return nResult
 
@@ -1216,7 +1215,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 	def Show()
 		cStr = ""
 		for i = 1 to This.NumberOfPairs()
-			cStr += This.NthKey(i) + ": " + ComputableForm(This.NthValue(i))
+			cStr += "'" + This.NthKey(i) + "'" + ": " + @@S(This.NthValue(i))
 			if i < This.NumberOfPairs()
 				cStr += NL
 			ok
