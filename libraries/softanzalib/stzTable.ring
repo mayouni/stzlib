@@ -1,4 +1,7 @@
 
+func StzTableQ(paTable)
+	return new stzTable( paTable )
+
 Class stzTable
 	aTable = []
 
@@ -13,7 +16,9 @@ Class stzTable
 
 		else
 			// The table is provided as a parameter
-			// --> TODO: Verfy of it is well formatted
+			// --> TODO: Verify of it is well formatted
+			// Implement isTable() in stzList and use it here
+
 			aTable = paTable
 
 			# Transforming column names to uppercase
@@ -173,14 +178,7 @@ Class stzTable
 			return Q( This.Cell(pCol, nLine) )
 	
 	def Cells()
-		aResult = []
-
-		for v = 1 to This.NumberOfLines()
-			for u = 1 to This.NumberOfCol()
-				aResult + This.Cell(u, v)
-			next u
-		next
-
+		aResult = This.Section( [ :FirstCol, :FirstLine ], [ :LastCol, :LastLine ] )
 		return aResult
 
 	def CellsAndTheirPositions()
@@ -236,6 +234,102 @@ Class stzTable
 			other
 				StzRaise("Insupported return type!")
 			off
+
+	  #==============================#
+	 #  GETTING A SECTION OF CELLS  #
+	#==============================#
+
+	def Sections( panCell1, panCell2 )
+		/* ... */
+
+	def SectionsAndPositions( panCell1, panCell2 )
+		/* ... */
+
+		def SectionsXT( panCell1, panCell2 )
+			/* ... */
+
+	def PositionsAndSections( panCell1, panCell2 )
+		/* ... */
+
+	def SectionsToHashList( panCell1, panCell2 )
+
+		if isList(panCell1)
+			if isString(panCell1[1]) and panCell1[1] = :FirstCol
+				panCell1 = Q(panCell1).FirstItemReplaced( :With = 1)
+			ok
+
+			if isString(panCell1[2]) and panCell1[2] = :FirstLine
+				panCell1 = Q(panCell1).NthItemReplaced( 2, :With = 1)
+			ok
+
+			if isString(panCell2[1]) and panCell2[1] = :LastCol
+				panCell2 = Q(panCell2).FirstItemReplaced( :With = This.NumberOfCol() )
+			ok
+
+			if isString(panCell2[2]) and panCell2[2] = :LastLine
+				panCell2 = Q(panCell2).NthItemReplaced( 2, :With = This.NumberOfLines() )
+			ok
+		ok
+
+		if isList(panCell2)
+			if isString(panCell2[1]) and panCell2[1] = :LastCol
+				panCell2[1] = This.NumberOfCol()
+			ok
+
+			if isString(panCell2[2]) and panCell2[2] = :LastLine
+				panCell2[2] = This.NumberOfLines()
+			ok
+
+		ok
+
+		if NOT ( isList(panCell1) and Q(panCell1).IsPairOfNumbers() and
+			 isList(panCell2) and Q(panCell2).IsPairOfNumbers() )
+
+			stzRaise("Incorrect params types! panCell1 and panCell2 must be pairs of numbers.")
+		ok
+
+		anPairs = Q([ panCell1, panCell2 ]).SortedInAscending()
+		nCol1   = anPairs[1][1]
+		nLine1  = anPairs[1][2]
+		nCol2   = anPairs[2][1]
+		nLine2  = anPairs[2][2]
+
+		aResult = []
+
+		for v = nLine1 to This.NumberOfLines()
+			for u = nCol1 to This.NumberOfCols()
+				aResult + [ @@S([u, v]), This.Cell(u, v) ]
+			next u
+		next
+
+		return aResult
+
+		def SectionsToHashListQ(panCell1, panCell2)
+			return This.SectionsToHashListQR(panCell1, panCell2, :stzList)
+
+		def SectionsToHashListQR(panCell1, panCell2, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SectionsToHashList(panCell1, panCell2) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SectionsToHashList(panCell1, panCell2) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.SectionsToHashList(panCell1, panCell2) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.SectionsToHashList(panCell1, panCell2) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+		
+	  #----------------------------#
+	 #  GETTING A RANGE OF CELLS  #
+	#----------------------------#
+
+	# TODO
 
 	  #================================#
 	 #  FINDING A COLUMN BY ITS NAME  #
@@ -404,7 +498,7 @@ Class stzTable
 				n = 1
 			but n = :Last or :LastCell
 
-				n = This.NumberOfCells()
+				n = This.NumberOfOccurrence(pCellValue)
 			ok
 		ok
 
@@ -549,6 +643,43 @@ Class stzTable
 		def FindInCol(n, pValue)
 			return This.FindCellsInCol(n, pValue)
 
+	  #----------------------------------------#
+	 #  FINDING A CELL IN A SECTION OF CELLS  #
+	#----------------------------------------#
+
+	def FindCellsInSectionCS(panPair1, panPair2, pValue, pCaseSensitive)
+
+		oList   = This.SectionQ(panPair1, panPair2)
+
+		if pCaseSensitive[1] = FALSE
+			oList.Lowercased()
+		ok
+
+		aResult = oList.FindAll(pValue)
+
+		return aResult
+		
+
+/*
+		for section in aResult
+			nCol1  = section[1][1]
+			nLine1 = section[1][2]
+
+			nCol2  = section[2][1]
+			nLine2 = section[2][2]
+
+			section = [
+				[ nCol1 + panPair1[1], nLine1 + panPair1[2] ],
+				[ nCol2 + panPair2[1], nLine2 + panPair2[2] ]
+			]
+		next
+
+		return aResult
+*/
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindCellsInSection(panPair1, panPair2, pValue)
+		return This.FindCellsInSectionCS(panPair1, panPair2, pValue, :CaseSensitive = TRUE)
 
 	  #=====================#
 	 #  SHOWING THE TABLE  #

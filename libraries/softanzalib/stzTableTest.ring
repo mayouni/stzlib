@@ -14,8 +14,9 @@ aMyTable =
 o1 = new stzTable(aMyTable)
 
 /*------------
-*/
+
 o1.Show()
+
 #-->
 # #	ID	EMPLOYEE	SALARY
 # 1	101	Ali Sandy	35000
@@ -111,6 +112,11 @@ o1.Show()
 ? o1.FindCellsInCol(2, "Dan Mikov") #--> [ [2, 2], [2, 4] ]
 ? o1.FindCellsInCol(:EMPLOYEE, [ "A", [ 1, 2, 3 ] ]) #--> [ [2, 5] ]
 
+/*-----------
+
+? o1.FindCol(:SALARY) #--> 3
+? o1.FindLine([598, "Dan Mikov", 18923]) #--> 4
+
 /*------------
 
 ? @@S( o1.FindCellsInLine(2, "Dan Mikov" ) ) #--> [ [ 2, 2 ] ]
@@ -118,25 +124,50 @@ o1.Show()
 
 /*-----------
 
-? o1.FindCol(:SALARY) #--> 3
-? o1.FindLine([598, "Dan Mikov", 18923]) #--> 4
-
-/*-----------
-
 ? o1.FindCells("Dan Mikov")  #--> [ [2, 2], [2, 4] ]
 
 /*-----------
 
-//? o1.FindNthCell(1, "Dan Mikov") #--> [2, 2]
-//? o1.FindNthCell(2, "Dan Mikov") #--> [2, 4]
+? o1.FindNthCell(1, "Dan Mikov") #--> [2, 2]
+? o1.FindNthCell(2, "Dan Mikov") #--> [2, 4]
 
-//? o1.FindCell("Dan Mikov") 	 #--> [2, 2]
-//? o1.FindFirstCell("Dan Mikov")  #--> [2, 2]
-? o1.FindLastCell("Dan Mikov")
+? o1.FindCell("Dan Mikov") 	 #--> [2, 2]
+? o1.FindFirstCell("Dan Mikov")  #--> [2, 2]
+? o1.FindLastCell("Dan Mikov") #--> [2, 4]
+
+/*-----------
+
+? o1.NumberOfOccurrence( :Of = "Dan Mikov" ) #--> 2
+? o1.NumberOfOccurrenceInCol( :EMPLOYEE, :Of = "Dan Mikov" ) #--> 2
+? o1.NumberOfOccurrenceInLine( 2, :Of = "Dan Mikov" ) #--> 1
 
 /*-----------
 */
-? o1.NumberOfOccurrence("Dan Mikov") #--> 2
-? o1.NumberOfOccurrenceInCol(:EMPLOYEE, "Dan Mikov") #--> 2
-? o1.NumberOfOccurrenceInLine(2, "Dan Mikov") #--> 1
+aMyTable = 
+[
+	[    :ID,	:EMPLOYEE ,       :SALARY  ],
 
+	[    101,	"Ali Sandy",      35000	   ],
+	[    294,	"Dan Mikov",      12890    ],
+	[    287,	"Ali Sandy",      1069     ],
+	[    307,	"Ali Aziza",      5200	   ]
+]
+
+o1 = new stzTable(aMyTable)
+
+/*-----------
+
+? @@S(o1.Cells()) + NL
+#--> [
+#	101, "Ali Sandy", 35000,
+#	294, "Dan Mikov", 12890,
+#	307, "Ali Aziza", 5200
+# ]
+
+/*-----------
+*/
+
+? @@S(o1.SectionXT([2, 2], [3, 4]))
+#--> [ "Dan Mikov", 12890, "Ali Sandy", 1069, "Ali Aziza", 5200 ]
+
+//? o1.FindCellsInSection([2, 2], [3, 4], "Ali Sandy")
