@@ -1810,12 +1810,54 @@ class stzList from stzObject
 
 		#>
 	
-	def ItemAtPositionNReplacedWith(n, pOtherItem)
+	def ItemAtPositionNReplaced(n, pOtherItem)
 		aResult = This.Copy().ReplaceItemAtPositionQ( n, pOtherItem ).Content()
 		return aResult
 
+		def ItemAtPositionNReplacedWith(n, pOtherItem)
+			return This.ItemAtPositionNReplaced(n, pOtherItem)
+
 		def NthItemReplacedWith(n, pOtherItem)
 			return This.ItemAtPositionNReplacedWith(n, pOtherItem)
+
+			def NthItemReplaced(n, pOtherItem)
+				return This.NthItemReplacedWith(n, pOtherItem)
+
+	  #------------------------------#
+	 #   REPLACING THE FIRST ITEM   #
+	#------------------------------#
+
+	def ReplaceFirstItem(pOtherItem)
+		This.ReplaceNthItem(1, pOtherItem)
+
+		def ReplaceFirstItemQ(pOtherItem)
+			This.ReplaceFirstItem(pOtherItem)
+			return This
+
+	def FirstItemReplaced(pOtherItem)
+		aResult = This.Copy().ReplaceFirstItemQ(pOtherItem).Content()
+		return aResult
+
+		def FirstItemReplacedWith(pOtherItem)
+			return This.FirstItemReplaced(pOtherItem)
+
+	  #-----------------------------#
+	 #   REPLACING THE LAST ITEM   #
+	#-----------------------------#
+
+	def ReplaceLastItem(pOtherItem)
+		This.ReplaceNthItem(:LastItem, pOtherItem)
+
+		def ReplaceLastItemQ(pOtherItem)
+			This.ReplaceLastItem(pOtherItem)
+			return This
+
+	def LastItemReplaced(pOtherItem)
+		aResult = This.Copy().ReplaceLastItemQ(pOtherItem).Content()
+		return aResult
+
+		def LastItemReplacedWith(pOtherItem)
+			return This.LastItemReplaced(pOtherItem)
 
 	  #---------------------------------------#
 	 #   REPLACING MANY ITEMS BY POSITION    #
@@ -1948,6 +1990,9 @@ class stzList from stzObject
 		aResult = This.Copy().ReplaceItemsAtPositionsQ(panPositions, pOtherItem).Content()
 		return aResult
 
+		def ItemsAtThesePositionsRplacedWith(panPositions, pOtherItem)
+			return This.ItemsAtThesePositionsRplaced(panPositions, pOtherItem)
+
 	  #---------------------------------------------------#
 	 #    REPLACING A SECTION OF ITEMS BY A GIVEN ITEM   #
 	#---------------------------------------------------#
@@ -1972,6 +2017,17 @@ class stzList from stzObject
 			This.ReplaceSection(n1, n2, pNewItem)
 			return This
 
+	def SectionReplaced(n1, n2, pNewItem)
+		aResult = This.Copy().ReplaceSectionQ(n1, n2, pNewItem).Content()
+		return aResult
+
+		def SectionReplacedWith(n1, n2, pNewItem)
+			return This.SectionReplaced(n1, n2, pNewItem)
+	
+	  #----------------------------------------------#
+	 #    REPLACING MANY SECTIONS BY A GIVEN ITEM   #
+	#----------------------------------------------#
+
 	def ReplaceManySections(panSections, pNewItem)
 		for anSection in panSections
 			This.ReplaceSection(anSection, pNewItem)
@@ -1981,6 +2037,13 @@ class stzList from stzObject
 			This.ReplaceManySections(panSections, pNewItem)
 			return This
 		
+	def ManySectionsReplaced(panSections, pNewItem)
+		aResult = This.Copy().ReplaceManySectionsQ(panSections, pNewItem).Content()
+		return aResult
+
+		def ManySectionsReplacedWith(panSections, pNewItem)
+			return This.ManySectionsReplaced(panSections, pNewItem)
+
 	  #------------------------------------------------------#
 	 #   REPLACING EACH ITEM IN SECTION BY ONE GIVEN ITEM   #
 	#------------------------------------------------------#
@@ -2004,8 +2067,14 @@ class stzList from stzObject
 		acResult = This.Copy().ReplaceEachItemInSectionQ(n1, n2, pNewItem).Content()
 		return acResult
 
+		def EachItemInSectionReplacedWith(n1, n2, pNewItem)
+			return This.EachItemInSectionReplaced(n1, n2, pNewItem)
+
 		def EachItemReplacedInSection(n1, n2, pNewItem)
 			return This.EachItemInSectionReplaced(n1, n2, pNewItem)
+
+		def EachItemReplacedInSectionWith(n1, n2, pNewItem)
+			return This.EachItemReplacedInSection(n1, n2, pNewItem)
 	
 	  #----------------------------------------------------------#
 	 #   REPLACING EACH ITEM IN MANY SECTIONS BY A GIVEN ITEM   #
