@@ -19742,6 +19742,24 @@ class stzString from stzObject
 		def BoxedXT(paBoxOptions)
 			return This.BoxXT(paBoxOptions)
 
+	  #-------------------------------------------------#
+	 #   STRING EXISTENCE AS AN OTHER STRING OR LIST   #
+	#-------------------------------------------------#
+
+	def ExistsInCS( pStrOrList, pCaseSensitive )
+		if isString(pStrOrList)
+			return This.ExistsInStringCS( pStrOrList, pCaseSensitive )
+
+		but isList(pStrOrList)
+			return This.ExistsInListCS( pStrOrList, pCaseSensitive )
+
+		else
+			stzRaise("Unsupported param type! pStrOrList must be a string or list")
+		ok
+
+	def ExistsIn(pStrOrList)
+		return This.ExistsInCS( pStrOrList, :CaseSensitive = TRUE )
+
 	  #--------------------------------------------------------#
 	 #   STRING EXISTENCE AS A SUBSTRING IN AN OTHER STRING   #
 	#--------------------------------------------------------#
@@ -19787,9 +19805,6 @@ class stzString from stzObject
 		def ExistsAsItemInListCS(paList, pCaseSensitive)
 			return This.ExistsInListCS(paList, pCaseSensitive)
 
-		def ExistsInCS(paList, pCaseSensitive)
-			return This.ExistsInListCS(paList, pCaseSensitive)
-
 		def IsOneOfTheseCS(paList, pCaseSensitive)
 			return This.ExistsInListCS(paList, pCaseSensitive)
 
@@ -19802,9 +19817,6 @@ class stzString from stzObject
 		return This.ExistsInListCS(paList, :CaseSensitive = TRUE)
 
 		def ExistsAsItemInList(paList)
-			return This.ExistsInList(paList)
-
-		def ExistsIn(paList)
 			return This.ExistsInList(paList)
 
 		def IsOneOfThese(paList)
@@ -20657,7 +20669,7 @@ class stzString from stzObject
 		but not for this:
 		Q("#12 : #23") --> more then 1 digit
 
-		TODO: Generelise it!
+		TODO: Generalise it!
 		*/
 
 		This.TrimQ().RemoveBounds( [ "{", "}" ] )

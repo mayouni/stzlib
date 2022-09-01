@@ -26,7 +26,7 @@ class stzGrid from stzObject
 	#--------------#
 
 	def init(p)
-		SetGrid(p)
+		This.SetGrid(p)
 
 	  #-----------------#
 	 #     GENERAL     #
@@ -97,7 +97,7 @@ class stzGrid from stzObject
 	
 	def VLine(n)
 		aResult = []
-		for i = 1 to This.NumberOfVLines()
+		for i = 1 to This.NumberOfHLines()
 			aResult + This.HLine(i)[n]
 		next i
 		return aResult
@@ -137,7 +137,10 @@ class stzGrid from stzObject
 	def NodeAtPosition(nVLine, nHLine)
 		return This.HLine(nHLine)[nVLine]
 
-	def Node(n)
+		def Node(nVLine, nHLine)
+			return This.NodeAtPosition(nVLine, nHLine)
+
+	def NthNode()
 		aPosition = This.PositionOfNode(n)
 		nVLine = aPosition[1]
 		nHLine = aPosition[2]
@@ -477,7 +480,7 @@ class stzGrid from stzObject
 				next i
 
 			else
-				if StzListQ(p).Sublists_Have_SameNumberOfItems()
+				if StzListQ(p).SublistsHaveSameNumberOfItems()
 					nV = len( p[1] )
 					nH = len(p)
 
@@ -704,7 +707,7 @@ class stzGrid from stzObject
 		ok
 
 		for i = 1 to This.NumberOfVLines()
-			cStr += This.HLine(n)[i]
+			cStr += @@S( This.HLine(n)[i] )
 
 			if i < This.NumberOfVLines()
 				cStr += SingleSpace()
@@ -726,7 +729,7 @@ class stzGrid from stzObject
 		ok
 
 		for i = 1 to This.NumberOfHLines()
-			cStr += This.VLine(n)[i]
+			cStr += @@S( This.VLine(n)[i] )
 
 			if i < This.NumberOfHLines()
 				cStr += NL

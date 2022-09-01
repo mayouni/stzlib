@@ -3180,5 +3180,6 @@ o1 = new stzString("🐨")
 
 // TODO: Reflect on this: NumberOfChars() is actually NumberOfCodePoints()
 
+/*---------------
 
-
+? Q('[1, 2, 3]').ToList() #--> [1, 2, 3]
