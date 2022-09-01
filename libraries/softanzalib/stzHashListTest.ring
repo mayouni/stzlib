@@ -1,5 +1,6 @@
 load "stzlib.ring"
 
+/*
 o1 = new stzHashList([
 	:one 	= :red,
 	:two 	= :white,
@@ -25,6 +26,18 @@ o1 = new stzHashList([
 
 # ? o1.Top3Classes()	#--> [ :white, :red, :green ]
 # ? o1.Top3ClassesXT()	#--> [ :white = 3, :red = 2, :red = 2 ]
+
+/*----------------
+*/
+o1 = new stzHashList([
+	:one 	= :red,
+	:two 	= :white,
+	:three 	= :white
+])
+
+o1.PerformOnKeys(' { @key += @i }')
+? o1.Keys() #--> [ :on1, :two2, :three3 ]
+
 
 /*----------------
 

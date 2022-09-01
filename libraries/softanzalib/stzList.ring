@@ -13722,10 +13722,10 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsWhithParamList()
+		def IsWithParamList()
 			return This.IsWithNamedParamList()
 
-		def IsWhithNamedParam()
+		def IsWithNamedParam()
 			return This.IsWithNamedParamList()
 
 	def IsByNamedParamList()

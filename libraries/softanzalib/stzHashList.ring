@@ -223,11 +223,64 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 			on :stzListOfLists
 				return new stzListOfLists( This.Values() )
+
 			//on :stzListOfObjects # TODO
 				//return new stzListOfObjects( This.Values() )
 			other
 				stzRaise("Unsupported return type!")
 			off
+
+	def ValuesAndKeys()
+		aResult = []
+
+		i = 0
+		for value in This.Values()
+			i++
+			aResult + [ value, This.NthKey(i) ]
+		next
+
+		return aResult
+
+	def PerformOnKeys(pcCode)
+		/*
+		PerformOnKeys('@key += @i')
+		*/
+
+		cCode = StzStringQ(pcCode).TrimQ().BoundsRemoved(["{", "}"])
+
+		for @i = 1 to This.NumberOfPairs()
+			@key = This.NthKey(@i)		
+			eval(cCode)
+
+			if Q(@Key).ExistsIn( This.Keys() )
+				stzRaise("Can't update a key with the value of an existant key!")
+
+			else
+				This.ReplaceNthKey(@i, :With = @key)
+			ok
+		next
+
+		def PerformOnKeysQ(pcCode)
+			This.PerformOnKeys(pcCode)
+			return This
+
+	def PerformOnValues(pcCode)
+		/*
+		PerformOnValues('@value += @i')
+		*/
+
+		cCode = StzStringQ(pcCode).TrimQ().BoundsRemoved(["{", "}"])
+
+		for @i = 1 to This.NumberOfPairs()
+			@value = This.NthValue(@i)
+			eval(pcCode)
+			This.ReplaceNthValue(@i, :With = @value)
+		next
+
+		def PerformOnValuesQ(pcCode)
+			This.PerformOnValues(pcCode)
+			return This
+
 
 	def NthKey(n)
 		if NOT isNumber(n)
@@ -624,6 +677,52 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		for value in paValues
 			This.RemovePairsByValue(value)
 		next
+
+	  #--------------------#
+	 #  REPLACING VALUES  #
+	#--------------------#
+
+	def ReplaceValueByKey(pcKey, pNewValue)
+		/* ... */
+
+		def ReplaceByKey(pcKey, pNewValue)
+			/* ... */
+
+	def ReplaceValue(pValue, pNewValue)
+		/* ... */
+
+	  #------------------#
+	 #  REPLACING KEYS  #
+	#------------------#
+
+	def ReplaceKey(pcKey, pcNewKey)
+		/* ... */
+
+	def ReplaceNthKey(n, pcNewKey)
+		if isList(pcNewKey) and Q(pcNewKey).IsWithNamedParam()
+			pcNewKey = pcNewKey[2]
+		ok
+
+		This.NthPair(n)[1] = pcNewKey
+
+	def ReplaceFirstKey(pcNewKey)
+		/* ... */
+
+	def ReplaceLastKey(pcNewKey)
+		/* ... */
+
+	  #-------------------#
+	 #  REPLACING PAIRS  #
+	#-------------------#
+
+	def ReplacePair(paPair, paNewPair)
+		/* ... */
+
+	def ReplacePairByKey(pcKey, paNewPair)
+		/* ... */
+
+	def ReplacePairsW(pcCondition)
+		/* ... */
 
 	  #-----------------#
 	 #     FINDING     #

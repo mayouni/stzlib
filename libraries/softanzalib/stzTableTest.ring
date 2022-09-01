@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*------------
+
 aMyTable = 
 [
 	[    :ID,	:EMPLOYEE ,       :SALARY ],
@@ -161,13 +163,54 @@ o1 = new stzTable(aMyTable)
 #--> [
 #	101, "Ali Sandy", 35000,
 #	294, "Dan Mikov", 12890,
+#	287, "Ali Sandy", 1069,
 #	307, "Ali Aziza", 5200
 # ]
 
 /*-----------
-*/
 
-? @@S(o1.SectionXT([2, 2], [3, 4]))
+? @@S(o1.Section([2, 2], [3, 4]))
 #--> [ "Dan Mikov", 12890, "Ali Sandy", 1069, "Ali Aziza", 5200 ]
 
-//? o1.FindCellsInSection([2, 2], [3, 4], "Ali Sandy")
+? @@S( o1.SectionXT([2, 2], [3, 4]) )
+#--> [
+#	[ [ 2, 2 ], "Dan Mikov" ],
+#	[ [ 3, 2 ], 12890 ],
+#	[ [ 2, 3 ], "Ali Sandy" ],
+#	[ [ 3, 3 ], 1069 ],
+#	[ [ 2, 4 ], "Ali Aziza" ],
+#	[ [ 3, 4 ], 5200 ]
+# ]
+
+? @@S( o1.SectionAsPositions([2, 2], [3, 4]))
+#--> [ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ], [ 2, 4 ], [ 3, 4 ] ]
+
+/*-----------
+
+o2 = new stzGrid( o1.SectionToHashList([2, 2], [3, 4]) )
+? o2.Show()
+#--> [
+#	[ "[ 2, 2 ]", "Dan Mikov" ],
+#	[ "[ 3, 2 ]", 12890 ],
+#	[ "[ 2, 3 ]", "Ali Sandy" ],
+#	[ "[ 3, 3 ]", 1069 ],
+#	[ "[ 2, 4 ]", "Ali Aziza" ],
+#	[ "[ 3, 4 ]", 5200 ]
+# ]
+
+? @@S( o2.VLine(1) )
+#--> [ "[ 2, 2 ]", "[ 3, 2 ]", "[ 2, 3 ]", "[ 3, 3 ]", "[ 2, 4 ]", "[ 3, 4 ]" ]
+
+/*-----------
+
+? o1.FindInSection([2, 1], [3, 4], "Ali Sandy") #--> [ [2, 1], [2, 3] ]
+# Same as FindCellsInsection()
+
+# TODO: FindInCellsInSection() --> Finds things inside cells in a given section.
+
+/*-----------
+*/
+? o1.CellContains(2, 4, "Aziza") #--> TRUE
+? o1.FindInCell(2, 4, "Aziza") #--> [ 5 ]
+
+//? o1.FindInCellInSection([2, 1], [3, 4], "Ali")
