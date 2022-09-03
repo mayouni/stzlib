@@ -202,7 +202,7 @@ o2 = new stzGrid( o1.SectionToHashList([2, 2], [3, 4]) )
 #--> [ "[ 2, 2 ]", "[ 3, 2 ]", "[ 2, 3 ]", "[ 3, 3 ]", "[ 2, 4 ]", "[ 3, 4 ]" ]
 
 /*-----------
-
+*/
 ? o1.FindInSection([2, 1], [3, 4], "Ali Sandy") #--> [ [2, 1], [2, 3] ]
 # Same as FindCellsInsection()
 
@@ -213,4 +213,4 @@ o2 = new stzGrid( o1.SectionToHashList([2, 2], [3, 4]) )
 ? o1.CellContains(2, 4, "Aziza") #--> TRUE
 ? o1.FindInCell(2, 4, "Aziza") #--> [ 5 ]
 
-//? o1.FindInCellInSection([2, 1], [3, 4], "Ali")
+? o1.FindInCellsInSection([2, 1], [3, 4], "Ali")
