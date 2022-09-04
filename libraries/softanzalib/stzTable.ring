@@ -564,10 +564,14 @@ Class stzTable
 
 		return aResult
 
-		return aResult
+		def FindAllCS(pCellValue, pCaseSensitive)
+			return This.FindCellsCS(pCellValue, pCaseSensitive)
 
 	def FindCells(pValue)
 		return This.FindCellsCS(pValue, :CaseSensitive = TRUE)
+
+		def FindAll(pCellValue, pCaseSensitive)
+			return This.FindCells(pValue)
 
 	  #=========================================================#
 	 #  FINDING THE NTH OCCURRENCE OF A CELL INSIDE THE TABLE  #
@@ -966,12 +970,8 @@ Class stzTable
 
 		aResult = []
 
-		if isString(cell) or ( isList(cell) and Q(cell).IsListOfString())
-			aResult = Q(cell).FindAllCS(pSubValue, pCaseSensitive)
-
-		else
-			aResult = Q(cell).FindAll(pSubValue)
-		ok
+		cCell = @@SQ(cell).ManyBoundsRemoved(['"',"'"])
+		aResult = Q(cCell).FindAllCS(pSubValue, pCaseSensitive)
 
 		return aResult
 
@@ -1287,7 +1287,7 @@ Class stzTable
 
 	def FindInSideSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
 		aCellsPos = This.SectionAsPositions(paPair1, paPair2)
-		bResult = This.FindInCellsCS(aCellPos, pSubValue, pCaseSensitive)
+		bResult = This.FindInCellsCS(aCellsPos, pSubValue, pCaseSensitive)
 		return bResult
 
 		def FindInCellsInSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
@@ -1306,6 +1306,7 @@ Class stzTable
 	#===================#
 
 	def ReplaceCell(pnCol, pnLine, pNewValue)
+		This.Line(pnLine)[pnCol] = pNewValue
 
 	def ReplaceCells(paCells, pNewValue)
 
@@ -1321,7 +1322,7 @@ Class stzTable
 	#====================================#
 
 	def ReplaceInCellCS(pnCol, pnLine, pSubValue, pNewSubValue, pCaseSensitive)
-
+		
 	def ReplaceInCellsCS(paCells, pSubValue, pNewSubValue, pCaseSensitive)
 
 	def ReplaceInCellsByManyCS(paCells, pSubValues, pNewSubValue, pCaseSensitive)
