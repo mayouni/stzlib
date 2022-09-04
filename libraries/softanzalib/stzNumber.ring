@@ -1895,7 +1895,7 @@ class stzNumber from stzObject
 	# PWOER
 
 	def Power(pOtherNumber)
-		return This.pvtCalculate("^", pcOtherNumber)
+		return This.pvtCalculate("^", pOtherNumber)
 
 		def PowerQ(pOtherNumber)
 			return new stzNumber(This.Power(pOtherNumber))
@@ -3304,7 +3304,7 @@ class stzNumber from stzObject
 			ok
 
 		but pOp = "^"
-			return This.PowerOf(pValue)
+			return This.Power(pValue)
 
 		but pOp = "%"
 			return This.Modulo(pValue)
