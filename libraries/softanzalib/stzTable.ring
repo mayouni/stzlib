@@ -1,8 +1,4 @@
-/*
-	TODO
-	..IN(p) --> ...InCell() or ...InCells
 
-*/
 
 func StzTableQ(paTable)
 	return new stzTable( paTable )
@@ -12,8 +8,8 @@ Class stzTable
 
 	def init(paTable)
 		if len(paTable) = 2 and
-		isInteger(paTable[1]) and
-		isInteger(paTable[2])
+		isNumber(paTable[1]) and
+		isNumber(paTable[2])
 			// TODO: Creating an empty table()
 
 		but isString(paTable)
@@ -112,8 +108,8 @@ Class stzTable
 	def ColNXT(n)
 		aResult = []
 
-		for aLine in This.Table()
-			aResult + aLine[n]
+		for aRaw in This.Table()
+			aResult + aRaw[n]
 		next
 
 		return aResult
@@ -148,43 +144,43 @@ Class stzTable
 			return This.ColXT(p)
 
 	  #=================================#
-	 #   GETTING THE NUMBER OF LINES   #
+	 #   GETTING THE NUMBER OF RAWS   #
 	#=================================#
 
-	def NumberOfLines()
-		return len(aTable)-1
+	def NumberOfRaws()
+		return len(aTable) - 1
 
-	  #-------------------------------#
-	 #   GETTING THE LIST OF LINES   #
-	#-------------------------------#
+	  #------------------------------#
+	 #   GETTING THE LIST OF RAWS   #
+	#------------------------------#
 
-	def Lines()
+	def Raws()
 		return Q( This.Content() ).Section(2, :LastItem)
 
-	  #--------------------------#
-	 #   GETTING THE NTH LINE   #
-	#--------------------------#
+	  #-------------------------#
+	 #   GETTING THE NTH RAW   #
+	#-------------------------#
 
-	def LineN(n)
+	def RawN(n)
 		if n = 0
 			return Header()
 		else
-			return This.Table()[n+1]
+			return This.Table()[ n + 1 ]
 		ok
 			
-		def NthLine(n)
-			return This.Line(n)
+		def NthRaw(n)
+			return This.Raw(n)
 
 	  #---------------------------------------#
-	 #   GETTING LINE BY NUMBER OR BY NAME   #
+	 #   GETTING RAW BY NUMBER OR BY NAME   #
 	#---------------------------------------#
 
-	def Line(p)
+	def Raw(p)
 		if isNumber(p)
-			return This.LineN(p)
+			return This.RawN(p)
 
 		but isList(p)
-			return This.FindLine(p)
+			return This.FindRaw(p)
 
 		else
 			stzRaise("Incorrect param type! p must be a number or string.")
@@ -195,37 +191,37 @@ Class stzTable
 	#-------------------------------#
 
 	def NumberOfCells()
-		nResult = This.NumberOfCol() * This.NumberOfLines()
+		nResult = This.NumberOfCol() * This.NumberOfRaws()
 		return nResult
 
-	  #----------------------------------------------------------------------------#
-	 #  GETIING A CELL USING THE NUMBER OF ITS COLUMN AND THE NUMBER OF ITS LINE  #
-	#----------------------------------------------------------------------------#
+	  #---------------------------------------------------------------------------#
+	 #  GETIING A CELL USING THE NUMBER OF ITS COLUMN AND THE NUMBER OF ITS RAW  #
+	#---------------------------------------------------------------------------#
 
-	def Cell(pCol, nLine)
+	def Cell(pCol, nRaw)
 
 		if type(pCol) = "NUMBER"
-			return This.Line(nLine)[pCol]
+			return This.Raw(nRaw)[ pCol ]
 
 		but type(pCol) = "STRING"
-			return This.Line(nLine)[ This.FindCol(pCol) ]
+			return This.Raw(nRaw)[ This.FindCol(pCol) ]
 		ok
 
-		def CellQ(pCol, nLine)
-			return Q( This.Cell(pCol, nLine) )
+		def CellQ(pCol, nRaw)
+			return Q( This.Cell(pCol, nRaw) )
 	
 	  #---------------------------------#
 	 #  GETIING THE LIST OF ALL CELLS  #
 	#---------------------------------#
 
 	def Cells()
-		aResult = This.Section( [ :FirstCol, :FirstLine ], [ :LastCol, :LastLine ] )
+		aResult = This.Section( [ :FirstCol, :FirstRaw ], [ :LastCol, :LastRaw ] )
 		return aResult
 
 	def CellsAndTheirPositions()
 		aResult = []
 
-		for v = 1 to This.NumberOfLines()
+		for v = 1 to This.NumberOfRaws()
 			for u = 1 to This.NumberOfCol()
 				aResult + [ This.Cell(u, v), [u, v ] ]
 			next u
@@ -242,9 +238,20 @@ Class stzTable
 	def PositionsAndCells()
 		aResult = []
 
-		for v = 1 to This.NumberOfLines()
+		for v = 1 to This.NumberOfRaws()
 			for u = 1 to This.NumberOfCol()
 				aResult + [ [u, v ], This.Cell(u, v) ]
+			next
+		next
+
+		return aResult
+
+	def CellsAsPositions()
+		aResult = []
+
+		for v = 1 to This.NumberOfRaws()
+			for u = 1 to This.NumberOfCol()
+				aResult + [u, v ]
 			next
 		next
 
@@ -255,14 +262,7 @@ Class stzTable
 	#------------------------------------------------------------------#
 
 	def CellsToHashList()
-		aResult = []
-
-		for v = 1 to This.NumberOfLines()
-			for u = 1 to This.NumberOfCol()
-				aResult + [ @@S([u, v ]), This.Cell(u, v) ]
-			next
-		next
-
+		aResult = This.TheseCellsToHashList( This.CellsAsPositions() )
 		return aResult
 
 		def CellsToHashListQ()
@@ -280,105 +280,112 @@ Class stzTable
 				StzRaise("Insupported return type!")
 			off
 
+	def TheseCellsToHashList(paCellsPos)
+		# TODO: check if paCells are really cells and belong to the table!
+
+		aResult = []
+
+		for cellPos in paCellsPos
+			aResult + [ @@S(cellPos), This.Cell(cellPos[1], cellPos[2]) ]
+		next
+
+		return aResult
+
 	  #==============================#
 	 #  GETTING A SECTION OF CELLS  #
 	#==============================#
 
-	def SectionAsPositions( panCell1, panCell2 )
-		aResult = StzGridQ( This.SectionXT(panCell1, panCell2) ).VLine(1)
+	def Section( panCellPos1, panCellPos2 )
+		aResult = This.SectionToHashListQR( panCellPos1, panCellPos2, :stzHashList ).Values()
 		return aResult
 
-	def Section( panCell1, panCell2 )
-		aResult = This.SectionToHashListQR( panCell1, panCell2, :stzHashList ).Values()
-		return aResult
+		def SectionQ( panCellPos1, panCellPos2 )
+			return This.SectionQR( panCellPos1, panCellPos2, :stzList )
 
-		def SectionQ( panCell1, panCell2 )
-			return This.SectionQR( panCell1, panCell2, :stzList )
-
-		def SectionQR( panCell1, panCell2, pcReturnType )
+		def SectionQR( panCellPos1, panCellPos2, pcReturnType )
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.Section( panCell1, panCell2 ) )
+				return new stzList( This.Section( panCellPos1, panCellPos2 ) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.Section( panCell1, panCell2 ) )
+				return new stzListOfStrings( This.Section( panCellPos1, panCellPos2 ) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Section( panCell1, panCell2 ) )
+				return new stzListOfNumbers( This.Section( panCellPos1, panCellPos2 ) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.Section( panCell1, panCell2 ) )
+				return new stzListOfPairs( This.Section( panCellPos1, panCellPos2 ) )
 
 			other
 				stzRaise("Unsupported return type!")
 			off
 		
-	def SectionXT( panCell1, panCell2 )
-		aResult = This.SectionToHashListQR( panCell1, panCell2, :stzHashList ).
+	def SectionXT( panCellPos1, panCellPos2 )
+		aResult = This.SectionToHashListQR( panCellPos1, panCellPos2, :stzHashList ).
 				PerformOnKeysQ(' @key = Q(@key).ToList() ').Content()
 
 		return aResult
 
-		def SectionXTQ( panCell1, panCell2 )
-			return This.SectionXTQR( panCell1, panCell2, :stzList )
+		def SectionXTQ( panCellPos1, panCellPos2 )
+			return This.SectionXTQR( panCellPos1, panCellPos2, :stzList )
 
-		def SectionXTQR( panCell1, panCell2, pcReturnType )
+		def SectionXTQR( panCellPos1, panCellPos2, pcReturnType )
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SectionXT( panCell1, panCell2 ) )
+				return new stzList( This.SectionXT( panCellPos1, panCellPos2 ) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.SectionXT( panCell1, panCell2 ) )
+				return new stzListOfPairs( This.SectionXT( panCellPos1, panCellPos2 ) )
 
 			other
 				stzRaise("Unsupported return type!")
 			off
 
-	def SectionToHashList( panCell1, panCell2 )
-		if isList(panCell1)
-			if isString(panCell1[1]) and panCell1[1] = :FirstCol
-				panCell1 = Q(panCell1).FirstItemReplaced( :With = 1)
+	def SectionToHashList( panCellPos1, panCellPos2 )
+		if isList(panCellPos1)
+			if isString(panCellPos1[1]) and panCellPos1[1] = :FirstCol
+				panCellPos1 = Q(panCellPos1).FirstItemReplaced( :With = 1)
 			ok
 
-			if isString(panCell1[2]) and panCell1[2] = :FirstLine
-				panCell1 = Q(panCell1).NthItemReplaced( 2, :With = 1)
+			if isString(panCellPos1[2]) and panCellPos1[2] = :FirstRaw
+				panCellPos1 = Q(panCellPos1).NthItemReplaced( 2, :With = 1)
 			ok
 
-			if isString(panCell2[1]) and panCell2[1] = :LastCol
-				panCell2 = Q(panCell2).FirstItemReplaced( :With = This.NumberOfCol() )
+			if isString(panCellPos2[1]) and panCellPos2[1] = :LastCol
+				panCellPos2 = Q(panCellPos2).FirstItemReplaced( :With = This.NumberOfCol() )
 			ok
 
-			if isString(panCell2[2]) and panCell2[2] = :LastLine
-				panCell2 = Q(panCell2).NthItemReplaced( 2, :With = This.NumberOfLines() )
+			if isString(panCellPos2[2]) and panCellPos2[2] = :LastRaw
+				panCellPos2 = Q(panCellPos2).NthItemReplaced( 2, :With = This.NumberOfRaws() )
 			ok
 		ok
 
-		if isList(panCell2)
-			if isString(panCell2[1]) and panCell2[1] = :LastCol
-				panCell2[1] = This.NumberOfCol()
+		if isList(panCellPos2)
+			if isString(panCellPos2[1]) and panCellPos2[1] = :LastCol
+				panCellPos2[1] = This.NumberOfCol()
 			ok
 
-			if isString(panCell2[2]) and panCell2[2] = :LastLine
-				panCell2[2] = This.NumberOfLines()
+			if isString(panCellPos2[2]) and panCellPos2[2] = :LastRaw
+				panCellPos2[2] = This.NumberOfRaws()
 			ok
 
 		ok
 
-		if NOT ( isList(panCell1) and Q(panCell1).IsPairOfNumbers() and
-			 isList(panCell2) and Q(panCell2).IsPairOfNumbers() )
+		if NOT ( isList(panCellPos1) and Q(panCellPos1).IsPairOfNumbers() and
+			 isList(panCellPos2) and Q(panCellPos2).IsPairOfNumbers() )
 
-			stzRaise("Incorrect params types! panCell1 and panCell2 must be pairs of numbers.")
+			stzRaise("Incorrect params types! panCellPos1 and panCellPos2 must be pairs of numbers.")
 		ok
 
-		anPairs = Q([ panCell1, panCell2 ]).SortedInAscending()
+		anPairs = Q([ panCellPos1, panCellPos2 ]).SortedInAscending()
 		nCol1   = anPairs[1][1]
-		nLine1  = anPairs[1][2]
+		nRaw1   = anPairs[1][2]
 		nCol2   = anPairs[2][1]
-		nLine2  = anPairs[2][2]
+		nRaw2   = anPairs[2][2]
 
 		aResult = []
 
-		for v = nLine1 to This.NumberOfLines()
+		for v = nRaw1 to This.NumberOfRaws()
 			for u = nCol1 to This.NumberOfCols()
 				aResult + [ @@S([u, v]), This.Cell(u, v) ]
 			next u
@@ -386,35 +393,57 @@ Class stzTable
 
 		return aResult
 
-		def SectionToHashListQ(panCell1, panCell2)
-			return This.SectionsToHashListQR(panCell1, panCell2, :stzList)
+		def SectionToHashListQ(panCellPos1, panCellPos2)
+			return This.SectionsToHashListQR(panCellPos1, panCellPos2, :stzList)
 
-		def SectionToHashListQR(panCell1, panCell2, pcReturnType)
+		def SectionToHashListQR(panCellPos1, panCellPos2, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SectionToHashList(panCell1, panCell2) )
+				return new stzList( This.SectionToHashList(panCellPos1, panCellPos2) )
 
 			on :stzHashList
-				return new stzHashList( This.SectionToHashList(panCell1, panCell2) )
+				return new stzHashList( This.SectionToHashList(panCellPos1, panCellPos2) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.SectionToHashList(panCell1, panCell2) )
+				return new stzListOfStrings( This.SectionToHashList(panCellPos1, panCellPos2) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SectionToHashList(panCell1, panCell2) )
+				return new stzListOfNumbers( This.SectionToHashList(panCellPos1, panCellPos2) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.SectionToHashList(panCell1, panCell2) )
+				return new stzListOfPairs( This.SectionToHashList(panCellPos1, panCellPos2) )
 
 			other
 				stzRaise("Unsupported return type!")
 			off
 		
-	  #----------------------------#
-	 #  GETTING A RANGE OF CELLS  #
-	#----------------------------#
+	def SectionAsPositions( panCellPos1, panCellPos2 )
+		aResult = StzGridQ( This.SectionXT(panCellPos1, panCellPos2) ).VLine(1)
+		return aResult
 
-	# TODO
+	  #--------------------------------#
+	 #  CASE OF RECTANGULAR SECTIONS  #
+	#--------------------------------#
+
+	// TODO
+
+	  #--------------------------------------------------------#
+	 #  CASE OF VERTICAL SECTIONS (SOME CELLS FROM A COLUMN)  #
+	#--------------------------------------------------------#
+
+	// TODO
+
+	  #-------------------------------------------------------#
+	 #  CASE OF HORIZONTAL SECTIONS (SOME CELLS FROM A RAW)  #
+	#-------------------------------------------------------#
+
+	// TODO
+
+	  #============================#
+	 #  GETTING A RANGE OF CELLS  #
+	#============================#
+
+	// TODO
 
 	  #================================#
 	 #  FINDING A COLUMN BY ITS NAME  #
@@ -428,12 +457,12 @@ Class stzTable
 		def FindColumn(pcColName)
 			return This.FindCol(pcColName)
 
-	  #--------------------------------#
-	 #  FINDING A LINE BY ITS VALUE  #
-	#-------------------------------#
+	  #------------------------------#
+	 #  FINDING A RAW BY ITS VALUE  #
+	#------------------------------#
 
-	def FindLine(paLine)
-		n = Q(This.Lines()).FindAll(paLine)
+	def FindRaw(paRaw)
+		n = Q(This.Raws()).FindAll(paRaw)
 
 		if len(n) = 0
 			n = 0
@@ -444,9 +473,9 @@ Class stzTable
 
 		return n
 
-	  #-----------------------------------------------#
+	  #===============================================#
 	 #  NUMBER OF OCCURRENCE OF A CELL IN THE TABLE  #
-	#-----------------------------------------------#
+	#===============================================#
 
 	def NumberOfOccurrenceCS(pCellValue, pCaseSensitive)
 		if isList(pCellValue) and Q(pCellValue).IsOfNamedParam()
@@ -514,40 +543,110 @@ Class stzTable
 		def NumberOfOccurrencesOfCellInCol(pCol, pCellValue)
 			return This.NumberOfOccurrenceInCol(pCol, pCellValue)
 
-	  #--------------------------------------------------#
-	 #  NUMBER OF OCCURRENCE OF A CELL IN A GIVEN LINE  #
-	#--------------------------------------------------#
+	  #-------------------------------------------------#
+	 #  NUMBER OF OCCURRENCE OF A CELL IN A GIVEN RAW  #
+	#-------------------------------------------------#
 
-	def NumberOfOccurrenceInLineCS(n, pCellValue, pCaseSensitive)
+	def NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
 		if isList(pCellValue) and Q(pCellValue).IsOfNamedParam()
 			pCellValue = pCellValue[2]
 		ok
 
-		nResult = len( This.FindCellsInLineCS(n, pCellValue, pCaseSensitive) )
+		nResult = len( This.FindCellsInRawCS(n, pCellValue, pCaseSensitive) )
 		return nResult
 
-		def NumberOfOccurrencesInLineCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInLineCS(n, pCellValue, pCaseSensitive)
+		#< @FunctionAlternativeForms
 
-		def NumberOfOccurrenceOfCellInLineCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInLineCS(n, pCellValue, pCaseSensitive)
+		def NumberOfOccurrenceInNthRawCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
 
-		def NumberOfOccurrencesOfCellInLineCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInLineCS(n, pCellValue, pCaseSensitive)
+		#--
+
+		def NumberOfOccurrenceInRawNCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrencesInRawCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrencesInNthRawCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrencesInRawNCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfCellInRawCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCellInNthRawCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCellInRawNCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrencesOfCellInRawCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCellInNthRawCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCellInRawNCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NumberOfOccurrenceInLine(n, pCellValue)
-		return This.NumberOfOccurrenceInLineCS(n, pCellValue, :CaseSensitive = TRUE)
+	def NumberOfOccurrenceInRaw(n, pCellValue)
+		return This.NumberOfOccurrenceInRawCS(n, pCellValue, :CaseSensitive = TRUE)
 
-		def NumberOfOccurrencesInLine(n, pCellValue)
-			return This.NumberOfOccurrenceInLine(n, pCellValue)
+		#< @FunctionAlternativeForms
 
-		def NumberOfOccurrenceOfCellInLine(n, pCellValue)
-			return This.NumberOfOccurrenceInLine(n, pCellValue)
+		def NumberOfOccurrenceInNthRaw(n, pCellValue)
+			return This.NumberOfOccurrenceInRaw(n, pCellValue)
 
-		def NumberOfOccurrencesOfCellInLine(n, pCellValue)
-			return This.NumberOfOccurrenceInLine(n, pCellValue)
+		def NumberOfOccurrenceInRawN(n, pCellValue)
+			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+
+		#--
+
+		def NumberOfOccurrencesInRaw(n, pCellValue)
+			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+
+		def NumberOfOccurrencesInNthRaw(n, pCellValue)
+			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+
+		def NumberOfOccurrencesInRawN(n, pCellValue)
+			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+
+		#--
+
+		def NumberOfOccurrenceOfCellInRaw(n, pCellValue)
+			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+
+		def NumberOfOccurrenceOfCellInNthRaw(n, pCellValue)
+			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+
+		def NumberOfOccurrenceOfCellInRawN(n, pCellValue)
+			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+
+		#--
+
+		def NumberOfOccurrencesOfCellInRaw(n, pCellValue)
+			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+
+		def NumberOfOccurrencesOfCellInNthRaw(n, pCellValue)
+			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+
+		def NumberOfOccurrencesOfCellInRawN(n, pCellValue)
+			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+
+		#>
 
 	  #=============================================#
 	 #  FINDING ALL CELLS FORMED OF A GIVEN VALUE  #
@@ -630,7 +729,6 @@ Class stzTable
 		def FindFirstOccurrence(pCellValue)
 			return This.FindFirstCell(pCellValue)
 
-
 	#---
 
 	def FindLastCellCS(pCellValue, pCaseSensitive)
@@ -646,20 +744,20 @@ Class stzTable
 		def FindLastOccurrence(pCellValue)
 			return This.FindLastCell(pCellValue)
 
-	  #=================================#
-	 #  FINDING CELLS IN A GIVEN LINE  #
-	#=================================#
+	  #================================#
+	 #  FINDING CELLS IN A GIVEN RAW  #
+	#================================#
 
-	def FindCellsInLineCS(n, pCellValue, pCaseSensitive)
+	def FindCellsInRawCS(n, pCellValue, pCaseSensitive)
 
 		if isString(n)
-			n = This.FindLine(n)
+			n = This.FindRaw(n)
 		ok
 
 		aResult = []
 
 		i = 0
-		for cell in This.Line(n)
+		for cell in This.Raw(n)
 			i++
 
 			if isString(cell) or
@@ -680,14 +778,48 @@ Class stzTable
 
 		return aResult
 
-		def FindInLineCS(n, pCellValue, pCaseSensitive)
-			return This.FindCellsInLineCS(n, pCellValue, pCaseSensitive)
+		#< @FunctionAlternativeForms
 
-	def FindCellsInLine(n, pCellValue)
-		return This.FindInLineCS(n, pCellValue, :CaseSensitive = TRUE)
+		def FindCellsInNthRawCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInRawCS(n, pCellValue, pCaseSensitive)
 
-		def FindInLine(n, pCellValue)
-			return This.FindCellsInLine(n, pCellValue)
+		def FindCellsInRawNCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInRawCS(n, pCellValue, pCaseSensitive)
+
+		def FindInRawCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInRawCS(n, pCellValue, pCaseSensitive)
+
+		def FindInNthRawCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInRawCS(n, pCellValue, pCaseSensitive)
+
+		def FindInRawNCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInRawCS(n, pCellValue, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindCellsInRaw(n, pCellValue)
+		return This.FindInRawCS(n, pCellValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindCellsInNthRaw(n, pCellValue)
+			return This.FindCellsInRaw(n, pCellValue)
+
+		def FindCellsInRawN(n, pCellValue)
+			return This.FindCellsInRaw(n, pCellValue)
+
+		def FindInRaw(n, pCellValue)
+			return This.FindCellsInRaw(n, pCellValue)
+
+		def FindInNthRaw(n, pCellValue)
+			return This.FindCellsInRaw(n, pCellValue)
+
+		def FindInRawN(n, pCellValue)
+			return This.FindCellsInRaw(n, pCellValue)
+
+		#>
 
 	  #-----------------------------------#
 	 #  FINDING CELLS IN A GIVEN COLUMN  #
@@ -723,14 +855,48 @@ Class stzTable
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def FindCellsInNthColCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(n, pCellValue, pCaseSensitive)
+
+		def FindCellsInColNCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(n, pCellValue, pCaseSensitive)
+
 		def FindInColCS(n, pCellValue, pCaseSensitive)
 			return This.FindCellsInColCS(n, pCellValue, pCaseSensitive)
+
+		def FindInNthColCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(n, pCellValue, pCaseSensitive)
+
+		def FindInColNCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(n, pCellValue, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindCellsInCol(n, pCellValue)
 		return This.FindCellsInColCS(n, pCellValue, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindCellsInNthCol(n, pCellValue)
+			return This.FindCellsInCol(n, pCellValue)
+
+		def FindCellsInColNC(n, pCellValue)
+			return This.FindCellsInCol(n, pCellValue)
+
 		def FindInCol(n, pCellValue)
 			return This.FindCellsInCol(n, pCellValue)
+
+		def FindInNthCol(n, pCellValue)
+			return This.FindCellsInCol(n, pCellValue)
+
+		def FindInColN(n, pCellValue)
+			return This.FindCellsInCol(n, pCellValue)
+
+		#>
 
 	  #----------------------------------------#
 	 #  FINDING A CELL IN A SECTION OF CELLS  #
@@ -779,8 +945,8 @@ Class stzTable
 	 #  CHECKING IF A CELL CONTAIN A GIVEN VALUE INSIDE  #
 	#===================================================#
 
-	def CellContainsCS(pnCol, pnLine, pSubValue, pCaseSensitive)
-		cell = This.Cell(pnCol, pnLine)
+	def CellContainsCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
+		cell = This.Cell(pnCol, pnRaw)
 
 		bResult = FALSE
 
@@ -795,22 +961,22 @@ Class stzTable
 
 	#-- WITHOUT CASESNESITIVITY
 
-	def CellContains(pnCol, pnLine, pSubValue)
-		return This.CellContainsCS(pnCol, pnLine, pSubValue, :CS = TRUE)
+	def CellContains(pnCol, pnRaw, pSubValue)
+		return This.CellContainsCS(pnCol, pnRaw, pSubValue, :CS = TRUE)
 
 	  #-------------------------------------------------------#
 	 #  CHECKING IF SOME CELLS CONTAIN A GIVEN VALUE INSIDE  #
 	#-------------------------------------------------------#
 
-	def CellsContainCS(paCells, pSubValue, pCaseSensitive)
-		if NOT ( isList(paCells) and Q(paCells).IsListOfPAirsOfNumbers() )
+	def CellsContainCS(paCellsPos, pSubValue, pCaseSensitive)
+		if NOT ( isList(paCellsPos) and Q(paCellsPos).IsListOfPAirsOfNumbers() )
 			stzRaise("Incorrect param type! paCells must be a list of pairs of numbers.")
 		ok
 
 		bResult = FALSE
 		
-		for cell in paCells
-			if This.CellContainsCS(cell[1], cell[2], pSubValue, pCaseSensitive)
+		for cellPos in paCellsPos
+			if This.CellContainsCS(cellPos[1], cellPos[2], pSubValue, pCaseSensitive)
 				bResult = TRUE
 				exit
 			ok
@@ -820,22 +986,22 @@ Class stzTable
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def CellsContain(paCells, pSubValue)
-		return This.CellsContainCS(paCells, pSubValue, :CaseSensitive = TRUE)
+	def CellsContain(paCellsPos, pSubValue)
+		return This.CellsContainCS(paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
 	  #------------------------------------------------------#
 	 #  CHECKING IF ALL CELLS CONTAIN A GIVEN VALUE INSIDE  #
 	#------------------------------------------------------#
 
-	def AllCellsContainCS(paCells, pSubValue, pCaseSensitive)
-		if NOT ( isList(paCells) and Q(paCells).IsListOfPAirsOfNumbers() )
+	def AllCellsContainCS(paCellsPos, pSubValue, pCaseSensitive)
+		if NOT ( isList(paCellsPos) and Q(paCellsPos).IsListOfPAirsOfNumbers() )
 			stzRaise("Incorrect param type! paCells must be a list of pairs of numbers.")
 		ok
 
 		bResult = TRUE
 		
-		for cell in paCells
-			if NOT This.CellContainsCS(cell[1], cell[2], pSubValue, pCaseSensitive)
+		for cellPos in paCellsPos
+			if NOT This.CellContainsCS(cellPos[1], cellPos[2], pSubValue, pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -843,54 +1009,55 @@ Class stzTable
 
 		return bResult
 
-		def EachCellContainsCS(paCells, pSubValue, pCaseSensitive)
+		def EachCellContainsCS(paCellsPos, pSubValue, pCaseSensitive)
+			return This.AllCellsContainCS(paCellsPos, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def AllCellsContain(paCells, pSubValue)
-		return This.AllCellsContainsCS(paCells, pSubValue, :CaseSensitive = TRUE)
+	def AllCellsContain(paCellsPos, pSubValue)
+		return This.AllCellsContainsCS(paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
-		def EachCellContains(paCells, pSubValue)
-			return This.AllCellsContain(paCells, pSubValue)
+		def EachCellContains(paCellsPos, pSubValue)
+			return This.AllCellsContain(paCellsPos, pSubValue)
 
 	  #-----------------------------------------------------#
 	 #  CHECKING IF NO CELLS CONTAIN A GIVEN VALUE INSIDE  #
 	#-----------------------------------------------------#
 
-	def NoCellsContainCS(paCells, pSubValue, pCaseSensitive)
-		return NOT This.AllCellsContainCS(paCells, pSubValue, pCaseSensitive)
+	def NoCellsContainCS(paCellsPos, pSubValue, pCaseSensitive)
+		return NOT This.AllCellsContainCS(paCellsPos, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NoCellsContain(paCells, pSubValue)
-		return This.NoCellsContainCS(paCells, pSubValue, :CaseSensitive = TRUE)
+	def NoCellsContain(paCellsPos, pSubValue)
+		return This.NoCellsContainCS(paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
 	  #-------------------------------------------------------#
 	 #  CHECKING IF SOME CELLS CONTAIN A GIVEN VALUE INSIDE  #
 	#-------------------------------------------------------#
 
-	def SomeCellsContainCS(paCells, pSubValue, pCaseSensitive)
-		return This.NCellsContainCS(paCells, pSubValue, pCaseSensitive) = 1
+	def SomeCellsContainCS(paCellsPos, pSubValue, pCaseSensitive)
+		return This.NCellsContainCS(paCellsPos, pSubValue, pCaseSensitive) = 1
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SomeCellsContain(paCells, pSubValue)
-		return This.NoCellsContainCS(paCells, pSubValue, :CaseSensitive = TRUE)
+	def SomeCellsContain(paCellsPos, pSubValue)
+		return This.NoCellsContainCS(paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
 	  #----------------------------------------------------------------------#
 	 #  CHECKING IF N OF THE GIVEN CELLS CONTAIN A GIVEN VALUE INSIDE THEM  #
 	#----------------------------------------------------------------------#
 
-	def NCellsContainCS(n, paCells, pSubValue, pCaseSensitive)
-		if NOT ( isList(paCells) and Q(paCells).IsListOfPAirsOfNumbers() )
+	def NCellsContainCS(n, paCellsPos, pSubValue, pCaseSensitive)
+		if NOT ( isList(paCellsPos) and Q(paCellsPos).IsListOfPAirsOfNumbers() )
 			stzRaise("Incorrect param type! paCells must be a list of pairs of numbers.")
 		ok
 
 		bResult = FALSE
 		i = 0
 
-		for cell in paCells
-			if This.CellContainsCS(cell[1], cell[2], pSubValue, pCaseSensitive)
+		for cellPos in paCellsPos
+			if This.CellContainsCS(cellPos[1], cellPos[2], pSubValue, pCaseSensitive)
 				i++
 				if i = n
 					bResult = TRUE
@@ -903,23 +1070,23 @@ Class stzTable
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NCellsContain(paCells, pSubValue)
-		return This.NCellsContainCS(paCells, pSubValue, :CaseSensitive = TRUE)
+	def NCellsContain(paCellsPos, pSubValue)
+		return This.NCellsContainCS(paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
 	  #--------------------------------------------------------------------#
 	 #  CHECKING IF CELLS CONTAIN N OCCURRENCES OF GIVEN VALUE INSIDE IT  #
 	#--------------------------------------------------------------------#
 
-	def CellsContainNOccurrenceCS(n, paCells, pSubValue, pCaseSensitive)
-		if NOT ( isList(paCells) and Q(paCells).IsListOfPAirsOfNumbers() )
+	def CellsContainNOccurrenceCS(n, paCellsPos, pSubValue, pCaseSensitive)
+		if NOT ( isList(paCellsPos) and Q(paCellsPos).IsListOfPAirsOfNumbers() )
 			stzRaise("Incorrect param type! paCells must be a list of pairs of numbers.")
 		ok
 
 		bResult = FALSE
 		i = 0
 
-		for cell in paCells
-			i += This.NumberOfOccurrenceCS(cell[1], cell[2], pSubValue, pCaseSensitive)
+		for cellPos in paCellsPos
+			i += This.NumberOfOccurrenceCS(cellPos[1], cellPos[2], pSubValue, pCaseSensitive)
 			if i = n
 				bResult = TRUE
 				exit
@@ -928,279 +1095,300 @@ Class stzTable
 
 		return bResult
 
-		def CellsContainNOccurrencesCS(n, paCells, pSubValue, pCaseSensitive)
-			return This.CellsContainNOccurrenceCS(n, paCells, pSubValue, pCaseSensitive)
+		def CellsContainNOccurrencesCS(n, paCellsPos, pSubValue, pCaseSensitive)
+			return This.CellsContainNOccurrenceCS(n, paCellsPos, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def CellsContainNOccurrence(n, paCells, pSubValue)
-		return This.CellsContainNOccurrenceCS(n, paCells, pSubValue, :CaseSensitive = TRUE)
+	def CellsContainNOccurrence(n, paCellsPos, pSubValue)
+		return This.CellsContainNOccurrenceCS(n, paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
-		def CellsContainNOccurrences(n, paCells, pSubValue)
-			return This.CellsContainNOccurrence(n, paCells, pSubValue)
+		def CellsContainNOccurrences(n, paCellsPos, pSubValue)
+			return This.CellsContainNOccurrence(n, paCellsPos, pSubValue)
 
 	  #==================================================#
 	 #  NUMBER OF OCCURRENCE OF A VALUE INSIDE A CELL   #
 	#==================================================#
 
-	def NumberOfOccurrenceInCellCS(pnCol, pnLine, pSubValue, pCaseSensitive)
-		nResult = len( This.FindInCellCS(pnCol, pnLine, pSubValue, pCaseSensitive) )
+	def NumberOfOccurrenceInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
+		nResult = len( This.FindInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive) )
 
-		def NumberOfOccurrencesInCellCS(pnCol, pnLine, pSubValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInCellCS(pnCol, pnLine, pSubValue, pCaseSensitive)
+		def NumberOfOccurrencesInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NumberOfOccurrenceInCell(pnCol, pnLine, pSubValue)
-		return This.NumberOfOccurrenceInCellCS(pnCol, pnLine, pSubValue, :CaseSensitive = TRUE)
+	def NumberOfOccurrenceInCell(pnCol, pnRaw, pSubValue)
+		return This.NumberOfOccurrenceInCellCS(pnCol, pnRaw, pSubValue, :CaseSensitive = TRUE)
 
-		def NumberOfOccurrencesInCell(pnCol, pnLine, pSubValue)
-			return This.NumberOfOccurrenceInCell(pnCol, pnLine, pSubValue)
+		def NumberOfOccurrencesInCell(pnCol, pnRaw, pSubValue)
+			return This.NumberOfOccurrenceInCell(pnCol, pnRaw, pSubValue)
 
 	  #----------------------------------------------------#
 	 #  FINDING ALL OCCURRENCES OF A VALUE INSIDE A CELL  #
 	#----------------------------------------------------#
 
-	def FindInCellCS(pnCol, pnLine, pSubValue, pCaseSensitive)
+	def FindInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
 		if isList(pSubValue) and Q(pSubValue).IsOfNamedParam()
 			pSubValue = pSubValue[2]
 		ok
 
-		cell = This.Cell(pnCol, pnLine)
+		cellValue = This.Cell(pnCol, pnRaw)
 
 		aResult = []
 
-		cCell = @@SQ(cell).ManyBoundsRemoved(['"',"'"])
-		aResult = Q(cCell).FindAllCS(pSubValue, pCaseSensitive)
+		if isString(cellValue) or ( isList(cellValue) and Q(cellValue).IsListOfStrings() )
+			if isString(pSubValue)
+				aResult = Q(cellValue).FindAllCS(pSubValue, pCaseSensitive)
+			ok
+
+		but isList(cellValue)
+			aResult = Q(cellValue).FindAll(pSubValue)
+
+		ok
 
 		return aResult
 
-		def FindAllOccurrencesInCellCS(pnCol, pnLine, pSubValue, pCaseSensitive)
-			return This.FindInCellCS(pnCol, pnLine, pSubValue, pCaseSensitive)
+		def FindAllOccurrencesInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
+			return This.FindInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
 	
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindInCell(pnCol, pnLine, pSubValue)
-		return This.FindInCellCS(pnCol, pnLine, pSubValue, :CaseSensitive = TRUE)
+	def FindInCell(pnCol, pnRaw, pSubValue)
+		return This.FindInCellCS(pnCol, pnRaw, pSubValue, :CaseSensitive = TRUE)
 
-		def FindAllOccurrencesInCell(pnCol, pnLine, pSubValue)
-			return This.FindInCell(pnCol, pnLine, pSubValue)
+		def FindAllOccurrencesInCell(pnCol, pnRaw, pSubValue)
+			return This.FindInCell(pnCol, pnRaw, pSubValue)
 
 	  #---------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A VALUE INSIDE A CELL  #
 	#---------------------------------------------------#
 
-	def FindNthOccurrenceInCellCS(n, pnCol, pnLine, pSubValue, pCaseSensitive)
+	def FindNthOccurrenceInCellCS(n, pnCol, pnRaw, pSubValue, pCaseSensitive)
 		if isString(n)
 			if n = :First
 				n = 1
 			but n = :Last
-				n = This.NumberOfOccurrenceInCellCS(pnCol, pnLine, pSubValue, pCaseSensitive)
+				n = This.NumberOfOccurrenceInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
 			ok
 		ok
 
-		nResult = This.FindAllOccurrencesInCellCS(pnCol, pnLine, pSubValue, pCaseSensitive)[n]
+		nResult = This.FindAllOccurrencesInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)[n]
 
 		return nResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindNthOccurrenceInCell(n, pnCol, pnLine, pSubValue)
-		return This.FindNthOccurrenceInCellCS(n, pnCol, pnLine, pSubValue, :CaseSensitive = TRUE)
+	def FindNthOccurrenceInCell(n, pnCol, pnRaw, pSubValue)
+		return This.FindNthOccurrenceInCellCS(n, pnCol, pnRaw, pSubValue, :CaseSensitive = TRUE)
 
 	  #-----------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A VALUE INSIDE A CELL  #
 	#-----------------------------------------------------#
 
-	def FindFirstOccurrenceInCellCS(pnCol, pnLine, pSubValue, pCaseSensitive)
-		return This.FindNthOccurrenceInCellCS(:First, pnCol, pnLine, pSubValue, pCaseSensitive)
+	def FindFirstOccurrenceInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
+		return This.FindNthOccurrenceInCellCS(:First, pnCol, pnRaw, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindFirstOccurrenceInCell(pnCol, pnLine, pSubValue)
-		return This.FindFirstOccurrenceInCellCS(pnCol, pnLine, pSubValue, :CaseSensitive = TRUE)
+	def FindFirstOccurrenceInCell(pnCol, pnRaw, pSubValue)
+		return This.FindFirstOccurrenceInCellCS(pnCol, pnRaw, pSubValue, :CaseSensitive = TRUE)
 
 	  #----------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A VALUE INSIDE A CELL  #
 	#----------------------------------------------------#
 
-	def FindLastOccurrenceInCellCS(pnCol, pnLine, pSubValue, pCaseSensitive)
-		return This.FindNthOccurrenceInCellCS(:Last, pnCol, pnLine, pSubValue, pCaseSensitive)
+	def FindLastOccurrenceInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
+		return This.FindNthOccurrenceInCellCS(:Last, pnCol, pnRaw, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindLastOccurrenceInCell(pnCol, pnLine, pSubValue)
-		return This.FindLastOccurrenceInCellCS(pnCol, pnLine, pSubValue, :CaseSensitive = TRUE)
+	def FindLastOccurrenceInCell(pnCol, pnRaw, pSubValue)
+		return This.FindLastOccurrenceInCellCS(pnCol, pnRaw, pSubValue, :CaseSensitive = TRUE)
 
 	  #======================================================#
 	 #  NUMBER OF OCCURRENCE OF A VALUE INSIDE MANY CELLS   #
 	#======================================================#
 
-	def NumberOfOccurrenceInCellsCS(paCells, pSubValue, pCaseSensitive)
-		nResult = len( This.FindInCellsCS(paCells, pSubValue, pCaseSensitive) )
+	def NumberOfOccurrenceInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
+		nResult = len( This.FindInCellsCS(paCellsPos, pSubValue, pCaseSensitive) )
 
-		def NumberOfOccurrencesInCellsCS(paCells, pSubValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInCellsCS(paCells, pSubValue, pCaseSensitive)
+		def NumberOfOccurrencesInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NumberOfOccurrenceInCells(paCells, pSubValue)
-		return This.NumberOfOccurrenceInCellsCS(paCells, pSubValue, :CaseSensitive = TRUE)
+	def NumberOfOccurrenceInCells(paCellsPos, pSubValue)
+		return This.NumberOfOccurrenceInCellsCS(paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
-		def NumberOfOccurrencesInCells(paCells, pSubValue)
-			return This.NumberOfOccurrenceInCells(paCells, pSubValue)
+		def NumberOfOccurrencesInCells(paCellsPos, pSubValue)
+			return This.NumberOfOccurrenceInCells(paCellsPos, pSubValue)
 
 	  #=========================================================#
 	 #  FINDING ALL OCCURRENCES OF A VALUE INSIDE GIVEN CELLS  #
 	#=========================================================#
 
-	def FindInCellsCS(paCells, pSubValue, pCaseSensitive)
+	def FindInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
 
-		if NOT ( isList(paCells) and Q(paCells).IsListOfPairsOfNumbers() )
-			stzRaise("Incorrect param type! paCells must be a list of pairs of numbers.")
+		if NOT ( isList(paCellsPos) and Q(paCellsPos).IsListOfPairsOfNumbers() )
+			stzRaise("Incorrect param type! paCellsPos must be a list of pairs of numbers.")
 		ok
 
 		aResult = []
 
-		for cell in paCells
-			aResult + This.FindInCellCS(cell[1], cell[2], pSubValue, pCaseSensitive)
+		for cellPos in paCellsPos
+			aResult + This.FindInCellCS(cellPos[1], cellPos[2], pSubValue, pCaseSensitive)
 		next
 
 		return aResult
 
-		def FindAllInCellsCS(paCells, pSubValue, pCaseSensitive)
-			return This.FindInCellsCS(paCells, pSubValue, pCaseSensitive)
+		def FindAllInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
+			return This.FindInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
 
-		def FindOccurrencesInCellsCS(paCells, pSubValue, pCaseSensitive)
-			return This.FindInCellsCS(paCells, pSubValue, pCaseSensitive)
+		def FindOccurrencesInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
+			return This.FindInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
 	
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindInCells(paCells, pSubValue)
-		return This.FindInCellsCS(paCells, pSubValue, :CaseSensitive = TRUE)
+	def FindInCells(paCellsPos, pSubValue)
+		return This.FindInCellsCS(paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
-		def FindAllInCells(paCells, pSubValue)
-			return This.FindInCell(paCells, pSubValue)
+		def FindAllInCells(paCellsPos, pSubValue)
+			return This.FindInCell(paCellsPos, pSubValue)
 
-		def FindOccurrencesInCells(paCells, pSubValue)
-			return This.FindInCell(paCells, pSubValue)
+		def FindOccurrencesInCells(paCellsPos, pSubValue)
+			return This.FindInCell(paCellsPos, pSubValue)
 
 	  #---------------------------------------------------------------------#
 	 #  FINDING ALL OCCURRENCES OF A VALUE INSIDE GIVEN CELLS -- EXTENDED  #
 	#---------------------------------------------------------------------#
 
-	def FindInCellsXTCS(paCells, pSubValue, pCaseSensitive)
+	def FindInCellsXTCS(paCellsPos, pSubValue, pCaseSensitive)
 		
-		if NOT ( isList(paCells) and Q(paCells).IsListOfPairsOfNumbers() )
-			stzRaise("Incorrect param type! paCells must be a list of pairs of numbers.")
+		if NOT ( isList(paCellsPos) and Q(paCellsPos).IsListOfPairsOfNumbers() )
+			stzRaise("Incorrect param type! paCellsPos must be a list of pairs of numbers.")
 		ok
 
 		aResult = []
 
-		aPairs  = This.FindInCellCS(paCells, pSubValue, pCaseSensitive)
+		aPairs  = This.FindInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
 
-		for i = 1 to len(paCells)
-			aResult + [ paCells[i], aPairs[i] ]
+		i = 0
+		for cellPos in paCellsPos
+			i++
+			aPair = aPairs[i]
+			if len(aPair) != 0
+				aResult + [ cellPos, aPair ]
+			ok
 		next
 
 		return aResult
 
-		def FindAllInCellsXTCS(paCells, pSubValue, pCaseSensitive)
-			return This.FindInCellsXTCS(paCells, pSubValue, pCaseSensitive)
+		def FindInCellsCSXT(paCellsPos, pSubValue, pCaseSensitive)
+			return This.FindInCellsXTCS(paCellsPos, pSubValue, pCaseSensitive)
 
-		def FindOccurrencesInCellsXTCS(paCells, pSubValue, pCaseSensitive)
-			return This.FindInCellsXTCS(paCells, pSubValue, pCaseSensitive)
+		def FindAllInCellsXTCS(paCellsPos, pSubValue, pCaseSensitive)
+			return This.FindInCellsXTCS(paCellsPos, pSubValue, pCaseSensitive)
+
+		def FindAllInCellsCSXT(paCellsPos, pSubValue, pCaseSensitive)
+			return This.FindInCellsXTCS(paCellsPos, pSubValue, pCaseSensitive)
+
+		def FindOccurrencesInCellsXTCS(paCellsPos, pSubValue, pCaseSensitive)
+			return This.FindInCellsXTCS(paCellsPos, pSubValue, pCaseSensitive)
+
+		def FindOccurrencesInCellsCSXT(paCellsPos, pSubValue, pCaseSensitive)
+			return This.FindInCellsXTCS(paCellsPos, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindInCellsXT(paCells, pSubValue)
-		return This.FindInCellsXTCS(paCells, pSubValue, :CaseSensitive = TRUE)
+	def FindInCellsXT(paCellsPos, pSubValue)
+		return This.FindInCellsXTCS(paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
-		def FindAllInCellsXT(paCells, pSubValue)
-			return This.FindInCellsXT(paCells, pSubValue)
+		def FindAllInCellsXT(paCellsPos, pSubValue)
+			return This.FindInCellsXT(paCellsPos, pSubValue)
 
-		def FindOccurrencesInCellsXT(paCells, pSubValue)
-			return This.FindInCellsXT(paCells, pSubValue)
+		def FindOccurrencesInCellsXT(paCellsPos, pSubValue)
+			return This.FindInCellsXT(paCellsPos, pSubValue)
 
 	  #========================================================#
 	 #  FINDING NTH OCCURRENCE OF A VALUE INSIDE GIVEN CELLS  #
 	#========================================================#
 
-	def FindNthOccurrenceInCellsCS(n, paCells, pSubValue, pCaseSensitive)
+	def FindNthOccurrenceInCellsCS(n, paCellsPos, pSubValue, pCaseSensitive)
 		if isString(n)
 			if n = :First
 				n = 1
 			but n = :Last
-				n = This.NumberOfOccurrenceInCellsCS(paCells, pSubValue, pCaseSensitive)
+				n = This.NumberOfOccurrenceInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
 			ok
 		ok
 
-		nResult = This.FindAllOccurrencesInCellsCS(paCells, pSubValue, pCaseSensitive)[n]
+		nResult = This.FindAllOccurrencesInCellsCS(paCellsPos, pSubValue, pCaseSensitive)[n]
 
 		return nResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindNthOccurrenceInCells(n, paCells, pSubValue)
-		return This.FindNthOccurrenceInCellsCS(n, paCells, pSubValue, :CaseSensitive = TRUE)
+	def FindNthOccurrenceInCells(n, paCellsPos, pSubValue)
+		return This.FindNthOccurrenceInCellsCS(n, paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
 	  #----------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A VALUE INSIDE GIVEN CELLS  #
 	#----------------------------------------------------------#
 
-	def FindFirstOccurrenceInCellsCS(pnCol, pnLine, pSubValue, pCaseSensitive)
-		return This.FindNthOccurrenceInCellsCS(:First, paCells, pSubValue, pCaseSensitive)
+	def FindFirstOccurrenceInCellsCS(ppaCellsPos, pSubValue, pCaseSensitive)
+		return This.FindNthOccurrenceInCellsCS(:First, paCellsPos, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindFirstOccurrenceInCells(paCells, pSubValue)
-		return This.FindFirstOccurrenceInCellsCS(paCells, pSubValue, :CaseSensitive = TRUE)
+	def FindFirstOccurrenceInCells(paCellsPos, pSubValue)
+		return This.FindFirstOccurrenceInCellsCS(paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
 	  #---------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A VALUE INSIDE GIVEN CELLS  #
 	#---------------------------------------------------------#
 
-	def FindLastOccurrenceInCellsCS(paCells, pSubValue, pCaseSensitive)
-		return This.FindNthOccurrenceInCellsCS(:Last, paCells, pSubValue, pCaseSensitive)
+	def FindLastOccurrenceInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
+		return This.FindNthOccurrenceInCellsCS(:Last, paCellsPos, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindLastOccurrenceInCells(paCells, pSubValue)
-		return This.FindLastOccurrenceInCellsCS(paCells, pSubValue, :CaseSensitive = TRUE)
+	def FindLastOccurrenceInCells(paCellsPos, pSubValue)
+		return This.FindLastOccurrenceInCellsCS(paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
 	  #=============================================#
 	 #  CHECKING IF A CELL CONTAINS A GIVEN VALUE  #
 	#=============================================#
 
-	def ContainsInCellCS(pnCol, pnLine, pSubValue, pCaseSensitive)
-		cell = This.Cell(pnCol, pnLine)
+	def ContainsInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
+		cellValue = This.Cell(pnCol, pnRaw)
 
 		bResult = FALSE
 
-		if isString(cell) or (isList(cell) and Q(cell).IsListOfStrings())
-			bResult = Q(cell).ContainsCS(pSubValue, pCaseSensitive)
+		if isString(cell) or (isList(cellValue) and Q(cellValue).IsListOfStrings())
+			bResult = Q(cellValue).ContainsCS(pSubValue, pCaseSensitive)
 
 		else
-			bResult = Q(cell).Contains(pSubValue)
+			bResult = Q(cellValue).Contains(pSubValue)
 		ok
 
 		return bResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsInCell(pnCol, pnLine, pSubValue)
-		return This.ContainsInCellCS(pnCol, pnLine, pSubValue, :CS = TRUE)
+	def ContainsInCell(pnCol, pnRaw, pSubValue)
+		return This.ContainsInCellCS(pnCol, pnRaw, pSubValue, :CS = TRUE)
 
 	  #================================================#
 	 #  CHECKING IF SOME CELLS CONTAINS A GIVEN CELL  #
 	#================================================#
 
-	def ContainsInCellsCS(paCells, pSubValue, pCaseSensitive)
+	def ContainsInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
 
 		bResult = FALSE
 
-		for cell in paCells
-			if This.ContainsInCellCS(cell[1], cell[2], pSubValue, pCaseSensitive)
+		for cellPos in paCellsPos
+			if This.ContainsInCellCS(cellPos[1], cellPos[2], pSubValue, pCaseSensitive)
 				bResult = TRUE
 				exit
 			ok
@@ -1210,126 +1398,287 @@ Class stzTable
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsInCells(paCells, pSubValue)
-		return This.ContainsInCellsCS(paCells, pSubValue, :CS = TRUE)
+	def ContainsInCells(paCellsPos, pSubValue)
+		return This.ContainsInCellsCS(paCellsPos, pSubValue, :CS = TRUE)
 
 	  #-----------------------------------------------#
 	 #  CHECKING IF A SECTION CONTAINS A GIVEN CELL  #
 	#-----------------------------------------------#
 
-	def ContainsInSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
-		aCellsPos = This.SectionAsPositions(paPair1, paPair2)
+	def ContainsInSectionCS(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
+		aCellsPos = This.SectionAsPositions(paCellPos1, paCellPos2)
 		bResult = This.ContainsInCellsCS(aCellsPos, pSubValue, pCaseSensitive)
 
 		return bResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsInSection(paPair1, paPair2, pSubValue)
-		return This.ContainsInSectionCS(paPair1, paPair2, pSubValue, :CS = TRUE)
+	def ContainsInSection(paCellPos1, paCellPos2, pSubValue)
+		return This.ContainsInSectionCS(paCellPos1, paCellPos2, pSubValue, :CS = TRUE)
 
 	  #-----------------------------------------------------#
 	 #  NUMBER OF OCCURRENCE OF A CELL IN A GIVEN SECTION  #
 	#-----------------------------------------------------#
 
-	def NumberOfOccurrenceInSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
-		nResult = len( This.FindInSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive) )
+	def NumberOfOccurrenceInSectionCS(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
+		nResult = len( This.FindInSectionCS(paCellPos1, paCellPos2, pSubValue, pCaseSensitive) )
 		return nResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NumberOfOccurrenceInSection(paPair1, paPair2, pSubValue)
-		return This.NumberOfOccurrenceInSectionCS(paPair1, paPair2, pSubValue, :CS = TRUE)
+	def NumberOfOccurrenceInSection(paCellPos1, paCellPos2, pSubValue)
+		return This.NumberOfOccurrenceInSectionCS(paCellPos1, paCellPos2, pSubValue, :CS = TRUE)
 
 	  #------------------------------------------------------------#
 	 #  CHECKING IF SOME CELLS CONTAIN A GIVEN VALUE INSIDE THEM  #
 	#------------------------------------------------------------#
 
-	def ContainsInSideSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
-		aCellsPos = This.SectionAsPositions(paPair1, paPair2)
+	def ContainsInCellsInSectionCS(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
+		aCellsPos = This.SectionAsPositions(paCellPos1, paCellPos2)
 		bResult = This.ContainsInCellsCS(aCellPos, pSubValue, pCaseSensitive)
 		return bResult
 
-		def ContainsInCellsInSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
-			return This.ContainsInSideSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
-
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsInSideSection(paPair1, paPair2, pSubValue)
-		return This.ContainsInSideSectionCS(paPair1, paPair2, pSubValue, :CS = TRUE)
-
-		def ContainsInCellsInSection(paPair1, paPair2, pSubValue)
-			return This.ContainsInSideSection(paPair1, paPair2, pSubValue)
+	def ContainsInCellsInSection(paCellPos1, paCellPos2, pSubValue)
+		return This.ContainsInSideSectionCS(paCellPos1, paCellPos2, pSubValue, :CS = TRUE)
 
 	  #-----------------------------------------------------#
 	 #  NUMBER OF OCCURRENCE OF A VALUE INSIDE SOME CELLS  #
 	#-----------------------------------------------------#
 
-	def NumberOfOccurrenceInSideSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
-		aCellsPos = This.SectionAsPositions(paPair1, paPair2)
+	def NumberOfOccurrenceInCellsInSectionCS(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
+		aCellsPos = This.SectionAsPositions(paCellPos1, paCellPos2)
 		bResult = This.NumberOfOccurrenceInCellsCS(aCellPos, pSubValue, pCaseSensitive)
 		return bResult
 
-		def NumberOfOccurrenceInCellsInSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInSideSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
-
 	#-- WITHOUT CASESENSITIVITY
 
-	def NumberOfOccurrenceInSideSection(paPair1, paPair2, pSubValue)
-		return This.NumberOfOccurrenceInSideSectionCS(paPair1, paPair2, pSubValue, :CS = TRUE)
-
-		def NumberOfOccurrenceInCellsInSection(paPair1, paPair2, pSubValue)
-			return This.NumberOfOccurrenceInSideSection(paPair1, paPair2, pSubValue)
+	def NumberOfOccurrenceInCellsInSection(paCellPos1, paCellPos2, pSubValue)
+		return This.NumberOfOccurrenceInSideSectionCS(paCellPos1, paCellPos2, pSubValue, :CS = TRUE)
 
 	  #---------------------------------------------#
 	 #  FINDING A VALUE INSIDE A SECTION OF CELLS  #
 	#---------------------------------------------#
 
-	def FindInSideSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
-		aCellsPos = This.SectionAsPositions(paPair1, paPair2)
-		bResult = This.FindInCellsCS(aCellsPos, pSubValue, pCaseSensitive)
-		return bResult
+	def FindInCellsInSectionCS(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
+		aCellsPos = This.SectionAsPositions(paCellPos1, paCellPos2)
 
-		def FindInCellsInSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
-			return This.FindInSideSectionCS(paPair1, paPair2, pSubValue, pCaseSensitive)
+		aResult = This.FindInCellsCSXT(aCellsPos, pSubValue, pCaseSensitive)
+		return aResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindInSideSection(paPair1, paPair2, pSubValue)
-		return This.FindInSideSectionCS(paPair1, paPair2, pSubValue, :CS = TRUE)
+	def FindInCellsInSection(paCellPos1, paCellPos2, pSubValue)
+		return This.FindInSideSectionCS(paCellPos1, paCellPos2, pSubValue, :CS = TRUE)
 
-		def FindInCellsInSection(paPair1, paPair2, pSubValue)
-			return This.FindInSideSection(paPair1, paPair2, pSubValue)
+	  #---------------------------------------------------------#
+	 #  FINDING A VALUE INSIDE A SECTION OF CELLS -- EXTENDED  #
+	#---------------------------------------------------------#
+
+	// Rendee=ring the result in a hash list
+	def FindInCellsInSectionCSXT(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
+		aResult = This.FindInSideSectionCS(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
+		
+		for aRaw in aResult
+			aRaw[1] = @@S( aRaw[1] )
+		next
+
+		return aResult
+
+		def FindInCellsInSectionXTCS(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
+			return This.FindInCellsInSectionCSXT(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
+
+		def FindInCellsInSectionToHashListCS(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
+			return This.FindInCellsInSectionCSXT(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInCellsInSectionXT(paCellPos1, paCellPos2, pSubValue)
+		return This.FindInCellsInSectionCSXT(paCellPos1, paCellPosr2, pSubValue, :CaseSensitive = TRUE)
+
+		def FindInCellsInSectionToHashList(paCellPos1, paCellPos2, pSubValue)
+			return This.FindInCellsInSectionXT(paCellPos1, paCellPos2, pSubValue)
 
 	  #===================#
 	 #  REPLACING CELLS  #
 	#===================#
 
-	def ReplaceCell(pnCol, pnLine, pNewValue)
-		This.Line(pnLine)[pnCol] = pNewValue
+	def ReplaceCell(pnCol, pnRaw, pNewValue)
+		This.Raw(pnRaw)[pnCol] = pNewValue
 
-	def ReplaceCells(paCells, pNewValue)
+	def ReplaceCells(paCellsPos, pNewValue)
+		for cellPos in paCellsPos
+			This.ReplaceCell(cellPos[1], cellPos[2], pNewValue)
+		next
 
-	def ReplaceCellsByMany(paCells, paNewValues)
+	def ReplaceCellsByMany(paCellsPos, paNewValues)
+		nLenCells = len(paCellsPos)
+		nLenValues = len(paNewValues)
+		
+		if nLenValues >= nLenCells
+			aValues = Q(paNewValues).Section(1, nLenCells)
 
-		def Paste(paCells, paNewValues)
-			This.ReplaceCellsByMany(paCells, paNewValues)
+		else
+			aValues = Q(paNewValues).ExtendedTo( nLenCells, :Using = NULL )
+		ok
+		
+		i = 0
+		for cellPos in paCellsPos
+			i++
+			This.ReplaceCell(cellPos[1], cellPos[2], aValues[i])
+		next
+
+		def Paste(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
 	def ReplaceAllCS(pValue, pNewValue, pCaseSensitive)
+		aCellsPos = This.FindAllCs(pValue, pCaseSensitive)
+		This.ReplaceCells(aCellsPos, pNewValue)
+
+	def ReplaceAll(pValue, pNewValue, pCaseSensitive)
+		This.ReplaceAllCS(pValue, pNewValue, :CaseSensitive = TRUE)
 
 	  #====================================#
 	 #  REPLACING SUBVALUES INSIDE CELLS  #
 	#====================================#
 
-	def ReplaceInCellCS(pnCol, pnLine, pSubValue, pNewSubValue, pCaseSensitive)
-		
-	def ReplaceInCellsCS(paCells, pSubValue, pNewSubValue, pCaseSensitive)
+	def ReplaceInCellCS(pnCol, pnRaw, pSubValue, pNewSubValue, pCaseSensitive) // TODO
+		/* ... */
 
-	def ReplaceInCellsByManyCS(paCells, pSubValues, pNewSubValue, pCaseSensitive)
+	def ReplaceInCellsCS(paCellsPos, pSubValue, pNewSubValue, pCaseSensitive) // TODO
+		/* ... */
 
-	def ReplaceInSectionCS(paPair1, paPair2,  pSubValue, pNewSubValue, pCaseSensitive)
+	def ReplaceInCellsByManyCS(paCellsPos, pSubValues, pNewSubValue, pCaseSensitive) // TODO
+		/* ... */
 
-	def ReplaceInSectionByManyCS(paPair1, paPair2,  pSubValues, pNewSubValue, pCaseSensitive)
+	def ReplaceInSectionCS(paCellPos1, paCellPos2,  pSubValue, pNewSubValue, pCaseSensitive) // TODO
+		/* ... */
+
+	def ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, pCaseSensitive) // TODO
+		/* ... */
+
+	  #==================#
+	 #  ADDING COLUMNS  #
+	#==================#
+
+	def AddColumn(pcColName, paCOlContent) // TODO
+		/* ... */
+
+		def AddCol(pcColName, paCOlContent)
+			This.AddColumn(pcColName, paCOlContent)
+
+	def AddEmptyColumn(pcColName)
+		This.AddColumn(pcColName, [])
+
+	  #===============#
+	 #  ADDING RAWS  #
+	#===============#
+
+	def AddRaw(paRawContent) // TODO
+		/* ... */
+
+	def AddEmptyRaw() // TODO
+		/* ... */
+
+	  #=======================#
+	 #  EXTANDING THE TABLE  # // TODO
+	#=======================#
+
+	/* ... */
+
+	  #====================#
+	 #  REMOVING COLUMNS  #
+	#====================#
+
+	def RemoveColumn(pColNameOrNumber) // TODO
+		/* ... */
+
+		def RemoveCol(pColNameOrNumber)
+			This.RemoveColumn(pColNameOrNumber)
+
+	def RemoveColumns(pColNamesOrNumbers) // TODO
+		/* ... */
+
+		def RemoveCols(pColNamesOrNumbers)
+			This.EraseColumns(pacColNames)
+
+	  #-----------------#
+	 #  REMOVING RAWS  #
+	#-----------------#
+
+	def RemoveRaw(pnRaw) // TODO
+		/* ... */
+
+		def RemoveNthRaw(pnRaw)
+			This.EraseRaw(pnRaw)
+
+		def RemoveRawN(pnRaw)
+			This.EraseRaw(pnRaw)
+
+	def RemoveRaws(panRaws) // TODO
+		/* ... */
+
+	  #=====================#
+	 #  ERASING THE TABLE  #
+	#=====================#
+
+	def Erase() // TODO
+		/* ... */
+
+		def EraseTable()
+			This.Erase()
+
+	  #-------------------#
+	 #  ERASING COLUMNS  #
+	#-------------------#
+
+	def EraseColumn(pColNameOrNumber) // TODO
+		/* ... */
+
+		def EraseCol(pColNameOrNumber)
+			This.EraseColumn(pColNameOrNumber)
+
+	def EraseColumns(pColNamesOrNumbers) // TODO
+		/* ... */
+
+		def EraseCols(pColNamesOrNumbers)
+			This.EraseColumns(pacColNames)
+
+	  #----------------#
+	 #  ERASING RAWS  #
+	#----------------#
+
+	def EraseRaw(pnRaw) // TODO
+		/* ... */
+
+		def EraseNthRaw(pnRaw)
+			This.EraseRaw(pnRaw)
+
+		def EraseRawN(pnRaw)
+			This.EraseRaw(pnRaw)
+
+	def EraseRaws(panRaws) // TODO
+		/* ... */
+
+	  #-----------------#
+	 #  ERASING CELLS  #
+	#-----------------#
+
+	def EraseCell(pnCol, pnRaw) // TODO
+		/* ... */
+
+	def EraseCells(panCellsPos) // TODO
+		/* ... */
+
+	def EraseSection(paCellPos1, paCellPos2) // TODO
+		/* ... */
+
+	  #=====================#
+	 #  SORTING THE TABLE  #
+	#=====================#
+
+	/* ... */
 
 	  #=====================#
 	 #  SHOWING THE TABLE  #
@@ -1342,38 +1691,38 @@ Class stzTable
 		? This.ToString()
 
 	def ToString()
-		cTable = "#" + TAB + This.HeaderToString() + NL + This.LinesToString()
+		cTable = "#" + TAB + This.HeaderToString() + NL + This.RawsToString()
 		return cTable
 
 	def HeaderToString()
-		return This.LineToString(0)
+		return This.RawToString(0)
 		
-	def LinesToString()
-		cLines = ""
+	def RawsToString()
+		cRaws = ""
 
-		for y = 1 to NumberOfLines()
-			cLines += ""+ y + TAB + LineToString(y) + NL
+		for y = 1 to NumberOfRaws()
+			cRaws += ""+ y + TAB + RawToString(y) + NL
 		next
 
-		return cLines
+		return cRaws
 	
-	def LineToString(n)
-		cLine = ""
-		aLine = line(n)
+	def RawToString(n)
+		cRaw = ""
+		aRaw = Raw(n)
 	
-		for x = 1 to len(aLine)
-			if isList(aLine[x])
-				cLine += @@S(aLine[x])
+		for x = 1 to len(aRaw)
+			if isList(aRaw[x])
+				cRaw += @@S(aRaw[x])
 			else
-				cLine += aLine[x]
+				cRaw += aRaw[x]
 			ok
 
 			if x < This.NumberOfCols()
-				cLine += TAB
+				cRaw += TAB
 			ok
 		next x
-		return cLine
+		return cRaw
 
-		def LineToStringQ(n)
-			return new stzString( This.LineToString(n) )
+		def RawToStringQ(n)
+			return new stzString( This.RawToString(n) )
 
