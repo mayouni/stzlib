@@ -145,6 +145,7 @@ o1.Show()
 
 /*-----------
 */
+
 aMyTable = 
 [
 	[    :ID,	:EMPLOYEE ,       :SALARY  ],
@@ -156,7 +157,58 @@ aMyTable =
 ]
 
 o1 = new stzTable(aMyTable)
-? o1.FindInCell(3, 1, 50)
+
+/*-----------
+
+? @@S(o1.CellsAsPositions())
+#--> [
+#	[ 1, 1 ], [ 2, 1 ], [ 3, 1 ],
+#	[ 1, 2 ], [ 2, 2 ], [ 3, 2 ],
+#	[ 1, 3 ], [ 2, 3 ], [ 3, 3 ],
+#	[ 1, 4 ], [ 2, 4 ], [ 3, 4 ] 
+# ]
+
+/*-----------
+
+? @@S( o1.FindInCell(2, 1, "Ali") ) #--> [ 1 ]
+
+/*-----------
+
+? @@S( o1.FindInCellsXT([ [2,1], [2,4] ], "Ali") )
+#--> [ [ 1 ], [ 1 ] ]
+
+? @@S( o1.FindInCellsXT([ [2,1], [2,4] ], "Ali") )
+#--> [
+#	[ [ 2, 1 ], [ 1 ] ],
+#	[ [ 2, 4 ], [ 1 ] ]
+#]
+
+/*-----------
+
+? @@S( o1.FindInCellsInSection([2,1], [2,4], "Ali") )
+#--> [
+#	[ [ 2, 1 ], [ 1 ] ],
+#	[ [ 2, 3 ], [ 1 ] ],
+#	[ [ 2, 4 ], [ 1 ] ]
+#    ]
+
+/*-----------
+
+? @@S( o1.FindInCellsInSectionXT([2,1], [2,4], "Ali") )
+#--> [
+#	[ "[ 2, 1 ]", [ 1 ] ],
+#	[ "[ 2, 3 ]", [ 1 ] ],
+#	[ "[ 2, 4 ]", [ 1 ] ]
+#    ]
+
+/*-----------
+*/
+? o1.FindInColumn(:EMPLOYEE, "Ali Sandy")
+
+/*-----------
+
+? o1.FindInCellsInColumn(:EMPLOYEE, "Ali")
+
 /*-----------
 
 ? @@S(o1.Cells()) + NL
@@ -207,7 +259,7 @@ o2 = new stzGrid( o1.SectionToHashList([2, 2], [3, 4]) )
 # Same as FindCellsInSection()
 
 /*-----------
-*/
+
 ? o1.CellContains(2, 4, "Aziza") #--> TRUE
 ? o1.FindInCell(2, 4, "Aziza") #--> [ 5 ]
 
