@@ -1,10 +1,116 @@
 load "stzlib.ring"
 
+
+aMyTable = 
+[
+	[    "ID",	"EMPLOYEE" ,     "SALARY"  ],
+
+	[    101,	"Ali Sandy",      350      ],
+	[    294,	"Dan Mikovitch Mo",  128900   ],
+	[    287,	"Ali Sa",         106902   ],
+	[    307,	"Ali Aziza",      5200     ]
+]
+
+o1 = new stzTable(aMyTable)
+
+/*-----------
+
+? @@S( o1.MaxSizeInEachColXT() )
+? o1.MaxSizeInEachRow()
+? o1.HeaderToString()
+
+/*-----------
+
+? o1.MaxSizeInCol("EMPLOYEE") #--> 16
+? o1.MaxSizeInRow(3) #--> 6
+
+/*-----------
+*/
+? o1.Show()
+/*-->
+#    ID           EMPLOYEE   SALARY
+
+1   101          Ali Sandy      350
+2   294   Dan Mikovitch Mo   128900
+3   287             Ali Sa   106902
+4   307          Ali Aziza     5200
+*/
+
+/*-----------
+*/
+? o1.Col(3) #--> Col name and data
+#-->
+# SALARY
+# 350
+# 128900
+# 106902
+# 5200
+
+/*-----------
+
+? o1.Col(:SALARY) #--> Only data
+#-->
+# 350
+# 128900
+# 106902
+# 5200
+
+/*-----------
+*/
+? o1.ColName(3) #--> SALARY
+
+/*-----------
+
+? o1.ColData(3) #-->
+#-->
+# 350008
+# 128900
+# 106902
+# 520054
+
+/*-----------
+
+? o1.ColData(:SALARY)
+#-->
+# 350008
+# 128900
+# 106902
+# 520054
+
+/*-----------
+
+//? o1.TheseColumns([1, 2])
+
+/*-----------
+
+//? o1.TheseColNames([1, 2])
+
+/*-----------
+
+//? o1.TheseColData([ "ID", "SALARY" ])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*------------
 
 aMyTable = 
 [
-	[    :ID,	:EMPLOYEE ,       :SALARY ],
+	[    "ID",	"EMPLOYEE" ,       "SALARY" ],
 
 	[    101,	"Ali Sandy",      35000	   ],
 	[    294,	"Dan Mikov",      12890    ],
@@ -144,20 +250,50 @@ o1.Show()
 ? o1.NumberOfOccurrenceInLine( 2, :Of = "Dan Mikov" ) #--> 1
 
 /*-----------
-*/
+
 
 aMyTable = 
 [
-	[    :ID,	:EMPLOYEE ,       :SALARY  ],
+	[    "ID",	"EMPLOYEE" ,     "SALARY"  ],
 
-	[    101,	"Ali Sandy",      35000	   ],
-	[    294,	"Dan Mikov",      12890    ],
-	[    287,	"Ali Sandy",      1069     ],
-	[    307,	"Ali Aziza",      5200	   ]
+	[    101,	"Ali Sandy",      350008   ],
+	[    294,	"Dan Mikov",      128900   ],
+	[    287,	"Ali Sandy",      106902   ],
+	[    307,	"Ali Aziza",      520054   ]
 ]
 
 o1 = new stzTable(aMyTable)
+? o1.Col(2)
+/*-----------
 
+? o1.HasColName("EMPLOYEE") #--> TRUE
+? o1.HasColNames([ "EMPLOYEE", "SALARY" ]) #--> TRUE
+
+/*-----------
+
+? @@S( o1.Cols() )
+#--> [ "ID", "EMPLOYEE", "SALARY" ]
+
+/*-----------
+
+o1.AddCol( "JOB", [ "Programmer", "Author", "Painter", "Doctor" ])
+? @@S( o1.Cols() )
+? @@S( o1.Col("JOB") )
+#--> [ "Programmer", "Author", "Painter", "Doctor" ]
+
+o1.Show()
+#-->
+# #	ID	EMPLOYEE	SALARY	JOB
+# 1	101	Ali Sandy	350008	Programmer
+# 2	294	Dan Mikov	128900	Author
+# 3	287	Ali Sandy	106902	Painter
+# 4	307	Ali Aziza	520054	Doctor
+
+/*-----------
+
+? o1.SubTable([ :EMPLOYEE, :SALARY ])
+
+STOP()
 /*-----------
 
 ? @@S(o1.CellsAsPositions())
@@ -202,8 +338,8 @@ o1 = new stzTable(aMyTable)
 #    ]
 
 /*-----------
-*/
-? o1.FindInColumn(:EMPLOYEE, "Ali Sandy")
+
+? o1.FindInColumn("EMPLOYEE", "Ali Sandy")
 
 /*-----------
 
