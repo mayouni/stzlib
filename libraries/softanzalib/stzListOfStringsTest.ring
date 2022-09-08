@@ -1,5 +1,61 @@
 load "stzlib.ring"
 
+o1 = new stzListOfStrings([
+	"How many roads must a man walk down",
+	"Before you call him a man?",
+	"How many seas must a white dove sail",
+	"Before she sleeps in the sand?"
+])
+
+/*----------------
+
+? o1.AlignedXT( :Width = :Max, :Char = "", :Direction = :Justified )
+	? o1.Aligned( :To = :Right )
+	? o1.AlignedTo( :Right )
+	? o1.AlignedToRightXT( :Width = :Max, :Char = "" )
+	? o1.RightAlignedXT( :Width = :Max, :Char = "" )
+	? o1.AlignedToRight()
+	? o1.RightAligned()
+
+/*----------------
+
+? o1.AlignedXT( :Width = :Max, :Char = "", :Direction = :Left )
+	? o1.Aligned( :To = :Left )
+	? o1.AlignedTo( :Left )
+	? o1.AlignedToLeftXT( :Width = :Max, :Char = "" )
+	? o1.LeftAlignedXT( :Width = :Max, :Char = "" )
+	? o1.AlignedToLeft()
+	? o1.LeftAligned()
+
+/*----------------
+
+? o1.AlignedXT( :Width = :Max, :Char = "", :Direction = :Center )
+	? o1.Aligned( :To = :Center )
+	? o1.AlignedTo( :Center )
+	? o1.AlignedToCenterXT( :Width = :Max, :Char = "" )
+	? o1.CenterAlignedXT( :Width = :Max, :Char = "" )
+	? o1.AlignedToCenter()
+	? o1.CenterAligned()
+	? o1.Centered()
+
+/*----------------
+
+? o1.JustifiedXT( :Width = 50, :Char = " " )
+#-->
+# H o w   m a n y   r o a d s   must a man walk down
+# B e f o r e   y o u   c a l l   h i m   a   m a n?
+# H o w   m a n y   s e a s   must a white dove sail
+# B e f o r e   s h e   s l e e p s   i n  the sand?
+
+? o1.Justified()
+#-->
+# H ow many roads must a man walk down
+# B e f o r e   y o u  call him a man?
+# How many seas must a white dove sail
+# B e f o r e  she sleeps in the sand?
+
+//? o1.AlignedXT( :Max, ".", :Justify )
+
 
 /*================== FINDING SUBSTRINGS
 

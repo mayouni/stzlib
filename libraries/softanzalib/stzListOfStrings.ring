@@ -16759,104 +16759,321 @@ class stzListOfStrings from stzList
 		acResult = This.Copy().BoxXTQ(paBoxOptions).Content()
 		return acResult
 
-	  #----------------------------------------------------#
-	 #    ALIGNING THE STRING IN A CONTAINER OF N CHARS   #
-	#----------------------------------------------------#
+	  #===============================================#
+	 #    ALIGNING THE STRINGS TO A GIVEN DIRECTION   #
+	#===============================================#
 
-	// Aligns the text to the left of the container of width nWidth
-	// Note: if the width is smaller then the string, nothing is done!
+	def Align( pcDirection )
+		if isList(pcDirection) and ( Q(pcDirection).IsDirectionNamedParam() or
+			Q(pcDirection).IsToNamedParam() )
 
-	def Align(nWidth, cChar, cDirection)
+			pcDirection = pcDirection[2]
+		ok
+
+		if NOT isString(pcDirection)
+			stzRaise("Incorrect param type! pcDirection must be a string")
+		ok		
+
+		switch pcDirection
+		on :Left
+			This.AlignToLeft()
+
+		on :Right
+			This.AlignToRight()
+
+		on :Center // or :Centered     (TODO: report bug)
+			This.AlignToCenter()
+
+		on :Centered
+			This.AlignToCenter()
+
+		on :Justify or :Justified
+			This.Justify()
+
+		other
+			stzRaise("Unsupported direction type!")
+		off
+
+		def AlignQ( pcDirection )
+			This.Align( pcDirection )
+			return This
+
+		def AlignQC(pcDirection)
+			oResult = This.Copy().Align(pcDirection)
+			return oResult
+
+		def AlignTo(pcDirection)
+			This.This.Align( pcDirection )
+
+			def AlignToQ(pcDirection)
+				This.AlignTo(pcDirection)
+				return This
+
+			def AlignToQC(pcDirection)
+				oCopy = This.Copy().AlignTo(pcDirection)
+				return oCopy
+
+	def Aligned(pcDirection)
+		acResult = This.Copy().AlignQ(pcDirection).Content()
+		return acResult
+
+		def AlignedTo(pcDirection)
+			return This.Aligned(pcDirection)
+
+	  #---------------------------------------#
+	 #    ALIGNING THE STRINGS -- EXTENDED   #
+	#---------------------------------------#
+
+	def AlignXT(pnWidth, pcChar, pcDirection)
 		# cChar is the char to fill the 'blanks" with
 		# cDirection --> :Left, :Right, :Center, :Justified
 		
-		if nWidth = :Max
-			nWidth = This.YieldQR('Q(@str).NumberOfChars()', :stzListOfNumbers).Max()
+		if isList(pnWidth) and Q(pnWidth).IsWidthNamedParam()
+			pnWidth = pnWidth[2]
+		ok
+
+		if isList(pcChar) and ( Q(pcChar).IsUsingNamedParam() or
+			Q(pcChar).IsCharNamedParam() )
+
+			pcChar = pcChar[2]
+		ok
+
+		if isList(pcDirection) and ( Q(pcDirection).IsDirectionNamedParam() or
+			Q(pcDirection).IsToNamedParam() )
+
+			pcDirection = pcDirection[2]
+		ok
+
+		if pnWidth = :Max
+			pnWidth = This.YieldQR('Q(@string).NumberOfChars()', :stzListOfNumbers).Max()
 		ok
 
 		i = 0
 		for str in This.ListOfStrings()
 			i++
-			cStrAligned = StzStringQ(str).AlignQ(nWidth, " ", pcDirection).Content()
+			cStrAligned = StzStringQ(str).AlignXTQ(pnWidth, pcChar, pcDirection).Content()
 			This.ReplaceStringAtPosition(i, cStrAligned )
 		next
 
-		def AlignQ(nWidth, cChar, cDirection)
-			This.Align(nWidth, cChar, cDirection)
+		def AlignXTQ(pnWidth, pcChar, pcDirection)
+			This.AlignXT(pnWidth, pcChar, pcDirection)
 			return This
 
-	def Aligned(nWidth, cChar, cDirection)
-		aResult = This.Copy().AlignQ(nWidth, cChar, cDirection).Content()
+	def AlignedXT(pnWidth, pcChar, pcDirection)
+		aResult = This.Copy().AlignXTQ(pnWidth, pcChar, pcDirection).Content()
 		return aResult
 	
-	def LeftAlign(nWidth, cChar)
-		This.Align(nWidth, cChar, :Left)
+	  #====================================#
+	 #  ALIGNING THE STRINGS TO THE LEFT  #
+	#====================================#
 
-		def LeftAlignQ(nWidth, cChar)
-			This.LeftAlign(nWidth, cChar)
+	def LeftAlign()
+		This.LeftAlignXT( :Max, " " )
+
+		def LeftAlignQ()
+			This.LeftAlign()
 			return This
 
-		def AlignLeft(nWidth, cChar)
-			This.LeftAlign(nWidth, cChar)
+		def AlignToLeft()
+			This.LeftAlign()
 
-			def AlignLeftQ(nWidth, cChar)
-				This.AlignLeft(nWidth, cChar)
+	def LeftAligned()
+		acResult = This.Copy().LeftAlignQ().Content()
+		return acResult
+
+		def AlignedToLeft()
+			return This.LeftAligned()
+
+	  #------------------------------------------------#
+	 #  ALIGNING THE STRINGS TO THE LEFT -- EXTENDED  #
+	#------------------------------------------------#
+
+	def LeftAlignXT(pnWidth, pcChar)
+		This.AlignXT(pnWidth, pcChar, :Left)
+
+		def LeftAlignXTQ(pnWidth, pcChar)
+			This.LeftAlignXT(pnWidth, pcChar)
+			return This
+
+		def AlignLeftXT(pnWidth, pcChar)
+			This.LeftAlignXT(pnWidth, pcChar)
+
+			def AlignLeftXTQ(pnWidth, pcChar)
+				This.AlignLeftXT(pnWidth, pcChar)
 				return This
 
-	def LeftAligned(nWidth, cChar, cDirection)
-		aResult = This.Copy().LeftAlignQ(nWidth, cChar, cDirection).Content()
-		return aResult
+		def AlignToLeftXT(pnWidth, pcChar)
+			This.LeftAlignXT(pnWidth, pcChar)
 
-	def RightAlign(nWidth, cChar)
-		This.Align(nWidth, cChar, :Right)
-
-		def RightAlignQ(nWidth, cChar)
-			This.RightAlign(nWidth, cChar)
-			return This
-
-		def AlignRight(nWidth, cChar)
-			This.RightAlign(nWidth, cChar)
-
-			def AlignRightQ(nWidth, cChar)
-				This.AlignRight(nWidth, cChar)
+			def AlignToLeftXTQ(pnWidth, pcChar)
+				This.AlignLeftXT(pnWidth, pcChar)
 				return This
 
-	def RightAligned(nWidth, cChar, cDirection)
-		aResult = This.Copy().RightAlignQ(nWidth, cChar, cDirection).Content()
+	def LeftAlignedXT(pnWidth, pcChar)
+		aResult = This.Copy().LeftAlignXTQ(pnWidth, pcChar).Content()
 		return aResult
 
-	def CenterAlign(nWidth, cChar)
-		This.Align(nWidth, cChar, :Center)
+		def AlignedToLeftXT(pnWidth, pcChar)
+			aResult = This.Copy().LeftAlignXTQ(pnWidth, pcChar).Content()
+			return aResult
+	
+	  #=====================================#
+	 #  ALIGNING THE STRINGS TO THE RIGHT  #
+	#=====================================#
 
-		def CenterAlignQ(nWidth, cChar)
-			This.CenterAlign(nWidth, cChar)
+	def RightAlign()
+		This.RightAlignXT( :Max, " " )
+
+		def RightAlignQ()
+			This.RightAlign()
 			return This
 
-		def AlignCenter(nWidth, cChar)
-			This.CenterAlign(nWidth, cChar)
+		def AlignToRight()
+			This.RightAlign()
 
-			def AlignCenterQ(nWidth, cChar)
-				This.AlignCenter(nWidth, cChar)
+	def RightAligned()
+		acResult = This.Copy().RightAlignQ().Content()
+		return acResult
+
+		def AlignedToRight()
+			return This.RightAligned()
+
+
+	  #-------------------------------------------------#
+	 #  ALIGNING THE STRINGS TO THE RIGHT -- EXTENDED  #
+	#-------------------------------------------------#
+
+	def RightAlignXT(pnWidth, pcChar)
+		This.AlignXT(pnWidth, pcChar, :Right)
+
+		def RightAlignXTQ(pnWidth, pcChar)
+			This.RightAlignXT(pnWidth, pcChar)
+			return This
+
+		def AlignRightXT(pnWidth, pcChar)
+			This.RightAlignXT(pnWidth, pcChar)
+
+			def AlignRightXTQ(pnWidth, pcChar)
+				This.AlignRightXT(pnWidth, pcChar)
 				return This
 
-	def CenterAligned(nWidth, cChar, cDirection)
-		aResult = This.Copy().CenterAlignQ(nWidth, cChar, cDirection).Content()
+		def AlignToRightXT(pnWidth, pcChar)
+			This.RightAlignXT(pnWidth, pcChar)
+
+			def AlignToRightXTQ(pnWidth, pcChar)
+				This.AlignRightXT(pnWidth, pcChar)
+				return This
+
+	def RightAlignedXT(pnWidth, pcChar)
+		aResult = This.Copy().RightAlignXTQ(pnWidth, pcChar).Content()
 		return aResult
 
-	def Justify(nWidth, cChar)
-		This.Align(nWidth, cChar, :Justified)
+		def AlignedToRightXT(pnWidth, pcChar)
+			aResult = This.Copy().RightAlignXTQ(pnWidth, pcChar).Content()
+			return aResult
 
-		def JustifyQ(nWidth, cChar)
-			This.Justify(nWidth, cChar)
+	  #======================================#
+	 #  ALIGNING THE STRINGS TO THE CENTER  #
+	#======================================#
+
+	def CenterAlign()
+		This.CenterAlignXT( :Max, " " )
+
+		def CenterAlignQ()
+			This.CenterAlign()
 			return This
 
-	def Justified(nWidth, cChar, cDirection)
-		aResult = This.Copy().JustifyQ(nWidth, cChar, cDirection).Content()
+		def AlignToCenter()
+			This.CenterAlign()
+
+		def Center()
+			This.CenterAlign()
+
+	def CenterAligned()
+		acResult = This.Copy().CenterAlignQ().Content()
+		return acResult
+
+		def AlignedToCenter()
+			return This.CenterAligned()
+
+		def Centered()
+			return This.CenterAligned()
+
+	  #--------------------------------------------------#
+	 #  ALIGNING THE STRINGS TO THE CENTER -- EXTENDED  #
+	#--------------------------------------------------#
+
+	def CenterAlignXT(pnWidth, pcChar)
+		This.AlignXT(pnWidth, pcChar, :Center)
+
+		def CenterAlignXTQ(pnWidth, pcChar)
+			This.CenterAlignXT(pnWidth, pcChar)
+			return This
+
+		def AlignCenterXT(pnWidth, pcChar)
+			This.CenterAlignXT(pnWidth, pcChar)
+
+			def AlignCenterXTQ(pnWidth, pcChar)
+				This.AlignCentertXT(pnWidth, pcChar)
+				return This
+
+		def AlignToCenterXT(pnWidth, pcChar)
+			This.RightCenterXT(pnWidth, pcChar)
+
+			def AlignToCenterXTQ(pnWidth, pcChar)
+				This.AlignCenterXT(pnWidth, pcChar)
+				return This
+
+		def CenterXT(pnWidth, pcChar)
+			This.RightCenterXT(pnWidth, pcChar)
+
+			def CenterXTQ(pnWidth, pcChar)
+				This.CenterXT(pnWidth, pcChar)
+				return This
+
+	def CenterAlignedXT(pnWidth, pcChar)
+		aResult = This.Copy().CenterAlignXTQ(pnWidth, pcChar).Content()
 		return aResult
 
-	  #---------------------#
+		def AlignedToCenterXT(pnWidth, pcChar)
+			return This.CenterAlignedXT(pnWidth, pcChar)
+
+		def CenteredXT(pnWodth, pcChar)
+			return This.CenterAlignedXT(pnWidth, pcChar)
+
+	  #==========================#
+	 #  JUSTIFYING THE STRINGS  #
+	#==========================#
+
+	def Justify()
+		This.JustifyXT(:Max, " ")
+
+		def JustifyQ()
+			This.Justify()
+			return This
+
+	def Justified()
+		aResult = This.Copy().JustifyQ().Content()
+		return aResult
+
+	  #--------------------------------------#
+	 #  JUSTIFYING THE STRINGS -- EXTENDED  #
+	#--------------------------------------#
+
+	def JustifyXT(pnWidth, pcChar)
+		This.AlignXT(pnWidth, pcChar, :Justified)
+
+		def JustifyXTQ(pnWidth, pcChar)
+			This.JustifyXT(pnWidth, pcChar)
+			return This
+
+	def JustifiedXT(pnWidth, pcChar)
+		aResult = This.Copy().JustifyXTQ(pnWidth, pcChar).Content()
+		return aResult
+
+	  #=====================#
 	 #     COMBINATIONS    #
-	#---------------------#
+	#=====================#
 
 	def NumberOfCombinations()
 		return len(This.Combinations()) # TODO: solve it mathematically.
@@ -16897,9 +17114,9 @@ class stzListOfStrings from stzList
 	
 		return aResult
 
-	  #-------------------------------#
-	 #     SPLITTING EACH STRING     #
-	#-------------------------------#
+	  #=========================#
+	 #  SPLITTING EACH STRING  #
+	#=========================#
 
 	/*
 	NOTE: After adding Perform() and Yield() function to this class,

@@ -4,7 +4,7 @@ func StzTableQ(paTable)
 	return new stzTable( paTable )
 
 Class stzTable
-	aTable = []
+	@aTable = []
 
 	def init(paTable)
 		if len(paTable) = 2 and
@@ -20,33 +20,84 @@ Class stzTable
 			// --> TODO: Verify of it is well formatted
 			// Implement isTable() in stzList and use it here
 
-			aTable = paTable
+			@aTable = paTable
 
-			# Transforming column names to uppercase
-			for str in aTable[1]
-				str = Q(str).Uppercased()
-			next
+			if len(@aTable) > 0
+				# Transforming column names to uppercase
+				for str in @aTable[1]
+					str = Q(str).Uppercased()
+				next
+			ok
 		ok
 
 	def Content()
-		return aTable
+		return @aTable
 
 		def Table()
 			return This.Content()
+
+	def IsEmpty()
+		if len( This.Content() ) = 0
+			return TRUE
+
+		else
+			return FALSE
+		ok
 
 	  #----------#
 	 #  HEADER  #
 	#----------#
 
 	def Header()
-		return aTable[1]
+		if NOT This.IsEmpty()
+			return @aTable[1]
+		ok
 	
+	  #================================================#
+	 #   CHECHKING IF THE TABLE HAS GIVEN COLUMN(S)   #
+	#================================================#
+
+	def HasColumName(pcName)
+		if This.IsEmpty()
+			return FALSE
+		ok
+
+		cName = StzStringQ(pcName).Uppercased()
+		bResult = This.ColNamesQ().Contains(cName)
+
+		return bResult
+
+		def HasColName(pcName)
+			return This.HasColumName(pcName)
+
+	def HasColumnsNames(pacNames)
+		if This.IsEmpty()
+			return FALSE
+		ok
+
+		bResult = TRUE
+		for cName in pacNames
+			if NOT This.HasColName(cName)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def HasColNames(pacNames)
+			return This.HasColumnsNames(pacNames)
+
 	  #-------------------------------#
 	 #   GETTING NUMBER OF COULMNS   #
 	#-------------------------------#
 
 	def NumberOfColumns()
-		return len(Header())
+		nResult = 0
+
+		if NOT This.IsEmpty()
+			nResult = len(Header())
+		ok
 
 		def NumberOfCols()
 			return This.NumberOfColumns()
@@ -59,40 +110,92 @@ Class stzTable
 	#---------------------------------#
 
 	def Columns()
-		return This.Header()
+		aResult = []
+
+		if NOT This.IsEmpty()
+			bResult =  This.Header()
+		ok
+
+		return bResult
+
+		#< @FunctionFluentForm
+
+		def ColumnsQ()
+			return This.ColumnsQR( :stzList )
+
+		def ColumnsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Columns() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Columns() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Columns() )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.Columns() )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.Columns() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ColumnsNames()
+			return This.Columns()
+
+			def ColumnsNamesQ()
+				return This.ColumnsQ()
+
+			def ColumnsNamesQR(pcReturnType)
+				return This.ColmunsQR(pcReturnType)
 
 		def Cols()
-			return This.Header()
+			return This.Columns()
 
-	  #----------------------------#
-	 #   GETTING THE NTH COULMN   #
-	#----------------------------#
+			def ColsQ()
+				return This.This.ColumnsQ()
 
-	def ColN(n)
-		aResult = StzListQ( This.ColNXT(n) ).Section(2, :LastItem)
-		return aResult
+			def ColsQR(pcReturnType)
+				return This.ColmunsQR(pcReturnType)
 
-		def ColumnN(n)
-			return This.ColN(n)
+		def ColsNames()
+			return This.Columns()
 
-		def NthCol(n)
-			return This.ColN(n)
+			def ColsNamesQ()
+				return This.ColumnsQ()
 
-		def NthColumn(n)
-			return This.ColN(n)
+			def ColsNamesQR(pcReturnType)
+				return This.ColmunsQR(pcReturnType)
 
-	  #-----------------------------------------#
-	 #   GETTING COULMN BY NUMBER OR BY NAME   #
-	#-----------------------------------------#
+		def ColNames()
+			return This.Columns()
+
+			def ColNamesQ()
+				return This.ColumnsQ()
+
+			def ColNamesQR(pcReturnType)
+				return This.ColmunsQR(pcReturnType)
+
+		#>
+
+	  #----------------------#
+	 #   READING A COLUMN   #
+	#----------------------#
 
 	def Col(p)
 		if isNumber(p)
-			return This.ColN(p)
+			return This.NthCol(p)
 
 		but isString(p)
-			p = Q(p).Uppercased()
 			n = This.FindCol(p)
-			return This.ColN(n)
+			return This.NthColData(n)
 
 		else
 			stzRaise("Incorrect param type! p must be a number or string.")
@@ -101,86 +204,88 @@ Class stzTable
 		def Column(p)
 			return This.Col(p)
 
-	  #---------------------------------------#
-	 #   GETTING THE NTH COULMN - EXTENDED   #
-	#---------------------------------------#
-
-	def ColNXT(n)
+	def NthCol(n)
 		aResult = []
 
-		for aRaw in This.Table()
-			aResult + aRaw[n]
+		for aRow in This.Table()
+			aResult + aRow[n]
 		next
 
 		return aResult
 
-		def ColumnNXT(n)
-			return This.ColNXT(n)
+	def NthColName(n)
+		cResult = This.ColNames()[n]
+		return cResult
 
-		def NthColXT(n)
-			return This.ColNXT(n)
+	def NthColData(n)
+		if This.IsEmpty()
+			return []
+		ok
 
-		def NthColumnXT(n)
-			return This.ColNXT(n)
+		aResult = StzListQ( This.NthCol(n) ).Section(2, :LastItem)
+		return aResult
 
-	  #----------------------------------------------------#
-	 #   GETTING COULMN BY NUMBER OR BY NAME - EXTENDED   #
-	#----------------------------------------------------#
-
-	def ColXT(p)
+	def ColData(p)
 		if isNumber(p)
-			return This.ColNXT(p)
+			return This.NthColData(p)
 
 		but isString(p)
-			p = Q(p).Uppercased()
 			n = This.FindCol(p)
-			return This.ColNXT(n)
+			return This.NthColData(n)
 
 		else
 			stzRaise("Incorrect param type! p must be a number or string.")
 		ok
 
-		def ColumnXT(p)
-			return This.ColXT(p)
+	def ColName(n)
+		if n = 0
+			return "#"
 
-	  #=================================#
-	 #   GETTING THE NUMBER OF RAWS   #
-	#=================================#
+		else
+			return This.ColNames()[n]
+		ok
 
-	def NumberOfRaws()
-		return len(aTable) - 1
+		def ColumnName(n)
+			return This.ColName(n)
+
+	  #================================#
+	 #   GETTING THE NUMBER OF ROWS   #
+	#================================#
+
+	def NumberOfRows()
+		return len(@aTable) - 1
 
 	  #------------------------------#
-	 #   GETTING THE LIST OF RAWS   #
+	 #   GETTING THE LIST OF ROWS   #
 	#------------------------------#
 
-	def Raws()
+	def Rows()
 		return Q( This.Content() ).Section(2, :LastItem)
 
 	  #-------------------------#
-	 #   GETTING THE NTH RAW   #
+	 #   GETTING THE NTH ROW   #
 	#-------------------------#
 
-	def RawN(n)
+	def RowN(n)
 		if n = 0
 			return Header()
 		else
 			return This.Table()[ n + 1 ]
 		ok
 			
-		def NthRaw(n)
-			return This.Raw(n)
+		def NthRow(n)
+			return This.Row(n)
 
-	  #---------------------------------------#
-	 #   GETTING RAW BY NUMBER OR BY NAME   #
-	#---------------------------------------#
+	  #--------------------------------------#
+	 #   GETTING ROW BY NUMBER OR BY NAME   #
+	#--------------------------------------#
 
-	def Raw(p)
+	def Row(p)
 		if isNumber(p)
-			return This.RawN(p)
+			return This.RowN(p)
 
 		but isList(p)
-			return This.FindRaw(p)
+			return This.FindRow(p)
 
 		else
 			stzRaise("Incorrect param type! p must be a number or string.")
@@ -191,37 +296,37 @@ Class stzTable
 	#-------------------------------#
 
 	def NumberOfCells()
-		nResult = This.NumberOfCol() * This.NumberOfRaws()
+		nResult = This.NumberOfCol() * This.NumberOfRows()
 		return nResult
 
 	  #---------------------------------------------------------------------------#
-	 #  GETIING A CELL USING THE NUMBER OF ITS COLUMN AND THE NUMBER OF ITS RAW  #
+	 #  GETIING A CELL USING THE NUMBER OF ITS COLUMN AND THE NUMBER OF ITS ROW  #
 	#---------------------------------------------------------------------------#
 
-	def Cell(pCol, nRaw)
+	def Cell(pCol, nRow)
 
 		if type(pCol) = "NUMBER"
-			return This.Raw(nRaw)[ pCol ]
+			return This.Row(nRow)[ pCol ]
 
 		but type(pCol) = "STRING"
-			return This.Raw(nRaw)[ This.FindCol(pCol) ]
+			return This.Row(nRow)[ This.FindCol(pCol) ]
 		ok
 
-		def CellQ(pCol, nRaw)
-			return Q( This.Cell(pCol, nRaw) )
+		def CellQ(pCol, nRow)
+			return Q( This.Cell(pCol, nRow) )
 	
 	  #---------------------------------#
 	 #  GETIING THE LIST OF ALL CELLS  #
 	#---------------------------------#
 
 	def Cells()
-		aResult = This.Section( [ :FirstCol, :FirstRaw ], [ :LastCol, :LastRaw ] )
+		aResult = This.Section( [ :FirstCol, :FirstRow ], [ :LastCol, :LastRow ] )
 		return aResult
 
 	def CellsAndTheirPositions()
 		aResult = []
 
-		for v = 1 to This.NumberOfRaws()
+		for v = 1 to This.NumberOfRows()
 			for u = 1 to This.NumberOfCol()
 				aResult + [ This.Cell(u, v), [u, v ] ]
 			next u
@@ -238,7 +343,7 @@ Class stzTable
 	def PositionsAndCells()
 		aResult = []
 
-		for v = 1 to This.NumberOfRaws()
+		for v = 1 to This.NumberOfRows()
 			for u = 1 to This.NumberOfCol()
 				aResult + [ [u, v ], This.Cell(u, v) ]
 			next
@@ -249,7 +354,7 @@ Class stzTable
 	def CellsAsPositions()
 		aResult = []
 
-		for v = 1 to This.NumberOfRaws()
+		for v = 1 to This.NumberOfRows()
 			for u = 1 to This.NumberOfCol()
 				aResult + [u, v ]
 			next
@@ -347,7 +452,7 @@ Class stzTable
 				panCellPos1 = Q(panCellPos1).FirstItemReplaced( :With = 1)
 			ok
 
-			if isString(panCellPos1[2]) and panCellPos1[2] = :FirstRaw
+			if isString(panCellPos1[2]) and panCellPos1[2] = :FirstRow
 				panCellPos1 = Q(panCellPos1).NthItemReplaced( 2, :With = 1)
 			ok
 
@@ -355,8 +460,8 @@ Class stzTable
 				panCellPos2 = Q(panCellPos2).FirstItemReplaced( :With = This.NumberOfCol() )
 			ok
 
-			if isString(panCellPos2[2]) and panCellPos2[2] = :LastRaw
-				panCellPos2 = Q(panCellPos2).NthItemReplaced( 2, :With = This.NumberOfRaws() )
+			if isString(panCellPos2[2]) and panCellPos2[2] = :LastRow
+				panCellPos2 = Q(panCellPos2).NthItemReplaced( 2, :With = This.NumberOfRows() )
 			ok
 		ok
 
@@ -365,8 +470,8 @@ Class stzTable
 				panCellPos2[1] = This.NumberOfCol()
 			ok
 
-			if isString(panCellPos2[2]) and panCellPos2[2] = :LastRaw
-				panCellPos2[2] = This.NumberOfRaws()
+			if isString(panCellPos2[2]) and panCellPos2[2] = :LastRow
+				panCellPos2[2] = This.NumberOfRows()
 			ok
 
 		ok
@@ -379,13 +484,13 @@ Class stzTable
 
 		anPairs = Q([ panCellPos1, panCellPos2 ]).SortedInAscending()
 		nCol1   = anPairs[1][1]
-		nRaw1   = anPairs[1][2]
+		nRow1   = anPairs[1][2]
 		nCol2   = anPairs[2][1]
-		nRaw2   = anPairs[2][2]
+		nRow2   = anPairs[2][2]
 
 		aResult = []
 
-		for v = nRaw1 to This.NumberOfRaws()
+		for v = nRow1 to This.NumberOfRows()
 			for u = nCol1 to This.NumberOfCols()
 				aResult + [ @@S([u, v]), This.Cell(u, v) ]
 			next u
@@ -434,7 +539,7 @@ Class stzTable
 	// TODO
 
 	  #-------------------------------------------------------#
-	 #  CASE OF HORIZONTAL SECTIONS (SOME CELLS FROM A RAW)  #
+	 #  CASE OF HORIZONTAL SECTIONS (SOME CELLS FROM A ROW)  #
 	#-------------------------------------------------------#
 
 	// TODO
@@ -458,11 +563,11 @@ Class stzTable
 			return This.FindCol(pcColName)
 
 	  #------------------------------#
-	 #  FINDING A RAW BY ITS VALUE  #
+	 #  FINDING A ROW BY ITS VALUE  #
 	#------------------------------#
 
-	def FindRaw(paRaw)
-		n = Q(This.Raws()).FindAll(paRaw)
+	def FindRow(paRow)
+		n = Q(This.Rows()).FindAll(paRow)
 
 		if len(n) = 0
 			n = 0
@@ -544,107 +649,107 @@ Class stzTable
 			return This.NumberOfOccurrenceInCol(pCol, pCellValue)
 
 	  #-------------------------------------------------#
-	 #  NUMBER OF OCCURRENCE OF A CELL IN A GIVEN RAW  #
+	 #  NUMBER OF OCCURRENCE OF A CELL IN A GIVEN ROW  #
 	#-------------------------------------------------#
 
-	def NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+	def NumberOfOccurrenceInRowCS(n, pCellValue, pCaseSensitive)
 		if isList(pCellValue) and Q(pCellValue).IsOfNamedParam()
 			pCellValue = pCellValue[2]
 		ok
 
-		nResult = len( This.FindCellsInRawCS(n, pCellValue, pCaseSensitive) )
+		nResult = len( This.FindCellsInRowCS(n, pCellValue, pCaseSensitive) )
 		return nResult
 
 		#< @FunctionAlternativeForms
 
-		def NumberOfOccurrenceInNthRawCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+		def NumberOfOccurrenceInNthRowCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRowCS(n, pCellValue, pCaseSensitive)
 
 		#--
 
-		def NumberOfOccurrenceInRawNCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+		def NumberOfOccurrenceInRowNCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRowCS(n, pCellValue, pCaseSensitive)
 
-		def NumberOfOccurrencesInRawCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
-
-		#--
-
-		def NumberOfOccurrencesInNthRawCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
-
-		def NumberOfOccurrencesInRawNCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+		def NumberOfOccurrencesInRowCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRowCS(n, pCellValue, pCaseSensitive)
 
 		#--
 
-		def NumberOfOccurrenceOfCellInRawCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+		def NumberOfOccurrencesInNthRowCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRowCS(n, pCellValue, pCaseSensitive)
 
-		def NumberOfOccurrenceOfCellInNthRawCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
-
-		def NumberOfOccurrenceOfCellInRawNCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+		def NumberOfOccurrencesInRowNCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRowCS(n, pCellValue, pCaseSensitive)
 
 		#--
 
-		def NumberOfOccurrencesOfCellInRawCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+		def NumberOfOccurrenceOfCellInRowCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRowCS(n, pCellValue, pCaseSensitive)
 
-		def NumberOfOccurrencesOfCellInNthRawCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+		def NumberOfOccurrenceOfCellInNthRowCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRowCS(n, pCellValue, pCaseSensitive)
 
-		def NumberOfOccurrencesOfCellInRawNCS(n, pCellValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInRawCS(n, pCellValue, pCaseSensitive)
+		def NumberOfOccurrenceOfCellInRowNCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRowCS(n, pCellValue, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrencesOfCellInRowCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRowCS(n, pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCellInNthRowCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRowCS(n, pCellValue, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCellInRowNCS(n, pCellValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInRowCS(n, pCellValue, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NumberOfOccurrenceInRaw(n, pCellValue)
-		return This.NumberOfOccurrenceInRawCS(n, pCellValue, :CaseSensitive = TRUE)
+	def NumberOfOccurrenceInRow(n, pCellValue)
+		return This.NumberOfOccurrenceInRowCS(n, pCellValue, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def NumberOfOccurrenceInNthRaw(n, pCellValue)
-			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+		def NumberOfOccurrenceInNthRow(n, pCellValue)
+			return This.NumberOfOccurrenceInRow(n, pCellValue)
 
-		def NumberOfOccurrenceInRawN(n, pCellValue)
-			return This.NumberOfOccurrenceInRaw(n, pCellValue)
-
-		#--
-
-		def NumberOfOccurrencesInRaw(n, pCellValue)
-			return This.NumberOfOccurrenceInRaw(n, pCellValue)
-
-		def NumberOfOccurrencesInNthRaw(n, pCellValue)
-			return This.NumberOfOccurrenceInRaw(n, pCellValue)
-
-		def NumberOfOccurrencesInRawN(n, pCellValue)
-			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+		def NumberOfOccurrenceInRowN(n, pCellValue)
+			return This.NumberOfOccurrenceInRow(n, pCellValue)
 
 		#--
 
-		def NumberOfOccurrenceOfCellInRaw(n, pCellValue)
-			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+		def NumberOfOccurrencesInRow(n, pCellValue)
+			return This.NumberOfOccurrenceInRow(n, pCellValue)
 
-		def NumberOfOccurrenceOfCellInNthRaw(n, pCellValue)
-			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+		def NumberOfOccurrencesInNthRow(n, pCellValue)
+			return This.NumberOfOccurrenceInRow(n, pCellValue)
 
-		def NumberOfOccurrenceOfCellInRawN(n, pCellValue)
-			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+		def NumberOfOccurrencesInRowN(n, pCellValue)
+			return This.NumberOfOccurrenceInRow(n, pCellValue)
 
 		#--
 
-		def NumberOfOccurrencesOfCellInRaw(n, pCellValue)
-			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+		def NumberOfOccurrenceOfCellInRow(n, pCellValue)
+			return This.NumberOfOccurrenceInRow(n, pCellValue)
 
-		def NumberOfOccurrencesOfCellInNthRaw(n, pCellValue)
-			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+		def NumberOfOccurrenceOfCellInNthRow(n, pCellValue)
+			return This.NumberOfOccurrenceInRow(n, pCellValue)
 
-		def NumberOfOccurrencesOfCellInRawN(n, pCellValue)
-			return This.NumberOfOccurrenceInRaw(n, pCellValue)
+		def NumberOfOccurrenceOfCellInRowN(n, pCellValue)
+			return This.NumberOfOccurrenceInRow(n, pCellValue)
+
+		#--
+
+		def NumberOfOccurrencesOfCellInRow(n, pCellValue)
+			return This.NumberOfOccurrenceInRow(n, pCellValue)
+
+		def NumberOfOccurrencesOfCellInNthRow(n, pCellValue)
+			return This.NumberOfOccurrenceInRow(n, pCellValue)
+
+		def NumberOfOccurrencesOfCellInRowN(n, pCellValue)
+			return This.NumberOfOccurrenceInRow(n, pCellValue)
 
 		#>
 
@@ -748,16 +853,16 @@ Class stzTable
 	 #  FINDING CELLS IN A GIVEN RAW  #
 	#================================#
 
-	def FindCellsInRawCS(n, pCellValue, pCaseSensitive)
+	def FindCellsInRowCS(n, pCellValue, pCaseSensitive)
 
 		if isString(n)
-			n = This.FindRaw(n)
+			n = This.FindRow(n)
 		ok
 
 		aResult = []
 
 		i = 0
-		for cell in This.Raw(n)
+		for cell in This.Row(n)
 			i++
 
 			if isString(cell) or
@@ -780,44 +885,44 @@ Class stzTable
 
 		#< @FunctionAlternativeForms
 
-		def FindCellsInNthRawCS(n, pCellValue, pCaseSensitive)
-			return This.FindCellsInRawCS(n, pCellValue, pCaseSensitive)
+		def FindCellsInNthRowCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInRowCS(n, pCellValue, pCaseSensitive)
 
-		def FindCellsInRawNCS(n, pCellValue, pCaseSensitive)
-			return This.FindCellsInRawCS(n, pCellValue, pCaseSensitive)
+		def FindCellsInRowNCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInRowCS(n, pCellValue, pCaseSensitive)
 
-		def FindInRawCS(n, pCellValue, pCaseSensitive)
-			return This.FindCellsInRawCS(n, pCellValue, pCaseSensitive)
+		def FindInRowCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInRowCS(n, pCellValue, pCaseSensitive)
 
-		def FindInNthRawCS(n, pCellValue, pCaseSensitive)
-			return This.FindCellsInRawCS(n, pCellValue, pCaseSensitive)
+		def FindInNthRowCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInRowCS(n, pCellValue, pCaseSensitive)
 
-		def FindInRawNCS(n, pCellValue, pCaseSensitive)
-			return This.FindCellsInRawCS(n, pCellValue, pCaseSensitive)
+		def FindInRowNCS(n, pCellValue, pCaseSensitive)
+			return This.FindCellsInRowCS(n, pCellValue, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindCellsInRaw(n, pCellValue)
-		return This.FindInRawCS(n, pCellValue, :CaseSensitive = TRUE)
+	def FindCellsInRow(n, pCellValue)
+		return This.FindInRowCS(n, pCellValue, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindCellsInNthRaw(n, pCellValue)
-			return This.FindCellsInRaw(n, pCellValue)
+		def FindCellsInNthRow(n, pCellValue)
+			return This.FindCellsInRow(n, pCellValue)
 
-		def FindCellsInRawN(n, pCellValue)
-			return This.FindCellsInRaw(n, pCellValue)
+		def FindCellsInRowN(n, pCellValue)
+			return This.FindCellsInRow(n, pCellValue)
 
-		def FindInRaw(n, pCellValue)
-			return This.FindCellsInRaw(n, pCellValue)
+		def FindInRow(n, pCellValue)
+			return This.FindCellsInRow(n, pCellValue)
 
-		def FindInNthRaw(n, pCellValue)
-			return This.FindCellsInRaw(n, pCellValue)
+		def FindInNthRow(n, pCellValue)
+			return This.FindCellsInRow(n, pCellValue)
 
-		def FindInRawN(n, pCellValue)
-			return This.FindCellsInRaw(n, pCellValue)
+		def FindInRowN(n, pCellValue)
+			return This.FindCellsInRow(n, pCellValue)
 
 		#>
 
@@ -945,8 +1050,8 @@ Class stzTable
 	 #  CHECKING IF A CELL CONTAIN A GIVEN VALUE INSIDE  #
 	#===================================================#
 
-	def CellContainsCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
-		cell = This.Cell(pnCol, pnRaw)
+	def CellContainsCS(pnCol, pnRow, pSubValue, pCaseSensitive)
+		cell = This.Cell(pnCol, pnRow)
 
 		bResult = FALSE
 
@@ -961,8 +1066,8 @@ Class stzTable
 
 	#-- WITHOUT CASESNESITIVITY
 
-	def CellContains(pnCol, pnRaw, pSubValue)
-		return This.CellContainsCS(pnCol, pnRaw, pSubValue, :CS = TRUE)
+	def CellContains(pnCol, pnRow, pSubValue)
+		return This.CellContainsCS(pnCol, pnRow, pSubValue, :CS = TRUE)
 
 	  #-------------------------------------------------------#
 	 #  CHECKING IF SOME CELLS CONTAIN A GIVEN VALUE INSIDE  #
@@ -1110,30 +1215,30 @@ Class stzTable
 	 #  NUMBER OF OCCURRENCE OF A VALUE INSIDE A CELL   #
 	#==================================================#
 
-	def NumberOfOccurrenceInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
-		nResult = len( This.FindInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive) )
+	def NumberOfOccurrenceInCellCS(pnCol, pnRow, pSubValue, pCaseSensitive)
+		nResult = len( This.FindInCellCS(pnCol, pnRow, pSubValue, pCaseSensitive) )
 
-		def NumberOfOccurrencesInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
-			return This.NumberOfOccurrenceInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
+		def NumberOfOccurrencesInCellCS(pnCol, pnRow, pSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInCellCS(pnCol, pnRow, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NumberOfOccurrenceInCell(pnCol, pnRaw, pSubValue)
-		return This.NumberOfOccurrenceInCellCS(pnCol, pnRaw, pSubValue, :CaseSensitive = TRUE)
+	def NumberOfOccurrenceInCell(pnCol, pnRow, pSubValue)
+		return This.NumberOfOccurrenceInCellCS(pnCol, pnRow, pSubValue, :CaseSensitive = TRUE)
 
-		def NumberOfOccurrencesInCell(pnCol, pnRaw, pSubValue)
-			return This.NumberOfOccurrenceInCell(pnCol, pnRaw, pSubValue)
+		def NumberOfOccurrencesInCell(pnCol, pnRow, pSubValue)
+			return This.NumberOfOccurrenceInCell(pnCol, pnRow, pSubValue)
 
 	  #----------------------------------------------------#
 	 #  FINDING ALL OCCURRENCES OF A VALUE INSIDE A CELL  #
 	#----------------------------------------------------#
 
-	def FindInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
+	def FindInCellCS(pnCol, pnRow, pSubValue, pCaseSensitive)
 		if isList(pSubValue) and Q(pSubValue).IsOfNamedParam()
 			pSubValue = pSubValue[2]
 		ok
 
-		cellValue = This.Cell(pnCol, pnRaw)
+		cellValue = This.Cell(pnCol, pnRow)
 
 		aResult = []
 
@@ -1149,62 +1254,62 @@ Class stzTable
 
 		return aResult
 
-		def FindAllOccurrencesInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
-			return This.FindInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
+		def FindAllOccurrencesInCellCS(pnCol, pnRow, pSubValue, pCaseSensitive)
+			return This.FindInCellCS(pnCol, pnRow, pSubValue, pCaseSensitive)
 	
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindInCell(pnCol, pnRaw, pSubValue)
-		return This.FindInCellCS(pnCol, pnRaw, pSubValue, :CaseSensitive = TRUE)
+	def FindInCell(pnCol, pnRow, pSubValue)
+		return This.FindInCellCS(pnCol, pnRow, pSubValue, :CaseSensitive = TRUE)
 
-		def FindAllOccurrencesInCell(pnCol, pnRaw, pSubValue)
-			return This.FindInCell(pnCol, pnRaw, pSubValue)
+		def FindAllOccurrencesInCell(pnCol, pnRow, pSubValue)
+			return This.FindInCell(pnCol, pnRow, pSubValue)
 
 	  #---------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A VALUE INSIDE A CELL  #
 	#---------------------------------------------------#
 
-	def FindNthOccurrenceInCellCS(n, pnCol, pnRaw, pSubValue, pCaseSensitive)
+	def FindNthOccurrenceInCellCS(n, pnCol, pnRow, pSubValue, pCaseSensitive)
 		if isString(n)
 			if n = :First
 				n = 1
 			but n = :Last
-				n = This.NumberOfOccurrenceInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
+				n = This.NumberOfOccurrenceInCellCS(pnCol, pnRow, pSubValue, pCaseSensitive)
 			ok
 		ok
 
-		nResult = This.FindAllOccurrencesInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)[n]
+		nResult = This.FindAllOccurrencesInCellCS(pnCol, pnRow, pSubValue, pCaseSensitive)[n]
 
 		return nResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindNthOccurrenceInCell(n, pnCol, pnRaw, pSubValue)
-		return This.FindNthOccurrenceInCellCS(n, pnCol, pnRaw, pSubValue, :CaseSensitive = TRUE)
+	def FindNthOccurrenceInCell(n, pnCol, pnRow, pSubValue)
+		return This.FindNthOccurrenceInCellCS(n, pnCol, pnRow, pSubValue, :CaseSensitive = TRUE)
 
 	  #-----------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A VALUE INSIDE A CELL  #
 	#-----------------------------------------------------#
 
-	def FindFirstOccurrenceInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
-		return This.FindNthOccurrenceInCellCS(:First, pnCol, pnRaw, pSubValue, pCaseSensitive)
+	def FindFirstOccurrenceInCellCS(pnCol, pnRow, pSubValue, pCaseSensitive)
+		return This.FindNthOccurrenceInCellCS(:First, pnCol, pnRow, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindFirstOccurrenceInCell(pnCol, pnRaw, pSubValue)
-		return This.FindFirstOccurrenceInCellCS(pnCol, pnRaw, pSubValue, :CaseSensitive = TRUE)
+	def FindFirstOccurrenceInCell(pnCol, pnRow, pSubValue)
+		return This.FindFirstOccurrenceInCellCS(pnCol, pnRow, pSubValue, :CaseSensitive = TRUE)
 
 	  #----------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A VALUE INSIDE A CELL  #
 	#----------------------------------------------------#
 
-	def FindLastOccurrenceInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
-		return This.FindNthOccurrenceInCellCS(:Last, pnCol, pnRaw, pSubValue, pCaseSensitive)
+	def FindLastOccurrenceInCellCS(pnCol, pnRow, pSubValue, pCaseSensitive)
+		return This.FindNthOccurrenceInCellCS(:Last, pnCol, pnRow, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindLastOccurrenceInCell(pnCol, pnRaw, pSubValue)
-		return This.FindLastOccurrenceInCellCS(pnCol, pnRaw, pSubValue, :CaseSensitive = TRUE)
+	def FindLastOccurrenceInCell(pnCol, pnRow, pSubValue)
+		return This.FindLastOccurrenceInCellCS(pnCol, pnRow, pSubValue, :CaseSensitive = TRUE)
 
 	  #======================================================#
 	 #  NUMBER OF OCCURRENCE OF A VALUE INSIDE MANY CELLS   #
@@ -1360,8 +1465,8 @@ Class stzTable
 	 #  CHECKING IF A CELL CONTAINS A GIVEN VALUE  #
 	#=============================================#
 
-	def ContainsInCellCS(pnCol, pnRaw, pSubValue, pCaseSensitive)
-		cellValue = This.Cell(pnCol, pnRaw)
+	def ContainsInCellCS(pnCol, pnRow, pSubValue, pCaseSensitive)
+		cellValue = This.Cell(pnCol, pnRow)
 
 		bResult = FALSE
 
@@ -1376,8 +1481,8 @@ Class stzTable
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsInCell(pnCol, pnRaw, pSubValue)
-		return This.ContainsInCellCS(pnCol, pnRaw, pSubValue, :CS = TRUE)
+	def ContainsInCell(pnCol, pnRow, pSubValue)
+		return This.ContainsInCellCS(pnCol, pnRow, pSubValue, :CS = TRUE)
 
 	  #================================================#
 	 #  CHECKING IF SOME CELLS CONTAINS A GIVEN CELL  #
@@ -1480,8 +1585,8 @@ Class stzTable
 	def FindInCellsInSectionCSXT(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
 		aResult = This.FindInSideSectionCS(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
 		
-		for aRaw in aResult
-			aRaw[1] = @@S( aRaw[1] )
+		for aRow in aResult
+			aRow[1] = @@S( aRow[1] )
 		next
 
 		return aResult
@@ -1504,8 +1609,8 @@ Class stzTable
 	 #  REPLACING CELLS  #
 	#===================#
 
-	def ReplaceCell(pnCol, pnRaw, pNewValue)
-		This.Raw(pnRaw)[pnCol] = pNewValue
+	def ReplaceCell(pnCol, pnRow, pNewValue)
+		This.Row(pnRow)[pnCol] = pNewValue
 
 	def ReplaceCells(paCellsPos, pNewValue)
 		for cellPos in paCellsPos
@@ -1543,7 +1648,7 @@ Class stzTable
 	 #  REPLACING SUBVALUES INSIDE CELLS  #
 	#====================================#
 
-	def ReplaceInCellCS(pnCol, pnRaw, pSubValue, pNewSubValue, pCaseSensitive) // TODO
+	def ReplaceInCellCS(pnCol, pnRow, pSubValue, pNewSubValue, pCaseSensitive) // TODO
 		/* ... */
 
 	def ReplaceInCellsCS(paCellsPos, pSubValue, pNewSubValue, pCaseSensitive) // TODO
@@ -1562,23 +1667,34 @@ Class stzTable
 	 #  ADDING COLUMNS  #
 	#==================#
 
-	def AddColumn(pcColName, paCOlContent) // TODO
+	def AddColumn(pcColName, paColData) // TODO
+		/* ... */
+		This.Columns() + pcColName
+
+		v = 0
+		for u = 2 to len( @aTable )
+			v++
+			@aTable[u] + paColData[v]
+		next
+
+		def AddCol(pcColName, paCOlData)
+			This.AddColumn(pcColName, paCOlData)
+
+	def AddColumns(paColumns) // TODO
 		/* ... */
 
-		def AddCol(pcColName, paCOlContent)
-			This.AddColumn(pcColName, paCOlContent)
+		def AddCols(paColumns)
+			This.AddColumns(paColumns)
 
-	def AddEmptyColumn(pcColName)
-		This.AddColumn(pcColName, [])
 
 	  #===============#
 	 #  ADDING RAWS  #
 	#===============#
 
-	def AddRaw(paRawContent) // TODO
+	def AddRow(paRowContent) // TODO
 		/* ... */
 
-	def AddEmptyRaw() // TODO
+	def AddEmptyRow() // TODO
 		/* ... */
 
 	  #=======================#
@@ -1607,16 +1723,16 @@ Class stzTable
 	 #  REMOVING RAWS  #
 	#-----------------#
 
-	def RemoveRaw(pnRaw) // TODO
+	def RemoveRow(pnRow) // TODO
 		/* ... */
 
-		def RemoveNthRaw(pnRaw)
-			This.EraseRaw(pnRaw)
+		def RemoveNthRow(pnRow)
+			This.EraseRow(pnRow)
 
-		def RemoveRawN(pnRaw)
-			This.EraseRaw(pnRaw)
+		def RemoveRowN(pnRow)
+			This.EraseRow(pnRow)
 
-	def RemoveRaws(panRaws) // TODO
+	def RemoveRows(panRows) // TODO
 		/* ... */
 
 	  #=====================#
@@ -1649,23 +1765,23 @@ Class stzTable
 	 #  ERASING RAWS  #
 	#----------------#
 
-	def EraseRaw(pnRaw) // TODO
+	def EraseRow(pnRow) // TODO
 		/* ... */
 
-		def EraseNthRaw(pnRaw)
-			This.EraseRaw(pnRaw)
+		def EraseNthRow(pnRow)
+			This.EraseRow(pnRow)
 
-		def EraseRawN(pnRaw)
-			This.EraseRaw(pnRaw)
+		def EraseRowN(pnRow)
+			This.EraseRow(pnRow)
 
-	def EraseRaws(panRaws) // TODO
+	def EraseRows(panRows) // TODO
 		/* ... */
 
 	  #-----------------#
 	 #  ERASING CELLS  #
 	#-----------------#
 
-	def EraseCell(pnCol, pnRaw) // TODO
+	def EraseCell(pnCol, pnRow) // TODO
 		/* ... */
 
 	def EraseCells(panCellsPos) // TODO
@@ -1673,6 +1789,161 @@ Class stzTable
 
 	def EraseSection(paCellPos1, paCellPos2) // TODO
 		/* ... */
+
+	  #======================#
+	 #  INSERTING A COLUMN  # // TODO
+	#======================#
+
+	def InsertColumn(n, paColData) // TODO
+		/* ... */
+
+		def InsertCol(n, paColData)
+			return This.InsertColumn(n, paColData)
+
+		def InsertColumnBefore(n, paColData)
+			return This.InsertColumn(n, paColData)
+
+		def InsertColBefore(n, paColData)
+			return This.InsertColumn(n, paColData)
+
+	def InsertColumnAfter(n, paColData) // TODO
+		/* ... */
+
+		def InsertColAfter(n, paColData)
+			This.InsertColumnAfter(n, paColData)
+
+	def InsertColumnAt(n, paColData) // TODO
+		/* ... */
+
+		def InsertColAt(n, paColData)
+			This.InsertColumnAt(n, paColData)
+
+	  #-----------------------------------------------#
+	 #  INSERTING MANY COLUMNS IN THE SAME POSITION  # // TODO
+	#-----------------------------------------------#
+
+	def InsertColumns(n, paColsData) // TODO
+		if isList(n) and Q(n).IsListOfNumbers()
+			This.InsertColumnsInThesePositions(n, paColsData)
+		ok
+
+		/* ... */
+
+		def InsertCols(n, paColsData)
+			return This.InsertColumns(n, paColsData)
+
+		def InsertColumnsBefore(n, paColsData)
+			return This.InsertColumns(n, paColsData)
+
+		def InsertColsBefore(n, paColsData)
+			return This.InsertsColumn(n, paColsData)
+
+	def InsertColumnsAfter(n, paColsData) // TODO
+		/* ... */
+
+		def InsertColsAfter(n, paColsData)
+			This.InsertColumnsAfter(n, paColsData)
+
+	def InsertColumnsAt(n, paColsData) // TODO
+		/* ... */
+
+		def InsertColsAt(n, paColsData)
+			This.InsertColumnsAt(n, paColsData)
+
+	  #-------------------------------------------------#
+	 #  INSERTING MANY COLUMNS IN DIFFERENT POSITIONS  # // TODO
+	#-------------------------------------------------#
+
+	def InsertColumnsInThesePositions(panPositions, paColsData) // TODO
+		/* ... */
+
+		def InsertColsInThesePositions(panPositions, paColsData)
+			return This.InsertColumnsInThesePositions(panPositions, paColsData)
+
+		def InsertColumnsBeforeThesePositions(panPositions, paColsData)
+			return This.InsertColumnsInThesePositions(panPositions, paColsData)
+
+	def InsertColumnsAfterThesePositions(panPositions, paColsData) // TODO
+		/* ... */
+
+		def InsertColsAfterThesePositions(panPositions, paColsData)
+			This.InsertColumnsAfterThesePositions(panPositions, paColsData)
+
+	def InsertColumnsAtThesePositions(panPositions, paColsData) // TODO
+		/* ... */
+
+		def InsertColsAtThesePositions(panPositions, paColsData)
+			This.InsertColumnsAtThesePositions(panPositions, paColsData)
+
+	  #==================#
+	 #  INSERTING RAWS  # // TODO
+	#==================#
+
+	def InsertRow(n, paRowData) // TODO
+		/* ... */
+
+		def InsertRowBefore(n, paRowData)
+			return This.InsertRow(n, paRowData)
+
+	def InsertRowAfter(n, paRowData) // TODO
+		/* ... */
+
+	def InsertRowAt(n, paRowData) // TODO
+		/* ... */
+
+	  #--------------------------------------------#
+	 #  INSERTING MANY RAWS IN THE SAME POSITION  # // TODO
+	#--------------------------------------------#
+
+	def InsertRows(n, paRowsData) // TODO
+		if isList(n) and Q(n).IsListOfNumbers()
+			This.InsertRowsInThesePositions(n, paRowsData)
+		ok
+
+		/* ... */
+
+		def InsertRowsBefore(n, paRowsData)
+			return This.InsertRows(n, paRowsData)
+
+	def InsertRowsAfter(n, paRowsData) // TODO
+		/* ... */
+
+	def InsertRowsAt(n, paRowsData) // TODO
+		/* ... */
+
+	  #----------------------------------------------#
+	 #  INSERTING MANY RAWS IN DIFFERENT POSITIONS  # // TODO
+	#----------------------------------------------#
+
+	def InsertRowsInThesePositions(panPositions, paRowsData) // TODO
+		/* ... */
+
+		def InsertRowsBeforeThesePositions(panPositions, paRowsData)
+			return This.InsertRowsInThesePositions(panPositions, paRowsData)
+
+	def InsertRowsAfterThesePositions(panPositions, paRowsData) // TODO
+		/* ... */
+
+	def InsertRowsAtThesePositions(panPositions, paRowsData) // TODO
+		/* ... */
+
+	  #=============#
+	 #  SUBTABLES  #
+	#=============#
+
+	def SubTable(pacColNames)
+		if NOT This.HasColNames(pacColNames)
+			stzRaise("Incorrect param type! pacColNames must be a list of string.")
+		ok
+
+		oTable = new stzTable([])
+		oTable.AddColumns(pacColNames)
+
+		aResult = oTable.Content()
+		return aResult
+
+		def SubTableQ(pacColNames)
+			return This.SubTableQR(pacColNames, :stzList)
 
 	  #=====================#
 	 #  SORTING THE TABLE  #
@@ -1683,46 +1954,133 @@ Class stzTable
 	  #=====================#
 	 #  SHOWING THE TABLE  #
 	#=====================#
-	/* 
-	TODO: Enhance it using the StzString.ExtendToNChars() function.
-	*/
 
 	def Show()
 		? This.ToString()
 
 	def ToString()
-		cTable = "#" + TAB + This.HeaderToString() + NL + This.RawsToString()
+		cTable = This.HeaderToString() + NL + NL + This.RowsToString()
 		return cTable
 
-	def HeaderToString()
-		return This.RawToString(0)
-		
-	def RawsToString()
-		cRaws = ""
+	def MaxSizeInCol(pCol)
+		anSizes = []
 
-		for y = 1 to NumberOfRaws()
-			cRaws += ""+ y + TAB + RawToString(y) + NL
+		aColData = This.ColData(pCol)
+		for cell in aColData
+			anSizes + @@SQ(cell).RemoveBoundsQ('"').NumberOfChars()
 		next
 
-		return cRaws
-	
-	def RawToString(n)
-		cRaw = ""
-		aRaw = Raw(n)
-	
-		for x = 1 to len(aRaw)
-			if isList(aRaw[x])
-				cRaw += @@S(aRaw[x])
-			else
-				cRaw += aRaw[x]
+		nResult = StzListOfNumbersQ(anSizes).Max()
+		return nResult
+
+		def SizeOfLargestCellInCol(pCol)
+			return This.MaxSizeInCol(pCol)
+
+	def MaxSizeInEachCol()
+		anResult = []
+
+		for cColName in This.ColNames()
+			anResult + This.MaxSizeInCol(cColName)
+		next
+
+		return anResult
+
+		def MaxSizeInEachColQ()
+			return This.MaxSizeInEachColQR(:stzList)
+
+		def MaxSizeInEachColQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.MaxSizeInEachCol() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.MaxSizeInEachCol() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+	def MaxSizeInEachColXT()
+		anResult = This.MaxSizeInEachColQ().
+				InsertBeforeQ(1, len( "" + This.NumberOfRows() ) ).
+				Content()
+
+		return anResult
+
+	def MaxSizeInRow(p)
+		anSizes = []
+
+		aRow = This.Row(p)
+		for cell in aRow
+			anSizes + @@SQ(cell).RemoveBoundsQ('"').NumberOfChars()
+		next
+
+		nResult = StzListOfNumbersQ(anSizes).Max()
+		return nResult
+
+		def SizeOfLargestCellInRow(pRow)
+			return This.SizeOfLargestCellInRow(pRow)
+
+	def MaxSizeInEachRow()
+		anResult = []
+
+		for i = 1 to This.NumberOfRows()
+			anSizes = []
+			for cell in This.NthRow(i)
+				anSizes + @@SQ(cell).RemoveBoundsQ('"').NumberOfChars()
+			next
+
+			anResult + StzListOfNumbersQ(anSizes).Max()
+		next
+
+		return anResult
+
+	def HeaderToString()
+		anMax = This.MaxSizeInEachColXT()
+		acStr = This.ColNamesQ().InsertBeforeQ(1, "#").Content()
+
+		cResult = ""
+		i = 0
+		for str in acStr
+			i++
+			cResult += Q(str).AlignedtoRightXT(anMax[i], " ")
+			if i < len(anMax)
+				cResult += "   "
 			ok
+		next
 
-			if x < This.NumberOfCols()
-				cRaw += TAB
+		return cResult
+
+
+	def RowsToString()
+		cRows = ""
+
+		for y = 1 to NumberOfRows()
+			cRows += ""+ y + "   " + RowToString(y) + NL
+		next
+
+		return cRows
+
+
+	def RowToString(n)
+		cRow = ""
+		aRow = This.Row(n)
+
+		anMax = []
+		for colName in This.ColNames()
+			anMax + This.SizeOfLargestCellInCol(colName)
+		next
+
+		i = 0
+		for cell in aRow
+			i++
+			cRow += @@SQ(cell).RemoveBoundsQ('"').AlignedToRightXT( anMax[i], " " )
+			if i < len(aRow)
+				cRow += "   "
 			ok
-		next x
-		return cRaw
+		next
 
-		def RawToStringQ(n)
-			return new stzString( This.RawToString(n) )
+		return cRow
 
+		def RowToStringQ(n)
+			return new stzString( This.RowToString(n) )

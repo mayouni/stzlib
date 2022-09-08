@@ -14000,7 +14000,8 @@ class stzList from stzObject
 	def IsDirectionNamedParamList()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Direction ) and
-		   ( isString( This[2] ) and Q(This[2]).IsOneOfThese([ :Forward, :Backward ]) )
+		   ( isString( This[2] ) and Q(This[2]).IsOneOfThese([
+			:Forward, :Backward, :Left, :Right, :Center, :Up, :Down, :Default ]) )
 		  
 			return TRUE
 
@@ -14085,6 +14086,38 @@ class stzList from stzObject
 
 		def IsAfterOrBeforeNamed()
 			return This.IsBeforeOrAfterNamedParamList()
+
+	def IsCharNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Char )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsCharParamList()
+			return This.IsCharNamedParamList()
+
+		def IsCharNamedParam()
+			return This.IsCharNamedParamList()
+
+	def IsWidthNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Width )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsWidthParamList()
+			return This.IsWidthNamedParamList()
+
+		def IsWidthNamedParam()
+			return This.IsWidthNamedParamList()
 
 	  #================================#
 	 #     GETTING TYPES OF ITEMS     #

@@ -17293,43 +17293,127 @@ class stzString from stzObject
 
 		ok
 
-	  #----------------------------------------------------#
-	 #    ALIGNING THE STRING IN A CONTAINER OF N CHARS   #
-	#----------------------------------------------------#
+	  #==========================#
+	 #    ALIGNING THE STRING   #
+	#==========================#
+
+	def Align(cDirection)
+		This.AlignXT( :Max, " ", cDirection )
+
+		def AlignQ(cDirection)
+			This.Align(cDirection)
+			return This
+
+		def AlignQC(cDirection)
+			return This.Copy().Align(cDirection)
+
+		def AlignToQ(cDirection)
+			This.Align(cDirection)
+			return This
+
+		def AlignToQC(cDirection)
+			return This.Copy().Align(cDirection)
+		
+
+	def Aligned(cDirection)
+		return This.Copy().AlignQ(cDirection).Content()
+
+		def AlignedTo(cDirection)
+			return This.Aligned(cDirection)
+
+	  #-----------------------------------#
+	 #  ALIGNING THE STRING -- EXTENDED  #
+	#-----------------------------------#
 
 	// Aligns the text in a container of width nWidth
 	// Note: if the width is smaller then the string, nothing is done!
 
-	def Align(nWidth, cChar, cDirection)
+	def AlignXT(nWidth, cChar, cDirection)
 		# cChar is the char to fill the 'blanks" with.
+
+		if isList(nWidth) and Q(nWidth).IsWidthNamedParam()
+			nWidth = nWidth[2]
+		ok
+
+		if isList(cChar) and ( Q(cChar).IsUsingNamedParam() or
+			Q(cChar).IsCharNamedParam() )
+
+			cChar = cChar[2]
+		ok
+
+		if isString(cChar) and cChar = ""
+			cChar = " "
+		ok
+
+		if isList(cDirection) and ( Q(cDirection).IsDirectionNamedParam() or
+			Q(cDirection).IsToNamedParam() )
+
+			cDirection = cDirection[2]
+		ok
 
 		switch cDirection
 
 		on :Left
-			return This.AlignLeft(nWidth, cChar)
+			return This.AlignLeftXT(nWidth, cChar)
 
 		on :Right
-			return This.AlignRight(nWidth, cChar)
+			return This.AlignRightXT(nWidth, cChar)
 
 		on :Center
-			return This.AlignCenter(nWidth, cChar)
+			return This.AlignCenterXT(nWidth, cChar)
 
 		on :Justified
-			return This.Justify(nWidth, cChar)
+			return This.JustifyXT(nWidth, cChar)
 
 		other
 			stzRaise(stzStringError(:UnsupportedStringJustificationDirection))
 		end
 
-		def AlignQ(nWidth, cChar, cDirection)
-			This.Align(nWidth, cChar, cDirection)
+		def AlignXTQ(nWidth, cChar, cDirection)
+			This.AlignXT(nWidth, cChar, cDirection)
 			return This
 	
-	def Aligned(nWidth, cChar, cDirection)
-		cResult = This.Copy().AlignQ(nWidth, cChar, cDirection).Content()
+	def AlignedXT(nWidth, cChar, cDirection)
+		cResult = This.Copy().AlignXTQ(nWidth, cChar, cDirection).Content()
 		return cResult
 
-	def LeftAlign(nWidth, cChar)
+	  #-----------------------------------#
+	 #  ALIGNING THE STRING TO THE LEFT  #
+	#-----------------------------------#
+
+	def LeftAlign(nWidth)
+		This.LeftAlignXT(nWidth, " ")
+
+		def LeftAlignQ(nWidth)
+			This.LeftAlign(nWidth)
+			return This
+
+		def AlignLeft(nWidth)
+			This.LeftAlign(nWidth)
+
+			def AlignLeftQ(nWidth)
+				This.AlignLeft(nWidth)
+				return This
+
+		def AlignToLeft(nWidth)
+			This.LeftAlign(nWidth)
+
+			def AlignToLeftQ(nWidth)
+				This.AlignToLeft(nWidth)
+				return This
+
+	def LeftAligned(nWidth)
+		cResult = This.Copy().LeftAlignQ(nWidth).Content()
+		return cResult
+
+		def AlignedToLeft(nWidth)
+			return This.LeftAligned(nWidth)
+
+	  #-----------------------------------------------#
+	 #  ALIGNING THE STRING TO THE LEFT -- EXTENDED  #
+	#-----------------------------------------------#
+
+	def LeftAlignXT(nWidth, cChar)
 
 		/*
 		Managing the special case of the arabic char (Shaddah)
@@ -17338,13 +17422,17 @@ class stzString from stzObject
 		the resulting string, while it must set on top of chars!
 
 		Note: The same case of arabic diacritics (7araket)
-		 is not managed in this version (In the future,
+		is not managed in this version (In the future,
 		an extended arabic library will manage those (and other)
-		specificities or arabic.
+		specificities of arabic language.
 
-		Warning: In this version, if your arabic text contains
-		arabic diactritics (7arakets), then the alignbment
+		WARNING: In this version, if your arabic text contains
+		arabic diactritics (7arakets), then the alignment
 		won't be correct!
+
+		Also, for this alignement to work as expected, the font
+		you use in to display the text must be of "fixed size".
+
  		*/
 
 		nWidth += This.NumberOfOccurrence( ArabicShaddah() )
@@ -17367,22 +17455,61 @@ class stzString from stzObject
 			This.Update( cJustified )
 		ok
 
-		def LeftAlignQ(nWidth, cChar)
-			This.LeftAlign(nWidth, cChar)
+		def LeftAlignXTQ(nWidth, cChar)
+			This.LeftAlignXT(nWidth, cChar)
 			return This
 
-		def AlignLeft(nWidth, cChar)
-			This.LeftAlign(nWidth, cChar)
+		def AlignLeftXT(nWidth, cChar)
+			This.LeftAlignXT(nWidth, cChar)
 
-			def AlignLeftQ(nWidth, cChar)
-				This.AlignLeft(nWidth, cChar)
+			def AlignLeftXTQ(nWidth, cChar)
+				This.AlignLeftXT(nWidth, cChar)
 				return This
 
-	def LeftAligned(nWidth, cChar, cDirection)
-		cResult = This.Copy().LeftAlignQ(nWidth, cChar, cDirection).Content()
+	def LeftAlignedXT(nWidth, cChar)
+		cResult = This.Copy().LeftAlignXTQ(nWidth, cChar).Content()
 		return cResult
 
-	def RightAlign(nWidth, cChar)
+		def AlignedToLeftXT(nWidth, cChar)
+			return This.LeftAlignedXT(nWidth, cChar)
+
+	  #------------------------------------#
+	 #  ALIGNING THE STRING TO THE RIGHT  #
+	#------------------------------------#
+
+	def RightAlign(nWidth)
+		This.RightAlignXT(nWidth, " ")
+
+		def RightAlignQ(nWidth)
+			This.RightAlign(nWidth)
+			return This
+
+		def AlignRight(nWidth)
+			This.RightAlign(nWidth)
+
+			def AlignRightQ(nWidth)
+				This.AlignRight(nWidth)
+				return This
+
+		def AlignToRight(nWidth)
+			This.RightAlign(nWidth)
+
+			def AlignToRightQ(nWidth)
+				This.AlignToRight(nWidth)
+				return This
+	
+	def RightAligned(nWidth)
+		cResult = This.Copy().RightAlignQ(nWidth).Content()
+		return cResult
+
+		def AlignedToRight(nWidth)
+			return This.RightAligned(nWidth)
+
+	  #------------------------------------------------#
+	 #  ALIGNING THE STRING TO THE RIGHT -- EXTENDED  #
+	#------------------------------------------------#
+
+	def RightAlignXT(nWidth, cChar)
 
 		# See comment in LeftAlign() method
  
@@ -17403,23 +17530,72 @@ class stzString from stzObject
 			This.Update( cJustified )
 		ok
 
-		def RightAlignQ(nWidth, cChar)
+		def RightAlignXTQ(nWidth, cChar)
 			
-			This.RightAlign(nWidth, cChar)
+			This.RightAlignXT(nWidth, cChar)
 			return This
 
-		def AlignRight(nWidth, cChar)
-			This.RightAlign(nWidth, cChar)
+		def AlignRightXT(nWidth, cChar)
+			This.RightAlignXT(nWidth, cChar)
 
-			def AlignRightQ(nWidth, cChar)
-				This.AlignRight(nWidth, cChar)
+			def AlignRightXTQ(nWidth, cChar)
+				This.AlignRightXT(nWidth, cChar)
 				return This
 
-	def RightAligned(nWidth, cChar, cDirection)
-		cResult = This.Copy().RightAlignQ(nWidth, cChar, cDirection).Content()
+	def RightAlignedXT(nWidth, cChar)
+		cResult = This.Copy().RightAlignXTQ(nWidth, cChar).Content()
 		return cResult
 
-	def CenterAlign(nWidth, cChar)
+		def AlignedToRightXT(nWidth, cChar)
+			return This.RightAlignedXT(nWidth, cChar)
+
+	  #------------------------#
+	 #  CENTERING THE STRING  #
+	#------------------------#
+
+	def CenterAlign(nWidth)
+		This.CenterAlignXT(nWidth, " ")
+
+		def CenterAlignQ(nWidth)
+			This.CenterAlign(nWidth)
+			return This
+
+		def AlignToCenter(nWidth)
+			This.CenterAlign(nWidth)
+
+			def AlignToCenterQ(nWidth)
+				This.AlignToCenter(nWidth)
+				return This
+
+		def AlignCenter(nWidth)
+			This.CenterAlign(nWidth)
+
+			def AlignCenterQ(nWidth)
+				This.AlignCenter(nWidth)
+				return This
+
+		def Center(nWidth)
+			This.CenterAlign(nWidth)
+
+			def CenterQ(nWidth)
+				This.Center(nWidth)
+				return This
+
+	def CenterAligned(nWidth)
+		cResult = This.Copy().CenterAlignQ(nWidth).Content()
+		return cResult
+
+		def AlignedToCenter(nWidth)
+			return This.CenterAligned(nWidth)
+
+		def Centered(nWidth)
+			This.CenterAligned(nWidth)
+
+	  #------------------------------------#
+	 #  CENTERING THE STRING -- EXTENDED  #
+	#------------------------------------#
+
+	def CenterAlignXT(nWidth, cChar)
 
 		# See comment in LeftAlign() method
  
@@ -17449,28 +17625,72 @@ class stzString from stzObject
 			This.Update( cResult )
 		ok
 
-		def CenterAlignQ(nWidth, cChar)
-			This.CenterAlign(nWidth, cChar)
+		def CenterAlignXTQ(nWidth, cChar)
+			This.CenterAlignXT(nWidth, cChar)
 			return This
 
-		def AlignCenter(nWidth, cChar)
-			This.CenterAlign(nWidth, cChar)
+		def AlignCenterXT(nWidth, cChar)
+			This.CenterAlignXT(nWidth, cChar)
 
-			def AlignCenterQ(nWidth, cChar)
-				This.AlignCenter(nWidth, cChar)
+			def AlignCenterXTQ(nWidth, cChar)
+				This.AlignCenterXT(nWidth, cChar)
 				return This
 
-	def CenterAligned(nWidth, cChar, cDirection)
-		cResult = This.Copy().CenterAlignQ(nWidth, cChar, cDirection).Content()
+		def AlignToCenterXT(nWidth, cChar)
+			This.CenterAlignXT(nWidth, cChar)
+
+			def AlignToCenterXTQ(nWidth, cChar)
+				This.AlignToCenterXT(nWidth, cChar)
+				return This
+
+		def CenterXT(nWidth, cChar)
+			This.CenterAlignXT(nWidth, cChar)
+
+			def CenterXTQ(nWidth, cChar)
+				This.CenterXT(nWidth, cChar)
+				return This
+
+	def CenterAlignedXT(nWidth, cChar)
+		cResult = This.Copy().CenterAlignXTQ(nWidth, cChar).Content()
 		return cResult
 
-	def Justify(nWidth, cChar)
+		def AlignedToCenterXT(nWidth, cChar)
+			return This.CenterAlignedXT(nWidth, cChar)
+
+		def CenteredXT(nWidth, cChar)
+			return This.CenterAlignedXT(nWidth, cChar)
+
+
+	  #-------------------------#
+	 #  JUSTIFYING THE STRING  #
+	#-------------------------#
+
+	def Justify(nWidth)
+		This.JustifyXT(nWidth, " ")
+
+		def JustifyQ(nWidth)
+			This.Justify(nWidth)
+			return This
+
+		// NEW: returns a jystified copy of the string object
+		// --> Useful in copy-on-right (functional) programming
+		def JustifyQC(nWith)
+			return This.Copy().Justify(nWidth)
+
+	def Justified(nWidth)
+		return This.Copy().JustifyQ(nWidth).Content()
+
+	  #-------------------------------------#
+	 #  JUSTIFYING THE STRING -- EXTENDED  #
+	#-------------------------------------#
+
+	def JustifyXT(nWidth, cChar)
 
 		# See comment in LeftAlign() method
  
 		nWidth += This.NumberOfOccurrence( ArabicShaddah() )
 
-		# Computing the justification using Qt
+		# Computing the justification
 
 		if nWidth <= This.NumberOfChars()
 			return NULL
@@ -17506,18 +17726,19 @@ class stzString from stzObject
 			cResult += str
 		next
 
+		cResult = Q(cResult).ReplaceQ(" ", cChar).Content()
 		This.Update( cResult )
 
-		def JustifyQ(nWidth, cChar)
-			This.Justify(nWidth, cChar)
+		def JustifyXTQ(nWidth, cChar)
+			This.JustifyXT(nWidth, cChar)
 			return This
 
-	def Justified(nWidth, cChar)
-		cResult = This.Copy().JustifyQ(nWidth, cChar).Content()
+	def JustifiedXT(nWidth, cChar)
+		cResult = This.Copy().JustifyXTQ(nWidth, cChar).Content()
 
-	  #----------------------------------#
+	  #==================================#
 	 #    TEXT ENCODING & CONVERTING    #
-	#----------------------------------#
+	#==================================#
 
 	//Returns a UTF-8 representation of the string as a QByteArray
 	def ToUTF8()
@@ -19715,7 +19936,7 @@ class stzString from stzObject
 
 			
 			cMidLine = cVTrait + " " +
-				   This.AlignQ(nWidth - 2, " ", cTextAdjustedTo).Content() +
+				   This.AlignXTQ(nWidth - 2, " ", cTextAdjustedTo).Content() +
 				   " " +
 				   cVTrait
 
