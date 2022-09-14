@@ -1,23 +1,205 @@
 load "stzlib.ring"
-
-
+/*
 aMyTable = 
 [
-	[    "ID",	"EMPLOYEE" ,     "SALARY"  ],
+	[    "ID",	"EMPLOYEE" ,     	"SALARY" ],
 
-	[    101,	"Ali Sandy",      350      ],
-	[    294,	"Dan Mikovitch Mo",  128900   ],
-	[    287,	"Ali Sa",         106902   ],
-	[    307,	"Ali Aziza",      5200     ]
+	[    10,	"Ali Sandy",      	35000   ],
+	[    20,	"Dan Mikovitch Mo",  	28900   ],
+	[    30,	"Ali Sa",         	25982   ],
+	[    40,	"Ali Aziza",      	49540   ]
 ]
+*/
 
-o1 = new stzTable(aMyTable)
+o1 = new stzTable([
+	:ID	  = [ 10, 20, 30, 40 ],
+	:EMPLOYEE = [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ],
+	:SALARY   = [ 35000, 28900, 25982, 49540 ]
+])
+
+/*--------------
+
+? @@S( o1.SectionAsPositions([2, 2], [3, 3]) ) + NL
+#--> [ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ] ]
+
+? @@S(o1.Section([2, 2], [3, 3])) + NL
+#--> [ "Dan Mikovitch Mo", 28900, "Ali Sa", 25982 ]
+
+? @@S(o1.SectionXT([2, 2], [3, 3]))
+#--> [
+#	[ [ 2, 2 ], "Dan Mikovitch Mo" ],
+#	[ [ 3, 2 ], 28900 ],
+#	[ [ 2, 3 ], "Ali Sa"],
+#	[ [ 3, 3 ], 25982 ]
+# ]
+
+/*--------------
+
+? @@S( o1.Cells() ) + NL
+#--> [
+#	10, "Ali Sandy", 35000,
+#	20, "Dan Mikovitch Mo", 28900,
+#	30, "Ali Sa", 25982,
+#	40, "Ali Aziza", 49540
+# ]
+
+? @@S( o1.CellsXT() ) + NL # Same as CellsAndPositions()
+#--> [
+#	[ 10, 			[ 1, 1 ] ],
+#	[ "Ali Sandy", 		[ 2, 1 ] ],
+#	[ 35000, 		[ 3, 1 ] ],
+#	[ 20, 			[ 1, 2 ] ],
+#	[ "Dan Mikovitch Mo", 	[ 2, 2 ] ],
+#	[ 28900, 		[ 3, 2 ] ],
+#	[ 30, 			[ 1, 3 ] ],
+#	[ "Ali Sa", 		[ 2, 3 ] ],
+#	[ 25982, 		[ 3, 3 ] ],
+#	[ 40, 			[ 1, 4 ] ],
+#	[ "Ali Aziza", 		[ 2, 4 ] ],
+#	[ 49540, 		[ 3, 4 ] ]
+# ]
+
+? @@S( o1.PositionsAndCells() ) + NL
+#--> [
+#	[ [ 1, 1 ], 10	 ],
+#	[ [ 2, 1 ], "Ali Sandy" ],
+#	[ [ 3, 1 ], 35000 ],
+#	[ [ 1, 2 ], 20 ],
+#	[ [ 2, 2 ], "Dan Mikovitch Mo" ],
+#	[ [ 3, 2 ], 28900 ],
+#	[ [ 1, 3 ], 30 ],
+#	[ [ 2, 3 ], "Ali Sa" ],
+#	[ [ 3, 3 ], 25982 ],
+#	[ [ 1, 4 ], 40 ],
+#	[ [ 2, 4 ], "Ali Aziza" ],
+#	[ [ 3, 4 ], 49540 ]
+# ]
+
+? @@S( o1.CellsToHashList() ) + NL
+#--> [
+#	[ "[ 1, 1 ]", 10	 ],
+#	[ "[ 2, 1 ]", "Ali Sandy" ],
+#	[ "[ 3, 1 ]", 35000 ],
+#	[ "[ 1, 2 ]", 20 ],
+#	[ "[ 2, 2 ]", "Dan Mikovitch Mo" ],
+#	[ "[ 3, 2 ]", 28900 ],
+#	[ "[ 1, 3 ]", 30 ],
+#	[ "[ 2, 3 ]", "Ali Sa" ],
+#	[ "[ 3, 3 ]", 25982 ],
+#	[ "[ 1, 4 ]", 40 ],
+#	[ "[ 2, 4 ]", "Ali Aziza" ],
+#	[ "[ 3, 4 ]", 49540 ]
+# ]
+
+? @@S( o1.SectionToHashList([2, 2], [3, 3]) )
+#--> [
+#	[ "[ 2, 2 ]", "Dan Mikovitch Mo" ],
+#	[ "[ 3, 2 ]", 28900 ],
+#	[ "[ 2, 3 ]", "Ali Sa" ],
+#	[ "[ 3, 3 ]", 25982 ]
+# ]
+
+/*--------------
+
+? o1.HasCol(:EMPLOYEE) #--> TRUE
+
+/*--------------
+
+? o1.Cell(2, 2)		#--> "Dan Mikovitch Mo"
+? o1.Cell(:EMPLOYEE, 2)	#--> "Dan Mikovitch Mo"
+
+? @@S( o1.Cell(5, 7) ) #--> NULL
+
+/*--------------
+
+? o1.NumberOfRows()	#--> 4
+? o1.NumberOfCols()	#--> 3
+? o1.NumberOfCells()	#--> 12
+
+/*--------------
+
+? @@S( o1.Header() )
+#--> [ "id", "employee", "salary" ]
+
+? @@S( o1.Content() )
+
+? o1.IsEmpty()
+o1.AddCol([ :NAME = [ "Ali", "Houcem", "Wissem" ] ])
+? @@S( o1.Content() )
+
+/*--------------
+
+? @@S( o1.NthCol(0) )   #--> [ 1, 2, 3, 4 ]
+? @@S( o1.NthColXT(0) ) #--> [ "#", 1, 2, 3, 4 ]
+
+/*--------------
+
+? @@S( o1.NthCol(3) )
+#--> [ 35000, 28900, 25982, 49540 ]
+
+? @@S( o1.NthColXT(3) )
+#--> [ "salary", 35000, 28900, 25982, 49540 ]
+
+/*--------------
+
+? @@S( o1.FirstColXT() )
+#--> [ "id", 10, 20, 30, 40 ]
+
+? @@S( o1.LastColXT() )
+#--> [ "salary", 35000, 28900, 25982, 49540 ]
+
+/*--------------
+
+? @@S( o1.RowN(2) )
+#--> [ 20, "Dan Mikovitch Mo", 28900 ]
+
+/*--------------
+
+? @@S( o1.Rows() )
+#-->
+# [
+#	[ 10, "Ali Sandy",        35000 ],
+#	[ 20, "Dan Mikovitch Mo", 28900 ],
+#	[ 30, "Ali Sa",           25982 ],
+#	[ 40, "Ali Aziza",        49540 ]
+# ]
+
+/*--------------
+
+o1.AddCol( :THING = [ "Thing1", "Thing2", "Thing3", "Thing4" ] )
+? @@S( o1.Content() )
+
+/*--------------
+
+o1.RemoveCol(:THING)
+? @@S( o1.Content() )
+
+o1.RemoveCol([ :ID, :EMPLOYEE ])
+? @@S( o1.Content() )
+
+/*--------------
+
+? @@S( o1.Cols() )
+/*--> [ "id", "employee", "salary" ]
 
 /*-----------
 
+? o1.FindCol(:SALARY) #--> 3
+? o1.FindRow([ 20, "Dan Mikovitch Mo", 28900 ]) #--> 2
+ 
+/*-----------
+
+? @@S( o1.MaxSizeInEachCol() )
+#--> [ 2, 16, 5 ]
+
 ? @@S( o1.MaxSizeInEachColXT() )
-? o1.MaxSizeInEachRow()
+#--> [ 1, 2, 16, 5 ]
+
+?  @@S( o1.MaxSizeInEachRow() )
+#--> [ 9, 16, 6, 9 ]
+
 ? o1.HeaderToString()
+#--> "#   id           employee   salary"
 
 /*-----------
 
@@ -25,65 +207,38 @@ o1 = new stzTable(aMyTable)
 ? o1.MaxSizeInRow(3) #--> 6
 
 /*-----------
-*/
-? o1.Show()
-/*-->
-#    ID           EMPLOYEE   SALARY
 
-1   101          Ali Sandy      350
-2   294   Dan Mikovitch Mo   128900
-3   287             Ali Sa   106902
-4   307          Ali Aziza     5200
-*/
+? @@S( o1.Col(3) ) # Same as  o1.ColData(3), o1.Col(:SALARY), and o1.ColData(:SALARY)
+#--> [ 35000, 28900, 25982, 49540 ]
+
+/*-----------
+
+? o1.ColName(3) #--> salary
+
+/*-----------
+
+? @@S( o1.SubTable([ :ID, :SALARY ]) ) // Same as o1.TheseColumnsXT([1, 2])
+#--> [
+#	[ "id", 	[ 10, 20, 30, 40 ] 		],
+#	[ "salary", 	[ 35000, 28900, 25982, 49540 ] 	]
+# ]
+/*-----------
+
+? o1.ColNumbersToNames([1, 3])
+#--> [ "id", "salary" ]
+
+/*-----------
+
+? @@S( o1.TheseColumns([1, 2]) ) #--> Same as o1.TheseColumns([:ID, :EMPLOYEE])
+#--> [
+#	[ 10, 20, 30, 40 ],
+#	[ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ]
+# ]
+
 
 /*-----------
 */
-? o1.Col(3) #--> Col name and data
-#-->
-# SALARY
-# 350
-# 128900
-# 106902
-# 5200
-
-/*-----------
-
-? o1.Col(:SALARY) #--> Only data
-#-->
-# 350
-# 128900
-# 106902
-# 5200
-
-/*-----------
-*/
-? o1.ColName(3) #--> SALARY
-
-/*-----------
-
-? o1.ColData(3) #-->
-#-->
-# 350008
-# 128900
-# 106902
-# 520054
-
-/*-----------
-
-? o1.ColData(:SALARY)
-#-->
-# 350008
-# 128900
-# 106902
-# 520054
-
-/*-----------
-
-//? o1.TheseColumns([1, 2])
-
-/*-----------
-
-//? o1.TheseColNames([1, 2])
+? o1.TheseColNames([1, 2]) #--> [ "id", "employee" ]
 
 /*-----------
 
