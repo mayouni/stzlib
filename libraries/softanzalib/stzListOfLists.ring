@@ -226,7 +226,6 @@ class stzListOfLists from stzList
 			#>
 		#>
 
-	
 	  #---------------------------------------------------------#
 	 #   YIELDING THE RESULT OF A FUNCTION ON ALL THE LISTS    #
 	#---------------------------------------------------------#
@@ -269,6 +268,21 @@ class stzListOfLists from stzList
 
 		def MaxSize()
 			return This.BiggestSize()
+
+	def ListsHaveSameNumberOfItems()
+		bResult = TRUE
+		
+		for i = 2 to This.NumberOfLists()
+			if len( This.NthList(i) ) != len( This.NthList(i-1) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def ListsHaveSameSize()
+			return This.ListsHaveSameNumberOfItems()
 
 	  #--------------------------------#
 	 #   SMALLEST AND BIGGEST LISTS   #

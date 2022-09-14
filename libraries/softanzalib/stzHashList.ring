@@ -102,6 +102,12 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		def NumberOfPairsQ()
 			new stzNumber(This.NumberOfPairs())
 
+		def NumberOfKeys()
+			return This.NumberOfPairs()
+
+		def NumberOfValues()
+			return This.NumberOfPairs()
+
 	def Pairs()
 		return Content()
 
@@ -229,6 +235,14 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			other
 				stzRaise("Unsupported return type!")
 			off
+
+	def ValuesAreListsOfSameSize()
+		bResult = TRUE
+		for i = 2 to This.NumberOfValues()
+
+		next
+
+		return bResult
 
 	def ValuesAndKeys()
 		aResult = []

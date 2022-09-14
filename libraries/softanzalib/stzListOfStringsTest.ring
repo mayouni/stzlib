@@ -39,7 +39,7 @@ o1 = new stzListOfStrings([
 	? o1.Centered()
 
 /*----------------
-
+*/
 ? o1.JustifiedXT( :Width = 50, :Char = " " )
 #-->
 # H o w   m a n y   r o a d s   must a man walk down

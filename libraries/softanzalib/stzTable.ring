@@ -1,34 +1,20 @@
 
-
 func StzTableQ(paTable)
 	return new stzTable( paTable )
 
 Class stzTable
-	@aTable = []
+	@aTable = [] # TODO: Change it to a list of hashlists!
 
 	def init(paTable)
-		if len(paTable) = 2 and
-		isNumber(paTable[1]) and
-		isNumber(paTable[2])
-			// TODO: Creating an empty table()
+		// TODO: also check that the second values are all lists and
+		// that they have same size...
 
-		but isString(paTable)
-			// TODO: Extracting a table from the string
-
-		else
-			// The table is provided as a parameter
-			// --> TODO: Verify of it is well formatted
-			// Implement isTable() in stzList and use it here
-
-			@aTable = paTable
-
-			if len(@aTable) > 0
-				# Transforming column names to uppercase
-				for str in @aTable[1]
-					str = Q(str).Uppercased()
-				next
-			ok
+		if NOT ( isList(paTable) and Q(paTable).IsHashList() and
+			 StzHashListQ(paTable).ValuesAreListsOfSameSize() )
+			stzRaise("Incorrect param format! paTable must be a hashlist with values that are lists of same size.")
 		ok
+
+		@aTable = paTable
 
 	def Content()
 		return @aTable
@@ -37,20 +23,11 @@ Class stzTable
 			return This.Content()
 
 	def IsEmpty()
-		if len( This.Content() ) = 0
+		if len( This.Table() ) = 0
 			return TRUE
 
 		else
 			return FALSE
-		ok
-
-	  #----------#
-	 #  HEADER  #
-	#----------#
-
-	def Header()
-		if NOT This.IsEmpty()
-			return @aTable[1]
 		ok
 	
 	  #================================================#
@@ -62,12 +39,18 @@ Class stzTable
 			return FALSE
 		ok
 
-		cName = StzStringQ(pcName).Uppercased()
+		cName = StzStringQ(pcName).Lowercased()
 		bResult = This.ColNamesQ().Contains(cName)
 
 		return bResult
 
 		def HasColName(pcName)
+			return This.HasColumName(pcName)
+
+		def HasCol(pcName)
+			return This.HasColumName(pcName)
+
+		def HasColumn(pcName)
 			return This.HasColumName(pcName)
 
 	def HasColumnsNames(pacNames)
@@ -88,6 +71,12 @@ Class stzTable
 		def HasColNames(pacNames)
 			return This.HasColumnsNames(pacNames)
 
+		def HasColumns(pacNames)
+			return This.HasColumnsNames(pacNames)
+
+		def HasCols(pacNames)
+			return This.HasColumnsNames(pacNames)
+
 	  #-------------------------------#
 	 #   GETTING NUMBER OF COULMNS   #
 	#-------------------------------#
@@ -96,8 +85,10 @@ Class stzTable
 		nResult = 0
 
 		if NOT This.IsEmpty()
-			nResult = len(Header())
+			nResult = len( This.Table() )
 		ok
+
+		return nResult
 
 		def NumberOfCols()
 			return This.NumberOfColumns()
@@ -105,18 +96,20 @@ Class stzTable
 		def NumberOfCol()
 			return This.NumberOfColumns()
 
+		def Size()
+			return This.NumberOfColumns()
+
 	  #---------------------------------#
 	 #   GETTING THE LIST OF COULMNS   #
 	#---------------------------------#
 
 	def Columns()
-		aResult = []
-
 		if NOT This.IsEmpty()
-			bResult =  This.Header()
-		ok
+			return This.ToStzHashList().Keys()
 
-		return bResult
+		else
+			return []
+		ok
 
 		#< @FunctionFluentForm
 
@@ -183,6 +176,15 @@ Class stzTable
 			def ColNamesQR(pcReturnType)
 				return This.ColmunsQR(pcReturnType)
 
+		def Header()
+			return This.Columns()
+
+			def HeaderQ()
+				return This.HeaderQ()
+
+			def HeaderQR(pcReturnType)
+				return This.HeaderQR(pcReturnType)
+
 		#>
 
 	  #----------------------#
@@ -204,12 +206,37 @@ Class stzTable
 		def Column(p)
 			return This.Col(p)
 
-	def NthCol(n)
-		aResult = []
+	  #========================#
+	 #   GETTING NTH COLUMN   #
+	#========================#
 
-		for aRow in This.Table()
-			aResult + aRow[n]
-		next
+	def NthColXT(n)
+		if isString(n)
+			if Q(n).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+				n = 1
+
+			but Q(n).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+				n = This.NumberOfColumns()
+			ok
+
+		but isNumber(n) and n = 0
+			aResult = Q( 1 : This.NumberOfRows() ).
+					InsertBeforeQ( 1, "#" ).
+					Content()
+
+			return aResult
+
+		but isNumber(n) and n > This.NumberOfColumns()
+			return []
+
+		ok
+
+		if NOT isNumber(n)
+			stzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		cColName = This.ColName(n)
+		aResult = Q( This.Table()[cColName] ).InsertBeforeQ( 1, cColName ).Content()
 
 		return aResult
 
@@ -217,13 +244,56 @@ Class stzTable
 		cResult = This.ColNames()[n]
 		return cResult
 
-	def NthColData(n)
-		if This.IsEmpty()
+	def NthCol(n)
+
+		if isNumber(n) and n = 0
+			return 1 : This.NumberOfRows()
+
+		but This.IsEmpty() or n > This.NumberOfColumns()
 			return []
 		ok
 
-		aResult = StzListQ( This.NthCol(n) ).Section(2, :LastItem)
+		aResult = StzListQ( This.NthColXT(n) ).Section(2, :LastItem)
 		return aResult
+
+		def NthColData(n)
+			return This.NthCol(n)
+
+	  #--------------------------#
+	 #   GETTING FIRST COLUMN   #
+	#--------------------------#
+
+	def FirstColXT()
+		return This.NthCOlXT(1)
+
+	def FirstColName()
+		return This.NthColName(1)
+
+	def FirstCol()
+		return This.NthCol(1)
+
+		def FirstColData()
+			return This.FirstCol()
+
+	  #-------------------------#
+	 #   GETTING LAST COLUMN   #
+	#-------------------------#
+
+	def LastColXT()
+		return This.NthCOlXT(:Last)
+
+	def LastColName()
+		return This.NthColName(:Last)
+
+	def LastCol()
+		return This.NthCol(:Last)
+
+		def LastColData()
+			return This.LastCol()
+
+	  #-------------------------#
+	 #   GETTING COLUMN DATA   #
+	#-------------------------#
 
 	def ColData(p)
 		if isNumber(p)
@@ -237,11 +307,19 @@ Class stzTable
 			stzRaise("Incorrect param type! p must be a number or string.")
 		ok
 
+	  #------------------------#
+	 #  GETTING COLUMN NAME   #
+	#------------------------#
+
 	def ColName(n)
+		if NOT isNumber(n)
+			stzRaise("Incorrect param type! n must be a number.")
+		ok
+
 		if n = 0
 			return "#"
 
-		else
+		but n <= This.NumberOfColumns()
 			return This.ColNames()[n]
 		ok
 
@@ -253,14 +331,24 @@ Class stzTable
 	#================================#
 
 	def NumberOfRows()
-		return len(@aTable) - 1
+		if This.IsEmpty()
+			return 9
+
+		else
+			return len(@aTable[1][2])
+		ok
 
 	  #------------------------------#
 	 #   GETTING THE LIST OF ROWS   #
 	#------------------------------#
 
 	def Rows()
-		return Q( This.Content() ).Section(2, :LastItem)
+		aResult = []
+		for i = 1 to This.NumberOfRows()
+			aResult + This.RowN(i)
+		next
+
+		return aResult
 
 	  #-------------------------#
 	 #   GETTING THE NTH ROW   #
@@ -268,10 +356,16 @@ Class stzTable
 
 	def RowN(n)
 		if n = 0
-			return Header()
+			return HeaderXT()
 		else
-			return This.Table()[ n + 1 ]
+			aResult = []
+
+			for line in This.Table()
+				aResult + line[2][n]
+			next
 		ok
+
+		return aResult
 			
 		def NthRow(n)
 			return This.Row(n)
@@ -306,10 +400,14 @@ Class stzTable
 	def Cell(pCol, nRow)
 
 		if type(pCol) = "NUMBER"
-			return This.Row(nRow)[ pCol ]
+			if pCol > 0 and pCol <= This.NumberOfColumns()
+				return This.Row(nRow)[ pCol ]
+			ok
 
 		but type(pCol) = "STRING"
-			return This.Row(nRow)[ This.FindCol(pCol) ]
+			If This.HasColumn(pCol)
+				return This.Row(nRow)[ This.FindCol(pCol) ]
+			ok
 		ok
 
 		def CellQ(pCol, nRow)
@@ -401,9 +499,18 @@ Class stzTable
 	#==============================#
 
 	def Section( panCellPos1, panCellPos2 )
-		aResult = This.SectionToHashListQR( panCellPos1, panCellPos2, :stzHashList ).Values()
-		return aResult
+		aCellsPos = This.SectionAsPositions( panCellPos1, panCellPos2 )
 
+		aResult = []
+
+		for aCellPos in aCellsPos
+			aResult + This.Cell(aCellPos[1], aCellPos[2])
+		next
+
+		return aResult
+		
+		#< @FunctionFluentForm
+		
 		def SectionQ( panCellPos1, panCellPos2 )
 			return This.SectionQR( panCellPos1, panCellPos2, :stzList )
 
@@ -424,12 +531,16 @@ Class stzTable
 			other
 				stzRaise("Unsupported return type!")
 			off
+
+		#>
 		
 	def SectionXT( panCellPos1, panCellPos2 )
-		aResult = This.SectionToHashListQR( panCellPos1, panCellPos2, :stzHashList ).
-				PerformOnKeysQ(' @key = Q(@key).ToList() ').Content()
+		
+		aResult = This.SectionAsPositionsQ(panCellPos1, panCellPos2).
+			       AssociatedWith( This.SectionQ(panCellPos1, panCellPos2) )
 
 		return aResult
+
 
 		def SectionXTQ( panCellPos1, panCellPos2 )
 			return This.SectionXTQR( panCellPos1, panCellPos2, :stzList )
@@ -446,7 +557,35 @@ Class stzTable
 				stzRaise("Unsupported return type!")
 			off
 
-	def SectionToHashList( panCellPos1, panCellPos2 )
+	def SectionToHashList(panCellPos1, panCell2)
+		aResult = TheseCellsToHashList( This.SectionAsPositions(panCellPos1, panCell2) )
+		return aResult
+
+		def SectionToHashListQ(panCellPos1, panCellPos2)
+			return This.SectionsToHashListQR(panCellPos1, panCellPos2, :stzList)
+
+		def SectionToHashListQR(panCellPos1, panCellPos2, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SectionToHashList(panCellPos1, panCellPos2) )
+
+			on :stzHashList
+				return new stzHashList( This.SectionToHashList(panCellPos1, panCellPos2) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SectionToHashList(panCellPos1, panCellPos2) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.SectionToHashList(panCellPos1, panCellPos2) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.SectionToHashList(panCellPos1, panCellPos2) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off		
+	
+	def SectionAsPositions( panCellPos1, panCellPos2 )
 		if isList(panCellPos1)
 			if isString(panCellPos1[1]) and panCellPos1[1] = :FirstCol
 				panCellPos1 = Q(panCellPos1).FirstItemReplaced( :With = 1)
@@ -489,42 +628,35 @@ Class stzTable
 		nRow2   = anPairs[2][2]
 
 		aResult = []
-
-		for v = nRow1 to This.NumberOfRows()
-			for u = nCol1 to This.NumberOfCols()
-				aResult + [ @@S([u, v]), This.Cell(u, v) ]
-			next u
-		next
-
+		for u = nRow1 to nRow2
+			for v = nCol1 to nCol2
+				aResult + [ v, u ]
+			next v
+		next u
+	
 		return aResult
 
-		def SectionToHashListQ(panCellPos1, panCellPos2)
-			return This.SectionsToHashListQR(panCellPos1, panCellPos2, :stzList)
+		#< @FunctionFluentForm
 
-		def SectionToHashListQR(panCellPos1, panCellPos2, pcReturnType)
+		def SectionAsPositionsQ( panCellPos1, panCellPos2 )
+			return This.SectionAsPositionsQR( panCellPos1, panCellPos2, :stzList )
+
+		def SectionAsPositionsQR( panCellPos1, panCellPos2, pcReturnType )
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SectionToHashList(panCellPos1, panCellPos2) )
+				return new stzList( This.SectionAsPositions(panCellPos1, panCellPos2))
 
-			on :stzHashList
-				return new stzHashList( This.SectionToHashList(panCellPos1, panCellPos2) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SectionToHashList(panCellPos1, panCellPos2) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SectionToHashList(panCellPos1, panCellPos2) )
+			on :stzListOfLists
+				return new stzListOfLists( This.SectionAsPositions(panCellPos1, panCellPos2))
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.SectionToHashList(panCellPos1, panCellPos2) )
+				return new stzListOfPairs( This.SectionAsPositions(panCellPos1, panCellPos2))
 
 			other
 				stzRaise("Unsupported return type!")
 			off
-		
-	def SectionAsPositions( panCellPos1, panCellPos2 )
-		aResult = StzGridQ( This.SectionXT(panCellPos1, panCellPos2) ).VLine(1)
-		return aResult
+
+		#>
 
 	  #--------------------------------#
 	 #  CASE OF RECTANGULAR SECTIONS  #
@@ -555,7 +687,7 @@ Class stzTable
 	#================================#
 
 	def FindCol(pcColName)
-		pcColName = Q(pcColName).Uppercased()
+		pcColName = Q(pcColName).Lowercased()
 		n = find( This.Header(), pcColName)
 		return n
 
@@ -1581,7 +1713,7 @@ Class stzTable
 	 #  FINDING A VALUE INSIDE A SECTION OF CELLS -- EXTENDED  #
 	#---------------------------------------------------------#
 
-	// Rendee=ring the result in a hash list
+	// Rendering the result in a hash list
 	def FindInCellsInSectionCSXT(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
 		aResult = This.FindInSideSectionCS(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
 		
@@ -1667,25 +1799,25 @@ Class stzTable
 	 #  ADDING COLUMNS  #
 	#==================#
 
-	def AddColumn(pcColName, paColData) // TODO
-		/* ... */
-		This.Columns() + pcColName
+	def AddColumn(paColNameAndData)
+		/* EXAMPLE
 
-		v = 0
-		for u = 2 to len( @aTable )
-			v++
-			@aTable[u] + paColData[v]
+		o1.AddCol( :AGE = [ 12, 28, 32 ] )
+
+		*/
+
+		This.Content() + paColNameAndData
+
+		def AddCol(paColNameAndData)
+			This.AddColumn(paColNameAndData)
+
+	def AddColumns(paColNamesAndData) // TODO
+		for paColNameAndData in paColNamesAndData
+			This.AddColumn(paColNameAndData)
 		next
 
-		def AddCol(pcColName, paCOlData)
-			This.AddColumn(pcColName, paCOlData)
-
-	def AddColumns(paColumns) // TODO
-		/* ... */
-
-		def AddCols(paColumns)
-			This.AddColumns(paColumns)
-
+		def AddCols(paColNamesAndData)
+			This.AddColumns(paColNamesAndData)
 
 	  #===============#
 	 #  ADDING RAWS  #
@@ -1707,17 +1839,50 @@ Class stzTable
 	 #  REMOVING COLUMNS  #
 	#====================#
 
+	def ToStzHashList()
+		return new stzHashList( This.Table() )
+
+	def Update( paNewTable )
+		if isList(paNewTable) and Q(paNewTable).IsWithNamedParam()
+			paNewTable = paNewTable[2]
+		ok
+
+		if NOT( isList(paNewTable) and Q(paNewTable).IsHashList() and
+			StzHashListQ(paNewTable).ValuesAreListsOfSameSize()  )
+
+			stzRaise("Incorrect param type! paNewTable must be a hashlist where values are lists of the same size.")
+		ok
+
+		@aTable = paNewTable
+
 	def RemoveColumn(pColNameOrNumber) // TODO
-		/* ... */
+		if isList(pColNameOrNumber)
+			This.RemoveColumns(pColNameOrNumber)
+			return
+		ok
+
+		if isString(pColNameOrNumber)
+			cColName = pColNameOrNumber
+
+		but isNumber(pColNameOrNumber)
+			cColName = This.ColName(pColNameOrNumber)
+		ok
+
+		aResult = This.ToStzHashList().RemoveByKeyQ(cColName).Content()
+		This.Update( :With = aResult )
 
 		def RemoveCol(pColNameOrNumber)
 			This.RemoveColumn(pColNameOrNumber)
 
-	def RemoveColumns(pColNamesOrNumbers) // TODO
-		/* ... */
+	def RemoveColumns(paColNamesOrNumbers)
+		paColNamesOrNumbers = StzListQ(paColNamesOrNumbers).DuplicatesRemoved()
+
+		for pCol in paColNamesOrNumbers
+			This.RemoveCol(pCol)
+		next
 
 		def RemoveCols(pColNamesOrNumbers)
-			This.EraseColumns(pacColNames)
+			This.RemoveColumns(pacColNames)
 
 	  #-----------------#
 	 #  REMOVING RAWS  #
@@ -1740,7 +1905,11 @@ Class stzTable
 	#=====================#
 
 	def Erase() // TODO
-		/* ... */
+		for line in This.Table()
+			for cell in line
+				cell = NULL
+			next
+		next
 
 		def EraseTable()
 			This.Erase()
@@ -1781,14 +1950,25 @@ Class stzTable
 	 #  ERASING CELLS  #
 	#-----------------#
 
-	def EraseCell(pnCol, pnRow) // TODO
-		/* ... */
+	def EraseCell(pCol, pnRow) // TODO
+		if isNumber(pCol)
+			pCol = This.ColName(pnCol)
+		ok
 
-	def EraseCells(panCellsPos) // TODO
-		/* ... */
+		if NOT isString(pCol) and This.HasColName(pCol)
+			stzRaise("Incorrect column name!")
+		ok
+
+		This.Table()[pCol][pnRow] = NULL
+
+	def EraseCells(paCellsPos) // TODO
+		for cell in paCellsPos
+			This.EraseCell(cell[1], cell[2])
+		next
 
 	def EraseSection(paCellPos1, paCellPos2) // TODO
-		/* ... */
+		aCellsPso = This.SectionAsPositions()
+		This.EraseCells(aCellsPos)
 
 	  #======================#
 	 #  INSERTING A COLUMN  # // TODO
@@ -1932,18 +2112,153 @@ Class stzTable
 	#=============#
 
 	def SubTable(pacColNames)
-		if NOT This.HasColNames(pacColNames)
+		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
 			stzRaise("Incorrect param type! pacColNames must be a list of string.")
 		ok
 
-		oTable = new stzTable([])
-		oTable.AddColumns(pacColNames)
+		pacColNames = Q(pacColNames).Lowercased()
 
-		aResult = oTable.Content()
-		return aResult
+		if This.HasColNames(pacColNames)
+			aResult = []
+			for cColName in pacColNames
+	
+				aResult + [ cColName, This.ColData(cColName) ]
+			next
+	
+			return aResult	
+		ok
 
 		def SubTableQ(pacColNames)
 			return This.SubTableQR(pacColNames, :stzList)
+
+		def SubTableQR(pacColNames, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SubTable(pacColNames) )
+
+			on :stzHashList
+				return new stzHashList( This.SubTable(pacColNames) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.SubTable(pacColNames) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.SubTable(pacColNames) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+	def ColNumbersToNames(panColNumbers)
+		if NOT ( isList(panColNumbers) and Q(panColNumbers).IsLIstOfNumbers() )
+			stzRaise("Incorrect param type! panColNumbers must be a list of numbers.")
+		ok
+
+		aResult = []
+
+		for n in panColNumbers
+			aResult + This.NthColName(n)
+		next
+
+		return aResult
+	
+	def TheseColumnsXT(pacColNamesOrNumbers)
+		if NOT 	( isList(pacColNamesOrNumbers) and
+			  ( Q(pacColNamesOrNumbers).IsListOfNumbers() or
+			  Q(pacColNamesOrNumbers).IsListOfStrings() )
+			)
+
+			stzRaise("Incorrect param type! pacColNamesOrNumbers must be a list of numbers or a list of strings.")
+		ok
+
+		aResult = []
+
+		if Q(pacColNamesOrNumbers).IsListOfNumbers()
+			anColNumbers = pacColNamesOrNumbers
+			aResult = This.SubTable( This.ColNumbersToNames(anColNumbers) )
+
+		but Q(pacColNamesOrNumbers).IsListOfStrings()
+			acColNames = pacColNamesOrNumbers
+			aResult = This.SubTable( acColNames )
+
+		ok
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def TheseColumnsXTQ(pacColNamesOrNumbers)
+			return TheseColumnsXTQR(pacColNamesOrNumbers, :stzList)
+
+		def TheseColumnsXTQR(pacColNamesOrNumbers, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.TheseColumnsXT(pacColNamesOrNumbers) )
+
+			on :stzHashList
+				return new stzHashList( This.TheseColumnsXT(pacColNamesOrNumbers) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.TheseColumnsXT(pacColNamesOrNumbers) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.TheseColumnsXT(pacColNamesOrNumbers) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def TheseColumnsDataXT(pacColNamesOrNumbers)
+			return This.TheseColumnsXT(pacColNamesOrNumbers)
+
+		def TheseColsXT(pacColNamesOrNumbers)
+			return This.TheseColumnsXT(pacColNamesOrNumbers)
+
+		def TheseColsDataXT(pacColNamesOrNumbers)
+			return This.TheseColumnsXT(pacColNamesOrNumbers)
+
+		#>
+
+	def TheseColumns(pacColNamesOrNumbers)
+		return This.TheseColumnsXTQR(pacColNamesOrNumbers, :stzHashList).Values()
+
+		def TheseColumnsData(pacColNamesOrNumbers)
+			return This.TheseColumns(pacColNamesOrNumbers)
+
+		def TheseCols(pacColNamesOrNumbers)
+			return This.TheseColumns(pacColNamesOrNumbers)
+
+		def TheseColsData(pacColNamesOrNumbers)
+			return This.TheseColumns(pacColNamesOrNumbers)
+
+	def TheseColNames(panColNumbers)
+		if NOT (isList(panColNumbers) and Q(panColNumbers).IsListOfNumbers() )
+			stzRaise("Incorrect param type! pacColNumbers muts be a list of numbers.")
+		ok
+
+		panColNumbers  = Q(panColNumbers).SortedInAscending()
+		pacColNames    = This.ColNames()
+		nNumCols       = len(pacColNames)
+		
+		if len(panColNumbers) > nNumCols
+			panColNumbers = Q(panColNumbers).Section( 1, nNumCols)
+		ok
+
+		aResult = []
+		for n in panColNumbers
+			aResult + pacColNames[n]
+		next n
+
+		return aResult
+
+		def TheseColumsNames(panColNumbers)
+			return This.TheseColNames(panColNumbers)
+
+		def TheseColsNames(panColNumbers)
+			return This.TheseColNames(panColNumbers)
 
 	  #=====================#
 	 #  SORTING THE TABLE  #
@@ -1959,7 +2274,7 @@ Class stzTable
 		? This.ToString()
 
 	def ToString()
-		cTable = This.HeaderToString() + NL + NL + This.RowsToString()
+		cTable = This.HeaderToString() + NL + This.RowsToString()
 		return cTable
 
 	def MaxSizeInCol(pCol)
