@@ -4492,6 +4492,12 @@ class stzList from stzObject
 		def AllItemsAreEmptyStrings()
 			return This.ContainsOnlyNullStrings()
 
+		def ItemsAreNull()
+			return This.ContainsOnlyNullStrings()
+
+		def ItemsAreNullStrings()
+			return This.ContainsOnlyNullStrings()
+
 		def IsMadeOfNullStrings()
 			return This.ContainsOnlyNullStrings()
 

@@ -22,8 +22,12 @@ o1 = new stzTable([
 ? @@S( o1.SectionAsPositions([2, 2], [3, 3]) ) + NL
 #--> [ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ] ]
 
-? @@S(o1.Section([2, 2], [3, 3])) + NL
+/*--------------
+
+@@S(o1.Section([2, 2], [3, 3])) + NL
 #--> [ "Dan Mikovitch Mo", 28900, "Ali Sa", 25982 ]
+
+/*--------------
 
 ? @@S(o1.SectionXT([2, 2], [3, 3]))
 #--> [
@@ -101,14 +105,27 @@ o1 = new stzTable([
 
 /*--------------
 
+? o1.NumberOfColumns() #--> 3
+
+/*--------------
+
 ? o1.HasCol(:EMPLOYEE) #--> TRUE
 
 /*--------------
 
-? o1.Cell(2, 2)		#--> "Dan Mikovitch Mo"
+? o1.ColNames() #--> [ "id", "employee", "salary" ]
+
+/*--------------
+
+? o1.ColName(2) #--> "employee"
+
+/*--------------
+
+? @@S( o1.Cell(2, 2) )	#--> "Dan Mikovitch Mo"
+
 ? o1.Cell(:EMPLOYEE, 2)	#--> "Dan Mikovitch Mo"
 
-? @@S( o1.Cell(5, 7) ) #--> NULL
+? @@S( o1.Cell(5, 7) )	#--> ERR: Array Access (Index out of range) ! 
 
 /*--------------
 
@@ -118,14 +135,23 @@ o1 = new stzTable([
 
 /*--------------
 
-? @@S( o1.Header() )
+? @@S( o1.Header() ) + NL
 #--> [ "id", "employee", "salary" ]
 
+o1.AddCol(:AGE = [ 55, 35, 28, 65 ])
 ? @@S( o1.Content() )
+#--> [
+#	[ "id", [ 10, 20, 30, 40 ] ],
+#	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ],
+#	[ "salary", [ 35000, 28900, 25982, 49540 ] ],
+#	[ "age", [ 55, 35, 28, 65 ] ]
+# ]
 
-? o1.IsEmpty()
-o1.AddCol([ :NAME = [ "Ali", "Houcem", "Wissem" ] ])
-? @@S( o1.Content() )
+
+/*--------------
+
+? o1.IsEmpty() #--> FALSE
+
 
 /*--------------
 
@@ -150,7 +176,7 @@ o1.AddCol([ :NAME = [ "Ali", "Houcem", "Wissem" ] ])
 
 /*--------------
 
-? @@S( o1.RowN(2) )
+? @@S( o1.Row(2) )
 #--> [ 20, "Dan Mikovitch Mo", 28900 ]
 
 /*--------------
@@ -167,15 +193,27 @@ o1.AddCol([ :NAME = [ "Ali", "Houcem", "Wissem" ] ])
 /*--------------
 
 o1.AddCol( :THING = [ "Thing1", "Thing2", "Thing3", "Thing4" ] )
-? @@S( o1.Content() )
+? @@S( o1.Content() ) + NL
+#--> [
+#	[ "id", [ 10, 20, 30, 40 ] ],
+#	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ],
+#	[ "salary", [ 35000, 28900, 25982, 49540 ] ],
+#	[ "thing", [ "Thing1", "Thing2", "Thing3", "Thing4" ] ]
+# 
+]
+o1.RemoveCol(:THING)
+? @@S( o1.Content() ) + NL
+#--> [
+#	[ "id", [ 10, 20, 30, 40 ] ],
+#	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ],
+#	[ "salary", [ 35000, 28900, 25982, 49540 ] ]
+# ]
 
 /*--------------
 
-o1.RemoveCol(:THING)
-? @@S( o1.Content() )
-
 o1.RemoveCol([ :ID, :EMPLOYEE ])
 ? @@S( o1.Content() )
+#--> [ [ "salary", [ 35000, 28900, 25982, 49540 ] ] ]
 
 /*--------------
 
@@ -215,7 +253,7 @@ o1.RemoveCol([ :ID, :EMPLOYEE ])
 
 ? o1.ColName(3) #--> salary
 
-/*-----------
+/*------
 
 ? @@S( o1.SubTable([ :ID, :SALARY ]) ) // Same as o1.TheseColumnsXT([1, 2])
 #--> [
@@ -229,20 +267,47 @@ o1.RemoveCol([ :ID, :EMPLOYEE ])
 
 /*-----------
 
-? @@S( o1.TheseColumns([1, 2]) ) #--> Same as o1.TheseColumns([:ID, :EMPLOYEE])
+? @@S( o1.TheseColumns([1, 2]) ) + NL 	// Same as o1.TheseColumns([:ID, :EMPLOYEE])
+					// and o1.TheseColData([:ID, :EMPLOYEE])
 #--> [
 #	[ 10, 20, 30, 40 ],
 #	[ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ]
 # ]
 
+? @@S( o1.TheseColumnsXT([1, 2]) )
+#--> [
+#	[ "id", [ 10, 20, 30, 40 ] ],
+#	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ]
+# ]
 
 /*-----------
-*/
+
 ? o1.TheseColNames([1, 2]) #--> [ "id", "employee" ]
 
 /*-----------
 
-//? o1.TheseColData([ "ID", "SALARY" ])
+? Q(["", "", ""]).AllItemsAreNull() #--> TRUE
+
+/*-----------
+
+? o1.IsEmpty() #--> FALSE
+o1.Erase()
+? @@S( o1.Content() )
+
+#--> [
+#	[ "id", 	[ NULL, NULL, NULL, NULL ] ],
+#	[ "employee", 	[ NULL, NULL, NULL, NULL ] ],
+#	[ "salary", 	[ NULL, NULL, NULL, NULL ] ]
+# ]
+
+? o1.IsEmpty() #--> TRUE
+
+/*-----------
+*/
+? o1.Cell(:EMPLOYEE,3)	#--> "Ali Sa"
+o1.EraseCell(2, 3)
+? @@( o1.Cell(2, 3) )	#--> NULL
+
 
 
 
