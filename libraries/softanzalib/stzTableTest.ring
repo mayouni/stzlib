@@ -17,14 +17,14 @@ o1 = new stzTable([
 	:SALARY   = [ 35000, 28900, 25982, 49540 ]
 ])
 
-/*--------------
+/*==============
 
-? @@S( o1.SectionAsPositions([2, 2], [3, 3]) ) + NL
+? @@S( o1.SectionAsPositions([2, 2], [3, 3]) )
 #--> [ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ] ]
 
 /*--------------
 
-@@S(o1.Section([2, 2], [3, 3])) + NL
+? @@S(o1.Section([2, 2], [3, 3])) + NL
 #--> [ "Dan Mikovitch Mo", 28900, "Ali Sa", 25982 ]
 
 /*--------------
@@ -38,6 +38,16 @@ o1 = new stzTable([
 # ]
 
 /*--------------
+
+? @@S( o1.Section(:FirstCell, :LastCell) )
+#--> [
+#	10, "Ali Sandy", 35000,
+#	20, "Dan Mikovitch Mo", 28900,
+#	30, "Ali Sa", 25982,
+#	40, "Ali Aziza", 49540
+# ]
+
+/*==============
 
 ? @@S( o1.Cells() ) + NL
 #--> [
@@ -103,7 +113,7 @@ o1 = new stzTable([
 #	[ "[ 3, 3 ]", 25982 ]
 # ]
 
-/*--------------
+/*==============
 
 ? o1.NumberOfColumns() #--> 3
 
@@ -119,7 +129,7 @@ o1 = new stzTable([
 
 ? o1.ColName(2) #--> "employee"
 
-/*--------------
+/*==============
 
 ? @@S( o1.Cell(2, 2) )	#--> "Dan Mikovitch Mo"
 
@@ -127,16 +137,18 @@ o1 = new stzTable([
 
 ? @@S( o1.Cell(5, 7) )	#--> ERR: Array Access (Index out of range) ! 
 
-/*--------------
+/*==============
 
 ? o1.NumberOfRows()	#--> 4
 ? o1.NumberOfCols()	#--> 3
 ? o1.NumberOfCells()	#--> 12
 
-/*--------------
+/*==============
 
 ? @@S( o1.Header() ) + NL
 #--> [ "id", "employee", "salary" ]
+
+/*==============
 
 o1.AddCol(:AGE = [ 55, 35, 28, 65 ])
 ? @@S( o1.Content() )
@@ -148,12 +160,12 @@ o1.AddCol(:AGE = [ 55, 35, 28, 65 ])
 # ]
 
 
-/*--------------
+/*==============
 
+// A table is empty when all its cells are NULL
 ? o1.IsEmpty() #--> FALSE
 
-
-/*--------------
+/*==============
 
 ? @@S( o1.NthCol(0) )   #--> [ 1, 2, 3, 4 ]
 ? @@S( o1.NthColXT(0) ) #--> [ "#", 1, 2, 3, 4 ]
@@ -174,7 +186,7 @@ o1.AddCol(:AGE = [ 55, 35, 28, 65 ])
 ? @@S( o1.LastColXT() )
 #--> [ "salary", 35000, 28900, 25982, 49540 ]
 
-/*--------------
+/*==============
 
 ? @@S( o1.Row(2) )
 #--> [ 20, "Dan Mikovitch Mo", 28900 ]
@@ -190,7 +202,7 @@ o1.AddCol(:AGE = [ 55, 35, 28, 65 ])
 #	[ 40, "Ali Aziza",        49540 ]
 # ]
 
-/*--------------
+/*==============
 
 o1.AddCol( :THING = [ "Thing1", "Thing2", "Thing3", "Thing4" ] )
 ? @@S( o1.Content() ) + NL
@@ -201,6 +213,8 @@ o1.AddCol( :THING = [ "Thing1", "Thing2", "Thing3", "Thing4" ] )
 #	[ "thing", [ "Thing1", "Thing2", "Thing3", "Thing4" ] ]
 # 
 ]
+
+
 o1.RemoveCol(:THING)
 ? @@S( o1.Content() ) + NL
 #--> [
@@ -215,17 +229,12 @@ o1.RemoveCol([ :ID, :EMPLOYEE ])
 ? @@S( o1.Content() )
 #--> [ [ "salary", [ 35000, 28900, 25982, 49540 ] ] ]
 
-/*--------------
+/*==============
 
 ? @@S( o1.Cols() )
 /*--> [ "id", "employee", "salary" ]
-
-/*-----------
-
-? o1.FindCol(:SALARY) #--> 3
-? o1.FindRow([ 20, "Dan Mikovitch Mo", 28900 ]) #--> 2
  
-/*-----------
+/*==============
 
 ? @@S( o1.MaxSizeInEachCol() )
 #--> [ 2, 16, 5 ]
@@ -239,33 +248,34 @@ o1.RemoveCol([ :ID, :EMPLOYEE ])
 ? o1.HeaderToString()
 #--> "#   id           employee   salary"
 
-/*-----------
+/*--------------
 
 ? o1.MaxSizeInCol("EMPLOYEE") #--> 16
 ? o1.MaxSizeInRow(3) #--> 6
 
-/*-----------
+/*==============
 
 ? @@S( o1.Col(3) ) # Same as  o1.ColData(3), o1.Col(:SALARY), and o1.ColData(:SALARY)
 #--> [ 35000, 28900, 25982, 49540 ]
 
-/*-----------
+/*--------------
 
 ? o1.ColName(3) #--> salary
 
-/*------
+/*==============
 
 ? @@S( o1.SubTable([ :ID, :SALARY ]) ) // Same as o1.TheseColumnsXT([1, 2])
 #--> [
 #	[ "id", 	[ 10, 20, 30, 40 ] 		],
 #	[ "salary", 	[ 35000, 28900, 25982, 49540 ] 	]
 # ]
-/*-----------
+
+/*--------------
 
 ? o1.ColNumbersToNames([1, 3])
 #--> [ "id", "salary" ]
 
-/*-----------
+/*--------------
 
 ? @@S( o1.TheseColumns([1, 2]) ) + NL 	// Same as o1.TheseColumns([:ID, :EMPLOYEE])
 					// and o1.TheseColData([:ID, :EMPLOYEE])
@@ -280,18 +290,19 @@ o1.RemoveCol([ :ID, :EMPLOYEE ])
 #	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ]
 # ]
 
-/*-----------
+/*--------------
 
 ? o1.TheseColNames([1, 2]) #--> [ "id", "employee" ]
 
-/*-----------
+/*==============
 
 ? Q(["", "", ""]).AllItemsAreNull() #--> TRUE
 
-/*-----------
+/*--------------
 
 ? o1.IsEmpty() #--> FALSE
 o1.Erase()
+? o1.IsEmpty() #--> TRUE
 ? @@S( o1.Content() )
 
 #--> [
@@ -300,140 +311,166 @@ o1.Erase()
 #	[ "salary", 	[ NULL, NULL, NULL, NULL ] ]
 # ]
 
-? o1.IsEmpty() #--> TRUE
+/*--------------
 
-/*-----------
-*/
-? o1.Cell(:EMPLOYEE,3)	#--> "Ali Sa"
+? o1.Cell(:EMPLOYEE, 3)	#--> "Ali Sa"
 o1.EraseCell(2, 3)
 ? @@( o1.Cell(2, 3) )	#--> NULL
 
+/*==============
 
+? o1.Cell(:EMPLOYEE, :LastRow)	#--> "Ali Aziza"
 
+/*--------------
 
+? o1.Cell(:FirsCol, :LastRow)
+#--> ERR: Syntax error in (firscol)! Allowed values are
+#	  :First or :Last (or :FirstCol or :LastCol).
 
+/*--------------
 
+? o1.FirstColName() #--> "id"
+? o1.LastColName()  #--> "salary"
 
+/*--------------
 
+? o1.Col(:First) #--> [ 10, "Ali Sandy", 35000 ]
+? o1.Col(:Last)  #--> [ 40, "Ali Aziza", 49540 ]
 
+/*--------------
 
+? o1.Row(:First) #--> [ 10, "Ali Sandy", 35000 ]
+? o1.Row(:Last)  #--> [ 40, "Ali Aziza", 49540 ]
 
+/*==============
 
+? o1.FindCol(:SALARY) #--> 3
+? o1.FindRow([ 20, "Dan Mikovitch Mo", 28900 ]) #--> 2
 
+/*--------------
 
+# Finding cells, in column :EMPLOYEE, made of the string "Ali Sa":
+//? @@S( o1.FindInCol(:EMPLOYEE, "Ali Sa") ) #--> [ [2, 3] ]
 
+# And we can be extremely expressive and say:
+? o1.FindCellsInColumn(:EMPLOYEE, :MadeOf = "Ali Sa")
 
+/*--------------
+*/
+//? @@S( o1.VerticalSectionAsPositions(:EMPLOYEE, 2, :LastRow) )
+#--> [ [ 2, 2 ], [ 2, 3 ], [ 2, 4 ] ]
 
+//? @@S( o1.VerticalSectionAsPositions(:EMPLOYEE, 2, :LastRow) )
 
+/*--------------
 
-/*------------
+? o1.CellAtPosition(2, 3) #--> "Ali Sa"
 
-aMyTable = 
-[
-	[    "ID",	"EMPLOYEE" ,       "SALARY" ],
+? o1.TheseCells([ [ 2, 2 ], [ 2, 3 ], [ 2, 4 ] ]) // Same as o1.CellsAt() and
+					          // CellsAtPositions()
+#--> [ "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ]
 
-	[    101,	"Ali Sandy",      35000	   ],
-	[    294,	"Dan Mikov",      12890    ],
-	[    307,	"Ali Aziza",      [ 5200 ] ],
-	[    598,	"Dan Mikov",      18923    ],
-	[    600,	[ "A", 1:3 ],	  [ 1, 2, 3 ]]
-]
+/*==============
 
-o1 = new stzTable(aMyTable)
+? @@S( o1.Col(:EMPLOYEE) )
+#--> [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ]
 
-/*------------
+/*--------------
 
-o1.Show()
-
-#-->
-# #	ID	EMPLOYEE	SALARY
-# 1	101	Ali Sandy	35000
-# 2	294	Dan Mikov	12890
-# 3	307	Aziza Pen	5200
-
-/*------------
-
-? o1.NumberOfCol() 	#--> 3
-? o1.NumberOfLines()	#--> 5
-? o1.NumberOfCells()	#--> 15
-
-/*------------
-
-? @@S( o1.Cells() )
+? @@S( o1.ColXT(:EMPLOYEE) ) // Same as o1.CellsAndPositionsInCol(:EMPLOYEE)
+			     // and o1.CellsInColXT(:EMPLOYEE)
 #--> [
-#	101, "Ali Sandy", 35000,
-#	294, "Dan Mikov", 12890,
-#	307, "Aziza Ali", 5200,
-#	598, "Dan Mikov", 18923
-# ]
+#	["Ali Sandy", 		[2, 1] ],
+#	["Dan Mikovitch Mo", 	[2, 2] ],
+#	["Ali Sa", 		[2, 3] ],
+#	["Ali Aziza", 		[2, 4] ]
+#    ]
 
-/*------------
 
-? @@S( o1.CellsXT() )
+/*--------------
+
+? @@S( o1.CellsInCol(:EMPLOYEE) ) // same as Col(:EMPLOYEE)
+#--> [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ]
+
+? @@S( o1.CellsInColAsPositions(:EMPLOYEE) ) // same as ColAsPositions(:EMPLOYEE)
+#--> [ [2, 1], [2, 2], [2, 3], [2, 4] ]
+
+? o1.CellsInColXT(:EMPLOYEE)
 #--> [
-#	[ 101, 		[ 1, 1 ] ],
-#	[ "Ali Sandy", 	[ 2, 1 ] ],
-#	[ 35000, 	[ 3, 1 ] ],
-#	[ 294, 		[ 1, 2 ] ],
-#	[ "Dan Mikov", 	[ 2, 2 ] ],
-#	[ 12890, 	[ 3, 2 ] ],
-#	[ 307, 		[ 1, 3 ] ],
-#	[ "Aziza Ali", 	[ 2, 3 ] ],
-#	[ 5200, 	[ 3, 3 ] ],
-#	[ 598, 		[ 1, 4 ] ],
-#	[ "Dan Mikov", 	[ 2, 4 ] ],
-#	[ 18923, 	[ 3, 4 ] ]
-# ]
+#	["Ali Sandy", 		[2, 1] ],
+#	["Dan Mikovitch Mo", 	[2, 2] ],
+#	["Ali Sa", 		[2, 3] ],
+#	["Ali Aziza", 		[2, 4] ]
+#    ]
 
-/*------------
+/*==============
 
-? @@S( o1.CellsToHashList() )
+? @@S( o1.Row(2) )
+#--> [ 20, "Dan Mikovitch Mo", 28900 ]
+
+/*--------------
+
+? @@S( o1.RowXT(2) ) // Same as o1.CellsAndPositionsInRow(2)
+		     // and o1.CellsInRowXT(2)
 #--> [
-#	[ "[ 1, 1 ]", 101 ],
-#	[ "[ 2, 1 ]", "Ali Sandy" ],
-#	[ "[ 3, 1 ]", 35000 ],
-#	[ "[ 1, 2 ]", 294 ],
-#	[ "[ 2, 2 ]", "Dan Mikov" ],
-#	[ "[ 3, 2 ]", 12890 ],
-#	[ "[ 1, 3 ]", 307 ],
-#	[ "[ 2, 3 ]", "Aziza Ali" ],
-#	[ "[ 3, 3 ]", 5200 ],
-#	[ "[ 1, 4 ]", 598 ]
-#	[ "[ 2, 4 ]", "Dan Mikov" ],
-#	[ "[ 3, 4 ]", 18923 ]
-# ]
+#	[ 20, 			[ 1, 2 ] ],
+#	[ "Dan Mikovitch Mo", 	[ 2, 2 ] ],
+#	[ 28900, 		[ 3, 2 ] ]
+#    ]
+
+/*--------------
+
+? @@S( o1.CellsInRow(2) ) + NL // same as Row(2)
+#--> [ 20, "Dan Mikovitch Mo", 28900 ]
+
+//? @@S( o1.CellsInRowAsPositions(2) ) + NL // same as RowAsPositions(2)
+#--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
+
+? @@S( o1.CellsInRowXT(2) )
+#--> [
+#	[ 20, 			[ 1, 2 ] ],
+#	[ "Dan Mikovitch Mo", 	[ 2, 2 ] ],
+#	[ 28900, 		[ 3, 2 ] ]
+#    ]
+
+/*==============
+
+# Finding the cells, in column :EMPLOYEE, CONTAINING the substring "Ali":
+? @@S( o1.FindInCellsInCol(:EMPLOYEE, "Ali") ) + NL
+#--> [ [ 1 ], [ ], [ 1 ], [ 1 ] ]
+
+? @@S( o1.FindInCellsInColXT(:EMPLOYEE, "Ali") )
+#--> [
+#	[ [ 1 ], [ 2, 1 ] ],
+#	[ [ 1 ], [ 2, 3 ] ],
+#	[ [ 1 ], [ 2, 4 ] ]
+#    ]
+
+/*==============
+*/
+# Finding the cells, in column :EMPLOYEE, CONTAINING the substring "Ali":
+? @@S( o1.FindInCellsInRow(2, "Ali") ) + NL
+#--> [ [ 1 ], [ ], [ 1 ], [ 1 ] ]
+
+? @@S( o1.FindInCellsInRowXT(2, "Ali") )
+#--> [
+#	[ [ 1 ], [ 2, 1 ] ],
+#	[ [ 1 ], [ 2, 3 ] ],
+#	[ [ 1 ], [ 2, 4 ] ]
+#    ]
+
+/*==============
+
+? o1.FindCol(:SALARY) #--> 3
+
+
+
+
+
+
 
 /*------------
 
-? o1.CellsToHashList()[ '[ 2, 2 ]' ] #--> "Dan Mikov"
-? o1.CellsToHashList()[ '[ 2, 3 ]' ] #--> "Aziza Ali"
-
-/*------------
-
-? o1.Cell(2, 3) #--> "Aziza Ali"
-
-/*============
-
-? o1.Col(3) # only data, without header
-#--> [ 35000, 12890, 5200, 18923 ]
-
-? o1.ColXT(3) # with the header
-#--> [ "SALARY", 35000, 12890, 5200, 18923 ]
-
-/*------------
-
-? o1.Col("EMPLOYEE")
-#--> [ "Ali Sandy", "Dan Mikov", "Aziza Ali", "Dan Mikov" ]
-
-? o1.ColXT("EMPLOYEE")
-#--> [ "EMPLOYEE", "Ali Sandy", "Dan Mikov", "Aziza Ali", "Dan Mikov" ]
-
-/*=============
-
-? o1.Line(3) # only data, without header
-#--> [ 307, "Aziza Ali", 5200 ]
-
-? o1.Line([ 307, "Ali Aziza", [ 5200 ] ]) #--> 3
 
 /*=============
 

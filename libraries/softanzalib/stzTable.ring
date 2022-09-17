@@ -169,77 +169,501 @@ Class stzTable
 
 		#>
 
-	  #----------------------#
+	  #======================#
 	 #   READING A COLUMN   #
-	#----------------------#
+	#======================#
+
+	def VerticalSection(pCol, n1, n2)
+		aCellsPos =  This.VerticalSectionAsPositions(pCol, n1, n2)
+		aResult = This.CellsAtPositions(aCellsPos)
+
+		return aResult
+
+	def VerticalSectionAsPositions(pCol, n1, n2)
+		if isString(pCol)
+			if Q(pCol).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+				pCol = 1
+
+			but Q(pCol).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+				pCol = This.NumberOfColumns()
+
+			but This.HasColName(pCol)
+				pCol = This.FindCol(pCol)
+			ok
+		ok
+
+		if NOT isNumber(pCol)
+			stzRaise("Incorrect param type! pCol must be a number.")
+		ok
+
+		if isString(n1)
+			if n1 = :First or n1 = :FirstRow
+				n1 = 1
+			ok
+		ok
+
+		if NOT isNumber(n1)
+			stzRaise("Incorrect param type! n1 must be a number.")
+		ok
+
+		if isString(n2)
+			if n2 = :Last or n2 = :LastRow
+				n2 = This.NumberOfRows()
+			ok
+		ok
+
+		if NOT isNumber(n2)
+			stzRaise("Incorrect param type! n2 must be a number.")
+		ok
+
+
+		aResult = []
+		for i = n1 to n2
+			aResult + [pCol, i]
+		next
+
+		return aResult
 
 	def Col(p)
-		if isNumber(p)
-			return This.NthCol(p)
 
-		but isString(p)
-			n = This.FindCol(p)
-			return This.NthColData(n)
+		if isString(p)
+			if Q(p).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+				p = 1
 
-		else
-			stzRaise("Incorrect param type! p must be a number or string.")
+			but Q(p).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+				p = This.NumberOfColumns()
+
+			but This.HasColName(p)
+				p = This.FindCol(p)
+			ok
 		ok
+
+		aResult = This.VerticalSection( p, 1, This.NumberOfRows() )
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ColQ(p)
+			return This.ColQR(p, :stzList)
+
+		def ColQR(p, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Col(p) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Col(p) )
+
+			on :stzListOfStrings
+				return new stzListOfNumbers( This.Col(p) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.Col(p) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.Col(p) )
+
+			on :stzListOfHashTables
+				return new stzListOfHashTables( This.Col(p) )
+
+			on :stzListOfObjects
+				return new stzListOfObjects( This.Col(p) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def Column(p)
 			return This.Col(p)
+
+			def ColumnQ(p)
+				return This.ColumnQR(p, :stzList)
+
+			def ColumnQR(p, pcReturnType)
+				return This.ColQR(p, pcReturnType)
+
+		def CellsInCol(p)
+			return This.Col(p)
+
+			def CellsInColQ(p)
+				return This.CellsInColQR(p, :stzList)
+
+			def CellsInColQR(p, pcReturnType)
+				return This.CellsInColQR(p, pcReturnType)
+
+		def CellsInColumn(p)
+			return This.Col(p)
+
+			def CellsInColumnQ(p)
+				return This.CellsInColumnQR(p, :stzList)
+
+			def CellsInColumnQR(p, pcReturnType)
+				return This.CellsInColumnQR(p, pcReturnType)
+
+		#>
+
+	def ColXT(p)
+		aResult = ColQ(p).AssociatedWith( This.CellsInColAsPositions(p) )
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ColXTQ(p)
+			return This.ColXTQR(p, :stzList)
+
+		def ColXTQR(p, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ColXT(p) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.COlXT(p) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.ColXT(p) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ColumnXT(p)
+			return This.ColXT(p)
+
+			def ColumnXTQ(p)
+				return This.ColumnXTQR(p, :stzList)
+
+			def ColumnXTQR(p, pcReturnType)
+				return This.ColXTQR(p, pcReturnType)
+
+		def CellsInColXT(p)
+			return This.ColXT(p)
+
+			def CellsInColXTQ(p)
+				return This.CellsInColXTQR(p, :stzList)
+
+			def CellsInColXTQR(p, pcReturnType)
+				return This.CellsInColXTQR(p, pcReturnType)
+
+		def CellsInColumnXT(p)
+			return This.ColXT(p)
+
+			def CellsInColumnXTQ(p)
+				return This.CellsInColumnXTQR(p, :stzList)
+
+			def CellsInColumnXTQR(p, pcReturnType)
+				return This.CellsInColumnXTQR(p, pcReturnType)
+
+		def CellsAndPositionsInCol(p)
+			return This.ColXT(p)
+
+			def CellsAndPositionsInColQ(p)
+				return This.CellsAndPositionsInColQR(p, :stzList)
+
+			def CellsAndPositionsInColQR(p, pcReturnType)
+				return This.ColXTQR(p, pcReturnType)
+
+		def CellsAndPositionsInColumn(p)
+			return This.ColXT(p)
+
+			def CellsAndPositionsInColumnQ(p)
+				return This.CellsAndPositionsInColumnQR(p, :stzList)
+
+			def CellsAndPositionsInColumnQR(p, pcReturnType)
+				return This.ColXTQR(p, pcReturnType)
+		#>
+
+	  #----------------------------------------------------------#
+	 #   GETTING THE POSITIONS OF THE CELLS OF A GIVEN COLUMN   #
+	#----------------------------------------------------------#
+
+	def CellsInColAsPositions(pCol)
+		nCol = This.FindCol(pCol)
+		aResult = []
+
+		for i = 1 to This.NumberOfRows()
+			aResult + [ nCol, i]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def CellsInColPositions(pCol)
+			return This.CellsInColAsPositions(pCol)
+
+		def ColAsPositions(pCol)
+			return This.CellsInColAsPositions(pCol)
+
+		#--
+
+		def CellsInColumnAsPositions(pCol)
+			return This.CellsInColAsPositions(pCol)
+
+		def CellsInColumnPositions(pCol)
+			return This.CellsInColAsPositions(pCol)
+
+		def ColumnAsPositions(pCol)
+			return This.CellsInColAsPositions(pCol)
+
+		#>
+
+	  #===================#
+	 #   READING A ROW   #
+	#===================#
+
+	def HorizontalSection(pRow, n1, n2)
+		aCellsPos =  This.HorizontalSectionAsPositions(pRow, n1, n2)
+		aResult = This.CellsAtPositions(aCellsPos)
+
+		return aResult
+
+	def HorizontalSectionAsPositions(pRow, n1, n2)
+		if isString(pRow)
+			if Q(pRow).IsOneOfThese([ :First, :FirstRow ])
+				pRow = 1
+
+			but Q(pRow).IsOneOfThese([ :Last, :LastRow ])
+				prow = This.NumberOfRows()
+
+			ok
+		ok
+
+		if NOT isNumber(pRow)
+			stzRaise("Incorrect param type! pRow must be a number.")
+		ok
+
+		if isString(n1)
+			if Q(n1).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+				n1 = 1
+			ok
+		ok
+
+		if NOT isNumber(n1)
+			stzRaise("Incorrect param type! n1 must be a number.")
+		ok
+
+		if isString(n2)
+			if Q(n2).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+				n2 = This.NumberOfCols()
+			ok
+		ok
+
+		if NOT isNumber(n2)
+			stzRaise("Incorrect param type! n2 must be a number.")
+		ok
+
+
+		aResult = []
+		for i = n1 to n2
+			aResult + [i, pRow]
+		next
+
+		return aResult
+
+	def Row(p)
+
+		if isString(p)
+			if Q(p).IsOneOfThese([ :First, :FirstRow ])
+				p = 1
+
+			but Q(p).IsOneOfThese([ :Last, :LastRow ])
+				p = This.NumberOfRows()
+
+			ok
+		ok
+
+		aResult = This.HorizontalSection( p, 1, This.NumberOfCols() )
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def RowQ(p)
+			return This.RowQR(p, :stzList)
+
+		def RowQR(p, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Row(p) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Row(p) )
+
+			on :stzListOfStrings
+				return new stzListOfNumbers( This.Row(p) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.Row(p) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.Row(p) )
+
+			on :stzListOfHashTables
+				return new stzListOfHashTables( This.Row(p) )
+
+			on :stzListOfObjects
+				return new stzListOfObjects( This.Row(p) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def CellsInRow(p)
+			return This.Row(p)
+
+			def CellsInRowQ(p)
+				return This.CellsInRowQR(p, :stzList)
+
+			def CellsInRowQR(p, pcReturnType)
+				return This.CellsInRowQR(p, pcReturnType)
+
+		#>
+
+	def RowXT(p)
+		aResult = RowQ(p).AssociatedWith( This.CellsInRowAsPositions(p) )
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def RowXTQ(p)
+			return This.RowXTQR(p, :stzList)
+
+		def RowXTQR(p, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.RowXT(p) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.RowXT(p) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.RowXT(p) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def CellsInRowXT(p)
+			return This.RowXT(p)
+
+			def CellsInRowXTQ(p)
+				return This.CellsInRowXTQR(p, :stzList)
+
+			def CellsInRowXTQR(p, pcReturnType)
+				return This.CellsInRowXTQR(p, pcReturnType)
+
+		def CellsAndPositionsInRow(p)
+			return This.RowXT(p)
+
+			def CellsAndPositionsInRowQ(p)
+				return This.CellsAndPositionsInRowQR(p, :stzList)
+
+			def CellsAndPositionsInRowQR(p, pcReturnType)
+				return This.RowXTQR(p, pcReturnType)
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #   GETTING THE POSITIONS OF THE CELLS OF A GIVEN ROW   #
+	#-------------------------------------------------------#
+
+	def CellsInRowAsPositions(pnRow)
+		if isString(pnRow)
+			if pnRow = :First or pnRow = :FirstRow
+				pnRow = 1
+
+			but pnRow = :Last or pnRow = :LastRow
+				pnRow = This.NumberOfRows()
+			ok
+		ok
+
+		if NOT isNumber(pnRow)
+			stzRaise("Incorrect param type! pnRow must be a number.")
+		ok
+
+		aResult = []
+
+		for i = 1 to This.NumberOfCols()
+			aResult + [ i, pnRow]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def CellsInRowPositions(pnRow)
+			return This.CellsInRowAsPositions(pnRow)
+
+		def RowPositions(pnRow)
+			return This.CellsInRowAsPositions(pnRow)
+
+		def RowAsPositions(pnRow)
+			return This.CellsInRowAsPositions(pnRow)
+
+		#>
 
 	  #========================#
 	 #   GETTING NTH COLUMN   #
 	#========================#
 
-	def NthColXT(n)
+	def NthColName(n)
 		if isString(n)
 			if Q(n).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
 				n = 1
 
 			but Q(n).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
 				n = This.NumberOfColumns()
+
+			else
+				stzRaise("syntax error in (" + n + ")! Allowed values are :First or :Last ( or :FirstCol or :LastCol).")
+
 			ok
-
-		but isNumber(n) and n = 0
-			aResult = Q( 1 : This.NumberOfRows() ).
-					InsertBeforeQ( 1, "#" ).
-					Content()
-
-			return aResult
-
-		but isNumber(n) and n > This.NumberOfColumns()
-			return []
-
 		ok
 
-		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		cColName = This.ColName(n)
-		aResult = Q( This.Table()[cColName] ).InsertBeforeQ( 1, cColName ).Content()
-
-		return aResult
-
-	def NthColName(n)
 		cResult = This.ColNames()[n]
 		return cResult
 
+		def NthColumnName(n)
+			return This.NthColName(n)
+
 	def NthCol(n)
+		return This.Col(n)
 
-		if isNumber(n) and n = 0
-			return 1 : This.NumberOfRows()
-
-		but This.IsEmpty() or n > This.NumberOfColumns()
-			return []
-		ok
-
-		aResult = StzListQ( This.NthColXT(n) ).Section(2, :LastItem)
-		return aResult
-
-		def NthColData(n)
+		def NthColumn(n)
 			return This.NthCol(n)
+
+		def CellsInNthCol(n)
+			return This.NthCol(n)
+
+		def CellsInNthColumn(n)
+			return This.NthCol(n)
+
+	def NthColXT(n)
+		return This.ColXT(n)
+
+		def NthColumnXT(n)
+			return This.ColXT(n)
+
+		def CellsInNthColXT(n)
+			return This.ColXT(n)
+
+		def CellsInNthColumnXT(n)
+			return This.ColXT(n)
 
 	  #--------------------------#
 	 #   GETTING FIRST COLUMN   #
@@ -248,13 +672,19 @@ Class stzTable
 	def FirstColXT()
 		return This.NthCOlXT(1)
 
+		def FirstColumnXT()
+			return This.FirstColXT()
+
 	def FirstColName()
 		return This.NthColName(1)
+
+		def FirstColumnName()
+			return This.FirstColName()
 
 	def FirstCol()
 		return This.NthCol(1)
 
-		def FirstColData()
+		def FirstColumn()
 			return This.FirstCol()
 
 	  #-------------------------#
@@ -264,30 +694,20 @@ Class stzTable
 	def LastColXT()
 		return This.NthCOlXT(:Last)
 
+		def LastColumnXT()
+			return This.LastColXT()
+
 	def LastColName()
 		return This.NthColName(:Last)
+
+		def LastColumnName()
+			return This.LastColName()
 
 	def LastCol()
 		return This.NthCol(:Last)
 
-		def LastColData()
+		def LastColumn()
 			return This.LastCol()
-
-	  #-------------------------#
-	 #   GETTING COLUMN DATA   #
-	#-------------------------#
-
-	def ColData(p)
-		if isNumber(p)
-			return This.NthColData(p)
-
-		but isString(p)
-			n = This.FindCol(p)
-			return This.NthColData(n)
-
-		else
-			stzRaise("Incorrect param type! p must be a number or string.")
-		ok
 
 	  #------------------------#
 	 #  GETTING COLUMN NAME   #
@@ -307,6 +727,36 @@ Class stzTable
 
 		def ColumnName(n)
 			return This.ColName(n)
+
+	  #=====================#
+	 #   GETTING NTH ROW   #
+	#=====================#
+
+	def NthRow(n)
+		return This.Row(n)
+
+	def NthRowXT(n)
+		return This.RowXT(n)
+
+	  #--------------------------#
+	 #   GETTING FIRST ROW   #
+	#--------------------------#
+
+	def FirstRowXT()
+		return This.NthRowXT(1)
+
+	def FirstRow()
+		return This.NthRow(1)
+
+	  #----------------------#
+	 #   GETTING LAST ROW   #
+	#----------------------#
+
+	def LastRowXT()
+		return This.NthRowXT(:Last)
+
+	def LastRow()
+		return This.NthRow(:Last)
 
 	  #================================#
 	 #   GETTING THE NUMBER OF ROWS   #
@@ -328,41 +778,6 @@ Class stzTable
 
 		return aResult
 
-	  #-------------------------#
-	 #   GETTING THE NTH ROW   #
-	#-------------------------#
-
-	def RowN(n)
-		if n = 0
-			return HeaderXT()
-		else
-			aResult = []
-
-			for line in This.Table()
-				aResult + line[2][n]
-			next
-		ok
-
-		return aResult
-			
-		def NthRow(n)
-			return This.Row(n)
-
-	  #--------------------------------------#
-	 #   GETTING ROW BY NUMBER OR BY NAME   #
-	#--------------------------------------#
-
-	def Row(p)
-		if isNumber(p)
-			return This.RowN(p)
-
-		but isList(p)
-			return This.FindRow(p)
-
-		else
-			stzRaise("Incorrect param type! p must be a number or string.")
-		ok
-
 	  #-------------------------------#
 	 #  GETIING THE NUMBER OF CELLS  #
 	#-------------------------------#
@@ -371,11 +786,38 @@ Class stzTable
 		nResult = This.NumberOfCol() * This.NumberOfRows()
 		return nResult
 
-	  #---------------------------------------------------------------------------#
-	 #  GETIING A CELL USING THE NUMBER OF ITS COLUMN AND THE NUMBER OF ITS ROW  #
-	#---------------------------------------------------------------------------#
+	  #-------------------------------------------------------------------#
+	 #  GETIING A CELL VALUE BY ITS POSITION (COLUMN, ROW) IN THE TABLE  #
+	#-------------------------------------------------------------------#
 
-	def Cell(pCol, nRow)
+	def Cell(pCol, pRow)
+
+		if isString(pCol)
+			if Q(pCol).IsOneOfThese([:First, :FirstCol, :FirstColumn])
+				pCol = 1
+
+			but Q(pCol).IsOneOfThese([:Last, :LastCol, :LastColumn])
+				pCol = This.NumberOfColumns()
+
+			else
+				if NOT This.HasColName(pCol)
+					stzRaise("Syntax error in (" + pCol + ")! Allowed values are :First or :Last (or :FirstCol or :LastCol).")
+				ok
+			ok
+		ok
+
+		if isString(pRow)
+			if pRow = :First or pRow = :FirstRow
+				pRow = 1
+
+			but pRow = :Last or pRow = :LastRow
+				pRow = This.NumberOfRows()
+
+			else
+				stzRaise("Syntax error in (" + pRow + ")! Allowed values are :First or :Last (or :FirstRow or :LastRow).")
+			ok
+
+		ok
 
 		cColName = ""
 
@@ -389,16 +831,93 @@ Class stzTable
 			stzRaise("Incorrect param type! pCol must be a number or string.")
 		ok
 
-		if NOT isNumber(nRow)
-			stzRaise("Incorrect param type! nRow must be a number.")
+		if NOT isNumber(pRow)
+			stzRaise("Incorrect param type! pRow must be a number.")
 		ok
 
-		Result = This.Table()[cColName][nRow]
+		Result = This.Table()[cColName][pRow]
 		return Result
 
-		def CellQ(pCol, nRow)
-			return Q( This.Cell(pCol, nRow) )
-	
+		#< @FunctionFluentForm
+
+		def CellQ(pCol, pRow)
+			return Q( This.Cell(pCol, pRow) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def CellAtPosition(pCol, pRow)
+			return This.Cell(pCol, pRow)
+
+			def CellAtPositionQ(pCol, pRow)
+				return This.CellAtPosition(pCol, pRow)
+
+		def CellAt(pCol, pRow)
+			return This.Cell(pCol, pRow)
+
+			def CellAtQ(pCol, pRow)
+				return This.CellAtPosition(pCol, pRow)
+
+		#>
+
+	  #----------------------------------------------------------------------------#
+	 #  GETIING GIVEN CELLS VALUES BY THEIR POSITIONS (COLUMN, ROW) IN THE TABLE  #
+	#----------------------------------------------------------------------------#
+
+	def TheseCells(paCellsPos)
+		aResult = []
+
+		for cellPos in paCellsPos
+			aResult + This.Cell(cellPos[1], cellPos[2])
+		next
+
+		return aResult
+		
+		#< @FunctionFluentForm
+
+		def TheseCellsQ(paCellsPos)
+			return TheseCellsQR(paCellsPos, :stzList)
+
+		def TheseCellsQR(paCellsPos, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.TheseCells(paCellsPos) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.TheseCells(paCellsPos) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.TheseCells(paCellsPos) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def CellsAtPositions(paCellsPos)
+			return This.TheseCells(paCellsPos)
+
+			def CellsAtPositionsQ(paCellsPos)
+				return This.CellsAtPositions(paCellsPos, :stzList)
+
+			def CellsAtPositionsQR(paCellsPos, pcReturnType)
+				return This.TheseCellsQR(paCellsPos, pcReturnType)
+
+		def CellsAt(paCellsPos)
+			return This.TheseCells(paCellsPos)
+
+			def CellsAtQ(paCellsPos)
+				return This.CellsAtPositions(paCellsPos, :stzList)
+
+			def CellsAtQR(paCellsPos, pcReturnType)
+				return This.TheseCellsQR(paCellsPos, pcReturnType)
+
+		#>
+
 	  #---------------------------------#
 	 #  GETIING THE LIST OF ALL CELLS  #
 	#---------------------------------#
@@ -598,7 +1117,31 @@ Class stzTable
 				stzRaise("Unsupported return type!")
 			off		
 	
+	def FirstCellPosition()
+		return [1, 1]
+
+	def LastCellPosition()
+		return [ This.NumberOfCol(), This.NumberOfRows() ]
+
 	def SectionAsPositions( panCellPos1, panCellPos2 )
+		if isString(panCellPos1)
+			if panCellPos1 = :First or panCellPos1 = :FirstCell
+				panCellPos1 = This.FirstCellPosition()
+
+			else
+				stzRaise("Syntax error in (" + panCellPos1 + ")! Allowed values are :First or :FirstCell.")
+			ok
+		ok
+
+		if isString(panCellPos2)
+			if panCellPos2 = :First or panCellPos2 = :LastCell
+				panCellPos2 = This.LastCellPosition()
+
+			else
+				stzRaise("Syntax error in (" + panCellPos2 + ")! Allowed values are :Last or :LastCell.")
+			ok
+		ok
+
 		if isList(panCellPos1)
 			if isString(panCellPos1[1]) and panCellPos1[1] = :FirstCol
 				panCellPos1 = Q(panCellPos1).FirstItemReplaced( :With = 1)
@@ -700,6 +1243,17 @@ Class stzTable
 	#================================#
 
 	def FindCol(pcColName)
+		if NOT isString(pcColName)
+			stzRaise("Incorrect param type! pcColName must be a string.")
+		ok
+
+		if Q(pcColName).IsOneOfThese([:First, :FirstCol, :FirstColumn])
+			pcColName = This.FirstColName()
+
+		but Q(pcColName).IsOneOfThese([:Last, :LastCol, :LastColumn])
+			pcColName = This.LastColName()
+		ok
+
 		pcColName = Q(pcColName).Lowercased()
 		n = find( This.Header(), pcColName)
 		return n
@@ -1377,16 +1931,28 @@ Class stzTable
 	 #  FINDING CELLS IN A GIVEN COLUMN  #
 	#-----------------------------------#
 
-	def FindCellsInColCS(n, pCellValue, pCaseSensitive)
+	def FindCellsInColCS(pnCol, pCellValue, pCaseSensitive)
 
-		if isString(n)
-			n = This.FindCol(n)
+		if isString(pnCol)
+			if This.HasColName(pnCol)
+				pnCol = This.FindCol(pnCol)
+			else
+				# TODO + WARNING: generalise this check in all
+				# similar situations, otherwise a silent bug would
+				# happen and be difficult to be aware of!
+				stzRaise("Column name (" + pnCol + ") not found!")
+			
+			ok
+		ok
+
+		if isList(pCellValue) and Q(pCellValue).IsMadeOfParamList()
+			pCellValue = pCellValue[2]
 		ok
 
 		aResult = []
 
 		i = 0
-		for cell in This.Col(n)
+		for cell in This.Col(pnCol)
 			i++
 
 			if isString(cell) or
@@ -1394,13 +1960,13 @@ Class stzTable
 
 				if isString(pCellValue)
 					if Q(cell).IsEqualToCS(pCellValue, pCaseSensitive)
-						aResult + [n, i]
+						aResult + [pnCol, i]
 					ok
 				ok
 
 			else
 				if Q(cell).IsEqualTo(pCellValue)
-					aResult + [n, i]
+					aResult + [pnCol, i]
 				ok
 			ok
 		next
@@ -1409,44 +1975,84 @@ Class stzTable
 
 		#< @FunctionAlternativeForms
 
-		def FindCellsInNthColCS(n, pCellValue, pCaseSensitive)
-			return This.FindCellsInColCS(n, pCellValue, pCaseSensitive)
+		def FindCellsInNthColCS(pnCol, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(pnCol, pCellValue, pCaseSensitive)
 
-		def FindCellsInColNCS(n, pCellValue, pCaseSensitive)
-			return This.FindCellsInColCS(n, pCellValue, pCaseSensitive)
+		def FindCellsInColNCS(pnCol, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(pnCol, pCellValue, pCaseSensitive)
 
-		def FindInColCS(n, pCellValue, pCaseSensitive)
-			return This.FindCellsInColCS(n, pCellValue, pCaseSensitive)
+		def FindInColCS(pnCol, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(pnCol, pCellValue, pCaseSensitive)
 
-		def FindInNthColCS(n, pCellValue, pCaseSensitive)
-			return This.FindCellsInColCS(n, pCellValue, pCaseSensitive)
+		def FindInNthColCS(pnCol, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(pnCol, pCellValue, pCaseSensitive)
 
-		def FindInColNCS(n, pCellValue, pCaseSensitive)
-			return This.FindCellsInColCS(n, pCellValue, pCaseSensitive)
+		def FindInColNCS(pnCol, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(pnCol, pCellValue, pCaseSensitive)
+
+		#--
+
+		def FindCellsInColumnCS(pnCol, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(pnCol, pCellValue, pCaseSensitive)
+
+		def FindCellsInNthColumnCS(pnCol, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(pnCol, pCellValue, pCaseSensitive)
+
+		def FindCellsInColumnNCS(pnCol, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(pnCol, pCellValue, pCaseSensitive)
+
+		def FindInColumnCS(pnCol, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(pnCol, pCellValue, pCaseSensitive)
+
+		def FindInNthColumnCS(pnCol, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(pnCol, pCellValue, pCaseSensitive)
+
+		def FindInColumnNCS(pnCol, pCellValue, pCaseSensitive)
+			return This.FindCellsInColCS(pnCol, pCellValue, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindCellsInCol(n, pCellValue)
-		return This.FindCellsInColCS(n, pCellValue, :CaseSensitive = TRUE)
+	def FindCellsInCol(pnCol, pCellValue)
+		return This.FindCellsInColCS(pnCol, pCellValue, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindCellsInNthCol(n, pCellValue)
-			return This.FindCellsInCol(n, pCellValue)
+		def FindCellsInNthCol(pnCol, pCellValue)
+			return This.FindCellsInCol(pnCol, pCellValue)
 
-		def FindCellsInColNC(n, pCellValue)
-			return This.FindCellsInCol(n, pCellValue)
+		def FindCellsInColNC(pnCol, pCellValue)
+			return This.FindCellsInCol(pnCol, pCellValue)
 
-		def FindInCol(n, pCellValue)
-			return This.FindCellsInCol(n, pCellValue)
+		def FindInCol(pnCol, pCellValue)
+			return This.FindCellsInCol(pnCol, pCellValue)
 
-		def FindInNthCol(n, pCellValue)
-			return This.FindCellsInCol(n, pCellValue)
+		def FindInNthCol(pnCol, pCellValue)
+			return This.FindCellsInCol(pnCol, pCellValue)
 
-		def FindInColN(n, pCellValue)
-			return This.FindCellsInCol(n, pCellValue)
+		def FindInColN(pnCol, pCellValue)
+			return This.FindCellsInCol(pnCol, pCellValue)
+
+		#--
+
+		def FindCellsInColumn(pnCol, pCellValue)
+			return This.FindCellsInCol(pnCol, pCellValue)
+
+		def FindCellsInNthColumn(pnCol, pCellValue)
+			return This.FindCellsInCol(pnCol, pCellValue)
+
+		def FindCellsInColumnN(pnCol, pCellValue)
+			return This.FindCellsInCol(pnCol, pCellValue)
+
+		def FindInColumn(pnCol, pCellValue)
+			return This.FindCellsInCol(pnCol, pCellValue)
+
+		def FindInNthColumn(pnCol, pCellValue)
+			return This.FindCellsInCol(pnCol, pCellValue)
+
+		def FindInColumnN(pnCol, pCellValue)
+			return This.FindCellsInCol(pnCol, pCellValue)
 
 		#>
 
@@ -1629,7 +2235,7 @@ Class stzTable
 			i++
 			aPair = aPairs[i]
 			if len(aPair) != 0
-				aResult + [ cellPos, aPair ]
+				aResult + [ aPair, cellPos ]
 			ok
 		next
 
@@ -1687,8 +2293,8 @@ Class stzTable
 	 #  FINDING FIRST OCCURRENCE OF A VALUE INSIDE GIVEN CELLS  #
 	#----------------------------------------------------------#
 
-	def FindFirstOccurrenceInCellsCS(ppaCellsPos, pSubValue, pCaseSensitive)
-		return This.FindNthOccurrenceInCellsCS(:First, paCellsPos, pSubValue, pCaseSensitive)
+	def FindFirstOccurrenceInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
+		return This.FindNthOccurrenceInCellsCS(1, paCellsPos, pSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -1707,9 +2313,199 @@ Class stzTable
 	def FindLastOccurrenceInCells(paCellsPos, pSubValue)
 		return This.FindLastOccurrenceInCellsCS(paCellsPos, pSubValue, :CaseSensitive = TRUE)
 
-	  #---------------------------------------------#
+	  #=========================================================================#
+	 #  FINDING ALL OCCURRENCES OF A VALUE INSIDE THE CELLS OF A GIVEN COLUMN  #
+	#=========================================================================#
+
+	
+	def FindInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+
+		paCellsPos = This.CellsInColAsPositions(pCol)
+
+		aResult = This.FindInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindOccurrencesInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+
+		#--
+
+		def FindInCellsInColumnCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindAllInCellsInColumnCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindOccurrencesInCellsInColumnCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInCellsInCol(pCol, pSubValue)
+		return This.FindInCellsInColCS(pCol, pSubValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllInCellsInCol(pCol, pSubValue)
+			return This.FindInCellsInCol(pCol, pSubValue)
+
+		def FindOccurrencesInCellsInCol(pCol, pSubValue)
+			return This.FindInCellsInCol(pCol, pSubValue)
+
+		#--
+
+		def FindInCellsInColumn(pCol, pSubValue)
+			return This.FindInCellsInCol(pCol, pSubValue)
+
+		def FindAllInCellsInColumn(pCol, pSubValue)
+			return This.FindInCellsInCol(pCol, pSubValue)
+
+		def FindOccurrencesInCellsInColumn(pCol, pSubValue)
+			return This.FindInCellsInCol(pCol, pSubValue)
+
+		#>
+
+	  #---------------------------------------------------------------------#
+	 #  FINDING ALL OCCURRENCES OF A VALUE INSIDE GIVEN CELLS -- EXTENDED  #
+	#---------------------------------------------------------------------#
+
+	def FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+		paCellsPos = This.CellsInColAsPositions(pCol)
+
+		aResult = This.FindInCellsXTCS(paCellsPos, pSubValue, pCaseSensitive)
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindInCellsInColCSXT(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindAllInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindAllInCellsInColCSXT(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindOccurrencesInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindOccurrencesInCellsInColCSXT(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
+		#--
+
+		def FindInCellsInColumnCSXT(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindInCellsInColumnXTCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindAllInCellsInColumnXTCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindAllInCellsInColumnCSXT(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindOccurrencesInCellsInColumnXTCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColumnXTCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindOccurrencesInCellsInColumnCSXT(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInCellsInColXT(pCol, pSubValue)
+		return This.FindInCellsInColXTCS(pCol, pSubValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllInCellsInColXT(pCol, pSubValue)
+			return This.FindInCellsInColXT(pCol, pSubValue)
+
+		def FindOccurrencesInCellsInColXT(pCol, pSubValue)
+			return This.FindInCellsInColXT(pCol, pSubValue)
+
+		#--
+
+		def FindInCellsInColumnXT(pCol, pSubValue)
+			return This.FindInCellsInColXT(pCol, pSubValue)
+
+		def FindOccurrencesInCellsInColumnXT(pCol, pSubValue)
+			return This.FindInCellsInColXT(pCol, pSubValue)
+
+		def FindAllInCellsInColumnXT(pCol, pSubValue)
+			return This.FindInCellsInColXT(pCol, pSubValue)
+
+		#>
+
+	  #------------------------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF A VALUE INSIDE THE CELLS OF A GIVEN COLUMN  #
+	#------------------------------------------------------------------------#
+
+	def FindNthOccurrenceInCellsInColCS(n, pCol, pSubValue, pCaseSensitive)
+		nResult = This.FindAllOccurrencesInCellsInColCS(paCellsPos, pSubValue, pCaseSensitive)[n]
+		return nResult
+
+		def FindNthOccurrenceInCellsInColumnCS(n, pCol, pSubValue, pCaseSensitive)
+			return This.FindNthOccurrenceInCellsInColCS(n, pCol, pSubValue, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthOccurrenceInCellsInCol(n, pCol, pSubValue)
+		return This.FindNthOccurrenceInCellsInColCS(n, pCol, pSubValue, :CaseSensitive = TRUE)
+
+		def FindNthOccurrenceInCellsInColumn(n, pCol, pSubValue)
+			return This.FindNthOccurrenceInCellsInCol(n, pCol, pSubValue)
+
+	  #--------------------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A VALUE INSIDE THE CELLS OF A GIVEN COLUMN  #
+	#--------------------------------------------------------------------------#
+
+	def FindFirstOccurrenceInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+		return This.FindNthOccurrenceInCellsInColCS(1, pCol, pSubValue, pCaseSensitive)
+
+		def FindFirstOccurrenceInCellsInColumnCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindFirstOccurrenceInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstOccurrenceInCellsInCol(pCol, pSubValue)
+		return This.FindFirstOccurrenceInCellsInColCS(pCol, pSubValue, :CaseSensitive = TRUE)
+
+		def FindFirstOccurrenceInCellsInColumn(pCol, pSubValue)
+			return This.FindFirstOccurrenceInCellsInCol(pCol, pSubValue)
+
+	  #--------------------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A VALUE INSIDE THE CELLS OF A GIVEN COLUMN   #
+	#--------------------------------------------------------------------------#
+
+	def FindLastOccurrenceInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+		return This.FindNthOccurrenceInCellsInColCS(:Last, pCol, pSubValue, pCaseSensitive)
+
+		def FindLastOccurrenceInCellsInColumnCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindLastOccurrenceInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastOccurrenceInCellsInCol(pCol, pSubValue)
+		return This.FindLastOccurrenceInCellsInColCS(pCol, pSubValue, :CaseSensitive = TRUE)
+
+		def FindLastOccurrenceInCellsInColumn(pCol, pSubValue)
+			return This.FindLastOccurrenceInCellsInCol(pCol, pSubValue)
+
+	  #=============================================#
 	 #  FINDING A VALUE INSIDE A SECTION OF CELLS  #
-	#---------------------------------------------#
+	#=============================================#
 
 	def FindInCellsInSectionCS(paCellPos1, paCellPos2, pSubValue, pCaseSensitive)
 		aCellsPos = This.SectionAsPositions(paCellPos1, paCellPos2)
@@ -2185,23 +2981,23 @@ Class stzTable
 
 		return aResult
 	
-	def TheseColumnsXT(pacColNamesOrNumbers)
-		if NOT 	( isList(pacColNamesOrNumbers) and
-			  ( Q(pacColNamesOrNumbers).IsListOfNumbers() or
-			  Q(pacColNamesOrNumbers).IsListOfStrings() )
+	def TheseColumns(paColNamesOrNumbers)
+		if NOT 	( isList(paColNamesOrNumbers) and
+			  ( Q(paColNamesOrNumbers).IsListOfNumbers() or
+			  Q(paColNamesOrNumbers).IsListOfStrings() )
 			)
 
-			stzRaise("Incorrect param type! pacColNamesOrNumbers must be a list of numbers or a list of strings.")
+			stzRaise("Incorrect param type! paColNamesOrNumbers must be a list of numbers or a list of strings.")
 		ok
 
 		aResult = []
 
-		if Q(pacColNamesOrNumbers).IsListOfNumbers()
-			anColNumbers = pacColNamesOrNumbers
+		if Q(paColNamesOrNumbers).IsListOfNumbers()
+			anColNumbers = paColNamesOrNumbers
 			aResult = This.SubTable( This.ColNumbersToNames(anColNumbers) )
 
-		but Q(pacColNamesOrNumbers).IsListOfStrings()
-			acColNames = pacColNamesOrNumbers
+		but Q(paColNamesOrNumbers).IsListOfStrings()
+			acColNames = paColNamesOrNumbers
 			aResult = This.SubTable( acColNames )
 
 		ok
@@ -2210,22 +3006,22 @@ Class stzTable
 
 		#< @FunctionFluentForm
 
-		def TheseColumnsXTQ(pacColNamesOrNumbers)
-			return TheseColumnsXTQR(pacColNamesOrNumbers, :stzList)
+		def TheseColumnsQ(paColNamesOrNumbers)
+			return TheseColumnsQR(paColNamesOrNumbers, :stzList)
 
-		def TheseColumnsXTQR(pacColNamesOrNumbers, pcReturnType)
+		def TheseColumnsQR(paColNamesOrNumbers, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.TheseColumnsXT(pacColNamesOrNumbers) )
+				return new stzList( This.TheseColumns(paColNamesOrNumbers) )
 
 			on :stzHashList
-				return new stzHashList( This.TheseColumnsXT(pacColNamesOrNumbers) )
+				return new stzHashList( This.TheseColumns(paColNamesOrNumbers) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.TheseColumnsXT(pacColNamesOrNumbers) )
+				return new stzListOfPairs( This.TheseColumns(paColNamesOrNumbers) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.TheseColumnsXT(pacColNamesOrNumbers) )
+				return new stzListOfLists( This.TheseColumns(paColNamesOrNumbers) )
 
 			other
 				stzRaise("Unsupported return type!")
@@ -2234,34 +3030,76 @@ Class stzTable
 
 		#< @FunctionAlternativeForms
 
-		def TheseColumnsDataXT(pacColNamesOrNumbers)
-			return This.TheseColumnsXT(pacColNamesOrNumbers)
+		def TheseCols(paColNamesOrNumbers)
+			return This.TheseColumns(paColNamesOrNumbers)
 
-		def TheseColsXT(pacColNamesOrNumbers)
-			return This.TheseColumnsXT(pacColNamesOrNumbers)
+			def TheseColsQ(paColNamesOrNumbers)
+				return This.TheseColsQR(paColNamesOrNumbers, :stzList)
 
-		def TheseColsDataXT(pacColNamesOrNumbers)
-			return This.TheseColumnsXT(pacColNamesOrNumbers)
+			def TheseColsQR(paColNamesOrNumbers, pcReturnType)
+				return This.TheseColumnsQR(paColNamesOrNumbers, pcReturnType)
+
+		def ColumnsAtPositions(panColNumbers)
+			return This.TheseColumns(panColNumbers)
+
+			def ColumnsAtPositionsQ(panColNumbers)
+				return This.ColumnsAtPositionsQR(panColNumbers, :stzList)
+
+			def ColumnsAtPositionsQR(panColNumbers, pcReturnType)
+				return This.TheseColumnsQR(panColNumbers, pcReturnType)
+
+
+		def ColumnsAt(panColNumbers)
+			return This.TheseColumns(panColNumbers)
+
+			def ColumnsAtQ(panColNumbers)
+				return This.ColumnsAtQR(panColNumbers, :stzList)
+
+			def ColumnsAtQR(panColNumbers, pcReturnType)
+				return This.TheseColumnsQR(panColNumbers, pcReturnType)
+
+		def ColAtPositions(panColNumbers)
+			return This.TheseColumns(panColNumbers)
+
+			def ColAtPositionsQ(panColNumbers)
+				return This.ColAtPositionsQR(panColNumbers, :stzList)
+
+			def ColAtPositionsQR(panColNumbers, pcReturnType)
+				return This.TheseColumnsXTQR(panColNumbers, pcReturnType)
+
+		def ColAt(panColNumbers)
+			return This.TheseColumns(panColNumbers)
+
+			def ColAtQ(panColNumbers)
+				return This.ColAtQR(panColNumbers, :stzList)
+
+			def ColAtQR(panColNumbers, pcReturnType)
+				return This.TheseColumnsXTQR(panColNumbers, pcReturnType)
 
 		#>
 
-	def TheseColumns(pacColNamesOrNumbers)
-		return This.TheseColumnsXTQR(pacColNamesOrNumbers, :stzHashList).Values()
+	def TheseColumnsXT(panColNamesOrNumbers)
+		for col in This.TheseColumns(panColNamesOrNumbers)
+			col = Q(col).AssociatedWith( This.ColPositions(col) )
+		next
 
-		def TheseColumnsData(pacColNamesOrNumbers)
-			return This.TheseColumns(pacColNamesOrNumbers)
+		def TheseColumnsXTQ(panColNamesOrNumbers)
+			return This.TheseColumnsXTQR(panColNamesOrNumbers, :stzList)
 
-		def TheseCols(pacColNamesOrNumbers)
-			return This.TheseColumns(pacColNamesOrNumbers)
+		def TheseColumnsXTQR(panColNamesOrNumbers, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.TheseColumnsXT(panColNamesOrNumbers) )
 
-		def TheseColsData(pacColNamesOrNumbers)
-			return This.TheseColumns(pacColNamesOrNumbers)
+			on :stzListOfPairs
+				return new stzListOfPairs( This.TheseColumnsXT(panColNamesOrNumbers) )
 
-		def TheseCol(pacColNamesOrNumbers)
-			return This.TheseColumns(pacColNamesOrNumbers)
+			on :stzListOfLists
+				return new stzListOfLists( This.TheseColumnsXT(panColNamesOrNumbers) )
 
-		def TheseColData(pacColNamesOrNumbers)
-			return This.TheseColumns(pacColNamesOrNumbers)
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 	def TheseColNames(panColNumbers)
 		if NOT (isList(panColNumbers) and Q(panColNumbers).IsListOfNumbers() )
@@ -2288,6 +3126,102 @@ Class stzTable
 
 		def TheseColsNames(panColNumbers)
 			return This.TheseColNames(panColNumbers)
+
+	  #======================#
+	 #  SUBSET OF THE TABLE #
+	#======================#
+
+	def SubSet(panRowsNumbers)
+		return This.TheseRows(panRowsNumbers)
+
+		def SubSetQ(panRowsNumbers)
+			return This.SubSetQR(panRowsNumbers, :stzList)
+
+		def SubSetQR(panRowsNumbers, pcReturnType)
+			return This.TheseRowsQR(panRowsNumbers, pcReturnType)
+
+	def TheseRows(panRowsNumbers)
+		if NOT 	( isList(panRowsNumbers) and Q(panRowsNumbers).IsListOfNumbers() )
+
+			stzRaise("Incorrect param type! panRowsNumbers must be a list of numbers.")
+		ok
+
+		aResult = []
+
+		for n in panRowsNumbers
+			aResult + This.Row(n)
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def TheseRowsQ(panRowsNumbers)
+			return TheseRowsQR(panRowsNumbers, :stzList)
+
+		def TheseRowsQR(panRowsNumbers, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Theserows(panRowsNumbers) )
+
+			on :stzHashList
+				return new stzHashList( This.TheseRows(panRowsNumbers) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.TheseRows(panRowsNumbers) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.TheseRows(panRowsNumbers) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RowsAtPositions(panRowsNumbers)
+			return This.TheseRows(panRowsNumbers)
+
+			def RowsAtPositionsQ(panRowsNumbers)
+				return This.RowsAtPositionsQR(panRowsNumbers, :stzList)
+
+			def RowsAtPositionsQR(panRowsNumbers, pcReturnType)
+				return This.TheseRowsQR(panRowsNumbers, pcReturnType)
+
+		def RowsAt(panRowsNumbers)
+			return This.TheseRows(panRowsNumbers)
+
+			def RowsAtQ(panRowsNumbers)
+				return This.RowsAtPositionsQR(panRowsNumbers, :stzList)
+
+			def RowsAtQR(panRowsNumbers, pcReturnType)
+				return This.TheseRowsQR(panRowsNumbers, pcReturnType)
+
+		#>
+
+	def TheseRowsXT(panRowsNumbers)
+		for n in This.TheseRows(panRowsNumbers)
+			col = RowQ(n).AssociatedWith( This.RowPositions(n) )
+		next
+
+		def TheserowsXTQ(panRowsNumbers)
+			return This.TheseRowsXTQR(panRowsNumbers, :stzList)
+
+		def TheseRowsXTQR(panRowsNumbers, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.TheseRowsXT(panRowsNumbers) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.TheseRowsXT(panRowsNumbers) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.TheseRowsXT(panRowsNumbers) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 	  #=====================#
 	 #  SORTING THE TABLE  #
