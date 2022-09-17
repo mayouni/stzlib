@@ -14125,6 +14125,22 @@ class stzList from stzObject
 		def IsWidthNamedParam()
 			return This.IsWidthNamedParamList()
 
+	def IsMadeOfNamedParamList()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :MadeOf )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsMAdeOfParamList()
+			return This.IsMadeOfNamedParamList()
+
+		def IsMadeOfNamedParam()
+			return This.IsMadeOfNamedParamList()
+
 	  #================================#
 	 #     GETTING TYPES OF ITEMS     #
 	#================================#
