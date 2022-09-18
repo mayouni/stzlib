@@ -395,12 +395,12 @@ o1.EraseCell(2, 3)
 ? @@S( o1.CellsInColAsPositions(:EMPLOYEE) ) // same as ColAsPositions(:EMPLOYEE)
 #--> [ [2, 1], [2, 2], [2, 3], [2, 4] ]
 
-? o1.CellsInColXT(:EMPLOYEE)
+? @@S( o1.CellsInColXT(:EMPLOYEE) )
 #--> [
-#	["Ali Sandy", 		[2, 1] ],
-#	["Dan Mikovitch Mo", 	[2, 2] ],
-#	["Ali Sa", 		[2, 3] ],
-#	["Ali Aziza", 		[2, 4] ]
+#	[ "Ali Sandy", 		[2, 1] ],
+#	[ "Dan Mikovitch Mo", 	[2, 2] ],
+#	[ "Ali Sa", 		[2, 3] ],
+#	[ "Ali Aziza", 		[2, 4] ]
 #    ]
 
 /*==============
@@ -447,17 +447,58 @@ o1.EraseCell(2, 3)
 #    ]
 
 /*==============
-*/
-# Finding the cells, in column :EMPLOYEE, CONTAINING the substring "Ali":
-? @@S( o1.FindInCellsInRow(2, "Ali") ) + NL
-#--> [ [ 1 ], [ ], [ 1 ], [ 1 ] ]
 
-? @@S( o1.FindInCellsInRowXT(2, "Ali") )
+? o1.Cell(:EMPLOYEE, 2) #--> Dan Mikovitch Mo
+? @@S( o1.FindInCell(:EMPLOYEE, 2, "Ali") ) #--> []
+? @@S( o1.FindInCell(:EMPLOYEE, 2, "Mo") )  #--> [ 15 ]
+
+/*--------------
+
+// Finding a subvalue in a number of cells
+? @@S( o1.FindInCells([ [2, 1], [1, 2], [2, 2], [2, 3] ], "Ali") )
 #--> [
-#	[ [ 1 ], [ 2, 1 ] ],
-#	[ [ 1 ], [ 2, 3 ] ],
-#	[ [ 1 ], [ 2, 4 ] ]
+#	[ [ 2, 1 ], [ 1 ] ],
+#	[ [ 2, 3 ], [ 1 ] ]
 #    ]
+
+// Finding a subvalue inside the cells of a given column
+? @@S( o1.FindInCells( o1.ColCellsAsPositions(:EMPLOYEE), "Ali" ) )
+#--> [
+#	[ [ 2, 1 ], [ 1 ] ],
+#	[ [ 2, 3 ], [ 1 ] ],
+#	[ [ 2, 4 ], [ 1 ] ]
+#    ]
+
+// Same as above:
+? @@S( o1.FindInCellsInColumn(:EMPLOYEE, "Ali") )
+
+// Finding a suvalue inside the cells of a given row
+? @@S( o1.FindInCells( o1.RowCellsAsPositions(3), "Ali" ) )
+#--> [ [ [ 2, 3 ], [ 1 ] ] ]
+
+// Same as above
+? @@S( o1.FindInCellsInRow(3, "Ali") )
+
+/*--------------
+*/
+? o1.NumberOfOccurrenceInCellsInCol(:EMPLOYEE, "Ali") #--> 3
+? o1.NumberOfOccurrenceInCellsInRow(3, "Ali") #--> 3
+
+
+/*==============
+
+? o1.NumberOfOccurrenceInCellsInRow(3, "Ali")
+ADD THIS FUNCTION
+
+# Finding the cells, in column :EMPLOYEE, CONTAINING the substring "Ali":
+? @@S( o1.FindInCellsInRow(3, "Ali") ) + NL
+#--> [ [ ], [ 1 ], [ ] ]
+SHOULD BECOME: [ [ 2, [ 1 ] ] ] # In Row 2, found 1 occurrence.
+
+? @@S( o1.FindInCellsInRowXT(3, "Ali") )
+#--> [ [ [ 1 ], [ 2, 3 ] ] ]
+SHOULD BECOME : [ [ [3, 2], [ 1 ] ] ] # In Cell [3, 2], found 1 occurrence
+REMOVE ..XT() IN FIND...() FUNCTIONS
 
 /*==============
 
