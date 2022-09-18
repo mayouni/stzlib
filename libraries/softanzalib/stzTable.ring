@@ -402,6 +402,12 @@ Class stzTable
 		def ColAsPositions(pCol)
 			return This.CellsInColAsPositions(pCol)
 
+		def ColCellsAsPositions(pCol)
+			return This.CellsInColAsPositions(pCol)
+
+		def CellsAsPositionsInCol(pCol)
+			return This.CellsInColAsPositions(pCol)
+
 		#--
 
 		def CellsInColumnAsPositions(pCol)
@@ -411,6 +417,12 @@ Class stzTable
 			return This.CellsInColAsPositions(pCol)
 
 		def ColumnAsPositions(pCol)
+			return This.CellsInColAsPositions(pCol)
+
+		def ColumnCellsAsPositions(pCol)
+			return This.CellsInColAsPositions(pCol)
+
+		def CellsAsPositionsInColumn(pCol)
 			return This.CellsInColAsPositions(pCol)
 
 		#>
@@ -599,7 +611,7 @@ Class stzTable
 		aResult = []
 
 		for i = 1 to This.NumberOfCols()
-			aResult + [ i, pnRow]
+			aResult + [ i, pnRow ]
 		next
 
 		return aResult
@@ -609,10 +621,13 @@ Class stzTable
 		def CellsInRowPositions(pnRow)
 			return This.CellsInRowAsPositions(pnRow)
 
-		def RowPositions(pnRow)
+		def RowAsPositions(pnRow)
 			return This.CellsInRowAsPositions(pnRow)
 
-		def RowAsPositions(pnRow)
+		def RowCellsAsPositions(pnRow)
+			return This.CellsInRowAsPositions(pnRow)
+
+		def CellsAsPositionsInrow(pnRow)
 			return This.CellsInRowAsPositions(pnRow)
 
 		#>
@@ -2194,7 +2209,10 @@ Class stzTable
 		aResult = []
 
 		for cellPos in paCellsPos
-			aResult + This.FindInCellCS(cellPos[1], cellPos[2], pSubValue, pCaseSensitive)
+			aOccurr = This.FindInCellCS(cellPos[1], cellPos[2], pSubValue, pCaseSensitive)
+			if len(aOccurr) > 0
+				aResult + [ cellPos, aOccurr ]
+			ok
 		next
 
 		return aResult
@@ -2235,7 +2253,7 @@ Class stzTable
 			i++
 			aPair = aPairs[i]
 			if len(aPair) != 0
-				aResult + [ aPair, cellPos ]
+				aResult + [ cellPos, aPair ]
 			ok
 		next
 
@@ -2317,13 +2335,8 @@ Class stzTable
 	 #  FINDING ALL OCCURRENCES OF A VALUE INSIDE THE CELLS OF A GIVEN COLUMN  #
 	#=========================================================================#
 
-	
 	def FindInCellsInColCS(pCol, pSubValue, pCaseSensitive)
-
-		paCellsPos = This.CellsInColAsPositions(pCol)
-
-		aResult = This.FindInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
-
+		aResult = This.FindInCellsCS( This.ColCellsAsPositions(pCol), pSubValue, pCaseSensitive )
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -2372,6 +2385,47 @@ Class stzTable
 
 		#>
 
+	  #=======================================================================#
+	 #  NUMBER OF OCCURRENCES OF A VALUE INSIDE THE CELLS OF A GIVEN COLUMN  #
+	#=======================================================================#
+
+	def NumberOfOccurrenceInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+		aCellsPos = This.ColCellsAsPositions(pCol)
+		nResult = len( This.FindInCellsCS(aCellsPos, pSubValue, pCaseSensitive) )
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfOccurrencesInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+
+		def NumberOfOccurrenceInCellsInColumnCS(pCol, pSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+
+		def NumberOfOccurrencesInCellsInColumnCS(pCol, pSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfOccurrenceInCellsInCol(pCol, pSubValue)
+		return This.NumberOfOccurrenceInCellsInColCS(pCol, pSubValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfOccurrencesInCellsInCol(pCol, pSubValue)
+			return This.NumberOfOccurrenceInCellsInCol(pCol, pSubValue)
+
+		def NumberOfOccurrenceInCellsInColumn(pCol, pSubValue)
+			return This.NumberOfOccurrenceInCellsInCol(pCol, pSubValue)
+
+		def NumberOfOccurrencesInCellsInColumn(pCol, pSubValue)
+			return This.NumberOfOccurrenceInCellsInCol(pCol, pSubValue)
+
+		#>
+
 	  #---------------------------------------------------------------------#
 	 #  FINDING ALL OCCURRENCES OF A VALUE INSIDE GIVEN CELLS -- EXTENDED  #
 	#---------------------------------------------------------------------#
@@ -2400,6 +2454,9 @@ Class stzTable
 		def FindOccurrencesInCellsInColCSXT(pCol, pSubValue, pCaseSensitive)
 			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
 
+		def FindAllOccurrencesInCellsInColCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
 		#--
 
 		def FindInCellsInColumnCSXT(pCol, pSubValue, pCaseSensitive)
@@ -2420,6 +2477,12 @@ Class stzTable
 		def FindOccurrencesInCellsInColumnCSXT(pCol, pSubValue, pCaseSensitive)
 			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
 
+		def FindAllOccurrencesInCellsInColumnCSXT(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
+		def FindAllOccurrencesInCellsInColumnXTCS(pCol, pSubValue, pCaseSensitive)
+			return This.FindInCellsInColXTCS(pCol, pSubValue, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -2435,6 +2498,9 @@ Class stzTable
 		def FindOccurrencesInCellsInColXT(pCol, pSubValue)
 			return This.FindInCellsInColXT(pCol, pSubValue)
 
+		def FindAllOccurrencesInCellsInColXT(pCol, pSubValue)
+			return This.FindInCellsInColXT(pCol, pSubValue)
+
 		#--
 
 		def FindInCellsInColumnXT(pCol, pSubValue)
@@ -2444,6 +2510,9 @@ Class stzTable
 			return This.FindInCellsInColXT(pCol, pSubValue)
 
 		def FindAllInCellsInColumnXT(pCol, pSubValue)
+			return This.FindInCellsInColXT(pCol, pSubValue)
+
+		def FindAllOccurrencesInCellsInColumnXT(pCol, pSubValue)
 			return This.FindInCellsInColXT(pCol, pSubValue)
 
 		#>
@@ -2502,6 +2571,124 @@ Class stzTable
 
 		def FindLastOccurrenceInCellsInColumn(pCol, pSubValue)
 			return This.FindLastOccurrenceInCellsInCol(pCol, pSubValue)
+
+	  #======================================================================#
+	 #  FINDING ALL OCCURRENCES OF A VALUE INSIDE THE CELLS OF A GIVEN ROW  #
+	#======================================================================#
+
+	
+	def FindInCellsInRowCS(pRow, pSubValue, pCaseSensitive)
+		paCellsPos = This.CellsInRowAsPositions(pRow)
+		aResult = This.FindInCellsCS(paCellsPos, pSubValue, pCaseSensitive)
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllInCellsInRowCS(pRow, pSubValue, pCaseSensitive)
+			return This.FindInCellsInRowCS(pRow, pSubValue, pCaseSensitive)
+
+		def FindOccurrencesInCellsInRowCS(pRow, pSubValue, pCaseSensitive)
+			return This.FindInCellsInRowCS(pRow, pSubValue, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInCellsInRow(pRow, pSubValue)
+		return This.FindInCellsInRowCS(pRow, pSubValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllInCellsInRow(pRow, pSubValue)
+			return This.FindInCellsInRow(pRow, pSubValue)
+
+		def FindOccurrencesInCellsInRow(pRow, pSubValue)
+			return This.FindInCellsInRow(pRow, pSubValue)
+
+		#>
+
+	  #---------------------------------------------------------------------#
+	 #  FINDING ALL OCCURRENCES OF A VALUE INSIDE GIVEN CELLS -- EXTENDED  #
+	#---------------------------------------------------------------------#
+
+	def FindInCellsInRowXTCS(pRow, pSubValue, pCaseSensitive)
+		paCellsPos = This.CellsInRowAsPositions(pRow)
+
+		aResult = This.FindInCellsXTCS(paCellsPos, pSubValue, pCaseSensitive)
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindInCellsInRowCSXT(pRow, pSubValue, pCaseSensitive)
+			return This.FindInCellsInRowXTCS(pRow, pSubValue, pCaseSensitive)
+
+		def FindAllInCellsInRowXTCS(pRow, pSubValue, pCaseSensitive)
+			return This.FindInCellsInRowXTCS(pRow, pSubValue, pCaseSensitive)
+
+		def FindAllInCellsInRowCSXT(pRow, pSubValue, pCaseSensitive)
+			return This.FindInCellsInRowXTCS(pRow, pSubValue, pCaseSensitive)
+
+		def FindOccurrencesInCellsInRowXTCS(pRow, pSubValue, pCaseSensitive)
+			return This.FindInCellsInRowXTCS(pRow, pSubValue, pCaseSensitive)
+
+		def FindOccurrencesInCellsInRowCSXT(pRow, pSubValue, pCaseSensitive)
+			return This.FindInCellsInRowXTCS(pRow, pSubValue, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInCellsInRowXT(pRow, pSubValue)
+		return This.FindInCellsInRowXTCS(pRow, pSubValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllInCellsInRowXT(pRow, pSubValue)
+			return This.FindInCellsInRowXT(pRow, pSubValue)
+
+		def FindOccurrencesInCellsInRowXT(pRow, pSubValue)
+			return This.FindInCellsInRowXT(pRow, pSubValue)
+
+		#>
+
+	  #---------------------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF A VALUE INSIDE THE CELLS OF A GIVEN ROW  #
+	#---------------------------------------------------------------------#
+
+	def FindNthOccurrenceInCellsInRowCS(n, pRow, pSubValue, pCaseSensitive)
+		nResult = This.FindAllOccurrencesInCellsInRowCS(paCellsPos, pSubValue, pCaseSensitive)[n]
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthOccurrenceInCellsInRow(n, pRow, pSubValue)
+		return This.FindNthOccurrenceInCellsInRowCS(n, pRow, pSubValue, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A VALUE INSIDE THE CELLS OF A GIVEN ROW  #
+	#-----------------------------------------------------------------------#
+
+	def FindFirstOccurrenceInCellsInRowCS(pRow, pSubValue, pCaseSensitive)
+		return This.FindNthOccurrenceInCellsInRowCS(1, pRow, pSubValue, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstOccurrenceInCellsInRow(pRow, pSubValue)
+		return This.FindFirstOccurrenceInCellsInRowCS(pRow, pSubValue, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A VALUE INSIDE THE CELLS OF A GIVEN ROW   #
+	#-----------------------------------------------------------------------#
+
+	def FindLastOccurrenceInCellsInRowCS(pRow, pSubValue, pCaseSensitive)
+		return This.FindNthOccurrenceInCellsInRowCS(:Last, pRow, pSubValue, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastOccurrenceInCellsInRow(pRow, pSubValue)
+		return This.FindLastOccurrenceInCellsInRowCS(pRow, pSubValue, :CaseSensitive = TRUE)
 
 	  #=============================================#
 	 #  FINDING A VALUE INSIDE A SECTION OF CELLS  #
