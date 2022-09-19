@@ -480,53 +480,62 @@ o1.EraseCell(2, 3)
 ? @@S( o1.FindInCellsInRow(3, "Ali") )
 
 /*--------------
-*/
+
 ? o1.NumberOfOccurrenceInCellsInCol(:EMPLOYEE, "Ali") #--> 3
-? o1.NumberOfOccurrenceInCellsInRow(3, "Ali") #--> 3
-
-
-/*==============
-
-? o1.NumberOfOccurrenceInCellsInRow(3, "Ali")
-ADD THIS FUNCTION
-
-# Finding the cells, in column :EMPLOYEE, CONTAINING the substring "Ali":
-? @@S( o1.FindInCellsInRow(3, "Ali") ) + NL
-#--> [ [ ], [ 1 ], [ ] ]
-SHOULD BECOME: [ [ 2, [ 1 ] ] ] # In Row 2, found 1 occurrence.
-
-? @@S( o1.FindInCellsInRowXT(3, "Ali") )
-#--> [ [ [ 1 ], [ 2, 3 ] ] ]
-SHOULD BECOME : [ [ [3, 2], [ 1 ] ] ] # In Cell [3, 2], found 1 occurrence
-REMOVE ..XT() IN FIND...() FUNCTIONS
+? o1.NumberOfOccurrenceInCellsInRow(3, "Ali") #--> 1
 
 /*==============
 
 ? o1.FindCol(:SALARY) #--> 3
 
+/*--------------
 
+? @@S( o1.FindCell("Dan Mikovitch Mo") )
+#--> [ [ 2, 2 ] ]
 
+? @@S( o1.FindCell("Ali Sandy") )
+#--> [ [ 2, 1 ] ]
 
+/*--------------
+*/
 
-
+o1 = new stzTable([
+	:CLASS1 = [ "Red",   "Blue",    "Blue", "White"  ],
+	:CLASS2 = [ "White",  "Red",   "Green",  "Gray"  ],
+	:CLASS3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+])
 
 /*------------
 
+? @@S( o1.FindAll("Red") )
+#--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
+
+? @@S( o1.FindInCol(:CLASS1, "Blue") )
+#--> [ [ 1, 2 ], [ 1, 3 ] ]
+
+? @@S( o1.FindInRow(2, "Red") ) 
+#--> [ [ 2, 2 ], [ 2, 3 ] ]
+
+/*------------
+*/
+
+//? @@S( o1.Section([1,2], [3,2]) )
+#--> [ "Blue", "Red", "Red" ]
+
+//? @@S( o1.SectionXT([1,2], [3,2]) )
+#--> [
+#	[ [ 1, 2 ], "Blue" ],
+#	[ [ 2, 2 ], "Red"  ],
+#	[ [ 3, 2 ], "Red"  ]
+#    ]
+
+? @@S( o1.FindInSection([1,2], [3,2], "Red") )
+#--> [ [ 2, 2 ], [ 3, 2 ] ]
+
+? @@S( o1.FindInSectionXT([1,2], [3,2], "Red") )
 
 /*=============
 
-? o1.FindCellsInCol(2, "Dan Mikov") #--> [ [2, 2], [2, 4] ]
-? o1.FindCellsInCol(:EMPLOYEE, [ "A", [ 1, 2, 3 ] ]) #--> [ [2, 5] ]
-
-/*-----------
-
-? o1.FindCol(:SALARY) #--> 3
-? o1.FindLine([598, "Dan Mikov", 18923]) #--> 4
-
-/*------------
-
-? @@S( o1.FindCellsInLine(2, "Dan Mikov" ) ) #--> [ [ 2, 2 ] ]
-? @@S( o1.FindCellsInLine(3, [ 5200 ]) ) #--> [ [ 3, 3 ] ]
 
 /*-----------
 
