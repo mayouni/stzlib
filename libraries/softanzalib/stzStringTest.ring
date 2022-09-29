@@ -427,7 +427,7 @@ aList = [
 	:Todo  = "Posposes an action to do"
 ]
 
-StzListQ(aList).IsRaiseNamedParamList() # --> TRUE
+StzListQ(aList).IsRaiseNamedParam() # --> TRUE
 
 # Internally, StzList checks for a number of conditions
 

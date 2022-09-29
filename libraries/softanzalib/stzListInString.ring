@@ -32,7 +32,7 @@ class stzListInString from stzString
 			return new stzList(This.List())
 
 		def ListQR(pcType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 

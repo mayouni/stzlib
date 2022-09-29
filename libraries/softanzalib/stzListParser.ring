@@ -61,8 +61,8 @@ class stzListParser from stzParser
 	def Parse(pnStart, pnEnd, pnStep)
 
 		if isList(pnStart) and 
-		   ( StzListQ(pnStart).IsStartingAtNamedParamList() or
-		     StzListQ(pnStart).IsFromNamedParamList() )
+		   ( StzListQ(pnStart).IsStartingAtNamedParam() or
+		     StzListQ(pnStart).IsFromNamedParam() )
 
 			if pnStart[2] = :First
 				pnStart[2] = 1
@@ -74,7 +74,7 @@ class stzListParser from stzParser
 			
 		ok
 
-		if isList(pnEnd) and StzListQ(pnEnd).IsToNamedParamList()
+		if isList(pnEnd) and StzListQ(pnEnd).IsToNamedParam()
 
 			if pnEnd[2] = :Last
 				pnEnd = len(This.List())
@@ -84,7 +84,7 @@ class stzListParser from stzParser
 
 		ok
 
-		if isList(pnStep) and StzListQ(pnStep).IsStepNamedParamList()
+		if isList(pnStep) and StzListQ(pnStep).IsStepNamedParam()
 			pnStep = pnStep[2]
 		ok
 

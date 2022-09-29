@@ -53,15 +53,15 @@ class stzParser from stzList
 		This.Parse( This.StartOfParsing(), n, This.NumberOfSteps() )
 
 	def Parse(pnStart, pnEnd, pnSteps)
-		if isList(pnStart) and StzListQ(pnStart).IsStartingAtNamedParamList()
+		if isList(pnStart) and StzListQ(pnStart).IsStartingAtNamedParam()
 			pnStart = pnStart[2]
 		ok
 
-		if isList(pnEnd) and StzListQ(pnEnd).IsToNamedParamList()
+		if isList(pnEnd) and StzListQ(pnEnd).IsToNamedParam()
 			pnEnd = pnEnd[2]
 		ok
 		
-		if isList(pnSteps) and StzListQ(pnSteps).IsStepNamedParamList()
+		if isList(pnSteps) and StzListQ(pnSteps).IsStepNamedParam()
 			pnSteps = pnSteps[2]
 		ok
 

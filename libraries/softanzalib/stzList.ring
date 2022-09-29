@@ -2,7 +2,7 @@
 #		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
 #									    #
-# 	Description	: The core class for managing softanza lists        #
+# 	Description	: The core class for managing lists in Softanza     #
 #	Version		: V1.0 (2020-2022)				    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
@@ -286,7 +286,7 @@ func ListIsListOfStrings(paList)
 		return ListIsListOfStrings(paList)
 
 func IsRangeNamedParamList(paList)
-	return StzListQ(paList).IsRangeNamedParamList()
+	return StzListQ(paList).IsRangeNamedParam()
 
 	func ListIsRangeNamedParamList(paList)
 		return This.IsRangeNamedParamList(paList)
@@ -579,7 +579,7 @@ class stzList from stzObject
 
 	def Update(paNewList)
 		if isList(paNewList) and
-		   ( StzListQ(paNewList).IsWithNamedParamList() or StzListQ(paNewList).IsUsingNamedParamList() )
+		   ( StzListQ(paNewList).IsWithNamedParam() or StzListQ(paNewList).IsUsingNamedParam() )
 
 			paNewList = paNewList[2]
 
@@ -848,7 +848,7 @@ class stzList from stzObject
 
 	def ReplaceAllOccurrencesOfItem(pItem, pNewItem)
 			
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
@@ -1051,7 +1051,7 @@ class stzList from stzObject
 			stzRaise("Uncorrect param! pacItems must be a list.")
 		ok
 
-		if isList(pacNewItems) and Q(pacNewItems).IsWithOrByNamedParamList()
+		if isList(pacNewItems) and Q(pacNewItems).IsWithOrByNamedParam()
 			pacNewItems = pacNewItems[2]
 		ok
 
@@ -1088,7 +1088,7 @@ class stzList from stzObject
 		*/
 
 		if isList(paOtherItems) and
-		   StzListQ(paOtherItems).IsWithOrByNamedParamList()
+		   StzListQ(paOtherItems).IsWithOrByNamedParam()
 		
 			paOtherItems = paOtherItems[2]
 		ok
@@ -1188,12 +1188,12 @@ class stzList from stzObject
 	#-----------------------------------------#
 
 	def ReplaceNthOccurrence(n, pItem, pOtherItem)
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
 		if isList(pOtherItem) and
-		   StzListQ(pOtherItem).IsWithOrByNamedParamList()
+		   StzListQ(pOtherItem).IsWithOrByNamedParam()
 		
 			pOtherItem = pOtherItem[2]
 		ok
@@ -1319,12 +1319,12 @@ class stzList from stzObject
 			stzRaise("Incorrect param! n must be a number.")
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
 		if isList(pNewItem) and
-		   StzListQ(pNewItem).IsWithOrByNamedParamList()
+		   StzListQ(pNewItem).IsWithOrByNamedParam()
 
 			if Q(pNewItem[1]).LastChar() = "@"
 				cCode = 'pNewtItem = ' + pNewItem[2]
@@ -1334,7 +1334,7 @@ class stzList from stzObject
 			ok
 		ok
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -1428,12 +1428,12 @@ class stzList from stzObject
 			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
 		if isList(pNewItem) and
-		   StzListQ(pNewItem).IsWithOrByNamedParamList()
+		   StzListQ(pNewItem).IsWithOrByNamedParam()
 			if Q(pNewItem[1]).LastChar() = "@"
 				cCode = 'pNewtItem = ' + pNewItem[2]
 				eval(cCode)
@@ -1442,7 +1442,7 @@ class stzList from stzObject
 			ok
 		ok
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -1516,12 +1516,12 @@ class stzList from stzObject
 	#---------------------------------------------------#
 
 	def ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
 		if isList(pNewItem) and
-		   StzListQ(pNewItem).IsWithOrByNamedParamList()
+		   StzListQ(pNewItem).IsWithOrByNamedParam()
 
 			if Q(pNewItem[1]).LastChar() = "@"
 				cCode = 'pNewtItem = ' + pNewItem[2]
@@ -1532,7 +1532,7 @@ class stzList from stzObject
 			ok
 		ok
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -1623,12 +1623,12 @@ class stzList from stzObject
 			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
 		if isList(pNewItem) and
-		   ( StzListQ(pNewItem).IsWithNamedParamList() or StzListQ(pNewItem).IsByNamedParamList() )
+		   ( StzListQ(pNewItem).IsWithNamedParam() or StzListQ(pNewItem).IsByNamedParam() )
 
 			if Q(pNewItem[1]).LastChar() = "@"
 				cCode = 'pNewtItem = ' + pNewItem[2]
@@ -1639,7 +1639,7 @@ class stzList from stzObject
 			ok
 		ok
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -1743,7 +1743,7 @@ class stzList from stzObject
 			stzRaise("the Nth position you provided is out of range!")
 		ok
 
-		if isList(pcOtherItem) and Q(pcOtherItem).IsWithOrByNamedParamList()
+		if isList(pcOtherItem) and Q(pcOtherItem).IsWithOrByNamedParam()
 
 			if Q(pcOtherItem[1]).LastChar() = "@"
 
@@ -2006,7 +2006,7 @@ class stzList from stzObject
 
 		*/
 
-		if isList(pNewItem) and Q(pNewItem).IsWithOrByNamedParamList()
+		if isList(pNewItem) and Q(pNewItem).IsWithOrByNamedParam()
 			pNewItem = pNewItem[2]
 		ok
 
@@ -2368,7 +2368,7 @@ class stzList from stzObject
 			stzRaise("Incorrect param type! pOtherItem must be string or list.")
 		ok 
 
-		if isList(pCondition) and StzListQ(pCondition).IsWhereNamedParamList()
+		if isList(pCondition) and StzListQ(pCondition).IsWhereNamedParam()
 			cCondition = pCondition[2]
 		ok
 
@@ -2381,7 +2381,7 @@ class stzList from stzObject
 		cReplace = :With
 
 		if isList(pOtherItem) and
-		   ( StzListQ(pOtherItem).IsByNamedParamList() or StzListQ(pOtherItem).IsWithNamedParamList() )
+		   ( StzListQ(pOtherItem).IsByNamedParam() or StzListQ(pOtherItem).IsWithNamedParam() )
 
 			cReplace = pOtherItem[1]
 			pOtherItem = pOtherItem[2]
@@ -2505,7 +2505,7 @@ class stzList from stzObject
 	#===========================================================#
 
 	def RemoveAll(pItem)
-		if isList(pItem) and Q(pItem).IsOfNamedParamList()
+		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
@@ -2854,11 +2854,11 @@ class stzList from stzObject
 	#----------------------------------------------#
 
 	def RemoveNextNthOccurrence(n, pItem, pnStartingAt)
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -2950,11 +2950,11 @@ class stzList from stzObject
 			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -3035,11 +3035,11 @@ class stzList from stzObject
 	#--------------------------------------------------#
 
 	def RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -3130,11 +3130,11 @@ class stzList from stzObject
 			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -3424,7 +3424,7 @@ class stzList from stzObject
 	
 		# Checking the correctness of the pnStart param
 
-		if isList(pnStart) and Q(pnStart).IsFromNamedParamList()
+		if isList(pnStart) and Q(pnStart).IsFromNamedParam()
 			pnStart = pnStart[2]
 		ok
 
@@ -3525,13 +3525,13 @@ class stzList from stzObject
 		# Checking params correctness
 
 		if isList(n1) and
-			( Q(n1).IsFromNamedParamList() or Q(n1).IsFromNamedParamList()  or
-			  Q(n1).IsFromPositionNamedParamList() )
+			( Q(n1).IsFromNamedParam() or Q(n1).IsFromNamedParam()  or
+			  Q(n1).IsFromPositionNamedParam() )
 
 			n1 = n1[2]
 		ok
 
-		if isList(n2) and ( Q(n2).IsToNamedParamList() or Q(n2).IsToPositionNamedParamList() )
+		if isList(n2) and ( Q(n2).IsToNamedParam() or Q(n2).IsToPositionNamedParam() )
 			n2 = n2[2]
 		ok
 
@@ -3897,6 +3897,9 @@ class stzList from stzObject
 
 		return bResult
 
+	def IsNotHashList()
+		return NOT This.IsHashList()
+
 	def AllItemsAreHashLists()
 		if This.NumberOfItems() = 0
 			return FALSE
@@ -3926,7 +3929,7 @@ class stzList from stzObject
 
 		#>
 
-	def AllItemsAreListsHavingSameNumberOfItems()
+	def ItemsAreListsOfSameSize()
 		if This.NumberOfItems() = 0
 			return FALSE
 		ok
@@ -3947,7 +3950,11 @@ class stzList from stzObject
 
 		return bResult
 
-	def AllItemsAreSets()
+		def AllItemsAreListsOfSameSize()
+			return This.ItemsAreListsOfSameSize()
+
+
+	def ItemsAreSets()
 		if This.NumberOfItems() = 0
 			return FALSE
 		ok
@@ -3962,6 +3969,9 @@ class stzList from stzObject
 		end
 
 		return bResult
+
+		def AllItemsAreSets()
+			return This.ItemsAreSets()
 
 	def IsListOfStrings()
 		if This.NumberOfItems() = 0
@@ -4035,6 +4045,20 @@ class stzList from stzObject
 		ok
 
 		return This.AllItemsAreSets()
+
+	def IsListOfNumbersAndStrings()
+		bResult = TRUE
+		for item in This.List()
+			if NOT (isString(item) or isNumber(item))
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def IsListOfStringsAndNumbers()
+			return This.IsListOfNumbersAndStrings()
 
 	def Transform( pcWhat, pcCondition, pcTo )
 		/*
@@ -5103,7 +5127,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		if isList(pcCondition) and Q(pcCondition).IsThatOrWhereNamedParamList()
+		if isList(pcCondition) and Q(pcCondition).IsThatOrWhereNamedParam()
 			pcCondition = pcCondition[2]
 		ok
 
@@ -5249,7 +5273,7 @@ class stzList from stzObject
 			return This.YieldQR(pcCode, :stzList)
 	
 		def YieldQR(pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -5284,7 +5308,7 @@ class stzList from stzObject
 				return This.YieldFromEachItemQR(pcCode, :stzList)
 		
 			def YieldFromEachItemQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5312,7 +5336,7 @@ class stzList from stzObject
 				return This.YieldFromEachItemQR(pcCode, :stzList)
 		
 			def HarvestQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5340,7 +5364,7 @@ class stzList from stzObject
 				return This.HarvestFromEachItemQR(pcCode, :stzList)
 		
 			def HarvestFromEachItemQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5429,7 +5453,7 @@ class stzList from stzObject
 			return This.YieldFromQR(paPositions, pcCode, :stzList)
 	
 		def YieldFromQR(paPositions, pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -5458,7 +5482,7 @@ class stzList from stzObject
 				return This.YieldFromPositionsQR(paPositions, pcCode, :stzList)
 		
 			def YieldFromPositionsQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5483,7 +5507,7 @@ class stzList from stzObject
 				return This.YieldFromItemsAtQR(paPositions, pcCode, :stzList)
 		
 			def YieldFromItemsAtQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5508,7 +5532,7 @@ class stzList from stzObject
 				return This.YieldFromItemsAtPositionsQR(paPositions, pcCode, :stzList)
 		
 			def YieldFromItemsAtPositionsQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5536,7 +5560,7 @@ class stzList from stzObject
 				return This.HarvestFromQR(paPositions, pcCode, :stzList)
 		
 			def HarvestFromQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5561,7 +5585,7 @@ class stzList from stzObject
 				return This.HarvestFromPositionsQR(paPositions, pcCode, :stzList)
 		
 			def HarvestFromPositionsQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5586,7 +5610,7 @@ class stzList from stzObject
 				return This.HarvestFromItemsAtQR(paPositions, pcCode, :stzList)
 		
 			def HarvestFromItemsAtQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5611,7 +5635,7 @@ class stzList from stzObject
 				return This.HarvestFromItemsAtPositionsQR(paPositions, pcCode, :stzList)
 		
 			def HarvestFromItemsAtPositionsQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5656,7 +5680,7 @@ class stzList from stzObject
 			return This.YieldFromSectionsQR(paPositions, pcCode, :stzList)
 	
 		def YieldFromSectionsQR(paPositions, pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -5685,7 +5709,7 @@ class stzList from stzObject
 				return This.HarvestFromSectionsQR(paSections, pcCode, :stzList)
 
 			def HarvestFromSectionsQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5711,7 +5735,7 @@ class stzList from stzObject
 				return This.YieldSectionsQR(paSections, pcCode, :stzList)
 
 			def YieldSectionsQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5737,7 +5761,7 @@ class stzList from stzObject
 				return This.HarvestSectionsQR(paSections, pcCode, :stzList)
 
 			def HarvestSectionsQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5781,7 +5805,7 @@ class stzList from stzObject
 			return This.YieldFromSectionsOneByOneQR(paSections, pcCode, :stzList)
 
 		def YieldFromSectionsOneByOneQR(paSections, pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -5811,7 +5835,7 @@ class stzList from stzObject
 				return This.HarvestFromSectionsOneByOneQR(paSections, pcCode, :stzList)
 
 			def HarvestFromSectionsOneByOneQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5837,7 +5861,7 @@ class stzList from stzObject
 				return This.HarvestSectionsOneByOneQR(paSections, pcCode, :stzList)
 
 			def HarvestSectionsOneByOneQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5863,7 +5887,7 @@ class stzList from stzObject
 				return This.YieldSectionsOneByOneQR(paSections, pcCode, :stzList)
 
 			def YieldSectionsOneByOneQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5897,7 +5921,7 @@ class stzList from stzObject
 			stzRaise("Incorrect param! pcCode must be a string.")
 		ok
 
-		if isList(pcCondition) and Q(pcCondition).IsWhereOrIfParamList()
+		if isList(pcCondition) and Q(pcCondition).IsWhereOrIfNamedParam()
 			pcCondition = pccondition[2]
 		ok
 
@@ -5916,7 +5940,7 @@ class stzList from stzObject
 				return This.YieldWQR(paPositions, pcCode, :stzList)
 		
 			def YieldWQR(pcCode, pcCondition, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5948,7 +5972,7 @@ class stzList from stzObject
 				return This.HarvestWQR(pcCode, pcCondition, :stzList)
 
 			def HervestWQR(pcCode, pcCondition, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -5996,7 +6020,7 @@ class stzList from stzObject
 			return This
 
 		def PerformQR(pcCode, pcReturnType)
-			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6099,7 +6123,7 @@ class stzList from stzObject
 			return This
 
 		def PerformOnQR(panPositions, pcCode)
-			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6137,7 +6161,7 @@ class stzList from stzObject
 				return This
 	
 			def PerformOnPositionsQR(panPositions, pcCode, pcReturnType)
-				if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6175,7 +6199,7 @@ class stzList from stzObject
 				return This
 
 			def PerformOnThesePositionsQR(panPositions, pcCode, pcReturnType)
-				if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6243,7 +6267,7 @@ class stzList from stzObject
 			return This
 
 		def PerformOnSectionsQR(paSections, pcCode, pcReturnType)
-			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6281,7 +6305,7 @@ class stzList from stzObject
 				return This
 
 			def PerformOnTheseSectionsQR(paSections, pcCode, pcReturnType)
-				if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6319,7 +6343,7 @@ class stzList from stzObject
 			stzRaise("Incorrect type! pcAction must be a string.")
 		ok
 		
-		if isList(pcCondition) and Q(pcCondition).IsIfOrWhereNamedParamList()
+		if isList(pcCondition) and Q(pcCondition).IsIfOrWhereNamedParam()
 
 			pcCondition = pcCondition[2]
 		ok
@@ -6345,7 +6369,7 @@ class stzList from stzObject
 			return This
 
 		def PerformWQR(pcAction, pcCondition, pcReturnType)
-			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6575,7 +6599,7 @@ class stzList from stzObject
 			return This.HasSameContentAs(paOtherList)
 
 	def Positions(pItem)
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
@@ -6584,7 +6608,7 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def PositionsQR(pItem, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6610,7 +6634,7 @@ class stzList from stzObject
 			return This.Positions(pItem)
 
 			def OccurrencesQR(pItem, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -6687,7 +6711,7 @@ class stzList from stzObject
 			return This.ClassifyQR(:stzList)
 
 		def ClassifyQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6713,7 +6737,7 @@ class stzList from stzObject
 				return This.CategorizeQR(:stzList)
 	
 			def CategorizeQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -6736,7 +6760,7 @@ class stzList from stzObject
 				return This.CategoriseQR(:stzList)
 	
 			def CategoriseQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -6768,7 +6792,7 @@ class stzList from stzObject
 			return This.ClassesQR(:stzList)
 
 		def ClassesQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6793,7 +6817,7 @@ class stzList from stzObject
 				return This.ClassesQR(:stzList)
 	
 			def CategoriesQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -6909,7 +6933,7 @@ class stzList from stzObject
 			return This.Classify@CQR(:stzList)
 
 		def Classify@CQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6935,7 +6959,7 @@ class stzList from stzObject
 				return This.Categorize@CQR(:stzList)
 	
 			def Categorize@CQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -6958,7 +6982,7 @@ class stzList from stzObject
 				return This.Categorise@CQR(:stzList)
 	
 			def Categorise@CQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6991,7 +7015,7 @@ class stzList from stzObject
 			return This.Classes@CQR(:stzList)
 
 		def Classes@CQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -7016,7 +7040,7 @@ class stzList from stzObject
 				return This.Classes@CQR(:stzList)
 	
 			def Categories@CQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -7985,7 +8009,7 @@ class stzList from stzObject
 		--> Gives: [ '-', '-', '-', 'V', 'A', 'R', '-', '-', '-' ]
 		*/
 
-		if isList(pItem) and Q(pItem).IsWithOrByNamedParamlist()
+		if isList(pItem) and Q(pItem).IsWithOrByNamedParam()
 			pItem = pItem[2]
 		ok
 
@@ -8068,7 +8092,7 @@ class stzList from stzObject
 		Gives --> [ "_","_","_","V","A","R","_","_","_" ]
 		*/
 
-		if isList(pItem) and Q(pItem).IsWithOrByNamedParamlist()
+		if isList(pItem) and Q(pItem).IsWithOrByNamedParam()
 			pItem = pItem[2]
 		ok
 
@@ -8438,7 +8462,7 @@ class stzList from stzObject
 		ok
 
 		bDynamic = FALSE
-		if isList(pWith) and Q(pWith).IsWithOrByNamedPAramList()
+		if isList(pWith) and Q(pWith).IsWithOrByNamedParam()
 			if Q(pWith[1]).LastChar() = "@"
 				bDynamic = TRUE
 			ok
@@ -8645,7 +8669,7 @@ class stzList from stzObject
 			return new stzSet( This.ToSet() )
 	
 		def ToSetQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 	
@@ -8735,7 +8759,7 @@ class stzList from stzObject
 	#-----------------------------------------------------#
 
 	def NumberOfOccurrence(pItem)
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
@@ -8773,7 +8797,7 @@ class stzList from stzObject
 
 	def FindDuplicatedItems(pItem)
 
-		if isList(pItem) and Q(pItem).IsOfNamedParamList()
+		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
@@ -8791,7 +8815,7 @@ class stzList from stzObject
 			return This.DuplicatedItems
 
 		def FindDuplicatedItemsQR(pItem, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -9784,7 +9808,7 @@ class stzList from stzObject
 
 		*/
 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
@@ -9811,7 +9835,7 @@ class stzList from stzObject
 			return This.FindAllOccurrencesQR(pItem, :stzList)
 
 		def FindAllOccurrencesQR(pItem, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -9838,7 +9862,7 @@ class stzList from stzObject
 				return This.FindAllQR(pItem, :stzList)
 	
 			def FindAllQR(pItem, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -9957,7 +9981,7 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindManyQR(paItems, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -10006,7 +10030,7 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindAllExceptFirstQR(pItem, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -10033,7 +10057,7 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptFirstQR(pItem, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -10060,7 +10084,7 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindAllExceptLastQR(pItem, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -10087,7 +10111,7 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptLastQR(pItem, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -10166,11 +10190,11 @@ class stzList from stzObject
 	#-------------------------------------------------#
 
 	def FindNthNextOccurrence( n, pItem, nStart )
-		if isList(pItem) and Q(pItem).IsOfNamedParamList()
+		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
-		if isList(nStart) and Q(nStart).IsStartingAtNamedParamList()
+		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
 			nStart = nStart[2]
 		ok
 
@@ -10207,11 +10231,11 @@ class stzList from stzObject
 			stzRaise("Out of range! n should be between 1 and This.NumberOfItems().")
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParamList()
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
-		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParamList()
+		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
 
 			if isString(nStart[2])
 				if nStart[2] = :First or nStart[2] = :FirstItem
@@ -10293,7 +10317,7 @@ class stzList from stzObject
 	#-----------------------------------------#
 
 	def FindNextOccurrences(pItem, pnStartingAt)
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -10339,7 +10363,7 @@ class stzList from stzObject
 
 	def FindPreviousOccurrences(pcSubStr, pnStartingAt)
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParamList()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -10382,7 +10406,7 @@ class stzList from stzObject
 		because YieldW() uses the current function FindW() --> Stackoverfolw!
 		*/
 		
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParamList()
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
 			pcCondition = pcCondition[2]
 		ok
 
@@ -10437,7 +10461,7 @@ class stzList from stzObject
 			return This.FindAllItemsWQR(pCondition, :stzList)
 	
 		def FindAllItemsWQR(pCondition, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -10464,7 +10488,7 @@ class stzList from stzObject
 				return This.FindAllWQR(pCondition, :stzList)
 
 			def FindAllWQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -10490,7 +10514,7 @@ class stzList from stzObject
 				return This.FindWQR(pCondition, :stzList)
 
 			def FindWQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -10515,7 +10539,7 @@ class stzList from stzObject
 				return This.FindWhereQR(pCondition, :stzList)
 
 			def FindWhereQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -10540,7 +10564,7 @@ class stzList from stzObject
 				return This.FindAllWhereQR(pCondition, :stzList)
 
 			def FindAllWhereQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -10565,7 +10589,7 @@ class stzList from stzObject
 				return This.FindAllItemsWhereQR(pCondition, :stzList)
 
 			def FindAllItemsWhereQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -10948,7 +10972,7 @@ class stzList from stzObject
 			return This.NumbersQR(:stzList)
 
 		def NumbersQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -10974,7 +10998,7 @@ class stzList from stzObject
 				return This.OnlyNumbersQR(:stzList)
 	
 			def OnlyNumbersQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -11031,7 +11055,7 @@ class stzList from stzObject
 			return This.NonNumbersQR(:stzList)
 
 		def NonNumbersQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11053,7 +11077,7 @@ class stzList from stzObject
 				return This.OnlyNonNumbersQR(:stzList)
 	
 			def OnlyNonNumbersQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -11134,7 +11158,7 @@ class stzList from stzObject
 			return This.StringsQR(:stzList)
 
 		def StringsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11160,7 +11184,7 @@ class stzList from stzObject
 				return This.OnlyStringsQR(:stzList)
 	
 			def OnlyStringsQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -11220,7 +11244,7 @@ class stzList from stzObject
 			return This.NonStringsQR(:stzList)
 
 		def NonStringsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11242,7 +11266,7 @@ class stzList from stzObject
 				return This.OnlyNonStringsQR(:stzList)
 	
 			def OnlyNonStringsQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -11605,7 +11629,7 @@ class stzList from stzObject
 			return This.ListsQR(:stzList)
 
 		def ListsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11631,7 +11655,7 @@ class stzList from stzObject
 				return This.OnlyListsQR(:stzList)
 	
 			def OnlyListsQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -11688,7 +11712,7 @@ class stzList from stzObject
 			return This.NonListsQR(:stzList)
 
 		def NonListsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11710,7 +11734,7 @@ class stzList from stzObject
 				return This.OnlyNonListsQR(:stzList)
 	
 			def OnlyNonListsQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -12064,7 +12088,7 @@ class stzList from stzObject
 	#----------------------------------------------#
 
 	def Split(pItem)
-		if isList(pItem) and StzList(pItem).IsUsingNamedParamList()
+		if isList(pItem) and StzList(pItem).IsUsingNamedParam()
 			pItem = pItem[2]
 		ok
 
@@ -12079,7 +12103,7 @@ class stzList from stzObject
 			return This.SplitQR(pItem, :stzList)
 
 		def SplitQR(pItem, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -12114,7 +12138,7 @@ class stzList from stzObject
 				return This.SplitUsingQR(pItem, pcReturnType)
 	
 			def SplitUsingQR(pItem, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -12178,7 +12202,7 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def SplitToPartsOfNItemsQR(n, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -12217,7 +12241,7 @@ class stzList from stzObject
 				return This.SplitToPartsOfNItemsQR(n, :stzList)
 	
 			def SplitToPartsOfNQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -12234,7 +12258,7 @@ class stzList from stzObject
 				return This.SplitToPartsOfNItemsQR(n, :stzList)
 	
 			def SplitToPartsOfQR(n, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -12243,7 +12267,7 @@ class stzList from stzObject
 			#>
 
 		def SplitToParts(n)
-			if isList(n) and StzListQ(n).IsOfNamedParamList()
+			if isList(n) and StzListQ(n).IsOfNamedParam()
 				n = n[2]
 			ok
 
@@ -12253,7 +12277,7 @@ class stzList from stzObject
 				return This.SplitToPartsQR(n, :stzList)
 	
 			def SplitToPartsQR(n, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -12437,11 +12461,11 @@ class stzList from stzObject
 
 	def Section(n1, n2)
 
-		if isList(n1) and StzListQ(n1).IsFromNamedParamList()
+		if isList(n1) and StzListQ(n1).IsFromNamedParam()
 			n1 = n1[2]
 		ok
 
-		if isList(n2) and StzListQ(n2).IsToNamedParamList()
+		if isList(n2) and StzListQ(n2).IsToNamedParam()
 			n2 = n2[2]
 		ok
 
@@ -12499,7 +12523,7 @@ class stzList from stzObject
 			return This.SectionQR(n1, n2, :stzList)
 
 		def SectionQR(n1, n2, pcReturntype)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -12534,7 +12558,7 @@ class stzList from stzObject
 				return This.SliceQR(n1, n2, :stzList)
 	
 			def SliceQR(n1, n2, pcReturntype)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -12596,11 +12620,11 @@ class stzList from stzObject
 
 		*/
 
-		if isList(pItem1) and Q(pItem1).IsFromParamList()
+		if isList(pItem1) and Q(pItem1).IsFromNamedParam()
 			pItem1 = pItem1[2]
 		ok
 
-		if isList(pItem2) and Q(pItem2).IsToNamedParamList()
+		if isList(pItem2) and Q(pItem2).IsToNamedParam()
 			pItem2 = pItem2[2]
 		ok
 
@@ -12640,7 +12664,7 @@ class stzList from stzObject
 
 		*/
 
-		if isList(paSections) and Q(paSections).IsOfNamedParamList()
+		if isList(paSections) and Q(paSections).IsOfNamedParam()
 			paSections = paSections[2]
 		ok
 
@@ -12812,7 +12836,7 @@ class stzList from stzObject
 			return This.RangeQR(pnStart, pnRange, :stzList)
 
 		def RangeQR(pnStart, pnRange, pcReturntype)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -13058,7 +13082,7 @@ class stzList from stzObject
 	
 		*/
 
-		if isList(anShareOfEachItem) and Q(anShareOfEachItem).IsUsingNamedParamList()
+		if isList(anShareOfEachItem) and Q(anShareOfEachItem).IsUsingNamedParam()
 			anShareOfEachItem = anShareOfEachItem[2]
 		ok
 
@@ -13127,11 +13151,25 @@ class stzList from stzObject
 		aResult = This.DistributeOverXT( acBeneficiaryItems, :Using = anShare)
 		return aResult
 
-	  #---------------------------------#
-	 #   CHECKING OPTION PARAM LISTS   #
-	#---------------------------------#
+	  #===========================================#
+	 #   CHECKING IF THE LIST IS A NAMED PARAM   #
+	#===========================================#
 
-	def IsRemoveAtOptionsParamList()
+	def IsOneOfTheseNamedParams(pacParamNames)
+		bResult = FALSE
+
+		for cParamName in pacParamNames
+			cCode = 'bFound = This.Is' + cParamName + 'NamedParam()'
+			eval(cCode)
+			if bFound
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsRemoveAtOptionsNamedParam()
 		bResult = FALSE
 
 		if This.IsHashList() and
@@ -13199,10 +13237,7 @@ class stzList from stzObject
 
 		return bResult
 
-		def IsRemoveAtOptionsNamedParam()
-			return This.IsRemoveAtOptionsParamList()
-
-	def IsTextBoxedOptionsParamList()
+	def IsTextBoxedOptionsNamedParam()
 		/*
 		Example:
 
@@ -13248,10 +13283,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsTextBoxedOptionsNamedParam()
-			return This.IsTextBoxedOptionsParamList()
-
-	def IsBoxOptionsParamList()
+	def IsBoxOptionsNamedParam()
 
 		if This.IsEmpty()
 			return TRUE
@@ -13287,10 +13319,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsBoxOptionsNamedParam()
-			return This.IsBoxOptionsParamList()
-
-	def IsNumberListifyOptionsParamList()
+	def IsNumberListifyOptionsNamedParam()
 		if This.IsEmpty()
 			return TRUE
 		ok
@@ -13307,10 +13336,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsNumberListifyOptionsNamedParam()
-			return This.IsNumberListifyOptionsParamList()
-
-	def IsStringListifyOptionsParamList()
+	def IsStringListifyOptionsNamedParam()
 		if This.IsEmpty()
 			return TRUE
 		ok
@@ -13328,10 +13354,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsStringListifyOptionsNamedParam()
-			return This.IsStringListifyOptionsParamList()
-
-	def IsConstraintsOptionsParamList()
+	def IsConstraintsOptionsNamedParam()
 		/* EXAMPLE
 		[
 			:OnStzString = [
@@ -13363,14 +13386,79 @@ class stzList from stzObject
 			return FALSE
 		done
 
-		def IsConstraintsOptionsNamedParam()
-			return This.IsConstraintsOptionsParamList()
+	def IsCellNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :Cell)
 
-	  #================================#
-	 #   CHECKING NAMED PARAM LISTS   #
-	#================================#
+			return TRUE
+		else
+			return FALSE
+		ok
 
-	def IsCaseSensitiveNamedParamList()
+	def IsOfCellNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfCell)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsCellsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :Cells)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfCellsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfCells)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsSubValueNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :SubValue)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfSubValueNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfSubValue)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsSubValuesNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :SubValues)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfSubValuesNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfSubValues)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsCaseSensitiveNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and (This[1] = :Casesensitive or This[1] = :CS) ) and
 		   IsBoolean(This[2])
@@ -13380,13 +13468,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsCaseSensitiveParamList()
-			return This.IsCaseSensitiveNamedParamList()
-
-		def IsCaseSensitiveNamedParam()
-			return This.IsCaseSensitiveNamedParamList()
-
-	def IsRangeNamedParamList()
+	def IsRangeNamedParam()
 
 		if This.IsEmpty()
 			return TRUE
@@ -13416,14 +13498,8 @@ class stzList from stzObject
 			ok
 		ok
 
-		def IsRangeParamList()
-			return This.IsRangeNamedParamList()
 
-		def IsRangeNamedParam()
-			return This.IsRangeNamedParamList()
-
-
-	def IsStartingAtNamedParamList()
+	def IsStartingAtNamedParam()
 		if This.NumberOfItems() = 2 and
 
 		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
@@ -13436,13 +13512,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsStartingAtParamList()
-			return This.IsStartingAtNamedParamList()
-
-		def IsStartingAtNamedParam()
-			return This.IsStartingAtNamedParamList()
-
-	def IsInStringNNamedParamList()
+	def IsInStringNNamedParam()
 		if This.NumberOfItems() = 2 and
 
 		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
@@ -13456,52 +13526,16 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsInStringNNamedParam()
-			return This.IsInStringNNamedParamList()
-
-		def IsInStringNParamList()
-			return This.IsInStringNNamedParamList()
-
-		def IsInStringItemNNamedParamList()
-			return This.IsInStringNNamedParamList()
-
 		def IsInStringItemNNamedParam()
-			return This.IsInStringNNamedParamList()
-
-		def IsInStringItemNParamList()
-			return This.IsInStringNNamedParamList()
-
-		def IsInStringAtPositionNNamedParamList()
-			return This.IsInStringNNamedParamList()
+			return This.IsInStringNNamedParam()
 
 		def IsInStringAtPositionNNamedParam()
-			return This.IsInStringNNamedParamList()
+			return This.IsInStringNNamedParam()
 
-		def IsInStringAtPositionNParamList()
-			return This.IsInStringNNamedParamList()
+		def IsInStringAtPositionNamedParam()
+			return This.IsInStringNNamedParam()
 
-		def IsInStringItemAtPositionNNamedParamList()
-			return This.IsInStringNNamedParamList()
-
-		def IsInStringItemAtPositionNNamedParam()
-			return This.IsInStringNNamedParamList()
-
-		def IsInStringItemAtPositionNParamList()
-			return This.IsInStringNNamedParamList()
-
-		def IsInStringAtPositionNamedParamList()
-			return This.IsInStringNNamedParamList()
-
-		def IsInStringAtPositionParamList()
-			return This.IsInStringNNamedParamList()
-
-		def IsInStringItemAtPositionNamedParamList()
-			return This.IsInStringNNamedParamList()
-
-		def IsInStringItemAtPositionParamList()
-			return This.IsInStringNNamedParamList()
-
-	def IsExceptNamedParamList()
+	def IsExceptNamedParam()
 		# Used initially by ReplaceWordsWithMarquersExceptXT(pcByOption, paExcept)
 		# TODO: generalize to all the functions we want to provide exceptions to it
 
@@ -13514,14 +13548,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsExceptParamList()
-			return This.IsExceptNamedParamList()
-
-		def IsExceptNamedParam()
-			return This.IsExceptNamedParamList()
-
-
-	def IsFromNamedParamList()
+	def IsFromNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  (This[1] = :From or This[1] = :FromPosition)  )
 
@@ -13531,23 +13558,40 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsFromParamList()
-			return This.IsFromNamedParamList()
-
-		def IsFromPositionNamedParamList()
-			return This.IsFromNamedParamList()
-
-		def IsFromPositionParamList()
-			return This.IsFromNamedParamList()
-
-		def IsFromNamedParam()
-			return This.IsFromNamedParamList()
-
 		def IsFromPositionNamedParam()
-			return This.IsFromNamedParamList()
+			return This.IsFromNamedParam()
 
+	def IsValueNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Value )
 
-	def IsToNamedParamList()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOfValueNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :OfValue )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsValuesNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Values )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToNamedParam()
 		if This.NumberOfItems() = 2 and
 
 		   ( isString(This[1]) and  (This[1] = :To or This[1] = :ToPosition) )
@@ -13557,22 +13601,10 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsToNamedList()
-			return This.IsToNamedParamList()
-
-		def IsToPositionNamedParamList()
-			return This.IsToNamedParamList()
-
-		def IsToPositionParamList()
-			return This.IsToNamedParamList()
-
-		def IsToNamedParam()
-			return This.IsToNamedParamList()
-
 		def IsToPositionNamedParam()
-			return This.IsToNamedParamList()
+			return This.IsToNamedParam()
 
-	def IsOfNamedParamList()
+	def IsOfNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Of )
 
@@ -13582,14 +13614,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsOfParamList()
-			return This.IsOfNamedParamList()
-
-		def IsOfNamedParam()
-			return This.IsOfNamedParamList()
-
-
-	def IsOnNamedParamList()
+	def IsOnNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :On )
 
@@ -13599,14 +13624,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsOnParamList()
-			return This.IsOnNamedParamList()
-
-		def IsOnNamedPAram()
-			return This.IsOnNamedParamList()
-
-
-	def IsInNamedParamList()
+	def IsInNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :In )
 
@@ -13616,14 +13634,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsInParamList()
-			return This.IsInNamedParamList()
-
-		def IsInNamedParam()
-			return This.IsInNamedParamList()
-
-
-	def IsWhereNamedParamList()
+	def IsWhereNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Where ) and
 		   isString( This[2] )
@@ -13634,13 +13645,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsWhereParamList()
-			return This.IsWhereNamedParamList()
-
-		def IsWhereNamedParam()
-			return This.IsWhereNamedParamList()
-
-	def IsThatNamedParamList()
+	def IsThatNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :That ) and
 		   isString( This[2] )
@@ -13651,37 +13656,17 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsThatParamList()
-			return This.IsThatNamedParamList()
-
-		def IsThatNamedParam()
-			return This.IsThatNamedParamList()
-
-
-	def IsThatOrWhereNamedParamList()
-		if This.IsThatNamedParamList() or This.IsWhatNamedParamList()
+	def IsThatOrWhereNamedParam()
+		if This.IsThatNamedParam() or This.IsWhatNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsWhereOrThatNamedParamList()
-			return This.IsThatOrWhereNamedParamList()
-
-		def IsThatOrWhereParamList()
-			return This.IsThatOrWhereNamedParamList()
-
-		def IsWhereOrThatParamList()
-			return This.IsThatOrWhereNamedParamList()
-
-		def IsThatOrWhereNamedParam()
-			return This.IsThatOrWhereNamedParamList()
-
 		def IsWhereOrThatNamedParam()
-			return This.IsThatOrWhereNamedParamList()
+			return This.IsThatOrWhereNamedParam()
 
-
-	def IsIfNamedParamList()
+	def IsIfNamedParam()
 		if This.NumberOfItems() = 2 and
 		   This[1] = :If and
 		   isString(This[2])
@@ -13692,32 +13677,13 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsIfParamList()
-			return This.IsIfNamedParamList()
-
-		def IsIfNamedParam()
-			return This.IsIfNamedParamList()
-
-
-	def IsIfOrWhereNamedParamList()
-		return This.IsIfNamedParamList() or This.IsWhereNamedParamList()
-
-		def IsWhereOrIfNamedParamList()
-			return This.IsIfOrWhereNamedParamList()
-
-		def IsIfOrWhereParamList()
-			return This.IsIfOrWhereNamedParamList()
-
-		def IsWhereOrIfParamList()
-			return This.IsIfOrWhereNamedParamList()
-
-		def IsIfOrWhereNamedParam()
-			return This.IsIfOrWhereNamedParamList()
+	def IsIfOrWhereNamedParam()
+		return This.IsIfNamedParam() or This.IsWhereNamedParam()
 
 		def IsWhereOrIfNamedParam()
-			return This.IsIfOrWhereNamedParamList()
+			return This.IsIfOrWhereNamedParam()
 
-	def IsWithNamedParamList()
+	def IsWithNamedParam()
 		if This.NumberOfItems() = 2 and
 
 		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :With, :With@ ]) )
@@ -13728,13 +13694,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsWithParamList()
-			return This.IsWithNamedParamList()
-
-		def IsWithNamedParam()
-			return This.IsWithNamedParamList()
-
-	def IsByNamedParamList()
+	def IsByNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :By, :By@ ]) )
 		  
@@ -13744,32 +13704,13 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsByParamList()
-			return This.IsByNamedParamList()
-
-		def IsByNamedParam()
-			return This.IsByNamedParamList()
-
-
-	def IsWithOrByNamedParamList()
-		return This.IsWithNamedParamList() OR This.IsByNamedParamList()
-
-		def IsByOrWithNamedParamList()
-			return This.IsWithOrByNamedParamList()
-
-		def IswithOrByParamList()
-			return This.IsWithOrByNamedParamList()
-
-		def IsByOrWithParamList()
-			return This.IsIfOrWhereNamedParamList()
-
-		def IsWithOrByNamedParam()
-			return This.IsWithOrByNamedParamList()
+	def IsWithOrByNamedParam()
+		return This.IsWithNamedParam() OR This.IsByNamedParam()
 
 		def IsByOrWithNamedParam()
-			return This.IsWithOrByNamedParamList()
+			return This.IsWithOrByNamedParam()
 
-	def IsUsingNamedParamList()
+	def IsUsingNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Using )
 
@@ -13779,14 +13720,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsUsingParamList()
-			return This.IsUsingNamedParamList()
-
-		def IsUsingNamedParam()
-			return This.IsUsingNamedParamList()
-
-
-	def IsAtNamedParamList()
+	def IsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This[1]) and This[1] = :At
 			return TRUE
@@ -13795,14 +13729,8 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsAtParamList()
-			return This.IsAtNamedParamList()
-
-		def IsAtNamedParam()
-			return This.IsAtNamedParamList()
-
-	def IsAtOrUsingNamedParam()
-		if This.IsAtNamedPAram() or This.IsUsingNamedParam()
+	def IsAtOrUsingNamed()
+		if This.IsAtNamedParam() or This.IsUsingNamedParam()
 			return TRUE
 		else
 			return FALSE
@@ -13811,7 +13739,7 @@ class stzList from stzObject
 		def IsUsingOrAtNamedParam()
 			return This.IsAtOrUsingNamedParam()
 
-	def IsAtPositionNamedParamList()
+	def IsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This[1]) and  This[1] = :AtPosition )
 
@@ -13821,15 +13749,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsAtPositionParamList()
-			return This.IsAtPositionNamedParamList()
-
-		def IsAtPositionNamedParam()
-			return This.IsAtPositionNamedParamList()
-
-	def IsAtOrAtPositionNamedParamList()
-		if This.IsAtNamedParamList() or
-		   This.IsAtPositionNamedParamList()
+	def IsAtPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtPositions )
 
 			return TRUE
 
@@ -13837,84 +13759,60 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsAtPositionOrAtNamedParamList()
-			return This.IsAtOrAtPositionNamedParamList()
+	def IsAtOrAtPositionNamedParam()
+		if This.IsAtNamedParam() or
+		   This.IsAtPositionNamedParam()
 
-		def IsAtOrAtPositionParamList()
-			return This.IsAtOrAtPositionNamedParamList()
+			return TRUE
 
-		def IsAtPositionOrAtParamList()
-			return This.IsAtOrAtPositionNamedParamList()
-
-		def IsAtOrAtPositionNamedParam()
-			return This.IsAtOrAtPositionNamedParamList()
+		else
+			return FALSE
+		ok
 
 		def IsAtPositionOrAtNamedParam()
-			return This.IsAtOrAtPositionNamedParamList()
+			return This.IsAtOrAtPositionNamedParam()
 
-	def IsUsingOrAtOrWhereNamedParamList()
-		if This.IsUsingNamedParamList() or
-		   This.IsAtNamedParamList() or
-		   This.IsWhereNamedParamList()
+	def IsAtOrAtPositionsNamedParam()
+		if This.IsAtNamedParam() or
+		   This.IsAtPositionsNamedParam()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsAtPositionsOrAtNamedParam()
+			return This.IsAtOrAtPositionsNamedParam()
+
+	def IsUsingOrAtOrWhereNamedParam()
+		# Use IsOneOfTheseNamedParams([ ..., ..., ... ]) instead
+
+		if This.IsUsingNamedParam() or
+		   This.IsAtNamedParam() or
+		   This.IsWhereNamedParam()
 
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsUsingOrAtOrWhereParamList()
-			return This.IsUsingOrAtOrWhereNamedParamList()
-
-			def IsUsingOrAtOrWhereNamedParam()
-				return This.IsUsingOrAtOrWhereNamedParamList()
+		def IsUsingOrWhereOrAtNamedParam()
+			return This.IsUsingOrAtOrWhereNamedParam()
+		
+		def IsAtOrUsingOrWhereNamedParam()
+			return This.IsUsingOrAtOrWhereNamedParam()
 	
+		def IsAtOrWhereOrUsingNamedParam()
+			return This.IsUsingOrAtOrWhereNamedParam()
 
-		def IsUsingOrWhereOrAtNamedParamList()
-			return This.IsUsingOrAtOrWhereNamedParamList()
-
-			def IsUsingOrWhereOrAtNamedParam()
-				return This.IsUsingOrAtOrWhereNamedParamList()
+		def IsWhereOrAtOrUsingNamedParam()
+			return This.IsUsingOrAtOrWhereNamedParam()
 	
-		def IsUsingOrWhereOrAtParamList()
-			return This.IsUsingOrAtOrWhereNamedParamList()
-	
-		def IsAtOrUsingOrWhereNamedParamList()
-			return This.IsUsingOrAtOrWhereNamedParamList()
+		def IsWhereOrUsingOrAtNamedParam()
+			return This.IsUsingOrAtOrWhereNamedParam()
 
-			def IsAtOrUsingOrWhereNamedParam()
-				return This.IsUsingOrAtOrWhereNamedParamList()
-	
-		def IsAtOrUsingOrWhereParamList()
-			return This.IsUsingOrAtOrWhereNamedParamList()
-	
-		def IsAtOrWhereOrUsingNamedParamList()
-			return This.IsUsingOrAtOrWhereNamedParamList()
-
-			def IsAtOrWhereOrUsingNamedParam()
-				return This.IsUsingOrAtOrWhereNamedParamList()
-	
-		def IsAtOrWhereOrUsingParamList()
-			return This.IsUsingOrAtOrWhereNamedParamList()
-
-		def IsWhereOrAtOrUsingNamedParamList()
-			return This.IsUsingOrAtOrWhereNamedParamList()
-
-			def IsWhereOrAtOrUsingNamedParam()
-				return This.IsUsingOrAtOrWhereNamedParamList()
-	
-		def IsWhereOrAtOrUsingParamList()
-			return This.IsUsingOrAtOrWhereNamedParamList()
-
-		def IsWhereOrUsingOrAtNamedParamList()
-			return This.IsUsingOrAtOrWhereNamedParamList()
-
-			def IsWhereOrUsingOrAtNamedParam()
-				return This.IsUsingOrAtOrWhereNamedParamList()
-	
-		def IsWhereOrUsingOrAtParamList()
-			return This.IsUsingOrAtOrWhereNamedParamList()
-
-	def IsStepNamedParamList()
+	def IsStepNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  Q(This[1]).IsOneOfThese([ :Step, :Steps ]) ) and
 		   isNumber( This[2] )
@@ -13925,14 +13823,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsStepsParamList()
-			return This.IsStepNamedParamList()
-
-		def IsStepsNamedPAram()
-			return This.IsStepNamedParamList()
-
-
-	def IsNameNamedParamList()
+	def IsNameNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Name ) and
 		   isString(This[2])
@@ -13943,13 +13834,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsNameParamList()
-			return This.IsNameNamedParamList()
-
-		def IsNameParam()
-			return This.IsNameNamedParamList()
-
-	def IsRaiseNamedParamList()
+	def IsRaiseNamedParam()
 		if This.NumberOfItems() <= 4 and
 		   This.IsHashList() and
 		   This.ToStzHashList().KeysQ().IsMadeOfSome([ :Where, :What, :Why, :Todo ]) and
@@ -13961,13 +13846,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsRaiseParamList()
-			return This.IsRaiseNamedParamList()
-
-		def IsRaiseNamedParam()
-			return This.IsRaiseNamedParamList()
-
-	def IsReturnedAsNamedParamList()
+	def IsReturnedAsNamedParam()
 
 		if This.NumberOfItems() = 2 and
 		   This.AllItemsAreStrings() and
@@ -13980,13 +13859,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsReturnedAsParamList()
-			return This.IsAtNamedParamList()
-
-		def IsReturnedAsNamedParam()
-			return This.IsAtNamedParamList()
-
-	def IsReturnNamedParamList()
+	def IsReturnNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This[1]) and Q(This[1]).IsEqualToCS(:Return) and
 		   isString(This[2])
@@ -13997,13 +13870,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsReturnParamList()
-			return This.IsReturnNamedParamList()
-
-		def IsReturnNamedParam()
-			return This.IsReturnNamedParamList()
-
-	def IsDirectionNamedParamList()
+	def IsDirectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Direction ) and
 		   ( isString( This[2] ) and Q(This[2]).IsOneOfThese([
@@ -14015,13 +13882,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsDirectionParamList()
-			return This.IsDirectionNamedParamList()
-
-		def IsDirectionNamedParam()
-			return This.IsDirectionNamedParamList()
-
-	def IsUpToNCharsNamedParamList()
+	def IsUpToNCharsNamedParam()
 		if This.NumberOfItems() = 2 and
  		   isString(This[1]) and  This[1] = :UpToNChars
 		  
@@ -14030,14 +13891,8 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
-		   
-		def IsUpToNCharsParamList()
-			return This.IsUpToNCharsNamedParam()
 
-		def IsUpToNCharsNamedParam()
-			return This.IsUpToNCharsNamedParamList()
-
-	def IsUpToNItemsNamedParamList()
+	def IsUpToNItemsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
  		   ( isString(This[1]) and  This[1] = :UpToNItems )
 		  
@@ -14047,13 +13902,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsUpToNItemsParamList()
-			return This.IsUpToNCharsNamedParamList()
-
-		def IsUpToNItemsNamedParam()
-			return This.IsUpToNCharsNamedParamList()
-
-	def IsBeforeNamedParamList()
+	def IsBeforeNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This[1]) and This[1] = :Before )
 
@@ -14062,10 +13911,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsBeforeNamedParam()
-			return This.IsBeforeNamedParamList()
-
-	def IsAfterNamedParamList()
+	def IsAfterNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This[1]) and This[1] = :After )
 
@@ -14074,26 +13920,17 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsAfterNamedParam()
-			return This.IsAfterNamedParamList()
-
-	def IsBeforeOrAfterNamedParamList()
-		if This.IsBeforeNamedPAramList() or This.IsAfterNamedParamList()
+	def IsBeforeOrAfterNamedParam()
+		if This.IsBeforeNamedPAram() or This.IsAfterNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsAfterOrBeforeNamedParamList()
-			return This.IsBeforeOrAfterNamedParamList()
-
 		def IsAfterOrBeforeNamedParam()
-			return This.IsBeforeOrAfterNamedParamList()
+			return This.IsBeforeOrAfterNamedParam()
 
-		def IsAfterOrBeforeNamed()
-			return This.IsBeforeOrAfterNamedParamList()
-
-	def IsCharNamedParamList()
+	def IsCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Char )
 
@@ -14103,13 +13940,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsCharParamList()
-			return This.IsCharNamedParamList()
-
-		def IsCharNamedParam()
-			return This.IsCharNamedParamList()
-
-	def IsWidthNamedParamList()
+	def IsWidthNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Width )
 
@@ -14119,13 +13950,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsWidthParamList()
-			return This.IsWidthNamedParamList()
-
-		def IsWidthNamedParam()
-			return This.IsWidthNamedParamList()
-
-	def IsMadeOfNamedParamList()
+	def IsMadeOfNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :MadeOf )
 
@@ -14134,12 +13959,6 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
-
-		def IsMAdeOfParamList()
-			return This.IsMadeOfNamedParamList()
-
-		def IsMadeOfNamedParam()
-			return This.IsMadeOfNamedParamList()
 
 	  #================================#
 	 #     GETTING TYPES OF ITEMS     #
@@ -14367,7 +14186,7 @@ class stzList from stzObject
 			return This.ForEachStringYieldQR(pcCode, :stzList)
 
 		def ForEachStringYieldQR(pcCode, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -14389,7 +14208,7 @@ class stzList from stzObject
 				return This.ForEachStringYieldQ(pcCode)
 
 				def ForEachStringReturnQR(pcCode, pcReturnType)
-					if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsParamList()
+					if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 						pcReturnType = pcReturnType[2]
 					ok
 
@@ -14473,7 +14292,7 @@ class stzList from stzObject
 			StzRaise("Can't check bounds! List must be a pair or a list of pairs.")
 		ok
 
-		if isList(pIn) and Q(pIn).IsInNamedParamList()
+		if isList(pIn) and Q(pIn).IsInNamedParam()
 			pIn = pIn[2]
 		ok
 

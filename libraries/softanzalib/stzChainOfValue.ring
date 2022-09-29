@@ -126,7 +126,7 @@ class stzChainOfValue from stzObject
 
 	def Update(pValue)
 		if isList(pValue) and
-		   ( StzListQ(pValue).IsWithNamedParamList() or StzListQ(pValue).IsUsingNamedParamList() )
+		   ( StzListQ(pValue).IsWithNamedParam() or StzListQ(pValue).IsUsingNamedParam() )
 
 			pValue = pValue[2]
 

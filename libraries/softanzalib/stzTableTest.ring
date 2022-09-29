@@ -1,21 +1,62 @@
 load "stzlib.ring"
-/*
-aMyTable = 
-[
-	[    "ID",	"EMPLOYEE" ,     	"SALARY" ],
 
-	[    10,	"Ali Sandy",      	35000   ],
-	[    20,	"Dan Mikovitch Mo",  	28900   ],
-	[    30,	"Ali Sa",         	25982   ],
-	[    40,	"Ali Aziza",      	49540   ]
-]
-*/
+/*===============
+
+# A table can be created in 4 different ways:
+
+# WAY 1 : Creating an empty table with just a column and a row
+o1 = new stzTable([])
+
+? @@S( o1.Content() )
+#--> [ [ "COL1", [ "" ] ] ]
+
+/*--------------
+
+# WAY 2 : Creating an empty table with 3 columns and 3 rows
+o1 = new stzTable([3, 2])
+? @@S( o1.Content() )
+
+#--> [
+#	[ "COL1", [ "", "" ] ],
+#	[ "COL2", [ "", "" ] ],
+#	[ "COL3", [ "", "" ] ]
+#    ]
+
+/*--------------
+
+# WAY 3: Creating a table bu prividing a hash table
+# NOTE: This is how the table is stored internally
 
 o1 = new stzTable([
 	:ID	  = [ 10, 20, 30, 40 ],
 	:EMPLOYEE = [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ],
 	:SALARY   = [ 35000, 28900, 25982, 49540 ]
 ])
+
+? @@S( o1.Content() )
+
+#--> [
+# 	:ID	  = [ 10, 20, 30, 40 ],
+#	:EMPLOYEE = [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ],
+# 	:SALARY   = [ 35000, 28900, 25982, 49540 ]
+# ])
+
+/*---------------
+
+# WAY 4: Creating a table by provding a list of list, formatted as you
+# would find it in the real world
+
+o1 = new stzTable([
+	[ :ID,	 :EMPLOYEE,    	:SALARY	],
+	#-------------------------------#
+	[ 10,	 "Ali",		35000	],
+	[ 20,	 "Dania",	28900	],
+	[ 30,	 "Han",		25982	],
+	[ 40,	 "Ali",		12870	]
+])
+
+? o1.Cols()		#--> [ "id", "employee", "salary" ]
+? o1.Col(:EMPLOYEE)	#--> [ "Ali", "Dania", "Han", "Ali" ]
 
 /*==============
 
@@ -497,12 +538,11 @@ o1.EraseCell(2, 3)
 #--> [ [ 2, 1 ] ]
 
 /*--------------
-*/
 
 o1 = new stzTable([
-	:CLASS1 = [ "Red",   "Blue",    "Blue", "White"  ],
-	:CLASS2 = [ "White",  "Red",   "Green",  "Gray"  ],
-	:CLASS3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
+	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
+	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
 ])
 
 /*------------
@@ -510,16 +550,15 @@ o1 = new stzTable([
 ? @@S( o1.FindAll("Red") )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
-? @@S( o1.FindInCol(:CLASS1, "Blue") )
+? @@S( o1.FindInCol(:PALETTE1, "Blue") )
 #--> [ [ 1, 2 ], [ 1, 3 ] ]
 
 ? @@S( o1.FindInRow(2, "Red") ) 
 #--> [ [ 2, 2 ], [ 2, 3 ] ]
 
 /*------------
-*/
 
-//? @@S( o1.Section([1,2], [3,2]) )
+? @@S( o1.Section([1,2], [3,2]) )
 #--> [ "Blue", "Red", "Red" ]
 
 //? @@S( o1.SectionXT([1,2], [3,2]) )
@@ -529,183 +568,619 @@ o1 = new stzTable([
 #	[ [ 3, 2 ], "Red"  ]
 #    ]
 
+? @@S( o1.SectionAsPositions([1,2], [3,2]) )
+#--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
+
+/*==========
+
 ? @@S( o1.FindInSection([1,2], [3,2], "Red") )
 #--> [ [ 2, 2 ], [ 3, 2 ] ]
 
-? @@S( o1.FindInSectionXT([1,2], [3,2], "Red") )
+/*----------
+
+? @@S( o1.SectionXT(:From = :FirstCell, :To = [3,2]) )
+#--> [
+#	[ [ 1, 1 ], "Red" 	],
+#	[ [ 2, 1 ], "White" 	],
+#	[ [ 3, 1 ], "Yellow" 	],
+#	[ [ 1, 2 ], "Blue" 	],
+#	[ [ 2, 2 ], "Red" 	],
+#	[ [ 3, 2 ], "Red" 	]
+#    ]
+
+/*-----------
+
+? @@S( o1.FindAllInSectionCS([1, 1], [3, 2], "red", :CS = TRUE) ) #--> []
+
+? @@S( o1.FindAllInSectionCS([1, 1], [3, 2], "Red", :CS = TRUE) )
+#--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
+
+? @@S( o1.FindAllInSectionCS([1, 1], [3, 2], "red", :CS = FALSE) )
+#--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
+
+/*-----------
+
+? o1.FindNthInSectionCS(2, :From = :FirstCell, :To = [3, 3], "red", :CS = FALSE) #--> [2, 2]
+? o1.FindFirstInSection(:From = :FirstCell, :To = [3, 3], "Red") #--> [1, 1]
+? o1.FindLastInSection(:From = :FirstCell, :To = [3, 3], "Red") #--> [3, 2]
+
+/*==============
+
+# REMINDER:
+? @@S( o1.SectionXT(:From = [1,2], :To = [3,2]) )
+#--> [
+#	[ [ 1, 2 ], "Blue" 	],
+#	[ [ 2, 2 ], "Red" 	],
+#	[ [ 3, 2 ], "Red" 	]
+#    ]
+
+? @@S( o1.FindInCellsInSection([1,2], [3,2], "e") )
+#--> [
+#	[ [ 1, 2 ], [ 4 ] ],
+#	[ [ 2, 2 ], [ 2 ] ],
+#	[ [ 3, 2 ], [ 2 ] ]
+#    ]
+
+? @@S( o1.FindLastInCellsInSection([1,2], [3,2], "e") )
+#--> [ [ 3, 2 ], [ 2 ] ]
 
 /*=============
 
+? @@S( o1.FindCells( "Red" ) )
+#--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
+
+# Same as:
+? @@S( o1.FindAllOccurrences( :Of = "Red") )
+#--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
 /*-----------
 
-? o1.FindCells("Dan Mikov")  #--> [ [2, 2], [2, 4] ]
+? o1.FindNthCell(1, "Red") #--> [ 1, 1 ]
+? o1.FindNthCell(2, "Red") #--> [ 2, 2 ]
+? o1.FindLastCell( "Red" ) #--> [ 3, 2 ]
 
 /*-----------
 
-? o1.FindNthCell(1, "Dan Mikov") #--> [2, 2]
-? o1.FindNthCell(2, "Dan Mikov") #--> [2, 4]
-
-? o1.FindCell("Dan Mikov") 	 #--> [2, 2]
-? o1.FindFirstCell("Dan Mikov")  #--> [2, 2]
-? o1.FindLastCell("Dan Mikov") #--> [2, 4]
+? o1.NumberOfOccurrence( :Of = "Red" ) #--> 3
+? o1.NumberOfOccurrenceInCol( :PALETTE2, :Of = "Red" ) #--> 1
+? o1.NumberOfOccurrenceInRow( 2, :Of = "Red" ) #--> 2
 
 /*-----------
 
-? o1.NumberOfOccurrence( :Of = "Dan Mikov" ) #--> 2
-? o1.NumberOfOccurrenceInCol( :EMPLOYEE, :Of = "Dan Mikov" ) #--> 2
-? o1.NumberOfOccurrenceInLine( 2, :Of = "Dan Mikov" ) #--> 1
+? @@S( o1.Col(2) ) #--> [ "White", "Red", "Green", "Gray" ]
 
 /*-----------
 
-
-aMyTable = 
-[
-	[    "ID",	"EMPLOYEE" ,     "SALARY"  ],
-
-	[    101,	"Ali Sandy",      350008   ],
-	[    294,	"Dan Mikov",      128900   ],
-	[    287,	"Ali Sandy",      106902   ],
-	[    307,	"Ali Aziza",      520054   ]
-]
-
-o1 = new stzTable(aMyTable)
-? o1.Col(2)
-/*-----------
-
-? o1.HasColName("EMPLOYEE") #--> TRUE
-? o1.HasColNames([ "EMPLOYEE", "SALARY" ]) #--> TRUE
+? o1.HasColName("PALETTE2") #--> TRUE
+//? o1.HasColNames([ "PALETTE1", "PALETTE3" ]) #--> TRUE
 
 /*-----------
 
 ? @@S( o1.Cols() )
-#--> [ "ID", "EMPLOYEE", "SALARY" ]
+#--> [ "palette1", "palette2", "palette3" ]
 
-/*-----------
+/*==========
 
-o1.AddCol( "JOB", [ "Programmer", "Author", "Painter", "Doctor" ])
+o1.AddCol( :PALETTE4 = [ "Magenta", "Blue", "White", "Red" ])
+
 ? @@S( o1.Cols() )
-? @@S( o1.Col("JOB") )
-#--> [ "Programmer", "Author", "Painter", "Doctor" ]
+#--> [ "palette1", "palette2", "palette3", "palette4" ]
+
+? o1.HasColName(:PALETTE4) #--> TRUE
+
+? @@S( o1.Col(:PALETTE4) )
+#--> [ "Magenta", "Blue", "White", "Red" ]
+
+o1.RemoveCol(:PALETTE4)
+? @@S( o1.Cols() )
+#--> [ "palette1", "palette2", "palette3" ]
+
+/*----------
+
+? o1.ColToColName(2) 	 #--> "palette2"
+? o1.ColToColName(:PALETTE2) #--> "palette2"
+
+? o1.TheseColsToColNames([3, :PALETTE1, 2])
+#--> [ "palette3", "palette1", "palette2" ]
+
+/*----------
+
+? o1.ColToColNumber(2) 	 #--> 2
+? o1.ColToColNumber(:PALETTE2) #--> 2
+
+? o1.TheseColsToColsNumbers([:PALETTE3, :PALETTE1, 2])
+#--> [ 3, 1, 2 ]
+
+/*----------
+
+? o1.Show()
+#-->
+#	#   PALETTE1   PALETTE2   PALETTE3
+#	1        Red      White     Yellow
+#	2       Blue        Red        Red
+#	3       Blue      Green    Magenta
+#	4      White       Gray      Black
+
+
+o1.EraseCol(2)
+? o1.Show()
+#-->
+#	#   PALETTE1   PALETTE2   PALETTE3
+#	1        Red                Yellow
+#	2       Blue                   Red
+#	3       Blue               Magenta
+#	4      White                 Black
+
+
+o1.EraseCols([3 ,1])
+? o1.Show()
+#	#   PALETTE1   PALETTE2   PALETTE3
+#	1                                 
+#	2                                 
+#	3                                 
+#	4                                 
+
+/*----------
+
+? o1.Show()
+#-->
+#	#   PALETTE1   PALETTE2   PALETTE3
+#	1        Red      White     Yellow
+#	2       Blue        Red        Red
+#	3       Blue      Green    Magenta
+#	4      White       Gray      Black
+
+o1.EraseRow(2)
+? o1.Show()
+#-->
+#	#   PALETTE1   PALETTE2   PALETTE3
+#	1        Red      White     Yellow
+#	2                                 
+#	3       Blue      Green    Magenta
+#	4      White       Gray      Black
+
+o1.EraseRows([3, 1])
+? o1.Show()
+#-->
+#	#   PALETTE1   PALETTE2   PALETTE3
+#	1                                 
+#	2                                 
+#	3                                 
+#	4      White       Gray      Black
+
+/*----------
+
+? o1.Show()
+#-->
+#	#   PALETTE1   PALETTE2   PALETTE3
+#	1        Red      White     Yellow
+#	2                                 
+#	3       Blue      Green    Magenta
+#	4      White       Gray      Black
+
+o1.RemoveCol(1)
+o1.RemoveCol(1)
+o1.RemoveCol(1)
+
+? o1.Show()
+#-->
+#	#   PALETTE1   PALETTE2   PALETTE3
+#	1                                 
+#	2                                 
+#	3                                 
+#	4      White       Gray      Black
+
+/*----------
+
+? o1.Show()
+#-->
+#   PALETTE1   PALETTE2   PALETTE3
+#	1        Red      White     Yellow
+#	2       Blue        Red        Red
+#	3       Blue      Green    Magenta
+#	4      White       Gray      Black
+
+o1.RemoveCols([1, 2])
+? o1.Show()
+#-->
+#	#   PALETTE3
+#	1     Yellow
+#	2        Red
+#	3    Magenta
+#	4      Black
+
+o1.RemoveCol(:PALETTE3)
+? o1.Show()
+#-->
+#	#   COL1
+#	1       
+#	2       
+#	3       
+#	4       
+
+/*==========
+
+o1 = new stzTable([
+	:ID	  = [ 10, 	20, 	30 	],
+	:EMPLOYEE = [ "Ali", 	"Dan",	"Ben"	],
+	:SALARY   = [ 35000, 	28900, 	25982	]
+])
+
+? @@S( o1.Rows() ) + NL
+#--> [
+#	[ 10, "Ali", 35000 ],
+#	[ 20, "Dan", 28900 ],
+#	[ 30, "Ben", 25982 ]
+#    ]
+
+o1.AddRow( [ 40, "Mo", 12800 ] )
+
+? @@S( o1.Rows() )
+#--> [
+#	[ 10, "Ali", 35000 ],
+#	[ 20, "Dan", 28900 ],
+#	[ 30, "Ben", 25982 ],
+#	[ 40, "Mo" , 12800 ]
+#    ]
+
+/*==========
+
+o1 = new stzTable([
+	:ID	  = [ 10, 	20, 	30 	],
+	:EMPLOYEE = [ "Ali", 	"Dan",	"Ben"	],
+	:SALARY   = [ 35000, 	28900, 	25982	]
+])
+
+/*----------
+
+? o1.Show()
+/*
+#   ID   EMPLOYEE   SALARY
+1   10        Ali    35000
+2   20        Dan    28900
+3   30        Ben    25982
+*/
+
+/*----------
+
+o1.AddCol( :TEMPO = [ NULL, NULL, NULL, NULL ])
+#--> ERROR: Incorrect number of cells! paColNameAndData must contain extactly 3 cells.
+
+/*----------
+
+o1.AddCol( :TEMPO = [ NULL, NULL, NULL ])
+? o1.LastColName()  #--> "tempo"
+? @@S(o1.LastCol()) #--> [ "", "", "" ]
+
+/*----------
+
+o1.AddCols([
+	:ONES = [ 1, 1, 1 ],
+	:TWOS = [ 2, 2, 2 ]
+])
+
+? @@S( o1.Cols() )
+#--> [ "id", "employee", "salary", "ones", "twos" ]
+
+? @@S( o1.TheseColumns([ :ONES, :TWOS ]) )
+#--> [ [ "ones", [ 1, 1, 1 ] ], [ "twos", [ 2, 2, 2 ] ] ]
+
+/*==========
 
 o1.Show()
 #-->
-# #	ID	EMPLOYEE	SALARY	JOB
-# 1	101	Ali Sandy	350008	Programmer
-# 2	294	Dan Mikov	128900	Author
-# 3	287	Ali Sandy	106902	Painter
-# 4	307	Ali Aziza	520054	Doctor
+#	#   ID   EMPLOYEE   SALARY
+#	1   10        Ali    35000
+#	2   20        Dan    28900
+#	3   30        Ben    25982
 
-/*-----------
+? @@S( o1.SubTable([ :EMPLOYEE, :SALARY ]) ) + NL
+#--> [
+#	[ "employee", [ "Ali", "Dan", "Ben" ] ],
+#	[ "salary"  , [ 35000, 28900, 25982 ] ]
+#    ]
 
-? o1.SubTable([ :EMPLOYEE, :SALARY ])
+? o1.SubTableQR([ :EMPLOYEE, :SALARY ], :stzTable).Show()
+#-->
+#	#   EMPLOYEE   SALARY
+#	1        Ali    35000
+#	2        Dan    28900
+#	3        Ben    25982
 
-STOP()
 /*-----------
 
 ? @@S(o1.CellsAsPositions())
 #--> [
 #	[ 1, 1 ], [ 2, 1 ], [ 3, 1 ],
 #	[ 1, 2 ], [ 2, 2 ], [ 3, 2 ],
-#	[ 1, 3 ], [ 2, 3 ], [ 3, 3 ],
-#	[ 1, 4 ], [ 2, 4 ], [ 3, 4 ] 
+#	[ 1, 3 ], [ 2, 3 ], [ 3, 3 ]
 # ]
 
 /*-----------
 
-? @@S( o1.FindInCell(2, 1, "Ali") ) #--> [ 1 ]
+o1 = new stzTable([
+	:ID	  = [ 10, 	20, 	   30 	 ],
+	:EMPLOYEE = [ "Ali", 	"Dania",   "Han" ],
+	:SALARY   = [ 35000, 	28900, 	   25982 ]
+])
 
-/*-----------
+//o1.Show()
+#-->
+#	#   ID   EMPLOYEE   SALARY
+#	1   10        Ali    35000
+#	2   20      Dania    28900
+#	3   30        Ben    25982
 
-? @@S( o1.FindInCellsXT([ [2,1], [2,4] ], "Ali") )
-#--> [ [ 1 ], [ 1 ] ]
+/*====================================================================================
 
-? @@S( o1.FindInCellsXT([ [2,1], [2,4] ], "Ali") )
+? o1.Contains( :Cell = "Ali" )	 #--> TRUE	(same as ? o1.ContainsCell("Ali"))
+? o1.Contains( :SubValue = "a" ) #--> TRUE	(same as ? o1.ContainsSubValue("a"))
+	
+/*-------------
+
+? @@S( o1.FindCell("Ali") )
+#--> [ [ 2, 1 ] ]
+#--> One occurrence of "Ali" in the cell [2, 1]
+
+? @@S( o1.FindSubValue("a") )
+#--> [
+#	[ [ 2, 2 ], [ 2, 5 ] ],
+#	[ [ 2, 3 ], [ 2 ]    ]
+#    ]
+#--> 3 occurrences of "a":
+#	- 2 occurrences in cell [2, 2] ("Dania"), in positions 2 and 5, and
+#	- 1 occurrence in cell [2, 3] ("Han"), in position 2
+
+/*-------------
+
+? @@S( o1.FindNth(1, :Cell = "Ali") ) #--> [2, 1]
+# Same as ? @@S( o1.FindFirst( :Cell = "Ali" ) )
+
+? @@S( o1.FindNthCS(3, :SubValue = "A", :CS = FALSE) )
+#--> [ [ 2, 2 ], 5 ]
+#--> 2nd occurrence of "A" (or "a") found in the cell [2, 2] ("Dania") in position 5
+
+? @@S( o1.FindFirstCS(:SubValue = "A", :CS = FALSE) ) #--> [ [ 2, 1 ], 1 ]
+
+? @@S( o1.FindLastCS(:SubValue = "A", :CS = FALSE) ) #--> [ [ 2, 3 ], 2 ]
+
+/*-------------
+
+? o1.Count( :Values = "Ali" ) #--> 1
+	# Same as o1.Count( :Cells = "Ali" )
+	# or: ? o1.NumberOfOccurrence( :OfCell = "Ali" )
+	# or: ? o1.CountOfCell( "Ali" )
+	# or: ? o1.CountOfValue("Ali")
+
+/*-------------
+
+? o1.Count( :SubValues = "a" ) #--> 3
+? o1.CountCS( :SubValues = "A", :CaseSensitive = FALSE ) #--> 4
+
+/*-------------
+
+? Q(:Cells = "Ali").IsOneOfTheseNamedParams([ :OfCell, :Cells ]) #--> TRUE
+
+/*=============
+
+? @@S( o1.TheseCellsAndTheirPositions([ [1,2], [2,2], [2,3] ]) )
+#--> [ [ 20, [ 1, 2 ] ], [ "Dania", [ 2, 2 ] ], [ "Han", [ 2, 3 ] ] ]
+
+/*-------------
+
+? @@S( o1.TheseCells([ [1,2], [2,2], [2,3] ]) )
+#--> [ 20, "Dania", "Ben" ]
+
+? @@S( o1.FindInCells( [ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
+#--> [ [2, 2] ]
+
+? @@S( o1.FindInCells( [ [1,2], [2,2], [2,3] ], :SubValue = "a" ) )
+#--> [
+#	[ [ 2, 2 ], [ 2, 5 ] ],
+#	[ [ 2, 3 ], [ 2 ]    ]
+#    ]
+#--> There are 3 occurrences of "a" in the specified cells:
+#	- 2 occurrences in the cell [2, 2] ("Dania"), in positions 2 and 5, and
+#	- 1 occurrence in cell [2, 3] ("Han"), in position 2.
+
+/*-------------
+*/
+o1 = new stzTable([
+	:ID	  = [ 10, 	20, 	   30 	 ],
+	:EMPLOYEE = [ "Ali", 	"Dania",   "Han" ],
+	:SALARY   = [ 35000, 	28900, 	   25982 ]
+])
+
+? @@S( o1.FindNthInCells( 1, [ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
+#--> [2, 2]
+
+? o1.FindNthInCells( 1, [ [1,2], [2,2], [2,3] ], :Value = "blabla" )
+#--> [0, 0] !!!
+
+? @@S( o1.FindNthInCells( 2, [ [1,2], [2,2], [2,3] ], :SubValue = "a" ) )
+#--> [ [ 2, 2 ], 5 ]
+// Sames as: ? o1.FindNthSubValueInCells( 2, [ [1,2], [2,2], [2,3] ], "a" ) )
+
+? @@S( o1.FindFirstInCells([ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
+#--> [ 2, 2 ]
+
+? @@S( o1.FindLastInCells([ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
+#--> [ 2, 2 ]
+
+/*-------------
+
+o1 = new stzTable([
+	[ :ID,	 :EMPLOYEE,    	:SALARY	],
+	#-------------------------------#
+	[ 10,	 "Ali",		35000	],
+	[ 20,	 "Dania",	28900	],
+	[ 30,	 "Han",		25982	],
+	[ 40,	 "Ali",		12870	]
+])
+
+# Let's take this selection of cells
+aMyCells = [ [2,1], [2,3], [2,4] ]
+# And get them along with their positions:
+? @@S( o1.TheseCellsXT( aMyCells ) )
+#--> [ [ "Ali", [ 2, 1 ] ], [ "Han", [ 2, 3 ] ], [ "Ali", [ 2, 4 ] ] ]
+
+# How many cell made of the value "Ali" does exist in those cells?
+? o1.CountInCells( aMyCells, :Value = "Ali" )  #--> 2
+# Where do they exist exactly:
+? @@S( o1.FindInCells( aMyCells, :Value = "Ali" ) )
+#--> [ [ 2, 1 ], [ 2, 4 ] ]
+
+# How many subvalue "A" does exist in the same list of cells?
+? o1.CountInCells( aMyCells, :SubValue = "A" ) #--> 2
+# How many subvalue "A" whatever case it has?
+? o1.CountInCellsCS( aMyCells, :SubValue = "A", :CS = FALSE ) #--> 3
+# And where do they exist exactly?
+? @@S( o1.FindInCellsCS( aMyCells, :SubValue = "A", :CS = FALSE ) )
 #--> [
 #	[ [ 2, 1 ], [ 1 ] ],
-#	[ [ 2, 4 ], [ 1 ] ]
-#]
-
-/*-----------
-
-? @@S( o1.FindInCellsInSection([2,1], [2,4], "Ali") )
-#--> [
-#	[ [ 2, 1 ], [ 1 ] ],
-#	[ [ 2, 3 ], [ 1 ] ],
+#	[ [ 2, 3 ], [ 2 ] ],
 #	[ [ 2, 4 ], [ 1 ] ]
 #    ]
 
-/*-----------
+/*-------------
+*/
+o1 = new stzTable([
+	[ :ID,	 :EMPLOYEE,    	:SALARY	],
+	#-------------------------------#
+	[ 10,	 "Ali",		35000	],
+	[ 20,	 "Dania",	28900	],
+	[ 30,	 "Han",		25982	],
+	[ 40,	 "Ali",		12870	]
+])
 
-? @@S( o1.FindInCellsInSectionXT([2,1], [2,4], "Ali") )
+? o1.CellsContain( [ [1,2], [2,1], [2,3] ], :Cell = "Ali" )
+#--> TRUE	(same as ? o1.CellsContain("Ali"))
+
+? o1.CellsContain( [ [1,2], [2,2], [2,3] ], :SubValue = "a" )
+#--> TRUE	(same as ? o1.CellsContainSubValue("a"))
+/*
+? o1.CountInCells( :AtPositions = [ [1,2], [2,2], [2,3] ], :Cell = "Ali" )
+? o1.CountInCells( :AtPositions = [ [1,2], [2,2], [2,3] ], :SubValue = "a" )
+
+/*-------------
+
+? @@S( o1.FindCell("Ali") )
+#--> [ [ 2, 1 ] ]
+#--> One occurrence of "Ali" in the cell [2, 1]
+
+? @@S( o1.FindSubValue("a") )
 #--> [
-#	[ "[ 2, 1 ]", [ 1 ] ],
-#	[ "[ 2, 3 ]", [ 1 ] ],
-#	[ "[ 2, 4 ]", [ 1 ] ]
+#	[ [ 2, 2 ], [ 2, 5 ] ]
 #    ]
+#--> Two occurrences of "a" in cell [2, 2] ("Dania"), in the 2nd and 5th chars.
 
-/*-----------
+? @@S( o1.FindSubValueCS("a", :CaseSensitive = FALSE) )
+#--> [ [ [ 2, 1 ], [ 1 ] ], [ [ 2, 2 ], [ 2, 5 ] ] ]
+#--> Three occurrences of "A" (or "a"):
+#	- one occurrence in the cell [2, 1] ("Ali") at the 1st char, and
+#	- two occurrences in the cell [2, 5] ("Dania") at the 2nd and 5th chars.
 
-? o1.FindInColumn("EMPLOYEE", "Ali Sandy")
+#-------------
 
-/*-----------
+? o1.Count( :Cells = "Ali" ) #--> 1
+	# Same as NumberOfOccurrence( :OfCell = "Ali" )
+	# Or you can say: ? o1.CountOfCell( "Ali" )
 
-? o1.FindInCellsInColumn(:EMPLOYEE, "Ali")
+#-------------
 
-/*-----------
+? o1.Count( :SubValues = "a" ) #--> 2
+? o1.CountCS( :SubValues = "A", :CaseSensitive = FALSE ) #--> 3
 
-? @@S(o1.Cells()) + NL
+	/*============
+	
+	? o1.ColQ(:EMPLOYEE).Contains( :Cell = "Ali" )
+	
+	? o1.ColContains(:EMPLOYEE, :Cell = "Ali")
+	? o1.ColContains(:EMPLOYEE, :SubValue = "a")
+		
+		? o1.ColContainsCell( :EMPLOYEE, "Ali")
+		? o1.ColContainsSubValue( :EMPLOYEE, "a")
+	
+	? o1.FindInCol(:EMPLOYEE, :TheCell = "Ali")
+	? o1.FindInCol(:EMPLOYEE, :TheSubValue = "Ali")
+	
+		? o1.FindCellInCol(:EMLOYEE, "Ali")
+		? o1.FindSubValueInCol(:EMPLOYEE, "a")
+	
+	? o1.NumberOfOccurrenceInCol(:EMPLOYEE, :OfCell = "Ali")
+	? o1.NumberOfOccurrenceInCOl(:EMPLOYEE, :OfSubValue = "a")
+		? o1.NumberOfOccurrenceOfCellInCol(:EMLOYEE, "Ali")
+		? o1.NumberOfOccurrenceInCellsInCol(:EMPLOYEE, :Of = "a")
+	
+	/*--------
+	# SAME FOR: COL, ROW, SECTION, and CELLS!
+	/*--------
+
+
+	# As part of the semantics of stzTable, "Contains" is used only when
+	# you want to check for subvalues inside cells and NOT for cells values
+	# themselves. Keep this in mind to avoid confusion!
+	
+	# The fellowing wil clarify the point to you.
+	
+	# When we need to check wether the column cells CONTAIN the subvalue "a",
+	# then we sipmply sya:
+	? o1.ColContains(:EMPLOYEE, "a") + NL #--> TRUE
+	
+	# If you wander how to find the positions of the subvalue "a"
+	# INSIDE the cells of the column :EMPLOYEE, and you say:
+	
+	? @@S( o1.FindInCol(:EMPLOYEE, "a") ) + NL	#--> []
+	
+	# You get nothing! Meaning that the column contains no cells that
+	# are EQUAL to "a". In fact, FindInCol() looks for an ENTIRE value
+	# of a cell and not for a part of it.
+	
+	# You can verify this by feeding it with an entire cell value, like
+	# "Dania" for example. In this case, you get its position as the 2nd
+	# cell in col 2:
+	
+	? @@S( o1.FindInCol(:EMPLOYEE, "Dania") ) + NL	#--> [2, 2]
+	
+	# Now, inorder for you to find any occurrences of the substring "a"
+	# INSIDE the cells of the column, you should be precise and
+	# add the ...InCells...() speciffier to the function like this:
+	
+	? @@S( o1.FindInCellsInCol(:EMPLOYEE, "a") ) + NL
+	#--> [
+	#	[ [ 2, 2 ], [ 2, 5 ] ]
+	#    ]
+	#--> The column contains the substring "a" in two positions
+	# inside the cell [2, 2] corresponding the string "Dania":
+	# 2nd and 5th position!
+	
+	# Of course, you could find any letter "A" whatever case it is
+	# written in (lowercase or uppercase):
+	? @@S( o1.FindInCellsInColCS(:EMPLOYEE, "a", :CaseSensitive = FALSE) )
+	#--> [
+	#	[ [ 2, 1 ], [ 1    ] ],
+	#	[ [ 2, 2 ], [ 2, 5 ] ]
+	#    ]
+	
+/*--------
+
+# Finding the occurrence of a subvalue inside the column cells
+? @@S( o1.FindInCellsInCol(:EMPLOYEE, "a") )
 #--> [
-#	101, "Ali Sandy", 35000,
-#	294, "Dan Mikov", 12890,
-#	287, "Ali Sandy", 1069,
-#	307, "Ali Aziza", 5200
-# ]
+#	[ [2, 2], [ 2, 5 ] ]
+#    ]
+#--> In cell [2, 2], there are two "a"s at positions 2 and 5
 
-/*-----------
-
-? @@S(o1.Section([2, 2], [3, 4]))
-#--> [ "Dan Mikov", 12890, "Ali Sandy", 1069, "Ali Aziza", 5200 ]
-
-? @@S( o1.SectionXT([2, 2], [3, 4]) )
+? @@S( o1.FindInCellsInColCS(:EMPLOYEE, "a", :CS = FALSE) )
 #--> [
-#	[ [ 2, 2 ], "Dan Mikov" ],
-#	[ [ 3, 2 ], 12890 ],
-#	[ [ 2, 3 ], "Ali Sandy" ],
-#	[ [ 3, 3 ], 1069 ],
-#	[ [ 2, 4 ], "Ali Aziza" ],
-#	[ [ 3, 4 ], 5200 ]
-# ]
+#	[ [ 2, 1 ], [ 1    ] ],
+#	[ [ 2, 2 ], [ 2, 5 ] ]
+#    ]
+#--> Case sensitity apart, there are 3 "A"s:
+#	- one in cell [2, 1] at position 1 (first char in "Ali"), and
+#	- two in cell [2, 2] at position 2 and 5 (2nd and 5th chars in "Dania")
 
-? @@S( o1.SectionAsPositions([2, 2], [3, 4]))
-#--> [ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ], [ 2, 4 ], [ 3, 4 ] ]
+/*--------
 
-/*-----------
 
-o2 = new stzGrid( o1.SectionToHashList([2, 2], [3, 4]) )
-? o2.Show()
-#--> [
-#	[ "[ 2, 2 ]", "Dan Mikov" ],
-#	[ "[ 3, 2 ]", 12890 ],
-#	[ "[ 2, 3 ]", "Ali Sandy" ],
-#	[ "[ 3, 3 ]", 1069 ],
-#	[ "[ 2, 4 ]", "Ali Aziza" ],
-#	[ "[ 3, 4 ]", 5200 ]
-# ]
 
-? @@S( o2.VLine(1) )
-#--> [ "[ 2, 2 ]", "[ 3, 2 ]", "[ 2, 3 ]", "[ 3, 3 ]", "[ 2, 4 ]", "[ 3, 4 ]" ]
-
-/*-----------
-
-? o1.FindInSection([2, 1], [3, 4], "Ali Sandy") #--> [ [2, 1], [2, 3] ]
-# Same as FindCellsInSection()
-
-/*-----------
-
-? o1.CellContains(2, 4, "Aziza") #--> TRUE
-? o1.FindInCell(2, 4, "Aziza") #--> [ 5 ]
-
-/*-----------
-
-? @@S( o1.FindInCellsInSection([2, 1], [3, 4], "Ali") )

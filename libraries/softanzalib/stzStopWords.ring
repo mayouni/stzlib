@@ -49,7 +49,7 @@ func StopWords()
 		return StopWordsQR(:stzList)
 	
 	func StopWordsQR(pcReturnType)
-		if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+		if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 			pcReturnType = pcReturnType[2]
 		ok
 
@@ -82,7 +82,7 @@ func StopWordsLanguages()
 		return StopWordsLanguagesQR(:stzList)
 	
 	func StopWordsLanguagesQR(pcReturnType)
-		if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+		if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 			pcReturnType = pcReturnType[2]
 		ok
 
@@ -108,7 +108,7 @@ func StopWordsLanguages()
 			return StopWordsAvailableLanguagesQR(:stzList)
 		
 		func StopWordsAvailableLanguagesQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -130,7 +130,7 @@ func StopWordsLanguages()
 			return AvailbaleLanguagesForStopWordsQR(:stzList)
 		
 		func AvailbaleLanguagesForStopWordsQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -244,7 +244,7 @@ func StopWordsIn(pcLang)
 		return StopWordsInQR(pcLang, :stzList)
 		
 	func StopWordsInQR(pcLang, pcReturnType)
-		if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+		if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 			pcReturnType = pcReturnType[2]
 		ok
 
@@ -269,7 +269,7 @@ func StopWordsIn(pcLang)
 			return StopWordsOfQR(pcLang, :stzList)
 		
 		func StopWordsOfQR(pcLang, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -295,7 +295,7 @@ func ArabicStopWords()
 		return ArabicStopWordsQR(pcLang, :stzList)
 		
 	func ArabicStopWordsQR(pcLang, pcReturnType)
-		if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+		if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 			pcReturnType = pcReturnType[2]
 		ok
 
@@ -326,7 +326,7 @@ func EnglishStopWords()
 		return EnglishStopWordsQR(pcLang, :stzList)
 		
 	func EnglishStopWordsQR(pcLang, pcReturnType)
-		if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamList()
+		if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 			pcReturnType = pcReturnType[2]
 		ok
 

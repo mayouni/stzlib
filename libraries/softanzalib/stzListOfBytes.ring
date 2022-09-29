@@ -477,7 +477,7 @@ class stzListOfBytes from stzObject
 
 	def Update(pcString)
 		if isList(pcString) and
-		   ( StzListQ(pcString).IsWithNamedParamList() or StzListQ(pcString).IsUsingNamedParamList() )
+		   ( StzListQ(pcString).IsWithNamedParam() or StzListQ(pcString).IsUsingNamedParam() )
 
 			pcString = pcString[2]
 

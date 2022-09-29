@@ -48,7 +48,7 @@ class stzListOfBoxedStrings from stzListOfStrings
 		╰───┴───┴─•─┴───╯	
 		*/
 		
-		if StzListQ(paBoxOptions).IsTextBoxedOptionsParamList()
+		if StzListQ(paBoxOptions).IsTextBoxedOptionsNamedParam()
 
 			# Reading the type of line (thin or dashed)
 
