@@ -239,7 +239,7 @@ func Max(n1,n2) # for more numbers, use stzListOfNumbers.Max()
 	ok
 
 func Double(n)
-	if isList(n) and StzListQ(n).IsOfNamedParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParam()
 		n = n[2]
 	ok
 			
@@ -263,7 +263,7 @@ func Double(n)
 	*/
 
 func Triple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParam()
 		n = n[2]
 	ok
 			
@@ -279,7 +279,7 @@ func Triple(n)
 		ok
 
 func Quadruple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParam()
 		n = n[2]
 	ok
 
@@ -295,7 +295,7 @@ func Quadruple(n)
 		ok
 
 func Quintuple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParam()
 		n = n[2]
 	ok
 
@@ -311,7 +311,7 @@ func Quintuple(n)
 		ok
 
 func Sextuple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParam()
 		n = n[2]
 	ok
 
@@ -327,7 +327,7 @@ func Sextuple(n)
 		ok
 
 func Septuple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParam()
 		n = n[2]
 	ok
 
@@ -343,7 +343,7 @@ func Septuple(n)
 		ok
 
 func Octuple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParam()
 		n = n[2]
 	ok
 
@@ -359,7 +359,7 @@ func Octuple(n)
 		ok
 
 func Nonuple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParam()
 		n = n[2]
 	ok
 
@@ -375,7 +375,7 @@ func Nonuple(n)
 		ok
 
 func Decuple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParamList()
+	if isList(n) and StzListQ(n).IsOfNamedParam()
 		n = n[2]
 	ok
 
@@ -791,7 +791,7 @@ class stzNumber from stzObject
 
 	def Update(pNumber)
 		if isList(pNumber) and
-		   ( StzListQ(pNumber).IsWithNamedParamList() or StzListQ(pNumber).IsUsingNamedParamList() )
+		   ( StzListQ(pNumber).IsWithNamedParam() or StzListQ(pNumber).IsUsingNamedParam() )
 
 			pNumber = pNumber[2]
 
@@ -3347,7 +3347,7 @@ class stzNumber from stzObject
 
 	def ListifyXT(paOptions)
 
-		if NOT StzListQ(paOptions).IsNumberListifyOptionsParamList()
+		if NOT StzListQ(paOptions).IsNumberListifyOptionsNamedParam()
 			stzRaise("Unsupported option list!")
 
 		else

@@ -254,7 +254,7 @@ class stzListOfNumbers from stzList
 			return This.MinQR(n, :stzNumber)
 
 		def MinQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -321,7 +321,7 @@ class stzListOfNumbers from stzList
 			return MinNumbersQR(n, :stzList)
 
 		def MinNumbersQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -349,7 +349,7 @@ class stzListOfNumbers from stzList
 				return This.NMinNumbersQR(n, :stzList)
 
 			def NMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -385,7 +385,7 @@ class stzListOfNumbers from stzList
 			return This.FindMinNumbersQR(n, :stzList)
 
 		def FindMinNumbersQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -413,7 +413,7 @@ class stzListOfNumbers from stzList
 				return This.FindNMinNumbersQR(n, :stzList)
 	
 			def FindNMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -438,7 +438,7 @@ class stzListOfNumbers from stzList
 				return This.PositionsOfMinNumbersQR(n, :stzList)
 	
 			def PositionsOfMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -463,7 +463,7 @@ class stzListOfNumbers from stzList
 				return This.MinNumbersPositionsQR(n, :stzList)
 	
 			def MinNumbersPositionsQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -488,7 +488,7 @@ class stzListOfNumbers from stzList
 				return This.PositionsOfNMinNumbersQR(n, :stzList)
 	
 			def PositionsOfNMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -513,7 +513,7 @@ class stzListOfNumbers from stzList
 				return This.NMinNumbersPositionsQR(n, :stzList)
 	
 			def NMinNumbersPositionsQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -544,7 +544,7 @@ class stzListOfNumbers from stzList
 			return This.MaxQR(n, :stzNumber)
 
 		def MaxQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -566,7 +566,7 @@ class stzListOfNumbers from stzList
 				return This.MaxNumberQR(n, :stzNumber)
 	
 			def MaxNumberQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -611,7 +611,7 @@ class stzListOfNumbers from stzList
 			return This.TopQR(n, :stzList)
 	
 		def TopQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -638,7 +638,7 @@ class stzListOfNumbers from stzList
 				return This.TopNumbersQR(n, :stzList)
 	
 			def TopNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -663,7 +663,7 @@ class stzListOfNumbers from stzList
 				return This.NTopNumbersQR(n, :stzList)
 	
 			def NTopNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -688,7 +688,7 @@ class stzListOfNumbers from stzList
 				return This.TopNNumbersQR(n, :stzList)
 	
 			def TopNNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -715,7 +715,7 @@ class stzListOfNumbers from stzList
 				return This.MaxNumbersQR(n, :stzList)
 	
 			def MaxNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -740,7 +740,7 @@ class stzListOfNumbers from stzList
 				return This.MaxNNumbersQR(n, :stzList)
 	
 			def MaxNNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -765,7 +765,7 @@ class stzListOfNumbers from stzList
 				return This.NMaxNumbersQR(n, :stzList)
 	
 			def NMaxNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -1088,7 +1088,7 @@ class stzListOfNumbers from stzList
 			return This.ClipQR(nMin, nMax, pcReturnType)
 
 		def ClipQR(nMin, nMax, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1118,7 +1118,7 @@ class stzListOfNumbers from stzList
 			return This.ReplaceSectionWithQR(n1, n2, n)
 
 		def ReplaceSectionWithQR(n1, n2, n)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1148,7 +1148,7 @@ class stzListOfNumbers from stzList
 			return This.CumulateQR()
 
 		def CumulateQR()
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1199,7 +1199,7 @@ class stzListOfNumbers from stzList
 			return This.UnicodesQR(:stzList)
 
 		def UnicodesQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1221,7 +1221,7 @@ class stzListOfNumbers from stzList
 				return This.CumulateQR(:stzList)
 
 			def OnlyUnicodesQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -1445,7 +1445,7 @@ class stzListOfNumbers from stzList
 		ok
 
 
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParamList()
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
 			pcCondition = pcCondition[2]
 		ok
 
@@ -1517,7 +1517,7 @@ class stzListOfNumbers from stzList
 		ok
 
 
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParamList()
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
 			pcCondition = pcCondition[2]
 		ok
 
@@ -1600,7 +1600,7 @@ class stzListOfNumbers from stzList
 
 	def Update(panNewListOfNumbers)
 
-		if isList(panNewListOfNumbers) and StzListQ(panNewListOfNumbers).IsWithNamedParamList()
+		if isList(panNewListOfNumbers) and StzListQ(panNewListOfNumbers).IsWithNamedParam()
 			pnNewListOfNumbers = pnNewListOfNumbers[2]
 		ok
 
@@ -1634,7 +1634,7 @@ class stzListOfNumbers from stzList
 			stzRaise("Incorrect param! n must be a number.")
 		ok
 
-		if isList(pnNewNumber) and Q(pnNewNumber).IsWithOrByNamedParamList()
+		if isList(pnNewNumber) and Q(pnNewNumber).IsWithOrByNamedParam()
 			pnNewNumber = pnNewNumber[2]
 		ok
 

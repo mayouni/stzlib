@@ -303,7 +303,7 @@ class stzChar from stzObject
 
 	def Update( pChar )
 		if isList(pChar) and
-		   ( StzListQ(pChar).IsWithNamedParamList() or StzListQ(pChar).IsUsingNamedParamList() )
+		   ( StzListQ(pChar).IsWithNamedParam() or StzListQ(pChar).IsUsingNamedParam() )
 
 			pValue = pValue[2]
 

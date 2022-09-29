@@ -177,7 +177,7 @@ class stzWalker from stzList
 	def SetWalkingDirection(pcDirection)
 		
 		if NOT ( isString(pcDirection) and
-			 Q(pcDirection).IsToNamedParamList() and
+			 Q(pcDirection).IsToNamedParam() and
 			 Q(pcDirection).IsOneOfThese([ :Foreward, :Backward])
 		       )
 

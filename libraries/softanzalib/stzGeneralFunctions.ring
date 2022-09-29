@@ -49,7 +49,7 @@ func stzRaise(paMessage)
 		raise(paMessage + NL)
 	ok
 
-	if isList(paMessage) and StzListQ(paMessage).IsRaiseNamedParamList()
+	if isList(paMessage) and StzListQ(paMessage).IsRaiseNamedParam()
 		cWhere = paMessage[ :Where ]
 		cWhat  = paMessage[ :What   ]
 		cWhy   = paMessage[ :Why    ]
@@ -632,7 +632,7 @@ func NStars(n)
 
 func IfWith@Eval(p)
 
-	if isList(p) and Q(p).IsWithNamedParamList()
+	if isList(p) and Q(p).IsWithNamedParam()
 
 		if Q(p[1]).LastChar() = "@"
 				

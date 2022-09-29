@@ -158,7 +158,7 @@ class stzListOfChars from stzListOfStrings
 
 	def Update(paOtherListOfChars)
 		if isList(paOtherListOfChars) and
-		   ( StzListQ(paOtherListOfChars).IsWithNamedParamList() or StzListQ(paOtherListOfChars).IsUsingNamedParamList() )
+		   ( StzListQ(paOtherListOfChars).IsWithNamedParam() or StzListQ(paOtherListOfChars).IsUsingNamedParam() )
 
 			pcString = pcString[2]
 
@@ -326,7 +326,7 @@ class stzListOfChars from stzListOfStrings
 		╰───┴───┴─•─┴───╯	
 		*/
 		
-		if StzListQ(paBoxOptions).IsTextBoxedOptionsParamList()
+		if StzListQ(paBoxOptions).IsTextBoxedOptionsNamedParam()
 
 			# Reading the type of line (thin or dashed)
 
@@ -528,7 +528,7 @@ class stzListOfChars from stzListOfStrings
 		return aResult
 
 		def UnicodesQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 

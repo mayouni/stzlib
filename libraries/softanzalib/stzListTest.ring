@@ -222,7 +222,7 @@ STOP()
 /*----------------
 
 ? StzStringQ(:stzList).IsStzClassName() #--> TRUE
-? StzListQ( :ReturnedAs = :stzList ).IsReturnedAsNamedParamList() #--> TRUE
+? StzListQ( :ReturnedAs = :stzList ).IsReturnedAsNamedParam() #--> TRUE
 
 /*-----------------
 

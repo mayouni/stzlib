@@ -325,7 +325,7 @@ class stzListOfPairs from stzList
 			return This.ExpandedIfPairsOfNumbersQR(:stzList)
 
 		def ExpandedIfPairsOfNumbersQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParamList()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 

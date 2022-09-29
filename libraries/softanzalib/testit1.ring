@@ -903,7 +903,7 @@ StzStringQ("   clean code        ") {
 #	:Boxed		= TRUE or FALSE
 #	--> FALSE by default
 
-#	:BoxOptions	= Any options onforming to IsBoxOptionsParamList()
+#	:BoxOptions	= Any options onforming to IsBoxOptionsNamedParam()
 #	--> Works only if :Boxed = TRUE
 
 

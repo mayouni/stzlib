@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+? Q("Checking if the table contains a given cell").Uppercased()
+
 /*---------------
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
