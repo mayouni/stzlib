@@ -984,7 +984,7 @@ o1 = new stzTable([
 #	- 1 occurrence in cell [2, 3] ("Han"), in position 2.
 
 /*-------------
-*/
+
 o1 = new stzTable([
 	:ID	  = [ 10, 	20, 	   30 	 ],
 	:EMPLOYEE = [ "Ali", 	"Dania",   "Han" ],
@@ -994,8 +994,8 @@ o1 = new stzTable([
 ? @@S( o1.FindNthInCells( 1, [ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
 #--> [2, 2]
 
-? o1.FindNthInCells( 1, [ [1,2], [2,2], [2,3] ], :Value = "blabla" )
-#--> [0, 0] !!!
+? @@S( o1.FindNthInCells( 1, [ [1,2], [2,2], [2,3] ], :Value = "blabla" ) )
+#--> []
 
 ? @@S( o1.FindNthInCells( 2, [ [1,2], [2,2], [2,3] ], :SubValue = "a" ) )
 #--> [ [ 2, 2 ], 5 ]
@@ -1043,6 +1043,27 @@ aMyCells = [ [2,1], [2,3], [2,4] ]
 #    ]
 
 /*-------------
+
+o1 = new stzTable([
+	[ :ID,	 :EMPLOYEE,    	:SALARY	],
+	#-------------------------------#
+	[ 10,	 "Ali",		35000	],
+	[ 20,	 "Dania",	28900	],
+	[ 30,	 "Han",		25982	],
+	[ 40,	 "Ali",		12870	]
+])
+
+? o1.CellsContain( [ [2,1], [2,3], [2,4] ], :Cell = "Ali" )
+#--> TRUE	(same as ? o1.CellsContain("Ali"))
+
+? o1.CellsContain( [ [2,1], [2,3], [2,4] ], :SubValue = "a" )
+#--> TRUE	(same as ? o1.CellsContainSubValue("a"))
+
+? o1.CountInCells( [ [2,1], [2,3], [2,4] ], :Cell = "Ali" ) #--> 2
+
+? o1.CountInCellsCS( [ [2,1], [2,3], [2,4] ], :SubValue = "a", :CS = FALSE ) #--> 3
+
+/*-------------
 */
 o1 = new stzTable([
 	[ :ID,	 :EMPLOYEE,    	:SALARY	],
@@ -1053,41 +1074,42 @@ o1 = new stzTable([
 	[ 40,	 "Ali",		12870	]
 ])
 
-? o1.CellsContain( [ [1,2], [2,1], [2,3] ], :Cell = "Ali" )
-#--> TRUE	(same as ? o1.CellsContain("Ali"))
-
-? o1.CellsContain( [ [1,2], [2,2], [2,3] ], :SubValue = "a" )
-#--> TRUE	(same as ? o1.CellsContainSubValue("a"))
-/*
-? o1.CountInCells( :AtPositions = [ [1,2], [2,2], [2,3] ], :Cell = "Ali" )
-? o1.CountInCells( :AtPositions = [ [1,2], [2,2], [2,3] ], :SubValue = "a" )
-
-/*-------------
-
-? @@S( o1.FindCell("Ali") )
-#--> [ [ 2, 1 ] ]
-#--> One occurrence of "Ali" in the cell [2, 1]
-
-? @@S( o1.FindSubValue("a") )
-#--> [
-#	[ [ 2, 2 ], [ 2, 5 ] ]
-#    ]
-#--> Two occurrences of "a" in cell [2, 2] ("Dania"), in the 2nd and 5th chars.
-
-? @@S( o1.FindSubValueCS("a", :CaseSensitive = FALSE) )
-#--> [ [ [ 2, 1 ], [ 1 ] ], [ [ 2, 2 ], [ 2, 5 ] ] ]
-#--> Three occurrences of "A" (or "a"):
-#	- one occurrence in the cell [2, 1] ("Ali") at the 1st char, and
-#	- two occurrences in the cell [2, 5] ("Dania") at the 2nd and 5th chars.
-
-#-------------
-
-? o1.Count( :Cells = "Ali" ) #--> 1
+? o1.Count( :Cells = "Ali" ) #--> 2
 	# Same as NumberOfOccurrence( :OfCell = "Ali" )
 	# Or you can say: ? o1.CountOfCell( "Ali" )
 
-#-------------
+? @@S( o1.FindCell("Ali") ) + NL
+#--> [ [ 2, 1 ], [2, 4] ]
+#--> One occurrence of "Ali" in the cell [2, 1]
 
+? @@S( o1.FindSubValue("a") ) + NL
+#--> [
+#	[ [ 2, 2 ], [ 2, 5 ] ],
+#	[ [ 2, 3 ], [ 2 ] ]
+#    ]
+#--> There are 3 occurrences of of "a" in the table:
+#	--> 2 occurrences in cell [2, 2] ("Dania"), in the 2nd and 5th chars.
+#	--> 1 occurrence in cell [2, 3] ("Han"), in position 2.
+
+? @@S( o1.FindSubValueCS("a", :CaseSensitive = FALSE) ) + NL
+#--> [
+#	[ [ 2, 1 ], [ 1 ] ],
+#	[ [ 2, 2 ], [ 2, 5 ] ],
+#	[ [ 2, 3 ], [ 2 ] ],
+#	[ [ 2, 4 ], [ 1 ] ]
+#    ]
+
+? o1.CountCS( :SubValue = "a", :CS= FALSE ) #--> 5
+
+#--> five occurrences of "A" (or "a"):
+#	- one occurrence in the cell [2, 1] ("Ali") at the 1st char
+#	- two occurrences in the cell [2, 2] ("Dania") at the 2nd and 5th chars
+#	- one occurrence in the cell [2, 3] ("Han") at the 2nd char
+#	- one occurrence in the cell [2, 4] ("Ali") at the 1st char
+
+
+#-------------
+/*
 ? o1.Count( :SubValues = "a" ) #--> 2
 ? o1.CountCS( :SubValues = "A", :CaseSensitive = FALSE ) #--> 3
 
