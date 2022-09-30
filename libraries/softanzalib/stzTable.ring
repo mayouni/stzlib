@@ -2038,6 +2038,9 @@ Class stzTable
 				return This.FindNth(n, pCellValueOrSubValue)	
 
 	def FindNthCellCS(n, pCellValue, pCaseSensitive)
+		# If no occurrence is found, an empty list [] is returned. Otherwise,
+		# the nth position is returned as a pair of numbers
+
 		if isString(n)
 			if Q(n).IsOneOfThese([ :First, :FirstOccurrence ])
 				n = 1
@@ -2051,7 +2054,12 @@ Class stzTable
 			stzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		return This.FindAllCS( :Cells = pCellValue, pCaseSensitive)[n]
+		aResult = []
+
+		aFoundCells = This.FindAllCS( :Cells = pCellValue, pCaseSensitive)
+		if n > 0 and n <= len(aCells)
+			aResult = aFoundCells[n]
+		ok	
 
 		#< @FunctionAlternativeForms
 
@@ -2085,6 +2093,9 @@ Class stzTable
 			#>
 	
 	def FindNthSubValueCS(n, pSubValue, pCaseSensitive)
+		# If no occurrence is found, an empty list [] is returned. Otherwise,
+		# the nth position is returned as a pair of numbers
+
 		if isString(n)
 			if Q(n).IsOneOfThese([ :First, :FirstOccurrence ])
 				n = 1
@@ -2113,11 +2124,7 @@ Class stzTable
 			next
 		next
 
-		if len(aResul) = 0
-			return 0
-		else
-			return aResult
-		ok
+		return aResult
 			
 		def FindNthOccurrenceOfSubValueCS(n, pSubValue, pCaseSensitive)
 			return This.FindNthSubValueCS(n, pSubValue, pCaseSensitive)
@@ -2290,10 +2297,10 @@ Class stzTable
 		*/
 
 		if isList(pValue)
-			if Q(pValue).IsOneOfTheseNamedParams([ :OfCell, :Cells, :OfValue, :Values ])
+			if Q(pValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Cells, :Value, :OfValue, :Values ])
 				return This.NumberOfOccurrenceOfCellCS(pValue[2], pCaseSensitive)
 
-			but Q(pValue).IsOneOfTheseNamedParams([ :OfSubValue, :SubValues ])
+			but Q(pValue).IsOneOfTheseNamedParams([ :SubValue, :SubValues, :OfSubValue, :OfSubValues ])
 				return This.NumberOfOccurrenceOfSubValueCS(pValue[2], pCaseSensitive)
 			ok
 		ok
@@ -2326,8 +2333,7 @@ Class stzTable
 		#>
 
 	def NumberOfOccurrenceOfCellCS(pCellValue, pCaseSensitive)
-		nResult = len( This.FindCellCS(pCellValue, pCaseSensitive) )
-		return nResult
+		return len( This.FindCellCS(pCellValue, pCaseSensitive) )
 
 		#< @FunctionAlternativeForms
 
@@ -2772,8 +2778,7 @@ Class stzTable
 
 	def FindNthValueInCellsCS(n, paCells, pCellValue, pCaseSensitive)
 		# Returns the cell position as a pair of numbers
-		# NOTE: To be consistent with simular methods in other classes,
-		# the value returned when no cells are found is 0.
+		# Returns an empty pair [] if no occurrence is found.
 
 		if isString(n)
 			if Q(n).IsOneOf([ :First, :FirstOccurrence, :FirstValue ])
@@ -2790,7 +2795,7 @@ Class stzTable
 
 		anPos = This.FindAllInCellsCS( paCells, pCellValue, pCaseSensitive)
 
-		aResult = 0
+		aResult = []
 
 		if len(anPos) > 0 and n <= len(anPos)
 			aResult = anPos[n]
@@ -2810,6 +2815,9 @@ Class stzTable
 				return This.FindNthValueInCells(n, paCells, pValue)
 	
 	def FindNthSubValueInCellsCS(n, paCells, pSubValue, pCaseSensitive)
+		# Returns the subvalue position as a pair of numbers
+		# Returns an empty pair [] if no occurrence is found.
+
 		if isString(n)
 			if Q(n).IsOneOf([ :First, :FirstOccurrence, :FirstSubValue ])
 				n = 1
@@ -2838,11 +2846,7 @@ Class stzTable
 			next
 		next
 
-		if len(aResult) = 0
-			return 0
-		else
-			return aResult
-		ok
+		return aResult
 			
 		def FindNthOccurrenceOfSubValueInCellsCS(n, paCells, pSubValue, pCaseSensitive)
 			return This.FindNthSubValueInCellsCS(n, paCells, pSubValue, pCaseSensitive)
