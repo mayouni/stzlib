@@ -13386,6 +13386,8 @@ class stzList from stzObject
 			return FALSE
 		done
 
+	#--
+
 	def IsCellNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :Cell)
@@ -13422,6 +13424,8 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	#--
+
 	def IsSubValueNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :SubValue)
@@ -13457,6 +13461,175 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	#--
+
+	def IsColNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and (This[1] = :Col or This[1] = :Column) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsColumnNamedParam()
+			return This.IsColNamedParam()
+
+	def IsOfColNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and (This[1] = :OfCol or This[1] = :OfColumn) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsOfColumnNamedParam()
+			return This.IsOfColNamedParam()
+
+	def IsInColNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and (This[1] = :InCol or This[1] = :InColumn) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInColumnNamedParam()
+			return This.IsInColNamedParam()
+
+	def IsColsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and (This[1] = :Cols or This[1] = :Columns) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsColumnsNamedParam()
+			return This.IsColsNamedParam()
+
+	def IsOfColsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and (This[1] = :OfCols or This[1] = :OfColumns) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsOfColumnsNamedParam()
+			return This.IsOfColsNamedParam()
+
+	def IsInColsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and (This[1] = :InCols or This[1] = :InColumns) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInColumnsNamedParam()
+			return This.IsInColsNamedParam()
+
+	#--
+
+	def IsRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :Row)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfRow)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :InRow)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsRowsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :Rows)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfRowsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfRows)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInRowsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :InRows)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsOccurrenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :Occurrence)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsNthNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :Nth)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsNthOccurrenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :NthOccurrence)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsNNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :N)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+	#--
 
 	def IsCaseSensitiveNamedParam()
 		if This.NumberOfItems() = 2 and
