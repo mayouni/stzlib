@@ -556,12 +556,18 @@ o1 = new stzTable([
 ? @@S( o1.FindInRow(2, "Red") ) 
 #--> [ [ 2, 2 ], [ 2, 3 ] ]
 
-/*------------
+/*===============
 
-? @@S( o1.Section([1,2], [3,2]) )
+o1 = new stzTable([
+	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
+	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
+	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+])
+
+? @@S( o1.Section([1,2], [3,2]) ) + NL
 #--> [ "Blue", "Red", "Red" ]
 
-//? @@S( o1.SectionXT([1,2], [3,2]) )
+? @@S( o1.SectionXT([1,2], [3,2]) ) + NL
 #--> [
 #	[ [ 1, 2 ], "Blue" ],
 #	[ [ 2, 2 ], "Red"  ],
@@ -572,6 +578,12 @@ o1 = new stzTable([
 #--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
 
 /*==========
+*/
+o1 = new stzTable([
+	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
+	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
+	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+])
 
 ? @@S( o1.FindInSection([1,2], [3,2], "Red") )
 #--> [ [ 2, 2 ], [ 3, 2 ] ]
@@ -1332,7 +1344,7 @@ o1 = new stzTable([
 
 #-----------
 /*
-*/
+
 // Checking if a given value, or subvalue, exists in a Col
 
 o1 = new stzTable([
