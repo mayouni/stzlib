@@ -1,5 +1,30 @@
 load "stzlib.ring"
 
+/*-----------------
+*/
+o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
+
+? o1.Section(1, 4)
+#--> [ "S", "O", "F", "T" ]
+
+? o1.Section(4, 1)
+#--> [ "S", "O", "F", "T" ]
+
+? o1.Section(:From = 1, :To = 4)
+#--> [ "S", "O", "F", "T" ]
+
+? o1.Section(:From = (:NthToLastItem = 3), :To = :LastItem)
+#--> [ "A", "N", "Z", "A" ]
+
+? o1.Section(:From = "F", :To = "A")
+#--> [ "F", "T", "A" ]
+
+? o1.Section( :From = "A", :To = :EndOfList )
+#--> [ "A", "N", "Z", "A" ]
+
+? o1.Section(-99, 99)
+#--> [ "S", "O", "F", "T", "A", "N", "Z", "A" ]
+
 /*=======================
 
 # In Softanza, you can find lists inside lists:
@@ -1606,8 +1631,8 @@ o1 = new stzList([ "a", "b", "c", "d", "e" ])
 ? @@S( o1.SplitBeforePositions([ 3, 5 ]) )
 # Returns [ ["a","b"], ["c", "d"], ["e"] ]
 
-/*-------------
-*/
+/*------------- TEST IT
+
 o1 = new stzString("abcde")
 
 ? @@S( o1.SplitToPartsOfNChars(2) )

@@ -1,9 +1,9 @@
 load "stzlib.ring"
 
+
 /*-----------------
 
 ? SoftanzaLogo()
-
 /* --> 
 
 ╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
@@ -44,6 +44,49 @@ o1.Simplify()
 #--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
 
 /*=================
+
+? Q("NEXTAV TUNISIA").Section(:From = 1, :To = 6)
+#--> "NEXTAV"
+
+? Q("NEXTAV TUNISIA").Section(:From = (:NthToLastChar = 6), :To = :LastChar)
+#--> "TUNISIA"
+
+/*-----------------
+
+? Q("SOFTANZA").Section(1, 4)
+#--> "SOFT"
+
+? Q("SOFTANZA").Section(:From = 1, :To = 4)
+#--> "SOFT"
+
+? Q("SOFTANZA").Section(4, 1)
+#--> "TFOS"
+
+/*-----------------
+*/
+? Q("SOFTANZA").Section(:From = :LastChar, :To = :FirstChar)
+#--> "AZNATFOS"
+
+/*-----------------
+
+? Q("SOFTANZA").Section(:From = (:NthToLastChar = 3), :To = :LastChar)
+#--> "ANZA"
+
+? Q("SOFTANZA").Section(:From = "F", :To = "A")
+#--> "FTA"
+
+? Q("SOFTANZA").Section( :From = "A", :To = :EndOfString )
+#--> "ANZA"
+
+? Q("Programming By Heart!
+     This is Softanza motto.").
+	Section( :From = "By", :To = :EndOfLine)
+#--> "By Heart!"
+
+? Q("SOFTANZA").Section(-99, 99)
+#--> "SOFTANZA"
+
+/*----------------- CORRECT IT!
 
 o1 = new stzString('[ "A","B", "C", "D", ]')
 ? o1.SplitXT(",", [])

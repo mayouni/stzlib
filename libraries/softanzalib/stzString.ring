@@ -5649,6 +5649,8 @@ class stzString from stzObject
 	// Returns a subset of the string between n1 and n2 positions
 	def Section(n1, n2)
 
+		# Managing the use of :From and :To named params
+
 		if isList(n1) and StzListQ(n1).IsFromNamedParam()
 			n1 = n1[2]
 		ok
@@ -5657,70 +5659,113 @@ class stzString from stzObject
 			n2 = n2[2]
 		ok
 
-		# If the params are strings then interpret them as numbers
+		# Managing the use of :NthToFirst named param
+
+		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+					:NthToFirst, :NthToFirstChar ])
+
+			n1 = n1[2] + 1
+		ok
+
+		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+					:NthToFirst, :NthToFirstChar ])
+
+			n2 = n2[2] + 1
+		ok
+
+		# Managing the use of :NthToLast named param
+
+		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+					:NthToLast, :NthToLastChar ])
+
+			n1 = This.NumberOfChars() - n1[2]
+		ok
+
+		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+					:NthToLast, :NthToLastChar ])
+
+			n2 = This.NumberOfChars() - n2[2]
+		ok
+
+		# Managing the case of :First and :Last keywords
 
 		if isString(n1)
-			if n1 = :FirstChar or n1 = :StartOfString
-				 n1 = 1
+			if Q(n1).IsOneOfThese([ :First, :FirstChar ])
+				n1 = 1
+
+			but Q(n1).IsOneOfThese([ :Last, :LastChar ])
+				n1 = This.NumberOfChars()
+
 			ok
 		ok
 	
 		if isString(n2)
-			if n2 = :LastChar or n2 = :EndOfString
+			if Q(n2).IsOneOfThese([ :Last, :LastChar, :EndOfString ])
 				n2 = This.NumberOfChars()
+
+			but Q(n2).IsOneOfThese([ :First, :FirstChar ])
+				n2 = 1
+
 			ok
 		ok
 
+		# If the params are not numbers, so find them and take their positions
+		# EXAMPLE: ? Q("SOFTANZA").Section(:From = "F", :To = "A") #--> "FTA"
+
 		if NOT isNumber(n1)
 			n1 = This.FindFirst(n1)
+		ok
+
+		# Managing the case of :EndOfSentence, :EndOfLine, and :EndOfWord keywords
+
+		if n1 > 0 and n2 = :EndOfSentence
+			return This.ToStzText().ForwardToEndOfSentence( :StartingAt = n1 )
+		ok
+
+		if n1 > 0 and n2 = :EndOfLine
+			return This.ForwardToEndOfLine( :StartingAt = n1 )
+		ok
+
+		if n1 > 0 and n2 = :EndOfWord # TODO: should move to stzText?
+			return This.ToStzText().ForwardToEndOfWord( :StartingAt = n1 )
 		ok
 
 		if NOT isNumber(n2)
 			n2 = This.FindFirst(n2)
 		ok
 
+		# Params must be numbers
+
 		if NOT BothAreNumbers(n1, n2)
-			stzRaise("Incorrect params! n1 and n2 must be numbers and n1 <= n2.")
+			stzRaise("Incorrect params! n1 and n2 must be numbers.")
 		ok
+
+		# If the params are given in inversed order, return reversed section
 
 		if n1 > n2
 			nTemp = n1
 			n1 = n2
 			n2 = nTemp
-		ok
 
-		if isNumber(n1) and n1 > 0 and n2 = :EndOfSentence
-			return This.ToStzText().ForwardToEndOfSentence( :StartingAt = n1 )
-		ok
-
-		if isNumber(n1) and n1 > 0 and n2 = :EndOfLine
-			return This.ForwardToEndOfLine( :StartingAt = n1 )
-		ok
-
-		if isNumber(n1) and n1 > 0 and n2 = :EndOfWord # TODO: should move to stzText?
-			return This.ToStzText().ForwardToEndOfWord( :StartingAt = n1 )
-		ok
-		
-		# Now the params are numbers, let's fix any anomaly
-
-		if n1 = 0 or n2 = 0
-			return NULL
-		ok
-
-		if n1 < 0
-			n1 = -n1
-			n1 = This.NumberOfChars() - n1 + 1
+			return This.SectionQ(n1, n2).Reversed()
 		ok
 	
-		if n2 < 0
-			n2 = -n2
-			n2 = This.NumberOfChars() - n2 + 1
+		# Managing out of range params
+
+		if n1 <= 0
+			n1 = 1
+		ok
+	
+		if n1 > This.NumberOfItems()
+			n = This.NumberOfItems()
 		ok
 
-		if n1 > n2
-			nTemp = n1
-			n1 = n2
-			n2 = nTemp
+		if n2 > This.NumberOfItems()
+			n2 = This.NumberOfItems()
+		ok
+
+		if n2 <= 0
+			n2 = 1
 		ok
 
 		# Finally, we're ready to extract the section
