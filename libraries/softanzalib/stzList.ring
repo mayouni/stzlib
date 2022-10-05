@@ -12460,6 +12460,7 @@ class stzList from stzObject
 	#------------------------------------------------#
 
 	def Section(n1, n2)
+		# Managing the use of :From and :To named params
 
 		if isList(n1) and StzListQ(n1).IsFromNamedParam()
 			n1 = n1[2]
@@ -12469,47 +12470,105 @@ class stzList from stzObject
 			n2 = n2[2]
 		ok
 
+		# Managing the use of :NthToFirst named param
+
+		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+					:NthToFirst, :NthToFirstItem ])
+
+			n1 = n1[2] + 1
+		ok
+
+		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+					:NthToFirst, :NthToFirstItem ])
+
+			n2 = n2[2] + 1
+		ok
+
+		# Managing the use of :NthToLast named param
+
+		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+					:NthToLast, :NthToLastItem ])
+
+			n1 = This.NumberOfItems() - n1[2]
+		ok
+
+		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+					:NthToLast, :NthToLastItem ])
+
+			n2 = This.NumberOfItems() - n2[2]
+		ok
+
+		# Managing the case of :First and :Last keywords
+
 		if isString(n1)
-			if n1 = :First or n1 = :FirstItem
+			if Q(n1).IsOneOfThese([ :First, :FirstItem ])
 				n1 = 1
+
+			but Q(n1).IsOneOfThese([ :Last, :LastItem ])
+				n1 = This.NumberOfItems()
+
+			ok
+		ok
+	
+		if isString(n2)
+			if Q(n2).IsOneOfThese([ :Last, :LastItem ])
+				n2 = This.NumberOfItems()
+
+			but Q(n2).IsOneOfThese([ :First, :FirstItem ])
+				n2 = 1
+
 			ok
 		ok
 
-		if isString(n2)
-			if n2 = :Last or n2 = :LastItem
-				n2 = This.NumberOfItems()
-			ok
-		ok
+		# If the params are not numbers, so find them and take their positions
+		# EXAMPLE:
+		# 	? Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]).
+		# 		Section(:From = "F", :To = "A") #--> [ "F", "T", "A" ]
 
 		if NOT isNumber(n1)
-
 			n1 = This.FindFirst(n1)
-
 		ok
 
 		if NOT isNumber(n2)
-			n2 = This.WalkUntil( '@item > ' + n1 )
-			
-
+			n2 = This.FindFirst(n2)
 		ok
+
+		# Params must be numbers
 
 		if NOT BothAreNumbers(n1, n2)
 			stzRaise("Incorrect params! n1 and n2 must be numbers.")
 		ok
 
-		if n1 = 0 or n2 = 0
-			stzRaise("Zeros are not allowed!")
-		ok
-	
-		if n1 < 1 or n2 > This.NumberOfItems()
-			stzRaise("Out of range! Acceptable values [1.."+
-	                       this.NumberOfItems() + "]")
-		ok
-	
+		# If the params are given in inversed order, return reversed section
+
 		if n1 > n2
-			stzRaise("Can't proceed! n1 must be smaller then n2")
+			nTemp = n1
+			n1 = n2
+			n2 = nTemp
+
+			return This.SectionQ(n1, n2).Reversed()
 		ok
 	
+		# Managing out of range params
+
+		if n1 <= 0
+			n1 = 1
+		ok
+	
+		if n1 > This.NumberOfItems()
+			n = This.NumberOfItems()
+		ok
+
+		if n2 > This.NumberOfItems()
+			n2 = This.NumberOfItems()
+		ok
+
+		if n2 <= 0
+			n2 = 1
+		ok
+
+		# Finally, we're ready to extract the section
+
 		aResult = []
 		for i = n1 to n2
 			aResult + This.Content()[i]
@@ -14126,6 +14185,66 @@ class stzList from stzObject
 	def IsMadeOfNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :MadeOf )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsNthTofirstNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :NthToFirst )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsNthToFirstCharNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :NthToFristChar )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsNthToFirstItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :NthToFirstItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsNthToLastNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :NthToLast )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsNthToLastCharNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :NthToLastChar )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsNthToLastItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :NthToLastItem )
 
 			return TRUE
 

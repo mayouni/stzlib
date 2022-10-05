@@ -578,7 +578,7 @@ o1 = new stzTable([
 #--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
 
 /*==========
-*/
+
 o1 = new stzTable([
 	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
 	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
@@ -589,6 +589,12 @@ o1 = new stzTable([
 #--> [ [ 2, 2 ], [ 3, 2 ] ]
 
 /*----------
+
+o1 = new stzTable([
+	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
+	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
+	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+])
 
 ? @@S( o1.SectionXT(:From = :FirstCell, :To = [3,2]) )
 #--> [
@@ -602,38 +608,103 @@ o1 = new stzTable([
 
 /*-----------
 
-? @@S( o1.FindAllInSectionCS([1, 1], [3, 2], "red", :CS = TRUE) ) #--> []
+o1 = new stzTable([
+	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
+	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
+	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+])
 
-? @@S( o1.FindAllInSectionCS([1, 1], [3, 2], "Red", :CS = TRUE) )
+? @@S( o1.FindInSectionCS([1, 1], [3, 2], "red", :CS = TRUE) )
+#--> []
+
+? @@S( o1.FindInSectionCS([1, 1], [3, 2], "Red", :CS = TRUE) )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
-? @@S( o1.FindAllInSectionCS([1, 1], [3, 2], "red", :CS = FALSE) )
+? @@S( o1.FindInSectionCS([1, 1], [3, 2], "red", :CS = FALSE) )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
 /*-----------
+
+o1 = new stzTable([
+	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
+	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
+	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+])
 
 ? o1.FindNthInSectionCS(2, :From = :FirstCell, :To = [3, 3], "red", :CS = FALSE) #--> [2, 2]
 ? o1.FindFirstInSection(:From = :FirstCell, :To = [3, 3], "Red") #--> [1, 1]
 ? o1.FindLastInSection(:From = :FirstCell, :To = [3, 3], "Red") #--> [3, 2]
 
+/*-----------
+
+o1 = new stzTable([
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
+])
+
+? o1.Count("Red") #--> 3
+? o1.Count(:SubValue = "e") #--> 11
+
+? o1.CountInCol(:PALETTE1, "Blue") #--> 2
+? o1.CountInRow(2, "Red") #--> 2
+
+? o1.CountInCells( [ [1, 1], [2,1], [2, 2] ], "Red" ) #--> 2
+? o1.CountInCells( [ [1, 1], [2,1], [2, 2] ], :SubValue = "e" ) #--> 3
+
+/*-----------
+
+o1 = new stzTable([
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
+])
+
+? o1.SectionContains( [1, 2], [3, 2], "Red" ) #--> TRUE
+? o1.SectionContains( [1, 2], [3, 2], :SubValue = "ed" ) #--> TRUE
+
 /*==============
 
-# REMINDER:
-? @@S( o1.SectionXT(:From = [1,2], :To = [3,2]) )
+o1 = new stzTable([
+	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
+	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
+	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+])
+
+? o1.Show()
+#-->
+#	#   PALETTE1   PALETTE2   PALETTE3
+#	1        Red      White     Yellow
+#	2       Blue        Red        Red
+#	3       Blue      Green    Magenta
+#	4      White       Gray      Black
+
+//? @@S( o1.SectionXT(:From = [1,2], :To = [3,2]) ) + NL
 #--> [
 #	[ [ 1, 2 ], "Blue" 	],
 #	[ [ 2, 2 ], "Red" 	],
 #	[ [ 3, 2 ], "Red" 	]
 #    ]
 
-? @@S( o1.FindInCellsInSection([1,2], [3,2], "e") )
+//? @@S( o1.FindInSection([1,2], [3,2], :SubValue = "e") ) + NL
 #--> [
 #	[ [ 1, 2 ], [ 4 ] ],
 #	[ [ 2, 2 ], [ 2 ] ],
 #	[ [ 3, 2 ], [ 2 ] ]
 #    ]
 
-? @@S( o1.FindLastInCellsInSection([1,2], [3,2], "e") )
+//? @@S( o1.FindNthInSection(:First, [1,2], [3,2], :SubValue = "e") ) + NL
+#--> [ [ 1, 2 ], 4 ]
+
+? @@S( o1.FindNthInSection(:Last, [1,2], [3,2], :SubValue = "e") ) + NL
+#--> [ [ 3, 2 ], 2 ]
+
+/*
+? @@S( o1.FindLastInSection([1,2], [3,2], :SubValue = "e") ) + NL
 #--> [ [ 3, 2 ], [ 2 ] ]
 
 /*=============
@@ -1327,7 +1398,7 @@ o1 = new stzTable([
 ? @@S( o1.FindFirstInCol(:LASTNAME, :SubValue = "a") )
 #--> [ [ 2, 1 ], 2 ]
 
-#-----------
+/*-----------
 /*
 
 // Counting the number of occurrences of a value, or subvalue, in a Col
@@ -1342,7 +1413,7 @@ o1 = new stzTable([
 ? o1.CountInCol(:FIRSTNAME, :Value = "Ali") #--> 2
 ? o1.CountInCol(:LASTNAME, :SubValue = "A") #--> 2
 
-#-----------
+/*-----------
 /*
 
 // Checking if a given value, or subvalue, exists in a Col
@@ -1360,5 +1431,53 @@ o1 = new stzTable([
 ? o1.ContainsInCol(2, :SubValue = "AL")			#--> FALSE
 ? o1.ContainsInColCS(2, :SubValue = "AL", :CS = FALSE)	#--> TRUE
 
+/*=================
 
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME ],
+	[ "Andy", 	"Maestro" ],
+	[ "Ali", 	"Abraham" ],
+	[ "Ali",	"Ali"     ]
+])
 
+? o1.Cell(:FIRSTNAME, 3) #--> "Ali"
+o1.ReplaceCell(:FIRSTNAME, 3, "Saber")
+? o1.Cell(:FIRSTNAME, 3) #--> "Saber"
+
+/*-----------------
+
+o1 = new stzTable([
+	[ :NATION,	:LANGUAGE ],
+	[ "___",	"Arabic"  ],
+	[ "France",	"___"  ],
+	[ "USA",	"___" ]
+])
+
+? o1.Cell(2, 3) #--> "___"
+
+o1.ReplaceCell(2, 3, "English")
+? o1.Cell(2, 3) #--> "English"
+
+//? o1.Show()
+
+/*-----------------
+*/
+o1 = new stzTable([
+	[ :NATION,	:LANGUAGE ],
+	[ "___",	"Arabic"  ],
+	[ "France",	"___"  ],
+	[ "USA",	"___" ]
+])
+
+aSomeCells = [ [1, 1], [2, 2], [2, 3] ]
+
+o1.ReplaceCellsByMany(
+	[     [1, 1],   [2, 2],    [2, 3] ],
+	[  "Tunisia", "French", "English" ]
+)
+
+//? o1.Show()
+
+? @@S( o1.Content() )
+/*
+? o1.Show()
