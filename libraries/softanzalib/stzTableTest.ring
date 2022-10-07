@@ -1,8 +1,9 @@
 load "stzlib.ring"
 
+
 /*===============
 
-# A table can be created in 4 different ways:
+# A table can be created in 3 different ways:
 
 # WAY 1 : Creating an empty table with just a column and a row
 o1 = new stzTable([])
@@ -22,28 +23,9 @@ o1 = new stzTable([3, 2])
 #	[ "COL3", [ "", "" ] ]
 #    ]
 
-/*--------------
-
-# WAY 3: Creating a table bu prividing a hash table
-# NOTE: This is how the table is stored internally
-
-o1 = new stzTable([
-	:ID	  = [ 10, 20, 30, 40 ],
-	:EMPLOYEE = [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ],
-	:SALARY   = [ 35000, 28900, 25982, 49540 ]
-])
-
-? @@S( o1.Content() )
-
-#--> [
-# 	:ID	  = [ 10, 20, 30, 40 ],
-#	:EMPLOYEE = [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ],
-# 	:SALARY   = [ 35000, 28900, 25982, 49540 ]
-# ])
-
 /*---------------
 
-# WAY 4: Creating a table by provding a list of list, formatted as you
+# WAY 3: Creating a table by provding a list of list, formatted as you
 # would find it in the real world
 
 o1 = new stzTable([
@@ -57,6 +39,19 @@ o1 = new stzTable([
 
 ? o1.Cols()		#--> [ "id", "employee", "salary" ]
 ? o1.Col(:EMPLOYEE)	#--> [ "Ali", "Dania", "Han", "Ali" ]
+
+/*==============
+*/
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+? o1.ContainsCol( :NAME = [ "Imed", "Hatem", "Karim" ] )
+#--> TRUE
 
 /*==============
 
@@ -540,9 +535,11 @@ o1.EraseCell(2, 3)
 /*--------------
 
 o1 = new stzTable([
-	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
-	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
-	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
 ])
 
 /*------------
@@ -559,9 +556,11 @@ o1 = new stzTable([
 /*===============
 
 o1 = new stzTable([
-	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
-	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
-	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
 ])
 
 ? @@S( o1.Section([1,2], [3,2]) ) + NL
@@ -580,9 +579,11 @@ o1 = new stzTable([
 /*==========
 
 o1 = new stzTable([
-	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
-	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
-	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
 ])
 
 ? @@S( o1.FindInSection([1,2], [3,2], "Red") )
@@ -591,9 +592,11 @@ o1 = new stzTable([
 /*----------
 
 o1 = new stzTable([
-	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
-	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
-	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
 ])
 
 ? @@S( o1.SectionXT(:From = :FirstCell, :To = [3,2]) )
@@ -609,9 +612,11 @@ o1 = new stzTable([
 /*-----------
 
 o1 = new stzTable([
-	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
-	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
-	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
 ])
 
 ? @@S( o1.FindInSectionCS([1, 1], [3, 2], "red", :CS = TRUE) )
@@ -626,9 +631,11 @@ o1 = new stzTable([
 /*-----------
 
 o1 = new stzTable([
-	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
-	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
-	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
 ])
 
 ? o1.FindNthInSectionCS(2, :From = :FirstCell, :To = [3, 3], "red", :CS = FALSE) #--> [2, 2]
@@ -670,9 +677,11 @@ o1 = new stzTable([
 /*==============
 
 o1 = new stzTable([
-	:PALETTE1 = [ "Red",   "Blue",    "Blue", "White"  ],
-	:PALETTE2 = [ "White",  "Red",   "Green",  "Gray"  ],
-	:PALETTE3 = [ "Yellow", "Red", "Magenta",  "Black" ]
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
 ])
 
 ? o1.Show()
@@ -884,9 +893,10 @@ o1.RemoveCol(:PALETTE3)
 /*==========
 
 o1 = new stzTable([
-	:ID	  = [ 10, 	20, 	30 	],
-	:EMPLOYEE = [ "Ali", 	"Dan",	"Ben"	],
-	:SALARY   = [ 35000, 	28900, 	25982	]
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
 ])
 
 ? @@S( o1.Rows() ) + NL
@@ -909,12 +919,11 @@ o1.AddRow( [ 40, "Mo", 12800 ] )
 /*==========
 
 o1 = new stzTable([
-	:ID	  = [ 10, 	20, 	30 	],
-	:EMPLOYEE = [ "Ali", 	"Dan",	"Ben"	],
-	:SALARY   = [ 35000, 	28900, 	25982	]
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
 ])
-
-/*----------
 
 ? o1.Show()
 /*
@@ -926,16 +935,37 @@ o1 = new stzTable([
 
 /*----------
 
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
+])
+
 o1.AddCol( :TEMPO = [ NULL, NULL, NULL, NULL ])
 #--> ERROR: Incorrect number of cells! paColNameAndData must contain extactly 3 cells.
 
 /*----------
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
+])
 
 o1.AddCol( :TEMPO = [ NULL, NULL, NULL ])
 ? o1.LastColName()  #--> "tempo"
 ? @@S(o1.LastCol()) #--> [ "", "", "" ]
 
 /*----------
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
+])
 
 o1.AddCols([
 	:ONES = [ 1, 1, 1 ],
@@ -949,6 +979,13 @@ o1.AddCols([
 #--> [ [ "ones", [ 1, 1, 1 ] ], [ "twos", [ 2, 2, 2 ] ] ]
 
 /*==========
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
+])
 
 o1.Show()
 #-->
@@ -972,6 +1009,13 @@ o1.Show()
 
 /*-----------
 
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
+])
+
 ? @@S(o1.CellsAsPositions())
 #--> [
 #	[ 1, 1 ], [ 2, 1 ], [ 3, 1 ],
@@ -979,27 +1023,17 @@ o1.Show()
 #	[ 1, 3 ], [ 2, 3 ], [ 3, 3 ]
 # ]
 
-/*-----------
+/*====================================================================================
 
 o1 = new stzTable([
-	:ID	  = [ 10, 	20, 	   30 	 ],
-	:EMPLOYEE = [ "Ali", 	"Dania",   "Han" ],
-	:SALARY   = [ 35000, 	28900, 	   25982 ]
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
 ])
-
-//o1.Show()
-#-->
-#	#   ID   EMPLOYEE   SALARY
-#	1   10        Ali    35000
-#	2   20      Dania    28900
-#	3   30        Ben    25982
-
-/*====================================================================================
 
 ? o1.Contains( :Cell = "Ali" )	 #--> TRUE	(same as ? o1.ContainsCell("Ali"))
 ? o1.Contains( :SubValue = "a" ) #--> TRUE	(same as ? o1.ContainsSubValue("a"))
-	
-/*-------------
 
 ? @@S( o1.FindCell("Ali") )
 #--> [ [ 2, 1 ] ]
@@ -1016,6 +1050,13 @@ o1 = new stzTable([
 
 /*-------------
 
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
+])
+
 ? @@S( o1.FindNth(1, :Cell = "Ali") ) #--> [2, 1]
 # Same as ? @@S( o1.FindFirst( :Cell = "Ali" ) )
 
@@ -1029,6 +1070,13 @@ o1 = new stzTable([
 
 /*-------------
 
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
+])
+
 ? o1.Count( :Values = "Ali" ) #--> 1
 	# Same as o1.Count( :Cells = "Ali" )
 	# or: ? o1.NumberOfOccurrence( :OfCell = "Ali" )
@@ -1037,10 +1085,24 @@ o1 = new stzTable([
 
 /*-------------
 
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
+])
+
 ? o1.Count( :SubValues = "a" ) #--> 3
 ? o1.CountCS( :SubValues = "A", :CaseSensitive = FALSE ) #--> 4
 
 /*-------------
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
+])
 
 // Finding counting, and finding values, or subvalues, in the entire table
 
@@ -1100,6 +1162,15 @@ o1 = new stzTable([
 
 /*-------------
 
+o1 = new stzTable([
+	[ :ID,	 :EMPLOYEE,    	:SALARY	],
+	#-------------------------------#
+	[ 10,	 "Ali",		35000	],
+	[ 20,	 "Dania",	28900	],
+	[ 30,	 "Han",		25982	],
+	[ 40,	 "Ali",		12870	]
+])
+
 ? @@S( o1.TheseCells([ [1,2], [2,2], [2,3] ]) )
 #--> [ 20, "Dania", "Ben" ]
 
@@ -1108,10 +1179,12 @@ o1 = new stzTable([
 // Finding all occurrence of a value, or subvalue, in a given list of cells
 
 o1 = new stzTable([
-	[ :ID,	:EMPLOYEE,	:SALARY	],
-	[ 10,	"Ali",		35000	],
-	[ 20,	"Dania",	28900	],
-	[ 30,	"Han",		25982	]
+	[ :ID,	 :EMPLOYEE,    	:SALARY	],
+	#-------------------------------#
+	[ 10,	 "Ali",		35000	],
+	[ 20,	 "Dania",	28900	],
+	[ 30,	 "Han",		25982	],
+	[ 40,	 "Ali",		12870	]
 ])
 
 ? @@S( o1.FindInCells( [ [1,2], [2,2], [2,3] ], :Value = "Dania" ) ) + NL
@@ -1399,7 +1472,6 @@ o1 = new stzTable([
 #--> [ [ 2, 1 ], 2 ]
 
 /*-----------
-/*
 
 // Counting the number of occurrences of a value, or subvalue, in a Col
 
@@ -1414,7 +1486,6 @@ o1 = new stzTable([
 ? o1.CountInCol(:LASTNAME, :SubValue = "A") #--> 2
 
 /*-----------
-/*
 
 // Checking if a given value, or subvalue, exists in a Col
 
@@ -1454,19 +1525,16 @@ o1 = new stzTable([
 ])
 
 ? o1.Cell(2, 3) #--> "___"
-
 o1.ReplaceCell(2, 3, "English")
 ? o1.Cell(2, 3) #--> "English"
 
-//? o1.Show()
-
 /*-----------------
-*/
+
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE ],
 	[ "___",	"Arabic"  ],
-	[ "France",	"___"  ],
-	[ "USA",	"___" ]
+	[ "France",	"___"     ],
+	[ "USA",	"___"     ]
 ])
 
 aSomeCells = [ [1, 1], [2, 2], [2, 3] ]
@@ -1476,8 +1544,9 @@ o1.ReplaceCellsByMany(
 	[  "Tunisia", "French", "English" ]
 )
 
-//? o1.Show()
-
-? @@S( o1.Content() )
-/*
-? o1.Show()
+o1.Show()
+#-->
+# #    NATION   LANGUAGE
+# 1   Tunisia     Arabic
+# 2    France     French
+# 3       USA    English

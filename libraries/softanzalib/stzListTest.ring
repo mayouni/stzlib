@@ -1,7 +1,17 @@
 load "stzlib.ring"
 
-/*-----------------
-*/
+o1 = new stzList([ "arem", "mohsen", "AREM" ])
+? o1.FindAll("arem") #--> 1
+? o1.FindAllCS("arem", :CS = FALSE) #--> [1, 3]
+
+/*---------------
+
+o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
+? o1.NthToLast(2)
+#--> "N"
+
+/*---------------
+
 o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 
 ? o1.Section(1, 4)
@@ -24,6 +34,15 @@ o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 
 ? o1.Section(-99, 99)
 #--> [ "S", "O", "F", "T", "A", "N", "Z", "A" ]
+
+? o1.Section(4, :@)
+#--> "T"
+
+? o1.Section(:NthToLast = 3, :@)
+#--> "A"
+
+? o1.Section(:@, :@)
+[ "S", "O", "F", "T", "A", "N", "Z", "A" ]
 
 /*=======================
 

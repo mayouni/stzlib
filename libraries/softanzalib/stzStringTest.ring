@@ -53,6 +53,12 @@ o1.Simplify()
 
 /*-----------------
 
+? Q("SOFTANZA").NthToLast(3)
+#--> "A"
+
+/*-----------------
+*/
+
 ? Q("SOFTANZA").Section(1, 4)
 #--> "SOFT"
 
@@ -62,12 +68,8 @@ o1.Simplify()
 ? Q("SOFTANZA").Section(4, 1)
 #--> "TFOS"
 
-/*-----------------
-*/
 ? Q("SOFTANZA").Section(:From = :LastChar, :To = :FirstChar)
 #--> "AZNATFOS"
-
-/*-----------------
 
 ? Q("SOFTANZA").Section(:From = (:NthToLastChar = 3), :To = :LastChar)
 #--> "ANZA"
@@ -84,6 +86,15 @@ o1.Simplify()
 #--> "By Heart!"
 
 ? Q("SOFTANZA").Section(-99, 99)
+#--> "SOFTANZA"
+
+? Q("SOFTANZA").Section(4, :@)
+#--> "T"
+
+? Q("SOFTANZA").Section(:NthToLast = 3, :@)
+#--> "A"
+
+? Q("SOFTANZA").Section(:@, :@)
 #--> "SOFTANZA"
 
 /*----------------- CORRECT IT!

@@ -58,13 +58,13 @@ Class stzTable
 		# 	:COL2 = [ ..., ..., ... ] ],
 		# 	:COL3 = [ ..., ..., ... ] ]
 		#    ]
-
+/*
 		if Q(paTable).IsHashList() and
 			 StzHashListQ(paTable).ValuesAreListsOfSameSize()
 				@aTable = paTable
 				return
 		ok
-
+*/
 		# Way 4 (the more natural way) The table is described in a
 		# a list of lists that mimics the realworld presentation
 		# of a table (first line represents colums, and the other
@@ -79,8 +79,7 @@ Class stzTable
 		# 	[ 40,	 "Ali",		12870	]
 		# ])
 
-		if Q(paTable).IsNotHashList() and
-		   Q(paTable).ItemsAreListsOfSameSize() and
+		if Q(paTable).ItemsAreListsOfSameSize() and
 		   Q(paTable[1]).IsListOfStrings()
 
 			for cCol in paTable[1]
@@ -94,6 +93,7 @@ Class stzTable
 
 			for r = 2 to len(paTable)
 				i = 0
+
 				for cell in paTable[r]
 					i++
 					@aTable[i][2] + cell
@@ -102,7 +102,7 @@ Class stzTable
 
 			return
 		ok
-			
+? @@S( @aTable )
 		stzRaise("Incorrect param format!")
 
 	def Content()
@@ -1099,7 +1099,7 @@ Class stzTable
 	 #  GETIING A CELL VALUE BY ITS POSITION (COLUMN, ROW) IN THE TABLE  #
 	#-------------------------------------------------------------------#
 
-	def Cell(pCol, pRow)
+	def Cell(pCol, pnRow)
 
 		if isString(pCol)
 			if Q(pCol).IsOneOfThese([:First, :FirstCol, :FirstColumn])
@@ -1115,58 +1115,59 @@ Class stzTable
 			ok
 		ok
 
-		if isString(pRow)
-			if pRow = :First or pRow = :FirstRow
-				pRow = 1
+		if isString(pnRow)
+			if pnRow = :First or pnRow = :FirstRow
+				pnRow = 1
 
-			but pRow = :Last or pRow = :LastRow
-				pRow = This.NumberOfRows()
+			but pnRow = :Last or pnRow = :LastRow
+				pnRow = This.NumberOfRows()
 
 			else
-				stzRaise("Syntax error in (" + pRow + ")! Allowed values are :First or :Last (or :FirstRow or :LastRow).")
+				stzRaise("Syntax error in (" + pnRow + ")! Allowed values are :First or :Last (or :FirstRow or :LastRow).")
 			ok
 
 		ok
 
-		nCol = This.ColToNumber(pCol)
-
-		Result = This.Table()[pRow+1][nCol]
+		cCol = This.ColToName(pCol)
+		Result = This.Table()[cCol][pnRow]
 		return Result
 
 		#< @FunctionFluentForm
 
-		def CellQ(pCol, pRow)
-			return Q( This.Cell(pCol, pRow) )
+		def CellQ(pCol, pnRow)
+			return Q( This.Cell(pCol, pnRow) )
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def CellAtPosition(pCol, pRow)
-			return This.Cell(pCol, pRow)
+		def CellAtPosition(pCol, pnRow)
+			return This.Cell(pCol, pnRow)
 
-			def CellAtPositionQ(pCol, pRow)
-				return This.CellAtPosition(pCol, pRow)
+			def CellAtPositionQ(pCol, pnRow)
+				return This.CellAtPosition(pCol, pnRow)
 
-		def CellAt(pCol, pRow)
-			return This.Cell(pCol, pRow)
+		def CellAt(pCol, pnRow)
+			return This.Cell(pCol, pnRow)
 
-			def CellAtQ(pCol, pRow)
-				return This.CellAtPosition(pCol, pRow)
+			def CellAtQ(pCol, pnRow)
+				return This.CellAtPosition(pCol, pnRow)
 
 		#>
 
-	def CellXT(pCol, pRow)
+	def CellXT(pCol, pnRow)
 		nCol = This.ColToNumber(pCol)
-		nRow = This.RowToNumber(pRow)
+		nRow = This.RowToNumber(pnRow)
 
 		aResult = [ This.Cell(pCol, pRow), [ nCol, nRow ] ]
 
 		return aResult
 
 		def CellAndPosition(pCol, pRow)
+			return This.CellXT(pCol, pnRow)
 
 		def CellAndItsPosition(pCol, pRow)
+			return This.CellXT(pCol, pnRow)
 
 	  #----------------------------------------------------------------------------#
 	 #  GETIING GIVEN CELLS VALUES BY THEIR POSITIONS (COLUMN, ROW) IN THE TABLE  #
@@ -2569,6 +2570,42 @@ Class stzTable
 			def ContainsValue(pCellValue)
 				return This.ContainsCell(pCellValue)
 	
+	def ContainsColCS(paCol, pCaseSensitive)
+		/* EXAMPLE
+		o1 = new stzTable([
+			[ :ID,	:NAME,		:AGE 	],
+			[ 10,	"Imed",		52   	],
+			[ 20,	"Hatem", 	46	],
+			[ 30,	"Karim",	48	]
+		])
+
+		? o1.ContainsCol( :NAME = [ "Imed", "Hatem", "Karim" ] )
+		#--> TRUE
+		*/
+
+		bResult = FALSE
+
+		if isList(paCol) and len(paCol) = 2 and
+		   isString(paCol[1]) and This.HasColName(paCol[1]) and
+		   isList(paCol[2]) and len(paCol[2]) = This.NumberOfRows()
+
+			cCol = paCol[1]
+			bResult = This.ColQ(cCol).IsEqualToCS(paCol[2], pCaseSensitive)
+		ok
+
+		return bResult
+
+		def ColumnContainsCS(paCol, pCaseSensitive)
+			return This.ColContainsCS(paCol, pCaseSensitive)
+
+		#-- WITHOUT CASESENSITIVITY
+
+		def ContainsCol(paCol)
+			return This.ContainsColCs(paCol, :CaseSensitive = TRUE)
+
+			def ContainsColumn(paCol)
+				return This.ContainsCol(paCol)
+
 	def ContainsSubValueCS(pSubValue, pCaseSensitive)
 		if This.NumberOfOccurrenceCS(:OfSubValue = pSubValue, pCaseSensitive) > 0
 			return TRUE
@@ -4580,7 +4617,7 @@ Class stzTable
 
 			#< @FunctionAlternativeForms
 
-			def ContainsColumn(pCol, pCellValueOrSubValue)
+			def ContainsInColumn(pCol, pCellValueOrSubValue)
 				return This.ContainsInCol(pCol, pCellValueOrSubValue)
 
 			def ColContains(pCol, pCellValueOrSubValue)
@@ -5188,8 +5225,8 @@ Class stzTable
 	#===================#
 
 	def ReplaceCell(pCol, pnRow, pNewValue)
-		nCol = This.ColToNumber(pCol)
-		This.Table()[pnRow+1][nCol] = pNewValue
+		cCol = This.ColToName(pCol)
+		This.Table()[cCol][pnRow] = pNewValue
 
 	def ReplaceCells(paCellsPos, pNewValue)
 		for i = 1 to len(paCellsPos)
