@@ -8960,9 +8960,13 @@ class stzList from stzObject
 		here and in stzString class.
 	*/
 
-	def Contains(pItem)
+	  #----------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS A GIVEN ITEM  #
+	#----------------------------------------------#
 
-		if This.FindFirstOccurrence(pItem) > 0
+	def ContainsCS(pItem, pCaseSensitive)
+
+		if This.FindFirstOccurrenceCS(pItem, pCaseSensitive) > 0
 			return TRUE
 		else
 			return FALSE
@@ -8970,15 +8974,22 @@ class stzList from stzObject
 
 		#< @FunctionNegationForm
 
-		def ContainsNo(pItem)
-			return NOT This.Contains(pItem)
+		def ContainsNoCS(pItem, pCaseSensitive)
+			return NOT This.ContainsCS(pItem, pCaseSensitive)
 
 		#>
 
-		def ContainsItem(pItem)
-			return This.Contains(pItem)
+		def ContainsItemCS(pItem, pCaseSensitive)
+			return This.ContainsCS(pItem, pCaseSensitive)
 	
-	#--
+	#-- WITHOUT CASESENSITIVITY
+
+	def Contains(pItem)
+		return This.ContainsCS(pItem, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------------------------#
+	 #  CHECKING IF THE LIST IS CONTAINED IN A GIVEN LIST OR STRING  #
+	#---------------------------------------------------------------#
 
 	def IsContainedIn(p)
 
@@ -9010,7 +9021,9 @@ class stzList from stzObject
 
 		#>
 	
-	#--
+	  #-------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS EACH ONE OF THE GIVEN ITEMS  #
+	#-------------------------------------------------------------#
 
 	def ContainsEach(paItems)
 		bResult = TRUE
@@ -9030,17 +9043,23 @@ class stzList from stzObject
 		def ContainsAll(paItems)
 			return This.ContainsEach(paItems)
 
-	#--
+		#< @FunctionNagationForm
 
-	def ContainsNoOne()
-		return NOT This.ContainsEach(paItems)
+		def ContainsNoOne()
+			return NOT This.ContainsEach(paItems)
 
-	#--
+		#>
+
+	  #--------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS BOTH GIVEN ITEMS  #
+	#--------------------------------------------------#
 
 	def ContainsBoth(pItem1, pItem2)
 		return This.ContainsEach( [pItem1, pItem2] )
 
-	#--
+	  #--------------------------------------------------------------------#
+	 #  CHECKING IF EACH ONE OF THE GIVEN ITEMS EXISTS IN THE GIVEN LIST  #
+	#--------------------------------------------------------------------#
 	
 	def EachItemExistsIn(paOtherList)
 		bResult = StzListQ(paOtherList).ContainsEach(This.List())
@@ -9052,14 +9071,16 @@ class stzList from stzObject
 		def AllItemsExistIn(paOtherList)
 			return This.EachItemExistsIn(paOtherList)
 
-	#--
+	  #------------------------------------------------------------#
+	 #  CHECKING IF THE LIST IS ONE OF THE ITEMS OF A GIVEN LIST  #
+	#------------------------------------------------------------#
 
 	def IsOneOfThese(paOtherList)
 		return StzListQ(paOtherList).Contains( This.List() )
 
-	def IsNotOneOfThese(paOtherList)
-		return NOT This.IsOneOfThese(paOtherList)
-
+		def IsNotOneOfThese(paOtherList)
+			return NOT This.IsOneOfThese(paOtherList)
+	
 	#--
 
 	def ContainsMany(paSetOfItems)
@@ -9931,7 +9952,7 @@ class stzList from stzObject
 	 #  FINDING FIRST OCCURRENCE OF AN ITEM IN THE LIST  #
 	#---------------------------------------------------#
 
-	def FindFirstOccurrence(pItem)
+	def FindFirstOccurrenceCS(pItem, pCaseSensitive)
 
 		acThis = []
 		for item in This.List()
@@ -9939,9 +9960,32 @@ class stzList from stzObject
 		next
 	
 		cItem = @@( pItem )
-		n = StzListOfStringsQ(acThis).FindFirstOccurrence(cItem)
-		return n
+		nResult = StzListOfStringsQ(acThis).FindFirstOccurrenceCS(cItem, pCaseSensitive)
+		return nResult
 
+		#< @FunctionAlternativeForms
+
+		def FindFirstCS(pItem, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
+
+		def FirstOccurrenceCS(pItem, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
+
+		def FirstCS(pItem, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
+
+		def PositionOfFirstCS(pItem, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
+
+		def PositionOfFirstOccurrenceCs(pItem, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
+	
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstOccurrence(pItem)
+		return This.FindFirstOccurrenceCS(pItem, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -9966,10 +10010,10 @@ class stzList from stzObject
 	 #  FINDING LAST OCCURRENCE OF AN ITEM IN THE LIST  #
 	#--------------------------------------------------#
 
-	def FindLastOccurrence(pItem)
+	def FindLastOccurrenceCS(pItem, pCaseSensitive)
 		nResult = 0
 
-		anPositions = This.FindAll(pItem)
+		anPositions = This.FindAllCS(pItem, pCaseSensitive)
 		n = len(anPositions)
 
 		if n > 0
@@ -9980,14 +10024,38 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def FindLastCS(pItem, pCaseSensitive)
+			return This.FindLastOccurrenceCS(pItem, pCaseSensitive)
+
+		def LastOccurrenceCS(pItem, pCaseSensitive)
+			return This.FindLastOccurrenceCS(pItem, pCaseSensitive)
+
+		def LastCS(pItem, pCaseSensitive)
+			return This.FindLastOccurrenceCS(pItem, pCaseSensitive)
+
+		def PositionOfLastCS(pItem, pCaseSensitive)
+			return This.FindLastOccurrenceCS(pItem, pCaseSensitive)
+
+		def PositionOfLastOccurrenceCS(pItem, pCaseSensitive)
+			return This.FindLastOccurrenceCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastOccurrence(pItem)
+		return This.FindLastOccurrenceCS(pItem, :CaseSensitiv = TRUE)
+
+		#< @FunctionAlternativeForms
+
 		def FindLast(pItem)
 			return This.FindLastOccurrence(pItem)
 
 		def LastOccurrence(pItem)
-			return This.FindLastOccurrence(pItem)
+			return This.FindLastOccurrenceCS(pItem)
 
 		def Last(pItem)
-			return This.FindLastOccurrence(pItem)
+			return This.FindLastOccurrenceCS(pItem)
 
 		def PositionOfLast(pItem)
 			return This.FindLastOccurrence(pItem)
