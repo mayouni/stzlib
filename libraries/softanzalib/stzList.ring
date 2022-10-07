@@ -464,6 +464,12 @@ class stzList from stzObject
 
 		def Size()
 			return This.NumberOfItems()
+
+		def Count()
+			return This.NumberOfItems()
+
+		def Length()
+			return This.NumberOfItems()
 	
 	def Items()
 		return This.Content()
@@ -9668,10 +9674,194 @@ class stzList from stzObject
 		def SwapItemsQ(n1,n2)
 			This.SwapItems(n1,n2)
 			return This
+		
+	  #--------------------------------------#
+	 #  FINDING ALL OCCURRENCES OF AN ITEM  #
+	#--------------------------------------#
+
+	def FindAllOccurrencesCS(pItem, pCaseSensitive)
+		/* NOTE
+		We don't use the Ring find() function here because it works
+		only for finding numbers and strings (and not lists and objects).
+
+		Also, it only returns the first occurrence and stops there.
+
+		This function finds all occurrences of numbers, strings, and lists.
+		Objects will be managed in the future.
+
+		*/
+
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+			pItem = pItem[2]
+		ok
+
+		anResult = []
+
+		aStrList = []
+		for i = 1 to This.NumberOfItems()
+			aStrList + @@( This[i] )
+		next
+
+		i = 0
+		for str in aStrList
+			i++
+			if Q(str).IsEqualToCS( @@(pItem), pCaseSensitive )
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+		#< @FunctionFluentForm
+
+		def FindAllOccurrencesCSQ(pItem, pCaseSensitive)
+			return This.FindAllOccurrencesCSQR(pItem, pCaseSensitive, :stzList)
+
+		def FindAllOccurrencesCSQR(pItem, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfUnicodes
+				return new stzListOfUnicodes( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfSets
+				return new stzListOfSets( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfHashLists
+				return new stzListOfHashLists( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfGrids
+				return new stzListOfGrids( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfTables
+				return new stzListOfTables( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfEntities
+				return new stzListOfEntities( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfBytes
+				return new stzListOfBytes( This.FindAllCS(pItem, pCaseSensitive) )
+
+			on :stzListOfObjects
+				return new stzListOfObjects( This.FindAllCS(pItem, pCaseSensitive) )
+
+			other
+				stzRaise("Unsupported type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindAllCS(pItem, pCaseSensitive)
+			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+
+			#< @FunctionFluentForm
+
+			def FindAllCSQ(pItem, pCaseSensitive)
+				return This.FindAllCSQR(pItem, pCaseSensitive, :stzList)
 	
-	  #-----------------------------------------------------#
-	 #    FINDING OCCURRENCES OF AN ITEM INSIDE THE LIST   #
-	#-----------------------------------------------------#
+			def FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+					pcReturnType = pcReturnType[2]
+				ok
+	
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindAllCS(pItem, pCaseSensitive) )
+	
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindAllCS(pItem, pCaseSensitive) )
+				other
+					stzRaise("Unsupported type!")
+				off
+	
+			#>
+
+		def FindItemCS(pItem, pCaseSensitive)
+			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+
+			#< @FunctionFluentForm
+
+			def FindItemCSQ(pItem, pCaseSensitive)
+				return This.FindItemCSQR(pItem, pCaseSensitive, :stzList)
+	
+			def FindItemCSQR(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
+			#>
+
+		# WARNING: We can not add an alternative name called Find() because this is
+		# is reservd name of the native Ring function find()!
+		#>
+	
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAllOccurrences(pItem)
+		return This.FindAllOccurrencesCS(pItem, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def FindAllOccurrencesQ(pItem)
+			return This.FindAllOccurrencesQR(pItem, :stzList)
+
+		def FindAllOccurrencesQR(pItem, pcReturnType)
+			return This.FindAllOccurrencesCSQR(pItem, :CS = TRUE, pcReturnType)
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindAll(pItem)
+			return This.FindAllOccurrencesCS(pItem, :CaseSensitive = TRUE)
+
+			#< @FunctionFluentForm
+
+			def FindAllQ(pItem)
+				return This.FindAllQR(pItem, pCaseSensitive, :stzlist)
+	
+			def FindAllQR(pItem, pcReturnType)
+				return This.FindAllOccurrencesQR(pItem, pcReturnType)
+	
+			#>
+
+		def FindItem(pItem)
+			return This.FindAllOccurrences(pItem)
+
+			#< @FunctionFluentForm
+
+			def FindItemQ(pItem)
+				return This.FindItemQR(pItem, :stzList)
+	
+			def FindItemQR(pItem, pcReturnType)
+				return This.FindAllOccurrencesQR(pItem, pcReturnType)
+			#>
+
+		# WARNING: We can not add an alternative name called Find() because this is
+		# is reservd name of the native Ring function find()!
+		#>
+
+	  #-------------------------------------------------------#
+	 #    FINDING N OCCURRENCES OF AN ITEM INSIDE THE LIST   #
+	#-------------------------------------------------------#
 
 	# Finding works only for numbers and strings
 
@@ -9731,7 +9921,15 @@ class stzList from stzObject
 
 		#>
 
+	def NthToLast(n)
+		return This.ItemAtPosition( This.NumberOfItems() - n )
 
+	def NthToFirst(n)
+		return This.ItemAtPosition(n + 1)
+
+	  #---------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF AN ITEM IN THE LIST  #
+	#---------------------------------------------------#
 
 	def FindFirstOccurrence(pItem)
 
@@ -9764,7 +9962,10 @@ class stzList from stzObject
 	
 		#>
 
-	
+	  #--------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF AN ITEM IN THE LIST  #
+	#--------------------------------------------------#
+
 	def FindLastOccurrence(pItem)
 		nResult = 0
 
@@ -9795,105 +9996,11 @@ class stzList from stzObject
 			return This.FindLastOccurrence(pItem)
 
 		#>
-	
-	def FindAllOccurrences(pItem)
-		/* NOTE
-		We don't use the Ring find() function here because it works
-		only for finding numbers and strings (and not lists and objects).
 
-		Also, it only returns the first occurrence and stops there.
+	  #--------------------------------------------#
+	 #   FINDING FIRST N OCCURRENCES OF AN ITEM   #
+	#--------------------------------------------#
 
-		This function finds numbers, strings, and lists.
-		Objects will be managed in the future.
-
-		*/
-
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
-
-		anResult = []
-
-		aStrList = []
-		for i = 1 to This.NumberOfItems()
-			aStrList + @@( This[i] )
-		next
-
-		i = 0
-		for str in aStrList
-			i++
-			if str = @@(pItem)
-				anResult + i
-			ok
-		next
-
-		return anResult
-
-		#< @FunctionFluentForm
-
-		def FindAllOccurrencesQ(pItem)
-			return This.FindAllOccurrencesQR(pItem, :stzList)
-
-		def FindAllOccurrencesQR(pItem, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindAll(pItem) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindAll(pItem) )
-			other
-				stzRaise("Unsupported type!")
-			off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def FindAll(pItem)
-			return This.FindAllOccurrences(pItem)
-
-			#< @FunctionFluentForm
-
-			def FindAllQ(pItem)
-				return This.FindAllQR(pItem, :stzList)
-	
-			def FindAllQR(pItem, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAll(pItem) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindAll(pItem) )
-				other
-					stzRaise("Unsupported type!")
-				off
-	
-			#>
-
-		def FindItem(pItem)
-			return This.FindAllOccurrences(pItem)
-
-			#< @FunctionFluentForm
-
-			def FindItemQ(pItem)
-				return This.FindItemQR(pItem, :stzList)
-	
-			def FindItemQR(pItem, pcReturnType)
-				return This.FindAllQR(pItem, pcReturnType)
-			#>
-
-		# WARNING: We can not add an alternative name calle Find() because this is
-		# is reservd name of the native Ring function find()!
-		#>
-	
 	def FindFirstNOccurrences(n, pItem)
 		anPositions = This.FindAll(pItem)
 		return Q(anPositions).Section(1, n)
@@ -9913,6 +10020,10 @@ class stzList from stzObject
 		def PositionOfFirstNOccurrences(n, pItem)
 			return This.FindFirstNOccurrences(n, pItem)
 
+	  #-------------------------------------------#
+	 #   FINDING LAST N OCCURRENCES OF AN ITEM   #
+	#-------------------------------------------#
+
 	def FindLastNOccurrences(n, pItem)
 		anPositions = This.FindAll(pItem)
 
@@ -9930,6 +10041,9 @@ class stzList from stzObject
 		def LastN(n, pItem)
 			return This.FindLastNOccurrences(n, pItem)
 
+	  #------------------------------------------#
+	 #   FINDING GIVEN OCCURRENCES OF AN ITEM   #
+	#------------------------------------------#
 
 	def FindTheseOccurrences(panOccurr, pItem)
 		anPositions = This.FindAll(pItem)
@@ -12507,6 +12621,8 @@ class stzList from stzObject
 			but Q(n1).IsOneOfThese([ :Last, :LastItem ])
 				n1 = This.NumberOfItems()
 
+			but Q(n1) = :@
+				n1 = n2
 			ok
 		ok
 	
@@ -12517,7 +12633,14 @@ class stzList from stzObject
 			but Q(n2).IsOneOfThese([ :First, :FirstItem ])
 				n2 = 1
 
+			but Q(n2) = :@
+				n2 = n1
 			ok
+		ok
+
+		if n1 = :@ and n2 = :@
+			n1 = 1
+			n2 = This.NumberOfItems()
 		ok
 
 		# If the params are not numbers, so find them and take their positions

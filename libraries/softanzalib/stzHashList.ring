@@ -297,6 +297,15 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 
 	def NthKey(n)
+		if isString(n)
+			if n = :First or n = :FirstKey
+				n = 1
+
+			but n = :Last or n = :LastKey
+				n = This.NumberOfKeys()
+			ok
+		ok
+
 		if NOT isNumber(n)
 			stzRaise("Incorrect param type! n should be a number.")
 		ok
@@ -315,6 +324,15 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return new stzNumber(This.Key(n))
 
 	def NthValue(n)
+		if isString(n)
+			if n = :First or n = :FirstValue
+				n = 1
+
+			but n = :Last or n = :LastValue
+				n = This.NumberOfValues()
+			ok
+		ok
+
 		return This.Content()[n][2]
 
 	def NthValueQ(n)
@@ -331,6 +349,15 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return new stzNumber(This.Value(n))
 
 	def NthPair(n)
+		if isString(n)
+			if n = :First or n = :FirstPair
+				n = 1
+
+			but n = :Last or n = :LastPair
+				n = This.NumberOfPairs()
+			ok
+		ok
+
 		if NOT isNumber(n)
 			stzRaise("Incorrect param type! n should be a number.")
 		ok
@@ -697,20 +724,42 @@ class stzHashList from stzObject # Also called stzAssociativeList
 	#--------------------#
 
 	def ReplaceValueByKey(pcKey, pNewValue)
-		/* ... */
+		n = This.FindKey(pckey)
+		This.HashList()[n][2] = pNewValue
+
+		def ReplaceValueByKeyQ(pcKey, pNewValue)
+			This.ReplaceValueByKey(pcKey, pNewValue)
+			return This
 
 		def ReplaceByKey(pcKey, pNewValue)
-			/* ... */
+			This.ReplaceValueByKey(pcKey, pNewValue)
+
+			def ReplaceByKeyQ(pcKey, pNewValue)
+				This.ReplaceByKey(pcKey, pNewValue)
+				return This
 
 	def ReplaceValue(pValue, pNewValue)
-		/* ... */
+		anPos = This.FindAllOccurrencesOfValue(pValue)
+
+		for n in anPos
+			This.HashList()[n][2] = pNewValue
+		next
+
+		def ReplaceValueQ(pValue, pNewValue)
+			This.ReplaceValue(pValue, pNewValue)
+			return This
 
 	  #------------------#
 	 #  REPLACING KEYS  #
 	#------------------#
 
 	def ReplaceKey(pcKey, pcNewKey)
-		/* ... */
+		n = This.FindKey(pcKey)
+		This.ReplaceNthKey(n, pcNewKey)
+
+		def ReplaceKeyQ(pcKey, pcNewKey)
+			This.ReplaceKey(pcKey, pcNewKey)
+			return this
 
 	def ReplaceNthKey(n, pcNewKey)
 		if isList(pcNewKey) and Q(pcNewKey).IsWithNamedParam()
@@ -719,23 +768,45 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		This.NthPair(n)[1] = pcNewKey
 
+		def ReplaceNthKeyQ(n, pcNewKey)
+			This.ReplaceNthKey(n, pcNewKey)
+			return This
+
 	def ReplaceFirstKey(pcNewKey)
-		/* ... */
+		This.ReplaceNthKey(1, pcNewKey)
+
+		def ReplaceFirstKeyQ(pcNewKey)
+			This.ReplaceFirstKey(pcNewKey)
+			return This
 
 	def ReplaceLastKey(pcNewKey)
-		/* ... */
+		This.ReplaceNthKey(:Last, pcNewKey)
+
+		def ReplaceLastKeyQ(pcNewKey)
+			This.ReplaceLastKey(pcNewKey)
+			return This
 
 	  #-------------------#
 	 #  REPLACING PAIRS  #
 	#-------------------#
 
 	def ReplacePair(paPair, paNewPair)
-		/* ... */
+		n = This.FindPair(paPair)
+		This.ReplaceNthPair(n, paNewPair)
+
+		def ReplacePairQ(paPair, paNewPair)
+			This.ReplacePair(paPair, paNewPair)
+			return This
 
 	def ReplacePairByKey(pcKey, paNewPair)
-		/* ... */
+		n = This.FindKey(pcKey)
+		This.ReplaceNthPair(n, paNewPair)
+	
+		def ReplacePairByKeyQ(pcKey, paNewPair)
+			This.ReplacePairByKey(pcKey, paNewPair)
+			return This
 
-	def ReplacePairsW(pcCondition)
+	def ReplacePairsW(pcCondition) // TODO
 		/* ... */
 
 	  #-----------------#
@@ -747,15 +818,18 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return find( Keys(), pcKey)
 		ok
 
-	def ContainsKey(pcKey)
+	def HasKey(pcKey)
 		if isString(pcKey) and This.FindKey(pcKey) > 0
 			return TRUE
 		else
 			return FALSE
 		ok
 
-	def ContainsKeys(paKeys)
-		oKeys = new stzList(paKeys)
+		def ContainsKey(pcKey)
+			return This.HasKey(pcKey)
+		
+	def HasKeys(pacKeys)
+		oKeys = new stzList(pacKeys)
 		if oKeys.IsListOfStrings() and
 		   oKeys.IsEqualTo(This.Keys())
 
@@ -763,6 +837,9 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		else
 			return FALSe
 		ok
+
+		def ContainsKeys(pacKeys)
+			return This.HasKeys(pacKeys)
 
 	def FindPair(paPair)
 		if isList(paPair) and ListIsPairAndKeyIsString(paPair)

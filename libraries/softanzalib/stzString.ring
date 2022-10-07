@@ -5696,6 +5696,8 @@ class stzString from stzObject
 			but Q(n1).IsOneOfThese([ :Last, :LastChar ])
 				n1 = This.NumberOfChars()
 
+			but n1 = :@
+				n1 = n2
 			ok
 		ok
 	
@@ -5706,7 +5708,14 @@ class stzString from stzObject
 			but Q(n2).IsOneOfThese([ :First, :FirstChar ])
 				n2 = 1
 
+			but n2 = :@
+				n2 = n1
 			ok
+		ok
+
+		if n1 = :@ and n2 = :@
+			n1 = 1
+			n2 = This.NumberOfChars()
 		ok
 
 		# If the params are not numbers, so find them and take their positions
@@ -19386,6 +19395,16 @@ class stzString from stzObject
 				return This.CharAtPositionQR(n, :stzChar)
 
 		#>
+
+	  #-------------------------------------------------#
+	 #   NTH CHAR TO THE LAST (OR TO THE FIRST) CHAR   #
+	#-------------------------------------------------#
+
+	def NthToLast(n)
+		return This.CharAtPosition( This.NumberOfChars() - n )
+
+	def NthToFirst(n)
+		return This.CharAtPosition(n + 1)
 
 	  #-------------------------------#
 	 #   CHARS AT A GIVEN POSITIONS   #
