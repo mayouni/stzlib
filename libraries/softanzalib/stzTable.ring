@@ -385,7 +385,7 @@ Class stzTable
 				return new stzListOfNumbers( This.Col(p) )
 
 			on :stzListOfStrings
-				return new stzListOfNumbers( This.Col(p) )
+				return new stzListOfStrings( This.Col(p) )
 
 			on :stzListOfLists
 				return new stzListOfLists( This.Col(p) )
@@ -2569,7 +2569,30 @@ Class stzTable
 
 			def ContainsValue(pCellValue)
 				return This.ContainsCell(pCellValue)
-	
+
+	  #-----------------------------------------------#
+	 #  CHECKING IF THE TABBLE CONTAINS A GIVEN ROW  #
+	#-----------------------------------------------#
+
+	def ContainsRowCS(paRow, pCaseSensitive)
+		bResult = FALSE
+
+		if isList(paRow) and len(paRow) = This.NumberOfRows()
+
+			bResult = This.RowsQ().ContainsCS(paRow, pCaseSensitive)
+		ok
+
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsRow(paRow)
+		return This.ContainsRowCS(paRow, :CaseSensitive = TRUE)
+
+	  #-------------------------------------------------#
+	 #  CHECKING IF THE TABLE CONTAINS A GIVEN COLUMN  #
+	#-------------------------------------------------#
+
 	def ContainsColCS(paCol, pCaseSensitive)
 		/* EXAMPLE
 		o1 = new stzTable([
@@ -2590,7 +2613,8 @@ Class stzTable
 		   isList(paCol[2]) and len(paCol[2]) = This.NumberOfRows()
 
 			cCol = paCol[1]
-			bResult = This.ColQ(cCol).IsEqualToCS(paCol[2], pCaseSensitive)
+			bResult = This.ColQR(cCol, :stzListOfStrings).
+					IsEqualToCS(paCol[2], pCaseSensitive)
 		ok
 
 		return bResult

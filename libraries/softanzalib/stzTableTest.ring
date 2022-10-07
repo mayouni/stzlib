@@ -53,6 +53,9 @@ o1 = new stzTable([
 ? o1.ContainsCol( :NAME = [ "Imed", "Hatem", "Karim" ] )
 #--> TRUE
 
+? o1.ContainsRow([ 20, "Hatem", 46 ])
+#--> TRUE
+
 /*==============
 
 ? @@S( o1.SectionAsPositions([2, 2], [3, 3]) )
