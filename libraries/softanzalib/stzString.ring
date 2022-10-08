@@ -19614,6 +19614,48 @@ class stzString from stzObject
 		def NumberOfSpacesQ()
 			return new stzNumber(This.NumberOfSpaces())
 
+	  #--------------------------------------------------------------#
+	 #  CHECKING IF THE STRING HAS MORE ITEMS THAN AN OTHER STRING  #
+	#--------------------------------------------------------------#
+
+	def HasMoreNumberOfChars(paOtherString)
+		if isList(paOtherString) and Q(paOtherString).IsThenNamedParam()
+			paOtherString = paOtherString[2]
+		ok
+
+		if This.NumberOfChars() > len(paOtherString)
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def HasMoreChars(paOtherString)
+			return This.HasMoreNumberOfChars(paOtherString)
+
+		def IsLarger(paOtherString)
+			return This.HasMoreNumberOfChars(paOtherString)
+
+	  #--------------------------------------------------------------#
+	 #  CHECKING IF THE STRING HAS LESS ITEMS THAN AN OTHER STRING  #
+	#--------------------------------------------------------------#
+
+	def HasLessNumberOfChars(paOtherString)
+		if isList(paOtherString) and Q(paOtherString).IsThenNamedParam()
+			paOtherString = paOtherString[2]
+		ok
+
+		if This.NumberOfChars() < len(paOtherString)
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def HasLessChars(paOtherString)
+			return This.HasLessNumberOfChars(paOtherString)
+
+		def IsSmaller(paOtherString)
+			return This.HasLessNumberOfChars(paOtherString)
+
 	  #-----------------------#
 	 #   IS IT A LETTER?     #
 	#-----------------------#

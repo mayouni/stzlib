@@ -6403,9 +6403,34 @@ class stzList from stzObject
 				stzRaise("Unsupported return type!")
 			off
 
-	  #===========================================#
-	 #     COMPARING THE LIST TO ANOTHER LIST    #
-	#===========================================#
+	  #==================================================#
+	 #  CHECKING IF THE LIST IS EQUAL TO AN OTHER LIST  #
+	#==================================================#
+
+	def IsEqualToCS(paOtherList, pCaseSensitive)
+		/*
+		Two lists are equal when they have:
+			1. same type
+			2. same number of items AND
+			3. same content
+		*/
+
+		if isList(paOtherList) and
+		   len(paOtherList) = len(This.List()) and
+		   This.HasSameContentAsCS(paOtherList, pCaseSensitive)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsEqualCS(paOtherList, pCaseSensitive)
+			return This.IsEqualToCS(paOtherList, pCaseSensitive)
+
+		def IsNotEqualToCS(paOtherList, pCaseSensitive)
+			return NOT This.IsEqualToCS(paOtherList, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def IsEqualTo(paOtherList)
 		/*
@@ -6430,6 +6455,10 @@ class stzList from stzObject
 		def IsNotEqualTo(paOtherList)
 			return NOT This.IsEqualTo(paOtherList)
 
+	  #-----------------------------------------------------------#
+	 #  CHECKING IF THE LIST IS STRICTLY EQUAL TO AN OTHER LIST  #
+	#-----------------------------------------------------------#
+
 	def IsStrictlyEqualTo(paOtherList)
 
 		/*
@@ -6447,6 +6476,10 @@ class stzList from stzObject
 
 		def IsStrictlyEqual(paOtherList)
 			return This.IsStrictlyEqualTo(paOtherList)
+
+	  #--------------------------------------------------------#
+	 #  CHECKING IF THE LIST IS QUEIT EQUAL TO AN OTHER LIST  #
+	#--------------------------------------------------------#
 
 	def IsQuietEqualTo(paOtherList)
 
@@ -6466,6 +6499,10 @@ class stzList from stzObject
 		def IsQuietEqual(paOtherList)
 			return This.IsQuietEqualTo(paOtherList)
 
+	  #--------------------------------------------------------#
+	 #  CHECKING IF THE LIST HAS SAME ORDER AS AN OTHER LIST  #
+	#--------------------------------------------------------#
+
 	def ItemsHaveSameOrderAs(paOtherList)
 		bResult = TRUE
 
@@ -6481,6 +6518,10 @@ class stzList from stzObject
 		def ItemsHaveSameOrder(paOtherList)
 			return This.ItemsHaveSameOrderAs(paOtherList)
 
+	  #------------------------------------------------------------#
+	 #  CHECKING IF ALL THE ITEMS ARE EIGTHER NUMBERS OR STRINGS  #
+	#------------------------------------------------------------#
+
 	def AllItemsAreNumbersOrStrings()
 		bResult = TRUE
 		for item in This.List()
@@ -6490,6 +6531,19 @@ class stzList from stzObject
 			ok
 		next
 		return bResult
+
+		def ItemsAreNumbersOrStrings()
+			return This.AllItemsAreNumbersOrStrings()
+
+		def AllItemsAreStringsOrNumbers()
+			return This.AllItemsAreNumbersOrStrings()
+
+		def ItemsAreStringsOrNumbers()
+			return This.AllItemsAreNumbersOrStrings()
+
+	  #--------------------------------------------------------#
+	 #  CHECKING IF THE LIST IS THE REVERSE OF AN OTHER LIST  #
+	#--------------------------------------------------------#
 
 	def IsReverseOf(paOtherList)
 		bResult = TRUE
@@ -6509,6 +6563,9 @@ class stzList from stzObject
 		def IsReverse(paOtherList)
 			return This.IsReverseOf(paOtherList)
 
+	  #-------------------------------------#
+	 #  REVERSING ITEMS ORDER IN THE LIST  #
+	#-------------------------------------#
 
 	def ReverseItems()	# NOTE: we can't use REVERSE() because
 				# it is reserved by Ring
@@ -6541,38 +6598,49 @@ class stzList from stzObject
 
 		#>
 
-	def HasMoreNumberOfItemsThen(paOtherList)
+	  #----------------------------------------------------------#
+	 #  CHECKING IF THE LIST HAS MORE ITEMS THAN AN OTHER LIST  #
+	#----------------------------------------------------------#
+
+	def HasMoreNumberOfItems(paOtherList)
+		if isList(paOtherList) and Q(paOtherList).IsThenNamedParam()
+			paOtherList = paOtherList[2]
+		ok
+
 		if This.NumberOfItems() > len(paOtherList)
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def HasMoreNumberOfItems(paOtherList)
-			return This.HasMoreNumberOfItemsThen(paOtherList)
-
-	def IsLargerThen(paOtherList)
-		return This.HasMoreNumberOfItemsThen(paOtherList)
+		def HasMoreItems(paOtherList)
+			return This.HasMoreNumberOfItems(paOtherList)
 
 		def IsLarger(paOtherList)
-			return This.IsLargerThen(paOtherList)
+			return This.HasMoreNumberOfItems(paOtherList)
 
-	def HasLessNumberOfItemsThen(paOtherList)
+	  #----------------------------------------------------------#
+	 #  CHECKING IF THE LIST HAS LESS ITEMS THAN AN OTHER LIST  #
+	#----------------------------------------------------------#
+
+	def HasLessNumberOfItems(paOtherList)
+		if isList(paOtherList) and Q(paOtherList).IsThenNamedParam()
+			paOtherList = paOtherList[2]
+		ok
+
 		if This.NumberOfItems() < len(paOtherList)
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def HasLessNumberOfItems(paOtherList)
-			return This.HasLessNumberOfItemsThen(paOtherList)
+		def HasLessItems(paOtherList)
+			return This.HasLessNumberOfItems(paOtherList)
 
+		def IsSmaller(paOtherList)
+			return This.HasLessNumberOfItems(paOtherList)
 
-	def IsShorterThen(paOtherList)
-		return This.HasLessNumberOfItemsThen(paOtherList)
-
-		def IsShorter(paOtherList)
-			return This.IsShorterThen(paOtherList)
+	#-------------
 
 	def HasSameTypeAs(p)
 		return isList(p)
@@ -9892,14 +9960,14 @@ class stzList from stzObject
 
 	# UPDATE: Lists are now findable (only objects are left for future)
 
-	def FindNthOccurrence(n, pItem) 
+	def FindNthOccurrenceCS(n, pItem, pCaseSensitive) 
 
 		if isString(n)
 			if n = :First or n = :FirstOccurrence
 				n = 1
 
 			but n = :Last or n = :LastOccurrence
-				n = This.NumberOfOccurrence(pItem)
+				n = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
 			ok
 		ok
 
@@ -9907,7 +9975,7 @@ class stzList from stzObject
 			stzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		anPos = This.FindAll(pItem)
+		anPos = This.FindAllCS(pItem, pCaseSensitive)
 
 		nResult = 0
 
@@ -9916,6 +9984,36 @@ class stzList from stzObject
 		ok
 
 		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNthItemCS(n, pItem, pCaseSensitive)
+			return This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+
+		def FindNthOccurrenceOfItemCS(n, pItem, pCaseSensitive)
+			return This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+
+		def FindNthOccurrenceOfThisItemCS(n, pItem, pCaseSensitive)
+			return This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+
+		def FindNthCS(n, pItem, pCaseSensitive)
+			return This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+
+		def NthCS(n, pItem, pCaseSensitive)
+			return This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+
+		def NthOccurrenceCS(n, pItem, pCaseSensitive)
+			return This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+
+		def ItemPositionByOccurrenceCS(n, pItem, pCaseSensitive)
+			return This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthOccurrence(n, pItem) 
+		return This.FindNthOccurrenceCS(n, pItem, :CaseSensitive = TRUE) 
 
 		#< @FunctionAlternativeForms
 
@@ -9942,8 +10040,16 @@ class stzList from stzObject
 
 		#>
 
+	  #----------------------------------------------------------------#
+	 #    FINDING NTH TO LAST OCCURRENCE OF AN ITEM INSIDE THE LIST   #
+	#----------------------------------------------------------------#
+
 	def NthToLast(n)
 		return This.ItemAtPosition( This.NumberOfItems() - n )
+
+	  #----------------------------------------------------------------#
+	 #    FINDING NTH TO LAST OCCURRENCE OF AN ITEM INSIDE THE LIST   #
+	#----------------------------------------------------------------#
 
 	def NthToFirst(n)
 		return This.ItemAtPosition(n + 1)
@@ -10069,9 +10175,35 @@ class stzList from stzObject
 	 #   FINDING FIRST N OCCURRENCES OF AN ITEM   #
 	#--------------------------------------------#
 
-	def FindFirstNOccurrences(n, pItem)
-		anPositions = This.FindAll(pItem)
+	def FindFirstNOccurrencesCS(n, pItem, pCaseSensitive)
+		anPositions = This.FindAllCS(pItem, pCaseSensitive)
 		return Q(anPositions).Section(1, n)
+
+		#< @FunctionAlternativeForms
+
+		def FindNFirstOccurrencesCS(n, pItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pItem, pCaseSensitive)
+
+		def NFirstCS(n, pItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pItem, pCaseSensitive)
+
+		def FirstNCS(n, pItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pItem, pCaseSensitive)
+
+		def PositionOfNFirstOccurrencesCS(n, pItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pItem, pCaseSensitive)
+
+		def PositionOfFirstNOccurrencesCS(n, pItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstNOccurrences(n, pItem)
+		return This.FindFirstNOccurrencesCS(n, pItem, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def FindNFirstOccurrences(n, pItem)
 			return This.FindFirstNOccurrences(n, pItem)
@@ -10088,17 +10220,39 @@ class stzList from stzObject
 		def PositionOfFirstNOccurrences(n, pItem)
 			return This.FindFirstNOccurrences(n, pItem)
 
+		#>
+
 	  #-------------------------------------------#
 	 #   FINDING LAST N OCCURRENCES OF AN ITEM   #
 	#-------------------------------------------#
 
-	def FindLastNOccurrences(n, pItem)
-		anPositions = This.FindAll(pItem)
+	def FindLastNOccurrencesCS(n, pItem, pCaseSensitive)
+		anPositions = This.FindAllCS(pItem, pCaseSensitive)
 
 		nNumberOfOccurr = len(anPositions)
 		n1 = nNumberOfOccurr - n + 1
 
 		return Q(anPositions).Section(n1, nNumberOfOccurr)
+
+		#< @FunctionAlternativeForms
+
+		def FindNLastOccurrencesCS(n, pItem, pCaseSensitive)
+			return FindLastNOccurrencesCS(n, pItem, pCaseSensitive)
+
+		def NLastCS(n, pItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pItem, pCaseSensitive)
+
+		def LastNCS(n, pItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastNOccurrences(n, pItem)
+		return This.FindLastNOccurrencesCS(n, pItem, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def FindNLastOccurrences(n, pItem)
 			return FindLastNOccurrences(n, pItem)
@@ -10109,38 +10263,32 @@ class stzList from stzObject
 		def LastN(n, pItem)
 			return This.FindLastNOccurrences(n, pItem)
 
+		#>
+
 	  #------------------------------------------#
 	 #   FINDING GIVEN OCCURRENCES OF AN ITEM   #
 	#------------------------------------------#
 
-	def FindTheseOccurrences(panOccurr, pItem)
-		anPositions = This.FindAll(pItem)
+	def FindTheseOccurrencesCS(panOccurr, pItem, pCaseSensitive)
+		anPositions = This.FindAllCS(pItem, pCaseSensitive)
 		return Q(anPositions).ItemsAt(panOccurr)
+
+		def FindOccurrencesCS(panOccurr, pItem, pCaseSensitive)
+			return This.FindTheseOccurrencesCS(panOccurr, pItem, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindTheseOccurrences(panOccurr, pItem)
+		return This.FindTheseOccurrencesCS(panOccurr, pItem, :CaseSensitive = TRUE)
 
 		def FindOccurrences(panOccurr, pItem)
 			return This.FindTheseOccurrences(panOccurr, pItem)
 
-	def ItemOccurrenceByPosition(nPos, pItem)
-		/* EXAMPLE
-		o1 = new stzString([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
-		? o1.ItemOccurrenceByPosition(5, "ring") #--> 3
-		*/
-
-		anPositions = This.FindAll(pItem)
-
-		nResult = 0
-		i = 0
-		for n in anPositions
-			i++
-			if n = nPos
-				nResult = i
-				exit
-			ok
-		next
-
-		return nResult
-		
-	def FindMany(paItems)
+	  #-------------------------------------------------------#
+	 #   FINDING THE OCCURRENCES OF MANY ITEMS IN THE LIST   #
+	#-------------------------------------------------------#
+	
+	def FindManyCS(paItems, pCaseSensitive)
 		/*
 		o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 		? o1.FindMany([ :one, :two, :four ])
@@ -10150,7 +10298,7 @@ class stzList from stzObject
 		aResult = []
 
 		for item in paItems
-			anPositions = This.FindAll(item)
+			anPositions = This.FindAllCS(item, pCaseSensitive)
 			if len(anPositions) > 0
 				aResult + anPositions
 			ok
@@ -10162,28 +10310,47 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def FindManyQR(paItems, pcReturnType)
+		def FindManyCSQ(paItems, pCaseSensitive)
+			return This.FindManyCSQR(paItems, :stzListOfNumbers, pCaseSensitive)
+
+		def FindManyCSQR(paItems, pcReturnType, pCaseSensitive)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.FindMany(paItems) )
+				return new stzList( This.FindManyCS(paItems, pCaseSensitive) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindMany(paItems) )
+				return new stzListOfNumbers( This.FindManyCS(paItems, pCaseSensitive) )
 
 			other
 				stzRaise("Unsupported return type!")
 			off
 
+		#
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindMany(paItems)
+		return This.FindManyCS(paItems, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
 		def FindManyQ(paItems)
 			return This.FindManyQR(paItems, :stzListOfNumbers)
 
+		def FindManyQR(paItems, pcReturnType)
+			return This.FindManyQRCS(paItems, pcReturnType, pCaseSensitive)
+
 		#
 
-	def FindManyXT(paItems)
+	  #------------------------------------------------------------------#
+	 #   FINDING THE OCCURRENCES OF MANY ITEMS IN THE LIST -- EXTENDED  #
+	#------------------------------------------------------------------#
+	
+	def FindManyXTCS(paItems, pCaseSensitive)
 		/*
 		o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 		? o1.FindManyXT([ :one, :two, :four ])
@@ -10193,10 +10360,31 @@ class stzList from stzObject
 		aResult = []
 
 		for item in paItems
-			aResult + [ item, This.FindAll(item) ]
+			aResult + [ item, This.FindAllCS(item, pCaseSensitive) ]
 		next
 
 		return aResult
+
+		#< @FunctionFluentForm
+
+		def FindManyXTCSQ(paItems)
+			return new stzList( This.FindManyXTCS(paItems, pCaseSensitive) )
+
+		#
+
+		#< @FunctionAlternativeForm
+
+		def FindManyCSXT(paItems, pCaseSensitive)
+			return This.FindManyXTCS(paItems, pCaseSensitive)
+
+			def FindManyCSXTQ(paItems, pCaseSensitive)
+				return new stzList( This.FindManyCSXT(paItems, pCaseSensitive) )
+		#>
+
+	#-- CASESENSITIVITY
+
+	def FindManyXT(paItems)
+		return This.FindManyXTCS(paItems, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -10204,6 +10392,11 @@ class stzList from stzObject
 			return new stzList( This.FindManyXT(paItems) )
 
 		#
+
+	  #-------------------------------------------------------------------#
+	 #  FINDING ALL OCCURRENCES OF AN ITEM, EXCEPT THE FIRST OCCURRENCE  #
+	#-------------------------------------------------------------------#
+	// TODO: Add CaseSensitivity
 
 	def FindAllExceptFirst(pItem)
 		oTemp = new stzList( This.FindAll(pItem) )
@@ -10259,6 +10452,11 @@ class stzList from stzObject
 			#
 		#>
 	
+	  #------------------------------------------------------------------#
+	 #  FINDING ALL OCCURRENCES OF AN ITEM, EXCEPT THE LAST OCCURRENCE  #
+	#------------------------------------------------------------------#
+
+	// TODO: Add CaseSensitivity
 	def FindAllExceptLast(pItem)
 		oTemp = new stzList( This.FindAll(pItem) )
 		return oTemp.Section( 1, oTemp.NumberOfItems()-1 )
@@ -10321,6 +10519,8 @@ class stzList from stzObject
 	# NOTE: Works only if items are chars (string of 1 char each)
 	# TODO: Implement a more general solution for longer items
 
+	// TODO: Add CaseSensitivity
+
 	def VizFindAllOccurrences(pItem) # TODO: Made some changes, retest it!
 		
 		cResult = This.ToCodeQ().Simplified()
@@ -10371,6 +10571,7 @@ class stzList from stzObject
 	 #      STARTING AT A GIVEN POSITION               #
 	#-------------------------------------------------#
 
+	// TODO: Add CaseSensitivity
 	def FindNthNextOccurrence( n, pItem, nStart )
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
@@ -10404,6 +10605,7 @@ class stzList from stzObject
 	 #      STARTING AT A GIVEN POSITION                   #
 	#-----------------------------------------------------#
 
+	// TODO: Add CaseSensitivity
 	def FindNthPreviousOccurrence(n, pItem, nStart)
 		if NOT isNumber(n)
 			stzRaise("Incorrect param type! n should be a number.")
@@ -10476,6 +10678,7 @@ class stzList from stzObject
 	 #      STARTING AT A GIVEN POSITION           #
 	#---------------------------------------------#
 
+	// TODO: Add CaseSensitivity
 	def FindNextOccurrence(pItem, nStart)
 		return This.FindNextNthOccurrence(1, pItem, nStart)
 	
@@ -10487,6 +10690,7 @@ class stzList from stzObject
 	 #      STARTING FROM A GIVEN POSITION N           #
 	#-------------------------------------------------#
 
+	// TODO: Add CaseSensitivity
 	def FindPreviousOccurrence(pItem, nStart)
 		return This.FindPreviousNthOccurrence(1, pItem, nStart)
 	
@@ -10498,6 +10702,7 @@ class stzList from stzObject
 	 #   STARTING AT A GIVEN POSITION          #
 	#-----------------------------------------#
 
+	// TODO: Add CaseSensitivity
 	def FindNextOccurrences(pItem, pnStartingAt)
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
@@ -10543,6 +10748,7 @@ class stzList from stzObject
 	 #   STARTING AT A GIVEN POSITION              #
 	#---------------------------------------------#
 
+	// TODO: Add CaseSensitivity
 	def FindPreviousOccurrences(pcSubStr, pnStartingAt)
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
@@ -13964,6 +14170,16 @@ class stzList from stzObject
 
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :Except )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsThenNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Then )
 
 			return TRUE
 

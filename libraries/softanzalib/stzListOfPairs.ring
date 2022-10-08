@@ -48,7 +48,7 @@ func ListThatHasMoreNumberOfItems(paList1, paList2)
 
 func ListThatHasLessNumberOfItems(paList1, paList2)
 	oList1 = new stzList(paList1)
-	if oList1.HasLessNumberOfItemsThen(paList2)
+	if oList1.HasLessNumberOfItems(:Then = paList2)
 		return paList1
 	else
 		return paList2

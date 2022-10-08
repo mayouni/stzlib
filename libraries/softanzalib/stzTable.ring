@@ -2613,22 +2613,69 @@ Class stzTable
 		   isList(paCol[2]) and len(paCol[2]) = This.NumberOfRows()
 
 			cCol = paCol[1]
-			bResult = This.ColQR(cCol, :stzListOfStrings).
-					IsEqualToCS(paCol[2], pCaseSensitive)
+			bResult = This.ColQ(cCol).IsEqualToCS(paCol[2], pCaseSensitive)
 		ok
 
 		return bResult
 
-		def ColumnContainsCS(paCol, pCaseSensitive)
-			return This.ColContainsCS(paCol, pCaseSensitive)
+		def ContainsColumnCS(paCol, pCaseSensitive)
+			return This.ContainsColCS(paCol, pCaseSensitive)
 
 		#-- WITHOUT CASESENSITIVITY
 
 		def ContainsCol(paCol)
-			return This.ContainsColCs(paCol, :CaseSensitive = TRUE)
+			return This.ContainsColCS(paCol, :CaseSensitive = TRUE)
 
 			def ContainsColumn(paCol)
 				return This.ContainsCol(paCol)
+
+	  #----------------------------------------------------#
+	 #  CHECKING IF THE TABLE CONTAINS THE GIVEN COLUMNS  #
+	#----------------------------------------------------#
+
+	def ContainsColsCS(paCols, pCaseSensitive)
+		/* EXAMPLE
+		o1 = new stzTable([
+			[ :ID,	:NAME,		:AGE 	],
+			[ 10,	"Imed",		52   	],
+			[ 20,	"Hatem", 	46	],
+			[ 30,	"Karim",	48	]
+		])
+
+		? o1.ContainsCols([
+			:NAME = [ "Imed", "Hatem", "Karim" ],
+			:AGE  = [ 52, 46, 48 ]
+		])
+
+		#--> TRUE
+		*/
+
+		bResult = TRUE
+
+		for aCol in paCols
+			if NOT This.ContainsColCS(aCol, pCaseSensitive)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+
+		def ContainsColumnsCS(paCols, pCaseSensitive)
+			return This.ContainsColsCS(paCols, pCaseSensitive)
+
+		#-- WITHOUT CASESENSITIVITY
+
+		def ContainsCols(paCols)
+			return This.ContainsColCS(paCols, :CaseSensitive = TRUE)
+
+			def ContainsColumns(paCols)
+				return This.ContainsCols(paCol)
+
+	  #----------------------------------------------------------------------#
+	 #  CHECKING IF THE TABLE CONTAINS CELLS THAT INCLUDE A GIVEN SUBVALUE  #
+	#----------------------------------------------------------------------#
 
 	def ContainsSubValueCS(pSubValue, pCaseSensitive)
 		if This.NumberOfOccurrenceCS(:OfSubValue = pSubValue, pCaseSensitive) > 0
@@ -2642,6 +2689,7 @@ Class stzTable
 
 		def ContainsSubValue(pSubValue)
 			return This.ContainsSubValueCS(pSubValue, :CaseSensitive = TRUE)
+
 
 	/// WORKING ON SOME CELLS //////////////////////////////////////////////////////////////////////////
 
