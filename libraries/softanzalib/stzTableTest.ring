@@ -50,20 +50,22 @@ o1 = new stzTable([
 	[ 30,	"Karim",	48	]
 ])
 
-
-//? o1.ContainsCol( :NAME = [ "Imed", "Hatem", "Karim" ] )
+? o1.ContainsCol( :NAME = [ "Imed", "Hatem", "Karim" ] )
 #--> TRUE
-? o1.ContainsCol( :AGE = [52, 46, 48] )
-/*
+
 ? o1.ContainsCols([
 	:NAME = [ "Imed", "Hatem", "Karim" ],
 	:AGE  = [ 52, 46, 48 ]
 ])
 
-
 ? o1.ContainsRow([ 20, "Hatem", 46 ])
 #--> TRUE
 
+? o1.ContainsRows([
+	[ 20, "Hatem", 46 ],
+	[ 30, "Karim", 48 ]
+])
+#--> TRUE
 
 /*==============
 
