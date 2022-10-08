@@ -1,7 +1,20 @@
 load "stzlib.ring"
 
 /*---------------
+
+o1 = new stzList([ "ONE", "TWO", "THREE" ])
+o1 - "TWO"
+? o1.Content()
+#--> [ "ONE", "THREE" ])
+
+/*---------------
 */
+
+? Q([ "I", "B", "M" ]).HasSameContent( :As = [ "B", "M", "I" ] )
+? Q([ "I", "B", "M" ]).HasSameContentCS( :As = [ "b", "m", "i" ], :CS = FALSE )
+
+/*---------------
+
 ? Q("SFTANZA").IsLarger(:Then = "RING")		#--> TRUE
 # or if you want to precise:
 ? Q("SFTANZA").HasMoreChars(:Then = "RING")	#--> TRUE

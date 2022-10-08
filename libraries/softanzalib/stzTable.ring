@@ -2590,6 +2590,50 @@ Class stzTable
 		return This.ContainsRowCS(paRow, :CaseSensitive = TRUE)
 
 	  #-------------------------------------------------#
+	 #  CHECKING IF THE TABLE CONTAINS THE GIVEN ROWS  #
+	#-------------------------------------------------#
+
+	def ContainsRowsCS(paRows, pCaseSensitive)
+		/* EXAMPLE
+		o1 = new stzTable([
+			[ :ID,	:NAME,		:AGE 	],
+			[ 10,	"Imed",		52   	],
+			[ 20,	"Hatem", 	46	],
+			[ 30,	"Karim",	48	]
+		])
+
+		? o1.ContainsCols([
+			[ 10, "Imed", 52  ],
+			[ 30, "Karim", 48 ]
+		])
+
+		#--> TRUE
+		*/
+
+		bResult = TRUE
+
+		for aRow in paRows
+			if NOT This.ContainsRowCS(aRow, pCaseSensitive)
+				bResult = FALSE
+				exit
+			ok
+
+		next
+
+		return bResult
+
+		def ContainsTheseRowsCS(paRows, pCaseSensitive)
+			return This.ContainsRowsCS(paRows, pCaseSensitive)
+
+		#-- WITHOUT CASESENSITIVITY
+
+		def ContainsRows(paRows)
+			return This.ContainsRowsCS(paRows, :CaseSensitive = TRUE)
+
+			def ContainsTheseRows(paRows)
+				return This.ContainsRows(paRows)
+
+	  #-------------------------------------------------#
 	 #  CHECKING IF THE TABLE CONTAINS A GIVEN COLUMN  #
 	#-------------------------------------------------#
 
@@ -2657,20 +2701,32 @@ Class stzTable
 				bResult = FALSE
 				exit
 			ok
+
 		next
 
 		return bResult
 
+		def ContainsTheseColsCS(paCols, pCaseSensitive)
+			return This.ContainsColsCS(paCols, pCaseSensitive)
 
 		def ContainsColumnsCS(paCols, pCaseSensitive)
+			return This.ContainsColsCS(paCols, pCaseSensitive)
+
+		def ContainsTheseColumnsCS(paCols, pCaseSensitive)
 			return This.ContainsColsCS(paCols, pCaseSensitive)
 
 		#-- WITHOUT CASESENSITIVITY
 
 		def ContainsCols(paCols)
-			return This.ContainsColCS(paCols, :CaseSensitive = TRUE)
+			return This.ContainsColsCS(paCols, :CaseSensitive = TRUE)
+
+			def containsTheseCols(paCols)
+				return This.ContainsCols(paCols)
 
 			def ContainsColumns(paCols)
+				return This.ContainsCols(paCol)
+
+			def ContainsTheseColumns(paCols)
 				return This.ContainsCols(paCol)
 
 	  #----------------------------------------------------------------------#

@@ -6613,12 +6613,21 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def HasMoreNumberOfItemsThen(paOtherList)
+			return This.HasMoreNumberOfItems(paOtherList)
+
 		def HasMoreItems(paOtherList)
+			return This.HasMoreNumberOfItems(paOtherList)
+
+		def HasMoreItemsThen(paOtherList)
 			return This.HasMoreNumberOfItems(paOtherList)
 
 		def IsLarger(paOtherList)
 			return This.HasMoreNumberOfItems(paOtherList)
 
+		def IsLargerThen(panOtherList)
+			return This.HasMoreNumberOfItems(paOtherList)
+	
 	  #----------------------------------------------------------#
 	 #  CHECKING IF THE LIST HAS LESS ITEMS THAN AN OTHER LIST  #
 	#----------------------------------------------------------#
@@ -6634,13 +6643,24 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def HasLessNumberOfItemsThen(paOtherList)
+			return This.HasLessNumberOfItems(paOtherList)
+
 		def HasLessItems(paOtherList)
+			return This.HasLessNumberOfItems(paOtherList)
+
+		def HasLessItemsThen(paOtherList)
 			return This.HasLessNumberOfItems(paOtherList)
 
 		def IsSmaller(paOtherList)
 			return This.HasLessNumberOfItems(paOtherList)
 
-	#-------------
+		def IsSmallerThen(panOtherList)
+			return This.HasLessNumberOfItems(paOtherList)
+	
+	  #--------------------------------------------#
+	 #  CHECKING IF A GIVEN VALUE IS ALSO A LIST  #
+	#--------------------------------------------#
 
 	def HasSameTypeAs(p)
 		return isList(p)
@@ -6648,7 +6668,14 @@ class stzList from stzObject
 		def HasSameType(p)
 			return This.HasSameTypeAs(p)
 
-	def HasSameContentAs(paOtherList)
+	  #--------------------------------------------------------------------#
+	 #  CHECKING IF LIST HAS THE SAME CONTENT AS AN OTHER LIST OR STRING  #
+	#--------------------------------------------------------------------#
+
+	def HasSameContentCS(paOtherList, pCaseSensitive)
+		if isList(paOtherList) and Q(paOtherList).IsAsNamedParam()
+			paOtherList = paOtherList[2]
+		ok
 
 		if NOT isList(paOtherList)
 			stzRaise("Invalid param type! paOtherList should be a list.")
@@ -6660,63 +6687,27 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		oCopy = This.Copy()
-		oCopy - paOtherList
+		bResult = TRUE
 
-		if oCopy.IsEmpty()
-			return TRUE
-		else
-			return FALSE
-		ok
-				
-		def HasSameContent(paOtherList)
-			return This.HasSameContentAs(paOtherList)
-
-	def Positions(pItem)
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
-
-		return This.FindAll(pItem)
-
-		#< @FunctionFluentForm
-
-		def PositionsQR(pItem, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
-				pcReturnType = pcReturnType[2]
+		for item in paOtherList
+			if NOT This.ContainsCS(item, pCaseSensitive)
+				bResult = FALSE
+				exit
 			ok
+		next
+			
+		return bResult
+	
+		def HasSameContentAsCS(paOtherList, pCaseSensitive)
+			return This.HasSameContentCS(paOtherList, pCaseSensitive)
 
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Positions(pItem) )
+	#-- WITHOUT CASESENSITIVITY
 
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Positions(pItem) )
+	def HasSameContent(paOtherList)
+		return This.HasSameContentCS(paOtherList, :CaseSensitive = TRUE)
 
-			other
-				stzRaise("Unsupported return type!")
-			off
-
-		def PositionsQ(pItem)
-			return This.PositionsQR(pItem, :stzListOfNumbers)
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def Occurrences(pItem)
-			return This.Positions(pItem)
-
-			def OccurrencesQR(pItem, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.PositionsQR(pItem, pcReturnType)
-
-			def OccurrencesQ(pItem)
-				return ThiS.OccurrencesQR(pItem, :stzListOfNumbers)
-		#>
+		def HasSameContentAs(paOtherList)
+			return This.HasSameContent(paOtherList)
 
 	  #=====================================#
 	 #    CLASSIFYING (OR CATEGORIZING)    #
@@ -8379,15 +8370,8 @@ class stzList from stzObject
 			ok
 
 		but pcOp = "-"
-			if isNumber(pValue) or isString(pValue)
-				This.RemoveItemAtPositionQ( find(This.List(), pValue) )
-
-			but isList(pValue)
-				if len(pValue) > 0
-					anPositions = This.FindMany(pValue)
-					This.RemoveItemsAtPositions(anPositions)
-				ok
-			ok
+			anPositions = This.FindAll(pValue)
+			This.RemoveItemsAtPositions(anPositions)
 
 		but pcOp = "*"
 			This.MultiplyBy(pValue)
@@ -9899,10 +9883,35 @@ class stzList from stzObject
 				return This.FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
 			#>
 
+		def PositionsCS(pItem, pCaseSensitive)
+			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+
+			#< @FunctionFluentForm
+
+			def PositionsCSQ(pItem, pCaseSensitive)
+				return This.PositionsCSQR(pItem, pCaseSensitive, :stzList)
+	
+			def PositionsCSQR(pItem, pCaseSensitive, pcReturnType)
+				return This.PositionsCSQR(pItem, pCaseSensitive, pcReturnType)
+			#>
+
+		def OccurrencesCS(pItem, pCaseSensitive)
+			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+
+			#< @FunctionFluentForm
+
+			def OccurrencesCSQ(pItem, pCaseSensitive)
+				return This.OccurrencesCSQR(pItem, pCaseSensitive, :stzList)
+	
+			def OccurrencesCSQR(pItem, pCaseSensitive, pcReturnType)
+				return This.OccurrencesCSQR(pItem, pCaseSensitive, pcReturnType)
+			#>
+
 		# WARNING: We can not add an alternative name called Find() because this is
 		# is reservd name of the native Ring function find()!
 		#>
 	
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllOccurrences(pItem)
@@ -9942,6 +9951,30 @@ class stzList from stzObject
 	
 			def FindItemQR(pItem, pcReturnType)
 				return This.FindAllOccurrencesQR(pItem, pcReturnType)
+			#>
+
+		def Positions(pItem)
+			return This.FindAllOccurrences(pItem)
+
+			#< @FunctionFluentForm
+
+			def PositionsQ(pItem)
+				return This.PositionsQR(pItem, :stzList)
+	
+			def PositionsQR(pItem, pcReturnType)
+				return This.PositionsQR(pItem, pcReturnType)
+			#>
+
+		def Occurrences(pItem)
+			return This.FindAllOccurrences(pItem)
+
+			#< @FunctionFluentForm
+
+			def OccurrencesQ(pItem)
+				return This.OccurrencesQR(pItem, :stzList)
+	
+			def OccurrencesQR(pItem, pcReturnType)
+				return This.OccurrencesQR(pItem, pcReturnType)
 			#>
 
 		# WARNING: We can not add an alternative name called Find() because this is
@@ -14170,6 +14203,16 @@ class stzList from stzObject
 
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :Except )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :As )
 
 			return TRUE
 
