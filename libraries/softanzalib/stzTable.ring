@@ -6177,7 +6177,7 @@ Class stzTable
 	 #  SORTING THE TABLE  #
 	#=====================#
 
-	/* ... */
+	def Sort(pCol)
 
 	  #=====================#
 	 #  SHOWING THE TABLE  #
@@ -6186,9 +6186,15 @@ Class stzTable
 	def Show()
 		? This.ToString()
 
-	def ToString()
-		cTable = This.HeaderToString() + NL + This.RowsToString()
+	def ShowXT(paOptions)
+		? This.ToStringXT(paOptions)
+
+	def ToStringXT(paOptions)
+		cTable = This.HeaderToString() + NL + This.RowsToStringXT(paOptions)
 		return cTable
+
+	def ToString()
+		return This.ToStringXT(:ReplaceEmptyCellsWith = "")
 
 	def MaxWidthInCol(pCol)
 		if isString(pCol)
@@ -6296,18 +6302,29 @@ Class stzTable
 
 		return cResult
 
-
 	def RowsToString()
+		return This.RowsToStringXT( :ReplaceEmptyCellsWith = "")
+
+	def RowsToStringXT(paOptions)
+
 		cRows = ""
 
 		for y = 1 to NumberOfRows()
-			cRows += ""+ y + "   " + RowToString(y) + NL
+			cRows += ""+ y + "   " + RowToStringXT(y, paOptions) + NL
 		next
 
 		return cRows
 
+	def RowToString()
+		return This.RowToStringXT( :ReplaceEmptyCellsWith = "" )
 
-	def RowToString(n)
+	def RowToStringXT(n, paOptions)
+		if NOT ( isList(paOptions) and Q(paOptions).IsHashList() )
+			stzRaise("Incorrect param format! paOtions must be a hashlist.")
+		ok
+
+		cEmptyCell = paOptions[ :ReplaceEmptyCellsWith ]
+
 		cRow = ""
 		aRow = This.Row(n)
 
@@ -6319,6 +6336,11 @@ Class stzTable
 		i = 0
 		for cell in aRow
 			i++
+
+			if cell = NULL
+				cell = cEmptyCell
+			ok
+
 			cRow += @@SQ(cell).RemoveBoundsQ('"').
 						AlignedToRightXT( anMax[i], " " )
 

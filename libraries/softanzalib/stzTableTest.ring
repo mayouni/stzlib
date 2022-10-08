@@ -1,5 +1,11 @@
 load "stzlib.ring"
 
+/*--------------
+
+o1 = new stzTable([
+	:ID = :Number,
+	:NAME = :String
+])
 
 /*===============
 
@@ -12,16 +18,15 @@ o1 = new stzTable([])
 #--> [ [ "COL1", [ "" ] ] ]
 
 /*--------------
-
+*/
 # WAY 2 : Creating an empty table with 3 columns and 3 rows
 o1 = new stzTable([3, 2])
-? @@S( o1.Content() )
+o1.ShowXT([ :ReplaceEmptyCellsWith = "NULL" ])
 
-#--> [
-#	[ "COL1", [ "", "" ] ],
-#	[ "COL2", [ "", "" ] ],
-#	[ "COL3", [ "", "" ] ]
-#    ]
+#-->
+# #   COL1   COL2   COL3
+# 1                     
+# 2     
 
 /*---------------
 
@@ -42,6 +47,17 @@ o1 = new stzTable([
 
 /*==============
 */
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+? o1.Sort(:OnColumn = :NAME)
+
+
+/*==============
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
