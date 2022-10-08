@@ -1,6 +1,8 @@
 load "stzlib.ring"
 
-/*
+
+/*----------------
+
 o1 = new stzHashList([
 	:one 	= :red,
 	:two 	= :white,
@@ -16,7 +18,7 @@ o1 = new stzHashList([
 ? o1.NumberOfClasses()	#--> 4
 ? o1.Klass(:white)	#--> [ :two, :three, :seven ]
 
-? o1.KlassFreq()	#--> 3/8
+//? o1.KlassFreq()	#--> 3/8
 
 # ? o1.ClassesAndTheirFrequencies	// same as ClassesXT()
 #--> [ :red = 3, :white = 2, :green = 2, :yello = 1 ]
@@ -28,7 +30,7 @@ o1 = new stzHashList([
 # ? o1.Top3ClassesXT()	#--> [ :white = 3, :red = 2, :red = 2 ]
 
 /*----------------
-*/
+
 o1 = new stzHashList([
 	:one 	= :red,
 	:two 	= :white,

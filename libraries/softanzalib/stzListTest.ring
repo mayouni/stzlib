@@ -1,8 +1,34 @@
 load "stzlib.ring"
 
+/*---------------
+*/
+? Q("SFTANZA").IsLarger(:Then = "RING")		#--> TRUE
+# or if you want to precise:
+? Q("SFTANZA").HasMoreChars(:Then = "RING")	#--> TRUE
+
+? Q("RING").IsSmaller(:Then = "SFTANZA")	#--> TRUE
+# or if you want to precise:
+? Q("RING").HasLessChars(:Then = "SFTANZA")	#--> TRUE
+
+/*---------------
+
+? Q([1, 2, 3, 4, 5]).IsLarger(:Then = [8, 9])		#--> TRUE
+# or if you want to precise:
+? Q([1, 2, 3, 4, 5]).HasMoreItems(:Then = [8, 9])	#--> TRUE
+
+? Q([8, 9]).IsSmaller(:Then = [1, 2, 3, 4, 5])		#--> TRUE
+# or if you want to precise:
+? Q([8, 9]).HasLessItems(:Then = [1, 2, 3, 4, 5])	#--> TRUE
+
+/*---------------
+
 o1 = new stzList([ "arem", "mohsen", "AREM" ])
 ? o1.FindAll("arem") #--> 1
+
 ? o1.FindAllCS("arem", :CS = FALSE) #--> [1, 3]
+
+? o1.FindNth(2, "arem") #--> 0
+? o1.FindNthCS(2, "arem", :CS = FALSE) #--> 3
 
 /*---------------
 

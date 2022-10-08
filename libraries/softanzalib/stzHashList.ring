@@ -1,4 +1,4 @@
-# 		    SOFTANZA LIBRARY (V1.0) - STZSTRING			    #
+# 		    SOFTANZA LIBRARY (V1.0) - STZHASHLIST			    #
 #		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
 #									    #
@@ -631,9 +631,10 @@ class stzHashList from stzObject # Also called stzAssociativeList
 	#----------------------#
 
 	def AddPair(paNewPair)
-		if isList(paNewPair) and ListIsPairAndKeyIsString(paNewPair)
 
+		if isList(paNewPair) and Q(paNewPair).IsPair() and isString(paNewPair[1])
 			@aContent + paNewPair
+
 		else
 			stzRaise("Syntax error! The value you provided is not a pair with its key beeing a string.")
 		ok
@@ -1437,5 +1438,7 @@ this: lefttoright
 			
 			if type(pValue) = "STRING"
 				return This.ValueByKey(pValue)
+
 			ok
+
 		ok

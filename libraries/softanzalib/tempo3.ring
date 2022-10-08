@@ -194,7 +194,7 @@ o1 = new stzList([ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ])
 ? o1.IsListOfPairsOfNumbers()	#--> TRUE
 
 /*=================
-*/
+
 o1 = new stzString("AB♥CD♥EF♥GH")
 ? o1.Split("♥") #--> [ "AA", "CD", "EF", "GH" ]
 
@@ -776,12 +776,8 @@ o1 = new stzList([ "__", "ring", "__", "ring", "__", "ring" ])
 ? o1.FindTheseOccurrences([2, 3], :Of = "ring") #--> [ 4, 6 ]
 
 /*----------
-
+*/
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
-? o1.ItemOccurrenceByPosition(5, "ring") #--> 3
-
-? o1.ItemPositionByOccurrence(3, "ring") #--> 5
-# Alternativcely to this, you can say:
 ? o1.FindNthOccurrence(3, "ring")
 
 /*----------
