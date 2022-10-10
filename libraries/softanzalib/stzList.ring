@@ -716,13 +716,52 @@ class stzList from stzObject
 	 #     INSERTING AN ITEM BEFORE A GIVEN POSITION     #
 	#===================================================#
 
+	def Insert( pItem, pWhere )
+
+		if isList(pItem) and Q(pItem).IsItemNamedParam()
+			pItem = pItem[2]
+		ok
+
+		if isList(pWhere)
+			if Q(pWhere).IsOneOfTheseNamedParams([
+				:At, :AtPosition, :Before, :BeforePosition ])
+
+				This.InsertBefore(pWhere[2], pItem)
+				return
+
+			but Q(pWhere).IsOneOfTheseNamedParams([ :After, :AfterPosition ])
+
+				This.InsertAfter(pWhere[2], pItem)
+				return
+			ok
+		else
+			This.InsertBefore(pWhere, pItem)
+		ok
+
+		def InsertItem(pItem, pWhere)
+			This.Insert(pItem, pWhere)
+
 	def InsertBeforePosition(n, pItem)
+		if isList(n) and Q(n).IsPositionNamedParam()
+			n = n[2]
+		ok
+
+		if isList(n) and Q(n).IsListOfNumbers()
+			This.InsertBeforePositions(n, pItem)
+			return
+		ok
+
+		if isList(pItem) and Q(pItem).IsItemNamedParam()
+			pItem = pItem[2]
+		ok
+
 		if n >= 1 and n <= This.NumberOfItems()
-			insert(This.List(), n-1, pItem)
+			rng_insert(This.List(), n-1, pItem)
 
 		but n > This.NumberofItems()
 			This.ExtendToN(n)
-			insert(This.List(), n-1, pItem) # Using Ring native insert function here
+			rng_insert(This.List(), n-1, pItem)
+			# Using Ring native insert function here
 		ok
 
 		#< @FunctionFluentForm
@@ -741,16 +780,28 @@ class stzList from stzObject
 			def InsertBeforeQ(n, pItem)
 				This.InsertBefore(n, pItem)
 				return This
+
+		def InsertAt(n, pItem)
+			This.InsertBeforePosition(n, pItem)
+
+			def InsertAtQ(n, pItem)
+				This.InsertAt(n, pItem)
+				return This
+
 		#>
 		
 	  #----------------------------------------------------#
-	 #     INSERTING AN ITEM BEFORE A GIVEN POSITION      #
+	 #     INSERTING AN ITEM AFTER A GIVEN POSITION      #
 	#----------------------------------------------------#
 
 	def InsertAfterPosition(n, pItem)
+		if isList(n) and Q(n).IsListOfNumbers()
+			This.InsertAfterPositions(n, pItem)
+			return
+		ok
 
 		if n > 0 and n < This.NumberOfItems()
-			insert(This.List(), n, pItem)
+			rng_insert(This.List(), n, pItem)
 
 		ok
 
@@ -830,6 +881,70 @@ class stzList from stzObject
 			return This
 
 		#>
+
+	  #----------------------------------------------#
+	 #  MOVING AN ITEM FROM A POSITION TO AN OTHER  #
+	#----------------------------------------------#
+
+	def Move(n1, n2)
+
+		# Checking params correctness
+
+		if isList(n1) and
+		   Q(n1).IsOneOfTheseNamedParams([
+			:From, :FromPosition, :At, :APosition
+		   ])
+
+			n1 = n1[2]
+		ok
+
+		if isList(n2) and
+		   Q(n2).IsOneOfTheseNamedParams([ :To, :ToPosition ])
+
+			n2 = n2[2]
+		ok
+
+		if isString(n1) and
+		   Q(n1).IsOneOfThese([ :First, :FirstPosition, :FirstItem ])
+				    
+			n1 = 1
+		ok
+
+		if isString(n2) and
+		   Q(n1).IsOneOfThese([ :Last, :LastPosition, :LastItem ])
+
+			n2 = This.NumberOfItems()
+		ok
+
+		if NOT BothAreNumbers(n1, n2)
+			stzRaise("Incorrect param type! n1 and n2 must be numbers.")
+		ok
+
+		# Doing the job
+
+		This.Insert( This[n1], :At = n2)
+
+		#< @FunctionAlternativeForm
+
+		def MoveItem(n1, n2)
+			This.Move(n1, n2)
+
+		#>
+
+	def Swipe(n1, n2)
+		if isList(n1) and Q(n1).IsBetweenNamedParam()
+			n1 = n1[2]
+		ok
+
+		if isList(n2) and Q(n2).IsAndNamedParam()
+			n2 = n2[2]
+		ok
+
+		# Doing the job (Qt-side)
+
+		copy = This[n2]
+		This.ReplaceNth(n2, :By = This[n1])
+		This.ReplaceNth(n1, :By = copy)
 
 	  #=========================================#
 	 #   REPLACING ALL ITEMS WITH A NEW ITEM   #
@@ -3892,7 +4007,7 @@ class stzList from stzObject
 				bResult = FALSE
 				exit
 			else
-				if find(aTempKeys, This[i][1]) > 0
+				if rng_find(aTempKeys, This[i][1]) > 0
 					bResult = FALSE
 					exit
 				ok
@@ -4957,13 +5072,13 @@ class stzList from stzObject
 		m = This.NumberOfItems() + pnFromEnd
 		for n = 1 to This.NumberOfItems() step pnFromStart
 			// adding one step forward
-			if n != m and find(aResult, n) = 0
+			if n != m and rng_find(aResult, n) = 0
 				aResult + n
 			ok
 
 			// adding one step backward
 			m -= pnFromEnd
-			if m != n and find(aResult, m) = 0 and m > 0
+			if m != n and rng_find(aResult, m) = 0 and m > 0
 				aResult + m
 			ok	
 		next
@@ -7558,7 +7673,7 @@ class stzList from stzObject
 	 #  SORTING THE STRING BY - IN ASCENDING  #
 	#----------------------------------------#
  
-	def SortInAscendingBy(pcExpr)
+	def SortInAscendingBy(pcExpr)  // TODO: TEST IT!
 		/* EXAMPLE
 		o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
 		o1.SortBy('len(@item)')
@@ -7567,7 +7682,7 @@ class stzList from stzObject
 		#--> [ "a", "ab", "abc", "abcd", "abcde" ]
 
 		*/
-? @@S(This.Content())
+
 		cCode = "value = " + StzCCodeQ(pcExpr).UnifiedFor(:stzList)
 
 		aTemp = []
@@ -7576,13 +7691,11 @@ class stzList from stzObject
 			aTemp + value
 		next
 
-? @@S(aTemp)
-
 		aTempSorted = Q(aTemp).SortedInAscending()
-? @@S(aTemp)
+
 		aResult = []
 		for item in aTempSorted
-			n = find(aTemp, item)
+			n = rng_find(aTemp, item)
 			aResult + This[n]
 		next
 
@@ -8451,7 +8564,7 @@ class stzList from stzObject
 		*/
 		aTempList = This.List()
 		for item in paOtherList
-			del(aTempList, find(aTempList, item))
+			del(aTempList, rng_find(aTempList, item))
 		next
 
 		This.Update( aTempList )
@@ -9855,20 +9968,7 @@ class stzList from stzObject
 				return This.FindAllCSQR(pItem, pCaseSensitive, :stzList)
 	
 			def FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAllCS(pItem, pCaseSensitive) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindAllCS(pItem, pCaseSensitive) )
-				other
-					stzRaise("Unsupported type!")
-				off
-	
+				return This.FindAllOccurrencesCSQR(pItem, pCaseSensitive, pcReturnType)
 			#>
 
 		def FindItemCS(pItem, pCaseSensitive)
@@ -9892,7 +9992,7 @@ class stzList from stzObject
 				return This.PositionsCSQR(pItem, pCaseSensitive, :stzList)
 	
 			def PositionsCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.PositionsCSQR(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
 			#>
 
 		def OccurrencesCS(pItem, pCaseSensitive)
@@ -9904,11 +10004,22 @@ class stzList from stzObject
 				return This.OccurrencesCSQR(pItem, pCaseSensitive, :stzList)
 	
 			def OccurrencesCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.OccurrencesCSQR(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
 			#>
 
-		# WARNING: We can not add an alternative name called Find() because this is
-		# is reservd name of the native Ring function find()!
+		def FindCS(pItem, pCaseSensitive)
+			if isList(pItem) and Q(pItem).IsItemNamedParam()
+				pItem = pItem[2]
+			ok
+
+			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+
+			def FindCSQ(pItem, pCaseSensitive)
+				return This.FindCSQR(pItem, pCaseSensitive, pcReturnType)
+
+			def FindCSQR(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
+
 		#>
 	
 
@@ -9962,7 +10073,7 @@ class stzList from stzObject
 				return This.PositionsQR(pItem, :stzList)
 	
 			def PositionsQR(pItem, pcReturnType)
-				return This.PositionsQR(pItem, pcReturnType)
+				return This.FindAllOccurrencesQR(pItem, pcReturnType)
 			#>
 
 		def Occurrences(pItem)
@@ -9974,11 +10085,24 @@ class stzList from stzObject
 				return This.OccurrencesQR(pItem, :stzList)
 	
 			def OccurrencesQR(pItem, pcReturnType)
-				return This.OccurrencesQR(pItem, pcReturnType)
+				return This.FindAllOccurrencesQR(pItem, pcReturnType)
 			#>
 
-		# WARNING: We can not add an alternative name called Find() because this is
-		# is reservd name of the native Ring function find()!
+		def Find(pItem)
+			if isList(pItem) and Q(pItem).IsItemNamedParam()
+				pItem = pItem[2]
+			ok
+
+			return This.FindAllOccurrences(pItem)
+
+			#< @FunctionFluentForm
+
+			def FindQ(pItem)
+				return This.FindQR(pItem, :stzList)
+	
+			def FindQR(pItem, pcReturnType)
+				return This.FindAllOccurrencesQR(pItem, pcReturnType)
+			#>
 		#>
 
 	  #-------------------------------------------------------#
@@ -12437,27 +12561,27 @@ class stzList from stzObject
 				This.InsertAfterWhere(pcCondition, pNewItem)
 				return This
 
-	def InsertBeforeW( pcCondition, pNewItem )
+	def InsertBeforeW(pcCondition, pNewItem)
 		/*
 		o1.InsertBeforeW( :Where = '{ StzStringQ(item).IsUppercase() }', "*" )
 		*/
 
 		anPositions = This.FindItemsW(pcCondition)
-		This.InsertBeforeAtThesePositions( anPositions, pNewItem )
+		This.InsertBeforeThesePositions(anPositions, pNewItem)
 
 		#< @FunctionFluentForm
 
-		def InsertBeforeWQ( pcCondition, pNewItem )
-			This.InsertBeforeW( pcCondition, pNewItem )
+		def InsertBeforeWQ(pcCondition, pNewItem)
+			This.InsertBeforeW(pcCondition, pNewItem)
 			return This
 
 		#>
 
-		def InsertBeforeWhere(pcCondition, pNewItem)
+		def InsertAtW(pcCondition, pNewItem)
 			This.InsertBeforeW(pcCondition, pNewItem)
 
-			def InsertBeforeWhereQ(pcCondition, pNewItem)
-				This.InsertBeforeWhere(pcCondition, pNewItem)
+			def InsertAtWQ(pcCondition, pNewItem)
+				This.InsertAt(pcCondition, pNewItem)
 				return This
 
 	  #-----------------------------------------------------------------#
@@ -12471,11 +12595,15 @@ class stzList from stzObject
 			This.InsertAfter(n, pItem)
 		next
 
-		#--
+		#< @FunctionFluentForm
 
 		def InsertAfterManyPositionsQ(panPositions, pItem)
 			This.InsertAfterManyPositions(panPositions, pItem)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def InsertAfterThesePositions(panPositions, pItem)
 			This.InsertAfterManyPositions(panPositions, pItem)
@@ -12484,18 +12612,30 @@ class stzList from stzObject
 				This.InsertAfterThesePositions(panPositions, pItem)
 				return This
 
+		def InsertAfterPositions(panPositions, pItem)
+			This.InsertAfterPositions(panPositions, pItem)
+
+			def InsertAfterPositionsQ(panPositions, pItem)
+				This.InsertAfterThesePositions(panPositions, pItem)
+				return This
+
+		#>
+
 	def InsertBeforeManyPositions(panPositions, pItem)
-	
 		for i = 1 to len(panPositions)
 			n = panPositions[i] + i - 1
 			This.InsertBefore(n, pItem)
 		next
 
-		#--
-
+		#< @FunctionFluentForm
+		
 		def InsertBeforeManyPositionsQ(panPositions, pItem)
 			This.InsertBeforeManyPositions(panPositions, pItem)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def InsertBeforeThesePositions(panPositions, pItem)
 			This.InsertBeforeManyPositions(panPositions, pItem)
@@ -12503,6 +12643,22 @@ class stzList from stzObject
 			def InsertBeforeThesePositionsQ(panPositions, pItem)
 				This.InsertBeforeThesePositions(panPositions, pItem)
 				return This
+
+		def InsertBeforePositions(panPositions, pItem)
+			This.InsertBeforeManyPositions(panPositions, pItem)
+
+			def InsertBeforePositionsQ(panPositions, pItem)
+				This.InsertBeforeThesePositions(panPositions, pItem)
+				return This
+
+		def InsertAtPositions(panPositions, pItem)
+			This.InsertBeforeManyPositions(panPositions, pItem)
+
+			def InsertAtPositionsQ(panPositions, pItem)
+				This.InsertBeforeThesePositions(panPositions, pItem)
+				return This
+
+		#>
 
 	  #----------------------------------------------#
 	 #    SPLITTING THE LIST USING THE GIVEN ITEM   #
@@ -14273,6 +14429,16 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsStringOrSubStringNamedParam()
+		if This.IsStringNamedPAram() or This.IsSubStringNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsSubStringOrStringONamedParam()
+			return This.IsStringOrSubStringNamedParam()
+
 	def IsToNamedParam()
 		if This.NumberOfItems() = 2 and
 
@@ -14347,6 +14513,66 @@ class stzList from stzObject
 
 		def IsWhereOrThatNamedParam()
 			return This.IsThatOrWhereNamedParam()
+
+	def IsPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Position )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBetweenNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Between )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :And )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOrNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Or )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsWhileNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :While )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsNotNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Not )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
 
 	def IsIfNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -14593,6 +14819,25 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsBeforePositionNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforePosition )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeOrAtNamedParam()
+		if This.IsBeforeNamedParam() or This.IsAtNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAtOrBeforeNamedParam()
+			return This.IsBeforeOrAtNamedParam()
+
 	def IsAfterNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This[1]) and This[1] = :After )
@@ -14601,6 +14846,25 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	def IsAfterPositionNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterPosition )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterOrAtNamedParam()
+		if This.IsAfterNamedParam() or This.IsAtNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAtOrAfterNamedParam()
+			return This.IsAfterOrAtNamedParam()
 
 	def IsBeforeOrAfterNamedParam()
 		if This.IsBeforeNamedPAram() or This.IsAfterNamedParam()
@@ -14695,6 +14959,56 @@ class stzList from stzObject
 	def IsNthToLastItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :NthToLastItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :String )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStringItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :StringItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :SubString )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStringOrStringItemNamedParam()
+		if This.IsStringNamedParam() or This.IsStringItemNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsStringItemOrStringNamedParam()
+			return This.IsStringOrStringItemNamedParam()
+
+	def IsItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Item )
 
 			return TRUE
 

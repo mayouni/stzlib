@@ -14,19 +14,28 @@ o1 = new stzTable([
 # WAY 1 : Creating an empty table with just a column and a row
 o1 = new stzTable([])
 
-? @@S( o1.Content() )
+? @@S( o1.Content() ) + NL
 #--> [ [ "COL1", [ "" ] ] ]
 
+o1.ShowXT([ :ReplaceEmptyCEllsWith = "NULL" ])
+#-->
+# #   COL1
+# 1   NULL
+
 /*--------------
-*/
+
 # WAY 2 : Creating an empty table with 3 columns and 3 rows
 o1 = new stzTable([3, 2])
-o1.ShowXT([ :ReplaceEmptyCellsWith = "NULL" ])
-
 #-->
 # #   COL1   COL2   COL3
 # 1                     
 # 2     
+
+o1.ShowXT([ :ReplaceEmptyCellsWith = "NULL" ])
+#-->
+# #   COL1   COL2   COL3
+# 1   NULL   NULL   NULL
+# 2   NULL   NULL   NULL
 
 /*---------------
 
@@ -46,16 +55,106 @@ o1 = new stzTable([
 ? o1.Col(:EMPLOYEE)	#--> [ "Ali", "Dania", "Han", "Ali" ]
 
 /*==============
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+o1.ReplaceRow(3, :With = [ 50, "NONE", 99 ])
+? o1.Row(3)
+#--> [ 50, "NONE", 99 ]
+
+o1.ReplaceCol(:AGE, :With = [ "_", "_", "_" ])
+? o1.Col(:AGE)
+#--> [ "_", "_", "_" ]
+
+/*==============
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+? o1.ColName(3)		#--> :AGE
+? o1.ColName(:NAME)	#--> :NAME
+
+o1.ReplaceColName(:NAME, :EMPLOYEE)
+o1.Show() + NL
+#-->
+# #   ID    EMPLOYEE   AGE
+# 1   10     Karim    52
+# 2   20     Hatem    46
+# 3   30   Abraham    48
+
+/*--------------
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+? o1.ColNumber(:AGE) 	#--> 3
+? o1.ColNumber(2)	#--> 2
+
+? o1.ColNumber(:NONE)	#--> ERROR:
+# Incorrect param value! p must be a number or string.
+# Allowed strings are :First, :FirstCol, :Last, :LastCol and any valid column name.
+
+? o1.ColNumber(22)	#--> ERROR: Incorrect value! n must be a number between 1 and 3.
+
+/*--------------
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+o1.MoveRow( :From = 3, :To = 1 )
+o1.Show() + NL
+#-->
+# #   ID      NAME   AGE
+# 1   30   Abraham    48
+# 2   20     Hatem    46
+# 3   10     Karim    52
+
+/*--------------
 */
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
-	[ 10,	"Imed",		52   	],
+	[ 10,	"Karim",	52   	],
 	[ 20,	"Hatem", 	46	],
-	[ 30,	"Karim",	48	]
+	[ 30,	"Abraham",	48	]
 ])
 
-? o1.Sort(:OnColumn = :NAME)
+o1.MoveCol( :ID, :To = 3 )
+o1.Show()
 
+/*==============
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+o1.Sort(:By = :NAME)
+? o1.Show()
+
+#-->
+# #	ID	NAME		AGE
+# 1	30	Abraham		48
+# 2	20	Hatem		46
+# 3	10	Karim		52
 
 /*==============
 

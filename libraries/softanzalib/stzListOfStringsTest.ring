@@ -1,13 +1,20 @@
 load "stzlib.ring"
 
+o1 = new stzListOfStrings([ "*", "A*B*C", "*" ])
+
+? @@S( o1.Find( :String = "*" ) ) + NL
+#--> [1, 3]
+
+? @@S( o1.Find( :SubString = "*" ) )
+#--> [ [1, [1]], [2, [2, 4]], [3, [1]] ]
+
+/*----------------
 o1 = new stzListOfStrings([
 	"How many roads must a man walk down",
 	"Before you call him a man?",
 	"How many seas must a white dove sail",
 	"Before she sleeps in the sand?"
 ])
-
-/*----------------
 
 ? o1.AlignedXT( :Width = :Max, :Char = "", :Direction = :Justified )
 	? o1.Aligned( :To = :Right )
@@ -18,6 +25,12 @@ o1 = new stzListOfStrings([
 	? o1.RightAligned()
 
 /*----------------
+o1 = new stzListOfStrings([
+	"How many roads must a man walk down",
+	"Before you call him a man?",
+	"How many seas must a white dove sail",
+	"Before she sleeps in the sand?"
+])
 
 ? o1.AlignedXT( :Width = :Max, :Char = "", :Direction = :Left )
 	? o1.Aligned( :To = :Left )
@@ -28,6 +41,12 @@ o1 = new stzListOfStrings([
 	? o1.LeftAligned()
 
 /*----------------
+o1 = new stzListOfStrings([
+	"How many roads must a man walk down",
+	"Before you call him a man?",
+	"How many seas must a white dove sail",
+	"Before she sleeps in the sand?"
+])
 
 ? o1.AlignedXT( :Width = :Max, :Char = "", :Direction = :Center )
 	? o1.Aligned( :To = :Center )
@@ -39,7 +58,14 @@ o1 = new stzListOfStrings([
 	? o1.Centered()
 
 /*----------------
-*/
+
+o1 = new stzListOfStrings([
+	"How many roads must a man walk down",
+	"Before you call him a man?",
+	"How many seas must a white dove sail",
+	"Before she sleeps in the sand?"
+])
+
 ? o1.JustifiedXT( :Width = 50, :Char = " " )
 #-->
 # H o w   m a n y   r o a d s   must a man walk down
@@ -868,7 +894,7 @@ o1 = new stzListOfStrings(  [ "Tunis", "gatufsa", "tunis", "gabes", "tunis", "re
 # 	╰───┴───┴───┴───┴───╯
 
 /*--------------
-*/
+
 o1 = new stzListOfStrings([ "CAIRO", "TUNIS", "PARIS" ])
 ? o1.BoxedRound()
 

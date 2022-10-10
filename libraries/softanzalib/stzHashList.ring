@@ -816,7 +816,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def FindKey(pcKey)
 		if isString(pcKey)
-			return find( Keys(), pcKey)
+			return rng_find( Keys(), pcKey)
 		ok
 
 	def HasKey(pcKey)
@@ -887,6 +887,9 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		def FindAllOccurrencesOfValue(pValue)
 			return This.FindValue(pValue)
 
+		def Find(pValue)
+			return This.FindValue(pValue)
+
 		#>
 
 	def FindNthOccurrenceOfValue(n, pValue)
@@ -899,11 +902,31 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		return This.FindValue(pValue)[n]
 
+		def FindNthValue(n, pValue)
+			return This.FindNthOccurrenceOfValue(n, pValue)
+
+		def FindNth(n, pValue)
+			return This.FindNthOccurrenceOfValue(n, pValue)
+
+
 	def FindFirstOccurrenceOfValue(pValue) 
 		return This.FindNthValue(1, pValue)
 
+		def FindFirstValue(pValue)
+			return This.FindFirstOccurrenceOfValue(pValue) 
+
+		def FindFirst(pValue)
+			return This.FindFirstOccurrenceOfValue(pValue) 
+
 	def FindLastOccurrenceOfValue(pValue)
 		return This.FindNthOccurrenceOfValue(:Last, pValue)
+
+		def FindLastValue(pValue)
+			return This.FindLastOccurrenceOfValue(pValue) 
+
+		def FindLast(pValue)
+			return This.FindLastOccurrenceOfValue(pValue) 
+
 
 	def FindKeysByValue(pValue)
 

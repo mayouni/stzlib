@@ -604,6 +604,14 @@ Class stzTable
 	#------------------------#
 
 	def ColName(n)
+		if isString(n)
+			if This.HasColName(n)
+				return n
+			else
+				stzRaise("Incorrect column name! The name you provided does not exist.")
+			ok
+		ok
+
 		if NOT isNumber(n)
 			stzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -5348,20 +5356,28 @@ Class stzTable
 
 	///////////////////////////////////////////////////////////////////
 
-	  #===================#
-	 #  REPLACING CELLS  #
-	#===================#
+	  #=================================================#
+	 #  REPLACING CELLS (PASTING NEW VALUES IN CELLS)  #
+	#=================================================#
 
 	def ReplaceCell(pCol, pnRow, pNewValue)
 		cCol = This.ColToName(pCol)
 		This.Table()[cCol][pnRow] = pNewValue
 
 	def ReplaceCells(paCellsPos, pNewValue)
+		if isList(pNewValue) and Q(pNewValue).IsByOrWithNamedParam()
+			pNewValue = pNewValue[2]
+		ok
+	
 		for i = 1 to len(paCellsPos)
 			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], pNewValue)
 		next
 
 	def ReplaceCellsByMany(paCellsPos, paNewValues)
+		if isList(paNewValues) and Q(paNewValues).IsByOrWithNamedParam()
+			paNewValues = paNewValues[2]
+		ok
+
 		nLenCells = len(paCellsPos)
 		nLenValues = len(paNewValues)
 		
@@ -5377,8 +5393,16 @@ Class stzTable
 			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], aValues[i])
 		next
 
-		def Paste(paCellsPos, paNewValues)
-			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+	def ReplaceCol(pCol, paNewCol)
+		aColCells = This.ColAsPositions(pCol)
+		This.ReplaceCellsByMany(aColCells, paNewCol)
+
+		def ReplaceColumn(pCol, paNewCol)
+			This.ReplaceCol(pCol, pNewCol)
+
+	def ReplaceRow(pnRow, paNewRow)
+		aRowCells = This.RowAsPositions(pnRow)
+		This.ReplaceCellsByMany(aRowCells, paNewRow)
 
 	def ReplaceAllCS(pValue, pNewValue, pCaseSensitive)
 		aCellsPos = This.FindAllCs(pValue, pCaseSensitive)
@@ -6077,9 +6101,9 @@ Class stzTable
 		def TheseColsNames(panColNumbers)
 			return This.TheseColNames(panColNumbers)
 
-	  #======================#
-	 #  SUBSET OF THE TABLE #
-	#======================#
+	  #=======================#
+	 #  SUBSET OF THE TABLE  #
+	#=======================#
 
 	def SubSet(panRowsNumbers)
 		return This.TheseRows(panRowsNumbers)
@@ -6178,6 +6202,168 @@ Class stzTable
 	#=====================#
 
 	def Sort(pCol)
+		This.SortInAscending(pCol)
+
+		def SortBy(pCol)
+			This.Sort(pCol)
+
+	def SortInAscending(pCol)
+		/* EXAMPLE
+		o1 = new stzTable([
+			[ :ID,	:NAME,		:AGE 	],
+			[ 10,	"Karim",	52   	],
+			[ 20,	"Hatem", 	46	],
+			[ 30,	"Abraham",	48	]
+		])
+		
+		? o1.Sort(:By = :NAME)
+		
+		#-->
+		# #	ID	NAME		AGE
+		# 1	30	Abraham		48
+		# 2	20	Hatem		46
+		# 3	10	Karim		52 
+		*/
+
+		if isList(pCol) and Q(pCol).IsByNamedParam()
+			pCol = pCol[2]
+		ok
+
+		# Let's compute a list containing these 2 infos:
+		#  - the initial orders of the cells in the column before sorting
+		#  - the final orders of the celles in the column after the sorting
+
+		aOrders = [ 1 : This.NumberOfRows(), NULL ]
+
+		aColSorted = This.ColQ(pCol).SortedInAscending()
+		aNewOrders = []
+		for cell in aColSorted
+			n = This.FindFirstInCol(pCol, cell)[2]
+			aNewOrders + n
+		next
+
+		aOrders[2] = aNewOrders
+		#--> [
+		# 	[ 1, 2, 3 ],
+		# 	[ 3, 2, 1 ]
+		# ]
+		#--> The 1st cell moved to the end, the 2nd stayed at its place, and
+		#    the third cell moved to the first position.
+
+		# Now, let's apply this movement to all the rows of the table
+
+		
+		i = 0
+		for i = 1 to This.NumberOfRows()
+			This.MoveRow(:From = aOrders[1][i], :To = aOrders[2][i])
+		next
+
+	  #----------------------------------------------#
+	 #   MOVING A ROW FROM A POSITION TO AN OTHER   #
+	#----------------------------------------------#
+
+	def MoveRow(pnFrom, pnTo)
+
+		# Checking the params correctness
+
+		if isList(pnFrom) and Q(pnFrom).IsFromNamedParam()
+			pnFrom = pnFrom[2]
+		ok
+
+		if isList(pnTo) and Q(pnTo).IsToNamedParam()
+			pnTo = pnTo[2]
+		ok
+
+		if isString(pnFrom)
+			if pnFrom = :First or pnFrom = :FirstRow
+				pnFrom = 1
+
+			but pnFrom = :Last or pnFrom = :LastRow
+				pnFrom = This.NumberOfRows()
+			ok
+		ok
+
+		if isString(pnTo)
+			if pnTo = :Last or pnTo = :LastRow
+				pnTo = This.NumberOfRows()
+
+			but pnTo = :First or pnTo = :FirstRow
+				pnTo = 1
+			ok
+		ok
+
+		if NOT BothAreNumbers(pnFrom, pnTo)
+			stzRaise("Incorrect param types! Both pnFrom and pnTo must be numbers.")
+		ok
+
+		# Doing the job
+
+		aRowCopy = This.Row(pnTo)
+		This.ReplaceRow(pnTo, This.Row(pnFrom))
+		This.ReplaceRow(pnFrom, aRowCopy)
+
+	  #-------------------------------------------------#
+	 #   MOVING A COLUMN FROM A POSITION TO AN OTHER   #
+	#-------------------------------------------------#
+
+	def MoveCol(pnFrom, pnTo)
+
+		# Checking the params correctness
+
+		if isList(pnFrom) and Q(pnFrom).IsFromNamedParam()
+			pnFrom = pnFrom[2]
+		ok
+
+		if isList(pnTo) and Q(pnTo).IsToNamedParam()
+			pnTo = pnTo[2]
+		ok
+
+		if isString(pnFrom)
+			if Q(pnFrom).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+				pnFrom = 1
+
+			but Q(pnFrom).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+				pnFrom = This.NumberOfCols()
+			ok
+		ok
+
+		if isString(pnTo)
+			if Q(pnTo).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+				pnTo = 1
+
+			but Q(pnTo).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+				pnTo = This.NumberOfCols()
+			ok
+		ok
+
+		if isString(pnFrom) and NOT This.HasColName(pnFrom)
+			stzRaise("Incorrect column name!")
+		ok
+
+		if isString(pnTo) and NOT This.HasColName(pnTo)
+			stzRaise("Incorrect column name!")
+		ok
+
+		# Doing the job
+
+		aColCopy = This.Col(pnTo)
+		This.ReplaceCol(pnTo, This.Col(pnFrom))
+		This.ReplaceCol(pnFrom, aColCopy)
+
+	def ReplaceColName(pCol, pcNewColName)
+		if isList(pcNewColName) and Q(pcNewColName).IsWithOrByNamedParam()
+			pcNewColName = pcNewColName[2]
+		ok
+
+		if NOT isString(pcNewColName)
+			stzRaise("Incorrect param type! pcNewColName must be a string.")
+		ok
+
+		n = This.ColNumber(pCol)
+		This.Table()[n][1] = pcNewColName
+
+		def ReplaceColumnName(pCol, pcNewColName)
+			This.ReplaceColName(pCol, pcNewColName)
 
 	  #=====================#
 	 #  SHOWING THE TABLE  #
@@ -6194,7 +6380,7 @@ Class stzTable
 		return cTable
 
 	def ToString()
-		return This.ToStringXT(:ReplaceEmptyCellsWith = "")
+		return This.ToStringXT([ :ReplaceEmptyCellsWith = "" ])
 
 	def MaxWidthInCol(pCol)
 		if isString(pCol)
@@ -6303,7 +6489,7 @@ Class stzTable
 		return cResult
 
 	def RowsToString()
-		return This.RowsToStringXT( :ReplaceEmptyCellsWith = "")
+		return This.RowsToStringXT([ :ReplaceEmptyCellsWith = "" ])
 
 	def RowsToStringXT(paOptions)
 
@@ -6316,7 +6502,7 @@ Class stzTable
 		return cRows
 
 	def RowToString()
-		return This.RowToStringXT( :ReplaceEmptyCellsWith = "" )
+		return This.RowToStringXT([ :ReplaceEmptyCellsWith = "" ])
 
 	def RowToStringXT(n, paOptions)
 		if NOT ( isList(paOptions) and Q(paOptions).IsHashList() )
@@ -6431,9 +6617,6 @@ Class stzTable
 			return This.TheseColsToColNames(paCols)
 
 	def ColToColNumber(p)
-		if isList(p) and Q(p).IsOneOfTheseNamedParams([ :Row, :InRow, :Rows, :InRows ])
-			p = p[2]
-		ok
 
 		if NOT IsNumberOrString(p)
 			stzRaise("Incorrect param type! p must be a number or string.")
@@ -6447,7 +6630,7 @@ Class stzTable
 				p = This.NumberOfCols()
 
 			but This.HasColName(p)
-				p = This.FindCol(p)
+				p = This.ColNamesQ().FindFirst(p)
 
 			else
 				stzRaise("Incorrect param value! p must be a number or string. Allowed strings are :First, :FirstCol, :Last, :LastCol and any valid column name.")
@@ -6465,6 +6648,9 @@ Class stzTable
 			return This.ColToColNumber(p)
 
 		def ColToNumber(p)
+			return This.ColToColNumber(p)
+
+		def ColNumber(p)
 			return This.ColToColNumber(p)
 
 	def TheseColsToColNumbers(paCols)

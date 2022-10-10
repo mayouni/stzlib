@@ -1750,7 +1750,7 @@ class stzString from stzObject
 		cResult = ""
 
 		for aLine in aMarquers
-			n = find(aLine[2], pnPosition)
+			n = rng_find(aLine[2], pnPosition)
 			if n > 0
 				cResult = aLine[1]
 				exit
@@ -2519,7 +2519,7 @@ class stzString from stzObject
 
 			c = This.NthChar(i)
 
-			if NOT find(aResult, c)
+			if NOT rng_find(aResult, c)
 				aResult + c
 			ok
 
@@ -6524,35 +6524,37 @@ class stzString from stzObject
 		def RepeatedNTimesQ(n)
 			return new stzString( This.RepeatedNTimes(n) )
 	
-	  #----------------------------------------------------#
-	 #    INSERTING A SUBSTRING BEFORE A GIVEN POSITION   #
-	#----------------------------------------------------#
+	  #-------------------------------------------------------------#
+	 #    INSERTING A SUBSTRING BEFORE OR AFTER A GIVEN POSITION   #
+	#-------------------------------------------------------------#
 
-	def InsertAt(nPos, pcSubStr)
-		# --> The char at the position nPos is destroyed and
-		#     the substring inserted starts AT that position
+	def Insert(pcSubStr, pWhere)
+		if isList(pcSubStr) and Q(pcSubStr).IsStringOrSubStringNamedParam()
+			pcSubStr = pcSubStr[2]
+		ok
 
-		This.InsertAfter(nPos, pcSubStr)
-		This.RemoveCharAt(nPos)
+		if NOT isString(pcSubStr)
+			stzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
 
+		if isList(pWhere)
+			if Q(pWhere).IsOneOfTheseNamedParams([
+				:At, :AtPosition, :Before, :BeforePosition ])
 
-		# The string has changed, check constraints...
-		//This.VerifyConstraints()
+				This.InsertBefore(pWhere[2], pcSubStr)
+				return
 
-		#< @FunctionFluentForm
-		
-		def InsertateQ(nPos, pcSubStr)
-			This.InsertAt(nPos, pcSubStr)
-			return This
+			but Q(pWhere).IsOneOfTheseNamedParams([ :After, :AfterPosition ])
 
-		#>
+				This.InsertAfter(pWhere[2], pcSubStr)
+				return
+			ok
+		else
+			This.InsertBefore(pWhere, pcSubStr)
+		ok
 
-		def InsertAtePosition(nPos, pcSubStr)
-			This.InsertAt(nPos, pcSubStr)
-
-			def InsertAtPositionQ(nPos, pcSubStr)
-				This.InsertAtPosition(nPos, pcSubStr)
-				return This
+		def InsertSubString(pcSubStr, pWhere)
+			This.Insert(pcSubStr, pWhere)
 
 	  #----------------------------------------------------#
 	 #    INSERTING A SUBSTRING BEFORE A GIVEN POSITION   #
@@ -6568,6 +6570,11 @@ class stzString from stzObject
 	*/
 	 
 	def InsertBefore(nPos, pcSubStr)
+		if isList(nPos) and Q(nPos).IsListOfNumbers()
+			This.InsertBeforeThesePositions(nPos)
+			return
+		ok
+
 		@oQString.insert(nPos-1, pcSubStr)
 
 		# The string has changed, check constraints...
@@ -6589,6 +6596,19 @@ class stzString from stzObject
 			def InsertBeforePositionQ(nPos, pcSubStr)
 				This.InsertBeforePosition(nPos, pcSubStr)
 				return This
+
+		def InsertAt(nPos, pcSubStr)
+			This.InsertBefore(nPos, pcSubStr)
+
+			def InsertAtQ(nPos, pcSubStr)
+				This.InsertAt(nPos, pcSubStr)
+
+		def InsertAtPosition(nPos, pcSubStr)
+			This.InsertBefore(nPos, pcSubStr)
+
+			def InsertAtPosiitonQ(nPos, pcSubStr)
+				This.InsertAt(nPos, pcSubStr)
+
 		#>
 
 	   #--------------------------------------------------------#
@@ -6596,26 +6616,19 @@ class stzString from stzObject
 	 #    BY A GIVEN CONDITION APPLIED ON THE STRING CHARS    #
 	#--------------------------------------------------------#
 
-	def InsertBeforeW( pcCondition, pcSubStr )
+	def InsertBeforeW(pcCondition, pcSubStr)
 		anPositions = This.FindCharsW(pcCondition)
 		This.InsertBeforeManyPositions( anPositions, pcSubStr )
 
-		def InsertBeforeWQ( pcCondition, pcSubStr )
-			This.InsertBeforeW( pcCondition, pcSubStr )
+		def InsertBeforeWQ(pcCondition, pcSubStr)
+			This.InsertBeforeW(pcCondition, pcSubStr)
 			return This
 
-		def InsertBeforeWhere( pcCondition, pcSubStr )
-			This.InsertBeforeW( pcCondition, pcSubStr )
+		def InsertAtW(pcCondition, pcSubStr)
+			This.InsertBefore(pcCondition, pcSubStr)
 
-			def InsertBeforeWhereQ( pcCondition, pcSubStr )
-				This.InsertBeforeWhere( pcCondition, pcSubStr )
-				return This
-
-		def InsertBeforeCharAtPosition(nPos, pcSubStr)
-			This.InsertBefore(nPos, pcSubStr)
-
-			def InsertBeforeCharAtPositionQ(nPos, pcSubStr)
-				This.InsertBeforeCharAtPosition(nPos, pcSubStr)
+			def InsertAtWQ(pcCondition, pcSubStr)
+				This.InsertAtW(pcCondition, pcSubStr)
 				return This
 
 	  #----------------------------------------------------#
@@ -10182,10 +10195,6 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		# NOTE: we don't include find(pcSubStr) as an alternative
-		# because we don't want to make a confusion with the native
-		# Ring function find(aList, pItem)
-
 		def FindAll(pcSubStr)
 			return This.FindAllOccurrences(pcSubStr)
 
@@ -10239,6 +10248,19 @@ class stzString from stzObject
 			
 			def FindPositionsQR(pcSubStr, pcReturnType)
 				return This.FindAllOccurrencesQR(pcSubStr, pcReturnType)
+
+		def Find(pcSubStr)
+			if isList(pcSubStr) and Q(pcSubStr).IsSubStringNamedParam()
+				pcSubStr = pcSubStr[2]
+			ok
+
+			return This.FindAllOccurrences(pcSubStr)
+
+			def FindQ(pcSubStr)
+				return This.FindQR(pcSubStr, :stzList)
+			
+			def FindQR(pcSubStr, pcReturnType)
+				return This.FindAllQR(pcSubStr, pcReturnType)
 
 		#>
 
