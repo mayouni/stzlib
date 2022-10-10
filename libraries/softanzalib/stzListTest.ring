@@ -1,5 +1,36 @@
 load "stzlib.ring"
 
+o1 = new stzString("ACD")
+o1.Insert( :SubString = "B", :AtPosition = 2) # Or you can say: o1.InsertAt(2, "B")
+? o1.Content()
+#--> "ABCD"
+
+o1 = new stzList([ "A", "C", "D" ])
+//o1.InsertAt(:Position = 2, :Item = "B")
+o1.Insert(:Item = "B", :BeforePosition = 2)		# Or you can say: o1.InsertAt(2, "B")
+? o1.Content()
+#--> [ "A", "B", "C", "D" ]
+
+o1 = new stzListOfStrings([ "A", "C", "D" ])
+o1.Insert("B", :AtPosition = 2)			# or you can say: o1.InsertAt(2, "B")
+? o1.Content()
+#--> [ "A", "B", "C", "D" ]
+
+/*--------------
+
+o1 = new stzList([ "A", "C", "D"])
+o1.Insert( "B", :At = 2 )
+? o1.Content()
+/*
+o1 = new stzList([ "C", "B", "A" ])
+o1.Move( :From = 3, :To = 1 )
+? o1.Content() #--> ["A", "C", "B"]
+
+o1 = new stzList([ "C", "B", "A" ])
+o1.Swipe( :Between = 1, :And = 3 )
+? o1.Content() #--> ["A", "B", "C"]
+
+
 /*---------------
 
 o1 = new stzList([ "ONE", "TWO", "THREE" ])
@@ -8,7 +39,6 @@ o1 - "TWO"
 #--> [ "ONE", "THREE" ])
 
 /*---------------
-*/
 
 ? Q([ "I", "B", "M" ]).HasSameContent( :As = [ "B", "M", "I" ] )
 ? Q([ "I", "B", "M" ]).HasSameContentCS( :As = [ "b", "m", "i" ], :CS = FALSE )
@@ -1706,6 +1736,13 @@ o1 = new stzString("abcde")
 
 /*================
 
+o1 = new stzList([ "*", "a", "*", "b", "C", "D", "*", "e" ])
+? o1.Find("*") 		#--> [1, 3, 7]
+? o1.FindItem("*")	#--> [1, 3, 7]
+? o1.Find(:Item = "*")	#--> [1, 3, 7]
+
+/*================
+
 o1 = new stzList([ "a", "b", "a", "a", "c", "d", "a" ])
 o1.RemoveOccurrences([ 4, 1, 3 ], "a")
 ? o1.Content()
@@ -1719,10 +1756,9 @@ o1 = new stzList([ "a", "b", "C", "D", "e" ])
 
 /*---------------
 
-
 o1 = new stzList([ "a", "b", "C", "D", "e" ])
 
-o1.InsertAfterWhere( '{ StzStringQ(@item).IsLowercase() }', "*" )
+o1.InsertAfterW( '{ StzStringQ(@item).IsLowercase() }', "*" )
 ? o1.Content()
 
 # Returns [ "a", "*", "b", "*", "C", "D", "e" ]
@@ -1730,7 +1766,7 @@ o1.InsertAfterWhere( '{ StzStringQ(@item).IsLowercase() }', "*" )
 /*----------------
 
 o1 = new stzList([ "a", "b", "C", "D", "e" ])
-o1.InsertBeforeWhere( '{ StzStringQ(@item).IsLowercase() }', "*" )
+o1.InsertBeforeW( '{ StzStringQ(@item).IsLowercase() }', "*" )
 ? o1.Content()
 
 # Returns [ "*", "a", "*", "b", "C", "D", "*", "e" ]

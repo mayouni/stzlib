@@ -89,6 +89,20 @@ func stzRaise(paMessage)
 		raise("Error in stzRaise > Incorrect param type!")
 	ok
 
+#-----
+
+# Wrappers to a ring functions, that I use inside a softanza class
+# where the same name is used (example: insert() inside stzString)
+# --> This will allow me to &void conflicts!
+
+func rng_insert(paList, n, pItem)
+	insert(paList, n, pItem)
+
+func rng_find(paList, pItem)
+	return find(paList, pItem)
+
+#-----
+
 func IsNumberOrString(p)
 	if isNumber(p) or isString(p)
 		return TRUE

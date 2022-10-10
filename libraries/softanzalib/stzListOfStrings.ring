@@ -1035,6 +1035,43 @@ class stzListOfStrings from stzList
 			def PrependEachQ(pcSubStr)
 				This.AppendEach(pcSubStr)
 				return This
+
+	  #-------------------------------------------------------#
+	 #  INSERTING A STRING BEFORE OR AFTER A GIVEN POSITION  #
+	#-------------------------------------------------------#
+
+	def Insert(pcStr, pWhere)
+		/*
+		o1 = new stzListOfStrings([ "A", "C", "D" ])
+		o1.Insert("B", :At = 2)		# or you can say: o1.InsertAt(2, "B")
+		? o1.Content()
+		#--> [ "A", "B", "C", "D" ]
+		*/
+
+		if isList(pcStr) and Q(pcStr).IsStringNamedParam()
+			pcStr = pcStr[2]
+		ok
+
+		if NOT isString(pcStr)
+			stzSrring("Incorrect param type! pcStr must be a string.")
+		ok
+
+		if isList(pWhere)
+			if Q(pWhere).IsOneOfTheseNamedParams([
+				:Before, :BeforePosition, :At, :AtPosition ])
+
+				This.InsertBefore(pWhere[2], pcStr)
+
+			but Q(pWhere).IsOneTheseNamedParams([ :After, :AfterPosition ])
+
+				This.InsertAfter(pWhere[2], pcStr)
+
+			else
+				stzRaise("Incorrect param format! Allowerd forms are :At = ..., :Before = ..., and :After = ...")
+			ok
+		else
+			This.InsertBefore(pWhere, pcStr)
+		ok
 		
 	  #---------------------------------------------------#
 	 #    INSERTING A STRING BEFORE A GIVEN POSITION     #
@@ -1114,11 +1151,11 @@ class stzListOfStrings from stzList
 				This.InsertStringItemBefore(n, pcStr)
 				return This
 
-		def Insert(n, pcStr)
+		def InsertAt(n, pcStr)
 			This.InsertBefore(n, pcStr)
 
-			def InsertQ(n, pcStr)
-				This.Insert(n, pcStr)
+			def InsertAtQ(n, pcStr)
+				This.InsertAt(n, pcStr)
 				return This
 
 	  #--------------------------------------------------#
@@ -1195,73 +1232,6 @@ class stzListOfStrings from stzList
 
 			def InsertStringItemAfterQ(n, pcStr)
 				This.InsertStringItemAfter(n, pcStr)
-				return This
-
-	  #-----------------------------------------------#
-	 #    INSERTING A STRING AT A GIVEN POSITION     #
-	#-----------------------------------------------#
-
-	def InsertAt(n, pcStr)
-		# Removes the current string at position n
-		# and then inserts pcStr before the next one
-
-		/* EXAMPLE
-
-		o1 = new stzListOfStrings([ "ONE", "TWO", 3, "FOUR", "FIVE" ])
-		o1.InsertAt(3, "THREE")
-		? o1.Content()	     #--> [ "ONE", "TWO", "THREE", "FOUR", "FIVE" ]
-		
-		*/
-
-		This.RemoveAt(n)
-
-		if n = This.NumberOfStrings() + 1
-			This.AddString(pcStr)
-		else
-			This.InsertAfter(n-1, pcStr)
-		ok
-
-		#--
-
-		def InsertAtQ(n, pcStr)
-			This.InsertAt(n, pcStr)
-			return This
-
-		#--
-
-		def InsertAtPosition(n, pcStr)
-			This.InsertAt(n, pcStr)
-
-			def InsertAtPositionQ(n, pcStr)
-				This.InsertAtPosition(n, pcStr)
-				return This
-
-		def InsertStringAtPosition(n, pcStr)
-			This.InsertAt(n, pcStr)
-
-			def InsertStringAtPositionQ(n, pcStr)
-				This.InsertStringAtPosition(n, pcStr)
-				return This
-
-		def InsertStringItemAtPosition(n, pcStr)
-			This.InsertAt(n, pcStr)
-
-			def InsertStringItemAtPositionQ(n, pcStr)
-				This.InsertStringItemAtPosition(n, pcStr)
-				return This
-
-		def InsertStringAt(n, pcStr)
-			This.InsertAt(n, pcStr)
-
-			def InsertStringAtQ(n, pcStr)
-				This.InsertStringAt(n, pcStr)
-				return This
-
-		def InsertStringItemAt(n, pcStr)
-			This.InsertAt(n, pcStr)
-
-			def InsertStringItemAtQ(n, pcStr)
-				This.InsertStringItemAt(n, pcStr)
 				return This
 		
 	  #------------------------------------------------------------------------#
@@ -1500,40 +1470,33 @@ class stzListOfStrings from stzList
 		# Checking params correctness
 
 		if isList(n1) and
-			( Q(n1).IsFromNamedParam() or Q(n1).IsAtNamedParam()  or
-			Q(n1).IsFromPositionNamedParam() or Q(n1).IsAtPositionNamedParam() )
+		   Q(n1).IsOneOfTheseNamedParams([
+			:From, :FromPosition, :At, :APosition
+		   ])
 
 			n1 = n1[2]
 		ok
 
-		if isList(n2) and ( Q(n2).IsToNamedParam() or Q(n2).IsToPositionNamedParam() )
+		if isList(n2) and
+		   Q(n2).IsOneOfTheseNamedParams([ :To, :ToPosition ])
+
 			n2 = n2[2]
 		ok
 
-		if isString(n1) and ( Q(n1).IsOneOfThese([
-						:First, :FirstPosition,
-				      		:FirstString, :FirstStringItem ])
-				    )
+		if isString(n1) and
+		   Q(n1).IsOneOfThese([ :First, :FirstPosition, :FirstString, :FirstStringItem ])
+				    
 			n1 = 1
 		ok
 
-		if isString(n2) and ( Q(n2).IsOneOfThese([
-						:Last, :LastPosition,
-				      		:LastString, :LastStringItem ])
-				    )
+		if isString(n2) and
+		   Q(n1).IsOneOfThese([ :Last, :LastPosition, :LastString, :LastStringItem ])
 
 			n2 = This.NumberOfStrings()
 		ok
 
 		if NOT BothAreNumbers(n1, n2)
 			stzRaise("Incorrect param type! n1 and n2 must be numbers.")
-		ok
-
-		if NOT  ( StzNumberQ(n1).IsBetween(1, This.NumberOfStrings()) and
-			StzNumberQ(n2).IsBetween(1, This.NumberOfStrings())
-		        )
-
-			stzRaise("Out of range!")
 		ok
 
 		# Doing the job (Qt-side)
@@ -1564,12 +1527,16 @@ class stzListOfStrings from stzList
 				This.MoveStringItem(n1, n2)
 				return This
 
-		def MoveStringAtPositionNTo(n1, n2)
-			This.Move(n1, n2)
+		def Swipe(n1, n2)
+			if isList(n1) and Q(n1).IsBetweenNamedParam()
+				n1 = n1[2]
+			ok
 
-			def MoveStringAtPositionNToQ(n1, n2)
-				This.MoveStringAtPositionNTo(n1, n2)
-				return This
+			if isList(n2) and Q(n2).IsAndNamedParam()
+				n2 = n2[2]
+			ok
+
+			This.Move(n1, n2)
 
 		#>
 
@@ -1954,25 +1921,42 @@ class stzListOfStrings from stzList
 			aResult + This.StringAtQ(i).StringWithWordsSortedInDescending()
 		next
 
-	  #=================================================#
-	 #     FINDING A STRING IN THE LIST OF STRINGS     #
-	#=================================================#
+	  #==============================================================#
+	 #     FINDING A STRING OR SUBSTRING IN THE LIST OF STRINGS     #
+	#==============================================================#
 
-	/* TODO
-		Add these functions in stzListOfStrings and stzString
+	def FindCS(pWhat, pCaseSensitive)
+		/* EXAMPLE
+		o1 = new stsListOfStrings([ "*", "A*B*C", "*" ])
+		? o1.Find( :String = "*" )
+		#--> [1, 3]
 
-		FindPositions() #done
-		FindStartPositions()
-		FindEndPositions()
+		? o1.Find( :SubString = "*" )
+		#--> [ [1, [1]], [2, [2, 4]], [2, [1]] ]
+		*/
 
-		PositionsOf() #done
-		StartPositionsOf()
-		EndPositionsOf()
+		if isList(pWhat)
+			if Q(pWhat).IsStringOrStringItemNamedParam()
+				return This.FindStringCS(pWhat[2], pCaseSensitive)
 
-		FindSections() #done
-		SectionsOf()
-	
-	*/
+			but Q(pWhat).IsSubStringNamedParam()
+				return This.FindSubStringCS(pWhat[2], pCaseSensitive)
+
+			else
+				stzRaise("Incorrect param! Allowed values are :String = ... or :SubString = ...")
+			ok
+		else
+			return This.FindStringCS(pWhat, pCaseSensitive)
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Find(pWhat)
+		return This.FindCS(pWhat, :CaseSensitive = TRUE)
+
+	  #-------------------------------------------------------------------#
+	 #  FINDING ALL OCCURRENCES OF A STRING-ITEM IN THE LIST OF STRINGS  #
+	#-------------------------------------------------------------------#
 
 	def FindAllCS(pcStrItem, pCaseSensitive)
 
@@ -2036,15 +2020,6 @@ class stzListOfStrings from stzList
 				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
 
 			def FindStringCSQR(pcStrItem, pCaseSensitive, pcReturnType)
-				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
-
-		def FindCS(pcStrItem, pCaseSensitive)
-			return This.FindAllCS(pcStrItem, pCaseSensitive)
-
-			def FindCSQ(pcStrItem, pCaseSensitive)
-				return This.FindAllCSQ(pcStrItem, pCaseSensitive)
-
-			def FindCSQR(pcStrItem, pCaseSensitive, pcReturnType)
 				return This.FindAllCSQR(pcStrItem, pCaseSensitive, pcReturnType)
 
 		def FindAllOccurrencesOfStringItemCS(pcStrItem, pCaseSensitive)

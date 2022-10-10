@@ -44,6 +44,20 @@ o1.Simplify()
 #--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
 
 /*=================
+*/
+o1 = new stzString("*AB*")
+
+? @@S( o1.Find("*") )	#--> [1, 4]
+
+# Or you can say:
+? @@S( o1.Find( :SubString = "*" ) )	#--> [1, 4]
+
+# Or also:
+? @@S( o1.FindSubString( "*" ) )	#--> [1, 4]
+
+# And many other alternatives that you can discover in the fucntion code
+
+/*-----------------
 
 ? Q("NEXTAV TUNISIA").Section(:From = 1, :To = 6)
 #--> "NEXTAV"
@@ -57,7 +71,6 @@ o1.Simplify()
 #--> "A"
 
 /*-----------------
-*/
 
 ? Q("SOFTANZA").Section(1, 4)
 #--> "SOFT"
