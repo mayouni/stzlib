@@ -44,7 +44,34 @@ o1.Simplify()
 #--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
 
 /*=================
+
+o1 = new stzString("ACB")
+o1.Move( :CharFromPosition = 3, :To = 2 )
+? o1.Content() #--> "ABC"
+
+o1.Swap( :Positions = 2, :And = 3 )
+? o1.Content() #--> "ACB"
+
+/*------------------
+
+o1 = new stzListOfStrings([ "A", "C", "B" ])
+o1.Move( :StringFromPosition = 3, :To = 2 )
+? o1.Content() #--> "ABC"
+
+o1.Swap( :Positions = 2, :And = 3 )
+? o1.Content() #--> "ACB"
+
+/*------------------
 */
+o1 = new stzList([ "A", "C", "B" ])
+o1.Move( :ItemFromPosition = 3, :To = 2 )
+? o1.Content() #--> "ABC"
+
+o1.Swap( :Positions = 2, :And = 3 )
+? o1.Content() #--> "ACB"
+
+/*=================
+
 o1 = new stzString("*AB*")
 
 ? @@S( o1.Find("*") )	#--> [1, 4]

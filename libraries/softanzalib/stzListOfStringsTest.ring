@@ -1,5 +1,23 @@
 load "stzlib.ring"
 
+/*-----------------
+
+
+o1 = new stzListOfStrings([ "C", "B", "A" ])
+o1.Move( :StringAtPosition = 3, :ToPosition = 1 )
+? o1.Content() #--> [ "A", "C", "B" ]
+
+o1.Move( :StringAtPosition = 2, :ToPosition = 3 )
+? o1.Content() #--> [ "A", "B", "C" ]
+
+/*-----------------
+*/
+o1 = new stzListOfStrings([ "C", "B", "A" ])
+o1.Swap(:BetweenString = 1, :And = 3)
+? o1.Content() #--> [ "A", "B", "C" ]
+
+/*-----------------
+
 o1 = new stzListOfStrings([ "*", "A*B*C", "*" ])
 
 ? @@S( o1.Find( :String = "*" ) ) + NL

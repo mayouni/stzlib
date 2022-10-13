@@ -6570,9 +6570,17 @@ class stzString from stzObject
 	*/
 	 
 	def InsertBefore(nPos, pcSubStr)
+		if isList(nPos) and Q(nPos).IsPositionNamedParam()
+			nPos = nPos[2]
+		ok
+
 		if isList(nPos) and Q(nPos).IsListOfNumbers()
-			This.InsertBeforeThesePositions(nPos)
+			This.InsertBeforeThesePositions(nPos, pcSubStr)
 			return
+		ok
+
+		if isList(pcSubStr) and Q(pcSubStr).IsStringOrSubStringNamedParam()
+			pcSubStr = pcSubStr[2]
 		ok
 
 		@oQString.insert(nPos-1, pcSubStr)
@@ -6802,6 +6810,10 @@ class stzString from stzObject
 		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
 
 			stzRaise("Incorrect param! panPositions must be a list of numbers.")
+		ok
+
+		if isList(pcSubStr) and Q(pcSubStr).IsStringOrSubStringNamedParam()
+			pcSubStr = pcSubStr[2]
 		ok
 
 		anPositions = StzListOfNumbersQ(panPositions).SubstractFromEachQ(1).Content()
@@ -8995,6 +9007,13 @@ class stzString from stzObject
 
 	def AddSubString(pcSubStr)
 		This.Update( :With = This.Content() + pcSubStr )
+
+	def AddChar(c)
+		if isString(c) and Q(c).IsChar()
+			This.AddSubString(c)
+		else
+			stzRaise("Incorrect param type! c must be a char.")
+		ok
 
 	// Updates the string with a new text
 	def Update(pcNewText)
@@ -12824,13 +12843,6 @@ class stzString from stzObject
 				This.RemoveSubStringAt(n, pcSubStr)
 				return This
 
-		def RemoveAt(n, pcSubStr)
-			This.RemoveSubStringAtPosition(n, pcSubStr)
-
-			def RemoveAtQ(n, pcSubStr)
-				This.RemoveAt(n, pcSubStr)
-				return This
-
 	  #----------------------------------------------------------#
 	 #   REMOVING A SUBSTRING AT A GIVEN POSITION -- EXTENDED   #
 	#----------------------------------------------------------#
@@ -14648,6 +14660,17 @@ class stzString from stzObject
 
 		def RemoveNthChar(n)
 			This.RemoveCharAtPosition(n)
+
+			def RemoveNthCharQ(n)
+				This.RemoveNthChar(n)
+				return This
+
+		def RemoveAt(n)
+			This.RemoveCharAtPosition(n)
+
+			def RemoveAtQ(n)
+				This.RemoveAt(n)
+				return This
 
 	def CharAtPositionNRemoved(n)
 		return This.Copy().RemoveCharAtPositionQ(n).Content()
@@ -20180,29 +20203,150 @@ class stzString from stzObject
 		def IsOneOf(paList)
 			return This.ExistsInList(paList)
 
-	  #------------------------------#
-	 #     SWAPPING & REVERSING     #
-	#------------------------------#
-	
-	def SwapWith(pOtherStzStr)
-		if IsStzString(pOtherStzStr)
-			oTemp = This
-			This.Update( pOtherStzStr.Content() )
-			pOtherStzStr = oTemp
+	  #---------------------------------------------#
+	 #  MOVING CHAR AT POSITION N1 TO POSITION N2  #
+	#---------------------------------------------#
 
-		else
-			stzRaise(stzStringError(:CanNotSwapWithNonStzStringObject))
+	def Move(n1, n2)
+
+		# Checking params correctness
+
+		if isList(n1) and
+		   Q(n1).IsOneOfTheseNamedParams([
+			:From, :FromPosition,
+			:At, :AtPosition,
+			:CharAt, :CharAtPosition,
+			:FromCharAt, :FromCharAtPosition,
+			:CharFrom, :CharFromPosition
+		   ])
+
+			n1 = n1[2]
 		ok
 
-		#< @FunctionFluentForm
+		if isList(n2) and
+		   Q(n2).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToCharAt, :ToCharAtPosition ])
 
-		def SwapWithQ(pOtherStzStr)
-			This.SwapWith(pOtherStzStr)
-			return This
+			n2 = n2[2]
+		ok
+
+		if isString(n1) and
+		   Q(n1).IsOneOfThese([ :First, :FirstPosition, :FirstChar ])
+				    
+			n1 = 1
+		ok
+
+		if isString(n2) and
+		   Q(n1).IsOneOfThese([ :Last, :LastPosition, :LastChar ])
+
+			n2 = This.NumberOfItems()
+		ok
+
+		if NOT BothAreNumbers(n1, n2)
+			stzRaise("Incorrect param type! n1 and n2 must be numbers.")
+		ok
+
+		# Doing the job
+		
+		if n1 > n2
+		# . . . 2 . . 1 . .
+		#       ^     |
+		#       |_____|
+
+			cTempChar = This[n1]
+			This.RemoveCharAtPosition(n1)
+			This.InsertBefore(n2, cTempChar)
+
+		but n1 < n2
+		# . . . 1 . . 2 . .
+		#       |     ^
+		#       |_____|
+
+			cTempChar = This[n1]
+
+			if n2 = This.NumberOfItems()
+				This.AddChar(cTempChar)
+			else
+				This.InSertAfter(n2, cTempChar)
+			ok
+
+			This.RemoveCharAt(n1)
+		ok
+
+		#< @FunctionAlternativeForm
+
+		def MoveChar(n1, n2)
+			This.Move(n1, n2)
 
 		#>
+
+	  #-----------------------------------------#
+	 #  SWAPPING CHARS AT TWO GIVEN POSITIONS  #
+	#-----------------------------------------#
+
+	def Swap(n1, n2)
+		if isList(n1) and
+		   Q(n1).IsOneOfTheseNamedPArams([
+			:Between, :BetweenPosition, :BetweenPositions,
+			:BetweenChar, :BetweenChars,
+			:BetweenCharAt, :BetweenCharAtPosition, :BetweenCharAtPositions,
+			:Position, :Positions, :CharAt, :CharAtPosition, :CharAtPositions,
+			:CharsAt, :CharsAtPosition, :CharAtPositions
+		   ])
+
+			n1 = n1[2]
+		ok
+
+		if isList(n2) and
+		   Q(n2).IsOneOfTheseNamedPArams([
+			:And, :AndPosition, :AndCharAt, :AndCharAtPosition, :AndChar ])
+
+			n2 = n2[2]
+		ok
+
+		copy = This[n2]
+		This.ReplaceCharAtPosition(n2, :By = This[n1])
+		This.ReplaceCharAtPosition(n1, :By = copy)
+
+		#< @FunctionAlternativeForms
+
+		def SwapBetween(n1, n2)
+			This.Swap(n1, n2)
+
+		def SwapBetweenPositions(n1, n2)
+			This.Swap(n1, n2)
+
+		def SwapItems(n1, n2)
+			if isList(n1) and
+			   Q(n1).IsOneOfTheseNamedParams([ :At, :AtPosition, :AtPositions ])
+				n1 = n1[2]
+			ok
 	
-	// Reverses the string
+			if isList(n2) and
+			   Q(n2).IsOneOfTheseNamedParams([ :And, :AndPosition ])
+				n2 = n2[2]
+			ok
+	
+			This.Swap(n1, n2)
+
+		def SwapChar(n1, n2)
+			if isList(n1) and
+			   Q(n1).IsOneOfTheseNamedParams([ :At, :AtPosition ])
+				n1 = n1[2]
+			ok
+	
+			if isList(n2) and
+			   Q(n2).IsOneOfTheseNamedParams([
+				:And, :AndPosition, :AndCharAt, :AndCharAtPosition ])
+
+				n2 = n2[2]
+			ok
+	
+			This.Swap(n1, n2)
+		#>
+
+	  #----------------------------------#
+	 #   REVERSING THE ORDER OF CHARS   #
+	#----------------------------------#
 
 	def ReverseChars()
 		cResult = ""
@@ -20219,6 +20363,17 @@ class stzString from stzObject
 			This.ReverseChars()
 			return This
 	
+		#>
+
+
+		#< @FunctionAlternativeForm
+
+		def Reverse()
+			This.Reversechars()
+
+			def ReverseQ()
+				This.Reverse()
+
 		#>
 
 	def StringWithCharsReversed()
