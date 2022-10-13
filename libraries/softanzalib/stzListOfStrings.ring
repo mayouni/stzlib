@@ -1381,86 +1381,6 @@ class stzListOfStrings from stzList
 		def ListOfStringsReversed()
 			return This.StringItemsReversed()
 
-	  #-----------------------------------------------------#
-	 #     SWAPPING TWO STRINGS AT TWO GIVEN POSITIONS     #
-	#-----------------------------------------------------#
-
-	def SwapBetween(n1, n2)
-
-		/* EXAMPLE
-
-		o1 = stzListOfStrings([ "A1", "A2", "A3", "A4", "A5" ])
-		o1.SwapBetween(2, 4)
-		? o1.Content() #--> [ "A1", "A4", "A3", "A2", "A5" ]
-
-		*/
-		
-		if isString(n1)
-			if n1 = :First or n1 = :FirstPosition or
-			   n1 = :FirstString or n1 = :FirstStringItem
-
-				n1 = 1
-
-			but n1 = :Last or n1 = :LastPosition or
-			    n1 = :LastString or n1 = :LastStringItem
-
-				n1 = This.NumberOfStringItems()
-			ok
-
-		ok
-
-		if NOT isNumber(n1)
-			stzRaise("Incorrect param type! n1 must be a number.")
-		ok
-
-		if isString(n2)
-			if n2 = :First or n2 = :FirstPosition or
-			   n2 = :FirstString or n2 = :FirstStringItem
-
-				n2 = 1
-
-			but n2 = :Last or n2 = :LastPosition or
-			    n2 = :LastString or n2 = :LastStringItem
-
-				n2 = This.NumberOfStringItems()
-			ok
-		ok
-
-		if NOT isNumber(n2)
-			stzRaise("Incorrect param type! n2 must be a number.")
-		ok
-
-		This.MoveString( :AtPosition = n1, :ToPosition = n2)
-		#--> [ "A1", "A3", "A4", "A2", "A5" ]
-
-		This.MoveString( :AtPosition = n2 - 1, :ToPosition = n1 )
-		#--> [ "A1", "A4", "A3", "A2", "A5" ]
-
-		def SwapBetweenQ(n1, n2)
-			This.SwapBetween(n1, n2)
-			return This
-	
-		def SwapBetweenPositions(n1, n2)
-			This.SwapBetween(n1, n2)
-
-			def SwapBetweenPositionsQ(n1, n2)
-				This.SwapBetween(n1, n2)
-				return This
-
-		def SwapStringsBetweenPositions(n1, n2)
-			This.SwapBetween(n1, n2)
-
-			def SwapStringsBetweenPositionsQ(n1, n2)
-				This.SwapBetween(n1, n2)
-				return This
-
-		def SwapStringItemsBetweenPositions(n1, n2)
-			This.SwapBetween(n1, n2)
-
-			def SwapStringItemsBetweenPositionsQ(n1, n2)
-				This.SwapBetween(n1, n2)
-				return This
-
 	  #------------------------------------------------------------------#
 	 #     MOVING A STRING AT A GIVEN POSITION TO AN OTHER POSITION     #
 	#------------------------------------------------------------------#
@@ -1471,14 +1391,28 @@ class stzListOfStrings from stzList
 
 		if isList(n1) and
 		   Q(n1).IsOneOfTheseNamedParams([
-			:From, :FromPosition, :At, :APosition
+			:From, :FromPosition,
+			:At, :AtPosition,
+
+			:StringAt, :StringAtPosition,
+			:FromStringAt, :FromStringAtPosition,
+			:StringFrom, :StringFromPosition,
+
+			:StringItemAt, :StringItemAtPosition,
+			:FromStringItemAt, :FromStringItemAtPosition,
+			:StringItemFrom, :StringItemFromPosition
+
 		   ])
 
 			n1 = n1[2]
 		ok
 
 		if isList(n2) and
-		   Q(n2).IsOneOfTheseNamedParams([ :To, :ToPosition ])
+		   Q(n2).IsOneOfTheseNamedParams([
+			:To, :ToPosition,
+			:ToStringAt, :ToStringAtPosition,
+			:ToStringItemAt, :ToStringItemPosition
+			])
 
 			n2 = n2[2]
 		ok
@@ -1527,17 +1461,81 @@ class stzListOfStrings from stzList
 				This.MoveStringItem(n1, n2)
 				return This
 
-		def Swipe(n1, n2)
-			if isList(n1) and Q(n1).IsBetweenNamedParam()
+		#>
+
+	  #-------------------------------------------------#
+	 #   SWAPPING TWO STRINGS IN THE LSIT OF STRINGS   #
+	#-------------------------------------------------#
+
+	def Swap(n1, n2)
+		if isList(n1) and
+		   Q(n1).IsOneOfTheseNamedParams([
+			:Between, :BetweenPosition, :BetweenPositions,
+			:BetweenStringAt, :BetweenStringAtPosition, :BetweenStringAtPositions,
+			:BetweenStringItemAt, :BetweenStringItemAtPosition, :BetweenStringItemAtPositions,
+			:BetweenString, :BetweenStringItem, :BetweenStrings, :BetweenStringItems,
+			:Position, :Positions, :StringAt, :StringAtPosition, :StringAtPositions,
+			:StringItemAt, :StringItemAtPosition, :StringItemAtPositions,
+			:StringsAt, :StringsAtPosition, :StringsAtPositions,
+			:StringItemsAt, :StringItemsAtPosition, :StringItemsAtPositions
+		   ])
+
+			n1 = n1[2]
+		ok
+
+		if isList(n2) and
+		   Q(n2).IsOneOfTheseNamedPArams([
+			:And, :AndPosition, :AndStringAt, :AndStringAtPosition,
+			:AndStringItemAt, :AndStringItemAtPosition, :AndString, :AndStringItem ])
+
+			n2 = n2[2]
+		ok
+
+		copy = This[n2]
+		This.ReplaceStringAtPosition(n2, :By = This[n1])
+		This.ReplaceStringAtPosition(n1, :By = copy)
+
+		#< @FunctionAlternativeForms
+
+		def SwapBetween(n1, n2)
+			This.Swap(n1, n2)
+
+		def SwapBetweenPositions(n1, n2)
+			This.Swap(n1, n2)
+
+		def SwapStrings(n1, n2)
+			if isList(n1) and
+			   Q(n1).IsOneOfTheseNamedParams([ :At, :AtPosition, :AtPositions ])
 				n1 = n1[2]
 			ok
-
-			if isList(n2) and Q(n2).IsAndNamedParam()
+	
+			if isList(n2) and
+			   Q(n2).IsOneOfTheseNamedParams([ :And, :AndPosition ])
 				n2 = n2[2]
 			ok
+	
+			This.Swap(n1, n2)
 
-			This.Move(n1, n2)
+			def SwapStringItems(n1, n2)
+				return This.SwapStrings(n1, n2)
 
+		def SwapString(n1, n2)
+			if isList(n1) and
+			   Q(n1).IsOneOfTheseNamedParams([ :At, :AtPosition ])
+				n1 = n1[2]
+			ok
+	
+			if isList(n2) and
+			   Q(n2).IsOneOfTheseNamedParams([
+				:And, :AndPosition, :AndStringAt, :AndStringAtPosition ])
+
+				n2 = n2[2]
+			ok
+	
+			This.Swap(n1, n2)
+
+			def SwapStringItem(n1, n2)
+				This.SwapString(n1, n2)
 		#>
 
 	  #----------------------------#

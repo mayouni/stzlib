@@ -1,15 +1,40 @@
 load "stzlib.ring"
 
+/*================
+
+# to get the background of this sample, read this:
+# https://groups.google.com/g/ring-lang/c/_33L7miE3QM
+
+# First way: Substring first
 o1 = new stzString("ACD")
-o1.Insert( :SubString = "B", :AtPosition = 2) # Or you can say: o1.InsertAt(2, "B")
-? o1.Content()
-#--> "ABCD"
+o1.Insert("B", :AtPosition = 2)
+? o1.Content() #--> "ABCD"
+
+# Second way: Position first
+o1 = new stzString("ACD")
+o1.InsertAt( :Position = 2, :SubString = "B")
+? o1.Content() #--> "ABCD"
+
+# Short forms:
+o1.Insert("B", 2)
+o1.InsertAt(2, "B")
+
+# TODO: add ( :Position = ... and :SubString = ... ) everywhere!
+
+/*--------------
+
+# Same example above in stzList
 
 o1 = new stzList([ "A", "C", "D" ])
-//o1.InsertAt(:Position = 2, :Item = "B")
-o1.Insert(:Item = "B", :BeforePosition = 2)		# Or you can say: o1.InsertAt(2, "B")
+o1.InsertAt(:Position = 2, :Item = "B")
+//o1.Insert(:Item = "B", :BeforePosition = 2) # or for short: o1.Insert("B", 2)
+
 ? o1.Content()
 #--> [ "A", "B", "C", "D" ]
+
+/*--------------
+
+# Same example above in stzListOfStrings
 
 o1 = new stzListOfStrings([ "A", "C", "D" ])
 o1.Insert("B", :AtPosition = 2)			# or you can say: o1.InsertAt(2, "B")
@@ -18,18 +43,55 @@ o1.Insert("B", :AtPosition = 2)			# or you can say: o1.InsertAt(2, "B")
 
 /*--------------
 
-o1 = new stzList([ "A", "C", "D"])
-o1.Insert( "B", :At = 2 )
-? o1.Content()
-/*
+o1 = new stzList([ "A1", "A2", "A3" ])
+o1.InsertAfter( :ItemAtPosition = 3, "A4" )
+? o1.Content() #--> [ "A1", "A2", "A3" ]
+
+/*================ MOVING AND SWAPPING
+*/
 o1 = new stzList([ "C", "B", "A" ])
 o1.Move( :From = 3, :To = 1 )
-? o1.Content() #--> ["A", "C", "B"]
+? o1.Content() #--> [ "A", "C", "B" ]
 
+o1.Move( :ItemAt = 2, :To = 3 )
+? o1.Content() #--> [ "A", "B", "C" ]
+
+/*--------------- Writablilty VS Readablility VS Both of them!
+
+# Softanza coding style is designed with a double promise in mind:
+#  - Your code is WRITABLE, hence easy to you while your are crafting it
+#  - As well as READBALE, hence easy to your reader to understand it without a hassele!
+
+# I'll explain this in action.
+
+# Let's have a list, and then take two items inorder to swap them:
 o1 = new stzList([ "C", "B", "A" ])
-o1.Swipe( :Between = 1, :And = 3 )
+
+# You can quickly write:
+o1.Swap(1, 3)
 ? o1.Content() #--> ["A", "B", "C"]
 
+/*
+And you are done! Which means litterally: "swap items at positions 1 and 3".
+
+The point is that Softanza talks in near natural language tongue,
+and the sentence above can be written as-is in plain Ring code:
+*/
+
+o1.SwapItems( :AtPositions = 1, :And = 3)
+# It's What You Think Is What You Get.
+? o1.Content() #--> [ "C", "B", "A" ]
+# Let's recapitulate:
+
+# WRITABILITY: you quickly write a function, always in a short form,
+# without complications, because you need to be focused on how to solve
+# the case in hand and not in beautifying your code with any syntactic sugar!
+
+# READBILITY : Others, or yourself in the future, can read the function
+# and understand the intent of its writer without referring
+# to any external documentation).
+
+# And in Softanza, you have them both...
 
 /*---------------
 
