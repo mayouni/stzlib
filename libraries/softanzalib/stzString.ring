@@ -20215,7 +20215,7 @@ class stzString from stzObject
 		   Q(n1).IsOneOfTheseNamedParams([
 			:From, :FromPosition,
 			:At, :AtPosition,
-			:CharAt, :CharAtPosition,
+			:Char, :CharAt, :CharAtPosition,
 			:FromCharAt, :FromCharAtPosition,
 			:CharFrom, :CharFromPosition
 		   ])
@@ -20224,7 +20224,9 @@ class stzString from stzObject
 		ok
 
 		if isList(n2) and
-		   Q(n2).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToCharAt, :ToCharAtPosition ])
+		   Q(n2).IsOneOfTheseNamedParams([
+				:To, :ToChar, :ToPosition, :ToPositionOfChar,
+				:ToCharAt, :ToCharAtPosition ])
 
 			n2 = n2[2]
 		ok

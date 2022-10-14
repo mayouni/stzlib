@@ -1393,7 +1393,7 @@ class stzListOfStrings from stzList
 		   Q(n1).IsOneOfTheseNamedParams([
 			:From, :FromPosition,
 			:At, :AtPosition,
-
+			:String, :StringItem,
 			:StringAt, :StringAtPosition,
 			:FromStringAt, :FromStringAtPosition,
 			:StringFrom, :StringFromPosition,
@@ -1409,9 +1409,9 @@ class stzListOfStrings from stzList
 
 		if isList(n2) and
 		   Q(n2).IsOneOfTheseNamedParams([
-			:To, :ToPosition,
-			:ToStringAt, :ToStringAtPosition,
-			:ToStringItemAt, :ToStringItemPosition
+			:To, :ToPosition, :ToPositionOfString, :ToPositionOfStringItem,
+			:ToString, :ToStringAt, :ToStringAtPosition,
+			:ToStringItem, :ToStringItemAt, :ToStringItemPosition
 			])
 
 			n2 = n2[2]

@@ -907,7 +907,7 @@ class stzList from stzObject
 		   Q(n1).IsOneOfTheseNamedParams([
 			:From, :FromPosition,
 			:At, :AtPosition,
-			:ItemAt, :ItemAtPosition,
+			:Item, :ItemAt, :ItemAtPosition,
 			:FromItemAt, :FromItemAtPosition,
 			:ItemFrom, :ItemFromPosition
 		   ])
@@ -917,7 +917,8 @@ class stzList from stzObject
 
 		if isList(n2) and
 		   Q(n2).IsOneOfTheseNamedParams([
-			:To, :ToPosition, :ToItemAt, :ToItemAtPosition ])
+			:To, :ToPosition, :ToItem, :ToItemAt,
+			:ToItemAtPosition, :ToPositionOfItem ])
 
 			n2 = n2[2]
 		ok
@@ -983,7 +984,7 @@ class stzList from stzObject
 			:BetweenItem, :BetweenItems,
 			:BetweenItemAt, :BetweenItemAtPosition, :BetweenItemAtPositions,
 			:Position, :Positions, :ItemAt, :ItemAtPosition, :ItemAtPositions,
-			:ItemsAt, :ItemsAtPosition, :ItemsAtPositions
+			:Items, :ItemsAt, :ItemsAtPosition, :ItemsAtPositions
 		   ])
 
 			n1 = n1[2]
@@ -14466,9 +14467,6 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def IsFromPositionNamedParam()
-			return This.IsFromNamedParam()
-
 	def IsValueNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Value )
@@ -14509,18 +14507,121 @@ class stzList from stzObject
 		def IsSubStringOrStringONamedParam()
 			return This.IsStringOrSubStringNamedParam()
 
+	#--
+
 	def IsToNamedParam()
 		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :To )
 
-		   ( isString(This[1]) and  (This[1] = :To or This[1] = :ToPosition) )
 			return TRUE
 
 		else
 			return FALSE
 		ok
 
-		def IsToPositionNamedParam()
-			return This.IsToNamedParam()
+	def IsToPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ToPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToPositionOfItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ToPositionOfItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToPositionOfStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ToPositionOfString )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToPositionOfStringItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ToPositionOfStringItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToPositionOfCharNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ToPositionOfChar )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsFromPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :FromPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromPositionOfItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :FromPositionOfItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromPositionOfStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :FromPositionOfString )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromPositionOfStringItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :FromPositionOfStringItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromPositionOfCharNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :FromPositionOfChar )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
 
 	def IsOfNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -14607,6 +14708,46 @@ class stzList from stzObject
 	def IsAndNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :And )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndString )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndStringItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndStringItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndCharNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndChar )
 
 			return TRUE
 
@@ -15156,6 +15297,16 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Items )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :ItemAt )
@@ -15166,9 +15317,39 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsItemsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Items )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsItemAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :ItemAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsItemsAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ItemsAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStringsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Strings )
 
 			return TRUE
 
@@ -15208,6 +15389,16 @@ class stzList from stzObject
 
 	def IsItemAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ItemAtPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsItemsAtPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :ItemsAtPositions )
 
 			return TRUE
@@ -15229,6 +15420,16 @@ class stzList from stzObject
 	def IsCharAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :CharAtPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsCharsAtPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :CharsAtPositions )
 
 			return TRUE
 
@@ -15266,9 +15467,29 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsSubStringsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :SubStringsAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsSubStringAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :SubStringAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsSubStringsAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :SubStringsAtPosition )
 
 			return TRUE
 
@@ -16117,11 +16338,10 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-
-	def IsStringsAtNamedParam()
+	def IsCharsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringsAt )
+		   ( isString(This[1]) and  This[1] = :Chars )
 
 			return TRUE
 

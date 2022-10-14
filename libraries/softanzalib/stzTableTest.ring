@@ -136,6 +136,7 @@ o1 = new stzTable([
 ])
 
 o1.MoveCol( :ID, :To = 3 )
+o1.ReplaceColName( :NAME, :FRIEND )
 o1.Show()
 
 /*==============
