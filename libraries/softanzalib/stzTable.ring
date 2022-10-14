@@ -6344,11 +6344,13 @@ Class stzTable
 			stzRaise("Incorrect column name!")
 		ok
 
+		pnFrom = This.ColToNumber(pnFrom)
+		pnTo = This.ColToNumber(pnTo)
 		# Doing the job
 
-		aColCopy = This.Col(pnTo)
-		This.ReplaceCol(pnTo, This.Col(pnFrom))
-		This.ReplaceCol(pnFrom, aColCopy)
+		aCopy = @aTable[pnTo]
+		@aTable[pnTo] = @aTable[pnFrom]
+		@aTable[pnFrom] = aCopy
 
 	def ReplaceColName(pCol, pcNewColName)
 		if isList(pcNewColName) and Q(pcNewColName).IsWithOrByNamedParam()
@@ -6360,7 +6362,7 @@ Class stzTable
 		ok
 
 		n = This.ColNumber(pCol)
-		This.Table()[n][1] = pcNewColName
+		@aTable[n][1] = pcNewColName
 
 		def ReplaceColumnName(pCol, pcNewColName)
 			This.ReplaceColName(pCol, pcNewColName)

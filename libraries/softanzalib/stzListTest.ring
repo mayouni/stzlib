@@ -53,7 +53,7 @@ o1 = new stzList([ "C", "B", "A" ])
 o1.Move( :From = 3, :To = 1 )
 ? o1.Content() #--> [ "A", "C", "B" ]
 
-o1.Move( :ItemAt = 2, :To = 3 )
+o1.Swap( :Items = 2, :AndItem = 3 )
 ? o1.Content() #--> [ "A", "B", "C" ]
 
 /*--------------- Writablilty VS Readablility VS Both of them!
@@ -71,12 +71,10 @@ o1 = new stzList([ "C", "B", "A" ])
 o1.Swap(1, 3)
 ? o1.Content() #--> ["A", "B", "C"]
 
-/*
-And you are done! Which means litterally: "swap items at positions 1 and 3".
+# And you are done! Which means litterally: "swap items at positions 1 and 3".
 
-The point is that Softanza talks in near natural language tongue,
-and the sentence above can be written as-is in plain Ring code:
-*/
+# The point is that Softanza talks in near natural language tongue,
+# and the sentence above can be written as-is in plain Ring code:
 
 o1.SwapItems( :AtPositions = 1, :And = 3)
 # It's What You Think Is What You Get.
