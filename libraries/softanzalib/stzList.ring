@@ -14765,6 +14765,16 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsAndPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsAndItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :AndItemAt )
@@ -15526,6 +15536,222 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	#--
+
+	def IsBetweenRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenRow )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBetweenRowAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenRowAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBetweenRowAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenRowAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBetweenRowsAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenRowsAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBetweenRowsAtPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenRowsAtPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBetweenRowsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenRows )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBetweenRowsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenRowsAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsBetweenColNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenCol )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsBetweenColumnNamedParam()
+			if This.NumberOfItems() = 2 and
+			   ( isString(This[1]) and  This[1] = :BetweenColumn )
+	
+				return TRUE
+	
+			else
+				return FALSE
+			ok
+
+	def IsBetweenColAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenColAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsBetweenColumnAtNamedParam()
+			if This.NumberOfItems() = 2 and
+			   ( isString(This[1]) and  This[1] = :BetweenColumnAt )
+	
+				return TRUE
+	
+			else
+				return FALSE
+			ok
+
+	def IsBetweenColAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenColAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsBetweenColumnAtPositionNamedParam()
+			if This.NumberOfItems() = 2 and
+			   ( isString(This[1]) and  This[1] = :BetweenColumnAtPosition )
+	
+				return TRUE
+	
+			else
+				return FALSE
+			ok
+	
+	def IsBetweenColsAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenColsAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsBetweenColumnsAtPositionNamedParam()
+			if This.NumberOfItems() = 2 and
+			   ( isString(This[1]) and  This[1] = :BetweenColumnsAtPosition )
+	
+				return TRUE
+	
+			else
+				return FALSE
+			ok
+
+	def IsBetweenColsAtPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenColsAtPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsBetweenColumnsAtPositionsNamedParam()
+			if This.NumberOfItems() = 2 and
+			   ( isString(This[1]) and  This[1] = :BetweenColumnsAtPositions )
+	
+				return TRUE
+	
+			else
+				return FALSE
+			ok
+
+	def IsBetweenColsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenCols )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsBetweenColumnsNamedParam()
+			if This.NumberOfItems() = 2 and
+			   ( isString(This[1]) and  This[1] = :BetweenColumns )
+	
+				return TRUE
+	
+			else
+				return FALSE
+			ok
+
+	def IsBetweenColsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenColsAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsBetweenColumnsAtNamedParam()
+			if This.NumberOfItems() = 2 and
+			   ( isString(This[1]) and  This[1] = :BetweenColumnsAt )
+	
+				return TRUE
+	
+			else
+				return FALSE
+			ok
+
+	#--
 
 	def IsFromPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -16911,8 +17137,6 @@ class stzList from stzObject
 			return new stzList( This.DataTypes() )
 
 		#>
-
-		
 
 	def UniqueTypes()
 		aResult = []
