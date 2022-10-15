@@ -109,7 +109,7 @@ o1 = new stzTable([
 
 ? o1.ColNumber(22)	#--> ERROR: Incorrect value! n must be a number between 1 and 3.
 
-/*--------------
+/*==============
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -127,6 +127,37 @@ o1.Show() + NL
 # 3   10     Karim    52
 
 /*--------------
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+o1.MoveCol( :ID, :ToPosition = 3 )
+# or alternatively: o1.MoveCol( :FromPosition = 1, :To = 3 )
+#-->
+# #   AGE      NAME   ID
+# 1    52     Karim   10
+# 2    46     Hatem   20
+# 3    48   Abraham   30
+
+o1.Show()
+
+/*--------------
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+o1.AddCol( :AGE = [ 1, 2, 3 ] )
+#--> ERROR: Can't add the column! The name your provided already exists.
+
+/*--------------
 */
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -135,9 +166,25 @@ o1 = new stzTable([
 	[ 30,	"Abraham",	48	]
 ])
 
-o1.MoveCol( :ID, :To = 3 )
-o1.ReplaceColName( :NAME, :FRIEND )
+o1.SwapColums( :AGE, :And = :NAME )
 o1.Show()
+#-->
+# #   ID   AGE      NAME
+# 1   10    52     Karim
+# 2   20    46     Hatem
+# 3   30    48   Abraham
+
+/*--------------
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+o1.ReplaceColName( :NAME, :FRIEND )
+? o1.ColName(2) #--> :FRIEND
 
 /*==============
 
