@@ -29,7 +29,7 @@ Class stzTable
 		# Way 2: new stzTable([3, 4])
 		# --> Creates a tale of 3 columns and 4 rows, all cells are empty
 
-		# Both ways (1 and 3) are made bu the following code:
+		# Both ways (1 and 3) are made by the following code:
 		if len(paTable) = 0 or Q(paTable).IsPairOfNumbers()
 			
 			nCols = 1
@@ -52,20 +52,7 @@ Class stzTable
 			return
 		ok
 
-		# WAY 3: The table is created using a hashlist
-		#--> [
-		# 	:COL1 = [ ..., ..., ... ] ],
-		# 	:COL2 = [ ..., ..., ... ] ],
-		# 	:COL3 = [ ..., ..., ... ] ]
-		#    ]
-/*
-		if Q(paTable).IsHashList() and
-			 StzHashListQ(paTable).ValuesAreListsOfSameSize()
-				@aTable = paTable
-				return
-		ok
-*/
-		# Way 4 (the more natural way) The table is described in a
+		# Way 3 (the more natural way) The table is described in a
 		# a list of lists that mimics the realworld presentation
 		# of a table (first line represents colums, and the other
 		# lines represent rows):
@@ -102,7 +89,7 @@ Class stzTable
 
 			return
 		ok
-? @@S( @aTable )
+
 		stzRaise("Incorrect param format!")
 
 	def Content()
@@ -110,6 +97,9 @@ Class stzTable
 
 		def Table()
 			return This.Content()
+
+		def TableQ()
+			return new stzList( This.Table() )
 
 	def IsEmpty()
 		if This.CellsQ().AllItemsAreNull()
@@ -5394,6 +5384,19 @@ Class stzTable
 		next
 
 	def ReplaceCol(pCol, paNewCol)
+		if isList(paNewCol) and Q(paNewCol).IsWithOrByNamedParam()
+			paNewCol = paNewCol[2]
+		ok
+
+		if isString(paNewCol)
+			This.ReplaceColName(pCol, paNewCol)
+			return
+		ok
+
+		if NOT isList(paNewCol)
+			stzRaise("Incorrect param type! paNewCol must be a list.")
+		ok
+
 		aColCells = This.ColAsPositions(pCol)
 		This.ReplaceCellsByMany(aColCells, paNewCol)
 
@@ -6312,6 +6315,45 @@ Class stzTable
 		This.ReplaceRow(pnTo, This.Row(pnFrom))
 		This.ReplaceRow(pnFrom, aRowCopy)
 
+	  #-----------------------#
+	 #   SWAPPING TWO ROWS   #
+	#-----------------------#
+
+	def SwapRows(pnRow1, pnRow2)
+
+		if isList(pnRow1) and
+			( Q(pnRow1).IsAndNamedParam() or
+			  Q(pnRow1).IsAndPositionNamedParam() or
+			  Q(pnRow1).IsAndRowNamedParam() or
+			  Q(pnRow1).IsAndRowAtNamedParam() or
+			  Q(pnRow1).IsAndRowAtPositionNamedParam() or
+			  Q(pnRow1).IsBetweenNamedParam() or
+			  Q(pnRow1).IsBetweenRowNamedParam() or
+			  Q(pnRow1).IsBetweenRowAtNamedParam() or
+			  Q(pnRow1).IsBetweenRowAtPositionNamedParam() or
+			  Q(pnRow1).IsBetweenPositionNamedParam() or
+			  Q(pnRow1).IsBetweenPositionsNamedParam()
+			)
+
+			pnRow1 = pnRow1[2]
+		ok
+
+		if isList(pnRow2) and
+			( Q(pnRow2).IsAndNamedParam() or
+			  Q(pnRow2).IsAndRowNamedParam() or
+			  Q(pnRow2).IsAndRowAtNamedParam() or
+			  Q(pnRow2).IsAndRowAtPositionNamedParam()
+			)
+
+			pnRow2 = pnRow2[2]
+		ok
+
+		if AreBothNumbers(pnRow1, pnRow2)
+			aCopyOfRow1 = This.Row(pnRow1)
+			This.ReplaceRow(pnRow1, This.Row(pnRow2))
+			This.ReplaceRow(pnRow2, aCopyOfRow1)
+		ok
+
 	  #-------------------------------------------------#
 	 #   MOVING A COLUMN FROM A POSITION TO AN OTHER   #
 	#-------------------------------------------------#
@@ -6371,6 +6413,13 @@ Class stzTable
 			@aTable[pnFrom] = aCopy
 		ok
 
+		#< @FunctionAlternativeForm
+
+		def MoveColumn(pnFrom, pnTo)
+			This.MoveCol(pnFrom, pnTo)
+
+		#>
+
 	  #-----------------------------#
 	 #   REPLACING A COLUMN NAME   #
 	#-----------------------------#
@@ -6391,8 +6440,12 @@ Class stzTable
 		n = This.ColNumber(pCol)
 		@aTable[n][1] = pcNewColName
 
+		#< @FunctionAlternativeForm
+
 		def ReplaceColumnName(pCol, pcNewColName)
 			This.ReplaceColName(pCol, pcNewColName)
+
+		#>
 
 	  #--------------------------#
 	 #   SWAPPING TWO COLUMNS   #
@@ -6412,6 +6465,13 @@ Class stzTable
 
 		return bResult
 
+		#< @FunctionAlternativeForm
+
+		def IsColumnName(pcName)
+			return This.IsColName(pcName)
+
+		#>
+
 	def AreColNames(pacColNames)
 		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
 			stzRaise("Incorrect param type! pacColNames must be a list of strings.")
@@ -6427,6 +6487,16 @@ Class stzTable
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForm
+
+		def AreColumnNames(pacColNames)
+			This.AreColNames(pacColNames)
+
+		def AreColumnsNames(pacColNames)
+			This.AreColNames(pacColNames)
+
+		#>
 		
 	def SwapColNames(pcCol1, pcCol2)
 		if NOT 	( BothAreStrings(pcCol1, pcCol2) and
@@ -6444,6 +6514,16 @@ Class stzTable
 
 		@aTable[nCol1][1] = pcName2
 		@aTable[nCol2][1] = pcName1
+
+		#< @FunctionAlternativeForm
+
+		def SwapColumnNames(pcCol1, pcCol2)
+			This.SwapColNames(pcCol1, pcCol2)
+
+		def SwapColumnsNames(pcCol1, pcCol2)
+			This.SwapColNames(pcCol1, pcCol2)
+
+		#>
 
 	def SwapCol(pCol1, pCol2)
 		if isList(pCol1) and
@@ -6482,6 +6562,19 @@ Class stzTable
 		def SwapColums(pCol1, pCol2)
 			This.SwapCol(pCol1, pCol2)
 		
+		#< @FunctionAlternativeForm
+
+		def SwapColum(pCol1, pCol2)
+			This.SwapCol(pCol1, pCol2)
+
+		def SwapCols(pcCol1, pcCol2)
+			This.SwapCol(pcCol1, pcCol2)
+
+		def SwapColumns(pcCol1, pcCol2)
+			This.SwapCol(pcCol1, pcCol2)
+
+		#>
+
 	  #=====================#
 	 #  SHOWING THE TABLE  #
 	#=====================#

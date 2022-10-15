@@ -119,7 +119,7 @@ o1 = new stzTable([
 ])
 
 o1.MoveRow( :From = 3, :To = 1 )
-o1.Show() + NL
+o1.Show()
 #-->
 # #   ID      NAME   AGE
 # 1   30   Abraham    48
@@ -127,6 +127,23 @@ o1.Show() + NL
 # 3   10     Karim    52
 
 /*--------------
+*/
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+o1.SwapRows( :BetweenPositions = 2, :And = 3 )
+o1.Show()
+#-->
+# #   ID      NAME   AGE
+# 1   10     Karim    52
+# 2   30   Abraham    48
+# 3   20     Hatem    46
+
+/*==============
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -158,7 +175,7 @@ o1.AddCol( :AGE = [ 1, 2, 3 ] )
 #--> ERROR: Can't add the column! The name your provided already exists.
 
 /*--------------
-*/
+
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
 	[ 10,	"Karim",	52   	],
@@ -185,6 +202,39 @@ o1 = new stzTable([
 
 o1.ReplaceColName( :NAME, :FRIEND )
 ? o1.ColName(2) #--> :FRIEND
+
+/*===============
+
+# Softanza is so flexible! Let's see it in action, for example,
+# in using ReplaceCol(). So, you have a table like this:
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+# And you want to replace the coluim :AGE and make them all young:
+o1.ReplaceCol( :AGE, :By = [ 22, 20, 21 ] )
+# The column is changed:
+? o1.Col(:AGE) #--> [ 22, 20, 21 ]
+
+# Now, if you want to change just the name of the column, then
+# pass the name as a second param, like this:
+o1.ReplaceCol( :AGE, :By = :LENGTH )
+# then the name is changed:
+? o1.ColName(3) #--> :LENGTH
+
+# Of course, you could use this specific function:
+o1.ReplaceColName( :LENGTH, :BY = :AGE )
+? o1.ColName(3) #--> AGE
+
+# But I wanted to highlight here, is the flexibility of Softanza
+# to cope with the programmer intent, in context, without forcing
+# him to change his mind and starting thinkin of an other fucton!
+
+# Hope you got it ;)
 
 /*==============
 
