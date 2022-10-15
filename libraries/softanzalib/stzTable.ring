@@ -5449,6 +5449,10 @@ Class stzTable
 			stzRaise("Incorrect column format! paColNameAndData must take the form :ColName = [ cell1, cell2, ... ].")
 		ok
 
+		if This.IsColName(paColNameAndData[1])
+			stzRaise("Can't add the column! The name your provided already exists.")
+		ok
+
 		if NOT len(paColNameAndData[2]) = This.NumberOfRows()
 			stzRaise("Incorrect number of cells! paColNameAndData must contain extactly " + This.NumberOfRows() + " cells.")
 		ok
@@ -6266,11 +6270,17 @@ Class stzTable
 
 		# Checking the params correctness
 
-		if isList(pnFrom) and Q(pnFrom).IsFromNamedParam()
+		if isList(pnFrom) and
+			( Q(pnFrom).IsFromNamedParam()  or
+			  Q(pnFrom).IsFromPositionNamedParam() )
+
 			pnFrom = pnFrom[2]
 		ok
 
-		if isList(pnTo) and Q(pnTo).IsToNamedParam()
+		if isList(pnTo) and
+			( Q(pnTo).IsToNamedParam()  or
+			  Q(pnTo).IsToPositionNamedParam() )
+
 			pnTo = pnTo[2]
 		ok
 
@@ -6310,11 +6320,17 @@ Class stzTable
 
 		# Checking the params correctness
 
-		if isList(pnFrom) and Q(pnFrom).IsFromNamedParam()
+		if isList(pnFrom) and
+			 ( Q(pnFrom).IsFromNamedParam()  or
+			   Q(pnFrom).IsFromPositionNamedParam() )
+
 			pnFrom = pnFrom[2]
 		ok
 
-		if isList(pnTo) and Q(pnTo).IsToNamedParam()
+		if isList(pnTo) and
+			( Q(pnTo).IsToNamedParam()  or
+			  Q(pnTo).IsToPositionNamedParam() )
+
 			pnTo = pnTo[2]
 		ok
 
@@ -6346,11 +6362,18 @@ Class stzTable
 
 		pnFrom = This.ColToNumber(pnFrom)
 		pnTo = This.ColToNumber(pnTo)
+
 		# Doing the job
 
-		aCopy = @aTable[pnTo]
-		@aTable[pnTo] = @aTable[pnFrom]
-		@aTable[pnFrom] = aCopy
+		if pnFrom != pnTo
+			aCopy = @aTable[pnTo]
+			@aTable[pnTo] = @aTable[pnFrom]
+			@aTable[pnFrom] = aCopy
+		ok
+
+	  #-----------------------------#
+	 #   REPLACING A COLUMN NAME   #
+	#-----------------------------#
 
 	def ReplaceColName(pCol, pcNewColName)
 		if isList(pcNewColName) and Q(pcNewColName).IsWithOrByNamedParam()
@@ -6361,12 +6384,104 @@ Class stzTable
 			stzRaise("Incorrect param type! pcNewColName must be a string.")
 		ok
 
+		if This.IsColName(pcNewColName)
+			stzRaise("Can't replace the column with this name (" + pcNewColName + ")! Name you provided already exists.")
+		ok
+
 		n = This.ColNumber(pCol)
 		@aTable[n][1] = pcNewColName
 
 		def ReplaceColumnName(pCol, pcNewColName)
 			This.ReplaceColName(pCol, pcNewColName)
 
+	  #--------------------------#
+	 #   SWAPPING TWO COLUMNS   #
+	#--------------------------#
+
+	def IsColName(pcName)
+		if NOT isString(pcName)
+			stzRaise("Incorrect param type! pcName must be a string.")
+		ok
+
+		cName = Q(pcName).Lowercased()
+
+		bResult = FALSE
+		if This.ColumnsQ().Contains(pcName)
+			bResult = TRUE
+		ok
+
+		return bResult
+
+	def AreColNames(pacColNames)
+		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+			stzRaise("Incorrect param type! pacColNames must be a list of strings.")
+		ok
+
+		bResult = TRUE
+
+		for cName in pacColNames
+			if NOT This.IsColName(cName)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+		
+	def SwapColNames(pcCol1, pcCol2)
+		if NOT 	( BothAreStrings(pcCol1, pcCol2) and
+			  This.AreColNames([ pcCol1, pcCol2 ])
+			)
+
+			stzRaise("Incorrect params! pcCol1 and pcCol2 must be valid column names.")
+		ok
+
+		pcName1 = This.ColName(pcCol1)
+		pcName2 = This.ColName(pcCol2)
+
+		nCol1 = This.ColNumber(pcCol1)
+		nCol2 = This.ColNumber(pcCol2)
+
+		@aTable[nCol1][1] = pcName2
+		@aTable[nCol2][1] = pcName1
+
+	def SwapCol(pCol1, pCol2)
+		if isList(pCol1) and
+			( Q(pCol1).IsAtNamedParam() or
+			  Q(pCol1).IsAtPositionNamedParam() or
+			  Q(pCol).IsNamedNamedParam() )
+			  # NOTE: I don't use IsOneOfTheseNamedParams() here
+			  # to gain some performance by discarding eval()
+
+			pCol1 = pCol1[2]
+		ok
+
+		if isList(pCol2) and
+			( Q(pCol2).IsAndNamedParam() or
+			  Q(pCol2).IsAndColNamedParam() or
+			  Q(pCol2).IsAndColumnNamedParam() or
+			  Q(pCol2).IsAndColAtNamedParam() or
+			  Q(pCol2).IsAndColumnAtNamedParam() or
+			  Q(pCol2).IsAndColAtPositionNamedParam() or
+			  Q(pCol2).IsAndColumnAtPositionNamedParam() or
+			  Q(pCol2).IsAndColNamedNamedParam() or
+			  Q(pCol2).IsAndColumnNamedNamedParam()
+			   )
+
+			pCol2 = pCol2[2]
+		ok
+
+		if This.ColNumber(pCol1) != This.ColNumber(pCol2)
+			aCopyOfCol1 = This.Col(pCol1)
+			This.ReplaceCol(pCol1, This.Col(pCol2) )
+			This.ReplaceCol(pCol2, aCopyOfCol1)
+	
+			This.SwapColNames(pCol1, pCol2)
+		ok
+
+		def SwapColums(pCol1, pCol2)
+			This.SwapCol(pCol1, pCol2)
+		
 	  #=====================#
 	 #  SHOWING THE TABLE  #
 	#=====================#

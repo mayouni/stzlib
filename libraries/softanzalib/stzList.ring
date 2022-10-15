@@ -16670,6 +16670,210 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	#--
+
+	def IsAndColNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndCol )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndColumnNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndColumn )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndColAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndColat )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndColumnAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndColumnAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndColAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndColAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndColumnAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndColumnAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndColNamedNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndColNamed )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndColumnNamedNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndColumnNamed )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsColsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Cols )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsColumnsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Columns )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsColsAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ColsAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsColumnsAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ColumnsAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsColsAtPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ColsAtPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsColumnsAtPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ColumnsAtPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAndRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndRow )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndRowAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndRowAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndRowAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndRowAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsRowsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :RowsAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsRowsAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :RowsAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsRowsAtPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :RowsAtPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	  #================================#
 	 #     GETTING TYPES OF ITEMS     #
 	#================================#
