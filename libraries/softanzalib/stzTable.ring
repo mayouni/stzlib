@@ -6298,9 +6298,9 @@ Class stzTable
 	def SortInDescending(pCol)
 		This.SortXT(pCol, :InDescending)
 
-	  #----------------------------------------------#
+	  #==============================================#
 	 #   MOVING A ROW FROM A POSITION TO AN OTHER   #
-	#----------------------------------------------#
+	#==============================================#
 
 	def MoveRow(pnFrom, pnTo)
 
@@ -6453,33 +6453,6 @@ Class stzTable
 
 		#>
 
-	  #-----------------------------#
-	 #   REPLACING A COLUMN NAME   #
-	#-----------------------------#
-
-	def ReplaceColName(pCol, pcNewColName)
-		if isList(pcNewColName) and Q(pcNewColName).IsWithOrByNamedParam()
-			pcNewColName = pcNewColName[2]
-		ok
-
-		if NOT isString(pcNewColName)
-			stzRaise("Incorrect param type! pcNewColName must be a string.")
-		ok
-
-		if This.IsColName(pcNewColName)
-			stzRaise("Can't replace the column with this name (" + pcNewColName + ")! Name you provided already exists.")
-		ok
-
-		n = This.ColNumber(pCol)
-		@aTable[n][1] = pcNewColName
-
-		#< @FunctionAlternativeForm
-
-		def ReplaceColumnName(pCol, pcNewColName)
-			This.ReplaceColName(pCol, pcNewColName)
-
-		#>
-
 	  #--------------------------#
 	 #   SWAPPING TWO COLUMNS   #
 	#--------------------------#
@@ -6502,32 +6475,6 @@ Class stzTable
 
 		def IsColumnName(pcName)
 			return This.IsColName(pcName)
-
-		#>
-
-	def AreColNames(pacColNames)
-		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
-			stzRaise("Incorrect param type! pacColNames must be a list of strings.")
-		ok
-
-		bResult = TRUE
-
-		for cName in pacColNames
-			if NOT This.IsColName(cName)
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForm
-
-		def AreColumnNames(pacColNames)
-			This.AreColNames(pacColNames)
-
-		def AreColumnsNames(pacColNames)
-			This.AreColNames(pacColNames)
 
 		#>
 		
@@ -6628,6 +6575,59 @@ Class stzTable
 
 		def SwapColumns(pcCol1, pcCol2)
 			This.SwapCol(pcCol1, pcCol2)
+
+		#>
+
+	  #=============================#
+	 #   REPLACING A COLUMN NAME   #
+	#=============================#
+
+	def ReplaceColName(pCol, pcNewColName)
+		if isList(pcNewColName) and Q(pcNewColName).IsWithOrByNamedParam()
+			pcNewColName = pcNewColName[2]
+		ok
+
+		if NOT isString(pcNewColName)
+			stzRaise("Incorrect param type! pcNewColName must be a string.")
+		ok
+
+		if This.IsColName(pcNewColName)
+			stzRaise("Can't replace the column with this name (" + pcNewColName + ")! Name you provided already exists.")
+		ok
+
+		n = This.ColNumber(pCol)
+		@aTable[n][1] = pcNewColName
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceColumnName(pCol, pcNewColName)
+			This.ReplaceColName(pCol, pcNewColName)
+
+		#>
+
+	def AreColNames(pacColNames)
+		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+			stzRaise("Incorrect param type! pacColNames must be a list of strings.")
+		ok
+
+		bResult = TRUE
+
+		for cName in pacColNames
+			if NOT This.IsColName(cName)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForm
+
+		def AreColumnNames(pacColNames)
+			This.AreColNames(pacColNames)
+
+		def AreColumnsNames(pacColNames)
+			This.AreColNames(pacColNames)
 
 		#>
 

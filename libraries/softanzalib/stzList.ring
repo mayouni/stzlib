@@ -2700,6 +2700,10 @@ class stzList from stzObject
 		
 		*/
 
+		if isList(pByValue) and Q(pByValue).IsByOrWithNamedParam()
+			pByValue = pByValue[2]
+		ok
+
 		cValue = @@(pItem)
 		cByValue = @@(pByValue)
 
@@ -10740,6 +10744,10 @@ class stzList from stzObject
 			#>
 		#>
 		
+	  #--------------------------------#
+	 #  FINDING AN ITEM AT ANY LEVEL  #
+	#--------------------------------#
+
 	  #=======================================================#
 	 #    VISUALLY FINDING ALL OCCURRENCES OF A GIVEN ITEM   #
 	#=======================================================#
