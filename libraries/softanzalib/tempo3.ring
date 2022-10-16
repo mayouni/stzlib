@@ -14,28 +14,49 @@ load "stzlib.ring"
 
 STOP()
 
-/*=========
+/*========= Replace and DeepReplace
+*/
+o1 = new stzList([
+	"me",
+	"other",
+	[ "other", "me", [ "me" ], "other" ],
+	"other",
+	"me"
+])
+
+o1.Replace("me", :By = "you")
+? @@S( o1.Content() ) + NL
+#--> [
+#	"you",
+#	"other",
+#	[ "other", "me", [ "me" ], "other" ],
+#	"other",
+#	"you"
+#    ]
+
+/*------------
 
 o1 = new stzList([
 	"me",
 	"other",
 	[ "other", "me", [ "me" ], "other" ],
-	"other"
+	"other",
+	"me"
 ])
 
 o1.DeepReplace("me", :By = "you")
-? @@( o1.Content() )
+? @@S( o1.Content() )
 #--> [
 #	"you",
 #	"other",
-#	[ "other", "me", [ "you" ], "other" ],
+#	[ "other", "you", [ "you" ], "other" ],
 #	"other"
 #    ]
 
 STOP()
 
 /*=========
-
+*/
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 ? o1.NumberOfSectionsBetween("word", "<<", ">>") #--> 3
 
@@ -776,9 +797,9 @@ o1 = new stzList([ "__", "ring", "__", "ring", "__", "ring" ])
 ? o1.FindTheseOccurrences([2, 3], :Of = "ring") #--> [ 4, 6 ]
 
 /*----------
-*/
+
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
-? o1.FindNthOccurrence(3, "ring")
+? o1.FindNthOccurrence(3, "ring") #--> 5
 
 /*----------
 
