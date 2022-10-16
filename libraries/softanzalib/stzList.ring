@@ -15033,6 +15033,28 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsNamedNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Named ) and
+		   isString(This[2])
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsNamedAsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :NamedAs ) and
+		   isString(This[2])
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsRaiseNamedParam()
 		if This.NumberOfItems() <= 4 and
 		   This.IsHashList() and
@@ -17099,6 +17121,39 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	#--
+
+	def IsThisNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :This )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndThisNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndThis )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndThatNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :AndThat )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 
 	  #================================#
 	 #     GETTING TYPES OF ITEMS     #

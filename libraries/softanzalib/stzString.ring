@@ -22605,6 +22605,25 @@ class stzString from stzObject
 		return aResult
 
 	def IsListOfCharsInComputableForm()
-
 		// TODO
 
+	def IsEitherCS(pcStr1, pcStr2, pCaseSensitive)
+		if isList(pcStr1) and Q(pcStr1).IsThisNamedParam()
+			pcStr1 = pcStr1[2]
+		ok
+
+		if isList(pcStr1) and
+			Q(pcStr1).IsOneOfTheseNamedParams([ :And, :AndThat, :AndThis ])
+
+			pcStr2 = pcStr2[2]
+		ok
+
+		bResult = FALSE
+
+		if This.IsEqualToCS(pcStr1, pCaseSensitive) or
+		   This.IsEqualToCS(pcStr2, pCaseSensitive)
+
+			bResult = TRUE
+		ok
+
+		return bResult
