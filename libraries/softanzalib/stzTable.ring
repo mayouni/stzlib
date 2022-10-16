@@ -6214,6 +6214,67 @@ Class stzTable
 		def SortBy(pCol)
 			This.Sort(pCol)
 
+	def SortXT(pCol, pcDirection)
+		if isList(pCol) and Q(pCol).IsByNamedParam()
+			pCol = pCol[2]
+		ok
+
+		if NOT ( isNumber(pCol) or isString(pCol) )
+			stzRaise("Incorrect param type! pCol must be a number or string.")
+		ok
+
+		if isNumber(pCol) and NOT ( Q(pCol).IsBetween(1, This.NumberOfCol()) )
+			stzRaise("Incorrect param value! pCol must be a number between 1 and " + This.NumberOfCol() + ".")
+
+		but isString(pCol) and NOT This.HasColName(pCol)
+			stzRaise("Incorrect param value! pCol must be a valid column name.")
+		ok
+
+		if isList(pcDirection) and Q(pcdirection).IsInNamedParam()
+			pcDirection = pcDirection[2]
+		ok
+
+		if NOT ( isString(pcDirection) and
+			 Q(pcDirection).IsOneOfThese([ :Ascending, :Descending, :InAscending, :InDescending ]) )
+
+			stzRaise("Incorrect param! pcDirection must be :In = :Ascending or :In = :Descending.")
+		ok
+
+		# Let's compute a list containing these 2 infos:
+		#  - the initial orders of the cells in the column before sorting
+		#  - the final orders of the celles in the column after the sorting
+
+		aColSorted = []
+		if pcDirection = :Ascending or pcDirection = :InAscending
+			aColSorted = This.ColQ(pCol).SortedInAscending()
+
+		but pcDirection = :Descending or pcDirection = :InDescending
+			aColSorted = This.ColQ(pCol).SortedInDescending()
+		ok
+
+		if isList(pCol) and Q(pCol).IsByNamedParam()
+			pCol = pCol[2]
+		ok
+
+		aNewOrders = []
+		for cell in aColSorted
+			n = This.FindFirstInCol(pCol, cell)[2]
+			aNewOrders + n
+		next
+
+		#--> [ 3, 2, 1 ]
+
+		aSortedTable = []
+		for i = 1 to len(aNewOrders)
+			aSortedTable + This.Row(aNewOrders[i])
+		next
+
+		i = 0
+		for aRow in aSortedTable
+			i++
+			This.ReplaceRow(i, aRow)
+		next
+
 	def SortInAscending(pCol)
 		/* EXAMPLE
 		o1 = new stzTable([
@@ -6232,38 +6293,10 @@ Class stzTable
 		# 3	10	Karim		52 
 		*/
 
-		if isList(pCol) and Q(pCol).IsByNamedParam()
-			pCol = pCol[2]
-		ok
+		This.SortXT(pCol, :InAscending)
 
-		# Let's compute a list containing these 2 infos:
-		#  - the initial orders of the cells in the column before sorting
-		#  - the final orders of the celles in the column after the sorting
-
-		aOrders = [ 1 : This.NumberOfRows(), NULL ]
-
-		aColSorted = This.ColQ(pCol).SortedInAscending()
-		aNewOrders = []
-		for cell in aColSorted
-			n = This.FindFirstInCol(pCol, cell)[2]
-			aNewOrders + n
-		next
-
-		aOrders[2] = aNewOrders
-		#--> [
-		# 	[ 1, 2, 3 ],
-		# 	[ 3, 2, 1 ]
-		# ]
-		#--> The 1st cell moved to the end, the 2nd stayed at its place, and
-		#    the third cell moved to the first position.
-
-		# Now, let's apply this movement to all the rows of the table
-
-		
-		i = 0
-		for i = 1 to This.NumberOfRows()
-			This.MoveRow(:From = aOrders[1][i], :To = aOrders[2][i])
-		next
+	def SortInDescending(pCol)
+		This.SortXT(pCol, :InDescending)
 
 	  #----------------------------------------------#
 	 #   MOVING A ROW FROM A POSITION TO AN OTHER   #
@@ -6498,22 +6531,22 @@ Class stzTable
 
 		#>
 		
-	def SwapColNames(pcCol1, pcCol2)
-		if NOT 	( BothAreStrings(pcCol1, pcCol2) and
-			  This.AreColNames([ pcCol1, pcCol2 ])
-			)
+	def SwapColNames(pCol1, pCol2)
+		bCol1IsValid = ( isNumber(pCol1) and Q(pCol1).IsBetween(1, This.NumberOfCol()) )
+		bCol2IsValie = ( isString(pCol2) and This.HasColName(pCol2) )
 
-			stzRaise("Incorrect params! pcCol1 and pcCol2 must be valid column names.")
+		if NOT ( bCol1IsValid or bCol2IsValie )
+			stzRaise("Incorrect params! pCol1 and pCol2 must be valid columns names or strings.")
 		ok
 
-		pcName1 = This.ColName(pcCol1)
-		pcName2 = This.ColName(pcCol2)
+		cName1 = This.ColName(pCol1)
+		cName2 = This.ColName(pCol2)
 
-		nCol1 = This.ColNumber(pcCol1)
-		nCol2 = This.ColNumber(pcCol2)
+		nCol1 = This.ColNumber(pCol1)
+		nCol2 = This.ColNumber(pCol2)
 
-		@aTable[nCol1][1] = pcName2
-		@aTable[nCol2][1] = pcName1
+		@aTable[nCol1][1] = cName2
+		@aTable[nCol2][1] = cName1
 
 		#< @FunctionAlternativeForm
 
@@ -6527,9 +6560,32 @@ Class stzTable
 
 	def SwapCol(pCol1, pCol2)
 		if isList(pCol1) and
-			( Q(pCol1).IsAtNamedParam() or
-			  Q(pCol1).IsAtPositionNamedParam() or
-			  Q(pCol).IsNamedNamedParam() )
+			( Q(pCol1).IsAndNamedParam() or
+			  Q(pCol1).IsAndPositionNamedParam() or
+
+			  Q(pCol1).IsAndColNamedParam() or
+			  Q(pCol1).IsAndColumnNamedParam() or
+
+			  Q(pCol1).IsAndColAtNamedParam() or
+			  Q(pCol1).IsAndColumnAtNamedParam() or
+
+			  Q(pCol1).IsAndColAtPositionNamedParam() or
+			  Q(pCol1).IsAndColumnAtPositionNamedParam() or
+
+			  Q(pCol1).IsBetweenNamedParam() or
+
+			  Q(pCol1).IsBetweenColNamedParam() or
+			  Q(pCol1).IsBetweenColumnNamedParam() or
+
+			  Q(pCol1).IsBetweenColAtNamedParam() or
+			  Q(pCol1).IsBetweenColumnAtNamedParam() or
+
+			  Q(pCol1).IsBetweenColAtPositionNamedParam() or
+			  Q(pCol1).IsBetweenColumnAtPositionNamedParam() or
+
+			  Q(pCol1).IsBetweenPositionNamedParam() or
+			  Q(pCol1).IsBetweenPositionsNamedParam()
+			)
 			  # NOTE: I don't use IsOneOfTheseNamedParams() here
 			  # to gain some performance by discarding eval()
 
@@ -6546,7 +6602,7 @@ Class stzTable
 			  Q(pCol2).IsAndColumnAtPositionNamedParam() or
 			  Q(pCol2).IsAndColNamedNamedParam() or
 			  Q(pCol2).IsAndColumnNamedNamedParam()
-			   )
+			)
 
 			pCol2 = pCol2[2]
 		ok
@@ -6827,6 +6883,9 @@ Class stzTable
 			return This.TheseColsToColNames(paCols)
 
 	def ColToColNumber(p)
+		if isNumber(p) and p <= This.NumberOfCol()
+			return p
+		ok
 
 		if NOT IsNumberOrString(p)
 			stzRaise("Incorrect param type! p must be a number or string.")

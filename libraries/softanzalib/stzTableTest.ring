@@ -127,7 +127,7 @@ o1.Show()
 # 3   10     Karim    52
 
 /*--------------
-*/
+
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
 	[ 10,	"Karim",	52   	],
@@ -136,12 +136,15 @@ o1 = new stzTable([
 ])
 
 o1.SwapRows( :BetweenPositions = 2, :And = 3 )
-o1.Show()
+o1.Show() + NL
 #-->
 # #   ID      NAME   AGE
 # 1   10     Karim    52
 # 2   30   Abraham    48
 # 3   20     Hatem    46
+
+o1.SwapColumns( :BetweenPosition = 2, :And = 3)
+o1.Show()
 
 /*==============
 
@@ -237,7 +240,7 @@ o1.ReplaceColName( :LENGTH, :BY = :AGE )
 # Hope you got it ;)
 
 /*==============
-
+*/
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
 	[ 10,	"Karim",	52   	],
@@ -246,13 +249,40 @@ o1 = new stzTable([
 ])
 
 o1.Sort(:By = :NAME)
-? o1.Show()
-
+o1.Show() + NL
 #-->
 # #	ID	NAME		AGE
 # 1	30	Abraham		48
 # 2	20	Hatem		46
 # 3	10	Karim		52
+
+o1.Sort(:By = :ID)
+o1.Show() + NL
+#-->
+# #   ID      NAME   AGE
+# 1   10     Karim    52
+# 2   20     Hatem    46
+# 3   30   Abraham    48
+
+o1.Sort(:By = :AGE)
+o1.Show()
+
+/*--------------
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+o1.SortInDescending(:By = :ID)	# Or if you want: o1.SortXT(:By = :ID, :InDescending)
+o1.Show()
+#-->
+# #   ID      NAME   AGE
+# 1   30   Abraham    48
+# 2   20     Hatem    46
+# 3   10     Karim    52
 
 /*==============
 
