@@ -9,15 +9,15 @@ o1 = new stzTable([
 
 /*===============
 
-# A table can be created in 3 different ways:
+# A table can be created in 4 different ways:
 
-# WAY 1 : Creating an empty table with just a column and a row
+# WAY 1 : Creating an empty table with just a column and a row with just an empty cell
 o1 = new stzTable([])
 
 ? @@S( o1.Content() ) + NL
 #--> [ [ "COL1", [ "" ] ] ]
 
-o1.ShowXT([ :ReplaceEmptyCEllsWith = "NULL" ])
+o1.ShowXT([ :ReplaceEmptyCellsWith = "NULL" ])
 #-->
 # #   COL1
 # 1   NULL
@@ -26,6 +26,7 @@ o1.ShowXT([ :ReplaceEmptyCEllsWith = "NULL" ])
 
 # WAY 2 : Creating an empty table with 3 columns and 3 rows
 o1 = new stzTable([3, 2])
+o1.Show()
 #-->
 # #   COL1   COL2   COL3
 # 1                     
@@ -39,8 +40,8 @@ o1.ShowXT([ :ReplaceEmptyCellsWith = "NULL" ])
 
 /*---------------
 
-# WAY 3: Creating a table by provding a list of list, formatted as you
-# would find it in the real world
+# WAY 3: Creating a table by provding a list of lists, formatted as you
+# would find it in the real world (the first line is for column names!)
 
 o1 = new stzTable([
 	[ :ID,	 :EMPLOYEE,    	:SALARY	],
@@ -51,8 +52,33 @@ o1 = new stzTable([
 	[ 40,	 "Ali",		12870	]
 ])
 
-? o1.Cols()		#--> [ "id", "employee", "salary" ]
-? o1.Col(:EMPLOYEE)	#--> [ "Ali", "Dania", "Han", "Ali" ]
+o1.Show()
+#-->
+# #   ID   EMPLOYEE   SALARY
+# 1   10        Ali    35000
+# 2   20      Dania    28900
+# 3   30        Han    25982
+# 4   40        Ali    12870
+
+/*---------------
+
+# WAY 4: Creating a table by provding just the rows, without
+# column names (they are added automatically by softanza):
+
+o1 = new stzTable([
+	[ 10,	 "Ali",		35000	],
+	[ 20,	 "Dania",	28900	],
+	[ 30,	 "Han",		25982	],
+	[ 40,	 "Ali",		12870	]
+])
+
+o1.Show()
+#-->
+# #   COL1    COL2    COL3
+# 1     10     Ali   35000
+# 2     20   Dania   28900
+# 3     30     Han   25982
+# 4     40     Ali   12870
 
 /*==============
 
@@ -240,7 +266,7 @@ o1.ReplaceColName( :LENGTH, :BY = :AGE )
 # Hope you got it ;)
 
 /*==============
-*/
+
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
 	[ 10,	"Karim",	52   	],
@@ -266,6 +292,11 @@ o1.Show() + NL
 
 o1.Sort(:By = :AGE)
 o1.Show()
+#-->
+# #   ID      NAME   AGE
+# 1   20     Hatem    46
+# 2   30   Abraham    48
+# 3   10     Karim    52
 
 /*--------------
 
@@ -283,6 +314,88 @@ o1.Show()
 # 1   30   Abraham    48
 # 2   20     Hatem    46
 # 3   10     Karim    52
+
+/*--------------
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+? @@S( o1.ColAsPositions(:NAME) ) + NL
+#--> [ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ] ]
+
+? @@S( o1.ColsAsPositions([ :NAME, :AGE ]) ) + NL
+#--> [ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 3, 1 ], [ 3, 2 ], [ 3, 3 ] ]
+
+? @@S( o1.RowAsPositions(3) ) + NL
+#--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
+
+? @@S( o1.RowsAsPositions([2, 3]) ) + NL
+#--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 1, 3 ], [ 2, 3 ], [ 3, 3 ] ]
+
+/*--------------
+
+o1 = new stzTable([
+	[  "COL1",   "COL2" ],
+	#-------------------#
+	[     "a",    "R1"  ],
+	[ "abcde",    "R5"  ],
+	[   "abc",    "R3"  ],
+	[    "ab",    "R2"  ],
+	[     "b",    "R1"  ],
+	[   "abcd",   "R4"  ]
+])
+
+? @@S( o1.CellsInCols([:COL1, :COL2]) ) + NL
+#--> [ "a", "abcde", "abc", "ab", "b", "abcd", "R1", "R5", "R3", "R2", "R1", "R4" ]
+
+? @@S( o1.CellsInRows([1, 3, 5]) ) + NL
+#--> [ "a", "R1", "abc", "R3", "b", "R1" ]
+
+/*===============
+*/
+o1 = new stzTable([
+	[  "COL1",   "COL2" ],
+	#-------------------#
+	[     "a",    "R1"  ],
+	[ "abcde",    "R5"  ],
+	[   "abc",    "R3"  ],
+	[    "ab",    "R2"  ],
+	[     "b",    "R1"  ],
+	[   "abcd",   "R4"  ]
+])
+
+o1.Sort(:By = :COL2)
+# or o1.SortInAscending(:By = :COL2)
+# or o1.SortXT(:By = :COL2, :InAscending)
+# o1.SortXT(:By = :COL2, :In = :Ascending)
+
+o1.Show() + NL
+#-->
+# #    COL1   COL2
+# 1       a     R1
+# 2       b     R1
+# 3      ab     R2
+# 4     abc     R3
+# 5    abcd     R4
+# 6   abcde     R5
+
+o1.SortInDescending(:By = :Col2)
+# or o1.SortXT(:By = :Col2, :InDescending)
+# or o1.SortXT(:By = :Col2, :In = :Descending)
+
+o1.Show()
+#-->
+# #    COL1   COL2
+# 1   abcde     R5
+# 2    abcd     R4
+# 3     abc     R3
+# 4      ab     R2
+# 5       b     R1
+# 6       a     R1
 
 /*==============
 

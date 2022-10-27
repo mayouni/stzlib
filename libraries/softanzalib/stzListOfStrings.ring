@@ -559,15 +559,13 @@ class stzListOfStrings from stzList
 
 		if isString(n1) and ( Q(n1).IsOneOfThese([
 					:First, :FirstPosition,
-				      	:FirstString, :FirstStringItem ])
-				    )
+				      	:FirstString, :FirstStringItem ]) )
 			n1 = 1
 		ok
 
 		if isString(n2) and ( Q(n2).IsOneOfThese([
 					:Last, :LastPosition,
-				      	:LastString, :LastStringItem ])
-				    )
+				      	:LastString, :LastStringItem ]) )
 
 			n2 = This.NumberOfStrings()
 		ok
@@ -577,8 +575,7 @@ class stzListOfStrings from stzList
 		ok
 
 		if NOT  ( StzNumberQ(n1).IsBetween(1, This.NumberOfStrings()) and
-			StzNumberQ(n2).IsBetween(1, This.NumberOfStrings())
-		        )
+			StzNumberQ(n2).IsBetween(1, This.NumberOfStrings()) )
 
 			stzRaise("Out of range!")
 		ok
@@ -9025,8 +9022,8 @@ class stzListOfStrings from stzList
 		*/
 
 		if NOT ( isList(panList) and StzListQ(panList).IsListOfNumbers() and
-		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfStrings() + ")") = len(panList)
-		       )
+		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " +
+				This.NumberOfStrings() + ")") = len(panList) )
 
 			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfStrings().")
 		ok
@@ -9285,8 +9282,8 @@ class stzListOfStrings from stzList
 		*/
 
 		if NOT ( isList(panList) and StzListQ(panList).IsListOfNumbers() and
-		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfStrings() + ")") = len(panList)
-		       )
+		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " +
+				This.NumberOfStrings() + ")") = len(panList) )
 
 			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfStrings().")
 		ok
@@ -9838,8 +9835,7 @@ class stzListOfStrings from stzList
 		if NOT ( isList(pacOtherStrings) and
 				( Q(pacOtherStrings).IsListOfStrings() or
 			 	  Q(pacOtherStrings).IsWithOrByNamedParam()
-				)
-			)
+				) )
 
 			stzRaise("Incorrect param! pacOtherStrings must be a list of strings.")
 		ok
@@ -9917,8 +9913,7 @@ class stzListOfStrings from stzList
 		if NOT ( isList(pacOtherStrings) and
 				( Q(pacOtherStrings).IsListOfStrings() or
 			 	  Q(pacOtherStrings).IsWithOrByNamedParam()
-				)
-			)
+				) )
 
 			stzRaise("Incorrect param! pacOtherStrings must be a list of strings.")
 		ok
@@ -10265,8 +10260,7 @@ class stzListOfStrings from stzList
 			n2 = anSection[2]
 
 			if NOT (  Q(n1).IsBetween(1, This.NumberOfStrings()) and
-				  Q(n2).IsBetween(1, This.NumberOfStrings())
-			       )
+				  Q(n2).IsBetween(1, This.NumberOfStrings()) )
 				
 				stzRaise("At least one position is out of range!")
 			ok
@@ -12132,8 +12126,8 @@ class stzListOfStrings from stzList
 		*/
 
 		if NOT ( isList(panList) and StzListQ(panList).IsListOfNumbers() and
-		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfStrings() + ")") = len(panList)
-		       )
+		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " +
+			 This.NumberOfStrings() + ")") = len(panList) )
 
 			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfStrings().")
 		ok
@@ -12388,8 +12382,8 @@ class stzListOfStrings from stzList
 		*/
 
 		if NOT ( isList(panList) and StzListQ(panList).IsListOfNumbers() and
-		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfStrings() + ")") = len(panList)
-		       )
+		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " +
+			 This.NumberOfStrings() + ")") = len(panList) )
 
 			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfStrings().")
 		ok
@@ -12928,8 +12922,7 @@ class stzListOfStrings from stzList
 		if isString(n1) and
 			( Q(n1).IsOneOfThese([
 				:First, :FirstPosition,
-				:FirstString, :FirstStringItem ])
-			)
+				:FirstString, :FirstStringItem ]) )
 
 			n1 = 1
 		ok
@@ -12937,8 +12930,7 @@ class stzListOfStrings from stzList
 		if isString(n2) and
 			( Q(n2).IsOneOfThese([
 				:Last, :LastPosition,
-				:LastString, :LastStringItem ])
-			)
+				:LastString, :LastStringItem ]) )
  
 			n2 = This.NumberOfStrings()
 		ok
@@ -12948,8 +12940,7 @@ class stzListOfStrings from stzList
 		ok
 
 		if NOT ( StzNumberQ(n1).IsBetween(1, This.NumberOfStrings()) and
-		         StzNumberQ(n2).IsBetween(1, This.NumberOfStrings())
-		       )
+		         StzNumberQ(n2).IsBetween(1, This.NumberOfStrings()) )
 
 			stzRaise("Out of range!")
 		ok

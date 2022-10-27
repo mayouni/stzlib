@@ -465,9 +465,6 @@ class stzList from stzObject
 		def Size()
 			return This.NumberOfItems()
 
-		def Count()
-			return This.NumberOfItems()
-
 		def Length()
 			return This.NumberOfItems()
 	
@@ -3755,8 +3752,7 @@ class stzList from stzObject
 		if isString(n1) and
 			( Q(n1).IsOneOfThese([
 				:First, :FirstPosition,
-				:FirstItem, :FirstItem ])
-			)
+				:FirstItem, :FirstItem ]) )
 
 			n1 = 1
 		ok
@@ -3764,8 +3760,7 @@ class stzList from stzObject
 		if isString(n2) and
 			( Q(n2).IsOneOfThese([
 				:Last, :LastPosition,
-				:LastItem, :LastItem ])
-			)
+				:LastItem, :LastItem ]) )
  
 			n2 = This.NumberOfItems()
 		ok
@@ -3775,8 +3770,7 @@ class stzList from stzObject
 		ok
 
 		if NOT  ( StzNumberQ(n1).IsBetween(1, This.NumberOfItems() ) and
-			  StzNumberQ(n2).IsBetween(1, This.NumberOfItems() )
-			)
+			  StzNumberQ(n2).IsBetween(1, This.NumberOfItems() ) )
 
 			stzRaise("Out of range!")
 		ok
@@ -4263,6 +4257,16 @@ class stzList from stzObject
 
 		return This.AllItemsAreSets()
 
+	def IsListOfNumbersOrStrings()
+		if This.IsListOfNumbers() or
+		   This.IsListOfStrings() or
+		   This.ISListOfNumbersAndStrings()
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsListOfNumbersAndStrings()
 		bResult = TRUE
 		for item in This.List()
@@ -4276,6 +4280,13 @@ class stzList from stzObject
 
 		def IsListOfStringsAndNumbers()
 			return This.IsListOfNumbersAndStrings()
+
+	def IsListOfEitherNumbersOrStrings()
+		if This.IsListOfNumbers() or This.IsListOfStrings()
+			return TRUE
+		else
+			return FALSE
+		ok
 
 	def Transform( pcWhat, pcCondition, pcTo )
 		/*
@@ -4953,8 +4964,7 @@ class stzList from stzObject
 	def AddWalker(pcName, pnStart, pnEnd, panStepping)
 
 		if NOT ( StzNumberQ(pnStart).IsBetween(1, This.NumberOfItems()) and
-		         StzNumberQ(pnEnd).IsBetween(1, This.NumberOfItems())
-		       )
+		         StzNumberQ(pnEnd).IsBetween(1, This.NumberOfItems()) )
 
 			stzRaise("Start or end of walker outside list range!")
 		ok
@@ -6460,8 +6470,7 @@ class stzList from stzObject
 		if NOT ( isList(paSections) and
 
 			 Q(paSections).EachItemVerifyW(
-				:That = 'isList(@item) and Q(@item).IsPairOfNumbers()' )
-		         )
+				:That = 'isList(@item) and Q(@item).IsPairOfNumbers()' ) )
 
 			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
@@ -7769,33 +7778,34 @@ class stzList from stzObject
 	 #  SORTING THE STRING BY - IN ASCENDING  #
 	#----------------------------------------#
  
-	def SortInAscendingBy(pcExpr)  // TODO: TEST IT!
+	def SortInAscendingUsing(pcExpr)  // TODO: TEST IT!
 		/* EXAMPLE
 		o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
-		o1.SortBy('len(@item)')
+		o1.SortUsing('len(@item)')
 		? o1.Content()
 
 		#--> [ "a", "ab", "abc", "abcd", "abcde" ]
 
 		*/
-
+? o1.Content()
 		cCode = "value = " + StzCCodeQ(pcExpr).UnifiedFor(:stzList)
 
-		aTemp = []
+		oTable = new stzTable([2, This.NumberOfItems()])
+oTable.Show() + NL
+		i = 0
 		for @item in This.List()
+			i++
 			eval(cCode)
-			aTemp + value
+			oTable.ReplaceRow(i, [ @item, value ])
 		next
+oTable.Show() + NL
 
-		aTempSorted = Q(aTemp).SortedInAscending()
+		oTable.SortInAscending( :By = oTable.ColName(2) )
+oTable.Show()
+sdsd
+		aSortedList = oTable.Col(1)
 
-		aResult = []
-		for item in aTempSorted
-			n = rng_find(aTemp, item)
-			aResult + This[n]
-		next
-
-		This.UpdateWith( aResult )
+		This.UpdateWith( aSortedList )
 
 		#< @FunctionFluentForm
 
@@ -9024,17 +9034,31 @@ class stzList from stzObject
 	  #-----------------------------------------------------#
 	 #     NUMBER OF OCCURRENCE OF AN ITEM IN THE LIST     #
 	#-----------------------------------------------------#
-
-	def NumberOfOccurrence(pItem)
+	
+	def NumberOfOccurrenceCS(pItem, pCaseSensitive)
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
-		return len(This.FindAll(pItem))
+		return len(This.FindAllCS(pItem, pCaseSensitive))
+
+		def NumberOfOccurrencesCS(pItem, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+
+		def CountCS(pItem, pCaseSensitive)
+			return NumberOfOccurrenceCS(pItem, pCaseSensitive)
+		
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfOccurrence(pItem)
+		return This.NumberOfOccurrenceCS(pItem, :CaseSensitive = TRUE)
 
 		def NumberOfOccurrences(pItem)
 			return This.NumberOfOccurrence(pItem)
-		
+
+		def Count(pItem)
+			return NumberOfOccurrence(pItem)
+
 	  #-------------------------------------------#
 	 #     STRINGIFYING ALL ITEMS OF THE LIST    #
 	#-------------------------------------------#
@@ -10747,6 +10771,37 @@ class stzList from stzObject
 	  #--------------------------------#
 	 #  FINDING AN ITEM AT ANY LEVEL  #
 	#--------------------------------#
+
+	/*
+	TODO: Harmonize this section with  "LIST STRUCTURE" section
+	--> There are some TODOs their, review them.
+	*/
+
+	// Finding pItem at any level of the list
+	def DeepFindCS(pItem, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzList([
+			"you",
+			"other",
+			[ "other", "you", [ "you" ], "other" ],
+			"other",
+			"you"
+		])
+
+		o1.DeepFind("you")
+		#--> "you" is found in the following positions
+		[
+			[ [1, 1], [1, 5] ],	# positions 1 and 5 in the level [1, 1]
+			[ [3, 1], [ 2 ]  ],	# positon 2 in the level [3, 1]
+			[ [3, 2], [ 1 ]  ],	# position 1 in the level [3, 2]
+		]
+		*/
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DeepFind(pItem)
+		return This.DeepFindCS(pItem, :CaseSensitive = TRUE)
 
 	  #=======================================================#
 	 #    VISUALLY FINDING ALL OCCURRENCES OF A GIVEN ITEM   #
@@ -14911,6 +14966,26 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsByColNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :ByCol, :ByCol@ ]) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsByColumnNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :ByColumn, :ByColumn@ ]) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsWithOrByNamedParam()
 		return This.IsWithNamedParam() OR This.IsByNamedParam()
 
@@ -16468,6 +16543,26 @@ class stzList from stzObject
 	def IsFromCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :FromCharAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFirstPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :FirstPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsLastPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :LastPosition )
 
 			return TRUE
 

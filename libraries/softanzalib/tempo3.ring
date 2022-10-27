@@ -15,7 +15,7 @@ load "stzlib.ring"
 STOP()
 
 /*========= Replace and DeepReplace
-*/
+
 o1 = new stzList([
 	"me",
 	"other",
@@ -53,10 +53,8 @@ o1.DeepReplace("me", :By = "you")
 #	"other"
 #    ]
 
-STOP()
-
 /*=========
-*/
+
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 ? o1.NumberOfSectionsBetween("word", "<<", ">>") #--> 3
 

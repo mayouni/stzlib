@@ -1,5 +1,66 @@
 load "stzlib.ring"
 
+/*========= Deep finding items at any level
+*/
+
+o1 = new stzList([
+	"you",
+	"other",
+	[ "other", "you", [ "you" ], "other" ],
+	"other",
+	"you"
+])
+
+? o1.NumberOfLevels() #--> 3
+/* TODO
+? o1.DeepFind("you")
+#--> "you" is found in the following positions:
+# [
+#	[ "1",      [1, 5] ],
+#	[ "1.3",    [ 2  ] ],
+#	[ "1.3.3",  [ 1  ] ],
+#	[ "1.5",    [ 1  ] ]
+# ]
+
+/*========= Replace and DeepReplace
+
+o1 = new stzList([
+	"me",
+	"other",
+	[ "other", "me", [ "me" ], "other" ],
+	"other",
+	"me"
+])
+
+o1.Replace("me", :By = "you")
+? @@S( o1.Content() ) + NL
+#--> [
+#	"you",
+#	"other",
+#	[ "other", "me", [ "me" ], "other" ],
+#	"other",
+#	"you"
+#    ]
+
+/*------------
+
+o1 = new stzList([
+	"me",
+	"other",
+	[ "other", "me", [ "me" ], "other" ],
+	"other",
+	"me"
+])
+
+o1.DeepReplace("me", :By = "you")
+? @@S( o1.Content() )
+#--> [
+#	"you",
+#	"other",
+#	[ "other", "you", [ "you" ], "other" ],
+#	"other"
+#    ]
+
 /*================
 
 # to get the background of this sample, read this:
@@ -48,7 +109,7 @@ o1.InsertAfter( :ItemAtPosition = 3, "A4" )
 ? o1.Content() #--> [ "A1", "A2", "A3" ]
 
 /*================ MOVING AND SWAPPING
-*/
+
 o1 = new stzList([ "C", "B", "A" ])
 o1.Move( :From = 3, :To = 1 )
 ? o1.Content() #--> [ "A", "C", "B" ]
