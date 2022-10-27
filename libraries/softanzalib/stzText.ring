@@ -2706,8 +2706,7 @@ class stzText from stzString
 
 			         StzStringQ(pStopWordsValue).IsOneOfThese([
 					:MustBeRemoved, :MustNotBeRemoved
-				 	])
-			       )
+				 	]) )
 
 				stzRaise("Incorrect param format!")
 			ok

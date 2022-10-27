@@ -12404,17 +12404,14 @@ class stzString from stzObject
 			stzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		if NOT ( isList(paOptions)
-			 and Q(paOptions).IsHashList() and
+		if NOT ( isList(paOptions) and
+			 Q(paOptions).IsHashList() and
 
 			 StzHashListQ(paOptions).KeysQ().IsMadeOfSome([
 				:CaseSensitive, :CS, :PositionSign,
 				:BlankSign, :Numbered, :Spacified,
-				:Boxed, :BoxOptions
-			 ])
-
-		       )
-
+				:Boxed, :BoxOptions ]) )
+			 
 			stzRaise("Incorrect param type! paOptions must be a wellformed hashlist.")
 		ok
 
@@ -20548,8 +20545,7 @@ class stzString from stzObject
 			  StzHashListQ(paOptions).
 			  KeysQR(:stzListOfStrings).IsMadeOfSomeCS([
 				:From, :FromPosition, :To, :ToPosition, :Step, :Return
-			  ], :CS = FALSE)
-		       )
+			  ], :CS = FALSE) )
 
 			stzRaise("Incorrect value!")
 		ok

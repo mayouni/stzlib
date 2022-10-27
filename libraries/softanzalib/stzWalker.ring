@@ -58,10 +58,8 @@ class stzWalker from stzList
 
 			 ( Q(paWalkerOptions).IsEmpty() or
 			   Q(paWalkerOptions).IsMadeOfSome([
-				:Name, :StartingAt, :EndingAt, :Step, :Direction
-			   ])
-			 )
-		        )
+				:Name, :StartingAt, :EndingAt,
+				:Step, :Direction ]) ) )
 
 			stzRaise("Can not create stzWalker object! Incorrect param format.")
 		ok
@@ -178,8 +176,7 @@ class stzWalker from stzList
 		
 		if NOT ( isString(pcDirection) and
 			 Q(pcDirection).IsToNamedParam() and
-			 Q(pcDirection).IsOneOfThese([ :Foreward, :Backward])
-		       )
+			 Q(pcDirection).IsOneOfThese([ :Foreward, :Backward ]) )
 
 			stzRaise("Incorrect param!")
 

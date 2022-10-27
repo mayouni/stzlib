@@ -36,8 +36,7 @@ class stzCCode
 					:stzString, 
 					:stzList, :stzListOfLists, :stzListOfStrings,
 					:stzListOfNumbers, :stzListOfPairs, :stzListOfObjects
-				], :CS = FALSE)
-			)
+				], :CS = FALSE) )
 
 			stzRaise("Unsupported type in conditional code!")
 		ok

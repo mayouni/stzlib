@@ -130,12 +130,13 @@ o1 = new stzString("__3__6__9__")
 #--> [ "__3", "__6", "__9", "__" ]
 
 /*==================
+*/
+o1 = new stzList([ "a", "abcde", "abc", "ab", "b", "abcd" ])
 
-o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
-o1.SortInAscendingBy('len(@item)')
+o1.SortInAscendingUsing('len(@item)')
 ? o1.Content()
 
-#--> [ "a", "ab", "abc", "abcd", "abcde" ]
+
 
 /*------------------
 
@@ -146,7 +147,7 @@ o1.SortInDescendingBy('len(@item)')
 #--> [ "abcde", "abcd", "abc", "ab", "a" ]
 
 /*==================
-*/
+
 o1 = new stzList([ "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ])
 ? o1.SortedBy(' Q(@item).NumberOfChars() ')
 /*

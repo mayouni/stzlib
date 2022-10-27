@@ -256,12 +256,10 @@ func BothAreStringsInComputableForm(p1, p2)
 	if BothAreStrings(p1, p2) and
 
 	   ( ( Q(p1).FirstChar() = c1 and Q(p1).LastChar() = c1 ) or
-	     ( Q(p1).LastChar()  = c2 and Q(p1).LastChar() = c2 )
-	   ) and
+	     ( Q(p1).LastChar()  = c2 and Q(p1).LastChar() = c2 ) ) and
 
 	   ( ( Q(p2).FirstChar() = c1 and Q(p2).LastChar() = c1 ) or
-	     ( Q(p2).LastChar()  = c2 and Q(p2).LastChar() = c2 )
-	   )
+	     ( Q(p2).LastChar()  = c2 and Q(p2).LastChar() = c2 ) )
 
 		return TRUE
 
