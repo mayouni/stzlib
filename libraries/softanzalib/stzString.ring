@@ -15,6 +15,10 @@
 
 	Also: use QStringView for read-only operations, and QByteArray for UT8-only string
 	#--> Better performance.
+
+	Todo:
+	Get inspiration from the pyhthon ftfy library to add Unicode text cleansing in Softanza
+	link: https://ftfy.readthedocs.io/en/latest/fixes.html
 */
 
   /////////////////////
@@ -10297,7 +10301,7 @@ class stzString from stzObject
 		ok
 
 		cCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzString)
-		oCondition = Q(cCondition).TrimQ().RemoveBoundsQ("{","}")
+		oCondition = Q(cCondition).TrimQ().RemoveBoundsQ(["{","}"])
 
 		if NOT oCondition.ContainsCS("@SubString", :CS = FALSE)
 			StzRaise("Syntax error! pcCondition must contain keyword @SubString")
@@ -10332,6 +10336,9 @@ class stzString from stzObject
 		ok
 
 		return aResult
+
+		def FindSubStringsW(pcCondition)
+			return This.FindSubStringW(pcCondition)
 
 	def FindAllW(pcCondition)
 		#< @MotherFunction = YES | @RingBased #>
@@ -20347,7 +20354,7 @@ class stzString from stzObject
 	 #   REVERSING THE ORDER OF CHARS   #
 	#----------------------------------#
 
-	def ReverseChars()
+	def ReverseCharsOrder()
 		cResult = ""
 		
 		for i = This.NumberOfChars() to 1 step -1
@@ -20358,38 +20365,167 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def ReverseCharsQ()
-			This.ReverseChars()
+		def ReverseCharsOrderQ()
+			This.ReverseCharsOrder()
 			return This
 	
 		#>
 
-
 		#< @FunctionAlternativeForm
 
-		def Reverse()
-			This.Reversechars()
+		def Reverse() # To stay consistent with Ring that has reverse() function
+			This.ReversecharsOrder()
 
 			def ReverseQ()
 				This.Reverse()
+				return This
+
+		def Turn() # To embrace the UNICODE semantics
+			This.ReversecharsOrder()
+
+			def TurnQ()
+				This.Turn()
+				return This
+
+		#--
+
+		def RevertChars()
+			This.ReverseCharsOrder()
+
+			def RevertCharsQ()
+				This.RevertCharsOrder()
+				return This
+
+		def InverseChars()
+			This.ReverseCharsOrder()
+
+			def InverseCharsQ()
+				This.RevertCharsOrder()
+				return This
+
+		def InvertChars()
+			This.ReverseCharsOrder()
+
+			def InvertCharsQ()
+				This.RevertCharsOrder()
+				return This
+
+		#--
+
+		def RevertCharsOrder()
+			This.ReverseCharsOrder()
+
+			def RevertCharsOrderQ()
+				This.RevertCharsOrder()
+				return This
+
+		def InverseCharsOrder()
+			This.ReverseCharsOrder()
+
+			def InverseCharsOrderQ()
+				This.RevertCharsOrder()
+				return This
+
+		def InvertCharsOrder()
+			This.ReverseCharsOrder()
+
+			def InvertCharsOrderQ()
+				This.RevertCharsOrder()
+				return This
+
+		#--
+
+		def ReverseOrder()
+			This.ReverseCharsOrder()
+
+			def ReverseOrderQ()
+				This.RevertCharsOrder()
+				return This
+
+		def RevertOrder()
+			This.ReverseCharsOrder()
+
+			def RevertOrderQ()
+				This.RevertCharsOrder()
+				return This
+
+		def InverseOrder()
+			This.ReverseCharsOrder()
+
+			def InverseOrderQ()
+				This.RevertCharsOrder()
+				return This
+
+		def InvertOrder()
+			This.ReverseCharsOrder()
+
+			def InvertOrderQ()
+				This.RevertCharsOrder()
+				return This
 
 		#>
 
-	def StringWithCharsReversed()
-		cResult = This.Copy().ReverseCharsQ().Content()
+	def StringWithCharsOrderReversed()
+		cResult = This.Copy().ReverseCharsOrderQ().Content()
 		return cResult
 
-		def CharsReversed()
-			return This.StringWithCharsReversed()
-
 		def Reversed()
-			return This.StringWithCharsReversed()
+			return This.StringWithCharsOrderReversed()
 
-		def StringWithReversedChars()
-			return This.StringWithCharsReversed()
+		#--
 
-		def ReversedChars()
-			return This.StringWithCharsReversed()
+		def StringWithCharsOrderReverted()
+			return This.StringWithCharsOrderReversed()
+
+		def StringWithCharsOrderInversed()
+			return This.StringWithCharsOrderReversed()
+
+		def StringWithCharsOrderInverted()
+			return This.StringWithCharsOrderReversed()
+
+		#--
+
+		def OrderReversed()
+			return This.StringWithCharsOrderReversed()
+
+		def OrderReverted()
+			return This.StringWithCharsOrderReversed()
+
+		def OrderInversed()
+			return This.StringWithCharsOrderReversed()
+
+		def OrderInverted()
+			return This.StringWithCharsOrderReversed()
+
+		#--
+
+		def CharsOrderReversed()
+			return This.StringWithCharsOrderReversed()
+
+		def CharsOrderReverted()
+			return This.StringWithCharsOrderReversed()
+
+		def CharsOrderInversed()
+			return This.StringWithCharsOrderReversed()
+
+		def CharsOrderInverted()
+			return This.StringWithCharsOrderReversed()
+
+		#--
+
+		def OrderOfCharsReversed()
+			return This.StringWithCharsOrderReversed()
+
+		def OrderOfCharsReverted()
+			return This.StringWithCharsOrderReversed()
+
+		def OrderOfCharsInversed()
+			return This.StringWithCharsOrderReversed()
+
+		def OrderOfCharsInverted()
+			return This.StringWithCharsOrderReversed()
+
+		#>
 
 	  #------------------------#
 	 #   HASHING THE STRING   #
@@ -22376,9 +22512,6 @@ class stzString from stzObject
 	 #     USED FOR NATURAL-CODING    #
 	#--------------------------------#
 
-	def IsStzString()
-		return TRUE
-
 	def IsAlmostAFunctionCall()
 		# Why almost? Because it doesn't analyse the correctness of the params
 		# which we should do in the future, but this is sufficient for our
@@ -22420,8 +22553,48 @@ class stzString from stzObject
 
 	#-----------------
 
+	def IsStzString()
+		return TRUE
+
+	# If you ask for the type of the current object and you
+	# use Type(), then Softanza answers you like the ring
+	# native function type() would do:
+	def Type()
+		return "OBJECT" #--> Note that Ring returns it in UPPERCASE
+				# so we conserve the same behavior to be
+				# consistent with your other Ring code
+
+	# If you want to know the name of the class then you can use
+	# the same function as Ring (ClassName()) or stzType()):
+	def stzType()
+		return :stzString
+
+		def ClassName()
+			return This.stzType()
+
+	# If you need to know the type of the data hosted in this
+	# object, then you use DataType():
 	def DataType()
 		return :String
+	# You would say: it's of course a string, so why one should ever
+	# need it? Answer: there are two good reasons:
+
+	# 	- Reason 1: when you deal with a variable that you don't
+	# 	  know its type:
+
+	# 	  like when you write: ? Q(var).DataType, and you get "string",
+	# 	  now you know var hosts a string. But, in terms of Ring native
+	# 	  types,  it may be a STRING or OBJECT ring types of the class
+	# 	  stzString. In fact, stzString is a container of strings!
+
+	# 	  To check it, you can use: ? Q(var).IsObject(), and you get TRUE
+	# 	  or FALSE depending on var beeing a ring STRING or OBJECT.
+
+	# 	  In case it's TRUE, you can check the name of the softanza class using:
+	# 	  N Q(var).stzType() and you will get "stzstring".
+
+	# 	- Reason 2: when used in natural language programming.
+	# 	  TODO: Develop the explanantion here...
 
 	#--- ITEM
 
@@ -22623,3 +22796,6 @@ class stzString from stzObject
 		ok
 
 		return bResult
+
+	def Show()
+		? This.Content()

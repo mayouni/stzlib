@@ -97,3 +97,4 @@ load "stzConstraints.ring"
 load "stzConstraintsData.ring"
 
 load "stzCCode.ring"
+load "stzNullObject.ring"

@@ -15,7 +15,7 @@ class stzListProvidedAsString from stzObject
 		oStzString = new stzString(cListAsString)
 
 		// Extracting list items
-		cTempString = oStzString.RemoveBounds("[","]")
+		cTempString = oStzString.RemoveBounds(["[","]"])
 		oTempString = new stzString(cTempString)
 		cTempString = oTempString.RemoveSpaces()
 		oTempString = new stzString(cTempString)

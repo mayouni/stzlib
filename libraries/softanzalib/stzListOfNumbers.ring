@@ -1811,6 +1811,21 @@ class stzListOfNumbers from stzList
 	def IsStzListOfNumbers()
 		return TRUE
 
+	def Type()
+		return "OBJECT"
+
+	def stzType()
+		return :stzListOfNumbers
+
+		def ClassName()
+			return This.stzType()
+
+	def DataType()
+		return :Number
+
+
+	#-----
+
 	def ToStzListOfChars()
 		return new stzListOfChars( This.Content() )
 

@@ -1,0 +1,29 @@
+# Made just to be used in instanciating objects that do
+# nothing, when I am writing test samples, so I am not
+# obliged to write a class under the sample code.
+
+/* EXAMPLE
+
+The Q(v) function elevates the value v to its corresponding
+softanza type. So, it returns a stzNumber(v) object if v is
+a number, a stzString(v) object if v is a string, a stzList(v)
+if v is a list, or a stzObject(v) if v is an object.
+
+After the softanza object is returned, we can expect it's data
+type by using the method DataType().
+
+Here is an example:
+
+	obj = new Person
+	? Q(obj).DataType()	# --> :Object
+	
+	class Person
+
+To avoid writing a class every time I have to make a sample like this,
+I made this stzNullObject class, so I can write just:
+
+	obj = new stzNullObject
+	? Q(obj).DataType()	# --> :Object
+*/
+
+class stzNullObject

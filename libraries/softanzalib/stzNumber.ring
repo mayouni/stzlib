@@ -8,22 +8,29 @@
 #===========================================================================#
 
 /*
-	This class expects you to provide it with a number hosted in a string.
+	This class expects you to provide it with a normal number or a
+	number hosted in a string (if you want to be specific about
+	how the number is formatted).
+
+	Internally, the class stores the number always in a string.
 
 	The string must must contain a number in decimal form.
 
 	If the string is NULL then the number is "0".
 
-	Of course, the number must be calculable precisely by Ring (read NOTE hereafter).
+	Of course, the number must be calculable precisely by Ring 
+	(read NOTE hereafter).
 
-	If a type NUMBER is provided, then the class transforms it automatically
-	to a string with the round that is active in the runtime.
+	If a type NUMBER is provided, then the class transforms it
+	automatically to a string with the round that is active in
+	the runtime by the current Ring code.
 
 	This may generate a loss of precision like in the following example:
 
 	o1 = new stzNumber(12.234)
-	? o1.Content() # --> "12.23" # if the current round left at its default
-				     # value or set explicitly by decimals(2)
+	? o1.Content() # --> "12.23" # if the current round was left at its
+				     # default Ring value or has been set
+				     # explicitly to decimals(2)
 
 	Therefore, if you want to force a precise round, (and that's why the
 	class is made), you should provide a number in string like this:
@@ -38,7 +45,7 @@
 	Number (1 bit for the sign, 11 bits for the exponent, and 52* bits
 	for the value), i.e. double has 15 decimal digits of precision.
 	
-	Double range is '2.2250738585072014 E – 308' to '1.7976931348623158 E + 308'.
+	Double range is '2.2250738585072014 E–308' to '1.7976931348623158 E+308'.
 	Subsequently the size and length varies accordingly.
 	It has nothing to do with the language one is using.
 	
@@ -54,7 +61,7 @@
 		limited, except numbers are only integers.
 		
 		Otherwise, max numbers without loosing precision are between
-		2^53-1=-4.503.599.627.370.496 to 4.503.599.627.370.495 ,
+		2^53-1=-4.503.599.627.370.496 to 4.503.599.627.370.495,
 		numbers are exactly the integers , e.g. 2^52 (plus sign bit).
 		
 		From 2^53 to 2^54, everything is multiplied by 2, so numbers becomes even.
@@ -3390,6 +3397,15 @@ class stzNumber from stzObject
 
 	def IsStzNumber()
 		return TRUE
+
+	def Type()
+		return "OBJECT"
+
+	def stzType()
+		return :stzNumber
+
+		def ClassName()
+			return This.stzType()
 
 	def DataType()
 		return :Number

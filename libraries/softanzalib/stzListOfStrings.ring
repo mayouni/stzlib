@@ -10821,7 +10821,7 @@ class stzListOfStrings from stzList
 				@PreviousPosition = @Position--
 				@PreviousI = @PreviousPosition
 				
-				cDynamicExpr = StzStringQ(pcNewSubStr).TrimQ().RemoveBoundsQ("{","}").Content()
+				cDynamicExpr = StzStringQ(pcNewSubStr).TrimQ().RemoveBoundsQ(["{","}"]).Content()
 				cCode = 'cNewStr = ( ' + cDynamicExpr + ' )'
 
 				try
@@ -17320,6 +17320,20 @@ class stzListOfStrings from stzList
 
 	def IsStzListOfStrings()
 		return TRUE
+
+	def Type()
+		return "OBJECT"
+
+	def stzType()
+		return :stzListOfStrings
+
+		def ClassName()
+			return This.stzType()
+
+	def DataType()
+		return :String
+
+	#--
 
 	def AreAnagrams()
 		bResult = TRUE

@@ -184,11 +184,10 @@ class stzListOfPairs from stzList
 		#--> [ [1,3], [4, 7], [8, 9] ]
 
 		*/
-/*
 		if NOT This.IsSortable()
 			StzRaise("Can't sort the list of pairs! Because pairs are not made of distinct items.")
 		ok
-*/
+
 		aResult = []
 
 		# Sort each pair in ascending
@@ -212,7 +211,7 @@ class stzListOfPairs from stzList
 		#--> [ [1, 3], [4, 7], [8, 9] ]
 
 		for n in aFirstItemsSorted
-			i = find(aFirstItems, n)
+			i = Q(aFirstItems).FindFirst(n)
 			aResult + This[i]
 		next
 
@@ -278,7 +277,7 @@ class stzListOfPairs from stzList
 		#--> [  [9, 8], [7, 4], [3, 1] ]
 
 		for n in aFirstItemsSorted
-			i = find(aFirstItems, n)
+			i = Q(aFirstItems).FindFirst(n)
 			aResult + This[i]
 		next
 
