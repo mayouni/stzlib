@@ -263,6 +263,12 @@ class stzScript
 		def DefaultLanguageName()
 			return This.DefaultLanguage()
 
+		def Language()
+			return This.DefaultLanguage()
+
+		def LangaugeName()
+			return This.DefaultLanguage()
+
 	def DefaultLanguageQtNumber()
 		/* We could solve it expressively like this:
 
@@ -282,6 +288,12 @@ class stzScript
 		def DefaultLanguageNumber()
 			return This.DefaultLanguageQtNumber()
 
+		def LanguageQtNumber()
+			return This.DefaultLanguageQtNumber()
+
+		def LanguageNumber()
+			return This.DefaultLanguageQtNumber()
+
 	def DefaultLanguageAbbreviation()
 		cLanguage = This.DefaultLanguage()
 
@@ -290,6 +302,9 @@ class stzScript
 				return aLanguageInfo[3]
 			ok
 		next
+
+		def LanguageAbbreviation()
+			return This.DefaultLanguageAbbreviation()
 
 	def DefaultCountry()
 		/* We could solve it expressively like this:
@@ -309,6 +324,12 @@ class stzScript
 
 		def DefaultCountryName()
 			return This.DefaultCountry()
+
+		def Country()
+			return This.DefaultCountry()
+
+		def CountryName()
+			return This.DefaultCountry()
 	
 	def DefaultCountryQtNumber()
 
@@ -323,10 +344,16 @@ class stzScript
 		def DefaultCountryNumber()
 			return This.DefaultCountryQtNumber()
 
+		def CountryQtNumber()
+			return This.DefaultCountryQtNumber()
+
+		def CountryNumber()
+			return This.DefaultCountryQtNumber()
+
 	def Languages()
 		return LanguagesInScript(This.Script())
 
 	PRIVATE
 
 	@aScriptInfo@	# The two @ conventionally mean that the attribute is private
-			# --> Generalize this convention in all the library
+			# --> TODO: Generalize this convention in all the library

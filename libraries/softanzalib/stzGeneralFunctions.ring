@@ -91,15 +91,18 @@ func stzRaise(paMessage)
 
 #-----
 
-# Wrappers to a ring functions, that I use inside a softanza class
-# where the same name is used (example: insert() inside stzString)
-# --> This will allow me to &void conflicts!
+# Wrappers to ring functions, that we use inside a softanza class
+# where the same name is needed (example: insert() inside stzString)
+# --> This will allow us to avoid conflicts!
 
 func rng_insert(paList, n, pItem)
 	insert(paList, n, pItem)
 
 func rng_find(paList, pItem)
 	return find(paList, pItem)
+
+func rng_type(p)
+	return type(p)
 
 #-----
 
@@ -708,8 +711,32 @@ func QR(p, pcType)
 		stzRaise("Unsupported Softanza type!")
 	ok
 
+# This function tries its best to infere a convenient type
+# by analysing a value hosted in a string
+
 func QQ(p)
+	/* EXAMPLE 1
+
+	? QQ("19")		# stzNumber
+	#--> Note that this is a number in string:
+	? Q("19").IsNumberInString() #--> TRUE
+
+	EXAMPLE 2
+
+	? QQ("[1, 2, 3]")	#--> stzListOfNumbers
+	#--> Note that this is a list in string:
+	? Q("[1, 2, 3]").IsListOfNumbersInString() #--> TRUE
+
+	EXAMPLE 3
+
+	? QQ(' [ "one", "two", "three" ] ')	#--> stzListOfStrings
+	#--> Note that this is a list of strings in a string:
+	? Q(' [ "one", "two", "three" ] ').IsListOfStringsInString #--> TRUE
+
+	*/
+
 	if isString(p)
+
 		if Q(p).IsNumberInString()
 			return new stzNumber(p)
 
@@ -720,9 +747,13 @@ func QQ(p)
 		but Q(p).IsChar()
 			return new stzChar(p)
 
+		else
+			return new stzString(p)
+
 		ok
 
 	but isList(p)
+
 		oQTemp = Q(p)
 		if oQTemp.IsListOfNumbers()
 			return new stzListOfNumbers(p)
@@ -741,11 +772,60 @@ func QQ(p)
 
 		but oQTemp.IsListOfLists()
 			return new stzListOfLists(p)
+
+		else
+			return new stzList(p)
 		ok
 
 	else
 		return Q(p)
 	ok
+
+# Does same thing as QQ() but goes further by infering the listOf...
+func QQQ(p)
+	cStzType = ""
+
+	if isString(p)
+		cCode = 'value = ' + p
+		
+		eval(cCode)
+		if isList(value)
+			cStzType = QQ(value).StzType()
+			
+		else
+			cStzType = Q(value).StzType()
+		ok
+
+	else
+		cStzType =  Q(p).StzType()
+	ok
+
+	cCode = 'oResult = new ' + cStzType + '(p)'
+
+	eval(cCode)
+	return oResult
+
+/*
+		try
+			eval(cCode)
+			cResult = Q(value).StzType()
+? "R1: " + cResult
+			if isList(value)
+				cResult = QQ(value).StzType()
+? "R2: " + cResult
+			ok
+
+			return cResult
+			
+		catch
+
+			return Q(p).StzType()
+		done
+
+	else
+		return Q(p).StzType()
+	ok
+*/
 
 func STOP()
 	StzRaise( NL + "----------------" + "STOPPED!" )

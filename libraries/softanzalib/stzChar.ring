@@ -619,11 +619,11 @@ class stzChar from stzObject
 			def CharTypeQ()
 				return new stzString( This.CharType() )
 
-		def Type()
+		def UnicodeType()
 			return This.UnicodeCategory()
 
-			def TypeQ()
-				return new stzString( This.Type() )
+			def TypeUnicodeQ()
+				return new stzString( This.UnicodeType() )
 
 		def Category()
 			return This.UnicodeCategory()
@@ -1039,7 +1039,8 @@ class stzChar from stzObject
 
 	def UPPERcase()
 		oTempChar = new stzChar(@oQChar.toUPPER().unicode())
-		return oTempChar.Content()
+		cUppercased = oTempChar.Content()
+		This.Update(cUppercased)
 
 		def Uppercased()
 			return This.Uppercase()
@@ -1122,6 +1123,17 @@ class stzChar from stzObject
 
 	def IsNonPrintable()
 		return NOT This.IsPrintable()
+
+	  #-------------#
+	 #   LANGUAGE  #
+	#-------------#
+
+	def DefaultLanguage()
+		cResult = StzScriptQ(This.Script()).DefaultLanguage()
+		return cResult
+
+		def Language()
+			return This.DefaultLanguage()
 
 	  #-----------#
 	 #   SCRIPT  #
@@ -2348,6 +2360,15 @@ class stzChar from stzObject
 	def IsInvertible()
 		return StzListQ( InvertibleUnicodes() ).Contains( This.Unicode() )
 
+		def IsInversible()
+			return This.IsInvertible()
+
+		def IsRevertible()
+			return This.IsInvertible()
+
+		def IsReversible()
+			return This.IsInvertible()
+
 	def Invert()
 
 		if This.IsInvertible()
@@ -2367,9 +2388,49 @@ class stzChar from stzObject
 			This.Invert()
 			return This
 
+		def Inverse()
+			This.Invert()
+
+			def InverseQ()
+				This.Inverse()
+				return This
+
+		def Reverse()
+			This.Invert()
+
+			def ReverseQ()
+				This.Reverse()
+				return This
+
+		def Revert()
+			This.Invert()
+
+			def RevertQ()
+				This.Revert()
+				return This
+
+		def Turn()
+			This.Invert()
+			
+			def TurnQ()
+				This.Turn()
+				return This
+
 	def Inverted()
 		cResult = This.Copy().InvertQ().Content()
 		return cResult
+
+		def Inversed()
+			return This.Inverted()
+
+		def Reversed()
+			return This.Inverted()
+
+		def Reverted()
+			return This.Inverted()
+
+		def Turned()
+			return This.Inverted()
 
 	  #--------------------#
 	 #   NATURAL-CODING   #
@@ -2391,3 +2452,20 @@ class stzChar from stzObject
 	def DownTo(pcOtherChar)
 		return StzStringQ(This.Content()).DownTo(pcOtherChar)
 
+	def IsStzChar()
+		return TRUE
+
+	def Type()
+		return "OBJECT"
+
+	def stzType()
+		return :stzChar
+
+		def ClassName()
+			return This.stzType()
+
+	def DataType()
+		return :String
+
+	def Show()
+		? This.Content()

@@ -1,6 +1,219 @@
 load "stzlib.ring"
 
-/*--------------
+/*============ INFERING TYPES: Q() & QQ()
+
+Q("ring") {
+	? Type()	#--> "OBJECT"
+	? IsAnObject()	#--> TRUE
+
+	? StzType()	#--> "stzstring"
+	? DataType()+NL	#--> "string"
+}
+
+/*------------
+
+Q(6) {
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stznumber"
+	? DataType()+NL	#--> "number"
+}
+
+/*------------
+
+Q(1:3) {
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlist"
+	? DataType()+NL	#--> "list"
+}
+
+QQ(1:3) {
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlistofnumbers"
+	? DataType()+NL	#--> "number"
+}
+
+/*------------
+
+Q("A":"C"){
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlist"
+	? DataType()+NL	#--> "string"
+}
+
+QQ("A":"C"){
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlistofstrings"
+	? DataType()+NL	#--> "string"
+}
+
+/*------------
+
+Q([ 1:2, 5:8, 10:12 ]){
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlist"
+	? DataType()+NL	#--> "list"
+}
+
+QQ([ 1:2, 5:8, 10:12 ]){
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlistoflists"
+	? DataType()+NL	#--> "list"
+}
+
+/*------------
+
+Q([ 1:2, 5:8, 10:12 ]){
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlist"
+	? DataType()+NL	#--> "list"
+}
+
+QQ([ 1:2, 5:8, 10:12 ]){
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlistoflists"
+	? DataType()+NL	#--> "list"
+}
+
+/*------------
+
+Q([ "A", 20, "B", 30 ]){
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlist"
+	? DataType()+NL	#--> "hybrid"
+
+	? @@S( DataTypes() )	#--> [ "string", "number", "string", "number" ]
+	? @@S( Types() )+NL	#--> [ "STRING", "NUMBER", "STRING", "NUMBER" ]
+}
+
+/*------------
+
+Q([ "A", 20, [ "B" ], 30 ]){
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlist"
+	? DataType()+NL	#--> "hybrid"
+
+	? @@S( DataTypes() )	#--> [ "string", "number", "string", "number" ]
+	? @@S( Types() )+NL	#--> [ "STRING", "NUMBER", "LIST", "NUMBER" ]
+}
+
+/*------------
+
+Q([ "A", 20, [ "B", 10 ], 30 ]){
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlist"
+	? DataType()+NL	#--> "hybrid"
+
+	? @@S( DataTypes() )	#--> [ "string", "number", "hybrid", "number" ]
+	? @@S( Types() )	#--> [ "STRING", "NUMBER", "LIST", "NUMBER" ]
+}
+
+/*============ INFERING TYPES: Q() and QQ()
+*/
+# The Q() function elevates a value to its corresponding ring type.
+# so Q(5) gives a stzNumber object, Q("m") gives a stzString object,
+# Q([]) gives a stzList object, and finally Q(obj) gives a stzObject.
+
+# There are three iteresting information about types that Softanza
+# provides you about the elevated object:
+#	- Type(): the type of the object returned by Q(), and it's always "OBJECT"
+#		  (note that we stay confrom with Ring type() function)
+#	- StzType() : the name of the softanza class related to the object
+#	- DataType(): the type of data included inside the value.
+
+# We will understand all that using the following samples.
+
+Q("m") {
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzstring"
+	? DataType()+NL	#--> "string"
+
+	#--> Read it like this: this an object,
+	# from the class stzString, containg
+	# data of type string.
+}
+
+# Nice! The "m" string is elevated to a stzString object, and now all the
+# features of stzString are in your hands!
+
+# We are going just to uppercase it, so we add these lines:
+Q("m") {
+	/* ... */
+	Uppercase()
+	Show() #--> "M"
+}
+
+# Ok! "M" is a string but also a char, and Softanza has a powerful class
+# to manage chars called stzChar...
+
+# Do you want to get the unicode number of the letter char?
+# And its unicode name? Or may ya want to get its script and defautl
+# language? Or even try to turn it altogether (ie invert it) and
+# see what happens...
+
+# You can do this and more by elevating the string "M" to a stzChar object.
+# No need of using the new stzChar("M") syntax because QQ() does just that!
+
+QQ("m") {
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzchar"	# Now we switched from stzString to stzChar
+
+	? DataType()	#--> "string"	# What is returned by Datatype() is
+					# always one of the 4 native Ring types!
+	
+	Uppercase()	#--> Becomes "M"
+
+	? Unicode()	#--> 114
+	? Name()	#--> LATIN SMALL LETTER R
+	? Script()	#--> :Latin
+	? Language()	#--> :English
+
+	Turn()
+	Show()		#--> "Ɯ"
+
+	# Are you curious to know the name of that inverted char?
+	? Name()	#--> LATIN CAPITAL LETTER TURNED M
+}
+
+/*-----------------
+
+QQ("r") {
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzstring"
+	? DataType()+NL	#--> "string"
+}
+
+Q("[1, 2, 3]") {
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzstring"
+	? DataType()+NL	#--> "string"
+}
+
+QQ("[1, 2, 3]") {
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlist"
+	? DataType()+NL	#--> "number"
+}
+
+QQQ("[1, 2, 3]") {
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlistofnumbers"
+	? DataType()+NL	#--> "number"
+}
+
+Q(["A", "B", "C"]) {
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlist"
+	? DataType()+NL	#--> "string"
+}
+
+Q(["A", 1, "B", 2]) {
+	? Type()	#--> "OBJECT"
+	? StzType()	#--> "stzlist"
+	? DataType()+NL	#--> "hybrid"
+	? DataTypes()	#--> [ "string", "number", "string", "number" ]
+}
+
+/*==============
 
 ? InfereDataTypeFromString(:ListsOfObjects) #--> :List
 
@@ -57,17 +270,21 @@ o1 = new stzString("A")
 ? InfereDataTypeFromString(:ListsOfStzStrings)	# --> :List
 
 /*-------------------
-*/
-# Getting the data type of a given value
 
-? _(5).@.DataType()		# --> :Number
-? _("Ring").@.DataType()	# --> :String
-? _(1:3).@.DataType()		# --> :List
+# Getting the data type of the value(s) histed in the provided container:
 
-obj = new Person { name = "Nehro" }
-? _(obj).@.DataType()		# --> :Object
+? Q(5).DataType()		#--> :Number
+? Q("Ring").DataType()	+ NL	#--> :String
 
-class Person name
+? Q(1:3).DataType()		#--> :Number
+? Q("A":"C").DataType()	+ NL	#--> :String
+
+? Q(["A",1]).DataType()		#--> :Hybrid
+? Q(["A",1]).DataTypes()	#--> [ :String, :Number ]
+
+obj = new stzNullObject
+? Q(obj).DataType()	# --> :Object
+
 
 /*-------------------
 

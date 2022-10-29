@@ -144,7 +144,7 @@ class stzListOfLists from stzList
 
 	def ListsW(pcCondition)
 
-		cCondition = StzStringQ(pcCondition).RemoveBoundsQ("{","}").Simplified()
+		cCondition = StzStringQ(pcCondition).RemoveBoundsQ(["{","}"]).Simplified()
 		aResult = []
 
 		@i = 0
@@ -188,7 +188,7 @@ class stzListOfLists from stzList
 
 	def PositionsW(pcCondition)
 
-		cCondition = StzStringQ(pcCondition).RemoveBoundsQ("{","}").Simplified()
+		cCondition = StzStringQ(pcCondition).RemoveBoundsQ(["{","}"]).Simplified()
 		aResult = []
 
 		@i = 0
@@ -231,7 +231,7 @@ class stzListOfLists from stzList
 	#---------------------------------------------------------#
 
 	def Yield(pcFunc)
-		cFunc = StzStringQ(pcFunc).RemoveBoundsQ("{","}").Simplified()
+		cFunc = StzStringQ(pcFunc).RemoveBoundsQ(["{","}"]).Simplified()
 		
 		aResult = []
 		@i = 0
@@ -791,6 +791,9 @@ class stzListOfLists from stzList
 	 #   MISC.   #
 	#-----------#
 		
+	def stzType()
+		return :stzListOfLists
+
 	def ToListsInString()
 		acResult = []
 		for aList in This.ListOfLists()

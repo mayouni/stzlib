@@ -325,7 +325,12 @@ opjn
 */
 
 /*----------------
+*/
+? QQ([ 12, 24, 42 ]).DataType()
+? QQ(["abc","cdef","opjn"]).DataType()
 
+/*----------------
+*/
 ? QQ(["abc","cdef","opjn"]).ToString() // QQ() generates a stzListOfStrings object
 
 /*-->
@@ -337,12 +342,13 @@ opjn
 /*=================
 
 o1 = new stzListOfStrings(["A", "AA", "B", "BB", "C", "CC", "CC" ])
-? o1.StringsW('len(@string) = 2') 	#--> [ "AA", "BB", "CC", "CC" ])
-? o1.UniqueStringsW('len(@string) = 2')	#--> [ "AA", "BB", "CC" ]
+? o1.StringsW('len(@string) = 2')
+#--> [ "AA", "BB", "CC", "CC" ])
 
-STOP()
+? o1.UniqueStringsW('len(@string) = 2')
+#--> [ "AA", "BB", "CC" ]
 
-/*---------------- TODO: Optimise for performance!
+/*----------------
 
 o1 = new stzListOfStrings([
 	"A", "v", "♥", "c",
@@ -356,18 +362,16 @@ o1 = new stzListOfStrings([
 ? o1.StringsW(' Q(@String).NumberOfChars() = 2 ')
 #--> [ "Av", "♥♥", "c♥" ]
 
-? o1.StringsW(' Q(@String).BeginsWith("A") and Q(@String).NumberOfChars() > 4 ')
+? o1.StringsW('
+	Q(@String).BeginsWith("A") and Q(@String).NumberOfChars() > 4
+')
 #--> [ "Av♥♥c", "Av♥♥c♥", "Av♥♥c♥♥" ]
-
-STOP()
 
 /*================
 
 o1 = new stzString("Av♥♥c♥♥")
 ? o1.FindAll("♥♥") #--> [ 3, 6 ]
-? o1.FindSubStringW('{ @SubString = "♥♥" }') #--> [ 3, 6 ]
-
-STOP()
+? o1.FindSubStringsW('{ @SubString = "♥♥" }') #--> [ 3, 6 ]
 
 /*===============
 
@@ -507,18 +511,12 @@ o1 = new stzString("ONE")
 ? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***THREE")	#--> TRUE
 ? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***THREE")	#--> FALSE
 
-STOP()
-
-*----------------
-
-// TODO: ADD IT TO stzNumber, stzList and stzObject classes
+/*----------------
 
 o1 = new stzString("ONE")
 
 ? o1.Occurs( :Before = "TWO", :In = [ "***", "ONE", "***", "TWO", "***", "THREE" ])	#--> TRUE
 ? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***", "THREE" ])	#--> FALSE
-
-STOP()
 
 /*----------------
 
@@ -542,24 +540,21 @@ STOP()
 
 aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 
-? Q("shirt").OccursForTheFirstTime( :In = aShoppingCart, :At = 1 )	#--> TRUE
-? Q("shoes").OccursForTheFirstTime( :In = aShoppingCart, :At = 2 )	#--> TRUE
-? Q("shirt").OccursForTheFirstTime( :In = aShoppingCart, :At = 3 )	#--> FALSE
-? Q("bag").OccursForTheFirstTime( :In = aShoppingCart, :At = 4 )	#--> TRUE
-? Q("hat").OccursForTheFirstTime( :In = aShoppingCart, :At = 5 )	#--> TRUE
-? Q("shoes").OccursForTheFirstTime( :In = aShoppingCart, :At = 6 )	#--> FALSE
-
-STOP()
+? Q("shirt").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 1 )	#--> TRUE
+? Q("shoes").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 2 )	#--> TRUE
+? Q("shirt").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 3 )	#--> FALSE
+? Q("bag").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 4 )	#--> TRUE
+? Q("hat").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 5 )	#--> TRUE
+? Q("shoes").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 6 )	#--> FALSE
 
 /*----------------
 
 aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 
-? Q(aShoppingCart).FindW(
-	'Q(@item).OccursForTheFirstTime( :In = aShoppingCart, :At = @CurrentPosition )')
+? Q(aShoppingCart).FindW('{
+	Q(@item).OccursForTheFirstTime( :In = aShoppingCart, :At = @CurrentPosition )
+}')
 #--> [ 1, 2, 4, 5 ]
-
-STOP()
 
 /*----------------
 
@@ -584,9 +579,6 @@ STOP()
 
   #--> [ [ "Shirt", 2 ], [ "shoes", 2 ], [ "bag", 1 ], [ "hat", 1 ] ]
 
-
-STOP()
-
 /*=========
 
 ? ComputableFormSimplified('len    var1 = "    value "  and var2 =  " 12   " ')
@@ -595,13 +587,33 @@ STOP()
 ? ComputableFormSimplified("len    var1 = '    value '  and var2 =  ' 12   ' ")
 #--> 'len var1 = "    value " and var2 = " 12   "'
 
-STOP()
-
-/*=================
+/*================= CHECK PERFORMANCE
 
 o1 = new stzString("Av♥♥c♥♥")
-? @@S( o1.FindSubStringW('{ Q(@SubString).NumberOfChars() = 2 }') )
-#--> [ [ "Av", [ 1 ] ], [ "♥♥", [ 3, 6 ] ], [ "c♥", [ 5 ] ] ]
+? @@S( o1.FindSubStringsW('{
+	Q(@SubString).NumberOfChars() = 2	
+}') )
+#--> [
+#	[ "Av", [ 1 ] 	],
+#	[ "♥♥", [ 3, 6] ],
+#	[ "c♥", [ 5 ] 	],
+#	[ "v♥", [ 2 ] 	],
+#	[ "♥c", [ 4 ] 	]
+# ]
+
+/*------------- ERROR
+
+o1 = new stzString("Av♥♥c♥♥")
+? @@S( o1.FindSubStringsW('{
+	Q(@SubString).NumberOfChars() = 2 and NOT Q(@SubString).Contains("♥")
+}') )
+
+#--> ERROR
+# Line 11126 Error (R3) : Calling Function without definition !: 2andnotq 
+# In method findallitemsw() in file D:\GitHub\SoftanzaLib\libraries\softanzalib\stzList.ring
+
+# The problem is that the evaluated code has spaces removed, like this:
+# bOk = ( Q( @item ).NumberOfChars()=2andNOTQ( @item ).Contains("♥") )
 
 /*=================
 
@@ -617,10 +629,10 @@ o1.ExtendToNChars(10, :Using = ".")
 
 /*=================
 
-? Q("-♥-").IsBoundedBy("-")
-? Q("♥").IsBoundedBy("-", :In = "... -♥- ...")
+? Q("-♥-").IsBoundedBy("-") #--> TRUE
+? Q("♥").IsBoundedByXT("-", :In = "... -♥- ...") # ERROR
 
-/*----------------
+/*---------------- ERROR
 
 o1 = new stzString("Av♥♥c♥♥")
 
@@ -652,7 +664,6 @@ Q("℺℻ℚ") {
 
 }
 
-
 ? @@( Q("℺℻ℚ").Yield('[ @char, Q(@char).Unicode(), Q(@char).CharName() ]') )
 #--> [
 # 	[ "℺", 8506, "ROTATED CAPITAL Q" ],
@@ -660,27 +671,31 @@ Q("℺℻ℚ") {
 # 	[ "ℚ", 8474, "DOUBLE-STRUCK CAPITAL Q" ]
 #    ]
 
-/*----------------
+/*==============
 
 # What are the unique letters in this sentence?
+# "sun is hot but fun"
 
-# To solve it, you can say:
+# To solve it, you can usz stzString and say:
+
 ? @@( Q("sun is hot but fun").RemoveSpacesQ().UniqueChars() )
 #--> [ "s", "u", "n", "i", "h", "o", "t", "b", "f" ]
 
-# And what if the words are provided in a list of string?
+# Or you can use stzList and stzListOfStrings and say:
+
 ? @@( Q([ "sun", "is", "hot", "but", "fun" ]).
 	YieldQR('{ Q(@String).Chars() }', :stzListOfLists).
 	MergeQ().UniqueItems()
 )
 #--> [ "s", "u", "n", "i", "h", "o", "t", "b", "f" ]
 
-# The solution above uses "strings" and "chars" concepts which both
+# The solutions above uses "strings" and "chars" concepts which both
 # belong to the stzString domain. But if you want to solve it in
 # a higher semantic level, you can rely on "text" and "letter" concepts
 # from the stzText domain:
 
 ? TQ("sun is hot but fun").UniqueLetters()
+#--> [ "s", "u", "n", "i", "h", "o", "t", "b", "f" ]
 # Which turns out to be more natural, isn't it?
 
 /*----------------
@@ -753,8 +768,8 @@ o1 = Q("TAYTOAUBTA")
 /*----------------///////////////////////////////////////////////
 
 o1 = Q([ "T","A","Y","T","O", "A", "U", "B", "T", "A" ])
-//? o1.Section("A", "T")
-/*
+? o1.Section(:From = "A", :Tp = "T")
+
 ? @@( o1.SectionsXT( :From = "T", :To = "A" ) )
 #--> [ ["T", "A"], [ "T", "A", "Y", "O", "U", "B", "T", "A" ], ["T", "A"] ]
 

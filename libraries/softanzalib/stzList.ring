@@ -3950,7 +3950,7 @@ class stzList from stzObject
 		In the function above, if we write the expression that returns
 		the result directly after the keyword 'return', like this:
 
-		return This.Copy().RemoveBoundsQ(pItem1, pItem2).Content()
+		return This.Copy().RemoveBoundsQ([pItem1, pItem2]).Content()
 
 		Then nothing is returned, altough the result should be a list!
 
@@ -4397,7 +4397,7 @@ class stzList from stzObject
 	def IsListOfObjects()
 		bResult = TRUE
 		for item in This.List()
-			if NOT isObjet(item)
+			if NOT isObject(item)
 				bREsult = FALSE
 				exit
 			ok
@@ -9883,7 +9883,6 @@ sdsd
 		*/
 
 	def Show()
-		// TODO
 		if This.IsHashList()
 			StzHashListQ( This.List() ).Show()
 
@@ -9891,7 +9890,7 @@ sdsd
 			StzListOfHashListsQ( This.List() ).Show()
 
 		other
-			// TODO
+			? @@S( This.Content() )
 		ok
 
 	  #---------------------------#
@@ -17258,43 +17257,56 @@ sdsd
 		ok
 
 
-	  #================================#
-	 #     GETTING TYPES OF ITEMS     #
-	#================================#
+	  #=======================#
+	 #     GETTING TYPES     #
+	#=======================#
 
-	/*
-		NOTE: Ring returns types in UPPERCASE using the type) function.
-		While Softanza returns it in LOWERCASE using DataType(), so we
-		can use the syntax: DataType(p) = :List for example.
-	*/
+	# Deeling wuth the list itself
+
+	def IsStzList()
+		return TRUE
+
+	def Type()
+		return "OBJECT"
+
+	def stzType()
+		return :stzList
+
+		def ClassName()
+			return This.stzType()
+
+	def DataType()
+		if This.IsListOfNumbers()
+			return :Number
+
+		but This.IsListOfStrings()
+			return :String
+
+		but This.IsListOfLists()
+			return :List
+
+		but This.IsListOfObjects()
+			return :Object
+
+		else
+			return :Hybrid
+		ok
+
+	# Deeling with the items of the list
 
 	def Types()
 		aResult = []
 		for item in This.List()
-			aResult + type(item)
+			aResult + rng_type(item)
 		next
 		return aResult
-
-		#< @FunctionFluentForm
-
-		def TypesQ()
-			return new stzList( This.Types() )
-
-		#>
 
 	def DataTypes()
 		aResult = []
 		for item in This.List()
-			aResult + This.DataType()
+			aResult + Q(item).DataType()
 		next
 		return aResult
-
-		#< @FunctionFluentForm
-
-		def DataTypesQ()
-			return new stzList( This.DataTypes() )
-
-		#>
 
 	def UniqueTypes()
 		aResult = []
@@ -17304,13 +17316,6 @@ sdsd
 			ok
 		next
 		return aResult
-
-		#< @FunctionFluentForm
-
-		def UniqueTypesQ()
-			return new stzList( This.UniqueTypes() )
-
-		#>
 
 	  #---------------------------------------------------#
 	 #    STARTS / ENDS WITH A GIVEN SUBLIST OF ITEMS    #
@@ -17393,11 +17398,11 @@ sdsd
 			stzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
 		ok
 
-		cCode = oCode.RemoveBoundsQ("{","}").Trimmed()
+		cCode = oCode.RemoveBoundsQ(["{","}"]).Trimmed()
 		oCode = new stzString(cCode)
 		/* TODO - ERROR: check why when we do
 
-		oCode.RemoveBoundsQ("{","}").SimplifyQ()
+		oCode.RemoveBoundsQ(["{","}"]).SimplifyQ()
 
 		and get the object content using
 
@@ -17612,12 +17617,6 @@ sdsd
 	  #--------------------------------#
 	 #    USUED FOR NATURAL-CODING    #
 	#--------------------------------#
-
-	def DataType()
-		return :List
-
-	def IsStzList()
-		return TRUE
 
 	#--- ITEM
 

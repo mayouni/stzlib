@@ -990,6 +990,9 @@ class stzObject
 	def IsAnObject()
 		return TRUE
 
+		def IsObjekt()
+			return TRUE
+
 	def IsA(pcType)
 
 		/* Example
