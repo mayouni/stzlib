@@ -1,5 +1,35 @@
 load "stzlib.ring"
 
+
+? Q("(9, 7, 8)").
+	RemoveWQ('Q(@Char).IsNumberInString()').
+	RemoveSpacesQ().
+	RemoveDuplicatedCharsQ().
+	AllCharsAre(:Punctuations)
+
+/*----
+? Q("(,,)").Check(:That = 'StzCharQ(@Char).IsPunctuation()')
+#--> TRUE
+
+/*
+? Q("(9, 7, 8)").DataType()	#--> :String
+
+? QQ("(9, 7, 8)").DataType()
+? QQ("3 + 2 = 5").DataType()
+
+/*------------
+
+? Q("12500$USD")	#--> :Number
+
+
+
+/*------------
+
+? Q("5").DataType()	#--> "string"	because its elevated to a stzString object
+? QQ("5").DataType()	#--> "number"	because its elevated to a stzNumber object
+
+? Q(1:3).DataType()	#--> "list"
+
 /*============ INFERING TYPES: Q() & QQ()
 
 Q("ring") {
@@ -108,13 +138,12 @@ Q([ "A", 20, [ "B", 10 ], 30 ]){
 }
 
 /*============ INFERING TYPES: Q() and QQ()
-*/
+/*
 # The Q() function elevates a value to its corresponding ring type.
 # so Q(5) gives a stzNumber object, Q("m") gives a stzString object,
 # Q([]) gives a stzList object, and finally Q(obj) gives a stzObject.
 
-# There are three iteresting information about types that Softanza
-# provides you about the elevated object:
+# There are three interesting information about types in a Softanza object:
 #	- Type(): the type of the object returned by Q(), and it's always "OBJECT"
 #		  (note that we stay confrom with Ring type() function)
 #	- StzType() : the name of the softanza class related to the object
@@ -137,7 +166,7 @@ Q("m") {
 
 # We are going just to uppercase it, so we add these lines:
 Q("m") {
-	/* ... */
+	# ... #
 	Uppercase()
 	Show() #--> "M"
 }
@@ -174,13 +203,7 @@ QQ("m") {
 	? Name()	#--> LATIN CAPITAL LETTER TURNED M
 }
 
-/*-----------------
-
-QQ("r") {
-	? Type()	#--> "OBJECT"
-	? StzType()	#--> "stzstring"
-	? DataType()+NL	#--> "string"
-}
+/*----------------- Q(), QQ(), and QQQ() <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 Q("[1, 2, 3]") {
 	? Type()	#--> "OBJECT"

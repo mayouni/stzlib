@@ -816,7 +816,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def FindKey(pcKey)
 		if isString(pcKey)
-			return rng_find( Keys(), pcKey)
+			return ring_find( Keys(), pcKey)
 		ok
 
 	def HasKey(pcKey)

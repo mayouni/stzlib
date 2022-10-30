@@ -1,7 +1,17 @@
 load "stzlib.ring"
 
-/*-----------------
+/*------------
 
+o1 = new stzListOfStrings([ "ONE", "TWO", "THREE" ])
+? o1.Lowercased() #--> [ "one", "two", "three" ])
+
+/*------------
+
+o1 = new stzListOfStrings( functions() )
+? o1.ContainsCS("stzRaise", :CS = FALSE)	#--> TRUE
+? o1.FindFirstcs("stzRaise", :CS = false)	#--> 318
+
+/*-----------------
 
 o1 = new stzListOfStrings([ "C", "B", "A" ])
 o1.Move( :StringAtPosition = 3, :ToPosition = 1 )

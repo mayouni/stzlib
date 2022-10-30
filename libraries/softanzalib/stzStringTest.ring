@@ -1,5 +1,48 @@
 load "stzlib.ring"
 
+/*-----------------
+
+str = "sun"
+? Q(str).IsEither("moon", :Or = "sun")
+#--> return
+? Q(str).IsEither(:This = "moon", :OrThat = "sun")
+
+/*-----------------
+
+? Q("stzLen").IsAFunction() 	#--> TRUE
+# or isFunc()
+
+? Q("stzChar").IsClass()	#--> TRUE
+
+/*-----------------
+
+? Q("123").AllCharsAre(:Numbers) #--> TRUE
+? Q("(,)").AllCharsAre(:Punctuations)
+
+/*-----------------
+
+? Q("248").AllCharsAre(:Numbers)
+
+/*-----------------
+
+? QQ("ر").StzType() #--> stzChar
+? QQ("ر").UnicodeDirectionNumber() #--> "13"
+? QQ("ر").IsRightToLeft() #--> TRUE
+
+/*-----------------
+*/
+? Q("248").AllCharsAre([ :Even, :Positive, :Numbers ])
+? Q("نور").AllCharsAre([ :RightToLeft, :Arabic, :Chars ])
+? Q("①②③").AllCharsAre(:CircledNumbers)
+/*-----------------
+
+? Q("248").AllCharsAreXT([ :Even, :Positive, :Numbers ], :EvaluateFrom = :RTL)
+/*-----------------
+
+//? Q("123").Check( 'isnumber( 0+(@char) )' ) #--> TRUE
+
+/*-----------------
+
 ? SoftanzaLogo()
 /* --> 
 
@@ -3276,46 +3319,4 @@ o1 = new stzString("🐨")
 ? Q('[1, 2, 3]').ToList() #--> [1, 2, 3]
 
 /*---------------
-*/
-	def IsStzString()
-		return TRUE
 
-	# If you ask for the type of the current object and you
-	# use Type(), then Softanza answers you like the ring
-	# native function type() would do:
-	def Type()
-		return "OBJECT" #--> Note that Ring returns it in UPPERCASE
-				# so we conserve the same behavior to be
-				# consistent with your other Ring code
-
-	# If you want to know the name of the class then you can use
-	# the same function as Ring (ClassName()) or stzType()):
-	def stzType()
-		return :stzString
-
-		def ClassName()
-			return This.stzType()
-
-	# If you need to know the type of the data hosted in this
-	# object, then you use DataType():
-	def DataType()
-		return :String
-	# You would say: it's of course a string, so why one should ever
-	# need it? Answer: there are two good reasons:
-
-	# 	- Reason 1: when you deal with a variable that you don't
-	# 	  know its type:
-
-	# 	  like when you write: ? Q(var).DataType, and you get "string",
-	# 	  now you know var hosts a string. But, in terms of Ring native
-	# 	  types,  it may be a STRING or OBJECT ring types of the class
-	# 	  stzString. In fact, stzString is a container of strings!
-
-	# 	  To check it, you can use: ? Q(var).IsObject(), and you get TRUE
-	# 	  or FALSE depending on var beeing a ring STRING or OBJECT.
-
-	# 	  In case it's TRUE, you can check the name of the softanza class using:
-	# 	  N Q(var).stzType() and you will get "stzstring".
-
-	# 	- Reason 2: when used in natural language programming.
-	# 	  TODO: Develop the explanantion here...

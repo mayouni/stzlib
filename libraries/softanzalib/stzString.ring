@@ -1754,7 +1754,7 @@ class stzString from stzObject
 		cResult = ""
 
 		for aLine in aMarquers
-			n = rng_find(aLine[2], pnPosition)
+			n = ring_find(aLine[2], pnPosition)
 			if n > 0
 				cResult = aLine[1]
 				exit
@@ -2523,7 +2523,7 @@ class stzString from stzObject
 
 			c = This.NthChar(i)
 
-			if NOT rng_find(aResult, c)
+			if NOT ring_find(aResult, c)
 				aResult + c
 			ok
 
@@ -8953,12 +8953,9 @@ class stzString from stzObject
 
 		#>
 
-	// Verifies if the string text is empty (null)
+	// Verifies if the string text is empty (null, in Ring terms)
 	def IsEmpty()
 		return This.Content() = ""
-
-		def IsNull()
-			return This.IsEmpty()
 
 	  #---------------------------------------#
 	 #      RESIZING, FILLING & UPDATING     #
@@ -13358,10 +13355,20 @@ class stzString from stzObject
 	#=====================================#
 
 	def Split(p)
-		aSections = StzSplitterQ( This.NumberOfChars() ).Split(p)
-		aResult = This.Sections(aSections)
+		if isList(p) and Q(p).IsUsingNamedParam()
+			p = p[2]
+		ok
 
+		if NOT isString(p)
+			stzRaise("Incorrect param type! p must be a string.")
+		ok
+
+		oQStrList = This.QStringObject().split(p, 0, 0)
+		aResult = QStringListToList(oQStrList)
 		return aResult
+
+		def Splitted(p)
+			return This.Split(p)
 
 	  #===================================#
 	 #   SPLITTING AT A GIVEN POSITION   #
@@ -19181,6 +19188,255 @@ class stzString from stzObject
 
 		#>
 
+	  #-----------------------------------------------------#
+	 #  CHECKING IF THE STRING IS THE NAME OF A FUNCTION   #
+	#-----------------------------------------------------#
+	/*
+	TODO: Distinguish between Ring, Softanza, Qt, and other
+	libraries functions, classes, and attributes.
+	*/
+
+	def IsAFunction()
+		if ring_find( functions(), This.Lowercased() ) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+ 
+		def IsAFunctionName()
+			return This.IsAFunction()
+
+		def IsFunction()
+			return This.IsAFunction()
+
+		def IsFunctionName()
+			return This.IsAFunction()
+
+		#--
+
+		def IsFunc()
+			return This.IsAFunction()
+
+		def IsFunctName()
+			return This.IsAFunction()
+
+	  #--------------------------------------------------#
+	 #  CHECKING IF THE STRING IS THE NAME OF A CLASS   #
+	#--------------------------------------------------#
+
+	def IsAClass()
+		if ring_find( classes(), This.Lowercased() ) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAClassName()
+			return This.IsAClass()
+
+		def IsClass()
+			return This.IsAClass()
+
+		def IsClassName()
+			return This.IsAClass()
+
+	  #------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS THE NAME OF AN ATTRIBUTE  # TODO
+	#------------------------------------------------------#
+
+	def IsAnAttributeOfClass(pcClass)
+		/* ... */
+
+		def IsAnAttributeInClass(pcClass)
+			return This.IsAnAttributeOfClass(pcClass)
+
+		def IsAnAttributeOf(pcClass)
+			return This.IsAnAttributeOfClass(pcClass)
+
+		def IsAnAttributeIn(pcClass)
+			return This.IsAnAttributeOfClass(pcClass)
+
+		def IsAttributeOfClass(pcClass)
+			return This.IsAnAttributeOfClass(pcClass)
+
+		def IsAttributeInClass(pcClass)
+			return This.IsAnAttributeOfClass(pcClass)
+
+		def IsAttributeOf(pcClass)
+			return This.IsAnAttributeOfClass(pcClass)
+
+		def IsAttributeIn(pcClass)
+			return This.IsAnAttributeOfClass(pcClass)
+
+	  #------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS THE NAME OF AN ATTRIBUTE  # TODO
+	#------------------------------------------------------#
+
+	def IsAMethodOfClass(pcClass)
+		/* ... */
+
+		def IsAMethodInClass(pcClass)
+			return This.IsAMethodOfClass(pcClass)
+
+		def IsAMethodOf(pcClass)
+			return This.IsAMethodOfClass(pcClass)
+
+		def IsAMethodIn(pcClass)
+			return This.IsAMethodOfClass(pcClass)
+
+		def IsMethodOfClass(pcClass)
+			return This.IsAMethodOfClass(pcClass)
+
+		def IsMethodInClass(pcClass)
+			return This.IsAMethodOfClass(pcClass)
+
+		def IsMethodOf(pcClass)
+			return This.IsAMethodOfClass(pcClass)
+
+		def IsMethodIn(pcClass)
+			return This.IsAMethodOfClass(pcClass)
+
+	  #----------------------------------------#
+	 #      CHECKING IF ALL CHARS ARE ...     #
+	#----------------------------------------#
+
+	def AllCharsAre(pcDescriptor)
+		/* EXAMPLE
+
+		? Q("123").AllCharsAre(:Numbers) #--> TRUE
+		? Q("248").AllCharsAre([ :Even, :Numbers ])
+
+		? Q("(,)").AllCharsAre(:Punctuations)
+
+		
+		*/
+
+		if isList(pcDescriptor) and Q(pcDescriptor).IsListOfStrings()
+			return This.AllCharsAreXT(pcDescriptor, :EvalFrom = :RightToLeft)
+		ok
+
+		if NOT isString(pcDescriptor)
+			stzRaise("Incorrect param type! pcDescriptor must be a string.")
+		ok
+
+		if isString(pcDescriptor)
+
+			if Q(pcDescriptor).RemoveSpacesQ().LowercaseQ().IsEither(:Chars, :Or = :Char)
+				return TRUE
+			ok
+
+			cResult = InfereDataTypeFromString(pcDescriptor)
+
+			if cResult = ""
+				oTempChar = new stzChar("_")
+
+				if ring_find( methods(oTempChar), Q("is" + pcDescriptor).Lowercased()) > 0 or
+				   ring_find( methods(oTempChar), Q("isA" + pcDescriptor).Lowercased()) > 0
+
+					cResult = pcDescriptor
+				else
+					oDescriptor = new stzString(pcDescriptor)
+					if oDescriptor.EndsWithCS("s", :CS = FALSE)
+						cDescriptor = oDescriptor.LastCharRemoved()
+
+						if ring_find( methods(oTempChar), Q("is" + cDescriptor).Lowercased()) > 0 or
+				  		   ring_find( methods(oTempChar), Q("isA" + cDescriptor).Lowercased()) > 0
+
+							cResult = cDescriptor
+						ok
+					ok
+				ok
+				
+			ok
+
+			if cResult = ""
+				return FALSE
+			ok
+
+			if Q(cResult).IsOneOfTheseCS([ :Number, :String, :List, :Object ], :CS = FALSE)
+				cMethod = 'isA' + cResult + '()'
+			else
+				cMethod = 'is' + cResult + '()'
+			ok
+
+			cCode = "bResult = This.Check( 'StzCharQ(@char)." + cMethod + "' )"
+			eval(cCode)
+			return bResult
+
+		ok
+
+	def AllCharsAreXT(pacDescriptors, paEvalDirection)
+		/* EXAMPLE
+		? Q("248").AllCharsAreXT([ :Even, :Positive, :Numbers ], :EvalFrom = :RightToLeft)
+		#--> TRUE
+		*/
+
+		if NOT isList(pacDescriptors) and Q(pacDescriptors).IsListOfStrings()
+			stzRaise("Incorrect param type! pacDescriptors must be a list of strings.")
+		ok
+
+		if isList(paEvalDirection) and
+		   Q(paEvalDirection).IsOneOfTheseNamedParams([
+			:Eval, :Evaluate,
+			:EvalFrom, :EvaluateFrom,
+			:EvalDirection, :EvaluationDirection
+		   ])
+
+			paEvalDirection = paEvalDirection[2]
+		ok
+
+		if NOT Q(paEvalDirection).IsOneOfTheseCS([
+			:LeftToRight, :RightToLeft,
+			:Left2Right, :Right2Left,
+			:FromLeftToRight, :FromRightToLeft,
+			:FromLeft2Right, :FromRight2Left,
+			:LTR, :RTL, :L2R, :R2L,
+			:FromLTR, :FromRTL, :FromL2R, :FromR2L
+			], :CS = FALSE)
+
+			stzRaise("Incorrect param value for paEvalDirection! Allowed values are :RightToLeft and :LeftToRight.")
+		ok
+
+		# Doing the job
+
+		acDescriptors = pacDescriptors
+		if Q(paEvalDirection).IsOneOfTheseCS([
+			:RightToLeft,
+			:Right2Left,
+			:FromRightToLeft,
+			:FromRight2Left,
+			:RTL, :R2L,
+			:FromRTL, :FromR2L
+			], :CS = FALSE)
+
+			acDescriptors = Q(acDescriptors).Reversed()
+		ok
+
+		#--> Start evaluation by elevating the 1st descriptor to an object
+		#    and then check the other descriptors on it
+		#    if they are all TRUE then return TRUE, else return FALSE
+
+		if NOT This.AllCharsAre(acDescriptors[1])
+			return FALSE
+		ok
+
+		cClass = InfereDataTypeFromString(acDescriptors[1])
+
+		for i = 2 to len(acDescriptors)
+			if Q(acDescriptors[i]).IsOneOfTheseCS([ :Number, :String, :List, :Object ], :CS = FALSE)
+				cMethod = 'isA' + acDescriptors[i] + '()'
+			else
+				cMethod = 'is' + acDescriptors[i] + '()'
+			ok
+
+			bOk = CheckW('{ Stz' + cClass + 'Q(@Char).' + cMethod + ' }')
+			if NOT bOk
+				return FALSE
+			ok
+		next
+
+		return TRUE
+
 	  #---------------------------------------------#
 	 #      CHARS VERIFYING A GIVEN CONDITION      #
 	#---------------------------------------------#
@@ -19253,7 +19509,7 @@ class stzString from stzObject
 			return This.IsChar()
 
 	def IsNullOrChar()
-		return This.IsNull() or This.IsChar()
+		return isNull(This.Content()) or This.IsChar()
 
 		def IsCharOrNull()
 			return This.IsNullOrChar()
@@ -19372,12 +19628,13 @@ class stzString from stzObject
 
 		#>
 
-		def RemoveDuplicatedChars()
-			This.Update( This.UniqueChars() )
+	def RemoveDuplicatedChars()
+		cNewString = CharsQR(:stzListOfStrings).RemoveDuplicatesQ().Concatenated()
+		This.Update(cNewString)
 
-			def RemoveDuplicatedCharsQ()
-				This.RemoveDuplicatedChars()
-				return This
+		def RemoveDuplicatedCharsQ()
+			This.RemoveDuplicatedChars()
+			return This
 	
 	  #-------------------------------#
 	 #   CHAR AT A GIVEN POSITION    #
@@ -20206,6 +20463,34 @@ class stzString from stzObject
 
 		def IsOneOf(paList)
 			return This.ExistsInList(paList)
+
+	  #----------------------------------------------------#
+	 #  CHECHKING IF THE STRING IS EQUAL TO VAL1 OR VAL2  #
+	#----------------------------------------------------#
+	// TODO: Add same function to other classes
+
+	def IsEitherCS(pcStr1, pcStr2, pCaseSensitive)
+		if isList(pcStr1) and Q(pcStr1).IsThisNamedParam()
+			pcStr1 = pcStr1[2]
+		ok
+
+		if isList(pcStr2) and
+			Q(pcStr2).IsOneOfTheseNamedParams([ :Or, :OrThat, :OrThis ])
+
+			pcStr2 = pcStr2[2]
+		ok
+
+		if NOT BothAreStrings(pcStr1, pcStr2)
+			stzraise("Incorrect param type! Both pcStr1 and pcStr2 must be strings.")
+		ok
+
+		bResult = This.IsOneOfTheseCS([ pcStr1, pcStr2 ], pCaseSensitive)
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsEither(pcStr1, pcStr2)
+		return This.IsEitherCS(pcStr1, pcStr2, :CaseSensitive = TRUE)
 
 	  #---------------------------------------------#
 	 #  MOVING CHAR AT POSITION N1 TO POSITION N2  #
@@ -22775,27 +23060,6 @@ class stzString from stzObject
 
 	def IsListOfCharsInComputableForm()
 		// TODO
-
-	def IsEitherCS(pcStr1, pcStr2, pCaseSensitive)
-		if isList(pcStr1) and Q(pcStr1).IsThisNamedParam()
-			pcStr1 = pcStr1[2]
-		ok
-
-		if isList(pcStr1) and
-			Q(pcStr1).IsOneOfTheseNamedParams([ :And, :AndThat, :AndThis ])
-
-			pcStr2 = pcStr2[2]
-		ok
-
-		bResult = FALSE
-
-		if This.IsEqualToCS(pcStr1, pCaseSensitive) or
-		   This.IsEqualToCS(pcStr2, pCaseSensitive)
-
-			bResult = TRUE
-		ok
-
-		return bResult
 
 	def Show()
 		? This.Content()

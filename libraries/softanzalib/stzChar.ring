@@ -438,7 +438,7 @@ class stzChar from stzObject
 		ok
 
 	def IsRightToLeft()
-		if This.UnicodeDirectionNumber() = "1"
+		if This.UnicodeDirectionNumber() = "13"
 			return TRUE
 		else
 			return FALSE
