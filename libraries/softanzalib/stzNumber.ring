@@ -980,7 +980,7 @@ class stzNumber from stzObject
 	 #    NULL, POSITIVE OR NEGATIVE    #
 	#----------------------------------#
 
-	def IsNull()
+	def IsZero()
 		if This.Content() = "0"
 			return TRUE
 		else
@@ -995,7 +995,7 @@ class stzNumber from stzObject
 		ok	
 		 
 	def IsStrictlyNegative()
-		if This.IsNegative() or This.IsNull()
+		if This.IsNegative() or This.IsZero()
 			return TRUE
 
 		else
@@ -1010,7 +1010,7 @@ class stzNumber from stzObject
 		ok
 
 	def IsStrictlyPositive()
-		if This.IsPositive() or This.IsNull()
+		if This.IsPositive() or This.IsZero()
 			return TRUE
 
 		else
@@ -1055,6 +1055,9 @@ class stzNumber from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsNotSigned()
+			return NOT IsSigned()
 
 	def IsUnsigned()
 		if This.IsSigned() = TRUE

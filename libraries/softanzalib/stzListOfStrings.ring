@@ -2888,7 +2888,23 @@ class stzListOfStrings from stzList
 	
 	def FindFirstOccurrenceOfStringItemCS(pcStrItem, pCaseSensitive)
 
-		return This.FindNthOccurrenceOfStringItemCS(1, pcStrItem, pCaseSensitive)
+		# NOTE: QStringList does not contain a find method!		
+		bCaseSensitive = TRUE
+		if pCaseSensitive[:CaseSensitive] = FALSE or
+		   pCaseSensitive[:CS] = FALSE
+			bCaseSensitive = FALSE
+		ok
+
+		nResult = 0
+		if NOT bCaseSensitive
+			nResult = ring_find( This.Lowercased(), Q(pcStrItem).Lowercased() )
+
+		else
+			nResult = ring_find( This.ListOfStrings(), pcStrItem )
+
+		ok
+
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -3128,11 +3144,27 @@ class stzListOfStrings from stzList
 	#=========================================================#
 
 	def ContainsCS(pcStr, pCaseSensitive)
+		bCaseSensitive = TRUE
+		if pCaseSensitive[:CaseSensitive] = FALSE or
+		   pCaseSensitive[:CS] = FALSE
 
-		bResult = 0
+			bCaseSensitive = FALSE
+		ok
 
-		if This.FindFirstCS(pcStr, pCaseSensitive) > 0
-			bResult = TRUE
+		if bCaseSensitive
+
+			if ring_find( This.ListOfStrings(), pcStr ) > 0
+				return TRUE
+			else
+				return FALSE
+			ok
+
+		else
+			if ring_find( This.Lowercased(), Q(pcStr).Lowercased() ) > 0
+				return TRUE
+			else
+				return FALSE
+			ok
 		ok
 
 		return bResult
@@ -16065,12 +16097,36 @@ class stzListOfStrings from stzList
 		def RemoveDuplicatesCSQ(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
 			return This
+
+		#< @FunctionAlternativeForms
+
+		def RemoveDuplicatedStringsCS(pCaseSensitive)
+			This.RemoveDuplicatesCS(pCaseSensitive)
+
+			def RemoveDuplicatedStringsCSQ(pCaseSensitive)
+				This.RemoveDuplicatedStringsCS(pCaseSensitive)
+				return This
+
+		def RemoveDuplicatedStringItemsCS(pCaseSensitive)
+			This.RemoveDuplicatesCS(pCaseSensitive)
+
+			def RemoveDuplicatedStringItemsCSQ(pCaseSensitive)
+				This.RemoveDuplicatedStringsCS(pCaseSensitive)
+				return This
 		
+		#>
+
 	def DuplicatesRemovedCS(pCaseSensitive)
 		acResult = This.Copy().RemoveDuplicatesCSQ(pCaseSensitive).Content()
 		return acResult
 
 		def ToSetCS(pCaseSensitive)
+			return This.RemoveDuplicatesCS(pCaseSensitive)
+
+		def ToSetOfStringsCS(pCaseSensitive)
+			return This.RemoveDuplicatesCS(pCaseSensitive)
+
+		def ToSetOfStringItemsCS(pCaseSensitive)
 			return This.RemoveDuplicatesCS(pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -16082,6 +16138,24 @@ class stzListOfStrings from stzList
 			This.RemoveDuplicates()
 			return This
 		
+		#< @FunctionAlternativeForms
+
+		def RemoveDuplicatedStrings()
+			This.RemoveDuplicates()
+
+			def RemoveDuplicatedStringsQ()
+				This.RemoveDuplicatedStrings()
+				return This
+
+		def RemoveDuplicatedStringItems()
+			This.RemoveDuplicates()
+
+			def RemoveDuplicatedStringItemsQ()
+				This.RemoveDuplicatedStrings()
+				return This
+		
+		#>
+
 	def DuplicatesRemoved()
 		acResult = This.Copy().RemoveDuplicatesQ().Content()
 		return acResult
@@ -16089,6 +16163,12 @@ class stzListOfStrings from stzList
 		def ToSet()
 			return This.RemoveDuplicates()
 	
+		def ToSetOfStrings()
+			return This.RemoveDuplicates()
+
+		def ToSetOfStringItems()
+			return This.RemoveDuplicates()
+
   	  #------------------------------------------------#
 	 #   REMOVING DUPLICATES OF A GIVEN STRING-ITEM   #
 	#------------------------------------------------#
@@ -16520,52 +16600,57 @@ class stzListOfStrings from stzList
 		def AllStringItemsAreUppercase()
 			return This.AllStringsAreUppercase()
 
+	  #-----------------------------------#
+	 #  LOWERCASING THE LIST OF STRINGS  #
+	#-----------------------------------#
+
 	def ApplyLowercase()
-		for i = 1 to This.NumberOfStrings()
-			This.ReplaceStringAtPosition(i, StzStringQ(This.Content()[i]).Lowercased())
-		next
+		This.Update( :With = This.Lowercased() )
 
-	def ApplyLowercaseQ()
-		This.ApplyLowercase()
-		return This
+		def ApplyLowercaseQ()
+			This.ApplyLowercase()
+			return This
+	
+		def Lowercase()
+			This.ApplyLowercase()
+	
+			def LowercaseQ()
+				This.Lowercase()
+				return This
+		
+	def Lowercased()
+		acResult = This.ConcatenateUsingQ(NL).
+			LowercaseQ().
+			Splitted(:Using = NL)
 
-	def Lowercase()
-		This.ApplyLowercase()
+		return acResult
 
-	def LowercaseQ()
-		This.Lowercase()
-		return This
-
-	def lowercased()
-		aResult = []
-		for str in This.ListOfStrings()
-			aResult + StzStringQ(str).Lowercased()
-		next
-		return aResult
+	  #-----------------------------------#
+	 #  UPPERCASING THE LIST OF STRINGS  #
+	#-----------------------------------#
 
 	def ApplyUppercase()
-		for i = 1 to This.NumberOfStrings()
-			This.ReplaceStringAtPosition( i, StzStringQ( This.Content()[i]).Uppercased() )
-		next
+		This.Update( :With = This.Uppercased() )
 
-	def ApplyUppercaseQ()
-		This.ApplyUpperCase()
-		return This
-
-	def Uppercase()
-		This.ApplyUppercase()
-
-	def UppercaseQ()
-		This.Uppercase()
-		return This
-
+		def ApplyUppercaseQ()
+			This.ApplyUppercase()
+			return This
+	
+		def Uppercase()
+			This.ApplyUppercase()
+	
+			def UppercaseQ()
+				This.Uppercase()
+				return This
+		
 	def Uppercased()
-		aResult = []
-		for str in This.ListOfStrings()
-			aResult + StzStringQ(str).Uppercased()
-		next
-		return aResult
+		acResult = This.ConcatenateUsingQ(NL).
+			UppercaseQ().
+			Splitted(:Using = NL)
 
+		return acResult
+
+#---------------
 	def ApplyFoldcase()
 		for i = 1 to This.NumberOfStrings()
 			This.ReplaceStringAtPosition(i, StzStringQ(This.Content()[i]).Foldcased())

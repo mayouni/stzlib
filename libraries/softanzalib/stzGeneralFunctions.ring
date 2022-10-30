@@ -95,13 +95,13 @@ func stzRaise(paMessage)
 # where the same name is needed (example: insert() inside stzString)
 # --> This will allow us to avoid conflicts!
 
-func rng_insert(paList, n, pItem)
+func ring_insert(paList, n, pItem)
 	insert(paList, n, pItem)
 
-func rng_find(paList, pItem)
+func ring_find(paList, pItem)
 	return find(paList, pItem)
 
-func rng_type(p)
+func ring_type(p)
 	return type(p)
 
 #-----
@@ -176,7 +176,7 @@ func ListOfListsOfStzTypes() # TODO: complete the list
 		:ListOfStzGrids
 	]
 
-func InfereDataTypeFromString(pcStr)
+func InfereDataTypeFromString(pcStr) // TODO: Add more types (think of more general solutuion)
 	cStr = Q(pcStr).Lowercased()
 
 	if cStr = :number or cStr = :numbers or Q(cStr).BeginsWith(:Number)
@@ -192,6 +192,11 @@ func InfereDataTypeFromString(pcStr)
 	but cStr = :object or cStr = :objects or Q(cStr).BeginsWith(:Object)
 		return :Object
 
+	but cStr = :char or cStr = :chars
+		return :Char
+
+	else
+		stzRaise("Can't infere the data type form the string: " + pcStr + "!")
 	ok
 
 
@@ -208,6 +213,13 @@ func InfereDataTypeFromString(pcStr)
 	func InfereTypeFromString(pcStr)
 		return InfereDataTypeFromString(pcStr)
 
+func InfereDataTypesFromListOfStrings(paStr)
+	aResult = []
+	for str in paStr
+		aResult + InfereDataTypeFromString(str)
+	next
+
+	return aResult
 func DataType(p)
 	return lower(type(p))
 

@@ -753,11 +753,11 @@ class stzList from stzObject
 		ok
 
 		if n >= 1 and n <= This.NumberOfItems()
-			rng_insert(This.List(), n-1, pItem)
+			ring_insert(This.List(), n-1, pItem)
 
 		but n > This.NumberofItems()
 			This.ExtendToN(n)
-			rng_insert(This.List(), n-1, pItem)
+			ring_insert(This.List(), n-1, pItem)
 			# Using Ring native insert function here
 		ok
 
@@ -807,7 +807,7 @@ class stzList from stzObject
 		ok
 
 		if n > 0 and n < This.NumberOfItems()
-			rng_insert(This.List(), n, pItem)
+			ring_insert(This.List(), n, pItem)
 
 		ok
 
@@ -4097,7 +4097,7 @@ class stzList from stzObject
 				bResult = FALSE
 				exit
 			else
-				if rng_find(aTempKeys, This[i][1]) > 0
+				if ring_find(aTempKeys, This[i][1]) > 0
 					bResult = FALSE
 					exit
 				ok
@@ -5178,13 +5178,13 @@ class stzList from stzObject
 		m = This.NumberOfItems() + pnFromEnd
 		for n = 1 to This.NumberOfItems() step pnFromStart
 			// adding one step forward
-			if n != m and rng_find(aResult, n) = 0
+			if n != m and ring_find(aResult, n) = 0
 				aResult + n
 			ok
 
 			// adding one step backward
 			m -= pnFromEnd
-			if m != n and rng_find(aResult, m) = 0 and m > 0
+			if m != n and ring_find(aResult, m) = 0 and m > 0
 				aResult + m
 			ok	
 		next
@@ -8670,7 +8670,7 @@ sdsd
 		*/
 		aTempList = This.List()
 		for item in paOtherList
-			del(aTempList, rng_find(aTempList, item))
+			del(aTempList, ring_find(aTempList, item))
 		next
 
 		This.Update( aTempList )
@@ -9233,9 +9233,19 @@ sdsd
 			This.RemoveDuplicates()
 			return This
 
+		def RemoveDuplicatedItems()
+			This.RemoveDuplucates()
+
+			def RemoveDuplicatedItemsQ()
+				This.RemoveDuplicatedItems()
+				return This
+
 	def DuplicatesRemoved()
 		aResult = This.Copy().RemoveDuplicatesQ().Content()
 		return aResult
+
+		def DuplicatedItemsRemoved()
+			return This.DuplicatesRemoved()
 
 	  #====================#
 	 #     CONTAINMENT    #
@@ -17256,6 +17266,87 @@ sdsd
 			return FALSE
 		ok
 
+	#--
+
+	def IsEvalNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Eval )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEvaluateNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Evaluate )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEvalFromNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :EvalFrom )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEvaluateFromNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :EvaluateFrom )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEvalDirectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :EvalDirection )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEvaluationDirectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :EvaluationDirection )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOrThisNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :OrThis )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOrThatNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :OrThat )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
 
 	  #=======================#
 	 #     GETTING TYPES     #
@@ -17297,7 +17388,7 @@ sdsd
 	def Types()
 		aResult = []
 		for item in This.List()
-			aResult + rng_type(item)
+			aResult + ring_type(item)
 		next
 		return aResult
 
