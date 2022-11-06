@@ -326,8 +326,8 @@ opjn
 
 /*----------------
 */
-? QQ([ 12, 24, 42 ]).DataType()
-? QQ(["abc","cdef","opjn"]).DataType()
+? QQ([ 12, 24, 42 ]).DataType() #--> :Number
+? QQ(["abc","cdef","opjn"]).DataType() #--> :String
 
 /*----------------
 */

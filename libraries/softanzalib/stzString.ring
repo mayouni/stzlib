@@ -700,7 +700,7 @@ class stzString from stzObject
 			return This.IsLowercase()
 		#>
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def IsNotLowercase()
 			return NOT This.IsLowercase()
@@ -3065,7 +3065,7 @@ class stzString from stzObject
 		   isList(pacBounds[2]) andQ(pacBounds[2]).IsPair() and
 		   Q(pacBounds[2]).IsInNamedParam()
 		   
-			return This.IsBoundedByInCS(pacBounds[1], pacBounds[2][2], pCaseSensitive)
+			return This.IsBoundedByInCS(pacBounds[1], :In = pacBounds[2], pCaseSensitive)
 
 		ok
 
@@ -12673,7 +12673,7 @@ class stzString from stzObject
 			return This.ContainsCS(cSubStr, pCaseSensitive)
 		#>
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 	
 		def ContainsNoCS(cSubStr, pCaseSensitive)
 			return NOT This.ContainsCS(cSubStr, pCaseSensitive)
@@ -12691,7 +12691,7 @@ class stzString from stzObject
 			return This.Contains(pcSubStr)
 		#>
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def ContainsNo(cSubStr)
 			return NOT This.Contains(cSubStr)
@@ -13255,7 +13255,7 @@ class stzString from stzObject
 	def ContainsCharsInScript(pcScript)
 		return This.ToStzText().ContainsScript(pcScript)
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def ContainsNocharsInScript(pcScript)
 			return NOT This.ContainsCharsInScript(pcScript)
@@ -13276,7 +13276,7 @@ class stzString from stzObject
 		next
 		return bResult
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoLetters()
 			return NOT This.ContainsNumbers()
@@ -13309,7 +13309,7 @@ class stzString from stzObject
 		next
 		return bResult
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoArabicLetters()
 			return NOT This.ContainsArabicNumbers()
@@ -13326,7 +13326,7 @@ class stzString from stzObject
 		next
 		return bResult
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoLatinLetters()
 			return NOT This.ContainsLatinNumbers()
@@ -13343,7 +13343,7 @@ class stzString from stzObject
 		next
 		return bResult
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoLettersInScript(pcScript)
 			return NOT This.ContainsNumbers(pcScript)
@@ -14090,8 +14090,8 @@ class stzString from stzObject
 	def UnicodeCompareWith(pcOtherStr)
 		return CompareWithCS(pcOtherStr, :CaseSensitive = TRUE)
 
-	def UnicodeCompareWithInSystemLocale(pcOtherString)
-		nQtResult = @oQString.localeAwareCompare(pcOtherString)
+	def UnicodeCompareWithInSystemLocale(pcOtherStr)
+		nQtResult = @oQString.localeAwareCompare(pcOtherStr)
 
 		if nQtResult = 0
 			return :equal
@@ -14116,47 +14116,47 @@ class stzString from stzObject
 		--> TODO: Add QCollator class to RingQt and make CompareWithInLocale()
 		*/
 
-	def UnicodeCompareWithInLocale(pcOtherString, pLocale) # TODO
+	def UnicodeCompareWithInLocale(pcOtherStr, pLocale) # TODO
 		// Needs the implementation of QCollator class in RingQt (read comment
 		// in SystemLocaleCompareWith() methof above
 
-	def IsUnicodeEqualTo(pcOtherString)
+	def IsUnicodeEqualTo(pcOtherStr)
 		return This.UnicodeCompareWith(pcOtherNumber) = :Equal
 
-		def IsUnicodeDifferentFrom(pcOtherString)
-			return NOT This.IsUnicodeEqualTo(pcOtherString)
+		def IsUnicodeDifferentFrom(pcOtherStr)
+			return NOT This.IsUnicodeEqualTo(pcOtherStr)
 
-		def IsNotUnicodeEqualTo(pcOtherString)
-			return NOT This.IsUnicodeEqualTo(pcOtherString)
+		def IsNotUnicodeEqualTo(pcOtherStr)
+			return NOT This.IsUnicodeEqualTo(pcOtherStr)
 
-	def IsUnicodeEqualToInLocale(pcOtherString, pLocale)
+	def IsUnicodeEqualToInLocale(pcOtherStr, pLocale)
 		return This.UnicodeCompareWithInLocale(pcOtherNumber, pLocale) = :Equal
 
-		def IsUnicodeDifferentFromInLocale(pcOtherString, pLocale)
-			return NOT This.IsUnicodeEqualToInLocale(pcOtherString, pLocale)
+		def IsUnicodeDifferentFromInLocale(pcOtherStr, pLocale)
+			return NOT This.IsUnicodeEqualToInLocale(pcOtherStr, pLocale)
 
-		def IsNotUnicodeEqualToInLocale(pcOtherString, pLocale)
-			return NOT This.IsUnicodeEqualToInLocale(pcOtherString, pLocale)
+		def IsNotUnicodeEqualToInLocale(pcOtherStr, pLocale)
+			return NOT This.IsUnicodeEqualToInLocale(pcOtherStr, pLocale)
 
-	def IsUnicodeLessThan(pcOtherString)
+	def IsUnicodeLessThan(pcOtherStr)
 		return This.UnicodeCompareWith(pcOtherNumber) = :Less
 
-		def IsUnicodeLessThanInLocale(pcOtherString, pLocale)
+		def IsUnicodeLessThanInLocale(pcOtherStr, pLocale)
 			return This.UnicodeCompareWithInLocale(pcOtherNumber, pLocale) = :Less
 	
-	def IsUnicodeGreaterThan(pcOtherString)
+	def IsUnicodeGreaterThan(pcOtherStr)
 		return This.UnicodeCompareWith(pcOtherNumber) = :Greater
 
-		def IsUnicodeGreaterThanInLocale(pcOtherString, pLocale)
+		def IsUnicodeGreaterThanInLocale(pcOtherStr, pLocale)
 			return This.UnicodeCompareWithInLocale(pcOtherNumber, pLocale) = :Greater
 
 	  #-----------------------------------------------#
 	 #     COMPARING THE STRING TO OTHER STRINGS     #
 	#-----------------------------------------------#
 
-	def IsEqualToCS(pcOtherString, pCaseSensitive)
+	def IsEqualToCS(pcOtherStr, pCaseSensitive)
 
-		if NOT isString(pcOtherString)
+		if NOT isString(pcOtherStr)
 			return FALSE
 		ok
 
@@ -14166,28 +14166,38 @@ class stzString from stzObject
 
 		if pCaseSensitive = TRUE
 
-			return This.String() = pcOtherString
+			return This.String() = pcOtherStr
 
 		but pCaseSensitive = FALSE
-			return This.Lowercased() = StzStringQ(pcOtherString).Lowercased()
+			return This.Lowercased() = StzStringQ(pcOtherStr).Lowercased()
 		ok
 		
-	def IsEqualTo(pcOtherString)
-		return This.IsEqualToCS(pcOtherString, :CaseSensitive = TRUE)
+		#< @FunctionNegativeForm
 
-		#< @FunctionNegationForm
+		def IsNotEqualToCS(pcOtherStr, pCaseSensitive)
+			return NOT This.IsEqualToCS(pcOtherStr, pCaseSensitive)
 
-		def IsNotEqualTo(pcOtherString)
-			return NOT This.IsEqualTo(pcOtherString)
-
-			def IsDifferentFrom(pcOtherString)
-				return This.IsNotEqualTo(pcOtherString)
+			def IsDifferentFromCS(pcOtherStr, pCaseSensitive)
+				return This.IsNotEqualToCS(pcOtherStr, pCaseSensitive)
 	
 		#>
 
-	def IsStrictlyEqualToCS(pcOtherString, pCaseSensitive)
-		if This.IsEqualToCS(pcOtherString, pCaseSensitive) and
-		   This.HasSameSortingOrderAs(pcOtherString)
+	def IsEqualTo(pcOtherStr)
+		return This.IsEqualToCS(pcOtherStr, :CaseSensitive = TRUE)
+
+		#< @FunctionNegativeForm
+
+		def IsNotEqualTo(pcOtherStr)
+			return NOT This.IsEqualTo(pcOtherStr)
+
+			def IsDifferentFrom(pcOtherStr)
+				return This.IsNotEqualTo(pcOtherStr)
+	
+		#>
+
+	def IsStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
+		if This.IsEqualToCS(pcOtherStr, pCaseSensitive) and
+		   This.HasSameSortingOrderAs(pcOtherStr)
 
 			return TRUE
 
@@ -14195,18 +14205,18 @@ class stzString from stzObject
 			return FALSE
 		ok
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
-		def IsNotStrictlyEqualToCS(pcOtherString, pCaseSensitive)
-			return NOT This.IsStrictlyEqualTo(pcOtherString, pCaseSensitive)
+		def IsNotStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
+			return NOT This.IsStrictlyEqualTo(pcOtherStr, pCaseSensitive)
 	
 		#>
 
-	def IsStrictlyEqualTo(pcOtherString)
-		return This.IsStrictlyEqualToCS(pcOtherString, :CaseSensitive = TRUE)
+	def IsStrictlyEqualTo(pcOtherStr)
+		return This.IsStrictlyEqualToCS(pcOtherStr, :CaseSensitive = TRUE)
 
-		def IsNotStrictlyEqualTo(pcOtherString)
-			return NOT This.IsStrictlyEqualTo(pcOtherString)
+		def IsNotStrictlyEqualTo(pcOtherStr)
+			return NOT This.IsStrictlyEqualTo(pcOtherStr)
 
 	def IsEqualToOneOfTheseCS(pacOtherStr, pCaseSensitive)
 		bResult = TRUE
@@ -14221,30 +14231,30 @@ class stzString from stzObject
 	def IsEqualToOneOfThese(pacOtherStr)
 		return This.IsEqualToOneOfTheseCS(pacOtherStr, :CaseSensitive = TRUE)
 
-	def IsLessThan(pcOtherString)
-		return This.IsIncludedIn(pcOtherString)
+	def IsLessThan(pcOtherStr)
+		return This.IsIncludedIn(pcOtherStr)
 
-		def IsStrictlyLessThan(pcOtherString)
-			return This.IsLessThan(pcOtherString)
+		def IsStrictlyLessThan(pcOtherStr)
+			return This.IsLessThan(pcOtherStr)
 
-	def IsGreaterThan(pcOtherString)
-		return This.Contains(pcOtherString)
+	def IsGreaterThan(pcOtherStr)
+		return This.Contains(pcOtherStr)
 
-		def IsStrictlyGreaterThan(pcOtherString)
-			return This.IsGreaterThan(pcOtherString)
+		def IsStrictlyGreaterThan(pcOtherStr)
+			return This.IsGreaterThan(pcOtherStr)
 
-	def IsQuietEqualTo(pcOtherString)
+	def IsQuietEqualTo(pcOtherStr)
 		# WARNING: Performance issue is caused by DiacriticsRemoved()
 
 		cThisString = This.LowercaseQ().ToStzText().DiacriticsRemoved()
 
-		cOtherString = StzStringQ(pcOtherString).LowercaseQ().ToStzText().DiacriticsRemoved()
+		cOtherString = StzStringQ(pcOtherStr).LowercaseQ().ToStzText().DiacriticsRemoved()
 
 		if cThisString = cOtherString
 			return TRUE
 		ok
 
-		nDif = abs(This.NumberOfChars() - StzStringQ(pcOtherString).NumberOfChars())
+		nDif = abs(This.NumberOfChars() - StzStringQ(pcOtherStr).NumberOfChars())
 		n = nDif / This.NumberOfChars()
 		
 		if n <= QuietEqualityRatio() # 0.09 by default, can be changed with SetQuietEqualityRatio(n)
@@ -14287,16 +14297,16 @@ class stzString from stzObject
 	 #     STRING IS A SPLITTER OF AN OTHER STRING    #
 	#------------------------------------------------#
 
-	def IsSplitterOfCS(pcOtherString, pCaseSensitive)
-		if Not isString(pcOtherString)
+	def IsSplitterOfCS(pcOtherStr, pCaseSensitive)
+		if Not isString(pcOtherStr)
 			return FALSE
 		ok
 
-		bResult = StzStringQ(pcOtherString).NumberOfOccurrenceCS( This.String(), pCaseSensitive ) > 1
+		bResult = StzStringQ(pcOtherStr).NumberOfOccurrenceCS( This.String(), pCaseSensitive ) > 1
 		return bResult
 
-	def IsSplitterOf(pcOtherString)
-		bResult = This.IsSplitterOfCS(pcOtherString, :CaseSensitive = TRUE)
+	def IsSplitterOf(pcOtherStr)
+		bResult = This.IsSplitterOfCS(pcOtherStr, :CaseSensitive = TRUE)
 		return bResult
 
 	  #---------------------------------------------------#
@@ -14304,7 +14314,7 @@ class stzString from stzObject
 	#---------------------------------------------------#
 
 	def IsSplittableUsingCS(pcSubStr)
-		if Not isString(pcOtherString)
+		if Not isString(pcOtherStr)
 			return FALSE
 		ok
 
@@ -18490,16 +18500,9 @@ class stzString from stzObject
 	#------------------------#
 
 	def RepresentsDecimalNumber()
-		oCopy = This.RemoveSpacesQ()
+		return This.RepresentsNumberInDecimalForm()
 
-		if oCopy.RepresentsNumberInDecimalForm()
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-		def IsDecimalNumberInString()
+		def IsNumberInString()
 			return This.RepresentsDecimalNumber()
 
 	def RepresentsBinaryNumber()
@@ -18573,9 +18576,6 @@ class stzString from stzObject
 		ok
 
 		#< @FunctionAlternativeForms
-
-		def IsNumberInString()
-			return This.RepresentsNumber()
 
 		def RepresentsNumberInString()
 			return This.RepresentsNumber()
@@ -19300,7 +19300,8 @@ class stzString from stzObject
 	 #      CHECKING IF ALL CHARS ARE ...     #
 	#----------------------------------------#
 
-	def AllCharsAre(pcDescriptor)
+	def AllCharsAre(pDescriptor)
+
 		/* EXAMPLE
 
 		? Q("123").AllCharsAre(:Numbers) #--> TRUE
@@ -19311,59 +19312,16 @@ class stzString from stzObject
 		
 		*/
 
-		if isList(pcDescriptor) and Q(pcDescriptor).IsListOfStrings()
-			return This.AllCharsAreXT(pcDescriptor, :EvalFrom = :RightToLeft)
-		ok
 
-		if NOT isString(pcDescriptor)
-			stzRaise("Incorrect param type! pcDescriptor must be a string.")
-		ok
+		if isString(pDescriptor)
+			return This.AllCharsAreXT([ pDescriptor ], :EvalDirection = :Nothing)
 
-		if isString(pcDescriptor)
-
-			if Q(pcDescriptor).RemoveSpacesQ().LowercaseQ().IsEither(:Chars, :Or = :Char)
-				return TRUE
-			ok
-
-			cResult = InfereDataTypeFromString(pcDescriptor)
-
-			if cResult = ""
-				oTempChar = new stzChar("_")
-
-				if ring_find( methods(oTempChar), Q("is" + pcDescriptor).Lowercased()) > 0 or
-				   ring_find( methods(oTempChar), Q("isA" + pcDescriptor).Lowercased()) > 0
-
-					cResult = pcDescriptor
-				else
-					oDescriptor = new stzString(pcDescriptor)
-					if oDescriptor.EndsWithCS("s", :CS = FALSE)
-						cDescriptor = oDescriptor.LastCharRemoved()
-
-						if ring_find( methods(oTempChar), Q("is" + cDescriptor).Lowercased()) > 0 or
-				  		   ring_find( methods(oTempChar), Q("isA" + cDescriptor).Lowercased()) > 0
-
-							cResult = cDescriptor
-						ok
-					ok
-				ok
-				
-			ok
-
-			if cResult = ""
-				return FALSE
-			ok
-
-			if Q(cResult).IsOneOfTheseCS([ :Number, :String, :List, :Object ], :CS = FALSE)
-				cMethod = 'isA' + cResult + '()'
-			else
-				cMethod = 'is' + cResult + '()'
-			ok
-
-			cCode = "bResult = This.Check( 'StzCharQ(@char)." + cMethod + "' )"
-			eval(cCode)
-			return bResult
+		but isList(pDescriptor) and Q(pDescriptor).IsListOfStrings()
+			return This.AllCharsAreXT(pDescriptor, :EvalDirection = :Nothing)
 
 		ok
+
+		
 
 	def AllCharsAreXT(pacDescriptors, paEvalDirection)
 		/* EXAMPLE
@@ -19386,6 +19344,7 @@ class stzString from stzObject
 		ok
 
 		if NOT Q(paEvalDirection).IsOneOfTheseCS([
+			:Default, :Nothing,
 			:LeftToRight, :RightToLeft,
 			:Left2Right, :Right2Left,
 			:FromLeftToRight, :FromRightToLeft,
@@ -19395,6 +19354,10 @@ class stzString from stzObject
 			], :CS = FALSE)
 
 			stzRaise("Incorrect param value for paEvalDirection! Allowed values are :RightToLeft and :LeftToRight.")
+		ok
+
+		if Q(paEvalDirection).IsEither(:Default, :Or = :Nothing)
+			paEvalDirection = :RightToLeft
 		ok
 
 		# Doing the job
@@ -19416,27 +19379,72 @@ class stzString from stzObject
 		#    and then check the other descriptors on it
 		#    if they are all TRUE then return TRUE, else return FALSE
 
-		if NOT This.AllCharsAre(acDescriptors[1])
-			return FALSE
-		ok
+		for cDescriptor in acDescriptors
+			oDescriptor = Q(cDescriptor)
+			if oDescriptor.IsEqualToCS(:Number, :CS = FALSE)
+				cDescriptor = :ANumber
 
-		cClass = InfereDataTypeFromString(acDescriptors[1])
+			but oDescriptor.IsEqualToCS(:String, :CS = FALSE)
+				cDescriptor = :AString
 
-		for i = 2 to len(acDescriptors)
-			if Q(acDescriptors[i]).IsOneOfTheseCS([ :Number, :String, :List, :Object ], :CS = FALSE)
-				cMethod = 'isA' + acDescriptors[i] + '()'
-			else
-				cMethod = 'is' + acDescriptors[i] + '()'
-			ok
+			but oDescriptor.IsEqualToCS(:List, :CS = FALSE)
+				cDescriptor = :AList
 
-			bOk = CheckW('{ Stz' + cClass + 'Q(@Char).' + cMethod + ' }')
-			if NOT bOk
-				return FALSE
+			but oDescriptor.IsEqualToCS(:Object, :CS = FALSE)
+				cDescriptor = :AnObject
 			ok
 		next
 
-		return TRUE
+		if Q(acDescriptors[1]).IsEitherCS( "char", :Or =  "chars", :CS = FALSE )
+			cType = "char"
+		else
+			cType = InfereDataTypeFromString(acDescriptors[1])
+			if cType = ""
+				cType = QQ(acDescriptors[1]).DataType()
+			ok
+		ok
 
+		bResult = FALSE
+
+		if len(acDescriptors) = 1
+			aCharsDataTypes = This.CharsQ().Harvest(' QQ(@char).DataType() ')
+			bResult = Q(aCharsDataTypes).Check( '@item = "' + cType + '" ')
+			
+		else
+
+			# ? Q("248").AllCharsAre([ :Even, :Positive, :Numbers ])
+			# ? Q("①②③").AllCharsAre([:Circled, :Positive, :Numbers])
+
+			for i = 1 to This.NumberOfChars()
+
+
+				oTemp = new_stz(cType, This.Char(i) )
+
+				bResult = TRUE
+				for v = 2 to len(acDescriptors)
+					cMethod = 'is' + acDescriptors[v]
+					cMethodXT = cMethod + '()'
+
+					if Q(cType).IsDifferentFromCS(:char, :CS = FALSE) and 
+					   Q(cMethod).IsOneOfCS(StzCharMethods(), :CS=FALSE)
+
+						oTemp = new stzChar( This.Char(i) )
+					ok
+
+					cCode = 'bOk = oTemp.' + cMethodXT
+					eval(cCode)
+
+					if NOT bOk
+						bResult = FALSE
+					ok
+				next
+
+			next
+
+		ok
+
+		return bResult
+		
 	  #---------------------------------------------#
 	 #      CHARS VERIFYING A GIVEN CONDITION      #
 	#---------------------------------------------#
@@ -19691,14 +19699,28 @@ class stzString from stzObject
 			return This.NthChar(n)
 
 			def CharAtPositionQR(n, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.NthCharQR(n, pcReturnType)
+				return This.CharAtQR(n, pcReturnType)
 
 			def CharAtPositionQ(n)
 				return This.CharAtPositionQR(n, :stzChar)
+
+		def CharN(n)
+			return This.NthChar(n)
+
+			def CharNQR(n, pcReturnType)
+				return CharAtQR(n, pcReturnType)
+	
+			def CharNQ(n)
+				return This.CharAtQR(n, :stzChar)
+
+		def Char(n)
+			return This.NthChar(n)
+
+			def CharQR(n, pcReturnType)
+				return CharAtQR(n, pcReturnType)
+	
+			def CharQ(n)
+				return This.CharAQR(n, :stzChar)
 
 		#>
 
@@ -20447,7 +20469,7 @@ class stzString from stzObject
 		def IsOneOfTheseCS(paList, pCaseSensitive)
 			return This.ExistsInListCS(paList, pCaseSensitive)
 
-		def IsOneOfCS(paList, pCaseSensititive)
+		def IsOneOfCS(paList, pCaseSensitive)
 			return This.ExistsInListCS(paList, pCaseSensitive)
 
 	#--
@@ -20470,6 +20492,7 @@ class stzString from stzObject
 	// TODO: Add same function to other classes
 
 	def IsEitherCS(pcStr1, pcStr2, pCaseSensitive)
+
 		if isList(pcStr1) and Q(pcStr1).IsThisNamedParam()
 			pcStr1 = pcStr1[2]
 		ok
@@ -21207,6 +21230,9 @@ class stzString from stzObject
 		return bResult
 
 		def IsStzType()
+			return This.IsStzClassName()
+
+		def IsStzClass()
 			return This.IsStzClassName()
 
 	  #---------------------------------#
@@ -22511,8 +22537,8 @@ class stzString from stzObject
 				return This.NthChar(pValue)
 							
 			but isString(pValue)
-				if StzStringQ(pValue).TrimQ().IsBoundedBy("{","}")
-					pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved("{","}")
+				if StzStringQ(pValue).TrimQ().IsBoundedBy(["{","}"])
+					pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved(["{","}"])
 					anResult = []
 
 					@char = ""
@@ -23012,11 +23038,11 @@ class stzString from stzObject
 	def HasSameTypeAs(p)
 		return isString(p)
 
-	def IsAnagramOfCS(pcOtherString, pCaseSensitive)
+	def IsAnagramOfCS(pcOtherStr, pCaseSensitive)
 
 		oTheseChars = This.CharsQR(:stzListOfStrings).RemoveduplicatesQ().SortInAscendingQ()
 
-		cOtherChars = StzStringQ( pcOtherString ).
+		cOtherChars = StzStringQ( pcOtherStr ).
 				CharsQ().RemoveDuplicatesQ().
 				SortInAscendingQ().Content()
 	
@@ -23024,8 +23050,8 @@ class stzString from stzObject
 
 		return bResult
 
-	def IsAnagramOf(pcOtherString)
-		return This.IsAnagramOfCS(pcOtherString, :CS = TRUE)
+	def IsAnagramOf(pcOtherStr)
+		return This.IsAnagramOfCS(pcOtherStr, :CS = TRUE)
 
 	def UpTo(pcChar)
 		if This.IsChar() and ( isString(pcChar) and StzStringQ(pcChar).IsChar() ) and

@@ -280,7 +280,7 @@ class stzChainOfTruth from stzObject
 
 		return This
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def IsNot(pThing)
 			bResult = This.Is(pThing)
