@@ -730,6 +730,12 @@ class stzNumber from stzObject
 
 		but isString(pNumber)
 		
+			if StzStringQ(pNumber).IsAChar() and
+			   StzCharQ(pNumber).IsCircledNumber()
+				@cNumber = ""+ StzCharQ(pNumber).NumericValue()
+				return
+			ok
+
 			if StzStringQ(pNumber).LastChar() = "." and
 			   StzStringQ(pNumber).RemoveLastCharQ().RepresentsNumberInDecimalForm()
 				pNumber += "0"
@@ -790,9 +796,9 @@ class stzNumber from stzObject
 	def NumericValue()
 		return 0+ @cNumber
 
-	def Value()
-		return This.NumericValue()
-
+		def Value()
+			return This.NumericValue()
+	
 	def StringValue()
 		return @cNumber
 
@@ -961,7 +967,7 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def IsNotEven()
 			return NOT This.IsEven()
@@ -1022,21 +1028,20 @@ class stzNumber from stzObject
 	#------------#
 	
 	def Sign()
-		if left(This.Content(),1) = "+"
+		if Q(This.Content()).LeftChar() = "+"
 			return "+"
 
-		but left(This.Content(),1) = "-"
+		but Q(This.Content()).LeftChar() = "-"
 			return "-"
 
 		ok
-
 
 	def RemoveSign()
 		cNumber = This.Content()
 		nLenNumber = len(cNumber)
 
-		if left(o1.RemoveSignQ().Content(),1) = "+" or
-		   left(cNumber,1) = "-"
+		if This.Sign() = "+" or
+		   This.Sign() = "-"
 
 			This.Update( Substr(cNumber, 2, nLenNumber -2 ) )
 		ok
@@ -1086,7 +1091,7 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def IsNotEqualTo(pOtherNumber)
 			if This.NumericValue() != 0+ pOtherNumber

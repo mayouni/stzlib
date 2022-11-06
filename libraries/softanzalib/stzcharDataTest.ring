@@ -1,5 +1,8 @@
 load "stzlib.ring"
 
+? Q( CircledDigitUnicodes() ).MergedWith( CircledLatinLetterUnicodes() )
+
+
 /*------------------
 
 # Do you knwo how many punctuation chars are theer in Unicode?

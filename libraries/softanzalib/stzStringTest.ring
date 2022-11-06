@@ -1,5 +1,9 @@
 load "stzlib.ring"
 
+o1 = new stzListOfStrings([ "A", "B", "C", "D", "E", "F"])
+o1.ReplaceManyOneByOne([ "B", "D", "F"], :With = [ 1, 2, 3 ])
+? o1.Content()
+
 /*-----------------
 
 str = "sun"
@@ -16,24 +20,57 @@ str = "sun"
 
 /*-----------------
 
-? Q("123").AllCharsAre(:Numbers) #--> TRUE
-? Q("(,)").AllCharsAre(:Punctuations)
-
-/*-----------------
-
-? Q("248").AllCharsAre(:Numbers)
-
-/*-----------------
-
 ? QQ("ر").StzType() #--> stzChar
 ? QQ("ر").UnicodeDirectionNumber() #--> "13"
 ? QQ("ر").IsRightToLeft() #--> TRUE
 
 /*-----------------
 */
-? Q("248").AllCharsAre([ :Even, :Positive, :Numbers ])
-? Q("نور").AllCharsAre([ :RightToLeft, :Arabic, :Chars ])
-? Q("①②③").AllCharsAre(:CircledNumbers)
+
+//? Q("LOVE").Inverted() 	#--> ƎɅO⅂
+//? QQ("L").IsInvertible()	#--> TRUE
+# Note that QQ() elevates "L" to a stzChar
+
+/*-----------------
+
+? Q("str").AllCharsAre(:Chars)		#--> TRUE
+? Q("str").AllCharsAre(:Strings)	#--> TRUE
+? Q("123").AllCharsAre(:Numbers) 	#--> TRUE
+? Q("(,)").AllCharsAre(:Punctuations)	#--> TRUE
+
+? Q("نور").AllCharsAre(:Arabic)		#--> TRUE
+? Q("نور").AllCharsAre(:RighttoLeft)	#--> TRUE
+
+? Q("LOVE").AllCharsAre(:Invertible)
+? Q("LOVE").Inverted()			#--> ƎɅO⅂
+
+/*-----------------
+
+? Q(2).IsANumber()	#--> TRUE
+? Q(2).IsEven()		#--> TRUE
+? Q(2).IsPositive()	#--> TRUE
+
+/*-----------------
+
+? Q("248").AllCharsAre([ :Even, :Positive, :Numbers ])		#--> TRUE
+? Q("نور").AllCharsAre([ :RightToLeft, :Arabic, :Chars ])	#--> TRUE
+
+/*-----------------
+
+? QQ("①").IsCircledNumber() #--> TRUE
+# or QQ("①").IsCircledDigit() if you wana embrace the semantics of Unicode
+
+/*-----------------
+
+? Q("①②③").AllCharsAre(:CircledNumbers)			#--> TRUE
+? Q("①②③").AllCharsAre([:CircledNumber, :Chars])	#--> TRUE
+
+/*-----------------
+
+*/
+? Q("①②③").AllCharsAre([:Circled, :Number, :Chars])
+? Q("①②③").AllCharsAre([:Circled, :Positive, :Numbers])
+? Q("②④⑧").AllCharsAre([ :Circled, :Even, :Numbers ])
 /*-----------------
 
 ? Q("248").AllCharsAreXT([ :Even, :Positive, :Numbers ], :EvaluateFrom = :RTL)
@@ -1597,7 +1634,7 @@ o1 = new stzString("SOFTANZA")
 ? o1["A"]	# --> [ 5, 8 ]
 ? o1["NZA"]	# --> [ 6 ]
 
-# Getting occurrences chars verifying a given condition
+# Getting occurrences ofchars verifying a given condition
 ? o1[ '{ Q(@char).IsOneOfThese(["A", "T", "Z"]) }' ]	# --> [ 4, 5, 7, 8 ]
 
 # Comparing the string with other strings
@@ -1606,18 +1643,21 @@ o1 = new stzString("SOFTANZA")
 # TODO: Complete the other operators when COMPARAISON methods are made in stzString
 
 /*--------------------
-
+ 
 o1 = new stzString("{{{ Scope of Life }}}")
-? o1.IsBoundedBy("{","}")	# --> TRUE
-? o1.BoundsRemoved("{","}") 	# --> {{ Scope of Life }}
+? o1.BeginsWith("{")
+? o1.EndsWith("}")
+
+? o1.IsBoundedBy([ "{", "}" ])		# --> TRUE
+? o1.BoundsRemoved([ "{", "}" ]) 	# --> {{ Scope of Life }}
 
 /*--------------------
 
 o1 = new stzString('"name"')
-? o1.IsBoundedBy('"','"')	#--> TRUE
+? o1.IsBoundedBy([ '"','"' ])	#--> TRUE
 
 o1 = new stzString(':name')
-? o1.IsBoundedBy(':', NULL)	#--> TRUE
+? o1.IsBoundedBy([ ':', NULL ])	#--> TRUE
 
 /*--------------------
 

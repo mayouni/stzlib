@@ -1,6 +1,24 @@
 load "stzlib.ring"
 
 
+
+/*-------
+*/
+o1 = new_stz(:String, "hi")
+? o1.Uppercased() #--> "HI3
+
+o1 = new_stz(:List, 1:3)
+? o1.NumberOfItems() #--> 3
+
+? Stz(:Char, :Methods)		#--> [ ... ]
+? Stz(:String, :Attributes) 	#--> [ :@oObject, :@cObjectVarName, :@oQChar ]
+
+? Stz(:Char, [ :Methods, :Where = 'Q(@Method).StartsWith("is")' ])
+#--> [ :isLeftToRight, :IsRightToLeft, ... ]
+
+
+/*--- TODO: ERR
+
 ? Q("(9, 7, 8)").
 	RemoveWQ('Q(@Char).IsNumberInString()').
 	RemoveSpacesQ().
@@ -8,6 +26,7 @@ load "stzlib.ring"
 	AllCharsAre(:Punctuations)
 
 /*----
+
 ? Q("(,,)").Check(:That = 'StzCharQ(@Char).IsPunctuation()')
 #--> TRUE
 

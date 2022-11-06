@@ -1283,6 +1283,17 @@ class stzList from stzObject
 
 		next
 
+		def ReplaceManyByManyQ(pacItems, pacNewItems)
+			This.ReplaceManyByMany(pacItems, pacNewItems)
+			return This
+
+		def ReplaceManyOneByOne(pacItems, pacNewItems)
+			This.ReplaceManyByMany(pacItems, pacNewItems)
+
+			def ReplaceManyOneByOneQ(pacItems, pacNewItems)
+				This.ReplaceManyOneByOne(pacItems, pacNewItems)
+				return This
+
 	  #------------------------------------#
 	 #   REPLACING AN ITEM BY ALTERNANCE   #
 	#------------------------------------#
@@ -9267,7 +9278,7 @@ sdsd
 			return FALSE
 		ok
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoCS(pItem, pCaseSensitive)
 			return NOT This.ContainsCS(pItem, pCaseSensitive)

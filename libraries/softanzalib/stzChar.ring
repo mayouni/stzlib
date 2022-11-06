@@ -42,6 +42,12 @@ or 'unavoidable' Qt feature.
 func StzCharQ(p)
 	return new stzChar(p)
 
+func StzCharMethods()
+	return Stz(:Char, :Methods)
+
+func StzCharAttributes()
+	return Stz(:Char, :Attributes)
+
 func IsAsciiChar(c)
 	return StzCharQ(c).IsAscii()
 		
@@ -290,6 +296,31 @@ class stzChar from stzObject
 		oStr = new QString2()
 		oStr.append_2(@oQChar)
 		return oStr.ToUtf8().data()
+
+		def Char()
+			return This.Content()
+
+	def Number()
+		if This.IsCircledNumber()
+			switch This.Char()
+			on "⓪"	return 0
+			on "①"	return 1
+			on "②"	return 2
+			on "③"	return 3
+			on "④"	return 4
+			on "⑤"	return 5
+			on "⑥"	return 6
+			on "⑦"	return 7
+			on "⑧"	return 8
+			on "⑨"	return 9
+			off	
+		ok
+
+		def NumericValue()
+			return This.Number()
+
+		def Value() # TODO: Generalize it to infere other values then number
+			return This.Number()
 
 	def QCharObject()
 		return @oQChar
@@ -754,7 +785,7 @@ class stzChar from stzObject
 		return oStzList.Contains(This.Content())
 
 	def IsANumber()
-		return This.IsDigit()
+		return This.IsDigit() or This.IsCircledDigit()
 
 	def IsIndianNumber()
 		for c in IndianDigits()

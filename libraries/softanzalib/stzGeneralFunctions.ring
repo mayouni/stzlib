@@ -192,11 +192,8 @@ func InfereDataTypeFromString(pcStr) // TODO: Add more types (think of more gene
 	but cStr = :object or cStr = :objects or Q(cStr).BeginsWith(:Object)
 		return :Object
 
-	but cStr = :char or cStr = :chars
-		return :Char
-
-	else
-		stzRaise("Can't infere the data type form the string: " + pcStr + "!")
+	//but cStr = :char or cStr = :chars
+	//	return :Char
 	ok
 
 
@@ -220,6 +217,7 @@ func InfereDataTypesFromListOfStrings(paStr)
 	next
 
 	return aResult
+
 func DataType(p)
 	return lower(type(p))
 
@@ -227,6 +225,10 @@ func DataType(p)
 # DO TWO VARIABLES HAVE SAME TYPE?
 
 func BothAreNumbers(p1, p2)
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
+
 	if isNumber(p1) and isNumber(p2)
 		return TRUE
 	else
@@ -237,6 +239,9 @@ func BothAreNumbers(p1, p2)
 		return BothAreNumbers(p1, p2)
 
 func BothAreNumbersInStrings(p1, p2) # NOTE: hex and octal numbers are excluded
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
 
 	if BothAreStrings(p1, p2) and Q(p1).IsDecimalNumberInString() and Q(p2).IsDecimalNumberInString()
 		return TRUE
@@ -246,6 +251,9 @@ func BothAreNumbersInStrings(p1, p2) # NOTE: hex and octal numbers are excluded
 	ok
 
 func BothAreCharsInComputableForm(p1, p2)
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
 
 	bResult = FALSE
 
@@ -265,6 +273,10 @@ func BothAreCharsInComputableForm(p1, p2)
 	
 	 
 func BothAreStringsInComputableForm(p1, p2)
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
+
 	c1 = '"'
 	c2 = "'"
 
@@ -283,6 +295,10 @@ func BothAreStringsInComputableForm(p1, p2)
 	ok
 
 func BothAreStzNumbers(p1, p2)
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
+
 	if IsStzNumber(p1) and IsStzNumber(p2)
 		return TRUE
 	else
@@ -293,6 +309,10 @@ func BothAreStzNumbers(p1, p2)
 		return BothAreStzNumbers(p1, p2)
 
 func BothAreStrings(p1, p2)
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
+
 	if isString(p1) and isString(p2)
 		return TRUE
 	else
@@ -303,6 +323,10 @@ func BothAreStrings(p1, p2)
 		return BothAreStrings(p1, p2)
 
 func BothAreStzStrings(p1, p2)
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
+
 	if IsStzString(p1) and IsStzString(p2)
 		return TRUE
 	else
@@ -313,6 +337,10 @@ func BothAreStzStrings(p1, p2)
 		return BothAreStzStrings(p1, p2)
 
 func BothAreLists(p1, p2)
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
+
 	if isList(p1) and isList(p2)
 		return TRUE
 	else
@@ -323,6 +351,10 @@ func BothAreLists(p1, p2)
 		return BothAreLists(p1, p2)
 
 func BothAreStzLists(p1, p2)
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
+
 	if IsStzList(p1) and IsStzList(p2)
 		return TRUE
 	else
@@ -333,6 +365,10 @@ func BothAreStzLists(p1, p2)
 		return BothAreStzLists()
 
 func BothAreObjects(p1, p2)
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
+
 	if isObject(p1) and isObject(p2)
 		return TRUE
 	else
@@ -343,6 +379,10 @@ func BothAreObjects(p1, p2)
 		return BothAreObjects(p1, p2)
 
 func BothAreStzObjects(p1, p2)
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
+
 	if IsStzObject(p1) and IsStzObject(p2)
 		return TRUE
 	else
@@ -355,6 +395,10 @@ func BothAreStzObjects(p1, p2)
 # ARE TWO OBJECTS THE SAME?
 
 func AreSameObject(pcObjectName1, pcObjectName2) # TODO
+	if isList(pcObjectName2) and Q(pcObjectName2).IsAndNamedParam()
+		pcObjectName2 = pcObjectName2[2]
+	ok
+
 	return StzObjectQ(pcObjectName1).IsEqualTo( pcObjectName2 )
 
 # REPEATING A THING N TIME
@@ -681,6 +725,116 @@ func IfWith@Eval(p)
 	func EvalIfWith@(p)
 		return IfWith@Eval(p)
 
+func Empty(pcStzType)
+	if NOT isString(pcStzType)
+		stzRaise("Incorrect param type! pcStzType must be a string.")
+	ok
+
+	if NOT Q(pcStzType).IsStzClassName()
+		stzRaise("Incorrect param! pcStzType must be a valid class name.")
+	ok
+
+	switch pcStzType
+	on :stzChar
+		return new stzChar("_")
+
+	on :stzString
+		return new stzString("")
+
+	on :stzNumber
+		return new stzNumber(0)
+
+	on :stzList
+		return new stzList([])
+
+	on :stzobject
+		return new stzObject( new stzString("") )
+
+	# TODO: Add other classes (see ? StzClasses() )
+
+	off
+
+func StzW(cType, paMethodAndFilter)
+	/* EXAMPLE
+	? Stz(:Char, [ :Methods, :Where = 'Q(@Method).StartsWith("is")' ])
+	*/
+
+	if NOT ( isList(paMethodAndFilter) and len(paMethodAndFilter) = 2 and
+		 isList(paMethodAndFilter[2]) and
+		 Q(paMethodAndFilter[2]).IsWhereNamedParam() and
+		 isString(paMethodAndFilter[2][2]) )
+
+		stzRaise('Incorrect param type! paMethodAndFilter must be a pair of the form [ :Methods, :Where = "@Method..." ], for example.')
+	ok
+
+	aTempList = Stz(cType, paMethodAndFilter[1])
+	cCondition = Q(paMethodAndFilter[2][2]).
+			ReplaceCSQ("@Method", "@Item", :CS=FALSE).
+			Content()
+	
+	aResult = QR(aTempList, :stzListOfStrings).StringsW(ccondition)
+
+	return aResult
+
+func Stz(cType, pInfo)
+	/* EXAMPLE
+		? Stz(:Char, :Methods) #--> [ :Init, :Content, ... ]
+	*/
+
+	if isList(pInfo) and len(pInfo) = 2 and
+		 isList(pInfo[2]) and
+		 Q(pInfo[2]).IsWhereNamedParam() and
+		 isString(pInfo[2][2])
+
+		return stzW(cType, pInfo)
+	ok
+
+	cInfo = pInfo
+
+	If NOT BothAreStrings(cType, :And = cInfo)
+		stzRaise("Incorrect params type! Botht cType and cInfo must be strings.")
+	ok
+
+
+	if NOT Q('stz' + cType).IsStzClassName()
+		stzRaise("Incorrect param! cType must be a valid softanza type.")
+	ok
+
+	oEmptyObject = Empty(:stzChar)
+
+	switch cInfo
+	on :Methods
+		return methods(oEmptyObject)
+
+	on :Attributes
+		return attributes(oEmptyObject)
+
+	other
+		stzRaise("Unsupported information! Allowed values are :Methods and :Attributes.")
+	off
+
+func new_stz(cType, p)
+	
+	if NOT isString(cType)
+		stzRaise("Incorrect param type! cType must be a string.")
+	ok
+	
+	cCode = 'oObject = new stz' + cType + '(' + @@S(p) + ')'
+
+	eval(cCode)
+
+	return oObject
+
+	func stzQ(cType, p)
+		return stz(cType, p)
+
+	func stz@(cType, p)
+		return stz(cType, p)
+
+	func new@stz(cType, p)
+		return stz(cType, p)
+
+
 # Returns the softanza object related to the type of p
 func Q(p)
 
@@ -727,6 +881,7 @@ func QR(p, pcType)
 # by analysing a value hosted in a string
 
 func QQ(p)
+
 	/* EXAMPLE 1
 
 	? QQ("19")		# stzNumber

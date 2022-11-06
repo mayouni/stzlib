@@ -520,49 +520,82 @@ func StzClasses()
 		return StzClasses()
 
 func StzClassesXT()
-	// TODO: update this list
+	# Last update: 11 Nov. 2022
 	aStzClassesXT = [
-		[ :stzNaturalCode, :stzNaturalCodes ],
-		[ :stzChainOfValue, :stzChainsOfValue ],
-		[ :stzChainOfTruth, :stzChainsOfTruth ],
-		[ :stzChainOfCode, :stzChainsOfCode ],
-		[ :stzTransform, :stzTransforms ],
-		[ :stzObject, :stzObjects ],
-		[ :stzNumber, :stzNumbers ],
-		[ :stzDecimalToBinary, :stzDecimalsToBinary ],
-		[ :stzListOfNumbers, :stzListsOfNumbers ],
-		[ :stzPairOfNumbers, :stzPairsOfNumbers ],
-		[ :stzListOfUnicodes, :stzListsOfUnicodes ],
-		[ :stzBinaryNumber, :stzBinaryNumbers ],
-		[ :stzHexNumber, :stzHexNumbers ],
-		[ :stzOctalNumber, :stzOctalNumbers ],
-		[ :stzString, :stzStrings ],
-		[ :stzListOfStrings, :stzListsOfStrings ],
-		[ :stzPairOfStrings, :stzPairsOfStrings ], # TODO: Add stzPairOfStrings class
-		[ :stzListInString, :stzListsInString ],
-		[ :stzListOfBytes, :stzListsOfBytes ],
-		[ :stzMultilingualString, :stzMultilingualStrings ],
-		[ :stzMultiString, :stzMultiStrings ],
-		[ :stzChar, :stzChars ],
-		[ :stzListOfChars, :stzListsOfChars ],
-		[ :stzPairOfChars, :stzPairsOfChars ],  # TODO: Add stzPairOfchars class
-		[ :stzList, :stzLists ],
-		[ :stzPairOfLists, :stzPairsOfLists ],
-		[ :stzHashList, :stzHashLists ],
-		[ :stzPairOfHashLists, :stzPairsOfHashLists ],  # TODO: Add stzPairOfHashLists class
-		[ :stzAssociativeList, :stzAssociativeLists ],
-		[ :stzListOfHashLists, :stzListsOfHashLists ],
-		[ :stzSet, :stzSets ],
-		[ :stzlistOfSets, :stzlistsOfSets ],
-		[ :stzPairOfSets, :stzPairsOfSets ], # TODO: Add stzPairOfSets class
-		[ :stzListOfLists, :stzListsOfLists ],
-		[ :stzListOfPairs, :stzListsOfPairs ],
-		[ :stzTree, :stzTrees ],
-		[ :stzWalker, :stzWalkers ],
-		[ :stzTable, :stzTables ],
-		[ :stzLocale, :stzLocales ],
-		[ :stzConstraint, :stzConstraints ],
-		[ :stzListOfObjects, :stzListsOfObjects ]
+		# [ :Singular,			:Plurial	]
+		[ :stzObject, 			:stzObjects 		],
+		[ :stzListOfObjects, 		:stzListsOfObjects 	],
+		[ :stzNumber, 			:stzNumbers		],
+
+		[ :stzListOfNumbers, 		:stzListsOfNumbers	],
+		[ :stzListOfUnicodes, 		:stzListsOfUnicodes	],
+		[ :stzBinaryNumber, 		:stzBinaryNumbers	],
+
+		[ :stzHexNumber, 		:stzHexNumbers		],
+		[ :stzOctalNumber, 		:stzOctalNumbers	],
+		[ :stzString, 			:stzStrings		],
+
+		[ :stzSplitter,			:stzSplitters		],
+		[ :stzMultiString, 		:stzMultiStrings	],
+		[ :stzMultilingualString, 	:stzMultilingualStrings ],
+		
+		[ :stzStopWords, 		:stzStopWords		],
+		[ :stzListOfStrings, 		:stzListsOfStrings	],
+		[ :stzListInString, 		:stzListsInStrings	],
+
+		[ :stzListOfBytes, 		:stzListsOfBytes	],
+		[ :stzChar, 			:stzChars		],
+		[ :stzUnicodeNames, 		:stzUnicodeNames	],
+
+		[ :stzListOfChars, 		:stzListsOfChars	],
+		[ :stzList, 			:stzLists		],
+		[ :stzHashList, 		:stzHashLists		],
+
+		[ :stzAssociativeList, 		:stzAssociativeLists	],
+		[ :stzListOfHashLists, 		:stzListOfHashLists	],
+		[ :stzSet, 			:stzSets		],
+		[ :stzListOfLists, 		:stzListsOfLists	],
+		[ :stzListOfPairs, 		:stzListsOfPairs	],
+		[ :stzPair, 			:stzPairs		],
+		
+		[ :stzListOfSets, 		:stzListsOfSets		],
+		[ :stzPairOfLists, 		:stzPairsOfLists	],
+		[ :stzTree, 			:stzTrees		],
+
+		[ :stzWalker, 			:stzWalkers		],
+		[ :stzTable, 			:stzTables		],
+		[ :stzLocale, 			:stzLocales		],
+		
+		[ :stzCountry, 			:stzCountries		],
+		[ :stzLanguage, 		:stzLanguages		],
+		[ :stzScript, 			:stzScripts		],
+
+		[ :stzCurrency, 		:stzCurrencies		],
+		[ :stzListParser, 		:stzListsParsers	],
+		[ :stzGrid, 			:stzGrids		],
+
+		[ :stzCounter, 			:stzCounters		],
+		[ :stzDate, 			:stzDates		],
+		[ :stzTime, 			:stzTimes		],
+
+		[ :stzFile, 			:stzFiles		],
+		[ :stzFolder, 			:stzFolders		],
+		[ :stzRunTime, 			:stzRuntimes		],
+
+		[ :stzTextEncoding, 		:stzTextEncodings	],
+		[ :stzNaturalCode, 		:stzNaturalCodes	],
+		[ :stzChainOfValue, 		:stzChainsOfValues	],
+
+		[ :stzChainOfTruth, 		:stzChainsOfTruth	],
+		[ :stzEntity, 			:stzEntities		],
+		[ :stzListOfEntities, 		:stzListsOfEntities	],
+
+		[ :stzText, 			:stzTexts		],
+		[ :stzStringArt, 		:stzStringArts		],
+		[ :stzConstraints, 		:stzConstraints		],
+		
+		[ :stzCCode, 			:stzCCodes		],
+		[ :stzNullObject,		:stzNullObjects		]
 	]
 
 	return aStzClassesXT

@@ -3144,6 +3144,7 @@ class stzListOfStrings from stzList
 	#=========================================================#
 
 	def ContainsCS(pcStr, pCaseSensitive)
+
 		bCaseSensitive = TRUE
 		if pCaseSensitive[:CaseSensitive] = FALSE or
 		   pCaseSensitive[:CS] = FALSE
@@ -3169,7 +3170,7 @@ class stzListOfStrings from stzList
 
 		return bResult
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoCS(pcStr, pCaseSensitive)
 			return NOT This.ContainsCS(pcStr, pCaseSensitive)
@@ -3187,7 +3188,7 @@ class stzListOfStrings from stzList
 	def Contains(pcStr)
 		return This.ContainsCS(pcStr, :CaseSensitive = TRUE)
 
-		#< @FunctionNegationForm
+		#< @FunctionNegativeForm
 
 		def ContainsNo(pcStr)
 			return NOT This.Contains(pcStr)
@@ -9498,98 +9499,98 @@ class stzListOfStrings from stzList
 
 		#< @FunctionFluentForm
 
-		def ReplaceStringAtPositionQ(n, pcOtherString)
-			This.ReplaceStringAtPosition(n, pcOtherString)
+		def ReplaceStringAtPositionQ(n, pcOtherStr)
+			This.ReplaceStringAtPosition(n, pcOtherStr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceStringAtPositionN(n, pcOtherString)
-			This.ReplaceStringAtPosition(n, pcOtherString)
+		def ReplaceStringAtPositionN(n, pcOtherStr)
+			This.ReplaceStringAtPosition(n, pcOtherStr)
 
-			def ReplaceStringAtPositionNQ(n, pcOtherString)
-				This.ReplaceStringAtPositionN(n, pcOtherString)
+			def ReplaceStringAtPositionNQ(n, pcOtherStr)
+				This.ReplaceStringAtPositionN(n, pcOtherStr)
 				return This
 
-		def ReplaceStringItemAtPosition(n, pcOtherString)
-			This.ReplaceStringAtPosition(n, pcOtherString)
+		def ReplaceStringItemAtPosition(n, pcOtherStr)
+			This.ReplaceStringAtPosition(n, pcOtherStr)
 
-			def ReplaceStringItemAtPositionQ(n, pcOtherString)
-				This.ReplaceStringItemAtPosition(n, pcOtherString)
+			def ReplaceStringItemAtPositionQ(n, pcOtherStr)
+				This.ReplaceStringItemAtPosition(n, pcOtherStr)
 				return This
 
-		def ReplaceStringItemAtPositionN(n, pcOtherString)
-			This.ReplaceStringAtPositionN(n, pcOtherString)
+		def ReplaceStringItemAtPositionN(n, pcOtherStr)
+			This.ReplaceStringAtPositionN(n, pcOtherStr)
 
-			def ReplaceStringItemAtPositionNQ(n, pcOtherString)
-				This.ReplaceStringItemAtPositionN(n, pcOtherString)
+			def ReplaceStringItemAtPositionNQ(n, pcOtherStr)
+				This.ReplaceStringItemAtPositionN(n, pcOtherStr)
 				return This
 
-		def ReplaceAt(n, pcOtherString)
-			This.ReplaceStringAtPosition(n, pcOtherString)
+		def ReplaceAt(n, pcOtherStr)
+			This.ReplaceStringAtPosition(n, pcOtherStr)
 
-			def ReplaceAtQ(n, pcOtherString)
-				This.ReplaceAt(n, pcOtherString)
+			def ReplaceAtQ(n, pcOtherStr)
+				This.ReplaceAt(n, pcOtherStr)
 				return This
 
-		def ReplaceAtPosition(n, pcOtherString)
-			This.ReplaceStringAtPosition(n, pcOtherString)
+		def ReplaceAtPosition(n, pcOtherStr)
+			This.ReplaceStringAtPosition(n, pcOtherStr)
 
-			def ReplaceAtPositionQ(n, pcOtherString)
-				This.ReplaceAtPosition(n, pcOtherString)
+			def ReplaceAtPositionQ(n, pcOtherStr)
+				This.ReplaceAtPosition(n, pcOtherStr)
 				return This
 
-		def ReplaceAtPositionN(n, pcOtherString)
-			This.ReplaceStringAtPositionN(n, pcOtherString)
+		def ReplaceAtPositionN(n, pcOtherStr)
+			This.ReplaceStringAtPositionN(n, pcOtherStr)
 
-			def ReplaceAtPositionNQ(n, pcOtherString)
-				This.ReplaceAtPositionN(n, pcOtherString)
+			def ReplaceAtPositionNQ(n, pcOtherStr)
+				This.ReplaceAtPositionN(n, pcOtherStr)
 				return This
 
-		def ReplaceStringAt(n, pcOtherString)
-			This.ReplaceStringAtPosition(n, pcOtherString)
+		def ReplaceStringAt(n, pcOtherStr)
+			This.ReplaceStringAtPosition(n, pcOtherStr)
 
-			def ReplaceStringAtQ(n, pcOtherString)
-				This.ReplaceStringAt(n, pcOtherString)
+			def ReplaceStringAtQ(n, pcOtherStr)
+				This.ReplaceStringAt(n, pcOtherStr)
 				return This
 
-		def ReplaceStringItemAt(n, pcOtherString)
-			This.ReplaceStringAtPosition(n, pcOtherString)
+		def ReplaceStringItemAt(n, pcOtherStr)
+			This.ReplaceStringAtPosition(n, pcOtherStr)
 
-			def ReplaceStringItemAtQ(n, pcOtherString)
-				This.RemoveStringItemAt(n, pcOtherString)
+			def ReplaceStringItemAtQ(n, pcOtherStr)
+				This.RemoveStringItemAt(n, pcOtherStr)
 				return This
 
-		def ReplaceStringN(n, pcOtherString)
-			This.ReplaceStringAtPosition(n, pcOtherString)
+		def ReplaceStringN(n, pcOtherStr)
+			This.ReplaceStringAtPosition(n, pcOtherStr)
 
-			def ReplaceStringNQ(n, pcOtherString)
-				This.ReplaceStringN(n, pcOtherString)
+			def ReplaceStringNQ(n, pcOtherStr)
+				This.ReplaceStringN(n, pcOtherStr)
 				return This
 
-		def ReplaceStringItemN(n, pcOtherString)
-			This.ReplaceStringAtPosition(n, pcOtherString)
+		def ReplaceStringItemN(n, pcOtherStr)
+			This.ReplaceStringAtPosition(n, pcOtherStr)
 
-			def ReplaceStringItemNQ(n, pcOtherString)
-				This.ReplaceStringN(n, pcOtherString)
+			def ReplaceStringItemNQ(n, pcOtherStr)
+				This.ReplaceStringN(n, pcOtherStr)
 				return This
 
 		#>
 	
-	def StringAtPositionNReplacedWith(n, pcOtherString)
-		aResult = This.Copy().ReplaceStringAtPositionQ( n, pcOtherString ).Content()
+	def StringAtPositionNReplacedWith(n, pcOtherStr)
+		aResult = This.Copy().ReplaceStringAtPositionQ( n, pcOtherStr ).Content()
 		return aResult
 
-		def StringItemAtPositionNReplacedWith(n, pcOtherString)
-			return This.StringAtPositionNReplacedWith(n, pcOtherString)
+		def StringItemAtPositionNReplacedWith(n, pcOtherStr)
+			return This.StringAtPositionNReplacedWith(n, pcOtherStr)
 
-		def NthStringReplacedWith(n, pcOtherString)
-			return This.StringAtPositionNReplacedWith(n, pcOtherString)
+		def NthStringReplacedWith(n, pcOtherStr)
+			return This.StringAtPositionNReplacedWith(n, pcOtherStr)
 
-		def StringAtPositionReplacedWith(n, pcOtherString)
-			return This.StringAtPositionNReplacedWith(n, pcOtherString)
+		def StringAtPositionReplacedWith(n, pcOtherStr)
+			return This.StringAtPositionNReplacedWith(n, pcOtherStr)
 
 	  #-----------------------------------------#
 	 #   REPLACING MANY STRINGS BY POSITION    #
@@ -15840,7 +15841,7 @@ class stzListOfStrings from stzList
 	#----------------------------#
 
 	def FindDuplicatesCS(pCaseSensitive)
-				
+
 		anPositions = []
 		for str in This.DuplicatedStringsCS(pCaseSensitive)
 			anPositions + This.FindAllExceptFirstCS(str, pCaseSensitive)
@@ -15902,7 +15903,7 @@ class stzListOfStrings from stzList
 
 	def FindDuplicates()
 				
-		return This.FindDuplicatesCS( :CaseSensitive = TRUE )
+		return This.FindDuplicatesCS( :CS = TRUE )
 
 		#< @FunctionFluentForm
 
@@ -16091,6 +16092,7 @@ class stzListOfStrings from stzList
 	#----------------------------------------------------#
 
 	def RemoveDuplicatesCS(pCaseSensitive)
+
 		anPositions = This.FindDuplicatesCS(pCaseSensitive)
 		This.RemoveStringsAtPositions(anPositions)
 

@@ -1563,8 +1563,32 @@ Diacritics
 		next
 		return aResult
 
+	func CircledCharUnicodes()
+		anResult = Q( CircledDigitUnicodes() ).
+				MergedWith( CircledLatinLetterUnicodes() )
+
+		return anResult
+
+		func CircledCharsUnicodes()
+			return CircledCharUnicodes()
+
+	func CircledChars()
+		anResult = Q( CircledDigits() ).
+				MergedWith( CircledLatinLetters() )
+
+		return anResult
+
 	func CircledDigitUnicodes()
 		return _anCircledDigitUnicodes
+
+		func CircledDigitsUnicodes()
+			return CircledDigitUnicodes()
+
+		func CircledNumberUnicodes()
+			return CircledDigitUnicodes()
+
+		func CircledNumbersUnicodes()
+			return CircledDigitUnicodes()
 
 	func CircledDigits()
 		aResult = []
@@ -1573,6 +1597,9 @@ Diacritics
 			aResult + oTempChar.Content()
 		next
 		return aResult
+
+		func CircledNumbers()
+			return CircledDigits()
 
 	def CircledDigitsAndUnicodes()
 		oTempList = new stzList(CircledDigits())
