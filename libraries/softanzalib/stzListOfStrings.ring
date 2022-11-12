@@ -3138,36 +3138,17 @@ class stzListOfStrings from stzList
 
 		#>
 
-
 	  #=========================================================#
 	 #    CHECKING IF THE LIST CONTAINS A GIVEN STRING-ITEM    #
 	#=========================================================#
 
 	def ContainsCS(pcStr, pCaseSensitive)
 
-		bCaseSensitive = TRUE
-		if pCaseSensitive[:CaseSensitive] = FALSE or
-		   pCaseSensitive[:CS] = FALSE
-
-			bCaseSensitive = FALSE
+		if isList(pcStr)
+			return This.ContainsManyCS(pcStr, pCaseSensitive)
 		ok
 
-		if bCaseSensitive
-
-			if ring_find( This.ListOfStrings(), pcStr ) > 0
-				return TRUE
-			else
-				return FALSE
-			ok
-
-		else
-			if ring_find( This.Lowercased(), Q(pcStr).Lowercased() ) > 0
-				return TRUE
-			else
-				return FALSE
-			ok
-		ok
-
+		bResult = This.ConcatenateQ().ContainsCS(pcStr, pCaseSensitive)
 		return bResult
 
 		#< @FunctionNegativeForm
@@ -3200,7 +3181,7 @@ class stzListOfStrings from stzList
 
 		def ContainsStringItem(pcStr)
 			return This.Contains(pcStr)
-	
+
 	  #--------------------------------------------------------------------#
 	 #    CHECKING IF THE LIST-OF-STRINGS IS CONTAINED IN A GIVEN LIST    #
 	#--------------------------------------------------------------------#
@@ -3292,7 +3273,7 @@ class stzListOfStrings from stzList
 	#-----------------------------------------------------------------#
 
 	def ContainsNoOneCS(paStrings, pCaseSensitive)
-		return NOT This.ContainsEachCS(paStrings, :CaseSensitive = TRUE)
+		return NOT This.ContainsEachCS(paStrings, pCaseSensitive)
 
 		def ContainsNoOneOfTheseCS(paStrings, pCaseSensitive)
 			return This.ContainsNoOneCS(paStrings, pCaseSensitive)
@@ -7693,9 +7674,9 @@ class stzListOfStrings from stzList
 
 		#>
 
-	  #=============================================#
-	 #   REPLACING ALL STRINGS WITH A NEW STRING   #
-	#=============================================#
+	  #===========================================#
+	 #  REPLACING ALL STRINGS WITH A NEW STRING   #
+	#============================================#
 
 	def ReplaceAllStrings(pcNewString)
 
@@ -7772,7 +7753,7 @@ class stzListOfStrings from stzList
 	#-------------------------------------------#
 
 	def ReplaceAllOccurrencesOfStringCS(pcString, pcNewString, pCaseSensitive)
-			
+		
 		if isList(pcString) and StzListQ(pcString).IsOfNamedParam()
 			pcString = pcString[2]
 		ok
@@ -7806,7 +7787,7 @@ class stzListOfStrings from stzList
 		#--
 
 		def ReplaceStringCS(pcString, pcNewString, pCaseSensitive)
-			This.ReplaceAllOccurrencesOfStringCS(pcString, pcNewString, :CaseSensitive = TRUE)
+			This.ReplaceAllOccurrencesOfStringCS(pcString, pcNewString, pCaseSensitive)
 
 			def ReplaceStringCSQ(pcString, pcNewString, pCaseSensitive)
 				This.ReplaceStringCS(pcString, pcNewString, pCaseSensitive)
@@ -8119,9 +8100,11 @@ class stzListOfStrings from stzList
 
 		i = 0
 		for cStr in pacStrings
+
 			i++
 			if i <= len(pacNewStrings)
 				cNewStr = pacNewStrings[i]
+
 				This.ReplaceStringCS(cStr, cNewStr, pCaseSensitive)
 			ok
 		next
@@ -8139,6 +8122,18 @@ class stzListOfStrings from stzList
 		def ReplaceStringItemsByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
 			This.ReplaceStringsByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
 
+		def ReplaceManyByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+			This.ReplaceStringsByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+		def ReplaceStringsOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+			This.ReplaceStringsByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+		def ReplaceStringItemsOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+			This.ReplaceStringsByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+		def ReplaceManyOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+			This.ReplaceStringsByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
 		#>
 
 	def StringsReplacedByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
@@ -8148,8 +8143,27 @@ class stzListOfStrings from stzList
 
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def StringItemsReplacedByManyCS(acStrings, pacNewStrings, pCaseSensitive)
 			return This.StringsReplacedByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+		def ManyReplacedByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+			return This.StringsReplacedByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+		def ManyStringsReplacedByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+			return This.StringsReplacedByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+		def ManyStringItemsReplacedByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+			return This.StringsReplacedByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+		def ManyStringsReplacedOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+			return This.StringsReplacedByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+		def ManyStringItemsReplacedOneByOneCS(pacStrings, pacNewStrings, pCaseSensitive)
+			return This.StringsReplacedByManyCS(pacStrings, pacNewStrings, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -8169,6 +8183,18 @@ class stzListOfStrings from stzList
 		def ReplaceStringItemsByMany(pacStrings, pacNewStrings)
 			This.ReplaceStringsByMany(pacStrings, pacNewStrings)
 
+		def ReplaceManyByMany(pacStrings, pacNewStrings)
+			This.ReplaceStringsByMany(pacStrings, pacNewStrings)
+
+		def ReplaceStringsOneByOne(pacStrings, pacNewStrings)
+			This.ReplaceStringsByMany(pacStrings, pacNewStrings)
+
+		def ReplaceStringItemsOneByOne(pacStrings, pacNewStrings)
+			This.ReplaceStringsByMany(pacStrings, pacNewStrings)
+
+		def ReplaceManyOneByOne(pacStrings, pacNewStrings)
+			This.ReplaceStringsByMany(pacStrings, pacNewStrings)
+
 		#>
 
 	def StringsReplacedByMany(pacStrings, pacNewStrings)
@@ -8178,8 +8204,27 @@ class stzListOfStrings from stzList
 
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def StringItemsReplacedByMany(acStrings, pacNewStrings)
 			return This.StringsReplacedByMany(pacStrings, pacNewStrings)
+
+		def ManyReplacedByMany(pacStrings, pacNewStrings)
+			return This.StringsReplacedByMany(pacStrings, pacNewStrings)
+
+		def ManyStringsReplacedByMany(pacStrings, pacNewStrings)
+			return This.StringsReplacedByMany(pacStrings, pacNewStrings)
+
+		def ManyStringItemsReplacedByMany(pacStrings, pacNewStrings)
+			return This.StringsReplacedByMany(pacStrings, pacNewStrings)
+
+		def ManyStringsReplacedOneByOne(pacStrings, pacNewStrings)
+			return This.StringsReplacedByMany(pacStrings, pacNewStrings)
+
+		def ManyStringItemsReplacedOneByOne(pacStrings, pacNewStrings)
+			return This.StringsReplacedByMany(pacStrings, pacNewStrings)
+
+		#>
 
 	  #------------------------------------------------------------#
 	 #  REPLACING MANY STRINGS BY MANY OTHER STRINGS -- EXTENDED  #
@@ -9506,6 +9551,27 @@ class stzListOfStrings from stzList
 		#>
 
 		#< @FunctionAlternativeForm
+
+		def ReplaceNthString(n, pcOtherStr)
+			This.ReplaceStringAtPosition(n, pcOtherStr)
+
+			def ReplaceNthStringQ(n, pcOtherStr)
+				This.ReplaceNthString(n, pcOtherStr)
+				return This
+
+		def ReplaceNthStringItem(n, pcOtherStr)
+			This.ReplaceStringAtPosition(n, pcOtherStr)
+
+			def ReplaceNthStringItemQ(n, pcOtherStr)
+				This.ReplaceNthStringItem(n, pcOtherStr)
+				return This
+
+		def ReplaceNth(n, pcOtherStr)
+			This.ReplaceStringAtPosition(n, pcOtherStr)
+
+			def ReplaceNthQ(n, pcOtherStr)
+				This.ReplaceNth(n, pcOtherStr)
+				return This
 
 		def ReplaceStringAtPositionN(n, pcOtherStr)
 			This.ReplaceStringAtPosition(n, pcOtherStr)
@@ -11267,8 +11333,8 @@ class stzListOfStrings from stzList
 	def ReplaceInStringNTheFirstOccurrence(pnStringNumber, pcSubStr, pcNewSubStr)
 		This.ReplaceInStringNTheFirstOccurrenceCS(pnStringNumber, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
 
-		def ReplaceInStringNTheFirstOccurrenceQ(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceInStringNTheFirstOccurrence(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
+		def ReplaceInStringNTheFirstOccurrenceQ(pnStringNumber, pcSubStr, pcNewSubStr)
+			This.ReplaceInStringNTheFirstOccurrence(pnStringNumber, pcSubStr, pcNewSubStr)
 			return This
 
 	  #------------------------------------------------------------------------------#
@@ -11287,8 +11353,8 @@ class stzListOfStrings from stzList
 	def ReplaceInStringNTheLastOccurrence(pnStringNumber, pcSubStr, pcNewSubStr)
 		This.ReplaceInStringNTheLastOccurrenceCS(pnStringNumber, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
 
-		def ReplaceInStringNTheLastOccurrenceQ(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceInStringNTheLastOccurrence(pnStringNumber, pcSubStr, pcNewSubStr, pCaseSensitive)
+		def ReplaceInStringNTheLastOccurrenceQ(pnStringNumber, pcSubStr, pcNewSubStr)
+			This.ReplaceInStringNTheLastOccurrence(pnStringNumber, pcSubStr, pcNewSubStr)
 			return This
 
 	  #================================================================#
@@ -11827,7 +11893,7 @@ class stzListOfStrings from stzList
 
 	def RemoveFirstCS(pcString, pCaseSensitive)
 
-		This.RemoveStringAtPosition( This.FindFirstOccurrence(pcString) )
+		This.RemoveStringAtPosition( This.FindFirstOccurrenceCS(pcString, pCaseSensitive) )
 
 
 		#< @FunctionFluentForm
@@ -15246,7 +15312,9 @@ class stzListOfStrings from stzList
 
 	def DuplicatedStringsCS(pCaseSensitive)
 		aResult = []
+
 		for str in This.ListOfStrings()
+
 			if This.ContainsDuplicatedStringCS(str, pCaseSensitive) and 
 			   StzListOfStringsQ( aResult ).ContainsNoCS( str, pCaseSensitive )
 			
@@ -15903,7 +15971,7 @@ class stzListOfStrings from stzList
 
 	def FindDuplicates()
 				
-		return This.FindDuplicatesCS( :CS = TRUE )
+		return This.FindDuplicatesCS( :CaseSensitive = TRUE )
 
 		#< @FunctionFluentForm
 
@@ -17171,14 +17239,18 @@ class stzListOfStrings from stzList
 
 	/*
 	NOTE: After adding Perform() and Yield() function to this class,
-	it becomes very easy to using any methdod from stzString and apply
-	it the strings of this list.
+	it becomes very easy to use any methdod from stzString and apply
+	to the strings of this list.
 
 	For example, the following function Split(), that splits all the
-	strings using a given separators (was written before Yield() was
+	strings using a given separator (was written before Yield() was
 	created), can be rewritten in one line like this:
 
 	This.Yield('{ Q(@str).Split(cSep) }')
+
+	NOTE: This version is more expressive but a bit less performant
+	because Yield() uses eval() in the runtime. So, please, use it
+	responsibly, by profiling your code for performance.
 
 	*/
 
@@ -17235,6 +17307,75 @@ class stzListOfStrings from stzList
 			off
 
 		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitStrings(cSep)
+			return This.Split(cSep)
+
+			def SplitStringsQ(cSep)
+				return This.SplitQ(cSep)
+
+			def SplitStringsQR(cSep, pcReturnType)
+				return This.SplitQR(cSep, pcReturnType)
+
+		def SplitStringItems(cSep)
+			return This.Split(cSep)
+
+			def SplitStringItemsQ(cSep)
+				return This.SplitQ(cSep)
+
+			def SplitStringItemsQR(cSep, pcReturnType)
+				return This.SplitQR(cSep, pcReturnType)
+
+		def SplitEachString(cSep)
+			return This.Split(cSep)
+
+			def SplitEachStringQ(cSep)
+				return This.SplitQ(cSep)
+
+			def SplitEachStringQR(cSep, pcReturnType)
+				return This.SplitQR(cSep, pcReturnType)
+
+		def SplitEachStringItem(cSep)
+			return This.Split(cSep)
+
+			def SplitEachStringItemQ(cSep)
+				return This.SplitQ(cSep)
+
+			def SplitEachStringItemQR(cSep, pcReturnType)
+				return This.SplitQR(cSep, pcReturnType)
+
+		def SplitEach(cSep)
+			return This.Split(cSep)
+
+			def SplitEachQ(cSep)
+				return This.SplitQ(cSep)
+
+			def SplitEachQR(cSep, pcReturnType)
+				return This.SplitQR(cSep, pcReturnType)
+
+		#>
+
+	def Splitted(cSep)
+		aResult = This.Copy().SplitQ(cSep).Content()
+		return aResult
+
+		def StringsSplitted(cSep)
+			return This.Splitted(cSep)
+
+		def StringItemsSplitted(cSep)
+			return This.Splitted(cSep)
+
+		def EachStringSplitted(cSep)
+			return This.Splitted(cSep)
+
+		def EachStringItemSplitted(cSep)
+			return This.Splitted(cSep)
+
+	  #----------------------------------------------------------#
+	 #  GETTING EACH NTH SUBSTRING AFTER SPLITTING THE STRINGS  #
+	#----------------------------------------------------------#
 
 	def NthSubstringsAfterSplittingStringsUsing(n, cSep)
 		/* Example
@@ -17464,13 +17605,38 @@ class stzListOfStrings from stzList
 
 		return bResult
 
-	def RemoveEmptyStrings()
+	  #---------------------------#
+	 #   FINDING EMPTY STRINGS   #
+	#---------------------------#
 
-		for i = This.NumberOfStrings() to 1 step -1
-			if This.StringAtPosition(i) = NULL
-				This.RemoveStringAtPosition(i)
+	def FindEmptyStrings()
+		anResult = []
+
+		for i = 1 to This.NumberOfStrings()
+			if This.NthString(i) = NULL
+				anResult + i
 			ok
 		next
+
+		return anResult
+
+		def FindEmptyStringItems()
+			return This.FindEmptyStrings()
+
+		def PositionsOfEmptyStrings()
+			return This.FindEmptyStrings()
+
+		def PositionsOfEmptyStringItems()
+			return This.FindEmptyStrings()
+
+	  #----------------------------#
+	 #   REMOVING EMPTY STRINGS   #
+	#----------------------------#
+
+	def RemoveEmptyStrings()
+
+		anPos = This.FindEmptyStrings()
+		This.RemoveStringsAtPositions(anPos)
 
 		def RemoveEmptyStringsQ()
 			This.RemoveEmptyStrings()
@@ -17499,6 +17665,27 @@ class stzListOfStrings from stzList
 
 	def IsEqualTo(pcOtherListOfStr)
 		return This.IsEqualToCS(pcOtherListOfStr)
+
+	  #------------------------------------#
+	 #  TRIMMING THE STRINGS IN THE LIST  #
+	#------------------------------------#
+
+	def Trim()
+		for i = 1 to This.NumberOfStrings()
+			str = This[i]
+			this.ReplaceNthString(i, Q(str).Trimmed())
+		next
+
+		def TrimQ()
+			This.Trim()
+			return This
+
+	def Trimmed()
+		acResult = This.Copy().TrimQ().Content()
+		return acResult
+
+		def StringsTrimmed()
+			return This.Trimmed()
 
 	  #------------------------------#
 	 #     OPERATORS OVERLOADING    # 

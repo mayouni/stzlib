@@ -1,5 +1,68 @@
 load "stzlib.ring"
 
+o1 = new stzGrid([
+	[ ".", ".", "." ],
+	[ "-", "-", "-" ],
+	[ "*", "*", "*" ]
+])
+? o1.Show()
+
+/*-----------------
+
+o1 = new stzListOfStrings([
+	".;.;.",
+	"-;-;-",
+	"*;*;*"
+])
+? @@S( o1.Splitted(:Using = ";") )
+#--> [
+#	[ ".", ".", "." ],
+#	[ "-", "-", "-" ],
+#	[ "*", "*", "*" ]
+# ]
+
+/*-----------------
+
+o1 = new stzListOfStrings([
+	"      ........  ",
+	"   ........ ",
+	"       ........       ",
+	"........  "
+])
+
+? @@S( o1.StringsTrimmed() )
+#--> [
+# 	"........",
+# 	"........",
+# 	"........",
+# 	"........"
+# ]
+
+/*-----------------
+
+o1 = new stzListOfStrings([ "A", "B", "C", "D", "E", "F"])
+o1.ReplaceManyOneByOneCS([ "B", "D", "F"], :With = [ "1", "2", "3" ], :CS=TRUE)
+#--> [ "A", "1", "C", "2", "E", "3" ]
+? o1.Content()
+
+/*-----------------
+
+o1 = new stzListOfStrings([ "A", "b", "C", "B" ])
+? o1.FindAllCS("B", :CS = FALSE)
+#--> [2, 4]
+
+/*-----------------
+
+o1 = new stzListOfStrings([ "A", "b", "C", "B" ])
+o1.ReplaceStringCS("B", "_", :CS = FALSE)
+? o1.Content() #--> [ "A", "_", "C", "_" ]
+
+/*-----------------
+
+o1 = new stzListOfStrings([ "A", "B", "C", "D", "E", "F"])
+o1.ReplaceManyOneByOneCS([ "b", "d", "f"], :With = [ "1", "2", "3" ], :CS=FALSE)
+? @@S( o1.Content() ) #--> [ "A", "1", "C", "2", "E", "3" ]
+
 /*------------
 
 o1 = new stzListOfStrings([ "ONE", "TWO", "THREE" ])
@@ -21,7 +84,7 @@ o1.Move( :StringAtPosition = 2, :ToPosition = 3 )
 ? o1.Content() #--> [ "A", "B", "C" ]
 
 /*-----------------
-*/
+
 o1 = new stzListOfStrings([ "C", "B", "A" ])
 o1.Move( :String = 1, :ToPositionOfString = 3)
 ? o1.Content() #--> [ "B", "A", "C" ]

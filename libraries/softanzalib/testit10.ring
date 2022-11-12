@@ -30,7 +30,7 @@ o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 	? o1.FindLastBetween("word", "<<", ">>")
 	#--> 41
 
-? o1.FindSectionsBetween("word", "<<", ">>")
+? o1.FindSubStringSectionsBetween("word", "<<", ">>")
 #--> [ [11, 14], [28, 31], [41, 44] ]
 
 	? o1.FindNthSectionBetween(2, "word", "<<", ">>")
@@ -49,16 +49,16 @@ o1 = new stzString("bla bla <<word1>> bla bla <<word2>> bla <<word3>>")
 //? o1.FindAnyBetweenXT("<<", ">>")
 #--> [ [11, "word1"], [29, "word2"], [43, "word2"] ]
 
-? o1.FindAnySectionsBetween("<<", ">>")
+? o1.FindSectionsBetween("<<", ">>")
 #--> [ [11, 15], [29, 33], [43, 47] ]
 
-? o1.FindAnySectionsBetweenXT("<<", ">>")
+? o1.FindSectionsBetweenXT("<<", ">>")
 #--> [ [ "word1", [11, 15] ], [ "word2", [29, 33] ], [ "word3", [43, 47] ] ]
 
 /*---------------
 
 o1 = new stzString("bla bla <<word1>> bla bla <<word2>> bla <<word3>>")
-aSectionsBetween = o1.FindAnySectionsBetween("<<", ">>")
+aSectionsBetween = o1.FindSectionsBetween("<<", ">>")
 ? o1.NumberOfAntiSections( aSectionsBetween )
 #--> 4
 

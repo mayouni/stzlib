@@ -2820,7 +2820,7 @@ Class stzTable
 		#--
 
 		def NumberOfOccurrenceOfValue(pValue)
-			return This.NumberOfOccurrenceOfCell(pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCell(pValue)
 
 		def NumberOfOccurrencesOfValue(pValue)
 			return This.NumberOfOccurrenceOfCell(pValue)
@@ -3930,7 +3930,7 @@ Class stzTable
 				return This.FindFirstValueInRow(pRow, pCellValue)
 
 	def FindFirstSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
-		return This.FindFirstSubValueInRowCS(pRow, pSubValue, :CaseSensitive = TRUE)
+		return This.FindFirstSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 
 		def FindFirstOccurrenceOfSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 			return This.FindFirstSubValueInRowCS(pRow, pSubValue, pCaseSensitive)

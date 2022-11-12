@@ -66,6 +66,12 @@
 		
 		From 2^53 to 2^54, everything is multiplied by 2, so numbers becomes even.
 	</Ilir>
+
+	GET INSPIRED:
+	-------------
+		- By Frink language (specialized in real world calculations):
+		  --> https://frinklang.org/
+
 */
 
   ///////////////////
@@ -783,14 +789,14 @@ class stzNumber from stzObject
 		return oCopy
 
 	def Number()
-		return Content()
+		return This.NumericValue()
 		
 	def NumberWithSign()
 		If This.IsPositive()
-			return "+" + This.Number()
+			return "+" + This.Content()
 
 		else
-			return This.Number()
+			return This.Content()
 		ok
 
 	def NumericValue()
@@ -1212,7 +1218,7 @@ class stzNumber from stzObject
 		if This.HasFractionalPart()
 			return This.ToStzString().Split(".")[1]
 		else
-			return This.Number()
+			return This.Content()
 		ok
 
 		def IntegerPartStringValue()
@@ -1274,7 +1280,7 @@ class stzNumber from stzObject
 			return This.FractionalPartWithoutZeroDot()
 
 	def ToStzString()
-		return new stzString(This.Number())
+		return new stzString(This.Content())
 
 	def Stringify()
 		return This.Content()
@@ -1355,7 +1361,7 @@ class stzNumber from stzObject
 
 	def RoundTo(pRound)
 
-		if NOT NumberIsCalculable(This.Number())
+		if NOT NumberIsCalculable(This.Content())
 			stzRaise(stzNumberError(:CanNotRoundSutchLargeNumber))
 		ok
 
@@ -2248,7 +2254,7 @@ class stzNumber from stzObject
 	# Converting decimal to binary form
 
 	def ToBinaryForm()
-		oConversion = new stzDecimalToBinary(This.Number())
+		oConversion = new stzDecimalToBinary(This.Content())
 		return oConversion.ToBinaryForm()
 
 		def ToBinary()
@@ -2316,7 +2322,7 @@ class stzNumber from stzObject
 	# Converting decimal number to bytes
 
 	def ToBytes()
-		return double2bytes( This.Number() )
+		return double2bytes( This.Content() )
 		# Because Ring uses double C type to represent numbers internally
 
 	def FromBinaryForm(cBinary)
@@ -3382,7 +3388,7 @@ class stzNumber from stzObject
 
 			but paOptions[:NumberIsContainedInString] = TRUE
 
-				aResult = [ This.Number() ]
+				aResult = [ This.Content() ]
 				return aResult
 
 			else
@@ -3532,12 +3538,269 @@ class stzNumber from stzObject
 	def RepeatNtimes(n)
 		aResult = []
 		for i = 1 to n
-			aResult + This.Number()
+			aResult + This.Content()
 		next
 		return aResult
 
 		def RepeatedNTimes(n)
 			return This.RepeatNtimes(n)
+
+	  #---------------------------------------------------------#
+	 #  REPRODUCING THE NUMBER IN A CONTAINER OF A GIVEN SIZE  #
+	#---------------------------------------------------------#
+
+	def Reproduce(pIn, pnSize)
+		/* EXAMPLE
+		o1 = new stzNumber(5)
+		o1.Reproduce([ :InA = :List, :OfSize = 2 ])
+		#--> [ 5, 5 ]
+		*/
+
+		if isList(pIn) and
+			( Q(pIn).IsInNamedParam() or
+			  Q(pIn).IsInANamedParam() )
+
+			pIn = pIn[2]
+		ok
+
+		if NOT ( isString(pIn) and
+				Q(pIn).IsOneOfTheseCS([
+					:List, :ListOfNumbers,
+					:ListOfStrings, :ListOfLists,
+					:ListOfSets, :ListOfPairs,
+					:ListOfHashLists, :ListOfObjects,
+					:String
+				], :CS = FALSE)
+			)
+
+			stzRaise("Incorrect param! pIn must be a string " +
+				 "representing one of these Softanza types: " +
+				 ":List, :ListOfNumbers, :ListOfStrings,
+				  :ListOfLists, :ListOfSets, :ListOfPairs,
+				  :ListOfHashLists, or :ListOfObjects.")
+		ok
+
+		if isList(pnSize) and
+			( Q(pnSize).IsOfSizeNamedParam() or
+			  Q(pnZise).IsSizeNamedParam() )
+
+			pnSize = pnSize[2]
+		ok
+
+		if NOT ( isNumber(pnSize) or (isList(pnSize) and Q(pnSize).IsPairOfNumbers()) )
+			stzRaise("Incorrect param type! pnSize must be a number.")
+		ok
+
+		#-- Doing the job
+
+		if Q(pIn) = :List
+	
+			aResult = []
+			for i = 1 to pnSize
+				aResult + This.Number()
+			next
+			return aResult
+
+		but Q(pIn) = :ListOfNumbers
+		
+			aResult = []
+			for i = 1 to pnSize
+				aResult + This.Number()
+			next
+			return aResult
+		
+		but Q(pIn) = :ListOfStrings
+	
+			aResult = []
+			for i = 1 to pnSize
+				aResult + This.Content()
+			next
+			return aResult
+
+		but Q(pIn) = :ListOfLists
+	
+			aResult = []
+			for i = 1 to pnSize
+				aResult + [ This.Number() ]
+			next
+			return aResult
+
+		but Q(pIn) = :ListOfPairs
+	
+			aResult = []
+			for i = 1 to pnSize
+				aResult + [ This.Number(), This.Number() ]
+			next
+			return aResult
+
+		but Q(pIn) = :ListOfObjects or Q(pIn) = :ListOfStzNumbers
+	
+			aResult = []
+			for i = 1 to pnSize
+				aResult + This
+			next
+			return aResult
+
+		but Q(pIn) = :String
+
+			cResult = ""
+			for i = 1 to pnSize
+				cResult += This.Content()
+			next
+			return cResult
+
+		but Q(pIn) = :Grid
+			aResult = StzGridQ([ pnSize[1], pnSize[2] ]).Content()
+			return aResult
+
+		but Q(pIn) = :Table
+			aResult = StzTableQ([ pnSize[1], pnSize[2] ]).Content()
+			return aResult
+		ok
+
+	  #-----------------------------------------------#
+	 #  REPRODUCING THE NUMBER IN A LIST OF N ITEMS  #
+	#-----------------------------------------------#
+	# TODO: Make it in stzList and stzString
+
+	def ReproduceInList(pnSize)
+		/* EXAMPLE
+
+		o1 = new stzNumber(5)
+		? o1.ReproducedInList(:OfSize = 3)
+		#--> [ 5, 5, 5 ]
+
+		*/
+
+		if isList(pnSize) and Q(pnSize).IsOfSizeNamedParam()
+			pnSize = pnSize[2]
+		ok
+
+		if NOT isNumber(pnSize)
+			stzRaise("Incorrect param type! pnSize must be a number.")
+		ok
+
+		anResult = []
+
+		for i = 1 to pnSize
+			anResult + This.Number()
+		next
+
+		return anResult
+
+		#< @FunctionFluentForm
+
+		def ReproduceInListQ(pnSize)
+			return new stzList( This.ReproduceInList(pnSize) )
+
+		def ReproduceInListQQ(pnSize) # TODO: Generalize ..QQ() to all functions!
+			return new stzListOfNumbers( This.ReproduceInList(pnSize) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReproduceInAList(pnSize)
+			return This.ReproduceInList(pnSize)
+
+			#< @FunctionFluentForm
+	
+			def ReproduceInAListQ(pnSize)
+				return new stzList( This.ReproduceInAList(pnSize) )
+	
+			def ReproduceInAListQQ(pnSize) # TODO: Generalize ..QQ() to all functions!
+				return new stzListOfNumbers( This.ReproduceInAList(pnSize) )
+	
+			#>
+
+		def ReproducedInAList(pnSize)
+			return This.ReproduceInList(pnSize)
+
+			#< @FunctionFluentForm
+	
+			def ReproducedInAListQ(pnSize)
+				return new stzList( This.ReproducedInAList(pnSize) )
+	
+			def ReproducedInAListQQ(pnSize) # TODO: Generalize ..QQ() to all functions!
+				return new stzListOfNumbers( This.ReproducedInAList(pnSize) )
+	
+			#>
+
+		def ReproducedInList(pnSize)
+			return This.ReproduceInList(pnSize)
+
+			#< @FunctionFluentForm
+	
+			def ReproducedInListQ(pnSize)
+				return new stzList( This.ReproducedInList(pnSize) )
+	
+			def ReproducedInListQQ(pnSize)
+				return new stzListOfNumbers( This.ReproducedInList(pnSize) )
+	
+			#>
+
+		#>
+
+	  #------------------------------------#
+	 #  REPRODUCING THE NUMBER IN A PAIR  #
+	#------------------------------------#
+	# TODO: Make it in stzList and stzString
+
+	def ReproduceInAPair()
+		return This.ReproduceInAList(:OfSize = 2)
+
+		#< @FunctionFluentForm
+
+		def ReproduceInAPairQ(pnSize)
+			return new stzList( This.ReproduceInAPair(pnSize) )
+
+		def ReproduceInAPairQQ(pnSize) # TODO: Generalize ..QQ() to all functions!
+			return new stzListOfNumbers( This.ReproduceInAPair(pnSize) )
+
+		#>
+
+		#< @AlternativeForms
+
+		def ReproducedInAPair()
+			return This.ReproduceInAPair()
+
+			#< @FunctionFluentForm
+	
+			def ReproducedInAPairQ()
+				return new stzList( This.ReproducedInAPair() )
+	
+			def ReproducedInAPairQQ() # TODO: Generalize ..QQ() to all functions!
+				return new stzListOfNumbers( This.ReproducedInAPair() )
+	
+			#>
+
+		def ReproduceInPair()
+			return This.ReproduceInAPair()
+
+			#< @FunctionFluentForm
+	
+			def ReproduceInPairQ()
+				return new stzList( This.ReproduceInPair() )
+	
+			def ReproduceInPairQQ() # TODO: Generalize ..QQ() to all functions!
+				return new stzListOfNumbers( This.ReproduceInPair() )
+	
+			#>
+
+		def ReproducedInPair()
+			return This.ReproduceInAPair()
+
+			#< @FunctionFluentForm
+	
+			def ReproducedInPairQ()
+				return new stzList( This.ReproducedInPair() )
+	
+			def ReproducedInPairQQ() # TODO: Generalize ..QQ() to all functions!
+				return new stzListOfNumbers( This.ReproducedInPair() )
+	
+			#>
+
+		#>
 
 	  #-------------------------------------#
 	 #    INTERNAL KITCHEN OF THE CLASS    #

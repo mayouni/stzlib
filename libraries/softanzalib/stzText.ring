@@ -3095,7 +3095,7 @@ class stzText from stzString
 
 	def ReplaceLastWordCS(pcWord,vpcNewSubStr, pCaseSensitive)
 			This.ReplaceNthWordCS(:Last, pcWord, pcNewSubStr, pCaseSensitive)
-
+			
 	def ReplaceLastWord(pcWord, pcNewSubStr)
 		This.ReplaceNthWord(:Last, pcWord, pcNewSubStr)
 

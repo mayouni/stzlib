@@ -104,6 +104,9 @@ func ring_find(paList, pItem)
 func ring_type(p)
 	return type(p)
 
+func ring_reverse(paList)
+	return reverse(paList)
+
 #-----
 
 func IsNumberOrString(p)
@@ -601,7 +604,7 @@ func ComputableFormSimplified(pValue)
 			cResult = cChar + Q(pValue).Simplified() + cChar
 		else
 
-			aAntiSections = oStr.FindAntiSections( oStr.FindAnySectionsBetween('"','"') )
+			aAntiSections = oStr.FindAntiSections( oStr.FindSectionsBetween('"','"') )
 		
 			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
 			#--> this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"

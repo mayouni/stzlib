@@ -13,11 +13,13 @@
 	TODO Add:
 	QStringRef methods
 
-	Also: use QStringView for read-only operations, and QByteArray for UT8-only string
+	Also: use QStringView for read-only operations, and QByteArray for
+	UT8-only string
 	#--> Better performance.
 
 	Todo:
-	Get inspiration from the pyhthon ftfy library to add Unicode text cleansing in Softanza
+	Get inspiration from the pyhthon ftfy library to add Unicode text
+	cleansing in Softanza
 	link: https://ftfy.readthedocs.io/en/latest/fixes.html
 */
 
@@ -1325,10 +1327,105 @@ class stzString from stzObject
 		def LinesQ()
 			return new stzListOfStrings( This.Lines() )
 
+		def LinesQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.Lines())
+
+			on :stzListOfStrings
+				return new stzListOfStrings(This.Lines())
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
 		#>
 	
 	def NumberOfLines()
 		return len(This.Lines())
+
+	  #----------------#
+	 #  UNIQUE LINES  #
+	#----------------#
+
+	def UniqueLines()
+		acResult = This.LinesQ().DuplicatesRemoved()
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def UniqueLinesQ()
+			return new stzListOfStrings( This.UniqueLines() )
+
+		def UniqueLinesQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.UniqueLines())
+
+			on :stzListOfStrings
+				return new stzListOfStrings(This.UniqueLines())
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	  #------------------------------------------#
+	 #  REMOVING LINES UNDER A GIVEN CONDITION  #
+	#------------------------------------------#
+
+	def RemoveLinesW(pcCondition) // TODO
+		/* EXAMPLE
+
+		o1 = new stzString("
+			ABCDEF
+			GHIJKL
+			123346
+			MNOPQU
+			RSTUVW
+			984332
+		")
+
+		o1.RemoveLinesW(' Q(@line).IsMadeOf(:Numbers) ')
+		? o1.Content()
+
+		#--> "
+			ABCDEF
+			GHIJKL
+			MNOPQU
+			RSTUVW
+		"
+		*/
+
+		stzRaise("Function unavailable yet!")
+
+		def RemoveLinesWQ(pcCondition)
+			This.RemoveLinesW(pcCondition)
+			return This
+
+	  #------------------------#
+	 #  REMOVING EMPTY LINES  #
+	#------------------------#
+
+	def RemoveEmptyLines()
+		cResult = This.LinesQR(:stzListOfStrings).
+				RemoveEmptyStringsQ().
+				ConcatenatedUsing(NL)
+
+		This.Update(cResult)
+
+		def RemoveEmptyLinesQ()
+			This.RemoveEmptyLines()
+			return This
 
 	  #================#
 	 #    MARQUERS    #
@@ -2104,8 +2201,13 @@ class stzString from stzObject
 		cResult = This.Copy().ReplaceSubstringsWithMarquersCSQ(pacSubstrings, pCaseSensitive).Content()
 		return cResult
 
+	#-- WITHOUT CASESENSITIVITY
+
 	def ReplaceSubstringsWithMarquers(pacSubstrings)
 		This.ReplaceSubstringsWithMarquersCS(pacSubstrings, :CaseSensitive = TRUE)
+
+	def SubstringsReplacedWithMarquers(pacSubstrings)
+		return This.SubstringsReplacedWithMarquersCS(pacSubstrings, :CaseSensitive = TRUE)
 
 	  #------------------------#
 	 #    PARSING MARQUERS    #
@@ -2565,6 +2667,7 @@ class stzString from stzObject
 	#-----------------------------------------------#
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+
 		nResult = len( This.FindAllCS(pcSubStr, pCaseSensitive) )
 		return nResult
 
@@ -3142,9 +3245,9 @@ class stzString from stzObject
 	def IsboundedByIn(pacBounds, pIn)
 		return This.IsboundedByInCS(pacBounds, pIn, :CaseSensitive = TRUE)
 
-	  #--------------------------------------------------------#
-	 #  CHECKING IF THE STRING IS BOUNDING OF A GIVEN STRING  #
-	#--------------------------------------------------------#
+	  #------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS BOUNDING OF A GIVEN STRING INSIDE ANOTHER STRING  #
+	#------------------------------------------------------------------------------#
 
 	def IsBoundOfCS(pcSubStr, pcInStr, pCaseSensitive)
 		/* EXAMPLE
@@ -3165,6 +3268,9 @@ class stzString from stzObject
 	def IsBoundOf(pcSubStr, pcInStr)
 		bResult = This.IsBoundOfCS(pcSubStr, pcInStr, :CaseSensitive = TRUE)
 		return bResult
+
+	def IsNthBoundOfCS(pcOther, pCaseSensitive)
+		// TODO
 
 	def IsFirstBoundOfCS(pcOtherStr, pCaseSensitive)
 		// TODO
@@ -3268,143 +3374,200 @@ class stzString from stzObject
 	def SubStringIsBoundedBy(pcSubStr, pacBounds)
 		return This.SubStringIsBoundedByCS(pcSubStr, pacBounds, :CaseSensitive = TRUE)
 
+	   #--------------------------------------------------#
+	  #  SETTLING ON A GUVEN POSITION (OR SECTION) AND   #
+	 #  THEN HARVESTING N CHARS BEORE AND N CHARS LEFT  #
+	#--------------------------------------------------#
+
+	def Settle(paPositionOrSection, paHervestNCharsBeforeAndNCharsAfter)
+		/* EXAMPLE
+
+		o1 = new stzString("what a <<nice>>> day!")
+
+		o1.Settle(
+			:OnSection = [10, 13],
+			:Harvest = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
+		)
+
+		#--> [ "<<", ">>>" ]
+
+		*/
+
+		if isList(paPositionOrSection) and
+			Q(paPositionOrSection).IsOneOfTheseNamedParams([
+				:On, :OnPosition, :OnSection
+			])
+
+			paPositionOrSection = paPositionOrSection[2]
+		ok
+
+		if isNumber(paPositionOrSection)
+			aTemp = []
+			aTemp + paPositionOrSection
+			aTemp + paPositionOrSection
+		ok
+
+		if NOT ( isList(paPositionOrSection) and
+			 Q(paPositionOrSection).IsPairOfNumbers() )
+
+			stzRaise("Incorrect param! paPositionOrSection must be a position (number) or a section (pair of numbers).")
+		ok
+
+		aSection = paPositionOrSection
+		aHarvest = paHervestNCharsBeforeAndNCharsAfter
+
+		if isList(aHarvest) and
+			( Q(aHarvest).IsHarvestNamedParam() or
+			  Q(aHarvest).IsAndHarvestNamedParam() or
+			  Q(aHarvest).IsAndThenHarvestNamedParam()
+			)
+
+			aHarvest = aHarvest[2]
+		ok
+
+	
+		if NOT len(aHarvest) = 2
+			stzRaise("Incorrect param! paHervestNCharsBeforeAndNCharsAfter must be a list of 2 items.")
+		ok
+
+		if isList(aHarvest[1]) and Q(aHarvest[1]).IsNCharsBefore()
+			aHarvest[1] = aHarvest[1][2]
+		ok
+
+		if isList(aHarvest[2]) and Q(aHarvest[2]).IsNCharsAfter()
+			aHarvest[2] = aHarvest[2][2]
+		ok
+
+		if NOT BothAreNumbers(aHarvest[1], aHarvest[2])
+			stzRaise("Incorrect param! paHarvestNCharsBeforeAndNCharsAfter must be a pair of numbers.")
+		ok
+
+		nCharsBefore = aHarvest[1]
+		nCharsAfter  = aHarvest[2]
+
+		anSectionBefore = []
+		anSectionBefore + (aSection[1] - nCharsBefore)
+		anSectionBefore + (aSection[1] - 1)
+
+		anSectionAfter = []
+		anSectionAfter + (aSection[2] + 1)
+		anSectionAfter + (aSection[2] + nCharsAfter)
+
+		acResult = This.Sections([ anSectionBefore, anSectionAfter ])
+		return acResult
+
 	  #-----------------------------------------------#
 	 #  GETIING BOUNDS OF A SUBSTRING UP TO N CHARS  #
 	#-----------------------------------------------#
 
-	def BoundsOfCS(pcSubStr, panUpToNChars, pCaseSensitive)
+	def BoundsCS(pcSubStr, panUpToNChars, pCaseSensitive)
 		/* EXAMPLES
 
 		#-- EXAMPLE 1
 
 		o1 = new stzString("<<word>> and __word__")
-		? @@( o1.BoundsOf( "word", :UpToNChars = 2 ) )
+		? @@( o1.Bounds( :Of = "word", :UpToNChars = 2 ) )
 		#--> [ [ "<<", ">>" ], [ "__", "__" ] ]
 		
 		#-- EXAMPLE 2
 		
 		o1 = new stzString("<<word>> and __word__")
-		? @@( o1.BoundsOf( "word", :UpToNChars = [ 2, 2 ]  ) )
+		? @@( o1.Bounds( :Of = "word", :UpToNChars = [ 2, 2 ]  ) )
 		#--> [ [ "<<", ">>" ], [ "__", "__" ] ]
 		
 		#-- EXAMPLE 3
 	
 		o1 = new stzString("<<word>>> and  _word__")
-		? o1.BoundsOf( "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ]  )
+		? o1.Bounds( :Of = "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ]  )
 
 		*/
 
-		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
-		#--> [ 3, 14 ]
 
+		if isList(pcSubStr) and
+			( Q(pcSubStr).IsOfNamedParam() or
+			  Q(pcSubStr).IsOfSubStringNamedParam()
+			)
+
+			pcSubStr = pcSubStr[2]
+		ok
+
+		if isList(panUpToNChars) and Q(panUpToNChars).IsUpToNCharsNamedParam()
+			panUpToNChars = panUpToNChars[2]
+		ok
+
+		# CASE: ? o1.Bounds(:Of = "many", :UpToNChars = 2]
+		#--> panUpToNChars will be transformed to the more general form [ [2,2] ]
+		if isNumber(panUpToNChars)
+			aTemp = []
+			aTemp + [ panUpToNChars, panUpToNChars ]
+			panUpToNChars = aTemp
+			
+		# CASE: ? o1.Bounds(:Of = "many", :UpToNChars = [ 2, 3])
+		#--> panUpToNChars will be transformed tothe more general form [ [2, 3] ]
+		but isList(panUpToNChars) and
+			len(panUpToNChars) = 2 and
+			Q(panUpToNChars).IsListOfNumbers()
+
+			aTemp = []
+			aTemp + panUpToNChars
+			panUpToNChars = aTemp
+		ok
+
+		# CASE: ? o1.Bounds(:Of = "many", :UpToNChars = [ 0, 2, 0, 3, [1,2] ])
+		#--> panUpToNChars will be tranformed to the more general form:
+		#    [ [0,0], [2,2], [0,0], [3,3], [1,2] ]
 		if isList(panUpToNChars) and
-		   len(panUpToNChars) = 1 and
-		   Q(panUpToNChars[1]).IsPairOfNumbers()
+			Q(panUpToNChars).IsListOfNumbersAndPairsOfNumbers()
 
-			panUpToNChars = panUpToNChars[1]
-		ok
-
-		if islist(panUpToNChars) and Q(panUpToNChars).IsUpToNCharsNamedParam()
-			value = panUpToNChars[2]
-			if isNumber(value)
-				if value <= 0
-					StzRaise("Incorrect param value! panUpToNChars must not be negative or zero.")
+			for item in panUpToNChars
+				if isNumber(item)
+					item = Q(item).ReproducedInAPair()
 				ok
-				
-				panUpToNChars = [ value, value ]
-
-			but isList(value) 
-				if len(value) = 0
-					StzRaise("Incorrect param! panUpToNChars list must not be empty.")
-				ok
-
-				if Q(value).IsPairOfNumbers()
-
-					panUpToNChars = value
-
-				but Q(value).IsListOfPairsOfNumbers()
-
-					panUpToNChars = panUpToNChars[2]
-
-					# Avoinding case like [ [ 2, 3 ] ]
-					if len(value) = 1
-						panUpToNChars = panUpToNChars[1]
-					else
-					# Avoiding case not same number of bounds and occurrences
-						if len(value) > len(anPos)
-							panUpToNChars = Q(panUpToNChars).RangeQ(1, len(anPos) ).Content()
-						ok
-					ok
-				ok
-
-			ok	
-		ok
-
-		if NOT ( Q(panUpToNChars).IsPairOfNumbers() or
-			 Q(panUpToNChars).IsListOfPairsOfNumbers() )
-
-			StzRaise("Incorrect param type! panUpToNChars must be a pair of numbers.")
-		ok
-
-
-		if len(anPos) > len(panUpToNChars)
-			panUpToNChars = StzListQ(panUpToNChars).
-					ExtendToXTQ( len(anPos), :With = Q(panUpToNChars).LastItem() ).
-					Content()
-
-		ok
-	
-		anLenBounds = []
-
-		if Q(panUpToNChars).IsPairOfNumbers()
-			for i = 1 to len(anPos)
-				anLenBounds + panUpToNChars
 			next
+		ok
 
-		else // case where Q(panUpToNChars).IsListOfPairsOfNumbers()
-			anLenBounds = panUpToNChars
+
+		if NOT 	( isList(panUpToNChars) and
+			  Q(panUpToNChars).IsListOfPairsOfNumbers()
+			)
+
+			stzRaise("Incorrect param type! panUpToNChars must be a number, " +
+				 "or a pair of numbers, or a list of pairs of numbers.")
 		ok
 
 		# Doing the job
 
+		
+		anSections = This.FindSectionsCS(pcSubStr, pCaseSensitive)
 		acResult = []
 
 		i = 0
-		for n in anPos
+		for aSection in anSections
+
 			i++
-			nLenBound1 = anLenBounds[i][1]
-			nLenBound2 = anLenBounds[i][2]
-
-			if n > nLenBound1 and n < This.NumberOfChars() - nLenBound2 + 1
-				cBefore = This.Section( n - nLenBound1, n - 1 )
-				cAfter  = This.Range( n + Q(pcSubStr).NumberOfChars(), nLenBound2 )
-
-				if Q(cBefore).NumberOfChars() = nLenBound1 and
-				   Q(cAfter).NumberOfChars() = nLenBound2
-
-					acResult + [ cBefore, cAfter ]
-				ok
+			if i > len(panUpToNChars)
+				exit
 			ok
+
+			if Q(panUpToNChars[i]) = [0,0]
+				acResult + [ "", "" ]
+			else
+
+				nBefore = panUpToNChars[i][1]
+				nAfter  = panUpToNChars[i][2]
+	
+				acResult + This.Settle(
+					:OnSection  = aSection,
+					:AndHarvest = [ :NCharsBefore = nBefore, :NCharsAfter = nAfter ]
+				)
+			ok
+
 		next
 
 		return acResult
 
-		def BoundsUpToNCharsCS(n, pcOfSubString, pCaseSensitive)
-			if isList(pcOfSubString) and Q(pcOfSubString).IsOfNamedParam()
-				cSubStr = pcOfSubString[2]
-			ok
-
-			if NOT isString(cSubStr)
-				StzRaise("Incorrect param type! pcSubString must be a string.")
-			ok
-
-			return This.BoundsOfCS(cSubStr, :UpToNChars = n, pCaseSensitive)
-
-	def BoundsOf(pcSubStr, pnUpToNChars)
-		return This.BoundsOfCS(pcSubStr, pnUpToNChars, :CaseSensitive = TRUE)
-
-		def BoundsUpToNChars(n, pcOfSubString)
-			return This.BoundsUpToNChars(n, pcOfSubString, :CaseSensitive = TRUE)
+	def Bounds(pcSubStr, pnUpToNChars)
+		return This.BoundsCS(pcSubStr, pnUpToNChars, :CaseSensitive = TRUE)
 
 	#-----------------------------
 
@@ -3808,13 +3971,9 @@ class stzString from stzObject
 		cResult = This.Copy().RemoveLastBoundQ(pcSubStr).Content()
 		return cResult
 
-	  #--------------------------------------------------------------#
-	 #   IDENTIFYING BOUNDS OF GIVEN SUBSTRINGS INSIDE THE STRING   # TODO (future)
-	#--------------------------------------------------------------#
-
-	/* ... */
-
-	def Bounds() // TODO
+	  #------------------------------------------------------#
+	 #   CHECKING OF THE STRING CONTAINS THE GIVEN BOUNDS   # TODO (future)
+	#------------------------------------------------------#
 
 	def ContainsBounds() // TODO
 
@@ -3955,68 +4114,48 @@ class stzString from stzObject
 
 		#>
 
-	  #------------------------------------------------------------------#
-	 #   REMOVING BOUNDS FROM A BOUNDED SUBSTRING (INSIDE THE STRING)   #
-	#------------------------------------------------------------------#
-
-	// TODO (future)
-
-	  #----------------------------------------------------------------------#
-	 #   REMOVING BOUNDS FROM MANY BOUNDED SUBSTRINGS (INSIDE THE STRING)   #
-	#----------------------------------------------------------------------#
-
-	// TODO (future)
-
 	   #----------------------------------------------------------#
 	  #   REMOVING BOUNDS FROM THE NTH OCCURRENCE OF A BOUNDED   #
 	 #   SUBSTRING (INSIDE THE STRING)                          #
 	#----------------------------------------------------------#
 
 	// TODO (future)
-
-	   #------------------------------------------------------------#
-	  #   REMOVING BOUNDS FROM THE FIRST OCCURRENCE OF A BOUNDED   #
-	 #   SUBSTRING (INSIDE THE STRING)                            #
-	#------------------------------------------------------------#
-
-	// TODO (future)
-
-	   #-----------------------------------------------------------#
-	  #   REMOVING BOUNDS FROM THE LAST OCCURRENCE OF A BOUNDED   #
-	 #   SUBSTRING (INSIDE THE STRING)                           #
-	#-----------------------------------------------------------#
-
-	// TODO (future)
+	def RemoveNthBound()
 
 	  #---------------------------------------------------------------------#
 	 #   REMOVING OCCURRENCES OF A BOUNDED SUBSTRING (INSIDE THE STRING)   #
 	#---------------------------------------------------------------------#
 
 	// TODO (future)
+	def RemoveBoundedSubString()
 
 	  #----------------------------------------------------------#
 	 #   REMOVING MANY BOUNDED SUBSTRINGS (INSIDE THE STRING)   #
 	#----------------------------------------------------------#
 
 	// TODO (future)
+	def RemoveManyBoundedSubStrings()
 
 	  #-----------------------------------------------------------------------#
 	 #   REMOVING NTH OCCURRENCE OF A BOUNDED SUBSTRING (INSIDE THE STRING)  #
 	#-----------------------------------------------------------------------#
 
 	// TODO (future)
+	def RemoveNthBoundedSubString()
 
 	  #-------------------------------------------------------------------------#
 	 #   REMOVING FIRST OCCURRENCE OF A BOUNDED SUBSTRING (INSIDE THE STRING)  #
 	#-------------------------------------------------------------------------#
 
 	// TODO (future)
+	def RemoveFirstBoundedSubString()
 
 	  #-------------------------------------------------------------------------#
 	 #   REMOVING LAST OCCURRENCE OF A BOUNDED SUBSTRING (INSIDE THE STRING)  #
 	#-------------------------------------------------------------------------#
 
 	// TODO (future)
+	def RemoveLastBoundedSubString()
 
 	  #============================#
 	 #   REPEATED LEADING CHARS   #
@@ -5968,6 +6107,22 @@ class stzString from stzObject
 	#---------------------------------------#
 
 	def Sections(paSections)
+		if isString(paSections) or
+			(isList(paSections) and
+				(Q(paSections).IsOfNamedParam() or
+					Q(paSections).IsOfSubStringNamedParam()
+				)
+			)
+
+			return This.FindSections(paSections)
+		ok
+
+		if NOT 	( isList(paSections) and
+				Q(paSections).IsListOfPairsOfNumbers()
+			)
+
+			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+		ok
 
 		aResult = []
 
@@ -9242,12 +9397,19 @@ class stzString from stzObject
 			ok
 		ok
 
-		if n >= 1 and n <= This.NumberOfOccurrenceCS(pcSubstr, pCaseSensitive)
-			return This.FindAllCS(pcSubStr, pCaseSensitive)[n]
+		nResult = 0
 
-		else
-			return 0
-		ok
+		nPos = 1
+		for i = 1 to n
+			nResult = This.FindFirstXTCS(pcSubStr, :StartingAt = nPos, pCaseSensitive)
+			if nResult = 0
+				exit
+			ok
+
+			nPos = nResult + 1
+		next
+
+		return nResult
 
 		#< @FunctionAlternativeForm
 
@@ -9266,9 +9428,11 @@ class stzString from stzObject
 		def FindSubStringByOccurrenceCS(n, pcSubStr, pCaseSensitive)
 			return This.NthOccurrenceCS(n, pcSubstr, pCaseSensitive)
 
-		def NthCS(n, pcSubStr)
-			return This.NthOccurrenceCS(n, pcSubstr)
+		def NthCS(n, pcSubStr, pCaseSensitive)
+			return This.NthOccurrenceCS(n, pcSubstr, pCaseSensitive)
 
+		def FindNthCS(n, pcSubStr, pCaseSensitive)
+			return This.NthOccurrenceCS(n, pcSubstr, pCaseSensitive)
 
 		#>
 
@@ -9295,19 +9459,31 @@ class stzString from stzObject
 		def Nth(n, pcSubStr)
 			return This.NthOccurrence(n, pcSubstr)
 
+		def FindNth(n, pcSubStr)
+			return This.NthOccurrence(n, pcSubstr)
+
 		#>
 
-	  #---------------------------------------------------#
-	 #      FINDING FIRST OCCURRENCE OF A SUBSTRING      #
-	#---------------------------------------------------#
+	  #-----------------------------------------------------------------------#
+	 # FINDING FIRST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION  #
+	#-----------------------------------------------------------------------#
 
-	// Returns the position of the 1st occurrence of the substring inside the string
-	// or returns 0 if nothing found
-
-	def FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+	def FindFirstOccurrenceXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
+		ok
+
+		if NOT isString(pcSubStr)
+			stzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			stzRaise("Incorrect param type! pnStartingAt must be a number.")
 		ok
 
 		nPos = 0 
@@ -9322,13 +9498,96 @@ class stzString from stzObject
 
 			stzRaise("Invalid param. pCaseSensitive must be TRUE or FALSE (0 or 1).")
 
-		else
-		
-			oSubStr = new stzString(pcSubStr)
-			nLenSubStr = oSubStr.NumberOfChars()
-		
-			return @oQString.indexOf(pcSubStr, 0, pCaseSensitive) + 1
 		ok
+				
+		nResult = This.QStringObject().indexOf(pcSubStr, pnStartingAt - 1, pCaseSensitive) + 1
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def FindFirstXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstOccurrenceXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FirstOccurrenceXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstOccurrenceXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FindFirstSubStringCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstOccurrenceCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FirstSubStringCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstOccurrenceXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def PositionOfFirstOccurrenceXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstOccurrenceXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FirstOccurrencePositionXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstOccurrenceXTCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfFirstXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstOccurrenceXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PositionOfFirstSubStringXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstOccurrenceXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FirstSubStringPositionXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstOccurrenceXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FirstXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstOccurrenceXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstOccurrenceXT(pcSubstr, pnStartingAt)
+		return This.FindFirstOccurrenceXTCS(pcSubstr, pnStartingAt, :CaseSensitive = TRUE)
+	
+		#< @FunctionAlternativeForms
+	
+		def FindFirstXT(pcSubStr, pnStartingAt)
+			return This.FindFirstOccurrenceXT(pcSubStr, pnStartingAt)
+
+		def FirstOccurrenceXT(pcSubStr, pnStartingAt)
+			return This.FindFirstOccurrenceXT(pcSubStr, pnStartingAt)
+
+		def FindFirstSubStringXT(pcSubStr, pnStartingAt)
+			return This.FindFirstOccurrenceXT(pcSubStr, pnStartingAt)
+
+		def FirstSubStringXT(pcSubStr, pnStartingAt)
+			return This.FindFirstOccurrenceXT(pcSubStr, pnStartingAt)
+
+		def FirstXT(pcSubStr, pnStartingAt)
+			return This.FindFirstOccurrenceXT(pcSubStr, pnStartingAt)
+
+		#--
+
+		def PositionOfFirstOccurrenceXT(pcSubStr, pnStartingAt)
+			return This.FindFirstOccurrenceXT(pcSubStr, pnStartingAt)
+
+		def FirstOccurrencePositionXT(pcSubStr, pnStartingAt)
+			return This.FindFirstOccurrenceXT(pcSubStr, pnStartingAt)
+
+		def PositionOfFirstXT(pcSubStr, pnStartingAt)
+			return This.FindFirstOccurrenceXT(pcSubStr, pnStartingAt)
+
+		def PositionOfFirstSubStringXT(pcSubStr, pnStartingAt)
+			return This.FindFirstOccurrenceXT(pcSubStr, pnStartingAt)
+
+		def FirstSubStringPositionXT(pcSubStr, pnStartingAt)
+			return This.FindFirstOccurrenceXT(pcSubStr, pnStartingAt)
+	
+		#>
+
+	  #---------------------------------------------------#
+	 #      FINDING FIRST OCCURRENCE OF A SUBSTRING      #
+	#---------------------------------------------------#
+
+	// Returns the position of the 1st occurrence of the substring inside the string
+	// or returns 0 if nothing found
+
+	def FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+		return This.FindFirstOccurrenceXTCS(pcSubStr, 1, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
@@ -9364,6 +9623,8 @@ class stzString from stzObject
 		def FirstCS(pcSubStr)
 			return This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
 		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstOccurrence(pcSubstr)
 		return This.FindFirstOccurrenceCS(pcSubstr, :CaseSensitive = TRUE)
@@ -9413,9 +9674,16 @@ class stzString from stzObject
 			pcSubStr = pcSubStr[2]
 		ok
 	
-		aTemp = This.FindAllCS(pcSubStr, pCaseSensitive)
-		return aTemp[ len(aTemp) ]
-	
+		n = This.Copy().ReverseQ().FindFirstCS(pcSubStr, pCaseSensitive)
+		if n = 0
+			nResult = 0
+		else
+			nResult = This.NumberOfChars() - n + 1
+		ok
+
+		return nResult
+
+
 		#< @FunctionAlternativeForm
 	
 		def FindLastCS(pcSubStr, pCaseSensitive)
@@ -9496,7 +9764,23 @@ class stzString from stzObject
 	#----------------------------------------------------#
 
 	def FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
-		return This.FindAllCSQ(pcSubStr, pCaseSensitive).Section(1, n)
+		if NOT isNumber(n)
+			stzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if NOT n > 0
+			stzRaise("Incorrect value! n must be a positive non null number.")
+		ok
+
+		anResult = []
+
+		for i = 1 to n
+			anResult + This.FindNthOccurrenceCS(i, pcSubStr, pCaseSensitive)
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
 
 		def FindNFirstOccurrencesCS(n, pcSubStr, pCaseSensitive)
 			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
@@ -9513,10 +9797,14 @@ class stzString from stzObject
 		def NthFirstCS(n, pcSubStr, pCaseSensitive)
 			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstNOccurrences(n, pcSubStr)
 		return This.FindFirstNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def FindNFirstOccurrences(n, pcSubStr)
 			return This.FindFirstNOccurrences(n, pcSubStr)
@@ -9533,13 +9821,23 @@ class stzString from stzObject
 		def NthFirst(n, pcSubStr)
 			return This.FindFirstNOccurrences(n, pcSubStr)
 
+		#>
+
 	  #---------------------------------------------------#
 	 #   FINDING THE LAST N OCCURRENCES OF A SUBSTRING   #
 	#---------------------------------------------------#
 
 	def FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
-		nLen = This.NumberOfStrings()
-		return This.FindAllCSQ(pcSubStr, pCaseSensitive).Section(nLan - n + 1, nLen)
+
+		anPos = This.Copy().ReverseQ().FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		nLen = This.NumberOfChars()
+		for n in anPos
+			n = nLen - n + 1
+		next
+
+		anResult = ring_reverse(anPos)
+		return anResult
 
 		def FindNLastOccurrencesCS(n, pcSubStr, pCaseSensitive)
 			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
@@ -9934,6 +10232,7 @@ class stzString from stzObject
 
 		def PreviousNthOccurrence(n, pcSubStr, nStart)
 			return This.FindNthPreviousOccurrence(n, pcSubStr, nStart)
+
 	   #-------------------------------------------------#
 	  #      FINDING NEXT OCCURRENCE OF A SUBSTRING     #
 	 #      STARTING AT A GIVEN POSITION               #
@@ -10060,46 +10359,39 @@ class stzString from stzObject
 	 #      FINDING ALL OCCURRENCES OF A SUBSTRING     #
 	#-------------------------------------------------#
 
-	// Returns the list of start-positions of the substring inside the string
 	def FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and
+			( Q(pcSubStr).IsOfNamedParam() or
+			  Q(pcSubStr).IsOfSubStringNamedParam() )
+
 			pcSubStr = pcSubStr[2]
 		ok
 
-		if This.ContainsNoCS(pcSubStr, pCaseSensitive)
-			return [ ]
+		nLenString = This.NumberOfChars()
+		nLenSubStr = Q(pcSubStr).NumberOfChars()
+
+		if nLenString < nLenSubStr
+			return []
 		ok
 
-		aResult = []
+		#-- Doing the job
 
-		oCopy = This.Copy()
+		anResult = []
 
-		bSomeOccurrencesLeft = TRUE
+		bContinue = TRUE
+		nPos = 0
 
-		while bSomeOccurrencesLeft
-	
-			nPos = oCopy.FindFirstCS(pcSubStr, pCaseSensitive)
-
+		while bContinue
+			nPos = This.FindFirstXTCS(pcSubStr, :StartingAt = nPos + 1, pCaseSensitive)
 			if nPos = 0
-				bSomeOccurrencesLeft = FALSE
+				bContinue = FALSE
 			else
-				// An occurrence is found
-				aResult + nPos
-
-				// Removing the substring and rewinding
-				oCopy.RemoveSection(1, nPos + StzStringQ(pcSubStr).NumberOfChars()-1 )	
+				anResult + nPos
 			ok
-			
 		end
 
-		if len(aResult) > 1
-			for i = 2 to len(aResult)
-				aResult[i] += aResult[i-1] + StzStringQ(pcSubStr).NumberOfChars()-1
-			next i
-		ok
-
-		return aResult
+		return anResult
 
 		#< @FunctionFluentForm
 
@@ -10139,8 +10431,6 @@ class stzString from stzObject
 				
 			def FindCSQR(pcSubStr, pcReturnType, pCaseSensitive)
 				return This.FindAllOccurrencesCSQR(pcSubStr, pcReturnType, pCaseSensitive)
-
-		#>
 
 		def FindAllCS(pcSubStr, pCaseSensitive)
 			return This.FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
@@ -10242,7 +10532,7 @@ class stzString from stzObject
 			def OccurrencesQR(pcSubStr, pcReturnType)
 				return This.FindAllOccurrencesQR(pcSubStr, pcReturnType)
 
-		def Positions(pcStr)
+		def Positions(pcSubStr)
 			return This.FindAllOccurrences(pcSubStr)
 
 			def PositionsQ(pcSubStr)
@@ -10251,7 +10541,7 @@ class stzString from stzObject
 			def PositionsQR(pcSubStr, pcReturnType)
 				return This.FindAllOccurrencesQR(pcSubStr, pcReturnType)
 
-		def PositionsOfSubString(pcStr)
+		def PositionsOfSubString(pcSubStr)
 			return This.FindAllOccurrences(pcSubStr)
 
 			def PositionsOfSubStringQ(pcSubStr)
@@ -11347,7 +11637,10 @@ class stzString from stzObject
 
 		*/
 
-		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and
+			( Q(pcSubStr).IsOfNamedParam() or
+			  Q(pcSubStr).IsOfSubStringNamedParam() )
+
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -11403,6 +11696,19 @@ class stzString from stzObject
 
 		def FindSectionsQR(pcSubStr, pcReturnType)
 			return This.FindSectionsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringSections(pcSubStr)
+			return This.FindSections(pcSubStr)
+
+			def FindSubStringSectionsQ(pcSubStr)
+				return This.FindSectionsQ(pcSubStr)
+
+			def FindSubStringSectionsQR(pcSubStr, pcReturnType)
+				return This.FindSectionsQR(pcSubStr, pcReturnType)
+
+		#>
 
 	  #----------------------------------------#
 	 #   FINDING NTH SECTION OF A SUBSTRING   #
@@ -11571,7 +11877,7 @@ class stzString from stzObject
 		#--> [ 9, 41 ]
 		*/
 
-		aSections = FindSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		aSections = This.FindSubStringSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			
 		anResult = []
 
@@ -11714,10 +12020,10 @@ class stzString from stzObject
 	 #   TWO OTHER SUBSTRINGS AND RETURN THEIR RELATIVE SECTIONS   #
 	#-------------------------------------------------------------#
 
-	def FindSectionsBetweenCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+	def FindSubstringSectionsBetweenCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		/* EXAMPLE
 		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-		? o1.FindSectionsBetweenCS("word", "<<", ">>", :CaseSensitive = FALSE)
+		? o1.FindSubstringSectionsBetweenCS("word", "<<", ">>", :CaseSensitive = FALSE)
 		
 		(we used here the simple form of the function)
 
@@ -11739,7 +12045,7 @@ class stzString from stzObject
 		for aPair in aSections
 			cStr = This.Section(aPair[1] - nLen1, aPair[2] + nLen2 )
 
-			if StzStringQ(cStr).IsBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+			if StzStringQ(cStr).IsBoundedByCS([pcBound1, pcBound2], pCaseSensitive)
 				anResult + aPair
 			ok
 		next
@@ -11748,20 +12054,20 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def FindSectionsBetweenCSQ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
-			return This.FindSectionsBetweenCSQR(pcSubStr, pcBound1, pcbound2, pCaseSensitive, :stzList)
+		def FindSubStringSectionsBetweenCSQ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindSubstringSectionsBetweenCSQR(pcSubStr, pcBound1, pcbound2, pCaseSensitive, :stzList)
 
-			def FindSectionsBetweenCSQR(pcSubStr, pcBound1, pcbound2, pCaseSensitive, pcReturnType)
+			def FindSubstringSectionsBetweenCSQR(pcSubStr, pcBound1, pcbound2, pCaseSensitive, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.FindSectionsBetweenCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive) )
+					return new stzList( This.FindSubstringSectionsBetweenCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive) )
 	
 				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsBetweenCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive) )
+					return new stzListOfStrings( This.FindSubstringSectionsBetweenCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive) )
 	
 				other
 					stzRaise("Unsupported return type!")
@@ -11771,25 +12077,25 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindSectionsBetween(pcSubStr, pcBound1, pcbound2)
-		return This.FindSectionsBetweenCS(pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
+	def FindSubstringSectionsBetween(pcSubStr, pcBound1, pcbound2)
+		return This.FindSubstringSectionsBetweenCS(pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def FindSectionsBetweenQ(pcSubStr, pcBound1, pcbound2)
-			return This.FindSectionsBetweenQR(pcSubStr, pcBound1, pcbound2, :stzList)
+		def FindSubstringSectionsBetweenQ(pcSubStr, pcBound1, pcbound2)
+			return This.FindSubstringSectionsBetweenQR(pcSubStr, pcBound1, pcbound2, :stzList)
 
-			def FindSectionsBetweenQR(pcSubStr, pcBound1, pcbound2, pcReturnType)
+			def FindSubstringSectionsBetweenQR(pcSubStr, pcBound1, pcbound2, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.FindSectionsBetween(pcSubStr, pcBound1, pcbound2) )
+					return new stzList( This.FindSubstringSectionsBetween(pcSubStr, pcBound1, pcbound2) )
 	
 				on :stzListOfStrings
-					return new stzListOfStrings( This.FindSectionsBetween(pcSubStr, pcBound1, pcbound2) )
+					return new stzListOfStrings( This.FindSubstringSectionsBetween(pcSubStr, pcBound1, pcbound2) )
 	
 				other
 					stzRaise("Unsupported return type!")
@@ -11818,6 +12124,66 @@ class stzString from stzObject
 
 		def NumberOfSectionsBetween(pcSubStr, pcBound1, pcBound2)
 			return This.NumberOfOccurrenceBetween(pcSubStr, pcBound1, pcBound2)
+
+	  #-----------------------------------------------------------------------#
+	 #  NUMBER OF OCCURRENCE OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
+	#-----------------------------------------------------------------------#
+
+	def NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
+		/* EXAMPLE
+		
+		o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
+		? o1.NumberOfOccurrenceXT(
+			:OfSubString = "many",
+			:BetweenSubStrings = ["<<", :and = ">>"]
+			# or :BoundedBy = ["<<", :and = ">>"]
+		)
+		#--> 
+
+		*/
+
+		if isList(pcSubStr) and ( Q(pcSubStr).IsOfNamedParam() or Q(pcSubStr).IsOfSubStringNamedParam() )
+			pcSubStr = pcSubStr[2]
+		ok
+
+		if isList(pacBetween) and
+			( Q(pacBetween).IsBetweenNamedParam() or
+			Q(pacBetween).IsBetweenSubstringsNamedParam() or
+			Q(pacBetween).IsBoundedByNamedParam() or
+			Q(pacBetween).IsBoundedBySubStringsNamedParam() )
+
+			pacBetween = pacBetween[2]
+		ok
+
+		if isList(pacBetween) and
+			isList(pacBetween[2]) and
+			Q(pacBetween[2]).IsAndNamedParam()
+
+				pacBetween[2] = pacBetween[2][2]
+		ok
+
+		if NOT ( Q(pacBetween).IsPairOfStrings() or
+			
+			( isString(pacBetween[1]) and
+			   	isList(pacBetween[2]) and
+			  	 Q(pacBetween[2]).IsAndNamedParam() and
+			   	 isString(pacBetween[2][2])
+			)
+		      )
+
+			stzRaise("Incorrect param! pacBetween must be a pair of strings.")
+		ok
+
+		nResult = This.NumberOfOccurrenceBetweenCS(pcSubStr, pacBetween[1], pacBetween[2], pCaseSensitive)
+		return nResult
+
+		def NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
+			return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfOccurrenceXT(pcSubStr, pacBetween)
+		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, :CaseSensitive = TRUE)
 
 	   #-------------------------------------------------------------#
 	  #   FINDING NTH OCCURRENCE OF A SUBSTRING BETWEEN            #
@@ -11999,6 +12365,18 @@ class stzString from stzObject
 		? o1.FindAnyBetweenXT( [ "word1", 14 ], [ "word2", 32 ] ] ) // TODO
 
 		*/
+
+		if isList(pcSubStr1) and Q(pcSubStr1).IsSubStringNamedParam()
+			pcSubStr1 = pcSubStr1[2]
+		ok
+
+		if isList(pcSubStr2) and
+			( Q(pcSubStr2).IsAndNamedParam() or
+			  Q(pcSubStr2).IsAndSubStringNamedParam() )
+
+			pcSubStr2 = pcSubStr2[2]
+		ok
+
 		aResult = []
 
 		n1 = 1
@@ -12245,6 +12623,11 @@ class stzString from stzObject
 
 		# --> [ "word1", "word2" ]
 		*/
+
+		if isList(pcSubStr2) and Q(pcSubStr2).IsAndNamedParam()
+			pcSubStr2 = pcSubStr2[2]
+		ok
+
 		aResult = []
 
 		n1 = 1
@@ -12298,6 +12681,19 @@ class stzString from stzObject
 			
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def AnySubStringBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+			def AnySubStringsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubStringsBetweenQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+			def AnySubStringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+				return This.SubStringsBetweenQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubstringsBetween(pcSubStr1, pcSubStr2)
@@ -12311,6 +12707,19 @@ class stzString from stzObject
 		def SubstringsBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
 			return This.SubstringsBetweenCSQR(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE, pcReturnType)
 			
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AnySubStringBetween(pcSubStr1, pcSubStr2)
+			return This.SubStringsBetween(pcSubStr1, pcSubStr2)
+
+			def AnySubStringsBetweenQ(pcSubStr1, pcSubStr2)
+				return This.SubStringsBetweenQ(pcSubStr1, pcSubStr2)
+
+			def AnySubStringsBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
+				return This.SubStringsBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
+
 		#>
 
 	  #----------------------------------------------------------------------------#
@@ -12329,13 +12738,31 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def SubStringsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SubStringsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def AnySubStringsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubStringsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def AnySubStringsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubStringsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+ 
+		#>
+
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringsBetweenXT(pcSubStr1, pcSubStr2)
 		return This.SubStringsBetweenXTCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def AnySubStringsBetweenXT(pcSubStr1, pcSubStr2)
+			return This.SubStringsBetweenXT(pcSubStr1, pcSubStr2)
+
+		#>
 
 	  #========================================#
 	 #  VISUALLY FINDING CHARS IN THE STRING  #
@@ -12649,6 +13076,10 @@ class stzString from stzObject
 
 	def ContainsCS(cSubStr, pCaseSensitive) # :CaseSensitive = TRUE or :CaseSensitive = FALSE
 	
+		if isList(cSubStr)
+			return This.ContainsManyCS(cSubStr, pCaseSensitive)
+		ok
+
 		if NOT isString(cSubStr)
 			stzRaise("Incorrect param type! cSubStr must be a STRING, while you are providing a " + type(cSubStr) + ".")
 		ok
@@ -13213,23 +13644,38 @@ class stzString from stzObject
 	def ContainsOneOccurrenceCS(pcSubStr, pCaseSensitive)
 		return This.ContainsNTimesCS(1, pcSubStr, pCaseSensitive)
 	
+		#< @FunctionAlternativeForms
+
 		def ContainsOnlyOneCS(pcSubStr, pCaseSensitive)
-			return This.ContainsOneOccurrenceCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.ContainsOneOccurrenceCS(pcSubStr, pCaseSensitive)
+
+		def ContainsOneCS(pcSubStr, pCaseSensitive)
+			return This.ContainsOneOccurrenceCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsOneOccurrence(pcSubStr)
 		return This.ContainsOneOccurrenceCS(pcSubstr, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def ContainsOnlyOne(pcSubStr)
 			return This.ContainsOneOccurrence(pcSubStr)
 
-	  #-----------------------------------------------------------------#
-	 #    CONTAINING MANY (MORE THEN ONE) OCCURRENCE OF A SUBSTRING    #
-	#-----------------------------------------------------------------#
+		def ContainsOne(pcSubStr)
+			return This.ContainsOneOccurrence(pcSubStr)
+
+		#>
+	  #---------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS MORE THAN ONE OCCURRENCE OF A SUBSTRING  #
+	#---------------------------------------------------------------------------#
 
 	def ContainsMoreThanOneOccurrenceCS(pcSubstr, pCaseSensitive)
-		return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) > 1
+		return This.ContainsMoreThanNOccurrencesCS(1, pcSubStr, pCaseSensitive)
+
+		#< @FunctionAlternativeForms
 
 		def ContainsManyOccurrencesCS(pcSubstr, pCaseSensitive)
 			return This.ContainsMoreThanOneOccurrenceCS(pcSubstr, pCaseSensitive)
@@ -13237,17 +13683,93 @@ class stzString from stzObject
 		def ContainsManyCS(pcSubStr, pCaseSensitive)
 			return This.ContainsMoreThanOneOccurrenceCS(pcSubstr, pCaseSensitive)
 		
+		def ContainsSomeOccurrencesCS(pcSubstr, pCaseSensitive)
+			return This.ContainsMoreThanOneOccurrenceCS(pcSubstr, pCaseSensitive)
+				
+		def ContainsMoreThenOneCS(pcSubStr, pCaseSensitive)
+			return This.ContainsMoreThanOneOccurrenceCS(pcSubstr, pCaseSensitive)
+		
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsMoreThanOneOccurrence(pcSubstr)
 		return This.ContainsMoreThanOneOccurrenceCS(pcSubstr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def ContainsManyOccurrences(pcSubstr)
 			return This.ContainsMoreThanOneOccurrence(pcSubstr)
 		
 		def ContainsMany(pcSubStr)
 			return This.ContainsMoreThanOneOccurrence(pcSubstr)
+		
+		def ContainsSomeOccurrences(pcSubstr)
+			return This.ContainsMoreThanOneOccurrence(pcSubstr)
+				
+		def ContainsMoreThenOne(pcSubStr)
+			return This.ContainsMoreThanOneOccurrence(pcSubstr)
+
+		#>
 			
+	  #--------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS MORE THAN N OCCURRENCES OF A SUBSTRING  #
+	#--------------------------------------------------------------------------#
+
+	def ContainsMoreThanNOccurrencesCS(n, pcSubstr, pCaseSensitive)
+
+		bResult = FALSE
+
+		bContinue = TRUE
+		i = 0
+		nPos = 0
+
+		while bContinue
+	
+			nPos = This.FindFirstXTCS(pcSubStr, :StartingAt = nPos + 1, pCaseSensitive)
+			if nPos = 0
+				bContinue = FALSE
+			else
+				i++
+				if i > n
+					bResult   = TRUE
+					bContinue = FALSE
+				ok
+			ok
+		end
+
+		return bResult
+
+		def ContainsMoreThenNCS(n, pcSubStr, pCaseSensitive)
+			return This.ContainsMoreThanNOccurrencesCS(n, pcSubstr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsMoreThanNOccurrences(n, pcSubstr)
+		return This.ContainsMoreThanNOccurrencesCS(n, pcSubstr, :CaseSensitive = TRUE)
+
+		def ContainsMoreThenN(n, pcSubStr)
+			return This.ContainsMoreThanNOccurrences(n, pcSubstr)
+
+	  #------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS N OR MORE OCCURRENCES OF A SUBSTRING  #
+	#------------------------------------------------------------------------#
+
+	def ContainsNOrMoreOccurrencesCS(n, pcSubstr, pCaseSensitive)
+		bResult = This.ContainsMoreThenNOccurrencesCS(n - 1, pcSubStr, pCaseSensitive)
+		return bResult
+
+		def ContainsNOrMoreCS(n, pcSubstr, pCaseSensitive)
+			return This.ContainsNOrMoreOccurrencesCS(n, pcSubstr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsNOrMoreOccurrences(n, pcSubstr)
+		return This.ContainsNOrMoreOccurrencesCS(n, pcSubstr, :CaseSensitive = TRUE)
+	
+		def ContainsNOrMore(n, pcSubStr)
+			return This.ContainsNOrMoreOccurrences(n, pcSubstr)
+
 	  #-----------------------------------------#
 	 #    CONTAINING CHARS IN A GIVEN SCRIPT   #
 	#-----------------------------------------#
@@ -19637,13 +20159,17 @@ class stzString from stzObject
 		#>
 
 	def RemoveDuplicatedChars()
-		cNewString = CharsQR(:stzListOfStrings).RemoveDuplicatesQ().Concatenated()
+		cNewString = This.UniqueCharsQR(:stzListOfStrings).Concatenated()
 		This.Update(cNewString)
 
 		def RemoveDuplicatedCharsQ()
 			This.RemoveDuplicatedChars()
 			return This
 	
+	def DuplicatedCharsRemoved()
+		cResult = This.Copy().RemoveDuplicatedCharsQ().Content()
+		return cResult
+
 	  #-------------------------------#
 	 #   CHAR AT A GIVEN POSITION    #
 	#-------------------------------#
@@ -22504,9 +23030,15 @@ class stzString from stzObject
 
 		#--
 
+		def DoW(pcAction, pcCondition) # TODO: Generalize in other classes
+			This.PerformW(pcAction, pcCondition)
+
 		def PerformWQ(paParams)
 			This.PerformW(paParams)
 			return This
+
+			def DoWQ(paParams)
+				This.PerformWQ(paParams)
 
 	  #----------------------------#
 	 #  OPERATORS OVERLOADING     #
