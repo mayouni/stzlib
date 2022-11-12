@@ -58,7 +58,7 @@ o1.DeepReplace("me", :By = "you")
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 ? o1.NumberOfSectionsBetween("word", "<<", ">>") #--> 3
 
-? o1.FindSectionsBetween("word", "<<", ">>")
+? o1.FindSubStringSectionsBetween("word", "<<", ">>")
 #--> [ [11, 14], [28, 31], [41, 44] ]
 
 ? o1.FindNthSectionBetween(2, "word", "<<", ">>")
@@ -405,7 +405,7 @@ STOP()
 /*================
 
 o1 = new stzString("blabla bla <<word>> bla bla <<word>>")
-? o1.FindSectionsBetween("word", "<<", ">>")
+? o1.FindSubStringSectionsBetween("word", "<<", ">>")
 #--> [ [14, 17], [31, 34] ]
 
 /*----------------
@@ -415,13 +415,13 @@ o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
 #--> [ 14, 32 ]
 
 o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
-? o1.FindAnySectionsBetween("<<", ">>")
+? o1.FindSectionsBetween("<<", ">>")
 #--> [ [14, 18], [32, 36] ]
 
 /*----------------
 
 o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
-aSections = o1.FindAnySectionsBetween('"', '"')
+aSections = o1.FindSectionsBetween('"', '"')
 #--> [ [24 ,41], [56, 63] ]
 
 aAntiSections = o1.FindAntiSections(aSections)
@@ -437,7 +437,7 @@ aAntiSections = o1.FindAntiSections(aSections)
 /*----------------
 
 o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
-aBetween = o1.FindAnySectionsBetween('"', '"')
+aBetween = o1.FindSectionsBetween('"', '"')
 #--> [ [24 ,41], [56, 63] ]
 
 ? o1.Sections( aBetween )
@@ -489,7 +489,7 @@ aBetween = o1.FindAnySectionsBetween('"', '"')
 /*---------------
 
 o1 = new stzString(' this code:   txt1  = "<    withspaces    >"   and txt2="<nospaces>"  ')
-aAntiSections = o1.FindAntiSections( o1.FindAnySectionsBetween('"','"') )
+aAntiSections = o1.FindAntiSections( o1.FindSectionsBetween('"','"') )
 
 o1.ReplaceSections(aAntiSections, :With = '|***|')
 ? o1.Content()
@@ -498,7 +498,7 @@ o1.ReplaceSections(aAntiSections, :With = '|***|')
 /*----------------
 
 o1 = new stzString(' this code    :   txt1  = "<    leave spaces    >"   and this    code:  txt2 =   "< leave spaces >"  ')
-aAntiSections = o1.FindAntiSections( o1.FindAnySectionsBetween('"','"') )
+aAntiSections = o1.FindAntiSections( o1.FindSectionsBetween('"','"') )
 
 o1.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
 ? o1.Content()

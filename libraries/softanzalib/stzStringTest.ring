@@ -1,82 +1,82 @@
+
 load "stzlib.ring"
 
-o1 = new stzListOfStrings([ "A", "B", "C", "D", "E", "F"])
-o1.ReplaceManyOneByOne([ "B", "D", "F"], :With = [ 1, 2, 3 ])
-? o1.Content()
-
-/*-----------------
-
-str = "sun"
-? Q(str).IsEither("moon", :Or = "sun")
-#--> return
-? Q(str).IsEither(:This = "moon", :OrThat = "sun")
-
-/*-----------------
-
-? Q("stzLen").IsAFunction() 	#--> TRUE
-# or isFunc()
-
-? Q("stzChar").IsClass()	#--> TRUE
-
-/*-----------------
-
-? QQ("ر").StzType() #--> stzChar
-? QQ("ر").UnicodeDirectionNumber() #--> "13"
-? QQ("ر").IsRightToLeft() #--> TRUE
-
-/*-----------------
+/*------------------
 */
+o1 = new stzString("ab_cd_ef_gh")
+? o1.ContainsMoreThenOne("_") 	#--> TRUE
+? o1.ContainsMoreThenOne("a") 	#--> FALSE
+? o1.ContainsOne("a")		#--> TRUE
 
-//? Q("LOVE").Inverted() 	#--> ƎɅO⅂
-//? QQ("L").IsInvertible()	#--> TRUE
-# Note that QQ() elevates "L" to a stzChar
+/*------------------
 
-/*-----------------
+o1 = new stzString("ab_cd_ef_gh")
+? o1.FindFirst("_")			#--> 3
+? o1.FindFirstXT("*", :StartingAt = 4)	#--> 0
+? o1.FindFirstXT("_", :StartingAt = 3)	#--> 3
 
-? Q("str").AllCharsAre(:Chars)		#--> TRUE
-? Q("str").AllCharsAre(:Strings)	#--> TRUE
-? Q("123").AllCharsAre(:Numbers) 	#--> TRUE
-? Q("(,)").AllCharsAre(:Punctuations)	#--> TRUE
+? o1.FindLast("_")	#--> 9
+? o1.FindLast("*")	#--> 0
 
-? Q("نور").AllCharsAre(:Arabic)		#--> TRUE
-? Q("نور").AllCharsAre(:RighttoLeft)	#--> TRUE
+? o1.FindNth(2,"_")	#--> 6
 
-? Q("LOVE").AllCharsAre(:Invertible)
-? Q("LOVE").Inverted()			#--> ƎɅO⅂
+/*------------------
 
-/*-----------------
+o1 = new stzString("ab_cd_ef_gh")
+? o1.FindFirstNOccurrences(2, "_")	#--> [3, 6]
+? o1.FindLastNOccurrences(2, "_")	#--> [6, 9]
 
-? Q(2).IsANumber()	#--> TRUE
-? Q(2).IsEven()		#--> TRUE
-? Q(2).IsPositive()	#--> TRUE
+/*------------------
 
-/*-----------------
+o1 = new stzString("ab_cd_ef_gh")
+? o1.FindAll("_")
+#--> [3, 6, 9]
 
-? Q("248").AllCharsAre([ :Even, :Positive, :Numbers ])		#--> TRUE
-? Q("نور").AllCharsAre([ :RightToLeft, :Arabic, :Chars ])	#--> TRUE
+/*------------------
 
-/*-----------------
+? @@S ( Q("
 
-? QQ("①").IsCircledNumber() #--> TRUE
-# or QQ("①").IsCircledDigit() if you wana embrace the semantics of Unicode
+	.;1;.;.;.
+	1;2;3;4;5
+	.;3;.;.;.
+	.;4;.;.;.
+	.;5;.;.;.  " ).
 
-/*-----------------
+	RemoveEmptyLinesQ().
+	LinesQR(:stzListOfStrings).
+	TrimQ().
+	StringsSplitted(:Using = ";")
+)
 
-? Q("①②③").AllCharsAre(:CircledNumbers)			#--> TRUE
-? Q("①②③").AllCharsAre([:CircledNumber, :Chars])	#--> TRUE
+#--> [
+#	[ ".", "1", ".", ".", "." ],
+#	[ "1", "2", "3", "4", "5" ],
+#	[ ".", "3", ".", ".", "." ],
+#	[ ".", "4", ".", ".", "." ],
+#	[ ".", "5", ".", ".", "." ]
+# ]
 
-/*-----------------
+/*-------
 
-*/
-? Q("①②③").AllCharsAre([:Circled, :Number, :Chars])
-? Q("①②③").AllCharsAre([:Circled, :Positive, :Numbers])
-? Q("②④⑧").AllCharsAre([ :Circled, :Even, :Numbers ])
-/*-----------------
+/*------------------
 
-? Q("248").AllCharsAreXT([ :Even, :Positive, :Numbers ], :EvaluateFrom = :RTL)
-/*-----------------
+o1 = new stzList([ 0, 2, 0, 3, [1,2] ])
+//o1.Do('@item = [@item, @item]', :Where = 'isNumber(@item)')
+o1.PerformW( '@item = Q(@item).ReproducedInAPair()', 'isNumber(@item)')
+? @@S(o1.Content())
+#--> [ [ 0, 0 ], [ 2, 2 ], [ 0, 0 ], [ 3, 3 ], [ 1, 2 ] ]
 
-//? Q("123").Check( 'isnumber( 0+(@char) )' ) #--> TRUE
+
+
+/*------------------
+
+o1 = new stzString("How many <<many>> are there in (many <<<many>>>): so <many>>!")
+
+? @@S(o1.Bounds(:Of = "many", :UpToNChars = [ 0, 2, 0, 3, [1,2] ])) + NL
+#--> [ [ NULL, NULL ], [ "<<", ">>" ], [ NULL, NULL ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
+
+//Same as:
+? @@S(o1.Bounds(:Of = "many", :UpToNChars = [ [0,0], [2, 2], [0,0], [3,3], [1,2] ]))
 
 /*-----------------
 
@@ -119,6 +119,131 @@ o1.Simplify()
 
 ? @@( NTimes(3, [ "A", "B" ]) )
 #--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
+
+/*---
+
+? Q("Riiiiinngg").UniqueChars() #--> [ "R", "i", "n", "g" ]
+
+/*---
+
+? StzListOfStringsQ([ "A", "A", "A", "B", "B", "C" ]).
+	ContainsCS("a", :CS = FALSE) #--> TRUE
+
+/*---
+
+? StzListOfStringsQ([ "A", "A", "A", "B", "B", "C" ]).DuplicatesRemoved()
+#--> [ "A", "B", "C" ]
+
+/*---
+
+? Q("Riiiiinngg").
+	CharsQR(:stzListOfStrings).
+	RemoveDuplicatesQ().
+	Concatenated()
+#--> "Ring"
+
+/*---
+
+? Q("Riiiiinngg").DuplicatedCharsRemoved() #--> "Ring"
+#--> "Ring"
+
+/*---
+
+? Q("(9, 7, 8)").
+	RemoveWQ('Q(@Char).IsNumberInString()'). # becomes (, , )
+	RemoveSpacesQ().			 # becomes (,,)
+	RemoveDuplicatedCharsQ().		 # becomes (,)
+	AllCharsAre(:Punctuations)
+#--> TRUE
+
+/*--- TODO: Add a QZ() function that traces the intermediate results:
+
+? QZ("(9, 7, 8)").
+	RemoveWQ('Q(@Char).IsNumberInString()').
+	RemoveSpacesQ().
+	RemoveDuplicatedCharsQ().
+	AllCharsAre(:Punctuations)
+#--> [ "(, , )", "(,,)", "(,)", TRUE ]
+
+/*---
+
+? Q("(9, 7, 8)").
+	RemoveWQ('Q(@Char).IsNumberInString()').
+	RemoveSpacesQ().
+	RemoveDuplicatedCharsQ().
+	AllCharsAre(:Punctuations)	#--> TRUE
+
+/*-----------------
+
+str = "sun"
+? Q(str).IsEither("moon", :Or = "sun")
+#--> return
+? Q(str).IsEither(:This = "moon", :OrThat = "sun")
+
+/*-----------------
+
+? Q("stzLen").IsAFunction() 	#--> TRUE
+# or isFunc()
+
+? Q("stzChar").IsAClass()	#--> TRUE
+
+/*-----------------
+
+? QQ("ر").StzType() #--> stzChar
+? QQ("ر").UnicodeDirectionNumber() #--> "13"
+? QQ("ر").IsRightToLeft() #--> TRUE
+
+/*-----------------
+
+? Q("LOVE").Inverted() 	#--> ƎɅO⅂
+? QQ("L").IsInvertible()	#--> TRUE
+# Note that QQ() elevates "L" to a stzChar
+
+/*-----------------
+
+? Q("str").AllCharsAre(:Chars)		#--> TRUE
+? Q("str").AllCharsAre(:Strings)	#--> TRUE
+? Q("123").AllCharsAre(:Numbers) 	#--> TRUE
+? Q("(,)").AllCharsAre(:Punctuations)	#--> TRUE
+
+? Q("نور").AllCharsAre(:Arabic)		#--> TRUE
+? Q("نور").AllCharsAre(:RighttoLeft)	#--> TRUE
+
+? Q("LOVE").AllCharsAre(:Invertible)
+? Q("LOVE").Inverted()			#--> ƎɅO⅂
+
+/*-----------------
+
+? Q(2).IsANumber()	#--> TRUE
+? Q(2).IsEven()		#--> TRUE
+? Q(2).IsPositive()	#--> TRUE
+
+/*-----------------
+
+? Q("248").AllCharsAre([ :Even, :Positive, :Numbers ])		#--> TRUE
+? Q("نور").AllCharsAre([ :RightToLeft, :Arabic, :Chars ])	#--> TRUE
+
+/*-----------------
+
+? QQ("①").IsCircledNumber() #--> TRUE
+# or QQ("①").IsCircledDigit() if you wana embrace the semantics of Unicode
+
+/*-----------------
+
+? Q("①②③").AllCharsAre(:CircledNumbers)			#--> TRUE
+? Q("①②③").AllCharsAre([:CircledNumber, :Chars])	#--> TRUE
+
+/*-----------------
+
+? Q("①②③").AllCharsAre([:Circled, :Number, :Chars])
+? Q("①②③").AllCharsAre([:Circled, :Positive, :Numbers])
+? Q("②④⑧").AllCharsAre([ :Circled, :Even, :Numbers ])
+/*-----------------
+
+? Q("248").AllCharsAreXT([ :Even, :Positive, :Numbers ], :EvaluateFrom = :RTL)
+/*-----------------
+
+//? Q("123").Check( 'isnumber( 0+(@char) )' ) #--> TRUE
 
 /*=================
 
@@ -220,12 +345,12 @@ o1 = new stzString('[ "A","B", "C", "D", ]')
 ? o1.SplitXT(",", [])
 #--> [ '[ "A"', '"B"', ' "C"', ' "D"', ' ]' ]
 
-/*-----------------
+/*----------------- TODO: Review it
 
 o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ ANDand !!C++!! and")
 ? @@( o1.Split( :Using = "and" ) )
 # --> [ "<Ring> ", " <<PHP>> ", " <Python/> ", " <<<Ruby>>> ", "", " !!C++!!" ]
-
+/*
 ? o1.SplitXT(:Using = "and", [])
 # --> [ "<Ring> ", " <<PHP>> ", " <Python/> ", " <<<Ruby>>> ", "", " !!C++!!" ]
 
@@ -252,7 +377,7 @@ o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ 
 
 # IDENTIFYING LISTS INSIDE A STRING
 
-# In many situations (especially in advanced AI and ML applications),
+# In many situations (especially in advanced metaprogramming scenarios),
 # you may need to host a list inside a string, do whatever operations
 # on it as as string, and then evaluate it back, in real time, to
 # transform it to a vibrant Ring list again!
@@ -283,9 +408,9 @@ o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ 
 ? StzStringQ(' "A":"C" ').IsContiguousListInString()	#--> TRUE
 ? StzStringQ(' "ا":"ج" ').IsContiguousListInString()	#--> TRUE
 
-	# REMINDER: A continuous list can be made of  numbers,
-	# or contiguous chars (based on their uncode numbers).
-	# And you can identify them using the stzList.IsContinuous():
+	# REMINDER: A contiguous list can be made of  numbers,
+	# or contiguous chars (based on their unicode numbers).
+	# And you can identify them using the stzList.IsContiguous():
 
 	? StzListQ(1:3).IsContiguous()		#--> TRUE
 	? StzListQ("A":"E").IsContiguous()	#--> TRUE
@@ -322,7 +447,7 @@ o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ 
 
 # If you prefer (or need) the short form, there is an interesting
 # alternative to the ToListInShortForm() alternative that uses
-# the simple @C prefix, like this:
+# the simple @C prefix (C for Compact), like this:
 
 ? @@( StzStringQ('[1,2, 3]').ToListInString@C() ) #--> "1 : 3"
 
@@ -340,29 +465,99 @@ o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ 
 
 /*=================
 
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+? o1.SubstringsBetween("<<", :and = ">>")
+#--> [ "word", "noword", "word" ]
+
+? o1.UniqueSubStringsBetween("<<", :and = ">>")
+
+/*-----------------
+
+o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
+
+? o1.NumberOfOccurrence(:OfSubString = "many")
+#--> 5
+? o1.Positions(:of = "many")		# or o1.FindSubString("many")
+#--> [5, 12, 33, 40, 54]
+
+? @@S(o1.Sections(:Of = "many"))	# or o1.FindSections(:OfSubString = "many")
+#--> [ [ 5, 8 ], [ 5, 8 ], [ 33, 36 ], [ 40, 43 ], [ 54, 57 ] ]
+
+	# Note that Sections() has an other syntax thar returns the substrings
+	# corresponding to a given number of sections:
+
+	? o1.Sections([ [ 5, 8 ], [ 5, 8 ], [ 33, 36 ] ])
+	#--> [ "many", "many", "many" ]
+
+? o1.NumberOfOccurrenceXT(
+	:OfSubString = "many",
+	:Between = ["<<", :and = ">>"]
+	# or :BoundedBy = ["<<", :and = ">>"]
+	# or :BetweenSubStrings = ["<<", :and = ">>"]
+	# or :BoundedBySubStrings = ["<<", :and = ">>"]
+)
+#--> 3
+
+? o1.Bounds(:Of = "many", :UpToNChars = [ [ 2, 7 ], [5, 9] ] )
+
+/*-----------------
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+/*-----------------
+
+o1 = new stzString("what a <<nice>>> day!")
+? o1.Section(8, 9)
+#--> "<<"
+? o1.Section(14, 16)
+#--> ">>>"
+? o1.Sections([ [8, 9], [14, 16] ])
+#--> [ "<<", ">>>" ]
+
+/*-----------------
+
+o1 = new stzString("what a <<nice>>> day!")
+
+? o1.Settle(
+	:OnSection  = [10, 13],
+	:AndHarvest = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
+)
+
+#--> [ "<<", ">>>" ]
+
+
+/*=================
+
 # While finding occurrences of a substring inside a string,
-# Softanza can return the positions or the sections of
-# those substrings:
+# Softanza can return the position or the section of each
+# substring it finds, or both of them at the same time:
 
-o1 = new stzString("how many many are there? So many!")
-? @@( o1.FindPositions("many") )#--> [ 5, 10, 29 ]
-? @@( o1.FindSections("many") )	#--> [ [ 5, 9 ], [ 10, 14 ], [ 29, 33 ] ]
-
+o1 = new stzString("How many words in <<many many words>>? So many!")
+? @@S( o1.FindPositions(:Of = "many") )
+#--> [ 5, 21, 26, 43 ]
+? @@S( o1.FindSections(:Of = "many") ) + NL
+#--> [ [ 5, 8 ], [ 21, 24 ], [ 26, 29 ], [ 43, 46 ] ]
 
 # Softanza can also find substrings bounded between other substrings
 # and return their positions, their sections, or their content:
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? @@( o1.FindAnyBetween("<<",">>") )		# --> [ 9, 26, 41 ]
-? @@( o1.FindAnySectionsBetween("<<",">>") )	# --> [ [ 9, 10 ], [ 26, 27 ], [ 41, 42 ] ]
-? @@( o1.AnySubstringBetween("<<", ">>") )	# --> [ "word", "noword", "word" ]
+? @@S( o1.SubstringsBetween("<<", :and = ">>") )
+# --> [ "word", "noword", "word" ]
 
+? @@S( o1.FindSubStringsBetween("<<", :and = ">>") ) + NL
+# --> [ 11, 28, 43 ]
+
+? @@S( o1.FindSubStringSectionsBetween("<<",">>") )
+# --> [ [ 11, 14 ], [ 28, 33 ], [ 43, 46 ] ]
+
+/*
 # Or when you want to find not any bounded-substring but a speciefic one,
 # just provide it to the following functions to get, for all its occurrences,
 # the positions or the sections:
 
-? @@( o1.FindBetween("word", "<<", ">>") )		# --> [ 9, 41 ]
-? @@( o1.FindSectionsBetween("word", "<<", ">>") )	# --> [ [ 9, 16 ], [ 41, 48 ] ]
+? @@S( o1.FindBetween("word", "<<", ">>") )		# --> [ 9, 41 ]
+? @@S( o1.FindSubStringSectionsBetween("word", "<<", ">>") )	# --> [ [ 9, 16 ], [ 41, 48 ] ]
 
 /*================
 
@@ -428,7 +623,7 @@ o1.RemoveCharsW('{ lower(@char) = "x" }')
 /*=================
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
-? @@( o1.FindAnySectionsBetween("<<",">>") )
+? @@( o1.FindSectionsBetween("<<",">>") )
 #--> [ [ 11, 14 ], [ 28, 33 ], [ 43, 49 ] ]
 
 o1.ReplaceAnyBetween("<<", ">>", :With = "word")

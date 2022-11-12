@@ -26,7 +26,7 @@ o1 = new stzList(1:3)
 #	- you use new keyword
 #	- you specify the name of the class describing the object
 #	- you put the values of the required params
-*/
+
 
 o1 = new_stz(:String, "hi") # now you have the stzString object created
 ? o1.Uppercased() #--> "HI3
@@ -54,37 +54,28 @@ o1 = new stzString("blablabla")
 ? Stz(:Char, [ :Methods, :Where = 'Q(@Method).StartsWith("is")' ])
 #--> [ :isLeftToRight, :IsRightToLeft, ... ]
 
-/*--- TODO: ERR
-
-? Q("(9, 7, 8)").
-	RemoveWQ('Q(@Char).IsNumberInString()').
-	RemoveSpacesQ().
-	RemoveDuplicatedCharsQ().
-	AllCharsAre(:Punctuations)
-
 /*----
 
 ? Q("(,,)").Check(:That = 'StzCharQ(@Char).IsPunctuation()')
 #--> TRUE
 
+/*----
 /*
 ? Q("(9, 7, 8)").DataType()	#--> :String
 
 ? QQ("(9, 7, 8)").DataType()
 ? QQ("3 + 2 = 5").DataType()
 
-/*------------
+/*------------ // TODO
 
-? Q("12500$USD")	#--> :Number
-
-
+? Q("12500$USD").DataType()	#!--> :Number
 
 /*------------
 
 ? Q("5").DataType()	#--> "string"	because its elevated to a stzString object
 ? QQ("5").DataType()	#--> "number"	because its elevated to a stzNumber object
 
-? Q(1:3).DataType()	#--> "list"
+? Q(1:3).DataType()	#--> "number"
 
 /*============ INFERING TYPES: Q() & QQ()
 

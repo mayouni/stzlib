@@ -2,7 +2,58 @@
 TODO: Rank vs Position?
 */
 
-cEmpty = "."
+_cEmptyNodeChar = "."
+_cGridSeparator = ":"
+
+func GridEmptyNodeChar()
+	return _cEmptyNodeChar
+
+	func StzGridEmptyNodeChar()
+		return GridEmptyNodeChar()
+
+	func EmptyNodeChar()
+		return GridEmptyNodeChar()
+
+func SetGridEmptyNodeChar(cChar)
+	if NOT (isString(cChar) and Q(cChar).IsAChar())
+		stzRaise("Incorrect param type! cChar must be a char.")
+	ok
+
+	_cEmptyNodeChar = cChar
+
+	func SetStzGridEmptyNodeChar(cChar)
+		SetGridEmptyNodeChar(cChar)
+
+	func SetEmptyNodeChar(cChar)
+		SetGridEmptyNodeChar(cChar)
+
+func GridSeparator()
+	return _cGridSeparator
+
+	func StzGridSeparator()
+		return GridSeparator()
+
+	func GridSep()
+		return GridSeparator()
+
+	func StzGridSep()
+		return GridSeparator()
+
+func SetGridSeparator(cSep)
+	if NOT isString(cSep)
+		stzRaise("Incorrect param type! cSep must be a string.")
+	ok
+
+	_cGridSeparator = cSep
+
+	func SetStzGridSeparator(cSep)
+		SetGridSeparator(cSep)
+
+	func SetGridSep(cSep)
+		SetGridSeparator(cSep)
+
+	func SetStzGridSep(cSep)
+		SetGridSeparator(cSep)
 
 func StzGrid(p)
 	return new stzGrid(p)
@@ -26,6 +77,31 @@ class stzGrid from stzObject
 	#--------------#
 
 	def init(p)
+		/* There are 4 ways of creating a stzGrid object:
+	
+		Way 1 :
+			o1 = new stzGrid(12)
+	
+		Way 2 :
+			o1 = new stzGrid([3,4])
+	
+		Way 3 :
+			o1 = new setGrid([
+				["A","B","C"],
+				["E","F","G"],
+				["H","I","J"]
+			])
+	
+		Way 4:
+			o1 = new stzGrid("
+				. : 1 : . : . : .
+				1 : 2 : 3 : 4 : 5
+				. : 3 : . : . : .
+				. : 4 : . : . : .
+				. : 5 : . : . : .
+				")
+		*/
+	
 		This.SetGrid(p)
 
 	  #-----------------#
@@ -36,12 +112,14 @@ class stzGrid from stzObject
 		return @aContent
 
 	def SetGridSize(pnNumberOfVLines, pnNumberOfHLines) # TODO
+		/* ... */
 
 	def Size()
-		return NumberOfNodes()
+		anResult = [ This.NumberOfHLines(), This.NumberOfVLines() ]
+		return anResult
 
-	def Dimensions()
-		return [ @nNumberOfVLines, @nNumberOfHLines ]
+		def Dimensions()
+			return This.Size()
 
 	def NumberOfVLines()
 		return @nNumberOfVLines
@@ -200,22 +278,6 @@ class stzGrid from stzObject
 
 		return aResult
 
-	def NumberedGrid()
-		aResult = []
-
-		aVLineNumbers = [ NULL ]
-		for i = 1 to This.NumberOfVLines()
-			n = StzCounterQ([ :StartAt = 1, :WhenYouReach = 10, :RestartAt = 0 ]).CountTo(i)
-			aVLineNumbers + n
-		next
-
-		aResult + aVLineNumbers
-
-		for i = 1 to This.NumberOfHLines()
-			aResult + This.NumberedHLine(i)
-		next
-
-		return aResult
 
 	  #--------------------------------------#
 	 #     CENTRAL VLine, HLine & Node      #
@@ -430,17 +492,15 @@ class stzGrid from stzObject
 		Example 4 (TODO):
 
 			SetGrid("
-				+ - - - - - +
-				| . 1 . . . |
-				| 1 2 3 4 5 |
-				| . 3 . . . |
-				| . 4 . . . |
-				| . 5 . . . |
-				+ - - - - - +
+				. : 1 : . : . : .
+				1 : 2 : 3 : 4 : 5
+				. : 3 : . : . : .
+				. : 4 : . : . : .
+				. : 5 : . : . : .
 			")
 	*/
 
-		aTmpGrid = []
+		aTempGrid = []
 		aHLine = []
 		nV = 0
 		nH = 0
@@ -458,11 +518,11 @@ class stzGrid from stzObject
 			ok
 
 			for i = 1 to nV
-				aHLine + cEmpty
+				aHLine + _cEmptyNode
 			next i
 		
 			for i = 1 to nH
-				aTmpGrid + aHLine
+				aTempGrid + aHLine
 			next i
 		
 		on "LIST"
@@ -476,7 +536,7 @@ class stzGrid from stzObject
 				next i
 		
 				for i=1 to nH
-					aTmpGrid + aHLine
+					aTempGrid + aHLine
 				next i
 
 			else
@@ -485,14 +545,27 @@ class stzGrid from stzObject
 					nH = len(p)
 
 					for i = 1 to nH
-						aTmpGrid + p[i]
+						aTempGrid + p[i]
 					next
 
 				ok
 			ok
+
+		on "STRING"
+			if Q(p).ContainsOneOfThese([ NL, GridSep() ])
+
+				aTempGrid = Q(p).RemoveEmptyLinesQ().
+						LinesQR(:stzListOfStrings).
+						TrimQ().
+						StringsSplitted(:Using = GridSep())
+
+				nV = len(aTempGrid)
+				nH = len(aTempGrid[1])
+			ok
 		off
 
-		@aContent = aTmpGrid
+		@aContent = aTempGrid
+
 		@nNumberOfVLines = nV
 		@nNumberOfHLines = nH
 	
@@ -650,7 +723,7 @@ class stzGrid from stzObject
 
 		# TODO
 
-	def TurnTORightQ()
+	def TurnToRightQ()
 		This.TurnToRight()
 		return This
 
@@ -769,6 +842,9 @@ class stzGrid from stzObject
 		next
 		? ""
 		
+	def ShowXT(paOptions) // TODO
+		# :ShowCenter, :ShowRanks
+
 	def ShowRegion(paRegion)
 		// TODO
 

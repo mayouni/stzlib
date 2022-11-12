@@ -3985,6 +3985,21 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveManyBoundsQ(paPairsOfBounds).Content()
 		return aResult
 
+	  #----------------------------------#
+	 #   REMOVING ZEROS FROM THE LIST   #
+	#----------------------------------#
+
+	def RemoveZeros()
+		This.RemoveItem(0)
+
+		def RemoveZerosQ()
+			This.RemoveZeros()
+			return This
+
+	def ZerosRemoved()
+		aResult = This.Copy().RemoveZerosQ().Content()
+		return aResult
+
 	  #-------------------------------------#
 	 #    CHECKINK LIST CHARACTERISTICS    #
 	#-------------------------------------#
@@ -4298,6 +4313,20 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	def IsListOfNumbersAndPairsOfNumbers()
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT 	( isNumber(item) or
+					( isList(item) and Q(item).IsPairOfNumbers() )
+				)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
 
 	def Transform( pcWhat, pcCondition, pcTo )
 		/*
@@ -6234,7 +6263,7 @@ class stzList from stzObject
 	 #   PERFORMING AN ACTION ON EACH ITEM   #
 	#=======================================#
 
-	def Perform(pcCode)
+	def Perform(pcAction)
 		# Must begin with '@item ='
 
 		/* Example
@@ -6249,15 +6278,15 @@ class stzList from stzObject
 
 		*/
 
-		This.PerformOnThesePositions(1:This.NumberOfItems(), pcCode)
+		This.PerformOnThesePositions(1:This.NumberOfItems(), pcAction)
 
-		#--
+		#< @FunctionfluentForm
 
-		def PerformQ(pcCode)
-			This.Perform(pcCode)
+		def PerformQ(pcAction)
+			This.Perform(pcAction)
 			return This
 
-		def PerformQR(pcCode, pcReturnType)
+		def PerformQR(pcAction, pcReturnType)
 			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -6271,20 +6300,50 @@ class stzList from stzObject
 				return This
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.Perform(pcCode) )
+				return new stzListOfStrings( This.Perform(pcAction) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Perform(pcCode) )
+				return new stzListOfNumbers( This.Perform(pcAction) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.Perform(pcCode) )
+				return new stzListOfLists( This.Perform(pcAction) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.Perform(pcCode) )
+				return new stzListOfPairs( This.Perform(pcAction) )
 
 			other
 				stzRaise("Unsupported return type!")
 			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def Doo(pcAction) # We can't use do() because it is reserved keyword by Ring
+			This.Perform(pcAction)
+
+			def DooQ(pcAction)
+				return This.PerformQ(pcAction)
+
+			def DooQR(pcAction, pcReturnType)
+				return This.PerformQR(pcAction, pcReturnType)
+
+			def DoQ(pcAction)
+				return This.PerformQ(pcAction)
+
+			def DoQR(pcAction, pcReturnType)
+				return This.PerformQR(pcAction, pcReturnType)
+
+		def Do_(pcAction) # We can't use do() because it is reserved keyword by Ring
+			This.Perform(pcAction)
+
+			def Do_Q(pcAction)
+				return This.PerformQ(pcAction)
+
+			def Do_QR(pcAction, pcReturnType)
+				return This.PerformQR(pcAction, pcReturnType)
+
+		#>
 
 	  #---------------------------------------------------#
 	 #   PERFORMIN ACTIONS ON CHARS IN GIVEN POSITIONS   #
@@ -6599,7 +6658,7 @@ class stzList from stzObject
 
 		This.PerformOn(anPositions, pcAction)
 
-		#--
+		#< @FunctionFluentForm
 
 		def PerformWQ(pcAction, pcCondition)
 			This.PerformW(pcAction, pcCondition)
@@ -6633,6 +6692,19 @@ class stzList from stzObject
 			other
 				stzRaise("Unsupported return type!")
 			off
+		#>
+
+		#< @AlternativeForm
+
+		def DoW( pcAction, pcCondition )
+			This.PerformW( pcAction, pcCondition )
+
+			def DoWQ( pcAction, pcCondition )
+				return This.PerformWQ( pcAction, pcCondition )
+
+			def DoWQR( pcAction, pcCondition, pcReturnType )
+				return This.PerformWQR( pcAction, pcCondition, pcReturnType )
+		#>
 
 	  #==================================================#
 	 #  CHECKING IF THE LIST IS EQUAL TO AN OTHER LIST  #
@@ -8581,13 +8653,13 @@ sdsd
 
 		// Add an item at the end of the list
 		but pcOp = ">>"
-			This.Add(value)
+			This.Add(pValue)
 
 		but pcOp = "="
-			return This.IsEqualTo(value)
+			return This.IsEqualTo(pValue)
 
 		but pcOp = "=="
-			return This.IsStrictlyEqualTo(value)
+			return This.IsStrictlyEqualTo(pValue)
 
 		// Divides the list on pValue sublists (a list of lists)
 		but pcOp = "/" 
@@ -9271,6 +9343,10 @@ sdsd
 	#----------------------------------------------#
 
 	def ContainsCS(pItem, pCaseSensitive)
+
+		if isList(pItem)
+			return This.ContainsMany(pItem)
+		ok
 
 		if This.FindFirstOccurrenceCS(pItem, pCaseSensitive) > 0
 			return TRUE
@@ -13954,6 +14030,78 @@ sdsd
 	 #   CHECKING IF THE LIST IS A NAMED PARAM   #
 	#===========================================#
 
+	def IsOnPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OnPosition)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOnSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OnSection)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsHarvestNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :Harvest)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndHarvestNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndHarvest)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndThenHarvestNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndThenHarvest)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsThenHarvestNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :ThenHarvest)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsNCharsBefore()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :NCharsBefore)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsNCharsAfter()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :NCharsAfter)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsOneOfTheseNamedParams(pacParamNames)
 		bResult = FALSE
 
@@ -14736,6 +14884,16 @@ sdsd
 			return FALSE
 		ok
 
+	def IsInANamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InA )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsWhereNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Where ) and
@@ -15185,8 +15343,77 @@ sdsd
 
 	def IsReturnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and Q(This[1]).IsEqualToCS(:Return) and
-		   isString(This[2])
+		   isString(This[1]) and Q(This[1]).IsEqualToCS(:Return, :CS = FALSE)
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsReturningNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and Q(This[1]).IsEqualToCS(:Returning, :CS = FALSE)
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndReturnNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and Q(This[1]).IsEqualToCS(:AndReturn, :CS = FALSE)
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndReturningNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and Q(This[1]).IsEqualToCS(:AndReturning, :CS = FALSE)
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsReturnNthNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and Q(This[1]).IsEqualToCS(:ReturnNth, :CS = FALSE)
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsReturningNthNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and Q(This[1]).IsEqualToCS(:ReturningNth, :CS = FALSE)
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndReturnNthNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and Q(This[1]).IsEqualToCS(:AndReturnNth, :CS = FALSE)
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndReturningNthNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and Q(This[1]).IsEqualToCS(:AndReturningNth, :CS = FALSE)
 
 			return TRUE
 
@@ -15395,16 +15622,6 @@ sdsd
 	def IsStringItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :StringItem )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsSubStringNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :SubString )
 
 			return TRUE
 
@@ -17352,6 +17569,223 @@ sdsd
 	def IsOrThatNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :OrThat )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :SubString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndSubString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfSubString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :InSubString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBetweenSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :BetweenSubString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBoundedBySubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :BoundedBySubString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :SubStrings )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndSubStrings )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfSubStrings )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :InSubStrings )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBetweenSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :BetweenSubStrings )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBoundedBySubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :BoundedBySubStrings )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsBoundedByNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :BoundedBy )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :Section )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndSection )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfSection )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :InSection )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :Sections )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndSections )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfSubSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfSections )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :InSections )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfSizeNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :OfSize )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsSizeNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Size )
 
 			return TRUE
 

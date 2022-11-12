@@ -1,7 +1,50 @@
 load "stzlib.ring"
 
+o1 = new stzList([ "A", 0, 0, "B", "C", 0, "D", 0, 0 ])
+? o1.ZerosRemoved() #--> [ "A", "B", "C", "D" ]
+
+/*=============
+
+# In Ring, it's impossible to make a comparison between two lists
+# using the = operator like this:
+
+//? [1,2] = [1,2]
+#--> Error (R21) : Using operator with values of incorrect type 
+
+# In Softanza you can, just elevate the list to a stzList object
+# using the Q() function like this:
+
+? Q([1,2]) = [1,2] #--> TRUE
+
+# This seems to be a minor feature, but it is'nt. In fact, the Ring
+# version breaks the programmer's train of thought when writing
+# a code like this:
+
+aMyList = [1,2]
+
+if aMyList = [1,2]
+	? "I'm done :)"
+else
+	? "Ooops!"
+ok
+#--> Error (R21) : Using operator with values of incorrect type
+
+# Here is the same code enabled with Softanza Q() magic:
+aMyList = [1,2]
+
+if Q(aMyList) = [1,2]
+	? "I'm really done! Thanks Softanza :)"
+else
+	? "Ooops!"
+ok
+#--> "I'm really done! Thanks Softanza :)"
+
+/*---------
+
+o1 = new stzList([ 0, 2, 0, 3, [1,2] ])
+? o1.IsListOfNumbersAndPairsOfNumbers() #--> TRUE
+
 /*========= Deep finding items at any level
-*/
 
 o1 = new stzList([
 	"you",
