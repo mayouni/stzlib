@@ -1,5 +1,12 @@
 /*
-TODO: Rank vs Position?
+TODO:
+	- Rank vs Position?
+	- Should a szGrid host only strings?
+		I think so...
+		A grid is a visual asset after all.
+		If you need to host other values, use a stzTable insetad.
+
+	--> DECISION: stzGrid would contains only nodes that are strings.
 */
 
 _cEmptyNodeChar = "."
@@ -12,6 +19,9 @@ func GridEmptyNodeChar()
 		return GridEmptyNodeChar()
 
 	func EmptyNodeChar()
+		return GridEmptyNodeChar()
+
+	func EmptyNode()
 		return GridEmptyNodeChar()
 
 func SetGridEmptyNodeChar(cChar)
@@ -103,6 +113,105 @@ class stzGrid from stzObject
 		*/
 	
 		This.SetGrid(p)
+
+	  #--------------------#
+	 #  SETTING THE GRID  #
+	#--------------------#
+
+	def SetGrid(p) 
+	/*
+		Example 1 : 	SetGrid(12)
+
+		Example 2 : 	SetGrid([3,4])
+
+		Example 3 :
+				SetGrid([
+					["A","B","C"],
+					["E","F","G"],
+					["H","I","J"]
+				])
+
+		Example 4 (TODO):
+
+			SetGrid("
+				. : 1 : . : . : .
+				1 : 2 : 3 : 4 : 5
+				. : 3 : . : . : .
+				. : 4 : . : . : .
+				. : 5 : . : . : .
+			")
+	*/
+
+		aTempGrid = []
+		aHLine = []
+		nV = 0
+		nH = 0
+
+		switch type(p)	
+		on "NUMBER"
+			aPossibleVH = MultiplicationsYieldingN_WithoutCommutation(p)
+			if len(aPossibleVH) = 1
+				nV = aPossibleVH[1][1]
+				nH = aPossibleVH[1][2]
+			else
+				n = len(aPossibleVH)
+				nV = aPossibleVH[n][1]
+				nH = aPossibleVH[n][2]
+			ok
+
+			for i = 1 to nV
+				aHLine + EmptyNode()
+			next i
+		
+			for i = 1 to nH
+				aTempGrid + aHLine
+			next i
+		
+		on "LIST"
+
+			if len(p) = 2 and isNumber(p[1]) and isNumber(p[2])
+
+				nV = p[1] nH = p[2]
+		
+				for i=1 to nV
+					aHLine + EmptyNode()
+				next i
+		
+				for i=1 to nH
+					aTempGrid + aHLine
+				next i
+
+			else
+				if Q(p).IsListOf(:ListsOfStrings) and
+				   Q(p).SublistsHaveSameNumberOfItems()
+
+					nV = len( p[1] )
+					nH = len(p)
+
+					for i = 1 to nH
+						aTempGrid + p[i]
+					next
+
+				ok
+			ok
+
+		on "STRING"
+			if Q(p).ContainsOneOfThese([ NL, GridSep() ])
+
+				aTempGrid = Q(p).RemoveEmptyLinesQ().
+						LinesQR(:stzListOfStrings).
+						TrimQ().
+						StringsSplitted(:Using = GridSep())
+
+				nV = len(aTempGrid)
+				nH = len(aTempGrid[1])
+			ok
+		off
+
+		@aContent = aTempGrid
+
+		@nNumberOfVLines = nV
+		@nNumberOfHLines = nH
 
 	  #-----------------#
 	 #     GENERAL     #
@@ -475,99 +584,6 @@ class stzGrid from stzObject
 			ok
 			This.SetNode(nVLine, nHLine, cVLine)
 		next
-
-	def SetGrid(p) 
-	/*
-		Example 1 : 	SetGrid(12)
-
-		Example 2 : 	SetGrid([3,4])
-
-		Example 3 :
-				SetGrid([
-					["A","B","C"],
-					["E","F","G"],
-					["H","I","J"]
-				])
-
-		Example 4 (TODO):
-
-			SetGrid("
-				. : 1 : . : . : .
-				1 : 2 : 3 : 4 : 5
-				. : 3 : . : . : .
-				. : 4 : . : . : .
-				. : 5 : . : . : .
-			")
-	*/
-
-		aTempGrid = []
-		aHLine = []
-		nV = 0
-		nH = 0
-
-		switch type(p)	
-		on "NUMBER"
-			aPossibleVH = MultiplicationsYieldingN_WithoutCommutation(p)
-			if len(aPossibleVH) = 1
-				nV = aPossibleVH[1][1]
-				nH = aPossibleVH[1][2]
-			else
-				n = len(aPossibleVH)
-				nV = aPossibleVH[n][1]
-				nH = aPossibleVH[n][2]
-			ok
-
-			for i = 1 to nV
-				aHLine + _cEmptyNode
-			next i
-		
-			for i = 1 to nH
-				aTempGrid + aHLine
-			next i
-		
-		on "LIST"
-
-			if len(p) = 2 and isNumber(p[1]) and isNumber(p[2])
-
-				nV = p[1] nH = p[2]
-		
-				for i=1 to nV
-					aHLine + cEmpty
-				next i
-		
-				for i=1 to nH
-					aTempGrid + aHLine
-				next i
-
-			else
-				if StzListQ(p).SublistsHaveSameNumberOfItems()
-					nV = len( p[1] )
-					nH = len(p)
-
-					for i = 1 to nH
-						aTempGrid + p[i]
-					next
-
-				ok
-			ok
-
-		on "STRING"
-			if Q(p).ContainsOneOfThese([ NL, GridSep() ])
-
-				aTempGrid = Q(p).RemoveEmptyLinesQ().
-						LinesQR(:stzListOfStrings).
-						TrimQ().
-						StringsSplitted(:Using = GridSep())
-
-				nV = len(aTempGrid)
-				nH = len(aTempGrid[1])
-			ok
-		off
-
-		@aContent = aTempGrid
-
-		@nNumberOfVLines = nV
-		@nNumberOfHLines = nH
 	
 	def SetVLineSection(nVLine, nStart, nEnd, paVLine)
 		// TODO
@@ -780,7 +796,7 @@ class stzGrid from stzObject
 		ok
 
 		for i = 1 to This.NumberOfVLines()
-			cStr += @@S( This.HLine(n)[i] )
+			cStr += "" + This.HLine(n)[i]
 
 			if i < This.NumberOfVLines()
 				cStr += SingleSpace()
@@ -1025,6 +1041,29 @@ class stzGrid from stzObject
 
 	def SetSuperpositionMode(pcFeature)
 		// TODO
+
+	  #------------------------------------------#
+	 #  REPLACING ALL NODES WITH A GIVEN VALUE  #
+	#------------------------------------------#
+
+	def ReplaceAll(pcValue)
+		if isList(pcValue) and Q(pcValue).IsWithOrByNamedParam()
+			pcValue = pcValue[2]
+		ok
+
+		if NOT isString(pcValue)
+			stzRaise("Incorrect param type! pcValue must be a string.")
+		ok
+
+		for h = 1 to This.NumberOfHLines()
+			for v = 1 to this.NumberOfVLines()
+				This.Content()[h][v] = pcValue
+			next
+		next
+
+		def ReplaceAllQ(pcValue)
+			This.ReplaceAll(pcValue)
+			return This
 
 	  #-----------#
 	 #   MISC.   #

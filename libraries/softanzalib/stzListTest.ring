@@ -1,5 +1,12 @@
 load "stzlib.ring"
 
+o1 = new stzList([ 0, 2, 0, 3, [1,2] ])
+o1.PerformW( '@item = Q(@item).ReproducedInAPair()', 'isNumber(@item)')
+? @@S(o1.Content())
+#--> [ [ 0, 0 ], [ 2, 2 ], [ 0, 0 ], [ 3, 3 ], [ 1, 2 ] ]
+
+/*------------------
+
 o1 = new stzList([ "A", 0, 0, "B", "C", 0, "D", 0, 0 ])
 ? o1.ZerosRemoved() #--> [ "A", "B", "C", "D" ]
 

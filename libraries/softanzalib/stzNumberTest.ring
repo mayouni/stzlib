@@ -1,119 +1,22 @@
 load "stzlib.ring"
 
-
-
-/*----------
-
-? Q(".;1;.;.;." ) / ";"
-# Same as: ? Q(".;1;.;.;." ).Splitted(:Using = ";")
-
-#--> [ ".", "1", ".", ".", "." ]
-
-/*----------
-
-? StzGridQ([
-	[ ". ", " 1 ", " . ", " . ", " ." ],
-	[ "1 ", " 2 ", " 3 ", " 4 ", " 5" ],
-	[ ". ", " 3 ", " . ", " . ", " ." ],
-	[ ". ", " 4 ", " . ", " . ", " ." ],
-	[ ". ", " 5 ", " . ", " . ", " ." ]
-]).Show()
-
-/*----------
-
-? @@S( Q("
-
-	.;1;.;.;.
-	1;2;3;4;5
-	.;3;.;.;.
-	.;4;.;.;.
-	.;5;.;.;.  
-
-" ).
-
-	RemoveEmptyLinesQ().
-	LinesQR(:stzListOfStrings).
-	TrimQ().
-	StringsSplitted(:Using = ";")
-
-)
-
-#--> [
-#	[ ".", "1", ".", ".", "." ],
-#	[ "1", "2", "3", "4", "5" ],
-#	[ ".", "3", ".", ".", "." ],
-#	[ ".", "4", ".", ".", "." ],
-#	[ ".", "5", ".", ".", "." ]
-# ]
-
-/*-------
-
-o1 = new stzGrid(12)
-? o1.Size() #--> [4, 3]
-? o1.NumberOfNodes() #--> 12
-o1.Show() #-->
-# '.' '.' '.'
-# '.' '.' '.'
-# '.' '.' '.'
-# '.' '.' '.'
-
-/*-------
-
-o1 = new stzGrid([3,4])
-? o1.Size() #--> [4, 3]
-? o1.NumberOfNodes() #--> 12
-
-/*-------
-
-o1 = new StzGrid([
-	[ "A", "B", "C" ],
-	[ "E", "F", "G" ],
-	[ "H", "I", "J" ]
-])
-
-? o1.Size() #--> [3, 3]
-? o1.NumberOfNodes() #--> 9
-o1.Show() #-->
-# 'A' 'B' 'C'
-# 'E' 'F' 'G'
-# 'H' 'I' 'J'
-
-? o1.ShowXT([ :ShowCenter, :ShowRanks ]) #--> TODO
-
-/*-------
-*/
-# ? GridSep() #--> ":"
-SetGridSep(" : ")
-# ? GridSep() #--> " : "
-
-o1 = new stzGrid("
-	. : 1 : . : . : .
-	1 : 2 : 3 : 4 : 5
-	. : 3 : . : . : .
-	. : 4 : . : . : .
-	. : 5 : . : . : .
-")
-
-? o1.Size() #--> [5, 5]
-
 /*------------------
-
-# TODO: Add this function to all classes
 
 o1 = new stzNumber(5)
 ? @@S( o1.Reproduce(:InA = :List, :OfSize = 2) )
 #--> [ 5, 5 ]
 
-? @@S( o1.Reproduce(:InA = :ListOfStrings, :OfSize = 3) )
-#--> [ "5", "5" ]
-
 ? o1.Reproduce(:InA = :String, :OfSize = 7)
+#--> "5555555"
 
-? o1.Reproduce(:InA = :Grid, :OfSize = [3, 3])
-#!-->
-# 5	5	5
-# 5	5	5
-# 5	5	5
+? @@S( o1.Reproduce(:InA = :Grid, :OfSize = [3, 3]) )
+#-->
+# [
+# 	[ "5", "5", "5" ],
+# 	[ "5", "5", "5" ],
+# 	[ "5", "5", "5" ]
+# ]
+
 /*-----------------------
 
 o1 = new stzNumber(5)
@@ -132,10 +35,10 @@ o1 = new stzNumber(5)
 
 o1 = new stzNumber(5)
 ? o1.ReproducedInAListQ(:OfSize = 3).Types()
-#--> [ "NUMBER", "NUMBER", "NUMBER" ]
+#--> [ "STRING", "STRING", "STRING" ] #--> Internally, stzNumbers are histed in strings
 
 ? o1.ReproducedInAPairQ().Types()
-#--> [ "NUMBER", "NUMBER" ]
+#--> [ "STRING", "STRING" ]
 
 /*-----------------------
 
