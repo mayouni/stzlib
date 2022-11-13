@@ -1,116 +1,7 @@
 
 load "stzlib.ring"
 
-/*----------
-
-? Q(".;1;.;.;." ) / ";"
-# Same as: ? Q(".;1;.;.;." ).Splitted(:Using = ";")
-
-#--> [ ".", "1", ".", ".", "." ]/*----------
-
-? Q(".;1;.;.;." ) / ";"
-# Same as: ? Q(".;1;.;.;." ).Splitted(:Using = ";")
-
-#--> [ ".", "1", ".", ".", "." ]
-
-/*------------------
-
-o1 = new stzString("5")
-? @@S( o1.Reproduce(:InA = :List, :OfSize = 2) )
-#--> [ 5, 5 ]
-
-? @@S( o1.Reproduce(:InA = :ListOfStrings, :OfSize = 3) )
-#--> [ "5", "5", "5" ]
-
-? o1.Reproduce(:InA = :String, :OfSize = 7)
-#--> "5555555"
-
-? @@S( o1.Reproduce(:InA = :Grid, :OfSize = [3, 3]) )
-#-->
-# [
-# 	[ "5", "5", "5" ],
-# 	[ "5", "5", "5" ],
-# 	[ "5", "5", "5" ]
-# ]
-
-? @@S( o1.Reproduce(:InA = :ListOfNumbers, :OfSize = 3) )
-#--> [ "5", "5", "5" ]
-
-/*-----------------------
-
-o1 = new stzString("5")
-? o1.ReproducedInAList(:OfSize = 3)
-#--> [ 5, 5, 5 ]
-
-? o1.ReproducedInAPair()
-#--> [5, 5]
-
-/*------------------
-
-o1 = new stzString("ab_cd_ef_gh")
-? o1.ContainsMoreThenOne("_") 	#--> TRUE
-? o1.ContainsMoreThenOne("a") 	#--> FALSE
-? o1.ContainsOne("a")		#--> TRUE
-
-/*------------------
-
-o1 = new stzString("ab_cd_ef_gh")
-? o1.FindFirst("_")			#--> 3
-? o1.FindFirstXT("*", :StartingAt = 4)	#--> 0
-? o1.FindFirstXT("_", :StartingAt = 3)	#--> 3
-
-? o1.FindLast("_")	#--> 9
-? o1.FindLast("*")	#--> 0
-
-? o1.FindNth(2,"_")	#--> 6
-
-/*------------------
-
-o1 = new stzString("ab_cd_ef_gh")
-? o1.FindFirstNOccurrences(2, "_")	#--> [3, 6]
-? o1.FindLastNOccurrences(2, "_")	#--> [6, 9]
-
-/*------------------
-
-o1 = new stzString("ab_cd_ef_gh")
-? o1.FindAll("_")
-#--> [3, 6, 9]
-
-/*------------------
-
-? @@S ( Q("
-
-	.;1;.;.;.
-	1;2;3;4;5
-	.;3;.;.;.
-	.;4;.;.;.
-	.;5;.;.;.  " ).
-
-	RemoveEmptyLinesQ().
-	LinesQR(:stzListOfStrings).
-	TrimQ().
-	StringsSplitted(:Using = ";")
-)
-
-#--> [
-#	[ ".", "1", ".", ".", "." ],
-#	[ "1", "2", "3", "4", "5" ],
-#	[ ".", "3", ".", ".", "." ],
-#	[ ".", "4", ".", ".", "." ],
-#	[ ".", "5", ".", ".", "." ]
-# ]
-
-/*------------------
-*/
-o1 = new stzString("How many <<many>> are there in (many <<<many>>>): so <many>>!")
-
-? @@S(o1.Bounds(:Of = "many", :UpToNChars = [ 0, 2, 0, 3, [1,2] ])) + NL
-#--> [ [ NULL, NULL ], [ "<<", ">>" ], [ NULL, NULL ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
-
-//Same as:
-? @@S(o1.Bounds(:Of = "many", :UpToNChars = [ [0,0], [2, 2], [0,0], [3,3], [1,2] ]))
-
-/*-----------------
+/*---------------
 
 ? SoftanzaLogo()
 /* --> 
@@ -276,6 +167,120 @@ str = "sun"
 /*-----------------
 
 //? Q("123").Check( 'isnumber( 0+(@char) )' ) #--> TRUE
+
+/*=================
+
+/*----------
+
+? Q(".;1;.;.;." ) / ";"
+# Same as: ? Q(".;1;.;.;." ).Splitted(:Using = ";")
+
+#--> [ ".", "1", ".", ".", "." ]
+
+/*----------
+
+? Q(".;1;.;.;." ) / ";"
+# Same as: ? Q(".;1;.;.;." ).Splitted(:Using = ";")
+
+#--> [ ".", "1", ".", ".", "." ]
+
+/*------------------
+
+o1 = new stzString("5")
+? @@S( o1.Reproduce(:InA = :List, :OfSize = 2) )
+#--> [ 5, 5 ]
+
+? @@S( o1.Reproduce(:InA = :ListOfStrings, :OfSize = 3) )
+#--> [ "5", "5", "5" ]
+
+? o1.Reproduce(:InA = :String, :OfSize = 7)
+#--> "5555555"
+
+? @@S( o1.Reproduce(:InA = :Grid, :OfSize = [3, 3]) )
+#-->
+# [
+# 	[ "5", "5", "5" ],
+# 	[ "5", "5", "5" ],
+# 	[ "5", "5", "5" ]
+# ]
+
+? @@S( o1.Reproduce(:InA = :ListOfNumbers, :OfSize = 3) )
+#--> [ "5", "5", "5" ]
+
+/*-----------------------
+
+o1 = new stzString("5")
+? o1.ReproducedInAList(:OfSize = 3)
+#--> [ 5, 5, 5 ]
+
+? o1.ReproducedInAPair()
+#--> [5, 5]
+
+/*------------------
+
+o1 = new stzString("ab_cd_ef_gh")
+? o1.ContainsMoreThenOne("_") 	#--> TRUE
+? o1.ContainsMoreThenOne("a") 	#--> FALSE
+? o1.ContainsOne("a")		#--> TRUE
+
+/*------------------
+
+o1 = new stzString("ab_cd_ef_gh")
+? o1.FindFirst("_")			#--> 3
+? o1.FindFirstXT("*", :StartingAt = 4)	#--> 0
+? o1.FindFirstXT("_", :StartingAt = 3)	#--> 3
+
+? o1.FindLast("_")	#--> 9
+? o1.FindLast("*")	#--> 0
+
+? o1.FindNth(2,"_")	#--> 6
+
+/*------------------
+
+o1 = new stzString("ab_cd_ef_gh")
+? o1.FindFirstNOccurrences(2, "_")	#--> [3, 6]
+? o1.FindLastNOccurrences(2, "_")	#--> [6, 9]
+
+/*------------------
+
+o1 = new stzString("ab_cd_ef_gh")
+? o1.FindAll("_")
+#--> [3, 6, 9]
+
+/*------------------
+
+? @@S ( Q("
+
+	.;1;.;.;.
+	1;2;3;4;5
+	.;3;.;.;.
+	.;4;.;.;.
+	.;5;.;.;.  " ).
+
+	RemoveEmptyLinesQ().
+	LinesQR(:stzListOfStrings).
+	TrimQ().
+	StringsSplitted(:Using = ";")
+)
+
+#--> [
+#	[ ".", "1", ".", ".", "." ],
+#	[ "1", "2", "3", "4", "5" ],
+#	[ ".", "3", ".", ".", "." ],
+#	[ ".", "4", ".", ".", "." ],
+#	[ ".", "5", ".", ".", "." ]
+# ]
+
+/*------------------
+
+o1 = new stzString("How many <<many>> are there in (many <<<many>>>): so <many>>!")
+
+? @@S(o1.Bounds(:Of = "many", :UpToNChars = [ 0, 2, 0, 3, [1,2] ])) + NL
+#--> [ [ NULL, NULL ], [ "<<", ">>" ], [ NULL, NULL ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
+
+//Same as:
+? @@S(o1.Bounds(:Of = "many", :UpToNChars = [ [0,0], [2, 2], [0,0], [3,3], [1,2] ]))
+
 
 /*=================
 
@@ -513,29 +518,45 @@ o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!
 #--> [5, 12, 33, 40, 54]
 
 ? @@S(o1.Sections(:Of = "many"))	# or o1.FindSections(:OfSubString = "many")
-#--> [ [ 5, 8 ], [ 5, 8 ], [ 33, 36 ], [ 40, 43 ], [ 54, 57 ] ]
+#--> [ [ 5, 8 ], [ 12, 15 ], [ 33, 36 ], [ 40, 43 ], [ 54, 57 ] ]
 
 	# Note that Sections() has an other syntax thar returns the substrings
-	# corresponding to a given number of sections:
+	# corresponding to the sections themselves:
 
-	? o1.Sections([ [ 5, 8 ], [ 5, 8 ], [ 33, 36 ] ])
+	? o1.Sections([ [ 5, 8 ], [ 12, 15 ], [ 33, 36 ] ])
 	#--> [ "many", "many", "many" ]
 
 ? o1.NumberOfOccurrenceXT(
 	:OfSubString = "many",
-	:Between = ["<<", :and = ">>"]
-	# or :BoundedBy = ["<<", :and = ">>"]
+	:BoundedBy = ["<<", :and = ">>"]
+	# or :Between = ["<<", :and = ">>"]
 	# or :BetweenSubStrings = ["<<", :and = ">>"]
 	# or :BoundedBySubStrings = ["<<", :and = ">>"]
 )
 #--> 3
+/*---------------
+*/
+o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
 
-? o1.Bounds(:Of = "many", :UpToNChars = [ [ 2, 7 ], [5, 9] ] )
+? @@S( o1.Bounds( :Of = "many", :UpToNChars = 1 ) ) + NL
+#--> [ [ " ", " " ], [ "<", ">" ], [ "(", " " ], [ "<", ">" ], [ "<", ">" ] ]
 
-/*-----------------
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+# Same as:
+? @@S( o1.Bounds( :Of = "many", :UpToNChars = [1, 1] ) ) + NL
+#--> [ [ " ", " " ], [ "<", ">" ], [ "(", " " ], [ "<", ">" ], [ "<", ">" ] ]
+
+? @@S( o1.Bounds( :Of = "many", :UpToNChars = [ 0, 2, 0 ] ) ) + NL
+#--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ] ]
+
+? @@S( o1.Bounds(:Of = "many", :UpToNChars = [ 0, 2, 0, 2, 2 ] ) ) + NL
+#--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ], [ "<<", ">>" ], [ "<<", ">>" ] ]
+
+? @@S( o1.Bounds(:Of = "many", :UpToNChars = [ [0,0], [2,2] ] ) ) + NL
+#--> [ [ "", "" ], [ "<<", ">>" ] ]
+
+? @@S( o1.Bounds(:Of = "many", :UpToNChars = [ 0, [2,2], 0, 2, [2, 2] ] ) ) + NL
+#--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ], [ "<<", ">>" ], [ "<<", ">>" ] ]
+
 /*-----------------
 
 o1 = new stzString("what a <<nice>>> day!")
@@ -556,7 +577,6 @@ o1 = new stzString("what a <<nice>>> day!")
 )
 
 #--> [ "<<", ">>>" ]
-
 
 /*=================
 
@@ -588,7 +608,7 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 # just provide it to the following functions to get, for all its occurrences,
 # the positions or the sections:
 
-? @@S( o1.FindBetween("word", "<<", ">>") )		# --> [ 9, 41 ]
+? @@S( o1.FindBetween("word", "<<", ">>") )			# --> [ 9, 41 ]
 ? @@S( o1.FindSubStringSectionsBetween("word", "<<", ">>") )	# --> [ [ 9, 16 ], [ 41, 48 ] ]
 
 /*================
