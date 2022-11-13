@@ -645,24 +645,18 @@ func SalatNabee()
 	return "صلّى الله على نبيّه الأكرم"
 
 func NTimes(n, pThing)
-	result = NULL
-
+	
 	if isString(pThing)
 		cResult = copy(pThing, n)
 		return cResult
 
 	but isNumber(pThing)
-		cTemp = copy( ""+ pThing, n )
-		nResult = 0+ cTemp
+		nResult = n * pThing
 		return nResult
 
 	but isList(pThing) or isObject(pThing)
-		aResult = []
-		for i = 1 to n
-			aResult + pThing
-		next
+		aResult = Q(pThing).Reproduce( :InA = :List, :OfSize = n )
 		return aResult
-
 	ok 
 
 	def NTimesQ(n, pThing)

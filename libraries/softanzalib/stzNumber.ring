@@ -3543,6 +3543,7 @@ class stzNumber from stzObject
 		return aResult
 
 		def RepeatedNTimes(n)
+
 			return This.RepeatNtimes(n)
 	  #-------------------------------------#
 	 #    INTERNAL KITCHEN OF THE CLASS    #

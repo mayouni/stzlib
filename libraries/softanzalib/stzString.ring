@@ -2682,25 +2682,31 @@ class stzString from stzObject
 			def NumberOfOccurrencesOfSubstringCS(pcSubStr, pCaseSensitive)
 				return This.NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
 	
+		def CountCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+
 		#>
 
-	def NumberOfOccurrence(pcStr)
-		if isList(pcStr) and StzListQ(pcStr).IsOfNamedParam()
-			pcStr = pcStr[2]
+	def NumberOfOccurrence(pcSubStr)
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			pcSubStr = pcSubStr[2]
 		ok
 
-		return NumberOfOccurrenceCS(pcStr, :CaseSensitive = TRUE)
+		return NumberOfOccurrenceCS(pcSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def NumberOfOccurrences(pcStr)
-			return This.NumberOfOccurrence(pcStr)
+		def NumberOfOccurrences(pcSubStr)
+			return This.NumberOfOccurrence(pcSubStr)
 
-		def NumberOfOccurrenceOfSubstring(pcStr)
-			return This.NumberOfOccurrence(pcStr)
+		def NumberOfOccurrenceOfSubstring(pcSubStr)
+			return This.NumberOfOccurrence(pcSubStr)
 
-			def NumberOfOccurrencesOfSubstring(pcStr)
+			def NumberOfOccurrencesOfSubstring(pcSubStr)
 				return This.NumberOfOccurrenceOfSubstring(pcStr)
+
+		def Count(pcSubStr)
+			return This.NumberOfOccurrence(pcSubStr)
 
 		#>
 
@@ -2723,6 +2729,9 @@ class stzString from stzObject
 		def SizeInBytes()
 			return This.NumberOfBytes()
 
+		def CountBytes()
+			return This.NumberOfBytes()
+
 		#>
 	
 	def NumberOfBytesPerChar()
@@ -2733,6 +2742,9 @@ class stzString from stzObject
 		next
 
 		return aResult
+
+		def CountBytesPerChar()
+			return This.NumberOfBytesPerChar()
 
 	  #-----------------------------------------#
 	 #   N CHARS, LEFT & RIGHT, FIRST & LAST   #
@@ -3161,8 +3173,8 @@ class stzString from stzObject
 
 		*/
 
-		// Managing this special syntax:
-		// ? Q("♥").IsBoundedBy([ "-", :In = "-♥-" ])
+		# Managing this special syntax:
+		# ? Q("♥").IsBoundedBy([ "-", :In = "-♥-" ])
 
 		if isList(pacBounds) and Q(pacBounds).IsPair() and
 		   isList(pacBounds[2]) andQ(pacBounds[2]).IsPair() and
@@ -3482,7 +3494,6 @@ class stzString from stzObject
 
 		*/
 
-
 		if isList(pcSubStr) and
 			( Q(pcSubStr).IsOfNamedParam() or
 			  Q(pcSubStr).IsOfSubStringNamedParam()
@@ -3496,20 +3507,32 @@ class stzString from stzObject
 		ok
 
 		# CASE: ? o1.Bounds(:Of = "many", :UpToNChars = 2]
-		#--> panUpToNChars will be transformed to the more general form [ [2,2] ]
+		#--> panUpToNChars will be transformed to the more general
+		#    form [ [2,2], [2, 2], ... ] depending on the number
+		#    of occurrence of the substring "many" in the string
+
 		if isNumber(panUpToNChars)
-			aTemp = []
-			aTemp + [ panUpToNChars, panUpToNChars ]
+
+			aTemp = NTimes(
+				This.CountCS(pcSubStr, pCaseSensitive),
+				[ panUpToNChars, panUpToNChars ]
+			)
+
 			panUpToNChars = aTemp
 			
-		# CASE: ? o1.Bounds(:Of = "many", :UpToNChars = [ 2, 3])
-		#--> panUpToNChars will be transformed tothe more general form [ [2, 3] ]
+		# CASE: ? o1.Bounds(:Of = "many", :UpToNChars = [2, 3])
+		#--> panUpToNChars will be transformed to the more general
+		#    form [ [2, 3], [2, 3], ... ]
+
 		but isList(panUpToNChars) and
 			len(panUpToNChars) = 2 and
 			Q(panUpToNChars).IsListOfNumbers()
 
-			aTemp = []
-			aTemp + panUpToNChars
+			aTemp = NTimes(
+				This.CountCS(pcSubStr, pCaseSensitive),
+				panUpToNChars
+			)
+
 			panUpToNChars = aTemp
 		ok
 
@@ -3526,7 +3549,6 @@ class stzString from stzObject
 			next
 		ok
 
-
 		if NOT 	( isList(panUpToNChars) and
 			  Q(panUpToNChars).IsListOfPairsOfNumbers()
 			)
@@ -3537,29 +3559,34 @@ class stzString from stzObject
 
 		# Doing the job
 
-		
+
 		anSections = This.FindSectionsCS(pcSubStr, pCaseSensitive)
+
 		acResult = []
 
 		i = 0
+
 		for aSection in anSections
 
 			i++
+
 			if i > len(panUpToNChars)
 				exit
 			ok
 
-			if Q(panUpToNChars[i]) = [0,0]
+			if Q(panUpToNChars[i]) = [ 0, 0 ]
+
 				acResult + [ "", "" ]
 			else
 
 				nBefore = panUpToNChars[i][1]
 				nAfter  = panUpToNChars[i][2]
-	
+
 				acResult + This.Settle(
 					:OnSection  = aSection,
 					:AndHarvest = [ :NCharsBefore = nBefore, :NCharsAfter = nAfter ]
 				)
+
 			ok
 
 		next

@@ -1067,6 +1067,7 @@ class stzObject
 	#---------------------------------------------------------#
 
 	def Reproduce(pIn, pnSize)
+
 		/* EXAMPLE
 		o1 = new stzNumber(5)
 		o1.Reproduce([ :InA = :List, :OfSize = 2 ])
@@ -1105,11 +1106,18 @@ class stzObject
 
 		#-- Doing the job
 
+		value = ""
+		if this.IsANumber()
+			value = This.Number()
+		else
+			value = This.Content()
+		ok
+
 		if Q(pIn) = :List
 	
 			aResult = []
 			for i = 1 to pnSize
-				aResult + This.Content()
+				aResult + value
 			next
 			return aResult
 
@@ -1117,7 +1125,7 @@ class stzObject
 	
 			aResult = []
 			for i = 1 to pnSize
-				aResult + [ This.Content() ]
+				aResult + [ value ]
 			next
 			return aResult
 
@@ -1125,7 +1133,7 @@ class stzObject
 	
 			aResult = []
 			for i = 1 to pnSize
-				aResult + [ This.Content(), This.Content() ]
+				aResult + [ value, value ]
 			next
 			return aResult
 
@@ -1133,13 +1141,13 @@ class stzObject
 
 			cResult = ""
 			for i = 1 to pnSize
-				cResult += This.Content()
+				cResult += value
 			next
 			return cResult
 
 		but Q(pIn) = :Grid
 			aResult = StzGridQ([ pnSize[1], pnSize[2] ]).
-					ReplaceAllQ(:With = This.Content()).
+					ReplaceAllQ(:With = value).
 					Content()
 
 			return aResult
@@ -1155,6 +1163,7 @@ class stzObject
 	# TODO: Make it in stzList and stzString
 
 	def ReproduceInList(pnSize)
+
 		/* EXAMPLE
 
 		o1 = new stzNumber(5)
@@ -1171,13 +1180,17 @@ class stzObject
 			stzRaise("Incorrect param type! pnSize must be a number.")
 		ok
 
-		anResult = []
+		aResult = []
 
 		for i = 1 to pnSize
-			anResult + This.Content()
+			if This.IsANumber()
+				aResult + This.Number()
+			else
+				aResult + This.Content()
+			ok
 		next
 
-		return anResult
+		return aResult
 
 		#< @FunctionFluentForm
 
