@@ -1,8 +1,52 @@
 
 load "stzlib.ring"
 
+/*----------
+
+? Q(".;1;.;.;." ) / ";"
+# Same as: ? Q(".;1;.;.;." ).Splitted(:Using = ";")
+
+#--> [ ".", "1", ".", ".", "." ]/*----------
+
+? Q(".;1;.;.;." ) / ";"
+# Same as: ? Q(".;1;.;.;." ).Splitted(:Using = ";")
+
+#--> [ ".", "1", ".", ".", "." ]
+
 /*------------------
-*/
+
+o1 = new stzString("5")
+? @@S( o1.Reproduce(:InA = :List, :OfSize = 2) )
+#--> [ 5, 5 ]
+
+? @@S( o1.Reproduce(:InA = :ListOfStrings, :OfSize = 3) )
+#--> [ "5", "5", "5" ]
+
+? o1.Reproduce(:InA = :String, :OfSize = 7)
+#--> "5555555"
+
+? @@S( o1.Reproduce(:InA = :Grid, :OfSize = [3, 3]) )
+#-->
+# [
+# 	[ "5", "5", "5" ],
+# 	[ "5", "5", "5" ],
+# 	[ "5", "5", "5" ]
+# ]
+
+? @@S( o1.Reproduce(:InA = :ListOfNumbers, :OfSize = 3) )
+#--> [ "5", "5", "5" ]
+
+/*-----------------------
+
+o1 = new stzString("5")
+? o1.ReproducedInAList(:OfSize = 3)
+#--> [ 5, 5, 5 ]
+
+? o1.ReproducedInAPair()
+#--> [5, 5]
+
+/*------------------
+
 o1 = new stzString("ab_cd_ef_gh")
 ? o1.ContainsMoreThenOne("_") 	#--> TRUE
 ? o1.ContainsMoreThenOne("a") 	#--> FALSE
@@ -56,20 +100,8 @@ o1 = new stzString("ab_cd_ef_gh")
 #	[ ".", "5", ".", ".", "." ]
 # ]
 
-/*-------
-
 /*------------------
-
-o1 = new stzList([ 0, 2, 0, 3, [1,2] ])
-//o1.Do('@item = [@item, @item]', :Where = 'isNumber(@item)')
-o1.PerformW( '@item = Q(@item).ReproducedInAPair()', 'isNumber(@item)')
-? @@S(o1.Content())
-#--> [ [ 0, 0 ], [ 2, 2 ], [ 0, 0 ], [ 3, 3 ], [ 1, 2 ] ]
-
-
-
-/*------------------
-
+*/
 o1 = new stzString("How many <<many>> are there in (many <<<many>>>): so <many>>!")
 
 ? @@S(o1.Bounds(:Of = "many", :UpToNChars = [ 0, 2, 0, 3, [1,2] ])) + NL

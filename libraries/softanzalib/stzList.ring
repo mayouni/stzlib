@@ -4527,8 +4527,8 @@ class stzList from stzObject
 		pcType = InfereDataTypeFromString(pcType)
 
 		if This.NumberOfItemsW('Q(@item).DataType() = "' + pcType + '"') = This.NumberOfItems() or
-		   This.AllItemsAreW('isList(@item) and Q(@item).Is' + pcType + '()') or
-		   This.AllItemsAreW('isObject(@item) and Is' + pcType + '(@item)')
+		   This.AllItemsAreW('isList(@item) and Q(@item).IsA' + pcType + '()') or
+		   This.AllItemsAreW('isObject(@item) and IsA' + pcType + '(@item)')
 
 			return TRUE
 
