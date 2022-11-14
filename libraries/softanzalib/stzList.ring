@@ -13367,20 +13367,11 @@ sdsd
 	
 		# Managing out of range params
 
-		if n1 <= 0
-			n1 = 1
-		ok
-	
-		if n1 > This.NumberOfItems()
-			n = This.NumberOfItems()
-		ok
-
-		if n2 > This.NumberOfItems()
-			n2 = This.NumberOfItems()
-		ok
-
-		if n2 <= 0
-			n2 = 1
+		if NOT 	( Q(n1).IsBetween(1, This.NumberOfItems()) and
+			  Q(n2).IsBetween(1, This.NumberOfItems())
+			)
+			
+			return []
 		ok
 
 		# Finally, we're ready to extract the section

@@ -5934,10 +5934,10 @@ class stzString from stzObject
 	
 		# Finally, we're ready to extract the section...
 		# NOTRE: when positions are given in inversed order
-		# --> Inversing the section
+		# --> Reversing the section
 
 		if n1 > n2
-			return Q(@oQString.mid( (n1 - 1) , (n2 - n1 + 1) )).Inveresed()
+			return Q( @oQString.mid( (n2 - 1) , (n1 - n2 + 1) ) ).Reversed()
 
 		else
 			return @oQString.mid( (n1 - 1) , (n2 - n1 + 1) )
