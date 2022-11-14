@@ -1,4 +1,3 @@
-
 load "stzlib.ring"
 
 /*---------------
@@ -170,7 +169,23 @@ str = "sun"
 
 /*=================
 
-/*----------
+# Inverting (or turning) chars and strings
+# NOTE: In the mean time, Softanza uses Invert()
+# and Turn() as alternatives, but this should
+# change in the future to cope with their exact
+# meaning in Unicode!
+
+? StzCharQ("L").Inverted()
+? StzCharQ("L").IsInvertible()
+
+? Q("LIFE").Inverted()
+
+? StzCharQ("L").Turned()
+? StzCharQ("L").IsTurnable()
+
+? Q("LIFE").Turned()
+
+/*============
 
 ? Q(".;1;.;.;." ) / ";"
 # Same as: ? Q(".;1;.;.;." ).Splitted(:Using = ";")
@@ -535,7 +550,7 @@ o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!
 )
 #--> 3
 /*---------------
-*/
+
 o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
 
 ? @@S( o1.Bounds( :Of = "many", :UpToNChars = 1 ) ) + NL
@@ -568,15 +583,32 @@ o1 = new stzString("what a <<nice>>> day!")
 #--> [ "<<", ">>>" ]
 
 /*-----------------
+*/
+o1 = new stzString("what a <<nice>>> day!")
+? o1.Section(50, 0)	#--> NULL
+? o1.Section(0, 0)	#--> NULL
+? o1.Section(-20, 10)	#--> NULL
+? o1.Section(3, 3)	#--> "a"
+? o1.Section(10, 13)	#--> "nice"
+? o1.Section(13, 10)	#-->
 
+/*-----------------
+*/
 o1 = new stzString("what a <<nice>>> day!")
 
 ? o1.Settle(
-	:OnSection  = [10, 13],
-	:AndHarvest = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
+	:OnSection  = [10, 13], # or o1.FindSection("nice")
+	:AndHarvest = [ :NCharsBefore = 0, :NCharsAfter = 3 ]
 )
-
 #--> [ "<<", ">>>" ]
+
+/*-----------------
+
+o1 = new stzString("what a <<nice>>> day!")
+? o1.Settle(
+	:OnPosition  = 10,
+	:AndHarvest = [ :NCharsBefore = 0, :NCharsAfter = 2 ]
+)
 
 /*=================
 
@@ -617,7 +649,7 @@ o1 = new stzString("**word1***word2**word3***")
 ? o1.Sections([ [1,2], [8, 10], [16, 17], [23, 25] ])
 #--> [ "**", "***", "**", "***" ]
 
-o1.RemoveManySections([
+o1.RemoveSections([
 	[1,2], [8, 10], [16, 17], [23, 25]
 ])
 
@@ -675,13 +707,22 @@ o1.RemoveCharsW('{ lower(@char) = "x" }')
 /*=================
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
-? @@( o1.FindSectionsBetween("<<",">>") )
+? @@S( o1.FindBetween("word", "<<", ">>") )
+#--> [ 11 ]
+
+? @@S( o1.FindSectionsBetween("word", "<<", ">>") )
+#--> [ [ 11, 14 ] ]
+
+? @@S( o1.FindAnyBetween("<<",">>") )
+#--> [ 11, 28, 43 ]
+
+? @@S( o1.FindAnySectionsBetween("<<",">>") )
 #--> [ [ 11, 14 ], [ 28, 33 ], [ 43, 49 ] ]
 
 o1.ReplaceAnyBetween("<<", ">>", :With = "word")
 ? o1.Content()  #--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
 
-o1.RemoveBoundsOfSubString("<<", ">>", "word")
+o1.RemoveBoundsOfSubString(["<<", ">>"], "word")
 ? o1.Content() #--> "bla bla word bla bla word bla word"
 
 /*------
@@ -690,22 +731,23 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.ReplaceBetween("noword", "<<", ">>", :With = "word")
 ? o1.Content()  # !--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
 
-/*================= 
+/*------ 
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.RemoveAnyBetween("<<", ">>")
 ? o1.Content()	# --> "bla bla <<>> bla bla <<>> bla <<>>"
 
-/*---------------- TODO
+/*----------------
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.RemoveSubStringBetween("noword", "<<", ">>") # Short form RemoveBetween()
-? o1.Content()	# !--> "bla bla <<word>> bla bla <<>> bla <<word>>"
+? o1.Content()
+#--> "bla bla <<word>> bla bla <<>> bla <<word>>"
 
 /*-----------------
 
 o1 = new stzString("<<Go!>>")
-? o1.BoundsRemoved("<<", ">>") # --> "Go!"
+? o1.BoundsRemoved(["<<", ">>"]) # --> "Go!"
 
 /*------------------- TODO (future)
 
@@ -724,7 +766,7 @@ o1.RemoveAnyBetween@("<<", ">>", '{ @str = Q(@str).Remove("<<>>")Q.Simplied()}')
 /*================
 
 StzStringQ("MustHave@32@Chars") {
-	? NumberOfOccurrenceCS("@", :CS = TRUE) #--> 2
+	? NumberOfOccurrenceCS(:Of = "@", :CS = TRUE) #--> 2
 	? FindAll("@") #--> [9, 12]
 
 	? FindNext("@", :StartingAt = 5) #--> 9
@@ -734,7 +776,7 @@ StzStringQ("MustHave@32@Chars") {
 	? FindPreviousNth(2, "@", :StartingAt = 12) #--> 9
 }
 
-/*----------------
+/*================
 
 o1 = new stzString("MustHave@32@CharsAnd@8@Spaces")
 ? o1.SubstringsBetween("@","@") #--> ["32", "8" ]
@@ -744,38 +786,40 @@ o1 = new stzString("MustHave32CharsAnd8Spaces")
 
 /*=================
 
-# To remove a substring form left or right you can
-# use RemoveFromLeft() and RemoveFromRight() functions.
+# In Softanza, to remove a substring from left or right
+# you can use RemoveFromLeft() and RemoveFromRight() functions.
 
 o1 = new stzString("let's say welcome to everyone!")
 o1.RemoveFromLeft("let's say ")
 ? o1.Content() # --> welcome to everyone!
 
-# But when right-to-left strings are used, this can be
-# confusing, because left is no longer at the start
-# and right is no longer at the end of the string.
+# But when right-to-left strings are used, this can be confusing,
+# since left is no longer at the start of the string, nor the
+# right is at the end!
 
-# So, if you want to retrieve a substring from the
-# beginnning of an arabic text, you should use
-# RemoveFromRight() instead...
+# Hence, if you want to retrieve a substring from the beginning
+# of a right-to-left arabic text ("هذه" in the following example),
+# you should inverse the orientation and use RemoveFromRight()
+# instead...
 
-o1 = new stzString("أللّهم ارزقنا حسن الخاتمة")
-o1.RemoveFromRight("أللّهم ")
-? o1.Content() # --> ارزقنا حسن الخاتمة
+o1 = new stzString("هذه الكلمات الّتي سوف تبقى")
+? o1.NRightChars(4) #--> "هذه "
+o1.RemoveFromRight("هذه ")
+? o1.Content() # --> "الكلمات الّتي سوف تبقى"
 
-# To avoid this complication, Softanza provides a more
-# general (semantic) solution working both for
-# left-to-right and right-to-left strings:
-# the RemoveFromStart() and RemoveFromEnd() functions.
+# To avoid this complication, Softanza provides a more general (semantic)
+# solution working both for left-to-right and right-to-left strings:
+# the RemoveFromStart() and RemoveFromEnd() functions...
 
 o1 = new stzString("let's say welcome to everyone!")
 o1.RemoveFromStart("let's say ")
 ? o1.Content() # --> welcome to everyone!
 
 # and the same code for arabic:
-o1 = new stzString("أللّهم ارزقنا حسن الخاتمة")
-o1.RemoveFromStart("أللّهم ")
-? o1.Content() # --> ارزقنا حسن الخاتمة
+
+o1 = new stzString("هذه الكلمات الّتي سوف تبقى")
+o1.RemoveFromStart("هذه ")
+? o1.Content() # --> "الكلمات الّتي سوف تبقى"
 
 /*========================
 

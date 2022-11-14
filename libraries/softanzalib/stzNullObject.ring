@@ -26,4 +26,11 @@ I made this stzNullObject class, so I can write just:
 	? Q(obj).DataType()	# --> :Object
 */
 
-class stzNullObject
+func StzNullObjectQ()
+	return new stzNullObject
+
+class stzNullObject from stzObject
+	@cContent = NULL
+
+	def Content()
+		return @cContent

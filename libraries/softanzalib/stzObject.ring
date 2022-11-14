@@ -8,6 +8,11 @@
 #===========================================================================#
 
 /*
+	Mainly, this class servers as a parent for the common features
+	ot its inherited classes, namely stzNumber, stzString, stzList, etc.
+	# TODO: All the common features are not abstructed yet. Some of them
+	# are duplicated due to semantic differences between classes.
+
 	a stzObject is created:
 		- by providing an exiting Ring object or,
 		- by litterally providing the variable name
@@ -25,7 +30,7 @@
 		class Person name
 
 	The main feature you get by crating a stzObject using its variable name
-	is that the object becomes "aware" of the its name in the runtime,
+	is that the object becomes "aware" of its name in the runtime,
 	which is impossible with Ring (there is no sutch objectName(obj) function,
 	only the name of the class can be provided by className(obj)).
 
@@ -522,7 +527,7 @@ func StzClasses()
 func StzClassesXT()
 	# Last update: 11 Nov. 2022
 	aStzClassesXT = [
-		# [ :Singular,			:Plurial	]
+		# [ :Singular,			:Plurial		]
 		[ :stzObject, 			:stzObjects 		],
 		[ :stzListOfObjects, 		:stzListsOfObjects 	],
 		[ :stzNumber, 			:stzNumbers		],
@@ -1160,7 +1165,6 @@ class stzObject
 	  #-----------------------------------------------#
 	 #  REPRODUCING THE NUMBER IN A LIST OF N ITEMS  #
 	#-----------------------------------------------#
-	# TODO: Make it in stzList and stzString
 
 	def ReproduceInList(pnSize)
 
@@ -1248,7 +1252,6 @@ class stzObject
 	  #------------------------------------#
 	 #  REPRODUCING THE NUMBER IN A PAIR  #
 	#------------------------------------#
-	# TODO: Make it in stzList and stzString
 
 	def ReproduceInAPair()
 		return This.ReproduceInAList(:OfSize = 2)
@@ -1306,6 +1309,26 @@ class stzObject
 
 		#>
 
+	  #------------------------------#
+	 #  GETTING N TIMES THE OBJECT  #
+	#------------------------------#
+
+	def NTimes(n)
+		if This.IsANumber()
+			return This.Number() * n
+
+		but This.IsAString()
+			cResult = ""
+			for i = 1 to n
+				cResult += This.Content()
+			next
+			return cResult
+
+		but This.IsAList() or This.IsAnObject()
+			aResult = This.Reproduce( :InA = :List, :OfSize = n )
+			return aResult
+		ok 
+	
 	  #-----------#
 	 #   MISC.   #
 	#-----------#

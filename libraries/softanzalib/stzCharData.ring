@@ -670,33 +670,8 @@ Diacritics
 		       "a", "b", "c", "d", "e", "f" ]
 
 	  #-------------------------------------------------------#
-	 #   TURNED, INVERTIBLE, CIRCLED, AND INVISIBLE CHARS    #
+	 #   INVERTIBLE, TURNED, CIRCLED, AND INVISIBLE CHARS    #
 	#-------------------------------------------------------#
-
-	# Turned chars : TODO - Solve confusion with invertible chars!
-
-	_anTurnedNumbersUnicodes = [ 8586, 8587 ]
-
-	_aTurnedNumbersXT = [
-		:TurnedTwo = 8586,
-		:TurnedThree = 8587
-	]
-
-	_anTurnedCharsUnicodes = [
-		397,398,412,477,581,592,594,613,623,624,633,634,
-		635,647,652,653,654,670,686,687,692,693,699,786,
-		1376,2275,4345,6848,7353,7426,7432,7433,7444,7450,
-		7455,7492,7494,7500,7502,7514,7543,7579,7587,7597,
-		7610,8216,8220,8489,8498,8513,8514,8516,8523,8526,
-		8586,8587,8985,9929,9930,10075,10077,8354,11202,
-		11375,11376,11385,11387,11826,11829,11832,42878,
-		42879,42880,42881,42893,42928,42929,43002,43469,
-		43841,43842,43843,43844,43857,43864,43865,68506,
-		71276,128399,128596,128597,128598,128599,128630,
-		129567,129567,129568,129569,129570,129571,129572,
-		129573,129574,129575,129576,129577,129578,129579,
-		129580,129581,129582,129583
-	]
 
 	# Invertible chars
 
@@ -749,6 +724,46 @@ Diacritics
 		[ "$", "$" ], [ "€", "€" ]
 		
 	]
+
+	# Turned chars : TODO - Solve confusion with invertible chars!
+
+	_anTurnedNumbersUnicodes = [ 8586, 8587 ]
+
+	_aTurnedNumbersXT = [
+		:TurnedTwo = 8586,
+		:TurnedThree = 8587
+	]
+
+	_anTurnedCharsUnicodes = [
+		397,398,412,477,581,592,594,613,623,624,633,634,
+		635,647,652,653,654,670,686,687,692,693,699,786,
+		1376,2275,4345,6848,7353,7426,7432,7433,7444,7450,
+		7455,7492,7494,7500,7502,7514,7543,7579,7587,7597,
+		7610,8216,8220,8489,8498,8513,8514,8516,8523,8526,
+		8586,8587,8985,9929,9930,10075,10077,8354,11202,
+		11375,11376,11385,11387,11826,11829,11832,42878,
+		42879,42880,42881,42893,42928,42929,43002,43469,
+		43841,43842,43843,43844,43857,43864,43865,68506,
+		71276,128399,128596,128597,128598,128599,128630,
+		129567,129567,129568,129569,129570,129571,129572,
+		129573,129574,129575,129576,129577,129578,129579,
+		129580,129581,129582,129583
+	]
+
+	_aTurnableCharsXT = _aInvertibleCharsXT
+
+	# WARNING: Makes it possilbe to check if a char is turnable
+	# in uncide using the IsTurnable() function.
+
+	# But what we do here is that we use the same data as
+	# "INVERTIBLE" chars (see _aInvertibleCharsXT) above,
+	# which may be different, in Unicode, then "TURNABLE"!
+
+	# TODO: Check this and fix it accordingly
+	# --> Read this to understand the problem:
+	#     https://unicode.org/faq/casemap_charprop.html#16
+
+
 
 	# Circled Chars
 
@@ -1250,10 +1265,14 @@ Diacritics
 		return oMergedList.DuplicatedItems()
 
 	func ScriptsForLanguage(pcLang)
-		// TODO
+		return StzLangaugeQ(pcLang).Scripts()
 
 	func CommonScriptsForLanguages(pacLangs)
-		// TODO
+		acResult = []
+		for cLang in pacLangs
+			acResult + StzLanguageQ(cLang).Script()
+		next
+		return acResult
 
 	func QuranicSignUnicodes()
 		return _anQuranicSignUnicodes
@@ -1540,12 +1559,6 @@ Diacritics
 	func TurnedDigitUnicodes()
 		return [8586,8587]
 
-	func TurnedCharsUnicodes()
-		return _anTurnedCharsUnicodes
-
-	func TurnedChars()
-		return UnicodesToChars( TurnedCharsUnicodes() )
-
 	func TurnedCharsAndTheirUnicodes()
 		aResult = []
 
@@ -1757,21 +1770,74 @@ Diacritics
 			return aResult
 		ok
 
+	# Turned numbers
+
+	func TurnedNumbersUnicodes()
+		return _anTurnedNumbersUnicodes
+
+		func TurnableNumbersUnicodes()
+			return TurnedNumbersUnicodes()
+	
+	func TurnedNumbers()
+		return UnicodesToChars( TurnedNumbersUnicodes() )
+
+		func TurnableNumbers()
+			return TurnedNumbers()
+	
+	func TurnedNumbersXT()
+		return _aTurnedNumbersXT
+
+		func TurnableNumbersXT()
+			return TurnedNumbersXT()
+	
+	#-- Turned chars (Turned or Turnable, it's the same!)
+
+	func TurnedUnicodes()
+		return _anTurnedCharsUnicodes
+	
+		func TurnedCharsUnicodes()
+			return TurnedUnicodes()
+
+		func TurnableUnicodes()
+			return TurnedUnicodes()
+
+		func TurnableCharsUnicodes()
+			return TurnedUnicodes()
+
+	func TurnedChars()
+		return UnicodesToChars( TurnedUnicodes() )
+
+		func TurnableChars()
+			return TurnedChars()
+
+	func TurnedCharsXT()
+		return _aTurnableCharsXT
+
+		func TurnableCharsXT()
+			return TurnedCharsXT()
+
+	
 	# Invertible chars
 
-	func InvertibleUnicodes()
+	func InvertibleUnicodes() # Invertible or Inverted: it's the same!
 		return _anInvertibleUnicodes
 
+		func InvertedUnicodes()
+			return InvertibleUnicodes()
+	
 	func InvertibleChars()
-		aResult = []
-		for n in InvertibleUnicodes()
-			aResult + StzCharQ(n).Content()
-		next
-		return aResult
+		return UnicodesToChars( InvertibleUnicodes() )
 
+		func InvertedChars()
+			return InvertibleChars()
+	
 	func InvertibleCharsXT()
 		return _aInvertibleCharsXT
-	
+
+		func InvertedCharsXT()
+			return InvertibleCharsXT()
+
+
 	# Punctuation
 
 	func GeneralPunctuationUnicodes()
