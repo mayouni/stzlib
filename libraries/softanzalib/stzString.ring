@@ -2776,13 +2776,15 @@ class stzString from stzObject
 
 		def RightNChars(n)
 			return This.NRightChars(n)
-
-			#< @FunctionFluentForm
 	
 			def RightNCharsQ(n)
 				return This.NRightCharsQ(n)
 	
-			#>
+		def Right(n)
+			return This.NRightChars(n)
+
+			def RightQ(n)
+				return This.NRightCharsQ(n)
 
 		#>
 
@@ -2811,13 +2813,15 @@ class stzString from stzObject
 
 		def LeftNChars(n)
 			return This.NLeftChars(n)
-
-			#< @FunctionFluentForm
 	
 			def LeftNCharsQ(n)
 				return This.NLeftCharsQ(n)
 	
-			#>
+		def Left(n)
+			return This.NLeftChars(n)
+
+			def LeftQ(n)
+				return This.NLeftCharsQ(n)
 
 		#>
 
@@ -2839,13 +2843,9 @@ class stzString from stzObject
 
 		def FirstNChars(n)
 			return This.NFirstChars(n)
-
-			#< @FunctionFluentForm
 	
 			def FirstNCharsQ(n)
 				return This.NFirstCharsQ(n)
-	
-			#>
 
 		#>
 
@@ -2867,13 +2867,9 @@ class stzString from stzObject
 
 		def LastNChars(n)
 			return This.NLastChars(n)
-
-			#< @FunctionFluentForm
 	
 			def LastNCharsQ(n)
 				return This.NLastCharsQ(n)
-	
-			#>
 
 		#>
 
@@ -3414,9 +3410,12 @@ class stzString from stzObject
 		ok
 
 		if isNumber(paPositionOrSection)
+
 			aTemp = []
 			aTemp + paPositionOrSection
 			aTemp + paPositionOrSection
+
+			paPositionOrSection = aTemp
 		ok
 
 		if NOT ( isList(paPositionOrSection) and
@@ -3426,6 +3425,7 @@ class stzString from stzObject
 		ok
 
 		aSection = paPositionOrSection
+
 		aHarvest = paHervestNCharsBeforeAndNCharsAfter
 
 		if isList(aHarvest) and
@@ -3457,13 +3457,17 @@ class stzString from stzObject
 		nCharsBefore = aHarvest[1]
 		nCharsAfter  = aHarvest[2]
 
-		anSectionBefore = []
-		anSectionBefore + (aSection[1] - nCharsBefore)
-		anSectionBefore + (aSection[1] - 1)
+		anSectionBefore = [0, 0]
+		if nCharsBefore != 0
+			anSectionBefore[1] = (aSection[1] - nCharsBefore)
+			anSectionBefore[2] = (aSection[1] - 1)
+		ok
 
-		anSectionAfter = []
-		anSectionAfter + (aSection[2] + 1)
-		anSectionAfter + (aSection[2] + nCharsAfter)
+		anSectionAfter = [0, 0]
+		if anSectionAfter != 0
+			anSectionAfter[1] = (aSection[2] + 1)
+			anSectionAfter[2] = (aSection[2] + nCharsAfter)
+		ok
 
 		acResult = This.Sections([ anSectionBefore, anSectionAfter ])
 		return acResult
@@ -3678,7 +3682,7 @@ class stzString from stzObject
 			StzString("Incorrect param type! pacBounds mus tbe a string or pair of strings.")
 		ok
 
-		anSections = This.FindSectionsOfSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		anSections = This.FindSectionsBetweenCS(pcSubStr, cBound1, cBound2, pCaseSensitive)
 
 		nLen1 = StzStringQ(cBound1).NumberOfChars()
 		nLen2 = StzStringQ(cBound2).NumberOfChars()
@@ -3792,8 +3796,8 @@ class stzString from stzObject
 	#-------------------------------------------------------#
 
 	def RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
-		aSections = This.FindSectionsOfAnySubstringBoundedWithCS(pcBound1, pcBound2, pCaseSensitive)
-		This.RemoveManySections(aSections)
+		aSections = This.FindAnySectionsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveSections(aSections)
 
 		def RemoveAnyBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
 			This.RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
@@ -5919,37 +5923,25 @@ class stzString from stzObject
 			stzRaise("Incorrect params! n1 and n2 must be numbers.")
 		ok
 
-		# If the params are given in inversed order, return reversed section
-
-		if n1 > n2
-			nTemp = n1
-			n1 = n2
-			n2 = nTemp
-
-			return This.SectionQ(n1, n2).Reversed()
-		ok
-	
 		# Managing out of range params
 
-		if n1 <= 0
-			n1 = 1
+		if NOT 	( Q(n1).IsBetween(1, this.NumberOfChars()) and
+			  Q(n2).IsBetween(1, this.NumberOfChars())
+			)
+			
+			return NULL
 		ok
 	
-		if n1 > This.NumberOfItems()
-			n = This.NumberOfItems()
+		# Finally, we're ready to extract the section...
+		# NOTRE: when positions are given in inversed order
+		# --> Inversing the section
+
+		if n1 > n2
+			return Q(@oQString.mid( (n1 - 1) , (n2 - n1 + 1) )).Inveresed()
+
+		else
+			return @oQString.mid( (n1 - 1) , (n2 - n1 + 1) )
 		ok
-
-		if n2 > This.NumberOfItems()
-			n2 = This.NumberOfItems()
-		ok
-
-		if n2 <= 0
-			n2 = 1
-		ok
-
-		# Finally, we're ready to extract the section
-
-		return @oQString.mid( (n1 - 1) , (n2 - n1 + 1) )
 
 		#< @FunctionFluentForm
 
@@ -8137,43 +8129,43 @@ class stzString from stzObject
 	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	#-------------------------------------------------------------------------#
 
-	def ReplaceBetweenCS(pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
-		aSections = This.FindSectionsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def ReplaceBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+		aSections = This.FindSectionsBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 		This.ReplaceSections(aSections, pcNewSubStr)
 
-		def ReplaceBetweenCSQ(pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
-			This.ReplaceBetweenCS(pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+		def ReplaceBetweenCSQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+			This.ReplaceBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
 			return This
 
-		def ReplaceSubStringBetweenCS(pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
-			This.ReplaceBetweenCS(pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+		def ReplaceSubStringBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+			This.ReplaceBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
 
-			def ReplaceSubStringBetweenCSQ(pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
-				This.ReplaceSubStringBetweenCS(pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+			def ReplaceSubStringBetweenCSQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+				This.ReplaceSubStringBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
 				return This
 
-	def SubstringBetweenReplacedCS(pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
-		cResult = This.ReplaceBetweenCSQ(pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive).Content()
+	def SubstringBetweenReplacedCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
+		cResult = This.ReplaceBetweenCSQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive).Content()
 		return cResult
 
 	#--- WITHOUT CASESENSITIVITY
 
-	def ReplaceBetween(pcSubStr1, pcSubStr2, pcNewSubstr)
-		This.ReplaceBetweenCS(pcSubStr1, pcSubStr2, pcNewSubstr, :CaseSensitive = TRUE)
+	def ReplaceBetween(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+		This.ReplaceBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr, :CaseSensitive = TRUE)
 		
-		def ReplaceBetweenQ(pcSubStr1, pcSubStr2, pcNewSubstr)
-			This.ReplaceBetween(pcSubStr1, pcSubStr2, pcNewSubstr)
+		def ReplaceBetweenQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+			This.ReplaceBetween(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
 			return This
 
-		def ReplaceSubStringBetween(pcSubStr1, pcSubStr2, pcNewSubstr)
-			This.ReplaceBetween(pcSubStr1, pcSubStr2, pcNewSubstr)
+		def ReplaceSubStringBetween(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+			This.ReplaceBetween(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
 
-			def ReplaceSubStringBetweenQ(pcSubStr1, pcSubStr2, pcNewSubstr)
-				This.ReplaceSubStringBetween(pcSubStr1, pcSubStr2, pcNewSubstr)
+			def ReplaceSubStringBetweenQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+				This.ReplaceSubStringBetween(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
 				return This
 
-	def SubstringBetweenReplaced(pcSubStr1, pcSubStr2, pcNewSubstr)
-		cResult = This.ReplaceBetweenQ(cSubStr1, pcSubStr2, pcNewSubstr).Content()
+	def SubstringBetweenReplaced(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
+		cResult = This.ReplaceBetweenQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr).Content()
 		return cResult
 
 	  #--------------------------------------------------------#
@@ -8181,7 +8173,7 @@ class stzString from stzObject
 	#--------------------------------------------------------#
 
 	def ReplaceAnyBetweenCS(pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
-		aSections = This.FindSectionsOfAnySubstringBoundedWithCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		aSections = This.FindAnySectionsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		This.ReplaceManySections(aSections, pcNewSubStr)
 
 		def ReplaceAnyBetweenCSQ(pcSubStr1, pcSubStr2, pcNewSubstr, pCaseSensitive)
@@ -12099,7 +12091,19 @@ class stzString from stzObject
 				other
 					stzRaise("Unsupported return type!")
 				off
-	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def FindSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.FindSubstringSectionsBetweenCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+		
+			def FindSectionsBetweenCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+				return This.FindSubstringSectionsBetweenCSQ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+		
+			def FindSectionsBetweenCSQR(pcSubStr, pcBound1, pcBound2, pCaseSensitive, pcReturnType)
+				return This.FindSubstringSectionsBetweenCSQR(pcSubStr, pcBound1, pcbound2, pCaseSensitive, pcReturnType)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -12128,6 +12132,19 @@ class stzString from stzObject
 					stzRaise("Unsupported return type!")
 				off
 	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def FindSectionsBetween(pcSubStr, pcBound1, pcBound2)
+			return This.FindSubstringSectionsBetweenCS(pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
+		
+			def FindSectionsBetweenQ(pcSubStr, pcBound1, pcBound2)
+				return This.FindSubstringSectionsBetweenQ(pcSubStr, pcBound1, pcbound2)
+		
+			def FindSectionsBetweenQR(pcSubStr, pcBound1, pcBound2, pcReturnType)
+				return This.FindSubstringSectionsBetweenQR(pcSubStr, pcBound1, pcbound2, pcReturnType)
+
 		#>
 
 	  #--------------------------------------------------------------------#
@@ -15130,17 +15147,9 @@ class stzString from stzObject
 	 #  REMOVING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	#-------------------------------------------------------------------------#
 
-	def RemoveBetweenCS(pcSubStr,pcBound1, pcBound2, pCaseSensitive)
-		aSections = This.FindSectionsBetweenCS(pcSubStr,pcBound1, pcBound2, pCaseSensitive)
-	
-		nLen1 = StzStringQ(pcBound1).NumberOfChars()
-		nLen2 = StzStringQ(pcBound2).NumberOfChars()
+	def RemoveBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
-		for aSection in aSections
-			aSection[1] += nLen1
-			aSection[2] -= nLen2
-		next	
-
+		aSections = This.FindSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		This.RemoveSections(aSections)
 
 		def RemoveBetweenCSQ(pcSubStr,pcBound1, pcBound2, pCaseSensitive)
@@ -15719,7 +15728,7 @@ class stzString from stzObject
 
 		cCondition = StzStringQ(cCondition).
 				SimplifyQ().
-				RemoveBoundsQ("{","}").
+				RemoveBoundsQ(["{","}"]).
 				Content()
 
 		cCode = "bOk = ( " + cCondition + " )"
@@ -16541,9 +16550,20 @@ class stzString from stzObject
 	#-------------------------------------#
 
 	def RemoveFromLeftCS(pcSubStr, pCaseSensitive)
-		if This.BeginsWithCS(pcSubStr, pCaseSensitive)
-			n1 = 1
-			n2 = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+
+		if This.NLeftCharsQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
+
+			if This.IsLeftToRight()
+				n1 = 1
+				n2 = nLenSubStr
+
+			else
+				nLenStr = This.NumberOfChars()
+				n1 = nLenStr - nLenSubStr + 1
+				n2 = nLenStr
+			ok
+
 			This.RemoveSection(n1, n2)
 		ok
 
@@ -16565,7 +16585,7 @@ class stzString from stzObject
 		def SubStringRemovedFromLeftCS(pcSubStr, pCaseSensitive)
 			return This.RemovedFromLeftCS(pcSubStr, pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFromLeft(pcSubStr)
 		This.RemoveFromLeftCS(pcSubStr, :CaseSensitive = TRUE)
@@ -16593,13 +16613,30 @@ class stzString from stzObject
 	#-------------------------------------#
 
 	def RemoveFromRightCS(pcSubStr, pCaseSensitive)
+		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+
+		if This.NRightCharsQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
+
+			if This.IsRightToLeft()
+				n1 = 1
+				n2 = nLenSubStr
+
+			else
+				nLenStr = This.NumberOfChars()
+				n1 = nLenStr - nLenSubStr + 1
+				n2 = nLenStr
+			ok
+
+			This.RemoveSection(n1, n2)
+		ok
+/*
 		if This.BeginsWithCS(pcSubStr, pCaseSensitive)
 			nLen = StzStringQ(pcSubStr).NumberOfChars()
 			n1 = This.NumberOfChars() - nLen + 1
 			n2 = This.NumberOfChars()
 			This.RemoveSection(n1, n2)
 		ok
-
+*/
 		def RemoveFromRightCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
 			return This
@@ -21241,152 +21278,137 @@ class stzString from stzObject
 				This.Reverse()
 				return This
 
-		def Turn() # To embrace the UNICODE semantics
+		def ReverseChars()
 			This.ReversecharsOrder()
+
+			def ReverseCharsQ()
+				This.ReverseChars()
+				return This
+
+		def ReverseOrder()
+			This.ReversecharsOrder()
+
+			def ReverseOrderQ()
+				This.ReverseOrder()
+				return This
+
+		#>
+
+	def CharsOrderReversed()
+		cResult = This.Copy().ReverseCharsOrderQ().Content()
+		return cResult
+
+
+		#< @FunctionAlternativeForm
+
+		def Reversed()
+			return This.CharsOrderReversed()
+
+		def CharsReversed()
+			return This.CharsOrderReversed()
+
+		def OrderReversed()
+			return This.CharsOrderReversed()
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #   INVERTING CHARS OF THE STRING (IF POSSIBLE IN UNICODE)  #
+	#-----------------------------------------------------------#
+
+	# Inverting (or turning) chars and strings
+	# NOTE: In the mean time, Softanza uses Invert()
+	# and Turn() as alternatives, but this should
+	# change in the future to cope with their exact
+	# meaning in Unicode!
+
+	# NOTE: This is different from REVERSE() that Softanza
+	# uses conforming to its Ring meaning (reversing the order
+	# of the chars). See examples below to see how...
+
+	def Invert()
+		/*
+		Example:
+		? StzStringQ("LIFE").Turned()
+		# --> ƎℲI⅂
+		*/
+
+		# Applies to latin script only
+
+		if NOT This.ToStzText().ScriptIs(:Latin)
+			return This.String()
+		ok
+
+		cResult = ""
+
+		for i = 1 to This.NumberOfChars()
+			cResult += StzCharQ( This.NthChar(i) ).Inverted()
+		next
+
+		This.Update( cResult )
+
+		#< @FunctionFluentForm
+
+		def InvertQ()
+			This.Invert()
+			return This
+
+		def InvertChars()
+			This.Invert()
+
+			def InvertCharsQ()
+				This.InvertChars()
+				return This
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def Turn()
+			This.Invert()
 
 			def TurnQ()
 				This.Turn()
 				return This
 
-		#--
+		def TurnChars()
+			This.Invert()
 
-		def RevertChars()
-			This.ReverseCharsOrder()
-
-			def RevertCharsQ()
-				This.RevertCharsOrder()
-				return This
-
-		def InverseChars()
-			This.ReverseCharsOrder()
-
-			def InverseCharsQ()
-				This.RevertCharsOrder()
-				return This
-
-		def InvertChars()
-			This.ReverseCharsOrder()
-
-			def InvertCharsQ()
-				This.RevertCharsOrder()
-				return This
-
-		#--
-
-		def RevertCharsOrder()
-			This.ReverseCharsOrder()
-
-			def RevertCharsOrderQ()
-				This.RevertCharsOrder()
-				return This
-
-		def InverseCharsOrder()
-			This.ReverseCharsOrder()
-
-			def InverseCharsOrderQ()
-				This.RevertCharsOrder()
-				return This
-
-		def InvertCharsOrder()
-			This.ReverseCharsOrder()
-
-			def InvertCharsOrderQ()
-				This.RevertCharsOrder()
-				return This
-
-		#--
-
-		def ReverseOrder()
-			This.ReverseCharsOrder()
-
-			def ReverseOrderQ()
-				This.RevertCharsOrder()
-				return This
-
-		def RevertOrder()
-			This.ReverseCharsOrder()
-
-			def RevertOrderQ()
-				This.RevertCharsOrder()
-				return This
-
-		def InverseOrder()
-			This.ReverseCharsOrder()
-
-			def InverseOrderQ()
-				This.RevertCharsOrder()
-				return This
-
-		def InvertOrder()
-			This.ReverseCharsOrder()
-
-			def InvertOrderQ()
-				This.RevertCharsOrder()
+			def TurnCharsQ()
+				This.TurnChars()
 				return This
 
 		#>
 
-	def StringWithCharsOrderReversed()
-		cResult = This.Copy().ReverseCharsOrderQ().Content()
-		return cResult
+	def Inverted()
+		return This.Copy().InvertQ().Content()
 
-		def Reversed()
-			return This.StringWithCharsOrderReversed()
+		def CharsInverted()
+			return This.Inverted()
 
-		#--
+		def Turned()
+			return This.Inverted()
 
-		def StringWithCharsOrderReverted()
-			return This.StringWithCharsOrderReversed()
+		def CharsTurned()
+			return This.Inverted()
 
-		def StringWithCharsOrderInversed()
-			return This.StringWithCharsOrderReversed()
+	  #--------------------------------------------------#
+	 #  CHECKING IF THE STRING IS MADE OF TURNED CHARS  #
+	#--------------------------------------------------#
 
-		def StringWithCharsOrderInverted()
-			return This.StringWithCharsOrderReversed()
+	def IsInverted()
+		bResult = TRUE
 
-		#--
+		for c in This.String()
+			if NOT StzCharQ(c).IsInverted()
+				bResult = FALSE
+				exit
+			ok
+		next
 
-		def OrderReversed()
-			return This.StringWithCharsOrderReversed()
+		return bResult
 
-		def OrderReverted()
-			return This.StringWithCharsOrderReversed()
-
-		def OrderInversed()
-			return This.StringWithCharsOrderReversed()
-
-		def OrderInverted()
-			return This.StringWithCharsOrderReversed()
-
-		#--
-
-		def CharsOrderReversed()
-			return This.StringWithCharsOrderReversed()
-
-		def CharsOrderReverted()
-			return This.StringWithCharsOrderReversed()
-
-		def CharsOrderInversed()
-			return This.StringWithCharsOrderReversed()
-
-		def CharsOrderInverted()
-			return This.StringWithCharsOrderReversed()
-
-		#--
-
-		def OrderOfCharsReversed()
-			return This.StringWithCharsOrderReversed()
-
-		def OrderOfCharsReverted()
-			return This.StringWithCharsOrderReversed()
-
-		def OrderOfCharsInversed()
-			return This.StringWithCharsOrderReversed()
-
-		def OrderOfCharsInverted()
-			return This.StringWithCharsOrderReversed()
-
-		#>
+		def CharsAreInverted()
+			return This.IsInverted()
 
 	  #------------------------#
 	 #   HASHING THE STRING   #
@@ -21420,7 +21442,7 @@ class stzString from stzObject
 			cHashed = sha224( This.String() )
 
 		other
-			stzRaise("Unsupported hashing algorithm!")
+			stzRaise("syntax error or unsupported hashing algorithm!")
 		off
 
 		This.Update( cHashed )
@@ -21701,42 +21723,6 @@ class stzString from stzObject
 		ok
 
 		return nResult
-
-
-	  #-----------------------------------#
-	 #     TURNING STRING UP OR DOWN     #
-	#-----------------------------------#
-
-	def Invert()
-		/*
-		Example:
-		? StzStringQ("LIFE").Inverted()
-		# --> ƎℲI⅂
-		*/
-
-		# Applies to latin script only
-
-		if NOT This.ToStzText().ScriptIs(:Latin)
-			return This.String()
-		ok
-
-		cResult = ""
-
-		aStzChars = This.ToListOfStzChars()
-
-		for i = This.NumberOfChars() to 1 step -1
-			cTurned = aStzChars[i].Inverted()
-			cResult += cTurned
-		next
-
-		This.Update( cResult )
-
-		def InvertQ()
-			This.Invert()
-			return This
-
-	def Inverted()
-		return This.Copy().InvertQ().Content()
 
 	  #----------------------------------------------------#
 	 #     COMPRESSING THE STRING WITH A BINARY SCHEMA    #

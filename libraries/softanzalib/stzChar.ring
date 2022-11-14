@@ -2384,24 +2384,60 @@ class stzChar from stzObject
 		cResult = This.Copy().RemoveDiacriticQ().Content()
 		return cResult
 
-	  #---------------------#
-	 #   INVERTING CHARS   #
-	#---------------------#	
+	  #-------------------#
+	 #   TURNING CHARS   #
+	#-------------------#	
+
+	/* WARNING:
+
+	   In Unciode sense, turning a char my be different then inverting it..
+	   Both my be different then reversing, reverting, or rotating it!
+	   --> Read this discussion:
+	       https://unicode.org/faq/casemap_charprop.html#16
+
+	   Hence, there is a high risk of naming confustion in using those terms!
+	   # TODO: Reflect on this problem and fix it accordingly!
+
+	  NOTE: For the mean time, Softanza considers them the same!
+		In fact, the _aTurnableCharsXT in stzCharData file hosts the
+		same data as _aInvertibleCharsXT... But this should be revised
+		in the future for better accuracy.
+	*/
 
 	def IsInvertible()
 		return StzListQ( InvertibleUnicodes() ).Contains( This.Unicode() )
 
-		def IsInversible()
-			return This.IsInvertible()
+		def IsTurnable()
+			return IsInvertible()
+		# TODO: We suppose that turning is same as inverting but this could
+		# change in the future to cope with their exact meaning in Unicode!
 
-		def IsRevertible()
-			return This.IsInvertible()
+	def Turn()
 
-		def IsReversible()
-			return This.IsInvertible()
+		if This.IsTurnable()
+
+			for aPair in TurnableCharsXT()
+				if aPair[1] = This.Content()
+					This.Update( aPair[2] )
+
+				but aPair[2] = This.Content()
+					This.Update( aPair[1] )
+				ok
+			next
+
+		ok
+
+		def TurnQ()
+			This.Turn()
+			return This
+
+	def Turned()
+		cResult = This.Copy().TurnQ().Content()
+		return cResult
+
+	#--
 
 	def Invert()
-
 		if This.IsInvertible()
 
 			for aPair in InvertibleCharsXT()
@@ -2440,13 +2476,6 @@ class stzChar from stzObject
 				This.Revert()
 				return This
 
-		def Turn()
-			This.Invert()
-			
-			def TurnQ()
-				This.Turn()
-				return This
-
 	def Inverted()
 		cResult = This.Copy().InvertQ().Content()
 		return cResult
@@ -2458,9 +2487,6 @@ class stzChar from stzObject
 			return This.Inverted()
 
 		def Reverted()
-			return This.Inverted()
-
-		def Turned()
 			return This.Inverted()
 
 	  #--------------------#
