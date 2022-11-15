@@ -8983,24 +8983,6 @@ sdsd
 		aResult = This.Copy().FlattenQ().Content()
 		return aResult
 
-	  #-----------------------------------#
-	 #     REPEATING THE LIST N TIMES    #
-	#-----------------------------------#
-
-	def RepeatNTimes(n)
-		aResult = []
-		for i = 1 to n
-			for q = 1 to This.NumberOfItems()
-				aResult + This[q]
-			next
-		next
-
-		This.Update( aResult )
-
-		def RepeatNTimesQ(n)
-			This.RepeatNTimes(n)
-			return This
-
 	  #----------------------#
 	 #     UNIQUE ITEMS     #
 	#----------------------#

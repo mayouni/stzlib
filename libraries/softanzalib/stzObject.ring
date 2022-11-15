@@ -1308,14 +1308,18 @@ class stzObject
 			#>
 
 		#>
+	
+	  #-----------#
+	 #   MISC.   #
+	#-----------#
 
-	  #------------------------------#
-	 #  GETTING N TIMES THE OBJECT  #
-	#------------------------------#
-
-	def NTimes(n)
+	def RepeatNTimes(n)
 		if This.IsANumber()
-			return This.Number() * n
+			anResult = []
+			for i = 1 to n
+				anResult + This.Number()
+			next
+			return anResult
 
 		but This.IsAString()
 			cResult = ""
@@ -1324,21 +1328,16 @@ class stzObject
 			next
 			return cResult
 
-		but This.IsAList() or This.IsAnObject()
-			aResult = This.Reproduce( :InA = :List, :OfSize = n )
+		else
+			aResult = []
+			for i = 1 to n
+				aResult + This.Content()
+			next
 			return aResult
-		ok 
-	
-	  #-----------#
-	 #   MISC.   #
-	#-----------#
-
-	def RepeatNtimes(n)
-		aResult = []
-		for i = 1 to n
-			aResult + This.Object()
-		next
-		return aResult
+		ok
 
 		def RepeatedNTimes(n)
+			return This.RepeatNtimes(n)
+
+		def NTimes(n)
 			return This.RepeatNtimes(n)

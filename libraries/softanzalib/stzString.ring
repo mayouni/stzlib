@@ -228,7 +228,7 @@ func StringCenterAlign(cString, nWidth, cChar)
 	
 func StringRepeat(cString, n)
 	oString = new stzString(cString)
-	return oString.RepeatNTimesQ(n).Content()
+	return oString.RepeatedNTimes(n)
 	
 func StringNumberOfChars(cStr)
 	oString = new stzString(cStr)
@@ -3547,10 +3547,8 @@ class stzString from stzObject
 
 		if isNumber(panUpToNChars)
 
-			aTemp = NTimes(
-				This.CountCS(pcSubStr, pCaseSensitive),
-				[ panUpToNChars, panUpToNChars ]
-			)
+			aTemp = Q([ panUpToNChars, panUpToNChars ]).
+				RepeatedNTimes(	This.CountCS(pcSubStr, pCaseSensitive) )
 
 			panUpToNChars = aTemp
 			
@@ -3562,10 +3560,8 @@ class stzString from stzObject
 			len(panUpToNChars) = 2 and
 			Q(panUpToNChars).IsListOfNumbers()
 
-			aTemp = NTimes(
-				This.CountCS(pcSubStr, pCaseSensitive),
-				panUpToNChars
-			)
+			aTemp = Q(panUpToNChars).
+				RepeatedNTimes( This.CountCS(pcSubStr, pCaseSensitive) )
 
 			panUpToNChars = aTemp
 		ok
@@ -6707,31 +6703,6 @@ class stzString from stzObject
 		def RangesOtherThan(paRanges)
 			return This.AntiRanges()
 
-	  #----------------------------#
-	 #    REPEATING THE STRING    #
-	#----------------------------#
-
-	// Repeats the string n times
-	def RepeatNTimes(n)
-		if n != 0
-			This.Update( @oQString.repeated(n) )
-		ok
-
-		#< @FunctionFluentForm
-
-		def RepeatNTimesQ(n)
-			This.RepeatNTimes(n)
-			return This
-
-		#>
-
-	def RepeatedNTimes(n)
-		cResult = This.Copy().RepeatNTimesQ(n).Content()
-		return cResult
-
-		def RepeatedNTimesQ(n)
-			return new stzString( This.RepeatedNTimes(n) )
-	
 	  #-------------------------------------------------------------#
 	 #    INSERTING A SUBSTRING BEFORE OR AFTER A GIVEN POSITION   #
 	#-------------------------------------------------------------#
@@ -6989,7 +6960,7 @@ class stzString from stzObject
 	#------------------------------------------------#
 
 	 def InsertAfterThesePositions(panPositions, pcSubStr)
-		if NOT ( isList(panPositions) and Q(paPositions).IsListOfNumbers() )
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
 
 			stzRaise("Incorrect param! paPositions must be a list of numbers.")
 		ok
@@ -9207,7 +9178,7 @@ class stzString from stzObject
 		ok
 
 		if n > This.NumberOfChars()
-			This.AddSubString( NTimes(n, pcUsingChar) )
+			This.AddSubString( Q(pcUsingChar).RepeatedNTimes(n) )
 		ok
 
 	def AddSubString(pcSubStr)

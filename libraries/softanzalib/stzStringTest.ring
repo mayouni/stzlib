@@ -33,15 +33,18 @@ o1.Simplify()
 ? o1.Content() #--> "﷽"
 
 /*-----------------
-
+*/
 ? Heart() # --> ♥
-? NTimes(3, Heart()) #--> ♥♥♥
+? Q(Heart()).RepeatedNTimes(3) #--> ♥♥♥
+# or you can use the short form .NTimes(3)
 
-? NTimes(3, "Go") #--> GoGoGo
+? Q("Go").RepeatedNTimes(3) #--> GoGoGo
 
-? @@( NTimes(3, [ "A", "B" ]) )
+? @@S( Q([ "A", "B" ]).RepeatedNTimes(3) )
 #--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
 
+? Five(Star()) #--> ★★★★★
+? Three(Heart()) #--> ♥♥♥
 /*---
 
 ? Q("Riiiiinngg").UniqueChars() #--> [ "R", "i", "n", "g" ]
@@ -622,9 +625,11 @@ o1 = new stzString("what a <<nice>>> day!")
 #--> [ [8, 9], [14, 16] ]
 
 /*----------------- TODO
-
+*/
 o1 = new stzString("what a <<<nice>>> day!")
+? o1.Bounds(:Of = "nice", :UpToNChars = 3)
 
+/*
 ? o1.Stay(
 	:OnSection  = [10, 13], # or o1.FindSection("nice")
 	:HarvestNBoundingChars = 3
@@ -667,21 +672,27 @@ o1 = new stzString("How many words in <<many many words>>? So many!")
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? @@S( o1.SubstringsBetween("<<", :and = ">>") )
+	? o1.SubStringsXT([ :Between = ["<<",">>"] ])
 # --> [ "word", "noword", "word" ]
 
 ? @@S( o1.FindSubStringsBetween("<<", :and = ">>") ) + NL
+	? FindSubStringsXT([ :Between = ["<<", ">>"] ])
 # --> [ 11, 28, 43 ]
 
-? @@S( o1.FindSubStringSectionsBetween("<<",">>") )
+? @@S( o1.FindAnySectionsBetween("<<",">>") )
+	? o1.FindSectionsXT([ :Between = ["<<",">>"] ])
+
 # --> [ [ 11, 14 ], [ 28, 33 ], [ 43, 46 ] ]
 
-/*
 # Or when you want to find not any bounded-substring but a speciefic one,
 # just provide it to the following functions to get, for all its occurrences,
 # the positions or the sections:
 
-? @@S( o1.FindBetween("word", "<<", ">>") )			# --> [ 9, 41 ]
-? @@S( o1.FindSubStringSectionsBetween("word", "<<", ">>") )	# --> [ [ 9, 16 ], [ 41, 48 ] ]
+? @@S( o1.FindSubStringBetween("word", "<<", ">>") )	# --> [ 9, 41 ]
+	? o1.FindSubStringXT("word", :Between = ["<<", ">>"])
+
+? @@S( o1.FindSectionsBetween("word", "<<", ">>") )	# --> [ [ 9, 16 ], [ 41, 48 ] ]
+	? o1.FindSectionsXT( :Of = "word", :Between = ["<<", ">>"]
 
 /*================
 
@@ -1503,7 +1514,7 @@ o1.InsertBeforeW( '{ @char = "I" }', "*" )
 /*----------------------
 
 o1 = new stzString("KALIDIA")
-o1.InsertAfterW( '{ @char = "I" }',"*" )
+o1.InsertAfterW( '{ @char = "I" }', "*" )
 ? o1.Content() # --> KALI*DI*A
 
 /*----------------------

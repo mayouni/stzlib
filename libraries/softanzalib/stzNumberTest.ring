@@ -1,5 +1,8 @@
 load "stzlib.ring"
 
+o1 = new stzNumber(11)
+? o1.RepeatedNTimes(3)
+#--> [11, 11, 11]
 /*------------------
 
 o1 = new stzNumber(5)
