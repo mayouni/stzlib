@@ -1,18 +1,15 @@
 load "stzlib.ring"
 
-? NTimes(3, "A")
+? Q("A").RepeatedNTimes(3)
 #--> "AAA"
 
-? @@S( NTimes(3, [1,2]) )
-#--> [ [ 1, 2 ], [ 1, 2 ], [ 1, 2 ] ]
-
-? NTimes(3, 10)
-#--> 30
 /*-------
 
-? Q("A").NTimes(3)	#--> "AAA"
-? Q(4).NTimes(3)	#--> 12
-? Q([1,2]).NTimes(2)	#--> [ [ 1, 2 ], [ 1, 2 ] ]
+? @@S( Q([1,2]).RepeatedNTimes(3) )
+#--> [ [ 1, 2 ], [ 1, 2 ], [ 1, 2 ] ]
+
+? Q(10).RepeatedNTimes(3)
+#--> [ 30, 30, 30 ]
 
 /*-------
 

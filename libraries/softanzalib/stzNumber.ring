@@ -3535,16 +3535,6 @@ class stzNumber from stzObject
 			return anResult
 		ok
 	
-	def RepeatNtimes(n)
-		aResult = []
-		for i = 1 to n
-			aResult + This.Content()
-		next
-		return aResult
-
-		def RepeatedNTimes(n)
-
-			return This.RepeatNtimes(n)
 	  #-------------------------------------#
 	 #    INTERNAL KITCHEN OF THE CLASS    #
 	#-------------------------------------#

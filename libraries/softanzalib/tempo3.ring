@@ -79,10 +79,10 @@ o1.ReplaceSections([ [1, 3], [9, 11] ], "***")
 /*----------------
 
 o1 = new stzString("12345 ABC 123 DEF")
-o1.ReplaceSection( 11, 13, :With@ = ' NTimes( Q(@Section).Size(), "*" ) ' )
+o1.ReplaceSection( 11, 13, :With@ = ' Q("*").RepeatedNTimes( Q(@Section).Size() ) ' )
 ? o1.Content()
 #--> ***** ABC 123 DEF
-o1.ReplaceSection( 1, 5, :With@ = ' NTimes( Q(@Section).Size(), "*" ) ' )
+o1.ReplaceSection( 1, 5, :With@ = ' Q("*").RepeatedNTimes( Q(@Section).Size() ) ' )
 ? o1.Content()
 #--> ***** ABC *** DEF
 
@@ -108,7 +108,7 @@ o1.ReplaceSections(
 	[ [1, 5] , [11, 13] ],
 
 	:With@ = '{
-		NTimes( Q(@Section).Size(), "*" )
+		Q("*").RepeatedNTimes( Q(@Section).Size() )
 	}'
 )
 

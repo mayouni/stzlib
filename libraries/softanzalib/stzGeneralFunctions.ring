@@ -406,50 +406,35 @@ func AreSameObject(pcObjectName1, pcObjectName2) # TODO
 
 # REPEATING A THING N TIME
 
-func RepeatNTimes(n, pThing)
-	switch type(pThing)
-	on "STRING"
-		return StzStringQ(pThing).RepeatedNTimes(n)
-
-	on "LIST"
-		return StzListQ(pThing).RepeatedNTimes(n)
-
-	on "NUMBER"
-		return StzNumberQ(pThing).RepeatedNTimes(n)
-
-	on "OBJECT"
-		return StzObjectQ(pThing).RepeatedNTimes(n)
-	off
-
 func One(pThing)
 	return pThing
 
 func Two(pThing)
-	return RepeatNTimes(2, pThing)
+	return Q(pThing).RepeatedNTimes(2)
 
 func Three(pThing)
-	return RepeatNTimes(3, pThing)
+	return Q(pThing).RepeatedNTimes(3)
 
 func Four(pThing)
-	return RepeatNTimes(4, pThing)
+	return Q(pThing).RepeatedNTimes(4)
 
 func Five(pThing)
-	return RepeatNTimes(5, pThing)
+	return Q(pThing).RepeatedNTimes(5)
 
 func Six(pThing)
-	return RepeatNTimes(6, pThing)
+	return Q(pThing).RepeatedNTimes(6)
 
 func Seven(pThing)
-	return RepeatNTimes(7, pThing)
+	return Q(pThing).RepeatedNTimes(7)
 
 func Eight(pThing)
-	return RepeatNTimes(8, pThing)
+	return Q(pThing).RepeatedNTimes(8)
 
 func Nine(pThing)
-	return RepeatNTimes(9, pThing)
+	return Q(pThing).RepeatedNTimes(9)
 
 func Ten(pThing)
-	return RepeatNTimes(10, pThing)
+	return Q(pThing).RepeatedNTimes(10)
 
 # OTHER STAFF
 
@@ -644,26 +629,8 @@ func YaMuhammed()
 func SalatNabee()
 	return "صلّى الله على نبيّه الأكرم"
 
-func NTimes(n, pThing)
-	
-	if isString(pThing)
-		cResult = copy(pThing, n)
-		return cResult
-
-	but isNumber(pThing)
-		nResult = n * pThing
-		return nResult
-
-	but isList(pThing) or isObject(pThing)
-		aResult = Q(pThing).Reproduce( :InA = :List, :OfSize = n )
-		return aResult
-	ok 
-
-	def NTimesQ(n, pThing)
-		return Q(NTimes(n, pThing))
-
 func NHearts(n)
-	return NTimes(n, Heart())
+	return Q(Heart()).RepeatedNTimes(n)
 
 	func 2Hearts()
 		return NHearts(2)
@@ -681,7 +648,7 @@ func NHearts(n)
 		return NHearts(9)
 
 func NStars(n)
-	return NTimes(n, Star())
+	return Q(Star()).RepeatedNTimes()
 
 	func 2Stars()
 		return NStars(2)

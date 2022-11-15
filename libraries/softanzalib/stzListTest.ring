@@ -1274,7 +1274,7 @@ o1.ReplaceSection(4, 6, [ "*", "*", "*", "*" ])
 
 /*-----------------------
 
-? StzListQ([ 1, 2, 3 ]).RepeatNTimesQ(3).Content()
+? StzListQ([ 1, 2, 3 ]).RepeatNTimes(3)
 
 /*-----------------------
 
