@@ -612,7 +612,7 @@ o1 = new stzString("what a <<nice>>> day!")
 #--> { "n", "ce" ]
 
 /*-----------------
-*/
+
 o1 = new stzString("what a <<nice>>> day!")
 
 ? o1.Stay(
@@ -620,6 +620,35 @@ o1 = new stzString("what a <<nice>>> day!")
 	:AndHarvestSections = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
 )
 #--> [ [8, 9], [14, 16] ]
+
+/*----------------- TODO
+
+o1 = new stzString("what a <<<nice>>> day!")
+
+? o1.Stay(
+	:OnSection  = [10, 13], # or o1.FindSection("nice")
+	:HarvestNBoundingChars = 3
+)
+#--> [ "<<<", ">>>" ]
+
+/*----------------- TODO
+
+o1 = new stzString("what a <<nice>>> day!")
+
+? o1.Stay(
+	:OnSection  = o1.FindFirstSection("nice")
+	:AndHarvest = [ :CharsBefore = "<", :CharsAfter = ">" ]
+)
+#--> [ "<<", ">>>" ]
+
+/*----------------- TODO
+
+o1 = new stzString("what a 123nice>>> day!")
+
+? o1.Stay(
+	:OnSection  = o1.FindFirstSection("nice")
+	:AndHarvest = [ :CharsBeforeW = 'Q(@char).IsANumber()', :CharsAfter = ">" ]
+)
 
 /*=================
 
