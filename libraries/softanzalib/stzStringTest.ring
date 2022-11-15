@@ -583,7 +583,7 @@ o1 = new stzString("what a <<nice>>> day!")
 #--> [ "<<", ">>>" ]
 
 /*-----------------
-*/
+
 o1 = new stzString("what a <<nice>>> day!")
 ? o1.Section(50, 0)	#--> NULL
 ? o1.Section(0, 0)	#--> NULL
@@ -592,23 +592,34 @@ o1 = new stzString("what a <<nice>>> day!")
 ? o1.Section(10, 13)	#--> "nice"
 ? o1.Section(13, 10)	#--> "ecin"
 
-/*-----------------
-*/
+/*==================
+
 o1 = new stzString("what a <<nice>>> day!")
 
-? o1.Settle(
+? o1.Stay(
 	:OnSection  = [10, 13], # or o1.FindSection("nice")
-	:AndHarvest = [ :NCharsBefore = 0, :NCharsAfter = 3 ]
+	:AndHarvest = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
 )
 #--> [ "<<", ">>>" ]
 
 /*-----------------
 
 o1 = new stzString("what a <<nice>>> day!")
-? o1.Settle(
-	:OnPosition  = 10,
-	:AndHarvest = [ :NCharsBefore = 0, :NCharsAfter = 2 ]
+? o1.Stay(
+	:OnPosition = 11, # the letter "i"
+	:AndHarvest = [ :NCharsBefore = 1, :NCharsAfter = 2 ]
 )
+#--> { "n", "ce" ]
+
+/*-----------------
+*/
+o1 = new stzString("what a <<nice>>> day!")
+
+? o1.Stay(
+	:OnSection  = [10, 13], # or o1.FindSection("nice")
+	:AndHarvestSections = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
+)
+#--> [ [8, 9], [14, 16] ]
 
 /*=================
 

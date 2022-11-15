@@ -14030,9 +14030,27 @@ sdsd
 			return FALSE
 		ok
 
+	def IsOnPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OnPositions)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsOnSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :OnSection)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOnSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OnSections)
 
 			return TRUE
 		else
@@ -14074,6 +14092,191 @@ sdsd
 		else
 			return FALSE
 		ok
+
+	def IsYieldNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :Yield)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndYieldNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndYield)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndThenYieldNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndThenYield)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsThenYieldNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :ThenYield)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsHarvestSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :HarvestSection)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndHarvestSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndHarvestSection)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndThenHarvestSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndThenHarvestSection)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsThenHarvestSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :ThenHarvestSection)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsYieldSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :YieldSection)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndYieldSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndYieldSection)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndThenYieldSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndThenYieldSection)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsThenYieldSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :ThenYieldSection)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsHarvestSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :HarvestSections)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndHarvestSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndHarvestSections)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndThenHarvestSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndThenHarvestSections)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsThenHarvestSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :ThenHarvestSections)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsYieldSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :YieldSections)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndYieldSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndYieldSections)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAndThenYieldSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :AndThenYieldSections)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsThenYieldSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :ThenYieldSections)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+	#--
 
 	def IsNCharsBefore()
 		if This.NumberOfItems() = 2 and

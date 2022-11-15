@@ -3387,7 +3387,7 @@ class stzString from stzObject
 	 #  THEN HARVESTING N CHARS BEORE AND N CHARS LEFT  #
 	#--------------------------------------------------#
 
-	def Settle(paPositionOrSection, paHervestNCharsBeforeAndNCharsAfter)
+	def Settle(paPositionOrSection, paHarvest)
 		/* EXAMPLE
 
 		o1 = new stzString("what a <<nice>>> day!")
@@ -3425,37 +3425,58 @@ class stzString from stzObject
 		ok
 
 		aSection = paPositionOrSection
+		bReturnSections = FALSE
 
-		aHarvest = paHervestNCharsBeforeAndNCharsAfter
+		if isList(paHarvest) and
+			( Q(paHarvest).IsHarvestNamedParam() or
+			  Q(paHarvest).IsAndHarvestNamedParam() or
+			  Q(paHarvest).IsAndThenHarvestNamedParam() or
+			  Q(paHarvest).IsThenHarvestNamedParam() or
 
-		if isList(aHarvest) and
-			( Q(aHarvest).IsHarvestNamedParam() or
-			  Q(aHarvest).IsAndHarvestNamedParam() or
-			  Q(aHarvest).IsAndThenHarvestNamedParam()
+			  Q(paHarvest).IsYieldNamedParam() or
+			  Q(paHarvest).IsAndYieldNamedParam() or
+			  Q(paHarvest).IsAndThenYieldNamedParam() or
+			  Q(paHarvest).IsThenYieldNamedParam() or
+
+			  Q(paHarvest).IsHarvestSectionsNamedParam() or
+			  Q(paHarvest).IsAndHarvestSectionsNamedParam() or
+			  Q(paHarvest).IsAndThenHarvestSectionsNamedParam() or
+			  Q(paHarvest).IsThenHarvestSectionsNamedParam() or
+
+			  Q(paHarvest).IsYieldSectionsNamedParam() or
+			  Q(paHarvest).IsAndYieldSectionsNamedParam() or
+			  Q(paHarvest).IsAndThenYieldSectionsNamedParam() or
+			  Q(paHarvest).IsThenYieldSectionsNamedParam()
 			)
 
-			aHarvest = aHarvest[2]
+			if Q(paHarvest[1]).ContainsCS(:Section, :CS = FALSE)
+
+				bReturnSections = TRUE
+
+			ok
+
+			paHarvest = paHarvest[2]
 		ok
 
 	
-		if NOT len(aHarvest) = 2
-			stzRaise("Incorrect param! paHervestNCharsBeforeAndNCharsAfter must be a list of 2 items.")
+		if NOT len(paHarvest) = 2
+			stzRaise("Incorrect param! paHarvest must be a list of 2 items.")
 		ok
 
-		if isList(aHarvest[1]) and Q(aHarvest[1]).IsNCharsBefore()
-			aHarvest[1] = aHarvest[1][2]
+		if isList(paHarvest[1]) and Q(paHarvest[1]).IsNCharsBefore()
+			paHarvest[1] = paHarvest[1][2]
 		ok
 
-		if isList(aHarvest[2]) and Q(aHarvest[2]).IsNCharsAfter()
-			aHarvest[2] = aHarvest[2][2]
+		if isList(paHarvest[2]) and Q(paHarvest[2]).IsNCharsAfter()
+			paHarvest[2] = paHarvest[2][2]
 		ok
 
-		if NOT BothAreNumbers(aHarvest[1], aHarvest[2])
-			stzRaise("Incorrect param! paHarvestNCharsBeforeAndNCharsAfter must be a pair of numbers.")
+		if NOT BothAreNumbers(paHarvest[1], paHarvest[2])
+			stzRaise("Incorrect param! paHarvest must be a pair of numbers.")
 		ok
 
-		nCharsBefore = aHarvest[1]
-		nCharsAfter  = aHarvest[2]
+		nCharsBefore = paHarvest[1]
+		nCharsAfter  = paHarvest[2]
 
 		anSectionBefore = [0, 0]
 		if nCharsBefore != 0
@@ -3469,8 +3490,17 @@ class stzString from stzObject
 			anSectionAfter[2] = (aSection[2] + nCharsAfter)
 		ok
 
-		acResult = This.Sections([ anSectionBefore, anSectionAfter ])
-		return acResult
+		if bReturnSections
+			aResult = [ anSectionBefore, anSectionAfter ]
+			
+		else
+			aResult = This.Sections([ anSectionBefore, anSectionAfter ])
+		ok
+
+		return aResult
+
+		def Stay(paPositionOrSection, paHervest)
+			return Settle(paPositionOrSection, paHervest)
 
 	  #-----------------------------------------------#
 	 #  GETIING BOUNDS OF A SUBSTRING UP TO N CHARS  #
