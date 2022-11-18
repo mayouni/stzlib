@@ -97,6 +97,18 @@
 func StzNumberQ(cNumber)
 	return new stzNumber(cNumber)
 
+func StzNumberMethods()
+	return Stz(:Number, :Methods)
+
+func stzNumberAttributes()
+	return Stz(:Number, :Attributes)
+
+func StzNumberClass()
+	return "stznumber"
+
+	func StzNumberClassName()
+		return StzNumberClass()
+
 func N(p)
 	if isNumber(p)
 		return p
@@ -104,6 +116,7 @@ func N(p)
 	but isString(p)
 		if Q(p).IsNumberInString()
 			return 0+ p
+
 		but Q(p).IsListInString()
 			return len( Q(p).ToList() )
 
@@ -1810,12 +1823,25 @@ class stzNumber from stzObject
 	#----------------------#
 
 	def MultiplyBy(pOtherNumber)
+		if isList(pOtherNumber) and
+		   Q(pOtherNumber).IsEitherA( :ListOfNumbers, :Or = :ListOfStrings )
+
+			This.MultiplyByMany(pOtherNumber)
+		ok
+
 		This.Update( pvtCalculate("*", pOtherNumber ) )
 
-	def MultiplyByQ(pOtherNumber)
-		This.MultiplyBy(pOtherNumber)
-		return This
+		def MultiplyByQ(pOtherNumber)
+			This.MultiplyBy(pOtherNumber)
+			return This
 
+		def Times(pOtherNumber)
+			This.MultiplyBy(pOtherNumber)
+
+			def TimesQ(pOtherNumber)
+				This.Times(pOtherNumber)
+				return This
+	
 	def MultiplyByMany(paOtherNumbers)
 		This.MultiplyByManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
@@ -3418,12 +3444,6 @@ class stzNumber from stzObject
 	def stzType()
 		return :stzNumber
 
-		def ClassName()
-			return This.stzType()
-
-	def DataType()
-		return :Number
-
 	#--- ITEM
 	
 	def IsItem()
@@ -3462,7 +3482,16 @@ class stzNumber from stzObject
 	
 	def IsANumber()
 		return TRUE
-	
+
+	def IsAString()
+		return FALSE
+
+	def IsAList()
+		return FALSE
+
+	def IsAnObject()
+		return TRUE
+
 	def IsNumberOf(paList)
 		return This.IsItemOf(paList)
 	
@@ -3483,9 +3512,6 @@ class stzNumber from stzObject
 	
 	#--- STRING
 	
-	def IsAString()
-		return FALSE
-
 	def IsLetter()
 		return FALSE
 	
@@ -3654,3 +3680,18 @@ class stzNumber from stzObject
 		*/
 
 		return RoundNumber(nResult)
+
+	def Methods()
+		return ring_methods(This)
+
+	def Attributes()
+		return ring_attributes(This)
+
+	def ClassName()
+		return "stznumber"
+
+		def StzClassName()
+			return This.ClassName()
+
+		def StzClass()
+			return This.ClassName()

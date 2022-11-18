@@ -1820,10 +1820,6 @@ class stzListOfNumbers from stzList
 		def ClassName()
 			return This.stzType()
 
-	def DataType()
-		return :Number
-
-
 	#-----
 
 	def ToStzListOfChars()
@@ -1890,7 +1886,7 @@ class stzListOfNumbers from stzList
 			return This.ToStzList().IsStrictlyEqualTo(value)
 		
 
-		but pcOp = "/" and type(pValue) = "NUMBER"
+		but pcOp = "/" and ring_type(pValue) = "NUMBER"
 			// Divides the list on pValue sublists (a list of lists)
 			return This.ToStzList().SplitToNParts(pValue)
 

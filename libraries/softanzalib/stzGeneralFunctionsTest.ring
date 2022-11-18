@@ -1,15 +1,33 @@
 load "stzlib.ring"
 
-? Q("A").RepeatedNTimes(3)
-#--> "AAA"
+/*-------
+
+? Stz(:Number, :Class)
+#--> "stznumber"
+# You can also say: ? StzNumberClass()
+
+? @@S(Stz(:Number, :Attributes))
+#--> [ "@oobject", "@cobjectvarname", "@cnumber" ]
+# You can also say: ? StzNumberAttributes()
+
+? Stz(:Number, :Methods)
+#--> [ "init", "content", "initialcontent", "copy", ... ]
+# You can also say: ? StzNumberMethods()
 
 /*-------
 
-? @@S( Q([1,2]).RepeatedNTimes(3) )
+? Q("A").NTimes(3) # Or RepeatedNTimes(3)
+#--> "AAA"
+
+? @@S( Q([1,2]).NTimes(3) ) # Or RepeatedNTimes(3)
 #--> [ [ 1, 2 ], [ 1, 2 ], [ 1, 2 ] ]
 
-? Q(10).RepeatedNTimes(3)
+? Q(10).NTimes(3) # Or RepeatedNTimes(3)
 #--> [ 30, 30, 30 ]
+
+# Don't confuse with
+? Q(10).Times(3)
+#--> 30
 
 /*-------
 
@@ -68,32 +86,14 @@ o1 = new stzString("blablabla")
 ? Q("(,,)").Check(:That = 'StzCharQ(@Char).IsPunctuation()')
 #--> TRUE
 
-/*----
-/*
-? Q("(9, 7, 8)").DataType()	#--> :String
 
-? QQ("(9, 7, 8)").DataType()
-? QQ("3 + 2 = 5").DataType()
 
-/*------------ // TODO
-
-? Q("12500$USD").DataType()	#!--> :Number
-
-/*------------
-
-? Q("5").DataType()	#--> "string"	because its elevated to a stzString object
-? QQ("5").DataType()	#--> "number"	because its elevated to a stzNumber object
-
-? Q(1:3).DataType()	#--> "number"
-
-/*============ INFERING TYPES: Q() & QQ()
+/*============ INFERRING TYPES: Q() & QQ()
 
 Q("ring") {
 	? Type()	#--> "OBJECT"
 	? IsAnObject()	#--> TRUE
-
 	? StzType()	#--> "stzstring"
-	? DataType()+NL	#--> "string"
 }
 
 /*------------
@@ -101,7 +101,6 @@ Q("ring") {
 Q(6) {
 	? Type()	#--> "OBJECT"
 	? StzType()	#--> "stznumber"
-	? DataType()+NL	#--> "number"
 }
 
 /*------------
@@ -109,13 +108,11 @@ Q(6) {
 Q(1:3) {
 	? Type()	#--> "OBJECT"
 	? StzType()	#--> "stzlist"
-	? DataType()+NL	#--> "list"
 }
 
 QQ(1:3) {
 	? Type()	#--> "OBJECT"
 	? StzType()	#--> "stzlistofnumbers"
-	? DataType()+NL	#--> "number"
 }
 
 /*------------
@@ -123,13 +120,11 @@ QQ(1:3) {
 Q("A":"C"){
 	? Type()	#--> "OBJECT"
 	? StzType()	#--> "stzlist"
-	? DataType()+NL	#--> "string"
 }
 
 QQ("A":"C"){
 	? Type()	#--> "OBJECT"
 	? StzType()	#--> "stzlistofstrings"
-	? DataType()+NL	#--> "string"
 }
 
 /*------------
@@ -137,13 +132,11 @@ QQ("A":"C"){
 Q([ 1:2, 5:8, 10:12 ]){
 	? Type()	#--> "OBJECT"
 	? StzType()	#--> "stzlist"
-	? DataType()+NL	#--> "list"
 }
 
 QQ([ 1:2, 5:8, 10:12 ]){
 	? Type()	#--> "OBJECT"
 	? StzType()	#--> "stzlistoflists"
-	? DataType()+NL	#--> "list"
 }
 
 /*------------
@@ -151,13 +144,11 @@ QQ([ 1:2, 5:8, 10:12 ]){
 Q([ 1:2, 5:8, 10:12 ]){
 	? Type()	#--> "OBJECT"
 	? StzType()	#--> "stzlist"
-	? DataType()+NL	#--> "list"
 }
 
 QQ([ 1:2, 5:8, 10:12 ]){
 	? Type()	#--> "OBJECT"
 	? StzType()	#--> "stzlistoflists"
-	? DataType()+NL	#--> "list"
 }
 
 /*------------
@@ -165,10 +156,6 @@ QQ([ 1:2, 5:8, 10:12 ]){
 Q([ "A", 20, "B", 30 ]){
 	? Type()	#--> "OBJECT"
 	? StzType()	#--> "stzlist"
-	? DataType()+NL	#--> "hybrid"
-
-	? @@S( DataTypes() )	#--> [ "string", "number", "string", "number" ]
-	? @@S( Types() )+NL	#--> [ "STRING", "NUMBER", "STRING", "NUMBER" ]
 }
 
 /*------------
@@ -176,9 +163,6 @@ Q([ "A", 20, "B", 30 ]){
 Q([ "A", 20, [ "B" ], 30 ]){
 	? Type()	#--> "OBJECT"
 	? StzType()	#--> "stzlist"
-	? DataType()+NL	#--> "hybrid"
-
-	? @@S( DataTypes() )	#--> [ "string", "number", "string", "number" ]
 	? @@S( Types() )+NL	#--> [ "STRING", "NUMBER", "LIST", "NUMBER" ]
 }
 
@@ -187,114 +171,13 @@ Q([ "A", 20, [ "B" ], 30 ]){
 Q([ "A", 20, [ "B", 10 ], 30 ]){
 	? Type()	#--> "OBJECT"
 	? StzType()	#--> "stzlist"
-	? DataType()+NL	#--> "hybrid"
 
-	? @@S( DataTypes() )	#--> [ "string", "number", "hybrid", "number" ]
 	? @@S( Types() )	#--> [ "STRING", "NUMBER", "LIST", "NUMBER" ]
-}
-
-/*============ INFERING TYPES: Q() and QQ()
-/*
-# The Q() function elevates a value to its corresponding ring type.
-# so Q(5) gives a stzNumber object, Q("m") gives a stzString object,
-# Q([]) gives a stzList object, and finally Q(obj) gives a stzObject.
-
-# There are three interesting information about types in a Softanza object:
-#	- Type(): the type of the object returned by Q(), and it's always "OBJECT"
-#		  (note that we stay confrom with Ring type() function)
-#	- StzType() : the name of the softanza class related to the object
-#	- DataType(): the type of data included inside the value.
-
-# We will understand all that using the following samples.
-
-Q("m") {
-	? Type()	#--> "OBJECT"
-	? StzType()	#--> "stzstring"
-	? DataType()+NL	#--> "string"
-
-	#--> Read it like this: this an object,
-	# from the class stzString, containg
-	# data of type string.
-}
-
-# Nice! The "m" string is elevated to a stzString object, and now all the
-# features of stzString are in your hands!
-
-# We are going just to uppercase it, so we add these lines:
-Q("m") {
-	# ... #
-	Uppercase()
-	Show() #--> "M"
-}
-
-# Ok! "M" is a string but also a char, and Softanza has a powerful class
-# to manage chars called stzChar...
-
-# Do you want to get the unicode number of the letter char?
-# And its unicode name? Or may ya want to get its script and defautl
-# language? Or even try to turn it altogether (ie invert it) and
-# see what happens...
-
-# You can do this and more by elevating the string "M" to a stzChar object.
-# No need of using the new stzChar("M") syntax because QQ() does just that!
-
-QQ("m") {
-	? Type()	#--> "OBJECT"
-	? StzType()	#--> "stzchar"	# Now we switched from stzString to stzChar
-
-	? DataType()	#--> "string"	# What is returned by Datatype() is
-					# always one of the 4 native Ring types!
-	
-	Uppercase()	#--> Becomes "M"
-
-	? Unicode()	#--> 114
-	? Name()	#--> LATIN SMALL LETTER R
-	? Script()	#--> :Latin
-	? Language()	#--> :English
-
-	Turn()
-	Show()		#--> "Ɯ"
-
-	# Are you curious to know the name of that inverted char?
-	? Name()	#--> LATIN CAPITAL LETTER TURNED M
-}
-
-/*----------------- Q(), QQ(), and QQQ() <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-Q("[1, 2, 3]") {
-	? Type()	#--> "OBJECT"
-	? StzType()	#--> "stzstring"
-	? DataType()+NL	#--> "string"
-}
-
-QQ("[1, 2, 3]") {
-	? Type()	#--> "OBJECT"
-	? StzType()	#--> "stzlist"
-	? DataType()+NL	#--> "number"
-}
-
-QQQ("[1, 2, 3]") {
-	? Type()	#--> "OBJECT"
-	? StzType()	#--> "stzlistofnumbers"
-	? DataType()+NL	#--> "number"
-}
-
-Q(["A", "B", "C"]) {
-	? Type()	#--> "OBJECT"
-	? StzType()	#--> "stzlist"
-	? DataType()+NL	#--> "string"
-}
-
-Q(["A", 1, "B", 2]) {
-	? Type()	#--> "OBJECT"
-	? StzType()	#--> "stzlist"
-	? DataType()+NL	#--> "hybrid"
-	? DataTypes()	#--> [ "string", "number", "string", "number" ]
 }
 
 /*==============
 
-? InfereDataTypeFromString(:ListsOfObjects) #--> :List
+? Q(:ListsOfObjects).InfereType() #--> :List
 
 /*--------------
 
@@ -310,7 +193,7 @@ o1 = new stzString("A")
 ? Q([ [1,2], [3,4], [5,6] ]).IsListOf(:ListsOfNumbers)	#--> TRUE
 ? Q([ [1,2], [3,4], [5,6] ]).IsListOf(:PairsOfNumbers)	#--> TRUE
 
-/*------------------- InfereDataTypeFromString
+/*-------------------
 
 # NOTE: the function is useful for internal features of SoftanzaLib,
 # inorder to enable the goal of expressive code.
@@ -320,50 +203,35 @@ o1 = new stzString("A")
 # From a particular string, it tries to detect the most relevant
 # Ring or Softanza type.
 
-# So, Softanza can do its best to infere the datatype included
-# in a string, whatever form the string takes: lowercase or
+# So, Softanza can do its best to infere the type included
+# in a string, whatever form the 	string takes: lowercase or
 # uppercase, and singular or plural!
 
-? InfereDataTypeFromString('number')	# --> :Number
-? InfereDataTypeFromString('String')	# --> :String
+? Q('number').InfereType()		# --> :Number
+? Q('String').InfereType()		# --> :String
 
-? InfereDataTypeFromString('NuMBer')	# --> :Number
-? InfereDataTypeFromString('STRING')	# --> :String
+? Q('NuMBer').InfereType()		# --> :Number
+? Q('STRING').InfereType()		# --> :String
 
-? InfereDataTypeFromString('numbers')	# --> :Number
-? InfereDataTypeFromString('STRINGS')	# --> :String
+? Q('numbers').InfereType()		# --> :Number
+? Q('STRINGS').InfereType()		# --> :String
 
-? InfereDataTypeFromString(:StzNumber)	# --> :StzNumber
-? InfereDataTypeFromString(:StzNumbers)	# --> :StzNumber
+? Q(:StzNumber).InfereType()		# --> :StzNumber
+? Q(:StzNumbers).InfereType()		# --> :StzNumber
 
-? InfereDataTypeFromString(:ListOfNumbers)	# --> :List
-? InfereDataTypeFromString(:ListsOfNumbers)	# --> :List
+? Q(:ListOfNumbers).InfereType()	# --> :List
+? Q(:ListsOfNumbers).InfereType()	# --> :List
 
-? InfereDataTypeFromString(:PairOfNumbers)	# --> :List
-? InfereDataTypeFromString(:PairsOfNumbers)	# --> :List
+? Q(:PairOfNumbers).InfereType()	# --> :List
+? Q(:PairsOfNumbers).InfereType()	# --> :List
 
-? InfereDataTypeFromString(:StzListOfNumbers)	# --> :StzListOfNumbers
-? InfereDataTypeFromString(:StzListsOfNumbers)	# --> :StzListOfNumbers
+? Q(:StzListOfNumbers).InfereType()	# --> :StzListOfNumbers
+? Q(:StzListsOfNumbers).InfereType()	# --> :StzListOfNumbers
 
-? InfereDataTypeFromString(:ListOfStzStrings)	# --> :List
-? InfereDataTypeFromString(:ListsOfStzStrings)	# --> :List
+? Q(:ListOfStzStrings).InfereType()	# --> :List
+? Q(:ListsOfStzStrings).InfereType()	# --> :List
 
-/*-------------------
-
-# Getting the data type of the value(s) histed in the provided container:
-
-? Q(5).DataType()		#--> :Number
-? Q("Ring").DataType()	+ NL	#--> :String
-
-? Q(1:3).DataType()		#--> :Number
-? Q("A":"C").DataType()	+ NL	#--> :String
-
-? Q(["A",1]).DataType()		#--> :Hybrid
-? Q(["A",1]).DataTypes()	#--> [ :String, :Number ]
-
-obj = new stzNullObject
-? Q(obj).DataType()	# --> :Object
-
+? Q(:Pair).InfereType()	# --> :List
 
 /*-------------------
 

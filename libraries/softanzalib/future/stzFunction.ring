@@ -75,7 +75,7 @@ class stzFunction from stzObject
 	def ParamsTypes()	
 		aResult = []
 		for param in aParam
-			aResult += [ param, type(param) ]
+			aResult += [ param, ring_type(param) ]
 		next
 		return aResult
 

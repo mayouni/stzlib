@@ -106,7 +106,7 @@ class stzActiveItem from stzObject
 		return Content
 
 	def Type()
-		return type(pItem)
+		return ring_type(pItem)
 
 	def DoWhenAdded()
 		return aDoWhenAdded

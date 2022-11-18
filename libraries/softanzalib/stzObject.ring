@@ -133,6 +133,18 @@
 func StzObjectQ(pObject)
 	return new stzObject(pObject)
 
+func StzObjectMethods()
+	return Stz(:Object, :Methods)
+
+func StzObjectAttributes()
+	return Stz(:Object, :Attributes)
+
+func StzObjectClassName()
+	return "stzobject"
+
+	func StzObjectClass()
+		return "stzobject"
+
 func IsNotObject(pObject)
 	return NOT isObject(pObject)
 
@@ -518,16 +530,13 @@ func StzClasses()
 
 	return aResult
 
-	def StzDataTypes()
-		return StzClasses()
-
 	def StzTypes()
 		return StzClasses()
 
 func StzClassesXT()
 	# Last update: 11 Nov. 2022
 	aStzClassesXT = [
-		# [ :Singular,			:Plurial		]
+		# [ :Singular,			:Plural			]
 		[ :stzObject, 			:stzObjects 		],
 		[ :stzListOfObjects, 		:stzListsOfObjects 	],
 		[ :stzNumber, 			:stzNumbers		],
@@ -605,9 +614,6 @@ func StzClassesXT()
 
 	return aStzClassesXT
 
-	func StzDataTypesXT()
-		return StzClassesXT()
-
 	func StzTypesXT()
 		return StzClassesXT()
 
@@ -615,15 +621,31 @@ func StzClassesXT()
 		return StzClassesXT()
 
 func PluralOfStzClassName(cClass)
+
 	return StzClassesXT()[cClass]
 
-func IsStzClass(pcClass)
-	return _(pcClass).@.ExistsIn( StzClasses() )
+	func PluralOfStzType(cClass)
+		return PluralOfStzClassName(cClass)
 
-		
+	func StzTypeToPlural(cClass)
+		return PluralOfStzClassName(cClass)
+
+	#--
+
+	func PluralOfThisStzClassName(cClass)
+		return PluralOfStzClassName(cClass)
+
+	func PluralOfThisStzType(cClass)
+		return PluralOfStzClassName(cClass)
+
+func PluralToStzType(cPlural)
+	oHash = new stzHashList( StzTypesXT() )
+	n = oHash.FindFirstValue(cPlural)
+	cResult = oHash.NthKey(n)
+	return cResult
 
 func IsStzobject(pObject)
-	if isObject(pObject) and _(classname(pObject)).Q.ExistsIn( StzDataTypes() )
+	if isObject(pObject) and _(classname(pObject)).Q.ExistsIn( StzTypes() )
 		return TRUE
 	else
 		return FALSE
@@ -1003,33 +1025,113 @@ class stzObject
 			return FALSE
 		ok
 
-	  #---------------------------------------------#
-	 #   CHECKING TYPE OF OBJECT (VIA CLASSNAME)   #
-	#---------------------------------------------#
+	  #------------------#
+	 #   CHECKING TYPE  #
+	#------------------#
 
-	def Is(pcType)
-		// Example: Is(:StzNumber)
+	def Type()
+		return lower ( ring_type( This.Content() ) )
 
-		bResult = FALSE
-		if isString(pcType)
-			cCode = 'if StzStringQ(This.ObjectClassname()).Lowercased() = "' +
-				 StzStringQ(pcType).Lowercased() + '"' + NL +
-				'	bResult = TRUE' + NL +
-				'ok'
-			eval(cCode)
+	def IsANumber()
+		if This.StzType() = :stzNumber
+			return TRUE
+		else
+			return FALSE
 		ok
 
-		return bResult
+		def IsNotANumber()
+			return NOT return This.IsANumber()
+	
+	def IsAString()
 
-	  #---------------------------------------------#
-	 #   USED BY NATURAL-CODE IN stzChainOfTruth   #
-	#---------------------------------------------#
+		if This.StzType() = :stzString
+			return TRUE
+		else
+			return FALSE
+		ok
 
+		def IsNotAString()
+			return NOT return This.IsAString()
+	
+	def IsAList()
+		if This.StzType() = :stzList
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsNotAList()
+			return NOT return This.IsAList()
+	
 	def IsAnObject()
 		return TRUE
 
 		def IsObjekt()
 			return TRUE
+
+		def IsNotAnObject()
+			return FALSE
+	
+			def IsNotObjeket()
+				return This.IsNotAnObject()
+
+	def IsOneOfTheseTypes(paTypes)
+
+		/* EXAMPLE
+
+		? Q("2").IsOneOfTheseTypes([ :Number, :String, :List ])
+		#--> TRUE
+
+		# can also be written use :Or = ...
+		? Q("2").IsOneOfTheseTypes([ :Number, :Or = :String, :Or = :List ])
+		#--> TRUE
+		*/
+
+		if NOT isList(paTypes)
+			stzRaise("Incorrect param type! paTypes must be a list.")
+		ok
+
+		for type in paTypes
+			if isList(type) and Q(type).IsOrNamedParam()
+				type = type[2]
+			ok
+		next
+
+		bResult = FALSE
+
+		for cType in paTypes
+			if This.IsA(cType)
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
+		
+		def IsNotOneOfTheseTypes(paTypes)
+			return NOT This.IsOneOfTheseTypes(paTypes)
+
+	def IsEachOneOfTheseTypes(paTypes)
+		if NOT isList(paTypes)
+			stzRaise("Incorrect param type! paTypes must be a list.")
+		ok
+
+		for type in paTypes
+			if isList(type) and Q(type).IsOrNamedParam()
+				type = type[2]
+			ok
+		next
+
+		bResult = TRUE
+
+		for cType in paTypes
+			if NOT This.IsA(cType)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
 
 	def IsA(pcType)
 
@@ -1039,24 +1141,79 @@ class stzObject
 
 		--> TRUE
 		*/
+		if isList(pcType)
+			if Q(pcType).IsListOfStrings()
+				return This.IsEachOneOfTheseTypes(pcType)
+
+			else
+				return This.IsOneOfTheseTypes(pcType)
+			ok
+		ok
+
+		if pcType = :Number
+			pcType = :ANumber
+		but pcType = :String
+			pcType = :AString
+		but pcType = :List
+			pcType = :AList
+		but pcType = :Object
+			pcType = :AnObject
+		ok
 
 		cCode = 'bResult = This.Is'+ pcType + '()'
 		
-#		try
-			eval(cCode)
-			return bResult
-#		catch
-#			return FALSE
-#		done
+		eval(cCode)
+		return bResult
 
-	def Datatype()
-		return :Object
+		def IsAn(pcType)
+			return This.IsA(pcType)
 
-	def IsOneOfThese(paList)
-		return StzListQ(paList).Contains(This.Object())
+		def Is(pcType)
+			return This.IsA(pcType)
 
-		def IsNotOneOfThese(paList)
-			return NOT This.IsOneOfThese(paList)
+	def IsNotA(pcType)
+		return NOT This.IsA(pcType)
+
+		def IsNotAn(pcType)
+			return This.IsNotA(pcType)
+
+		def IsNot(pcType)
+			return This.IsNotA(pcType)
+
+	def IsEitherA(pcType1, pcType2)
+		if isList(pcType2) and Q(pcType2).IsOrNamedParam()
+			pcType2 = pcType2[2]
+		ok
+
+		if NOT BothAreStrings(pcType1, pcType2)
+			stzRaise("Incorrect param type! pcType1 and pcType2 must be strings.")
+		ok
+
+		if This.IsA(pcType1) or This.IsA(pcType2)
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsEither(pcType1, pcType2)
+			return This.IsEitherA(pcType1, pcType2)
+
+	def IsNeitherA(pcType1, pcType2)
+		if isList(pcType2) and Q(pcType2).IsNorNamedParam()
+			pcType2 = pcType2[2]
+		ok
+
+		if NOT BothAreStrings(pcType1, pcType2)
+			stzRaise("Incorrect param type! pcType1 and pcType2 must be strings.")
+		ok
+
+		if NOT This.IsA(pcType1) and
+		   NOT This.IsA(pcType2)
+
+			return TRUE
+		else
+			return FALSE
+		ok
 
 	def HasSameTypeAs(p)
 		return isObject(p)
@@ -1309,9 +1466,9 @@ class stzObject
 
 		#>
 	
-	  #-----------#
-	 #   MISC.   #
-	#-----------#
+	  #--------------------------------------------------------------#
+	 #   REPEATING THE OBJECT VALUE N TIMES (IN A LIST OF N ITEMS)  #
+	#--------------------------------------------------------------#
 
 	def RepeatNTimes(n)
 		if This.IsANumber()
@@ -1341,3 +1498,31 @@ class stzObject
 
 		def NTimes(n)
 			return This.RepeatNtimes(n)
+
+	  #-----------#
+	 #   MISC.   #
+	#-----------#
+
+	def IsOneOfThese(paList)
+		return StzListQ(paList).Contains(This.Object())
+
+		def IsNotOneOfThese(paList)
+			return NOT This.IsOneOfThese(paList)
+
+	def Methods()
+		return ring_methods(This)
+
+	def Attributes()
+		return ring_attributes(This)
+
+	def ClassName()
+		return "stzobject"
+
+		def StzClassName()
+			return This.ClassName()
+
+		def StzClass()
+			return This.ClassName()
+
+	def IsText()
+		return FALSE

@@ -1,5 +1,86 @@
 load "stzlib.ring"
 
+/*------------------
+*/
+? Q([ "واحـد", "اثنان", "ثلاثة" ]).Yield('len(@item)')
+#--> [10, 10, 10]
+
+? Q([ "واحـد", "اثنان", "ثلاثة" ]).Yield('StzLen(@item)')
+#--> [5, 5, 5]
+
+/*------------------
+
+? StzTextQ("你好").Script()
+#--> :Han
+
+/*------------------
+
+? Stz(:Text, :Attributes)
+
+/*------------------
+*/
+? Q([ "واحد", "اثنان", "ثلاثة" ]).AllItemsAre(:Strings)
+#--> TRUE
+
+? Q([ "واحد", "اثنان", "ثلاثة" ]).AllItemsAre([ :Arabic, :Strings ])
+#--> TRUE
+
+? Q([ "واحد", "اثنان", "ثلاثة" ]).AllItemsAre(:Texts)
+#--> TRUE
+
+? Q([ "واحد", "اثنان", "ثلاثة" ]).AllItemsAre([ :ArabicScript, :RightToLeft, :Texts ])
+#--> TRUE
+
+? Q([ "واحـد", "اثنان", "ثلاثة" ]).AllItemsAre([ :ArabicScript, W('Q(@item).Size()=5'), :Texts ])
+#--> TRUE
+
+/*
+? Q([ "你好", "亲", "朋友们" ]).AllItemsAre([ :HanScript, :Texts ])
+
+/*------------------
+
+? W('len(@item)=3') #--> {'len(@item)=3'}
+
+/*------------------
+*/
+
+? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre(:Strings)
+#--> TRUE
+
+? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
+#--> TRUE
+
+? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
+#--> TRUE
+
+? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Latin, :Strings ])
+#--> TRUE
+
+? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, W('len(@item)=3'), :Strings ])
+#--> TRUE
+
+? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre( W('len(@item)=3') )
+#--> TRUE
+
+/*------------------
+
+? Q([ 1, 2, 3 ]).AllItemsAre(:Numbers)
+#--> TRUE
+
+? Q([ -2, -4, -8 ]).AllItemsAre([ :Even, :Negative, :Numbers ])
+#--> TRUE
+
+? Q([ 2, 4, 8 ]).AllItemsAre([ :Even, :Numbers ])
+#--> TRUE
+
+? Q([ 2, 4, 8 ]).AllItemsAre([ :Even, :Positive, :Numbers ])
+#--> TRUE
+
+? Q([ "(",";", ")" ]).AllItemsAre([ :Punctuation, :Chars ])
+#--> TRUE
+
+/*------------------
+
 o1 = new stzList([ 0, 2, 0, 3, [1,2] ])
 o1.PerformW( '@item = Q(@item).ReproducedInAPair()', 'isNumber(@item)')
 ? @@S(o1.Content())
@@ -2138,7 +2219,7 @@ o1 {
 	? Walkers()
 
 	? Yield( '{ StzLen(item) }', WhileWalking(:Walker1) )
-	? Yield( '{ type(item) }', WhileWalking(:Walker1) )
+	? Yield( '{ ring_type(item) }', WhileWalking(:Walker1) )
 	? Yield( '{ [ UPPER(Item), StringContains(Item,"o") ] }', WhileWalking(:Walker1) )
 
 	? Yield( '{ [ UPPER(Item), StringNumberOfOccurrence(Item,"o") ] }', WhileWalking(:Walker1) )

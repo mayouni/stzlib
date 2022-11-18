@@ -15,6 +15,19 @@
 func StzListQ(paList)
 	return new stzList(paList)
 
+func StzListMethods()
+	return Stz(:List, :Methods)
+
+func StzListAttributes()
+	return Stz(:List, :Attributes)
+
+func StzListClassName()
+	return "stzlist"
+
+	func StzListClass()
+		return "stzlist"
+
+
 func L(p)
 
 	if isList(p)
@@ -197,7 +210,7 @@ func AreEqual(paItems)
 func HaveSameType(paItems)
 	bResult = TRUE
 	for i = 2 to len(paItems)
-		if type( paItems[i] ) != type( paItems[i] )
+		if ring_type( paItems[i] ) != ring_type( paItems[i] )
 			bResult = FALSE
 			exit
 		ok
@@ -205,19 +218,34 @@ func HaveSameType(paItems)
 	return bResult
 
 func BothHaveSameType(p1, p2)
-	return type(p1) = type(p2)
+	return ring_type(p1) = ring_type(p2)
 
-func HaveSameContent(paItems) // TODO
+func HaveSameContent(paItems)
 	/* Two items have same content when:
 	 if they are stringified they are equal strings.
 
 	Stringifying number 12 generate string "12"
-	
-
 	*/
+	if NOT isList(paItems)
+		stzRaise("Incorrect param type! paItems must be a list.")
+	ok
+
+	if len(paItems) = 1
+		return TRUE
+	ok
+
+	bResult = TRUE
+	for i = 2 to len(paItems)
+		bOk = Q( @@S( paItems[i] ) ).IsEqualTo( @@S( paItems[1] ) )
+		if NOT bOk
+			bResult = FALSE
+			exit
+		ok
+	next
+	return bResult
 
 func HaveBothSameType(p1, p2)
-	return type(p1) = type(p2)
+	return ring_type(p1) = ring_type(p2)
 
 func IsEmptyList(paList)
 	return StzListQ(paList).IsEmpty()
@@ -294,10 +322,6 @@ func IsRangeNamedParamList(paList)
 func ListToCode(paList)
 	return StzListQ( paList ).ToCode()
 
-func List(paList)
-	if isList(paList)
-		return paList
-	ok
 
 func AllTheseAreNull(paList)
 	return StzListQ(paList).AllItemsAreNull()
@@ -424,9 +448,6 @@ class stzList from stzObject
 		else
 			stzRaise("Can't create the stzList object!")
 		ok
-
-	def IsAList()
-		return TRUE
 
 	  #---------------------#
 	 #     CONSTRAINTS     #
@@ -4507,16 +4528,16 @@ class stzList from stzObject
 	def IsPairOfChars()
 		return This.IsPair() and This.IsListOf(:Chars)
 
-	def IsPairOf(pcDataType)
-		return This.IsPair() and This.IsListOf(pcDataType)
+	def IsPairOf(pcType)
+		return This.IsPair() and This.IsListOf(pcType)
 
 	def IsListOf(pcType)
 		/*
 			_([ 1, 2, 3 ]).IsListOf(:Number)	# --> TRUE
 
 			pcType should be a string containing the name of:
-				- a ring datatype ( given by RingDataTypes() )
-				- a Softanza datatype ( given by StzDataTypes() )
+				- a string containing one of the 4 Ring types (given by RingTypes() )
+				- a Softanza type ( given by StzTypes() )
 
 			For the sake of expressiveness, pcType can be in plural form:
 
@@ -4524,9 +4545,9 @@ class stzList from stzObject
 
 		*/
 
-		pcType = InfereDataTypeFromString(pcType)
+		pcType = Q(pcType).InfereType()
 
-		if This.NumberOfItemsW('Q(@item).DataType() = "' + pcType + '"') = This.NumberOfItems() or
+		if This.NumberOfItemsW('Q(@item).Type() = "' + pcType + '"') = This.NumberOfItems() or
 		   This.AllItemsAreW('isList(@item) and Q(@item).IsA' + pcType + '()') or
 		   This.AllItemsAreW('isObject(@item) and IsA' + pcType + '(@item)')
 
@@ -4799,7 +4820,7 @@ class stzList from stzObject
 	def ContainsOnlyLists()
 		bResult = TRUE
 
-		for item in This.List()
+		for item in This.Content()
 			if NOT isList(item)
 				bResult = FALSE
 				exit
@@ -5138,7 +5159,7 @@ class stzList from stzObject
 	def WalkUntilItemTypeIs(pcType)
 		if IsType(pcType)
 			for i=1 to NumberOfItems()
-				if type(Item(i)) = pcType
+				if ring_type(Item(i)) = pcType
 					return 1 : i
 				ok
 			next
@@ -6352,7 +6373,7 @@ class stzList from stzObject
 	def PerformOn(panPositions, pcCode)
 		#< @MotherFunction > ReplaceItemAtPosition() | @RingBased #>
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+		if NOT ( isList(panPositions) and (Q(panPositions).IsListOfNumbers() or len(panPositions) = 0) )
 			stzRaise("Invalid param type! panPositions must be a list of numbers.")
 		ok
 
@@ -8687,7 +8708,7 @@ sdsd
 	#------------------------------#
 
 	def MultiplyBy(p)	// TODO
-		switch type(p)
+		switch ring_type(p)
 		on "NUMBER"
 			aResult = []
 
@@ -9359,7 +9380,7 @@ sdsd
 
 		bResult = FALSE
 
-		switch type(p)
+		switch ring_type(p)
 		on "LIST"	
 			bResult = Q(p).Contains( This.List() )
 
@@ -9763,7 +9784,7 @@ sdsd
 
 		def ItemByPathQ(panPath)
 			item = This.ItemByPath(panPath)
-			switch type( item )
+			switch ring_type( item )
 			on "NUMBER"
 				return new stzNumer(""+ item)
 
@@ -9863,7 +9884,7 @@ sdsd
 			but c = "]"
 				nLevel--
 				if len(aPath) > 0
-					del(aPath,len(aPath))
+					del(aPath, len(aPath))
 				ok
 
 			but c = ","
@@ -11554,7 +11575,7 @@ sdsd
 		def NthItemWQ(n, pCondition)
 			item = This.NthItemW(n, pCondition)
 
-			switch type(item)
+			switch ring_type(item)
 			on "NUMBER"
 				return new stzNumber(item)
 
@@ -11591,7 +11612,7 @@ sdsd
 		def FirstItemWQ(pCondition)
 			item = This.FirstItemW(pCondition)
 
-			switch type(item)
+			switch ring_type(item)
 
 			on "NUMBER"
 				return new stzNumber(item)
@@ -11619,7 +11640,7 @@ sdsd
 		def LastItemWQ(pCondition)
 			item = This.LastItemW(pCondition)
 
-			switch type(item)
+			switch ring_type(item)
 
 			on "NUMBER"
 				return new stzNumber(item)
@@ -13945,7 +13966,7 @@ sdsd
 		if NOT ( isList(anShareOfEachItem) and
 			 Q(anShareOfEachItem).IsListOfNumbers() and
 			 len(anShareOfEachItem) > 0 )
-			stzRaise("Incorrect param! anShareOfEachItem must be a non empty list of numbers.")
+			 stzRaise("Incorrect param! anShareOfEachItem must be a non empty list of numbers.")
 		ok
 
 		# The sum of numbers in anShareOfEachItem should be equal to the
@@ -14320,35 +14341,35 @@ sdsd
 
 			bOk1 = FALSE
 			nRemoveNCharsBefore = This.Content()[ :RemoveNCharsBefore ]
-			cType = type(nRemoveNCharsBefore)
+			cType = ring_type(nRemoveNCharsBefore)
 		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsBefore = NULL )
 				bOk1 = TRUE
 			ok
 
 			bOk2 = FALSE
 			nRemoveNCharsAfter = This.Content()[ :RemoveNCharsAfter ]
-			cType = type(nRemoveNCharsAfter)
+			cType = ring_type(nRemoveNCharsAfter)
 		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsAfter = NULL )
 				bOk2 = TRUE
 			ok
 
 			bOk3 = FALSE
 			cRemoveSubStringBefore = This.Content()[ :RemoveSubStringBefore ]
-			cType = type(cRemoveSubStringBefore)
+			cType = ring_type(cRemoveSubStringBefore)
 		   	if cType = "STRING"
 				bOk3 = TRUE
 			ok
 
 			bOk4 = FALSE
 			cRemoveSubStringAfter = This.Content()[ :RemoveSubStringAfter ]
-			cType = type(cRemoveSubStringAfter)
+			cType = ring_type(cRemoveSubStringAfter)
 		   	if cType = "STRING"
 				bOk4 = TRUE
 			ok
 
 			bOk5 = FALSE
 			cRemoveThisBound = This.Content()[ :cRemoveThisBound ]
-			cType = type(cRemoveThisBound)
+			cType = ring_type(cRemoveThisBound)
 		   	if cType = "STRING"
 				bOk5 = TRUE
 			ok
@@ -15255,6 +15276,16 @@ sdsd
 	def IsOrNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Or )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsNorNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Nor )
 
 			return TRUE
 
@@ -17984,26 +18015,6 @@ sdsd
 	def stzType()
 		return :stzList
 
-		def ClassName()
-			return This.stzType()
-
-	def DataType()
-		if This.IsListOfNumbers()
-			return :Number
-
-		but This.IsListOfStrings()
-			return :String
-
-		but This.IsListOfLists()
-			return :List
-
-		but This.IsListOfObjects()
-			return :Object
-
-		else
-			return :Hybrid
-		ok
-
 	# Deeling with the items of the list
 
 	def Types()
@@ -18013,18 +18024,11 @@ sdsd
 		next
 		return aResult
 
-	def DataTypes()
-		aResult = []
-		for item in This.List()
-			aResult + Q(item).DataType()
-		next
-		return aResult
-
 	def UniqueTypes()
 		aResult = []
 		for item in This.List()
-			if NOT StzListQ(aResult).Contains( type(item) )
-				aResult + type(item)
+			if NOT StzListQ(aResult).Contains( ring_type(item) )
+				aResult + ring_type(item)
 			ok
 		next
 		return aResult
@@ -18326,9 +18330,152 @@ sdsd
 		bResult = Q(aThis).AllItemsExistIn(aBounds)
 		return bResult
 
+	  #----------------------------------------#
+	 #      CHECKING IF ALL ITEMS ARE ...     #
+	#----------------------------------------#
+
+	def AllItemsAre(pDescriptor)
+		/* EXAMPLE
+
+		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre(:Strings)
+		#--> TRUE
+		
+		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
+		#--> TRUE
+		
+		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
+		#--> TRUE
+		
+		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, W('len(@item)=3'), :Strings ])
+		
+		*/
+
+		if isString(pDescriptor)
+			return This.AllItemsAreXT([ pDescriptor ], :EvalDirection = :Nothing)
+
+		but isList(pDescriptor) and Q(pDescriptor).IsListOfStrings()
+			return This.AllItemsAreXT(pDescriptor, :EvalDirection = :Nothing)
+
+		ok	
+
+	def AllItemsAreXT(pacDescriptors, paEvalDirection)
+
+		if NOT ( isList(pacDescriptors) and Q(pacDescriptors).IsListOfStrings() )
+			stzRaise("Incorrect param type! pacDescriptors must be a list of strings.")
+		ok
+
+		if isList(paEvalDirection) and
+		   Q(paEvalDirection).IsOneOfTheseNamedParams([
+			:Eval, :Evaluate,
+			:EvalFrom, :EvaluateFrom,
+			:EvalDirection, :EvaluationDirection
+		   ])
+
+			paEvalDirection = paEvalDirection[2]
+		ok
+
+		if NOT Q(paEvalDirection).IsOneOfTheseCS([
+			:Default, :Nothing,
+			:LeftToRight, :RightToLeft,
+			:Left2Right, :Right2Left,
+			:FromLeftToRight, :FromRightToLeft,
+			:FromLeft2Right, :FromRight2Left,
+			:LTR, :RTL, :L2R, :R2L,
+			:FromLTR, :FromRTL, :FromL2R, :FromR2L
+			], :CS = FALSE)
+
+			stzRaise("Incorrect param value for paEvalDirection! Allowed values are :RightToLeft and :LeftToRight.")
+		ok
+
+		if Q(paEvalDirection).IsEither(:Default, :Or = :Nothing)
+			paEvalDirection = :RightToLeft
+		ok
+
+		# Doing the job
+
+		acDescriptors = pacDescriptors
+		if Q(paEvalDirection).IsOneOfTheseCS([
+			:RightToLeft,
+			:Right2Left,
+			:FromRightToLeft,
+			:FromRight2Left,
+			:RTL, :R2L,
+			:FromRTL, :FromR2L
+			], :CS = FALSE)
+
+			acDescriptors = Q(acDescriptors).Reversed()
+		ok
+
+		if len(acDescriptors) = 1
+			if acDescriptors[1] = :Number or acDescriptors[1] = :Numbers
+				cMethod = :IsANumber
+
+			but acDescriptors[1] = :String or acDescriptors[1] = :Strings
+				cMethod = :IsAString
+
+			but acDescriptors[1] = :List or acDescriptors[1] = :Lists
+				Method = :IsAList
+
+			but acDescriptors[1] = :Object or acDescriptors[1] = :Objects
+				cMethod = :IsAnObject
+
+			but Q(acDescriptors[1]).FirstChar() = "{" and
+			    Q(acDescriptors[1]).LastChar() = "}"
+
+				bResult = This.Check( :That = acDescriptors[1] )
+				return bResult
+			
+			else
+
+				cMethod = Q(acDescriptors[1]).InfereMethod(:From = :stzList)
+
+			ok
+
+			bResult = This.Check( :That = 'Q(@item).' + cMethod + "()" )
+
+		else
+
+			cType = Q(acDescriptors[1]).InfereType()
+			if Q(cType).StartsWithCS("stz", :CS = FALSE)
+				cType = Q(cType).FirstNCharsRemoved(3)
+			ok
+
+			bResult = TRUE
+	
+			for i = 2 to len(acDescriptors)
+
+ 				if Q(acDescriptors[i]).FirstChar() = "{" and
+			   	   Q(acDescriptors[i]).LastChar() = "}"
+
+					bOk = This.Check( :That = acDescriptors[i] )
+				
+				else
+
+					cMethod = Q(acDescriptors[i]).InfereMethod( :From = 'stz' + cType )
+					bOk = This.Check( :That = 'Stz' + cType + 'Q(@item).' + cMethod + "()" )
+				ok
+
+				if bOk = FALSE
+					bResult = FALSE
+					exit
+				ok
+			next
+		ok
+
+		return bResult
+
 	  #--------------------------------#
 	 #    USUED FOR NATURAL-CODING    #
 	#--------------------------------#
+
+	def IsAString()
+		return FALSE
+
+	def IsAList()
+		return TRUE
+
+	def IsAnObject()
+		return TRUE
 
 	#--- ITEM
 
@@ -18384,9 +18531,6 @@ sdsd
 
 	#--- STRING
 
-	def IsAString()
-		return FALSE
-
 	def IsLetter()
 		return FALSE
 
@@ -18416,3 +18560,18 @@ sdsd
 
 		def IsACharIn(pcStr)
 			return FALSE
+
+	def Methods()
+		return ring_methods(This)
+
+	def Attributes()
+		return ring_attributes(This)
+
+	def ClassName()
+		return "stzlist"
+
+		def StzClassName()
+			return This.ClassName()
+
+		def StzClass()
+			return This.ClassName()

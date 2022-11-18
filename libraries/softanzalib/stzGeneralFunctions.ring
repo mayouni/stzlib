@@ -94,6 +94,10 @@ func stzRaise(paMessage)
 # Wrappers to ring functions, that we use inside a softanza class
 # where the same name is needed (example: insert() inside stzString)
 # --> This will allow us to avoid conflicts!
+# --> For you as a Ring programmer, this won't alter you Ring experience
+#     when you want to use natibe Ring form. But if you are inside a
+#     softanza object, then the softanza version will apply, unless you
+#     you for the Ring's version using ring_...()
 
 func ring_insert(paList, n, pItem)
 	insert(paList, n, pItem)
@@ -107,7 +111,36 @@ func ring_type(p)
 func ring_reverse(paList)
 	return reverse(paList)
 
+func ring_methods(obj)
+	return methods(obj)
+
+func ring_attributes(obj)
+	return attributes(obj)
+
+func ring_classname(obj)
+	return classname(obj)
+
 #-----
+
+func StzFindCS(pThing, paIn, pCaseSensitive)
+	if isList(paIn) and Q(paIn).IsInNamedParam()
+		paIn = paIn[2]
+	ok
+
+	anPos = Q(paIn).FindAllCS(pThing, pCaseSensitive)
+	return anPos
+
+func StzFind(pThing, paIn)
+	if isList(paIn) and Q(paIn).IsInNamedParam()
+		paIn = paIn[2]
+	ok
+
+	anPos = Q(paIn).FindAll(pThing)
+
+	return anPos
+
+#-----
+
 
 func IsNumberOrString(p)
 	if isNumber(p) or isString(p)
@@ -178,52 +211,6 @@ func ListOfListsOfStzTypes() # TODO: complete the list
 		:ListOfStzSets,
 		:ListOfStzGrids
 	]
-
-func InfereDataTypeFromString(pcStr) // TODO: Add more types (think of more general solutuion)
-	cStr = Q(pcStr).Lowercased()
-
-	if cStr = :number or cStr = :numbers or Q(cStr).BeginsWith(:Number)
-		return :Number
-
-	but cStr = :string or cStr = :strings or Q(cStr).BeginsWith(:String)
-		return :String
-
-	but cStr = :list or cStr = :lists or Q(cStr).BeginsWith(:List) or
-	    cStr = :pair or cStr = :pairs or Q(cStr).BeginsWith(:pair)
-		return :List
-
-	but cStr = :object or cStr = :objects or Q(cStr).BeginsWith(:Object)
-		return :Object
-
-	//but cStr = :char or cStr = :chars
-	//	return :Char
-	ok
-
-
-	if Q(cStr).BeginsWithCS("stz", :CS = FALSE)
-
-		for aPair in StzClassesXT()
-			if aPair[1] = cStr or aPair[2] = cStr
-				return aPair[1]
-			ok
-		next
-
-	ok
-
-	func InfereTypeFromString(pcStr)
-		return InfereDataTypeFromString(pcStr)
-
-func InfereDataTypesFromListOfStrings(paStr)
-	aResult = []
-	for str in paStr
-		aResult + InfereDataTypeFromString(str)
-	next
-
-	return aResult
-
-func DataType(p)
-	return lower(type(p))
-
 
 # DO TWO VARIABLES HAVE SAME TYPE?
 
@@ -441,9 +428,6 @@ func Ten(pThing)
 func IsRingType(pcString)
 	return StzStringQ(pcString).LowercaseQ().ExistsIn( RingTypes() )
 
-	def IsRingDataType(pcString)
-		return IsRingType(pcString)
-
 func StringIsStzClassName(pcString)
 	return StzStringQ(pcString).IsStzClassName()
 
@@ -589,7 +573,7 @@ func ComputableFormSimplified(pValue)
 			cResult = cChar + Q(pValue).Simplified() + cChar
 		else
 
-			aAntiSections = oStr.FindAntiSections( oStr.FindSectionsBetween('"','"') )
+			aAntiSections = oStr.FindAntiSections( oStr.FindAnySectionsBetween('"','"') )
 		
 			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
 			#--> this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"
@@ -714,7 +698,77 @@ func Empty(pcStzType)
 	on :stzobject
 		return new stzObject( new stzString("") )
 
-	# TODO: Add other classes (see ? StzClasses() )
+	on :stzText
+		return new stzText("")
+
+	on :stzlistofobjects
+		return new stzListOfObjects([])
+
+	on :stzlistofnumbers
+		return new stzListOfNumbers([])
+
+	on :stzlistofstrings
+		return new stzListOfStrings([])
+		
+	on :stzlistofchars
+		return new stzListOfChars([])
+
+	on :stzhashlist
+		return new stzHashList([])
+
+	on :stzlistofhashlists
+		return new stzListOfHashLists([])
+
+	on :stzset
+		return new stzSet([])
+
+	on :stzlistoflists
+		return new stzListOfLists([])
+
+	on :stzlistofpairs
+		return new stzListOfPairs([])
+
+	on :stzpair
+		return new stzPair([])
+
+	on :stzlistofsets
+		return new stzListOfSets([])
+
+	on :stzpairoflists
+		return new stzPairOfLists([])
+
+	on :stztree
+		return new stzTree([])
+
+	on :stztable
+		return new stzTable([])
+
+	on :stzlocale
+		return new stzLocale([])
+
+	on :stzcountry
+		return new stzCountry([])
+
+	on :stzlanguage
+		return new stzLangauge([])
+
+	on :stzscript
+		return new stzScript([])
+
+	on :stzcurrency
+		return new stzCurrency("")
+
+	on :stzgrid
+		return new stzGrid([])
+
+	on :stzentity
+		return new stzEnity(:nothing)
+
+	on :stzlistofentities
+		return new stzListOfEntities([])
+
+	on :stzstringart
+		return new stzStringArt("")
 
 	off
 
@@ -759,14 +813,21 @@ func Stz(cType, pInfo)
 		stzRaise("Incorrect params type! Botht cType and cInfo must be strings.")
 	ok
 
+	cClass = 'stz' + cType
 
-	if NOT Q('stz' + cType).IsStzClassName()
+	if NOT Q(cClass).IsStzClassName()
 		stzRaise("Incorrect param! cType must be a valid softanza type.")
 	ok
 
-	oEmptyObject = Empty(:stzChar)
+	oEmptyObject = Empty(cClass)
 
 	switch cInfo
+	on :Class
+		return cClass
+
+	on :ClassName
+		return cClass
+
 	on :Methods
 		return methods(oEmptyObject)
 
@@ -936,27 +997,8 @@ func QQQ(p)
 	eval(cCode)
 	return oResult
 
-/*
-		try
-			eval(cCode)
-			cResult = Q(value).StzType()
-? "R1: " + cResult
-			if isList(value)
-				cResult = QQ(value).StzType()
-? "R2: " + cResult
-			ok
-
-			return cResult
-			
-		catch
-
-			return Q(p).StzType()
-		done
-
-	else
-		return Q(p).StzType()
-	ok
-*/
+func W(cCode)
+	return "{" + @@S(cCode) + "}"
 
 func STOP()
 	StzRaise( NL + "----------------" + "STOPPED!" )

@@ -3,7 +3,7 @@
 func StzPairQ(paList)
 	return new stzPair(paList)
 
-class stzPair
+class stzPair from stzList
 	@aContent
 	
 	def init(paList)

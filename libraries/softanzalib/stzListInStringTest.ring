@@ -26,7 +26,7 @@ cList = '[ "A", "T", [ :hi, :bye ], 5, obj1, "C", "A", obj2, "A", 2 ]'
 class Person name
 
 /*---------------------
-*/
+
 ? PluralOfStzClassName("stzList") # --> :stzLists
 ? PluralOfStzClassName("stzListOfStrings") # --> :stzListsOfStrings
 

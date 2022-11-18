@@ -143,7 +143,7 @@ class stzListInString from stzString
 	def Types()
 		acResult = []
 		for cVarName in This.VarNames()
-			cCode = 'cType = type('+ cVarName +')'
+			cCode = 'cType = ring_type('+ cVarName +')'
 			eval(cCode)
 			acResult + cType
 		next
@@ -156,7 +156,7 @@ class stzListInString from stzString
 		aVarNames = This.VarNames()
 		aTypes = This.Types()
 
-		for i = 1 to len(aVarNames)
+		for i = 1 to stlen(aVarNames)
 			aResult + [ aVarNames[i], aTypes[i] ]
 		next i
 

@@ -124,9 +124,6 @@ class stzActiveItem from stzObject
 	def Content()
 		return Content
 
-	def DataType()
-		return type(pItem)
-
 	def DoWhenAdded()
 		return aDoWhenAdded
 

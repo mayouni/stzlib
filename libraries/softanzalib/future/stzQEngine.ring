@@ -28,7 +28,7 @@
 		for t in aTypes
 			aItems = []
 			for i=1 to NumberOfItems()
-				if type( This.Item(i) ) = t
+				if ring_type( This.Item(i) ) = t
 					aItems + t
 				ok
 			next i
