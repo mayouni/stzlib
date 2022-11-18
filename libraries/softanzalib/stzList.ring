@@ -3571,7 +3571,7 @@ class stzList from stzObject
 		#>
 
 	def LastItemRemoved()
-		aResult = This.Copy().RemoveLastItemQ(n).Content()
+		aResult = This.Copy().RemoveLastItemQ().Content()
 		return aResult
 
 	  #-------------------------------------------------------#

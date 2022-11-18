@@ -1,5 +1,74 @@
 load "stzlib.ring"
 
+/*
+		This method exists alos in the parent stzObject.
+		Here we make it specific to strings.
+
+		In fact, Q("Hi!").RepeatNTimes(3) when applied to
+		the string "Hi!" willl update it to become "Hi!Hi!Hi!".
+
+		In all other types (stzList, stzNumber, and stzObject)
+		Q(5).RepeatNTimes(3) will produce the list [5, 5, 5],
+		and Q(1:3).RepeatNTimes(3) will produce the list
+		[ 1:3, 1:3, 1:3 ].
+
+		You my ask we we opted for a different behavior for
+		strings compared to other types?
+
+		Well, because I think it's more obvious to update the
+		string when ask to repeat it, and have a string as a
+		result not a list!
+
+		If you want to avoid any confusuion coming from this,
+		use RproduceIn() instead, and specify explicitly what
+		you hant to have, like this:
+
+		? Q("Hi!").Reproduced( :NTimes = 3, :InString)
+		#--> "Hi!Hi:Hi!
+
+		? Q("Hi!").Reproduced( :NTimes = 3, :InList)
+		"--> [ "Hi!", "Hi!", "Hi!" ]
+*/
+
+/*----------------------
+
+? Q("*").IsNotLetter()
+#--> TRUE
+
+/*----------------------
+
+? Q("ONE-TWO-THREE").Split("-")
+#--> [ "ONE", "TWO", "THREE" ]
+
+? Q("ONE-TWO-THREE").SplitW('{ Q(@char).IsNotLetter() }')
+#--> [ "ONE", "TWO", "THREE" ]
+
+? Q("ONE-TWO-THREE") / W('Q(@char).IsNotLetter()')
+#--> [ "ONE", "TWO", "THREE" ]
+
+/*----------------------
+*/
+? Q("RingRingRing") / 3
+# --> [ "Ring", "Ring", "Ring" ]
+
+? Q("Ring;Python;Ruby") / ";"
+# --> [ "Ring", "Python", "Ruby" ]
+
+? Q("Ring:Python;Ruby") / W('Q(@Char).IsNotLetter()')
+#--> [ "Ring", "Python", "Ruby" ]
+
+? Q("RingRubyJava") / [ "Qute", "Nice", "Good" ]
+# --> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]
+
+? Q("IAmRingDeveloper") / [
+	:Subject = 1,
+	:Verb    = 2,
+	:Noun1   = 4,
+	:Noun2   = :RemainingChars
+]
+#--> [ :Subject = "I", :Verb = "Am", :Noun1 = "Ring", :Noun2 = "Developer" ]
+
+stop()
 /*---------------
 
 ? PLuralOfThisStzType("stzChar")
@@ -40,7 +109,7 @@ load "stzlib.ring"
 ? Q("سلام").AllCharsAre([ :RightToLeft, :Arabic, :Chars ])
 
 ? Q("سلام").AllCharsAre([ :RighttoLeft, W('Q(@char).IsArabic()'), :Chars ])
-
+? "--"
 /*---------------
 
 ? SoftanzaLogo()
@@ -1165,15 +1234,6 @@ o1.ReplaceSubStringAtPosition(19, "♥♥♥", :With = "Ring")
 
 ? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", :CS = TRUE)	  # --> FALSE
 ? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", :CS = FALSE)	  # --> TRUE
-
-/*----------------------
-
-? Q("RingRingRing") / 3		# --> [ "Ring", "Ring", "Ring" ]
-
-? Q("Ring;Python;Ruby") / ";"	# --> [ "Ring", "Pyhton", "Ruby" ]
-
-? Q("RubyJavaRing") / [ "1993", "1995", "2016" ]
-# --> [ "1993" = "Ring", "1995" = "Java", "2016" = "Ruby" ]
 
 /*====================== WORKING WITH MARQUERS
 

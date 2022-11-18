@@ -443,7 +443,7 @@ class stzListOfChars from stzListOfStrings
 			nWidth = This.NumberOfChars()
 
 			cUpLine = cCorner1 +
-				  StzStringQ(cHTrait + cUpSep).RepeatNTimesQ(nWidth-1).Content() +
+				  StzStringQ(cHTrait + cUpSep).RepeatedNTimes(nWidth-1) +
 				  cHTrait + cCorner2 
 
 			
@@ -455,7 +455,7 @@ class stzListOfChars from stzListOfStrings
 
 			if NOT isList(aHilighted)
 				cDownLine = cCorner4 +
-					  StzStringQ(cHTrait + cDownSep).RepeatNTimesQ(nWidth-1).Content() +
+					  StzStringQ(cHTrait + cDownSep).RepeatedNTimes(nWidth-1) +
 					  cHTrait + cCorner3
 
 			else

@@ -315,14 +315,14 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		ok
 
 		def NthKeyQ(n)
-			return new stzNumber(This.NthKey())
+			return new stzString(This.NthKey())
 
 	def Key(n)
 		return This.NthKey(n)
 
-	def KeyQ(n)
-		return new stzNumber(This.Key(n))
-
+		def KeyQ(n)
+			return new stzString(This.Key(n))
+	
 	def NthValue(n)
 		if isString(n)
 			if n = :First or n = :FirstValue
@@ -335,19 +335,27 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		return This.Content()[n][2]
 
-	def NthValueQ(n)
-		return new stzNumber(This.NthValueQ())
+		def NthValueQ(n)
+			return Q(This.NthValue())
 
-	def Value(n)
-		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n should be a number.")
-		ok
+		def Value(n)
+			return This.NthValue(n)
 
-		return This.NthValue(n)
+			def ValueQ(n)
+				return Q( This.Value(n) )
 
-	def ValueQ(n)
-		return new stzNumber(This.Value(n))
+	def FirstValue()
+		return This.NthValue(1)
 
+		def FirstValueQ()
+			return This.NthValueQ(1)
+	
+	def LastValue()
+		return This.NthValue(:Last)
+
+		def LastValueQ()
+			return Q( This.LastValue() )
+	
 	def NthPair(n)
 		if isString(n)
 			if n = :First or n = :FirstPair
@@ -364,14 +372,55 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		return This.Content()[n]
 
-	def NthPairQ(n)
-		return new stzNumber(This.NthPair(n))
+		#< @FunctionFluentForm
 
-	def PairAt(n)
+		def NthPairQ(n)
+			return This.NthPairQR(n, :stzList)
+
+		def NthPairQR(n, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT (isString(pcReturnType) and Q(pcReturnType).IsAStzClassName())
+				stzRaise("Incorrect param! pcReturnType must be a string containing the name of a Softanza class.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.NthPair(n))
+			on :stzPair
+				return new stzpair(This.NthPair(n))
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+	
+		def Pair(n)
+			return This.NthPair(n)
+	
+			def PairQ(n)
+				return This.NthPairQ(n)
+
+			def PairQR(n, pcReturnType)
+				return This.NthPairQR(n, pcReturnType)
+	
+		#>
+	
+	def FirstPair()
 		return This.NthPair(n)
 
-	def PairQ(n)
-		return new stzNumber(This.PairAt(n))
+		def FirstPairQ()
+			return This.NthPairQ(1)
+
+	def LastPair()
+		return This.LastPair(n)
+
+		def LastPairQ()
+			return This.NthPairQ(:Last)
 
 	def KeyInPair(paPair)
 		if isList(paPair) and ListIsPairAndKeyIsString(paPair) and
@@ -382,9 +431,9 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			stzRaise("Invalid param type!")
 		ok
 
-	def KeyInPairQ(paPair)
-		return new stzString( This.KeyInPair(paPair) )
-
+		def KeyInPairQ(paPair)
+			return new stzString( This.KeyInPair(paPair) )
+	
 	def ValueInPair(paPair)
 		if isList(paPair) and ListIsPairAndKeyIsString(paPair) and
 	           This.ContainsPair(paPair)
@@ -393,46 +442,20 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			stzRaise("Invalide param type!")
 		ok
 
-	def ValueInPairQ(paPair)
-		switch ring_type( This.ValueInPair(paPair) )
-		on 'NUMBER'
-			return new stzNumber(This.ValueInPair(paPair))
-
-		on 'STRING'
-			return new stzString(""+ This.ValueInPair(paPair))
-
-		on 'LIST'
-			return new stzList( This.ValueInPair(paPair))
-
-		on 'OBJECT'
-			return new stzObject( This.ValueInPair(paPair) )
-
-		off
+		def ValueInPairQ(paPair)
+			return Q( This.ValueInPair(paPair) )
 
 	def KeyInNthPair(n)
 		return This.NthPair(n)[1]
 
-	def KeyInNthPairQ(n)
-		return new stzString( This.KeyInNthPair(n) )
-
+		def KeyInNthPairQ(n)
+			return new stzString( This.KeyInNthPair(n) )
+	
 	def ValueInInNthPair(n)
 		return This.NthPair(n)[2]
 
 	def ValueInNthPairQ(n)
-		switch ring_type(This.ValueInNthPairQ(n))
-		on 'NUMBER'
-			return new stzNumber(This.ValueInNthPairQ(n))
-
-		on 'STRING'
-			return new stzString(''+ This.ValueInNthPairQ(n))
-
-		on 'LIST'
-			return new stzList( This.ValueInNthPairQ(n))
-
-		on 'OBJECT'
-			return new stzObject( This.ValueInNthPairQ(n))
-
-		off
+		return Q( This.ValueInNthPair(n) )
 
 	def ValueByKey(pcKey)
 		return This.Content()[ pcKey ]
@@ -441,11 +464,11 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return len(This.FindValue(pValue))
 
 		def NumberOfOccurrencesOfValue(pValue)
-			return NumberOfOccurrenceOfValue(pValue)
+			return This.NumberOfOccurrenceOfValue(pValue)
 
-	def NumberOfOccurrenceOfValueQ(pValue)
-		return new stzNumber(This.NumberOfOccurrenceOfValue(pValue))
-
+		def NumberOfOccurrenceOfValueQ(pValue)
+			return new stzNumber(This.NumberOfOccurrenceOfValue(pValue))
+	
 		def NumberOfOccurrencesOfValueQ(pValue)
 			return NumberOfOccurrenceOfValueQ(pValue)
 
@@ -456,6 +479,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 	def ValuesAtPositions(anPositions)
 		aResult = This.ValuesQ().ItemsAtPositions(anPositions)
 		return aResult
+
 	  #------------------#
 	 #     UPDATING     #
 	#------------------#
@@ -487,11 +511,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		else
 			stzRaise("Key must be a string!")
 		ok
-
-	def UpdateNthPairQ(n, paNewPair)
-		This.UpdateNthPair(n, paNewPair)
-		return This
-
+	
 	def UpdatePair(paPair, paNewPair)
 		if isList(paPair) and ListIsPairAndKeyIsString(paNewPair) and
 		   This.ContainsPair(paPair)
@@ -502,11 +522,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		else
 			stzRaise("Key must be a string!")
 		ok
-
-	def UpdatePairQ(paPair, paNewPair)
-		This.UpdatePair(paPair, paNewPair)
-		return This
-
+	
 	def UpdateNthKey(n, pcValue)
 		if isList(n) and isNumber(pcValue)
 			temp = n
@@ -524,20 +540,12 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		@aContent[n][1] = pcValue
 
-	def UpdateNthKeyQ(n, pcValue)
-		This.UpdateNthKey(n, pcValue)
-		return This
-
 	def UpdateKey(pcKey, pcNewKey)
 		if isString(pcKey) and This.ContainsKey(pcKey)
 			n = This.FindKey(pcKey)
 			@aContent[n][1] = pcNewKey
 		ok
-
-	def UpdateKeyQ(pcKey, pcNewKey)
-		This.UpdateKey(pcKey, pcNewKey)
-		return This
-
+	
 	def UpdateKeys(paKeys)
 		oStzList = new stzList(paKeys)
 		if oStzList.ItemsAreAllStrings()
@@ -545,11 +553,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				This.UpdateNthKey(i, paKeys[i])
 			next i
 		ok
-
-	def UpdateKeysQ(paKeys)
-		This.UpdateKeys(paKeys)
-		return This
-
+	
 	def UpdateNthValue(n, pValue)
 
 		if n = :First
@@ -560,46 +564,30 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 
 		@aContent[n][2] = pValue
-
-	def UpdateNthValueQ(n, pValue)
-		This.UpdateNthValue(n, pValue)
-		return This
-
-	def UpdateNthOccurrenceOfValue(pValue)
-		This.UpdateNthValue( This.FindNthOccurrenceOfValue(pValue) )
-
+	
+		def UpdateNthOccurrenceOfValue(pValue)
+			This.UpdateNthValue( This.FindNthOccurrenceOfValue(pValue) )
+	
 	def UpdateValues(paValues)
 		for i = 1 to Min( len(paValues), This.NumberOfPairs() )
 			This.UpdateNthValue(i, paValues[i])
 		next
-
-	def UpdateValuesQ(paValues)
-		This.UpdateValues(paValues)
-		return This
-
+	
 	def UpdateValue(pValue, pNewValue)
 		aTemp = This.FindValue(pValue)
 		for n in aTemp
 			This.UpdateNthValue(n, pNewValue)
 		next
-
-	def UpdateValueQ(pValue, pNewValue)
-		This.UpdateValue(pValue, pNewValue)
-		return This
-
+	
 	def UpdateFirstOccurrenceOfValue(pValue, pNewValue)
-		return This.UpdateNthOccurrenceOfValue(1, pValue, pNewValue)
+		This.UpdateNthOccurrenceOfValue(1, pValue, pNewValue)
 
-	def UpdateFirstValueQ(pValue, pNewValue)
-		return This.UpdateFirstValue(pValue, pNewValue)
-
+		def UpdateFirstValue(pValue, pNewValue)
+			This.UpdateFirstOccurrenceOfValue(pValue, pNewValue)
+		
 	def UpdateLastValue(pValue, pNewValue)
 		n = NumberOfOccurrenceOfValue(pValue)
-		return UpdateNthValue(n, pValue, pNewValue)
-
-	def UpdateLastValueQ(pValue, pNewValue)
-		This.UpdateLastValue(pValue, pNewValue)
-		return This
+		This.UpdateNthValue(n, pValue, pNewValue)
 
 	def UpdateAllPairsWith(paPair)
 		if isList(paPair) and ListIsPairAndKeyIsString(paPair)
@@ -610,9 +598,9 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			stzRaise("Syntax error! The value you provided is not a string key pair.")
 		ok
 
-	def UpdateAllPairsWithQ(paPair)
-		This.UpdateAllPairsWithQ(paPair)
-		return This
+	  #-----------------------------#
+	 #  REVERSING KEYS AND VALUES  #
+	#-----------------------------#
 
 	def ReverseKeysAndValues()
 		aKeys = This.Keys()
@@ -622,10 +610,10 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			This.UpdateNthValue(i, aKeys[i])
 		next
 
-	def ReverseKeysAndValuesQ()
-		This.ReverseKeysAndValues()
-		return This
-
+		def ReverseKeysAndValuesQ()
+			This.ReverseKeysAndValues()
+			return This
+	
 	  #----------------------#
 	 #     ADDING A PAIR    #
 	#----------------------#

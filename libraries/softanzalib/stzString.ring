@@ -20843,6 +20843,13 @@ class stzString from stzObject
 			return FALSE
 		ok
 		
+		#< @FunctionNegativeForm
+
+		def IsNotLetter()
+			return NOT This.IsLetter()
+
+		#>
+
 	  #------------------------------------------------------#
 	 #    STRING IS IN A COMPUTABLE FORM ("str" or 'str')   #
 	#------------------------------------------------------#
@@ -20910,7 +20917,7 @@ class stzString from stzObject
 			cResult = NULL
 
 			if ring_type(pValue) = "NUMBER"
-				cResult = This.RepeatNTimesQ(pValue).Content()
+				cResult = This.RepeatedNTimes(pValue)
 		
 			but ring_type(pValue) = "STRING"
 
@@ -21204,7 +21211,7 @@ class stzString from stzObject
 			ok
 
 			cUpLine = cCorner1 +
-				  StzStringQ(cHTrait).RepeatNTimesQ(nWidth).Content() +
+				  StzStringQ(cHTrait).RepeatedNTimes(nWidth) +
 				  cCorner2 
 
 			
@@ -21214,7 +21221,7 @@ class stzString from stzObject
 				   cVTrait
 
 			cDownLine = cCorner4 +
-				  StzStringQ(cHTrait).RepeatNTimesQ(nWidth).Content() +
+				  StzStringQ(cHTrait).RepeatedNTimes(nWidth) +
 				  cCorner3 
 
 			return cUpLine + NL + cMidLine + NL + cDownLine
@@ -21966,6 +21973,56 @@ class stzString from stzObject
 		ok
 
 		return nResult
+
+	#---------------------------------#
+	#  REPEATING THE STRING N TIMES   #
+	#---------------------------------#
+
+	def RepeatNTimes(n)
+		/* NOTE
+
+		This method exists alos in the parent stzObject.
+		Here we make it specific to strings.
+
+		In fact, Q("Hi!").RepeatNTimes(3) when applied to
+		the string "Hi!" willl update it to become "Hi!Hi!Hi!".
+
+		In all other types (stzList, stzNumber, and stzObject)
+		Q(5).RepeatNTimes(3) will produce the list [5, 5, 5],
+		and Q(1:3).RepeatNTimes(3) will produce the list
+		[ 1:3, 1:3, 1:3 ].
+
+		You my ask we we opted for a different behavior for
+		strings compared to other types?
+
+		Well, because I think it's more obvious to update the
+		string when ask to repeat it, and have a string as a
+		result not a list!
+
+		If you want to avoid any confusuion coming from this,
+		use RproduceIn() instead, and specify explicitly what
+		you hant to have, like this:
+
+		? Q("Hi!").Reproduced( :NTimes = 3, :InString)
+		#--> "Hi!Hi:Hi!
+
+		? Q("Hi!").Reproduced( :NTimes = 3, :InList)
+		"--> [ "Hi!", "Hi!", "Hi!" ]
+
+		*/
+
+		cResult = ""
+		for i = 1 to n
+			cResult += This.Content()
+		next
+		This.Update( cResult )
+
+		def RepeatNTimesQ(n)
+			This.RepeatNTimes(n)
+			return This
+
+	def RepeatedNTimes(n)
+		return This.Copy().RepeatNTimesQ(n).Content()
 
 	  #----------------------------------------------------#
 	 #     COMPRESSING THE STRING WITH A BINARY SCHEMA    #
@@ -23408,7 +23465,16 @@ class stzString from stzObject
 
 		but pOp = "/"
 			if isString(pValue)
-				aSplitted = QStringListToList( QStringObject().split(pValue, 0, 0) )
+				if Q(pValue).FirstChar() = "{" and
+				   Q(pValue).LastChar() = "}"
+
+					aSplitted = This.SplitW(pValue)
+
+				else
+					//aSplitted = QStringListToList( QStringObject().split(pValue, 0, 0) )
+					aSplitted = This.Split(pValue)
+				ok
+
 				return aSplitted
 
 			but isNumber(pValue)
@@ -23427,8 +23493,45 @@ class stzString from stzObject
 					
 				return acResult
 
-			but ListIsHashList(pValue) and StzHashListQ(pValue).ValuesQ().IsListOfNumbers()
-				aResult = []
+			but ListIsHashList(pValue)
+
+				oHashList = new stzHashList(pValue)
+
+				# All the values except the last one must be numbers
+
+				aValuesExceptLast = oHashList.ValuesQ().LastItemRemoved()
+
+				if NOT Q(aValuesExceptLast).IsListOfNumbers()
+					stzRaise("Incorrect values! All the values except the last, must be numbers.")
+				ok
+
+				# The last value can be a number or a string equal to :Remaining or :RemainingChars
+
+				if NOT 	( isNumber(oHashList.LastValue()) or
+
+					  ( isString(oHashList.LastValue()) and
+					    Q(oHashList.LastValue()).IsOneOfThese([ :Remaining, :RemainingChars ])
+					  )
+					)
+
+					stzRaise("Incorrect value! The last value mus tbe a number or a string (:Remaining or :RemainingChars).")
+				ok
+
+				# If the last value is :Remaining or :RemainingChars, the the its replace by the n remaining chars
+
+				if isString(oHashList.LastValue()) and
+				   Q(oHashList.LastValue()).IsOneOfThese([ :Remaining, :RemainingChars ])
+
+					
+					n = 0
+					for i = 1 to len(aValuesExceptLast)
+						n += aValuesExceptLast[i]
+					next
+
+					nRemainingChars = This.NumberOfChars() - n
+
+					pValue[ len(pValue) ][2] = nRemainingChars
+				ok
 
 				# The sum of shares must be equal to the number of chars
 				
@@ -23436,13 +23539,16 @@ class stzString from stzObject
 					stzRaise("Incorrect values! The sum of numbers must be equal to the number of chars!")
 				ok
 
+				# Making the share of the string based on the values provided
+
+				aResult = []
 				n = 1
 				for aPair in pValue
 					
 					cShare = This.Range(n, aPair[2])
 					n += aPair[2]
 
-					aResult + [ aPair[1], cShare ]
+					aResult + [ aPair[1], cShare  ]
 				next
 
 			ok

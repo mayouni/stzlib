@@ -12,7 +12,7 @@ Programming, by Heart! By: M.Ayouni╭
 ━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
   ╰╯
 '
-	
+
 func SoftanzaLogo()
 	return _cSoftanzaLogo
 
@@ -998,7 +998,7 @@ func QQQ(p)
 	return oResult
 
 func W(cCode)
-	return "{" + @@S(cCode) + "}"
+	return "{" + cCode + "}"
 
 func STOP()
 	StzRaise( NL + "----------------" + "STOPPED!" )

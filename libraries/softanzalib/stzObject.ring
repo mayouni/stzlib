@@ -1479,11 +1479,8 @@ class stzObject
 			return anResult
 
 		but This.IsAString()
-			cResult = ""
-			for i = 1 to n
-				cResult += This.Content()
-			next
-			return cResult
+			# Do nothing at this level
+			#--> Managed by the same method inside stzString
 
 		else
 			aResult = []
