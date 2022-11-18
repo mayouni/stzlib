@@ -1,6 +1,6 @@
 
 
-_aRingDataTypes = [ :number, :string, :list, :object, :cobject ]
+_aRingTypes = [ :number, :string, :list, :object, :cobject ]
 
 cCacheFileName = "stzcache.txt"
 _CacheFileHandler = NULL
@@ -331,11 +331,8 @@ func SetQuietEqualityRatio(n)
 		_nQuietEqualityRatio = n
 	ok
 
-func RingDataTypes()
-	return _aRingDataTypes
-
-	func RingTypes()
-		return RingDataTypes()
+func RingTypes()
+	return _aRingTypes
 
 func RingFunctions()
 	return _acRingFunctions

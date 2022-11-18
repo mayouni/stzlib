@@ -38,7 +38,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def init(p)
 
-		switch type(p)
+		switch ring_type(p)
 		on "NUMBER"
 			aResult = []
 			for i = 1 to p
@@ -394,7 +394,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		ok
 
 	def ValueInPairQ(paPair)
-		switch type( This.ValueInPair(paPair) )
+		switch ring_type( This.ValueInPair(paPair) )
 		on 'NUMBER'
 			return new stzNumber(This.ValueInPair(paPair))
 
@@ -419,7 +419,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return This.NthPair(n)[2]
 
 	def ValueInNthPairQ(n)
-		switch type(This.ValueInNthPairQ(n))
+		switch ring_type(This.ValueInNthPairQ(n))
 		on 'NUMBER'
 			return new stzNumber(This.ValueInNthPairQ(n))
 
@@ -1459,7 +1459,7 @@ this: lefttoright
 
 		if pOp = "[]"
 			
-			if type(pValue) = "STRING"
+			if ring_type(pValue) = "STRING"
 				return This.ValueByKey(pValue)
 
 			ok

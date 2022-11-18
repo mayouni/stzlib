@@ -48,6 +48,12 @@ func StzCharMethods()
 func StzCharAttributes()
 	return Stz(:Char, :Attributes)
 
+func StzCharClass()
+	return "stzchar"
+
+	func StzCharClassName()
+		return StzCharClass()
+
 func IsAsciiChar(c)
 	return StzCharQ(c).IsAscii()
 		
@@ -347,7 +353,7 @@ class stzChar from stzObject
 			nUnicode = oStzStr.UnicodeOfCharN(1)
 			@oQChar = new QChar(nUnicode)
 
-		but Type(pChar) = "NUMBER"
+		but ring_Type(pChar) = "NUMBER"
 			nUnicode = pChar
 			@oQChar = new QChar(nUnicode)
 		else
@@ -2518,11 +2524,20 @@ class stzChar from stzObject
 	def stzType()
 		return :stzChar
 
-		def ClassName()
-			return This.stzType()
-
-	def DataType()
-		return :String
-
 	def Show()
 		? This.Content()
+
+	def Methods()
+		return ring_methods(This)
+
+	def Attributes()
+		return ring_attributes(This)
+
+	def ClassName()
+		return "stzchar"
+
+		def StzCharClassName()
+			return This.ClassName()
+
+		def StzCharClass()
+			return This.ClassName()

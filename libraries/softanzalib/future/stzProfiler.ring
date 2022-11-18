@@ -33,7 +33,7 @@ func Assemble(pcPart1, pcPart2, pcPart3)
 		aLocals = locals()
 		aVars = []
 		for v= len(aMeta[:params])+3 to len(aLocals)-4
-			cCode = "aVars + [ aLocals[v], [ :type = type(" + aLocals[v] + "), :value = " + aLocals[v] + " ] ]"
+			cCode = "aVars + [ aLocals[v], [ :type = ring_type(" + aLocals[v] + "), :value = " + aLocals[v] + " ] ]"
 			eval(cCode)
 		next
 
@@ -58,7 +58,7 @@ func CacheFunc(cFunc, aParams, pResult, nSeconds)
 	n = 0
 	for value in aParams
 		n++
-		switch type(value)
+		switch ring_type(value)
 		on "NUMBER"
 			cCacheLine += value
 		on "STRING"
@@ -75,7 +75,7 @@ func CacheFunc(cFunc, aParams, pResult, nSeconds)
 	next
 	cCacheLine += " ]" + " , "
 	
-	switch type(pResult)
+	switch ring_type(pResult)
 	on "NUMBER"
 		cCacheLine += pResult
 	on "STRING"

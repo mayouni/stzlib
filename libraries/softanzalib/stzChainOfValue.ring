@@ -101,7 +101,7 @@ class stzChainOfValue from stzObject
 		cCode = '@pValue = ' + @cVarName
 		eval(cCode)
 		
-		@cType = type(@pValue)
+		@cType = ring_type(@pValue)
 
 		Is = This
 		IsNot = This

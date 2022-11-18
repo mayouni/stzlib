@@ -1,8 +1,27 @@
 load "stzlib.ring"
 
+
+/*------------------
+*/
 o1 = new stzNumber(11)
 ? o1.RepeatedNTimes(3)
 #--> [11, 11, 11]
+
+# Don't confuse with:
+o1.Times(3)
+? o1.Value()
+#--> 33
+
+o1.Times([2, 3])
+? o1.Value()
+
+/*------------------
+*/
+o1 = new stzNumber(11)
+o1.MultiplyByMany([2, 3])
+? o1.Value()
+#--> 66
+
 /*------------------
 
 o1 = new stzNumber(5)
@@ -32,7 +51,7 @@ o1 = new stzNumber(5)
 /*-----------------------
 
 o1 = new stzNumber(5)
-? type(o1.Number()) #--> NUMBER
+? ring_type(o1.Number()) #--> NUMBER
 
 /*-----------------------
 

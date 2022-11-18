@@ -4283,3 +4283,6 @@ class stzText from stzString
 		else
 			return FALSE
 		ok
+
+	def IsText()
+		return TRUE

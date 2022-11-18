@@ -326,11 +326,6 @@ opjn
 
 /*----------------
 */
-? QQ([ 12, 24, 42 ]).DataType() #--> :Number
-? QQ(["abc","cdef","opjn"]).DataType() #--> :String
-
-/*----------------
-*/
 ? QQ(["abc","cdef","opjn"]).ToString() // QQ() generates a stzListOfStrings object
 
 /*-->

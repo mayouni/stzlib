@@ -17558,9 +17558,6 @@ class stzListOfStrings from stzList
 		def ClassName()
 			return This.stzType()
 
-	def DataType()
-		return :String
-
 	#--
 
 	def AreAnagrams()
@@ -17687,6 +17684,18 @@ class stzListOfStrings from stzList
 		def StringsTrimmed()
 			return This.Trimmed()
 
+	#
+	#
+	#
+
+	def InfereTypes()
+		aResult = []
+		for str in This.ListOfStrings()
+			aResult + Q(str).InfereType()
+		next
+	
+		return aResult
+
 	  #------------------------------#
 	 #     OPERATORS OVERLOADING    # 
 	#------------------------------#
@@ -17742,7 +17751,7 @@ class stzListOfStrings from stzList
 			return This.ToStzList().IsStrictlyEqualTo(value)
 		
 
-		but pcOp = "/" and type(pValue) = "NUMBER"
+		but pcOp = "/" and ring_type(pValue) = "NUMBER"
 			// Divides the list on pValue sublists (a list of lists)
 			return This.ToStzList().SplitToNParts(pValue)
 

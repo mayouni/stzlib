@@ -147,7 +147,7 @@ class stzGrid from stzObject
 		nV = 0
 		nH = 0
 
-		switch type(p)	
+		switch ring_type(p)	
 		on "NUMBER"
 			aPossibleVH = MultiplicationsYieldingN_WithoutCommutation(p)
 			if len(aPossibleVH) = 1

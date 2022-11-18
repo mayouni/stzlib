@@ -91,7 +91,7 @@ class stzChainOfTruth from stzObject
 	def init(p)
 		@pValue = p
 		
-		switch type(p)
+		switch ring_type(p)
 		on "NUMBER"
 			@oStzObject = new stzNumber(This.Value())
 
@@ -109,7 +109,7 @@ class stzChainOfTruth from stzObject
 		return @pValue
 
 	def _Type()
-		return type(@pValue)
+		return ring_type(@pValue)
 
 	def StzObject()
 		return @oStzObject

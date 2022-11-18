@@ -111,7 +111,7 @@ Unless.
 			v = 0+ v
 		ok
 
-		? v + " : " + type(v)
+		? v + " : " + ring_type(v)
 }')
 
 /*--------------- TODO

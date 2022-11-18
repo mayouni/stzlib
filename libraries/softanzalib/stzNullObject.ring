@@ -10,12 +10,12 @@ a number, a stzString(v) object if v is a string, a stzList(v)
 if v is a list, or a stzObject(v) if v is an object.
 
 After the softanza object is returned, we can expect it's data
-type by using the method DataType().
+type by using the method Type().
 
 Here is an example:
 
 	obj = new Person
-	? Q(obj).DataType()	# --> :Object
+	? Q(obj).Type()	# --> :Object
 	
 	class Person
 
@@ -23,7 +23,7 @@ To avoid writing a class every time I have to make a sample like this,
 I made this stzNullObject class, so I can write just:
 
 	obj = new stzNullObject
-	? Q(obj).DataType()	# --> :Object
+	? Q(obj).Type()	# --> :Object
 */
 
 func StzNullObjectQ()

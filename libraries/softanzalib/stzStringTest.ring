@@ -2,6 +2,47 @@ load "stzlib.ring"
 
 /*---------------
 
+? PLuralOfThisStzType("stzChar")
+#--> "stzchars"
+
+/*---------------
+
+? Q("stzchars").IsPluralOfAStzType()
+#--> TRUE
+
+? Q("stzchars").IsPluralOfThisStzType("stzchar")
+
+/*---------------
+
+? Q("punctuation").InfereMethod(:From = :stzChar)
+#--> "ispunctuation"
+
+? Q("punctuations").InfereMethod(:From = :stzChar)
+#--> "ispunctauion"
+
+/*---------------
+*/
+? Q("12309").AllCharsAre(:Numbers)
+#--> TRUE
+
+? Q("248").AllCharsAre([ :Even, :Positive, :Numbers ])
+#--> TRUE
+
+? Q(",:;").AllCharsAre(:Punctuations)
+#--> TRUE
+
+? Q("سلام").AllCharsAre(:Arabic)
+#--> TRUE
+
+? Q("سلام").AllCharsAre([ :Arabic, :Chars ])
+#--> TRUE
+
+? Q("سلام").AllCharsAre([ :RightToLeft, :Arabic, :Chars ])
+
+? Q("سلام").AllCharsAre([ :RighttoLeft, W('Q(@char).IsArabic()'), :Chars ])
+
+/*---------------
+
 ? SoftanzaLogo()
 /* --> 
 
@@ -33,7 +74,7 @@ o1.Simplify()
 ? o1.Content() #--> "﷽"
 
 /*-----------------
-*/
+
 ? Heart() # --> ♥
 ? Q(Heart()).RepeatedNTimes(3) #--> ♥♥♥
 # or you can use the short form .NTimes(3)
@@ -595,6 +636,20 @@ o1 = new stzString("what a <<nice>>> day!")
 ? o1.Section(10, 13)	#--> "nice"
 ? o1.Section(13, 10)	#--> "ecin"
 
+/*-----------------
+
+o1 = new stzString("what a <<<nice>>> day!")
+? @@S( o1.Bounds(:Of = "nice", :UpToNChars = 3) )
+#--> [ [ "<<<", ">>>" ] ]
+
+o1 = new stzString("what a <nice>>> day!")
+? @@S( o1.Bounds(:Of = "nice", :UpToNChars = [1, 3]) )
+#--> [ [ "<", ">>>" ] ]
+
+o1 = new stzString("what a <<nice>>> day! Really <nice>>.")
+? @@S( o1.Bounds(:Of = "nice", :UpToNChars = [ [2, 3], [1, 2] ]) )
+#--> [ [ "<<", ">>>" ], [ "<", ">>" ] ]
+
 /*==================
 
 o1 = new stzString("what a <<nice>>> day!")
@@ -625,41 +680,16 @@ o1 = new stzString("what a <<nice>>> day!")
 #--> [ [8, 9], [14, 16] ]
 
 /*----------------- TODO
-*/
-o1 = new stzString("what a <<<nice>>> day!")
-? o1.Bounds(:Of = "nice", :UpToNChars = 3)
-
-/*
-? o1.Stay(
-	:OnSection  = [10, 13], # or o1.FindSection("nice")
-	:HarvestNBoundingChars = 3
-)
-#--> [ "<<<", ">>>" ]
-
-/*----------------- TODO
-
-o1 = new stzString("what a <<nice>>> day!")
-
-? o1.Stay(
-	:OnSection  = o1.FindFirstSection("nice")
-	:AndHarvest = [ :CharsBefore = "<", :CharsAfter = ">" ]
-)
-#--> [ "<<", ">>>" ]
-
-/*----------------- TODO
 
 o1 = new stzString("what a 123nice>>> day!")
 
 ? o1.Stay(
 	:OnSection  = o1.FindFirstSection("nice")
-	:AndHarvest = [ :CharsBeforeW = 'Q(@char).IsANumber()', :CharsAfter = ">" ]
+	:AndHarvest = [ :CharsBeforeW = 'Q(@char).IsANumber()', :NCharsAfter = 3 ]
 )
+#--> [ "123", ">>>" ]
 
 /*=================
-
-# While finding occurrences of a substring inside a string,
-# Softanza can return the position or the section of each
-# substring it finds, or both of them at the same time:
 
 o1 = new stzString("How many words in <<many many words>>? So many!")
 ? @@S( o1.FindPositions(:Of = "many") )
@@ -667,32 +697,30 @@ o1 = new stzString("How many words in <<many many words>>? So many!")
 ? @@S( o1.FindSections(:Of = "many") ) + NL
 #--> [ [ 5, 8 ], [ 21, 24 ], [ 26, 29 ], [ 43, 46 ] ]
 
-# Softanza can also find substrings bounded between other substrings
-# and return their positions, their sections, or their content:
-
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? @@S( o1.SubstringsBetween("<<", :and = ">>") )
-	? o1.SubStringsXT([ :Between = ["<<",">>"] ])
+? @@S( o1.AnySubstringsBetween("<<", :and = ">>") )
 # --> [ "word", "noword", "word" ]
 
-? @@S( o1.FindSubStringsBetween("<<", :and = ">>") ) + NL
-	? FindSubStringsXT([ :Between = ["<<", ">>"] ])
+? @@S( o1.FindAnySubStringsBetween("<<", :and = ">>") ) + NL
 # --> [ 11, 28, 43 ]
 
 ? @@S( o1.FindAnySectionsBetween("<<",">>") )
-	? o1.FindSectionsXT([ :Between = ["<<",">>"] ])
-
 # --> [ [ 11, 14 ], [ 28, 33 ], [ 43, 46 ] ]
 
-# Or when you want to find not any bounded-substring but a speciefic one,
-# just provide it to the following functions to get, for all its occurrences,
-# the positions or the sections:
+? @@S( o1.FindSubStringXT("word", :Between = ["<<", ">>"]) )
+# --> [ 11, 43 ]
 
-? @@S( o1.FindSubStringBetween("word", "<<", ">>") )	# --> [ 9, 41 ]
-	? o1.FindSubStringXT("word", :Between = ["<<", ">>"])
+? @@S( o1.FindSectionsXT( :Of = "word", :Between = ["<<", ">>"] ) )
+#--> [ [ 11, 14 ], [ 43, 46 ] ]
 
-? @@S( o1.FindSectionsBetween("word", "<<", ">>") )	# --> [ [ 9, 16 ], [ 41, 48 ] ]
-	? o1.FindSectionsXT( :Of = "word", :Between = ["<<", ">>"]
+/*----------------
+
+o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
+? o1.NthSubStringBetween(2, "word", "<<", ">>")
+
+/*
+? o1.FindNthXT(2, "word", :Between = ["<<", ">>"])
+	o1.FindNthBetween(2, "word", "<<", ">>")
 
 /*================
 

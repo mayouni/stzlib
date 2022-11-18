@@ -30,6 +30,18 @@
 func StzStringQ(str)
 	return new stzString(str)
 	
+func StzStringMethods()
+	return Stz(:String, :Methods)
+
+func StzStringAttributes()
+	return Stz(:String, :Attributes)
+
+func StzStringClassName()
+	return Stz(:String, :ClassName)
+
+	func StzStringClass()
+		return StzStringClassName()
+
 func S(p)
 	if isString(p)
 		return p
@@ -405,6 +417,7 @@ class stzString from stzObject
 
 	// Initializes the content of the softanza string object
 	def init(pcStr)
+
 		if isString(pcStr)
 			@oQString = new QString2()
 			@oQString.append(pcStr)
@@ -3153,6 +3166,114 @@ class stzString from stzObject
 	def BytecodesPerChar()
 		return This.ToStzListOfBytes().BytecodesPerChar()
 
+	  #----------------------------------------------------#
+	 #  INFERING A RING OR SOFTANZA TYPE FROM THE STRING  #
+	#----------------------------------------------------#
+
+	def InfereType()
+		cStr = This.Lowercased()
+
+		# Checking if the string correponds to one of the 4 Ring types
+
+		if cStr = :number or cStr = :numbers or Q(cStr).BeginsWith(:Number)
+			return :Number
+	
+		but cStr = :string or cStr = :strings or Q(cStr).BeginsWith(:String)
+			return :String
+	
+		but cStr = :list or cStr = :lists or Q(cStr).BeginsWith(:List) or
+		    cStr = :pair or cStr = :pairs or Q(cStr).BeginsWith(:pair)
+	
+			return :List
+	
+		but cStr = :object or cStr = :objects or Q(cStr).BeginsWith(:Object)
+			return :Object
+	
+		ok
+	
+		# Checking if the string correponds to one of the Softanza types
+
+		if Q(cStr).BeginsWithCS("stz", :CS = FALSE)
+	
+			for aPair in StzClassesXT()
+				if aPair[1] = cStr or aPair[2] = cStr
+					return aPair[1]
+				ok
+			next
+
+		but Q("stz" + cStr).IsStzType()
+			return "stz" + cStr
+
+		but Q(cStr).IsPluralOfAStzType()
+			return PluralToStzType(cStr)
+
+		but Q("stz" + cStr).IsPluralOfAStzType()
+			return PluralToStzType("stz" + cStr)
+
+		ok
+
+	def InfereMethod(pcFromStzClass)
+
+		if isList(pcFromStzClass) and
+		   Q(pcFromStzClass).IsOneOfTheseNamedParams([ :From, :In, :Of ])
+			pcFromStzClass = pcFromStzClass[2]
+		ok
+
+		if NOT isString(pcFromStzClass)
+			stzRaise("Incorrect param type! pcFromStzClass must be a string.")
+		ok
+
+		if NOT Q(pcFromStzClass).IsStzClass()
+			stzRaise("Syntax error! pcFromStzClass must be a valid Softanza class name.")
+		ok
+
+		cCode = 'acTheseMethods = Stz("' +
+			Q(pcFromStzClass).FirstNCharsRemoved(3) + '",
+			:Methods)'
+
+		eval(cCode)
+
+		cMethod = ""
+
+		oListStr = new stzListOfStrings( acTheseMethods )
+
+		if oListStr.ContainsCS( "is" + This.String(), :CS = FALSE )
+			cMethod = "is" + This.String()
+
+		but oListStr.ContainsCS( "is" + This.LastCharRemoved(), :CS = FALSE )
+			cMethod = "is" + This.LastCharRemoved()
+
+		else
+			stzRaise("Sorry! Can't infere the method name from the provided string.")
+		ok
+
+		return cMethod
+
+	def IsPluralOfAStzType()
+		oHash = new stzHashList( StzTypesXT() )
+		anPos = oHash.FindValue( This.Lowercased() )
+		if len(anPos) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAPluralOfStzClassName()
+			return This.IsPluralOfAStzType()
+
+	def IsPluralOfThisStzType(cType)
+
+		if Q(cType).IsAStzType() and
+		   PluralOfThisStzType(cType) = This.String()
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsPluralOfThisStzClassName(cType)
+			return This.IsPluralOfThisStzType()
+
 	  #==============================#
 	 #     BOUNDS OF THE STRING     #
 	#==============================#
@@ -3428,37 +3549,33 @@ class stzString from stzObject
 		bReturnSections = FALSE
 
 		if isList(paHarvest) and
-			( Q(paHarvest).IsHarvestNamedParam() or
-			  Q(paHarvest).IsAndHarvestNamedParam() or
-			  Q(paHarvest).IsAndThenHarvestNamedParam() or
-			  Q(paHarvest).IsThenHarvestNamedParam() or
+		   Q(paHarvest).IsOneOfTheseNamedParams([
 
-			  Q(paHarvest).IsYieldNamedParam() or
-			  Q(paHarvest).IsAndYieldNamedParam() or
-			  Q(paHarvest).IsAndThenYieldNamedParam() or
-			  Q(paHarvest).IsThenYieldNamedParam() or
+				:Harvest, :AndHarvest,
+				:AndThenHarvest, :ThenHarvest,
 
-			  Q(paHarvest).IsHarvestSectionsNamedParam() or
-			  Q(paHarvest).IsAndHarvestSectionsNamedParam() or
-			  Q(paHarvest).IsAndThenHarvestSectionsNamedParam() or
-			  Q(paHarvest).IsThenHarvestSectionsNamedParam() or
+				:Yield, :AndYield,
+				:AndThenYield, :ThenYield,
 
-			  Q(paHarvest).IsYieldSectionsNamedParam() or
-			  Q(paHarvest).IsAndYieldSectionsNamedParam() or
-			  Q(paHarvest).IsAndThenYieldSectionsNamedParam() or
-			  Q(paHarvest).IsThenYieldSectionsNamedParam()
-			)
+				:HarvestSection, :AndHarvestSection,
+				:AndThenHarvestSection, :ThenHarvestSection,
+
+				:YieldSection, :AndYieldSection,
+				:AndThenYieldSection, :ThenYieldSection,
+
+				:HarvestSections, :AndHarvestSections,
+				:AndThenHarvestSections, :ThenHarvestSections,
+
+				:YieldSections, :AndYieldSections,
+				:AndThenYieldSections, :ThenYieldSections ])
 
 			if Q(paHarvest[1]).ContainsCS(:Section, :CS = FALSE)
-
 				bReturnSections = TRUE
-
 			ok
 
 			paHarvest = paHarvest[2]
 		ok
 
-	
 		if NOT len(paHarvest) = 2
 			stzRaise("Incorrect param! paHarvest must be a list of 2 items.")
 		ok
@@ -6308,6 +6425,7 @@ class stzString from stzObject
 		return len( This.FindAntiSections(paSections) )
 
 	def FindAntiSections(paSections)
+
 		aResult = StzListQ( 1 : This.NumberOfChars() ).
 				FindAntiSectionsQ(paSections).
 				Content()
@@ -7978,7 +8096,7 @@ class stzString from stzObject
 		@NumberOfOccurrences = len(anPositions)
 		@NumberOfOccurrence  = @NumberOfOccurrences
 		@NumberOfSubStrings  = @NumberOfOccurrences
-		@NumberOfSubStrings = @NumberOfOccurrence
+		@NumberOfSubStrings  = @NumberOfOccurrence
 
 		i = 0
 		@CurrentPosition = 0
@@ -8065,10 +8183,10 @@ class stzString from stzObject
 
 		@SubString = pcSubStr
 
-		@NumberOfOccurrences = len(anPositions)
+		@NumberOfOccurrences = ringlen(anPositions)
 		@NumberOfOccurrence  = @NumberOfOccurrences
 		@NumberOfSubStrings  = @NumberOfOccurrences
-		@NumberOfSubStrings = @NumberOfOccurrence
+		@NumberOfSubStrings  = @NumberOfOccurrence
 
 		i = 0
 		@CurrentPosition = 0
@@ -10863,7 +10981,7 @@ class stzString from stzObject
 	def FindNthSubStringW(n, pcCondition)
 
 		anPos = This.FindSubStringsW(pcCondition)
-		nLen = len(anPos)
+		nLen  = len(anPos)
 
 		if isString(n)
 			if n = :FirstChar or n = :First
@@ -11089,7 +11207,7 @@ class stzString from stzObject
 	def FindNthCharW(n, pcCondition)
 
 		anPos = This.FindCharsW(pcCondition)
-		nLen = len(anPos)
+		nLen  = len(anPos)
 
 		if isString(n)
 			if n = :FirstChar or n = :First
@@ -11930,7 +12048,7 @@ class stzString from stzObject
 	
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def FindSubstringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			return This.FindBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
@@ -11970,6 +12088,90 @@ class stzString from stzObject
 				return This.FindBetweenQR(pcSubStr, pcBound1, pcBound2, pcReturnType)			
 
 		#>
+
+	  #------------------------------------------------------------------#
+	 #   FINDING SUBSTRING BETWEEN TWO GIVEN SUBSTRINGS -- SIMPLIFIED   #
+	#------------------------------------------------------------------#
+
+	def FindSubStringXTCS(pcSubStr, paBetween, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+		? o1.FindSubStringXT("word", :Between = ["<<", ">>"])
+		#--> [ 11, 43 ]
+
+		Simpified alternative of:
+		? o1.FindSubStringBetween("word", "<<", ">>")
+			
+		*/
+
+		if isList(paBetween) and Q(paBetween).IsBetweenNamedParam()
+			paBetween = paBetween[2]
+		ok
+
+		if isList(paBetween) and Q(paBetween).IsPairOfStrings()
+			pcBound1 = paBetween[1]
+			pcBound2 = paBetween[2]
+		ok
+
+		if NOT BothAreStrings(pcBound1, pcBound2)
+			stzRaise("Syntax error! paBetween must be a pair of strings.")
+		ok
+
+		anResult = This.FindSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		return anResult
+
+
+		def FindSubStringCSXT(pcSubStr, paBetween, pCaseSensitive)
+			return This.FindSubStringXTCS(pcSubStr, paBetween, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStringXT(pcSubStr, paBetween)
+		return This.FindSubStringXTCS(pcSubStr, paBetween, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------------------------------#
+	 #   FINDING SECTIONS OF SUBSTRING BETWEEN TWO GIVEN SUBSTRINGS -- SIMPLIFIED   #
+	#------------------------------------------------------------------------------#
+
+	def FindSectionsXTCS(pcWord, paBetween, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+		? o1.FindSectionsXT( :Of = "word", :Between = ["<<", ">>"] )
+		#--> [ [ 11, 14 ], [ 43, 46 ] ]
+
+		Simplified alternative of:
+		? o1.FindSectionsBetween("word", "<<", ">>")
+		*/
+
+		if isList(pcWord) and Q(pcWord).IsOfNamedParam()
+			pcWord = pcWord[2]
+		ok
+
+		if isList(paBetween) and Q(paBetween).IsBetweenNamedParam()
+			paBetween = paBetween[2]
+		ok
+
+		if isList(paBetween) and Q(paBetween).IsPairOfStrings()
+			pcBound1 = paBetween[1]
+			pcBound2 = paBetween[2]
+		ok
+
+		if NOT BothAreStrings(pcBound1, pcBound2)
+			stzRaise("Syntax error! paBetween must be a pair of strings.")
+		ok
+
+		aSections = This.FindSectionsBetweenCS(pcWord, pcBound1, pcBound2, pCaseSensitive)
+		return aSections
+
+		def FindSectionsCSXT(pcWord, paBetween, pCaseSensitive)
+			return This.FindSectionsXTCS(pcWord, paBetween, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSectionsXT(pcWord, paBetween)
+		return This.FindSectionsXTCS(pcWord, paBetween, :CaseSensitive = TRUE)
 
 	  #--------------------------------------------------------#
 	 #   FINDING NTH SUBSTRING BETWEEN TWO GIVEN SUBSTRINGS   #
@@ -12035,6 +12237,10 @@ class stzString from stzObject
 		def FindLastSubStringBetween(pcSubStr, pcBound1, pcBound2)
 			return This.FindLastBetween(pcSubStr, pcBound1, pcBound2)
 
+	  #----------------------------------------------------------------------#
+	 #   FINDING NTH SUBSTRING BETWEEN TWO GIVEN SUBSTRINGS -- SIMPLIFIED   #
+	#----------------------------------------------------------------------#
+"ici"
 	   #-------------------------------------------------------------#
 	  #   FINDING ALL OCCURRENCES OF A SUBSTRING BETWEEN            #
 	 #   TWO OTHER SUBSTRINGS AND RETURN THEIR RELATIVE SECTIONS   #
@@ -12489,6 +12695,24 @@ class stzString from stzObject
 			def FindSubstringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 				return This.FindAnyBetweenCSQR(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE, pcReturnType)				
 
+		def FindAnySubstringBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.FindAnyBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+			def FindAnySubstringBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.FindSubstringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
+
+			def FindAnySubstringBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+				return This.FindAnyBetweenCSQR(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE, pcReturnType)				
+
+		def FindAnySubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.FindAnyBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+			def FindAnySubstringsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.FindSubstringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
+
+			def FindAnySubstringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+				return This.FindAnyBetweenCSQR(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE, pcReturnType)				
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -12515,6 +12739,24 @@ class stzString from stzObject
 				return This.FindSubstringsBetweenQR(pcSubStr1, pcSubStr2, :stzList)
 
 			def FindSubstringsBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
+				return This.FindAnyBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)				
+
+		def FindAnySubstringBetween(pcSubStr1, pcSubStr2)
+			return This.FindAnyBetween(pcSubStr1, pcSubStr2)
+
+			def FindAnySubstringBetweenQ(pcSubStr1, pcSubStr2)
+				return This.FindSubstringsBetweenQR(pcSubStr1, pcSubStr2, :stzList)
+
+			def FindAnySubstringBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
+				return This.FindAnyBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)				
+
+		def FindAnySubstringsBetween(pcSubStr1, pcSubStr2)
+			return This.FindAnyBetween(pcSubStr1, pcSubStr2)
+
+			def FindAnySubstringsBetweenQ(pcSubStr1, pcSubStr2)
+				return This.FindSubstringsBetweenQR(pcSubStr1, pcSubStr2, :stzList)
+
+			def FindAnySubstringsBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
 				return This.FindAnyBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)				
 
 		#>
@@ -12726,9 +12968,18 @@ class stzString from stzObject
 			
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def AnySubStringBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+			def AnySubStringBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubStringsBetweenQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+			def AnySubStringBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+				return This.SubStringsBetweenQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+
+		def AnySubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySubStringsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -12754,9 +13005,18 @@ class stzString from stzObject
 			
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def AnySubStringBetween(pcSubStr1, pcSubStr2)
+			return This.SubStringsBetween(pcSubStr1, pcSubStr2)
+
+			def AnySubStringBetweenQ(pcSubStr1, pcSubStr2)
+				return This.SubStringsBetweenQ(pcSubStr1, pcSubStr2)
+
+			def AnySubStringBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
+				return This.SubStringsBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
+
+		def AnySubStringsBetween(pcSubStr1, pcSubStr2)
 			return This.SubStringsBetween(pcSubStr1, pcSubStr2)
 
 			def AnySubStringsBetweenQ(pcSubStr1, pcSubStr2)
@@ -13126,7 +13386,7 @@ class stzString from stzObject
 		ok
 
 		if NOT isString(cSubStr)
-			stzRaise("Incorrect param type! cSubStr must be a STRING, while you are providing a " + type(cSubStr) + ".")
+			stzRaise("Incorrect param type! cSubStr must be a STRING, while you are providing a " + ring_type(cSubStr) + ".")
 		ok
 
 		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
@@ -14450,7 +14710,7 @@ class stzString from stzObject
 	def DivideBy(pDividor) 	# TODO: should by be included in the param
 				# and function become simply Divide()?
 		
-		switch type(pDividor)
+		switch ring_type(pDividor)
 
 		on "NUMBER"
 			This.SplitToNParts(n)
@@ -19092,6 +19352,15 @@ class stzString from stzObject
 		def IsNumberInString()
 			return This.RepresentsDecimalNumber()
 
+		def IsANumberInString()
+			return This.RepresentsDecimalNumber()
+
+		def IsNumberInAString()
+			return This.RepresentsDecimalNumber()
+
+		def IsANumberInAString()
+			return This.RepresentsDecimalNumber()
+
 	def RepresentsBinaryNumber()
 		oCopy = This.RemoveSpacesQ()
 
@@ -19832,7 +20101,9 @@ class stzString from stzObject
 	#------------------------------------------------------#
 
 	def IsAnAttributeOfClass(pcClass)
-		/* ... */
+		acTheseAttributes = Stz( Q(pcClass).FirstNCharsRemeoved(3), :Attributes )
+		bResult = This.ExistsInCS( acTheseAttributes, :CS = FALSE )
+		return bResult
 
 		def IsAnAttributeInClass(pcClass)
 			return This.IsAnAttributeOfClass(pcClass)
@@ -19860,7 +20131,9 @@ class stzString from stzObject
 	#------------------------------------------------------#
 
 	def IsAMethodOfClass(pcClass)
-		/* ... */
+		acTheseMethods = Stz( Q(pcClass).FirstNCharsRemeoved(3), :Methods )
+		bResult = This.ExistsInCS( acTheseMethods, :CS = FALSE )
+		return bResult
 
 		def IsAMethodInClass(pcClass)
 			return This.IsAMethodOfClass(pcClass)
@@ -19888,17 +20161,17 @@ class stzString from stzObject
 	#----------------------------------------#
 
 	def AllCharsAre(pDescriptor)
-
 		/* EXAMPLE
 
-		? Q("123").AllCharsAre(:Numbers) #--> TRUE
-		? Q("248").AllCharsAre([ :Even, :Numbers ])
+		? Q("248").AllCharsAre([ :Even, :Positive, :Numbers ])
+		#--> TRUE
 
-		? Q("(,)").AllCharsAre(:Punctuations)
+		? Q("248").AllCharsAre([ :Even, W('Q(@char).IsANumber()'), :Numbers ])
+		#--> TRUE
 
-		
+		? Q(",:;").AllCharsAre(:Punctuations)
+
 		*/
-
 
 		if isString(pDescriptor)
 			return This.AllCharsAreXT([ pDescriptor ], :EvalDirection = :Nothing)
@@ -19906,17 +20179,11 @@ class stzString from stzObject
 		but isList(pDescriptor) and Q(pDescriptor).IsListOfStrings()
 			return This.AllCharsAreXT(pDescriptor, :EvalDirection = :Nothing)
 
-		ok
-
-		
+		ok	
 
 	def AllCharsAreXT(pacDescriptors, paEvalDirection)
-		/* EXAMPLE
-		? Q("248").AllCharsAreXT([ :Even, :Positive, :Numbers ], :EvalFrom = :RightToLeft)
-		#--> TRUE
-		*/
 
-		if NOT isList(pacDescriptors) and Q(pacDescriptors).IsListOfStrings()
+		if NOT ( isList(pacDescriptors) and Q(pacDescriptors).IsListOfStrings() )
 			stzRaise("Incorrect param type! pacDescriptors must be a list of strings.")
 		ok
 
@@ -19962,76 +20229,64 @@ class stzString from stzObject
 			acDescriptors = Q(acDescriptors).Reversed()
 		ok
 
-		#--> Start evaluation by elevating the 1st descriptor to an object
-		#    and then check the other descriptors on it
-		#    if they are all TRUE then return TRUE, else return FALSE
-
-		for cDescriptor in acDescriptors
-			oDescriptor = Q(cDescriptor)
-			if oDescriptor.IsEqualToCS(:Number, :CS = FALSE)
-				cDescriptor = :ANumber
-
-			but oDescriptor.IsEqualToCS(:String, :CS = FALSE)
-				cDescriptor = :AString
-
-			but oDescriptor.IsEqualToCS(:List, :CS = FALSE)
-				cDescriptor = :AList
-
-			but oDescriptor.IsEqualToCS(:Object, :CS = FALSE)
-				cDescriptor = :AnObject
-			ok
-		next
-
-		if Q(acDescriptors[1]).IsEitherCS( "char", :Or =  "chars", :CS = FALSE )
-			cType = "char"
-		else
-			cType = InfereDataTypeFromString(acDescriptors[1])
-			if cType = ""
-				cType = QQ(acDescriptors[1]).DataType()
-			ok
-		ok
-
-		bResult = FALSE
-
 		if len(acDescriptors) = 1
-			aCharsDataTypes = This.CharsQ().Harvest(' QQ(@char).DataType() ')
-			bResult = Q(aCharsDataTypes).Check( '@item = "' + cType + '" ')
+			if acDescriptors[1] = :Number or acDescriptors[1] = :Numbers
+				cMethod = :IsANumber
+
+			but acDescriptors[1] = :String or acDescriptors[1] = :Strings
+				cMethod = :IsAString
+
+			but acDescriptors[1] = :List or acDescriptors[1] = :Lists
+				Method = :IsAList
+
+			but acDescriptors[1] = :Object or acDescriptors[1] = :Objects
+				cMethod = :IsAnObject
+
+			but Q(acDescriptors[1]).FirstChar() = "{" and
+			    Q(acDescriptors[1]).LastChar() = "}"
+
+				bResult = This.Check( :That = acDescriptors[1] )
+				return bResult
 			
+			else
+
+				cMethod = Q(acDescriptors[1]).InfereMethod(:From = :stzChar)
+
+			ok
+
+			bResult = This.Check( :That = 'StzCharQ(@char).' + cMethod + "()" )
+
 		else
 
-			# ? Q("248").AllCharsAre([ :Even, :Positive, :Numbers ])
-			# ? Q("①②③").AllCharsAre([:Circled, :Positive, :Numbers])
+			cType = Q(acDescriptors[1]).InfereType()
+			if Q(cType).StartsWithCS("stz", :CS = FALSE)
+				cType = Q(cType).FirstNCharsRemoved(3)
+			ok
 
-			for i = 1 to This.NumberOfChars()
+			bResult = TRUE
+	
+			for i = 2 to len(acDescriptors)
 
+ 				if Q(acDescriptors[i]).FirstChar() = "{" and
+			   	   Q(acDescriptors[i]).LastChar() = "}"
 
-				oTemp = new_stz(cType, This.Char(i) )
+					bOk = This.Check( :That = acDescriptors[i] )
+				
+				else
 
-				bResult = TRUE
-				for v = 2 to len(acDescriptors)
-					cMethod = 'is' + acDescriptors[v]
-					cMethodXT = cMethod + '()'
+					cMethod = Q(acDescriptors[i]).InfereMethod( :From = 'stz' + cType )
+					bOk = This.Check( :That = 'Stz' + cType + 'Q(@item).' + cMethod + "()" )
+				ok
 
-					if Q(cType).IsDifferentFromCS(:char, :CS = FALSE) and 
-					   Q(cMethod).IsOneOfCS(StzCharMethods(), :CS=FALSE)
-
-						oTemp = new stzChar( This.Char(i) )
-					ok
-
-					cCode = 'bOk = oTemp.' + cMethodXT
-					eval(cCode)
-
-					if NOT bOk
-						bResult = FALSE
-					ok
-				next
-
+				if bOk = FALSE
+					bResult = FALSE
+					exit
+				ok
 			next
-
 		ok
 
 		return bResult
-		
+
 	  #---------------------------------------------#
 	 #      CHARS VERIFYING A GIVEN CONDITION      #
 	#---------------------------------------------#
@@ -20520,6 +20775,8 @@ class stzString from stzObject
 		def NumberOfItems()
 			return This.NumberOfChars()
 
+		def Length()
+			return This.NumberOfChars()
 	
 	def NumberOfLetters()
 		return len(This.OnlyLetters())
@@ -20652,10 +20909,10 @@ class stzString from stzObject
 	def MultiplyBy(pValue)
 			cResult = NULL
 
-			if type(pValue) = "NUMBER"
+			if ring_type(pValue) = "NUMBER"
 				cResult = This.RepeatNTimesQ(pValue).Content()
 		
-			but type(pValue) = "STRING"
+			but ring_type(pValue) = "STRING"
 
 				if pValue = NULL { return NULL }
 
@@ -20667,7 +20924,7 @@ class stzString from stzObject
 					cResult += cTemp
 				next
 		
-			but type(pValue) = "LIST"
+			but ring_type(pValue) = "LIST"
 				aValue = pValue // just for expressivity
 				cResult = ""
 				cTemp = ""
@@ -20691,21 +20948,6 @@ class stzString from stzObject
 		def MultiplyByQ(pValue)
 			This.MultiplyBy(pValue)
 			return This
-	
-		def MultiplyByQR(pValue, pcReturnType)	
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			This.MultiplyBy(pValue)
-	
-			switch pcReturnType
-			on :String
-				return This.String()
-	
-			on :List
-				return This / len(
-			off
 
 		#>
 
@@ -21560,7 +21802,7 @@ class stzString from stzObject
 			stzRaise("Incorrect param! paOptions must be a hashlist.")
 		ok
 
-		if NOT (  len(paOptions) = 0 or
+		if NOT ( len(paOptions) = 0 or
 
 			  StzHashListQ(paOptions).
 			  KeysQR(:stzListOfStrings).IsMadeOfSomeCS([
@@ -21773,6 +22015,15 @@ class stzString from stzObject
 			return This.IsStzClassName()
 
 		def IsStzClass()
+			return This.IsStzClassName()
+
+		def IsAStzClassName()
+			return This.IsStzClassName()
+
+		def IsAStzType()
+			return This.IsStzClassName()
+
+		def IsAStzClass()
 			return This.IsStzClassName()
 
 	  #---------------------------------#
@@ -23138,7 +23389,7 @@ class stzString from stzObject
 		// add : string + string | string + ListOfStrings
 
 		but pOp = "+"
-			if type(pValue) = "STRING"
+			if ring_type(pValue) = "STRING"
 				This.Append(pValue)
 				return This
 		
@@ -23203,7 +23454,7 @@ class stzString from stzObject
 		but pOp = "%"
 			cResult = NULL
 
-			if type(pValue) = "NUMBER"	
+			if ring_type(pValue) = "NUMBER"	
 				aParts = []
 		
 				nParts = ceil( This.NumberOfChars() / pValue )
@@ -23218,8 +23469,8 @@ class stzString from stzObject
 					next
 				ok
 		
-				if aParts[len(aParts)] != "_"
-					return aParts[len(aParts)]
+				if aParts[ len(aParts) ] != "_"
+					return aParts[ len(aParts) ]
 				ok
 			ok
 
@@ -23407,170 +23658,25 @@ class stzString from stzObject
 		def IsAttributeOfObject(pObject)
 			return IsAnAttributeOfThisObject(pObject)		 
 
-
 	#-----------------
 
 	def IsStzString()
 		return TRUE
 
-	# If you ask for the type of the current object and you
-	# use Type(), then Softanza answers you like the ring
-	# native function type() would do:
-	def Type()
-		return "OBJECT" #--> Note that Ring returns it in UPPERCASE
-				# so we conserve the same behavior to be
-				# consistent with your other Ring code
-
-	# If you want to know the name of the class then you can use
-	# the same function as Ring (ClassName()) or stzType()):
-	def stzType()
+	def StzType()
 		return :stzString
-
-		def ClassName()
-			return This.stzType()
-
-	# If you need to know the type of the data hosted in this
-	# object, then you use DataType():
-	def DataType()
-		return :String
-	# You would say: it's of course a string, so why one should ever
-	# need it? Answer: there are two good reasons:
-
-	# 	- Reason 1: when you deal with a variable that you don't
-	# 	  know its type:
-
-	# 	  like when you write: ? Q(var).DataType, and you get "string",
-	# 	  now you know var hosts a string. But, in terms of Ring native
-	# 	  types,  it may be a STRING or OBJECT ring types of the class
-	# 	  stzString. In fact, stzString is a container of strings!
-
-	# 	  To check it, you can use: ? Q(var).IsObject(), and you get TRUE
-	# 	  or FALSE depending on var beeing a ring STRING or OBJECT.
-
-	# 	  In case it's TRUE, you can check the name of the softanza class using:
-	# 	  N Q(var).stzType() and you will get "stzstring".
-
-	# 	- Reason 2: when used in natural language programming.
-	# 	  TODO: Develop the explanantion here...
-
-	#--- ITEM
-
-	def IsItem()
-		return TRUE
-
-	def IsItemOf(paList)
-		return StzListQ(paList).Contains(This.Content())
-	
-		def AsAnItemOf(paList)
-			return This.IsItemOf(paList)
-	
-	def IsItemIn(paList)
-		return This.IsItemOf(paList)
-	
-		def IsAnItemIn(paList)
-			return This.IsItemOf(paList)
-
-	# 
-	def IsMember()
-		return TRUE
-
-	def IsMemberOf(paList)
-		return StzListQ(paList).Contains(This.Content())
-	
-		def AsAMemberOf(paList)
-			return This.IsMemberOf(paList)
-	
-	def IsMemberIn(paList)
-		return This.IsMemberOf(paList)
-	
-		def IsAMemberIn(paList)
-			return This.IsMemberOf(paList)
-
-	#--- NUMBER
 
 	def IsANumber()
 		return FALSE
 
-	def IsNumberOf(paList)
-		return FALSE
-
-		def IsANumberOf(paList)
-			return FALSE
-	
-	def IsNumberIn(paList)
-		return FALSE
-	
-		def IsANumberIn(paList)
-			return FALSE
-
-	#--- STRING
-
 	def IsAString()
 		return TRUE
 
-	def IsALetter()
-		return This.IsLetter()
+	def IsAList()
+		return FALSE
 
-	def IsLetterOf(pStrOrListOfChars)
-		if isString(pStrOrListOfChars)
-			if This.IsLetter()
-				return StzCharQ(This.Content()).IsLetterOf(pStrOrListOfChars)
-			else
-				return FALSE
-			ok
-
-		but isList(pStrOrListOfChars)
-			if This.IsLetter()
-				return StzListQ(pStrOrListOfChars).Contains(This.Content())
-			else
-				return FALSE
-			ok
-		ok
-
-		def IsALetterOf(pcStr)
-			return This.IsLetterOf(pcStr)
-	
-	def IsLetterIn(pcStr)
-		return This.IsLetterOf(pcStr)
-
-		def IsALetterIn(pcStr)
-			return This.IsLetterOf(pcStr)
-
-	def IsCharOf(pStrOrListOfChars)
-		if isString(pStrOrListOfChars)
-			if This.IsChar()
-				return StzCharQ(This.Content()).IsCharOf(pStrOrListOfChars)
-			else
-				return FALSE
-			ok
-
-		but isList(pStrOrListOfChars)
-			if This.IsChar()
-				return StzListQ(pStrOrListOfChars).Contains(This.Content())
-			else
-				return FALSE
-			ok
-		ok
-
-		def IsACharOf(pcStr)
-			return This.IsLetterOf(pcStr)
-
-	def IsCharIn(pcStr)
-		return This.IsLetterOf(pcStr)
-
-		def IsACharIn(pcStr)
-			return This.IsLetterOf(pcStr)
-
-	def IsCharName()
-		cStr = This.String()
-		oUnicodeStr = new stzString( UnicodeNamesInString() )
-		n = oUnicodeStr.FindFirstCS(cStr, :CS = FALSE)
-
-		if n > 0
-			return TRUE
-		else
-			return FALSE
-		ok
+	def IsAnObject()
+		return TRUE
 
 	def Stringify()
 		return This.String()
@@ -23635,3 +23741,33 @@ class stzString from stzObject
 
 	def Show()
 		? This.Content()
+
+	def Methods()
+		return ring_methods(This)
+
+	def Attributes()
+		return ring_attributes(This)
+
+	def ClassName()
+		return "stzstring"
+
+		def StzClassName()
+			return This.ClassName()
+
+		def StzClass()
+			return This.ClassName()
+
+	def IsLatinScript()
+		return This.ToStzText().IsLatinScript()
+
+		def IsLatin()
+			return This.IsLatinScript()
+
+	def IsArabicScript()
+		return This.ToStzText().IsArabicScript()
+
+		def IsArabic()
+			return This.IsArabicScript()
+
+	def IsText()
+		return TRUE

@@ -3374,7 +3374,7 @@ Class stzTable
 
 		aResult = []
 
-		if len(anPos) > 0 and n <= len(anPos)
+		if len(anPos) > 0 and n <= eing_len(anPos)
 			aResult = anPos[n]
 		ok
 
@@ -5756,7 +5756,7 @@ Class stzTable
 			stzRaise("Incorrect param types! paCellsPos and paNewValues must be both lists.")
 		ok
 
-		nLenCells = len(paCellsPos)
+		nLenCells  = len(paCellsPos)
 		nLenValues = len(paNewValues)
 		
 		if nLenValues >= nLenCells
