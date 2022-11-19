@@ -1,34 +1,41 @@
 load "stzlib.ring"
 
 /*
-		This method exists alos in the parent stzObject.
-		Here we make it specific to strings.
 
-		In fact, Q("Hi!").RepeatNTimes(3) when applied to
-		the string "Hi!" willl update it to become "Hi!Hi!Hi!".
+# When applied to the string "Hi!", RepeatNTimes() will update
+# it to become "Hi!Hi!Hi!".
 
-		In all other types (stzList, stzNumber, and stzObject)
-		Q(5).RepeatNTimes(3) will produce the list [5, 5, 5],
-		and Q(1:3).RepeatNTimes(3) will produce the list
-		[ 1:3, 1:3, 1:3 ].
+? Q("Hi!").RepeatNTimes(3)
+#--> "Hi!Hi!Hi!"
 
-		You my ask we we opted for a different behavior for
-		strings compared to other types?
+# When used with all other types (stzList, stzNumber, and stzObject),
+# it will reproduce the object value inside a list:
 
-		Well, because I think it's more obvious to update the
-		string when ask to repeat it, and have a string as a
-		result not a list!
+? Q(5).RepeatNTimes(3)
+#--> [5, 5, 5]
 
-		If you want to avoid any confusuion coming from this,
-		use RproduceIn() instead, and specify explicitly what
-		you hant to have, like this:
+? Q(1:3).RepeatNTimes(3)
+#--> [ 1:3, 1:3, 1:3 ].
 
-		? Q("Hi!").Reproduced( :NTimes = 3, :InString)
-		#--> "Hi!Hi:Hi!
+# You my ask we we opted for a different behavior for
+# strings compared to other types, and why we don't produce
+# a list even when we use the function on a string, like this
+# ? Q("Hi!").RepeatNTimes(3) #!--> [ "Hi!", "Hi!", "Hi" ] ?
 
-		? Q("Hi!").Reproduced( :NTimes = 3, :InList)
-		"--> [ "Hi!", "Hi!", "Hi!" ]
-*/
+# Well, because I think it's more natural to update the
+# string when ask to repeat it, and have a string as a
+# result not a list!
+
+# If you want to avoid any confusuion coming from this double-usage,
+# rely on RproduceIn() instead, and specify explicitly what
+# you hant to have as an output, like this:
+
+? Q("Hi!").Reproduced( :NTimes = 3, :InString)
+#--> "Hi!Hi:Hi!
+
+? Q("Hi!").Reproduced( :NTimes = 3, :InList)
+#--> [ "Hi!", "Hi!", "Hi!" ]
+
 
 /*----------------------
 
@@ -47,19 +54,26 @@ load "stzlib.ring"
 #--> [ "ONE", "TWO", "THREE" ]
 
 /*----------------------
-*/
+
+# Five nice usecases of the / operator on a Softanza string:
+
+# Usecase 1: Dividing the string into 3 equal parts
 ? Q("RingRingRing") / 3
 # --> [ "Ring", "Ring", "Ring" ]
 
+# Usecase 2: Splitting the string using a given char
 ? Q("Ring;Python;Ruby") / ";"
 # --> [ "Ring", "Python", "Ruby" ]
 
+# Usecase 3: Splitting the string on each char verifying a condition
 ? Q("Ring:Python;Ruby") / W('Q(@Char).IsNotLetter()')
 #--> [ "Ring", "Python", "Ruby" ]
 
+# Usecase 4: Sharing the string equally between three stakeholders
 ? Q("RingRubyJava") / [ "Qute", "Nice", "Good" ]
 # --> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]
 
+# Usecase 5: Specifying how mutch char we should give to every stakeholder
 ? Q("IAmRingDeveloper") / [
 	:Subject = 1,
 	:Verb    = 2,
@@ -68,7 +82,6 @@ load "stzlib.ring"
 ]
 #--> [ :Subject = "I", :Verb = "Am", :Noun1 = "Ring", :Noun2 = "Developer" ]
 
-stop()
 /*---------------
 
 ? PLuralOfThisStzType("stzChar")
@@ -90,7 +103,7 @@ stop()
 #--> "ispunctauion"
 
 /*---------------
-*/
+
 ? Q("12309").AllCharsAre(:Numbers)
 #--> TRUE
 
@@ -109,7 +122,7 @@ stop()
 ? Q("سلام").AllCharsAre([ :RightToLeft, :Arabic, :Chars ])
 
 ? Q("سلام").AllCharsAre([ :RighttoLeft, W('Q(@char).IsArabic()'), :Chars ])
-? "--"
+
 /*---------------
 
 ? SoftanzaLogo()
@@ -312,28 +325,64 @@ str = "sun"
 
 #--> [ ".", "1", ".", ".", "." ]
 
-/*------------------
+/*===============
 
-o1 = new stzString("5")
-? @@S( o1.Reproduce(:InA = :List, :OfSize = 2) )
-#--> [ 5, 5 ]
+? Q("A").ReproduceQ(:String, 3).StzType()
+#--> "stzstring"
 
-? @@S( o1.Reproduce(:InA = :ListOfStrings, :OfSize = 3) )
+? Q("A").ReproduceQ(:List, 3).StzType()
+#--> "stzlist"
+
+/*----------------
+*/
+? @@S( Q("5").Reproduced(:InA = :List, :OfSize = 2) )
+#--> [ "5", "5" ]
+
+? Q("A").ReproducedInAPair()
+#--> [ "A", "A" ]
+
+? @@S( Q("5").Reproduced(:InA = :ListOfNumbers, :OfSize = 3) )
+#--> [ 5, 5, 5 ]
+
+? Q("5").Reproduced(:InA = :String, :OfSize = 3)
+#--> "555"
+
+? Q(5).Reproduced(:InA = :String, :OfSize = 3)
+#--> "555"
+
+? Q("5").Reproduced(:InA = :ListOfNumbers, :OfSize = 3)
+#--> [ 5, 5, 5 ]
+
+? @@S( Q(5).Reproduced(:InA = :ListOfStrings, :OfSize = 3) )
 #--> [ "5", "5", "5" ]
 
-? o1.Reproduce(:InA = :String, :OfSize = 7)
-#--> "5555555"
+? @@S( Q("A").Reproduced(:InA = :ListOfPairs, :OfSize = 3) ) + NL
+#--> [ [ "A", "A" ], [ "A", "A" ], [ "A", "A" ] ]
 
-? @@S( o1.Reproduce(:InA = :Grid, :OfSize = [3, 3]) )
+? @@S( Q("A").Reproduced(:InA = :ListOfLists, :OfSize = 3) ) + NL
+#--> [ [ "A" ], [ "A" ], [ "A" ] ]
+
+? @@S( Q("A").
+	ReproduceQ(:InA = :List, :OfSize = 3).
+	Reproduced(:InA = :List, :OfSize = 3)
+) + NL
+#--> [ [ "A", "A", "A" ], [ "A", "A", "A" ], [ "A", "A", "A" ] ]
+
+? @@S( Q("A").Reproduced(:InA = :Grid, :OfSize = [3, 3]) ) + NL
 #-->
 # [
-# 	[ "5", "5", "5" ],
-# 	[ "5", "5", "5" ],
-# 	[ "5", "5", "5" ]
+# 	[ "A", "A", "A" ],
+# 	[ "A", "A", "A" ],
+# 	[ "A", "A", "A" ]
 # ]
 
-? @@S( o1.Reproduce(:InA = :ListOfNumbers, :OfSize = 3) )
-#--> [ "5", "5", "5" ]
+? @@S( Q("A").Reproduced(:InA = :Table, :OfSize = [3, 3]) ) + NL
+#--> [
+#	[ "COL1", [ "", "", "" ] ],
+#	[ "COL2", [ "", "", "" ] ],
+#	[ "COL3", [ "", "", "" ] ]
+# ]
+
 
 /*-----------------------
 

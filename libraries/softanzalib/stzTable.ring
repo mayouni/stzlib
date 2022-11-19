@@ -5748,7 +5748,9 @@ Class stzTable
 			This.ReplaceCells(paCellsPos, paNewValues)
 
 	def ReplaceCellsByMany(paCellsPos, paNewValues)
-		if isList(paNewValues) and Q(paNewValues).IsByOrWithNamedParam()
+
+		if isList(paNewValues) and
+		   Q(paNewValues).IsByOrWithNamedParam()
 			paNewValues = paNewValues[2]
 		ok
 
@@ -5763,7 +5765,11 @@ Class stzTable
 
 			aValues = Q(paNewValues).Section(1, nLenCells)
 		else
-			aValues = Q(paNewValues).ExtendedTo( nLenCells, :Using = NULL )
+	
+			aValues = Q(paNewValues).Section(1, nLenValues)
+			for i = nLenValues + 1 to nLenCells
+				aValues + This.Cell(paCellsPos[i][1], paCellsPos[i][2])
+			next
 		ok
 
 		i = 0
@@ -5776,7 +5782,8 @@ Class stzTable
 	#==============================#
 
 	def ReplaceCol(pCol, paNewCol)
-		if isList(paNewCol) and Q(paNewCol).IsWithOrByNamedParam()
+		if isList(paNewCol) and
+		   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
 			paNewCol = paNewCol[2]
 		ok
 
@@ -5795,24 +5802,39 @@ Class stzTable
 		def ReplaceColumn(pCol, paNewCol)
 			This.ReplaceCol(pCol, pNewCol)
 
-	def ReplaceAllCols(paNewCols)
-		if Q(paNewCols).IsWithOrByNamedParam()
-			paNewCols = paNewCols[2]
+	def ReplaceAllCols(paNewCol)
+		if isList(paNewCol) and
+		   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+			paNewCol = paNewCol[2]
 		ok
 
-		aCells = This.AllCellsAsPositions()
-		This.ReplaceCells(aCells, paNewCols)
+		if NOT isList(paNewCol) 
+			stzRaise("Incorrect param type! paNewCol must be a list.")
+		ok
 
-		def RelpaceCols(paNewCols)
+		for i = 1 to This.NumberOfCols()
+			This.ReplaceCol(i, paNewCol)
+		next
+
+		def ReplaceAllColumns(paNewCol)
+			This.ReplaceAllCols(paNewCol)
+
+		def ReplaceCols(paNewCols)
 			This.ReplaceAllCols(paNewCols)
 
+		def ReplaceColumns(paNewCol)
+			This.ReplaceAllCols(paNewCol)
+
 	def ReplaceTheseCols(paCols, paNewCols)
-		if Q(paNewCols).IsWithOrByNamedParam()
+		if Q(paNewCols).IsOneOfTheseNamedParams([ :With, :By, :Using ])
 			paNewCols = paNewCols[2]
 		ok
 
 		aCells = This.CellsInTheseColsAsPositions(paCols)
 		This.ReplaceCells(aCells, paNewCols)
+
+		def ReplaceTheseColumns(paCols, paNewCols)
+			This.ReplaceTheseCols(paCols, paNewCols)
 
 	  #===========================#
 	 #  REPLACING CELLS IN ROWS  #
@@ -5836,35 +5858,26 @@ Class stzTable
 		aRowCells = This.RowAsPositions(pnRow)
 		This.ReplaceCellsByMany(aRowCells, paNewRow)
 
-	def ReplaceAllRows(paNewRows)
-		if isList(paNewRows) and Q(paNewRows).IsWithOrByNamedParam()
-			paNewRows = paNewRows[2]
+	# Replacing all the rows with the provided row
+	def ReplaceAllRows(paNewRow)
+		if isList(paNewRow) and
+		   Q(paNewRow).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+			paNewRow = paNewRow[2]
 		ok
 
-		if NOT isList(paNewRows) 
-			stzRaise("Incorrect param type! paNewRows must be a list.")
+		if NOT isList(paNewRow) 
+			stzRaise("Incorrect param type! paNewRow must be a list.")
 		ok
 
-		if NOT len(paNewRows) = This.NumberOfRows()
-			stzRaise("Incorrect param type! Number of items in paNewRows list must be equal to the number of rows in the table.")
-		ok
-
-		aCellsPos = This.AllCellsAsPositions()
-		
-		aNewCellsValues = []
-		for aRow in paNewRows
-			for cell in aRow
-				aNewCellsValues + cell
-			next
+		for i = 1 to This.NumberOfRows()
+			This.ReplaceRow(i, paNewRow)
 		next
-
-		This.ReplaceCells(aCellsPos, aNewCellsValues)
 
 		def ReplaceRows(paNewRows)
 			This.ReplaceAllRows(paNewRows)
 
 	def ReplaceTheseRows(paRows, paNewRows)
-		if Q(paNewrows).IsWithOrByNamedParam()
+		if Q(paNewrows).IsOneOfTheseNamedParams([ :With, :By, :Using ])
 			paNewrows = paNewrows[2]
 		ok
 
@@ -7399,6 +7412,78 @@ Class stzTable
 		def RowToStringQ(n)
 			return new stzString( This.RowToString(n) )
 
+	  #-----------------------------------------------------------#
+	 #  FILLING ALL THE TABLE WITH A GIVEN CELL, COLUMN, OR ROW  #
+	#-----------------------------------------------------------#
+
+	def Fill(pValue)
+		/*
+
+		EXAMPLE 1:
+
+		o1 = new stzTable([3, 3])
+		o1.Fill( :With = "A" )	# or ( :WithCell = "A" )
+		o1.Show()
+		#-->
+		# #	:COL1	:COL2	:COL3
+		# 1	  "A"	  "A"	  "A"
+		# 2	  "A"	  "A"	  "A"
+		# 3	  "A"	  "A"	  "A"
+
+		EXAMPLE 2:
+
+		o1 = new stzTable([3, 3])
+		o1.Fill( :WithCol = [ "A", "B", "C" ])
+		#-->
+		# #	:COL1	:COL2	:COL3
+		# 1	  "A"	  "A"	  "A"
+		# 2	  "B"	  "B"	  "B"
+		# 3	  "C"	  "C"	  "C"
+
+		EXAMPLE 3:
+
+		o1 = new stzTable([3, 3])
+		o1.Fill( :WithRow = [ "A", "B", "C" ])
+		#-->
+		# #	:COL1	:COL2	:COL3
+		# 1	  "A"	  "B"	  "C"
+		# 2	  "A"	  "B"	  "C"
+		# 3	  "A"	  "B"	  "C"
+
+		*/
+
+		cFill = :WithCell
+
+		if isList(pValue) and
+		   Q(pValue).IsOneOfTheseNamedParams([
+			:With, :WithCell, :WithCol, :WithColumn, :WithRow,
+			:Using, :UsingCell, :UsingCol, :UsingColumn, :UsingRow ])
+
+			cFill  = pValue[1]
+			pValue = pValue[2]
+		ok
+
+		if cFill = :With or cFill = :WithCell
+			for i = 1 to This.NumberOfCols()
+				for v = 1 to This.NumberOfRows()
+					This.ReplaceCell(i, v, pValue)
+				next v
+			next i
+
+		but Q(cFill).IsOneOfThese([
+			:WithCol, :WithColumn, :UsingCol, :UsingColumn ])
+		    
+			This.ReplaceCols(:With = pValue)
+
+		but cFill = :WithRow or cFill = :UsingRow
+
+			This.ReplaceRows(:By = pValue)
+
+		else
+			stzRaise("Unsupported syntax! Allowed named params are: " +
+				 ":WithCell, :WithColumn, and :WithRow.")
+		ok
+		
 	  #=================================#
 	 #  MISC. : SOME USEFUL UTILITIES  #
 	#=================================#

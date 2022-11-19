@@ -18797,15 +18797,15 @@ class stzString from stzObject
 	// Transforms the string to a number based on the defined format
 	// --> TODO: Use the ApplyFormat() method in the stzNumber class...
 	// Rething the naming!
-	def ToNumber(cFormat) // TODO
+	def ToNumberXT(cFormat) // TODO
 		/*
 		o1 = new stzString("+12500,14")
 		? o1.ToNumber("+99 999.99") --> 12 500.14
 		*/
 
-	def ToNumberQ(cFormat)
-		return new stzNumber( This.ToNumber() )
-	
+		def ToNumberXTQ(cFormat)
+			return new stzNumber( This.ToNumberXT() )
+		
 
 	  #------------------------------------------------#
 	 #    UNICODE CODES OF THE CHARS OF THE STRING    #
@@ -21974,8 +21974,8 @@ class stzString from stzObject
 
 		return nResult
 
-	#---------------------------------#
-	#  REPEATING THE STRING N TIMES   #
+	  #---------------------------------#
+	 #  REPEATING THE STRING N TIMES   #
 	#---------------------------------#
 
 	def RepeatNTimes(n)
@@ -22017,12 +22017,45 @@ class stzString from stzObject
 		next
 		This.Update( cResult )
 
+		#< @FunctionFluentForms
+
+		# RETURNING THE OBJECT MODIFIED
+
 		def RepeatNTimesQ(n)
 			This.RepeatNTimes(n)
 			return This
 
+		#-- RETURNING A MODIFIED COPY
+
+		def RepatNTImesCQ(n)
+			return This.Copy().RepeatNTimes(n)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def Repeat(n)
+			This.RepeatNTimes(n)
+
+			def RepeatQ(n)
+				This.Repeat(n)
+				return This
+
+			#--
+
+			def RepeatCQ(n)
+				return This.Copy().RepeatQ(n)
+
+		#>
+
+
+	# RETURNING THE OUTPUT DATA
+
 	def RepeatedNTimes(n)
 		return This.Copy().RepeatNTimesQ(n).Content()
+
+		def Repeated(n)
+			return This.RepeatedNTimes(n)
 
 	  #----------------------------------------------------#
 	 #     COMPRESSING THE STRING WITH A BINARY SCHEMA    #
