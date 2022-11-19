@@ -8843,7 +8843,10 @@ sdsd
 		ok
 
 		bDynamic = FALSE
-		if isList(pWith) and Q(pWith).IsWithOrByNamedParam()
+
+		if isList(pWith) and
+		   Q(pWith).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+
 			if Q(pWith[1]).LastChar() = "@"
 				bDynamic = TRUE
 			ok
@@ -8887,8 +8890,8 @@ sdsd
 			ok
 		ok
 	
-		def ExtendToPositionXTQ(n)
-			This.ExtendToPositionXT(n)
+		def ExtendToPositionXTQ(n, pWith)
+			This.ExtendToPositionXT(n, pWith)
 			return This
 
 		def ExtendToPositionNXT(n, pWith)
@@ -8913,7 +8916,7 @@ sdsd
 				return This
 
 	def ExtendedToPositionXT(n, pWith)
-		aResult = This.Copy().ExtendToPositionQ(n, pWith).Content()
+		aResult = This.Copy().ExtendToPositionXTQ(n, pWith).Content()
 		return aResult
 
 		def ExtendedToPositionNXT(n, pWith)
@@ -15364,6 +15367,106 @@ sdsd
 	def IsByColumnNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :ByColumn, :ByColumn@ ]) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUsingColNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :UsingCol, :UsingCol@ ]) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUsingColumnNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :UsingColumn, :UsingColumn@ ]) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsWithColNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :WithCol, :WithCol@ ]) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsWithColumnNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :WithColumn, :WithColumn@ ]) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsByRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ByRow )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsWithRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :WithRow )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUsingRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :UsingRow )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsByCellNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ByCell )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsWithCellNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :WithCell )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUsingCellNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :UsingCell )
 		  
 			return TRUE
 

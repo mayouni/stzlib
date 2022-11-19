@@ -1,6 +1,69 @@
 load "stzlib.ring"
 
+/*====== TODO: YIELD AND CUMULATE
+
+o1 = new stzList([ "one", "two", "three" ])
+? o1.Yield("len(@item)")
+#--> [ 3, 3, 5 ]
+
+? o1.YieldAndCumulate('len(@item)')
+#--> [ 3, 6, 11 ]
+
+? o1.YieldAndCumulateXT('len(@item)', :ReturnLast )
+#--> 11
+
+? o1.YielAndCumulateXT('len(@item)', :Using = '@item += @PreviousItem')
+#--> [ 3, 6, 11 ]
+
+? o1.YieldAndCumulateXT('len(@item)', [ :Using = '@item += @PreviousItem', :ReturnLast ])
+#--> 11
+
+/*==================
+*/
+? Q(5).ToNumber()
+#--> 5
+
+? Q("5").ToNumber()
+#--> 5
+
+? Q([ "a", "b", "c" ])
+#--> 3
+
+/*==================
+
+o1 = new stzNumber(8)
+? o1.ToNumber()
+#--> 8
+
 /*-----------------
+
+o1 = new stzString("142")
+? o1.ToNumber()
+#--> 142
+
+? o1.ToNumberXT('@.NumberOfChars()')
+#--> 3
+? o1.ToNumberXT('
+	YieldAndCumulate('0+ @item')
+')
+#--> 7
+? o1.ToNumberXT('
+	YieldAndCumulateXT('0+ @item', :ReturnIntermediate)
+')
+#--> [ 1, 5, 7 ]
+
+/*-----------------
+
+o1 = new stzList([ "one", "two", "three" ])
+? o1.ToNumber()
+#--> 3
+
+? o1.ToNumberXT('
+	YieldAndCumulateXT("len(@item)", :ReturnIntermediate )
+')
+
+
+/*=================
 
 ? Q(StzTypesXT()).IsHashList()
 #--> TRUE
@@ -9,7 +72,7 @@ load "stzlib.ring"
 #--> 17
 
 /*-----------------
-*/
+
 ? PluralOfThisStzType(:stzchar)
 #--> "stzchars"
 

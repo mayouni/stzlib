@@ -1236,6 +1236,8 @@ class stzObject
 		#--> [ 5, 5 ]
 		*/
 
+		# Step 1: Resolving params
+
 		if isList(pIn) and
 			( Q(pIn).IsInNamedParam() or
 			  Q(pIn).IsInANamedParam() )
@@ -1245,14 +1247,14 @@ class stzObject
 
 		if NOT ( isString(pIn) and
 				Q(pIn).IsOneOfTheseCS([
-					:String, :List, :ListOfLists,
-					:ListOfPairs, :Grid, :Table
+					:String, :List, :ListOfNumbers, :ListOfStrings,
+					:ListOfLists, :ListOfPairs, :Grid, :Table
 				], :CS = FALSE)
 			)
 
 			stzRaise("Incorrect param! pIn must be a string representing one of" +
-				 "these Softanza types: :String, :List, :ListOfLists, " +
-				 ":ListOfPairs, :Grid, and :Table.")
+				 "these Softanza types: :String, :List, :ListOfNumbers, :ListOfStrings, " +
+				 ":ListOfLists, :ListOfPairs, :Grid, :Table.")
 		ok
 
 		if isList(pnSize) and
@@ -1266,7 +1268,7 @@ class stzObject
 			stzRaise("Incorrect param type! pnSize must be a number.")
 		ok
 
-		#-- Doing the job
+		# Step 1: Doing the job
 
 		value = ""
 		if this.IsANumber()
@@ -1280,6 +1282,27 @@ class stzObject
 			aResult = []
 			for i = 1 to pnSize
 				aResult + value
+			next
+			return aResult
+
+		but Q(pIn) = :ListOfNumbers
+			aResult = []
+			for i = 1 to pnSize
+				aResult + Q(value).ToNumber()
+			next
+			return aResult
+
+		but Q(pIn) = :ListOfStrings
+			aResult = []
+			for i = 1 to pnSize
+				aResult + Q(value).ToString()
+			next
+			return aResult
+
+		but Q(pIn) = :ListOfNumbers
+			aResult = []
+			for i = 1 to pnSize
+				aResult + Q(value).ToString()
 			next
 			return aResult
 
@@ -1315,103 +1338,45 @@ class stzObject
 			return aResult
 
 		but Q(pIn) = :Table
-			aResult = StzTableQ([ pnSize[1], pnSize[2] ]).Content()
+			aResult = StzTableQ([ pnSize[1], pnSize[2] ]).Filled(:With = "A")
 			return aResult
+
+		else
+			stzRaise("Unsupported type of container! Allowed containers you can reproduce " +
+				 "the value in are: :List, :Pair, :ListOfLists, :ListOfPairs, :String, :Grid, and :Table.")
 		ok
-
-	  #-----------------------------------------------#
-	 #  REPRODUCING THE NUMBER IN A LIST OF N ITEMS  #
-	#-----------------------------------------------#
-
-	def ReproduceInList(pnSize)
-
-		/* EXAMPLE
-
-		o1 = new stzNumber(5)
-		? o1.ReproducedInList(:OfSize = 3)
-		#--> [ 5, 5, 5 ]
-
-		*/
-
-		if isList(pnSize) and Q(pnSize).IsOfSizeNamedParam()
-			pnSize = pnSize[2]
-		ok
-
-		if NOT isNumber(pnSize)
-			stzRaise("Incorrect param type! pnSize must be a number.")
-		ok
-
-		aResult = []
-
-		for i = 1 to pnSize
-			if This.IsANumber()
-				aResult + This.Number()
-			else
-				aResult + This.Content()
-			ok
-		next
-
-		return aResult
 
 		#< @FunctionFluentForm
 
-		def ReproduceInListQ(pnSize)
-			return new stzList( This.ReproduceInList(pnSize) )
+		# RETURNUNG THE OBJECT MODIFIED
 
-		def ReproduceInListQQ(pnSize) # TODO: Generalize ..QQ() to all functions!
-			return new stzListOfNumbers( This.ReproduceInList(pnSize) )
+		def ReproduceQ(pIn, pnSize)
+			if isString(pIn) and pIn = :String
+				return new stzString( This.Reproduce(pIn, pnSize) )
 
-		#>
+			else
+				return new stzList( This.Reproduce(pIn, pnSize) )
+			ok
 
-		#< @FunctionAlternativeForms
+		#-- RETURNING A MODIFIED COPY
 
-		def ReproduceInAList(pnSize)
-			return This.ReproduceInList(pnSize)
-
-			#< @FunctionFluentForm
-	
-			def ReproduceInAListQ(pnSize)
-				return new stzList( This.ReproduceInAList(pnSize) )
-	
-			def ReproduceInAListQQ(pnSize) # TODO: Generalize ..QQ() to all functions!
-				return new stzListOfNumbers( This.ReproduceInAList(pnSize) )
-	
-			#>
-
-		def ReproducedInAList(pnSize)
-			return This.ReproduceInList(pnSize)
-
-			#< @FunctionFluentForm
-	
-			def ReproducedInAListQ(pnSize)
-				return new stzList( This.ReproducedInAList(pnSize) )
-	
-			def ReproducedInAListQQ(pnSize) # TODO: Generalize ..QQ() to all functions!
-				return new stzListOfNumbers( This.ReproducedInAList(pnSize) )
-	
-			#>
-
-		def ReproducedInList(pnSize)
-			return This.ReproduceInList(pnSize)
-
-			#< @FunctionFluentForm
-	
-			def ReproducedInListQ(pnSize)
-				return new stzList( This.ReproducedInList(pnSize) )
-	
-			def ReproducedInListQQ(pnSize)
-				return new stzListOfNumbers( This.ReproducedInList(pnSize) )
-	
-			#>
+		def ReproduceCQ(pIn, pnSize)
+			return This.Copy().Reproduce(pIn, pnSiz)
 
 		#>
 
-	  #------------------------------------#
-	 #  REPRODUCING THE NUMBER IN A PAIR  #
-	#------------------------------------#
+	#-- RETURNING THE OUTPUT DATA
+
+	def Reproduced(pIn, pnSize)
+		return This.Copy().Reproduce(pIn, pnSize)
+
+
+	  #------------------------------------------#
+	 #  REPRODUCING THE OBJECT VALUE IN A PAIR  #
+	#------------------------------------------#
 
 	def ReproduceInAPair()
-		return This.ReproduceInAList(:OfSize = 2)
+		return This.Reproduce(:InA = :List, :OfSize = 2)
 
 		#< @FunctionFluentForm
 
@@ -1495,6 +1460,42 @@ class stzObject
 
 		def NTimes(n)
 			return This.RepeatNtimes(n)
+
+	  #------------------------------------------#
+	 #  CASTING THE OBJECT VALUE INTO A NUMBER  #
+	#------------------------------------------#
+
+	def ToNumber()
+		if This.IsANumber()
+			return This.NumericValue()
+
+		but This.IsAString()
+			return  0+ This.Content()
+
+		but This.IsAList()
+			return This.NumberOfItems()
+
+		else
+			stzRaise("Can't cast the object into a number.")
+		ok
+
+	  #------------------------------------------#
+	 #  CASTING THE OBJECT VALUE INTO A STRING  #
+	#------------------------------------------#
+
+	def ToString()
+		if This.IsANumber()
+			return This.StringValue()
+
+		but This.IsAString()
+			return This.Content()
+
+		but This.IsAList()
+			return This.NumberOfItems()
+
+		else
+			stzRaise("Can't cast the object into a number.")
+		ok
 
 	  #-----------#
 	 #   MISC.   #

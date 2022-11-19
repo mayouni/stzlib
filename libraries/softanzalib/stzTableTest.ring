@@ -2,6 +2,143 @@ load "stzlib.ring"
 
 /*--------------
 
+o1 = new stzTable([3, 3])
+o1.Fill( :With = "." )
+o1.Show() + NL
+#--> #   COL1   COL2   COL3
+#    1      .      .      .
+#    2      .      .      .
+#    3      .      .      .
+
+o1.ReplaceRow(2, :With = [ "+", "+" ])
+o1.Show() + NL
+#--> #   COL1   COL2   COL3
+#    1      .      .      .
+#    2      +      +      .
+#    3      .      .      .
+
+o1.ReplaceRow(2, :With = [ "+", "+", "+" ])
+o1.Show() + NL
+#--> #   COL1   COL2   COL3
+#    1      .      .      .
+#    2      +      +      +
+#    3      .      .      .
+
+o1.ReplaceRow(2, :With = [ "+", "+", "+", "+", "+" ])
+o1.Sow()
+#--> #   COL1   COL2   COL3
+#    1      .      .      .
+#    2      +      +      +
+#    3      .      .      .
+
+/*--------------
+
+o1 = new stzTable([3, 3])
+o1.Fill( :With = "." )
+o1.Show() + NL
+#--> #   COL1   COL2   COL3
+#    1      .      .      .
+#    2      .      .      .
+#    3      .      .      .
+
+o1.ReplaceAllRows(:With = [ "+", "+", "+" ])
+o1.Show()
+#--> #   COL1   COL2   COL3
+#    1      +      +      +
+#    2      +      +      +
+#    3      +      +      +
+
+/*--------------
+
+o1 = new stzTable([2, 3])
+o1.Fill( :With = "." )
+o1.Show() + NL
+#--> #   COL1   COL2
+#    1      .      .
+#    2      .      .
+#    3      .      .
+
+o1.ReplaceCol(:COL2, :With = [ "+", "+" ])
+o1.Show()
+#--> #   COL1   COL2
+#    1      .      +
+#    2      .      +
+#    3      .      .
+
+o1.ReplaceCol(:COL2, :With = [ "+", "+", "+" ]) + NL
+o1.Show()
+#--> #   COL1   COL2
+#    1      .      +
+#    2      .      +
+#    3      .      +
+
+o1.ReplaceCol(:COL2, :With = [ "+", "+", "+", "+", "+" ])
+o1.Show()
+#--> #   COL1   COL2
+#    1      .      +
+#    2      .      +
+#    3      .      +
+
+/*--------------
+
+o1 = new stzTable([3, 3])
+o1.Fill( :With = "." )
+o1.Show() + NL
+#--> #   COL1   COL2   COL3
+#    1      .      .      .
+#    2      .      .      .
+#    3      .      .      .
+
+o1.ReplaceAllCols(:With = [ "A", "B", "C" ])
+o1.Show()
+#--> #   COL1   COL2   COL3
+#    1      A      A      A
+#    2      B      B      B
+#    3      C      C      C
+
+/*----------------
+
+o1 = new stzTable([3, 3])
+o1.Fill( :With = "." )
+o1.Show()
+#--> #   COL1   COL2   COL3
+#    1      .      .      .
+#    2      .      .      .
+#    3      .      .      .
+
+o1.Fill( :WithRow = [ "A", "B" ] )
+o1.Show()
+#--> #   COL1   COL2   COL3
+#    1      A      B      .
+#    2      A      B      .
+#    3      A      B      .
+
+/*----------------
+*/
+o1 = new stzTable([3, 3])
+o1.Fill( :With = "." )
+o1.Show()
+#--> #   COL1   COL2   COL3
+#    1      .      .      .
+#    2      .      .      .
+#    3      .      .      .
+
+o1.Fill( :WithCol = [ "A", "B" ] ) + NL
+o1.Show()
+#--> #   COL1   COL2   COL3
+#    1      A      A      A
+#    2      B      B      B
+#    3      .      .      .
+
+o1.Fill( :WithCol = [ "A", "B", "C" ] )
+o1.Show()
+#--> #   COL1   COL2   COL3
+#    1      A      A      A
+#    2      B      B      B
+#    3      C      C      C
+
+/*--------------
+
 o1 = new stzTable([
 	:ID = :Number,
 	:NAME = :String
@@ -356,7 +493,7 @@ o1 = new stzTable([
 #--> [ "a", "R1", "abc", "R3", "b", "R1" ]
 
 /*===============
-*/
+
 o1 = new stzTable([
 	[  "COL1",   "COL2" ],
 	#-------------------#
