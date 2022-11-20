@@ -114,7 +114,51 @@ o1.Show()
 #    3      A      B      .
 
 /*----------------
+
+? Q([
+	[ "COL1", [ "A", "B", "C" ] ],
+	[ "COL2", [ "a", "b", "c" ] ],
+	[ "COL3", [ "1", "2", "3" ] ]
+]).IsHashList() #--> TRUE
+
+/*----------------
 */
+o1 = new stzTable([
+	[ "COL1", [ "A", "B", "C" ] ],
+	[ "COL2", [ "a", "b", "c" ] ],
+	[ "COL3", [ "1", "2", "3" ] ]
+])
+
+//? @@S( o1.Content() ) + NL
+
+o1.Show()
+#-->
+# #   COL1   COL2   COL3
+# 1      A      a      1
+# 2      B      b      2
+# 3      C      c      3
+
+/*----------------
+
+? StzTableQ([ 3, 3 ]).Filled("A")
+
+/*
+o1 = new stzTable([3, 3])
+o1.Show()
+/*
+StzTableQ([ 3, 3 ]).Filled(:With = "A")
+#--> [ [ "col1", [ "A", "A", "A" ] ], [ "col2", [ "A", "A", "A" ] ] ]
+
+/*----------------
+
+o1 = StzTableQ([ 3, 3 ]).FillQ(:With = "A")
+o1.Show()
+#--> #   COL1   COL2   COL3
+#    1      A      A      A
+#    2      A      A      A
+#    3      A      A      A
+/*----------------
+
 o1 = new stzTable([3, 3])
 o1.Fill( :With = "." )
 o1.Show()

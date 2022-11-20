@@ -1338,8 +1338,15 @@ class stzObject
 			return aResult
 
 		but Q(pIn) = :Table
-			aResult = StzTableQ([ pnSize[1], pnSize[2] ]).Filled(:With = "A")
+			oTable = new stzTable([ pnSize[1], pnSize[2] ])
+			oTable.Fill(:With = "A")
+			aResult = oTable.Content()
 			return aResult
+
+			/* TODO: Check bug when we say:
+			aResult = StzTableQ([ pnSize[1], pnSize[2] ]).Filled(:With = "A")
+			*/
+
 
 		else
 			stzRaise("Unsupported type of container! Allowed containers you can reproduce " +
