@@ -13,7 +13,20 @@ func StzTableQ(paTable)
 	return new stzTable( paTable )
 
 Class stzTable
-	@aTable = [] # Table content is stored as a hashlist where keys are col names
+	@aTable = []
+
+	# Table content is stored as a hashlist where keys are col names
+	# EXAMPLE:
+	# 	[
+	# 		[ "COL1", [ "A", "B", "C" ] ],
+	# 		[ "COL2", [ "a", "b", "c" ] ],
+	# 		[ "COL3", [ "1", "2", "3" ] ]
+	# 	]
+
+	# This choice is made firstly, because columns have names and
+	# rows have'nt. But maily, to enable (future) data analytics and
+	# data science operations on tables of data, where variables are
+	# always represented as columns.
 
 	def init(paTable)
 
@@ -23,6 +36,8 @@ Class stzTable
 			stzRaise("Incorrect param format! paTable must be a list.")
 		ok
 
+		if len(paTable) = 0 or Q(paTable).IsPairOfNumbers()
+	
 		# Way 1: new stzTable([])
 		#--> Creates an empty table with just a column and a row
 
@@ -30,8 +45,7 @@ Class stzTable
 		# --> Creates a tale of 3 columns and 4 rows, all cells are empty
 
 		# Both ways (1 and 2) are made by the following code:
-		if len(paTable) = 0 or Q(paTable).IsPairOfNumbers()
-			
+		
 			nCols = 1
 			nRows = 1
 
@@ -50,7 +64,9 @@ Class stzTable
 			next
 
 			return
-		ok
+
+		but Q(paTable).ItemsAreListsOfSameSize() and
+		    Q(paTable[1]).IsListOfStrings()
 
 		# Way 3 (the more natural way) The table is described in a
 		# a list of lists that mimics the realworld presentation
@@ -65,9 +81,6 @@ Class stzTable
 		# 	[ 30,	 "Han",		25982	],
 		# 	[ 40,	 "Ali",		12870	]
 		# ])
-
-		if Q(paTable).ItemsAreListsOfSameSize() and
-		   Q(paTable[1]).IsListOfStrings()
 
 			for cCol in paTable[1]
 				@aTable + [ cCol, [] ]
@@ -88,7 +101,9 @@ Class stzTable
 			next
 
 			return
-		ok
+
+		but Q(paTable).ItemsAreListsOfSameSize() and
+		    Q(paTable).IsNotHashList()
 
 		# WAY 4: Similar to way 3 but the line of column names is
 		# not provided. Means that you privided only the rows of
@@ -104,9 +119,6 @@ Class stzTable
 		# 	[ 40,	 "Ali",		12870	]
 		# ])
 
-
-		if Q(paTable).ItemsAreListsOfSameSize()
-
 			aTempTable = []
 
 			acColNames = []
@@ -119,10 +131,26 @@ Class stzTable
 			This.Init(paTable)
 			return
 		
-		ok
+		but Q(paTable).IsHashList()
+		# Way 5: The table is provided in the same format of how
+		# it is implemented in this class: a hashlist.
 
-		# If the param provided don't fit in any of the ways above
-		stzRaise("Incorrect param format!")
+		# EXAMPLE:
+
+		# o1 = new stzTable([
+		# 	[ "COL1", [ "A", "B", "C" ] ],
+		# 	[ "COL2", [ "a", "b", "c" ] ],
+		# 	[ "COL3", [ "1", "2", "3" ] ]
+		# ])
+
+			@aTable = paTable
+
+		else
+			# If the param provided don't fit in any of the ways above
+			stzRaise("Incorrect param format! There are 5 possible ways in creating a table. " +
+				 "None fits with the param you provided. Check the code/comments under " +
+				 "stzTable.Init() method.")
+		ok
 
 	def Content()
 		return @aTable
@@ -132,6 +160,10 @@ Class stzTable
 
 		def TableQ()
 			return new stzList( This.Table() )
+
+	def Copy()
+		oCopy = new stzTable(This.Content())
+		return oCopy
 
 	def IsEmpty()
 		if This.CellsQ().AllItemsAreNull()
@@ -7484,6 +7516,22 @@ Class stzTable
 				 ":WithCell, :WithColumn, and :WithRow.")
 		ok
 		
+		#< @FunctionFuentForm
+
+		def FillQ(pValue)
+			This.Fill(pValue)
+			return This
+
+		def FillCQ(pValue)
+			return This.Copy().FillQ(pValue)
+
+	def Filled(pValue)
+
+		oTable = This.Copy()
+		oTable.Fill(pValue)
+		aResult = oTable.Content()
+		return aResult
+
 	  #=================================#
 	 #  MISC. : SOME USEFUL UTILITIES  #
 	#=================================#
