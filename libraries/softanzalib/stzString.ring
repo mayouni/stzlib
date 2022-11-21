@@ -3691,7 +3691,7 @@ class stzString from stzObject
 
 			for item in panUpToNChars
 				if isNumber(item)
-					item = Q(item).ReproducedInAPair()
+					item = Q(item).RepeatedInAPair()
 				ok
 			next
 		ok
@@ -4008,7 +4008,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def RemoveLeftBoundQ(pcSubStr)
-			This.RemoveLeft(pcSubStr)
+			This.RemoveLeftBound(pcSubStr)
 			return This
 		#>
 
@@ -22003,10 +22003,10 @@ class stzString from stzObject
 		use RproduceIn() instead, and specify explicitly what
 		you hant to have, like this:
 
-		? Q("Hi!").Reproduced( :NTimes = 3, :InString)
+		? Q("Hi!").RepeatedXT( :NTimes = 3, :InString)
 		#--> "Hi!Hi:Hi!
 
-		? Q("Hi!").Reproduced( :NTimes = 3, :InList)
+		? Q("Hi!").RepeatedXT( :NTimes = 3, :InList)
 		"--> [ "Hi!", "Hi!", "Hi!" ]
 
 		*/

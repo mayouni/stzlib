@@ -297,7 +297,7 @@ load "stzlib.ring"
 
 	# Feature 4: Large support of UNICODE
 /*
-
+*/
 		? UnicodeToChar(65021) # --> ﷽
 		? Unicode("ↈ") # --> 8584
 	

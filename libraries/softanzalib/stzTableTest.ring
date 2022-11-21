@@ -122,14 +122,12 @@ o1.Show()
 ]).IsHashList() #--> TRUE
 
 /*----------------
-*/
+
 o1 = new stzTable([
 	[ "COL1", [ "A", "B", "C" ] ],
 	[ "COL2", [ "a", "b", "c" ] ],
 	[ "COL3", [ "1", "2", "3" ] ]
 ])
-
-//? @@S( o1.Content() ) + NL
 
 o1.Show()
 #-->
@@ -140,14 +138,12 @@ o1.Show()
 
 /*----------------
 
-? StzTableQ([ 3, 3 ]).Filled("A")
-
-/*
-o1 = new stzTable([3, 3])
-o1.Show()
-/*
-StzTableQ([ 3, 3 ]).Filled(:With = "A")
-#--> [ [ "col1", [ "A", "A", "A" ] ], [ "col2", [ "A", "A", "A" ] ] ]
+? @@S( StzTableQ([ 3, 3 ]).Filled(:With = "A") )
+#--> [
+# 	[ "col1", [ "A", "A", "A" ] ],
+# 	[ "col2", [ "A", "A", "A" ] ],
+# 	[ "col3", [ "A", "A", "A" ] ]
+# ]
 
 /*----------------
 
@@ -157,6 +153,7 @@ o1.Show()
 #    1      A      A      A
 #    2      A      A      A
 #    3      A      A      A
+
 /*----------------
 
 o1 = new stzTable([3, 3])
@@ -190,7 +187,7 @@ o1 = new stzTable([
 
 /*===============
 
-# A table can be created in 4 different ways:
+# A table can be created in 5 different ways:
 
 # WAY 1 : Creating an empty table with just a column and a row with just an empty cell
 o1 = new stzTable([])
@@ -260,6 +257,23 @@ o1.Show()
 # 2     20   Dania   28900
 # 3     30     Han   25982
 # 4     40     Ali   12870
+
+/*-----------------
+*/
+# WAY 5: Creating a table by providing a hashtable where
+# the column names are keys and rows are values
+
+o1 = new stzTable([
+ 	:NAME   = [ "Ali", 	  "Dania", 	"Han" 	 ],
+ 	:JOB    = [ "Programmer", "Manager", 	"Doctor" ],
+	:SALARY = [ 35000, 	  50000, 	62500    ]
+])
+
+o1.Show()
+#--> 	#    NAME          JOB   SALARY
+#	1     Ali   Programmer    35000
+#	2   Dania      Manager    50000
+#	3     Han       Doctor    62500
 
 /*==============
 

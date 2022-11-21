@@ -120,6 +120,57 @@ func ring_attributes(obj)
 func ring_classname(obj)
 	return classname(obj)
 
+func ring_factors(n)
+	return factors(n)
+
+func ring_LCM(n1, n2)
+	return LCM(n1, n2)
+
+func ring_GCD(n1, n2)
+	return GCD(n1, n2)
+
+func ring_exp(n)
+	return exp(n)
+
+func ring_fabs(n)
+	return fabs(n)
+
+func ring_log10(n)
+	return log10(n)
+
+func ring_log(n)
+	return log(n)
+
+func ring_tanhh(n)
+	return tanhh(n)
+
+func ring_cosh(n)
+	return cosh(n)
+
+func ring_sinh(n)
+	return sinh(n)
+
+func ring_atan2(n)
+	return atan2(n)
+
+func ring_acos(n)
+	return acos(n)
+
+func ring_asin(n)
+	return asin(n)
+
+func ring_tan(n)
+	return tan(n)
+
+func ring_cos(n)
+	return cos(n)
+
+func ring_sin(n)
+	return sin(n)
+
+func ring_pow(n)
+	return pow(n)
+
 #-----
 
 func StzFindCS(pThing, paIn, pCaseSensitive)
@@ -997,8 +1048,41 @@ func QQQ(p)
 	eval(cCode)
 	return oResult
 
+# The W() function takes a string and tries its best to return a well
+# formed conditaional Ring expression used in several Softanza functions
 func W(cCode)
-	return "{" + cCode + "}"
+	if NOT isString(cCode)
+		stzRaise("Uncorrect param type! cCode must be a string.")
+	ok
+
+	cCode = Q(cCode).
+		TrimQ().
+
+		RemoveLeftBoundQ("{").
+		RemoveRightBoundQ("}").
+
+		RemoveLeftBoundQ("}").
+		RemoveRightBoundQ("{").
+
+		TrimQ().
+
+		RemoveLeftBoundQ("'").
+		RemoveRightBoundQ("'").
+
+		TrimQ().
+
+		RemoveLeftBoundQ('"').
+		RemoveRightBoundQ('"').
+
+		Content()
+
+	cCode = "{" + "'" +
+		cCode +
+		"'" + "}"
+	   
+	return cCode
 
 func STOP()
-	StzRaise( NL + "----------------" + "STOPPED!" )
+	StzRaise( NL + 	"----------------" + NL +
+		       	"    STOPPED!    " + NL +
+			"----------------" + NL )

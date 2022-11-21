@@ -1224,15 +1224,38 @@ class stzObject
 		def Stringified()
 			return This.Stringify()
 
-	  #---------------------------------------------------------#
-	 #  REPRODUCING THE OBJECT IN A CONTAINER OF A GIVEN SIZE  #
-	#---------------------------------------------------------#
+	  #======================================#
+	 #  REPEATING THE OBJECT VALUE N TIMES  #
+	#======================================#
 
-	def Reproduce(pIn, pnSize)
+	def Repeat(n)
+		return This.RepeatXT(:InList, n)
+
+		def RepeatQ(n)
+			return This.RepeatXTQ(:InList, n)
+
+		def RepeatNTimes(n)
+			return This.Repeat(n)
+
+			def RepeatNTimesQ(n)
+				return This.RepeatQ(n)
+
+	def Repeated(n)
+		aResult = This.Copy().RepeatQ(n).Content()
+		return aResult
+
+		def RepeateNTimes(n)
+			return This.Repeated(n)
+
+	  #-------------------------------------------------------------------#
+	 #  REPEATING THE OBJECT VALUE IN A GIVEN CONTAINER OF A GIVEN SIZE  #
+	#-------------------------------------------------------------------#
+
+	def RepeatXT(pIn, pnSize)
 
 		/* EXAMPLE
 		o1 = new stzNumber(5)
-		o1.Reproduce([ :InA = :List, :OfSize = 2 ])
+		o1.RepeatXT([ :InA = :List, :OfSize = 2 ])
 		#--> [ 5, 5 ]
 		*/
 
@@ -1248,7 +1271,17 @@ class stzObject
 		if NOT ( isString(pIn) and
 				Q(pIn).IsOneOfTheseCS([
 					:String, :List, :ListOfNumbers, :ListOfStrings,
-					:ListOfLists, :ListOfPairs, :Grid, :Table
+					:ListOfLists, :ListOfPairs, :Grid, :Table,
+
+					:AString, :AList, :AListOfNumbers, :AListOfStrings,
+					:AListOfLists, :AListOfPairs, :AGrid, :ATable,
+
+					:InString, :InList, :InListOfNumbers, :InListOfStrings,
+					:InListOfLists, :InListOfPairs, :InGrid, :InTable,
+
+					:InAString, :InAList, :InAListOfNumbers, :InAListOfStrings,
+					:InAListOfLists, :InAListOfPairs, :InAGrid, :InATable
+
 				], :CS = FALSE)
 			)
 
@@ -1277,7 +1310,7 @@ class stzObject
 			value = This.Content()
 		ok
 
-		if Q(pIn) = :List
+		if Q(pIn).IsOneOfThese([ :List, :InList, :AList, :InAList ])
 	
 			aResult = []
 			for i = 1 to pnSize
@@ -1285,28 +1318,26 @@ class stzObject
 			next
 			return aResult
 
-		but Q(pIn) = :ListOfNumbers
+		but Q(pIn).IsOneOfThese([ :ListOfNumbers, :InListOfNumbers,
+					  :AListOfNumbers, :InAListOfNumbers ])
+
 			aResult = []
 			for i = 1 to pnSize
 				aResult + Q(value).ToNumber()
 			next
 			return aResult
 
-		but Q(pIn) = :ListOfStrings
+		but Q(pIn).IsOneOfThese([ :ListOfStrings, :InListOfStrings,
+					  :AListOfStrings, :InAListOfStrings ])
+
 			aResult = []
 			for i = 1 to pnSize
 				aResult + Q(value).ToString()
 			next
 			return aResult
 
-		but Q(pIn) = :ListOfNumbers
-			aResult = []
-			for i = 1 to pnSize
-				aResult + Q(value).ToString()
-			next
-			return aResult
-
-		but Q(pIn) = :ListOfLists
+		but Q(pIn).IsOneOfThese([ :ListOfLists, :InListOfLists,
+					  :AListOfLists, :InAListOfLists ])
 	
 			aResult = []
 			for i = 1 to pnSize
@@ -1314,7 +1345,8 @@ class stzObject
 			next
 			return aResult
 
-		but Q(pIn) = :ListOfPairs
+		but Q(pIn).IsOneOfThese([ :ListOfPairs, :InListOfPairs,
+					  :AListOfPairs, :InAListOfNPairs ])
 	
 			aResult = []
 			for i = 1 to pnSize
@@ -1322,7 +1354,7 @@ class stzObject
 			next
 			return aResult
 
-		but Q(pIn) = :String
+		but Q(pIn).IsOneOfThese([ :String, :InString, :AString, :InAString ])
 
 			cResult = ""
 			for i = 1 to pnSize
@@ -1330,26 +1362,21 @@ class stzObject
 			next
 			return cResult
 
-		but Q(pIn) = :Grid
+		but Q(pIn).IsOneOfThese([ :Grid, :InGrid, :AGrid, :InAGrid ])
+
 			aResult = StzGridQ([ pnSize[1], pnSize[2] ]).
 					ReplaceAllQ(:With = value).
 					Content()
 
 			return aResult
 
-		but Q(pIn) = :Table
-			oTable = new stzTable([ pnSize[1], pnSize[2] ])
-			oTable.Fill(:With = "A")
-			aResult = oTable.Content()
+		but Q(pIn).IsOneOfThese([ :Table, :InTable, :ATable, :InATable ])
+
+			aResult = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(value).Content()
 			return aResult
 
-			/* TODO: Check bug when we say:
-			aResult = StzTableQ([ pnSize[1], pnSize[2] ]).Filled(:With = "A")
-			*/
-
-
 		else
-			stzRaise("Unsupported type of container! Allowed containers you can reproduce " +
+			stzRaise("Unsupported type of container! Allowed containers you can repeat " +
 				 "the value in are: :List, :Pair, :ListOfLists, :ListOfPairs, :String, :Grid, and :Table.")
 		ok
 
@@ -1357,87 +1384,63 @@ class stzObject
 
 		# RETURNUNG THE OBJECT MODIFIED
 
-		def ReproduceQ(pIn, pnSize)
+		def RepeatXTQ(pIn, pnSize)
 			if isString(pIn) and pIn = :String
-				return new stzString( This.Reproduce(pIn, pnSize) )
+				return new stzString( This.RepeatXT(pIn, pnSize) )
 
 			else
-				return new stzList( This.Reproduce(pIn, pnSize) )
+				return new stzList( This.RepeatXT(pIn, pnSize) )
 			ok
 
 		#-- RETURNING A MODIFIED COPY
 
-		def ReproduceCQ(pIn, pnSize)
-			return This.Copy().Reproduce(pIn, pnSiz)
+		def RepeatXTCQ(pIn, pnSize)
+			return This.Copy().RepeatXT(pIn, pnSiz)
 
 		#>
 
 	#-- RETURNING THE OUTPUT DATA
 
-	def Reproduced(pIn, pnSize)
-		return This.Copy().Reproduce(pIn, pnSize)
+	def RepeatedXT(pIn, pnSize)
+		return This.Copy().RepeatXT(pIn, pnSize)
 
+	  #----------------------------------------#
+	 #  REPEATING THE OBJECT VALUE IN A PAIR  #
+	#----------------------------------------#
 
-	  #------------------------------------------#
-	 #  REPRODUCING THE OBJECT VALUE IN A PAIR  #
-	#------------------------------------------#
-
-	def ReproduceInAPair()
-		return This.Reproduce(:InA = :List, :OfSize = 2)
+	def RepeatInPair()
+		return This.RepeatXT(:InA = :List, :OfSize = 2)
 
 		#< @FunctionFluentForm
 
-		def ReproduceInAPairQ(pnSize)
-			return new stzList( This.ReproduceInAPair(pnSize) )
-
-		def ReproduceInAPairQQ(pnSize) # TODO: Generalize ..QQ() to all functions!
-			return new stzListOfNumbers( This.ReproduceInAPair(pnSize) )
+		def RepeatInAPairQ(pnSize)
+			return new stzList( This.RepeatInAPair(pnSize) )
 
 		#>
 
 		#< @AlternativeForms
 
-		def ReproducedInAPair()
-			return This.ReproduceInAPair()
+		def RepeatInAPair()
+			return This.RepeatInPair()
+	
+			def RepeatInPairQ()
+				return new stzList( This.RepeatInPair() )
+	
 
-			#< @FunctionFluentForm
+		def RepeatedInPair()
+			return This.RepeatInPair()
 	
-			def ReproducedInAPairQ()
-				return new stzList( This.ReproducedInAPair() )
-	
-			def ReproducedInAPairQQ() # TODO: Generalize ..QQ() to all functions!
-				return new stzListOfNumbers( This.ReproducedInAPair() )
-	
-			#>
+			def RepeatedInPairQ()
+				return new stzList( This.RepeatInPair() )
 
-		def ReproduceInPair()
-			return This.ReproduceInAPair()
+		def RepeatedInAPair()
+			return This.RepeatInPair()
 
-			#< @FunctionFluentForm
-	
-			def ReproduceInPairQ()
-				return new stzList( This.ReproduceInPair() )
-	
-			def ReproduceInPairQQ() # TODO: Generalize ..QQ() to all functions!
-				return new stzListOfNumbers( This.ReproduceInPair() )
-	
-			#>
-
-		def ReproducedInPair()
-			return This.ReproduceInAPair()
-
-			#< @FunctionFluentForm
-	
-			def ReproducedInPairQ()
-				return new stzList( This.ReproducedInPair() )
-	
-			def ReproducedInPairQQ() # TODO: Generalize ..QQ() to all functions!
-				return new stzListOfNumbers( This.ReproducedInPair() )
-	
-			#>
+			def RepeatedInAPairQ()
+				return new stzList( This.RepeatInPair() )
 
 		#>
-	
+/*	
 	  #--------------------------------------------------------------#
 	 #   REPEATING THE OBJECT VALUE N TIMES (IN A LIST OF N ITEMS)  #
 	#--------------------------------------------------------------#
@@ -1467,7 +1470,7 @@ class stzObject
 
 		def NTimes(n)
 			return This.RepeatNtimes(n)
-
+*/
 	  #------------------------------------------#
 	 #  CASTING THE OBJECT VALUE INTO A NUMBER  #
 	#------------------------------------------#

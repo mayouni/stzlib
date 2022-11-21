@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*------------------
-*/
+
 ? Q([ "واحـد", "اثنان", "ثلاثة" ]).Yield('len(@item)')
 #--> [10, 10, 10]
 
@@ -18,7 +18,7 @@ load "stzlib.ring"
 ? Stz(:Text, :Attributes)
 
 /*------------------
-*/
+
 ? Q([ "واحد", "اثنان", "ثلاثة" ]).AllItemsAre(:Strings)
 #--> TRUE
 
@@ -34,7 +34,8 @@ load "stzlib.ring"
 ? Q([ "واحـد", "اثنان", "ثلاثة" ]).AllItemsAre([ :ArabicScript, W('Q(@item).Size()=5'), :Texts ])
 #--> TRUE
 
-/*
+/*------------------
+
 ? Q([ "你好", "亲", "朋友们" ]).AllItemsAre([ :HanScript, :Texts ])
 
 /*------------------
@@ -42,7 +43,6 @@ load "stzlib.ring"
 ? W('len(@item)=3') #--> {'len(@item)=3'}
 
 /*------------------
-*/
 
 ? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre(:Strings)
 #--> TRUE
@@ -55,6 +55,21 @@ load "stzlib.ring"
 
 ? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Latin, :Strings ])
 #--> TRUE
+
+/*------------------
+*/
+# The W() function takes a string and tries its best to return a well
+# formed conditaional Ring expression used in several Softanza functions:
+? W(' len(@item)=3')		#--> "{'len(@item)=3'}"
+? W('"len(@item)=3"')		#--> "{'len(@item)=3'}"
+? W("{'len(@item)=3'}")		#--> "{'len(@item)=3'}"
+? W("{'len(@item)=3' ")		#--> "{'len(@item)=3'}"
+? W("'len(@item)=3'")		#--> "{'len(@item)=3'}"
+? W("{ 'len(@item)=3'")		#--> "{'len(@item)=3'}"
+
+/*
+
+? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
 
 ? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, W('len(@item)=3'), :Strings ])
 #--> TRUE
@@ -82,7 +97,7 @@ load "stzlib.ring"
 /*------------------
 
 o1 = new stzList([ 0, 2, 0, 3, [1,2] ])
-o1.PerformW( '@item = Q(@item).ReproducedInAPair()', 'isNumber(@item)')
+o1.PerformW( '@item = Q(@item).RepeatInAPair()', 'isNumber(@item)')
 ? @@S(o1.Content())
 #--> [ [ 0, 0 ], [ 2, 2 ], [ 0, 0 ], [ 3, 3 ], [ 1, 2 ] ]
 

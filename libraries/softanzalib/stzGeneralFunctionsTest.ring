@@ -15,7 +15,7 @@ load "stzlib.ring"
 # You can also say: ? StzNumberMethods()
 
 /*-------
-
+*/
 ? Q("A").NTimes(3) # Or RepeatedNTimes(3)
 #--> "AAA"
 

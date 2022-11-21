@@ -9,7 +9,7 @@ load "stzlib.ring"
 #--> "Hi!Hi!Hi!"
 
 # When used with all other types (stzList, stzNumber, and stzObject),
-# it will reproduce the object value inside a list:
+# it will repeat the object value inside a list:
 
 ? Q(5).RepeatNTimes(3)
 #--> [5, 5, 5]
@@ -30,10 +30,10 @@ load "stzlib.ring"
 # rely on RproduceIn() instead, and specify explicitly what
 # you hant to have as an output, like this:
 
-? Q("Hi!").Reproduced( :NTimes = 3, :InString)
+? Q("Hi!").RepeatedXT( :NTimes = 3, :InString)
 #--> "Hi!Hi:Hi!
 
-? Q("Hi!").Reproduced( :NTimes = 3, :InList)
+? Q("Hi!").RepeatedXT( :NTimes = 3, :InList)
 #--> [ "Hi!", "Hi!", "Hi!" ]
 
 
@@ -327,71 +327,74 @@ str = "sun"
 
 /*===============
 
-? Q("A").ReproduceQ(:String, 3).StzType()
+? Q("Ring").Repeated(3)
+#--> "RingRingRing"
+
+? Q([1,2]).Repeated(3)
+#--> [ [1,2], [1,2], [1,2] ]
+
+/*----------------
+
+? Q("A").RepeatXTQ(:String, 3).StzType()
 #--> "stzstring"
 
-? Q("A").ReproduceQ(:List, 3).StzType()
+? Q("A").RepeatXTQ(:List, 3).StzType()
 #--> "stzlist"
 
 /*----------------
 
-? @@S( Q("5").Reproduced(:InA = :List, :OfSize = 2) )
+? @@S( Q("5").RepeatedXT(:InA = :List, :OfSize = 2) )
 #--> [ "5", "5" ]
 
-? Q("A").ReproducedInAPair()
+? Q("A").RepeatedInAPair()
 #--> [ "A", "A" ]
 
-? @@S( Q("5").Reproduced(:InA = :ListOfNumbers, :OfSize = 3) )
+? @@S( Q("5").RepeatedXT(:InA = :ListOfNumbers, :OfSize = 3) )
 #--> [ 5, 5, 5 ]
 
-? Q("5").Reproduced(:InA = :String, :OfSize = 3)
+? Q("5").RepeatedXT(:InA = :String, :OfSize = 3)
 #--> "555"
 
-? Q(5).Reproduced(:InA = :String, :OfSize = 3)
+? Q(5).RepeatedXT(:InA = :String, :OfSize = 3)
 #--> "555"
 
-? Q("5").Reproduced(:InA = :ListOfNumbers, :OfSize = 3)
+? Q("5").RepeatedXT(:InA = :ListOfNumbers, :OfSize = 3)
 #--> [ 5, 5, 5 ]
 
-? @@S( Q(5).Reproduced(:InA = :ListOfStrings, :OfSize = 3) )
+? @@S( Q(5).RepeatedXT(:InA = :ListOfStrings, :OfSize = 3) )
 #--> [ "5", "5", "5" ]
 
-? @@S( Q("A").Reproduced(:InA = :ListOfPairs, :OfSize = 3) ) + NL
+? @@S( Q("A").RepeatedXT(:InA = :ListOfPairs, :OfSize = 3) ) + NL
 #--> [ [ "A", "A" ], [ "A", "A" ], [ "A", "A" ] ]
 
-? @@S( Q("A").Reproduced(:InA = :ListOfLists, :OfSize = 3) ) + NL
+? @@S( Q("A").RepeatedXT(:InA = :ListOfLists, :OfSize = 3) ) + NL
 #--> [ [ "A" ], [ "A" ], [ "A" ] ]
 
 ? @@S( Q("A").
-	ReproduceQ(:InA = :List, :OfSize = 3).
-	Reproduced(:InA = :List, :OfSize = 3)
+	RepeatXTQ(:InA = :List, :OfSize = 3).
+	RepeatedXT(:InA = :List, :OfSize = 3)
 ) + NL
 #--> [ [ "A", "A", "A" ], [ "A", "A", "A" ], [ "A", "A", "A" ] ]
 
-? @@S( Q("A").Reproduced(:InA = :Grid, :OfSize = [3, 3]) ) + NL
+? @@S( Q("A").RepeatedXT(:InA = :Grid, :OfSize = [3, 3]) ) + NL
 #-->
 # [
 # 	[ "A", "A", "A" ],
 # 	[ "A", "A", "A" ],
 # 	[ "A", "A", "A" ]
 # ]
-/*-----------
-*/
-? @@S( Q("A").Reproduced(:InA = :Table, :OfSize = [3, 3]) ) + NL
+
+? @@S( Q("A").RepeatedXT(:InA = :Table, :OfSize = [3, 3]) ) + NL
 #--> [
 #	[ "COL1", [ "A", "A", "A" ] ],
 #	[ "COL2", [ "A", "A", "A" ] ],
 #	[ "COL3", [ "A", "A", "A" ] ]
 # ]
 
-
 /*-----------------------
+*/
 
-o1 = new stzString("5")
-? o1.ReproducedInAList(:OfSize = 3)
-#--> [ 5, 5, 5 ]
-
-? o1.ReproducedInAPair()
+? Q(5).RepeatedInAPair()
 #--> [5, 5]
 
 /*------------------
