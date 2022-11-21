@@ -960,6 +960,98 @@ class stzListOfNumbers from stzList
 
 		return nResult
 
+	  #------------------------------------------------------#
+	 #  LEAST COMMON NUMBER WITH AN OTHER LIST OF NUMBERS   #
+	#------------------------------------------------------#
+
+	def LeastCommonNumber(panOtherList)
+		/* EXAMPLE
+
+		? StzListOfNumbersQ([8, 12, 46, 102]).
+			LeastCommonNumber( :With = [4, 6, 12, 89, 102, 122 ] )
+
+		#--> 12
+		*/
+
+		if isList(panOtherList) and Q(panOtherList).IsWithNamedParam()
+			panOtherList = panOtherList[2]
+		ok
+
+		if NOT Q(panOtherList).IsListOfNumbers()
+			stzRaise("Incorrect pram type! panOtherList must be a list of numbers.")
+		ok
+
+		anThisSorted = This.SortedInAscending()
+		anOtherSorted = Q(panOtherList).SortedInAscending()
+
+		anMain = []
+		if len(anThisSorted) <= len(anOtherSorted)
+			anMain  = anThisSorted
+			anOther = anOtherSorted
+		else
+			anMain  = anOtherSorted
+			anOther = anThisSorted
+		ok
+
+		for n in anMain
+			if Q(anOther).FindFirst(n) > 0
+				return n
+			ok
+		next
+
+		stzRaise("There is no Common Numbers at all between the two lists!")
+
+		def LCN(pOtherNumber)
+			return This.LeastCommonNumber(pOtherNumber)
+
+		def SmallestCommunNumber(pOtherNumber)
+			return This.LeastCommonNumber(pOtherNumber)
+
+
+	  #------------------------------------------------------#
+	 #  LEAST COMMON NUMBER WITH AN OTHER LIST OF NUMBERS   #
+	#------------------------------------------------------#
+
+	def GreatestCommonNumber(panOtherList)
+		/* EXAMPLE
+
+		? StzListOfNumbersQ([8, 12, 46, 102]).
+			GreatestCommonNumber( :With = [4, 6, 12, 89, 102, 122 ] )
+
+		#--> 102
+		*/
+
+		if isList(panOtherList) and Q(panOtherList).IsWithNamedParam()
+			panOtherList = panOtherList[2]
+		ok
+
+		if NOT Q(panOtherList).IsListOfNumbers()
+			stzRaise("Incorrect pram type! panOtherList must be a list of numbers.")
+		ok
+
+		anThisSorted = This.SortedInDescending()
+		anOtherSorted = Q(panOtherList).SortedInDescending()
+
+		anMain = []
+		if len(anThisSorted) <= len(anOtherSorted)
+			anMain  = anThisSorted
+			anOther = anOtherSorted
+		else
+			anMain  = anOtherSorted
+			anOther = anThisSorted
+		ok
+
+		for n in anMain
+			if Q(anOther).FindFirst(n) > 0
+				return n
+			ok
+		next
+
+		stzRaise("There is no Common Numbers at all between the two lists!")
+
+		def GCN(pOtherNumber)
+			return This.GreatestCommonNumber(pOtherNumber)
+
 	  #----------------------------------------#
 	 #     "ABSOLUTING' THE LIST OF NUMBERS   #
 	#----------------------------------------#

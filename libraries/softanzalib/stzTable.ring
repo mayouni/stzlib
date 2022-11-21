@@ -138,10 +138,16 @@ Class stzTable
 		# EXAMPLE:
 
 		# o1 = new stzTable([
-		# 	[ "COL1", [ "A", "B", "C" ] ],
-		# 	[ "COL2", [ "a", "b", "c" ] ],
-		# 	[ "COL3", [ "1", "2", "3" ] ]
+		#  	:NAME   = [ "Ali", 	  "Dania", 	"Han" 	 ],
+		#  	:JOB    = [ "Programmer", "Manager", 	"Doctor" ],
+		# 	:SALARY = [ 35000, 	  50000, 	62500    ]
 		# ])
+		
+		# o1.Show()
+		#--> 	#    NAME          JOB   SALARY
+		# 	1     Ali   Programmer    35000
+		# 	2   Dania      Manager    50000
+		# 	3     Han       Doctor    62500
 
 			@aTable = paTable
 
@@ -7526,10 +7532,7 @@ Class stzTable
 			return This.Copy().FillQ(pValue)
 
 	def Filled(pValue)
-
-		oTable = This.Copy()
-		oTable.Fill(pValue)
-		aResult = oTable.Content()
+		aResult = This.Copy().FillQ(pValue).Content()
 		return aResult
 
 	  #=================================#

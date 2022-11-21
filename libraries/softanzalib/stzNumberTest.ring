@@ -1,10 +1,116 @@
 load "stzlib.ring"
 
 
-/*------------------
+/*-----------------
 */
+? Q(25).MultiplesUntilQR(1050, :stzListOfNumbers).
+	LeastCommonNumber(:With = Q(42).MultiplesUntil(1050) )
+#--> 1050
+
+/*-----------------
+
+o1 = new stzListOfNumbers([8, 12, 89, 46])
+? o1.LeastCommonNumber(:With = [4, 6, 12, 89]) 		#--> 12
+? o1.GreatestCommonNumber(:With = [4, 6, 12, 89])	#--> 89
+
+/*-----------------
+
+# Least common multiplier between 25 and 42
+? Q(25).LCM(42)
+#--> 1050
+
+aList1 = Q(25).MultiplesUpTo(1050)
+#--> [
+#	25, 50, 75, 100, 125,
+#	150, 175, 200, 225, 250,
+#	275, 300, 325, 350, 375,
+#	400, 425, 450, 475, 500,
+#	525, 550, 575, 600, 625,
+#	650, 675, 700, 725, 750,
+#	775, 800, 825, 850, 875,
+#	900, 925, 950, 975,
+#	1000, 1025, 1050
+# ]
+
+aList2 = Q(42).MultiplesUpTo(1050)
+#--> [
+#	42, 84, 126, 168, 210,
+#	252, 294, 336, 378, 420,
+#	462, 504, 546, 588, 630,
+#	672, 714, 756, 798, 840,
+#	882, 924, 966, 1008, 1050
+# ]
+
+? StzListOfNumbersQ(aList1).LeastCommonNumber(aList2)
+#--> 1050
+
+/*-----------------
+
+? @@S( Q(25).MultiplesUpTo(1050) ) + NL
+#--> [
+#	25, 50, 75, 100, 125,
+#	150, 175, 200, 225, 250,
+#	275, 300, 325, 350, 375,
+#	400, 425, 450, 475, 500,
+#	525, 550, 575, 600, 625,
+#	650, 675, 700, 725, 750,
+#	775, 800, 825, 850, 875,
+#	900, 925, 950, 975,
+#	1000, 1025, 1050
+# ]
+
+? @@S( Q(42).MultiplesUpTo(1050) ) + NL
+#--> [
+#	42, 84, 126, 168, 210,
+#	252, 294, 336, 378, 420,
+#	462, 504, 546, 588, 630,
+#	672, 714, 756, 798, 840,
+#	882, 924, 966, 1008, 1050
+# ]
+
+
+/*----------------
+
+# Least common multiplier between 25 and 42
+? Q(25).LCM(42)
+#--> 1050
+
+? @@S( Q(1050).PrimeFactorsXT() ) + NL
+#--> [ [ 2, 525 ], [ 3, 350 ], [ 5, 210 ], [ 7, 150 ] ]
+
+? @@S( Q(1050).FactorsXT() )
+#--> [
+#	[ 1, 1050 ], [ 2, 525 ], [ 3, 350 ],
+#	[ 5, 210 ], [ 6, 175 ], [ 7, 150 ],
+#	[ 10, 105 ], [ 14, 75 ], [ 15, 70 ],
+#	[ 21, 50 ], [ 25, 42 ], [ 30, 35 ],
+#	[ 35, 30 ], [ 42, 25 ], [ 50, 21 ],
+#	[ 70, 15 ], [ 75, 14 ], [ 105, 10 ],
+#	[ 150, 7 ], [ 175, 6 ], [ 210, 5 ],
+#	[ 350, 3 ], [ 525, 2 ], [ 1050, 1 ]
+# ]
+
+
+/*
+
+for i = 1 to 300
+	n1 = 25 * i
+	n2 = 42 * i
+	if n1 = n2
+		? i
+	ok
+next
+? "end"
+
+
+/*
+( Q(11) * [2, 3] ).Content()
+
+
+/*------------------
+
 o1 = new stzNumber(11)
-? o1.RepeatedNTimes(3)
+//? o1.RepeatedNTimes(3)
 #--> [11, 11, 11]
 
 # Don't confuse with:
@@ -16,7 +122,7 @@ o1.Times([2, 3])
 ? o1.Value()
 
 /*------------------
-*/
+
 o1 = new stzNumber(11)
 o1.MultiplyByMany([2, 3])
 ? o1.Value()
@@ -25,13 +131,13 @@ o1.MultiplyByMany([2, 3])
 /*------------------
 
 o1 = new stzNumber(5)
-? @@S( o1.Reproduce(:InA = :List, :OfSize = 2) )
+? @@S( o1.RepeatXT(:InA = :List, :OfSize = 2) )
 #--> [ 5, 5 ]
 
-? o1.Reproduce(:InA = :String, :OfSize = 7)
+? o1.RepeatXT(:InA = :String, :OfSize = 7)
 #--> "5555555"
 
-? @@S( o1.Reproduce(:InA = :Grid, :OfSize = [3, 3]) )
+? @@S( o1.RepeatXT(:InA = :Grid, :OfSize = [3, 3]) )
 #-->
 # [
 # 	[ "5", "5", "5" ],
@@ -41,11 +147,7 @@ o1 = new stzNumber(5)
 
 /*-----------------------
 
-o1 = new stzNumber(5)
-? o1.ReproducedInAList(:OfSize = 3)
-#--> [ 5, 5, 5 ]
-
-? o1.ReproducedInAPair()
+? o1.RepeatedInAPair()
 #--> [5, 5]
 
 /*-----------------------
@@ -55,11 +157,7 @@ o1 = new stzNumber(5)
 
 /*-----------------------
 
-o1 = new stzNumber(5)
-? o1.ReproducedInAListQ(:OfSize = 3).Types()
-#--> [ "STRING", "STRING", "STRING" ] #--> Internally, stzNumbers are histed in strings
-
-? o1.ReproducedInAPairQ().Types()
+? o1.RepeatedInAPairQ().Types()
 #--> [ "STRING", "STRING" ]
 
 /*-----------------------

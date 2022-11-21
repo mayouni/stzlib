@@ -458,10 +458,17 @@ func NumberIsCalculable(nNumber)
 
 
 func StringToNumber(cNumber) # TESTING IN PROGESS
+	if isNumber(cNumber)
+		return cNumber
+	ok
+
+	if NOt isString(cNumber)
+		stzRaise("Incorrect param type! cNumber must be a string.")
+	ok
 
 	# Deletig unnecessary spaces
-#? ">> " + cNumber
-	cNumber = trim(cNumber)
+
+	cNumber = Q(cNumber).Trimmed()
 
 	# Setting the decimal number depending on the form provided
 
@@ -1818,9 +1825,9 @@ class stzNumber from stzObject
 			def RetrieveManyXTQ(paOtherNumbers, paReturnIntermediateResults)
 				return This.SubstractManyXTQ(paOtherNumbers, paReturnIntermediateResults)
   	
-	  #----------------------#
-	 #    MULTIPLICATION    #
-	#----------------------#
+	  #-------------------------------------------------#
+	 #    MULTIPLYING THE NUMBER BY AN OTHER NUMBER    #
+	#-------------------------------------------------#
 
 	def MultiplyBy(pOtherNumber)
 		if isList(pOtherNumber) and
@@ -1842,6 +1849,13 @@ class stzNumber from stzObject
 				This.Times(pOtherNumber)
 				return This
 	
+	def MultipliedBy(pOtherNumber)
+		return This.Copy().MultiplyByQ(pOtherNumber).Content()
+
+	  #----------------------------------------------------#
+	 #    MULTIPLYING THE NUMBER BY MANY OTHER NUMBERS    #
+	#----------------------------------------------------#
+
 	def MultiplyByMany(paOtherNumbers)
 		This.MultiplyByManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
@@ -2120,14 +2134,26 @@ class stzNumber from stzObject
 		def LeastCommonMultipleQ(pOtherNumber)
 			return new stzNumber(This.LeastCommonMultiple(pOtherNumber))
 	
+		def LCM(pOtherNumber)
+			return This.LeastCommonMultiple(pOtherNumber)
+
+			def LCMQ(pOtherNumber)
+				return new stzNumber( This.LCM(pOtherNumber) )
+
 	# GREATEST COMMON DIVIDOR
 
 	def GreatestCommonDividor(pOtherNumber)
 		return This.pvtCalculate( "GCD", pOtherNumber)
 
-	def GreatCommonDividorQ(n)
-		return new stzNumber(This.GreatCommonDividor())
+		def GreatCommonDividorQ(n)
+			return new stzNumber(This.GreatCommonDividor())
 
+		def GCD(pOtherNumber)
+			return This.GreatestCommonDividor(pOtherNumber)
+
+			def GCDQ(pOtherNumber)
+				return new stzNumber( This.GCD(pOtherNumber) )
+	
 	# INVERSE
 
 	def Inverse()
@@ -2138,25 +2164,32 @@ class stzNumber from stzObject
 	
 	# FACTORS
 
-	def AllFactors()
+	def Factors()
 		if NOT This.IsInteger()
 			stzRaise("Factors can't be computed for a non integer!")
 		ok
 
 		// Returns the factors of just the integer part!
 		if This.NumericValue() > 0
-			return factors(This.IntegerPartValue())
+			return ring_factors(This.IntegerPartValue())
 		else
 			stzRaise("For factors(n), n must must be positive!")
 		ok
 
-		def AllFactorsQ()
-			return new stzListOfNumbers( This.AllFactors() )
+		def FactorsQ()
+			return new stzListOfNumbers( This.Factors() )
+
+	def FactorsXT()
+		aResult = []
+		for n in This.Factors()
+			aResult + [ n, This.IntegerPartValue() / n ]
+		next
+		return aResult
 
 	def PrimeFactors()
 		aResult = []
 
-		for n in AllFactors()
+		for n in This.Factors()
 
 			oTempNumber = new stzNumber(n)
 
@@ -2169,6 +2202,106 @@ class stzNumber from stzObject
 
 		def PrimeFactorsQ()
 			return new stzListOfNumbers( This.PrimeFactors() )
+
+	def PrimeFactorsXT()
+		aResult = []
+		for n in This.PrimeFactors()
+			aResult + [ n, This.IntegerPartValue() / n ]
+		next
+		return aResult
+
+	# MULTIPLES UNTIL
+
+	def MultiplesUntil(pOtherNumber)
+		if NOT (isNumber(pOtherNumber) or isString(pOtherNumber))
+			stzRaise("Incorrect param type! pOtherNumber must be a number or a string.")
+		ok
+
+		if isString(pOtherNumber) and
+		   NOT Q(pOtherNumber).IsNumberInString()
+			stzRaise("Incorrect value! pOtherNumber must be a number in string.")
+		ok
+
+		if (0+ pOtherNumber) <= This.NumericValue()
+			stzRaise("Can't proceed! pOtherNumber must be >= your main number.")
+		ok
+
+		bInteger = FALSE
+		if This.IsInteger() and Q(pOtherNumber).IsInteger()
+			bInteger = TRUE
+		ok
+
+		aResult = []
+		bContinue = TRUE
+		i = 0
+		while bContinue
+			i++
+			n = This.MultipliedBy(i)
+			if bInteger
+				n = 0+ n
+			ok
+
+			if n <= (0+ pOtherNumber)
+				aResult + n
+			else
+				bContinue = FALSE
+			ok
+		end
+
+		return aResult
+
+		def MultiplesUntilQ(pOtherNumber)
+			return This.MultiplesUntilQR(pOtherNumber, :stzList)
+
+		def MultiplesUntilQR(pOtherNumber, pcReturnType)
+
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsStzType() )
+				stzRaise("Incorrect param! pcReturnType must be a string containing the name of a Softanza class.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.MultiplesUntil(pOtherNumber) )
+
+			on :stzListOfNumbers
+
+				anMultiples = This.MultiplesUntil(pOtherNumber)
+
+				anNumbers = []
+				for n in anMultiples
+					if isString(n)
+						anNumbers + ( 0+ n )
+					else
+						anNumbers + n
+					ok
+				next
+
+				return new stzListOfNumbers( anNumbers )
+
+			on :stzListOfStrings
+				acNumbers = []
+				for n in  This.MultiplesUntil(pOtherNumber)
+					if isNumber(n)
+						acNumbers + ( ""+ n )
+					else
+						acNumbers + n
+					ok
+				next
+
+				return new stzListOfNumbers( anNumbers )
+
+			other
+				stzRaise("Unssupported return type!")
+			off
+
+
+		def MultiplesUpTo(pOtherNumber)
+			return This.MultiplesUntil(pOtherNumber)
+
 
 	# DIVIDABILITY
 
@@ -3606,69 +3739,70 @@ class stzNumber from stzObject
 			ok
 	
 		on "^"
-			nResult = pow(n1,n2)
+			nResult = ring_pow(n1,n2)
 	
 		on "sin"
-			nResult = sin(n1)
+			nResult = ring_sin(n1)
 	
 		on "cos"
-			nResult = cos(n1)
+			nResult = ring_cos(n1)
 	
 		on "tan"
-			nResult = tan(n1)
+			nResult = ring_tan(n1)
 	
 		on "cotan"
-			nResult = 1 / tan(n1)
+			nResult = 1 / ring_tan(n1)
 	
 		on "asin"
-			nResult = asin(n1)
+			nResult = ring_asin(n1)
 	
 		on "acos"
-			nResult = acos(n1)
+			nResult = ring_acos(n1)
 	
 		on "atan2"
-			nResult = atan2(n1)
+			nResult = ring_atan2(n1)
 	
 		on "sinh"
-			nResult = sinh(n1)
+			nResult = ring_sinh(n1)
 	
 		on "cosh"
-			nResult = cosh(n1)
+			nResult = ring_cosh(n1)
 	
 		on "tanh"
-			nResult = tanhh(n1)
+			nResult = ring_tanhh(n1)
 	
 		on "exp"
-			nResult = exp(n1)
+			nResult = ring_exp(n1)
 	
 		on "log"
-			nResult = log(n1)
+			nResult = ring_log(n1)
 	
 		on "log10"
-			nResult = log10(n1)
+			nResult = ring_log10(n1)
 	
 		on "fabs"
-			nResult = fabs(n1)
+			nResult = ring_fabs(n1)
 	
 		on "sigmoid"
-			nResult = 1 / (1 + exp(-n1))
+			nResult = 1 / (1 + ring_exp(-n1))
 	
 		on "DerivativeSigmoid"
-			nSigmoid = 1 / (1 + exp(-n1))
+			nSigmoid = 1 / (1 + ring_exp(-n1))
 			nResult = nSigmoid * ( 1 - nSigmoid)
 
 		on "LCM"
-			nResult = LCM(n1,n2)
+			nResult = ring_LCM(n1, n2)
 
 		on "GCD"
-			nResult = GCD(n1,n2)
+			nResult = ring_GCD(n1, n2)
 
 		on "inverse"
 			nResult = 1 / n1
 
 		// Special case: the result is a list of numbers!
+		// -- Nothing to round: return the list of factors directly
 		on "factors" # TODO
-			//aResult = factors(n1)
+			return ring_factors(n1)		
 
 		off
 
