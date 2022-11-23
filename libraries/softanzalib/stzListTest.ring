@@ -2,6 +2,17 @@ load "stzlib.ring"
 
 /*------------------
 
+# The W() function takes a string and tries its best to return a well
+# formed conditaional Ring expression used in several Softanza functions:
+? W(' len(@item)=3')		#--> "{'len(@item)=3'}"
+? W('"len(@item)=3"')		#--> "{'len(@item)=3'}"
+? W("{'len(@item)=3'}")		#--> "{'len(@item)=3'}"
+? W("{'len(@item)=3' ")		#--> "{'len(@item)=3'}"
+? W("'len(@item)=3'")		#--> "{'len(@item)=3'}"
+? W("{ 'len(@item)=3'")		#--> "{'len(@item)=3'}"
+
+/*------------------
+
 ? Q([ "واحـد", "اثنان", "ثلاثة" ]).Yield('len(@item)')
 #--> [10, 10, 10]
 
@@ -56,19 +67,6 @@ load "stzlib.ring"
 ? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Latin, :Strings ])
 #--> TRUE
 
-/*------------------
-*/
-# The W() function takes a string and tries its best to return a well
-# formed conditaional Ring expression used in several Softanza functions:
-? W(' len(@item)=3')		#--> "{'len(@item)=3'}"
-? W('"len(@item)=3"')		#--> "{'len(@item)=3'}"
-? W("{'len(@item)=3'}")		#--> "{'len(@item)=3'}"
-? W("{'len(@item)=3' ")		#--> "{'len(@item)=3'}"
-? W("'len(@item)=3'")		#--> "{'len(@item)=3'}"
-? W("{ 'len(@item)=3'")		#--> "{'len(@item)=3'}"
-
-/*
-
 ? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
 
 ? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, W('len(@item)=3'), :Strings ])
@@ -96,8 +94,16 @@ load "stzlib.ring"
 
 /*------------------
 
+# Transforming the list structure so it becomes
+# a list of pairs of numbers. To do so, the numbers
+# are duplicated inside a list of two items.
+
 o1 = new stzList([ 0, 2, 0, 3, [1,2] ])
-o1.PerformW( '@item = Q(@item).RepeatInAPair()', 'isNumber(@item)')
+o1.PerformW(
+	:do = '{ @item = Q(@item).RepeatedInAPair() }',
+	:if = '{ Q(@item).IsANumber() }'
+)
+
 ? @@S(o1.Content())
 #--> [ [ 0, 0 ], [ 2, 2 ], [ 0, 0 ], [ 3, 3 ], [ 1, 2 ] ]
 
@@ -111,7 +117,7 @@ o1 = new stzList([ "A", 0, 0, "B", "C", 0, "D", 0, 0 ])
 # In Ring, it's impossible to make a comparison between two lists
 # using the = operator like this:
 
-//? [1,2] = [1,2]
+? [1,2] = [1,2]
 #--> Error (R21) : Using operator with values of incorrect type 
 
 # In Softanza you can, just elevate the list to a stzList object
@@ -119,7 +125,7 @@ o1 = new stzList([ "A", 0, 0, "B", "C", 0, "D", 0, 0 ])
 
 ? Q([1,2]) = [1,2] #--> TRUE
 
-# This seems to be a minor feature, but it is'nt. In fact, the Ring
+# This seems to be a minor feature, but it isn't. In fact, the Ring
 # version breaks the programmer's train of thought when writing
 # a code like this:
 

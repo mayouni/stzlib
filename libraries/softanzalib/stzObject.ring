@@ -1489,6 +1489,70 @@ class stzObject
 			stzRaise("Can't cast the object into a number.")
 		ok
 
+	def ToNumberXT(pcCode)
+
+		if isList(pcCode) and Q(pcCode).IsUsingNamedParam()
+			pcCode = pcCode[2]
+		ok
+
+		if NOT isString(pcCode)
+			stzRaise("Incorrect param type! pcCode must be a string.")
+		ok
+
+		@number = 0
+		if This.IsANumber()
+			@number = This.Number()
+		ok
+		
+		cCode = @@SQ(pcCode).
+			RemoveBoundsQ('"').
+			RemoveThisFirstCharQ("{").
+			RemoveThisLastCharQ("}").
+			Trimmed()
+		
+		if NOT Q(cCode).StartsWithOneOfTheseCS([
+			"@number =", "@number +=", "@number=", "@number+=" ],
+			:CaseSensitive = FALSE )
+
+			stzRaise("Syntax error! pcCode must start with '@number =' or '@number +='.")
+		ok
+
+		if Q(cCode).StartsWithEitherCS( "@number=", :Or = "@number =", :CS = FALSE )
+			# EXAMPLE
+			# ? Q([ "a", "b", "c" ]).ToNumberXT('{ @number = len(@list) }')
+			#--> 3
+
+			@list = This.Content()
+			@string = This.Content()
+
+			eval(cCode)
+			return @number
+		else
+			# CASE += is used on a list of items or a sstring
+
+			# EXAMPLE
+			# ? Q([ "Me", "and", "You!" ]).ToNumberXT('{ @number += len(@item) }')
+			#--> 9
+			@number = 0
+			//cCode = Q(cCode).ReplaceCSQ("@string", :By = "@item", :CS = FALSE).Content()
+
+			if This.IsANumber()
+				eval(cCode)
+
+			but This.IsAString()
+				for i = 1 to This.NumberOfChars()
+					@char = This.Char(i)
+					eval(cCode)
+				next
+			but This.IsAList()
+				for @item in This.List()
+					eval(cCode)
+				next
+			ok
+
+			return @number
+		ok
+
 	  #------------------------------------------#
 	 #  CASTING THE OBJECT VALUE INTO A STRING  #
 	#------------------------------------------#
