@@ -19,15 +19,77 @@ o1 = new stzList([ "one", "two", "three" ])
 #--> 11
 
 /*==================
-*/
+
+? fabs(-5) #--> 5	Ring function
+? Abs(-5)  #--> 5	Softanza function
+
+/*------------------
+
+? StzNumberQ("-5.23456").Absolute()
+#--> "5.23456"
+
+/*==================
+
 ? Q(5).ToNumber()
 #--> 5
 
 ? Q("5").ToNumber()
 #--> 5
 
-? Q([ "a", "b", "c" ])
+? Q([ "a", "b", "c" ]).ToNumber()
 #--> 3
+
+/*------------------
+
+? Q(-5).ToNumberXT('{ @number = Q(@number).Abs() }')
+#--> 5
+
+? Q(5).ToNumberXT('{ @number += 5 }')
+#--> 5
+
+/*------------------
+
+? Q("Ring").ToNumberXT('{
+	@number = len(@string)
+}')
+#--> 4
+
+? Q("Ring").ToNumberXT('{
+	@number = Q(@string).NumberOfCharsW("Q(@char).IsLowercase()")
+}')
+#--> 3
+
+? Q("Ring").ToNumberXT('{
+	@number = Q(@string).UnicodesQR(:stzListOfNumbers).Sum()
+}')
+#--> 400
+# In fact:
+	? @@S( Q("Ring").Unicodes() )
+	#--> [ 82, 105, 110, 103 ]
+
+? Q("Ring").ToNumberXT('{
+	@number += Q(@char).Unicode()
+}')
+#--> 400
+
+/*------------------
+*/
+? Q([ "a", "b", "c" ]).ToNumberXT('{ @number = len(@list) }')
+#--> 3
+
+? Q([ "a", "b", "c" ]).ToNumberXT('{
+	@number = QR(@list, :stzListOfChars).UnicodesQR(:stzListOfNumbers).Sum()
+}')
+#--> 294
+
+# In fact:
+? QR(["a", "b", "c"], :stzListOfChars).Unicodes() #--> [97, 98, 99]
+
+? Q([ "Me", "and", "You!" ]).ToNumberXT('{ @number += len(@item) }')
+#--> 9
+
+# In fact:
+? Q([ "Me", "and", "You!" ]).Yield('len(@item)') #--> [2, 3, 4]
 
 /*==================
 

@@ -6299,6 +6299,10 @@ class stzList from stzObject
 
 		*/
 
+		if isList(pcAction) and Q(pcAction).IsDoNamedParam()
+			pcAction = pcAction[2]
+		ok
+
 		This.PerformOnThesePositions(1:This.NumberOfItems(), pcAction)
 
 		#< @FunctionfluentForm
@@ -6656,6 +6660,10 @@ class stzList from stzObject
 
 	def PerformW(pcAction, pcCondition)
 		
+		if isList(pcAction) and Q(pcAction).IsDoNamedParam()
+			pcAction = pcAction[2]
+		ok
+
 		if NOT isString(pcAction)
 			stzRaise("Incorrect type! pcAction must be a string.")
 		ok
@@ -18096,6 +18104,36 @@ sdsd
 
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Size )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsDoNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Do )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUntilNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Until )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUptoNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :UpTo )
 
 			return TRUE
 

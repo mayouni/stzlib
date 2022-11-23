@@ -1,6 +1,13 @@
 load "stzlib.ring"
 
-/*
+/*------------------
+
+o1 = new stzString("{abc}")
+o1.RemoveThisFirstChar("{")
+o1.RemoveThisLastChar("}")
+? o1.Content()
+
+/*------------------
 
 # When applied to the string "Hi!", RepeatNTimes() will update
 # it to become "Hi!Hi!Hi!".

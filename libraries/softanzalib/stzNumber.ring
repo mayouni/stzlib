@@ -416,6 +416,9 @@ func Decuple(n)
 
 		ok
 	
+func Abs(n)
+	return fabs(n)
+
 #---- ROUNDS
 
 func MaxRingRound()
@@ -446,12 +449,6 @@ func GetActiveRound()
 	nActiveRound = len(str) - nSepPos
 	return nActiveRound
 
-// Rounding a number -> return it as a string to preserve
-// the effective round whatever decimals() is in the program
-
-func RoundNumber(nNumber)
-	return StzNumberQ(nNumber).RoundToQ(:Max).Content()
-
 func NumberIsCalculable(nNumber)
 	oStr = new stzString(""+ nNumber)
 	return oStr.RepresentsCalculableNumber()
@@ -469,6 +466,9 @@ func StringToNumber(cNumber) # TESTING IN PROGESS
 	# Deletig unnecessary spaces
 
 	cNumber = Q(cNumber).Trimmed()
+	if cNumber = ""
+		cNumber = "0"
+	ok
 
 	# Setting the decimal number depending on the form provided
 
@@ -716,12 +716,6 @@ func DecimalToHex(n)
 
 func DecimalToHexUnicode(n)
 	return NumberConvert(n, :FromDecimalForm, :ToHexUnicodeForm)
-
-func abs(n)
-	if n < 0
-		n = -n
-	ok
-	return n
 
 #---- used for natural-coding (don't remove them!)
 
@@ -1214,7 +1208,7 @@ class stzNumber from stzObject
 	def IsQuietEqualTo(pOtherNumber)
 		nOtherNumber = 0+ pOtherNumber
 
-		if abs(This.NumericValue() - nOtherNumber) <= QuietEqualityRatio()
+		if fabs(This.NumericValue() - nOtherNumber) <= QuietEqualityRatio()
 			return TRUE
 		else
 			return FALSE
@@ -1379,6 +1373,9 @@ class stzNumber from stzObject
 		return This.MaxNumberOfDigitsTheNumberCanContain() -
 		       This.NumberOfDigitsTheNumberActuallyContains()
 
+
+	# Rounding a number -> return it as a string to preserve
+	# the effective round whatever decimals() is in the program
 	def RoundTo(pRound)
 
 		if NOT NumberIsCalculable(This.Content())
@@ -1413,16 +1410,16 @@ class stzNumber from stzObject
 		# At this level, we have defined nRound
 
 		nRound = pRound
-
+? "nRound = " + nRound
 		# Let's set a variable containing the number itself
 
 		nNumber = This.NumericValue()
-			
+? "nNumber = " + nNumber		
 		# Let's also save the current active round in the
 		# program so we can restore it at the end
 	
 		nActiveRound = GetActiveRound()
-
+? "nActiveRound = " + nActiveRound
 		# If the number is negative then drop the sign temporarilay
 		# before we restore it at the end
 	
@@ -1467,7 +1464,7 @@ class stzNumber from stzObject
 		
 		# Then we delete any zeros from the right
 	
-		cNumber = _(cNumber).@.RemoveRepeatedTrailingcharQ("0").RemoveLastCharWQ('@char = "0"').RemoveLastCharWQ('@char = "."').Content()
+		cNumber = Q(cNumber).RemoveRepeatedTrailingcharQ("0").RemoveLastCharWQ('@char = "0"').RemoveLastCharWQ('@char = "."').Content()
 		
 		# Eventually, we add the negative sign we dropped
 		# at the beginning
@@ -2076,10 +2073,30 @@ class stzNumber from stzObject
 	# ABS
 
 	def Absolute()
-		return This.pvtCaluclate( "fabs", NULL )
+		if This.IsInteger()
+			n = This.NumericValue()
+			if n < 0
+				return -n
+			else
+				return n
+			ok
+		else
+			oStrNumber = new stzString(This.Content())
+			if oStrNumber.FirstChar() = "-"
+				return oStrNumber.FirstCharRemoved()
+			else
+				return oStrNumber.Content()
+			ok
+		ok
 
 		def AbsoluteQ()
 			return new stzNumber(This.AbsoluteQ())
+
+		def Abs()
+			return This.Absolute()
+
+			def AbsQ()
+				return This.AbsoluteQ()
 	
 	# SQRT
 
@@ -2129,6 +2146,10 @@ class stzNumber from stzObject
 	# LEAST COMMON MULTIPLE
 
 	def LeastCommonMultiple(pOtherNumber)
+		if isList(pOtherNumber) and Q(pOtherNumber).IsWithNamedParam()
+			pOtherNumber = pOtherNumber[2]
+		ok
+
 		return pvtCalculate( "LCM", pOtherNumber)
 
 		def LeastCommonMultipleQ(pOtherNumber)
@@ -2212,7 +2233,25 @@ class stzNumber from stzObject
 
 	# MULTIPLES UNTIL
 
+	def NumberOfMultiples(pOtherNumber)
+		return len( This.Multiples(pOtherNumber) )
+
+	def NumberOfMultiplesUntil(pOtherNumber)
+		return len( This.MultiplesUntil(pOtherNumber) )
+
+		def NumberOfMultiplesUpTo(pOtherNumber)
+			return This.NumberOfMultiplesUntil(pOtherNumber)
+
+	def Multiples(pOtherNumber)
+		if isList(pOtherNumber) and
+		   Q(pOtherNumber).IsOneOfTheseNamedParams([ :Until, :UpTo ])
+			pOtherNumber = pOtherNumber[2]
+		ok
+
+		return This.MultiplesUntil(pOtherNumber)
+
 	def MultiplesUntil(pOtherNumber)
+
 		if NOT (isNumber(pOtherNumber) or isString(pOtherNumber))
 			stzRaise("Incorrect param type! pOtherNumber must be a number or a string.")
 		ok
@@ -3074,7 +3113,7 @@ class stzNumber from stzObject
 	 #    FORMATTING    #
 	#------------------#
 
-	def ApplyFormatXT(paFormat)	# +99 999.99%
+	def ApplyFormatXT(paFormat)	# +99 999.99%	#TODO
 
 		# Setting default configs
 
@@ -3277,7 +3316,7 @@ class stzNumber from stzObject
 				next
 			ok
 		ok
-? ">> " + cFractionalPart
+#TODO:	? ">> " + cFractionalPart
 /*----------------------------------------------------------	
 		# Managing Sign
 			
@@ -3701,12 +3740,16 @@ class stzNumber from stzObject
 	Private
 
 	def pvtCalculate(pcOperation, pOtherNumber)
-		// Makes basic arithmetic operations (+, -, *, and /) and
-		// other mathematic operations (sin, cos, tan, log...) in a round-independent way
-		// --> Whatever the active round defined by decimals() is, the result is always
-		// returned in a string containing the effective number of the decimals
+
+		# Makes basic arithmetic operations (+, -, *, and /) and
+		# other mathematic operations (sin, cos, tan, log...) in
+		# a round-independent way:
+
+		# --> Whatever the active round defined by decimals() is,
+		# the result is always returned in a string containing the
+		# effective number of the decimals.
 	
-		// First, string values are converted to number values
+		# First, string values are converted to number values
 		n1 = This.NumericValue()
 		if isString(pOtherNumber)
 			n2 = StringToNumber(pOtherNumber)
@@ -3714,7 +3757,9 @@ class stzNumber from stzObject
 			n2 = pOtherNumber
 		ok
 	
-		// Then, calculation is made and result is hosted in nResult variable
+
+		# Then, calculation is made and result is hosted inside
+		# the nResult variable
 		switch pcOperation
 		on "+"
 			nResult = n1 + n2
@@ -3781,8 +3826,8 @@ class stzNumber from stzObject
 			nResult = ring_log10(n1)
 	
 		on "fabs"
-			nResult = ring_fabs(n1)
-	
+			nResult = fabs(n1)
+
 		on "sigmoid"
 			nResult = 1 / (1 + ring_exp(-n1))
 	
@@ -3799,21 +3844,21 @@ class stzNumber from stzObject
 		on "inverse"
 			nResult = 1 / n1
 
-		// Special case: the result is a list of numbers!
-		// -- Nothing to round: return the list of factors directly
-		on "factors" # TODO
+		# Special case: the result is a list of integers!
+		# --> Nothing to round: return the list of factors directly
+		on "factors"
 			return ring_factors(n1)		
 
 		off
 
 		/*
-		Now, and before it is returned back, nResult must be
-		string to preserve that round expressed in its effective
+		Now, and before it is returned back, nResult must be put in
+		a string to preserve the round expressed in its effective
 		round and hosted in a whatever the active round is in
 		the program (made using decimals())
 		*/
 
-		return RoundNumber(nResult)
+		return Q(nResult).RoundedTo(:Max)
 
 	def Methods()
 		return ring_methods(This)

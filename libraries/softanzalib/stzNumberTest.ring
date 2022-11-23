@@ -2,7 +2,7 @@ load "stzlib.ring"
 
 
 /*-----------------
-*/
+
 ? Q(25).MultiplesUntilQR(1050, :stzListOfNumbers).
 	LeastCommonNumber(:With = Q(42).MultiplesUntil(1050) )
 #--> 1050
@@ -14,12 +14,14 @@ o1 = new stzListOfNumbers([8, 12, 89, 46])
 ? o1.GreatestCommonNumber(:With = [4, 6, 12, 89])	#--> 89
 
 /*-----------------
-
-# Least common multiplier between 25 and 42
-? Q(25).LCM(42)
+*/
+# Least common multiple between 25 and 42
+? Q(25).LeastCommonMultiple(:With = 42) # or simply Q(25).LCM(42)
 #--> 1050
 
-aList1 = Q(25).MultiplesUpTo(1050)
+# Ok, but how this is found in practice, like if we make it by hand?
+# First, let's see the multiples of 25 up to 1050
+aList1 = Q(25).Multiples(:UpTo = 1050)
 #--> [
 #	25, 50, 75, 100, 125,
 #	150, 175, 200, 225, 250,
@@ -32,7 +34,11 @@ aList1 = Q(25).MultiplesUpTo(1050)
 #	1000, 1025, 1050
 # ]
 
-aList2 = Q(42).MultiplesUpTo(1050)
+# This means that 25 should be multiplied 42 times to obtain 1050.
+? len(aList1)
+
+# Then we look to the multiples of 42 up to 1050
+aList2 = Q(42).Multiples(:UpTo = 1050)
 #--> [
 #	42, 84, 126, 168, 210,
 #	252, 294, 336, 378, 420,
@@ -41,7 +47,36 @@ aList2 = Q(42).MultiplesUpTo(1050)
 #	882, 924, 966, 1008, 1050
 # ]
 
+# Note that they are 25 times:
+? len(aList2) # You can also use Q(42).NumberOfMultiples(:UpTp = 1050)
+
+#--> The fact of multipying 25 up to 42 times before we reach 1050,
+# and multiplying 42 up to 25 times to reach the same number,
+# means that the two numbers actually don't have any common multiple
+# before 1050 itself. This can be suffucent to deduce that 1050 is
+# effectively the Least Common Multiple of 25 and 42.
+
+# But, I know, for some of us, this seams to be some how abstract.
+# Hopefully, there is an other concrete way to check it. And this is
+# what we do in practice:
+
+# we scan the numbers of aList1 and aList2 and see what is the first
+# common number between them. Try to do it manually...
+
+# It takes some time before you see that the last number, 1050, is
+# actually the uniqie common number between the two lists! Now we
+# are convainced the output of Sioftanza function LCM() was correct/
+
+# for 1050 to effectively be the LCM of 25 and 42, the least common
+# number between aList1 and aList2 should be 1050. Let's check it:
 ? StzListOfNumbersQ(aList1).LeastCommonNumber(aList2)
+#--> 1050
+
+# We are done! We demonstrated our initial result.
+
+# We would be able to make the job in only one line
+? Q(25).MultiplesUntilQR(1050, :stzListOfNumbers).
+	LeastCommonNumber(:With = Q(42).MultiplesUntil(1050) )
 #--> 1050
 
 /*-----------------

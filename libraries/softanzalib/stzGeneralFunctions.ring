@@ -132,9 +132,6 @@ func ring_GCD(n1, n2)
 func ring_exp(n)
 	return exp(n)
 
-func ring_fabs(n)
-	return fabs(n)
-
 func ring_log10(n)
 	return log10(n)
 
@@ -170,6 +167,12 @@ func ring_sin(n)
 
 func ring_pow(n)
 	return pow(n)
+
+func ring_left(str, n)
+	return left(str, n)
+
+func ring_right(str, n)
+	retur right(str, n)
 
 #-----
 
