@@ -962,17 +962,29 @@ class stzObject
 	def Object()
 		return @oObject
 
+		def ObjectQ()
+			return new stzObject( This )
+
+	def Copy()
+		return new stzObject( This )
+
 	def ObjectVarName()
 		return @cObjectVarName
 
-	def ObjectClassName()
+		def VarName()
+			return This.ObjectVarName()
+
+	def ObjectClassName() # Depricated, use ClassName()
 		return classname(This)
 
 	def ObjectUID()
 		return objectid(This.Object())
 
-	def ObjectAttributes()
-		return attributes(This.Object())
+		def UID()
+			return This.ObjectUID()
+
+	def ObjectAttributes() # Depricated, use Attributes() instead
+		return ring_attributes(This.Object())
 
 	def ObjectValues()
 		aResult = []
@@ -981,6 +993,9 @@ class stzObject
 			eval(cCode)
 		next
 		return aResult
+
+		def AttributesValues()
+			return This.ObjectValues()
 
 	def ObjectAttributesAndValues()
 		aResult = []
@@ -991,16 +1006,19 @@ class stzObject
 		next
 		return aResult
 
+		def AttributesAndValues()
+			return This.ObjectAttributesAndValues()
+
 		def AttributesAndTheirValues()
 			return This.ObjectAttributesAndValues()
 
 		def ObjectAttributesAndTheirValues()
 			return This.ObjectAttributesAndValues()
 
-	def ObjectMethods()
+	def ObjectMethods() # Depricated, use Methods() instead
 		return methods(This.Object())
 
-	def Listify()
+	def Listify() # Use toList() and ToListXT()
 		aResult = []
 
 		for cAttribute in This.ObjectAttributes()
@@ -1010,6 +1028,10 @@ class stzObject
 		next
 
 		return aResult
+
+	  #----------------------------#
+	 #  CHECKING OBJECT EQUALITY  #
+	#----------------------------#
 
 	def IsEqualTo(poOtherObject)
 		if StzListQ( This.Listify() ).IsEqualTo( StzObjectQ(poOtherObject).Listify() )
@@ -1031,6 +1053,9 @@ class stzObject
 
 	def Type()
 		return lower ( ring_type( This.Content() ) )
+
+	def StzType()
+		return :stzObject
 
 	def IsANumber()
 		if This.StzType() = :stzNumber
@@ -1074,6 +1099,18 @@ class stzObject
 	
 			def IsNotObjeket()
 				return This.IsNotAnObject()
+
+	def HasSameTypeAs(p)
+		return isObject(p)
+
+	def HasStzTypeAs(p)
+		if idObject(p) and Q(p).IsStzType() and
+		   Q(p).StzType() = This.StzType()
+
+			return TRUE
+		else
+			return FALSE
+		ok
 
 	def IsOneOfTheseTypes(paTypes)
 
@@ -1195,7 +1232,7 @@ class stzObject
 			return FALSE
 		ok
 
-		def IsEither(pcType1, pcType2)
+		def IsEitherAn(pcType1, pcType2)
 			return This.IsEitherA(pcType1, pcType2)
 
 	def IsNeitherA(pcType1, pcType2)
@@ -1215,8 +1252,42 @@ class stzObject
 			return FALSE
 		ok
 
-	def HasSameTypeAs(p)
-		return isObject(p)
+		def IsNeitherAn(pcType1, pcType2)
+			return This.IsNeitherA(pcType1, pcType2)
+
+	  #-------------------------#
+	 #  CHECKING OBJECT VALUE  #
+	#-------------------------#
+
+	def IsEither(pValue1, pValue2)
+		if isList(pValue2) and Q(pValue2).IsOrNamedParam()
+			pValue2 = pValue2[2]
+		ok
+
+		if This.IsAString()
+			if BothAreStrings(pValue1, pValue2) and
+			   ( This.String() = pValue1 or This.String() = pValue2 )
+
+				return TRUE
+			ok
+
+		but This.IsANumber()
+
+			if BothAreNumbers(pValue1, pValue2) and
+			   ( This.Number() = pValue1 or This.Number() = pValue2 )
+				return TRUE
+			ok
+
+		but This.IsAList()
+			if BothAreLists(pValue1, pValue2) and
+			   ( This.ListQ() = pValue1 or This.ListQ() = pValue2 )
+				return TRUE
+			ok
+
+		but This.IsAnObject() # TODO
+			/* ... */
+		ok
+
 
 	def Stringify()
 		return StzListQ( This.Listify() ).ToCode()
@@ -1382,8 +1453,6 @@ class stzObject
 
 		#< @FunctionFluentForm
 
-		# RETURNUNG THE OBJECT MODIFIED
-
 		def RepeatXTQ(pIn, pnSize)
 			if isString(pIn) and pIn = :String
 				return new stzString( This.RepeatXT(pIn, pnSize) )
@@ -1391,11 +1460,6 @@ class stzObject
 			else
 				return new stzList( This.RepeatXT(pIn, pnSize) )
 			ok
-
-		#-- RETURNING A MODIFIED COPY
-
-		def RepeatXTCQ(pIn, pnSize)
-			return This.Copy().RepeatXT(pIn, pnSiz)
 
 		#>
 
@@ -1440,37 +1504,7 @@ class stzObject
 				return new stzList( This.RepeatInPair() )
 
 		#>
-/*	
-	  #--------------------------------------------------------------#
-	 #   REPEATING THE OBJECT VALUE N TIMES (IN A LIST OF N ITEMS)  #
-	#--------------------------------------------------------------#
 
-	def RepeatNTimes(n)
-		if This.IsANumber()
-			anResult = []
-			for i = 1 to n
-				anResult + This.Number()
-			next
-			return anResult
-
-		but This.IsAString()
-			# Do nothing at this level
-			#--> Managed by the same method inside stzString
-
-		else
-			aResult = []
-			for i = 1 to n
-				aResult + This.Content()
-			next
-			return aResult
-		ok
-
-		def RepeatedNTimes(n)
-			return This.RepeatNtimes(n)
-
-		def NTimes(n)
-			return This.RepeatNtimes(n)
-*/
 	  #------------------------------------------#
 	 #  CASTING THE OBJECT VALUE INTO A NUMBER  #
 	#------------------------------------------#
@@ -1526,7 +1560,7 @@ class stzObject
 			@string = This.Content()
 
 			eval(cCode)
-			return @number
+
 		else
 			# CASE += is used on a list of items or a sstring
 
@@ -1550,9 +1584,13 @@ class stzObject
 				next
 			ok
 
-			return @number
 		ok
 
+		if NOT isNumber(@number)
+			stzRaise("Incorrect type! @number must be a number.")
+		ok
+
+		return @number
 	  #------------------------------------------#
 	 #  CASTING THE OBJECT VALUE INTO A STRING  #
 	#------------------------------------------#
@@ -1598,3 +1636,17 @@ class stzObject
 
 	def IsText()
 		return FALSE
+
+	  #------------------------------#
+	 #     OPERATORS OVERLOADING    #
+	#------------------------------#
+
+	/*
+		TODO: Operators should adopt same semantics in all classes...
+	*/
+
+	def operator(pcOp, pValue)
+		
+		if pcOp = "="
+			return This.IsEqualTo(pValue)
+		ok

@@ -16013,7 +16013,7 @@ class stzListOfStrings from stzList
 		def DuplicatesPositions()
 			return THis.FindDuplicates()
 
-			def DuplicatesPositionsCQ()
+			def DuplicatesPositionsQ()
 				return This.DuplicatesPositionsQR(:stzList)
 
 			def DuplicatesPositionsQR(pcReturnType)
