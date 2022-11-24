@@ -250,6 +250,8 @@ func HaveBothSameType(p1, p2)
 func IsEmptyList(paList)
 	return StzListQ(paList).IsEmpty()
 		
+	def IsAnEmptyList(paList)
+
 func ListShow(paList)
 	StzListQ(paList).Show()
 
@@ -470,6 +472,9 @@ class stzList from stzObject
 
 	def List()
 		return Content()
+
+		def ListQ() # Same as Copy()
+			return new stzList( This.List() )
 
 	def Copy()
 		return new stzList( This.List() )
@@ -4046,6 +4051,12 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsADeepList()
+			return This.ISDeepList()
+
+		def IsDeep()
+			return This.ISDeepList()
+
 	def IsHybridList()	// Contains items of different types
 		if NOT This.ContainsOnlyNumbers() or
 		   NOT This.ContainsOnlyStrings() or
@@ -4055,6 +4066,9 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsAHybridList()
+			return This.IsHybridList()
 
 	def IsPureList()	// Contains items of the same type
 		if This.ContainsOnlyNumbers() or
@@ -4066,6 +4080,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsAPureList()
+			return This.IsPureList()
+
 	def IsOddList()
 		oTempNumber = new stzNumber( This.NumberOfItems() )
 		if oTempNumber.IsOdd()
@@ -4074,12 +4091,18 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsAnOddList()
+			return This.IsOddList()
+
 	def IsEvenList()
 		if NOT This.IsOddList()
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		def IsAnEvenList()
+			return This.IsEvenList()
 
 	// TODO: Maybe we should design a stzListOfBits class...
 	def IsListOfBits()
@@ -4097,6 +4120,9 @@ class stzList from stzObject
 
 		return TRUE
 
+		def IsAListOfBits()
+			return This.IsListOfBits()
+
 	def IsListOfZerosAndOnes()
 		if This.NumberOfItems() = 0
 			return FALSE
@@ -4104,8 +4130,14 @@ class stzList from stzObject
 
 		return This.IsListOfBits()
 
+		def IsAListOfZerosAndOnes()
+			return This.IsListOfZerosAndOnes()
+
 	def IsGrid()
 		return This.AllItemsAre('{ isList(@item) and len(@item) = len(This[1]) }')
+
+		def IsAGrid()
+			return This
 
 	def IsHashList()
 		/*
@@ -4155,9 +4187,15 @@ class stzList from stzObject
 
 		return bResult
 
-	def IsNotHashList()
-		return NOT This.IsHashList()
+		def IsAHashList()
+			return This.IsHashList()
 
+		def IsNotHashList()
+			return NOT This.IsHashList()
+
+		def IsNotAHashList()
+			return This.IsHashList()
+	
 	def AllItemsAreHashLists()
 		if This.NumberOfItems() = 0
 			return FALSE
@@ -4247,6 +4285,9 @@ class stzList from stzObject
 
 		return bResult
 
+		def IsAListOfStrings()
+			return This.IsListOfStrings()
+
 	def IsListOfChars()
 		if This.NumberOfItems() = 0
 			return FALSE
@@ -4264,6 +4305,9 @@ class stzList from stzObject
 		next
 
 		return bResult
+
+		def IsAListOfChars()
+			return This.IsListOfChars()
 
 	def IsListOfLetters()
 		if This.NumberOfItems() = 0
@@ -4283,12 +4327,18 @@ class stzList from stzObject
 
 		return bResult
 
+		def IsAListOfLetters()
+			return This.IsListOfLetters()
+
 	def IsListOfNumbers()
 		if This.NumberOfItems() = 0
 			return FALSE
 		ok
 
 		return This.AllItemsAreNumbers()
+
+		def IsAListOfNumbers()
+			return This.IsListOfNumbers()
 
 	def IsListOfLists()
 		if This.NumberOfItems() = 0
@@ -4297,12 +4347,18 @@ class stzList from stzObject
 
 		return This.AllItemsAreLists()
 
+		def IsAListOfLists()
+			return This.IsListOfLists()
+
 	def IsListOfSets()
 		if This.NumberOfItems() = 0
 			return FALSE
 		ok
 
 		return This.AllItemsAreSets()
+
+		def IsAListOfSets()
+			return This.IsAListOfSets()
 
 	def IsListOfNumbersOrStrings()
 		if This.IsListOfNumbers() or
@@ -4313,6 +4369,15 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsListOfStringsOrNumbers()
+			return This.IsListOfNumbersOrStrings()
+
+		def IsAListOfNumbersOrStrings()
+			return This.IsListOfNumbersOrStrings()
+
+		def IsAListOfStringsOrNumbers()
+			return This.IsListOfNumbersOrStrings()
 
 	def IsListOfNumbersAndStrings()
 		bResult = TRUE
@@ -4328,12 +4393,27 @@ class stzList from stzObject
 		def IsListOfStringsAndNumbers()
 			return This.IsListOfNumbersAndStrings()
 
+		def IsAListOfNumbersAndStrings()
+			return This.IsListOfNumbersAndStrings()
+
+		def IsAListOfStringsAndNumbers()
+			return This.IsListOfNumbersAndStrings()
+
 	def IsListOfEitherNumbersOrStrings()
 		if This.IsListOfNumbers() or This.IsListOfStrings()
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		def IsListOfEitherStringsOrNumbers()
+			return This.IsListOfEitherNumbersOrStrings()
+
+		def IsAListOfEitherNumbersOrStrings()
+			return This.IsListOfEitherNumbersOrStrings()
+
+		def IsAListOfEitherStringsOrNumbers()
+			return This.IsListOfEitherNumbersOrStrings()
 
 	def IsListOfNumbersAndPairsOfNumbers()
 		bResult = TRUE
@@ -4349,34 +4429,20 @@ class stzList from stzObject
 
 		return bResult
 
-	def Transform( pcWhat, pcCondition, pcTo )
-		/*
-		For the meantime, this function works only for:
-		Transform( :AllItems, :ThatAreLists, :ToSets )
-
-		TODO: Generalize this method to support more cases.
-		*/
-		aResult = []
-
-		if pcWhat = :AllItems and
-		   pcCondition = :ThatAreLists and
-		   pcTo = :ToSets
-
-			for item in This.List()
-				if isList(item)
-					oTempList = new stzList(item)
-					aResult + oTempList.ToSet()
-				ok
-			end
-		ok
-
-		return aResult
+		def IsAListOfNumbersAndPairsOfNumbers()
+			return This.IsListOfNumbersAndPairsOfNumbers()
 
 	def IsPair()
 		return This.NumberOfItems() = 2
 
+		def IsAPair()
+			return This.IsPair()
+
 	def IsPairOfStrings()
 		return This.IsPair() and This.IsListOfStrings()
+
+		def IsAPairOfStrings()
+			return This.IsPairOfStrings()
 
 	def IsListOfPairsOfStrings()
 		/*
@@ -4404,8 +4470,14 @@ class stzList from stzObject
 
 		return bResult
 
+		def IsAListOfPairsOfStrings()
+			return This.IsListOfPairsOfStrings()
+
 	def IsPairOfNumbers()
 		return This.IsPair() and This.IsListOfNumbers()
+
+		def IsAPairOfNumbers()
+			return This.IsPairOfNumbers()
 
 	def IsListOfPairsOfNumbers()
 
@@ -4420,8 +4492,14 @@ class stzList from stzObject
 
 		return bResult
 
+		def IsAListOfPairsOfNumbers()
+			return This.IsListOfPairsOfNumbers()
+
 	def IsPairOfLists()
 		return This.IsPair() and This.IsListOfLists()
+
+		def IsAPairOfList()
+			return This.IsPairOfLists()
 
 	def IsListOfPairsOfLists()
 
@@ -4436,8 +4514,14 @@ class stzList from stzObject
 
 		return bResult
 
+		def IsAListOfPairsOfLists()
+			return This.IsListOfPairsOfLists()
+
 	def IsPairOfObjects()
 		return This.IsPair() and This.IsListOfObjects()
+
+		def IsAPairOfObjects()
+			return This.IsPairOfObjects()
 
 	def IsListOfPairsOfObjects()
 
@@ -4452,8 +4536,20 @@ class stzList from stzObject
 
 		return bResult
 
+		def IsAListOfPairsOfObjects()
+			return This.IsListOfPairsOfObjects()
+
 	def IsPairAndKeyIsString()
 		return This.IsPair() and isString(This[1])
+
+		def IsAPairAndKeyIsString()
+			return IsPairAndKeyIsString()
+
+		def IsPairAndKeyIsAString()
+			return This.IsPairAndKeyIsString()
+
+		def IsAPairAndKeyIsAString()
+			return This.IsPairAndKeyIsString()
 
 	def IsListOfObjects()
 		bResult = TRUE
@@ -4466,8 +4562,14 @@ class stzList from stzObject
 
 		return bResult
 
+		def IsAListOfObjects()
+			return This.IsListOfObjects()
+
 	def IsPairStzObjects()
 		return This.IsPair() and This.IsListOfStzObjects()
+
+		def IsAPairStzObjects()
+			return This.IsPairStzObjects()
 
 	def IsListOfStzObjects()
 		bResult = TRUE
@@ -4480,8 +4582,14 @@ class stzList from stzObject
 
 		return bResult
 
+		def IsAListOfStzObjects()
+			return This.IsListOfStzObjects()
+
 	def IsPairOfStzNumbers()
 		return This.IsPair() and This.IsListOfStzNumbers()
+
+		def IsAPairOfStzNumbers()
+			return This.IsPairOfStzNumbers()
 
 	def IsListOfStzNumbers()
 		bResult = TRUE
@@ -4493,6 +4601,9 @@ class stzList from stzObject
 		next
 
 		return bResult
+
+		def IsAListOfStzNumbers()
+			return This.IsListOfStzNumbers()
 
 	def IsPairOfStzStrings()
 		return This.IsPair() and This.IsListOfStzStrings()
@@ -4508,8 +4619,14 @@ class stzList from stzObject
 
 		return bResult
 
+		def IsAListOfStzStrings()
+			return This.IsListOfStzStrings()
+
 	def IsPairOfStzLists()
 		return This.IsPair() and This.IsListOfStzLists()
+
+		def IsAPairOfStzLists()
+			return This.IsPairOfStzLists()
 
 	def IsListOfStzLists()
 		bResult = TRUE
@@ -4522,14 +4639,26 @@ class stzList from stzObject
 
 		return bResult
 
+		def IsAListOfStzLists()
+			return This.IsListOfStzLists()
+
 	def IsPairOfStzObjects()
 		return This.IsPair() and This.IsListOfStzObjects()
+
+		def IsAPairOfStzObjects()
+			return This.IsPairOfStzObjects()
 
 	def IsPairOfChars()
 		return This.IsPair() and This.IsListOf(:Chars)
 
+		def IsAPairOfChars()
+			return This.IsPairOfChars()
+
 	def IsPairOf(pcType)
 		return This.IsPair() and This.IsListOf(pcType)
+
+		def IsAPairOf(pcType)
+			return This.IsPairOf(pcType)
 
 	def IsListOf(pcType)
 		/*
@@ -4557,6 +4686,9 @@ class stzList from stzObject
 			return FALSE
 
 		ok
+
+		def IsAListOf(pcType)
+			return This.IsListOf(pcType)
 		
 	def IsListOfPairs()
 		/*
@@ -4579,6 +4711,8 @@ class stzList from stzObject
 
 		return bResult
 
+		def IsAListOfPairs()
+			return This.IsListOfPairs()
 
 	def IsTree()
 		if NOT This.IsEmpty()
@@ -4588,14 +4722,35 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsStzTree()
-		// TODO
+		def IsATree()
+			return This.IsTree()
 
-	def IsTable() # TODO
+	def IsStzTree()
+		if This.StzClassName() = "stztree"
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAStzTree()
+			return This.IsStzTree()
+
+	def IsTable() # TODO: Review this solution
+		try
+			new stzTable(This.List())
+			return TRUE
+		catch
+			return FALSE
+		done
 
 	def IsPivotTable() # TODO
+		/* ... */
+
+		def IsAPivotTable()
+			return This.IsPivotTable()
 
 	def IsGraph() # TODO
+		/* ... */
 
 	  #----------------------------#
 	 #   SAME TYPE & SAME VALUE   #
@@ -6279,6 +6434,77 @@ class stzList from stzObject
 					stzRaise("Unsupported return type!")
 				off
 		#>
+
+	  #-------------------------------------------------#
+	 #  YIELDING AND ACCUMULATING VALUES ON EACH ITEM  #
+	#-------------------------------------------------#
+
+	def YieldAndCumulate(pcCode)
+		/* EXAMPLE
+			o1 = new stzList([ 1, 2, 3 ])
+			? o1.YieldAndCumulate("@item")
+			#--> [ 1, 3, 6 ]
+
+			? o1.YieldAndCumulateXT("@item", :ReturnLast)
+			#--> 6
+		*/
+
+		return This.YieldAndCumulateXT(pcCode, :ReturnLast = FALSE)
+
+		def YieldAndCumulateQ(pcCode)
+			return new stzList(This.YieldAndCumulate(pcCode))
+
+	  #-------------------------------------------------------------#
+	 #  YIELDING AND ACCUMULATING VALUES ON EACH ITEM -- EXTENDED  #
+	#-------------------------------------------------------------#
+
+	def YieldAndCumulateXT(pcCode, paReturnLast)
+
+		bReturnLast = FALSE
+
+		if isList(paReturnLast)
+			if len(paReturnLast) = 2 and
+			   isString(paReturnLast[1]) and
+			   paReturnLast[1] = :ReturnLast and
+			   isNumber(paReturnLast[2]) and
+			   Q(paReturnLast[2]).IsEither(TRUE, :Or = FALSE)
+				bReturnLast = paReturnLast[2]
+			ok
+
+		but isString(paReturnLast)
+			if paReturnLast = :ReturnLast
+				bReturnLast = TRUE
+			ok	
+		ok
+
+		if NOT (This.IsListOfNumbers() or This.IsListOfStrings())
+			stzRaise("Can't cumulate! The list must b a list of numbers or a list of strings.")
+		ok
+
+		if NOT isString(pcCode)
+			stzRaise("Incorrect param type! pcCode must be a string.")
+		ok
+
+		aYielded = This.Yield(pcCode)
+
+		if len(aYielded) > 0
+			aCumulated = [ aYielded[1] ]
+
+			if len(aYielded) > 1
+				for i = 2 to len(aYielded)
+					aCumulated + ( aYielded[i] + aCumulated[i-1] )
+				next
+			ok
+		ok
+
+		if bReturnLast
+			return aCumulated[ len(aCumulated) ]
+		else
+			return aCumulated
+		ok
+
+		def YieldAndCumulateXTQ(pcAction, paReturnLast)
+			return Q(This.YieldAndCumulateXT(pcAction, paReturnLast))
 
 	  #=======================================#
 	 #   PERFORMING AN ACTION ON EACH ITEM   #
@@ -18623,6 +18849,9 @@ sdsd
 	def IsItem()
 		return TRUE
 
+		def IsAnItem()
+			return This.IsItem()
+
 	def IsItemOf(paList)
 		return StzListQ(paList).Contains(This.Content())
 	
@@ -18639,6 +18868,9 @@ sdsd
 
 	def IsMember()
 		return TRUE
+
+		def IsAMember()
+			return This.IsMember()
 
 	def IsMemberOf(paList)
 		return StzListQ(paList).Contains(This.Content())
@@ -18675,9 +18907,9 @@ sdsd
 	def IsLetter()
 		return FALSE
 
-	def IsALetter()
-		return FALSE
-
+		def IsALetter()
+			return FALSE
+	
 	def IsLetterOf(pStrOrListOfChars)
 		return FALSE
 

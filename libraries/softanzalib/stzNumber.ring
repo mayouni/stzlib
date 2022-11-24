@@ -804,6 +804,9 @@ class stzNumber from stzObject
 
 	def Number()
 		return This.NumericValue()
+
+		def NumberQ() # Same as Copy()
+			return new stzNumber( This.Content() )
 		
 	def NumberWithSign()
 		If This.IsPositive()

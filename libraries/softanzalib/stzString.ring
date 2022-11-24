@@ -544,8 +544,8 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def StringQ()
-			return This
+		def StringQ() # Same as Copy()
+			return new stzString( This.String() )
 	
 		#>
 
@@ -4204,8 +4204,8 @@ class stzString from stzObject
 		def BoundSubStringWith(pcSubStr, pcBound1, pcBound2)
 			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
 
-			def BoundSubStringWithCQ(pcSubStr, pcBound1, pcBound2)
-				This.BoundSubStringWithCS(pcSubStr, pcBound1, pcBound2)
+			def BoundSubStringWithQ(pcSubStr, pcBound1, pcBound2)
+				This.BoundSubStringWith(pcSubStr, pcBound1, pcBound2)
 				return This
 
 	  #---------------------------------------------------------#
@@ -4265,17 +4265,17 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def AddBoundsToSubStringsC(pacSubStr, pcBound1, pcBound2)
-			This.AddBoundsToManySubStringsC(pacSubStr, pcBound1, pcBound2)
+		def AddBoundsToSubStrings(pacSubStr, pcBound1, pcBound2)
+			This.AddBoundsToManySubStrings(pacSubStr, pcBound1, pcBound2)
 
-			def AddBoundsToSubStringsCQ(pacSubStr, pcBound1, pcBound2)
-				This.AddBoundsToSubStringsC(pacSubStr, pcBound1, pcBound2)
+			def AddBoundsToSubStringsQ(pacSubStr, pcBound1, pcBound2)
+				This.AddBoundsToSubStrings(pacSubStr, pcBound1, pcBound2)
 				return This
 
 		def BoundManySubStringsWith(pacSubStr,  pcBound1, pcBound2)
-			This.AddBoundsToManySubStringsC(pacSubStr, pcBound1, pcBound2)
+			This.AddBoundsToManySubStrings(pacSubStr, pcBound1, pcBound2)
 
-			def BoundManySubStringsWithCQ(pacSubStr, pcBound1, pcBound2)
+			def BoundManySubStringsWithQ(pacSubStr, pcBound1, pcBound2)
 				This.BoundManySubStringsWith(pacSubStr, pcBound1, pcBound2)
 				return This
 
@@ -22245,16 +22245,9 @@ class stzString from stzObject
 
 		#< @FunctionFluentForms
 
-		# RETURNING THE OBJECT MODIFIED
-
 		def RepeatNTimesQ(n)
 			This.RepeatNTimes(n)
 			return This
-
-		#-- RETURNING A MODIFIED COPY
-
-		def RepatNTImesCQ(n)
-			return This.Copy().RepeatNTimes(n)
 
 		#>
 
@@ -22266,11 +22259,6 @@ class stzString from stzObject
 			def RepeatQ(n)
 				This.Repeat(n)
 				return This
-
-			#--
-
-			def RepeatCQ(n)
-				return This.Copy().RepeatQ(n)
 
 		#>
 

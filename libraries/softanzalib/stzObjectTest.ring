@@ -30,6 +30,45 @@ o1 = new stzList([ "one", "two", "three" ])
 
 /*==================
 
+# There is a difference in Softanza between IsEither() and IsEitherA().
+# The first checks for VALUES while the second checks for TYPES:
+
+o1 = new stzNumber(5)
+? o1.IsEither(5, :Or = 12)		#--> TRUE
+? o1.IsEitherA(:Number, :Or = :String)	#--> TRUE
+
+o1 = new stzList(1:3)
+? o1.IsEither(1:3, :Or = 2:7) 		#--> TRUE
+? o1.IsEitherA(:List, :Or = :String)	#--> TRUE
+
+o1 = new stzString("ring")
+? o1.IsEither("ring", :or = "ruby")	#--> TRUE
+? o1.IsEitherA(:String, :Or = :List)	#--> TRUE
+
+/*==================
+
+o1 = new stzList([ "one", "two", "three" ])
+? o1.YieldAndCumulateXT( "len(@item)", :ReturnLast = FALSE )
+#--> [3, 6, 11]
+
+? o1.YieldANdCumulateXT( "len(@item)", :ReturnLast )
+#--> 11
+
+/*-----------------
+
+o1 = new stzList([ 1, 2, 3 ])
+? o1.YieldAndCumulate("{ @item }")
+#--> [ 1, 3, 6 ]
+
+o1 = new stzList([ "I", "love", "Ring!" ])
+? @@S( o1.YieldAndCumulate('{ @item +  " " }') )
+#--> [ [ "I ", "I love ", "I love Ring!" ]
+
+? o1.YieldAndCumulateXTQ('{ @item +  " " }', :ReturnLast).Trimmed()
+#--> "I love Ring!"
+
+/*==================
+*/
 ? Q(5).ToNumber()
 #--> 5
 
@@ -73,7 +112,7 @@ o1 = new stzList([ "one", "two", "three" ])
 #--> 400
 
 /*------------------
-*/
+
 ? Q([ "a", "b", "c" ]).ToNumberXT('{ @number = len(@list) }')
 #--> 3
 
@@ -91,28 +130,13 @@ o1 = new stzList([ "one", "two", "three" ])
 # In fact:
 ? Q([ "Me", "and", "You!" ]).Yield('len(@item)') #--> [2, 3, 4]
 
-/*==================
+/*----------------
 
-o1 = new stzNumber(8)
-? o1.ToNumber()
-#--> 8
-
-/*-----------------
-
-o1 = new stzString("142")
-? o1.ToNumber()
-#--> 142
-
-? o1.ToNumberXT('@.NumberOfChars()')
-#--> 3
+o1 = new stzList([ 1, 2, 3 ])
 ? o1.ToNumberXT('
-	YieldAndCumulate('0+ @item')
+	@number = YieldAndCumulateXT("@item", :ReturnLast)
 ')
-#--> 7
-? o1.ToNumberXT('
-	YieldAndCumulateXT('0+ @item', :ReturnIntermediate)
-')
-#--> [ 1, 5, 7 ]
+#--> 6
 
 /*-----------------
 
@@ -121,9 +145,9 @@ o1 = new stzList([ "one", "two", "three" ])
 #--> 3
 
 ? o1.ToNumberXT('
-	YieldAndCumulateXT("len(@item)", :ReturnIntermediate )
+	@number = YieldAndCumulateXT("len(@item)", :ReturnLast )
 ')
-
+#--> 11
 
 /*=================
 
