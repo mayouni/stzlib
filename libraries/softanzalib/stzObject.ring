@@ -1315,13 +1315,19 @@ class stzObject
 		aResult = This.Copy().RepeatQ(n).Content()
 		return aResult
 
-		def RepeateNTimes(n)
+		def RepeatedNTimes(n)
 			return This.Repeated(n)
 
 	  #-------------------------------------------------------------------#
 	 #  REPEATING THE OBJECT VALUE IN A GIVEN CONTAINER OF A GIVEN SIZE  #
 	#-------------------------------------------------------------------#
 
+	def RepeatNTimesXT(pnSize, pIn)
+		return This.RepeatXT(pIn, pnSize)
+
+		def RepeatedNTimesXT(pnSize, pIn)
+			return RepeatNTimesXT(pnSize, pIn)
+	
 	def RepeatXT(pIn, pnSize)
 
 		/* EXAMPLE

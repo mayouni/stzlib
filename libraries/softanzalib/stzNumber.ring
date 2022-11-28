@@ -1897,6 +1897,13 @@ class stzNumber from stzObject
 	 #    DIVISION    #
 	#----------------#
 
+	def Divide(paByDividor)
+		if isList(paByDividor) and Q(paByDividor).IsByNamedParam()
+			paByDividor = paByDividor[2]
+		ok
+
+		return This.DivideBy(paDividor)
+
 	def DivideBy(pOtherNumber)
 		This.Update( pvtCalculate("/", pOtherNumber ) )
 

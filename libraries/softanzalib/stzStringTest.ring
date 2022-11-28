@@ -1,5 +1,44 @@
 load "stzlib.ring"
 
+
+/*---------------
+
+? SoftanzaLogo()
+/* --> 
+
+╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
+┃╭━╮┃╭━╮┃╭━━┫╭╮╭╮┃╭━╮┃┃╰╮┃┣━━╮━┃╭━╮┃
+┃╰━━┫┃╱┃┃╰━━╋╯┃┃╰┫┃╱┃┃╭╮╰╯┃╱╭╯╭┫┃╱┃┃
+╰━━╮┃┃╱┃┃╭━━╯╱┃┃╱┃╰━╯┃┃╰╮┃┃╭╯╭╯┃╰━╯┃
+┃╰━╯┃╰━╯┃┃╱╱╱╱┃┃╱┃╭━╮┃┃╱┃┃┣╯━╰━┫╭━╮┃
+╰━━━┻━━━┻╯╱╱╱╱╰╯╱╰╯╱╰┻╯╱╰━┻━━━━┻╯╱╰━
+
+Programming, by Heart! By: M.Ayouni╭
+━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
+  ╰╯
+
+/*-----------------
+
+? Basmalah()	#--> ﷽
+? Heart()	#--> ♥
+? 3Hearts()	#--> ♥♥♥
+? 5Stars()	#--> ★★★★★
+
+/*-----------------
+
+? Heart() # --> ♥
+? Q(Heart()).RepeatedNTimes(3) #--> ♥♥♥
+# or you can use the short form .NTimes(3)
+
+? Q("Go").RepeatedNTimes(3) #--> GoGoGo
+
+? @@S( Q([ "A", "B" ]).RepeatedNTimes(3) )
+#--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
+
+? Five(Star()) #--> ★★★★★
+? Three(Heart()) #--> ♥♥♥
+/*---
+
 /*------------------
 
 o1 = new stzString("{abc}")
@@ -9,20 +48,20 @@ o1.RemoveThisLastChar("}")
 
 /*------------------
 
-# When applied to the string "Hi!", RepeatNTimes() will update
+# When applied to the string "Hi!", RepeatedNTimes() will update
 # it to become "Hi!Hi!Hi!".
 
-? Q("Hi!").RepeatNTimes(3)
+? Q("Hi!").RepeatedNTimes(3)
 #--> "Hi!Hi!Hi!"
 
 # When used with all other types (stzList, stzNumber, and stzObject),
 # it will repeat the object value inside a list:
 
-? Q(5).RepeatNTimes(3)
+? Q(5).RepeatedNTimes(3)
 #--> [5, 5, 5]
 
-? Q(1:3).RepeatNTimes(3)
-#--> [ 1:3, 1:3, 1:3 ].
+? Q(1:3).RepeatedNTimes(3)
+#--> [ 1:3, 1:3, 1:3 ]
 
 # You my ask we we opted for a different behavior for
 # strings compared to other types, and why we don't produce
@@ -30,19 +69,18 @@ o1.RemoveThisLastChar("}")
 # ? Q("Hi!").RepeatNTimes(3) #!--> [ "Hi!", "Hi!", "Hi" ] ?
 
 # Well, because I think it's more natural to update the
-# string when ask to repeat it, and have a string as a
+# string when we ask to repeat it, and have a string as a
 # result not a list!
 
 # If you want to avoid any confusuion coming from this double-usage,
-# rely on RproduceIn() instead, and specify explicitly what
+# rely on RepeatedXT() instead, and specify explicitly what
 # you hant to have as an output, like this:
 
-? Q("Hi!").RepeatedXT( :NTimes = 3, :InString)
+? Q("Hi!").RepeatedNTimesXT( 3, :InString)
 #--> "Hi!Hi:Hi!
 
-? Q("Hi!").RepeatedXT( :NTimes = 3, :InList)
+? Q("Hi!").RepeatedNTimesXT( 3, :InList)
 #--> [ "Hi!", "Hi!", "Hi!" ]
-
 
 /*----------------------
 
@@ -109,72 +147,42 @@ o1.RemoveThisLastChar("}")
 ? Q("punctuations").InfereMethod(:From = :stzChar)
 #--> "ispunctauion"
 
-/*---------------
+/*================= "What You Think Is What You Write"
 
+# In plain english, when you see "12309" you would say
+# "all chars are numbers". In Softanza, it's the same:
 ? Q("12309").AllCharsAre(:Numbers)
 #--> TRUE
 
+# For "248", yoou say "All chars are even positive numbers"
+# In Softanza, it's exactly the same:
 ? Q("248").AllCharsAre([ :Even, :Positive, :Numbers ])
 #--> TRUE
 
+# In this example, "all chars are punctuations", right?
 ? Q(",:;").AllCharsAre(:Punctuations)
 #--> TRUE
 
+# And in this one, "all chars are arabic":
 ? Q("سلام").AllCharsAre(:Arabic)
 #--> TRUE
 
+# Yes, "all chars are arabic chars"!
 ? Q("سلام").AllCharsAre([ :Arabic, :Chars ])
 #--> TRUE
 
+# And yes, "all chars are right-to-left arabic chars"! 
 ? Q("سلام").AllCharsAre([ :RightToLeft, :Arabic, :Chars ])
+#--> TRUE
 
-? Q("سلام").AllCharsAre([ :RighttoLeft, W('Q(@char).IsArabic()'), :Chars ])
+# In fact, you can be as expressive as you want, and say:
+# "all chars are right-to-left chars, where each char is an arabic char"!
+# In Softanza, it's the same, exactly the same:
+? Q("سلام").AllCharsAre([ :RightToLeft, :Chars, Where('Q(@EachChar).IsAnArabic()'), :Char ])
+#--> TRUE
 
-/*---------------
+# In Softanza, "What You Think Is What You Write".
 
-? SoftanzaLogo()
-/* --> 
-
-╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
-┃╭━╮┃╭━╮┃╭━━┫╭╮╭╮┃╭━╮┃┃╰╮┃┣━━╮━┃╭━╮┃
-┃╰━━┫┃╱┃┃╰━━╋╯┃┃╰┫┃╱┃┃╭╮╰╯┃╱╭╯╭┫┃╱┃┃
-╰━━╮┃┃╱┃┃╭━━╯╱┃┃╱┃╰━╯┃┃╰╮┃┃╭╯╭╯┃╰━╯┃
-┃╰━╯┃╰━╯┃┃╱╱╱╱┃┃╱┃╭━╮┃┃╱┃┃┣╯━╰━┫╭━╮┃
-╰━━━┻━━━┻╯╱╱╱╱╰╯╱╰╯╱╰┻╯╱╰━┻━━━━┻╯╱╰━
-
-Programming, by Heart! By: M.Ayouni╭
-━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
-  ╰╯
-
-/*-----------------
-
-? Basmalah() # --> ﷽
-
-/*-----------------
-
-o1 = new stzString("   ﷽ ")
-o1.Trim()
-? o1.Content() # --> "﷽"
-
-/*-----------------
-
-o1 = new stzString("   ﷽ ")
-o1.Simplify()
-? o1.Content() #--> "﷽"
-
-/*-----------------
-
-? Heart() # --> ♥
-? Q(Heart()).RepeatedNTimes(3) #--> ♥♥♥
-# or you can use the short form .NTimes(3)
-
-? Q("Go").RepeatedNTimes(3) #--> GoGoGo
-
-? @@S( Q([ "A", "B" ]).RepeatedNTimes(3) )
-#--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
-
-? Five(Star()) #--> ★★★★★
-? Three(Heart()) #--> ♥♥♥
 /*---
 
 ? Q("Riiiiinngg").UniqueChars() #--> [ "R", "i", "n", "g" ]
@@ -211,7 +219,7 @@ o1.Simplify()
 	AllCharsAre(:Punctuations)
 #--> TRUE
 
-/*--- TODO: Add a QZ() function that traces the intermediate results:
+/*--- TODO - FUTURE: Add a QZ() function that traces the intermediate results:
 
 ? QZ("(9, 7, 8)").
 	RemoveWQ('Q(@Char).IsNumberInString()').
@@ -266,17 +274,11 @@ str = "sun"
 
 ? Q("LOVE").AllCharsAre(:Invertible)
 ? Q("LOVE").Inverted()			#--> ƎɅO⅂
-
 /*-----------------
 
 ? Q(2).IsANumber()	#--> TRUE
 ? Q(2).IsEven()		#--> TRUE
 ? Q(2).IsPositive()	#--> TRUE
-
-/*-----------------
-
-? Q("248").AllCharsAre([ :Even, :Positive, :Numbers ])		#--> TRUE
-? Q("نور").AllCharsAre([ :RightToLeft, :Arabic, :Chars ])	#--> TRUE
 
 /*-----------------
 
@@ -290,15 +292,11 @@ str = "sun"
 
 /*-----------------
 
-? Q("①②③").AllCharsAre([:Circled, :Number, :Chars])
-? Q("①②③").AllCharsAre([:Circled, :Positive, :Numbers])
-? Q("②④⑧").AllCharsAre([ :Circled, :Even, :Numbers ])
-/*-----------------
-
 ? Q("248").AllCharsAreXT([ :Even, :Positive, :Numbers ], :EvaluateFrom = :RTL)
+
 /*-----------------
 
-//? Q("123").Check( 'isnumber( 0+(@char) )' ) #--> TRUE
+? Q("123").Check( 'isnumber( 0+(@char) )' ) #--> TRUE
 
 /*=================
 
@@ -398,13 +396,12 @@ str = "sun"
 #	[ "COL3", [ "A", "A", "A" ] ]
 # ]
 
-/*-----------------------
-*/
+/*-------------------
 
 ? Q(5).RepeatedInAPair()
 #--> [5, 5]
 
-/*------------------
+/*-==================
 
 o1 = new stzString("ab_cd_ef_gh")
 ? o1.ContainsMoreThenOne("_") 	#--> TRUE
@@ -435,7 +432,7 @@ o1 = new stzString("ab_cd_ef_gh")
 ? o1.FindAll("_")
 #--> [3, 6, 9]
 
-/*------------------
+/*=================
 
 ? @@S ( Q("
 
@@ -459,7 +456,7 @@ o1 = new stzString("ab_cd_ef_gh")
 #	[ ".", "5", ".", ".", "." ]
 # ]
 
-/*------------------
+/*=================
 
 o1 = new stzString("How many <<many>> are there in (many <<<many>>>): so <many>>!")
 
@@ -468,7 +465,7 @@ o1 = new stzString("How many <<many>> are there in (many <<<many>>>): so <many>>
 
 //Same as:
 ? @@S(o1.Bounds(:Of = "many", :UpToNChars = [ [0,0], [2, 2], [0,0], [3,3], [1,2] ]))
-
+#--> [ [ NULL, NULL ], [ "<<", ">>" ], [ NULL, NULL ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
 
 /*=================
 
@@ -511,7 +508,7 @@ o1 = new stzString("*AB*")
 
 # And many other alternatives that you can discover in the fucntion code
 
-/*-----------------
+/*==================
 
 ? Q("NEXTAV TUNISIA").Section(:From = 1, :To = 6)
 #--> "NEXTAV"
@@ -553,7 +550,7 @@ o1 = new stzString("*AB*")
 #--> "By Heart!"
 
 ? Q("SOFTANZA").Section(-99, 99)
-#--> "SOFTANZA"
+#--> ""
 
 ? Q("SOFTANZA").Section(4, :@)
 #--> "T"
@@ -564,20 +561,13 @@ o1 = new stzString("*AB*")
 ? Q("SOFTANZA").Section(:@, :@)
 #--> "SOFTANZA"
 
-/*----------------- CORRECT IT!
-
-o1 = new stzString('[ "A","B", "C", "D", ]')
-? o1.SplitXT(",", [])
-#--> [ '[ "A"', '"B"', ' "C"', ' "D"', ' ]' ]
-
-/*----------------- TODO: Review it
+/*-----------------
 
 o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ ANDand !!C++!! and")
 ? @@( o1.Split( :Using = "and" ) )
 # --> [ "<Ring> ", " <<PHP>> ", " <Python/> ", " <<<Ruby>>> ", "", " !!C++!!" ]
-/*
-? o1.SplitXT(:Using = "and", [])
-# --> [ "<Ring> ", " <<PHP>> ", " <Python/> ", " <<<Ruby>>> ", "", " !!C++!!" ]
+
+/*----------------- TODO: FUTURE
 
 ? o1.SplitXT(
 	:Using = "and",
@@ -607,7 +597,7 @@ o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ 
 # on it as as string, and then evaluate it back, in real time, to
 # transform it to a vibrant Ring list again!
 
-# Whatever syntax is used (noramal [_,_,_] or short _:_), Softanza
+# Whatever syntax is used ( noramal [_,_,_] or short _:_ ), Softanza
 # can recognize any Ring list you would host inside a string:
 
 ? StzStringQ('[1,2,3]').IsListInString()		#--> TRUE
@@ -617,7 +607,7 @@ o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ 
 ? StzStringQ(' "A":"C" ').IsListInString()		#--> TRUE
 ? StzStringQ(' "ا":"ج" ').IsListInString()		#--> TRUE
 
-# It tells you if the syntax used is normal or short:
+# Softanza can tell you if the syntax used is normal or short:
 
 ? StzStringQ('[1,2,3]').IsListInNormalForm()		#--> TRUE
 ? StzStringQ('1:3').IsListInShortForm()			#--> TRUE
@@ -625,7 +615,7 @@ o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ 
 ? StzStringQ(' "A":"C" ').IsListInShortForm()		#--> TRUE
 ? StzStringQ(' "ا":"ج" ').IsListInShortForm()		#--> TRUE
 
-# And knows about the list beeing continuous or not:
+# And knows about the list beeing contiguous or not:
 
 ? StzStringQ('[1,3]').IsContiguousListInString()	#--> FALSE
 ? StzStringQ('1:3').IsContiguousListInString()		#--> TRUE
@@ -671,22 +661,22 @@ o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ 
 ? StzStringQ(' "ا":"ج" ').ToListInString()	#--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
 # If you prefer (or need) the short form, there is an interesting
-# alternative to the ToListInShortForm() alternative that uses
-# the simple @C prefix (C for Compact), like this:
+# abbreviation to the ToListInShortForm() alternative that uses
+# the simple SF prefix (S for Short and F for Form), like this:
 
-? @@( StzStringQ('[1,2, 3]').ToListInString@C() ) #--> "1 : 3"
+? @@( StzStringQ('[1,2, 3]').ToListInStringSF() ) 		#--> "1 : 3"
 
-? @@( StzStringQ('1:3').ToListInString@C() )		#--> "1 : 3"
+? @@( StzStringQ('1:3').ToListInStringSF() )			#--> "1 : 3"
 
-? StzStringQ(' ["A","B","C","D"] ').ToListInString@C()	#--> "A" : "D"
-? StzStringQ(' [ "ا", "ب", "ة", "ت" ] ').ToListInString@C() #--> "ا" : "ت"
+? StzStringQ(' ["A","B","C","D"] ').ToListInStringSF()		#--> "A" : "D"
+? StzStringQ(' [ "ا", "ب", "ة", "ت" ] ').ToListInStringSF() 	#--> "ا" : "ت"
 
 # Finally, as a cherry on the cake, you can evaluate
 # the string in list in real time like this:
 
-? StzStringQ('1:3').ToList()	   #--> [1, 2, 3]
-? StzStringQ(' "A":"C" ').ToList() #--> ["A", "B", "C"]
-? StzStringQ(' "ا":"ج" ').ToList() #--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+? StzStringQ('1:3').ToList()	   	#--> [1, 2, 3]
+? StzStringQ(' "A":"C" ').ToList() 	#--> ["A", "B", "C"]
+? StzStringQ(' "ا":"ج" ').ToList() 	#--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
 /*=================
 
@@ -695,6 +685,7 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 #--> [ "word", "noword", "word" ]
 
 ? o1.UniqueSubStringsBetween("<<", :and = ">>")
+#--> [ "word", "noword" ]
 
 /*-----------------
 
@@ -702,14 +693,15 @@ o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!
 
 ? o1.NumberOfOccurrence(:OfSubString = "many")
 #--> 5
-? o1.Positions(:of = "many")		# or o1.FindSubString("many")
+? @@S( o1.Positions(:of = "many") ) + NL	# or o1.FindSubString("many")
 #--> [5, 12, 33, 40, 54]
 
-? @@S(o1.Sections(:Of = "many"))	# or o1.FindSections(:OfSubString = "many")
+? @@S(o1.Sections(:Of = "many")) + NL		# or o1.FindSections(:OfSubString = "many")
 #--> [ [ 5, 8 ], [ 12, 15 ], [ 33, 36 ], [ 40, 43 ], [ 54, 57 ] ]
 
-	# Note that Sections() has an other syntax thar returns the substrings
-	# corresponding to the sections themselves:
+	# Note that Sections() has an other syntax that returns, not the sections
+	# as pairs of numbers as in the example above, the substrings corresponding
+	# to the sections themselves:
 
 	? o1.Sections([ [ 5, 8 ], [ 12, 15 ], [ 33, 36 ] ])
 	#--> [ "many", "many", "many" ]
@@ -722,7 +714,28 @@ o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!
 	# or :BoundedBySubStrings = ["<<", :and = ">>"]
 )
 #--> 3
-/*---------------
+
+/*-----------------
+
+o1 = new stzString("what a <<nice>>> day!")
+? o1.Section(8, 9)
+#--> "<<"
+? o1.Section(14, 16)
+#--> ">>>"
+? o1.Sections([ [8, 9], [14, 16] ])
+#--> [ "<<", ">>>" ]
+
+/*-----------------
+
+o1 = new stzString("what a <<nice>>> day!")
+? o1.Section(50, 0)	#--> NULL
+? o1.Section(0, 0)	#--> NULL
+? o1.Section(-20, 10)	#--> NULL
+? o1.Section(3, 3)	#--> "a"
+? o1.Section(10, 13)	#--> "nice"
+? o1.Section(13, 10)	#--> "ecin"
+
+/*==================
 
 o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
 
@@ -745,27 +758,7 @@ o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!
 ? @@S( o1.Bounds(:Of = "many", :UpToNChars = [ 0, [2,2], 0, 2, [2, 2] ] ) ) + NL
 #--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ], [ "<<", ">>" ], [ "<<", ">>" ] ]
 
-/*-----------------
-
-o1 = new stzString("what a <<nice>>> day!")
-? o1.Section(8, 9)
-#--> "<<"
-? o1.Section(14, 16)
-#--> ">>>"
-? o1.Sections([ [8, 9], [14, 16] ])
-#--> [ "<<", ">>>" ]
-
-/*-----------------
-
-o1 = new stzString("what a <<nice>>> day!")
-? o1.Section(50, 0)	#--> NULL
-? o1.Section(0, 0)	#--> NULL
-? o1.Section(-20, 10)	#--> NULL
-? o1.Section(3, 3)	#--> "a"
-? o1.Section(10, 13)	#--> "nice"
-? o1.Section(13, 10)	#--> "ecin"
-
-/*-----------------
+/*----------
 
 o1 = new stzString("what a <<<nice>>> day!")
 ? @@S( o1.Bounds(:Of = "nice", :UpToNChars = 3) )
@@ -783,7 +776,7 @@ o1 = new stzString("what a <<nice>>> day! Really <nice>>.")
 
 o1 = new stzString("what a <<nice>>> day!")
 
-? o1.Stay(
+? o1.Sit(
 	:OnSection  = [10, 13], # or o1.FindSection("nice")
 	:AndHarvest = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
 )
@@ -792,7 +785,7 @@ o1 = new stzString("what a <<nice>>> day!")
 /*-----------------
 
 o1 = new stzString("what a <<nice>>> day!")
-? o1.Stay(
+? o1.Sit(
 	:OnPosition = 11, # the letter "i"
 	:AndHarvest = [ :NCharsBefore = 1, :NCharsAfter = 2 ]
 )
@@ -802,7 +795,7 @@ o1 = new stzString("what a <<nice>>> day!")
 
 o1 = new stzString("what a <<nice>>> day!")
 
-? o1.Stay(
+? o1.Sit(
 	:OnSection  = [10, 13], # or o1.FindSection("nice")
 	:AndHarvestSections = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
 )
@@ -812,8 +805,8 @@ o1 = new stzString("what a <<nice>>> day!")
 
 o1 = new stzString("what a 123nice>>> day!")
 
-? o1.Stay(
-	:OnSection  = o1.FindFirstSection("nice")
+? o1.Sit(
+	:OnSection  = o1.FindFirstSection("nice"),
 	:AndHarvest = [ :CharsBeforeW = 'Q(@char).IsANumber()', :NCharsAfter = 3 ]
 )
 #--> [ "123", ">>>" ]
@@ -844,12 +837,43 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 
 /*----------------
 
-o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
-? o1.NthSubStringBetween(2, "word", "<<", ">>")
+o1 = new stzString("bla bla <<word1>> bla bla <<word2>> bla <<word3>>")
+? o1.NthSubStringBetween(2, "<<", ">>") #--> "word2"
+# or you can say:
+? o1.NthSubStringXT(2, :Between = ["<<", ">>"]) #--> "word2"
 
-/*
+/*----------------
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+? o1.Nth(2, "word")		#--> 30
+? o1.NthSection(2, "word")	#--> [ 30, 33 ]
+
+/*----------------
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+? o1.NthXT(2, "word", :ReturnSection)
+#--> [30, 33]
+
+? o1.NthXT(2, "word", :Between = ["<<", ">>"])
+#--> 43
+
+? o1.NthXTCS(2, "WORD", :Between = ["<<", ">>"], :CS = FALSE)
+#--> 43
+
+? o1.NthSectionXT(2, "word", :Between = ["<<", ">>"])
+#--> [43, 46]
+
+/*----------------
+
+o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
+? o1.FindNthBetween(2, "word", "<<", ">>")
+#--> 28
+? o1.FindNthSectionBetween(2, "word", "<<", ">>")
+#--> [28, 31]
+
 ? o1.FindNthXT(2, "word", :Between = ["<<", ">>"])
-	o1.FindNthBetween(2, "word", "<<", ">>")
+#--> 28
+? o1.FindNthSectionXT(2, "word", :Between = ["<<", ">>"])
 
 /*================
 
@@ -914,6 +938,112 @@ o1.RemoveCharsW('{ lower(@char) = "x" }')
 
 /*=================
 
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+? o1.FindBetweenCS("word", "<<", ">>", :CaseSensitive = FALSE)
+#--> [ 11, 43 ]
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+? o1.FindNthXT(2, "word", :Between = ["<<", ">>"])
+#--> 43
+
+? o1.FindNthSectionXT(2, "word", :Between = ["<<", ">>"])
+#--> [43, 46]
+
+? o1.FindNthXT(2, "word", :ReturnSection)
+
+/*-----------------
+
+o1 = new stzString("12*45*78*c")
+? @@S( o1.FindAnyBetween("*","*") )
+#--> [ [4,5], [7,8] ]
+
+o1 = new stzString("*1*45*78*c*")
+? @@S( o1.FindAnyBetween("*","*") )
+#--> [ [ 2, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
+
+/*-----------------
+
+o1 = new stzString("12*♥*78*♥*")
+? @@S( o1.FindBetween("♥", "*","*") )
+#--> [ 4, 9 ]
+
+/*-----------------
+
+o1 = new stzString("12*34*56*78")
+? o1.FindNthXT(2, "*", :StartingAt = 4)
+#--> 6
+
+? o1.FirstXTT("*", :StartingAT = 4)
+#--> 3
+
+/*-----------------
+
+o1 = new stzString("12*A*33*A*")
+? o1.FindAll("*")
+#--> [3, 5, 8, 10]
+
+? o1.FindNth(3, "*")
+#--> 8
+
+? o1.FindFirst("*")
+#--> 3
+
+? o1.FindLast("*")
+#--> 10
+
+? @@S( o1.FindSections("*") )
+#--> [ [ 3, 3 ], [ 5, 5 ], [ 8, 8 ], [ 10, 10 ] ]
+
+/*-----------------
+
+o1 = new stzString("12*A*33*A*")
+? o1.Sections([ 1:2, 6:7 ])
+#--> [ "12", "33" ]
+
+/*-----------------
+
+o1 = new stzString("12*A*33*A*")
+? o1.FindBetween("A", "*", "*")
+#--> [4, 9]
+
+? o1.FindSectionsBetween("A", "*", "*")
+#--> [ [4, 4], [9, 9] ]
+
+/*-----------------
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+? o1.FindBetweenCS("word", "<<", ">>", :CaseSensitive = FALSE)
+#--> [ 11, 43 ]
+
+? o1.FindSectionsBetween("word", "<<", ">>")
+#--> [ [11, 14], [43, 46] ]
+
+//? o1.FindXT("word", :Between = [ "<<", ">>" ])
+? o1.FindSectionsXT(:Of = "word", :Between = [ "<<", ">>" ])
+#--> [ [11, 14], [43, 46] ]
+
+/*-----------------
+*/
+o1 = new stzString("my <<word>> and your <<word>>")
+? o1.FindXT("word", :Between = [ "<<", ">>" ])
+#--> [6, 24]
+
+? o1.FindXT("word", :StartingAt = 12)
+#--> [ 13 ]
+
+? o1.FindXT("word", :InSection = [3, 10])
+#--> [ 4 ]
+
+/*-----------------
+
+o1 = new stzString("12*♥*56*♥*")
+? o1.FirstXT("♥", :BoundedBy = [ "*", "*"])
+#--> 4
+#? o1.FirstXT("♥", :BoundedBy = "*")
+#--> 4
+
+/*-----------------
+
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
 ? @@S( o1.FindBetween("word", "<<", ">>") )
 #--> [ 11 ]
@@ -923,7 +1053,7 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
 
 ? @@S( o1.FindAnyBetween("<<",">>") )
 #--> [ 11, 28, 43 ]
-
+/*
 ? @@S( o1.FindAnySectionsBetween("<<",">>") )
 #--> [ [ 11, 14 ], [ 28, 33 ], [ 43, 49 ] ]
 
@@ -984,7 +1114,7 @@ StzStringQ("MustHave@32@Chars") {
 	? FindPreviousNth(2, "@", :StartingAt = 12) #--> 9
 }
 
-/*================
+/*================ Used to enable constraint-oriented programming
 
 o1 = new stzString("MustHave@32@CharsAnd@8@Spaces")
 ? o1.SubstringsBetween("@","@") #--> ["32", "8" ]
@@ -1064,15 +1194,15 @@ o1.RemoveFirst("A")
 
 o1 = new stzString("<<word>>")
 
-? o1.IsBoundedBy("<<", ">>") # --> TRUE
+? o1.IsBoundedBy(["<<", ">>"]) # --> TRUE
 
-o1.RemoveBounds("<<",">>")
+o1.RemoveBounds(["<<",">>"])
 ? o1.Content() # --> word
 
 /*---------------
 
 o1 = new stzString("word")
-o1.AddBounds("<<",">>")	# --> or BoundWith()
+o1.AddBounds(["<<",">>"])	# --> or BoundWith(["<<",">>"])
 ? o1.Content()
 #--> <<word>>
 
@@ -1121,8 +1251,8 @@ StzListQ(aList) {
 # To make it happen, those constraints should be defined once at
 # the global level, and then reused every where inside a stzList
 
-/*-----------------/////////////////////////////////////////////////////////////////////*/
-/*
+/*-----------------///////////// TODO - FUTURE ////////////////////////////////////////////
+
 # Constarints are defined at the global level and then reused every where
 # inside your softanza objects
 
@@ -1141,7 +1271,7 @@ DefineConstraints([
 		:MustBeAHashList = '{ Q(@list).IsHashList() }'
 	]
 
-]
+])
 
 # Let's use the constraints defined in a StzString object
 
@@ -1155,7 +1285,7 @@ StzStringQ("SOFTANZA") {
 	? "Passed"
 }
 
-*=================
+/*=================
 
 ? stzRaise("Simple error message!")
 # --> Simple error message! 
