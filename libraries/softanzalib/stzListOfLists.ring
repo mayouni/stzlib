@@ -834,8 +834,8 @@ class stzListOfLists from stzList
 			def ToListInShortFormQ()
 				return new stzString( This.ToListInShortForm() )
 
-		def ToListInString@C()
+		def ToListInStringSF()
 			return This.ToListInStringInShortForm()
 	
-			def ToListInString@CQ()
-				return new stzString( This.ToListInString@C() )
+			def ToListInStringSFQ()
+				return new stzString( This.ToListInStringSF() )

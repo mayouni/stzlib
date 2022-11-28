@@ -2499,6 +2499,9 @@ class stzChar from stzObject
 	 #   NATURAL-CODING   #
 	#--------------------#
 
+	def IsChar()
+		return TRUE
+
 	def IsCharOf(pcString)
 		return StzStringQ(pcString).Contains(This.Content())
 

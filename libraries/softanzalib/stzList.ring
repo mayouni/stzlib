@@ -16403,6 +16403,16 @@ sdsd
 			return FALSE
 		ok
 
+	def IsBetweenCSNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenCS )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsBetweenPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :BetweenPosition )

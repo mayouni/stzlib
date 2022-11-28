@@ -686,7 +686,7 @@ func NHearts(n)
 		return NHearts(9)
 
 func NStars(n)
-	return Q(Star()).RepeatedNTimes()
+	return Q(Star()).RepeatedNTimes(n)
 
 	func 2Stars()
 		return NStars(2)
@@ -1084,6 +1084,9 @@ func W(cCode)
 		"'" + "}"
 	   
 	return cCode
+
+	func Where(cCode)
+		return W(cCode)
 
 func STOP()
 	StzRaise( NL + 	"----------------" + NL +
