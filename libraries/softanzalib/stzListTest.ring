@@ -27,6 +27,13 @@ load "stzlib.ring"
 /*------------------
 
 ? Stz(:Text, :Attributes)
+#--> [
+#	"@oobject",
+#	"@cobjectvarname",
+#	"@oqstring",
+#	"@@aconstraints",
+#	"@clanguage"
+# ]
 
 /*------------------
 
@@ -48,6 +55,7 @@ load "stzlib.ring"
 /*------------------
 
 ? Q([ "你好", "亲", "朋友们" ]).AllItemsAre([ :HanScript, :Texts ])
+#--> TRUE
 
 /*------------------
 
@@ -150,10 +158,10 @@ ok
 
 /*---------
 
-o1 = new stzList([ 0, 2, 0, 3, [1,2] ])
+o1 *= new stzList([ 0, 2, 0, 3, [1,2] ])
 ? o1.IsListOfNumbersAndPairsOfNumbers() #--> TRUE
 
-/*========= Deep finding items at any level
+/*========= Deep finding items at any level : TODO
 
 o1 = new stzList([
 	"you",
@@ -360,7 +368,7 @@ o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 #--> [ "S", "O", "F", "T" ]
 
 ? o1.Section(4, 1)
-#--> [ "S", "O", "F", "T" ]
+#--> [ "T", "F", "O", "S" ]
 
 ? o1.Section(:From = 1, :To = 4)
 #--> [ "S", "O", "F", "T" ]
@@ -375,7 +383,7 @@ o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 #--> [ "A", "N", "Z", "A" ]
 
 ? o1.Section(-99, 99)
-#--> [ "S", "O", "F", "T", "A", "N", "Z", "A" ]
+#--> [ ]
 
 ? o1.Section(4, :@)
 #--> "T"
@@ -384,10 +392,10 @@ o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 #--> "A"
 
 ? o1.Section(:@, :@)
-[ "S", "O", "F", "T", "A", "N", "Z", "A" ]
+#--> [ "S", "O", "F", "T", "A", "N", "Z", "A" ]
 
 /*=======================
-
+*/
 # In Softanza, you can find lists inside lists:
 o1 = new stzList([ "A", "B", [1, 2], "C", "D", [1, 2], "E" ])
 ? o1.FindAll([1, 2])	#--> [3, 6]

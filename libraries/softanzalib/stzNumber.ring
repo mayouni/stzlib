@@ -90,6 +90,13 @@
 
 	_nMaxRound = 90	# Ring constraint
 
+	_anDecimalDigits = 0:9
+
+	_anOctalDigits = 0:7
+
+	_anBinaryDigits = [0,1]
+
+
   //////////////////////
  ///    FUNCTIONS   ///
 //////////////////////
@@ -239,6 +246,12 @@ func IsBit(n)
 		return FALSE
 
 	ok
+
+func DecimalDigits()
+	return _anDecimalDigits
+
+func OctalDigits()
+	return _anOctalDigits
 
 func Min(n1,n2) # for more then 2 numbers, use stzListOfNumbers.Min()
 
@@ -1005,6 +1018,27 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
+	def IsBoolean()
+		if This.Number() = 1 or This.Number() = 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsTrue()
+		if This.Number() = 1
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsFalse()
+		if This.Number() = 0
+			return TRUE
+		else
+			return FALSE
+		ok
+		
 	  #----------------------------------#
 	 #    NULL, POSITIVE OR NEGATIVE    #
 	#----------------------------------#
@@ -2399,7 +2433,8 @@ class stzNumber from stzObject
 	# Converting decimal to hex form
 	
 	def ToHexForm()
-		return HexNumberPrefix() + This.ToHexFormWithoutPrefix()
+		cResult = HexNumberPrefix() + This.ToHexFormWithoutPrefix()
+		return cResult
 
 		#< @FunctionFluentForm
 

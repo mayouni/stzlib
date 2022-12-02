@@ -1,3 +1,14 @@
+#---------------------------------------------------------------------------#
+# 		    SOFTANZA LIBRARY (V1.0) - STZCHAR			    #
+#		An accelerative library for Ring applications		    #
+#---------------------------------------------------------------------------#
+#									    #
+# 	Description	: The class for managing Unicode chars in Softanza  #
+#	Version		: V1.0 (2020-2022)				    #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
+#									    #
+#---------------------------------------------------------------------------#
+
 /*
 From Qt documentation:
 
@@ -802,7 +813,7 @@ class stzChar from stzObject
 		return FALSE
 
 	def IsRomanNumber()
-		if This.Unicode() <= 8544 and This.Unicode() <= 8584
+		if Q(This.Content()).ExistsIn( RomanNumbers() )
 			return TRUE
 		else
 			return FALSE

@@ -34662,16 +34662,31 @@ class stzUnicodeData
 	def init()
 		@oStzStrUnicodeData = new stzString( UnicodeData() )
 
+	def ContainsCharName(pcCharName)
+		if This.FindCharName(pcCharName) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def ContainsName(pcCharName)
+			return This.ContainsCharName()
+
 	def FindCharName(pcCharName)
-		
-		return @oStzStrUnicodeData.FindFirstCS( pcCharName, :CS = FALSE )
+		if NOT isString(pcCharName)
+			stzRaise("Incorrect param type! pcCharName must be a string.")
+		ok
+
+		pcCharName = Q(pcCharName).Uppercased()
+
+		nPos = @oStzStrUnicodeData.FindFirstCS( pcCharName, :CS = FALSE )
+		return nPos
 
 	def SearchCharName(pcCharName)
 		return @oStzStrUnicodeData.FindAllCS( pcCharName, :CS = FALSE )
 
 	def CharByName(pcCharName)
-
-		cHex = HexPrefix() + This.CharHexCodeByName(pcCharName)
+		cHex = This.CharHexCodeByName(pcCharName)
 		nUnicode = HexToDecimal( cHex )
 
 		cChar = StzCharQ(nUnicode).Content()

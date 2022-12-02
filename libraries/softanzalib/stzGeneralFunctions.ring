@@ -493,32 +493,6 @@ func CharIsLetter(pcStr)
 	oStzChar = new stzChar(pcStr)
 	return oStzChar.IsLetter()
 
-func IsTrue(p)
-	if isNumber(p) and p = 1
-		return TRUE
-	ok
-
-	if isList(p) and len(p) = 2 and isString(p[1]) and p[2] = TRUE
-		return TRUE
-	ok
-
-	# else
-
-	return FALSE
-
-func IsFalse(p)
-	if isNumber(p) and p = 0
-		return TRUE
-	ok
-
-	if isList(p) and len(p) = 2 and isString(p[1]) and p[2] = FALSE
-		return TRUE
-	ok
-
-	# else
-
-	return FALSE
-
 func StzLen(p)
 	if isString(p)
 		return StzStringQ(p).NumberOfChars()

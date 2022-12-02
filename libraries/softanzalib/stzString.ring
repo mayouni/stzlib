@@ -227,7 +227,7 @@ func StringTitlecased(cStr)
 	
 func StringAlign(cString, nWidth, cChar, cDirection)
 	oString = new stzString(cString)
-	return oString.AlignQ(nWidth, cChar, cDirection).Content()
+	return oString.AlignXTQ(nWidth, cChar, cDirection).Content()
 	
 func StringLeftAlign(cString, nWidth, cChar)
 	return StringAlign(cString, nWidth, cChar, :Left)
@@ -457,7 +457,7 @@ class stzString from stzObject
 
 			ReplaceCS("@string", @str, :CS = FALSE)
 			Simplify()
-			RemoveBounds("{", "}")
+			RemoveBounds(["{", "}"])
 
 			cCondition = Content()
 		}
@@ -588,9 +588,9 @@ class stzString from stzObject
 
 			return :Titlecase
 
-		but This.IsFoldercase()
+		but This.IsCaseFold()
 
-			return :Foldercase
+			return :Casefold
 
 		else
 
@@ -793,6 +793,7 @@ class stzString from stzObject
 
 	// Tranforms the string to LOCALE-SENSITIVE UPPERCase
 	def ApplyUppercaseInLocale(pcLocale)
+
 		oLocale = new stzLocale(pcLocale)
 		This.Update( oLocale.ToUpperCase(This.String()) )
 
@@ -850,9 +851,8 @@ class stzString from stzObject
 
 		#>
 
-
 	def IsUppercaseOf(pcStr)
-		return This.Uppercased() = pcStr
+		return Q(pcStr).UppercaseQ().IsEqualTo(This.Content())
 
 	def IsUppercaseOfInLocale(pcStr, pLocale)
 		return This.UppercasedInLocale(pLocale) = pcStr
@@ -942,11 +942,14 @@ class stzString from stzObject
 
 		anPositions = oStr.FindAll(" ")
 		anPositions = StzListOfNumbersQ(anPositions).AddedToEach(1)
-		insert(anPositions, 1, 1)
+		ring_insert(anPositions, 1, 1)
 		anPositions = sort(anPositions)
 
 		for n in anPositions
-			cCapitalizedChar = oStr.CharAtPositionQ(n).UppercasedInLocale(pLocale)
+
+			cCapitalizedChar = oStr.CharAtPositionQR(n, :stzString).
+						UppercasedInLocale(pLocale)
+
 			oStr.ReplaceCharAtPosition(n, cCapitalizedChar)
 		next
 
@@ -1095,7 +1098,7 @@ class stzString from stzObject
 			This.ApplyTitlecaseInLocale(pLocale)
 
 			def TitlecaseInLocaleQ(pLocale)
-				This.TitelcaseInLocale(pLocale)
+				This.TitlecaseInLocale(pLocale)
 				return This
 		
 		def TiteliseInLocale(pLocale)
@@ -2204,7 +2207,7 @@ class stzString from stzObject
 			acMarquers + ( "#" + i )
 		next
 
-		This.ReplaceManyCS( acSubStrings, acMarquers, pCaseSensitive )
+		This.ReplaceManyByManyCS( acSubStrings, acMarquers, pCaseSensitive )
 
 		def ReplaceSubstringsWithMarquersCSQ(pacSubstrings, pCaseSensitive)
 			This.ReplaceSubstringsWithMarquersCS(pacSubstrings, pCaseSensitive)
@@ -3294,10 +3297,14 @@ class stzString from stzObject
 		# ? Q("♥").IsBoundedBy([ "-", :In = "-♥-" ])
 
 		if isList(pacBounds) and Q(pacBounds).IsPair() and
-		   isList(pacBounds[2]) andQ(pacBounds[2]).IsPair() and
-		   Q(pacBounds[2]).IsInNamedParam()
-		   
-			return This.IsBoundedByInCS(pacBounds[1], :In = pacBounds[2], pCaseSensitive)
+		   isList(pacBounds[2]) and Q(pacBounds[2]).IsPair()
+
+			if Q(pacBounds[2]).IsInNamedParam()
+				return This.IsBoundedByInCS(pacBounds[1], :In = pacBounds[2], pCaseSensitive)
+
+			but Q(pacBounds[2]).IsAndNamedParam()
+				pacBounds[2] = pacBounds[2][2]
+			ok
 
 		ok
 
@@ -3808,6 +3815,38 @@ class stzString from stzObject
 		cResult = This.Copy().RemoveBoundsQ(pacBounds).Content()
 		return cResult
 
+	  #------------------------------------------------------#
+	 #   REMOVING BOUNDS OF A GIVEN SUBSTRING -- EXTENDED   #
+	#------------------------------------------------------#
+
+	def RemoveBoundsXTCS(pacBounds, pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
+		o1.RemoveBoundsXT(["<<", ">>"], :Of = "word")
+
+		? o1.Content() #--> "bla bla word bla bla word bla word"
+		#--> "bla bla word bla bla word bla word"
+
+		*/
+
+		if NOT ( isList(pacBounds) and Q(pacBounds).IsPairOfStrings() )
+			stzRaise("Incorrect pram type! pacBounds must be a pair of strings.")
+		ok
+
+		if isList(pcSubStr) and
+		   Q(pcSubStr).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
+
+				pcSubStr = pcSubStr[2]
+		ok
+
+		This.RemoveBoundsOfSubStringCS(pacBounds, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveBoundsXT(pacBounds, pcSubStr)
+		This.RemoveBoundsXTCS(pacBounds, pcSubStr, :CaseSensitive = TRUE)
+
 	  #------------------------------------------------------------#
 	 #   REMOVING BOUNDS OF A GIVEN SUBSTRING INSIDE THE STRING   #
 	#------------------------------------------------------------#
@@ -3834,16 +3873,16 @@ class stzString from stzObject
 
 		for aSection in anSections
 
-			n1 = aSection[1]
+			n1 = aSection[1] - nLen1
 			n2 = n1 + nLen1 - 1
 			anBoundsSections + [n1, n2]
 
-			n1 = aSection[2] - 1
+			n1 = aSection[2] + 1
 			n2 = n1 + nLen2 - 1
 			anBoundsSections + [n1, n2]
 
 		next
-	
+
 		This.RemoveSections(anBoundsSections)
 
 		#< @FunctionFluentForm
@@ -4910,7 +4949,7 @@ class stzString from stzObject
 		def TrailingCharsRemovedCS(pCaseSensitive)
 			return This.RepeatedTrailingCharsRemovedCS(pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedTrailingChars()
 		This.RemoveRepeatedTrailingCharsCS(:CaseSensitive = TRUE)
@@ -4943,6 +4982,113 @@ class stzString from stzObject
 		def TrailingCharsRemoved()
 			return This.RepeatedTrailingCharsRemoved()
 	
+	  #--------------------------------------------------#
+	 #   REMOVING REPEATED LEADING AND TRAILING CHARS   #
+	#--------------------------------------------------#
+
+	def RemoveRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+		if This.HasRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+			This.RemoveFirstNChars( This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive) )
+			This.RemoveLastNChars( This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive) )
+		ok
+
+		def RemoveRepeatedLeadingAndTrailingCharsCSQ()
+			This.RemoveRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+			return This
+
+		def RemoveLeadingAndTrailingRepeatedCharsCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+
+			def RemoveLeadingAndTrailingRepeatedCharsCSQ(pCaseSensitive)
+				This.RemoveLeadingAndTrailingRepeatedCharsCS(pCaseSensitive)
+				return This
+	
+		def RemoveLeadingAndTrailingCharsCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+
+			def RemoveLeadingAndTrailingCharsCSQ(pCaseSensitive)
+				This.RemoveLeadingAndTrailingCharsCS(pCaseSensitive)
+				return This
+	
+	def RepeatedLeadingAndTrailingCharsRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveRepeatedLeadingAndTrailingCharsCSQ(pCaseSensitive).Content()
+		return cResult
+
+		def LeadingAndTrailingRepeatedCharsRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingCharsRemovedCS(pCaseSensitive)
+
+		def LeadingAndTrailingCharsRemovedCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsRemovedCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveRepeatedLeadingAndTrailingChars()
+		This.RemoveRepeatedLeadingAndTrailingCharsCS(:CaseSensitive = TRUE)
+
+		def RemoveRepeatedLeadingAndTrailingCharsQ()
+			This.RemoveRepeatedLeadingAndTrailingChars()
+			return This
+
+		def RemoveLeadingAndTrailingRepeatedChars()
+			This.RemoveRepeatedLeadingAndTrailingChars()
+
+			def RemoveLeadingAndTrailingRepeatedCharsQ()
+				This.RemoveLeadingAndTrailingRepeatedChars()
+				return This
+	
+		def RemoveLeadingAndTrailingChars()
+			This.RemoveRepeatedLeadingAndTrailingChars()
+
+			def RemoveLeadingAndTrailingCharsQ()
+				This.RemoveLeadingAndTrailingChars()
+				return This
+	
+	def RepeatedTLeadingAndrailingCharsRemoved()
+		cResult = This.Copy().RemoveRepeatedLeadingAndTrailingCharsQ().Content()
+		return cResult
+
+		def LeadingAndTrailingRepeatedCharsRemoved()
+			return This.RepeatedLeadingAndTrailingCharsRemoved()
+
+		def LeadingAndTrailingCharsRemoved()
+			return This.RepeatedLeadingAndTrailingCharsRemoved()
+
+	  #----------------------------------------------------------#
+	 #  CHECHKING IF THE STRING HAS LEADING AND TRAILING CHARS  #
+	#----------------------------------------------------------#
+
+	def HasRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+		if This.HasRepeatedLeadingCharsCS(pCaseSensitive) and
+		   This.HasRepeatedTrailingCharsCS(pCaseSensitive)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def HasRepeatedTrailingAndLeadingCharsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+
+		def HasLeadingAndTrailingCharsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+
+		def HasTrailingAndLeadingCharsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def HasRepeatedLeadingAndTrailingChars()
+		return This.HasRepeatedLeadingAndTrailingCharsCS(:CaseSensitive = TRUE)
+
+		def HasRepeatedTrailingAndLeadingChars()
+			return This.HasRepeatedLeadingAndTrailingChars()
+
+		def HasLeadingAndTrailingChars()
+			return This.HasRepeatedLeadingAndTrailingChars()
+
+		def HasTrailingAndLeadingChars()
+			return This.HasRepeatedLeadingAndTrailingChars()
+
 	  #--------------------------------------------#
 	 #   REMOVING A GIVEN REPEATED LEADING CHAR   #
 	#--------------------------------------------#
@@ -5008,7 +5154,7 @@ class stzString from stzObject
 				This.LeadingCharRemovedCSQ(c, pCaseSensitive)
 				return This
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisRepeatedLeadingChar(c)
 		if This.RepeatedLeadingCharQ().IsEqualTo(c)
@@ -5244,21 +5390,21 @@ class stzString from stzObject
 		def TheseLeadingAndTrailingCharsRemoved(c1, c2)
 			return This.TheseRepeatedLeadingAndTrailingCharsRemoved(c1, c2)
 	
-	  #=============================#
-	 #   REPLACING LEADING CHARS   #
-	#=============================#
+	  #==========================================#
+	 #   REPLACING EACH REPEATED LEADING CHAR   #
+	#==========================================#
 
-	def ReplaceRepeatedLeadingCharsCS(cNewSubStr, pCaseSensitive)
+	def ReplaceEachRepeatedLeadingCharCS(cNewSubStr, pCaseSensitive)
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
 
 		/* Example:
 
 		StzStringQ("aaaAAAH RING!").
-		ReplaceRepeatedLeadingCharsCS( :With = "O", :CS = TRUE)
+		ReplaceEachLeadingCharCS( :With = "O", :CS = TRUE)
 		--> Gives: "OOOAAAH RING!"
 
 		StzStringQ("aaaAVAR").
-		ReplaceRepeatedLeadingCharsCS( :With = "O", :CS = FALSE)
+		ReplaceEachLeadingCharCS( :With = "O", :CS = FALSE)
 		--> Gives: "OOOOOOH RING!"
 
 		*/
@@ -5279,103 +5425,103 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 
-		def ReplaceRepeatedLeadingCharsCSQ(cNewSubStr, pCaseSensitive)
-			This.ReplaceRepeatedLeadingCharsCS(cNewSubStr, pCaseSensitive)
+		def ReplaceEachRepeatedLeadingCharCSQ(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingCharCS(cNewSubStr, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceLeadingCharsCS(cNewSubStr, pCaseSensitive)
-			This.ReplaceRepeatedLeadingCharsCS(cNewSubStr, pCaseSensitive)
+		def ReplaceEachLeadingCharCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingCharCS(cNewSubStr, pCaseSensitive)
 
-			def ReplaceLeadingCharsCSQ(cNewSubStr, pCaseSensitive)
-				This.ReplaceLeadingCharsCS(cNewSubStr, pCaseSensitive)
+			def ReplaceEachLeadingCharCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachLeadingCharCS(cNewSubStr, pCaseSensitive)
 				return This
 
-		def ReplaceLeadingRepeatedCharsCS(cNewSubStr, pCaseSensitive)
-			This.ReplaceRepeatedLeadingCharsCS(cNewSubStr, pCaseSensitive)
+		def ReplaceEachLeadingRepeatedCharCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingCharCS(cNewSubStr, pCaseSensitive)
 
-			def ReplaceLeadingRepeatedCharsCSQ(cNewSubStr, pCaseSensitive)
-				This.ReplaceLeadingRepeatedCharsCS(cNewSubStr, pCaseSensitive)
+			def ReplaceEachLeadingRepeatedCharCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachLeadingRepeatedCharCS(cNewSubStr, pCaseSensitive)
 				return This
 		#>
 
-	def RepeatedLeadingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+	def EachRepeatedLeadingCharReplacedCS(cNewSubStr, pCaseSensitive)
 		cResult = This.
 			  Copy().
-			  ReplaceRepeatedLeadingCharsCSQ(cNewSubStr, pCaseSensitive).
+			  ReplaceEachRepeatedLeadingCharCSQ(cNewSubStr, pCaseSensitive).
 			  Content()
 
 		return cResult
 
-		def LeadingCharsReplacedCS(cNewSubStr, pCaseSensitive)
-			return This.RepeatedLeadingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+		def EachLeadingCharReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedLeadingCharReplacedCS(cNewSubStr, pCaseSensitive)
 
-		def LeadingRepeatedCharsReplacedCS(cNewSubStr, pCaseSensitive)
-			return This.RepeatedLeadingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+		def EachLeadingRepeatedCharReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.REachepeatedLeadingCharReplacedCS(cNewSubStr, pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceRepeatedLeadingChars(cNewSubStr)
+	def ReplaceEachRepeatedLeadingChar(cNewSubStr)
 
-		This.ReplaceRepeatedLeadingCharsCS(cNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceEachRepeatedLeadingCharCS(cNewSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def ReplaceRepeatedLeadingCharsQ(cNewSubStr)
-			This.ReplaceRepeatedLeadingChars(cNewSubStr)
+		def ReplaceEachRepeatedLeadingCharQ(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingChar(cNewSubStr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceLeadingChars(cNewSubStr)
-			This.ReplaceRepeatedLeadingChars(cNewSubStr)
+		def ReplaceEachLeadingChar(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingChar(cNewSubStr)
 
-			def ReplaceLeadingCharsQ(cNewSubStr)
-				This.ReplaceLeadingChars(cNewSubStr)
+			def ReplaceEachLeadingCharQ(cNewSubStr)
+				This.ReplaceEachLeadingChar(cNewSubStr)
 				return This
 
-		def ReplaceLeadingRepeatedChars(cNewSubStr)
-			This.ReplaceRepeatedLeadingChars(cNewSubStr)
+		def ReplaceEachLeadingRepeatedChar(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingChar(cNewSubStr)
 
-			def ReplaceLeadingRepeatedCharsQ(cNewSubStr)
-				This.ReplaceLeadingRepeatedChars(cNewSubStr)
+			def ReplaceEachLeadingRepeatedCharQ(cNewSubStr)
+				This.ReplaceEachLeadingRepeatedChar(cNewSubStr)
 				return This
 		#>
 
-	def RepeatedLeadingCharsReplaced(cNewSubStr)
+	def EachRepeatedLeadingCharReplaced(cNewSubStr)
 		cResult = This.
 			  Copy().
-			  ReplaceRepeatedLeadingCharsQ(cNewSubStr).
+			  ReplaceEachRepeatedLeadingCharQ(cNewSubStr).
 			  Content()
 
 		return cResult
 
-		def LeadingCharsReplaced(cNewSubStr)
-			return This.RepeatedLeadingCharsReplaced(cNewSubStr)
+		def EachLeadingCharEachReplaced(cNewSubStr)
+			return This.EachRepeatedLeadingCharReplaced(cNewSubStr)
 
-		def LeadingRepeatedCharsReplaced(cNewSubStr)
-			return This.RepeatedLeadingCharsReplaced(cNewSubStr)
+		def EachLeadingRepeatedCharReplaced(cNewSubStr)
+			return This.EachRepeatedLeadingCharReplaced(cNewSubStr)
 
-	  #------------------------------#
-	 #   REPLACING TRAILING CHARS   #
-	#------------------------------#
+	  #----------------------------------#
+	 #   REPLACING EACH TRAILING CHAR   #
+	#----------------------------------#
 
-	def ReplaceRepeatedTrailingCharsCS(cNewSubStr, pCaseSensitive)
+	def ReplaceEachRepeatedTrailingCharCS(cNewSubStr, pCaseSensitive)
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
 
 		/* Example:
 
 		StzStringQ("RINGaaaAAA").
-		ReplaceRepeatedTrailingCharsCS( :With = "O", :CS = TRUE)
+		ReplaceEachRepeatedTrailingCharCS( :With = "O", :CS = TRUE)
 		--> Gives: "RINGaaaOOO"
 
 		StzStringQ("RINGaaaAAA").
-		ReplaceRepeatedTrailingCharsCS( :With = "O", :CS = FALSE)
+		ReplaceEachRepeatedTrailingCharCS( :With = "O", :CS = FALSE)
 		--> Gives: "RINGOOOOOO"
 
 		*/
@@ -5397,13 +5543,437 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 
-		def ReplaceRepeatedTrailingCharsCSQ(cNewSubStr, pCaseSensitive)
-			This.ReplaceRepeatedTrailingCharsCS(cNewSubStr, pCaseSensitive)
+		def ReplaceEachRepeatedTrailingCharCSQ(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedTrailingCharCS(cNewSubStr, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
+
+		def ReplaceEachTrailingCharCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedTrailingCharCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachTrailingCharCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachTrailingCharCS(cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceEachTrailingRepeatedCharCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedTrailingCharCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachTrailingRepeatedCharCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachTrailingRepeatedCharCS(cNewSubStr, pCaseSensitive)
+				return This
+		#>
+
+	def EachRepeatedTrailingCharReplacedCS(cNewSubStr, pCaseSensitive)
+		cResult = This.
+			  Copy().
+			  ReplaceEachRepeatedTrailingCharCSQ(cNewSubStr, pCaseSensitive).
+			  Content()
+
+		return cResult
+
+		def EachTrailingCharReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedTrailingCharReplacedCS(cNewSubStr, pCaseSensitive)
+
+		def EachTrailingRepeatedCharReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedTrailingCharReplacedCS(cNewSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceEachRepeatedTrailingChar(cNewSubStr)
+
+		This.ReplaceEachRepeatedTrailingCharCS(cNewSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceEachRepeatedTrailingCharQ(cNewSubStr)
+			This.ReplaceEachRepeatedTrailingChar(cNewSubStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceEachTrailingChar(cNewSubStr)
+			This.ReplaceEachRepeatedTrailingChar(cNewSubStr)
+
+			def ReplaceEachTrailingCharQ(cNewSubStr)
+				This.ReplaceEachTrailingChar(cNewSubStr)
+				return This
+
+		def ReplaceEachTrailingRepeatedChar(cNewSubStr)
+			This.ReplaceEachRepeatedTrailingChar(cNewSubStr)
+
+			def ReplaceEachTrailingRepeatedCharQ(cNewSubStr)
+				This.ReplaceEachTrailingRepeatedChar(cNewSubStr)
+				return This
+		#>
+
+	def EachRepeatedTrailingCharReplaced(cNewSubStr)
+		cResult = This.
+			  Copy().
+			  ReplaceEachRepeatedTrailingCharQ(cNewSubStr).
+			  Content()
+
+		return cResult
+
+		def EachTrailingCharReplaced(cNewSubStr)
+			return This.EachRepeatedTrailingCharReplaced(cNewSubStr)
+
+		def EachTrailingRepeatedCharReplaced(cNewSubStr)
+			return This.EachRepeatedTrailingCharReplaced(cNewSubStr)
+
+
+	  #-----------------------------------------------#
+	 #   REPLACING EACH LEADING AND TRAILING CHARS   #
+	#-----------------------------------------------#
+
+	def ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+		This.ReplaceEachRepeatedLeadingCharCS(cNewSubStr, pCaseSensitive)
+		This.ReplaceEachRepeatedTrailingCharCS(cNewSubStr, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def ReplaceEachRepeatedLeadingAndTrailingCharsCSQ(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceEachLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachLeadingAndTrailingCharsCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceEachRepeatedTrailingAndLeadingCharsCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachRepeatedTrailingAndLeadingCharsCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachRepeatedTrailingAndLeadingCharsCS(cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceEachTrailingAndLeadingCharsCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachTrailingAndLeadingCharsCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachTrailingAndLeadingCharsCS(cNewSubStr, pCaseSensitive)
+				return This
+
+		#-- Char withous "s"
+
+		def ReplaceEachRepeatedLeadingAndTrailingCharCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachRepeatedLeadingAndTrailingCharQCS(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachRepeatedLeadingAndTrailingCharCS(cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceEachLeadingAndTrailingCharCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachLeadingAndTrailingCharCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachLeadingAndTrailingCharCS(cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceEachRepeatedTrailingAndLeadingCharCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachRepeatedTrailingAndLeadingCharCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachRepeatedTrailingAndLeadingCharCS(cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceEachTrailingAndLeadingCharCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachTrailingAndLeadingCharCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachTrailingAndLeadingCharCS(cNewSubStr, pCaseSensitive)
+				return This
+
+		#-- "Or" instead of "And"
+
+		def ReplaceEachRepeatedLeadingOrTrailingCharCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachRepeatedLeadingOrTrailingCharQCS(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachRepeatedLeadingOrTrailingCharCS(cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceEachLeadingOrTrailingCharCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachLeadingOrTrailingCharCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachLeadingOrTrailingCharCS(cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceEachRepeatedTrailingOrLeadingCharCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachRepeatedTrailingOrLeadingCharCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachRepeatedTrailingOrLeadingCharCS(cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceEachTrailingOrLeadingCharCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceEachTrailingOrLeadingCharCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceEachTrailingOrLeadingCharCS(cNewSubStr, pCaseSensitive)
+				return This
+
+		#>
+
+	def EachRepeatedLeadingAndTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+		return This.Copy().ReplaceEachRepeatedLeadingAndTrailingCharsCSQ(cNewSubStr, pCaseSensitive).Content()
+
+		#< @FunctionAlternativeForms
+
+		def EachRepeatedTrailingAndLeadingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedLeadingAndTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+
+		def EachLeadingAndTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedLeadingAndTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+
+		def EachTrailingAndLeadingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedLeadingAndTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+
+		#-- Char without "s"
+
+		def EachRepeatedLeadingAndTrailingCharReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedLeadingAndTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+
+		def EachRepeatedTrailingAndLeadingCharReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedLeadingAndTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+
+		def EachLeadingAndTrailingCharReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedLeadingAndTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+
+		def EachTrailingAndLeadingCharReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedLeadingAndTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+
+		#-- "Or" instead of "And"
+
+		def EachRepeatedLeadingOrTrailingCharReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedLeadingandTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+
+		def EachRepeatedTrailingOrLeadingCharReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedLeadingAndTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+
+		def EachLeadingOrTrailingCharReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedLeadingAndTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+
+		def EachTrailingOrLeadingCharReplacedCS(cNewSubStr, pCaseSensitive)
+			return This.EachRepeatedLeadingAndTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+		This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceEachRepeatedLeadingAndTrailingCharsQ(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceEachLeadingAndTrailingChars(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+
+			def ReplaceEachLeadingAndTrailingCharsQ(cNewSubStr)
+				This.ReplaceEachLeadingAndTrailingChars(cNewSubStr)
+				return This
+
+		def ReplaceEachRepeatedTrailingAndLeadingChars(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+
+			def ReplaceEachRepeatedTrailingAndLeadingCharsQ(cNewSubStr)
+				This.ReplaceEachRepeatedTrailingAndLeadingChars(cNewSubStr)
+				return This
+
+		def ReplaceEachTrailingAndLeadingChars(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+
+			def ReplaceEachTrailingAndLeadingCharsQ(cNewSubStr)
+				This.ReplaceEachTrailingAndLeadingChars(cNewSubStr)
+				return This
+
+		#-- Char without "s"
+
+		def ReplaceEachRepeatedLeadingAndTrailingChar(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+
+			def ReplaceEachRepeatedLeadingAndTrailingCharQ(cNewSubStr)
+				This.ReplaceEachRepeatedLeadingAndTrailingChar(cNewSubStr)
+				return This
+
+		def ReplaceEachLeadingAndTrailingChar(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+
+			def ReplaceEachLeadingAndTrailingCharQ(cNewSubStr)
+				This.ReplaceEachLeadingAndTrailingChar(cNewSubStr)
+				return This
+
+		def ReplaceEachRepeatedTrailingAndLeadingChar(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+
+			def ReplaceEachRepeatedTrailingAndLeadingCharQ(cNewSubStr)
+				This.ReplaceEachRepeatedTrailingAndLeadingChar(cNewSubStr)
+				return This
+
+		def ReplaceEachTrailingAndLeadingChar(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+
+			def ReplaceEachTrailingAndLeadingCharQ(cNewSubStr)
+				This.ReplaceEachTrailingAndLeadingChar(cNewSubStr)
+				return This
+
+		#-- "Or" instead of "And"
+
+		def ReplaceEachRepeatedLeadingOrTrailingChar(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+
+			def ReplaceEachRepeatedLeadingOrTrailingCharQ(cNewSubStr)
+				This.ReplaceEachRepeatedLeadingOrTrailingChar(cNewSubStr)
+				return This
+
+		def ReplaceEachLeadingOrTrailingChar(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+
+			def ReplaceEachLeadingOrTrailingCharQ(cNewSubStr)
+				This.ReplaceEachLeadingOrTrailingChar(cNewSubStr)
+				return This
+
+		def ReplaceEachRepeatedTrailingOrLeadingChar(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+
+			def ReplaceEachRepeatedTrailingOrLeadingCharQ(cNewSubStr)
+				This.ReplaceEachRepeatedTrailingOrLeadingChar(cNewSubStr)
+				return This
+
+		def ReplaceEachTrailingOrLeadingChar(cNewSubStr)
+			This.ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
+
+			def ReplaceEachTrailingOrLeadingCharQ(cNewSubStr)
+				This.ReplaceEachTrailingOrLeadingChar(cNewSubStr)
+				return This
+
+		#>
+
+	def EachRepeatedLeadingAndTrailingCharsReplaced(cNewSubStr)
+		return This.ReplaceEachRepeatedLeadingAndTrailingCharsQ(cNewSubStr).Content()
+
+		#< @FunctionAlternativeForms
+
+		def EachRepeatedTrailingAndLeadingCharsReplace(cNewSubStr)
+			return This.EachRepeatedLeadingAndTrailingCharsReplace(cNewSubStr)
+
+		def EachLeadingAndTrailingCharsReplaced(cNewSubStr)
+			return This.EachRepeatedLeadingAndTrailingCharsReplaced(cNewSubStr)
+
+		def EachTrailingAndLeadingCharsReplaced()
+			return This.EachRepeatedLeadingAndTrailingCharsReplaced(cNewSubStr)
+
+		#-- Char without "s"
+
+		def EachRepeatedLeadingAndTrailingCharReplaced(cNewSubStr)
+			return This.EachRepeatedLeadingAndTrailingCharsReplaced(cNewSubStr)
+
+		def EachRepeatedTrailingAndLeadingCharReplaced(cNewSubStr)
+			return This.EachRepeatedLeadingAndTrailingCharsReplaced(cNewSubStr)
+
+		def EachLeadingAndTrailingCharReplaced(cNewSubStr)
+			return This.EachRepeatedLeadingAndTrailingCharsReplaced(cNewSubStr)
+
+		def EachTrailingAndLeadingCharReplaced(cNewSubStr)
+			return This.EachRepeatedLeadingAndTrailingCharsReplaced(cNewSubStr)
+
+		#-- "Or" instead of "And"
+
+		def EachRepeatedLeadingOrTrailingCharReplaced(cNewSubStr)
+			return This.EachRepeatedLeadingAndTrailingCharsReplaced(cNewSubStr)
+
+		def EachRepeatedTrailingOrLeadingCharReplaced(cNewSubStr)
+			return This.EachRepeatedLeadingAndTrailingCharsReplaced(cNewSubStr)
+
+		def EachLeadingOrTrailingCharReplaced(cNewSubStr)
+			return This.EachRepeatedLeadingAndTrailingCharsReplaced(cNewSubStr)
+
+		def EachTrailingOrLeadingCharReplaced(cNewSubStr)
+			return This.EachRepeatedLeadingAndTrailingCharsReplaced(cNewSubStr)
+
+		#>
+
+	  #--------------------------------------#
+	 #   REPLACING REPEATED LEADING CHARS   #
+	#--------------------------------------#
+
+	def ReplaceRepeatedLeadingCharsCS(cNewSubStr, pCaseSensitive)
+		cRepeated = This.RepeatedLeadingCharsCS(pCaseSensitive)
+		nLen = Q(cRepeated).NumberOfChars()
+		if nLen > 0
+			This.ReplaceFirstNChars( nLen, cNewSubStr)
+		ok
+
+		def ReplaceRepeatedLeadingCharsCSQ(cNewSubStr, pCaseSensitive)
+			This. ReplaceRepeatedLeadingCharsCS(cNewSubStr, pCaseSensitive)
+			return This
+
+		def ReplaceLeadingCharsCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceRepeatedLeadingCharsCS(cNewSubStr, pCaseSensitive)
+
+			def ReplaceLeadingCharsCSQ(cNewSubStr, pCaseSensitive)
+				This.ReplaceLeadingCharsCS(cNewSubStr, pCaseSensitive)
+				return This
+
+	def RepeatedLeadingCharsReplacedCS(cNewSubStr, pCaseSensitive)
+		return This.Copy().ReplaceRepeatedLeadingCharsCS(cNewSubStr, pCaseSensitive).Content()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceRepeatedLeadingChars(cNewSubStr)
+		This.ReplaceRepeatedLeadingCharsCS(cNewSubStr, :CaseSensitive = TRUE)
+
+		def ReplaceRepeatedLeadingCharsQ(cNewSubStr)
+			This.ReplaceRepeatedLeadingChars(cNewSubStr)
+			return This
+
+		def ReplaceLeadingChars(cNewSubStr)
+			This.ReplaceRepeatedLeadingChars(cNewSubStr)
+
+			def ReplaceLeadingCharsQ(cNewSubStr)
+				This.ReplaceLeadingChars(cNewSubStr)
+				return This
+
+	def RepeatedLeadingCharsReplaced(wNewSubStr)
+		return This.Copy().ReplaceRepeatedLeadingCharsQ(cNewSubStr).Content()
+
+		def LeadingCharsReplaced(cNewSubStrà
+			return This.RepeatedLeadingCharReplaced(wNewSubStr)
+
+	  #--------------------------------------#
+	 #   REPLACING REPEATED LEADING CHARS   #
+	#--------------------------------------#
+
+	def ReplaceRepeatedTrailingCharsCS(cNewSubStr, pCaseSensitive)
+		cRepeated = This.RepeatedTrailingCharsCS(pCaseSensitive)
+		nLen = Q(cRepeated).NumberOfChars()
+		if nLen > 0
+			This.ReplaceLastNChars( nLen, cNewSubStr)
+		ok
+
+		def ReplaceRepeatedTrailingCharsCSQ(cNewSubStr, pCaseSensitive)
+			This. ReplaceRepeatedTrailingCharsCS(cNewSubStr, pCaseSensitive)
+			return This
 
 		def ReplaceTrailingCharsCS(cNewSubStr, pCaseSensitive)
 			This.ReplaceRepeatedTrailingCharsCS(cNewSubStr, pCaseSensitive)
@@ -5412,43 +5982,17 @@ class stzString from stzObject
 				This.ReplaceTrailingCharsCS(cNewSubStr, pCaseSensitive)
 				return This
 
-		def ReplaceTrailingRepeatedCharsCS(cNewSubStr, pCaseSensitive)
-			This.ReplaceRepeatedTrailingCharsCS(cNewSubStr, pCaseSensitive)
-
-			def ReplaceTrailingRepeatedCharsCSQ(cNewSubStr, pCaseSensitive)
-				This.ReplaceTrailingRepeatedCharsCS(cNewSubStr, pCaseSensitive)
-				return This
-		#>
-
 	def RepeatedTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
-		cResult = This.
-			  Copy().
-			  ReplaceRepeatedTrailingCharsCSQ(cNewSubStr, pCaseSensitive).
-			  Content()
+		return This.Copy().ReplaceRepeatedTrailingCharsCS(cNewSubStr, pCaseSensitive).Content()
 
-		return cResult
-
-		def TrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
-			return This.RepeatedTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
-
-		def TrailingRepeatedCharsReplacedCS(cNewSubStr, pCaseSensitive)
-			return This.RepeatedTrailingCharsReplacedCS(cNewSubStr, pCaseSensitive)
-
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceRepeatedTrailingChars(cNewSubStr)
-
 		This.ReplaceRepeatedTrailingCharsCS(cNewSubStr, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
 
 		def ReplaceRepeatedTrailingCharsQ(cNewSubStr)
 			This.ReplaceRepeatedTrailingChars(cNewSubStr)
 			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
 
 		def ReplaceTrailingChars(cNewSubStr)
 			This.ReplaceRepeatedTrailingChars(cNewSubStr)
@@ -5457,27 +6001,11 @@ class stzString from stzObject
 				This.ReplaceTrailingChars(cNewSubStr)
 				return This
 
-		def ReplaceTrailingRepeatedChars(cNewSubStr)
-			This.ReplaceRepeatedTrailingChars(cNewSubStr)
+	def RepeatedTrailingCharsReplaced(wNewSubStr)
+		return This.Copy().ReplaceRepeatedTrailingCharsQ(cNewSubStr).Content()
 
-			def ReplaceTrailingRepeatedCharsQ(cNewSubStr)
-				This.ReplaceTrailingRepeatedChars(cNewSubStr)
-				return This
-		#>
-
-	def RepeatedTrailingCharsReplaced(cNewSubStr)
-		cResult = This.
-			  Copy().
-			  ReplaceRepeatedTrailingCharsQ(cNewSubStr).
-			  Content()
-
-		return cResult
-
-		def TrailingCharsReplaced(cNewSubStr)
-			return This.RepeatedTrailingCharsReplaced(cNewSubStr)
-
-		def TrailingRepeatedCharsReplaced(cNewSubStr)
-			return This.RepeatedTrailingCharsReplaced(cNewSubStr)
+		def TrailingCharsReplaced(cNewSubStrà
+			return This.RepeatedTrailingCharReplaced(wNewSubStr)
 
 	  #---------------------------------------------------#
 	 #   REPLACING REPEATED LEADING AND TRAILING CHARS   #
@@ -5556,9 +6084,9 @@ class stzString from stzObject
 		def TrailingAndLeadingRepeatedCharsReplacedCS(cNewSubStr, pCaseSensitive)
 			return This.RepeatedTrailingAndLeadingCharsReplacedCS(cNewSubStr, pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
-		def ReplaceRepeatedLeadingAndTrailingChars(cNewSubStr)
+	def ReplaceRepeatedLeadingAndTrailingChars(cNewSubStr)
 		This.ReplaceRepeatedLeadingChars(cNewSubStr)
 		This.ReplaceRepeatedTrailingChars(cNewSubStr)
 
@@ -5638,16 +6166,20 @@ class stzString from stzObject
 	def ReplaceThisRepeatedLeadingCharCS(c, cNewSubStr, pCaseSensitive)
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
 
+		if NOT This.HasRepeatedLeadingCharsCS(pCaseSensitive)
+			return
+		ok
+
 		if isList(cNewSubStr) and StzListQ(cNewSubStr).IsWithOrByNamedParam()
 			cNewSubStr = cNewSubStr[2]
 		ok
 
 		if This.RepeatedLeadingCharQ().IsEqualToCS(c, pCaseSensitive)
-			This.ReplaceRepeatedLeadingCharsCS(cNewSubStr, pCaseSensitive)
+			n = This.NumberOfLeadingChars()
+			This.ReplaceFirstNChars(n, :With = cNewSubStr)
 		ok
 
 		#< @FunctionFluentForm
-
 
 		def ReplaceThisRepeatedLeadingCharCSQ(c, cNewSubStr, pCaseSensitive)
 			This.ReplaceThisRepeatedLeadingCharCS(c, cNewSubStr, pCaseSensitive)
@@ -5670,6 +6202,29 @@ class stzString from stzObject
 			def ReplaceThisLeadingRepeatedCharCSQ(c, cNewSubStr, pCaseSensitive)
 				This.ReplaceThisLeadingRepeatedCharCS(c, cNewSubStr, pCaseSensitive)
 				return This
+
+		#--
+
+		def ReplaceRepeatedLeadingCharCS(c, cNewSubStr, pCaseSensitive)
+			This.ReplaceThisRepeatedLeadingCharCS(c, cNewSubStr, pCaseSensitive)
+
+			def ReplaceRepeatedLeadingCharCSQ(c, cNewSubStr, pCaseSensitive)
+				This.ReplaceRepeatedLeadingCharCS(c, cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceLeadingCharCS(c, cNewSubStr, pCaseSensitive)
+			This.ReplaceThisRepeatedLeadingCharCS(c, cNewSubStr, pCaseSensitive)
+
+			def ReplaceLeadingCharCSQ(c, cNewSubStr, pCaseSensitive)
+				This.ReplaceLeadingCharCS(c, cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceLeadingRepeatedCharCS(c, cNewSubStr, pCaseSensitive)
+			This.ReplaceThisRepeatedLeadingCharCS(c, cNewSubStr, pCaseSensitive)
+
+			def ReplaceLeadingRepeatedCharCSQ(c, cNewSubStr, pCaseSensitive)
+				This.ReplaceLeadingRepeatedCharCS(c, cNewSubStr, pCaseSensitive)
+				return This
 		#>
 
 	def ThisRepeatedLeadingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
@@ -5680,13 +6235,28 @@ class stzString from stzObject
 
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def ThisLeadingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
 			return This.ThisRepeatedLeadingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
 
 		def ThisLeadingRepeatedCharReplacedCS(c, cNewSubStr, pCaseSensitive)
 			return This.ThisRepeatedLeadingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
 
-	#---
+		#--
+
+		def RepeatedLeadingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
+			return This.ThisRepeatedLeadingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
+
+		def LeadingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
+			return This.ThisRepeatedLeadingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
+
+		def LeadingRepeatedCharReplacedCS(c, cNewSubStr, pCaseSensitive)
+			return This.ThisRepeatedLeadingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisRepeatedLeadingChar(c, cNewSubStr)
 
@@ -5715,6 +6285,30 @@ class stzString from stzObject
 			def ReplaceThisLeadingRepeatedCharQ(c, cNewSubStr)
 				This.ReplaceThisLeadingRepeatedChar(c, cNewSubStr)
 				return This
+
+		#--
+
+		def ReplaceRepeatedLeadingChar(c, cNewSubStr)
+			This.ReplaceThisRepeatedLeadingChar(c, cNewSubStr)
+
+			def ReplaceRepeatedLeadingCharQ(c, cNewSubStr)
+				This.ReplaceRepeatedLeadingChar(c, cNewSubStr)
+				return This
+
+		def ReplaceLeadingChar(c, cNewSubStr)
+			This.ReplaceThisRepeatedLeadingChar(c, cNewSubStr)
+
+			def ReplaceLeadingCharQ(c, cNewSubStr)
+				This.ReplaceLeadingChar(c, cNewSubStr)
+				return This
+
+		def ReplaceLeadingRepeatedChar(c, cNewSubStr)
+			This.ReplaceThisRepeatedLeadingChar(c, cNewSubStr)
+
+			def ReplaceLeadingRepeatedCharQ(c, cNewSubStr)
+				This.ReplaceLeadingRepeatedChar(c, cNewSubStr)
+				return This
+
 		#>
 
 	def ThisRepeatedLeadingCharReplaced(c, cNewSubStr)
@@ -5725,11 +6319,26 @@ class stzString from stzObject
 
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def ThisLeadingCharReplaced(c, cNewSubStr)
 			return This.ThisRepeatedLeadingCharReplaced(c, cNewSubStr)
 
 		def ThisLeadingRepeatedCharReplaced(c, cNewSubStr)
 			return This.ThisRepeatedLeadingCharReplaced(c, cNewSubStr)
+
+		#--
+
+		def RepeatedLeadingCharReplaced(c, cNewSubStr)
+			return This.ThisRepeatedLeadingCharReplaced(c, cNewSubStr)
+
+		def LeadingCharReplaced(c, cNewSubStr)
+			return This.ThisRepeatedLeadingCharReplaced(c, cNewSubStr)
+
+		def LeadingRepeatedCharReplaced(c, cNewSubStr)
+			return This.ThisRepeatedLeadingCharReplaced(c, cNewSubStr)
+
+		#>
 
 	  #----------------------------------------------#
 	 #   REPLACING A GIVEN REPEATED TRAILING CHAR   #
@@ -5743,11 +6352,11 @@ class stzString from stzObject
 		ok
 
 		if This.RepeatedTrailingCharQ().IsEqualToCS(c, pCaseSensitive)
-			This.ReplaceRepeatedTrailingCharsCS(cNewSubStr, pCaseSensitive)
+			n = This.NumberOfTrailingChars()
+			This.ReplaceLastNChars(n, :With = cNewSubStr)
 		ok
 
 		#< @FunctionFluentForm
-
 
 		def ReplaceThisRepeatedTrailingCharCSQ(c, cNewSubStr, pCaseSensitive)
 			This.ReplaceThisRepeatedTrailingCharCS(c, cNewSubStr, pCaseSensitive)
@@ -5770,6 +6379,29 @@ class stzString from stzObject
 			def ReplaceThisTrailingRepeatedCharCSQ(c, cNewSubStr, pCaseSensitive)
 				This.ReplaceThisTrailingRepeatedCharCS(c, cNewSubStr, pCaseSensitive)
 				return This
+
+		#--
+
+		def ReplaceRepeatedTrailingCharCS(c, cNewSubStr, pCaseSensitive)
+			This.ReplaceThisRepeatedTrailingCharCS(c, cNewSubStr, pCaseSensitive)
+
+			def ReplaceRepeatedTrailingCharCSQ(c, cNewSubStr, pCaseSensitive)
+				This.ReplaceRepeatedTrailingCharCS(c, cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceTrailingCharCS(c, cNewSubStr, pCaseSensitive)
+			This.ReplaceThisRepeatedTrailingCharCS(c, cNewSubStr, pCaseSensitive)
+
+			def ReplaceTrailingCharCSQ(c, cNewSubStr, pCaseSensitive)
+				This.ReplaceTrailingCharCS(c, cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceTrailingRepeatedCharCS(c, cNewSubStr, pCaseSensitive)
+			This.ReplaceThisRepeatedTrailingCharCS(c, cNewSubStr, pCaseSensitive)
+
+			def ReplaceTrailingRepeatedCharCSQ(c, cNewSubStr, pCaseSensitive)
+				This.ReplaceTrailingRepeatedCharCS(c, cNewSubStr, pCaseSensitive)
+				return This
 		#>
 
 	def ThisRepeatedTrailingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
@@ -5780,13 +6412,28 @@ class stzString from stzObject
 
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def ThisTrailingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
 			return This.ThisRepeatedTrailingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
 
 		def ThisTrailingRepeatedCharReplacedCS(c, cNewSubStr, pCaseSensitive)
 			return This.ThisRepeatedTrailingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
 
-	#---
+		#--
+
+		def RepeatedTrailingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
+			return This.ThisRepeatedTrailingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
+
+		def TrailingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
+			return This.ThisRepeatedTrailingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
+
+		def TrailingRepeatedCharReplacedCS(c, cNewSubStr, pCaseSensitive)
+			return This.ThisRepeatedTrailingCharReplacedCS(c, cNewSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisRepeatedTrailingChar(c, cNewSubStr)
 
@@ -5815,6 +6462,30 @@ class stzString from stzObject
 			def ReplaceThisTrailingRepeatedCharQ(c, cNewSubStr)
 				This.ReplaceThisTrailingRepeatedChar(c, cNewSubStr)
 				return This
+
+		#--
+
+		def ReplaceRepeatedTrailingChar(c, cNewSubStr)
+			This.ReplaceThisRepeatedTrailingChar(c, cNewSubStr)
+
+			def ReplaceRepeatedTrailingCharQ(c, cNewSubStr)
+				This.ReplaceRepeatedTrailingChar(c, cNewSubStr)
+				return This
+
+		def ReplaceTrailingChar(c, cNewSubStr)
+			This.ReplaceThisRepeatedTrailingChar(c, cNewSubStr)
+
+			def ReplaceTrailingCharQ(c, cNewSubStr)
+				This.ReplaceTrailingChar(c, cNewSubStr)
+				return This
+
+		def ReplaceTrailingRepeatedChar(c, cNewSubStr)
+			This.ReplaceThisRepeatedTrailingChar(c, cNewSubStr)
+
+			def ReplaceTrailingRepeatedCharQ(c, cNewSubStr)
+				This.ReplaceTrailingRepeatedChar(c, cNewSubStr)
+				return This
+
 		#>
 
 	def ThisRepeatedTrailingCharReplaced(c, cNewSubStr)
@@ -5825,11 +6496,26 @@ class stzString from stzObject
 
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def ThisTrailingCharReplaced(c, cNewSubStr)
 			return This.ThisRepeatedTrailingCharReplaced(c, cNewSubStr)
 
 		def ThisTrailingRepeatedCharReplaced(c, cNewSubStr)
 			return This.ThisRepeatedTrailingCharReplaced(c, cNewSubStr)
+
+		#--
+
+		def RepeatedTrailingCharReplaced(c, cNewSubStr)
+			return This.ThisRepeatedTrailingCharReplaced(c, cNewSubStr)
+
+		def TrailingCharReplaced(c, cNewSubStr)
+			return This.ThisRepeatedTrailingCharReplaced(c, cNewSubStr)
+
+		def TrailingRepeatedCharReplaced(c, cNewSubStr)
+			return This.ThisRepeatedTrailingCharReplaced(c, cNewSubStr)
+
+		#>
 
 	  #---------------------------------------------------------#
 	 #   REPLACING GIVEN REPEATED LEADING AND TRAILING CHARS   #
@@ -5851,35 +6537,50 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def ReplaceTheseRepeatedTrailingAndLeadingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
-			This.ReplaceTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+			These.ReplaceTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
 
-			def ReplaceTheseRepeatedTrailingAndLeadingCharsCSQ(c1, c2, cNewSubStr, pCaseSensitive)
-				This.ReplaceTheseRepeatedTrailingAndLeadingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+				These.ReplaceTheseRepeatedTrailingAndLeadingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
 				return This
 
 		def ReplaceTheseLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
-			This.ReplaceTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+			These.ReplaceTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
 
 			def ReplaceTheseLeadingAndTrailingCharsCSQ(c1, c2, cNewSubStr, pCaseSensitive)
-				This.ReplaceTheseLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+				These.ReplaceTheseLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
 				return This
 
-		def ReplaceTheseTraingAndLeadingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
-			This.ReplaceTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+		def ReplaceTheseTrailingAndLeadingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+			These.ReplaceTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
 
-			def ReplaceTheseTraingAndLeadingCharsCSQ(c1, c2, cNewSubStr, pCaseSensitive)
-				This.ReplaceTheseTraingAndLeadingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+			def ReplaceTheseTrailingAndLeadingCharsCSQ(c1, c2, cNewSubStr, pCaseSensitive)
+				These.ReplaceTheseTrailingAndLeadingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
 				return This
 
+		def ReplaceTheseLeadingAndTrailingRepeatedCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+			These.ReplaceTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+
+			def ReplaceTheseLeadingAndTrailingRepeatedCharsCSQ(c1, c2, cNewSubStr, pCaseSensitive)
+				These.ReplaceTheseLeadingAndTrailingRepeatedCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceTheseTrailingAndLeadingRepeatedCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+			These.ReplaceTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+
+			def ReplaceTheseTrailingAndLeadingRepeatedCharsCSQ(c1, c2, cNewSubStr, pCaseSensitive)
+				These.ReplaceTheseTrailingAndLeadingRepeatedCharsCS(c1, c2, cNewSubStr, pCaseSensitive)
+				return This
+		
 		#>
 
 	def TheseRepeatedLeadingAndTrailingCharsReplacedCS(c1, c2, cNewSubStr, pCaseSensitive)
-		cResult = This.
+		cResult = These.
 			  Copy().
 			  ReplaceTheseRepeatedLeadingAndTrailingCharsCSQ(c1, c2, cNewSubStr, pCaseSensitive).
 			  Content()
 
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def TheseRepeatedTrailingAndLeadingCharsReplacedCS(c1, c2, cNewSubStr, pCaseSensitive)
 			return This.TheseRepeatedLeadingAndTrailingCharsReplacedCS(c1, c2, cNewSubStr, pCaseSensitive)
@@ -5890,17 +6591,24 @@ class stzString from stzObject
 		def TheseTrailingAndLeadingCharsReplacedCS(c1, c2, cNewSubStr, pCaseSensitive)
 			return This.TheseRepeatedLeadingAndTrailingCharsReplacedCS(c1, c2, cNewSubStr, pCaseSensitive)
 
-	#---
+		def TheseLeadingAndTrailingRepeatedCharsReplacedCS(c1, c2, cNewSubStr, pCaseSensitive)
+			return This.TheseRepeatedLeadingAndTrailingCharsReplacedCS(c1, c2, cNewSubStr, pCaseSensitive)
+
+		def TheseTrailingAndLeadingRepeatedCharsReplacedCS(c1, c2, cNewSubStr, pCaseSensitive)
+			return This.TheseRepeatedLeadingAndTrailingCharsReplacedCS(c1, c2, cNewSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceTheseRepeatedLeadingAndTrailingChars(c1, c2, cNewSubStr)
-	
-		This.ReplaceTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, :CaseSensitive = TRUE)
-	
+
+		These.ReplaceTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
 		def ReplaceTheseRepeatedLeadingAndTrailingCharsQ(c1, c2, cNewSubStr)
-			This.ReplaceTheseRepeatedTrailingChars(c1, c2, cNewSubStr)
+			These.ReplaceTheseRepeatedLeadingAndTrailingChars(c1, c2, cNewSubStr)
 			return This
 
 		#>
@@ -5908,35 +6616,50 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def ReplaceTheseRepeatedTrailingAndLeadingChars(c1, c2, cNewSubStr)
-			This.ReplaceTheseRepeatedLeadingAndTrailingChars(c1, c2, cNewSubStr)
+			These.ReplaceTheseRepeatedLeadingAndTrailingChars(c1, c2, cNewSubStr)
 
-			def ReplaceTheseRepeatedTrailingAndLeadingCharsQ(c1, c2, cNewSubStr)
-				This.ReplaceTheseRepeatedTrailingAndLeadingChars(c1, c2, cNewSubStr)
+				These.ReplaceTheseRepeatedTrailingAndLeadingChars(c1, c2, cNewSubStr)
 				return This
 
 		def ReplaceTheseLeadingAndTrailingChars(c1, c2, cNewSubStr)
-			This.ReplaceTheseRepeatedLeadingAndTrailingChars(c1, c2, cNewSubStr)
+			These.ReplaceTheseRepeatedLeadingAndTrailingChars(c1, c2, cNewSubStr)
 
 			def ReplaceTheseLeadingAndTrailingCharsQ(c1, c2, cNewSubStr)
-				This.ReplaceTheseLeadingAndTrailingChars(c1, c2, cNewSubStr)
+				These.ReplaceTheseLeadingAndTrailingChars(c1, c2, cNewSubStr)
 				return This
 
-		def ReplaceTheseTraingAndLeadingChars(c1, c2, cNewSubStr)
-			This.ReplaceTheseRepeatedLeadingAndTrailingChars(c1, c2, cNewSubStr)
+		def ReplaceTheseTrailingAndLeadingChars(c1, c2, cNewSubStr)
+			These.ReplaceTheseRepeatedLeadingAndTrailingChars(c1, c2, cNewSubStr)
 
-			def ReplaceTheseTraingAndLeadingCharsQ(c1, c2, cNewSubStr)
-				This.ReplaceTheseTraingAndLeadingChars(c1, c2, cNewSubStr)
+			def ReplaceTheseTrailingAndLeadingCharsQ(c1, c2, cNewSubStr)
+				These.ReplaceTheseTrailingAndLeadingChars(c1, c2, cNewSubStr)
+				return This
+
+		def ReplaceTheseLeadingAndTrailingRepeatedChars(c1, c2, cNewSubStr)
+			These.ReplaceTheseRepeatedLeadingAndTrailingChars(c1, c2, cNewSubStr)
+
+			def ReplaceTheseLeadingAndTrailingRepeatedCharsQ(c1, c2, cNewSubStr)
+				These.ReplaceTheseLeadingAndTrailingRepeatedChars(c1, c2, cNewSubStr)
+				return This
+
+		def ReplaceTheseTrailingAndLeadingRepeatedChars(c1, c2, cNewSubStr)
+			These.ReplaceTheseRepeatedLeadingAndTrailingChars(c1, c2, cNewSubStr)
+
+			def ReplaceTheseTrailingAndLeadingRepeatedCharsQ(c1, c2, cNewSubStr)
+				These.ReplaceTheseTrailingAndLeadingRepeatedChars(c1, c2, cNewSubStr)
 				return This
 
 		#>
 
 	def TheseRepeatedLeadingAndTrailingCharsReplaced(c1, c2, cNewSubStr)
-		cResult = This.
+		cResult = These.
 			  Copy().
-			  ReplaceTheseRepeatedLeadingAndTrailingCharsQ(c1, c2, cNewSubStr).
+			  ReplaceTheseRepeatedLeadingAndTrailingCharsCSQ(c1, c2, cNewSubStr).
 			  Content()
 
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def TheseRepeatedTrailingAndLeadingCharsReplaced(c1, c2, cNewSubStr)
 			return This.TheseRepeatedLeadingAndTrailingCharsReplaced(c1, c2, cNewSubStr)
@@ -5946,6 +6669,14 @@ class stzString from stzObject
 
 		def TheseTrailingAndLeadingCharsReplaced(c1, c2, cNewSubStr)
 			return This.TheseRepeatedLeadingAndTrailingCharsReplaced(c1, c2, cNewSubStr)
+
+		def TheseLeadingAndTrailingRepeatedCharsReplaced(c1, c2, cNewSubStr)
+			return This.TheseRepeatedLeadingAndTrailingCharsReplaced(c1, c2, cNewSubStr)
+
+		def TheseTrailingAndLeadingRepeatedCharsReplaced(c1, c2, cNewSubStr)
+			return This.TheseRepeatedLeadingAndTrailingCharsReplaced(c1, c2, cNewSubStr)
+
+		#>
 
 	  #===============================#
 	 #     FORWARD TO END OF LINE    #
@@ -6162,7 +6893,7 @@ class stzString from stzObject
 			
 			return NULL
 		ok
-	
+
 		# Finally, we're ready to extract the section...
 		# NOTRE: when positions are given in inversed order
 		# --> Reversing the section
@@ -7256,7 +7987,7 @@ class stzString from stzObject
 		cLastSeparator = NULL
 		bAddLastToMainSeparator = FALSE
 			
-		cSpaceOption = :EnsureLeadingSpace + :EnsureTrailingSpace
+		cSpaceOption = :AddLeadingSpace + :AddTrailingSpace
 	
 		# Verifying the syntax of the options provided
 		if NOT ( len(paOptions) = 0 or
@@ -7298,10 +8029,11 @@ class stzString from stzObject
 		cSubStr = cOpeningChar
 			
 		# Checking the behavior of the first inserted substring in regard of adjacent left space
-	
-		if NOT cSpaceOption = :DoNothingForSpace
-			if cSpaceOption = :EnsureLeadingSpace OR
-			   cSpaceOption = :EnsureLeadingSpace + :EnsureTrailingSpace
+
+		if NOT cSpaceOption = :DoNothing
+			if cSpaceOption = :AddLeadingSpace or
+			   cSpaceOption = :AddLeadingSpace + :AddTrailingSpace or
+			   cSpaceOption = :AddTrailingSpace + :AddLeadingSpace
 	
 				if nPos > 1 and This.NthChar(nPos - 1) != " "
 					cSubStr = " " + cOpeningChar
@@ -7362,8 +8094,9 @@ class stzString from stzObject
 	
 		# Checking the option of leaving the trailing space
 	
-		if cSpaceOption = :EnsureTrailingSpace OR
-		   cSpaceOption = :EnsureLeadingSpace + :EnsureTrailingSpace
+		if cSpaceOption = :AddTrailingSpace or
+		   cSpaceOption = :AddLeadingSpace + :AddTrailingSpace or
+		   cSpaceOption = :AddTrailiningSpace + :AddLeadingSpace
 	
 			cSubStr += " "
 		ok
@@ -7372,6 +8105,7 @@ class stzString from stzObject
 			nPos++
 		ok
 
+		# Doing the job!
 
 		This.InsertBefore(nPos, cSubStr)
 	
@@ -7487,23 +8221,14 @@ class stzString from stzObject
 	def ReplaceAllCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		#< @MotherFunction = YES | @QtBased #>
 
-		/* Example 1:
+		/* Example:
 	
-		StzStringQ( "Tunis is the holder of my memories. Tunis is my dream!") {
-			ReplaceAllCS("tunis", "Regueb", :CS = FALSE )
+		StzStringQ("Tunis is the town of my memories.") {
+			ReplaceAll("Tunis", "Niamey" )
 			? Content()
 		}
+		#--> Niamey is the town of my memories.
 	
-		--> "Regueb is the holder of my memories. Regueb is my dream!"
-	
-		Example 2:
-	
-		StzStringQ( "Tunis is the holder of my memories. Tunis is my dream!") {
-			ReplaceAllCS("tunis", :EachChar = "*", :CS = FALSE )
-			? Content()
-		}
-	
-		--> "***** is the holder of my memories. ***** is my dream!"
 		*/
 
 		# Checking the correctness of pcSubStr param
@@ -7556,9 +8281,25 @@ class stzString from stzObject
 			stzRaise("Incorrect param types!")
 		ok
 
+		# Resolving the pCaseSensitive option
+
+		bCaseSensitive = TRUE
+		if isNumber(pCaseSensitive) and Q(pCaseSensitive).IsBoolean()
+			bCaseSensitive = pCaseSensitive
+
+		but isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			if isNumber(pCaseSensitive[2]) and Q(pCaseSensitive[2]).IsBoolean()
+				bCaseSensitive = pCaseSensitive[2]
+			ok
+		ok
+
+		if NOT isString(pcNewSubstr)
+			stzRaise("Incorrect param type! pNewcSubstr must be a string.")
+		ok
+
 		# Doing the job
 
-		@oQString.replace_2(pcSubStr, pcNewSubStr, pCaseSensitive)
+		@oQString.replace_2(pcSubStr, pcNewSubStr, bCaseSensitive)
 
 	
 		#< @FunctionFluentForm
@@ -7648,6 +8389,112 @@ class stzString from stzObject
 		
 		#>
 
+	  #---------------------------------#
+	 #     REPLACING FRIST N CHARS     #
+	#---------------------------------#
+
+	def ReplaceFirstNChars(n, pcNewSubStr)
+		This.ReplaceSection(1, n, pcNewSubStr)
+
+		def ReplaceFirstNCharsQ(n, pcNewSubStr)
+			This.ReplaceFirstNChars(n, pcNewSubStr)
+			return This
+
+		def ReplaceNFirstChars(pcNewSubStr)
+			This.ReplaceFirstNChars(n, pcNewSubStr)
+
+			def ReplaceNFirstCharsQ(pcNewSubStr)
+				This.ReplaceNFirstChars(pcNewSubStr)
+				return This
+
+	def FirstNCharsReplaced(pcNewSubStr)
+		return This.Copy().ReplaceFirstNCharsQ(n, pcNewSubStr).Content()
+
+		def NFirstCharsReplaced(pcNewSubStr)
+			return This.FirstNCharsReplaced(pcNewSubStr)
+
+	  #--------------------------------#
+	 #     REPLACING LAST N CHARS     #
+	#--------------------------------#
+
+	def ReplaceLastNChars(n, pcNewSubStr)
+		This.ReplaceSection(This.NumberOfChars() - n + 1, :LastChar, pcNewSubStr)
+
+		def ReplaceLastNCharsQ(n, pcNewSubStr)
+			This.ReplaceLastNChars(n, pcNewSubStr)
+			return This
+
+		def ReplaceNLastChars(pcNewSubStr)
+			This.ReplaceLastNChars(n, pcNewSubStr)
+
+			def ReplaceNLastCharsQ(pcNewSubStr)
+				This.ReplaceNLastChars(pcNewSubStr)
+				return This
+
+	def LastNCharsReplaced(pcNewSubStr)
+		return This.Copy().ReplaceLastNCharsQ(n, pcNewSubStr).Content()
+
+		def NLastCharsReplaced(pcNewSubStr)
+			return This.LastNCharsReplaced(pcNewSubStr)
+
+	  #--------------------------------#
+	 #     REPLACING LEFT N CHARS     #
+	#--------------------------------#
+
+	def ReplaceLeftNChars(n, pcNewSubStr)
+		if This.IsLeftToRight()
+			This.ReplaceFirstNChars(n, pcNewSubStr)
+
+		else
+			This.ReplaceLastNChars(n, pcNewSubStr)
+		ok
+
+		def ReplaceLeftNCharsQ(n, pcNewSubStr)
+			This.ReplaceLeftNChars(n, pcNewSubStr)
+			return This
+
+		def ReplaceNLeftChars(pcNewSubStr)
+			This.ReplaceLeftNChars(n, pcNewSubStr)
+
+			def ReplaceNLeftCharsQ(pcNewSubStr)
+				This.ReplaceNLeftChars(pcNewSubStr)
+				return This
+
+	def LeftNCharsReplaced(pcNewSubStr)
+		return This.Copy().ReplaceLeftNCharsQ(n, pcNewSubStr).Content()
+
+		def NLeftCharsReplaced(pcNewSubStr)
+			return This.LeftNCharsReplaced(pcNewSubStr)
+
+	  #--------------------------------#
+	 #     REPLACING RIGHT N CHARS    #
+	#--------------------------------#
+
+	def ReplaceRightNChars(n, pcNewSubStr)
+		if This.IsLeftToRight()
+			This.ReplaceLastNChars(n, pcNewSubStr)
+
+		else
+			This.ReplaceFirstNChars(n, pcNewSubStr)
+		ok
+
+		def ReplaceRightNCharsQ(n, pcNewSubStr)
+			This.ReplaceRightNChars(n, pcNewSubStr)
+			return This
+
+		def ReplaceNRightChars(pcNewSubStr)
+			This.ReplaceRightNChars(n, pcNewSubStr)
+
+			def ReplaceNRightCharsQ(pcNewSubStr)
+				This.ReplaceNRightChars(pcNewSubStr)
+				return This
+
+	def RightNCharsReplaced(pcNewSubStr)
+		return This.Copy().ReplaceRightNCharsQ(n, pcNewSubStr).Content()
+
+		def NRightCharsReplaced(pcNewSubStr)
+			return This.RightNCharsReplaced(pcNewSubStr)
+
 	  #-------------------------------------------#
 	 #     REPLACING MANY SUBSTRINGS AT ONCE     #
 	#-------------------------------------------#
@@ -7669,8 +8516,26 @@ class stzString from stzObject
 	
 		*/
 
+		if NOT ( isList(pacSubStr) and
+			 Q(pacSubStr).IsListOfStrings() )
+
+			stzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+		ok
+
+		if isList(pNewSubStr) and Q(pNewSubStr).IsWithOrByNamedParam()
+			pNewSubStr = pNewSubStr[2]
+		ok
+
+		if isList(pNewSubStr)
+			return This.ReplaceManyByManyCS(pacSubStr, pNewSubStr, pCaseSensitive)
+		ok
+
+		if NOT isString(pNewSubStr)
+			stzRaise("Incorrect param type! pNewSubStr must be a string.")
+		ok
+
 		for str in pacSubstr
-			This.ReplaceAllCS( str, pNewSubStr, pCaseSensitive )
+			This.ReplaceCS( str, pNewSubStr, pCaseSensitive )
 		next
 	
 		#< @FunctionFluentForm
@@ -7703,7 +8568,7 @@ class stzString from stzObject
 		def ManyReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
 			return This.ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
 
-	#---
+	#-- WIHTOUT CASESENSITIVITY
 
 	def ReplaceMany(pacSubstr, pcNewSubstr)
 		This.ReplaceManyCS( pacSubstr, pcNewSubstr, :CaseSensitive = TRUE )
@@ -8214,7 +9079,7 @@ class stzString from stzObject
 			
 			cDynamicStr = StzStringQ(pcDynamicStr).
 					SimplifyQ().
-					RemoveBoundsQ("{", "}").
+					RemoveBoundsQ(["{","}"]).
 					Content()
 
 			cCode = 'cTempStr = ( ' + cDynamicStr + ' )'
@@ -8284,7 +9149,7 @@ class stzString from stzObject
 
 		cCondition = StzStringQ(pcCondition).
 				SimplifyQ().
-				RemoveBoundsQ("{", "}").
+				RemoveBoundsQ(["{","}"]).
 				Content()
 
 		anPositionsW = []
@@ -8375,6 +9240,34 @@ class stzString from stzObject
 	def SubstringBetweenReplaced(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr)
 		cResult = This.ReplaceBetweenQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr).Content()
 		return cResult
+
+	  #-------------------------------------------------------------------------#
+	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED  #
+	#-------------------------------------------------------------------------#
+
+	def ReplaceXTCS(pcSubStr, paBetween, pcNewSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+		o1.ReplaceXT("noword", :Between = ["<<", ">>"], :With = "word")
+		#--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
+
+		*/
+
+		if isList(paBetween) and Q(paBetween).IsBetweenNamedParam()
+			paBetween = paBetween[2]
+		ok
+
+		if NOT isList(paBetween) and Q(paBetween).IsPairOfStrings()
+			stzRaise("Incorrect param type! paBetween must be a pair of strings.")
+		ok
+
+		This.ReplaceBetween("noword", paBetween[1], paBetween[2], :With = "word")
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceXT(pcSubStr, paBetween, pcNewSubStr)
+		This.ReplaceXTCS(pcSubStr, paBetween, pcNewSubStr, :CaseSensitive = TRUE)
 
 	  #--------------------------------------------------------#
 	 #  REPLACING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
@@ -8470,8 +9363,11 @@ class stzString from stzObject
 	#-------------------------------------------------------------#
 
 	def ReplaceCharsAtPositions(panPositions, pcNewSubStr)
-
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+
+		if isList(panPositions) and len(panPositions) = 0
+			return
+		ok
 
 		# Checking the correctness of panPositions param
 
@@ -9100,7 +9996,7 @@ class stzString from stzObject
 				pSubStr = pSubStr[2]
 
 			but pSubStr[1] = :With@
-				cCode = 'pSubStr = ' + StzStringQ(pSubStr[2]).TrimQ().RemoveBoundsQ("{","}").Content()
+				cCode = 'pSubStr = ' + StzStringQ(pSubStr[2]).TrimQ().RemoveBoundsQ(["{","}"]).Content()
 				eval(cCode)
 			ok
 		ok
@@ -9657,17 +10553,6 @@ class stzString from stzObject
 
 	def NthOccurrenceCS(n, pcSubstr, pCaseSensitive) # --> Returns 0 if nothing found
 
-		# Resolving pCaseSensitive --> Will be use later by a Qt function
-
-		bCaseSensitive = TRUE
-		if isNumber(pCaseSensitive)
-			bCaseSensitive = pCaseSensitive
-
-		but isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			bCaseSensitive = pCaseSensitive[2]
-			
-		ok
-
 		# Resolving the pcSubStr param
 
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
@@ -9688,6 +10573,18 @@ class stzString from stzObject
 			else
 				n = 0
 			ok
+		ok
+
+		# Resolving pCaseSensitive
+
+		bCaseSensitive = TRUE
+		if isNumber(pCaseSensitive) and Q(pCaseSensitive).IsBoolean()
+			bCaseSensitive = pCaseSensitive
+
+		but isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			if isNumber(pCaseSensitive[2]) and Q(pCaseSensitive[2]).IsBoolean()
+				bCaseSensitive = pCaseSensitive[2]
+			ok	
 		ok
 
 		# Doing the job
@@ -10145,14 +11042,13 @@ o1 = new stzString("12*34*56*78")
 			pcSubStr = pcSubStr[2]
 		ok
 	
-		n = This.Copy().ReverseQ().FindFirstCS(pcSubStr, pCaseSensitive)
-		if n = 0
-			nResult = 0
+		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
+		
+		if len(anPos) = 0
+			return 0
 		else
-			nResult = This.NumberOfChars() - n + 1
+			return anPos[len(anPos)]
 		ok
-
-		return nResult
 
 
 		#< @FunctionAlternativeForm
@@ -10356,7 +11252,12 @@ o1 = new stzString("12*34*56*78")
 		*/
 
 		anPositions = This.FindAllCS(pcSubStr, pCaseSensitive)
-		anResult = Q(anPositions).ItemsAt(panOccurr)
+		if len(anPositions) = 0
+			anResult = []
+		else
+			anResult = Q(anPositions).ItemsAt(panOccurr)
+		ok
+
 		return anResult
 
 		#< @FunctionFluentForms
@@ -10832,17 +11733,6 @@ o1 = new stzString("12*34*56*78")
 
 	def FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
 
-		# Resolving pCaseSensitive --> Will be use later by a Qt function
-
-		bCaseSensitive = TRUE
-		if isNumber(pCaseSensitive)
-			bCaseSensitive = pCaseSensitive
-
-		but isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			bCaseSensitive = pCaseSensitive[2]
-			
-		ok
-
 		# Resolving the pcSubStr param
 
 		if isList(pcSubStr) and
@@ -10850,6 +11740,18 @@ o1 = new stzString("12*34*56*78")
 			  Q(pcSubStr).IsOfSubStringNamedParam() )
 
 			pcSubStr = pcSubStr[2]
+		ok
+
+		# Resolving pCaseSensitive
+
+		bCaseSensitive = TRUE
+		if isNumber(pCaseSensitive) and Q(pCaseSensitive).IsBoolean()
+			bCaseSensitive = pCaseSensitive
+
+		but isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			if isNumber(pCaseSensitive[2]) and Q(pCaseSensitive[2]).IsBoolean()
+				bCaseSensitive = pCaseSensitive[2]
+			ok	
 		ok
 
 		# Doing the job
@@ -11081,8 +11983,24 @@ o1 = new stzString("12*34*56*78")
 		if Q(paOption).IsBetweenNamedParam()
 			paOption = paOption[2]
 
-			if NOT isList(paOption) and Q(paOption).IsPairOfStrings()
-				stzRaise("Incorrect param type! paOption must be a string.")
+			if ( NOT isList(paOption) and Q(paOption).IsPairOfStrings() )
+				stzRaise("Incorrect param type! paOption must be a pair of strings.")
+			ok
+
+			return This.FindBetweenCS(pcSubStr, paOption[1], paOption[2], pCaseSensitive)
+
+		but Q(paOption).IsBoundedByNamedParam()
+			
+			if isString(paOption[2])
+				cTempStr = paOption[2]
+				paOption = [ cTempStr, cTempStr ]
+
+			else
+				paOption = paOption[2]
+			ok
+
+			if NOT Q(paOption).IsPairOfStrings()
+				stzRaise("Incorrect param type! paOption must be a string or a pair of strings.")
 			ok
 
 			return This.FindBetweenCS(pcSubStr, paOption[1], paOption[2], pCaseSensitive)
@@ -11753,10 +12671,10 @@ o1 = new stzString("12*34*56*78")
 	 #    FINDING MANY SYBSTRINGS IN THE SAME TIME -- EXTENDED    # 
 	#------------------------------------------------------------#
 
-	def FindManyXT(pacSubStr, paOptions)
+	def FindManyXTCS(pacSubStr, pCaseSensitive)
 		/*
 		o1 = new stzString("My name is Mansour. What's your name please?")
-		? o1.FindManyXT( [ "name", "your", "please" ], [ :CS = TRUE ] )
+		? o1.FindManyXT( [ "name", "your", "please" ] )
 
 		--> [ "name" = [ 4, 33 ], "your" = [ 28 ], "please" = [ 38 ] ]
 
@@ -11768,105 +12686,40 @@ o1 = new stzString("12*34*56*78")
 			stzRaise("Incorrect param! pacSubStr must be a list of strings.")
 		ok
 
-		if NOT ( isList(paOptions) and Q(paOptions).IsHashList() )
-			stzRaise("Incorrect param! paOptions must be a hashlist.")
-		ok
-
-		if NOT StzHashListQ(paOptions).KeysQ().IsMadeOfSome([
-				:CaseSensitive, :CS,
-				:RemoveEmpty
-			])
-			
-			stzRaise("Unavailable options! Only :CaseSensitive and :RemoveEmpty are available.")
-		ok
-
-		if StzHashListQ(paOptions).KeysQR(:stzListOfStrings).ContainsBothCS(
-			:CaseSensitive, :CS, :CS = FALSE )
-
-			stzRaise("Incorrect values! :CaseSensitive and :CS are the same, they can't be used both.")
-		ok
-
-		# Reading options
-
-		bCaseSensitive = TRUE
-		if StzHashListQ(paOptions).ContainsKey(:CaseSensitive) and
-			IsBoolean(paOptions[:CaseSensitive])
-
-			bCaseSensitive = paOptions[:CaseSensitive]
-
-		but StzHashListQ(paOptions).ContainsKey(:CS) and
-			IsBoolean(paOptions[:CS])
-
-			bCaseSensitive = paOptions[:CS]
-		ok
-
-		bRemoveEmpty = FALSE
-		if StzHashListQ(paOptions).ContainsKey(:RemoveEmpty) and
-			IsBoolean(paOptions[:RemoveEmpty])
-
-			bRemoveEmpty = paOptions[:RemoveEmpty]
-		ok
-
 		# Doing the job
 
 		aResult = []
 
 		for str in pacSubStr
-			anPositions = This.FindAllCS(str, bCaseSensitive)
-
-			if len(anPositions) > 0
-				aResult + [ str, anPositions ]
-
-			else
-				if bRemoveEmpty = FALSE
-					aResult + [ str, anPositions ]
-				ok
-			ok
+			anPositions = This.FindAllCS(str, pCaseSensitive)
+			aResult + [ str, anPositions ]
 		next
 		
 		return aResult
 
 		#< @FunctionFluentForm
 
-		def FindManyXTQ(pacSubStr, paOptions)
-			return This.FindManyXTQR(pacSubStr, paOptions, :stzList)
+		def FindManyXTQ(pacSubStr, pCaseSensitive)
+			return This.FindManyXTQR(pacSubStr, pCaseSensitive, :stzList)
 	
-		def FindManyXTQR(pacSubStr, paOptions, pcReturnType)
+		def FindManyXTQR(pacSubStr, pCaseSensitive, pcReturnType)
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.FindManyXT(pacSubStr, paOptions) )
+				return new stzList( This.FindManyXT(pacSubStr, pCaseSensitive) )
 	
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindManyXT(pacSubStr, paOptions) )
+				return new stzListOfNumbers( This.FindManyXT(pacSubStr, pCaseSensitive) )
 	
 			other
 				return stzRaise("Unsupported return type!")
 			off
 		#>
 
-		#< @FunctionAlternativeForm
+	#-- WITHOUT CASESENSITIVITY
 
-		def FindManySubstringsCSXT(pacSubStr, pCaseSensitive)
-			return This.FindManyCSXT(pacSubStr, pCaseSensitive)
-
-			def FindManySubstringsCSXTQ(pacSubStr)
-				return This.FindManySubstringsCSXTQR(pacSubStr, pCaseSensitive, :stzList)
-		
-			def FindManySubstringsCSXTQR(pacSubStr, pCaseSensitive, pcReturnType)
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindManySubstringsCSXT(pacSubStr, pCaseSensitive) )
-		
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindManySubstringsCSXT(pacSubStr, pCaseSensitive) )
-		
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		#>
+	def FindManyXT(pacSubStr)
+		return This.FindManyXTCS(pacSubStr, :CaseSensitive = TRUE)
 
 	   #=====================================================#
 	  #   CHECKING IF STRING OCCURES BEFORE/AFTER A GIVEN   #
@@ -12423,9 +13276,9 @@ o1 = new stzString("12*34*56*78")
 		anResult = []
 
 		if pcBound1 = pcBound2
-
+			nLen = Q(pcBound1).NumberOfChars()
 			aSections = This.FindAllCSQ(pcBound1, pCaseSensitive).
-				     Yield('{ [ (0+@item)+1, (0+@NextItem)-1 ] }')
+				     Yield('{ [ (0+@item)+' + ""+nLen + ' , (0+@NextItem)-1 ] }')
 
 			for aSection in aSections
 
@@ -12864,6 +13717,20 @@ o1 = new stzString("12*34*56*78")
 
 	def NumberOfOccurrenceXT(pcSubStr, pacBetween)
 		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS N OCCURRENCES OF A GIVEN SUBSTRING  #
+	#----------------------------------------------------------------------#
+
+	def ContainsNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+		if This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) = n
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def ContainsNOccurrences(n, pcSubStr)
+		return This.ContainsNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
 
 	   #-------------------------------------------------------------#
 	  #   FINDING NTH OCCURRENCE OF A SUBSTRING BETWEEN            #
@@ -13753,7 +14620,7 @@ o1 = new stzString("12*34*56*78")
 
 	def VizFindXT(pcSubStr, paOptions)
 
-		/* THE LOGIC ADOPTED IN CHECKING FUNCTION CORRECNESS
+		/* THE LOGIC ADOPTED IN CHECKING FUNCTION CORRECTNESS
 		   -------------------------------------------------
 
 		   1. Checking the correctness of the TYPES of the params
@@ -13853,7 +14720,7 @@ o1 = new stzString("12*34*56*78")
 		If NOT IsBoolean(bCaseSensitive)
 
 			bCorrect = FALSE
-			acWhy + ":CaseSensitive option must be a boalean"
+			acWhy + ":CaseSensitive option must be a boolean"
 		ok
 
 		if NOT ( isString(cPositionSign) and StringIsChar(cPositionSign) )
@@ -13966,7 +14833,7 @@ o1 = new stzString("12*34*56*78")
 		#>
 
 	def VizFind(pcSubStr)
-		return This.VizFindXT(pcSubStr, [] )
+		return This.VizFindXT(pcSubStr, [ :PositionChar = "^" ] )
 
 	def VizFindCS(pcSubStr, pCaseSensitive)
 		return This.VizFindXT(pcSubStr, [ pCaseSensitive ])
@@ -14724,6 +15591,19 @@ o1 = new stzString("12*34*56*78")
 	 #    CONTAINING LETTERS     #
 	#---------------------------#
 
+	def ContainsLetter(pcLetter)
+
+		if Q(pcLetter).IsAChar() and
+		   StzCharQ(pcLetter).IsLetter()
+
+		  	return This.ContainsCS( pcLetter, :CS = FALSE )
+		else
+			return FALSE
+		ok
+
+		def ContainsThisLetter(pcLetter)
+			return This.ContainsLetter(pcLetter)
+
 	def ContainsLetters()
 		bResult = FALSE
 		for i = 1 to This.NumberOfChars()
@@ -14824,6 +15704,9 @@ o1 = new stzString("12*34*56*78")
 		oQStrList = This.QStringObject().split(p, 0, 0)
 		aResult = QStringListToList(oQStrList)
 		return aResult
+
+		def SplitQ(p)
+			return new stzList( This.Split(p) )
 
 		def Splitted(p)
 			return This.Split(p)
@@ -15090,7 +15973,8 @@ o1 = new stzString("12*34*56*78")
 		*/
 
 
-		if isList(pcPartionner) and StzListQ(pcPartionner).IsUsingNamedParam()
+		if isList(pcPartionner) and
+		   StzListQ(pcPartionner).IsOneOfTheseNamedParams([ :Using, :By, :With ])
 
 			pcPartionner = pcPartionner[2]
 
@@ -15101,7 +15985,7 @@ o1 = new stzString("12*34*56*78")
 
 		cCode = StzStringQ(pcPartionner).
 				SimplifyQ().
-				RemoveBoundsQ("{","}").
+				RemoveBoundsQ(["{","}"]).
 				ReplaceCSQ("@item", "@char", :CaseSensitive = FALSE).
 				Content()
 
@@ -15318,18 +16202,46 @@ o1 = new stzString("12*34*56*78")
 			off
 
 	  #---------------------------------------#
-	 #     PARTS OF THE STRING CLASSIFIED    # // TODO
+	 #     PARTS OF THE STRING CLASSIFIED    #
 	#---------------------------------------#
 
-	def PartsAsSubstringsClassified(pcPartionner)
-		// TODO
+	def PartsClassified(pcClassifier)
+		if isList(pcClassifier) and Q(pcClassifier).IsUsingNamedParam()
+			pcClassifier = pcClassifier[2]
+		ok
 
-	def PartsAsSubStringsAndSectionsClassified(pcPartionner)
-		// TODO
+		if NOT isString(pcClassifier)
+			steRaise("Incorrect param type! pcClassifier must be a string.")
+		ok
 
-	def PartsAsSectionsAndSubstringsClassified(pcPartionner)
-		// TODO
+		aResult = This.UniquePartsQ(pcClassifier).
+				ToStzHashList().
+				Classify()
 
+		return aResult
+
+		def Classified(pcClassifier)
+			return This.PartsClassified()
+
+		def Classify(pcClassifier)
+			return This.PartsClassified()
+
+	  #-------------------------------------------------------------#
+	 #  GETTINING THE PARTS OF STRING VERIFYING A GIVEN CONDITION  # TODO
+	#-------------------------------------------------------------#
+
+	def PartsW(pcCondition)
+		/* EXAMPLE
+
+		o1 = new stzString("Приве́т नमस्ते שָׁלוֹם")
+		? o1.PartsW('{
+			Q(@part).Script() = :Cyrillic
+		}')
+		#--> [ "Приве", "т" ]
+
+		*/
+
+		
 	  #=============================#
 	 #     DIVIDING THE STRING     #
 	#=============================#
@@ -16081,6 +16993,73 @@ o1 = new stzString("12*34*56*78")
 		cResult = This.RemoveBetweenQ(pcSubStr,pcBound1, pcBound2).Content()
 		return cResult
 
+	  #-------------------------------------------------------------------------#
+	 #  REMOVING ALL OCCURRENCES OF A SUBSTRING -- EXTENDED  #
+	#-------------------------------------------------------------------------#
+
+	def RemoveXTCS(pcSubStr, paOption, pCaseSensitive)
+		/*
+		EXAMPLE 1:
+
+		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+		o1.RemoveXT("noword", :Between = ["<<", ">>"])
+		? o1.Content()
+		#--> "bla bla <<word>> bla bla <<>> bla <<word>>"
+		
+		EXAMPLE 2
+
+		o1 = new stzString("")
+		o1.RemoveXT("word", :AtPosition = 3)
+
+		EXAMPLE 3
+
+		o1 = new stzString("")
+		o1.RemoveXT("word", :AtPositions = [ 3, 5 ])
+
+		
+		*/
+
+		if NOT isList(paOption)
+			stzRaise("Incorrect param type! paOption must be a list.")
+		ok
+
+		if Q(paOption).IsBetweenNamedParam()
+			paOption = paOption[2]
+
+			if NOT ( isList(paOption) and Q(paOption).IsPairOfStrings() )
+				stzRaise("Incorrect param type! paOption must be a pair of strings.")
+			ok
+
+			This.RemoveSubStringBetweenCS(pcsubStr, paOption[1], paOption[2], pCaseSensitive)
+
+		but Q(paOption).IsAtPositionNamedParam()
+			paOption = paOption[2]
+
+			if NOT isNumber(paOption)
+				stzRaise("Incorrect param type! paOption must be a number.")
+			ok
+
+			This.RemoveSubStringAtPositionCS(paOption, pcSubStr, pCaseSensitive)
+
+		but QQ(paOption).IsAtPositionsNamedParam()
+			paOption = paOption[2]
+
+			if NOT ( isList(paOption) and Q(paOption).IsListOfNumbers() )
+				stzRaise("Incorrect param type! paOption must be a list of numbers.")
+			ok
+
+			This.RemoveSubStringAtPositionsCS(paOption, pcSubStr, pCaseSensitive)
+
+		else
+			stzRaise("Incorrect param type! paOption must be a list of the form " +
+				 ":Between = ..., :AtPosition = ..., or :AtPositions = [...].")
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveXT(pcSubStr, paOption)
+		This.RemoveXTCS(pcSubStr, paOption, :CaseSensitive = TRUE)
+	
 	  #-----------------------------------------------------#
 	 #   REMOVING A SUBSTRING AT A SOME GIVEN POSITIONS    #
 	#-----------------------------------------------------#
@@ -16883,7 +17862,6 @@ o1 = new stzString("12*34*56*78")
 
 		# Checking the correctness of pcNewSubStr param
 
-
 		if isList(pcNewSubStrCopy) and Q(pcNewSubStrCopy).IsWithOrByNamedParam()
 
 			if pcNewSubStrCopy[1] = :With@ or pcNewSubStrCopy[1] = :By@
@@ -17069,7 +18047,7 @@ o1 = new stzString("12*34*56*78")
 
 		pcCondition = StzStringQ(pcCondition).
 				SimplifyQ().
-				ReplaceBoundsQ("{","}").
+				ReplaceBoundsQ(["{","}"]).
 				Content()
 
 		cCode = "bOk = ( " + pcCondition + " )"
@@ -18977,7 +19955,6 @@ o1 = new stzString("12*34*56*78")
 		def AlignToQC(cDirection)
 			return This.Copy().Align(cDirection)
 		
-
 	def Aligned(cDirection)
 		return This.Copy().AlignQ(cDirection).Content()
 
@@ -19663,28 +20640,6 @@ o1 = new stzString("12*34*56*78")
 		def IsLanguageCode()
 			return This.IsLanguageNumber()
 
-	def IsLanguageNumberXT()
-		/*
-		Returns :
-		[ TRUE/FALSE, :LanguageName ]
-		*/
-		if This.IsEmpty() { return FALSE }
-
-		bLangNumber = This.IsLanguageNumber()
-		cLang = :Nothing
-
-		if This.IsLanguageNumber()
-			oList = new stzList(LocaleLanguageNumbers())
-			if oList.Contains(This.String())
-				oLocale = new stzLocale(This.String())
-				cLang = oLocale.LanguageName()
-			ok
-
-		ok
-
-		return [ bLangNumber, cLang ]
-
-
 	def IsShortLanguageAbbreviation()
 		if This.IsEmpty() { return FALSE }
 
@@ -19758,23 +20713,22 @@ o1 = new stzString("12*34*56*78")
 	
 		return bResult
 
-	def IsLanguageAbbreviationXT()
-		/*
-		Returns :
-		[ TRUE, :Short ] or [ :TRUE, :Long ] or [ FALSE, NULL ]
-		*/
-		if This.IsEmpty() { return FALSE }
+	def LanguageAbbreviationForm()
 
-		bAbbr = This.IsLanguageAbbreviation()
-		ctype = :Nothing
+		if NOT This.IsLanguageAbbreviation()
+			cForm = :NotLanguage
+		
+		else
 
-		if This.IsLanguageShortAbbreviation()
-			cType = :Short
-		but This.IsLanguageLongAbbreviation()
-			cType = :Long
+			if This.IsLanguageShortAbbreviation()
+				cForm = :Short
+
+			but This.IsLanguageLongAbbreviation()
+				cForm = :Long
+			ok
 		ok
 
-		return [ bAbbr, cType ]
+		return cForm
 
 	def IsLanguageName() # In english
 
@@ -20079,6 +21033,9 @@ o1 = new stzString("12*34*56*78")
 		def IsANumberInAString()
 			return This.RepresentsDecimalNumber()
 
+		def RepresentsADecimalNumber()
+			return This.RepresentsDecimalNumber()
+
 	def RepresentsBinaryNumber()
 		oCopy = This.RemoveSpacesQ()
 
@@ -20090,6 +21047,9 @@ o1 = new stzString("12*34*56*78")
 		ok
 
 		def IsBinaryNumberInString()
+			return This.RepresentsBinaryNumber()
+
+		def RepresentsABinaryNumber()
 			return This.RepresentsBinaryNumber()
 
 	def RepresentsOctalNumber()
@@ -20105,6 +21065,9 @@ o1 = new stzString("12*34*56*78")
 		def IsOctalNumberInString()
 			return This.RepresentsOctalNumber()
 
+		def RepresentsAnOctalNumber()
+			return This.RepresentsOctalNumber()
+
 	def RepresentsHexNumber()
 		oCopy = This.RemoveSpacesQ()
 
@@ -20116,6 +21079,9 @@ o1 = new stzString("12*34*56*78")
 		ok
 
 		def IsHexNumberInString()
+			return This.RepresentsHexNumber()
+
+		def RepresentsAHexNumber()
 			return This.RepresentsHexNumber()
 
 	def RepresentsScientificNotationNumber()
@@ -20130,6 +21096,31 @@ o1 = new stzString("12*34*56*78")
 
 		def IsScientificNotationNumberInString()
 			return This.RepresentsScientificNotationNumber()
+
+		def RepresentsAScientificNotationNumber()
+			return This.RepresentsScientificNotationNumber()
+
+	def NumberForm()
+		if NOT This.RepresentsNumber()
+			return :NotNumber
+
+		else
+ 			if This.RepresentsNumberInDecimalForm()
+				return :Decimal
+
+		   	but This.RepresentsNumberInBinaryForm()
+				return :Binary
+
+		   	but This.RepresentsNumberInOctalForm()
+				return :Octal
+
+		   	but This.RepresentsNumberInHexForm()
+				return :Hex
+
+			but This.RepresentsNumberInScientificNotation()
+				return :ScientificNotation
+			ok
+		ok
 
 	def RepresentsNumber()
 
@@ -20150,7 +21141,13 @@ o1 = new stzString("12*34*56*78")
 
 		#< @FunctionAlternativeForms
 
+		def RepresentsANumber()
+			return This.RepresentsNumber()
+
 		def RepresentsNumberInString()
+			return This.RepresentsNumber()
+
+		def RepresentsANumberInString()
 			return This.RepresentsNumber()
 
 		#>
@@ -20164,6 +21161,9 @@ o1 = new stzString("12*34*56*78")
 			return FALSE
 		ok
 
+		def RepresentsASignedNumber()
+			return This.RepresentsSignedNumber()
+
 	def RepresentsUnsignedNumber()
 		if This.RepresentsNumber() and
 		   NOT (This.FirstChar() = "+" or This.FirstChar() = "-")
@@ -20171,7 +21171,10 @@ o1 = new stzString("12*34*56*78")
 			return TRUE
 		else
 			return FALSE
-		ok		
+		ok
+
+		def RepresentsAnUnsignedNumber()
+			return This.RepresentsUnsignedNumber()		
 
 	def RepresentsCalculableNumber() 
 
@@ -20194,12 +21197,18 @@ o1 = new stzString("12*34*56*78")
 		  MinCalculableNumber() and MaxCalculableNumber()
 		*/
 
+		def RepresentsACalculableNumber() 
+			return This.RepresentsCalculableNumber() 
+
 	def RepresentsInteger()
 		if This.RepresentsNumber() and This.ContainsNo(".")
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		def RepresentsAnInteger()
+			return This.RepresentsInteger()
 
 	def RepresentsSignedInteger()
 		if This.RepresentsInteger() and
@@ -20210,6 +21219,9 @@ o1 = new stzString("12*34*56*78")
 			return FALSE
 		ok
 
+		def RepresentsASignedInteger()
+			return This.RepresentsSignedInteger()
+
 	def RepresentsUnsignedInteger()
 		if This.RepresentsInteger() and
 		   NOT (This.FirstChar() = "+" or This.FirstChar() = "-")
@@ -20218,6 +21230,9 @@ o1 = new stzString("12*34*56*78")
 		else
 			return FALSE
 		ok
+
+		def RepresentsAnUnsignedInteger()
+			return This.RepresentsUnsignedInteger()
 
 	def RepresentsCalculableInteger()
 
@@ -20251,12 +21266,18 @@ o1 = new stzString("12*34*56*78")
 			return FALSE
 		ok
 
+		def RepresentsACalculableInteger()
+			return This.RepresentsCalculableInteger()
+
 	def RepresentsRealNumber()
 		if This.RepresentsNumber() and This.Contains(".")
 			return TRUE
 		else
 			return FALSE
-		ok		
+		ok
+
+		def RepresentsARealNumber()
+			return This.RepresentsRealNumber()		
 
 	def RepresentsSignedRealNumber()
 		if This.RepresentsRealNumber() and
@@ -20267,6 +21288,9 @@ o1 = new stzString("12*34*56*78")
 			return FALSE
 		ok
 
+		def RepresentsASignedRealNumber()
+			return This.RepresentsSignedRealNumber()		
+
 	def RepresentsUnsignedRealNumber()
 		if This.RepresentsRealNumber() and
 		   NOT (This.FirstChar() = "+" or This.FirstChar() = "-")
@@ -20275,6 +21299,9 @@ o1 = new stzString("12*34*56*78")
 		else
 			return FALSE
 		ok
+
+		def RepresentsAnUnsignedRealNumber()
+			return This.RepresentsUnsignedRealNumber()		
 
 	def RepresentsCalculableRealNumber()
 		
@@ -20320,6 +21347,9 @@ o1 = new stzString("12*34*56*78")
 		else
 			return FALSE
 		ok
+
+		def RepresentsACalculableRealNumber()
+			return This.RepresentsCalculableRealNumber()
 
 	def RepresentsNumberInDecimalForm()
 
@@ -20382,6 +21412,9 @@ o1 = new stzString("12*34*56*78")
 		# At this level, we can be sure the string is a decimal number
 
 		return TRUE
+
+		def RepresentsANumberInDecimalForm()
+			return This.RepresentsNumberInDecimalForm()
 
 	// Checks if the string corresponds to a binary number started by the
 	// prefix defined in BinaryNumberPrefix() and composed of 0s and 1s
@@ -20468,6 +21501,9 @@ o1 = new stzString("12*34*56*78")
 
 		return TRUE
 
+		def RepresentsANumberInBinaryForm()
+			return This.RepresentsNumberInBinaryForm()
+
 	// Checks if the string corresponds to a hex number form
 	def RepresentsNumberInHexForm()
 
@@ -20551,6 +21587,9 @@ o1 = new stzString("12*34*56*78")
 
 		return TRUE
 
+		def RepresentsANumberInHexForm()
+			return This.RepresentsNumberInHexForm()
+
 	def RepresentsNumberInUnicodeHexForm()
 		if NOT This.LeftNCharsQ(2).Uppercased() = "U+"
 			return FALSE
@@ -20567,6 +21606,9 @@ o1 = new stzString("12*34*56*78")
 		else
 			return FALSE
 		ok
+
+		def RepresentsANumberInUnicodeHexForm()
+			return This.RepresentsNumberInUnicodeHexForm()
 
 	// Checks if the string corresponds to an octal number
 	def RepresentsNumberInOctalForm()
@@ -20651,10 +21693,16 @@ o1 = new stzString("12*34*56*78")
 
 		return TRUE
 
+		def RepresentsANumberInOctalForm()
+			return This.RepresentsNumberInOctalForm()
+
 	def RepresentsNumberInScientificNotation()
 		// TODO
 
-	def StringIsNumberFraction() # of the form "1/2" or "۱/٢" or "Ⅰ/Ⅱ" or
+		def RepresentsANumberInScientificNotation()
+			return This.RepresentsNumberInScientificNotation()
+
+	def IsNumberFraction() # of the form "1/2" or "۱/٢" or "Ⅰ/Ⅱ" or
 					  # even "一/二" (in mandarin numerals)
 		bResult = FALSE
 
@@ -20667,6 +21715,15 @@ o1 = new stzString("12*34*56*78")
 				bResult = TRUE
 			ok
 		ok
+
+		def IsANumberFraction()
+			return This.IsNumberFraction()
+
+		def IsNumberFractionInString()
+			return This.IsNumberFraction()
+
+		def IsANumberFractionInString()
+			return This.IsNumberFraction()
 
 	  #==============#
 	 #    CHARS     #
@@ -21100,6 +22157,9 @@ o1 = new stzString("12*34*56*78")
 			return FALSE
 		ok
 
+	def IsCharName()
+		return StzunicodeDataQ().ContainsCharName( This.Uppercased() )
+
 	  #---------------------------#
 	 #   STRING MADE OF CHARS?   #
 	#---------------------------#
@@ -21224,6 +22284,9 @@ o1 = new stzString("12*34*56*78")
 
 		#< @FunctionFluentForm
 		
+		def NthCharQ(n)
+			return This.NthCharQR(n, :stzChar)
+
 		def NthCharQR(n, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
@@ -21237,9 +22300,6 @@ o1 = new stzString("12*34*56*78")
 			other
 				stzRaise("Unsupported return type!")
 			off
-
-		def NthCharQ(n)
-			return This.NthCharQR(n, :stzChar)
 
 		#>
 	
@@ -21560,12 +22620,41 @@ o1 = new stzString("12*34*56*78")
 			return FALSE
 		ok
 		
+		def IsALetter()
+			return This.IsLetter()
+
 		#< @FunctionNegativeForm
 
 		def IsNotLetter()
 			return NOT This.IsLetter()
 
 		#>
+
+	def IsLetterOf(pcOtherStr)
+		if This.IsLetter() and Q(pcOtherStr).ContainsLetter(This.Content())
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsALetterOf(pcOtherStr)
+			return This.IsLetterOf(pcOtherStr)
+
+	def Letters()
+		aResult = []
+		
+		for c in This.Chars()
+			if Q(c).IsALetter()
+				aResult + c
+			ok
+		next
+		return aResult
+
+		def LettersQ()
+			return new stzList( This.Letters() )
+
+	def UniqueLetters()
+		return This.LettersQ().DuplicatesRemoved()
 
 	  #------------------------------------------------------#
 	 #    STRING IS IN A COMPUTABLE FORM ("str" or 'str')   #
@@ -21871,6 +22960,7 @@ o1 = new stzString("12*34*56*78")
 			# to the stzListOfChars class
 
 			if paBoxOptions[ :EachChar ] = TRUE
+
 				return StzListOfCharsQ( This.String() ).BoxedXT(paBoxOptions)
 			ok
 
@@ -22082,6 +23172,7 @@ o1 = new stzString("12*34*56*78")
 	  #=============================================#
 	 #  MOVING CHAR AT POSITION N1 TO POSITION N2  #
 	#=============================================#
+	# TODO: Should be generalized to move hole substrings not only chars
 
 	def Move(n1, n2)
 
@@ -22160,6 +23251,7 @@ o1 = new stzString("12*34*56*78")
 	  #-----------------------------------------#
 	 #  SWAPPING CHARS AT TWO GIVEN POSITIONS  #
 	#-----------------------------------------#
+	# TODO: Should be generalized to swap two substrings not only chars
 
 	def Swap(n1, n2)
 		if isList(n1) and
@@ -22647,7 +23739,7 @@ o1 = new stzString("12*34*56*78")
 			@char = This[ nCurrentPosition ]
 			@i = nCurrentPosition
 
-			cCondition = StzStringQ(pcCondition[2]).TrimQ().RemoveBoundsQ("{","}").Content()
+			cCondition = StzStringQ(pcCondition[2]).TrimQ().RemoveBoundsQ(["{","}"]).Content()
 
 			cCode = "if " + cCondition + NL +
 				TAB + "exit" + NL +
@@ -22682,7 +23774,7 @@ o1 = new stzString("12*34*56*78")
 			@char = This[ nCurrentPosition ]
 			@i = nCurrentPosition
 
-			cCondition = StzStringQ(pcCondition[2]).TrimQ().RemoveBoundsQ("{","}").Content()
+			cCondition = StzStringQ(pcCondition[2]).TrimQ().RemoveBoundsQ(["{","}"]).Content()
 
 			cCode = "if " + cCondition + NL +
 				TAB + "exit" + NL +

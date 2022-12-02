@@ -1,3 +1,13 @@
+#---------------------------------------------------------------------------#
+# 		    SOFTANZA LIBRARY (V1.0) - STZLOCALE			    #
+#		An accelerative library for Ring applications		    #
+#---------------------------------------------------------------------------#
+#									    #
+# 	Description	: The class for managing locales in Softanza        #
+#	Version		: V1.0 (2020-2022)				    #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
+#									    #
+#---------------------------------------------------------------------------#
 
 /*
 Nice article about locales:
@@ -7,7 +17,7 @@ https://docs.oracle.com/cd/E19253-01/817-2521/overview-39/index.html
 func StzLocaleQ(p)
 	return new stzLocale(p)
 
-func IsQLocal(p)
+func IsQLocale(p)
 
 	if isObject(p) and classname(p) = "qlocale"
 		return TRUE
@@ -16,7 +26,7 @@ func IsQLocal(p)
 	ok
 
 	func IsQLocaleObject(p)
-		return IsQLocale()
+		return IsQLocale(p)
 
 func QLocaleToStzLocale(oQLocale)
 	return new stzLocale(oQLocale)
@@ -180,7 +190,7 @@ class stzLocale from stzObject
 
 		* a QLocale object instanciated from Qt using new QLocale()
 
-		* by providing a locale string ("ar_TN"), "ar_Arab_TN"
+		* by providing a locale string like "ar_TN" and "ar_Arab_TN"
 		  (dash"-" separator also accepted)
 
 		* by providing a [ :Language = ..., :Script = ..., Country = ... ]
@@ -188,7 +198,7 @@ class stzLocale from stzObject
 
 		* by specifying a C locale (by providing a "C" string)
 
-		* by specifying a system locale (by providing a :system string)
+		* by specifying a system locale (by providing a :System string)
 
 		* by scpecifying a default locale (by providing a :Default string)
 	*/
@@ -889,7 +899,9 @@ class stzLocale from stzObject
 	  #-----------------------#
 	 #   STRING UPPER CASE   #
 	#-----------------------#
-
+	# --? TODO: support the special cases documented in unicode here:
+	# http://unicode.org/Public/UNIDATA/SpecialCasing.txt
+	
 	def StringUppercased(pcStr)
 		return @oQLocale.toUPPER(pcStr)
 
@@ -933,14 +945,19 @@ class stzLocale from stzObject
 				# "in search of lost time" becomes
 				# "In Search Of Lost Time"
 
-				# TODO: Manage stops words that we should'nt titlize, like "of" here.
+				# TODO: Manage stop-words that we should'nt titlize, like "of" here.
 
 				anWordsPositions = StzTextQ(pcStr).WordsPositions()
 
-				cResult = StzStringQ(cStr).ReplaceCharsWQ(
-					:Where  = 'Q(@i).ExistsIn(' + ComputableForm(anWordsPositions) + ')',
-					:With@  = 'Q(@char).Uppercased()'
-				).Content()
+				oStr = new stzString(pcStr)
+				cResult = ""
+				for i = 1 to oStr.NumberOfChars()
+					if Q(i).ExistsIn(ComputableForm(anWordsPositions))
+						cResult += Q(oStr[i]).Uppercased()
+					else
+						cResult += oStr[i]
+					ok
+				next
 
 			else // Including  This.Language() = :French
 
@@ -970,7 +987,7 @@ class stzLocale from stzObject
 	 #   STRING FOLD CASE   #
 	#----------------------#
 
-	def StringFoldcased(pcStr) ///////////////////////////////////////////////
+	def StringFoldcased(pcStr)
 		// TODO
 
 		def ToFoldcase(pcStr)

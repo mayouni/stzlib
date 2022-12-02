@@ -8,7 +8,7 @@ class stzNaturalCode from stzString
 	@EndPoint
 
 	def Say(pcCode)
-		@cCode = StzStringQ(cCode).RemoveBoundsQ("{","}").Simplified()
+		@cCode = StzStringQ(cCode).RemoveBoundsQ(["{","}"]).Simplified()
 
 	def Code()
 		return @cCode
