@@ -10842,7 +10842,7 @@ class stzListOfStrings from stzList
 
 		if bDynamic
 			cDynamicExpr = StzStringQ(pcNewSubStr).TrimQ().
-					RemoveBoundsQ("{","}").Content()
+					RemoveBoundsQ(["{","}"]).Content()
 		ok
 
 		@SubString = pcSubStr

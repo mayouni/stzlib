@@ -1,7 +1,6 @@
 load "stzlib.ring"
 
-
-/*---------------
+/*-----------------
 
 ? SoftanzaLogo()
 /* --> 
@@ -1023,11 +1022,33 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 #--> [ [11, 14], [43, 46] ]
 
 /*-----------------
-*/
+/
 o1 = new stzString("my <<word>> and your <<word>>")
 ? o1.FindXT("word", :Between = [ "<<", ">>" ])
 #--> [6, 24]
 
+? o1.FindXT("word", :BoundedBy = [ "<<", ">>" ])
+#--> [6, 24]
+
+/*-----------------
+
+o1 = new stzString("my <<word>> and your <<word>>")
+? o1.FindBetween("word", "<<", ">>")
+#--> [6, 24]
+
+/*-----------------
+
+o1 = new stzString("my **word** and your **word**")
+
+? o1.FindBetween("word", "**", "**")
+#--> [6, 24]
+
+? o1.FindXT("word", :BoundedBy = "**")
+#--> [6, 24]
+
+/*-----------------
+
+o1 = new stzString("my <<word>> and your <<word>>")
 ? o1.FindXT("word", :StartingAt = 12)
 #--> [ 13 ]
 
@@ -1039,7 +1060,8 @@ o1 = new stzString("my <<word>> and your <<word>>")
 o1 = new stzString("12*♥*56*♥*")
 ? o1.FirstXT("♥", :BoundedBy = [ "*", "*"])
 #--> 4
-#? o1.FirstXT("♥", :BoundedBy = "*")
+
+? o1.FirstXT("♥", :BoundedBy = "*")
 #--> 4
 
 /*-----------------
@@ -1053,21 +1075,42 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
 
 ? @@S( o1.FindAnyBetween("<<",">>") )
 #--> [ 11, 28, 43 ]
-/*
+
 ? @@S( o1.FindAnySectionsBetween("<<",">>") )
 #--> [ [ 11, 14 ], [ 28, 33 ], [ 43, 49 ] ]
 
+/*-----------------
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
 o1.ReplaceAnyBetween("<<", ">>", :With = "word")
 ? o1.Content()  #--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
 
+/*-----------------
+
+o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 o1.RemoveBoundsOfSubString(["<<", ">>"], "word")
+? o1.Content()
+#--> "bla bla word bla bla word bla word"
+
+# or, mor naturally, you can say:
+
+o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
+o1.RemoveBoundsXT(["<<", ">>"], :Of = "word")
 ? o1.Content() #--> "bla bla word bla bla word bla word"
+#--> "bla bla word bla bla word bla word"
 
 /*------
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.ReplaceBetween("noword", "<<", ">>", :With = "word")
-? o1.Content()  # !--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
+? o1.Content()
+#--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
+
+# or, mor naturally, you can say:
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.ReplaceXT("noword", :Between = ["<<", ">>"], :With = "word")
+#--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
 
 /*------ 
 
@@ -1078,49 +1121,44 @@ o1.RemoveAnyBetween("<<", ">>")
 /*----------------
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.RemoveSubStringBetween("noword", "<<", ">>") # Short form RemoveBetween()
+o1.RemoveSubStringBetween("noword", "<<", ">>") # Short form of RemoveBetween()
+? o1.Content()
+#--> "bla bla <<word>> bla bla <<>> bla <<word>>"
+
+# Or, more naturally, you can say:
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.RemoveXT("noword", :Between = ["<<", ">>"])
 ? o1.Content()
 #--> "bla bla <<word>> bla bla <<>> bla <<word>>"
 
 /*-----------------
 
+# EXAMPLE 1:
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.RemoveXT("word", :Between = ["<<", ">>"])
+? o1.Content() + NL
+#--> bla bla <<>> bla bla <<noword>> bla <<>>
+		
+# EXAMPLE 2
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.RemoveXT("word", :AtPosition = 11)
+? o1.Content() + NL
+#--> bla bla <<>> bla bla <<noword>> bla <<>>
+
+# EXAMPLE 3
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.RemoveXT("word", :AtPositions = [ 11, 43 ])
+? o1.Content()
+#--> bla bla <<>> bla bla <<noword>> bla <<>>
+
+/*-----------------
+
 o1 = new stzString("<<Go!>>")
 ? o1.BoundsRemoved(["<<", ">>"]) # --> "Go!"
-
-/*------------------- TODO (future)
-
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.RemoveAnyBetweenXT("<<", ">>", [ :RemoveBounds = TRUE ])
-? o1.Content()  # !--> "bla bla  bla bla  bla "
-
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.RemoveAnyBetweenXT("<<", ">>", [ :RemoveBounds = TRUE, :Simplify = TRUE ])
-? o1.Content()  # !--> "bla bla bla bla bla "
-
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.RemoveAnyBetween@("<<", ">>", '{ @str = Q(@str).Remove("<<>>")Q.Simplied()}')
-? o1.Content()  # !--> "bla bla bla bla bla "
-
-/*================
-
-StzStringQ("MustHave@32@Chars") {
-	? NumberOfOccurrenceCS(:Of = "@", :CS = TRUE) #--> 2
-	? FindAll("@") #--> [9, 12]
-
-	? FindNext("@", :StartingAt = 5) #--> 9
-	? FindNextNth(2, "@", :StartingAt = 5) #--> 12
-
-	? FindPrevious("@", :StartingAt = 10) #--> 9
-	? FindPreviousNth(2, "@", :StartingAt = 12) #--> 9
-}
-
-/*================ Used to enable constraint-oriented programming
-
-o1 = new stzString("MustHave@32@CharsAnd@8@Spaces")
-? o1.SubstringsBetween("@","@") #--> ["32", "8" ]
-
-o1 = new stzString("MustHave32CharsAnd8Spaces")
-? @@( o1.SubstringsBetween("@","@") ) #--> [ ]
 
 /*=================
 
@@ -1218,73 +1256,6 @@ o1 = new stzString("<<word>>")
 # And also FirstBound() and LastBound() for general
 # use with left-to-right and right-toleft strings
 
-/*==================//////////////////////// REVIEW AFTER CONSTRAINT IMPLEMENTED
-
-aList = [
-	:Where = "file.ring",
-	:What  = "Describes what happend",
-	:Why   = "Describes why it happened",
-	:Todo  = "Posposes an action to do"
-]
-
-StzListQ(aList).IsRaiseNamedParam() # --> TRUE
-
-# Internally, StzList checks for a number of conditions
-
-StzListQ(aList) {
-	? NumberOfItems() <= 4 # --> TRUE
-	? IsHashList() # --> TRUE
-	? ToStzHashList().KeysQ().IsMadeOfSome([ :Where, :What, :Why, :Todo ]) # --> TRUE
-	? ToStzHashList().ValuesQ().AllItemsVerifyW("isString(@item) and @item != NULL") # --> TRUE
-}
-
-# In a better world, those conditions could be expressed as
-# constraints on the list object like this:
-
-StzListQ(aList) {
-	:MustHave@4@Items,
-	:MustBeAHashList,
-	:AKeyMustBeOneOfThese = [ :Where, :What, :Why, :Todo ],
-	:ValuesMustBeNonNullStrings
-}
-
-# To make it happen, those constraints should be defined once at
-# the global level, and then reused every where inside a stzList
-
-/*-----------------///////////// TODO - FUTURE ////////////////////////////////////////////
-
-# Constarints are defined at the global level and then reused every where
-# inside your softanza objects
-
-DefineConstraints([
-	:OnStzString = [
-		:MustBeUppercase 	= '{ Q(@str).IsUppercase() }',
-		:MustNotExceed@n@Chars 	= '{ Q(@str).NumberOfChars() <= n }',
-		:MustBeginWithLetter@c@	= '{ Q(@str).BeginsWithCS(c, :CS = FALSE) }'
-	],
-
-	:OnStzNumber = [
-		:MustBeStrictlyPositive = '{ @number > 0 }'
-	],
-
-	:OnStzList = [
-		:MustBeAHashList = '{ Q(@list).IsHashList() }'
-	]
-
-])
-
-# Let's use the constraints defined in a StzString object
-
-StzStringQ("SOFTANZA") {
-
-	EnforeConstraints([
-		:MustBeUppercase,
-		:MustNotExceed10Chars
-	])
-
-	? "Passed"
-}
-
 /*=================
 
 ? stzRaise("Simple error message!")
@@ -1299,7 +1270,7 @@ StzStringQ("SOFTANZA") {
 	:Todo 	= "Posposes an action to solve the error"
 ])
 
-# --> Line ... in file file.ring:
+# --> Line ... in file stzString.ring:
 #	  What : Describes what happend
 #	  Why  : Describes why it happened
 #	  Todo : Posposes an action to do
@@ -1307,8 +1278,8 @@ StzStringQ("SOFTANZA") {
 
 /*-----------------
 
-? IsTrue(:CaseSensitive = TRUE)
-? IsFalse(:CaseSensitive = FALSE)
+? Q(:CaseSensitive = TRUE).IsTrue()	#--> TRUE
+? Q(:CaseSensitive = FALSE).IsFalse()	#--> TRUE
 
 /*-----------------
 
@@ -1318,7 +1289,6 @@ o1 = new stzString("@str = Q(@str).Uppercased()")
 /*-----------------
 
 o1 = new stzString("Baba, Mama, and Dada")
-
 ? o1.ContainsOneOfTheseCS([ "Mom", "mama" ], :CaseSensitive = FALSE) # --> TRUE
 
 /*-----------------
@@ -1327,24 +1297,30 @@ StzStringQ('') {
 	UpdateFromURL("https://ring-lang.github.io/doc1.16/qt.html")
 	? Content()
 }
+#--> Returns the page content as HTML
 
 /*-----------------
 
 StzStringQ("ring is not the ring you ware but the ring you program with") {
-	? FindOccurrencesCS(:Of = "ring", :CS = FALSE)
+	? @@S( FindAllOccurrencesCS(:Of = "ring", :CS = FALSE) )
 	# --> [ 1, 17, 39 ]
 
-	? @@(FindSectionsCS(:Of = "ring", :CS = FALSE))
+	? @@S( FindSectionsCS(:Of = "ring", :CS = FALSE) )
 	#--> [ [ 1, 4 ], [ 17, 20 ], [ 39, 42 ] ]
+
+	? @@S( FindOccurrences([1, 3], :Of = "ring") )
+	#--> [1, 39]
+
+	? @@S( FindOccurrences([1, 3], :Of = "foo") )
+	#--> [ ]
 }
 
 /*-----------------
 
 StzStringQ("ring is not the ring you ware but the ring you program with") {
 
-	? NextNthOccurrence(1, :of = "ring", :startingat = 1) # --> 1
-
-	? NextNthOccurrence(2, :of = "ring", :startingat = 17) # --> 39
+	? NextNthOccurrence(1, :of = "ring", :startingat = 1)	#--> 1
+	? NextNthOccurrence(2, :of = "ring", :startingat = 17)	#--> 39
 
 }
 
@@ -1352,56 +1328,13 @@ StzStringQ("ring is not the ring you ware but the ring you program with") {
 
 StzStringQ("ring is not the ring you ware but the ring you program with") {
 
-	? FindNextOccurrences(:Of = "ring", :StartingAt = 12) # --> [ 18, 40 ]
+	? FindNextOccurrences(:Of = "ring", :StartingAt = 12)
+	#--> [ 18, 40 ]
 
-	? FindPreviousOccurrences(:Of = "ring", :StartingAt = 30) # --> [ 1, 17 ]
+	? FindPreviousOccurrences(:Of = "ring", :StartingAt = 30)
+	#--> [ 1, 17 ]
 
 }
-
-/*==================
-
-? StzStringQ("ABTCADNBBABEFACCC").VizFind("A")
-
-# --> Returns a string like this:
-
-#	"ABTCADNBBABEFACCC"
-#	 ^---^----^---^---
-
-/*-----------------
-
-o1 = new stzString("ABTCADNBBABEFACCC")
-? o1.VizFindXT("A", [ :Numbered = TRUE, :Spacified = TRUE, :PositionSign = Heart() ])
-
-# --> Returns a string like this:
-
-#    "A B T C A D N B B A B E F A C C C "
-#     ♥-------♥---------♥-------♥-------
-#     1       5         0       4
-
-/*----------------- (TODO)
-
-? StzStringQ("ABTCADNBBABEFAVCC").VizFindMany([ "A", "T", "V" ])
-
-# --> Returns a string like this:
-
-#	 "ABTCADNVBABEFLVCT"
-#  "A" :  ^-.-^--.-^----.-.
-#  "T" :  --^----.------.-^
-#  "V" :  -------^------^--
-#  "X" :  -----------------
-
-/*----------------- (TODO)
-
-? StzStringQ("ABTCADNBBABEFAVCC").VizFindManyXT("A")
-
-# --> Returns a string like this:
-
-#	  1..4..7..0..3..6.
-#	 "ABTCADNVBABEFLVCT"
-#  "A" :  ^-.-^--.-^----.-. (3)
-#  "T" :  --^----.------.-^ (2)
-#  "V" :  -------^------^-- (2)
-#  "X" :  ----------------- (0)
 
 /*======================
 
@@ -1411,10 +1344,10 @@ o1.ReplaceSubStringAtPosition(19, "♥♥♥", :With = "Ring")
 
 /*======================
 
-? Q("RINGO").HasCentralChar()		# --> TRUE
-? Q("RINGO").CentralChar()		# --> N
-? Q("RINGO").PositionOfCentralChar()	# --> 3
-? Q("RINGO").HasThisCharInTheCenter("N") # --> TRUE
+? Q("RINGO").HasCentralChar()		 #--> TRUE
+? Q("RINGO").CentralChar()		 #--> N
+? Q("RINGO").PositionOfCentralChar()	 #--> 3
+? Q("RINGO").HasThisCharInTheCenter("N") #--> TRUE
 
 /*----------------------
 
@@ -1427,37 +1360,35 @@ o1.ReplaceSubStringAtPosition(19, "♥♥♥", :With = "Ring")
 
 /*====================== WORKING WITH MARQUERS
 
-? StzStringQ("My name is #.").ContainsMarquers()  # --> FALSE
-? StzStringQ("My name is #0.").ContainsMarquers() # --> FALSE
-? StzStringQ("My name is #1.").ContainsMarquers() # --> TRUE
-? StzStringQ("My name is #01.").ContainsMarquers() # --> FALSE
+? StzStringQ("My name is #.").ContainsMarquers()   #--> FALSE
+? StzStringQ("My name is #0.").ContainsMarquers()  #!--> FALSE --> TODO: Correct this!
+? StzStringQ("My name is #1.").ContainsMarquers()  #--> TRUE
+? StzStringQ("My name is #01.").ContainsMarquers() #--> FALSE
 
 /*---------------------- 
 
 StzStringQ("My name is #1, my age is #2, and my job is #3.") {
-
 	? Marquers() # --> #1, #2, #3
 }
 
 StzStringQ("My name is #2, my age is #3, and my job is #1.") {
-
 	? Marquers() # --> #2, #3, #1
 }
 
-/*---------------------- 
+/*----------------------
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? @@( Marquers() )
+	? @@S( Marquers() )
 	# --> [ "#1", "#2", "#3", "#1" ]
 
-	? @@( MarquersPositions() ) # or FindMarquers()
+	? @@S( MarquersPositions() ) # or FindMarquers()
 	# --> [   12,   25,   44,   66 ]
 
-	? @@( MarquersAndPositions() )
+	? @@S( MarquersAndPositions() )
 	# --> [ "#1" = 12, "#2" = 25 , "#3" = 44, "#1" = 66 ]
 
-	? @@( MarquersAndPositionsXT() )
+	? @@S( MarquersAndPositionsXT() )
 	# --> [ "#1" = [12, 66], "#2" = [26], "#3" = [44] ]
 
 }
@@ -1467,7 +1398,6 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
 	? NumberOfMarquers()		#--> 4
-
 
 	? FirstMarquer()		# --> #1
 
@@ -1480,8 +1410,8 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 	
 	? FindLastMarquer()		# --> 66
 	# You can also say:
-	# 	? LastMarquerOccurrence()
-	# 	? LastMarquerPosition()
+	# ? LastMarquerOccurrence()
+	# ? LastMarquerPosition()
 
 }
 
@@ -1493,24 +1423,24 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 
 	? FindNthMarquer(2)		# --> 26
 	# You can also say:
-	# 	? NthMarquerOccurrence(2)
-	# 	? NthMarquerPosition(2)
+	# ? NthMarquerOccurrence(2)
+	# ? NthMarquerPosition(2)
 }
 
 /*---------------------- 
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? NextNthMarquer(2, :StartingAt = 14) # --> #3
+	? NextNthMarquer(2, :StartingAt = 14)		# --> #3
 	# Or you can say:
-	# 	? NthNextMarquer(2, :StartingAt = 14) # --> #3
+	# ? NthNextMarquer(2, :StartingAt = 14)
 
-	? FindNextNthMarquer(2, :StartingAt = 14) # --> 44
+	? FindNextNthMarquer(2, :StartingAt = 14)	# --> 44
 	# Or you can say:
-	# 	? NextNthMarquerOccurrence(2, :StartingAt = 14)	# --> 44
-	# 	? NthNextMarquerOccurrence(2, :StartingAt = 14)	# --> 44
-	# 	? NextNthMarquerPosition(2, :StartingAt = 14) 	# --> 44
-	# 	? NthNextMarquerPosition(2, :StartingAt = 14)	# --> 44
+	# ? NextNthMarquerOccurrence(2, :StartingAt = 14)
+	# ? NthNextMarquerOccurrence(2, :StartingAt = 14)
+	# ? NextNthMarquerPosition(2, :StartingAt = 14)
+	# ? NthNextMarquerPosition(2, :StartingAt = 14)
 
 }
 
@@ -1518,14 +1448,14 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? MarquersAndPositionsXT()
+	? @@S( MarquersAndPositionsXT() )
 	# --> # --> [ "#1" = [12, 66], "#2" = [26], "#3" = [44] ]
 
-	? FindMarquer("#1")  #--> [ 12, 66]
+	? @@S( FindMarquer("#1") ) #--> [ 12, 66]
 	# Or ? OccurrencesOfMarquer("#1")
 	
 
-	? @@( FindMarquer("#7") ) # --> []
+	? @@S( FindMarquer("#7") ) # --> []
 
 	? MarquerByPosition(66)	  # --> #1
 	? MarquerByPosition(44)   # --> #3
@@ -1550,21 +1480,21 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? NthPreviousMarquerPosition(1, :StartingAt = 50)	# --> 44
-	? @@( PreviousMarquerAndItsPosition(:StartingAt = 50) )	# --> [ "#3", 44 ]
+	? NthPreviousMarquerPosition(1, :StartingAt = 50)		# --> 44
+	? @@S( PreviousMarquerAndItsPosition(:StartingAt = 50) )	# --> [ "#3", 44 ]
 
 }
 
 /*---------------------- 
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
-	? @@( MarquersSections() ) + NL
+	? @@S( MarquersSections() ) + NL
 	# --> [ [ 12, 13 ], [ 26, 27 ], [ 44, 45 ], [ 66, 67 ] ]
 
-	? @@( MarquersAndSections() ) + NL
+	? @@S( MarquersAndSections() ) + NL
 	# --> [ [ "#1", [ 12, 13 ] ], [ "#2", [ 26, 27 ] ], [ "#3", [ 44, 45 ] ], [ "#1", [ 66, 67 ] ] ]
 
-	? @@( MarquersAndSectionsXT() )
+	? @@S( MarquersAndSectionsXT() )
 	# --> [ [ "#1", [ [ 12, 13 ], [ 66, 67 ] ] ], [ "#2", [ [ 26, 27 ] ] ], [ "#3", [ [ 44, 45 ] ] ] ]
 }
 
@@ -1638,17 +1568,17 @@ StzStringQ("The first candidate is #3, the second is #1, while the third is #2!"
 /*---------------------- 
 
 o1 = new stzString("My name is #2, may age is #1, and my job is #3.")
-? @@( o1.MarquersAndSectionsSortedInDescending() )
+? @@S( o1.MarquersAndSectionsSortedInDescending() )
 # --> [ [ "#3", [ 12, 13 ] ], [ "#2", [ 27, 28 ] ], [ "#1", [ 45, 46 ] ] ]
 
 /*---------------------- 
 
 StzStringQ("My name is #1, my age is #3, and my job is #2. Again: my name is #1!") {	
 
-	? @@( MarquersAndPositionsSortedInAscending() )
+	? @@S( MarquersAndPositionsSortedInAscending() )
 	#--> [ [ "#1", 12 ], [ "#1", 26 ], [ "#2", 44 ], [ "#3", 66 ] ]
 
-	? @@( MarquersAndSectionsSortedInAscending() )
+	? @@S( MarquersAndSectionsSortedInAscending() )
 	#--> [ [ "#1", [ 12, 13 ] ], [ "#1", [ 26, 27 ] ], [ "#2", [ 44, 45 ] ], [ "#3", [ 66, 67 ] ] ]
 }
 
@@ -1657,7 +1587,7 @@ StzStringQ("My name is #1, my age is #3, and my job is #2. Again: my name is #1!
 StzStringQ("The first candidate is #3, the second is #1, while the third is #2!") {
 
 	SortMarquersInAscending()
-	? Content()
+	? Content() + NL
 	# --> The first candidate is #1, the second is #2, while the third is #3!
 
 	SortMarquersInDescending()
@@ -1677,7 +1607,7 @@ o1.ReplaceSubstringsWithMarquersCS( [ "ring", "python", "ruby", "PHP" ], :CS = F
 ? o1.Content()
 # --> "#1 can be compared to #2, #3 and #4."
 
-/*----------------------
+/*=====================
 
 o1 = new stzString("BCAADDEFAGTILNXV")
 
@@ -1700,44 +1630,26 @@ o1 = new stzString("BCAADDEFAGTILNXV")
 ? Q("AAABCDDEFGILNTVX").IsSorted()	# --> TRUE
 ? Q("AAABCDDEFGILNTVX").SortingOrder()	# --> :Ascending
 
+? Q("XVTNLIGFEDDCBAAA").IsSorted()	# --> TRUE
 ? Q("XVTNLIGFEDDCBAAA").SortingOrder()	# --> :Descending
 
-/*----------------------
+/*=======================
 
 o1 = new stzString("My name is Mansour. What's your name please?")
-? o1.FindManyCS( [ "name", "your", "please" ], :CS = TRUE )
-
+? @@S( o1.FindManyCS( [ "name", "your", "please" ], :CS = TRUE ) )
 # --> [ [ 4, 33 ], [ 28 ], [ 38 ] ]
 
-/*----------------------
-
-o1 = new stzString("My name is Mansour. What's your name please?")
-? o1.FindMany( [ "name", "your", "please" ] )
-
+? @@S( o1.FindMany( [ "name", "your", "please" ] ) )
 # --> [ [ 4, 33 ], [ 28 ], [ 38 ] ]
 
-/*----------------------
-
-o1 = new stzString("My name is Mansour. What's your name please?")
-? o1.FindManyXT( [ "name", "your", "please" ], [ :CS = TRUE ] )
-
+? @@S( o1.FindManyXTCS( [ "name", "your", "please" ], :CS = TRUE ) )
 # --> [ "name" = [ 4, 33 ], "your" = [ 28 ], "please" = [ 38 ] ]
 
-/*----------------------
-
 o1 = new stzString("My name is Mansour. What's your name please?")
-? @@(o1.FindManyXT( [ "name", "nothing", "please" ], [ :CS = FALSE ] ))
-
+? @@S(o1.FindManyXT( [ "name", "nothing", "please" ] ))
 #--> [ [ "name", [ 4, 33 ] ], [ "nothing", [ ] ], [ "please", [ 38 ] ] ]
 
-/*----------------------
-
-o1 = new stzString("My name is Mansour. What's your name please?")
-? @@(o1.FindManyXT( [ "name", "nothing", "please" ], [ :CS = FALSE, :RemoveEmpty = TRUE ] ))
-
-#--> [ [ "name", [ 4, 33 ] ], [ "please", [ 38 ] ] ]
-
-/*----------------------
+/*====================
 
 # The "A":"E" syntax is a beautiful feature of Ring:
 
@@ -1760,10 +1672,17 @@ o1 = new stzString("My name is Mansour. What's your name please?")
 
 /*----------------------
 
-o1 = new stzString("I Work For My Tomorrow")
-? o1.RemoveCharQ(" ").Content() # --> IWorkForMyTomorrow
+o1 = new stzString("I Work For Afterward")
+? o1.RemoveCharQ(" ").Content() # --> IWorkForAfterward
 
-/*----------------------
+# Or you can say it more naturally:
+? Q("I Work For Afterward").CharRemoved(" ")
+# Or even more expressively:
+? Q("I Work For Afterward").WithoutSpaces()
+# Or if you prefer:
+? Q("I Work For Afterward").SpacesRemoved()
+
+/*======================
 
 ? StzStringQ("9876543210").Reversed()	# --> 0123456789
 
@@ -1777,13 +1696,13 @@ StzStringQ("73964532041") {
 /*----------------------
 
 ? StzStringQ("01233445679").IsSortedInAscending()	# --> TRUE
-? StzStringQ("01233445679").IsSortedInDescending()	# --> TRUE
+? StzStringQ("01233445679").IsSortedInDescending()	# --> FALSE
 
-/*----------------------
+/*======================
 
 ? StzStringQ("Arc").IsAnagramOfCS("car", :CS = FALSE)	#--> TRUE
 
-/*----------------------
+/*=====================
 
 o1 = new stzString("KALIDIA")
 o1.InsertBeforeW( '{ @char = "I" }', "*" )
@@ -1803,14 +1722,14 @@ StzStringQ("12500;NAME;10;0") {
 }
 
 /*=======================
-*/
+
 # One of the design goals of Softanza is to be as consitent as possible
 # in managing Strings and Lists. In other terms, What works for one,
 # should work for the other, preserving the same semantics.
 
 # To show this, the following code that plays with leading and trailing
 # chars in a string...
-/*
+
 StzStringQ( "***Ring++" ) {
 
 	? HasLeadingChars() # --> TRUE
@@ -1821,33 +1740,34 @@ StzStringQ( "***Ring++" ) {
 	? NumberOfTrailingChars() # 2
 	? @@( TrailingChars() ) # --> "++"
 
-	ReplaceRepeatedLeadingChars(:With = "+")
+	ReplaceLeadingChars(:With = "+")
 	? Content() # --> "+++Ring++"
 	
 	ReplaceLeadingAndTrailingChars(:With = "*")
 	? Content() # --> "***Ring**"
 }
 
-# works quiet the same with the items of this list: ERROR /////////////////////
+# works quiet the same with leading and trailing items items of this list:
 
 StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 
 	? HasLeadingItems() # --> TRUE
 	? NumberOfLeadingItems() # 3
-	? @@( LeadingItems() ) # --> [ "*", "*", "*" ]
+	? @@S( LeadingItems() ) # --> [ "*", "*", "*" ]
 	
 	? HasTrailingItems() # --> TRUE
 	? NumberOfTrailingItems() # 2
-	? @@( TrailingItems() ) # --> [ "+", "+" ]
+	? @@S( TrailingItems() ) # --> [ "+", "+" ]
 
-	ReplaceThisRepeatedLeadingItem("+")
-	? @@( Content() ) # --> [ "+", "+", "+", "R", "i", "n", "g", "+", "+" ]
+	ReplaceLeadingItems(:With = "+")
+	? @@S( Content() ) # --> [ "+", "+", "+", "R", "i", "n", "g", "+", "+" ]
 	
-	ReplaceLeadingAndTrailingItems("*")
-	? @@( Content() ) # --> [ "*", "*", "*", "R", "i", "n", "g", "*", "*" ]
+	ReplaceLeadingAndTrailingItems(:With = "*")
+	? @@S( Content() ) # --> [ "*", "*", "*", "R", "i", "n", "g", "*", "*" ]
 }
-/*
-# Note that this feature is sensitive to case of strings, so we can say:
+
+# Note that, as far as strings are concerned, this feature is sensitive to case,
+# so we can say:
 
 StzStringQ("eeEEeeTUNISeeEE") {
 
@@ -1871,7 +1791,8 @@ StzStringQ("eeEEeeTUNISeeEE") {
 
 }
 
-return
+# NOTE: Case sensitivity is supported in Lists with some functions. In the future
+# all functions wil be covered.
 
 /*=====================
 
@@ -1885,38 +1806,11 @@ o1 = new stzString( "----@@--@@-------@@----@@---")
 o1.ReplacePreviousNthOccurrence(2, :Of = "@@", :StartingAt = 22, :With = "##")
 ? o1.Content() # --> ----@@--##-------@@----@@---
 
-/*----------------------
-
-# Suppose you have this string containing data about some unicode chars
-# and having this structure:
-# HexCode	DecimalCode	CharName
-
-str = "
-0x005A	90	LATIN CAPITAL LETTER Z
-0x005B	91	LEFT SQUARE BRACKET
-0x005C	56	REVERSE SOLIDUS
-0x005D	93	RIGHT SQUARE BRACKET
-0x005E	94	CIRCUMFLEX ACCENT
-0x005F	95	LOW LINE
-"
-
-# You are asked to extract the decimal code of a given char name,
-# say "REVERSE SPLIDUS" for example
-
-# Here is the solution:
-
-o1 = new stzString(str)
-n = o1.FindFirst("REVERSE SOLIDUS")
-n2 = o1.PreviousOccurrence(:Of = TAB, :StartingAt = n) - 1
-n1 = o1.PreviousOccurrence(:Of = TAB, :StartingAt = n2) + 1
-
-? o1.Section(n1, n2) # --> 56
-
-/*----------------------
+/*======================
 
 ? Q("DIGIT ZERO").IsCharName()			#--> TRUE
 ? Q("LATIN CAPITAL LETTER O").IsCharName()	#--> TRUE
-? Q("JAVANESE PADA PISELEH").IsCharName()	// Fix this
+? Q("JAVANESE PADA PISELEH").IsCharName()	#--> TRUE
 
 /*----------------------
 
@@ -1926,9 +1820,9 @@ o1 = new stzString("ar_Arab_TN")
 /*--------------------- TODO: Retest after completing Split and revising stzLocale
 
 # The standard (ISO) form of a locale is <langauge>_<script>_<country> where:
-# 	-> <langauge> is an abbreviation of 2 or 3 lowercase letters
+# 	-> <language> is an abbreviation of 2 or 3 lowercase letters
 #	-> <script> is an abbreviation of 4 letters, the 1st beeing capitalised
-#	-> <country) is an abbreviation of 2 or 2 uppercase letters
+#	-> <country> is an abbreviation of 2 or 3 uppercase letters
 #
 #	Example: "ar_Arab_TN" is the locale form where:
 #	-> "ar" is the abbreviation of arabic language
@@ -1955,7 +1849,7 @@ o1 = new stzString("ar_Arab_TN")
 # a locale object, Softanza inferes the language from the script, and
 # constructs the hole standard-formed abbreviation for you:
 
-? StzLocaleQ("Arab_TN").Abbreviation()	# --> "ar_Arab_TN"
+? StzLocaleQ("Arab_TN").Abbreviation()	# --> "ar_Arab_TN"	TODO: Check it!
 # (as a side note, even if you don't respect standard lettercasing,
 # Softanza accepts your inputs, and returns an abbreviation that
 # is wellformed regarding to the standard!)
@@ -1964,7 +1858,7 @@ o1 = new stzString("ar_Arab_TN")
 # trying to induce Softanza in error by providing sutch an abbreviation
 # form <scrip>_<language>:
 
-? StzStringQ("arab_ar").IsLocaleAbbreviation()		# !--> FALSE
+? StzStringQ("arab_ar").IsLocaleAbbreviation()	#--> FALSE
 
 # The point is that the first abbreviation is a script ("arab" -> arabic),
 # and that, conforming to the standard, the second one must be an abbreviation
@@ -1979,14 +1873,14 @@ o1 = new stzString("ar_Arab_TN")
 # where arabic script is (historically) used in writtan turkish and persian
 # languages, than the abbreviation is accepted to be well formed
 
-? StzStringQ("arab_tk").IsLocaleAbbreviation()		# !--> TRUE
+? StzStringQ("arab_tk").IsLocaleAbbreviation()	# !--> TRUE	TODO: Check it!
 
 # And, therefore, you can use it to create locale object:
 
-? StzLocaleQ("arab_tk").Abbreviation()		# --> ar_Arab_TK
+? StzLocaleQ("arab_tk").Abbreviation()		# --> ar_Arab_TK	TODO: Check it!
 ? StzLocaleQ("ar_Arab_TK").CountryName()	# !--> :turkey NOT :Egypt
 
-/*--------------------
+/*=====================
 
 o1 = new stzString("ritekode")
 
@@ -2003,7 +1897,7 @@ o1 = new stzString("ritekode")
 
 # Here we take an example of a greek word
 
-? TQ("Σίσυφος").Script()		# --> greek
+? TQ("Σίσυφος").Script()	# --> greek
 ? Q("Σίσυφος").StringCase()	# --> capitalcase
 ? Q("ΣΊΣΥΦΟΣ").StringCase()	# --> uppercase
 ? Q("ΣΊΣΥΦΟΣ").Lowercased()	# --> σίσυφοσ
@@ -2018,15 +1912,17 @@ o1 = new stzString("ritekode")
 # Let's take this example of a turkish letter ı that should be
 # uppercased to İ and not I
 
-? TQ("ı").Script()	# latin (in fact this is a turk letter)
-? _@("ı").StringCase()	# lowercase
-? _@("İ").StringCase()	# uppercase
+? TQ("ı").Script()	# latin (in fact this is a turk letter) (TQ --> stzText object)
+? Q("ı").StringCase()	# lowercase
+? Q("İ").StringCase()	# uppercase
 
-/*-------------------- TODO: Retest after reviewing stzLocale
+/*--------------------
 
-? _@("ı").UppercasedInLocale("tr-TR")	# ERROR: --> I but !--> İ
-? _@("İ").Lowercased()	# i
-? _@("İ").LowercasedInLocale("tr-TR")	# ERROR: --> i but !--> ı
+# This sample shows a logical error in Qt unicode:
+
+? Q("ı").UppercasedInLocale("tr-TR")	# ERROR: --> I but !--> İ
+? Q("İ").Lowercased()	# i
+? Q("İ").LowercasedInLocale("tr-TR")	# ERROR: --> i but !--> ı
 
 # In fact, this is a logical bug in Qt as demonstrated here:
 
@@ -2037,7 +1933,6 @@ oQLocale = new QLocale("tr-TR")
 # described in this file:
 # http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 
-/*
 /*--------------------
 
 # Do you think "ê" and "ê" are the same?
@@ -2046,19 +1941,19 @@ oQLocale = new QLocale("tr-TR")
 
 # In fact, both Ring and Softanza know it:
 ? "ê" = "ê" 			# --> FALSE
-? _@("ê").IsEqualTo("ê")	# --> FALSE
+? Q("ê").IsEqualTo("ê")		# --> FALSE
 
-# and that's because:
-_@("ê") { ? NumberOfChars() ? Unicode() } # --> 1 char	Unicode: 234
+# and that's because ê is just one char:
+Q("ê") { ? NumberOfChars() ? Unicode() } # --> 1 char	Unicode: 234
 
-# while:
-_@("ê") { ? NumberOfChars() ? Unicode() } # --> 2 chars	Unicodes: 101, 770
+# while ê are two chars:
+Q("ê") { ? NumberOfChars() ? Unicode() } # --> 2 chars	Unicodes: 101, 770
 
 # And we can do even better by getting the names of the chars in every string
-? _@("ê").CharName() # --> So "ê" contains one char called:
+? Q("ê").CharName() # --> So "ê" contains one char called:
 		     #     'LATIN SMALL LETTER E WITH CIRCUMFLEX'
 
-? _@("ê").CharsNames() 	# --> while "ê" contains two chars called:
+? Q("ê").CharsNames() 	# --> while "ê" contains two chars called:
 			#   [ 'LATIN SMALL LETTER E', 'COMBINING CIRCUMFLEX ACCENT' ]
 
 # Combining characters is an advanced aspect of Unicode we are not going to delve
@@ -2070,16 +1965,15 @@ _@("ê") { ? NumberOfChars() ? Unicode() } # --> 2 chars	Unicodes: 101, 770
 # Let's take the example of the german letter ß that
 # should be uppercased to SS
 
-? _@("ß").CharCase() # lowercase
-? _@("ß").Uppercased() # --> SS
+? Q("ß").CharCase() # lowercase
+? Q("ß").Uppercased() # --> SS
 
 # Which is nice, and we can check it for a hole word
 ? StzStringQ("der fluß").Uppercased()	# --> DER FLUSS
 
 # Now, if we check the other way around :
-? _@("SS").Lowercased() # --> ss
+? Q("SS").Lowercased() # --> ss
 
-/*-------------------- TODO: Revist after fixing stzLocale
 
 # we don't get "ß", which is expected, because Softanza is running
 # at the default locale ("C" locale) and not the german locale.
@@ -2087,43 +1981,42 @@ _@("ê") { ? NumberOfChars() ? Unicode() } # --> 2 chars	Unicodes: 101, 770
 # Therefore, we need to tune the previous expression by sepecifying
 # the german locale ("ge-GE")
 
-? _@("SS").LowercasedInLocale("ge-GE") # !--> ß		ERROR --> ss
+? Q("SS").LowercasedInLocale("ge-GE") # !--> ß		LOGICAL ERROR IN QT --> ss
 
 /*--------------------
 
 ? StzStringQ("der fluß").Uppercased()	# --> DER FLUSS
 ? StzStringQ("der fluß").IsLowercase()	# --> TRUE
 
-/*-------------------- ERROR: Revist after fixing stzLocale
+/*-------------------- LOGICAL ERROR IN QT: Revist after fixing stzLocale
 
 ? Q("DER FLUSS").LowercasedInLocale("de-DE")
-
 ? Q("der fluß").IsLowercaseOfXT("DER FLUSS", :InLocale = "de-DE") # !--> TRUE
 
-/*-------------------- ERROR: Revist after fixing stzLocale
+/*--------------------
 
 StzStringQ("in search of lost time") {
-	? TitlecasedInLocale([ :Country = :United_States ])
+	? TitlecasedInLocale("en-US")
 	# --> In Search Of Lost Time
-	? CapitalisedInLocale([ :Country = :United_States ])
+	? CapitalisedInLocale("en-US")
 	# !--> In Search Of Lost Time
 }
 
 StzStringQ("à la recherche du temps perdu") {
-	? TitlecasedInLocale([ :Country = :France ])
+	? TitlecasedInLocale("fr-FR")
 	# --> À la recherche du temps perdu
-	? CapitalisedInLocale([ :Country = :France ])
+	? CapitalisedInLocale("fr-FR")
 	# !--> À la Recherche du Temps Perdu
 }
 
 /*--------------------
 
-? StzStringQ(:Arabic).IsScript()
-? StzStringQ(:Arabic).IsScriptName()
-? StzStringQ(:Arab).IsScriptAbbreviation()
-? StzStringQ("1").IsScriptCode()
+? StzStringQ(:Arabic).IsScript()		#--> TRUE
+? StzStringQ(:Arabic).IsScriptName()		#--> TRUE
+? StzStringQ(:Arab).IsScriptAbbreviation()	#--> TRUE
+? StzStringQ("1").IsScriptCode()		#--> TRUE
 
-/*--------------------
+/*====================
 
 o1 = new stzString("125.450")
 o1.RemoveNthChar(7)
@@ -2136,45 +2029,42 @@ o1 = new stzString("125.450")
 o1.RemoveW('{ @char = "2" }')
 ? o1.Content()	# --> "15.450"
 
-/*--------------------
+/*=====================
 
-? _("12.45600").@.ThisRepeatedTrailingCharRemoved("0")	# --> "12.456"
-
-/*--------------------
-
-o1 = new stzString("000122.12")
-
-? o1.HasRepeatedLeadingChars()		# --> TRUE
-? o1.RepeatedLeadingChars()		# --> "000"
-? o1.RepeatedLeadingCharsRemoved()	# --> "122.12"
+? Q("12.45600").ThisTrailingCharRemoved("0")	# --> "12.456"
 
 /*--------------------
 
 o1 = new stzString("000122.12")
 
-? o1.RepeatedLeadingChar()			# --> "0"
-? o1.ThisRepeatedLeadingCharRemoved("0")	# --> "122.12"
+? o1.HasLeadingChars()		# --> TRUE
+? o1.LeadingChars()		# --> "000"
+? o1.LeadingCharsRemoved()	# --> "122.12"
 
-? o1.ThisRepeatedLeadingCharRemoved("X")	# --> "000122.12"
+/*--------------------
+
+o1 = new stzString("000122.12")
+? o1.LeadingChar() # --> "0"
+
+o1.RemoveThisLeadingChar("0")
+? o1.Content()	# --> "122.12"
 
 /*--------------------
 
 o1 = new stzString("22.3450000")
 
-? o1.HasRepeatedTrailingChars()		# --> TRUE
-? o1.RepeatedTrailingChars()		# --> "0000"
-? o1.RepeatedTrailingCharsRemoved()	# --> "2.345"
+? o1.HasTrailingChars()		# --> TRUE
+? o1.TrailingChars()		# --> "0000"
+? o1.TrailingCharsRemoved()	# --> "22.345"
 
 /*--------------------
 
 o1 = new stzString("22.3450000")
 
-? o1.RepeatedTrailingChar()			# --> "2"
-? o1.ThisRepeatedTrailingCharRemoved("2")	# --> "22.345"
+? o1.TrailingChar()		# --> "0"
+? o1.TrailingCharsRemoved()	# --> "22.345"
 
-? o1.ThisRepeatedTrailingCharRemoved("X")	# --> "22.3450000"
-
-/*--------------------
+/*=====================
 
 o1 = new stzString("ABC")
 ? o1.FirstChar() # --> A
@@ -2215,18 +2105,21 @@ o1.RemoveFirstChar()
 /*--------------------
 
 o1 = new stzString("SOFTANZA IS AWSOME!")
-? o1.IsEqualTo("softanza is awsome!")		# --> FALSE
+? o1.IsEqualTo("softanza is awsome!")			#--> FALSE
+? o1.IsEqualToCS("softanza is awsome!", :CS = FALSE)	#--> TRUE
+? o1.IsUppercaseOf("softanza is awsome!")		#--> TRUE
 
-/*--------------------
+/*================= Quiet-Equality of two strings
 
 o1 = new stzString("SOFTANZA IS AWSOME!")
 # TODO: Check performance of IsQuietEqualTo() --> Root cause RemoveDiacritics()
 ? o1.IsQuietEqualTo("softanza is awsome!")	# --> TRUE
-? o1.IsQuietEqualTo("Softansa is aowsome!")	# --> TRUE
-? o1.IsQuietEqualTo("Softansa iis aowsome!")	# --> FALSE
+? o1.IsQuietEqualTo("Softansa is aowsome!")	# --> TRUE (we added an "o" to "awsome")
+? o1.IsQuietEqualTo("Softansa iis aowsome!")	# --> FALSE (we add "i" to "is" and "o" to "awsome")
 
 /*--------------------
 
+# Quiet-eqality is particularily useful in french where "énoncé" and "ÉNONCÉ" are the same:
 o1 = new stzString("énoncé")
 ? o1.IsEqualTo("enonce")	# --> FALSE
 ? o1.IsQuietEqualTo("enonce")	# --> TRUE
@@ -2234,14 +2127,17 @@ o1 = new stzString("énoncé")
 
 /*--------------------
 
+# We can adjust the ratio of QuitEquality by our selves (value between 0 and 1):
+
 o1 = new stzString("mahmoud fayed")
 ? o1.IsQuietEqualTo("Mahmood al-feiyed")	# --> FALSE
-? QuietEqualityRatio()	# --> 0.09
+? QuietEqualityRatio()	# --> 0.09 (default value)
 
+# If we need a more permissive quiet-eqality check, then we set it at a weaker value:
 SetQuietEqualityRatio(0.35)
 ? o1.IsQuietEqualTo("Mahmood al-feiyed")	# --> TRUE
 
-/*--------------------
+/*====================
 
 # Operators on stzString
 
@@ -2254,16 +2150,16 @@ o1 = new stzString("SOFTANZA")
 ? o1["A"]	# --> [ 5, 8 ]
 ? o1["NZA"]	# --> [ 6 ]
 
-# Getting occurrences ofchars verifying a given condition
-? o1[ '{ Q(@char).IsOneOfThese(["A", "T", "Z"]) }' ]	# --> [ 4, 5, 7, 8 ]
+# Getting occurrences of chars verifying a given condition
+? o1[ W('{ Q(@char).IsOneOfThese(["A", "T", "Z"]) }') ]	# --> [ 4, 5, 7, 8 ]
 
 # Comparing the string with other strings
 ? o1 = StringUppercase("softanza")	# --> TRUE
 
 # TODO: Complete the other operators when COMPARAISON methods are made in stzString
 
-/*--------------------
- 
+/*=================
+
 o1 = new stzString("{{{ Scope of Life }}}")
 ? o1.BeginsWith("{")
 ? o1.EndsWith("}")
@@ -2283,26 +2179,28 @@ o1 = new stzString(':name')
 
 o1 = new stzString("one two three four")
 o1.ReplaceAll( "two", "---")
-? o1.Content() # --> one --- three four
+? o1.Content()
+#--> "one --- three four"
 
 /*--------------------
 
 o1 = new stzString("one two three four")
 o1.ReplaceMany([ "two", "four" ], :By = "---")
-? o1.Content() # --> one --- three ---
+? o1.Content()
+#--> "one --- three ---"
 
-/*--------------------
+/*=====================
 
 o1 = new stzString("---Mio---Mio---Mio---Mio---")
-? o1.FindNthOccurrenceCS(3, "Mio", :CS = TRUE)	# --> 16
+? o1.FindNthOccurrenceCS(3, "Mio", :CS = TRUE)	#--> 16
 
 /*--------------------
 
 #		    1...5...9...3...7...1...5..
 o1 = new stzString("---Mio---Mio---Mio---Mio---")
-? o1.FindNextNthOccurrenceCS(1, "Mio", :StartingAt = 1, :CS = TRUE)  # --> 4
-? o1.FindNextNthOccurrenceCS(2, "Mio", :StartingAt = 7, :CS = TRUE)  # --> 16
-? o1.FindNextNthOccurrenceCS(1, "Mio", :StartingAt = 20, :CS = TRUE) # --> 22
+? o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 1)  # --> 4
+? o1.FindNextNthOccurrence(2, "Mio", :StartingAt = 7)  # --> 16
+? o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 20) # --> 22
 
 /*--------------------
 
@@ -2312,24 +2210,27 @@ o1 = new stzString("---Mio---Mio---Mio---Mio---")
 ? o1.NthPreviousOccurrence(2, "Mio", :StartingAt = 15)  # --> 4
 ? o1.NthPreviousOccurrence(4, "Mio", :StartingAt = 25)  # --> 4
 
-/*--------------------
-
-o1 = new stzString("amd[bmi]kmc[ddi]kc")
-? o1.SubStringsBetween("[","]") # --> [ "bmi", "ddi" ]
-
-/*--------------------
+/*=====================
 
 o1 = new stzString("216;TUNISIA;227;NIGER")
 ? o1.Section(5, o1.NextOccurrence( :Of = ";", :StartingAt = 5 ) - 1 ) #--> TUNISIA
 
-/*-------------------- ////////////// FIX IT //// or TODO in the future
+/*====================
 
-# ExtractBetween can't manage deep combinations like this
+o1 = new stzString("amd[bmi]kmc[ddi]kc")
+? o1.SubStringsBetween("[","]")
+#--> [ "bmi", "ddi" ]
+
+/*-------------------- ERROR: TODO in the future
+
+# SubStringsBetween can't manage DEEP combinations like this
 
 o1 = new StzString( '[ "A", "T", [ :hi, [ "deep1", [] ], :bye ], 5, obj1, "C", "A", obj2, "A", 2 ]' )
 ? o1.SubStringsBetween("[","]")
 
-/*--------------------
+ #!--> "A", "T", [ :hi, [ "deep1", [
+
+/*====================
 
 # In Softanza both n and N chars correspond to the letter "N"
 o1 = new stzString("Adoption of the plan B")
@@ -2340,13 +2241,20 @@ o1 = new stzString("Adoption of the plan B")
 o1 = new stzString("opsus amcKLMbmi findus")
 ? o1.FindBetween("KLM", "amc", "bmi") # --> 10
 
-/*--------------------
+/*====================
 
-StzStringQ("__和平__a__و") {
-	? ContainsLettersInScript(:Latin) 	# TRUE
-	? ContainsLettersInScript(:Arabic)	# TRUE
-	? ContainsLettersInScript(:Han)		# TRUE
-	? ContainsCharsInScript(:Common)	# TRUE
+StzStringQ("__b和平س__a__و") {
+	? ContainsLettersInScript(:Latin) 		# TRUE
+	? CharsW( ' Q(@char).IsLatin() ')		# [ "b", "a" ]
+
+	? ContainsLettersInScript(:Arabic)		# TRUE
+	? CharsW( ' Q(@char).IsArabic() ')		# [ "س", "و" ]
+
+	? ContainsLettersInScript(:Han)			# TRUE
+	? CharsW( ' StzCharQ(@char).IsHanScript() ')	# [ "和", "平" ]
+
+	? ContainsCharsInScript(:Common)		# TRUE
+	? CharsW( ' StzCharQ(@char).IsCommonScript() ')	# [ "_", "_", "_", "_", "_", "_" ]
 
 	# Note that if you say
 	? ContainsLettersInScript(:Common)	# or
@@ -2356,33 +2264,33 @@ StzStringQ("__和平__a__و") {
 	# to a knowan script.
 }
 
-/*--------------------
+/*====================
 
 # Case sensisitivity is considered only for latin letters
 
-? StzCharQ("9").IsLowercase() # FALSE
-? StzCharQ("9").IsUppercase() # FALSE
+? StzCharQ("9").IsLowercase() 		# FALSE
+? StzCharQ("9").IsUppercase() 		# FALSE
 
-? StzCharQ("ك").IsLowercase() # FALSE
-? StzCharQ("ك").IsUppercase() # FALSE
+? StzCharQ("ك").IsLowercase() 		# FALSE
+? StzCharQ("ك").IsUppercase() 		# FALSE
 
-? StzStringQ("120").IsLowercase() # FALSE
-? StzStringQ("120m").IsLowercase() # TRUE
-? StzStringQ("120M").IsUppercase() # TRUE
+? StzStringQ("120").IsLowercase() 	# FALSE
+? StzStringQ("120m").IsLowercase() 	# TRUE
+? StzStringQ("120M").IsUppercase() 	# TRUE
 
-? StzStringQ("كلام").IsLowercase() # FALSE
+? StzStringQ("كلام").IsLowercase() 	# FALSE
 
-/*--------------------
+/*====================
 
 ? StzStringQ("abcdef").ContainsNoOneOfThese([ "xy", "xyz", "mwb" ]) #--> TRUE
 
-/*--------------------
+/*====================
 
-? StzStringQ("tunis").Lowercased()	# tunis
-? StzStringQ("tunis").Uppercased()	# TUNIS
-? StzStringQ("tunis").Titlecased()	# Tunis
+? Q("tunis").Lowercased()	# tunis
+? Q("tunis").Uppercased()	# TUNIS
+? Q("tunis").Titlecased()	# Tunis
 
-//? StzStringQ("tunis").Foldcased()	# TODO
+//? Q("tunis").Foldcased()	# TODO
 
 /*--------------------
 
@@ -2392,7 +2300,7 @@ StzStringQ("__和平__a__و") {
 
 //? StzStringQ("tunis").IsFoldcased()	# TODO
 
-/*--------------------
+/*====================
 
 ? StringsAreEqualCS([ "abc","abc" ], :CaseSensitive = TRUE )	#--> TRUE
 ? StringsAreEqual([ "cbad", "cbad", "cbad" ])			#--> TRUE
@@ -2400,27 +2308,29 @@ StzStringQ("__和平__a__و") {
 ? BothStringsAreEqualCS("abc", "abc", :CaseSensitive = TRUE)	#--> TRUE
 ? BothStringsAreEqual("abc", "abc")				#--> TRUE
 
-/*--------------------
+/*====================
 
-? StzStringQ("NumberOf").Section(1, -3) #--> "Number"
-
-/*--------------------
-
-? _("HUSSEIN").@.ItemsW('{ _(@item).@.isLetter() }')
+? Q("HUSSEIN").ItemsW('{ Q(@item).isLetter() }')
 #--> [ "H","U","S","S","E","I","N" ]
 
-? _("HUSSEIN").@.NumberOfItemsW('{ _(@item).@.isLetter() }') #--> 7
+? Q("HUSSEIN").NumberOfItemsW('{ Q(@item).isLetter() }') #--> 7
 
 /*--------------------
 
-? _("H").@.IsLetterOf("HUSSEIN") #--> TRUE
+? Q("--A--B--").ContainsLetters()	#--> TRUE
+? Q("--A--B--").ContainsLetter("A")	#--> TRUE
+? Q("--A--B--").ContainsLetter("a")	#--> TRUE
+? Q("--A--B--").ContainsLetter("M")	#--> FALSE
 
-/*--------------------
+? Q("H").IsALetterOf("HUSSEIN") 	#--> TRUE
+? Q("h").IsALetterOf("HUSSEIN")		#--> TRUE
+
+/*=====================
 
 ? StzStringQ("SOFTANZA").CharsReversed() #--> AZNATFOS
 
-? StzStringQ(" softanza    natural coding   ").Simplified()
-#--> softanza natural coding
+? StzStringQ(" Softanza    Near-natural Programming   ").Simplified()
+#--> Softanza Near-natural Programming
 
 /*--------------------
 
@@ -2430,6 +2340,8 @@ StzStringQ("__和平__a__و") {
 ? TQ("ring").Script() # --> latin
 
 /*-------------------
+
+# Used internally bu the library in evaluating conditional code:
 
 ? StzStringQ('myfunc()').IsAlmostAFunctionCall()	#--> TRUE
 ? StzStringQ('my_func("name")').IsAlmostAFunctionCall()	#--> TRUE
@@ -2441,10 +2353,10 @@ StzStringQ("__和平__a__و") {
 ? LowercaseOf("B")		# --> b
 //? FoldcaseOf("sinus")		# !!! Undefined function
 
-/*-------------------
+/*===================
 
 # Are you confused between chars, bytes, unicodes (or unicode code points), and bytecodes?!
-# Here how Softanza can help you see them all in all clarity:
+# Here how Softanza can help you see them all in clarity:
 
 StzStringQ("s㊱m") {
 	? Chars()
@@ -2471,11 +2383,11 @@ StzStringQ("s㊱m") {
 	# --> [ [ "s", [ 115 ] ], [ "㊱", [ -29, -118, -79 ] ], [ "m", [ 109 ] ] ]
 }
 
-/*-------------------
+/*===================
 
 ? StzStringQ("sAlut").IsLowercase() #--> FALSE
 
-/*-------------------
+/*===================
 
 ? StzStringQ("@char___@char___@char").ReplaceAllQ("@char","@item").Content()
 # --> @item___@item___@item
@@ -2502,8 +2414,10 @@ StzStringQ("1a2b3c") {
 	? Content() #--> 1*2*3*
 }
 
+/*------------------- TODO: Fix erro when using :With@
+*
 StzStringQ("1a2b3c") {
-	ReplaceAllCharsW(
+	ReplaceCharsW(
 		:Where = '{ StzCharQ(@char).IsLetter() and StzCharQ(@char).isLowercase() }',
 		:With@  = '{ StzCharQ(@char).Uppercased() }'
 	)
@@ -2511,16 +2425,7 @@ StzStringQ("1a2b3c") {
 	? Content() #--> 112A32
 }
 
-StzStringQ("1a2b3c") {
-	ReplaceAllCharsW(
-		:Where = '{ _(@char).@.isLetter() and _(@char).@.IsLowercase() }',
-		:With@  = '{ _(@char).@.Uppercased() }'
-	)
-
-	? Content() #--> 112A32
-}
-
-/*--------------------
+/*====================
 
 ? StringInvert("LIFE") 	# --> ƎℲI⅂
 ? StringInvert("GAYA")	# --> Ɐ⅄Ɐ⅁
@@ -2544,87 +2449,44 @@ StzStringQ("1a2b3c") {
 ? "TELLAVIX (Y908$) -->"
 ? StzStringQ("TELLAVIX (Y908$)").Inverted()
 
-/*------------------
+/*==================
 
 o1 = new stzString("Ring Programming Language")
 ? o1.WalkBackwardW( :StartingAt = 12, :UntilBefore = '{ @char = " " }' ) # --> 5
 ? o1.WalkForewardW( :StartingAt =  6, :UntilBefore = '{ @char = "r" }' ) # --> 9
 
-/*------------------
+/*==================
 
 ? StzTextQ("abc سلام abc").ContainsScript(:Arabic)	#--> TRUE
 ? StzTextQ("abc سلام abc").ContainsArabicScript()	#--> TRUE
 # NOTE: Scripts are now moved from stzString to stzText
 
-/*------------------
+# You can use this short form instead of StzTextQ()
+? TQ("سلام").Script() #--> :Arabic
+
+/*==================
 
 ? StzStringQ("évènement").ReplaceNthCharQ(3, "*").Content()		#--> év*nement
 ? StzStringQ("évènement").ReplaceNthCharQ(3, :With = "*").Content()	#--> év*nement
 
-/*------------------
+/*==================
 
 StzStringQ("original text before hashing") {
 	Hash(:MD5)
 	? Content() #--> 8ffad81de2e13a7b68c7858e4d60e263
 }
 
-/*-------------------
+/*==================
 
 ? StzStringQ("ring").StringCase() # --> :Lowercase
 ? StzStringQ("RING").StringCase() # --> :Uppercase
-
-/*------------- TODO: Error: fix it
-
-? StzStringQ("Ring And Php").StringCase() # --> :Titlecase ///////////////////////
-
-/*-----------------
-
-StzStringQ( "Text processing with Ring" ) {
-
-	ReplaceAllCharsW(
-		:Where = '{ @char = "i" }',
-		:With = "*"
-	)
-
-	? Content() #--> Text process*ng w*th R*ng
-}
-
-/*-----------------
-
-o1 = new stzString("A la recherche du temps perdu")
-? o1.Titlecased() #--> A la recherche du temps perdu
-
-/*-----------------//////////////////////// TODO: Fix stzLocale and then retest
-
-o1 = new stzString("Der Fluß")
-? o1.Lowercased() # --> der fluß
-? o1.LowercasedInLocale([ :Language = :German ]) # --> Should give fluss
-#? o1.CaseFolded()
-
-# --? TODO: support the special cases documented in unicode here:
-# http://unicode.org/Public/UNIDATA/SpecialCasing.txt
-
-/*----------------- FIX THIS : Revisit this after completing stzWalker ///////////////////
-
-// WalkUntil has not same output in stzString and stzList!
-
-# In stzString only the last position is returned
-
-? StzStringQ("size()").WalkUntil('@char = "("') # --> 4
-? StzStringQ("size()").WalkUntil('@char = "*"') # --> 0
-
-# In stzList all the walked positions are returned
-
-StzListQ([ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]) {
-	? WalkUntil("@item = 'D'") # --> 1:5
-	? WalkUntil('@item = "x"') # --> 0
-}
+? StzStringQ("RING and python").StringCase() # --> :hybridcase
 
 /*========== STRING PARTS ===========
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 
-? @@(o1.PartsAsSubstrings( :Using = 'StzCharQ(@char).CharCase()' ))	# or simply o1.Parts('StzCharQ(@char)')
+? @@S(o1.PartsAsSubstrings( :Using = 'StzCharQ(@char).CharCase()' )) # or simply o1.Parts('StzCharQ(@char)')
 # [
 # 	[ "H", "uppercase" ],
 # 	[ "anine", "lowercase" ],
@@ -2642,8 +2504,11 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 # 	[ "girl", "lowercase" ],
 # 	[ "!", NULL ]
 # ]
-/*
-? @@(o1.PartsAsSections( :Using = 'StzCharQ(@char).CharCase()' ))
+
+/*-----------------
+
+o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
+? @@S(o1.PartsAsSections( :Using = 'StzCharQ(@char).CharCase()' ))
 
 #--> [
 # 	[ [ 1, 1 ], 	"uppercase" 	],
@@ -2663,7 +2528,10 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 # 	[ [ 58, 58 ], 	NULL 		]
 #    ]
 
-? @@( o1.PartsAsSubstringsAndSections( :Using = 'StzCharQ(@char).CharCase()' ) )
+/*-----------------
+
+o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
+? @@S( o1.PartsAsSubstringsAndSections( :Using = 'StzCharQ(@char).CharCase()' ) )
 
 #-->
 # [ 	
@@ -2684,7 +2552,10 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 # 	[ "!", 				[ 58, 58 ], 	NULL		]
 # ]
 
-? @@( o1.PartsAsSectionsAndSubstrings( :Using = 'StzCharQ(@char).CharCase()' ) )
+/*-----------------
+
+o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
+? @@S( o1.PartsAsSectionsAndSubstrings( :Using = 'StzCharQ(@char).CharCase()' ) )
 
 #-->
 # [ 	
@@ -2705,15 +2576,24 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 # 	[ [ 58, 58 ],	"!", 			NULL		]
 # ]
 
-//? o1.PartsClassified( :Using = 'StzCharQ(@char)' )  # TODO
+/*-----------------
+
+o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
+? @@S( o1.PartsClassified( :Using = 'StzCharQ(@char).Script()' ) )
+
+# --> [
+#	:latin	 	= [ "Hanine", "is", "a", "nice", "years", "old", "girl" ],
+#	:common		= [ " ", " 7 ", "-", "!" ],
+#	:arabic		= [ "حنين", "جميلة", "وعمرها", "سنوات" ],
+#     ]
+
+# Alternatives ti PartsClassified(): Classify() and Classified()
 
 /*-----------------
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 
-? @@( o1.Parts('{
-	StzCharQ(@char).Script()
-}') )
+? @@S( o1.Parts('{ StzCharQ(@char).Script() }') )
 
 #--> [
 #	[ "Hanine", "latin" 	],
@@ -2740,8 +2620,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 #	[ "!", "common" 	]
 #    ]
 
-
-/*---
+/*-----------------
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 ? o1.UniquePartsQ('StzCharQ(@char).Script()').ToStzHashList().Classify()
@@ -2822,29 +2701,15 @@ o1 = new stzString("Abc285XY&من")
 
 /*========================
 
-StzStringQ( "Text processing with Ring" ) {
-
-	ReplaceAllCharsW(
-		:Where = '{ @char = "i" }',
-		:With = "*"
-	)
-
-	? Content() #--> Text process*ng *ith*Ring
-}
-
-/*---------------
-
 o1 = new stzString("Use these two letters: س and ص.")
-
 o1.ReplaceAllChars( :With = "*" )
-
 ? o1.Content()
 #--> *******************************
 
-/*---------------
+/*================
 
 o1 = new stzString("Use these two letters: س and ص.")
-? o1.FindAllCharsW(
+? o1.FindCharsW(
 	:Where = '{
 		StzCharQ(@char).IsLetter() AND
 		NOT StzCharQ(@Char).IsLatinLetter()
@@ -2860,10 +2725,10 @@ o1 = new stzString("Use these two letters: س and ص.")
 )
 #--> Gives [ "س", "ص" ]
 
-/*---------------
+/*================
 
 o1 = new stzString("Use these two letters: س and ص.")
-o1.ReplaceAllCharsW(
+o1.ReplaceCharsW(
 
 	:Where = '{
 		StzCharQ(@char).IsLetter() AND
@@ -2876,12 +2741,12 @@ o1.ReplaceAllCharsW(
 ? o1.Content()
 #--> "Use these two letters: *** and ***."
 
-/*---------------
+/*================
 
 ? StzCharQ(":").IsPunctuation()	#--> TRUE
 ? StzCharQ(":").CharType() 	#--> punctuation_other
 
-/*---------------
+/*================
 
 o1 = new stzString("Use these two letters: س , ص.")
 
@@ -2898,23 +2763,23 @@ o1.RemoveCharsWhereQ('{
 
 o1 = new stzString("Use these two letters: س and ص.")
 
-o1.ReplaceAllCharsWhere(
+o1.ReplaceCharsWhere(
 	:Where = '{ @char != " " and StzCharQ(@Char).IsArabicLetter() }',
 	:With = "*"
 )
 
 ? o1.Content() #--> "Use these two letters: * and *."
 
-/*---------------
+/*===============
 
 ? StzCharQ("س").Name() #--> ARABIC LETTER SEEN
 ? StzCharQ("ص").Name() #--> ARABIC LETTER SAD
 
-/*---------------
+/*--------------- TODO: Fix Error when using :With@
 
 o1 = new stzString("Use these two letters: س and ص.")
 
-o1.ReplaceAllCharsWhere(
+o1.ReplaceCharsW(
 	:Where = '{ @char != " " and StzCharQ(@Char).IsArabicLetter() }',
 	:With@ = 'StzCharQ(@char).Name()'
 )
@@ -2922,38 +2787,34 @@ o1.ReplaceAllCharsWhere(
 ? o1.Content()
 #--> "Use these two letters: LATIN CAPITAL LETTER U and LATIN SMALL LETTER S."
 
-/*--------------
+/*==============
 
 o1 = new stzString("SoftAnza Libraray")
-
-? o1.CountCharsWhere('{
-	@Char = "a"
-}') # --> Gives 3
-
-? o1.CountCharsWhere('{
-	Q(@Char).IsEqualToCS("a", :CS = FALSE)
-}') # --> Gives 4
+? o1.CountCharsWhere('{ @Char = "a" }') #--> 3
+? o1.CountCharsWhere('{	Q(@Char).IsEqualToCS("a", :CS = FALSE) }') #--> 4
 
 /*--------------
 
 o1 = new stzString("SoftAnza Libraray")
-? o1.FindAllCharsWhere('{ StzCharQ(@Char).Lowercased() = "a" }')
+? o1.FindCharsWhere('{ StzCharQ(@Char).Lowercased() = "a" }')
 # --> Gives [ 5, 8, 14, 16 ]
 
 /*---------------
 
 o1 = new stzString("12")
-? o1.Listify()  #--> [ "12" ]
+? @@S( o1.Listify() )
+#--> [ "12" ]
 
-? o1.ListifyXT([
+? @@S( o1.ListifyXT([
 	:NumberInStringIsTransformedToNumber = TRUE
-])
+]) )
 #--> Returns [ 12 ]
 
-/*--------------- // TODO: Retest after completing Split() ///////////////////
+/*---------------
 
 o1 = new stzString("abc;123;gafsa;ykj")
 ? o1.SplitQ(";").NthItem(3)
+#--> gafsa
 
 # Same as:
 ? o1.NthSubstringAfterSplittingStringUsing(3, ";") #--> gafsa
@@ -2983,7 +2844,7 @@ StzStringQ("RING") {
 	? BoxedRoundDashed()
 
 	? EachCharBoxed()
-	//? VizFindBoxed("I")	#--> TODO: Add VizFindBoxed()
+	# ? VizFindBoxed("I")	#--> TODO: Add VizFindBoxed()
 }
 
 #--> RING
@@ -3010,7 +2871,7 @@ StzStringQ("MY BEAUTIFUL RING") {
 	? Boxed()
 	? BoxedRound()
 
-	// ? BoxedEachChar()		# TODO: Add it
+	//? BoxedEachChar()		# TODO: Add it
 	// ? BoxedEachCharRound()	# TODO: Add it
 
 	// ? VizFindBoxed("I")	# TODO: Add it
@@ -3054,35 +2915,37 @@ StzStringQ("MY BEAUTIFUL RING") {
 	:Width = 20,
 	:TextAdjustedTo = :Center
 ])
+#-->
+# ╭────────────────────╮
+# │ PARIS              │
+# ╰────────────────────╯
 
 ? StzStringQ("PARIS").BoxedXT([
 	:AllCorners = :Round,
 	:Width = 20,
 	:TextAdjustedTo = :Left
 ])
+#-->
+# ╭────────────────────╮
+# │       PARIS        │
+# ╰────────────────────╯
 
 ? StzStringQ("PARIS").BoxedXT([
 	:AllCorners = :Round,
 	:Width = 20,
 	:TextAdjustedTo = :Right
 ])
+#-->
+# ╭────────────────────╮
+# │ P    A   R   I   S │
+# ╰────────────────────╯
 
 ? StzStringQ("PARIS").BoxedXT([
 	:AllCorners = :Round,
 	:Width = 20,
 	:TextAdjustedTo = :Justified
 ])
-
 #-->
-# ╭────────────────────╮
-# │ PARIS              │
-# ╰────────────────────╯
-# ╭────────────────────╮
-# │       PARIS        │
-# ╰────────────────────╯
-# ╭────────────────────╮
-# │ P    A   R   I   S │
-# ╰────────────────────╯
 # ╭────────────────────╮
 # │              PARIS │
 # ╰────────────────────╯
@@ -3090,24 +2953,24 @@ StzStringQ("MY BEAUTIFUL RING") {
 /*---------------------
 
 # You can box the entire string like this:
-? StzStringQ("RINGORIALAND").BoxedXT([])
+? StzStringQ("SOFTANZA").BoxedXT([])
 #-->
-# ┌──────────────┐
-# │ RINGORIALAND │
-# └──────────────┘
+# ┌──────────┐
+# │ SOFTANZA │
+# └──────────┘
 
 # Or box it char by char like this:
 
-? StzStringQ("RINGORIALAND").BoxedXT([ :EachChar = TRUE ])
+? StzStringQ("SOFTANZA").BoxedXT([ :EachChar = TRUE ])
 
 # -->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-# │ R │ I │ N │ G │ O │ R │ I │ A │ L │ A │ N │ D │
-# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
+# ┌───┬───┬───┬───┬───┬───┬───┬───┐
+# │ S │ O │ F │ T │ A │ N │ Z │ A │
+# └───┴───┴───┴───┴───┴───┴───┴───┘
 
-/*---------------------
+/*--------------------- TODO
 
-# Boxing work great for latin chars, but for latin chars,
+# Boxing work great for latin chars, but for non latin chars,
 # it would break:
 
 ? StzStringQ("乇乂丅尺卂 丅卄工匚匚").BoxedXT([
@@ -3122,9 +2985,9 @@ StzStringQ("MY BEAUTIFUL RING") {
 # └╌╌╌╌╌╌╌╌╌╌╌╌╌┘
 
 # That is because chars in non-latin script won't have necessarily
-# same width. In fact, this is related to the font used to render()
+# same width. In fact, this is related to the font used to render
 # the chars on the screen. Hence, if you use a fixed-width font,
-# the boxing will work correclt (TODO: check this!).
+# the boxing will work correclty (TODO: check this!).
 
 # As a configuration option that helps in solving this issue (without
 # switching ta a fixed-width font, Softanza provide the width option
@@ -3134,13 +2997,14 @@ StzStringQ("MY BEAUTIFUL RING") {
 	:Line = :Dashed,
 	:AllCorners = :Rectangular,
 
-	:Width = 25,
+	:Width = 15,
 	:TextAdjustedTo = :Center
 ])
 #--> TODO: Fix the output to return this
 # ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
 # ┊ 乇乂丅尺卂 丅卄工匚匚 ┊
 # └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+
 
 /*==================
 
@@ -3191,7 +3055,7 @@ StzStringQ("What a tutorial! Very instructive tutorial.") {
 
 	? NumberOfChars() + NL #--> 43
 	 
-	? @@( SplitToPartsOfNChars(12) )
+	? @@S( SplitToPartsOfNChars(12) ) + NL
 	#--> [
 	# 	"What a tutor",
 	# 	"ial! Very in",
@@ -3199,22 +3063,14 @@ StzStringQ("What a tutorial! Very instructive tutorial.") {
 	# 	"torial."
 	#    ]
 
-	? @@( SplitToPartsOfNCharsXT(12, :Direction = :Backward) )
-	#--> [
-	# 	"ve tutorial.",
-	# 	"ry instructi",
-	# 	"tutorial! Ve",
-	# 	"What a "
-	#    ]
-
-	? @@( SplitBeforePositions([ 17, 34 ]) )
+	? @@S( SplitBeforePositions([ 17, 34 ]) ) + NL
 	#--> [
 	# 	"What a tutorial!",
 	# 	" Very instructive",
 	# 	" tutorial."
 	#    ]
 
-	? @@( SplitBeforeW(' @char = "a" ') )
+	? @@S( SplitBeforeW(' @char = "a" ') ) + NL
 	# --> [
 	# 	"Wh", "at ", "a tutori",
 	# 	"al! Very instructive tutori", "al."
@@ -3222,39 +3078,7 @@ StzStringQ("What a tutorial! Very instructive tutorial.") {
 
 }
 
-/*==================
-
-str = "   سلام"
-o1 = new stzString(str)
-
-? o1.HasRepeatedLeadingChars()		#--> TRUE
-? @@( o1.RepeatedLeadingChar() )	#--> " "
-o1.TrimRight() ? o1.Content()		#--> سلام
-
-/*------------------
-
-o1 = new stzString("eeeTUNIS") # 	
-? o1.RepeatedLeadingChar() # --> 'e'
-? o1.RepeatedLeadingChars() # --> 'eee'
-
-/*------------------
-
-o1 = new stzString("exeeeeeTUNIS") # 	
-? @@( o1.RepeatedLeadingChar() )	# --> ""
-? @@( o1.RepeatedLeadingChars() )	# --> ""
-
-/*-------------------
-
-o1 = new stzString(" same   ")
-o1 {
-	TrimLeft()
-	? @@( Content() ) #--> "same   "
-}
-
-# Try also: TrimRight(), TrimStart(), TrimEnd()
-# RemoveLeadingSpaces(), and RemoveTrailingSpaces
-
-/*------------------------ TODO: Fix performance issue!
+/*===================
 
 str = "قَالُوا ادْعُ لَنَا رَبَّكَ يُبَيِّن لَّنَا مَا هِيَ إِنَّ الْبَقَرَ 
 تَشَابَهَ عَلَيْنَا وَإِنَّا إِن شَاءَ اللَّهُ لَمُهْتَدُونَ (70)
@@ -3277,24 +3101,55 @@ str = "قَالُوا ادْعُ لَنَا رَبَّكَ يُبَيِّن لّ
 "
 
 o1 = new stzString(str)
-//? o1.ToSetOfChars()
-? o1.UniqueLettersXT([ :ManageArabicShaddah = TRUE ])
-//? o1.UniqueLetters()
+? o1.UniqueChars()
+? o1.Split(:Using = "۞")
+
+/*-------------------
+
+o1 = new stzString(" same   ")
+o1 {
+	TrimLeft()
+	? @@( Content() ) #--> "same   "
+}
+
+# Try also: TrimRight(), TrimStart(), TrimEnd()
+# RemoveLeadingSpaces(), and RemoveTrailingSpaces
+
+/*==================
+
+str = "   سلام"
+o1 = new stzString(str)
+
+? o1.HasRepeatedLeadingChars()		#--> TRUE
+? @@( o1.RepeatedLeadingChar() )	#--> " "
+o1.TrimRight() ? o1.Content()		#--> سلام
+
+/*------------------
+
+o1 = new stzString("eeeTUNIS")	
+? o1.RepeatedLeadingChar() #--> 'e'
+? o1.RepeatedLeadingChars() #--> 'eee'
+
+/*------------------
+
+o1 = new stzString("exeeeeeTUNIS") # 	
+? @@( o1.RepeatedLeadingChar() )	#--> ""
+? @@( o1.RepeatedLeadingChars() )	#--> ""
 
 /*----------------
 
 o1 = new stzString("eeeeTUNISIAiiiii")
 
 o1 {
-	? HasRepeatedLeadingChars()
-	? NumberOfRepeatedLeadingChars()
-	? RepeatedLeadingchars()
-	? RepeatedLeadingCharsQ().Content() + NL
+	? HasRepeatedLeadingChars()			#--> TRUE
+	? NumberOfRepeatedLeadingChars()		#--> 4
+	? RepeatedLeadingchars()			#--> eeee
+	? RepeatedLeadingCharsQ().Content() + NL	#--> eeee
 	
-	? HasRepeatedTrailingChars()
-	? NumberOfRepeatedTrailingChars()
-	? RepeatedTrailingChars()
-	? RepeatedTrailingCharsQ().Content() + NL	
+	? HasRepeatedTrailingChars()			#--> TRUE
+	? NumberOfRepeatedTrailingChars()		#--> 5
+	? RepeatedTrailingChars()			#--> iiiii
+	? RepeatedTrailingCharsQ().Content()		#--> iiiii	
 }
 
 /*-----------------
@@ -3304,10 +3159,12 @@ o1 {
 
 	RemoveNLeftChars(3)
 	RemoveNRightChars(3)
+
+	# or alternatively:
 	# RemoveFirstNChars(3)
 	# RemoveLastNChars(3)
 
-	? Content()
+	? Content()	#--> bxeTunis
 	
 }
 
@@ -3318,13 +3175,13 @@ o1 {
 	RemoveRepeatedLeadingChars()
 	RemoveRepeatedTrailingChars()
 	
-	? Content() # --> Tunis
+	? Content() #--> Tunis
 }
 
 
 o1 = new stzString("eeeTuniseee")
 o1 {
-	RemoveRepeatedLeadingAndTrailingChars()
+	RemoveLeadingAndTrailingChars()
 	? Content() # --> Tunis
 }
 
@@ -3332,14 +3189,48 @@ o1 {
 
 o1 = new stzString("eeebxeTuniseee")
 
-? o1.Section(:FirstChar, :LastChar)
-? o1.Section( 7, 4 )
+? o1.Section(:FirstChar, :LastChar) #--> eeebxeTuniseee
+? o1.Section( 7, 4 ) #--> Texb
 
 /*-----------------
 
 o1 = new stzString("___VAR---")
-o1.ReplaceThisRepeatedLeadingChar("-")
+o1.ReplaceLeadingChars(:With = "*")
+? o1.Content() #--> *VAR---
+
+o1 = new stzString("___VAR---")
+o1.ReplaceTrailingChars(:With = "*")
+? o1.Content() #--> ___VAR*
+
+o1 = new stzString("___VAR---")
+o1.ReplaceLeadingAndTrailingChars(:With = "*")
+? o1.Content() #--> *VAR*
+
+/*-----------------
+
+o1 = new stzString("___VAR---")
+o1.ReplaceEachLeadingChar(:With = "*")
+? o1.Content() #--> ***VAR---
+
+o1 = new stzString("___VAR---")
+o1.ReplaceEachTrailingChar(:With = "*")
+? o1.Content() #--> ___VAR***
+
+o1 = new stzString("___VAR---")
+o1.ReplaceEachLeadingAndTrailingChar(:With = "*")
+? o1.Content() #--> ***VAR***
+
+/*-----------------
+
+o1 = new stzString("___VAR---")
+o1.ReplaceLeadingChar("_", :With = "*")
 ? o1.Content()
+#--> *VAR---
+
+o1 = new stzString("___VAR---")
+o1.ReplaceTrailingChar("-", :With = "*")
+? o1.Content()
+#--> ___VAR*
 
 /*----------------- TODO (future)
 
@@ -3361,74 +3252,156 @@ StzStringQ("eeebxeTuniseee") {
 /*----------------
 
 o1 = new stzString("bbxeTuniseee")
-? o1.RepeatedLeadingChars()
-? o1.HasRepeatedLeadingChars()
+? o1.RepeatedLeadingChars() #--> bb
+? o1.HasRepeatedLeadingChars() #--> TRUE
 
 /*-----------------
 
-o1 = new stzString("eeebxeTuniseee")
+o1 = new stzString("aaaaah Tunisia!---")
 o1 {
-	ReplaceThisLeadingChar("e", :With = ".") # 'eeeTUNIS' --> '...TUNIS'
-
-	//ReplaceLeadingSubstring("</") # 'eeeeeeeTUNIS' --> '</TUNIS'
-
+	ReplaceEachLeadingChar(:With = "O")
 	? Content()
+	#--> OOOOOh Tunisia!---
+
+	ReplaceEachTrailingChar(:With = "")
+	? Content()
+	#--> OOOOOh Tunisia!
 }
 
-/*-------------------
+/*-----------------
 
-? (StzStringQ("XRingoriaLand") - [ "X", "oria", "Land" ]).Content()	# --> Ring
-? (StzStringQ("XRingoriaLand") - [[ :FirstCharIf, :EqualTo, "X" ]]).Content() # --> RingoriaLand
+o1 = new stzString("---Ring!")
+o1.ReplaceFirstNChars(3, :With = "Hi ")
+? o1.Content()
+#--> Hi Ring!
 
-/*-------------------
+o1 = new stzString("Hi Ring---")
+o1.ReplaceLastNChars(3, :With= "!")
+? o1.Content()
+#--> Hi Ring!
+
+/*-----------------
+
+o1 = new stzString("oooo Tunisia---")
+o1 {
+	ReplaceLeadingChar("o", :With = "Hi")
+	? Content()
+	#--> Hi Tunisia---
+
+	ReplaceTrailingChar("-", :With = "!")
+	? Content()
+	#--> Hi Tunisia!
+}
+
+/*-----------------
+
+o1 = new stzString("aaaaah Tunisia---")
+
+o1.ReplaceLeadingChars(:With = "O")
+? o1.Content()
+#--> Oh Tunisia---
+
+o1.ReplaceTrailingChars(:With = "!")
+? o1.Content()
+#--> Oh Tunisia!
+
+/*-----------------
+
+o1 = new stzString("Oooooh TunisiammMmmM")
+
+o1.ReplaceLeadingChars(:With = "O")
+? o1.Content()
+#--> Oooooh TunisiammmmM
+
+o1.ReplaceTrailingChars(:With = "!")
+? o1.Content()
+#--> Aaaaah TunisiammmmM
+
+o1 = new stzString("Oooooh TunisiammMmmM")
+o1.ReplaceLeadingCharsCS(:With = "O", :CaseSensitive = FALSE)
+? o1.Content()
+#--> Oh TunisiammmmM
+
+o1.ReplaceTrailingCharsCS(:With = "!", :CaseSensitive = FALSE)
+? o1.Content()
+#--> Oh Tunisia!
+
+/*-----------------
+
+o1 = new stzString("Oooo Tunisia---")
+? o1.LeadingChar() 		#--> ""
+? o1.LeadingCharCS(:CS = FALSE)	#--> "O"
+
+? o1.LeadingChars()		#--> ""
+? o1.LeadingCharsCS(:CS=FALSE) #--> "Oooo"
+
+/*-----------------
+
+o1 = new stzString("oooTunisia")
+o1.RemoveLeadingChar("O")
+? o1.Content()
+#--> oooTunisia
+
+o1.RemoveLeadingCharCS("O", :CS=FALSE)
+? o1.Content()
+#--> Tunisia
+
+/*-----------------
+
+o1 = new stzString("oooTunisia")
+o1.ReplaceLeadingChar("O", :With = "")
+? o1.Content()
+#--> oooTunisia
+
+o1.ReplaceLeadingCharCS("O", :With = "", :CS=FALSE)
+? o1.Content()
+#--> Tunisia
+
+/*==================
+
+? (StzStringQ("ORingoriaLand") - [ "O", "oria", "Land" ]).Content()
+# --> Ring
+
+/*==================
 
 ? StzStringQ("[ 2, 3, 5:7 ]").IsListInString()
 ? StzStringQ("'A':'F'").IsListInString()
 
-/*-------------------
+/*==================
 
-o1 = new stzstring("abcDEFgehij")
-o1.ReplaceSection(4, 6, :with = "***")
-? o1.Content()
+o1 = new stzstring("123456789")
+? o1.Section(4,6)
+#--> "456"
 
 /*-------------
 
-o1 = new stzstring("abcDEFgehij")
-? o1.Section(4,6)
+o1 = new stzstring("123456789")
+o1.ReplaceSection(4, 6, :with = "***")
+? o1.Content()
+#--> "123***789"
 
 /*-------------
 
 o1 = new stzstring("abcDEFgehij")
 o1.ReplaceSection(4, 6, :With@ = "Q(@section).Lowercased()")
 ? o1.Content()
+#--> abcdefgehij
 
 /*-------------------
 
-
-StzStringQ( "Tunis is the container of my memories. Tunis is my dream!") {
-	ReplaceAll("Tunis", "Regueb" )
+StzStringQ("Tunis is the town of my memories.") {
+	ReplaceAll("Tunis", "Niamey" )
 	? Content()
 }
+#--> Niamey is the town of my memories.
 
 /*-------------------
 
-StzStringQ( "Tunis is the container of my memories. Tunis is my dream!") {
-	ReplaceAllCS("tunis", "Regueb", :CS = FALSE )
+StzStringQ("Tunis is the town of my memories.") {
+	ReplaceAllCS("TUNIS", "Niamey", :CS = FALSE )
 	? Content()
 }
-/*-------------------
-
-StzStringQ( "Tunis is the container of my memories. Tunis is my dream!") {
-	ReplaceAll("Tunis", :EachChar = "*" )
-	? Content()
-}
-
-/*-------------------
-
-StzStringQ( "Tunis is the container of my memories. Tunis is my dream!") {
-	ReplaceAllCS("tunis", :EachChar = "*", :CS = FALSE )
-	? Content()
-}
+#--> Niamey is the town of my memories
 
 /*-------------------
 
@@ -3465,26 +3438,37 @@ StzStringQ("Tunisia is back! People united.") {
 
 o1 = new stzString("this text is my text not your text, right?!")
 ? o1.FindAllCS("text", :casesensitive = false)
-? o1.FindNthOccurrence(2, "Text")
-? o1.FindNthOccurrenceCS(2, "Text", :casesensitive = true)
+#--> [6, 17, 31]
+
+? o1.FindNthOccurrence(2, "Text") #--> 0
+? o1.FindNthOccurrenceCS(2, "Text", :casesensitive = false) #--> 17
 
 /*----------------
 
-o1 = new stzString("this text is my text not your text, right?!")
-//? o1.ReplaceNthOccurrenceCSQ(1, "text", "destiny", :Casesensitive = TRUE).Content()
-? o1.ReplaceAllCSQ("text", "destiny", :Casesensitive = TRUE).Content()
+o1 = new stzString("This text is my text not your text, right?!")
+? o1.ReplaceNthOccurrenceCSQ(2, "TEXT", :With = "destiny", :Casesensitive = FALSE).Content()
+#--> This text is my destiny not your text, right?!
 
 o1 = new stzString("هذا نصّ لا يشبه أيّ نصّ ويا له من نصّ يا صديقي")
-? o1.FindLastOccurrenceCS("نصّ", :casesensitive = true)
+? o1.FindAll("نصّ")
+#--> [5, 21, 35]
+
+? o1.FindFirst("نصّ") 	#--> 5
+? o1.FindLast("نصّ")	#--> 35
 
 /*---------------
 
-o1 = new stzString("XLandRingoriaLand")
-? o1.RemoveLastOccurrenceCSQ("Land", :CS = TRUE).Content()
+o1 = new stzString("LandRingoriaLand")
+o1.RemoveFirstOccurrence( :Of = "Land")
+? o1.Content()
+#--> RingoriaLand
 
-# or:
+/*---------------
+
+o1 = new stzString("LandRingoriaLand")
 o1 - "Land"
 ? o1.Content()
+#--> Ringoria
 
 /*--------------- TODO: Maybe this should move to stzText
 
@@ -3492,93 +3476,129 @@ o1 = new stzString("ring language isسلام  a nice language")
 ? o1.Orientation() #--> :LeftToRight
 ? o1.ContainsHybridOrientation() #--> TRUE
 
-? o1.Parts(:By = 'StzCharQ(@char).()') # TODO
-
 o1 = new stzString("سلام عليكم ياأهل مصر hello الكرام")
 ? o1.Orientation() #--> :RightToLeft
 ? o1.ContainsHybridOrientation() #--> TRUE
 
-//? o1.Parts(:By = 'StzCharQ(@char).Orientation()') # TODO
+/*----------------
+
+o1 = new stzString("ring language isسلام  a nice language")
+? @@S( o1.Parts(:Using = 'StzCharQ(@char).Orientation()') ) + NL
+#--> [
+# 	[ "ring language is", "lefttoright" ],
+o# 	[ "سلام", "righttoleft" ],
+o# 	[ " a nice language", "lefttoright" ]
+# ]
+
+o1 = new stzString("سلام عليكم ياأهل مصر hello الكرام")
+? @@S( o1.Parts(:By = 'StzCharQ(@char).Orientation()') )
+#--> [
+o# 	[ "سلام", "righttoleft",
+o# 	[ " ", "lefttoright" ],
+o# 	[ "عليكم", "righttoleft" ],
+o# 	[  " ", "lefttoright" ],
+o# 	[ "ياأهل", "righttoleft" ],
+o# 	[ " ", "lefttoright" ],
+o# 	[  "مصر", "righttoleft" ],
+o# 	[ " hello ", "lefttoright" ],
+o# 	[ "الكرام", "righttoleft" ]
+# ]
 
 /*----------------
 
-o1 = new stzString("سلام عليكم يا أهل مصر الكرام")
-o1.RemoveNLeftChars(5)
+o1 = new stzString("سلام لأهل مصر الكرام")
+o1.RemoveNLeftChars(7)
 ? o1.Content()
+o#--> سلام لأهل مصر
 
 /*----------------
 
 o1 = new stzString("ring language is nice language")
-? o1.NLastCharsRemoved(9) # --> ring language is nice
-? o1.SectionQ(1,4).CharsReversed() --> gnir
+? o1.NLastCharsRemoved(9)
+#--> ring language is nice
 
-/*----------------
-
-o1.RemoveNRightChars2(5)
-? o1.Content()
-
-/*----------------
-
-o1 = new stzString("سلام عليكم يا أهل مصر الكرام")
-? o1.ReplaceLastOccurrenceQ("سلام", "").Content()
-
-o1 = new stzString("ring language is a nice language")
-? o1.ReplaceFirstOccurrenceQ("language", "").Simplified()
+? o1.SectionQ(1,4).CharsReversed()
+#--> gnir
 
 /*----------------
 
 o1 = new stzString("<<script>>func return :done<<script>>")
-
-#? o1.RemoveLeftOccurrenceQ("<<script>>").Content()
-#? o1.RemoveRightOccurrenceQ("<<script>>").Content()
 ? o1.RemoveAllQ("<<script>>").Content()
+#--> "func return :done"
 
+o1 = new stzString("<<script>>func return :done<<script>>")
+? o1.RemoveLeftOccurrenceQ("<<script>>").Content()
+#--> "func return :done<<script>>"
 
-//o1.RemoveNLastChars(9)
-//? o1.Content()
+o1 = new stzString("<<script>>func return :done<<script>>")
+? o1.RemoveRightOccurrenceQ("<<script>>").Content()
+#--> "<<script>>func return :done"
+o1.RemoveNFirstChars(10)
+? o1.Content()
+#--> "func return :done"
 
 /*----------------
 
-o1 = new stzString("<<script>>func return :done<<script>>")
-
-//? o1.RemoveNLastCharsQ(9).Content()
-o1 = new stzString("softanza loves simplicity")
+o1 = new stzString("Softanza loves simplicity")
 ? o1.ReplaceFirstQ( o1.Section(10, :LastChar), "arrives!").Content()
+#--> "Softanza arrives!"
 
 /*----------------
 
 o1 = new stzString("<script>func return :done<script/>")
+? o1.IsBoundedBy(["<script>", :And = "<script/>"])
+#--> TRUE
 
-? o1.IsBoundedBy("<script>", "<script/>") # returns TRUE
-
-o1.RemoveBoundsQ("<script>", "<script/>")
+o1.RemoveBounds(["<script>", "<script/>"])
 ? o1.Content()
+#--> "func return :done"
 
 /*----------------
 
-? StzStringQ("{nnnnn}").IsBoundedBy("{","}")
+? StzStringQ("{nnnnn}").IsBoundedBy(["{","}"]) #--> TRUE
 
 o1 = new stzString("بسم الله الرّحمن الرّحيم")
-? o1.IsBoundedBy("بسم", "الرّحيم")
+? o1.IsBoundedBy(["بسم", "الرّحيم"])
 
-/*----------------
+/*---------------- TODO
+
+o1 = new stzString("بسم الله الرّحمن الرّحيم")
+? o1.FindBounds(["بسم", "الرّحيم"])
+? o1.FindBoundedBy(["بسم", "الرّحيم"])
+
+/*=================
 
 o1 = new stzString("Rixo Rixo Rixo")
 ? o1.ReplaceQ("xo", "ng").Content()
+#--> Ring Ring Ring
 
 /*----------------
 
 o1 = new stzString("Ringos Ringos Ringos")
 o1.RemoveAll("os")
 ? o1.Content()
+#--> Ring Ring Ring
+
+/*----------------
 
 o1 = new stzString("extrasection")
-? o1.RemoveRangeQ(6, :LastChar).Content()
+o1.RemoveSectionQ(6, :LastChar)
+? o1.Content()
+#--> extra
+
+/*----------------
 
 o1 = new stzString("extrasection")
-? o1.RemoveSectionQ(6, :LastChar).Content()
+o1.RemoveRange(1, 5)
+? o1.Content()
+#--> section
 
 /*=======================
+
+? Q("SFOTANZA").AlignedXT( :Width=30, :Char=".", :Direction=:Center )
+#--> ...........SFOTANZA...........
+
+/*-----------------------
 
 ? StringAlign("SOFTANZA", 30, ".", :Left)
 ? StringAlign("SOFTANZA", 30, ".", :Right)
@@ -3608,19 +3628,20 @@ str = "منصوريّات"
 ...........منصوريّات...........
 م....ن...ص...و...ر...يّ...ا...ت
 */
-/*----------------
+
+/*==================
 
 o1 = new stzString("مَنْصُورِيَّاتُُ")
 ? o1.NLastCharsQ(2).IsMadeOfSome([ "ُ", "س", "ص" ]) #--> TRUE
 
-
-/*------------------
+/*==================
 
 o1 = new stzString("ABCDEFGH")
 o1.CompressUsingBinary("10011011")
-? o1.Content() #--> ADEGH
+? o1.Content()
+ #--> ADEGH
 
-/*------------------
+/*==================
 
 o1 = new stzString("aabbcaacccbb")
 ? o1.IsMadeOf([ "aa", "bb", "c" ])		# --> TRUE
@@ -3633,14 +3654,20 @@ o1 = new stzString("سلسبيل")
 ? o1.IsMadeOf([ "ب", "ل", "س", "ي", "ج" ])	# --> FALSE
 ? o1.IsMadeOfSome([ "ب", "ل", "س", "ي", "m" ])	# --> TRUE
 
-/*------------------
+/*==================
 
 o1 = new stzString("NoWomanNoCry")
-anPos = o1.FindCharsW('StzCharQ(@char).IsUppercase()')
+anPos = o1.FindCharsW( :Where = 'Q(@char).IsUppercase()')
 ? o1.SplitBeforePositions(anPos)
 # --> [ "No", "Woman", "No", "Cry" ]
 
 /*------------------
+
+o1 = new stzString("NoWomanNoCry")
+? o1.SplitBeforeW(:Where = 'Q(@char).IsUppercase()')
+# --> [ "No", "Woman", "No", "Cry" ]
+
+/*==================
 
 StzStringQ("أهلا بأيّ كانَ، ومرحبا بأيّ كان، ومرحى لأيّ كان، أيّا كان من سمَّاهُ حُسَيْنْ") {
 
@@ -3659,23 +3686,20 @@ StzStringQ("أهلا بأيّ كانَ، ومرحبا بأيّ كان، ومرح
 
 o1 = new stzString("Hi Dan! Your are Dan, but your work is always not done ;)")
 o1.ReplaceNthOccurrence(2, "Dan", "hardworker")
-# --> Hi Dan! Your are harworker, but your work is always not done ;)
 ? o1.Content()
+#--> Hi Dan! Your are harworker, but your work is always not done ;)
 
 /*-------------------
 
 o1 = new stzString("text this text is written with the text of my scrampy text")
-? o1.FindAll("text")	# --> [ 1, 11, 36, 55 ]
+? o1.FindAll("text")
+#--> [ 1, 11, 36, 55 ]
 
-? o1.FindNthOccurrence(4, :Of = "text")	# 55
+? o1.FindNthOccurrence(4, :Of = "text")	#--> 55
 
-? o1.ContainsNtimes(4, "text") # --> TRUE
+? o1.ContainsNtimes(4, "text") #--> TRUE
 
-/*--------------------
-
-# There are two types of comparison of strings:
-#	-> Unicode comparison: strings are compared conforming to Uniocode logic
-#	-> Softanza comparison: strings are compared naturally as expected in real world
+/*==================
 
 o1 = new stzString("reserve")
 ? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = False ) # --> :Equal
@@ -3691,103 +3715,100 @@ o1 = new stzString("reserv")
 # Strings comparisons are made in a locale-sensitive manner
 o1 = new stzString("RÉSERVÉ")
 ? o1.UnicodeCompareWithInSystemLocale("réservé")	# --> :Greater
-# ? o1.UnicodeCompareWithInLocale("réservé"", "fr-FR")	# TODO
+# o1.UnicodeCompareWithInLocale("réservé"", "fr-FR")	# TODO
 
-/*--------------------
+/*==================
 
 o1 = new stzString("  lots   of    whitespace  ")
 ? o1.Trimmed()
 ? o1.SimplifyQ().UPPERcased()
+#--> "LOTS OF WHITESPACE"
 
 /*--------------------
 
 o1 = new stzString("اسمي هو فلانة، قلت لك فلانة! أوَ لم يعجبك أن يكون اسمي فلانة؟")
-o1.ReplaceAll("فلانة", "طيبة")
+o1.ReplaceAll("فلانة", "فلسطين")
 ? o1.Content()
+o#--> اسمي هو فلسطين، قلت لك فلسطين! أوَ لم يعجبك أن يكون اسمي فلسطين؟
 
 /*--------------------
 
 o1 = new stzString("Mon prénom c'est Foulèna. J'ai bien dit Foulèna! " +
 "Où bien tu n'aimes pas que ce soit Foulèna?")
-? o1.ReplaceAll("Foulèna", "Tiba")
+o1.ReplaceAll("Foulèna", "Tiba")
+? o1.Content()
+#--> Mon prénom c'est Tiba. J'ai bien dit Tiba! Où bien tu n'aimes pas que ce soit Tiba?
 
-/*--------------------
-
-? str2hex("سلام")
-? hex2str("d8b3d984d8a7d985")
-
-? dec("0x23DEA298")
-? hex(601793176.32)
-
-o1 = new stzNumber("601793176.32")
-? o1.ToHexForm()
-
-/*--------------------
+/*======================
 
 o1 = new stzString("0o20723.034")
 o1 {
-	? RepresentsNumber()
-	? RepresentsSignedNumber()
-	? RepresentsUnsignedNumber()
-	? RepresentsCalculableNumber() 
+	? RepresentsNumber()			#--> TRUE
+	? RepresentsSignedNumber()		#--> FALSE
+	? RepresentsUnsignedNumber()		#--> TRUE
+	? RepresentsCalculableNumber() 		#--> TRUE
 	
-	? RepresentsInteger()
-	? RepresentsSignedInteger()
-	? RepresentsUnsignedInteger()
-	? RepresentsCalculableInteger()
+	? RepresentsInteger()			#--> FALSE
+	? RepresentsSignedInteger()		#--> FALSE
+	? RepresentsUnsignedInteger()		#--> FALSE
+	? RepresentsCalculableInteger()		#--> FALSE
 	
-	? RepresentsRealNumber()
-	? RepresentsSignedRealNumber()
-	? RepresentsUnsignedRealNumber()
-	? RepresentsCalculableRealNumber()
+	? RepresentsRealNumber()		#--> TRUE
+	? RepresentsSignedRealNumber()		#--> FALSE
+	? RepresentsUnsignedRealNumber()	#--> TRUE
+	? RepresentsCalculableRealNumber()	#--> TRUE
 	
-	? RepresentsNumberInDecimalForm()
-	? RepresentsNumberInBinaryForm()
-	? RepresentsNumberInHexForm()
-	? RepresentsNumberInOctalForm()
+	? RepresentsNumberInDecimalForm()	#--> FALSE
+	? RepresentsNumberInBinaryForm()	#--> FALSE
+	? RepresentsNumberInHexForm()		#--> FALSE
+	? RepresentsNumberInOctalForm()		#--> TRUE
 }
 
 /*------------------
 
-? o1.RepresentsRealNumber() # fix: returns TRUE for "12500543."
-? o1.RepresentsCalculableInteger()
-? o1.RepresentsCalculableRealNumber()
+o1 = new stzString("12500543.12")
+? o1.RepresentsRealNumber()
+#--> TRUE
 
 /*------------------
 
+o1 = new stzString("0b110001.1001")
+? o1.RepresentsNumberInBinaryForm()
+#--> TRUE
+
+o1 = new stzString("-0b110001.1001")
+? o1.RepresentsNumberInBinaryForm()
+#--> TRUE
+
 o1 = new stzString("0b-110001.1001")
 ? o1.RepresentsNumberInBinaryForm()
+#--> FALSE
 
 /*------------------
 
 o1 = new stzString("0x12_5AB34.123F")
-? o1.RepresentsNumber()
+? o1.RepresentsNumber() 		#--> TRUE
+? o1.NumberForm()			#--> :Hex
 
-/*------------------
+? o1.RepresentsNumberInHexForm()	#--> TRUE
 
-? o1.RepresentsNumberInHexForm()
+o1 = new stzString("0o2304.307")
+? o1.RepresentsNumber()			#--> TRUE
+? o1.NumberForm()			#--> :Octal
+? o1.RepresentsNumberInOctalForm()	#--> TRUE
 
-o1 = new stzString("0o-2304.307")
-? o1.RepresentsNumberInOctalForm()
-
-/*------------------
-
-o1 = new stzString("me and you and all the others, and even bob!")
-? o1.FindAll("and")
-? o1.PositionAfterNthOccurrenceOfSubstring(2, "and")
-
-/*------------------
+/*===================
 
 o1 = new stzString("All our software versions must be updated!")
 
 # Defining the position of insertion
 nPosition = o1.PositionAfter("versions")
 
-//PositionAfterSubstring
-
 # Inserting the list of string using extended configuration
 o1.InsertListOfSubstringsXT(
-	[ "V1", "V2", "V3", "V4", "V5" ], nPosition,
+	nPosition,
+
+	[ "V1", "V2", "V3", "V4", "V5" ], 
 
 	[
 	:InsertBeforeOrAfter = :Before,
@@ -3798,121 +3819,142 @@ o1.InsertListOfSubstringsXT(
 	:AddSpaceAfterSeparator = TRUE,
 
 	:LastSeparator = "and",
-	:AddLastToMainSeparator = TRUE,
+	:AddLastToMainSeparator = TRUE,	# adds an ", and" as a last separator
 
-	:SpaceOption = :EnsureLeadingSpace + :EnsureTrailingSpace
+	:SpaceOption = :AddLeadingSpace //+ :AddTrailingSpace	# or :DoNothing
 	])
 
 ? o1.Content()
-# --> All our software versions { V1, V2, V3, V4, and V5 }  must be updated!
+# --> All our software versions { V1, V2, V3, V4, and V5 } must be updated!
 
-/*------------------
+/*===================
 
 o1 = new stzString("latin")
 ? o1.IsScriptName()
+#--> TRUE
 
 /*------------------
 
-o1 = new stzString("TN-fr") # tn-fr gives true --> Incorrect!
+o1 = new stzString("TN-fr") # Fix this; tn-fr gives true --> Incorrect!
 ? o1.IsLocaleAbbreviation()
+#--> TRUE
 
 /*------------------
 
 o1 = new stzString("fr")
 ? o1.IsLocaleAbbreviation()
+#--> TRUE
 
 /*------------------
 
 o1 = new stzString("105")
 ? o1.IsLanguageNumber()
-? o1.IsLanguageNumberXT()
+#--> TRUE
+
+? StzLanguageQ("105").Name()
+#--> :Sindhi
+
+? StzLanguageQ("105").DefaultCountry()
+#--> :Pakistan
 
 /*------------------
 
 o1 = new stzString("ara")
-? o1.IsLanguageAbbreviation()
-? o1.IsShortLanguageAbbreviation()
-? o1.IsLongLanguageAbbreviation()
-? o1.IsLanguageAbbreviationXT()
+? o1.IsLanguageAbbreviation()		#--> TRUE
+? o1.IsShortLanguageAbbreviation()	#--> FALSE
+? o1.IsLongLanguageAbbreviation()	#--> TRUE
+? o1.LanguageAbbreviationForm()		#--> :Long
 
 /*------------------
 
+o1 = new stzString("Ⅱ")
+? o1.IsLatin()
+#--> TRUE
+
 o1 = new stzChar("Ⅱ")
-? o1.IsMandarinNumber()
-? o1.IsANumber()
+? o1.IsRomanNumber()
+#-->
+
+/*------------------ TODO
 
 # TODO:
 # 	Should go to stzString class
 # 	Homogenize the semantics of ArabicNumber, ArabicNumerals, ArabaicDecimalDigit...
 
 ? StringIsNumberFraction("1/2") # arabic
+#--> TRUE
+
 ? StringIsArabicNumberFraction("1/2") 
+#--> TRUE
 
 ? StringIsNumberFraction("۱/٢") # indian
-? StringIsNumberFraction("Ⅰ/Ⅱ") # roman
-? StringIsNumberFraction("一/二") # mandarin
+#--> TRUE
 
-//? StringToNumberFractionChar("一/二")
+? StringIsNumberFraction("Ⅰ/Ⅱ") # roman
+#!--> FALSE 	(TODO: fix it - should return TRUE)
+
+? StringIsNumberFraction("一/二") # mandarin
+#!--> FALSE 	(TODO: fix it - should return TRUE)
 
 /*----------------
+
+# How to add a string to a QString objet (Qt-side)
+# Used internally by Softanza
 
 oQStr = new QString()
 oQStr.append("salem")
 ? QStringToString(oQStr)
 
-/*----------------------
-
-o1 = new stzString("xxxabcefxxx")
-o1.RemoveLeadingAndTrailingChars()
-? o1.Content() #--> abcef
-
-/*---------------------
-
-o1 = new stzString("1234")
-? o1.StringIsFormedOfSomeOfTheseChars(DecimalDigits())
-? o1.RepresentsNumberInDecimalForm()
-
 /*--------------------
 
 o1 = new stzString("100110001")
-? o1.StringIsFormedOfTheseChars([ "1","0" ])
-
-/*--------------------
-
-o1 = new stzString("b100110001")
-? o1.RepresentsNumberInBinaryForm()
+? o1.IsMadeOf([ "1","0" ])
+#--> TRUE
 
 /*--------------------
 
 o1 = new stzString("01234567")
-? o1.StringIsMadeOfSome(OctalChars())
+? o1.IsMadeOfSome( OctalChars() )
+#--> TRUE
+
+o1 = new stzString("001100101")
+? o1.IsMadeOf( BinaryChars() )
+#--> TRUE
 
 /*-------------------
 
 o1 = new stzString("o01234567")
 ? o1.RepresentsNumberInOctalForm()
+#--> TRUE
 
 /*-------------------
 
 o1 = new stzString("4E992")
-? o1.StringIsMadeOfSome(HexChars())
+? o1.IsMadeOfSome( HexChars() )
+#--> TRUE
 
 /*-------------------
 
 o1 = new stzString("x4E992")
 ? o1.RepresentsNumberInHexForm()
+#--> TRUE
 
 /*-------------------
 
 o1 = new stzString("maan")
-? o1.StringIsMadeOf([ "m", "a", "a", "x" ])
+? o1.IsMadeOf([ "m", "a", "a", "n" ])
+#--> TRUE
 
-/*------------------
+/*--------------
 
-# This is an internal softanza staff: could be removed from here!
+# In Softanza you get get the unicode number of a char by saying:
+? Unicode("鶊")
+# And you have the code, you can pass it as an imput to a stzChar
+# char object to get the char:
+? StzCharQ(40330).Content() #--> 鶊
 
-# How to get the char content from a char unicode?
-# Note: This logic has been implemented in Unicode() function in stzChar class
+# If you are curious to know how I made it internally inside the
+# Unicode() function, then fellow the following discussion...
 
 # First we create the QChar from whatever a decimal unicode could be
 
@@ -3927,27 +3969,39 @@ oStr.append_2(oChar)
 # and then we call data() method on it to get the string with our "鴜"
 
 ? oStr.ToUtf8().data()
+#--> 鶊
 
 /*--------------
 
 o1 = new stzString("abcbbaccbtttx")
-? o1.UniqueChars()
-? o1.Contains_N_OccurrenceOf(2, "a")
+? @@S( o1.UniqueChars() )
+#--> [ "a", "b", "c", "t", "x" ]
+
+? o1.ContainsNOccurrences(2, :Of = "a")
+#--> TRUE
 
 /*---------------
 
 o1 = new stzString("saस्तेb")
 ? o1.NumberOfChars()
+#--> 7
 
-? o1.UnicodeOfCharN(3)
-? o1.UnicodesByChar()
+? @@S( o1.Unicodes() )
+#--> [ 115, 97, 2360, 2381, 2340, 2375, 98 ]
+
+? @@S( o1.UnicodesXT() )
+#--> [ [ 115, "s" ], [ 97, "a" ], [ 2360, "स" ], [ 2381, "्" ], [ 2340, "त" ], [ 2375, "े" ], [ 98, "b" ] ]
+
+? @@S( o1.CharsAndTheirUnicodes() )
+#--> [ [ "s", 115 ], [ "a", 97 ], [ "स", 2360 ], [ "्", 2381 ], [ "त", 2340 ], [ "े", 2375 ], [ "b", 98 ] ]
 
 /*---------------
 
 o1 = new stzString("number 12500 number 18200")
-? o1.OnlyNumbers() # --> 1250018200
+? o1.OnlyNumbers()
+#--> "1250018200"
 
-/*---------------
+/*================
 
 o1 = new stzString("12500")
 ? o1.RepresentsNumberInDecimalForm() # --> TRUE
@@ -3962,9 +4016,24 @@ o1 = new stzString("100011")
 ? o1.RepresentsNumberInDecimalForm() # --> TRUE
 
 /*---------------
-
+*/
 o1 = new stzString("Приве́т नमस्ते שָׁלוֹם")
-? o1.Chars()
+? @@S( o1.Parts( :Using = "StzCharQ(@char).Script()" ) )
+#--> [
+# 	[ "Приве", "cyrillic" 	],
+# 	[ "́", 	   "inherited" 	],
+# 	[ "т",     "cyrillic" 	],
+# 	[ " ",     "common" 	], 
+#	[ "नमस्ते",         "devanagari" ],
+# 	[ " ",     "common" 	],
+o# 	[ "שָׁלוֹם", "hebrew" 	]
+# ]
+
+# TODO
+? o1.PartsW('{
+	Q(@part).Script() = :Cyrillic
+}')
+#--> [ "Приве", "т" ]
 
 /*---------------
 
@@ -3972,11 +4041,161 @@ o1 = new stzString("🐨")
 ? o1.NumberOfChars() # returns 2! --> Number of CodePoints()
 ? o1.SizeInBytes() # returns 4
 
-// TODO: Reflect on this: NumberOfChars() is actually NumberOfCodePoints()
+# TODO: Reflect on this: NumberOfChars() is actually NumberOfCodePoints()
 
 /*---------------
 
 ? Q('[1, 2, 3]').ToList() #--> [1, 2, 3]
 
-/*---------------
+/*================
 
+StzStringQ("MustHave@32@Chars") {
+	? NumberOfOccurrenceCS(:Of = "@", :CS = TRUE) #--> 2
+	? FindAll("@") #--> [9, 12]
+
+	? FindNext("@", :StartingAt = 5) #--> 9
+	? FindNextNth(2, "@", :StartingAt = 5) #--> 12
+
+	? FindPrevious("@", :StartingAt = 10) #--> 9
+	? FindPreviousNth(2, "@", :StartingAt = 12) #--> 9
+}
+
+/*---------------- Used to enable constraint-oriented programming
+
+o1 = new stzString("MustHave@32@CharsAnd@8@Spaces")
+? o1.SubstringsBetween("@","@") #--> ["32", "8" ]
+
+o1 = new stzString("MustHave32CharsAnd8Spaces")
+? @@( o1.SubstringsBetween("@","@") ) #--> [ ]
+
+///////////////////////////////////////////////////////////////////////////////////////////
+////////////////////                                       ////////////////////////////////
+////////////////////            TO BE FIXED LATER          ////////////////////////////////
+////////////////////                                       ////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+/*---------------- TODO : AFTER CONSTRAINT IMPLEMENTED
+
+aList = [
+	:Where = "file.ring",
+	:What  = "Describes what happened",
+	:Why   = "Describes why it happened",
+	:Todo  = "Posposes an action to do"
+]
+
+StzListQ(aList).IsRaiseNamedParam() # --> TRUE
+
+# Internally, StzList checks for a number of conditions
+
+StzListQ(aList) {
+	? NumberOfItems() <= 4 # --> TRUE
+	? IsHashList() # --> TRUE
+	? ToStzHashList().KeysQ().IsMadeOfSomeOfThese([ :Where, :What, :Why, :Todo ]) # --> TRUE
+	? ToStzHashList().ValuesQ().AllItemsVerifyW("isString(@item) and @item != NULL") # --> TRUE
+}
+
+# In a better world, those conditions could be expressed as
+# constraints on the list object like this:
+
+StzListQ(aList) {
+	:MustHave@4@Items
+	:MustBeAHashList
+	:AKeyMustBeOneOfThese = [ :Where, :What, :Why, :Todo ]
+	:ValuesMustBeNonNullStrings
+}
+
+# To make it happen, those constraints should be defined once at
+# the global level, and then reused every where inside a stzList
+
+/*-----------------// TODO - FUTURE //
+
+# Constarints are defined at the global level and then reused every where
+# inside your softanza objects
+
+DefineConstraints([
+	:OnStzString = [
+		:MustBeUppercase 	= '{ Q(@str).IsUppercase() }',
+		:MustNotExceed@n@Chars 	= '{ Q(@str).NumberOfChars() <= n }',
+		:MustBeginWithLetter@c@	= '{ Q(@str).BeginsWithCS(c, :CS = FALSE) }'
+	],
+
+	:OnStzNumber = [
+		:MustBeStrictlyPositive = '{ @number > 0 }'
+	],
+
+	:OnStzList = [
+		:MustBeAHashList = '{ Q(@list).IsHashList() }'
+	]
+
+])
+
+# Let's use the constraints defined in a StzString object
+
+StzStringQ("SOFTANZA") {
+
+	EnforeConstraints([
+		:MustBeUppercase,
+		:MustNotExceed10Chars
+	])
+
+	? "Passed"
+}
+
+/*----------------- TODO - FIX THIS : Revisit this after completing stzWalker
+
+// WalkUntil has not same output in stzString and stzList!
+
+# In stzString only the last position is returned
+
+? StzStringQ("size()").WalkUntil('@char = "("') # --> 4
+? StzStringQ("size()").WalkUntil('@char = "*"') # --> 0
+
+# In stzList all the walked positions are returned
+
+StzListQ([ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]) {
+	? WalkUntil("@item = 'D'") # --> 1:5
+	? WalkUntil('@item = "x"') # --> 0
+}
+
+/*================== TODO: Fix error
+
+? StzStringQ("ABTCADNBBABEFACCC").VizFind("A")
+
+#--> 
+#	"ABTCADNBBABEFACCC"
+#	 ^---^----^---^---
+
+/*-----------------
+
+o1 = new stzString("ABTCADNBBABEFACCC")
+? o1.VizFindXT("A", [ :Numbered = TRUE, :Spacified = TRUE, :PositionSign = Heart() ])
+
+# --> Returns a string like this:
+
+#    "A B T C A D N B B A B E F A C C C "
+#     ♥-------♥---------♥-------♥-------
+#     1       5         0       4
+
+/*----------------- (TODO)
+
+? StzStringQ("ABTCADNBBABEFAVCC").VizFindMany([ "A", "T", "V" ])
+
+# --> Returns a string like this:
+
+#	 "ABTCADNVBABEFLVCT"
+#  "A" :  ^-.-^--.-^----.-.
+#  "T" :  --^----.------.-^
+#  "V" :  -------^------^--
+#  "X" :  -----------------
+
+/*----------------- (TODO)
+
+? StzStringQ("ABTCADNBBABEFAVCC").VizFindManyXT("A")
+
+# --> Returns a string like this:
+
+#	  1..4..7..0..3..6.
+#	 "ABTCADNVBABEFLVCT"
+#  "A" :  ^-.-^--.-^----.-. (3)
+#  "T" :  --^----.------.-^ (2)
+#  "V" :  -------^------^-- (2)
+#  "X" :  ----------------- (0)

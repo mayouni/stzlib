@@ -658,6 +658,14 @@ Diacritics
 		[ "0/3", 8585 ] # --> "↉"	# idem
 	]
 
+	# Decimal chars
+
+	_acDecimalchars = "0" : "9"
+
+	# Binary chars
+
+	_acBinaryChars = [ "0", "1" ]
+
 	# Octal chars
 
 	_acOctalChars = "0":"7"
@@ -1651,6 +1659,12 @@ Diacritics
 			aResult + oTempChar.Content()
 		next
 		return aResult
+
+	func DecimalChars()
+		return _acDecimalchars
+
+	func BinaryChars()
+		return _acBinaryChars
 
 	func OctalChars()
 		return _acOctalChars

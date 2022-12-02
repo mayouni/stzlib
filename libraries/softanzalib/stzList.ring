@@ -1,3 +1,4 @@
+#---------------------------------------------------------------------------#
 # 		    SOFTANZA LIBRARY (V1.0) - STZSTRING			    #
 #		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
@@ -8644,22 +8645,21 @@ sdsd
 
 		ok
 
+		#< @FunctionFluentForm
+
 		def ReplaceRepeatedLeadingItemQ(pItem)
 			This.ReplaceRepeatedLeadingItem(pItem)
 			return This
-					
+			
+		#>
+	
+		#< @FunctionAlternativeForms
+	
 		def ReplaceLeadingRepeatedItem(pItem)
 			This.ReplaceRepeatedLeadingItem(pItem)
 
 			def ReplaceLeadingRepeatedItemQ(pItem)
-				This.ReplaceLeadingRepeatedItemWith(pItem)
-				return This
-						
-		def ReplaceLeadingRepeatedItems(pItem)
-			This.ReplaceRepeatedLeadingItem(pItem)
-
-			def ReplaceLeadingRepeatedItemsQ(pItem)
-				This.ReplaceLeadingRepeatedItems(pItem)
+				This.ReplaceLeadingRepeatedItem(pItem)
 				return This
 	
 		def ReplaceLeadingItem(pItem)
@@ -8669,44 +8669,61 @@ sdsd
 				This.ReplaceLeadingItem(pItem)
 				return This
 
-		def ReplaceThisLeadingItem(pItem)
+		#-- Same functions with ...Items in plural
+
+		def ReplaceRepeatedLeadingItems(pItem)
 			This.ReplaceRepeatedLeadingItem(pItem)
 
-			def ReplaceThisLeadingItemQ(pItem)
-				This.ReplaceThisLeadingItem(pItem)
+			def ReplaceRepeatedLeadingItemsQ(pItem)
+				This.ReplaceRepeatedLeadingItems(pItem)
 				return This
 
-		def ReplaceThisRepeatedLeadingItem(pItem)
+		def ReplaceLeadingRepeatedItems(pItem)
 			This.ReplaceRepeatedLeadingItem(pItem)
 
-			def ReplaceThisRepeatedLeadingItemQ(pItem)
-				This.ReplaceThisRepeatedLeadingItem(pItem)
+			def ReplaceLeadingRepeatedItemsQ(pItem)
+				This.ReplaceLeadingRepeatedItems(pItem)
 				return This
 	
+		def ReplaceLeadingItems(pItem)
+			This.ReplaceRepeatedLeadingItem(pItem)
+
+			def ReplaceLeadingItemsQ(pItem)
+				This.ReplaceLeadingItems(pItem)
+				return This
+
+		#>
+
 	def RepeatedLeadingItemReplaced(pItem)
 		aResult = This.Copy().ReplaceRepeatedLeadingItemQ(pItem).Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+	
 		def LeadingRepeatedItemReplaced(pItem)
 			return This.RepeatedLeadingItemReplaced(pItem)
-		
+	
 		def LeadingItemReplaced(pItem)
 			return This.RepeatedLeadingItemReplaced(pItem)
-			
+
+		#-- Same functions with ...Items in plural
+
 		def RepeatedLeadingItemsReplaced(pItem)
 			return This.RepeatedLeadingItemReplaced(pItem)
-		
+
 		def LeadingRepeatedItemsReplaced(pItem)
 			return This.RepeatedLeadingItemReplaced(pItem)
 	
 		def LeadingItemsReplaced(pItem)
 			return This.RepeatedLeadingItemReplaced(pItem)
+
+		#>
 				
 	  #------------------------------#
 	 #   REPLACING TRAILING ITEMS   #
 	#------------------------------#
 
-	def ReplaceRepeatedTrailingItemWith(pItem)
+	def ReplaceRepeatedTrailingItem(pItem)
 		/* Example:
 
 		stzListQ([ "_","_","_","V","A","R","-","-","-" ]).ReplaceRepeatedTrailingItemBy("_")
@@ -8728,16 +8745,22 @@ sdsd
 
 		ok
 
+		#< @FunctionFluentForm
+
 		def ReplaceRepeatedTrailingItemQ(pItem)
 			This.ReplaceRepeatedTrailingItem(pItem)
 			return This
+			
+		#>
+	
+		#< @FunctionAlternativeForms
 	
 		def ReplaceTrailingRepeatedItem(pItem)
 			This.ReplaceRepeatedTrailingItem(pItem)
 
 			def ReplaceTrailingRepeatedItemQ(pItem)
 				This.ReplaceTrailingRepeatedItem(pItem)
-				return This	
+				return This
 	
 		def ReplaceTrailingItem(pItem)
 			This.ReplaceRepeatedTrailingItem(pItem)
@@ -8745,42 +8768,56 @@ sdsd
 			def ReplaceTrailingItemQ(pItem)
 				This.ReplaceTrailingItem(pItem)
 				return This
-	
+
+		#-- Same functions with ...Items in plural
+
 		def ReplaceRepeatedTrailingItems(pItem)
 			This.ReplaceRepeatedTrailingItem(pItem)
 
 			def ReplaceRepeatedTrailingItemsQ(pItem)
 				This.ReplaceRepeatedTrailingItems(pItem)
 				return This
-		
-			def ReplaceTrailingRepeatedItems(pItem)
-				This.ReplaceRepeatedTrailingItems(pItem)
 
-				def ReplaceTrailingRepeatedItemsQ(pItem)
-					This.ReplaceTrailingRepeatedItems(pItem)
-					return This
+		def ReplaceTrailingRepeatedItems(pItem)
+			This.ReplaceRepeatedTrailingItem(pItem)
+
+			def ReplaceTrailingRepeatedItemsQ(pItem)
+				This.ReplaceTrailingRepeatedItems(pItem)
+				return This
 	
+		def ReplaceTrailingItems(pItem)
+			This.ReplaceRepeatedTrailingItem(pItem)
+
+			def ReplaceTrailingItemsQ(pItem)
+				This.ReplaceTrailingItems(pItem)
+				return This
+
+		#>
+
 	def RepeatedTrailingItemReplaced(pItem)
 		aResult = This.Copy().ReplaceRepeatedTrailingItemQ(pItem).Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+	
 		def TrailingRepeatedItemReplaced(pItem)
 			return This.RepeatedTrailingItemReplaced(pItem)
-
+	
 		def TrailingItemReplaced(pItem)
 			return This.RepeatedTrailingItemReplaced(pItem)
 
-		def TrailingItemReplacedBy(pItem)
-			return This.RepeatedTrailingItemReplaced(pItem)
-	
+		#-- Same functions with ...Items in plural
+
 		def RepeatedTrailingItemsReplaced(pItem)
 			return This.RepeatedTrailingItemReplaced(pItem)
 
 		def TrailingRepeatedItemsReplaced(pItem)
-			return This.RepeatedTrailingItemReplacedh(pItem)
-
+			return This.RepeatedTrailingItemReplaced(pItem)
+	
 		def TrailingItemsReplaced(pItem)
 			return This.RepeatedTrailingItemReplaced(pItem)
+
+		#>
 	
 	  #---------------------------------------------------#
 	 #   REPLACING REPEATED LEADING AND TRAILING ITEMS   #
@@ -8867,9 +8904,9 @@ sdsd
 		def TrailingAndLeadingItemsReplaced(pItem)
 			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem)
 
-	  #------------------------------#
+	  #==============================#
 	 #     OPERATORS OVERLOADING    #
-	#------------------------------#
+	#==============================#
 
 	/*
 		TODO: Operators should adopt same semantics in all classes...
@@ -9603,11 +9640,23 @@ sdsd
 
 		def ContainsItemCS(pItem, pCaseSensitive)
 			return This.ContainsCS(pItem, pCaseSensitive)
+
+			def ContainsNoItemCS(pItem, pCaseSensitive)
+				return NOT This.ContainsItemCS(pItem, pCaseSensitive)
 	
 	#-- WITHOUT CASESENSITIVITY
 
 	def Contains(pItem)
 		return This.ContainsCS(pItem, :CaseSensitive = TRUE)
+
+		def ContainsNo(pItem)
+			return NOT This.Contains(pItem)
+
+		def ContainsItem(pItem)
+			return This.Contains(pItem)
+
+			def ContainsNoItem(pItem)
+				return NOT This.ContainsItem(pItem)
 
 	  #---------------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS CONTAINED IN A GIVEN LIST OR STRING  #
@@ -10631,6 +10680,20 @@ sdsd
 			return This.FindNthOccurrence(n, pItem)
 
 		#>
+
+	  #---------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS N OCCURRENCES OF A GIVEN ITEM  #
+	#---------------------------------------------------------------#
+
+	def ContainsNOccurrencesCS(n, pItem, pCaseSensitive)
+		if This.NumberOfOccurrenceCS(pItem, pCaseSensitive) = n
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def ContainsNOccurrences(n, pItem)
+		return This.ContainsNOccurrences(n, pItem, :CaseSensitive = TRUE)
 
 	  #----------------------------------------------------------------#
 	 #    FINDING NTH TO LAST OCCURRENCE OF AN ITEM INSIDE THE LIST   #
@@ -13548,10 +13611,10 @@ sdsd
 		# Managing the case of :First and :Last keywords
 
 		if isString(n1)
-			if Q(n1).IsOneOfThese([ :First, :FirstItem ])
+			if Q(n1).IsOneOfThese([ :First, :FirstItem, :StartOfList ])
 				n1 = 1
 
-			but Q(n1).IsOneOfThese([ :Last, :LastItem ])
+			but Q(n1).IsOneOfThese([ :Last, :LastItem, :EndOfList ])
 				n1 = This.NumberOfItems()
 
 			but Q(n1) = :@
@@ -13560,10 +13623,10 @@ sdsd
 		ok
 	
 		if isString(n2)
-			if Q(n2).IsOneOfThese([ :Last, :LastItem ])
+			if Q(n2).IsOneOfThese([ :Last, :LastItem, :EndOfList ])
 				n2 = This.NumberOfItems()
 
-			but Q(n2).IsOneOfThese([ :First, :FirstItem ])
+			but Q(n2).IsOneOfThese([ :First, :FirstItem, :StartOfList ])
 				n2 = 1
 
 			but Q(n2) = :@
