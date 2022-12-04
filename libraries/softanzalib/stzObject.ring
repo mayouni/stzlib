@@ -1597,6 +1597,7 @@ class stzObject
 		ok
 
 		return @number
+
 	  #------------------------------------------#
 	 #  CASTING THE OBJECT VALUE INTO A STRING  #
 	#------------------------------------------#
@@ -1656,3 +1657,401 @@ class stzObject
 		if pcOp = "="
 			return This.IsEqualTo(pValue)
 		ok
+
+	  #----------------------------------------------------#
+	 #   FINDING THE FIRST N OCCURRENCES OF A SUBSTRING   #
+	#----------------------------------------------------#
+	# TODO: Abstract it in stzObject
+
+	def FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		anResult = This.FindFirstNOccurrencesXTCS(n, pStrOrItem, :StartingAT = 1, pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNFirstOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		#--
+
+		def PositionsOfFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		def PositionsOfNFirstOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		#--
+
+		def FirstNCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		def NFirstCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		#--
+
+		def FindFirstNCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		def FindNFirstCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		#--
+
+		def FirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		def NFirstOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstNOccurrences(n, pStrOrItem)
+		return This.FindFirstNOccurrencesCS(n, pStrOrItem, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNFirstOccurrences(n, pStrOrItem)
+			return This.FindFirstNOccurrences(n, pStrOrItem)
+
+		#--
+
+		def PositionsOfFirstNOccurrences(n, pStrOrItem)
+			return This.FindFirstNOccurrences(n, pStrOrItem)
+
+		def PositionsOfNFirstOccurrences(n, pStrOrItem)
+			return This.FindFirstNOccurrences(n, pStrOrItem)
+
+		#--
+
+		def FirstN(n, pStrOrItem)
+			return This.FindFirstNOccurrences(n, pStrOrItem)
+
+		def NFirst(n, pStrOrItem)
+			return This.FindFirstNOccurrences(n, pStrOrItem)
+
+		#--
+
+		def FindFirstN(n, pStrOrItem)
+			return This.FindFirstNOccurrencesCS(n, pStrOrItem)
+
+		def FindNFirst(n, pStrOrItem)
+			return This.FindFirstNOccurrences(n, pStrOrItem)
+
+		#--
+
+		def FirstNOccurrences(n, pStrOrItem)
+			return This.FindFirstNOccurrences(n, pStrOrItem)
+
+		def NFirstOccurrences(n, pStrOrItem)
+			return This.FindFirstNOccurrences(n, pStrOrItem)
+
+		#>
+
+	   #--------------------------------------------------------#
+	  #  FINDING FIRST N OCCURRENCES OF A SUBSTRING STARTING   #
+	 #  AT A GIVEN POSITION -- EXTENDTED                      #
+	#--------------------------------------------------------#
+
+	def FindFirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		if isList(pStrOrItem) and
+		   Q(pStrOrItem).IsOneOfTheseNamedParams([ :Of, :OfSubString, :OfItem ])
+
+			pStrOrItem = pStrOrItem[2]
+		ok
+
+		if isList(pnStartingAt) and Q(pnstartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		anPos = This.SectionQ(pnStartingAt, :Last).
+				FindAllCS(pStrOrItem, pCaseSensitive)
+
+		anResult = Q(anPos).FirstNItemsQR(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNFirstOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def PositionsOfFirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		def PositionsOfNFirstOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FirstNXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+
+		def NFirstXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FindFirstNXTCS(n, pStrOrItem,pnStartingAt,  pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		def FindNFirstXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		def NFirstOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstNOccurrencesXT(n, pcStr, pnStartingAt)
+		return This.FindFirstNOccurrencesXTCS(n, pcStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNFirstOccurrencesXT(n, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		#--
+
+		def PositionsOfFirstNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		def PositionsOfNFirstOccurrencesXT(n, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		#--
+
+		def FirstNXT(n, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pStrOrItem, pnStartingAt, pnStartingAt)
+
+		def NFirstXT(n, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesXTCS(n, pStrOrItem, pnStartingAt)
+
+		#--
+
+		def FindFirstNXT(n, pStrOrItem,pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		def FindNFirstXT(n, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		#--
+
+		def FirstNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		def NFirstOccurrencesXT(n, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		#>
+
+	  #---------------------------------------------------#
+	 #   FINDING THE LAST N OCCURRENCES OF A SUBSTRING   #
+	#---------------------------------------------------#
+
+	def FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		anResult = This.FindLastNOccurrencesXTCS(n, pStrOrItem, :StartingAT = 1, pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNLastOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		#--
+
+		def PositionsOfLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		def PositionsOfNLastOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		#--
+
+		def LastNCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		def NLastCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		#--
+
+		def FindLastNCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		def FindNLastCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		#--
+
+		def LastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		def NLastOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastNOccurrences(n, pStrOrItem)
+		return This.FindLastNOccurrencesCS(n, pStrOrItem, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNLastOccurrences(n, pStrOrItem)
+			return This.FindLastNOccurrences(n, pStrOrItem)
+
+		#--
+
+		def PositionsOfLastNOccurrences(n, pStrOrItem)
+			return This.FindLastNOccurrences(n, pStrOrItem)
+
+		def PositionsOfNLastOccurrences(n, pStrOrItem)
+			return This.FindLastNOccurrences(n, pStrOrItem)
+
+		#--
+
+		def LastN(n, pStrOrItem)
+			return This.FindLastNOccurrences(n, pStrOrItem)
+
+		def NLast(n, pStrOrItem)
+			return This.FindLastNOccurrences(n, pStrOrItem)
+
+		#--
+
+		def FindLastN(n, pStrOrItem)
+			return This.FindLastNOccurrencesCS(n, pStrOrItem)
+
+		def FindNLast(n, pStrOrItem)
+			return This.FindLastNOccurrences(n, pStrOrItem)
+
+		#--
+
+		def LastNOccurrences(n, pStrOrItem)
+			return This.FindLastNOccurrences(n, pStrOrItem)
+
+		def NLastOccurrences(n, pStrOrItem)
+			return This.FindLastNOccurrences(n, pStrOrItem)
+
+		#>
+
+	   #-------------------------------------------------------#
+	  #  FINDING LAST N OCCURRENCES OF A SUBSTRING STARTING   #
+	 #  AT A GIVEN POSITION -- EXTENDTED                     #
+	#-------------------------------------------------------#
+
+	def FindLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		if isList(pStrOrItem) and
+		   Q(pStrOrItem).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
+
+			pStrOrItem = pStrOrItem[2]
+		ok
+
+		if isList(pnStartingAt) and Q(pnstartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		anPos = This.SectionQ(pnStartingAt, :Last).
+				FindAllCS(pStrOrItem, pCaseSensitive)
+
+		anResult = Q(anPos).LastNItemsQR(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNLastOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def PositionsOfLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		def PositionsOfNLastOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def LastNXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+
+		def NLastXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FindLastNXTCS(n, pStrOrItem,pnStartingAt,  pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		def FindNLastXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def LastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		def NLastOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastNOccurrencesXT(n, pcStr, pnStartingAt)
+		return This.FindLastNOccurrencesXTCS(n, pcStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNLastOccurrencesXT(n, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		#--
+
+		def PositionsOfLastNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		def PositionsOfNLastOccurrencesXT(n, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		#--
+
+		def LastNXT(n, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pStrOrItem, pnStartingAt, pnStartingAt)
+
+		def NLastXT(n, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt)
+
+		#--
+
+		def FindLastNXT(n, pStrOrItem,pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		def FindNLastXT(n, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		#--
+
+		def LastNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		def NLastOccurrencesXT(n, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pStrOrItem, pnStartingAt)
+
+		#>

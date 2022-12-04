@@ -1,5 +1,34 @@
 load "stzlib.ring"
 
+/*-----------------
+*/
+o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
+
+? o1.FindAll("abc")
+#--> [3, 6, 9]
+
+# Note: the following functions work the same for stzString and
+# stzListOfStrings, because they are abstracted in stzObject
+
+? o1.NFirstOccurrences(2, :Of = "abc") 
+#--> [3, 6]
+
+? o1.NFirstOccurrencesXT(2, :Of = "abc", :StartingAt = 1)
+#--> [3, 6]
+
+? o1.NLastOccurrences(2, :Of = "abc")
+#--> [6, 9]
+
+? o1.NLastOccurrencesXT(2, "abc", :StartingAt = 1)
+#--> [6, 9]
+
+? o1.NFirstOccurrencesXT(2, :Of = "abc", :StartingAt = 6)
+#--> [6, 9]
+
+? o1.LastNOccurrencesXT(2, :Of = "abc", :StartingAt = 10)
+#--> [6, 9]
+
+STOP()
 /*------------------
 
 # The W() function takes a string and tries its best to return a well
@@ -395,7 +424,7 @@ o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 #--> [ "S", "O", "F", "T", "A", "N", "Z", "A" ]
 
 /*=======================
-*/
+
 # In Softanza, you can find lists inside lists:
 o1 = new stzList([ "A", "B", [1, 2], "C", "D", [1, 2], "E" ])
 ? o1.FindAll([1, 2])	#--> [3, 6]
@@ -428,10 +457,10 @@ o1 = new stzList([ [1,2], [3, [1], 4], [5,6], [ 2, 10 ], [3,4], [3, [1], 4] ])
 
 ? o1.FindFirst( [3, [1], 4] ) #--> 2
 
-/*---------------
+/*===============
 
 ? StzListQ( 4:8 ).ToListInStringQ().Simplified() 	#--> "[ 4, 5, 6, 7, 8 ]"
-? StzListQ( 4:8 ).ToListInStringInShortForm() 		#--> "4 : 8"
+? StzListQ( 4:8 ).ToListInStringInShortForm() 		#--> "4:8"
 
 /*---------------
 
@@ -450,20 +479,22 @@ o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
 o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
 
 o1.Removeduplicates()
-? @@S( o1.Content() ) #--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ] ]
+? @@S( o1.Content() )
+#--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ] ]
 
-/*---------------
+/*================
 
-? Q(' [ "A", "B", 3 ] ').IsListInString() #--> TRUE
+? Q(' [ "A", "B", 3 ] ').IsListInString() 	#--> TRUE
 
-? Q(' 1 : 3 ').IsListInString() #--> TRUE
+? Q(' 1 : 3 ').IsListInString()			#--> TRUE
 
-? Q(' "A" : "C" ').IsListInString() #--> TRUE
+? Q(' "A" : "C" ').IsListInString() 		#--> TRUE
+
+? Q(' "ا" : "ج" ').IsListInString() 		#--> TRUE
+
+/*-----------------
 
 ? Q(' "A" : "C" ').ToList() #--> [ "A", "B", "C" ]
-
-? Q(' "ا" : "ج" ').IsListInString() #--> TRUE
-
 ? Q(' "ا" : "ج" ').ToList() #--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
 /*===============
@@ -488,14 +519,12 @@ StzListQ(' "ا" : "ج" ') {
 	? ItemAtPosition(4) #--> "ت"
 }
 
-STOP()
-
 /*-----------------
-
+*/
 ? @@S( 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!' )
 #--> 'for txt = "   val1  " to "   val2" do this or that!'
 
-STOP()
+
 /*-----------------
 
 # As we all know, Ring provides us with this elegant syntax:

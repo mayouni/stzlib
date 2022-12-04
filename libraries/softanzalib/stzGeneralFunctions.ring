@@ -287,7 +287,10 @@ func BothAreNumbersInStrings(p1, p2) # NOTE: hex and octal numbers are excluded
 		p2 = p2[2]
 	ok
 
-	if BothAreStrings(p1, p2) and Q(p1).IsDecimalNumberInString() and Q(p2).IsDecimalNumberInString()
+	if BothAreStrings(p1, p2) and
+	   Q(p1).IsDecimalNumberInString() and
+	   Q(p2).IsDecimalNumberInString()
+
 		return TRUE
 
 	else

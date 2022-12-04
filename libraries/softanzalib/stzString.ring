@@ -11125,26 +11125,14 @@ o1 = new stzString("12*34*56*78")
 			return This.FindLastOccurrence(pcSubStr)
 
 		#>
-
+/*
 	  #----------------------------------------------------#
 	 #   FINDING THE FIRST N OCCURRENCES OF A SUBSTRING   #
 	#----------------------------------------------------#
+	# TODO: Abstract it in stzObject
 
 	def FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
-		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		if NOT n > 0
-			stzRaise("Incorrect value! n must be a positive non null number.")
-		ok
-
-		anResult = []
-
-		for i = 1 to n
-			anResult + This.FindNthOccurrenceCS(i, pcSubStr, pCaseSensitive)
-		next
-
+		anResult = This.FindFirstNOccurrencesXTCS(n, pcSubStr, :StartingAT = 1, pCaseSensitive)
 		return anResult
 
 		#< @FunctionAlternativeForms
@@ -11152,16 +11140,36 @@ o1 = new stzString("12*34*56*78")
 		def FindNFirstOccurrencesCS(n, pcSubStr, pCaseSensitive)
 			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 
+		#--
+
 		def PositionsOfFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 
 		def PositionsOfNFirstOccurrencesCS(n, pcSubStr, pCaseSensitive)
 			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 
-		def FirstNthCS(n, pcSubStr, pCaseSensitive)
+		#--
+
+		def FirstNCS(n, pcSubStr, pCaseSensitive)
 			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 
-		def NthFirstCS(n, pcSubStr, pCaseSensitive)
+		def NFirstCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		#--
+
+		def FindFirstNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		def FindNFirstCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		#--
+
+		def FirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		def NFirstOccurrencesCS(n, pcSubStr, pCaseSensitive)
 			return This.FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 
 		#>
@@ -11176,17 +11184,143 @@ o1 = new stzString("12*34*56*78")
 		def FindNFirstOccurrences(n, pcSubStr)
 			return This.FindFirstNOccurrences(n, pcSubStr)
 
+		#--
+
 		def PositionsOfFirstNOccurrences(n, pcSubStr)
 			return This.FindFirstNOccurrences(n, pcSubStr)
 
 		def PositionsOfNFirstOccurrences(n, pcSubStr)
 			return This.FindFirstNOccurrences(n, pcSubStr)
 
-		def FirstNth(n, pcSubStr)
+		#--
+
+		def FirstN(n, pcSubStr)
 			return This.FindFirstNOccurrences(n, pcSubStr)
 
-		def NthFirst(n, pcSubStr)
+		def NFirst(n, pcSubStr)
 			return This.FindFirstNOccurrences(n, pcSubStr)
+
+		#--
+
+		def FindFirstN(n, pcSubStr)
+			return This.FindFirstNOccurrencesCS(n, pcSubStr)
+
+		def FindNFirst(n, pcSubStr)
+			return This.FindFirstNOccurrences(n, pcSubStr)
+
+		#--
+
+		def FirstNOccurrences(n, pcSubStr)
+			return This.FindFirstNOccurrences(n, pcSubStr)
+
+		def NFirstOccurrences(n, pcSubStr)
+			return This.FindFirstNOccurrences(n, pcSubStr)
+
+		#>
+
+	   #--------------------------------------------------------#
+	  #  FINDING FIRST N OCCURRENCES OF A SUBSTRING STARTING   #
+	 #  AT A GIVEN POSITION -- EXTENDTED                      #
+	#--------------------------------------------------------#
+
+	def FindFirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+		if isList(pcSubStr) and
+		   Q(pcSubStr).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
+
+			pcSubStr = pcSubStr[2]
+		ok
+
+		if isList(pnStartingAt) and Q(pnstartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		anPos = This.SectionQ(pnStartingAt, :LastChar).
+				FindAllCS(pcSubStr, pCaseSensitive)
+
+		anResult = Q(anPos).FirstNItemsQR(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNFirstOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def PositionsOfFirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PositionsOfNFirstOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FirstNXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pnStartingAt, pCaseSensitive)
+
+		def NFirstXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FindFirstNXTCS(n, pcSubStr,pnStartingAt,  pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FindNFirstXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def NFirstOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstNOccurrencesXT(n, pcStr, pnStartingAt)
+		return This.FindFirstNOccurrencesXTCS(n, pcStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNFirstOccurrencesXT(n, pcSubStr, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		#--
+
+		def PositionsOfFirstNOccurrencesXT(n, pcSubStr, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		def PositionsOfNFirstOccurrencesXT(n, pcSubStr, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		#--
+
+		def FirstNXT(n, pcSubStr, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pcSubStr, pnStartingAt, pnStartingAt)
+
+		def NFirstXT(n, pcSubStr, pnStartingAt)
+			return This.FindFirstNOccurrencesXTCS(n, pcSubStr, pnStartingAt)
+
+		#--
+
+		def FindFirstNXT(n, pcSubStr,pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		def FindNFirstXT(n, pcSubStr, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		#--
+
+		def FirstNOccurrencesXT(n, pcSubStr, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		def NFirstOccurrencesXT(n, pcSubStr, pnStartingAt)
+			return This.FindFirstNOccurrencesXT(n, pcSubStr, pnStartingAt)
 
 		#>
 
@@ -11196,18 +11330,15 @@ o1 = new stzString("12*34*56*78")
 
 	def FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 
-		anPos = This.Copy().ReverseQ().FindFirstNOccurrencesCS(n, pcSubStr, pCaseSensitive)
-
-		nLen = This.NumberOfChars()
-		for n in anPos
-			n = nLen - n + 1
-		next
-
-		anResult = ring_reverse(anPos)
+		anResult = This.FindLastNOccurrencesXTCS(n, pcSubStr, :StartingAT = 1, pCaseSensitive)
 		return anResult
+
+		#< @FunctionAlternativeForms
 
 		def FindNLastOccurrencesCS(n, pcSubStr, pCaseSensitive)
 			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		#--
 
 		def PositionsOfLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
@@ -11215,19 +11346,43 @@ o1 = new stzString("12*34*56*78")
 		def PositionsOfNLastOccurrencesCS(n, pcSubStr, pCaseSensitive)
 			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 
-		def LastNthCS(n, pcSubStr)
+		#--
+
+		def LastNCS(n, pcSubStr, pCaseSensitive)
 			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 
-		def NthLastCS(n, pcSubStr)
+		def NLastCS(n, pcSubStr, pCaseSensitive)
 			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		#--
+
+		def FindLastNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		def FindNLastCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		#--
+
+		def LastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		def NLastOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastNOccurrences(n, pcSubStr)
 		return This.FindLastNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def FindNLastOccurrences(n, pcSubStr)
 			return This.FindLastNOccurrences(n, pcSubStr)
+
+		#--
 
 		def PositionsOfLastNOccurrences(n, pcSubStr)
 			return This.FindLastNOccurrences(n, pcSubStr)
@@ -11235,12 +11390,138 @@ o1 = new stzString("12*34*56*78")
 		def PositionsOfNLastOccurrences(n, pcSubStr)
 			return This.FindLastNOccurrences(n, pcSubStr)
 
-		def LastNth(n)
+		#--
+
+		def LastN(n, pcSubStr)
 			return This.FindLastNOccurrences(n, pcSubStr)
 
-		def NthLast(n)
+		def NLast(n, pcSubStr)
 			return This.FindLastNOccurrences(n, pcSubStr)
 
+		#--
+
+		def FindLastN(n, pcSubStr)
+			return This.FindLastNOccurrencesCS(n, pcSubStr)
+
+		def FindNLast(n, pcSubStr)
+			return This.FindLastNOccurrences(n, pcSubStr)
+
+		#--
+
+		def LastNOccurrences(n, pcSubStr)
+			return This.FindLastNOccurrences(n, pcSubStr)
+
+		def NLastOccurrences(n, pcSubStr)
+			return This.FindLastNOccurrences(n, pcSubStr)
+
+		#>
+
+	   #-------------------------------------------------------#
+	  #  FINDING LAST N OCCURRENCES OF A SUBSTRING STARTING   #
+	 #  AT A GIVEN POSITION -- EXTENDTED                     #
+	#-------------------------------------------------------#
+
+	def FindLastNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+		if isList(pcSubStr) and
+		   Q(pcSubStr).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
+
+			pcSubStr = pcSubStr[2]
+		ok
+
+		if isList(pnStartingAt) and Q(pnstartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		anPos = This.SectionQ(pnStartingAt, :LastChar).
+				FindAllCS(pcSubStr, pCaseSensitive)
+
+		anResult = Q(anPos).LastNItemsQR(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNLastOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def PositionsOfLastNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PositionsOfNLastOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def LastNXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pnStartingAt, pCaseSensitive)
+
+		def NLastXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FindLastNXTCS(n, pcSubStr,pnStartingAt,  pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FindNLastXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def LastNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def NLastOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesXTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastNOccurrencesXT(n, pcStr, pnStartingAt)
+		return This.FindLastNOccurrencesXTCS(n, pcStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNLastOccurrencesXT(n, pcSubStr, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		#--
+
+		def PositionsOfLastNOccurrencesXT(n, pcSubStr, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		def PositionsOfNLastOccurrencesXT(n, pcSubStr, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		#--
+
+		def LastNXT(n, pcSubStr, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pcSubStr, pnStartingAt, pnStartingAt)
+
+		def NLastXT(n, pcSubStr, pnStartingAt)
+			return This.FindLastNOccurrencesXTCS(n, pcSubStr, pnStartingAt)
+
+		#--
+
+		def FindLastNXT(n, pcSubStr,pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		def FindNLastXT(n, pcSubStr, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		#--
+
+		def LastNOccurrencesXT(n, pcSubStr, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		def NLastOccurrencesXT(n, pcSubStr, pnStartingAt)
+			return This.FindLastNOccurrencesXT(n, pcSubStr, pnStartingAt)
+
+		#>
+*/
 	  #--------------------------------------------------------------------#
 	 #   FINDING THE POSITIONS OF SOME OCCURRENCES OF A GIVEN SUBSTRING   #
 	#--------------------------------------------------------------------#
@@ -14082,11 +14363,6 @@ o1 = new stzString("12*34*56*78")
 		#>
 
 	def FindAnySectionsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		/*
-
-		? o1.FindAnyBetweenXT("<<", ">>")
-		#--> [ [11, "word1"], [29, "word2"], [43, "word2"] ]
-		*/
 
 		aBetweenXT = This.FindAnyBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
@@ -14152,8 +14428,10 @@ o1 = new stzString("12*34*56*78")
 	#----------------------------------------------------------------------------------#
 
 	def FindSubStringsBetweenCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
+
 		aResult = []
 		anPositions  = This.FindSubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
 		acSubStrings = This.SubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		for i = 1 to len(anPositions)
@@ -21036,6 +21314,18 @@ o1 = new stzString("12*34*56*78")
 		def RepresentsADecimalNumber()
 			return This.RepresentsDecimalNumber()
 
+		def IsDecimalNumberInString()
+			return This.RepresentsDecimalNumber()
+
+		def IsDecimalNumberInAString()
+			return This.RepresentsDecimalNumber()
+
+		def IsADecimalNumberInString()
+			return This.RepresentsDecimalNumber()
+
+		def IsADecimalNumberInAString()
+			return This.RepresentsDecimalNumber()
+
 	def RepresentsBinaryNumber()
 		oCopy = This.RemoveSpacesQ()
 
@@ -21046,10 +21336,19 @@ o1 = new stzString("12*34*56*78")
 			return FALSE
 		ok
 
+		def RepresentsABinaryNumber()
+			return This.RepresentsBinaryNumber()
+
 		def IsBinaryNumberInString()
 			return This.RepresentsBinaryNumber()
 
-		def RepresentsABinaryNumber()
+		def IsBinaryNumberInAString()
+			return This.RepresentsBinaryNumber()
+
+		def IsABinaryNumberInString()
+			return This.RepresentsBinaryNumber()
+
+		def IsABinaryNumberInAString()
 			return This.RepresentsBinaryNumber()
 
 	def RepresentsOctalNumber()
@@ -21062,10 +21361,19 @@ o1 = new stzString("12*34*56*78")
 			return FALSE
 		ok
 
+		def RepresentsAnOctalNumber()
+			return This.RepresentsOctalNumber()
+
 		def IsOctalNumberInString()
 			return This.RepresentsOctalNumber()
 
-		def RepresentsAnOctalNumber()
+		def IsOctalNumberInAString()
+			return This.RepresentsOctalNumber()
+
+		def IsAnOctalNumberInString()
+			return This.RepresentsOctalNumber()
+
+		def IsAnOctalNumberInAString()
 			return This.RepresentsOctalNumber()
 
 	def RepresentsHexNumber()
@@ -21078,10 +21386,19 @@ o1 = new stzString("12*34*56*78")
 			return FALSE
 		ok
 
+		def RepresentsAHexNumber()
+			return This.RepresentsHexNumber()
+
 		def IsHexNumberInString()
 			return This.RepresentsHexNumber()
 
-		def RepresentsAHexNumber()
+		def IsHexNumberInAString()
+			return This.RepresentsHexNumber()
+
+		def IsAHexNumberInString()
+			return This.RepresentsHexNumber()
+
+		def IsAHexNumberInAString()
 			return This.RepresentsHexNumber()
 
 	def RepresentsScientificNotationNumber()
@@ -21094,11 +21411,20 @@ o1 = new stzString("12*34*56*78")
 			return FALSE
 		ok
 
-		def IsScientificNotationNumberInString()
-			return This.RepresentsScientificNotationNumber()
+		def RepresentsAScientificNumber()
+			return This.RepresentsScientificNumber()
 
-		def RepresentsAScientificNotationNumber()
-			return This.RepresentsScientificNotationNumber()
+		def IsScientificNumberInString()
+			return This.RepresentsScientificNumber()
+
+		def IsScientificNumberInAString()
+			return This.RepresentsScientificNumber()
+
+		def IsAScientificNumberInString()
+			return This.RepresentsScientificNumber()
+
+		def IsAScientificNumberInAString()
+			return This.RepresentsScientificNumber()
 
 	def NumberForm()
 		if NOT This.RepresentsNumber()
@@ -21147,7 +21473,13 @@ o1 = new stzString("12*34*56*78")
 		def RepresentsNumberInString()
 			return This.RepresentsNumber()
 
+		def RepresentsNumberInAString()
+			return This.RepresentsNumber()
+
 		def RepresentsANumberInString()
+			return This.RepresentsNumber()
+
+		def RepresentsANumberInAString()
 			return This.RepresentsNumber()
 
 		#>
