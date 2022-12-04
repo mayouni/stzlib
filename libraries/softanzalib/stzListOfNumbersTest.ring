@@ -1,12 +1,41 @@
 load "stzlib.ring"
 
+/*-----------------
+*/
+o1 = new stzListOfNumbers([ 1, 2, 999, 4, 5, 999, 7, 8, 999 ])
+
+? o1.FindAll(999)
+#--> [3, 6, 9]
+
+# Note: the following functions work the same for stzString, 
+# stzList, and stzListOfStrings, because they are abstracted in stzObject
+
+
+? o1.NFirstOccurrences(2, :Of = 999) 
+#--> [3, 6]
+
+? o1.NFirstOccurrencesXT(2, :Of = 999, :StartingAt = 1)
+#--> [3, 6]
+
+? o1.NLastOccurrences(2, :Of = 999)
+#--> [6, 9]
+
+? o1.NLastOccurrencesXT(2, 999, :StartingAt = 1)
+#--> [6, 9]
+
+? o1.NFirstOccurrencesXT(2, :Of = 999, :StartingAt = 6)
+#--> [6, 9]
+
+? o1.LastNOccurrencesXT(2, :Of = 999, :StartingAt = 10)
+#--> [6, 9]
+
 /*--------------
 
 ? StzListOfNumbersQ( 12:22 ).SortingOrder()	#--> :Ascending
 ? StzListOfNumbersQ( 17:8 ).SortingOrder()	#--> :Descending
 
 /*--------------
-*/
+
 ? StzListOfNumbersQ( 12:22 ).IsContiguous()	#--> TRUE
 ? StzListOfNumbersQ( 17:8 ).IsContiguous()	#--> TRUE
 
@@ -55,6 +84,11 @@ StzListOfNumbersQ([ 2, 10, 7, 4, 19, 7, 19 ]) {
 }
 
 /*==================
+
+? StzListOfNumbersQ([ 1, 2, 3 ]).AddedToEach(5)
+#--> [6, 7, 8]
+
+/*-----------------
 
 # Adding a number to each number in the list of numbers
 

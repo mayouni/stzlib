@@ -574,12 +574,6 @@ class stzListOfStrings from stzList
 			stzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
-		if NOT  ( StzNumberQ(n1).IsBetween(1, This.NumberOfStrings()) and
-			StzNumberQ(n2).IsBetween(1, This.NumberOfStrings()) )
-
-			stzRaise("Out of range!")
-		ok
-
 		# Doing the job
 
 		return This.ToStzList().Section(n1, n2)

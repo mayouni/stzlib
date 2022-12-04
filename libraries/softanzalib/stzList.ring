@@ -573,11 +573,36 @@ class stzList from stzObject
 	def HasCentralItem()
 		return This.NumberOfItemsQ().IsNotEven()
 
-	def NfirstItems(n)
+	def NFirstItems(n)
 		return This.Section(1, n)
 		
 		def NFirstItemsQ(n)
-			return new stzList( This.NLastItems(n) )
+			return NFirstItemsQR(n, :stzList)
+
+		def NFirstItemsQR(n, pcReturnType)
+			if isList(pcReturnType) and
+			   Q(pcReturnType).IsReturnAsNamedParam()
+
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NFirstItems(n) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.NFirstItems(n) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.NFirstItems(n) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 		def FirstNItems(n)
 			return This.NFirstItems(n)
@@ -585,17 +610,47 @@ class stzList from stzObject
 			def FirstNItemsQ(n)
 				return This.NFirstItemsQ(n)
 
+			def FirstNItemsQR(n, pcReturnType)
+				return This.NFirstItemsQR(n, pcReturnType)
+
 	def NLastItems(n)
 		return This.Section( This.NumberOfItems() - n + 1, :LastItem)
 
 		def NLastItemsQ(n)
-			return new stzList( This.NLastItems(n) )
+			return NLastItemsQR(n, :stzList)
+
+		def NLastItemsQR(n, pcReturnType)
+			if isList(pcReturnType) and
+			   Q(pcReturnType).IsReturnAsNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NLastItems(n) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.NLastItems(n) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.NLastItems(n) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
 
 		def LastNItems(n)
 			return This.NLastItems(n)
 
 			def LastNItemsQ(n)
 				return This.NLastItemsQ(n)
+
+			def LastNItemsQR(n, pcReturnType)
+				return This.NLastItemsQR(n, pcReturnType)
 
 	  #--------------------#
 	 #      UPDATING      #
@@ -9621,10 +9676,6 @@ sdsd
 
 	def ContainsCS(pItem, pCaseSensitive)
 
-		if isList(pItem)
-			return This.ContainsMany(pItem)
-		ok
-
 		if This.FindFirstOccurrenceCS(pItem, pCaseSensitive) > 0
 			return TRUE
 		else
@@ -10350,6 +10401,7 @@ sdsd
 	#--------------------------------------#
 
 	def FindAllOccurrencesCS(pItem, pCaseSensitive)
+
 		/* NOTE
 		We don't use the Ring find() function here because it works
 		only for finding numbers and strings (and not lists and objects).
@@ -10369,13 +10421,13 @@ sdsd
 
 		aStrList = []
 		for i = 1 to This.NumberOfItems()
-			aStrList + @@( This[i] )
+			aStrList + Q( @@( This[i] ) ).WithoutSpaces()
 		next
 
 		i = 0
 		for str in aStrList
 			i++
-			if Q(str).IsEqualToCS( @@(pItem), pCaseSensitive )
+			if Q(str).IsEqualToCS( Q( @@(pItem) ).WithoutSpaces(), pCaseSensitive )
 				anResult + i
 			ok
 		next
@@ -10510,6 +10562,7 @@ sdsd
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllOccurrences(pItem)
+
 		return This.FindAllOccurrencesCS(pItem, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
@@ -10717,10 +10770,11 @@ sdsd
 
 		acThis = []
 		for item in This.List()
-			acThis + @@( item )
+			acThis + Q( @@S( item ) ).WithoutSpaces()
 		next
 	
-		cItem = @@( pItem )
+		cItem = Q( @@S( pItem ) ).WithoutSpaces()
+
 		nResult = StzListOfStringsQ(acThis).FindFirstOccurrenceCS(cItem, pCaseSensitive)
 		return nResult
 
@@ -10738,7 +10792,7 @@ sdsd
 		def PositionOfFirstCS(pItem, pCaseSensitive)
 			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
 
-		def PositionOfFirstOccurrenceCs(pItem, pCaseSensitive)
+		def PositionOfFirstOccurrenceCS(pItem, pCaseSensitive)
 			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
 	
 		#>
@@ -10826,7 +10880,7 @@ sdsd
 
 		#>
 
-	  #--------------------------------------------#
+/*	  #--------------------------------------------#
 	 #   FINDING FIRST N OCCURRENCES OF AN ITEM   #
 	#--------------------------------------------#
 
@@ -10919,7 +10973,7 @@ sdsd
 			return This.FindLastNOccurrences(n, pItem)
 
 		#>
-
+*/
 	  #------------------------------------------#
 	 #   FINDING GIVEN OCCURRENCES OF AN ITEM   #
 	#------------------------------------------#
@@ -13758,6 +13812,15 @@ sdsd
 	#---------------------------------------#
 
 	def Sections(paSections)
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+
+			stzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+
+		ok
+
+		if len(paSections) = 0
+			return []
+		ok
 
 		aResult = []
 
@@ -13837,6 +13900,10 @@ sdsd
 			paSections = paSections[2]
 		ok
 
+		if isList(paSections) and len(paSections) = 0
+			return []
+		ok
+
 		if NOT Q(paSections).IsListOfPairsOfNumbers()
 			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
@@ -13866,7 +13933,7 @@ sdsd
 			ok
 		next
 
-		nLast = asorted[ len(aSorted) ][2]
+		nLast = aSorted[ len(aSorted) ][2]
 		nSize = This.NumberOfItems()
 
 		if nLast < nSize

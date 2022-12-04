@@ -953,9 +953,51 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 /*-----------------
 
 o1 = new stzString("12*45*78*c")
+? o1.FindAll("*")
+#--> [3, 6, 9]
+
+? o1.NFirstOccurrences(2, :Of = "*") 
+#--> [3, 6]
+
+? o1.NFirstOccurrencesXT(2, :Of = "*", :StartingAt = 5)
+#--> [3, 6]
+
+? o1.LastNOccurrencesXT(2, :Of = "*", :StartingAt = 2)
+#--> [6, 9]
+
+/*-----------------
+*/
+o1 = new stzString("12abc67abc12abc")
+? o1.FindAll("abc")
+#--> [3, 8, 13]
+
+# Note: the following functions work the same for stzString and
+# stzListOfStrings, because they are abstracted in stzObject
+
+? o1.NFirstOccurrences(2, :Of = "abc") 
+#--> [3, 8]
+
+? o1.NFirstOccurrencesXT(2, :Of = "abc", :StartingAt = 1)
+#--> [3, 8]
+
+? o1.NLastOccurrences(2, :Of = "abc")
+#--> [8, 13]
+
+? o1.NLastOccurrencesXT(2, "abc", :StartingAt = 1)
+#--> [8, 13]
+
+
+? o1.NFirstOccurrencesXT(2, :Of = "abc", :StartingAt = 6)
+#--> [8, 13]
+
+? o1.LastNOccurrencesXT(2, :Of = "abc", :StartingAt = 10)
+#--> [8, 13]
+
+/*-----------------
+
 ? @@S( o1.FindAnyBetween("*","*") )
 #--> [ [4,5], [7,8] ]
-
+/*
 o1 = new stzString("*1*45*78*c*")
 ? @@S( o1.FindAnyBetween("*","*") )
 #--> [ [ 2, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
@@ -4016,7 +4058,7 @@ o1 = new stzString("100011")
 ? o1.RepresentsNumberInDecimalForm() # --> TRUE
 
 /*---------------
-*/
+
 o1 = new stzString("Приве́т नमस्ते שָׁלוֹם")
 ? @@S( o1.Parts( :Using = "StzCharQ(@char).Script()" ) )
 #--> [
