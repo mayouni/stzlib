@@ -15,7 +15,7 @@ class stzEntity
 
 				# 'name' is compulsory and it must be a valid word
 				if NOT ( isString(aEntity[:name]) and StringIsWord(aEntity[:name]) )
-					stzRaise(stzEntityError(:CanNotCreateEntityObjectWithIncorrectName))
+					StzRaise(stzEntityError(:CanNotCreateEntityObjectWithIncorrectName))
 				ok
 
 				# if 'type' is not provided then it is automatically added
@@ -34,7 +34,7 @@ class stzEntity
 					else
 
 						if NOT ( isString(aEntity[:type]) and StringIsWord(aEntity[:type]) )
-							stzRaise(stzEntityError(:CanNotCreateEntityObjectWithIncorrectType))
+							StzRaise(stzEntityError(:CanNotCreateEntityObjectWithIncorrectType))
 						ok
 					ok
 				ok
@@ -42,11 +42,11 @@ class stzEntity
 				@aEntity = aEntity
 				
 			else
-				stzRaise(stzEntityError(:CanNotCreateEntityObjectWithoutName))
+				StzRaise(stzEntityError(:CanNotCreateEntityObjectWithoutName))
 			ok
 			
 		else
-				stzRaise(stzEntityError(:CanNotCreateEntityObject))
+				StzRaise(stzEntityError(:CanNotCreateEntityObject))
 
 		ok	
 	
@@ -89,7 +89,7 @@ class stzEntity
 			pcProp = StzStringQ(pcProp).Lowercased()
 			return This.Content()[pcProp]
 		else
-			stzRaise("Inexistant property!")
+			StzRaise("Inexistant property!")
 		ok
 
 		def Prop()

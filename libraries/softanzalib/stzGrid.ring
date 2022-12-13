@@ -26,7 +26,7 @@ func GridEmptyNodeChar()
 
 func SetGridEmptyNodeChar(cChar)
 	if NOT (isString(cChar) and Q(cChar).IsAChar())
-		stzRaise("Incorrect param type! cChar must be a char.")
+		StzRaise("Incorrect param type! cChar must be a char.")
 	ok
 
 	_cEmptyNodeChar = cChar
@@ -51,7 +51,7 @@ func GridSeparator()
 
 func SetGridSeparator(cSep)
 	if NOT isString(cSep)
-		stzRaise("Incorrect param type! cSep must be a string.")
+		StzRaise("Incorrect param type! cSep must be a string.")
 	ok
 
 	_cGridSeparator = cSep
@@ -404,8 +404,8 @@ class stzGrid from stzObject
 			return 1+ StzNumberQ( ""+ (This.NumberOfHLines()/2) ).IntegerPart()
 
 		else
-			stzRaise("The grid has no central HLine!")
-			stzRaise(stzGridError(:CanNotDefineRankOfCentralHorizontalLine))
+			StzRaise("The grid has no central HLine!")
+			StzRaise(stzGridError(:CanNotDefineRankOfCentralHorizontalLine))
 		ok
 
 	def CentralHLine()
@@ -423,7 +423,7 @@ class stzGrid from stzObject
 			return 1+ StzNumberQ( ""+ (This.NumberOfVLines()/2) ).IntegerPart()		
 
 		else
-			stzRaise("The grid has no central VLine!")
+			StzRaise("The grid has no central VLine!")
 		ok
 
 	def CentralVLine()
@@ -458,7 +458,7 @@ class stzGrid from stzObject
 		If This.HasCentralNode()
 			return This.Node( This.RankOfCentralNode() )
 		else
-			stzRaise("The grid has no central Node!")
+			StzRaise("The grid has no central Node!")
 		ok
 
 	def RankOfCentralNode()
@@ -547,7 +547,7 @@ class stzGrid from stzObject
 		if This.HasCentralNode()
 			This.SetNode( :CentralVLine, :CentralHLine, pNode)
 		else
-			stzRaise("The grid has no central Node!")
+			StzRaise("The grid has no central Node!")
 		ok
 
 	def SetNodeAtRank(n, pValue)
@@ -604,7 +604,7 @@ class stzGrid from stzObject
 			next i
 		
 		else
-			stzRaise("The grid has no central region!")
+			StzRaise("The grid has no central region!")
 		ok
 
 	def SetCenter(pNode)
@@ -665,7 +665,7 @@ class stzGrid from stzObject
 		*/
 
 		# TODO
-		stzRaise("TODO feature!")
+		StzRaise("TODO feature!")
 
 	def ReverseVLinesQ()
 		This.ReverseVLines()
@@ -924,7 +924,7 @@ class stzGrid from stzObject
 				[ (This.NumberOfVLines() / 2) , (This.NumberOfHLines() / 2) ],
 				[ (This.NumberOfVLines() / 2) + 1 , (This.NumberOfHLines() / 2) + 1 ])
 		else
-			stzRaise("The grid has no central region!")
+			StzRaise("The grid has no central region!")
 		ok
 		return aPositions
 
@@ -1007,7 +1007,7 @@ class stzGrid from stzObject
 		if n=0 or n=1
 			Opacity = n
 		else
-			stzRaise("Opacity can be eighter 0 or 1!")
+			StzRaise("Opacity can be eighter 0 or 1!")
 		ok
 
 	def Opacity()
@@ -1052,7 +1052,7 @@ class stzGrid from stzObject
 		ok
 
 		if NOT isString(pcValue)
-			stzRaise("Incorrect param type! pcValue must be a string.")
+			StzRaise("Incorrect param type! pcValue must be a string.")
 		ok
 
 		for h = 1 to This.NumberOfHLines()

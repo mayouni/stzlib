@@ -31,7 +31,7 @@ def SetBinaryNumberPrefix(pcBinaryPrefix)
 		_cBinaryNumberPrefix = pcBinaryPrefix
 
 	else
-		stzRaise("Incorrect hex number prefix!")
+		StzRaise("Incorrect hex number prefix!")
 	ok
 
 	#< @FunctionAlternativeForm
@@ -75,7 +75,7 @@ class stzBinaryNumber from stzObject
 				@cBinaryNumber = cNumber
 					
 		else
-				stzRaise("Can't create binary number!")
+				StzRaise("Can't create binary number!")
 		ok
 
 

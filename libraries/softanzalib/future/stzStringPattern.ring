@@ -10,7 +10,7 @@ class stzStringPattern from stzObject
 		if IsStringPattern(pcStr)
 			cPattern = pcStr
 		else
-			stzRaise(stzStringPattern(:CanNotCreateStringPattern))
+			StzRaise(stzStringPattern(:CanNotCreateStringPattern))
 		ok
 
 	def MatchWith(pcOtherStr)

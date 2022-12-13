@@ -53,7 +53,7 @@ func SetHilightChar(c)
 	if StringIsChar(c)
 		_cHilightChar = c
 	else
-		stzRaise(:CanNotSetHilightChar)
+		StzRaise(:CanNotSetHilightChar)
 	ok
 	
 func ListIsListOfChars(paList)
@@ -121,7 +121,7 @@ class stzListOfChars from stzListOfStrings
 			@aContent = Q(pValue).Chars()
 
 		else
-			stzRaise(stzListOfCharsError(:CanNotCreateListOfChars))
+			StzRaise(stzListOfCharsError(:CanNotCreateListOfChars))
 		ok
 
 
@@ -157,7 +157,7 @@ class stzListOfChars from stzListOfStrings
 			@cString = This.ToString() # TODO: Add it to stzList
 			@aStzChars = This.ToListOfStzChars()
 		else
-			stzRaise(stzListOfCharsError(:CanNotUpdateListOfChars)) # TODO
+			StzRaise(stzListOfCharsError(:CanNotUpdateListOfChars)) # TODO
 		ok
 
 		#< @FunctionAlternativeForm
@@ -499,7 +499,7 @@ class stzListOfChars from stzListOfStrings
 			
 
 		else
-			stzRaise(stzListOfCharsError(:CanNotBoxTheListOfChars))
+			StzRaise(stzListOfCharsError(:CanNotBoxTheListOfChars))
 		ok
 
 	  #-----------------#
@@ -528,7 +528,7 @@ class stzListOfChars from stzListOfStrings
 				return new stzListOfNumbers( This.Unicodes() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def CharsAndUnicodes()

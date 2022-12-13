@@ -45,7 +45,7 @@ func IsConstraint(pObject, pcConstraint)
 
 		cConstraint = StzStringQ(pcConstraint).RemoveBoundsQ(["{","}"]).RemoveFirstBoundQ(NL).Simplified()
 		if cConstraint = ""
-			stzRaise("Constraint can't be empty!")
+			StzRaise("Constraint can't be empty!")
 		ok
 
 		cCode = "if " + cConstraint + NL +
@@ -74,7 +74,7 @@ class stzConstraint from stzObject
 			@cConstraint = pConstraint
 
 		else
-			stzRaise("Incorrect types of object params!")
+			StzRaise("Incorrect types of object params!")
 		ok
 
 	def Content()
@@ -94,7 +94,7 @@ class stzConstraint from stzObject
 		cCode = "if " + cConstraint + NL +
 				TAB + " // Pass" + NL +
 			"else" + NL +
-				TAB + "stzRaise('Constraint unverified!')" + NL +
+				TAB + "StzRaise('Constraint unverified!')" + NL +
 			"ok"
 
 		return cCode

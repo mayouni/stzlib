@@ -61,7 +61,7 @@ func StopWords()
 			return new stzListOfStrings(StopWords())
 
 		other
-			stzRaise("Unsupported return type!")
+			StzRaise("Unsupported return type!")
 		off
 
 	#>
@@ -94,7 +94,7 @@ func StopWordsLanguages()
 			return new stzListOfStrings(StopWordsLanguages())
 
 		other
-			stzRaise("Unsupported return type!")
+			StzRaise("Unsupported return type!")
 		off
 
 	#>
@@ -120,7 +120,7 @@ func StopWordsLanguages()
 				return new stzListOfStrings(StopWordsAvailableLanguages())
 	
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	func AvailbaleLanguagesForStopWords()
@@ -142,7 +142,7 @@ func StopWordsLanguages()
 				return new stzListOfStrings(AvailbaleLanguagesForStopWords())
 	
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	#>
@@ -235,7 +235,7 @@ func StopWordsIn(pcLang)
 	on :Persian or :Farsi
 		return PersianStopWords()
 	other
-		stzRaise("Sorry! Stopwords are unavailable for this language.")
+		StzRaise("Sorry! Stopwords are unavailable for this language.")
 	off
 
 	#< @FunctionFluentForm
@@ -256,7 +256,7 @@ func StopWordsIn(pcLang)
 			return new stzListOfStrings(StopWordsIn(pcLang))
 	
 		other
-			stzRaise("Unsupported return type!")
+			StzRaise("Unsupported return type!")
 		off
 	#>
 
@@ -281,7 +281,7 @@ func StopWordsIn(pcLang)
 				return new stzListOfStrings(StopWordsOf(pcLang))
 		
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	#>
@@ -307,7 +307,7 @@ func ArabicStopWords()
 			return new stzListOfStrings(ArabicStopWords(pcLang))
 		
 		other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 		off
 
 	#>
@@ -338,7 +338,7 @@ func EnglishStopWords()
 			return new stzListOfStrings(EnglishStopWords(pcLang))
 		
 		other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 		off
 
 	#>

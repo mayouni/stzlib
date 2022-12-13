@@ -953,10 +953,10 @@ class stzObject
 			eval(cCode)
 
 		but IsNullString(pObject)
-			stzRaise("Can't create a stzObject from an empty string!")
+			StzRaise("Can't create a stzObject from an empty string!")
 		
 		else
-			stzRaise("Type error: you must provide an object or an object varname inside a string!")
+			StzRaise("Type error: you must provide an object or an object varname inside a string!")
 		ok
 
 	def Object()
@@ -1064,8 +1064,15 @@ class stzObject
 			return FALSE
 		ok
 
+		#< @FunctionNegativeForm
+
 		def IsNotANumber()
-			return NOT return This.IsANumber()
+			return NOT This.IsANumber()
+
+		def IsNotNumber()
+			return This.IsNotANumber()
+
+		#>
 	
 	def IsAString()
 
@@ -1075,8 +1082,15 @@ class stzObject
 			return FALSE
 		ok
 
+		#< @FunctionNegativeForm
+
 		def IsNotAString()
-			return NOT return This.IsAString()
+			return NOT This.IsAString()
+
+		def IsNotString()
+			return This.IsNotAString()
+
+		#>
 	
 	def IsAList()
 		if This.StzType() = :stzList
@@ -1085,8 +1099,15 @@ class stzObject
 			return FALSE
 		ok
 
+		#< @FunctionNegativeForm
+
 		def IsNotAList()
-			return NOT return This.IsAList()
+			return NOT This.IsAList()
+
+		def IsNotList()
+			return This.IsNotAList()
+
+		#>
 	
 	def IsAnObject()
 		return TRUE
@@ -1094,11 +1115,21 @@ class stzObject
 		def IsObjekt()
 			return TRUE
 
+		#< @FunctionNegativeForm
+
 		def IsNotAnObject()
 			return FALSE
 	
 			def IsNotObjeket()
 				return This.IsNotAnObject()
+
+		def IsNotObject()
+			return This.IsNotAnObject()
+
+			def IsNotAnObjekt()
+				return This.IsNotObject()
+
+		#>
 
 	def HasSameTypeAs(p)
 		return isObject(p)
@@ -1125,7 +1156,7 @@ class stzObject
 		*/
 
 		if NOT isList(paTypes)
-			stzRaise("Incorrect param type! paTypes must be a list.")
+			StzRaise("Incorrect param type! paTypes must be a list.")
 		ok
 
 		for type in paTypes
@@ -1150,7 +1181,7 @@ class stzObject
 
 	def IsEachOneOfTheseTypes(paTypes)
 		if NOT isList(paTypes)
-			stzRaise("Incorrect param type! paTypes must be a list.")
+			StzRaise("Incorrect param type! paTypes must be a list.")
 		ok
 
 		for type in paTypes
@@ -1223,7 +1254,7 @@ class stzObject
 		ok
 
 		if NOT BothAreStrings(pcType1, pcType2)
-			stzRaise("Incorrect param type! pcType1 and pcType2 must be strings.")
+			StzRaise("Incorrect param type! pcType1 and pcType2 must be strings.")
 		ok
 
 		if This.IsA(pcType1) or This.IsA(pcType2)
@@ -1241,7 +1272,7 @@ class stzObject
 		ok
 
 		if NOT BothAreStrings(pcType1, pcType2)
-			stzRaise("Incorrect param type! pcType1 and pcType2 must be strings.")
+			StzRaise("Incorrect param type! pcType1 and pcType2 must be strings.")
 		ok
 
 		if NOT This.IsA(pcType1) and
@@ -1362,7 +1393,7 @@ class stzObject
 				], :CS = FALSE)
 			)
 
-			stzRaise("Incorrect param! pIn must be a string representing one of" +
+			StzRaise("Incorrect param! pIn must be a string representing one of" +
 				 "these Softanza types: :String, :List, :ListOfNumbers, :ListOfStrings, " +
 				 ":ListOfLists, :ListOfPairs, :Grid, :Table.")
 		ok
@@ -1375,7 +1406,7 @@ class stzObject
 		ok
 
 		if NOT ( isNumber(pnSize) or (isList(pnSize) and Q(pnSize).IsPairOfNumbers()) )
-			stzRaise("Incorrect param type! pnSize must be a number.")
+			StzRaise("Incorrect param type! pnSize must be a number.")
 		ok
 
 		# Step 1: Doing the job
@@ -1453,7 +1484,7 @@ class stzObject
 			return aResult
 
 		else
-			stzRaise("Unsupported type of container! Allowed containers you can repeat " +
+			StzRaise("Unsupported type of container! Allowed containers you can repeat " +
 				 "the value in are: :List, :Pair, :ListOfLists, :ListOfPairs, :String, :Grid, and :Table.")
 		ok
 
@@ -1526,7 +1557,7 @@ class stzObject
 			return This.NumberOfItems()
 
 		else
-			stzRaise("Can't cast the object into a number.")
+			StzRaise("Can't cast the object into a number.")
 		ok
 
 	def ToNumberXT(pcCode)
@@ -1536,7 +1567,7 @@ class stzObject
 		ok
 
 		if NOT isString(pcCode)
-			stzRaise("Incorrect param type! pcCode must be a string.")
+			StzRaise("Incorrect param type! pcCode must be a string.")
 		ok
 
 		@number = 0
@@ -1554,7 +1585,7 @@ class stzObject
 			"@number =", "@number +=", "@number=", "@number+=" ],
 			:CaseSensitive = FALSE )
 
-			stzRaise("Syntax error! pcCode must start with '@number =' or '@number +='.")
+			StzRaise("Syntax error! pcCode must start with '@number =' or '@number +='.")
 		ok
 
 		if Q(cCode).StartsWithEitherCS( "@number=", :Or = "@number =", :CS = FALSE )
@@ -1593,7 +1624,7 @@ class stzObject
 		ok
 
 		if NOT isNumber(@number)
-			stzRaise("Incorrect type! @number must be a number.")
+			StzRaise("Incorrect type! @number must be a number.")
 		ok
 
 		return @number
@@ -1613,7 +1644,7 @@ class stzObject
 			return This.NumberOfItems()
 
 		else
-			stzRaise("Can't cast the object into a number.")
+			StzRaise("Can't cast the object into a number.")
 		ok
 
 	  #-----------#

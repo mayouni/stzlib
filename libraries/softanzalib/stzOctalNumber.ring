@@ -23,7 +23,7 @@ func SetOctalPrefix(cPrefix)
 	if StzListQ( OctalPrefixes() ).ContainsCS(cPrefix, :CaseSensitive = FALSE)
 		_cOctalPrefix = cPrefix
 	else
-		stzRaise("Incorrect octal prefix!")
+		StzRaise("Incorrect octal prefix!")
 	ok
 
 	def SetOctalNumberPrefix(cPrefix)
@@ -40,7 +40,7 @@ class stzOctalNumber from stzString
 				@cOctalNumber = pNumber
 
 		else
-			stzRaise(stzOctalNumberError(:CanNotCreateOctalNumber))
+			StzRaise(stzOctalNumberError(:CanNotCreateOctalNumber))
 		ok
 
 	def Content()

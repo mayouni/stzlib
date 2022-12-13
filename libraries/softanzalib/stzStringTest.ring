@@ -1,5 +1,138 @@
 load "stzlib.ring"
 
+/*=================
+*
+o1 = new stzString("... ____ ... ____")
+? o1.Find("...")
+#--> [ 1, 10 ]
+
+? @@S( o1.FindOccurrencesXT( :Of = "...", :AndReturnThemAs = :Positions ) )
+#--> [ 1, 10 ]
+
+? @@S( o1.FindOccurrencesXT( :Of = "...", :AndReturnThemAs = :Sections ) )
+#--> [ [ 1, 3 ], [ 10, 12 ] ]
+
+/*----------------
+
+o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12")
+? @@S( o1.Find("12.34") )
+#--> [ 7, 39 ]
+? @@S( o1.FindSections("12.34") )
+#--> [ [ 7, 11 ], [ 39, 43 ] ]
+
+? @@S( o1.FindManySections([ "12.34", "-56.30", "77.12" ]) )
+#--> [ [ 7, 11 ], [ 21, 26 ], [ 39, 43 ], [ 55, 59 ] ]
+
+/*=================
+
+o1 = new stzString("-23.67 pounds")
+? o1.StartsWithANumber()
+#--> TRUE
+
+? o1.StartingNumber()
+#--> -23.67
+
+? o1.StartsWithNumber("-23.67")
+#--? TRUE
+
+/*-----------------
+
+o1 = new stzString("Amount: -132.45")
+? o1.EndsWithANumber()
+#--> TRUE
+
+? o1.EndsWithNumber("-132.45")
+#--> TRUE
+
+? o1.TrailingNumber()
+#--> -132.45
+
+/*-----------------
+
+o1 = new stzString("Amount: +132.45")
+? o1.EndsWithANumber()
+#--> TRUE
+
+? o1.EndsWithNumber("+132.45")
+#--> TRUE
+
+? o1.TrailingNumber()
+#--> +132.45
+
+/*-----------------
+
+o1 = new stzString("Amount: +132.45")
+? o1.EndsWithANumber()
+#--> TRUE
+
+? o1.EndsWithNumber("132.45")
+#--> TRUE
+
+? o1.TrailingNumber()
+#--> +132.45
+
+/*-----------------
+
+o1 = new stzString("+132.45 euros")
+? o1.StartsWithANumber()
+#--> TRUE
+
+? o1.StartsWithNumber("132.45")
+#--> TRUE
+
+? o1.LeadingNumber()
+#--> +132.45
+
+/*=================
+
+o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12")
+
+? @@S( o1.Numbers() ) + NL
+#--> [ "12.34", "-56.30", "12.34", "77.12" ]
+
+? @@S( o1.UniqueNumbers() )
+#--> [ "12.34", "-56.30", "77.12" ]
+
+
+? @@S( o1.FindNumbers()) + NL
+#--> [ 7, 21, 39, 55 ]
+
+? @@S( o1.NumbersAndTheirPositions() ) + NL
+#-->
+# [
+# 	[ "12.34",  [ 7, 39 ] ],
+#	[ "-56.30", [ 21 ]    ],
+#	[ "77.12",  [ 55 ]    ]
+# ]
+
+? @@S( o1.NumbersAndTheirSections() ) # TODO: Enhance performance!
+#-->
+# [
+# 	[ "12.34", 	[ [ 7, 11 ], [ 39, 43 ]	] ],
+#	[ "-56.30",	[ [ 21, 26 ] 		   	] ],
+#	[ "77.12", 	[ [ 55, 59 ] 			] ]
+# ]
+
+? @@S( o1.FindNumbersAsSections() ) + NL
+#--> [ [ 7, 11 ], [ 21, 26 ], [ 39, 43 ], [ 55, 59 ] ]
+
+/*-----------------
+
+o1 = new stzString( " This: @i - 1.23 and this: @i + 378.12! " )
+? o1.NumbersComingAfter("@i")
+#--> [ "-1.23", "378.12" ]
+
+? o1.NthNumberComingAfter(2, "@i")
+#--> "378.12"
+
+? o1.Numbers()
+
+/*
+o1 = new stzString( " This[ @i - 1 ] = This[ @i + 3 ] " )
+? o1.NumbersComingAfter("@i")
+#--> [ "-1", "3" ]
+
+
 /*-----------------
 
 ? SoftanzaLogo()
@@ -966,7 +1099,7 @@ o1 = new stzString("12*45*78*c")
 #--> [6, 9]
 
 /*-----------------
-*/
+
 o1 = new stzString("12abc67abc12abc")
 ? o1.FindAll("abc")
 #--> [3, 8, 13]
@@ -993,14 +1126,117 @@ o1 = new stzString("12abc67abc12abc")
 ? o1.LastNOccurrencesXT(2, :Of = "abc", :StartingAt = 10)
 #--> [8, 13]
 
+/*=================
+
+o1 = new stzString("**3**67**012**56**92**")
+? @@S( o1.FindAnyBetweenXT("**") )	# or if you want FindAnySeparatedBy("**")
+#--> [ 3, 6, 10, 15, 19 ]
+
+? @@S( o1.FindAnySectionBetweenXT("**") )
+#--> [ [3,3], [6, 7], [10, 12], [15,16], [19,20] ]
+
+/*-----------------
+*/
+o1 = new stzString("***ONE***TWO***THREE***")
+? @@S( o1.FindManyCS([ "ONE", "TWO", "THREE"], 0) )
+#--> [ [ 4 ], [ 10 ], [ 16 ] ]
+
+o1 = new stzString("***ONE***TWO***THREE***")
+? @@S( o1.FindManyCS([ "ONE", "TWO", "THREE"], 0) )
+
+/*
+? o1.SplitQ(:Using = "***").FindIn(o1.Content())
+
+/*
+? @@S( o1.FindAnyBetweenXT("**") )
+#--> [ 2, 4, 7, 10 ]
+
+? @@S( o1.FindAnySectionBetweenXT("**") )
+
+
 /*-----------------
 
+# You can find the positions of any substring occurring between
+# two bounds by saying:
+
+o1 = new stzString("txt <<ring>> txt <<php>>")
+? @@S( o1.FindAnyBetween("<<",">>") )
+#--> [7, 20]
+
+# In fact, "ring" occures in position 7 and "php" in position 20.
+
+# Now, if you have the following case where the two bounds are
+# the same (equal to "*" here):
+
+o1 = new stzString("*2*45*78*0*")
 ? @@S( o1.FindAnyBetween("*","*") )
-#--> [ [4,5], [7,8] ]
+#--> [2, 7]
+
+# then you get "2" that starts at position 2 and "78" at position 7.
+# Let's understand what happened to get this result:
+
+	# the positions	:  12345678901
+	# the string	: "*2*45*78*0*"
+	# the occurences:   ^    ^
+
+# Softanza starts scanning the string. First, it finds that "*2*"
+# corresonds to a substring ("2") between "*" and "*". Then it
+# takes its position 2.
+
+# Second, Softanza starts from position 3 and scans the remaining
+# substring "45*78*0*" for any other substring betweeb "*" and "*".
+# It finds it at position 7 (substring "78").
+
+# Until now, we have positions 2 and 7.
+
+# Again, Softanza retrives "*78*" from "45*78*0*". Now the substring
+# to be scanned is "45*". There is no substrings between "*" and "*".
+# So the result [2, 7] is returned.
+
+# Now, you would ask me: What if I want to get all the psotions of
+# substrings separated by the char "*", like this:
+
+	# the positions	:  12345678901
+	# the string	: "*2*45*78*0*"
+	# the occurences:   ^ ^  ^  ^
+	# --> [2, 4, 7, 10]
+
+# Then you can use the extended version of the fucntion ..XT() and
+# pass the "*" char as a parameter like this:
+
+? @@S( o1.FindAnyBetweenXT("*") )
+#--> [ 2, 4, 7, 10 ]
+
+/*--------------
+
+# For each one of the 3 function calls we made so far (see
+# example above), you can get the result as sections and not
+# as positions. To do so, just use the same functions while
+# adding the keyword Sections like this:
+
+o1 = new stzString("txt <<ring>> txt <<php>>")
+? @@S( o1.FindAnySectionBetween("<<",">>") )
+#--> [ [ 7, 9 ], [ 20, 21 ] ]
+
+o1 = new stzString("*2*45*78*0*")
+? @@S( o1.FindAnySectionBetween("*","*") )
+#--> [ [ 2, 2 ], [ 7, 8 ] ]
+
+? @@S( o1.FindAnySectionBetweenXT("*") )
+#--> [ 2, 4, 7, 10 ]
+
+/*-----------------
+
+? Q("txt <<ring>> txt <<ring>>").FindAnySectionsBetween("<<",">>")
+#--> [ [7,10], [20,23] ]
+
+str = 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!'
+? Q(str).FindAnySectionsBetween('"', '"')
+
 /*
-o1 = new stzString("*1*45*78*c*")
-? @@S( o1.FindAnyBetween("*","*") )
-#--> [ [ 2, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
+
+? @@S( 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!' )
+#--> 'for txt = "   val1  " to "   val2" do this or that!'
 
 /*-----------------
 
@@ -1300,12 +1536,12 @@ o1 = new stzString("<<word>>")
 
 /*=================
 
-? stzRaise("Simple error message!")
+? StzRaise("Simple error message!")
 # --> Simple error message! 
 
 /*-----------------
 
-? stzRaise([
+? StzRaise([
 	:Where	= "stzString.ring",
 	:What 	= "Describes what happend",
 	:Why  	= "Describes why it happened",

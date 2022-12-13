@@ -449,7 +449,7 @@ class stzChainOfTruth from stzObject
 		try
 			eval(cCode)
 		catch
-			stzRaise("Syntax Error. check the code you provided as a param of Which()...")
+			StzRaise("Syntax Error. check the code you provided as a param of Which()...")
 		done
 
 		if This.ShouldBeNegated()
@@ -511,7 +511,7 @@ class stzChainOfTruth from stzObject
 		try
 			eval(cCode)
 		catch
-			stzRaise("Syntax error! Check the condition you provided in the parma.")
+			StzRaise("Syntax error! Check the condition you provided in the parma.")
 		done
 
 		if This.ShouldBeNegated()

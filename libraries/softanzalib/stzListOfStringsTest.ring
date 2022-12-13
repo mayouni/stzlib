@@ -104,8 +104,8 @@ o1 = new stzListOfStrings([ "ONE", "TWO", "THREE" ])
 /*------------
 
 o1 = new stzListOfStrings( functions() )
-? o1.ContainsCS("stzRaise", :CS = FALSE)	#--> TRUE
-? o1.FindFirstcs("stzRaise", :CS = false)	#--> 318
+? o1.ContainsCS("StzRaise", :CS = FALSE)	#--> TRUE
+? o1.FindFirstcs("StzRaise", :CS = false)	#--> 318
 
 /*-----------------
 
@@ -602,7 +602,7 @@ o1 = new stzListOfStrings([
 	"Mabrooka"
 ])
 
-? o1.FindManySubstringsCSXT([ "name", "nice" ], :CaseSensitive = TRUE)
+? o1.FindManySubstringsXTCS([ "name", "nice" ], :CaseSensitive = TRUE)
 # --> [
 #	"name" = [ "1" = [ 13 ], "3" = [ 6,21 ] ],
 #	"nice" = [ "3" = [ 16 ] ]

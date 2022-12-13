@@ -11,7 +11,7 @@ class stzListOfEntities from stzList
 
 			@aListOfEntities = paList
 		else
-			stzRaise("Can't create the stzListOfEntitities object! You must provide a list of hashlists.")
+			StzRaise("Can't create the stzListOfEntitities object! You must provide a list of hashlists.")
 		ok
 
 	def Content()
@@ -31,7 +31,7 @@ class stzListOfEntities from stzList
 				if This.ContainsName(paEntity[:name]) and
 				   This.ContainsType(paEntity[:type])
 
-					stzRaise(stzListOfEntitiesError(:CanNotAddThisEntityTwice))
+					StzRaise(stzListOfEntitiesError(:CanNotAddThisEntityTwice))
 
 				else
 					paEntity[:name] = StzStringQ(paEntity[:name]).Lowercased()
@@ -41,10 +41,10 @@ class stzListOfEntities from stzList
 				ok
 
 			else
-				stzRaise(stzListOfEntitiesError(:CanNotAddEntityWithoutName))
+				StzRaise(stzListOfEntitiesError(:CanNotAddEntityWithoutName))
 			ok
 		else
-			stzRaise(stzListOfEntitiesError(:CanNotAddNotAHashList))
+			StzRaise(stzListOfEntitiesError(:CanNotAddNotAHashList))
 		ok
 
 	def EntitiesNames()

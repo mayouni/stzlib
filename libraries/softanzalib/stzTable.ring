@@ -33,7 +33,7 @@ Class stzTable
 		# A table can be created in 4 different ways
 
 		if NOT isList(paTable)
-			stzRaise("Incorrect param format! paTable must be a list.")
+			StzRaise("Incorrect param format! paTable must be a list.")
 		ok
 
 		if len(paTable) = 0 or Q(paTable).IsPairOfNumbers()
@@ -153,7 +153,7 @@ Class stzTable
 
 		else
 			# If the param provided don't fit in any of the ways above
-			stzRaise("Incorrect param format! There are 5 possible ways in creating a table. " +
+			StzRaise("Incorrect param format! There are 5 possible ways in creating a table. " +
 				 "None fits with the param you provided. Check the code/comments under " +
 				 "stzTable.Init() method.")
 		ok
@@ -265,7 +265,7 @@ Class stzTable
 				return new stzListOfPairs( This.Columns() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -378,7 +378,7 @@ Class stzTable
 
 	def FindCol(pcColName)
 		if NOT isString(pcColName)
-			stzRaise("Incorrect param type! pcColName must be a string.")
+			StzRaise("Incorrect param type! pcColName must be a string.")
 		ok
 
 		if Q(pcColName).IsOneOfThese([:First, :FirstCol, :FirstColumn])
@@ -460,7 +460,7 @@ Class stzTable
 				return new stzListOfObjects( This.Col(p) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -501,7 +501,7 @@ Class stzTable
 			Q(paCols).IsListOfNumbersOrStrings() and
 			This.AreColumnsIdentifiers(paCols))
 
-			stzRaise("Incorrect param type! paCols must be a list of string containing existing columns names.")
+			StzRaise("Incorrect param type! paCols must be a list of string containing existing columns names.")
 		ok
 
 		aResult = []
@@ -548,7 +548,7 @@ Class stzTable
 			  Q(paCols).IsListOfStrings() or
 			  Q(paCols).IsListOfNumbersAndStrings() ) )
 
-			stzRaise("Incorrect param type! paCols must be of list of numbers or strings.")
+			StzRaise("Incorrect param type! paCols must be of list of numbers or strings.")
 		ok
 
 		bResult = TRUE
@@ -627,7 +627,7 @@ Class stzTable
 				return new stzListOfLists( This.ColXT(p) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -676,7 +676,7 @@ Class stzTable
 				n = This.NumberOfColumns()
 
 			else
-				stzRaise("syntax error in (" + n + ")! Allowed values are :First or :Last ( or :FirstCol or :LastCol).")
+				StzRaise("syntax error in (" + n + ")! Allowed values are :First or :Last ( or :FirstCol or :LastCol).")
 
 			ok
 		ok
@@ -776,12 +776,12 @@ Class stzTable
 			if This.HasColName(n)
 				return n
 			else
-				stzRaise("Incorrect column name! The name you provided does not exist.")
+				StzRaise("Incorrect column name! The name you provided does not exist.")
 			ok
 		ok
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n must be a number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		if n = 0
@@ -826,7 +826,7 @@ Class stzTable
 				return new stzListOfLists( This.CellsAndPositionsInCol(p) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -1097,7 +1097,7 @@ Class stzTable
 				return new stzListOfObjects( This.Row(n) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -1152,7 +1152,7 @@ Class stzTable
 
 	def CellsInRows(pnRows)
 		if NOT ( isList(pnRows) and Q(pnRows).IsListOfNumbers() )
-			stzRaise("Incorrect param type! pnRows must be a list of numbers.")
+			StzRaise("Incorrect param type! pnRows must be a list of numbers.")
 		ok
 
 		aResult = []
@@ -1184,7 +1184,7 @@ Class stzTable
 				return new stzListOfLists( This.RowXT(n) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -1293,7 +1293,7 @@ Class stzTable
 				return new stzListOfNumbers( This.Rows() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -1335,7 +1335,7 @@ Class stzTable
 				return new stzListOfLists( This.CellsAndPositionsInRow(n) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -1360,7 +1360,7 @@ Class stzTable
 					return new stzListOfLists( This.CellsInRowNAndTheirsPositions(n) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 		
 		def CellsAndPositionsInRowN(n)
@@ -1406,7 +1406,7 @@ Class stzTable
 		ok
 
 		if NOT isNumber(pnRow)
-			stzRaise("Incorrect param type! pnRow must be a number.")
+			StzRaise("Incorrect param type! pnRow must be a number.")
 		ok
 
 		aResult = []
@@ -1524,7 +1524,7 @@ Class stzTable
 
 			else
 				if NOT This.HasColName(pCol)
-					stzRaise("Syntax error in (" + pCol + ")! This column name is inexistant.")
+					StzRaise("Syntax error in (" + pCol + ")! This column name is inexistant.")
 				ok
 			ok
 		ok
@@ -1537,7 +1537,7 @@ Class stzTable
 				pnRow = This.NumberOfRows()
 
 			else
-				stzRaise("Syntax error in (" + pnRow + ")! Allowed values are :First or :Last (or :FirstRow or :LastRow).")
+				StzRaise("Syntax error in (" + pnRow + ")! Allowed values are :First or :Last (or :FirstRow or :LastRow).")
 			ok
 
 		ok
@@ -1627,7 +1627,7 @@ Class stzTable
 				return new stzListOfLists( This.TheseCells(paCellsPos) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -1706,7 +1706,7 @@ Class stzTable
 				return new stzListOfPairs( This.Cells() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -1872,7 +1872,7 @@ Class stzTable
 				return new stzList( This.TheseCellsToHashList(paCellsPos) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -1925,7 +1925,7 @@ Class stzTable
 				return new stzListOfPairs( This.Section( panCellPos1, panCellPos2 ) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -1950,7 +1950,7 @@ Class stzTable
 				return new stzListOfPairs( This.SectionXT( panCellPos1, panCellPos2 ) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 
@@ -1968,7 +1968,7 @@ Class stzTable
 				panCellPos1 = This.FirstCellPosition()
 
 			else
-				stzRaise("Syntax error in (" + panCellPos1 + ")! Allowed values are :First or :FirstCell.")
+				StzRaise("Syntax error in (" + panCellPos1 + ")! Allowed values are :First or :FirstCell.")
 			ok
 		ok
 
@@ -1977,7 +1977,7 @@ Class stzTable
 				panCellPos2 = This.LastCellPosition()
 
 			else
-				stzRaise("Syntax error in (" + panCellPos2 + ")! Allowed values are :Last or :LastCell.")
+				StzRaise("Syntax error in (" + panCellPos2 + ")! Allowed values are :Last or :LastCell.")
 			ok
 		ok
 
@@ -2013,7 +2013,7 @@ Class stzTable
 		if NOT ( isList(panCellPos1) and Q(panCellPos1).IsPairOfNumbers() and
 			 isList(panCellPos2) and Q(panCellPos2).IsPairOfNumbers() )
 
-			stzRaise("Incorrect params types! panCellPos1 and panCellPos2 must be pairs of numbers.")
+			StzRaise("Incorrect params types! panCellPos1 and panCellPos2 must be pairs of numbers.")
 		ok
 
 		anPairs = Q([ panCellPos1, panCellPos2 ]).SortedInAscending()
@@ -2048,7 +2048,7 @@ Class stzTable
 				return new stzListOfPairs( This.SectionAsPositions(panCellPos1, panCellPos2))
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -2077,7 +2077,7 @@ Class stzTable
 		ok
 
 		if NOT isNumber(pCol)
-			stzRaise("Incorrect param type! pCol must be a number.")
+			StzRaise("Incorrect param type! pCol must be a number.")
 		ok
 
 		if isString(n1)
@@ -2087,7 +2087,7 @@ Class stzTable
 		ok
 
 		if NOT isNumber(n1)
-			stzRaise("Incorrect param type! n1 must be a number.")
+			StzRaise("Incorrect param type! n1 must be a number.")
 		ok
 
 		if isString(n2)
@@ -2097,7 +2097,7 @@ Class stzTable
 		ok
 
 		if NOT isNumber(n2)
-			stzRaise("Incorrect param type! n2 must be a number.")
+			StzRaise("Incorrect param type! n2 must be a number.")
 		ok
 
 		aResult = []
@@ -2129,7 +2129,7 @@ Class stzTable
 		ok
 
 		if NOT isNumber(nRow)
-			stzRaise("Incorrect param type! nRow must be a number.")
+			StzRaise("Incorrect param type! nRow must be a number.")
 		ok
 
 		if isString(n1)
@@ -2139,7 +2139,7 @@ Class stzTable
 		ok
 
 		if NOT isNumber(n1)
-			stzRaise("Incorrect param type! n1 must be a number.")
+			StzRaise("Incorrect param type! n1 must be a number.")
 		ok
 
 		if isString(n2)
@@ -2149,7 +2149,7 @@ Class stzTable
 		ok
 
 		if NOT isNumber(n2)
-			stzRaise("Incorrect param type! n2 must be a number.")
+			StzRaise("Incorrect param type! n2 must be a number.")
 		ok
 
 		aResult = []
@@ -2198,7 +2198,7 @@ Class stzTable
 				return new stzListOfPairs( This.SectionToHashList(panCellPos1, panCellPos2) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off		
 
 	  #============================#
@@ -2247,7 +2247,7 @@ Class stzTable
 			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :SubValues ])
 				return This.FindSubValueCS(pCellValueOrSubValue[2], pCaseSensitive)
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 
 			ok
 		else
@@ -2456,7 +2456,7 @@ Class stzTable
 				return This.FindNthSubValueCS(n, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 			ok
 
 		else
@@ -2492,7 +2492,7 @@ Class stzTable
 		ok
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n must be a number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		aResult = []
@@ -2548,7 +2548,7 @@ Class stzTable
 		ok
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n must be a number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		anPos = This.FindSubValuesCS(pSubValue, pCaseSensitive)
@@ -2592,7 +2592,7 @@ Class stzTable
 				return This.FindFirstSubValueCS(pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 			ok
 		ok
 
@@ -2667,7 +2667,7 @@ Class stzTable
 				return This.FindLastSubValueCS(pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 			ok
 		ok
 
@@ -2751,7 +2751,7 @@ Class stzTable
 				return This.NumberOfOccurrenceOfSubValueCS(pValue[2], pCaseSensitive)
 
 			else
-				stzRaise("Incorrect param format! pValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pValue must take the form :Cell = ... or :SubValue = ...")
 			ok
 		ok
 
@@ -2957,7 +2957,7 @@ Class stzTable
 				return This.ContainsSubValueCS(pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 			ok
 		ok
 
@@ -3194,7 +3194,7 @@ Class stzTable
 			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :SubValues ])
 				return This.FindSubValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 
 			ok
 		ok
@@ -3370,7 +3370,7 @@ Class stzTable
 				return This.FindNthSubValueInCellsCS(n, paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 			ok
 		ok
 
@@ -3405,7 +3405,7 @@ Class stzTable
 		ok
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n must be a number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		anPos = This.FindAllInCellsCS( paCells, pCellValue, pCaseSensitive)
@@ -3444,7 +3444,7 @@ Class stzTable
 		ok
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n must be a number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		anPos = This.FindSubValuesInCellsCS(paCells, pSubValue, pCaseSensitive)
@@ -3488,7 +3488,7 @@ Class stzTable
 				return This.FindFirstSubValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 			ok
 		ok
 
@@ -3551,7 +3551,7 @@ Class stzTable
 				return This.FindLastSubValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 			ok
 		ok
 
@@ -3614,7 +3614,7 @@ Class stzTable
 				return This.NumberOfOccurrencesOfSubValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 
 			ok
 		ok
@@ -3765,7 +3765,7 @@ Class stzTable
 				return This.CellsContainSubValueCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 
 			ok
 		ok
@@ -3856,7 +3856,7 @@ Class stzTable
 			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :SubValue ])
 				return This.FindSubValueInRowCS(pRow, pCellValueOrSubValue[2], pCaseSensitive)
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 
 			ok
 		ok
@@ -5136,7 +5136,7 @@ Class stzTable
 				pCol = This.NumberOfCols()
 		
 			else
-				stzRaise("Incorrect param type! pCol must be a number.")
+				StzRaise("Incorrect param type! pCol must be a number.")
 			ok
 		ok
 
@@ -5323,7 +5323,7 @@ Class stzTable
 			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :SubValue ])
 				return This.FindSubValueInSectionCS(paSection1, paSection2, pCellValueOrSubValue[2], pCaseSensitive)
 			else
-				stzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
+				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
 
 			ok
 		ok
@@ -5793,7 +5793,7 @@ Class stzTable
 		ok
 
 		if NOT BothAreLists(paCellsPos, paNewValues)
-			stzRaise("Incorrect param types! paCellsPos and paNewValues must be both lists.")
+			StzRaise("Incorrect param types! paCellsPos and paNewValues must be both lists.")
 		ok
 
 		nLenCells  = len(paCellsPos)
@@ -5831,7 +5831,7 @@ Class stzTable
 		ok
 
 		if NOT isList(paNewCol)
-			stzRaise("Incorrect param type! paNewCol must be a list.")
+			StzRaise("Incorrect param type! paNewCol must be a list.")
 		ok
 
 		aColCells = This.ColAsPositions(pCol)
@@ -5847,7 +5847,7 @@ Class stzTable
 		ok
 
 		if NOT isList(paNewCol) 
-			stzRaise("Incorrect param type! paNewCol must be a list.")
+			StzRaise("Incorrect param type! paNewCol must be a list.")
 		ok
 
 		for i = 1 to This.NumberOfCols()
@@ -5904,7 +5904,7 @@ Class stzTable
 		ok
 
 		if NOT isList(paNewRow) 
-			stzRaise("Incorrect param type! paNewRow must be a list.")
+			StzRaise("Incorrect param type! paNewRow must be a list.")
 		ok
 
 		for i = 1 to This.NumberOfRows()
@@ -6009,15 +6009,15 @@ Class stzTable
 			 isString(paColNameAndData[1]) and
 			 isList(paColNameAndData[2]) )
 			
-			stzRaise("Incorrect column format! paColNameAndData must take the form :ColName = [ cell1, cell2, ... ].")
+			StzRaise("Incorrect column format! paColNameAndData must take the form :ColName = [ cell1, cell2, ... ].")
 		ok
 
 		if This.IsColName(paColNameAndData[1])
-			stzRaise("Can't add the column! The name your provided already exists.")
+			StzRaise("Can't add the column! The name your provided already exists.")
 		ok
 
 		if NOT len(paColNameAndData[2]) = This.NumberOfRows()
-			stzRaise("Incorrect number of cells! paColNameAndData must contain extactly " + This.NumberOfRows() + " cells.")
+			StzRaise("Incorrect number of cells! paColNameAndData must contain extactly " + This.NumberOfRows() + " cells.")
 		ok
 
 		This.Content() + paColNameAndData
@@ -6051,11 +6051,11 @@ Class stzTable
 		*/
 
 		if NOT isList(paRow)
-			stzRaise("Incorrect param type! paRow must be a list.")
+			StzRaise("Incorrect param type! paRow must be a list.")
 		ok
 
 		if NOT len(paRow) = This.NumberOfCols()
-			stzRaise("Incorrect format! paRow must contain " + This.NumberOfCols() + " items.")
+			StzRaise("Incorrect format! paRow must contain " + This.NumberOfCols() + " items.")
 		ok
 
 		i = 0
@@ -6087,7 +6087,7 @@ Class stzTable
 		if NOT( isList(paNewTable) and Q(paNewTable).IsHashList() and
 			StzHashListQ(paNewTable).ValuesAreListsOfSameSize()  )
 
-			stzRaise("Incorrect param type! paNewTable must be a hashlist where values are lists of the same size.")
+			StzRaise("Incorrect param type! paNewTable must be a hashlist where values are lists of the same size.")
 		ok
 
 		@aTable = paNewTable
@@ -6099,7 +6099,7 @@ Class stzTable
 	def RenanmeCol(pCol, pcNewName)
 
 		if NOT isString(pcNewName)
-			stzRaise("Incorrect param type! pcNewName must be a string.")
+			StzRaise("Incorrect param type! pcNewName must be a string.")
 		ok
 
 		if isString(pCol)
@@ -6113,7 +6113,7 @@ Class stzTable
 				pCol = This.ColToColNumber(pCol)
 
 			else
-				stzRaise("Incorrect value! Allowed values :FirstCol, :LastCol, or use a number instead.")
+				StzRaise("Incorrect value! Allowed values :FirstCol, :LastCol, or use a number instead.")
 			ok
 		ok
 
@@ -6133,7 +6133,7 @@ Class stzTable
 		ok
 
 		if NOT isString(pcNewName)
-			stzRaise("Incorrect param type! pcNewName must be a string.")
+			StzRaise("Incorrect param type! pcNewName must be a string.")
 		ok
 
 		This.Table()[n][1] = pcNewName
@@ -6143,7 +6143,7 @@ Class stzTable
 
 	def RemnameNthCols(panColsNumbers)
 		if NOT (isList(paColsNumbers) and Q(paColsNumbers).IsListOfNumbers() )
-			stzRaise("Incorrect param type! panColsNumbers must be a list of numbers.")
+			StzRaise("Incorrect param type! panColsNumbers must be a list of numbers.")
 		ok
 
 		for n in panColsNumbers
@@ -6260,7 +6260,7 @@ Class stzTable
 
 	def EraseRows(panRows)
 		if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
-			stzRaise("Incorrect param type! panRows must be a list of numbers!")
+			StzRaise("Incorrect param type! panRows must be a list of numbers!")
 		ok
 
 		for n in panRows
@@ -6277,7 +6277,7 @@ Class stzTable
 		ok
 
 		if NOT isString(pCol) and This.HasColName(pCol)
-			stzRaise("Incorrect column name!")
+			StzRaise("Incorrect column name!")
 		ok
 
 		This.Table()[pCol][pnRow] = NULL
@@ -6437,7 +6437,7 @@ Class stzTable
 
 	def SubTable(pacColNames)
 		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
-			stzRaise("Incorrect param type! pacColNames must be a list of string.")
+			StzRaise("Incorrect param type! pacColNames must be a list of string.")
 		ok
 
 		pacColNames = Q(pacColNames).Lowercased()
@@ -6473,12 +6473,12 @@ Class stzTable
 				return new stzTable( This.SubTable(pacColNames) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def ColNumbersToNames(panColNumbers)
 		if NOT ( isList(panColNumbers) and Q(panColNumbers).IsLIstOfNumbers() )
-			stzRaise("Incorrect param type! panColNumbers must be a list of numbers.")
+			StzRaise("Incorrect param type! panColNumbers must be a list of numbers.")
 		ok
 
 		aResult = []
@@ -6494,7 +6494,7 @@ Class stzTable
 			  ( Q(paColNamesOrNumbers).IsListOfNumbers() or
 			  Q(paColNamesOrNumbers).IsListOfStrings() ) )
 
-			stzRaise("Incorrect param type! paColNamesOrNumbers must be a list of numbers or a list of strings.")
+			StzRaise("Incorrect param type! paColNamesOrNumbers must be a list of numbers or a list of strings.")
 		ok
 
 		aResult = []
@@ -6531,7 +6531,7 @@ Class stzTable
 				return new stzListOfLists( This.TheseColumns(paColNamesOrNumbers) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -6616,7 +6616,7 @@ Class stzTable
 				return new stzListOfLists( This.TheseColumnsXT(panColNamesOrNumbers) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -6645,7 +6645,7 @@ Class stzTable
 
 	def TheseColNames(panColNumbers)
 		if NOT (isList(panColNumbers) and Q(panColNumbers).IsListOfNumbers() )
-			stzRaise("Incorrect param type! pacColNumbers muts be a list of numbers.")
+			StzRaise("Incorrect param type! pacColNumbers muts be a list of numbers.")
 		ok
 
 		panColNumbers  = Q(panColNumbers).SortedInAscending()
@@ -6685,7 +6685,7 @@ Class stzTable
 	def TheseRows(panRowsNumbers)
 		if NOT 	( isList(panRowsNumbers) and Q(panRowsNumbers).IsListOfNumbers() )
 
-			stzRaise("Incorrect param type! panRowsNumbers must be a list of numbers.")
+			StzRaise("Incorrect param type! panRowsNumbers must be a list of numbers.")
 		ok
 
 		aResult = []
@@ -6716,7 +6716,7 @@ Class stzTable
 				return new stzListOfLists( This.TheseRows(panRowsNumbers) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -6762,7 +6762,7 @@ Class stzTable
 				return new stzListOfLists( This.TheseRowsXT(panRowsNumbers) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	  #=====================#
@@ -6811,14 +6811,14 @@ Class stzTable
 		ok
 
 		if NOT ( isNumber(pCol) or isString(pCol) )
-			stzRaise("Incorrect param type! pCol must be a number or string.")
+			StzRaise("Incorrect param type! pCol must be a number or string.")
 		ok
 
 		if isNumber(pCol) and NOT ( Q(pCol).IsBetween(1, This.NumberOfCol()) )
-			stzRaise("Incorrect param value! pCol must be a number between 1 and " + This.NumberOfCol() + ".")
+			StzRaise("Incorrect param value! pCol must be a number between 1 and " + This.NumberOfCol() + ".")
 
 		but isString(pCol) and NOT This.HasColName(pCol)
-			stzRaise("Incorrect param value! pCol must be a valid column name.")
+			StzRaise("Incorrect param value! pCol must be a valid column name.")
 		ok
 
 		if isList(pcDirection) and Q(pcdirection).IsInNamedParam()
@@ -6828,7 +6828,7 @@ Class stzTable
 		if NOT ( isString(pcDirection) and
 			 Q(pcDirection).IsOneOfThese([ :Ascending, :Descending, :InAscending, :InDescending ]) )
 
-			stzRaise("Incorrect param! pcDirection must be :In = :Ascending or :In = :Descending.")
+			StzRaise("Incorrect param! pcDirection must be :In = :Ascending or :In = :Descending.")
 		ok
 
 		# STEP 1: Moving the column used in the sort at the first position
@@ -6970,7 +6970,7 @@ Class stzTable
 		ok
 
 		if NOT BothAreNumbers(pnFrom, pnTo)
-			stzRaise("Incorrect param types! Both pnFrom and pnTo must be numbers.")
+			StzRaise("Incorrect param types! Both pnFrom and pnTo must be numbers.")
 		ok
 
 		# Doing the job
@@ -7067,11 +7067,11 @@ Class stzTable
 		ok
 
 		if isString(pnFrom) and NOT This.HasColName(pnFrom)
-			stzRaise("Incorrect column name!")
+			StzRaise("Incorrect column name!")
 		ok
 
 		if isString(pnTo) and NOT This.HasColName(pnTo)
-			stzRaise("Incorrect column name!")
+			StzRaise("Incorrect column name!")
 		ok
 
 		pnFrom = This.ColToNumber(pnFrom)
@@ -7098,7 +7098,7 @@ Class stzTable
 
 	def IsColName(pcName)
 		if NOT isString(pcName)
-			stzRaise("Incorrect param type! pcName must be a string.")
+			StzRaise("Incorrect param type! pcName must be a string.")
 		ok
 
 		cName = Q(pcName).Lowercased()
@@ -7122,7 +7122,7 @@ Class stzTable
 		bCol2IsValie = ( isString(pCol2) and This.HasColName(pCol2) )
 
 		if NOT ( bCol1IsValid or bCol2IsValie )
-			stzRaise("Incorrect params! pCol1 and pCol2 must be valid columns names or strings.")
+			StzRaise("Incorrect params! pCol1 and pCol2 must be valid columns names or strings.")
 		ok
 
 		cName1 = This.ColName(pCol1)
@@ -7227,11 +7227,11 @@ Class stzTable
 		ok
 
 		if NOT isString(pcNewColName)
-			stzRaise("Incorrect param type! pcNewColName must be a string.")
+			StzRaise("Incorrect param type! pcNewColName must be a string.")
 		ok
 
 		if This.IsColName(pcNewColName)
-			stzRaise("Can't replace the column with this name (" + pcNewColName + ")! Name you provided already exists.")
+			StzRaise("Can't replace the column with this name (" + pcNewColName + ")! Name you provided already exists.")
 		ok
 
 		n = This.ColNumber(pCol)
@@ -7246,7 +7246,7 @@ Class stzTable
 
 	def AreColNames(pacColNames)
 		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
-			stzRaise("Incorrect param type! pacColNames must be a list of strings.")
+			StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 		ok
 
 		bResult = TRUE
@@ -7297,7 +7297,7 @@ Class stzTable
 				pCol = This.FindCol(pCol)
 
 			else
-				stzRaise("Syntax error in column name! Allowed values are :First, :FirstCol, or privide a number instead.")
+				StzRaise("Syntax error in column name! Allowed values are :First, :FirstCol, or privide a number instead.")
 			ok
 		ok
 
@@ -7335,7 +7335,7 @@ Class stzTable
 				return new stzListOfNumbers( This.MaxWidthInEachCol() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def MaxWidthInEachColXT()
@@ -7411,7 +7411,7 @@ Class stzTable
 
 	def RowToStringXT(n, paOptions)
 		if NOT ( isList(paOptions) and Q(paOptions).IsHashList() )
-			stzRaise("Incorrect param format! paOtions must be a hashlist.")
+			StzRaise("Incorrect param format! paOtions must be a hashlist.")
 		ok
 
 		cEmptyCell = paOptions[ :ReplaceEmptyCellsWith ]
@@ -7518,7 +7518,7 @@ Class stzTable
 			This.ReplaceRows(:By = pValue)
 
 		else
-			stzRaise("Unsupported syntax! Allowed named params are: " +
+			StzRaise("Unsupported syntax! Allowed named params are: " +
 				 ":WithCell, :WithColumn, and :WithRow.")
 		ok
 		
@@ -7553,7 +7553,7 @@ Class stzTable
 		ok
 
 		if NOT IsNumberOrString(p)
-			stzRaise("Incorrect param type! p must be a number or string.")
+			StzRaise("Incorrect param type! p must be a number or string.")
 		ok
 
 		if isString(p)
@@ -7567,7 +7567,7 @@ Class stzTable
 				p = This.FindCol(p)
 
 			else
-				stzRaise("Incorrect param value! p must be a number or string. Allowed strings are :First, :FirstCol, :Last, :LastCol and any valid column name.")
+				StzRaise("Incorrect param value! p must be a number or string. Allowed strings are :First, :FirstCol, :Last, :LastCol and any valid column name.")
 			ok
 		ok
 
@@ -7585,7 +7585,7 @@ Class stzTable
 				Q(paCols).IsListOfStrings() or
 				Q(paCols).IsListOfNumbersAndStrings() ) )
 
-			stzRaise("Incorrect param type! paCols must be a list of numbers or strings or numbers/strings.")
+			StzRaise("Incorrect param type! paCols must be a list of numbers or strings or numbers/strings.")
 		ok
 
 		acResult = []
@@ -7616,7 +7616,7 @@ Class stzTable
 		ok
 
 		if NOT IsNumberOrString(p)
-			stzRaise("Incorrect param type! p must be a number or string.")
+			StzRaise("Incorrect param type! p must be a number or string.")
 		ok
 
 		if isString(p)
@@ -7630,12 +7630,12 @@ Class stzTable
 				p = This.ColNamesQ().FindFirst(p)
 
 			else
-				stzRaise("Incorrect param value! p must be a number or string. Allowed strings are :First, :FirstCol, :Last, :LastCol and any valid column name.")
+				StzRaise("Incorrect param value! p must be a number or string. Allowed strings are :First, :FirstCol, :Last, :LastCol and any valid column name.")
 			ok
 		ok
 
 		if NOT Q(p).IsBetween(1, This.NumberOfCols())
-			stzRaise("Incorrect value! n must be a number between 1 and " + This.NumberOfCols() + ".")
+			StzRaise("Incorrect value! n must be a number between 1 and " + This.NumberOfCols() + ".")
 		ok
 
 		nResult = p
@@ -7655,7 +7655,7 @@ Class stzTable
 				Q(paCols).IsListOfStrings() or
 				Q(paCols).IsListOfNumbersAndStrings() ) )
 
-			stzRaise("Incorrect param type! paCols must be a list of numbers or strings or numbers/strings.")
+			StzRaise("Incorrect param type! paCols must be a list of numbers or strings or numbers/strings.")
 		ok
 
 		anResult = []
@@ -7691,7 +7691,7 @@ Class stzTable
 		ok
 
 		if NOT isNumber(pRow)
-			stzRaise("Incorrect param type! pRow must be a number.")
+			StzRaise("Incorrect param type! pRow must be a number.")
 		ok
 
 		return  pRow

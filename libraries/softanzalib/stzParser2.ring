@@ -40,7 +40,7 @@ class stzParser from stzList
 		if n > 0 and n <= len(aContent)
 			nCurrentPosition = n
 		else
-			stzRaise("Out of range!")
+			StzRaise("Out of range!")
 		ok
 
 	def NextPosition()

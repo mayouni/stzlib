@@ -10,7 +10,7 @@ func RangeToSection(paRange)
 		aResult = [ n1, n1 + n2 - 1 ]
 		return aResult
 	else
-		stzRaise("Incorrect param! paRange must be a pair of numbers.")
+		StzRaise("Incorrect param! paRange must be a pair of numbers.")
 	ok
 
 func RangesToSections(panRanges)
@@ -28,7 +28,7 @@ func SectionToRange(panSection)
 		anResult = [ n1, n2 - n1 + 1 ]
 		return anResult
 	else
-		stzRaise("Incorrect param! paRange must be a pair of numbers.")
+		StzRaise("Incorrect param! paRange must be a pair of numbers.")
 	ok
 
 func SectionsToRanges(panSections)
@@ -127,6 +127,15 @@ class stzListOfPairs from stzList
 		def FirstItemsInEachPair()
 			return This.FirstItems()
 
+		def FirstValues()
+			return This.FirstItems()
+
+		def FirstValuesOfEachPair()
+			return This.FirstItems()
+
+		def FirstValuesInEachPair()
+			return This.FirstItems()
+
 	  #-----------------------------#
 	 #  SECOND ITEMS OF EACH PAIR  #
 	#-----------------------------#
@@ -145,6 +154,15 @@ class stzListOfPairs from stzList
 			return This.SecondItems()
 
 		def SecondItemsInEachPair()
+			return This.SecondItems()
+
+		def SecondValues()
+			return This.SecondItems()
+
+		def SecondValuesOfEachPair()
+			return This.SecondItems()
+
+		def SecondValuesInEachPair()
 			return This.SecondItems()
 
 	  #---------------------------------------------#
@@ -336,7 +354,7 @@ class stzListOfPairs from stzList
 				return new stzListOfLists( This.ExpandedIfPairsOfNumbers() )
 
 			other
-				stzRaise("Unsupported type!")
+				StzRaise("Unsupported type!")
 			off
 				
 		#>

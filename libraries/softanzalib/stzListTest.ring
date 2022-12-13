@@ -1,7 +1,13 @@
 load "stzlib.ring"
 
 /*-----------------
-*/
+
+o1 = new stzList([ "T", "A", "Y", "O", "U", "B", "T", "A" ])
+? o1.SectionsXT( :From = "T", :To = "A" )
+#--> [ ["T", "A"], [ "T", "A", "Y", "O", "U", "B", "T", "A" ], ["T", "A"] ]
+
+/*-----------------
+
 o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 
 ? o1.FindAll("abc")
@@ -28,7 +34,6 @@ o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 ? o1.LastNOccurrencesXT(2, :Of = "abc", :StartingAt = 10)
 #--> [6, 9]
 
-STOP()
 /*------------------
 
 # The W() function takes a string and tries its best to return a well
@@ -520,10 +525,18 @@ StzListQ(' "ا" : "ج" ') {
 }
 
 /*-----------------
-*/
-? @@S( 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!' )
-#--> 'for txt = "   val1  " to "   val2" do this or that!'
 
+? @@S( List( :From = "A", :To = "E" ) )
+#--> [ "A", "B", "C", "D", "E" ]
+
+? @@S( List( :From = "ا", :To = "ث" ) )
+o#--> [ "ا", "ب", "ة", "ت", "ث" ]
+
+? @@S( ListXT( ' "A" : "E" ' ) )
+#--> [ "A", "B", "C", "D", "E" ]
+
+? @@S( ListXT( ' "ا" : "ث" ' ) )
+o#--> [ "ا", "ب", "ة", "ت", "ث" ]
 
 /*-----------------
 
@@ -539,21 +552,20 @@ aList = "A" : "D"
 aList = "ا" : "ج"
 ? @@S( aList )	# --> "ا"
 
-# Fortunately, Softanza solves this by the following function:
+# Fortunately, Softanza solves this by the List() function:
 
-? @@( ContiguousList("ا" , "ج") )
+? @@S( List( :From = "ا", :To = "ج" ) )
 #--> Gives [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
 # You won't need it but it manages ASCIIs as well:
 
-? ContiguousList("A", "D")	#--> [ "A", "B", "C", "D" ]
+? @@S( List("A", "D")	) #--> [ "A", "B", "C", "D" ]
 
-# Interestingly, this short form mimics the "_" : "_" Ring syntax:
+# Interestingly, you can put the list in a string and mimics
+# the "_" : "_" Ring syntax, by using the ..XT() form of the function:
 
-? @C('"ا" : "ج"')	#--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
-? @C(' "ج" : "ا" ') 	#--> [ "ج", "ث", "ت", "ة", "ب", "ا" ]
-
-STOP()
+? ListXT('"ا" : "ج"')	#--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+? ListXT(' "ج" : "ا" ') 	#--> [ "ج", "ث", "ت", "ة", "ب", "ا" ]
 
 /*================
 
@@ -581,7 +593,7 @@ StzListQ(aList) {
 	? NumberOfClasses() 	#--> 4
 }
 
-STOP()
+
 /*-----------------
 
 o1 = new stzList([
@@ -621,12 +633,12 @@ o1 = new stzList([
 ? o1.Klass("[ 1, 2, 3, 4, 5 ]") #--> [1, 3, 8 ]
 
 # Here, I used "K" because "Class" is a reserved name by Ring.
-# If you don't like that, please use Category() instead.
+# If you don't like that, use Category() instead.
 
 # If you prefer getting the classes in "short form" (i.e. "1:5"
 # instead of normal form "[1, 2, 3, 4, 5 ]", then use this:
 
-? o1.Classify@C() #--> "@C" for "Contiguous"
+? o1.ClassifySF() #--> "@C" for "Contiguous"
 #--> [
 #	[ "1:5",   [1, 3, 8 ] ],	
 #	[ "3:9",   [2, 5 ] ],
@@ -634,15 +646,11 @@ o1 = new stzList([
 #	[ "12:20", [6, 9 ]
 #    ]
 
-# TODO: retest after completing stzSplit()
-
-? o1.Classes@C() #--> [ "1:5", "3:9", "10:15", "12:20" ]
+? o1.ClassesSF() #--> [ "1:5", "3:9", "10:15", "12:20" ]
 	
-? o1.Klass@C("1:5") #--> [1, 3, 8]
+? o1.KlassSF("1:5") #--> [1, 3, 8]
 
-STOP()
-
-/*----------------
+/*=================
 
 ? StzStringQ(:stzList).IsStzClassName() #--> TRUE
 ? StzListQ( :ReturnedAs = :stzList ).IsReturnedAsNamedParam() #--> TRUE
@@ -671,7 +679,7 @@ StzListQ([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]) {
 	# You can also say OnlyNonNumbers()
 
 	? Content() # --> [ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]
-	# Note that the list is not altered by Numbers() and NonNumbers()
+	# Note that the list is not altered by Numbers() and NonNumbers() functions
 }
 
 /*-----------------
@@ -683,7 +691,6 @@ StzListQ([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]) {
 
 }
 
-STOP()
 
 /*-----------------
 
@@ -702,15 +709,55 @@ StzListQ([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]) {
 
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
 o1 - o1.NonNumbers()
-? o1.Content() # -->  [ 1, 2, 3, 4, 5 ]
+? o1.Content() #-->  [ 1, 2, 3, 4, 5 ]
+
+/*-----------------
+
+o1 = new stzListOfStrings([ "A", "B", "1", "C", "2", "3", "D", "4", "5" ])
+? o1.FindFirstCS("b", :CS = TRUE)	#--> 0
+? o1.FindFirstCS("b", :CS = FALSE)	#--> 2
 
 /*-----------------
 
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
-o1 - o1.ItemsW('IsNotNumber(@item)')
-? o1.Content() # -->  [ 1, 2, 3, 4, 5 ]
+? o1.Contains("a") #--> FALSE
+? o1.Contains("A") #--> TRUE
+
+? o1.ContainsNo("C") #--> FALSE
+? o1.ContainsNo("X") #--> TRUE
 
 /*-----------------
+
+o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
+? o1.ItemsW('Q(@item).IsNotANumber()')
+#--> [ "A", "B", "C", "D" ]
+
+/*-----------------
+
+o1 = new stzList([ 1, "A":"B", 2, 3, "X", "Y", "Z" ])
+
+o1 - "A":"B"
+? o1.Content()
+#--> [ 1, 2, 3, "X", "Y", "Z" ]
+
+o1 - [ "X", "Y", "Z" ]
+? o1.Content()
+#--> [ 1, 2, 3 ]
+
+/*-----------------
+
+o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
+o1 - [ "A", "B", "C", "D" ]
+? o1.Content()
+#--> [ 1, 2, 3, 4, 5 ]
+
+/*-----------------
+
+o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
+o1 - o1.ItemsW( :Where = 'Q(@item).IsNotANumber()' )
+? o1.Content() # -->  [ 1, 2, 3, 4, 5 ]
+
+/*================
 
 StzListQ([ "by", "except"]) { 
 	? IsMadeOfOneOrMoreOfThese([ :by, :except, :stopwords ]) # --> TRUE
@@ -721,15 +768,15 @@ StzListQ([ "by", "except"]) {
 
 /*-----------------
 
-StzListQ([ "by", "except", "stopwords"]) { 
-	//? IsMadeOfThese([ :by, :except, :stopwords ])
-	? IsMadeOfSome([ :by, :except, :stopwords ]) # TRUE
-
-	# Same as
-	? IsMadeOfOneOrMoreOfThese([ :by, :except, :stopwords ]) # --> TRUE
-}
+? IsBoolean(FALSE)	#--> TRUE
+? Q(TRUE).IsBoolean()	#--> TRUE
 
 /*-----------------
+
+o1 = new stzList([ "by", "except", "stopwords" ])
+? o1.IsMadeOfThese([ :by, :except, :stopwords ]) #--> TRUE
+
+/*================
 
 ? StzListQ([ "q", "r", [ 2, 1 ] ]).ToCode() # Default output by Ring list2code()
 #--> [
@@ -742,7 +789,7 @@ StzListQ([ "by", "except", "stopwords"]) {
 #    ]
 
 # Or you can use this alternative short form:
-? @@( [ "q", "r", [ 2, 1 ] ] ) #--> [ "q", "r", [ 2, 1 ] ]
+? @@( [ "q", "r", [ 2, 1 ] ] )
 #--> same as ComputableForm()
 
 # If you want to simplify the output by eliminating spaces:
@@ -750,9 +797,7 @@ StzListQ([ "by", "except", "stopwords"]) {
 ? @@S( [ "q", "r", [ 2, 1 ] ] ) # S for Simplified. Same as ComputerFormSimplified()
 #--> [ "q", "r", [ 2, 1 ] ]
 
-STOP()
-
-/*-----------------
+/*===============
 
 ? StzListQ([ "q", "r", [ 2, 1 ] ]).Contains([ 2, 1 ])
 #--> TRUE
@@ -766,25 +811,23 @@ STOP()
 ? StzListQ([ "q", "r", [ 2, 1] ]).IsEqualTo([ "q", "r", [2, 1] ])
 #--> TRUE
 
-STOP()
-
 /*-----------------
 
 ? StzListQ([]).Contains(NULL)		#--> FALSE
 ? StzListQ([NULL]).Contains(NULL)	#--> TRUE
 
-? StzListQ([]).IsListOfStrings()	# --> FALSE
+? StzListQ([]).IsListOfStrings()	#--> FALSE
 
 ? StzListQ([ NULL, NULL, NULL]).IsListOfStrings() # --> TRUE
 
-/*-----------------
+/*==================
 
 o1 = new stzList([ "fa", "bo" , "wy" , "wo" ])
 o1 - [ "bo", "wo" ]
 ? o1.Content()
 #--> [ "fa", "wy" ]
 
-/*-----------------
+/*==================
 
 ? IsListOfStrings([ "baba", "ommi", "jeddy" ])		# --> TRUE
 ? Q([ "baba", "ommi", "jeddy" ]).IsListOfStrings()	# --> TRUE
@@ -843,14 +886,12 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 #   "C" :  ------------.---------^-------------------.--------------^-- (2)
 #   "D" :  ------------^-----------------------------^----------------- (2)
 
-/*------------------
+/*===================
 
 StzListOfStringsQ([ "A" , "B", "C", "A", "D", "A" ]) {
 	ReplaceNextNthOccurrence(2, :Of = "A", :With = "*", :StartingAt = 2 )
 	? Content() # --> [ "A" , "B", "C", "A", "D", "*" ]
 }
-
-STOP()
 
 /*------------------
 
@@ -859,39 +900,33 @@ StzListQ([ "A" , "B", "C", "A", "D", "A" ]) {
 	? Content() # --> [ "*" , "B", "C", "A", "D", "A" ]
 }
 
-STOP()
-
 /*------------------
 
 StzListQ([ -1 , 2, 3, 4 ]) {
 	? NumberOfItemsW("Q(@item).IsBetween(1, 4)") # --> 3
 }
 
-STOP()
-
 /*------------------
 
 o1 = new stzList([ "1", "2", "*", "4", "5" ])
 o1.ReplaceItemAtPosition(3, :By = "3")
-? o1.Content()
+? @@S( o1.Content() )
 #--> [ "1", "2", "3", "4", "5" ]
 
 o1 = new stzList([ "1", "2", "*", "4", "5" ])
-o1.ReplaceItemAtPosition(3, :By@ = "8 - 5")
-? o1.Content()
+o1.ReplaceItemAtPosition(3, :By@ = '{ 8 - 5 }' )
+? @@S( o1.Content() )
 #--> [ "1", "2", "3", "4", "5" ]
 
 o1 = new stzList([ "1", "_", "3", "_", "_" ])
 o1.ReplaceNextNthOccurrence( 2, :Of = "_", :With = "5", :StartingAt = 3)
-? o1.Content()
+? @@S( o1.Content() )
 #--> [ "1", "_", "3", "_", "5" ]
 
 o1 = new stzList([ "1", "_", "3", "_", "_" ])
-o1.ReplaceNextNthOccurrence( 2, :Of = "_", :With@ = "8 - 3", :StartingAt = 3)
-? o1.Content()
+o1.ReplaceNextNthOccurrence( 2, :Of = "_", :With@ = '{ 8 - 3 }', :StartingAt = 3)
+? @@S( o1.Content() )
 #--> [ "1", "_", "3", "_", "5" ]
-
-STOP()
 
 /*------------------
 
@@ -905,7 +940,6 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	#--> [ "A", "B", "A", "C", "*", "D", "*" ]
 }
 
-STOP()
 /*------------------
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
@@ -914,16 +948,12 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	? @@S( Content() ) # --> [ "*" , "B", "*", "C", "*", "D", "A" ]
 }
 
-STOP()
-
 /*------------------
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	ReplacePreviousNthOccurrences([3, 1], "A", :With = [ "#3", "#1" ], :StartingAt = 5)
 	? @@S( Content() ) # --> [ [ "#3", "#1" ], "B", "A", "C", [ "#3", "#1" ], "D", "A" ]
 }
-
-STOP()
 
 /*------------------
 
@@ -943,12 +973,12 @@ StzListQ([ "A", "-", "-", "A", "-", "A", "-", "A" ]) {
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	RemoveNextNthOccurrences([2, 3], :of = "A", :StartingAt = 3)
-	? Content() # !--> [ "A" , "B", "A", "C", "D" ]
+	? Content() #--> [ "A" , "B", "A", "C", "D" ]
 }
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	? NextNthOccurrencesRemoved([2, 3], :of = "A", :StartingAt = 3)
-	? Content() # !--> [ "A" , "B", "A", "C", "D" ]
+	# --> [ "A" , "B", "A", "C", "D" ]
 }
 
 /*-----------------
@@ -998,7 +1028,7 @@ StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 }
 
 # You can even replace exitant items by many other new values, one by one,
-# like this (useful in many scenarii of text interpolation and processing):
+# like this (useful in many scenarios of text interpolation and processing):
 
 StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 	
@@ -1018,8 +1048,6 @@ StzListQ([ "A", "A", "A" , "A", "A" ]) {
 
 }
 
-STOP()
-
 /*---------------------
 
 StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
@@ -1029,18 +1057,18 @@ StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 
 }
 
-/*---------------------
+/*====================
 
 o1 = new stzList([ 5, 7, 9, 2 ])
 ? o1.SortedInAscending() # --> [ 2, 5, 7, 9 ]
 
-/*---------------------
+/*=====================
 
 o1 = new stzList([ "teeba", "hussein", "haneen" , "hussein" ])
 ? o1.DuplicatesRemoved() # --> [ "teeba", "hussein", "haneen" ])
 ? o1.NumberOfItems()     # --> 4
 
-/*---------------------
+/*=====================
 
 o1 = new stzList([ "a", "b", "c" ])
 
@@ -1050,36 +1078,34 @@ o1 = new stzList([ "a", "b", "c" ])
 ? o1.HasSameContentAs([ "a", "b", "c" ])	# --> TRUE
 ? o1.HasSameSortingOrderAs([ "a", "b", "c" ])	# --> TRUE
 
-/*---------------------
+/*=====================
 
 o1 = new stzList([ "a", "b", "c" ])
 o1 - [ "b", "a" ] 
-? @@( o1.Content() ) # --> [ "c" ]
+? @@S( o1.Content() ) # --> [ "c" ]
 
 /*-----------------------
 
 o1 = new stzList([ "a", "b", "c" ])
 o1 - [ "b", "a", "c" , "q" ]
-? @@( o1.Content() ) # --> [ ]
+? @@S( o1.Content() ) # --> [ ]
 
-/*-----------------------
+/*=====================
 
 o1 = new stzList([ "a", "b", "e", "a", "c", "v", "e" ])
 ? o1.FindMany([ "a", "e" ])	# --> [ 1, 3, 4, 7 ]
 ? o1.FindManyXT([ "a", "e" ])	# --> [ "a" = [ 1, 4 ], "e" = [ 3, 7 ] ]
 
-STOP()
-
 /*-----------------------
 
-o1 = new stzList([ "a", "b", "e", "a", "c", "v", "e" ])
-? o1.FindMany([ "a", "c" ]) # --> [1, 4, 5]
+o1 = new stzList([ "a", "E", "a", "c", "V", "E" ])
+? o1.FindMany([ "a", "c" ]) # --> [1, 3, 5]
 
-o1 - [ "a", "c" ] # Same as: o1.RemoveItemsAtPositions([ 1, 4, 5 ])
+o1 - [ "a", "c" ] # Same as: o1.RemoveItemsAtPositions([ 1, 3, 5 ])
 
-? o1.Content() # --> [ "b", "e", "v", "e" ]
+? o1.Content() # --> [ "E", "V", "E" ]
 
-/*-----------------------
+/*=====================
 
 o1 = new stzList([ "a", "b", "c" ])
 
@@ -1100,7 +1126,7 @@ o1 = new stzList([ "a", "b", "c" ])
 ? o1.IsEqualTo([ "a", "b" ])		# --> FALSE
 ? o1.HasSameSortingOrderAs([ "a", "b" ])# --> TRUE
 
-/*---------------------
+/*=====================
 
 ? StzListQ([ "a", "b", [] ,"c", NULL ]).ToCodeSimplified()
 # --> [ "a","b",[ ],"c", "" ]
@@ -1110,7 +1136,7 @@ o1 = new stzList([ "a", "b", "c" ])
 
 /*---------------------
 
-? StzListQ([ "a", [ "b", [ "c",  "d" ], "e" ], "f" ]).Flattened()
+? @@S( StzListQ([ "a", [ "b", [ "c",  "d" ], "e" ], "f" ]).Flattened() )
 # --> [ "a","b","c","d","e","f" ]
 
 /*---------------------
@@ -1119,22 +1145,22 @@ o1 = new stzList([ "a", "b", "c" ])
 # --> ab [] cd
 
 ? Q(list2code([ "a", [ [] ], "b" ])).Simplified()
-[ "a",[ [ ] ],"b" ]
+#--> [ "a",[ [ ] ],"b" ]
 
 /*---------------------
 
 StzListQ([ "a",[ [ [], "c", [ 1, [] ], 2 ] ],"b" ]) {
 	Flatten()
-	? @@( Content() )
+	? @@S( Content() )
 	# --> [ "a",[ ],"c",1,[ ],2,"b" ]
 
-	? NumberOfItems() 	# --> 7
-	? ItemAtPosition(3)	# --> "c"
-	? @@(ItemAtPosition(5))	# --> [ ]
+	? NumberOfItems() 		# --> 7
+	? ItemAtPosition(3)		# --> "c"
+	? @@S(ItemAtPosition(5))	# --> [ ]
 	
 }
 
-/*---------------------
+/*=====================
 
 o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 
@@ -1161,16 +1187,16 @@ o1.ExtendToPosition(5)
 ? o1.Content() # --> [ 1, 2, 3, 0, 0 ]
 
 o1.ExtendToPositionXT( 8, :With = 5 )
-? o1.Content()
+? @@S(o1.Content())
+#--> [ 1, 2, 3, 0, 0, 5, 5, 5 ]
 
-STOP()
-/*---------------------
+/*=====================
 
 oList = new stzList([ [1],[1],[1],[1] ])
-? oList.ItemsHaveSameType() # --> 1
+? oList.ItemsHaveSameType() 	# --> 1
 ? oList.ItemsAreAllEmptyLists() # --> 0
 
-/*---------------------
+/*=====================
 
 o1 = new stzList(1:5)
 o1.AddItemAt(7, 9)
@@ -1182,38 +1208,15 @@ o1 = new stzList("A":"E")
 o1.AddItemAt(7,"X")
 ? o1.Content() # --> [ "A", "B", "C", "D", "E", NULL, NULL, "X" ]
 
-/*---------------------
+/*=====================
 
 # finding positions where current item is equal or bigger than 8
 
 o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
-? o1.ItemsWhere( '{ @item >= 8 }' ) # --> [ 8, 11, 11, 10, 8, 8 ]
-
-/*--------------------- TODO: Levels functions need a reflection, see code.
-
-o1 = new stzList([
-	1, [ "A", "B"], 2,
-	[ 3, 4, [ "B", "C" ] ],
-	[ 5, [ 6, [ "D", "E" ], 7 ], 8 ]
-])
-
-? o1.NumberOfLevels() # --> 4
-
-? @@S( o1.ItemsThatAreLists_AtAnyLevel_XT() )
-# -->
-#	[
-#		[ :Path = [ 2 ], :Level = 1, :Position = 2 ],
-#		[ :Path = [ 4 ], :Level = 1, :Position = 4 ],
-#		[ :Path = [ 4, 3 ], :Level = 2, :Position = 3 ],
-#		[ :Path = [ 3 ], :Level = 1, :Position = 3 ],
-#		[ :Path = [ 3, 2 ], :Level = 2, :Position = 2 ],
-#		[ :Path = [ 3, 2, 2 ], :Level = 3, :Position = 2 ]
-#	]
-
-? o1.ItemsThatAreLists_AtAnyLevel() # !!!--> ERROR TODO
+? o1.ItemsW( '{ @item >= 8 }' ) # --> [ 8, 11, 11, 10, 8, 8 ]
 
 /*---------------------
-*
+
 ? StzListQ([ 3, 2, 5 ]).FindFirstOccurrence("2") 	# --> 0
 ? StzListQ([ 3, 2, 5 ]).FindFirstOccurrence([ 2 ])	# --> 0
 ? StzListQ([ 3, 2, 5 ]).FindFirstOccurrence( 2 )	# --> 2
@@ -1222,7 +1225,7 @@ o1 = new stzList([
 ? Q("2").IsOneOfThese([ 3, 2, 5 ]) 	# --> FALSE
 ? Q([2]).IsOneOfThese([ 3, 2, 5 ])	# --> FALSE
 
-/*---------------------
+/*======================
 
 # Finding positions where current item is one of these [ 2, 4, 6 ]
 
@@ -1243,21 +1246,17 @@ o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 8 ])
 #	:4 = [ 8 ]
 #    ]
 
-STOP()
-
 /*---------------------
 
 o1 = new stzList([ "_", "_", 1:3, "_", 5:9, "_" ])
 ? o1.FindW( :Where = '{ Q(@item).IsOneOfThese([ 1:3, 5:9 ]) }' )
 #--> [ 3, 5 ]
 
-STOP()
-
 /*---------------------
 
 o1 = new stzList([ "A", "m", "n", "B", "A", "x", "C", "z", "B" ])
 
-? o1.ItemsW('Q(@item).IsUppercase()')
+? o1.ItemsW( :Where = 'Q(@item).IsAnUppercase()')
 # --> [ "A", "B", "A", "C", "B" ]
 
 ? o1.ItemsPositionsW('Q(@item).IsUppercase()') # Say also o1.FindItemsW(...)
@@ -1270,15 +1269,15 @@ o1 = new stzList([ "A", "m", "n", "B", "A", "x", "C", "z", "B" ])
 
 # Finding positions where next number is double of previous number
 o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
-? o1.FindW( '{ Q( @NextNumber ).IsDoubleOf( @PreviousNumber ) }' ) # --> [ 8, 11 ]
+? o1.FindW( '{ Q( @NextNumber ).IsDoubleOf( @PreviousNumber ) }' )
+# --> [ 8, 11 ]
 
 # that you can alse write like this:
-? o1.FindW( '{ Q( @NextItem ).IsDoubleOf( @PreviousItem ) }' ) # --> [ 8, 11 ]
+? o1.FindW( '{ Q( @NextItem ).IsDoubleOf( @PreviousItem ) }' )
+# --> [ 8, 11 ]
 
 # or like this:
 ? o1.FindW( '{ Q( This[@i+1] ).IsDoubleOf( This[@i-1] ) }' ) # --> [ 8, 11 ]
-
-STOP()
 
 /*---------------------
 
@@ -1294,7 +1293,7 @@ o1 = new stzList([ "A", "B", "B", "C", "D", "D", "D", "E" ])
 ? o1.FindWhere('{ This[@i] = This[@i+1] }') # --> [ 2, 5, 6 ]
 
 /*---------------------
-
+*/
 # Finding positions where previous 3rd item is equal to next 3rd item
 
 o1 = new stzList( [ 0, 8, 0, 0, 1, 8, 0, 0 ] )
@@ -2664,3 +2663,27 @@ o1 = new stzList([ 1, 1, 1 ])
 
 o1 = new stzList("a":"t")
 ? o1.Contains("x")
+
+/*============ TODO: Levels functions need a reflection, see code.
+# To be replaced with DeepFind
+
+o1 = new stzList([
+	1, [ "A", "B"], 2,
+	[ 3, 4, [ "B", "C" ] ],
+	[ 5, [ 6, [ "D", "E" ], 7 ], 8 ]
+])
+
+? o1.NumberOfLevels() # --> 4
+
+? @@S( o1.ItemsThatAreLists_AtAnyLevel_XT() )
+# -->
+#	[
+#		[ :Path = [ 2 ], :Level = 1, :Position = 2 ],
+#		[ :Path = [ 4 ], :Level = 1, :Position = 4 ],
+#		[ :Path = [ 4, 3 ], :Level = 2, :Position = 3 ],
+#		[ :Path = [ 3 ], :Level = 1, :Position = 3 ],
+#		[ :Path = [ 3, 2 ], :Level = 2, :Position = 2 ],
+#		[ :Path = [ 3, 2, 2 ], :Level = 3, :Position = 2 ]
+#	]
+
+? o1.ItemsThatAreLists_AtAnyLevel() # !!!--> ERROR TODO

@@ -128,6 +128,9 @@ func MultiplicationsYieldingN_WithoutCommutation(n)
 class stzListOfNumbers from stzList
 	@anContent
 
+	// TODO: Add the possibility to add a list of numbers in strings
+	// --> So we can manage numbers as stzNumbers (wich can be provided
+	// in strings to conserve their round.
 	def init(paList)
 		if isList(paList) and
 		   ( Q(paList).IsEmpty() or Q(paList).IsListOfNumbers() )
@@ -140,14 +143,14 @@ class stzListOfNumbers from stzList
 				if StzListQ(aList).IsListOfNumbers()
 					@anContent = aList
 				else
-					stzRaise("The list in the string you provided is not a list of numbers!")
+					StzRaise("The list in the string you provided is not a list of numbers!")
 				ok
 
 			catch
-				stzRaise("Can't transform the string into a llist of numbers!")
+				StzRaise("Can't transform the string into a llist of numbers!")
 			done
 		else
-			stzRaise("Can't create a stzListOfNumbers object!")
+			StzRaise("Can't create a stzListOfNumbers object!")
 		ok
 
 	def Content()
@@ -170,7 +173,7 @@ class stzListOfNumbers from stzList
 				ok
 
 				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
+					StzRaise("Incorrect param! pcReturnType must be a string.")
 				ok
 
 				switch pcReturnType
@@ -181,7 +184,7 @@ class stzListOfNumbers from stzList
 					return new stzListOfStrings( This.Numbers() )
 
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 	def NumbersW(pcCondition)
@@ -196,7 +199,7 @@ class stzListOfNumbers from stzList
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
+				StzRaise("Incorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -207,7 +210,7 @@ class stzListOfNumbers from stzList
 				return new stzListOfStrings( This.NumbersW(pcCondition) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def Copy()
@@ -266,7 +269,7 @@ class stzListOfNumbers from stzList
 				return new stzString( This.Min(n) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def MinNumber()
@@ -284,7 +287,7 @@ class stzListOfNumbers from stzList
 					return new stzString( This.MinNumber(n) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 	def FindMin()
@@ -336,7 +339,7 @@ class stzListOfNumbers from stzList
 				return StzListOfNumbersQ(This.MinNumbers()).ToStzListOfStrings()
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -364,7 +367,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.NMinNumbers()).ToStzListOfStrings()
 
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 		#>
 
@@ -400,7 +403,7 @@ class stzListOfNumbers from stzList
 				return StzListOfNumbersQ(This.FindMinNumbers()).ToStzListOfStrings()
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -428,7 +431,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.FindNMinNumbers()).ToStzListOfStrings()
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def PositionsOfMinNumbers(n)
@@ -453,7 +456,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.PositionsOfMinNumbers()).ToStzListOfStrings()
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def MinNumbersPositions(n)
@@ -478,7 +481,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.MinNumbersPositions()).ToStzListOfStrings()
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def PositionsOfNMinNumbers(n)
@@ -503,7 +506,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.PositionsOfNMinNumbers()).ToStzListOfStrings()
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def NMinNumbersPositions(n)
@@ -528,7 +531,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.NMinNumbersPositions()).ToStzListOfStrings()
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -556,7 +559,7 @@ class stzListOfNumbers from stzList
 				return new stzString( This.Max(n) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def MaxNumber()
@@ -578,7 +581,7 @@ class stzListOfNumbers from stzList
 					return new stzString( This.MaxNumber(n) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 	def FindMax()
@@ -626,7 +629,7 @@ class stzListOfNumbers from stzList
 				return StzListOfNumbersQ(This.Top(n)).ToStzListOfStrings()
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -653,7 +656,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.TopNumbers(n)).ToStzListOfStrings()
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 	
 		def NTopNumbers(n)
@@ -678,7 +681,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.NTopNumbers(n)).ToStzListOfStrings()
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def TopNNumbers(n)
@@ -703,7 +706,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.TopNNumbers(n)).ToStzListOfStrings()
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def MaxNumbers(n)
@@ -730,7 +733,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.MaxNumbers(n)).ToStzListOfStrings()
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def MaxNNumbers(n)
@@ -755,7 +758,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.MaxNNumbers(n)).ToStzListOfStrings()
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def NMaxNumbers(n)
@@ -780,7 +783,7 @@ class stzListOfNumbers from stzList
 					return StzListOfNumbersQ(This.NMaxNumbers(n)).ToStzListOfStrings()
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 		#>
 
@@ -978,7 +981,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		if NOT Q(panOtherList).IsListOfNumbers()
-			stzRaise("Incorrect pram type! panOtherList must be a list of numbers.")
+			StzRaise("Incorrect pram type! panOtherList must be a list of numbers.")
 		ok
 
 		anThisSorted = This.SortedInAscending()
@@ -999,7 +1002,7 @@ class stzListOfNumbers from stzList
 			ok
 		next
 
-		stzRaise("There is no Common Numbers at all between the two lists!")
+		StzRaise("There is no Common Numbers at all between the two lists!")
 
 		def LCN(pOtherNumber)
 			return This.LeastCommonNumber(pOtherNumber)
@@ -1026,7 +1029,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		if NOT Q(panOtherList).IsListOfNumbers()
-			stzRaise("Incorrect pram type! panOtherList must be a list of numbers.")
+			StzRaise("Incorrect pram type! panOtherList must be a list of numbers.")
 		ok
 
 		anThisSorted = This.SortedInDescending()
@@ -1047,10 +1050,26 @@ class stzListOfNumbers from stzList
 			ok
 		next
 
-		stzRaise("There is no Common Numbers at all between the two lists!")
+		StzRaise("There is no Common Numbers at all between the two lists!")
 
 		def GCN(pOtherNumber)
 			return This.GreatestCommonNumber(pOtherNumber)
+
+	  #--------------------------------------------#
+	 #  THE LEAST COMMON MULTIPLE OF THE NUMBERS  #
+	#--------------------------------------------#
+
+	def LeastCommonMultiple()
+		if len( This.ListOfNumbers() ) < 2
+			StzRaise("Incorrect value! The list must contain at least 2 numbers.")
+		ok
+
+		nResult = 0+ StzNumberQ( This.FirstItem() ).LCM( :With = This.Section(2, :LastItem) )
+
+		return nResult
+
+		def LCM()
+			return This.LeastCommonMultiple()
 
 	  #----------------------------------------#
 	 #     "ABSOLUTING' THE LIST OF NUMBERS   #
@@ -1192,7 +1211,7 @@ class stzListOfNumbers from stzList
 				return new stzListOfNumbers( This.Clip(nMin, nMax) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	  #-----------------------------------------#
@@ -1222,7 +1241,7 @@ class stzListOfNumbers from stzList
 				return new stzListOfNumbers( This.ReplaceSectionWith(n1, n2, n) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	  #----------------------------#
@@ -1252,7 +1271,7 @@ class stzListOfNumbers from stzList
 				return new stzList( This.Cumulate(n1) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def Cumulated()
@@ -1303,7 +1322,7 @@ class stzListOfNumbers from stzList
 				return new stzList( This.Unicodes() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def OnlyUnicodes()
@@ -1325,7 +1344,7 @@ class stzListOfNumbers from stzList
 					return new stzList( This.OnlyUnicodes() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 	  #========================================#
@@ -1404,7 +1423,7 @@ class stzListOfNumbers from stzList
 	def AddManyOneByOne(paNumbers)
 
 		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
-			stzRaise("Incorrect param type! You must provide a list of numbers.")
+			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
 		nLen1 = This.NumberOfNumbers()
@@ -1435,7 +1454,7 @@ class stzListOfNumbers from stzList
 	def SubstractManyOneByOne(paNumbers)
 
 		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
-			stzRaise("Incorrect param type! You must provide a list of numbers.")
+			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
 		nLen1 = This.NumberOfNumbers()
@@ -1466,7 +1485,7 @@ class stzListOfNumbers from stzList
 	def MultiplyWithManyOneByOne(paNumbers)
 
 		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
-			stzRaise("Incorrect param type! You must provide a list of numbers.")
+			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
 		nLen1 = This.NumberOfNumbers()
@@ -1503,7 +1522,7 @@ class stzListOfNumbers from stzList
 	def DivideByManyOneByOne(paNumbers)
 
 		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
-			stzRaise("Incorrect param type! You must provide a list of numbers.")
+			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
 		nLen1 = This.NumberOfNumbers()
@@ -1533,7 +1552,7 @@ class stzListOfNumbers from stzList
 
 	def AddToEachW(n, pcCondition)
 		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n must be a number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 
@@ -1542,7 +1561,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		if NOT isString(pcCondition)
-			stzRaise("Incorrect param type! pcCondition must be a string.")
+			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
 		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzListOfNumbers)
@@ -1605,7 +1624,7 @@ class stzListOfNumbers from stzList
 	def MultiplyEachWithW(n, pcCondition)
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n must be a number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 
@@ -1614,7 +1633,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		if NOT isString(pcCondition)
-			stzRaise("Incorrect param type! pcCondition must be a string.")
+			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
 		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzListOfNumbers)
@@ -1700,7 +1719,7 @@ class stzListOfNumbers from stzList
 			 Q(panNewListOfNumbers).IsListOfNumbers()
 		       )
 
-			stzRaise("Incorrect param type!")
+			StzRaise("Incorrect param type!")
 		ok
 
 		@anContent = panNewListOfNumbers
@@ -1710,7 +1729,7 @@ class stzListOfNumbers from stzList
 				 Q(panNewListOfNumbers).IsListOfNumbers()
 			       )
 
-				stzRaise("Incorrect param! You must provide a list of numbers.")
+				StzRaise("Incorrect param! You must provide a list of numbers.")
 			ok
 
 			@anContent = panNewListOfNumbers
@@ -1723,7 +1742,7 @@ class stzListOfNumbers from stzList
 	def ReplaceNumberAtPosition(n, pnNewNumber)
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param! n must be a number.")
+			StzRaise("Incorrect param! n must be a number.")
 		ok
 
 		if isList(pnNewNumber) and Q(pnNewNumber).IsWithOrByNamedParam()
@@ -1731,7 +1750,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		if NOT isNumber(pnNewNumber)
-			stzRaise("Incorrect param! pnNewNumber must be a number.")
+			StzRaise("Incorrect param! pnNewNumber must be a number.")
 		ok
 
 		@anContent[n] = pnNewNumber
@@ -1785,11 +1804,11 @@ class stzListOfNumbers from stzList
 	def PerformOn(panPositions, pcCode)
 
 		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			stzRaise("Invalid param type! panPositions must be a list of numbers.")
+			StzRaise("Invalid param type! panPositions must be a list of numbers.")
 		ok
 
 		if NOT isString(pcCode)
-			stzRaise("Invalid param type! pcCode must be a string.")
+			StzRaise("Invalid param type! pcCode must be a string.")
 		ok
 
 		oCode = new stzString( StzCCodeQ(pcCode).UnifiedFor(:stzListOfNumbers) )
@@ -1804,7 +1823,7 @@ class stzListOfNumbers from stzList
 
 			:CaseSensitive = FALSE )
 
-			stzRaise("Syntax error! pcCode must begin with '@item ='.")
+			StzRaise("Syntax error! pcCode must begin with '@item ='.")
 		ok
 
 		cCode = oCode.Content()

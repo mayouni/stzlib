@@ -12,7 +12,7 @@ class stzCCode
 	def init(cCode)
 		if NOT isString(cCode)
 			
-			stzRaise([
+			StzRaise([
 				:Where = "stzCCodeUnifier > Init()",
 				:What  = "Can't create the stzConditionalCodeUnifier object.",
 				:Why   = "The parameter you provided is not in a correct type.",
@@ -38,7 +38,7 @@ class stzCCode
 					:stzListOfNumbers, :stzListOfPairs, :stzListOfObjects
 				], :CS = FALSE) )
 
-			stzRaise("Unsupported type in conditional code!")
+			StzRaise("Unsupported type in conditional code!")
 		ok
 
 		cKeyWord = "@item"
@@ -103,7 +103,7 @@ class stzCCode
 
 		#--
 
-			# 4) Unifying all kewords referring to the current position
+			# 2) Unifying all kewords referring to the current position
 			#    by rpalacing them all by @i
 
 			ReplaceManyCSQ([ " @position ", " @CurrentPosition " ],
@@ -130,8 +130,8 @@ class stzCCode
 				:By = "[ @i ]", :CS = FALSE
 			).
 
-			# 5) Unifying all kewords referring to the current item
-			#    by repalcing them all by @item
+			# 3) Unifying all kewords referring to the current item
+			#    by replacing them all by @item
 
 			ReplaceManyCSQ([		
 				" @EachItem ", " @CurrentItem ",
@@ -245,7 +245,7 @@ class stzCCode
 				:By = "[ @item ]", :CS = FALSE
 			).
 
-			# 6) Unifying all kewords referring to the next position
+			# 4) Unifying all kewords referring to the next position
 			#    by replacing them all by (@i + 1)
 
 			ReplaceManyCSQ([ " @NextPosition " ],
@@ -267,7 +267,7 @@ class stzCCode
 				:By = "[ @i+1 ]", :CS = FALSE
 			).
 
-			# 7) Unifying all kewords referring to the previous position
+			# 5) Unifying all kewords referring to the previous position
 			#    by replacing them all by (@i - 1)
 
 			ReplaceManyCSQ([ " @PreviousPosition " ],
@@ -289,7 +289,7 @@ class stzCCode
 				:By = "[ @i-1 ]", :CS = FALSE
 			).
 
-			# 8) Unifying all kewords referring to the next item
+			# 6) Unifying all keywords referring to the next item
 			#    by replacing them all by This[@i+1]
 
 			ReplaceManyCSQ([
@@ -348,7 +348,7 @@ class stzCCode
 				:By = "[ This[ @i+1 ] ]", :CS = FALSE
 			).
 
-			# 9) Unifying all kewords referring to the previous item 
+			# 7) Unifying all keywords referring to the previous item 
 			#    by replacing them all by This[ @i-1 ]
 
 			ReplaceManyCSQ([
@@ -438,6 +438,8 @@ class stzCCode
 			).
 
 			ReplaceCSQ("@item", :With = cKeyWord, :CS = FALSE).
+
+			ReplaceCSQ("This.This[", :With = "This[", :CS = FALSE).
 			
 			Trimmed()
 
@@ -460,3 +462,6 @@ class stzCCode
 
 	def Copy()
 		return new stzCCode( This.Content() )
+
+	def ExecutableSection()
+		

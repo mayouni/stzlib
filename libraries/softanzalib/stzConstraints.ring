@@ -3,13 +3,13 @@ func Constraints()
 
 func ConstraintsOn(pcType)
 	if NOT isString(pcType)
-		stzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
+		StzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
 	ok
 
 	if StringIsStzClassName(pcType)
 		return Constraints()[ pcType ]
 	else
-		stzRaise([
+		StzRaise([
 			:Where 	= "stzGeneralFunctions > ConstraintsOn()",
 			:What	= "Can't return the list of constraints!",
 			:Why	= "Type of the param you provided is not valid?",

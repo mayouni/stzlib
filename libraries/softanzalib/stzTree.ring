@@ -53,7 +53,7 @@ class stzTree from stzList
 
 	def Init(paTree)
 		if NOT ( isList(paTree) and StzListQ(paTree).IsStzTree() )
-			stzRaise([
+			StzRaise([
 				:Where	= "stzTree > Init(paTree)",
 				:What	= "Can't create the stzTree object!",
 				:Why	= "The value you provided (paTree) is not a well format list.",
@@ -77,7 +77,7 @@ class stzTree from stzList
 			aTree[1] = pcValue
 			return TRUE
 		else
-			stzRaise("Can't set the root of the tree with a value of type LIST.")
+			StzRaise("Can't set the root of the tree with a value of type LIST.")
 		ok
 
 	def Add(paPath,pValue)	// Add([0,2,1],"X")

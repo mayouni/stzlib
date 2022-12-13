@@ -45,7 +45,7 @@ class stzListOfUnicodes from stzListOfNumbers
 			ok
 
 		else
-			stzRaise("Can't create the stzListOfUnicodes object!")
+			StzRaise("Can't create the stzListOfUnicodes object!")
 		ok
 
 	def Content()

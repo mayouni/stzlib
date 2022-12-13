@@ -671,9 +671,9 @@ load "stzlib.ring"
 
 	#-- 1. Informative Error Messages
 		
-/*		You can use stzRaise() function for informative error messages:
+/*		You can use StzRaise() function for informative error messages:
 
-*/		stzRaise([
+*/		StzRaise([
 			:Where = "@Place",  :What = "@Issue",
 			:Why   = "@Reason", :Todo = "@Action" ])
 		
@@ -709,7 +709,7 @@ load "stzlib.ring"
 				  new name and 		  
 				  it'll be fine ;) 
 		
-/*		In stzRaise() in method AddWalkerFF() in file \Ring116\Projects\SoftanzaLib\
+/*		In StzRaise() in method AddWalkerFF() in file \Ring116\Projects\SoftanzaLib\
 		stzList.ring
 
 	#-- 2. Visualised CallStack

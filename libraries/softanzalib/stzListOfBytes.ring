@@ -60,7 +60,7 @@ func QByteArrayToListOfUnicodes(oQByteArray)
 		oListOfBytes = new stzListOfBytes(oQByteArray)
 		return oListOfBytes.Unicodes()
 	else
-		stzRaise(stzListOfBytesError(:CanNotConvertQByteArray))
+		StzRaise(stzListOfBytesError(:CanNotConvertQByteArray))
 	ok
 
 	func QByteArrayObjectToListOfUnicodes(oQByteArray)
@@ -94,7 +94,7 @@ func NumberInPointer(ptr)
 		BinStr = pointer2string(ptr, 0, len(int2bytes(0)) )
 		return bytes2int(BinStr)
 	else
-		stzRaise("Value you provided is not of type Pointer!")
+		StzRaise("Value you provided is not of type Pointer!")
 	ok
 
 class stzListOfBytes from stzObject
@@ -113,7 +113,7 @@ class stzListOfBytes from stzObject
 			@oQByteArray = pValue
 
 		else
-			stzRaise("Can't create the stzListOfBytes object!")
+			StzRaise("Can't create the stzListOfBytes object!")
 		ok
 
 	// Returns the text represented by the list of bytes content
@@ -304,7 +304,7 @@ class stzListOfBytes from stzObject
 		if oCaract.IsAscii()
 			return @oQByteArray.fill(oCaract.AsciiCode(), This.NumberOfBytes()).data()
 		else
-			return stzRaise(stzListOfBytesError(:CanNotFillBytesWithNonAsciiChar))
+			return StzRaise(stzListOfBytesError(:CanNotFillBytesWithNonAsciiChar))
 		ok
 
 	def FillWithAsciiChar_UpToNBytes(pcChar, nBytes)
@@ -341,7 +341,7 @@ class stzListOfBytes from stzObject
 		if IsListOfBytes(oOtherListOfBytes)
 			@oQByteArray.swap(ToQByteArrayObject(oOtherListOfBytes))
 		else
-			stzRaise(stzListOfBytesError(:CanNotSwapWithNonListOfBytes))
+			StzRaise(stzListOfBytesError(:CanNotSwapWithNonListOfBytes))
 		ok
 
 	// Encodes the main list of bytes in a base64 string
@@ -414,7 +414,7 @@ class stzListOfBytes from stzObject
 				pcPercentAsciiChar = "%"
 			ok
 		else
-			stzRaise(stzListOfBytesError(:CanNotTransformListOfBytesToPercentEncoding))
+			StzRaise(stzListOfBytesError(:CanNotTransformListOfBytesToPercentEncoding))
 		ok
 
 		// Preparing the required objects for the Qt QByteArray method
@@ -444,7 +444,7 @@ class stzListOfBytes from stzObject
 				pcPercentAsciiChar = "%"
 			ok
 		else
-			stzRaise(stzListOfBytesError(:CanNotTransformPercentEncodingToListOfBytes))
+			StzRaise(stzListOfBytesError(:CanNotTransformPercentEncodingToListOfBytes))
 		ok
 
 		// Preparing the required objects for the Qt QByteArray method

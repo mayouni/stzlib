@@ -422,7 +422,7 @@ class stzLanguage
 			// TODO
 
 		else
-			stzRaise(stzLanguageError(:UnsupportedLanguageIdentifier))
+			StzRaise(stzLanguageError(:UnsupportedLanguageIdentifier))
 		ok
 
 	def Content()
