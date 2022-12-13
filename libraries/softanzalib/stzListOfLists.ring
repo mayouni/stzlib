@@ -68,7 +68,7 @@ class stzListOfLists from stzList
 			@aContent = paList
 
 		else
-			stzRaise("Can't create the stzListOfLists object!")
+			StzRaise("Can't create the stzListOfLists object!")
 		ok
 
 	  #--------------#
@@ -95,7 +95,7 @@ class stzListOfLists from stzList
 			@aContent = paList
 
 		else
-			stzRaise([
+			StzRaise([
 				:File = "stzListOfLists (541) > Update()",
 				:What = "Can't update the list of lists!",
 				:Why  = "The value you provided is not a list of lists."
@@ -384,7 +384,7 @@ class stzListOfLists from stzList
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
+				StzRaise("Incorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -398,7 +398,7 @@ class stzListOfLists from stzList
 				return new stzListOfPairs( This.ItemsAtPositionN(n) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>

@@ -106,7 +106,7 @@ func CurrentUnicodeVersion()
 	if n > 0 and n <= len(_acUnicodeVersions)
 		return _acUnicodeVersions[ n ]
 	else
-		stzRaise(stzCharError(:CanNotDefineUnicodeVersion))
+		StzRaise(stzCharError(:CanNotDefineUnicodeVersion))
 	ok
 
 // Returns the unicode name of the char in the unicode table
@@ -132,7 +132,7 @@ func QCharToString(oQChar)
 		oChar = new stzChar(oQChar.unicode())
 		return oChar.Content()
 	else
-		stzRaise(stzCharError(:CanNotTransformQCharToString))
+		StzRaise(stzCharError(:CanNotTransformQCharToString))
 	ok
 
 func StringToQChar(c)
@@ -281,7 +281,7 @@ class stzChar from stzObject
 	def init(pChar)
 		if isString(pChar)
 			if pChar = ""
-				stzRaise("Can't create char from empty string!")
+				StzRaise("Can't create char from empty string!")
 			ok
 
 			if StzStringQ(pChar).NumberOfChars() = 1
@@ -298,7 +298,7 @@ class stzChar from stzObject
 				@oQChar = new QChar(nUnicode)
 
 			else
-				stzRaise("Can not create char object!")
+				StzRaise("Can not create char object!")
 			ok
 
 		but isNumber(pChar)
@@ -306,7 +306,7 @@ class stzChar from stzObject
 			nUnicode = pChar
 			@oQChar = new QChar(nUnicode)
 		else
-			stzRaise(stzCharError(:CanNotCreateCharObjectForThisType))
+			StzRaise(stzCharError(:CanNotCreateCharObjectForThisType))
 		ok
 
 	def Content()
@@ -368,7 +368,7 @@ class stzChar from stzObject
 			nUnicode = pChar
 			@oQChar = new QChar(nUnicode)
 		else
-			stzRaise("Can't update the char!")
+			StzRaise("Can't update the char!")
 		ok
 
 	// Returns the unicode code point of the Char in decimal
@@ -405,7 +405,7 @@ class stzChar from stzObject
 		try
 			return ascii(This.Content())
 		catch
-			stzRaise(stzCharError(:CanNotGetAsciiCodeForNonAsciiChar))
+			StzRaise(stzCharError(:CanNotGetAsciiCodeForNonAsciiChar))
 		end
 
 	def NumberOfBytes()
@@ -435,7 +435,7 @@ class stzChar from stzObject
 			return 4
 
 		else
-			stzRaise(stzCharError(:CanNotGuessNumberOfBytes))
+			StzRaise(stzCharError(:CanNotGuessNumberOfBytes))
 		ok
 
 
@@ -1059,7 +1059,7 @@ class stzChar from stzObject
 		if n > 0 and n <= len(_acUnicodeVersions)
 			return _acUnicodeVersions[ n ]
 		else
-			stzRaise(stzCharError(:CanNotDefineUnicodeVersion))
+			StzRaise(stzCharError(:CanNotDefineUnicodeVersion))
 		ok
 
 	def UnicodeVersion()

@@ -1,3 +1,31 @@
+/*
+TODO: This large file should be made as a text file (or a SQLite database)
+and not as a Ring file, because this is not good for the Ring VM...
+
+Mahmoud said:
+
+If I remember correctly, the library contains three large files
+that contains Data. These files increase the source code size
+(Not good for Ring VM) and increase the project lines of code count.
+
+If you removed these information from ring files to data files
+(just a txt file) and used Read() function instead of Eval(),
+this will :
+
+(1) Reduce the lines of code count from hundreds of
+thousands to tens of thousands which reflect the right
+size of the project
+
+(2) Improve the performance of loading the library
+
+You can put these files in a folder like (resources) and
+distribute these files with the executable.
+
+When installing softanzalib using RingPM - Just put these files
+in ring/bin/resources folders.
+
+*/
+
 load "stzlib.ring"
 
 _acEnglishArticles = [ "a", "an", "the" ]

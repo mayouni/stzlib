@@ -14,7 +14,7 @@ class stzListInString from stzString
 
 	def init(pcListInString)
 		if NOT StringIsListInString(pcListInString)
-			stzRaise("Syntax error! The list is not correct.")
+			StzRaise("Syntax error! The list is not correct.")
 		else
 			@cListInString = pcListInString
 			cCode = '@aList = ' + pcListInString

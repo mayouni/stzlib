@@ -58,14 +58,11 @@ func L(p)
 		return aResult
 
 	else
-		stzRaise("Incorrect param! Can't tranform param to list.")
+		StzRaise("Incorrect param! Can't tranform param to list.")
 	ok
 
 	func LQ(p)
 		return new stzList(L(p))
-
-func IsNotList(paList)
-	return NOT isList(paList)
 
 func ListIsListOfStzNumbers(paList)
 	return StzListQ(paList).IsListOfStzNumbers()
@@ -160,7 +157,7 @@ func ListIsLocaleList(paList)
 func CallMethod( pcMethod, paOnObjects )
 
 	if NOT ( paOnObjects[1] = "on" and StzListQ(paOnObjects[2]).IsListOfStrings() )
-		stzRaise(stzObjectError(:CanNotProcessMethodCall))
+		StzRaise(stzObjectError(:CanNotProcessMethodCall))
 	ok
 
 	aResult = []
@@ -228,7 +225,7 @@ func HaveSameContent(paItems)
 	Stringifying number 12 generate string "12"
 	*/
 	if NOT isList(paItems)
-		stzRaise("Incorrect param type! paItems must be a list.")
+		StzRaise("Incorrect param type! paItems must be a list.")
 	ok
 
 	if len(paItems) = 1
@@ -402,7 +399,7 @@ func ContiguousListOfChars(cChar1, cChar2)
 		return aResult
 
 	else
-		stzRaise( "The chars you privided don't form a contiguous list!")
+		StzRaise( "The chars you privided don't form a contiguous list!")
 	ok
 
 	func ContiguousList(cChar1, cChar2)
@@ -414,15 +411,42 @@ func ContiguousListOfChars(cChar1, cChar2)
 	func ContinuousList(cChar1, cChar2)
 		return ContiguousList(cChar1, cChar2)
 
-func @C(pList)
+func ListXT(p)
 
-	if isString(pList) and StzStringQ(pList).IsListInShortForm()
-		aResult = StzStringQ(pList).ToList()
+	if isList(p)
+		return p
+
+	but isString(p) and StzStringQ(p).IsListInShortForm()
+		aResult = StzStringQ(p).ToList()
 		return aResult
 
 	else
-		stzRaise("Can't process the param you provided! It must be list in string in _:_ form.")
+		StzRaise("Can't process the param you provided! It must be a list or a list in string.")
 	ok
+
+func List(pFrom, pTo)
+	/* EXAMPLE
+
+	? ListXT( :From = "A", :To = "D" )
+	#--> [ "A", "B", "C", "D" ]
+
+	*/
+
+	if isList(pFrom) and Q(pFrom).IsFromNamedParam()
+		pFrom = pFrom[2]
+	ok
+
+	if isList(pTo) and Q(pTo).IsToNamedParam()
+		pTo = pto[2]
+	ok
+
+	if NOT BothAreChars(pFrom, pTo)
+		StzRaise("Incorrect params! Bonth pFrom and pTo must be chars.")
+	ok
+
+	return ContiguousList(pFrom, pto)
+
+
 
   /////////////////
  ///   CLASS   ///
@@ -445,11 +469,11 @@ class stzList from stzObject
 			try
 				@aContent = StzStringQ(paList).ToList()
 			catch
-				stzRaise("Can't transform the string to a list!")
+				StzRaise("Can't transform the string to a list!")
 			done
 
 		else
-			stzRaise("Can't create the stzList object!")
+			StzRaise("Can't create the stzList object!")
 		ok
 
 	  #---------------------#
@@ -520,7 +544,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n should be a number.")
+			StzRaise("Incorrect param type! n should be a number.")
 		ok
 
 		return This.Content()[n]
@@ -587,7 +611,7 @@ class stzList from stzObject
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param type! pcReturnType must be a string.")
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -601,7 +625,7 @@ class stzList from stzObject
 				return new stzListOfNumbers( This.NFirstItems(n) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def FirstNItems(n)
@@ -626,7 +650,7 @@ class stzList from stzObject
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param type! pcReturnType must be a string.")
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -640,7 +664,7 @@ class stzList from stzObject
 				return new stzListOfNumbers( This.NLastItems(n) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def LastNItems(n)
@@ -744,7 +768,7 @@ class stzList from stzObject
 		aResult = []
 		// Items can be added only at a position bigger then NumberOfItems()
 		if n < This.NumberOfItems() + 1
-			stzRaise("Can't add the item at this position! n must be bigger than NumberOfItems()")
+			StzRaise("Can't add the item at this position! n must be bigger than NumberOfItems()")
 		else
 			/*
 			If we add an item at a position bigger then NumberOfItems()
@@ -1015,7 +1039,7 @@ class stzList from stzObject
 		ok
 
 		if NOT BothAreNumbers(n1, n2)
-			stzRaise("Incorrect param type! n1 and n2 must be numbers.")
+			StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
 		# Doing the job
@@ -1340,7 +1364,7 @@ class stzList from stzObject
 
 	def ReplaceManyByMany(pacItems, pacNewItems)
 		if NOT isList(pacItems)
-			stzRaise("Uncorrect param! pacItems must be a list.")
+			StzRaise("Uncorrect param! pacItems must be a list.")
 		ok
 
 		if isList(pacNewItems) and Q(pacNewItems).IsWithOrByNamedParam()
@@ -1348,7 +1372,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isList(pacNewItems)
-			stzRaise("Uncorrect param! pacNewItems must be a list.")
+			StzRaise("Uncorrect param! pacNewItems must be a list.")
 		ok
 
 		i = 0
@@ -1396,8 +1420,8 @@ class stzList from stzObject
 			paOtherItems = paOtherItems[2]
 		ok
 
-		if IsNotList(paOtherItems)
-			stzRaise("Incorrect param type! paOtherItems must be a list.")
+		if Q(paOtherItems).IsNotList()
+			StzRaise("Incorrect param type! paOtherItems must be a list.")
 		ok
 
 		anPositions = This.FindAll(pItem)
@@ -1619,7 +1643,7 @@ class stzList from stzObject
 		# Checking params correctness
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param! n must be a number.")
+			StzRaise("Incorrect param! n must be a number.")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
@@ -1630,7 +1654,11 @@ class stzList from stzObject
 		   StzListQ(pNewItem).IsWithOrByNamedParam()
 
 			if Q(pNewItem[1]).LastChar() = "@"
-				cCode = 'pNewtItem = ' + pNewItem[2]
+				
+				cCode = 'pNewtItem = ' + Q(pNewItem[2]).
+								RemoveSpacesQ().
+								RemoveBoundsQ(["{","}"]).
+								Content()
 				eval(cCode)
 			else
 				pNewItem = pNewItem[2]
@@ -1655,7 +1683,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param! pnStartingAt must be a number.")
+			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
 		# Doing the job
@@ -1728,7 +1756,7 @@ class stzList from stzObject
 		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
 		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
-			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
+			StzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
@@ -1763,7 +1791,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param! pnStartingAt must be a number.")
+			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 			
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
@@ -1853,7 +1881,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param! pnStartingAt must be a number.")
+			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
 		oSection   = This.SectionQR(1, pnStartingAt, :stzList)
@@ -1923,7 +1951,7 @@ class stzList from stzObject
 
 		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
-			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
+			StzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
@@ -1960,7 +1988,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param! pnStartingAt must be a number.")
+			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 			
 		oSection = This.SectionQ(1, pnStartingAt)
@@ -2026,7 +2054,7 @@ class stzList from stzObject
 		*/
 
 		if NOT IsNumberOrString(n)
-			stzRaise("Invalid param type! n must be a number.")
+			StzRaise("Invalid param type! n must be a number.")
 		ok
 
 		if isString(n)
@@ -2043,7 +2071,7 @@ class stzList from stzObject
 		ok
 
 		if n < 1 or n > This.NumberOfItems()
-			stzRaise("the Nth position you provided is out of range!")
+			StzRaise("the Nth position you provided is out of range!")
 		ok
 
 		if isList(pcOtherItem) and Q(pcOtherItem).IsWithOrByNamedParam()
@@ -2664,11 +2692,11 @@ class stzList from stzObject
 	def ReplaceItemsW(pCondition, pOtherItem)
 
 		if NOT ( isString(pCondition) or isList(pCondition) )
-			stzRaise("Incorrect param type! pCondition must be string or list.")
+			StzRaise("Incorrect param type! pCondition must be string or list.")
 		ok
 
 		if NOT ( isString(pOtherItem) or isList(pOtherItem) )
-			stzRaise("Incorrect param type! pOtherItem must be string or list.")
+			StzRaise("Incorrect param type! pOtherItem must be string or list.")
 		ok 
 
 		if isList(pCondition) and StzListQ(pCondition).IsWhereNamedParam()
@@ -2692,7 +2720,7 @@ class stzList from stzObject
 
 		if cReplace = :With@
 			if NOT isString(pOtherItem)
-				stzRaise("Uncorrect value! The value provided after :With@ must be a string containing a Ring expression.")
+				StzRaise("Uncorrect value! The value provided after :With@ must be a string containing a Ring expression.")
 			ok
 		ok
 
@@ -3183,7 +3211,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param! pnStartingAt must be a number.")
+			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
 		oSection   = This.SectionQ(pnStartingAt, :LastItem)
@@ -3254,7 +3282,7 @@ class stzList from stzObject
 		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
 		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
-			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
+			StzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
@@ -3279,7 +3307,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param! pnStartingAt must be a number.")
+			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 			
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
@@ -3364,7 +3392,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param! pnStartingAt must be a number.")
+			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
 		oSection   = This.SectionQ(1, pnStartingAt)
@@ -3434,7 +3462,7 @@ class stzList from stzObject
 		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
 		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
-			stzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
+			StzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
@@ -3459,7 +3487,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param! pnStartingAt must be a number.")
+			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 			
 		oSection = This.SectionQ(1, pnStartingAt)
@@ -3539,7 +3567,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param! n must be a number.")
+			StzRaise("Incorrect param! n must be a number.")
 		ok
 
 		# Doing the job
@@ -3613,7 +3641,7 @@ class stzList from stzObject
 		#>
 
 	def FirstItemRemoved()
-		aResult = This.Copy().RemoveFirstItemQ(n).Content()
+		aResult = This.Copy().RemoveFirstItemQ().Content()
 		return aResult
 
 	  #---------------------------------------#
@@ -3751,7 +3779,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isNumber(pnStart)
-			stzRaise("Incorrect param! n must be a number.")
+			StzRaise("Incorrect param! n must be a number.")
 		ok
 
 		# Checking the correctness of the pnRange param
@@ -3765,7 +3793,7 @@ class stzList from stzObject
 		ok
 	
 		if NOT isNumber(pnRange)
-			stzRaise("Incorrect param type! pnRange must be a number.")
+			StzRaise("Incorrect param type! pnRange must be a number.")
 		ok
 
 		# Checking the correctness of the range of the two params
@@ -3774,7 +3802,7 @@ class stzList from stzObject
 
 		if (pnStart < 1) or (pnStart + pnRange -1 > nLen) or
 		   ( pnStart = nLen and pnRange != 1 )
-			stzRaise("Out of range!")
+			StzRaise("Out of range!")
 		ok
 
 		# Doing the job
@@ -3859,13 +3887,13 @@ class stzList from stzObject
 		ok
 
 		if NOT isNumber(n1) and isNumber(n2)
-			stzRaise("Incorrect param type! n1 and n2 must be numbers.")
+			StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
 		if NOT  ( StzNumberQ(n1).IsBetween(1, This.NumberOfItems() ) and
 			  StzNumberQ(n2).IsBetween(1, This.NumberOfItems() ) )
 
-			stzRaise("Out of range!")
+			StzRaise("Out of range!")
 		ok
 
 		# Doing the job (Qt-side)
@@ -3894,7 +3922,7 @@ class stzList from stzObject
 			 Q(paSections).IsListOfPairs() and
 			 Q(paSections).MergeQ().AllItemsAreNumbers() )
 
-			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
 		anPositions = StzListOfPairsQ(paSections).
@@ -4396,6 +4424,18 @@ class stzList from stzObject
 		def IsAListOfNumbers()
 			return This.IsListOfNumbers()
 
+	def IsListOfNumbersInStrings()
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT ( isString(item) and Q(item).IsNumberInString() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
 	def IsListOfLists()
 		if This.NumberOfItems() = 0
 			return FALSE
@@ -4836,10 +4876,10 @@ class stzList from stzObject
 				next
 
 			but ItemsAreAllObjects()
-				stzRaise("Can't compare between objects!")
+				StzRaise("Can't compare between objects!")
 			
 			else
-				stzRaise("Unsupported type!")
+				StzRaise("Unsupported type!")
 			ok
 		else
 			bResult = FALSE
@@ -5238,7 +5278,7 @@ class stzList from stzObject
 		if NOT ( StzNumberQ(pnStart).IsBetween(1, This.NumberOfItems()) and
 		         StzNumberQ(pnEnd).IsBetween(1, This.NumberOfItems()) )
 
-			stzRaise("Start or end of walker outside list range!")
+			StzRaise("Start or end of walker outside list range!")
 		ok
 
 		//oWalkers = new stzHashList(This.Walkers())
@@ -5252,7 +5292,7 @@ class stzList from stzObject
 
 		// If oWalkers.ContainsKey(pcName)
 		if NOT bNewName
-			stzRaise(stzListError(:CanNotAddWalkerAlreadyExistant))
+			StzRaise(stzListError(:CanNotAddWalkerAlreadyExistant))
 		else
 			oWalk = new stzWalker(pnStart, pnEnd, panStepping)
 			@aWalkers + [ pcName, oWalk.Content() ]
@@ -5314,7 +5354,7 @@ class stzList from stzObject
 					return 0
 				ok
 			else
-				stzRaise("Syntax error! Your persocode must contain the keyword '@item'.")
+				StzRaise("Syntax error! Your persocode must contain the keyword '@item'.")
 			ok
 		ok
 
@@ -5348,7 +5388,7 @@ class stzList from stzObject
 					return 1 : i
 				ok
 			else
-				stzRaise("Syntax error! Your persocode must contain the keyword 'Item'.")
+				StzRaise("Syntax error! Your persocode must contain the keyword 'Item'.")
 			ok
 		ok
 
@@ -5375,7 +5415,7 @@ class stzList from stzObject
 				ok
 			next
 		else
-			stzRaise("Unsupported type!")
+			StzRaise("Unsupported type!")
 		ok
 
 	def WalkEachW(pcCondition)
@@ -5397,7 +5437,7 @@ class stzList from stzObject
 				return aResult
 			ok
 		else
-			stzRaise("Syntax error! Your persocode must contain the keyword 'Item'.")
+			StzRaise("Syntax error! Your persocode must contain the keyword 'Item'.")
 		ok
 
 	def WalkNForwardNBackward(pnForward, pnBackward)
@@ -5405,13 +5445,13 @@ class stzList from stzObject
 
 	def WalkNStepsForwardNStepsBackward(pnForward, pnBackward)	
 		if pnForward < 0 or pnBackward < 0
-			stzRaise("Can't proceed. nForward and nBackward must not be negative!")
+			StzRaise("Can't proceed. nForward and nBackward must not be negative!")
 
 		but pnForward > This.NumberOfItems() or pnBackward > This.NumberOfItems()
-			stzRaise("Can't proceed. nForward and nBackward must not exceed the number of items!")
+			StzRaise("Can't proceed. nForward and nBackward must not exceed the number of items!")
 
 		but pnBackward > pnForward
-			stzRaise("Can't proceed. nBackward must not be greater then nForward!")
+			StzRaise("Can't proceed. nBackward must not be greater then nForward!")
 
 		but pnForward = pnBackward
 			return [1]
@@ -5492,7 +5532,7 @@ class stzList from stzObject
 
 	def WalkNProgressiveStepsForward(n)
 		if n < 0
-			stzRaise("Can't proceed. n must be positive!")
+			StzRaise("Can't proceed. n must be positive!")
 		but n = 0
 			return [1]
 		else
@@ -5513,7 +5553,7 @@ class stzList from stzObject
 
 	def WalkNProgressiveStepsBackward(n)
 		if n < 0
-			stzRaise("Can't proceed. n must be positive!")
+			StzRaise("Can't proceed. n must be positive!")
 		but n = 0
 			return [ This.NumberOfItems() ]
 		else
@@ -5619,7 +5659,7 @@ class stzList from stzObject
 		ok
 
 		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			stzRaise("Invalid param type! panPositions must be a list of numbers.")
+			StzRaise("Invalid param type! panPositions must be a list of numbers.")
 		ok
 
 		if len(panPositions) = 0
@@ -5631,7 +5671,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isString(pccondition)
-			stzRaise("Incorrect param! pcCondition must be a string.")
+			StzRaise("Incorrect param! pcCondition must be a string.")
 		ok
 
 		cCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzList)
@@ -5716,7 +5756,7 @@ class stzList from stzObject
 		if NOT ( isList(paSections) and
 			 Q(paSections).IsListOfPairsOfNumbers() )
 
-			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
 		if len(paSections) = 0
@@ -5793,7 +5833,7 @@ class stzList from stzObject
 				return new stzListOfLists( This.Yield(pcCode) )
 		
 		other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 		off
 
 		#>
@@ -5825,7 +5865,7 @@ class stzList from stzObject
 					return new stzHashList( This.YieldFromEachItem(pcCode) )
 			
 			other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 			off
 
 		def Harvest(pcCode)
@@ -5853,7 +5893,7 @@ class stzList from stzObject
 					return new stzHashList( This.Harvest(pcCode) )
 			
 			other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 			off
 
 		def HarvestFromEachItem(pcCode)
@@ -5881,7 +5921,7 @@ class stzList from stzObject
 					return new stzHashList( This.HarvestFromEachItem(pcCode) )
 			
 			other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -5892,7 +5932,7 @@ class stzList from stzObject
 	def YieldFrom(panPositions, pcCode)
 
 		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			stzRaise("Incorrect param! paPositions must be a list of numbers.")
+			StzRaise("Incorrect param! paPositions must be a list of numbers.")
 		ok
 
 		if len(panPositions) = 0
@@ -5902,7 +5942,7 @@ class stzList from stzObject
 		panPositions = sort(panPositions)
 
 		if NOT isString(pcCode)
-			stzRaise("Invalid param type! Condition must be a string.")
+			StzRaise("Invalid param type! Condition must be a string.")
 		ok
 
 		cCode = StzCCodeQ(pcCode).UnifiedFor(:stzList)
@@ -5967,7 +6007,7 @@ class stzList from stzObject
 				return new stzListOfNumbers( This.YieldFrom(paPositions, pcCode) )
 		
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -5996,7 +6036,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.YieldFromPositions(paPositions, pcCode) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def YieldFromItemsAt(panPositions, pcCode)
@@ -6021,7 +6061,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.YieldFromItemsAt(paPositions, pcCode) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def YieldFromItemsAtPositions(panPositions, pcCode)
@@ -6049,7 +6089,7 @@ class stzList from stzObject
 					return new stzHashList( This.YieldFromItemsAtPositions(paPositions, pcCode) )
 			
 			other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 			off
 
 		def HarvestFrom(panPositions, pcCode)
@@ -6074,7 +6114,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.HarvestFrom(paPositions, pcCode) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def HarvestFromPositions(panPositions, pcCode)
@@ -6099,7 +6139,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.HarvestFromPositions(paPositions, pcCode) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def HarvestFromItemsAt(panPositions, pcCode)
@@ -6124,7 +6164,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.HarvestFromItemsAt(paPositions, pcCode) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		def HarvestFromItemsAtPositions(panPositions, pcCode)
@@ -6149,7 +6189,7 @@ class stzList from stzObject
 					return new stzListOfNumbers( This.HarvestFromItemsAtPositions(paPositions, pcCode) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 		#>
 
@@ -6159,7 +6199,7 @@ class stzList from stzObject
 
 	def YieldFromSections(paSections, pcCode)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
 		# Getting all the positions from the provided sections
@@ -6194,7 +6234,7 @@ class stzList from stzObject
 				return new stzListOfNumbers( This.YieldFromSections(paPositions, pcCode) )
 		
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off			
 
 		#>
@@ -6213,7 +6253,7 @@ class stzList from stzObject
 				ok
 	
 				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
+					StzRaise("Incorrect param! pcReturnType must be a string.")
 				ok
 
 				switch pcReturnType
@@ -6224,7 +6264,7 @@ class stzList from stzObject
 					return new stzListOfLists( This.HarvestFromSections(paSections, pcCode) )
 	
 				other
-					stzRaise("Unsupported param type!")
+					StzRaise("Unsupported param type!")
 				off
 	
 		def YieldSections(paSections, pcCode)
@@ -6239,7 +6279,7 @@ class stzList from stzObject
 				ok
 	
 				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
+					StzRaise("Incorrect param! pcReturnType must be a string.")
 				ok
 
 				switch pcReturnType
@@ -6250,7 +6290,7 @@ class stzList from stzObject
 					return new stzListOfLists( This.YieldSections(paSections, pcCode) )
 	
 				other
-					stzRaise("Unsupported param type!")
+					StzRaise("Unsupported param type!")
 				off
 
 		def HarvestSections(paSections, pcCode)
@@ -6265,7 +6305,7 @@ class stzList from stzObject
 				ok
 	
 				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
+					StzRaise("Incorrect param! pcReturnType must be a string.")
 				ok
 
 				switch pcReturnType
@@ -6276,13 +6316,13 @@ class stzList from stzObject
 					return new stzListOfLists( This.HarvestSections(paSections, pcCode) )
 	
 				other
-					stzRaise("Unsupported param type!")
+					StzRaise("Unsupported param type!")
 				off
 		#>
 
 	def YieldFromSectionsOneByOne(paSections, pcCode)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = []
@@ -6309,7 +6349,7 @@ class stzList from stzObject
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
+				StzRaise("Incorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -6320,7 +6360,7 @@ class stzList from stzObject
 				return new stzListOfLists( This.YieldFromSectionsOneByOneQ(paSections, pcCode) )
 
 			other
-				stzRaise("Unsupported param type!")
+				StzRaise("Unsupported param type!")
 			off
 
 		#>
@@ -6339,7 +6379,7 @@ class stzList from stzObject
 				ok
 	
 				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
+					StzRaise("Incorrect param! pcReturnType must be a string.")
 				ok
 
 				switch pcReturnType
@@ -6350,7 +6390,7 @@ class stzList from stzObject
 					return new stzListOfLists( This.HarvestFromSectionsOneByOne(paSections, pcCode) )
 	
 				other
-					stzRaise("Unsupported param type!")
+					StzRaise("Unsupported param type!")
 				off
 				
 		def HarvestSectionsOneByOne(paSections, pcCode)
@@ -6365,7 +6405,7 @@ class stzList from stzObject
 				ok
 	
 				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
+					StzRaise("Incorrect param! pcReturnType must be a string.")
 				ok
 
 				switch pcReturnType
@@ -6376,7 +6416,7 @@ class stzList from stzObject
 					return new stzListOfLists( This.HarvestSectionsOneByOne(paSections, pcCode) )
 	
 				other
-					stzRaise("Unsupported param type!")
+					StzRaise("Unsupported param type!")
 				off
 
 		def YieldSectionsOneByOne(paSections, pcCode)
@@ -6391,7 +6431,7 @@ class stzList from stzObject
 				ok
 	
 				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
+					StzRaise("Incorrect param! pcReturnType must be a string.")
 				ok
 
 				switch pcReturnType
@@ -6402,7 +6442,7 @@ class stzList from stzObject
 					return new stzListOfLists( This.YieldSectionsOneByOne(paSections, pcCode) )
 	
 				other
-					stzRaise("Unsupported param type!")
+					StzRaise("Unsupported param type!")
 				off
 
 		#>
@@ -6417,7 +6457,7 @@ class stzList from stzObject
 		? o1.YieldW('@NextItem', :if = 'StzNumberQ(@item).IsMultipleOf(2)')
 		*/
 		if NOT isString(pcCode)
-			stzRaise("Incorrect param! pcCode must be a string.")
+			StzRaise("Incorrect param! pcCode must be a string.")
 		ok
 
 		if isList(pcCondition) and Q(pcCondition).IsWhereOrIfNamedParam()
@@ -6425,7 +6465,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isString(pcCondition)
-			stzRaise("Incorrect param! pcCondition must be astring.")
+			StzRaise("Incorrect param! pcCondition must be astring.")
 		ok
 
 		anPositions = This.FindW(pcCondition)
@@ -6457,7 +6497,7 @@ class stzList from stzObject
 					return new stzHashList( This.YieldW(pcCode, pcCondition) )
 			
 			other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -6476,7 +6516,7 @@ class stzList from stzObject
 				ok
 
 				if NOT isString(pcReturnType)
-					stzRaise("IncorrectType! pcReturnType must be a string.")
+					StzRaise("IncorrectType! pcReturnType must be a string.")
 				ok
 
 				switch pcReturnType
@@ -6487,7 +6527,7 @@ class stzList from stzObject
 					return new stzListOfLists( This.HarvestW(pcCode, pcCondition) )
 
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 		#>
 
@@ -6534,11 +6574,11 @@ class stzList from stzObject
 		ok
 
 		if NOT (This.IsListOfNumbers() or This.IsListOfStrings())
-			stzRaise("Can't cumulate! The list must b a list of numbers or a list of strings.")
+			StzRaise("Can't cumulate! The list must b a list of numbers or a list of strings.")
 		ok
 
 		if NOT isString(pcCode)
-			stzRaise("Incorrect param type! pcCode must be a string.")
+			StzRaise("Incorrect param type! pcCode must be a string.")
 		ok
 
 		aYielded = This.Yield(pcCode)
@@ -6599,7 +6639,7 @@ class stzList from stzObject
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
+				StzRaise("Incorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -6619,7 +6659,7 @@ class stzList from stzObject
 				return new stzListOfPairs( This.Perform(pcAction) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -6660,7 +6700,7 @@ class stzList from stzObject
 		#< @MotherFunction > ReplaceItemAtPosition() | @RingBased #>
 
 		if NOT ( isList(panPositions) and (Q(panPositions).IsListOfNumbers() or len(panPositions) = 0) )
-			stzRaise("Invalid param type! panPositions must be a list of numbers.")
+			StzRaise("Invalid param type! panPositions must be a list of numbers.")
 		ok
 
 		if len(panPositions) = 0
@@ -6668,7 +6708,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isString(pcCode)
-			stzRaise("Invalid param type! pcCode must be a string.")
+			StzRaise("Invalid param type! pcCode must be a string.")
 		ok
 
 		oCode = new stzString( StzCCodeQ(pcCode).UnifiedFor(:stzList) )
@@ -6687,7 +6727,7 @@ class stzList from stzObject
 
 			:CaseSensitive = FALSE )
 
-			stzRaise("Syntax error! pcCode must begin with '@item ='.")
+			StzRaise("Syntax error! pcCode must begin with '@item ='.")
 		ok
 
 		cCode = oCode.Content()
@@ -6732,7 +6772,7 @@ class stzList from stzObject
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
+				StzRaise("Incorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -6752,7 +6792,7 @@ class stzList from stzObject
 				return new stzListOfPairs( This.PerformOn(panPositions, pcCode) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#--
@@ -6770,7 +6810,7 @@ class stzList from stzObject
 				ok
 	
 				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
+					StzRaise("Incorrect param! pcReturnType must be a string.")
 				ok
 	
 				switch pcReturnType
@@ -6790,7 +6830,7 @@ class stzList from stzObject
 					return new stzListOfPairs(This.PerformOnPositions(panPositions, pcCode) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		#--
@@ -6808,7 +6848,7 @@ class stzList from stzObject
 				ok
 	
 				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
+					StzRaise("Incorrect param! pcReturnType must be a string.")
 				ok
 	
 				switch pcReturnType
@@ -6828,7 +6868,7 @@ class stzList from stzObject
 					return new stzListOfPairs( This.PerformOnThesePositions(panPositions, pcCode) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 	
 				off
 
@@ -6841,7 +6881,7 @@ class stzList from stzObject
 		# Checking correctness of paSections param
 
 		If NOT isString(pcCode)
-			stzRaise("Incorrect param! pcCode must be a string.")
+			StzRaise("Incorrect param! pcCode must be a string.")
 		ok
 
 		if NOT ( isList(paSections) and
@@ -6849,7 +6889,7 @@ class stzList from stzObject
 			 Q(paSections).EachItemVerifyW(
 				:That = 'isList(@item) and Q(@item).IsPairOfNumbers()' ) )
 
-			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
 		# Getting all the positions from the provided sections
@@ -6875,7 +6915,7 @@ class stzList from stzObject
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
+				StzRaise("Incorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -6895,7 +6935,7 @@ class stzList from stzObject
 				return new stzListOfPairs( This.PerformOnSections(paSections, pcCode) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#--
@@ -6913,7 +6953,7 @@ class stzList from stzObject
 				ok
 	
 				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
+					StzRaise("Incorrect param! pcReturnType must be a string.")
 				ok
 	
 				switch pcReturnType
@@ -6933,7 +6973,7 @@ class stzList from stzObject
 					return new stzListOfPairs( This.PerformOnTheseSections(paSections, pcCode) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 	
 	  #---------------------------------------------------------------#
@@ -6947,7 +6987,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isString(pcAction)
-			stzRaise("Incorrect type! pcAction must be a string.")
+			StzRaise("Incorrect type! pcAction must be a string.")
 		ok
 		
 		if isList(pcCondition) and Q(pcCondition).IsIfOrWhereNamedParam()
@@ -6956,7 +6996,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isString(pcCondition)
-			stzRaise("Incorrect type! pcCondition must be a string.")
+			StzRaise("Incorrect type! pcCondition must be a string.")
 		ok
 
 		# No need to purify the pcCondition code here,
@@ -6981,7 +7021,7 @@ class stzList from stzObject
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
+				StzRaise("Incorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -7001,7 +7041,7 @@ class stzList from stzObject
 				return new stzListOfPairs( This.PerformW(pcAction, pcCondition) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -7292,7 +7332,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isList(paOtherList)
-			stzRaise("Invalid param type! paOtherList should be a list.")
+			StzRaise("Invalid param type! paOtherList should be a list.")
 		ok
 
 		# The two lists must have same number of items
@@ -7402,7 +7442,7 @@ class stzList from stzObject
 				return new stzHashList( This.Classify() )
 
 			other
-				stzRaise("Unssupported return type!")
+				StzRaise("Unssupported return type!")
 
 			off
 		#>
@@ -7428,7 +7468,7 @@ class stzList from stzObject
 					return new stzHashList( This.Categorize() )
 	
 				other
-					stzRaise("Unssupported return type!")
+					StzRaise("Unssupported return type!")
 	
 				off
 
@@ -7451,7 +7491,7 @@ class stzList from stzObject
 					return new stzHashList( This.Categorise() )
 	
 				other
-					stzRaise("Unssupported return type!")
+					StzRaise("Unssupported return type!")
 	
 				off
 
@@ -7483,7 +7523,7 @@ class stzList from stzObject
 				return new stzListOfStrings( This.Classes() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -7508,7 +7548,7 @@ class stzList from stzObject
 					return new stzListOfStrings( This.Categories() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 	#--
@@ -7579,7 +7619,7 @@ class stzList from stzObject
 	# with list of numbers in the _:_ Contiguous List syntax
 	# provided by Ring. See example hereafter.
 
-	def Classify@C()	# Specific for lists of lists of numbers
+	def ClassifySF()	# Specific for lists of lists of numbers
 				# Returs classes in the "_:_" syntax
 				# @C for Continuous lists
 	
@@ -7588,7 +7628,7 @@ class stzList from stzObject
 			1:5, 3:9, 1:5, 10:15, 3:9, 12:20, 10:15, 1:5, 12:20
 		])
 		
-		? o1.Classify@C()	# Same as Categorize()
+		? o1.ClassifySF()	# Same as Categorize()
 		#--> [
 		#	[ "1:5",   [1, 3, 8 ] ],	
 		#	[ "3:9",   [2, 5 ] ],
@@ -7598,7 +7638,7 @@ class stzList from stzObject
 
 		*/
 
-		acClasses@C = This.Classes@C()
+		acClasses@C = This.ClassesSF()
 
 		aPositions = StzHashListQ( This.Classify() ).Values()
 
@@ -7618,21 +7658,21 @@ class stzList from stzObject
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.Classify@C() )
+				return new stzList( This.ClassifySF() )
 
 			on :stzHashList
-				return new stzHashList( This.Classify@C() )
+				return new stzHashList( This.ClassifySF() )
 
 			other
-				stzRaise("Unssupported return type!")
+				StzRaise("Unssupported return type!")
 
 			off
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def Categorize@C()
-			return This.Classify@C()
+		def CategorizeSF()
+			return This.ClassifySF()
 
 			def Categorize@CQ()
 				return This.Categorize@CQR(:stzList)
@@ -7644,18 +7684,18 @@ class stzList from stzObject
 
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.Categorize@C() )
+					return new stzList( This.CategorizeSF() )
 	
 				on :stzHashList
-					return new stzHashList( This.Categorize@C() )
+					return new stzHashList( This.CategorizeSF() )
 	
 				other
-					stzRaise("Unssupported return type!")
+					StzRaise("Unssupported return type!")
 	
 				off
 
-		def Categorise@C()
-			return This.Classify@C()
+		def CategoriseSF()
+			return This.ClassifySF()
 
 			def Categorise@CQ()
 				return This.Categorise@CQR(:stzList)
@@ -7667,19 +7707,19 @@ class stzList from stzObject
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.Categorise@C() )
+					return new stzList( This.CategoriseSF() )
 	
 				on :stzHashList
-					return new stzHashList( This.Categorise@C() )
+					return new stzHashList( This.CategoriseSF() )
 	
 				other
-					stzRaise("Unssupported return type!")
+					StzRaise("Unssupported return type!")
 	
 				off
 
 		#>
 
-	def Classes@C()
+	def ClassesSF()
 		acClasses = This.Classes()
 
 		for cClass in acClasses
@@ -7700,20 +7740,20 @@ class stzList from stzObject
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.Classes@C() )
+				return new stzList( This.ClassesSF() )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.Classes@C() )
+				return new stzListOfStrings( This.ClassesSF() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 		#>
 
 		@< @FunctionAlternativeForm
 
-		def Categories@C()
-			return This.Classes@C()
+		def CategoriesSF()
+			return This.ClassesSF()
 
 			def Categories@CQ()
 				return This.Classes@CQR(:stzList)
@@ -7725,68 +7765,68 @@ class stzList from stzObject
 
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.Categories@C() )
+					return new stzList( This.CategoriesSF() )
 	
 				on :stzListOfStrings
-					return new stzListOfStrings( This.Categories@C() )
+					return new stzListOfStrings( This.CategoriesSF() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
-	def Klass@C(pcClass)
+	def KlassSF(pcClass)
 		aResult = []
 
 		if isString(pcClass) and StzStringQ(pcClass).IsListInShortForm()
 			cClass =Q(pcClass).WithoutSpaces()
-			aResult = This.Classify@C()[cClass]
+			aResult = This.ClassifySF()[cClass]
 		ok
 
 		return aResult
 
 		def Klass@CQ(pcClass)
-			return new stzString( This.Klass@C(pcClass) )
+			return new stzString( This.KlassSF(pcClass) )
 
-		def Category@C(pcClass)
-			return This.Klass@C(pcClass)
+		def CategorySF(pcClass)
+			return This.KlassSF(pcClass)
 
 			def Category@CQ(pcClass)
-				return new stzString( This.Category@C(pcClass) )
+				return new stzString( This.CategorySF(pcClass) )
 
-	def NumberOfOccurrenceOfClass@C(pcClass)
-		nResult = StzListQ( This.Classes@C() ).NumberOfOccurrence( pcClass )
+	def NumberOfOccurrenceOfClassSF(pcClass)
+		nResult = StzListQ( This.ClassesSF() ).NumberOfOccurrence( pcClass )
 		return nResult
 
-	def ClassFrequency@C(pcClass)
-		nResult = This.NumberOfOccurrenceOfClass@C(pcClass) / This.NumberOfClasses()
+	def ClassFrequencySF(pcClass)
+		nResult = This.NumberOfOccurrenceOfClassSF(pcClass) / This.NumberOfClasses()
 		return nResult
 
-		def ClassFreq@C(pcClass)
-			return This.ClassFrequency@C(pcClass)
+		def ClassFreqSF(pcClass)
+			return This.ClassFrequencySF(pcClass)
 
-	def ClassesFrequencies@C()
+	def ClassesFrequenciesSF()
 		anResult = []
-		for cClass in This.Classes@C()
-			anResult + This.ClassFrequency@C(pcClass)
+		for cClass in This.ClassesSF()
+			anResult + This.ClassFrequencySF(pcClass)
 		next
 		return anResult
 
-		def ClassesFreq@C()
-			return This.ClassesFrequencies@C()
+		def ClassesFreqSF()
+			return This.ClassesFrequenciesSF()
 
-	def ClassesAndTheirFrequencies@C()
-		acClasses 	= This.Classes@C()
+	def ClassesAndTheirFrequenciesSF()
+		acClasses 	= This.ClassesSF()
 		anFrequencies 	= This.ClassesFrequencies()
 
 		aResult = StzLisQ( acClasses ).AssociatedWith( anFrequencies )
 
 		return aResult
 
-		def ClassesAndTheirFreq@C()
-			return This.ClassesAndTheirFrequencies@C()
+		def ClassesAndTheirFreqSF()
+			return This.ClassesAndTheirFrequenciesSF()
 
-		def ClassesXT@C()
-			return This.ClassesAndTheirFrequencies@C()
+		def ClassesXTSF()
+			return This.ClassesAndTheirFrequenciesSF()
 
 	  #-----------------------------------------------------#
 	 #   THE LIST IS MADE OF CONTIGUOUS CHARS OR NUMBERS   #
@@ -7828,7 +7868,7 @@ class stzList from stzObject
 				aResult + [ item, This.NumberOfOccurrence(item) ]
 			next	
 		else
-			stzRaise("Unsupported indexing paramater!")
+			StzRaise("Unsupported indexing paramater!")
 		ok
 
 		return aResult
@@ -9019,9 +9059,14 @@ sdsd
 			ok
 
 		but pcOp = "-"
-			anPositions = This.FindAll(pValue)
-			This.RemoveItemsAtPositions(anPositions)
-
+			if isList(pValue) and This.ContainsNo(pValue)
+				This.RemoveMany(pValue)
+			
+			else	
+				anPositions = This.FindAll(pValue)
+				This.RemoveItemsAtPositions(anPositions)
+			ok
+	
 		but pcOp = "*"
 			This.MultiplyBy(pValue)
 
@@ -9165,7 +9210,7 @@ sdsd
 
 	def ExtendToPositionXT(n, pWith)
 		if NOT isNumber(n)
-			stzRaise("Incorrect param! n must be a number.")
+			StzRaise("Incorrect param! n must be a number.")
 		ok
 
 		bDynamic = FALSE
@@ -9181,7 +9226,7 @@ sdsd
 		ok
 
 		if n <= This.NumberOfItems()
-			stzRaise(stzListError(:CanNotExtendTheList))
+			StzRaise(stzListError(:CanNotExtendTheList))
 		ok
 
 		if NOT bDynamic
@@ -9371,7 +9416,7 @@ sdsd
 			on :stzSet
 				return new stzSet( This.ToSet() )
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 	
 	def ToStzSet()
@@ -9510,7 +9555,7 @@ sdsd
 		aResult = []
 
 		if NOT This.IsDuplicated(pItem)
-			stzRaise("This item ("+ pItem + ") is not duplicated!")
+			StzRaise("This item ("+ pItem + ") is not duplicated!")
 		ok
 
 		aResult = This.FindAllExceptFirst(pItem)
@@ -9526,7 +9571,7 @@ sdsd
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param type! pcReturnType must be a string.")
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -9537,7 +9582,7 @@ sdsd
 				return new stzListOfNumbers( This.FindDuplicatedItems(pItem) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 	
 	  #-----------------------#
@@ -9727,7 +9772,7 @@ sdsd
 
 		other
 			# For now, number and object type are not concerned
-			stzRaise("Unsupported type!")
+			StzRaise("Unsupported type!")
 		off
 
 		return bResult
@@ -9807,8 +9852,8 @@ sdsd
 
 	def ContainsMany(paSetOfItems)
 		
-		if IsNotList(paSetOfItems)
-			stzRaise("Incorrect param type! You must provide a list.")
+		if Q(paSetOfItems).IsNotList()
+			StzRaise("Incorrect param type! You must provide a list.")
 		ok
 
 		bResult = TRUE
@@ -10135,7 +10180,7 @@ sdsd
 				return new stzObject(item)
 
 			other
-				stzRaise("Unsupported type!")
+				StzRaise("Unsupported type!")
 			off
 
 	def Paths()
@@ -10488,7 +10533,7 @@ sdsd
 				return new stzListOfObjects( This.FindAllCS(pItem, pCaseSensitive) )
 
 			other
-				stzRaise("Unsupported type!")
+				StzRaise("Unsupported type!")
 			off
 
 		#>
@@ -10582,7 +10627,7 @@ sdsd
 			#< @FunctionFluentForm
 
 			def FindAllQ(pItem)
-				return This.FindAllQR(pItem, pCaseSensitive, :stzlist)
+				return This.FindAllQR(pItem, :stzlist)
 	
 			def FindAllQR(pItem, pcReturnType)
 				return This.FindAllOccurrencesQR(pItem, pcReturnType)
@@ -10666,7 +10711,7 @@ sdsd
 		ok
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n must be a number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		anPos = This.FindAllCS(pItem, pCaseSensitive)
@@ -10772,7 +10817,7 @@ sdsd
 		for item in This.List()
 			acThis + Q( @@S( item ) ).WithoutSpaces()
 		next
-	
+
 		cItem = Q( @@S( pItem ) ).WithoutSpaces()
 
 		nResult = StzListOfStringsQ(acThis).FindFirstOccurrenceCS(cItem, pCaseSensitive)
@@ -10880,100 +10925,6 @@ sdsd
 
 		#>
 
-/*	  #--------------------------------------------#
-	 #   FINDING FIRST N OCCURRENCES OF AN ITEM   #
-	#--------------------------------------------#
-
-	def FindFirstNOccurrencesCS(n, pItem, pCaseSensitive)
-		anPositions = This.FindAllCS(pItem, pCaseSensitive)
-		return Q(anPositions).Section(1, n)
-
-		#< @FunctionAlternativeForms
-
-		def FindNFirstOccurrencesCS(n, pItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pItem, pCaseSensitive)
-
-		def NFirstCS(n, pItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pItem, pCaseSensitive)
-
-		def FirstNCS(n, pItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pItem, pCaseSensitive)
-
-		def PositionOfNFirstOccurrencesCS(n, pItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pItem, pCaseSensitive)
-
-		def PositionOfFirstNOccurrencesCS(n, pItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pItem, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindFirstNOccurrences(n, pItem)
-		return This.FindFirstNOccurrencesCS(n, pItem, :CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def FindNFirstOccurrences(n, pItem)
-			return This.FindFirstNOccurrences(n, pItem)
-
-		def NFirst(n, pItem)
-			return This.FindFirstNOccurrences(n, pItem)
-
-		def FirstN(n, pItem)
-			return This.FindFirstNOccurrences(n, pItem)
-
-		def PositionOfNFirstOccurrences(n, pItem)
-			return This.FindFirstNOccurrences(n, pItem)
-
-		def PositionOfFirstNOccurrences(n, pItem)
-			return This.FindFirstNOccurrences(n, pItem)
-
-		#>
-
-	  #-------------------------------------------#
-	 #   FINDING LAST N OCCURRENCES OF AN ITEM   #
-	#-------------------------------------------#
-
-	def FindLastNOccurrencesCS(n, pItem, pCaseSensitive)
-		anPositions = This.FindAllCS(pItem, pCaseSensitive)
-
-		nNumberOfOccurr = len(anPositions)
-		n1 = nNumberOfOccurr - n + 1
-
-		return Q(anPositions).Section(n1, nNumberOfOccurr)
-
-		#< @FunctionAlternativeForms
-
-		def FindNLastOccurrencesCS(n, pItem, pCaseSensitive)
-			return FindLastNOccurrencesCS(n, pItem, pCaseSensitive)
-
-		def NLastCS(n, pItem, pCaseSensitive)
-			return This.FindLastNOccurrencesCS(n, pItem, pCaseSensitive)
-
-		def LastNCS(n, pItem, pCaseSensitive)
-			return This.FindLastNOccurrencesCS(n, pItem, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindLastNOccurrences(n, pItem)
-		return This.FindLastNOccurrencesCS(n, pItem, :CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def FindNLastOccurrences(n, pItem)
-			return FindLastNOccurrences(n, pItem)
-
-		def NLast(n, pItem)
-			return This.FindLastNOccurrences(n, pItem)
-
-		def LastN(n, pItem)
-			return This.FindLastNOccurrences(n, pItem)
-
-		#>
-*/
 	  #------------------------------------------#
 	 #   FINDING GIVEN OCCURRENCES OF AN ITEM   #
 	#------------------------------------------#
@@ -11035,7 +10986,7 @@ sdsd
 				return new stzListOfNumbers( This.FindManyCS(paItems, pCaseSensitive) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#
@@ -11081,15 +11032,6 @@ sdsd
 
 		#
 
-		#< @FunctionAlternativeForm
-
-		def FindManyCSXT(paItems, pCaseSensitive)
-			return This.FindManyXTCS(paItems, pCaseSensitive)
-
-			def FindManyCSXTQ(paItems, pCaseSensitive)
-				return new stzList( This.FindManyCSXT(paItems, pCaseSensitive) )
-		#>
-
 	#-- CASESENSITIVITY
 
 	def FindManyXT(paItems)
@@ -11125,7 +11067,7 @@ sdsd
 			on :stzListOfNumbers
 				return new stzListOfNumbers( This.FindAllExceptFirst(pItem) )
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def FindAllExceptFirstQ(pItem)
@@ -11152,7 +11094,7 @@ sdsd
 				on :stzListOfNumbers
 					return new stzListOfNumbers( This.FindExceptFirst(pItem) )
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 	
 			def FindExceptFirstQ(pItem)
@@ -11184,7 +11126,7 @@ sdsd
 			on :stzListOfNumbers
 				return new stzListOfNumbers( This.FindAllExceptLast(pItem) )
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def FindAllExceptLastQ(pItem)
@@ -11212,7 +11154,7 @@ sdsd
 					return new stzListOfNumbers( This.FindExceptLast(pItem) )
 
 				other
-					stzRaise("Unsupported param type!")
+					StzRaise("Unsupported param type!")
 				off
 	
 			def FindExceptLastQ(pItem)
@@ -11256,6 +11198,128 @@ sdsd
 	def DeepFind(pItem)
 		return This.DeepFindCS(pItem, :CaseSensitive = TRUE)
 
+	  #-----------------------------------------------------#
+	 #  FINDING THE LIST ITEMS IN AN OTHER LIST OR STRING  #
+	#-----------------------------------------------------#
+
+	def FindInCS(pOtherListOrStr, pCaseSensitive)
+		/* 
+		EXAMPLE 1:
+
+		o1 = new stzList([ "11", "22", "33" ])
+		? o1.FindIn([ "11", "_", "22", "_", "33" ])
+		#--> [ 1, 3, 4 ]
+
+		EXAMPLE 2:
+
+		o1 = new stzList([ "11", "22", "33" ])
+		? o1.FindIn("**11**22**33**")
+		#--> [ 3, 7, 11 ]
+
+		*/
+
+		if isList(pOtherListOrStr) and Q(pOtherListOrStr).IsListNamedParam()
+			pOtherListOrStr = pOtherListOrStr[2]
+
+			if NOT isList(paOtherListOrStr)
+				StzRaise("Incorrect param type! pOtherListOrStr must be a list.")
+			ok
+		ok
+
+		if isList(pOtherListOrStr) and Q(pOtherListOrStr).IsStringNamedParam()
+			pOtherListOrStr = pOtherListOrStr[2]
+
+			if NOT isString(paOtherListOrStr)
+				StzRaise("Incorrect param type! pOtherListOrStr must be a string.")
+			ok
+		ok
+
+		if NOT (isList(pOtherListOrStr) or isString(pOtherListOrStr))
+			StzRaise("Incorrect param type! pOtherListOrStr must be a list or string.")
+		ok
+
+		anResult = Q(pOtherListOrStr).FindManyCS(This.Content(), pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindItemsInCS(pOtherListOrStr, pCaseSensitive)
+			return This.FindInCS(pOtherListOrStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindIn(pOtherListOrStr)
+		return FindInCS(pOtherListOrStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def FindItemsIn(pOtherListOrStr)
+			return FindIn(pOtherListOrStr)
+
+		#>
+
+	  #-------------------------------------------#
+	 #  FINDING THE LIST ITEMS IN AN OTHER LIST  #
+	#-------------------------------------------#
+
+	def FindInListCS(paOtherList, pCaseSensitive)
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
+		return This.FindInCS(paOtherList, pCaseSensitive)
+
+		#< @FunctionAlternativeForm
+
+		def FindItemsInListCS(paOtherList, pCaseSensitive)
+			return This.FindInListCS(paOtherList, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInList(paOtherList)
+		return This.FindInListCS(paOtherList, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def FindItemsInList(paOtherList)
+			return This.FindInList(paOtherList)
+
+		#>
+
+	  #---------------------------------------------#
+	 #  FINDING THE LIST ITEMS IN AN GIVEN STRING  #
+	#---------------------------------------------#
+
+	def FindInStringCS(pcStr, pCaseSensitive)
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcStr must be a string.")
+		ok
+
+		return This.FindInCS(pcStr, pCaseSensitive)
+
+		#< @FunctionAlternativeForm
+
+		def FindItemsInStringCS(pcStr, pCaseSensitive)
+			return This.FindInStringCS(pcStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInString(pcStr)
+		return This.FindInStringCS(pcStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def FindItemsInString(pcStr)
+			return This.FindInString(pcStr)
+
+		#>
+
 	  #=======================================================#
 	 #    VISUALLY FINDING ALL OCCURRENCES OF A GIVEN ITEM   #
 	#=======================================================#
@@ -11265,7 +11329,7 @@ sdsd
 
 	// TODO: Add CaseSensitivity
 
-	def VizFindAllOccurrences(pItem) # TODO: Made some changes, retest it!
+	def VizFindAllOccurrences(pItem)
 		
 		cResult = This.ToCodeQ().Simplified()
 		anPositions = Q(cResult).FindAll( @@(pItem) )
@@ -11352,11 +11416,11 @@ sdsd
 	// TODO: Add CaseSensitivity
 	def FindNthPreviousOccurrence(n, pItem, nStart)
 		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n should be a number.")
+			StzRaise("Incorrect param type! n should be a number.")
 		ok
 
 		if n < 1 or n > This.NumberOfItems()
-			stzRaise("Out of range! n should be between 1 and This.NumberOfItems().")
+			StzRaise("Out of range! n should be between 1 and This.NumberOfItems().")
 		ok
 
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
@@ -11386,7 +11450,7 @@ sdsd
 		ok
 
 		if nStart < 1 or nStart > This.NumberOfItems()
-			stzRaise("Out of range! nStart should be between 1 and This.NumberOfItems().")
+			StzRaise("Out of range! nStart should be between 1 and This.NumberOfItems().")
 		ok
 
 		if nStart = 1
@@ -11466,7 +11530,7 @@ sdsd
 		ok
 
 		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param! pnStartingAt must be a number.")
+			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
@@ -11513,7 +11577,7 @@ sdsd
 		ok
 
 		if NOT isNumber(pnStartingAt)
-			stzRaise("Incorrect param! pnStartingAt must be a number.")
+			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
 		oSection = This.SectionQ(1, pnStartingAt)
@@ -11543,14 +11607,20 @@ sdsd
 		ok
 
 		if NOT isString(pcCondition)
-			stzRaise("Incorrect param! pcCondition must be a string.")
+			StzRaise("Incorrect param! pcCondition must be a string.")
 		ok
 
 		if Q(pcCondition).RemoveSpacesQ().IsOneOfThese([ NULL, "{}" ])
 			return 1 : This.NumberOfItems()
 		ok
 
-		cCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzList)
+		cCondition = ""
+		aExecutableSection = []
+
+		StzCCodeQ(pcCondition) {
+			cCondition = UnifiedFor(:stzList)
+			aExecutableSection = ExecutableSection()
+		}
 
 		cCode = "bOk = ( " + cCondition + " )"
 		oCode = new stzString(cCode)
@@ -11558,8 +11628,9 @@ sdsd
 		anResult = []
 
 		@i = 0
-		for @item in This.List()
-			@i++
+
+		for @i = aExecutableSection[1] to aExecutableSection[2]
+			@item = This[@i]
 
 			bEval = TRUE
 
@@ -11574,6 +11645,8 @@ sdsd
 
 				bEval = FALSE
 			ok
+
+//? cCode
 
 			if bEval
 				eval(cCode)
@@ -11605,7 +11678,7 @@ sdsd
 				return new stzListOfNumbers( This.FindAllItemsW(pCondition) )
 	
 			other
-				stzRaise("Unsupported type!")
+				StzRaise("Unsupported type!")
 			off
 		#>
 
@@ -11632,7 +11705,7 @@ sdsd
 					return new stzListOfNumbers( This.FindAllW(pCondition) )
 		
 				other
-					stzRaise("Unsupported type!")
+					StzRaise("Unsupported type!")
 				off
 			#>
 
@@ -11658,7 +11731,7 @@ sdsd
 					return new stzListOfNumbers( This.FindW(pCondition) )
 		
 				other
-					stzRaise("Unsupported type!")
+					StzRaise("Unsupported type!")
 				off
 			#>
 
@@ -11683,7 +11756,7 @@ sdsd
 					return new stzListOfNumbers( This.FindWhere(pCondition) )
 		
 				other
-					stzRaise("Unsupported type!")
+					StzRaise("Unsupported type!")
 				off
 			#>
 
@@ -11708,7 +11781,7 @@ sdsd
 					return new stzListOfNumbers( This.FindAllWhere(pCondition) )
 		
 				other
-					stzRaise("Unsupported type!")
+					StzRaise("Unsupported type!")
 				off
 			#>
 
@@ -11733,7 +11806,7 @@ sdsd
 					return new stzListOfNumbers( This.FindAllItemsWhere(pCondition) )
 		
 				other
-					stzRaise("Unsupported type!")
+					StzRaise("Unsupported type!")
 				off
 			#>
 
@@ -11943,7 +12016,7 @@ sdsd
 				return new stzObject(item)
 
 			other
-				stzRaise("Unsupported type!")
+				StzRaise("Unsupported type!")
 			off
 
 		#>
@@ -11981,7 +12054,7 @@ sdsd
 				return new stzObject(item)
 
 			other
-				stzRaise("Unsupported type!")
+				StzRaise("Unsupported type!")
 			off
 
 		#>
@@ -12009,7 +12082,7 @@ sdsd
 				return new stzObject(item)
 
 			other
-				stzRaise("Unsupported type!")
+				StzRaise("Unsupported type!")
 			off
 
 		#>
@@ -12116,7 +12189,7 @@ sdsd
 				return new stzListOfNumbers( This.Numbers() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -12142,7 +12215,7 @@ sdsd
 					return new stzListOfNumbers( This.OnlyNumbers() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -12199,7 +12272,7 @@ sdsd
 				return new stzListOfNumbers( This.NonNumbers() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def OnlyNonNumbers()
@@ -12221,7 +12294,7 @@ sdsd
 					return new stzListOfNumbers( This.OnlyNonNumbers() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 	def RemoveNonNumbers()
@@ -12302,7 +12375,7 @@ sdsd
 				return new stzListOfStrings( This.Strings() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -12328,7 +12401,7 @@ sdsd
 					return new stzListOfStrings( This.OmlyStrings() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -12388,7 +12461,7 @@ sdsd
 				return new stzListOfStrings( This.NonStrings() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def OnlyNonStrings()
@@ -12410,7 +12483,7 @@ sdsd
 					return new stzListOfStrings( This.OnlyNonStrings() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 	#----
@@ -12773,7 +12846,7 @@ sdsd
 				return new stzListOfLists( This.Lists() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -12799,7 +12872,7 @@ sdsd
 					return new stzListOfLists( This.OnlyLists() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -12856,7 +12929,7 @@ sdsd
 				return new stzListOfLists( This.NonLists() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def OnlyNonLists()
@@ -12878,7 +12951,7 @@ sdsd
 					return new stzListOfLists( This.OnlyNonLists() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 	def RemoveNonLists()
@@ -12957,7 +13030,7 @@ sdsd
 				return new stzObjectOfObjects( This.Objects() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -12983,7 +13056,7 @@ sdsd
 					return new stzObjectOfObjects( This.OnlyObjects() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -13040,7 +13113,7 @@ sdsd
 				return new stzObjectOfObjects( This.NonObjects() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def OnlyNonObjects()
@@ -13062,7 +13135,7 @@ sdsd
 					return new stzObjectOfObjects( This.OnlyNonObjects() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 	def RemoveNonObjects()
@@ -13288,7 +13361,7 @@ sdsd
 				return new stzListOfNumbers( This.Split(pItem) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -13323,7 +13396,7 @@ sdsd
 					return new stzListOfNumbers( This.SplitUsing(pItem) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 		#>
@@ -13387,7 +13460,7 @@ sdsd
 				return new stzListOfNumbers( This.SplitToPartsOfNItems(n) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 
@@ -13709,7 +13782,7 @@ sdsd
 		# Params must be numbers
 
 		if NOT BothAreNumbers(n1, n2)
-			stzRaise("Incorrect params! n1 and n2 must be numbers.")
+			StzRaise("Incorrect params! n1 and n2 must be numbers.")
 		ok
 
 		# If the params are given in inversed order, return reversed section
@@ -13768,7 +13841,7 @@ sdsd
 				return new stzListOfObjects( This.Section(n1, n2) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -13803,7 +13876,7 @@ sdsd
 					return new stzListOfObjects( This.Slice(n1, n2) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 		#>
 
@@ -13814,7 +13887,7 @@ sdsd
 	def Sections(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 
-			stzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 
 		ok
 
@@ -13843,7 +13916,7 @@ sdsd
 	 #   GETIING MANY SECTIONS (OR SLICES) -- EXTENDED   #
 	#---------------------------------------------------#
 
-	def SectionsXT(pItem1, pItem2)
+	def SectionsXTCS(pItem1, pItem2, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzList([ "T", "A", "Y", "O", "U", "B", "T", "A" ])
@@ -13862,8 +13935,8 @@ sdsd
 
 		anSections = []
 
-		anPos1 = This.FindAll(pItem1) #--> [ 1, 7 ]
-		anPos2 = This.FindAll(pItem2) #--> [ 2, 8 ]
+		anPos1 = This.FindAllCS(pItem1, pCaseSensitive) #--> [ 1, 7 ]
+		anPos2 = This.FindAllCS(pItem2, pCaseSensitive) #--> [ 2, 8 ]
 
 		for n1 in anPos1
 			for n2 in anPos2
@@ -13878,8 +13951,10 @@ sdsd
 		acResult = This.Sections(anSections)
 		return acResult
 
-		def SectionsCSXT(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SectionsXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+	#-- WTHOUT CASESENSITIVITY
+
+	def SectionsXT(pItem1, pItem2)
+		return This.SectionsXTCS(pItem1, pItem2, :CaseSensitive = TRUE)
 
 	  #----------------------------------------------------------#
 	 #   GETIING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS   #
@@ -14094,7 +14169,7 @@ sdsd
 				return new stzListOfObjects( This.Range(pnStart, pnRange) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	  #------------------------------------#
@@ -14325,7 +14400,7 @@ sdsd
 		# The acBeneficiaryItems param should be non empty list of items:
 
 		if NOT ( isList(acBeneficiaryItems) and  len( acBeneficiaryItems) > 0 )
-			stzRaise(stzListError(:CanNoteDistributeItemsOverTheList1))
+			StzRaise(stzListError(:CanNoteDistributeItemsOverTheList1))
 		ok
 
 		# Controlling the validity of the syntax of anShareOfEachItem param
@@ -14333,14 +14408,14 @@ sdsd
 		if NOT ( isList(anShareOfEachItem) and
 			 Q(anShareOfEachItem).IsListOfNumbers() and
 			 len(anShareOfEachItem) > 0 )
-			 stzRaise("Incorrect param! anShareOfEachItem must be a non empty list of numbers.")
+			 StzRaise("Incorrect param! anShareOfEachItem must be a non empty list of numbers.")
 		ok
 
 		# The sum of numbers in anShareOfEachItem should be equal to the
 		# number of items of the main list
 
 		if NOT ListOfNumbersSum(anShareOfEachItem) = This.NumberOfItems()
-			stzRaise(stzListError(:CanNoteDistributeItemsOverTheList2))
+			StzRaise(stzListError(:CanNoteDistributeItemsOverTheList2))
 		ok
 
 		# Now, we can perform the distribution
@@ -14696,14 +14771,14 @@ sdsd
 				KeysQR(:stzListOfStrings).
 				ContainsBothCS(:CaseSensitive, :CS, :CS = FALSE)
 
-				stzRaise("Incorrect format! :CaseSensitive and :CS can not be used both in the same time")
+				StzRaise("Incorrect format! :CaseSensitive and :CS can not be used both in the same time")
 			ok
 
 			if This.ToStzHashList().
 				KeysQR(:stzListOfStrings).
 				ContainsBothCS(:RemoveThisBound, :RemoveThisBoundingSubString, :CS = FALSE)
 
-				stzRaise("Incorrect format! :RemoveThisBound and :RemoveThisBoundingSubString can not be used both in the same time")
+				StzRaise("Incorrect format! :RemoveThisBound and :RemoveThisBoundingSubString can not be used both in the same time")
 			ok
 
 			bOk1 = FALSE
@@ -16004,10 +16079,17 @@ sdsd
 
 	def IsReturnedAsNamedParam()
 
-		if This.NumberOfItems() = 2 and
-		   This.AllItemsAreStrings() and
-		   This[1] = :ReturnedAs and
-		   StzStringQ(This[2]).IsStzClassName()
+		if This.NumberOfItems() = 2 and This[1] = :ReturnedAs
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndReturnedAsNamedParam()
+
+		if This.NumberOfItems() = 2 and This[1] = :AndReturnedAs
 
 			return TRUE
 
@@ -16017,7 +16099,67 @@ sdsd
 
 	def IsReturnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and Q(This[1]).IsEqualToCS(:Return, :CS = FALSE)
+		   isString(This[1]) and This[1] = :Return
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsReturnAsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and This[1] = :ReturnAs
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndReturnAsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and This[1] = :AndReturnAs
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsReturnItAsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and This[1] = :ReturnItAs
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndReturnItAsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and This[1] = :AndReturnItAs
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsReturnThemAsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and This[1] = :ReturnThemAs
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndReturnThemAsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and This[1] = :AndReturnThemAs
 
 			return TRUE
 
@@ -18611,14 +18753,14 @@ sdsd
 		*/
 
 		if NOT isString(pcCode)
-			stzRaise("Invalid param type! Condition must be a string.")
+			StzRaise("Invalid param type! Condition must be a string.")
 		ok
 
 		oCode = new stzString(pcCode)
 		oCode.ReplaceAllCS("@string", "@str", :CaseSensitive = FALSE)
 
 		if NOT oCode.ContainsCS("@str", :CS = FALSE)
-			stzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
+			StzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
 		ok
 
 		cCode = oCode.RemoveBoundsQ(["{","}"]).Trimmed()
@@ -18636,7 +18778,7 @@ sdsd
 
 		if NOT oCode.BeginsWithOneOfTheseCS( [ "@str =", "@str=" ], :CaseSensitive = FALSE )
 
-			stzRaise("Syntax error! Condition should begin with '@str =' or '@string ='.")
+			StzRaise("Syntax error! Condition should begin with '@str =' or '@string ='.")
 		ok
 
 		@i = 0
@@ -18682,14 +18824,14 @@ sdsd
 		*/
 
 		if NOT isString(pcCode)
-			stzRaise("Invalid param type! Condition must be a string.")
+			StzRaise("Invalid param type! Condition must be a string.")
 		ok
 
 		oCode = new stzString(pcCode)
 		oCode.ReplaceAllCS("@string", "@str", :CaseSensitive = FALSE)
 
 		if NOT oCode.ContainsCS("@str", :CS = FALSE)
-			stzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
+			StzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
 		ok
 
 
@@ -18722,7 +18864,7 @@ sdsd
 				return new stzListOfStrings( This.ForEachStringYield(pcCode) )
 			
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def ForEachStringReturn(pcCode)
@@ -18741,6 +18883,23 @@ sdsd
 	  #-----------#
 	 #   MISC.   #
 	#-----------#
+
+	def IsUppercase()
+		if This.IsListOfStrings() and
+		   LSQ( This.String() ).IsUppercase()
+		   # LSQ() --> abbreviation of StzListOfStringsQ()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsAnUppecase()
+			return This.IsUppercase()
+
+		def IsUppercased()
+			return This.IsUppercase()
 
 	def ToString()
 		acStrings = []
@@ -18773,7 +18932,7 @@ sdsd
 
 	def ToStzListOfChars()
 		if NOT This.IsListOfChars()
-			stzRaise("Can't cast the list into a stzListOfChars!")
+			StzRaise("Can't cast the list into a stzListOfChars!")
 		ok
 
 		return new stzListOfChars( This.Content() )
@@ -18868,7 +19027,7 @@ sdsd
 	def AllItemsAreXT(pacDescriptors, paEvalDirection)
 
 		if NOT ( isList(pacDescriptors) and Q(pacDescriptors).IsListOfStrings() )
-			stzRaise("Incorrect param type! pacDescriptors must be a list of strings.")
+			StzRaise("Incorrect param type! pacDescriptors must be a list of strings.")
 		ok
 
 		if isList(paEvalDirection) and
@@ -18891,7 +19050,7 @@ sdsd
 			:FromLTR, :FromRTL, :FromL2R, :FromR2L
 			], :CS = FALSE)
 
-			stzRaise("Incorrect param value for paEvalDirection! Allowed values are :RightToLeft and :LeftToRight.")
+			StzRaise("Incorrect param value for paEvalDirection! Allowed values are :RightToLeft and :LeftToRight.")
 		ok
 
 		if Q(paEvalDirection).IsEither(:Default, :Or = :Nothing)

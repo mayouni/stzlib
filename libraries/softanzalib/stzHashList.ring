@@ -79,11 +79,11 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				@aContent = p
 
 			else
-				stzRaise("The list you provided is not a hash list!")
+				StzRaise("The list you provided is not a hash list!")
 			ok
 
 		other
-			stzRaise("Unsupported form of the input of the hashlist!")
+			StzRaise("Unsupported form of the input of the hashlist!")
 		off
 
 	  #-------------#
@@ -120,7 +120,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
+				StzRaise("Incorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -132,7 +132,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzListOfPairs( This.Keys() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 
@@ -152,7 +152,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
+				StzRaise("Incorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -164,7 +164,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzListOfStrings( This.Keys() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def KeysForValue(pValue)
@@ -187,7 +187,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
+				StzRaise("Incorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -199,7 +199,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzListOfStrings( This.KeysForValue() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 			
 	def Values()
@@ -233,7 +233,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			//on :stzListOfObjects # TODO
 				//return new stzListOfObjects( This.Values() )
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def ValuesAreListsOfSameSize()
@@ -267,7 +267,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			eval(cCode)
 
 			if Q(@Key).ExistsIn( This.Keys() )
-				stzRaise("Can't update a key with the value of an existant key!")
+				StzRaise("Can't update a key with the value of an existant key!")
 
 			else
 				This.ReplaceNthKey(@i, :With = @key)
@@ -307,7 +307,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		ok
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n should be a number.")
+			StzRaise("Incorrect param type! n should be a number.")
 		ok
 
 		if n > 0
@@ -367,7 +367,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		ok
 
 		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n should be a number.")
+			StzRaise("Incorrect param type! n should be a number.")
 		ok
 
 		return This.Content()[n]
@@ -383,7 +383,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			ok
 
 			if NOT (isString(pcReturnType) and Q(pcReturnType).IsAStzClassName())
-				stzRaise("Incorrect param! pcReturnType must be a string containing the name of a Softanza class.")
+				StzRaise("Incorrect param! pcReturnType must be a string containing the name of a Softanza class.")
 			ok
 
 			switch pcReturnType
@@ -392,7 +392,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			on :stzPair
 				return new stzpair(This.NthPair(n))
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -428,7 +428,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return paPair[1]
 
 		else
-			stzRaise("Invalid param type!")
+			StzRaise("Invalid param type!")
 		ok
 
 		def KeyInPairQ(paPair)
@@ -439,7 +439,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 	           This.ContainsPair(paPair)
 			return paPair[2]
 		else
-			stzRaise("Invalide param type!")
+			StzRaise("Invalide param type!")
 		ok
 
 		def ValueInPairQ(paPair)
@@ -509,7 +509,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			This.UpdateNthKey(n, paNewPair[1])
 			This.UpdateNthValue(n, paNewPair[2])
 		else
-			stzRaise("Key must be a string!")
+			StzRaise("Key must be a string!")
 		ok
 	
 	def UpdatePair(paPair, paNewPair)
@@ -520,7 +520,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			This.UpdateNthKey(n, paNewPair[1])
 			This.UpdateNthValue(n, paNewPair[2])
 		else
-			stzRaise("Key must be a string!")
+			StzRaise("Key must be a string!")
 		ok
 	
 	def UpdateNthKey(n, pcValue)
@@ -595,7 +595,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				aPair = paPair
 			next
 		else
-			stzRaise("Syntax error! The value you provided is not a string key pair.")
+			StzRaise("Syntax error! The value you provided is not a string key pair.")
 		ok
 
 	  #-----------------------------#
@@ -624,7 +624,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			@aContent + paNewPair
 
 		else
-			stzRaise("Syntax error! The value you provided is not a pair with its key beeing a string.")
+			StzRaise("Syntax error! The value you provided is not a pair with its key beeing a string.")
 		ok
 
 		def AddPairQ(paNewPair)
@@ -845,7 +845,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			next
 			return nResult
 		else
-			stzRaise("Can't search the list." + NL + "Because paPair is not a pair!")
+			StzRaise("Can't search the list." + NL + "Because paPair is not a pair!")
 		ok
 
 	def ContainsPair(paPair)
@@ -1105,7 +1105,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzListOfStrings( This.Classes() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -1130,7 +1130,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 					return new stzListOfStrings( This.Categories() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 	
 		#>
@@ -1170,7 +1170,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzHashList( This.Classify() )
 	
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off						
 		#>
 
@@ -1192,7 +1192,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzHashList( This.Categorise() )
 	
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def CategorizeQ()
@@ -1211,7 +1211,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzHashList( This.Categorize() )
 	
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 						
 		#>
@@ -1233,7 +1233,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzText( This.Klass() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def Category(pcClass)
@@ -1270,7 +1270,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzListOfStrings( This.ClassesInList() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 		#>
 
@@ -1295,7 +1295,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 					return new stzListOfStrings( This.CategoriesInList() )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 	
 		#>
@@ -1335,7 +1335,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzHashList( This.ClassifyInList() )
 	
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off						
 		#>
 
@@ -1357,7 +1357,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzHashList( This.CategoriseInList() )
 	
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def CategorizeInListQ()
@@ -1376,7 +1376,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzHashList( This.CategorizeInList() )
 	
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 						
 		#>
@@ -1398,7 +1398,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				return new stzText( This.KlassInList() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def CategoryInList(pcClass)

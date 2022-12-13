@@ -36,7 +36,7 @@ class stzFile from stzObject
 		// Check if the provided open mode is supported
 		oListOfOpenModes = new stzList(_aFileOpeningModes)
 		if NOT oListOfOpenModes.Contains(pcOpenMode)
-			stzRaise(stzFileError(:UnsupportedModeInOpeningFile))
+			StzRaise(stzFileError(:UnsupportedModeInOpeningFile))
 		ok
 
 		// Trying to change the opening mode
@@ -45,7 +45,7 @@ class stzFile from stzObject
 			cOpeningMode = pcOpenMode
 			return TRUE
 		catch
-			stzRaise(stzFileError(:CanNotChangeFileOpeneningMode2))
+			StzRaise(stzFileError(:CanNotChangeFileOpeneningMode2))
 		done
 
 	  #-----------#
@@ -108,7 +108,7 @@ class stzFile from stzObject
 		try
 			return read(cFile)
 		catch
-			stzRaise( stzFileError(:CanNotLoadFileContent) )
+			StzRaise( stzFileError(:CanNotLoadFileContent) )
 		done
 
 	def ReadLine()
@@ -123,13 +123,13 @@ class stzFile from stzObject
 				try
 					return fread( This.Handler(), n )
 				catch
-					stzRaise( stzFileError(:CanNotReadFromFile) )
+					StzRaise( stzFileError(:CanNotReadFromFile) )
 				done
 			else
-				stzRaise( stzError(:CanNotReadAfterEndOfFile) )
+				StzRaise( stzError(:CanNotReadAfterEndOfFile) )
 			ok
 		else
-			stzRaise( stzFileErrot(:CanNotReadFromFileInThisOpeningMode) )
+			StzRaise( stzFileErrot(:CanNotReadFromFileInThisOpeningMode) )
 		ok
 
 	  #-------------------#
@@ -144,7 +144,7 @@ class stzFile from stzObject
 			write(cFile, pcContent)
 			return TRUE
 		catch
-			stzRaise( stzFileError(:CanNotWriteContentToFile) )
+			StzRaise( stzFileError(:CanNotWriteContentToFile) )
 		done
 
 	def WriteLine(pcLine)
@@ -161,14 +161,14 @@ class stzFile from stzObject
 		if NOT This.IsEndOfFile()
 			return oQFile.pos()
 		else
-			stzRaise(stzFileError(:CanNotReadAfterEndOfFile))
+			StzRaise(stzFileError(:CanNotReadAfterEndOfFile))
 		ok
 
 	def SetPosition(n)
 		if NOT This.IsEndOfFile()
 			return oQFile.seek(n)
 		else
-			stzRaise(stzFileError(:CanNotWriteAfterEndOfFile))
+			StzRaise(stzFileError(:CanNotWriteAfterEndOfFile))
 		ok
 
 	def IsEndOfFile()
@@ -194,7 +194,7 @@ class stzFile from stzObject
 		if This.Exists()
 			return oQFile.copy(pcNewName)
 		else
-			stzRaise( stzFileError(:CanNotCopyInexistantFile) )
+			StzRaise( stzFileError(:CanNotCopyInexistantFile) )
 		ok
 
 	  #---------------#
@@ -205,14 +205,14 @@ class stzFile from stzObject
 		if This.Exists() and FileExists(pcTargetFileName)
 			return oQFile.symLinkTarget_2(pcTargetFileName)
 		else
-			stzRaise( stzFileError(:CanNotSetShorcutForInexistantFiles) )
+			StzRaise( stzFileError(:CanNotSetShorcutForInexistantFiles) )
 		ok
 
 	def SetAsShortcutOfFile(pcOtherFileName)
 		if This.Exists() and FileExists(pcOtherFileName)
 			return oQFile.link(pcOtherFileName)
 		else
-			stzRaise( stzFileError(:CanNotSetShortcutForInexistantFiles) )
+			StzRaise( stzFileError(:CanNotSetShortcutForInexistantFiles) )
 		ok
 
 	  #---------------------#
@@ -287,7 +287,7 @@ class stzFile from stzObject
 
 
 		other
-			stzRaise( stzFileError(:UnsupportedModeInOpeningTextFile) )
+			StzRaise( stzFileError(:UnsupportedModeInOpeningTextFile) )
 		
 		off
 

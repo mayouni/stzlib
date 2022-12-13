@@ -34674,7 +34674,7 @@ class stzUnicodeData
 
 	def FindCharName(pcCharName)
 		if NOT isString(pcCharName)
-			stzRaise("Incorrect param type! pcCharName must be a string.")
+			StzRaise("Incorrect param type! pcCharName must be a string.")
 		ok
 
 		pcCharName = Q(pcCharName).Uppercased()

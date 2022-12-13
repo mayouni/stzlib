@@ -11,7 +11,7 @@ class stzListOfHashLists from stzList
 			@aListOfHashLists = paList
 
 		else
-			stzRaise("Can't create stzListOfHashLists object!")
+			StzRaise("Can't create stzListOfHashLists object!")
 		ok
 
 	def Content()

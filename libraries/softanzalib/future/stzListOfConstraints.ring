@@ -56,7 +56,7 @@ class stzListOfConstraints from stzObject
 			next
 
 		else
-			stzRaise("Can't create the object!")
+			StzRaise("Can't create the object!")
 		ok
 
 	def Content()
@@ -67,7 +67,7 @@ class stzListOfConstraints from stzObject
 
 	def Add(pContraint)
 		if NOT IsConstraint(pConstraint)
-			stzRaise("Can't add constraint")
+			StzRaise("Can't add constraint")
 		ok
 
 		if IsUnnamedConstraint(pConstraint)

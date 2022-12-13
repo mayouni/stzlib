@@ -86,7 +86,7 @@ func PossibleWordInstancesXT(pcWord, cWordPositionInSentence)
 	*/
 
 	if NOT StzStringQ(pcWord).IsWord()
-		stzRaise("Invalid word!")
+		StzRaise("Invalid word!")
 	ok
 
 	aResult = []
@@ -115,7 +115,7 @@ func PossibleWordInstancesXT(pcWord, cWordPositionInSentence)
 		next
 	
 	other
-		stzRaise(:CanNotGeneratePossibleWordInstances)
+		StzRaise(:CanNotGeneratePossibleWordInstances)
 		
 	off
 
@@ -511,7 +511,7 @@ class stzText from stzString
 			@oQString = pcStr.QStringObject()
 
 		else
-			stzRaise("Can't create stzText object! You must provide a string or a stzString object.")
+			StzRaise("Can't create stzText object! You must provide a string or a stzString object.")
 		ok
 
 	  #----------------#
@@ -571,7 +571,7 @@ class stzText from stzString
 		*/
 
 		if This.NumberOfScripts() = 0
-			stzRaise("Information about script is unavilable!")
+			StzRaise("Information about script is unavilable!")
 
 		but This.NumberOfScripts() = 1
 			return This.Scripts()[1]
@@ -1209,7 +1209,7 @@ class stzText from stzString
 	def WordsExcept(pacWords)
 		if NOT ( isList(pacWords) and IsListOfStrings(pacWords) )
 
-			stzRaise("Incorrect param type!")
+			StzRaise("Incorrect param type!")
 		ok
 
 		acWords = StzListOfStringsQ(pacWords).Lowercased()
@@ -1250,7 +1250,7 @@ class stzText from stzString
 		but WordsIdentificationMode() = :Quick
 			oWords = This.RemovePunctuationsQ().SplitQ(" ")
 		else
-			stzRaise("Unkowan word identification mode!")
+			StzRaise("Unkowan word identification mode!")
 		ok
 
 		# ? (clock() - t0) / clockspersecond()
@@ -1331,7 +1331,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.UniqueWords())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 
 			def UniqueWordsQ()
@@ -1359,7 +1359,7 @@ class stzText from stzString
 			on :stzList
 				return new stzList(This.WordsSortedInAscending())
 			other
-				stzRaise("Unsupported returned type!")
+				StzRaise("Unsupported returned type!")
 			off
 
 		def WordsSortedInAscendingQ()
@@ -1384,7 +1384,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.WordsInAscending())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def WordsInAscendingQ()
@@ -1405,7 +1405,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.WordsInAscendingOrder())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def WordsInAscendingOrderQ()
@@ -1433,7 +1433,7 @@ class stzText from stzString
 			on :stzList
 				return new stzList(This.WordsSortedInDescending())
 			other
-				stzRaise("Unsupported returned type!")
+				StzRaise("Unsupported returned type!")
 			off
 
 		def WordsSortedInDescendingQ()
@@ -1458,7 +1458,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.WordsInDescendingOrder())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def WordsInDesscendingOrderQ()
@@ -1479,7 +1479,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.WordsInDescending())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def WordsInDescendingQ()
@@ -1507,7 +1507,7 @@ class stzText from stzString
 			on :stzList
 				return new stzList(This.UniqueWordsSortedInAscending())
 			other
-				stzRaise("Unsupported returned type!")
+				StzRaise("Unsupported returned type!")
 			off
 
 		def UniqueWordsSortedInAscendingQ()
@@ -1532,7 +1532,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.UniqueWordsInAscendingOrder())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def UniqueWordsInAscendingOrderQ()
@@ -1553,7 +1553,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.UniqueWordsInAscending())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def UniqueWordsInAscendingQ()
@@ -1574,7 +1574,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.SetOfWordsSortedInAscending())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def SetOfWordsSortedInAscendingQ()
@@ -1595,7 +1595,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.SetOfWordsInAscendingOrder())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def SetOfWordsInAscendingOrderQ()
@@ -1616,7 +1616,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.SetOfWordsInAscending())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def SetOfWordsInAscendingQ()
@@ -1644,7 +1644,7 @@ class stzText from stzString
 			on :stzList
 				return new stzList(This.UniqueWordsSortedInDescending())
 			other
-				stzRaise("Unsupported returned type!")
+				StzRaise("Unsupported returned type!")
 			off
 
 		def UniqueWordsSortedInDescendingQ()
@@ -1669,7 +1669,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.UniqueWordsInDescendingOrder())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def UniqueWordsInDescendingOrderQ()
@@ -1690,7 +1690,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.UniqueWordsInDescending())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def UniqueWordsInDescendingQ()
@@ -1711,7 +1711,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.SetOfWordsSortedInDescending())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def SetOfWordsSortedInDescendingQ()
@@ -1732,7 +1732,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.SetOfWordsInDescendingOrder())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def SetOfWordsInDescendingOrderQ()
@@ -1753,7 +1753,7 @@ class stzText from stzString
 				on :stzList
 					return new stzList(This.SetOfWordsInDescending())
 				other
-					stzRaise("Unsupported returned type!")
+					StzRaise("Unsupported returned type!")
 				off
 	
 			def SetOfWordsInDescendingQ()
@@ -1818,7 +1818,7 @@ class stzText from stzString
 					return new stzList( This.WordsPositions() )
 
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 			def WordsPositionsQ()
@@ -1844,7 +1844,7 @@ class stzText from stzString
 					return new stzList( This.WordsPositions() )
 
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 			def WordsOccurrencesQ()
@@ -1972,7 +1972,7 @@ class stzText from stzString
 
 		if NOT ( isString(pcWord) and StringIsWord(pcWord) )
 
-			stzRaise(stzStringError(:CanNotComputeNumberOfOccurrenceOfWord))
+			StzRaise(stzStringError(:CanNotComputeNumberOfOccurrenceOfWord))
 		ok
 
 		# This solution (the line hereafter) takes 2.53s, a lot!
@@ -2044,13 +2044,13 @@ class stzText from stzString
 	def WordFrequency(pcWord)
 
 		if This.IsEmpty()
-			stzRaise("Can't compute WordFrequency()! String is empty.")
+			StzRaise("Can't compute WordFrequency()! String is empty.")
 		ok
 
 		n = This.NumberOfWords()
 
 		if n = 0
-			stzRaise("Can't compute WordFrequency()! String contains nos words.")
+			StzRaise("Can't compute WordFrequency()! String contains nos words.")
 		ok
 
 		n = This.NumberOfOccurrenceOfWord(pcWord) / This.NumberOfWords()
@@ -2098,7 +2098,7 @@ class stzText from stzString
 				return new stzListOfNumbers( This.WordsFrequencies() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def UniqueWordsFrequencies()
@@ -2128,7 +2128,7 @@ class stzText from stzString
 				return new stzListOfNumbers( This.UniqueWordsFrequencies() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def WordsAndTheirFrequencies()
@@ -2410,7 +2410,7 @@ class stzText from stzString
 
 	def TopTenFrequentWordsAmongTheseWords(pacWords)
 		if len(pacWords) < 10
-			stzRaise("Number of words in pacWords must be greater then 10!")
+			StzRaise("Number of words in pacWords must be greater then 10!")
 		ok
 
 		return This.NMostFrequentWordsAmong(10, pacWords)
@@ -2459,7 +2459,7 @@ class stzText from stzString
 
 	def TopFiveFrequentWordsAmongTheseWords(pacWords)
 		if len(pacWords) < 5
-			stzRaise("Number of words in pacWords must be greater then 5!")
+			StzRaise("Number of words in pacWords must be greater then 5!")
 		ok
 
 		return This.NMostFrequentWordsAmong(5, pacWords)
@@ -2507,7 +2507,7 @@ class stzText from stzString
 
 	def TopThreeFrequentWordsAmongTheseWords(pacWords)
 		if len(pacWords) < 3
-			stzRaise("Number of words in pacWords must be greater then 3!")
+			StzRaise("Number of words in pacWords must be greater then 3!")
 		ok
 
 		return This.NMostFrequentWordsAmong(3, pacWords)
@@ -2643,7 +2643,7 @@ class stzText from stzString
 
 		if NOT ( isList(paOptions) and StzListQ(paOptions).IsHashList() )
 
-			stzRaise("Incorrect type of the option list!")
+			StzRaise("Incorrect type of the option list!")
 		ok
 
 		# We are sure sofar we provided a hashlist. Let's analyze it.
@@ -2653,7 +2653,7 @@ class stzText from stzString
 		# Three options must be provided
 
 	        if NOT oHashList.KeysQ().IsMadeOfOneOrMoreOfThese([ :By, :Except, :StopWords ])
-			stzRaise("Incorrect options!")
+			StzRaise("Incorrect options!")
 		ok
 
 		# We are sure sofar options are provided, let's retrieve them
@@ -2675,7 +2675,7 @@ class stzText from stzString
 				:AscendingOrder, :AscendingOrderOfWords,
 				:DescendingOrder, :DescendingOrderOfWords ]) )
 	
-				stzRaise("Incorrect param format!")
+				StzRaise("Incorrect param format!")
 			ok
 		ok
 
@@ -2690,7 +2690,7 @@ class stzText from stzString
 				  ( isList(pExceptValue)) and
 				    ( IsListOfStrings(pExceptValue) or len(pExceptValue) = 0 ) )
 
-				stzRaise("Incorrect param format!")
+				StzRaise("Incorrect param format!")
 			ok		
 		ok
 
@@ -2708,7 +2708,7 @@ class stzText from stzString
 					:MustBeRemoved, :MustNotBeRemoved
 				 	]) )
 
-				stzRaise("Incorrect param format!")
+				StzRaise("Incorrect param format!")
 			ok
 		ok
 
@@ -3592,7 +3592,7 @@ class stzText from stzString
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Icorrect param! pcReturnType must be a string.")
+				StzRaise("Icorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -3606,12 +3606,12 @@ class stzText from stzString
 				return new stzListOfChars( This.Letters() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def LettersXT(paOptions)
 		if NOT isList(paOptions)
-			stzRaise("Incorrect param type! paOptions must be a list.")
+			StzRaise("Incorrect param type! paOptions must be a list.")
 		ok
 
 		if len(paOptions) = 0
@@ -3652,7 +3652,7 @@ class stzText from stzString
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Icorrect param! pcReturnType must be a string.")
+				StzRaise("Icorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -3666,7 +3666,7 @@ class stzText from stzString
 				return new stzListOfChars( This.LettersXT(paOptions) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def UniqueLetters()
@@ -3684,7 +3684,7 @@ class stzText from stzString
 			ok
 
 			if NOT isString(pcReturnType)
-				stzRaise("Icorrect param! pcReturnType must be a string.")
+				StzRaise("Icorrect param! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
@@ -3698,7 +3698,7 @@ class stzText from stzString
 				return new stzListOfChars( This.UniqueLettersXT(paOptions) )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		def ToSetOfLettersXT(paOptions)
@@ -3713,7 +3713,7 @@ class stzText from stzString
 				ok
 	
 				if NOT isString(pcReturnType)
-					stzRaise("Icorrect param! pcReturnType must be a string.")
+					StzRaise("Icorrect param! pcReturnType must be a string.")
 				ok
 	
 				switch pcReturnType
@@ -3727,7 +3727,7 @@ class stzText from stzString
 					return new stzListOfChars( This.ToSetOfLettersXT(paOptions) )
 	
 				other
-					stzRaise("Unsupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 	  #--------------------#
@@ -3814,7 +3814,7 @@ class stzText from stzString
 			on :stzListOfStrings
 				return new stzListOfStrings( This.Sentences() )
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 	
 		#>
@@ -3843,7 +3843,7 @@ class stzText from stzString
 			on :stzListOfStrings
 				return new stzListOfStrings( This.Paragraphs() )
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 	
 		#>
@@ -4091,7 +4091,7 @@ class stzText from stzString
 			# but check this!
 	
 		other
-			stzRaise("Can't remove diacritics for that script!")
+			StzRaise("Can't remove diacritics for that script!")
 		off
 	
 		def RemoveDiacriticsQ()
@@ -4248,7 +4248,7 @@ class stzText from stzString
 				return new stzText( This.InitialsQR(:stzListOfStrings).Concatenated() )
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def InitialsAsString()

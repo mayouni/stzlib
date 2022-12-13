@@ -10,7 +10,7 @@ class stzListOfSets from stzListOfLists
 			@aContent = paListOfSets
 
 		else
-			stzRaise(stzListOfSetsError(:CanNotCreateListOfSets))
+			StzRaise(stzListOfSetsError(:CanNotCreateListOfSets))
 		ok
 
 	def Content()

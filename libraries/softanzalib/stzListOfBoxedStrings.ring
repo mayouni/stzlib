@@ -13,7 +13,7 @@ class stzListOfBoxedStrings from stzListOfStrings
 			@aListOfBoxedStrings = This.pvtBoxedXT(paBoxOptions)
 
 		else
-			stzRaise(stzListOfBoxedStringsError(:CanNotCreateStzListOfBoxedStringsObject))
+			StzRaise(stzListOfBoxedStringsError(:CanNotCreateStzListOfBoxedStringsObject))
 		ok
 
 	def Content()
@@ -242,6 +242,6 @@ class stzListOfBoxedStrings from stzListOfStrings
 			next
 			
 		else
-			stzRaise(stzListOfBoxedStringsError(:CanNotBoxTheListOfStrings))
+			StzRaise(stzListOfBoxedStringsError(:CanNotBoxTheListOfStrings))
 		ok
 	

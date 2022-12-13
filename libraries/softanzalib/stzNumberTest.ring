@@ -20,10 +20,26 @@ o1 = new stzListOfNumbers([8, 12, 89, 46])
 ? o1.GreatestCommonNumber(:With = [4, 6, 12, 89])	#--> 89
 
 /*-----------------
-*/
+
+? Q([ "13", "7", "-8.10" ]).isListOfNumbersInStrings() #--> TRUE
+
+/*-----------------
+
 # Least common multiple between 25 and 42
 ? Q(25).LeastCommonMultiple(:With = 42) # or simply Q(25).LCM(42)
 #--> 1050
+
+? Q(25).LCM( :With = [ 42, 12 ] )
+
+/*-----------------
+*/
+? Q(2).LCM( :With = [3, 5, 9] )
+#--> 90
+
+? StzListOfNumbersQ([2, 3, 5, 9]).LCM()
+#--> 90
+
+/*----------------- ERROR: stack oveflow
 
 # Ok, but how this is found in practice, like if we make it by hand?
 # First, let's see the multiples of 25 up to 1050
@@ -39,7 +55,7 @@ aList1 = Q(25).Multiples(:UpTo = 1050)
 #	900, 925, 950, 975,
 #	1000, 1025, 1050
 # ]
-
+/*
 # This means that 25 should be multiplied 42 times to obtain 1050.
 ? len(aList1)
 

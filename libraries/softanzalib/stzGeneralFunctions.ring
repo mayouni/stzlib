@@ -30,9 +30,9 @@ func Stringify(p)
 		return ComputableForm( p.Listified() ) # TODO ?
 	ok
 
-func stzRaise(paMessage)
+func StzRaise(paMessage)
 	/*
-	WARNING: Do not use stzRaise to raise errors here
+	WARNING: Do not use StzRaise to raise errors here
 	--> Stackoverflow!
 
 	Hence, this is the unique place in the library
@@ -42,7 +42,7 @@ func stzRaise(paMessage)
 
 	if NOT ( isString(paMessage) or isList(paMessage) )
 
-		raise("Error in stzRaise param type!" + NL)
+		raise("Error in StzRaise param type!" + NL)
 	ok
 
 	if isString(paMessage)
@@ -58,12 +58,12 @@ func stzRaise(paMessage)
 	
 
 		if NOT StzListQ([ cWhere, cWhat, cWhy, cTodo ]).IsListOfStrings()
-			raise("Error in stzRaise param type!")
+			raise("Error in StzRaise param type!")
 		ok
 	
 		cFile = StzStringQ(cWhere).WithoutSpaces()
 		if isNull(cWhere)
-			raise("Error in stzRaise --> Where the error happened!")
+			raise("Error in StzRaise --> Where the error happened!")
 		ok
 	
 		cWhat = StzStringQ(cWhat).Simplified()
@@ -86,7 +86,7 @@ func stzRaise(paMessage)
 
 		raise(cErrorMsg)
 	else
-		raise("Error in stzRaise > Incorrect param type!")
+		raise("Error in StzRaise > Incorrect param type!")
 	ok
 
 #-----
@@ -510,7 +510,7 @@ func StzLen(p)
 		return p.NumberOfItems()
 
 	else
-		stzRaise("Unsupported parameter type!")
+		StzRaise("Unsupported parameter type!")
 	ok
 
 func Unicode(p)
@@ -528,7 +528,7 @@ func Unicode(p)
 		return StringsUnicodes(p)
 
 	else
-		stzRaise("Incorrect param type!")
+		StzRaise("Incorrect param type!")
 	ok
 
 	#< @FunctionAlternativeForm
@@ -706,11 +706,11 @@ func IfWith@Eval(p)
 
 func Empty(pcStzType)
 	if NOT isString(pcStzType)
-		stzRaise("Incorrect param type! pcStzType must be a string.")
+		StzRaise("Incorrect param type! pcStzType must be a string.")
 	ok
 
 	if NOT Q(pcStzType).IsStzClassName()
-		stzRaise("Incorrect param! pcStzType must be a valid class name.")
+		StzRaise("Incorrect param! pcStzType must be a valid class name.")
 	ok
 
 	switch pcStzType
@@ -813,7 +813,7 @@ func StzW(cType, paMethodAndFilter)
 		 Q(paMethodAndFilter[2]).IsWhereNamedParam() and
 		 isString(paMethodAndFilter[2][2]) )
 
-		stzRaise('Incorrect param type! paMethodAndFilter must be a pair of the form [ :Methods, :Where = "@Method..." ], for example.')
+		StzRaise('Incorrect param type! paMethodAndFilter must be a pair of the form [ :Methods, :Where = "@Method..." ], for example.')
 	ok
 
 	aTempList = Stz(cType, paMethodAndFilter[1])
@@ -841,13 +841,13 @@ func Stz(cType, pInfo)
 	cInfo = pInfo
 
 	If NOT BothAreStrings(cType, :And = cInfo)
-		stzRaise("Incorrect params type! Botht cType and cInfo must be strings.")
+		StzRaise("Incorrect params type! Botht cType and cInfo must be strings.")
 	ok
 
 	cClass = 'stz' + cType
 
 	if NOT Q(cClass).IsStzClassName()
-		stzRaise("Incorrect param! cType must be a valid softanza type.")
+		StzRaise("Incorrect param! cType must be a valid softanza type.")
 	ok
 
 	oEmptyObject = Empty(cClass)
@@ -866,13 +866,13 @@ func Stz(cType, pInfo)
 		return attributes(oEmptyObject)
 
 	other
-		stzRaise("Unsupported information! Allowed values are :Methods and :Attributes.")
+		StzRaise("Unsupported information! Allowed values are :Methods and :Attributes.")
 	off
 
 func new_stz(cType, p)
 	
 	if NOT isString(cType)
-		stzRaise("Incorrect param type! cType must be a string.")
+		StzRaise("Incorrect param type! cType must be a string.")
 	ok
 	
 	cCode = 'oObject = new stz' + cType + '(' + @@S(p) + ')'
@@ -921,7 +921,7 @@ func Q(p)
 
 func QR(p, pcType)
 	if NOT isString(pcType)
-		stzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
+		StzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
 	ok
 
 	if StringIsStzClassName(pcType)
@@ -930,7 +930,7 @@ func QR(p, pcType)
 
 		return oResult
 	else
-		stzRaise("Unsupported Softanza type!")
+		StzRaise("Unsupported Softanza type!")
 	ok
 
 # This function tries its best to infere a convenient type
@@ -1032,7 +1032,7 @@ func QQQ(p)
 # formed conditaional Ring expression used in several Softanza functions
 func W(cCode)
 	if NOT isString(cCode)
-		stzRaise("Uncorrect param type! cCode must be a string.")
+		StzRaise("Uncorrect param type! cCode must be a string.")
 	ok
 
 	cCode = Q(cCode).

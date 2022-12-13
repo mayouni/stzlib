@@ -50,7 +50,7 @@ class stzCounter from stzObject
 			# Do nothing, defaults are used
 
 		else
-			stzRaise(stzCounterError(:CanNotCreateCounter))
+			StzRaise(stzCounterError(:CanNotCreateCounter))
 		ok		
 
 	def Counting(nNumber)
@@ -59,7 +59,7 @@ class stzCounter from stzObject
 		ok
 
 		if NOT isNumber(nNumber)
-			stzRaise("Incorrect param type! nNumber must be a number.")
+			StzRaise("Incorrect param type! nNumber must be a number.")
 		ok
 
 		aResult = []
@@ -107,7 +107,7 @@ class stzCounter from stzObject
 		ok
 
 		if NOT isNumber(nNumber)
-			stzRaise("Incorrect param type! nNumber must be a number.")
+			StzRaise("Incorrect param type! nNumber must be a number.")
 		ok
 
 		if isList(paReturnNth) and
@@ -135,7 +135,7 @@ class stzCounter from stzObject
 		ok
 
 		if NOT ( isNumber(paReturnNth) and paReturnNth > 0 )
-			stzRaise("Incorrect param type! paReturnNth must be a non null number.")
+			StzRaise("Incorrect param type! paReturnNth must be a non null number.")
 		ok
 
 		nResult = This.Counting(nNumber)[ paReturnNth ]

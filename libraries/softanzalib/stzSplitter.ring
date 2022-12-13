@@ -31,7 +31,7 @@ class stzSplitter
 		if isNumber(n)
 
 			if n < 0
-				stzRaise("p must be positive!") # --> TODO: stzListError
+				StzRaise("p must be positive!") # --> TODO: stzListError
 			ok
 
 			@nNumberOfPositions = n
@@ -42,7 +42,7 @@ class stzSplitter
 			@nNumberOfPositions = len(n)
 
 		else
-			stzRaise("Incorrect param type! n must be a number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 	def NumberOfPositions()

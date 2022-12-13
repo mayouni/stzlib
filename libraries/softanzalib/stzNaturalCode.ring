@@ -22,14 +22,14 @@ class stzNaturalCode from stzString
 
 	def CodeExecute()
 		if NOT This.IsWellFormed()
-			stzRaise("Can't parse it! Check for mistakes.")
+			StzRaise("Can't parse it! Check for mistakes.")
 		ok
 
 		eval( This.Code() )
 
 	def ContainsEndPoint()
 		if NOT This.IsWellFormed()
-			stzRaise("Can't parse it! Check for mistakes.")
+			StzRaise("Can't parse it! Check for mistakes.")
 		ok
 
 

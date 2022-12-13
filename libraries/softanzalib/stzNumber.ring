@@ -143,8 +143,6 @@ func N(p)
 
 		func QN(p)
 			return NQ(p)
-func IsNotNumber(n)
-	return NOT isNumber(n)
 
 func IsBoolean(n)
 	if isNumber(n) and
@@ -237,7 +235,7 @@ func StringRepresentsSignedNumber(cNumber)
 
 func IsBit(n)
 	if NOT isNumber(n)
-		stzRaise("Incorrect param! n must be a number!")
+		StzRaise("Incorrect param! n must be a number!")
 	ok
 
 	if n = 0 or n = 1
@@ -256,7 +254,7 @@ func OctalDigits()
 func Min(n1,n2) # for more then 2 numbers, use stzListOfNumbers.Min()
 
 	if NOT BothAreNumbers(n1, n2)
-		stzRaise("Incorrect param! n1 and n2 must be a number!")
+		StzRaise("Incorrect param! n1 and n2 must be a number!")
 	ok
 
 	if n1 <= n2
@@ -268,7 +266,7 @@ func Min(n1,n2) # for more then 2 numbers, use stzListOfNumbers.Min()
 func Max(n1,n2) # for more numbers, use stzListOfNumbers.Max()
 
 	if NOT BothAreNumbers(n1, n2)
-		stzRaise("Incorrect param! Param must be a number!")
+		StzRaise("Incorrect param! Param must be a number!")
 	ok
 
 	if n1 >= n2
@@ -289,7 +287,7 @@ func Double(n)
 			return Double(n)
 
 		else
-			stzRaise("Invalid param type! n must be a number.")
+			StzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -313,7 +311,7 @@ func Triple(n)
 			return Triple(n)
 
 		else
-			stzRaise("Invalid param type! n must be a number.")
+			StzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -329,7 +327,7 @@ func Quadruple(n)
 			return Quadruple(n)
 
 		else
-			stzRaise("Invalid param type! n must be a number.")
+			StzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -345,7 +343,7 @@ func Quintuple(n)
 			return Quintuple(n)
 
 		else
-			stzRaise("Invalid param type! n must be a number.")
+			StzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -361,7 +359,7 @@ func Sextuple(n)
 			return Sextuple(n)
 
 		else
-			stzRaise("Invalid param type! n must be a number.")
+			StzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -377,7 +375,7 @@ func Septuple(n)
 			return Septuple(n)
 
 		else
-			stzRaise("Invalid param type! n must be a number.")
+			StzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -393,7 +391,7 @@ func Octuple(n)
 			return Octuple(n)
 
 		else
-			stzRaise("Invalid param type! n must be a number.")
+			StzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -409,7 +407,7 @@ func Nonuple(n)
 			return Nonuple(n)
 
 		else
-			stzRaise("Invalid param type! n must be a number.")
+			StzRaise("Invalid param type! n must be a number.")
 
 		ok
 
@@ -425,7 +423,7 @@ func Decuple(n)
 			return Decuple(n)
 
 		else
-			stzRaise("Invalid param type! n must be a number.")
+			StzRaise("Invalid param type! n must be a number.")
 
 		ok
 	
@@ -473,7 +471,7 @@ func StringToNumber(cNumber) # TESTING IN PROGESS
 	ok
 
 	if NOt isString(cNumber)
-		stzRaise("Incorrect param type! cNumber must be a string.")
+		StzRaise("Incorrect param type! cNumber must be a string.")
 	ok
 
 	# Deletig unnecessary spaces
@@ -507,7 +505,7 @@ func StringToNumber(cNumber) # TESTING IN PROGESS
 		// TODO
 			
 	other
-		stzRaise(stzNumberError(:UnsupportedNumberForm))
+		StzRaise(stzNumberError(:UnsupportedNumberForm))
 	ok
 
 func NumberToString(n)
@@ -568,7 +566,7 @@ func GetUnitsDozensAndHundreds(pNumber)	// Or simplier : GetMicroStructure(pNumb
 
 			pcNumber = pcNumber[2] + pcNumber[3] + pcNumber[4]
 		else
-			stzRaise("Can't proceed! The lenght of the number should not exceed 3.")
+			StzRaise("Can't proceed! The lenght of the number should not exceed 3.")
 		ok
 	ok
 
@@ -619,7 +617,7 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 	switch pcFrom
 	on :FromDecimalForm
 		if NOT StringRepresentsNumberInDecimalForm(pcNumber)
-			stzRaise(stzNumberError(:CanNotConvertNumberFromDecimalInThisForm))
+			StzRaise(stzNumberError(:CanNotConvertNumberFromDecimalInThisForm))
 		ok
 
 		oStzNumber = new stzNumber(pcNumber)
@@ -637,12 +635,12 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 		on :ToOctalForm
 			return oStzNumber.ToOctalForm()
 		other
-			stzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm1))
+			StzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm1))
 		off
 
 	on :FromBinaryForm
 		if NOT NumberIsInBinaryForm(pcNumber)
-			stzRaise(stzNumberError(:CanNotConvertNumberFromBinaryInThisForm))
+			StzRaise(stzNumberError(:CanNotConvertNumberFromBinaryInThisForm))
 		ok
 
 		oBinNumber = new stzBinaryNumber(pcNumber)
@@ -661,12 +659,12 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 		on :ToOctalForm
 			return oBinNumber.ToOctalForm()
 		other
-			stzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm))
+			StzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm))
 		off
 
 	on :FromHexForm
 		if NOT StringContainsNumberInHexForm(pcNumber)
-			stzRaise(stzNumberError(:CanNotConvertNumberFromHexInThisForm))
+			StzRaise(stzNumberError(:CanNotConvertNumberFromHexInThisForm))
 		ok
 
 		oHexNumber = new stzHexNumber(pcNumber)
@@ -684,12 +682,12 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 		on :ToOctalForm
 			return oHexNumber.ToOctalForm()
 		other
-			stzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm))
+			StzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm))
 		off
 
 	on :FromOctalForm
 		if NOT NumberIsInOctalForm(pcNumber)
-			stzRaise(stzNumberError(:CanNotConvertNumberFromOctalInThisForm))
+			StzRaise(stzNumberError(:CanNotConvertNumberFromOctalInThisForm))
 		ok
 
 		oOctalNumber = new stzOctalNumber(pcNumber)
@@ -711,11 +709,11 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 			return pcNumber
 
 		other
-			stzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm))
+			StzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm))
 		off
 
 	other
-		stzRaise(stzNumberError(:UnsupportedNumberConversionSourceForm))
+		StzRaise(stzNumberError(:UnsupportedNumberConversionSourceForm))
 	off
 		
 func NumberIsEven(n)
@@ -790,15 +788,15 @@ class stzNumber from stzObject
 							@cNumber = pNumber
 						ok
 					else
-						stzRaise(stzNumberError(:CanNotCreateDecimalNumber2))
+						StzRaise(stzNumberError(:CanNotCreateDecimalNumber2))
 					ok
 	
 				else
-					stzRaise(stzNumberError(:CanNotCreateDecimalNumber1))
+					StzRaise(stzNumberError(:CanNotCreateDecimalNumber1))
 				ok
 			ok
 		else
-			stzRaise(stzNumberError(:CanNotCreateStzNumberObject))
+			StzRaise(stzNumberError(:CanNotCreateStzNumberObject))
 		ok
 
 	  #-------------------------#
@@ -864,12 +862,24 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
+		def IsAMultipleOf(n)
+			return This.IsMultipleOf(n)
+
+		def IsTheMultipleOf(n)
+			return This.IsMultipleOf(n)
+
 	def IsDoubleOf(n)
 		If This.NumericValue() = DoubleOf(n)
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		def IsADoubleOf(n)
+			return This.IsDoubleOf(n)
+
+		def IsTheDoubleOf(n)
+			return This.IsDoubleOf(n)
 
 	def IsTripleOf(n)
 		If This.NumericValue() = TripleOf(n)
@@ -878,12 +888,24 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
+		def IsAtripleOf(n)
+			return This.IsTripleOf(n)
+
+		def IsTheTripleOf(n)
+			return This.IsTripleOf(n)
+
 	def IsQuadrupleOf(n)
 		If This.NumericValue() = QuadrupleOf(n)
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		def IsAQuadrupleOf(n)
+			return This.IsQuadrupleOf(n)
+
+		def IsTheQuadrupleOf(n)
+			return This.IsQuadrupleOf(n)
 
 	def IsQuintupleOf(n)
 		If This.NumericValue() = QuintupleOf(n)
@@ -892,12 +914,25 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
+		def IsAQuintupleOf(n)
+			return This.IsQuintupleOf(n)
+
+		def IsTheQuintupleOf(n)
+			return This.IsQuintupleOf(n)
+
 	def IsSextupleOf(n)
 		If This.NumericValue() = SextupleOf(n)
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		def IsASextupleOf(n)
+			return This.IsSextupleOf(n)
+
+		def IsTheSextupleOf(n)
+			return This.IsSextupleOf(n)
+
 
 	def IsOctupleOf(n)
 		If This.NumericValue() = OctupleOf(n)
@@ -906,6 +941,12 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
+		def IsAnOctupleOf(n)
+			return This.IsOctupleOf(n)
+
+		def IsTheOctupleOf(n)
+			return This.IsOctupleOf(n)
+
 	def IsNonupleOf(n)
 		If This.NumericValue() = Nonuple(n)
 			return TRUE
@@ -913,12 +954,24 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
+		def IsANonupleOf(n)
+			return This.IsNonupleOf(n)
+
+		def IsTheNonupleOf(n)
+			return This.IsNonupleOf(n)
+
 	def IsDecupleOf(n)
 		If This.NumericValue() = Decuple(n)
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		def IsADecupleOf(n)
+			return This.IsDecupleOf(n)
+
+		def IsTheDecupleOf(n)
+			return This.IsDecupleOf(n)
 
 	  #-----------------#
 	 #    BOUNDNESS    #
@@ -1416,17 +1469,17 @@ class stzNumber from stzObject
 	def RoundTo(pRound)
 
 		if NOT NumberIsCalculable(This.Content())
-			stzRaise(stzNumberError(:CanNotRoundSutchLargeNumber))
+			StzRaise(stzNumberError(:CanNotRoundSutchLargeNumber))
 		ok
 
 		if NOT IsNumberOrString(pRound)
-			stzRaise("Incorrect param type!")
+			StzRaise("Incorrect param type!")
 		ok
 
 		if isNumber(pRound) 
 		
 			if pRound < 0
-				stzRaise("Inccorect value! Round can't be negative.")
+				StzRaise("Inccorect value! Round can't be negative.")
 
 			but pRound > RingMaxRound()
 				pRound = RingMaxRound()
@@ -1440,23 +1493,23 @@ class stzNumber from stzObject
 			if pRound = :Max
 				pRound = NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
 			else
-				stzRaise("Incorrect param type!")
+				StzRaise("Incorrect param type!")
 			ok
 		ok
 
 		# At this level, we have defined nRound
 
 		nRound = pRound
-? "nRound = " + nRound
+//? "nRound = " + nRound
 		# Let's set a variable containing the number itself
 
 		nNumber = This.NumericValue()
-? "nNumber = " + nNumber		
+//? "nNumber = " + nNumber		
 		# Let's also save the current active round in the
 		# program so we can restore it at the end
 	
 		nActiveRound = GetActiveRound()
-? "nActiveRound = " + nActiveRound
+//? "nActiveRound = " + nActiveRound
 		# If the number is negative then drop the sign temporarilay
 		# before we restore it at the end
 	
@@ -2194,7 +2247,20 @@ class stzNumber from stzObject
 			pOtherNumber = pOtherNumber[2]
 		ok
 
-		return pvtCalculate( "LCM", pOtherNumber)
+		if isList(pOtherNumber) and
+			( Q(pOtherNumber).IsListOfNumbers() or
+			  Q(pOtherNumber).IsListOfNumbersInStrings() )
+
+			return This.LeastCommonMultipleOfManyNumbers(pOtherNumber)
+
+		but isNumber(pOtherNumber) or 
+		    ( isString(pOtherNumber) and (pOtherNumbe).IsNumberInString() )
+			return pvtCalculate( "LCM", pOtherNumber)
+		
+		else
+			StzRaise("Incorrect param type! pOtherNumber must be a number in string or a list of numbers (or numbers in strings).")
+
+		ok
 
 		def LeastCommonMultipleQ(pOtherNumber)
 			return new stzNumber(This.LeastCommonMultiple(pOtherNumber))
@@ -2204,6 +2270,38 @@ class stzNumber from stzObject
 
 			def LCMQ(pOtherNumber)
 				return new stzNumber( This.LCM(pOtherNumber) )
+
+	# LEAST COMMON MULTIPLE
+
+	def LeastCommonMultipleOfManyNumbers(paOtherNumbers)
+		if NOT 	( isList(paOtherNumbers) and
+				( Q(paOtherNumbers).IsListOfNumbers() or
+				  Q(paOtherNumbers).IsListOfNumbersInStrings() )
+			)
+
+			StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or list of numbers in strings.")
+		ok
+
+		if len(paOtherNumbers) = 0
+			StzRaise("Incorrect value! paOtherNumbers must not be empty list.")
+		ok
+	
+		cResult = This.Number()
+		for number in paOtherNumbers
+			cResult = StzNumberQ(cResult).LCM( :With = number )
+		next
+
+		return cResult
+
+		def LCMOfManyNumbers(paOtherNumbers)
+			return This.LeastCommonMultipleOfManyNumbers(paOtherNumbers)
+
+		def LeastCommonMultipleOfMany(paOtherNumbers)
+			return This.LeastCommonMultipleOfManyNumbers(paOtherNumbers)
+
+		def LCMOfMany(paOtherNumbers)
+			return This.LeastCommonMultipleOfManyNumbers(paOtherNumbers)
+
 
 	# GREATEST COMMON DIVIDOR
 
@@ -2231,14 +2329,14 @@ class stzNumber from stzObject
 
 	def Factors()
 		if NOT This.IsInteger()
-			stzRaise("Factors can't be computed for a non integer!")
+			StzRaise("Factors can't be computed for a non integer!")
 		ok
 
 		// Returns the factors of just the integer part!
 		if This.NumericValue() > 0
 			return ring_factors(This.IntegerPartValue())
 		else
-			stzRaise("For factors(n), n must must be positive!")
+			StzRaise("For factors(n), n must must be positive!")
 		ok
 
 		def FactorsQ()
@@ -2297,16 +2395,16 @@ class stzNumber from stzObject
 	def MultiplesUntil(pOtherNumber)
 
 		if NOT (isNumber(pOtherNumber) or isString(pOtherNumber))
-			stzRaise("Incorrect param type! pOtherNumber must be a number or a string.")
+			StzRaise("Incorrect param type! pOtherNumber must be a number or a string.")
 		ok
 
 		if isString(pOtherNumber) and
 		   NOT Q(pOtherNumber).IsNumberInString()
-			stzRaise("Incorrect value! pOtherNumber must be a number in string.")
+			StzRaise("Incorrect value! pOtherNumber must be a number in string.")
 		ok
 
 		if (0+ pOtherNumber) <= This.NumericValue()
-			stzRaise("Can't proceed! pOtherNumber must be >= your main number.")
+			StzRaise("Can't proceed! pOtherNumber must be >= your main number.")
 		ok
 
 		bInteger = FALSE
@@ -2343,7 +2441,7 @@ class stzNumber from stzObject
 			ok
 
 			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsStzType() )
-				stzRaise("Incorrect param! pcReturnType must be a string containing the name of a Softanza class.")
+				StzRaise("Incorrect param! pcReturnType must be a string containing the name of a Softanza class.")
 			ok
 
 			switch pcReturnType
@@ -2378,7 +2476,7 @@ class stzNumber from stzObject
 				return new stzListOfNumbers( anNumbers )
 
 			other
-				stzRaise("Unssupported return type!")
+				StzRaise("Unssupported return type!")
 			off
 
 
@@ -2559,7 +2657,7 @@ class stzNumber from stzObject
 			return oQString.number(This.IntegerValue(),n)
 
 		else
-			stzRaise(stzNumberError(:CanNotConvertNumberToSpecifiedBase))
+			StzRaise(stzNumberError(:CanNotConvertNumberToSpecifiedBase))
 		ok
 
 	# Converting decimal number to bytes
@@ -3612,7 +3710,7 @@ class stzNumber from stzObject
 	def ListifyXT(paOptions)
 
 		if NOT StzListQ(paOptions).IsNumberListifyOptionsNamedParam()
-			stzRaise("Unsupported option list!")
+			StzRaise("Unsupported option list!")
 
 		else
 			# By default, or if specified, add the number
@@ -3635,7 +3733,7 @@ class stzNumber from stzObject
 				return aResult
 
 			else
-				stzRaise("Unsupported option value!")
+				StzRaise("Unsupported option value!")
 			ok
 
 		ok
@@ -3825,7 +3923,7 @@ class stzNumber from stzObject
 			if oTemp1.IsInteger() and oTemp2.IsInteger()
 				nResult = n1 % n2
 			else
-				stzRaise("Can't calculate the modulo. The two numbers must be integers!")
+				StzRaise("Can't calculate the modulo. The two numbers must be integers!")
 			ok
 	
 		on "^"

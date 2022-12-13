@@ -66,7 +66,7 @@ def SetHexPrefix(pcPrefix)
 	if find(HexPrefixes(), pcPrefix) > 0
 		_cHexNumberPrefix = pcPrefix
 	else
-		stzRaise("Unsupported hex prefix!")
+		StzRaise("Unsupported hex prefix!")
 	ok
 
 class stzHexNumber from stzObject
@@ -89,7 +89,7 @@ class stzHexNumber from stzObject
 			@cHexNumber = StzStringQ(@cHexNumber).RemoveCSQ( "U+", :CS = FALSE ).Content()
 
 		else
-			stzRaise(stzHexNumberError(:CanNotCreateHexNumber))
+			StzRaise(stzHexNumberError(:CanNotCreateHexNumber))
 		ok
 
 	def Content()

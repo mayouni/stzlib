@@ -275,7 +275,7 @@ class stzLocale from stzObject
 		but IsList(pLocale)
 			if NOT ( isList(pLocale) and StzListQ(pLocale).IsLocaleList() )
 	
-				stzRaise("Can't create the stzLocale object!")
+				StzRaise("Can't create the stzLocale object!")
 			ok
 	
 			cLangName    = pLocale[ :Language ]
@@ -736,7 +736,7 @@ class stzLocale from stzObject
 	
 			return DefaultDaysOfWeek()[""+ nNthDay ]
 		else
-			stzRaise(stzLocaleError(:CanNotDefineNthDayOfWeek))
+			StzRaise(stzLocaleError(:CanNotDefineNthDayOfWeek))
 		ok
 
 	def FirstDayOfWeek()
@@ -1088,5 +1088,5 @@ class stzLocale from stzObject
 			return @oQLocale.currencySymbol(2)	# --> NativeName() In Softanza
 
 		other
-			stzRaise(stzLocaleError(:CanNotProvideCurrencySymbol))
+			StzRaise(stzLocaleError(:CanNotProvideCurrencySymbol))
 		off

@@ -15,7 +15,7 @@ func ExecutionTime(pcCode, pcUnit)
 	on :InClocksAndSeconds 
 		return ExecutionTimeInClocksAndSeconds(pcCode)
 	other
-		stzRaise("Syntax error in the value of pcUnit parameter!")
+		StzRaise("Syntax error in the value of pcUnit parameter!")
 	off
 
 func ExecutionTimeInSeconds(pcCode)
