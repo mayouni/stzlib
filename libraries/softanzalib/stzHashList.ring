@@ -382,7 +382,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				pcReturnType = pcReturnType[2]
 			ok
 
-			if NOT (isString(pcReturnType) and Q(pcReturnType).IsAStzClassName())
+			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsAStzClassName() )
 				StzRaise("Incorrect param! pcReturnType must be a string containing the name of a Softanza class.")
 			ok
 

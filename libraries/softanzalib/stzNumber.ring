@@ -728,6 +728,29 @@ func DecimalToHex(n)
 func DecimalToHexUnicode(n)
 	return NumberConvert(n, :FromDecimalForm, :ToHexUnicodeForm)
 
+#--
+
+func BothArePositive(n1, n2)
+	if BothAreNumbers(n1, n2) and n1 > 0 and n2 > 0
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func BothAreNegative(n1, n2)
+	if BothAreNumbers(n1, n2) and n1 < 0 and n2 < 0
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func BothAreZeros(n1, n2)
+	if BothAreNumbers(n1, n2) and n1 = 0 and n2 = 0
+		return TRUE
+	else
+		return FALSE
+	ok
+
 #---- used for natural-coding (don't remove them!)
 
 func Number(n)

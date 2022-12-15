@@ -461,7 +461,7 @@ o1.ReplaceColName( :LENGTH, :BY = :AGE )
 # Hope you got it ;)
 
 /*==============
-
+*/
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
 	[ 10,	"Karim",	52   	],
@@ -476,7 +476,7 @@ o1.Show() + NL
 # 1	30	Abraham		48
 # 2	20	Hatem		46
 # 3	10	Karim		52
-
+/*
 o1.Sort(:By = :ID)
 o1.Show() + NL
 #-->

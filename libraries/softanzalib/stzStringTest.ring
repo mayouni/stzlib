@@ -1,5 +1,46 @@
 load "stzlib.ring"
 
+/*----------
+
+o1 = new stzString("123456")
+? o1.NumberOfSubStrings()
+#--> 21
+
+//? o1.SubStrings()
+#--> [
+#	"123456", "6", "56", "456", "3456", "23456",
+#	"12345", "5", "45", "345", "2345",
+#	"1234", "4", "34", "234",
+#	"123", "3", "23",
+#	"12", "2",
+#	"1"
+# ]
+
+stop()
+/*----------
+
+o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] }')
+? o1.NumbersComingAfter("@i")
+#--> [ "-3", "3" ]
+
+? o1.NumbersComingAfterQ("@i").Smallest()
+#--> "-3"
+
+? o1.NumbersComingAfterQ("@i").Greatest()
+#--> "3"
+
+/*----------
+
+o1 = new stzString("@item = This[ @i+1 ]")
+? o1.Numbers()
+//? @@S( o1.NumbersAfter("@i") )
+
+/*=================
+
+o1 = new stzString("123456789")
+? o1.Section(3, -3)
+#--> "34567"
+
 /*=================
 *
 o1 = new stzString("... ____ ... ____")
@@ -73,13 +114,79 @@ o1 = new stzString("Amount: +132.45")
 
 /*-----------------
 
-o1 = new stzString("+132.45 euros")
+? Q([ "A", "B", "C", "D", "E" ]).NormaliseSection([1, :Last])
+
+/*==================
+
+o1 = new stzList([ ".", ".", "M", ".", "I", "X" ])
+? o1.FindW(' @char = "." ')
+#--> [1, 2, 4]
+
+/*----------------- 
+
+o1 = new stzString("..ONE...TWO..")
+? @@S( o1.FindW(:Where = 'QR(@char, :stzChar).IsALetter()') )
+#--> [ 3, 4, 5, 9, 10, 11 ]
+
+? @@S( o1.YieldW( '@char', :Where = 'Q(@char).IsALetter()' ) )
+#--> [ "O", "N", "E", "T", "W", "O" ]
+
+/*------------------
+
+o1 = new stzString("AB12CD345")
+? @@S( o1.SplitToPartsOfNChars(2) )
+#--> [ "AB", "12", "CD", "34", "5" ]
+
+? @@S( o1.SplitToPartsOfNCharsXT(2) )
+# Or you can be more explicit and say: SplitToPartsOfExactlyNChars(2)
+#--> [ "AB", "12", "CD", "34" ]
+
+/*===================
+
+o1 = new stzString("ABC")
+? @@S( o1.SubStrings() )
+#--> [ "A", "AB", "B", "ABC", "C", "BC" ]
+
+/*------------------
+*/
+o1 = new stzString("*#!ABC$^..")
+? o1.NumberOfSubStrings()
+#--> 55
+
+? o1.SubStringsW(' Q(@SubString).IsMadeOfLetters() ')
+#--> #--> [ "A", "AB", "B", "ABC", "C", "BC" ]
+
+STOP()
+/*------------------
+
+o1 = new stzString("...12...1212...121212...")
+? o1.YieldChars( :StartingAt = 4, :Until = ' @char = "." ' )
+? o1.YieldChars( :StartingAt = 4, :Until = ' Q(@char).IsNotOneOfThese(["1","2"]) ' )
+
+? o1.YieldU( :Until = ' @char = "." ' )
+
+STOP()
+/*-----------------
+
+o1 = new stzString("..._...__...___...")
+? o1.SubStringsMadeOf("_")
+#--> [ "_", "__", "___" ]
+
+
+STOP()
+
+/*-----------------
+
+o1 = new stzString("_-132__114.45_ euros")
+? o1.Numbers()
+
+/*
 ? o1.StartsWithANumber()
 #--> TRUE
 
-? o1.StartsWithNumber("132.45")
+? o1.StartsWithNumber("-132114.45")
 #--> TRUE
-
+/*
 ? o1.LeadingNumber()
 #--> +132.45
 
@@ -89,6 +196,7 @@ o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
 
 ? @@S( o1.Numbers() ) + NL
 #--> [ "12.34", "-56.30", "12.34", "77.12" ]
+
 
 ? @@S( o1.UniqueNumbers() )
 #--> [ "12.34", "-56.30", "77.12" ]
@@ -116,8 +224,8 @@ o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
 ? @@S( o1.FindNumbersAsSections() ) + NL
 #--> [ [ 7, 11 ], [ 21, 26 ], [ 39, 43 ], [ 55, 59 ] ]
 
-/*-----------------
-
+/*================
+*/
 o1 = new stzString( " This: @i - 1.23 and this: @i + 378.12! " )
 ? o1.NumbersComingAfter("@i")
 #--> [ "-1.23", "378.12" ]

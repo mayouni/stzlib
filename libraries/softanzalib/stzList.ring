@@ -28,7 +28,6 @@ func StzListClassName()
 	func StzListClass()
 		return "stzlist"
 
-
 func L(p)
 
 	if isList(p)
@@ -445,8 +444,6 @@ func List(pFrom, pTo)
 	ok
 
 	return ContiguousList(pFrom, pto)
-
-
 
   /////////////////
  ///   CLASS   ///
@@ -3886,7 +3883,7 @@ class stzList from stzObject
 			n2 = This.NumberOfItems()
 		ok
 
-		if NOT isNumber(n1) and isNumber(n2)
+		if NOT ( isNumber(n1) and isNumber(n2) )
 			StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
@@ -6469,8 +6466,8 @@ class stzList from stzObject
 		ok
 
 		anPositions = This.FindW(pcCondition)
-
 		aResult = This.YieldFrom(anPositions, pcCode)
+
 		return aResult
 
 		#< @FunctionFluentForm
@@ -6530,6 +6527,58 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 		#>
+
+	  #-----------------------------------------------------------------------------#
+	 #  YIELDING ITEMS STARTING AT A GIVEN POSITION UNTIL A CONDITION IS VERIFIED  #
+	#-----------------------------------------------------------------------------#
+
+	def YieldItems(pnStartingAt, pcUntilCondition)
+		/* EXAMPLE
+	
+	
+		*/
+	
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+	
+		if NOT isNumber(pnStartingAt)
+			StzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+	
+		if isList(pcUntilCondition) and Q(pcUntilCondition).IsUntilNamedParam()
+			pcUntilCondition = pcUntilCondition[2]
+		ok
+	
+		if NOT isString(pcUntilCondition)
+			StzRaise("Incorrect param type! pcUntilCondition must be a string.")
+		ok
+	
+		aResult = []
+
+		bContinue = TRUE
+		@i = pnStartingAt - 1
+
+		while bContinue
+			@i++
+			if @i > This.NumberOfItems()
+				bContinue = FALSE
+
+			else
+				@item = This[@i]
+	
+				cCode = 'bOk = ( ' + pcUntilCondition + ' )'
+				eval(cCode)
+	
+				if bOk
+					aResult + @item
+				else
+					bContinue = FALSE
+				ok
+			ok
+		end
+	
+		return aResult
 
 	  #-------------------------------------------------#
 	 #  YIELDING AND ACCUMULATING VALUES ON EACH ITEM  #
@@ -8221,22 +8270,22 @@ class stzList from stzObject
 		#--> [ "a", "ab", "abc", "abcd", "abcde" ]
 
 		*/
-? o1.Content()
+//? o1.Content()
 		cCode = "value = " + StzCCodeQ(pcExpr).UnifiedFor(:stzList)
 
 		oTable = new stzTable([2, This.NumberOfItems()])
-oTable.Show() + NL
+//oTable.Show() + NL
 		i = 0
 		for @item in This.List()
 			i++
 			eval(cCode)
 			oTable.ReplaceRow(i, [ @item, value ])
 		next
-oTable.Show() + NL
+//oTable.Show() + NL
 
 		oTable.SortInAscending( :By = oTable.ColName(2) )
-oTable.Show()
-sdsd
+//oTable.Show()
+//sdsd
 		aSortedList = oTable.Col(1)
 
 		This.UpdateWith( aSortedList )
@@ -9352,27 +9401,61 @@ sdsd
 
 	def Flatten() 
 
-	aResult = []
+		aResult = []
+	
+		cListInString = ""
+	
+		StzStringQ( listtocode(This.Content()) ) {
+			Simplify()
+			ReplaceMany([ "[]", "[ ]" ], :With = "#!9#!7#EMPTYLIST#!3#!#4")
+			RemoveMany([ "[", "]" ])
+			ReplaceAll("#!9#!7#EMPTYLIST#!3#!#4", :With = "[]")
+	
+			cListInString = Content()
+		}
+	
+		cCode = "aResult = [" + cListInString + "]"
+		eval(cCode)
 
-	cListInString = ""
+		This.Update( aResult )
 
-	StzStringQ( listtocode(This.Content()) ) {
-		Simplify()
-		ReplaceMany([ "[]", "[ ]" ], :With = "#!9#!7#EMPTYLIST#!3#!#4")
-		RemoveMany([ "[", "]" ])
-		ReplaceAll("#!9#!7#EMPTYLIST#!3#!#4", :With = "[]")
-
-		cListInString = Content()
-	}
-
-	cCode = "aResult = [" + cListInString + "]"
-	eval(cCode)
-
-	This.Update( aResult )
+		#< @FunctionFluentForm
 
 		def FlattenQ()
 			This.Flatten()
 			return This
+
+		def FlattenQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsStzClassName() )
+				StzRaise("Incorrect param type! pcReturnType must be a string containing a Softanza class name.")
+			ok
+
+			switch pcReturnType
+				on :stzList
+					return new stzList( This.Flattened() )
+				on :stzListOfStrings
+					return new stzListOfStrings( This.Flattened() )
+
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.Flattened() )
+
+				on :stzListOfLists
+					return new stzListOfLists( This.Flattened() )
+
+				on :stzListOfPairss
+					return new stzListOfPairs( This.Flattened() )
+
+				on :stzListOfObjects
+					return new stzListOfObjects( This.Flattened() )
+
+				other
+					StzRaise("Unsupported return type!")
+				off
+		#>
 	
 	def Flattened()
 		aResult = This.Copy().FlattenQ().Content()
@@ -11617,19 +11700,20 @@ sdsd
 		cCondition = ""
 		aExecutableSection = []
 
-		StzCCodeQ(pcCondition) {
-			cCondition = UnifiedFor(:stzList)
-			aExecutableSection = ExecutableSection()
-		}
-
+		oCCode = new stzCCode(pcCondition)
+		cCondition = oCCode.TranspiledFor(:stzList)
 		cCode = "bOk = ( " + cCondition + " )"
+
+		cTempCode = 'aItemsToBeChecked = This.' + oCCode.ExecutableSection()
+		eval(cTempCode)
+
 		oCode = new stzString(cCode)
 
 		anResult = []
 
 		@i = 0
 
-		for @i = aExecutableSection[1] to aExecutableSection[2]
+		for @i = 1 to len(aItemsToBeChecked)
 			@item = This[@i]
 
 			bEval = TRUE
@@ -11646,7 +11730,6 @@ sdsd
 				bEval = FALSE
 			ok
 
-//? cCode
 
 			if bEval
 				eval(cCode)
@@ -13764,6 +13847,14 @@ sdsd
 		if n1 = :@ and n2 = :@
 			n1 = 1
 			n2 = This.NumberOfItems()
+		ok
+
+		if n1 < 0
+			n1 = This.NumberOfItems() + n1 + 1
+		ok
+
+		if n2 < 0
+			n2 = This.NumberOfItems() + n2 + 1
 		ok
 
 		# If the params are not numbers, so find them and take their positions
@@ -18879,6 +18970,30 @@ sdsd
 					ok
 
 					return This.ForEachStringYieldQR(pcCode, pcReturnType)
+
+	  #-------------------------------------------#
+	 #  SMALLEST AND GREATEST ITEMS IN THE LIST  #
+	#-------------------------------------------#
+
+	def SmallestItem()
+
+		if This.NumberOfItems() > 1
+			aSorted = This.SortedInAscending()
+			return aSorted[1]
+
+		ok
+
+		def Smallest()
+			return This.SmallestItem()
+
+	def GreatestItem()
+		if This.NumberOfItems() > 1
+			aSorted = This.SortedInDescending()
+			return aSorted[1]
+		ok
+
+		def Greatest()
+			return This.GreatestItem()
 
 	  #-----------#
 	 #   MISC.   #
