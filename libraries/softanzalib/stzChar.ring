@@ -688,8 +688,14 @@ class stzChar from stzObject
 			return FALSE
 		ok
 
+		def IsALetter()
+			return This.IsLetter()
+
 	def IsNotLetter()
 		return NOT This.IsLetter()
+
+		def IsNotALetter()
+			return This.IsNotLetter()
 
 	def IsLetterOrSpaceOrChar(c)
 		if This.IsLetter() or This.IsSpace() or This.Content() = "c"

@@ -1,3 +1,20 @@
+
+/*
+	Inside a conditional code you can use these keywords:
+	@item
+	@EachItem
+	@CurrentItem
+	@NextItem
+	@PreviousItem
+	
+	@i
+	@CurrentI
+	@NextI
+	@PreviousI
+	
+	This[ @i ] # Instead of ItemAt()
+*/
+
 func StzCCodeQ(cCode)
 	return new stzCCode(cCode)
 
@@ -26,8 +43,20 @@ class stzCCode
 	def Content()
 		return @cContent
 
+		def ContentQ()
+			return new stzString( This.Content() )
+
+	def CCode()
+		return This.Content()
+
+		def CCodeQ()
+			return This.ContentQ()
+
 	def Code()
 		return This.Content()
+
+		def CodeQ()
+			return This.ContentQ()
 
 	def UnifyFor(cStzClass)
 
@@ -67,6 +96,8 @@ class stzCCode
 								
 				"@chars","@allChars",
 				"@strings","@allStrings",
+				"@substrings","@allSubStrings",
+
 				"@numbers","@allNumbers",
 				
 				"@lists","@allLists",
@@ -79,6 +110,8 @@ class stzCCode
 				"@item", "@EachItem", "@CurrentItem",
 				"@char", "@EachChar", "@CurrentChar",
 				"@string", "@EachString", "@CurrentString",
+				"@substring", "@EachSubString", "@CurrentSubString",
+
 				"@number", "@EachNumber", "@CurrentNumber",
 				"@list", "@EachList", "@CurrentList",
 				"@pair", "@EachPair", "@CurrentPair",
@@ -87,13 +120,17 @@ class stzCCode
 				"@NextPosition",
 				"@PreviousPosition",
 				
-				"@NextItem", "@NextChar",
-				"@NextString", "@NextNumber",
+				"@NextItem",
+				"@NextChar", "@NextString", "@NextSubString",
+				"@NextNumber",
+				
 				"@NextList", "@NextPair",
 				"@NextObject",
 				
-				"@PreviousItem", "@PreviousChar",
-				"@PreviousString", "@PreviousNumber",
+				"@PreviousItem",
+				"@PreviousChar", "@PreviousString", "@PreviousSubString",
+
+				"@PreviousNumber",
 				"@PreviousList", "@PreviousPair",
 				"@PreviousObject"
 				],
@@ -142,6 +179,9 @@ class stzCCode
 				" @string ", " @EachString ",
 				" @CurrentString ",
 
+				" @substring ", " @EachSubString ",
+				" @CurrentSubString ",
+
 				" @number ", " @EachNumber ",
 				" @CurrentNumber ",
 
@@ -174,6 +214,11 @@ class stzCCode
 				"(@EachString)", "( @EachString)", "(@EachString )",
 				
 				"(@CurrentString)", "( @CurrentString)", "(@CurrentString )",
+
+				"(@substring)", "( @substring)", "(@substring )",
+				"(@EachSubString)", "( @EachSubString)", "(@EachSubString )",
+				
+				"(@CurrentSubString)", "( @CurrentSubString)", "(@CurrentSubString )",
 
 				"(@number)", "( @number)", "(@number )",
 				
@@ -221,6 +266,10 @@ class stzCCode
 				"[@EachString]", "[ @EachString]", "[@EachString ]",
 				"[@CurrentString]", "[ @CurrentString]", "[@CurrentString ]",
 		
+				"[@substring]", "[ @substring]", "[@substring ]",
+				"[@EachSubString]", "[ @EachSubString]", "[@EachSubString ]",
+				"[@CurrentSubString]", "[ @CurrentSubString]", "[@CurrentSubString ]",
+
 				"[@number]", "[ @number]", "[@number ]",
 				"[@EachNumber]", "[ @EachNumber]", "[@EachNumber ]",
 				"[@CurrentNumber]", "[ @CurrentNumber]", "[@CurrentNumber ]",
@@ -250,21 +299,21 @@ class stzCCode
 
 			ReplaceManyCSQ([ " @NextPosition " ],
 
-				:By = " ( @i+1 ) ", :CS = FALSE
+				:By = " ( @i + 1 ) ", :CS = FALSE
 			).
 			#--
 			ReplaceManyCSQ([
 				"(@NextPosition)", "( @NextPosition)", "(@NextPosition )"
 				],
 
-				:By = "( @i+1 )", :CS = FALSE
+				:By = "( @i + 1 )", :CS = FALSE
 			).
 			ReplaceManyCSQ([
 			
 				"[@NextPosition]", "[ @NextPosition]", "[@NextPosition ]"
 				],
 
-				:By = "[ @i+1 ]", :CS = FALSE
+				:By = "[ @i + 1 ]", :CS = FALSE
 			).
 
 			# 5) Unifying all kewords referring to the previous position
@@ -272,21 +321,21 @@ class stzCCode
 
 			ReplaceManyCSQ([ " @PreviousPosition " ],
 
-				:By = " ( @i-1 ) ", :CS = FALSE
+				:By = " ( @i - 1 ) ", :CS = FALSE
 			).
 			ReplaceManyCSQ([
 				
 				"(@PreviousPosition)", "( @PreviousPosition)", "(@PreviousPosition )"
 				],
 
-				:By = "( @i-1 )", :CS = FALSE
+				:By = "( @i - 1 )", :CS = FALSE
 			).
 			ReplaceManyCSQ([
 				
 				"[@PreviousPosition]", "[ @PreviousPosition]", "[@PreviousPosition ]"
 				],
 
-				:By = "[ @i-1 ]", :CS = FALSE
+				:By = "[ @i - 1 ]", :CS = FALSE
 			).
 
 			# 6) Unifying all keywords referring to the next item
@@ -294,58 +343,56 @@ class stzCCode
 
 			ReplaceManyCSQ([
 				" @NextItem ",
-				" @NextChar ",
 
+				" @NextChar ",
 				" @NextString ",
+				" @NextSubString ",
 
 				" @NextNumber ",
 
 				" @NextList ",
 				" @NextPair ",
-
 				" @NextSection ",
 
 				" @NextObject "
 				],
 
-				:By = " This[ @i+1 ] ", :CS = FALSE
+				:By = " This[ @i + 1 ] ", :CS = FALSE
 			).
 			#--
 			ReplaceManyCSQ([
 				
 				"(@NextChar)", "( @NextChar)", "(@NextChar )",
-
 				"(@NextString)", "( @NextString)", "(@NextString )",
+				"(@NextSubString)", "( @NextSubString)", "(@NextSubString )",
 
 				"(@NextNumber)", "( @NextNumber)", "(@NextNumber )",
 
 				"(@NextList)", "( @NextList)", "(@NextList )",
 				"(@NextPair)", "( @NextPair)", "(@NextPair )",
-
 				"(@NextSection)", "( @NextSection)", "(@NextSection )",
 
 				"(@NextObject)", "( @NextObject)", "(@NextObject )"
 				],
 
-				:By = "( This[ @i+1 ] )", :CS = FALSE
+				:By = "( This[ @i + 1 ] )", :CS = FALSE
 			).
 			ReplaceManyCSQ([
 
 				"[@NextChar]", "[ @NextChar]", "[@NextChar ]",
-
 				"[@NextString]", "[ @NextString]", "[@NextString ]",
+				"[@NextSubString]", "[ @NextSubString]", "[@NextSubString ]",
 
 				"[@NextNumber]", "[ @NextNumber]", "[@NextNumber ]",
 
 				"[@NextList]", "[ @NextList]", "[@NextList ]",
 				"[@NextPair]", "[ @NextPair]", "[@NextPair ]",
-
 				"[@NextSection]", "[ @NextSection]", "[@NextSection ]",
 
 				"[@NextObject]", "[ @NextObject]", "[@NextObject ]"
 				],
 
-				:By = "[ This[ @i+1 ] ]", :CS = FALSE
+				:By = "[ This[ @i + 1 ] ]", :CS = FALSE
 			).
 
 			# 7) Unifying all keywords referring to the previous item 
@@ -354,59 +401,59 @@ class stzCCode
 			ReplaceManyCSQ([
 				" @PreviousItem ",
 				" @PreviousItem ",
+
 				" @PreviousChar ",
 				" @PreviousString ",
+				" @PreviousSubString ",
+
 				" @PreviousNumber ",
 				" @PreviousList ",
 				" @PreviousPair ",
 				" @PreviousSection ",
+
 				" @PreviousObject "
 				],
 
-				:By = " This[ @i-1 ] ", :CS = FALSE
+				:By = " This[ @i - 1 ] ", :CS = FALSE
 			).
 			ReplaceManyCSQ([
 				
 				"(@PreviousItem)", "( @PreviousItem)", "(@PreviousItem )",
 				
 				"(@PreviousChar)", "( @PreviousChar)", "(@PreviousChar )",
-
 				"(@PreviousString)", "( @PreviousString)", "(@PreviousString )",
-				
+				"(@PreviousSubString)", "( @PreviousSubString)", "(@PreviousSubString )",
+
 				"(@PreviousNumber)", "( @PreviousNumber)", "(@PreviousNumber )",
 
 				"(@PreviousList)", "( @PreviousList)", "(@PreviousList )",
-
 				"(@PreviousPair)", "( @PreviousPair)", "(@PreviousPair )",
-
 				"(@PreviousSection)", "( @PreviousSection)", "(@PreviousSection )",
-				
+
 				"(@PreviousObject)", "( @PreviousObject)", "(@PreviousObject )"
 				],
 
-				:By = "(This[ @i-1 ])", :CS = FALSE
+				:By = "(This[ @i - 1 ])", :CS = FALSE
 			).
 			ReplaceManyCSQ([
 				
 				"[@PreviousItem]", "[ @PreviousItem]", "[@PreviousItem ]",
 				
 				"[@PreviousChar]", "[ @PreviousChar]", "[@PreviousChar ]",
-				
 				"[@PreviousString]", "[ @PreviousString]", "[@PreviousString ]",
-				
+				"[@PreviousSubString]", "[ @PreviousSubString]", "[@PreviousSubString ]",
+
 				"[@PreviousNumber]", "[ @PreviousNumber]", "[@PreviousNumber ]",
-		
+
 				"[@PreviousList]", "[ @PreviousList]", "[@PreviousList ]",
 				"[@PrevList]", "[ @PrevList]", "[@PrevList ]",
-
 				"[@PreviousPair]", "[ @PreviousPair]", "[@PreviousPair ]",
-				
 				"[@PreviousSection]", "[ @PreviousSection]", "[@PreviousSection ]",
 				
 				"[@PreviousObject]", "[ @PreviousObject]", "[@PreviousObject ]"
 				],
 				
-				:By = "(This[ @i-1 ])", :CS = FALSE
+				:By = "(This[ @i - 1 ])", :CS = FALSE
 			).
 
 			ReplaceManyCSQ([
@@ -427,14 +474,14 @@ class stzCCode
 				"ItemAt( ( @i+1 ) )", "ItemAt( @i+1 )"
 				],
 
-				:With = "This[ @i+1 ]", :CS = FALSE
+				:With = "This[ @i + 1 ]", :CS = FALSE
 			).
 
 			ReplaceManyCSQ([
 				"ItemAt( ( @i-1 ) )", "ItemAt( @i-1 )"
 				],
 
-				:With = "This[ @i-1 ]", :CS = FALSE
+				:With = "This[ @i - 1 ]", :CS = FALSE
 			).
 
 			ReplaceCSQ("@item", :With = cKeyWord, :CS = FALSE).
@@ -453,9 +500,25 @@ class stzCCode
 
 			#>
 
+			#< @FunctionAlternativeForm
+
+			def PrepareFor(cStzClass)
+				This.UnifyFor(cStzClass)
+
+			def TranspileFor(cStzClass)
+				This.UnifyFor(cStzClass)
+
+			#>
+
 	def UnifiedFor(cStzClass)
 		cResult = This.Copy().UnifyForQ(cStzClass).Content()
 		return cResult
+
+		def PreparedFor(cStzClass)
+			return This.UnifiedFor(cStzClass)
+
+		def TranspiledFor(cStzClass)
+			return This.UnifiedFor(cStzClass)
 
 	def Update(cNewCode)
 		@cContent = cNewCode
@@ -464,4 +527,61 @@ class stzCCode
 		return new stzCCode( This.Content() )
 
 	def ExecutableSection()
-		
+		/* EXAMPLE
+
+		o1 = new stzCCode('{ This[ @i ] = This[ @i + 3 ] }')
+		? o1.ExecutableSection()
+		#--> 'Section( 1, -3 )'
+
+		*/
+
+		oCode = Q( This.TranspiledFor(:stzList) )
+		acNumbersAfter = oCode.NumbersComingAfter("@i")
+
+		if len(acNumbersAfter) = 0
+			return 'Section( 1, :Last)'
+		ok
+
+		oNumbers = Q( acNumbersAfter ).
+			   PerformQ('@item = 0+ @item')
+
+		cResult = 'Section( 1, :Last )'
+
+		if oNumbers.Size() = 0
+			# DoNothing --> aResult is already [ 1, :Last ]
+
+		but oNumbers.Size() = 1
+			n =  0+ oNumbers[1]
+
+			if n > 0
+				cResult = 'Section( 1, ' + -n + ' )'
+
+			but n < 0
+				cResult = 'Section( ' + (Abs(n) + 1) + ', :Last )'
+
+			ok
+		else
+			nMin = 0+ oNumbers.Smallest()
+			nMax = 0+ oNumbers.Greatest()
+	
+			if BothAreNegative( nMin, nMax )
+				nMin = Abs( nMin ) + 1
+				nMax = :Last
+	
+			but BothArePositive( nMin, nMax )
+				nMin = 1
+				nMax = - nMax
+	
+			but nMin < 0 and nMax > 0
+				nMin = Abs(nMin) + 1
+				nMax = - nMax
+	
+			else
+				nMin = 1
+				nMax = :Last
+			ok
+	
+			cResult = 'Section( ' + nMin + ', ' + nMax + ' )'
+		ok
+
+		return cResult

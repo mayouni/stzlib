@@ -1275,25 +1275,54 @@ class stzString from stzObject
 	 #  GETTING THE LIST OF ALL POSSIBLE SUBSTRINGS  #
 	#-----------------------------------------------#
 
+	def IsMadeOfLetters()
+		bResult = TRUE
+
+		for i = 1 to This.NumberOfChars()
+			if This.CharQ(i).IsNotALetter()
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def NumberOfSubStrings()
+		nResult = 0
+
+		for i = This.NumberOfChars() to 1 step -1
+			nResult += i
+		next
+
+		return nResult
+
+	def SubStringsW(pcCondition)
+		cCondition = StzCCodeQ(pcCondition).TranspiledFor(:stzList)
+		return This.SubStringsQ().ItemsW(pcCondition)
+
 	def SubStrings()
+				
+		cMainSubStr = ""
+		acSubStrings = []
+		
+		for i = 1 to This.NumberOfChars()
+			cMainSubStr += This[i]
+			acSubStrings + cMainSubStr
+		
+			nLenMainSubStr = Q(cMainSubStr).NumberOfChars()
 
-		nLen = This.NumberOfChars()
-		aTemp = []
-
-		for i = 1 to nLen
-			aTemp + This.Section(i, nLen)
+			if nLenMainSubStr > 1
+				cSubStr = ""
+				for q = nLenMainSubStr to 2 step -1
+					cSubStr = Q(cMainSubStr)[q] + cSubStr
+					acSubStrings + cSubStr
+				next
+			ok
 		next
+		
+		return acSubStrings
 
-		aResult = []
-
-		for str in aTemp
-			for i = 1 to Q(str).NumberOfChars()
-				aResult + Q(str).SplitToPartsOfNChars(i)
-			next 
-		next
-
-		aResult = Q(aResult).FlattenQ().RemoveDuplicatesQ().Content() //SortedBy('Q(@item).NumberOfChars()')
-		return aResult
+		#< @FunctionFluentForm
 
 		def SubStringsQ()
 			return This.SubStringsQR(:stzList)
@@ -1308,6 +1337,12 @@ class stzString from stzObject
 				StzRaise("Unsupported return type!")
 			off
 
+		#>
+
+	  #------------------------------------------------------#
+	 #  GETTING THE LIST OF ALL SUBSTRINGS MADE OF N CHARS  #
+	#------------------------------------------------------#
+
 	def SubStringsOfNChars(n)
 		nLenStr	   = This.NumberOfChars()
 		nRest      =  nLenStr % n
@@ -1316,7 +1351,6 @@ class stzString from stzObject
 		acResult = This.SplitToPartsOfExactlyNChars(nLenSubStr)
 
 		return acResult
-
 
 	  #-----------------------------------------------------#
 	 #  GETTING THE LIST OF SUBSTRINGS -- EXTENDED  #
@@ -6877,6 +6911,14 @@ class stzString from stzObject
 			n2 = This.NumberOfChars()
 		ok
 
+		if n1 < 0
+			n1 = This.NumberOfItems() + n1 + 1
+		ok
+
+		if n2 < 0
+			n2 = This.NumberOfItems() + n2 + 1
+		ok
+
 		# If the params are not numbers, so find them and take their positions
 		# EXAMPLE: ? Q("SOFTANZA").Section(:From = "F", :To = "A") #--> "FTA"
 
@@ -9264,33 +9306,150 @@ class stzString from stzObject
 		cResult = This.ReplaceBetweenQ(pcSubStr, pcSubStr1, pcSubStr2, pcNewSubstr).Content()
 		return cResult
 
+	  #----------------------------------------------#
+	 #  SUBSTRINGS MADE OF A GIVEN OTHER SUBSTRING  #
+	#----------------------------------------------#
+	
+	def SubStringsMadeOfCS(pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+	
+		o1 = new stzString("...12...1212...121212...")
+		? o1.SubStringsMadeOf("_")
+		#--> [ "12", "1212", "121212" ]
+	
+		*/
+	
+		acResult = []
+	
+		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
+		#--> [ 4, 8, 15 ]
+	
+		nLenSubStr = Q(pcSubStr).NumberOfChars()
+	
+		for n in anPos
+			
+			bContinue = TRUE
+			i = n
+	
+			while bContinue
+				i = i + nLenSubStr
+	
+				if i > This.NumberOfChars() - n or
+				   This.NextNCharsCSQ(nLen, :StartingAt = i).IsDifferentFromCS(pcSubStr)
+	
+					bContinue = FALSE
+				ok
+	
+			end
+		next
+	
+	#-- WITHOUT CASESENSITIVITY
+	
+	def SubStringsMadeOf(pcSubStr)
+		return This.SubStringsMadeOfCS(pcSubStr, :CaseSensitive = TRUE)
+	
+	  #-----------------------------------------------------------------------------#
+	 #  YIELDING CHARS STARTING AT A GIVEN POSITION UNTIL A CONDITION IS VERIFIED  #
+	#-----------------------------------------------------------------------------#
+
+	def YieldChars(pnStartingAt, pcUntilCondition)
+		/* EXAMPLE
+	
+		o1 = new stzString("...12...1212...121212...")
+		? YieldChars( :StaringAt = 3, :Until = 'Q(@char).IsNotOneOfThese(["1","2"])' )
+	
+		*/
+	
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+	
+		if NOT isNumber(pnStartingAt)
+			StzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+	
+		if isList(pcUntilCondition) and Q(pcUntilCondition).IsUntilNamedParam()
+			pcUntilCondition = pcUntilCondition[2]
+		ok
+	
+		if NOT isString(pcUntilCondition)
+			StzRaise("Incorrect param type! pcUntilCondition must be a string.")
+		ok
+	
+		pcUntilCondition = 'NOT ( ' +
+			StzCCodeQ(pcUntilCondition).TranspiledFor(:stzList) + ' )'
+
+		acResult = This.CharsQ().YieldItems(pnStartingAt, pcUntilCondition)
+	
+		return acResult
+	
 	  #-------------------------------------------------------------------------#
 	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED  #
 	#-------------------------------------------------------------------------#
 
-	def ReplaceXTCS(pcSubStr, paBetween, pcNewSubStr, pCaseSensitive)
-		/* EXAMPLE
+	def ReplaceXTCS(pcSubStr, paOption, pcNewSubStr, pCaseSensitive)
+		/* EXAMPLE 1
 
 		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 		o1.ReplaceXT("noword", :Between = ["<<", ">>"], :With = "word")
 		#--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
 
+		EXAPMPLE 2
+
+		o1 = new stzString("12_250___114.56")
+		o1.ReplaceXT("_", :RepeatedMoreThenNTimes = 1, :With "_")
+		? o1.Content()
+		#--> "12_250_114.56"
+
 		*/
 
-		if isList(paBetween) and Q(paBetween).IsBetweenNamedParam()
-			paBetween = paBetween[2]
+		if isList(paOption) and Q(paOption).IsBetweenNamedParam()
+			paBetween = paOption[2]
 		ok
 
-		if NOT isList(paBetween) and Q(paBetween).IsPairOfStrings()
-			stzRaise("Incorrect param type! paBetween must be a pair of strings.")
+		if NOT 	( isList(paOption) and len(paOption) = 2 and 
+			  ( Q(paOption).IsPairOfStrings() or ( isString(paOption[1]) and isNumber(paoption[2]) ) )
+			)
+
+			stzRaise("Incorrect param type! paOption must be a pair of strings or a pair made of a string and a number.")
 		ok
 
-		This.ReplaceBetween("noword", paBetween[1], paBetween[2], :With = "word")
+		cOption1 = paOption[1]
+
+		switch cOption1
+		on :Between
+			This.ReplaceBetween(pcSubStr, paOption[1], paOption[2], :With = pcNewSubStr)
+
+		on :RepeatedNTimes
+			n = paOption[2]
+			cRepeated = Q(pcSubStr).RepeatedNTimes(n)
+			This.ReplaceCS(cRepeated, :With = pcNewSubStr, pCaseSensitive)
+
+		on RepeatedMoreThenNTimes
+			n = paOption[2]
+
+			acRepeatedSubStr = This.
+					   SubStringsMadeOfCSQ(pcSubStr, pCaseSensitive).
+					   RemoveWQ('Q(@item).NumberOfChars() > ' + n).
+					   SortedInDescending()
+
+			This.ReplaceMany( acRepeatedSubStr, :With = pcNewSubStr, pCaseSensitive)
+
+		on :RepeatedLessThenNTimes
+
+			acRepeatedSubStr = This.
+					   SubStringsMadeOfCSQ(pcSubStr, pCaseSensitive).
+					   RemoveWQ('Q(@item).NumberOfChars() < ' + n).
+					   SortedInDescending()
+
+			This.ReplaceMany( acRepeatedSubStr, :With = pcNewSubStr, pCaseSensitive)
+
+		off
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceXT(pcSubStr, paBetween, pcNewSubStr)
-		This.ReplaceXTCS(pcSubStr, paBetween, pcNewSubStr, :CaseSensitive = TRUE)
+	def ReplaceXT(pcSubStr, paOption, pcNewSubStr)
+		This.ReplaceXTCS(pcSubStr, paOption, pcNewSubStr, :CaseSensitive = TRUE)
 
 	  #--------------------------------------------------------#
 	 #  REPLACING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
@@ -16551,7 +16710,7 @@ o1 = new stzString("12*34*56*78")
 		return aResult
 
 	  #===================================#
-	 #   SPLITTING TO PARTS OF N ITEMS   #
+	 #   SPLITTING TO PARTS OF N CHARS   #
 	#===================================#
 
 	def SplitToPartsOfNChars(n)
@@ -16568,6 +16727,9 @@ o1 = new stzString("12*34*56*78")
 
 		aResult = This.Sections( aSections )
 		return aResult
+
+		def SplitToPartsOfNCharsXT(n)
+			return This.SplitToPartsOfExactlyNChars(n)
 
 	  #=======================================#
 	 #    SPLITTING UNDER A GIVEN CONDTION   #
@@ -22958,8 +23120,14 @@ o1 = new stzString("12*34*56*78")
 			return FALSE
 		ok
 
+		def IsAnAsciiChar()
+			return This.IsAsciiChar()
+
 	def IsCharName()
 		return StzunicodeDataQ().ContainsCharName( This.Uppercased() )
+
+		def IsACharName()
+			return This.IsCharName()
 
 	  #---------------------------#
 	 #   STRING MADE OF CHARS?   #
@@ -23176,6 +23344,8 @@ o1 = new stzString("12*34*56*78")
 
 		return acResult
 
+		#< @FunctionFluentForm
+
 		def CharsAtPositionsQ(panPosirtions)
 			return This.CharsAtPositionsQR(panPositions, :stzList)
 
@@ -23201,6 +23371,30 @@ o1 = new stzString("12*34*56*78")
 			other
 				stzRaise("Insupported param type!")
 			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def CharsAtThesePositons(panPositions)
+			return This.CharsAtPositions(panPositions)
+
+			def CharsAtThesePositionsQ(panPositions)
+				return This.CharsAtQR(panPositions, :stzList)
+
+			def CharsAtThesePositionsQR(panPositions, pcReturnType)
+				return This.CharsAtPositionsQR(panPositions, pcReturnType)
+
+		def CharsAt(panPositions)
+			return This.CharsAtPositions(panPositions)
+
+			def CharsAtQ(panPositions)
+				return This.CharsAtQR(panPositions, :stzList)
+
+			def CharsAtQR(panPositions, pcReturnType)
+				return This.CharsAtPositionsQR(panPositions, pcReturnType)
+
+		#>
 
 	  #---------------------------#
 	 #   FIRST AND LAST CHARS    #
@@ -23454,6 +23648,9 @@ o1 = new stzString("12*34*56*78")
 		#< @FunctionNegativeForm
 
 		def IsNotLetter()
+			return NOT This.IsLetter()
+
+		def IsNotALetter()
 			return NOT This.IsLetter()
 
 		#>
@@ -25863,7 +26060,16 @@ o1 = new stzString("12*34*56*78")
 	#----------------------------------------------------------------#
 
 	def YieldW(pcCode, pcCondition)
-		return This.CharsQ().YieldW(pcCode, pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		cCondition = StzCCodeQ(pcCondition).TranspiledFor(:stzList)
+		return This.CharsQ().YieldW(pcCode, cCondition)
 
 		#< @FunctionFluentForm
 
@@ -26550,16 +26756,20 @@ o1 = new stzString("12*34*56*78")
 	#=====================================================#
 
 	def StartsWithNumber(n)
+		
 		if isString(n)
 			if n = ""
 				return FALSE
 
 			else
-				n = Q(n).ThisFirstCharRemoved("+")
+				n = Q(n).RemoveSpacesQ().
+					 RemoveQ("_").
+					 ThisFirstCharRemoved("+")
 			ok
 		ok
 
-		cLeadingNumber = Q(This.LeadingNumber()).ThisFirstCharRemoved("+")
+		oStrCopyWS = This.Copy().RemoveSpacesQ()
+		cLeadingNumber = Q(oStrCopyWS.LeadingNumber()).ThisFirstCharRemoved("+")
 
 		if  cLeadingNumber = ""+ n
 			return TRUE
@@ -26615,11 +26825,13 @@ o1 = new stzString("12*34*56*78")
 		#--> TRUE
 		*/
 
-		if  This.FirstCharQ().IsANumberInString() or
+		oStrCopyWS = This.Copy().RemoveSpacesQ()
 
-		    ( This.NumberOfChars() > 1 and
-		      This.FirstCharQ().IsEither("+", :Or = "-") and
-		      This.SecondCharQ().IsANumberInString() )
+		if  oStrCopyWS.FirstCharQ().IsANumberInString() or
+
+		    ( oStrCopyWS.NumberOfChars() > 1 and
+		      oStrCopyWS.FirstCharQ().IsEither("+", :Or = "-") and
+		      oStrCopyWS.SecondCharQ().IsANumberInString() )
 
 			return TRUE
 		else
@@ -26685,7 +26897,11 @@ o1 = new stzString("12*34*56*78")
 			ok
 		end
 
-		cResult = Q(cResult).ThisLastCharRemoved(".")
+		cResult = Q(cResult).
+			  RemoveSpacesQ().
+			  RemoveThisFirstCharQ("+").
+			  ThisLastCharRemoved(".")
+
 		return cResult
 
 		#< @FunctionAlternativeForm
@@ -26849,7 +27065,9 @@ o1 = new stzString("12*34*56*78")
 
 		*/
 
-		str = This.WithoutSpaces() + "_"
+		str = This.WithoutSpaces() + "*" // The "*" is added just for the
+						 // algorithm to add any number at
+						 // the end of the string
 		nLen = Q(str).NumberOfChars()
 
 		acResult = []
@@ -26858,20 +27076,23 @@ o1 = new stzString("12*34*56*78")
 		for i = 1 to nLen
 			oChar = Q(str).CharQ(i)
 
-			if oChar.IsOneOfThese(["+","-", "."]) or
-			   oChar.IsNumberInString()
+			if oChar.IsNumberInString() or
+			   oChar.IsOneOfThese([ "+","-", ".", "_" ])
 
 				cNumber += oChar.Content()
 
 			else
-
 				cNumber = Q(cNumber).
 					  RemoveThisFirstCharQ("+").
 					  RemoveThisFirstCharQ(".").
+					  RemoveThisFirstCharQ("_").
 					  RemoveThisLastCharQ(".").
+					  RemoveThisLastCharQ("_").
+					  ReplaceXTQ("_", :RepeatedMoreThenNTimes = 1, :With = "_").
 					  Content()
 			
 				if cNumber != ""
+? ">> " + @@S(cNumber)
 					acResult + cNumber
 					cNumber = ""
 				ok
@@ -27050,15 +27271,83 @@ o1 = new stzString("12*34*56*78")
 				  RemoveThisLastCharQ(".").
 				  Content()
 
-			acResult + cNumber
+			if cNumber != ""
+				acResult + cNumber
+			ok
 		next
 
 		return acResult
+
+		#< @FunctionFluentForm
+
+		def NumbersComingAfterCSQ(pcSubStr, pCaseSensitive)
+			return This.NumbersComingAfterCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+		def NumbersComingAfterCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsStzClassName() )
+				stzRaise("Incorrect param type! pcReturnType must be a string containing a softanza class name.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NumbersComingAfterCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.NumbersComingAfterCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.NumbersComingAfterCS(pcSubStr, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported param type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def NumbersAfterCS(pcSubStr, pCaseSensitive)
+			return This.NumbersComingAfterCS(pcSubStr, pCaseSensivitive)
+
+		def NumbersAfterCSQ(pcSubStr, pCaseSensitive)
+			return This.NumbesrAfterCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		def NumbersAfterCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			return NumbersComingAfterCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumbersComingAfter(pcSubStr)
 		return This.NumbersComingAfterCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def NumbersComingAfterQ(pcSubStr)
+			return This.NumbersComingAfterQR(pcSubStr, :stzList)
+
+		def NumbersComingAfterQR(pcSubStr, pcReturnType)
+			return This.NumbersComingAfterCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def NumbersAfter(pcSubStr)
+			return This.NumbersComingAfter(pcSubStr)
+
+		def NumbersAfterQ(pcSubStr)
+			return This.NumbesrAfterQR(pcSubStr, pcReturnType)
+
+		def NumbersAfterQR(pcSubStr, pcReturnType)
+			return NumbersComingAfterQR(pcSubStr, pcReturnType)
+
+		#>
 
 	  #----------------------------------------------#
 	 #  NTH NUMBER COMING AFTER A GIVEN SUBSTRING  #
@@ -27074,10 +27363,24 @@ o1 = new stzString("12*34*56*78")
 
 		return cResult
 
+		#< @FunctionAlternativeForm
+
+		def NthNumberAfterCS(n, pcSubStr, pCaseSensitive)
+			return This.NthNumberComingAfterCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NthNumberComingAfter(n, pcSubStr)
 		return This.NthNumberComingAfterCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def NthNumberAfter(n, pcSubStr)
+			return This.NthNumberComingAfter(n, pcSubStr)
+
+		#>
 
 	  #-----------------------------------------------#
 	 #  FIRST NUMBER COMING AFTER A GIVEN SUBSTRING  #
@@ -27089,6 +27392,13 @@ o1 = new stzString("12*34*56*78")
 		def NumbeComingAfterCS(pcSubStr, pCaseSensitive)
 			return This.FirstNumberComingAfterCS(pcSubStr, pCaseSensitive)
 
+		#< @FunctionAlternativeForm
+
+		def FirstNumberAfterCS(pcSubStr, pCaseSensitive)
+			return This.FirstNumberComingAfterCS(pcSubStr, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 	
 	def FirstNumberComingAfter(pcSubStr)
@@ -27097,6 +27407,13 @@ o1 = new stzString("12*34*56*78")
 		def NumberComingAfter(pcSubStr)
 			return This.FirstNumberComingAfter(pcSubStr)
 
+		#< @FunctionAlternativeForm
+
+		def FirstNumberAfter(pcSubStr)
+			return This.FirstNumberComingAfter(pcSubStr)
+
+		#>
+
 	  #----------------------------------------------#
 	 #  LAST NUMBER COMING AFTER A GIVEN SUBSTRING  #
 	#----------------------------------------------#
@@ -27104,7 +27421,21 @@ o1 = new stzString("12*34*56*78")
 	def LastNumberComingAfterCS(pcSubStr, pCaseSensitive)
 		return This.NthNumberComingAfterCS(:Last, pcSubStr, pCaseSensitive)
 
+		#< @FunctionAlternativeForm
+
+		def LastNumberAfterCS(pcSubStr, pCaseSensitive)
+			return This.LastNumberComingAfterCS(pcSubStr, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 	
 	def LastNumberComingAfter(pcSubStr)
 		return This.LastNumberComingAfterCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def LastNumberAfter(pcSubStr)
+			return This.LastNumberComingAfter(pcSubStr)
+
+		#>

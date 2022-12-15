@@ -1,5 +1,23 @@
 load "stzlib.ring"
 
+o1 = new stzString("12345")
+
+? o1.Section(2, 4)
+#--> "234"
+
+? o1.Section(2, -2)
+#--> "234"
+
+? o1.Section(:First, :Last)
+#--> "12345"
+
+? o1.Section(3, :@)
+#--> "3"
+
+? o1.Section(:@, 3)
+#--> "3"
+
+STOP()
 /*-----------------
 
 o1 = new stzList([ "T", "A", "Y", "O", "U", "B", "T", "A" ])

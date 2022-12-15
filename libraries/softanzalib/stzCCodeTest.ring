@@ -1,53 +1,83 @@
 load "stzlib.ring"
 
+
+
 /*----------
 */
-Q('{ This[ @i - 3 ] = This[ @i + 3 ] }') {
+o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @PreviousItem = 10 }')
+? o1.TranspiledFor(:stzList)
+#--> This[ @i - 3 ] = This[ @i + 3 ] and This[ @i - 1 ] = 10
 
-	? NumberComingAfter("@i -")
-	? NumberComingAfter("@i +")
-}
+? o1.ExecutableSection()
+#--> 'Section( 4, -3 )'
+
+/*----------
+
+o1 = new stzCCode('{ This[ @i ] = This[ @i + 3 ] }')
+? o1.TranspiledFor(:stzList)
+#--> This[ @i ] = This[ @i + 3 ]
+
+? o1.ExecutableSection()
+#--> 'Section( 1, -3 )'
 
 /*----------
 
 o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] }')
-? o1.ExecutableSection()
-#--> [ 4, nLen - 3 ]
+? o1.TranspiledFor(:stzList)
+#--> This[ @i - 3 ] = This[ @i + 3 ]
 
+? o1.ExecutableSection()
+#--> 'Section( 4, -3 )'
+
+/*----------
+
+o1 = new stzCCode('{ @item = @NextItem }')
+
+? o1.TranspiledFor(:stzList)
+#--> @item = This[ @i+1 ]
+
+? o1.ExecutableSection()
+#--> 'Section( 1, -1 )'
 
 /*----------
 
 o1 = new stzCCode('{ @item = @PreviousItem + 1 }')
-o1.UnifyFor(:stzListOfNumbers)
-? o1.Content()
-#--> '@number = This[ @i-1 ] + 1'
+? o1.TranspiledFor(:stzListOfNumbers)
+#--> @number = This[ @i - 1 ] + 1
+
+? o1.ExecutableSection()
+#--> 'Section( 2, :Last )'
 
 /*----------
 
 o1 = new stzCCode('{ @number = -@number }')
-o1.UnifyFor(:stzListOfStrings)
-? o1.Content()
-#--> '@string = - @string'
+? o1.TranspiledFor(:stzListOfStrings)
+#--> @string = - @string
+? o1.ExecutableSection()
+#--> 'Section( 1, :Last )'
 
 /*----------
 
 o1 = new stzCCode('Q(@eachchar).IsUppercase()')
-o1.UnifyFor(:stzListOfNumbers)
-? o1.Content()
-#--> 'Q( @number ).IsUppercase()'
+? o1.TranspiledFor(:stzListOfNumbers)
+#--> Q( @number ).IsUppercase()
+? o1.ExecutableSection()
+#--> 'Section( 1, :Last )'
 
 /*----------
 
-o1 = new stzCCode('{ This.ItemAt(@NextPosition) = This.ItemAt(@CurrentPosition) + "O" }')
-o1.UnifyFor(:stzList)
-? o1.Content()
-#--> This[ @i+1 ] = This[ @i ] + "O"
+o1 = new stzCCode('{ This[ @NextPosition ] = This[ @CurrentPosition ] + "O" }')
+? o1.TranspiledFor(:stzList)
+#--> This[ ( @i + 1 ) ] = This[ @i ] + "O"
+
+? o1.ExecutableSection()
+#--> 'Section( 1, -1 )'
 
 /*----------
 
-o1 = new stzCCode('{ Q(CharAt(@NextPosition)).HasDifferentCaseAs(CharAt(@CurrentPosition) ) }')
-o1.UnifyFor(:stzString)
-? o1.Content()
-#--> Q(This[ @i+1 ]).HasDifferentCaseAs(This[ @i ] )
+o1 = new stzCCode('{ Q(This[ @NextPosition ]).HasDifferentCaseAs( This[ @CurrentPosition ] ) }')
+? o1.TranspiledFor(:stzString)
+#--> Q(This[ ( @i + 1 ) ]).HasDifferentCaseAs( This[ @i ] )
 
-
+? o1.ExecutableSection()
+#--> 'Section( 1, -1 )'
