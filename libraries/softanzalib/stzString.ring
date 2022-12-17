@@ -834,6 +834,7 @@ class stzString from stzObject
 		bResult = TRUE
 
 		for i = 1 to This.NumberOfChars()
+			# REMINDER: CharQ() returns a stzChar object
 			if This.CharAtQ(i).IsLetter() and
 			   (NOT This.CharAtQ(i).IsUppercase())
 
@@ -880,7 +881,7 @@ class stzString from stzObject
 		anPositions = StzListOfNumbersQ(anPositions).AddedToEach(1)
 
 		anPositions + 1
-		anPositions = sort(anPositions)
+		anPositions = ring_sort(anPositions)
 		
 		for n in anPositions
 			cCapitalizedChar = oStr.CharAtPositionQ(n).Uppercased()
@@ -946,7 +947,7 @@ class stzString from stzObject
 		anPositions = oStr.FindAll(" ")
 		anPositions = StzListOfNumbersQ(anPositions).AddedToEach(1)
 		ring_insert(anPositions, 1, 1)
-		anPositions = sort(anPositions)
+		anPositions = ring_sort(anPositions)
 
 		for n in anPositions
 
@@ -1275,18 +1276,6 @@ class stzString from stzObject
 	 #  GETTING THE LIST OF ALL POSSIBLE SUBSTRINGS  #
 	#-----------------------------------------------#
 
-	def IsMadeOfLetters()
-		bResult = TRUE
-
-		for i = 1 to This.NumberOfChars()
-			if This.CharQ(i).IsNotALetter()
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
 	def NumberOfSubStrings()
 		nResult = 0
 
@@ -1295,10 +1284,6 @@ class stzString from stzObject
 		next
 
 		return nResult
-
-	def SubStringsW(pcCondition)
-		cCondition = StzCCodeQ(pcCondition).TranspiledFor(:stzList)
-		return This.SubStringsQ().ItemsW(pcCondition)
 
 	def SubStrings()
 				
@@ -1339,22 +1324,28 @@ class stzString from stzObject
 
 		#>
 
+	  #------------------------------------------#
+	 #  SUBSTRINGS VERIFYING A GIVEN CONDITION  #
+	#------------------------------------------#
+
+	def NumberOfSubStringsW(pcCondition)
+		return len( This.SubStringsW(pcCondition) )
+
+	def SubStringsW(pcCondition)
+		cCondition = StzCCodeQ(pcCondition).TranspiledFor(:stzList)
+		return This.SubStringsQ().ItemsW(pcCondition)
+
 	  #------------------------------------------------------#
 	 #  GETTING THE LIST OF ALL SUBSTRINGS MADE OF N CHARS  #
 	#------------------------------------------------------#
 
 	def SubStringsOfNChars(n)
-		nLenStr	   = This.NumberOfChars()
-		nRest      =  nLenStr % n
-		nLenSubStr = ( nLenStr - nRest ) / n
-
-		acResult = This.SplitToPartsOfExactlyNChars(nLenSubStr)
-
+		acResult = This.SubStringsW(' Q(@SubStr).NumberOfChars() = n ')
 		return acResult
 
-	  #-----------------------------------------------------#
+	  #----------------------------------------------#
 	 #  GETTING THE LIST OF SUBSTRINGS -- EXTENDED  #
-	#-----------------------------------------------------#
+	#----------------------------------------------#
 
 	def SubStringsAndTheirPositions()
 		aResult = []
@@ -1381,7 +1372,7 @@ class stzString from stzObject
 			return new stzListOfStrings( This.Lines() )
 
 		def LinesQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1415,7 +1406,7 @@ class stzString from stzObject
 			return new stzListOfStrings( This.UniqueLines() )
 
 		def UniqueLinesQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1550,7 +1541,7 @@ class stzString from stzObject
 		return aResult
 
 		def MarquersQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1570,7 +1561,7 @@ class stzString from stzObject
 		return StzListQ(This.Marquers()).UniqueItems()
 
 		def UniqueMarquersQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1590,7 +1581,7 @@ class stzString from stzObject
 			return This.UniqueMarquers()
 
 			def SetOfMarquersQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -1657,7 +1648,7 @@ class stzString from stzObject
 			return This.MarquersPositionsQR(:stzListOfNumbers)
 
 		def MarquersPositionsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1683,7 +1674,7 @@ class stzString from stzObject
 				return This.MarquersOccurrencesQR(:stzListOfNumbers)
 	
 			def MarquersOccurrencesQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -1706,7 +1697,7 @@ class stzString from stzObject
 				return This.FindMarquersQR(:stzListOfNumbers)
 	
 			def FindMarquersQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -1743,7 +1734,7 @@ class stzString from stzObject
 			return This.MarquersAndPositionsQR(:stzList)
 
 		def MarquersAndPositionsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1769,7 +1760,7 @@ class stzString from stzObject
 				return This.MarquersAndPositionsQ()
 
 			def MarquersAndOccurrencesQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -1799,7 +1790,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def MarquersAndTheirPositionsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1846,7 +1837,7 @@ class stzString from stzObject
 			return This.OccurrencesOfMarquerQR(pcMarquer, :stzList)
 
 		def OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1976,7 +1967,7 @@ class stzString from stzObject
 			return This.MarquersAndSectionsQR(:stzList)
 
 		def MarquersAndSectionsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -2025,7 +2016,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def MarquersAndTheirSectionsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -2354,7 +2345,7 @@ class stzString from stzObject
 			return This.NextMarquersQR(pnstartingAt, :stzList)
 
 		def NextMarquersQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -2447,7 +2438,7 @@ class stzString from stzObject
 			return This.NthNextMarquerAndItsPositionQR(n, pnStartingAt, pnStartingAt, :stzList)
 
 		def NthNextMarquerAndItsPositionQR(n, pnStartingAt, pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -2518,7 +2509,7 @@ class stzString from stzObject
 			return This.PreviousMarquersQR(pnstartingAt, :stzList)
 
 		def PreviousMarquersQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -2600,7 +2591,7 @@ class stzString from stzObject
 			return This.NthPreviousMarquerAndItsPositionQR(n, pnStartingAt, pcReturnType)
 
 		def NthPreviousMarquerAndItsPositionQR(n, pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -2691,7 +2682,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def ToSetOfCharsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -2964,7 +2955,7 @@ class stzString from stzObject
 			return This.NextNthCharQR(n, pnStartingAt, :stzString)
 
 		def NextNthCharQR(n, pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -2994,7 +2985,7 @@ class stzString from stzObject
 				return This.NthNextCharQR(:stzString)
 	
 			def NthNextCharQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -3024,7 +3015,7 @@ class stzString from stzObject
 			return This.NextCharQR(pnStartingAt, :stzString)
 
 		def NextCharQR(pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3082,7 +3073,7 @@ class stzString from stzObject
 			return This.PreviousNthCharQR(n, pnStartingAt, :stzString)
 
 		def PreviousNthCharQR(n, pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3112,7 +3103,7 @@ class stzString from stzObject
 				return This.NthPreviousCharQR(:stzString)
 	
 			def NthPreviousCharQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -3142,7 +3133,7 @@ class stzString from stzObject
 			return This.PreviousCharQR(pnStartingAt, :stzString)
 
 		def PreviousCharQR(pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3160,6 +3151,128 @@ class stzString from stzObject
 			other
 				stzRaise("Unsupported return type!")
 			off	
+		#>
+
+	  #---------------------------------------------#
+	 #  NEXT N CHARS STARTING AT A GIVEN POSITION  #
+	#---------------------------------------------#
+
+	def NextNChars(n, pnStartingAt)
+
+		# Checking params
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if isString(pnStartingAt)
+			if pnStartingAt = :First or pnStartingAt = :FirstChar
+				pnStartingAt = 1
+
+			but pnStartingAt = :Last or pnStartingAt = :LastChar
+				pnStartingAt = This.NumberOfChars()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			StzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+
+		if pnStartingAt < 0
+			pnStartingAt = This.NumberOfChars() - Abs(pnStartingAt) + 1
+		ok
+
+		# Doing the job
+
+		acResult = This.SectionQ(pnStartingAt, pnStartingAt + n - 1).Chars()
+
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def NextNCharsQ(n, pnStartingAt)
+			return This.NextNCharsQR(n, pnStartingAt, :stzList)
+
+		def NextNCharsQR(n, pnStartingAt, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NextNChars(n, pnStartingAt) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.NextNChars(n, pnStartingAt) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.NextNChars(n, pnStartingAt) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	  #-------------------------------------------------#
+	 #  PREVIOUS N CHARS STARTING AT A GIVEN POSITION  #
+	#-------------------------------------------------#
+
+	def PreviousNChars(n, pnStartingAt)
+
+		# Checking params
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if isString(pnStartingAt)
+			if pnStartingAt = :First or pnStartingAt = :FirstChar
+				pnStartingAt = 1
+
+			but pnStartingAt = :Last or pnStartingAt = :LastChar
+				pnStartingAt = This.NumberOfChars()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			StzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+
+		if pnStartingAt < 0
+			pnStartingAt = This.NumberOfChars() - Abs(pnStartingAt) + 1
+		ok
+
+		# Doing the job
+
+		acResult = This.SectionQ(pnStartingAt - n + 1, pnStartingAt).Chars()
+
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def PreviousNCharsQ(n, pnStartingAt)
+			return This.PreviousNCharsQR(n, pnStartingAt, :stzList)
+
+		def PreviousNCharsQR(n, pnStartingAt, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.PreviousNChars(n, pnStartingAt) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.PreviousNChars(n, pnStartingAt) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.PreviousNChars(n, pnStartingAt) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
 		#>
 
 	  #------------------------------#
@@ -4509,8 +4622,8 @@ class stzString from stzObject
 			return This[1]
 		ok
 
-		def RepeatedLeadingCharCSQR(pcReturnType, pCaseSensitive)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+		def RepeatedLeadingCharCSQR(pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -4530,28 +4643,28 @@ class stzString from stzObject
 		def LeadingRepeatedCharCS(pCaseSensitive)
 			return This.RepeatedLeadingCharCS(pCaseSensitive)
 
-			def LeadingRepeatedCharCSQR(pcReturnType, pCaseSensitive)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			def LeadingRepeatedCharCSQR(pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.RepeatedLeadingCharCSQR(pcReturnType, pCaseSensitive)
+				return This.RepeatedLeadingCharCSQR(pCaseSensitive, pcReturnType)
 
 			def LeadingRepeatedCharCSQ(pCaseSensitive)
-				return This.LeadingRepeatedCharQR(:stzChar, pCaseSensitive)
+				return This.LeadingRepeatedCharQR(pCaseSensitive, :stzChar)
 	
 		def LeadingCharCS(pCaseSensitive)
 			return This.RepeatedLeadingCharCS(pCaseSensitive)
 
-			def LeadingCharCSQR(pcReturnType, pCaseSensitive)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			def LeadingCharCSQR(pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.RepeatedLeadingCharCSQR(pcReturnType, pCaseSensitive)
+				return This.RepeatedLeadingCharCSQR(pCaseSensitive, pcReturnType)
 
 			def LeadingCharCSQ(pCaseSensitive)
-				return This.LeadingCharCSQR(:stzChar, pCaseSensitive)
+				return This.LeadingCharCSQR(pCaseSensitive, :stzChar)
 	
 	def NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
 		if This.HasRepeatedLeadingCharsCS(pCaseSensitive)
@@ -4623,7 +4736,7 @@ class stzString from stzObject
 			return This.RepeatedLeadingCharQR(:stzString)
 
 		def RepeatedLeadingCharQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -4646,7 +4759,7 @@ class stzString from stzObject
 				return This.LeadingRepeatedCharQR(:stzString)
 
 			def LeadingRepeatedCharQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -4659,7 +4772,7 @@ class stzString from stzObject
 				return This.LeadingCharQR(:stzString)
 
 			def LeadingCharQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -4728,8 +4841,8 @@ class stzString from stzObject
 		def RepeatedTrailingCharCSQ(pCaseSensitive)
 			return This.RepeatedTrailingCharCSQR(:stzString, pCaseSensitive)
 
-		def RepeatedTrailingCharCSQR(pcReturnType, pCaseSensitive)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+		def RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -4748,24 +4861,24 @@ class stzString from stzObject
 			return This.RepeatedTrailingCharCS(pCaseSensitive)
 
 			def TrailingRepeatedCharCSQ(pCaseSensitive)
-				return This.TrailingRepeatedCharQR(:stzString, pCaseSensitive)
+				return This.TrailingRepeatedCharQR(pCaseSensitive, :stzString)
 
-			def TrailingRepeatedCharCSQR(pcReturnType, pCaseSensitive)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			def TrailingRepeatedCharCSQR(pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.RepeatedTrailingCharCSQR(pcReturnType, pCaseSensitive)
+				return This.RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
 	
 		def TrailingCharCS(pCaseSensitive)
 			return This.RepeatedTrailingCharCS(pCaseSensitive)
 
-			def TrailingCharCSQR(pcReturnType, pCaseSensitive)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			def TrailingCharCSQR(pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.RepeatedTrailingCharCSQR(pcReturnType, pCaseSensitive)
+				return This.RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
 
 			def TrailingCharCSQ(pCaseSensitive)
 				return This.TrailingCharCSQR(:stzChar, pCaseSensitive)
@@ -4839,7 +4952,7 @@ class stzString from stzObject
 			return This.RepeatedTrailingCharQR(:stzString)
 
 		def RepeatedTrailingCharQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -4861,7 +4974,7 @@ class stzString from stzObject
 				return This.TrailingRepeatedCharQR(:stzString)
 
 			def TrailingRepeatedCharQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -4875,7 +4988,7 @@ class stzString from stzObject
 				return This.TrailingCharQR(:stzString)
 
 			def TrailingCharQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -6844,11 +6957,22 @@ class stzString from stzObject
 
 		# Managing the use of :From and :To named params
 
-		if isList(n1) and StzListQ(n1).IsFromNamedParam()
+		if isList(n1) and
+		   StzListQ(n1).IsOneOfTheseNamedParams([
+				:From, :FromPosition,
+				:StartingAt, :StartingAtPosition
+				])
+
 			n1 = n1[2]
 		ok
 
-		if isList(n2) and StzListQ(n2).IsToNamedParam()
+		if isList(n2) and
+		   StzListQ(n1).IsOneOfTheseNamedParams([
+				:To, :ToPosition,
+				:Until, :UntilPosition,
+				:UpTo, :UpToPosion
+				])
+
 			n2 = n2[2]
 		ok
 
@@ -7735,8 +7859,24 @@ class stzString from stzObject
 			This.InsertBefore(pWhere, pcSubStr)
 		ok
 
+		#< @FunctionFluentForm
+
+		def InsertQ(pcSubStr, pWhere)
+			This.Insert(pcSubStr, pWhere)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def InsertSubString(pcSubStr, pWhere)
 			This.Insert(pcSubStr, pWhere)
+
+			def InserSubStringQ(pcsubStr, pWhere)
+				This.InsertSubString(pcSubStr, pWhere)
+				return This
+		
+		#>
 
 	  #----------------------------------------------------#
 	 #    INSERTING A SUBSTRING BEFORE A GIVEN POSITION   #
@@ -8411,6 +8551,9 @@ class stzString from stzObject
 		
 		#>
 
+	def SubStringReplacedCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		return This.Copy().ReplaceSubStringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
+
 	#---
 
 	def ReplaceAll(pcSubStr, pcNewSubStr)
@@ -8453,6 +8596,9 @@ class stzString from stzObject
 				return This		
 		
 		#>
+
+	def SubStringReplaced(pcSubStr, pcNewSubStr)
+		return This.Copy().ReplaceSubStringQ(pcSubStr, pcNewSubStr).Content()
 
 	  #---------------------------------#
 	 #     REPLACING FRIST N CHARS     #
@@ -8633,6 +8779,9 @@ class stzString from stzObject
 		def ManyReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
 			return This.ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
 
+		def SubStringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+			return This.ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+
 	#-- WIHTOUT CASESENSITIVITY
 
 	def ReplaceMany(pacSubstr, pcNewSubstr)
@@ -8668,6 +8817,9 @@ class stzString from stzObject
 		return acResult
 
 		def ManyReplaced(pacSubstr, pNewSubstr)
+			return This.ManySubstringsReplaced(pacSubstr, pNewSubstr)
+
+		def SubStringsReplaced(pacSubstr, pNewSubstr)
 			return This.ManySubstringsReplaced(pacSubstr, pNewSubstr)
 
 	  #--------------------------------------------#
@@ -9335,7 +9487,7 @@ class stzString from stzObject
 				i = i + nLenSubStr
 	
 				if i > This.NumberOfChars() - n or
-				   This.NextNCharsCSQ(nLen, :StartingAt = i).IsDifferentFromCS(pcSubStr)
+				   This.NextNCharsQ(n, :StartingAt = i).IsNotEqualto(Q(pcSubStr).Chars())
 	
 					bContinue = FALSE
 				ok
@@ -9352,37 +9504,87 @@ class stzString from stzObject
 	 #  YIELDING CHARS STARTING AT A GIVEN POSITION UNTIL A CONDITION IS VERIFIED  #
 	#-----------------------------------------------------------------------------#
 
-	def YieldChars(pnStartingAt, pcUntilCondition)
+	def YieldXT(pcAction, pnStartingAt, pUptoOrUntil)
 		/* EXAMPLE
 	
-		o1 = new stzString("...12...1212...121212...")
-		? YieldChars( :StaringAt = 3, :Until = 'Q(@char).IsNotOneOfThese(["1","2"])' )
+		See examples in the same function in stzList
 	
 		*/
 	
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
+		if NOT isString(pcAction)
+			StzRaise("Incorrect param type! pcAction must be a string.")
 		ok
-	
-		if NOT isNumber(pnStartingAt)
-			StzRaise("Incorrect param type! pnStartingAt must be a number.")
-		ok
-	
-		if isList(pcUntilCondition) and Q(pcUntilCondition).IsUntilNamedParam()
-			pcUntilCondition = pcUntilCondition[2]
-		ok
-	
-		if NOT isString(pcUntilCondition)
-			StzRaise("Incorrect param type! pcUntilCondition must be a string.")
-		ok
-	
-		pcUntilCondition = 'NOT ( ' +
-			StzCCodeQ(pcUntilCondition).TranspiledFor(:stzList) + ' )'
 
-		acResult = This.CharsQ().YieldItems(pnStartingAt, pcUntilCondition)
-	
+		if isString(pnStartingAt)
+			pnStartingAt =  Q(pnStartingAt).
+					SubStringsReplacedCS( [ "char", "substring", "string" ],
+						:With = "item", :CS = FALSE)
+		ok
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsAPairOfStrings()
+			pnStartingAt[2] = Q(pnStartingAt[2]).
+					  SubStringsReplacedCS(
+						[ "char", "substring", "string" ],
+						:With = "item", :CS = FALSE)
+		ok
+
+		if isString(pUptoOrUntil)
+			pUptoOrUntil =  Q(pUptoOrUntil).
+					SubStringsReplacedCS(
+						[ "char", "substring", "string" ],
+						:With = "item", :CS = FALSE)
+		ok
+
+		if isList(pUptoOrUntil) and Q(pUptoOrUntil).IsAPairOfStrings()
+			pUptoOrUntil[2] = Q(pUptoOrUntil[2]).
+					  SubStringsReplacedCS(
+						[ "char", "substring", "string" ],
+						:With = "item", :CS = FALSE)
+		ok
+
+		cAction  = StzCCodeQ(pcAction).TranspiledFor(:stzList)
+		acResult = This.CharsQ().YieldXT(cAction, pnStartingAt, pUpToOrUntil)
 		return acResult
-	
+
+		#< @FunctionFluentForm
+
+		def YieldXTQ(pcAction, pnStartingAt, pUptoOrUntil)
+			return This.YieldXTQR(pcAction, pnStartingAt, pUptoOrUntil, :stzList)
+
+		def YieldXTQR(pcAction, pnStartingAt, pUptoOrUntil, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT ( isSting(pcReturnType) and Q(pcReturnType).IsStzClassName() )
+				StzRaise("Incorrect param type! pcReturnType must be a string containing a softanza class name.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
 	  #-------------------------------------------------------------------------#
 	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED  #
 	#-------------------------------------------------------------------------#
@@ -11735,10 +11937,10 @@ o1 = new stzString("12*34*56*78")
 		#< @FunctionFluentForms
 
 		def FindOccurrencesCSQ(panOccurr, pcSubStr, pCaseSensitive)
-				return This.FindOccurrencesCSQR(panOccurr, pcSubStr, :stzList, pCaseSensitive)
+				return This.FindOccurrencesCSQR(panOccurr, pcSubStr, pCaseSensitive, :stzList)
 				
-		def FindOccurrencesCSQR(panOccurr, pcSubStr, pcReturnType, pCaseSensitive)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAs(pcReturnType)
+		def FindOccurrencesCSQR(panOccurr, pcSubStr, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 		
@@ -11767,10 +11969,10 @@ o1 = new stzString("12*34*56*78")
 			return This.FindOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
 
 			def FindTheseOccurrencesCSQ(panOccurr, pcSubStr, pCaseSensitive)
-				return This.FindOccurrencesCSQR(panOccurr, pcSubStr, :stzList, pCaseSensitive)
+				return This.FindOccurrencesCSQR(panOccurr, pcSubStr, pCaseSensitive, :stzList)
 					
-			def FindTheseOccurrencesCSQR(panOccurr, pcSubStr, pcReturnType, pCaseSensitive)
-				return  This.FindOccurrencesCSQR(panOccurr, pcSubStr, pcReturnType, pCaseSensitive)
+			def FindTheseOccurrencesCSQR(panOccurr, pcSubStr, pCaseSensitive, pcReturnType)
+				return  This.FindOccurrencesCSQR(panOccurr, pcSubStr, pCaseSensitive, pcReturnType)
 	
 		#>
 
@@ -11797,7 +11999,7 @@ o1 = new stzString("12*34*56*78")
 				return This.FindOccurrencesQR(panOccurr, pcSubStr, :stzList)
 					
 			def FindTheseOccurrencesQR(panOccurr, pcSubStr, pcReturnType)
-				return  This.FindOccurrencesCSQR(panOccurr, pcSubStr, pcReturnType, pCaseSensitive)
+				return  This.FindOccurrencesCSQR(panOccurr, pcSubStr, pCaseSensitive, pcReturnType)
 	
 		#>
 
@@ -12260,13 +12462,13 @@ o1 = new stzString("12*34*56*78")
 		#< @FunctionFluentForm
 
 		def FindAllOccurrencesCSQ(pcSubStr, pCaseSensitive)
-				return This.FindAllOccurrencesCSQR(pcSubStr, :stzList, pCaseSensitive)
+				return This.FindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, :stzList)
 			
-		def FindAllOccurrencesCSQR(pcSubStr, pcReturnType, pCaseSensitive)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAs(pcReturnType)
+		def FindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
-	
+
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.FindAllOccurrencesCS(pcSubStr, pCaseSensitive) )
@@ -12291,64 +12493,64 @@ o1 = new stzString("12*34*56*78")
 			return This.FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
 
 			def FindCSQ(pcSubStr, pCaseSensitive)
-					return This.FindCSQR(pcSubStr, :stzList, pCaseSensitive)
+					return This.FindCSQR(pcSubStr, pCaseSensitive, :stzList)
 				
-			def FindCSQR(pcSubStr, pcReturnType, pCaseSensitive)
-				return This.FindAllOccurrencesCSQR(pcSubStr, pcReturnType, pCaseSensitive)
+			def FindCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def FindAllCS(pcSubStr, pCaseSensitive)
 			return This.FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
 
 			def FindAllCSQ(pcSubStr, pCaseSensitive)
-					return This.FindAllCSQR(pcSubStr, :stzList, pCaseSensitive)
+					return This.FindAllCSQR(pcSubStr, pCaseSensitive, :stzList)
 				
-			def FindAllCSQR(pcSubStr, pcReturnType, pCaseSensitive)
-				return This.FindAllOccurrencesCSQR(pcSubStr, pcReturnType, pCaseSensitive)
+			def FindAllCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def FindSubstringCS(pcSubStr, pCaseSensitive)
 			return This.FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
 
 			def FindSubstringCSQ(pcSubStr, pCaseSensitive)
-					return This.FindSubstringCSQR(pcSubStr, :stzList, pCaseSensitive)
+					return This.FindSubstringCSQR(pcSubStr, pCaseSensitive, :stzList)
 				
-			def FindSubstringCSQR(pcSubStr, pcReturnType, pCaseSensitive)
-				return This.FindAllOccurrencesCSQR(pcSubStr, pcReturnType, pCaseSensitive)
+			def FindSubstringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def OccurrencesCS(pcSubStr, pCaseSensitive)
 			return This.FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
 
 			def OccurrencesCSQ(pcSubStr, pCaseSensitive)
-					return This.OccurrencesCSQR(pcSubStr, :stzList, pCaseSensitive)
+					return This.OccurrencesCSQR(pcSubStr, pCaseSensitive, :stzList)
 				
-			def OccurrencesCSQR(pcSubStr, pcReturnType, pCaseSensitive)
-				return This.FindAllOccurrencesCSQR(pcSubStr, pcReturnType, pCaseSensitive)
+			def OccurrencesCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def PositionsCS(pcSubStr, pCaseSensitive)
 			return This.FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
 
 			def PositionsCSQ(pcSubStr, pCaseSensitive)
-					return This.PositionsCSQR(pcSubStr, :stzList, pCaseSensitive)
+				return This.PositionsCSQR(pcSubStr, pCaseSensitive, :stzList)
 				
-			def PositionsCSQR(pcSubStr, pcReturnType, pCaseSensitive)
-				return This.FindAllOccurrencesCSQR(pcSubStr, pcReturnType, pCaseSensitive)
+			def PositionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def PositionsOfSubStringCS(pcSubStr, pCaseSensitive)
 			return This.FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
 
 			def PositionsOfSubStringCSQ(pcSubStr, pCaseSensitive)
-					return This.PositionsOfSubStringCSQR(pcSubStr, :stzList, pCaseSensitive)
+					return This.PositionsOfSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
 				
-			def PositionsOfSubStringCSQR(pcSubStr, pcReturnType, pCaseSensitive)
-				return This.FindAllOccurrencesCSQR(pcSubStr, pcReturnType, pCaseSensitive)
+			def PositionsOfSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def FindPositionsCS(pcSubStr, pCaseSensitive)
 			return This.FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
 
 			def FindPositionsCSQ(pcSubStr, pCaseSensitive)
-					return This.FindPositionsCSQR(pcSubStr, :stzList, pCaseSensitive)
+					return This.FindPositionsCSQR(pcSubStr, pCaseSensitive, :stzList)
 				
-			def FindPositionsCSQR(pcSubStr, pcReturnType, pCaseSensitive)
-				return This.FindAllOccurrencesCSQR(pcSubStr, pcReturnType, pCaseSensitive)
+			def FindPositionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -12363,7 +12565,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindAllOccurrencesQR(pcSubStr, :stzList)
 		
 		def FindAllOccurrencesQR(pcSubStr, pcReturnType)
-				return This.FindAllOccurrencesCSQR(pcSubStr, pcReturnType, :CaseSensitive = TRUE)
+				return This.FindAllOccurrencesCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
 
 		#>
 
@@ -12840,6 +13042,54 @@ o1 = new stzString("12*34*56*78")
 
 	def FindLastSubStringW(pcCondition)
 		return This.FindNthCharW(:LastChar, pcCondition)
+
+	  #------------------------------------------------#
+	 #  FINDING SUBSTRINGS MADE OF A GIVEN SUBSTRING  #
+	#------------------------------------------------#
+
+	def FindMadeOfCS(pcSubStr, pCaseSensitive)
+		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
+		anPos = Q([ anPos[1]-2 ] + anPos).Flattened()
+
+		anResult = Q(anPos).
+			   YieldW('@NextNumber', ' ( @NextNumber - @CurrentNumber ) > 1 ')
+
+		return anResult
+
+		def FindSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def FindOccurrencesOfSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def FindAllSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def FindAllOccurrencesOfSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def PositionsOfubStringsMadeOfCS(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindMadeOf(pcSubStr)
+		return This.FindMadeOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringsMadeOf(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def FindOccurrencesOfSubStringsMadeOf(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def FindAllSubStringsMadeOf(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def FindAllOccurrencesOfSubStringsMadeOf(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def PositionsOfubStringsMadeOf(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
 
 	  #-----------------------------------------------------------------#
 	 #  FINDING ALL OCCURRENCES OF A CHAR VERIFYING A GIVEN CONDITION  #
@@ -13608,7 +13858,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 		def FindSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -13693,7 +13943,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindNthSectionCSQR(n, pcSubStr, pCaseSensitive, :stzList)
 
 		def FindNthSectionCSQR(n, pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -13742,7 +13992,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindFirstSectionCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 		def FindFirstSectionCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -13791,7 +14041,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindLastSectionCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 		def FindLastSectionCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -13890,7 +14140,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindBetweenCSQR(pcSubStr, pcBound1, pcBound2, pCaseSensitive, :stzList)
 
 			def FindBetweenCSQR(pcSubStr, pcBound1, pcBound2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -14133,7 +14383,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindSubstringSectionsBetweenCSQR(pcSubStr, pcBound1, pcbound2, pCaseSensitive, :stzList)
 
 			def FindSubstringSectionsBetweenCSQR(pcSubStr, pcBound1, pcbound2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -14173,7 +14423,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindSubstringSectionsBetweenQR(pcSubStr, pcBound1, pcbound2, :stzList)
 
 			def FindSubstringSectionsBetweenQR(pcSubStr, pcBound1, pcbound2, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -14331,7 +14581,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindNthSectionBetweenCSQR(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive, :stzList)
 
 			def FindNthSectionBetweenCSQR(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -14379,7 +14629,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindFirstSectionBetweenCSQR(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive, :stzList)
 
 			def FindFirstSectionBetweenCSQR(pcSubStr, pcBound1, pcbound2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -14430,7 +14680,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindLastSectionBetweenCSQR(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive, :stzList)
 
 			def FindLastSectionBetweenCSQR(pcSubStr, pcBound1, pcbound2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -14488,7 +14738,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindAnyBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 			def FindAnyBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -14633,7 +14883,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindAnySeparatedByCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def FindAnySeparatedByCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -14765,7 +15015,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindAnySectionSeparatedByCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def FindAnySectionSeparatedByCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -14974,7 +15224,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindAnySectionBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 		def FindAnySectionBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -15178,7 +15428,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SubstringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 		def SubstringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -15317,7 +15567,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SubStringsBetweenXTCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 		def SubStringsBetweenXTCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -20364,7 +20614,7 @@ o1 = new stzString("12*34*56*78")
 			return This.CentralCharQR(:stzChar)
 	
 		def CentralCharQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -21412,7 +21662,7 @@ o1 = new stzString("12*34*56*78")
 
 		def UnicodesQR(pcReturnType)
 			if isList(pcReturnType) and
-			   Q(pcReturnType).IsReturnAsNamedParam()
+			   Q(pcReturnType)IsReturnedAsNamedParam()
 
 				pcReturnType = pcReturnType[2]
 			ok
@@ -21491,7 +21741,7 @@ o1 = new stzString("12*34*56*78")
 		return acResult
 
 		def CharNamesQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -22706,7 +22956,7 @@ o1 = new stzString("12*34*56*78")
 			return This.CharsQR(:stzList)
 
 		def CharsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -22736,7 +22986,7 @@ o1 = new stzString("12*34*56*78")
 			#< @FunctionFluentForm
 
 			def ToListOfCharsQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -23204,7 +23454,7 @@ o1 = new stzString("12*34*56*78")
 		#>
 
 		def UniqueCharsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -23254,10 +23504,10 @@ o1 = new stzString("12*34*56*78")
 		#< @FunctionFluentForm
 		
 		def NthCharQ(n)
-			return This.NthCharQR(n, :stzString)
+			return This.NthCharQR(n, :stzChar)
 
 		def NthCharQR(n, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -23279,14 +23529,14 @@ o1 = new stzString("12*34*56*78")
 			return This.NthChar(n)
 
 			def CharAtQR(n, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
 				return This.NthCharQR(n, pcReturnType)
 	
 			def CharAtQ(n)
-				return This.CharAtQR(n, :stzString)
+				return This.CharAtQR(n, :stzChar)
 
 		def CharAtPosition(n)
 			return This.NthChar(n)
@@ -23295,7 +23545,7 @@ o1 = new stzString("12*34*56*78")
 				return This.CharAtQR(n, pcReturnType)
 
 			def CharAtPositionQ(n)
-				return This.CharAtPositionQR(n, :stzString)
+				return This.CharAtPositionQR(n, :stzChar)
 
 		def CharN(n)
 			return This.NthChar(n)
@@ -23304,7 +23554,7 @@ o1 = new stzString("12*34*56*78")
 				return CharAtQR(n, pcReturnType)
 	
 			def CharNQ(n)
-				return This.CharAtQR(n, :stzString)
+				return This.CharAtQR(n, :stzChar)
 
 		def Char(n)
 			return This.NthChar(n)
@@ -23313,7 +23563,7 @@ o1 = new stzString("12*34*56*78")
 				return CharAtQR(n, pcReturnType)
 	
 			def CharQ(n)
-				return This.CharAtQR(n, :stzString)
+				return This.CharAtQR(n, :stzChar)
 
 		#>
 
@@ -23409,7 +23659,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FirstCharQR(:stzString)
 
 		def FirstCharQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -23431,7 +23681,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SecondCharQR(:stzString)
 
 		def SecondCharQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNameSpace()
+			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNameSpace()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -23459,7 +23709,7 @@ o1 = new stzString("12*34*56*78")
 			return This.LastCharQR(:stzString)
 
 		def LastCharQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -23504,7 +23754,7 @@ o1 = new stzString("12*34*56*78")
 			return This.LeftCharQR(:stzString)
 
 		def LeftCharQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -23532,7 +23782,7 @@ o1 = new stzString("12*34*56*78")
 			return This.RightCharQR(:stzString)
 
 		def RightCharQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -23728,6 +23978,22 @@ o1 = new stzString("12*34*56*78")
 		else
 			stzRaise("You must provide a list of chars!")
 		ok
+
+	  #---------------------------------------------#
+	 #  CHECKING IF THE STRING IS MADE OF LETTERS  #
+	#---------------------------------------------#
+
+	def IsMadeOfLetters()
+		bResult = TRUE
+
+		for i = 1 to This.NumberOfChars()
+			if This.CharQ(i).IsNotALetter()
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
 
 	  #---------------------#
 	 #    MADE OF SPACES   #
@@ -25555,7 +25821,7 @@ o1 = new stzString("12*34*56*78")
 			return This.YieldQR(pcCode, :stzList)
 	
 		def YieldQR(pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -25587,7 +25853,7 @@ o1 = new stzString("12*34*56*78")
 				return This.YieldFromEachCharQR(pcCode, :stzList)
 		
 			def YieldFromEachCharQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -25615,7 +25881,7 @@ o1 = new stzString("12*34*56*78")
 				return This.YieldFromEachCharQR(pcCode, :stzList)
 		
 			def HarvestQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -25643,7 +25909,7 @@ o1 = new stzString("12*34*56*78")
 				return This.HarvestFromEachCharQR(pcCode, :stzList)
 		
 			def HarvestFromEachCharQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -25678,7 +25944,7 @@ o1 = new stzString("12*34*56*78")
 			return This.YieldFromQR(paPositions, pcCode, :stzList)
 	
 		def YieldFromQR(paPositions, pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -25707,7 +25973,7 @@ o1 = new stzString("12*34*56*78")
 				return This.YieldFromPositionsQR(paPositions, pcCode, :stzList)
 		
 			def YieldFromPositionsQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -25732,7 +25998,7 @@ o1 = new stzString("12*34*56*78")
 				return This.YieldFromCharsAtQR(paPositions, pcCode, :stzList)
 		
 			def YieldFromCharsAtQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -25757,7 +26023,7 @@ o1 = new stzString("12*34*56*78")
 				return This.YieldFromCharsAtPositionsQR(paPositions, pcCode, :stzList)
 		
 			def YieldFromCharsAtPositionsQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -25785,7 +26051,7 @@ o1 = new stzString("12*34*56*78")
 				return This.HarvestFromPositionsQR(paPositions, pcCode, :stzList)
 		
 			def HarvestFromPositionsQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -25810,7 +26076,7 @@ o1 = new stzString("12*34*56*78")
 				return This.HarvestFromCharsAtQR(paPositions, pcCode, :stzList)
 		
 			def HarvestFromCharsAtQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -25835,7 +26101,7 @@ o1 = new stzString("12*34*56*78")
 				return This.HarvestFromCharsAtPositionsQR(paPositions, pcCode, :stzList)
 		
 			def HarvestFromCharsAtPositionsQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -26077,7 +26343,7 @@ o1 = new stzString("12*34*56*78")
 				return This.YieldWQR(paPositions, pcCode, :stzList)
 		
 			def YieldWQR(pcCode, pcCondition, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -26109,7 +26375,7 @@ o1 = new stzString("12*34*56*78")
 				return This.HarvestWQR(pcCode, pcCondition, :stzList)
 
 			def HervestWQR(pcCode, pcCondition, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -27106,7 +27372,7 @@ o1 = new stzString("12*34*56*78")
 			return This.NumbersQR(:stzList)
 
 		def NumbersQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -27284,7 +27550,7 @@ o1 = new stzString("12*34*56*78")
 			return This.NumbersComingAfterCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 		def NumbersComingAfterCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 

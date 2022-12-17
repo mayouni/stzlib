@@ -257,7 +257,7 @@ class stzListOfNumbers from stzList
 			return This.MinQR(n, :stzNumber)
 
 		def MinQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -324,7 +324,7 @@ class stzListOfNumbers from stzList
 			return MinNumbersQR(n, :stzList)
 
 		def MinNumbersQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -352,7 +352,7 @@ class stzListOfNumbers from stzList
 				return This.NMinNumbersQR(n, :stzList)
 
 			def NMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -388,7 +388,7 @@ class stzListOfNumbers from stzList
 			return This.FindMinNumbersQR(n, :stzList)
 
 		def FindMinNumbersQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -416,7 +416,7 @@ class stzListOfNumbers from stzList
 				return This.FindNMinNumbersQR(n, :stzList)
 	
 			def FindNMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -441,7 +441,7 @@ class stzListOfNumbers from stzList
 				return This.PositionsOfMinNumbersQR(n, :stzList)
 	
 			def PositionsOfMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -466,7 +466,7 @@ class stzListOfNumbers from stzList
 				return This.MinNumbersPositionsQR(n, :stzList)
 	
 			def MinNumbersPositionsQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -491,7 +491,7 @@ class stzListOfNumbers from stzList
 				return This.PositionsOfNMinNumbersQR(n, :stzList)
 	
 			def PositionsOfNMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -516,7 +516,7 @@ class stzListOfNumbers from stzList
 				return This.NMinNumbersPositionsQR(n, :stzList)
 	
 			def NMinNumbersPositionsQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -547,7 +547,7 @@ class stzListOfNumbers from stzList
 			return This.MaxQR(n, :stzNumber)
 
 		def MaxQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -569,7 +569,7 @@ class stzListOfNumbers from stzList
 				return This.MaxNumberQR(n, :stzNumber)
 	
 			def MaxNumberQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -614,7 +614,7 @@ class stzListOfNumbers from stzList
 			return This.TopQR(n, :stzList)
 	
 		def TopQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -641,7 +641,7 @@ class stzListOfNumbers from stzList
 				return This.TopNumbersQR(n, :stzList)
 	
 			def TopNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -666,7 +666,7 @@ class stzListOfNumbers from stzList
 				return This.NTopNumbersQR(n, :stzList)
 	
 			def NTopNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -691,7 +691,7 @@ class stzListOfNumbers from stzList
 				return This.TopNNumbersQR(n, :stzList)
 	
 			def TopNNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -718,7 +718,7 @@ class stzListOfNumbers from stzList
 				return This.MaxNumbersQR(n, :stzList)
 	
 			def MaxNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -743,7 +743,7 @@ class stzListOfNumbers from stzList
 				return This.MaxNNumbersQR(n, :stzList)
 	
 			def MaxNNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -768,7 +768,7 @@ class stzListOfNumbers from stzList
 				return This.NMaxNumbersQR(n, :stzList)
 	
 			def NMaxNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -911,11 +911,11 @@ class stzListOfNumbers from stzList
 
 		anDifCopy = anDif
 
-		anDifCopy = sort(anDifCopy)
+		anDifCopy = ring_sort(anDifCopy)
 		#--> anDif = [  2, 5, 6, 8, 10, 13]
 		nMinDif = anDifCopy[1] #--> 2
 
-		nMinPos = find( anDif, nMinDif)
+		nMinPos = ring_find( anDif, nMinDif)
 
 		#--> anDif = [  10, 5, 6, 2, 13, 8 ]
 		#             ------------^--------
@@ -947,11 +947,11 @@ class stzListOfNumbers from stzList
 
 		anDifCopy = anDif
 
-		anDifCopy = sort(anDifCopy)
+		anDifCopy = ring_sort(anDifCopy)
 		#--> anDif = [  2, 5, 6, 8, 10, 13]
 		nMinDif = anDifCopy[len(anDifCopy)] #--> 13
 
-		nMinPos = find( anDif, nMinDif)
+		nMinPos = ring_find( anDif, nMinDif)
 
 		#--> anDif = [  10, 5, 6, 2, 13, 8 ]
 		#             ---------------^------
@@ -1199,7 +1199,7 @@ class stzListOfNumbers from stzList
 			return This.ClipQR(nMin, nMax, pcReturnType)
 
 		def ClipQR(nMin, nMax, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1229,7 +1229,7 @@ class stzListOfNumbers from stzList
 			return This.ReplaceSectionWithQR(n1, n2, n)
 
 		def ReplaceSectionWithQR(n1, n2, n)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1259,7 +1259,7 @@ class stzListOfNumbers from stzList
 			return This.CumulateQR()
 
 		def CumulateQR()
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1310,7 +1310,7 @@ class stzListOfNumbers from stzList
 			return This.UnicodesQR(:stzList)
 
 		def UnicodesQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1332,7 +1332,7 @@ class stzListOfNumbers from stzList
 				return This.CumulateQR(:stzList)
 
 			def OnlyUnicodesQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -2003,7 +2003,7 @@ class stzListOfNumbers from stzList
 
 		but pcOp = "-"
 			if isNumber(pValue)
-				anTemp = This.ToStzList().RemoveNthQ( find(This.ListOfStrings(), pValue) ).Content()
+				anTemp = This.ToStzList().RemoveNthQ( ring_find(This.ListOfStrings(), pValue) ).Content()
 				This.Update( anTemp )
 
 			but isList(pValue) and Q(pValue).IsListofNumbers()

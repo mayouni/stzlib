@@ -2459,7 +2459,7 @@ class stzNumber from stzObject
 
 		def MultiplesUntilQR(pOtherNumber, pcReturnType)
 
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3477,7 +3477,7 @@ class stzNumber from stzObject
 
 				# Reading the rounded fraction part
 				cFractionalPart = ""
-				for i = find(cTemNumber, ".") + 1 to len(cTempNumber)
+				for i = ring_find(cTemNumber, ".") + 1 to len(cTempNumber)
 					cFractionalPart += cTempNumber[i]
 				next
 			ok

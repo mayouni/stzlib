@@ -1,4 +1,3 @@
-load "softanzalib.ring"
 
 //@C = @("C") { OnItemAdded = 'dyn.Content() + "V"' }
 /*
@@ -140,7 +139,7 @@ class stzDynamicList from stzObject
 		
 	def ItemPosition(pItem)
 		if NOT IsActiveItem(pItem)
-			return find( Content(), pItem )
+			return ring_find( Content(), pItem )
 		else
  			pObj = GetActiveItemByContent(pItem.Content())
 			oTempList = new stzList( Content() )

@@ -111,6 +111,9 @@ func ring_type(p)
 func ring_reverse(paList)
 	return reverse(paList)
 
+func ring_sort(paList)
+	return sort(paList)
+
 func ring_methods(obj)
 	return methods(obj)
 

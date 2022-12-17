@@ -153,7 +153,7 @@ class stzWalker from stzList
 		return len( This.UnwalkedPositions() )
 
 	def IsWalkedPosition(n)
-		if find( This.WalkedPositions(), n) > 0
+		if ring_find( This.WalkedPositions(), n) > 0
 			return TRUE
 
 		else
@@ -161,7 +161,7 @@ class stzWalker from stzList
 		ok
 
 	def IsNotWalkedPosition(n)
-		if find( This.UnwalkedPositions(), n) > 0
+		if ring_find( This.UnwalkedPositions(), n) > 0
 			return TRUE
 
 		else

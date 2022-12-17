@@ -857,11 +857,11 @@ class stzChar from stzObject
 		return bResult
 
 	def IsGeneralPunctuation()
-		bResult = find( GeneralPunctuationUnicodes(), This.Unicode() ) > 0
+		bResult = ring_find( GeneralPunctuationUnicodes(), This.Unicode() ) > 0
 		return bResult
 
 	def IsSupplementalPunctuation()
-		bResult = find( SupplementalPunctuationUnicodes(), This.Unicode() ) > 0
+		bResult = ring_find( SupplementalPunctuationUnicodes(), This.Unicode() ) > 0
 		return bResult
 
 	def IsSymbol()
@@ -872,12 +872,12 @@ class stzChar from stzObject
 			return FALSE
 		ok
 
-		# TODO: A quicker solution would be possible if we create a globalS
+		# TODO: A quicker solution would be possible if we create a global
 		# name _anSymbolUnicodes = [ ... ] with the decimal unicode numbers
 		# of the Symbols Block in Unicode.
 
 		# And then we use, like in IsPunctuation() function above, the Ring
-		# find( SymbolUnicodes(), This.Unicode() ) to get the result.
+		# ring_find( SymbolUnicodes(), This.Unicode() ) to get the result.
 
 
 	def IsNonChar()
@@ -891,12 +891,12 @@ class stzChar from stzObject
 			return FALSE
 		ok
 
-		# TODO: A quicker solution would be possible if we create a globalS
+		# TODO: A quicker solution would be possible if we create a global
 		# name _anMarkUnicodes = [ ... ] with the decimal unicode numbers
 		# of the Symbols Block in Unicode.
 
 		# And then we use, like in IsPunctuation() function above, the Ring
-		# find( MarkUnicodes(), This.Unicode() ) to get the result.
+		# ring_find( MarkUnicodes(), This.Unicode() ) to get the result.
 
 
 	def IsSeparator() # In the UNICODE sense!
@@ -907,12 +907,12 @@ class stzChar from stzObject
 			return FALSE
 		ok
 
-		# TODO: A quicker solution would be possible if we create a globalS
+		# TODO: A quicker solution would be possible if we create a global
 		# name _anSeparatorUnicodes = [ ... ] with the decimal unicode numbers
 		# of the Symbols Block in Unicode.
 
 		# And then we use, like in IsPunctuation() function above, the Ring
-		# find( SeparatorUnicodes(), This.Unicode() ) to get the result.
+		# ring_find( SeparatorUnicodes(), This.Unicode() ) to get the result.
 
 
 	def IsOneOfThese(paChars)
@@ -2334,7 +2334,7 @@ class stzChar from stzObject
 		ok
 
 	def IsTurnedChar()
-		if find(TurnedChars(), This.Content()) > 0
+		if ring_find(TurnedChars(), This.Content()) > 0
 			return TRUE
 		else
 			return FALSE

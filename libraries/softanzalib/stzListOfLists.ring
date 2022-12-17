@@ -379,7 +379,7 @@ class stzListOfLists from stzList
 			return This.ItemsAtPositionNQR(n, :stzList)
 
 		def ItemsAtPositionsNQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 

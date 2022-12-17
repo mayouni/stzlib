@@ -1,5 +1,24 @@
 load "stzlib.ring"
 
+/*-----------------
+
+o1 = new stzString("12345")
+
+? o1.Section(2, 4)
+#--> "234"
+
+? o1.Section(2, -2)
+#--> "234"
+
+? o1.Section(:First, :Last)
+#--> "12345"
+
+? o1.Section(3, :@)
+#--> "3"
+
+? o1.Section(:@, 3)
+#--> "3"
+
 /*----------
 
 o1 = new stzString("123456")
@@ -148,7 +167,7 @@ o1 = new stzString("ABC")
 #--> [ "A", "AB", "B", "ABC", "C", "BC" ]
 
 /*------------------
-*/
+
 o1 = new stzString("*#!ABC$^..")
 ? o1.NumberOfSubStrings()
 #--> 55
@@ -156,22 +175,65 @@ o1 = new stzString("*#!ABC$^..")
 ? o1.SubStringsW(' Q(@SubString).IsMadeOfLetters() ')
 #--> #--> [ "A", "AB", "B", "ABC", "C", "BC" ]
 
-STOP()
+/*==================
+
+o1 = new stzString("..34..789..")
+? o1.YieldXT( '@char', :StartingAt = 9, :UpTo = :LastItem ) # or :Until = :LastChar
+#--> [ "9", ".", "." ]
+
+? o1.YieldXT( '@char', :StartingAt = 7, :Until = ' @char = "." ' ) # The "." is not yielded
+#--> "789"
+
+? o1.YieldXT( '@char', :StartingAt = 7, :UntilXT = ' @char = "." ' ) # The "."  is yielded
+#--> "789."
+
+/*==================
+
+o1 = new stzList([ ".",".",".","4","5","6",".",".","." ])
+? o1.NextNItems(3, :StartingAtPosition = 4)
+#--> [ "4", "5", "6" ]
+
+? o1.PreviousNItems(3, :StartingAtPosition = 6)
+#--> [ "4", "5", "6" ]
+
 /*------------------
 
-o1 = new stzString("...12...1212...121212...")
-? o1.YieldChars( :StartingAt = 4, :Until = ' @char = "." ' )
-? o1.YieldChars( :StartingAt = 4, :Until = ' Q(@char).IsNotOneOfThese(["1","2"]) ' )
+o1 = new stzString("...456...")
+? o1.NextNChars(3, :StartingAtPosition = 4)
+#--> [ "4", "5", "6" ]
 
-? o1.YieldU( :Until = ' @char = "." ' )
+? o1.PreviousNChars(3, :StartingAtPosition = 6)
+#--> [ "4", "5", "6" ]
+
+
+/*==================
+*/                 
+o1 = new stzString("...12..1212..121212...")
+? @@S( o1.FindMadeOf("12") )
+#--> [ 4, 8, 10, 14, 16, 18 ]
+
+o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
+? o1.SplitW('@CurrentItem = "*"')
+
+stop()
+/*
+? o1.Findall("12")
+
+? o1.FindMadeOf("12")
+
+? o1.SubStringsMadeOf("12")
 
 STOP()
-/*-----------------
-
+/*
 o1 = new stzString("..._...__...___...")
+? @@S( o1.FindALL("_") )
+#--> [ 4, 8, 9, 13, 14, 15 ]
+
+? @@S( o1.FindSubstringsMadeOf("_") )
+#--> [ 4, 8, 13 ]
+
 ? o1.SubStringsMadeOf("_")
 #--> [ "_", "__", "___" ]
-
 
 STOP()
 

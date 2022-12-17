@@ -1,23 +1,71 @@
 load "stzlib.ring"
 
-o1 = new stzString("12345")
+
+/*-----------------
+
+o1 = new stzList([ ".",".",".","4","5","6",".",".","." ])
+? o1.NextNItems(3, :StartingAtPosition = 4)
+#--> [ "4", "5", "6" ]
+
+? o1.PreviousNItems(3, :StartingAtPosition = 6)
+#--> [ "4", "5", "6" ]
+
+/*=================
+
+o1 = new stzList([ 7, 3, 3, 10, 8, 8 ])
+
+? o1.Smallest() #--> 3
+? o1.Largest() #--> 10
+
+? @@S( o1.FindSmallest() ) #--> [2, 3]
+? o1.NumberOfOccurrencesOfSmallestItem() #--> 2
+# or more simply
+? o1.NumberOfSmallest() #--> 2
+
+? @@S( o1.FindLargest() ) #--> [ 4 ]
+
+? o1.NthSmallest(3) #--> 8
+? @@S( o1.FindNthSmallest(3) ) #--> [ 5, 6 ]
+
+/*=================
+
+o1 = new stzList([ ".", ".", "3", "4", ".", ".", "7", "8", "9", ".", "." ])
+
+//? o1.YieldXT( '@item', :FromPosition = 4, :To = -3)
+#--> [ ".", ".", "7", "8", "9" ]
+
+? o1.YieldXT( '@char', :StartingAt = 3, :Until = ' @item = "." ' )
+#--> [ "3", "4" ]
+
+? o1.YieldXT( '@char', :StartingAt = 3, :UntilXT = ' @item = "." ' )
+#--> [ "3", "4", "." ]
+
+
+/*=================
+
+? @@S( Q([ "AB", 12, ["A", "B"] ]).TypesXT() )
+#--> [ [ "AB", "STRING" ], [ 12, "NUMBER" ], [ [ "A", "B" ], "LIST" ] ]
+
+/*-----------------
+
+o1 = new stzList(["1","2","3","4","5"])
 
 ? o1.Section(2, 4)
-#--> "234"
+#--> [ "2","3","4" ]
 
 ? o1.Section(2, -2)
-#--> "234"
+#--> [ "2","3","4" ]
 
 ? o1.Section(:First, :Last)
-#--> "12345"
+#--> ["1","2","3","4","5"]
 
 ? o1.Section(3, :@)
-#--> "3"
+#--> [ "3" ]
 
 ? o1.Section(:@, 3)
-#--> "3"
+#--> [ "3" ]
 
-STOP()
+
 /*-----------------
 
 o1 = new stzList([ "T", "A", "Y", "O", "U", "B", "T", "A" ])
@@ -671,7 +719,7 @@ o1 = new stzList([
 /*=================
 
 ? StzStringQ(:stzList).IsStzClassName() #--> TRUE
-? StzListQ( :ReturnedAs = :stzList ).IsReturnedAsNamedParam() #--> TRUE
+? StzListQ( :ReturnedAs = :stzList ).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ]) #--> TRUE
 
 /*-----------------
 
@@ -1277,45 +1325,41 @@ o1 = new stzList([ "A", "m", "n", "B", "A", "x", "C", "z", "B" ])
 ? o1.ItemsW( :Where = 'Q(@item).IsAnUppercase()')
 # --> [ "A", "B", "A", "C", "B" ]
 
-? o1.ItemsPositionsW('Q(@item).IsUppercase()') # Say also o1.FindItemsW(...)
+? o1.ItemsPositionsW('Q(@item).IsUppercase()') # Say also o1.FindItemsW(...) or .FindW(...)
 # --> [ 1, 4, 5, 7, 9 ]
 
 ? o1.ItemsAndTheirPositionsW('Q(@item).IsUppercase()')
 # --> [ "A" = [1, 5], "B" = [4, 9], "C" = [7] ]
 
-/*---------------------
-
+/*=========================
+*/
 # Finding positions where next number is double of previous number
 o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
 ? o1.FindW( '{ Q( @NextNumber ).IsDoubleOf( @PreviousNumber ) }' )
 # --> [ 8, 11 ]
 
-# that you can alse write like this:
-? o1.FindW( '{ Q( @NextItem ).IsDoubleOf( @PreviousItem ) }' )
+# that you can also write like this:
+? o1.FindW( :Where = '{ Q( @NextItem ).IsDoubleOf( @PreviousItem ) }' )
 # --> [ 8, 11 ]
 
 # or like this:
-? o1.FindW( '{ Q( This[@i+1] ).IsDoubleOf( This[@i-1] ) }' ) # --> [ 8, 11 ]
-
-/*---------------------
+? o1.FindWhere( '{ Q( This[@i+1] ).IsDoubleOf( This[@i-1] ) }' )
+# --> [ 8, 11 ]
 
 # Finding positions where current item is equal to next item
 o1 = new stzList([ 2, 8, 2, 2, 11, 2, 11, 7, 7, 4, 2, 1, 3, 2, 10, 8, 3, 3, 3, 6, 8 ])
 ? o1.FindW( '{ @Number = @NextNumber }' ) # --> [ 3, 8, 17, 18 ]
 
-/*---------------------
-
 # Finding positions where current item is equal to next item
 
 o1 = new stzList([ "A", "B", "B", "C", "D", "D", "D", "E" ])
-? o1.FindWhere('{ This[@i] = This[@i+1] }') # --> [ 2, 5, 6 ]
+? o1.FindW( '{ This[@i] = This[@i+1] }' ) # --> [ 2, 5, 6 ]
 
-/*---------------------
-*/
 # Finding positions where previous 3rd item is equal to next 3rd item
 
 o1 = new stzList( [ 0, 8, 0, 0, 1, 8, 0, 0 ] )
-? o1.FindW('{ This[ @i - 3 ] = This[ @i + 3 ] }') # --> 4
+? @@S( o1.FindW('{ This[ @i - 3 ] = This[ @i + 3 ] }') ) #--> [ 4 ]
+
 
 /*---------------------
 

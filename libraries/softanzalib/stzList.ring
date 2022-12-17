@@ -535,8 +535,6 @@ class stzList from stzObject
 			but Q(n).Lowercased() = "last"
 				n = This.NumberOfItems()
 
-			else
-				n = 0
 			ok
 		ok
 
@@ -602,7 +600,7 @@ class stzList from stzObject
 
 		def NFirstItemsQR(n, pcReturnType)
 			if isList(pcReturnType) and
-			   Q(pcReturnType).IsReturnAsNamedParam()
+			   Q(pcReturnType)IsReturnedAsNamedParam()
 
 				pcReturnType = pcReturnType[2]
 			ok
@@ -642,7 +640,7 @@ class stzList from stzObject
 
 		def NLastItemsQR(n, pcReturnType)
 			if isList(pcReturnType) and
-			   Q(pcReturnType).IsReturnAsNamedParam()
+			   Q(pcReturnType)IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -672,6 +670,153 @@ class stzList from stzObject
 
 			def LastNItemsQR(n, pcReturnType)
 				return This.NLastItemsQR(n, pcReturnType)
+
+	  #---------------------------------------------#
+	 #  NEXT N ITEMS STARTING AT A GIVEN POSITION  #
+	#---------------------------------------------#
+
+	def NextNItems(n, pnStartingAt)
+
+		# Checking params
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if isString(pnStartingAt)
+			if pnStartingAt = :First or pnStartingAt = :FirstItem
+				pnStartingAt = 1
+
+			but pnStartingAt = :Last or pnStartingAt = :LastItem
+				pnStartingAt = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			StzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+
+		if pnStartingAt < 0
+			pnStartingAt = This.NumberOfItems() - Abs(pnStartingAt) + 1
+		ok
+
+		# Doing the job
+
+		acResult = This.SectionQ(pnStartingAt, pnStartingAt + n - 1).Items()
+
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def NextNItemsQ(n, pnStartingAt)
+			return This.NextNItemsQR(n, pnStartingAt, :stzList)
+
+		def NextNItemsQR(n, pnStartingAt, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NextNItems(n, pnStartingAt) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.NextNItems(n, pnStartingAt) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.NextNItems(n, pnStartingAt) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.NextNItems(n, pnStartingAt) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.NextNItems(n, pnStartingAt) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.NextNItems(n, pnStartingAt) )
+
+			on :stzListOfObjects
+				return new stzListOfObjects( This.NextNItems(n, pnStartingAt) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	  #-------------------------------------------------#
+	 #  PREVIOUS N CHARS STARTING AT A GIVEN POSITION  #
+	#-------------------------------------------------#
+
+	def PreviousNItems(n, pnStartingAt)
+
+		# Checking params
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if isString(pnStartingAt)
+			if pnStartingAt = :First or pnStartingAt = :FirstItem
+				pnStartingAt = 1
+
+			but pnStartingAt = :Last or pnStartingAt = :LastItem
+				pnStartingAt = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			StzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+
+		if pnStartingAt < 0
+			pnStartingAt = This.NumberOfItems() - Abs(pnStartingAt) + 1
+		ok
+
+		# Doing the job
+
+		acResult = This.SectionQ(pnStartingAt - n + 1, pnStartingAt).Items()
+
+		return acResult
+
+
+		#< @FunctionFluentForm
+
+		def PreviousNItemsQ(n, pnStartingAt)
+			return This.PreviousNItemsQR(n, pnStartingAt, :stzList)
+
+		def PreviousNItemsQR(n, pnStartingAt, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.PreviousNItems(n, pnStartingAt) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.PreviousNItems(n, pnStartingAt) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.PreviousNItems(n, pnStartingAt) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.PreviousNItems(n, pnStartingAt) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.PreviousNItems(n, pnStartingAt) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.PreviousNItems(n, pnStartingAt) )
+
+			on :stzListOfObjects
+				return new stzListOfObjects( This.PreviousNItems(n, pnStartingAt) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
 
 	  #--------------------#
 	 #      UPDATING      #
@@ -816,7 +961,7 @@ class stzList from stzObject
 	 #     INSERTING AN ITEM BEFORE A GIVEN POSITION     #
 	#===================================================#
 
-	def Insert( pItem, pWhere )
+	def Insert(pItem, pWhere)
 
 		if isList(pItem) and Q(pItem).IsItemNamedParam()
 			pItem = pItem[2]
@@ -838,8 +983,23 @@ class stzList from stzObject
 			This.InsertBefore(pWhere, pItem)
 		ok
 
+		#< @FunctionFluentForm
+
+		def InsertQ(pItem, pWhere)
+			This.Insert( pItem, pWhere )
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def InsertItem(pItem, pWhere)
 			This.Insert(pItem, pWhere)
+
+			def InsertItemQ(pItem, pWhere)
+				This.InsertItem(pItem, pWhere)
+				return This
+		#>
 
 	def InsertBeforePosition(n, pItem)
 		if isList(n) and Q(n).IsPositionNamedParam()
@@ -2540,7 +2700,7 @@ class stzList from stzObject
 	def ReplaceEachItemInRange(n, nRange, pNewItem)
 
 		anSection = RangeToSection([ n, nRange ])
-		anPositions = sort( StzListOfPairsQ(anSection).ExpandedIfPairsOfNumbers() )
+		anPositions = ring_sort( StzListOfPairsQ(anSection).ExpandedIfPairsOfNumbers() )
 
 		This.ReplaceItemsAtThesePositions(anPositions, pNewItem)
 
@@ -5809,7 +5969,7 @@ class stzList from stzObject
 			return This.YieldQR(pcCode, :stzList)
 	
 		def YieldQR(pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -5844,7 +6004,7 @@ class stzList from stzObject
 				return This.YieldFromEachItemQR(pcCode, :stzList)
 		
 			def YieldFromEachItemQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5872,7 +6032,7 @@ class stzList from stzObject
 				return This.YieldFromEachItemQR(pcCode, :stzList)
 		
 			def HarvestQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5900,7 +6060,7 @@ class stzList from stzObject
 				return This.HarvestFromEachItemQR(pcCode, :stzList)
 		
 			def HarvestFromEachItemQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -5936,7 +6096,7 @@ class stzList from stzObject
 			return []
 		ok
 
-		panPositions = sort(panPositions)
+		panPositions = ring_sort(panPositions)
 
 		if NOT isString(pcCode)
 			StzRaise("Invalid param type! Condition must be a string.")
@@ -5989,7 +6149,7 @@ class stzList from stzObject
 			return This.YieldFromQR(paPositions, pcCode, :stzList)
 	
 		def YieldFromQR(paPositions, pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6018,7 +6178,7 @@ class stzList from stzObject
 				return This.YieldFromPositionsQR(paPositions, pcCode, :stzList)
 		
 			def YieldFromPositionsQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6043,7 +6203,7 @@ class stzList from stzObject
 				return This.YieldFromItemsAtQR(paPositions, pcCode, :stzList)
 		
 			def YieldFromItemsAtQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6068,7 +6228,7 @@ class stzList from stzObject
 				return This.YieldFromItemsAtPositionsQR(paPositions, pcCode, :stzList)
 		
 			def YieldFromItemsAtPositionsQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6096,7 +6256,7 @@ class stzList from stzObject
 				return This.HarvestFromQR(paPositions, pcCode, :stzList)
 		
 			def HarvestFromQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6121,7 +6281,7 @@ class stzList from stzObject
 				return This.HarvestFromPositionsQR(paPositions, pcCode, :stzList)
 		
 			def HarvestFromPositionsQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6146,7 +6306,7 @@ class stzList from stzObject
 				return This.HarvestFromItemsAtQR(paPositions, pcCode, :stzList)
 		
 			def HarvestFromItemsAtQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6171,7 +6331,7 @@ class stzList from stzObject
 				return This.HarvestFromItemsAtPositionsQR(paPositions, pcCode, :stzList)
 		
 			def HarvestFromItemsAtPositionsQR(paPositions, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6216,7 +6376,7 @@ class stzList from stzObject
 			return This.YieldFromSectionsQR(paPositions, pcCode, :stzList)
 	
 		def YieldFromSectionsQR(paPositions, pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6476,7 +6636,7 @@ class stzList from stzObject
 				return This.YieldWQR(paPositions, pcCode, :stzList)
 		
 			def YieldWQR(pcCode, pcCondition, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6508,7 +6668,7 @@ class stzList from stzObject
 				return This.HarvestWQR(pcCode, pcCondition, :stzList)
 
 			def HervestWQR(pcCode, pcCondition, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -6580,6 +6740,10 @@ class stzList from stzObject
 	
 		return aResult
 
+
+		def HarvestItems(pnStartingAt, pcUntilCondition)
+			return This.YieldItems(pnStartingAt, pcUntilCondition)
+
 	  #-------------------------------------------------#
 	 #  YIELDING AND ACCUMULATING VALUES ON EACH ITEM  #
 	#-------------------------------------------------#
@@ -6596,8 +6760,22 @@ class stzList from stzObject
 
 		return This.YieldAndCumulateXT(pcCode, :ReturnLast = FALSE)
 
+		#< @FunctionFluentForm
+
 		def YieldAndCumulateQ(pcCode)
 			return new stzList(This.YieldAndCumulate(pcCode))
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def HarvestAndCumulate(pcAction, paReturnLast)
+			return This.YieldAndCumulate(pcAction, paReturnLast)
+
+			def HarvestAndCumulateQ(pcAction, paReturnLast)
+				This.YieldAndCumulateQ(pcAction, paReturnLAst)
+
+		#>
 
 	  #-------------------------------------------------------------#
 	 #  YIELDING AND ACCUMULATING VALUES ON EACH ITEM -- EXTENDED  #
@@ -6648,8 +6826,167 @@ class stzList from stzObject
 			return aCumulated
 		ok
 
+		#< @FunctionFluentForm
+
 		def YieldAndCumulateXTQ(pcAction, paReturnLast)
 			return Q(This.YieldAndCumulateXT(pcAction, paReturnLast))
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def HarvestAndCumulateXT(pcAction, paReturnLast)
+			return This.YieldAndCumulateXT(pcAction, paReturnLast)
+
+			def HarvestAndCumulateXTQ(pcAction, paReturnLast)
+				This.YieldAndCumulateXTQ(pcAction, paReturnLAst)
+
+		#>
+
+	  #---------------------------------------------------------------------------#
+	 #   YIELDING INFORMATION ON ITEMS VERIFYiNG A GIVEN CONDITION -- EXTENDED   #
+	#---------------------------------------------------------------------------#
+
+	def YieldXT(pcAction, pnStartingAt, pUptoOrUntil) // TODO: Add PerformXT()
+		/* EXAMPLE 1
+
+		o1 = new stzList([ ".", ".", "3", "4", ".", ".", "7", "8", "9", ".", "." ])
+
+		? o1.YieldXT( '@item', :StartingAt = 9, :UpTo = :LastItem)
+		#--> [ "9", ".", "." ]
+
+		EXAMPLE 2
+
+		? o1.YieldXT( '@char', :StartingAt = 3, :Until = ' @char = "." ' )
+		#--> [ "3", "4" ]
+
+		EXAMPLE 3
+
+		? o1.YieldXT( '@char', :StartingAt = 4, :UntilXT = ' @char = "." ' )
+		#--> [ "3", "4", "." ]
+
+		*/
+
+		# Checking params correctness
+
+		if isList(pnStartingAt) and
+		   Q(pnStartingAt).IsOneOfTheseNamedParams([
+				:From, :FromPosition,
+				:StartingAt, :StartingAtPosition
+			])
+
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if NOT IsNumberOrString(pnStartingAt)
+			StzRaise("Incorrect param type! pnStartingAt must be a number or string.")
+		ok
+
+		cOption = :Upto
+
+		if isList(pUptoOrUntil) and
+		   Q(pUptoOrUntil).IsOneOfTheseNamedParams([
+					:To, :ToPosition, :UpTo, :UpToPosition
+				])
+
+			pUptoOrUntil = pUptoOrUntil[2]
+
+			if NOT IsNumberOrString(pUptoOrUntil)
+				StzRaise("Incorrect param type! pUptoOrUntil must be a number or string.")
+			ok
+		ok
+
+		if isList(pUptoOrUntil) and Q(pUptoOrUntil).IsOneOfTheseNamedParams([ :Until, :UntilXT ])
+			cOption = pUptoOrUntil[1]
+			pUptoOrUntil = pUptoOrUntil[2]
+
+			if isNumber(pUptoOrUntil)
+				cOption = :UpTo
+
+			else
+				if NOT isstring(pUptoOrUntil)
+					StzRaise("Incorrect param type! pUptoOrUntil must be a string.")
+				ok
+			ok
+		ok
+
+		# Doing the job
+
+		aResult = []
+
+		switch cOption
+		on :UpTo
+			/* EXAMPLE 1
+			o1 = new stzList([ ".", ".", "3", "4", ".", ".", "7", "8", "9", ".", "." ])
+			? o1.YieldXT( '@item', :StartingAt = 9, :UpTo = :LastItem)
+			#--> [ "9", ".", "." ]
+			*/
+
+			pUpto = pUptoOrUntil
+
+			aResult = This.SectionQ(pnStartingAt, pUpto).Yield(pcAction)
+
+		on :Until
+			/* EXAMPLE 2
+			? o1.YieldXT( '@char', :StartingAt = 3, :Until = ' @char = "." ' )
+			#--> [ "3", "4" ]
+			*/
+
+			cCondition = pUptoOrUntil
+
+			aResult = []
+
+			for @i = pnStartingAt to This.NumberOfItems()
+				@item = This[@i]
+
+				cCode = 'bStopHere = ( ' + cCondition + ' )'
+				eval(cCode)
+
+				if NOT bStopHere
+					aResult + @item
+				else
+					exit
+				ok
+			next
+
+		on :UntilXT
+			cCondition = pUptoOrUntil
+
+			aResult = []
+
+			for @i = pnStartingAt to This.NumberOfItems()
+				@item = This[@i]
+
+				cCode = 'bStopHere = ( ' + cCondition + ' )'
+				eval(cCode)
+
+				aResult + @item
+
+				if bStopHere
+					exit
+				ok
+			next
+
+		off
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def YieldXTQ(pcAction, pnStartingAt, pUptoOrUntil)
+			return new stzList( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def HarvestXT(pcAction, pnStartingAt, pUptoOrUntil)
+			return This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil)
+
+			def HarvestXTQ(pcAction, pnStartingAt, pUptoOrUntil)
+				return This.YieldXTQ(pcAction, pnStartingAt, pUptoOrUntil)
+
+		#>
 
 	  #=======================================#
 	 #   PERFORMING AN ACTION ON EACH ITEM   #
@@ -6683,7 +7020,7 @@ class stzList from stzObject
 			return This
 
 		def PerformQR(pcAction, pcReturnType)
-			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if IsList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6816,7 +7153,7 @@ class stzList from stzObject
 			return This
 
 		def PerformOnQR(panPositions, pcCode)
-			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if IsList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6854,7 +7191,7 @@ class stzList from stzObject
 				return This
 	
 			def PerformOnPositionsQR(panPositions, pcCode, pcReturnType)
-				if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if IsList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6892,7 +7229,7 @@ class stzList from stzObject
 				return This
 
 			def PerformOnThesePositionsQR(panPositions, pcCode, pcReturnType)
-				if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if IsList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -6959,7 +7296,7 @@ class stzList from stzObject
 			return This
 
 		def PerformOnSectionsQR(paSections, pcCode, pcReturnType)
-			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if IsList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6997,7 +7334,7 @@ class stzList from stzObject
 				return This
 
 			def PerformOnTheseSectionsQR(paSections, pcCode, pcReturnType)
-				if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if IsList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -7065,7 +7402,7 @@ class stzList from stzObject
 			return This
 
 		def PerformWQR(pcAction, pcCondition, pcReturnType)
-			if IsList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if IsList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -7479,7 +7816,7 @@ class stzList from stzObject
 			return This.ClassifyQR(:stzList)
 
 		def ClassifyQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -7505,7 +7842,7 @@ class stzList from stzObject
 				return This.CategorizeQR(:stzList)
 	
 			def CategorizeQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -7528,7 +7865,7 @@ class stzList from stzObject
 				return This.CategoriseQR(:stzList)
 	
 			def CategoriseQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -7560,7 +7897,7 @@ class stzList from stzObject
 			return This.ClassesQR(:stzList)
 
 		def ClassesQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -7585,7 +7922,7 @@ class stzList from stzObject
 				return This.ClassesQR(:stzList)
 	
 			def CategoriesQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -7701,7 +8038,7 @@ class stzList from stzObject
 			return This.Classify@CQR(:stzList)
 
 		def Classify@CQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -7727,7 +8064,7 @@ class stzList from stzObject
 				return This.Categorize@CQR(:stzList)
 	
 			def Categorize@CQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -7750,7 +8087,7 @@ class stzList from stzObject
 				return This.Categorise@CQR(:stzList)
 	
 			def Categorise@CQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -7783,7 +8120,7 @@ class stzList from stzObject
 			return This.Classes@CQR(:stzList)
 
 		def Classes@CQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -7808,7 +8145,7 @@ class stzList from stzObject
 				return This.Classes@CQR(:stzList)
 	
 			def Categories@CQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -8187,9 +8524,9 @@ class stzList from stzObject
 			Softanza becomes able to sort even lists  and objects!
 		*/
 
-		aNumbers = sort( This.OnlyNumbers() )
+		aNumbers = ring_sort( This.OnlyNumbers() )
 
-		aStrings = sort( This.OnlyStrings() )
+		aStrings = ring_sort( This.OnlyStrings() )
 
 		aLists = This.OnlyLists()
 
@@ -8203,6 +8540,12 @@ class stzList from stzObject
 			This.SortInAscending()
 			return This
 		
+		def Sort()
+			This.SortInAscending()
+
+			def SortQ()
+				return This.SortInAscendingQ()
+
 	  #------------------------------------#
 	 #  SORTING THE STRING IN DESCENDING  #
 	#------------------------------------#
@@ -9426,7 +9769,7 @@ class stzList from stzObject
 			return This
 
 		def FlattenQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -9489,7 +9832,7 @@ class stzList from stzObject
 			return new stzSet( This.ToSet() )
 	
 		def ToSetQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 	
@@ -9649,7 +9992,7 @@ class stzList from stzObject
 			return This.DuplicatedItems
 
 		def FindDuplicatedItemsQR(pItem, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -10531,7 +10874,7 @@ class stzList from stzObject
 	def FindAllOccurrencesCS(pItem, pCaseSensitive)
 
 		/* NOTE
-		We don't use the Ring find() function here because it works
+		We don't use the Ring ring_find() function here because it works
 		only for finding numbers and strings (and not lists and objects).
 
 		Also, it only returns the first occurrence and stops there.
@@ -10568,7 +10911,7 @@ class stzList from stzObject
 			return This.FindAllOccurrencesCSQR(pItem, pCaseSensitive, :stzList)
 
 		def FindAllOccurrencesCSQR(pItem, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11054,10 +11397,10 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindManyCSQ(paItems, pCaseSensitive)
-			return This.FindManyCSQR(paItems, :stzListOfNumbers, pCaseSensitive)
+			return This.FindManyCSQR(paItems, pCaseSensitive, :stzListOfNumbers)
 
-		def FindManyCSQR(paItems, pcReturnType, pCaseSensitive)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+		def FindManyCSQR(paItems, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11085,9 +11428,9 @@ class stzList from stzObject
 			return This.FindManyQR(paItems, :stzListOfNumbers)
 
 		def FindManyQR(paItems, pcReturnType)
-			return This.FindManyQRCS(paItems, pcReturnType, pCaseSensitive)
+			return This.FindManyQRCS(paItems, :CaseSensitive = TRUE, pcReturnType)
 
-		#
+		#>
 
 	  #------------------------------------------------------------------#
 	 #   FINDING THE OCCURRENCES OF MANY ITEMS IN THE LIST -- EXTENDED  #
@@ -11139,7 +11482,7 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindAllExceptFirstQR(pItem, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11166,7 +11509,7 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptFirstQR(pItem, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -11198,7 +11541,7 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindAllExceptLastQR(pItem, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11225,7 +11568,7 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptLastQR(pItem, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -11685,6 +12028,8 @@ class stzList from stzObject
 		because YieldW() uses the current function FindW() --> Stackoverfolw!
 		*/
 		
+		# Managing params
+
 		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
 			pcCondition = pcCondition[2]
 		ok
@@ -11697,6 +12042,8 @@ class stzList from stzObject
 			return 1 : This.NumberOfItems()
 		ok
 
+		# Getting the executable section from conditional code
+
 		cCondition = ""
 		aExecutableSection = []
 
@@ -11704,8 +12051,24 @@ class stzList from stzObject
 		cCondition = oCCode.TranspiledFor(:stzList)
 		cCode = "bOk = ( " + cCondition + " )"
 
-		cTempCode = 'aItemsToBeChecked = This.' + oCCode.ExecutableSection()
-		eval(cTempCode)
+		anExectutableSection = oCCode.ExecutableSection()
+
+		nStart = anExectutableSection[1]
+		
+		if nStart < 0
+			nStart = This.NumberOfItems() - Abs(nStart) + 1
+		ok
+
+		nEnd = anExectutableSection[2]
+		if isString(nEnd) and nEnd = :Last
+			nEnd = This.NumberOfItems()
+		ok
+
+		if nEnd < 0
+			nEnd = This.NumberOfItems() - Abs(nEnd) + 1
+		ok
+
+		# Doing the job
 
 		oCode = new stzString(cCode)
 
@@ -11713,7 +12076,7 @@ class stzList from stzObject
 
 		@i = 0
 
-		for @i = 1 to len(aItemsToBeChecked)
+		for @i = nStart to nEnd
 			@item = This[@i]
 
 			bEval = TRUE
@@ -11749,7 +12112,7 @@ class stzList from stzObject
 			return This.FindAllItemsWQR(pCondition, :stzList)
 	
 		def FindAllItemsWQR(pCondition, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11776,7 +12139,7 @@ class stzList from stzObject
 				return This.FindAllWQR(pCondition, :stzList)
 
 			def FindAllWQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -11802,7 +12165,7 @@ class stzList from stzObject
 				return This.FindWQR(pCondition, :stzList)
 
 			def FindWQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -11827,7 +12190,7 @@ class stzList from stzObject
 				return This.FindWhereQR(pCondition, :stzList)
 
 			def FindWhereQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -11852,7 +12215,7 @@ class stzList from stzObject
 				return This.FindAllWhereQR(pCondition, :stzList)
 
 			def FindAllWhereQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -11877,7 +12240,7 @@ class stzList from stzObject
 				return This.FindAllItemsWhereQR(pCondition, :stzList)
 
 			def FindAllItemsWhereQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -12006,7 +12369,6 @@ class stzList from stzObject
 		--> Stackoverflow!
 		*/
 
-
 		anPositions = This.FindAllItemsW(pcCondition)
 		aResult = This.ItemsAtThesePositions(anPositions)
 
@@ -12016,7 +12378,7 @@ class stzList from stzObject
 			return ItemsWQR(pcCondition, :stzList)
 
 		def ItemsWQR(pcCondition, pcReturnType)
-			if isList(pcCondition) and Q(pcCondition).IsReturnedAsNamedParam()
+			if isList(pcCondition) and Q(pcCondition).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -12260,7 +12622,7 @@ class stzList from stzObject
 			return This.NumbersQR(:stzList)
 
 		def NumbersQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -12286,7 +12648,7 @@ class stzList from stzObject
 				return This.OnlyNumbersQR(:stzList)
 	
 			def OnlyNumbersQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -12343,7 +12705,7 @@ class stzList from stzObject
 			return This.NonNumbersQR(:stzList)
 
 		def NonNumbersQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -12365,7 +12727,7 @@ class stzList from stzObject
 				return This.OnlyNonNumbersQR(:stzList)
 	
 			def OnlyNonNumbersQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -12446,7 +12808,7 @@ class stzList from stzObject
 			return This.StringsQR(:stzList)
 
 		def StringsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -12472,7 +12834,7 @@ class stzList from stzObject
 				return This.OnlyStringsQR(:stzList)
 	
 			def OnlyStringsQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -12532,7 +12894,7 @@ class stzList from stzObject
 			return This.NonStringsQR(:stzList)
 
 		def NonStringsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -12554,7 +12916,7 @@ class stzList from stzObject
 				return This.OnlyNonStringsQR(:stzList)
 	
 			def OnlyNonStringsQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -12917,7 +13279,7 @@ class stzList from stzObject
 			return This.ListsQR(:stzList)
 
 		def ListsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -12943,7 +13305,7 @@ class stzList from stzObject
 				return This.OnlyListsQR(:stzList)
 	
 			def OnlyListsQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -13000,7 +13362,7 @@ class stzList from stzObject
 			return This.NonListsQR(:stzList)
 
 		def NonListsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -13022,7 +13384,7 @@ class stzList from stzObject
 				return This.OnlyNonListsQR(:stzList)
 	
 			def OnlyNonListsQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -13101,7 +13463,7 @@ class stzList from stzObject
 			return This.ObjectsQR(:stzObject)
 
 		def ObjectsQR(pcReturnType)
-			if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsReturnedAsParamObject()
+			if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -13127,7 +13489,7 @@ class stzList from stzObject
 				return This.OnlyObjectsQR(:stzObject)
 	
 			def OnlyObjectsQR(pcReturnType)
-				if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsReturnedAsParamObject()
+				if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -13184,7 +13546,7 @@ class stzList from stzObject
 			return This.NonObjectsQR(:stzObject)
 
 		def NonObjectsQR(pcReturnType)
-			if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsReturnedAsParamObject()
+			if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -13206,7 +13568,7 @@ class stzList from stzObject
 				return This.OnlyNonObjectsQR(:stzObject)
 	
 			def OnlyNonObjectsQR(pcReturnType)
-				if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsReturnedAsParamObject()
+				if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -13423,7 +13785,7 @@ class stzList from stzObject
 			return This.SplitQR(pItem, :stzList)
 
 		def SplitQR(pItem, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -13458,7 +13820,7 @@ class stzList from stzObject
 				return This.SplitUsingQR(pItem, pcReturnType)
 	
 			def SplitUsingQR(pItem, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -13481,6 +13843,46 @@ class stzList from stzObject
 				other
 					StzRaise("Unsupported return type!")
 				off
+
+		def SplitAt(pItem)
+			return This.Split(pItem)
+
+			def SplitAtQ(pItem)
+				return This.SplitAtQR(pItem, :stzList)
+
+			def SplitAtQR(pItem, pcReturnType)
+				return This.SplitQR(pItem, pcReturnType)
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #    SPLITTING THE LIST AT POSITIONS RETURNED BY THE GIVEN CONDITION   #
+	#----------------------------------------------------------------------#
+
+	def SplitW(pcCondition)
+		anPos = FindW(pcCondition)
+		aResult = SplitAtPositions(anPos)
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def SplitWQ(pcCondition)
+			return This.SplitWQR(pcCondition, :stzList)
+
+		def SplitWQR(pcCondition, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitW(pcCondition) )
+
+			/* ... */
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		/* SplitAtW() */
 
 		#>
 
@@ -13522,7 +13924,7 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def SplitToPartsOfNItemsQR(n, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -13561,7 +13963,7 @@ class stzList from stzObject
 				return This.SplitToPartsOfNItemsQR(n, :stzList)
 	
 			def SplitToPartsOfNQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -13578,7 +13980,7 @@ class stzList from stzObject
 				return This.SplitToPartsOfNItemsQR(n, :stzList)
 	
 			def SplitToPartsOfQR(n, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -13597,7 +13999,7 @@ class stzList from stzObject
 				return This.SplitToPartsQR(n, :stzList)
 	
 			def SplitToPartsQR(n, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -13780,13 +14182,25 @@ class stzList from stzObject
 	#------------------------------------------------#
 
 	def Section(n1, n2)
+
 		# Managing the use of :From and :To named params
 
-		if isList(n1) and StzListQ(n1).IsFromNamedParam()
+		if isList(n1) and
+		   StzListQ(n1).IsOneOfTheseNamedParams([
+				:From, :FromPosition,
+				:StartingAt, :StartingAtPosition
+				])
+
 			n1 = n1[2]
 		ok
 
-		if isList(n2) and StzListQ(n2).IsToNamedParam()
+		if isList(n2) and
+		   StzListQ(n2).IsOneOfTheseNamedParams([
+				:To, :ToPosition,
+				:Until, :UntilPosition,
+				:UpTo, :UpToPosion
+				])
+
 			n2 = n2[2]
 		ok
 
@@ -13910,7 +14324,7 @@ class stzList from stzObject
 			return This.SectionQR(n1, n2, :stzList)
 
 		def SectionQR(n1, n2, pcReturntype)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -13945,7 +14359,7 @@ class stzList from stzObject
 				return This.SliceQR(n1, n2, :stzList)
 	
 			def SliceQR(n1, n2, pcReturntype)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -14238,7 +14652,7 @@ class stzList from stzObject
 			return This.RangeQR(pnStart, pnRange, :stzList)
 
 		def RangeQR(pnStart, pnRange, pcReturntype)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -18730,9 +19144,39 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsUntilPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :UntilPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUntilXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :UntilXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsUptoNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :UpTo )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUptoPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :UpToPosition )
 
 			return TRUE
 
@@ -18762,6 +19206,10 @@ class stzList from stzObject
 		for item in This.List()
 			aResult + ring_type(item)
 		next
+		return aResult
+
+	def TypesXT()
+		aResult = This.ListQ().AssociatedWith( This.Types() )
 		return aResult
 
 	def UniqueTypes()
@@ -18943,7 +19391,7 @@ class stzList from stzObject
 			return This.ForEachStringYieldQR(pcCode, :stzList)
 
 		def ForEachStringYieldQR(pcCode, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -18965,15 +19413,15 @@ class stzList from stzObject
 				return This.ForEachStringYieldQ(pcCode)
 
 				def ForEachStringReturnQR(pcCode, pcReturnType)
-					if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+					if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 						pcReturnType = pcReturnType[2]
 					ok
 
 					return This.ForEachStringYieldQR(pcCode, pcReturnType)
 
-	  #-------------------------------------------#
-	 #  SMALLEST AND GREATEST ITEMS IN THE LIST  #
-	#-------------------------------------------#
+	  #==========================================#
+	 #  SMALLEST AND LARGEST ITEMS IN THE LIST  #
+	#==========================================#
 
 	def SmallestItem()
 
@@ -18986,18 +19434,168 @@ class stzList from stzObject
 		def Smallest()
 			return This.SmallestItem()
 
-	def GreatestItem()
+	def LargestItem()
 		if This.NumberOfItems() > 1
 			aSorted = This.SortedInDescending()
 			return aSorted[1]
 		ok
 
-		def Greatest()
-			return This.GreatestItem()
+		def Largest()
+			return This.LargestItem()
 
-	  #-----------#
+		def GreatestItem()
+			return This.LargestItem()
+
+		def Greatest()
+			return This.LargestItem()
+
+	  #--------------------------------------------------#
+	 #  FINDING SMALLEST AND LARGEST ITEMS IN THE LIST  #
+	#--------------------------------------------------#
+
+	def FindSmallestItem()
+		return This.FindAll( This.SmallestItem() )
+
+		def FindSmallest()
+			return This.FindSmallestItem()
+
+		def FindAllOccurrencesOfSmallestItem()
+			return This.FindSmallestItem()
+
+		def FindAllOccurrencesOfSmallest()
+			return This.FindSmallestItem()
+
+	def FindLargestItem()
+		return This.FindAll( This.LargestItem() )
+
+		def FindLargest()
+			return This.FindLargestItem()
+
+		def FindAllOccurrencesOfLargestItem()
+			return This.FindLargestItem()
+
+		def FindAllOccurrencesOfLargest()
+			return This.FindLargestItem()
+
+	  #-------------------------------------------------------------------#
+	 #  NUMBER OF OCCURRENCES OF SMALLEST AND LARGEST ITEMS IN THE LIST  #
+	#-------------------------------------------------------------------#
+
+	def NumberOfOccurrencesOfSmallestItem()
+		return len( This.FindAllOccurrencesOfSmallestItem() )
+
+		def NumberOfOccurrenceOfSmallestItem()
+			return This.NumberOfOccurrencesOfSmallestItem()
+
+		def NumberOfOccurrencesOfSmallest()
+			return This.NumberOfOccurrencesOfSmallestItem()
+
+		def NumberOfOccurrenceOfSmallest()
+			return This.NumberOfOccurrencesOfSmallestItem()
+
+		def NumberOfSmallest()
+			return This.NumberOfOccurrencesOfSmallestItem()
+
+	def NumberOfOccurrencesOfLargestItem()
+		return len( This.FindAllOccurrencesOfLargestItem() )
+
+		def NumberOfOccurrenceOfLargestItem()
+			return This.NumberOfOccurrencesOfLargestItem()
+
+		def NumberOfOccurrencesOfLargest()
+			return This.NumberOfOccurrencesOfLargestItem()
+
+		def NumberOfOccurrenceOfLargest()
+			return This.NumberOfOccurrencesOfLargestItem()
+
+		def NumberOfLargest()
+			return This.NumberOfOccurrencesOfLargestItem()
+
+	  #--------------------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF SMALLEST AND LARGEST ITEMS IN THE LIST  #
+	#--------------------------------------------------------------------#
+
+	def FindNthOccurrenceOfSmallestItem(n)
+		if isString(n)
+			if Q(n).IsEither(:First, :Or = :FirstItem)
+				n = 1
+			but Q(n).IsEither(:Last, :Or = :LastItem)
+				n = This.NumberOfOccurrencesOfSmallestItem()
+			ok
+		ok
+
+		return This.FindAll( This.SmallestItem() )[n]
+
+		def FindNthOccurrenceOfSmallest(n)
+			return This.FindNthSmallestItem(n)
+
+	def FindNthOccurrenceOfLargestItem(n)
+		if isString(n)
+			if Q(n).IsEither(:First, :Or = :FirstItem)
+				n = 1
+			but Q(n).IsEither(:Last, :Or = :LastItem)
+				n = This.NumberOfOccurrencesOfLargestItem()
+			ok
+		ok
+
+		return This.FindAll( This.LargestItem() )[n]
+
+		def FindNthOccurrenceOfLargest(n)
+			return This.FindNthLargestItem(n)
+
+		def FindNthOccurrenceOfGreatestItem(n)
+			return This.FindNthLargestItem(n)
+
+		def FindNthOccurrenceOfGreatest(n)
+			return This.FindNthLargestItem(n)
+
+	  #======================================================#
+	 #  GETTING NTH SMALLEST AND LARGEST ITEMS IN THE LIST  #
+	#======================================================#
+
+	def NthSmallestItem(n)
+		return This.Copy().RemoveDuplicatesQ().SortedInAscending()[n]
+
+		def NthSmallest(n)
+			return This.NthSmallestItem(n)
+
+	def NthLargestItem(n)
+		return This.Copy().RemoveDuplicatesQ().SortedInDescending()[n]
+
+		def NthLargest(n)
+			return This.NthLargestItem(n)
+
+		def NthGreatestItem(n)
+			return This.NthLargestItem(n)
+
+		def NthGreatest(n)
+			return This.NthLargestItem(n)
+
+	  #------------------------------------------------------#
+	 #  FINDING NTH SMALLEST AND LARGEST ITEMS IN THE LIST  #
+	#------------------------------------------------------#
+
+	def FindNthSmallestItem(n)
+		return This.FindAll( This.NthSmallestItem(n) )
+
+		def FindNthSmallest(n)
+			return This.FindNthSmallestItem(n)
+
+	def FindNthLargestItem(n)
+		return This.FindAll( This.NthLargestItem(n) )
+
+		def FindNthLargest(n)
+			return This.FindNthLargestItem(n)
+
+		def FindNthGreatestItem(n)
+			return This.FindNthLargestItem(n)
+
+		def FindNthGreatest(n)
+			return This.FindNthLargestItem(n)
+
+	  #===========#
 	 #   MISC.   #
-	#-----------#
+	#===========#
 
 	def IsUppercase()
 		if This.IsListOfStrings() and

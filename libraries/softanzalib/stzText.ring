@@ -1269,7 +1269,7 @@ class stzText from stzString
 			return This.WordsQR(:stzList)
 	
 		def WordsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1447,7 +1447,7 @@ class stzText from stzString
 			return This.WordsSortedInDescending()
 
 			def WordsInDescendingOrderQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -1521,7 +1521,7 @@ class stzText from stzString
 			return This.UniqueWordsSortedInAscending()
 
 			def UniqueWordsInAscendingOrderQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -1563,7 +1563,7 @@ class stzText from stzString
 			return This.UniqueWordsSortedInAscending()
 
 			def SetOfWordsSortedInAscendingQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -1584,7 +1584,7 @@ class stzText from stzString
 			return This.SetOfWordsSortedInAscending()
 
 			def SetOfWordsInAscendingOrderQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -1658,7 +1658,7 @@ class stzText from stzString
 			return This.UniqueWordsSortedInDescending()
 
 			def UniqueWordsInDescendingOrderQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -2220,7 +2220,7 @@ class stzText from stzString
 			nFreq = aPair[2]
 
 		if StzNumberQ(nFreq).Content() = StzNumberQ(pnFreq).Content() and
-		   find(acResult, cWord) = 0
+		   ring_find(acResult, cWord) = 0
 
 				acResult + cWord
 			ok
@@ -2359,7 +2359,7 @@ class stzText from stzString
 					aListOfWords = aPair[2]
 					cFreq = aPair[1]
 
-					if find( aListOfWords, cWord ) > 0
+					if ring_find( aListOfWords, cWord ) > 0
 						# We've find it here! Take it an exit
 						nFreq = 0+ cFreq
 						aResult + [ cWord, nFreq ]
@@ -3587,7 +3587,7 @@ class stzText from stzString
 			return This.LettersQR(:stzList)
 
 		def LettersQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3647,7 +3647,7 @@ class stzText from stzString
 			return This.LettersXTQR(paOptions, :stzList)
 
 		def LettersXTQR(paOptions, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3679,7 +3679,7 @@ class stzText from stzString
 			return This.UniqueLettersXTQR(paOptions, :stzList)
 
 		def UniqueLettersXTQR(paOptions, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3708,7 +3708,7 @@ class stzText from stzString
 				return This.ToSetOfLettersXTQR(paOptions, :stzList)
 	
 			def ToSetOfLettersXTQR(paOptions, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
@@ -3891,7 +3891,7 @@ class stzText from stzString
 		for oChar in acStzChars
 			cChar = oChar.Content()
 
-			if oChar.IsPunctuation() and find(aResult, cChar) = 0
+			if oChar.IsPunctuation() and ring_find(aResult, cChar) = 0
 				aResult + cChar
 			ok
 		next
@@ -3937,7 +3937,7 @@ class stzText from stzString
 		for oChar in acStzChars
 			cChar = oChar.Content()
 
-			if oChar.IsGeneralPunctuation() and find(aResult, cChar)
+			if oChar.IsGeneralPunctuation() and ring_find(aResult, cChar)
 				aResult + cChar
 			ok
 		next
@@ -3980,7 +3980,7 @@ class stzText from stzString
 
 		for oChar in acStzChars
 			cChar = oChar.Content()
-			if oChar.IsSupplementalPunctuation() and find(aResult, cChar)
+			if oChar.IsSupplementalPunctuation() and ring_find(aResult, cChar)
 				nResult + cChar
 			ok
 		next
@@ -4227,7 +4227,7 @@ class stzText from stzString
 			return This.InitialsQR(:stzList)
 
 		def InitialsQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
