@@ -145,7 +145,7 @@ class stzListParser from stzParser
 
 	def NextNthPosition(n)
 
-		nPos = find( This.ParsedPositions(), This.CurrentPosition() )
+		nPos = ring_find( This.ParsedPositions(), This.CurrentPosition() )
 
 		if nPos != 0
 			nResult = This.ParsedPositions()[ nPos + n ]
@@ -167,7 +167,7 @@ class stzListParser from stzParser
 
 	def PreviousNthPosition(n)
 
-		nPos = find( This.ParsedPositions(), This.CurrentPosition() )
+		nPos = ring_find( This.ParsedPositions(), This.CurrentPosition() )
 
 		if nPos != 0
 			nResult = This.ParsedPositions()[ nPos - n ]

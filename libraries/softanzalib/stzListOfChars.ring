@@ -516,7 +516,7 @@ class stzListOfChars from stzListOfStrings
 		return aResult
 
 		def UnicodesQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 

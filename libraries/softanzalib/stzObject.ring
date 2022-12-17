@@ -1054,8 +1054,14 @@ class stzObject
 	def Type()
 		return lower ( ring_type( This.Content() ) )
 
+	def TypeXT()
+		return [ This.Content(), This.Type() ]
+
 	def StzType()
 		return :stzObject
+
+	def StzTypeXT()
+		return [ :stzObject, This.Content() ]
 
 	def IsANumber()
 		if This.StzType() = :stzNumber

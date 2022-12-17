@@ -531,7 +531,7 @@ class stzCCode
 
 		o1 = new stzCCode('{ This[ @i ] = This[ @i + 3 ] }')
 		? o1.ExecutableSection()
-		#--> 'Section( 1, -3 )'
+		#--> [ 1, -4 ]
 
 		*/
 
@@ -539,13 +539,13 @@ class stzCCode
 		acNumbersAfter = oCode.NumbersComingAfter("@i")
 
 		if len(acNumbersAfter) = 0
-			return 'Section( 1, :Last)'
+			return [ 1, :Last ]
 		ok
 
 		oNumbers = Q( acNumbersAfter ).
 			   PerformQ('@item = 0+ @item')
 
-		cResult = 'Section( 1, :Last )'
+		anResult = [ 1, :Last ]
 
 		if oNumbers.Size() = 0
 			# DoNothing --> aResult is already [ 1, :Last ]
@@ -554,10 +554,10 @@ class stzCCode
 			n =  0+ oNumbers[1]
 
 			if n > 0
-				cResult = 'Section( 1, ' + -n + ' )'
+				anResult = [ 1, (-n -1) ]
 
 			but n < 0
-				cResult = 'Section( ' + (Abs(n) + 1) + ', :Last )'
+				anResult = [ Abs(n) + 1, :Last ]
 
 			ok
 		else
@@ -565,23 +565,23 @@ class stzCCode
 			nMax = 0+ oNumbers.Greatest()
 	
 			if BothAreNegative( nMin, nMax )
-				nMin = Abs( nMin ) + 1
+				nMin = Abs( nMin )
 				nMax = :Last
 	
 			but BothArePositive( nMin, nMax )
 				nMin = 1
-				nMax = - nMax
+				nMax = - nMax -1
 	
 			but nMin < 0 and nMax > 0
 				nMin = Abs(nMin) + 1
-				nMax = - nMax
+				nMax = - nMax -1
 	
 			else
 				nMin = 1
 				nMax = :Last
 			ok
 	
-			cResult = 'Section( ' + nMin + ', ' + nMax + ' )'
+			anResult = [ nMin, nMax ]
 		ok
 
-		return cResult
+		return anResult

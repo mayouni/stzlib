@@ -654,7 +654,7 @@ class stzLocale from stzObject
 	
 		cFirstDayInEnglish = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
-		n = find( aDaysInEnglish, cFirstDayInEnglish )
+		n = ring_find( aDaysInEnglish, cFirstDayInEnglish )
 
 		# We need to get that 1st day in native language of the locale
 	
@@ -680,7 +680,7 @@ class stzLocale from stzObject
 	
 		cFirstDayInEnglish = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
-		n = find( aDaysInEnglish, cFirstDayInEnglish )
+		n = ring_find( aDaysInEnglish, cFirstDayInEnglish )
 	
 		# We need to get that 1st day in native language of the locale
 	
@@ -769,7 +769,7 @@ class stzLocale from stzObject
 		cFirstDay = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
 
-		nFirst = find( aDaysInEnglish, cFirstDay )
+		nFirst = ring_find( aDaysInEnglish, cFirstDay )
 		
 		oQLocale = new QLocale("en-US")
 		return oQLocale.dayname(nFirst + n - 1, 1)
@@ -807,7 +807,7 @@ class stzLocale from stzObject
 		cFirstDay = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
 
-		nFirst = find( aDaysInEnglish, cFirstDay )
+		nFirst = ring_find( aDaysInEnglish, cFirstDay )
 		
 		oQLocale = new QLocale("en-US")
 		return oQLocale.dayname(nFirst + n - 1, 2)
@@ -1024,8 +1024,8 @@ class stzLocale from stzObject
 
 		anPositions = oStr.FindAll(" ")
 		anPositions = StzListOfNumbersQ(anPositions).AddedToEach(1)
-		insert(anPositions, 1, 1)
-		anPositions = sort(anPositions)
+		ring_insert(anPositions, 1, 1)
+		anPositions = ring_sort(anPositions)
 
 		for n in anPositions
 			cCapitalizedChar = oStr.CharAtPositionQ(n).Uppercased()

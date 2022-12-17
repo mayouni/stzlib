@@ -485,7 +485,7 @@ class stzSplitter
 		if aPos[len(aPos)] != 10 { aPos + nLen }
 		
 		# Sorting the list
-		aPos = sort(aPos)
+		aPos = ring_sort(aPos)
 		
 		# Getting the pairs of that list
 		aPairs = []

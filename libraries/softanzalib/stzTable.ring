@@ -389,7 +389,7 @@ Class stzTable
 		ok
 
 		pcColName = Q(pcColName).Lowercased()
-		n = find( This.Header(), pcColName)
+		n = ring_find( This.Header(), pcColName)
 		return n
 
 		def FindColumn(pcColName)

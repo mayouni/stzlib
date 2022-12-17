@@ -1254,7 +1254,7 @@ Diacritics
 	func LanguagesInScript(cScript)	
 		for item in UnicodeScriptsXT()
 			if item[2] = cScript
-				return sort(item[4])
+				return ring_sort(item[4])
 			ok
 		next
 

@@ -56,13 +56,13 @@ func HexNumberPrefix()
 
 	#>
 
-def HexPrefixes()
+func HexPrefixes()
 	return _acHexPrefixes
 
 	def HexNumberPrefixes()
 		return HexPrefixes()
 
-def SetHexPrefix(pcPrefix)
+func SetHexPrefix(pcPrefix)
 	if find(HexPrefixes(), pcPrefix) > 0
 		_cHexNumberPrefix = pcPrefix
 	else
