@@ -4147,8 +4147,9 @@ class stzList from stzObject
 		*/
 
 		# Checking the provided param for the pCondition
-	
+
 		anPos = This.FindW(pCondition)
+
 		This.RemoveItemsAtThesePositions(anPos)
 
 		#< @FunctionFluentForm
@@ -9696,10 +9697,22 @@ class stzList from stzObject
 	#----------------------------------------------------#
 
 	def Merge()
-		if This.IsListOfLists()
 
-			This.Update( StzListOfListsQ( This.List() ).MergeQ().Content() )
-		ok
+		aMerged = []
+
+		for item in This.List()
+			if NOT isList(item)
+				aMerged + item
+
+			else
+				for elem in item
+					aMerged + elem
+				next
+			ok
+
+		next
+
+		This.Update(aMerged)
 
 		def MergeQ()
 			This.Merge()
@@ -9709,8 +9722,8 @@ class stzList from stzObject
 		aResult = This.Copy().MergeQ().Content()
 		return This
 
-	#-----------------------------------------#
-	#   MERGING THE LIST WITH AN OTHER LIST   #
+	  #-----------------------------------------#
+	 #   MERGING THE LIST WITH AN OTHER LIST   #
 	#-----------------------------------------#
 
 	def MergeWith(paOtherList)
@@ -9789,7 +9802,7 @@ class stzList from stzObject
 				on :stzListOfLists
 					return new stzListOfLists( This.Flattened() )
 
-				on :stzListOfPairss
+				on :stzListOfPairs
 					return new stzListOfPairs( This.Flattened() )
 
 				on :stzListOfObjects
@@ -11390,7 +11403,7 @@ class stzList from stzObject
 			ok
 		next
 
-		aResult = StzListQ(aResult).FlattenQ().SortedInAscending()
+		aResult = StzListQ(aResult).RemoveQ([]).FlattenQ().SortedInAscending()
 
 		return aResult
 
@@ -12017,7 +12030,6 @@ class stzList from stzObject
 	#----------------------------------------------------#
 
 	def FindAllItemsW(pcCondition)
-
 		/* WARNING
 
 		We can't use this solution:
@@ -13770,7 +13782,7 @@ class stzList from stzObject
 	#----------------------------------------------#
 
 	def Split(pItem)
-		if isList(pItem) and StzList(pItem).IsUsingNamedParam()
+		if isList(pItem) and Q(pItem).IsUsingNamedParam()
 			pItem = pItem[2]
 		ok
 
@@ -16453,6 +16465,8 @@ class stzList from stzObject
 		def IsUsingOrAtNamedParam()
 			return This.IsAtOrUsingNamedParam()
 
+	#--
+
 	def IsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This[1]) and  This[1] = :AtPosition )
@@ -16472,6 +16486,28 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	def IsAtThesePositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtThesePositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtManyPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
 
 	def IsAtOrAtPositionNamedParam()
 		if This.IsAtNamedParam() or
@@ -16498,6 +16534,1153 @@ class stzList from stzObject
 
 		def IsAtPositionsOrAtNamedParam()
 			return This.IsAtOrAtPositionsNamedParam()
+
+	#==
+
+	def IsAtItemNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisItemNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtThisItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtTheseItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtManyItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtStringNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtString )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisStringNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtThisString )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtTheseStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtManyStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtStringItemNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtStringItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisStringItemNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtThisStringItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtStringItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtStringItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseStringItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtTheseStringItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyStringItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtManyStringItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtSubString )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtThisSubString )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtSubStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtTheseSubStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManySubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtManySubStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtCharNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This[1]) and  This[1] = :AtChar )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisCharNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This[1]) and  This[1] = :AtThisChar )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This[1]) and  This[1] = :AtChars )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This[1]) and  This[1] = :AtTheseChars )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This[1]) and  This[1] = :AtManyChars )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtNumber )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtThisNumber )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtNumbers )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtTheseNumbers )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This[1]) and  This[1] = :AtManyNumbers )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtListNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isList(This[1]) and  This[1] = :AtList )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisListNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isList(This[1]) and  This[1] = :AtThisList )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isList(This[1]) and  This[1] = :AtLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isList(This[1]) and  This[1] = :AtTheseLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isList(This[1]) and  This[1] = :AtManyLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtSubListNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSubList(This[1]) and  This[1] = :AtSubList )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisSubListNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSubList(This[1]) and  This[1] = :AtThisSubList )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtSubListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSubList(This[1]) and  This[1] = :AtSubLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseSubListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSubList(This[1]) and  This[1] = :AtTheseSubLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManySubListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSubList(This[1]) and  This[1] = :AtManySubLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtPairNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isPair(This[1]) and  This[1] = :AtPair )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisPairNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isPair(This[1]) and  This[1] = :AtThisPair )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtPairsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isPair(This[1]) and  This[1] = :AtPairs )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThesePairsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isPair(This[1]) and  This[1] = :AtThesePairs )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyPairsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isPair(This[1]) and  This[1] = :AtManyPairs )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtListOfNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfNumber(This[1]) and  This[1] = :AtListOfNumbers )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisListOfNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfNumber(This[1]) and  This[1] = :AtThisListOfNumbers )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtListsOfNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfNumber(This[1]) and  This[1] = :AtListsOfNumbers )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseListsOfNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfNumber(This[1]) and  This[1] = :AtTheseListsOfNumbers )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyListsOfNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfNumber(This[1]) and  This[1] = :AtManyListsOfNumbers )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtListOfCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfChar(This[1]) and  This[1] = :AtListOfChars )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisListOfCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfChar(This[1]) and  This[1] = :AtThisListOfChars )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtListsOfCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfChar(This[1]) and  This[1] = :AtListsOfChars )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseListsOfCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfChar(This[1]) and  This[1] = :AtTheseListsOfChars )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyListsOfCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfChar(This[1]) and  This[1] = :AtManyListsOfChars )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtListOfStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfString(This[1]) and  This[1] = :AtListOfStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisListOfStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfString(This[1]) and  This[1] = :AtThisListOfStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtListsOfStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfString(This[1]) and  This[1] = :AtListsOfStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseListsOfStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfString(This[1]) and  This[1] = :AtTheseListsOfStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyListsOfStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfString(This[1]) and  This[1] = :AtManyListsOfStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtListOfStringItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfStringItem(This[1]) and  This[1] = :AtListOfStringItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisListOfStringItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfStringItem(This[1]) and  This[1] = :AtThisListOfStringItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+
+	def IsAtListsOfStringItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfStringItem(This[1]) and  This[1] = :AtListsOfStringItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseListsOfStringItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfStringItem(This[1]) and  This[1] = :AtTheseListsOfStringItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyListsOfStringItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfStringItem(This[1]) and  This[1] = :AtManyListsOfStringItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtListOfListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtListOfLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisListOfListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtThisListOfLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtListsOfListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtListsOfLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseListsOfListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtTheseListsOfLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyListsOfListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtManyListsOfLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtListOfSubListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtListOfSubLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisListOfSubListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtThisListOfSubLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtListsOfSubListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtListsOfSubLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseListsOfSubListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtTheseListsOfSubLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyListsOfSubListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtManyListsOfSubLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtListOfPairsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtListOfPairs )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisListOfPairsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtThisListOfPairs )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+	def IsAtListsOfPairsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtListsOfPairs )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseListsOfPairsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtTheseListsOfPairs )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyListsOfPairsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtManyListsOfPairs )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtListOfHashListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtListOfHashLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisListOfHashListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtThisListOfHashLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtListsOfHashListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtListsOfHashLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseListsOfHashListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtTheseListsOfHashLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyListsOfHashListsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isListOfList(This[1]) and  This[1] = :AtManyListsOfHashLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtObjectNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isObject(This[1]) and  This[1] = :AtObject )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisObjectNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isObject(This[1]) and  This[1] = :AtThisObject )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtObjectsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isObject(This[1]) and  This[1] = :AtObjects )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseObjectsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isObject(This[1]) and  This[1] = :AtTheseObjects )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyObjectsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isObject(This[1]) and  This[1] = :AtManyObjects )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSection(This[1]) and  This[1] = :AtSection )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSection(This[1]) and  This[1] = :AtThisSection )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSection(This[1]) and  This[1] = :AtSections )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSection(This[1]) and  This[1] = :AtTheseSections )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManySectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSection(This[1]) and  This[1] = :AtManySections )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtListOfSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSection(This[1]) and  This[1] = :AtListOfSections )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisListOfSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSection(This[1]) and  This[1] = :AtThisListOfSections )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtListsOfSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSection(This[1]) and  This[1] = :AtListsOfSections )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseListsOfSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSection(This[1]) and  This[1] = :AtTheseListsOfSections )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyListsOfSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isSection(This[1]) and  This[1] = :AtManyListsOfSections )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtRangeNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isRange(This[1]) and  This[1] = :AtRange )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisRangeNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isRange(This[1]) and  This[1] = :AtThisRange )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtRangesNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isRange(This[1]) and  This[1] = :AtRanges )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseRangesNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isRange(This[1]) and  This[1] = :AtTheseRanges )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyRangesNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isRange(This[1]) and  This[1] = :AtManyRanges )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAtListOfRangesNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isRange(This[1]) and  This[1] = :AtListOfRanges )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisListOfRangesNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isRange(This[1]) and  This[1] = :AtThisListOfRanges )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtListsOfRangesNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isRange(This[1]) and  This[1] = :AtListsOfRanges )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtTheseListsOfRangesNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isRange(This[1]) and  This[1] = :AtTheseListsOfRanges )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyListsOfRangesNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isRange(This[1]) and  This[1] = :AtManyListsOfRanges )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+
+	#==
 
 	def IsUsingOrAtOrWhereNamedParam()
 		# Use IsOneOfTheseNamedParams([ ..., ..., ... ]) instead

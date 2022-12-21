@@ -50,7 +50,7 @@ func StzRaise(paMessage)
 	ok
 
 	if isList(paMessage) and StzListQ(paMessage).IsRaiseNamedParam()
-		cWhere = paMessage[ :Where ]
+		cWhere = paMessage[ :Where  ]
 		cWhat  = paMessage[ :What   ]
 		cWhy   = paMessage[ :Why    ]
 		cTodo  = paMessage[ :Todo   ]
@@ -98,6 +98,7 @@ func StzRaise(paMessage)
 #     when you want to use natibe Ring form. But if you are inside a
 #     softanza object, then the softanza version will apply, unless you
 #     you for the Ring's version using ring_...()
+
 
 func ring_insert(paList, n, pItem)
 	insert(paList, n, pItem)
@@ -207,7 +208,7 @@ func IsNumberOrString(p)
 	ok
 
 	func IsStringOrNumber(p)
-		return func IsNumberOrString(p)
+		return IsNumberOrString(p)
 
 func IsNumberOrList(p)
 	if isNumber(p) or isList(p)
@@ -255,6 +256,28 @@ func IsListOrObject(p)
 		else
 		return FALSE
 	ok
+
+func IsNumberOrStringOrList(p)
+	if isNumber(p) or isString(p) or isList(p)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	def IsNumberOrListOrString(p)
+		return IsNumberOrStringOrList(p)
+
+	def IsStringOrNumberOrList(p)
+		return IsNumberOrStringOrList(p)
+
+	def IsStringOrListOrNumber(p)
+		return IsNumberOrStringOrList(p)
+
+	def IsListOrNumberOrString(p)
+		return IsNumberOrStringOrList(p)
+
+	def IsListOrStringOrNumber(p)
+		return IsNumberOrStringOrList(p)
 
 func ListOfListsOfStzTypes() # TODO: complete the list
 	return [

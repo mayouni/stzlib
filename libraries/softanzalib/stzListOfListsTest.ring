@@ -1,9 +1,36 @@
+
 load "stzlib.ring"
 
-# CHANGED HAVE BEEN MADE ELSWHERE, NOT REPORTED YET HERE!
+/*==================
+
+o1 = new stzList([ "A", 1:3, "B", 4:7, 8:10 ])
+? @@S( o1.MergeQ().Content() )
+#--> [ "A", 1, 2, 3, "B", 4, 5, 6, 7, 8, 9, 10 ]
+
+o1 = new stzList([ "A", 1:3, "B", 4:7, [ "C", 99:100, "D" ], 8:10 ])
+? @@S( o1.MergeQ().Content() )
+#--> [ "A", 1, 2, 3, "B", 4, 5, 6, 7, "C", [ 99, 100 ], "D", 8, 9, 10 ]
+
+o1 = new stzList([ "A", 1:3, "B", 4:7, [ "C", 99:100, "D" ], 8:10 ])
+? @@S( o1.FlattenQ().Content() )
+#--> [ "A", 1, 2, 3, "B", 4, 5, 6, 7, "C", 99, 100, "D", 8, 9, 10 ]
 
 /*-----------------
-*/
+
+o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
+? @@S( o1.MergeQ().Content() )
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+
+o1 = new stzListOfLists([ 1:3, 4:7, 8:10, [ "A", 0:1, "B" ] ])
+? @@S( o1.Merged() )
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "A", [ 0, 1 ], "B" ]
+
+o1 = new stzListOfLists([ 1:3, 4:7, 8:10, [ "A", 0:1, "B" ] ])
+? @@S( o1.Flattened() )
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "A", 0, 1, "B" ]
+
+/*==================
+
 o1 = new stzListOfLists([
 	1:2, 1:3, [9,9,9], 1:4, 1:5, [9,9,9], 1:7, 1:8, [9,9,9]
 ])
@@ -39,16 +66,16 @@ o1 = new stzListOfLists([
 #--> "[ 4, 5, 6, 7, 8 ]"
 
 ? @@S( StzListQ( 4:8 ).ToListInStringInShortForm() )
-#--> "4 : 8"
+#--> '4:8'
 
 /*-----------
-*
+
 o1 = new stzListOfLists([ 1:3, 4:5, 6:7 ])
 ? @@S( o1.ToListInString() )
 #--> "[ [ 1, 2, 3 ], [ 4, 5 ], [ 6, 7 ] ]"
 
 ? @@S( o1.ToListInStringInShortForm() )
-#--> [ "1 : 3", "4 : 5", "6 : 7" ]
+#--> [ "1:3", "4:5", "6:7" ]
 
 /*----------
 
@@ -79,13 +106,14 @@ o1 = new stzListOfLists([
 
 ? @@S( o1.Yield('{ len(@list) }') ) 	# --> [ 3, 5, 2, 2, 3 ]
 
-/*---------- TODO: check why they are not merged and flattened!
+/*----------
 
 // Merging many lists in one list
 o1 = new stzListOfLists([ 1:3, 4:7, 8:9, [10, 11:13] ])
 
-o1.MergeAndFlatten()
-? @@S( o1.Content() )
+? @@S( o1.Flattened() )
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ]
+
 
 /*---------- ERROR: Undefined function
 
@@ -100,7 +128,8 @@ o1 = new stzListOfLists([ a1, a2, a3 ])
 # First on the positions occuppied by each item in each list
 
 aIndex = o1.IndexOn(:Position)	# ERROR: Undefined function
-
+? @@S( aIndex )
+/*
 # Gives:
 #	[ :A = [ [1,1], [1,3], [2,1], [3,3] ],
 #	  :B = [ [1,2], [2,2] ],

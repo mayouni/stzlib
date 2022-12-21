@@ -29,7 +29,7 @@
 
 func StzStringQ(str)
 	return new stzString(str)
-	
+
 func StzStringMethods()
 	return Stz(:String, :Methods)
 
@@ -12409,6 +12409,10 @@ o1 = new stzString("12*34*56*78")
 
 		# Resolving the pcSubStr param
 
+		if isList(pcSubStr) and Q(pcSubStr).IsListOfStrings()
+			return This.FindManyCS(pcSubStr, pCaseSensitive)
+		ok
+
 		if isList(pcSubStr) and
 			( Q(pcSubStr).IsOfNamedParam() or
 			  Q(pcSubStr).IsOfSubStringNamedParam() )
@@ -13336,6 +13340,7 @@ o1 = new stzString("12*34*56*78")
 			aResult + This.FindAllCS(str, pCaseSensitive)
 		next
 
+		aResult = Q(aResult).RemoveQ([]).FlattenQ().SortQ().DuplicatesRemoved()
 		return aResult
 
 		#< @FunctionFluentForm
@@ -16844,70 +16849,304 @@ o1 = new stzString("12*34*56*78")
 
 		#>
 
-	  #=====================================#
-	 #   SPLITTING: THE GENERAL FUNCTION   #
-	#=====================================#
+	  #==========================#
+	 #   SPLITTING THE STRING   #
+	#==========================#
 
-	def Split(p)
-		if isList(p) and Q(p).IsUsingNamedParam()
-			p = p[2]
+	/* GENERAL NOTE:
+
+	There are many forms of splitting in Softanza:
+		- splitting AT one or many positions (or one or many substrings)
+		- splitting BEFORE one or many positions (or one or many substrings)
+		- splitting AFTER one or more positions (or one or many substrings)
+		- splitting to n parts (or equal n parts)
+		- splitting to parts of n chars (or exactly n chars)
+		- splitting at, before, or after a condition is verified on a char,
+		  substring, or a char position or substring position
+
+
+	*/
+
+	def SplitCS(pSubStrOrPos, pCaseSensitive) # TODO: Add caseSensitivity
+		/*
+
+		*/
+
+		if This.IsEmpty()
+			return []
 		ok
 
-		if NOT isString(p)
-			stzRaise("Incorrect param type! p must be a string.")
+		bCaseSensitive = TRUE
+
+		if IsBoolean(pCaseSensitive)
+			bCaseSensitive = pCaseSensitive
+		
+		but isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			bCaseSensitive = pCaseSensitive[2]
 		ok
 
-		oQStrList = This.QStringObject().split(p, 0, 0)
-		aResult = QStringListToList(oQStrList)
-		return aResult
+		# Checking params -- if the split is to be made on a string then use Qt
 
-		def SplitQ(p)
-			return new stzList( This.Split(p) )
+		if isString(pSubStrOrPos)
+			return QStringListToList( QStringObject().split(pSubStrOrPos, 0, bCaseSensitive) )
+		ok
 
-		def Splitted(p)
-			return This.Split(p)
+		if isList(pSubStrOrPos) and
+		   ( Q(pSubStrOrPos).IsAtSubStringNamedParam() or
+		     ( Q(pSubStrOrPos).IsAtNamedParam() and isString(pSubStrOrPos[2]) ) )
+			
+			return QStringListToList( QStringObject().split(pSubStrOrPos[2], 0, bCaseSensitive) )
+		ok
 
-	  #===================================#
-	 #   SPLITTING AT A GIVEN POSITION   #
-	#===================================#
+		# Otherwise use stzSplitter
 
-	def SplitAt(n)
+		if isString(pSubStrOrPos) or
+		   ( isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfStrings() )
 
-		aSections = StzSplitterQ( This.NumberOfChars() ).
-				SplitAt(n)
+			pSubStrOrPos = This.FindCS(pSubStrOrPos, pCaseSensitive)
 
-		aResult = This.Sections(aSections)
+		but isList(pSubStrOrPos) and
+		   Q(pSubStrOrPos).IsAtNamedParam() and
+		   ( isString(pSubStrOrPos[2]) or Q(pSubStrOrPos[2]).IsListOfStrings() )
 
-		return aResult
+			pSubStrOrPos = This.FindCS(pSubStrOrPos[2], pCaseSensitive)
+
+		but isList(pSubStrOrPos) and
+		    Q(pSubStrOrPos).IsListOfStrings()
+
+			pSubStrOrPos = This.FindCS(pSubStrOrPos, pCaseSensitive)
+		ok
+
+		# Doing the job (using stzSplitter)
+
+		aSections = StzSplitterQ(1:This.NumberOfChars()).Split(pSubStrOrPos)
+		acResult = This.Sections( aSections )
+
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def SplitCSQ(pcSubStr, pCaseSensitive)
+			return This.SplitCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+		def SplitCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.SplitCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.SplitCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.SplitCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfObjects
+				return new stzListOfObjects( This.SplitCS(pcSubStr, pCaseSensitive) )
+
+			other
+				StzRaise("Insupported param type!")
+			off
+
+		#>
 
 		#< @FunctionAlternativeForm
 
-		def SplitAtPosition(n)
-			return This.SplitAt(n)
+		def SplitAtCS(pcSubStr, pCaseSensitive)
+			return This.SplitCS(pcSubStr, pCaseSensitive)
+
+			def SplitAtCSQ(pcSubStr, pCaseSensitive)
+				return This.SplitCSQ(pcSubStr, pCaseSensitive)
+
+			def SplitAtCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
+
+	def SplittedCS(pcSubStr, pCaseSensitive)
+		return This.SplitCS(pcSubStr, pCaseSensitive)
+
+		def SplittedAtCS(pcSubStr, pCaseSensitive)
+			return This.Splitted(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Split(pSubStrOrPos)
+		return This.SplitCS(pSubStrOrPos, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def SplitQ(pcSubStr)
+			return This.SplitQR(pcSubStr, :stzList)
+
+		def SplitQR(pcSubStr, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Split(pcSubStr) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Split(pcSubStr) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.Split(pcSubStr) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Split(pcSubStr) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.Split(pcSubStr) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.Split(pcSubStr) )
+
+			on :stzListOfObjects
+				return new stzListOfObjects( This.Split(pcSubStr) )
+
+			other
+				StzRaise("Insupported param type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAt(pcSubStr)
+			return This.Split(pcSubStr)
+
+			def SplitAtQ(pcSubStr)
+				return This.SplitQ(pcSubStr)
+
+			def SplitAtQR(pcSubStr, pcReturnType)
+				return SplitQR(pcSubStr, pcReturnType)
+
+		#>
+
+
+	def Splitted(pcSubStr)
+		return This.Split(pcSubStr)
+
+		def SplittedAt(pcSubStr)
+			return This.Splitted(pcSubStr)
+
+	  #-----------------------------------#
+	 #   SPLITTING AT A GIVEN POSITION   #
+	#-----------------------------------#
+
+	def SplitAtPosition(n)
+		return This.Split( :AtPosition = n )
+
+	def SplittedAtPosition(n)
+		return This.SplitAtPositions(n)
 
 	  #---------------------------------#
 	 #   SPLITTING AT MANY POSITIONS   #
 	#---------------------------------#
 
 	def SplitAtPositions(anPos)
-		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtPositions(anPos)
-		aResult = This.Sections(aSections)
+		return This.Split( :AtPositions = anPos )
 
-		return aResult
+		def SplitAtThesePositions(anPos)
+			return This.SplitAtPositions(anPos)
 
-	  #=======================================#
-	 #   SPLITTING BEFORE A GIVEN POSITION   #
-	#=======================================#
+		def SplitAtManyPositions(anPos)
+			return This.SplitAtPositions(anPos)
+
+	def SplittedAtPositions(anPos)
+		return This.SplitAtPositions(anPos)
+
+		def SplittedAtThesePositions(anPos)
+			return This.SplitAtPositions(anPos)
+
+		def SplittedAtManyPositions(anPos)
+			return This.SplitAtPositions(anPos)
+
+	  #------------------------------------#
+	 #   SPLITTING AT A GIVEN SUBSTRING   #
+	#------------------------------------#
+
+	def SplitAtSubStringCS(pcSubStr, pCaseSensitive)
+		return This.Split( :AtSubString = pcSubStr, pCaseSensitive )
+
+	def SplittedAtSubStringCS(pcSubStr, pCaseSensitive)
+		return This.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def SplitAtSubString(pcSubStr)
+		return This.SplitAtSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+	def SplittedAtSubString(pcSubStr)
+		return This.SplitAtSubString(pcSubStr)
+
+	  #-------------------------------------#
+	 #   SPLITTING AT GIVEN SUBSTRINGS   #
+	#-------------------------------------#
+
+	def SplitAtSubStringsCS(pcSubStrings, pCaseSensitive)
+		return This.Split( :AtSubStrings = pcSubStrings, pCaseSensitive )
+
+		def SplitAtTheseSubStringsCS(pcSubStrings, pCaseSensitive)
+			return This.SplitAtSubStringsCS(pcSubStrings, pCaseSensitive)
+
+		def SplitAtManySubStringsCS(pcSubStrings, pCaseSensitive)
+			return This.SplitAtSubStringsCS(pcSubStrings, pCaseSensitive)
+
+	def SplittedAtSubStringsCS(pcSubStrings, pCaseSensitive)
+		return This.SplitAtSubStringsCS(pcSubStrings, pCaseSensitive)
+
+		def SplittedAtTheseSubStringsCS(pcSubStrings, pCaseSensitive)
+			return This.SplitAtSubStringsCS(pcSubStrings, pCaseSensitive)
+
+		def SplittedAtManySubStringsCS(pcSubStrings, pCaseSensitive)
+			return This.SplitAtSubStringsCS(pcSubStrings, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def SplitAtSubStrings(pcSubStrings)
+		return This.SplitAtSubStringsCS(pcSubStrings, :CaseSensitive = TRUE)
+
+		def SplitAtTheseSubStrings(pcSubStrings)
+			return This.SplitAtSubStrings(pcSubStrings)
+
+		def SplitAtManySubStrings(pcSubStrings)
+			return This.SplitAtSubStrings(pcSubStrings)
+
+	def SplittedAtSubStrings(pcSubStrings)
+		return This.SplitAtSubStrings(pcSubStrings)
+
+		def SplittedAtTheseSubStrings(pcSubStrings)
+			return This.SplitAtSubStrings(pcSubStrings)
+
+		def SplittedAtManySubStrings(pcSubStrings)
+			return This.SplitAtSubStrings(pcSubStrings)
+
+	  #========================================================#
+	 #   SPLITTING BEFORE GIVEN POSITION(S) OR SUBSTRING(S)   #
+	#========================================================#
 
 	def SplitBefore(n)
+		if isList(n) and Q(n).IsListOfNumbers()
+			return This.SplitAfterPositions(panPositions)
+		ok
+
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBefore(n)
 		aResult = This.Sections(aSections)
 
 		return aResult
 
 		def SplitBeforePosition(n)
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
 			return This.SplitBefore(n)
 
 	  #-------------------------------------#
@@ -16922,17 +17161,25 @@ o1 = new stzString("12*34*56*78")
 
 		return aResult
 	
-	  #=======================================#
-	 #    SPLITTING AFTER A GIVEN POSITION   #
-	#=======================================#
+	  #====================================#
+	 #  SPLITTING AFTER A GIVEN POSITION  #
+	#====================================#
 
 	def SplitAfter(n)
+		if isList(n) and Q(n).IsListOfNumbers()
+			return This.SplitAfterPositions(panPositions)
+		ok
+
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAfter(n)
 		aResult = This.Sections(aSections)
 
 		return aResult
 
 		def SplitAfterPosition(n)
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
 			return This.SplitAfter(n)
 
 	  #------------------------------------#

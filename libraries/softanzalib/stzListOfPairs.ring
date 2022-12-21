@@ -165,36 +165,12 @@ class stzListOfPairs from stzList
 		def SecondValuesInEachPair()
 			return This.SecondItems()
 
-	  #---------------------------------------------#
-	 #  CHECKING IF THE LIST OF PAIRS IS SORTABLE  #
-	#---------------------------------------------#
-
-	def IsSortable()
-		/*
-		To be sortable, the pairs must not contains same items.
-		*/
-		aCopy = This.ListOfPairs()
-
-		for aPair in aCopy
-
-			if aPair[1] = aPair[2]
-				aPair = aPair[1]
-			ok
-		next
-
-		aAllItems = ListsMerge( aCopy )
-
-		if Q(aAllItems).IsSet()
-			return TRUE
-		else
-			return FALSE
-		ok
-
 	  #------------------------------#
 	 #  SORTING PAIRS IN ASCENDING  #
 	#------------------------------#
 
 	def SortInAscending()
+
 		/*
 		o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 		o1.SortInAscending()
@@ -202,9 +178,6 @@ class stzListOfPairs from stzList
 		#--> [ [1,3], [4, 7], [8, 9] ]
 
 		*/
-		if NOT This.IsSortable()
-			StzRaise("Can't sort the list of pairs! Because pairs are not made of distinct items.")
-		ok
 
 		aResult = []
 
@@ -236,6 +209,9 @@ class stzListOfPairs from stzList
 		# Update the list of pairs
 		This.UpdateWith(aResult)
 
+		def Sort()
+			This.SortInAscending()
+
 		def SortInAscendingQ()
 			This.SortInAscending()
 			return This
@@ -246,6 +222,9 @@ class stzListOfPairs from stzList
 		aResult = oCopy.Content()
 
 		return aResult
+
+		def Sorted()
+			return This.SortedInAscending()
 
 	def IsSortedInAscending()
 		aSorted = This.SortedInAscending()

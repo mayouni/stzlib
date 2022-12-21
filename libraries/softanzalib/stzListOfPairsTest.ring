@@ -1,7 +1,13 @@
 load "stzlib.ring"
 
 /*-----------------
-*/
+
+o1 = new stzListOfPairs([ [ 18, 22 ], [ 8, 12], [ 3, 5] ])
+? @@S( o1.Sorted() )
+#--> [ [ 3, 5 ], [ 8, 12 ], [ 18, 22 ] ]
+
+/*-----------------
+
 o1 = new stzListOfPairs([
 	1:2, 1:2, [9,9], 1:2, 1:2, [9,9], 1:2, 1:2, [9,9]
 ])
@@ -31,7 +37,7 @@ o1 = new stzListOfPairs([
 ? o1.LastNOccurrencesXT(2, :Of = [9,9], :StartingAt = 10)
 #--> [6, 9]
 
-/*------ TODO: Review
+/*------
 
 o1 = new stzListOfPairs([ ["A", "B"], ["C", "♥"], ["E", "F"] ])
 ? o1.ContainsInAnyPair("♥") # TRUE
@@ -42,9 +48,7 @@ o1 = new stzListOfPairs([
 	[ 18, 22 ], [ 8, 12], [ 3, 5]
 ])
 
-
-
-? @@( o1.Swapped() ) #--> [ [ 8, 12 ], [ 18, 22 ], [ 3, 5 ] ]
+? @@S( o1.Swapped() ) #--> [ [ 22, 18 ], [ 12, 8 ], [ 5, 3 ] ]
 
 /*------
 
@@ -72,8 +76,8 @@ o1 = new stzListOfPairs([
 	[ 3, 5], [8, 12], [20, 23]
 ])
 
-? @@( o1.ExpandedIfPairsOfNumbers() ) + NL
+? @@S( o1.ExpandedIfPairsOfNumbers() ) + NL
 #--> [ [ 3, 4, 5 ], [ 8, 9, 10, 11, 12 ], [ 20, 21, 22, 23 ] ]
 
 anPositions = o1.ExpandedIfPairsOfNumbersQ().MergeQ().RemoveDuplicatesQ().SortedInAscending()
-? @@( anPositions ) #--> [ 3, 4, 5, 8, 9, 10, 11, 12, 20, 21, 22, 23 ]
+? @@S( anPositions ) #--> [ 3, 4, 5, 8, 9, 10, 11, 12, 20, 21, 22, 23 ]

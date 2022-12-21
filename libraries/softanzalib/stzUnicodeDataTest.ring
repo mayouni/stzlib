@@ -1,8 +1,9 @@
 load "stzlib.ring"
 
+? StzUnicodeDataQ().CharUnicodeByName("CHECK MARK")
 
 /*-----------------
-*/
+
 ? StzCharQ(610).Content() # --> ɢ
 ? StzCharQ("0x0262").Content()	# --> ɢ
 ? StzCharQ("LATIN LETTER SMALL CAPITAL G").Content() # # --> ɢ

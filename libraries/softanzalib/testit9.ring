@@ -1,36 +1,63 @@
 load "stzlib.ring"
 
-# Extending a list of numbers to a given position
+/*------------
+					 
+         SPLITTING   |   At   |	Before | After |
+ --------------------+--------+--------+-------+
+        A Position   |   ✓   |   •    |   •   |
+ --------------------+--------+--------+-------+
+    Many Positions   |   ✓   |   •    |   •   |
+ --------------------+--------+--------+-------+
+       A SubString   |   ✓   |   •    |   •   |
+ --------------------+--------+--------+-------+
+   Many SubStrings   |   ✓   |   •    |   •   |
+ --------------------+--------+--------+-------+
+             Where   |   ✓   |   •    |   •   |
+ --------------------+--------+--------+-------+
 
-o1 = new stzList([ 1, 2, 3 ])
-o1.ExtendTo(5)
-? @@( o1.Content() )
-#--> [ 1, 2, 3, 0, 0 ]
+/*============ SPLITTING AT
+*/
+# Splitting before a given substring with case sensitivity
 
-# Extending a list of strings to a given position
-
-o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendTo(5)
-? @@( o1.Content() )
-#--> [ "A", "B", "C", "", "" ]
+o1 = new stzString("__a__A__")
+? o1.SplitCS( :Before = "a", :CS = FALSE)
+#--> [ "__", "__", "__" ]
 
 
-# Extending a list by a given item
+/*============ SPLITTING AT
 
-o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendToXT(5, :With = "♥")
-? @@( o1.Content() )
-#--> [ "A", "B", "C", "♥", "♥" ]
+# Splitting at a given substring with case sensitivity
 
-# Extending a list by its own items
+o1 = new stzString("__a__A__")
+? o1.SplitCS("a", :CS = FALSE)
+#--> [ "__", "__", "__" ]
 
-o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendToXT(5, :With@ = "@items" )
-? @@( o1.Content() )
-#--> [ "A", "B", "C", "A", "B" ]
+# Splitting at a given substring
 
-# Extending a list by the items of an other list
-o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendToXT(8, :With@ = [1, 2, 3] )
-? @@( o1.Content() )
-#--> [ "A", "B", "C", 1, 2, 3, 0, 0 ]
+o1 = new stzString("...♥...♥...")
+? o1.Split( :At = "♥" )
+#--> [ "...", "...", "..." ]
+
+# Splitting at a given position
+
+o1 = new stzString("...♥...")
+? o1.Split( :At = 4 )
+#--> [ "...", "..." ]
+
+# Splitting at many positions
+
+o1 = new stzString("...♥...♥...")
+? o1.Split( :At = [ 4, 8 ] )
+#--> [ "...", "...", "..." ]
+
+# Splitting at many substrings
+
+o1 = new stzString("...♥...★...")
+? o1.Split( :At = [ "♥", "★" ] )
+#--> [ "...", "...", "..." ]
+
+# Splitting at a char described by a condition
+
+o1 = new stzString("...♥...♥...")
+? o1.SplitW('@char = "♥"')
+#--> [ "...", "...", "..." ]

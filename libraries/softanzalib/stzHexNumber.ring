@@ -75,6 +75,7 @@ class stzHexNumber from stzObject
 	# request using WithPrefix()
 
 	def init(pNumber)
+
 		if isString(pNumber) and StzStringQ(pNumber).RepresentsNumberInHexForm()
 
 			oHexNumber = StzStringQ(pNumber)
