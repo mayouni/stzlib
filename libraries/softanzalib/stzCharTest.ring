@@ -1,10 +1,13 @@
 load "stzlib.ring"
 
+/*------------------
 
-? StzCharQ("Ã").IsLatinDiacritic() #--> TRUE
-# To get the list of latin diacritivs use LatinDiacritics()
+? Q("✓").CharName() 			#--> CHECK MARK
+? StzCharQ("CHECK MARK").Content() 	#--> ✓
+? CQ("NOT CHECK MARK").Content()	#--> ⍻
 
-Ã
+? StzCharQ("Ã").IsLatinDiacritic() 	#--> TRUE
+# To get the list of latin diacritics use LatinDiacritics()
 
 ? StzCharQ(" ").CharType() #--> separator_space
 

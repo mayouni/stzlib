@@ -1,25 +1,72 @@
 load "stzlib.ring"
 
+/*--------------------
+
+o1 = new stzString("_♥_★_♥_")
+
+? @@S( o1.FindMany([ "♥", "★" ]) )
+#--> [ 2, 4, 6 ]
+
+o1 = new stzList([ "_", "♥", "_", "★", "_", "♥" ])
+? @@S( o1.FindMany([ "♥", "★" ]) )
+#--> [ 2, 4, 6 ]
+
+o1 = new stzString("_♥_★_♥_")
+? @@S( o1.FindManyXT([ "♥", "★" ]) )
+#--> [ [ "♥", [ 2, 6 ] ], [ "★", [ 4 ] ] ]
+
+o1 = new stzList([ "_", "♥", "_", "★", "_", "♥" ])
+? @@S( o1.FindManyXT([ "♥", "★" ]) )
+#--> [ [ "♥", [ 2, 6 ] ], [ "★", [ 4 ] ] ]
+
+/*====================
+*/
 o1 = new stzSplitter(1:10)
+
+? @@S( o1.SplitAt(5) )
+#--> [ [1, 4], [6, 10] ]
+
+? @@S( o1.SplitAt([3, 7]) )
+#--> [ [ 1, 2 ], [ 4, 6 ], [ 8, 10 ] ]
+
+? @@S( o1.SplitAtSection([ 4, 7 ]) )
+#--> [ [ 1, 3 ], [ 8, 10 ] ]
+
+? @@S( o1.SplitAtSection([ 1, 9 ]) )
+#--> [ [ 10, 10 ] ]
+
+? @@S(o1.SplitAtSections([ [3,5], [7, 8] ]) )
+#--> [ [1, 2], [6, 6], [9, 10] ]
 
 /*====================
 
-? @@S( o1.Split( :at = 5) )
+o1 = new stzSplitter(1:10)
+
+? @@S( o1.Split( :At = 5) )
 #--> [ [1, 4], [6, 10] ]
 
-? @@S( o1.Split( :at = [3, 7] ) )
+? @@S( o1.Split( :At = [3, 7] ) )
 #--> [ [ 1, 2 ], [ 4, 6 ], [ 8, 10 ] ]
 
-? @@S( o1.Split( :before = 5 ) )
+? @@S( o1.Split( :AtSection = [ 4, 7 ]) )
+#--> [ [ 1, 3 ], [ 8, 10 ] ]
+
+? @@S( o1.Split( :AtSection = [ 1, 9 ]) )
+#--> [ [ 10, 10 ] ]
+
+? @@S(o1.Split( :AtSections = [ [3,5], [7, 8] ] ))
+#--> [ [1, 2], [6, 6], [9, 10] ]
+/*
+? @@S( o1.Split( :Before = 5 ) )
 #--> [ [ 1, 4 ], [ 5, 10 ] ]
 
-? @@S( o1.Split( :before = [3, 7] ) )
+? @@S( o1.Split( :Before = [3, 7] ) )
 #--> [ [ 1, 2 ], [ 3, 6 ], [ 7, 10 ] ]
 
-? @@S( o1.Split( :after = 5 ) )
+? @@S( o1.Split( :After = 5 ) )
 #--> [ [ 1, 5 ], [ 6, 10 ] ]
 
-? @@S( o1.Split( :after = [3, 7] ) )
+? @@S( o1.Split( :After = [3, 7] ) )
 #--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 10 ] ]
 
 ? @@S( o1.Split( :ToPartsOfNItems = 3 ) )
@@ -31,13 +78,19 @@ o1 = new stzSplitter(1:10)
 ? @@S( o1.Split( :ToNParts = 4 ) )
 # --> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 10 ] ]
 
-/*==================
+/*--------------------
 
-? @@S( o1.SplitAt(5) )
-#--> [ [ 1, 4 ], [ 6, 10 ] ]
+o1 = new stzSplitter(1:10)
+? @@S( o1.Split( :AtSections = [ [3,5], [8,9] ] ) )
+#--> [ [ 1, 2 ], [ 6, 7 ], [ 10, 10 ] ]
 
-? @@S( o1.SplitAt([ 3, 7 ]) )
-#--> [ [ 1, 2 ], [ 4, 6 ], [ 8, 10 ] ]
+/*--------------------
+
+o1 = new stzListOfPairs([ [ 9, 10 ], [ 1, 2 ], [ 6, 6 ] ])
+o1.SortInAscending()
+? @@S( o1.Content() )
+#--> [ [ 1, 2 ], [ 6, 6 ], [ 9, 10 ] ]
+
 
 /*------------------
 
@@ -78,7 +131,7 @@ o1 = new stzSplitter(12)
 #--> [ [ 1, 5 ], [ 6, 10 ] ]
 
 /*==================
-*/
+
 # Softanza is designed with Programmer Experience in mind.
 
 # We all forget a function syntax and how parameters should
@@ -91,7 +144,7 @@ o1 = new stzSplitter(12)
 # Whatever comes to your mind expressing your intent, the library
 # will do its best to understood it and execute it!
 
-# All the following formlations lead to the same result:
+# All the following formulations lead to the same result:
 # splitting at a some positions given by a conditional expression...
 
 ? @@S( o1.SplitW( 'Q(@position).IsMultipleOf(3)' ) )

@@ -50,8 +50,12 @@ or 'unavoidable' Qt feature.
  ///   FUNCTIONS   ///
 /////////////////////
 
+
 func StzCharQ(p)
 	return new stzChar(p)
+
+	func CQ(p)
+		return StzCharQ(p)
 
 func StzCharMethods()
 	return Stz(:Char, :Methods)

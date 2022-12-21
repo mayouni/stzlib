@@ -383,11 +383,19 @@ Diacritics
 	_anGeneralPunctuationUnicodes   = 8192  : 8303
 	_anSupplementalPunctuationCodes = 11766 : 11903
 
-	_anPunctuationUnicodes = ListsMerge([
-		_anGeneralPunctuationUnicodes,
-		_anSupplementalPunctuationCodes,
-		_anOtherPunctuationUnicodes
-	])
+	# Merging the three lists above
+	_anPunctuationUnicodes = []
+	for item in _anOtherPunctuationUnicodes
+		_anPunctuationUnicodes + item
+	next
+
+	for item in _anGeneralPunctuationUnicodes
+		_anPunctuationUnicodes + item
+	next
+
+	for item in _anSupplementalPunctuationCodes
+		_anPunctuationUnicodes + item
+	next
 
 	  #-------------------#
 	 #   ARABIC STAFF    #
@@ -413,17 +421,18 @@ Diacritics
 
 	# Arabic 7arakets
 
-	_cArabicDhammah = "ُ"
-	_cArabicFat7ah = "َ"
-	_cArabicKasrah = "ِ"
-	_cArabicSukoon = "ْ"
+	_cArabicDhammah = "ُ"		_cArabicDhammahUnicode = 1615
+	_cArabicFat7ah = "َ"		_cArabicFat7ahUnicode  = 1614
+	_cArabicKasrah = "ِ"		_cArabicKasrahUnicode  = 1616
+	_cArabicSukoon = "ْ"		_cArabicSukoonUnicode  = 1618
 	_cArabicDoubleDhammah = "ُُ"
 	_ArabicDoubleFat7ah = "ََ"
 	_ArabicDoubleKasrah = "ِِ"
 
+	
 	_anArabic7araketUnicodes = [
-		Unicode(_cArabicDhammah), Unicode(_cArabicFat7ah),
-		Unicode(_cArabicKasrah), Unicode(_cArabicSukoon)
+		_cArabicDhammahUnicode, _cArabicFat7ahUnicode,
+		_cArabicKasrahUnicode, _cArabicSukoonUnicode
 	]
 
 	# Arabic Shaddah
@@ -449,19 +458,40 @@ Diacritics
 
 	_anQuranicSignUnicodes = 1750 : 1773
 	
-	_anArabicPresentationFormUnicodes = ListsMerge([
-		_anArabicPresentationFormAUnicodes,
-		_anArabicPresentationFormBUnicodes
-	])
-	
-	_anArabicUnicodes = ListsMerge([
-		_anArabicBasicUnicodes,
-		_anArabicSupplementUnicodes,
-		_anArabicExtendedAUnicodes,
-		_anArabicPresentationFormAUnicodes,
-		_anArabicPresentationFormBUnicodes,
-		_anArabicMathAlphabeticSymbolUnicodes
-	])
+	# Arabic Presentation Form unicodes
+
+	_anArabicPresentationFormUnicodes = []
+
+	for item in _anArabicPresentationFormAUnicodes
+		_anArabicPresentationFormUnicodes + item
+	next
+
+	for item in _anArabicPresentationFormBUnicodes
+		_anArabicPresentationFormUnicodes + item
+	next
+
+	# All Arabic unicodes
+
+	_anArabicUnicodes = []
+
+	for item in _anArabicBasicUnicodes
+		_anArabicUnicodes + item
+	next
+	for item in _anArabicSupplementUnicodes
+		_anArabicUnicodes + item
+	next
+	for item in _anArabicExtendedAUnicodes
+		_anArabicUnicodes + item
+	next
+	for item in _anArabicPresentationFormAUnicodes
+		_anArabicUnicodes + item
+	next
+	for item in _anArabicPresentationFormBUnicodes
+		_anArabicUnicodes + item
+	next
+	for item in _anArabicMathAlphabeticSymbolUnicodes
+		_anArabicUnicodes + item
+	next
 
 	# Arabic Rasm chars (TODO)
 
@@ -522,10 +552,14 @@ Diacritics
 	_anArabicHamzahKat3iahUnicodes = 1571:1574 + 1569
 	_anArabicHamzahWasliahUnicodes = _anArabicHamzahWasliahMaksoorahUnicode + _nArabicHamzahWasliahMadhmoumahUnicode
 	
-	_anArabicHamzahUnicodes = ListsMerge([
-		_anArabicHamzahKat3iahUnicodes,
-		_anArabicHamzahWasliahUnicodes
-	])
+	_anArabicHamzahUnicodes = []
+
+	for item in _anArabicHamzahKat3iahUnicodes
+		_anArabicHamzahUnicodes + item
+	next
+	for item in _anArabicHamzahWasliahUnicodes
+		_anArabicHamzahUnicodes + item
+	next
 
 	  #-------------------#
 	 #   LANTIN STAFF    #
@@ -542,17 +576,33 @@ Diacritics
 	_anLatinExtendedDUnicodes = 42784 : 43007
 	_anLatinExtendedEUnicodes = 43824 : 43887
 	
-	_anLatinUnicodes = ListsMerge([
-		_anLatinBasicUnicodes,
-		_anLatin1SupplementUnicodes,
-		_anLatinExtendedAUnicodes,
-		_anLatinExtendedBUnicodes,
-		_anLatinExtendedAdditionalUnicodes,
-		_anLatinExtendedCUnicodes,
-		_anLatinExtendedDUnicodes,
-		_anLatinExtendedEUnicodes
-	 ])
+	_anLatinUnicodes = []
 	
+	for item in _anLatinBasicUnicodes
+		_anLatinUnicodes + item
+	next
+	for item in _anLatin1SupplementUnicodes
+		_anLatinUnicodes + item
+	next
+	for item in _anLatinExtendedAUnicodes
+		_anLatinUnicodes + item
+	next
+	for item in _anLatinExtendedBUnicodes
+		_anLatinUnicodes + item
+	next
+	for item in _anLatinExtendedAdditionalUnicodes
+		_anLatinUnicodes + item
+	next
+	for item in _anLatinExtendedCUnicodes
+		_anLatinUnicodes + item
+	next
+	for item in _anLatinExtendedDUnicodes
+		_anLatinUnicodes + item
+	next
+	for item in _anLatinExtendedEUnicodes
+		_anLatinUnicodes + item
+	next
+
 	  #--------------------#
 	 #   NUMBERS STAFF    #
 	#--------------------#
@@ -623,9 +673,24 @@ Diacritics
 		
 	# Arabic number fractions
 
-	_anArabicNumberFractionsUnicodes = ListsMerge([
-		188:190, 8528:8530, 8531:8532, 8533:8536, 8537:8542
-	])
+	_anArabicNumberFractionsUnicodes = []
+
+	for item in 188:190
+		_anArabicNumberFractionsUnicodes + item
+	next
+
+	for item in 8528:8530
+		_anArabicNumberFractionsUnicodes + item
+	next
+	for item in 8531:8532
+		_anArabicNumberFractionsUnicodes + item
+	next
+	for item in 8533:8536
+		_anArabicNumberFractionsUnicodes + item
+	next
+	for item in 8537:8542
+		_anArabicNumberFractionsUnicodes + item
+	next
 
 	_aArabicNumberFractionsXT = [
 		[ "1/4", 188 ], # --> "¼"
@@ -780,34 +845,72 @@ Diacritics
 	_anLatinCircledCapitalLetterUnicodes = 9398:9423
 	_anLatinCircledSmallLetterUnicodes = 9424:9449
 
-	_anLatinCircledLetterUnicodes = ListsMerge([
-		_anLatinCircledCapitalLetterUnicodes ,
-		_anLatinCircledSmallLetterUnicodes
-	])
+	_anLatinCircledLetterUnicodes = []
+
+	for item in _anLatinCircledCapitalLetterUnicodes
+		_anLatinCircledLetterUnicodes + item
+	next
+	for item in _anLatinCircledSmallLetterUnicodes
+		_anLatinCircledLetterUnicodes + item
+	next
 
 	# Invisible chars
 
-	_anInvisibleUnicodes = ListsMerge([
-		[ 9, 32, 173, 874 ],
-		[ 1564 ],
-		[ 4447, 4448],
-		[ 6068, 6069 ],
-		[ 6158 ],
-		[ 8192, 8193 ],
-		8194 : 8207,
-		[ 8239 ],
-		8287 : 8282,
-		8298 : 8303,
-		[ 12288 ],
-		[ 10240 ],
-		[ 12644 ],
-		[ 65279 ],
-		[ 65440 ],
-		[ 119129 ],
-		119155:119162
-		
-	])
+	_anInvisibleUnicodes = []
 
+	for item in [ 9, 32, 173, 874 ]
+		_anInvisibleUnicodes + item
+	next
+	for item in [ 1564 ]
+		_anInvisibleUnicodes + item
+	next
+	for item in [ 4447, 4448]
+		_anInvisibleUnicodes + item
+	next
+	for item in [ 6068, 6069 ]
+		_anInvisibleUnicodes + item
+	next
+	for item in [ 6158 ]
+		_anInvisibleUnicodes + item
+	next
+	for item in [ 8192, 8193 ]
+		_anInvisibleUnicodes + item
+	next
+	for item in 8194 : 8207
+		_anInvisibleUnicodes + item
+	next
+	for item in [ 8239 ]
+		_anInvisibleUnicodes + item
+	next
+	for item in 8287 : 8282
+		_anInvisibleUnicodes + item
+	next
+	for item in 8298 : 8303
+		_anInvisibleUnicodes + item
+	next
+	for item in [ 12288 ]
+		_anInvisibleUnicodes + item
+	next
+	for item in [ 10240 ]
+		_anInvisibleUnicodes + item
+	next
+	for item in [ 12644 ]
+		_anInvisibleUnicodes + item
+	next
+	for item in [ 65279 ]
+		_anInvisibleUnicodes + item
+	next
+	for item in [ 65440 ]
+		_anInvisibleUnicodes + item
+	next
+	for item in [ 119129 ]
+		_anInvisibleUnicodes + item
+	next
+	for item in 119155:119162
+		_anInvisibleUnicodes + item
+	next
+
+	# Invisible chars -- EXTENDED
 	_aInvisibleCharsXT = [
 	
 		# Unicode > Name
@@ -917,10 +1020,15 @@ Diacritics
 
 	# Word non letter chars (TODO: Complete the list)
 
-	_acWordNonLetterChars = ListsMerge([
-		[ "_", "-", "*", "/", "\", "+" ],
-		ArabicNumbers()
-	])
+	_acWordNonLetterChars = []
+
+	for item in [ "_", "-", "*", "/", "\", "+" ]
+		_acWordNonLetterChars + item
+	next
+	for item in ArabicNumbers()
+		_acWordNonLetterChars + item
+	next
+
 	/* Example of words containing those non-letter chars:
 		C++
 		Win32,
@@ -1224,25 +1332,41 @@ Diacritics
 
 	# Diacritics
 
-	_anDiacriticsUnicodes = ListsMerge([
-		_anLatinDiacriticsUnicodes,
-		_anArabicDiacriticsUnicodes,
-		_anGreekDiacriticsUnicodes,
-		_anHebrewDiacriticsUnicodes
-	])
+	_anDiacriticsUnicodes = []
+	for item in _anLatinDiacriticsUnicodes
+		_anDiacriticsUnicodes + item
+	next
+	for item in _anArabicDiacriticsUnicodes
+		_anDiacriticsUnicodes + item
+	next
+	for item in _anGreekDiacriticsUnicodes
+		_anDiacriticsUnicodes + item
+	next
+	for item in _anHebrewDiacriticsUnicodes
+		_anDiacriticsUnicodes + item
+	next
 	
 	# Diacricized chars
 
-	_anDiacricizedUnicodes = ListsMerge([
-		_anLatinDiacriticsUnicodes,
-		_anGreekDiacriticsUnicodes
-	])
+	_anDiacricizedUnicodes = []
 
-	_aDiacricizedCharsXT = ListsMerge([
-		_aLatinDiacriticsXT,
-		_aGreekDiacriticsXT
-	])
+	for item in _anLatinDiacriticsUnicodes
+		_anDiacricizedUnicodes + item
+	next
+	for item in _anGreekDiacriticsUnicodes
+		_anDiacricizedUnicodes + item
+	next
 
+	# Diacricized chars -- EXTENDED
+
+	_aDiacricizedCharsXT = []
+
+	for item in _aLatinDiacriticsXT
+		_aDiacricizedCharsXT + item
+	next
+	for item in _aGreekDiacriticsXT
+		_aDiacricizedCharsXT + item
+	next
 
   /////////////////////
  ///   FUNCTIONS   ///
@@ -1734,7 +1858,16 @@ Diacritics
 	# Diacritics
 
 	func DiacriticsXT()
-		return ListsMerge([ LatinDiacriticsXT(), ArabicDiacriticsXT() ])
+		aResult = []
+
+		for item in  LatinDiacriticsXT()
+			aResult + item
+		next
+		for item in ArabicDiacriticsXT()
+			aResult + item
+		next
+
+		return aResult
 
 	func LatinDiacriticsUnicodes()
 		return _anLatinDiacriticsUnicodes

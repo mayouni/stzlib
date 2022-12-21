@@ -302,14 +302,17 @@ _acRingKeywords = [
 
 _nQuietEqualityRatio = 0.09
 
-func Space()
+func ASpace() # We don't use Space() because it is reserved by Ring standard library
 	return NSpaces(1)
 
 	func SingleSpace()
-		return Space()
+		return ASpace()
 
 	func BlankSpace()
-		return Space()
+		return ASpace()
+
+	func OneSpace()
+		return ASpace()
 
 func DoubleSpace()
 	return NSpaces(2)

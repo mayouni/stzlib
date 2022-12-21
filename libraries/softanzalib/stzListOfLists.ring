@@ -39,22 +39,13 @@ func LL(p)
 			return LLQ(p)
 
 func ListsMerge(paListOfLists)
-	return StzListOfListsQ(paListOfLists).Merge()
+	return StzListOfListsQ(paListOfLists).Merged()
 
 	func ListsMergeQ(paListOfLists)
 		return new stzList( ListsMerge(paListOfLists) )
 
 func ListsFlatten(paListOfLists)
-	return StzListOfListsQ(paListOfLists).Flatten()
-
-	func ListsFlattenQ(paListOfLists)
-		return new stzList( ListsFlatten(paListOfLists) )
-
-	func ListsMergeAndFlatten(paListOfLists)
-		return ListsFlatten(paListOfLists)
-
-		func ListsMergeAndFlattenQ(paListOfLists)
-			return new stzList( ListsMergeAndFlatten(paListOfLists) )
+	return StzListOfListsQ(paListOfLists).Flattened()
 
 
 class stzListOfLists from stzList
@@ -62,6 +53,7 @@ class stzListOfLists from stzList
 	@aContent = []
 
 	def init(paList)
+
 		if isList(paList) and
 		   ( Q(paList).IsEmpty() or Q(paList).IsListOfLists() )
 
@@ -269,6 +261,9 @@ class stzListOfLists from stzList
 		def MaxSize()
 			return This.BiggestSize()
 
+		def Largestsize()
+			return This.BiggestSize()
+
 	def ListsHaveSameNumberOfItems()
 		bResult = TRUE
 		
@@ -291,9 +286,15 @@ class stzListOfLists from stzList
 	def SmallestLists()
 		return This.ListsW('{ len(@list) = This.SmallestSize() }')
 
+	# TODO: adds "big", "great", and "large" as alternatives al over the library
 	def BiggestLists()
 		return This.ListsW('{ len(@list) = This.BiggestSize() }')
 
+		def GreatestLists()
+			return This.BiggestLists()
+
+		def LargestLists()
+			return This.BiggestLists()
 
 	def FindSmallestLists()
 		return This.PositionsW('{ len(@list) = This.SmallestSize() }')
@@ -330,6 +331,29 @@ class stzListOfLists from stzList
 
 		def MaxListsPositions()
 			return This.FindBiggestLists()
+
+		#--
+
+		def FindGeatestLists()
+			return This.FindBiggestLists()
+
+		def PositionsOfGreatestLists()
+			return This.FindBiggestLists()
+
+		def GreatestListsPositions()
+			return This.FindBiggestLists()
+
+		#--
+
+		def FindLargestLists()
+			return This.FindBiggestLists()
+
+		def PositionsOfLargestLists()
+			return This.FindBiggestLists()
+
+		def LargestListsPositions()
+			return This.FindBiggestLists()
+
 
 	  #---------------------#
 	 #   LISTS OF SIZE N   #
@@ -577,7 +601,8 @@ class stzListOfLists from stzList
 		//		 [ :A = 2, :B = 1, :C = 1, :X = 1 ] ]	
 
 
-		aKeys = This.MergeAndRemoveDuplicates()
+		//aKeys = This.MergeAndRemoveDuplicates()
+		aKeys = This.ToStzList().MergeQ().DuplicatesRemoved()
 		// aKeys => [ :A, :B, :C, :X ]
 
 		
@@ -655,70 +680,6 @@ class stzListOfLists from stzList
 	def LastOccurrenceOfEntry(pEntry)
 		return NthOccurrenceOfEntry(This.NumberOfOccurrenceOfEntry(pEntry), pEntry)
 
-	  #--------------------------#
-	 #   MERGING & FLATTENING   #
-	#--------------------------#
-
-	def Merge() # Breaks if an items is of type Object!
-		
-		aMerged = []
-
-		for aList in This.ListOfLists()
-			for item in aList
-				aMerged + item
-			next
-		next
-
-		return aMerged
-
-	def MergeQ()
-		return new stzList( This.Merge() )
-
-	def Merged()
-		return This.Merge()
-
-	def Flatten()
-		aFlattened = []
-
-		for list in This.ListOfLists()
-			aFlattened + StzListQ(list).Flattened()
-		next
-
-		aResult = []
-		for list in aFlattened
-			for item in list
-				aResult + item
-			next
-		next
-
-		return aResult
-		
-		#< @FunctionFluentForm
-
-		def FlattenQ()
-			return new stzList( This.Flatten() )
-	
-		#>
-
-		#< @FunctionAlternativeFormForm
-
-		func MergeAndFlatten()
-			return This.Flatten()
-
-			#< @FunctionFluentForm
-
-			func MergeAndFlattenQ()
-				return new stzList( This.MergeAndFlatten() )
-
-			#>
-		#>
-
-	def Flattened()
-		return This.Flatten()
-
-	def MergedAndFlattened()
-		return This.MergeAndFlatten()
-
 	  #------------------#
 	 #   CONTAINMENT    #
 	#------------------#
@@ -761,6 +722,89 @@ class stzListOfLists from stzList
 		*/
 		oStzList = new stzList(This.Merge())
 		return oStzList.DuplicatedItems()
+
+	  #-----------------------------------------------------#
+	 #   MERGING THE LISTS AND RETURNING ONE MERGED LIST   #
+	#-----------------------------------------------------#
+
+	def Merge()
+
+		aResult = []
+
+		for aList in This.ListOfLists()
+			for item in aList
+				aResult + item
+			next
+		next
+
+		return aResult
+
+		def MergeQ()
+			return This.MergeQR(:stzList)
+
+		def MergeQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Merged() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Merged() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Merged() )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.Merged() )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.Merged() )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.Merged() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+	def Merged()
+		return This.Merge()
+
+	  #-----------------------------------------------------------#
+	 #   FLATTENING THE LISTS AND RETURNING ONE FLATTENED LIST   #
+	#-----------------------------------------------------------#
+
+	def Flatten()
+		aResult = This.ToStzList().Flattened()
+		return aResult
+
+		def FlattenQ()
+			return This.FlattenQR(:stzList)
+
+		def FlattenQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Flattened() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Flattened() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Flattened() )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.Flattened() )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.Flattened() )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.Flattened() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+	def Flattened()
+		return This.Flatten()
 
 	  #---------------------#
 	 #   TO OTHER TYPES    #
