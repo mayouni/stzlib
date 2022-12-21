@@ -186,27 +186,26 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitAtPosition(p)
 
 		but isList(p)
-			if Q(p).IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
-				return This.SplitAtPosition(p)
-
-			but Q(p).IsListOfNumbers() or
-			    Q(p).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
-
+			if Q(p).IsListOfNumbers()
 				return This.SplitAtPositions(p)
 
-			but Q(p).IsPairOfNumbers() or
-			    Q(p).IsOneOfTheseNamedParams([ :Section, :ThisSection ])
-
-				return This.SplitAtSection(n)
-
-			but Q(p).IsListOfPairsOfNumbers() or
-			    Q(p).IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
-
+			but Q(p).IsListOfPairsOfNumbers()
 				return This.SplitAtSections(p)
+
+			but Q(p).IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+				return This.SplitAtPosition(p[2])
+
+			but Q(n).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
+				return This.SplitAtPositions(p[2])
+
+			but Q(p).IsOneOfTheseNamedParams([ :Section, :ThisSection ])
+				return This.SplitAtSection(p[2])
+
+			but Q(p).IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
+				return This.SplitAtSections(p[2])
 			ok
 		else
 			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
-
 		ok
 
 	  #-----------------------------------#
@@ -224,7 +223,7 @@ class stzSplitter from stzListOfNumbers
 		if n > 1 and n < nLen
 			aResult = [ [ 1, n-1], [n+1, nLen ] ]
 		else
-			aResult = This.Content()
+			aResult = [ 1 , This.NumberOfPositions() ]
 		ok
 
 		return aResult
@@ -234,6 +233,9 @@ class stzSplitter from stzListOfNumbers
 	#---------------------------------#
 
 	def SplitAtPositions(panPositions)
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+			StzRaise("Incorrect param type! panPositions must be a list of numbers.")
+		ok
 
 		aPairs = This.GetPairsFromPositions(panPositions)
 
@@ -260,23 +262,23 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitBeforePosition(p)
 
 		but isList(p)
-			if Q(p).IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
-				return This.SplitBeforePosition(p)
-
-			but Q(p).IsListOfNumbers() or
-			    Q(n).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
-
+			if Q(p).IsListOfNumbers()
 				return This.SplitBeforePositions(p)
 
-			but Q(p).IsPairOfNumbers() or
-			    Q(p).IsOneOfTheseNamedParams([ :Section, :ThisSection ])
-
-				return This.SplitBeforeSection(p)
-
-			but Q(p).IsListOfPairsOfNumbers() or
-			    Q(p).IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
-
+			but Q(p).IsListOfPairsOfNumbers()
 				return This.SplitBeforeSections(p)
+
+			but Q(p).IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+				return This.SplitBeforePosition(p[2])
+
+			but Q(p).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
+				return This.SplitBeforePositions(p[2])
+
+			but Q(p).IsOneOfTheseNamedParams([ :Section, :ThisSection ])
+				return This.SplitBeforeSection(p[2])
+
+			but Q(p).IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
+				return This.SplitBeforeSections(p[2])
 			ok
 		else
 			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
@@ -296,7 +298,7 @@ class stzSplitter from stzListOfNumbers
 		if n > 1 and n < nLen
 			aResult = [ [ 1, n-1], [n, nLen ] ]
 		else
-			aResult = This.Content()
+			aResult = [ 1 , This.NumberOfPositions() ]
 		ok
 
 		return aResult
@@ -352,23 +354,23 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitAfterPosition(p)
 
 		but isList(p)
-			if Q(p).IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
-				return This.SplitAfterPosition(p)
-
-			but Q(p).IsListOfNumbers() or
-			    Q(n).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
-
+			if Q(p).IsListOfNumbers()
 				return This.SplitAfterPositions(p)
 
-			but Q(p).IsPairOfNumbers() or
-			    Q(p).IsOneOfTheseNamedParams([ :Section, :ThisSection ])
-
-				return This.SplitAfterSection(p)
-
-			but Q(p).IsListOfPairsOfNumbers() or
-			    Q(p).IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
-
+			but Q(p).IsListOfPairsOfNumbers()
 				return This.SplitAfterSections(p)
+
+			but Q(p).IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+				return This.SplitAfterPosition(p[2])
+
+			but Q(p).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
+				return This.SplitAfterPositions(p[2])
+
+			but Q(p).IsOneOfTheseNamedParams([ :Section, :ThisSection ])
+				return This.SplitAfterSection(p[2])
+
+			but Q(p).IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
+				return This.SplitAfterSections(p[2])
 			ok
 		else
 			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
@@ -450,6 +452,12 @@ class stzSplitter from stzListOfNumbers
 
 		*/
 
+		if isList(paSections) and len(paSections) = 1 and
+		   isList(paSections[1]) and Q(paSections[1]).IsPairOfNumbers()
+
+			return This.SplitAtSection(paSections[1])
+		ok
+
 		if NOT (isList(paSections) and Q(paSections).IsListOfPairsOfNumbers())
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
@@ -487,15 +495,16 @@ class stzSplitter from stzListOfNumbers
 	#=====================================#
 
 	def SplitBeforeSection(panSection)
+
 		if NOT ( isList(panSection) and Q(panSection).IsPairOfNumbers() )
 			StzRaie("Incorrect pram type! panSection must be a pair of numbers.")
 		ok
 
 		return This.SplitBeforePosition(panSection[1])
 
-	  #------------------------------#
-	 #  SPLITTING AT MANY SECTIONS  #
-	#------------------------------#
+	  #----------------------------------#
+	 #  SPLITTING BEFORE MANY SECTIONS  #
+	#----------------------------------#
 
 	def SplitBeforeSections(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
@@ -510,6 +519,36 @@ class stzSplitter from stzListOfNumbers
 
 		def SplitBeforeManySections(paSections)
 			return This.SplitBeforeSections(paSections)
+
+	  #=====================================#
+	 #  SPLITTING AFTER A GIVEN SECTION   #
+	#=====================================#
+
+	def SplitAfterSection(panSection)
+
+		if NOT ( isList(panSection) and Q(panSection).IsPairOfNumbers() )
+			StzRaie("Incorrect pram type! panSection must be a pair of numbers.")
+		ok
+
+		return This.SplitAfterPosition(panSection[2])
+
+	  #---------------------------------#
+	 #  SPLITTING AFTER MANY SECTIONS  #
+	#---------------------------------#
+
+	def SplitAfterSections(paSections)
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+		ok
+
+		anPos = StzListOfPairsQ(paSections).SecondItems()
+		return This.SplitAfterPositions(anPos)
+
+		def SplitAfterTheseSections(paSections)
+			return This.SplitAfterSections(paSections)
+
+		def SplitAfterManySections(paSections)
+			return This.SplitAfterSections(paSections)
 
 	  #===================================#
 	 #   SPLITTING TO PARTS OF N ITEMS   #
