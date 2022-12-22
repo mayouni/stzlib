@@ -1,5 +1,10 @@
 load "stzlib.ring"
 
+o1 = new stzListOfPairs([ [ 9, 10 ], [ 1, 2 ], [ 6, 6 ] ])
+o1.SortInAscending()
+? @@S( o1.Content() )
+#--> [ [ 1, 2 ], [ 6, 6 ], [ 9, 10 ] ]
+
 /*-----------------
 
 o1 = new stzListOfPairs([ [ 18, 22 ], [ 8, 12], [ 3, 5] ])
