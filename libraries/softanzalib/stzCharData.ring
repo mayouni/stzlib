@@ -2135,3 +2135,6 @@ Diacritics
 
 	func Star()
 		return "★"
+
+	func CheckMark()
+		return "✓"
