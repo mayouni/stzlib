@@ -452,15 +452,16 @@ class stzSplitter from stzListOfNumbers
 
 		*/
 
+		if NOT ( isList(paSections) and len(paSections) > 0 and Q(paSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! paSections must be a non empty list of pairs of numbers.")
+		ok
+
 		if isList(paSections) and len(paSections) = 1 and
 		   isList(paSections[1]) and Q(paSections[1]).IsPairOfNumbers()
 
 			return This.SplitAtSection(paSections[1])
 		ok
 
-		if NOT (isList(paSections) and Q(paSections).IsListOfPairsOfNumbers())
-			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
-		ok
 
 		aSections = QR(paSections, :stzListOfPairs).Sorted()
 

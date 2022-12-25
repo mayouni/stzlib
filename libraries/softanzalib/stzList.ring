@@ -15283,6 +15283,9 @@ class stzList from stzObject
 			:RemoveThisCharBefore,:RemoveThisCharBefore,
 			:RemoveThisBound, :RemoveThisBoundingSubString,
 			:CaseSensitive, :CS ])
+			# NOTE: I've decided to keep CS as a suffix in the function
+			# name and never use it as an internal option...
+			# --> more simple mental model to keep things memprable
 
 			if This.ToStzHashList().
 				KeysQR(:stzListOfStrings).
@@ -16807,7 +16810,7 @@ class stzList from stzObject
 
 	def IsAtTheseCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This[1]) and  This[1] = :AtTheseChars )
+			( isString(This[1]) and  This[1] = :AtTheseChars )
 
 			return TRUE
 
@@ -16817,7 +16820,7 @@ class stzList from stzObject
 
 	def IsAtManyCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This[1]) and  This[1] = :AtManyChars )
+			( isString(This[1]) and  This[1] = :AtManyChars )
 
 			return TRUE
 
@@ -16881,7 +16884,7 @@ class stzList from stzObject
 
 	def IsAtListNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtList )
+			( isString(This[1]) and  This[1] = :AtList )
 
 			return TRUE
 
@@ -16891,7 +16894,7 @@ class stzList from stzObject
 
 	def IsAtThisListNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtThisList )
+			( isString(This[1]) and  This[1] = :AtThisList )
 
 			return TRUE
 
@@ -16901,7 +16904,7 @@ class stzList from stzObject
 
 	def IsAtListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtLists )
+			( isString(This[1]) and  This[1] = :AtLists )
 
 			return TRUE
 
@@ -16911,7 +16914,7 @@ class stzList from stzObject
 
 	def IsAtTheseListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtTheseLists )
+			( isString(This[1]) and  This[1] = :AtTheseLists )
 
 			return TRUE
 
@@ -16921,7 +16924,7 @@ class stzList from stzObject
 
 	def IsAtManyListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtManyLists )
+			( isString(This[1]) and  This[1] = :AtManyLists )
 
 			return TRUE
 
@@ -16933,7 +16936,7 @@ class stzList from stzObject
 
 	def IsAtSubListNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isSubList(This[1]) and  This[1] = :AtSubList )
+			( isString(This[1]) and  This[1] = :AtSubList )
 
 			return TRUE
 
@@ -16943,7 +16946,7 @@ class stzList from stzObject
 
 	def IsAtThisSubListNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isSubList(This[1]) and  This[1] = :AtThisSubList )
+			( isString(This[1]) and  This[1] = :AtThisSubList )
 
 			return TRUE
 
@@ -16953,7 +16956,7 @@ class stzList from stzObject
 
 	def IsAtSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isSubList(This[1]) and  This[1] = :AtSubLists )
+			( isString(This[1]) and  This[1] = :AtSubLists )
 
 			return TRUE
 
@@ -16963,7 +16966,7 @@ class stzList from stzObject
 
 	def IsAtTheseSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isSubList(This[1]) and  This[1] = :AtTheseSubLists )
+			( isString(This[1]) and  This[1] = :AtTheseSubLists )
 
 			return TRUE
 
@@ -16973,7 +16976,7 @@ class stzList from stzObject
 
 	def IsAtManySubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isSubList(This[1]) and  This[1] = :AtManySubLists )
+			( isString(This[1]) and  This[1] = :AtManySubLists )
 
 			return TRUE
 
@@ -16985,7 +16988,7 @@ class stzList from stzObject
 
 	def IsAtPairNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isPair(This[1]) and  This[1] = :AtPair )
+			( isString(This[1]) and  This[1] = :AtPair )
 
 			return TRUE
 
@@ -16995,7 +16998,7 @@ class stzList from stzObject
 
 	def IsAtThisPairNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isPair(This[1]) and  This[1] = :AtThisPair )
+			( isString(This[1]) and  This[1] = :AtThisPair )
 
 			return TRUE
 
@@ -17005,7 +17008,7 @@ class stzList from stzObject
 
 	def IsAtPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isPair(This[1]) and  This[1] = :AtPairs )
+			( isString(This[1]) and  This[1] = :AtPairs )
 
 			return TRUE
 
@@ -17015,7 +17018,7 @@ class stzList from stzObject
 
 	def IsAtThesePairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isPair(This[1]) and  This[1] = :AtThesePairs )
+			( isString(This[1]) and  This[1] = :AtThesePairs )
 
 			return TRUE
 
@@ -17025,7 +17028,7 @@ class stzList from stzObject
 
 	def IsAtManyPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isPair(This[1]) and  This[1] = :AtManyPairs )
+			( isString(This[1]) and  This[1] = :AtManyPairs )
 
 			return TRUE
 
@@ -17037,7 +17040,7 @@ class stzList from stzObject
 
 	def IsAtListOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfNumber(This[1]) and  This[1] = :AtListOfNumbers )
+			( isString(This[1]) and  This[1] = :AtListOfNumbers )
 
 			return TRUE
 
@@ -17047,7 +17050,7 @@ class stzList from stzObject
 
 	def IsAtThisListOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfNumber(This[1]) and  This[1] = :AtThisListOfNumbers )
+			( isString(This[1]) and  This[1] = :AtThisListOfNumbers )
 
 			return TRUE
 
@@ -17057,7 +17060,7 @@ class stzList from stzObject
 
 	def IsAtListsOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfNumber(This[1]) and  This[1] = :AtListsOfNumbers )
+			( isString(This[1]) and  This[1] = :AtListsOfNumbers )
 
 			return TRUE
 
@@ -17067,7 +17070,7 @@ class stzList from stzObject
 
 	def IsAtTheseListsOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfNumber(This[1]) and  This[1] = :AtTheseListsOfNumbers )
+			( isString(This[1]) and  This[1] = :AtTheseListsOfNumbers )
 
 			return TRUE
 
@@ -17077,7 +17080,7 @@ class stzList from stzObject
 
 	def IsAtManyListsOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfNumber(This[1]) and  This[1] = :AtManyListsOfNumbers )
+			( isString(This[1]) and  This[1] = :AtManyListsOfNumbers )
 
 			return TRUE
 
@@ -17089,7 +17092,7 @@ class stzList from stzObject
 
 	def IsAtListOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfChar(This[1]) and  This[1] = :AtListOfChars )
+			( isString(This[1]) and  This[1] = :AtListOfChars )
 
 			return TRUE
 
@@ -17099,7 +17102,7 @@ class stzList from stzObject
 
 	def IsAtThisListOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfChar(This[1]) and  This[1] = :AtThisListOfChars )
+			( isString(This[1]) and  This[1] = :AtThisListOfChars )
 
 			return TRUE
 
@@ -17109,7 +17112,7 @@ class stzList from stzObject
 
 	def IsAtListsOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfChar(This[1]) and  This[1] = :AtListsOfChars )
+			( isString(This[1]) and  This[1] = :AtListsOfChars )
 
 			return TRUE
 
@@ -17119,7 +17122,7 @@ class stzList from stzObject
 
 	def IsAtTheseListsOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfChar(This[1]) and  This[1] = :AtTheseListsOfChars )
+			( isString(This[1]) and  This[1] = :AtTheseListsOfChars )
 
 			return TRUE
 
@@ -17129,7 +17132,7 @@ class stzList from stzObject
 
 	def IsAtManyListsOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfChar(This[1]) and  This[1] = :AtManyListsOfChars )
+			( isString(This[1]) and  This[1] = :AtManyListsOfChars )
 
 			return TRUE
 
@@ -17141,7 +17144,7 @@ class stzList from stzObject
 
 	def IsAtListOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfString(This[1]) and  This[1] = :AtListOfStrings )
+			( isString(This[1]) and  This[1] = :AtListOfStrings )
 
 			return TRUE
 
@@ -17151,7 +17154,7 @@ class stzList from stzObject
 
 	def IsAtThisListOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfString(This[1]) and  This[1] = :AtThisListOfStrings )
+			( isString(This[1]) and  This[1] = :AtThisListOfStrings )
 
 			return TRUE
 
@@ -17161,7 +17164,7 @@ class stzList from stzObject
 
 	def IsAtListsOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfString(This[1]) and  This[1] = :AtListsOfStrings )
+			( isString(This[1]) and  This[1] = :AtListsOfStrings )
 
 			return TRUE
 
@@ -17171,7 +17174,7 @@ class stzList from stzObject
 
 	def IsAtTheseListsOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfString(This[1]) and  This[1] = :AtTheseListsOfStrings )
+			( isString(This[1]) and  This[1] = :AtTheseListsOfStrings )
 
 			return TRUE
 
@@ -17181,7 +17184,7 @@ class stzList from stzObject
 
 	def IsAtManyListsOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfString(This[1]) and  This[1] = :AtManyListsOfStrings )
+			( isString(This[1]) and  This[1] = :AtManyListsOfStrings )
 
 			return TRUE
 
@@ -17193,7 +17196,7 @@ class stzList from stzObject
 
 	def IsAtListOfStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfStringItem(This[1]) and  This[1] = :AtListOfStringItems )
+			( isString(This[1]) and  This[1] = :AtListOfStringItems )
 
 			return TRUE
 
@@ -17203,7 +17206,7 @@ class stzList from stzObject
 
 	def IsAtThisListOfStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfStringItem(This[1]) and  This[1] = :AtThisListOfStringItems )
+			( isString(This[1]) and  This[1] = :AtThisListOfStringItems )
 
 			return TRUE
 
@@ -17214,7 +17217,7 @@ class stzList from stzObject
 
 	def IsAtListsOfStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfStringItem(This[1]) and  This[1] = :AtListsOfStringItems )
+			( isString(This[1]) and  This[1] = :AtListsOfStringItems )
 
 			return TRUE
 
@@ -17224,7 +17227,7 @@ class stzList from stzObject
 
 	def IsAtTheseListsOfStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfStringItem(This[1]) and  This[1] = :AtTheseListsOfStringItems )
+			( isString(This[1]) and  This[1] = :AtTheseListsOfStringItems )
 
 			return TRUE
 
@@ -17234,7 +17237,7 @@ class stzList from stzObject
 
 	def IsAtManyListsOfStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfStringItem(This[1]) and  This[1] = :AtManyListsOfStringItems )
+			( isString(This[1]) and  This[1] = :AtManyListsOfStringItems )
 
 			return TRUE
 
@@ -17246,7 +17249,7 @@ class stzList from stzObject
 
 	def IsAtListOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtListOfLists )
+			( isString(This[1]) and  This[1] = :AtListOfLists )
 
 			return TRUE
 
@@ -17256,7 +17259,7 @@ class stzList from stzObject
 
 	def IsAtThisListOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtThisListOfLists )
+			( isString(This[1]) and  This[1] = :AtThisListOfLists )
 
 			return TRUE
 
@@ -17266,7 +17269,7 @@ class stzList from stzObject
 
 	def IsAtListsOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtListsOfLists )
+			( isString(This[1]) and  This[1] = :AtListsOfLists )
 
 			return TRUE
 
@@ -17276,7 +17279,7 @@ class stzList from stzObject
 
 	def IsAtTheseListsOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtTheseListsOfLists )
+			( isString(This[1]) and  This[1] = :AtTheseListsOfLists )
 
 			return TRUE
 
@@ -17286,7 +17289,7 @@ class stzList from stzObject
 
 	def IsAtManyListsOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtManyListsOfLists )
+			( isString(This[1]) and  This[1] = :AtManyListsOfLists )
 
 			return TRUE
 
@@ -17298,7 +17301,7 @@ class stzList from stzObject
 
 	def IsAtListOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtListOfSubLists )
+			( isString(This[1]) and  This[1] = :AtListOfSubLists )
 
 			return TRUE
 
@@ -17308,7 +17311,7 @@ class stzList from stzObject
 
 	def IsAtThisListOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtThisListOfSubLists )
+			( isString(This[1]) and  This[1] = :AtThisListOfSubLists )
 
 			return TRUE
 
@@ -17318,7 +17321,7 @@ class stzList from stzObject
 
 	def IsAtListsOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtListsOfSubLists )
+			( isString(This[1]) and  This[1] = :AtListsOfSubLists )
 
 			return TRUE
 
@@ -17328,7 +17331,7 @@ class stzList from stzObject
 
 	def IsAtTheseListsOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtTheseListsOfSubLists )
+			( isString(This[1]) and  This[1] = :AtTheseListsOfSubLists )
 
 			return TRUE
 
@@ -17338,7 +17341,7 @@ class stzList from stzObject
 
 	def IsAtManyListsOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtManyListsOfSubLists )
+			( isString(This[1]) and  This[1] = :AtManyListsOfSubLists )
 
 			return TRUE
 
@@ -17350,7 +17353,7 @@ class stzList from stzObject
 
 	def IsAtListOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtListOfPairs )
+			( isString(This[1]) and  This[1] = :AtListOfPairs )
 
 			return TRUE
 
@@ -17360,7 +17363,7 @@ class stzList from stzObject
 
 	def IsAtThisListOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtThisListOfPairs )
+			( isString(This[1]) and  This[1] = :AtThisListOfPairs )
 
 			return TRUE
 
@@ -17369,7 +17372,7 @@ class stzList from stzObject
 		ok
 	def IsAtListsOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtListsOfPairs )
+			( isString(This[1]) and  This[1] = :AtListsOfPairs )
 
 			return TRUE
 
@@ -17379,7 +17382,7 @@ class stzList from stzObject
 
 	def IsAtTheseListsOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtTheseListsOfPairs )
+			( isString(This[1]) and  This[1] = :AtTheseListsOfPairs )
 
 			return TRUE
 
@@ -17389,7 +17392,7 @@ class stzList from stzObject
 
 	def IsAtManyListsOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtManyListsOfPairs )
+			( isString(This[1]) and  This[1] = :AtManyListsOfPairs )
 
 			return TRUE
 
@@ -17401,7 +17404,7 @@ class stzList from stzObject
 
 	def IsAtListOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtListOfHashLists )
+			( isString(This[1]) and  This[1] = :AtListOfHashLists )
 
 			return TRUE
 
@@ -17411,7 +17414,7 @@ class stzList from stzObject
 
 	def IsAtThisListOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtThisListOfHashLists )
+			( isString(This[1]) and  This[1] = :AtThisListOfHashLists )
 
 			return TRUE
 
@@ -17421,7 +17424,7 @@ class stzList from stzObject
 
 	def IsAtListsOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtListsOfHashLists )
+			( isString(This[1]) and  This[1] = :AtListsOfHashLists )
 
 			return TRUE
 
@@ -17431,7 +17434,7 @@ class stzList from stzObject
 
 	def IsAtTheseListsOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtTheseListsOfHashLists )
+			( isString(This[1]) and  This[1] = :AtTheseListsOfHashLists )
 
 			return TRUE
 
@@ -17441,7 +17444,7 @@ class stzList from stzObject
 
 	def IsAtManyListsOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isListOfList(This[1]) and  This[1] = :AtManyListsOfHashLists )
+			( isString(This[1]) and  This[1] = :AtManyListsOfHashLists )
 
 			return TRUE
 
@@ -17453,7 +17456,7 @@ class stzList from stzObject
 
 	def IsAtObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isObject(This[1]) and  This[1] = :AtObject )
+			( isString(This[1]) and  This[1] = :AtObject )
 
 			return TRUE
 
@@ -17463,7 +17466,7 @@ class stzList from stzObject
 
 	def IsAtThisObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isObject(This[1]) and  This[1] = :AtThisObject )
+			( isString(This[1]) and  This[1] = :AtThisObject )
 
 			return TRUE
 
@@ -17473,7 +17476,7 @@ class stzList from stzObject
 
 	def IsAtObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isObject(This[1]) and  This[1] = :AtObjects )
+			( isString(This[1]) and  This[1] = :AtObjects )
 
 			return TRUE
 
@@ -17483,7 +17486,7 @@ class stzList from stzObject
 
 	def IsAtTheseObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isObject(This[1]) and  This[1] = :AtTheseObjects )
+			( isString(This[1]) and  This[1] = :AtTheseObjects )
 
 			return TRUE
 
@@ -17493,7 +17496,7 @@ class stzList from stzObject
 
 	def IsAtManyObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isObject(This[1]) and  This[1] = :AtManyObjects )
+			( isString(This[1]) and  This[1] = :AtManyObjects )
 
 			return TRUE
 
@@ -17505,7 +17508,7 @@ class stzList from stzObject
 
 	def IsAtSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtSection )
+			( isString(This[1]) and  This[1] = :AtSection )
 
 			return TRUE
 
@@ -17515,7 +17518,7 @@ class stzList from stzObject
 
 	def IsAtThisSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtThisSection )
+			( isString(This[1]) and  This[1] = :AtThisSection )
 
 			return TRUE
 
@@ -17525,7 +17528,7 @@ class stzList from stzObject
 
 	def IsAtSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtSections )
+			( isString(This[1]) and  This[1] = :AtSections )
 
 			return TRUE
 
@@ -17535,7 +17538,7 @@ class stzList from stzObject
 
 	def IsAtTheseSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtTheseSections )
+			( isString(This[1]) and  This[1] = :AtTheseSections )
 
 			return TRUE
 
@@ -17545,7 +17548,7 @@ class stzList from stzObject
 
 	def IsAtManySectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtManySections )
+			( isString(This[1]) and  This[1] = :AtManySections )
 
 			return TRUE
 
@@ -17557,7 +17560,7 @@ class stzList from stzObject
 
 	def IsAtListOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtListOfSections )
+			( isString(This[1]) and  This[1] = :AtListOfSections )
 
 			return TRUE
 
@@ -17567,7 +17570,7 @@ class stzList from stzObject
 
 	def IsAtThisListOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtThisListOfSections )
+			( isString(This[1]) and  This[1] = :AtThisListOfSections )
 
 			return TRUE
 
@@ -17577,7 +17580,7 @@ class stzList from stzObject
 
 	def IsAtListsOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtListsOfSections )
+			( isString(This[1]) and  This[1] = :AtListsOfSections )
 
 			return TRUE
 
@@ -17587,7 +17590,7 @@ class stzList from stzObject
 
 	def IsAtTheseListsOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtTheseListsOfSections )
+			( isString(This[1]) and  This[1] = :AtTheseListsOfSections )
 
 			return TRUE
 
@@ -17597,7 +17600,7 @@ class stzList from stzObject
 
 	def IsAtManyListsOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtManyListsOfSections )
+			( isString(This[1]) and  This[1] = :AtManyListsOfSections )
 
 			return TRUE
 
@@ -17609,7 +17612,7 @@ class stzList from stzObject
 
 	def IsAtRangeNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtRange )
+			( isString(This[1]) and  This[1] = :AtRange )
 
 			return TRUE
 
@@ -17619,7 +17622,7 @@ class stzList from stzObject
 
 	def IsAtThisRangeNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtThisRange )
+			( isString(This[1]) and  This[1] = :AtThisRange )
 
 			return TRUE
 
@@ -17629,7 +17632,7 @@ class stzList from stzObject
 
 	def IsAtRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtRanges )
+			( isString(This[1]) and  This[1] = :AtRanges )
 
 			return TRUE
 
@@ -17639,7 +17642,7 @@ class stzList from stzObject
 
 	def IsAtTheseRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtTheseRanges )
+			( isString(This[1]) and  This[1] = :AtTheseRanges )
 
 			return TRUE
 
@@ -17649,7 +17652,7 @@ class stzList from stzObject
 
 	def IsAtManyRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtManyRanges )
+			( isString(This[1]) and  This[1] = :AtManyRanges )
 
 			return TRUE
 
@@ -17661,7 +17664,7 @@ class stzList from stzObject
 
 	def IsAtListOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtListOfRanges )
+			( isString(This[1]) and  This[1] = :AtListOfRanges )
 
 			return TRUE
 
@@ -17671,7 +17674,7 @@ class stzList from stzObject
 
 	def IsAtThisListOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtThisListOfRanges )
+			( isString(This[1]) and  This[1] = :AtThisListOfRanges )
 
 			return TRUE
 
@@ -17681,7 +17684,7 @@ class stzList from stzObject
 
 	def IsAtListsOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtListsOfRanges )
+			( isString(This[1]) and  This[1] = :AtListsOfRanges )
 
 			return TRUE
 
@@ -17691,7 +17694,7 @@ class stzList from stzObject
 
 	def IsAtTheseListsOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtTheseListsOfRanges )
+			( isString(This[1]) and  This[1] = :AtTheseListsOfRanges )
 
 			return TRUE
 
@@ -17701,7 +17704,7 @@ class stzList from stzObject
 
 	def IsAtManyListsOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isList(This[1]) and  This[1] = :AtManyListsOfRanges )
+			( isString(This[1]) and  This[1] = :AtManyListsOfRanges )
 
 			return TRUE
 
@@ -18005,6 +18008,259 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsBeforeThisPositionNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeThisPosition )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforePositionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforePositions )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeThesePositionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeThesePositions )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsBeforeSubStringNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeSubString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeThisSubStringNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeThisSubString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeSubStringsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeSubStrings )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeTheseSubStringsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeTheseSubStrings )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeSubStringPositionNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeSubStringPosition )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeThisSubStringPositionNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeThisSubStringPosition )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeSubStringsPositionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeSubStringsPositions )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeTheseSubStringsPositionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeTheseSubStringsPositions )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAfterSubStringNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterSubString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterThisSubStringNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterThisSubString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterSubStringsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterSubStrings )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterTheseSubStringsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterTheseSubStrings )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterSubStringPositionNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterSubStringPosition )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterThisSubStringPositionNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterThisSubStringPosition )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterSubStringsPositionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterSubStringsPositions )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterTheseSubStringsPositionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterTheseSubStringsPositions )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsBeforeSectionNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeSection )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeThisSectionNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeThisSection )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeSectionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeSections )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeTheseSectionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :BeforeTheseSections )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsAfterSectionNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterSection )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterThisSectionNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterThisSection )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterSectionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterSections )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterTheseSectionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterTheseSections )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
 	def IsBeforeOrAtNamedParam()
 		if This.IsBeforeNamedParam() or This.IsAtNamedParam()
 			return TRUE
@@ -18027,6 +18283,33 @@ class stzList from stzObject
 	def IsAfterPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This[1]) and This[1] = :AfterPosition )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterThisPositionNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterThisPosition )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterPositionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterPositions )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterThesePositionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This[1]) and This[1] = :AfterThesePositions )
 
 			return TRUE
 		else
@@ -18143,9 +18426,29 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsThisStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ThisString )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsStringItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :StringItem )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsThisStringItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ThisStringItem )
 
 			return TRUE
 
@@ -18449,9 +18752,29 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsThisSubStringAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ThisSubStringAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsSubStringsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :SubStringsAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsTheseSubStringsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :TheseSubStringsAt )
 
 			return TRUE
 
@@ -19556,9 +19879,18 @@ class stzList from stzObject
 	#--
 
 	def IsStringsNamedParam()
-
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Strings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsTheseStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :TheseStrings )
 
 			return TRUE
 
@@ -20238,6 +20570,15 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsThisSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :ThisSubString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsAndSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :AndSubString )
@@ -20292,6 +20633,16 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsTheseSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :TheseSubStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsAndSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :AndSubStrings )
@@ -20342,6 +20693,15 @@ class stzList from stzObject
 	def IsBoundedByNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :BoundedBy )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsIsBoundedByNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :IsBoundedBy )
 
 			return TRUE
 		else

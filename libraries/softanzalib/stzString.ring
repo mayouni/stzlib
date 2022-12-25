@@ -1272,9 +1272,9 @@ class stzString from stzObject
 		cResult = This.ToStzText().LanguageIfStopWord()
 		return cResult
 
-	  #-----------------------------------------------#
+	  #===============================================#
 	 #  GETTING THE LIST OF ALL POSSIBLE SUBSTRINGS  #
-	#-----------------------------------------------#
+	#===============================================#
 
 	def NumberOfSubStrings()
 		nResult = 0
@@ -1285,8 +1285,26 @@ class stzString from stzObject
 
 		return nResult
 
+	def UniqueSubStrings()
+		acSubStrings = This.SubStrings()
+
+		aResult = []
+
+		for i = 1 to len(acSubStrings)
+			cSubStr = acSubStrings[i]
+
+			if ring_find(aResult, cSubStr) = 0
+				aResult + cSubStr
+			ok
+		next
+
+		return aResult
+
+
+	def NumberOfUniqueSubStrings()
+		return len( This.UniqueSubStrings() )
+
 	def SubStrings()
-				
 		cMainSubStr = ""
 		acSubStrings = []
 		
@@ -1316,6 +1334,7 @@ class stzString from stzObject
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SubStrings() )
+
 			on :stzListOfStrings
 				return new stzListOfStrings( This.SubStrings() )
 			other
@@ -1323,6 +1342,33 @@ class stzString from stzObject
 			off
 
 		#>
+
+	def SubStringsAndTheirPositions()
+		acSubStrings = This.UniqueSubStrings()
+		aResult = []
+
+		for i = 1 to len(acSubStrings)
+			cSubStr = acSubStrings[i]
+			anPos = This.FindAll(cSubStr)
+			aResult + [ cSubStr, anPos ]
+		next
+
+		return aResult
+
+	def SubStringsAndTheirSections()
+		acSubStrings = This.UniqueSubStrings()
+		aResult = []
+
+		for i = 1 to len(acSubStrings)
+			cSubStr = acSubStrings[i]
+			anPos = This.FindSections(cSubStr)
+			aResult + [ cSubStr, anPos ]
+		next
+
+		return aResult
+
+		def SubStringsXT()
+			return This.SubStringsAndTheirSections()
 
 	  #------------------------------------------#
 	 #  SUBSTRINGS VERIFYING A GIVEN CONDITION  #
@@ -1343,22 +1389,46 @@ class stzString from stzObject
 		acResult = This.SubStringsW(' Q(@SubStr).NumberOfChars() = n ')
 		return acResult
 
-	  #----------------------------------------------#
-	 #  GETTING THE LIST OF SUBSTRINGS -- EXTENDED  #
-	#----------------------------------------------#
+	def UniqueSubStringsOfNChars(n)
+		acSubStrings = This.SubStringsOfNChars(n)
+		acResult = Q(acSubStrings).DuplicatesRemoved()
 
-	def SubStringsAndTheirPositions()
-		aResult = []
+	def NumberOfSubStringsOfNChars(n)
+		return len( This.SubStringsOfNChars(n) )
 
-		for cSubStr in This.SubStrings()
-			aResult + [ cSubStr, This.FindAll(cSubStr) ]
-		next
+	def NumberOfUniqueSubStringsOfNChars(n)
+		return len( This.UniqueSubStringsOfNChars(n) )
 
-		return aResult
+	  #=================#
+	 #   SUBSTRING     #
+	#=================#
 
-		def SubStringsXT()
-			return This.SubStringsAndTheirPositions()
+	def SubStringCS(pcSubStr, paOption, pCaseSensitive)
+		/*
+		o1 = new stzString("blabla .♥. blabla")
+		? o1.SubString("♥", :IsBoundedBy = ".")
+		#--> TRUE
+		*/
 
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		if NOT isList(paOption)
+			StzRaise("Incorrect param type! paOption must be a list.")
+		ok
+
+		if Q(paOption).IsIsBoundedByNamedParam() # Yes! IsIs... and not only Is :)
+			pBounds = paOption[2]
+
+			return This.SubStringIsBoundedByCS(pcSubStr, pBounds, pCaseSensitive)
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubString(pcSubStr, paOption)
+		return This.SubStringCS(pcSubStr, paOption, :CaseSensitive = TRUE)
+		
 	  #=================#
 	 #      LINES      #
 	#=================#
@@ -3618,6 +3688,7 @@ class stzString from stzObject
 	#-------------------------------------#
 	
 	def SubStringIsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+
 		/* EXAMPLE
 
 		o1 = new stzString("aa♥♥aaa bb♥♥bbb")
@@ -3627,7 +3698,7 @@ class stzString from stzObject
 		
 		? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] ) #--> TRUE
 		? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE		*/
-		
+	
 		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
 
 			aTemp = []
@@ -3648,10 +3719,9 @@ class stzString from stzObject
 		for acPair in pacBounds
 			anUpToNChars = [ Q(acPair[1]).NumberOfChars(),
 					 Q(acPair[2]).NumberOfChars() ]
-	
-			acBounds = This.BoundsOfCS(pcSubStr, anUpToNChars, pCaseSensitive)
-	
-			
+
+			acBounds = This.BoundsCS( :Of = pcSubStr, anUpToNChars, pCaseSensitive)
+
 			bResult = Q(pacBounds).AllItemsExistIn(acBounds)
 		next
 		return bResult
@@ -3802,6 +3872,8 @@ class stzString from stzObject
 
 		*/
 
+		# MANAGING PARAMS
+
 		if isList(pcSubStr) and
 			( Q(pcSubStr).IsOfNamedParam() or
 			  Q(pcSubStr).IsOfSubStringNamedParam()
@@ -3861,8 +3933,7 @@ class stzString from stzObject
 				 "or a pair of numbers, or a list of pairs of numbers.")
 		ok
 
-		# Doing the job
-
+		# DOING THE JOB
 
 		anSections = This.FindSectionsCS(pcSubStr, pCaseSensitive)
 
@@ -3886,10 +3957,12 @@ class stzString from stzObject
 				nBefore = panUpToNChars[i][1]
 				nAfter  = panUpToNChars[i][2]
 
-				acResult + This.Settle(
+				cBound = This.Settle(
 					:OnSection  = aSection,
 					:AndHarvest = [ :NCharsBefore = nBefore, :NCharsAfter = nAfter ]
 				)
+
+				acResult + cBound
 
 			ok
 
@@ -3897,27 +3970,113 @@ class stzString from stzObject
 
 		return acResult
 
+		#< @FunctionAlternativeForm
+
+		def BoundsOfCS(pcSubStr, panUpToNChars, pCaseSensitive)
+			if NOT ( isString(pcSubStr) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
+			return This.BoundsCS(pcSubStr, panUpToNChars, pCaseSensitive)
+
+		#>
+
 	def Bounds(pcSubStr, pnUpToNChars)
 		return This.BoundsCS(pcSubStr, pnUpToNChars, :CaseSensitive = TRUE)
 
-	#-----------------------------
+		def BoundsOf(pcSubStr, pnUpToNChars)
+			return This.BoundsOfCS(pcSubStr, panUpToNChars, :CaseSensitive = TRUE)
+	
+	  #---------------------------------------------------------#
+	 #  GETTING THE LIST OF FIRST BOUNDS OF A GIVEN SUBSTRING  #
+	#---------------------------------------------------------#
 
-	def LeftBoundsOfCS(pcStr, pCaseSensitive)
-		// TODO (future)
+	def FirstBoundsCS(pcSubStr, pCaseSensitive)
+		acResult = StzListOfPairsQ( This.BoundsCS(pcSubStr, pCaseSensitive) ).FirstItems()
+		return acResult
 
-	def RightBoundsOfCS(pcStr, pCaseSensitive)
-		// TODO (future)
+		def FirstBoundsOfCS(pcSubStr, pCaseSensitive)
+			if NOT ( isString(pcSubString) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
 
-	def FirstBoundsOfCS(pcStr, pCaseSensitive)
-		// TODO (future)
-		# For general use with left-to-right and right-toleft strings
+			return This.FirstBoundsCS(pcSubStr, pCaseSensitive)
 
-	def LastBoundsOfCS(pcStr, pCaseSensitive)
-		// TODO (future)
+	  #--------------------------------------------------------#
+	 #  GETTING THE LIST OF LAST BOUNDS OF A GIVEN SUBSTRING  #
+	#--------------------------------------------------------#
 
-	  #--------------------------------------------#
+	def LastBoundsCS(pcSubStr, pCaseSensitive)
+		acResult = StzListOfPairsQ( This.BoundsCS(pcSubStr, pCaseSensitive) ).SecondItems()
+		return acResult
+
+		#< @FunctionAlternativeForm
+
+		def LastBoundsOfCS(pcSubStr, pCaseSensitive)
+			if NOT ( isString(pcSubString) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
+			return This.LastBoundsCS(pcSubStr, pCaseSensitive)
+
+		#>
+
+	  #--------------------------------------------------------#
+	 #  GETTING THE LIST OF LEFT BOUNDS OF A GIVEN SUBSTRING  #
+	#--------------------------------------------------------#
+
+	def LeftBoundsCS(pcSubStr, pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.FirstBoundsCS(pcSubStr, pCaseSensitive)
+
+		else # case IsRightToLeft()
+			return This.LastBoundsCS(pcSubStr, pCaseSensitive)
+		ok
+
+		#< @FunctionAltyernativeForm
+
+		def LeftBoundsOfCS(pcSubStr, pCaseSensitive)
+			if NOT ( isString(pcSubString) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
+			return This.LeftBoundsCS(pcSubStr, pCaseSensitive)
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  GETTING THE LIST OF RIGHT BOUNDS OF A GIVEN SUBSTRING  #
+	#---------------------------------------------------------#
+
+	def RightBoundsCS(pcStr, pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.LastBoundsCS(pcSubStr, pCaseSensitive)
+
+		else # case IsRightToLeft()
+			return This.FirstBoundsCS(pcSubStr, pCaseSensitive)
+		ok
+
+		#< @FunctionAltyernativeForm
+
+		def RightBoundsOfCS(pcSubStr, pCaseSensitive)
+			if NOT ( isString(pcSubString) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
+			return This.RightBoundsCS(pcSubStr, pCaseSensitive)
+
+		#>
+
+	  #============================================#
 	 #     REMOVING BOTH BOUNDS FROM THE STRING   #
-	#--------------------------------------------#
+	#============================================#
+
+	/* TODO : Add...
+	
+	RemoveFirstBounds(), ...LastBounds(), ...LeftBounds(), ...RightBounds()
+	ReplaceFirstBounds(), ...LastBounds(), ...LeftBounds(), ...RightBounds()
+
+	*/
 
 	def RemoveBoundsCS(pacBounds, pCaseSensitive)
 		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
@@ -3965,9 +4124,9 @@ class stzString from stzObject
 		cResult = This.Copy().RemoveBoundsQ(pacBounds).Content()
 		return cResult
 
-	  #------------------------------------------------------#
+	  #======================================================#
 	 #   REMOVING BOUNDS OF A GIVEN SUBSTRING -- EXTENDED   #
-	#------------------------------------------------------#
+	#======================================================#
 
 	def RemoveBoundsXTCS(pacBounds, pcSubStr, pCaseSensitive)
 		/* EXAMPLE
@@ -12755,11 +12914,31 @@ o1 = new stzString("12*34*56*78")
 
 		#>
 
-	  #----------------------------------------------------------------------#
-	 #  FINDING ALL OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
-	#----------------------------------------------------------------------#
+	  #------------------------------------------------------------------#
+	 #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
+	#------------------------------------------------------------------#
 
-	def FindSubStringW(pcCondition)
+	def FindSubStringsW(pcCondition)
+		aSections = This.FindSubStringWXT(pcCondition)
+		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+
+		return anResult
+
+		def FindSubStringW(pcCondition)
+			return This.FindSubStringW(pcCondition)
+
+	  #------------------------------------------------------------------------------#
+	 #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION -- EXTENDED  #
+	#------------------------------------------------------------------------------#
+
+	def FindSubStringsWXT(pcCondition)
+
+		acSubStringsXT = This.SubStringsAndTheirSections()
+
+		if len(acSubStringsXT) = 0
+			return []
+		ok
+
 		if isList(pcCondition) and Q(pccondition).IsWhereNamedParam()
 			pcCondition = pcCondition[2]
 		ok
@@ -12768,45 +12947,40 @@ o1 = new stzString("12*34*56*78")
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		cCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzString)
-		oCondition = Q(cCondition).TrimQ().RemoveBoundsQ(["{","}"])
-
-		if NOT oCondition.ContainsCS("@SubString", :CS = FALSE)
+		if NOT Q(pcCondition).ContainsCS("@SubString", :CS = FALSE)
 			StzRaise("Syntax error! pcCondition must contain keyword @SubString")
 		ok
 
-		oCopy = oCondition
-		oCopy.RemoveAllSpacesQ()
+		pcCondition = StzCCodeQ(pcCondition).TranspiledFor(:stzList)
 
-		aResult = []
+		cCode = Q(pcCondition).SubstringReplacedCS("@item", :By = "@SubString", :CS = FALSE)
+		cCode = 'bOk = ( ' + cCode + ' )'
 
-		if oCopy.StartsWithCS('@SubString="', :CS = FALSE) and
-		   oCopy.EndsWith('"')
+		acResult = []
 
-			n1 = oCondition.FirstOccurrence('"') + 1
-			n2 = oCondition.NumberOfChars()-1
-			cSubStr = oCondition.Section( n1,  n2)
+		for @i = 1 to len( acSubStringsXT )
+			@SubString = acSubStringsXT[@i][1]
 
-			aResult = This.FindAll(cSubStr)
+			eval(cCode)
 
-		else
+			if bOk
+				for aSection in acSubStringsXT[@i][2]
+					acResult + aSection
+				next
+			ok
 
-			cCondition = oCondition.
-					ReplaceCSQ("@SubString", :With = "@String", :CS = TRUE).
-					Content()
+		next
 
-			acSubStrings = This.SubStringsQR(:stzListOfStrings).
-					StringsWQ(cCondition).Content()
+		acResult = QR(acResult, :stzListOfPairs).Sorted()
 
-			for cSubStr in acSubStrings
-				aResult + [ cSubStr, This.FindAll(cSubStr) ]
-			next
-		ok
+		return acResult
 
-		return aResult
+		def FindSubStringWXT(pcCondition)
+			return This.FindSubStringsWXT(pcCondition)
 
-		def FindSubStringsW(pcCondition)
-			return This.FindSubStringW(pcCondition)
+	  #--------------------------------------------------------------------------#
+	 #  FINDING OCCURRENCES OF A CHAR OR SUBSTRING VERIFYING A GIVEN CONDITION  #
+	#--------------------------------------------------------------------------#
 
 	def FindAllW(pcCondition)
 		#< @MotherFunction = YES | @RingBased #>
@@ -12834,6 +13008,10 @@ o1 = new stzString("12*34*56*78")
 			stzRaise("Incorrect param type! pcCondition must be a string containing keword @SubString.")
 		ok
 
+		if Q(pcCondition).ContainsCS("@SubString", :CaseSensitive = FALSE)
+			return This.FindSubStringsW(pcCondition)
+		ok
+
 		cCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzString)
 
 		cCode = "bOk = ( " + cCondition + " )"
@@ -12844,6 +13022,7 @@ o1 = new stzString("12*34*56*78")
 		anResult = []
 
 		for @i = 1 to nLen
+			@char = This[@i]
 			@SubString = acSubStrings[@i]
 			bEval = TRUE
 
@@ -17044,9 +17223,6 @@ o1 = new stzString("12*34*56*78")
 	def Splitted(pSubStrOrPos)
 		return This.Split(pSubStrOrPos)
 
-		def SplittedAt(pSubStrOrPos)
-			return This.Splitted(pSubStrOrPos)
-
 	  #==================#
 	 #   SPLITTING AT   #
 	#==================#
@@ -17058,7 +17234,7 @@ o1 = new stzString("12*34*56*78")
 		but isNumber(pSubStrOrPos)
 			return This.SplitAtPosition(pSubStrOrPos)
 
-		but isList(pcSubStrOrPos)
+		but isList(pSubStrOrPos)
 
 			#-- Case when named params are provided
 
@@ -17267,6 +17443,41 @@ o1 = new stzString("12*34*56*78")
 		def SplittedAtManySubStrings(pcSubStrings)
 			return This.SplitAtSubStrings(pcSubStrings)
 
+	  #----------------------------------#
+	 #   SPLITTING AT A GIVEN SECTION   #
+	#----------------------------------#
+
+	def SplitAtSection(paSection)
+
+		if NOT ( isList(paSection) and Q(paSection).IsPairOfNumbers() )
+			StzRaise("Incorrect param type! paSection must be a pair of numbers.")
+		ok
+
+		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
+		acResult = This.Sections( aSections )
+
+		return acResult
+
+	def SplittedAtSection(paSection)
+		return This.SplitAtSection(paSection)
+
+	  #--------------------------------#
+	 #   SPLITTING AT MANY SECTIONS   #
+	#--------------------------------#
+
+	def SplitAtSections(paSections)
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+		ok
+
+		//aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSections(paSections)
+		acResult = This.AntiSections( paSections )
+
+		return acResult
+
+	def SplittedAtSections(paSections)
+		return This.SplitAtSections(paSections)
+
 	  #======================#
 	 #   SPLITTING BEFORE   #
 	#======================#
@@ -17278,7 +17489,7 @@ o1 = new stzString("12*34*56*78")
 		but isNumber(pSubStrOrPos)
 			return This.SplitBeforePosition(pSubStrOrPos)
 
-		but isList(pcSubStrOrPos)
+		but isList(pSubStrOrPos)
 
 			#-- Case when named params are provided
 
@@ -17371,12 +17582,15 @@ o1 = new stzString("12*34*56*78")
 	#---------------------------------------#
 
 	def SplitBeforePosition(n)
+
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBeforePosition(n)
 		acResult = This.Sections( aSections )
+
+		return acResult
 
 	def SplittedBeforePosition(n)
 		return This.SplitBeforePosition(n)
@@ -17390,7 +17604,7 @@ o1 = new stzString("12*34*56*78")
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
-		aSections = StzSplitterQ( This.NumbeOfChars() ).SplitBeforePositions(anPos)
+		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBeforePositions(anPos)
 		acResult = This.Sections( aSections )
 
 		return acResult
@@ -17461,7 +17675,7 @@ o1 = new stzString("12*34*56*78")
 		but isNumber(pSubStrOrPos)
 			return This.SplitAfterPosition(pSubStrOrPos)
 
-		but isList(pcSubStrOrPos)
+		but isList(pSubStrOrPos)
 
 			#-- Case when named params are provided
 
@@ -17573,7 +17787,7 @@ o1 = new stzString("12*34*56*78")
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
-		aSections = StzSplitterQ( This.NumbeOfChars() ).SplitAfterPositions(anPos)
+		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAfterPositions(anPos)
 		acResult = This.Sections( aSections )
 
 		return acResult
@@ -17632,6 +17846,7 @@ o1 = new stzString("12*34*56*78")
 	
 	def SplittedAfterSubStrings(pacSubStr)
 		return This.SplitAfterSubStrings(pacSubStr)
+
 
 	  #============================#
 	 #    SPLITTING TO N PARTS    #
@@ -17701,9 +17916,28 @@ o1 = new stzString("12*34*56*78")
 	#------------------------------------#
 
 	def SplitAtW(pcCondition)
-		anPositions = This.FindAllW(pcCondition)
+			
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
 
-		aResult = This.SplitAtPositions(anPositions)
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		aResult = []
+
+		pcCondition = Q(pcCondition).TrimQ().BoundsRemoved(["{","}"])
+
+		if Q(pcCondition).ContainsCS("@SubString", :CS = FALSE)
+
+			aSections = This.FindSubStringsWXT(pcCondition)
+			aResult = This.SplitAtSections(aSections)
+
+		else
+			anPositions = This.FindW(pcCondition)
+			aResult = This.SplitAtPositions(anPositions)
+		ok
 
 		return aResult
 
@@ -25123,23 +25357,11 @@ o1 = new stzString("12*34*56*78")
 	// TODO: Add same function to other classes
 
 	def IsEitherCS(pcStr1, pcStr2, pCaseSensitive)
-
-		if isList(pcStr1) and Q(pcStr1).IsThisNamedParam()
-			pcStr1 = pcStr1[2]
-		ok
-
-		if isList(pcStr2) and
-			Q(pcStr2).IsOneOfTheseNamedParams([ :Or, :OrThat, :OrThis ])
-
+		if isList(pcStr2) and Q(pcStr2).IsOrNamedParam()
 			pcStr2 = pcStr2[2]
 		ok
 
-		if NOT BothAreStrings(pcStr1, pcStr2)
-			stzraise("Incorrect param type! Both pcStr1 and pcStr2 must be strings.")
-		ok
-
-		bResult = This.IsOneOfTheseCS([ pcStr1, pcStr2 ], pCaseSensitive)
-		return bResult
+		return This.IsOneOfTheseCS([ pcStr1, pcStr2], pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
