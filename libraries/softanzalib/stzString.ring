@@ -17111,7 +17111,7 @@ o1 = new stzString("12*34*56*78")
 				return This.SplitAfterCS(pSubStrOrPos[2], pCaseSensitive)
 
 			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
-				return This.SplitafterPosition(pSubStrOrPos[2])
+				return This.SplitAfterPosition(pSubStrOrPos[2])
 	
 			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
 				return This.SplitAfterPositions(pSubStrOrPos[2])
@@ -17664,6 +17664,41 @@ o1 = new stzString("12*34*56*78")
 	def SplittedBeforeSubStrings(pacSubStr)
 		return This.SplitBeforeSubStrings(pacSubStr)
 
+	  #--------------------------------------#
+	 #   SPLITTING BEFORE A GIVEN SECTION   #
+	#--------------------------------------#
+
+	def SplitBeforeSection(paSection)
+
+		if NOT ( isList(paSection) and Q(paSection).IsPairOfNumbers() )
+			StzRaise("Incorrect param type! paSection must be a pair of numbers.")
+		ok
+
+		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBeforeSection(paSection)
+		acResult = This.Sections( aSections )
+
+		return acResult
+
+	def SplittedBeforeSection(paSection)
+		return This.SplitBeforeSection(paSection)
+
+	  #------------------------------------#
+	 #   SPLITTING BEFORE MANY SECTIONS   #
+	#------------------------------------#
+
+	def SplitBeforeSections(paSections)
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+		ok
+
+		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBeforeSections(paSections)
+		acResult = This.Sections( aSections )
+
+		return acResult
+
+	def SplittedBeforeSections(paSections)
+		return This.SplitBeforeSections(paSections)
+
 	  #=====================#
 	 #   SPLITTING AFTER   #
 	#=====================#
@@ -17679,7 +17714,8 @@ o1 = new stzString("12*34*56*78")
 
 			#-- Case when named params are provided
 
-			if Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+
 				return This.SplitAfterPosition(pSubStrOrPos[2])
 	
 			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
@@ -17775,6 +17811,8 @@ o1 = new stzString("12*34*56*78")
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAfterPosition(n)
 		acResult = This.Sections( aSections )
 
+		return acResult
+
 	def SplittedAfterPosition(n)
 		return This.SplitAfterPosition(n)
 
@@ -17847,6 +17885,62 @@ o1 = new stzString("12*34*56*78")
 	def SplittedAfterSubStrings(pacSubStr)
 		return This.SplitAfterSubStrings(pacSubStr)
 
+	  #-------------------------------------#
+	 #   SPLITTING AFTER A GIVEN SECTION   #
+	#-------------------------------------#
+
+	def SplitAfterSection(paSection)
+
+		if NOT ( isList(paSection) and Q(paSection).IsPairOfNumbers() )
+			StzRaise("Incorrect param type! paSection must be a pair of numbers.")
+		ok
+
+		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAfterSection(paSection)
+		acResult = This.Sections( aSections )
+
+		return acResult
+
+	def SplittedAfterSection(paSection)
+		return This.SplitAfterSection(paSection)
+
+	  #-----------------------------------#
+	 #   SPLITTING AFTER MANY SECTIONS   #
+	#-----------------------------------#
+
+	def SplitAfterSections(paSections)
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+		ok
+
+		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAfterSections(paSections)
+		acResult = This.Sections( aSections )
+
+		return acResult
+
+	def SplittedAfterSections(paSections)
+		return This.SplitAfterSections(paSections)
+
+	  #======================#
+	 #  SPLITTING BETWEEN   #
+	#======================#
+
+	def SplitBetweenCS(pBound1, pBound2, pCaseSensitive)
+		if NOT ( BothAreStringsOrNumbers(pBound1, pBound2) )
+			StzRaise("Incorrect params types! pBound1 and pBound2 must be both numbers or strings.")
+		ok
+
+		/* ... */
+
+	def SplittedBetweenCS(pBound1, pBound2, pCaseSensitive)
+		return This.SplitBetweenCS(pBound1, pBound2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitBetween(pBound1, pBound2)
+		return This.SplitBetweenCS(pBound1, pBound2, :CaseSensitive = TRUE)
+
+	def SplittedBetween(pBound1, pBound2)
+		return This.SplitBetweenCS(pBound1, pBound2, :CaseSensitive = TRUE)
 
 	  #============================#
 	 #    SPLITTING TO N PARTS    #
