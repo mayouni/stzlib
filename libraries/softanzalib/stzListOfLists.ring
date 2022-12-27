@@ -1,10 +1,13 @@
-func ItemExists(pItem, paList)
-	oTempList = new stzList(paList)
-	if oTempList.Contains(pItem) 
-		return TRUE
-	else
-		return FALSE
-	ok
+#---------------------------------------------------------------------------#
+# 		    SOFTANZA LIBRARY (V1.0) - STZLISTOFLISTS		    #
+#		An accelerative library for Ring applications		    #
+#---------------------------------------------------------------------------#
+#									    #
+# 	Description	: The core class for managing lists of lists        #
+#	Version		: V1.0 (2020-2022)				    #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
+#									    #
+#---------------------------------------------------------------------------#
 
 func StzListOfListsQ(paList)
 	return new stzListOfLists(paList)
@@ -37,6 +40,14 @@ func LL(p)
 
 		func LoLQ(p)
 			return LLQ(p)
+
+func ItemExists(pItem, paList)
+	oTempList = new stzList(paList)
+	if oTempList.Contains(pItem) 
+		return TRUE
+	else
+		return FALSE
+	ok
 
 func ListsMerge(paListOfLists)
 	return StzListOfListsQ(paListOfLists).Merged()
@@ -218,30 +229,6 @@ class stzListOfLists from stzList
 			#>
 		#>
 
-	  #---------------------------------------------------------#
-	 #   YIELDING THE RESULT OF A FUNCTION ON ALL THE LISTS    #
-	#---------------------------------------------------------#
-
-	def Yield(pcFunc)
-		cFunc = StzStringQ(pcFunc).RemoveBoundsQ(["{","}"]).Simplified()
-		
-		aResult = []
-		@i = 0
-
-		for @list in This.ListOfLists()
-			@i++
-			cCode = "aResult + " + cFunc
-			eval(cCode)
-		next
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def YieldQ(pcFunc)
-			return new stzList( This.Yield(pcFunc) )
-
-		#>
-
 	  #-------------------------------------------#
 	 #   SIZES, AND SMALLEST AND BIGGEST SIZES   #
 	#-------------------------------------------#
@@ -353,7 +340,6 @@ class stzListOfLists from stzList
 
 		def LargestListsPositions()
 			return This.FindBiggestLists()
-
 
 	  #---------------------#
 	 #   LISTS OF SIZE N   #
@@ -476,14 +462,14 @@ class stzListOfLists from stzList
 
 		#>
 
-	  #-----------------------------------------#
-	 #   REVERSING THE THE ITEMS OF THE LIST   #
-	#-----------------------------------------#
+	  #-------------------------------------#
+	 #   REVERSING THE ITEMS OF THE LIST   #
+	#-------------------------------------#
 
 	# To avoid confusion, it's better to use the alternative forms
 	# ReverseItems() and ItemsReversed()
 
-	def ReverseLists()	
+	def ReverseLists()
 
 		aResult = []
 		
@@ -497,14 +483,18 @@ class stzListOfLists from stzList
 			This.ReverseLists()
 			return This
 
-			def ReverseQ()
-				return This.ReverseListsQ()
-
 		def ReverseItems()
 			This.ReverseLists()
 
 			def ReverseItemsQ()
 				This.ReverseItems()
+				return This
+
+		def Reverse()
+			This.ReverseLists()
+
+			def ReverseQ()
+				This.Reverse()
 				return This
 
 	def ReversedLists()
@@ -558,18 +548,54 @@ class stzListOfLists from stzList
 	#---------------#
 
 	def Index()
-		return This.IndexOnPosition()
+		return This.IndexByPosition()
 
-	def IndexOnPosition()
-		return This.IndexOn(:Position)
+	def Indexed()
+		return This.Index()
 
-	def IndexOnNumberOfOccurrence()
-		return This.IndexOn(:NumberOfOccurrence)
+	#--
+
+	def IndexByPosition()
+		return This.IndexBy(:Position)
+
+		def IndexOnPosition()
+			return This.IndexByPosition()
+
+	def IndexedByPosition()
+		return This.IndexByPosition()
+
+		def IndexedOnPosition()
+			return This.IndexedByPosition()
+
+	#--
+
+	def IndexNyNumberOfOccurrence()
+		return This.IndexBy(:NumberOfOccurrence)
+
+		def IndexByNumberOfOccurrences()
+			return This.IndexByNumberOfOccurrence()
+
+		def IndexOnNumberOfOccurrence()
+			return This.IndexByNumberOfOccurrence()
 
 		def IndexOnNumberOfOccurrences()
-			return This.IndexOnNumberOfOccurrence()
+			return This.IndexByNumberOfOccurrence()
 
-	def IndexOn(pcOn) # pcOn can be :NumberOfOccurrence(s) or :Position
+	def IndexedByNumberOfOccurrence()
+		return This.IndexByNumberOfOccurrence()
+
+		def IndexedByNumberOfOccurrences()
+			return This.IndexedByNumberOfOccurrence()
+
+		def IndexedOnNumberOfOccurrence()
+			return This.IndexedByNumberOfOccurrence()
+
+		def IndexedOnNumberOfOccurrences()
+			return This.IndexedByNumberOfOccurrence()
+
+	#--
+
+	def IndexBy(pcOn) # pcOn can be :NumberOfOccurrence(s) or :Position
 		/*
 		Problem:
 
@@ -578,24 +604,26 @@ class stzListOfLists from stzList
 			a1 = [ "A", "A", "B", "C" ]
 			a2 = [ "B", "A", "C", "B", "A", "X" ]
 
-			Getting the index of each list alone is simply done
-			by calling the IndexOn() method of stzList, so we get:
+			Getting the index of each list alone, by number of
+			occurrence for example, is simply done by calling
+			the method IndexBy(:NumberOfOccurrence) of stzList,
+			so we get:
 
 			Index(a1) --> [ :A = 2, :B = 1, :C = 1 ]
 		   	Index(a2) --> [ :A = 2, :B = 1, :C = 1, :X = 1 ]
 
 			What we need is to make the Index of these TWO lists
-			togehtor so we can have this:
+			togethor so we can have:
 
 			[ :A = [2,2] , :B = [1,2] , :C = [1,1] , :X = [0,1] ]
 
-			Note: we can do it for any number of lists...
+			Note: we shloumd be able tp do it for any number of lists...
 		*/
 
 		aIndexes = []
 		for list in This.Content()
 			oTempList = new stzList( list )
-			aIndexes + oTempList.IndexOn(pcOn)
+			aIndexes + oTempList.IndexBy(pcOn)
 		next
 		// aIndexes => [ [ :A = 2, :B = 1, :C = 1 ],
 		//		 [ :A = 2, :B = 1, :C = 1, :X = 1 ] ]	
@@ -637,6 +665,15 @@ class stzListOfLists from stzList
 
 		return aResult
 
+		def IndexOn(pcOn)
+			return This.IndexBy(pcOn)
+
+	def IndexedBy(pcOn)
+		return This.IndexBy(pcOn)
+
+		def IndexedOn(pcOn)
+			return This.IndexedBy(pcOn)
+
 	  #------------#
 	 #   ENTRY    #
 	#------------#
@@ -658,9 +695,9 @@ class stzListOfLists from stzList
 			return This.IndexOn(:NumberOfOccurrence)[pEntry]
 		ok
 
-	  #------------------------------------------#
-	 #   OCCURRENCE  OF AN ENTRY IN THE INDEX   #
-	#------------------------------------------#
+	  #-----------------------------------------#
+	 #   OCCURRENCE OF AN ENTRY IN THE INDEX   #
+	#-----------------------------------------#
 
 	def NumberOfOccurrenceOfEntry(pEntry)
 		return len(o1.IndexOn(:Position)[pEntry])

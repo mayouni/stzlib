@@ -17929,7 +17929,23 @@ o1 = new stzString("12*34*56*78")
 			StzRaise("Incorrect params types! pBound1 and pBound2 must be both numbers or strings.")
 		ok
 
-		/* ... */
+		if BothAreNumbers(pBound1, pBound2)
+			aSections = StzSplitterQ( This.NumberOfChars() ).SplitBetween(pBound1, pBound2)
+
+		else # case if BothAreStrings()
+			anFirstBounds  = This.FindAllCS(pBound1, pCaseSensitive)
+			anSecondBounds = This.FindAllCS(pBound2, pCaseSensitive)
+
+			aListOfBounds  = StzListOfListsQ([ anFirstBounds, anSecondBounds ]).ReducedToSmallestSize()
+			anFirstBounds  = aListOfBounds[1]
+			anSecondBounds = aListOfBounds[2]
+
+			aSections = Q(anFirstBounds).AssociatedWith(anSecondBounds)
+		ok
+
+		acResult = This.Sections(aSections)
+
+		return acResult
 
 	def SplittedBetweenCS(pBound1, pBound2, pCaseSensitive)
 		return This.SplitBetweenCS(pBound1, pBound2, pCaseSensitive)
@@ -26091,32 +26107,32 @@ o1 = new stzString("12*34*56*78")
 	def RepeatNTimes(n)
 		/* NOTE
 
-		This method exists alos in the parent stzObject.
+		This method exists already in the parent stzObject.
 		Here we make it specific to strings.
 
 		In fact, Q("Hi!").RepeatNTimes(3) when applied to
-		the string "Hi!" willl update it to become "Hi!Hi!Hi!".
+		the string "Hi!" will update it to become "Hi!Hi!Hi!".
 
 		In all other types (stzList, stzNumber, and stzObject)
 		Q(5).RepeatNTimes(3) will produce the list [5, 5, 5],
 		and Q(1:3).RepeatNTimes(3) will produce the list
 		[ 1:3, 1:3, 1:3 ].
 
-		You my ask we we opted for a different behavior for
+		You may ask we we opted for a different behavior for
 		strings compared to other types?
 
 		Well, because I think it's more obvious to update the
-		string when ask to repeat it, and have a string as a
+		string when we ask to repeat it, and have a string as a
 		result not a list!
 
-		If you want to avoid any confusuion coming from this,
+		If you want to avoid any confusion due to this,
 		use RproduceIn() instead, and specify explicitly what
 		you hant to have, like this:
 
-		? Q("Hi!").RepeatedXT( :NTimes = 3, :InString)
+		? Q("Hi!").ReproduceddXT( :NTimes = 3, :InString)
 		#--> "Hi!Hi:Hi!
 
-		? Q("Hi!").RepeatedXT( :NTimes = 3, :InList)
+		? Q("Hi!").ReproducedXT( :NTimes = 3, :InList)
 		"--> [ "Hi!", "Hi!", "Hi!" ]
 
 		*/

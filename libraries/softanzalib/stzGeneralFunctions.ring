@@ -13,6 +13,12 @@ Programming, by Heart! By: M.Ayouni╭
   ╰╯
 '
 
+# GENERAL GLOBALS
+
+_t0 = 0 # Used by StartProfiler() and StopProfiler() functions
+
+# GENERAL FUNCTIONS
+
 func SoftanzaLogo()
 	return _cSoftanzaLogo
 
@@ -1095,3 +1101,56 @@ func STOP()
 	StzRaise( NL + 	"----------------" + NL +
 		       	"    STOPPED!    " + NL +
 			"----------------" + NL )
+
+func StartTimer()
+	_t0 = clock()
+
+func ElapsedTime()
+	return ElapsedTimeXT(:In = :Seconds)
+
+func ElapsedTimeXT(pIn)
+	if isList(pIn) and Q(pIn).IsInNamedParam()
+		pIn = pIn[2]
+	ok
+
+	if NOT isString(pIn)
+		StzRaise("Incorrect param type! pIn must be a string.")
+	ok
+
+	if NOT Q(pIn).IsOneOfThese([ :Clocks, :Seconds, :Minutes, :Hours ])
+		# TODO - Future: Add weeks, months, years...
+		StzRaise("Incorrect value of pIn param! Allowed values are: " +
+		":Clocks, :Seconds, :Minutes and :Hours.")
+	ok
+
+	if Q(pIn).FirstNChars(2) != "in"
+		pIn = "in" + pIn
+	ok
+
+	switch pIn
+	on :InClocks
+		return clock() - _t0 + " clocks"
+
+	on :InSeconds
+		nTime = ( clock() - _t0 ) / clockspersecond()
+		cTime = "" + nTime
+		return cTime + " seconds"
+
+	on :InMinutes
+		nTime = ( clock() - _t0 ) / clockspersecond() / 60
+		cTime = "" + nTime
+		return cTime + " minutes"
+
+	on :InHours
+		nTime = ( clock() - _t0 ) / clockspersecond() / 3600
+		cTime = "" + nTime
+		return cTime + " hours"
+
+	off
+
+func StartProfiler()
+	StartTimer()
+
+func StopProfiler()
+	? NL + "Executed in " + ElapsedTime() + " seconds."
+	STOP()
