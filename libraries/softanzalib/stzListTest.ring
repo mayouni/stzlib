@@ -1,5 +1,21 @@
 load "stzlib.ring"
 
+o1 = new stzList([ "A", "B", "A", "C", "C", "D", "A", "E" ])
+
+? @@S( o1.IndexBy(:NumberOfOccurrence) ) + NL
+#--> [ [ "A", 3 ], [ "B", 1 ], [ "C", 2 ], [ "D", 1 ], [ "E", 1 ] ]
+
+? @@S( o1.IndexBy(:Position) )
+#--> [
+#	[ "A", [ 1, 3, 7 ] ],
+#	[ "B", [ 2 ] ],
+#	[ "C", [ 4, 5 ] ],
+#	[ "D", [ 6 ] ],
+#	[ "E", [ 8 ] ]
+# ]
+
+STOP()
+
 /*-----------------
 
 # Extending a list of numbers to a given position

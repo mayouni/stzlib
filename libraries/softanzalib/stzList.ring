@@ -8237,21 +8237,67 @@ class stzList from stzObject
 		def IsContinuous()
 			return IsContiguous()
 
-	  #------------------#
-	 #     INDEXING     #
-	#------------------#
+	  #============================================================#
+	 #  INDEXING THE LIST BY POSITION OR BY NUMBER OF OCCURRENCE  #
+	#============================================================#
 
-	def IndexOn(pcOn)
+	def Index()
+		return IndexBy(:Position)
+
+	def Indexed()
+		return This.Index()
+
+	#--
+
+	def IndexXT(pBy)
+		cBy = ""
+
+		if isList(paBy) and
+		   Q(paBy).IsOneOfTheseNamedParams([ :By, :On ])
+
+			pBy = pBy[2]
+		ok
+
+		if NOT isString(pBy)
+			StzRaise("Incorrect param type! pBy must be a string.")
+		ok
+
+		if pBy = :Position
+			return This.IndexByPosition()
+
+		but pBy = :NumberOfOccurrence or :NumberOfOccurrences
+			return This.IndexByNumberOfOccurrence()
+
+		else
+			StzRaise("Unsupported indexing type! Allowed types are by :Positon and by :NumberOfOccurrences.")
+		ok
+	
+	def IndexedXT(pBy)
+		return This.IndexXT(pBy)
+
+	#--
+
+	def IndexBy(pcBy)
+		if NOT isString(pcBy)
+			StzRaise("Incorrect param type! pcBy must be a string.")
+		ok
+
+		if NOT Q(pcBy).IsOneOfThese([ :Position, :NumberOfOccurrence, :NumberOfOccurrences ])
+			StzRaise("Incorrect value of pcBy! Allowed values are :Position and :NumberOfOccurrence.")
+		ok
+
 		aResult = []
-		if pcOn = :Position
-
-			for item in This.RemoveDuplicates()
+		if pcBy = :Position
+			aUniqueItems = This.DuplicatesRemoved()
+			for item in aUniqueItems
 				aResult + [ item, This.Positions(item) ]
 			next
 	
-		but pcOn = :NumberOfOccurrence or pcOn = :NumberOfOccurrences
+		but pcBy = :NumberOfOccurrence or pcBy = :NumberOfOccurrences
 			/* Index( [ "A", "A", "B", "C" ] --> [ :A = 2, :B = 1, :C = 1 ] */
-			for item in This.RemoveDuplicates()
+			
+			aUniqueItems = This.DuplicatesRemoved()
+			for item in aUniqueItems
 				aResult + [ item, This.NumberOfOccurrence(item) ]
 			next	
 		else
@@ -8259,22 +8305,59 @@ class stzList from stzObject
 		ok
 
 		return aResult
+
+		def IndexOn(pcOn)
+			return This.IndexBy(pcOn)
+
+	def IndexedBy(pcBy)
+		return This.IndexBy(pcBy)
+
+		def IndexedOn(pcOn)
+			return This.IndexedBy(pcOn)
+
+	#--
 	
-	def Index()
-		return IndexOn(:Position)
+	def IndexByPosition()
+		return IndexBy(:Position)
 
-	def IndexOnPosition()
-		return IndexOn(:Position)
+		def IndexOnPosition()
+			return This.IndexByPosition()
 
-	def IndexOnNumberOfOccurrence()
-		return IndexOn(:NumberOfOccurrence)
+	def IndexedByPosition()
+		return This.IndexByPosition()
+
+		def IndexedOnPosition()
+			return This.IndexedByPostion()
+
+	#--
+
+	def IndexByNumberOfOccurrence()
+		return IndexBy(:NumberOfOccurrence)
+
+		def IndexByNumberOfOccurrences()
+			return This.IndexByNumberOfOccurrence()
+
+		def IndexOnNumberOfOccurrence()
+			return This.IndexByNumberOfOccurrence()
 
 		def IndexOnNumberOfOccurrences()
-			return This.IndexOnNumberOfOccurrence()
+			return This.IndexByNumberOfOccurrence()
 
-	  #----------------------------------------#
+	def IndexedByNumberOfOccurrence()
+		return This.IndexByNumberOfOccurrence()
+
+		def IndexedByNumberOfOccurrences()
+			return This.IndexedByNumberOfOccurrence()
+
+		def IndexedOnNumberOfOccurrence()
+			return This.IndexedByNumberOfOccurrence()
+
+		def IndexedOnNumberOfOccurrences()
+			return This.IndexedByNumberOfOccurrence()
+
+	  #========================================#
 	 #     COMPARAISON WITH AN OTHER LIST     #
-	#----------------------------------------#
+	#========================================#
 
 	def ContainsSameItemsAs(paOtherList)
 		if len( This.DifferentItemsWith(paOtherList) ) = 0
@@ -9833,7 +9916,8 @@ class stzList from stzObject
 		
 	def ToSet()
 		aResult = []
-		for item in This.List()
+		aContent = This.Content()
+		for item in aContent
 			if NOT StzListQ(aResult).Contains(item)
 				aResult + item
 			ok
@@ -10103,29 +10187,7 @@ class stzList from stzObject
 
 	def RemoveDuplicates()
 
-		aResult = []
-
-		# If we are lucky, the list contains only strings so we
-		# can rely on Qt to remove its duplicates
-
-		if This.IsListOfStrings()
-
-			aResult = StzListOfStringsQ( This.List() ).DuplicatesRemoved()
-
-		else
-
-			# Otherwise we do the job manually in Ring
-	
-			aListOfStr = This.ItemsStringified()
-			aListOfStr = StzListOfStringsQ( aListOfStr ).DuplicatesRemoved()
-
-			for str in aListOfStr
-				eval("item = " + str)
-				aResult + item
-			next
-			
-		ok
-
+		aResult = This.UniqueItems()
 		This.Update( aResult )
 
 		def RemoveDuplicatesQ()

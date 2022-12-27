@@ -101,7 +101,7 @@ o1 = new stzListOfLists([
 ? @@S( o1.SmallestLists() )		# --> [ [9,0], [3,5] ]
 ? o1.PositionsOfSmallestLists()		# --> [     3,    4  ]
 
-? @@S( o1.ListsW('StzListQ(@list).NumberOfItems() <= 3') )
+? @@S( o1.ListsW('Q(@list).Size() <= 3') )
 # --> [ [ 1, 2, 3 ], [ 9, 0 ], [ 3, 5 ], [ 5, 6, 7 ] ]
 
 ? @@S( o1.Yield('{ len(@list) }') ) 	# --> [ 3, 5, 2, 2, 3 ]
@@ -115,9 +115,9 @@ o1 = new stzListOfLists([ 1:3, 4:7, 8:9, [10, 11:13] ])
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ]
 
 
-/*---------- ERROR: Undefined function
-
-// Indexing those three lists
+/*----------
+*/
+// in this example, we are going to index those three lists:
 
 a1 = [ "A", "B", "A" ]
 a2 = [ "A", "B", "C" ]
@@ -125,31 +125,34 @@ a3 = [ "C", "D", "A" ]
 
 o1 = new stzListOfLists([ a1, a2, a3 ])
 
-# First on the positions occuppied by each item in each list
+# First, we index them on the positions occuppied by each item
+# in each list
 
-aIndex = o1.IndexOn(:Position)	# ERROR: Undefined function
-? @@S( aIndex )
-/*
-# Gives:
-#	[ :A = [ [1,1], [1,3], [2,1], [3,3] ],
-#	  :B = [ [1,2], [2,2] ],
-#	  :C = [ [2,3], [3,1] ]
-#      	]	
+aIndex = o1.IndexBy(:Position)
+? @@S( aIndex ) + NL
+#--> [
+#	[ "A", [ [1,1], [1,3], [2,1], [3,3] ] ],
+#	[ "B", [ [1,2], [2,2] ] ],
+#	[ "C", [ [2,3], [3,1] ] ],
+#	[ "D", [ [3,2] ] ]
+# ]	
 
-? aIndex["A"] # Showing just the index of "A"
+? @@S( aIndex["A"] ) + NL # Showing just the index of "A"
+#--> [ [1,1], [1,3], [2,1], [3,3] ]
 
-// And second on number of occurrence of each character in each list
+// And then, we index them by number of occurrence of each
+# character in each list:
 
-aIndex = o1.IndexOn(:NumberOfOccurrence)
+aIndex = o1.IndexBy(:NumberOfOccurrence) + NL
+#--> [
+#	[ "A", [2, 1, 1] ],
+#	[ "B", [1, 1, 0] ],
+#	[ "C", [0, 1, 1] ],
+#	[ "D", [0, 0, 1] ]
+# ]	
 
-# Gives:
-#	[ :A = [2, 1, 1],
-#	  :B = [1, 1, 0],
-#	  :C = [0, 1, 1]
-#      	]	
-
-? aIndex["C"] #  # Showing just the index of "C"
-
+? @@S( aIndex["C"] ) # howing just the index of "C"
+#--> [0, 0, 1]
 
 
 
