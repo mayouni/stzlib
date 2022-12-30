@@ -535,23 +535,48 @@ class stzCCode
 
 		*/
 
-		oCode = Q( This.TranspiledFor(:stzList) )
+		oCode = This.CCodeQ().
+			ReplaceManyCSQ([
+				"@CurrentItem", "@CurrentString", "@CurrentStringItem",
+				"@CurrentChar", "@CurrentList", "@CurrentPair",
+				"@CurrentHashList", "@CurrentObject" ],
+
+				:By = "This[@i]", :CS = FALSE).
+
+				ReplaceManyCSQ([
+				"@NextItem", "@NextString", "@NextStringItem",
+				"@NextChar", "@NextList", "@NextPair",
+				"@NextHashList", "@NextObject" ],
+
+				:By = "This[@i+1]", :CS = FALSE).
+
+				ReplaceManyCSQ([
+				"@PrevisItem", "@PreviousString", "@PreviousStringItem",
+				"@PreviousChar", "@PreviousList", "@PreviousPair",
+				"@PreviousHashList", "@PreviousObject" ],
+
+				:By = "This[@i-1]", :CS = FALSE)
+	
 		acNumbersAfter = oCode.NumbersComingAfter("@i")
+		# NOTE: Takes most time!
+		# TODO: Has been optimised once but try more!
+
+		nLenAfter = len(acNumbersAfter)
 
 		if len(acNumbersAfter) = 0
 			return [ 1, :Last ]
 		ok
 
-		oNumbers = Q( acNumbersAfter ).
-			   PerformQ('@item = 0+ @item')
+		anNumbers = []
+		for i = 1 to nLenAfter
+			anNumbers + (0+ acNumbersAfter[i])
+		next
+		oNumbers = new stzList(anNumbers)
 
 		anResult = [ 1, :Last ]
 
-		if oNumbers.Size() = 0
-			# DoNothing --> aResult is already [ 1, :Last ]
-
-		but oNumbers.Size() = 1
-			n =  0+ oNumbers[1]
+		if nLenAfter = 1
+			n =  anNumbers[1]
 
 			if n > 0
 				anResult = [ 1, (-n -1) ]

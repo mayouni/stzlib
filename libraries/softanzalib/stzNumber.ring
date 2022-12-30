@@ -1951,16 +1951,12 @@ class stzNumber from stzObject
 		def MultiplyByQ(pOtherNumber)
 			This.MultiplyBy(pOtherNumber)
 			return This
-
-		def Times(pOtherNumber)
-			This.MultiplyBy(pOtherNumber)
-
-			def TimesQ(pOtherNumber)
-				This.Times(pOtherNumber)
-				return This
 	
 	def MultipliedBy(pOtherNumber)
 		return This.Copy().MultiplyByQ(pOtherNumber).Content()
+
+		def Times(pOtherNumber)
+			return This.MultipliedBy(pOtherNumber)
 
 	  #----------------------------------------------------#
 	 #    MULTIPLYING THE NUMBER BY MANY OTHER NUMBERS    #
@@ -3775,9 +3771,6 @@ class stzNumber from stzObject
 
 	def IsStzNumber()
 		return TRUE
-
-	def Type()
-		return "OBJECT"
 
 	def stzType()
 		return :stzNumber

@@ -17451,9 +17451,6 @@ class stzListOfStrings from stzList
 	def IsStzListOfStrings()
 		return TRUE
 
-	def Type()
-		return "OBJECT"
-
 	def stzType()
 		return :stzListOfStrings
 

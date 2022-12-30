@@ -2,21 +2,21 @@ load "stzlib.ring"
 
 
 /*---------------
-
-# If type is provided NULL then it is atotmatically set to "undefined"
+*/
+# If type is provided NULL then it is auttmatically set to "undefined"
 
 o1 = new stzEntity([ :name = "Avionav", :type = "" ])
 ? o1.content()
 
 /*---------------
 
-# You must provide a name proprty while creating an entity
+# You must provide a name property while creating an entity
 
 StzEntityQ([ :type = "Company", :domain = "Technology" ])
 # --> ERROR: Can't create the entity object!
 
 /*---------------
-*/
+
 # If :type is not provided, then it is automatically
 # added and set to :undefined
 

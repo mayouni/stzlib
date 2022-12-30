@@ -1052,7 +1052,8 @@ class stzObject
 	#------------------#
 
 	def Type()
-		return lower ( ring_type( This.Content() ) )
+		return :Object
+		# NOTE: Unlike Ring, Softanza returns the type in lowercase
 
 	def TypeXT()
 		return [ This.Content(), This.Type() ]
@@ -1063,24 +1064,31 @@ class stzObject
 	def StzTypeXT()
 		return [ :stzObject, This.Content() ]
 
-	def IsANumber()
+	def IsStzNumber()
 		if This.StzType() = :stzNumber
 			return TRUE
 		else
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForm
+
+		def IsAStzNumber()
+			return This.IsStzNumber()
+
+		#>
+
 		#< @FunctionNegativeForm
 
-		def IsNotANumber()
-			return NOT This.IsANumber()
+		def IsNotStzNumber()
+			return NOT This.IsStzNumber()
 
-		def IsNotNumber()
-			return This.IsNotANumber()
+		def IsNotAStzNumber()
+			return NOT This.IsStzNumber()
 
 		#>
 	
-	def IsAString()
+	def IsStzString()
 
 		if This.StzType() = :stzString
 			return TRUE
@@ -1088,60 +1096,72 @@ class stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForm
+
+		def IsAStzString()
+			return This.IsStzString()
+
+		#>
+
 		#< @FunctionNegativeForm
 
-		def IsNotAString()
-			return NOT This.IsAString()
+		def IsNotStzString()
+			return NOT This.IsStzString()
 
-		def IsNotString()
-			return This.IsNotAString()
+		def IsNotAStzString()
+			return NOT This.IsStzString()
 
 		#>
 	
-	def IsAList()
+	def IsStzList()
 		if This.StzType() = :stzList
 			return TRUE
 		else
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForm
+
+		def IsAStzList()
+			return This.IsStzList()
+
+		#>
+
 		#< @FunctionNegativeForm
 
-		def IsNotAList()
-			return NOT This.IsAList()
+		def IsNotStzList()
+			return NOT This.IsStzList()
 
-		def IsNotList()
-			return This.IsNotAList()
+		def IsNotAStzList()
+			return NOT This.IsStzList()
 
 		#>
 	
-	def IsAnObject()
+	def IsStzObject()
 		return TRUE
 
-		def IsObjekt()
+		#< @FunctionAlternativeForm
+
+		def IsAStzObject()
 			return TRUE
+
+		#>
 
 		#< @FunctionNegativeForm
 
-		def IsNotAnObject()
+		def IsNotStzObject()
 			return FALSE
 	
-			def IsNotObjeket()
-				return This.IsNotAnObject()
-
-		def IsNotObject()
+		def IsNotAStzObject()
 			return This.IsNotAnObject()
-
-			def IsNotAnObjekt()
-				return This.IsNotObject()
 
 		#>
 
 	def HasSameTypeAs(p)
 		return isObject(p)
 
-	def HasStzTypeAs(p)
-		if idObject(p) and Q(p).IsStzType() and
+	def HasSameStzTypeAs(p)
+		if isObject(p) and Q(p).IsStzType() and
 		   Q(p).StzType() = This.StzType()
 
 			return TRUE
@@ -1548,9 +1568,9 @@ class stzObject
 
 		#>
 
-	  #------------------------------------------#
+	  #==========================================#
 	 #  CASTING THE OBJECT VALUE INTO A NUMBER  #
-	#------------------------------------------#
+	#==========================================#
 
 	def ToNumber()
 		if This.IsANumber()
@@ -1565,6 +1585,10 @@ class stzObject
 		else
 			StzRaise("Can't cast the object into a number.")
 		ok
+
+	  #------------------------------------------------------#
+	 #  CASTING THE OBJECT VALUE INTO A NUMBER -- EXTENDED  #
+	#------------------------------------------------------#
 
 	def ToNumberXT(pcCode)
 
@@ -1605,24 +1629,29 @@ class stzObject
 			eval(cCode)
 
 		else
-			# CASE += is used on a list of items or a sstring
+			# CASE += is used on a list of items or a string
 
 			# EXAMPLE
 			# ? Q([ "Me", "and", "You!" ]).ToNumberXT('{ @number += len(@item) }')
 			#--> 9
 			@number = 0
-			//cCode = Q(cCode).ReplaceCSQ("@string", :By = "@item", :CS = FALSE).Content()
 
 			if This.IsANumber()
 				eval(cCode)
 
 			but This.IsAString()
-				for i = 1 to This.NumberOfChars()
-					@char = This.Char(i)
+				nLenStr = This.NumberOfChars()
+				for @i = 1 to nLenStr
+					@char = This.Char(@i)
 					eval(cCode)
 				next
+
 			but This.IsAList()
-				for @item in This.List()
+				aList = This.List()
+				nLenList = len(aList)
+
+				for @i = 1 to nLenList 
+					@item = This.Item(@i)
 					eval(cCode)
 				next
 			ok
