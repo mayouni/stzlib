@@ -1172,9 +1172,9 @@ class stzChar from stzObject
 	def IsVisible()
 		return NOT This.IsInvisible()
 
-	  #----------------------------------#
+	  #------------------------------------#
 	 #   PRINTABLE AND NONPRINTABLE CHAR  #
-	#----------------------------------#
+	#------------------------------------#
 
 	def IsPrintable()
 		return @oQChar.isPrint()
@@ -2541,9 +2541,6 @@ class stzChar from stzObject
 
 	def IsStzChar()
 		return TRUE
-
-	def Type()
-		return "OBJECT"
 
 	def stzType()
 		return :stzChar

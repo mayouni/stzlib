@@ -1922,9 +1922,6 @@ class stzListOfNumbers from stzList
 	def IsStzListOfNumbers()
 		return TRUE
 
-	def Type()
-		return "OBJECT"
-
 	def stzType()
 		return :stzListOfNumbers
 

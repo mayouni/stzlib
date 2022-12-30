@@ -3389,9 +3389,9 @@ class stzString from stzObject
 	def BytecodesPerChar()
 		return This.ToStzListOfBytes().BytecodesPerChar()
 
-	  #----------------------------------------------------#
+	  #====================================================#
 	 #  INFERING A RING OR SOFTANZA TYPE FROM THE STRING  #
-	#----------------------------------------------------#
+	#====================================================#
 
 	def InfereType()
 		cStr = This.Lowercased()
@@ -3435,6 +3435,16 @@ class stzString from stzObject
 
 		ok
 
+		def InfereTypeQ()
+			return new stzString( This.InfereType() )
+
+	def InferedType()
+		return This.InfereType()
+
+	  #----------------------------------------------------#
+	 #  INFERING A SOFTANZA CLASS METHOD FROM THE STRING  #
+	#----------------------------------------------------#
+
 	def InfereMethod(pcFromStzClass)
 
 		if isList(pcFromStzClass) and
@@ -3472,6 +3482,16 @@ class stzString from stzObject
 
 		return cMethod
 
+		def InfereMethodQ()
+			return new stzString( This.InfereMethod() )
+
+	def InferedMethod()
+		return InfereMthod()
+
+	  #------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS THE PLURAL FORM OF ANY SOFTANZA TYPE  #
+	#------------------------------------------------------------------#
+
 	def IsPluralOfAStzType()
 		oHash = new stzHashList( StzTypesXT() )
 		anPos = oHash.FindValue( This.Lowercased() )
@@ -3483,6 +3503,10 @@ class stzString from stzObject
 
 		def IsAPluralOfStzClassName()
 			return This.IsPluralOfAStzType()
+
+	  #----------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS THE PLURAL FORM OF A GIVEN SOFTANZA TYPE  #
+	#----------------------------------------------------------------------#
 
 	def IsPluralOfThisStzType(cType)
 
@@ -27352,8 +27376,14 @@ o1 = new stzString("12*34*56*78")
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		cCondition = StzCCodeQ(pcCondition).TranspiledFor(:stzList)
-		return This.CharsQ().YieldW(pcCode, cCondition)
+		pcCode = Q(pcCode).
+				ReplaceCSQ("@char", "@item", :CS = FALSE).Content()
+
+		pcCondition = Q(pcCondition).
+				ReplaceCSQ("@char", "@item", :CS = FALSE).Content()
+
+		acResult = This.CharsQ().YieldW(pcCode, pcCondition)
+		return acResult
 
 		#< @FunctionFluentForm
 
@@ -28519,45 +28549,52 @@ o1 = new stzString("12*34*56*78")
 			StzRaise("Incorrect param type! pcsubStr must be a string.")
 		ok
 
+		acSubStrings = This.SplitQ("@i").FirstItemRemoved()
+		# Splitting takes as little as 0.01s
+		# The following part of the function takes ~0.26s
+		# TODO: should be optimised!
+
+		nNumberOfSubStrings = len(acSubStrings)
+		
 		acResult = []
-
-		acSplitted = This.SplitQ( :Using = pcSubStr ).FirstItemRemoved()
-
-		for str in acSplitted
-			str = Q(str).WithoutSpaces()
-			nLen = Q(str).NumberOfChars()
-
+		
+		for i = 1 to nNumberOfSubStrings
+		
+			oSubStr = new stzString(acSubStrings[i])
+		
 			cNumber = ""
-			bContinue = TRUE
-			i = 0
+			
+			oSubStr.RemoveSpaces()
+			oFirstChar = oSubstr.FirstCharQ()
 
-			while bContinue
-				i++
-				if i > nLen
-					bContinue = FALSE
-				else
-					oChar = Q(str[i])
-
-					if oChar.IsOneOfThese(["+","-", "."]) or
-					   oChar.IsNumberInString()
-
-						cNumber += oChar.Content()
-
-					else
-						bContinue = FALSE
+			if oFirstChar.IsOneOfThese([ "-", "+", "=" ])
+				cNumber = oFirstChar.Content()
+				oSubstr.RemoveFirstChar()	
+			ok
+		
+			nLenSubStr = oSubStr.NumberOfChars()
+			
+			if nLenSubStr > 0 and NOT oSubStr.FirstCharQR(:stzChar).IsANumber()
+				loop
+			ok
+		
+			for v = 1 to nLenSubStr
+			
+				@char = oSubStr.Char(v)
+		
+				if StzCharQ(@char).IsANumber()
+					cNumber += @char
+		
+				but @char = "."
+					if NOT Q(cNumber).Contains(".")
+						cNumber += "."
 					ok
 				ok
 			end
-
-			cNumber = Q(cNumber).
-				  RemoveThisFirstCharQ("+").
-				  RemoveThisFirstCharQ(".").
-				  RemoveThisLastCharQ(".").
-				  Content()
-
-			if cNumber != ""
-				acResult + cNumber
-			ok
+		
+			cNumber = Q(cNumber).ThisLastCharRemoved(".")
+			acResult + cNumber
+		
 		next
 
 		return acResult
@@ -28633,17 +28670,67 @@ o1 = new stzString("12*34*56*78")
 
 		#>
 
-	  #----------------------------------------------#
+	  #---------------------------------------------#
 	 #  NTH NUMBER COMING AFTER A GIVEN SUBSTRING  #
-	#----------------------------------------------#
+	#---------------------------------------------#
 
 	def NthNumberComingAfterCS(n, pcSubStr, pCaseSensitive)
-		acNumbers = This.NumbersComingAfterCS(pcSubStr, pCaseSensitive)
 
-		cResult = ""
-		if Q(n).IsBetween(1, len(acNumbers))
-			cResult = acNumbers[n]
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcsubStr must be a string.")
 		ok
+
+		acSubStrings = This.SplitQ("@i").FirstItemRemoved()
+		nNumberOfSubStrings = len(acSubStrings)
+		
+		nFound = 0
+		cResult = ""
+
+		for i = 1 to nNumberOfSubStrings
+		
+			oSubStr = new stzString(acSubStrings[i])
+		
+			cNumber = ""
+			
+			oSubStr.RemoveSpaces()
+			
+			if oSubstr.FirstChar() = "-"
+				cNumber = "-"
+				oSubstr.RemoveFirstChar()
+			
+			but oSubStr.FirstChar() = "+" or oSubStr.FirstChar() = "="
+				oSubStr.RemoveFirstChar()
+			ok
+		
+			nLenSubStr = oSubStr.NumberOfChars()
+			
+			if nLenSubStr > 0 and NOT oSubStr.FirstCharQR(:stzChar).IsANumber()
+				loop
+			ok
+		
+			for v = 1 to nLenSubStr
+			
+				@char = oSubStr.Char(v)
+		
+				if StzCharQ(@char).IsANumber()
+					cNumber += @char
+
+				but @char = "."
+					if NOT Q(cNumber).Contains(".")
+						cNumber += "."
+					ok
+				ok
+
+			end
+		
+			nFound++
+
+			if nFound = n
+				cResult = Q(cNumber).ThisLastCharRemoved(".")
+				exit
+			ok
+		
+		next
 
 		return cResult
 

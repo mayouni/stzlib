@@ -1,23 +1,5 @@
 load "stzlib.ring"
 
-/*====== TODO: YIELD AND CUMULATE
-
-o1 = new stzList([ "one", "two", "three" ])
-? o1.Yield("len(@item)")
-#--> [ 3, 3, 5 ]
-
-? o1.YieldAndCumulate('len(@item)')
-#--> [ 3, 6, 11 ]
-
-? o1.YieldAndCumulateXT('len(@item)', :ReturnLast )
-#--> 11
-
-? o1.YielAndCumulateXT('len(@item)', :Using = '@item += @PreviousItem')
-#--> [ 3, 6, 11 ]
-
-? o1.YieldAndCumulateXT('len(@item)', [ :Using = '@item += @PreviousItem', :ReturnLast ])
-#--> 11
-
 /*==================
 
 ? fabs(-5) #--> 5	Ring function
@@ -47,28 +29,6 @@ o1 = new stzString("ring")
 
 /*==================
 
-o1 = new stzList([ "one", "two", "three" ])
-? o1.YieldAndCumulateXT( "len(@item)", :ReturnLast = FALSE )
-#--> [3, 6, 11]
-
-? o1.YieldANdCumulateXT( "len(@item)", :ReturnLast )
-#--> 11
-
-/*-----------------
-
-o1 = new stzList([ 1, 2, 3 ])
-? o1.YieldAndCumulate("{ @item }")
-#--> [ 1, 3, 6 ]
-
-o1 = new stzList([ "I", "love", "Ring!" ])
-? @@S( o1.YieldAndCumulate('{ @item +  " " }') )
-#--> [ [ "I ", "I love ", "I love Ring!" ]
-
-? o1.YieldAndCumulateXTQ('{ @item +  " " }', :ReturnLast).Trimmed()
-#--> "I love Ring!"
-
-/*==================
-*/
 ? Q(5).ToNumber()
 #--> 5
 
@@ -80,13 +40,23 @@ o1 = new stzList([ "I", "love", "Ring!" ])
 
 /*------------------
 
+StartProfiler()
+
 ? Q(-5).ToNumberXT('{ @number = Q(@number).Abs() }')
 #--> 5
 
-? Q(5).ToNumberXT('{ @number += 5 }')
-#--> 5
+? Q(5).ToNumberXT('{ @number = @number + 5 }')
+#--> 10
+
+? QR([ -1, 2, -3, -4, 5 ], :stzListOfNumbers).ToNumberXT('{ @number = This.Sum() }')
+#--> -1
+
+StopProfiler()
+#--> Executed in 0.07 seconds seconds.
 
 /*------------------
+
+StartProfiler()
 
 ? Q("Ring").ToNumberXT('{
 	@number = len(@string)
@@ -110,6 +80,9 @@ o1 = new stzList([ "I", "love", "Ring!" ])
 	@number += Q(@char).Unicode()
 }')
 #--> 400
+
+StopProfiler()
+#--> Executed in 0.24 seconds seconds.
 
 /*------------------
 

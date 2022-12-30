@@ -1,20 +1,25 @@
 load "stzlib.ring"
 
-o1 = new stzList([ "A", "B", "A", "C", "C", "D", "A", "E" ])
 
-? @@S( o1.IndexBy(:NumberOfOccurrence) ) + NL
-#--> [ [ "A", 3 ], [ "B", 1 ], [ "C", 2 ], [ "D", 1 ], [ "E", 1 ] ]
+/*-----------------
 
-? @@S( o1.IndexBy(:Position) )
-#--> [
-#	[ "A", [ 1, 3, 7 ] ],
-#	[ "B", [ 2 ] ],
-#	[ "C", [ 4, 5 ] ],
-#	[ "D", [ 6 ] ],
-#	[ "E", [ 8 ] ]
-# ]
+StartProfiler()
 
-STOP()
+	o1 = new stzList([ "A", "B", "A", "C", "C", "D", "A", "E" ])
+	
+	? @@S( o1.IndexBy(:NumberOfOccurrence) ) + NL
+	#--> [ [ "A", 3 ], [ "B", 1 ], [ "C", 2 ], [ "D", 1 ], [ "E", 1 ] ]
+	
+	? @@S( o1.IndexBy(:Position) )
+	#--> [
+	#	[ "A", [ 1, 3, 7 ] ],
+	#	[ "B", [ 2 ] ],
+	#	[ "C", [ 4, 5 ] ],
+	#	[ "D", [ 6 ] ],
+	#	[ "E", [ 8 ] ]
+	# ]
+
+StopProfiler() #--> Executed in 0.49 seconds seconds.
 
 /*-----------------
 
@@ -1343,6 +1348,37 @@ o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
 ? Q("2").IsOneOfThese([ 3, 2, 5 ]) 	# --> FALSE
 ? Q([2]).IsOneOfThese([ 3, 2, 5 ])	# --> FALSE
 
+/*====== YIELD AND CUMULATE
+
+StartProfiler()
+
+o1 = new stzList([ "one", "two", "three" ])
+? o1.Yield("len(@item)")
+#--> [ 3, 3, 5 ]
+
+? o1.YieldAndCumulate('len(@item)', :ReturnLast = FALSE)
+#--> [ 3, 6, 11 ]
+
+? o1.YieldAndCumulate('len(@item)', :ReturnLast )
+#--> 11
+
+StopProfiler()
+#--> Executed in 0.07 seconds seconds.
+
+/*-----------------
+
+StartProfiler()
+
+o1 = new stzList([ "I", "love", "Ring!" ])
+? @@S( o1.YieldAndCumulate('{ @item +  " " }', :ReturnEach ) )
+#--> [ [ "I ", "I love ", "I love Ring!" ]
+
+? o1.YieldAndCumulateQ('{ @item +  " " }', :ReturnLast).Trimmed()
+#--> "I love Ring!"
+
+StopProfiler()
+#--> Executed in 0.06 seconds seconds.
+
 /*======================
 
 # Finding positions where current item is one of these [ 2, 4, 6 ]
@@ -1372,10 +1408,25 @@ o1 = new stzList([ "_", "_", 1:3, "_", 5:9, "_" ])
 
 /*---------------------
 
+StartProfiler()
+
 o1 = new stzList([ "A", "m", "n", "B", "A", "x", "C", "z", "B" ])
 
 ? o1.ItemsW( :Where = 'Q(@item).IsAnUppercase()')
 # --> [ "A", "B", "A", "C", "B" ]
+
+# Executesin less then 0.08 second:
+? ElapsedTime() + NL
+
+# The other extended form (provides more features, like code transpilation
+# and executable section identification) takes more time ( about 0.92 second).
+? o1.ItemsWXT( :Where = 'Q(@item).IsAnUppercase()')
+
+/*---------------------
+
+StartProfiler()
+
+o1 = new stzList([ "A", "m", "n", "B", "A", "x", "C", "z", "B" ])
 
 ? o1.ItemsPositionsW('Q(@item).IsUppercase()') # Say also o1.FindItemsW(...) or .FindW(...)
 # --> [ 1, 4, 5, 7, 9 ]
@@ -1383,15 +1434,65 @@ o1 = new stzList([ "A", "m", "n", "B", "A", "x", "C", "z", "B" ])
 ? o1.ItemsAndTheirPositionsW('Q(@item).IsUppercase()')
 # --> [ "A" = [1, 5], "B" = [4, 9], "C" = [7] ]
 
+StopProfiler()
+
+/*=========================
+
+StartProfiler()
+
+o1 = new stzList([ "A", "B", "_", "C", "D", "E", "F" ])
+? o1.AllItemsExcept("_")
+
+StopProfiler() # 0.03 second
+
+/*=========================
+
+StartProfiler()
+
+o1 = new stzList([ "Word1", "كلمة 2", "Word3", "كلمة 4", "Word5", "كلمة 6" ])
+? o1.CheckOnW([1, 3, 5], :That = 'Q(@item).IsLeftToRight()' ) #--> TRUE
+
+StopProfiler()
+#--> Executed in 0.03 second.
+
+/*=========================
+
+StartProfiler()
+
+o1 = new stzString ('{ This[ @i - 3 ] = This[ @i + 3 ] .... @i -12233.87  @i + 764.3322 }')
+//? o1.NumbersAfter("@i")
+#--> [ "-3", "3", "-12233.87", "764.3322" ]
+
+? o1.NumberComingAfter("@")
+#--> "-3"
+
+StopProfiler()
+
+/*=========================
+
+? StzCCodeQ('{ This[ @i - 3 ] = This[ @i + 3 ] }').ExecutableSection()
+#--> [4, -4]
+
 /*=========================
 */
+StartProfiler()
+
 # Finding positions where next number is double of previous number
 o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
-? o1.FindW( '{ Q( @NextNumber ).IsDoubleOf( @PreviousNumber ) }' )
+? o1.FindWXT( '{ Q( @NextNumber ).IsDoubleOf( @PreviousNumber ) }' )
 # --> [ 8, 11 ]
 
+? ElapsedTime()
+
+? o1.FindW( '{ Q( This[@i+1] ).IsDoubleOf( This[@i-1] ) }' )
+# Takes 0.07s only!
+
+StopProfiler()
+
+/*-----------
+
 # that you can also write like this:
-? o1.FindW( :Where = '{ Q( @NextItem ).IsDoubleOf( @PreviousItem ) }' )
+? o1.FindWXT( :Where = '{ Q( @NextItem ).IsDoubleOf( @PreviousItem ) }' )
 # --> [ 8, 11 ]
 
 # or like this:
@@ -1400,17 +1501,20 @@ o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
 
 # Finding positions where current item is equal to next item
 o1 = new stzList([ 2, 8, 2, 2, 11, 2, 11, 7, 7, 4, 2, 1, 3, 2, 10, 8, 3, 3, 3, 6, 8 ])
-? o1.FindW( '{ @Number = @NextNumber }' ) # --> [ 3, 8, 17, 18 ]
+? o1.FindWXT( '{ @Number = @NextNumber }' )
+# --> [ 3, 8, 17, 18 ]
 
 # Finding positions where current item is equal to next item
 
 o1 = new stzList([ "A", "B", "B", "C", "D", "D", "D", "E" ])
-? o1.FindW( '{ This[@i] = This[@i+1] }' ) # --> [ 2, 5, 6 ]
+? o1.FindW( '{ This[@i] = This[@i+1] }' )
+# --> [ 2, 5, 6 ]
 
 # Finding positions where previous 3rd item is equal to next 3rd item
 
 o1 = new stzList( [ 0, 8, 0, 0, 1, 8, 0, 0 ] )
-? @@S( o1.FindW('{ This[ @i - 3 ] = This[ @i + 3 ] }') ) #--> [ 4 ]
+? @@S( o1.FindWXT('{ This[ @i - 3 ] = This[ @i + 3 ] }') )
+#--> [ 4 ]
 
 
 /*---------------------

@@ -1,18 +1,36 @@
 load "stzlib.ring"
 
 
+/*----------
+
+StartProfiler()
+
+	o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
+	? o1.ExecutableSection()
+	#--> [ 4, -4 ]
+
+StopProfiler()
+#--> Executed in 0.29 seconds seconds.
 
 /*----------
 
-o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @PreviousItem = 10 }')
-? o1.TranspiledFor(:stzList)
-#--> This[ @i - 3 ] = This[ @i + 3 ] and This[ @i - 1 ] = 10
+StartProfiler()
 
-? o1.ExecutableSection()
-#--> [ 4, -4 ]
+	o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
+	? o1.TranspiledFor(:stzList)
+	#--> This[ @i - 3 ] = This[ @i + 3 ] and @i = 10
+
+? NL + "--- " + ELapsedTime() + NL
+#--> Transpiling takes more than 0.35s
+#--> TODO: should be optimised
+
+	? o1.ExecutableSection()
+	#--> [ 4, -4 ]
+
+StopProfiler()
 
 /*----------
-
+*/
 o1 = new stzCCode('{ This[ @i ] = This[ @i + 3 ] }')
 ? o1.TranspiledFor(:stzList)
 #--> This[ @i ] = This[ @i + 3 ]

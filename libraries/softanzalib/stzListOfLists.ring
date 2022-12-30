@@ -113,8 +113,9 @@ class stzListOfLists from stzList
 		@aContent + paList
 
 	def AddMany(paListOfLists)
-		for list in paListOfLists
-			@aContent + list
+		nLen = len(paListOfLists)
+		for i = 1 to nLen
+			@aContent + paListOfLists[i]
 		next
 
 	  #---------------#
@@ -150,10 +151,11 @@ class stzListOfLists from stzList
 		cCondition = StzStringQ(pcCondition).RemoveBoundsQ(["{","}"]).Simplified()
 		aResult = []
 
-		@i = 0
+		aListOfLists = This.ListOfLists()
+		nLen = len(aListOfLists)
 
-		for @list in This.ListOfLists()
-			@i++
+		for @i = 1 to nLen 
+			@list = aListOfLists[@i]
 
 			@item = @list # Allows using both @list and @item in the user's script
 			cCode = "if " + cCondition + NL +
@@ -194,10 +196,11 @@ class stzListOfLists from stzList
 		cCondition = StzStringQ(pcCondition).RemoveBoundsQ(["{","}"]).Simplified()
 		aResult = []
 
-		@i = 0
+		aListOfLists = This.ListOfLists()
+		nLen = len(aListOfLists)
 
-		for @list in This.ListOfLists()
-			@i++
+		for @i = 1 to nLen 
+			@list = aListOfLists[@i]
 
 			@item = @list # Allows using both @list and @item in the user's script
 			cCode = "if " + cCondition + NL +
@@ -234,7 +237,15 @@ class stzListOfLists from stzList
 	#-------------------------------------------#
 
 	def Sizes()
-		return This.Yield('{ len(@list) }')
+		aResult = []
+		aListOfLists = This.ListOfLists()
+		nLen = len(aListOfLists)
+
+		for i = 1 to nLen
+			aResult + len(aListOfLists[i])
+		next
+
+		return aResult
 
 	def SmallestSize()
 		return StzListOfNumbersQ( StzSetQ(This.Sizes()).Content() ).Min()
@@ -271,11 +282,42 @@ class stzListOfLists from stzList
 	#--------------------------------#
 
 	def SmallestLists()
-		return This.ListsW('{ len(@list) = This.SmallestSize() }')
+
+		aListOfLists = This.Content()
+		nLen = len(aListOfLists)
+		nSmallestSize = This.SmallestSize()
+
+		aResult = []
+
+		for i = 1 to nLen
+			aList = aListOfLists[i]
+			nLenList = len(aList)
+
+			if nLenList = nSmallestSize
+				aResult + aList
+			ok
+		next
+
+		return aResult
 
 	# TODO: adds "big", "great", and "large" as alternatives al over the library
 	def BiggestLists()
-		return This.ListsW('{ len(@list) = This.BiggestSize() }')
+		aListOfLists = This.Content()
+		nLen = len(aListOfLists)
+		nBiggestSize = This.BiggestSize()
+
+		aResult = []
+
+		for i = 1 to nLen
+			aList = aListOfLists[i]
+			nLenList = len(aList)
+
+			if nLenList = nBiggestSize
+				aResult + aList
+			ok
+		next
+
+		return aResult
 
 		def GreatestLists()
 			return This.BiggestLists()
@@ -284,7 +326,24 @@ class stzListOfLists from stzList
 			return This.BiggestLists()
 
 	def FindSmallestLists()
-		return This.PositionsW('{ len(@list) = This.SmallestSize() }')
+
+		aListOfLists = This.Content()
+		nLen = len(aListOfLists)
+
+		aResult = []
+		nSmallestSize = This.SmallestSize()
+
+		for i = 1 to nLen
+			aList = aListOfLists[i]
+			nLenList = len(aList)
+
+			if nLenList = nSmallestSize
+				aResult + i
+			ok
+
+		next
+
+		return aResult
 
 		def FindMinLists()
 			return This.FindSmallestLists()
@@ -375,7 +434,11 @@ class stzListOfLists from stzList
 	def ItemsAtPositionN(n)
 		aResult = []
 
-		for aList in This.ListOfLists()
+		aListOfLists = This.ListOfLists()
+		nLen = len(aListOfLists)
+
+		for i = 1 to nLen
+			aList = aListOfLists[i]
 			if len(aList) >= n
 				aResult + aList[n]
 			ok
@@ -519,10 +582,11 @@ class stzListOfLists from stzList
 	#--------------------------------------#
 
 	def ReverseItemsInLists()
-		i = 0
-		for aList in This.ListOfLists()
-			i++
-			@aContent[i] = Q(aList).Reversed()
+		aListOfLists = This.ListOfLists()
+		nLen = len(aListOfLists)
+
+		for i = 1 to nLen
+			@aContent[i] = Q(aListOfLists[i]).Reversed()
 		next
 
 		def ReverseItemsInListsQ()
@@ -621,31 +685,37 @@ class stzListOfLists from stzList
 		*/
 
 		aIndexes = []
-		for list in This.Content()
-			oTempList = new stzList( list )
+		aListOfLists = This.Content()
+		nLen = len(aListOfLists)
+
+		for i = 1 to nLen
+			oTempList = new stzList( aListOfLists[i] )
 			aIndexes + oTempList.IndexBy(pcOn)
 		next
 		// aIndexes => [ [ :A = 2, :B = 1, :C = 1 ],
 		//		 [ :A = 2, :B = 1, :C = 1, :X = 1 ] ]	
 
 
-		//aKeys = This.MergeAndRemoveDuplicates()
 		aKeys = This.ToStzList().MergeQ().DuplicatesRemoved()
 		// aKeys => [ :A, :B, :C, :X ]
-
 		
+		nLenKeys = len(aKeys)
+		nLenIndexes = len(aIndexes)
 		aResult = []
-		for key in aKeys
+
+		for i = 1 to nLenKeys
+			key = aKeys[i]
 			aValues = []
-			i=0
-			for aIndex in aIndexes
-				i++
+
+			for v = 1 to nLenIndexes
+				aIndex = aIndexes[v]
 				value = aIndex[key]
 				
 				if pcOn = :NumberOfOccurrence or pcOn = :NumberOfOccurrences
 					if isString(value) and value = NULL
 						value = 0
 					ok
+
 					aValues + value
 
 				but pcOn = :Position
@@ -653,9 +723,10 @@ class stzListOfLists from stzList
 					/* aPositions = [ 1, 3 , 2 ]
 					   => [ (i,1) , (i,3) , (i,2) ]
 					*/
-					for nPosition in aPositions
-						aPair = [ i, nPosition]
-						aValues + aPair
+					nLenPositions = len(aPositions)
+
+					for q = 1 to nLenPositions 
+						aValues + [ v, aPositions[q] ]
 					next
 				ok
 			next
@@ -723,19 +794,26 @@ class stzListOfLists from stzList
 
 	def ContainsItem(pItem)
 		bResult = FALSE
-		for list in This.ListOfLists()
-			oStzList = new stzList(list)
+		aListOfLists = This.ListOfLists()
+		nLen = len(aListOfLists)
+
+		for i = 1 to nLen
+			oStzList = new stzList( aListOfLists[i] )
 			if oStzList.Contains(pItem)
 				bResult = TRUE
 				exit
 			ok
 		next
+
 		return bResult
 
 	def ListsContainingItem(pItem)
 		aResult = []
-		for list in This.ListOfLists()
-			oStzList = new stzList(list)
+		aListOfLists = This.ListOfLists()
+		nLen = len(aListOfLists)
+
+		for i = 1 to nLen
+			oStzList = new stzList(aListOfLists[i])
 			if oStzList.Contains(pItem)
 				aResult + list
 			ok
@@ -767,10 +845,15 @@ class stzListOfLists from stzList
 	def Merge()
 
 		aResult = []
+		aListOfLists = This.ListOfLists()
+		nLenListOfLists = len(aListOfLists)
 
-		for aList in This.ListOfLists()
-			for item in aList
-				aResult + item
+		for i = 1 to nLenListOfLists
+			aList = aListOfLists[i]
+			nLenList = len(aList)
+
+			for v = 1 to nLenList
+				aResult + aList[v]
 			next
 		next
 
@@ -855,9 +938,11 @@ class stzListOfLists from stzList
 
 	def ToListOfStrings()
 		aResult = []
+		aListOfLists = This.ListOfLists()
+		nLen = len(aListOfLists)
 
-		for list in This.ListOfLists()
-			aResult + @@( list ) # @@ --> ComputableForm( list )
+		for i = 1 to nLen 
+			aResult + @@( aListOfLists[i] ) # @@ --> ComputableForm( list )
 		next
 
 		return aResult
@@ -877,8 +962,11 @@ class stzListOfLists from stzList
 
 	def ToListsInString()
 		acResult = []
-		for aList in This.ListOfLists()
-			acResult + StzListQ(aList).ToListInString()
+		aListOfLists = This.ListOfLists()
+		nLen = len(aListOfLists)
+
+		for i = 1 to nLen
+			acResult + StzListQ(aListOfLists[i]).ToListInString()
 		next
 
 		return acResult
@@ -900,8 +988,11 @@ class stzListOfLists from stzList
 
 	def ToListInStringInShortForm()
 		acResult = []
-		for aList in This.ListOfLists()
-			acResult + StzListQ(aList).ToListInStringInShortForm()
+		aListOfLists = This.ListOfLists()
+		nLen = len(aListOfLists)
+
+		for i = 1 to len(aListOfLists)
+			acResult + StzListQ(aListOfLists[i]).ToListInStringInShortForm()
 		next
 
 		return acResult
