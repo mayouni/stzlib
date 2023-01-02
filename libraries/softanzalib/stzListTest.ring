@@ -1473,25 +1473,37 @@ StopProfiler()
 ? StzCCodeQ('{ This[ @i - 3 ] = This[ @i + 3 ] }').ExecutableSection()
 #--> [4, -4]
 
-/*=========================
-*/
+/*========================= ...W() and ..WXT() forms in Conditional Code
+
+# In conditional code, there are always to forms:
+#	- the ...W(pcCondition) form, which is more performant, but less expressive
+#	- the ...WXT(pcCondition) form, which is less performant, but more expressive
+
+# In the first form, you can only use the the @item, @string, ... and the @i keywords.
+# While in the second, you can use keywords sutch as @NextItem, @PreviousItem, and others.
+
+# You can always express these additional keywords, while option for the more performant
+# form, by transalating them to This[@i-1] for @PreviousItem, for example, and to
+# This[@i+1] for @NextItem, etc.
+
 StartProfiler()
 
 # Finding positions where next number is double of previous number
 o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
-? o1.FindWXT( '{ Q( @NextNumber ).IsDoubleOf( @PreviousNumber ) }' )
-# --> [ 8, 11 ]
 
-? ElapsedTime()
+? @@S( o1.FindWXT( '{ Q( @NextNumber ).IsDoubleOf( @PreviousNumber ) }' ) ) # --> [ 8, 11 ]
+? ElapsedTime() + NL #--> Takes 0.40s
 
-? o1.FindW( '{ Q( This[@i+1] ).IsDoubleOf( This[@i-1] ) }' )
-# Takes 0.07s only!
+? @@S( o1.FindW( '{ Q( This[@i+1] ).IsDoubleOf( This[@i-1] ) }' ) )  #--> [ 8, 11 ]
+# Takes 0.05s only!
 
 StopProfiler()
 
 /*-----------
 
-# that you can also write like this:
+o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
+
+# The function above you can also write like this:
 ? o1.FindWXT( :Where = '{ Q( @NextItem ).IsDoubleOf( @PreviousItem ) }' )
 # --> [ 8, 11 ]
 
@@ -1499,10 +1511,24 @@ StopProfiler()
 ? o1.FindWhere( '{ Q( This[@i+1] ).IsDoubleOf( This[@i-1] ) }' )
 # --> [ 8, 11 ]
 
+/*-----------
+
+StartProfiler()
+
 # Finding positions where current item is equal to next item
 o1 = new stzList([ 2, 8, 2, 2, 11, 2, 11, 7, 7, 4, 2, 1, 3, 2, 10, 8, 3, 3, 3, 6, 8 ])
-? o1.FindWXT( '{ @Number = @NextNumber }' )
-# --> [ 3, 8, 17, 18 ]
+
+? o1.FindWXT( '{ @Number = @NextNumber }' ) #--> [ 3, 8, 17, 18 ]
+? ElapsedTime() #--> Takes 0.41s
+
+? o1.FindW( '{ This[@i] = This[@i+1] }' ) #--> [ 3, 8, 17, 18 ]
+#--> Takes as little as 0.05s!
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
 
 # Finding positions where current item is equal to next item
 
@@ -1510,14 +1536,37 @@ o1 = new stzList([ "A", "B", "B", "C", "D", "D", "D", "E" ])
 ? o1.FindW( '{ This[@i] = This[@i+1] }' )
 # --> [ 2, 5, 6 ]
 
+StopProfiler()
+#--> Executed in 0.04 second(s)
+
+/*-----------
+
+StartProfiler()
+
+? StzCCodeQ('{ This[ @i - 3 ] = This[ @i + 3 ] }').ExecutableSection()
+
+StopProfiler()
+#--> Executed in 0.22 second(s)
+
+/*-----------
+
+StartProfiler()
+
 # Finding positions where previous 3rd item is equal to next 3rd item
 
 o1 = new stzList( [ 0, 8, 0, 0, 1, 8, 0, 0 ] )
-? @@S( o1.FindWXT('{ This[ @i - 3 ] = This[ @i + 3 ] }') )
-#--> [ 4 ]
 
+? @@S( o1.FindWXT('{ This[ @i - 3 ] = This[ @i + 3 ] }') ) #--> [ 4 ]
+? ElapsedTime()
+#--> 0.57 second(s)
 
-/*---------------------
+? @@S( o1.FindW('{ This[ @i - 3 ] = This[ @i + 3 ] }') ) #--> [ 4 ]
+#--> 0.22 second(s)
+
+StopProfiler()
+#--> Executed in 0.74 second(s)
+
+/*========================
 
 o1 = new stzList( [ 0, 8, 0, 0, 1, 8, 0, 0 ] )
 ? o1.PreviousNthOccurrence(3, :Of = 0, :StartingAt = 5) # --> 1
@@ -1555,73 +1604,145 @@ o1 = new stzList([ :Char, :String, :Number, :List, :Object, :CObject, :QObject, 
 ? o1.RemoveItemsAtThesePositionsQ( 6:8 ).Content()
 # --> [ :Char, :String, :Number, :List, :Object ]
 
-/*----------------------- TODO: REFACTORED: Revisit after comleting stzWalker //////////////////////////////
+/*-----------------------
 
+StartProfiler()
 
-o1 = new stzList([ 12, 24, 36, "A", "B", 12, "C", "D", "E", 24, "F", 25, "G", "H" ])
-o1 {
+	o1 = new stzList([ "A", "b", "C" ])
+	o1.ReplaceItemAtPosition(2, :With@ = "upper(@item)")
+	? o1.Content()	# --> [ "A", "B", "C" ]
 
-	// Walking the list UNTIL a condition is verified
-		aWalk1 = WalkUntil("@item = 'D'") # TODO: add WalkUntilW()
-		? aWalk1 # --> 1:8
-	
-		aWalk2 = WalkUntil("isNumber(@item)")
-		? aWalk2 # --> [ 1 ]
-	
-		aWalk3 = WalkUntil("isNumber(@item) and @item > 30")
-		? aWalk3 # --> 1:3
-	
-		aWalk4 = WalkUntil("isNumber(@item) and Q(@item).IsDividorOf(36)")
-		? aWalk4 # --> [ 1 ]
+StopProfiler()
+#--> Executed in 0.08 second(s)
 
-	// Walking the list WHILE a condition is verified
-		aWalk5 = WalkWhile("StzcharQ(@item).IsLetter()") # TODO: add WalkWhileW()
-		? aWalk5 # --> NULL	# ERROR: should return all the list! ( 1:14 )
-	
-		aWalk6 = WalkWhile("isNumber(@item) and Q(@item).IsDividableBy(12)")
-		? aWalk6 # --> 1:3
+/*==========================
 
-	// Walking on each item verifying the provided condition
-		aWalk7 = WalkEachW("isNumber(@item)") # TODO: add WalkEach()
-		? aWalk7 # --> [ 1, 2, 3, 6, 10, 12 ]
+/*--------- WALKING WHERE
 
-	// Walking the list forth and back
-		aWalk8 = WalkForthAndBack()
-		? aWalk8 # --> [ 1,2,3..., 14,13,12...,1 ]
+StartProfiler()
 
-	// Walking the list back and forth
-		aWalk9 = WalkBackAndForth()
-		? aWalk9  # --> [ 14,13,12..., 1,2,3...,14 ]
+StzListQ([ 1, 2, "A", "B", 5, "C", 7 ]) {
 
-	// Walking n steps forward
-		aWalk12 = WalkNStepsForward(2)
-		? aWalk12 # --> [ 1,3,5,7,9,11,13 ]
+	? WalkWhere(' isNumber(@item) ')
+	#--> [1, 2, 5, 7]
 
-	// Walking n steps backward
-		aWalk13 = WalkNStepsBackward(2)
-		? aWalk13 # --> [ 14,12,10,8,6,4,2 ]
+	? WalkWhereXT(' NOT isNumber(@item) ', :Backward, :Walkeditems)
+	#--> ["C", "B", "A"]
 
-	// Walking n progressive steps forward	# TODO: CUMULATIVE instead of PROGRESSIVE
-		aWalk14 = WalkNProgressiveStepsForward(2)
-		? aWalk14 # --> [ 1,3,7,13 ]
-
-	// Walking n progressive steps backward # TODO: CUMULATIVE instead of PROGRESSIVE
-		aWalk15 = WalkNProgressiveStepsBackward(2)
-		? aWalk15 # --> [ 14, 12, 8, 2 ]
-
-	// Walking n steps forward and then n steps backward --> ERROR
-		aWalk10 = WalkNStepsForwardNStepsBackward(3,1)
-		? aWalk10 # --> [ 1, 4,3, 6,5, 8,7, 10,9, 12,11, 14,13 ]
-		# TODO: check it should return [ 1,2,3, 2, 3,4,5, 4, 5,6,7, 6... ]
-
-	// Walking n steps from start and n steps from end --> ERROR
-		aWalk11 = WalkNStepsFromStartNStepsFromEnd(1,2) 
-		? aWalk11 # --> [ 1,14, 2,12, 3,10, 4,8, 5,6, 7,9, 11, 13 ]
-		# TODO: check it should return [ 1,14,13,  2,12,11, 3,10,9, 4,8,7, 5,6 ]
-
+	? WalkWhereXT(' isNumber(@item) ', :Default, :Default)
+	#--> [1, 2, 5, 7]
 }
 
-/*-----------------------
+StopProfiler()
+#--> Executed in 0.24 second(s)
+
+/*--------- WALKING UNTIL (AND UNTIL BEFORE)
+
+StartProfiler()
+
+StzListQ([ 1, 2, 3, "A", "B", 6, "C", "D", "E" ]) {
+
+	? WalkUntil(' isString(@item) ')
+	#--> [1, 2, 3, 4]
+
+	? WalkUntil(:Before = ' isString(@item) ')
+	#--> [1, 2, 3]
+
+	? WalkUntilXT(:Before = ' isNumber(@item) ', :Backward, :WalkedItems)
+	#--> ["E", "D", "C"]
+
+	? WalkUntilXT(' isString(@item) ', :Default, :Default)
+	#--> [1, 2, 3, 4]
+}
+
+StopProfiler()
+#--> Executed in 0.24 second(s)
+
+/*--------- WALKING WHILE
+
+StartProfiler()
+
+StzListQ([ 1, 2, 3, "A", "B", 6, "C", "D", "E" ]) {
+
+	? WalkWhile(' isNumber(@item) ')
+	#--> [1, 2, 3]
+
+	? WalkWhileXT(' isString(@item) ', :Backward, :WalkedItems)
+	#--> ["E", "D", "C"]
+
+	? WalkWhileXT(' isNumber(@item) ', :Default, :Default)
+	#--> [1, 2, 3]
+}
+
+StopProfiler()
+#--> Executed in 0.23 second(s)
+
+/*--------- OTHER WALKING TECHNIQUES
+*/
+StartProfiler()
+
+StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
+
+
+	// Walking the list forth and back
+		? @@S( WalkForthAndBack() ) + NL
+		#--> [ 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1 ]
+
+		? @@S( WalkForthAndBackXT(:Return = :WalkedItems) ) + NL
+		#--> [ "A", "B", "C", "D", "E", "F", "G", "F", "E", "D", "C", "B", "A" ]
+
+
+	// Walking the list back and forth
+		? @@S( WalkBackAndForth() ) + NL
+		#--> [ 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7 ]
+
+		? @@S( WalkBackAndForthXT(:Return = :WalkedItems) ) + NL
+		#--> [ "G", "F", "E", "D", "C", "B", "A", "B", "C", "D", "E", "F", "G" ]
+
+	// Walking n steps forward
+		? @@S( WalkNStepsForward(2) ) + NL
+		#--> [ 1, 3, 5, 7 ]
+
+		? @@S( WalkNStepsForwardXT(2, :Return = :WalkedItems) ) + NL
+		#--> [ "A", "C", "E", "G" ]
+
+
+	// Walking n steps backward
+		? @@S( WalkNStepsBackward(2) ) + NL
+		#--> [ 7, 5, 3, 1 ]
+
+		? @@S( WalkNStepsBackwardXT(2, :Return = :WalkedItems) ) + NL
+		#--> [ "G", "E", "C", "A" ]
+
+	// Walking n progressive steps forward
+		? @@S( WalkNCumulativeStepsForward(2) ) + NL
+		#--> [ 1, 3, 7 ]
+
+		? @@S( WalkNCumulativeStepsForwardXT(2, :Return = :WalkedItems) ) + NL
+		#--> [ "A", "C", "G" ]
+
+	// Walking n progressive steps backward
+		? @@S( WalkNCumulativeStepsBackward(2) ) + NL
+		#--> [ 7, 5, 1 ]
+
+		? @@S( WalkNCumulativeStepsBackwardXT(2, :Return = :WalkedItems) ) + NL
+		#--> [ "G", "E", "A" ]
+
+	// Walking n steps forward and then n steps backward
+		? @@S( WalkNStepsForwardNStepsBackward(1, 1) )
+		#--> [ 4, 3, 6, 5, 8, 7, 10, 9 ]
+
+		? @@S( WalkNStepsForwardNStepsBackwardXT(1, 1, :Return = :WalkedItems) )
+		#--> [ 4, 3, 6, 5, 8, 7, 10, 9 ]
+
+	// Walking n steps from the start and n steps from the end
+
+	/* ... */
+}
+
+StopProfiler()
+
+/*========================
 
 o1 = new stzList([ "A", "B", "C", "1", "2", "3", "D", "E" ])
 o1.ReplaceSection(4, 6, [ "*", "*", "*", "*" ])
@@ -2020,14 +2141,84 @@ o1.ReplaceItemAtPosition(2, :By = "A")
 
 o1 = new stzList([ "A", "a", "A" ])
 o1.ReplaceItemAtPosition(2, :By@ = "Q(@item).Uppercased()")
-? o1.Content()  # --> [ "A", "A", "A" ]
+? @@S( o1.Content() )  # --> [ "A", "A", "A" ]
+
+o1 = new stzList([ "1", "2", "_", "_", "_", "4", "5" ])
+o1.ReplaceSection(3, 5, :With = "3")
+? @@S( o1.Content() )
+#--> [ "1", "2", "3", "4", "5" ]
+
+/*=======================
+
+StartProfiler()
+
+o1 = new stzList([ 1, "a", 2, "b", 3, "c" ])
+? o1.FindW('{ isString(@item) and Q(@item).isLowercase() }')
+#--> [2, 4, 6]
+
+StopProfiler()
+# Executed in 0.26 second(s)
+
+/*========================
+
+o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
+
+o1.ReplaceAt(2, "♥")
+? @@S( o1.Content() )
+#--> [ "♥", "♥", "♥", "♥", 5 ]
 
 /*----------------------
 
-# Conditional replacement of items can happen for all the items
-# in the same time like this:
+o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 
-StzListQ( [1, "a", 2, "b", 3, "c" ] ) {
+o1.ReplaceAt([2, 5], "♥")
+? @@S( o1.Content() )
+#--> [ "♥", "♥", "♥", "♥", "♥" ]
+
+/*----------------------
+
+StartProfiler()
+
+o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
+o1.ReplaceItemAtPosition(5, :with@ = '{ @item * 2 }')
+? @@S( o1.Content() )
+#--> [ "♥", 2, "♥", "♥", 10 ]
+
+StopProfiler()
+#--> Executed in 0.01 second(s)
+
+/*----------------------
+
+StartProfiler()
+
+o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
+o1.ReplaceItemsAtPositions([2, 5], :With = "♥")
+? @@S( o1.Content() )
+#--> [ "♥", "♥", "♥", "♥", "♥" ]
+
+StopProfiler()
+#--> Executed in 0.01 second(s)
+
+/*----------------------
+
+StartProfiler()
+
+o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
+o1.ReplaceItemsAtPositions([1, 3, 4], :With@ = '@Position')
+? @@S( o1.Content() )
+#--> [ "♥", "A", "♥", "♥", "A" ]
+
+StopProfiler()
+#--> Executed in 0.08 second(s)
+
+/*----------------------
+
+StartProfiler()
+
+# Conditional replacement of items can happen for all the items defined by a
+# given condition, and by replacing themn with the same given value like this:
+
+StzListQ( [ 1, "a", 2, "b", 3, "c" ] ) {
 	ReplaceItemsW(
 		:Where = '{ isString(@item) and Q(@item).isLowercase() }',
 		:By = "*"
@@ -2036,8 +2227,9 @@ StzListQ( [1, "a", 2, "b", 3, "c" ] ) {
 	? Content() #--> [ 1, "*", 2, "*", 3, "*" ]
 }
 
-# If you want to evalute a Ring code that sets the replace value dynamically then
-# you should use :With@ like this:
+? ElapsedTime() #--> 0.28 second(s)
+
+# Or by a dynamic value given in a conditional code after :By@ or :With@, like this:
 
 StzListQ( [1, "a", 2, "b", 3, "c" ]) {
 	ReplaceItemsW(
@@ -2048,7 +2240,10 @@ StzListQ( [1, "a", 2, "b", 3, "c" ]) {
 	? Content() #--> [ 1, "A", 2, "B", 3, "C" ]
 }
 
-/*--------------------
+StopProfiler()
+#--> Executed in 0.60 second(s)
+
+/*=================
 
 o1 = new stzList([ "a", "b", 3, "c"])
 ? o1.AllItemsExcept(3) #--> [ "a", "b", "c" ]

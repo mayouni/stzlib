@@ -4103,6 +4103,7 @@ class stzString from stzObject
 	*/
 
 	def RemoveBoundsCS(pacBounds, pCaseSensitive)
+
 		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
 			cBound1 = pacBounds[1]
 			cBound2 = pacBounds[2]
@@ -4115,11 +4116,9 @@ class stzString from stzObject
 			StzString("Incorrect param type! pacBounds mus tbe a string or pair of strings.")
 		ok
 
-		if This.IsBoundedByCS(pacBounds, pCaseSensitive)
-			This.RemoveFirstCS(cBound1, pCaseSensitive)
-			This.RemoveLastCS(cBound2, pCaseSensitive)
-		ok
-		
+		This.RemoveFromStartCS(cBound1, pCaseSensitive)
+		This.RemoveFromEndCS(cBound2, pCaseSensitive)
+
 		#< @FunctionFluentForm
 	
 		def RemoveBoundsCSQ(pacBounds, pCaseSensitive)
@@ -13313,7 +13312,7 @@ o1 = new stzString("12*34*56*78")
 			stzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		cCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzString)
+		cCondition = StzCCodeQ(pcCondition).Transpiled()
 
 		cCode = "bOk = ( " + cCondition + " )"
 		oCode = new stzString(cCode)
@@ -13321,7 +13320,6 @@ o1 = new stzString("12*34*56*78")
 		anResult = []
 
 		for @i = 1 to This.NumberOfChars()
-			@char = This[@i]
 			bEval = TRUE
 
 			if @i = This.NumberOfChars() and
@@ -19698,12 +19696,13 @@ o1 = new stzString("12*34*56*78")
 	
 	// Removes a portion of the string defined by its start and end positions
 	def RemoveSection(n1, n2)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+		#< @QtBased = TRUE #>
 
 		if n1 = :FirstChar or n1 = :StartOfString { n1 = 1 }
 		if n2 = :LastChar  or n2 = :EndOfString { n2 = This.NumberOfChars() }
 
-		This.ReplaceSection( n1, n2, "" )
+		cResult = This.QStringObject().replace(n1 - 1, n2 - n1 + 1, "")
+		This.Update(cResult)
 
 		def RemoveSectionQ(n1, n2)
 			This.RemoveSection(n1, n2)
@@ -20076,32 +20075,33 @@ o1 = new stzString("12*34*56*78")
 		# Checking the correctness of pcNewSubStr param
 
 		if isList(pcNewSubStrCopy) and Q(pcNewSubStrCopy).IsWithOrByNamedParam()
-
-			if pcNewSubStrCopy[1] = :With@ or pcNewSubStrCopy[1] = :By@
-
-				cCode = StzStringQ(pcNewSubStrCopy[2]).
-					TrimQ().
-					RemoveBoundsQ([ "{","}" ]).
-					Content()
-
-				@section = This.Section(n1, n2)
-
-				cCode = "pcNewSubStrCopy = " + cCode
-
-				eval(cCode)
-			else
-				pcNewSubStrCopy = pcNewSubStrCopy[2]
-
-			ok
+			pcNewSubStrCopy = pcNewSubStrCopy[2]
 		ok
 
 		if NOT isString(pcNewSubStrCopy)
-			stzRaise("Incorrect param type! pcNewSubStr must be a string.")
+			StzRaise("Incorrect param type! pcNewSubStr must be a string.")
+		ok
+
+		cNewSubStr = ""
+
+		if Q(pcNewSubStr[1]).LastChar() = "@"
+
+			cCode = StzCCodeQ(pcNewSubStrCopy).Transpiled()
+			cCode = "cNewSubStr += " + cCode
+
+			@section = This.Section(n1, n2)
+
+			for @i = n1 to n2
+				eval(cCode)
+			next
+
+		else
+			cNewSubStr = pcNewSubStrCopy
 		ok
 
 		# Doing the job
 
-		QStringObject().replace(n1 - 1, n2 - n1 + 1, pcNewSubStrCopy)
+		QStringObject().replace(n1 - 1, n2 - n1 + 1, cNewSubStr)
 
 		#< @FunctionFluentForm
 
@@ -20692,6 +20692,7 @@ o1 = new stzString("12*34*56*78")
 	#-------------------------------------#
 
 	def RemoveFromLeftCS(pcSubStr, pCaseSensitive)
+
 		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
 
 		if This.NLeftCharsQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
@@ -20755,6 +20756,7 @@ o1 = new stzString("12*34*56*78")
 	#-------------------------------------#
 
 	def RemoveFromRightCS(pcSubStr, pCaseSensitive)
+
 		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
 
 		if This.NRightCharsQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
@@ -20771,14 +20773,7 @@ o1 = new stzString("12*34*56*78")
 
 			This.RemoveSection(n1, n2)
 		ok
-/*
-		if This.BeginsWithCS(pcSubStr, pCaseSensitive)
-			nLen = StzStringQ(pcSubStr).NumberOfChars()
-			n1 = This.NumberOfChars() - nLen + 1
-			n2 = This.NumberOfChars()
-			This.RemoveSection(n1, n2)
-		ok
-*/
+
 		def RemoveFromRightCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
 			return This
@@ -20804,7 +20799,7 @@ o1 = new stzString("12*34*56*78")
 		def SubStringRemovedFromRightCS(pcSubStr, pCaseSensitive)
 			return This.RemovedFromRightCS(pcSubStr, pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFromRight(pcSubStr)
 		This.RemoveFromRightCS(pcSubStr, :CaseSensitive = TRUE)
@@ -20839,6 +20834,7 @@ o1 = new stzString("12*34*56*78")
 	#-------------------------------------#
 
 	def RemoveFromStartCS(pcSubStr, pCaseSensitive)
+
 		if This.IsLeftToRight()
 			This.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
 		else
@@ -20863,7 +20859,7 @@ o1 = new stzString("12*34*56*78")
 		def SubStringRemovedFromStartCS(pcSubStr, pCaseSensitive)
 			return This.RemovedFromStartCS(pcSubStr, pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFromStart(pcSubStr)
 		This.RemoveFromStartCS(pcSubStr, :CaseSensitive = TRUE)

@@ -2511,7 +2511,7 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
-		oTempList = new stzList( This.AllFactors() )
+		oTempList = new stzList( This.Factors() )
 
 		if oTempList.Contains(n)
 			return TRUE

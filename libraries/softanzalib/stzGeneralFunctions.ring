@@ -1105,6 +1105,9 @@ func STOP()
 func StartTimer()
 	_t0 = clock()
 
+func ResetTimer()
+	_t0 = 0
+
 func ElapsedTime()
 	return ElapsedTimeXT(:In = :Seconds)
 
@@ -1118,7 +1121,7 @@ func ElapsedTimeXT(pIn)
 	ok
 
 	if NOT Q(pIn).IsOneOfThese([ :Clocks, :Seconds, :Minutes, :Hours ])
-		# TODO - Future: Add weeks, months, years...
+		# TODO - Future: Add days, weeks, months, years...
 		StzRaise("Incorrect value of pIn param! Allowed values are: " +
 		":Clocks, :Seconds, :Minutes and :Hours.")
 	ok
@@ -1134,17 +1137,17 @@ func ElapsedTimeXT(pIn)
 	on :InSeconds
 		nTime = ( clock() - _t0 ) / clockspersecond()
 		cTime = "" + nTime
-		return cTime + " seconds"
+		return cTime + " second(s)"
 
 	on :InMinutes
 		nTime = ( clock() - _t0 ) / clockspersecond() / 60
 		cTime = "" + nTime
-		return cTime + " minutes"
+		return cTime + " minute(s)"
 
 	on :InHours
 		nTime = ( clock() - _t0 ) / clockspersecond() / 3600
 		cTime = "" + nTime
-		return cTime + " hours"
+		return cTime + " hour(s)"
 
 	off
 	
@@ -1152,5 +1155,6 @@ func StartProfiler()
 	StartTimer()
 
 func StopProfiler()
-	? NL + "Executed in " + ElapsedTime() + " seconds."
+	? NL + "Executed in " + ElapsedTime()
+	ResetTimer()
 	STOP()
