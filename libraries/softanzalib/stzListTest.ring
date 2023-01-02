@@ -1683,7 +1683,7 @@ StartProfiler()
 
 StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 
-
+/*
 	// Walking the list forth and back
 		? @@S( WalkForthAndBack() ) + NL
 		#--> [ 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1 ]
@@ -1729,11 +1729,22 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 		#--> [ "G", "E", "A" ]
 
 	// Walking n steps forward and then n steps backward
-		? @@S( WalkNStepsForwardNStepsBackward(1, 1) )
-		#--> [ 4, 3, 6, 5, 8, 7, 10, 9 ]
+//		? @@S( WalkNStepsForwardNStepsBackward(1, 1) )
+		#--> [ ]
+*/
+		? @@S( WalkNStepsForwardNStepsBackward(1, 2) )
+		#--> [ 2, 3, 1 ]
 
-		? @@S( WalkNStepsForwardNStepsBackwardXT(1, 1, :Return = :WalkedItems) )
-		#--> [ 4, 3, 6, 5, 8, 7, 10, 9 ]
+		? @@S( WalkNStepsForwardNStepsBackwardXT(1, 2, :Return = :WalkedItems) )
+		#--> [ "B", "C", "A" ]
+
+		#--
+
+		? @@S( WalkNStepsForwardNStepsBackward(3, 1) )
+		#--> [ 1, 4, 3, 6, 5 ]
+
+		? @@S( WalkNStepsForwardNStepsBackwardXT(3, 1, :Return = :WalkedItems) )
+		#--> [ "A", "D", "C", "F", "E" ]
 
 	// Walking n steps from the start and n steps from the end
 
