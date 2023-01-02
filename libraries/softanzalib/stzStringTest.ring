@@ -1,5 +1,71 @@
 load "stzlib.ring"
 
+/*========================
+
+o1 = new stzString("ABC456DE")
+o1.RemoveSection(4, 6)
+? o1.Content()
+#--> "ABCDE"
+
+/*----------------------
+
+o1 = new stzString("{HELLO}")
+o1.RemoveFromStart("{")
+? o1.Content()
+#--> "HELLO}"
+
+o1.RemoveFromEnd("}")
+? o1.Content()
+#--> "HELLO"
+
+/*=================
+
+StartProfiler()
+
+o1 = new stzString("123456789")
+o1.ReplaceSection(4, 6, :with = "♥♥♥")
+? o1.Content()
+
+StopProfiler()
+#--> Executed in 0.02 second(s)
+
+/*----------------
+*/
+StartProfiler()
+
+o1 = new stzString("123abc789")
+o1.ReplaceSection(4, 6, :with@ = ' Q(@char).Uppercased() ')
+? o1.Content()
+#--> 123ABC789
+
+StopProfiler()
+#--> Executed in 0.09 second(s)
+
+/*==================
+
+StartProfiler()
+
+o1 = new stzString("ABC♥DEF★GHI♥JKL")
+o1.ReplaceW(' Q(@char).IsNotLetter() ', :With = " ")
+? o1.Content()
+#--> ABC DEF GHI JKL
+
+StopProfiler()
+#--> Executed in 0.14 second(s)
+
+#--------------------
+
+StartProfiler()
+
+o1 = new stzString("♥♥♥a★★★b♥♥♥")
+
+o1.ReplaceW(' Q(@char).IsLetter() ', :With@ = " Q(@CurrentChar).Uppercased() ")
+? o1.Content()
+#--> ♥♥♥A★★★B♥♥♥
+
+StopProfiler()
+#--> Executed in 0.26 second(s)
+
 /*==================
 
 o1 = new stzString("_♥_★_♥_")

@@ -2192,11 +2192,32 @@ class stzList from stzObject
 		def NthPreviousOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 			return This.PreviousNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 
-	  #--------------------------------#
-	 #   REPLACING ITEM BY POSITION   #
-	#--------------------------------#
+
+	  #==============================================#
+	 #  REPLACING AN ITEM AT ONE OR MORE POSITIONS  #
+	#==============================================#
+
+	def ReplaceAt(n, pOtherItem)
+		if isList(n) and Q(n).IsListOfNumbers()
+			This.ReplaceItemsAtPositions(n, pOtherItem)
+
+		but isNumber(n)
+			This.ReplaceItemAtPosition(n, pOtherItem)
+
+		else
+			StzRaise("Incorrect param type! n must be a number or a list of numbers.")
+		ok
+
+		def ReplaceAtQ(n, pOtherItem)
+			This.ReplaceAt(n, pOtherItem)
+			return This
+
+	  #----------------------------------------#
+	 #   REPLACING ITEM AT A GIVEN POSITION   #
+	#----------------------------------------#
 
 	def ReplaceItemAtPosition(n, pcOtherItem)
+
 		/* Example 1:
 
 			o1 = new stzList([ "ONE", "two" ])
@@ -2231,25 +2252,27 @@ class stzList from stzObject
 			StzRaise("the Nth position you provided is out of range!")
 		ok
 
-		if isList(pcOtherItem) and Q(pcOtherItem).IsWithOrByNamedParam()
+		if isList(pcOtherItem) and
+		   Q(pcOtherItem).IsWithOrByNamedParam()
 
-			if Q(pcOtherItem[1]).LastChar() = "@"
+			if Q(pcOtherItem[1]).LastChar() = "@" and
+		  	   isString(pcOtherItem[2])
 
-				cCode = StzCCodeQ(pcOtherItem[2]).UnifiedFor(:stzList)
-				cCode = "pcOtherItem = " + cCode
+				cCode = "pcOtherItem = " + StzCCodeQ(pcOtherItem[2]).Transpiled()
+				@item = This.ItemAtPosition(n)	
+				@position = n
+				@i = n
 
-				@item = This.ItemAtPosition(n)
 				eval(cCode)
-
 			else
+
 				pcOtherItem = pcOtherItem[2]
 			ok
-
 		ok
 
 		# Doing the job
 
-		@aContent[n] = pcOtherItem
+		This.List()[n] = pcOtherItem
 
 		#< @FunctionFluentForm
 
@@ -2260,13 +2283,6 @@ class stzList from stzObject
 		#>
 
 		#< @FunctionAlternativeForm
-
-		def ReplaceAt(n, pOtherItem)
-			This.ReplaceItemAtPosition(n, pOtherItem)
-
-			def ReplaceAtQ(n, pOtherItem)
-				This.ReplaceAt(n, pOtherItem)
-				return This
 
 		def ReplaceAtPosition(n, pOtherItem)
 			This.ReplaceItemAtPosition(n, pOtherItem)
@@ -2347,16 +2363,40 @@ class stzList from stzObject
 		def LastItemReplacedWith(pOtherItem)
 			return This.LastItemReplaced(pOtherItem)
 
-	  #---------------------------------------#
-	 #   REPLACING MANY ITEMS BY POSITION    #
-	#---------------------------------------#
+	  #--------------------------------------------#
+	 #   REPLACING ITEMS AT THE GIVEN POSITIONS   #
+	#--------------------------------------------#
 
 	def ReplaceItemsAtPositions(panPositions, pOtherItem)
 
-		for n in panPositions
-			This.ReplaceItemAtPosition(n, pOtherItem)
-		next
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+			StzRaise("Incorrect param type! panPositions must be a list of numbers.")
+		ok
 
+		nLen = len(panPositions)
+
+		if isList(pOtherItem) and
+		   Q(pOtherItem).IsWithOrByNamedParam() and
+		   Q(pOtherItem[1]).LastChar() = "@"
+
+			cCode = '@cNewItem = ( ' + StzCCodeQ(pOtherItem[2]).Transpiled() + ' )'
+			
+			for i = 1 to nLen
+				@Position = panPositions[i]
+				@i = @Position
+				@item = This[i]
+
+				eval(cCode)
+				This.ReplaceItemAtPosition(@Position, @cNewItem)
+			next
+		else
+
+			for i = 1 to nLen
+				n = panPositions[i]
+				This.ReplaceItemAtPosition(n, pOtherItem)
+			next
+		ok
+	
 		#< @FunctionFluentForm
 
 		def ReplaceItemsAtPositionsQ(panPositions, pOtherItem)
@@ -2366,6 +2406,13 @@ class stzList from stzObject
 		#>
 
 		#< @FunctionAlternativeForms
+
+		def ReplaceAtPositions(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+
+			def ReplaceAtPositionsQ(panPositions, pOtherItem)
+				This.ReplaceAtPositions(panPositions, pOtherItem)
+				return This
 
 		def ReplaceManyAt(panPositions, pOtherItem)
 			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
@@ -2497,6 +2544,8 @@ class stzList from stzObject
 		if isList(pNewItem) and Q(pNewItem).IsWithOrByNamedParam()
 			pNewItem = pNewItem[2]
 		ok
+		# TODO: add the possibility to evaluate a dynamic code
+		# after :With@ or :By@ like it is the case in stzString
 
 		This.RemoveSectionQ(n1, n2)
 		This.InsertBefore(n1, pNewItem)
@@ -2848,84 +2897,9 @@ class stzList from stzObject
 
 	def ReplaceItemsW(pCondition, pOtherItem)
 
-		if NOT ( isString(pCondition) or isList(pCondition) )
-			StzRaise("Incorrect param type! pCondition must be string or list.")
-		ok
+		anPositions = This.FindItemsW(pCondition)
+		This.ReplaceItemsAtPositions(anPositions, pOtherItem)
 
-		if NOT ( isString(pOtherItem) or isList(pOtherItem) )
-			StzRaise("Incorrect param type! pOtherItem must be string or list.")
-		ok 
-
-		if isList(pCondition) and StzListQ(pCondition).IsWhereNamedParam()
-			cCondition = pCondition[2]
-		ok
-
-		# There are two possible forms of replacement: With and With@
-		# The first one is used to replace with normal value, while the
-		# second one to replace with@ a dynamic code.
-
-		# By default, the first form is used.
-
-		cReplace = :With
-
-		if isList(pOtherItem) and
-		   ( StzListQ(pOtherItem).IsByNamedParam() or StzListQ(pOtherItem).IsWithNamedParam() )
-
-			cReplace = pOtherItem[1]
-			pOtherItem = pOtherItem[2]
-		ok
-
-		if cReplace = :With@
-			if NOT isString(pOtherItem)
-				StzRaise("Uncorrect value! The value provided after :With@ must be a string containing a Ring expression.")
-			ok
-		ok
-
-		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzList)
-		oCondition = new stzString(cCondition)
-
-		# NOTE: Don't change the name of vars @i and @item
-		# because they'r used by the evaluated conditional-code.
-
-		for @i = 1 to This.NumberOfItems()
-
-			@item = This[@i]
-			bEval = TRUE
-
-			if @i = This.NumberOfItems() and
-			   oCondition.Copy().RemoveSpacesQ().ContainsCS("This[i+1]", :CS = FALSE)
-
-				bEval = FALSE
-			ok
-
-			if @i = 1 and
-			   oCondition.Copy().RemoveSpacesQ().ContainsCS("This[i-1]", :CS = FALSE)
-
-				bEval = FALSE
-			ok
-
-			if bEval
-				cCode = 'bOk = ( ' + cCondition + ' )'
-				eval(cCode)
-
-
-				if bOk
-
-					if cReplace = :With or cReplace = :By
-						This.ReplaceItemAtPosition(@i, pOtherItem)
-		
-					but cReplace = :With@ or cReplace = :By@
-						cValue = StzCCodeQ(pOtherItem).UnifiedFor(:stzList)
-						cCode = "value = " + cValue
-						eval(cCode)
-						This.ReplaceItemAtPosition(@i, value)	
-		
-					ok
-				ok
-			ok
-
-		next
-	
 		#< @FunctionFluentForm
 
 		def ReplaceItemsWQ(pCondition, pOtherItem)
@@ -5448,9 +5422,9 @@ class stzList from stzObject
 		def IsMadeOfStzClassNames()
 			return This.ContainsOnlyStzCalssNames()
 
-	  #---------------#
-	 #    WALKERS    # // TODO: to be redesigned using stzWalker class
-	#---------------#
+	  #======================#
+	 #   MANAGING WALKERS   # TODO
+	#======================#
 
 	def AddWalker(pcName, pnStart, pnEnd, panStepping)
 
@@ -5460,7 +5434,6 @@ class stzList from stzObject
 			StzRaise("Start or end of walker outside list range!")
 		ok
 
-		//oWalkers = new stzHashList(This.Walkers())
 		bNewName = TRUE
 		for aWalk in This.Walkers()
 			if aWalk[1] = pcName
@@ -5469,7 +5442,6 @@ class stzList from stzObject
 			ok
 		next
 
-		// If oWalkers.ContainsKey(pcName)
 		if NOT bNewName
 			StzRaise(stzListError(:CanNotAddWalkerAlreadyExistant))
 		else
@@ -5483,14 +5455,162 @@ class stzList from stzObject
 	def Walker(pcWalker)
 		return This.Walkers()[pcWalker]
 
-	  #---------------#
-	 #    WALKERS    # // TODO: To be delegated to stzWalker when finalized
-	#---------------#
+	def FindWalker(pcWalker) # TODO
+		/* ... */
 
-	def WalkUntil(pcCondition )
-		return This.WalkUntilXT(pcCondition, :Return = :LastPosition)
+	def RemoveWalker(pcWalker)
+		del( @aWalkers, This.FindWalker(pcWalker) )
 
-	def WalkUntilXT(pcCondition, pReturn)
+	def RemoveTheseWalkers(pacNames) # TODO
+		/* ... */
+
+	def RemoveWalkers()
+		@aWalkers = []
+
+		def RemoveAllWalkers()
+			This.RemoveWalkers()
+
+	def CombineTheseWalkers(pacNames) # TODO
+		/* ... */
+
+		def ComposeTheseWalkers(pacNames)
+			return This.CombineTheseWalkers(pacNames)
+
+	def CombineWalkers()
+		/* ... */
+
+		def CombineAllWalkers()
+			This.CombineWalkers()
+
+		def ComposeWalkers()
+			This.CombineWalkers()
+
+		def ComposeAllWalkers()
+			This.CombineWalkers()
+
+	def CombinedWalkers() # TODO
+		/* ... */
+
+		def ComposedWalkers()
+			return This.CombinedWalkers()
+
+	  #=================#
+	 #  WALKING WHERE  #
+	#=================#
+
+	def WalkWhere(pcCondition)
+		return This.WalkWhereXT(pcCondition, :Forward, :Return = :WalkedPositions)
+
+		def WalkW(pcCondition)
+			return This.WalkWhere(pcCondition)
+
+	def WalkWhereXT(pcCondition, pcDirection, pReturn)
+		/*
+		o1 = new stzList([ 1, "A", 3, "B", "_", 6 ])
+
+		? WalkWhere("isNumber(@item)")
+		# --> [1, 3, 6]
+		*/
+
+		# Checking params
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		if isList(pReturn) and
+		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+
+			pReturn = pReturn[2]
+		ok
+
+		if NOT ( isString(pReturn) and
+
+			 Q(pReturn).IsOneOfThese([
+			:WalkedPositions, :WalkedItems, :LastPosition, :LastItem, :Default ]) )
+
+			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+				 ":WalkedPositions, :WalkedItems, :LastPosition, :LastItem, and :Default." )
+		ok
+
+		if pReturn = :Default
+			pReturn = :WalkedPositions
+		ok
+
+		if isList(pcDirection) and Q(pcDirection).IsDirectionNamedParam()
+			pcDirection = pcDirection[2]
+		ok
+
+		if NOT ( isString(pcDirection) and
+			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+
+			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
+		ok
+
+		if pcDirection = :Default
+			pcDirection = :Forward
+		ok
+
+		# Doing the job
+
+		anPositions = []
+
+		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
+
+		anPositions = []
+		nLen = This.NumberOfItems()
+
+		nStart = 1
+		nEnd   = nLen
+		nStep  = 1
+
+		if pcDirection = :Backward
+			nStart = nLen
+			nEnd   = 1
+			nStep  = -1
+		ok
+
+		for @i = nStart to nEnd step nStep
+			
+			eval(cCode)
+
+			if bOk
+				anPositions + @i
+			ok
+	
+		next
+
+		switch pReturn
+		on :WalkedItems
+			return This.ItemsAt(anPositions)
+
+		on :WalkedPositions
+			return anPositions
+
+		on :LastItem
+			return This.ItemAt(len(anPositions))
+
+		on :LastPosition
+			return anPositions[len(anPositions)]
+
+		other
+			return anPositions
+		off
+
+		def WalkWXT(pcCondition, pReturn)
+			return This.WalkWhereXT(pcCondition, pReturn)
+
+	  #============================================#
+	 #  WALKING UNTIL (AND WALKING UNTIL BEFORE)  #
+	#============================================#
+
+	def WalkUntil(pcCondition)
+		return This.WalkUntilXT(pcCondition, :Forward, :WalkedPositions)
+
+	def WalkUntilBefore(pcCondition)
+		return This.WalkUntil( :Before = pcCondition )
+
+	def WalkUntilXT(pcCondition, pcDirection, pReturn)
 		/*
 		[ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]
 
@@ -5507,215 +5627,526 @@ class stzList from stzObject
 		WalkUntil("isNumber(@item) and @item > 20") # --> 1:9
 		*/
 
-		if isString(pcCondition)
+		bWalkBefore = FALSE
 
-			oCode = new stzString( StzCCodeQ(pcCondition).UnifiedFor(:stzList) )
+		# Checking the params
 
-			bFound = FALSE
-
-			if oCode.ContainsCS( "@item", :CaseSensitive = FALSE )
-				i = 0			
-				cCode =
-				"for @item in This.List()" + NL +
-					tab + "i++" + NL +
-					tab + "if " + pcCondition + NL +
-					tab + tab + "bFound = TRUE" + NL +
-					tab + tab + "exit" + NL +
-					tab + "ok" + NL +
-				"next"
-
-				eval(cCode)
-				
-				if bFound and i > 0
-					return 1 : i
-
-				else
-					return 0
-				ok
-			else
-				StzRaise("Syntax error! Your persocode must contain the keyword '@item'.")
-			ok
+		if isList(pcCondition) and Q(pcCondition).IsBeforeNamedParam()
+			bWalkBefore = TRUE
+			pcCondition = pcCondition[2]
 		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		if isList(pReturn) and
+		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+
+			pReturn = pReturn[2]
+		ok
+
+		if NOT ( isString(pReturn) and
+
+			 Q(pReturn).IsOneOfThese([
+			:WalkedPositions, :WalkedItems, :LastPosition, :LastItem, :Default ]) )
+
+			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+				 ":WalkedPositions, :WalkedItems, :LastPosition, :LastItem, and :Default." )
+		ok
+
+		if pReturn = :Default
+			pReturn = :WalkedPositions
+		ok
+
+		if isList(pcDirection) and Q(pcDirection).IsDirectionNamedParam()
+			pcDirection = pcDirection[2]
+		ok
+
+		if NOT ( isString(pcDirection) and
+			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+
+			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
+		ok
+
+		if pcDirection = :Default
+			pcDirection = :Forward
+		ok
+		# Doing the job
+
+		cCode = 'bOk = ( ' +  StzCCodeQ(pcCondition).Transpiled() + ' )'
+
+		bFound = FALSE
+		aList = This.Content()
+		nLen = This.NumberOfItems()
+
+		anPositions = []
+
+		nStart = 1
+		nEnd   = nLen
+		nStep  = 1
+
+		if pcDirection = :Backward
+			nStart = nLen
+			nEnd   = 1
+			nStep  = -1
+		ok
+
+		for @i = nStart to nEnd step nStep
+			eval(cCode)
+
+			if bOk
+				if bWalkBefore = FALSE
+					anPositions + @i
+				ok
+
+				exit
+			ok
+
+			anPositions + @i
+			
+		next
+
+		switch pReturn
+		on :WalkedItems
+			return This.ItemsAt(anPositions)
+
+		on :WalkedPositions
+			return anPositions
+
+		on :LastItem
+			return This.ItemAt(len(anPositions))
+
+		on :LastPosition
+			return anPositions[len(anPositions)]
+
+		other
+			return anPositions
+		off
+
+	def WalkUntilBeforeXT(pcCondition, pReturn)
+		return This.WalkUntilXT( :Before = pcCondition, pReturn)
+
+	  #=================#
+	 #  WALKING WHILE  #
+	#=================#
 
 	def WalkWhile(pcCondition)
-		return WalkWhileCondition(pcCondition)
+		return This.WalkWhileXT(pcCondition, :Forward, :WalkedPositions)
 
-	def WalkWhileCondition(pcCondition)
+	def WalkWhileXT(pcCondition, pcDirection, pReturn)
 		/*
-		[ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]
+		o1 = new stzList([ "A", "B", "_", "*", 12, "C", "D", 4 ])
 
-		aWalk6 = WalkWhile("isNumber(Item) and NumberIsDividableBy(Item,12)")
-		? aWalk6 # --> 1:3
+		? WalkWhile("Q(@item).IsNotNumber()")
+		# --> 1:4
 		*/
-		if isString(pcCondition)
-			oCode = This.CCPurifedQ(pcCondition)
 
-			if oCode.ContainsCS( "@item", :CaseSensitive = FALSE )
-				i = 0	
-				cCode =
-				"for @item in This.List()" + NL +
-					tab + "if " + pcCondition + NL +
-					tab + tab + "i++" + NL +
-					tab + "else" + NL +
-					tab + tab + "exit" + NL +
-					tab + "ok" + NL +
-				"next"
+		# Checking params
 
-				eval(cCode)
-				
-				if i > 0
-					return 1 : i
-				ok
-			else
-				StzRaise("Syntax error! Your persocode must contain the keyword 'Item'.")
-			ok
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-	def WalkUntilItemIsNumber()
-		return This.WalkUntilItemTypeIs(:Number)
+		if isList(pReturn) and
+		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
 
-	def WalkUntilItemIsString()
-		return This.WalkUntilItemTypeIs(:String)
-
-	def WalkUntilItemIsList()
-		return This.WalkUntilItemTypeIs(:List)
-
-	def WalkUntilItemIsObject()
-		return This.WalkUntilItemTypeIs(:Object)
-
-	def WalkUntilItemIsStzObject()
-		return This.WalkUntilItemTypeIs(:StzObject)
-
-	def WalkUntilItemTypeIs(pcType)
-		if IsType(pcType)
-			for i=1 to NumberOfItems()
-				if ring_type(Item(i)) = pcType
-					return 1 : i
-				ok
-			next
-		else
-			StzRaise("Unsupported type!")
+			pReturn = pReturn[2]
 		ok
 
-	def WalkEachW(pcCondition)
-		oStzString = new stzString(pcCondition)
-		if oStzString.ContainsCS( "@item", :CaseSensitive = FALSE )
-			aResult = []
-			i = 0
-			cCode =
-			"for @item in This.List()" + NL +
-				tab + "i++" + NL +
-				tab + "if " + pcCondition + NL +
-				tab + tab + "aResult + i" + NL +
-				tab + "ok" + NL +
-			"next"
+		if NOT ( isString(pReturn) and
 
+			 Q(pReturn).IsOneOfThese([
+			:WalkedPositions, :WalkedItems, :LastPosition, :LastItem, :Default ]) )
+
+			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+				 ":WalkedPositions, :WalkedItems, :LastPosition, :LastItem, and :Default." )
+		ok
+
+		if pReturn = :Default
+			pReturn = :WalkedPositions
+		ok
+
+		if isList(pcDirection) and Q(pcDirection).IsDirectionNamedParam()
+			pcDirection = pcDirection[2]
+		ok
+
+		if NOT ( isString(pcDirection) and
+			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+
+			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
+		ok
+
+		if pcDirection = :Default
+			pcDirection = :Forward
+		ok
+
+		# Doing the job
+
+		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
+
+		anPositions = []
+		nLen = This.NumberOfItems()
+
+		nStart = 1
+		nEnd   = nLen
+		nStep  = 1
+
+		if pcDirection = :Backward
+			nStart = nLen
+			nEnd   = 1
+			nStep  = -1
+		ok
+
+		for @i = nStart to nEnd step nStep
+			
 			eval(cCode)
-				
-			if i > 0
-				return aResult
-			ok
-		else
-			StzRaise("Syntax error! Your persocode must contain the keyword 'Item'.")
-		ok
 
-	def WalkNForwardNBackward(pnForward, pnBackward)
-		return This.WalkNStepsForwardNStepsBackward(pnForward, pnBackward)
-
-	def WalkNStepsForwardNStepsBackward(pnForward, pnBackward)	
-		if pnForward < 0 or pnBackward < 0
-			StzRaise("Can't proceed. nForward and nBackward must not be negative!")
-
-		but pnForward > This.NumberOfItems() or pnBackward > This.NumberOfItems()
-			StzRaise("Can't proceed. nForward and nBackward must not exceed the number of items!")
-
-		but pnBackward > pnForward
-			StzRaise("Can't proceed. nBackward must not be greater then nForward!")
-
-		but pnForward = pnBackward
-			return [1]
-
-		but pnForward > 0 and pnBackward = 0
-			aResult = []
-			for i = 1 to This.NumberOfItems() step pnForward
-				aResult + i
-			next
-			return aResult
-
-		else
-			aResult = [1]
-			n = 1
-			while n + pnForward <= This.NumberOfItems()
-				// n steps forward
-				n += pnForward
-				if n <= This.NumberOfItems()
-					aResult + n
-				ok
-	
-				// n steps backward
-				n -= pnBackward
-				if n > 0
-					aResult + n
-				ok	
-			end
-			return aResult
-		ok
-
-	def WalkNFromStartNFromEnd(pnFormStart, pnFromEnd)
-		return This.WalkNStepsFromStartAndNStepsFromEnd(pnFromStart, pnFromEnd)
-
-	def WalkNStepsFromStartNStepsFromEnd(pnFromStart, pnFromEnd)
-		aResult = []
-		m = This.NumberOfItems() + pnFromEnd
-		for n = 1 to This.NumberOfItems() step pnFromStart
-			// adding one step forward
-			if n != m and ring_find(aResult, n) = 0
-				aResult + n
+			if NOT bOk
+				exit
 			ok
 
-			// adding one step backward
-			m -= pnFromEnd
-			if m != n and ring_find(aResult, m) = 0 and m > 0
-				aResult + m
-			ok	
+			anPositions + @i
 		next
-		return aResult
+
+		switch pReturn
+		on :WalkedItems
+			return This.ItemsAt(anPositions)
+
+		on :WalkedPositions
+			return anPositions
+
+		on :LastItem
+			return This.ItemAt(len(anPositions))
+
+		on :LastPosition
+			return anPositions[len(anPositions)]
+
+		other
+			return anPositions
+		off
+
+	  #================================================#
+	 #  WALKING N ITEMS FORWARD AND N ITEMS BACKWARD  #
+	#================================================#
+
+	def WalkNItemsForwardNItemsBackward(pnForward, pnBackward)
+		return This.WalkNItemsForwardNItemsBackwardXT(pnForward, pnBackward, :Return = :WalkedPositions)
+
+		def WalkNStepsForwardNStepsBackward(pnForward, pnBackward)
+			return This.WalkNITemsForwardNItemsBackward(pnForward, pnBackward)
+
+	def WalkNItemsForwardNItemsBackwardXT(pnForward, pnBackward, pReturn)
+
+		if NOT BothAreNumbers(pnForward, pnBackward)
+			StzRaise("Incorrect param type! Both pnForward and pnBackward must be numbers.")
+		ok
+
+		if isList(pReturn) and
+		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+
+			pReturn = pReturn[2]
+		ok
+
+		if NOT ( isString(pReturn) and
+
+			 Q(pReturn).IsOneOfThese([
+			:WalkedPositions, :WalkedItems, :LastPosition, :LastItem, :Default ]) )
+
+			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+				 ":WalkedPositions, :WalkedItems, :LastPosition, :LastItem, and :Default." )
+		ok
+
+		if pReturn = :Default
+			pReturn = :WalkedPositions
+		ok
+
+		aList = This.List()
+		nLen = len(aList)
+
+		anPositions = []
+		
+		i = pnBackward + 1
+
+		while i > pnBackward and i < nLen - pnForward
+			i = i + pnForward
+			anPositions + i
+
+			i = i - pnBackward
+			anPositions + i
+		end
+
+
+		switch pReturn
+		on :WalkedItems
+
+			return This.ItemsAt(anPositions)
+
+		on :WalkedPositions
+			return anPositions
+
+		on :LastItem
+			return This.ItemAt(len(anPositions))
+
+		on :LastPosition
+			return anPositions[len(anPositions)]
+
+		other
+			return anPositions
+
+		off
+
+		def WalkNForwardNBackwardXT(pnForward, pnBackward, pReturn)
+			return This.WalkNItemsForwardNItemsBackwardXT(pnForward, pnBackward, pReturn)
+	
+		def WalkNStepsForwardNStepsBackwardXT(pnForward, pnBackward, pReturn)
+			return This.WalkNItemsForwardNItemsBackwardXT(pnForward, pnBackward, pReturn)
+
+	  #===================================#
+	 #  WALKING THE LIST FORTH AND BACK  #
+	#===================================#
 
 	def WalkForthAndBack()
-		aResult = 1 : This.NumberOfItems()
+		return This.WalkForthAndBackXT(:Return = :WalkedPositions)
+
+	def WalkForthAndBackXT(pReturn)
+		if NOT ( isList(pReturn) and
+			 Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ]) )
+
+			StzRaise("Incorrect param! pReturn must be a pair of string where the first item is :Return.")
+		ok
+
+		if NOT Q(pReturn[2]).IsOneOfThese([
+			:WalkedPositions, :WalkedItems, :LastPosition, :LastItem ])
+
+			StzRaise("Incorrect param value! Allowed values for :Return are :WalkedPositions, :WalkedItems, :LastPosition, and :LastItem.")
+		ok
+
+		anPositions = 1 : This.NumberOfItems()
+
 		for i = This.NumberOfItems()-1 to 1 step -1
-			aResult + i
+			anPositions + i
 		next
-		return aResult
+		
+		switch pReturn[2]
+		on :WalkedItems
+			return This.ItemsAt(anPositions)
+
+		on :WalkedPositions
+			return anPositions
+
+		on :LastItem
+			return This.ItemAt(len(anPositions))
+
+		on :LastPosition
+			return anPositions[len(anPositions)]
+
+		other
+			return anPositions
+
+		off
+
+	  #-----------------------------------#
+	 #  WALKING THE LIST BACK AND FORTH  #
+	#-----------------------------------#
 
 	def WalkBackAndForth()
-		aResult = This.NumberOfItems() : 1
+		return This.WalkBackAndForthXT(:Return = :WalkedPositions)
+
+	def WalkBackAndForthXT(pReturn)
+		if NOT ( isList(pReturn) and
+			 Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ]) )
+
+			StzRaise("Incorrect param! pReturn must be a pair of string where the first item is :Return.")
+		ok
+
+		if NOT Q(pReturn[2]).IsOneOfThese([
+			:WalkedPositions, :WalkedItems, :LastPosition, :LastItem ])
+
+			StzRaise("Incorrect param value! Allowed values for :Return are :WalkedPositions, :WalkedItems, :LastPosition, and :LastItem.")
+		ok
+
+		anPositions = This.NumberOfItems() : 1
+
 		for i = 2 to This.NumberOfItems()
-			aResult + i
+			anPositions + i
 		next
-		return aResult
 
-	def WalkNStepsForward(n)
-		aResult = []
+		switch pReturn[2]
+		on :WalkedItems
+			return This.ItemsAt(anPositions)
+
+		on :WalkedPositions
+			return anPositions
+
+		on :LastItem
+			return This.ItemAt(len(anPositions))
+
+		on :LastPosition
+			return anPositions[len(anPositions)]
+
+		other
+			return anPositions
+
+		off
+
+	  #===============================================#
+	 #  WALKING THE LIST EATCH TIME N ITEMS FORWARD  #
+	#===============================================#
+
+	def WalkNItemsForward(n)
+		return This.WalkNItemsForwardXT(n, :Return = :WalkedPositions)
+
+		def WalkNStepsForward(n)
+			return This.WalkNItemsForward(n)
+
+	def WalkNItemsForwardXT(n, pReturn)
+		if NOT ( isList(pReturn) and
+			 Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ]) )
+
+			StzRaise("Incorrect param! pReturn must be a pair of string where the first item is :Return.")
+		ok
+
+		if NOT Q(pReturn[2]).IsOneOfThese([
+			:WalkedPositions, :WalkedItems, :LastPosition, :LastItem ])
+
+			StzRaise("Incorrect param value! Allowed values for :Return are :WalkedPositions, :WalkedItems, :LastPosition, and :LastItem.")
+		ok
+
+		anPositions = []
+
 		for i = 1 to This.NumberOfItems() step n
-			aResult + i
+			anPositions + i
 		next
-		return aResult
 
-	def WalkNStepsBackward(n)
-		aResult = []
+		switch pReturn[2]
+		on :WalkedItems
+			return This.ItemsAt(anPositions)
+
+		on :WalkedPositions
+			return anPositions
+
+		on :LastItem
+			return This.ItemAt(len(anPositions))
+
+		on :LastPosition
+			return anPositions[len(anPositions)]
+
+		other
+			return anPositions
+
+		off
+
+		def WalkNStepsForwardXT(n, pReturn)
+			return This.WalkNItemsForwardXT(n, pReturn)
+
+	  #------------------------------------------------#
+	 #  WALKING THE LIST EATCH TIME N ITEMS BACKWARD  #
+	#------------------------------------------------#
+
+	def WalkNItemsBackward(n)
+		return This.WalkNItemsBackwardXT(n, :Return = :WalkedPositions)
+
+		def WalkNStepsBackward(n)
+			return This.WalkNItemsBackward(n)
+
+	def WalkNItemsBackwardXT(n, pReturn)
+		if NOT ( isList(pReturn) and
+			 Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ]) )
+
+			StzRaise("Incorrect param! pReturn must be a pair of string where the first item is :Return.")
+		ok
+
+		if NOT Q(pReturn[2]).IsOneOfThese([
+			:WalkedPositions, :WalkedItems, :LastPosition, :LastItem ])
+
+			StzRaise("Incorrect param value! Allowed values for :Return are :WalkedPositions, :WalkedItems, :LastPosition, and :LastItem.")
+		ok
+
+		anPositions = []
+
 		for i = This.NumberOfItems() to 1 step -n
-			aResult + i
+			anPositions + i
 		next
-		return aResult
 
-	def WalkNProgressiveStepsForward(n)
+		switch pReturn[2]
+		on :WalkedItems
+			return This.ItemsAt(anPositions)
+
+		on :WalkedPositions
+			return anPositions
+
+		on :LastItem
+			return This.ItemAt(len(anPositions))
+
+		on :LastPosition
+			return anPositions[len(anPositions)]
+
+		other
+			return anPositions
+
+		off
+
+		def WalkNStepsBackwardXT(n, pReturn)
+			return This.WalkNItemsBackwardXT(n, pReturn)
+
+	  #===========================================================#
+	 #  WALKING THE LIST EACH TIME N PROGRESSIVE ITEMS FORWARD   #
+	#===========================================================#
+
+	def WalkNProgressiveItemsForward(n)
+		return This.WalkNProgressiveItemsForwardXT(n, :Return = :WalkedPositions)
+	
+		#< @FunctionAlternativeForms
+
+		def WalkNProgressiveStepsForward(n)
+			return This.WalkNProgressiveItemsForward(n)
+
+		def WalkProgressiveNItemsForward(n)
+			return This.WalkNProgressiveItemsForward(n)
+
+		def WalkProgressiveNStepsForward(n)
+			return This.WalkNProgressiveItemsForward(n)
+
+		#--
+
+		def WalkNCumulativeItemsForward(n)
+			return This.WalkNProgressiveItemsForward(n)
+
+		def WalkCumulativeNItemsForward(n)
+			return This.WalkNProgressiveItemsForward(n)
+
+		def WalkNCumulativeStepsForward(n)
+			return This.WalkNProgressiveItemsForward(n)
+
+		def WalkCumulativeNStepsForward(n)
+			return This.WalkNProgressiveItemsForward(n)
+
+		#>
+
+	def WalkNProgressiveItemsForwardXT(n, pReturn)
+		if NOT ( isList(pReturn) and
+			 Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ]) )
+
+			StzRaise("Incorrect param! pReturn must be a pair of string where the first item is :Return.")
+		ok
+
+		if NOT Q(pReturn[2]).IsOneOfThese([
+			:WalkedPositions, :WalkedItems, :LastPosition, :LastItem ])
+
+			StzRaise("Incorrect param value! Allowed values for :Return are :WalkedPositions, :WalkedItems, :LastPosition, and :LastItem.")
+		ok
+
+		anPositions = []
+
 		if n < 0
+
 			StzRaise("Can't proceed. n must be positive!")
 		but n = 0
-			return [1]
+			anPositions = [1]
+
 		else
-			aResult = [1]
+			anPositions = [1]
 			nstep = 1
 			i = 0
 			
@@ -5723,20 +6154,114 @@ class stzList from stzObject
 				i++
 				nStep += (n * i)
 				if nStep <= This.NumberOfItems()
-					aResult + nStep
+					anPositions + nStep
 				ok
 			end
-	
-			return aResult
+
 		ok
 
-	def WalkNProgressiveStepsBackward(n)
+		switch pReturn[2]
+		on :WalkedItems
+			return This.ItemsAt(anPositions)
+
+		on :WalkedPositions
+			return anPositions
+
+		on :LastItem
+			return This.ItemAt(len(anPositions))
+
+		on :LastPosition
+			return anPositions[len(anPositions)]
+
+		other
+			return anPositions
+
+		off
+
+		#< @FunctionAlternativeForms
+
+		def WalkNProgressiveStepsForwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsForwardXT(n, pReturn)
+
+		def WalkProgressiveNItemsForwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsForwardXT(n, pReturn)
+
+		def WalkProgressiveNStepsForwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsForwardXT(n, pReturn)
+
+		#--
+
+		def WalkNCumulativeItemsForwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsForwardXT(n, pReturn)
+
+		def WalkCumulativeNItemsForwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsForwardXT(n, pReturn)
+
+		def WalkNCumulativeStepsForwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsForwardXT(n, pReturn)
+
+		def WalkCumulativeNStepsForwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsForwardXT(n, pReturn)			
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  WALKING THE LIST EATCH TIME N PROGRESSIVE ITEMS BACKWARD  #
+	#------------------------------------------------------------#
+
+	def WalkNProgressiveItemsBackward(n)
+		return This.WalkNProgressiveItemsBackwardXT(n, :Return = :WalkedPositions)
+
+		#< @FunctionAlternativeForms
+
+		def WalkNProgressiveStepsBackward(n)
+			return This.WalkNProgressiveItemsBackward(n)
+
+		def WalkProgressiveNItemsBackward(n)
+			return This.WalkNProgressiveItemsBackward(n)
+
+		def WalkProgressiveNStepsBackward(n)
+			return This.WalkNProgressiveItemsBackward(n)
+
+		#--
+
+		def WalkNCumulativeItemsBackward(n)
+			return This.WalkNProgressiveItemsBackward(n)
+
+		def WalkCumulativeNItemsBackward(n)
+			return This.WalkNProgressiveItemsBackward(n)
+
+		def WalkNCumulativeStepsBackward(n)
+			return This.WalkNProgressiveItemsBackward(n)
+
+		def WalkCumulativeNStepsBackward(n)
+			return This.WalkNProgressiveItemsBackward(n)		
+
+		#>
+
+	def WalkNProgressiveItemsBackwardXT(n, pReturn)
+		if NOT ( isList(pReturn) and
+			 Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ]) )
+
+			StzRaise("Incorrect param! pReturn must be a pair of string where the first item is :Return.")
+		ok
+
+		if NOT Q(pReturn[2]).IsOneOfThese([
+			:WalkedPositions, :WalkedItems, :LastPosition, :LastItem ])
+
+			StzRaise("Incorrect param value! Allowed values for :Return are :WalkedPositions, :WalkedItems, :LastPosition, and :LastItem.")
+		ok
+
+		anPositions = []
+
 		if n < 0
 			StzRaise("Can't proceed. n must be positive!")
+
 		but n = 0
-			return [ This.NumberOfItems() ]
+			anPositions = [ This.NumberOfItems() ]
+
 		else
-			aResult = [ This.NumberOfItems() ]
+			anPositions = [ This.NumberOfItems() ]
 			nStep = This.NumberOfItems()
 			i = 0
 			
@@ -5744,12 +6269,56 @@ class stzList from stzObject
 				i++
 				nStep -= (n * i)
 				if nStep > 0
-					aResult + nStep
+					anPositions + nStep
 				ok
 			end
 	
-			return aResult
 		ok
+
+		switch pReturn[2]
+		on :WalkedItems
+			return This.ItemsAt(anPositions)
+
+		on :WalkedPositions
+			return anPositions
+
+		on :LastItem
+			return This.ItemAt(len(anPositions))
+
+		on :LastPosition
+			return anPositions[len(anPositions)]
+
+		other
+			return anPositions
+
+		off
+
+		#< @FunctionAlternativeForms
+
+		def WalkNProgressiveStepsBackwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsBackwardXT(n, pReturn)
+
+		def WalkProgressiveNItemsBackwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsBackwardXT(n, pReturn)
+
+		def WalkProgressiveNStepsBackwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsBackwardXT(n, pReturn)
+
+		#--
+
+		def WalkNCumulativeItemsBackwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsBackwardXT(n, pReturn)
+
+		def WalkCumulativeNItemsBackwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsBackwardXT(n, pReturn)
+
+		def WalkNCumulativeStepsBackwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsBackwardXT(n, pReturn)
+
+		def WalkCumulativeNStepsBackwardXT(n, pReturn)
+			return This.WalkNProgressiveItemsBackwardXT(n, pReturn)			
+
+		#>
 
 	  #===========================================#
 	 #   EXPANDING THE LIST OF PAIR OF NUMBERS   #
@@ -12953,25 +13522,24 @@ class stzList from stzObject
 			return 1 : This.NumberOfItems()
 		ok
 
+		# Cleansing the condition
+		
+		oCCode = new stzCCode(pcCondition)
+		cCode  = 'bOk = ( ' + oCCode.Transpiled() + ' )'
+		oCode  = Q( cCode )
+		
+		# Identifying the Executable Section
+
+		aExecutableSection = This.InfereSection( oCCode.ExecutableSection() )
+
+		nStart = aExecutableSection[1]
+		nEnd   = aExecutableSection[2]
+
 		# Doing the job
-
-		cCondition = ""
-		aExecutableSection = []
-
-		pcCode = Q(pcCondition).
-			 TrimQ().
-			 RemoveBoundsQ([ "{", "}" ]).
-			 ReplaceCSQ("@list", "This.Content()", :CS = FALSE).
-			 Content()
-
-		cCode = "bOk = ( " + pcCode + " )"
-		oCode = new stzString(cCode)
 
 		anResult = []
 
-		nLen = This.NumberOfItems()
-		for @i = 1 to nLen
-			@item = This[@i]
+		for @i = nStart to nEnd
 
 			bEval = TRUE
 
@@ -13221,6 +13789,47 @@ class stzList from stzObject
 		def FindNthOccurrenceW(pcCondition)
 			return This.FindNthW(n, pcCondition)
 
+	  #---------------------------------------------------#
+	 #  INFERING SECTION'S ITEMS FROM THE PROVIDED FORM  #
+	#---------------------------------------------------#
+
+	/* NOTE
+
+	For the mean time, this function is used to translate the section
+	returned from the StzCCodeQ().ExecutableSection method, to fill
+	it with the actual values of the current list.
+
+	So, for example, if the lists has 10 items:
+
+		--> [ 1, :Last ] is transformed to [ 1, 10 ]
+		--> [ 2, -3 ] is transformed to [ 2, 7)
+		--> Etc.
+
+	TODO: In the future, it can be used to tranform all other forms used
+	to create a section, sutch as [ :From = ..., :To = ... ].
+
+	*/
+	
+	def InfereSection(paSection)
+		aResult = []
+		nStart = paSection[1]
+		
+		if nStart < 0
+			nStart = This.NumberOfItems() - Abs(nStart) + 1
+		ok
+
+		nEnd = paSection[2]
+		if isString(nEnd) and nEnd = :Last
+			nEnd = This.NumberOfItems()
+		ok
+
+		if nEnd < 0
+			nEnd = This.NumberOfItems() - Abs(nEnd) + 1
+		ok
+
+		aResult = [nStart, nEnd]
+		return aResult
+
 	  #------------------------------------------------------------#
 	 #  FINDING ALL ITEMS VERIFYING A GIVEN CONDITION -- EXTENDED #
 	#------------------------------------------------------------#
@@ -13275,22 +13884,9 @@ class stzList from stzObject
 
 		# Defining the extremities of the executable section
 
-		anExectutableSection = oCCode.ExecutableSection()
-
+		anExectutableSection = This.InfereSection( oCCode.ExecutableSection() )
 		nStart = anExectutableSection[1]
-		
-		if nStart < 0
-			nStart = This.NumberOfItems() - Abs(nStart) + 1
-		ok
-
-		nEnd = anExectutableSection[2]
-		if isString(nEnd) and nEnd = :Last
-			nEnd = This.NumberOfItems()
-		ok
-
-		if nEnd < 0
-			nEnd = This.NumberOfItems() - Abs(nEnd) + 1
-		ok
+		nEnd   = anExectutableSection[2]
 
 		# Doing the job
 
