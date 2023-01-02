@@ -5838,6 +5838,8 @@ class stzList from stzObject
 
 	def WalkNItemsForwardNItemsBackwardXT(pnForward, pnBackward, pReturn)
 
+		# Checking params
+
 		if NOT BothAreNumbers(pnForward, pnBackward)
 			StzRaise("Incorrect param type! Both pnForward and pnBackward must be numbers.")
 		ok
@@ -5861,21 +5863,34 @@ class stzList from stzObject
 			pReturn = :WalkedPositions
 		ok
 
+		# Doing the job
+
 		aList = This.List()
 		nLen = len(aList)
 
-		anPositions = []
-		
-		i = pnBackward + 1
+		if pnForward = pnBackward
+			return []
+		ok
 
-		while i > pnBackward and i < nLen - pnForward
+		if pnBackward > pnForward
+			nStart = pnBackward - pnForward + 1
+		else
+			nStart = 1
+		ok
+
+		i = nStart
+		anPositions = [ i ]
+
+		while Q(i + pnForward).IsBetween(1, nLen) and
+		      Q(i + pnForward - pnBackward).IsBetween(1, nLen)
+
 			i = i + pnForward
 			anPositions + i
 
 			i = i - pnBackward
 			anPositions + i
-		end
 
+		end
 
 		switch pReturn
 		on :WalkedItems
