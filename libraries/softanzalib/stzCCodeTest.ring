@@ -1,8 +1,25 @@
 load "stzlib.ring"
 
+o1 = new stzString("_ABC_DE_")
+
+o1.RemoveFirstChar()
+? o1.Content()
+#--> ABC_DE_
+
+o1.RemoveThisFirstCharCS("a", :CS = FALSE)
+? o1.Content()
+#--> BC_DE_
+
+o1.RemoveNthChar(:Last)
+? o1.Content()
+#--> BC_DE
+
+o1.RemoveThisNthChar(3, "_")
+? o1.Content()
+#--> BCDE
 
 /*----------
-*/
+
 StartProfiler()
 
 	o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')

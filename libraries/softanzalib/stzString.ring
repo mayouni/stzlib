@@ -10560,17 +10560,17 @@ class stzString from stzObject
 		def NFirstOccurrencesReplaced(n, pcSubStr, pcNewSubStr)
 			return This.FirstNOccurrencesReplaced(n, pcSubStr, pcNewSubStr)
 
-	  #-------------------------#
-	 #    REPLACING NTH CHAR   # 
-	#-------------------------#
+	  #========================#
+	 #   REPLACING NTH CHAR   # 
+	#========================#
 
 	def ReplaceNthChar(n, pSubStr)
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
 
-		if n = :LastChar or n = :EndOfString
+		if n = :LastChar or n = :EndOfString or n = :Last
 			n = This.NumberOfChars()
 
-		but n = :FirstChar or n = :StartOfString
+		but n = :FirstChar or n = :StartOfString or n = :First
 			n = 1
 		ok
 
@@ -10601,43 +10601,136 @@ class stzString from stzObject
 		cResult = This.Copy().ReplaceNthCharQ(n, pValue).Content()
 		return cResult
 
-	  #---------------------------#
-	 #    REPLACING FIRST CHAR   # 
-	#---------------------------#
+	  #-----------------------------------------------#
+	 #  REPLACING FIRST CHAR WITH A GIVEN SUBSTRING  #
+	#-----------------------------------------------#
 
-	def ReplaceFirstChar(pSubStr)
-		This.ReplaceNthChar(1, pSubStr)
-
-		#< @FunctionFluentForm
+	def ReplaceFirstChar(pcSubStr)
+		This.ReplaceNthChar(1, pcSubStr)
 
 		def ReplaceFirstCharQ(pcSubStr)
 			This.ReplaceFirstChar(pcSubStr)
 			return This
 
-		#>
+	def FirstCharReplaced(pcSubStr)
+		return This.Copy().ReplaceFirstCharQ(pcSubStr).Content()
 
-	def FirstCharReplaced(n, pValue)
-		cResult = This.Copy().ReplaceFirstCharQ(n, pValue).Content()
-		return cResult
+	  #----------------------------------------------#
+	 #  REPLACING LAST CHAR WITH A GIVEN SUBSTRING  #
+	#----------------------------------------------#
 
-	  #---------------------------#
-	 #    REPLACING LAST CHAR    # 
-	#---------------------------#
-
-	def ReplaceLastChar(pSubStr)
-		This.ReplaceNthChar(:Last, pSubStr)
-
-		#< @FunctionFluentForm
+	def ReplaceLastChar(pcSubStr)
+		This.ReplaceNthChar(This.NumberOfChars(), pcSubStr)
 
 		def ReplaceLastCharQ(pcSubStr)
 			This.ReplaceLastChar(pcSubStr)
 			return This
 
+	def LastCharReplaced(pcSubStr)
+		return This.Copy().ReplaceFirstCharQ(pcSubStr).Contenr()
+
+	  #------------------------------------------------------------#
+	 #  REPLACING NTH GIVEN CHAR (IF ANY) WITH A GIVEN SUBSTRING  #
+	#------------------------------------------------------------#
+
+	def ReplaceThisNthCharCS(n, cChar, pcSubStr, pCaseSensitive)
+
+		if isString(cChar) and This.NthCharQ(n).IsEqualToCS(cChar, pCaseSensitive)
+			This.ReplaceNthChar(n, pcSubStr)
+		ok
+
+		def ReplaceThisNthCharCSQ(n, cChar, pcSubStr, pCaseSensitive)
+			This.ReplaceThisNthCharCS(n, cChar, pcSubStr, pCaseSensitive)
+			return This
+
+	def ThisNthCharReplacedCS(n, cChar, pcSubStr, pCaseSensitive)
+		return This.Copy().ReplaceThisNthCharCSQ(n, cChar, pcSubStr, pCaseSensitive).Content()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceThisNthChar(n, cChar, pcSubStr)
+		This.ReplaceThisNthCharCS(n, cChar, pcSubStr, :CaseSensitive = TRUE)
+
+		def ReplaceThisNthCharQ(n, cChar, pcSubStr)
+			This.ReplaceThisNthChar(n, cChar, pcSubStr)
+			return This
+
+	def ThisNthCharReplaced(n, cChar, pcSubStr)
+		return This.Copy().ReplaceThisNthCharQ(n, cChar, pcSubStr).Content()
+
+	  #-----------------------------------------------------------------#
+	 #  REPLACING A GIVEN FIRST CHAR (IF ANY) WITH A GIVEN SUBSTRING   # 
+	#-----------------------------------------------------------------#
+
+	def ReplaceThisFirstCharCS(c, pcSubStr, pCaseSensitive)
+		if isString(c) and This.FirstCharQ().IsEqualToCS(c)
+			This.ReplaceNthChar(1, pcSubStr)
+		ok
+
+		#< @FunctionFluentForm
+
+		def ReplaceThisFirstCharCSQ(c, pcSubStr, pCaseSensitive)
+			This.ReplaceThisFirstCharCS(c, pcSubStr, pCaseSensitive)
+			return This
+
 		#>
 
-	def LastCharReplaced(n, pValue)
-		cResult = This.Copy().ReplaceLastCharQ(n, pValue).Content()
+	def ThisFirstCharReplacedCS(c, pcSubStr, pCaseSensitive)
+
+		cResult = This.Copy().
+				ReplaceThisFirstCharCSQ(c, pcSubStr, pCaseSensitive).
+				Content()
+
 		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceThisFirstChar(c, pcSubStr)
+		This.ReplaceThisFirstCharCSQ(c, pcSubStr, :CaseSensitive = TRUE)
+
+		def ReplaceThisFirstCharQ(c, pcSubStr)
+			This.ReplaceThisFirstChar(c, pcSubStr)
+			return This
+
+	def ThisFirstCharReplaced(c, pcSubStr)
+		return This.Copy().ReplaceThisFirstCharQ(c, pcSubStr).Content()
+
+	  #----------------------------------------------------------------#
+	 #  REPLACING A GIVEN LAST CHAR (IF ANY) WITH A GIVEN SUBSTRING   # 
+	#----------------------------------------------------------------#
+
+	def ReplaceThisLastCharCS(c, pcSubStr, pCaseSensitive)
+		if isString(c) and This.LastCharQ().IsEqualToCS(c)
+			This.ReplaceNthChar(This.NumberOfChars(), pcSubStr)
+		ok
+
+		#< @FunctionFluentForm
+
+		def ReplaceThisLastCharCSQ(c, pcSubStr, pCaseSensitive)
+			This.ReplaceThisLastCharCS(c, pcSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+	def ThisLastCharReplacedCS(c, pcSubStr, pCaseSensitive)
+
+		cResult = This.Copy().
+				ReplaceThisLastCharCSQ(c, pcSubStr, pCaseSensitive).
+				Content()
+
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceThisLastChar(c, pcSubStr)
+		This.ReplaceThisLastCharCSQ(c, pcSubStr, :CaseSensitive = TRUE)
+
+		def ReplaceThisLastCharQ(c, pcSubStr)
+			This.ReplaceThisLastChar(c, pcSubStr)
+			return This
+
+	def ThisLastCharReplaced(c, pcSubStr)
+		return This.Copy().ReplaceThisLastCharQ(c, pcSubStr).Content()
 
 	  #--------------------------#
 	 #    REPLACING ALL CHARS   # 
@@ -10645,7 +10738,7 @@ class stzString from stzObject
 
 	def ReplaceAllChars(pcSubStr)
 
-		if isList(pcSubStr) and _@(pcSubStr).IsWithNamedParam()
+		if isList(pcSubStr) and Q(pcSubStr).IsWithNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -10668,11 +10761,11 @@ class stzString from stzObject
 		cResult = This.Copy().ReplaceAllCharsQ(pcSubStr).Content()
 		return cResult
 
-	  #--------------------------------#
+	  #================================#
 	 #    INTERPOLATING THE STRING    # 
-	#--------------------------------#
+	#================================#
 
-	def Interpolate()
+	def Interpolate() # TODO
 		/*
 		@lang = "Ring"
 		? StzStringQ('My best programming language is @lang!').Interpolate()
@@ -10690,7 +10783,7 @@ class stzString from stzObject
 			
 		ok
 
-	def ContainsVars()
+	def ContainsVars() # TODO
 		
 		acVars = variables()
 
@@ -10715,6 +10808,10 @@ class stzString from stzObject
 			// TODO
 		ok
 
+	  #===========================================#
+	 #  CHECKING IF THE STRING CONTAINS MARKERS  #
+	#===========================================#
+
 	def ContainsMarkers()
 		/*
 		? StzString('My kids are #1, #2, and #3!').ContainsMarkers() --> TRUE
@@ -10726,6 +10823,10 @@ class stzString from stzObject
 			return FALSE
 		ok
 
+	  #---------------------------------------#
+	 #  EXTRACTING MARQUERS FROM THE STRING  #
+	#---------------------------------------#
+
 	def ExtractMarkers()
 		/*
 		? StzString('My kids are #1, #2, and #3!').ExtractMarkers()
@@ -10735,8 +10836,16 @@ class stzString from stzObject
 
 		return StzHashListQ( This.ExtractMarkersXT() ).Keys()
 
+	  #------------------------------------------------#
+	 #  GETTING THE NUMBER OF MARQUERS IN THE STRING  #
+	#------------------------------------------------#
+
 	def NumberOfMarkers()
 		return len( This.ExtractMarkers() )
+
+	  #--------------------------------------------#
+	 #  GETTING MARQUERS POSITIONS IN THE STRING  #
+	#--------------------------------------------#
 
 	def ExtractMarkersPositions()
 		/*
@@ -10747,19 +10856,26 @@ class stzString from stzObject
 
 		return StzHashListQ( This.ExtractMarkersXT() ).Values()
 
-	def ExtractMarkersXT()
+	  #------------------------------------------------------#
+	 #  GETTING MARQUERS AND THEIR POSITIONS IN THE STRING  #
+	#------------------------------------------------------#
+
+	def ExtractMarkersXT() # TODO
 		/*
 		? StzString('My kids are #1, #2, and #3!').ExtractMarkersXT()
 
 		# --> [ "#1" = 13, "#2" = 16, "#3" = 23 ]
 		*/
 
+
+		/* ... */
+
 		def ExtractMArkersAndTheirPositions()
 			return This.ExtractMarkersXT()
 
-	  #---------------------------------------------#
+	  #=============================================#
 	 #    CHECKING IF THE STRING IS A RING CODE    # 
-	#---------------------------------------------#
+	#=============================================#
 
 	def IsValidRingCode()
 
@@ -10799,9 +10915,9 @@ class stzString from stzObject
 		def RunAndReturn()
 			This.ExecuteAndReturn()
 
-	  #----------------------------#
+	  #============================#
 	 #     CLEARING THE STRING    #
-	#----------------------------#
+	#============================#
 
 	// Clears the string (text becomes "")
 	def Clear()
@@ -19372,6 +19488,34 @@ o1 = new stzString("12*34*56*78")
 	def LastCharRemoved()
 		return This.Copy().RemoveLastCharQ().Content()
 
+	  #-----------------------------------------------------------------------------#
+	 #  REMOVING A GIVEN CHAR AT A GIVEN POSITION (IF ANY) WITH A GIVEN SUBSTRING  #
+	#-----------------------------------------------------------------------------#
+
+	def RemoveThisNthCharCS(n, cChar, pCaseSensitive)
+		if isString(cChar) and This.NthCharQ(n).IsEqualToCS(cChar, pCaseSensitive)
+			This.RemoveNthChar(n)
+		ok
+
+		def RemoveThisNthCharCSQ(n, cChar, pCaseSensitive)
+			This.RemoveThisNthCharCS(n, cChar, pCaseSensitive)
+			return This
+
+	def ThisNthCharRemovedCS(n, cChar, pCaseSensitive)
+		return This.Copy().RemoveThisNthCharCSQ(n, cChar, pCaseSensitive).Content()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveThisNthChar(n, cChar)
+		This.RemoveThisNthCharCS(n, cChar, :CaseSensitive = TRUE)
+
+		def RemoveThisNthCharQ(n, cChar)
+			This.RemoveThisNthChar(n, cChar)
+			return This
+
+	def ThisNthCharRemoved(n, cChar)
+		return This.Copy().RemoveThisNthCharQ(n, cChar).Content()
+
 	  #---------------------------------#
 	 #   REMOVING A GIVEN FIRST CHAR   #
 	#---------------------------------#
@@ -19698,8 +19842,21 @@ o1 = new stzString("12*34*56*78")
 	def RemoveSection(n1, n2)
 		#< @QtBased = TRUE #>
 
-		if n1 = :FirstChar or n1 = :StartOfString { n1 = 1 }
-		if n2 = :LastChar  or n2 = :EndOfString { n2 = This.NumberOfChars() }
+		if n1 = :FirstChar or n1 = :StartOfString or n1 = :Frist
+			n1 = 1
+		ok
+
+		if n1 = :LastChar  or n1 = :EndOfString or n1 = :Last
+			n1 = This.NumberOfChars()
+		ok
+
+		if n2 = :LastChar  or n2 = :EndOfString or n2 = :Last
+			n2 = This.NumberOfChars()
+		ok
+
+		if n2 = :FirstChar or n2 = :StartOfString or n2 = :First
+			n2 = 1
+		ok
 
 		cResult = This.QStringObject().replace(n1 - 1, n2 - n1 + 1, "")
 		This.Update(cResult)
@@ -20074,34 +20231,34 @@ o1 = new stzString("12*34*56*78")
 
 		# Checking the correctness of pcNewSubStr param
 
+		pcNewSubStrCopy = ""
+
 		if isList(pcNewSubStrCopy) and Q(pcNewSubStrCopy).IsWithOrByNamedParam()
-			pcNewSubStrCopy = pcNewSubStrCopy[2]
+		
+			if Q(pcNewSubStr[1]).LastChar() = "@"
+	
+				cCode = StzCCodeQ(pcNewSubStrCopy).Transpiled()
+				cCode = "pcNewSubStrCopy += " + cCode
+	
+				@section = This.Section(n1, n2)
+	
+				for @i = n1 to n2
+					eval(cCode)
+				next
+	
+			else
+				cNewSubStr = pcNewSubStrCopy[2]
+			ok
+
 		ok
 
 		if NOT isString(pcNewSubStrCopy)
 			StzRaise("Incorrect param type! pcNewSubStr must be a string.")
 		ok
 
-		cNewSubStr = ""
-
-		if Q(pcNewSubStr[1]).LastChar() = "@"
-
-			cCode = StzCCodeQ(pcNewSubStrCopy).Transpiled()
-			cCode = "cNewSubStr += " + cCode
-
-			@section = This.Section(n1, n2)
-
-			for @i = n1 to n2
-				eval(cCode)
-			next
-
-		else
-			cNewSubStr = pcNewSubStrCopy
-		ok
-
 		# Doing the job
 
-		QStringObject().replace(n1 - 1, n2 - n1 + 1, cNewSubStr)
+		QStringObject().replace(n1 - 1, n2 - n1 + 1, pcNewSubStrCopy)
 
 		#< @FunctionFluentForm
 
@@ -24554,7 +24711,7 @@ o1 = new stzString("12*34*56*78")
 		#< @FunctionFluentForm
 		
 		def NthCharQ(n)
-			return This.NthCharQR(n, :stzChar)
+			return This.NthCharQR(n, :stzString)
 
 		def NthCharQR(n, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -24586,7 +24743,7 @@ o1 = new stzString("12*34*56*78")
 				return This.NthCharQR(n, pcReturnType)
 	
 			def CharAtQ(n)
-				return This.CharAtQR(n, :stzChar)
+				return This.CharAtQR(n, :stzString)
 
 		def CharAtPosition(n)
 			return This.NthChar(n)
@@ -24595,7 +24752,7 @@ o1 = new stzString("12*34*56*78")
 				return This.CharAtQR(n, pcReturnType)
 
 			def CharAtPositionQ(n)
-				return This.CharAtPositionQR(n, :stzChar)
+				return This.CharAtPositionQR(n, :stzString)
 
 		def CharN(n)
 			return This.NthChar(n)
@@ -24604,7 +24761,7 @@ o1 = new stzString("12*34*56*78")
 				return CharAtQR(n, pcReturnType)
 	
 			def CharNQ(n)
-				return This.CharAtQR(n, :stzChar)
+				return This.CharAtQR(n, :stzString)
 
 		def Char(n)
 			return This.NthChar(n)
@@ -24613,7 +24770,7 @@ o1 = new stzString("12*34*56*78")
 				return CharAtQR(n, pcReturnType)
 	
 			def CharQ(n)
-				return This.CharAtQR(n, :stzChar)
+				return This.CharAtQR(n, :stzString)
 
 		#>
 
@@ -28551,7 +28708,7 @@ o1 = new stzString("12*34*56*78")
 		# TODO: should be optimised!
 
 		nNumberOfSubStrings = len(acSubStrings)
-		
+	
 		acResult = []
 		
 		for i = 1 to nNumberOfSubStrings
@@ -28559,15 +28716,15 @@ o1 = new stzString("12*34*56*78")
 			oSubStr = new stzString(acSubStrings[i])
 		
 			cNumber = ""
-			
+				
 			oSubStr.RemoveSpaces()
 			oFirstChar = oSubstr.FirstCharQ()
 
 			if oFirstChar.IsOneOfThese([ "-", "+", "=" ])
-				cNumber = oFirstChar.Content()
+				cNumber = oFirstChar.Content()	
 				oSubstr.RemoveFirstChar()	
 			ok
-		
+	
 			nLenSubStr = oSubStr.NumberOfChars()
 			
 			if nLenSubStr > 0 and NOT oSubStr.FirstCharQR(:stzChar).IsANumber()
