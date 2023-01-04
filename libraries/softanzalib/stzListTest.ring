@@ -1683,7 +1683,28 @@ StartProfiler()
 
 StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 
-/*
+	// Walking the list from the postion where a condition is verified
+
+		? @@S( WalkWhen( ' @item = "D" ' ) )
+		#--> [ 4, 5, 6, 7 ]
+
+		? @@S( WalkWhenXT( ' @item = "D" ', :Forward, :WalkedItems ) )
+		#--> [ "D", "E", "F", "G" ]
+
+		? @@S( WalkWhenXT( ' @item = "D" ', :Backward, :WalkedItems ) )
+		#--> [ "D", "C", "B", "A" ]
+
+	// Walking the list from the postion where a condition is verified
+
+		? @@S( WalkBetween( 3, 5 ) )
+		#--> [ 3, 4, 5 ]
+
+		? @@S( WalkBetweenXT( 3, 5, :WalkedItems ) )
+		#--> [ "C", "D", "E" ]
+
+		? @@S( WalkBetweenXT( 5, 3, :WalkedItems ) )
+		#--> [ "E", "D", "C" ]
+
 	// Walking the list forth and back
 		? @@S( WalkForthAndBack() ) + NL
 		#--> [ 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1 ]
@@ -1700,55 +1721,86 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 		#--> [ "G", "F", "E", "D", "C", "B", "A", "B", "C", "D", "E", "F", "G" ]
 
 	// Walking n steps forward
-		? @@S( WalkNStepsForward(2) ) + NL
+		? @@S( WalkNForward(2) ) + NL
 		#--> [ 1, 3, 5, 7 ]
 
-		? @@S( WalkNStepsForwardXT(2, :Return = :WalkedItems) ) + NL
+		? @@S( WalkNForwardXT(2, :Return = :WalkedItems) ) + NL
 		#--> [ "A", "C", "E", "G" ]
 
-
 	// Walking n steps backward
-		? @@S( WalkNStepsBackward(2) ) + NL
+		? @@S( WalkNBackward(2) ) + NL
 		#--> [ 7, 5, 3, 1 ]
 
-		? @@S( WalkNStepsBackwardXT(2, :Return = :WalkedItems) ) + NL
+		? @@S( WalkNBackwardXT(2, :Return = :WalkedItems) ) + NL
 		#--> [ "G", "E", "C", "A" ]
 
 	// Walking n progressive steps forward
-		? @@S( WalkNCumulativeStepsForward(2) ) + NL
+		? @@S( WalkNMoreForward(2) ) + NL
 		#--> [ 1, 3, 7 ]
 
-		? @@S( WalkNCumulativeStepsForwardXT(2, :Return = :WalkedItems) ) + NL
+		? @@S( WalkNMoreForwardXT(2, :Return = :WalkedItems) ) + NL
 		#--> [ "A", "C", "G" ]
 
 	// Walking n progressive steps backward
-		? @@S( WalkNCumulativeStepsBackward(2) ) + NL
+		? @@S( WalkNMoreBackward(2) ) + NL
 		#--> [ 7, 5, 1 ]
 
-		? @@S( WalkNCumulativeStepsBackwardXT(2, :Return = :WalkedItems) ) + NL
+		? @@S( WalkNMoreBackwardXT(2, :Return = :WalkedItems) ) + NL
 		#--> [ "G", "E", "A" ]
 
 	// Walking n steps forward and then n steps backward
-//		? @@S( WalkNStepsForwardNStepsBackward(1, 1) )
+		? @@S( WalkForwardBackward(1, 1) )
 		#--> [ ]
-*/
-		? @@S( WalkNStepsForwardNStepsBackward(1, 2) )
+
+		? @@S( WalkForwardBackward(1, 2) )
 		#--> [ 2, 3, 1 ]
 
-		? @@S( WalkNStepsForwardNStepsBackwardXT(1, 2, :Return = :WalkedItems) )
+		? @@S( WalkForwardBackwardXT(1, 2, :Return = :WalkedItems) )
 		#--> [ "B", "C", "A" ]
 
 		#--
 
-		? @@S( WalkNStepsForwardNStepsBackward(3, 1) )
+		? @@S( WalkForwardBackward(3, 1) )
 		#--> [ 1, 4, 3, 6, 5 ]
 
-		? @@S( WalkNStepsForwardNStepsBackwardXT(3, 1, :Return = :WalkedItems) )
+		? @@S( WalkForwardBackwardXT(3, 1, :Return = :WalkedItems) )
 		#--> [ "A", "D", "C", "F", "E" ]
+
+	// Walking n steps backward n steps forward
+
+		? @@S( WalkBackwardForward(1, 2) )
+		#--> [ 6, 5, 7 ]
+
+		? @@S( WalkBackwardForwardXT(1, 2, :WalkedItems) )
+		#--> [ "F", "E", "G" ]
+
+		#--
+
+		? @@S( WalkBackwardForward(3, 2) )
+		#--> [ 7, 4, 6, 3, 5, 2, 4, 1, 3 ]
+
+		? @@S( WalkBackwardForwardXT(3, 2, :WalkedItems) )
+		#--> [ "G", "D", "F", "C", "E", "B", "D", "A", "C" ]
 
 	// Walking n steps from the start and n steps from the end
 
-	/* ... */
+		? @@S( WalkNStartNEnd(1, 1) )
+		#--> [ 1, 2, 6, 3, 5, 4 ]
+
+		? @@S( WalkNStartNEnd(2, 3) )
+		#--> [ 1, 3, 4 ]
+
+		? @@S( WalkNStartNEndXT(2, 3, :WalkedItems) )
+		#--> [ "A", "C", "D" ]
+
+		#--
+
+		? @@S( WalkNEndNStart(1, 1) )
+		#--> [ 7, 6, 1, 5, 2, 4, 3 ]
+
+		? @@S( WalkNEndNStartXT(1, 1, :WalkedItems) )
+		#--> [ "G", "F", "A", "E", "B", "D", "C" ]
+
 }
 
 StopProfiler()
