@@ -1749,6 +1749,7 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 		#--> [ "G", "E", "A" ]
 
 	// Walking n steps forward and then n steps backward
+
 		? @@S( WalkForwardBackward(1, 1) )
 		#--> [ ]
 
