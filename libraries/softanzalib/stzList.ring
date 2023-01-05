@@ -1,5 +1,5 @@
 #---------------------------------------------------------------------------#
-# 		    SOFTANZA LIBRARY (V1.0) - STZSTRING			    #
+# 		    SOFTANZA LIBRARY (V1.0) - STZITEM			    #
 #		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
 #									    #
@@ -1316,7 +1316,7 @@ class stzList from stzObject
 		#>
 
 	  #-------------------------------------------#
-	 #   REPLACING ALL OCCURRENCES OF A ITEM     #
+	 #   REPLACING ALL OCCURRENCES OF AN ITEM    #
 	#-------------------------------------------#
 
 	def ReplaceAllOccurrencesOfItem(pItem, pNewItem)
@@ -1558,7 +1558,7 @@ class stzList from stzObject
 				return This
 
 	  #------------------------------------#
-	 #   REPLACING AN ITEM BY ALTERNANCE   #
+	 #   REPLACING AN ITEM BY ALTERNANCE  #
 	#------------------------------------#
 
 	def ReplaceItemByAlternance(pItem, paOtherItems)
@@ -1610,7 +1610,7 @@ class stzList from stzObject
 		return aResult
 	
 	   #------------------------------------------------#
-	  #   REPLACING THE NEXT OCCURRENCES OF A ITEM     #
+	  #   REPLACING THE NEXT OCCURRENCES OF AN ITEM    #
          #   STARTING AT A GIVEN POSITION                 #
 	#------------------------------------------------#
 
@@ -1639,7 +1639,7 @@ class stzList from stzObject
 		return acResult
 
 	   #--------------------------------------------------#
-	  #   REPLACING THE PREVIOUS OCCURRENCES OF A ITEM   #
+	  #   REPLACING THE PREVIOUS OCCURRENCES OF AN ITEM  #
          #   STARTING AT A GIVEN POSITION                   #
 	#--------------------------------------------------#
 
@@ -1668,7 +1668,7 @@ class stzList from stzObject
 		return acResult
 
 	  #-----------------------------------------#
-	 #   REPLACING NTH OCCURRENCE OF A ITEM    #
+	 #   REPLACING NTH OCCURRENCE OF AN ITEM   #
 	#-----------------------------------------#
 
 	def ReplaceNthOccurrence(n, pItem, pOtherItem)
@@ -1715,9 +1715,9 @@ class stzList from stzObject
 
 		return aResult
 
-	  #---------------------------------------------#
-	 #   REPLACING FIRST OCCURRENCE OF A ITEM    #
-	#---------------------------------------------#
+	  #--------------------------------------------#
+	 #   REPLACING FIRST OCCURRENCE OF AN ITEM    #
+	#--------------------------------------------#
 
 	def ReplaceFirstOccurrence(pItem, pOtherItem)
 		This.ReplaceNthOccurrence(1, pItem, pOtherItem)
@@ -1752,7 +1752,7 @@ class stzList from stzObject
 		return aResult
 
 	  #-----------------------------------------#
-	 #   REPLACING LAST OCCURRENCE OF A ITEM   #
+	 #   REPLACING LAST OCCURRENCE OF AN ITEM  #
 	#-----------------------------------------#
 
 	def ReplaceLastOccurrence(pItem, pOtherItem)
@@ -1791,7 +1791,7 @@ class stzList from stzObject
 		return aResult
 
 	   #-----------------------------------------------#
-	  #    REPLACING NEXT NTH OCCURRENCE OF A ITEM    #
+	  #    REPLACING NEXT NTH OCCURRENCE OF AN ITEM   #
 	 #    STARTING AT A GIVEN POSITION IN THE LIST   #
 	#-----------------------------------------------#
 
@@ -1876,7 +1876,7 @@ class stzList from stzObject
 			return This.NextNthOccurrenceReplaced(n, pItem, pnStartingAt, pNewItem)
 
 	   #------------------------------------------------#
-	  #    REPLACING NEXT OCCURRENCE OF A ITEM         #
+	  #    REPLACING NEXT OCCURRENCE OF AN ITEM        #
 	 #    STARTING AT A GIVEN POSITION IN THE LIST    #
 	#------------------------------------------------#
 
@@ -1896,7 +1896,7 @@ class stzList from stzObject
 		return aResult
 
 	   #-----------------------------------------------------#
-	  #    REPLACING MANY NEXT NTH OCCURRENCES OF A ITEM    #
+	  #    REPLACING MANY NEXT NTH OCCURRENCES OF AN ITEM   #
 	 #    STARTING AT A GIVEN POSITION IN THE LIST         #
 	#-----------------------------------------------------#
 
@@ -1999,7 +1999,7 @@ class stzList from stzObject
 			return This.NextNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 
 	   #---------------------------------------------------#
-	  #    REPLACING PREVIOUS NTH OCCURRENCE OF A ITEM    #
+	  #    REPLACING PREVIOUS NTH OCCURRENCE OF AN ITEM   #
 	 #    STARTING AT A GIVEN POSITION IN THE LIST       #
 	#---------------------------------------------------#
 
@@ -2071,7 +2071,7 @@ class stzList from stzObject
 			return This.NthPreviousOccurrenceReplaced(n, pItem, pnStartingAt)
 
 	   #-----------------------------------------------#
-	  #    REPLACING PREVIOUS OCCURRENCE OF A ITEM    #
+	  #    REPLACING PREVIOUS OCCURRENCE OF AN ITEM   #
 	 #    STARTING AT A GIVEN POSITION IN THE LIST   #
 	#-----------------------------------------------#
 
@@ -2090,7 +2090,7 @@ class stzList from stzObject
 		return aResult
 
 	   #---------------------------------------------------------#
-	  #     REPLACING MANY PREVIOUS NTH OCCURRENCES OF A ITEM   #
+	  #     REPLACING MANY PREVIOUS NTH OCCURRENCES OF AN ITEM  #
 	 #    STARTING AT A GIVEN POSITION IN THE LIST             #
 	#---------------------------------------------------------#
 
@@ -2967,7 +2967,7 @@ class stzList from stzObject
 			return This
 
 	  #===========================================================#
-	 #   REMOVING ALL OCCURRENCE OF A GIVEN STRING IN THE LIST   #
+	 #   REMOVING ALL OCCURRENCE OF A GIVEN ITEM IN THE LIST   #
 	#===========================================================#
 
 	def RemoveAll(pItem)
@@ -3040,7 +3040,7 @@ class stzList from stzObject
 			return This.AllOccurrencesOfThisItemRemoved(pItem)
 
 	  #--------------------------------------------------------#
-	 #   REMOVING GIVEN OCCURRENCES OF A STRING IN THE LIST   #
+	 #   REMOVING GIVEN OCCURRENCES OF AN ITEM IN THE LIST   #
 	#--------------------------------------------------------#
 
 	def RemoveOccurrences(panOccurrences, pItem)
@@ -3116,7 +3116,7 @@ class stzList from stzObject
 			return This.OccurrencesRemoved(panOccurrences, pItem)
 
 	  #--------------------------------------------#
-	 #   REMOVING MANY STRINGS AT THE SAME TIME   #
+	 #   REMOVING MANY ITEMS AT THE SAME TIME   #
 	#--------------------------------------------#
 
 	def RemoveMany(pacItems)
@@ -3176,11 +3176,11 @@ class stzList from stzObject
 		def ManyItemsRemoved(pacItems)
 			return This.TheseItemsRemoved(pacItems)
 
-	  #---------------------------------------------#
-	 #   REMOVING THE NTH OCCURRENCE OF A STRING   #
-	#---------------------------------------------#
+	  #-------------------------------------------------#
+	 #   REMOVING THE NTH OCCURRENCE OF A GIVEN ITEM   #
+	#-------------------------------------------------#
 
-	def RemoveNth(n, pItem)
+	def RemoveNthOccurrence(n, pItem)
 		n = This.FindNthOccurrence(n, pItem)
 		This.RemoveItemAtPosition( n )
 
@@ -3195,10 +3195,10 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def RemoveNthOccurrence(n, pItem)
-			This.RemoveNth(n, pItem)
+		def RemoveNthXT(n, pItem)
+			This.RemoveNthOccurrence(n, pItem)
 
-			def RemoveNthOccurrenceQ(n, pItem, pCaseSensitive)
+			def RemoveNthXTQ(n, pItem, pCaseSensitive)
 				This.RemoveNthOccurrence(n, pItem)
 				return This
 
@@ -3225,10 +3225,10 @@ class stzList from stzObject
 		return aResult
 
 	  #-----------------------------------------------#
-	 #   REMOVING THE FIRST OCCURRENCE OF A STRING   #
+	 #   REMOVING THE FIRST OCCURRENCE OF AN ITEM   #
 	#-----------------------------------------------#
 
-	def RemoveFirst(pItem)
+	def RemoveFirstOccurrence(pItem)
 
 		This.RemoveItemAtPosition( This.FindFirstOccurrence(pItem) )
 
@@ -3243,20 +3243,20 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def RemoveFirstOccurrences(pItem)
-			This.RemoveFirst(pItem)
+		def RemoveFirstXT(pItem)
+			This.RemoveFirstOccurrence(pItem)
 
-			def RemoveFirstOccurrencesQ(pItem)
-				This.RemoveFirstOccurrences(pItem)
+			def RemoveFirstXTQ(pItem)
+				This.RemoveFirstXT(pItem)
 				return This
 
 		#--
 
-		def RemoveFirstOccurrencesOfItem(pItem)
+		def RemoveFirstOccurrenceOfItem(pItem)
 			This.RemoveFirst(pItem)
 
-			def RemoveFirstOccurrencesOfItemQ(pItem)
-				This.RemoveFirstOccurrencesOfItem(pItem)
+			def RemoveFirstOccurrenceOfItemQ(pItem)
+				This.RemoveFirstOccurrenceOfItem(pItem)
 				return This
 
 		#--
@@ -3268,11 +3268,11 @@ class stzList from stzObject
 		def FirstOccurrenceRemoved(pItem)
 			return This.FirstOccurrenceOfThisItemRemoved(pItem)
 
-	  #----------------------------------------------#
-	 #   REMOVING THE LAST OCCURRENCE OF A STRING   #
-	#----------------------------------------------#
+	  #--------------------------------------------------#
+	 #   REMOVING THE LAST OCCURRENCE OF A GIVEN ITEM   #
+	#--------------------------------------------------#
 
-	def RemoveLast(pItem)
+	def RemoveLastOccurrence(pItem)
 		n = This.FindLastOccurrence(pItem)
 
 		if n <= This.NumberOfItems()
@@ -3289,33 +3289,33 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def RemoveLastOccurrences(pItem)
-			This.RemoveLast(pItem)
+		def RemoveLastXT(pItem)
+			This.RemoveLastOccurrence(pItem)
 
-			def RemoveLastOccurrencesQ(pItem)
-				This.RemoveLastOccurrences(pItem)
+			def RemoveLastXTQ(pItem)
+				This.RemoveLastXT(pItem)
 				return This
 
 		#--
 
-		def RemoveLastOccurrencesOfItem(pItem)
+		def RemoveLastOccurrenceOfItem(pItem)
 			This.RemoveLast(pItem)
 
-			def RemoveLastOccurrencesOfItemQ(pItem)
-				This.RemoveLastOccurrencesOfItem(pItem)
+			def RemoveLastOccurrenceOfItemQ(pItem)
+				This.RemoveLastOccurrenceOfItem(pItem)
 				return This
 
 		#--
 
 	def LastOccurrenceOfThisItemRemoved(pItem)
-		aResult = This.Copy().RemoveLastOccurrencesQ(pItem).Content()
+		aResult = This.Copy().RemoveLastOccurrenceQ(pItem).Content()
 		return aResult
 
 		def LastOccurrenceRemoved(pItem)
 			return This.LastOccurrenceOfThisItemRemoved(pItem)
 
 	   #----------------------------------------------#
-	  #   REMOVING NEXT NTH OCCURRENCE OF A STRING   #
+	  #   REMOVING NEXT NTH OCCURRENCE OF AN ITEM    #
 	 #   STARTING AT A GIVEN POSITION IN THE LIST   #
 	#----------------------------------------------#
 
@@ -3376,7 +3376,7 @@ class stzList from stzObject
 			return This.NthNextOccurrenceRemoved(n, pItem, pnStartingAt)
 
 	   #-----------------------------------------------#
-	  #   REMOVING NEXT OCCURRENCE OF A STRING        #
+	  #   REMOVING NEXT OCCURRENCE OF AN ITEM         #
 	 #   STARTING AT A GIVEN POSITION IN THE LIST    #
 	#-----------------------------------------------#
 
@@ -3396,7 +3396,7 @@ class stzList from stzObject
 		return This
 
 	   #----------------------------------------------------#
-	  #   REMOVING MANY NEXT NTH OCCURRENCES OF A STRING   #
+	  #   REMOVING MANY NEXT NTH OCCURRENCES OF AN ITEM    #
 	 #   STARTING AT A GIVEN POSITION IN THE LIST         #
 	#----------------------------------------------------#
 
@@ -3496,7 +3496,7 @@ class stzList from stzObject
 			return This.NextNthOccurrencesRemoved(panList, pItem, pnStartingAt)
 
 	   #--------------------------------------------------#
-	  #   REMOVING PREVIOUS NTH OCCURRENCE OF A STRING   #
+	  #   REMOVING PREVIOUS NTH OCCURRENCE OF AN ITEM    #
 	 #   STARTING AT A GIVEN POSITION IN THE LIST       #
 	#--------------------------------------------------#
 
@@ -3556,7 +3556,7 @@ class stzList from stzObject
 			return This.NthPreviousOccurrenceRemoved(n, pItem, pnStartingAt)
 
 	   #----------------------------------------------#
-	  #   REMOVING PREVIOUS OCCURRENCE OF A STRING   #
+	  #   REMOVING PREVIOUS OCCURRENCE OF AN ITEM    #
 	 #   STARTING AT A GIVEN POSITION IN THE LIST   #
 	#----------------------------------------------#
 
@@ -3576,7 +3576,7 @@ class stzList from stzObject
 		return This
 
 	   #--------------------------------------------------------#
-	  #   REMOVING MANY PREVIOUS NTH OCCURRENCES OF A STRING   #
+	  #   REMOVING MANY PREVIOUS NTH OCCURRENCES OF AN ITEM    #
 	 #   STARTING AT A GIVEN POSITION IN THE LIST             #
 	#--------------------------------------------------------#
 
@@ -3675,7 +3675,7 @@ class stzList from stzObject
 			return This.PreviousNthOccurrencesRemoved(panList, pItem, pnStartingAt)
 
 	  #---------------------------------------------------#
-	 #   REMOVING A STRING BY SPECIFYING ITS POSITION    #
+	 #   REMOVING AN ITEM BY SPECIFYING ITS POSITION    #
 	#---------------------------------------------------#
 
 	def RemoveItemAtPosition(n)
@@ -3756,9 +3756,9 @@ class stzList from stzObject
 		def NthItemRemoved(n)
 			return This.ItemAtPositionNRemoved(n)
 
-	  #----------------------------------------#
-	 #    REMOVING FIRST STRING IN THE LIST   #
-	#----------------------------------------#
+	  #--------------------------------------#
+	 #    REMOVING FIRST ITEM IN THE LIST   #
+	#--------------------------------------#
 
 	def RemoveFirstItem()
 		This.RemoveItemAtPosition(1)
@@ -3775,9 +3775,9 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveFirstItemQ().Content()
 		return aResult
 
-	  #---------------------------------------#
-	 #    REMOVING LAST STRING IN THE LIST   #
-	#---------------------------------------#
+	  #-------------------------------------#
+	 #    REMOVING LAST ITEM IN THE LIST   #
+	#-------------------------------------#
 
 	def RemoveLastItem()
 		This.RemoveItemAtPosition( This.NumberOfItems() )
@@ -3794,9 +3794,103 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveLastItemQ().Content()
 		return aResult
 
-	  #-------------------------------------------------------#
-	 #  REMOVING MANY STRINGS BY SPECIFYING THEIR POSITIONS  #
-	#-------------------------------------------------------#
+	  #--------------------------------------#
+	 #  REMOVING A GIVEN NTH ITEM (IF ANY)  #
+	#--------------------------------------#
+
+	def RemoveThisNthItemCS(n, pItem, pCaseSensitive)
+		NthItem = This.NthItem(n)
+		bItemExists = FALSE
+
+		if isString( pItem )
+			if Q(NthItem).IsEqualToCS(pItem, pCaseSensitive)
+				bItemExists = TRUE
+			ok
+
+		else
+			if Q(NthItem).IsEqualTo(pItem)
+				bItemExists = TRUE
+			ok
+		ok
+
+		if bItemExists
+			This.RemoveNthItem(n)
+		ok
+
+		def RemoveThisNthItemCSQ(n, pItem, pCaseSensitive)
+			This.RemoveThisNthItemCS(n, pItem, pCaseSensitive)
+			return This
+
+	def ThisNthItemRemovedCS(n, pItem, pCaseSensitive)
+		return This.RemoveThisNthItemCSQ(n, pItem, pCaseSensitive).Content()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveThisNthItem(n, pItem)
+		This.RemoveThisNthItemCS(n, pItem, :CaseSensitive = TRUE)
+			
+		def RemoveThisNthItemQ(n, pItem)
+			This.RemoveThisNthItemCS(n, pItem)
+			return This
+
+	def ThisNthItemRemoved(n, pItem)
+		return This.RemoveThisNthItemQ(n, pItem).Content()
+
+	  #------------------------------------------------------#
+	 #  REMOVING THE GIVEN FIRST ITEM (IA ANY) IN THE LIST  #
+	#------------------------------------------------------#
+
+	def RemoveThisFirstItemCS(pItem, pCaseSensitive)
+		This.RemoveThisNthItemCS(1, pItem, pCaseSensitive)
+
+		def RemoveThisFirstItemCSQ(pItem, pCaseSensitive)
+			This.RemoveThisFirstItemCS(pItem, pCaseSensitive)
+			return This
+
+	def ThisFirstItemRemovedCS(pItem, pCaseSensitive)
+		return This.Copy().RemoveThisFirstItemCSQ(pItem, pCaseSensitive).Content()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveThisFirstItem(pItem)
+		This.RemoveThisNthItemCS(1, pItem, :CaseSensitive = TRUE)
+
+		def RemoveThisFirstItemQ(pItem)
+			This.RemoveThisFirstItem(pItem)
+			return This
+
+	def ThisFirstItemRemoved(pItem)
+		return This.Copy().RemoveThisFirstItemQ(pItem, pCaseSensitive).Content()
+
+	  #-----------------------------------------------------#
+	 #  REMOVING THE GIVEN LAST ITEM (IA ANY) IN THE LIST  #
+	#-----------------------------------------------------#
+
+	def RemoveThisLastItemCS(pItem, pCaseSensitive)
+		This.RemoveThisNthItemCS(This.NumberOfItems(), pItem, pCaseSensitive)
+
+		def RemoveThisLastItemCSQ(pItem, pCaseSensitive)
+			This.RemoveThisLastItemCS(pItem, pCaseSensitive)
+			return This
+
+	def ThisLastItemRemovedCS(pItem, pCaseSensitive)
+		return This.Copy().RemoveThisLastItemCSQ(pItem, pCaseSensitive).Content()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveThisLastItem(pItem)
+		This.RemoveThisNthItemCS(1, pItem, :CaseSensitive = TRUE)
+
+		def RemoveThisLastItemQ(pItem)
+			This.RemoveThisLastItem(pItem)
+			return This
+
+	def ThisLastItemRemoved(pItem)
+		return This.Copy().RemoveThisLastItemQ(pItem, pCaseSensitive).Content()
+
+	  #=====================================================#
+	 #  REMOVING MANY ITEMS BY SPECIFYING THEIR POSITIONS  #
+	#=====================================================#
 
 	def RemoveItemsAtPositions(panPositions)
 
@@ -3882,9 +3976,9 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveItemsAtThesePositionsQ(panPositions).Content()
 		return aResult
 
-	  #---------------------------------#
-	 #   REMOVING A RANGE OF STRINGS   #
-	#---------------------------------#
+	  #-------------------------------#
+	 #   REMOVING A RANGE OF ITEMS   #
+	#-------------------------------#
 
 	def RemoveRange(pnStart, pnRange)
 	
@@ -3962,7 +4056,7 @@ class stzList from stzObject
 		return aResult
 
 	  #-------------------------------------#
-	 #   REMOVING MANY RANGES OF STRINGS   #
+	 #   REMOVING MANY RANGES OF ITEMS   #
 	#-------------------------------------#
 
 	def RemoveManyRanges(panRanges)
@@ -3982,9 +4076,9 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveManyRangesQ(paRanges).Content()
 		return aResult
 
-	  #-----------------------------------#
-	 #   REMOVING A SECTION OF STRINGS   #
-	#-----------------------------------#
+	  #---------------------------------#
+	 #   REMOVING A SECTION OF ITEMS   #
+	#---------------------------------#
 
 	def RemoveSection(n1, n2)
 
@@ -4043,9 +4137,9 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveSectionQ(n1, n2)
 		return aResult
 
-	  #---------------------------------------#
-	 #   REMOVING MANY SECTIONS OF STRINGS   #
-	#---------------------------------------#
+	  #-------------------------------------#
+	 #   REMOVING MANY SECTIONS OF ITEMS   #
+	#-------------------------------------#
 
 	def RemoveManySections(paSections)
 
@@ -4076,9 +4170,9 @@ class stzList from stzObject
 
 		def SectionsRemoved(paSections)
 
-	  #--------------------------------------#
-	 #   REMOVING ALL STRINGS IN THE LIST   #
-	#--------------------------------------#
+	  #------------------------------------#
+	 #   REMOVING ALL ITEMS IN THE LIST   #
+	#------------------------------------#
 	
 	def RemoveAllItems()
 		@aContent = []
@@ -4105,9 +4199,9 @@ class stzList from stzObject
 	def AllItemsRemoved()
 		return []
 
-	  #----------------------------------------------#
-	 #   REMOVING STRINGS UNDER A GIVEN CONDITION   #
-	#----------------------------------------------#
+	  #--------------------------------------------#
+	 #   REMOVING ITEMS UNDER A GIVEN CONDITION   #
+	#--------------------------------------------#
 
 	def RemoveW(pCondition)
 		/*
@@ -4179,8 +4273,8 @@ class stzList from stzObject
 
 		#>
 
-	  #--------------------------#
-	 #     REMOVING BOUNDS      #
+	  #-------------------------#
+	 #     REMOVING BOUNDS     #
 	#-------------------------#
 
 	def RemoveBounds(paBounds)
@@ -9908,7 +10002,7 @@ class stzList from stzObject
 			return This.ItemsHaveSameOrderAs(paOtherList)
 
 	  #------------------------------------------------------------#
-	 #  CHECKING IF ALL THE ITEMS ARE EIGTHER NUMBERS OR STRINGS  #
+	 #  CHECKING IF ALL THE ITEMS ARE EIGTHER NUMBERS OR ITEMS  #
 	#------------------------------------------------------------#
 
 	def AllItemsAreNumbersOrStrings()
@@ -10058,7 +10152,7 @@ class stzList from stzObject
 			return This.HasSameTypeAs(p)
 
 	  #--------------------------------------------------------------------#
-	 #  CHECKING IF LIST HAS THE SAME CONTENT AS AN OTHER LIST OR STRING  #
+	 #  CHECKING IF LIST HAS THE SAME CONTENT AS AN OTHER LIST OR ITEM  #
 	#--------------------------------------------------------------------#
 
 	def HasSameContentCS(paOtherList, pCaseSensitive)
@@ -10943,7 +11037,7 @@ class stzList from stzObject
 		return aResult
 
 	  #------------------------------------#
-	 #  SORTING THE STRING IN ASSCENDING  #
+	 #  SORTING THE ITEM IN ASSCENDING  #
 	#------------------------------------#
  
 	def SortInAscending()
@@ -10987,7 +11081,7 @@ class stzList from stzObject
 				return This.SortInAscendingQ()
 
 	  #------------------------------------#
-	 #  SORTING THE STRING IN DESCENDING  #
+	 #  SORTING THE ITEM IN DESCENDING  #
 	#------------------------------------#
  	
 	def SortedInAscending()
@@ -11010,7 +11104,7 @@ class stzList from stzObject
 		return aResult
 
 	  #-------------------------------------------#
-	 #  SORTING THE STRING IN THE REVERSE ORDER  #
+	 #  SORTING THE ITEM IN THE REVERSE ORDER  #
 	#-------------------------------------------#
  
 	def SortInReverseOrder()
@@ -11041,7 +11135,7 @@ class stzList from stzObject
 			return This.SortedInReverse()
 
 	  #----------------------------------------#
-	 #  SORTING THE STRING BY - IN ASCENDING  #
+	 #  SORTING THE ITEM BY - IN ASCENDING  #
 	#----------------------------------------#
  
 	def SortInAscendingUsing(pcExpr)  // TODO: TEST IT!
@@ -11099,7 +11193,7 @@ class stzList from stzObject
 			return This.SortedInAscendingBy(pcExpr)
 
 	  #-----------------------------------------#
-	 #  SORTING THE STRING BY - IN DESCENDING  #
+	 #  SORTING THE ITEM BY - IN DESCENDING  #
 	#-----------------------------------------#
  
 	def SortInDescendingBy(pcExpr)
@@ -11921,7 +12015,7 @@ class stzList from stzObject
 
 			This.Update( aResult )
 
-		on "STRING"
+		on "ITEM"
 			for item in This.List()
 				if isString(item)
 					item += p
@@ -12399,7 +12493,7 @@ class stzList from stzObject
 			return NumberOfOccurrence(pItem)
 
 	  #-------------------------------------------#
-	 #     STRINGIFYING ALL ITEMS OF THE LIST    #
+	 #     ITEMIFYING ALL ITEMS OF THE LIST    #
 	#-------------------------------------------#
 
 	def ItemsStringified()
@@ -12612,7 +12706,7 @@ class stzList from stzObject
 				return NOT This.ContainsItem(pItem)
 
 	  #---------------------------------------------------------------#
-	 #  CHECKING IF THE LIST IS CONTAINED IN A GIVEN LIST OR STRING  #
+	 #  CHECKING IF THE LIST IS CONTAINED IN A GIVEN LIST OR ITEM  #
 	#---------------------------------------------------------------#
 
 	def IsContainedIn(p)
@@ -12623,7 +12717,7 @@ class stzList from stzObject
 		on "LIST"	
 			bResult = Q(p).Contains( This.List() )
 
-		on "STRING"
+		on "ITEM"
 			cListStringified = This.ToCode()
 			bResult = StzStringQ(p).Contains(cListStringified)
 
@@ -13027,7 +13121,7 @@ class stzList from stzObject
 			on "NUMBER"
 				return new stzNumer(""+ item)
 
-			on "STRING"
+			on "ITEM"
 				return new stzString(item)
 
 			on "LIST"
@@ -14056,7 +14150,7 @@ class stzList from stzObject
 		return This.DeepFindCS(pItem, :CaseSensitive = TRUE)
 
 	  #-----------------------------------------------------#
-	 #  FINDING THE LIST ITEMS IN AN OTHER LIST OR STRING  #
+	 #  FINDING THE LIST ITEMS IN AN OTHER LIST OR ITEM  #
 	#-----------------------------------------------------#
 
 	def FindInCS(pOtherListOrStr, pCaseSensitive)
@@ -14148,7 +14242,7 @@ class stzList from stzObject
 		#>
 
 	  #---------------------------------------------#
-	 #  FINDING THE LIST ITEMS IN AN GIVEN STRING  #
+	 #  FINDING THE LIST ITEMS IN AN GIVEN ITEM  #
 	#---------------------------------------------#
 
 	def FindInStringCS(pcStr, pCaseSensitive)
@@ -15214,7 +15308,7 @@ class stzList from stzObject
 			on "NUMBER"
 				return new stzNumber(item)
 
-			on "STRING"
+			on "ITEM"
 				return new stzString(item)
 
 			on "LIST"
@@ -15252,7 +15346,7 @@ class stzList from stzObject
 			on "NUMBER"
 				return new stzNumber(item)
 
-			on "STRING"
+			on "ITEM"
 				return new stzString(item)
 
 			on "LIST"
@@ -15280,7 +15374,7 @@ class stzList from stzObject
 			on "NUMBER"
 				return new stzNumber(item)
 
-			on "STRING"
+			on "ITEM"
 				return new stzString(item)
 
 			on "LIST"
@@ -15377,7 +15471,7 @@ class stzList from stzObject
 			on "NUMBER"
 				return new stzNumber(item)
 
-			on "STRING"
+			on "ITEM"
 				return new stzString(item)
 
 			on "LIST"
@@ -15415,7 +15509,7 @@ class stzList from stzObject
 			on "NUMBER"
 				return new stzNumber(item)
 
-			on "STRING"
+			on "ITEM"
 				return new stzString(item)
 
 			on "LIST"
@@ -15443,7 +15537,7 @@ class stzList from stzObject
 			on "NUMBER"
 				return new stzNumber(item)
 
-			on "STRING"
+			on "ITEM"
 				return new stzString(item)
 
 			on "LIST"
@@ -15795,7 +15889,7 @@ class stzList from stzObject
 				return This
 		
 	  #====================================#
-	 #   GETTING ITEMS WHICH ARE STRINGS  #
+	 #   GETTING ITEMS WHICH ARE ITEMS  #
 	#====================================#
 
 	def NumberOfStrings()
@@ -15871,7 +15965,7 @@ class stzList from stzObject
 		#>
 
 	  #=====================================#
-	 #   REMOVING ITEMS WHICH ARE STRINGS  #
+	 #   REMOVING ITEMS WHICH ARE ITEMS  #
 	#=====================================#
 
 	def RemoveStrings()
@@ -15899,7 +15993,7 @@ class stzList from stzObject
 				return This
 
 	  #========================================#
-	 #   GETTING ITEMS WHICH ARE NOT STRINGS  #
+	 #   GETTING ITEMS WHICH ARE NOT ITEMS  #
 	#========================================#
 
 	def NonStrings()
@@ -15956,7 +16050,7 @@ class stzList from stzObject
 				off
 
 	  #=========================================#
-	 #   REMOVING ITEMS WHICH ARE NOT STRINGS  #
+	 #   REMOVING ITEMS WHICH ARE NOT ITEMS  #
 	#=========================================#
 
 	def RemoveNonStrings()
@@ -15994,7 +16088,7 @@ class stzList from stzObject
 		return This.Copy().RemoveNonStringsQ().Content()
 
 	  #=================================================#
-	 #  LOWERCASING THE STRINGS CONTAINED IN THE LIST  #
+	 #  LOWERCASING THE ITEMS CONTAINED IN THE LIST  #
 	#=================================================#
 
 	def LowercaseStrings()
@@ -16047,7 +16141,7 @@ class stzList from stzObject
 		return aResult
 
 	  #=================================================#
-	 #  UPPERCASING THE STRINGS CONTAINED IN THE LIST  #
+	 #  UPPERCASING THE ITEMS CONTAINED IN THE LIST  #
 	#=================================================#
 
 	def UppercaseStrings()
@@ -16100,7 +16194,7 @@ class stzList from stzObject
 		return aResult
 	
 	  #=================================================#
-	 #  TITLECASING THE STRINGS CONTAINED IN THE LIST  #
+	 #  TITLECASING THE ITEMS CONTAINED IN THE LIST  #
 	#=================================================#
 
 	def TitlecaseStrings()
@@ -16153,7 +16247,7 @@ class stzList from stzObject
 		return aResult
 
 	  #==================================================#
-	 #  CAPITALIZING THE STRINGS CONTAINED IN THE LIST  #
+	 #  CAPITALIZING THE ITEMS CONTAINED IN THE LIST  #
 	#==================================================#
 
 	def CapitaliseStrings()
@@ -16229,7 +16323,7 @@ class stzList from stzObject
 			return This.StringsCapitalised()
 
 	  #=====================================#
-	 #   ITEMS OF TYPE LISTS OF STRINGS    #
+	 #   ITEMS OF TYPE LISTS OF ITEMS    #
 	#=====================================#
 
 	def ListsOfStrings()
@@ -18325,35 +18419,35 @@ class stzList from stzObject
 			bOk1 = FALSE
 			nRemoveNCharsBefore = This.Content()[ :RemoveNCharsBefore ]
 			cType = ring_type(nRemoveNCharsBefore)
-		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsBefore = NULL )
+		   	if cType = "NUMBER" or ( cType = "ITEM" and nRemoveNCharsBefore = NULL )
 				bOk1 = TRUE
 			ok
 
 			bOk2 = FALSE
 			nRemoveNCharsAfter = This.Content()[ :RemoveNCharsAfter ]
 			cType = ring_type(nRemoveNCharsAfter)
-		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsAfter = NULL )
+		   	if cType = "NUMBER" or ( cType = "ITEM" and nRemoveNCharsAfter = NULL )
 				bOk2 = TRUE
 			ok
 
 			bOk3 = FALSE
 			cRemoveSubStringBefore = This.Content()[ :RemoveSubStringBefore ]
 			cType = ring_type(cRemoveSubStringBefore)
-		   	if cType = "STRING"
+		   	if cType = "ITEM"
 				bOk3 = TRUE
 			ok
 
 			bOk4 = FALSE
 			cRemoveSubStringAfter = This.Content()[ :RemoveSubStringAfter ]
 			cType = ring_type(cRemoveSubStringAfter)
-		   	if cType = "STRING"
+		   	if cType = "ITEM"
 				bOk4 = TRUE
 			ok
 
 			bOk5 = FALSE
 			cRemoveThisBound = This.Content()[ :cRemoveThisBound ]
 			cType = ring_type(cRemoveThisBound)
-		   	if cType = "STRING"
+		   	if cType = "ITEM"
 				bOk5 = TRUE
 			ok
 
@@ -24064,7 +24158,7 @@ class stzList from stzObject
 		#>
 
 	  #----------------------------------------------#
-	 #   YIELDING AN INFORMATION FROM EACH STRING   #
+	 #   YIELDING AN INFORMATION FROM EACH ITEM   #
 	#----------------------------------------------#
 
 	def ForEachStringYield(pcCode)
@@ -24630,7 +24724,7 @@ class stzList from stzObject
 		def IsANumberIn(paList)
 			return FALSE
 
-	#--- STRING
+	#--- ITEM
 
 	def IsLetter()
 		return FALSE

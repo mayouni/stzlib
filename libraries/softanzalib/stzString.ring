@@ -13090,7 +13090,7 @@ o1 = new stzString("12*34*56*78")
 			StzRaise("Syntax error! pcCondition must contain keyword @SubString")
 		ok
 
-		pcCondition = StzCCodeQ(pcCondition).TranspiledFor(:stzList)
+		pcCondition = StzCCodeQ(pcCondition).Transpiled()
 
 		cCode = Q(pcCondition).SubstringReplacedCS("@item", :By = "@SubString", :CS = FALSE)
 		cCode = 'bOk = ( ' + cCode + ' )'
