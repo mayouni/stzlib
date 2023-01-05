@@ -55,7 +55,7 @@ o1 = new stzString("...♥♥...♥♥...")
 #--> [ "...", "♥♥...", "♥♥..." ]
 
 /*============ SPLITTING AT
-
+*/
 # Splitting at a given substring with case sensitivity
 
 o1 = new stzString("__a__A__")

@@ -1,5 +1,36 @@
 load "stzlib.ring"
 
+o1 = new stzList([ "_", "A", "B", "C", "_", "D", "E", "_" ])
+
+o1.RemoveFirstItem()
+? @@S( o1.Content() )
+#--> [ "A", "B", "C", "_", "D", "E", "_" ]
+
+o1.RemoveThisNthItem(1, "A")
+? @@S( o1.Content() )
+#--> [ "B", "C", "_", "D", "E", "_" ]
+
+o1.RemoveNthXT(2, "_")
+? @@S( o1.Content() )
+#--> [ "B", "C", "_", "D", "E" ]
+
+o1.RemoveFirstXT("_")
+? @@S( o1.Content() )
+
+o1.RemoveThisFirstItemCS("b", :CS = FALSE)
+? @@S( o1.Content() )
+#--> [ "C", "D", "E" ]
+
+/*
+o1.RemoveNthItem(:Last)
+? o1.Content()
+#--> 
+
+o1.RemoveThisNthItem(3, "_")
+? o1.Content()
+#--> 
+
+/*----------
 o1 = new stzString("_ABC_DE_")
 
 o1.RemoveFirstChar()
