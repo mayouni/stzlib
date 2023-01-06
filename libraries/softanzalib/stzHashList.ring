@@ -378,7 +378,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.NthPairQR(n, :stzList)
 
 		def NthPairQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 

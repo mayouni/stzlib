@@ -1,5 +1,48 @@
 load "stzlib.ring"
 
+/*---------------
+*/
+StartProfiler()
+
+o1 = new stzListOfStrings([ "_", "A", "B", "C", "_", "D", "E", "_" ])
+
+o1.RemoveFirstItem()
+? @@S( o1.Content() )
+#--> [ "A", "B", "C", "_", "D", "E", "_" ]
+
+o1.RemoveThisNthItem(1, "A")
+? @@S( o1.Content() )
+#--> [ "B", "C", "_", "D", "E", "_" ]
+
+o1.RemoveNthXT(2, "_")
+? @@S( o1.Content() )
+#--> [ "B", "C", "_", "D", "E" ]
+
+o1.RemoveFirstXT("_")
+? @@S( o1.Content() )
+#--> [ "B", "C", "D", "E" ]
+
+o1.RemoveThisFirstItemCS("b", :CS = FALSE)
+? @@S( o1.Content() )
+#--> [ "C", "D", "E" ]
+
+o1.RemoveNthItem(:Last)
+? @@S( o1.Content() )
+#--> [ "C", "D" ]
+
+StopProfiler()
+
+/*---------------
+
+- RemoveNthItem(n) : Remove item at position n
+
+- RemoveNthXT(n, pItem) : Remove nth occurrence of pItem
+  (you can also use RemoveNthOccurrence(n, pItem)
+
+- RemoveThisNthItem(n, pItem) : remove nth item only if it is equal to pItem
+
+/*---------------
+
 o1 = new stzList([ "_", "A", "B", "C", "_", "D", "E", "_" ])
 
 o1.RemoveFirstItem()
@@ -21,14 +64,9 @@ o1.RemoveThisFirstItemCS("b", :CS = FALSE)
 ? @@S( o1.Content() )
 #--> [ "C", "D", "E" ]
 
-/*
 o1.RemoveNthItem(:Last)
-? o1.Content()
-#--> 
-
-o1.RemoveThisNthItem(3, "_")
-? o1.Content()
-#--> 
+? @@S( o1.Content() )
+#--> [ "C", "D" ]
 
 /*----------
 o1 = new stzString("_ABC_DE_")
