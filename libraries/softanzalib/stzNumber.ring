@@ -2455,7 +2455,7 @@ class stzNumber from stzObject
 
 		def MultiplesUntilQR(pOtherNumber, pcReturnType)
 
-			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 

@@ -9571,9 +9571,213 @@ class stzListOfStrings from stzList
 		def StringAtPositionReplacedWith(n, pcOtherStr)
 			return This.StringAtPositionNReplacedWith(n, pcOtherStr)
 
-	  #-----------------------------------------#
+	  #===========================================#
+	 #   REPLACING A GIVEN NTH STRING (IF ANY)   #
+	#===========================================#
+
+	def ReplaceThisNthStringCS(n, pcStr, pCaseSensitive)
+		if This.NthStringQ(n).IsEqualToCS(pcStr, pCaseSensitive)
+			This.RemoveStringAtPosition(n)
+		ok
+
+		#< @FunctionFluentForm
+
+		def ReplaceThisNthStringCSQ(n, pcStr, pCaseSensitive)
+			This.ReplaceThisNthStringCS(n, pcStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceNthStringXTCS(n, pcStr, pCaseSensitive)
+			This.ReplaceThisNthStringCS(n, pcStr, pCaseSensitive)
+
+		def ReplaceThisNthStringItemCS(n, pcStr, pCaseSensitive)
+			This.ReplaceThisNthStringCS(n, pcStr, pCaseSensitive)
+
+		def ReplaceNthStringItemXTCS(n, pcStr, pCaseSensitive)
+			This.ReplaceThisNthStringCS(n, pcStr, pCaseSensitive)
+
+		#>
+
+	def ThisNthStringReplacedCS(n, pcStr, pCaseSensitive)
+		acResult = This.Copy().ReplaceThisNthStringCSQ(n, pcStr, pCaseSensitive).Content()
+
+		def ThisNthStringItemReplacedCS(n, pcStr, pCaseSensitive)
+			return This.ThisNthStringReplacedCS(n, pcStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceThisNthString(n, pcStr)
+		This.ReplaceThisNthStringCS(n, pcStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceThisNthStringQ(n, pcStr)
+			This.ReplaceThisNthString(n, pcStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceNthStringXT(n, pcStr, pCaseSensitive)
+			This.ReplaceThisNthString(n, pcStr)
+
+		def ReplaceThisNthStringItem(n, pcStr)
+			This.ReplaceThisNthString(n, pcStr)
+
+		def ReplaceNthStringItemXT(n, pcStr)
+			This.ReplaceThisNthString(n, pcStr)
+
+		#>
+
+	def ThisNthStringReplaced(n, pcStr)
+		acResult = This.Copy().ReplaceThisNthStringQ(n, pcStr).Content()
+
+		def ThisNthStringItemReplaced(n, pcStr)
+			return This.ThisNthStringReplaced(n, pcStr)
+
+	  #---------------------------------------------#
+	 #   REPLACING A GIVEN FIRST STRING (IF ANY)   #
+	#---------------------------------------------#
+
+	def ReplaceThisFirstStringCS(pcStr, pCaseSensitive)
+		if This.FirstStringQ(n).IsEqualToCS(pcStr, pCaseSensitive)
+			This.RemoveStringAtPosition(n)
+		ok
+
+		#< @FunctionFluentForm
+
+		def ReplaceThisFirstStringCSQ(pcStr, pCaseSensitive)
+			This.ReplaceThisFirstStringCS(pcStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceFirstStringXTCS(pcStr, pCaseSensitive)
+			This.ReplaceThisFirstStringCS(pcStr, pCaseSensitive)
+
+		def ReplaceThisFirstStringItemCS(pcStr, pCaseSensitive)
+			This.ReplaceThisFirstStringCS(pcStr, pCaseSensitive)
+
+		def ReplaceFirstStringItemXTCS(pcStr, pCaseSensitive)
+			This.ReplaceThisFirstStringCS(pcStr, pCaseSensitive)
+
+		#>
+
+	def ThisFirstStringReplacedCS(pcStr, pCaseSensitive)
+		acResult = This.Copy().ReplaceThisFirstStringCSQ(pcStr, pCaseSensitive).Content()
+
+		def ThisFirstStringItemReplacedCS(pcStr, pCaseSensitive)
+			return This.ThisFirstStringReplacedCS(pcStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceThisFirstString(pcStr)
+		This.ReplaceThisFirstStringCS(pcStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceThisFirstStringQ(pcStr)
+			This.ReplaceThisFirstString(pcStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceFirstStringXT(pcStr, pCaseSensitive)
+			This.ReplaceThisFirstString(pcStr)
+
+		def ReplaceThisFirstStringItem(pcStr)
+			This.ReplaceThisFirstString(pcStr)
+
+		def ReplaceFirstStringItemXT(pcStr)
+			This.ReplaceThisFirstString(pcStr)
+
+		#>
+
+	def ThisFirstStringReplaced(pcStr)
+		acResult = This.Copy().ReplaceThisFirstStringQ(pcStr).Content()
+
+		def ThisFirstStringItemReplaced(n, pcStr)
+			return This.ThisFirstStringReplaced(n, pcStr)
+
+	  #--------------------------------------------#
+	 #   REPLACING A GIVEN LAST STRING (IF ANY)   #
+	#--------------------------------------------#
+
+	def ReplaceThisLastStringCS(pcStr, pCaseSensitive)
+		if This.LastStringQ(n).IsEqualToCS(pcStr, pCaseSensitive)
+			This.RemoveStringAtPosition(n)
+		ok
+
+		#< @FunctionFluentForm
+
+		def ReplaceThisLastStringCSQ(pcStr, pCaseSensitive)
+			This.ReplaceThisLastStringCS(pcStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceLastStringXTCS(pcStr, pCaseSensitive)
+			This.ReplaceThisLastStringCS(pcStr, pCaseSensitive)
+
+		def ReplaceThisLastStringItemCS(pcStr, pCaseSensitive)
+			This.ReplaceThisLastStringCS(pcStr, pCaseSensitive)
+
+		def ReplaceLastStringItemXTCS(pcStr, pCaseSensitive)
+			This.ReplaceThisLastStringCS(pcStr, pCaseSensitive)
+
+		#>
+
+	def ThisLastStringReplacedCS(pcStr, pCaseSensitive)
+		acResult = This.Copy().ReplaceThisLastStringCSQ(pcStr, pCaseSensitive).Content()
+
+		def ThisLastStringItemReplacedCS(pcStr, pCaseSensitive)
+			return This.ThisLastStringReplacedCS(pcStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceThisLastString(pcStr)
+		This.ReplaceThisLastStringCS(pcStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceThisLastStringQ(pcStr)
+			This.ReplaceThisLastString(pcStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceLastStringXT(pcStr, pCaseSensitive)
+			This.ReplaceThisLastString(pcStr)
+
+		def ReplaceThisLastStringItem(pcStr)
+			This.ReplaceThisLastString(pcStr)
+
+		def ReplaceLastStringItemXT(pcStr)
+			This.ReplaceThisLastString(pcStr)
+
+		#>
+
+	def ThisLastStringReplaced(pcStr)
+		acResult = This.Copy().ReplaceThisLastStringQ(pcStr).Content()
+
+		def ThisLastStringItemReplaced(pcStr)
+			return This.ThisLastStringReplaced(pcStr)
+
+	  #=========================================#
 	 #   REPLACING MANY STRINGS BY POSITION    #
-	#-----------------------------------------#
+	#=========================================#
 
 	def ReplaceStringsAtPositions(panPositions, pcOtherString)
 
@@ -11686,56 +11890,40 @@ class stzListOfStrings from stzList
 		def ManyStringItemsRemoved(pacStrings)
 			return This.TheseStringsRemoved(pacStrings)
 
-	  #--------------------------------------------------#
+	  #==================================================#
 	 #   REMOVING THE NTH OCCURRENCE OF A STRING-ITEM   #
-	#--------------------------------------------------#
+	#==================================================#
 
-	def RemoveNthCS(n, pcString, pCaseSensitive)
+	def RemoveNthOccurrenceCS(n, pcString, pCaseSensitive)
 		n = This.FindNthOccurrenceCS(n, pcString, pCaseSensitive)
 		This.RemoveStringAtPosition( n )
 
 
 		#< @FunctionFluentForm
 
-		def RemoveNthCSQ(n, pcString, pCaseSensitive)
-			This.RemoveNthCS(n, pcString, pCaseSensitive)
+		def RemoveNthOccurrenceCSQ(n, pcString, pCaseSensitive)
+			This.RemoveNthOccurrenceCS(n, pcString, pCaseSensitive)
 			return This
 	
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveNthOccurrenceCS(n, pcString, pCaseSensitive)
-			This.RemoveNthCS(n, pcString, pCaseSensitive)
-
-			def RemoveNthOccurrenceCSQ(n, pcString, pCaseSensitive)
-				This.RemoveNthOccurrenceCS(n, pcString, pCaseSensitive)
-				return This
-
-		#--
-
-		def RemoveNthOccurrenceOfStringCS(n, pcString, pCaseSensitive)
-			This.RemoveNthCS(n, pcString, pCaseSensitive)
-
-			def RemoveNthOccurrenceOfStringCSQ(n, pcString, pCaseSensitive)
-				This.RemoveNthOccurrenceOfStringCS(n, pcString, pCaseSensitive)
-				return This
-
-		def RemoveNthOccurrenceOfStringItemCS(n, pcString, pCaseSensitive)
-			This.RemoveNthCS(n, pcString, pCaseSensitive)
-
-			def RemoveNthOccurrenceOfStringItemCSQ(n, pcString, pCaseSensitive)
-				This.RemoveNthOccurrenceOfStringItemCS(n, pcString, pCaseSensitive)
-				return This
-
-		#--
-
 		def RemoveOccurrenceCS(n, pcString, pCaseSensitive)
-			This.RemoveNthCS(n, pcString, pCaseSensitive)
+			This.RemoveNthOccurrenceCS(n, pcString, pCaseSensitive)
 
 			def RemoveOccurrenceCSQ(n, pcString, pCaseSensitive)
 				This.RemoveOccurrenceCS(n, pcString, pCaseSensitive)
 				return This
+
+		def RemoveNthXTCS(n, pcStr, pCaseSensitive)
+			This.RemoveNthOccurrenceCS(n, pcStr, pCaseSensitive)
+
+			def RemoveNthXTCSQ(n, pcStr, pCaseSensitive)
+				This.RemoveNthXTCS(n, pcStr, pCaseSensitive)
+				return This
+
+		#>
 
 	def NthOccurrenceOfThisStringRemovedCS(n, pcString, pCaseSensitive)
 		aResult = This.Copy().RemoveNthOccurrenceCSQ(n, pcString, pCaseSensitive).Content()
@@ -11744,45 +11932,32 @@ class stzListOfStrings from stzList
 		def NthOccurrenceOfThisStringItemRemovedCS(n, pcString, pCaseSensitive)
 			return This.NthOccurrenceOfThisStringRemovedCS(n, pcString, pCaseSensitive)
 
+		def NthOccurrenceRemovedXTCS(n, pcString, pCaseSensitive)
+			return This.NthOccurrenceOfThisStringRemovedCS(n, pcString, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveNth(n, pcString)
+	def RemoveNthOccurrence(n, pcString)
 
-		This.RemoveNthCS(n, pcString, :CaseSensitive = TRUE)
+		This.RemoveNthOccurrenceCS(n, pcString, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def RemoveNthOccurrence(n, pcString)
-			This.RemoveNth(n, pcString)
-
-			def RemoveNthOccurrenceQ(n, pcString)
-				This.RemoveNthOccurrence(n, pcString)
-				return This
-
-		#--
-
-		def RemoveNthOccurrenceOfString(n, pcString)
-			This.RemoveNth(n, pcString)
-
-			def RemoveNthOccurrenceOfStringQ(n, pcString)
-				This.RemoveNthOccurrencesOfString(n, pcString)
-				return This
-
-		def RemoveNthOccurrenceOfStringItem(n, pcString)
-			This.RemoveNthCS(n, pcString)
-
-			def RemoveNthOccurrenceOfStringItemQ(n, pcString)
-				This.RemoveNthOccurrenceOfStringItem(n, pcString)
-				return This
-
-		#--
-
 		def RemoveOccurrence(n, pcString)
-			This.RemoveNth(n, pcString)
+			This.RemoveNthOccurrence(n, pcString)
 
 			def RemoveOccurrenceQ(n, pcString)
 				This.RemoveOccurrence(n, pcString)
 				return This
+
+		def RemoveNthXT(n, pcStr)
+			This.RemoveNthOccurrence(n, pcStr)
+
+			def RemoveNthXTQ(n, pcStr)
+				This.RemoveNthXT(n, pcStr)
+				return This
+
+		#>
 
 	def NthOccurrenceOfThisStringRemoved(n, pcString)
 		aResult = This.Copy().RemoveNthOccurrencesQ(n, pcString).Content()
@@ -11794,207 +11969,111 @@ class stzListOfStrings from stzList
 		def NthOccurrenceRemoved(n, pcString)
 			return This.NthOccurrenceOfThisStringRemoved(n, pcString)
 
+		def NthOccurrenceRemovedXT(n, pcString)
+			return This.NthOccurrenceOfThisStringRemoved(n, pcString)
+
 	  #----------------------------------------------------#
 	 #   REMOVING THE FIRST OCCURRENCE OF A STRING-ITEM   #
 	#----------------------------------------------------#
 
-	def RemoveFirstCS(pcString, pCaseSensitive)
-
+	def RemoveFirstOccurrenceCS(pcString, pCaseSensitive)
 		This.RemoveStringAtPosition( This.FindFirstOccurrenceCS(pcString, pCaseSensitive) )
 
-
-		#< @FunctionFluentForm
-
-		def RemoveFirstCSQ(pcString, pCaseSensitive)
-			This.RemoveFirstCS(pcString, pCaseSensitive)
+		def RemoveFirstOccurrenceCSQ(pcString, pCaseSensitive)
+			This.RemoveFirstOccurrenceCS(pcString, pCaseSensitive)
 			return This
 	
-		#>
+		def RemoveFirstXTCS(pcString, pCaseSensitive)
+			This.RemoveFirstOccurrenceCS(pcString, pCaseSensitive)
 
-		#< @FunctionAlternativeForms
-
-		def RemoveFirstOccurrencesCS(pcString, pCaseSensitive)
-			This.RemoveFirstCS(pcString, pCaseSensitive)
-
-			def RemoveFirstOccurrencesCSQ(pcString, pCaseSensitive)
-				This.RemoveFirstOccurrencesCS(pcString, pCaseSensitive)
+			def RemoveFirstXTCSQ(pcString, pCaseSensitive)
+				This.RemoveFirstXTCS(pcString, pCaseSensitive)
 				return This
 
-		#--
-
-		def RemoveFirstOccurrencesOfStringCS(pcString, pCaseSensitive)
-			This.RemoveFirstCS(pcString, pCaseSensitive)
-
-			def RemoveFirstOccurrencesOfStringCSQ(pcString, pCaseSensitive)
-				This.RemoveFirstOccurrencesOfStringCS(pcString, pCaseSensitive)
-				return This
-
-		def RemoveFirstOccurrencesOfStringItemCS(pcString, pCaseSensitive)
-			This.RemoveFirstCS(pcString, pCaseSensitive)
-
-			def RemoveFirstOccurrencesOfStringItemCSQ(pcString, pCaseSensitive)
-				This.RemoveFirstOccurrencesOfStringItemCS(pcString, pCaseSensitive)
-				return This
-
-		#--
-
-	def FirstOccurrenceOfThisStringRemovedCS(pcString, pCaseSensitive)
-		aResult = This.Copy().RemoveFirstOccurrencesCSQ(pcString, pCaseSensitive).Content()
+	def FirstOccurrenceRemovedCS(pcString, pCaseSensitive)
+		aResult = This.Copy().RemoveFirstOccurrenceCSQ(pcString, pCaseSensitive).Content()
 		return aResult
 
-		def FirstOccurrenceOfThisStringItemRemovedCS(pcString, pCaseSensitive)
-			return This.FirstOccurrenceOfThisStringRemovedCS(pcString, pCaseSensitive)
-
-		def FirstOccurrenceRemovedCS(pcString, pCaseSensitive)
-			return This.FirstOccurrenceOfThisStringRemovedCS(pcString, pCaseSensitive)
+		def FirstRemovedXTCS(pcString, pCaseSensitive)
+			return This.FirstOccurrenceRemovedCS(pcString, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveFirst(pcString)
+	def RemoveFirstOccurrence(pcString)
+		This.RemoveFirstOccurrenceCS(pcString, :CaseSensitive = TRUE)
 
-		This.RemoveFirstCS(pcString, :CaseSensitive = TRUE)
+		def RemoveFirstOccurrenceQ(pcString)
+			This.RemoveFirstOccurrence(pcString)
+			return This
 
-		#< @FunctionAlternativeForms
+		def RemoveFirstXT(pcString)
+			This.RemoveFirstOccurrence(pcString)
 
-		def RemoveFirstOccurrences(pcString)
-			This.RemoveFirst(pcString)
-
-			def RemoveFirstOccurrencesQ(pcString)
-				This.RemoveFirstOccurrences(pcString)
+			def RemoveFirstXTQ(pcString)
+				This.RemoveFirstXT(pcString)
 				return This
 
-		#--
-
-		def RemoveFirstOccurrencesOfString(pcString)
-			This.RemoveFirst(pcString)
-
-			def RemoveFirstOccurrencesOfStringQ(pcString)
-				This.RemoveFirstOccurrencesOfString(pcString)
-				return This
-
-		def RemoveFirstOccurrencesOfStringItem(pcString)
-			This.RemoveFirst(pcString)
-
-			def RemoveFirstOccurrencesOfStringItemQ(pcString)
-				This.RemoveFirstOccurrencesOfStringItem(pcString)
-				return This
-
-		#--
-
-	def FirstOccurrenceOfThisStringRemoved(pcString)
-		aResult = This.Copy().RemoveFirstOccurrencesQ(pcString).Content()
+	def FirstOccurrenceRemoved(pcString)
+		aResult = This.Copy().RemoveFirstOccurrenceQ(pcString).Content()
 		return aResult
 
-		def FirstOccurrenceOfThisStringItemRemoved(pcString)
-			return This.FirstOccurrenceOfThisStringRemoved(pcString)
-
-		def FirstOccurrenceRemoved(pcString)
-			return This.FirstOccurrenceOfThisStringRemoved(pcString)
+		def FirstRemovedXT(pcString)
+			return This.FirstOccurrenceRemoved(pcString)
 
 	  #---------------------------------------------------#
 	 #   REMOVING THE LAST OCCURRENCE OF A STRING-ITEM   #
 	#---------------------------------------------------#
 
-	def RemoveLastCS(pcString, pCaseSensitive)
+	def RemoveLastOccurrenceCS(pcString, pCaseSensitive)
+		This.RemoveStringAtPosition( This.FindLastOccurrenceCS(pcString, pCaseSensitive) )
 
-		n = This.FindLastOccurrenceCS(pcString, pCaseSensitive)
-
-		if n <= This.NumberOfItems()
-			This.RemoveStringAtPosition( n )
-		ok
-
-		#< @FunctionFluentForm
-
-		def RemoveLastCSQ(pcString, pCaseSensitive)
-			This.RemoveLastCS(pcString, pCaseSensitive)
+		def RemoveLastOccurrenceCSQ(pcString, pCaseSensitive)
+			This.RemoveLastOccurrenceCS(pcString, pCaseSensitive)
 			return This
 	
-		#>
+		def RemoveLastXTCS(pcString, pCaseSensitive)
+			This.RemoveLastOccurrenceCS(pcString, pCaseSensitive)
 
-		#< @FunctionAlternativeForms
-
-		def RemoveLastOccurrencesCS(pcString, pCaseSensitive)
-			This.RemoveLastCS(pcString, pCaseSensitive)
-
-			def RemoveLastOccurrencesCSQ(pcString, pCaseSensitive)
-				This.RemoveLastOccurrencesCS(pcString, pCaseSensitive)
+			def RemoveLastXTCSQ(pcString, pCaseSensitive)
+				This.RemoveLastXTCS(pcString, pCaseSensitive)
 				return This
 
-		#--
-
-		def RemoveLastOccurrencesOfStringCS(pcString, pCaseSensitive)
-			This.RemoveLastCS(pcString, pCaseSensitive)
-
-			def RemoveLastOccurrencesOfStringCSQ(pcString, pCaseSensitive)
-				This.RemoveLastOccurrencesOfStringCS(pcString, pCaseSensitive)
-				return This
-
-		def RemoveLastOccurrencesOfStringItemCS(pcString, pCaseSensitive)
-			This.RemoveLastCS(pcString, pCaseSensitive)
-
-			def RemoveLastOccurrencesOfStringItemCSQ(pcString, pCaseSensitive)
-				This.RemoveLastOccurrencesOfStringItemCS(pcString, pCaseSensitive)
-				return This
-
-		#--
-
-	def LastOccurrenceOfThisStringRemovedCS(pcString, pCaseSensitive)
-		aResult = This.Copy().RemoveLastOccurrencesCSQ(pcString, pCaseSensitive).Content()
+	def LastOccurrenceRemovedCS(pcString, pCaseSensitive)
+		aResult = This.Copy().RemoveLastOccurrenceCSQ(pcString, pCaseSensitive).Content()
 		return aResult
 
-		def LastOccurrenceOfThisStringItemRemovedCS(pcString, pCaseSensitive)
-			return This.LastOccurrenceOfThisStringRemovedCS(pcString, pCaseSensitive)
+		def LastRemovedXTCS(pcString, pCaseSensitive)
+			return This.LastOccurrenceRemovedCS(pcString, pCaseSensitive)
 
-		def LastOccurrenceRemovedCS(pcString, pCaseSensitive)
-			return This.LastOccurrenceOfThisStringRemovedCS(pcString, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveLast(pcString)
+	def RemoveLastOccurrence(pcString)
+		This.RemoveLastOccurrenceCS(pcString, :CaseSensitive = TRUE)
 
-		This.RemoveLastCS(pcString, :CaseSensitive = TRUE)
+		def RemoveLastOccurrenceQ(pcString)
+			This.RemoveLastOccurrence(pcString)
+			return This
 
-		#< @FunctionAlternativeForms
+		def RemoveLastXT(pcString)
+			This.RemoveLastOccurrence(pcString)
 
-		def RemoveLastOccurrences(pcString)
-			This.RemoveLast(pcString)
-
-			def RemoveLastOccurrencesQ(pcString)
-				This.RemoveLastOccurrences(pcString)
+			def RemoveLastXTQ(pcString)
+				This.RemoveLastXT(pcString)
 				return This
 
-		#--
 
-		def RemoveLastOccurrencesOfString(pcString)
-			This.RemoveLast(pcString)
-
-			def RemoveLastOccurrencesOfStringQ(pcString)
-				This.RemoveLastOccurrencesOfString(pcString)
-				return This
-
-		def RemoveLastOccurrencesOfStringItem(pcString)
-			This.RemoveLast(pcString)
-
-			def RemoveLastOccurrencesOfStringItemQ(pcString)
-				This.RemoveLastOccurrencesOfStringItem(pcString)
-				return This
-
-		#--
-
-	def LastOccurrenceOfThisStringRemoved(pcString)
-		aResult = This.Copy().RemoveLastOccurrencesQ(pcString).Content()
+	def LastOccurrenceRemoved(pcString)
+		aResult = This.Copy().RemoveLastOccurrenceQ(pcString).Content()
 		return aResult
 
-		def LastOccurrenceOfThisStringItemRemoved(pcString)
-			return This.LastOccurrenceOfThisStringRemoved(pcString)
+		def LastRemovedXT(pcString)
+			return This.LastOccurrenceRemoved(pcString)
 
-		def LastOccurrenceRemoved(pcString)
-			return This.LastOccurrenceOfThisStringRemoved(pcString)
-
-	   #---------------------------------------------------#
+	   #===================================================#
 	  #   REMOVING NEXT NTH OCCURRENCE OF A STRING-ITEM   #
 	 #   STARTING AT A GIVEN POSITION IN THE LIST        #
-	#---------------------------------------------------#
+	#===================================================#
 
 	def RemoveNextNthOccurrenceCS(n, pcString, pnStartingAt, pCaseSensitive)
 		if isList(pcString) and StzListQ(pcString).IsOfNamedParam()
@@ -12502,9 +12581,9 @@ class stzListOfStrings from stzList
 		def NthPreviousOccurrencesRemoved(panList, pcString, pnStartingAt)
 			return This.PreviousNthOccurrencesRemoved(panList, pcString, pnStartingAt)
 
-	  #--------------------------------------------------------#
+	  #========================================================#
 	 #   REMOVING A STRING-ITEM BY SPECIFYING ITS POSITION    #
-	#--------------------------------------------------------#
+	#========================================================#
 
 	def RemoveStringAtPosition(n)
 
@@ -12598,11 +12677,18 @@ class stzListOfStrings from stzList
 				This.RemoveNthStringItem(n)
 				return This
 
+		def RemoveNth(n)
+			This.RemoveStringAtPosition(n)
+
+			def RemoveNthQ(n)
+				This.RemoveNth(n)
+				return This
+
 		#>
 
 	def StringAtPositionNRemoved(n)
 		aResult = This.Copy().RemoveStringAtPositionQ(n).Content()
-		return This
+		return aResult
 
 		def StringItemAtPositionNRemoved(n)
 			return This.StringAtPositionNRemoved(n)
@@ -12611,6 +12697,9 @@ class stzListOfStrings from stzList
 			return This.StringAtPositionNRemoved(n)
 
 		def NthStringItemRemoved(n)
+			return This.StringAtPositionNRemoved(n)
+
+		def NthRemoved(n)
 			return This.StringAtPositionNRemoved(n)
 
 	  #----------------------------------------#
@@ -12637,6 +12726,20 @@ class stzListOfStrings from stzList
 				This.RemoveFirstStringItem()
 				return This
 
+		def RemoveFirstIem()
+			This.RemoveFirstString()
+
+			def RemoveFirstItemQ()
+				This.RemoveFirstItem()
+				return This
+
+		def RemoveFirst()
+			This.RemoveFirstString()
+
+			def RemoveFirstQ()
+				This.RemoveFirst()
+				return This
+
 		#>
 
 	def FirstStringRemoved()
@@ -12644,6 +12747,9 @@ class stzListOfStrings from stzList
 		return aResult
 
 		def FirstStringItemRemoved()
+			return This.FirstStringRemoved()
+
+		def FirstRemoved()
 			return This.FirstStringRemoved()
 
 	  #---------------------------------------#
@@ -12670,6 +12776,13 @@ class stzListOfStrings from stzList
 				This.RemoveLastStringItem()
 				return This
 
+		def RemoveLast()
+			This.RemoveLastString()
+
+			def RemoveLastQ()
+				This.RemoveLast()
+				return This
+
 		#>
 
 	def LastStringRemoved()
@@ -12679,9 +12792,296 @@ class stzListOfStrings from stzList
 		def LastStringItemRemoved()
 			return This.LastStringRemoved()
 
-	  #-------------------------------------------------------#
+		def LastRemoved()
+			return This.LastStringRemoved()
+
+
+	  #==================================================#
+	 #   REMOVING THE GIVEN NTH STRING-ITEM (IF ANY)    #
+	#==================================================#
+
+	def RemoveThisStringAtPositionCS(n, pcStr, pCaseSensitive)
+	
+		if This.NthStringQ(n).IsEqualToCS(pcStr, pCaseSensitive)
+			This.RemoveStringAtPosition(n)
+		ok
+
+		#< @FunctionFluentForm
+
+		def RemoveThisStringAtPositionCSQ(n, pcStr, pCaseSensitive)
+			This.RemoveThisStringAtPositionCS(n, pcStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveThisStringItemAtPositionCS(n, pcStr, pCaseSensitive)
+			This.RemoveThisStringAtPositionCS(n, pcStr, pCaseSensitive)
+
+			def RemoveThisStringItemAtPositionCSQ(n, pcStr, pCaseSensitive)
+				This.RemoveThisStringItemAtPositionCS(n, pcStr, pCaseSensitive)
+				return This
+
+		#--
+
+		def RemoveThisStringAtCS(n, pcStr, pCaseSensitive)
+			This.RemoveThisStringAtPositionCS(n, pcStr, pCaseSensitive)
+
+			def RemoveThisStringAtCSQ(n, pcStr, pCaseSensitive)
+				RemoveThisStringAtCS(n, pcStr, pCaseSensitive)
+				return This
+
+		def RemoveThisStringItemAtCS(n, pcStr, pCaseSensitive)
+			This.RemoveThisStringItemAtPositionCS(n, pcStr, pCaseSensitive)
+
+			def RemoveThisStringItemAtCSQ(n, pcStr, pCaseSensitive)
+				RemoveThisStringItemAtCS(n, pcStr, pCaseSensitive)
+				return This
+
+		#--
+
+		def RemoveThisNthStringCS(n, pcStr, pCaseSensitive)
+			This.RemoveThisStringAtPositionCS(n, pcStr, pCaseSensitive)
+
+			def RemoveThisNthStringCSQ(n, pcStr, pCaseSensitive)
+				This.RemoveThisNthStringCS(n, pcStr, pCaseSensitive)
+				return This
+
+		def RemoveThisNthStringItemCS(n, pcStr, pCaseSensitive)
+			This.RemoveThisStringItemAtPositionCS(n, pcStr, pCaseSensitive)
+
+			def RemoveThisNthStringItemCSQ(n, pcStr, pCaseSensitive)
+				This.RemoveThisNthStringItemCS(n, pcStr, pCaseSensitive)
+				return This
+
+		def RemoveThisNthItemCS(n, pcStr, pCaseSensitive)
+			This.RemoveThisStringAtPositionCS(n, pcStr, pCaseSensitive)
+
+			def RemoveThisNthItemCSQ(n, pcStr, pCaseSensitive)
+				This.RemoveThisNthItemCS(n, pcStr, pCaseSensitive)
+				return This
+
+		#>
+
+	def ThisStringAtPositionNRemovedCS(n, pcStr, pCaseSensitive)
+		aResult = This.Copy().RemoveThisStringItemAtPositionCSQ(n, pcStr, pCaseSensitive).Content()
+		return aResult
+
+		def ThisStringItemAtPositionNRemovedCS(n, pcStr, pCaseSensitive)
+			return This.ThisStringAtPositionNRemovedCS(n, pcStr, pCaseSensitive)
+
+		def ThisNthStringRemovedCS(n, pcStr, pCaseSensitive)
+			return This.ThisStringAtPositionNRemovedCS(n, pcStr, pCaseSensitive)
+
+		def ThisNthStringItemRemovedCS(n, pcStr, pCaseSensitive)
+			return This.ThisStringAtPositionNRemovedCS(n, pcStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveThisStringAtPosition(n, pcStr)
+		This.RemoveThisStringAtPositionCS(n, pcStr, :CaseSensitive = TRUE)
+		
+		#< @FunctionFluentForm
+
+		def RemoveThisStringAtPositionQ(n, pcStr)
+			This.RemoveThisStringAtPosition(n, pcStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveThisStringItemAtPosition(n, pcStr)
+			This.RemoveThisStringAtPosition(n, pcStr)
+
+			def RemoveThisStringItemAtPositionQ(n, pcStr)
+				This.RemoveThisStringItemAtPosition(n, pcStr)
+				return This
+
+		#--
+
+		def RemoveThisStringAt(n, pcStr)
+			This.RemoveThisStringAtPosition(n, pcStr)
+
+			def RemoveThisStringAtQ(n, pcStr)
+				RemoveThisStringAt(n, pcStr)
+				return This
+
+		def RemoveThisStringItemAt(n, pcStr)
+			This.RemoveThisStringItemAtPosition(n, pcStr)
+
+			def RemoveThisStringItemAtQ(n, pcStr)
+				RemoveThisStringItemAt(n, pcStr)
+				return This
+
+		#--
+
+		def RemoveThisNthString(n, pcStr)
+			This.RemoveThisStringAtPosition(n, pcStr)
+
+			def RemoveThisNthStringQ(n, pcStr)
+				This.RemoveThisNthString(n, pcStr)
+				return This
+
+		def RemoveThisNthStringItem(n, pcStr)
+			This.RemoveThisStringItemAtPosition(n, pcStr)
+
+			def RemoveThisNthStringItemQ(n, pcStr)
+				This.RemoveThisNthStringItem(n, pcStr)
+				return This
+
+		def RemoveThisNthItem(n, pcStr)
+			This.RemoveThisStringAtPosition(n, pcStr)
+
+			def RemoveThisNthItemQ(n, pcStr)
+				This.RemoveThisNthItem(n, pcStr)
+				return This
+
+		#>
+
+	def ThisStringAtPositionNRemoved(n, pcStr)
+		aResult = This.Copy().RemoveThisStringItemAtPositionQ(n, pcStr).Content()
+		return aResult
+
+		def ThisStringItemAtPositionNRemoved(n, pcStr)
+			return This.ThisStringAtPositionNRemoved(n, pcStr)
+
+		def ThisNthStringRemoved(n, pcStr)
+			return This.ThisStringAtPositionNRemoved(n, pcStr)
+
+		def ThisNthStringItemRemoved(n, pcStr)
+			return This.ThisStringAtPositionNRemoved(n, pcStr)
+
+	  #----------------------------------------------------------#
+	 #    REMOVING THE GIVEN FIRST STRING (IF ANY) IN THE LIST  #
+	#----------------------------------------------------------#
+
+	def RemoveThisFirstStringCS(pcStr, pCaseSensitive)
+		This.RemoveThisStringAtPositionCS(1, pcStr, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def RemoveThisFirstStringCSQ(pcStr, pCaseSensitive)
+			This.RemoveThisFirstStringCS(pcStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveThisFirstStringItemCS(pcStr, pCaseSensitive)
+			This.RemoveThisFirstStringCS(pcStr, pCaseSensitive)
+
+			def RemoveThisFirstStringItemCSQ(pcStr, pCaseSensitive)
+				This.RemoveThisFirstStringItemCS(pcStr, pCaseSensitive)
+				return This
+
+		#>
+
+	def ThisFirstStringRemovedXTCS(pcStr, pCaseSensitive)
+		aResult = This.Copy().RemoveThisFirstStringCSQ(pcStr, pCaseSensitive).Content()
+		return aResult
+
+		def ThisFirstStringItemRemovedXTCS(pcStr, pCaseSensitive)
+			return This.ThisFirstStringRemovedXTCS(pcStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveThisFirstString(pcStr)
+		This.RemoveThisStringAtPosition(1, pcStr)
+
+		#< @FunctionFluentForm
+
+		def RemoveThisFirstStringQ(pcStr)
+			This.RemoveThisFirstString(pcStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveThisFirstStringItem(pcStr)
+			This.RemoveThisFirstString(pcStr)
+
+			def RemoveThisFirstStringItemQ(pcStr)
+				This.RemoveThisFirstStringItem(pcStr)
+				return This
+
+		#>
+
+	def ThisFirstStringRemovedXT(pcStr)
+		aResult = This.Copy().RemoveThisFirstStringQ(pcStr).Content()
+		return aResult
+
+		def ThisFirstStringItemRemovedXT(pcStr)
+			return This.ThisFirstStringRemovedXT(pcStr)
+
+	  #----------------------------------------------------------#
+	 #    REMOVING THE GIVEN LAST STRING (IF ANY) IN THE LIST   #
+	#----------------------------------------------------------#
+
+	def RemoveThisLastStringCS(pcStr, pCaseSensitive)
+		This.RemoveThisStringAtPositionCS(This.NumberOfStrings(), pcStr, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def RemoveThisLastStringCSQ(pcStr, pCaseSensitive)
+			This.RemoveThisLastStringCS(pcStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveThisLastStringItemCS(pcStr, pCaseSensitive)
+			This.RemoveThisLastStringCS(pcStr, pCaseSensitive)
+
+			def RemoveThisLastStringItemCSQ(pcStr, pCaseSensitive)
+				This.RemoveThisLastStringItemCS(pcStr, pCaseSensitive)
+				return This
+
+		#>
+
+	def ThisLastStringRemovedXTCS(pcStr, pCaseSensitive)
+		aResult = This.Copy().RemoveThisLastStringCSQ(pcStr, pCaseSensitive).Content()
+		return aResult
+
+		def ThisLastStringItemRemovedXTCS(pcStr, pCaseSensitive)
+			return This.ThisLastStringRemovedXT(pcStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveThisLastString(pcStr)
+		This.RemoveThisStringAtPosition(1, pcStr)
+
+		#< @FunctionFluentForm
+
+		def RemoveThisLastStringQ(pcStr)
+			This.RemoveThisLastString(pcStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveThisLastStringItem(pcStr)
+			This.RemoveThisLastString(pcStr)
+
+			def RemoveThisLastStringItemQ(pcStr)
+				This.RemoveThisLastStringItem(pcStr)
+				return This
+
+	def ThisLastStringRemovedXT(pcStr)
+		aResult = This.Copy().RemoveThisLastStringQ(pcStr).Content()
+		return aResult
+
+		def ThisLastStringItemRemovedXT(pcStr)
+			return This.ThisLastStringRemovedXT(pcStr)
+
+	  #=======================================================#
 	 #  REMOVING MANY STRINGS BY SPECIFYING THEIR POSITIONS  #
-	#-------------------------------------------------------#
+	#=======================================================#
 
 	def RemoveStringsAtPositions(panPositions)
 		panPositions = ring_sort(panPositions)

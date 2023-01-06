@@ -600,7 +600,7 @@ class stzList from stzObject
 
 		def NFirstItemsQR(n, pcReturnType)
 			if isList(pcReturnType) and
-			   Q(pcReturnType)IsReturnedAsNamedParam()
+			   Q(pcReturnType).IsReturnedAsNamedParam()
 
 				pcReturnType = pcReturnType[2]
 			ok
@@ -640,7 +640,7 @@ class stzList from stzObject
 
 		def NLastItemsQR(n, pcReturnType)
 			if isList(pcReturnType) and
-			   Q(pcReturnType)IsReturnedAsNamedParam()
+			   Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3704,7 +3704,10 @@ class stzList from stzObject
 		# Doing the job
 
 		if n <= This.NumberOfItems()
-			del( @aContent, n )
+			aTempList = This.Content()
+			ring_del( aTempList, n )
+			This.Update(aTempList)
+
 		ok
 
 		#< @FunctionFluentForm
@@ -12315,7 +12318,7 @@ class stzList from stzObject
 			return This
 
 		def FlattenQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 

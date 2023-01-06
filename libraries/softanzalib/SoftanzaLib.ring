@@ -4,7 +4,6 @@ load "sqlitelib.ring"
 load "tracelib.ring"
 load "internetlib.ring"
 load "stzGlobals.ring"
-load "stzGeneralFunctions.ring"
 
 load "stzObject.ring"
 load "stzObjectError.ring"

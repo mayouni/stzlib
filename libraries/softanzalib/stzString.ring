@@ -1442,7 +1442,7 @@ class stzString from stzObject
 			return new stzListOfStrings( This.Lines() )
 
 		def LinesQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1476,7 +1476,7 @@ class stzString from stzObject
 			return new stzListOfStrings( This.UniqueLines() )
 
 		def UniqueLinesQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -9734,7 +9734,7 @@ class stzString from stzObject
 			return This.YieldXTQR(pcAction, pnStartingAt, pUptoOrUntil, :stzList)
 
 		def YieldXTQR(pcAction, pnStartingAt, pUptoOrUntil, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -12750,7 +12750,7 @@ o1 = new stzString("12*34*56*78")
 
 		while bContinue
 			
-			nPos = This.QStringObject().indexOf(pcSubStr, nPos, bCaseSensitive) + 1
+			nPos = This.QStringObject().indexOf(pcSubStr, nPos, pCaseSensitive) + 1
 
 			if nPos = 0
 				bContinue = FALSE
@@ -12767,7 +12767,7 @@ o1 = new stzString("12*34*56*78")
 				return This.FindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, :stzList)
 			
 		def FindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -15889,7 +15889,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SubStringsBetweenXTCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
 		def SubStringsBetweenXTCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -22869,7 +22869,7 @@ o1 = new stzString("12*34*56*78")
 
 		def UnicodesQR(pcReturnType)
 			if isList(pcReturnType) and
-			   Q(pcReturnType)IsReturnedAsNamedParam()
+			   Q(pcReturnType).IsReturnedAsNamedParam()
 
 				pcReturnType = pcReturnType[2]
 			ok
@@ -24888,7 +24888,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SecondCharQR(:stzString)
 
 		def SecondCharQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNameSpace()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNameSpace()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -28573,7 +28573,7 @@ o1 = new stzString("12*34*56*78")
 			return This.NumbersQR(:stzList)
 
 		def NumbersQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -28758,7 +28758,7 @@ o1 = new stzString("12*34*56*78")
 			return This.NumbersComingAfterCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 		def NumbersComingAfterCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType)IsReturnedAsNamedParam()
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
