@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*===================
-
+*/
 # The following is an exploration of the comprative performance
 # of for loops and for/in loops.
 

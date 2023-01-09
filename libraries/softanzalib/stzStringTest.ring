@@ -1,5 +1,128 @@
 load "stzlib.ring"
 
+StartProfiler()
+
+o1 = new stzString("99999999999")
+o1.SpacifyXT([ :EachNChars = "n", :StartingFrom = :End, :Using = "_" ])
+? o1.Content()
+#--> 99_999_999_999
+/*
+? o1.Spacified()
+#--> 9 9 9 9 9 9 9 9 9 9 9 
+
+? o1.SpacifiedUsing("_")
+#--> 9_9_9_9_9_9_9_9_9_9_9
+*/
+StopProfiler()
+
+/*--------------
+
+	def InsertXT(pcSubStr, paOptions)
+		/*
+		o1 = new stzString("99999999999")
+		o1.InsertXT("_", [ :After, :EachNChars = 3, :Going = :Forward ])
+
+		? o1.Content()
+		#--> 99_999_999_999é
+
+/*--------------
+
+StartProfiler()
+
+o1 = new stzString("99999999999")
+? o1.Spacified()
+#--> 9 9 9 9 9 9 9 9 9 9 9 
+
+? o1.SpacifiedUsing("_")
+#--> 9_9_9_9_9_9_9_9_9_9_9
+
+//? o1.SpacifiedXT(:EachNChars = 3, :StartingFrom = :End, :Using = "_") # TODO
+#--> 99_999_999_999
+
+anPos = o1.WalkXT([ :From = :LastChar, :To = 1, :Step = 3 ]) # ERROR
+? @@S( anPos )
+
+anPos = []
+nLen = o1.NumberOfChars()
+for i = nLen + 1 to 1 step -3
+	anPos + i
+next
+del(anPos, 1)
+
+//o1.InsertBeforePositions(anPos, "_") # TODO: Add this function
+o1.InsertBefore(anPos, "_")
+//o1.InsertAfterEachNCharsXT(3, :StartingFrom = :End)
+? o1.Content()
+#--> 9_999_999_999_9
+
+StopProfiler()
+
+/*--------------
+
+StartProfiler()
+
+# This is a C# code showing string interpolation:
+'
+int max = int.MaxValue;
+int min = int.MinValue;
+Console.WriteLine($"The range of integers is {min} to {max}");
+'
+
+# And here is the same code translated to Ring:
+
+int max = RingMaxIntegerXT();
+int min = RingMinIntegerXT();
+? Q("The range of integers is {min} to {max}").Interpolated();
+
+#--> The range of integers is '-999_999_999_999_999' to '999_999_999_999_999'
+# NOTE the use of the XT() extension to return the number spacified by "_"
+
+StopProfiler()
+
+/*--------------
+
+StartProfiler()
+
+int max = RingMaxInteger();
+int min = RingMinInteger();
+
+o1 = new stzString("The range of integers is {min} to {max}")
+? @@S( o1.SubStringsBetweenXT("{", :And = "}") )
+#--> [ [ "min", [ 27, 29 ] ], [ "max", [ 36, 38 ] ] ]
+
+
+StopProfiler()
+
+/*========================
+/* NOTE :
+	- RemoveNthItem(n) : Remove item at position n
+
+	- RemoveNthXT(n, pItem) : Remove nth occurrence of pItem
+  	  (you can also use RemoveNthOccurrence(n, pItem)
+
+	- RemoveThisNthItem(n, pItem) : remove nth item only if it
+	  is equal to pItem
+*/
+
+/*
+o1 = new stzString("_ABC_DE_")
+
+o1.RemoveFirstChar()
+? o1.Content()
+#--> ABC_DE_
+
+o1.RemoveThisFirstCharCS("a", :CS = FALSE)
+? o1.Content()
+#--> BC_DE_
+
+o1.RemoveNthChar(:Last)
+? o1.Content()
+#--> BC_DE
+
+o1.RemoveThisNthChar(3, "_")
+? o1.Content()
+#--> BCDE
+
 /*========================
 
 o1 = new stzString("ABC456DE")

@@ -1,15 +1,62 @@
 load "stzlib.ring"
 
+
 /*--------------
 
+StartProfiler()
+
+o1 = new stzList([ "ONE", "two", "THREE", 1, 2 ])
+? o1.ContainsCS("TwO", :CS=FALSE)
+
+StopProfiler()
+#--> Executed in 0.02 second(s)
+
+/*
+cTable = This.HeaderToString() + NL + This.RowsToStringXT(paOptions)
+
+/*--------------
+*/
+StartProfiler()
+
+	o1 = new stzTable([
+		[ :ID,	 :EMPLOYEE,    	:SALARY	],
+		#-------------------------------#
+		[ 10,	 "Ali",		35000	],
+		[ 20,	 "Dania",	28900	],
+		[ 30,	 "Han",		25982	],
+		[ 40,	 "Ali",		12870	]
+	])
+
+//	? o1.Show()
+
+//	? o1.MaxWidthInEachCol()
+
+//	? o1.MaxWidthInCol(:EMPLOYEE)
+//	? o1.NthColName(:LastCol)
+//	? o1.RowToString(2)
+
+	//? o1.RowsToString()
+
+	//? @@S( o1.CellsInColsAsPositions([ :EMPLOYEE, :SALARY ]) )
+
+	//? o1.CellsToHashList()["[ 3, 4 ]"]
+	? @@S( o1.SectionAsPositions([2,2], [3, 4]) )
+
+StopProfiler()
+
+/*--------------
+
+StartProfiler()
+
 o1 = new stzTable([3, 3])
-o1.Fill( :With = "." )
-o1.Show() + NL
+
+//o1.Fill( :With = "." )
+//o1.Show() + NL
 #--> #   COL1   COL2   COL3
 #    1      .      .      .
 #    2      .      .      .
 #    3      .      .      .
-
+/*
 o1.ReplaceRow(2, :With = [ "+", "+" ])
 o1.Show() + NL
 #--> #   COL1   COL2   COL3
@@ -25,11 +72,13 @@ o1.Show() + NL
 #    3      .      .      .
 
 o1.ReplaceRow(2, :With = [ "+", "+", "+", "+", "+" ])
-o1.Sow()
+o1.Show()
 #--> #   COL1   COL2   COL3
 #    1      .      .      .
 #    2      +      +      +
 #    3      .      .      .
+*/
+StopProfiler()
 
 /*--------------
 
@@ -259,7 +308,7 @@ o1.Show()
 # 4     40     Ali   12870
 
 /*-----------------
-*/
+
 # WAY 5: Creating a table by providing a hashtable where
 # the column names are keys and rows are values
 
@@ -462,6 +511,8 @@ o1.ReplaceColName( :LENGTH, :BY = :AGE )
 
 /*==============
 */
+StartProfiler()
+
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
 	[ 10,	"Karim",	52   	],
@@ -492,6 +543,8 @@ o1.Show()
 # 1   20     Hatem    46
 # 2   30   Abraham    48
 # 3   10     Karim    52
+*/
+StopProfiler()
 
 /*--------------
 

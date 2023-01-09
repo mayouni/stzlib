@@ -1,5 +1,139 @@
 load "stzlib.ring"
 
+/*-----------
+
+StartProfiler()
+
+o1 = new stzString( '[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥"] ] ]' )
+? o1.FindPreviousNthOccurrence(1, :Of = "[", :StartingAt = 21)
+? o1.FindNextNthOccurrence(1, :Of = "]", :StartingAt = 21)
+
+? o1.FindFirstPrevious("[", :StartingAt = 21)	#--> 13
+? o1.FindFirstNext(:Of = "]", :StartingAt = 21) #--> 28
+
+StopProfiler()
+
+/*-----------
+
+TODO - NAMING REFORM
+
+..RemoveBetweenXT() : removes also bounds
+
+...Bounds  --> ...( [b1,b2] )	why? to be able to use ...( b ) if the 2 bounds are sale
+...Between --> ...( b1, b2 )	why? because they are always 2 bounds
+
+...SubString --> ...Section
+
+FindXT()
+InsertXT()
+ReplaceXT()
+RemoveXT()
+
+/*-----------
+
+
+StartProfiler()
+
+o1 = new stzString('
+[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥", ["4", [ "5", "♥" ], "4", ["5","♥"], "♥"], "3"] ] ]')
+
+o1.RemoveSubStringsBetweenXT("]","[")
+
+//? o1.SubStringsBetween("]","[") # ..BoundedBy
+//? o1.SubStringsBoundedBy(["]","["]) 
+
+//o1.RemoveSubStringsBetweenXT("]","[")
+//o1.RemoveAnySectionsBoundedByXT("]","[")
+? o1.Content()
+
+StopProfiler()
+
+/*-----------
+*/
+StartProfiler()
+
+o1 = new stzList(
+[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥", ["4", [ "5", "♥" ], "4", ["5","♥"], "♥"], "3"] ] ])
+
+? o1.NumberOfLevels()
+#--> 5
+# Executes in 0.04s
+
+? @@S( o1.DeepFind("♥") )
+#--> [ [ 2, 2 ], [ 3, 2 ], [ 5, 2 ], [ 5, 2 ], [ 4, 3 ] ]
+# Executes in 0.07s
+
+StopProfiler()
+#--> Executed in 0.12 second(s)
+
+/*==============
+
+StartProfiler()
+
+o1 = new stzList([ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "🌞"] ] ])
+
+? o1.DeepContains("🌞")
+#--> TRUE
+
+? o1.DeepContainsMany([ "1", "♥", "3", "🌞" ])
+#--> TRUE
+
+? o1.DeepContainsBoth("♥", :And = "🌞")
+#--> TRUE
+
+? o1.DeepContainsOneOfThese(["_", "🌞", "0" ])
+#--> TRUE
+
+? o1.DeepContainsNOfThese(2, ["_", "🌞", "0", "♥" ])
+#--> #--> TRUE
+
+StopProfiler()
+
+/*==============
+
+o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
+o1.SortBy('len(@item)')
+? o1.Content()
+
+#--> [ "a", "ab", "abc", "abcd", "abcde" ]
+
+
+/*==============
+
+/* NOTE :
+	- RemoveNthItem(n) : Remove item at position n
+
+	- RemoveNthXT(n, pItem) : Remove nth occurrence of pItem
+  	  (you can also use RemoveNthOccurrence(n, pItem)
+
+	- RemoveThisNthItem(n, pItem) : remove nth item only if it
+	  is equal to pItem
+*/
+/*
+o1 = new stzList([ "_", "A", "B", "C", "_", "D", "E", "_" ])
+
+o1.RemoveFirstItem()
+? @@S( o1.Content() )
+#--> [ "A", "B", "C", "_", "D", "E", "_" ]
+
+o1.RemoveThisNthItem(1, "A")
+? @@S( o1.Content() )
+#--> [ "B", "C", "_", "D", "E", "_" ]
+
+o1.RemoveNthXT(2, "_")
+? @@S( o1.Content() )
+#--> [ "B", "C", "_", "D", "E" ]
+
+o1.RemoveFirstXT("_")
+? @@S( o1.Content() )
+
+o1.RemoveThisFirstItemCS("b", :CS = FALSE)
+? @@S( o1.Content() )
+#--> [ "C", "D", "E" ]
+
+o1.RemoveNthItem(:Last)
+? @@S( o1.Content() )
+#--> [ "C", "D" ]
 
 /*-----------------
 
@@ -1678,7 +1812,7 @@ StopProfiler()
 #--> Executed in 0.23 second(s)
 
 /*--------- OTHER WALKING TECHNIQUES
-*/
+
 StartProfiler()
 
 StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {

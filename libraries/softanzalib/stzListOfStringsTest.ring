@@ -1,5 +1,54 @@
 load "stzlib.ring"
 
+? StzTextQ("姓名").Script() #--> "han"
+
+o1 = new stzListOfStrings([ "name", "اسم", "姓名" ])
+? o1.Scripts()
+#--> [ "latin", "arabic", "han" ]
+
+/*---------------
+
+/* NOTE :
+	- RemoveNthItem(n) : Remove item at position n
+
+	- RemoveNthXT(n, pItem) : Remove nth occurrence of pItem
+  	  (you can also use RemoveNthOccurrence(n, pItem)
+
+	- RemoveThisNthItem(n, pItem) : remove nth item only if it
+	  is equal to pItem
+*/
+/*
+StartProfiler()
+
+o1 = new stzListOfStrings([ "_", "A", "B", "C", "_", "D", "E", "_" ])
+
+o1.RemoveFirstItem()
+? @@S( o1.Content() )
+#--> [ "A", "B", "C", "_", "D", "E", "_" ]
+
+o1.RemoveThisNthItem(1, "A")
+? @@S( o1.Content() )
+#--> [ "B", "C", "_", "D", "E", "_" ]
+
+o1.RemoveNthXT(2, "_")
+? @@S( o1.Content() )
+#--> [ "B", "C", "_", "D", "E" ]
+
+o1.RemoveFirstXT("_")
+? @@S( o1.Content() )
+#--> [ "B", "C", "D", "E" ]
+
+o1.RemoveThisFirstItemCS("b", :CS = FALSE)
+? @@S( o1.Content() )
+#--> [ "C", "D", "E" ]
+
+o1.RemoveNthItem(:Last)
+? @@S( o1.Content() )
+#--> [ "C", "D" ]
+
+StopProfiler()
+#--> Executed in 0.07 second(s)
+
 /*-----------------
 
 o1 = new stzListOfStrings([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
