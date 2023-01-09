@@ -618,7 +618,7 @@ class stzText from stzString
 		aResult = []
 
 		for i = 1 to This.NumberOfChars()
-			aResult + This.CharAtQ(i).Script()
+			aResult + This.CharAtQR(i, :stzChar).Script()
 		next
 
 		aResult = StzListQ(aResult).ToSet()
@@ -629,13 +629,13 @@ class stzText from stzString
 		return len(This.Scripts())
 
 	def ScriptOfNthChar(n)
-		return This.CharAtQ(n).Script()
+		return This.CharAtQR(n, :stzChar).Script()
 
 	def ScriptsPerChar()
 		aResult = []
 
 		for c in This.UniqueChars()
-			aResult + StzCharQ(c).Script()
+			aResult + StzCharQR(c, :stzChar).Script()
 		next
 
 		return aResult

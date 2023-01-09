@@ -1000,13 +1000,13 @@ func ComputableFormSimplified(pValue)
 		return ComputableFormSimplified(pValue)
 
 		func @@SFQ(pValue)
-			return new stzString( @@(pValue) )
+			return new stzString( @@SF(pValue) )
 
 	func @@S(pValue)
 		return ComputableFormSimplified(pValue)
 
 		func @@SQ(pValue)
-			return new stzString( @@(pValue) )
+			return new stzString( @@S(pValue) )
 
 
 
@@ -1454,6 +1454,14 @@ func ResetTimer()
 func ElapsedTime()
 	return ElapsedTimeXT(:In = :Seconds)
 
+	func ElpasedTime()
+		return ElapsedTime()
+		/* NOTE
+		This function name alternative contains a spelling error.
+		Despite that, I'll take it. Because I always make this
+		error and don't want to be blocked for that.
+		*/
+
 func ElapsedTimeXT(pIn)
 	if isList(pIn) and Q(pIn).IsInNamedParam()
 		pIn = pIn[2]
@@ -1494,6 +1502,9 @@ func ElapsedTimeXT(pIn)
 
 	off
 	
+	func ElpasedTimeXT(pIn)
+		return ElapsedTimeXT(pIn)
+
 func StartProfiler()
 	StartTimer()
 

@@ -17819,8 +17819,11 @@ class stzListOfStrings from stzList
 	def Scripts()
 		acResult = []
 
-		for str in This.ListOfStrings()
-			acResult + StzTextQ(str).Script()
+		acContent = This.ListOfStrings()
+		nLen = len(acContent)
+
+		for i = 1 to nLen
+			acResult + StzTextQ(acContent[i]).Script()
 		next
 
 		return acResult

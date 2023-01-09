@@ -3797,6 +3797,81 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveLastItemQ().Content()
 		return aResult
 
+	  #----------------------------------#
+	 #   REMOVING FIRST AND LAST ITEMS  #
+	#----------------------------------#
+
+	def RemoveFirstAndLastItems()
+		This.RemoveFirstItem()
+		This.RemoveLastItem()
+
+		#< @FunctionFluentForm
+
+		def RemoveFirstAndLastItemsQ()
+			This.RemoveFirstAndLastItems()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveLastAndFirstItems()
+			This.RemoveFirstAndLastItems()
+
+			def RemoveLastAndFirstItemsQ()
+				This.RemoveLastAndFirstItems()
+				return This
+
+		def RemoveFirstAndLast()
+			This.RemoveFirstAndLastItems()
+
+			def RemoveFirstAndLastQ()
+				This.RemoveFirstAndLast()
+
+		def RemoveLastAndFirst()
+			This.RemoveFirstAndLastItems()
+
+			def RemoveLastAndFirstQ()
+				This.RemoveFirstAndLast()
+
+		#--
+
+		def RemoveFirstItemAndLastItem()
+			This.RemoveFirstAndLastItems()
+
+			def RemoveFirstItemAndLastItemQ()
+				This.RemoveFirstItemAndLastItem()
+				return This
+
+		def RemoveLastItemAndFirstItem()
+			This.RemoveFirstAndLastItems()
+
+			def RemoveLastItemAndFirstItemQ()
+				This.RemoveLastItemAndFirstItem()
+				return This
+
+		#>
+
+	def FirstAndLastItemsRemoved()
+		return This.Copy().RemoveFirstAndLastItemsQ().Content()
+
+		def LastAndFirstItemsRemoved()
+			return This.FirstAndLastItemsRemoved()
+
+		def FirstAndLastRemoved()
+			return This.FirstAndLastItemsRemoved()
+
+		def LastAndFirstRemoved()
+			return This.FirstAndLastItemsRemoved()
+
+		#--
+
+		def FirstItemAndLastItemRemoved()
+			return This.FirstAndLastItemsRemoved()
+
+		def LastItemAndFirstItemRemoved()
+			return This.FirstAndLastItemsRemoved()
+
 	  #--------------------------------------#
 	 #  REMOVING A GIVEN NTH ITEM (IF ANY)  #
 	#--------------------------------------#
@@ -9543,7 +9618,7 @@ class stzList from stzObject
 			StzRaise("Invalid param type! pcCode must be a string.")
 		ok
 
-		oCode = new stzString( StzCCodeQ(pcCode).UnifiedFor(:stzList) )
+		oCode = new stzString( StzCCodeQ(pcCode).Transpiled() )
 		
 		if oCode.WithoutSpaces() = ''
 			return
@@ -9569,7 +9644,6 @@ class stzList from stzObject
 		
 		for @i in panPositions
 
-			@item = This[ @i ]
 			bEval = TRUE
 
 			if @i = This.NumberOfItems() and
@@ -10359,7 +10433,7 @@ class stzList from stzObject
 			off
 		#>
 
-		@< @FunctionAlternativeForm
+		#< @FunctionAlternativeForm
 
 		def Categories()
 			return This.Classes()
@@ -10582,7 +10656,7 @@ class stzList from stzObject
 			off
 		#>
 
-		@< @FunctionAlternativeForm
+		#< @FunctionAlternativeForm
 
 		def CategoriesSF()
 			return This.ClassesSF()
@@ -11137,11 +11211,11 @@ class stzList from stzObject
 		def SortedInReverseOrder()
 			return This.SortedInReverse()
 
-	  #----------------------------------------#
+	  #---------------------------------------#
 	 #  SORTING THE ITEM BY - IN ASCENDING  #
-	#----------------------------------------#
+	#--------------------------------------#
  
-	def SortInAscendingUsing(pcExpr)  // TODO: TEST IT!
+	def SortBy(pcExpr)  // TODO: TEST IT!
 		/* EXAMPLE
 		o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
 		o1.SortUsing('len(@item)')
@@ -11151,20 +11225,23 @@ class stzList from stzObject
 
 		*/
 //? o1.Content()
-		cCode = "value = " + StzCCodeQ(pcExpr).UnifiedFor(:stzList)
+		cCode = "value = " + StzCCodeQ(pcExpr).Transpiled()
 
 		oTable = new stzTable([2, This.NumberOfItems()])
 //oTable.Show() + NL
-		i = 0
-		for @item in This.List()
-			i++
+		
+		aList = This.List()
+		nLen = len(aList)
+
+		for @i = 1 to nLen
+			@item = aList[@i]
 			eval(cCode)
-			oTable.ReplaceRow(i, [ @item, value ])
+			oTable.ReplaceRow(@i, [ @item, value ])
 		next
-//oTable.Show() + NL
+oTable.Show() + NL
 
 		oTable.SortInAscending( :By = oTable.ColName(2) )
-//oTable.Show()
+oTable.Show() + NL
 //sdsd
 		aSortedList = oTable.Col(1)
 
@@ -11172,28 +11249,29 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def SortInAscendingByQ(pcExpr)
-			This.SortInAscendingBy(pcExpr)
+		def SortByQ(pcExpr)
+			This.SortBy(pcExpr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def SortBy(pcExpr)
-			This.SortInAscendingBy(pcExpr)
+		def SortInAscendingBy(pcExpr)
+			This.SortBy(pcExpr)
 
-			def SortByQ(pcExpr)
-				This.SortBy(pcExpr)
+			def SortInAscendingByQ(pcExpr)
+				This.SortInAscendingBy(pcExpr)
 				return This
+
 		#>
 
-	def SortedInAscendingBy(pcExpr)
-		aResult = This.Copy().SortInAscendingByQ(pcExpr).Content()
+	def SortedBy(pcExpr)
+		aResult = This.Copy().SortByQ(pcExpr).Content()
 		return aResult
 
-		def SortedBy(pcExpr)
-			return This.SortedInAscendingBy(pcExpr)
+		def SortedInAscendingBy(pcExpr)
+			return This.SortedBy(pcExpr)
 
 	  #-----------------------------------------#
 	 #  SORTING THE ITEM BY - IN DESCENDING  #
@@ -11221,10 +11299,23 @@ class stzList from stzObject
 	// Returns an Associative List (HashList) from the main list and an other list
 
 	def AssociateWith(paOtherList)
+		/* EXAMPLE
+
+		o1 = new stzList([ "Name", "Age", "Job" ])
+		o1.AssociateWith([ "Ali", 24, "Programmer" ])
+		? o1.Content()
+
+		#--> [ ["Name", "Ali"], ["Age", 24], ["Job", "Programmer"] ]
+
+		*/
+
 		aResult = []
-		for i = 1 to This.NumberOfItems()
+		nLenThisList  = This.NumberOfItems()
+		nLenOtherList = len(paOtherList)
+
+		for i = 1 to nLenThisList
 			OtherItem = NULL
-			if i <= len(paOtherList)
+			if i <= nLenOtherList
 				OtherItem = paOtherList[i]
 			ok
 
@@ -11232,19 +11323,6 @@ class stzList from stzObject
 		next
 
 		This.Update( aResult )
-
-		/*
-			Example:
-			o1 = new stzList([ "Name", "Age", "Job" ])
-			o1.AssociateWith([ "Ali", 24, "Programmer" ])
-			? o1.Content()
-
-			Returns:
-			[ "Name" = "Ali", "Age" = 24, "Job" = "Programmer" ]
-
-			TEST: What idf the first list contains items that are not strings?
-			This leads to a ListOfLists but not to a HashList!
-		*/
 
 		def AssociateWithQ(paOtherList)
 			This.AssociateWith(paOtherList)
@@ -13236,20 +13314,12 @@ class stzList from stzObject
 			return new stzList( This.ItemsThatAreLists_AtAnyLevel_XT() )
 
 	def NumberOfLevels()
-		aResult = []
-		n = 0
-		for c in list2code(This.Content())
-			if c = "["
-				n++
-				aResult + n
-			but c = "]"
-				n--
-			ok
-			
-		next
+				
+		oCopy = @@SQ( This.Content() ).RemoveSectionsBetweenXTQ("]","[")
+		oCopy.FindLast("[")
+		nResult = oCopy.NumberOfOccurrence("[")
 
-		oTempNumberList = new stzListOfNumbers(aResult)
-		return oTempNumberList.Max()
+		return nResult
 
 	def Depth()
 		return This.NumberOfLevels()
@@ -13767,14 +13837,40 @@ class stzList from stzObject
 
 	def FindFirstOccurrenceCS(pItem, pCaseSensitive)
 
-		acThis = []
-		for item in This.List()
-			acThis + Q( @@S( item ) ).WithoutSpaces()
+		cType = ring_type(pItem)
+
+		if isString(pItem) or isList(pItem)
+			bIsStringOrList = TRUE
+		ok
+
+		aList = This.List()
+		nLen  = len(aList)
+
+		nResult = 0
+
+		for i = 1 to nLen
+
+			if cType = "NUMBER"
+				if aList[i] = pItem
+					nResult = i
+					exit
+				ok
+
+			but cType = "STRING" or cType = "LIST"
+				if Q(aList[i]).IsEqualToCS(pItem, pCaseSensitive)
+					nResult = i
+					exit
+				ok
+
+			but cType = "OBJECT"
+				if Q(aList[i]).IsEqualTo(pItem)
+					nResult = i
+					exit
+				ok
+			ok
+
 		next
 
-		cItem = Q( @@S( pItem ) ).WithoutSpaces()
-
-		nResult = StzListOfStringsQ(acThis).FindFirstOccurrenceCS(cItem, pCaseSensitive)
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -14117,9 +14213,148 @@ class stzList from stzObject
 			#>
 		#>
 		
-	  #--------------------------------#
+	  #======================================================#
+	 #  CHECKING IF THE LIST CONTAINS AN ITEM AT ANY LEVEL  #
+	#======================================================#
+
+	def DeepContainsCS(pItem, pCaseSensitive)
+		
+		cList = @@S(This.List())
+
+		cItem = @@S(pItem)
+		if isString(pItem)
+			cItem = Q(cItem).FirstAndLastCharsRemoved()
+		ok
+
+		bResult = Q(cList).ContainsCS(cItem, pCaseSensitive)
+
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DeepContains(pItem)
+		return This.DeepContainsCS(pItem, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------------------------------#
+	 #  CHECKING IF THE PROVIDED ITEMS ARE ALL CONTAINED IN THE LIST AT ANY LEVEL  #
+	#-----------------------------------------------------------------------------#
+
+	def DeepContainsManyCS(paItems, pCaseSensitive)
+		bResult = TRUE
+		nLen = len(paItems)
+
+		for i = 1 to nLen
+
+			if NOT This.DeepContainsCS(paItems[i], pCaseSensitive)
+				bResult = FALSE
+				exit
+			ok
+
+		next
+
+		return bResult
+
+		def DeepContainsEachCS(paItems, pCaseSensitive)
+			return This.DeepContainsManyCS(paItems, pCaseSensitive)
+
+		def DeepContaisEachOneOfTheseCS(paItems, pCaseSensitive)
+			return This.DeepContainsManyCS(paItems, pCaseSensitive)
+
+		def DeepContaisEachOfTheseCS(paItems, pCaseSensitive)
+			return This.DeepContainsManyCS(paItems, pCaseSensitive)
+
+		def DeepContaisAllOfTheseCS(paItems, pCaseSensitive)
+			return This.DeepContainsManyCS(paItems, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DeepContainsMany(paItems)
+		return This.DeepContainsManyCS(paItems, :CaseSensitive = TRUE)
+
+		def DeepContainsEach(paItems)
+			return This.DeepContainsMany(paItems)
+
+		def DeepContaisEachOneOfThese(paItems)
+			return This.DeepContainsMany(paItems)
+
+		def DeepContaisEachOfThese(paItems)
+			return This.DeepContainsMany(paItems)
+
+		def DeepContaisAllOfThese(paItems)
+			return This.DeepContainsMany(paItems)
+
+	  #-------------------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS BOTH OF THE PROVIDED ITEMS AT ANY LEVEL  #
+	#-------------------------------------------------------------------------#
+
+	def DeepContainsBothCS(pItem1, pItem2, pCaseSensitive)
+		if isList(pItem2) and Q(pItem2).IsAndNamedParam()
+			pItem2 = pItem2[2]
+		ok
+
+		return This.DeepContainsEachCS([ pItem1, pItem2 ], pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DeepContainsBoth(pItem1, pItem2)
+		return This.DeepContainsBothCS(pItem1, pItem2, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS AT LEAST ONE OF THE PROVIDED ITEMS AT ANY LEVEL  #
+	#--------------------------------------------------------------------------------#
+
+	def DeepContainsOneOfTheseCS(paItems, pCaseSensitive)
+		bResult = FALSE
+
+		for i = 1 to len(paItems)
+			if This.DeepContainsCS(paItems[i], pCaseSensitive)
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DeepContainsOneOfThese(paItems)
+		return This.DeepContainsOneOfTheseCS(paItems, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS AT LEAST N OF THE PROVIDED ITEMS AT ANY LEVEL  #
+	#--------------------------------------------------------------------------------#
+
+	def DeepContainsNOfTheseCS(n, paItems, pCaseSensitive)
+		bResult = FALSE
+		v = 0
+
+		for i = 1 to len(paItems)
+			if This.DeepContainsCS(paItems[i], pCaseSensitive)
+				v++
+				if v = n
+					bResult = TRUE
+					exit
+				ok
+			ok
+		next
+
+		return bResult
+
+		def DeepContainsNItemsOfTheseCS(n, paItems, pCaseSensitive)
+			return This.DeepContainsNOfTheseCS(n, paItems, pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DeepContainsNOfThese(n, paItems)
+		return This.DeepContainsNOfTheseCS(n, paItems, :CaseSensitive = TRUE)
+
+		def DeepContainsNItemsOfThese(n, paItems)
+			return This.DeepContainsNOfThese(n, paItems)
+
+	  #================================#
 	 #  FINDING AN ITEM AT ANY LEVEL  #
-	#--------------------------------#
+	#================================#
 
 	/*
 	TODO: Harmonize this section with  "LIST STRUCTURE" section
@@ -14146,6 +14381,34 @@ class stzList from stzObject
 			[ [3, 2], [ 1 ]  ],	# position 1 in the level [3, 2]
 		]
 		*/
+
+		oListStr = @@SQ( This.Content() )
+		cItem = @@SQ(pItem).FirstAndLastCharsRemoved()
+
+		anPos = oListStr.FindCS(cItem, pCaseSensitive) #--> [21, 52]
+		nLenPos = len(anPos)
+	
+		aResult = []
+
+		for i = 1 to nLenPos
+			nPos = anPos[i]
+		
+			oSection = oListStr.SectionQ(1, nPos)
+		
+			anPosBound1 = oSection.Find("[")
+			anPosBound2 = oSection.Find("]")
+		
+			nLevel = len(anPosBound1) - len(anPosBound2)
+		
+			n1 = oListStr.FindFirstPrevious("[", :StartingAt = nPos)
+			n2 = oListStr.FindFirstNext("]", :StartingAt = nPos)
+		
+			nPosition = oListStr.SectionQ(n1, nPos).NumberOfOccurrence(",") + 1
+			
+			aResult + [nLevel, nPosition]
+		next
+
+		return aResult
 
 	#-- WITHOUT CASESENSITIVITY
 

@@ -182,25 +182,91 @@ func MaxCalculableNumber()
 	and the char separator "_" is responsible for that!
 	*/
 		
+	func RingMaxNumber()
+		return MaxCalculableNumber()
+
+	#--
+
+	func MaxCalculableNumberXT()
+		return _cMaxCalculableInteger
+
+	func RingMaxNumberXT()
+		return MaxCalculableNumberXT()
+
 func MinCalculableNumber()
 	return -1 * MaxCalculableNumber()
 		
+	func RingMinNumber()
+		return MinCalculableNumber()
+
+	#--
+
+	func MinCalculableNumberXT()
+		return "-" + _cMaxCalculableInteger
+
+	func RingMinNumberXT()
+		return MinCalculableNumberXT()
+
 func MaxCalculableInteger()
 	return MaxCalculableNumber()
 		 
+	func RingMaxInteger()
+		return MaxCalculableInteger()
+
+	#--
+
+	func MaxCalculableIntegerXT()
+		return _cMaxCalculableInteger
+
+	func RingMaxIntegerXT()
+		return MaxCalculableIntegerXT()
+	
 func MinCalculableInteger()
 	return MinCalculableNumber()
 		
+	func RingMinInteger()
+		return MinCalculableInteger()
+
+	#--
+
+	func MinCalculableIntegerXT()
+		return "-" + _cMaxCalculableInteger
+
+	func RingMinIntegerXT()
+		return MinCalculableIntegerXT()
+
 func MaxCalculableRealNumber()
 	oStr = new stzString(_cMaxCalculableRealNumber)
 	cMax - "_"
 	cMax = oStr.Content()
 
 	return 0+ cMax
+
+	func RingMaxRealNumber()
+		return MaxCalculableRealNumber()
+
+	#--
+
+	func MaxCalculableRealNumberXT()
+		return _cMaxCalculableRealNumber
+
+	func RingMaxRealNumberXT()
+		return MaxCalculableRealNumberXT()
 		
 func MinCalculableRealNumber()
 	return -1 * MaxCalculableRealNumber()
 	
+	func RingMinRealNumber()
+		return MinCalculableRealNumber()
+
+	#--
+
+	func MinCalculableRealNumberXT()
+		return "-" + _cMaxCalculableRealNumber
+
+	func RingMinRealNumberXT()
+		return MinCalculableRealNumberXT()
+
 func MoneyNumberPrefix()
 	return _cMoneyNumberPrefix
 

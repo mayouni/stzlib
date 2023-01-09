@@ -199,9 +199,10 @@ Class stzTable
 			return This.HasColumName(pcName)
 
 	def HasColumnsNames(pacNames)
+		nLen = len(pacNames)
 		bResult = TRUE
-		for cName in pacNames
-			if NOT This.HasColName(cName)
+		for i = 1 to nLen
+			if NOT This.HasColName(pacNames[i])
 				bResult = FALSE
 				exit
 			ok
@@ -417,10 +418,11 @@ Class stzTable
 
 	def Col(p)
 		if isString(p)
-			if Q(p).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+			oTemp = Q(p)
+			if oTemp.IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
 				p = 1
 
-			but Q(p).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+			but oTemp.IsOneOfThese([ :Last, :LastCol, :LastColumn ])
 				p = This.NumberOfColumns()
 
 			but This.HasColName(p)
@@ -504,9 +506,11 @@ Class stzTable
 			StzRaise("Incorrect param type! paCols must be a list of string containing existing columns names.")
 		ok
 
+		nLen = len(paCols)
+
 		aResult = []
-		for col in paCols
-			aResult + This.CellsInCol(col)
+		for i = 1 to nLen
+			aResult + This.CellsInCol(paCols[i])
 		next
 
 		aResult = Q(aResult).Flattened()
@@ -543,17 +547,21 @@ Class stzTable
 		#>
 
 	def AreColNamesOrNumbers(paCols)
+		oTemp = Q(paCols)
+
 		if NOT ( isList(paCols) and
-			( Q(paCols).IsListOfNumbers() or
-			  Q(paCols).IsListOfStrings() or
-			  Q(paCols).IsListOfNumbersAndStrings() ) )
+			( oTemp.IsListOfNumbers() or
+			  oTemp.IsListOfStrings() or
+			  oTemp.IsListOfNumbersAndStrings() ) )
 
 			StzRaise("Incorrect param type! paCols must be of list of numbers or strings.")
 		ok
 
 		bResult = TRUE
-		for item in paCols
-			if NOT This.IsColNameOrNumber(item)
+		nLen = len(paCols)
+
+		for i = 1 to nLen
+			if NOT This.IsColNameOrNumber(paCols[i])
 				bResult = FALSE
 				exit
 			ok
@@ -682,6 +690,7 @@ Class stzTable
 		ok
 
 		cResult = This.ColNames()[n]
+
 		return cResult
 
 		def NthColumnName(n)
@@ -850,9 +859,11 @@ Class stzTable
 
 	def CellsInColAsPositions(pCol)
 		nCol = This.ColToColNumber(pCol)
+		nNumberOfRows = This.NumberOfRows()
+
 		aResult = []
 
-		for i = 1 to This.NumberOfRows()
+		for i = 1 to nNumberOfRows
 			aResult + [ nCol, i]
 		next
 
@@ -935,9 +946,12 @@ Class stzTable
 	#--------------------------------------------------------#
 
 	def CellsInColsAsPositions(paCols)
+		nLen = len(paCols)
+		anColNumbers = This.TheseColsAsNumbers(paCols)
 		aResult = []
-		for aCol in paCols
-			for aPosition in This.CellsInColAsPositions(aCol)
+
+		for i = 1 to nLen
+			for aPosition in This.CellsInColAsPositions(anColNumbers[i])
 				aResult + aPosition
 			next
 		next
@@ -1155,8 +1169,10 @@ Class stzTable
 			StzRaise("Incorrect param type! pnRows must be a list of numbers.")
 		ok
 
+		nLen = len(pnRows)
 		aResult = []
-		for n in pnRows
+
+		for n = 1 to nLen
 			aResult + This.CellsInRow(n)
 		next
 
@@ -1253,8 +1269,10 @@ Class stzTable
 	#------------------------------#
 
 	def Rows()
+		nRows   = This.NumberOfRows()
 		aResult = []
-		for i = 1 to This.NumberOfRows()
+
+		for i = 1 to nRows
 			aResult + This.RowN(i)
 		next
 
@@ -1409,9 +1427,10 @@ Class stzTable
 			StzRaise("Incorrect param type! pnRow must be a number.")
 		ok
 
+		nNumberOfCols = This.NumberOfCols()
 		aResult = []
 
-		for i = 1 to This.NumberOfCols()
+		for i = 1 to nNumberOfCols
 			aResult + [ i, pnRow ]
 		next
 
@@ -1443,11 +1462,18 @@ Class stzTable
 	#----------------------------------------------------#
 
 	def CellsInRowsAsPositions(panRows)
+		nRows = len(panRows)
 		aResult = []
-		for n in panRows
-			for aPosition in This.CellsInRowAsPositions(n)
-				aResult + aPosition
+
+		for i = 1 to nRows
+
+			aPositions = This.CellsInRowAsPositions(i)
+			nLenPos    = len(aPositions)
+
+			for q = 1 to nLenPos
+				aResult + aPositions[q]
 			next
+
 		next
 
 		return aResult
@@ -1542,7 +1568,7 @@ Class stzTable
 
 		ok
 
-		cCol = This.ColToName(pCol)
+		cCol   = This.ColToName(pCol)
 		Result = This.Table()[cCol][pnRow]
 		return Result
 
@@ -1603,8 +1629,9 @@ Class stzTable
 		*/
 
 		aResult = []
+		nLen    =  len(paCellsPos)
 
-		for i = 1 to len(paCellsPos)
+		for i = 1 to nLen
 			aResult + This.Cell( paCellsPos[i][1], paCellsPos[i][2] )
 		next
 
@@ -1677,6 +1704,7 @@ Class stzTable
 	#---------------------------------#
 
 	def Cells()
+
 		aResult = This.Section( [ :FirstCol, :FirstRow ], [ :LastCol, :LastRow ] )
 		return aResult
 
@@ -1729,12 +1757,17 @@ Class stzTable
 	#-----------------------------------------------------#
 
 	def CellsAndTheirPositions()
-		aResult = []
 
-		for v = 1 to This.NumberOfRows()
-			for u = 1 to This.NumberOfCol()
+		aResult = []
+		nRows   = This.NumberOfRows()
+		nCols   = This.NumberOfCol()
+
+		for v = 1 to nRows
+
+			for u = 1 to nCols
 				aResult + [ This.Cell(u, v), [u, v ] ]
 			next u
+
 		next
 
 		return aResult
@@ -1755,10 +1788,13 @@ Class stzTable
 			return This.return This.CellsAndTheirPositions()
 
 	def PositionsAndCells()
-		aResult = []
 
-		for v = 1 to This.NumberOfRows()
-			for u = 1 to This.NumberOfCol()
+		aResult = []
+		nRows   = This.NumberOfRows()
+		nCols   = This.NumberOfCol()
+
+		for v = 1 to nRows
+			for u = 1 to nCols
 				aResult + [ [u, v ], This.Cell(u, v) ]
 			next
 		next
@@ -1766,10 +1802,13 @@ Class stzTable
 		return aResult
 
 	def CellsAsPositions()
-		aResult = []
 
-		for v = 1 to This.NumberOfRows()
-			for u = 1 to This.NumberOfCol()
+		aResult = []
+		nRows   = This.NumberOfRows()
+		nCols   = This.NumberOfCol()
+
+		for v = 1 to nRows
+			for u = 1 to nCols
 				aResult + [u, v ]
 			next
 		next
@@ -1785,8 +1824,10 @@ Class stzTable
 
 	def TheseCellsAndTheirPositions(paCells)
 		aResult = []
+		nCells = len(paCells)
 
-		for aCell in paCells
+		for i = 1 to nCells
+			aCell = paCells[i]
 			aResult + [ This.Cell(aCell[1], aCell[2]), aCell ]
 		next
 
@@ -1800,8 +1841,10 @@ Class stzTable
 
 	def PositionsAndTheseCells(paCells)
 		aResult = []
+		nCells = len(paCells)
 
-		for aCell in paCells
+		for i = 1 to nCells
+			aCell = paCells[i]
 			aResult + [ aCell, This.Cell(paCells[1], paCells[2]) ]
 		next
 
@@ -1851,8 +1894,10 @@ Class stzTable
 		# TODO: check if paCells are really cells and belong to the table!
 
 		aResult = []
+		nLen = len(paCellsPos)
 
-		for cellPos in paCellsPos
+		for i = 1 to nLen
+			cellPos = paCellsPos[i]
 			aResult + [ @@S(cellPos), This.Cell(cellPos[1], cellPos[2]) ]
 		next
 
@@ -1896,10 +1941,11 @@ Class stzTable
 
 	def Section( panCellPos1, panCellPos2 )
 		aCells = This.SectionAsPositions( panCellPos1, panCellPos2 )
-
+		nCells = len(aCells)
 		aResult = []
 
-		for aCell in aCells
+		for i = 1 to nCells
+			aCell = aCells[i]
 			aResult + This.Cell(aCell[1], aCell[2])
 		next
 
@@ -1952,7 +1998,6 @@ Class stzTable
 			other
 				StzRaise("Unsupported return type!")
 			off
-
 
 	def SectionAsPositions( panCellPos1, panCellPos2 )
 		if isList(panCellPos1) and Q(panCellPos1).IsFromNamedParam()
@@ -6832,7 +6877,7 @@ Class stzTable
 		ok
 
 		# STEP 1: Moving the column used in the sort at the first position
-		# while memorising its position (becase we will move it later)
+		# while memorising its position (because we will move it back later)
 
 		nInitialColPos = This.ColToNumber(pCol)
 		This.MoveCol(pCol, :To = :FirstPosition)
@@ -6861,7 +6906,7 @@ Class stzTable
 
 			acRows + cRow
 		next
-		
+	
 		ocRows = new stzListOfStrings(acRows)
 		if pcDirection = :Ascending or pcDirection = :InAscending
 			ocRows.SortInAscending()
@@ -7290,35 +7335,53 @@ Class stzTable
 	def MaxWidthInCol(pCol)
 		if isString(pCol)
 			if Q(pCol).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+				pCol = 1
 
 			but Q(pCol).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
-
-			but This.HasColName(pCol)
-				pCol = This.FindCol(pCol)
+				pCol = This.NumberOfCols()
 
 			else
-				StzRaise("Syntax error in column name! Allowed values are :First, :FirstCol, or privide a number instead.")
+				pCol = This.FindCol(pCol)
+				if pCol = 0
+					StzRaise("Inexistant column name!")
+				ok
 			ok
 		ok
+? ElapsedTime()
+		aColContent = This.Col(pCol)
+		nNumberOfCols = len(aColContent)
+		nMax = 0
 
-		anSizes = [ This.ColNameQ(pCol).NumberOfChars() ]
+		for i = 1 to nNumberOfCols
+			cell = aColContent[i]
 
-		aColData = This.Col(pCol)
-		for cell in aColData
-			anSizes + @@SQ(cell).RemoveBoundsQ('"').NumberOfChars()
+			if isList(cell)
+				nLen = len(cell)
+			but isString(cell)
+				nLen = Q(cell).NumberOfChars()
+			but isNumber(cell)
+				nLen = len(""+cell)
+			else // case of object
+				# TODO: manage this in the future
+			ok
+
+			if nLen > nMax
+				nMax = nLen
+			ok
 		next
 
-		nResult = StzListOfNumbersQ(anSizes).Max()
-		return nResult
+		return nMax
+
 
 		def WidthOfLargestCellInCol(pCol)
 			return This.MaxWidthInCol(pCol)
 
 	def MaxWidthInEachCol()
 		anResult = []
+		nNumberOfCols = This.NumberOfCol()
 
-		for cColName in This.ColNames()
-			anResult + This.MaxWidthInCol(cColName)
+		for i = 1 to nNumberOfCols
+			anResult + This.MaxWidthInCol(i)
 		next
 
 		return anResult
@@ -7399,15 +7462,15 @@ Class stzTable
 	def RowsToStringXT(paOptions)
 
 		cRows = ""
-
-		for y = 1 to NumberOfRows()
-			cRows += ""+ y + "   " + RowToStringXT(y, paOptions) + NL
+		//nNumberOfRows = 
+		for y = 1 to This.NumberOfRows()
+			cRows += ""+ y + "   " + This.RowToStringXT(y, paOptions) + NL
 		next
 
 		return cRows
 
-	def RowToString()
-		return This.RowToStringXT([ :ReplaceEmptyCellsWith = "" ])
+	def RowToString(n)
+		return This.RowToStringXT(n, [ :ReplaceEmptyCellsWith = "" ])
 
 	def RowToStringXT(n, paOptions)
 		if NOT ( isList(paOptions) and Q(paOptions).IsHashList() )
@@ -7416,17 +7479,18 @@ Class stzTable
 
 		cEmptyCell = paOptions[ :ReplaceEmptyCellsWith ]
 
+		anMax = []
+		acColNames   = This.ColNames()
+		nLenColNames = len(acColNames)
+
+		anMax = This.MaxWidthInEachCol()
+
 		cRow = ""
 		aRow = This.Row(n)
+		nLenRow = len(aRow)
 
-		anMax = []
-		for colName in This.ColNames()
-			anMax + This.WidthOfLargestCellInCol(colName)
-		next
-
-		i = 0
-		for cell in aRow
-			i++
+		for i = 1 to nLenRow
+			cell = aRow[i]
 
 			if isString(cell) and cell = NULL
 				cell = cEmptyCell
@@ -7440,7 +7504,7 @@ Class stzTable
 				RemoveBoundsQ("'").
 				AlignedToRightXT( anMax[i], " " )
 
-			if i < len(aRow)
+			if i < nLenRow
 				cRow += "   "
 			ok
 		next
@@ -7580,6 +7644,12 @@ Class stzTable
 		def ColToName(p)
 			return This.ColToColName(p)
 
+		def ColAsName(p)
+			return This.ColToColName(p)
+
+		def ColumnAsName(p)
+			return This.ColToColName(p)
+
 	def TheseColsToColNames(paCols)
 		if NOT ( isList(paCols) and ( Q(paCols).IsListOfNumbers() or
 				Q(paCols).IsListOfStrings() or
@@ -7608,6 +7678,12 @@ Class stzTable
 			return This.TheseColsToColNames(paCols)
 
 		def TheseColumnsToNames(paCols)
+			return This.TheseColsToColNames(paCols)
+
+		def TheseColsAsNames(paCols)
+			return This.TheseColsToColNames(paCols)
+
+		def TheseColumnsAsNames(paCols)
 			return This.TheseColsToColNames(paCols)
 
 	def ColToColNumber(p)
@@ -7650,6 +7726,19 @@ Class stzTable
 		def ColNumber(p)
 			return This.ColToColNumber(p)
 
+		def ColumnToNumber(p)
+			return This.ColToColNumber(p)
+
+		def ColumnNumber(p)
+			return This.ColToColNumber(p)
+
+		def ColAsNumber(p)
+			return This.ColToColNumber(p)
+
+		def ColumnAsNumber(p)
+			return This.ColToColNumber(p)
+
+
 	def TheseColsToColNumbers(paCols)
 		if NOT ( isList(paCols) and ( Q(paCols).IsListOfNumbers() or
 				Q(paCols).IsListOfStrings() or
@@ -7677,6 +7766,12 @@ Class stzTable
 		def TheseColumnsToNumbers(paCols)
 			return This.TheseColsToColNumbers(paCols)
 
+		def TheseColumnsAsNumbers(paCols)
+			return This.TheseColsToColNumbers(paCols)
+
+		def TheseColsAsNumbers(paCols)
+			return This.TheseColsToColNumbers(paCols)
+
 	def RowToRowNumber(pRow)
 		if isList(pRow) and Q(pRow).IsOneOfTheseNamedParams([ :Row, :Rows, :InRow, :InRows, :OfRow, :OfRows ])
 			pRow = pRow[2]
@@ -7699,6 +7794,9 @@ Class stzTable
 		def RowToNumber(pRow)
 			return This.RowToRowNumber(pRow)
 
+		def RowAsNumber(pRow)
+			return This.RowToRowNumber(pRow)
+
 	def TheseRowsToRowsNumbers(paRows)
 		aResult = []
 
@@ -7711,3 +7809,5 @@ Class stzTable
 		def TheseRowsToNumbers(paRows)
 			return This.TheseRowsToRowsNumbers(paRows)
 
+		def TheseRowsAsNumbers(paRows)
+			return This.TheseRowsToRowsNumbers(paRows)
