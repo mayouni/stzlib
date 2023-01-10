@@ -31,20 +31,169 @@ RemoveXT()
 
 /*-----------
 
+StartProfiler()
+
+o1 = new stzString("---456---")
+? o1.DistanceTo("6", :StartingAt = 4)
+#--> 3
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*-----------
 
 StartProfiler()
 
-o1 = new stzString('
-[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥", ["4", [ "5", "♥" ], "4", ["5","♥"], "♥"], "3"] ] ]')
+o1 = new stzList([0, 0, 1, 0, 1])
+? o1.FindLast(0)
+#--> 4
 
-o1.RemoveSubStringsBetweenXT("]","[")
+StopProfiler()
+# Executed in 0.01 second(s)
 
-//? o1.SubStringsBetween("]","[") # ..BoundedBy
-//? o1.SubStringsBoundedBy(["]","["]) 
+/*-----------
 
-//o1.RemoveSubStringsBetweenXT("]","[")
-//o1.RemoveAnySectionsBoundedByXT("]","[")
+StartProfiler()
+#                   1..4.6..9.1.34..7..0
+o1 = new stzString("[••[•[••]•[•]]••[••]]")
+? o1.DistanceTo("[",:startingat = 1)
+#--> 4
+
+//? @@S( o1.FindAnySectionsBetween("[","]") )
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+aList1 = [ 1,  4,  6, 11, 17 ]
+aList2 = [ 9, 13, 14, 20, 21 ]
+
+nLen1 = len(aList1)
+nLen2 = len(aList2)
+
+aSections = [] 
+aSections + [ aList1[1], aList2[nLen2] ]
+
+del(aList2, nLen2)
+nLen2 = len(aList2)
+
+for i = 1 to nLen1 - 1
+	
+	for q = 1 to nLen2
+		if aList2[q] < aList1[i+1]
+			aSections + [ aList1[i], aList2[q] ]
+			del(aList2, q)
+			exit
+		ok
+	next
+
+next
+
+for q = 1 to nLen2
+	if aList2[q] > aList1[i]
+		aSections + [ aList1[i], aList2[q] ]
+		exit
+	ok
+next
+
+? @@S(aSections)
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
+? o1.NeighborsOf(5)
+#--> [4, 6]
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzList([1,2,3,4,5])
+o1 - [3,5]
+
 ? o1.Content()
+#--> [ 1, 2, 4 ]
+
+# Executed in 0.04 second(s)
+
+/*-----------
+
+
+StartProfiler()
+
+aList1  = [ 1, 4, 6,   11,        18        ,    24  ]
+aList2  = [          9,    14, 15,    21, 22, 23     ]
+
+aList = Q(aList1).MergeWithQ(aList2).Sorted()
+
+
+aSections = []
+bContinue = TRUE
+
+
+while TRUE
+
+	for i = 2 to len(aList)
+	
+		if find(aList1, aList[i-1]) > 0 and
+		   find(aList2, aList[i]) > 0
+	
+			aSections + [ aList[i-1], aList[i] ]
+			if len(aSections) = 5
+				exit 2
+			ok
+
+		ok
+	next
+	
+	aList = Q(aList).ManyRemoved(Q(aSections).Merged())
+
+end
+
+? @@S(aSections)
+
+
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+#                   1..4.6..v.1..vv..8..vv
+o1 = new stzString("[••[•[••]•[••]]••[••]]")
+#                   ^..^.^..9.^..45..^..21
+
+? @@S( o1.FindAnySectionsBetween("[","]") )
+
+StopProfiler()
+
+/*-----------
+
+
+StartProfiler()
+ #                  ...4.6...v...4.v.v..1.v..
+o1 = new stzString("---[ [===]---[=] ]--[=]--")
+#                   ...^.^...0...^.6.8..^.3..
+
+//o1.RemoveAnyBetween("[","]")
+//? o1.Content()
+
+//? o1.FindAnyBetween("[","]")
+#--> [2, 6]
+# Executed in 0.04s
+
+? @@S( o1.FindAnySectionBetween("[","]") )
+#--> [ [ 2, 12 ], [ 6, 8 ] ]
 
 StopProfiler()
 
@@ -52,16 +201,48 @@ StopProfiler()
 */
 StartProfiler()
 
+o1 = new stzString('[
+	"1", "1",
+		[ "2", "♥", "2"],
+	"1",
+		[ "2",
+			["3", "♥",
+				["4",
+					["5", "♥"],
+				"4",
+					["5","♥"],
+				"♥"],
+			"3"]
+		]
+]')
+
+
+? o1.SectionsBetween("[", "]")
+
+	//o1.ReplaceAnyBetween("[", "]", "***")
+	//o1.RemoveSubStringsBetweenXT("]","[")
+	//? o1.SubStringsBetween("]","[") # ..BoundedBy
+	//? o1.SubStringsBoundedBy(["]","["])  # Add it
+	//o1.RemoveSubStringsBetweenXT("]","[")
+	//o1.RemoveAnySectionsBoundedByXT("]","[")
+	//? o1.Content()
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
 o1 = new stzList(
 [ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥", ["4", [ "5", "♥" ], "4", ["5","♥"], "♥"], "3"] ] ])
 
 ? o1.NumberOfLevels()
 #--> 5
-# Executes in 0.04s
+# Executed in 0.04s
 
 ? @@S( o1.DeepFind("♥") )
 #--> [ [ 2, 2 ], [ 3, 2 ], [ 5, 2 ], [ 5, 2 ], [ 4, 3 ] ]
-# Executes in 0.07s
+# Executed in 0.07s
 
 StopProfiler()
 #--> Executed in 0.12 second(s)

@@ -3119,10 +3119,12 @@ class stzList from stzObject
 	 #   REMOVING MANY ITEMS AT THE SAME TIME   #
 	#--------------------------------------------#
 
-	def RemoveMany(pacItems)
+	def RemoveMany(paItems)
 
-		for item in pacItems
-			This.RemoveAll(item)
+		nLen = len(paItems)
+
+		for i = 1 to nLen
+			This.RemoveAll(paItems[i])
 		next
 
 		#< @FunctionFluentForm
@@ -3171,9 +3173,10 @@ class stzList from stzObject
 		def AllOfTheseItemsRemoved(pacItems)
 			return This.TheseItemsRemoved(pacItems)
 
-		#--
-
 		def ManyItemsRemoved(pacItems)
+			return This.TheseItemsRemoved(pacItems)
+
+		def ManyRemoved(pacItems)
 			return This.TheseItemsRemoved(pacItems)
 
 	  #-------------------------------------------------#
@@ -5118,13 +5121,12 @@ class stzList from stzObject
 		*/
 
 		bResult = TRUE
-		aList = This.List()
-		nLen = len(aList)
+		nLen = This.NumberOfItems()
 
 		for i = 1 to nLen
-			item = aList[i]
+			item = This[i]
 
-			if NOT ( isList(item) and nLen = 2 )
+			if NOT ( isList(item) and len(item) = 2 )
 				bResult = FALSE
 				exit
 			ok
@@ -7975,6 +7977,13 @@ class stzList from stzObject
 			off
 		#>
 
+		#< @FunctionMisspelledForm
+
+		def Yiled(pcCode)
+			return This.Yield(pcCode)
+
+		#>
+
 	  #----------------------------------------------------#
  	 #   YIELDING INFORMATION FROM EACH ITEM -- EXTENDED  #
 	#----------------------------------------------------#
@@ -8112,6 +8121,13 @@ class stzList from stzObject
 			other
 					StzRaise("Unsupported return type!")
 			off
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def YiledXT(pcCode)
+			return This.YieldXT(pcCode)
+
 		#>
 
 	  #========================================================#
@@ -8406,6 +8422,13 @@ class stzList from stzObject
 				off
 		#>
 
+		#< @FunctionMisspelledForm
+
+		def YiledFrom(paPostions, pcCode)
+			return This.YieldFrom(paPositons, pcCode)
+
+		#>
+
 	  #---------------------------------------------------------#
 	 #  YIELDING INFORMATION FROM GIVEN POSITIONS -- EXTENDED  #
 	#---------------------------------------------------------#
@@ -8688,6 +8711,13 @@ class stzList from stzObject
 				other
 					StzRaise("Unsupported return type!")
 				off
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def YiledFromXT(paPostions, pcCode)
+			return This.YieldFromXT(paPositons, pcCode)
+
 		#>
 
 	  #======================================================#
@@ -9220,6 +9250,7 @@ class stzList from stzObject
 		ok
 
 		anPositions = This.FindW(pcCondition)
+? @@S(anPositions)
 		aResult = This.YieldFrom(anPositions, pcCode)
 
 		return aResult
@@ -9280,6 +9311,13 @@ class stzList from stzObject
 				other
 					StzRaise("Unsupported return type!")
 				off
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def YiledW(pcCode, pcCondition)
+			return This.YieldW(pcCode, pcCondition)
+
 		#>
 
 	  #---------------------------------------------------------------------------#
@@ -11157,16 +11195,16 @@ class stzList from stzObject
 			def SortQ()
 				return This.SortInAscendingQ()
 
-	  #------------------------------------#
-	 #  SORTING THE ITEM IN DESCENDING  #
-	#------------------------------------#
- 	
 	def SortedInAscending()
 		aResult = This.Copy().SortInAscendingQ().Content()
 		return aResult
 
 		def Sorted()
 			return This.SortedInAscending()
+
+	  #------------------------------------#
+	 #  SORTING THE ITEM IN DESCENDING  #
+	#------------------------------------#
 
 	def SortInDescending()
  		aResult = This.SortInAscendingQ().Content()
@@ -12334,7 +12372,7 @@ oTable.Show() + NL
 
 	def Merged()
 		aResult = This.Copy().MergeQ().Content()
-		return This
+		return aResult
 
 	  #-----------------------------------------#
 	 #   MERGING THE LIST WITH AN OTHER LIST   #
@@ -12490,8 +12528,18 @@ oTable.Show() + NL
 	def ToStzListOfStrings()
 		return new stzListOfStrings(This.Content())
 
+	def ToListOfStrings()
+		aResult = []
+		nLen = This.NumberOfItems()
+
+		for i = 1 to nLen
+			aResult + @@S( This[i] )
+		next
+
+		return aResult
+
 		def ToListOfStringsQ()
-			return This.ToStzListOfStrings()
+			return new stzList( This.ToListOfStrings() )
 	
 	def ToStzHashList()
 		return new stzHashList( This.List() )
@@ -13316,7 +13364,6 @@ oTable.Show() + NL
 	def NumberOfLevels()
 				
 		oCopy = @@SQ( This.Content() ).RemoveSectionsBetweenXTQ("]","[")
-		oCopy.FindLast("[")
 		nResult = oCopy.NumberOfOccurrence("[")
 
 		return nResult
@@ -13838,32 +13885,30 @@ oTable.Show() + NL
 	def FindFirstOccurrenceCS(pItem, pCaseSensitive)
 
 		cType = ring_type(pItem)
-
-		if isString(pItem) or isList(pItem)
-			bIsStringOrList = TRUE
-		ok
-
-		aList = This.List()
-		nLen  = len(aList)
+		nLen  = This.NumberOfItems()
 
 		nResult = 0
 
 		for i = 1 to nLen
+			currentItem = This[i]
+			cCurrentType = ring_type(currentItem)
 
-			if cType = "NUMBER"
-				if aList[i] = pItem
+			if cCurrentType = "NUMBER" and cType = "NUMBER"
+				if currentItem = pItem
 					nResult = i
 					exit
 				ok
 
-			but cType = "STRING" or cType = "LIST"
-				if Q(aList[i]).IsEqualToCS(pItem, pCaseSensitive)
+			but ( cCurrentType = "STRING" and cType = "STRING" ) or
+			    ( cCurrentType = "LIST" and cType = "LIST" )
+
+				if Q(currentItem).IsEqualToCS(pItem, pCaseSensitive)
 					nResult = i
 					exit
 				ok
 
-			but cType = "OBJECT"
-				if Q(aList[i]).IsEqualTo(pItem)
+			but cCurrentType = "OBJECT" and cType = "OBJECT"
+				if Q(currentItem).IsEqualTo(pItem)
 					nResult = i
 					exit
 				ok
@@ -13922,13 +13967,35 @@ oTable.Show() + NL
 
 	def FindLastOccurrenceCS(pItem, pCaseSensitive)
 		nResult = 0
+		aList = This.Content()
+		nLen = len(aList)
 
-		anPositions = This.FindAllCS(pItem, pCaseSensitive)
-		n = len(anPositions)
+		bItemIsString = isString(pItem)
 
-		if n > 0
-			nResult = anPositions[n]
-		ok
+		nResult = 0
+
+		for i = nLen to 1 step -1
+			currentItem = aList[i]
+
+			if bItemIsString and isString(currentItem)
+				if Q(currentItem).IsEqualToCS(pItem)
+					nRresult = i
+					exit
+				ok
+
+			but isNumber(pItem) and isNumber(currentItem)
+				if currentItem = pItem
+					nResult = i
+					exit
+				ok
+
+			else
+				if Q(currentItem).IsEqualTo(pItem)
+					nResult = i
+					exit
+				ok
+			ok
+		next
 
 		return nResult
 
@@ -14847,16 +14914,22 @@ oTable.Show() + NL
 
 		# Cleansing the condition
 		
-		oCCode = new stzCCode(pcCondition)
-		cCode  = 'bOk = ( ' + oCCode.Transpiled() + ' )'
-		oCode  = Q( cCode )
-		
+		oCCode  = new stzCCode(pcCondition)
+		cCode   = 'bOk = ( ' + oCCode.Transpiled() + ' )'
+		oCode   = Q( cCode )
+
+		oCodeWS = oCode.RemoveSpacesQ()
+		bContainsThisPlus@i  = oCodeWS.ContainsCS("This[@i+1]", :CS = FALSE)
+		bContainsThisMinus@i = oCodeWS.ContainsCS("This[@i-1]", :CS = FALSE)
+
 		# Identifying the Executable Section
 
 		aExecutableSection = This.InfereSection( oCCode.ExecutableSection() )
 
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]
+
+		nLen = This.NumberOfItems()
 
 		# Doing the job
 
@@ -14866,14 +14939,13 @@ oTable.Show() + NL
 
 			bEval = TRUE
 
-			if @i = This.NumberOfItems() and
-			   oCode.RemoveSpacesQ().ContainsCS("This[@i+1]", :CS = FALSE)
+			
+			if @i = nLen and bContainsThisPlus@i
 
 				bEval = FALSE
 			ok
 
-			if @i = 1 and
-			   oCode.RemoveSpacesQ().ContainsCS("This[@i-1]", :CS = FALSE)
+			if @i = 1 and bContainsThisMinus@i
 
 				bEval = FALSE
 			ok

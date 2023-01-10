@@ -845,11 +845,10 @@ class stzListOfLists from stzList
 	def Merge()
 
 		aResult = []
-		aListOfLists = This.ListOfLists()
-		nLenListOfLists = len(aListOfLists)
+		nLenLists = This.NumberOfLists()
 
-		for i = 1 to nLenListOfLists
-			aList = aListOfLists[i]
+		for i = 1 to nLenLists
+			aList = This[i]
 			nLenList = len(aList)
 
 			for v = 1 to nLenList

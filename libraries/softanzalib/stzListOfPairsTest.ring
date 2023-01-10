@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*-----------------
+
 o1 = new stzListOfPairs([ [ 9, 10 ], [ 1, 2 ], [ 6, 6 ] ])
 o1.SortInAscending()
 ? @@S( o1.Content() )
@@ -7,9 +9,22 @@ o1.SortInAscending()
 
 /*-----------------
 
+StartProfiler()
+
+? Q([ [ 18, 22 ], [ 8, 12], [ 3, 5] ]).IsListOfPairs()
+
+StopProfiler()
+# Executed in 0.01 second(s)
+
+/*-----------------
+*/
+StartProfiler()
+
 o1 = new stzListOfPairs([ [ 18, 22 ], [ 8, 12], [ 3, 5] ])
 ? @@S( o1.Sorted() )
 #--> [ [ 3, 5 ], [ 8, 12 ], [ 18, 22 ] ]
+
+StopProfiler()
 
 /*-----------------
 

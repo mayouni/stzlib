@@ -1,7 +1,16 @@
 load "stzlib.ring"
 
 /*-----------------
+
+o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
+? o1.NeighborsOf(5)
+#--> [4, 6]
+
+/*-----------------
 */
+
+StartProfiler()
+
 o1 = new stzListOfNumbers([ 1, 2, 999, 4, 5, 999, 7, 8, 999 ])
 
 ? o1.FindAll(999)
@@ -28,6 +37,8 @@ o1 = new stzListOfNumbers([ 1, 2, 999, 4, 5, 999, 7, 8, 999 ])
 
 ? o1.LastNOccurrencesXT(2, :Of = 999, :StartingAt = 10)
 #--> [6, 9]
+
+StopProfiler()
 
 /*--------------
 

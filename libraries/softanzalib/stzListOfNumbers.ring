@@ -963,6 +963,48 @@ class stzListOfNumbers from stzList
 
 		return nResult
 
+	  #-------------------------------------------------------#
+	 #  GETTING THE TWO NIGHBORS (IF ANY) OF A GIVEN NUMBER  #
+	#-------------------------------------------------------#
+
+
+	def NeighborsOf(n)
+		/* EXAMPLE
+
+		o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
+		? o1.NeighborsOf(5)
+		#--> [4, 6]
+		
+		*/
+
+		anSorted = This.Sorted()
+		nLen = len(anSorted)
+
+		if ring_find(anSorted, n) > 0 or n < anSorted[1] or n > anSorted[nLen]
+			return []
+		ok
+
+		aResult = []
+
+		for i = 1 to nLen - 1
+			n1 = anSorted[i]
+			n2 = anSorted[i+1]
+
+			if Q(n).IsBetween(anSorted[i], anSorted[i+1])
+				aResult = [n1, n2]
+				exit
+			ok
+		next
+
+		return aResult
+
+		#< @FunctionMisspelledForm
+
+		def NighborsOf(n)
+			return NeighborsOf(n)
+
+		#>
+
 	  #------------------------------------------------------#
 	 #  LEAST COMMON NUMBER WITH AN OTHER LIST OF NUMBERS   #
 	#------------------------------------------------------#

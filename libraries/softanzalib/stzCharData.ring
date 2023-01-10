@@ -2138,3 +2138,6 @@ Diacritics
 
 	func CheckMark()
 		return "✓"
+
+	func Dot()
+		return "•"

@@ -69,9 +69,6 @@ class stzListOfPairs from stzList
 	def Content()
 		return @aContent
 
-	def Pair()
-		return This.Content()
-
 	def ListOfPairs()
 		return This.Content()
 
@@ -94,6 +91,9 @@ class stzListOfPairs from stzList
 
 	def PairAt(n)
 		return Content()[n]
+
+		def Pair(n)
+			return This.PairAt(n)
 
 	def FindPair(aPair)
 		return This.ToStzList().FindItem(paPair)
@@ -165,6 +165,23 @@ class stzListOfPairs from stzList
 		def SecondValuesInEachPair()
 			return This.SecondItems()
 
+	  #--------------------#
+	 #  REPLACING A PAIR  #
+	#--------------------#
+
+	def ReplacePair(n, paNewPair)
+		if isList(paNewPair) and Q(paNewPair).IsPair()
+			@aContent[n] = paNewPair
+		ok
+
+		def ReplacePairQ(n, paNewPair)
+			This.ReplacePair(n, paNewPair)
+			return This
+
+	def PairReplaced(n, paNewPair)
+		aResult = This.Copy().ReplacePairQ(n, paNewPair).Content()
+		return aResult
+
 	  #------------------------------#
 	 #  SORTING PAIRS IN ASCENDING  #
 	#------------------------------#
@@ -184,8 +201,11 @@ class stzListOfPairs from stzList
 		# Sort each pair in ascending
 		#--> [ [4, 7], [1, 3], [8, 9] ]		: Note that [3,1] became [1, 3]
 
-		for aPair in This.ListOfPairs()
-			aPair = Q(aPair).SortedInAscending()
+		nLen = This.NumberOfPairs()
+
+		for i = 1 to nLen
+			aPairSorted = Q( This.Pair(i) ).SortedInAscending()
+			This.ReplacePair(i, aPairSorted)
 		next
 
 		# Take the list of the first items of each pair
@@ -201,8 +221,9 @@ class stzListOfPairs from stzList
 		# Rearrange the pairs accrodingly
 		#--> [ [1, 3], [4, 7], [8, 9] ]
 
-		for n in aFirstItemsSorted
-			i = Q(aFirstItems).FindFirst(n)
+		nLen = len(aFirstItemsSorted)
+		for n = 1 to nLen
+			i = Q(aFirstItems).FindFirst(aFirstItemsSorted[n])
 			aResult + This[i]
 		next
 
