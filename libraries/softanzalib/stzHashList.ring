@@ -549,7 +549,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 	def UpdateKeys(paKeys)
 		oStzList = new stzList(paKeys)
 		if oStzList.ItemsAreAllStrings()
-			for i = 1 to Min( len(paKeys), This.NumberOfPairs() )
+			for i = 1 to Min([ len(paKeys), This.NumberOfPairs() ])
 				This.UpdateNthKey(i, paKeys[i])
 			next i
 		ok
@@ -569,7 +569,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			This.UpdateNthValue( This.FindNthOccurrenceOfValue(pValue) )
 	
 	def UpdateValues(paValues)
-		for i = 1 to Min( len(paValues), This.NumberOfPairs() )
+		for i = 1 to Min([ len(paValues), This.NumberOfPairs() ])
 			This.UpdateNthValue(i, paValues[i])
 		next
 	

@@ -1,5 +1,114 @@
 load "stzlib.ring"
 
+
+/*-----------------
+*/
+StartProfiler()
+
+o1 = new stzListOfStrings([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
+o1.RemoveDuplicatesCS(FALSE)
+? o1.Content()
+
+o1 = new stzListOfStrings([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
+? @@S( o1.FindDuplicates() )
+
+
+StopProfiler()
+
+/*-----------------
+
+o1.RemoveDuplicatesCS(TRUE)
+
+? o1.Content()
+
+StopProfiler()
+
+/*----------------
+
+StartProfiler()
+
+o1 = new stzList([ "", "", "", "ONE", "TWO", "THREE", "", "", "" ])
+
+o1.RemoveSection(1,3)
+? @@S( o1.Content() )
+#--> [ "ONE", "TWO", "THREE", "", "", "" ]
+
+o1.RemoveRange(:Last, -3)
+//? @@S( o1.Content() )
+? @@S( o1.Content() )
+#--> [ "ONE", "TWO", "THREE" ]
+
+StopProfiler()
+
+/*----------------
+
+StartProfiler()
+
+o1 = new stzListOfStrings([ "", "", "", "ONE", "TWO", "THREE", "", "", "" ])
+
+o1.RemoveSection(1,3)
+? @@S( o1.Content() )
+#--> [ "ONE", "TWO", "THREE", "", "", "" ]
+
+o1.RemoveRange(:Last, -3)
+//? @@S( o1.Content() )
+? @@S( o1.Content() )
+#--> [ "ONE", "TWO", "THREE" ]
+
+StopProfiler()
+
+/*----------------
+
+StartProfiler()
+
+o1 = new stzListOfStrings([ "", "", "", "ONE", "TWO", "THREE", "", "", "" ])
+
+o1.TrimStart()
+? @@S( o1.Content() )
+#--> [ "ONE", "TWO", "THREE", "", "", "" ]
+
+o1.TrimEnd()
+? @@S( o1.Content() )
+#--> [ "ONE", "TWO", "THREE" ]
+
+StopProfiler()
+
+/*---------------
+
+StartProfiler()
+
+o1 = new stzListOfStrings([ "", "", "", "ONE", "TWO", "THREE", "", "", "" ])
+o1.Trim()
+? @@S( o1.Content() )
+#--> [ "ONE", "TWO", "THREE" ]
+
+StopProfiler()
+
+/*---------------
+
+StartProfiler()
+
+o1 = new stzListOfStrings([
+	"", "",
+	"ABCDEF", "GHIJKL",
+	"123346", "MNOPQU", "RSTUVW", "984332",
+	"", ""
+])
+
+o1.RemoveAtQ([5, 8]).TrimQ()
+? @@S( o1.Content() )
+#--> [ "ABCDEF", "GHIJKL", "MNOPQU", "RSTUVW" ]
+
+StopProfiler()
+/*---------------
+
+o1 = new stzListOfStrings([ "name", "اسم", "姓名" ])
+o1.RemoveAt(2)
+? @@S(o1.Content())
+#--> [ "name", "姓名" ]
+
+/*---------------
+
 ? StzTextQ("姓名").Script() #--> "han"
 
 o1 = new stzListOfStrings([ "name", "اسم", "姓名" ])

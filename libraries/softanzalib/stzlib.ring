@@ -4,6 +4,7 @@ load "sqlitelib.ring"
 load "tracelib.ring"
 load "internetlib.ring"
 load "typehints.ring"
+load "stzExtLang.ring"
 
 load "stzGlobals.ring"
 

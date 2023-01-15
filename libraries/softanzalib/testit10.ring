@@ -1,6 +1,7 @@
 load "stzlib.ring"
 
 ? Q("Checking if the table contains a given cell").Uppercased()
+#--> CHECKING IF THE TABLE CONTAINS A GIVEN CELL
 
 /*---------------
 
@@ -9,11 +10,10 @@ o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 ? o1.FindAll("word")
 #--> [11, 28, 41]
 	
-? o1.FindSections("word")
+? o1.FindAsSections("word")
 #--> [ [11, 14], [28, 31], [41, 44] ]
 
-	? o1.FindNthSection(2, "word")
-	#--> [28, 31]
+
 	
 	? o1.FindLastSection("word")
 #--> [41, 44]
@@ -49,16 +49,16 @@ o1 = new stzString("bla bla <<word1>> bla bla <<word2>> bla <<word3>>")
 //? o1.FindAnyBetweenXT("<<", ">>")
 #--> [ [11, "word1"], [29, "word2"], [43, "word2"] ]
 
-? o1.FindSectionsBetween("<<", ">>")
+? o1.FindAsSectionsBetween("<<", ">>")
 #--> [ [11, 15], [29, 33], [43, 47] ]
 
-? o1.FindSectionsBetweenXT("<<", ">>")
+? o1.FindAsSectionsBetweenXT("<<", ">>")
 #--> [ [ "word1", [11, 15] ], [ "word2", [29, 33] ], [ "word3", [43, 47] ] ]
 
 /*---------------
 
 o1 = new stzString("bla bla <<word1>> bla bla <<word2>> bla <<word3>>")
-aSectionsBetween = o1.FindSectionsBetween("<<", ">>")
+aSectionsBetween = o1.FindAsSectionsBetween("<<", ">>")
 ? o1.NumberOfAntiSections( aSectionsBetween )
 #--> 4
 

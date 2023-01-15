@@ -4,6 +4,15 @@ load "stzlib.ring"
 
 StartProfiler()
 
+o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
+? @@S( o1.FindDuplicates() )
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
 o1 = new stzString( '[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥"] ] ]' )
 ? o1.FindPreviousNthOccurrence(1, :Of = "[", :StartingAt = 21)
 ? o1.FindNextNthOccurrence(1, :Of = "]", :StartingAt = 21)
@@ -198,14 +207,24 @@ o1 = new stzString("---[ [===]---[=] ]--[=]--")
 StopProfiler()
 
 /*-----------
+
+StartProfiler()
+	o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
+	? o1.SubstringsBetween("<<", ">>")
+
+	# --> [ "word1", "word2" ]
+
+StopProfiler()
+
+/*-----------
 */
 StartProfiler()
 
 o1 = new stzString('[
 	"1", "1",
-		[ "2", "♥", "2"],
+		["2", "♥", "2"],
 	"1",
-		[ "2",
+		["2",
 			["3", "♥",
 				["4",
 					["5", "♥"],
@@ -214,10 +233,70 @@ o1 = new stzString('[
 				"♥"],
 			"3"]
 		]
+
 ]')
 
 
+aList = o1.SectionsBetween("[", "]")
+nLen = len(aList)
+for i = 1 to nLen
+	? aList[i] + NL + NL + "--" + NL
+next
+
+#--> Executed in 0.61 second(s)
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzString('[[[
+	"1", "1",
+		[[["2", "♥", "2"]]],
+	"1",
+		[[["2",
+			[[["3", "♥",
+				[[["4",
+					[[["5", "♥"]]],
+				"4",
+					[[["5","♥"]]],
+				"♥"]]],
+			"3"]]]
+		]]]
+
+]]]')
+
 ? o1.SectionsBetween("[", "]")
+# Executed in 12.72 second(s)
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzString('[[[
+	"1", "1",
+		[[["2", "♥", "2"]]],
+	"1",
+		[[["2",
+			[[["3", "♥",
+				[[["4",
+					[[["5", "♥"]]],
+				"4",
+					[[["5","♥"]]],
+				"♥"]]],
+			"3"]]]
+		]]]
+
+]]]')
+
+//? o1.FindDeepSectionsBetween("[", "]")
+aList = o1.SectionsBetween("[[[", "]]]")
+nLen = len(aList)
+for i = 1 to nLen
+	? aList[i] + NL + "--" + NL
+next
+# Executed in 0.64 second(s)
 
 	//o1.ReplaceAnyBetween("[", "]", "***")
 	//o1.RemoveSubStringsBetweenXT("]","[")
@@ -228,7 +307,7 @@ o1 = new stzString('[
 	//? o1.Content()
 
 StopProfiler()
-
+# Executed in 0.63 second(s)
 /*-----------
 
 StartProfiler()
@@ -3174,11 +3253,6 @@ o1 = new stzList(' "♥1" : "♥9" ')
 #	[ "Teeba", 	[ "♥4", "♥5", "♥6" ] ],
 #	[ "Haneen", 	[ "♥7", "♥8", "♥9" ] ]
 # ]
-
-/*---------------------
-
-? StzListQ([ 2, 3, 2, :f ]).IsListOfNumbers()
-? ListOfNumbersSum([ 2, 3, 2 ])
 
 /*---------------------
 

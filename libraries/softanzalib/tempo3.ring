@@ -64,7 +64,7 @@ o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 ? o1.FindNthSectionBetween(2, "word", "<<", ">>")
 #--> [28, 31]
 
-? o1.FindFirstSectionBetween("word", "<<", ">>") // Same as FindSectionBetween()
+? o1.FindFirstSectionBetween("word", "<<", ">>") // Same as FindAsSectionBetween()
 #--> [11, 14]
 
 ? o1.FindLastSectionBetween("word", "<<", ">>")
@@ -169,7 +169,7 @@ o1 = new stzList("A":"J")
 ? o1.SectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
 #--> [ [ "A", "B" ], [ "C", "D", "E" ], [ "F" ], [ "G", "H" ], [ "I", "J" ] ]
 
-? o1.FindSectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
+? o1.FindAsSectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
 #--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
 /*----------------
@@ -187,7 +187,7 @@ o1 = new stzString("ABCDEFGHIJ")
 ? o1.SectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
 #--> [ "AB", "CDE", "F", "GH", "IJ"]
 
-? o1.FindSectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
+? o1.FindAsSectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
 #--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
 /*=================
@@ -410,13 +410,13 @@ o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
 #--> [ 14, 32 ]
 
 o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
-? o1.FindSectionsBetween("<<", ">>")
+? o1.FindAsSectionsBetween("<<", ">>")
 #--> [ [14, 18], [32, 36] ]
 
 /*----------------
 
 o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
-aSections = o1.FindSectionsBetween('"', '"')
+aSections = o1.FindAsSectionsBetween('"', '"')
 #--> [ [24 ,41], [56, 63] ]
 
 aAntiSections = o1.FindAntiSections(aSections)
@@ -432,7 +432,7 @@ aAntiSections = o1.FindAntiSections(aSections)
 /*----------------
 
 o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
-aBetween = o1.FindSectionsBetween('"', '"')
+aBetween = o1.FindAsSectionsBetween('"', '"')
 #--> [ [24 ,41], [56, 63] ]
 
 ? o1.Sections( aBetween )
@@ -484,7 +484,7 @@ aBetween = o1.FindSectionsBetween('"', '"')
 /*---------------
 
 o1 = new stzString(' this code:   txt1  = "<    withspaces    >"   and txt2="<nospaces>"  ')
-aAntiSections = o1.FindAntiSections( o1.FindSectionsBetween('"','"') )
+aAntiSections = o1.FindAntiSections( o1.FindAsSectionsBetween('"','"') )
 
 o1.ReplaceSections(aAntiSections, :With = '|***|')
 ? o1.Content()
@@ -493,7 +493,7 @@ o1.ReplaceSections(aAntiSections, :With = '|***|')
 /*----------------
 
 o1 = new stzString(' this code    :   txt1  = "<    leave spaces    >"   and this    code:  txt2 =   "< leave spaces >"  ')
-aAntiSections = o1.FindAntiSections( o1.FindSectionsBetween('"','"') )
+aAntiSections = o1.FindAntiSections( o1.FindAsSectionsBetween('"','"') )
 
 o1.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
 ? o1.Content()

@@ -1,5 +1,213 @@
 load "stzlib.ring"
 
+/*===========
+
+StartProfiler()
+
+? Q("RING").StringCase()
+#--> :Uppercase
+
+? Q("ring").StringCase()
+#--> :Lowercase
+
+? Q("Ring").StringCase()
+#--> :Capitalcase
+
+? Q("Ring is AWOSOME!").StringCase()
+#--> :Hybridcase
+
+StopProfiler()
+# Executed in 0.21 second(s)
+
+/*----------
+
+StartProfiler()
+
+? Q("i believe in ring future and engage for it!").Uppercased()
+#--> I BELIEVE IN RING FUTURE AND ENGAGE FOR IT!
+
+? Q("I BELIEVE IN RING FUTURE AND ENGAGE FOR IT!").IsUppercase()
+#--> TRUE
+
+StopProfiler()
+
+/*----------
+
+StartProfiler()
+
+? Q("I BELIEVE IN RING FUTURE AND ENGAGE FOR IT!").Lowercased()
+#--> i believe in ring future and engage for it!
+
+? Q("i believe in ring future and engage for it!").IsLowcase()
+#--> TRUE
+
+# As a side note, the last fuction used above (IsLowcase()) is
+# misspelled (should be IsLowerCase() with an "r" after low),*
+# but Softanza accepts it.
+
+StopProfiler()
+
+/*----------
+
+StartProfiler()
+
+? Q("i believe in ring future and engage for it!").Capitalcased()
+#--> I Believe In Ring Future And Engage For It!
+
+? Q("I Believe In Ring Future And Engage For It!").IsCapitalcase()
+#--> TRUE
+
+StopProfiler()
+
+/*==================
+
+o1 = new stzString("ABC*EF")
+o1.QStringObject().replace(3, 1, "D")
+? o1.Content()
+#--> "ABCDEF"
+
+/*-----------------
+
+StartProfiler()
+
+o1 = new stzString("ABC*EF")
+
+o1.ReplaceCharAt( :Position = 4, :By = "D")
+? o1.Content()
+#--> "ABCDEF"
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*-----------------
+
+StartProfiler()
+
+o1 = new stzString("ABC*EF")
+
+o1.ReplaceSection( 4, 4, "D")
+
+? o1.Content()
+
+StopProfiler()
+#--> Executed in 0.01 second(s)
+
+/*===========
+
+? Q("121212").IsMadeOf("12")
+#--> TRUE
+
+? Q("984332").IsMadeOfNumbers()
+#--> TRUE
+
+/*-----------
+
+o1 = new stzString("ABCDEF
+GHIJKL
+123346
+MNOPQU
+RSTUVW
+984332")
+
+? o1.Lines()[3]
+#--> "123346"
+
+? Q( o1.Lines()[3] ).IsMadeOfNumbers()
+#--> TRUE
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzString("
+
+ABCDEF
+GHIJKL
+123346
+MNOPQU
+RSTUVW
+984332
+
+")
+
+o1.TrimQ().RemoveLinesW(' Q(@line).IsMadeOfNumbers() ')
+? o1.Content() # TODO/ERR: when we use @@S( o1.Content() ) we observe
+		# that the NL are replaced by spaces: this is incorrect!
+
+#-->
+# "ABCDEF
+#  GHIJKL
+#  MNOPQU
+#  RSTUVW"
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzString("I love <<Ring>> and <<Softanza>>!")
+
+# Finding the positions of substrings enclosed between << and >>
+? o1.FindBetween("<<",">>")
+#--> [10, 23]
+
+	# Returning the same result as sections
+	? @@S( o1.FindBetweenAsSections("<<",">>") )
+	#--> [ [10, 13], [23, 30] ]
+
+	# Getting the substrings themselves
+	? o1.Between("<<",">>")
+	#--> [ "Ring", "Softanza" ]
+
+# Now, we need to do the same thing but we want to return the
+# bounding chars << and >> in the result as well. To do so,
+# we can use the eXTended version of the same functions above:
+
+? o1.FindBetweenXT("<<",">>")
+#--> [8, 21]
+
+	? @@S( o1.FindBetweenAsSectionsXT("<<",">>") )
+	#--> [ [ 8, 15 ], [ 21, 32 ] ]
+
+	? o1.BetweenXT("<<",">>")
+	#--> [ <<Ring>>, <<Softanza>> ]
+
+StopProfiler()
+#--> Executed in 0.18 second(s)
+
+/*-----------
+
+o1 = new stzString('[
+	"1", "1",
+		["2", "♥", "2"],
+	"1",
+		["2",
+			["3", "♥",
+				["4",
+					["5", "♥"],
+				"4",
+					["5","♥"],
+				"♥"],
+			"3"]
+		]
+
+]')
+
+//? @@S( o1.DeepFindAnySectionBetween("[", "]") )
+
+aList = o1.DeepSubStringsBetweenXT("[", "]")
+nLen = len(aList)
+for i = 1 to nLen
+	? aList[i] + NL + NL + "--" + NL
+next
+
+StopProfiler()
+
+#--> Executed in 0.61 second(s)
+
+/*---------- ERROR
+
 StartProfiler()
 
 o1 = new stzString("99999999999")
@@ -12,7 +220,7 @@ o1.SpacifyXT([ :EachNChars = "n", :StartingFrom = :End, :Using = "_" ])
 
 ? o1.SpacifiedUsing("_")
 #--> 9_9_9_9_9_9_9_9_9_9_9
-*/
+
 StopProfiler()
 
 /*--------------
@@ -54,28 +262,6 @@ o1.InsertBefore(anPos, "_")
 //o1.InsertAfterEachNCharsXT(3, :StartingFrom = :End)
 ? o1.Content()
 #--> 9_999_999_999_9
-
-StopProfiler()
-
-/*--------------
-
-StartProfiler()
-
-# This is a C# code showing string interpolation:
-'
-int max = int.MaxValue;
-int min = int.MinValue;
-Console.WriteLine($"The range of integers is {min} to {max}");
-'
-
-# And here is the same code translated to Ring:
-
-int max = RingMaxIntegerXT();
-int min = RingMinIntegerXT();
-? Q("The range of integers is {min} to {max}").Interpolated();
-
-#--> The range of integers is '-999_999_999_999_999' to '999_999_999_999_999'
-# NOTE the use of the XT() extension to return the number spacified by "_"
 
 StopProfiler()
 
@@ -285,7 +471,7 @@ o1 = new stzString("... ____ ... ____")
 o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12")
 ? @@S( o1.Find("12.34") )
 #--> [ 7, 39 ]
-? @@S( o1.FindSections("12.34") )
+? @@S( o1.FindAsSections("12.34") )
 #--> [ [ 7, 11 ], [ 39, 43 ] ]
 
 ? @@S( o1.FindManySections([ "12.34", "-56.30", "77.12" ]) )
@@ -1206,7 +1392,7 @@ o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!
 ? @@S( o1.Positions(:of = "many") ) + NL	# or o1.FindSubString("many")
 #--> [5, 12, 33, 40, 54]
 
-? @@S(o1.Sections(:Of = "many")) + NL		# or o1.FindSections(:OfSubString = "many")
+? @@S(o1.Sections(:Of = "many")) + NL		# or o1.FindAsSections(:OfSubString = "many")
 #--> [ [ 5, 8 ], [ 12, 15 ], [ 33, 36 ], [ 40, 43 ], [ 54, 57 ] ]
 
 	# Note that Sections() has an other syntax that returns, not the sections
@@ -1287,7 +1473,7 @@ o1 = new stzString("what a <<nice>>> day! Really <nice>>.")
 o1 = new stzString("what a <<nice>>> day!")
 
 ? o1.Sit(
-	:OnSection  = [10, 13], # or o1.FindSection("nice")
+	:OnSection  = [10, 13], # or o1.FindAsSection("nice")
 	:AndHarvest = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
 )
 #--> [ "<<", ">>>" ]
@@ -1306,7 +1492,7 @@ o1 = new stzString("what a <<nice>>> day!")
 o1 = new stzString("what a <<nice>>> day!")
 
 ? o1.Sit(
-	:OnSection  = [10, 13], # or o1.FindSection("nice")
+	:OnSection  = [10, 13], # or o1.FindAsSection("nice")
 	:AndHarvestSections = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
 )
 #--> [ [8, 9], [14, 16] ]
@@ -1326,7 +1512,7 @@ o1 = new stzString("what a 123nice>>> day!")
 o1 = new stzString("How many words in <<many many words>>? So many!")
 ? @@S( o1.FindPositions(:Of = "many") )
 #--> [ 5, 21, 26, 43 ]
-? @@S( o1.FindSections(:Of = "many") ) + NL
+? @@S( o1.FindAsSections(:Of = "many") ) + NL
 #--> [ [ 5, 8 ], [ 21, 24 ], [ 26, 29 ], [ 43, 46 ] ]
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
@@ -1339,11 +1525,7 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? @@S( o1.FindAnySectionsBetween("<<",">>") )
 # --> [ [ 11, 14 ], [ 28, 33 ], [ 43, 46 ] ]
 
-? @@S( o1.FindSubStringXT("word", :Between = ["<<", ">>"]) )
-# --> [ 11, 43 ]
 
-? @@S( o1.FindSectionsXT( :Of = "word", :Between = ["<<", ">>"] ) )
-#--> [ [ 11, 14 ], [ 43, 46 ] ]
 
 /*----------------
 
@@ -1356,7 +1538,7 @@ o1 = new stzString("bla bla <<word1>> bla bla <<word2>> bla <<word3>>")
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? o1.Nth(2, "word")		#--> 30
-? o1.NthSection(2, "word")	#--> [ 30, 33 ]
+? o1.NthAsSection(2, "word")	#--> [ 30, 33 ]
 
 /*----------------
 
@@ -1646,7 +1828,7 @@ o1 = new stzString("12*A*33*A*")
 ? o1.FindLast("*")
 #--> 10
 
-? @@S( o1.FindSections("*") )
+? @@S( o1.FindAsSections("*") )
 #--> [ [ 3, 3 ], [ 5, 5 ], [ 8, 8 ], [ 10, 10 ] ]
 
 /*-----------------
@@ -1661,7 +1843,7 @@ o1 = new stzString("12*A*33*A*")
 ? o1.FindBetween("A", "*", "*")
 #--> [4, 9]
 
-? o1.FindSectionsBetween("A", "*", "*")
+? o1.FindAsSectionsBetween("A", "*", "*")
 #--> [ [4, 4], [9, 9] ]
 
 /*-----------------
@@ -1670,12 +1852,11 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? o1.FindBetweenCS("word", "<<", ">>", :CaseSensitive = FALSE)
 #--> [ 11, 43 ]
 
-? o1.FindSectionsBetween("word", "<<", ">>")
+? o1.FindAsSectionsBetween("word", "<<", ">>")
 #--> [ [11, 14], [43, 46] ]
 
 //? o1.FindXT("word", :Between = [ "<<", ">>" ])
-? o1.FindSectionsXT(:Of = "word", :Between = [ "<<", ">>" ])
-#--> [ [11, 14], [43, 46] ]
+
 
 /*-----------------
 /
@@ -1726,7 +1907,7 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
 ? @@S( o1.FindBetween("word", "<<", ">>") )
 #--> [ 11 ]
 
-? @@S( o1.FindSectionsBetween("word", "<<", ">>") )
+? @@S( o1.FindAsSectionsBetween("word", "<<", ">>") )
 #--> [ [ 11, 14 ] ]
 
 ? @@S( o1.FindAnyBetween("<<",">>") )
@@ -1961,7 +2142,7 @@ StzStringQ("ring is not the ring you ware but the ring you program with") {
 	? @@S( FindAllOccurrencesCS(:Of = "ring", :CS = FALSE) )
 	# --> [ 1, 17, 39 ]
 
-	? @@S( FindSectionsCS(:Of = "ring", :CS = FALSE) )
+	? @@S( FindAsSectionsCS(:Of = "ring", :CS = FALSE) )
 	#--> [ [ 1, 4 ], [ 17, 20 ], [ 39, 42 ] ]
 
 	? @@S( FindOccurrences([1, 3], :Of = "ring") )

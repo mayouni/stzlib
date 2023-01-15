@@ -1,5 +1,5 @@
 
-Outnull said:
+Outnull:
 -------------
 
 "I just discovered your library, SoftanzaLib, and it looks very impressive! What a feat."
@@ -35,4 +35,7 @@ Bert Meriani
 Lots of different languages have the same Letter Glyph but different Unicode hex values.
 Good detective work."
 
+Ilir
+----
 
+That's impressive! And thank you for making such rich, high level library.

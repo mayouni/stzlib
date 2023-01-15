@@ -85,10 +85,30 @@ func LN(p)
 		func LoNQ(p)
 			return LNQ(p)
 
+func Min(panNumbers)
 
-func ListOfNumbersSum(paListOfNumbers)
-	oListOfNumbers = new stzListOfNumbers(paListOfNumbers)
+	if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+		StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+	ok
+
+	return StzListOfNumbersQ(panNumbers).Min()
+
+func Max(panNumbers)
+
+	if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+		StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+	ok
+
+	return StzListOfNumbersQ(panNumbers).Max()
+
+
+func Sum(panNumbers)
+	oListOfNumbers = new stzListOfNumbers(panNumbers)
 	return oListOfNumbers.Sum()
+
+func Product(panNumbers)
+	oListOfNumbers = new stzListOfNumbers(panNumbers)
+	return oListOfNumbers.Product()
 
 func MultiplicationsYieldingN(n)
 	aResult = []
@@ -553,10 +573,10 @@ class stzListOfNumbers from stzList
 
 			switch pcReturnType
 			on :stzNumber
-				return new stzNumber( This.Max(n) )
+				return new stzNumber( This.Max() )
 
 			on :stzString
-				return new stzString( This.Max(n) )
+				return new stzString( This.Max() )
 
 			other
 				StzRaise("Unsupported return type!")

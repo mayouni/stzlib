@@ -317,30 +317,6 @@ func DecimalDigits()
 func OctalDigits()
 	return _anOctalDigits
 
-func Min(n1,n2) # for more then 2 numbers, use stzListOfNumbers.Min()
-
-	if NOT BothAreNumbers(n1, n2)
-		StzRaise("Incorrect param! n1 and n2 must be a number!")
-	ok
-
-	if n1 <= n2
-		return n1
-	else
-		return n2
-	ok
-
-func Max(n1,n2) # for more numbers, use stzListOfNumbers.Max()
-
-	if NOT BothAreNumbers(n1, n2)
-		StzRaise("Incorrect param! Param must be a number!")
-	ok
-
-	if n1 >= n2
-		return n1
-	else
-		return n2
-	ok
-
 func Double(n)
 	if isList(n) and StzListQ(n).IsOfNamedParam()
 		n = n[2]

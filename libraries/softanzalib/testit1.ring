@@ -940,7 +940,7 @@ return
 
 /*------------- TODO
 
-VizFindSection()
+VizFindAsSection()
 
 "R I N G o r i a L A N D"
  --[   ]-----[   ]------
@@ -1063,7 +1063,7 @@ o1.InsertAt(4, " ")
 /*--------- OK
 
 o1 = new stzString("__WWW__WWW_WWW__")
-? @@( o1.FindSections("WWW") )
+? @@( o1.FindAsSections("WWW") )
 #--> [ [3,5], [8,10], [12,14] ]
 
 /*---------- OK

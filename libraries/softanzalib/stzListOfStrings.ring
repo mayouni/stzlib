@@ -6,6 +6,7 @@
 # 	Description	: The core class for managing lists of strings		#
 #	Version		: V1.0 (2020-2022)					#
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		   	#
+#										#
 #-------------------------------------------------------------------------------#
 
   /////////////////////
@@ -2649,7 +2650,7 @@ class stzListOfStrings from stzList
 			return This.NumberOfOccurrenceOfManyStringItemsQR(pacStrItems, :stzList)
 
 		def NumberOfOccurrenceOfManyStringItemsQR(pacStrItems, pcReturnType)
-			return This.NumberOfOccurrenceOfManyStringItemsQRCS(pacStrItems, pcCaseSensitive, pcReturnType)
+			return This.NumberOfOccurrenceOfManyStringItemsCSQR(pacStrItems, pcCaseSensitive, pcReturnType)
 		#>
 
 		#< @FunctionAlternativeForms
@@ -2661,7 +2662,7 @@ class stzListOfStrings from stzList
 				return This.NumberOfOccurrencesOfManyStringItemsQR(pacStrItems, :stzList)
 	
 			def NumberOfOccurrencesOfManyStringItemsQR(pacStrItems, pcReturnType)
-				return This.NumberOfOccurrencesOfManyStringItemsQRCS(pacStrItems, pcCaseSensitive, pcReturnType)
+				return This.NumberOfOccurrencesOfManyStringItemsCSQR(pacStrItems, pcCaseSensitive, pcReturnType)
 
 		def NumberOfOccurrenceOfManyStrings(pacStrItems)
 			return This.NumberOfOccurrenceOfManyStringItems(pacStrItems)
@@ -8245,7 +8246,7 @@ class stzListOfStrings from stzList
 		ok
 
 		anPositions = This.FindCS(pcStrItem, pCaseSensitive)
-		nMin = Min( len(anPositions), len(pacNewSubStringItems) )
+		nMin = Min([ len(anPositions), len(pacNewSubStringItems) ])
 
 		for i = nMin to 1 step -1
 			n = anPositions[i]
@@ -11197,7 +11198,7 @@ class stzListOfStrings from stzList
 
 		pacNewSubStr = IfWith@Eval(pacNewSubStr)
 
-		nMin = Min( len(pacSubStr), len(pacNewSubStr) )
+		nMin = Min([ len(pacSubStr), len(pacNewSubStr) ])
 
 		for i = 1 to nMin
 			This.ReplaceSubStringCS(pacSubStr[i], pacNewSubStr[i], pCaseSensitive)
@@ -12586,7 +12587,10 @@ class stzListOfStrings from stzList
 	#========================================================#
 
 	def RemoveStringAtPosition(n)
-
+		if isList(n)
+			This.RemoveStringsAtThesePositions(n)
+			return
+		ok
 		# Checking param correctness
 
 		if isString(n)
@@ -13084,9 +13088,14 @@ class stzListOfStrings from stzList
 	#=======================================================#
 
 	def RemoveStringsAtPositions(panPositions)
+		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+			StzRaise("Incorrect param type! panPositions must be a list of numbers.")
+		ok
+
 		panPositions = ring_sort(panPositions)
 
 		for i = len(panPositions) to 1 step -1
+
 			This.RemoveStringAtPosition(panPositions[i])
 
 		next
@@ -13218,17 +13227,18 @@ class stzListOfStrings from stzList
 		ok
 
 		if isString(pnStart)
-			if Q(pnStart).IsOneOfThese([
+			oStart = Q(pnStart)
+			if oStart.IsOneOfThese([
 					:First, :FirstPosition,
 				      	:FirstString, :FirstStringItem ])
 				  
 				pnStart = 1
 
-			but Q(pnStart).IsOneOfThese([
+			but oStart.IsOneOfThese([
 					:Last, :LastPosition,
 				      	:LastString, :LastStringItem ])
 
-				n = This.NumberOfStrings()
+				pnStart = This.NumberOfStrings()
 			ok
 		ok
 
@@ -13250,28 +13260,19 @@ class stzListOfStrings from stzList
 			StzRaise("Incorrect param type! pnRange must be a number.")
 		ok
 
+		if pnRange < 0
+			pnStart = pnStart + pnRange + 1
+			pnRange = -pnRange
+		ok
+
 		# Checking the correctness of the range of the two params
 
-		nLen = This.NumberOfStrings()
-
-		if (pnStart < 1) or (pnStart + pnRange -1 > nLen) or
-		   ( pnStart = nLen and pnRange != 1 )
-			StzRaise("Out of range!")
-		ok
+		n1 = pnStart
+		n2 = pnStart + pnRange - 1
 
 		# Doing the job
 
-		if pnStart = 1
-			aResult = This[1]
-		else
-			aResult = This.Section(1, pnstart-1)
-		ok
-
-		for str in This.Section(pnStart + pnRange, nLen)
-			aResult + str
-		next		
-		  
-		This.Update( aResult )
+		This.RemoveSection(n1, n2)		
 
 		#< @FunctionFluentForm
 
@@ -13354,7 +13355,7 @@ class stzListOfStrings from stzList
 		# Doing the job (Qt-side)
 
 
-		This.RemoveRange( n1, n2 - n1 + 1 )
+		This.RemoveStringsAtPositions(n1:n2)
 
 		#< @FunctionFluentForm
 
@@ -13451,7 +13452,7 @@ class stzListOfStrings from stzList
 		*/
 
 		# Checking the provided param for the pCondition
-	
+
 		anPos = This.FindW(pCondition)
 		This.RemoveStringsAtThesePositions(anPos)
 
@@ -15662,27 +15663,19 @@ class stzListOfStrings from stzList
 			return This.DuplicatedStringsCS(pCaseSensitive)
 
 			def DuplicatedStringItemsCSQ(pCaseSensitive)
-				return This.DuplicatedStringItemsCSQR(pCaseSensitive, :stzList)
+				return This.DuplicatedStringItemsCSQR(:stzList, pCaseSensitive)
 	
-			def DuplicatedStringItemsCSQR(pCaseSensitive, pcReturntype)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+			def DuplicatedStringItemsCSQR(pcReturntype, pCaseSensitive)
+				return This.DuplicatedStringsCSQR(pcReturntype, pCaseSensitive)
+
+		def DuplicatesCS(pCaseSensitive)
+			return This.DuplicatedStringsCS(pCaseSensitive)
+
+			def DuplicatesCSQ(pCaseSensitive)
+				return This.DuplicatesCSQR(:stzList, pCaseSensitive)
 	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param type! pcReturnType must be a string.")
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.DuplicatedStringItemsCS(pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.DuplicatedStringItemsCS(pCaseSensitive) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+			def DuplicatesCSQR(pcReturntype, pCaseSensitive)
+				return This.DuplicatedStringsCSQR(pcReturntype, pCaseSensitive)
 
 		#>
 
@@ -15726,24 +15719,16 @@ class stzListOfStrings from stzList
 				return This.DuplicatedStringItemsQR(:stzList)
 	
 			def DuplicatedStringItemsQR(pcReturntype)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+				return This.DuplicatedStringsQR(pcReturntype)
+
+		def Duplicates()
+			return This.DuplicatedStrings()
+
+			def DuplicatesQ()
+				return This.DuplicatesQR(:stzList)
 	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param type! pcReturnType must be a string.")
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.DuplicatedStringItems() )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.DuplicatedStringItems() )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+			def DuplicatesQR(pcReturntype)
+				return This.DuplicatedStringsQR(pcReturntype)
 
 		#>
 
@@ -16211,131 +16196,12 @@ class stzListOfStrings from stzList
 
 		#>
 
-	  #----------------------------#
-	 #   FINDING ALL DUPLICATES   #
-	#----------------------------#
-
-	def FindDuplicatesCS(pCaseSensitive)
-
-		anPositions = []
-		for str in This.DuplicatedStringsCS(pCaseSensitive)
-			anPositions + This.FindAllExceptFirstCS(str, pCaseSensitive)
-		next
-
-		anResult = ring_sort( ListsMerge( anPositions ) )
-
-		return anResult
-
-		#< @FunctionFluentForm
-
-		def FindDuplicatesCSQ(pCaseSensitive)
-			return This.FindDuplicatesCSQR(pCaseSensitive, :stzList)
-
-		def FindDuplicatesCSQR(pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-	
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-	
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindDuplicatesCS(pCaseSensitive) )
-	
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicatesCS(pCaseSensitive) )
-	
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def PositionsOfDuplicatesCS(pCaseSensitive)
-			return This.FindDuplicatesCS(pCaseSensitive)
-
-			def PositionsOfDuplicatesCSQ(pCaseSensitive)
-				return This.PositionsOfDuplicatesCSQR(pCaseSensitive, :stzList)
-
-			def PositionsOfDuplicatesCSQR(pCaseSensitive, pcReturnType)
-				return This.FindDuplicatesCSQR(pCaseSensitive, pcReturnType)
-
-		def DuplicatesPositionsCS(pCaseSensitive)
-			return THis.FindDuplicatesCS(pCaseSensitive)
-
-			def DuplicatesPositionsCSQ(pCaseSensitive)
-				return This.DuplicatesPositionsCSQR(pCaseSensitive, :stzList)
-
-			def DuplicatesPositionsCSQR(pCaseSensitive, pcReturnType)
-				return This.FindDuplicatesCSQR(pCaseSensitive, pcReturnType)
-
-		#>
-
-	##-- WITHOUT CASESENSITIVITY
-
-	def FindDuplicates()
-				
-		return This.FindDuplicatesCS( :CaseSensitive = TRUE )
-
-		#< @FunctionFluentForm
-
-		def FindDuplicatesQ()
-			return This.FindDuplicatesQR(:stzList)
-
-		def FindDuplicatesQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-	
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-	
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindDuplicates() )
-	
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicates() )
-	
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def PositionsOfDuplicates()
-			return This.FindDuplicates()
-
-			def PositionsOfDuplicatesQ()
-				return This.PositionsOfDuplicatesQR(:stzList)
-
-			def PositionsOfDuplicatesQR(pCaseSensitive, pcReturnType)
-				return This.FindDuplicatesQR(pcReturnType)
-
-		def DuplicatesPositions()
-			return THis.FindDuplicates()
-
-			def DuplicatesPositionsQ()
-				return This.DuplicatesPositionsQR(:stzList)
-
-			def DuplicatesPositionsQR(pcReturnType)
-				return This.FindDuplicatesQR(pcReturnType)
-
-		#>
-
 	  #-----------------------------------------------#
 	 #   FINDING DUPLICATES OF A GIVEN STRING-ITEM   #
 	#-----------------------------------------------#
 
 	def FindDuplicatesOfStringCS(pcStr, pCaseSensitive)
-
-		aResult = This.FindAllExceptFirstCS(pcStr, pCaseSensitive)
-		return aResult
+		return This.FindDuplicatesOfItemCS(pcStr, pCaseSensitive) # Inhertited from stzList
 
 		def FindDuplicatesOfStringItemCS(pcStr, pCaseSensitive)
 			return This.FindDuplicatesOfStringCS(pcStr, pCaseSensitive)
@@ -16360,95 +16226,6 @@ class stzListOfStrings from stzList
 		def DuplicatesOfStringItemPositions(pcStr)
 			return This.FindDuplicatesOfString(pcStr)
 
-	  #------------------------------------#
-	 #   FINDING DUPLICATES -- EXTENDED   #
-	#------------------------------------#
-
-	def FindDuplicatesXTCS(pCaseSensitive)
-		aResult = []
-		
-		for str in This.DuplicatedStringsCS(pCaseSensitive)
-			aResult + [ str, This.FindDuplicatesOfStringCS(str, pCaseSensitive) ]
-		next
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def FindDuplicatesXTCSQ(pCaseSensitive)
-			return This.FindDuplicatesXTCSQR(pCaseSensitive, :stzList)
-
-		def FindDuplicatesXTCSQR(pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-	
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-	
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindDuplicatesXTCS(pCaseSensitive) )
-	
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicatesXTCS(pCaseSensitive) )
-	
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FuntionAlternativeForms
-
-		def PositionsOfDuplicatesXTCS(pCaseSensitive)
-			return This.FindDuplicatesXTCS(pCaseSensitive)
-
-		def DuplicatesPositionsXTCS(pCaseSensitive)
-			return This.FindDuplicatesXTCS(pCaseSensitive)
-
-		#>
-
-	##-- WITHOUT CASESENSITIVITY
-
-	def FindDuplicatesXT()
-		return This.FindDuplicatesXTCS( :CaseSensitive = TRUE )
-
-		#< @functionFluentForm
-
-		def FindDuplicatesXTQ()
-			return This.FindDuplicatesXTQR(:stzList)
-
-		def FindDuplicatesXTQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-	
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-	
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindDuplicatesXT() )
-	
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicatesXT() )
-	
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FuntionAlternativeForms
-
-		def PositionsOfDuplicatesXT()
-			return This.FindDuplicatesXT()
-
-		def DuplicatesPositionsXT()
-			return This.FindDuplicatesXT()
-
-		#>
 
 	  #----------------------------------------------------#
 	 #   REMOVING ALL DUPLICATES IN THE LIST of STRINGS   #
@@ -16456,8 +16233,25 @@ class stzListOfStrings from stzList
 
 	def RemoveDuplicatesCS(pCaseSensitive)
 
-		anPositions = This.FindDuplicatesCS(pCaseSensitive)
-		This.RemoveStringsAtPositions(anPositions)
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( isNumber(pCaseSensitive) and IsBoolean(pCaseSensitive) )
+			StzRaise("Incorrect param! pCaseSensitive must be TRUE or FALSE.")
+		ok
+
+		if pCaseSensitive = TRUE
+			# If we are lucky, we use directly a Qt-based solution
+			QStringListObject().removeDuplicates()
+
+		else
+
+			# Otherwise we rely on a Ring-based solution
+			aTempo = This.Yield(' Q(This[@i]).Case() ')
+? aTempo
+
+		ok
 
 		def RemoveDuplicatesCSQ(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
@@ -17878,16 +17672,6 @@ class stzListOfStrings from stzList
 		def IsListOfAnagrams()
 			return This.AreAnagrams()
 
-	def MultiplyBy(pcStr)
-		if isString(pcStr)
-			This.ReplaceW('{ @string += pcStr }')
-
-		ok
-
-		def MultiplyByQ(pcStr)
-			This.MultiplyBy(pcStr)
-			return This
-
 	def MultipliedBy(pcStr)
 		aResult = This.Copy().MultiplyByQ(pcStr).Content()
 		return aResult
@@ -17965,15 +17749,13 @@ class stzListOfStrings from stzList
 	def IsEqualTo(pcOtherListOfStr)
 		return This.IsEqualToCS(pcOtherListOfStr)
 
-	  #------------------------------------#
-	 #  TRIMMING THE STRINGS IN THE LIST  #
-	#------------------------------------#
+	  #--------------------------------#
+	 #  TRIMMING THE LIST OF STRINGS  #
+	#--------------------------------#
 
 	def Trim()
-		for i = 1 to This.NumberOfStrings()
-			str = This[i]
-			this.ReplaceNthString(i, Q(str).Trimmed())
-		next
+		This.TrimStart()
+		This.TrimEnd()
 
 		def TrimQ()
 			This.Trim()
@@ -17983,12 +17765,111 @@ class stzListOfStrings from stzList
 		acResult = This.Copy().TrimQ().Content()
 		return acResult
 
-		def StringsTrimmed()
+	  #-----------------------------------------------#
+	 #  TRIMMING THE LIST OF STRINGS FROM THE START  #
+	#-----------------------------------------------#
+
+	def TrimStart()
+		
+		if This.FirstString() != ""
+			return
+		ok
+
+		nLen = This.NumberOfStrings()
+		i = 1
+
+		while i <= nLen
+			i++
+			if This.String(i) != ""
+				exit
+			ok
+		end
+
+		This.RemoveSection(1, i-1)
+
+		def TrimStartQ()
+			This.TrimStart()
+			return This
+
+		def TrimFromStart()
+			This.TrimStart()
+
+			def TrimFromStartQ()
+				This.TrimFromStart()
+				return This
+
+	  #-----------------------------------------------#
+	 #  TRIMMING THE LIST OF STRINGS FROM THE END  #
+	#-----------------------------------------------#
+
+	def TrimEnd()
+		
+		if This.LastString() != ""
+			return
+		ok
+
+		nLen = This.NumberOfStrings()
+		i = nLen - 1
+
+		while i >= 1
+			i--
+			if This.String(i) != ""
+				exit
+			ok
+		end
+		
+		This.RemoveSection(i + 1, nLen)
+
+		def TrimEndQ()
+			This.TrimEnd()
+			return This
+
+		def TrimFromEnd()
+			This.TrimEnd()
+
+			def TrimFromEndQ()
+				This.TrimFromEnd()
+				return This
+
+	  #------------------------------------#
+	 #  TRIMMING THE STRINGS IN THE LIST  #
+	#------------------------------------#
+
+	def TrimStrings()
+		for i = 1 to This.NumberOfStrings()
+			str = This[i]
+			this.ReplaceNthString(i, Q(str).Trimmed())
+		next
+
+		def TrimStringsQ()
+			This.TrimStrings()
+			return This
+
+
+		def TrimStringItems()
+			This.TrimStrings()
+
+			def TrimStringItemsQ()
+				This.TrimStrings()
+				return This
+
+		def TrimEach()
+			This.TrimStrings()
+
+			def TrimEachQ()
+				This.TrimEach()
+				return This
+
+	def StringsTrimmed()
+		acResult = This.Copy().TrimStringsQ().Content()
+		return acResult
+
+		def StringItemsTrimmed()
 			return This.Trimmed()
 
-	#
-	#
-	#
+	  #------------------------------------#
+	 #  INFEREING TYPES FROM THE STRINGS  #
+	#------------------------------------#
 
 	def InfereTypes()
 		aResult = []

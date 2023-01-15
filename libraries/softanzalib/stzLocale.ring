@@ -903,7 +903,8 @@ class stzLocale from stzObject
 	# http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 	
 	def StringUppercased(pcStr)
-		return @oQLocale.toUPPER(pcStr)
+		cResult = QLocaleObject().toUPPER(pcStr)
+		return cResult
 
 		def ToUppercase(pcStr)
 			return This.StringUppercased(pcStr)
