@@ -4136,9 +4136,9 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveRangeQ(pnStart, pnRange)
 		return aResult
 
-	  #-------------------------------------#
+	  #-----------------------------------#
 	 #   REMOVING MANY RANGES OF ITEMS   #
-	#-------------------------------------#
+	#-----------------------------------#
 
 	def RemoveManyRanges(panRanges)
 
@@ -10104,7 +10104,7 @@ class stzList from stzObject
 	def ItemsHaveSameOrderAs(paOtherList)
 		bResult = TRUE
 
-		for i = 1 to min( len(This.List()), len(paOtherList) )
+		for i = 1 to min([ len(This.List()), len(paOtherList) ])
 			if Q(This[i]).IsNotEqualTo(paOtherList[i])
 				bResult = FALSE
 				exit
@@ -12473,11 +12473,15 @@ oTable.Show() + NL
 	 #     UNIQUE ITEMS     #
 	#----------------------#
 
+	def RemoveDuplicatesCS(pCaseSensitive)
+		
 	def UniqueItems()
 		return This.ToSet()
 
 		def UniqueItemsQ()
 			return new stzList( This.UniqueItems() )
+
+		
 
 	  #----------------------#
 	 #     FROM/TO LIST     #
@@ -12834,9 +12838,9 @@ oTable.Show() + NL
 			def ContainsNoItem(pItem)
 				return NOT This.ContainsItem(pItem)
 
-	  #---------------------------------------------------------------#
+	  #-------------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS CONTAINED IN A GIVEN LIST OR ITEM  #
-	#---------------------------------------------------------------#
+	#-------------------------------------------------------------#
 
 	def IsContainedIn(p)
 
@@ -14119,7 +14123,7 @@ oTable.Show() + NL
 			return This.FindManyQR(paItems, :stzListOfNumbers)
 
 		def FindManyQR(paItems, pcReturnType)
-			return This.FindManyQRCS(paItems, :CaseSensitive = TRUE, pcReturnType)
+			return This.FindManyCSQR(paItems, :CaseSensitive = TRUE, pcReturnType)
 
 		#>
 
@@ -14280,6 +14284,141 @@ oTable.Show() + NL
 			#>
 		#>
 		
+  	  #----------------------------#
+	 #   FINDING ALL DUPLICATES   #
+	#----------------------------#
+
+	def FindDuplicatesCS(pCaseSensitive)
+? "hi"
+		acUniqueItems = This.RemoveDuplicates()
+		nLenUniq = len(acUniqueItems)
+? nLenUniq
+		anPositions = []
+		anResult = []
+
+		for i = 1 to nLenUniq
+
+			anPos = This.FindAllCSQ( acUniqueItems[i], pCaseSensitive)
+? acUniqueItems[i]
+? @@S(anPos)
+? "--"
+			if len(anPos) > 1
+				del(anPos, 1)
+				nLen = len(anPos)
+				for i = 1 to nLen
+					anResult + anPos[i]
+				next
+			ok
+		next
+
+		return anResult
+
+		anResult = ring_sort(anResult)
+
+		return anResult
+
+		#< @FunctionFluentForm
+
+		def FindDuplicatesCSQ(pCaseSensitive)
+			return This.FindDuplicatesCSQR(pCaseSensitive, :stzList)
+
+		def FindDuplicatesCSQR(pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+	
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+	
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindDuplicatesCS(pCaseSensitive) )
+	
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindDuplicatesCS(pCaseSensitive) )
+	
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PositionsOfDuplicatesCS(pCaseSensitive)
+			return This.FindDuplicatesCS(pCaseSensitive)
+
+			def PositionsOfDuplicatesCSQ(pCaseSensitive)
+				return This.PositionsOfDuplicatesCSQR(pCaseSensitive, :stzList)
+
+			def PositionsOfDuplicatesCSQR(pCaseSensitive, pcReturnType)
+				return This.FindDuplicatesCSQR(pCaseSensitive, pcReturnType)
+
+		def DuplicatesPositionsCS(pCaseSensitive)
+			return THis.FindDuplicatesCS(pCaseSensitive)
+
+			def DuplicatesPositionsCSQ(pCaseSensitive)
+				return This.DuplicatesPositionsCSQR(pCaseSensitive, :stzList)
+
+			def DuplicatesPositionsCSQR(pCaseSensitive, pcReturnType)
+				return This.FindDuplicatesCSQR(pCaseSensitive, pcReturnType)
+
+		#>
+
+	##-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicates()
+				
+		return This.FindDuplicatesCS( :CaseSensitive = TRUE )
+
+		#< @FunctionFluentForm
+
+		def FindDuplicatesQ()
+			return This.FindDuplicatesQR(:stzList)
+
+		def FindDuplicatesQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+	
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+	
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindDuplicates() )
+	
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindDuplicates() )
+	
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PositionsOfDuplicates()
+			return This.FindDuplicates()
+
+			def PositionsOfDuplicatesQ()
+				return This.PositionsOfDuplicatesQR(:stzList)
+
+			def PositionsOfDuplicatesQR(pCaseSensitive, pcReturnType)
+				return This.FindDuplicatesQR(pcReturnType)
+
+		def DuplicatesPositions()
+			return THis.FindDuplicates()
+
+			def DuplicatesPositionsQ()
+				return This.DuplicatesPositionsQR(:stzList)
+
+			def DuplicatesPositionsQR(pcReturnType)
+				return This.FindDuplicatesQR(pcReturnType)
+
+		#>
+
 	  #======================================================#
 	 #  CHECKING IF THE LIST CONTAINS AN ITEM AT ANY LEVEL  #
 	#======================================================#
@@ -15570,7 +15709,7 @@ oTable.Show() + NL
 	Note the semantic difference between "Getting" items, and "Finding" items.
 		-> Getting items return the items themselves, while
 		-> Finding items return their positions as numbers
-		-> Their sections can also be found using FindSection()
+		-> Their sections can also be found using FindAsSection()
 	*/
 
 	def ItemsW(pcCondition)
@@ -17576,7 +17715,7 @@ oTable.Show() + NL
 		nParts = ceil( This.NumberOfItems() / n )
 
 		nLen = This.NumberOfItems()
-		nMax = Max( n, nLen )
+		nMax = Max([ n, nLen ])
 
 		for i = 1 to nMax step nParts
 			
@@ -18034,7 +18173,7 @@ oTable.Show() + NL
 
 		#>
 
-	def FindSectionsAndAntiSections(paSections)
+	def FindAsSectionsAndAntiSections(paSections)
 		aAntiSections = This.FindAntiSections(paSections)
 
 		for aList in aAntiSections
@@ -18060,23 +18199,23 @@ oTable.Show() + NL
 
 		#< @FunctionFluentForm
 
-		def FindSectionsAndAntiSectionsQ(paSections)
-			return This.FindSectionsAndAntiSectionsQR(paSections, :stzList)
+		def FindAsSectionsAndAntiSectionsQ(paSections)
+			return This.FindAsSectionsAndAntiSectionsQR(paSections, :stzList)
 
-		def FindSectionsAndAntiSectionsQR(paSections, pcReturnType)
+		def FindAsSectionsAndAntiSectionsQR(paSections, pcReturnType)
 			if NOT isString(pcReturnType)
 				StzRaise("Incorrect param type! pcReturnType must be a string.")
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.FindSectionsAndAntiSections(paSections) )
+				return new stzList( This.FindAsSectionsAndAntiSections(paSections) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.FindSectionsAndAntiSections(paSections) )
+				return new stzListOfLists( This.FindAsSectionsAndAntiSections(paSections) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.FindSectionsAndAntiSectionss(paSections) )
+				return new stzListOfPairs( This.FindAsSectionsAndAntiSectionss(paSections) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -18085,7 +18224,7 @@ oTable.Show() + NL
 		#>
 
 	def SectionsAndAntiSections(paSections)
-		aAllSections = This.FindSectionsAndAntiSections(paSections)
+		aAllSections = This.FindAsSectionsAndAntiSections(paSections)
 		aResult = This.Sections(aAllSections)
 		return aResult
 
@@ -18384,7 +18523,7 @@ oTable.Show() + NL
 		# The sum of numbers in anShareOfEachItem should be equal to the
 		# number of items of the main list
 
-		if NOT ListOfNumbersSum(anShareOfEachItem) = This.NumberOfItems()
+		if NOT Sum(anShareOfEachItem) = This.NumberOfItems()
 			StzRaise(stzListError(:CanNoteDistributeItemsOverTheList2))
 		ok
 
