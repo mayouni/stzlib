@@ -402,6 +402,18 @@ func StringCase(pcStr)
 
 	return StzStringQ(pcStr).StringCase()
 
+func Interpolate(pcStr)
+	return Q(pcStr).Interpolated()
+
+	#< @FunctionMisspelledForm
+
+	func Interpoltate(pcStr)
+		return Intrepolate(pcStr)
+
+	func Intrepolate(pcStr)
+		return Interpolate(pcStr)
+
+	#>
 
   /////////////////
  ///   CLASS   ///
@@ -2372,17 +2384,19 @@ class stzString from stzObject
 		# !--> My name is #3, may age is #2, and my job is #1.
 		*/
 
-		aMarquersSections = This.MarquersAndSectionsSortedInDescending()
+		aMarquersSections = This.MarquersAndSectionsSortedInAscending()
+		nLen = len(aMarquersSections)
+
 		/* Reminder
 		Q("My name is #2, may age is #1, and my job is #3.") {
-			? MarquersAndSectionsSortedInDescending()
+			? MarquersAndSections()
 		}
 
-		# --> [ "#3" = [45, 46], "#2" = [27, 28], "#1" = [12, 13] ]
+		# --> [ "#1" = [12, 13], "#2" = [27, 28], "#3" = [45, 46]  ]
 		*/
 
-		for i = 1 to len(aMarquersSections)
-			cMarquer = aMarquersSections[i][1]
+		for i = nLen to 1 step - 1
+			cMarquer = aMarquersSections[nLen - i + 1][1]
 			n1 = aMarquersSections[i][2][1]
 			n2 = aMarquersSections[i][2][2]
 
@@ -2396,6 +2410,42 @@ class stzString from stzObject
 	def StringWithMaquersSortedInDescending()
 		cResult = This.Copy().SortMarquersInDescendingQ().Content()
 		return cResult
+
+	  #--------------------------------------------#
+	 #  REPLACING MARQUERS WITH GIVEN SUBSTRINGS  #
+	#--------------------------------------------#
+
+	def ReplaceMarquers(pacSubStrings)
+		if isList(pacSubStrings) and Q(pacSubStrings).IsWithOrByNamedParam()
+			pacSubStrings = pacSubStrings[2]
+		ok
+
+		aMarquersXT = This.MarquersAndSectionsSortedInAscending()
+		nLen = len(aMarquersXT)
+
+		nMin = Min([ len(pacSubStrings), nLen ])
+
+		for i = nLen to 1 step -1
+			
+			cMarquer = aMarquersXT[i][1]
+
+			This.ReplaceAll(cMarquer, pacSubStrings[i])
+		next
+
+		def ReplaceMarquersQ(pacSubStrings)
+			This.ReplaceMarquers(pacSubStrings)
+			return This
+
+
+	def MarquersReplaced(pacSubStrings)
+		return This.Copy().ReplaceMarquersQ(pacSubStrings).Content()
+
+		#< @FunctionMisspelledForm
+
+		def MarquersRepalced(pacSubStrings)
+			return This.MarquersReplaced(pacSubStrings)
+
+		#>
 
 	  #------------------------------------------#
 	 #    REPLACING SUBSTRINGS WITH MARQUERS    # TODO: Test it
@@ -12067,27 +12117,61 @@ class stzString from stzObject
 
 		*/
 
-		acDynExpr = This.SubStringsBetweenXT("{", "}")
+		aSectionsXT = This.SubStringsBetweenAndTheirSections("{", "}")
 		#--> [ [ "min", [ 27, 29 ] ], [ "max", [ 36, 38 ] ] ]
 
-		nLen = len(acDynExpr)
+		nLen = len(aSectionsXT)
 
 		for i = nLen to 1 step -1
-			cCode = 'cValue = ' + acDynExpr[i][1]
+		
+			cVar	 = aSectionsXT[i][1]
+			cCode	 = 'cValue	 = (' + cVar + ' )'
 			eval(cCode)
-			cValue = @@SQ(cValue).FirstAndLastCharsRemoved()
+		
+			n1 = aSectionsXT[i][2][1] - 1
+			n2 = aSectionsXT[i][2][2] + 1
+			
+			This.ReplaceSection(n1, n2, cValue)
 
-			This.Replace("{" + acDynExpr[i][1] + "}", :By = cValue)
 		next
+
+		#< @FunctionFluentForm
 
 		def InterpolateQ()
 			This.Interpolate()
 			return This
 
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def Interpoltate()
+			return This.Interpolate()
+
+			def InterpoltateQ()
+				This.Interpoltate()
+				return This
+
+		def Intrepolate()
+			return This.Interpolate()
+
+			def IntrepolateQ()
+				This.Interpoltate()
+				return This
+		#>
+			
 	def Interpolated()
 		return This.Copy().InterpolateQ().Content()
 
+		#< @FunctionMisspelledForm
 
+		def Interpoltated()
+			return This.Interpolated()
+
+		def Intrepolatef()
+			return This.Interpolated()
+
+		#>
 		
 
 	  #===========================================#
@@ -18112,18 +18196,46 @@ o1 = new stzString("12*34*56*78")
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def ContainsOneOfCS(paSubStr, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		def ContainsOneOfTheCS(paSubStr, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		#>
+
+		#< @FunctionNegativeForms
+
 		def ContainsNoOneOfTheseCS(paSubStr, pCaseSensitive)
 			bResult = NOT This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
 			return bResult
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsOneOfThese(paSubStr)
 		return This.ContainsOneOfTheseCS(paSubStr, :Casesensitive = TRUE)
 
-		def ContainsNoOneOfThese(paSubStr)
-			return This.ContainsNoOneOfTheseCS(paSubStr, :Casesensitive = TRUE)
+		#< @FunctionAlternativeForms
 
+		def ContainsOneOf(paSubStr)
+			return This.ContainsOneOfThese(paSubStr)
+
+		def ContainsOneOfThe(paSubStr)
+			return This.ContainsOneOfThese(paSubStr)
+
+		#>
+
+		#< @FunctionNegativeForms
+
+		def ContainsNoOneOfThese(paSubStr)
+			bResult = NOT This.ContainsOneOfThese(paSubStr, pCaseSensitive)
+			return bResult
+
+		#>
 	  #-------------------------#
 	 #    CONTAINING SPACES    #
 	#-------------------------#
@@ -21926,12 +22038,6 @@ o1 = new stzString("12*34*56*78")
 	def ReplaceSection(n1, n2, pcNewSubStr)
 		#< @MotherFunction = YES | @QtBased #>
 
-		# Let's take a copy of pcNewSubStr and work on it locally
-		# to avoid bugs when using conditional code (using :with@)
-		# TODO: Generalize this!
-
-		pcNewSubStrCopy = pcNewSubStr
-
 		# Checking the correctness of n1 and n2 params
 
 		if isList(n1) and Q(n1).IsFromNamedParam()
@@ -21954,37 +22060,24 @@ o1 = new stzString("12*34*56*78")
 			stzRaise("Incorrect param types! n1 and n2 must be numbers.")
 		ok
 
-		# Checking the correctness of pcNewSubStr param
+		# Checking the pcNewSubStr param
 
-		if isList(pcNewSubStrCopy) and Q(pcNewSubStrCopy).IsWithOrByNamedParam()
-		
+		if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithOrByNamedParam()
+
 			if Q(pcNewSubStr[1]).LastChar() = "@"
-	
-				cCode = StzCCodeQ(pcNewSubStrCopy).Transpiled()
-				cCode = "pcNewSubStrCopy += " + cCode
-	
-				@section = This.Section(n1, n2)
-	
-				for @i = n1 to n2
-					eval(cCode)
-				next
-	
+
+				acTemp = eval@( pcNewSubStr[2], :On = This.SectionQ(n1, n2).Chars() )
+				pcNewSubStr = QR(acTemp, :stzListOfStrings).Concatenated()
+
 			else
-				pcNewSubStrCopy = pcNewSubStrCopy[2]
+				pcNewSubStr = pcNewSubStr[2]
 			ok
-
 		ok
-
-		if NOT isString(pcNewSubStrCopy)
-			StzRaise("Incorrect param type! pcNewSubStr must be a string.")
-		ok
-
-		# Doing the job
 
 		nQtStart = n1 - 1
 		nQtRange = n2 - n1 + 1
 
-		cResult = QStringObject().replace(nQtStart, nQtRange, pcNewSubStrCopy)
+		cResult = QStringObject().replace(nQtStart, nQtRange, pcNewSubStr)
 		This.Update(cResult)
 
 		#< @FunctionFluentForm
@@ -27408,6 +27501,9 @@ o1 = new stzString("12*34*56*78")
 		def IsOneOfCS(paList, pCaseSensitive)
 			return This.ExistsInListCS(paList, pCaseSensitive)
 
+		def IsOneOfTheCS(paList, pCaseSensitive)
+			return This.ExistsInListCS(paList, pCaseSensitive)
+
 	#--
 
 	def ExistsInList(paList)
@@ -27420,6 +27516,9 @@ o1 = new stzString("12*34*56*78")
 			return This.ExistsInList(paList)
 
 		def IsOneOf(paList)
+			return This.ExistsInList(paList)
+
+		def IsOneOfThe(paList)
 			return This.ExistsInList(paList)
 
 	  #====================================================#

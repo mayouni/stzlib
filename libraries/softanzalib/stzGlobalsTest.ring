@@ -1,7 +1,26 @@
 load "stzlib.ring"
 
+
+# eval@ is useful internally when writing Conditional Code.
+# Especially when a dynamic named param is used, like in
+# the following example:
+
+o1 = new stzString("SOanzNZA")
+o1.ReplaceSectionW(3, 5, 'Q(@char).IsLowercase()', 'Q(@Char).Uppercased()')
+//o1.ReplaceSection(3, 5, :With@ = 'Q(@char).Uppercased()')
+? o1.Content()
+/*
+StartProfiler()
+
+	? eval@(:With@ = '2 + 3')
+	#--> 5
+
+StopProfiler()
+
 /*===================
-*/
+
+StartProfiler()
+
 # The following is an exploration of the comprative performance
 # of for loops and for/in loops.
 
@@ -159,6 +178,8 @@ load "stzlib.ring"
 # Then, this is the second thing we should learn, when performance is
 # a critical requirement to your algorithm:
 # ALWAYS USE THE FOR LOOP INSTEAD OF THE FOR/IN LOOP
+
+StopProfiler()
 
 /*===================
 
@@ -414,42 +435,42 @@ o1 = new stzString("A")
 ? ComputableFormSimplified([ 1, 2, "a" ]) # or use the abbreviated form @@S(...)
 #--> [ 1, 2, "a" ]
 
-
 /*================
-*/
+
 # Look at theses statements and guess their results:
 
-? "۰" = "٠"	# --> FALSE
-? "۱" = "١"	# --> FALSE
-? "۲" = "٢"	# --> FALSE
-? "۳" = "٣"	# --> FALSE
-? "۸" = "٨"	# --> FALSE		
-? "۹" = "٩"	# --> FALSE
-? ""
-? Unicode("۱")	# --> 1777
-? Unicode("١")	# --> 1633
-? ""
-? AreEqual([ "O", "Ο", "О" ]) # --> FALSE
-? ""
-? Unicodes([ "O", "Ο", "О" ]) # --> [ 79, 927, 1054 ]
-? Scripts([ "O", "Ο", "О" ]) # --> [ :Latin, :Greek, :Cyrillic ]
+	StartProfiler()
+	
+	? "۰" = "٠"	# --> FALSE
+	? "۱" = "١"	# --> FALSE
+	? "۲" = "٢"	# --> FALSE
+	? "۳" = "٣"	# --> FALSE
+	? "۸" = "٨"	# --> FALSE		
+	? "۹" = "٩"	# --> FALSE
+	? ""
+	? Unicode("۱")	# --> 1777
+	? Unicode("١")	# --> 1633
+	? ""
+	? AreEqual([ "O", "Ο", "О" ]) # --> FALSE
+	? ""
+	? Unicodes([ "O", "Ο", "О" ]) # --> [ 79, 927, 1054 ]
+	? Scripts([ "O", "Ο", "О" ]) # --> [ :Latin, :Greek, :Cyrillic ]
+	
+	StopProfiler()
 
+# Surprised?
 
-/*
+# The point is that Unicode assigns unique code to Chars and
+# not to their visual glyfs. To give a clear example:
 
-Surprised?
+# "O", "Ο", and "О" seam the same for us, and for the particular
+# font we use in our system to render them, but from a unicode
+# standpoint, they are different.
 
-The point is that Unicode assigns unique code to Chars and
-not to their visual glyfs. To give a clear example:
+# If you try to get their unicode code points, you find them
+# respectively: 79, 927, and 1054.
 
-"O", "Ο", and "О" seam the same for us, and for the particular
-font we use in our system to render them, but from a unicode
-standpoint, they are different.
-
-If you try to get their unicode code points, you find them
-respectively: 79, 927, and 1054.
-
-In fact, the first is Latin "O", the second is Greek "Ο", and
-the third is Cyrillic "О".
+# In fact, the first is Latin "O", the second is Greek "Ο", and
+# the third is Cyrillic "О".
 
 

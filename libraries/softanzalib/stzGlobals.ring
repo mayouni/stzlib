@@ -318,6 +318,53 @@ _acRingKeywords = [
 
 _nQuietEqualityRatio = 0.09
 
+# Softanza keywords used in Conditaional Code (CCode)
+
+_acStzCCKeywords = [
+	:@Number,
+		:@CurrentNumber,
+		:@PreviousNumber,
+		:@NextNumber,
+	
+	:@Char,
+		:@CurrentChar,
+		:@PreviousChar,
+		:@NextChar,
+	
+	:@String,
+		:@CurrentString,
+		:@PreviousString,
+		:@NextString,
+	
+	:@StringItem,
+		:@CurrentStringItem,
+		:@PreviousStringItem,
+		:@NextStringItem,
+	
+	:@Line,
+		:@CurrentLine,
+		:@PreviousLine,
+		:@NextLine,
+	
+	:@Item,
+		:@CurrentItem,
+		:@PreviousSItem,
+		:@NextItem,
+
+		:@Section,
+		:@Range
+	
+	]
+
+func StzKeywords()
+	return _acStzCCKeywords
+
+	func StzCCodeKeywords()
+		return StzKeywords()
+
+	func StzConditionalCodeKeywords()
+		return StzKeywords()
+
 func ASpace() # We don't use Space() because it is reserved by Ring standard library
 	return NSpaces(1)
 
@@ -548,7 +595,6 @@ func StzFind(pThing, paIn)
 
 #-----
 
-
 func IsNumberOrString(p)
 	if isNumber(p) or isString(p)
 		return TRUE
@@ -640,8 +686,6 @@ func ListOfListsOfStzTypes() # TODO: complete the list
 		:ListOfStzSets,
 		:ListOfStzGrids
 	]
-
-# DO TWO VARIABLES HAVE SAME TYPE?
 
 func BothAreNumbers(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
@@ -1008,8 +1052,6 @@ func ComputableFormSimplified(pValue)
 		func @@SQ(pValue)
 			return new stzString( @@S(pValue) )
 
-
-
 func YaAllah()
 	return "يَا أَلله"
 
@@ -1054,30 +1096,6 @@ func NStars(n)
 
 	func 9Stars()
 		return NStars(9)
-
-func IfWith@Eval(p)
-
-	if isList(p) and Q(p).IsWithNamedParam()
-
-		if Q(p[1]).LastChar() = "@"
-				
-			cCode = 'cValue = (' +
-				 Q(p[2]).BoundsRemoved("{","}") +
-				')'
-
-			eval(cCode)
-			p = cValue
-
-		else
-			p = p[2]
-		ok
-	
-	ok
-
-	return p
-
-	func EvalIfWith@(p)
-		return IfWith@Eval(p)
 
 func Empty(pcStzType)
 	if NOT isString(pcStzType)
@@ -1379,30 +1397,6 @@ func QQ(p)
 		return Q(p)
 	ok
 
-# Does same thing as QQ() but goes further by infering the listOf...
-func QQQ(p)
-	cStzType = ""
-
-	if isString(p)
-		cCode = 'value = ' + p
-		
-		eval(cCode)
-		if isList(value)
-			cStzType = QQ(value).StzType()
-			
-		else
-			cStzType = Q(value).StzType()
-		ok
-
-	else
-		cStzType =  Q(p).StzType()
-	ok
-
-	cCode = 'oResult = new ' + cStzType + '(p)'
-
-	eval(cCode)
-	return oResult
-
 # The W() function takes a string and tries its best to return a well
 # formed conditaional Ring expression used in several Softanza functions
 func W(cCode)
@@ -1456,11 +1450,10 @@ func ElapsedTime()
 
 	func ElpasedTime()
 		return ElapsedTime()
-		/* NOTE
-		This function name alternative contains a spelling error.
-		Despite that, I'll take it. Because I always make this
-		error and don't want to be blocked for that.
-		*/
+		# NOTE
+		# This function name alternative contains a spelling error.
+		# Despite that, I'll take it. Because I always make this
+		# error and don't want to be blocked for that.
 
 func ElapsedTimeXT(pIn)
 	if isList(pIn) and Q(pIn).IsInNamedParam()
@@ -1512,3 +1505,45 @@ func StopProfiler()
 	? NL + "Executed in " + ElapsedTime()
 	ResetTimer()
 	STOP()
+
+func eval@(pcExpr, paItems) # WARNING: if you change paItems name,
+			    # change it also in the evaluated code
+
+	# Checking params
+
+	if isList(pcExpr) and Q(pcExpr).IsExpressionNamedParam()
+		pcExpr = pcExpr[2]
+	ok
+
+	if NOT isString(pcExpr)
+		StzRaise("Incorrect param type! pcExpr must be a string.")
+	ok
+
+	if isList(paItems) and
+	   Q(paItems).IsOneOfTheseNamedParams([ :On, :OnItems ])
+
+		paItems = paItems[2]
+	ok
+
+	if NOT isList(paItems)
+		StzRaise("Incorrect param type! paItems must be a list.")
+	ok
+	
+	nLen = len(paItems)
+
+	# Doing the job
+
+	aResult = []
+	cExpr = StzCCodeQ(pcExpr).Transpiled()
+
+	cCode = 'value = (' +
+		Q(cExpr).ReplaceCSQ("This", "paItems", :CS = FALSE).Content() +
+		')'
+
+	for @i = 1 to nLen
+		eval(cCode)
+		aResult + value
+	next
+
+	return aResult
+

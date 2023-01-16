@@ -1,4 +1,5 @@
+load "stzlib.ring"
 
 
-
+S
 

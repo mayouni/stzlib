@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*================== PHP
+
 # This code snippet is written in PHP. It calculates the min
 # and max of two lists of numbers:
 "
@@ -19,7 +21,7 @@ StopProfiler()
 # Executed in 0.03 second(s)
 
 /*================== C#
-
+*/
 StartProfiler()
 
 	# This is a C# code showing string interpolation:
@@ -33,7 +35,7 @@ StartProfiler()
 
 	int max = RingMaxIntegerXT();
 	int min = RingMinIntegerXT();
-	? Q("The range of integers is {min} to {max}").Interpolated();
+	Console.WriteLine( $("The range of integers is {min} to {max}") );
 	
 	#--> The range of integers is '-999_999_999_999_999' to '999_999_999_999_999'
 	# NOTE the use of the XT() extension to return the number spacified by "_"
