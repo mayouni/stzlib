@@ -2533,19 +2533,34 @@ class stzList from stzObject
 	#---------------------------------------------------#
 
 	def ReplaceSection(n1, n2, pNewItem)
-		/* EXAMPLE
+		/* EXAMPLE 1
 
 		o1 = new stzList([ "A", "B", "_", "_", "_", "D" ])
 		o1.ReplaceSection(3, 5, "C")
 		? o1.Content() #--> [ "A", "B", "C", "D" ]
 
+		EXAMPLE 2 (Using :By@)
+
+		o1 = new stzList([ "A", "B", "c", "d", "e", "F" , "G" ])
+		
+		o1.ReplaceSection(3, 5, :By@ = '{ @EachItemQ.Uppercased() }')
+		? o1.Content()
+		#--> [ "A", "B", "C", "D", "E", "F", "G" ]
+
 		*/
 
+		# Checking the pcNewSubStr param
+
 		if isList(pNewItem) and Q(pNewItem).IsWithOrByNamedParam()
-			pNewItem = pNewItem[2]
+
+			if Q(pNewItem[1]).LastChar() = "@"
+
+				pNewItem = eval@( pNewItem[2], :On = This.Section(n1, n2) )
+
+			else
+				pNewItem = pNewItem[2]
+			ok
 		ok
-		# TODO: add the possibility to evaluate a dynamic code
-		# after :With@ or :By@ like it is the case in stzString
 
 		This.RemoveSectionQ(n1, n2)
 		This.InsertBefore(n1, pNewItem)
@@ -12923,7 +12938,7 @@ oTable.Show() + NL
 			return This.EachItemExistsIn(paOtherList)
 
 	  #------------------------------------------------------------#
-	 #  CHECKING IF THE LIST IS ONE OF THE ITEMS OF A GIVEN LIST  #
+	 #  CHECKING IF THE LIST IS ONE OF THE ITEMS OF A GIVEN LIST  # TODO: Add CaseSensitivty
 	#------------------------------------------------------------#
 
 	def IsOneOfThese(paOtherList)
@@ -12986,7 +13001,7 @@ oTable.Show() + NL
 
 	#--
 
-	def ContainsAny(pSetOfItems)
+	def ContainsAny(pSetOfItems) # TODO: Add CaseSensitivity
 		/*
 		Example:
 
@@ -13015,7 +13030,10 @@ oTable.Show() + NL
 		def IsMadeOfOneOfThese(pSetOfItems)
 			return This.ContainsAny(pSetOfItems)
 
-		def ContainsOne(pSetOItems)
+		def ContainsOne(pSetOfItems)
+			return This.ContainsAny(pSetOfItems)
+
+		def ContainsOneOfThe(pSetOfItems)
 			return This.ContainsAny(pSetOfItems)
 
 	#--
@@ -13046,6 +13064,9 @@ oTable.Show() + NL
 			return This.ContainsOnlyOne(paItems)
 
 		def ContainsOneItemFromThese(paItems)
+			return This.ContainsOnlyOne(paItems)
+
+		def ContainsOnlyOneOfThe(paItems)
 			return This.ContainsOnlyOne(paItems)
 
 	#--
@@ -24467,6 +24488,17 @@ oTable.Show() + NL
 	def IsUptoPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :UpToPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsExpressionNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Expression )
 
 			return TRUE
 

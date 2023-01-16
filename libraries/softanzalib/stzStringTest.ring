@@ -339,16 +339,31 @@ StopProfiler()
 #--> Executed in 0.02 second(s)
 
 /*----------------
-*/
+
 StartProfiler()
 
-o1 = new stzString("123abc789")
-o1.ReplaceSection(4, 6, :with@ = ' Q(@char).Uppercased() ')
+o1 = new stzString("ABcdeFG")
+
+o1.ReplaceSection(4, 6, :By@ = '{ @EachCharQ.Uppercased() }')
 ? o1.Content()
 #--> 123ABC789
 
 StopProfiler()
-#--> Executed in 0.09 second(s)
+#--> Executed in 0.013 second(s)
+
+/*----------------
+*/
+
+StartProfiler()
+
+o1 = new stzList([ "A", "B", "c", "d", "e", "F" , "G" ])
+
+o1.ReplaceSection(3, 5, :By@ = '{ @EachItemQ.Uppercased() }')
+? o1.Content()
+#--> [ "A", "B", "C", "D", "E", "F", "G" ]
+
+StopProfiler()
+#--> Executed in 0.011 second(s)
 
 /*==================
 
@@ -601,11 +616,18 @@ o1 = new stzString("...456...")
 
 
 /*==================
-*/                 
+*/    
+
+StartProfiler()
+             
 o1 = new stzString("...12..1212..121212...")
 ? @@S( o1.FindMadeOf("12") )
 #--> [ 4, 8, 10, 14, 16, 18 ]
 
+StopProfiler()
+
+/*----------------
+*/
 o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
 ? o1.SplitW('@CurrentItem = "*"')
 
@@ -682,6 +704,8 @@ o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
 
 /*================
 */
+StartProfiler()
+
 o1 = new stzString( " This: @i - 1.23 and this: @i + 378.12! " )
 ? o1.NumbersComingAfter("@i")
 #--> [ "-1.23", "378.12" ]
@@ -695,7 +719,8 @@ o1 = new stzString( " This: @i - 1.23 and this: @i + 378.12! " )
 o1 = new stzString( " This[ @i - 1 ] = This[ @i + 3 ] " )
 ? o1.NumbersComingAfter("@i")
 #--> [ "-1", "3" ]
-
+*/
+StopProfiler()
 
 /*-----------------
 
@@ -2443,6 +2468,32 @@ o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
 o1.ReplaceSubstringsWithMarquersCS( [ "ring", "python", "ruby", "PHP" ], :CS = FALSE )
 ? o1.Content()
 # --> "#1 can be compared to #2, #3 and #4."
+
+/*----------------------
+
+tartProfiler()
+
+	aMyChildren = [ "Teeba", "Haneen", "Hussein" ]
+	
+	o1 = new stzString("My two children are #1, #2 and #3!")
+	
+	o1.ReplaceMarquers(:with = aMyChildren)
+	? o1.Content() + NL
+	#--> My two children are Teeba, Haneen and Hussein!
+	
+	o1.ReplaceSubStringsWithMarquers(aMyChildren)
+	? o1.Content() + NL
+	#--> My two children are #1, #2 and #3!
+	
+	o1.SortMarquersInDescending()
+	? o1.Content() + NL
+	#--> My two children are #3, #2 and #1!
+	
+	o1.ReplaceMarquers(:With = aMyChildren)
+	? o1.Content()
+	#--> My two children are Hussein, Haneen and Teeba!
+
+StopProfiler()
 
 /*=====================
 

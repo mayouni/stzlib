@@ -56,11 +56,11 @@ class stzCCode
 		def CCodeQ()
 			return This.ContentQ()
 
-	def Code()
-		return This.Content()
-
-		def CodeQ()
-			return This.ContentQ()
+		def Code()
+			return This.Content()
+	
+			def CodeQ()
+				return This.ContentQ()
 
 	def Update(cNewCode)
 		@cContent = cNewCode
@@ -111,10 +111,14 @@ class stzCCode
 				" @item ", " @EachItem ", " @CurrentItem ",
 				" @char ", " @EachChar ", " @CurrentChar ",
 				" @string", " @EachString ", " @CurrentString ",
+				" @line", " @EachLine ", " @CurrentLine ",
 
 				" @number ", " @EachNumber ", " @CurrentNumber ",
+
 				" @list ", " @EachList ", " @CurrentList ",
 				" @pair ", " @EachPair ", " @CurrentPair ",
+				" @section ", " @EachSection ", " @CurrentSection ",
+
 				" @object ", " @EachObject ", " @CurrentObject " ],
 
 				:By = " This[@i] ", :CS = FALSE ).
@@ -152,6 +156,60 @@ class stzCCode
 				],
 
 				:By = " This[@i - 1] ", :CS = FALSE).
+
+			ReplaceManyCSQ([
+
+				"@CharQ", "@StringQ", "@LineQ",
+
+				"@NumberQ",
+
+				"@ItemQ", "@ListQ",
+				"@PairQ", "@SectionQ",
+
+				"@ObjectQ" ],
+
+				:By = "Q(This[@i])", :CS = FALSE).
+
+			ReplaceManyCSQ([
+
+				"@EachCharQ", "@EachStringQ", "@EachLineQ",
+
+				"@EachNumberQ",
+
+				"@EachItemQ", "@EachListQ",
+				"@EachPairQ", "@EachSectionQ",
+
+				"@EachObjectQ" ],
+
+				:By = "Q(This[@i])", :CS = FALSE).
+
+			ReplaceManyCSQ([
+
+				"@PreviousCharQ", "@PreviousStringQ",
+				"@PreviousLineQ",
+
+				"@PreviousNumberQ",
+
+				"@PreviousItemQ", "@PreviousListQ",
+				"@PreviousPairQ", "@PreviousSectionQ",
+
+				"@PreviousObjectQ" ],
+
+				:By = "Q(This[@i-1])", :CS = FALSE).
+
+			ReplaceManyCSQ([
+
+				"@NextCharQ", "@NextStringQ",
+				"@NextLineQ",
+
+				"@NextNumberQ",
+
+				"@NextItemQ", "@NextListQ",
+				"@NextPairQ", "@NextSectionQ",
+
+				"@NextObjectQ" ],
+
+				:By = "Q(This[@i+1])", :CS = FALSE).
 
 			Trimmed()
 
