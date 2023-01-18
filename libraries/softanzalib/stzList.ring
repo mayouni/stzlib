@@ -10028,6 +10028,12 @@ class stzList from stzObject
 			3. same content
 		*/
 
+		# Doublechecking for potential performance gain
+
+		if This.NumberOfItems() != len(paOtherItems)
+			return FALSE
+		ok
+
 		if isList(paOtherList) and
 		   len(paOtherList) = len(This.List()) and
 		   This.HasSameContentAsCS(paOtherList, pCaseSensitive)
