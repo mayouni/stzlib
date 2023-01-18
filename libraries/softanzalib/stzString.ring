@@ -422,7 +422,7 @@ func Interpolate(pcStr)
 class stzString from stzObject
 
 	@oQString
-	@@aConstraints = []
+	@aConstraints = []
 
 	@cLanguage = :English	# Set explicitly using SetLanguage()
 				# TODO (future): Infere the language from the string
