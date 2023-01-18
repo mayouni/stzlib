@@ -4014,22 +4014,32 @@ class stzString from stzObject
 	 #  SUBSTRINGS INSIDE A GIVEN STRING                      #
 	#--------------------------------------------------------#
 
-	def IsboundedByInCS(pacBounds, pIn, pCaseSensitive)
+	# NOTE: There is a more elegant alternative I suggest to use: IsBoundeByXT()
+	def IsBoundedByInCS(pacBounds, pIn, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzString("♥")
-		? o1.IsBoundedBy([ "-", "-" ], :In = "... -♥- ...")
+		? o1.IsBoundedByIn([ "-", "-" ], :In = "... -♥- ...")
 		#--> TRUE
 
 		*/
+
+		if isString(pacBounds)
+			aTemp = []
+			aTemp + pacBounds + pacBounds
+
+			pacBounds = aTemp
+		ok
 
 		if NOT ( isList(pacBounds) and Q(pacBounds).IsPairOfStrings() )
 			StzRaise("Incorrect param type! paBounds must be a pair of strings.")
 		ok
 
-		if isList(pIn) and Q(pIn).IsInNamedParam()
+
+		if isList(pIn) and Q(pIn).IsInOrInsideNamedParam()
 			pIn = pIn[2]
 		ok
+
 		if NOT ( isString(pIn) or isList(pIn) )
 			StzRaise("Incorrect param type! pIn must be a string or list.")
 		ok
@@ -4038,25 +4048,67 @@ class stzString from stzObject
 
 		if isString(pIn)
 			oStr = new stzString(pIn)
-			bResult = oStr.SubStringIsBoundedByCS( This.String(), paBounds, pCaseSensitive )
+			bResult = oStr.SubStringIsBoundedByCS( This.String(), pacBounds, pCaseSensitive )
 
-		but isList(pIn)
-			// TODO
-			StzRaise("Insupported feature in this version!")
+		but isList(pIn) and Q(pIn).IsListOfStrings()
 
-			if Q(pIn).IsListOfStrings()
-
-			else
-
-			ok
+			# TODO
+			StzRaise("Currently, the function works only on one string. List of strings are not supported.")
 		ok
 		
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def IsBoundedByXTCS(pacBounds, pIn, pCaseSensitive)
+			return This.IsBoundedByInCS(pacBounds, pIn, pCaseSensitive)
+
+		def IsBetweenXTCS(pacBounds, pIn, pCaseSensitive)
+
+			if NOT isList(pacBounds) and len(pacBounds) = 2
+				StzRaise("Incorrect param! pacBounds must be a list of 2 items.")
+			ok
+
+			acBounds = []
+
+			if isString(pacBounds[1])
+				acBounds + pacBounds[1]
+			ok
+
+			if isString(pacBounds[2])
+				acBounds + pacBounds[2]
+
+			but isList(pacBounds[2]) and
+			   Q(pacBounds[2]).IsAndNamedParam() and
+			   isString(pacBounds[2][2])
+
+				acBounds + pacBounds[2][2]
+				
+			ok
+
+			if NOT Q(acBounds).IsPairOfStrings()
+				StzRaise("Incorrect param type! pacBounds must be a pair of strings.")
+			ok
+
+			return This.IsBoundedByInCS(acBounds, pIn, pCaseSensitive)
+
+		#>
+
+
 	#-- WITHOUT CASESENSITIVITY
 
-	def IsboundedByIn(pacBounds, pIn)
+	def IsBoundedByIn(pacBounds, pIn)
 		return This.IsboundedByInCS(pacBounds, pIn, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def IsBoundedByXT(pacBounds, pIn)
+			return This.IsBoundedByIn(pacBounds, pIn)
+
+		def IsBetweenXT(pacBounds, pIn)
+			return This.IsBetweenXTCS(pacBounds, pIn, :CaseSensitive = TRUE)
+
+		#>
 
 	  #------------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING IS BOUNDING OF A GIVEN STRING INSIDE ANOTHER STRING  #
@@ -4264,11 +4316,11 @@ class stzString from stzObject
 			stzRaise("Incorrect param! paHarvest must be a list of 2 items.")
 		ok
 
-		if isList(paHarvest[1]) and Q(paHarvest[1]).IsNCharsBefore()
+		if isList(paHarvest[1]) and Q(paHarvest[1]).IsNCharsBeforeNamedParam()
 			paHarvest[1] = paHarvest[1][2]
 		ok
 
-		if isList(paHarvest[2]) and Q(paHarvest[2]).IsNCharsAfter()
+		if isList(paHarvest[2]) and Q(paHarvest[2]).IsNCharsAfterNamedParam()
 			paHarvest[2] = paHarvest[2][2]
 		ok
 
@@ -20911,8 +20963,13 @@ o1 = new stzString("12*34*56*78")
 		ok
 
 		if pCaseSensitive = TRUE
+			# Double-check for potential performance gain
+			if This.NumberOfChars() != Q(pcOtherStr).NumberOfChars()
+				return FALSE
 
-			return This.String() = pcOtherStr
+			else
+				return This.String() = pcOtherStr
+			ok
 
 		but pCaseSensitive = FALSE
 			return This.Lowercased() = StzStringQ(pcOtherStr).Lowercased()
@@ -21529,21 +21586,22 @@ o1 = new stzString("12*34*56*78")
 
 			but oBaseSubStr.IsOneOfTheseNamedParams([ :Before, :BeforeEach  ])
 
-				pcBaseSubStr = pcBaseSubStr[2]
+				pcBaseSubStr = pcSubStrToRemove + pcBaseSubStr[2]
 				cNewSubStr = Q(pcBaseSubStr).RemoveFromStartQ(pcSubStrToRemove).Content()
 
 				This.ReplaceCS(pcBaseSubStr, cNewSubStr, pCaseSensitive)
 
-			# Removing Before nth
+			# Removing before nth
 
 			but oBaseSubStr.IsOneOfTheseNamedParams([ :BeforeNth ])
 				n = pcBaseSubStr[2][1]
 				pcBaseSubStr = pcSubStrToRemove + pcBaseSubStr[2][2]
+				
 				cNewSubStr = Q(pcBaseSubStr).RemoveFromStartQ(pcSubStrToRemove).Content()
 
 				This.ReplaceCS(pcBaseSubStr, cNewSubStr, pCaseSensitive)
 
-			# Removeing Before first
+			# Removeing before first
 
 			but oBaseSubStr.IsOneOfTheseNamedParams([ :BeforeFirst, :ToFirst ])
 				pcBaseSubStr = pcSubStrToRemove + pcBaseSubStr[2]
@@ -21555,10 +21613,9 @@ o1 = new stzString("12*34*56*78")
 
 			but oBaseSubStr.IsOneOfTheseNamedParams([ :BeforeLast, :ToLast ])
 				pcBaseSubStr = pcSubStrToRemove + pcBaseSubStr[2]
-				cNewSubStr = Q(pcBaseSubStr).RemoveFromEndQ(pcSubStrToRemove).Content()
+				cNewSubStr = Q(pcBaseSubStr).RemoveFromStartQ(pcSubStrToRemove).Content()
 
 				This.ReplaceLastCS(pcBaseSubStr, cNewSubStr, pCaseSensitive)
-
 
 			#==
 

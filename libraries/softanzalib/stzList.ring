@@ -20441,6 +20441,39 @@ oTable.Show() + NL
 			return FALSE
 		ok
 
+	def IsInSideNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :InSide or This[1] = :Inside@) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsInSideANamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and 
+			(This[1] = :InSideA or This[1] = :InsideA@) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsInOrInsideNamedParam()
+		if This.IsInNamedParam() or This.IsInsideNamedParam()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsInsideOrInNamedParam()
+			return This.IsInOrInsideNamedParam()
+
 	def IsWhereNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Where ) and
