@@ -1298,12 +1298,15 @@ class stzListOfStrings from stzList
 	
 		ok
 
-	  #---------------------------------------------------#
-	 #      CONCATENATING THE STRINGS OF THE LIST        #
-	#---------------------------------------------------#
+	  #====================================================#
+	 #  CONCATENATING THE STRINGS OF THE LIST OF STRINGS  #
+	#====================================================#
 
 	def Concatenate()
-		return This.ConcatenateUsing("")
+		#< @QtBased >
+
+		acResult = This.QStringListObject().join("")
+		return acResult
 
 		def ConcatenateQ()
 			return new stzString( This.Concatenate() )
@@ -1312,34 +1315,145 @@ class stzListOfStrings from stzList
 			return This.Concatenate()
 
 			def JoinQ()
-				return This.Join()
-				return This
-	
+				return This.ConcatenateQ()
+
 	def Concatenated()
-		return This.ConcatenateQ().Content()
+		return This.Concatenate()
 
 		def Joined()
-			return Thhis.Content()
-	
-	def ConcatenateUsing(pcSep)
-		return This.QStringListObject().join(pcSep)
+			return This.Concatenated()
 
-		def ConcatenateUsingQ(pcSep)
-			return new stzString( This.ConcatenateUsing(pcSep) )
+	  #-----------------------------------------------------#
+	 #  CONCATENATING THE STRINGS USING A GIVEN SEPARATOR  #
+	#-----------------------------------------------------#
+
+	def ConcatenateUsing(pcStr)
+		#< @QtBased >
+
+		acResult = This.QStringListObject().join(pcStr)
+		return acResult
+
+		def ConcatenateUsingQ(pcStr)
+			return new stzString( This.ConcatenateUsing(pcStr) )
 
 		def JoinUsing()
-			return This.ConcatenateUsing(pcSep)
-	
-	def ConcatenatedUsing(pcSep)
-		aResult = This.Copy().ConcatenateUsingQ(pcSep).Content()
-		return aResult
+			return This.ConcatenateUsing(pcStr)
 
-		def JoinedUsing(pcSep)
-			aResult = This.ConcatenatedUsing(pcSep)
+			def JoinUsingQ(pcStr)
+				return This.ConcatenateUsingQ(pcStr)
 
-	  #--------------------------------------#
+	def ConcatenatedUsing(pcStr)
+		return This.ConcatenateUsing(pcStr)
+
+		def JoinedUsing(pcStr)
+			return This.ConcatenatedUsing(pcStr)
+
+	  #-----------------------------------------------------------------#
+	 #  CONCATENATING THE STRINGS USING A GIVEN SEPARATOR -- EXTENDED  #
+	#-----------------------------------------------------------------#
+
+	def ConcatenateUsingXT(pStr, paOptions)
+		# The only supported option for now is :LastSep = "..."
+
+		if isList(paOptions) and Q(paOptions).IsLastSepNamedParam()
+			return This.ConcatenateAndChangeLastSep(pStr, paOptions[2])
+		ok
+
+		def ConcatenateUsingXTQ(pStr, paOptions)
+			return new stzString( This.ConcatenateUsingXT(pStr, paOptions) )
+
+		def JoinUsingXT(pStr, paOptions)
+			return This.ConcatenateUsingXT(pStr, paOptions)
+
+			def JoinUsingXTQ(pStr, paOptions)
+				return This.ConcatenateUsingXTQ(pStr, paOptions)
+
+	def ConcatenatedUsingXT(pStr, paOptions)
+		return This.ConcatenateUsingXT(pStr, paOptions)
+
+		def JoinedUsingXT(pStr, paOptions)
+			return This.ConcatenatedUsingXT(pStr, paOptions)
+
+	  #-------------------------------------------------------------#
+	 #  CONCATENATING THE STRINGS AND CHANGING THE LAST SEPARATOR  #
+	#-------------------------------------------------------------#
+
+	def ConcatenateAndChangeLastSep(pcStr, pcLast)
+		#< @QtBased >
+
+		cResult = This.SectionQR(1, This.Size()-1, :stzListOfStrings).
+			       ConcatenatedUsing(pcStr)
+
+		cResult += ( pcLast + This.LastString() )
+
+		return cResult
+
+		def ConcatenateAndChangeLastSepQ(pcStr)
+			return new stzString( This.ConcatenateAndChangeLastSep(pcStr) )
+
+		def JoinAndChangeLastSep()
+			return This.ConcatenateAndChangeLastSep(pcStr)
+
+			def JoinAndChangeLastSepQ(pcStr)
+				return This.ConcatenateAndChangeLastSepQ(pcStr)
+
+	def ConcatenatedAndLastSepChanged(pcStr)
+		return This.ConcatenateAndChangeLastSep(pcStr)
+
+		def JoinedAndChangeLastSep(pcStr)
+			return This.ConcatenatedAndChangeLastSep(pcStr)
+
+		def ConcatenatedWithLastSepChanged(pcStr)
+			return This.ConcatenatedAndLastSepChanged(pcStr)
+
+		def JoinedWithChangeLastSep(pcStr)
+			return This.ConcatenatedAndChangeLastSep(pcStr)
+
+	  #----------------------------------------------------------------#
+	 #  CONCATENATING THE STRINGS OF THE LIST OF STRINGS -- EXTENDED  #
+	#----------------------------------------------------------------#
+
+	def ConcatenateXT(p)
+		#< @QtBased >
+
+		if isString(p)
+			return This.ConcatenateUsing(p)
+
+		but isList(p)
+			oList = new stzList(p)
+			if oList.IsUsingNamedParam()
+				return This.ConcatenateUsing(p[2])
+
+			but len(p) = 2 and
+
+			    Q(p[1]).IsUsingNamedParam() and
+			    Q(p[2]).IsLastSepNamedParam()
+
+				return This.ConcatenateAndChangeLastSep(p[1][2], p[2][2])
+			ok
+
+		else
+			return This.Concatenate()
+		ok
+
+		def ConcatenateXTQ(p)
+			return new stzString( This.ConcatenateXT(p) )
+
+		def JoinXT(p)
+			return This.ConcatenateXT(p)
+
+			def JoinXTQ(p)
+				return This.ConcatenateXTQ(p)
+
+	def ConcatenatedXT(p)
+		return This.ConcatenateXT(p)
+
+		def JoinedXT(p)
+			return This.ConcatenatedXT(p)
+
+	  #======================================#
 	 #     REVERSING THE LIST OF STRINGS    #
-	#--------------------------------------#
+	#======================================#
 
 	def ReverseStringItems()
 		aTemp = StzListQ( This.ListOfStrings() ).ItemsReversed()

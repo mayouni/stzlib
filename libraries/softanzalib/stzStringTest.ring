@@ -352,7 +352,6 @@ StopProfiler()
 #--> Executed in 0.013 second(s)
 
 /*----------------
-*/
 
 StartProfiler()
 
@@ -365,6 +364,264 @@ o1.ReplaceSection(3, 5, :By@ = '{ @EachItemQ.Uppercased() }')
 StopProfiler()
 #--> Executed in 0.011 second(s)
 
+/*===================
+*/
+
+StartProfiler()
+
+Q("Ring programmin guage.") {
+
+	AddXT("g", :After = "programmin") # You can use :To instead of :After
+	? Content()
+	#--> Ring programming guage.
+
+}
+
+StopProfiler()
+#--> Executed in 0.02 second(s)
+
+/*-----------
+
+StartProfiler()
+
+Q("__(♥__(♥__(♥__") {
+
+	AddXT( ")", :AfterEach = "♥" ) # ... you can also say :After = "♥"
+	? Content()
+	#--> __(♥)__(♥)__(♥)__
+}
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*-----------
+
+StartProfiler()
+
+Q("__♥__(♥__♥__") {
+
+	AddXT( ")", :AfterNth = [2, "♥"] )
+	? Content()
+	#--> __♥__(♥)__♥__
+}
+
+StopProfiler()
+# Executed in 0.03 second(s)
+
+/*-----------------
+
+StartProfiler()
+
+Q("__(♥__♥__♥__") {
+
+	AddXT( ")", :AfterFirst = "♥" ) # ... or :ToFirst
+	? Content()
+	#--> __♥__(♥)__♥__
+}
+
+StopProfiler()
+# Executed in 0.04 second(s)
+
+/*-----------------
+
+StartProfiler()
+
+Q("__♥__♥__(♥__") {
+
+	AddXT( ")", :AfterLast = "♥" ) # ... or :ToLast
+	? Content()
+	#--> __♥__♥__(♥)__
+}
+
+StopProfiler()
+# Executed in 0.04 second(s)
+
+/*===------------
+
+StartProfiler()
+
+Q("Ring programming guage.") {	
+	AddXT("lan", :Before = "guage")
+	? Content()
+	#--> Ring programming language.
+}
+
+StopProfiler()
+# Executed in 0.04 second(s)
+
+/*---------
+
+StartProfiler()
+
+Q("__♥)__♥)__♥)__") {
+
+	AddXT( "(", :BeforeEach = "♥" ) # ... you can also say :Before = "♥"
+	? Content()
+	#--> __(♥)__(♥)__(♥)__
+}
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*---------
+
+StartProfiler()
+
+Q("__♥__♥)__♥__") {
+
+	AddXT( "(", :BeforeNth = [2, "♥"] )
+	? Content()
+	#--> __♥__(♥)__♥__
+}
+
+StopProfiler()
+# Executed in 0.05 second(s)
+
+/*---------
+
+StartProfiler()
+
+Q("__♥)__♥__♥__") {
+
+	AddXT( "(", :BeforeFirst = "♥" )
+	? Content()
+	#--> __(♥)__♥__♥__
+}
+
+StopProfiler()
+# Executed in 0.04 second(s)
+
+/*---------
+
+StartProfiler()
+
+Q("__♥__♥__♥)__") {
+
+	AddXT( "(", :BeforeLast = "♥" )
+	? Content()
+	#--> __♥__♥__(♥)__
+}
+
+StopProfiler()
+# Executed in 0.05 second(s)
+
+
+/*===------------
+
+StartProfiler()
+
+Q("__♥__♥__♥__") {
+
+	AddXT(" ", :AroundEach = "♥")
+	? Content()
+	#--> __ ♥ __ ♥ __ ♥ __
+}
+
+StopProfiler()
+# Executed in 0.06 second(s)
+
+/*-----------------
+
+StartProfiler()
+
+Q("__♥__♥__♥__") {
+
+	AddXT([ "/","\" ], :AroundEach = "♥") # ... or just :Around = "♥" if you want
+	? Content()
+	#--> __/♥\__/♥\__/♥\__
+}
+# Executed in 0.06 second(s)
+
+StopProfiler()
+
+/*-----------------
+
+StartProfiler()
+
+Q("__♥__♥__♥__") {
+
+	AddXT([ "/","\" ], :AroundNth = [2, "♥"])
+	? Content()
+	#--> __♥__/♥\__♥__
+}
+
+StopProfiler()
+# Executed in 0.06 second(s)
+
+
+/*-----------------
+
+StartProfiler()
+
+Q("__♥__/♥\__/♥\__") {
+
+	AddXT( [ "/","\" ], :AroundFirst = "♥" )
+	? Content()
+	#--> __/♥\__/♥\__/♥\__
+}
+
+StopProfiler()
+# Executed in 0.06 second(s)
+
+/*-----------------
+
+StartProfiler()
+
+Q("__/♥\__/♥\__♥__") {
+
+	AddXT( [ "/","\" ], :AroundLast = "♥" )
+	? Content()
+	#--> __/♥\__/♥\__/♥\__
+}
+
+StopProfiler()
+# Executed in 0.07 second(s)
+
+/*=====================
+
+StartProfiler()
+
+acOtherLangs = [ "JS", "C#", "PHP", "Python" ]
+
+o1 = new stzString("JS style can be used in Ring!")
+
+o1.Replace("JS", :By@ = '
+	QR(acOtherLangs, :stzListOfStrings).
+	ConcatenateXTQ([ :Using = ", ", :LastSep = ", and " ]).
+	AddQ("s", :To = "style").
+	Content()
+')
+
+
+? o1.Content()
+
+StopProfiler()
+
+/*------------------
+
+StartProfiler()
+
+o1 = new stzListOfStrings([ "Ring", "Python", "PHP", "JS" ])
+? o1.ConcatenateXT(", ")
+#--> Ring, Python, PHP, JS
+
+? o1.ConcatenateXT(:Using = ", ")
+#--> Ring, Python, PHP, JS
+
+? o1.ConcatenateXT([ :Using = ", ", :LastSep = ", and " ])
+#--> Ring, Python, PHP, and JS
+
+? o1.Concatenate()
+#--> RingPythonPHPJS
+
+? o1.ConcatenateUsing(", ")
+#--> Ring, Python, PHP, JS
+
+? o1.ConcatenateUsingXT(", ", :LastSep = ", and ")
+#--> Ring, Python, PHP, and JS
+
+StopProfiler()
+# Executed in 0.05 second(s)
 /*==================
 
 StartProfiler()
