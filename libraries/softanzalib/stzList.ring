@@ -18592,9 +18592,784 @@ oTable.Show() + NL
 		aResult = This.DistributeOverXT( acBeneficiaryItems, :Using = anShare)
 		return aResult
 
+	  #=======================#
+	 #     GETTING TYPES     #
+	#=======================#
+
+	# Deeling wuth the list itself
+
+	def IsStzList()
+		return TRUE
+
+	def stzType()
+		return :stzList
+
+	# Deeling with the items of the list
+
+	def Types()
+		aResult = []
+		for item in This.List()
+			aResult + Q(item).Type()
+		next
+		return aResult
+
+	def TypesXT()
+		aResult = This.ListQ().AssociatedWith( This.Types() )
+		return aResult
+
+	def UniqueTypes()
+		aResult = []
+		for item in This.List()
+			if NOT StzListQ(aResult).Contains( ring_type(item) )
+				aResult + ring_type(item)
+			ok
+		next
+		return aResult
+
+	  #---------------------------------------------------#
+	 #    STARTS / ENDS WITH A GIVEN SUBLIST OF ITEMS    #
+	#---------------------------------------------------#
+
+	def StartsWith(paItems)
+		if len(paItems) > This.NumberOfItems()
+			return FALSE
+		ok
+
+		if This.IsStrictlyEqualTo(paItems)
+			return TRUE
+		ok
+
+		bResult = TRUE
+
+		i = 0
+		for item in paItems
+			i++
+			if _(This[i]).Q.IsNotEqualTo(item)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def BeginsWith(paItems)
+			return This.StartsWith()
+
+	def EndsWith(paItems)
+		if len(paItems) > This.NumberOfItems()
+			return FALSE
+		ok
+
+		if This.IsStrictlyEqualTo(paItems)
+			return TRUE
+		ok
+
+		bResult = TRUE
+
+		i = 0
+		for item in This.NLastItems( len(paItems) )
+			i++
+			if _(This[i]).Q.IsNotEqualTo(item)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FinishesWith(paItems)
+			return This.EndsWith(paItems)
+
+/////////////////////////////////////////////////////////
+	  #--------------------------------------------------#
+	 #   PERFORMING AN ACTION ON EACH ITEM OF THE LSIT  #
+	#--------------------------------------------------#
+
+	def ForEacItemPerform(pcCode)
+		# Must begin with '@item ="
+		/* Example
+
+		o1 = new stzList([ "village.txt", "town.txt", "country.txt" ])
+		o1.ForEachItemPerform('{ Q(@item).RemoveQ(".txt").Content() }')
+
+		o1.Content() # ---> [ "village", "town", "country" ]
+
+		*/
+
+		if NOT isString(pcCode)
+			StzRaise("Invalid param type! Condition must be a string.")
+		ok
+
+		oCode = new stzString(pcCode)
+		oCode.ReplaceAllCS("@string", "@str", :CaseSensitive = FALSE)
+
+		if NOT oCode.ContainsCS("@str", :CS = FALSE)
+			StzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
+		ok
+
+		cCode = oCode.RemoveBoundsQ(["{","}"]).Trimmed()
+		oCode = new stzString(cCode)
+		/* TODO - ERROR: check why when we do
+
+		oCode.RemoveBoundsQ(["{","}"]).SimplifyQ()
+
+		and get the object content using
+
+		? oCode.Content()
+
+		we find that the object is not affectd by SimplifyQ()!
+		*/
+
+		if NOT oCode.BeginsWithOneOfTheseCS( [ "@str =", "@str=" ], :CaseSensitive = FALSE )
+
+			StzRaise("Syntax error! Condition should begin with '@str =' or '@string ='.")
+		ok
+
+		@i = 0
+		for @str in This.ListOfStrings()
+			@i++
+			eval(cCode)
+
+			This.ReplaceStringAtPosition(@i, @str )	
+		next
+
+		#< @FunctionFluentForm
+
+		def ForEachStringPerformQ(pcCode)
+			This.ForEachStringPerform(pcCode)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ForEachStringDo(pcCode)
+			This.ForEachStringPerform(pcCode)
+
+			def ForEachStringDoQ(pcCode)
+				This.ForEachStringDo(pcCode)
+				return This
+
+		#>
+
+	  #----------------------------------------------#
+	 #   YIELDING AN INFORMATION FROM EACH ITEM   #
+	#----------------------------------------------#
+
+	def ForEachStringYield(pcCode)
+		/* Example
+
+		o1 = new stzListOfStrings([ "village", "town", "country" ])
+		o1.ForEachStringYield('[ @str, Q(@str).NumberOfChars()' ])
+
+		o1.Content()
+		# ---> [ [ "village", 6 ], [ "town", 4 ], [ "country", 7 ] ]
+
+		*/
+
+		if NOT isString(pcCode)
+			StzRaise("Invalid param type! Condition must be a string.")
+		ok
+
+		oCode = new stzString(pcCode)
+		oCode.ReplaceAllCS("@string", "@str", :CaseSensitive = FALSE)
+
+		if NOT oCode.ContainsCS("@str", :CS = FALSE)
+			StzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
+		ok
+
+
+		cCode = oCode.TrimQ().BoundsRemoved("{","}")
+		cCode = 'aResult + ( ' + cCode + ' )'
+
+		aResult = []
+
+		for @str in This.ListOfStrings()
+			@string = @str
+			
+			eval(cCode)
+		next
+
+		return aResult
+
+		def ForEachStringYieldQ(pcCode)
+			return This.ForEachStringYieldQR(pcCode, :stzList)
+
+		def ForEachStringYieldQR(pcCode, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ForEachStringYield(pcCode) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.ForEachStringYield(pcCode) )
+			
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		def ForEachStringReturn(pcCode)
+			This.ForEachStringYield(pcCode)
+
+			def ForEachStringReturnQ(pcCode)
+				return This.ForEachStringYieldQ(pcCode)
+
+				def ForEachStringReturnQR(pcCode, pcReturnType)
+					if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+						pcReturnType = pcReturnType[2]
+					ok
+
+					return This.ForEachStringYieldQR(pcCode, pcReturnType)
+
+	  #==========================================#
+	 #  SMALLEST AND LARGEST ITEMS IN THE LIST  #
+	#==========================================#
+
+	def SmallestItem()
+
+		if This.NumberOfItems() > 1
+			aSorted = This.SortedInAscending()
+			return aSorted[1]
+
+		ok
+
+		def Smallest()
+			return This.SmallestItem()
+
+	def LargestItem()
+		if This.NumberOfItems() > 1
+			aSorted = This.SortedInDescending()
+			return aSorted[1]
+		ok
+
+		def Largest()
+			return This.LargestItem()
+
+		def GreatestItem()
+			return This.LargestItem()
+
+		def Greatest()
+			return This.LargestItem()
+
+	  #--------------------------------------------------#
+	 #  FINDING SMALLEST AND LARGEST ITEMS IN THE LIST  #
+	#--------------------------------------------------#
+
+	def FindSmallestItem()
+		return This.FindAll( This.SmallestItem() )
+
+		def FindSmallest()
+			return This.FindSmallestItem()
+
+		def FindAllOccurrencesOfSmallestItem()
+			return This.FindSmallestItem()
+
+		def FindAllOccurrencesOfSmallest()
+			return This.FindSmallestItem()
+
+	def FindLargestItem()
+		return This.FindAll( This.LargestItem() )
+
+		def FindLargest()
+			return This.FindLargestItem()
+
+		def FindAllOccurrencesOfLargestItem()
+			return This.FindLargestItem()
+
+		def FindAllOccurrencesOfLargest()
+			return This.FindLargestItem()
+
+	  #-------------------------------------------------------------------#
+	 #  NUMBER OF OCCURRENCES OF SMALLEST AND LARGEST ITEMS IN THE LIST  #
+	#-------------------------------------------------------------------#
+
+	def NumberOfOccurrencesOfSmallestItem()
+		return len( This.FindAllOccurrencesOfSmallestItem() )
+
+		def NumberOfOccurrenceOfSmallestItem()
+			return This.NumberOfOccurrencesOfSmallestItem()
+
+		def NumberOfOccurrencesOfSmallest()
+			return This.NumberOfOccurrencesOfSmallestItem()
+
+		def NumberOfOccurrenceOfSmallest()
+			return This.NumberOfOccurrencesOfSmallestItem()
+
+		def NumberOfSmallest()
+			return This.NumberOfOccurrencesOfSmallestItem()
+
+	def NumberOfOccurrencesOfLargestItem()
+		return len( This.FindAllOccurrencesOfLargestItem() )
+
+		def NumberOfOccurrenceOfLargestItem()
+			return This.NumberOfOccurrencesOfLargestItem()
+
+		def NumberOfOccurrencesOfLargest()
+			return This.NumberOfOccurrencesOfLargestItem()
+
+		def NumberOfOccurrenceOfLargest()
+			return This.NumberOfOccurrencesOfLargestItem()
+
+		def NumberOfLargest()
+			return This.NumberOfOccurrencesOfLargestItem()
+
+	  #--------------------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF SMALLEST AND LARGEST ITEMS IN THE LIST  #
+	#--------------------------------------------------------------------#
+
+	def FindNthOccurrenceOfSmallestItem(n)
+		if isString(n)
+			if Q(n).IsEither(:First, :Or = :FirstItem)
+				n = 1
+			but Q(n).IsEither(:Last, :Or = :LastItem)
+				n = This.NumberOfOccurrencesOfSmallestItem()
+			ok
+		ok
+
+		return This.FindAll( This.SmallestItem() )[n]
+
+		def FindNthOccurrenceOfSmallest(n)
+			return This.FindNthSmallestItem(n)
+
+	def FindNthOccurrenceOfLargestItem(n)
+		if isString(n)
+			if Q(n).IsEither(:First, :Or = :FirstItem)
+				n = 1
+			but Q(n).IsEither(:Last, :Or = :LastItem)
+				n = This.NumberOfOccurrencesOfLargestItem()
+			ok
+		ok
+
+		return This.FindAll( This.LargestItem() )[n]
+
+		def FindNthOccurrenceOfLargest(n)
+			return This.FindNthLargestItem(n)
+
+		def FindNthOccurrenceOfGreatestItem(n)
+			return This.FindNthLargestItem(n)
+
+		def FindNthOccurrenceOfGreatest(n)
+			return This.FindNthLargestItem(n)
+
+	  #======================================================#
+	 #  GETTING NTH SMALLEST AND LARGEST ITEMS IN THE LIST  #
+	#======================================================#
+
+	def NthSmallestItem(n)
+		return This.Copy().RemoveDuplicatesQ().SortedInAscending()[n]
+
+		def NthSmallest(n)
+			return This.NthSmallestItem(n)
+
+	def NthLargestItem(n)
+		return This.Copy().RemoveDuplicatesQ().SortedInDescending()[n]
+
+		def NthLargest(n)
+			return This.NthLargestItem(n)
+
+		def NthGreatestItem(n)
+			return This.NthLargestItem(n)
+
+		def NthGreatest(n)
+			return This.NthLargestItem(n)
+
+	  #------------------------------------------------------#
+	 #  FINDING NTH SMALLEST AND LARGEST ITEMS IN THE LIST  #
+	#------------------------------------------------------#
+
+	def FindNthSmallestItem(n)
+		return This.FindAll( This.NthSmallestItem(n) )
+
+		def FindNthSmallest(n)
+			return This.FindNthSmallestItem(n)
+
+	def FindNthLargestItem(n)
+		return This.FindAll( This.NthLargestItem(n) )
+
+		def FindNthLargest(n)
+			return This.FindNthLargestItem(n)
+
+		def FindNthGreatestItem(n)
+			return This.FindNthLargestItem(n)
+
+		def FindNthGreatest(n)
+			return This.FindNthLargestItem(n)
+
+	  #===========#
+	 #   MISC.   #
+	#===========#
+
+	def IsUppercase()
+		if This.IsListOfStrings() and
+		   LSQ( This.String() ).IsUppercase()
+		   # LSQ() --> abbreviation of StzListOfStringsQ()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsAnUppecase()
+			return This.IsUppercase()
+
+		def IsUppercased()
+			return This.IsUppercase()
+
+	def ToString()
+		acStrings = []
+		for item in This.List()
+			cItem = ""
+			if isString(item)
+				cItem = item
+			but isNumber(item)
+				cItem = ""+ item
+			but isList(item)
+				cItem = StzStringQ(item).ToCode()
+			but isObject(item)
+				StzRaise("Can't transforme an object to string!")
+			ok
+
+			acStrings + cItem
+		next
+
+		cResult = StzListOfStringsQ(acStrings).ConcatenatedUsing(NL)
+		return cResult
+
+		def ToStringQ()
+			return new stzString(This.ToString())
+
+		def ToStzString()
+			return This.ToString()
+
+	def Stringified()
+			return This.ToString()
+
+	def ToStzListOfChars()
+		if NOT This.IsListOfChars()
+			StzRaise("Can't cast the list into a stzListOfChars!")
+		ok
+
+		return new stzListOfChars( This.Content() )
+
+	def FirstAndLastItems()
+		aResult = [ This.FirstItem(), This.LastItem() ]
+		return aResult
+
+	def LastAndFirstItems()
+		aResult = [ This.LastItem(), FirstItem() ]
+		return aResult
+
+	def ToListInStringInShortForm()
+		cResult = This.ToCodeQ().ToListInShortForm()
+		return cResult
+
+		def ToListInShortForm()
+			return This.ToListInStringInShortForm()
+
+	def BoundsOf(pItem, pnUpToNItems)
+		// TODO
+		
+	def AreBoundsOf(pItem, pIn)
+
+		/* EXAMPLE 1
+
+		o1 = new stzList([ "<<", ">>" ])
+		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
+		#--> TRUE
+
+		EXAMPLE 2
+
+		o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
+		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
+		#--> TRUE
+
+		*/
+
+		if NOT ( This.IsPair() or This.IsListOfPairs() )
+			StzRaise("Can't check bounds! List must be a pair or a list of pairs.")
+		ok
+
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		ok
+
+		anUpToNChars = []
+		if This.IsPair() and NOT This.IsListOfPairs()
+			anUpToNChars = [ len(This[1]), len(This[2]) ]
+			aThis = [ This.Content() ]
+
+		else
+			for aPair in This.Content()
+				anUpToNChars + [ len(aPair[1]), len(aPair[2]) ]
+			next
+			aThis = This.Content()
+		ok
+
+		aBounds = Q(pIn).BoundsOf(pItem, anUpToNChars)
+	
+		bResult = Q(aThis).AllItemsExistIn(aBounds)
+		return bResult
+
+	  #----------------------------------------#
+	 #      CHECKING IF ALL ITEMS ARE ...     #
+	#----------------------------------------#
+
+	def AllItemsAre(pDescriptor)
+		/* EXAMPLE
+
+		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre(:Strings)
+		#--> TRUE
+		
+		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
+		#--> TRUE
+		
+		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
+		#--> TRUE
+		
+		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, W('len(@item)=3'), :Strings ])
+		
+		*/
+
+		if isString(pDescriptor)
+			return This.AllItemsAreXT([ pDescriptor ], :EvalDirection = :Nothing)
+
+		but isList(pDescriptor) and Q(pDescriptor).IsListOfStrings()
+			return This.AllItemsAreXT(pDescriptor, :EvalDirection = :Nothing)
+
+		ok	
+
+	def AllItemsAreXT(pacDescriptors, paEvalDirection)
+
+		if NOT ( isList(pacDescriptors) and Q(pacDescriptors).IsListOfStrings() )
+			StzRaise("Incorrect param type! pacDescriptors must be a list of strings.")
+		ok
+
+		if isList(paEvalDirection) and
+		   Q(paEvalDirection).IsOneOfTheseNamedParams([
+			:Eval, :Evaluate,
+			:EvalFrom, :EvaluateFrom,
+			:EvalDirection, :EvaluationDirection
+		   ])
+
+			paEvalDirection = paEvalDirection[2]
+		ok
+
+		if NOT Q(paEvalDirection).IsOneOfTheseCS([
+			:Default, :Nothing,
+			:LeftToRight, :RightToLeft,
+			:Left2Right, :Right2Left,
+			:FromLeftToRight, :FromRightToLeft,
+			:FromLeft2Right, :FromRight2Left,
+			:LTR, :RTL, :L2R, :R2L,
+			:FromLTR, :FromRTL, :FromL2R, :FromR2L
+			], :CS = FALSE)
+
+			StzRaise("Incorrect param value for paEvalDirection! Allowed values are :RightToLeft and :LeftToRight.")
+		ok
+
+		if Q(paEvalDirection).IsEither(:Default, :Or = :Nothing)
+			paEvalDirection = :RightToLeft
+		ok
+
+		# Doing the job
+
+		acDescriptors = pacDescriptors
+		if Q(paEvalDirection).IsOneOfTheseCS([
+			:RightToLeft,
+			:Right2Left,
+			:FromRightToLeft,
+			:FromRight2Left,
+			:RTL, :R2L,
+			:FromRTL, :FromR2L
+			], :CS = FALSE)
+
+			acDescriptors = Q(acDescriptors).Reversed()
+		ok
+
+		if len(acDescriptors) = 1
+			if acDescriptors[1] = :Number or acDescriptors[1] = :Numbers
+				cMethod = :IsANumber
+
+			but acDescriptors[1] = :String or acDescriptors[1] = :Strings
+				cMethod = :IsAString
+
+			but acDescriptors[1] = :List or acDescriptors[1] = :Lists
+				Method = :IsAList
+
+			but acDescriptors[1] = :Object or acDescriptors[1] = :Objects
+				cMethod = :IsAnObject
+
+			but Q(acDescriptors[1]).FirstChar() = "{" and
+			    Q(acDescriptors[1]).LastChar() = "}"
+
+				bResult = This.Check( :That = acDescriptors[1] )
+				return bResult
+			
+			else
+
+				cMethod = Q(acDescriptors[1]).InfereMethod(:From = :stzList)
+
+			ok
+
+			bResult = This.Check( :That = 'Q(@item).' + cMethod + "()" )
+
+		else
+
+			cType = Q(acDescriptors[1]).InfereType()
+			if Q(cType).StartsWithCS("stz", :CS = FALSE)
+				cType = Q(cType).FirstNCharsRemoved(3)
+			ok
+
+			bResult = TRUE
+	
+			for i = 2 to len(acDescriptors)
+
+ 				if Q(acDescriptors[i]).FirstChar() = "{" and
+			   	   Q(acDescriptors[i]).LastChar() = "}"
+
+					bOk = This.Check( :That = acDescriptors[i] )
+				
+				else
+
+					cMethod = Q(acDescriptors[i]).InfereMethod( :From = 'stz' + cType )
+					bOk = This.Check( :That = 'Stz' + cType + 'Q(@item).' + cMethod + "()" )
+				ok
+
+				if bOk = FALSE
+					bResult = FALSE
+					exit
+				ok
+			next
+		ok
+
+		return bResult
+
+	  #--------------------------------#
+	 #    USUED FOR NATURAL-CODING    #
+	#--------------------------------#
+
+	def IsAString()
+		return FALSE
+
+	def IsAList()
+		return TRUE
+
+	def IsAnObject()
+		return TRUE
+
+	#--- ITEM
+
+	def IsItem()
+		return TRUE
+
+		def IsAnItem()
+			return This.IsItem()
+
+	def IsItemOf(paList)
+		return StzListQ(paList).Contains(This.Content())
+	
+		def AsAnItemOf(paList)
+			return This.IsItemOf(paList)
+	
+	def IsItemIn(paList)
+		return This.IsItemOf(paList)
+	
+		def IsAnItemIn(paList)
+			return This.IsItemOf(paList)
+
+	#--
+
+	def IsMember()
+		return TRUE
+
+		def IsAMember()
+			return This.IsMember()
+
+	def IsMemberOf(paList)
+		return StzListQ(paList).Contains(This.Content())
+	
+		def AsAMemberOf(paList)
+			return This.IsMemberOf(paList)
+	
+	def IsMemberIn(paList)
+		return This.IsMemberOf(paList)
+	
+		def IsAMemberIn(paList)
+			return This.IsMemberOf(paList)
+
+
+	#--- NUMBER
+
+	def IsANumber()
+		return FALSE
+
+	def IsNumberOf(paList)
+		return FALSE
+
+		def IsANumberOf(paList)
+			return FALSE
+	
+	def IsNumberIn(paList)
+		return FALSE
+	
+		def IsANumberIn(paList)
+			return FALSE
+
+	#--- ITEM
+
+	def IsLetter()
+		return FALSE
+
+		def IsALetter()
+			return FALSE
+	
+	def IsLetterOf(pStrOrListOfChars)
+		return FALSE
+
+		def IsALetterOf(pcStr)
+			return FALSE
+	
+	def IsLetterIn(pcStr)
+		return FALSE
+
+		def IsALetterIn(pcStr)
+			FALSE
+
+	def IsCharOf(pStrOrListOfChars)
+		return FALSE
+
+		def IsACharOf(pcStr)
+			return FALSE
+
+	def IsCharIn(pcStr)
+		return FALSE
+
+		def IsACharIn(pcStr)
+			return FALSE
+
+	def Methods()
+		return ring_methods(This)
+
+	def Attributes()
+		return ring_attributes(This)
+
+	def ClassName()
+		return "stzlist"
+
+		def StzClassName()
+			return This.ClassName()
+
+		def StzClass()
+			return This.ClassName()
+
 	  #===========================================#
 	 #   CHECKING IF THE LIST IS A NAMED PARAM   #
 	#===========================================#
+	# TODO: Add @ to all params
 
 	def IsOnPositionNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -18853,7 +19628,7 @@ oTable.Show() + NL
 		ok
 	#--
 
-	def IsNCharsBefore()
+	def IsNCharsBeforeNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :NCharsBefore)
 
@@ -18862,7 +19637,7 @@ oTable.Show() + NL
 			return FALSE
 		ok
 
-	def IsNCharsAfter()
+	def IsNCharsAfterNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :NCharsAfter)
 
@@ -20091,7 +20866,7 @@ oTable.Show() + NL
 			return FALSE
 		ok
 
-	def IsAtOrUsingNamed()
+	def IsAtOrUsingNamedParam()
 		if This.IsAtNamedParam() or This.IsUsingNamedParam()
 			return TRUE
 		else
@@ -21981,7 +22756,7 @@ oTable.Show() + NL
 
 	def IsNthToFirstCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :NthToFristChar )
+		   ( isString(This[1]) and  This[1] = :NthToFirstChar )
 
 			return TRUE
 
@@ -24506,420 +25281,10 @@ oTable.Show() + NL
 			return FALSE
 		ok
 
-	  #=======================#
-	 #     GETTING TYPES     #
-	#=======================#
-
-	# Deeling wuth the list itself
-
-	def IsStzList()
-		return TRUE
-
-	def stzType()
-		return :stzList
-
-	# Deeling with the items of the list
-
-	def Types()
-		aResult = []
-		for item in This.List()
-			aResult + Q(item).Type()
-		next
-		return aResult
-
-	def TypesXT()
-		aResult = This.ListQ().AssociatedWith( This.Types() )
-		return aResult
-
-	def UniqueTypes()
-		aResult = []
-		for item in This.List()
-			if NOT StzListQ(aResult).Contains( ring_type(item) )
-				aResult + ring_type(item)
-			ok
-		next
-		return aResult
-
-	  #---------------------------------------------------#
-	 #    STARTS / ENDS WITH A GIVEN SUBLIST OF ITEMS    #
-	#---------------------------------------------------#
-
-	def StartsWith(paItems)
-		if len(paItems) > This.NumberOfItems()
-			return FALSE
-		ok
-
-		if This.IsStrictlyEqualTo(paItems)
-			return TRUE
-		ok
-
-		bResult = TRUE
-
-		i = 0
-		for item in paItems
-			i++
-			if _(This[i]).Q.IsNotEqualTo(item)
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		def BeginsWith(paItems)
-			return This.StartsWith()
-
-	def EndsWith(paItems)
-		if len(paItems) > This.NumberOfItems()
-			return FALSE
-		ok
-
-		if This.IsStrictlyEqualTo(paItems)
-			return TRUE
-		ok
-
-		bResult = TRUE
-
-		i = 0
-		for item in This.NLastItems( len(paItems) )
-			i++
-			if _(This[i]).Q.IsNotEqualTo(item)
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		def FinishesWith(paItems)
-			return This.EndsWith(paItems)
-
-/////////////////////////////////////////////////////////
-	  #--------------------------------------------------#
-	 #   PERFORMING AN ACTION ON EACH ITEM OF THE LSIT  #
-	#--------------------------------------------------#
-
-	def ForEacItemPerform(pcCode)
-		# Must begin with '@item ="
-		/* Example
-
-		o1 = new stzList([ "village.txt", "town.txt", "country.txt" ])
-		o1.ForEachItemPerform('{ Q(@item).RemoveQ(".txt").Content() }')
-
-		o1.Content() # ---> [ "village", "town", "country" ]
-
-		*/
-
-		if NOT isString(pcCode)
-			StzRaise("Invalid param type! Condition must be a string.")
-		ok
-
-		oCode = new stzString(pcCode)
-		oCode.ReplaceAllCS("@string", "@str", :CaseSensitive = FALSE)
-
-		if NOT oCode.ContainsCS("@str", :CS = FALSE)
-			StzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
-		ok
-
-		cCode = oCode.RemoveBoundsQ(["{","}"]).Trimmed()
-		oCode = new stzString(cCode)
-		/* TODO - ERROR: check why when we do
-
-		oCode.RemoveBoundsQ(["{","}"]).SimplifyQ()
-
-		and get the object content using
-
-		? oCode.Content()
-
-		we find that the object is not affectd by SimplifyQ()!
-		*/
-
-		if NOT oCode.BeginsWithOneOfTheseCS( [ "@str =", "@str=" ], :CaseSensitive = FALSE )
-
-			StzRaise("Syntax error! Condition should begin with '@str =' or '@string ='.")
-		ok
-
-		@i = 0
-		for @str in This.ListOfStrings()
-			@i++
-			eval(cCode)
-
-			This.ReplaceStringAtPosition(@i, @str )	
-		next
-
-		#< @FunctionFluentForm
-
-		def ForEachStringPerformQ(pcCode)
-			This.ForEachStringPerform(pcCode)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def ForEachStringDo(pcCode)
-			This.ForEachStringPerform(pcCode)
-
-			def ForEachStringDoQ(pcCode)
-				This.ForEachStringDo(pcCode)
-				return This
-
-		#>
-
-	  #----------------------------------------------#
-	 #   YIELDING AN INFORMATION FROM EACH ITEM   #
-	#----------------------------------------------#
-
-	def ForEachStringYield(pcCode)
-		/* Example
-
-		o1 = new stzListOfStrings([ "village", "town", "country" ])
-		o1.ForEachStringYield('[ @str, Q(@str).NumberOfChars()' ])
-
-		o1.Content()
-		# ---> [ [ "village", 6 ], [ "town", 4 ], [ "country", 7 ] ]
-
-		*/
-
-		if NOT isString(pcCode)
-			StzRaise("Invalid param type! Condition must be a string.")
-		ok
-
-		oCode = new stzString(pcCode)
-		oCode.ReplaceAllCS("@string", "@str", :CaseSensitive = FALSE)
-
-		if NOT oCode.ContainsCS("@str", :CS = FALSE)
-			StzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
-		ok
-
-
-		cCode = oCode.TrimQ().BoundsRemoved("{","}")
-		cCode = 'aResult + ( ' + cCode + ' )'
-
-		aResult = []
-
-		for @str in This.ListOfStrings()
-			@string = @str
-			
-			eval(cCode)
-		next
-
-		return aResult
-
-		def ForEachStringYieldQ(pcCode)
-			return This.ForEachStringYieldQR(pcCode, :stzList)
-
-		def ForEachStringYieldQR(pcCode, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.ForEachStringYield(pcCode) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.ForEachStringYield(pcCode) )
-			
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		def ForEachStringReturn(pcCode)
-			This.ForEachStringYield(pcCode)
-
-			def ForEachStringReturnQ(pcCode)
-				return This.ForEachStringYieldQ(pcCode)
-
-				def ForEachStringReturnQR(pcCode, pcReturnType)
-					if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-						pcReturnType = pcReturnType[2]
-					ok
-
-					return This.ForEachStringYieldQR(pcCode, pcReturnType)
-
-	  #==========================================#
-	 #  SMALLEST AND LARGEST ITEMS IN THE LIST  #
-	#==========================================#
-
-	def SmallestItem()
-
-		if This.NumberOfItems() > 1
-			aSorted = This.SortedInAscending()
-			return aSorted[1]
-
-		ok
-
-		def Smallest()
-			return This.SmallestItem()
-
-	def LargestItem()
-		if This.NumberOfItems() > 1
-			aSorted = This.SortedInDescending()
-			return aSorted[1]
-		ok
-
-		def Largest()
-			return This.LargestItem()
-
-		def GreatestItem()
-			return This.LargestItem()
-
-		def Greatest()
-			return This.LargestItem()
-
-	  #--------------------------------------------------#
-	 #  FINDING SMALLEST AND LARGEST ITEMS IN THE LIST  #
-	#--------------------------------------------------#
-
-	def FindSmallestItem()
-		return This.FindAll( This.SmallestItem() )
-
-		def FindSmallest()
-			return This.FindSmallestItem()
-
-		def FindAllOccurrencesOfSmallestItem()
-			return This.FindSmallestItem()
-
-		def FindAllOccurrencesOfSmallest()
-			return This.FindSmallestItem()
-
-	def FindLargestItem()
-		return This.FindAll( This.LargestItem() )
-
-		def FindLargest()
-			return This.FindLargestItem()
-
-		def FindAllOccurrencesOfLargestItem()
-			return This.FindLargestItem()
-
-		def FindAllOccurrencesOfLargest()
-			return This.FindLargestItem()
-
-	  #-------------------------------------------------------------------#
-	 #  NUMBER OF OCCURRENCES OF SMALLEST AND LARGEST ITEMS IN THE LIST  #
-	#-------------------------------------------------------------------#
-
-	def NumberOfOccurrencesOfSmallestItem()
-		return len( This.FindAllOccurrencesOfSmallestItem() )
-
-		def NumberOfOccurrenceOfSmallestItem()
-			return This.NumberOfOccurrencesOfSmallestItem()
-
-		def NumberOfOccurrencesOfSmallest()
-			return This.NumberOfOccurrencesOfSmallestItem()
-
-		def NumberOfOccurrenceOfSmallest()
-			return This.NumberOfOccurrencesOfSmallestItem()
-
-		def NumberOfSmallest()
-			return This.NumberOfOccurrencesOfSmallestItem()
-
-	def NumberOfOccurrencesOfLargestItem()
-		return len( This.FindAllOccurrencesOfLargestItem() )
-
-		def NumberOfOccurrenceOfLargestItem()
-			return This.NumberOfOccurrencesOfLargestItem()
-
-		def NumberOfOccurrencesOfLargest()
-			return This.NumberOfOccurrencesOfLargestItem()
-
-		def NumberOfOccurrenceOfLargest()
-			return This.NumberOfOccurrencesOfLargestItem()
-
-		def NumberOfLargest()
-			return This.NumberOfOccurrencesOfLargestItem()
-
-	  #--------------------------------------------------------------------#
-	 #  FINDING NTH OCCURRENCE OF SMALLEST AND LARGEST ITEMS IN THE LIST  #
-	#--------------------------------------------------------------------#
-
-	def FindNthOccurrenceOfSmallestItem(n)
-		if isString(n)
-			if Q(n).IsEither(:First, :Or = :FirstItem)
-				n = 1
-			but Q(n).IsEither(:Last, :Or = :LastItem)
-				n = This.NumberOfOccurrencesOfSmallestItem()
-			ok
-		ok
-
-		return This.FindAll( This.SmallestItem() )[n]
-
-		def FindNthOccurrenceOfSmallest(n)
-			return This.FindNthSmallestItem(n)
-
-	def FindNthOccurrenceOfLargestItem(n)
-		if isString(n)
-			if Q(n).IsEither(:First, :Or = :FirstItem)
-				n = 1
-			but Q(n).IsEither(:Last, :Or = :LastItem)
-				n = This.NumberOfOccurrencesOfLargestItem()
-			ok
-		ok
-
-		return This.FindAll( This.LargestItem() )[n]
-
-		def FindNthOccurrenceOfLargest(n)
-			return This.FindNthLargestItem(n)
-
-		def FindNthOccurrenceOfGreatestItem(n)
-			return This.FindNthLargestItem(n)
-
-		def FindNthOccurrenceOfGreatest(n)
-			return This.FindNthLargestItem(n)
-
-	  #======================================================#
-	 #  GETTING NTH SMALLEST AND LARGEST ITEMS IN THE LIST  #
-	#======================================================#
-
-	def NthSmallestItem(n)
-		return This.Copy().RemoveDuplicatesQ().SortedInAscending()[n]
-
-		def NthSmallest(n)
-			return This.NthSmallestItem(n)
-
-	def NthLargestItem(n)
-		return This.Copy().RemoveDuplicatesQ().SortedInDescending()[n]
-
-		def NthLargest(n)
-			return This.NthLargestItem(n)
-
-		def NthGreatestItem(n)
-			return This.NthLargestItem(n)
-
-		def NthGreatest(n)
-			return This.NthLargestItem(n)
-
-	  #------------------------------------------------------#
-	 #  FINDING NTH SMALLEST AND LARGEST ITEMS IN THE LIST  #
-	#------------------------------------------------------#
-
-	def FindNthSmallestItem(n)
-		return This.FindAll( This.NthSmallestItem(n) )
-
-		def FindNthSmallest(n)
-			return This.FindNthSmallestItem(n)
-
-	def FindNthLargestItem(n)
-		return This.FindAll( This.NthLargestItem(n) )
-
-		def FindNthLargest(n)
-			return This.FindNthLargestItem(n)
-
-		def FindNthGreatestItem(n)
-			return This.FindNthLargestItem(n)
-
-		def FindNthGreatest(n)
-			return This.FindNthLargestItem(n)
-
-	  #===========#
-	 #   MISC.   #
-	#===========#
-
-	def IsUppercase()
-		if This.IsListOfStrings() and
-		   LSQ( This.String() ).IsUppercase()
-		   # LSQ() --> abbreviation of StzListOfStringsQ()
+	def IsLastSepNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :LastSep or This[1] = :LastSep@ ) )
 
 			return TRUE
 
@@ -24927,355 +25292,222 @@ oTable.Show() + NL
 			return FALSE
 		ok
 
-		def IsAnUppecase()
-			return This.IsUppercase()
+	def IsToEachNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :ToEach or This[1] = :ToEach@ ) )
 
-		def IsUppercased()
-			return This.IsUppercase()
-
-	def ToString()
-		acStrings = []
-		for item in This.List()
-			cItem = ""
-			if isString(item)
-				cItem = item
-			but isNumber(item)
-				cItem = ""+ item
-			but isList(item)
-				cItem = StzStringQ(item).ToCode()
-			but isObject(item)
-				StzRaise("Can't transforme an object to string!")
-			ok
-
-			acStrings + cItem
-		next
-
-		cResult = StzListOfStringsQ(acStrings).ConcatenatedUsing(NL)
-		return cResult
-
-		def ToStringQ()
-			return new stzString(This.ToString())
-
-		def ToStzString()
-			return This.ToString()
-
-	def Stringified()
-			return This.ToString()
-
-	def ToStzListOfChars()
-		if NOT This.IsListOfChars()
-			StzRaise("Can't cast the list into a stzListOfChars!")
-		ok
-
-		return new stzListOfChars( This.Content() )
-
-	def FirstAndLastItems()
-		aResult = [ This.FirstItem(), This.LastItem() ]
-		return aResult
-
-	def LastAndFirstItems()
-		aResult = [ This.LastItem(), FirstItem() ]
-		return aResult
-
-	def ToListInStringInShortForm()
-		cResult = This.ToCodeQ().ToListInShortForm()
-		return cResult
-
-		def ToListInShortForm()
-			return This.ToListInStringInShortForm()
-
-	def BoundsOf(pItem, pnUpToNItems)
-		// TODO
-		
-	def AreBoundsOf(pItem, pIn)
-
-		/* EXAMPLE 1
-
-		o1 = new stzList([ "<<", ">>" ])
-		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-		#--> TRUE
-
-		EXAMPLE 2
-
-		o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
-		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-		#--> TRUE
-
-		*/
-
-		if NOT ( This.IsPair() or This.IsListOfPairs() )
-			StzRaise("Can't check bounds! List must be a pair or a list of pairs.")
-		ok
-
-		if isList(pIn) and Q(pIn).IsInNamedParam()
-			pIn = pIn[2]
-		ok
-
-		anUpToNChars = []
-		if This.IsPair() and NOT This.IsListOfPairs()
-			anUpToNChars = [ len(This[1]), len(This[2]) ]
-			aThis = [ This.Content() ]
+			return TRUE
 
 		else
-			for aPair in This.Content()
-				anUpToNChars + [ len(aPair[1]), len(aPair[2]) ]
-			next
-			aThis = This.Content()
+			return FALSE
 		ok
 
-		aBounds = Q(pIn).BoundsOf(pItem, anUpToNChars)
-	
-		bResult = Q(aThis).AllItemsExistIn(aBounds)
-		return bResult
+	def IsBeforeEachNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :BeforeEach or This[1] = :BeforeEach@ ) )
 
-	  #----------------------------------------#
-	 #      CHECKING IF ALL ITEMS ARE ...     #
-	#----------------------------------------#
-
-	def AllItemsAre(pDescriptor)
-		/* EXAMPLE
-
-		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre(:Strings)
-		#--> TRUE
-		
-		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
-		#--> TRUE
-		
-		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
-		#--> TRUE
-		
-		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, W('len(@item)=3'), :Strings ])
-		
-		*/
-
-		if isString(pDescriptor)
-			return This.AllItemsAreXT([ pDescriptor ], :EvalDirection = :Nothing)
-
-		but isList(pDescriptor) and Q(pDescriptor).IsListOfStrings()
-			return This.AllItemsAreXT(pDescriptor, :EvalDirection = :Nothing)
-
-		ok	
-
-	def AllItemsAreXT(pacDescriptors, paEvalDirection)
-
-		if NOT ( isList(pacDescriptors) and Q(pacDescriptors).IsListOfStrings() )
-			StzRaise("Incorrect param type! pacDescriptors must be a list of strings.")
-		ok
-
-		if isList(paEvalDirection) and
-		   Q(paEvalDirection).IsOneOfTheseNamedParams([
-			:Eval, :Evaluate,
-			:EvalFrom, :EvaluateFrom,
-			:EvalDirection, :EvaluationDirection
-		   ])
-
-			paEvalDirection = paEvalDirection[2]
-		ok
-
-		if NOT Q(paEvalDirection).IsOneOfTheseCS([
-			:Default, :Nothing,
-			:LeftToRight, :RightToLeft,
-			:Left2Right, :Right2Left,
-			:FromLeftToRight, :FromRightToLeft,
-			:FromLeft2Right, :FromRight2Left,
-			:LTR, :RTL, :L2R, :R2L,
-			:FromLTR, :FromRTL, :FromL2R, :FromR2L
-			], :CS = FALSE)
-
-			StzRaise("Incorrect param value for paEvalDirection! Allowed values are :RightToLeft and :LeftToRight.")
-		ok
-
-		if Q(paEvalDirection).IsEither(:Default, :Or = :Nothing)
-			paEvalDirection = :RightToLeft
-		ok
-
-		# Doing the job
-
-		acDescriptors = pacDescriptors
-		if Q(paEvalDirection).IsOneOfTheseCS([
-			:RightToLeft,
-			:Right2Left,
-			:FromRightToLeft,
-			:FromRight2Left,
-			:RTL, :R2L,
-			:FromRTL, :FromR2L
-			], :CS = FALSE)
-
-			acDescriptors = Q(acDescriptors).Reversed()
-		ok
-
-		if len(acDescriptors) = 1
-			if acDescriptors[1] = :Number or acDescriptors[1] = :Numbers
-				cMethod = :IsANumber
-
-			but acDescriptors[1] = :String or acDescriptors[1] = :Strings
-				cMethod = :IsAString
-
-			but acDescriptors[1] = :List or acDescriptors[1] = :Lists
-				Method = :IsAList
-
-			but acDescriptors[1] = :Object or acDescriptors[1] = :Objects
-				cMethod = :IsAnObject
-
-			but Q(acDescriptors[1]).FirstChar() = "{" and
-			    Q(acDescriptors[1]).LastChar() = "}"
-
-				bResult = This.Check( :That = acDescriptors[1] )
-				return bResult
-			
-			else
-
-				cMethod = Q(acDescriptors[1]).InfereMethod(:From = :stzList)
-
-			ok
-
-			bResult = This.Check( :That = 'Q(@item).' + cMethod + "()" )
+			return TRUE
 
 		else
-
-			cType = Q(acDescriptors[1]).InfereType()
-			if Q(cType).StartsWithCS("stz", :CS = FALSE)
-				cType = Q(cType).FirstNCharsRemoved(3)
-			ok
-
-			bResult = TRUE
-	
-			for i = 2 to len(acDescriptors)
-
- 				if Q(acDescriptors[i]).FirstChar() = "{" and
-			   	   Q(acDescriptors[i]).LastChar() = "}"
-
-					bOk = This.Check( :That = acDescriptors[i] )
-				
-				else
-
-					cMethod = Q(acDescriptors[i]).InfereMethod( :From = 'stz' + cType )
-					bOk = This.Check( :That = 'Stz' + cType + 'Q(@item).' + cMethod + "()" )
-				ok
-
-				if bOk = FALSE
-					bResult = FALSE
-					exit
-				ok
-			next
+			return FALSE
 		ok
 
-		return bResult
+	def IsAfterEachNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :AfterEach or This[1] = :AfterEach@ ) )
 
-	  #--------------------------------#
-	 #    USUED FOR NATURAL-CODING    #
-	#--------------------------------#
+			return TRUE
 
-	def IsAString()
-		return FALSE
-
-	def IsAList()
-		return TRUE
-
-	def IsAnObject()
-		return TRUE
-
-	#--- ITEM
-
-	def IsItem()
-		return TRUE
-
-		def IsAnItem()
-			return This.IsItem()
-
-	def IsItemOf(paList)
-		return StzListQ(paList).Contains(This.Content())
-	
-		def AsAnItemOf(paList)
-			return This.IsItemOf(paList)
-	
-	def IsItemIn(paList)
-		return This.IsItemOf(paList)
-	
-		def IsAnItemIn(paList)
-			return This.IsItemOf(paList)
-
-	#--
-
-	def IsMember()
-		return TRUE
-
-		def IsAMember()
-			return This.IsMember()
-
-	def IsMemberOf(paList)
-		return StzListQ(paList).Contains(This.Content())
-	
-		def AsAMemberOf(paList)
-			return This.IsMemberOf(paList)
-	
-	def IsMemberIn(paList)
-		return This.IsMemberOf(paList)
-	
-		def IsAMemberIn(paList)
-			return This.IsMemberOf(paList)
-
-
-	#--- NUMBER
-
-	def IsANumber()
-		return FALSE
-
-	def IsNumberOf(paList)
-		return FALSE
-
-		def IsANumberOf(paList)
+		else
 			return FALSE
-	
-	def IsNumberIn(paList)
-		return FALSE
-	
-		def IsANumberIn(paList)
+		ok
+
+	def IsToNthNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :ToNth or This[1] = :ToNth@ ) )
+
+			return TRUE
+
+		else
 			return FALSE
+		ok
 
-	#--- ITEM
+	def IsToFirstNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :ToFirst or This[1] = :ToFirst@ ) )
 
-	def IsLetter()
-		return FALSE
+			return TRUE
 
-		def IsALetter()
+		else
 			return FALSE
-	
-	def IsLetterOf(pStrOrListOfChars)
-		return FALSE
+		ok
 
-		def IsALetterOf(pcStr)
+	def IsToLastNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :ToLast or This[1] = :ToLast@ ) )
+
+			return TRUE
+
+		else
 			return FALSE
-	
-	def IsLetterIn(pcStr)
-		return FALSE
+		ok
 
-		def IsALetterIn(pcStr)
-			FALSE
+	def IsAfterNthNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :AfterNth or This[1] = :AfterNth@ ) )
 
-	def IsCharOf(pStrOrListOfChars)
-		return FALSE
+			return TRUE
 
-		def IsACharOf(pcStr)
+		else
 			return FALSE
+		ok
 
-	def IsCharIn(pcStr)
-		return FALSE
+	def IsAfterFirstNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :AfterFirst or This[1] = :AfterFirst@ ) )
 
-		def IsACharIn(pcStr)
+			return TRUE
+
+		else
 			return FALSE
+		ok
 
-	def Methods()
-		return ring_methods(This)
+	def IsAfterLastNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :AfterLast or This[1] = :AfterLast@ ) )
 
-	def Attributes()
-		return ring_attributes(This)
+			return TRUE
 
-	def ClassName()
-		return "stzlist"
+		else
+			return FALSE
+		ok
 
-		def StzClassName()
-			return This.ClassName()
+	def IsBeforeNthNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :BeforeNth or This[1] = :BeforeNth@ ) )
 
-		def StzClass()
-			return This.ClassName()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeFirstNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :BeforeFirst or This[1] = :BeforeFirst@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeLastNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :BeforeLast or This[1] = :BeforeLast@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :Around or This[1] = :Around@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundEachNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :AroundEach or This[1] = :AroundEach@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundNthNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :AroundNth or This[1] = :AroundNth@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundFirstNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :AroundFirst or This[1] = :AroundFirst@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundLastNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :AroundLast or This[1] = :AroundLast@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEachNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :Each or This[1] = :Each@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFirstNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :First or This[1] = :First@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsLastNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :Last or This[1] = :Last@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok

@@ -496,36 +496,6 @@ class stzString from stzObject
 			
 		next
 
-	  #-------------------------------#
-	 #     APPENDING & PEPENDING     #
-	#-------------------------------#
-
-	// Appends the main string by an other string
-	def Append(pcOtherStr)
-		cResult = This.String() + pcOtherStr
-		This.Update( cResult )
-
-		#< @FunctionFluentForm
-
-		def AppendQ(pcOtherStr)
-			This.Append(pcOtherStr)
-			return This
-	
-		#>
-
-	// Prepends the string by an other string
-	def Prepend(pcOtherStr)
-		cResult = pcOtherStr + This.String()
-		This.Update( cResult )
-
-		#< @FunctionFluentForm
-
-		def PrependQ(pcOtherStr)
-			This.Prepend(pcOtherStr)
-			return This
-	
-		#>
-
 	  #---------------------------------------#
 	 #     GETTING CONTENT OF THE STRING     #
 	#---------------------------------------#
@@ -653,6 +623,313 @@ class stzString from stzObject
 
 		def IsHybridCased()
 			return This.IsHybridcase()
+
+	  #-----------------------------------#
+	 #   APPENDING THE STRING FROM END   #
+	#-----------------------------------#
+
+	def Append(pcOtherStr)
+		if isList(pcOtherStr) and Q(pcOtherStr).IsWithOrByNamedParam()
+			pcOtherStr = pcOtherStr[2]
+		ok
+
+		cResult = This.String() + pcOtherStr
+		This.Update( cResult )
+
+		#< @FunctionFluentForm
+
+		def AppendQ(pcOtherStr)
+			This.Append(pcOtherStr)
+			return This
+	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def Add(pcOtherStr)
+			This.Append(pcOtherStr)
+
+			def AddQ(pcOtherStr)
+				This.Add(pcOtherStr)
+				return This
+
+		def AddToEnd(pcOtherStr)
+			This.Append(pcOtherStr)
+
+			def AddToEndQ(pcOtherStr)
+				This.AddToEnd(pcOtherStr)
+				return This
+
+		def AddEnd(pcOtherStr)
+			This.Append(pcOtherStr)
+
+			def AddEndQ(pcOtherStr)
+				This.AddEnd(pcOtherStr)
+				return This
+
+		#--
+
+		def AppendEnd(pcOtherStr)
+			This.Append(pcOtherStr)
+
+			def AppendEndQ(pcOtherStr)
+				This.AppendEnd(pcOtherStr)
+				return This
+
+		def AppendFromEnd(pcOtherStr)
+			This.Append(pcOtherStr)
+
+			def AppendFromEndQ(pcOtherStr)
+				This.AppendFromEnd(pcOtherStr)
+				return This
+
+		#--
+
+		def Extend(pcOtherStr)
+			This.Append(pcOtherStr)
+
+			def ExtendQ(pcOtherStr)
+				This.Extend(pcOtherStr)
+				return This
+
+		def ExtendEnd(pcOtherStr)
+			This.Append(pcOtherStr)
+
+			def ExtendEndQ(pcOtherStr)
+				This.ExtendEnd(pcOtherStr)
+				return This
+
+		def ExtendFromEnd(pcOtherStr)
+			This.Append(pcOtherStr)
+
+			def ExtendFromEndQ(pcOtherStr)
+				This.ExtendFromEnd(pcOtherStr)
+				return This
+
+		#>
+
+	def Appended(pcOtherStr)
+		return This.Copy().AppendQ(pcOtherStr).Content()
+
+		def Extended(pcOtherStr)
+			return This.Appended(pcOtherStr)
+
+	  #-------------------------------------#
+	 #   APPENDING THE STRING FROM START   #
+	#-------------------------------------#
+
+	def Prepend(pcOtherStr)
+		cResult = pcOtherStr + This.String()
+		This.Update( cResult )
+
+		#< @FunctionFluentForm
+
+		def PrependQ(pcOtherStr)
+			This.Prepend(pcOtherStr)
+			return This
+	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AddToStart(pcOtherStr)
+			This.Prepend(pcOtherStr)
+
+			def AddToStartQ(pcOtherStr)
+				This.AddToEnd(pcOtherStr)
+				return This
+
+		def AddStart(pcOtherStr)
+			This.Prepend(pcOtherStr)
+
+			def AddStartQ(pcOtherStr)
+				This.AddStart(pcOtherStr)
+				return This
+
+		#--
+
+		def AppendStart(pcOtherStr)
+			This.Prepend(pcOtherStr)
+
+			def AppendStartQ(pcOtherStr)
+				This.AppendStart(pcOtherStr)
+				return This
+
+		def AppendFromStart(pcOtherStr)
+			This.Prepend(pcOtherStr)
+
+			def AppendFromStartQ(pcOtherStr)
+				This.AppendFromStart(pcOtherStr)
+				return This
+
+		#--
+
+		def ExtendStart(pcOtherStr)
+			This.Prepend(pcOtherStr)
+
+			def ExtendStartQ(pcOtherStr)
+				This.ExtendStart(pcOtherStr)
+				return This
+
+		def ExtendFromStart(pcOtherStr)
+			This.Prepend(pcOtherStr)
+
+			def ExtendFromStartQ(pcOtherStr)
+				This.ExtendFromStart(pcOtherStr)
+				return This
+
+		#>
+
+	def Prepended(pcOtherStr)
+		return This.Copy().AppendQ(pcOtherStr).Content()
+
+		def AppendedFromStart(pcOtherStr)
+			return This.Appended(pcOtherStr)
+
+		def ExtendedFromStart(pcOtherStr)
+			return This.Appended(pcOtherStr)
+
+	  #=================================#
+	 #  ADDING A SUBSTRING --EXTENDED  #
+	#=================================#
+
+	def AddXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
+		/*
+		o1 = new stzString("Ring programin language")
+		o1.Add("g", :To = "programmin")
+
+		? o1.Content()
+		#--> Ring programming language
+		*/
+
+		if isList(pcSubStr)
+			oSubStr = new stzList(pcSubStr)
+
+			# Adding after
+
+			if oSubStr.IsOneOfTheseNamedParams([ :After, :AfterEach, :To, :ToEach  ])
+				pcSubStr = pcSubStr[2]
+				This.ReplaceCS(pcSubStr, (pcSubStr + pcNewSubStr), pCaseSensitive)
+
+			# Adding after nth
+
+			but oSubStr.IsOneOfTheseNamedParams([ :AfterNth, :ToNth ])
+				n = pcSubStr[2][1]
+				pcSubStr = pcSubStr[2][2]
+				This.ReplaceNthCS(n, pcSubStr, (pcSubStr + pcNewSubStr), pCaseSensitive)
+
+			# Adding after first
+
+			but oSubStr.IsOneOfTheseNamedParams([ :AfterFirst, :ToFirst ])
+				pcSubStr = pcSubStr[2]
+				This.ReplaceFirstCS(pcSubStr, (pcSubStr + pcNewSubStr), pCaseSensitive)
+
+			# Adding atfer last
+
+			but oSubStr.IsOneOfTheseNamedParams([ :AfterLast, :ToLast ])
+				pcSubStr = pcSubStr[2]
+				This.ReplaceLastCS(pcSubStr, (pcSubStr + pcNewSubStr), pCaseSensitive)
+
+			#==
+
+			# Adding before
+
+			but oSubStr.IsOneOfTheseNamedParams([ :Before, :BeforeEach ])
+				pcSubStr = pcSubStr[2]
+				This.ReplaceCS(pcSubStr, (pcNewSubStr + pcSubStr), pCaseSensitive)
+
+			# Adding before nth
+
+			but oSubStr.IsBeforeNthNamedParam()
+				n = pcSubStr[2][1]
+				pcSubStr = pcSubStr[2][2]
+
+				This.ReplaceNthCS(n, pcSubStr, (pcNewSubStr + pcSubStr), pCaseSensitive)
+		
+			# Adding before first
+
+			but oSubStr.IsBeforeFirstNamedParam()
+				pcSubStr = pcSubStr[2]
+
+				This.ReplaceFirstCS(pcSubStr, (pcNewSubStr + pcSubStr), pCaseSensitive)
+
+			# Adding before last
+
+			but oSubStr.IsBeforeLastNamedParam()
+				pcSubStr = pcSubStr[2]
+
+				This.ReplaceLastCS(pcSubStr, (pcNewSubStr + pcSubStr), pCaseSensitive)
+
+			#==
+
+			# Adding around
+
+			but oSubStr.IsOneOfTheseNamedParams([ :Around, :AroundEach ])
+				pcSubStr = pcSubStr[2]
+
+				if isList(pcNewSubStr) and Q(pcNewSubStr).IsPairOfStrings()
+					This.ReplaceCS(pcSubStr, (pcNewSubStr[1] + pcSubStr + pcNewSubStr[2]), pCaseSensitive)
+
+				else	
+					This.ReplaceCS(pcSubStr, (pcNewSubStr + pcSubStr + pcNewSubStr), pCaseSensitive)
+				ok
+
+			# Adding around nth
+
+			but oSubStr.IsAroundNthNamedParam()
+				n = pcSubStr[2][1]
+				pcSubStr = pcSubStr[2][2]
+
+				if isList(pcNewSubStr) and Q(pcNewSubStr).IsPairOfStrings()
+					This.ReplaceNthCS(n, pcSubStr, (pcNewSubStr[1] + pcSubStr + pcNewSubStr[2]), pCaseSensitive)
+				else
+					This.ReplaceNthCS(n, pcSubStr, (pcNewSubStr + pcSubStr + pcNewSubStr), pCaseSensitive)
+				ok
+		
+			# Adding around first
+
+			but oSubStr.IsAroundFirstNamedParam()
+				pcSubStr = pcSubStr[2]
+
+				if isList(pcNewSubStr) and Q(pcNewSubStr).IsPairOfStrings()
+					This.ReplaceFirstCS(pcSubStr, (pcNewSubStr[1] + pcSubStr + pcNewSubStr[2]), pCaseSensitive)
+				else
+					This.ReplaceFirstCS(pcSubStr, (pcNewSubStr + pcSubStr + pcNewSubStr), pCaseSensitive)
+				ok
+
+			# Adding around last
+
+			but oSubStr.IsAroundLastNamedParam()
+				pcSubStr = pcSubStr[2]
+
+				if isList(pcNewSubStr) and Q(pcNewSubStr).IsPairOfStrings()
+					This.ReplaceLastCS(pcSubStr, (pcNewSubStr[1] + pcSubStr + pcNewSubStr[2]), pCaseSensitive)
+				else
+					This.ReplaceLastCS(pcSubStr, (pcNewSubStr + pcSubStr + pcNewSubStr), pCaseSensitive)
+				ok
+
+			ok
+
+		ok
+
+		def AddXTCSQ(pcNewSubStr, pcSubStr, pCaseSensitive)
+			This.AddXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
+			return This
+
+	def AddedXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
+		return This.Copy().AddXTCSQ(pcNewSubStr, pcSubStr, pCaseSensitive).Content()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def AddXT(pcNewSubStr, pcSubStr)
+		This.AddXTCSQ(pcNewSubStr, pcSubStr, :CaseSensitive = TRUE)
+
+		def AddXTQ(pcNewSubStr, pcSubStr)
+			This.AddXT(pcNewSubStr, pcSubStr)
+			return This
+
+	def AddedXT(pcNewSubStr, pcSubStr)
+		return This.Copy().AddXTQ(pcNewSubStr, pcSubStr).Content()
 
 	  #===============================#
 	 #     LOWERCASING THE STRING    #
@@ -9505,7 +9782,7 @@ class stzString from stzObject
 		return This.Copy().ReplaceSubStringQ(pcSubStr, pcNewSubStr).Content()
 
 	  #---------------------------------#
-	 #     REPLACING FRIST N CHARS     #
+	 #     REPLACING FIRST N CHARS     #
 	#---------------------------------#
 
 	def ReplaceFirstNChars(n, pcNewSubStr)
@@ -11557,6 +11834,17 @@ class stzString from stzObject
 		
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def ReplaceFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.ReplaceFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		#>
+
 	def FirtOccurrenceReplacedCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		return This.Copy().ReplaceFirstOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 
@@ -11573,12 +11861,16 @@ class stzString from stzObject
 	
 		#>
 
+		#< @FunctionAlternative
+
 		def ReplaceFirst(pcSubStr, pcNewSubStr)
 			This.ReplaceFirstOccurrence(pcSubStr, pcNewSubStr)
 
 			def ReplaceFirstQ(pcSubStr, pcNewSubStr)
 				This.ReplaceFirst(pcSubStr, pcNewSubStr)
 				return This
+
+		#>
 
 	def FirtOccurrenceReplaced(pcSubStr, pcNewSubStr)
 		return This.Copy().ReplaceFirstOccurrenceQ(pcSubStr, pcNewSubStr).Content()
@@ -11598,6 +11890,17 @@ class stzString from stzObject
 		
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def ReplaceLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.ReplaceLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		#>
+
 	def LastOccurrenceReplacedCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		return This.Copy().ReplaceLastOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 
@@ -11614,12 +11917,16 @@ class stzString from stzObject
 	
 		#>
 
+		#< @FunctionAlternativeForm
+
 		def ReplaceLast(pcSubStr, pcNewSubStr)
 			This.ReplaceLastOccurrence(pcSubStr, pcNewSubStr)
 
 			def ReplaceLastQ(pcSubStr, pcNewSubStr)
 				This.ReplaceLast()
 				return This
+
+		#>
 
 	def LastOccurrenceReplaced(pcSubStr, pcNewSubStr)
 		return This.Copy().ReplaceLastOccurrenceQ(pcSubStr, pcNewSubStr).Content()
@@ -21099,12 +21406,20 @@ o1 = new stzString("12*34*56*78")
 		def ThisSubStringBoundedByRemoved(pcSubStr, pacBounds)
 			return This.ThisSubStringInBetweenRemoved(pcSubStr, pacBounds[1], pacBounds[2])
 
-	  #--------------------------------------------------------#
-	 #  REMOVING ALL OCCURRENCES OF A SUBSTRING -- EXTENDED  #
-	#-------------------------------------------------------#
+	  #====================================#
+	 #  REMOVING A SUBSTRING -- EXTENDED  #
+	#====================================#
 
-	def RemoveXTCS(pcSubStr, paOption, pCaseSensitive)
+	def RemoveXTCS(pcSubStrToRemove, pcBaseSubStr, pCaseSensitive)
 		/*
+		o1 = new stzString("Ring programingZ language")
+		o1.Remove("Z", :From = "programmingZ")
+
+		? o1.Content()
+		#--> Ring programming language
+
+		#---
+
 		EXAMPLE 1:
 
 		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
@@ -21122,50 +21437,230 @@ o1 = new stzString("12*34*56*78")
 		o1 = new stzString("")
 		o1.RemoveXT("word", :AtPositions = [ 3, 5 ])
 
-		
 		*/
 
-		if NOT isList(paOption)
-			stzRaise("Incorrect param type! paOption must be a list.")
+		if isList(pcSubStrToRemove) and Q(pcSubStrToRemove).IsEachNamedParam()
+			pcSubStrToRemove = pcSubStrToRemove[2]
 		ok
 
-		if Q(paOption).IsBetweenNamedParam()
-			paOption = paOption[2]
+		if isList(pcBaseSubStr)
+			oBaseSubStr = new stzList(pcBaseSubStr)
 
-			if NOT ( isList(paOption) and Q(paOption).IsPairOfStrings() )
-				stzRaise("Incorrect param type! paOption must be a pair of strings.")
+			# Removing from, Nth from, First from, Last from
+
+			if oBaseSubStr.IsFromNamedParam()
+				pcBaseSubStr = pcBaseSubStr[2]
+
+				# Removing from
+
+				if isString(pcSubStrToRemove)
+					cNewSubStr =  ( Q(pcBaseSubStr) - pcSubStrToRemove ).Content()
+	
+				# Removing Nth from
+
+				but isList(pcSubStrToRemove) and Q(pcSubStrToRemove).IsNthNamedParam()
+					n = pcSubStrToRemove[2][1]
+					pcSubStrToRemove = pcSubStrToRemove[2][2]
+
+
+					cNewSubStr = Q(pcBaseSubStr).
+							RemoveNthCSQ(n, pcSubStrToRemove, pCaseSensitive).
+							Content()
+
+				# Removing first from
+
+				but isList(pcSubStrToRemove) and Q(pcSubStrToRemove).IsFirstNamedParam()
+					pcSubStrToRemove = pcSubStrToRemove[2]
+
+					cNewSubStr = Q(pcBaseSubStr).
+							RemoveFirstCSQ(pcSubStrToRemove, pCaseSensitive).
+							Content()
+
+				but isList(pcSubStrToRemove) and Q(pcSubStrToRemove).IslastNamedParam()
+					pcSubStrToRemove = pcSubStrToRemove[2]
+
+					cNewSubStr = Q(pcBaseSubStr).
+							RemoveLastCSQ(pcSubStrToRemove, pCaseSensitive).
+							Content()
+
+				ok
+
+				This.ReplaceCS(pcBaseSubStr, cNewSubStr, pCaseSensitive)
+
+			#==
+
+			# Removing after
+
+			but oBaseSubStr.IsOneOfTheseNamedParams([ :After, :AfterEach  ])
+
+				pcBaseSubStr = pcBaseSubStr[2] + pcSubStrToRemove
+				cNewSubStr = Q(pcBaseSubStr).RemoveFromEndQ(pcSubStrToRemove).Content()
+
+				This.ReplaceCS(pcBaseSubStr, cNewSubStr, pCaseSensitive)
+
+			# Removing after nth
+
+			but oBaseSubStr.IsOneOfTheseNamedParams([ :AfterNth ])
+				n = pcBaseSubStr[2][1]
+				pcBaseSubStr = pcBaseSubStr[2][2] + pcSubStrToRemove
+				cNewSubStr = Q(pcBaseSubStr).RemoveFromEndQ(pcSubStrToRemove).Content()
+
+				This.ReplaceCS(pcBaseSubStr, cNewSubStr, pCaseSensitive)
+
+			# Removeing after first
+
+			but oBaseSubStr.IsOneOfTheseNamedParams([ :AfterFirst, :ToFirst ])
+				pcBaseSubStr = pcBaseSubStr[2] + pcSubStrToRemove
+				cNewSubStr = Q(pcBaseSubStr).RemoveFromEndQ(pcSubStrToRemove).Content()
+
+				This.ReplaceFirstCS(pcBaseSubStr, cNewSubStr, pCaseSensitive)
+
+			# Removeing atfer last
+
+			but oBaseSubStr.IsOneOfTheseNamedParams([ :AfterLast, :ToLast ])
+				pcBaseSubStr = pcBaseSubStr[2] + pcSubStrToRemove
+				cNewSubStr = Q(pcBaseSubStr).RemoveFromEndQ(pcSubStrToRemove).Content()
+
+				This.ReplaceLastCS(pcBaseSubStr, cNewSubStr, pCaseSensitive)
+
+			#==
+
+			# Removing Before
+
+			but oBaseSubStr.IsOneOfTheseNamedParams([ :Before, :BeforeEach  ])
+
+				pcBaseSubStr = pcBaseSubStr[2]
+				cNewSubStr = Q(pcBaseSubStr).RemoveFromStartQ(pcSubStrToRemove).Content()
+
+				This.ReplaceCS(pcBaseSubStr, cNewSubStr, pCaseSensitive)
+
+			# Removing Before nth
+
+			but oBaseSubStr.IsOneOfTheseNamedParams([ :BeforeNth ])
+				n = pcBaseSubStr[2][1]
+				pcBaseSubStr = pcSubStrToRemove + pcBaseSubStr[2][2]
+				cNewSubStr = Q(pcBaseSubStr).RemoveFromStartQ(pcSubStrToRemove).Content()
+
+				This.ReplaceCS(pcBaseSubStr, cNewSubStr, pCaseSensitive)
+
+			# Removeing Before first
+
+			but oBaseSubStr.IsOneOfTheseNamedParams([ :BeforeFirst, :ToFirst ])
+				pcBaseSubStr = pcSubStrToRemove + pcBaseSubStr[2]
+				cNewSubStr = Q(pcBaseSubStr).RemoveFromStartQ(pcSubStrToRemove).Content()
+
+				This.ReplaceFirstCS(pcBaseSubStr, cNewSubStr, pCaseSensitive)
+
+			# Removeing before last
+
+			but oBaseSubStr.IsOneOfTheseNamedParams([ :BeforeLast, :ToLast ])
+				pcBaseSubStr = pcSubStrToRemove + pcBaseSubStr[2]
+				cNewSubStr = Q(pcBaseSubStr).RemoveFromEndQ(pcSubStrToRemove).Content()
+
+				This.ReplaceLastCS(pcBaseSubStr, cNewSubStr, pCaseSensitive)
+
+
+			#==
+
+			# Removing around
+
+			but oBaseSubStr.IsOneOfTheseNamedParams([ :Around, :AroundEach ])
+				pcSubStr = pcSubStr[2]
+
+				if isList(pcNewSubStr) and Q(pcNewSubStr).IsPairOfStrings()
+					This.ReplaceCS(pcSubStr, (pcNewSubStr[1] + pcSubStr + pcNewSubStr[2]), pCaseSensitive)
+
+				else	
+					This.ReplaceCS(pcSubStr, (pcNewSubStr + pcSubStr + pcNewSubStr), pCaseSensitive)
+				ok
+
+			# Removeing around nth
+
+			but oBaseSubStr.IsAroundNthNamedParam()
+				n = pcSubStr[2][1]
+				pcSubStr = pcSubStr[2][2]
+
+				if isList(pcNewSubStr) and Q(pcNewSubStr).IsPairOfStrings()
+					This.ReplaceNthCS(n, pcSubStr, (pcNewSubStr[1] + pcSubStr + pcNewSubStr[2]), pCaseSensitive)
+				else
+					This.ReplaceNthCS(n, pcSubStr, (pcNewSubStr + pcSubStr + pcNewSubStr), pCaseSensitive)
+				ok
+		
+			# Removeing around first
+
+			but oBaseSubStr.IsAroundFirstNamedParam()
+				pcSubStr = pcSubStr[2]
+
+				if isList(pcNewSubStr) and Q(pcNewSubStr).IsPairOfStrings()
+					This.ReplaceFirstCS(pcSubStr, (pcNewSubStr[1] + pcSubStr + pcNewSubStr[2]), pCaseSensitive)
+				else
+					This.ReplaceFirstCS(pcSubStr, (pcNewSubStr + pcSubStr + pcNewSubStr), pCaseSensitive)
+				ok
+
+			# Removeing around last
+
+			but oBaseSubStr.IsAroundLastNamedParam()
+				pcSubStr = pcSubStr[2]
+
+				if isList(pcNewSubStr) and Q(pcNewSubStr).IsPairOfStrings()
+					This.ReplaceLastCS(pcSubStr, (pcNewSubStr[1] + pcSubStr + pcNewSubStr[2]), pCaseSensitive)
+				else
+					This.ReplaceLastCS(pcSubStr, (pcNewSubStr + pcSubStr + pcNewSubStr), pCaseSensitive)
+				ok
+
+			#--
+
+			but oBaseSubStr.IsBetweenNamedParam()
+				paOption = paOption[2]
+	
+				if NOT ( isList(paOption) and Q(paOption).IsPairOfStrings() )
+					stzRaise("Incorrect param type! paOption must be a pair of strings.")
+				ok
+	
+				This.RemoveSubStringBetweenCS(pcsubStr, paOption[1], paOption[2], pCaseSensitive)
+	
+			but oBaseSubStr.IsAtPositionNamedParam()
+				paOption = paOption[2]
+	
+				if NOT isNumber(paOption)
+					stzRaise("Incorrect param type! paOption must be a number.")
+				ok
+	
+				This.RemoveSubStringAtPositionCS(paOption, pcSubStr, pCaseSensitive)
+	
+			but oBaseSubStr.IsAtPositionsNamedParam()
+				paOption = paOption[2]
+	
+				if NOT ( isList(paOption) and Q(paOption).IsListOfNumbers() )
+					stzRaise("Incorrect param type! paOption must be a list of numbers.")
+				ok
+	
+				This.RemoveSubStringAtPositionsCS(paOption, pcSubStr, pCaseSensitive)
+	
+	
 			ok
 
-			This.RemoveSubStringBetweenCS(pcsubStr, paOption[1], paOption[2], pCaseSensitive)
-
-		but Q(paOption).IsAtPositionNamedParam()
-			paOption = paOption[2]
-
-			if NOT isNumber(paOption)
-				stzRaise("Incorrect param type! paOption must be a number.")
-			ok
-
-			This.RemoveSubStringAtPositionCS(paOption, pcSubStr, pCaseSensitive)
-
-		but QQ(paOption).IsAtPositionsNamedParam()
-			paOption = paOption[2]
-
-			if NOT ( isList(paOption) and Q(paOption).IsListOfNumbers() )
-				stzRaise("Incorrect param type! paOption must be a list of numbers.")
-			ok
-
-			This.RemoveSubStringAtPositionsCS(paOption, pcSubStr, pCaseSensitive)
-
-		else
-			stzRaise("Incorrect param type! paOption must be a list of the form " +
-				 ":Between = ..., :AtPosition = ..., or :AtPositions = [...].")
 		ok
+
+		def RemoveXTCSQ(pcNewSubStr, pcSubStr, pCaseSensitive)
+			This.RemoveXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
+			return This
+
+	def RemovedXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
+		return This.Copy().RemoveXTCSQ(pcNewSubStr, pcSubStr, pCaseSensitive).Content()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveXT(pcSubStr, paOption)
-		This.RemoveXTCS(pcSubStr, paOption, :CaseSensitive = TRUE)
-	
+	def RemoveXT(pcNewSubStr, pcSubStr)
+		This.RemoveXTCSQ(pcNewSubStr, pcSubStr, :CaseSensitive = TRUE)
+
+		def RemoveXTQ(pcNewSubStr, pcSubStr)
+			This.RemoveXT(pcNewSubStr, pcSubStr)
+			return This
+
+	def RemovedXT(pcNewSubStr, pcSubStr)
+		return This.Copy().RemoveXTQ(pcNewSubStr, pcSubStr).Content()
+
 	  #-----------------------------------------------------#
 	 #   REMOVING A SUBSTRING AT A SOME GIVEN POSITIONS    #
 	#-----------------------------------------------------#
@@ -22049,11 +22544,15 @@ o1 = new stzString("12*34*56*78")
 		ok
 
 		if isString(n1)
-			if n1 = :First or n1 = :FirstChar or n1 = :StartOfString { n1 = 1 }
+			if n1 = :First or n1 = :FirstChar or n1 = :StartOfString
+				n1 = 1
+			ok
 		ok
 
 		if isString(n2)
-			if n2 = :Last or n2 = :LastChar  or n2 = :EndOfString { n2 = This.NumberOfChars() }
+			if n2 = :Last or n2 = :LastChar  or n2 = :EndOfString
+				n2 = This.NumberOfChars()
+			ok
 		ok
 
 		if NOT BothAreNumbers(n1, n2)
@@ -22356,6 +22855,11 @@ o1 = new stzString("12*34*56*78")
 	#----------------------------------------------------#
 
 	def RemoveNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+		if isList(n)
+			This.RemoveOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			return
+		ok
+
 		This.ReplaceNthOccurrenceCS(n, pcSubStr, "", pCaseSensitive)
 
 		#< @FunctionFluentForm
@@ -22406,12 +22910,24 @@ o1 = new stzString("12*34*56*78")
 		
 		#>
 
+		#< @functionAlternativeForm
+
 		def RemoveFirstCS(pcSubStr, pCaseSensitive)
 			This.RemoveFirstOccurrenceCS(pcSubStr, pCaseSensitive)
 
 			def RemoveFirstCSQ(pcSubStr, pCaseSensitive)
 				This.RemoveFirstCS(pcSubStr, pCaseSensitive)
 				return This
+
+		#>
+
+	def FirstOccurrenceRemovedCS(pcSubStr, pCaseSensitive)
+		return This.Copy().RemoveFirstOccurrenceCSQ(pcSubStr, pCaseSensitive).Content()
+
+		def FirstRemovedCS(pcSubStr, pCaseSensitive)
+			return This.FirstOccurrenceRemovedCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFirstOccurrence(pcSubStr)
 		This.RemoveFirstOccurrenceCS(pcSubStr, :Casesensitive = TRUE)
@@ -22424,12 +22940,22 @@ o1 = new stzString("12*34*56*78")
 	
 		#>
 
+		#< @functionAlternativeForm
+
 		def RemoveFirst(pcSubStr)
 			This.RemoveFirstOccurrence(pcSubStr)
 
 			def RemoveFirstQ(pcSubStr)
 				This.RemoveFirst(pcSubStr)
 				return This
+
+		#>
+
+	def FirstOccurrenceRemoved(pcSubStr)
+		return This.Copy().RemoveFirstOccurrenceQ(pcSubStr).Content()
+
+		def FirstRemoved(pcSubStr)
+			return This.FirstOccurrenceRemoved(pcSubStr)
 
 	  #--------------------------------------------------#
 	 #     REMOVING LAST OCCURRENCE OF A SUBSTRING      #
@@ -22446,12 +22972,24 @@ o1 = new stzString("12*34*56*78")
 		
 		#>
 
+		#< @functionAlternativeForm
+
 		def RemoveLastCS(pcSubStr, pCaseSensitive)
 			This.RemoveLastOccurrenceCS(pcSubStr, pCaseSensitive)
 
 			def RemoveLastCSQ(pcSubStr, pCaseSensitive)
 				This.RemoveLastCS(pcSubStr, pCaseSensitive)
 				return This
+
+		#>
+
+	def LastOccurrenceRemovedCS(pcSubStr, pCaseSensitive)
+		return This.Copy().RemoveLastOccurrenceCSQ(pcSubStr, pCaseSensitive).Content()
+
+		def LastRemovedCS(pcSubStr, pCaseSensitive)
+			return This.FirstOccurrenceRemovedCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveLastOccurrence(pcSubStr)
 		This.RemoveLastOccurrenceCS(pcSubStr, :Casesensitive = TRUE)
@@ -22464,12 +23002,22 @@ o1 = new stzString("12*34*56*78")
 	
 		#>
 
+		#< @FunctionLastOccurrence
+
 		def RemoveLast(pcSubStr)
 			This.RemoveLastOccurrence(pcSubStr)
 
 			def RemoveLastQ(pcSubStr)
 				This.RemoveLast(pcSubStr)
 				return This
+
+		#>
+
+	def LastOccurrenceRemoved(pcSubStr)
+		return This.Copy().RemoveLastOccurrenceQ(pcSubStr).Content()
+
+		def LastRemoved(pcSubStr)
+			return This.FirstOccurrenceRemoved(pcSubStr)
 
 	   #----------------------------------------------------#
 	  #    REMOVING NEXT NTH OCCURRENCE OF A SUBSTRING    # 
@@ -22746,6 +23294,7 @@ o1 = new stzString("12*34*56*78")
 				nLenStr = This.NumberOfChars()
 				n1 = nLenStr - nLenSubStr + 1
 				n2 = nLenStr
+
 			ok
 
 			This.RemoveSection(n1, n2)
@@ -22818,9 +23367,15 @@ o1 = new stzString("12*34*56*78")
 			This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
 		ok
 
+		#< @FunctionFluentForm
+
 		def RemoveFromStartCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveFromStartCS(pcSubStr, pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def RemovSubStringFromStartCS(pcSubStr, pCaseSensitive)
 			This.RemoveFromStartCS(pcSubStr, pCaseSensitive)
@@ -22829,6 +23384,15 @@ o1 = new stzString("12*34*56*78")
 				This.RemovSubStringFromStartCS(pcSubStr, pCaseSensitive)
 				return This
 
+		def RemoveStartCS(pcSubStr, pCaseSensittive)
+			This.RemoveFromStartCS(pcSubStr, pCaseSensitive)
+
+			def RemoveStartCSQ(pcSubStr, pCaseSensittive)
+				This.RemoveStartCS(pcSubStr, pCaseSensittive)
+				return This
+
+		#>
+
 	def RemovedFromStartCS(pcSubStr, pCaseSensitive)
 		cResult = This.Copy().RemoveFromStartCSQ(pcSubStr, pCaseSensitive)
 		return cResult
@@ -22836,14 +23400,23 @@ o1 = new stzString("12*34*56*78")
 		def SubStringRemovedFromStartCS(pcSubStr, pCaseSensitive)
 			return This.RemovedFromStartCS(pcSubStr, pCaseSensitive)
 
+		def StartRemovedCS(pcSubStr, pCaseSensittive)
+			return This.RemovedFromStartCS(pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFromStart(pcSubStr)
 		This.RemoveFromStartCS(pcSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
 		def RemoveFromStartQ(pcSubStr)
 			This.RemoveFromStart(pcSubStr)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def RemovSubStringFromStart(pcSubStr)
 			This.RemoveFromStart(pcSubStr)
@@ -22852,12 +23425,25 @@ o1 = new stzString("12*34*56*78")
 				This.RemovSubStringFromStart(pcSubStr)
 				return This
 
+		def RemoveStart(pcSubStr)
+			This.RemoveFromStart(pcSubStr)
+
+			def RemoveStartQ(pcSubStr)
+				This.RemoveStart(pcSubStr)
+				return This
+
+		#>
+
 	def RemovedFromStart(pcSubStr)
 		cResult = This.Copy().RemoveFromStartQ(pcSubStr)
 		return cResult
 
 		def SubStringRemovedFromStart(pcSubStr)
 			return This.RemovedFromStart(pcSubStr)
+
+		def StartRemoved(pcSubStr)
+			return This.RemovedFromStart(pcSubStr)
+
 
 	  #-----------------------------------#
 	 #   REMOVING A SUBSTRING FROM END   #
@@ -22870,9 +23456,15 @@ o1 = new stzString("12*34*56*78")
 			This.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
 		ok
 
+		#< @FunctionFluentForm
+
 		def RemoveFromEndCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveFromEndCS(pcSubStr, pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def RemovSubStringFromEndCS(pcSubStr, pCaseSensitive)
 			This.RemoveFromEndCS(pcSubStr, pCaseSensitive)
@@ -22881,6 +23473,14 @@ o1 = new stzString("12*34*56*78")
 				This.RemovSubStringFromEndCS(pcSubStr, pCaseSensitive)
 				return This
 
+		def RemoveEndCS(pcSubStr, pCaseSensitive)
+			This.RemoveFromEndCS(pcSubStr, pCaseSensitive)
+
+			def RemoveEndCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveEndCS(pcSubStr, pCaseSensitive)
+				return This
+		#>
+
 	def RemovedFromEndCS(pcSubStr, pCaseSensitive)
 		cResult = This.Copy().RemoveFromEndCSQ(pcSubStr, pCaseSensitive)
 		return cResult
@@ -22888,14 +23488,23 @@ o1 = new stzString("12*34*56*78")
 		def SubStringRemovedFromEndCS(pcSubStr, pCaseSensitive)
 			return This.RemovedFromEndCS(pcSubStr, pCaseSensitive)
 
-	#---
+		def EndRemovedCS(pcSubStr, pCaseSensitive)
+			return This.RemovedFromEndCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFromEnd(pcSubStr)
 		This.RemoveFromEndCS(pcSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
 		def RemoveFromEndQ(pcSubStr)
 			This.RemoveFromEnd(pcSubStr)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def RemovSubStringFromEnd(pcSubStr)
 			This.RemoveFromEnd(pcSubStr)
@@ -22904,11 +23513,23 @@ o1 = new stzString("12*34*56*78")
 				This.RemovSubStringFromEnd(pcSubStr)
 				return This
 
+		def RemoveEnd(pcSubStr)
+			This.RemoveFromEnd(pcSubStr)
+
+			def RemoveEndQ(pcSubStr)
+				This.RemoveEnd(pcSubStr)
+				return This
+
+		#>
+
 	def RemovedFromEnd(pcSubStr)
 		cResult = This.Copy().RemoveFromEndQ(pcSubStr)
 		return cResult
 
 		def SubStringRemovedFromEnd(pcSubStr)
+			return This.RemovedFromEnd(pcSubStr)
+
+		def EndRemoved(pcSubStr)
 			return This.RemovedFromEnd(pcSubStr)
 
 	  #--------------------------------------------------------#
@@ -30448,7 +31069,7 @@ o1 = new stzString("12*34*56*78")
 					  Content()
 			
 				if cNumber != ""
-? ">> " + @@S(cNumber)
+? ">> " + @@S(cNumber) # TODO
 					acResult + cNumber
 					cNumber = ""
 				ok
