@@ -235,7 +235,6 @@ StopProfiler()
 
 /*========= REMOVE AROUND
 
-	*/
 	StartProfiler()
 	
 		o1 = new stzString("♥")
@@ -252,22 +251,51 @@ StopProfiler()
 		#--> TRUE
 
 	StopProfiler()
-	# Executed in 0.11 second(s)
+	# Executed in 0.20 second(s)
 
 /*----------
 
-? Q("__♥__♥__♥__").ContainsXT("♥", :BoundedBy = "_")
+	StartProfiler()
 
-? Q("__♥__♥__♥__").ContainsThisSubStringBoundedBy("♥", "_")
-? Q("__♥__♥__♥__").ContainsSubStringsBoundedBy("♥", "_")
-? Q("__♥__♥__♥__").ContainsNStringsBoundedBy(3, "♥", "_")
+	o1 = new stzListOfStrings([
+		"What's your name please?",
+		"Mabrooka!",
+		"Your name and my name are not the same...",
+		"I see.",
+		"Nice to meet you,",
+		"Mabrooka!"
+	])
+	
+	? @@S( o1.FindSubstring("name") )
+	#--> [ [ 1, [ 13 ] ], [ 3, [6, 18 ] ] ]
+
+	? @@S( o1.FindSubstringXT("name") )
+	#--> [ [ 1, 13 ], [ 3, 6 ], [ 3, 18 ] ]
+
+	StopProfiler()
+	# Executed in 0.04 second(s)
+
+/*----------
+*/
+	StartProfiler()
+
+	? Q("__♥__♥__♥__").ContainsXT("♥", :BoundedBy = "_")
+	? Q("__/♥\__").ContainsXT("♥", :Between = [ "/", :And = "\"] )
+
+	? Q("_-♥-__-♥-__-♥-__").ContainsXT([3, "♥"], :BoundedBy = "-")
+	
+	StopProfiler()
+
+	# ? Q("__♥__♥__♥__").ContainsThisSubStringBoundedBy("♥", "_")
+	# ? Q("__♥__♥__♥__").ContainsSubStringsBoundedBy("♥", "_")
+	# ? Q("__♥__♥__♥__").ContainsNStringsBoundedBy(3, "♥", "_")
 /*-----------
 
 StartProfiler()
 
-Q("__♥__♥__♥__") {
+Q("_-♥-_-♥-_-♥-_") {
 
-	RemoveXT(" ", :AroundEach = "♥")
+	RemoveXT("-", :AroundEach = "♥")
 	? Content()
 	#--> __ ♥ __ ♥ __ ♥ __
 }

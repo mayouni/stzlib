@@ -10030,7 +10030,7 @@ class stzList from stzObject
 
 		# Doublechecking for potential performance gain
 
-		if This.NumberOfItems() != len(paOtherItems)
+		if This.NumberOfItems() != len(paOtherList)
 			return FALSE
 		ok
 
