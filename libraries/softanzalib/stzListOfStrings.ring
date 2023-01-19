@@ -148,8 +148,10 @@ class stzListOfStrings from stzList
 		   ( Q(pList).IsEmpty() or Q(pList).IsListOfStrings() )
 
 			@oQStrList = new QStringList()	
-			for str in pList
-				@oQStrList.append(str)	
+			nLen = len(pList)
+
+			for i = 1 to nLen
+				@oQStrList.append(pList[i])	
 			next
 
 		but isString(pList)
@@ -159,8 +161,10 @@ class stzListOfStrings from stzList
 
 				if StzListQ(aList).IsListOfStrings()
 					@oQStrList = new QStringList()
-					for str in aList
-						@oQStrList.append(str)
+					nLen = len(aList)
+
+					for i = 1 to len(aList)
+						@oQStrList.append(aList[i])
 					next
 
 				else
@@ -341,10 +345,13 @@ class stzListOfStrings from stzList
 
 	def SizeInBytes()
 		nSizeInBytes = 0
-		for str in This.ListOfStrings()
-			oBinStr = new stzListOfBytes(str)
+		nLen = This.NumberOfStrings()
+
+		for i = 1 to nLen 
+			oBinStr = new stzListOfBytes(This.String(i))
 			nSizeInBytes += oBinStr.SizeInBytes()
 		next
+
 		return nSizeInBytes
 
 		def NumberOfBytes()
@@ -352,10 +359,13 @@ class stzListOfStrings from stzList
 
 	def SizeInBytesOfEachStringItem()
 		anResult = []
-		for str in This.ListOfStrings()
-			oBinStr = new stzListOfBytes(str)
+		nLen = This.NumberOfStrings()
+	
+		for i = 1 to nLen
+			oBinStr = new stzListOfBytes(This.String(i))
 			anResult + oBinStr.SizeInBytes()
 		next
+
 		return anResult
 
 		def SizeInBytesOfEachString()
@@ -369,10 +379,14 @@ class stzListOfStrings from stzList
 
 	def StringItemsAndTheirSizesInBytes()
 		aResult = []
-		for str in This.ListOfStrings()
+		nLen = This.NumberOfStrings()
+
+		for i = 1 to nLen
+			str = This.String(i)
 			oBinStr = new stzListOfBytes(str)
 			aResult + [ str, oBinStr.SizeInBytes() ]
 		next
+
 		return anResult
 
 		def StringsAndTheirSizesInBytes()
@@ -406,8 +420,10 @@ class stzListOfStrings from stzList
 
 	def ToListOfStzStrings()
 		aResult = []
-		for str in This.ListOfStrings()
-			aResult + new stzString(str)
+		nLen = This.NumberOfStrings()
+
+		for i = 1 to nLen
+			aResult + new stzString(This.String(i))
 		next
 		return aResult
 
@@ -973,12 +989,11 @@ class stzListOfStrings from stzList
 
 	def AppendEachStringItem(pcSubStr)
 
-		i = 0
-		for str in This.ListOfStrings()
-			i++
-			This.ReplaceStringAtPosition(i, str + pcSubStr)
-		next
+		nLen = This.NumberOfStrings()
 
+		for i = 1 to nLen
+			This.ReplaceStringAtPosition(i, This.String(i) + pcSubStr)
+		next
 
 		def AppendEachStringItemQ(pcSubStr)
 			This.AppendEachStringItem(pcSubStr)
@@ -1003,11 +1018,10 @@ class stzListOfStrings from stzList
 	#----------------------------------------------------#
 
 	def PrependEachStringItem(pcSubStr)
+		nLen = This.NumberOfStrings()
 
-		i = 0
-		for str in This.ListOfStrings()
-			i++
-			This.ReplaceStringAtPosition(i, pcSubStr + str)
+		for i = 1 to nLen
+			This.ReplaceStringAtPosition(i, pcSubStr + This.String(i))
 		next
 
 		def PrependEachStringItemQ(pcSubStr)
@@ -1232,8 +1246,10 @@ class stzListOfStrings from stzList
 
 	def InsertBeforeInEach(n, pcSubStr)
 		acResult = []
-		for str in This.ListOfStrings()
-			acResult + ( StzStringQ(str).InsertBefore(n, pcSubStr) )
+		nLen = This.NumberOfStrings()
+
+		for i = 1 to nLen
+			acResult + ( Q(This.String(i)).InsertBeforeQ(n, pcSubStr).Content() )
 		next
 	
 		This.Update( acResult )
@@ -1255,8 +1271,10 @@ class stzListOfStrings from stzList
 
 	def InsertAfterInEach(n, pcSubStr)
 		acResult = []
-		for str in This.ListOfStrings()
-			acResult + ( StzStringQ(str).InsertAfter(n, pcSubStr) )
+		nLen = This.NumberOfStrings()
+
+		for i = 1 to nLen
+			acResult + ( Q(This.String(i)).InsertAfterQ(n, pcSubStr).Content() )
 		next
 	
 		This.Update( acResult )
@@ -1288,9 +1306,10 @@ class stzListOfStrings from stzList
 
 		but StzListQ(pNewListOfStr).IsListOfStrings()
 			This.QStringListObject().clear()
-	
-			for str in pNewListOfStr
-				This.QStringListObject().append(str)	
+			nLen = len(pNewListOfStr)
+
+			for i = 1 to nLen
+				This.QStringListObject().append(pNewListOfStr[i])	
 			next
 
 		else
@@ -2654,9 +2673,10 @@ class stzListOfStrings from stzList
 		pacStrItems = StzListQ(pacStrItems).DuplicatesRemoved()
 
 		anResult = []
+		nLen = len(pacStrItems)
 
-		for str in pacStrItems
-			anResult + This.NumberOfOccurrenceOfStringItemCS(str, pCaseSensitive)
+		for i = 1 to nLen
+			anResult + This.NumberOfOccurrenceOfStringItemCS(pacStrItems[i], pCaseSensitive)
 		next
 
 		return anResult
@@ -2830,9 +2850,10 @@ class stzListOfStrings from stzList
 
 	def NumberOfOccurrenceOfManyStringItemsXTCS(pacStrItems, pCaseSensitive)
 		aResult = []
+		nLen = len(pacStrItems)
 
-		for str in pacStrItems
-			anResult + [ str, This.NumberOfOccurrenceOfStringItemCS(str, pCaseSensitive) ]
+		for i = 1 to nLen
+			anResult + [ str, This.NumberOfOccurrenceOfStringItemCS(pacStrItems[i], pCaseSensitive) ]
 		next
 
 		return aResult
@@ -3173,12 +3194,13 @@ class stzListOfStrings from stzList
 		*/
 
 		aResult = []
+		nLen = len(pacStrItems)
 
-		for str in pacStrItems
-			aResult + This.FindStringItemCS(str, pCaseSensitive)
+		for i = 1 to nLen
+			aResult + This.FindStringItemCS(pacStrItems[i], pCaseSensitive)
 		next
 
-		aResult = StzListQ(aResult).FlattenQ().SortInAscendingQ().Content()
+		aResult = Q(aResult).FlattenQ().SortInAscendingQ().Content()
 
 		return aResult	
 
@@ -3355,9 +3377,10 @@ class stzListOfStrings from stzList
 
 	def ContainsEachCS(paStrings, pCaseSensitive)
 		bResult = TRUE
+		nLen = len(paStrings)
 
-		for str in paStrings
-			if NOT This.ContainsCS(str, pCaseSensitive)
+		for i = 1 to nLen
+			if NOT This.ContainsCS(paStrings[i], pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -3448,9 +3471,10 @@ class stzListOfStrings from stzList
 		ok
 
 		bResult = TRUE
+		nLen = len(paStrings)
 
-		for str in paStrings
-			if This.ContainsNoCS(str, pCaseSensitive)
+		for i = 1 to nLen
+			if This.ContainsNoCS(paStrings[i], pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -3541,9 +3565,10 @@ class stzListOfStrings from stzList
 	def ContainsSomeCS(paStrings, pCaseSensitive)
 
 		bResult = FALSE
+		nLen = len(paStrings)
 
-		for str in paStrings
-			if This.ContainsCS(str, pCaseSensitive)
+		for i = 1 to nLen
+			if This.ContainsCS(paStrings[i], pCaseSensitive)
 				bResult = TRUE
 				exit
 			ok
@@ -3642,9 +3667,10 @@ class stzListOfStrings from stzList
 		*/
 
 		bResult = FALSE
+		nLen = len(paStrings)
 
-		for str in paStrings
-			if This.NumberOfOccurrenceCS(str) = This.NumberOfStrings()
+		for i = 1 to nLen
+			if This.NumberOfOccurrenceCS(paStrings[i]) = This.NumberOfStrings()
 				bResult = TRUE
 				exit
 			ok
@@ -3687,8 +3713,10 @@ class stzListOfStrings from stzList
 
 	def ContainsOnlyOneCS(paStrings, pCaseSensitive)
 		bResult = FALSE
-		for item in paItems
-			if This.IsMadeOfStringCS(str, pCaseSensitive)
+		nLen = len(paStrings)
+
+		for i = 1 to nLen
+			if This.IsMadeOfStringCS(paStrings[i], pCaseSensitive)
 				bResult = TRUE
 				exit
 			ok
@@ -5073,9 +5101,10 @@ class stzListOfStrings from stzList
 		#             1               2
 		
 		nResult = 0
+		nLenPos = len(anPositions)
 
-		for aList in anPositions
-			nResult += len(aList[2])
+		for i = 1 to nLen
+			nResult += len(anPositions[i][2])
 		next
 
 		return nResult
@@ -5116,9 +5145,10 @@ class stzListOfStrings from stzList
 		#             1               2
 		
 		aResult = []
+		nLen = len(anPositions)
 
-		for aList in anPositions
-			aResult + [ aList[1], len(aList[2]) ]
+		for i = 1 to nLen
+			aResult + [ anPositions[i][1], len(anPositions[i][2]) ]
 		next
 
 		return aResult
@@ -5154,9 +5184,10 @@ class stzListOfStrings from stzList
 		*/
 
 		anResult = []
+		nLen = len(pacSubStrings)
 
-		for cSubStr in pacSubStrings
-			anResult + This.NumberOfOccurrenceOfSubStringCS(cSubStr, pCaseSensitive)
+		for i = 1 to nLen
+			anResult + This.NumberOfOccurrenceOfSubStringCS(pacSubStrings[i], pCaseSensitive)
 		next
 
 		return anResult
@@ -5207,9 +5238,10 @@ class stzListOfStrings from stzList
 		*/
 
 		anResult = []
+		nLen = len(pacSubStrings)
 
-		for cSubStr in pacSubStrings
-			anResult + This.NumberOfOccurrenceOfSubStringXTCS(cSubStr, pCaseSensitive)
+		for i = 1 to nLen
+			anResult + This.NumberOfOccurrenceOfSubStringXTCS(pacSubStrings[i], pCaseSensitive)
 		next
 
 		return anResult
@@ -5253,7 +5285,7 @@ class stzListOfStrings from stzList
 			"Mabrooka!"
 		])
 	
-		? @@( o1.FindSubstringCS("name") )
+		? @@( o1.FindSubstring("name") )
 		#--> [ [ 1, [ 13 ] ], [ 3, [6, 18 ] ] ]
 		# "name" is found in string 1 at position 13, and
 		# in string 2 at positions 6 and 18.
@@ -5261,12 +5293,12 @@ class stzListOfStrings from stzList
 		*/
 
 		aResult = []
-		
-		i = 0
-		for str in This.ListOfStrings()
-			i++
+		nLen = This.NumberOfStrings()
+
+		for i = 1 to nLen
 			
-			anPos = StzStringQ(str).FindAllCS(pcSubStr, pCaseSensitive)
+			anPos = This.StringQ(i).FindAllCS(pcSubStr, pCaseSensitive)
+
 			if len(anPos) > 0
 				aResult + [ i, anPos ]
 			ok
@@ -5350,13 +5382,13 @@ class stzListOfStrings from stzList
 		aPositions = This.FindSubStringCS(pcSubStr, pCaseSensitive)
 
 		aResult = []
-		i = 0
+		nLen = len(aPositions)
 
-		for aList in aPositions
+		for i = 1 to nLen
 			
-			for nPos in aList[2]
-				i++
-				aResult + [ aList[1], nPos ]	
+			nLen2 = len(aPositions[i][2])
+			for j = 1 to nLen2
+				aResult + [ aPositions[i][1], aPositions[i][2][j]]	
 			next
 			
 		next
@@ -5694,9 +5726,10 @@ class stzListOfStrings from stzList
 		ok
 
 		aResult = []
+		nLen = len(pacSubStr)
 
-		for cSubStr in pacSubStr
-			aResult + This.FindSubStringCS(cSubStr, pCaseSensitive)
+		for i = 1 to nLen
+			aResult + This.FindSubStringCS(pacSubStr[i], pCaseSensitive)
 		next
 
 		return aResult
@@ -5785,9 +5818,10 @@ class stzListOfStrings from stzList
 		*/
 
 		aResult = []
+		nLen = len(pacSubStr)
 
-		for cSubStr in pacSubStr
-			aResult + [ cSubStr, This.FindSubStringXTCS(cSubStr, pCaseSensitive) ]
+		for i = 1 to nLen
+			aResult + [ cSubStr, This.FindSubStringXTCS(pacSubStr[i], pCaseSensitive) ]
 		next
 
 		return aResult
@@ -5887,7 +5921,6 @@ class stzListOfStrings from stzList
 		def FirstNOccurrencesOfSubString(n, pcSubStr)
 			return This.FindNFirstOccurrencesOfSubString(n, pcSubStr)
 
-
 	  #----------------------------------------------#
 	 #   FINDING GIVEN OCCURRENCES OF A SUBSTRING   #
 	#----------------------------------------------#
@@ -5957,9 +5990,10 @@ class stzListOfStrings from stzList
 	def ContainsSubStringsCS(pacSubStr, pCaseSensitive)
 
 		bResult = TRUE
+		nLen = len(pacSubStr)
 
-		for str in pacStr
-			if NOT This.ContainsSubStringCS(str, pCaseSensitive)
+		for i = 1 to nLen
+			if NOT This.ContainsSubStringCS(pacSubStr[i], pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -6518,10 +6552,10 @@ class stzListOfStrings from stzList
 
 	def EachStringItemContainsNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
 		bResult = TRUE
+		nLen = This.NumberOfStrings()
 
-		for oStr in This.ToListOfStzStrings()
-
-			if NOT oStr.ContainsNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
+		for i = 1 to nLen
+			if NOT This.StringQ(i).ContainsNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -6558,8 +6592,10 @@ class stzListOfStrings from stzList
 
 	def ContainsSubStringInEachStringCS(pcStr, pCaseSensitive)
 		bResult = TRUE
-		for str in This.ListOfStrings()
-			if NOT StzStringQ(str).ContainsCS(pcStr, pCaseSensitive)
+		nLen = This.NumberOfStrings()
+
+		for i = 1 to nLen
+			if NOT This.StringQ(i).ContainsCS(pcStr, pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -7134,11 +7170,11 @@ class stzListOfStrings from stzList
 
 	def StringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
 		acResult = TRUE
-		aListOfStzStrings = This.ToListOfStzStrings()
+		nLen = This.NumberOfStrings()
 
-		for oStr in aListOfStzStrings
+		for i = 1 to nLen
 
-			if  oStr.ContainsNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
+			if  This.StringQ(i).ContainsNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
 				acResult + str
 			ok
 		next
@@ -7538,12 +7574,12 @@ class stzListOfStrings from stzList
 
 	def StringItemsContainingNTimesTheSubstringXTCS(n, pcSubstr, pCaseSensitive)
 		acResult = TRUE
-		aListOfStzStrings = This.ToListOfStzStrings()
+		nLen = This.NumberOfStrings()
 
-		for oStr in aListOfStzStrings
-
-			if  oStr.ContainsNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
-				acResult + [ str, oStr.FindAllCS(pcSubstr, pCaseSensitive) ]
+		for i = 1 to nLen
+			oStr = new StringQ(i)
+			if  oStr.StringQ(i).ContainsNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
+				acResult + [ This.String(), oStr.StringQ().FindAllCS(pcSubstr, pCaseSensitive) ]
 			ok
 		next
 
@@ -7789,9 +7825,10 @@ class stzListOfStrings from stzList
 		ok
 
 		anPositions = This.FindAllCS(pcString, pCaseSensitive)
+		nLen = len(anPositions)
 
-		for n in anPositions
-			This.ReplaceStringAtPosition(n, pcNewString)
+		for i = 1 to nLen
+			This.ReplaceStringAtPosition(anPositions[i], pcNewString)
 		next
 
 		#< @FunctionFluentForm
@@ -17844,6 +17881,16 @@ class stzListOfStrings from stzList
 	#---------------------------------------------------------------#
 
 	def IsEqualToCS(pcOtherListOfStr, pCaseSensitive)
+
+		# Doublechecking inequality for potential performance gain
+		# --> Of the two lists have different sizes, then they'r NOT equal!
+
+		if This.NumberOfStrings() != Q(pcOtherListOfStr).NumberOfStrings()
+			return FALSE
+		ok
+
+		# Otherwise, compare them the normal way...
+
 		acThisSorted = This.SortedInAscending()
 		acOtherSorted = StzListOfStringsQ(pcOtherListOfStr).SortedInAscending()
 
