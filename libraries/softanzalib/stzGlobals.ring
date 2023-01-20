@@ -1397,39 +1397,13 @@ func QQ(p)
 		return Q(p)
 	ok
 
-# The W() function takes a string and tries its best to return a well
-# formed conditaional Ring expression used in several Softanza functions
 func W(cCode)
 	if NOT isString(cCode)
 		StzRaise("Uncorrect param type! cCode must be a string.")
 	ok
 
-	cCode = Q(cCode).
-		TrimQ().
-
-		RemoveLeftBoundQ("{").
-		RemoveRightBoundQ("}").
-
-		RemoveLeftBoundQ("}").
-		RemoveRightBoundQ("{").
-
-		TrimQ().
-
-		RemoveLeftBoundQ("'").
-		RemoveRightBoundQ("'").
-
-		TrimQ().
-
-		RemoveLeftBoundQ('"').
-		RemoveRightBoundQ('"').
-
-		Content()
-
-	cCode = "{" + "'" +
-		cCode +
-		"'" + "}"
-	   
-	return cCode
+	aResult = [:Where, cCode]
+	return aResult
 
 	func Where(cCode)
 		return W(cCode)

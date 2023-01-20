@@ -21,7 +21,7 @@ StopProfiler()
 # Executed in 0.03 second(s)
 
 /*================== C#
-*/
+
 StartProfiler()
 
 	# This is a C# code showing string interpolation:
