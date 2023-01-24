@@ -1393,7 +1393,7 @@ class stzObject
 		#--> [ 5, 5 ]
 		*/
 
-		# Step 1: Resolving params
+		# Resolving params
 
 		if isList(pIn) and
 			( Q(pIn).IsInNamedParam() or
@@ -1435,7 +1435,7 @@ class stzObject
 			StzRaise("Incorrect param type! pnSize must be a number.")
 		ok
 
-		# Step 1: Doing the job
+		# Doing the job
 
 		value = ""
 		if this.IsANumber()
@@ -1709,6 +1709,9 @@ class stzObject
 
 	def IsText()
 		return FALSE
+
+	def ToPointer()
+		return object2pointer(This.Object())
 
 	  #------------------------------#
 	 #     OPERATORS OVERLOADING    #

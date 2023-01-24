@@ -12859,6 +12859,27 @@ oTable.Show() + NL
 			def ContainsNoItem(pItem)
 				return NOT This.ContainsItem(pItem)
 
+	  #---------------------------#
+	 #  CONDITIONAL CONTAINMENT  #
+	#---------------------------#
+
+	def ContainsW(pcCondition)
+
+		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ')'
+		nLen = This.NumberOfItems()
+
+		bResult = FALSE
+
+		for @i = 1 to nLen
+			eval(cCode)
+			if bOk
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
+
 	  #-------------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS CONTAINED IN A GIVEN LIST OR ITEM  #
 	#-------------------------------------------------------------#
@@ -12898,10 +12919,12 @@ oTable.Show() + NL
 	#-------------------------------------------------------------#
 
 	def ContainsEach(paItems)
-		bResult = TRUE
 
-		for item in paItems
-			if NOT This.Contains(item)
+		bResult = TRUE
+		nLen = len(paItems)
+
+		for i = 1 to nLen
+			if NOT This.Contains(paItems[i])
 				bResult = FALSE
 				exit
 			ok
@@ -12934,7 +12957,9 @@ oTable.Show() + NL
 	#--------------------------------------------------------------------#
 	
 	def EachItemExistsIn(paOtherList)
+
 		bResult = StzListQ(paOtherList).ContainsEach(This.List())
+
 		return bResult
 
 		def ItemsExistIn(paOtherList)
@@ -13801,14 +13826,17 @@ oTable.Show() + NL
 
 	# UPDATE: Lists are now findable (only objects are left for future)
 
-	def FindNthOccurrenceCS(n, pItem, pCaseSensitive) 
+	def FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+		if isObject(pItem)
+			StzRaise("Can't process! Objects can not be found yet.")
+		ok
 
 		if isString(n)
 			if n = :First or n = :FirstOccurrence
-				n = 1
+				return This.FindFirstCS(pItem, pCaseSensitive)
 
 			but n = :Last or n = :LastOccurrence
-				n = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+				return This.FindLastCS(pItem, pCaseSensitive)
 			ok
 		ok
 
@@ -13816,15 +13844,74 @@ oTable.Show() + NL
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		anPos = This.FindAllCS(pItem, pCaseSensitive)
+		cType = ring_type(pItem)
 
-		nResult = 0
+		if cType = "STRING" or cType = "NUMBER"
+			
+			nLenList = This.NumberOfItems()
+			nStart = 1
+			nTimes = 0
+			nResult = 0
 
-		if n <= len(anPos)
-			nResult = anPos[n]
+			bContinue = TRUE
+			while bContinue
+				aSection = This.Section(nStart, nLenList)
+			
+				nPos = ring_find( aSection, pItem )
+				nPos += nStart - 1
+				if nPos = 0
+					exit
+				ok
+
+				nTimes++
+
+				if nTimes = n
+					nResult = nPos
+					return nPos	
+				else
+					nStart = nPos + 1
+				ok
+			end
+
+		but cType = "LIST"
+
+			# Turning the pItem to a string
+			# (we use stzString for better performance)
+
+			cPItem = Q(pItem).ToString()
+		
+			# Parsing the list. When an item is
+			# a list, then check if it could be
+			# equal to pItem
+
+			aList = This.List()
+			nLen = This.NumberOfItems()
+			nResult = 0
+			
+			nTimes = 0
+
+			for i = 1 to nLen
+				
+				item = aList[i]
+						
+				if isList(item)
+
+					cItem = Q(item).ToString()
+	
+					if cItem = cPItem
+						nTimes++
+	
+						if nTimes = n
+							return i
+						ok
+					ok
+
+				ok
+		
+			next
 		ok
 
-		return nResult
+		return FALSE
 
 		#< @FunctionAlternativeForms
 
@@ -13915,39 +14002,45 @@ oTable.Show() + NL
 
 	def FindFirstOccurrenceCS(pItem, pCaseSensitive)
 
+		if isObject(pItem)
+			StzRaise("Can't process! Objects can not be found yet.")
+		ok
+
 		cType = ring_type(pItem)
-		nLen  = This.NumberOfItems()
 
-		nResult = 0
+		if cType = "STRING" or cType = "NUMBER"
+			return ring_find( This.List(), pItem )
 
-		for i = 1 to nLen
-			currentItem = This[i]
-			cCurrentType = ring_type(currentItem)
+		but cType = "LIST"
+			# For performance reasons, we rely on stzString
 
-			if cCurrentType = "NUMBER" and cType = "NUMBER"
-				if currentItem = pItem
-					nResult = i
-					exit
+			# Turning the list (pItem) to a string
+
+			cPItem = Q(pItem).ToString()
+			
+			# Turning the list, item by item, to a string
+			# and check if the item iqual the pItem
+
+			aList = This.List()
+			nLen = This.NumberOfItems()
+			nResult = 0
+			
+			for i = 1 to nLen
+				item = aList[i]
+				cItem = ""
+			
+				if isList(item)
+					cItem = Q(item).ToString()
+				
+					if cItem = cPItem
+						return i
+						exit
+					ok
 				ok
+			next
+		ok
 
-			but ( cCurrentType = "STRING" and cType = "STRING" ) or
-			    ( cCurrentType = "LIST" and cType = "LIST" )
-
-				if Q(currentItem).IsEqualToCS(pItem, pCaseSensitive)
-					nResult = i
-					exit
-				ok
-
-			but cCurrentType = "OBJECT" and cType = "OBJECT"
-				if Q(currentItem).IsEqualTo(pItem)
-					nResult = i
-					exit
-				ok
-			ok
-
-		next
-
-		return nResult
+		return FALSE
 
 		#< @FunctionAlternativeForms
 
@@ -13997,38 +14090,45 @@ oTable.Show() + NL
 	#--------------------------------------------------#
 
 	def FindLastOccurrenceCS(pItem, pCaseSensitive)
-		nResult = 0
-		aList = This.Content()
-		nLen = len(aList)
+		if isObject(pItem)
+			StzRaise("Can't process! Objects can not be found yet.")
+		ok
 
-		bItemIsString = isString(pItem)
+		cType = ring_type(pItem)
 
-		nResult = 0
+		if cType = "STRING" or cType = "NUMBER"
+			return ring_find( This.List(), pItem )
 
-		for i = nLen to 1 step -1
-			currentItem = aList[i]
+		but cType = "LIST"
+			# For performance reasons, we rely on stzString
 
-			if bItemIsString and isString(currentItem)
-				if Q(currentItem).IsEqualToCS(pItem)
-					nRresult = i
-					exit
+			# Turning the pItem to a string
+
+			cPItem = Q(pItem).ToString()
+			
+			aList = This.List()
+			nLen = This.NumberOfItems()
+			nResult = 0
+			n = 0
+
+			for i = nLen to 1 step -1
+				n++
+				item = aList[i]
+				cItem = ""
+			
+				if isList(item)
+					cItem = Q(item).ToString()
+				
+					if cItem = cPItem
+						nResult = nLen - n + 1
+						return nResult
+					ok
 				ok
+			
+			next
+		ok
 
-			but isNumber(pItem) and isNumber(currentItem)
-				if currentItem = pItem
-					nResult = i
-					exit
-				ok
-
-			else
-				if Q(currentItem).IsEqualTo(pItem)
-					nResult = i
-					exit
-				ok
-			ok
-		next
-
-		return nResult
+		return FALSE
 
 		#< @FunctionAlternativeForms
 
@@ -19026,24 +19126,45 @@ oTable.Show() + NL
 			return This.IsUppercase()
 
 	def ToString()
-		acStrings = []
-		for item in This.List()
-			cItem = ""
-			if isString(item)
-				cItem = item
-			but isNumber(item)
-				cItem = ""+ item
-			but isList(item)
-				cItem = StzStringQ(item).ToCode()
-			but isObject(item)
-				StzRaise("Can't transforme an object to string!")
+		# NOTE: uses the same code as list2code() from Ring standard
+		# library and enhances it for better performance
+
+		cTabs = ring_copy( char(9), List2CodeTabsCounter )
+		cCode = cTabs + "[" + Windowsnl()
+
+		lStart = True
+		List2CodeTabsCounter++
+
+		cTabs = ring_copy( char(9), List2CodeTabsCounter )
+	
+		aList = This.List()
+		nLen = This.NumberOfItems()
+
+		for i = 1 to nLen
+			item = aList[i]
+
+			if !lStart 
+				cCode += ( "," + Windowsnl() )
+			else 
+				lStart = False
 			ok
 
-			acStrings + cItem
+			if isString(item)
+				item2 = substr( item, '"','"+ char(34)+"')
+				cCode += ( cTabs +'"' + item2 + '"'  )
+
+			but isnumber(item)
+				cCode += ( cTabs + "" + item )
+
+			but islist(item)
+				cCode += Q(item).ToString()
+			ok
 		next
 
-		cResult = StzListOfStringsQ(acStrings).ConcatenatedUsing(NL)
-		return cResult
+		List2CodeTabsCounter--
+		cTabs = ring_copy(char(9), List2CodeTabsCounter)
+		cCode += ( windowsnl() + cTabs + "]" )
+		return cCode
 
 		def ToStringQ()
 			return new stzString(This.ToString())
@@ -23239,6 +23360,16 @@ oTable.Show() + NL
 			return FALSE
 		ok
 
+	def IsBetweenXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsBetweenCSNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :BetweenCS )
@@ -25125,6 +25256,16 @@ oTable.Show() + NL
 		else
 			return FALSE
 		ok
+
+	def IsBoundedByXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :BoundedByXT )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 
 	def IsIsBoundedByNamedParam()
 		if This.NumberOfItems() = 2 and

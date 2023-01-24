@@ -574,6 +574,9 @@ func ring_right(str, n)
 func ring_del(paList, n)
 	del(paList, n)
 
+func ring_copy(p1, p2)
+	return copy(p1, p2)
+
 #-----
 
 func StzFindCS(pThing, paIn, pCaseSensitive)
@@ -1023,7 +1026,7 @@ func ComputableFormSimplified(pValue)
 			cResult = cChar + Q(pValue).Simplified() + cChar
 		else
 
-			aAntiSections = oStr.FindAntiSections( oStr.FindAnySectionsBetween('"','"') )
+			aAntiSections = oStr.FindAntiSections( oStr.FindBetweenAsSections('"','"') )
 		
 			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
 			#--> this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"
