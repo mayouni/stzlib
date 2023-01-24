@@ -1,6 +1,82 @@
 load "stzlib.ring"
 
-/*-----------
+/*------------
+
+StartProfiler()
+
+aLargeList = 1:100_000
+aLargeList + "A":"C" + "A":"C"
+
+aMyList = [ "_", "_", "A":"C", "_", "_", "A":"C", "_", "_", "A":"C", "_" ]
+for i = 1 to len(aMyList)
+	aLargeList + aMyList[i]
+next
+
+o1 = new stzList(aLargeList)
+? o1.FindNth(2, "A":"C")
+
+StopProfiler()
+#--> Executed in 0.27 second(s)
+
+/*------------
+
+StartProfiler()
+
+o1 = new stzList([ 1, 2, "A":"C", 4, 5, "A":"C", 7, "A":"C"])
+? o1.FindFirst("A":"C")
+#--> 3
+? o1.FindNth(2,"A":"C")
+#--> 6
+? o1.FindLast("A":"C")
+#--> 8
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*-------------
+*/
+StartProfiler()
+
+# Fabricating a large list
+
+	aLargeList = 1 : 1_000_000
+
+	aMyList = [ 1, 2,
+		    ["A", "B", "C", "عربي", "كلام", "D"],
+		    3, 4, 5,
+		    ["A", "B", "C", "عربي", "كلام", "D"],
+		    6, 7,
+		    ["A", "B", "C", "عربي", "كلام", "D"]
+	]
+
+	for i = 1 to len(aMyList)
+		aLargeList + aMyList[i]
+	next
+	# Executed in 0.02 second(s)
+
+# Finding the first occurrence
+	o1 = new stzList(aLargeList)
+
+	? o1.FindFirst(["A", "B", "C", "عربي", "كلام", "D"])
+	#--> 100003
+	# Executed in 0.32 second(s)
+? ELpasedTime()
+# Finding the last occurrence
+
+	? o1.FindLast(["A", "B", "C", "عربي", "كلام", "D"])
+	#--> 100010
+	# Executed in 0.02 second(s)
+? elapsedtime()
+# Finding the 2nd occurrence
+
+	? o1.FindNth(2, ["A", "B", "C", "عربي", "كلام", "D"])
+	#--> 100007
+	# Executed in 0.23 second(s)
+
+StopProfiler()
+# Executed in 0.56 second(s)
+
+/*========
 
 StartProfiler()
 
@@ -68,7 +144,7 @@ o1 = new stzString("[••[•[••]•[•]]••[••]]")
 ? o1.DistanceTo("[",:startingat = 1)
 #--> 4
 
-//? @@S( o1.FindAnySectionsBetween("[","]") )
+//? @@S( o1.FindBetweenAsSections("[","]") )
 
 StopProfiler()
 
@@ -182,26 +258,22 @@ StartProfiler()
 o1 = new stzString("[••[•[••]•[••]]••[••]]")
 #                   ^..^.^..9.^..45..^..21
 
-? @@S( o1.FindAnySectionsBetween("[","]") )
+? @@S( o1.FindBetweenAsSections("[","]") )
 
 StopProfiler()
 
 /*-----------
-
 
 StartProfiler()
  #                  ...4.6...v...4.v.v..1.v..
 o1 = new stzString("---[ [===]---[=] ]--[=]--")
 #                   ...^.^...0...^.6.8..^.3..
 
-//o1.RemoveAnyBetween("[","]")
-//? o1.Content()
-
-//? o1.FindAnyBetween("[","]")
+//? o1.FindBetween("[","]")
 #--> [2, 6]
 # Executed in 0.04s
 
-? @@S( o1.FindAnySectionBetween("[","]") )
+? @@S( o1.FindBetween("[","]") )
 #--> [ [ 2, 12 ], [ 6, 8 ] ]
 
 StopProfiler()
@@ -216,7 +288,7 @@ StartProfiler()
 
 StopProfiler()
 
-/*-----------
+/*----------- TODO
 */
 StartProfiler()
 
@@ -237,13 +309,14 @@ o1 = new stzString('[
 ]')
 
 
-aList = o1.SectionsBetween("[", "]")
+aList = o1.SectionsBetweenXT("[", "]")
 nLen = len(aList)
 for i = 1 to nLen
 	? aList[i] + NL + NL + "--" + NL
 next
 
-#--> Executed in 0.61 second(s)
+StopProfiler()
+#--> Executed in 0.05 second(s)
 
 /*-----------
 

@@ -194,7 +194,7 @@ o1 = new stzString('[
 
 ]')
 
-//? @@S( o1.DeepFindAnySectionBetween("[", "]") )
+//? @@S( o1.DeepFindBetweenAsSections("[", "]") )
 
 aList = o1.DeepSubStringsBetweenXT("[", "]")
 nLen = len(aList)
@@ -746,7 +746,7 @@ o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
 ? @@S( o1.FindAsSections("12.34") )
 #--> [ [ 7, 11 ], [ 39, 43 ] ]
 
-? @@S( o1.FindManySections([ "12.34", "-56.30", "77.12" ]) )
+? @@S( o1.FindManyAsSections([ "12.34", "-56.30", "77.12" ]) )
 #--> [ [ 7, 11 ], [ 21, 26 ], [ 39, 43 ], [ 55, 59 ] ]
 
 /*=================
@@ -1801,10 +1801,10 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? @@S( o1.AnySubstringsBetween("<<", :and = ">>") )
 # --> [ "word", "noword", "word" ]
 
-? @@S( o1.FindAnySubStringsBetween("<<", :and = ">>") ) + NL
+? @@S( o1.FindSubStringsBetween("<<", :and = ">>") ) + NL
 # --> [ 11, 28, 43 ]
 
-? @@S( o1.FindAnySectionsBetween("<<",">>") )
+? @@S( o1.FindBetweenAsSections("<<",">>") )
 # --> [ [ 11, 14 ], [ 28, 33 ], [ 43, 46 ] ]
 
 
@@ -1971,10 +1971,10 @@ o1 = new stzString("12abc67abc12abc")
 /*=================
 
 o1 = new stzString("**3**67**012**56**92**")
-? @@S( o1.FindAnyBetweenXT("**") )	# or if you want FindAnySeparatedBy("**")
+? @@S( o1.FindBetweenXT("**") )	# or if you want FindSeparatedBy("**")
 #--> [ 3, 6, 10, 15, 19 ]
 
-? @@S( o1.FindAnySectionBetweenXT("**") )
+? @@S( o1.FindBetweenAsSectionsXT("**") )
 #--> [ [3,3], [6, 7], [10, 12], [15,16], [19,20] ]
 
 /*-----------------
@@ -1990,19 +1990,19 @@ o1 = new stzString("***ONE***TWO***THREE***")
 ? o1.SplitQ(:Using = "***").FindIn(o1.Content())
 
 /*
-? @@S( o1.FindAnyBetweenXT("**") )
+? @@S( o1.FindBetweenXT("**") )
 #--> [ 2, 4, 7, 10 ]
 
-? @@S( o1.FindAnySectionBetweenXT("**") )
+? @@S( o1.FindBetweenAsSectionsXT("**") )
 
 
 /*-----------------
-
+*/
 # You can find the positions of any substring occurring between
 # two bounds by saying:
 
 o1 = new stzString("txt <<ring>> txt <<php>>")
-? @@S( o1.FindAnyBetween("<<",">>") )
+? @@S( o1.FindBetween("<<",">>") )
 #--> [7, 20]
 
 # In fact, "ring" occures in position 7 and "php" in position 20.
@@ -2011,7 +2011,7 @@ o1 = new stzString("txt <<ring>> txt <<php>>")
 # the same (equal to "*" here):
 
 o1 = new stzString("*2*45*78*0*")
-? @@S( o1.FindAnyBetween("*","*") )
+? @@S( o1.FindBetween("*","*") )
 #--> [2, 7]
 
 # then you get "2" that starts at position 2 and "78" at position 7.
@@ -2026,7 +2026,7 @@ o1 = new stzString("*2*45*78*0*")
 # takes its position 2.
 
 # Second, Softanza starts from position 3 and scans the remaining
-# substring "45*78*0*" for any other substring betweeb "*" and "*".
+# substring "45*78*0*" for any other substring between "*" and "*".
 # It finds it at position 7 (substring "78").
 
 # Until now, we have positions 2 and 7.
@@ -2035,7 +2035,7 @@ o1 = new stzString("*2*45*78*0*")
 # to be scanned is "45*". There is no substrings between "*" and "*".
 # So the result [2, 7] is returned.
 
-# Now, you would ask me: What if I want to get all the psotions of
+# Now, you would ask me: What if I want to get all the positions of
 # substrings separated by the char "*", like this:
 
 	# the positions	:  12345678901
@@ -2043,10 +2043,10 @@ o1 = new stzString("*2*45*78*0*")
 	# the occurences:   ^ ^  ^  ^
 	# --> [2, 4, 7, 10]
 
-# Then you can use the extended version of the fucntion ..XT() and
+# Then you can use the extended version of the function ..XT() and
 # pass the "*" char as a parameter like this:
 
-? @@S( o1.FindAnyBetweenXT("*") )
+? @@S( o1.FindBetweenXT("*") )
 #--> [ 2, 4, 7, 10 ]
 
 /*--------------
@@ -2057,23 +2057,23 @@ o1 = new stzString("*2*45*78*0*")
 # adding the keyword Sections like this:
 
 o1 = new stzString("txt <<ring>> txt <<php>>")
-? @@S( o1.FindAnySectionBetween("<<",">>") )
+? @@S( o1.FindBetweenAsSections("<<",">>") )
 #--> [ [ 7, 9 ], [ 20, 21 ] ]
 
 o1 = new stzString("*2*45*78*0*")
-? @@S( o1.FindAnySectionBetween("*","*") )
+? @@S( o1.FindBetweenAsSections("*","*") )
 #--> [ [ 2, 2 ], [ 7, 8 ] ]
 
-? @@S( o1.FindAnySectionBetweenXT("*") )
+? @@S( o1.FindBetweenAsSectionsXT("*") )
 #--> [ 2, 4, 7, 10 ]
 
 /*-----------------
 
-? Q("txt <<ring>> txt <<ring>>").FindAnySectionsBetween("<<",">>")
+? Q("txt <<ring>> txt <<ring>>").FindBetweenAsSections("<<",">>")
 #--> [ [7,10], [20,23] ]
 
 str = 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!'
-? Q(str).FindAnySectionsBetween('"', '"')
+? Q(str).FindBetweenAsSections('"', '"')
 
 /*
 
@@ -2125,7 +2125,7 @@ o1 = new stzString("12*A*33*A*")
 ? o1.FindBetween("A", "*", "*")
 #--> [4, 9]
 
-? o1.FindAsSectionsBetween("A", "*", "*")
+? o1.FindBetweenAsSections("A", "*", "*")
 #--> [ [4, 4], [9, 9] ]
 
 /*-----------------
@@ -2134,7 +2134,7 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? o1.FindBetweenCS("word", "<<", ">>", :CaseSensitive = FALSE)
 #--> [ 11, 43 ]
 
-? o1.FindAsSectionsBetween("word", "<<", ">>")
+? o1.FindBetweenAsSections("word", "<<", ">>")
 #--> [ [11, 14], [43, 46] ]
 
 //? o1.FindXT("word", :Between = [ "<<", ">>" ])
@@ -2189,13 +2189,13 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
 ? @@S( o1.FindBetween("word", "<<", ">>") )
 #--> [ 11 ]
 
-? @@S( o1.FindAsSectionsBetween("word", "<<", ">>") )
+? @@S( o1.FindBetweenAsSections("word", "<<", ">>") )
 #--> [ [ 11, 14 ] ]
 
-? @@S( o1.FindAnyBetween("<<",">>") )
+? @@S( o1.FindBetween("<<",">>") )
 #--> [ 11, 28, 43 ]
 
-? @@S( o1.FindAnySectionsBetween("<<",">>") )
+? @@S( o1.FindBetweenAsSections("<<",">>") )
 #--> [ [ 11, 14 ], [ 28, 33 ], [ 43, 49 ] ]
 
 /*-----------------
