@@ -26006,44 +26006,6 @@ o1 = new stzString("12*34*56*78")
 		def IsLetterOrSpaceOrOneOfTheseChars(pacChar)
 			return This.IsLetterOrSpaceOreChars(pacChar)
 
-
-	  #-----------------------------------#
-	 #    TRANSFORMING STRING TO LIST    #
-	#-----------------------------------#
-
-	def Listify()
-		return This.ListifyXT([ :NumberInStringIsTransformedToNumber = FALSE ])
-
-	def ListifyXT(paOptions)
-
-		if NOT StzListQ(paOptions).IsStringListifyOptionsNamedParam()
-			stzRaise("Unsupported option list!")
-		else
-			# By default, or if specified, add the string
-			# as a string (without any casting) inside the list
-			if len(paOptions) = 0 or
-			   (len(paOptions) = 1 and paOptions[1][1] = NULL)
-
-				aResult = [ This.String() ]
-				return aResult
-			ok
-
-			if This.RepresentsNumber()
-				if paOptions[ :NumberInStringIsTransformedToNumber ] = TRUE
-					aResult = [ 0+ This.String() ]
-					return aResult
-	
-				but paOptions[ :NumberInStringIsTransformedToNumber ] = FALSE
-					aResult = [ This.String() ]
-					return aResult
-	
-				else
-					stzRaise("Unsupported option value!")
-				ok
-			ok
-
-		ok
-
 	  #==========================#
 	 #    ALIGNING THE STRING   #
 	#==========================#
@@ -31899,12 +31861,6 @@ o1 = new stzString("12*34*56*78")
 
 	def IsAnObject()
 		return TRUE
-
-	def Stringify()
-		return This.String()
-
-		def Stringified()
-			return This.Stringify()
 
 	  #===========#
 	 #   MISC.   #

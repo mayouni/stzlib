@@ -62,9 +62,6 @@
 			? "Methods:"
 			? ObjectMethods()
 		
-			? "Object listified:"
-			? Listify()
-		
 		}
 		
 		class Person
@@ -94,7 +91,7 @@
 
 	- we can sepcify it to be of type Container
 	
-	- we can tranform its type using: Stringify(), Numberify(), Objectify(), and Listify()
+	- we can tranform its type using: ToString(), ToNumber(), ToObject(), and ToList()
 
 	- we can trace the object lifetime in the runtime using LifeTime()
 	=> Tells us how many times the object is called
@@ -928,9 +925,6 @@ func ObjectMethods(cObjectVarName)
 func ObjectToList(cObjectVarName)
 	return StzObjectQ(cObjectVarName).ObjectToList()
 
-func ObjectListify(cObjectVarName)
-	return StzObjectQ(cObjectVarName).ObjectListify()
-
 
   ///////////////
  //   CLASS   //
@@ -1018,34 +1012,15 @@ class stzObject
 	def ObjectMethods() # Depricated, use Methods() instead
 		return methods(This.Object())
 
-	def Listify() # Use toList() and ToListXT()
-		aResult = []
-
-		for cAttribute in This.ObjectAttributes()
-			cCode = "aResult + [ cAttribute, This.Object()." + cAttribute + " ]"
-
-			eval(cCode)
-		next
-
-		return aResult
-
 	  #----------------------------#
 	 #  CHECKING OBJECT EQUALITY  #
 	#----------------------------#
 
-	def IsEqualTo(poOtherObject)
-		if StzListQ( This.Listify() ).IsEqualTo( StzObjectQ(poOtherObject).Listify() )
-			return TRUE
-		else
-			return FALSE
-		ok
+	def IsEqualTo(poOtherObject) # TODO
+		StzRaise("Feature unavailable yet!")
 
 	def IsStrictlyEqualTo(poOtherObject)
-		if StzListQ( This.Listify() ).IsStrictlyEqualTo( StzObjectQ(poOtherObject).Listify() )
-			return TRUE
-		else
-			return FALSE
-		ok
+		StzRaise("Feature unavailable yet!")
 
 	  #------------------#
 	 #   CHECKING TYPE  #
@@ -1344,13 +1319,6 @@ class stzObject
 		but This.IsAnObject() # TODO
 			/* ... */
 		ok
-
-
-	def Stringify()
-		return StzListQ( This.Listify() ).ToCode()
-
-		def Stringified()
-			return This.Stringify()
 
 	  #======================================#
 	 #  REPEATING THE OBJECT VALUE N TIMES  #
@@ -2124,3 +2092,75 @@ class stzObject
 			return This.FindLastNOccurrencesXT(n, pStrOrItem, pnStartingAt)
 
 		#>
+
+	  #--------------------------------------#
+	 #  FORCING OBJECT TO CHANGE THEIR TYPE # TODO
+	#--------------------------------------#
+
+	def Objectify()
+		StzRaise("Feature unavailable yet!")
+
+	def Objectified()
+		StzRaise("Feature unavailable yet!")
+
+	def ObjectifyXT(pcCode)
+		StzRaise("Feature unavailable yet!")
+
+	def ObjectifiedXT(pcCode)
+		StzRaise("Feature unavailable yet!")
+
+	#--
+
+	def Listify()
+		StzRaise("Feature unavailable yet!")
+
+	def Listified()
+		StzRaise("Feature unavailable yet!")
+
+	def ListifyXT(pcCode)
+		StzRaise("Feature unavailable yet!")
+
+	def ListifiedXT(pcCode)
+		StzRaise("Feature unavailable yet!")
+
+	#--
+
+	def Stringify()
+		StzRaise("Feature unavailable yet!")
+
+	def Stringified()
+		StzRaise("Feature unavailable yet!")
+
+	def StringifyXT(pcCode)
+		StzRaise("Feature unavailable yet!")
+
+	def StringifiedXT(pcCode)
+		StzRaise("Feature unavailable yet!")
+
+	#--
+
+	def Numbrify()
+		StzRaise("Feature unavailable yet!")
+
+	def Numbrified()
+		StzRaise("Feature unavailable yet!")
+
+	def NumbrifyXT(pcCode)
+		StzRaise("Feature unavailable yet!")
+
+	def NumbrifiedXT(pcCode)
+		StzRaise("Feature unavailable yet!")
+
+	#--
+
+	def Softanzify()
+		StzRaise("Feature unavailable yet!")
+
+	def Softanzified()
+		StzRaise("Feature unavailable yet!")
+
+	def SoftanzifyXT(pcCode)
+		StzRaise("Feature unavailable yet!")
+
+	def SoftanzifiedXT(pcCode)
+		StzRaise("Feature unavailable yet!")

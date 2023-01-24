@@ -409,20 +409,6 @@ func RingKeywords()
 func SoftanzaLogo()
 	return _cSoftanzaLogo
 
-func Stringify(p)
-	if isString(p)
-		return p
-
-	but isNumber(p)
-		return "" + p
-
-	but isList(p)
-		return ComputableForm(p) # Same as @@(p)
-
-	but isObject(p)
-		return ComputableForm( p.Listified() ) # TODO ?
-	ok
-
 func StzRaise(paMessage)
 	/*
 	WARNING: Do not use StzRaise to raise errors here

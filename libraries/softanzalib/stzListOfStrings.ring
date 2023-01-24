@@ -15657,41 +15657,41 @@ class stzListOfStrings from stzList
 	 #   CHECHKING IF A STRING-ITEM IS DUPLICATED N-TIMES   #
 	#------------------------------------------------------#
 
-	def ContainsDuplicatedNTimesCS(pcStr, n, pCaseSensitive)
+	def ContainsDuplicatedNTimesCS(n, pcStr, pCaseSensitive)
 		if This.NumberOfDuplicatesOfStringCS(pcStr, pCaseSensitive) = n
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def ContainsThisDuplicatedStringNTimesCS(pcString, n, pCaseSensitive)
-			return This.ContainsDuplicatedNTimesCS(pcString, n, pCaseSensitive)
+		def ContainsThisDuplicatedStringNTimesCS(n, pcString, pCaseSensitive)
+			return This.ContainsDuplicatedNTimesCS(n, pcString, pCaseSensitive)
 
-		def ContainsThisDuplicatedStringItemNTimesCS(pcString, n, pCaseSensitive)
-			return This.ContainsDuplicatedNTimesCS(pcString, n, pCaseSensitive)
+		def ContainsThisDuplicatedStringItemNTimesCS(n, pcString, pCaseSensitive)
+			return This.ContainsDuplicatedNTimesCS(n, pcString, pCaseSensitive)
 
-		def StringIsDuplicatedNTimesCS(pcString, n, pCaseSensitive)
-			return This.ContainsDuplicatedNTimesCS(pcString, n, pCaseSensitive)
+		def StringIsDuplicatedNTimesCS(n, pcString, pCaseSensitive)
+			return This.ContainsDuplicatedNTimesCS(n, pcString, pCaseSensitive)
 
-		def StringItemIsDuplicatedNTimesCS(pcString, n, pCaseSensitive)
-			return This.ContainsDuplicatedNTimesCS(pcString, n, pCaseSensitive)
+		def StringItemIsDuplicatedNTimesCS(n, pcString, pCaseSensitive)
+			return This.ContainsDuplicatedNTimesCS(n, pcString, pCaseSensitive)
  
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsDuplicatedNTimes(pcString, n)
-		return This.ContainsDuplicatedNTimesCS(pcString, n, :CaseSensitive = TRUE)
+	def ContainsDuplicatedNTimes(n, pcString)
+		return This.ContainsDuplicatedNTimesCS(n, pcString, :CaseSensitive = TRUE)
 
-		def ContainsThisDuplicatedStringNTimes(pcString, n)
-			return This.ContainsDuplicatedNTimes(pcString, n)
+		def ContainsThisDuplicatedStringNTimes(n, pcString)
+			return This.ContainsDuplicatedNTimes(n, pcString)
 
-		def ContainsThisDuplicatedStringItemNTimes(pcString, n)
-			return This.ContainsDuplicatedNTimes(pcString, n)
+		def ContainsThisDuplicatedStringItemNTimes(n, pcString)
+			return This.ContainsDuplicatedNTimes(n, pcString)
 
-		def StringIsDuplicatedNTimes(pcString, n)
-			return This.ContainsDuplicatedNTimes(pcString, n)
+		def StringIsDuplicatedNTimes(n, pcString)
+			return This.ContainsDuplicatedNTimes(n, pcString)
 
-		def StringItemIsDuplicatedNTimes(pcString, n)
-			return This.ContainsDuplicatedNTimes(pcString, n)
+		def StringItemIsDuplicatedNTimes(n, pcString)
+			return This.ContainsDuplicatedNTimes(n, pcString)
  
 	  #---------------------------------------------#
 	 #   HOW MANY TIMES A STRING IS DUPLICATED ?   #
@@ -16398,9 +16398,7 @@ class stzListOfStrings from stzList
 
 		else
 
-			# Otherwise we rely on a Ring-based solution
-			aTempo = This.Yield(' Q(This[@i]).Case() ')
-? aTempo
+			StzRaise("Unsupported feature! Only removing duplicates with :CS = TRUE can be used.")
 
 		ok
 

@@ -1080,9 +1080,27 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def Classes()
 		acResult = []
+		aUniqueValues = This.UniqueValues()
+		nLen = len(aUniqueValues)
 
-		for value in This.UniqueValues()
-			acResult + Q(value).Stringified()
+		for i = 1 to nLen
+			value = aUniqueValues[i]
+			cValue = ""
+
+			if isNumber(value)
+				cValue = "" + value
+
+			but iString(value)
+				cValue = value
+
+			but isList(value)
+				cValue = Q(value).ToString()
+
+			but isObject(value)
+				StzRaise("Can't proceed! Objects can't be casted to strings yet.")
+			ok
+
+			acResult + cValue
 		next
 
 		return acResult
@@ -1245,9 +1263,27 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def ClassesInList()
 		acResult = []
+		aUniqueValues = This.UniqueValuesInList()
+		nLen = len(aUniqueValues)
 
-		for value in This.UniqueValuesInList()
-			acResult + Q(value).Stringified()
+		for i = 1 to nLen
+			value = aUniqueValues[i]
+			cValue = ""
+
+			if isNumber(value)
+				cValue = "" + value
+
+			but isString(value)
+				cValue = value
+
+			but isList(value)
+				cValue = Q(value).ToString()
+
+			but isObject(value)
+				StzRaise("Unsupported feature! Object can't be casted to string yet.")
+			ok
+
+			acResult + cValue
 		next
 
 		return acResult
