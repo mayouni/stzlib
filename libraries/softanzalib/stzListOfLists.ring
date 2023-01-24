@@ -946,11 +946,10 @@ class stzListOfLists from stzList
 
 		return aResult
 
-		def Stringify()
-			return This.ToListOfStrings()
-
 	def ToStzListOfStrings()
-		return new stzListOfStrings( This.Stringify() )
+		if This.IsListOfStrings()
+			return new stzListOfStrings( This.Content() )
+		ok
 
 	  #-----------#
 	 #   MISC.   #

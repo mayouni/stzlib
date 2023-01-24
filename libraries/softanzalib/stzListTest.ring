@@ -1,6 +1,48 @@
 load "stzlib.ring"
 
+/*========
+
+StartProfiler()
+
+o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
+? @@S( o1.FindDuplicates() )
+
+StopProfiler()
+
 /*------------
+*/
+StartProfiler()
+
+# Fabricating a large list of strings (more then 150K items)
+
+	aLargeListOfStr = []
+	for i = 1 to 100_000
+		aLargeListOfStr + "_"
+	next
+	
+	aLargeListOfStr + "HI" + "ME"
+	
+	for i = 1 to 50_000
+		aLargeListOfStr + "_"
+	next i
+	
+	aLargeListOfStr + "HI" + "YOU"
+	
+	for i = 1 to 10
+		aLargeListOfStr + "_"
+	next i
+
+# Removing dupicates
+
+	o1 = new stzList(aLargeListOfStr)
+	o1.RemoveDuplicates()
+	? o1.Content()
+	#--> [ "_", "HI", "ME", "YOU" ]
+
+StopProfiler()
+# Executed in 3.48 second(s)
+
+/*============
 
 StartProfiler()
 
@@ -34,12 +76,12 @@ StopProfiler()
 # Executed in 0.02 second(s)
 
 /*-------------
-*/
+
 StartProfiler()
 
 # Fabricating a large list
 
-	aLargeList = 1 : 1_000_000
+	aLargeList = 1 : 100_000
 
 	aMyList = [ 1, 2,
 		    ["A", "B", "C", "عربي", "كلام", "D"],
@@ -60,13 +102,13 @@ StartProfiler()
 	? o1.FindFirst(["A", "B", "C", "عربي", "كلام", "D"])
 	#--> 100003
 	# Executed in 0.32 second(s)
-? ELpasedTime()
+
 # Finding the last occurrence
 
 	? o1.FindLast(["A", "B", "C", "عربي", "كلام", "D"])
 	#--> 100010
 	# Executed in 0.02 second(s)
-? elapsedtime()
+
 # Finding the 2nd occurrence
 
 	? o1.FindNth(2, ["A", "B", "C", "عربي", "كلام", "D"])
@@ -76,16 +118,7 @@ StartProfiler()
 StopProfiler()
 # Executed in 0.56 second(s)
 
-/*========
-
-StartProfiler()
-
-o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
-? @@S( o1.FindDuplicates() )
-
-StopProfiler()
-
-/*-----------
+/*============
 
 StartProfiler()
 

@@ -3946,17 +3946,6 @@ o1 = new stzString("SoftAnza Libraray")
 
 /*---------------
 
-o1 = new stzString("12")
-? @@S( o1.Listify() )
-#--> [ "12" ]
-
-? @@S( o1.ListifyXT([
-	:NumberInStringIsTransformedToNumber = TRUE
-]) )
-#--> Returns [ 12 ]
-
-/*---------------
-
 o1 = new stzString("abc;123;gafsa;ykj")
 ? o1.SplitQ(";").NthItem(3)
 #--> gafsa

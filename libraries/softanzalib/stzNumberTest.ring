@@ -298,13 +298,6 @@ o1 = new stzNumber("12.456")
 
 /*-----------------------  # ERROR
 
-o1 = new stzNumber(120)
-aResult = o1.ListifyXT([ :NumberIsContainedInString = FALSE ])
-? aResult
-? type(aResult[1])
-
-/*-----------------------  # ERROR
-
 ? StzNumberQ("25").Modulo("5")
 
 /*-----------------------

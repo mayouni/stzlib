@@ -253,9 +253,6 @@ StzObjectQ( :o1 ) {
 	? "Methods:"
 	? ObjectMethods()
 
-	? "Object listified:"
-	? Listify()
-
 }
 
 class Person

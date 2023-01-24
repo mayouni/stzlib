@@ -4681,9 +4681,11 @@ class stzList from stzObject
 		ok
 
 		bResult = TRUE
+		aTempList = This.List()
+		nLen = len(aTempList)
 
-		for item in This.List()
-			if NOT isString(item)
+		for i = 1 to nLen
+			if NOT isString(aTempList[i])
 				bResult = FALSE
 				exit
 			ok
@@ -12155,7 +12157,7 @@ oTable.Show() + NL
 
 			This.Update( aResult )
 
-		on "ITEM"
+		on "STRING"
 			for item in This.List()
 				if isString(item)
 					item += p
@@ -12491,50 +12493,8 @@ oTable.Show() + NL
 		return aResult
 
 	  #----------------------#
-	 #     UNIQUE ITEMS     #
-	#----------------------#
-
-	def RemoveDuplicatesCS(pCaseSensitive)
-		
-	def UniqueItems()
-		return This.ToSet()
-
-		def UniqueItemsQ()
-			return new stzList( This.UniqueItems() )
-
-		
-
-	  #----------------------#
 	 #     FROM/TO LIST     #
 	#----------------------#
-		
-	def ToSet()
-		aResult = []
-		aContent = This.Content()
-		for item in aContent
-			if NOT StzListQ(aResult).Contains(item)
-				aResult + item
-			ok
-		next
-
-		return aResult
-
-		def ToSetQ()
-			return new stzSet( This.ToSet() )
-	
-		def ToSetQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-	
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.ToSet() )
-			on :stzSet
-				return new stzSet( This.ToSet() )
-			other
-				StzRaise("Unsupported return type!")
-			off
 	
 	def ToStzSet()
 		return new stzSet( This.ToSet() )
@@ -12627,7 +12587,9 @@ oTable.Show() + NL
 			pItem = pItem[2]
 		ok
 
-		return len(This.FindAllCS(pItem, pCaseSensitive))
+/* ... */
+
+		#< @FunctionAlternativeForms
 
 		def NumberOfOccurrencesCS(pItem, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
@@ -12635,10 +12597,14 @@ oTable.Show() + NL
 		def CountCS(pItem, pCaseSensitive)
 			return NumberOfOccurrenceCS(pItem, pCaseSensitive)
 		
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrence(pItem)
 		return This.NumberOfOccurrenceCS(pItem, :CaseSensitive = TRUE)
+
+		#< @FucntionAlternativeForms
 
 		def NumberOfOccurrences(pItem)
 			return This.NumberOfOccurrence(pItem)
@@ -12646,28 +12612,7 @@ oTable.Show() + NL
 		def Count(pItem)
 			return NumberOfOccurrence(pItem)
 
-	  #-------------------------------------------#
-	 #     ITEMIFYING ALL ITEMS OF THE LIST    #
-	#-------------------------------------------#
-
-	def ItemsStringified()
-		acResult = []
-
-		for item in This.List()
-			
-			if isString(item)
-				acResult + item
-			but isNumber(item)
-				acResult + ("" + item)
-			but isList(item)
-				acResult + @@( item )
-			but isObject(item)
-				// Do nothing (TODO)
-			ok
-
-		next
-
-		return acResult
+		#>
 	
 	  #===============================#
 	 #   FINDING DUPPLICATED ITEMS   #
@@ -12681,7 +12626,7 @@ oTable.Show() + NL
 
 		aResult = []
 
-		if NOT This.IsDuplicated(pItem)
+		if NOT This.ItemIsDuplicated(pItem)
 			StzRaise("This item ("+ pItem + ") is not duplicated!")
 		ok
 
@@ -12716,20 +12661,24 @@ oTable.Show() + NL
 	 #   DUPPLICATED ITEMS   #
 	#-----------------------#
 
-	def DuplicatedItems()
-		aResult = []
-		for item in This.Content()
-			if IsDuplicated(item) and 
-			   StzListQ( aResult ).ContainsNo( item )
-			
-				aResult + item
-			ok
-		next
-		return aResult
-
-		def DuplicatedItemsQ()
-			return new stzList( This.DuplicatedItems() )
+	def DuplicatedItemsCS()
+		return This.DuplicatesRemoved()
 	
+		def DuplicatesCS()
+			return This.DuplicatedItemsCS()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DuplicatedItems()
+		return This.DuplicatedItemsCS(:CaseSensitive = TRUE)
+
+		def Duplicates()
+			return This.DuplicatedItems()
+
+	  #----------------------------------#
+	 #   DUPPLICATED ITEMS -- EXTENDED  #
+	#----------------------------------#
+
 	def DuplicatedItemsXT()
 		aResult = []
 		/* aResult will take the form:
@@ -12739,37 +12688,105 @@ oTable.Show() + NL
 		 	[ ... ]
 		]
 		*/
-		
-		for item in This.DuplicatedItems()
+		acDuplicates = This.This.DuplicatedItems()
+		nLen = len(acDuplicates)
+
+		for i = 1 to nLen
+			item = acDuplicates[i]
 			aResult + [ item, This.DuplicatesOfItem(item) ]
 		next
 
 		return aResult
 
+		def DuplicatesXT()
+			return This.DuplicatedItemsXT()
+
 	  #----------------------------------------#
 	 #   CHECHKING IF AN ITEM IS DUPLICATED   #
 	#----------------------------------------#
 
-	def IsDuplicated(pItem)
-		if len(This.FindAll(pItem)) > 1
+	def ItemIsDuplicatedCS(pItem, pCaseSensitive)
+		bResult = FALSE
+		nPos = This.FindFirstCS(pItem, pCaseSensitive)
+		if nPos > 0
+			nPos = This.FindNextCS(pItem, :StartingAt = nPos, pCaseSensitive)
+			if nPos > 0
+				bRersult = TRUE
+			ok
+		ok
+		return bResult
+
+		def ThisItemIsDuplicatedCS(pItem, pCaseSensitive)
+			return This.ItemIsDuplicatedCS(pItem, pCaseSensitive)
+
+		def ContainsThisDuplicatedItemCS(pItem, pCaseSensitive)
+			return This.ItemIsDuplicatedCS(pItem, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ItemIsDuplicated(pItem)
+		return This.ItemIsDuplicatedCS(pItem, :CaseSensitive = TRUE)
+
+		def ThisItemIsDuplicated(pItem)
+			return This.ItemIsDuplicated(pItem)
+	
+		def ContainsThisDuplicatedItem(pItem)
+			return This.ItemIsDuplicated(pItem)
+
+
+
+	  #--------------------------------------------#
+	 #   CHECHKING THE LIST CONTAINS DUPLICATES   #
+	#--------------------------------------------#
+
+	def ContainsDuplicatesCS(pCaseSensitive)
+
+		acWithoutDuplicates = This.DuplicatesRemovedCS(pCaseSensitive)
+
+		if len(acWithoutDuplicates) != This.NumberOfItems()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-	def IsDuplicateItem(pItem)
-		return This.IsDuplicated(pItem)
+		def ContainsDuplicatedItemCS(pCaseSensitive)
+			return This.ContainsDuplicatesCS(pCaseSensitive)
 
-	def IsDuplicatedNTimes(pItem, n)
-		if This.NumberOfDuplicates(pItem) = n
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsDuplicates()
+		return This.ContainsDuplicatesCS(:CaseSensitive = TRUE)
+
+		def ContainsDuplicatedItem()
+			return This.ContainsDuplicates(pCaseSensitive)
+
+	  #------------------------------------------------#
+	 #   CHECHKING IF AN ITEM IS DUPLICATED N TIMES   #
+	#------------------------------------------------#
+
+	def IsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
+		if This.NumberOfDuplicatesCS(pItem) = n
 			return TRUE
 
 		else
 			return FALSE
 		ok
 
-	def IsDuplicatedItemNTimes(pItem, n)
-		return This.IsDuplicatedNTimes(pItem, n)
+		def ContainsNDuplicatesCS(n, pItem, pCaseSensitive)
+			if isList(pItem) and Q(pItem).IsOfNamedParam()
+				pItem = pItem[2]
+			ok
+
+			return This.ItemIsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsDuplicatedNTimes(n, pItem)
+		return This.ItemIsDuplicatedNTimesCS(n, pItem, :CaseSensitive = TRUE)
+	
+		def ContainsNDuplicates(n, pItem)
+			return This.ContainsNDuplicatesCS(n, pItem, :CaseSensitive = TRUE)
 
 	  #--------------------------------------------#
 	 #   HOW MANY TIMES AN ITEM IS DUPLICATED ?   #
@@ -12789,10 +12806,47 @@ oTable.Show() + NL
 	 #   REMOVING DUPLICATED ITEMS   #
 	#-------------------------------#
 
-	def RemoveDuplicates()
+	def RemoveDuplicatesCS(pCaseSensitive)
+		if This.IsListOfStrings()
 
-		aResult = This.UniqueItems()
-		This.Update( aResult )
+			cResult = This.ToStzListOfStrings().
+			     	       RemoveDuplicatesCSQ(pCaseSensitive).
+			    	       Content()
+
+			This.Update(cResult)
+
+		else
+			StzRaise("Unsupported feature! Only a list made of strings can have its duplicates removed.")
+		ok
+
+		def RemoveDuplicatesCSQ(pCaseSensitive)
+			This.RemoveDuplicatesCS(pCaseSensitive)
+			return This
+
+		def RemoveDuplicatedItemsCS(pCaseSensitive)
+			This.RemoveDuplucatesCS(pCaseSensitive)
+
+			def RemoveDuplicatedItemsCSQ(pCaseSensitive)
+				This.RemoveDuplicatedItemsCS(pCaseSensitive)
+				return This
+
+	def DuplicatesRemovedCS(pCaseSensitive)
+		aResult = This.Copy().RemoveDuplicatesCSQ().Content()
+		return aResult
+
+		def DuplicatedItemsRemovedCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		def UniqueItemsCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		def ToSetCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveDuplicates()
+		This.RemoveDuplicatesCS(:CaseSensitive = TRUE)
 
 		def RemoveDuplicatesQ()
 			This.RemoveDuplicates()
@@ -12810,6 +12864,12 @@ oTable.Show() + NL
 		return aResult
 
 		def DuplicatedItemsRemoved()
+			return This.DuplicatesRemoved()
+
+		def UniqueItems()
+			return This.DuplicatesRemoved()
+
+		def ToSet()
 			return This.DuplicatesRemoved()
 
 	  #====================#
@@ -12892,8 +12952,8 @@ oTable.Show() + NL
 		on "LIST"	
 			bResult = Q(p).Contains( This.List() )
 
-		on "ITEM"
-			cListStringified = This.ToCode()
+		on "STRING"
+			cListStringified = This.ToString()
 			bResult = StzStringQ(p).Contains(cListStringified)
 
 		other
@@ -13306,7 +13366,7 @@ oTable.Show() + NL
 			on "NUMBER"
 				return new stzNumer(""+ item)
 
-			on "ITEM"
+			on "STRING"
 				return new stzString(item)
 
 			on "LIST"
@@ -15912,7 +15972,7 @@ oTable.Show() + NL
 			on "NUMBER"
 				return new stzNumber(item)
 
-			on "ITEM"
+			on "STRING"
 				return new stzString(item)
 
 			on "LIST"
@@ -15950,7 +16010,7 @@ oTable.Show() + NL
 			on "NUMBER"
 				return new stzNumber(item)
 
-			on "ITEM"
+			on "STRING"
 				return new stzString(item)
 
 			on "LIST"
@@ -15978,7 +16038,7 @@ oTable.Show() + NL
 			on "NUMBER"
 				return new stzNumber(item)
 
-			on "ITEM"
+			on "STRING"
 				return new stzString(item)
 
 			on "LIST"
@@ -16075,7 +16135,7 @@ oTable.Show() + NL
 			on "NUMBER"
 				return new stzNumber(item)
 
-			on "ITEM"
+			on "STRING"
 				return new stzString(item)
 
 			on "LIST"
@@ -16113,7 +16173,7 @@ oTable.Show() + NL
 			on "NUMBER"
 				return new stzNumber(item)
 
-			on "ITEM"
+			on "STRING"
 				return new stzString(item)
 
 			on "LIST"
@@ -16141,7 +16201,7 @@ oTable.Show() + NL
 			on "NUMBER"
 				return new stzNumber(item)
 
-			on "ITEM"
+			on "STRING"
 				return new stzString(item)
 
 			on "LIST"
@@ -19172,9 +19232,6 @@ oTable.Show() + NL
 		def ToStzString()
 			return This.ToString()
 
-	def Stringified()
-			return This.ToString()
-
 	def ToStzListOfChars()
 		if NOT This.IsListOfChars()
 			StzRaise("Can't cast the list into a stzListOfChars!")
@@ -19819,35 +19876,35 @@ oTable.Show() + NL
 			bOk1 = FALSE
 			nRemoveNCharsBefore = This.Content()[ :RemoveNCharsBefore ]
 			cType = ring_type(nRemoveNCharsBefore)
-		   	if cType = "NUMBER" or ( cType = "ITEM" and nRemoveNCharsBefore = NULL )
+		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsBefore = NULL )
 				bOk1 = TRUE
 			ok
 
 			bOk2 = FALSE
 			nRemoveNCharsAfter = This.Content()[ :RemoveNCharsAfter ]
 			cType = ring_type(nRemoveNCharsAfter)
-		   	if cType = "NUMBER" or ( cType = "ITEM" and nRemoveNCharsAfter = NULL )
+		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsAfter = NULL )
 				bOk2 = TRUE
 			ok
 
 			bOk3 = FALSE
 			cRemoveSubStringBefore = This.Content()[ :RemoveSubStringBefore ]
 			cType = ring_type(cRemoveSubStringBefore)
-		   	if cType = "ITEM"
+		   	if cType = "STRING"
 				bOk3 = TRUE
 			ok
 
 			bOk4 = FALSE
 			cRemoveSubStringAfter = This.Content()[ :RemoveSubStringAfter ]
 			cType = ring_type(cRemoveSubStringAfter)
-		   	if cType = "ITEM"
+		   	if cType = "STRING"
 				bOk4 = TRUE
 			ok
 
 			bOk5 = FALSE
 			cRemoveThisBound = This.Content()[ :cRemoveThisBound ]
 			cType = ring_type(cRemoveThisBound)
-		   	if cType = "ITEM"
+		   	if cType = "STRING"
 				bOk5 = TRUE
 			ok
 
@@ -19936,41 +19993,6 @@ oTable.Show() + NL
 		
 			return TRUE
 
-		else
-			return FALSE
-		ok
-
-	def IsNumberListifyOptionsNamedParam()
-		if This.IsEmpty()
-			return TRUE
-		ok
-
-		aListOfOptions = [
-			:NumberIsContainedInString
-		] 
-
-		if This.IsHashList() and
-		   StzHashListQ( This.List() ).KeysQ().ExistsIn(aListOfOptions)
-
-				return TRUE   
-		else
-			return FALSE
-		ok
-
-	def IsStringListifyOptionsNamedParam()
-		if This.IsEmpty()
-			return TRUE
-		ok
-
-		aListOfOptions = [
-			:NumberInStringIsTransformedToNumber,
-			:ListInstringIsTransformedToList
-		] 
-
-		if This.IsHashList() and
-		   StzHashListQ( This.List() ).KeysQ().IsIncludedIn(aListOfOptions)
-
-				return TRUE   
 		else
 			return FALSE
 		ok

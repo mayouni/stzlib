@@ -1450,15 +1450,6 @@ class stzNumber from stzObject
 
 	def ToStzString()
 		return new stzString(This.Content())
-
-	def Stringify()
-		return This.Content()
-
-		def ToString()
-			return This.Content()
-
-		def Stringified()
-			return This.Stringify()
 	
 	def NumberOfDigitsInFractionalPart()
 		if NOT This.HasFractionalPart()
@@ -3693,6 +3684,8 @@ class stzNumber from stzObject
 	 #     OPERATORS    #
 	#------------------#
 
+	# TODO: Operators should carry same semantics in all classes...
+
 	def operator (pOp, pValue)
 		if  pOp = "+"
 			if isString(pValue)
@@ -3760,52 +3753,6 @@ class stzNumber from stzObject
 			return This.Content()[pValue]
 
 		ok
-
-	  #-----------------------------------#
-	 #    TRANSFORMING NUMBER TO LIST    #
-	#-----------------------------------#
-
-	def Listify()
-		return This.ListifyXT([ :NumberIsContainedInString = FALSE ])
-
-	def ListifyXT(paOptions)
-
-		if NOT StzListQ(paOptions).IsNumberListifyOptionsNamedParam()
-			StzRaise("Unsupported option list!")
-
-		else
-			# By default, or if specified, add the number
-			# as a number (an not a string) inside the list
-			if len(paOptions) = 0 or
-			   (len(paOptions) = 1 and paOptions[1][1] = NULL)
-
-				aResult = [ This.NumericValue() ]
-				return aResult
-			ok
-
-			if paOptions[:NumberIsContainedInString] = FALSE
-
-				aResult = [ This.NumericValue() ]
-				return aResult
-
-			but paOptions[:NumberIsContainedInString] = TRUE
-
-				aResult = [ This.Content() ]
-				return aResult
-
-			else
-				StzRaise("Unsupported option value!")
-			ok
-
-		ok
-
-	  #----------------------------#
-	 #  OPERATORS OVERLOADING     # // TODO
-	#----------------------------#
-
-	/*
-		TODO: Operators should carry same semantics in all classes...
-	*/
 
 	  #--------------------------------#
 	 #    USUED FOR NATURAL-CODING    #
