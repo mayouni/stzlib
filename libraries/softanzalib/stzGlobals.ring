@@ -1469,6 +1469,9 @@ func StopProfiler()
 	ResetTimer()
 	STOP()
 
+	def EndProfiler()
+		return StopProfiler()
+
 func eval@(pcExpr, paItems) # WARNING: if you change paItems name,
 			    # change it also in the evaluated code
 
