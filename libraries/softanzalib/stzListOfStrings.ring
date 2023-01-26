@@ -17930,16 +17930,20 @@ class stzListOfStrings from stzList
 
 	def TrimStart()
 		
-		if This.FirstString() != ""
+		if NOT This.FirstStringQ().IsMadeOf(" ")
 			return
 		ok
 
 		nLen = This.NumberOfStrings()
-		i = 1
+		i = 0
 
-		while i <= nLen
+		while TRUE
 			i++
-			if This.String(i) != ""
+			if i > nLen
+				return
+			ok
+
+			if NOT This.StringQ(i).IsMadeOf(" ")
 				exit
 			ok
 		end
@@ -17963,20 +17967,24 @@ class stzListOfStrings from stzList
 
 	def TrimEnd()
 		
-		if This.LastString() != ""
+		if NOT This.LastStringQ().IsMadeOf(" ")
 			return
 		ok
 
 		nLen = This.NumberOfStrings()
-		i = nLen - 1
+		i = nLen + 1
 
-		while i >= 1
+		while TRUE
 			i--
-			if This.String(i) != ""
+			if i = 0
+				return
+			ok
+
+			if NOT This.StringQ(i).IsMadeOf(" ")
 				exit
 			ok
 		end
-		
+
 		This.RemoveSection(i + 1, nLen)
 
 		def TrimEndQ()

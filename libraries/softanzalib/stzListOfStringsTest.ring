@@ -1,13 +1,41 @@
 load "stzlib.ring"
 
-
-/*-----------------
+/*------------
 */
 StartProfiler()
 
-o1 = new stzListOfStrings([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
-o1.RemoveDuplicatesCS(FALSE)
-? o1.Content()
+o1 = new stzListOfStrings([ "  ", " ", "  one ", " two ", "    three", "    ", " "])
+o1.Trim()
+? @@S(o1.Content())
+#--> [ " one ", " two ", " three", " ", " " ]
+
+o1.TrimStrings()
+? @@S(o1.Content())
+#--> [ "one", "two", "three" ]
+
+StopProfiler()
+# [ " one ", " two ", " three" ]
+
+/*-------------
+
+StartProfiler()
+
+o1 = new stzListOfStrings([ "  ", " ", "  one ", " two ", "    three", "    ", " "])
+o1.TrimStart()
+? @@S(o1.Content())
+#--> [ " one ", " two ", " three", " ", " " ]
+
+o1.TrimEnd()
+#--> [ " one ", " two ", " three" ]
+
+? @@S(o1.Content())
+
+StopProfiler()
+# Executed in 0.04 second(s)
+
+/*----------------- TODO
+
+StartProfiler()
 
 o1 = new stzListOfStrings([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
 ? @@S( o1.FindDuplicates() )

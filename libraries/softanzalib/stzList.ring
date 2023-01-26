@@ -12656,24 +12656,6 @@ oTable.Show() + NL
 			other
 				StzRaise("Unsupported return type!")
 			off
-	
-	  #-----------------------#
-	 #   DUPPLICATED ITEMS   #
-	#-----------------------#
-
-	def DuplicatedItemsCS()
-		return This.DuplicatesRemoved()
-	
-		def DuplicatesCS()
-			return This.DuplicatedItemsCS()
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def DuplicatedItems()
-		return This.DuplicatedItemsCS(:CaseSensitive = TRUE)
-
-		def Duplicates()
-			return This.DuplicatedItems()
 
 	  #----------------------------------#
 	 #   DUPPLICATED ITEMS -- EXTENDED  #
@@ -12733,7 +12715,46 @@ oTable.Show() + NL
 		def ContainsThisDuplicatedItem(pItem)
 			return This.ItemIsDuplicated(pItem)
 
+	  #------------------------#
+	 #   LIST OF DUPLICATES   #
+	#------------------------#
 
+	def DuplicatesCS(pCaseSensitive)
+
+		aDuplicates = This.DuplicatesRemovedCS(pCaseSensitive)
+
+		nLen = len(aDuplicates)
+		aResult = []
+
+		for i = 1 to nLen
+			item = aDuplicates[i]
+
+			nPos1 = This.FindFirstCS(item, pCaseSensitive)
+			nPos2 = This.FindNextCS(item, :StartingAt = nPos1, pCaseSensitive)
+
+			if nPos2 > 0
+				aResult + item
+			ok
+		next
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Duplicates()
+		return This.DuplicatesCS(:CaseSensitive = TRUE)
+
+	  #--------------------------#
+	 #   NUMBER OF DUPLICATES   #
+	#--------------------------#
+
+	def NumberOfDuplicatesCS(pCaseSensitive)
+		nResult = len(This.DuplicatesCS(pCaseSensitive))
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfDuplicates()
+		return This.NumberOfDuplicatesCS(:CaseSensitive = TRUE)
 
 	  #--------------------------------------------#
 	 #   CHECHKING THE LIST CONTAINS DUPLICATES   #
@@ -12831,7 +12852,7 @@ oTable.Show() + NL
 				return This
 
 	def DuplicatesRemovedCS(pCaseSensitive)
-		aResult = This.Copy().RemoveDuplicatesCSQ().Content()
+		aResult = This.Copy().RemoveDuplicatesCSQ(pCaseSensitive).Content()
 		return aResult
 
 		def DuplicatedItemsRemovedCS(pCaseSensitive)
@@ -13887,6 +13908,7 @@ oTable.Show() + NL
 	# UPDATE: Lists are now findable (only objects are left for future)
 
 	def FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+
 		if isObject(pItem)
 			StzRaise("Can't process! Objects can not be found yet.")
 		ok
@@ -14157,7 +14179,15 @@ oTable.Show() + NL
 		cType = ring_type(pItem)
 
 		if cType = "STRING" or cType = "NUMBER"
-			return ring_find( This.List(), pItem )
+
+			n = ring_find( ring_reverse(This.List()), pItem )
+
+			if n = 0
+				return 0
+			else
+				nResult = (1 - n) + This.NumberOfItems()
+				return nResult
+			ok
 
 		but cType = "LIST"
 			# For performance reasons, we rely on stzString
@@ -14937,12 +14967,10 @@ oTable.Show() + NL
 	# NOTE: Works only if items are chars (string of 1 char each)
 	# TODO: Implement a more general solution for longer items
 
-	// TODO: Add CaseSensitivity
-
-	def VizFindAllOccurrences(pItem)
+	def VizFindAllOccurrencesCS(pItem, pCaseSensitive)
 		
 		cResult = This.ToCodeQ().Simplified()
-		anPositions = Q(cResult).FindAll( @@(pItem) )
+		anPositions = Q(cResult).FindAllCS( @@(pItem), pCaseSensitive )
 
 		nLen = StzStringQ(cResult).NumberOfChars()
 
@@ -14963,8 +14991,36 @@ oTable.Show() + NL
 
 		#< @FunctionFluentForm
 
+		def VizFindAllOccurrencesCSQ(pItem, pCaseSensitive)
+			return new stzString( This.VizFindAllOccurrencesCS(pItem, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def VizFindAllCS(pItem, pCaseSensitive)
+			return This.VizFindAllOccurrencesCS(pItem, pCaseSensitive)
+
+			def VizFindAllCSQ(pItem, pCaseSensitive)
+				return new stzString(This.VizFindAllCS(pItem, pCaseSensitive))
+	
+
+		def VizFindCS(pItem, pCaseSensitive)
+			return This.VizFindAllOccurrencesCS(pItem, pCaseSensitive)
+
+			def VizFindCSQ(pItem, pCaseSensitive)
+				return new stzString(This.VizFindCS(pItem, pCaseSensitive))
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def VizFindAllOccurrences(pItem)
+		return This.VizFindAllOccurrencesCS(pItem, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
 		def VizFindAllOccurrencesQ(pItem)
-			return new stzString( This.VizFindAllOccurrencesO(pItem) )
+			return new stzString( This.VizFindAllOccurrences(pItem) )
 
 		#>
 
@@ -14989,8 +15045,7 @@ oTable.Show() + NL
 	 #      STARTING AT A GIVEN POSITION               #
 	#-------------------------------------------------#
 
-	// TODO: Add CaseSensitivity
-	def FindNthNextOccurrence( n, pItem, nStart )
+	def FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
@@ -14999,15 +15054,42 @@ oTable.Show() + NL
 			nStart = nStart[2]
 		ok
 
-		oSection = StzListQ( This.Section(nStart, :LastItem) )
+		nResult  = This.SectionQ(nStart+1, :LastItem).
+				FindNthCS(n, pItem, pCaseSensitive)
 
-		nNumberOfOccurrences = oSection.NumberOfOccurrence( pItem )
+		if nResult != 0
+			nResult += nStart
+		ok
 
-		try
-			return oSection.FindNthOccurrence(n, pItem) + nStart - 1
-		catch
-			return 0
-		end
+		return nResult
+
+		
+
+		#< @FunctionAlternativeForms
+
+		def FindNextNthOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def NthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def NextNthOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindNextNthCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindNthNextCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthNextOccurrence( n, pItem, nStart )
+		return This.FindNthNextOccurrenceCS( n, pItem, nStart, :CaseSensitive = TRUE )
+
+		#< @FunctionAlternativeForms
 
 		def FindNextNthOccurrence( n, pItem, nStart )
 			return This.FindNthNextOccurrence( n, pItem, nStart )
@@ -15018,13 +15100,78 @@ oTable.Show() + NL
 		def NextNthOccurrence( n, pItem, nStart )
 			return This.FindNthNextOccurrence( n, pItem, nStart )
 
+		def FindNextNth( n, pItem, nStart )
+			return This.FindNthNextOccurrence( n, pItem, nStart )
+
+		def FindNthNext( n, pItem, nStart )
+			return This.FindNthNextOccurrence( n, pItem, nStart )
+
+		#>
+
 	   #-----------------------------------------------------#
 	  #      FINDING NTH PREVIOUS OCCURRENCE OF AN ITEM     #
 	 #      STARTING AT A GIVEN POSITION                   #
 	#-----------------------------------------------------#
 
-	// TODO: Add CaseSensitivity
-	def FindNthPreviousOccurrence(n, pItem, nStart)
+	def FindNthPreviousOccurrenceCS(n, pItem, nStart, pCaseSensitive)
+
+		if isList(pItem) and Q(pItem).IsOfNamedParam()
+			pItem = pItem[2]
+		ok
+
+		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
+			nStart = nStart[2]
+		ok
+
+		oSection = This.SectionQ(1, nStart-1)
+		nLen = oSection.NumberOfItems()
+		nPos = nLen
+		nTimes = 0
+? @@S(oSection.Content())
+? nLen
+		while TRUE
+			nTimes++
+			if nTimes > nLen
+				exit
+			ok
+
+			nPos = oSection.FindPreviousCS(pItem, :StartingAt = nPos, pCaseSensitive)
+			if nPos = 0
+				exit
+			else
+				if nTimes = n
+					return nPos
+				ok
+			ok
+		end
+
+		return FALSE
+/*
+		bContinue = TRUE
+		nPos = nStart
+		nTimes = 0
+
+		while bContinue
+			nTimes++
+			if nTimes > nStart
+				exit
+			ok
+
+			nPos--
+			if nPos = 0
+				exit
+			ok
+
+			nPos = This.FindPreviousCS(pItem, :StartingAt = nPos-1, pCaseSensitive)
+			if nTimes = n and nPos != 0
+				exit
+			ok
+	
+		end
+
+		return nPos
+*/
+/*
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n should be a number.")
 		ok
@@ -15069,7 +15216,7 @@ oTable.Show() + NL
 			oSection = This.SectionQ(1, nStart - 1)
 		ok
 
-		anPositions = oSection.FindAll(pItem)
+		anPositions = oSection.FindAllCS(pItem, pCaseSensitive)
 		nNumberOfOccurrences = len(anPositions)
 
 		try
@@ -15077,6 +15224,30 @@ oTable.Show() + NL
 		catch
 			return 0
 		end
+*/
+		#< @FunctionAlternativeForms
+
+		def FindPreviousNthOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+	
+		def PreviousNthOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+	
+		def NthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindPreviousNthCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindNthPreviousCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthPreviousOccurrence(n, pItem, nStart)
+		return This. FindNthPreviousOccurrenceCS(n, pItem, nStart, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -15089,6 +15260,12 @@ oTable.Show() + NL
 		def NthPreviousOccurrence( n, pItem, nStart )
 			return This.FindNthPreviousOccurrence( n, pItem, nStart )
 
+		def FindPreviousNth( n, pItem, nStart )
+			return This.FindNthPreviousOccurrence( n, pItem, nStart )
+
+		def FindNthPrevious( n, pItem, nStart )
+			return This.FindNthPreviousOccurrence( n, pItem, nStart )
+
 		#>
 
 	   #---------------------------------------------#
@@ -15096,10 +15273,23 @@ oTable.Show() + NL
 	 #      STARTING AT A GIVEN POSITION           #
 	#---------------------------------------------#
 
-	// TODO: Add CaseSensitivity
-	def FindNextOccurrence(pItem, nStart)
-		return This.FindNextNthOccurrence(1, pItem, nStart)
+	def FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
+		return This.FindNextNthOccurrenceCS(1, pItem, nStart, pCaseSensitive)
 	
+		def FindNextCS( pItem, nStart, pCaseSensitive )
+			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+		def NextOccurrenceCS( pItem, nStart, pCaseSensitive )
+			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNextOccurrence(pItem, nStart)
+		return This.FindNextNthOccurrenceCS(1, pItem, nStart, :CaseSensitive = TRUE)
+	
+		def FindNext( pItem, nStart )
+			return This.FindNextOccurrence(pItem, nStart)
+
 		def NextOccurrence( pItem, nStart )
 			return This.FindNextOccurrence(pItem, nStart)
 
@@ -15108,10 +15298,44 @@ oTable.Show() + NL
 	 #      STARTING FROM A GIVEN POSITION N           #
 	#-------------------------------------------------#
 
-	// TODO: Add CaseSensitivity
-	def FindPreviousOccurrence(pItem, nStart)
-		return This.FindPreviousNthOccurrence(1, pItem, nStart)
+	def FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		cItem = @@S(pItem)
+
+		acSplitted = This.SectionQ(1, pnStartingAt-1).
+				  ToCodeQ().
+				  SimplifyQ().
+				  RemoveBoundsQ(["[","]"]).
+				  SplitQR(", ", :stzListOfStrings).
+				  Trimmed()
+? acSplitted
+
+		nLen = len(acSplitted)
+
+		
+
 	
+
+
+	
+		def FindPreviousCS( pItem, nStart, pCaseSensitive )
+			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+		def PreviousOccurrenceCS( pItem, nStart, pCaseSensitive )
+			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindPreviousOccurrence(pItem, nStart)
+		return This.FindPreviousOccurrenceCS(pItem, nStart, :CaseSensitive = TRUE)
+
+		def FindPrevious( pItem, nStart )
+			return This.FindPreviousOccurrence(pItem, nStart)
+
 		def PreviousOccurrence( pItem, nStart )
 			return This.FindPreviousOccurrence(pItem, nStart)
 
@@ -15120,9 +15344,8 @@ oTable.Show() + NL
 	 #   STARTING AT A GIVEN POSITION          #
 	#-----------------------------------------#
 
-	// TODO: Add CaseSensitivity
-	def FindNextOccurrences(pItem, pnStartingAt)
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
+	def FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -15145,22 +15368,33 @@ oTable.Show() + NL
 
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
 
-		anPositions = oSection.FindAll(pItem)
+		anPositions = oSection.FindAllCS(pItem, pCaseSensitive)
 		
-		anResult = StzListOfNumbersQ(anPositions).AddToEachQ(pnStartingAt - 1 ).Content()
+		anResult = StzListOfNumbersQ(anPositions).
+			   AddToEachQ(pnStartingAt - 1 ).
+			   Content()
 
 		return anResult
 
 		#< @FunctionAlternativeForms
 
-		def FindNext(pItem, pnStartingAt)
-			return This.FindNextOccurrences(pItem, pnStartingAt)
+		def NextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
+
+		#>
+		
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNextOccurrences(pItem, pnStartingAt)
+		return This.FindNextOccurrencesCS(pItem, pnStartingAt, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def NextOccurrences(pItem, pnStartingAt)
 			return This.FindNextOccurrences(pItem, pnStartingAt)
 
 		#>
-		
+
 	   #---------------------------------------------#
 	  #   FINDING PREVIOUS OCCURRENCES OF AN ITEM   #
 	 #   STARTING AT A GIVEN POSITION              #

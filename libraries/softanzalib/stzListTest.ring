@@ -12,6 +12,96 @@ StopProfiler()
 /*------------
 */
 StartProfiler()
+#                   1    2    3    4    5    6    7     8    9   10
+o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" , "♥", "_", "_" ])
+
+? o1.FindPrevious("♥", :StartingAt = 5)
+
+//? o1.FindNthPrevious(2, "♥", :StartingAt = 7)
+
+StopProfiler()
+
+/*------------
+
+StartProfiler()
+
+o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" ])
+
+? o1.FindFirst("♥")
+#--> 3
+
+? o1.FindLast("♥")
+#--> 6
+
+? o1.FindNext("♥", :StartingAt = 3)
+#--> 6
+
+? o1.FindPrevious("♥", :StartingAt = 6)
+#--> 3
+
+? o1.FindNthNext(1, "♥", :StartingAt = 3)
+#--> 6
+
+? o1.FindNthPrevious(2, "♥", :StartingAt = 7)
+#--> 3
+
+StopProfiler()
+# Executed in 0.03 second(s)
+
+/*------------
+
+StartProfiler()
+
+# Fabricating a large list of strings (more then 150K items)
+
+	aLargeListOfStr = ["_", "_", "♥"]
+	for i = 1 to 100_000
+		aLargeListOfStr + "_"
+	next
+	
+	aLargeListOfStr + "♥" + "_" + "_" + "♥"
+	
+	for i = 1 to 50_000
+		aLargeListOfStr + "_"
+	next i
+	
+	aLargeListOfStr + "♥" + "_" + "_" + "♥"
+	
+	for i = 1 to 10
+		aLargeListOfStr + "_"
+	next i
+
+# Find "♥" in several ways
+	o1 = new stzList(aLargeListOfStr)
+
+	? o1.FindFirst("♥")
+	#--> 3
+? ElapsedTime() + NL
+	
+	? o1.FindLast("♥")
+	#--> 6
+? ElapsedTime() + NL
+	
+	? o1.FindNext("♥", :StartingAt = 3)
+	#--> 6
+	? ElapsedTime() + NL
+	
+	? o1.FindPrevious("♥", :StartingAt = 20)
+	#--> 0
+	? ElapsedTime() + NL
+	
+	? o1.FindNthNext(1, "♥", :StartingAt = 3)
+	#--> 6
+	? ElapsedTime() + NL
+	
+	? o1.FindNthPrevious(2, "♥", :StartingAt = 33)
+	#--> 3
+
+StopProfiler()
+
+/*------------
+
+StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
 
@@ -35,12 +125,19 @@ StartProfiler()
 # Removing dupicates
 
 	o1 = new stzList(aLargeListOfStr)
-	o1.RemoveDuplicates()
-	? o1.Content()
+
+	? o1.FindLast("ME")
+	#--> 100002
+	# Takes 0.23 second(s)
+
+	//? o1.RemoveDuplicatesQ().Content()
 	#--> [ "_", "HI", "ME", "YOU" ]
 
+//	? o1.Duplicates()
+
+//give any
 StopProfiler()
-# Executed in 3.48 second(s)
+# Executed in 3.44 second(s)
 
 /*============
 
