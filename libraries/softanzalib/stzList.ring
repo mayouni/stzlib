@@ -13637,35 +13637,35 @@ oTable.Show() + NL
 
 	def FindAllOccurrencesCS(pItem, pCaseSensitive)
 
-		/* NOTE
-		We don't use the Ring ring_find() function here because it works
-		only for finding numbers and strings (and not lists and objects).
-
-		Also, it only returns the first occurrence and stops there.
-
-		This function finds all occurrences of numbers, strings, and lists.
-		Objects will be managed in the future.
-
-		*/
-
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
+	
 
+		nLen = This.NumberOfItems()
 		anResult = []
 
-		aStrList = []
-		for i = 1 to This.NumberOfItems()
-			aStrList + Q( @@( This[i] ) ).WithoutSpaces()
-		next
+		nPos = 1
+		n = 0
 
-		i = 0
-		for str in aStrList
-			i++
-			if Q(str).IsEqualToCS( Q( @@(pItem) ).WithoutSpaces(), pCaseSensitive )
-				anResult + i
+		if This.FirstItemQ().IsEqualToCS(pItem, pCaseSensitive)
+			anResult + 1
+		ok
+
+		while TRUE
+			n++
+			if n > nLen
+				exit
 			ok
-		next
+
+			nPos = This.FindNextCS(pItem, :StartingAt = nPos, pCaseSensitive)
+			if nPos != 0
+				anResult + nPos
+
+			else
+				exit
+			ok
+		end
 
 		return anResult
 

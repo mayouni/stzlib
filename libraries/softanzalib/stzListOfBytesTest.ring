@@ -1,9 +1,14 @@
 
 load "stzlib.ring"
 
+# TODO: Add use cases from Qt documentation:
+# https://doc.qt.io/qt-6/qbytearray.html()
+
+/*--------------------
+*/
 o1 = new stzListOfBytes("で")
 ? o1.ToHex() 
-# Returns e381a7 # --> \xE3 \x81 \xa7 in UTF-8
+# Returns e381a7 # --> (\xE3 \x81 \xa7 in UTF-8 --> TODO)
 
 /*--------------------
 
@@ -29,7 +34,7 @@ o1 = new stzListOfBytes("s㊱m")
 ? QByteArrayToListOfUnicodesPerChar(oQByteArray)
 
 /*-------------------
-
+*
 // Swapping strings using stzString
 
 o1 = new stzString("Python")

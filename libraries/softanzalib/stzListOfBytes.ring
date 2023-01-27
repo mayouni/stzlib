@@ -79,8 +79,7 @@ func ToQByteArray(p)
 
 func QByteArrayToListOfUnicodes(oQByteArray)
 	if IsQByteArrayObject(oQByteArray)
-		oListOfBytes = new stzListOfBytes(oQByteArray)
-		return oListOfBytes.Unicodes()
+		return StzStringQ(oQByteArray.data()).Unicodes()
 	else
 		StzRaise(stzListOfBytesError(:CanNotConvertQByteArray))
 	ok
@@ -286,6 +285,12 @@ class stzListOfBytes from stzObject
 	def NumberOfBytes()
 		return @oQByteArray.size()
 
+		def Size()
+			return This.NumberOfBytes()
+
+		def SizeInBytes()
+			return This.NumberOfBytes()
+
 	// Export the list of bytes as a list of unicode integers
 	// where each unicode corresponds to a byte in the list
 	def BytesToUnicodes()
@@ -487,6 +492,9 @@ class stzListOfBytes from stzObject
 	// The hex encoding uses the numbers 0-9 and the letters a-f
 	def ToHex()
 		return @oQByteArray.toHex().data()
+
+		def ToHexQ()
+			return new stzString(This.ToHex())
 
 	def FromHex(pcHexString)
 		oTempQByteArray = new QByteArray()
