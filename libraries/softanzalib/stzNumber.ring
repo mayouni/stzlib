@@ -3861,9 +3861,35 @@ class stzNumber from stzObject
 	
 		def IsACharIn(pcStr)
 			return FALSE
+	
+	  #------------------------------------------#
+	 #   STRINGIFY(), TOSTRING(), AND TOCODE()  #
+	#------------------------------------------#
 
-	   #-------------#
-	  #    MISC.    #
+	def Stringify()
+		# Do nithing, the object is naturally stringified
+		# becauses it contains its value always as a string
+
+		def StringifiyQ()
+			return new stzString( This.StringValue() )
+
+	def Stringified()
+		return This.StringValue()
+
+	def ToString()
+		return This.StringValue()
+
+		def ToStringQ()
+			return new stzString( This.ToString() )
+	
+	def ToCode()
+		return This.StringValue()
+
+		def ToCodeQ()
+			return new stzString( This.ToCode() )
+
+	  #-------------#
+	 #    MISC.    #
 	#-------------#
 
 	def HasSameTypeAs(p)
@@ -3880,7 +3906,7 @@ class stzNumber from stzObject
 			anResult = This.Value() : pnOtherNumber
 			return anResult
 		ok
-	
+
 	  #-------------------------------------#
 	 #    INTERNAL KITCHEN OF THE CLASS    #
 	#-------------------------------------#

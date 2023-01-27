@@ -11,6 +11,28 @@ UTF 8 encodes characters on 1, 2, 3 or 4 bytes depending on the char unicode:
 Look at this: http://tutorials.jenkov.com/unicode/utf-8.html
 */
 
+/* FROM QT DOCUMENTATION
+
+QByteArray can be used to store both raw bytes (including '\0's) and
+traditional 8-bit '\0'-terminated strings. Using QByteArray is much
+more convenient than using const char *. Behind the scenes, it always
+ensures that the data is followed by a '\0' terminator, and uses
+implicit sharing (copy-on-write) to reduce memory usage and avoid
+needless copying of data.
+
+In addition to QByteArray, Qt also provides the QString class to
+store string data. For most purposes, QString is the class you want
+to use. It understands its content as Unicode text (encoded using UTF-16)
+where QByteArray aims to avoid assumptions about the encoding or semantics
+of the bytes it stores (aside from a few legacy cases where it uses ASCII).
+
+Furthermore, QString is used throughout in the Qt API. The two main cases
+where QByteArray is appropriate are when you need to store raw binary data,
+and when memory conservation is critical (e.g., with Qt for Embedded Linux).
+
+*/
+
+
 func StzListOfBytesQ(p)
 	return new stzListOfBytes(p)
 
@@ -307,10 +329,10 @@ class stzListOfBytes from stzObject
 			return StzRaise(stzListOfBytesError(:CanNotFillBytesWithNonAsciiChar))
 		ok
 
-	def FillWithAsciiChar_UpToNBytes(pcChar, nBytes)
+	def FillWithAsciiCharUpToNBytes(pcChar, nBytes)
 		@oQByteArray.fill(ascii(pcChar), nBytes)
 
-	def FillWithAsciiChar_UpToNChars(pcChar, nChars)
+	def FillWithAsciiCharUpToNChars(pcChar, nChars)
 		nBytes = nChars * This.NumberOfBytesPerChar()
 		@oQByteArray.fill(ascii(pcChar), nBytes)
 

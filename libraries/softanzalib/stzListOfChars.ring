@@ -124,7 +124,6 @@ class stzListOfChars from stzListOfStrings
 			StzRaise(stzListOfCharsError(:CanNotCreateListOfChars))
 		ok
 
-
 	def Content()
 		return @aContent
 
@@ -146,16 +145,15 @@ class stzListOfChars from stzListOfStrings
 
 	def Update(paOtherListOfChars)
 		if isList(paOtherListOfChars) and
-		   ( StzListQ(paOtherListOfChars).IsWithNamedParam() or StzListQ(paOtherListOfChars).IsUsingNamedParam() )
-
+		   Q(paOtherListOfChars).IsOneOfTheseNamedParams([ :With, :Using ])
 			pcString = pcString[2]
 
 		ok
 
-		if ListIsListOfChars(paOtherListOfChars)
+		if Q(paOtherListOfChars).IsListOfChars()
 			@aContent = paOtherListOfChars
-			@cString = This.ToString() # TODO: Add it to stzList
-			@aStzChars = This.ToListOfStzChars()
+			@cString = Q(paOtherListOfChars).Concatenated()
+			@aStzChars = Q(paOtherListOfChars).ToListOfStzChars()
 		else
 			StzRaise(stzListOfCharsError(:CanNotUpdateListOfChars)) # TODO
 		ok
