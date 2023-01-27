@@ -26452,9 +26452,9 @@ o1 = new stzString("12*34*56*78")
 	 #    TEXT ENCODING & CONVERTING    #
 	#==================================#
 
-	//Returns a UTF-8 representation of the string as a QByteArray
+	//Returns a UTF-8 representation of the string (using QByteArray)
 	def ToUTF8()
-		return QByteArrayToList( @oQString.toUtf8() )
+		return QByteArrayToListOfUnicodes(@oQString.toUtf8())
 
 	def ToUTF8Q()
 		return new stzString( This.ToUTF8() )

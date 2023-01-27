@@ -256,7 +256,7 @@ StartProfiler()
 	#--> [ "_", "HI" ]
 	
 StopProfiler()
-# Executed in 9.67 second(s)
+# Executed in 9.51 second(s)
 
 /*============
 
@@ -403,8 +403,9 @@ o1 = new stzString( '[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥"] ] 
 
 StopProfiler()
 #--> Executed in 0.04 second(s)
-/*----------
-*/
+
+/*----
+
 StartProfiler()
 
 o1 = new stzList(["__", "♥", "_", "__", "♥", "♥", "__", "♥" ])
@@ -419,21 +420,117 @@ o1 = new stzList(["__", 1:3, "_", "__", 1:3, 1:3, "__", 1:3 ])
 StopProfiler()
 # Executed in 0.02 second(s)
 
+/*------------
+
+StartProfiler()
+
+# Fabricating a large list of strings (more then 150K items)
+
+	aLargeListOfStr = []
+	for i = 1 to 100_000
+		aLargeListOfStr + "_"
+	next
+	
+	aLargeListOfStr + "HI" + "ME"
+	
+	for i = 1 to 50_000
+		aLargeListOfStr + "_"
+	next i
+	
+	aLargeListOfStr + "HI" + "YOU"
+	
+	for i = 1 to 10
+		aLargeListOfStr + "_"
+	next i
+
+# Removing dupicates
+
+	o1 = new stzList(aLargeListOfStr)
+
+	? o1.NumberOfOccurrence("_")
+	#--> 150010
+	
+StopProfiler()
+#--> Executed in 3.65 second(s)
+
+/*------------
+
+StartProfiler()
+
+# Fabricating a large list of strings (more then 150K items)
+
+	aLargeListOfStr = [ [ "ME", "YOU"] ]
+
+	for i = 1 to 100_000
+		aLargeListOfStr + "_"
+	next
+	
+	aLargeListOfStr + "HI" + [ "ME", "YOU"]
+	
+	for i = 1 to 50_000
+		aLargeListOfStr + "_"
+	next i
+	
+	aLargeListOfStr + "HI" + "YOU"
+	
+	for i = 1 to 10
+		aLargeListOfStr + "_"
+	next i
+
+	aLargeListOfStr + [ "ME", "YOU"]
+
+# Removing dupicates
+
+	o1 = new stzList(aLargeListOfStr)
+
+	? o1.FindAll([ "ME", "YOU"])
+	#-->  [1, 100003, 150016]
+	
+StopProfiler()
+#--> Executed in 1.47 second(s)
+
+/*----
+*/
+StartProfiler()
+
+o1 = new stzList(["__", "♥", "_", "__", "♥", "♥", "__", "♥" ])
+? o1.FindAll("♥")
+#--> [2, 5, 6, 8 ]
+# Executed in 0.03 second(s)
+
+o1 = new stzList(["__", 1:3, "_", "__", 1:3, 1:3, "__", 1:3 ])
+? o1.FindAll(1:3)
+#--> [2, 5, 6, 8 ]
+# Executed in 0.04 second(s)
+
+StopProfiler()
+# Executed in 0.06 second(s)
+
 /*==========
 
 TODO - NAMING REFORM
 
 ..RemoveBetweenXT() : removes also bounds
+#--> DONE
 
 ...Bounds  --> ...( [b1,b2] )	why? to be able to use ...( b ) if the 2 bounds are sale
 ...Between --> ...( b1, b2 )	why? because they are always 2 bounds
+#--> DONE
 
 ...SubString --> ...Section
 
+AddXT()
+#--> DONE
+
 FindXT()
+
 InsertXT()
+
 ReplaceXT()
+#--> DONE
+
 RemoveXT()
+#--> DONE
 
 /*-----------
 
