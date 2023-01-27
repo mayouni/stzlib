@@ -10,16 +10,106 @@ o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
 StopProfiler()
 
 /*------------
-*/
+
 StartProfiler()
 #                   1    2    3    4    5    6    7     8    9   10
 o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" , "♥", "_", "_" ])
 
-? o1.FindPrevious("♥", :StartingAt = 5)
+//? o1.FindPrevious("♥", :StartingAt = 5)
+#--> 3
 
-//? o1.FindNthPrevious(2, "♥", :StartingAt = 7)
+? o1.FindNthPrevious(2, "♥", :StartingAt = 7)
+#--> 3
+
+? o1.FindNthPrevious(3, "♥", :StartingAt = 9)
+#--> 3
 
 StopProfiler()
+
+/*------------ TODO
+
+o1 = new stzString([
+	[ "_", "_", "♥" ],
+	[ 100_000, "_" ],
+	[ "♥", "_", "_", "♥" ],
+	[ 50_000, "_"],
+	[ "♥", "_", "_", "♥"],
+	[ 10, "_" ],
+	'{ Q("anycode").Uppercased() }'
+])
+
+/*------------
+
+# Fabricating a large list of strings (more then 150K items)
+
+	aLargeListOfStr = ["_", "_", "♥"]
+	for i = 1 to 100_000
+		aLargeListOfStr + "_"
+	next
+	
+	aLargeListOfStr + "♥" + "_" + "_" + "♥"
+	
+	for i = 1 to 50_000
+		aLargeListOfStr + "_"
+	next i
+	
+	aLargeListOfStr + "♥" + "_" + "_" + "♥"
+	
+	for i = 1 to 10
+		aLargeListOfStr + "_"
+	next i
+
+# Finding previous "♥"
+
+	o1 = new stzList(aLargeListOfStr)
+
+	? o1.FindNext("♥", :StartingAt = 12_000)
+	#--> 3
+	
+	? o1.FindNthNext(6, "♥", :StartingAt = 1)
+	#--> 3
+	
+	? o1.FindNthNext(3, "♥", :StartingAt = 12_000)
+	#--> 3
+
+/*------------
+
+StartProfiler()
+
+# Fabricating a large list of strings (more then 150K items)
+
+	aLargeListOfStr = ["_", "_", "♥"]
+	for i = 1 to 100_000
+		aLargeListOfStr + "_"
+	next
+	
+	aLargeListOfStr + "♥" + "_" + "_" + "♥"
+	
+	for i = 1 to 50_000
+		aLargeListOfStr + "_"
+	next i
+	
+	aLargeListOfStr + "♥" + "_" + "_" + "♥"
+	
+	for i = 1 to 10
+		aLargeListOfStr + "_"
+	next i
+
+# Finding previous "♥"
+
+	o1 = new stzList(aLargeListOfStr)
+
+	? o1.FindPrevious("♥", :StartingAt = 5)
+	#--> 3
+	
+	? o1.FindNthPrevious(2, "♥", :StartingAt = 120_000)
+	#--> 3
+	
+	? o1.FindNthPrevious(3, "♥", :StartingAt = 150_000)
+	#--> 3
+
+StopProfiler()
+# Executed in 39.96 second(s)
 
 /*------------
 
@@ -76,28 +166,30 @@ StartProfiler()
 
 	? o1.FindFirst("♥")
 	#--> 3
-? ElapsedTime() + NL
+	# Executed in 0.10 second(s)
 	
 	? o1.FindLast("♥")
-	#--> 6
-? ElapsedTime() + NL
+	#--> 150011
+	# Executed in 0.12 second(s)
 	
 	? o1.FindNext("♥", :StartingAt = 3)
-	#--> 6
-	? ElapsedTime() + NL
-	
-	? o1.FindPrevious("♥", :StartingAt = 20)
-	#--> 0
-	? ElapsedTime() + NL
+	#--> 100004
+	# Executed in 1.59 second(s)
 	
 	? o1.FindNthNext(1, "♥", :StartingAt = 3)
-	#--> 6
-	? ElapsedTime() + NL
+	#--> 100004
+	# Executed in 1.37 second(s)
 	
+	? o1.FindPrevious("♥", :StartingAt = 20)
+	#--> 3
+	# Executed in 0.01 second(s)
+
 	? o1.FindNthPrevious(2, "♥", :StartingAt = 33)
 	#--> 3
+	# Executed in 0.36 second(s)
 
 StopProfiler()
+# Executed in 3.57 second(s)
 
 /*------------
 
@@ -126,36 +218,115 @@ StartProfiler()
 
 	o1 = new stzList(aLargeListOfStr)
 
-	? o1.FindLast("ME")
-	#--> 100002
-	# Takes 0.23 second(s)
-
-	//? o1.RemoveDuplicatesQ().Content()
+	o1.RemoveDuplicates()
+	? o1.Content()
 	#--> [ "_", "HI", "ME", "YOU" ]
 
-//	? o1.Duplicates()
-
-//give any
 StopProfiler()
-# Executed in 3.44 second(s)
+# Executed in 3.42 second(s)
+
+/*------------
+
+StartProfiler()
+
+# Fabricating a large list of strings (more then 150K items)
+
+	aLargeListOfStr = []
+	for i = 1 to 100_000
+		aLargeListOfStr + "_"
+	next
+	
+	aLargeListOfStr + "HI" + "ME"
+	
+	for i = 1 to 50_000
+		aLargeListOfStr + "_"
+	next i
+	
+	aLargeListOfStr + "HI" + "YOU"
+	
+	for i = 1 to 10
+		aLargeListOfStr + "_"
+	next i
+
+# Removing dupicates
+
+	o1 = new stzList(aLargeListOfStr)
+
+	? o1.Duplicates()
+	#--> [ "_", "HI" ]
+	
+StopProfiler()
+# Executed in 9.67 second(s)
 
 /*============
 
 StartProfiler()
-
-aLargeList = 1:100_000
-aLargeList + "A":"C" + "A":"C"
-
-aMyList = [ "_", "_", "A":"C", "_", "_", "A":"C", "_", "_", "A":"C", "_" ]
-for i = 1 to len(aMyList)
-	aLargeList + aMyList[i]
-next
-
-o1 = new stzList(aLargeList)
-? o1.FindNth(2, "A":"C")
+#                   1    2    3    4    5    6    7    8    9   10
+o1 = new stzList([ "_", "_", "♥", "_", "♥", "_", "_", "♥", "_", "_" ])
+? o1.FindNth(3, "♥")
 
 StopProfiler()
-#--> Executed in 0.27 second(s)
+# Executed in 0.02 second(s)
+
+/*------------
+
+StartProfiler()
+#                   1    2      3      4      5     6     7      8     9    10
+o1 = new stzList([ "_", "_", "A":"C", "_", "A":"C", "_", "_", "A":"C", "_", "_" ])
+? o1.FindNth(3, "A":"C")
+#--> 8
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*------------
+
+StartProfiler()
+o1 = new stzList([ 1, 2, 3, "A":"C", 5, 7, 8, 9, "A":"C" ])
+? o1.FindNthPrevious(2, "A":"C", :StartingAt = 7)
+#--> 0
+
+StopProfiler()
+
+/*------------
+
+StartProfiler()
+
+o1 = new stzList([ 1, 2, 3, "A":"C", "A":"C", 6, 7, "A":"C" ])
+? o1.FindNthPrevious(2, "A":"C", :StartingAt = 7)
+#--> 4
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*------------
+
+StartProfiler()
+
+# Fabricating a large list
+	aLargeList = 1:100_000
+	aLargeList + "A":"C" + "A":"C"
+	
+	aMyList = [ "_", "_", "A":"C", "_", "_", "A":"C", "_", "_", "A":"C", "_" ]
+	for i = 1 to len(aMyList)
+		aLargeList + aMyList[i]
+	next
+
+	o1 = new stzList(aLargeList)
+	? o1.FindNth(2, "A":"C")
+	#--> 100002
+	# Executed in 0.28 second(s)
+
+	? o1.FindNext("A":"C", :StartingAt = 89_000)
+	#--> 100001
+	# Executed in 0.05 second(s)
+
+	? o1.FindNthPrevious(3, "A":"C", :StartingAt = 100_010)
+	#--> 100002
+	# Executed in 10.78 second(s)
+
+StopProfiler()
+# Executed in 10.68 second(s)
 
 /*------------
 
@@ -198,7 +369,7 @@ StartProfiler()
 
 	? o1.FindFirst(["A", "B", "C", "عربي", "كلام", "D"])
 	#--> 100003
-	# Executed in 0.32 second(s)
+	# Executed in 0.30 second(s)
 
 # Finding the last occurrence
 
@@ -210,10 +381,10 @@ StartProfiler()
 
 	? o1.FindNth(2, ["A", "B", "C", "عربي", "كلام", "D"])
 	#--> 100007
-	# Executed in 0.23 second(s)
+	# Executed in 0.22 second(s)
 
 StopProfiler()
-# Executed in 0.56 second(s)
+# Executed in 0.52 second(s)
 
 /*============
 
@@ -221,14 +392,34 @@ StartProfiler()
 
 o1 = new stzString( '[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥"] ] ]' )
 ? o1.FindPreviousNthOccurrence(1, :Of = "[", :StartingAt = 21)
+#--> 13
 ? o1.FindNextNthOccurrence(1, :Of = "]", :StartingAt = 21)
+#--> 28
 
-? o1.FindFirstPrevious("[", :StartingAt = 21)	#--> 13
-? o1.FindFirstNext(:Of = "]", :StartingAt = 21) #--> 28
+? o1.FindFirstPrevious("[", :StartingAt = 21)
+#--> 13
+? o1.FindFirstNext(:Of = "]", :StartingAt = 21)
+#--> 28
 
 StopProfiler()
+#--> Executed in 0.04 second(s)
+/*----------
+*/
+StartProfiler()
 
-/*-----------
+o1 = new stzList(["__", "♥", "_", "__", "♥", "♥", "__", "♥" ])
+? o1.NumberOfOccurence("♥") # Note that this is a misspelled form (lacks an "r")
+			    # but Softanza is kind to accept it
+#--> 4
+
+o1 = new stzList(["__", 1:3, "_", "__", 1:3, 1:3, "__", 1:3 ])
+? o1.NumberOfOccurrence(1:3)
+#--> 4
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*==========
 
 TODO - NAMING REFORM
 

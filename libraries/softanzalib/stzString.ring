@@ -31862,95 +31862,6 @@ o1 = new stzString("12*34*56*78")
 	def IsAnObject()
 		return TRUE
 
-	  #===========#
-	 #   MISC.   #
-	#===========#
-		
-	def HasSameTypeAs(p)
-		return isString(p)
-
-	def IsAnagramOfCS(pcOtherStr, pCaseSensitive)
-
-		oTheseChars = This.CharsQR(:stzListOfStrings).RemoveduplicatesQ().SortInAscendingQ()
-
-		cOtherChars = StzStringQ( pcOtherStr ).
-				CharsQ().RemoveDuplicatesQ().
-				SortInAscendingQ().Content()
-	
-		bResult = oTheseChars.IsEqualToCS( cOtherChars, pCaseSensitive )
-
-		return bResult
-
-	def IsAnagramOf(pcOtherStr)
-		return This.IsAnagramOfCS(pcOtherStr, :CS = TRUE)
-
-	def UpTo(pcChar)
-		if This.IsChar() and ( isString(pcChar) and StzStringQ(pcChar).IsChar() ) and
-		   This.Unicode() < CharUnicode(pcChar)
-
-			acResult = []
-			for n = This.Unicode() to CharUnicode(pcChar)
-				acResult + StzCharQ(n).Content()
-			next
-			return acResult
-		ok
-
-	def DownTo(pcChar)
-		if This.IsChar() and ( isString(pcChar) and StzStringQ(pcChar).IsChar() ) and
-		   This.Unicode() > CharUnicode(pcChar)
-
-			acResult = []
-			for n = This.Unicode() to CharUnicode(pcChar) step -1 
-				acResult + StzCharQ(n).Content()
-			next
-
-			return acResult
-		ok
-
-	def FirstAndLastChars()
-		aResult = [ This.FirstChar(), This.LastChar() ]
-		return aResult
-
-	def LastAndFirstChars()
-		aResult = [ This.LastChar(), FirstChar() ]
-		return aResult
-
-	def IsListOfCharsInComputableForm()
-		// TODO
-
-	def Show()
-		? This.Content()
-
-	def Methods()
-		return ring_methods(This)
-
-	def Attributes()
-		return ring_attributes(This)
-
-	def ClassName()
-		return "stzstring"
-
-		def StzClassName()
-			return This.ClassName()
-
-		def StzClass()
-			return This.ClassName()
-
-	def IsLatinScript()
-		return This.ToStzText().IsLatinScript()
-
-		def IsLatin()
-			return This.IsLatinScript()
-
-	def IsArabicScript()
-		return This.ToStzText().IsArabicScript()
-
-		def IsArabic()
-			return This.IsArabicScript()
-
-	def IsText()
-		return TRUE
-
 	  #=====================================================#
 	 #  CHECKING IF THE STRING STARTS WITH A GIVEN NUMBER  #
 	#=====================================================#
@@ -32696,3 +32607,118 @@ o1 = new stzString("12*34*56*78")
 			return This.LastNumberComingAfter(pcSubStr)
 
 		#>
+
+	  #------------------------------------------#
+	 #   STRINGIFY(), TOSTRING(), AND TOCODE()  #
+	#------------------------------------------#
+
+	def Stringify()
+		# Do nothing, the object is naturally stringified
+		# becauses it a string
+
+		def StringifiyQ()
+			return new stzString( This.String() )
+
+	def Stringified()
+		return This.String()
+
+	def ToString()
+		return This.String()
+
+		def ToStringQ()
+			return new stzString( This.ToString() )
+	
+	def ToCode()
+		return '"' + This.String() + '"'
+
+		def ToCodeQ()
+			return new stzString( This.ToCode() )
+
+	  #===========#
+	 #   MISC.   #
+	#===========#
+		
+	def HasSameTypeAs(p)
+		return isString(p)
+
+	def IsAnagramOfCS(pcOtherStr, pCaseSensitive)
+
+		oTheseChars = This.CharsQR(:stzListOfStrings).RemoveduplicatesQ().SortInAscendingQ()
+
+		cOtherChars = StzStringQ( pcOtherStr ).
+				CharsQ().RemoveDuplicatesQ().
+				SortInAscendingQ().Content()
+	
+		bResult = oTheseChars.IsEqualToCS( cOtherChars, pCaseSensitive )
+
+		return bResult
+
+	def IsAnagramOf(pcOtherStr)
+		return This.IsAnagramOfCS(pcOtherStr, :CS = TRUE)
+
+	def UpTo(pcChar)
+		if This.IsChar() and ( isString(pcChar) and StzStringQ(pcChar).IsChar() ) and
+		   This.Unicode() < CharUnicode(pcChar)
+
+			acResult = []
+			for n = This.Unicode() to CharUnicode(pcChar)
+				acResult + StzCharQ(n).Content()
+			next
+			return acResult
+		ok
+
+	def DownTo(pcChar)
+		if This.IsChar() and ( isString(pcChar) and StzStringQ(pcChar).IsChar() ) and
+		   This.Unicode() > CharUnicode(pcChar)
+
+			acResult = []
+			for n = This.Unicode() to CharUnicode(pcChar) step -1 
+				acResult + StzCharQ(n).Content()
+			next
+
+			return acResult
+		ok
+
+	def FirstAndLastChars()
+		aResult = [ This.FirstChar(), This.LastChar() ]
+		return aResult
+
+	def LastAndFirstChars()
+		aResult = [ This.LastChar(), FirstChar() ]
+		return aResult
+
+	def IsListOfCharsInComputableForm()
+		// TODO
+
+	def Show()
+		? This.Content()
+
+	def Methods()
+		return ring_methods(This)
+
+	def Attributes()
+		return ring_attributes(This)
+
+	def ClassName()
+		return "stzstring"
+
+		def StzClassName()
+			return This.ClassName()
+
+		def StzClass()
+			return This.ClassName()
+
+	def IsLatinScript()
+		return This.ToStzText().IsLatinScript()
+
+		def IsLatin()
+			return This.IsLatinScript()
+
+	def IsArabicScript()
+		return This.ToStzText().IsArabicScript()
+
+		def IsArabic()
+			return This.IsArabicScript()
+
+	def IsText()
+		return TRUE

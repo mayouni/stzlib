@@ -12531,41 +12531,6 @@ oTable.Show() + NL
 	
 		def ToHashListQ()
 			return This.ToStzHashList()
-		
-	def ToCode()
-		/*
-		This function relies on Ring native list2code() function that
-		 translates only number, string, and list items of a list to code.
-
-		TODO: In the futur, we need to make it possible the identification
-		of objects items also and the transliteration of their names in
-		the output (now, they are just generated as empty chras).
-		*/
-		
-		return list2code( This.List() )
-
-
-		def ToCodeQ()
-			return new stzString( This.ToCode() )
-
-		def ToListInString()
-			return This.ToCode()
-
-			def ToListInStringQ()
-				return new stzString(This.ToListInString())
-
-	def ToCodeSimplified()
-		cResult = StzStringQ( This.ToCode() ).Simplified()
-		return cResult
-
-		def ToCodeSimplifiedQ()
-			return new stzString( This.ToCodeSimplified() )
-
-		def ToCodeS()
-			return This.ToCodeSimplified()
-
-			def ToCodeSQ()
-				return new stzString( This.ToCodeS() )
 
 	def IsSet()
 		bIsSet = TRUE
@@ -12587,7 +12552,10 @@ oTable.Show() + NL
 			pItem = pItem[2]
 		ok
 
-/* ... */
+		cItem = Q(pItem).ToCodeQ().Simplified()
+
+		nResult = -1 + This.ToCodeQ().SimplifyQ().SplitQ(cItem).Size()
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -12598,6 +12566,13 @@ oTable.Show() + NL
 			return NumberOfOccurrenceCS(pItem, pCaseSensitive)
 		
 		#>
+
+		#< @FunctionMisspelledForm
+
+		def NumberOfOccurenceCS(pItem, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+
+		#
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -12614,6 +12589,13 @@ oTable.Show() + NL
 
 		#>
 	
+		#< @FunctionMisspelledForm
+
+		def NumberOfOccurence(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		#
+
 	  #===============================#
 	 #   FINDING DUPPLICATED ITEMS   #
 	#===============================#
@@ -12974,7 +12956,7 @@ oTable.Show() + NL
 			bResult = Q(p).Contains( This.List() )
 
 		on "STRING"
-			cListStringified = This.ToString()
+			cListStringified = This.Stringified()
 			bResult = StzStringQ(p).Contains(cListStringified)
 
 		other
@@ -13960,7 +13942,7 @@ oTable.Show() + NL
 			# Turning the pItem to a string
 			# (we use stzString for better performance)
 
-			cPItem = Q(pItem).ToString()
+			cPItem = Q(pItem).ToCodeQ().Simplified()
 		
 			# Parsing the list. When an item is
 			# a list, then check if it could be
@@ -13978,7 +13960,7 @@ oTable.Show() + NL
 						
 				if isList(item)
 
-					cItem = Q(item).ToString()
+					cItem = Q(item).ToCodeQ().Simplified()
 	
 					if cItem = cPItem
 						nTimes++
@@ -14083,46 +14065,8 @@ oTable.Show() + NL
 	#---------------------------------------------------#
 
 	def FindFirstOccurrenceCS(pItem, pCaseSensitive)
+		return This.FindNthCS(1, pItem, pCaseSensitive)
 
-		if isObject(pItem)
-			StzRaise("Can't process! Objects can not be found yet.")
-		ok
-
-		cType = ring_type(pItem)
-
-		if cType = "STRING" or cType = "NUMBER"
-			return ring_find( This.List(), pItem )
-
-		but cType = "LIST"
-			# For performance reasons, we rely on stzString
-
-			# Turning the list (pItem) to a string
-
-			cPItem = Q(pItem).ToString()
-			
-			# Turning the list, item by item, to a string
-			# and check if the item iqual the pItem
-
-			aList = This.List()
-			nLen = This.NumberOfItems()
-			nResult = 0
-			
-			for i = 1 to nLen
-				item = aList[i]
-				cItem = ""
-			
-				if isList(item)
-					cItem = Q(item).ToString()
-				
-					if cItem = cPItem
-						return i
-						exit
-					ok
-				ok
-			next
-		ok
-
-		return FALSE
 
 		#< @FunctionAlternativeForms
 
@@ -14172,6 +14116,7 @@ oTable.Show() + NL
 	#--------------------------------------------------#
 
 	def FindLastOccurrenceCS(pItem, pCaseSensitive)
+
 		if isObject(pItem)
 			StzRaise("Can't process! Objects can not be found yet.")
 		ok
@@ -14194,7 +14139,7 @@ oTable.Show() + NL
 
 			# Turning the pItem to a string
 
-			cPItem = Q(pItem).ToString()
+			cPItem = Q(pItem).ToCodeQ().Simplified()
 			
 			aList = This.List()
 			nLen = This.NumberOfItems()
@@ -14207,7 +14152,7 @@ oTable.Show() + NL
 				cItem = ""
 			
 				if isList(item)
-					cItem = Q(item).ToString()
+					cItem = Q(item).ToCodeQ().Simplified()
 				
 					if cItem = cPItem
 						nResult = nLen - n + 1
@@ -15123,108 +15068,17 @@ oTable.Show() + NL
 			nStart = nStart[2]
 		ok
 
-		oSection = This.SectionQ(1, nStart-1)
-		nLen = oSection.NumberOfItems()
-		nPos = nLen
-		nTimes = 0
-? @@S(oSection.Content())
-? nLen
-		while TRUE
-			nTimes++
-			if nTimes > nLen
-				exit
-			ok
+		nPos = This.SectionQ(nStart, 1).
+			    FindNthCS(n, pItem, pCaseSensitive)
 
-			nPos = oSection.FindPreviousCS(pItem, :StartingAt = nPos, pCaseSensitive)
-			if nPos = 0
-				exit
-			else
-				if nTimes = n
-					return nPos
-				ok
-			ok
-		end
-
-		return FALSE
-/*
-		bContinue = TRUE
-		nPos = nStart
-		nTimes = 0
-
-		while bContinue
-			nTimes++
-			if nTimes > nStart
-				exit
-			ok
-
-			nPos--
-			if nPos = 0
-				exit
-			ok
-
-			nPos = This.FindPreviousCS(pItem, :StartingAt = nPos-1, pCaseSensitive)
-			if nTimes = n and nPos != 0
-				exit
-			ok
-	
-		end
-
-		return nPos
-*/
-/*
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n should be a number.")
-		ok
-
-		if n < 1 or n > This.NumberOfItems()
-			StzRaise("Out of range! n should be between 1 and This.NumberOfItems().")
-		ok
-
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
-
-		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
-
-			if isString(nStart[2])
-				if nStart[2] = :First or nStart[2] = :FirstItem
-					nStart = 1
-
-				but nStart[2] = :Last or nStart[2] = :LastItem
-					nStart = This.NumberOfItems()
-
-				else
-					nStart = 1
-				ok
-
-			but isNumber(nStart[2])
-
-				nStart = nStart[2]
-
-			else
-				nStart = 1
-			ok
-		ok
-
-		if nStart < 1 or nStart > This.NumberOfItems()
-			StzRaise("Out of range! nStart should be between 1 and This.NumberOfItems().")
-		ok
-
-		if nStart = 1
-			oSection = This
+		if nPos != 0
+			nResult = (1 + nStart) - nPos
 		else
-			oSection = This.SectionQ(1, nStart - 1)
+			nResult = 0
 		ok
 
-		anPositions = oSection.FindAllCS(pItem, pCaseSensitive)
-		nNumberOfOccurrences = len(anPositions)
+		return nResult
 
-		try
-			return anPositions[ nNumberOfOccurrences - n + 1 ]
-		catch
-			return 0
-		end
-*/
 		#< @FunctionAlternativeForms
 
 		def FindPreviousNthOccurrenceCS( n, pItem, nStart, pCaseSensitive )
@@ -15304,23 +15158,27 @@ oTable.Show() + NL
 			pnStartingAt = pnStartingAt[2]
 		ok
 
-		cItem = @@S(pItem)
+		cItem = Q(pItem).Stringified()
 
 		acSplitted = This.SectionQ(1, pnStartingAt-1).
-				  ToCodeQ().
-				  SimplifyQ().
-				  RemoveBoundsQ(["[","]"]).
-				  SplitQR(", ", :stzListOfStrings).
-				  Trimmed()
-? acSplitted
+				  StringifyQ().Content()
 
 		nLen = len(acSplitted)
+		i = nLen + 1
 
-		
+		while TRUE
+			i--
 
-	
+			if i = 0
+				exit
+			ok
 
+			if Q(acSplitted[i]).IsEqualToCS(cItem, pCaseSensitive)
+				return i
+			ok
+		end
 
+		return 0
 	
 		def FindPreviousCS( pItem, nStart, pCaseSensitive )
 			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
@@ -19398,9 +19256,9 @@ oTable.Show() + NL
 		def FindNthGreatest(n)
 			return This.FindNthLargestItem(n)
 
-	  #===========#
-	 #   MISC.   #
-	#===========#
+	  #-----------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS JUST STRINGS IN UPPERCASE  #
+	#-----------------------------------------------------------#
 
 	def IsUppercase()
 		if This.IsListOfStrings() and
@@ -19419,9 +19277,16 @@ oTable.Show() + NL
 		def IsUppercased()
 			return This.IsUppercase()
 
-	def ToString()
+	  #------------------------------------------------------------#
+	 #  TRANSFORMING THE LIST TO ITS REPRESENTATION IN RING CODE  #
+	#------------------------------------------------------------#
+
+	def ToCode()
 		# NOTE: uses the same code as list2code() from Ring standard
 		# library and enhances it for better performance
+
+		# TODO: This code uses windowsnl() --> check if that works
+		# on other operating systems as well
 
 		cTabs = ring_copy( char(9), List2CodeTabsCounter )
 		cCode = cTabs + "[" + Windowsnl()
@@ -19451,7 +19316,7 @@ oTable.Show() + NL
 				cCode += ( cTabs + "" + item )
 
 			but islist(item)
-				cCode += Q(item).ToString()
+				cCode += Q(item).ToCode() # Not this is a recursive call
 			ok
 		next
 
@@ -19460,78 +19325,97 @@ oTable.Show() + NL
 		cCode += ( windowsnl() + cTabs + "]" )
 		return cCode
 
+		def ToCodeQ()
+			return new stzString(This.ToCode())
+
+	  #--------------------------------------------------------------#
+	 #  STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BE STRINGS)  #
+	#--------------------------------------------------------------#
+	# TODO: Abstract this function in stzObject
+
+	def Stringify()
+		acResult = []
+		nLen = This.NumberOfItems()
+		cItem = ""
+
+		for i = 1 to nLen
+			item = This.Item(i)
+			cType = ring_type(item)
+			switch cType
+			on "NUMBER"
+				cItem = ""+ item
+
+			on "STRING"
+				cItem = item
+
+			on "LIST"
+				cItem = Q(item).ToCodeQ().Simplified()
+
+			off
+
+			acResult + cItem
+		next
+
+		This.Update( acResult )
+
+		#< @FunctionFluentForm
+
+		def StringifyQ()
+			This.Stringify()
+			return This
+
+		def StringifyQR(pcReturnType)
+			switch pcReturnType
+			on :stzListOfStrings
+				return new stzListOfstrings( This.Stringified() )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def Stringified()
+		acResult = This.Copy().StringifyQ().Content()
+		return acResult
+
+	  #--------------------------------------------------#
+	 #  TRANSFORMING THE ITEMS OF THE LIST TO A STRING  #
+	#--------------------------------------------------#
+
+	def ToString()
+		return This.ToStringXT(:ConcatenatedUsing = NL)
+
 		def ToStringQ()
-			return new stzString(This.ToString())
+			return new stzString( This.ToString() )
 
-		def ToStzString()
-			return This.ToString()
+	def ToStringXT(pOption)
+		if isString(pOption)
+			if pOption = :AsCode
+				return This.ToCode()
 
-	def ToStzListOfChars()
-		if NOT This.IsListOfChars()
-			StzRaise("Can't cast the list into a stzListOfChars!")
+			but pOption = :Concatenated
+				return This.StringifyQR(:stzListOfStrings).Concatenated()
+			ok
+
+		but isList(pOption) and
+		    Q(pOption).IsOneOfTheseNamedParams([
+			:Concatenated, :ConcatenatedUsing, :ConcatenatedWith ])
+
+			if isList(pOption[2]) and
+			   Q(pOption[2]).IsOneOfTheseNamedParams([ :Using, :With ])
+
+				paOption[2] = pOption[2][2]
+			ok
+
+			return This.StringifyQR(:stzListOfStrings).ConcatenatedUsing(paOption[2])
 		ok
 
-		return new stzListOfChars( This.Content() )
+		StzRaise("Unsupprorted syntax!")
+			
+		def ToStringXTQ(pOption)
+			return new stzString( This.ToStringXT(pOption) )
 
-	def FirstAndLastItems()
-		aResult = [ This.FirstItem(), This.LastItem() ]
-		return aResult
-
-	def LastAndFirstItems()
-		aResult = [ This.LastItem(), FirstItem() ]
-		return aResult
-
-	def ToListInStringInShortForm()
-		cResult = This.ToCodeQ().ToListInShortForm()
-		return cResult
-
-		def ToListInShortForm()
-			return This.ToListInStringInShortForm()
-
-	def BoundsOf(pItem, pnUpToNItems)
-		// TODO
-		
-	def AreBoundsOf(pItem, pIn)
-
-		/* EXAMPLE 1
-
-		o1 = new stzList([ "<<", ">>" ])
-		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-		#--> TRUE
-
-		EXAMPLE 2
-
-		o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
-		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-		#--> TRUE
-
-		*/
-
-		if NOT ( This.IsPair() or This.IsListOfPairs() )
-			StzRaise("Can't check bounds! List must be a pair or a list of pairs.")
-		ok
-
-		if isList(pIn) and Q(pIn).IsInNamedParam()
-			pIn = pIn[2]
-		ok
-
-		anUpToNChars = []
-		if This.IsPair() and NOT This.IsListOfPairs()
-			anUpToNChars = [ len(This[1]), len(This[2]) ]
-			aThis = [ This.Content() ]
-
-		else
-			for aPair in This.Content()
-				anUpToNChars + [ len(aPair[1]), len(aPair[2]) ]
-			next
-			aThis = This.Content()
-		ok
-
-		aBounds = Q(pIn).BoundsOf(pItem, anUpToNChars)
 	
-		bResult = Q(aThis).AllItemsExistIn(aBounds)
-		return bResult
-
 	  #----------------------------------------#
 	 #      CHECKING IF ALL ITEMS ARE ...     #
 	#----------------------------------------#
@@ -25947,3 +25831,73 @@ oTable.Show() + NL
 		else
 			return FALSE
 		ok
+
+	  #===========#
+	 #   MISC.   #
+	#===========#
+
+	def ToStzListOfChars()
+		if NOT This.IsListOfChars()
+			StzRaise("Can't cast the list into a stzListOfChars!")
+		ok
+
+		return new stzListOfChars( This.Content() )
+
+	def FirstAndLastItems()
+		aResult = [ This.FirstItem(), This.LastItem() ]
+		return aResult
+
+	def LastAndFirstItems()
+		aResult = [ This.LastItem(), FirstItem() ]
+		return aResult
+
+	def ToListInStringInShortForm()
+		cResult = This.ToCodeQ().ToListInShortForm()
+		return cResult
+
+		def ToListInShortForm()
+			return This.ToListInStringInShortForm()
+
+	def BoundsOf(pItem, pnUpToNItems)
+		// TODO
+		
+	def AreBoundsOf(pItem, pIn)
+
+		/* EXAMPLE 1
+
+		o1 = new stzList([ "<<", ">>" ])
+		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
+		#--> TRUE
+
+		EXAMPLE 2
+
+		o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
+		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
+		#--> TRUE
+
+		*/
+
+		if NOT ( This.IsPair() or This.IsListOfPairs() )
+			StzRaise("Can't check bounds! List must be a pair or a list of pairs.")
+		ok
+
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		ok
+
+		anUpToNChars = []
+		if This.IsPair() and NOT This.IsListOfPairs()
+			anUpToNChars = [ len(This[1]), len(This[2]) ]
+			aThis = [ This.Content() ]
+
+		else
+			for aPair in This.Content()
+				anUpToNChars + [ len(aPair[1]), len(aPair[2]) ]
+			next
+			aThis = This.Content()
+		ok
+
+		aBounds = Q(pIn).BoundsOf(pItem, anUpToNChars)
+	
+		bResult = Q(aThis).AllItemsExistIn(aBounds)
+		return bResult

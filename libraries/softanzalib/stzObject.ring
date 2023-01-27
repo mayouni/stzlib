@@ -1434,7 +1434,7 @@ class stzObject
 
 			aResult = []
 			for i = 1 to pnSize
-				aResult + Q(value).ToString()
+				aResult + Q(value).Stringified()
 			next
 			return aResult
 
@@ -1649,37 +1649,6 @@ class stzObject
 		else
 			StzRaise("Can't cast the object into a number.")
 		ok
-
-	  #-----------#
-	 #   MISC.   #
-	#-----------#
-
-	def IsOneOfThese(paList)
-		return StzListQ(paList).Contains(This.Object())
-
-		def IsNotOneOfThese(paList)
-			return NOT This.IsOneOfThese(paList)
-
-	def Methods()
-		return ring_methods(This)
-
-	def Attributes()
-		return ring_attributes(This)
-
-	def ClassName()
-		return "stzobject"
-
-		def StzClassName()
-			return This.ClassName()
-
-		def StzClass()
-			return This.ClassName()
-
-	def IsText()
-		return FALSE
-
-	def ToPointer()
-		return object2pointer(This.Object())
 
 	  #------------------------------#
 	 #     OPERATORS OVERLOADING    #
@@ -2093,74 +2062,36 @@ class stzObject
 
 		#>
 
-	  #--------------------------------------#
-	 #  FORCING OBJECT TO CHANGE THEIR TYPE # TODO
-	#--------------------------------------#
+	  #-----------#
+	 #   MISC.   #
+	#-----------#
 
-	def Objectify()
-		StzRaise("Feature unavailable yet!")
+	def IsOneOfThese(paList)
+		return StzListQ(paList).Contains(This.Object())
 
-	def Objectified()
-		StzRaise("Feature unavailable yet!")
+		def IsNotOneOfThese(paList)
+			return NOT This.IsOneOfThese(paList)
 
-	def ObjectifyXT(pcCode)
-		StzRaise("Feature unavailable yet!")
+	def Methods()
+		return ring_methods(This)
 
-	def ObjectifiedXT(pcCode)
-		StzRaise("Feature unavailable yet!")
+	def Attributes()
+		return ring_attributes(This)
 
-	#--
+	def ClassName()
+		return "stzobject"
 
-	def Listify()
-		StzRaise("Feature unavailable yet!")
+		def StzClassName()
+			return This.ClassName()
 
-	def Listified()
-		StzRaise("Feature unavailable yet!")
+		def StzClass()
+			return This.ClassName()
 
-	def ListifyXT(pcCode)
-		StzRaise("Feature unavailable yet!")
+	def IsText()
+		return FALSE
 
-	def ListifiedXT(pcCode)
-		StzRaise("Feature unavailable yet!")
-
-	#--
-
-	def Stringify()
-		StzRaise("Feature unavailable yet!")
+	def ToPointer()
+		return object2pointer(This.Object())
 
 	def Stringified()
-		StzRaise("Feature unavailable yet!")
-
-	def StringifyXT(pcCode)
-		StzRaise("Feature unavailable yet!")
-
-	def StringifiedXT(pcCode)
-		StzRaise("Feature unavailable yet!")
-
-	#--
-
-	def Numbrify()
-		StzRaise("Feature unavailable yet!")
-
-	def Numbrified()
-		StzRaise("Feature unavailable yet!")
-
-	def NumbrifyXT(pcCode)
-		StzRaise("Feature unavailable yet!")
-
-	def NumbrifiedXT(pcCode)
-		StzRaise("Feature unavailable yet!")
-
-	#--
-
-	def Softanzify()
-		StzRaise("Feature unavailable yet!")
-
-	def Softanzified()
-		StzRaise("Feature unavailable yet!")
-
-	def SoftanzifyXT(pcCode)
-		StzRaise("Feature unavailable yet!")
-
-	def SoftanzifiedXT(pcCode)
 		StzRaise("Feature unavailable yet!")

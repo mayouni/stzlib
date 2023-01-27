@@ -1084,23 +1084,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		nLen = len(aUniqueValues)
 
 		for i = 1 to nLen
-			value = aUniqueValues[i]
-			cValue = ""
-
-			if isNumber(value)
-				cValue = "" + value
-
-			but iString(value)
-				cValue = value
-
-			but isList(value)
-				cValue = Q(value).ToString()
-
-			but isObject(value)
-				StzRaise("Can't proceed! Objects can't be casted to strings yet.")
-			ok
-
-			acResult + cValue
+			acResult + Q(aUniqueValues[i]).Stringified()
 		next
 
 		return acResult
@@ -1267,23 +1251,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		nLen = len(aUniqueValues)
 
 		for i = 1 to nLen
-			value = aUniqueValues[i]
-			cValue = ""
-
-			if isNumber(value)
-				cValue = "" + value
-
-			but isString(value)
-				cValue = value
-
-			but isList(value)
-				cValue = Q(value).ToString()
-
-			but isObject(value)
-				StzRaise("Unsupported feature! Object can't be casted to string yet.")
-			ok
-
-			acResult + cValue
+			acResult + Q(aUniqueValues[i]).Stringified()
 		next
 
 		return acResult
