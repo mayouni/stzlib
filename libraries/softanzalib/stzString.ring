@@ -13722,28 +13722,25 @@ o1 = new stzString("12*34*56*78")
 	#-----------------------------------------------------#
 
 	def FindNthNextOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
+		# NOTE: same code as the same function is stzList
+		# --> TODO: think to abstruct it
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
-			pcSubStr = pcSubStr[2]
+		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+			pItem = pItem[2]
 		ok
 
-		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
+		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
 			nStart = nStart[2]
 		ok
 
-		oString = This.SectionQ(nStart, :LastChar)
+		nResult  = This.SectionQ(nStart+1, :LastChar).
+				FindNthCS(n, pcSubStr, pCaseSensitive)
 
-		nNumberOfOccurrences = oString.NumberOfOccurrenceCS( pcSubStr, pCaseSensitive )
-
-		if n > 0 and n <= nNumberOfOccurrences and
-		   nStart > 0 and nStart <= This.NumberOfChars()
-
-			nResult = oString.FindNthOccurrenceCS(n, pcSubStr, pCaseSensitive) + nStart - 1
-			return nResult
-
-		else
-			return 0
+		if nResult != 0
+			nResult += nStart
 		ok
+
+		return nResult
 
 		def FindNextNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 			return This.FindNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
@@ -13808,25 +13805,27 @@ o1 = new stzString("12*34*56*78")
 	#---------------------------------------------------------#
 
 	def FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+		# NOTE: same code as the same function is stzList
+		# --> TODO: think to abstruct it
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
-		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
+		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
 			nStart = nStart[2]
 		ok
 
-		oString = This.SectionQ(1, nStart)
+		nPos = This.SectionQ(nStart - 1, 1).
+			    FindNthCS(n, pcSubStr, pCaseSensitive)
 
-		anPositions = oString.FindAllCS(pcSubStr, pCaseSensitive)
-		nNumberOfOccurrences = len(anPositions)
-
-		if nNumberOfOccurrences = 0 or n > nNumberOfOccurrences
-			return 0
+		if nPos != 0
+			nResult = (1 + nStart) - nPos
 		else
-			return anPositions[ nNumberOfOccurrences - n + 1 ]
+			nResult = 0
 		ok
+
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -16062,22 +16061,26 @@ o1 = new stzString("12*34*56*78")
 	#------------------------------------------------------#
 
 	def FindBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
+		#< @MotherFunctionOf(FindBetween) #>
+
 		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
 			pcBound2 = pcBound2[2]
 		ok
 
-		anPositions = This.FindAllCS(pcBound1, pCaseSensitive)
-
-		nNumberOfPositions = len(anPositions)
-		nLenBound1 = StzStringQ(pcBound1).NumberOfChars()
+		anPositions2   = This.FindAllCS(pcBound2, pCaseSensitive)
+		nNumPositions2 = len(anPositions2)
+		nLenBound1     = StzStringQ(pcBound1).NumberOfChars()
 
 		aResult = []
-		for i = 1 to nNumberOfPositions
-			n1 = anPositions[i] + 1
-			n2 = This.FindNextCS(pcBound2, :StartingAt = n1, pCaseSensitive) - 1
 
-			if n2 > 0
-				aResult + [n1, n2]
+		for i = 1 to nNumPositions2
+			nPos = anPositions2[i]
+
+			nPos1 = This.FindPreviousCS(pcBound1, :StartingAt = nPos, pCaseSensitive)
+			nPos2 = This.FindPreviousCS(pcBound2, :StartingAt = nPos, pCaseSensitive)
+
+			if nPos1 > nPos2
+				aResult + [ (- 1 + nPos1 + nLenBound1), (nPos - 1) ]
 			ok
 		next
 

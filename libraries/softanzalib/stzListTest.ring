@@ -490,7 +490,7 @@ StopProfiler()
 #--> Executed in 1.47 second(s)
 
 /*----
-*/
+
 StartProfiler()
 
 o1 = new stzList(["__", "♥", "_", "__", "♥", "♥", "__", "♥" ])
@@ -508,6 +508,7 @@ StopProfiler()
 
 /*==========
 
+/*
 TODO - NAMING REFORM
 
 ..RemoveBetweenXT() : removes also bounds
@@ -531,6 +532,7 @@ ReplaceXT()
 
 RemoveXT()
 #--> DONE
+*/
 
 /*-----------
 
@@ -557,14 +559,60 @@ StopProfiler()
 /*-----------
 
 StartProfiler()
+#                   1    2    3    4    5    6    7
+o1 = new stzList([ "_", "_", "•", "_", "•", "_", "_" ])
+? o1.FindNext("•", :StartingAt = 5)
+#--> 0
+
+? o1.FindPrevious("•", :StartingAt = 3)
+#--> 0
+
+StopProfiler()
+# Executed in 0.03 second(s)
+
+/*-----------
+
+#vv : Personal note : these tow letters (vv) are introduced
+# on the keyborad by my 10 months-old child Hussein, while
+# he is playing on my desktop :)
+
+/*-----------
+
+StartProfiler()
 #                   1..4.6..9.1.34..7..0
 o1 = new stzString("[••[•[••]•[•]]••[••]]")
-? o1.DistanceTo("[",:startingat = 1)
+
+? o1.FindNext("[", :StartingAt = 17)
+#--> 0
+
+? o1.FindPrevious("]", :StartingAt = 9)
+#--> 0
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+#                   1..4.6..9.1.34..7..0
+o1 = new stzString("[••[•[••]•[•]]••[••]]")
+? o1.DistanceTo("[",:StartingAt = 1)
 #--> 4
 
 //? @@S( o1.FindBetweenAsSections("[","]") )
 
 StopProfiler()
+#--> Executed in 0.02 second(s)
+
+/*-----------
+*/
+StartProfiler()
+#                   1..4.6..9.1.34..7..0
+o1 = new stzString("[••[•[••]•[•]]••[••]]")
+
+? @@S( o1.FindBetweenAsSections("[","]") )
+
+StopProfiler()
+#--> [ [ 7, 8 ], [ 12, 12 ], [ 18, 19 ] ]
 
 /*-----------
 
