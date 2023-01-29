@@ -17,7 +17,7 @@ o1 = new stzList(' "♥1" : "♥3" ')
 
 # Using the function directly (without ..ed()) will definetly alter
 # the object content, without returning anything:
-o1.ReverseItems() # The items are reversed but nothing is returned
+o1.Reverse() # The items are reversed but nothing is returned
 # Let's see the object content:
 ? @@( o1.Content() )
 #--> [ "♥3", "♥2", "♥1" ]
@@ -25,7 +25,7 @@ o1.ReverseItems() # The items are reversed but nothing is returned
 # If you want to alter the object and then return it to continue
 # working on it, then use the ...Q() form like this:
 o1 = new stzList(' "♥1" : "♥3" ')
-? o1.ReverseItemsQ().ToStzListOfStrings().ConcatenatedUsing("~")
+? o1.ReverseQ().ToStzListOfStrings().ConcatenatedUsing("~")
 # returns a string containing "♥3~♥2~♥1"
 
 #--> Initially the object contained [ "♥1", "♥2", "♥3" ]. It's then
@@ -36,7 +36,7 @@ o1 = new stzList(' "♥1" : "♥3" ')
 /*-----------------------
 
 o1 = new stzList(1:3)
-? o1.ReversedItems()
+? o1.Reversed()
 #--> [ 3, 2, 1 ]
 
 /*============ REVRSING ITEMS IN PAIRS AND, MORE GENERALLY, IN LISTS

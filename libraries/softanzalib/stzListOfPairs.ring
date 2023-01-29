@@ -392,11 +392,7 @@ class stzListOfPairs from stzList
 
 	def ReversePairs()	
 
-		aResult = []
-		
-		for i = This.NumberOfPairs() to 1 step -1
-			aResult + This[i]
-		next
+		aResult = ring_reverse(This.ListOfPairs())
 
 		This.Update( aResult )
 
@@ -448,7 +444,6 @@ class stzListOfPairs from stzList
 		def PairsContentReversed()
 			return This.ItemsInPairsReversed()
 
-	
 	  #---------------------------------------------------------------#
 	 #   CHECKING IF THE PAIRS ARE SECTIONS AND IF THEY ARE SORTED   #
 	#---------------------------------------------------------------#

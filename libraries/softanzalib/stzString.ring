@@ -3215,7 +3215,7 @@ class stzString from stzObject
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
-		nResult = len( This.FindAllCS(pcSubStr, pCaseSensitive) )
+		nResult = -1 + This.SplitCSQ(pcSubStr, pCaseSensitive).NumberOfItems()
 		return nResult
 
 		#< @FunctionAlternativeForm
@@ -13437,14 +13437,9 @@ o1 = new stzString("12*34*56*78")
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
-	
-		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
-		
-		if len(anPos) = 0
-			return 0
-		else
-			return anPos[len(anPos)]
-		ok
+
+		nResult = This.FindPreviousCS(pcSubStr, :StartingAt = :LastChar, pCaseSensitive)
+		return nResult
 
 
 		#< @FunctionAlternativeForm
@@ -13722,16 +13717,48 @@ o1 = new stzString("12*34*56*78")
 	#-----------------------------------------------------#
 
 	def FindNthNextOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
-		# NOTE: same code as the same function is stzList
-		# --> TODO: think to abstruct it
 
 		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
-			pItem = pItem[2]
+			pcSubStr = pcSubStr[2]
 		ok
 
 		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
 			nStart = nStart[2]
 		ok
+
+		if NOT BothAreNumbers(n, nStart)
+			StzRaise("Incorrect param type! n and nStart must be numbers.")
+		ok
+
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+
+		ok
+
+		# Early checks (gains performance for large strings)
+
+		if pcSubStr = ""
+			return 0
+		ok
+
+		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+			return 0
+		ok
+
+		nLen = This.NumberOfChars()
+
+		if (NOT Q(n).IsBetween(1, nLen - nStart)) or
+		   (NOT Q(nStart).IsBetween(1, nLen - n))
+
+			return 0
+		ok
+
+		if n = nLen and
+		   This.LastCharQ().IsEqualToCS(pcSubStr, pCaseSensitive)
+			return nLen
+		ok
+
+		# Full check
 
 		nResult  = This.SectionQ(nStart+1, :LastChar).
 				FindNthCS(n, pcSubStr, pCaseSensitive)
@@ -13805,8 +13832,8 @@ o1 = new stzString("12*34*56*78")
 	#---------------------------------------------------------#
 
 	def FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
-		# NOTE: same code as the same function is stzList
-		# --> TODO: think to abstruct it
+
+		# Resolving params
 
 		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
@@ -13816,16 +13843,62 @@ o1 = new stzString("12*34*56*78")
 			nStart = nStart[2]
 		ok
 
-		nPos = This.SectionQ(nStart - 1, 1).
-			    FindNthCS(n, pcSubStr, pCaseSensitive)
-
-		if nPos != 0
-			nResult = (1 + nStart) - nPos
-		else
-			nResult = 0
+		if NOT BothAreNumbers(n, nStart)
+			StzRaise("Incorrect param type! n and nStart must be numbers.")
 		ok
 
-		return nResult
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+
+		ok
+
+		# Early checks (gains performance for large strings)
+
+		if pcSubStr = ""
+			return 0
+		ok
+
+		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+			return 0
+		ok
+
+		nLen = This.NumberOfChars()
+
+		if (NOT Q(n).IsBetween(1, nLen - 1)) or
+		   (NOT Q(nStart).IsBetween(n + 1, nLen))
+
+			return 0
+		ok
+
+		if n = nLen and
+		   This.FirstCharQ().IsEqualToCS(pcSubStr, pCaseSensitive)
+			return nLen
+		ok
+
+		# Full check (only occurrences of pcSubStr are parsed, not every char)
+
+		nPos = nStart
+		nFound = 0
+		i = 0
+
+		while TRUE
+			i++
+			if i > nLen
+				exit
+			ok
+
+			nPos = This.FindPreviousCS(pcSubStr, :StartingAt = nPos, pCaseSensitive)
+			if nPos = 0
+				exit
+			else
+				nFound++
+				if nFound = n
+					return nPos
+				ok
+			ok
+		end
+
+		return 0
 
 		#< @FunctionAlternativeForms
 
@@ -13953,9 +14026,34 @@ o1 = new stzString("12*34*56*78")
 	 #      STARTING FROM A GIVEN POSITION N               #
 	#-----------------------------------------------------#
 
-	def FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindPreviousNthOccurrenceCS(1, pcSubStr, nStart, pCaseSensitive)
-	
+	def FindPreviousOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if pcSubStr = "" or
+		   NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+
+			return 0
+		ok
+
+		oSection = This.SectionQ(1, pnStartingAt-1)
+		nLen = oSection.NumberOfItems()
+		i = nLen + 1
+
+		while TRUE
+			i--
+			if i = 0
+				exit
+			ok
+
+			if Q(oSection[i]).IsEqualToCS(pcSubStr, pCaseSensitive)
+				return i
+			ok
+		end
+
+		return 0	
+
 		def FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 			return This.FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 
@@ -14014,6 +14112,7 @@ o1 = new stzString("12*34*56*78")
 	#-------------------------------------------------#
 
 	def FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
+		#< QtBased >
 
 		# Resolving the pcSubStr param
 
@@ -16080,7 +16179,7 @@ o1 = new stzString("12*34*56*78")
 			nPos2 = This.FindPreviousCS(pcBound2, :StartingAt = nPos, pCaseSensitive)
 
 			if nPos1 > nPos2
-				aResult + [ (- 1 + nPos1 + nLenBound1), (nPos - 1) ]
+				aResult + [ (nPos1 + nLenBound1 - 1), (nPos - 1) ]
 			ok
 		next
 
@@ -28428,6 +28527,8 @@ o1 = new stzString("12*34*56*78")
 	#-------------------------------#
 	
 	def NthChar(n)
+		#< QtBased >
+
 		if NOT isNumber(n)
 			stzRaise("Incorrect param type! n should be a number.")
 		ok
@@ -29541,13 +29642,15 @@ o1 = new stzString("12*34*56*78")
 	#----------------------------------#
 
 	def ReverseCharsOrder()
-		cResult = ""
-		
-		for i = This.NumberOfChars() to 1 step -1
-			cResult += This.NthChar(i)
+		cInversed = ""
+		nLen = This.NumberOfChars()
+		acReversed = []
+
+		for i = 1 to nLen
+			cInversed += This.@oQString.mid(i-1, 1)
 		next
-				
-		This.Update( cResult )
+
+		This.Update( cInversed )
 
 		#< @FunctionFluentForm
 
