@@ -534,11 +534,7 @@ class stzListOfLists from stzList
 
 	def ReverseLists()
 
-		aResult = []
-		
-		for i = This.NumberOfLists() to 1 step -1
-			aResult + This[i]
-		next
+		aResult = ring_reverse(This.ListOfLists())
 
 		This.Update( aResult )
 

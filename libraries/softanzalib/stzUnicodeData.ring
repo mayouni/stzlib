@@ -34652,9 +34652,18 @@ FFFFD;<Plane 15 Private Use, Last>;Co;0;L;;;;;N;;;;;
 
 func UnicodeData()
 	return _cUnicodeData
+	
+	func StzUnicodeDataQ()
+		return new stzUnicodeData()
 
-func StzUnicodeDataQ()
-	return new stzUnicodeData()
+	func UnicodeDataAsString()
+		return UnicodeData()
+
+		func UnicodeDataAsStringQ()
+			return new stzUnicodeDataAsString()
+
+
+class stzUnicodeDataAsString from stzUnicodeData
 
 class stzUnicodeData
 	@oStzStrUnicodeData

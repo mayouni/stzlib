@@ -1,5 +1,143 @@
 load "stzlib.ring"
 
+/*-----------
+
+StartProfiler()
+
+oLargeStr = new stzString( UnicodeData() )
+
+? oLargeStr.NumberOfChars()
+#--> 1_897_793
+# Executed in 0.02 second(s)
+
+? oLargeStr.NumberOfLines()
+#--> 34_626
+# Executed in 0.02 second(s)
+
+? oLargeStr.SplitQ(NL).NumberOfItems()
+#--> Executed in 0.45 second(s)
+
+StopProfiler()
+# Executed in 0.85 second(s)
+
+/*-----------
+
+StartProfiler()
+
+oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
+? oLargeStr.Reverse()
+? oLargeStr.Content()
+
+StopProfiler()
+# Executed in 14.56 second(s)
+
+/*-----------
+
+# Testing extreme cases in FindNthNext()/FindNthPrevious on a small string
+
+StartProfiler()
+#                   .2....7.9
+o1 = new stzString("•••••••••")
+
+? o1.FindNext("", :StartingAt = 1)
+#--> 0
+
+? o1.FindNext("x", :StartingAt = 1)
+#--> 0
+
+? o1.FindNthNext(6, "•", :StartingAt = 3)
+#--> 9
+
+? o1.FindNthNext(5, "•", :StartingAt = 1)
+#--> 6
+
+
+? o1.FindPrevious("", :StartingAt = 9)
+#--> 0
+
+? o1.FindPrevious("x", :StartingAt = 1)
+#--> 0
+
+? o1.FindNthPrevious(8, "•", :StartingAt = 9)
+#--> 1
+
+? o1.FindNthPrevious(3, "•", :StartingAt = 4)
+#--> 1
+
+StopProfiler()
+# Executed in 0.03 second(s)
+
+/*-----------
+*/
+# Testing FindNthNext()/FindNthPrevious
+# on a very large string (~2M chars)
+
+StartProfiler()
+
+o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
+
+? o1.FindNext("", :StartingAt = 1)
+#--> 0
+
+? o1.FindNext("ARABIC HA", :StartingAt = 1)
+#--> 110819
+
+? o1.FindNthNext(6, "ARABIC", :StartingAt = 3)
+#--> 106563
+
+? o1.FindNthNext(12, "HAN", :StartingAt = 250_000)
+#--> 300537
+
+
+? o1.FindPrevious("", :StartingAt = 9)
+#--> 0
+
+? o1.FindPrevious("x", :StartingAt = 1)
+#--> 0
+
+StopProfiler()
+# Executed in 0.09 second(s)
+
+/*-----------
+
+# Testing FindLast() on a small string
+
+StartProfiler()
+#                    2    7
+o1 = new stzString("•♥••••♥••")
+? o1.FindLast("♥")
+#--> 7
+
+? o1.FindLast("_")
+#--> 0
+
+StopProfiler()
+# Executed in 0.03 second(s)
+
+/*-----------
+
+# Testing FindLast() on a very large string (~2M chars)
+
+StartProfiler()
+
+o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
+? o1.FindLast("جميل")
+#--> 0
+
+StopProfiler()
+# Executed in 0.03 second(s)
+
+/*-----------
+
+StartProfiler()
+
+oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
+? oLargeStr.FindLast(";")
+#--> Executed in 0.45 second(s)
+
+StopProfiler()
+# Executed in 0.85 second(s)
+
 /*===========
 
 StartProfiler()

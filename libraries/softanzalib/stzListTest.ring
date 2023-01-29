@@ -1,31 +1,5 @@
 load "stzlib.ring"
 
-/*========
-
-StartProfiler()
-
-o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
-? @@S( o1.FindDuplicates() )
-
-StopProfiler()
-
-/*------------
-
-StartProfiler()
-#                   1    2    3    4    5    6    7     8    9   10
-o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" , "♥", "_", "_" ])
-
-//? o1.FindPrevious("♥", :StartingAt = 5)
-#--> 3
-
-? o1.FindNthPrevious(2, "♥", :StartingAt = 7)
-#--> 3
-
-? o1.FindNthPrevious(3, "♥", :StartingAt = 9)
-#--> 3
-
-StopProfiler()
-
 /*------------ TODO
 
 o1 = new stzString([
@@ -38,7 +12,36 @@ o1 = new stzString([
 	'{ Q("anycode").Uppercased() }'
 ])
 
+/*========
+
+StartProfiler()
+
+o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
+? @@S( o1.FindDuplicates() )
+
+StopProfiler()
+
+/*==========
+*/
+StartProfiler()
+#                   1    2    3    4    5    6    7     8    9   10
+o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" , "♥", "_", "_" ])
+
+? o1.FindPrevious("♥", :StartingAt = 5)
+#--> 3
+
+? o1.FindNthPrevious(2, "♥", :StartingAt = 7)
+#--> 3
+
+? o1.FindNthPrevious(3, "♥", :StartingAt = 9)
+#--> 3
+
+StopProfiler()
+# Executed in 0.04 second(s)
+
 /*------------
+*/
+StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
 
@@ -64,16 +67,22 @@ o1 = new stzString([
 	o1 = new stzList(aLargeListOfStr)
 
 	? o1.FindNext("♥", :StartingAt = 12_000)
-	#--> 3
+	#--> 100_004
+	# Executed in 2.25 second(s)
 	
 	? o1.FindNthNext(6, "♥", :StartingAt = 1)
-	#--> 3
+	#--> 150_011
+	# Executed in 3.50 second(s)
 	
 	? o1.FindNthNext(3, "♥", :StartingAt = 12_000)
-	#--> 3
+	#--> 150_008
+	# Executed in 2.71 second(s)
+
+StopProfiler()
+# Executed in 8.31 second(s)
 
 /*------------
-
+*/
 StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
@@ -95,21 +104,31 @@ StartProfiler()
 		aLargeListOfStr + "_"
 	next i
 
+	# NOTE: Internally, FindNthPrevious() useses native
+	# ring_revers() function which has a good performance:
+	# 
+	# ring_reverse(aLargeListOfStr)
+	# Executed in 0.16 second(s)
+# 
+
 # Finding previous "♥"
 
 	o1 = new stzList(aLargeListOfStr)
 
 	? o1.FindPrevious("♥", :StartingAt = 5)
 	#--> 3
-	
+	# Executed in 0.12 second(s)
+
 	? o1.FindNthPrevious(2, "♥", :StartingAt = 120_000)
-	#--> 3
-	
+	#--> 100_004
+	# Executed in 3.58 second(s)
+
 	? o1.FindNthPrevious(3, "♥", :StartingAt = 150_000)
 	#--> 3
+	# Executed in 4.70 second(s)
 
 StopProfiler()
-# Executed in 39.96 second(s)
+# Executed in 8.27 second(s)
 
 /*------------
 
@@ -3601,7 +3620,7 @@ o1 = new stzList([ "medianet", "st2i", "webgenetix", "equinoxes", "groupe-lsi",
 //? ListReverse([ 1, 2, 3 ])
 
 o1 = new stzList([ "tunis", 1:3, 1:3, "gafsa", "tunis", "tunis", 1:3, "gabes", "tunis", "regueb", "regueb" ])
-//o1.ReverseItems() # Note: Softanza does not use Reverse() because it is reserved by Ring
+//o1.Reverse()
 //? o1.Content()
 //? o1.NumberOfDuplicates("tunis")
 ? o1.DuplicatedItems()

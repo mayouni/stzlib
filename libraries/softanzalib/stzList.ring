@@ -10188,34 +10188,54 @@ class stzList from stzObject
 	 #  REVERSING ITEMS ORDER IN THE LIST  #
 	#-------------------------------------#
 
-	def ReverseItems()	# NOTE: we can't use REVERSE() because
-				# it is reserved by Ring
-		aResult = []
-		
-		for i = This.NumberOfItems() to 1 step -1
-			aResult + This[i]
-		next
+	def Reverse()
 
+		aResult = ring_reverse( This.List() )
 		This.Update( aResult )
 
-		def ReverseItemsQ()
-			This.ReverseItems()
+		def ReverseQ()
+			This.Reverse()
 			return This
 
-			def ReverseQ()
-				return This.ReverseItemsQ()
+		#< @FunctionAlternativeForms
 
-	def ReversedItems()
-		aResult = This.Copy().ReverseItemsQ().Content()
+		def ReverseOrder()
+			This.Reverse()
+
+			def ReverseOrderQ()
+				This.ReverseOrder()
+				return This
+
+		def ReverseItems()
+			This.Reverse()
+
+			def ReverseItemsQ()
+				This.ReverseItems()
+				return This
+
+		def ReverseItemsOrder()
+			This.Reverse()
+
+			def ReverseItemsOrderQ()
+				This.ReverseItemsOrder()
+				return This
+
+		#>
+
+	def Reversed()
+		aResult = This.Copy().ReverseQ().Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
 
 		def ItemsReversed()
-			return This.ReversedItems()
+			return This.Reversed()
 
-		def Reversed()
-			return This.ReversedItems()
+		def ItemsOrderReversed()
+			return This.Reversed()
+
+		def OrderReversed()
+			return This.Reversed()
 
 		#>
 
@@ -11532,7 +11552,7 @@ oTable.Show() + NL
 				return Q(This.TrailingItem())
 	
 	def RepeatedTrailingItems()
-		aResult = This.Copy().ReverseItemsQ().RepeatedLeadingItems()
+		aResult = This.Copy().ReverseQ().RepeatedLeadingItems()
 		return aResult
 
 		def RepeatedTrailingItemsQ()
@@ -12889,7 +12909,7 @@ oTable.Show() + NL
 
 	def ContainsCS(pItem, pCaseSensitive)
 
-		if This.FindFirstOccurrenceCS(pItem, pCaseSensitive) > 0
+		if This.FindFirstCS(pItem, pCaseSensitive) > 0
 			return TRUE
 		else
 			return FALSE
@@ -14991,6 +15011,8 @@ oTable.Show() + NL
 	#-------------------------------------------------#
 
 	def FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
@@ -14998,6 +15020,32 @@ oTable.Show() + NL
 		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
 			nStart = nStart[2]
 		ok
+
+		if NOT BothAreNumbers(n, nStart)
+			StzRaise("Incorrect param type! n and nStart must be numbers.")
+		ok
+
+
+		# Early checks (gains performance for large strings)
+
+		if NOT This.ContainsCS(pItem, pCaseSensitive)
+			return 0
+		ok
+
+		nLen = This.NumberOfItems()
+
+		if (NOT Q(n).IsBetween(1, nLen - nStart)) or
+		   (NOT Q(nStart).IsBetween(1, nLen - n))
+
+			return 0
+		ok
+
+		if n = nLen and
+		   This.LastItemQ().IsEqualToCS(pItem, pCaseSensitive)
+			return nLen
+		ok
+
+		# Full check
 
 		nResult  = This.SectionQ(nStart+1, :LastItem).
 				FindNthCS(n, pItem, pCaseSensitive)
@@ -15007,8 +15055,6 @@ oTable.Show() + NL
 		ok
 
 		return nResult
-
-		
 
 		#< @FunctionAlternativeForms
 
@@ -15060,6 +15106,8 @@ oTable.Show() + NL
 
 	def FindNthPreviousOccurrenceCS(n, pItem, nStart, pCaseSensitive)
 
+		# Resolving params
+
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
@@ -15067,6 +15115,51 @@ oTable.Show() + NL
 		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
 			nStart = nStart[2]
 		ok
+
+	# Resolving params
+
+		if isList(pItem) and Q(pItem).IsOfNamedParam()
+			pItem = pItem[2]
+		ok
+
+		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
+			nStart = nStart[2]
+		ok
+
+		if NOT BothAreNumbers(n, nStart)
+			StzRaise("Incorrect param type! n and nStart must be numbers.")
+		ok
+
+		# Early checks (gains performance for large strings)
+		# Very quick on small to medium lists (thousands of item)
+		# Takes half a second on a list of +150K hybrid items
+
+		if NOT This.ContainsCS(pItem, pCaseSensitive)
+			return 0
+		ok
+
+		nLen = This.NumberOfItems()
+
+		if (NOT Q(n).IsBetween(1, nLen - 1)) or
+		   (NOT Q(nStart).IsBetween(n + 1, nLen))
+
+			return 0
+		ok
+
+		# The following check is very quick, even for
+		# large lists (less then 0.01s)
+
+		if n = nLen and
+		   This.FirstItemQ().IsEqualToCS(pItem, pCaseSensitive)
+			return nLen
+		ok
+
+		# Doing full check
+
+		# Until this point, elapsed time approches 0.80 second
+		# in parsing a list of +150K hynrid items
+
+		# For the same list, the following check take about 2.76 second
 
 		nPos = This.SectionQ(nStart, 1).
 			    FindNthCS(n, pItem, pCaseSensitive)
@@ -15159,11 +15252,18 @@ oTable.Show() + NL
 		ok
 
 		cItem = Q(pItem).Stringified()
+		if cItem = ""
+			return 0
+		ok
 
-		acSplitted = This.SectionQ(1, pnStartingAt-1).
+		acItemsAsStrings = This.SectionQ(1, pnStartingAt-1).
 				  StringifyQ().Content()
+		
+		if NOT Q(acItemsAsStrings).ContainsCS(cItem, pCaseSensitive)
+			return 0
+		ok
 
-		nLen = len(acSplitted)
+		nLen = len(acItemsAsStrings)
 		i = nLen + 1
 
 		while TRUE
@@ -15173,7 +15273,7 @@ oTable.Show() + NL
 				exit
 			ok
 
-			if Q(acSplitted[i]).IsEqualToCS(cItem, pCaseSensitive)
+			if Q(acItemsAsStrings[i]).IsEqualToCS(cItem, pCaseSensitive)
 				return i
 			ok
 		end
