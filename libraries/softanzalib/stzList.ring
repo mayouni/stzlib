@@ -2981,22 +2981,69 @@ class stzList from stzObject
 			This.DeepReplace(pItem, pByValue)
 			return This
 
-	  #===========================================================#
+	  #=========================================================#
 	 #   REMOVING ALL OCCURRENCE OF A GIVEN ITEM IN THE LIST   #
-	#===========================================================#
+	#=========================================================#
 
-	def RemoveAll(pItem)
+	def RemoveAllCS(pItem, pCaseSensitive)
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
 
-		anPositions = This.FindAll(pItem)
+		anPositions = This.FindAllCS(pItem, pCaseSensitive)
 
 		for i = len(anPositions) to 1 step -1
 			n = anPositions[i]
 			This.RemoveItemAtPosition(n)
 		next
 
+		#< @FunctionFluentForm
+
+		def RemoveAllCSQ(pItem, pCaseSensitive)
+			This.RemoveAllCS(pItem, pCaseSensitive)
+			return This
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveAllOccurrencesCS(pItem, pCaseSensitive)
+			This.RemoveAllCS(pItem, pCaseSensitive)
+
+			def RemoveAllOccurrencesCSQ(pItem, pCaseSensitive)
+				This.RemoveAllOccurrencesCS(pItem, pCaseSensitive)
+				return This
+
+		def RemoveCS(pItem, pCaseSensitive)
+			This.RemoveAllCS(pItem, pCaseSensitive)
+
+			def RemoveCSQ(pItem, pCaseSensitive)
+				This.RemoveCS(pItem, pCaseSensitive)
+				return This
+
+		def RemoveItemCS(pItem, pCaseSensitive)
+			This.RemoveAllCS(pItem, pCaseSensitive)
+
+			def RemoveItemCSQ(pItem, pCaseSensitive)
+				This.RemoveItemCS(pItem, pCaseSensitive)
+				return This
+
+		#>
+
+	def AllOccurrencesOfThisItemRemovedCS(pItem, pCaseSensitive)
+		aResult = This.Copy().RemoveAllOccurrencesCSQ(pItem, pCaseSensitive).Content()
+		return aResult
+
+		def AllOccurrencesRemovedCS(pItem, pCaseSensitive)
+			return This.AllOccurrencesOfThisItemRemovedCS(pItem, pCaseSensitive)
+
+		def ItemRemovedCS(pItem, pCaseSensitive)
+			return This.AllOccurrencesOfThisItemRemovedCS(pItem, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveAll(pItem)
+		This.RemoveAllCS(pItem, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -3015,17 +3062,6 @@ class stzList from stzObject
 				This.RemoveAllOccurrences(pItem)
 				return This
 
-		#--
-
-		def RemoveAllOccurrencesOfItem(pItem)
-			This.RemoveAll(pItem)
-
-			def RemoveAllOccurrencesOfItemQ(pItem)
-				This.RemoveAllOccurrencesOfItem(pItem)
-				return This
-
-		#--
-
 		def Remove(pItem)
 			This.RemoveAll(pItem)
 
@@ -3033,16 +3069,12 @@ class stzList from stzObject
 				This.Remove(pItem)
 				return This
 
-		#--
-
 		def RemoveItem(pItem)
 			This.RemoveAll(pItem)
 
 			def RemoveItemQ(pItem)
 				This.RemoveItem(pItem)
 				return This
-
-		#--
 
 	def AllOccurrencesOfThisItemRemoved(pItem)
 		aResult = This.Copy().RemoveAllOccurrencesQ(pItem).Content()
@@ -4344,7 +4376,7 @@ class stzList from stzObject
 	#====================================#
 
 	def ExtractCS(pItem, pCaseSensitive)
-		if NOT This.ContainsCS(pItem)
+		if NOT This.ContainsCS(pItem, pCaseSensitive)
 			StzRaise("Can't extract the item! It does not exist in the list.")
 		ok
 
@@ -4361,7 +4393,7 @@ class stzList from stzObject
 	#---------------------------------------#
 
 	def ExtractManyCS(paItems, pCaseSensitive)
-		if NOT This.ContainsManyCS(paItems)
+		if NOT This.ContainsManyCS(paItems, pCaseSensitive)
 			StzRaise("Can't extract the items! Items in paItems do not exist in the list.")
 		ok
 
@@ -4371,7 +4403,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractMany(paItems)
-		return This.ExtractManyCS(paItems,:pCaseSensitive = TRUE)
+		return This.ExtractManyCS(paItems, :pCaseSensitive = TRUE)
 
 	  #------------------------------------------#
 	 #  EXTRACTING ALL THE ITEMS FROM THE LIST  #
@@ -13151,37 +13183,6 @@ oTable.Show() + NL
 			return This.IsContainedIn(p)
 
 		#>
-	
-	  #-------------------------------------------------------------#
-	 #  CHECKING IF THE LIST CONTAINS EACH ONE OF THE GIVEN ITEMS  #
-	#-------------------------------------------------------------#
-
-	def ContainsEach(paItems)
-
-		bResult = TRUE
-		nLen = len(paItems)
-
-		for i = 1 to nLen
-			if NOT This.Contains(paItems[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		def ContainsEachOneOfThese(paItems)
-			return This.ContainsEach(paItems)
-
-		def ContainsAll(paItems)
-			return This.ContainsEach(paItems)
-
-		#< @FunctionNagationForm
-
-		def ContainsNoOne()
-			return NOT This.ContainsEach(paItems)
-
-		#>
 
 	  #--------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS BOTH GIVEN ITEMS  #
@@ -13207,18 +13208,29 @@ oTable.Show() + NL
 			return This.EachItemExistsIn(paOtherList)
 
 	  #------------------------------------------------------------#
-	 #  CHECKING IF THE LIST IS ONE OF THE ITEMS OF A GIVEN LIST  # TODO: Add CaseSensitivty
+	 #  CHECKING IF THE LIST IS ONE OF THE ITEMS OF A GIVEN LIST  #
 	#------------------------------------------------------------#
 
+	def IsOneOfTheseCS(paOtherList, pCaseSensitive)
+		bResult = StzListQ(paOtherList).ContainsCS( This.List(), pCaseSensitive )
+		return bResult
+
+		def IsNotOneOfTheseCS(paOtherList, pCaseSensitive)
+			return NOT This.IsOneOfTheseCS(paOtherList, pCaseSensitive)
+	
+	#-- WITHOUT CASESENSITIVITY
+
 	def IsOneOfThese(paOtherList)
-		return StzListQ(paOtherList).Contains( This.List() )
+		return This.IsOneOfTheseCS(paOtherList, :CaseSensitive = TRUE)
 
 		def IsNotOneOfThese(paOtherList)
 			return NOT This.IsOneOfThese(paOtherList)
-	
-	#--
 
-	def ContainsMany(paSetOfItems)
+	  #------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS EACH OF THE PROVIDED ITEMS  #
+	#------------------------------------------------------------#
+
+	def ContainsMany(paSetOfItems, pCaseSensitive)
 		
 		if Q(paSetOfItems).IsNotList()
 			StzRaise("Incorrect param type! You must provide a list.")
@@ -13227,7 +13239,7 @@ oTable.Show() + NL
 		bResult = TRUE
 
 		for item in paSetOfItems
-			if This.ContainsNo(item)
+			if This.ContainsNoCS(item, pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -13235,19 +13247,72 @@ oTable.Show() + NL
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def IsMadeOfCS(paSetOfItems, pCaseSensitive)
+			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+
+		def IsMadeOfTheseCS(paSetOfItems, pCaseSensitive)
+			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+
+		def ContainsEachCS(paSetOfItems, pCaseSensitive)
+			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+
+		def ContainsEachOneOfTheseCS(paItems, pCaseSensitive)
+			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+
+		def ContainsAllCS(paItems, pCaseSensitive)
+			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+
+		#>
+
+		#< @FunctionNagationForm
+
+		def ContainsNoOneCS(paItems, pCaseSensitive)
+			return NOT This.ContainsEachCS(paItems, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsMainyCS(paSetOfItems)
+		return This.ContainsManyCs(paSetOfItems, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
 		def IsMadeOf(paSetOfItems)
 			return This.ContainsMany(paSetOfItems)
 
 		def IsMadeOfThese(paSetOfItems)
 			return This.ContainsMany(paSetOfItems)
 
-	#--
+		def ContainsEach()
+			return This.ContainsMany(paSetOfItems)
 
-	def ContainsSome(paItems)
+		def ContainsEachOneOfThese(paItems)
+			return This.ContainsMany(paSetOfItems)
+
+		def ContainsAll(paItems)
+			return This.ContainsMany(paSetOfItems)
+
+		#>
+
+		#< @FunctionNagationForm
+
+		def ContainsNoOne()
+			return NOT This.ContainsEach(paItems)
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS SOME OF THE PROVIDED ITEMS  #
+	#------------------------------------------------------------#
+
+	def ContainsSomeCS(paItems, pCaseSensitive)
 		bResult = FALSE
 
 		for item in paItems
-			if This.Contains(item)
+			if This.ContainsCS(item, pCaseSensitive)
 				bResult = TRUE
 				exit
 			ok
@@ -13255,6 +13320,28 @@ oTable.Show() + NL
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def IsMadeOfSomeCS(paSetOfItems, pCaseSensitive)
+			return This.ContainsSomeCS(paSetOfItems, pCaseSensitive)
+
+		def IsMadeOfSomeOfTheseCS(paSetOfItems, pCaseSensitive)
+			return This.ContainsSomeCS(paSetOfItems, pCaseSensitive)
+
+		def IsMadeOfOneOrMoreOfTheseCS(paSetOfItems, pCaseSensitive)
+			return This.ContainsSomeCS(paSetOfItems, pCaseSensitive)
+
+		def IsMadeOfOneOrMoreOfCS(paSetOfItems, pCaseSensitive)
+			return This.ContainsSomeCS(paSetOfItems, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsSome(paSetOfItems)
+		return This.ContainsSomeCS(paSetOfItems, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def IsMadeOfSome(paSetOfItems)
 			return This.ContainsSome(paSetOfItems)
@@ -13268,27 +13355,58 @@ oTable.Show() + NL
 		def IsMadeOfOneOrMoreOf(paSetOfItems)
 			return This.ContainsSome(paSetOfItems)
 
-	#--
+		#>
 
-	def ContainsAny(pSetOfItems) # TODO: Add CaseSensitivity
+	  #-----------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS ANY OF THE PROVIDED ITEMS  #
+	#-----------------------------------------------------------#
+
+	def ContainsAnyCS(pSetOfItems, pCaseSensitive)
 		/*
 		Example:
 
 		o1 = new stzList([ :monday, :monday, :monday ])
 		? o1.ContainsAny([ :sunday, :monday, :saturday, :wednesday, :thirsday, :friday, :saturday ])
-		
+		#--> TRUE
+
 		*/
 
 		bResult = FALSE
 
 		for item in pSetOfItems
-			if This.NumberOfOccurrence(item) = This.NumberOfItems()
+			if This.NumberOfOccurrenceCS(item, pCaseSensitive) = This.NumberOfItems()
 				bResult = TRUE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+
+		def ContainsAnyOneOfTheseCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+
+		def IsMadeOfOneOfTheseCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+
+		def ContainsOneCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+
+		def ContainsOneOfTheCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsAny(pSetOfItems)
+		return This.ContainsAnyCS(pSetOfItems, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def ContainsOneOfThese(pSetOfItems)
 			return This.ContainsAny(pSetOfItems)
@@ -13305,17 +13423,53 @@ oTable.Show() + NL
 		def ContainsOneOfThe(pSetOfItems)
 			return This.ContainsAny(pSetOfItems)
 
-	#--
+		#>
 
-	def ContainsOnlyOne(paItems)
+	  #----------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS ONLY ONE OF THE PROVIDED ITEMS  #
+	#----------------------------------------------------------------#
+
+	def ContainsOnlyOneCS(paItems, pCaseSensitive)
 		bResult = FALSE
 		for item in paItems
-			if This.IsMadeOfItem(item)
+			if This.IsMadeOfItemCS(item, pCaseSensitive)
 				bResult = TRUE
 				exit
 			ok
 		next
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ContainsOnlyOneOfTheseCS(paItems, pCaseSensitive)
+			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
+
+		def IsMadeOfOnlyOneOfTheseCS(paItems, pCaseSensitive)
+			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
+
+		def ContainsAnItemFromCS(paItems, pCaseSensitive)
+			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
+
+		def ContainsAnItemFromTheseCS(paItems, pCaseSensitive)
+			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
+
+		def ContainsOneItemFromCS(paItems, pCaseSensitive)
+			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
+
+		def ContainsOneItemFromTheseCS(paItems, pCaseSensitive)
+			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
+
+		def ContainsOnlyOneOfTheCS(paItems, pCaseSensitive)
+			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsOnlyOne(paItems)
+		return This.ContainsOnlyOneCS(paItems, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def ContainsOnlyOneOfThese(paItems)
 			return This.ContainsOnlyOne(paItems)
@@ -13338,13 +13492,17 @@ oTable.Show() + NL
 		def ContainsOnlyOneOfThe(paItems)
 			return This.ContainsOnlyOne(paItems)
 
-	#--
+		#>
 
-	def ContainsN(n, paItems)
+	  #---------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS N OF THE PROVIDED ITEMS  #
+	#---------------------------------------------------------#
+
+	def ContainsNCS(n, paItems, pCaseSensitive)
 		bResult = FALSE
 		m = 0
 		for pItem in paItems
-			if This.Contains(pItem)
+			if This.ContainsCS(pItem, pCaseSensitive)
 				m++
 				if n = m
 					bResult = TRUE
@@ -13355,10 +13513,20 @@ oTable.Show() + NL
 
 		return bResult
 
+		def ContainsNOfCS(n, paItems, pCaseSensitive)
+			return This.ContainsNCS(n, paItems, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsN(n, paItems)
+		return This.ContainsNCS(n, paItems, :CaseSensitive = TRUE)
+
 		def ContainsNOf(n, paItems)
 			return This.ContainsN(n, paItems)
 
-	#--
+	  #-----------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS NUMBERS  #
+	#-----------------------------------------#
 
 	def ContainsNumbers()
 		bResult = FALSE
@@ -13375,13 +13543,9 @@ oTable.Show() + NL
 		def ContainsNoNumbers()
 			return NOT This.ContainsNumbers()
 
-	def ContainsNumbersAtSameLevel()
-		// TODO
-
-		def ContainsNoNumbersAtAnyLevel()
-			return NOT This.ContainsContainsNumbersAtSameLevel()
-
-	#--
+	  #-----------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS STRINGS  #
+	#-----------------------------------------#
 
 	def ContainsStrings()
 		bResult = FALSE
@@ -13398,13 +13562,9 @@ oTable.Show() + NL
 		def ContainsNoStrings()
 			return NOT This.ContainsStrings()
 
-	def ContainsStringsAtSameLevel()
-		// TODO
-
-		def ContainsNoStringsAtAnyLevel()
-			return NOT This.ContainsStringsAtSameLevel()
-
-#--------------
+	  #---------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS LISTS  #
+	#---------------------------------------#
 
 	def ContainsLists()
 		bResult = FALSE
@@ -13421,13 +13581,9 @@ oTable.Show() + NL
 		def ContainsNoLists()
 			return NOT This.ContainsLists()
 
-	def ContainsListsAtSameLevel()
-		// TODO
-
-		def ContainsNoListsAtAnyLevel()
-			return NOT This.ContainsListsAtSameLevel()
-
-#--------------
+	  #-----------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS OBJECTS  #
+	#-----------------------------------------#
 
 	def ContainsObjects()
 		for item in This.List()
