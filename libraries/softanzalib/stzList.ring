@@ -4339,6 +4339,158 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveItemsWQ(pCondition).Content()
 		return aResult
 
+	  #====================================#
+	 #  EXTRACTING AN ITEM FROM THE LIST  #
+	#====================================#
+
+	def ExtractCS(pItem, pCaseSensitive)
+		if NOT This.ContainsCS(pItem)
+			StzRaise("Can't extract the item! It does not exist in the list.")
+		ok
+
+		This.RemoveCS(pItem, pCaseSensitive)
+		return pItem
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Extract(pItem)
+		return This.ExtractCS(pItem, :CaseSensitive = TRUE)
+
+	  #---------------------------------------#
+	 #  EXTRACTING MANY ITEMS FROM THE LIST  #
+	#---------------------------------------#
+
+	def ExtractManyCS(paItems, pCaseSensitive)
+		if NOT This.ContainsManyCS(paItems)
+			StzRaise("Can't extract the items! Items in paItems do not exist in the list.")
+		ok
+
+		This.RemoveManyCS(paItems, pCaseSensitive)
+		return paItems
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ExtractMany(paItems)
+		return This.ExtractManyCS(paItems,:pCaseSensitive = TRUE)
+
+	  #------------------------------------------#
+	 #  EXTRACTING ALL THE ITEMS FROM THE LIST  #
+	#------------------------------------------#
+
+	def ExtractAll()
+		This.RemoveAll()
+		return []
+
+	  #---------------------------#
+	 #  EXTRACTING THE NTH ITEM  #
+	#---------------------------#
+
+	def ExtractNth(n)
+		if isString(n) and ( n = :Last or n = :LastItem )
+			n = This.NumberOfItems()
+		ok
+
+		if NOT isNumber(n) and Q(n).IsBetween(1, This.NumberOfItems())
+			StzRaise("Can't extract! n outside of range.")
+		ok
+
+		item = This.NthItem(n)
+		This.RemoveNthItem(n)
+		return item
+
+		def ExtractNthItem(n)
+			return This.ExtractNth(n)
+
+	  #-----------------------------#
+	 #  EXTRACTING THE FIRST ITEM  #
+	#-----------------------------#
+
+	def ExtractFirst()
+		return This.ExtractNth(1)
+
+		def ExtractFirstItem()
+			return This.ExtractFirst()
+ 
+	  #-----------------------------#
+	 #  EXTRACTING THE LAST ITEM  #
+	#-----------------------------#
+
+	def ExtractLast()
+		return This.ExtractNth(:Last)
+
+		def ExtractLastItem()
+			return This.ExtractLast()
+
+	  #------------------------------------------------#
+	 #  EXTRACTING ITEMS VERIFYING A GIVEN CONDITION  #
+	#------------------------------------------------#
+
+	def ExtractW(pcCondition)
+		aResult = This.ItemsW(pcCondition)
+		if len(aResult) = 0
+			StzRaise("Can't extract! The condition returns no values at all.")
+		ok
+
+		This.RemoveW(pcCondition)
+		return aResult
+
+	  #--------------------------------------#
+	 #  EXTRACTING A SECTION FROM THE LIST  #
+	#--------------------------------------#
+
+	def ExtractSection(n1, n2)
+		if NOT BothAreNumbers(n1, n2) and
+		   Q(n1).IsBetween(1, This.NumberOfItems()) and
+		   Q(n2).IsBetween(1, This.NumberOfItems())
+
+			StzRaise("Can't extract! The section is outside the list.")
+		ok
+
+		aResult = This.Section(n1, n2)
+		This.RemoveSection(n1, n2)
+		return aResult
+
+	  #------------------------------------#
+	 #  EXTRACTING A RANGE FROM THE LIST  #
+	#------------------------------------#
+
+	def ExtractRange(nStart, nRange)
+		return This.ExtractSection(nStart, nStart + nRange)
+
+	  #-----------------------------------------------------#
+	 #  EXTRACTING NEXT ITEM STARTING AT A GIVEN POSITION  #
+	#-----------------------------------------------------#
+
+	def ExtractNextCS(pItem, pnStartingAt, pCaseSensitive)
+		if This.FindNextCS(item, pnStartingAt, pCaseSensitive) = 0
+			StzRaise("Can't extract! pItem does not exist at the specified position.")
+		ok
+
+		This.RemoveNextCS(item, pnStartingAt, pCaseSensitive)
+		return item
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ExtractNext(item, pnStartingAt)
+		return This.ExtractNextCS(item, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------------------#
+	 #  EXTRACTING PREVIOUS ITEM STARTING AT A GIVEN POSITION  #
+	#---------------------------------------------------------#
+
+	def ExtractPreviousCS(item, pnStartingAt, pCaseSensitive)
+		if This.FindPreviousCS(item, pnStartingAt, pCaseSensitive) = 0
+			StzRaise("Can't extract! pItem does not exist at the specified position.")
+		ok
+
+		This.RemovePreviousCS(item, pnStartingAt, pCaseSensitive)
+		return item
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ExtractPrevious(item, pnStartingAt)
+		return This.ExtractPreviousCS(item, pnStartingAt, :CaseSensitive = TRUE)
+
 	  #============================#
 	 #     BOUNDS OF THE LIST     #
 	#============================#
@@ -19519,6 +19671,37 @@ oTable.Show() + NL
 			return new stzString( This.ToStringXT(pOption) )
 
 	
+	   #---------------------------------------------#
+	  #  CHECKS IF THE LIST CONTAINS AT LEAST ONE   #
+	 #  ITEM IN THE FORM OF A CONDITIONAL CODE     #
+	#---------------------------------------------#
+
+	def ContainsCCode()
+		bResult = FALSE
+
+		aTempList = This.List()
+		nLen = len(aTempList)
+
+		
+		for i = 1 to nLen
+			item = aTempList[i]
+
+			if isList(item) and Q(item).IsWhereNamedParam()
+				item = item[2]
+			ok
+
+			if isString(item) and
+			   Q(item).TrimQ().IsBoundedBy(["{","}"])
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def ContainsConditionalCode()
+			return This.ContainsCCode()
+
 	  #----------------------------------------#
 	 #      CHECKING IF ALL ITEMS ARE ...     #
 	#----------------------------------------#
@@ -19545,6 +19728,7 @@ oTable.Show() + NL
 		nLen = This.NumberOfItems()
 
 		if isList(p) and Q(p).IsWhereNamedParam()
+
 			p = p[2]
 		ok
 
@@ -19617,8 +19801,13 @@ oTable.Show() + NL
 
 			return This.AllItemsAreXT(p, :Default)
 
+		but isList(p) and Q(p).ContainsCCode()
+
+			return This.AllItemsAreXT(p, :Default)
+
 		# ? Q([ "♥", "♥", "♥" ]).AllItemsAre("♥")
 		else
+
 			bResult = TRUE
 			aItems = This.Content()
 			nLen = len(aItems)
@@ -19633,7 +19822,6 @@ oTable.Show() + NL
 			return bResult
 
 		ok
-
 
 		#< @FunctionAlternativeForms
 
@@ -19709,19 +19897,29 @@ oTable.Show() + NL
 			return This.AllItemsAre(p[1])
 
 		else
+			nLenMethods = len(p)
+			for i = 2 to nLenMethods
+				if isList(p[i]) and Q(p[i]).IsWhereNamedParam()
+					p[i] = p[i][2]
+				ok
+			next
 
 			cMainClass = 'stz' + Q(p[1]).InfereStzClass()
 			cCode = 'oObj = new ' + cMainClass + '(@item)'
-
-			nLenMethods = len(p)
 
 			bResult = TRUE
 			nLenList = This.NumberOfItems()
 
 			for i = 1 to nLenList
 				@item = This.Item(i)
+		
 				for j = 2 to nLenMethods
-					cCode = 'bOk = Q(@item).Is' + p[j] + '()'
+
+					if Q(p[j]).TrimQ().IsBoundedBy(["{","}"])
+						cCode = 'bOk = (' + Q(p[j]).TrimQ().BoundsRemoved(["{","}"]) + ')'
+					else
+						cCode = 'bOk = Q(@item).Is' + p[j] + '()'
+					ok
 
 					eval(cCode)
 					if NOT bOk

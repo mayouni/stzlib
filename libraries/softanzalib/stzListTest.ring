@@ -29,11 +29,13 @@ StartProfiler()
 #--> TRUE
 
 ? Q([ "A":"C", "D":"F", "G":"I" ]).ItemsAre(:ListsOfStrings)
+#--> TRUE
 
 StopProfiler()
+# Executed in 0.47 second(s)
 
 /*----------
-*/
+
 StartProfiler()
 
 	? Q([ "♥", "♥", "♥" ]).AllItemsAre("♥")
@@ -55,6 +57,14 @@ StartProfiler()
 	? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
 	#--> TRUE
 	# Executed in 0.16 second(s)
+
+StopProfiler()
+
+/*----------
+*/
+StartProfiler()
+
+? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Where = '{ len(@item) <= 5 }', :Strings ])
 
 StopProfiler()
 
