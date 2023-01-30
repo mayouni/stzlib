@@ -9,6 +9,13 @@
 #									    #
 #---------------------------------------------------------------------------#
 
+/*
+Get insipration of realworld use cases and features from this article
+describing the difference between NumPy and Pandas (Pyhthon ecosystem):
+https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-pandas-c31fa921a43
+
+*/
+
 func StzTableQ(paTable)
 	return new stzTable( paTable )
 

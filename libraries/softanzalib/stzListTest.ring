@@ -12,7 +12,40 @@ o1 = new stzString([
 	'{ Q("anycode").Uppercased() }'
 ])
 
-/*========
+/*===========
+
+StartProfiler()
+
+? Q([ "ONE", "ONE", "ONE" ]).ItemsHave('{ len(@item) = 3 }')
+#--> TRUE
+
+? Q([ "One", "Two", "Three" ]).ItemsAre(:Strings)
+#--> TRUE
+
+? Q(1:5).ItemsAre(:Numbers)
+#--> TRUE
+
+? Q([ "A":"C", "D":"F", "G":"I" ]).ItemsAre(:Lists)
+#--> TRUE
+
+? Q([ "A":"C", "D":"F", "G":"I" ]).ItemsAre(:ListsOfStrings)
+
+StopProfiler()
+
+/*----------
+*/
+StartProfiler()
+
+		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
+		#--> TRUE
+		
+		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
+		#--> TRUE
+
+
+StopProfiler()
+
+/*==========
 
 StartProfiler()
 

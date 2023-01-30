@@ -7538,7 +7538,10 @@ class stzList from stzObject
 		def AllItemsVerify(pcCondition)
 			return This.CheckW(pcCondition)
 
-		def AllItemsAreW(pcCondition)
+		def ItemsVerify(pcCondition)
+			return This.CheckW(pcCondition)
+
+		def ItemsVerifyW(pcCondition)
 			return This.CheckW(pcCondition)
 
 		#>
@@ -19520,11 +19523,12 @@ oTable.Show() + NL
 	 #      CHECKING IF ALL ITEMS ARE ...     #
 	#----------------------------------------#
 
-	def AllItemsAre(pDescriptor)
+	def AllItemsAre(p)
 		/* EXAMPLE
 
-		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre(:Strings)
+		? Q([ "ONE", "ONE", "ONE" ]).AllItemsAre("ONE")
 		#--> TRUE
+
 		
 		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
 		#--> TRUE
@@ -19536,18 +19540,95 @@ oTable.Show() + NL
 		
 		*/
 
-		if isString(pDescriptor)
-			return This.AllItemsAreXT([ pDescriptor ], :EvalDirection = :Nothing)
+		# Q([ "ONE", "ONE", "ONE" ]).AllItemsHave('len(@item) = 3')
 
-		but isList(pDescriptor) and Q(pDescriptor).IsListOfStrings()
-			return This.AllItemsAreXT(pDescriptor, :EvalDirection = :Nothing)
+		nLen = This.NumberOfItems()
 
-		ok	
+		if isList(p) and Q(p).IsWhereNamedParam()
+			p = p[2]
+		ok
+
+		if isString(p) and Q(p).TrimQ().IsBoundedBy([ "{", "}" ])
+
+			cCode = 'bOk = (' + Q(p).BoundsRemoved([ "{", "}" ]) + ')'
+
+			bResult = TRUE
+			for @i = 1 to nLen
+				@item = This.Item(@i)
+				eval(cCode)
+				if NOT bOk
+					bResult = FALSE
+					exit
+				ok
+			next
+
+			return bResult
+			
+		# ? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre(:Strings)
+		but isString(p)
+			cMethod = ""
+
+			if p = :Number or p = :Numbers
+				cMethod = :IsANumber
+
+			but p = :String or p = :Strings
+				cMethod = :IsAString
+
+			but p = :List or p = :Lists
+				cMethod = :IsAList
+
+			but p = :Object or p = :Objects
+				cMethod = :IsAnObject
+			
+			else
+				if Q('stz' + p).IsPluralOfAStzClass()
+					p = PluralToStzClass('stz' + p)
+				ok
+
+				cMethod = 'Is' + Q(p).RemovedFromLeft("stz")
+
+			ok
+
+			# We could use this one line:
+			# bResult = This.Check(:That = 'Q(@item).' + cMethod + '()')
+
+			# But it should better for performance to make it manually
+
+			cCode = 'bOk = ( Q(@item).' + cMethod + '() )'
+
+			bResult = TRUE
+			for @i = 1 to nLen
+				@item = This.Item(@i)
+				eval(cCode)
+				if NOT bOk
+					bResult = FALSE
+					exit
+				ok
+			next
+
+			return bResult
+		ok
+
+
+
+
+		def ItemsAre(p)
+			return This.AllItemsAre(p)
+
+		def EachItemIs(p)
+			return This.AllItemsAre(p)
+
+		def ItemsHave(p)
+			return This.AllItemsAre(p)
+
+		def AllItemsHave(p)
+			return This.AllItemsAre(p)
+
 
 	def AllItemsAreXT(pacDescriptors, paEvalDirection)
 
-		if NOT ( isList(pacDescriptors) and Q(pacDescriptors).IsListOfStrings() )
-			StzRaise("Incorrect param type! pacDescriptors must be a list of strings.")
+		if NOT isList(pacDescriptors)
+			StzRaise("Incorrect param type! pacDescriptors must be a list.")
 		ok
 
 		if isList(paEvalDirection) and
@@ -19592,7 +19673,9 @@ oTable.Show() + NL
 			acDescriptors = Q(acDescriptors).Reversed()
 		ok
 
-		if len(acDescriptors) = 1
+? @@S(acDescriptors)
+
+		if len(acDescriptors) = 1 and isString(acDescriptors[1])
 			if acDescriptors[1] = :Number or acDescriptors[1] = :Numbers
 				cMethod = :IsANumber
 
@@ -19619,7 +19702,11 @@ oTable.Show() + NL
 
 			bResult = This.Check( :That = 'Q(@item).' + cMethod + "()" )
 
-		else
+		but Q(acDescriptors).IsWhereNamedParam()
+			bResult = This.Check( :That = acDescriptors[1][2] )
+			return bResult
+
+		but len(acDescriptors) = 1 and isString(acDescriptors[1])
 
 			cType = Q(acDescriptors[1]).InfereType()
 			if Q(cType).StartsWithCS("stz", :CS = FALSE)
@@ -19646,9 +19733,30 @@ oTable.Show() + NL
 					exit
 				ok
 			next
+
+		but len(acDescriptors) = 1
+			bResult = TRUE
+			aItems = This.Content()
+			nLen = len(aItems)
+
+			for i = 1 to nLen
+				if NOT Q(aItems[i]).IsEqualTo(acDescriptors[1])
+					bResult = FALSE
+					exit
+				ok
+			next
+
+		else
+			StzRaise("Unsupported syntax!")
 		ok
 
 		return bResult
+
+		def ItemsAreXT(pacDescriptors, paEvalDirection)
+			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
+
+		def EachItemIsXT(pDescriptor, paEvalDirection)
+			return This.AllItemsAreXT(pDescriptor, paEvalDirection)
 
 	  #--------------------------------#
 	 #    USUED FOR NATURAL-CODING    #
