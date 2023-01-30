@@ -3876,8 +3876,11 @@ class stzString from stzObject
 		# Checking if the string correponds to one of the Softanza types
 
 		if Q(cStr).BeginsWithCS("stz", :CS = FALSE)
-	
-			for aPair in StzClassesXT()
+			acStzClasses = StzClassesXT()
+			nLen = len(acStzClasses)
+
+			for i = 1 to nLen
+				aPair = acStzClasses[i]
 				if aPair[1] = cStr or aPair[2] = cStr
 					return aPair[1]
 				ok
@@ -3894,11 +3897,37 @@ class stzString from stzObject
 
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def InfereTypeQ()
 			return new stzString( This.InfereType() )
 
+		def InfereStzClass()
+			return This.InfereType()
+
+			def InfereStzClassQ()
+				return new stzString( This.InfereStzClass() )
+
+		def InfereStzClassName()
+			return This.InfereType()
+
+			def InfereStzClassNameQ()
+				return new stzString( This.InfereStzClass() )
+
+		#>
+
 	def InferedType()
 		return This.InfereType()
+
+		#< @FunctionAlternativeForms
+
+		def InferedStzClass()
+			return This.InfereType()
+
+		def InferedStzClassName()
+			return This.InfereType()
+
+		#>
 
 	  #----------------------------------------------------#
 	 #  INFERING A SOFTANZA CLASS METHOD FROM THE STRING  #
@@ -3931,12 +3960,12 @@ class stzString from stzObject
 
 		cMethod = ""
 
-		oListStr = new stzListOfStrings( acTheseMethods )
+		oList = new stzList( acTheseMethods )
 
-		if oListStr.ContainsCS( "is" + This.String(), :CS = FALSE )
+		if oList.ContainsCS( "is" + This.String(), :CS = FALSE )
 			cMethod = "is" + This.String()
 
-		but oListStr.ContainsCS( "is" + This.LastCharRemoved(), :CS = FALSE )
+		but oList.ContainsCS( "is" + This.LastCharRemoved(), :CS = FALSE )
 			cMethod = "is" + This.LastCharRemoved()
 
 		else
@@ -3951,6 +3980,36 @@ class stzString from stzObject
 	def InferedMethod()
 		return InfereMthod()
 
+	  #--------------------------------------------------------------#
+	 #    CHECKING IF THE STRING CORRESPONDS TO A STZ CLASS NAME    #
+	#--------------------------------------------------------------#
+
+	def IsStzClassName()
+		acStzClasses = StzClasses()
+
+		n = ring_find( StzClasses(), This.Lowercased() )
+
+		if n > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsStzType()
+			return This.IsStzClassName()
+
+		def IsStzClass()
+			return This.IsStzClassName()
+
+		def IsAStzClassName()
+			return This.IsStzClassName()
+
+		def IsAStzType()
+			return This.IsStzClassName()
+
+		def IsAStzClass()
+			return This.IsStzClassName()
+
 	  #------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING IS THE PLURAL FORM OF ANY SOFTANZA TYPE  #
 	#------------------------------------------------------------------#
@@ -3963,6 +4022,8 @@ class stzString from stzObject
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForm
 
 		def IsPluralOfStzType()
 			return This.IsPluralOfAStzType()
@@ -3979,6 +4040,60 @@ class stzString from stzObject
 		def IsPluralOfStzClassName()
 			return This.IsPluralOfAStzType()
 
+		#--
+
+		def IsStzClassInPluralForm()
+			return This.IsPluralOfAStzType()
+
+		def IsStzClassNameInPluralForm()
+			return This.IsPluralOfAStzType()
+
+		def IsStzTypeInPluralForm()
+			return This.IsPluralOfAStzType()
+
+		def IsStzClassInPlural()
+			return This.IsPluralOfAStzType()
+
+		def IsStzClassNameInPlural()
+			return This.IsPluralOfAStzType()
+
+		def IsStzTypeInPlural()
+			return This.IsPluralOfAStzType()
+
+		#>
+
+	   #-------------------------------------------------------------#
+	  #   CHECKING IF THE STRING CORRESPONDS TO A STZ CLASS NAME    #
+	 #   NO MATTER IT WAS IN SINGULAR OR PLURAL FORM               #
+	#-------------------------------------------------------------#
+
+	def IsStzClassNameXT()
+		
+		if This.IsStzClassName() or This.IsStzClassNameInPluralForm()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsStzTypeXT()
+			return This.IsStzClassNameXT()
+
+		def IsStzClassXT()
+			return This.IsStzClassNameXT()
+
+		def IsAStzClassNameXT()
+			return This.IsStzClassNameXT()
+
+		def IsAStzTypeXT()
+			return This.IsStzClassNameXT()
+
+		def IsAStzClassXT()
+			return This.IsStzClassNameXT()
+
+		#>
+
 	  #----------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING IS THE PLURAL FORM OF A GIVEN SOFTANZA TYPE  #
 	#----------------------------------------------------------------------#
@@ -3993,8 +4108,37 @@ class stzString from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def IsPluralOfThisStzClassName(cType)
 			return This.IsPluralOfThisStzType()
+
+		def IsPluralOfThisStzClass(cType)
+			return This.IsPluralOfThisStzType()
+
+		#--
+
+		def IsPluralFormOfThisStzType(cType)
+			return This.IsPluralOfThisStzType()
+
+		def IsPluralFormOfThisStzClassName(cType)
+			return This.IsPluralOfThisStzType()
+
+		def IsPluralFormOfThisStzClass(cType)
+			return This.IsPluralOfThisStzType()
+
+		#--
+
+		def IsThePluralFormOfThisStzType(cType)
+			return This.IsPluralOfThisStzType()
+
+		def IsThePluralFormOfThisStzClassName(cType)
+			return This.IsPluralOfThisStzType()
+
+		def IsThePluralFormOfThisStzClass(cType)
+			return This.IsPluralOfThisStzType()
+
+		#>
 
 	  #==============================#
 	 #     BOUNDS OF THE STRING     #
@@ -29478,8 +29622,10 @@ o1 = new stzString("12*34*56*78")
 		ok
 
 		bResult = FALSE
+		nLen = len(paList)
 
-		for item in paList
+		for i = 1 to nLen
+			item = paList[i]
 			if isString(item) and Q(item).IsEqualToCS( This.String(), pCaseSensitive )
 				bResult = TRUE
 				exit
@@ -30265,29 +30411,6 @@ o1 = new stzString("12*34*56*78")
 			return This
 
 		#>
-
-	  #==============================================================#
-	 #    CHECKING IF THE STRING CORRESPONDS TO A STZ CLASS NAME    #
-	#==============================================================#
-
-	def IsStzClassName()
-		bResult = This.LowercaseQ().ExistsIn( StzClasses() )
-		return bResult
-
-		def IsStzType()
-			return This.IsStzClassName()
-
-		def IsStzClass()
-			return This.IsStzClassName()
-
-		def IsAStzClassName()
-			return This.IsStzClassName()
-
-		def IsAStzType()
-			return This.IsStzClassName()
-
-		def IsAStzClass()
-			return This.IsStzClassName()
 
 	  #=================================#
 	 #    CHECKING A LIST IN STRING    #

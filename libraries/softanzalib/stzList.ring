@@ -19565,7 +19565,10 @@ oTable.Show() + NL
 			return bResult
 			
 		# ? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre(:Strings)
-		but isString(p)
+		but isString(p) and
+		    ( Q("stz" + p).IsStzClassName() or
+		    Q("stz" + p).IsPluralOfStzClassName() )
+
 			cMethod = ""
 
 			if p = :Number or p = :Numbers
@@ -19607,10 +19610,32 @@ oTable.Show() + NL
 			next
 
 			return bResult
+
+		# Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
+		but isList(p) and Q(p).IsListOfStrings() and
+		    Q("stz" + p[len(p)]).IsStzClassNameXT() # ..XT() --> in singular or plural form
+
+			return This.AllItemsAreXT(p, :Default)
+
+		# ? Q([ "♥", "♥", "♥" ]).AllItemsAre("♥")
+		else
+			bResult = TRUE
+			aItems = This.Content()
+			nLen = len(aItems)
+
+			for i = 1 to nLen
+				if NOT Q(aItems[i]).IsEqualTo(p)
+					bResult = FALSE
+					exit
+				ok
+			next
+
+			return bResult
+
 		ok
 
 
-
+		#< @FunctionAlternativeForms
 
 		def ItemsAre(p)
 			return This.AllItemsAre(p)
@@ -19624,11 +19649,16 @@ oTable.Show() + NL
 		def AllItemsHave(p)
 			return This.AllItemsAre(p)
 
+		#>
 
-	def AllItemsAreXT(pacDescriptors, paEvalDirection)
+	def AllItemsAreXT(p, paEvalDirection)
 
-		if NOT isList(pacDescriptors)
-			StzRaise("Incorrect param type! pacDescriptors must be a list.")
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+
+		if len(p) = 0
+			return FALSE
 		ok
 
 		if isList(paEvalDirection) and
@@ -19660,7 +19690,6 @@ oTable.Show() + NL
 
 		# Doing the job
 
-		acDescriptors = pacDescriptors
 		if Q(paEvalDirection).IsOneOfTheseCS([
 			:RightToLeft,
 			:Right2Left,
@@ -19670,87 +19699,40 @@ oTable.Show() + NL
 			:FromRTL, :FromR2L
 			], :CS = FALSE)
 
-			acDescriptors = Q(acDescriptors).Reversed()
+			p = Q(p).Reversed()
 		ok
 
-? @@S(acDescriptors)
+		if len(p) = 1 and isString(p[1])
+			return This.AllItemsAre(p[1])
 
-		if len(acDescriptors) = 1 and isString(acDescriptors[1])
-			if acDescriptors[1] = :Number or acDescriptors[1] = :Numbers
-				cMethod = :IsANumber
-
-			but acDescriptors[1] = :String or acDescriptors[1] = :Strings
-				cMethod = :IsAString
-
-			but acDescriptors[1] = :List or acDescriptors[1] = :Lists
-				Method = :IsAList
-
-			but acDescriptors[1] = :Object or acDescriptors[1] = :Objects
-				cMethod = :IsAnObject
-
-			but Q(acDescriptors[1]).FirstChar() = "{" and
-			    Q(acDescriptors[1]).LastChar() = "}"
-
-				bResult = This.Check( :That = acDescriptors[1] )
-				return bResult
-			
-			else
-
-				cMethod = Q(acDescriptors[1]).InfereMethod(:From = :stzList)
-
-			ok
-
-			bResult = This.Check( :That = 'Q(@item).' + cMethod + "()" )
-
-		but Q(acDescriptors).IsWhereNamedParam()
-			bResult = This.Check( :That = acDescriptors[1][2] )
-			return bResult
-
-		but len(acDescriptors) = 1 and isString(acDescriptors[1])
-
-			cType = Q(acDescriptors[1]).InfereType()
-			if Q(cType).StartsWithCS("stz", :CS = FALSE)
-				cType = Q(cType).FirstNCharsRemoved(3)
-			ok
-
-			bResult = TRUE
-	
-			for i = 2 to len(acDescriptors)
-
- 				if Q(acDescriptors[i]).FirstChar() = "{" and
-			   	   Q(acDescriptors[i]).LastChar() = "}"
-
-					bOk = This.Check( :That = acDescriptors[i] )
-				
-				else
-
-					cMethod = Q(acDescriptors[i]).InfereMethod( :From = 'stz' + cType )
-					bOk = This.Check( :That = 'Stz' + cType + 'Q(@item).' + cMethod + "()" )
-				ok
-
-				if bOk = FALSE
-					bResult = FALSE
-					exit
-				ok
-			next
-
-		but len(acDescriptors) = 1
-			bResult = TRUE
-			aItems = This.Content()
-			nLen = len(aItems)
-
-			for i = 1 to nLen
-				if NOT Q(aItems[i]).IsEqualTo(acDescriptors[1])
-					bResult = FALSE
-					exit
-				ok
-			next
+		but Q(p).IsWhereNamedParam()
+			return This.AllItemsAre(p[1])
 
 		else
-			StzRaise("Unsupported syntax!")
-		ok
 
-		return bResult
+			cMainClass = 'stz' + Q(p[1]).InfereStzClass()
+			cCode = 'oObj = new ' + cMainClass + '(@item)'
+
+			nLenMethods = len(p)
+
+			bResult = TRUE
+			nLenList = This.NumberOfItems()
+
+			for i = 1 to nLenList
+				@item = This.Item(i)
+				for j = 2 to nLenMethods
+					cCode = 'bOk = Q(@item).Is' + p[j] + '()'
+
+					eval(cCode)
+					if NOT bOk
+						bResult = FALSE
+						exit 2
+					ok
+				next j
+			next i
+
+			return bResult
+		ok
 
 		def ItemsAreXT(pacDescriptors, paEvalDirection)
 			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)

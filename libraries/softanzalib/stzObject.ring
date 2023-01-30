@@ -520,9 +520,11 @@ func RingQtClasses()
 
 func StzClasses()
 	aResult = []
+	acStzClassesXT = StzClassesXT()
+	nLen = len(acStzClassesXT)
 
-	for aClass in StzClassesXT()
-		aResult + aClass[1]
+	for i = 1 to nLen
+		aResult + acStzClassesXT[i][1]
 	next
 
 	return aResult

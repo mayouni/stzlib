@@ -36,12 +36,25 @@ StopProfiler()
 */
 StartProfiler()
 
-		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
-		#--> TRUE
-		
-		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
-		#--> TRUE
+	? Q([ "♥", "♥", "♥" ]).AllItemsAre("♥")
+	#--> TRUE
+	# Executed in 0.08 second(s)
 
+	? Q([ 12, 12, 12 ]).AllItemsAre(12)
+	#--> TRUE
+	# Executed in 0.02 second(s)
+
+	? Q([ 1:3, 1:3, 1:3 ]).AllItemsAre(1:3)
+	#--> TRUE
+	# Executed in 0.02 second(s)
+	
+	? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Latin, :Strings ])
+	#--> TRUE
+	# Executed in 0.17 second(s)
+
+	? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
+	#--> TRUE
+	# Executed in 0.16 second(s)
 
 StopProfiler()
 
