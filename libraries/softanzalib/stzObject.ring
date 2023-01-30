@@ -624,10 +624,22 @@ func PluralOfStzClassName(cClass)
 	func PluralOfStzType(cClass)
 		return PluralOfStzClassName(cClass)
 
+	func PluralOfStzClass(cClass)
+		return PluralOfStzClassName(cClass)
+
 	func StzTypeToPlural(cClass)
 		return PluralOfStzClassName(cClass)
 
+	func StzClassNameToPlural(cClass)
+		return PluralOfStzClassName(cClass)
+
+	func StzClassToPlural(cClass)
+		return PluralOfStzClassName(cClass)
+
 	#--
+
+	func PluralOfThisStzClass(cClass)
+		return PluralOfStzClassName(cClass)
 
 	func PluralOfThisStzClassName(cClass)
 		return PluralOfStzClassName(cClass)
@@ -636,10 +648,17 @@ func PluralOfStzClassName(cClass)
 		return PluralOfStzClassName(cClass)
 
 func PluralToStzType(cPlural)
+
 	oHash = new stzHashList( StzTypesXT() )
 	n = oHash.FindFirstValue(cPlural)
 	cResult = oHash.NthKey(n)
 	return cResult
+
+	func PluraltoStzClass(cPlural)
+		return PluralToStzType(cPlural)
+
+	func PluraltoStzClassName(cPlural)
+		return PluralToStzType(cPlural)
 
 func IsStzobject(pObject)
 	if isObject(pObject) and _(classname(pObject)).Q.ExistsIn( StzTypes() )

@@ -437,6 +437,32 @@ class stzString from stzObject
 		but IsQString(pcStr)
 			@oQString = pcStr
 
+		but Q(pcStr).IsListOfLists() and
+		    StzListOfListsQ(pcStr).EachItemIs(:AString)
+
+			# This case is added to facilitate the creation of
+			# large strings to test them against stzString methods
+
+			# EXAMPLE
+			/*
+			Create a string containing:
+				- beginning by the substring "__♥",
+				- and then containining 100_000 "_" chars
+				- and then containing [ "♥", "_", "_", "♥" ] concatenated,
+				- ...
+				- and finanally containg the substring "anycode"
+				  dynamically evaluated to become "ANYCODE"
+
+			o1 = new stzString([
+				[ "_", "_", "♥" ],
+				[ 100_000, "_" ],
+				[ "♥", "_", "_", "♥" ],
+				[ 50_000, "_"],
+				[ "♥", "_", "_", "♥"],
+				[ 10, "_" ],
+				'{ Q("anycode").Uppercased() }'
+			])
+			*/
 		else
 			stzRaise("Can't create the stzString object! You must provide a string (or a QString).")
 		ok
@@ -3889,6 +3915,10 @@ class stzString from stzObject
 			stzRaise("Incorrect param type! pcFromStzClass must be a string.")
 		ok
 
+		if Q(pcFromStzClass).IsPluralOfAStzType()
+			pcFromStzClass = PluralToStzType(pcFromStzClass)
+		ok
+
 		if NOT Q(pcFromStzClass).IsStzClass()
 			stzRaise("Syntax error! pcFromStzClass must be a valid Softanza class name.")
 		ok
@@ -3934,7 +3964,19 @@ class stzString from stzObject
 			return FALSE
 		ok
 
-		def IsAPluralOfStzClassName()
+		def IsPluralOfStzType()
+			return This.IsPluralOfAStzType()
+
+		def IsPluralOfAStzClass()
+			return This.IsPluralOfAStzType()
+
+		def IsPluralOfStzClass()
+			return This.IsPluralOfAStzType()
+
+		def IsPluralOfAStzClassName()
+			return This.IsPluralOfAStzType()
+
+		def IsPluralOfStzClassName()
 			return This.IsPluralOfAStzType()
 
 	  #----------------------------------------------------------------------#
@@ -24616,7 +24658,7 @@ o1 = new stzString("12*34*56*78")
 				return This
 
 	def RemovedFromLeftCS(pcSubStr, pCaseSensitive)
-		cResult = This.Copy().RemoveFromLeftCSQ(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveFromLeftCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
 
 		def SubStringRemovedFromLeftCS(pcSubStr, pCaseSensitive)
@@ -24639,7 +24681,7 @@ o1 = new stzString("12*34*56*78")
 				return This
 
 	def RemovedFromLeft(pcSubStr)
-		cResult = This.Copy().RemoveFromLeftQ(pcSubStr)
+		cResult = This.Copy().RemoveFromLeftQ(pcSubStr).Content()
 		return cResult
 
 		def SubStringRemovedFromLeft(pcSubStr)
@@ -24688,7 +24730,7 @@ o1 = new stzString("12*34*56*78")
 				return This
 
 	def RemovedFromRightCS(pcSubStr, pCaseSensitive)
-		cResult = This.Copy().RemoveFromRightCSQ(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveFromRightCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
 
 		def SubStringRemovedFromRightCS(pcSubStr, pCaseSensitive)
@@ -24718,7 +24760,7 @@ o1 = new stzString("12*34*56*78")
 				return This
 
 	def RemovedFromRight(pcSubStr)
-		cResult = This.Copy().RemoveFromRightQ(pcSubStr)
+		cResult = This.Copy().RemoveFromRightQ(pcSubStr).Content()
 		return cResult
 
 		def SubStringRemovedFromRight(pcSubStr)
@@ -24763,7 +24805,7 @@ o1 = new stzString("12*34*56*78")
 		#>
 
 	def RemovedFromStartCS(pcSubStr, pCaseSensitive)
-		cResult = This.Copy().RemoveFromStartCSQ(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveFromStartCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
 
 		def SubStringRemovedFromStartCS(pcSubStr, pCaseSensitive)
@@ -24804,7 +24846,7 @@ o1 = new stzString("12*34*56*78")
 		#>
 
 	def RemovedFromStart(pcSubStr)
-		cResult = This.Copy().RemoveFromStartQ(pcSubStr)
+		cResult = This.Copy().RemoveFromStartQ(pcSubStr).Content()
 		return cResult
 
 		def SubStringRemovedFromStart(pcSubStr)
@@ -24851,7 +24893,7 @@ o1 = new stzString("12*34*56*78")
 		#>
 
 	def RemovedFromEndCS(pcSubStr, pCaseSensitive)
-		cResult = This.Copy().RemoveFromEndCSQ(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveFromEndCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
 
 		def SubStringRemovedFromEndCS(pcSubStr, pCaseSensitive)
@@ -24892,7 +24934,7 @@ o1 = new stzString("12*34*56*78")
 		#>
 
 	def RemovedFromEnd(pcSubStr)
-		cResult = This.Copy().RemoveFromEndQ(pcSubStr)
+		cResult = This.Copy().RemoveFromEndQ(pcSubStr).Content()
 		return cResult
 
 		def SubStringRemovedFromEnd(pcSubStr)

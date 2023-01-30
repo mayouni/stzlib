@@ -1391,6 +1391,11 @@ func W(cCode)
 		StzRaise("Uncorrect param type! cCode must be a string.")
 	ok
 
+	cCode = Q(cCode).Trimmed()
+	if NOT Q(cCode).IsBoundedBy(["{", "}"])
+		cCode = "{ " + cCode + " }"
+	ok
+
 	aResult = [:Where, cCode]
 	return aResult
 

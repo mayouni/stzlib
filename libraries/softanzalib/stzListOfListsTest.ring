@@ -1,5 +1,44 @@
-
 load "stzlib.ring"
+
+/*------------------
+
+? Q([ "ONE", "TWO", "THREE" ]).EachItemIs(:AString)
+
+? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre(:Strings)
+#--> TRUE
+		
+? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
+#--> TRUE
+		
+? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Latin, :Strings ])
+#--> TRUE
+
+/*------------------
+*/
+		
+? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Where = '{ len(@item) <= 5 }', :Strings ])
+
+//? Q([ "ONE", "ONE", "ONE" ]).AllItemsAre("ONE")
+
+/*------------------
+
+o1 = new stzList([
+	[ 1, 2, 3 ],
+	[ 4, 5, 6, 7, 8 ],
+	[ 9, 0 ],
+	[ 3, 5 ],
+	[ 5, 6, 7 ]
+])
+
+? o1.EachItemIs(:AListOfNumbers)
+#--> TRUE
+
+o1 = new stzList([ "A":"C", "E":"D", "G": "Y" ])
+? o1.EachItemIs(:AListOfStrings)
+#--> TRUE
+
+? o1.EachItemIs(:AListOfChars)
+#--> TRUE
 
 /*==================
 
@@ -119,7 +158,7 @@ o1 = new stzListOfLists([ 1:3, 4:7, 8:9, [10, 11:13] ])
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ]
 
 /*================
-*/
+
 StartTimer()
 
 o1 = new stzListOfLists([
