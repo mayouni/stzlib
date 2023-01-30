@@ -16,6 +16,105 @@ o1 = new stzString([
 
 StartProfiler()
 
+ # Extract(item) removes the item from the list and returns it
+
+o1 = new stzList([ "A", "B", "_", "C" ])
+
+? o1.Extract("_")
+#--> "_"
+
+? o1.Content()
+#--> [ "A", "B", "C" ]
+
+StopProfiler()
+#--> Executed in 0.03 second(s)
+
+/*-----------
+*/
+StartProfiler()
+
+o1 = new stzList([ "A", "B", "_", "C", "*" ])
+? o1.ExtractMany(["_", "*"])
+? o1.Content()
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+ExtractAll()
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+ExtractNth(n)
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+ExtractFirst()
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+ExtractLast()
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+ExtractW(pcCondition)
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+ExtractSection(n1, n2)
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+ExtractRange(nStart, nRange)
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+ExtractNext(item, pnStartingAt)
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+
+ExtractPrevious(item, pnStartingAt)
+
+StopProfiler()
+
+/*===========
+
+StartProfiler()
+
 ? Q([ "ONE", "ONE", "ONE" ]).ItemsHave('{ len(@item) = 3 }')
 #--> TRUE
 
