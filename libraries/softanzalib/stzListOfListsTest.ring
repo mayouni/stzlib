@@ -1,27 +1,8 @@
 load "stzlib.ring"
 
-/*------------------
-
-? Q([ "ONE", "TWO", "THREE" ]).EachItemIs(:AString)
-
-? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre(:Strings)
-#--> TRUE
-		
-? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
-#--> TRUE
-		
-? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Latin, :Strings ])
-#--> TRUE
 
 /*------------------
 */
-		
-? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Where = '{ len(@item) <= 5 }', :Strings ])
-
-//? Q([ "ONE", "ONE", "ONE" ]).AllItemsAre("ONE")
-
-/*------------------
-
 o1 = new stzList([
 	[ 1, 2, 3 ],
 	[ 4, 5, 6, 7, 8 ],
