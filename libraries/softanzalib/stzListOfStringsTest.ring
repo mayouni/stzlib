@@ -167,7 +167,7 @@ o1.RemoveThisNthItem(1, "A")
 ? @@S( o1.Content() )
 #--> [ "B", "C", "_", "D", "E", "_" ]
 
-o1.RemoveNthXT(2, "_")
+o1.RemoveNth(2, "_")
 ? @@S( o1.Content() )
 #--> [ "B", "C", "_", "D", "E" ]
 

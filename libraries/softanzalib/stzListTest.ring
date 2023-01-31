@@ -30,36 +30,56 @@ StopProfiler()
 #--> Executed in 0.03 second(s)
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzList([ "A", "B", "_", "C", "*" ])
 ? o1.ExtractMany(["_", "*"])
+#--> ["_", "*"]
+
 ? o1.Content()
+#--> #--> [ "A", "B", "C" ]
 
 StopProfiler()
+# Executed in 0.03 second(s)
 
 /*-----------
 
 StartProfiler()
 
-ExtractAll()
+o1 = new stzList([ "A", "B", "C" ])
+
+? o1.ExtractAll()
+#--> [ "A", "B", "C" ]
+
+? @@S( o1.Content() )
+#--> []
 
 StopProfiler()
+# Executed in 0.01 second(s)
 
 /*-----------
 
 StartProfiler()
 
-ExtractNth(n)
+o1 = new stzList([ "A", "_", "B", "C" ])
+? o1.ExtractAt(2)
+#--> "_"
+
+? o1.Content()
+#--> [ "A", "B", "C" ]
 
 StopProfiler()
 
 /*-----------
-
+*/
 StartProfiler()
 
-ExtractFirst()
+o1 = new stzList([ "_", "A", "B", "C" ])
+
+? o1.ExtractFirst("_")
+
+? o1.Content()
 
 StopProfiler()
 
@@ -1093,7 +1113,7 @@ o1.RemoveThisNthItem(1, "A")
 ? @@S( o1.Content() )
 #--> [ "B", "C", "_", "D", "E", "_" ]
 
-o1.RemoveNthXT(2, "_")
+o1.RemoveNth(2, "_")
 ? @@S( o1.Content() )
 #--> [ "B", "C", "_", "D", "E" ]
 
