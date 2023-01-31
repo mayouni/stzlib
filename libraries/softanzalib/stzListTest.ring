@@ -70,9 +70,10 @@ o1 = new stzList([ "A", "_", "B", "C" ])
 #--> [ "A", "B", "C" ]
 
 StopProfiler()
+# Executed in 0.02 second(s)
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzList([ "_", "A", "B", "C" ])
@@ -82,44 +83,74 @@ o1 = new stzList([ "_", "A", "B", "C" ])
 ? o1.Content()
 
 StopProfiler()
+# Executed in 0.02 second(s)
 
 /*-----------
 
 StartProfiler()
 
-ExtractLast()
+o1 = new stzList([ "A", "B", "C", "_" ])
+
+? o1.ExtractLast("_")
+#--> "_"
+
+? o1.Content()
+#--> ["A", "B", "C"]
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzList([ 1, 2, "♥", 3, "*", 4, "_" ])
+
+? o1.ExtractW('{ NOT isNumber(@item) }')
+#--> [ "♥", "*", "_" ]
+
+? o1.Content()
+#--> [ 1, 2, 3, 4 ]
+
+StopProfiler()
+# Executed in 0.44 second(s)
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzList([ 1, 2, "♥", "♥", "♥", 3, 4 ])
+
+? o1.ExtractSection(3, 5)
+#--> ["♥", "♥", "♥"]
+
+? o1.Content()
+#--> [1, 2, 3, 4]
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzList([ 1, 2, "♥", "♥", "♥", 3, 4 ])
+
+? o1.ExtractRange(3, 3)
+#--> ["♥", "♥", "♥"]
+
+? o1.Content()
+#--> [1, 2, 3, 4]
 
 StopProfiler()
 
 /*-----------
-
+*/
 StartProfiler()
 
-ExtractW(pcCondition)
+o1 = new stzList([ 1, 2, "♥", 4, "♥", 4, "♥" ])
 
-StopProfiler()
-
-/*-----------
-
-StartProfiler()
-
-ExtractSection(n1, n2)
-
-StopProfiler()
-
-/*-----------
-
-StartProfiler()
-
-ExtractRange(nStart, nRange)
-
-StopProfiler()
-
-/*-----------
-
-StartProfiler()
-
-ExtractNext(item, pnStartingAt)
+? o1.ExtractNext("♥", :StartingAt = 4)
 
 StopProfiler()
 

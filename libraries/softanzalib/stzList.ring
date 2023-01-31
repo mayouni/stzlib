@@ -1605,10 +1605,33 @@ class stzList from stzObject
          #   STARTING AT A GIVEN POSITION                 #
 	#------------------------------------------------#
 
-	def ReplaceNextOccurrences(pItem, pOtherItem, pnStartingAt)
+	def ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
 
-		anPositions = This.FindNextOccurrences(pItem, pnStartingAt)
+		anPositions = This.FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
 		This.ReplaceItemsAtPositions(anPositions, pOtherItem)
+
+		def ReplaceNextOccurrencesCSQ(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+			This.ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+			return This
+
+		def ReplaceNextCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+			This.ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+
+			def ReplaceNextCSQ(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+				This.ReplaceNextCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+				return This
+
+	def NextOccurrencesReplacedCSQ(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+
+		acResult = This.Copy().
+				ReplaceNextOccurrencesCSQ(pItem, pOtherItem, pnStartingAt, pCaseSensitive).
+				Content()
+		return acResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceNextOccurrences(pItem, pOtherItem, pnStartingAt)
+		This.ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, :CaseSensitive = TRUE)
 
 		def ReplaceNextOccurrencesQ(pItem, pOtherItem, pnStartingAt)
 			This.ReplaceNextOccurrences(pItem, pOtherItem, pnStartingAt)
@@ -1634,10 +1657,33 @@ class stzList from stzObject
          #   STARTING AT A GIVEN POSITION                   #
 	#--------------------------------------------------#
 
-	def ReplacePreviousOccurrences(pItem, pOtherItem, pnStartingAt)
+	def ReplacePreviousOccurrencesCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
 
-		anPositions = This.FindPreviousOccurrences(pItem, pnStartingAt)
+		anPositions = This.FindPreviousOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
 		This.ReplaceItemsAtPositions(anPositions, pOtherItem)
+
+		def ReplacePreviousOccurrencesCSQ(pItem, pOtherItem, pStartingAt, pCaseSensitive)
+			This.ReplacePreviousOccurrencesCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+			return This
+
+		def ReplacePreviousCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+			This.ReplacePreviousOccurrencesCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+
+			def ReplacePreviousCSQ(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+				This.ReplacePreviousCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+				return This
+
+	def PreviousOccurrencesReplacedCSQ(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+
+		acResult = This.Copy().
+				ReplacePreviousOccurrencesCSQ(pItem, pOtherItem, pnStartingAt, pCaseSensitive).
+				Content()
+		return acResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplacePreviousOccurrences(pItem, pOtherItem, pnStartingAt)
+		This.ReplacePreviousOccurrencesCS(pItem, pOtherItem, pnStartingAt, :CaseSensitive = TRUE)
 
 		def ReplacePreviousOccurrencesQ(pItem, pOtherItem, pStartingAt)
 			This.ReplacePreviousOccurrences(pItem, pOtherItem, pnStartingAt)
@@ -1655,7 +1701,6 @@ class stzList from stzObject
 		acResult = This.Copy().
 				ReplacePreviousOccurrencesQ(pItem, pOtherItem, pnStartingAt).
 				Content()
-
 		return acResult
 
 	  #-----------------------------------------#
@@ -1734,11 +1779,40 @@ class stzList from stzObject
 			return This.NthOccurrenceReplaced(n, pItem, pOtherItem, pCaseSensitive)
 
 	  #--------------------------------------------#
-	 #   REPLACING FIRST OCCURRENCE OF AN ITEM    # ADD :CaseSensitive
+	 #   REPLACING FIRST OCCURRENCE OF AN ITEM    #
 	#--------------------------------------------#
 
+	def ReplaceFirstOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
+		This.ReplaceNthOccurrenceCS(1, pItem, pOtherItem, pCaseSensitive)
+
+		def ReplaceFirstOccurrenceCSQ(pItem, pOtherItem, pCaseSensitive)
+			This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
+			return This
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceFirstCS(pItem, pOtherItem, pCaseSensitive)
+			This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
+
+			def ReplaceFirstCSQ(pItem, pOtherItem, pCaseSensitive)
+				This.ReplaceFirstCS(pItem, pOtherItem, pCaseSensitive)
+				return This
+		#>
+
+	def FirstOccurrenceReplacedCS(pItem, pOtherItem, pCaseSensitive)
+		aResult  = This.Copy().
+				ReplaceFirstOccurrenceCSQ(pItem, pOtherItem, pCaseSensitive).
+				Content()
+
+		return aResult
+
+		def FirstReplacedCS(pItem, pOtherItem, pCaseSensitive)
+			return This.FirstOccurrenceReplacedCS(pItem, pOtherItem, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def ReplaceFirstOccurrence(pItem, pOtherItem)
-		This.ReplaceNthOccurrence(1, pItem, pOtherItem)
+		This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, :CaseSensitive = TRUE)
 
 		def ReplaceFirstOccurrenceQ(pItem, pOtherItem)
 			This.ReplaceFirstOccurrence(pItem, pOtherItem)
@@ -1765,8 +1839,41 @@ class stzList from stzObject
 			return This.FirstOccurrenceReplaced(pItem, pOtherItem)
 
 	  #-----------------------------------------#
-	 #   REPLACING LAST OCCURRENCE OF AN ITEM  # TODO: Add CASESENSITIVITY
+	 #   REPLACING LAST OCCURRENCE OF AN ITEM  #
 	#-----------------------------------------#
+
+	def ReplaceLastOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
+		n = This.FindLastOccurrenceCS(pItem, pCaseSensitive)
+
+		This.ReplaceItemAtPosition(n, pOtherItem)
+
+		def ReplaceLastOccurrenceCSQ(pItem, pOtherItem, pCaseSensitive)
+			This.ReplaceLastOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
+			return This
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceLastCS(pItem, pOtherItem, pCaseSensitive)
+			This.ReplaceLastOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
+
+			def ReplaceLastCSQ(pItem, pOtherItem, pCaseSensitive)
+				This.ReplaceLastCS(pItem, pOtherItem, pCaseSensitive)
+				return This
+
+		#>
+
+	def LastOccurrenceReplacedCS(pItem, pOtherItem, pCaseSensitive)
+
+		aResult  = This.Copy().
+				ReplaceLastOccurrenceCSQ(pItem, pOtherItem, pCaseSensitive).
+				Content()
+
+		return aResult
+
+		def LastReplacedCS(pItem, pOtherItem, pCaseSensitive)
+			return This.LastOccurrenceReplacedCS(pItem, pOtherItem, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceLastOccurrence(pItem, pOtherItem)
 		n = This.FindLastOccurrence(pItem)
@@ -1804,7 +1911,7 @@ class stzList from stzObject
 	 #    STARTING AT A GIVEN POSITION IN THE LIST   #
 	#-----------------------------------------------#
 
-	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+	def ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 		# Checking params correctness
 
@@ -1855,12 +1962,46 @@ class stzList from stzObject
 		# Doing the job
 
 		oSection   = This.SectionQR(pnStartingAt, This.NumberOfItems(), :stzList)
-		anPositions = oSection.FindAll(pItem)
+		anPositions = oSection.FindAllCS(pItem, pCaseSensitive)
 
 		anPositions = StzListOfNumbersQ(anPositions).AddToEachQ(pnStartingAt - 1).Content()
 		nPosition = anPositions[n]
 
 		This.ReplaceItemAtPosition(nPosition, pNewItem)
+
+		#< @FunctionFluentForm
+
+		def ReplaceNextNthOccurrenceCSQ(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+			This.ReplaceNextNthOccurrenceCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceNthNextOccurrenceCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+			This.ReplaceNextNthOccurrenceCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+
+			def ReplaceNthNextOccurrenceCSQ(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+				This.ReplaceNthNextOccurrenceCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+				return This
+
+		#>
+
+	def NextNthOccurrenceReplacedCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+
+		aResult  = This.Copy().
+				ReplaceNthNextOccurrenceCSQ(n, pItem, pnStartingAt, pNewItem, pCaseSensitive).
+				Content()
+		return aResult
+
+		def NthNextOccurrenceReplacedCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+			return This.NextNthOccurrenceReplaced(n, pItem, pnStartingAt, pNewItem)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+		return This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -1897,8 +2038,25 @@ class stzList from stzObject
 	 #    STARTING AT A GIVEN POSITION IN THE LIST    #
 	#------------------------------------------------#
 
+	def ReplaceNextOccurrenceCS(pItem, pNewItem, pnStartingAt, pCaseSensitive)
+		This.ReplaceNextNthOccurrenceCS(1, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+
+		def ReplaceNextOccurrenceCSQ(pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			This.ReplaceNextOccurrenceCS(pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			return This
+
+	def NextOccurrenceReplacedCS(pItem, pNewItem, pnStartingAt, pCaseSensitive)
+
+		aResult =  This.Copy().
+				ReplaceNextOccurrenceCSQ(pItem, pNewItem, pnStartingAt, pCaseSensitive).
+				Content()
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def ReplaceNextOccurrence(pItem, pNewItem, pnStartingAt)
-		This.ReplaceNextNthOccurrence(1, pItem, pNewItem, pnStartingAt)
+		This.ReplaceNextNthOccurrenceCS(1, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 		def ReplaceNextOccurrenceQ(pItem, pNewItem, pnStartingAt)
 			This.ReplaceNextOccurrence(pItem, pNewItem, pnStartingAt)
@@ -1917,7 +2075,7 @@ class stzList from stzObject
 	 #    STARTING AT A GIVEN POSITION IN THE LIST         #
 	#-----------------------------------------------------#
 
-	def ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
+	def ReplaceNextNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 		/* Example
 
 		StzListOfQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
@@ -1971,20 +2129,55 @@ class stzList from stzObject
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
 
 		anPositions = oSection.
-			      FindAllQR(pItem, :stzListOfNumbers).
+			      FindAllCSQR(pItem, :stzListOfNumbers, pCaseSensitive).
 			      AddToEachQ(pnStartingAt-1).
 			      Content()
 
 		anPositionsToBeReplaced = []
-		i = 0
-		for n in panList
-			i++
-			if i <= len(anPositions)
-				anPositionsToBeReplaced +  anPositions[n]
+
+		nLen = len(panList)
+		nLenPos = len(anPositions)
+
+		for i = 1 to nLen
+			if i <= nLenPos
+				anPositionsToBeReplaced +  anPositions[panList[i]]
 			ok
 		next
 
 		This.ReplaceAllItemsAtThesePositions(anPositionsToBeReplaced, pNewItem)
+
+		#< @FunctionFluentForm
+
+		def ReplaceNextNthOccurrencesCSQ(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			This.ReplaceNextNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceNthNextOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			This.ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
+
+			def ReplaceNthNextOccurrencesCSQ(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+				This.ReplaceNthNextOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+				return This
+		#>
+
+	def NextNthOccurrencesReplacedCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+
+		aResult = This.
+			  ReplaceNextNthOccurrencesCSQ(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive).
+			  Content()
+
+		return aResult
+
+		def NthNextOccurrencesReplacedCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
+		return This.ReplaceNextNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -2020,7 +2213,7 @@ class stzList from stzObject
 	 #    STARTING AT A GIVEN POSITION IN THE LIST       #
 	#---------------------------------------------------#
 
-	def ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+	def ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
@@ -2059,11 +2252,35 @@ class stzList from stzObject
 		ok
 
 		oSection   = This.SectionQR(1, pnStartingAt, :stzList)
-		aPositions = oSection.FindAll(pItem)
+		aPositions = oSection.FindAllCS(pItem, pCaseSensitive)
 
 		nPosition = aPositions[ len(aPositions) - n + 1 ]
 
-		This.ReplaceItemAtPosition(nPosition, pNewItem)
+		This.ReplaceItemAtPositionCS(nPosition, pNewItem, pCaseSensitive)
+
+		def ReplacePreviousNthOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			return This
+
+		def ReplaceNthPreviousOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+
+			def ReplaceNthPreviousOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+				This.ReplaceNthPreviousOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+				return This
+
+	def NthPreviousOccurrenceReplacedCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+
+		aResult =  This.Copy().
+				ReplaceNthPreviousOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, pCaseSensitive).
+				Content()
+
+		return aResult
+
+		def PreviousNthOccurrenceReplacedCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			return This.NthPreviousOccurrenceReplacedCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 		def ReplacePreviousNthOccurrenceQ(n, pItem, pNewItem, pnStartingAt)
 			This.ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
@@ -2092,8 +2309,24 @@ class stzList from stzObject
 	 #    STARTING AT A GIVEN POSITION IN THE LIST   #
 	#-----------------------------------------------#
 
+	def ReplacePreviousOccurrenceCS(pItem, pNewItem, pnStartingAt, pCaseSensitive)
+		This.ReplacePreviousNthOccurrenceCS(1, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+
+		def ReplacePreviousOccurrenceCSQ(pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			This.ReplacePreviousOccurrenceCS(pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			return This
+
+	def PreviousOccurrenceReplacedCS(pItem, pNewItem, pnStartingAt, pCaseSensitive)
+
+		aResult =  This.Copy().
+				ReplacePreviousOccurrenceCSQ(pItem, pNewItem, pnStartingAt, pCaseSensitive).
+				Content()
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def ReplacePreviousOccurrence(pItem, pNewItem, pnStartingAt)
-		This.ReplacePreviousNthOccurrence(1, pItem, pNewItem, pnStartingAt)
+		This.ReplacePreviousOccurrenceCS(pItem, pNewItem, pnStartingAt, :CaseSensitive = TRUE)
 
 		def ReplacePreviousOccurrenceQ(pItem, pNewItem, pnStartingAt)
 			This.ReplacePreviousOccurrence(pItem, pNewItem, pnStartingAt)
@@ -2111,7 +2344,7 @@ class stzList from stzObject
 	 #    STARTING AT A GIVEN POSITION IN THE LIST             #
 	#---------------------------------------------------------#
 
-	def ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
+	def ReplacePreviousNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 		/* Example
 
 		StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
@@ -2167,18 +2400,52 @@ class stzList from stzObject
 			
 		oSection = This.SectionQ(1, pnStartingAt)
 
-		anPositions = oSection.FindAllQ(pItem).ItemsReversed()
+		anPositions = oSection.FindAllCSQ(pItem, pCaseSensitive).ItemsReversed()
 
 		anPositionsToBeReplaced = []
-		i = 0
-		for n in panList
-			i++
-			if i <= len(anPositions)
-				anPositionsToBeReplaced +  anPositions[n]
+		nLen = len(panList)
+		nLenPos = len(anPositions)
+
+		for i = 1 to nLen
+			if i <= nLenPos
+				anPositionsToBeReplaced +  anPositions[panList[i]]
 			ok
 		next
 
-		This.ReplaceAllItemsAtThesePositions(anPositionsToBeReplaced, pNewItem)
+		This.ReplaceAllItemsAtThesePositionsCS(anPositionsToBeReplaced, pNewItem, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def ReplacePreviousNthOccurrencesCSQ(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			This.ReplacePreviousNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceNthPreviousOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			This.ReplacePreviousNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+
+			def ReplaceNthPreviousOccurrencesCSQ(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+				This.ReplaceNthPreviousOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+				return This
+		#>
+
+	def PreviousNthOccurrencesReplacedCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+		aResult =  This.
+			   ReplacePreviousNthOccurrencesCSQ(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive).
+			   Content()
+
+		return aResult
+
+		def NthPreviousOccurrencesReplacedCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			return This.PreviousNthOccurrencesReplacedCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
+		This.ReplacePreviousNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -2402,8 +2669,7 @@ class stzList from stzObject
 		else
 
 			for i = 1 to nLen
-				n = panPositions[i]
-				This.ReplaceItemAtPosition(n, pOtherItem)
+				This.ReplaceItemAtPosition(panPositions[i], pOtherItem)
 			next
 		ok
 	
@@ -2953,7 +3219,7 @@ class stzList from stzObject
 	#----------------------------------#
 
 	// Replaces an item at any nested level of the list by a new value
-	def DeepReplace(pItem, pByValue)
+	def DeepReplaceCS(pItem, pByValue, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzList([
@@ -2981,11 +3247,20 @@ class stzList from stzObject
 		cValue = @@(pItem)
 		cByValue = @@(pByValue)
 
-		cCode = This.ToCodeQ().ReplaceQ( cValue, cByValue ).Content()
+		cCode = This.ToCodeQ().ReplaceCSQ( cValue, cByValue, pCaseSensitive ).Content()
 		cCode = ' aResult = ' + cCode
 
 		eval(cCode)
 		This.Update( aResult )
+
+		def DeepReplaceCSQ(pItem, pByValue, pCaseSensitive)
+			This.DeepReplaceCS(pItem, pByValue, pCaseSensitive)
+			return This
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DeepReplace(pItem, pByValue)
+		This.DeepReplaceCS(pItem, pByValue, :CaseSensitive = TRUE)
 
 		def DeepReplaceQ(pItem, pByValue)
 			This.DeepReplace(pItem, pByValue)
@@ -3001,10 +3276,10 @@ class stzList from stzObject
 		ok
 
 		anPositions = This.FindAllCS(pItem, pCaseSensitive)
+		nLenPos = len(anPositions)
 
-		for i = len(anPositions) to 1 step -1
-			n = anPositions[i]
-			This.RemoveItemAtPosition(n)
+		for i = nLen to 1 step -1
+			This.RemoveItemAtPosition(anPositions[i])
 		next
 
 		#< @FunctionFluentForm
@@ -3343,12 +3618,44 @@ class stzList from stzObject
 			return This.NthOccurrenceRemoved(n, pItem)
 
 	  #----------------------------------------------#
-	 #   REMOVING THE FIRST OCCURRENCE OF AN ITEM   # TODO: Add CASESENSITIVITY
+	 #   REMOVING THE FIRST OCCURRENCE OF AN ITEM   #
 	#----------------------------------------------#
 
-	def RemoveFirstOccurrence(pItem)
+	def RemoveFirstOccurrenceCS(pItem, pCaseSensitive)
 
-		This.RemoveItemAtPosition( This.FindFirstOccurrence(pItem) )
+		This.RemoveItemAtPosition( This.FindFirstOccurrenceCS(pItem, pCaseSensitive) )
+
+
+		#< @FunctionFluentForm
+
+		def RemoveFirstOccurrenceCSQ(pItem, pCaseSensitive)
+			This.RemoveFirstOccurrenceCS(pItem, pCaseSensitive)
+			return This
+	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveFirstCS(pItem, pCaseSensitive)
+			This.RemoveFirstOccurrenceCS(pItem, pCaseSensitive)
+
+			def RemoveFirstCSQ(pItem, pCaseSensitive)
+				This.RemoveFirstCS(pItem, pCaseSensitive)
+				return This
+
+		#>
+
+	def FirstOccurrenceRemovedCS(pItem, pCaseSensitive)
+		aResult = This.Copy().RemoveFirstOccurrenceCSQ(pItem, pCaseSensitive).Content()
+		return aResult
+
+		def FirstRemovedCS(pItem, pCaseSensitive)
+			return This.FirstOccurrenceRemovedCS(pItem, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveFirstOccurrence(pItem)
+		This.RemoveFirstOccurrenceCS(pItem, :CaseSensitive = TRUE)
 
 
 		#< @FunctionFluentForm
@@ -3380,6 +3687,41 @@ class stzList from stzObject
 	  #--------------------------------------------------#
 	 #   REMOVING THE LAST OCCURRENCE OF A GIVEN ITEM   #
 	#--------------------------------------------------#
+
+	def RemoveLastOccurrenceCS(pItem, pCaseSensitive)
+		n = This.FindLastOccurrenceCS(pItem, pCaseSensitive)
+
+		if n <= This.NumberOfItems()
+			This.RemoveItemAtPosition( n )
+		ok
+
+		#< @FunctionFluentForm
+
+		def RemoveLastOccurrenceCSQ(pItem, pCaseSensitive)
+			This.RemoveLastOccurrenceCS(pItem, pCaseSensitive)
+			return This
+	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveLastCS(pItem, pCaseSensitive)
+			This.RemoveLastOccurrenceCS(pItem, pCaseSensitive)
+
+			def RemoveLastCSQ(pItem, pCaseSensitive)
+				This.RemoveLastCS(pItem, pCaseSensitive)
+				return This
+
+		#>
+
+	def LastOccurrenceRemovedCS(pItem, pCaseSensitive)
+		aResult = This.Copy().RemoveLastOccurrenceCSQ(pItem, pCaseSensitive).Content()
+		return aResult
+
+		def LastRemovedCS(pItem, pCaseSensitive)
+			return This.LastOccurrenceRemovedCS(pItem, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveLastOccurrence(pItem)
 		n = This.FindLastOccurrence(pItem)
@@ -3523,6 +3865,31 @@ class stzList from stzObject
 	 #   STARTING AT A GIVEN POSITION IN THE LIST    #
 	#-----------------------------------------------#
 
+	def RemoveNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+		This.RemoveNextNthOccurrenceCS(1, pItem, pnStartingAt, pCaseSensitive)
+
+		def RemoveNextOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive)
+			This.RemoveNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitiy)
+			return This
+
+		def RemoveNextCS(pItem, pnStartingAt, pCaseSensitive)
+			This.RemoveNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def RemoveNextCSQ(pItem, pnStartingAt, pCaseSensitive)
+				This.RemoveNextCS(pItem, pnStartingAt, pCaseSensitive)
+				return This
+
+	def NextOccurrenceRemovedCS(pItem, pnStartingAt, pCaseSensitive)
+		aRresult =  This.Copy().
+				RemoveNextOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive).
+				Content()
+		return aResult
+
+		def NextRemovedCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NextOccurrenceRemovedCS(pItem, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def RemoveNextOccurrence(pItem, pnStartingAt)
 		This.RemoveNextNthOccurrence(1, pItem, pnStartingAt)
 
@@ -3530,20 +3897,28 @@ class stzList from stzObject
 			This.RemoveNextOccurrence(pItem, pnStartingAt)
 			return This
 
-	def NextOccurrenceRemoved(pItem, pnStartingAt)
+		def RemoveNext(pItem, pnStartingAt)
+			This.RemoveNextOccurrence(pItem, pnStartingAt)
 
-		aRrsult =  This.Copy().
+			def RemoveNextQ(pItem, pnStartingAt)
+				This.RemoveNext(pItem, pnStartingAt)
+				return This
+
+	def NextOccurrenceRemoved(pItem, pnStartingAt)
+		aRersult =  This.Copy().
 				RemoveNextOccurrenceQ(pItem, pnStartingAt).
 				Content()
+		return aRersult
 
-		return This
+		def NextRemoved(pItem, pnStartingAt)
+			return This.NextOccurrenceRemoved(pItem, pnStartingAt)
 
 	   #----------------------------------------------------#
 	  #   REMOVING MANY NEXT NTH OCCURRENCES OF AN ITEM    #
 	 #   STARTING AT A GIVEN POSITION IN THE LIST         #
 	#----------------------------------------------------#
 
-	def RemoveNextNthOccurrences(panList, pItem, pnStartingAt)
+	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		/* Example
 
 		StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
@@ -3587,20 +3962,62 @@ class stzList from stzObject
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
 
 		anPositions  = 	oSection.
-				FindAllQR(pItem, :stzListOfNumbers).
+				FindAllCSQR(pItem, :stzListOfNumbers, pCaseSensitive).
 				AddToEachQ(pnStartingAt-1).
 				Content()
 
 		anPositionsToBeRemoved = []
-		i = 0
-		for n in panList
-			i++
-			if i <= len(anPositions)
-				anPositionsToBeRemoved +  anPositions[n]
+		nLen = len(panList)
+		nLenPos = len(anPositions)
+
+		for i = 1 to nLen
+			if i <= nLenPos
+				anPositionsToBeRemoved +  anPositions[panList[i]]
 			ok
 		next
 
-		This.RemoveItemsAtThesePositions(anPositionsToBeRemoved)
+		This.RemoveItemsAtThesePositionsCS(anPositionsToBeRemoved, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def RemoveNextNthOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+			This.RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveNthNextOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			This.RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+			def RemoveNthNextOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+				This.RemoveNthNextOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+				return This
+
+		def RemoveNextOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			This.RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+			def RemoveNextOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+				This.RemoveNthNextOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+				return This
+		#>
+
+	def NextNthOccurrencesRemovedCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+		aResult =  This.
+			   RemoveNextNthOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive).
+			   Content()
+
+		return aResult
+
+		def NthNextOccurrencesRemovedCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			return This.NextNthOccurrencesRemovedCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveNextNthOccurrences(panList, pItem, pnStartingAt)
+		This.RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -3643,7 +4060,7 @@ class stzList from stzObject
 	 #   STARTING AT A GIVEN POSITION IN THE LIST       #
 	#--------------------------------------------------#
 
-	def RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
+	def RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
@@ -3670,11 +4087,38 @@ class stzList from stzObject
 		ok
 
 		oSection   = This.SectionQ(1, pnStartingAt)
-		aPositions = oSection.FindAll(pItem)
+		aPositions = oSection.FindAllCS(pItem, pCaseSensitive)
 
 		nPosition = aPositions[ len(aPositions) - n + 1 ]
 
 		This.RemoveItemAtPosition(nPosition)
+
+		def RemovePreviousNthOccurrenceCSQ(n, pItem, pnStartingAt, pCaseSensitive)
+			This.RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+			return This
+
+		def RemoveNthPreviousOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+			This.RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+			def RemoveNthPreviousOccurrenceCSQ(n, pItem, pnStartingAt, pCaseSensitive)
+				This.RemoveNthPreviousOccurrenceCS(n, pItem, pnStartingAt, , pCaseSensitive)
+				return This
+
+	def NthPreviousOccurrenceRemovedCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+		aResult =  This.Copy().
+				RemoveNthPreviousOccurrenceCSQ(n, pItem, pnStartingAt, pCaseSensitive).
+				Content()
+
+		return This
+
+		def PreviousNthOccurrenceRemovedCS(n, pItem, pnStartingAt, pCaseSensitive)
+			return This.NthPreviousOccurrenceRemovedCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
+		This.RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, :CaseSensitive = TRUE)
 
 		def RemovePreviousNthOccurrenceQ(n, pItem, pnStartingAt)
 			This.RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
@@ -3703,27 +4147,52 @@ class stzList from stzObject
 	 #   STARTING AT A GIVEN POSITION IN THE LIST   #
 	#----------------------------------------------#
 
+	def RemovePreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+		This.RemovePreviousNthOccurrenceCS(1, pItem, pnStartingAt, pCaseSensitive)
+
+		def RemovePreviousOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive)
+			This.RemovePreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+			return This
+
+		def RemovePreviousCS(pItem, pnStartingAt, pCaseSensitive)
+			This.RemovePreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+
+	def PreviousOccurrenceRemovedCS(pItem, pnStartingAt, pCaseSensitive)
+		aResult =  This.Copy().
+				RemovePreviousOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive).
+				Content()
+		return This
+
+		def PreviousRemovedCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.PreviousOccurrenceRemovedCS(pItem, pnStartingAt, pCaseSensitive)
+
+	# WITHOUT CASESENSITIVITY
+
 	def RemovePreviousOccurrence(pItem, pnStartingAt)
-		This.RemovePreviousNthOccurrence(1, pItem, pnStartingAt)
+		This.RemovePreviousOccurrenceCS(pItem, pnStartingAt, :CaseSensitive = TRUE)
 
 		def RemovePreviousOccurrenceQ(pItem, pnStartingAt)
 			This.RemovePreviousOccurrence(pItem, pnStartingAt)
 			return This
 
-	def PreviousOccurrenceRemoved(pItem, pnStartingAt)
+		def RemovePrevious(pItem, pnStartingAt)
+			This.RemovePreviousOccurrence(pItem, pnStartingAt)
 
+	def PreviousOccurrenceRemoved(pItem, pnStartingAt)
 		aResult =  This.Copy().
 				RemovePreviousOccurrenceQ(pItem, pnStartingAt).
 				Content()
-
 		return This
+
+		def PreviousRemoved(pItem, pnStartingAt)
+			return This.PreviousOccurrenceRemoved(pItem, pnStartingAt)
 
 	   #--------------------------------------------------------#
 	  #   REMOVING MANY PREVIOUS NTH OCCURRENCES OF AN ITEM    #
 	 #   STARTING AT A GIVEN POSITION IN THE LIST             #
 	#--------------------------------------------------------#
 
-	def RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
+	def RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		/* Example
 
 		StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
@@ -3766,18 +4235,60 @@ class stzList from stzObject
 			
 		oSection = This.SectionQ(1, pnStartingAt)
 
-		anPositions = oSection.FindAllQ(pItem).ItemsReversed()
+		anPositions = oSection.FindAllCSQ(pItem, pCaseSensitive).ItemsReversed()
 
 		anPositionsToBeRemoved = []
-		i = 0
-		for n in panList
-			i++
-			if i <= len(anPositions)
-				anPositionsToBeRemoved + anPositions[n]
+		nLen = len(panList)
+		nLenPositions = len(anPositions)
+
+		for i = 1 to nLen
+			if i <= nLenPso
+				anPositionsToBeRemoved + anPositions[panList[i]]
 			ok
 		next
 
-		This.RemoveItemsAtThesePositions(anPositionsToBeRemoved)
+		This.RemoveItemsAtThesePositionsCS(anPositionsToBeRemoved, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def RemovePreviousNthOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+			This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemovePreviousOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+			def RemovePreviousOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+				This.RemovePreviousOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+				return This
+
+		def RemoveNthPreviousOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+			def RemoveNthPreviousOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+				This.RemoveNthPreviousOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+				return This
+		#>
+
+	def PreviousNthOccurrencesRemovedCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+		aResult = This.
+			  RemovePreviousNthOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive).
+			  Content()
+
+		return aResult
+
+		def NthPreviousOccurrencesRemovedCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			return This.PreviousNthOccurrencesRemovedCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
+		This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -4624,18 +5135,18 @@ class stzList from stzObject
 	#------------------------------------#
 
 	def ExtractRange(nStart, nRange)
-		return This.ExtractSection(nStart, nStart + nRange)
+		return This.ExtractSection(nStart, nStart + nRange - 1)
 
 	  #-----------------------------------------------------#
 	 #  EXTRACTING NEXT ITEM STARTING AT A GIVEN POSITION  #
 	#-----------------------------------------------------#
 
 	def ExtractNextCS(pItem, pnStartingAt, pCaseSensitive)
-		if This.FindNextCS(item, pnStartingAt, pCaseSensitive) = 0
+		if This.FindNextCS(pItem, pnStartingAt, pCaseSensitive) = 0
 			StzRaise("Can't extract! pItem does not exist at the specified position.")
 		ok
 
-		This.RemoveNextCS(item, pnStartingAt, pCaseSensitive)
+		This.RemoveNextCS(pItem, pnStartingAt, pCaseSensitive)
 		return item
 
 	#-- WITHOUT CASESENSITIVITY
@@ -4664,6 +5175,50 @@ class stzList from stzObject
 	 #     BOUNDS OF THE LIST     #
 	#============================#
 
+	def BoundsOf(pItem, pnUpToNItems)
+
+		
+	def AreBoundsOf(pItem, pIn)
+
+		/* EXAMPLE 1
+
+		o1 = new stzList([ "<<", ">>" ])
+		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
+		#--> TRUE
+
+		EXAMPLE 2
+
+		o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
+		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
+		#--> TRUE
+
+		*/
+
+		if NOT ( This.IsPair() or This.IsListOfPairs() )
+			StzRaise("Can't check bounds! List must be a pair or a list of pairs.")
+		ok
+
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		ok
+
+		anUpToNChars = []
+		if This.IsPair() and NOT This.IsListOfPairs()
+			anUpToNChars = [ len(This[1]), len(This[2]) ]
+			aThis = [ This.Content() ]
+
+		else
+			for aPair in This.Content()
+				anUpToNChars + [ len(aPair[1]), len(aPair[2]) ]
+			next
+			aThis = This.Content()
+		ok
+
+		aBounds = Q(pIn).BoundsOf(pItem, anUpToNChars)
+	
+		bResult = Q(aThis).AllItemsExistIn(aBounds)
+		return bResult
+
 	def IsBoundedBy(paBounds)
 		if isList(paBounds) and Q(paBounds).IsPair()
 			pItem1 = paBounds[1]
@@ -4679,6 +5234,10 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	  #--------------------------------------------#
+	 #  GETTING BOUNDS OF THE LIST UP TO N ITEMS  #
+	#--------------------------------------------#
 
 	def BoundsUpToNItems(n)
 		return [ This.NFirstItems(n), This.NLastItems(n) ] # TODO add them
@@ -4725,6 +5284,10 @@ class stzList from stzObject
 		--> TODO: Check the occurrence this pattern all over the library!
 		*/
 		
+	  #------------------------------#
+	 #     REMOVING MANY BOUNDS     #
+	#------------------------------#
+
 	def RemoveManyBounds(paPairsOfBounds)
 		for aPair in paPairsOfBounds
 			This.RemoveBounds(aPair)
@@ -4975,7 +5538,6 @@ class stzList from stzObject
 
 		def AllItemsAreListsOfSameSize()
 			return This.ItemsAreListsOfSameSize()
-
 
 	def ItemsAreSets()
 		if This.NumberOfItems() = 0
@@ -10926,8 +11488,8 @@ class stzList from stzObject
 	 #   OF NUMBERS IN WHICH THE _:_ SYNTAX IS PREFERRED      #
 	#--------------------------------------------------------#
 
-	# @C prefix is used to say this function returns its result
-	# with list of numbers in the _:_ Contiguous List syntax
+	# @C prefix is used to say this function returns its result with
+	# list of numbers in the _:_ Contiguous List syntax
 	# provided by Ring. See example hereafter.
 
 	def ClassifySF()	# Specific for lists of lists of numbers
@@ -11643,10 +12205,10 @@ class stzList from stzObject
 			eval(cCode)
 			oTable.ReplaceRow(@i, [ @item, value ])
 		next
-oTable.Show() + NL
+//oTable.Show() + NL
 
 		oTable.SortInAscending( :By = oTable.ColName(2) )
-oTable.Show() + NL
+//oTable.Show() + NL
 //sdsd
 		aSortedList = oTable.Col(1)
 
@@ -14921,19 +15483,17 @@ oTable.Show() + NL
 	#----------------------------#
 
 	def FindDuplicatesCS(pCaseSensitive)
-? "hi"
+
 		acUniqueItems = This.RemoveDuplicates()
 		nLenUniq = len(acUniqueItems)
-? nLenUniq
+
 		anPositions = []
 		anResult = []
 
 		for i = 1 to nLenUniq
 
 			anPos = This.FindAllCSQ( acUniqueItems[i], pCaseSensitive)
-? acUniqueItems[i]
-? @@S(anPos)
-? "--"
+
 			if len(anPos) > 1
 				del(anPos, 1)
 				nLen = len(anPos)
@@ -15808,9 +16368,7 @@ oTable.Show() + NL
 	 #   STARTING AT A GIVEN POSITION              #
 	#---------------------------------------------#
 
-	// TODO: Add CaseSensitivity
-	def FindPreviousOccurrences(pcSubStr, pnStartingAt)
-
+	def FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
@@ -15834,26 +16392,16 @@ oTable.Show() + NL
 
 		oSection = This.SectionQ(1, pnStartingAt)
 
-		anPositions = oSection.FindAll(pcSubStr)
+		anPositions = oSection.FindAllCS(pcSubStr, pCaseSensitive)
 		
 		return anPositions
+
+	def FindPreviousOccurrences(pcSubStr, pnStartingAt)
+		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
 
 	  #===================================================#
 	 #   FINDING ALL ITEMS VERIFYING A GIVEN CONDITION   #
 	#===================================================#
-	/* NOTE
-
-	This is a more performant version then FindXTW().
-	The function does not transpile the conditional code
-	if it contains advanced keywords like @PreviousItem,
-	@NextItem and so on...
-
-	Also, the executable section is not infered automatically
-	from the conditional code.
-
-	To benefit from these features, use the extended form
-	of the function bu tbe ready from a performane tax.
-	*/
 
 	def FindAllItemsW(pcCondition)
 		/* WARNING
@@ -16600,6 +17148,10 @@ oTable.Show() + NL
 			def OnlyWhere(pcCondition)
 				return This.ItemsW(pcCondition)
 
+	  #-----------------------------------------------------------------#
+	 #  GETTINIG THE NTH ITEM IN THE LIST VERIFYING A GIVEN CONDITION  #
+	#-----------------------------------------------------------------#
+
 	def NthItemW(n, pcCondition)
 
 		cResult = ItemsW(pcCondition)[n]
@@ -16639,6 +17191,10 @@ oTable.Show() + NL
 
 		#>
 		
+	  #-------------------------------------------------------------------#
+	 #  GETTINIG THE FIRST ITEM IN THE LIST VERIFYING A GIVEN CONDITION  #
+	#-------------------------------------------------------------------#
+
 	def FirstItemW(pCondition)
 		return This.NthItemWhere(1, pCondition)
 
@@ -16666,6 +17222,10 @@ oTable.Show() + NL
 			off
 
 		#>
+
+	  #------------------------------------------------------------------#
+	 #  GETTINIG THE LAST ITEM IN THE LIST VERIFYING A GIVEN CONDITION  #
+	#------------------------------------------------------------------#
 
 	def LastItemW(pCondition)
 		return This.ItemsW(pCondition)[ len(This.ItemsW(pCondition)) ]
@@ -16695,13 +17255,18 @@ oTable.Show() + NL
 
 		#>
 
-	  #---------------------------------------------------------#
-	 #   GETTING ITEMS VERIFYING A GIVEN CONDITION -- EXTENDE  #
-	#---------------------------------------------------------#
+	  #----------------------------------------------------------#
+	 #   GETTING ITEMS VERIFYING A GIVEN CONDITION -- EXTENDED  #
+	#----------------------------------------------------------#
 
 	/* NOTE
 	A Less performant alternative to ItemsW() function.
 	Provides transpiling and executable section features.
+
+	UPDATE: I think this was fixed and the olny one to use is
+	the normal ItemsW()..
+	--> TODO: If so, remove this function!
+
 	*/
 
 	def ItemsWXT(pcCondition)
@@ -17271,7 +17836,7 @@ oTable.Show() + NL
 		#>
 
 	  #=====================================#
-	 #   REMOVING ITEMS WHICH ARE ITEMS  #
+	 #   REMOVING ITEMS WHICH ARE STRINGS  #
 	#=====================================#
 
 	def RemoveStrings()
@@ -17299,7 +17864,7 @@ oTable.Show() + NL
 				return This
 
 	  #========================================#
-	 #   GETTING ITEMS WHICH ARE NOT ITEMS  #
+	 #   GETTING ITEMS WHICH ARE NOT STRING   #
 	#========================================#
 
 	def NonStrings()
@@ -17356,7 +17921,7 @@ oTable.Show() + NL
 				off
 
 	  #=========================================#
-	 #   REMOVING ITEMS WHICH ARE NOT ITEMS  #
+	 #   REMOVING ITEMS WHICH ARE NOT STRINGS  #
 	#=========================================#
 
 	def RemoveNonStrings()
@@ -17394,7 +17959,7 @@ oTable.Show() + NL
 		return This.Copy().RemoveNonStringsQ().Content()
 
 	  #=================================================#
-	 #  LOWERCASING THE ITEMS CONTAINED IN THE LIST  #
+	 #  LOWERCASING THE STRINGS CONTAINED IN THE LIST  #
 	#=================================================#
 
 	def LowercaseStrings()
@@ -17447,7 +18012,7 @@ oTable.Show() + NL
 		return aResult
 
 	  #=================================================#
-	 #  UPPERCASING THE ITEMS CONTAINED IN THE LIST  #
+	 #  UPPERCASING THE STRINGS CONTAINED IN THE LIST  #
 	#=================================================#
 
 	def UppercaseStrings()
@@ -17500,7 +18065,7 @@ oTable.Show() + NL
 		return aResult
 	
 	  #=================================================#
-	 #  TITLECASING THE ITEMS CONTAINED IN THE LIST  #
+	 #  TITLECASING THE STRINGS CONTAINED IN THE LIST  #
 	#=================================================#
 
 	def TitlecaseStrings()
@@ -17553,7 +18118,7 @@ oTable.Show() + NL
 		return aResult
 
 	  #==================================================#
-	 #  CAPITALIZING THE ITEMS CONTAINED IN THE LIST  #
+	 #  CAPITALIZING THE STRINGS CONTAINED IN THE LIST  #
 	#==================================================#
 
 	def CapitaliseStrings()
@@ -17629,7 +18194,7 @@ oTable.Show() + NL
 			return This.StringsCapitalised()
 
 	  #=====================================#
-	 #   ITEMS OF TYPE LISTS OF ITEMS    #
+	 #   ITEMS OF TYPE LISTS OF STRINGS    #
 	#=====================================#
 
 	def ListsOfStrings()
@@ -18613,8 +19178,16 @@ oTable.Show() + NL
 	  #------------------------------------------------#
 	 #    GETTING A SECTION (OR SLICE) OF THE LIST    #
 	#------------------------------------------------#
+	/*
+	TODO: Think of a syntax that return the section withount the
+	extremities, like for example:
+
+	o1.Section(:@, ']5, 8]') --> [6, 7, 8]
+
+	*/
 
 	def Section(n1, n2)
+
 
 		# Managing the use of :From and :To named params
 
@@ -19079,7 +19652,7 @@ oTable.Show() + NL
 	#-----------------------------------#
 
 	def Range(pnStart, pnRange)
-		return This.Section( pnStart, pnStart + pnRange-1)
+		return This.Section( pnStart, pnStart + pnRange - 1)
 
 		def RangeQ(pnStart, pnRange)
 			return This.RangeQR(pnStart, pnRange, :stzList)
@@ -19169,9 +19742,9 @@ oTable.Show() + NL
 	
 		#>
 
-	  #-------------------#
+	  #===================#
 	 #     MULTINGUAL    #
-	#-------------------#
+	#===================#
 
 	def AllItemsAreLanguageAbbreviations()
 		bResult = TRUE
@@ -19288,7 +19861,7 @@ oTable.Show() + NL
 		return TRUE
 
 	  #---------------------------------------------#
-	 #     NUMBER OF COMMON AND DIFFERENT ITEMS    #
+	 #     NUMBER OF COMMON AND DIFFERENT ITEMS    # TODO: Reorgainize.
 	#---------------------------------------------#
 
 	def NumberOfCommonItemsWith(paItems)
@@ -19452,7 +20025,7 @@ oTable.Show() + NL
 		i = 0
 		for item in paItems
 			i++
-			if _(This[i]).Q.IsNotEqualTo(item)
+			if Q(This[i]).IsNotEqualTo(item)
 				bResult = FALSE
 				exit
 			ok
@@ -19477,7 +20050,7 @@ oTable.Show() + NL
 		i = 0
 		for item in This.NLastItems( len(paItems) )
 			i++
-			if _(This[i]).Q.IsNotEqualTo(item)
+			if Q(This[i]).IsNotEqualTo(item)
 				bResult = FALSE
 				exit
 			ok
@@ -19487,150 +20060,6 @@ oTable.Show() + NL
 
 		def FinishesWith(paItems)
 			return This.EndsWith(paItems)
-
-/////////////////////////////////////////////////////////
-	  #--------------------------------------------------#
-	 #   PERFORMING AN ACTION ON EACH ITEM OF THE LSIT  #
-	#--------------------------------------------------#
-
-	def ForEacItemPerform(pcCode)
-		# Must begin with '@item ="
-		/* Example
-
-		o1 = new stzList([ "village.txt", "town.txt", "country.txt" ])
-		o1.ForEachItemPerform('{ Q(@item).RemoveQ(".txt").Content() }')
-
-		o1.Content() # ---> [ "village", "town", "country" ]
-
-		*/
-
-		if NOT isString(pcCode)
-			StzRaise("Invalid param type! Condition must be a string.")
-		ok
-
-		oCode = new stzString(pcCode)
-		oCode.ReplaceAllCS("@string", "@str", :CaseSensitive = FALSE)
-
-		if NOT oCode.ContainsCS("@str", :CS = FALSE)
-			StzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
-		ok
-
-		cCode = oCode.RemoveBoundsQ(["{","}"]).Trimmed()
-		oCode = new stzString(cCode)
-		/* TODO - ERROR: check why when we do
-
-		oCode.RemoveBoundsQ(["{","}"]).SimplifyQ()
-
-		and get the object content using
-
-		? oCode.Content()
-
-		we find that the object is not affectd by SimplifyQ()!
-		*/
-
-		if NOT oCode.BeginsWithOneOfTheseCS( [ "@str =", "@str=" ], :CaseSensitive = FALSE )
-
-			StzRaise("Syntax error! Condition should begin with '@str =' or '@string ='.")
-		ok
-
-		@i = 0
-		for @str in This.ListOfStrings()
-			@i++
-			eval(cCode)
-
-			This.ReplaceStringAtPosition(@i, @str )	
-		next
-
-		#< @FunctionFluentForm
-
-		def ForEachStringPerformQ(pcCode)
-			This.ForEachStringPerform(pcCode)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def ForEachStringDo(pcCode)
-			This.ForEachStringPerform(pcCode)
-
-			def ForEachStringDoQ(pcCode)
-				This.ForEachStringDo(pcCode)
-				return This
-
-		#>
-
-	  #----------------------------------------------#
-	 #   YIELDING AN INFORMATION FROM EACH ITEM   #
-	#----------------------------------------------#
-
-	def ForEachStringYield(pcCode)
-		/* Example
-
-		o1 = new stzListOfStrings([ "village", "town", "country" ])
-		o1.ForEachStringYield('[ @str, Q(@str).NumberOfChars()' ])
-
-		o1.Content()
-		# ---> [ [ "village", 6 ], [ "town", 4 ], [ "country", 7 ] ]
-
-		*/
-
-		if NOT isString(pcCode)
-			StzRaise("Invalid param type! Condition must be a string.")
-		ok
-
-		oCode = new stzString(pcCode)
-		oCode.ReplaceAllCS("@string", "@str", :CaseSensitive = FALSE)
-
-		if NOT oCode.ContainsCS("@str", :CS = FALSE)
-			StzRaise("Incorrect parm! Condition should contain '@str' or '@string'.")
-		ok
-
-
-		cCode = oCode.TrimQ().BoundsRemoved("{","}")
-		cCode = 'aResult + ( ' + cCode + ' )'
-
-		aResult = []
-
-		for @str in This.ListOfStrings()
-			@string = @str
-			
-			eval(cCode)
-		next
-
-		return aResult
-
-		def ForEachStringYieldQ(pcCode)
-			return This.ForEachStringYieldQR(pcCode, :stzList)
-
-		def ForEachStringYieldQR(pcCode, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.ForEachStringYield(pcCode) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.ForEachStringYield(pcCode) )
-			
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		def ForEachStringReturn(pcCode)
-			This.ForEachStringYield(pcCode)
-
-			def ForEachStringReturnQ(pcCode)
-				return This.ForEachStringYieldQ(pcCode)
-
-				def ForEachStringReturnQR(pcCode, pcReturnType)
-					if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-						pcReturnType = pcReturnType[2]
-					ok
-
-					return This.ForEachStringYieldQR(pcCode, pcReturnType)
 
 	  #==========================================#
 	 #  SMALLEST AND LARGEST ITEMS IN THE LIST  #
@@ -19837,6 +20266,8 @@ oTable.Show() + NL
 
 		# TODO: This code uses windowsnl() --> check if that works
 		# on other operating systems as well
+
+		# TODO: Ask Mahmoud: Is WindowsNL() multiplatform?
 
 		cTabs = ring_copy( char(9), List2CodeTabsCounter )
 		cCode = cTabs + "[" + Windowsnl()
@@ -26540,47 +26971,3 @@ oTable.Show() + NL
 
 		def ToListInShortForm()
 			return This.ToListInStringInShortForm()
-
-	def BoundsOf(pItem, pnUpToNItems)
-		// TODO
-		
-	def AreBoundsOf(pItem, pIn)
-
-		/* EXAMPLE 1
-
-		o1 = new stzList([ "<<", ">>" ])
-		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-		#--> TRUE
-
-		EXAMPLE 2
-
-		o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
-		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-		#--> TRUE
-
-		*/
-
-		if NOT ( This.IsPair() or This.IsListOfPairs() )
-			StzRaise("Can't check bounds! List must be a pair or a list of pairs.")
-		ok
-
-		if isList(pIn) and Q(pIn).IsInNamedParam()
-			pIn = pIn[2]
-		ok
-
-		anUpToNChars = []
-		if This.IsPair() and NOT This.IsListOfPairs()
-			anUpToNChars = [ len(This[1]), len(This[2]) ]
-			aThis = [ This.Content() ]
-
-		else
-			for aPair in This.Content()
-				anUpToNChars + [ len(aPair[1]), len(aPair[2]) ]
-			next
-			aThis = This.Content()
-		ok
-
-		aBounds = Q(pIn).BoundsOf(pItem, anUpToNChars)
-	
-		bResult = Q(aThis).AllItemsExistIn(aBounds)
-		return bResult
