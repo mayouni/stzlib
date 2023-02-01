@@ -2129,7 +2129,7 @@ class stzList from stzObject
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
 
 		anPositions = oSection.
-			      FindAllCSQR(pItem, :stzListOfNumbers, pCaseSensitive).
+			      FindAllCSQR(pItem, pCaseSensitive, :stzListOfNumbers).
 			      AddToEachQ(pnStartingAt-1).
 			      Content()
 
@@ -3278,7 +3278,7 @@ class stzList from stzObject
 		anPositions = This.FindAllCS(pItem, pCaseSensitive)
 		nLenPos = len(anPositions)
 
-		for i = nLen to 1 step -1
+		for i = nLenPos to 1 step -1
 			This.RemoveItemAtPosition(anPositions[i])
 		next
 
@@ -3962,7 +3962,7 @@ class stzList from stzObject
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
 
 		anPositions  = 	oSection.
-				FindAllCSQR(pItem, :stzListOfNumbers, pCaseSensitive).
+				FindAllCSQR(pItem, pCaseSensitive, :stzListOfNumbers).
 				AddToEachQ(pnStartingAt-1).
 				Content()
 
@@ -5147,7 +5147,7 @@ class stzList from stzObject
 		ok
 
 		This.RemoveNextCS(pItem, pnStartingAt, pCaseSensitive)
-		return item
+		return pItem
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -5237,7 +5237,7 @@ class stzList from stzObject
 	 #  CHECKING IF THE 2 ITEMS OF THE LIST ARE BOUNDS OF A SUBSTRING IN A GIVEN STRING  #
 	#-----------------------------------------------------------------------------------#
 
-	def AreBoundsOf(pItem, pIn)
+	def AreBoundsOfCS(pItem, pIn, pCaseSensitive)
 
 		/* EXAMPLE 1
 
@@ -5273,10 +5273,15 @@ class stzList from stzObject
 			aThis = This.Content()
 		ok
 
-		aBounds = Q(pIn).BoundsOf(pItem, anUpToNChars)
+		aBounds = Q(pIn).BoundsOfCS(pItem, anUpToNChars, pCaseSensitive)
 	
-		bResult = Q(aThis).AllItemsExistIn(aBounds)
+		bResult = Q(aThis).AllItemsExistInCS(aBounds, pCaseSensitive)
 		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def AreBoundsOf(pItem, pIn)
+		return This.AreBoundsOfCS(pItem, pIn, :CaseSensitive = TRUE)
 
 	  #----------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS BOUNDED BY THE GIVEN TWO ITEMS  #
@@ -5316,19 +5321,19 @@ class stzList from stzObject
 	 #     REMOVING BOUNDS     #
 	#-------------------------#
 
-	def RemoveBounds(paBounds)
-		if This.IsBoundedBy(paBounds)
+	def RemoveBoundsCS(paBounds, pCaseSensitive)
+		if This.IsBoundedByCS(paBounds, pCaseSensitive)
 			This.RemoveFirstItem()
 			This.RemoveLastItem()
 		ok
 
-		def RemoveBoundsQ(paBounds)
-			This.RemoveBounds(paBounds)
+		def RemoveBoundsCSQ(paBounds, pCaseSensitive)
+			This.RemoveBoundsCS(paBounds, pCaseSensitive)
 			return This
 
-	def BoundsRemoved(paBounds)
+	def BoundsRemovedCS(paBounds, pCaseSensitive)
 
-		aResult = This.Copy().RemoveBoundsQ(paBounds).Content()
+		aResult = This.Copy().RemoveBoundsCSQ(paBounds, pCaseSensitive).Content()
 		return aResult
 
 		/* WARNING: Subtle bug in Ring (Show to Mahmoud)
@@ -5347,14 +5352,42 @@ class stzList from stzObject
 		--> TODO: Check the occurrence this pattern all over the library!
 		*/
 		
+	#-- WIHTOUT CASESENSITIVITY
+
+	def RemoveBounds(paBounds)
+		This.RemoveBoundsCS(paBounds, :CaseSensitive = TRUE)
+
+		def RemoveBoundsQ(paBounds)
+			This.RemoveBounds(paBounds)
+			return This
+
+	def BoundsRemoved(paBounds)
+
+		aResult = This.Copy().RemoveBoundsQ(paBounds).Content()
+		return aResult
+
 	  #------------------------------#
 	 #     REMOVING MANY BOUNDS     #
 	#------------------------------#
 
-	def RemoveManyBounds(paPairsOfBounds)
-		for aPair in paPairsOfBounds
-			This.RemoveBounds(aPair)
+	def RemoveManyBoundsCS(paPairsOfBounds, pCaseSensitive)
+		nLen = len(paPairsOfBounds)
+		for i = 1 to nLen
+			This.RemoveBoundsCS(paPairsOfBounds[i], pCaseSensitive)
 		next
+
+		def RemoveManyBoundsCSQ(paPairsOfBounds, pCaseSensitive)
+			This.RemoveManyBoundsCS(paPairsOfBounds, pCaseSensitive)
+			return This
+
+	def ManyBoundsRemovedCS(paPairsOfBounds, pCaseSensitive)
+		aResult = This.Copy().RemoveManyBoundsCSQ(paPairsOfBounds, pCaseSensitive).Content()
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveManyBounds(paPairsOfBounds)
+		This.RemoveManyBoundsCS(paPairsOfBounds, :CaseSensitive = TRUE)
 
 		def RemoveManyBoundsQ(paPairsOfBounds)
 			This.RemoveManyBounds(paPairsOfBounds)
@@ -11916,14 +11949,28 @@ class stzList from stzObject
 	 #     COMPARAISON WITH AN OTHER LIST     #
 	#========================================#
 
-	def ContainsSameItemsAs(paOtherList)
-		if len( This.DifferentItemsWith(paOtherList) ) = 0
+	  #-------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS SAME ITEMS AS AN OTHER LIST  #
+	#-------------------------------------------------------------#
+
+	def ContainsSameItemsAsCS(paOtherList, pCaseSensitive)
+		if len( This.DifferentItemsWithCS(paOtherList, pCaseSensitive) ) = 0
 			return TRUE
 		else
 			return FALSE
 		ok
 
-	def DifferenceWith(paOtherList)
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsSameItemsAs(paOtherList)
+		return This.ContainsSameItemsAsCS(paOtherList, :CaseSensitive = TRUE)
+
+	   #------------------------------------------------------------#
+	  #  GETTING THE LIST OF ITEMS FORMING THE DIFFERENCE BETWEEN  #
+	 #  THE MAIN LIST AND AND OTHER GIVEN LIST                    #
+	#------------------------------------------------------------#
+
+	def DifferenceWithCS(paOtherList, pCaseSensitive)
 		/*
 		Returns a list composed of two hashlists:
 			[
@@ -11932,11 +11979,37 @@ class stzList from stzObject
 			]
 		*/
 		aResult = [
-				:SURPLUS = This.OverItemsComparedTo(paOtherList),
-				:LACKING = This.LackingItemsComparedTo(paOtherList)
+				:SURPLUS = This.OverItemsComparedToCS(paOtherList, pCaseSensitive),
+				:LACKING = This.LackingItemsComparedToCS(paOtherList, pCaseSensitive)
 			  ]
 
 		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DifferenceWith(paOtherList)
+		return This.DifferenceWithCS(paOtherList, :CaseSensitive = TRUE)
+
+	   #---------------------------------------------------------#
+	  #  GETTING THE LIST OF ITEMS WHICH ARE DIFFERENT BETWEEN  #
+	 #  THE MAIN LIST AND AND OTHER GIVEN LIST                 #
+	#---------------------------------------------------------#
+
+	def DifferentItemsWithCS(paOtherList, pCaseSensitive)
+		aResult = This.OverItemsComparedToCS(paOtherList, pCaseSensitive)
+		acLackingItems = This.LackingItemsComparedToCS(paOtherList, pCaseSensitive)
+		nLen = len(acLackingItems)
+
+		for i = 1 to nLen
+			aResult + This[i]
+		next
+	
+		return aResult
+
+		def DifferentItemsWithCSQ(paOtherList, pCaseSensitive)
+			return new stzList( This.DifferentItemsWithCS(paOtherList, pCaseSensitive) )
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def DifferentItemsWith(paOtherList)
 		aResult = This.OverItemsComparedTo(paOtherList)
@@ -11949,41 +12022,133 @@ class stzList from stzObject
 		def DifferentItemsWithQ(paOtherList)
 			return new stzList( This.DifferentItemsWith(paOtherList) )
 
-	def OverItemsComparedTo(paOtherList)
+	  #--------------------------------------------------------------------#
+	 #  GETTING THE OVER-ITEMS IN A GIVEN LIST COMPARED TO THE MAIN LIST  #
+	#--------------------------------------------------------------------#
+
+	def OverItemsComparedToCS(paOtherList, pCaseSensitive)
 		aResult = []
 
 		oOtherList = new stzList(paOtherList)
-		for item in This.Content()
-			if NOT oOtherList.Contains(item)
+		nLen = This.NumberOfItems()
+
+		for i = 1 to nLen
+			item = This[i]
+			if NOT oOtherList.ContainsCS(item, pCaseSensitive)
 				aResult + item
 			ok
 		next
 
 		return aResult
 
+		def OverItemsComparedToCSQ(paOtherList, pCaseSensitive)
+			return new stzList( This.OverItemsComparedToCS(paOtherList, pCaseSensitive) )
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def OverItemsComparedTo(paOtherList)
+		return This.OverItemsComparedToCS(paOtherList, :CaseSensitive = TRUE)
+
 		def OverItemsComparedToQ(paOtherList)
 			return new stzList( This.OverItemsComparedTo(paOtherList) )
 
-	def LackingItemsComparedTo(paOtherList)
-		aResult = []
+	  #-------------------------------------------------------------------------#
+	 #  GETTING THE LACKING-ITEMS IN THE LIST COMPARED TO AN OTHER GIVEN LIST  #
+	#-------------------------------------------------------------------------#
 
-		for item in paOtherList
-			if not This.Contains(item)
+	def LackingItemsComparedToCS(paOtherList, pCaseSensitive)
+		aResult = []
+		nLen = len(paOtherList)
+
+		for i = 1 to nLen
+			item = paOtherList[i]
+
+			if NOT This.ContainsCS(item, pCaseSensitive)
 				aResult + item
 			ok
-		next item
+		next
 
 		return aResult
+
+		def LackingItemsComparedToCSQ(paOtherList, pCaseSensitive)
+			return new stzList( This.LackingItemsComparedToCS(paOtherList, pCaseSensitive) )	
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LackingItemsComparedTo(paOtherList)
+		return This.LackingItemsComparedToCS(paOtherList, :CaseSensitive = TRUE)
 
 		def LackingItemsComparedToQ(paOtherList)
 			return new stzList( This.LackingItemsComparedTo(paOtherList) )	
 
-	def HasSameNumberOfItemsAs(paOtherList)
+	  #------------------------------------------------------------------------#
+	 #  CHECKING IF THE LIST HAS SAME NUMBER OF ITEMS AS AN OTHER GIVEN LIST  #
+	#------------------------------------------------------------------------#
+
+	def HasSameNumberOfItemsAsCS(paOtherList, pCaseSensitive)
 		If len(paOtherList) = This.NumberOfItems()
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		def HasSameWidthAsCS(paOtherList, pCaseSensitive)
+			return HasSameNumberOfItemsAsCS(paOtherList, pCaseSensitive)
+
+		def HasSameSizeAsCS(paOtherList, pCaseSensitive)
+			return HasSameNumberOfItemsAsCS(paOtherList, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def HasSameNumberOfItemsAs(paOtherList)
+		return This.HasSameNumberOfItemsAsCS(paOtherList, :CaseSensitive = TRUE)
+
+		def HasSameWidthAs(paOtherList)
+			return HasSameNumberOfItemsAs(paOtherList)
+
+		def HasSameSizeAs(paOtherList)
+			return HasSameNumberOfItemsAs(paOtherList)
+
+	  #-------------------------------------------------------------------------------------#
+	 #  GETTING THE COMMON-ITEMS (INTERSECTION) BETWEEN THE MAIN LIST AN OTHER GIVEN LIST  #
+	#-------------------------------------------------------------------------------------#
+
+	def CommonItemsWithCS(paOtherList, pCaseSensitive)
+
+		if isList(paOtherList) and Q(paOtherList).IsListOfLists()
+			return This.CommonItemsWithManyCS(paListOfLists, pCaseSensitive)
+		ok
+
+		if This.NumberOfItems() <= len(paOtherList)
+			aMainList  = This.List()
+			aOtherList = paOtherList
+		else
+			aMainList  = paOtherList
+			aOtherList = This.List()
+		ok
+
+		aResult = []
+		nLen = len(aTempList)
+
+		for i = 1 to nLen
+			item = aMainList[i]
+			if Q(aOtherList).FindFirstCS( item, pCaseSensitive ) > 0
+				aResult + item
+			ok
+		next
+
+		return aResult
+
+		def CommonItemsWithCSQ(paOtherList, pCaseSensitive)
+			return new stzlist( This.CommonItemsWithCS(paOtherList, pCaseSensitive) )
+
+		def IntersectionWithCS(paOtherList, pCaseSensitive)
+			return This.CommonItemsWithCS(paOtherList, pCaseSensitive)
+
+			def IntersectionWithCSQ(paOtherList, pCaseSensitive)
+				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def CommonItemsWith(paOtherList)
 		oTempSet = new stzSet(This.List())
@@ -11992,21 +12157,44 @@ class stzList from stzObject
 		def CommonItemsWithQ(paOtherList)
 			return new stzlist( This.CommonItemsWith(paOtherList) )
 
-	def IntersectionWith(paOtherList)
-		return This.CommonItemsWith()
+		def IntersectionWith(paOtherList)
+			return This.CommonItemsWith(paOtherList)
 
-		def IntersectionWithQ(paOtherList)
-			return new stzlist( This.IntersectionWith(paOtherList) )
+			def IntersectionWithQ(paOtherList)
+				return This.CommonItemsWithQ(paOtherList, pCaseSensitive)
 
-	def IntersectionWithMany(paListOfLists)
-		oListOfLists = new stzListOfLists( paListOfLists + This.List() )
-		return oListOfLists.Intersection()
+	  #------------------------------------------------------------------------------------#
+	 #  GETTING THE ITEMS FORMING THE INTERSECTION BETWEEN THE LIST AND MANY OTHER LISTS  #
+	#------------------------------------------------------------------------------------#
 
-		def IntersectionWithManyQ(paOtherList)
-			return new stzlist( This.IntersectionWithMany(paOtherList) )
+	def CommonItemsWithManyCS(paListOfLists, pCaseSensitive)
 
-	def HasSameWidthAs(paOtherList)
-		return HasSameNumberOfItemsAs(paOtherList)
+		aMerged = Q(paListOfLists).Merged()
+		aResult = This.CommonItemsWithCS(aMerged, pCaseSensitive)
+		return aResult
+
+		def CommonItemsWithManyCSQ(paListOfLists, pCaseSensitive)
+			return new stzlist( This.CommonItemsWithManyCS(paListOfLists, pCaseSensitive) )
+
+		def IntersectionWithManyCS(paListOfLists, pCaseSensitive)
+			return This.CommonItemsWithManyCS(paListOfLists, pCaseSensitive)
+
+			def IntersectionWithManyCSQ(paListOfLists, pCaseSensitive)
+				return This.CommonItemsWithCSQ(paListOfLists, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def CommonItemsWithMany(paListOfLists)
+		return This.CommonItemsWithManyCS(paListOfLists, :CaseSensitive = TRUE)
+
+		def CommonItemsWithManyQ(paListOfLists)
+			return new stzlist( This.CommonItemsWithMany(paListOfLists) )
+
+		def IntersectionWithMany(paListOfLists)
+			return This.CommonItemsWithMany(paListOfLists)
+
+			def IntersectionWithManyQ(paListOfLists)
+				return This.CommonItemsWithManyQ(paListOfLists, pCaseSensitive)
 
 	  #=============================#
 	 #  SORTING ORDER OF THE LIST  #
@@ -13573,7 +13761,7 @@ class stzList from stzObject
 	 #   FINDING DUPPLICATED ITEMS   #
 	#===============================#
 
-	def FindDuplicatedItems(pItem)
+	def FindDuplicatedItemsCS(pItem, pCaseSensitive)
 
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
@@ -13581,13 +13769,41 @@ class stzList from stzObject
 
 		aResult = []
 
-		if NOT This.ItemIsDuplicated(pItem)
+		if NOT This.ItemIsDuplicatedCS(pItem, pCaseSensitive)
 			StzRaise("This item ("+ pItem + ") is not duplicated!")
 		ok
 
-		aResult = This.FindAllExceptFirst(pItem)
+		aResult = This.FindAllExceptFirstCS(pItem, pCaseSensitive)
 		
 		return aResult
+
+		def FindDuplicatedItemsCSQ(pItem, pCaseSensitive)
+			return This.FindDuplicatedItemsCS(pItem, pCaseSensitive)
+
+		def FindDuplicatedItemsCSQR(pItem, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindDuplicatedItemsCS(pItem, pCaseSensitive) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindDuplicatedItemsCS(pItem, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+	#-- WIHTOUT CASESENSITIVITY
+
+	def FindDuplicatedItems(pItem)
+		return This.FindDuplicatedItemsCS(pItem, :CaseSensitive = TRUE)
 
 		def FindDuplicatedItemsQ(pItem)
 			return This.DuplicatedItems
@@ -13616,7 +13832,7 @@ class stzList from stzObject
 	 #   DUPPLICATED ITEMS -- EXTENDED  #
 	#----------------------------------#
 
-	def DuplicatedItemsXT()
+	def DuplicatedItemsXTCS(pCaseSensitive)
 		aResult = []
 		/* aResult will take the form:
 		[
@@ -13625,13 +13841,23 @@ class stzList from stzObject
 		 	[ ... ]
 		]
 		*/
-		acDuplicates = This.This.DuplicatedItems()
+		acDuplicates = This.This.DuplicatedItemsCS(pCaseSensitive)
 		nLen = len(acDuplicates)
 
 		for i = 1 to nLen
 			item = acDuplicates[i]
-			aResult + [ item, This.DuplicatesOfItem(item) ]
+			aResult + [ item, This.DuplicatesOfItemCS(item, pCaseSensitive) ]
 		next
+
+		return aResult
+
+		def DuplicatesXTCS(pCaseSensitive)
+			return This.DuplicatedItemsXTCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DuplicatedItemsXT()
+		return This.DuplicatedItemsXTCS(:CaseSensitive = TRUE)
 
 		return aResult
 
@@ -13768,12 +13994,20 @@ class stzList from stzObject
 	 #   HOW MANY TIMES AN ITEM IS DUPLICATED ?   #
 	#--------------------------------------------#
 
-	def NumberOfDuplicationsOfItem(pItem)
-		if This.Contains(pItem)
-			return This.NumberOfOccurrence(pItem) - 1
+	def NumberOfDuplicationsOfItemCS(pItem, pCaseSensitive)
+		if This.ContainsCS(pItem, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive) - 1
 		else
 			return 0
 		ok
+
+		def NumberOfDuplicationsCS(pItem, pCaseSensitive)
+			return This.NumberOfDuplicationsOfItemCS(pItem, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfDuplicationsOfItem(pItem)
+		return This.NumberOfDuplicationsOfItemCS(pItem, :CaseSensitive = TRUE)
 
 		def NumberOfDuplications(pItem)
 			return This.NumberOfDuplicationsOfItem(pItem)
@@ -13954,7 +14188,7 @@ class stzList from stzObject
 	def IsContainedIn(p)
 		return This.IsContainedInCS(p, :CaseSensitive = TRUE)
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def ExistsIn(p)
 			return This.IsContainedIn(p)
@@ -13968,6 +14202,11 @@ class stzList from stzObject
 	 #  CHECKING IF THE LIST CONTAINS BOTH GIVEN ITEMS  #
 	#--------------------------------------------------#
 
+	def ContainsBothCS(pItem1, pItem2, pCaseSensitive)
+		return This.ContainsEachCS( [pItem1, pItem2], pCaseSensitive )
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def ContainsBoth(pItem1, pItem2)
 		return This.ContainsEach( [pItem1, pItem2] )
 
@@ -13975,11 +14214,22 @@ class stzList from stzObject
 	 #  CHECKING IF EACH ONE OF THE GIVEN ITEMS EXISTS IN THE GIVEN LIST  #
 	#--------------------------------------------------------------------#
 	
-	def EachItemExistsIn(paOtherList)
+	def EachItemExistsInCS(paOtherList, pCaseSensitive)
 
-		bResult = StzListQ(paOtherList).ContainsEach(This.List())
+		bResult = StzListQ(paOtherList).ContainsEachCS(This.List(), pCaseSensitive)
 
 		return bResult
+
+		def ItemsExistInCS(paOtherList, pCaseSensitive)
+			return This.EachItemExistsInCS(paOtherList, pCaseSensitive)
+
+		def AllItemsExistInCS(paOtherList, pCaseSensitive)
+			return This.EachItemExistsIn(paOtherList, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVI
+
+	def EachItemExistsIn(paOtherList)
+		return This.EachItemExistsInCS(paOtherList, :CaseSensitive = TRUE)
 
 		def ItemsExistIn(paOtherList)
 			return This.EachItemExistsIn(paOtherList)
@@ -15446,11 +15696,65 @@ class stzList from stzObject
 	  #-------------------------------------------------------------------#
 	 #  FINDING ALL OCCURRENCES OF AN ITEM, EXCEPT THE FIRST OCCURRENCE  #
 	#-------------------------------------------------------------------#
-	// TODO: Add CaseSensitivity
+
+	def FindAllExceptFirstCS(pItem, pCaseSensitive)
+		anResult = This.FindAllCSQ(pItem, pCaseSensitive).Section(2, :LastItem)
+		return anResult
+
+		#< @FunctionFluentForm
+
+		def FindAllExceptFirstCSQR(pItem, pcReturnType, pCaseSensitive)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindAllExceptFirstCS(pItem, pCaseSensitive) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindAllExceptFirstCS(pItem, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		def FindAllExceptFirstCSQ(pItem, pCaseSensitive)
+			return This.FindAllExceptFirstCSQR(pItem, pCaseSensitive, :stzListOfNumbers)
+
+		#
+
+		#< @FunctionAlternativeForm
+
+		def FindExceptFirstCS(pItem, pCaseSensitive)
+			return This.FindAllExceptFirstCS(pItem, pCaseSensitive)
+
+			#< @FunctionFluentForm
+	
+			def FindExceptFirstCSQR(pItem, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindExceptFirstCS(pItem, pCaseSensitive) )
+
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindExceptFirstCS(pItem, pCaseSensitive) )
+				other
+					StzRaise("Unsupported return type!")
+				off
+	
+			def FindExceptFirstCSQ(pItem, pCaseSensitive)
+				return This.FindAllExceptFirstCSQR(pItem, pCaseSenstive, :stzListOfNumbers)
+	
+		#>
+
+	#-- WITHoUT CASESENSITIVITY
 
 	def FindAllExceptFirst(pItem)
-		oTemp = new stzList( This.FindAll(pItem) )
-		return oTemp.Section( 2, oTemp.NumberOfItems() )
+		return This.FindAllExceptFirstCS(pItem, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -15499,9 +15803,8 @@ class stzList from stzObject
 			def FindExceptFirstQ(pItem)
 				return This.FindAllExceptFirstQR(pItem, :stzListOfNumbers)
 	
-			#
 		#>
-	
+
 	  #------------------------------------------------------------------#
 	 #  FINDING ALL OCCURRENCES OF AN ITEM, EXCEPT THE LAST OCCURRENCE  #
 	#------------------------------------------------------------------#

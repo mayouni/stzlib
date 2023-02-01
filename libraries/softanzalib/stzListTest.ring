@@ -13,7 +13,6 @@ o1 = new stzString([
 ])
 
 /*===========
-*/
 
 StartProfiler()
 
@@ -25,6 +24,7 @@ o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ])
 # ]
 
 StopProfiler()
+# Executed in 0.07 second(s)
 
 /*===========
 
@@ -95,6 +95,7 @@ o1 = new stzList([ "_", "A", "B", "C" ])
 ? o1.ExtractFirst("_")
 
 ? o1.Content()
+#--> [ "A", "B", "C" ]
 
 StopProfiler()
 # Executed in 0.02 second(s)
@@ -159,20 +160,30 @@ o1 = new stzList([ 1, 2, "♥", "♥", "♥", 3, 4 ])
 StopProfiler()
 
 /*-----------
-*/
+
 StartProfiler()
 
-o1 = new stzList([ 1, 2, "♥", 4, "♥", 4, "♥" ])
+o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
 
 ? o1.ExtractNext("♥", :StartingAt = 4)
+#--> "♥"
+
+? @@S( o1.Content() )
+#--> [ 1, 2, "♥", 4, 6, "♥" ]
 
 StopProfiler()
 
 /*-----------
-
+*/
 StartProfiler()
 
-ExtractPrevious(item, pnStartingAt)
+o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
+
+? o1.ExtractPrevious("♥", :StartingAt = 6)
+#--> "♥"
+
+? @@S( o1.Content() )
+#--> [ 1, 2, 4, "♥", 6, "♥" ]
 
 StopProfiler()
 
