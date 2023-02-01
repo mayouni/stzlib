@@ -11,14 +11,14 @@ o1 = new stzList([
 	[ 5, 6, 7 ]
 ])
 
-? o1.EachItemIs(:AListOfNumbers)
+? o1.EachItemIsA(:ListOfNumbers)
 #--> TRUE
 
 o1 = new stzList([ "A":"C", "E":"D", "G": "Y" ])
-? o1.EachItemIs(:AListOfStrings)
+? o1.EachItemIs(:ListOfStrings)
 #--> TRUE
 
-? o1.EachItemIs(:AListOfChars)
+? o1.EachItemIs(:ListOfChars)
 #--> TRUE
 
 /*==================

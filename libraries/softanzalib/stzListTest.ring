@@ -174,7 +174,7 @@ o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
 StopProfiler()
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
@@ -234,14 +234,17 @@ StartProfiler()
 	# Executed in 0.16 second(s)
 
 StopProfiler()
+#--> Executed in 0.41 second(s)
 
 /*----------
 */
 StartProfiler()
 
 ? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Where = '{ len(@item) <= 5 }', :Strings ])
+#--> TRUE
 
 StopProfiler()
+#--> Executed in 0.05 second(s)
 
 /*==========
 
