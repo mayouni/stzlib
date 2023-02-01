@@ -7713,7 +7713,7 @@ class stzListOfStrings from stzList
 				return This.StringsContainingNTimesTheSubstringXTQR(n, pcSubstr, :stzList)
 	
 			def StringsContainingNTimesTheSubstringXTQR(n, pcSubstr, pcReturn)
-				return This.StringsContainingNTimesTheSubstringXTCSQR(n, pcSubstr, pcReturn, :CS = TRUE)
+				return This.StringsContainingNTimesTheSubstringXTCSQR(n, pcSubstr, :CS = TRUE, pcReturn)
 
 		def StringItemsContainingNTimesXT(n, pcSubStr)
 			return This.StringItemsContainingNTimesTheSubstringXT(n, pcSubstr)
@@ -7722,8 +7722,7 @@ class stzListOfStrings from stzList
 				return This.StringItemsContainingNTimesXTQR(n, pcSubstr, :stzList)
 		
 			def StringItemsContainingNTimesXTQR(n, pcSubstr, pcReturn)
-				return This.StringsContainingNTimesTheSubstringXTCSQR(n, pcSubstr, pcReturn, :CS = TRUE)
-
+				return This.StringsContainingNTimesTheSubstringXTCSQR(n, pcSubstr, :CS = TRUE, pcReturn)
 
 		def StringsContainingNTimesXT(n, pcSubStr)
 			return This.StringItemsContainingNTimesTheSubstringXT(n, pcSubstr)
@@ -7732,7 +7731,7 @@ class stzListOfStrings from stzList
 				return This.StringsContainingNTimesXTQR(n, pcSubstr, :stzList)
 		
 			def StringsContainingNTimesXTQR(n, pcSubstr, pcReturn)
-				return This.StringsContainingNTimesTheSubstringXTCSQR(n, pcSubstr, pcReturn, :CS = TRUE)
+				return This.StringsContainingNTimesTheSubstringXTCSQR(n, pcSubstr, :CS = TRUE, pcReturn)
 
 		#>
 
@@ -15845,19 +15844,19 @@ class stzListOfStrings from stzList
 			return This.DuplicatedStringsCS(pCaseSensitive)
 
 			def DuplicatedStringItemsCSQ(pCaseSensitive)
-				return This.DuplicatedStringItemsCSQR(:stzList, pCaseSensitive)
+				return This.DuplicatedStringItemsCSQR(pCaseSensitive, :stzList)
 	
-			def DuplicatedStringItemsCSQR(pcReturntype, pCaseSensitive)
-				return This.DuplicatedStringsCSQR(pcReturntype, pCaseSensitive)
+			def DuplicatedStringItemsCSQR(pCaseSensitive, pcReturnType)
+				return This.DuplicatedStringsCSQR(pCaseSensitive, pcReturnType)
 
 		def DuplicatesCS(pCaseSensitive)
 			return This.DuplicatedStringsCS(pCaseSensitive)
 
 			def DuplicatesCSQ(pCaseSensitive)
-				return This.DuplicatesCSQR(:stzList, pCaseSensitive)
+				return This.DuplicatesCSQR(pCaseSensitive, :stzList)
 	
-			def DuplicatesCSQR(pcReturntype, pCaseSensitive)
-				return This.DuplicatedStringsCSQR(pcReturntype, pCaseSensitive)
+			def DuplicatesCSQR(pCaseSensitive, pcReturnType)
+				return This.DuplicatedStringsCSQR(pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -15990,7 +15989,7 @@ class stzListOfStrings from stzList
 			def PositionsOfDuplicatedStringsCSQ(pCaseSensitive)
 				return This.PositionsOfDuplicatedStringsCSQR(pCaseSensitive, :stzList)
 
-			def PositionsOfDuplicatedStringsCSQR(pCaseSensitive, pCaseSensitive)
+			def PositionsOfDuplicatedStringsCSQR(pCaseSensitive, pcReturntype)
 				return This.FindDuplicatedStringItemsCSQR(pCaseSensitive, pcReturntype)
 
 		def DuplicatedStringsPositionsCS(pCaseSensitive)
@@ -15999,7 +15998,7 @@ class stzListOfStrings from stzList
 			def DuplicatedStringsPositionsCSQ(pCaseSensitive)
 				return This.PositionsOfDuplicatedStringsCSQR(pCaseSensitive, :stzList)
 
-			def DuplicatedStringsPositionsCSQR(pCaseSensitive, pCaseSensitive)
+			def DuplicatedStringsPositionsCSQR(pCaseSensitive, pcReturntype)
 				return This.FindDuplicatedStringItemsCSQR(pCaseSensitive, pcReturntype)
 
 		def PositionsOfDuplicatedStringItemsCS(pCaseSensitive)
@@ -16008,7 +16007,7 @@ class stzListOfStrings from stzList
 			def PositionsOfDuplicatedStringItemsCSQ(pCaseSensitive)
 				return This.PositionsOfDuplicatedStringsCSQR(pCaseSensitive, :stzList)
 
-			def PositionsOfDuplicatedStringItemsCSQR(pCaseSensitive, pCaseSensitive)
+			def PositionsOfDuplicatedStringItemsCSQR(pCaseSensitive, pcReturntype)
 				return This.FindDuplicatedStringItemsCSQR(pCaseSensitive, pcReturntype)
 
 		def DuplicatedStringItemsPositionsCS(pCaseSensitive)
@@ -16017,7 +16016,7 @@ class stzListOfStrings from stzList
 			def DuplicatedStringItemsPositionsCSQ(pCaseSensitive)
 				return This.PositionsOfDuplicatedStringsCSQR(pCaseSensitive, :stzList)
 
-			def DuplicatedStringItemsPositionsCSQR(pCaseSensitive, pCaseSensitive)
+			def DuplicatedStringItemsPositionsCSQR(pCaseSensitive, pcReturntype)
 				return This.FindDuplicatedStringItemsCSQR(pCaseSensitive, pcReturntype)
 
 		#>
@@ -16801,7 +16800,7 @@ class stzListOfStrings from stzList
 
 
 		def CommonCharsCSQ(pCaseSensitive)
-			return This.CommonCharsCSQR(:stzList, pCaseSensitive)
+			return This.CommonCharsCSQR(pCaseSensitive, :stzList)
 	
 		def CommonCharsCSQR(pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])

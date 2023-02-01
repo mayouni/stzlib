@@ -6037,7 +6037,7 @@ class stzString from stzObject
 			off
 
 		def RepeatedLeadingCharCSQ(pCaseSensitive)
-			return This.RepeatedLeadingCharCSQR(:stzChar, pCaseSensitive)
+			return This.RepeatedLeadingCharCSQR(pCaseSensitive, :stzChar)
 	
 		def LeadingRepeatedCharCS(pCaseSensitive)
 			return This.RepeatedLeadingCharCS(pCaseSensitive)
@@ -6238,7 +6238,7 @@ class stzString from stzObject
 		ok
 
 		def RepeatedTrailingCharCSQ(pCaseSensitive)
-			return This.RepeatedTrailingCharCSQR(:stzString, pCaseSensitive)
+			return This.RepeatedTrailingCharCSQR(pCaseSensitive, :stzString)
 
 		def RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -6280,7 +6280,7 @@ class stzString from stzObject
 				return This.RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
 
 			def TrailingCharCSQ(pCaseSensitive)
-				return This.TrailingCharCSQR(:stzChar, pCaseSensitive)
+				return This.TrailingCharCSQR(pCaseSensitive, :stzChar)
 	
 	def NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
 		if This.HasRepeatedTrailingCharsCS(pCaseSensitive)
@@ -7239,7 +7239,7 @@ class stzString from stzObject
 		def ReplaceEachRepeatedLeadingAndTrailingCharCS(cNewSubStr, pCaseSensitive)
 			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
 
-			def ReplaceEachRepeatedLeadingAndTrailingCharQCS(cNewSubStr, pCaseSensitive)
+			def ReplaceEachRepeatedLeadingAndTrailingCharCSQ(cNewSubStr, pCaseSensitive)
 				This.ReplaceEachRepeatedLeadingAndTrailingCharCS(cNewSubStr, pCaseSensitive)
 				return This
 
@@ -7269,7 +7269,7 @@ class stzString from stzObject
 		def ReplaceEachRepeatedLeadingOrTrailingCharCS(cNewSubStr, pCaseSensitive)
 			This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, pCaseSensitive)
 
-			def ReplaceEachRepeatedLeadingOrTrailingCharQCS(cNewSubStr, pCaseSensitive)
+			def ReplaceEachRepeatedLeadingOrTrailingCharCSQ(cNewSubStr, pCaseSensitive)
 				This.ReplaceEachRepeatedLeadingOrTrailingCharCS(cNewSubStr, pCaseSensitive)
 				return This
 
@@ -15435,7 +15435,7 @@ o1 = new stzString("12*34*56*78")
 			return This.FindManyXTQR(pacSubStr, :stzList)
 
 		def FindManyXTQR(pacSubStr, pcReturnType)
-			return This.FindManyXTCSQR(pacSubStr, pCaseSensitive, :CaseSensitive = TRUE)
+			return This.FindManyXTCSQR(pacSubStr, pCaseSensitive, pcReturnType)
 
 	   #=====================================================#
 	  #   CHECKING IF STRING OCCURES BEFORE/AFTER A GIVEN   #
@@ -17110,7 +17110,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySubStringBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-				return This.SubStringsBetweenQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubStringsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySubStringBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 				return This.SubStringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
@@ -17119,7 +17119,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
 			def AnySubStringBoundedByCSQ(pacBounds, pCaseSensitive)
-				return This.SubStringsBoundedByQCS(pacBounds, pCaseSensitive)
+				return This.SubStringsBoundedByCSQ(pacBounds, pCaseSensitive)
 
 			def AnySubStringBoundedByCSQR(pacBounds, pCaseSensitive, pcReturnType)
 				return This.SubStringsBoundedByCSQR(pacBounds, pCaseSensitive, pcReturnType)
@@ -17130,7 +17130,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySubStringsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-				return This.SubStringsBetweenQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubStringsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySubStringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 				return This.SubStringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
@@ -17139,7 +17139,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
 			def AnySubStringsBoundedByCSQ(pacBounds, pCaseSensitive)
-				return This.SubStringsBoundedByQCS(pacBounds, pCaseSensitive)
+				return This.SubStringsBoundedByCSQ(pacBounds, pCaseSensitive)
 
 			def AnySubStringsBoundedByCSQR(pacBounds, pCaseSensitive, pcReturnType)
 				return This.SubStringsBoundedByCSQR(pacBounds, pCaseSensitive, pcReturnType)
@@ -17150,13 +17150,13 @@ o1 = new stzString("12*34*56*78")
 			return This.SubstringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def SectionsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-				return This.SubStringsBetweenQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubStringsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		def SectionsBoundedByCS(pacBounds, pCaseSensitive)
 			return This.SubstringsBoundedByCS(pacBounds, pCaseSensitive)
 
 			def SectionsBoundedByCSQ(pacBounds, pCaseSensitive)
-				return This.SubStringsBetweenQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubStringsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		#--
 
@@ -17164,7 +17164,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SectionsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySectionBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-				return This.SectionsBetweenQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SectionsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySectionBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 				return This.SectionsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
@@ -17173,7 +17173,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SectionsBoundedByCS(pacBounds, pCaseSensitive)
 
 			def AnySectionBoundedByCSQ(pacBounds, pCaseSensitive)
-				return This.SectionsBoundedByQCS(pacBounds, pCaseSensitive)
+				return This.SectionsBoundedByCSQ(pacBounds, pCaseSensitive)
 
 			def AnySectionBoundedByCSQR(pacBounds, pCaseSensitive, pcReturnType)
 				return This.SectionsBoundedByCSQR(pacBounds, pCaseSensitive, pcReturnType)
@@ -17184,7 +17184,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SectionsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySectionsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-				return This.SectionsBetweenQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SectionsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySectionsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 				return This.SectionsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
@@ -17193,7 +17193,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SectionsBoundedByCS(pacBounds, pCaseSensitive)
 
 			def AnySectionsBoundedByCSQ(pacBounds, pCaseSensitive)
-				return This.SectionsBoundedByQCS(pacBounds, pCaseSensitive)
+				return This.SectionsBoundedByCSQ(pacBounds, pCaseSensitive)
 
 			def AnySectionsBoundedByCSQR(pacBounds, pCaseSensitive, pcReturnType)
 				return This.SectionsBoundedByCSQR(pacBounds, pCaseSensitive, pcReturnType)
@@ -17441,7 +17441,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SubStringsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySubStringBetweenXTCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-				return This.SubStringsBetweenXTQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubStringsBetweenXTCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySubStringBetweenXTCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 				return This.SubStringsBetweenXTCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
@@ -17450,7 +17450,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SubStringsBoundedByXTCS(pacBounds, pCaseSensitive)
 
 			def AnySubStringBoundedByXTCSQ(pacBounds, pCaseSensitive)
-				return This.SubStringsBoundedByXTQCS(pacBounds, pCaseSensitive)
+				return This.SubStringsBoundedByXTCSQ(pacBounds, pCaseSensitive)
 
 			def AnySubStringBoundedByXTCSQR(pacBounds, pCaseSensitive, pcReturnType)
 				return This.SubStringsBoundedByXTCSQR(pacBounds, pCaseSensitive, pcReturnType)
@@ -17461,7 +17461,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SubStringsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySubStringsBetweenXTCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-				return This.SubStringsBetweenXTQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubStringsBetweenXTCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySubStringsBetweenXTCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 				return This.SubStringsBetweenXTCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
@@ -17470,7 +17470,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SubStringsBoundedByXTCS(pacBounds, pCaseSensitive)
 
 			def AnySubStringsBoundedByXTCSQ(pacBounds, pCaseSensitive)
-				return This.SubStringsBoundedByXTQCS(pacBounds, pCaseSensitive)
+				return This.SubStringsBoundedByXTCSQ(pacBounds, pCaseSensitive)
 
 			def AnySubStringsBoundedByXTCSQR(pacBounds, pCaseSensitive, pcReturnType)
 				return This.SubStringsBoundedByXTCSQR(pacBounds, pCaseSensitive, pcReturnType)
@@ -17481,13 +17481,13 @@ o1 = new stzString("12*34*56*78")
 			return This.SubstringsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def SectionsBetweenXTCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-				return This.SubStringsBetweenXTQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubStringsBetweenXTCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		def SectionsBoundedByXTCS(pacBounds, pCaseSensitive)
 			return This.SubstringsBoundedByXTCS(pacBounds, pCaseSensitive)
 
 			def SectionsBoundedByXTCSQ(pacBounds, pCaseSensitive)
-				return This.SubStringsBetweenXTQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubStringsBetweenXTCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		#--
 
@@ -17495,7 +17495,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SectionsBetweenXTCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySectionBetweenXTCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-				return This.SectionsBetweenXTQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SectionsBetweenXTCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySectionBetweenXTCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 				return This.SectionsBetweenXTCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
@@ -17504,7 +17504,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SectionsBoundedByCSXT(pacBounds, pCaseSensitive)
 
 			def AnySectionBoundedByXTCSQ(pacBounds, pCaseSensitive)
-				return This.SectionsBoundedByXTQCS(pacBounds, pCaseSensitive)
+				return This.SectionsBoundedByXTCSQ(pacBounds, pCaseSensitive)
 
 			def AnySectionBoundedByXTCSQR(pacBounds, pCaseSensitive, pcReturnType)
 				return This.SectionsBoundedByXTCSQR(pacBounds, pCaseSensitive, pcReturnType)
@@ -17515,7 +17515,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SectionsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySectionsBetweenXTCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-				return This.SectionsBetweenXTQCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SectionsBetweenXTCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 			def AnySectionsBetweenXTCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 				return This.SectionsBetweenXTCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
@@ -17524,7 +17524,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SectionsBoundedByXTCS(pacBounds, pCaseSensitive)
 
 			def AnySectionsBoundedByXTCSQ(pacBounds, pCaseSensitive)
-				return This.SectionsBoundedByQCS(pacBounds, pCaseSensitive)
+				return This.SectionsBoundedByCSQ(pacBounds, pCaseSensitive)
 
 			def AnySectionsBoundedByXTCSQR(pacBounds, pCaseSensitive, pcReturnType)
 				return This.SectionsBoundedByXTCSQR(pacBounds, pCaseSensitive, pcReturnType)
@@ -18158,9 +18158,7 @@ o1 = new stzString("12*34*56*78")
 			return This.SubStringsBetweenAndTheirSectionsQR(pcSubStr1, pcSubStr2, :stzList)
 
 		def SubStringsBetweenAndTheirSectionsQR(pcSubStr1, pcSubStr2, pcReturnType)
-			return This.SubStringsBetweenAndTheirSectionsCSQR(pcSubStr1, pcSubStr2, pcReturnType,
-								:CaseSensitive = TRUE)
-
+			return This.SubStringsBetweenAndTheirSectionsCSQR(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE, pcReturnType)
 		#>
 
 		#< @FunctionAlternativeForms
@@ -18457,7 +18455,7 @@ o1 = new stzString("12*34*56*78")
 			return This.DeepSubStringsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSubStringBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
-				return This.DeepSubStringsBetweenQCS(pcChar1, pcChar2, pCaseSensitive)
+				return This.DeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSubStringBetweenCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
 				return This.DeepSubStringsBetweenQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
@@ -18466,7 +18464,7 @@ o1 = new stzString("12*34*56*78")
 			return This.DeepSubStringsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
-				return This.DeepSubStringsBetweenQCS(pcChar1, pcChar2, pCaseSensitive)
+				return This.DeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSubStringsBetweenCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
 				return This.DeepSubStringsBetweenQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
@@ -18477,13 +18475,13 @@ o1 = new stzString("12*34*56*78")
 			return This.DeepSubstringsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
 
 			def DeepSectionsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
-				return This.DeepSubStringsBetweenQCS(pcChar1, pcChar2, pCaseSensitive)
+				return This.DeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
 
 		def AnyDeepSectionBetweenCS(pcChar1, pcChar2, pCaseSensitive)
 			return This.DeepSectionsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSectionBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
-				return This.DeepSectionsBetweenQCS(pcChar1, pcChar2, pCaseSensitive)
+				return This.DeepSectionsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSectionBetweenCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
 				return This.DeepSectionsBetweenQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
@@ -18492,7 +18490,7 @@ o1 = new stzString("12*34*56*78")
 			return This.DeepSectionsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSectionsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
-				return This.DeepSectionsBetweenQCS(pcChar1, pcChar2, pCaseSensitive)
+				return This.DeepSectionsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepDeepSectionsBetweenCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
 				return This.DeepDeepSectionsBetweenQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
@@ -18603,7 +18601,7 @@ o1 = new stzString("12*34*56*78")
 			return This.DeepSubStringsBetweenXTCS(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSubStringBetweenXTCSQ(pcChar1, pcChar2, pCaseSensitive)
-				return This.DeepSubStringsBetweenQCS(pcChar1, pcChar2, pCaseSensitive)
+				return This.DeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSubStringBetweenXTCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
 				return This.DeepSubStringsBetweenXTQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
@@ -18612,7 +18610,7 @@ o1 = new stzString("12*34*56*78")
 			return This.DeepSubStringsBetweenXTCS(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSubStringsBetweenXTCSQ(pcChar1, pcChar2, pCaseSensitive)
-				return This.DeepSubStringsBetweenQCS(pcChar1, pcChar2, pCaseSensitive)
+				return This.DeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSubStringsBetweenXTCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
 				return This.DeepSubStringsBetweenXTQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
@@ -18623,13 +18621,13 @@ o1 = new stzString("12*34*56*78")
 			return This.DeepSubstringsBetweenXTCS(pcChar1, pcChar2, pCaseSensitive)
 
 			def DeepSectionsBetweenXTCSQ(pcChar1, pcChar2, pCaseSensitive)
-				return This.DeepSubStringsBetweenQCS(pcChar1, pcChar2, pCaseSensitive)
+				return This.DeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
 
 		def AnyDeepSectionBetweenXTCS(pcChar1, pcChar2, pCaseSensitive)
 			return This.DeepSectionsBetweenXTCS(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSectionBetweenXTCSQ(pcChar1, pcChar2, pCaseSensitive)
-				return This.DeepSectionsBetweenQCS(pcChar1, pcChar2, pCaseSensitive)
+				return This.DeepSectionsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSectionBetweenXTCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
 				return This.DeepSectionsBetweenXTQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
@@ -18638,7 +18636,7 @@ o1 = new stzString("12*34*56*78")
 			return This.DeepSectionsBetweenXTCS(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepSectionsBetweenXTCSQ(pcChar1, pcChar2, pCaseSensitive)
-				return This.DeepSectionsBetweenQCS(pcChar1, pcChar2, pCaseSensitive)
+				return This.DeepSectionsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
 
 			def AnyDeepDeepSectionsBetweenXTCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
 				return This.DeepDeepSectionsBetweenXTQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
