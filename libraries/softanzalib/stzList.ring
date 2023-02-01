@@ -12196,6 +12196,36 @@ class stzList from stzObject
 			def IntersectionWithManyQ(paListOfLists)
 				return This.CommonItemsWithManyQ(paListOfLists, pCaseSensitive)
 
+	  #------------------------------------------------------------------------#
+	 #  NUMBER OF COMMON ITEMS BETWEEN THE MAIN LIST AND AN OTHER GIVEN LIST  #
+	#------------------------------------------------------------------------#
+
+	def NumberOfCommonItemsWithCS(paItems, pCaseSensitive)
+		return len(This.CommonItemsWithCS(paItems, pCaseSensitive))
+
+		def SizeOfIntersectionWithCS(paItems, pCaseSensitive)
+			return NumberOfCommonItemsWithCS(paItems, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfCommonItemsWith(paItems)
+		return This.NumberOfCommonItemsWithCS(paItems, :CaseSensitive = TRUE)
+
+		def SizeOfIntersectionWith(paItems)
+			return NumberOfCommonItemsWith(paItems)
+
+	  #---------------------------------------------------------------------------#
+	 #  NUMBER OF DIFFERENT ITEMS BETWEEN THE MAIN LIST AND AN OTHER GIVEN LIST  #
+	#---------------------------------------------------------------------------#
+
+	def NumberOfDifferentItemsWithCS(paItems, pCaseSensitive)
+		return len(This.DifferentItemsWithCS(paItems, pCaseSensitive))
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfDifferentItemsWith(paItems)
+		return This.NumberOfDifferentItemsWithCS(paItems, :CaseSensitive = TRUE)
+
 	  #=============================#
 	 #  SORTING ORDER OF THE LIST  #
 	#=============================#
@@ -15809,10 +15839,65 @@ class stzList from stzObject
 	 #  FINDING ALL OCCURRENCES OF AN ITEM, EXCEPT THE LAST OCCURRENCE  #
 	#------------------------------------------------------------------#
 
-	// TODO: Add CaseSensitivity
-	def FindAllExceptLast(pItem)
-		oTemp = new stzList( This.FindAll(pItem) )
+	def FindAllExceptLastCS(pItem, pCaseSensitive)
+		oTemp = new stzList( This.FindAllCS(pItem, pCaseSensitive) )
 		return oTemp.Section( 1, oTemp.NumberOfItems()-1 )
+
+		#< @FunctionFluentForm
+
+		def FindAllExceptLastCSQR(pItem, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindAllExceptLastCS(pItem, pCaseSensitive) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindAllExceptLastCS(pItem, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		def FindAllExceptLastCSQ(pItem, pCaseSensitive)
+			return This.FindAllExceptLastCSQR(pItem, pCaseSensitive, :stzListOfNumbers)
+
+		#
+
+		#< @FunctionAlternativeForm
+
+		def FindExceptLastCS(pItem, pCaseSensitive)
+			return This.FindAllExceptLastCS(pItem, pCaseSensitive)
+
+			#< @FunctionFluentForm
+	
+			def FindExceptLastCSQR(pItem, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.FindExceptLastCS(pItem, pCaseSensitive) )
+
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.FindExceptLastCS(pItem, pCaseSensitive) )
+
+				other
+					StzRaise("Unsupported param type!")
+				off
+	
+			def FindExceptLastCSQ(pItem)
+				return This.FindAllExceptLastQR(pItem, pCaseSensitive, :stzListOfNumbers)
+	
+			#>
+		#>
+		
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAllExceptLast(pItem)
+		return This.FindAllExceptLastCS(pItem, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -15864,7 +15949,7 @@ class stzList from stzObject
 	
 			#>
 		#>
-		
+
   	  #----------------------------#
 	 #   FINDING ALL DUPLICATES   #
 	#----------------------------#
@@ -17832,9 +17917,14 @@ class stzList from stzObject
 	 #   GETTING ALL ITEMS EXCEPT THE ONE PRPVIDED   #
 	#===============================================#
 
-	def AllItemsExcept(pItem)
-		aResult = This.ItemRemoved(pItem)
+	def AllItemsExceptCS(pItem, pCaseSensitive)
+		aResult = This.ItemRemovedCS(pItem, pCaseSensitive)
 		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def AllItemsExcept(pItem)
+		return This.AllItemsExceptCS(pItem, :CaseSensitive = TRUE)
 
 	  #================================================================================#
 	 #   GETTING UNIQUE ITEMS VERIFYING A GIVEN CONDITION ALONG WITH THEIR POSITIONS  #
@@ -19154,6 +19244,94 @@ class stzList from stzObject
 	 #    SPLITTING THE LIST USING THE GIVEN ITEM   #
 	#----------------------------------------------#
 
+	def SplitCS(pItem, pCaseSensitive)
+		if isList(pItem) and Q(pItem).IsUsingNamedParam()
+			pItem = pItem[2]
+		ok
+
+		anPos = This.FindAllCS(pItem, pCaseSensitive)
+		aResult = This.SplitAtPositions(anPos)
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def SplitCSQ(pItem, pCaseSensitive)
+			return This.SplitCSQR(pItem, pCaseSensitive, :stzList)
+
+		def SplitCSQR(pItem, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitCS(pItem, pCaseSensitive) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.SplitCS(pItem, pCaseSensitive) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.SplitCS(pItem, pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitCS(pItem, pCaseSensitive) )
+ 
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.SplitCS(pItem, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeNames
+
+		def SplitUsingCS(pItem, pCaseSensitive)
+			This.SplitCS(pItem, pCaseSensitive)
+
+			def SplitUsingCSQ(pItem, pCaseSensitive)
+				return This.SplitUsingCSQR(pItem, pCaseSensitive, pcReturnType)
+	
+			def SplitUsingCSQR(pItem, pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.SplitUsingCS(pItem, pCaseSensitive) )
+	
+				on :stzListOfLists
+					return new stzListOfLists( This.SplitUsingCS(pItem, pCaseSensitive) )
+	
+				on :stzListOfPairs
+					return new stzListOfPairs( This.SplitUsingCS(pItem, pCaseSensitive) )
+	
+				on :stzListOfStrings
+					return new stzListOfStrings( This.SplitUsingCS(pItem, pCaseSensitive) )
+	 
+				on :stzListOfNumbers
+					return new stzListOfNumbers( This.SplitUsingCs(pItem, pCaseSensitive) )
+	
+				other
+					StzRaise("Unsupported return type!")
+				off
+
+		def SplitAtCS(pItem, pCaseSensitive)
+			return This.SplitCS(pItem, pCaseSensitive)
+
+			def SplitAtCSQ(pItem, pCaseSensitive)
+				return This.SplitAtCSQR(pItem, pCaseSensitive, :stzList)
+
+			def SplitAtCSQR(pItem, pCaseSensitive, pcReturnType)
+				return This.SplitCSQR(pItem, pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def Split(pItem)
 		if isList(pItem) and Q(pItem).IsUsingNamedParam()
 			pItem = pItem[2]
@@ -20247,16 +20425,6 @@ class stzList from stzObject
 		# At this level we are sure it is a language identification list
 		return TRUE
 
-	  #---------------------------------------------#
-	 #     NUMBER OF COMMON AND DIFFERENT ITEMS    # TODO: Reorgainize.
-	#---------------------------------------------#
-
-	def NumberOfCommonItemsWith(paItems)
-		return len(This.CommonItemsWith(paItems))
-
-	def NumberOfDifferentItemsWith(paItems)
-		return len(This.DifferentItmesWith(paItems))
-
 	  #----------------------------------------#
 	 #   DISTRIBUTING THE ITEMS OF THE LIST   #
 	#----------------------------------------#
@@ -20394,25 +20562,24 @@ class stzList from stzObject
 		next
 		return aResult
 
-	  #---------------------------------------------------#
-	 #    STARTS / ENDS WITH A GIVEN SUBLIST OF ITEMS    #
-	#---------------------------------------------------#
+	  #-------------------------------------------------------------#
+	 #  CHECKING IF THE LIST STARTS WITH A GIVEN SUBLIST OF ITEMS  #
+	#-------------------------------------------------------------#
 
-	def StartsWith(paItems)
+	def StartsWithCS(paItems, pCaseSensitive)
 		if len(paItems) > This.NumberOfItems()
 			return FALSE
 		ok
 
-		if This.IsStrictlyEqualTo(paItems)
+		if This.IsStrictlyEqualToCS(paItems, pCaseSensitive)
 			return TRUE
 		ok
 
 		bResult = TRUE
+		nLen = len(paItems)
 
-		i = 0
-		for item in paItems
-			i++
-			if Q(This[i]).IsNotEqualTo(item)
+		for i = 1 to nLen
+			if Q(This[i]).IsNotEqualToCS(paItems[i], pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -20420,8 +20587,49 @@ class stzList from stzObject
 
 		return bResult
 
+		def BeginsWithCS(paItems, pCaseSensitive)
+			return This.StartsWithCS(paItems, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def StartsWith(paItems)
+		return This.StartsWithCS(paItems, oCaseSensitive)
+
 		def BeginsWith(paItems)
 			return This.StartsWith()
+
+	  #-----------------------------------------------------------#
+	 #  CHECKING IF THE LIST ENDS WITH A GIVEN SUBLIST OF ITEMS  #
+	#-----------------------------------------------------------#
+
+	def EndsWithCS(paItems, pCaseSensitive)
+		if len(paItems) > This.NumberOfItems()
+			return FALSE
+		ok
+
+		if This.IsStrictlyEqualToCS(paItems, pCaseSensitive)
+			return TRUE
+		ok
+
+		bResult = TRUE
+
+		aLastItems = This.NLastItems( len(paItems) )
+		nLen = len(aLastItems)
+
+		for i = 1 to nLen
+
+			if Q(This[i]).IsNotEqualToCS(aListItems[i], pCaseSensitive)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FinishesWithCS(paItems, pCaseSensitive)
+			return This.EndsWithCS(paItems, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def EndsWith(paItems)
 		if len(paItems) > This.NumberOfItems()
@@ -20942,6 +21150,12 @@ class stzList from stzObject
 			return This.AllItemsAre(p)
 
 		def EachItemIs(p)
+			return This.AllItemsAre(p)
+
+		def EachItemIsA(p)
+			return This.AllItemsAre(p)
+
+		def EachItemIsAn(p)
 			return This.AllItemsAre(p)
 
 		def ItemsHave(p)
