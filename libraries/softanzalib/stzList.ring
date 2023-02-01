@@ -4101,7 +4101,7 @@ class stzList from stzObject
 			This.RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 
 			def RemoveNthPreviousOccurrenceCSQ(n, pItem, pnStartingAt, pCaseSensitive)
-				This.RemoveNthPreviousOccurrenceCS(n, pItem, pnStartingAt, , pCaseSensitive)
+				This.RemoveNthPreviousOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 				return This
 
 	def NthPreviousOccurrenceRemovedCS(n, pItem, pnStartingAt, pCaseSensitive)
@@ -5175,9 +5175,68 @@ class stzList from stzObject
 	 #     BOUNDS OF THE LIST     #
 	#============================#
 
-	def BoundsOf(pItem, pnUpToNItems)
+	  #--------------------------------------------#
+	 #  BOUNDS OF AN ITEM UP TO N NEIGHBOR ITEMS  #
+	#--------------------------------------------#
 
+	def BoundsOfCS(pItem, pnUpToNItems, pCaseSensitive)
+		if isList(pnUpToNItems) and
+		   Q(pnUpToNItems).IsOneOfTheseNamedParams([
+			:UpTo, :UpToN, :UpToNItems
+		   ])
+			pnUpToNItems = pnUpToNItems[2]
+		ok
 		
+		# { o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ]) }
+		# { o1.BoundsOf("*", :UpToNItems = 2) }
+
+		anPos = ListsMerge([ [0], This.FindAllCS(pItem, pCaseSensitive), [This.NumberOfItems()] ])
+		#--> [0, 3, 7, 9]
+		nLen = len(anPos)
+		if NOT nLen > 2
+			return [] # No bounds
+		ok
+
+		aResult = []
+
+		for i = 2 to nLen - 1
+
+			nCurrentPos  = anPos[i]
+			nPreviousPos = anPos[i-1]
+			nNextPos     = anPos[i+1]
+
+			bHasLetfBound  = FALSE
+			if (nCurrentPos - pnUpToNItems) >= nPreviousPos
+				bHasLeftBound = TRUE
+			ok
+
+			bHasRightBound = FALSE
+			if (nCurrentPos + pnUpToNItems) <= nNextPos
+				bHasRightBound = TRUE
+			ok
+
+
+			if bHasLeftBound and bHasRightBound
+				aLeftSection  = This.Section( (nCurrentPos - pnUpToNItems), (nCurrentPos - 1) )
+				aRightSection = This.Section( (nCurrentPos + 1), (nCurrentPos + pnUpToNItems) )
+
+				if len(aLeftSection) > 0 and len(aRightSection) > 0
+					aResult + [ aLeftSection, aRightSection ]
+				ok
+			ok
+		next
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BoundsOf(pItem, pnUpToNItems)
+		return This.BoundsOfCS(pItem, pnUpToNItems, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------------------------------------#
+	 #  CHECKING IF THE 2 ITEMS OF THE LIST ARE BOUNDS OF A SUBSTRING IN A GIVEN STRING  #
+	#-----------------------------------------------------------------------------------#
+
 	def AreBoundsOf(pItem, pIn)
 
 		/* EXAMPLE 1
@@ -5218,6 +5277,10 @@ class stzList from stzObject
 	
 		bResult = Q(aThis).AllItemsExistIn(aBounds)
 		return bResult
+
+	  #----------------------------------------------------------#
+	 #  CHECKING IF THE LIST IS BOUNDED BY THE GIVEN TWO ITEMS  #
+	#----------------------------------------------------------#
 
 	def IsBoundedBy(paBounds)
 		if isList(paBounds) and Q(paBounds).IsPair()
@@ -13278,16 +13341,20 @@ class stzList from stzObject
 	#----------------------------------------------------#
 
 	def Merge()
+		# TODO: Optimise for performance
 
 		aMerged = []
+		nLen = This.NumberOfItems()
 
-		for item in This.List()
+		for i = 1 to nLen
+			item = This[i]
 			if NOT isList(item)
 				aMerged + item
 
 			else
-				for elem in item
-					aMerged + elem
+				nLen2 = len(item)
+				for j = 1 to nLen2
+					aMerged + item[j]
 				next
 			ok
 
@@ -14692,9 +14759,26 @@ class stzList from stzObject
 		nPos = 1
 		n = 0
 
-		if This.FirstItemQ().IsEqualToCS(pItem, pCaseSensitive)
-			anResult + 1
+		# Managing the first item apart
+
+		firstItem = This.FirstItem()
+
+		if isNumber(firstItem) or isObject(firstItem)
+		# they do not support case sensitivity --> use IsEqualTo()
+
+			if This.FirstItemQ().IsEqualTo(pItem)
+				anResult + 1
+			ok
+
+		else # isList or isString
+		# they do support case sensitivity --> use IsEqualToCS()
+
+			if This.FirstItemQ().IsEqualToCS(pItem, pCaseSensitive)
+				anResult + 1
+			ok
 		ok
+
+		# Managing the rest of the list
 
 		while TRUE
 			n++
@@ -14856,7 +14940,7 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindAll(pItem)
-			return This.FindAllOccurrencesCS(pItem, :CaseSensitive = TRUE)
+			return This.FindAllOccurrences(pItem)
 
 			#< @FunctionFluentForm
 
@@ -20785,7 +20869,8 @@ class stzList from stzObject
 	  #===========================================#
 	 #   CHECKING IF THE LIST IS A NAMED PARAM   #
 	#===========================================#
-	# TODO: Add @ to all params
+	# TODO: Add @ to all params, like this:
+	# (This[1] = :ParamName or This[1] = :ParamName@ ) )
 
 	def IsOnPositionNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -26703,6 +26788,19 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	def IsUpToNNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :UpToN or This[1] = :UpToN@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+
 
 	def IsExpressionNamedParam()
 

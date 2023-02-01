@@ -13,6 +13,20 @@ o1 = new stzString([
 ])
 
 /*===========
+*/
+
+StartProfiler()
+
+o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ])
+? @@S( o1.BoundsOf("*", :UpToNItems = 2) )
+#--> [
+#	[ [ 1, 2 ], [ 4, 5 ] ],
+#	[ [ 5, 6 ], [ 8, 9 ] ]
+# ]
+
+StopProfiler()
+
+/*===========
 
 StartProfiler()
 
