@@ -1,5 +1,53 @@
 load "stzlib.ring"
 
+
+/*------------
+/*
+o1 = new stzString(" @i + 10, @i-125, e11")
+? o1.NumbersComingAfter("@i")
+
+/*------------
+
+pron()
+
+o1 = new stzString("emm +12_456.50 emm 11. and -4.12_")
+//? o1.Numbers()
+#--> [ "+12_456.50", "11", "-4.12" ]
+
+proff()
+
+/*------------
+*/
+pron()
+
+o1 = new stzString("Math: 18, Geo: 16, :Physics: 17.80")
+? @@S( o1.ExtractNumbers() )
+#--> [ "18", "16", "17.80" ]
+
+? o1.Content()
+#--> Math: , Geo: , :Physics: 
+
+proff()
+# Executed in 0.17 second(s)
+
+/*------------
+
+StartProfiler()
+
+o1 = new stzString([
+	"I__",
+	"♥",
+	Q("_").Repeated(3),
+	'{ Q("ring").Uppercased() }',
+	"!"
+])
+
+? o1.Content()
+#--> <<__♥___RING___>>
+
+StopProfiler()
+# Executed in 0.03 second(s)
+
 /*-----------
 
 StartProfiler()
@@ -68,7 +116,7 @@ StopProfiler()
 # Executed in 0.03 second(s)
 
 /*-----------
-*/
+
 # Testing FindNthNext()/FindNthPrevious
 # on a very large string (~2M chars)
 
@@ -96,7 +144,7 @@ o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
 #--> 0
 
 StopProfiler()
-# Executed in 0.09 second(s)
+# Executed in 0.08 second(s)
 
 /*-----------
 
@@ -133,10 +181,25 @@ StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
 ? oLargeStr.FindLast(";")
-#--> Executed in 0.45 second(s)
 
 StopProfiler()
-# Executed in 0.85 second(s)
+# Executed in 0.04 second(s)
+
+/*-----------
+
+StartProfiler()
+
+#                    2    7
+o1 = new stzString("•♥••••♥••")
+? o1.FindNthW(2, '@char = "♥"')
+#--> 7
+# Executed in 0.13 second(s)
+
+? o1.FindNthW(2, '@substring = "•♥•"')
+#--> 6
+
+StopProfiler()
+#--> Executed in 0.36 second(s)
 
 /*===========
 
@@ -503,15 +566,14 @@ StopProfiler()
 #--> Executed in 0.011 second(s)
 
 /*===================
-*/
 
 StartProfiler()
 
-Q("Ring programmin guage.") {
+Q("Ring programmin language.") {
 
 	AddXT("g", :After = "programmin") # You can use :To instead of :After
 	? Content()
-	#--> Ring programming guage.
+	#--> Ring programming language.
 
 }
 
@@ -643,7 +705,6 @@ Q("__♥__♥__♥)__") {
 StopProfiler()
 # Executed in 0.05 second(s)
 
-
 /*===------------
 
 StartProfiler()
@@ -685,7 +746,6 @@ Q("__♥__♥__♥__") {
 
 StopProfiler()
 # Executed in 0.06 second(s)
-
 
 /*-----------------
 
@@ -782,7 +842,7 @@ o1.ReplaceW(' Q(@char).IsLetter() ', :With@ = " Q(@CurrentChar).Uppercased() ")
 ? o1.Content()
 #--> ♥♥♥A★★★B♥♥♥
 
-StopProfiler()
+StopProfil er()
 #--> Executed in 0.26 second(s)
 
 /*==================
@@ -1014,9 +1074,11 @@ o1 = new stzString("...456...")
 */    
 
 StartProfiler()
-             
+#                      4   8 1   4 6 8
 o1 = new stzString("...12..1212..121212...")
-? @@S( o1.FindMadeOf("12") )
+? o1.SubStringsMadeOf("12")
+
+//? @@S( o1.FindMadeOf("12") )
 #--> [ 4, 8, 10, 14, 16, 18 ]
 
 StopProfiler()

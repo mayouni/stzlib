@@ -1378,7 +1378,7 @@ class stzObject
 
 		/* EXAMPLE
 		o1 = new stzNumber(5)
-		o1.RepeatXT([ :InA = :List, :OfSize = 2 ])
+		o1.RepeatXT( :InA = :List, :OfSize = 2 )
 		#--> [ 5, 5 ]
 		*/
 
