@@ -1,6 +1,54 @@
 load "stzlib.ring"
 
 /*-----------------
+*/
+Pron() # A short alternative to StartProfiler(), read it: "profiler on"
+
+? StzCCodeQ('This[@i] = This[@i+1] +1').ExecutableSection()
+
+Proff() # A short alternative to StopProfiler(), read it: "profiler off"
+
+/*-----------------
+
+pron()
+
+#                  1  2 3  4 5 6  7
+o1 = new stzList([ 1, 3,4, 7,8,9, 12 ])
+
+//? o1.Section(1, -3)
+//? StzCCodeQ('This[@i+2]').ExecutableSection()
+
+//? o1.Yield('This[@i+2]')
+? @@S( o1.FindW('This[@i] = This[@i+1]') )
+
+//? @@S( o1.YieldW('[ This[@i], This[@i+1] ]', :Where = 'This[@i] = This[@i+1]+1') )
+
+proff()
+/*-----------------
+
+StartProfiler()
+
+o1 = new stzListOfPairs([
+	[ 1, 4], [6, 8], [9, 10], [12, 13], [13, 15]
+])
+
+? @@S( o1.Yield('[ This[@i][2], This[@i+1][1] ]') )
+#--> [ [ 4, 6 ], [ 8, 9 ], [ 10, 12 ], [ 13, 13 ] ]
+
+? @@S( o1.YieldW('[ This[@i][2], This[@i+1][1] ]', :Where = 'Q(@i).IsEven()') )
+#--> [ [ 8, 9 ], [ 13, 13 ] ]
+
+? @@S( o1.YieldW('[ This[@i][2], This[@i+1][1] ]',
+		:Where = 'This[@i][2] = This[@i+1][1]-1') )
+
+/*
+o1.MergeContiguous()
+? o1.Content()
+#--> [ [1, 4], [6, 10], [12, 15] ]
+*/
+StopProfiler()
+
+/*-----------------
 
 o1 = new stzListOfPairs([ [ 9, 10 ], [ 1, 2 ], [ 6, 6 ] ])
 o1.SortInAscending()
@@ -17,7 +65,7 @@ StopProfiler()
 # Executed in 0.01 second(s)
 
 /*-----------------
-*/
+
 StartProfiler()
 
 o1 = new stzListOfPairs([ [ 18, 22 ], [ 8, 12], [ 3, 5] ])

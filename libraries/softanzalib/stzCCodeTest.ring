@@ -11,7 +11,7 @@ StartProfiler()
 	#--> [ 4, -4 ]
 
 StopProfiler()
-#--> Executed in 0.27 seconds seconds.
+#--> Executed in 0.18 seconds seconds.
 
 /*----------
 
@@ -22,25 +22,32 @@ StartProfiler()
 	#--> This[ @i - 3 ] = This[ @i + 3 ] and @i = 10
 
 StopProfiler()
-#--> Executed in 0.05 second(s)
+#--> Executed in 0.13 second(s)
+
+/*----------
+*/
+StartProfiler()
+
+o1 = new stzString('This[@i] = This[@i + 1] + @i - 2')
+? o1.NumbersAfter("@i")
+
+StopProfiler()
 
 /*----------
 
 StartProfiler()
 
-	o1 = new stzCCode('{ @item = @NextItem }')
+	o1 = new stzCCode('{ @item = @NextItem + 2 }')
 	
 	? o1.Transpiled()
 	#-->  This[@i] = This[@i + 1] 
-
-? ElapsedTime()
-#--> 0.05 second(s)
+	# Takes 0.11 second(s)
 
 	? o1.ExecutableSection()
 	#--> [ 1, -2 ]
 
 StopProfiler()
-#--> Executed in 0.15 second(s)
+#--> Executed in 0.24 second(s)
 
 /*----------
 

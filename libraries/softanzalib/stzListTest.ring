@@ -1,16 +1,16 @@
 load "stzlib.ring"
 
-/*------------ TODO
+/*--------
+*/
+StartProfiler()
 
-o1 = new stzString([
-	[ "_", "_", "♥" ],
-	[ 100_000, "_" ],
-	[ "♥", "_", "_", "♥" ],
-	[ 50_000, "_"],
-	[ "♥", "_", "_", "♥"],
-	[ 10, "_" ],
-	'{ Q("anycode").Uppercased() }'
-])
+? Q("A").RepeatedXT(:InAString, :OfSize = 3)
+#--> "AAA"
+
+? Q("A").RepeatedXT(:InAList, :OfSize = 3)
+#--> ["A", "A", "A"]
+
+StopProfiler()
 
 /*===========
 
@@ -237,7 +237,7 @@ StopProfiler()
 #--> Executed in 0.41 second(s)
 
 /*----------
-*/
+
 StartProfiler()
 
 ? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Where = '{ len(@item) <= 5 }', :Strings ])
@@ -256,7 +256,7 @@ o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
 StopProfiler()
 
 /*==========
-*/
+
 StartProfiler()
 #                   1    2    3    4    5    6    7     8    9   10
 o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" , "♥", "_", "_" ])
@@ -271,10 +271,10 @@ o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" , "♥", "_", "_" ])
 #--> 3
 
 StopProfiler()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*------------
-*/
+
 StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
@@ -313,10 +313,10 @@ StartProfiler()
 	# Executed in 2.71 second(s)
 
 StopProfiler()
-# Executed in 8.31 second(s)
+# Executed in 7.55 second(s)
 
 /*------------
-*/
+
 StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
@@ -362,7 +362,7 @@ StartProfiler()
 	# Executed in 4.70 second(s)
 
 StopProfiler()
-# Executed in 8.27 second(s)
+# Executed in 7.51 second(s)
 
 /*------------
 
@@ -509,7 +509,7 @@ StartProfiler()
 	#--> [ "_", "HI" ]
 	
 StopProfiler()
-# Executed in 9.51 second(s)
+# Executed in 12.13 second(s)
 
 /*============
 
@@ -517,6 +517,7 @@ StartProfiler()
 #                   1    2    3    4    5    6    7    8    9   10
 o1 = new stzList([ "_", "_", "♥", "_", "♥", "_", "_", "♥", "_", "_" ])
 ? o1.FindNth(3, "♥")
+#--> 8
 
 StopProfiler()
 # Executed in 0.02 second(s)

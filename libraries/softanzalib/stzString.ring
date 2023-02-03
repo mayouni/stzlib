@@ -437,8 +437,7 @@ class stzString from stzObject
 		but IsQString(pcStr)
 			@oQString = pcStr
 
-		but Q(pcStr).IsListOfLists() and
-		    StzListOfListsQ(pcStr).EachItemIs(:AString)
+		but isList(pcStr)
 
 			# This case is added to facilitate the creation of
 			# large strings to test them against stzString methods
@@ -463,8 +462,35 @@ class stzString from stzObject
 				'{ Q("anycode").Uppercased() }'
 			])
 			*/
+
+			aTempList = pcStr
+			nLen = len(aTempList)
+
+			cResult = ""
+			
+
+			for i = 1 to nLen
+				item = aTempList[i]
+			
+				if isString(item)
+
+					if NOT Q(item).IsBoundedBy(["{", "}"])
+						cResult += item
+					else
+						item = Q(item).TrimQ().BoundsRemoved(["{","}"])
+						cCode = 'cTempStr = (' + item + ')'
+						eval(cCode)
+						cResult += cTempStr
+					ok
+			
+				ok
+			next
+
+			@oQString = new QString2()
+			@oQString.append(cResult)
+
 		else
-			stzRaise("Can't create the stzString object! You must provide a string (or a QString).")
+			stzRaise("Can't create the stzString object! You must provide a string, a QString, or a list.")
 		ok
 
 	  #--------------------------#
@@ -10969,31 +10995,67 @@ class stzString from stzObject
 	
 		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
 		#--> [ 4, 8, 15 ]
-	
+		nLen = len(anPos)
+
 		nLenSubStr = Q(pcSubStr).NumberOfChars()
 	
-		for n in anPos
-			
-			bContinue = TRUE
-			i = n
-	
-			while bContinue
-				i = i + nLenSubStr
-	
-				if i > This.NumberOfChars() - n or
-				   This.NextNCharsQ(n, :StartingAt = i).IsNotEqualto(Q(pcSubStr).Chars())
-	
-					bContinue = FALSE
-				ok
-	
-			end
-		next
+		
+		
 	
 	#-- WITHOUT CASESENSITIVITY
 	
 	def SubStringsMadeOf(pcSubStr)
 		return This.SubStringsMadeOfCS(pcSubStr, :CaseSensitive = TRUE)
 	
+	  #------------------------------------------------#
+	 #  FINDING SUBSTRINGS MADE OF A GIVEN SUBSTRING  #
+	#------------------------------------------------#
+
+	def FindMadeOfCS(pcSubStr, pCaseSensitive)
+		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
+
+		anPos = Q([ anPos[1]-2 ] + anPos).Flattened()
+
+		anResult = Q(anPos).
+			   YieldW('This[@i]', ' ( This[@i+1] - This[@i] ) > 1 ')
+
+		return anResult
+
+		def FindSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def FindOccurrencesOfSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def FindAllSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def FindAllOccurrencesOfSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def PositionsOfubStringsMadeOfCS(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindMadeOf(pcSubStr)
+		return This.FindMadeOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringsMadeOf(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def FindOccurrencesOfSubStringsMadeOf(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def FindAllSubStringsMadeOf(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def FindAllOccurrencesOfSubStringsMadeOf(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def PositionsOfubStringsMadeOf(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
 	  #=============================================================================#
 	 #  YIELDING CHARS STARTING AT A GIVEN POSITION UNTIL A CONDITION IS VERIFIED  #
 	#=============================================================================#
@@ -11905,6 +11967,49 @@ class stzString from stzObject
 		def CharsAtThesePositionsReplacedByMany(panPositions, pacNewSubStrings)
 			return This.CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
 
+	  #-------------------------------------------------------------------------#
+	 #   REPLACING CHARS/SUBSTRINGS WITH A SUBSTRING UNDER A GIVEN CONDITION   #
+	#-------------------------------------------------------------------------#
+
+	def ReplaceW(pcCondition, pcCharOrSubStr)
+	
+		# Checking params
+
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		if isList(pcCharOrSubStr) and Q(pcCharOrSubStr).IsWithOrByNamedParam()
+			pcCharOrSubStr = pcCharOrSubStr[2]
+		ok
+
+		if NOT isString(pcCharOrSubStr)
+			StzRaise("Incorrect param type! pcCharOrSubStr must be a string.")
+		ok
+
+		# Doing the job
+
+		oCondition = new stzString(pcCondition)
+
+		if oCondition.ContainsNeitherCS("@char", :Nor = "@substring", :CS = FALSE) or
+		   oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
+
+			StzRaise("Incorrect syntax ! pcCondition must contains either @char or @substring keywords (but not both).")
+		ok
+
+		if oCondition.ContainsCS("@char", pCaseSensitive)
+			anPos = FindCharsW(pcCondition)
+			This.ReplaceCharsAtPositions(anPos, pcCharOrSubStr)
+
+		else # contains @substring
+			anPos = Thid.FindSubStringsW(pcCondition)
+			This.ReplaceSubStringsAtPositions(anPos, pcCharOrSubStr)
+		ok
+
 	  #--------------------------------------------------------------------#
 	 #     REPLACING ALL CHARS WITH A SUBSTRING UNDER A GIVEN CONDITION   #
 	#--------------------------------------------------------------------#
@@ -11982,13 +12087,6 @@ class stzString from stzObject
 
 			def ReplaceCharsWhereQ(pCondition, pcNewSubStr)
 				This.ReplaceCharsWhere(pCondition, pcNewSubStr)
-				return This
-
-		def ReplaceW(pCondition, pcNewSubStr)
-			This.ReplaceAllCharsW(pCondition, pcNewSubStr)
-
-			def ReplaceWQ(pCondition, pcNewSubStr)
-				This.ReplaceW(pCondition, pcNewSubStr)
 				return This
 
 		#>
@@ -14150,6 +14248,8 @@ o1 = new stzString("12*34*56*78")
 	 #      STARTING AT A GIVEN POSITION               #
 	#-------------------------------------------------#
 
+	# TODO: FindNextW() FindPreviousW()
+
 	def FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 
 		return This.FindNextNthOccurrenceCS(1, pcSubStr, nStart, pCaseSensitive)
@@ -14648,6 +14748,58 @@ o1 = new stzString("12*34*56*78")
 
 		#>
 
+	  #-----------------------------------------------------------------------#
+	 #  FINDING OCCURRENCES OF CHARS/SUBSTRINGS VERIFYING A GIVEN CONDITION  #
+	#-----------------------------------------------------------------------#
+
+	def FindW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCpndition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		oCondition = new stzString(pcCondition)
+
+		if oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
+			StzRaise("Incorrect syntax! pcCondition must contain either @char ir @substring but not both.")
+		ok
+
+		if oCondition.ContainsCS("@substring", :CS = FALSE)
+			return This.FindSubStringsW(pcCondition)
+
+		else
+			return This.ContainsCharsW(pcCondition)
+		ok
+
+	  #------------------------------------------------------------#
+	 #  FINDING OCCURRENCES OF CHARS VERIFYING A GIVEN CONDITION  #
+	#------------------------------------------------------------#
+
+	def FindCharsW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ')'
+		nLen = This.NumberOfChars()
+		anResult = []
+
+		for @i = 1 to nLen
+			eval(cCode)
+			if bOk
+				anResult + @i
+			ok
+		next
+
+		return anResult
+
 	  #------------------------------------------------------------------#
 	 #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
 	#------------------------------------------------------------------#
@@ -14685,21 +14837,20 @@ o1 = new stzString("12*34*56*78")
 			StzRaise("Syntax error! pcCondition must contain keyword @SubString")
 		ok
 
-		pcCondition = StzCCodeQ(pcCondition).Transpiled()
-
-		cCode = Q(pcCondition).SubstringReplacedCS("@item", :By = "@SubString", :CS = FALSE)
-		cCode = 'bOk = ( ' + cCode + ' )'
+		cCode = 'bOk = ( ' + StzCCodeQ(pcCondition).Transpiled()+ ' )'
 
 		acResult = []
-
-		for @i = 1 to len( acSubStringsXT )
+		nLen = len( acSubStringsXT )
+		for @i = 1 to nLen
 			@SubString = acSubStringsXT[@i][1]
 
 			eval(cCode)
 
 			if bOk
-				for aSection in acSubStringsXT[@i][2]
-					acResult + aSection
+				nLen2 = len(acSubStringsXT[@i][2])
+
+				for j = 1 to nLen2
+					acResult + acSubStringsXT[@i][2][j]
 				next
 			ok
 
@@ -14713,504 +14864,41 @@ o1 = new stzString("12*34*56*78")
 			return This.FindSubStringsWXT(pcCondition)
 
 	  #--------------------------------------------------------------------------#
-	 #  FINDING OCCURRENCES OF A CHAR OR SUBSTRING VERIFYING A GIVEN CONDITION  #
+	 #  FINDING NTH OCCURRENCE OF A CHAR/SUBSTRING VERIFYING A GIVEN CONDITION  #
 	#--------------------------------------------------------------------------#
 
-	def FindAllW(pcCondition)
-		#< @MotherFunction = YES | @RingBased #>
+	def FindNthW(n, pcCondition)
 
-		if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if isString(pcCondition)
-			if Q(pcCondition).ContainsOneOfTheseCS([ "@Char", "@NextChar", "@PreviousChar" ], :CS = FALSE) and
-			   Q(pcCondition).ContainsNoOneOfTheseCS([ "@SubString", "@NextSubString", "@PreviousSubString" ], :CS = FALSE)
-
-				return This.FindAllCharsW(pcCondition)
-
-			but Q(pcCondition).ContainsOneOfTheseCS([ "@Char", "@NextChar", "@PreviousChar" ], :CS = FALSE) and
-			   Q(pcCondition).ContainsOneOfTheseCS([ "@SubString", "@NextSubString", "@PreviousSubString" ], :CS = FALSE)
-
-				StzRaise("Incorrect condition! Condition can't contains chars and substrings keywords.")
-			ok
-		else
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		if NOT Q(pcCondition).ContainsOneOfTheseCS([ "@SubString", "@NextSubString", "@PreviousSubString" ], :CS = FALSE)
-			stzRaise("Incorrect param type! pcCondition must be a string containing keword @SubString.")
-		ok
-
-		if Q(pcCondition).ContainsCS("@SubString", :CaseSensitive = FALSE)
-			return This.FindSubStringsW(pcCondition)
-		ok
-
-		cCondition = StzCCodeQ(pcCondition).Transpiled()
-
-		cCode = "bOk = ( " + cCondition + " )"
-		oCode = new stzString(cCode)
-
-		acSubStrings = This.SubStrings()
-		nLen = len(acSubStrings)
-		anResult = []
-
-		for @i = 1 to nLen
-			@char = This[@i]
-			@SubString = acSubStrings[@i]
-			bEval = TRUE
-
-			if @i = nLen and
-			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i+1]", :CS = FALSE )
-
-				bEval = FALSE
-			ok
-
-			if @i = 1 and
-			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i-1]", :CS = FALSE )
-
-				bEval = FALSE
-			ok
-
-			if bEval
-
-				eval(cCode)
-
-				if bOk
-					anResult + @i
-				ok
-			ok
-
-		next
-
-		return anResult
-
-		#< @FunctionFluentForm
-
-		def FindAllWQ(pcCondition)
-			return This.FindAllWQR(pcCondition, :stzList)
-
-		def FindAllWQR(pcCondition, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindAllW(pcCondition) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindAllW(pcCondition) )
-
-			other
-				return stzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def FindAllWhere(pcCondition)
-			return This.FindAllW(pcCondition)
-
-			def FindAllWhereQ(pcCondition)
-				return This.FindAllWhereQR(pcCondition, :stzList)
-	
-			def FindAllWhereQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAllWhere(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindAllWhere(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		def FindW(pcCondition)
-			return This.FindAllW(pcCondition)
-
-			def FindWQ(pcCondition)
-				return This.FindWQR(pcCondition, :stzList)
-	
-			def FindWQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindW(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindW(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		def FindWhere(pcCondition)
-			return This.FindW(pcCondition)
-
-			def FindWhereQ(pcCondition)
-				return This.FindWhereQR(pcCondition, :stzList)
-	
-			def FindWhereQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindWhere(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindWhere(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		def SubStringsPositionsW(pCondition)
-			return This.FindAllW(pcCondition)
-
-			def SubStringsPositionsWQ(pcCondition)
-				return This.SubStringsPositionsWQR(pcCondition, :stzList)
-	
-			def SubStringsPositionsWQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.SubStringsPositionsW(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.SubStringsPositionsW(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		def SubStringsPositionsWhere(pCondition)
-			return This.FindAllW(pcCondition)
-
-			def SubStringsPositionsWhereQ(pcCondition)
-				return This.SubStringsPositionsWhereQR(pcCondition, :stzList)
-	
-			def SubStringsPositionsWhereQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.SubStringsPositionsWhere(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.SubStringsPositionsWhere(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		def FindSubStringsPositionsW(pcCondition)
-			return This.FindAllSubStringsW(pcCondition)
-
-			def FindSubStringsPositionsWQ(pcCondition)
-				return This.FindSubStringsPositionsWQR(pcCondition, :stzList)
-	
-			def FindSubStringsPositionsWQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSubStringsPositionsW(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindSubStringsPositionsW(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		def FindSubStringsPositionsWhere(pcCondition)
-			return This.FindAllSubStringsW(pcCondition)
-
-			def FindSubStringsPositionsWhereQ(pcCondition)
-				return This.FindSubStringsPositionsWhereQR(pcCondition, :stzList)
-	
-			def FindSubStringsPositionsWhereQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindSubStringsPositionsWhere(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindSubStringsPositionsWhere(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-			
-		#>
-
-	def FindNthSubStringW(n, pcCondition)
-
-		anPos = This.FindSubStringsW(pcCondition)
-		nLen  = len(anPos)
-
-		if isString(n)
-			if n = :FirstChar or n = :First
-				n = 1
-			but n = :LastChar or n = :Last
-				n = nLen
-			ok
-		ok
-
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		nResult = anPos[n]
-		return nResult
-
-	def FindFirstSubStringW(pcCondition)
-		return This.FindNthSubStringW(1, pcCondition)
-
-	def FindLastSubStringW(pcCondition)
-		return This.FindNthCharW(:LastChar, pcCondition)
-
-	  #------------------------------------------------#
-	 #  FINDING SUBSTRINGS MADE OF A GIVEN SUBSTRING  #
-	#------------------------------------------------#
-
-	def FindMadeOfCS(pcSubStr, pCaseSensitive)
-		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
-		anPos = Q([ anPos[1]-2 ] + anPos).Flattened()
-
-		anResult = Q(anPos).
-			   YieldW('@NextNumber', ' ( @NextNumber - @CurrentNumber ) > 1 ')
-
-		return anResult
-
-		def FindSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
-			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
-
-		def FindOccurrencesOfSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
-			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
-
-		def FindAllSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
-			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
-
-		def FindAllOccurrencesOfSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
-			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
-
-		def PositionsOfubStringsMadeOfCS(pcSubStr, pCaseSensitive)
-			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindMadeOf(pcSubStr)
-		return This.FindMadeOfCS(pcSubStr, :CaseSensitive = TRUE)
-
-		def FindSubStringsMadeOf(pcSubStr)
-			return This.FindMadeOf(pcSubStr)
-
-		def FindOccurrencesOfSubStringsMadeOf(pcSubStr)
-			return This.FindMadeOf(pcSubStr)
-
-		def FindAllSubStringsMadeOf(pcSubStr)
-			return This.FindMadeOf(pcSubStr)
-
-		def FindAllOccurrencesOfSubStringsMadeOf(pcSubStr)
-			return This.FindMadeOf(pcSubStr)
-
-		def PositionsOfubStringsMadeOf(pcSubStr)
-			return This.FindMadeOf(pcSubStr)
-
-	  #-----------------------------------------------------------------#
-	 #  FINDING ALL OCCURRENCES OF A CHAR VERIFYING A GIVEN CONDITION  #
-	#-----------------------------------------------------------------#
-
-	def FindAllCharsW(pcCondition)
-		#< @MotherFunction = YES | @RingBased #>
-
-		if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCpndition[2]
 		ok
 
 		if NOT isString(pcCondition)
-			stzRaise("Incorrect param type! pcCondition must be a string.")
+			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		cCondition = StzCCodeQ(pcCondition).Transpiled()
+		oCondition = new stzString(pcCondition)
 
-		cCode = "bOk = ( " + cCondition + " )"
-		oCode = new stzString(cCode)
+		if oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
+			StzRaise("Incorrect syntax! pcCondition must contain either @char ir @substring but not both.")
+		ok
 
-		anResult = []
+		if oCondition.ContainsCS("@substring", :CS = FALSE)
+			return This.FindNthSubStringW(n, pcCondition)
 
-		for @i = 1 to This.NumberOfChars()
-			bEval = TRUE
+		else
+			return This.FindNthCharW(n, pcCondition)
+		ok
 
-			if @i = This.NumberOfChars() and
-			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i+1]", :CS = FALSE )
-
-				bEval = FALSE
-			ok
-
-			if @i = 1 and
-			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i-1]", :CS = FALSE )
-
-				bEval = FALSE
-			ok
-
-			if bEval
-
-				eval(cCode)
-
-				if bOk
-					anResult + @i
-				ok
-			ok
-
-		next
-
-		return anResult
-
-		#< @FunctionFluentForm
-
-		def FindAllCharsWQ(pcCondition)
-			return This.FindAllCharsWQR(pcCondition, :stzList)
-
-		def FindAllCharsWQR(pcCondition, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindAllCharsW(pcCondition) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindAllCharsW(pcCondition) )
-
-			other
-				return stzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def FindAllCharsWhere(pcCondition)
-			return This.FindAllCharsW(pcCondition)
-
-			def FindAllCharsWhereQ(pcCondition)
-				return This.FindAllCharsWhereQR(pcCondition, :stzList)
-	
-			def FindAllCharsWhereQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAllCharsWhere(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindAllCharsWhere(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		def FindCharsW(pcCondition)
-			return This.FindAllCharsW(pcCondition)
-
-			def FindCharsWQ(pcCondition)
-				return This.FindCharsWQR(pcCondition, :stzList)
-	
-			def FindCharsWQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindCharsW(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindCharsW(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		def FindCharsWhere(pcCondition)
-			return This.FindCharsW(pcCondition)
-
-			def FindCharsWhereQ(pcCondition)
-				return This.FindCharsWhereQR(pcCondition, :stzList)
-	
-			def FindCharsWhereQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindCharsWhere(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindCharsWhere(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		def CharsPositionsW(pCondition)
-			return This.FindAllCharsW(pcCondition)
-
-			def CharsPositionsWQ(pcCondition)
-				return This.CharsPositionsWQR(pcCondition, :stzList)
-	
-			def CharsPositionsWQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.CharsPositionsW(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.CharsPositionsW(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		def CharsPositionsWhere(pCondition)
-			return This.FindAllCharsW(pcCondition)
-
-			def CharsPositionsWhereQ(pcCondition)
-				return This.CharsPositionsWhereQR(pcCondition, :stzList)
-	
-			def CharsPositionsWhereQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.CharsPositionsWhere(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.CharsPositionsWhere(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		def FindCharsPositionsW(pcCondition)
-			return This.FindAllCharsW(pcCondition)
-
-			def FindCharsPositionsWQ(pcCondition)
-				return This.FindCharsPositionsWQR(pcCondition, :stzList)
-	
-			def FindCharsPositionsWQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindCharsPositionsW(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindCharsPositionsW(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-
-		def FindCharsPositionsWhere(pcCondition)
-			return This.FindAllCharsW(pcCondition)
-
-			def FindCharsPositionsWhereQ(pcCondition)
-				return This.FindCharsPositionsWhereQR(pcCondition, :stzList)
-	
-			def FindCharsPositionsWhereQR(pcCondition, pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindCharsPositionsWhere(pcCondition) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindCharsPositionsWhere(pcCondition) )
-	
-				other
-					return stzRaise("Unsupported return type!")
-				off
-			
-		#>
+	  #----------------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION  #
+	#----------------------------------------------------------------#
 
 	def FindNthCharW(n, pcCondition)
-
-		anPos = This.FindCharsW(pcCondition)
-		nLen  = len(anPos)
+		# TODO: Change implementation for better performance
+		# There is no need to traverse all the charsW and then
+		# returning the nth one.
+		# --> Add FindNextCharW() and use it instead.
 
 		if isString(n)
 			if n = :FirstChar or n = :First
@@ -15224,14 +14912,63 @@ o1 = new stzString("12*34*56*78")
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
+		anPos = This.FindCharsW(pcCondition)
 		nResult = anPos[n]
+
 		return nResult
+
+	  #----------------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION  #
+	#----------------------------------------------------------------#
+
+	def FindNthSubStringW(n, pcCondition)
+		# TODO: Change implementation for better performance
+		# There is no need to traverse all the charsW and then
+		# returning the nth one.
+		# --> Add FindNextSubStringW() and use it instead.
+
+		if isString(n)
+			if n = :FirstSubString or n = :First
+				n = 1
+			but n = :LastSubString or n = :Last
+				n = nLen
+			ok
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		anPos = This.FindSubStringsW(pcCondition)
+		nResult = anPos[n]
+
+		return nResult
+
+	  #----------------------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A CHAR/SUBSTRING VERIFYING A GIVEN CONDITION  #
+	#----------------------------------------------------------------------------#
+
+	def FindFirstW(pcCondition)
+		return This.FindNthW(1, pcCondition)
 
 	def FindFirstCharW(pcCondition)
 		return This.FindNthCharW(1, pcCondition)
 
+	def FindFirstSubStringW(pcCondition)
+		return This.FindNthSubStringW(1, pcCondition)
+
+	  #---------------------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A CHAR/SUBSTRING VERIFYING A GIVEN CONDITION  #
+	#---------------------------------------------------------------------------#
+
+	def FindLastW(pcCondition)
+		return This.FindNthW(:Last, pcCondition)
+
 	def FindLastCharW(pcCondition)
-		return This.FindNthCharW(:LastChar, pcCondition)
+		return This.FindNthCharW(:Last, pcCondition)
+
+	def FindLastSubStringW(pcCondition)
+		return This.FindNthSubStringW(:Last, pcCondition)
 
 	  #--------------------------------------------------#
 	 #      FINDING MANY SYBSTRINGS IN THE SAME TIME    # 
@@ -19049,8 +18786,35 @@ o1 = new stzString("12*34*56*78")
 		#< @FunctionNegativeForm
 	
 		def ContainsNoCS(cSubStr, pCaseSensitive)
+			if isList(cSubStr)
+				return This.ContainsNoneOfTheseCS(cSubStr, pCaseSensitive)
+			ok
+
 			return NOT This.ContainsCS(cSubStr, pCaseSensitive)
 
+		def ContainsNoneOfTheseCS(pacSubStrings, pCaseSensitive)
+			bResult = TRUE
+			nLen = len(pacSubStrings)
+			for i = 1 to nLen
+				if This.ContainsCS(pacSubStrings[i], pCaseSensitive)
+					bResult = FALSE
+					exit
+				ok
+			next
+			return bRersult
+
+			def ContainsNoneOfTheseSubStringsCS(pacSubStrings, pCaseSensitive)
+				return This.ContainsNoneOfTheseCS(pacSubStrings, pCaseSensitive)
+	
+			def ContainsNoneOfCS(pacSubStrings, pCaseSensitive)
+				return This.ContainsNoneOfTheseCS(pacSubStrings, pCaseSensitive)
+	
+		def ContainsNeitherCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			if isList(pcSubStr2) and Q(pcSubStr2).IsNorNamedParam()
+				pcSubStr2 = pcSubStr2[2]
+			ok
+
+			return This.ContainsNoneOfTheseCS([pcSubStr1, pcSubStr2], pCaseSensitive)
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -19067,8 +18831,19 @@ o1 = new stzString("12*34*56*78")
 		#< @FunctionNegativeForm
 
 		def ContainsNo(cSubStr)
-			return NOT This.Contains(cSubStr)
+			return This.ContainsNoCS(cSubStr, :CaseSensitive = TRUE)
 
+		def ContainsNoneOfThese(pacSubStrings)
+			return This.ContainsNoneOfTheseCS(pacSubStrings, :CaseSensitive = TRUE)
+
+			def ContainsNoneOfTheseSubStrings(pacSubStrings)
+				return This.ContainsNoneOfTheseCS(pacSubStrings, :CaseSensitive = TRUE)
+	
+			def ContainsNoneOf(pacSubStrings)
+				return This.ContainsNoneOfTheseCS(pacSubStrings, :CaseSensitive = TRUE)
+	
+		def ContainsNeither(pcSubStr1, pcSubStr2)
+			return This.ContainsNeitherCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 		#>
 
 	  #------------------------------------------------#
@@ -19076,12 +18851,26 @@ o1 = new stzString("12*34*56*78")
 	#------------------------------------------------#
 
 	def ContainsW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
 
-		pcCondition = Q(pcCondition).
-				ReplaceCSQ("@char", :By = "@substring", :CS = FALSE).
-				Content()
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
 
-		return This.ContainsSubStringsW(pcCondition) 
+		oCondition = new stzString(pcCondition)
+		if oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
+
+			StzRaise("Icnorrect syntax! pcCondition must contain either @char or @substring keywords but not both.")
+		ok
+
+		if oCondition.ContainsCS("@substring", :CS = FALSE)
+			return This.ContainsSubStringsW(pcCondition)
+
+		else
+			return This.ContainsCharsW(pcCondition)
+		ok
 
 	def ContainsCharsW(pcCondition)
 		/* EXAMPLE
@@ -19512,14 +19301,6 @@ o1 = new stzString("12*34*56*78")
 
 		#>
 
-		#< @FunctionNegativeForms
-
-		def ContainsNoOneOfTheseCS(paSubStr, pCaseSensitive)
-			bResult = NOT This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
-			return bResult
-
-		#>
-
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsOneOfThese(paSubStr)
@@ -19532,14 +19313,6 @@ o1 = new stzString("12*34*56*78")
 
 		def ContainsOneOfThe(paSubStr)
 			return This.ContainsOneOfThese(paSubStr)
-
-		#>
-
-		#< @FunctionNegativeForms
-
-		def ContainsNoOneOfThese(paSubStr)
-			bResult = NOT This.ContainsOneOfThese(paSubStr, pCaseSensitive)
-			return bResult
 
 		#>
 
@@ -19576,6 +19349,8 @@ o1 = new stzString("12*34*56*78")
 
 	def ContainsBothCS(pcStr1, pcStr2, pCaseSensitive)
 		return This.ContainsEachCS( [pcStr1, pcStr2], pCaseSensitive )
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsBoth(pcStr1, pcStr2)
 		return This.ContainsBothCS(pcStr1, pcStr2, :CaseSensitive = TRUE)
@@ -20067,48 +19842,6 @@ o1 = new stzString("12*34*56*78")
 
 		def ContainsOneOrMporeSubStringOfThese(paSubStr)
 			return This.ContainsOneOrMore(paSubStr)
-
-		#>
-
-	  #-----------------------------------------------#
-	 #   CONTAINING NONE OF THE PROVIDED SUBSTRINGS  #
-	#-----------------------------------------------#
-
-	def ContainsNoneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
-		bResult = TRUE
-		nLen = len(pacSubStr)
-
-		for i = 1 to nLen
-			if This.ContainsCS(pacSubStr[i], pCaseSensitive)
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def ContainsNoneOfTheseCS(pacSubStr, pCaseSensitive)
-			return This.ContainsNoneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
-
-		def ContainsNoneOfCS(pacSubStr, pCaseSensitive)
-			return This.ContainsNoneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ContainsNoneOfTheseSubStrings(pacSubStr)
-		return This.ContainsNoneOfTheseSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def ContainsNoneOfThese(pacSubStr)
-			return This.ContainsNoneOfTheseSubStrings(pacSubStr)
-
-		def ContainsNoneOf(pacSubStr)
-			return This.ContainsNoneOfTheseSubStrings(pacSubStr)
 
 		#>
 
@@ -24021,6 +23754,33 @@ o1 = new stzString("12*34*56*78")
 		def RangedRemovedW(paListOfRanges, pcCondition)
 			return This.ManyRangesRemovedW(paListOfRanges, pcCondition)
 
+	  #------------------------------------------------------------#
+	 #    REMOVING CHARS/SUBSTRINGS VERIFYING A GIVEN CONDITION   # 
+	#------------------------------------------------------------#
+
+	def RemoveW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam(pcCondition)
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		oCondition = new stzString(pcCondition)
+
+		if oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
+
+			StzRaise("Incorrect syntax! pcCondition must contains @char or @substring keywords but not both.")
+		ok
+
+		if oCondition.ContainsCS("@substring", :CS = FALSE)
+			return This.RemoveSubstringsW(pcCondition)
+
+		else
+			return This.RemoveCharsW(pcCondition)
+		ok
+
 	  #-------------------------------------------------#
 	 #    REMOVING CHARS VERIFYING A GIVEN CONDITION   # 
 	#-------------------------------------------------#
@@ -24068,13 +23828,6 @@ o1 = new stzString("12*34*56*78")
 
 			def RemoveAllcharsWQ(pcCondition)
 				This.RemoveAllCharsWhere(pcCondition)
-				return This
-
-		def RemoveW(pCondition)
-			This.RemoveCharsWhere(pCondition)
-
-			def RemoveWQ(pCondition)
-				This.RemoveW(pCondition)
 				return This
 
 	  #-----------------------------------#
@@ -25446,9 +25199,226 @@ o1 = new stzString("12*34*56*78")
 		def WithoutSpaces()
 			return This.SpacesRemoved()
 
-	  #----------------------------------------------------------#
+	  #==========================================#
+	 #  EXTRACTING A SUBSTRING FROM THE STRING  #
+	#==========================================#
+
+	def ExtractCS(pcSubStr, pCaseSensitive)
+		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+			StzRaise("Can't extract the substring! It does not exist in the string.")
+		ok
+
+		This.RemoveCS(pcSubStr, pCaseSensitive)
+		return pcSubStr
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Extract(pcSubStr)
+		return This.ExtractCS(pcSubStr, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------#
+	 #  EXTRACTING MANY SUBSTRINGS FROM THE STRING  #
+	#----------------------------------------------#
+
+	def ExtractManyCS(pacSubStrings, pCaseSensitive)
+		if NOT This.ContainsManyCS(pacSubStrings, pCaseSensitive)
+			StzRaise("Can't extract the substrings! Items in pacSubStrings do not exist in the list.")
+		ok
+
+		This.RemoveManyCS(pacSubStrings, pCaseSensitive)
+		return pacSubStrings
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ExtractMany(pacSubStrings)
+		return This.ExtractManyCS(pacSubStrings, :pCaseSensitive = TRUE)
+
+	  #-------------------------------------------------#
+	 #  EXTRACTING ALL THE SUBSTRINGS FROM THE STRING  #
+	#-------------------------------------------------#
+
+	def ExtractAll()
+		aResult = This.Content()
+		This.Clear()
+		return aResult
+
+	  #---------------------------#
+	 #  EXTRACTING THE NTH CHAR  #
+	#---------------------------#
+
+	def ExtractAt(n)
+		if isString(n) and ( n = :Last or n = :LastChar )
+			n = This.NumberOfItems()
+		ok
+
+		if NOT isNumber(n) and Q(n).IsBetween(1, This.NumberOfItems())
+			StzRaise("Can't extract! n outside of range.")
+		ok
+
+		cTempChar = This.CharAt(n)
+
+		This.RemoveAt(n)
+
+		return cTempChar
+
+		def ExtractNthChar(n)
+			return This.ExtractAt(n)
+
+	  #-----------------------------#
+	 #  EXTRACTING THE FIRST CHAR  #
+	#-----------------------------#
+
+	def ExtractFirstChar()
+		return This.ExtractAt(1)
+ 
+	  #----------------------------#
+	 #  EXTRACTING THE LAST CHAR  #
+	#----------------------------#
+
+	def ExtractLastChar()
+		return This.ExtractAt(:LastChar)
+
+	  #------------------------------------------------#
+	 #  EXTRACTING THE NTH OCCURRENCE OF A SUBSTRING  #
+	#------------------------------------------------#
+
+	def ExtractNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+		if This.FindNthOccurrenceCS(n, pcSubStr, pCaseSensitive) > 0
+			This.RemoveNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+			return pcSubStr
+		else
+			StzRaise("Can't extract! The string does not contain n occurrences of pcSubStr.")
+		ok
+
+		def ExtractNthCS(n, pcSubStr, pCaseSensitive)
+			return This.ExtractNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ExtractNthOccurrence(n, pcSubStr)
+		return This.ExtractNthOccurrenceCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def ExtractNth(n, pcSubStr)
+			return This.ExtractNthOccurrence(n, pcSubStr)
+
+	  #--------------------------------------------------#
+	 #  EXTRACTING THE FIRST OCCURRENCE OF A SUBSTRING  #
+	#--------------------------------------------------#
+
+	def ExtractFirstCS(pcSubStr, pCaseSensitive)
+		return This.ExtractNthOccurrenceCS(1, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ExtractFirst(pcSubStr)
+		return This.ExtractFirstCS(pcSubStr, :CaseSensitive = TRUE)
+
+	  #-------------------------------------------------#
+	 #  EXTRACTING THE LAST OCCURRENCE OF A SUBSTRING  #
+	#-------------------------------------------------#
+
+	def ExtractLastCS(pcSubStr, pCaseSensitive)
+		return This.ExtractNthOccurrenceCS(:Last, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ExtractLast(pcSubStr)
+		return This.ExtractLastCS(pcSubStr, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------------#
+	 #  EXTRACTING CHARS/SUBSTRINGS VERIFYING A GIVEN CONDITION  #
+	#-----------------------------------------------------------#
+
+	def ExtractW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		oCondition = new stzString(pcCondition)
+
+		if oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
+			StzRaise("Can't proceed! pcCondition must contain either @char or @substring keywords, but not both.")
+		ok
+
+		if Q(pcCondition).ConytainsCS("@substring", :CS = FALSE)
+			aResult = This.SubStringsW(pcCondition)
+
+		else
+			aResult = This.CharsW(pcCondition)
+		ok
+
+		if len(aResult) = 0
+			StzRaise("Can't extract! The condition returns no values at all.")
+		ok
+
+		This.RemoveW(pcCondition)
+		return aResult
+
+	  #----------------------------------------#
+	 #  EXTRACTING A SECTION FROM THE STRING  #
+	#----------------------------------------#
+
+	def ExtractSection(n1, n2)
+		if NOT BothAreNumbers(n1, n2) and
+		   Q(n1).IsBetween(1, This.NumberOfItems()) and
+		   Q(n2).IsBetween(1, This.NumberOfItems())
+
+			StzRaise("Can't extract! The section is outside the list.")
+		ok
+
+		aResult = This.Section(n1, n2)
+		This.RemoveSection(n1, n2)
+		return aResult
+
+	  #------------------------------------#
+	 #  EXTRACTING A RANGE FROM THE STRING  #
+	#------------------------------------#
+
+	def ExtractRange(nStart, nRange)
+		return This.ExtractSection(nStart, nStart + nRange - 1)
+
+	  #-----------------------------------------------------#
+	 #  EXTRACTING NEXT SUBSTRING STARTING AT A GIVEN POSITION  #
+	#-----------------------------------------------------#
+
+	def ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		if This.FindNextCS(pcSubStr, pnStartingAt, pCaseSensitive) = 0
+			StzRaise("Can't extract! pcSubStr does not exist at the specified position.")
+		ok
+
+		This.RemoveNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return pcSubStr
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ExtractNext(item, pnStartingAt)
+		return This.ExtractNextCS(item, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------------------#
+	 #  EXTRACTING PREVIOUS SUBSTRING STARTING AT A GIVEN POSITION  #
+	#---------------------------------------------------------#
+
+	def ExtractPreviousCS(item, pnStartingAt, pCaseSensitive)
+		if This.FindPreviousCS(item, pnStartingAt, pCaseSensitive) = 0
+			StzRaise("Can't extract! pcSubStr does not exist at the specified position.")
+		ok
+
+		This.RemovePreviousCS(item, pnStartingAt, pCaseSensitive)
+		return item
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ExtractPrevious(item, pnStartingAt)
+		return This.ExtractPreviousCS(item, pnStartingAt, :CaseSensitive = TRUE)
+
+	
+	  #==========================================================#
 	 #   SIMPLIFYING THE STRING BY REMOVING DUPLICATED SPACES   #
-	#----------------------------------------------------------#
+	#==========================================================#
 
 	def Simplify()
 
@@ -28694,6 +28664,10 @@ o1 = new stzString("12*34*56*78")
 
 		#>
 
+	  #-----------------------------#
+	 #  REMOVING DUPLICATED CHARS  #
+	#-----------------------------#
+
 	def RemoveDuplicatedChars()
 		cNewString = This.UniqueCharsQR(:stzListOfStrings).Concatenated()
 		This.Update(cNewString)
@@ -28706,9 +28680,9 @@ o1 = new stzString("12*34*56*78")
 		cResult = This.Copy().RemoveDuplicatedCharsQ().Content()
 		return cResult
 
-	  #-------------------------------#
-	 #   CHAR AT A GIVEN POSITION    #
-	#-------------------------------#
+	  #---------------------------------------#
+	 #   GETTING CHAR AT A GIVEN POSITION    #
+	#---------------------------------------#
 	
 	def NthChar(n)
 		#< QtBased >
@@ -32445,41 +32419,37 @@ o1 = new stzString("12*34*56*78")
 
 		*/
 
-		str = This.WithoutSpaces() + "*" // The "*" is added just for the
-						 // algorithm to add any number at
-						 // the end of the string
-		nLen = Q(str).NumberOfChars()
+		cTempStr = This.Content() + " "
+		nLen = This.NumberOfChars() + 1
 
-		acResult = []
 		cNumber = ""
-
+		acResult = []
+		
 		for i = 1 to nLen
-			oChar = Q(str).CharQ(i)
+			c = Q(cTempStr).CharAt(i)
 
-			if oChar.IsNumberInString() or
-			   oChar.IsOneOfThese([ "+","-", ".", "_" ])
-
-				cNumber += oChar.Content()
-
-			else
-				cNumber = Q(cNumber).
-					  RemoveThisFirstCharQ("+").
-					  RemoveThisFirstCharQ(".").
-					  RemoveThisFirstCharQ("_").
-					  RemoveThisLastCharQ(".").
-					  RemoveThisLastCharQ("_").
-					  ReplaceXTQ("_", :RepeatedMoreThenNTimes = 1, :With = "_").
-					  Content()
-			
+			if StzCharQ(c).IsANumber() or
+			   (c = "+" or c = "-" and cNumber = "") or
+			   ((c = "." or c = "_") and cNumber != "" and StzCharQ(Q(cNumber).LastChar()).IsANumber())
+		
+				cNumber += c
+		
+			but (NOT StzCharQ(c).IsANumber()) or i = nLen
+		
 				if cNumber != ""
-? ">> " + @@S(cNumber) # TODO
+		
+					cNumber = Q(cNumber).
+						  RemoveThisLastCharQ(".").
+						  RemoveThisLastCharQ("_").
+						  Content()
+		
 					acResult + cNumber
 					cNumber = ""
 				ok
 			ok
-
+		
 		next
-
+		
 		return acResult
 
 		def NumbersQ()
@@ -32505,6 +32475,16 @@ o1 = new stzString("12*34*56*78")
 				StzRaise("Unsupported return type!")
 			off
 
+	  #--------------------------------------#
+	 #  EXTRACTING NUMBERS FROM THE STRING  #
+	#--------------------------------------#
+
+	def ExtractNumbers()
+		acNumbers = This.Numbers()
+		This.RemoveMany(acNumbers)
+		return acNumbers
+
+	
 	  #------------------------------------------------------------------#
 	 #  GETTING THE NUMBER OF (DECIMAL) NUMBERS INCLUDED IN THE STRING  #
 	#------------------------------------------------------------------#
@@ -32619,7 +32599,8 @@ o1 = new stzString("12*34*56*78")
 		# Splitting takes as little as 0.01s
 		# The following part of the function takes ~0.26s
 		# TODO: should be optimised!
-
+? @@S(acSubStrings)
+? "--"
 		nNumberOfSubStrings = len(acSubStrings)
 	
 		acResult = []
@@ -32630,7 +32611,7 @@ o1 = new stzString("12*34*56*78")
 		
 			cNumber = ""
 				
-			oSubStr.RemoveSpaces()
+			oSubStr.RemoveSpacesQ()
 			oFirstChar = oSubstr.FirstCharQ()
 
 			if oFirstChar.IsOneOfThese([ "-", "+", "=" ])
@@ -32640,22 +32621,25 @@ o1 = new stzString("12*34*56*78")
 	
 			nLenSubStr = oSubStr.NumberOfChars()
 			
-			if nLenSubStr > 0 and NOT oSubStr.FirstCharQR(:stzChar).IsANumber()
+			if nLenSubStr > 0 and (NOT oSubStr.FirstCharQR(:stzChar).IsANumber())
 				loop
 			ok
 		
-			for v = 1 to nLenSubStr
-			
-				@char = oSubStr.Char(v)
-		
-				if StzCharQ(@char).IsANumber()
-					cNumber += @char
-		
-				but @char = "."
-					if NOT Q(cNumber).Contains(".")
-						cNumber += "."
-					ok
+			j = 0
+			while TRUE
+				j++
+				if j > nLenSubStr
+					exit
 				ok
+
+				@char = oSubStr.Char(j)
+
+				if @char = "." and (NOT Q(cNumber).Contains("."))
+					cNumber += "."
+				ok
+
+				cNumber += @char
+
 			end
 		
 			cNumber = Q(cNumber).ThisLastCharRemoved(".")
@@ -32681,13 +32665,13 @@ o1 = new stzString("12*34*56*78")
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.NumbersComingAfterCS(pcSubStr, pCaseSensitive) )
+				return new stzList( This.NumbersComingAfterXTCS(pcSubStr, pCaseSensitive) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.NumbersComingAfterCS(pcSubStr, pCaseSensitive) )
+				return new stzListOfNumbers( This.NumbersComingAfterXTCS(pcSubStr, pCaseSensitive) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.NumbersComingAfterCS(pcSubStr, pCaseSensitive) )
+				return new stzListOfStrings( This.NumbersComingAfterXTCS(pcSubStr, pCaseSensitive) )
 
 			other
 				StzRaise("Unsupported param type!")

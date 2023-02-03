@@ -1469,13 +1469,25 @@ func ElapsedTimeXT(pIn)
 func StartProfiler()
 	StartTimer()
 
+	func Profon()
+		StartProfiler()
+
+	func Pron()
+		StartProfiler()
+
 func StopProfiler()
 	? NL + "Executed in " + ElapsedTime()
 	ResetTimer()
 	STOP()
 
-	def EndProfiler()
-		return StopProfiler()
+	func EndProfiler()
+		StopProfiler()
+
+	func Profoff()
+		StopProfiler()
+
+	func Proff()
+		StopProfiler()
 
 func eval@(pcExpr, paItems) # WARNING: if you change paItems name,
 			    # change it also in the evaluated code

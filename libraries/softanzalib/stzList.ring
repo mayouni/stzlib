@@ -5063,7 +5063,7 @@ class stzList from stzObject
 			This.RemoveNthOccurrenceCS(n, pItem, pCaseSensitive)
 			return pItem
 		else
-			StzRaise("Can't extract! The list does not conatain n occurrences of pItem.")
+			StzRaise("Can't extract! The list does not contain n occurrences of pItem.")
 		ok
 
 		def ExtractNthCS(n, pItem, pCaseSensitive)
@@ -8854,8 +8854,14 @@ class stzList from stzObject
 	*/
 
 	def Yield(pcCode)
+		aSection = StzCCodeQ(pcCode).ExecutableSection()
+		n1 = aSection[1]
+		n2 = aSection[2] + 1
+		if n2 < 0
+			n2 += This.NumberOfItems()
+		ok
 
-		return This.YieldFrom( 1:This.NumberOfItems(), pcCode )
+		return This.YieldFrom( n1 : n2, pcCode )
 
 		#< @FunctionFluentForm
 
@@ -9146,6 +9152,7 @@ class stzList from stzObject
 	*/
 
 	def YieldFrom(panPositions, pcCode)
+
 		#< @MotherFunction #>
 
 		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
@@ -10249,7 +10256,7 @@ class stzList from stzObject
 		ok
 
 		anPositions = This.FindW(pcCondition)
-? @@S(anPositions)
+
 		aResult = This.YieldFrom(anPositions, pcCode)
 
 		return aResult
@@ -13938,13 +13945,13 @@ class stzList from stzObject
 		aResult = []
 
 		for i = 1 to nLen
-			item = aDuplicates[i]
+			tempItem = aDuplicates[i]
 
-			nPos1 = This.FindFirstCS(item, pCaseSensitive)
-			nPos2 = This.FindNextCS(item, :StartingAt = nPos1, pCaseSensitive)
+			nPos1 = This.FindFirstCS(tempItem, pCaseSensitive)
+			nPos2 = This.FindNextCS(tempItem, :StartingAt = nPos1, pCaseSensitive)
 
 			if nPos2 > 0
-				aResult + item
+				aResult + tempItem
 			ok
 		next
 
@@ -14132,12 +14139,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		#< @FunctionNegativeForm
-
-		def ContainsNoCS(pItem, pCaseSensitive)
-			return NOT This.ContainsCS(pItem, pCaseSensitive)
-
-		#>
+		#< @FunctionAlternativeForm
 
 		def ContainsItemCS(pItem, pCaseSensitive)
 			return This.ContainsCS(pItem, pCaseSensitive)
@@ -14145,19 +14147,72 @@ class stzList from stzObject
 			def ContainsNoItemCS(pItem, pCaseSensitive)
 				return NOT This.ContainsItemCS(pItem, pCaseSensitive)
 	
+		#>
+
+		#< @FunctionNegativeForm
+	
+		def ContainsNoCS(pItem, pCaseSensitive)
+			return NOT This.ContainsCS(pItem, pCaseSensitive)
+
+		def ContainsNoneOfTheseCS(paItems, pCaseSensitive)
+			bResult = TRUE
+			nLen = len(paItems)
+			for i = 1 to nLen
+				if This.ContainsCS(paItems[i], pCaseSensitive)
+					bResult = FALSE
+					exit
+				ok
+			next
+			return bRersult
+
+		def ContainsNeitherCS(pItem1, pItem2, pCaseSensitive)
+			if isList(pItem2) and Q(pItem2).IsNorNamedParam()
+				pItem2 = pItem2[2]
+			ok
+
+			return This.ContainsNoneOfTheseCS([pItem1, pItem2], pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def Contains(pItem)
 		return This.ContainsCS(pItem, :CaseSensitive = TRUE)
 
-		def ContainsNo(pItem)
-			return NOT This.Contains(pItem)
+		#< @FunctionAlternativeForm
 
 		def ContainsItem(pItem)
 			return This.Contains(pItem)
 
 			def ContainsNoItem(pItem)
 				return NOT This.ContainsItem(pItem)
+	
+		#>
+
+		#< @FunctionNegativeForm
+	
+		def ContainsNo(pItem)
+			return NOT This.Contains(pItem)
+
+		def ContainsNoneOfThese(paItems)
+			bResult = TRUE
+			nLen = len(paItems)
+			for i = 1 to nLen
+				if This.Contains(paItems[i])
+					bResult = FALSE
+					exit
+				ok
+			next
+			return bRersult
+
+		def ContainsNeither(pItem1, pItem2)
+			if isList(pItem2) and Q(pItem2).IsNorNamedParam()
+				pItem2 = pItem2[2]
+			ok
+
+			return This.ContainsNoneOfThese([pItem1, pItem2])
+
+		#>
 
 	  #---------------------------#
 	 #  CONDITIONAL CONTAINMENT  #
@@ -16896,54 +16951,37 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pcCondition must be a string.")
 		ok
 
-		if Q(pcCondition).RemoveSpacesQ().IsOneOfThese([ NULL, "{}" ])
-			return 1 : This.NumberOfItems()
-		ok
-
-		# Cleansing the condition
+		# Identifying the executable section
 		
-		oCCode  = new stzCCode(pcCondition)
-		cCode   = 'bOk = ( ' + oCCode.Transpiled() + ' )'
-		oCode   = Q( cCode )
-
-		oCodeWS = oCode.RemoveSpacesQ()
-		bContainsThisPlus@i  = oCodeWS.ContainsCS("This[@i+1]", :CS = FALSE)
-		bContainsThisMinus@i = oCodeWS.ContainsCS("This[@i-1]", :CS = FALSE)
-
-		# Identifying the Executable Section
-
-		aExecutableSection = This.InfereSection( oCCode.ExecutableSection() )
+		cCondition  = StzCCodeQ(pcCondition).Transpiled()
+		aExecutableSection = StzCCodeQ(pcCondition).ExecutableSection()
 
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]
 
-		nLen = This.NumberOfItems()
+		if nEnd < 0
+			nEnd += This.NumberOfItems()
+		ok
+
+? nStart
+? nEnd
+		# If nothing is requested, then yield some nothings
+
+		if Q(cCondition).RemoveSpacesQ().IsOneOfThese([ NULL, "{}" ])
+			return nStart : nEnd
+		ok
 
 		# Doing the job
 
+		cCode = 'bOk = (' + Q(cCondition).TrimQ().BoundsRemoved(["{","}"]) + ')'
 		anResult = []
 
 		for @i = nStart to nEnd
 
-			bEval = TRUE
+			eval(cCode)
 
-			
-			if @i = nLen and bContainsThisPlus@i
-
-				bEval = FALSE
-			ok
-
-			if @i = 1 and bContainsThisMinus@i
-
-				bEval = FALSE
-			ok
-
-			if bEval
-				eval(cCode)
-
-				if bOk
-					anResult + @i
-				ok
+			if bOk
+				anResult + @i
 			ok
 
 		next

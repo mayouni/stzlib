@@ -2,7 +2,7 @@
 /*
 	Inside a conditional code you can use these keywords:
 	@item
-	@EachItem
+	@EachItem (...Char, ...String, ...List, ...Pair, ...Section, ...Number, ...Object)
 	@CurrentItem
 	@NextItem
 	@PreviousItem
@@ -14,10 +14,6 @@
 	
 	This[ @i ] # Instead of ItemAt()
 */
-
-
-
-
 
 func StzCCodeQ(cCode)
 	return new stzCCode(cCode)
@@ -230,6 +226,7 @@ class stzCCode
 		acNumbersAfter = oCode.NumbersComingAfter("@i")
 		# NOTE: Takes most time!
 		# TODO: Has been optimised once but try more!
+? @@S(acNumbersAfter)
 
 		nLenAfter = len(acNumbersAfter)
 

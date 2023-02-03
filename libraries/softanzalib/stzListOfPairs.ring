@@ -518,3 +518,43 @@ class stzListOfPairs from stzList
 		next
 
 		return bResult
+
+	  #------------------------------#
+	 #   MERGING CONTIGUOUS PAIRS   #
+	#------------------------------#
+
+	def MergeContiguous()
+		/* EXAMPLE
+
+		o1 = new stzListOfPairs([
+			[ 1, 4], [6, 8], [9, 10], [12, 13], [13, 15] ]
+		])
+		o1.MergeContiguous()
+		? o1.Content()
+		#--> [ [1, 4], [6, 10], [12, 15] ]
+
+		*/
+
+		aResult = YieldW('{ [This[@i][2], This[@i+1][1]] }',
+			:Where = '{ This[@i][2] = This[@i+1][1] + 1 }')
+
+		? aResult
+/*
+		aResult = []
+
+		nLen = This.NumberOfPairs()
+		for i = 1 to nLen - 1
+			aCurrentPair = This.Pair(i)
+			aNextPair = This.Pair(i+1)
+
+			bContinguous = FALSE
+
+			if aCurrenPair[2] = aNextPair[1] or
+			   aCurrenPair[2] = aNextPair[1] - 1
+				bContiguous = TRUE
+			ok
+
+		
+		next
+*/
+		
