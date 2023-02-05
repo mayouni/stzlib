@@ -1,28 +1,26 @@
 load "stzlib.ring"
 
-/*-----------------
-*/
-Pron() # A short alternative to StartProfiler(), read it: "profiler on"
-
-? StzCCodeQ('This[@i] = This[@i+1] +1').ExecutableSection()
-
-Proff() # A short alternative to StopProfiler(), read it: "profiler off"
-
-/*-----------------
 
 pron()
 
+? StzCCodeQ('[ @CurrentItem, @NextItem]').Transpiled()
+
+/*
 #                  1  2 3  4 5 6  7
 o1 = new stzList([ 1, 3,4, 7,8,9, 12 ])
+? StzCCodeQ('This[@i+2]').ExecutableSection()
+#--> [1, -3]
 
-//? o1.Section(1, -3)
-//? StzCCodeQ('This[@i+2]').ExecutableSection()
+? @@S( o1.Section(1, -3) )
+#--> [ 1, 3, 4, 7, 8 ]
 
-//? o1.Yield('This[@i+2]')
-? @@S( o1.FindW('This[@i] = This[@i+1]') )
+? @@S(o1.Yield('[ @CurrentItem, @NextItem ]'))
+#--> [ [ 1, 4 ], [ 3, 7 ], [ 4, 8 ], [ 7, 9 ], [ 8, 12 ] ]
+
+? @@S( o1.FindW('@CurrentItem = @NextItem') )
 
 //? @@S( o1.YieldW('[ This[@i], This[@i+1] ]', :Where = 'This[@i] = This[@i+1]+1') )
-
+*/
 proff()
 /*-----------------
 
