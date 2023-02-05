@@ -240,7 +240,6 @@ class stzCCode
 			n =  anNumbers[1]
 
 			if n > 0
-				//anResult = [ 1, (-n -1) ]
 				anResult = [ 1, -n ]
 
 			but n < 0
@@ -257,12 +256,10 @@ class stzCCode
 	
 			but BothArePositive( nMin, nMax )
 				nMin = 1
-				//nMax = - nMax -1
 				nMax = - nMax
 
 			but nMin < 0 and nMax > 0
 				nMin = Abs(nMin) + 1
-				//nMax = - nMax -1
 				nMax = - nMax
 	
 			else
@@ -332,7 +329,7 @@ class stzCCode
 			n =  anNumbers[1]
 
 			if n > 0
-				anResult = [ 1, (-n -1) ]
+				anResult = [ 1, -n ]
 
 			but n < 0
 				anResult = [ Abs(n) + 1, :Last ]
@@ -348,11 +345,11 @@ class stzCCode
 	
 			but BothArePositive( nMin, nMax )
 				nMin = 1
-				nMax = - nMax -1
+				nMax = - nMax
 	
 			but nMin < 0 and nMax > 0
 				nMin = Abs(nMin) + 1
-				nMax = - nMax -1
+				nMax = - nMax
 	
 			else
 				nMin = 1
