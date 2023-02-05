@@ -1,7 +1,55 @@
 load "stzlib.ring"
 
-/*--------
+/*------------
+
+pron()
+
+o1 = new stzString("Ringprogramminglanguageispowerful!")
+o1.SpacifySubStrings([ "programming", "is" ])
+? o1.Content()
+#--> Ring programming language is powerful!
+
+proff()
+
+/*------------
+
+pron()
+
+
+? StzCCodeQ(' Q(@NextItem).IsNotANumber()').Transpiled()
+#--> Q( This[@i + 1] ).IsNotANumber(  )
+
+proff()
+#--> Executed in 0.19 second(s)
+
+/*------------
+
+pron()
+
+? StzCCodeQ('NOT isNumber( This[@i + 1] )').ExecutableSection()
+#--> [1, -1]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*-----------
 */
+pron()
+
+o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ])
+? o1.FindW('NOT isNumber(This[@i + 1])')
+#--> [2, 6]
+# Executed in 0.08 second(s)
+
+? o1.FindWXT(' Q(@NextItem).IsNotANumber() ')
+#--> [2, 6]
+#--> Executed in 0.24 second(s)
+
+proff()
+# Executed in 0.32 second(s)
+
+/*===========
+
 StartProfiler()
 
 ? Q("A").RepeatedXT(:InAString, :OfSize = 3)

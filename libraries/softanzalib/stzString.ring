@@ -21174,7 +21174,7 @@ o1 = new stzString("12*34*56*78")
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBeforePositions(anPos)
 		acResult = This.Sections( aSections )
 
-		return acResult
+		return acResult			
 
 	def SplittedBeforePositions(anPos)
 		return This.SplitBeforePositions(anPos)
@@ -21623,7 +21623,23 @@ o1 = new stzString("12*34*56*78")
 	#----------------------------------------#
 
 	def SplitBeforeW(pcCondition)
-		anPositions = This.FindAllW(pcCondition)
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		oCondition = new stzString(pcCondition)
+
+		if oCondition.ContainsBothCS("@char", "@substring", :CaseSensitive = FALSE)
+			StzRaise("Incorrect syntax! pcCondition must contain either @Char or @SubString keywords but not both.")
+		ok
+
+		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
+			anPositions = This.FindSubStringsW(pcCondition)
+
+		else
+			anPositions = This.FindCharsW(pcCondition)
+		ok
+
 		aResult = This.SplitBeforePositions(anPositions)
 
 		return aResult
@@ -21633,7 +21649,23 @@ o1 = new stzString("12*34*56*78")
 	#---------------------------------------#
 
 	def SplitAfterW(pcCondition)
-		anPositions = This.FindAllW(pcCondition)
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		oCondition = new stzString(pcCondition)
+
+		if oCondition.ContainsBothCS("@char", "@substring", :CaseSensitive = FALSE)
+			StzRaise("Incorrect syntax! pcCondition must contain either @Char or @SubString keywords but not both.")
+		ok
+
+		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
+			anPositions = This.FindSubStringsW(pcCondition)
+
+		else
+			anPositions = This.FindCharsW(pcCondition)
+		ok
+
 		aResult = This.SplitAfterPositions(anPositions)
 
 		return aResult
@@ -25994,9 +26026,15 @@ o1 = new stzString("12*34*56*78")
 			This.SpacifySubStringCS(cSubStr, pCaseSensitive)
 		next
 
+		#< @FuncionFluentForm
+
 		def SpacifySubStringsCSQ(pacSubStr, pCaseSensitive)
 			This.SpacifySubStringsCS(pacSubStr, pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def SpacifyTheseSubStringsCS(pacSubStr, pCaseSensitive)
 			This.SpacifySubStringsCS(pacSubStr, pCaseSensitive)
@@ -26005,11 +26043,21 @@ o1 = new stzString("12*34*56*78")
 				This.SpacifyTheseSubStringsCS(pacSubStr, pCaseSensitive)
 				return This
 
+		def SpacifyTheseCS(pacSubStr, pCaseSensitive)
+			This.SpacifySubStringsCS(pacSubStr, pCaseSensitive)
+
+			def SpacifyTheseCSQ(pacSubStr, pCaseSensitive)
+				This.SpacifyTheseSubStringsCS(pacSubStr, pCaseSensitive)
+				return This
+
+
+		#>
+
 	def SubStringsSpacifiedCS(pacSubStr, pCaseSensitive)
 		return This.Copy().SpacifySubStringsCSQ(pacSubStr, pCaseSensitive).Content()
 
 		def TheseSubStringsSpacifiedCS(pacSubStr, pCaseSensitive)
-			return This.SubStringsSpacified(pacSubStr, pCaseSensitive)
+			return This.SubStringsSpacifiedCS(pacSubStr, pCaseSensitive)
 
 	#---
 
@@ -32446,14 +32494,26 @@ o1 = new stzString("12*34*56*78")
 	def IsANumber()
 		return FALSE
 
+		def IsNotANumber()
+			return TRUE
+
 	def IsAString()
 		return TRUE
+
+		def IsNotAString()
+			return FALSE
 
 	def IsAList()
 		return FALSE
 
+		def IsNotAList()
+			return TRUE
+
 	def IsAnObject()
 		return TRUE
+
+		def IsNotAnObject()
+			return FALSE
 
 	  #=====================================================#
 	 #  CHECKING IF THE STRING STARTS WITH A GIVEN NUMBER  #

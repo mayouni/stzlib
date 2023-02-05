@@ -13274,7 +13274,7 @@ class stzList from stzObject
 		if pcOp = "[]"
 
 			if isNumber(pValue)
-				return Item(pValue)
+				return This.Item(pValue)
 
 			but isString(pValue) and
 			    StzStringQ(pValue).TrimQ().IsBoundedBy([ "{", "}" ])
@@ -14054,17 +14054,27 @@ class stzList from stzObject
 	#-------------------------------#
 
 	def RemoveDuplicatesCS(pCaseSensitive)
-		if This.IsListOfStrings()
+		aResult = []
 
-			cResult = This.ToStzListOfStrings().
+		if This.IsListOfStrings()
+			aResult = This.ToStzListOfStrings().
 			     	       RemoveDuplicatesCSQ(pCaseSensitive).
 			    	       Content()
 
-			This.Update(cResult)
-
 		else
-			StzRaise("Unsupported feature! Only a list made of strings can have its duplicates removed.")
+			aResult = []
+			nLen = This.NumberOfItems()
+
+			for i = 1 to nLen
+				item = This.Item(i)
+				if NOT Q(aResult).ContainsCS(item, pCaseSensitive)
+					aResult + item
+				ok
+			next
+
 		ok
+
+		This.Update(aResult)
 
 		def RemoveDuplicatesCSQ(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
@@ -16952,191 +16962,48 @@ class stzList from stzObject
 		ok
 
 		# Identifying the executable section
-		
-		cCondition  = StzCCodeQ(pcCondition).Transpiled()
+		nLen = This.NumberOfItems()
 		aExecutableSection = StzCCodeQ(pcCondition).ExecutableSection()
 
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]
 
 		if nEnd < 0
-			nEnd += This.NumberOfItems()
+			nEnd += nLen
+		but nEnd = :Last
+			nEnd = nLen
 		ok
 
-? nStart
-? nEnd
-		# If nothing is requested, then yield some nothings
+		cCode = 'bOk = (' + Q(pcCondition).TrimQ().BoundsRemoved(["{","}"]) + ')'
 
-		if Q(cCondition).RemoveSpacesQ().IsOneOfThese([ NULL, "{}" ])
-			return nStart : nEnd
-		ok
-
-		# Doing the job
-
-		cCode = 'bOk = (' + Q(cCondition).TrimQ().BoundsRemoved(["{","}"]) + ')'
 		anResult = []
 
 		for @i = nStart to nEnd
-
 			eval(cCode)
-
 			if bOk
 				anResult + @i
 			ok
-
 		next
 
 		return anResult
-
-		#< @FunctionFluentForm
-	
-		def FindAllItemsWQ(pCondition)
-			return This.FindAllItemsWQR(pCondition, :stzList)
-	
-		def FindAllItemsWQR(pCondition, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindAllItemsW(pCondition) )
-	
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindAllItemsW(pCondition) )
-	
-			other
-				StzRaise("Unsupported type!")
-			off
-		#>
-
+		
 		#< @FunctionAlternativeForms
 
 		def FindAllW(pCondition)
 			return This.FindAllItemsW(pCondition)
 
-			#< @FunctionFluentForm
-
-			def FindAllWQ(pCondition)
-				return This.FindAllWQR(pCondition, :stzList)
-
-			def FindAllWQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAllW(pCondition) )
-		
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindAllW(pCondition) )
-		
-				other
-					StzRaise("Unsupported type!")
-				off
-			#>
-
 		def FindW(pCondition)
 			aResult = This.FindAllItemsW(pCondition)
 			return aResult
 
-			#< @FunctionFluentForm
-
-			def FindWQ(pCondition)
-				return This.FindWQR(pCondition, :stzList)
-
-			def FindWQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindW(pCondition) )
-		
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindW(pCondition) )
-		
-				other
-					StzRaise("Unsupported type!")
-				off
-			#>
-
 		def FindWhere(pCondition)
 			return This.FindAllItemsW(pCondition)
-
-			#< @FunctionFluentForm
-
-			def FindWhereQ(pCondition)
-				return This.FindWhereQR(pCondition, :stzList)
-
-			def FindWhereQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindWhere(pCondition) )
-		
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindWhere(pCondition) )
-		
-				other
-					StzRaise("Unsupported type!")
-				off
-			#>
 
 		def FindAllWhere(pCondition)
 			return This.FindAllItemsW(pCondition)
 
-			#< @FunctionFluentForm
-
-			def FindAllWhereQ(pCondition)
-				return This.FindAllWhereQR(pCondition, :stzList)
-
-			def FindAllWhereQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAllWhere(pCondition) )
-		
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindAllWhere(pCondition) )
-		
-				other
-					StzRaise("Unsupported type!")
-				off
-			#>
-
 		def FindAllItemsWhere(pCondition)
 			return This.FindAllItemsW(pCondition)
-
-			#< @FunctionFluentForm
-
-			def FindAllItemsWhereQ(pCondition)
-				return This.FindAllItemsWhereQR(pCondition, :stzList)
-
-			def FindAllItemsWhereQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAllItemsWhere(pCondition) )
-		
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindAllItemsWhere(pCondition) )
-		
-				other
-					StzRaise("Unsupported type!")
-				off
-			#>
 
 		def FindItemsW(pCondition)
 			return This.FindAllItemsW(pCondition)
@@ -17164,6 +17031,100 @@ class stzList from stzObject
 
 	#>
 
+	  #--------------------------------------------------------------#
+	 #  FINDING FIRST ITEM VERIFYING A GIVEN CONDITION -- EXTENDED  #
+	#--------------------------------------------------------------#
+	# Condditional code can contains keuwords other then This[@i] and cie,
+	# like @NextItem, @PreviousItem etc.
+
+	def FindAllItemsWXT(pcCondition)
+		
+		# Managing params
+
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param! pcCondition must be a string.")
+		ok
+
+		# Identifying the executable section
+
+		nLen = This.NumberOfItems()
+		cCode = StzCCodeQ(pcCondition).Transpiled()
+
+		aExecutableSection = StzCCodeQ(cCode).ExecutableSection()
+
+		nStart = aExecutableSection[1]
+		nEnd   = aExecutableSection[2]
+
+		if nEnd < 0
+			nEnd += nLen
+		but nEnd = :Last
+			nEnd = nLen
+		ok
+
+		cCode = 'bOk = (' + Q(cCode).TrimQ().BoundsRemoved(["{","}"]) + ')'
+
+		anResult = []
+
+		for @i = nStart to nEnd
+			eval(cCode)
+			if bOk
+				anResult + @i
+			ok
+		next
+
+		return anResult
+		
+		#< @FunctionAlternativeForms
+
+		def FindAllWXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+		def FindWXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+		def FindWhereXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+		def FindAllWhereXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+		def FindAllItemsWhereXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+		def FindItemsWXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+		def FindItemsWhereXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+		def ItemsPositionsWXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+		def ItemsPositionsWhereXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+		def PositionsWXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+		def PositionsOfItemsWXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+		def PositionsWhereXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+		def PositionsOfItemsWhereXT(pCondition)
+			return This.FindAllItemsWXT(pCondition)
+
+	#>
+
+	  #--------------------------------------------------#
+	 #  FINDING FIRST ITEM VERIFYING A GIVEN CONDITION  #
+	#--------------------------------------------------#
+
 	def FindFirstW(pcCondition)
 		return This.FindNthW(1, pcCondition)
 
@@ -17173,6 +17134,10 @@ class stzList from stzObject
 		def FindFirstOccurrenceW(pcCondition)
 			return This.FindFirstW(pcCondition)
 
+	  #-------------------------------------------------#
+	 #  FINDING LAST ITEM VERIFYING A GIVEN CONDITION  #
+	#-------------------------------------------------#
+
 	def FindLastW(pcCondition)
 		return FindNthW(:LastOccurrence, pcCondition)
 
@@ -17181,6 +17146,10 @@ class stzList from stzObject
 
 		def FindLastOccurrenceW(pcCondition)
 			return This.FindLastW(pcCondition)
+
+	  #------------------------------------------------#
+	 #  FINDING NTH ITEM VERIFYING A GIVEN CONDITION  #
+	#------------------------------------------------#
 
 	def FindNthW(n, pcCondition)
 
@@ -17210,9 +17179,67 @@ class stzList from stzObject
 		def FindNthOccurrenceW(pcCondition)
 			return This.FindNthW(n, pcCondition)
 
-	  #---------------------------------------------------#
+	  #------------------------------------------------------------#
+	 #  FINDING NTH ITEM VERIFYING A GIVEN CONDITION -- EXTENDED  #
+	#------------------------------------------------------------#
+
+	def FindNthWXT(n, pcCondition)
+
+		anTemp = This.FindWXT(pcCondition)
+		nLen = len(anTemp)
+
+		if isString(n)
+			if ( n = :First or n = :FirstOccurrence )
+				n = 1
+
+			but ( n = :Last or n = :LastOccurrence )
+				n = nLen
+			ok
+		ok
+
+		nResult = 0
+
+		if nLen > 0
+			nResult = anTemp[n]
+		ok
+
+		return nResult
+
+		def FindNthItemWXT(pcCondition)
+			return This.FindNthWXT(n, pcCondition)
+
+		def FindNthOccurrenceWXT(pcCondition)
+			return This.FindNthWXT(n, pcCondition)
+
+	  #--------------------------------------------------------------#
+	 #  FINDING FIRST ITEM VERIFYING A GIVEN CONDITION -- EXTENDED  #
+	#--------------------------------------------------------------#
+
+	def FindFirstWXT(pcCondition)
+		return This.FindNthWXT(1, pcCondition)
+
+		def FindFirstItemWXT(pcCondition)
+			return This.FindFirstWXT(pcCondition)
+
+		def FindFirstOccurrenceWXT(pcCondition)
+			return This.FindFirstWXT(pcCondition)
+
+	  #-------------------------------------------------------------#
+	 #  FINDING LAST ITEM VERIFYING A GIVEN CONDITION -- EXTENDED  #
+	#-------------------------------------------------------------#
+
+	def FindLastWXT(pcCondition)
+		return FindNthWXT(:LastOccurrence, pcCondition)
+
+		def FindLastItemWXT(pcCondition)
+			return This.FindLastWXT(pcCondition)
+
+		def FindLastOccurrenceWXT(pcCondition)
+			return This.FindLastWXT(pcCondition)
+
+	  #===================================================#
 	 #  INFERING SECTION'S ITEMS FROM THE PROVIDED FORM  #
-	#---------------------------------------------------#
+	#===================================================#
 
 	/* NOTE
 
@@ -17250,320 +17277,6 @@ class stzList from stzObject
 
 		aResult = [nStart, nEnd]
 		return aResult
-
-	  #------------------------------------------------------------#
-	 #  FINDING ALL ITEMS VERIFYING A GIVEN CONDITION -- EXTENDED #
-	#------------------------------------------------------------#
-	/* NOTE
-
-	This extended form of FindW() is less performant, but it offers
-	more flexibility in the range of keywords that the conditional
-	code could contain, like: @CurrentItem, @PreviousItem, and more.
-
-	It also transpiles the code written for other classes to stzList.
-	So, if the user write ' @Char = "A" ', the function replaces it
-	with ' @Item = "A" '.
-
-	Also, the range of executable section is automatically defined.
-
-	If performance is critical to you, don't use it.
-
-	*/
-
-	def FindAllItemsWXT(pcCondition)
-		/* WARNING
-
-		We can't use this solution:
-
-			anPositions = This.YieldXTW('@position', pcCondition)
-			return anPositions
-
-		because YieldXTW() uses the current function FindXTW() --> Stackoverfolw!
-		*/
-		
-		# Managing params
-
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param! pcCondition must be a string.")
-		ok
-
-		if Q(pcCondition).RemoveSpacesQ().IsOneOfThese([ NULL, "{}" ])
-			return 1 : This.NumberOfItems()
-		ok
-
-		# Transpiling the conditional code for stzList
-
-		oCCode = new stzCCode(pcCondition)
-
-		pcCode = oCCode.TranspiledFor(:stzList)
-		cCode = "bOk = ( " + pcCode + " )"
-		oCode = new stzString(cCode)
-
-		# Defining the extremities of the executable section
-
-		anExectutableSection = This.InfereSection( oCCode.ExecutableSection() )
-		nStart = anExectutableSection[1]
-		nEnd   = anExectutableSection[2]
-
-		# Doing the job
-
-		anResult = []
-
-		for @i = nStart to nEnd
-			@item = This[@i]
-
-			bEval = TRUE
-
-			if @i = This.NumberOfItems() and
-			   oCode.RemoveSpacesQ().ContainsCS("This[@i+1]", :CS = FALSE)
-
-				bEval = FALSE
-			ok
-
-			if @i = 1 and
-			   oCode.RemoveSpacesQ().ContainsCS("This[@i-1]", :CS = FALSE)
-
-				bEval = FALSE
-			ok
-
-
-			if bEval
-				eval(cCode)
-
-				if bOk
-					anResult + @i
-				ok
-			ok
-
-		next
-
-		return anResult
-
-		#< @FunctionFluentForm
-	
-		def FindAllItemsWXTQ(pCondition)
-			return This.FindAllItemsWXTQR(pCondition, :stzList)
-	
-		def FindAllItemsWXTQR(pCondition, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindAllItemsWXT(pCondition) )
-	
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindAllItemsWXT(pCondition) )
-	
-			other
-				StzRaise("Unsupported type!")
-			off
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def FindAllWXT(pCondition)
-			return This.FindAllItemsWXT(pCondition)
-
-			#< @FunctionFluentForm
-
-			def FindAllWXTQ(pCondition)
-				return This.FindAllWXTQR(pCondition, :stzList)
-
-			def FindAllWXTQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAllWXT(pCondition) )
-		
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindAllWXT(pCondition) )
-		
-				other
-					StzRaise("Unsupported type!")
-				off
-			#>
-
-		def FindWXT(pCondition)
-			aResult = This.FindAllItemsWXT(pCondition)
-			return aResult
-
-			#< @FunctionFluentForm
-
-			def FindWXTQ(pCondition)
-				return This.FindWXTQR(pCondition, :stzList)
-
-			def FindWXTQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindWXT(pCondition) )
-		
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindWXT(pCondition) )
-		
-				other
-					StzRaise("Unsupported type!")
-				off
-			#>
-
-		def FindWhereXT(pCondition)
-			return This.FindAllItemsWXT(pCondition)
-
-			#< @FunctionFluentForm
-
-			def FindWhereXTQ(pCondition)
-				return This.FindWhereXTQR(pCondition, :stzList)
-
-			def FindWhereXTQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindWhereXT(pCondition) )
-		
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindWhereXT(pCondition) )
-		
-				other
-					StzRaise("Unsupported type!")
-				off
-			#>
-
-		def FindAllWhereXT(pCondition)
-			return This.FindAllItemsWXT(pCondition)
-
-			#< @FunctionFluentForm
-
-			def FindAllWhereXTQ(pCondition)
-				return This.FindAllWhereXTQR(pCondition, :stzList)
-
-			def FindAllWhereXTQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAllWhereXT(pCondition) )
-		
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindAllWhereXT(pCondition) )
-		
-				other
-					StzRaise("Unsupported type!")
-				off
-			#>
-
-		def FindAllItemsWhereXT(pCondition)
-			return This.FindAllItemsWXT(pCondition)
-
-			#< @FunctionFluentForm
-
-			def FindAllItemsWhereXTQ(pCondition)
-				return This.FindAllItemsWhereXTQR(pCondition, :stzList)
-
-			def FindAllItemsWhereXTQR(pCondition, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindAllItemsWhereXT(pCondition) )
-		
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindAllItemsWhereXT(pCondition) )
-		
-				other
-					StzRaise("Unsupported type!")
-				off
-			#>
-
-		def FindItemsWXT(pCondition)
-			return This.FindAllItemsWXT(pCondition)
-
-		def FindItemsWhereXT(pCondition)
-			return This.FindAllItemsWXT(pCondition)
-
-		def ItemsPositionsWXT(pCondition)
-			return This.FindAllItemsWXT(pCondition)
-
-		def ItemsPositionsWhereXT(pCondition)
-			return This.FindAllItemsWXT(pCondition)
-
-		def PositionsWXT(pCondition)
-			return This.FindAllItemsWXT(pCondition)
-
-		def PositionsOfItemsWXT(pCondition)
-			return This.FindAllItemsWXT(pCondition)
-
-		def PositionsWhereXT(pCondition)
-			return This.FindAllItemsWXT(pCondition)
-
-		def PositionsOfItemsWhereXT(pCondition)
-			return This.FindAllItemsWXT(pCondition)
-
-	#>
-
-	def FindFirstWXT(pcCondition)
-		return This.FindNthWXT(1, pcCondition)
-
-		def FindFirstItemWXT(pcCondition)
-			return This.FindFirstWXT(pcCondition)
-
-		def FindFirstOccurrenceWXT(pcCondition)
-			return This.FindFirstWXT(pcCondition)
-
-	def FindLastWXT(pcCondition)
-		return FindNthWXT(:LastOccurrence, pcCondition)
-
-		def FindLastItemWXT(pcCondition)
-			return This.FindLastWXT(pcCondition)
-
-		def FindLastOccurrenceWXT(pcCondition)
-			return This.FindLastWXT(pcCondition)
-
-	def FindNthWXT(n, pcCondition)
-
-		anTemp = This.FindWXT(pcCondition)
-		nLen = len(anTemp)
-
-		if isString(n)
-			if ( n = :First or n = :FirstOccurrence )
-				n = 1
-
-			but ( n = :Last or n = :LastOccurrence )
-				n = nLen
-			ok
-		ok
-
-		nResult = 0
-
-		if nLen > 0
-			nResult = anTemp[n]
-		ok
-
-		return nResult
-
-		def FindNthItemWXT(pcCondition)
-			return This.FindNthWXT(n, pcCondition)
-
-		def FindNthOccurrenceWXT(pcCondition)
-			return This.FindNthWXT(n, pcCondition)
 
   	  #======================================#
 	 #   GETTING ITEMS AT GIVEN POSITIONS   #
@@ -19483,9 +19196,24 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		/* SplitAtW() */
+		def SplitAtW(pcCondition)
+			return This.SplitW(pcCondition)
 
 		#>
+
+	  #---------------------------------------------------------------------------------#
+	 #    SPLITTING THE LIST AT POSITIONS RETURNED BY THE GIVEN CONDITION -- EXTENDED  #
+	#---------------------------------------------------------------------------------#
+
+	def SplitWXT(pcCondition)
+		anPos = This.FindWXT(pcCondition)
+
+		aResult = This.SplitAtPositions(anPos)
+
+		return aResult
+
+		def SplitAtWXT(pcCondition)
+			return This.SplitWXT(pcCondition)
 
 	  #------------------------------------#
 	 #    SPLITTING TO PARTS OF N ITEMS   #
@@ -19607,35 +19335,27 @@ class stzList from stzObject
 				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
 		#>
 
-	  #---------------------------------------#
-	 #    SPLITTING BEFORE GIVEN POSITIONS   #
-	#---------------------------------------#
+	  #-----------------------------------#
+	 #    SPLITTING AT GIVEN POSITIONS   #
+	#-----------------------------------#
 
-	def SplitBeforePositions(panPositions)
-
-		oSplitter = new stzSplitter(This.List())
-		aSplitted = oSplitter.SplitBeforePositions(panPositions)
-
-		# Tranforming the sections of positions contained in aSplitted
-		# to sublists of the actual items corresponding to those sections
-
-		aResult = []
-
-		for aSection in aSplitted
-			aResult + This.Section( aSection[1], aSection[2] )
-		next
+	def SplitAtPositions(panPositions)
+		oSplitter = new stzSplitter(This.NumberOfItems())
+		aSections = oSplitter.SplitAtPositions(panPositions)
+		aResult = This.Sections(aSections)
 
 		return aResult
 
-		#< @FunctionFluentForm
-
-		def SplitBeforePositionsQ(panPositions)
-			return new stzListOfLists( This.SplitBeforePositions(panPositions) )
-
-		#>
+	  #-------------------------------------#
+	 #  SPLITTING BEFORE A GIVEN POSITION  #
+	#-------------------------------------#
 
 	def SplitBeforePosition(n)
-		return This.SplitBeforePositions([n])		
+		oSplitter = new stzSplitter(This.NumberOfItems())
+		aSections = This.SplitBeforePosition(n)
+		aResult = This.Sections(aSections)
+
+		return aResult
 
 		#< @FunctionFluentForm
 
@@ -19659,30 +19379,27 @@ class stzList from stzObject
 		#>
 
 	  #--------------------------------------#
-	 #    SPLITTING AFTER GIVEN POSITIONS   #
+	 #    SPLITTING BEFORE MANY POSITIONS   #
 	#--------------------------------------#
 
-	def SplitAfterPositions(panPositions)
-		oSplitter = new stzSplitter(This.List())
-		aSplitted = oSplitter.SplitAfterPositions(panPositions)
+	def SplitBeforePositions(panPositions)
 
-		# Transforming the sections of positions contained in aSplitted
-		# to sublists of the actual items corresponding to those sections
+		oSplitter = new stzSplitter(This.NumberOfItems())
+		aSections = oSplitter.SplitBeforePositions(panPositions)
 
-		aResult = []
-
-		for aSection in aSplitted
-			aResult + This.Section( aSection[1], aSection[2] )
-		next
-
+		aResult = This.Sections(aSections)
 		return aResult
 
 		#< @FunctionFluentForm
 
-		def SplitAfterPositionsQ(panPositions)
-			return new stzListOfLists( This.SplitAfterPositions(panPositions) )
+		def SplitBeforePositionsQ(panPositions)
+			return new stzListOfLists( This.SplitBeforePositions(panPositions) )
 
 		#>
+
+	  #---------------------------------------#
+	 #    SPLITTING AFTER A GIVEN POSITION   #
+	#---------------------------------------#
 
 	def SplitAfterPosition(n)
 		return This.SplitAfterPosistions([n])
@@ -19701,8 +19418,26 @@ class stzList from stzObject
 
 		#>
 
+	  #-------------------------------------#
+	 #    SPLITTING AFTER MANY POSITIONS   #
+	#-------------------------------------#
+
+	def SplitAfterPositions(panPositions)
+		oSplitter = new stzSplitter(This.NumberOfItems())
+		aSections = oSplitter.SplitAfterPositions(panPositions)
+
+		aResult = This.Sections(aSections)
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def SplitAfterPositionsQ(panPositions)
+			return new stzListOfLists( This.SplitAfterPositions(panPositions) )
+
+		#>
+
 	  #---------------------------#
-	 #    SPLITTING TO N PARTS   #
+	 #    SPLITTING TO N PARTS   # TODO: Should be deleagted to stzSplitter
 	#---------------------------#
 
 	def SplitToNParts(n)
@@ -21310,11 +21045,20 @@ class stzList from stzObject
 	def IsAString()
 		return FALSE
 
+		def IsNotAString()
+			return TRUE
+
 	def IsAList()
 		return TRUE
 
+		def IsNotAList()
+			return FALSE
+
 	def IsAnObject()
 		return TRUE
+
+		def IsNotAnObject()
+			return FALSE
 
 	#--- ITEM
 
@@ -21361,6 +21105,9 @@ class stzList from stzObject
 
 	def IsANumber()
 		return FALSE
+
+		def IsNotANumber()
+			return TRUE
 
 	def IsNumberOf(paList)
 		return FALSE

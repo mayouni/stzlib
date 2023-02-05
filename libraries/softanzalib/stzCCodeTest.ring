@@ -9,6 +9,7 @@ o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
 #--> [ "ring", "softanza" ]
 
 proff()
+# Executed in 0.05 second(s)
 
 /*----------
 
@@ -31,7 +32,7 @@ o1 = new stzString('{ This[@i] = This[@i + 1] + 5 }')
 #--> [ +1, +5 ]
 
 proff()
-# Executed in 0.32 second(s)
+# Executed in 0.29 second(s)
 
 /*----------
 
@@ -42,10 +43,10 @@ o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
 #--> [ "-3", "+3", "10" ]
 
 proff()
-# Executed in 0.26 second(s)
+# Executed in 0.18 second(s)
 
 /*---------- TODO: Add stzTest class
-
+*/
 StartProfiler()
 
 StzTestQ() {

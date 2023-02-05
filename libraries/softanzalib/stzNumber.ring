@@ -3803,14 +3803,26 @@ class stzNumber from stzObject
 	def IsANumber()
 		return TRUE
 
+		def IsNotANumber()
+			return FALSE
+
 	def IsAString()
 		return FALSE
+
+		def IsNotAString()
+			return TRUE
 
 	def IsAList()
 		return FALSE
 
+		def IsNotAList()
+			return TRUE
+
 	def IsAnObject()
 		return TRUE
+
+		def IsNotAnObject()
+			return TRUE
 
 	def IsNumberOf(paList)
 		return This.IsItemOf(paList)
