@@ -233,6 +233,7 @@ class stzSplitter from stzListOfNumbers
 	#---------------------------------#
 
 	def SplitAtPositions(panPositions)
+
 		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
 			StzRaise("Incorrect param type! panPositions must be a list of numbers.")
 		ok

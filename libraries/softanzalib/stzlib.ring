@@ -6,6 +6,7 @@ load "internetlib.ring"
 load "typehints.ring"
 load "stzExtLang.ring"
 
+load "stzTest.ring"
 load "stzGlobals.ring"
 
 load "stzObject.ring"

@@ -1159,8 +1159,7 @@ o1 = new stzString("...456...")
 #--> [ "4", "5", "6" ]
 
 
-/*==================
-*/    
+/*================== 
 
 StartProfiler()
 #                      4   8 01  4 6 89  23
@@ -1184,21 +1183,66 @@ o1 = new stzString("...12..1212..121212..12.")
 
 StopProfiler()
 
-/*----------------
+/*=============
+
+pron()
+
+o1 = new stzSplitter(1:8)
+? @@S( o1.SplitAt([3, 5]) )
+#--> [ [ 1, 2 ], [ 4, 4 ], [ 6, 8 ] ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*--------
+
+pron()
 
 o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
-? o1.SplitW('@CurrentItem = "*"')
+? o1.FindW('This[@i] = "*"')
+#--> [4, 7]
+# Executed in 0.05 second(s)
 
-stop()
-/*
-? o1.Findall("12")
+? @@S( o1.SplitAtPositions([ 4, 7]) )
+#--> [ [ 4, 8, 10 ], [ 14, 16 ], [ 18 ] ]
+# Executed in 0.03 second(s)
 
-? o1.FindMadeOf("12")
+proff()
+# Executed in 0.07 second(s)
 
-? o1.SubStringsMadeOf("12")
+/*--------
 
-STOP()
-/*
+pron()
+
+o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
+? @@S( o1.SplitW('This[@i] = "*"') )
+# [ [ 4, 8, 10 ], [ 14, 16 ], [ 18 ] ]
+
+//? o1.FindWXT('@CurrentItem = "*"')
+
+//? o1.SplitWXT('@CurrentItem = "*"')
+
+proff()
+# Executed in 0.07 second(s)
+
+/*--------
+*/
+pron()
+
+o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
+
+? o1.FindWXT('@CurrentItem = "*"')
+# Executed in 0.22 second(s)
+
+? @@S(o1.SplitWXT('@CurrentItem = "*"'))
+#--> [ [ 4, 8, 10 ], [ 14, 16 ], [ 18 ] ]
+# Executed in 0.22 second(s)
+
+proff()
+# Executed in 0.44 second(s)
+
+/*==============
+
 o1 = new stzString("..._...__...___...")
 ? @@S( o1.FindALL("_") )
 #--> [ 4, 8, 9, 13, 14, 15 ]

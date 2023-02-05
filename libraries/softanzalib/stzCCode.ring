@@ -79,6 +79,44 @@ class stzCCode
 			Content()
 
 
+		cCode = Q(cCode).TheseSubstringsSpacifiedCS([
+
+				"@items", "@allItems",
+								
+				"@chars", "@allChars",
+				"@strings", "@allStrings",
+				
+				"@numbers","@allNumbers",
+				
+				"@lists", "@allLists",
+				"@pairs", "@allPairs",
+				
+				"@objects", "@allObjects",
+
+				"@position", "@CurrentPosition",
+				"@EachPosition",
+
+				"-@Number",
+
+				"@NextItem",
+				"@NextChar","@NextString","@NextStringItem",
+				"@NextNumber",
+				
+				"@NextList","@NextPair",
+				"@NextObject",
+
+				"@PreviousPosition",
+
+				"@PreviousItem",
+				"@PreviousChar",
+				"@PreviousString","@PreviousStringItem",
+				"@PreviousNumber",
+
+				"@PreviousList","@PreviousPair",
+				"@PreviousObject"
+				
+		], :CaseSensitive = FALSE)
+
 		cResult = StzStringQ(" " + cCode + " ").
 
 			ReplaceManyCSQ([
@@ -99,7 +137,7 @@ class stzCCode
 			ReplaceManyCSQ([
 				" @position ", " @CurrentPosition ",
 				" @Current@i ", " @CurrentI ",
-				" @EachPosition ", " @Each@i ", " @EachI " ],
+				" @EachPosition ", " @EachI " ],
 
 				:By = " @i ", :CS = FALSE).
 
@@ -153,60 +191,6 @@ class stzCCode
 
 				:By = " This[@i - 1] ", :CS = FALSE).
 
-			ReplaceManyCSQ([
-
-				" @CharQ ", " @StringQ ", " @LineQ ",
-
-				" @NumberQ ",
-
-				" @ItemQ ", " @ListQ ",
-				" @PairQ ", " @SectionQ ",
-
-				" @ObjectQ " ],
-
-				:By = " Q(This[@i]) ", :CS = FALSE).
-
-			ReplaceManyCSQ([
-
-				" @EachCharQ ", " @EachStringQ ", " @EachLineQ ",
-
-				" @EachNumberQ ",
-
-				" @EachItemQ ", " @EachListQ ",
-				" @EachPairQ ", " @EachSectionQ ",
-
-				" @EachObjectQ " ],
-
-				:By = " Q(This[@i]) ", :CS = FALSE).
-
-			ReplaceManyCSQ([
-
-				" @PreviousCharQ ", " @PreviousStringQ ",
-				" @PreviousLineQ ",
-
-				" @PreviousNumberQ ",
-
-				" @PreviousItemQ ", " @PreviousListQ ",
-				" @PreviousPairQ ", " @PreviousSectionQ ",
-
-				" @PreviousObjectQ " ],
-
-				:By = " Q(This[@i-1]) ", :CS = FALSE).
-
-			ReplaceManyCSQ([
-
-				" @NextCharQ ", " @NextStringQ ",
-				" @NextLineQ ",
-
-				" @NextNumberQ ",
-
-				" @NextItemQ ", " @NextListQ ",
-				" @NextPairQ ", " @NextSectionQ ",
-
-				" @NextObjectQ " ],
-
-				:By = " Q(This[@i+1]) ", :CS = FALSE).
-
 			Trimmed()
 
 		return cResult
@@ -256,7 +240,8 @@ class stzCCode
 			n =  anNumbers[1]
 
 			if n > 0
-				anResult = [ 1, (-n -1) ]
+				//anResult = [ 1, (-n -1) ]
+				anResult = [ 1, -n ]
 
 			but n < 0
 				anResult = [ Abs(n) + 1, :Last ]
@@ -272,11 +257,13 @@ class stzCCode
 	
 			but BothArePositive( nMin, nMax )
 				nMin = 1
-				nMax = - nMax -1
-	
+				//nMax = - nMax -1
+				nMax = - nMax
+
 			but nMin < 0 and nMax > 0
 				nMin = Abs(nMin) + 1
-				nMax = - nMax -1
+				//nMax = - nMax -1
+				nMax = - nMax
 	
 			else
 				nMin = 1

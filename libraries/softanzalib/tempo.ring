@@ -1,5 +1,55 @@
 load "stzlib.ring"
 
+pron()
+
+aListSend = []
+aListMore = []
+
+for s = 1 to 9
+    for e = 0 to 9
+        for n = 0 to 9
+            for d = 0 to 9
+                send = s*1000+e*100+n*10+d
+                add(aListSend,send)
+            next
+        next
+    next
+next
+
+for m = 1 to 9
+    for o = 0 to 9
+        for r = 0 to 9
+            for e = 0 to 9
+                more = m*1000+o*100+r*10+e
+                add(aListMore,more)
+            end
+        next
+    next
+next
+
+for n =1 to len(aListSend)
+    for m =1 to len(aListMore)
+        strSend = string(aListSend[n])
+        strMore = string(aListMore[m])
+        if substr(strSend,2,1) = substr(strMore,4,1)
+           for y = 0 to 9
+               strMoney1 = substr(strMore,1,1) + substr(strMore,2,1) +
+substr(strSend,3,1)
+               strMoney2 = substr(strMore,4,1) + string(y)
+               strMoney = strMoney1 + strMoney2
+               numMoney = number(strMoney)
+               numSend = number(strSend)
+               numMore = number(strMore)
+               if numSend + numMore = numMoney
+                  see "SEND = " + strSend + " MORE = " + strMore + "
+MONEY = " + strMoney + nl
+               ok
+            next
+        ok
+    next
+next
+
+proff()
 
 /*======== REMOVE XT
 
