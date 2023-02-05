@@ -1,23 +1,113 @@
 load "stzlib.ring"
 
+pron()
+#                   1  4 6  9 1   567      456
+o1 = new stzString("...<<ring>>...<<softanza>>...")
+
+/*---
+
+? o1.FindBetween("<<",">>")
+#--> [6, 17]
+
+? o1.FindBetweenAsSections("<<",">>")
+#--> [ [6, 9], [17, 24] ]
+
+? o1.Between("<<",">>")
+#--> ["ring", "softanza"]
+ */
+
+? o1.FindBetweenXT("<<",">>")
+#--> [4, 15]
+
+? @@S( o1.FindBetweenAsSectionsXT("<<",">>") )
+#--> [ [4, 11], [15, 26] ]
+
+? o1.BetweenXT("<<",">>")
+#--> ["<<ring>>", "<<softanza>>"]
+
+proff()
+# Executed in 0.13 second(s)
 
 /*------------
-/*
-o1 = new stzString(" @i + 10, @i-125, e11")
-? o1.NumbersComingAfter("@i")
+
+pron()
+#		    1  456  901  
+o1 = new stzString("___<<<__<<<__")
+
+? o1.FindFirst("<<<")
+#--> 4
+
+? @@S( o1.FindFirstAsSection("<<<") )
+#--> [4, 6]
+
+proff()
+# Executed in 0.02 second(s)
 
 /*------------
 
 pron()
 
-o1 = new stzString("emm +12_456.50 emm 11. and -4.12_")
-//? o1.Numbers()
+#		    1  456  901  
+o1 = new stzString("___<<<__<<<__")
+
+? o1.FindLast("<<<")
+#--> 9
+
+? @@S( o1.FindLastAsSection("<<<") )
+#--> [9, 11]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
+? o1.FindPrevious("<<<", :StartingAt = 11)
+#--> 4
+
+? o1.Between("<<<", ">>>")
+#--> ["ring", "softanza"]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*------------
+
+StartProfiler()
+
+o1 = new stzString('This[@i] = This[@i + 1] + @i - 2')
+? o1.NumbersAfter("@i")
+#--> [ "+1", "-2" ]
+
+StopProfiler()
+# Executed in 0.19 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzString(" @i + 10, @i- 125, e11")
+? o1.NumbersComingAfter("@i")
+#--> [ "+10", "-125", "11" ]
+
+proff()
+# Executed in 0.13 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzString("emm +   12_456.50 emm 11. and -   4.12_")
+? o1.Numbers()
 #--> [ "+12_456.50", "11", "-4.12" ]
 
 proff()
+# Executed in 0.24 second(s)
 
 /*------------
-*/
+
 pron()
 
 o1 = new stzString("Math: 18, Geo: 16, :Physics: 17.80")

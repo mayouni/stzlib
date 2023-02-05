@@ -13713,6 +13713,98 @@ o1 = new stzString("12*34*56*78")
 	
 		#>
 
+	  #-------------------------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING AND RETURNING THE RESULT AS SECTION  #
+	#-------------------------------------------------------------------------------#
+
+	def FindFirstOccurrenceAsSectionCS(pcSubstr, pCaseSensitive)
+		anResult = []
+
+		nLenSubStr = Q(pcSubStr).NumberOfChars()
+		nPos = This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+
+		if nPos != 0
+			anResult = [ nPos, (nPos + nLenSubStr - 1) ]
+		ok
+
+		return anResult
+
+
+		#< @FunctionAlternativeForm
+	
+		def FindFirstAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.Find FirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def  FirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def FindFirstSubStringAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.Find FirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def  FirstSubStringAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+			
+		def  FirstAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		#--
+
+		def PositionOfFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def  FirstOccurrencePositionAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfFirstAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfFirstSubStringAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def  FirstSubStringPositionAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		#>
+
+	def FindFirstOccurrenceAsSection(pcSubStr)
+		return This.FindFirstOccurrenceAsSectionCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindFirstAsSection(pcSubStr)
+			return This.FindFirstOccurrenceAsSection(pcSubStr)
+
+		def FirstOccurrenceAsSection(pcSubStr)
+			return This.FindFirstOccurrenceAsSection(pcSubStr)
+
+		def FindFirstSubStringAsSection(pcSubStr)
+			return This.FindFirstOccurrenceAsSection(pcSubStr)
+
+		def FirstSubStringAsSection(pcSubStr)
+			return This.FindFirstOccurrenceAsSection(pcSubStr)
+
+		def FirstAsSection(pcSubStr)
+			return This.FindFirstOccurrenceAsSection(pcSubStr)
+
+		#--
+
+		def PositionOfFirstOccurrenceAsSection(pcSubStr)
+			return This.FindFirstOccurrenceAsSection(pcSubStr)
+
+		def  FirstOccurrencePositionAsSection(pcSubStr)
+			return This.FindFirstOccurrenceAsSection(pcSubStr)
+
+		def PositionOfFirstAsSection(pcSubStr)
+			return This.FindFirstOccurrenceAsSection(pcSubStr)
+
+		def PositionOfFirstSubStringAsSection(pcSubStr)
+			return This.FindFirstOccurrenceAsSection(pcSubStr)
+
+		def  FirstSubStringPositionAsSection(pcSubStr)
+			return This.FindFirstOccurrenceAsSection(pcSubStr)
+
+		#>
+
 	  #-------------------------------------------------#
 	 #      FINDING LAST OCCURRENCE OF A SUBSTRING     #
 	#-------------------------------------------------#
@@ -13722,7 +13814,25 @@ o1 = new stzString("12*34*56*78")
 			pcSubStr = pcSubStr[2]
 		ok
 
-		nResult = This.FindPreviousCS(pcSubStr, :StartingAt = :LastChar, pCaseSensitive)
+		nResult = 0
+		nLen = This.NumberOfChars()
+
+		oSubStr = new stzString(pcSubStr)
+		cLastChar = oSubStr.LastChar()
+		nLenSubStr = oSubStr.NumberOfChars()
+
+		for i = nLen to 1 step - 1
+
+			if This.CharQ(i).IsEqualToCS(cLastChar, pCaseSensitive) and
+			   This.SectionQ(i - nLenSubStr + 1, i).IsEqualToCS(pcSubStr, pCaseSensitive)
+
+				nResult = i - nLenSubStr + 1
+				exit
+
+			ok
+		end
+
+
 		return nResult
 
 
@@ -13801,9 +13911,103 @@ o1 = new stzString("12*34*56*78")
 
 		#>
 
+	  #------------------------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A SUBSTRING AND RETURNING THE RESULT AS SECTION  #
+	#------------------------------------------------------------------------------#
+
+	def FindLastOccurrenceAsSectionCS(pcSubstr, pCaseSensitive)
+		anResult = []
+
+		nLenSubStr = Q(pcSubStr).NumberOfChars()
+		nPos = This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive)
+
+		if nPos != 0
+			anResult = [ nPos, (nPos + nLenSubStr - 1) ]
+		ok
+
+		return anResult
+
+
+		#< @FunctionAlternativeForm
+	
+		def FindLastAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def LastOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def FindLastSubStringAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def LastSubStringAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+			
+		def LastAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		#--
+
+		def PositionOfLastOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def LastOccurrencePositionAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfLastAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfLastSubStringAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def LastSubStringPositionAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+
+		#>
+
+	def FindLastOccurrenceAsSection(pcSubStr)
+		return This.FindLastOccurrenceAsSectionCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindLastAsSection(pcSubStr)
+			return This.FindLastOccurrenceAsSection(pcSubStr)
+
+		def LastOccurrenceAsSection(pcSubStr)
+			return This.FindLastOccurrenceAsSection(pcSubStr)
+
+		def FindLastSubStringAsSection(pcSubStr)
+			return This.FindLastOccurrenceAsSection(pcSubStr)
+
+		def LastSubStringAsSection(pcSubStr)
+			return This.FindLastOccurrenceAsSection(pcSubStr)
+
+		def LastAsSection(pcSubStr)
+			return This.FindLastOccurrenceAsSection(pcSubStr)
+
+		#--
+
+		def PositionOfLastOccurrenceAsSection(pcSubStr)
+			return This.FindLastOccurrenceAsSection(pcSubStr)
+
+		def LastOccurrencePositionAsSection(pcSubStr)
+			return This.FindLastOccurrenceAsSection(pcSubStr)
+
+		def PositionOfLastAsSection(pcSubStr)
+			return This.FindLastOccurrenceAsSection(pcSubStr)
+
+		def PositionOfLastSubStringAsSection(pcSubStr)
+			return This.FindLastOccurrenceAsSection(pcSubStr)
+
+		def LastSubStringPositionAsSection(pcSubStr)
+			return This.FindLastOccurrenceAsSection(pcSubStr)
+
+		#>
+
 	  #--------------------------------------------------------------------#
 	 #   FINDING THE POSITIONS OF SOME OCCURRENCES OF A GIVEN SUBSTRING   #
 	#--------------------------------------------------------------------#
+
+	# TODO: Add FindOccurrencesAsSectionsCS()
 
 	def FindOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
 		/* EXAMPLE
@@ -13894,6 +14098,8 @@ o1 = new stzString("12*34*56*78")
 	 #   STARTING AT A GIVEN POSITION              #
 	#---------------------------------------------#
 
+	# TODO: Add FindNextOccurrencesAsSectionsCS()
+
 	def FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
@@ -13948,6 +14154,8 @@ o1 = new stzString("12*34*56*78")
 	 #   STARTING AT A GIVEN POSITION                  #
 	#-------------------------------------------------#
 
+	# TODO: Add FindPreviousOccurrencesAsSectionsCS()
+
 	def FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
@@ -14000,6 +14208,8 @@ o1 = new stzString("12*34*56*78")
 	 #      STARTING AT A GIVEN POSITION                   #
 	#-----------------------------------------------------#
 
+	# Add FindNthNextOccurrenceAsSectionsCS( n, pcSubStr, nStart, pCaseSensitive )
+ 
 	def FindNthNextOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
 
 		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
@@ -14114,6 +14324,8 @@ o1 = new stzString("12*34*56*78")
 	  #      FINDING NTH PREVIOUS OCCURRENCE OF A SUBSTRING     #
 	 #      STARTING AT A GIVEN POSITION                       #
 	#---------------------------------------------------------#
+
+	# Add FindNthPreviousOccurrenceAsSectionsCS( n, pcSubStr, nStart, pCaseSensitive )
 
 	def FindNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
@@ -14323,7 +14535,10 @@ o1 = new stzString("12*34*56*78")
 			return 0
 		ok
 
-		oSection = This.SectionQ(1, pnStartingAt-1)
+		nResult = This.SectionQ(1, pnStartingAt - 1).FindLastCS(pcSubStr, pCaseSensitive)
+		return nResult
+/*
+? oSection.content()
 		nLen = oSection.NumberOfItems()
 		i = nLen + 1
 
@@ -14339,6 +14554,7 @@ o1 = new stzString("12*34*56*78")
 		end
 
 		return 0	
+*/
 
 		def FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 			return This.FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
@@ -16083,7 +16299,7 @@ o1 = new stzString("12*34*56*78")
 	#------------------------------------------------------#
 
 	def FindBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-		#< @MotherFunctionOf(FindBetween) #>
+		#< @MotherFunctionOf = FindBetween #>
 
 		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
 			pcBound2 = pcBound2[2]
@@ -16102,7 +16318,7 @@ o1 = new stzString("12*34*56*78")
 			nPos2 = This.FindPreviousCS(pcBound2, :StartingAt = nPos, pCaseSensitive)
 
 			if nPos1 > nPos2
-				aResult + [ (nPos1 + nLenBound1 - 1), (nPos - 1) ]
+				aResult + [ (nPos1 + nLenBound1), (nPos - 1) ]
 			ok
 		next
 
@@ -32424,16 +32640,21 @@ o1 = new stzString("12*34*56*78")
 
 		cNumber = ""
 		acResult = []
-		
+		bThereWasASign = FALSE
+
 		for i = 1 to nLen
 			c = Q(cTempStr).CharAt(i)
+
+			if c = " " and bThereWasASign
+				loop
+			ok
 
 			if StzCharQ(c).IsANumber() or
 			   (c = "+" or c = "-" and cNumber = "") or
 			   ((c = "." or c = "_") and cNumber != "" and StzCharQ(Q(cNumber).LastChar()).IsANumber())
 		
 				cNumber += c
-		
+
 			but (NOT StzCharQ(c).IsANumber()) or i = nLen
 		
 				if cNumber != ""
@@ -32443,8 +32664,25 @@ o1 = new stzString("12*34*56*78")
 						  RemoveThisLastCharQ("_").
 						  Content()
 		
-					acResult + cNumber
-					cNumber = ""
+					cSign = ""
+					if len(acResult) > 0
+						if acResult[len(acResult)] = "+"
+							cSign = "+"
+
+						but acResult[len(acResult)] = "-"
+							cSign = "-"
+						ok
+					ok
+
+					if cSign != ""
+						del(acResult, len(acResult))
+						cNumber = cSign + cNumber
+					ok
+
+					if cNumber != "+" and cNumber != "-"
+						acResult + cNumber
+						cNumber = ""
+					ok
 				ok
 			ok
 		
@@ -32484,7 +32722,6 @@ o1 = new stzString("12*34*56*78")
 		This.RemoveMany(acNumbers)
 		return acNumbers
 
-	
 	  #------------------------------------------------------------------#
 	 #  GETTING THE NUMBER OF (DECIMAL) NUMBERS INCLUDED IN THE STRING  #
 	#------------------------------------------------------------------#
@@ -32597,57 +32834,21 @@ o1 = new stzString("12*34*56*78")
 
 		acSubStrings = This.SplitQ("@i").FirstItemRemoved()
 		# Splitting takes as little as 0.01s
-		# The following part of the function takes ~0.26s
-		# TODO: should be optimised!
-? @@S(acSubStrings)
-? "--"
-		nNumberOfSubStrings = len(acSubStrings)
+
+		nLen = len(acSubStrings)
 	
 		acResult = []
-		
-		for i = 1 to nNumberOfSubStrings
-		
-			oSubStr = new stzString(acSubStrings[i])
-		
-			cNumber = ""
-				
-			oSubStr.RemoveSpacesQ()
-			oFirstChar = oSubstr.FirstCharQ()
+		for i = 1 to nLen
+			acNumbers = Q(acSubStrings[i]).Numbers()
+			nLen2 = len(acNumbers)
 
-			if oFirstChar.IsOneOfThese([ "-", "+", "=" ])
-				cNumber = oFirstChar.Content()	
-				oSubstr.RemoveFirstChar()	
-			ok
-	
-			nLenSubStr = oSubStr.NumberOfChars()
-			
-			if nLenSubStr > 0 and (NOT oSubStr.FirstCharQR(:stzChar).IsANumber())
-				loop
-			ok
-		
-			j = 0
-			while TRUE
-				j++
-				if j > nLenSubStr
-					exit
-				ok
-
-				@char = oSubStr.Char(j)
-
-				if @char = "." and (NOT Q(cNumber).Contains("."))
-					cNumber += "."
-				ok
-
-				cNumber += @char
-
-			end
-		
-			cNumber = Q(cNumber).ThisLastCharRemoved(".")
-			acResult + cNumber
-		
-		next
+			for j = 1 to nLen2
+				acResult + acNumbers[j]
+			next j
+		next i
 
 		return acResult
+
 
 		#< @FunctionFluentForm
 
@@ -32725,64 +32926,10 @@ o1 = new stzString("12*34*56*78")
 	#---------------------------------------------#
 
 	def NthNumberComingAfterCS(n, pcSubStr, pCaseSensitive)
+		# TODO: Re-implement it for better performance
+		# No need to parse all the numbers and then get the nth
 
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcsubStr must be a string.")
-		ok
-
-		acSubStrings = This.SplitQ("@i").FirstItemRemoved()
-		nNumberOfSubStrings = len(acSubStrings)
-		
-		nFound = 0
-		cResult = ""
-
-		for i = 1 to nNumberOfSubStrings
-		
-			oSubStr = new stzString(acSubStrings[i])
-		
-			cNumber = ""
-			
-			oSubStr.RemoveSpaces()
-			
-			if oSubstr.FirstChar() = "-"
-				cNumber = "-"
-				oSubstr.RemoveFirstChar()
-			
-			but oSubStr.FirstChar() = "+" or oSubStr.FirstChar() = "="
-				oSubStr.RemoveFirstChar()
-			ok
-		
-			nLenSubStr = oSubStr.NumberOfChars()
-			
-			if nLenSubStr > 0 and NOT oSubStr.FirstCharQR(:stzChar).IsANumber()
-				loop
-			ok
-		
-			for v = 1 to nLenSubStr
-			
-				@char = oSubStr.Char(v)
-		
-				if StzCharQ(@char).IsANumber()
-					cNumber += @char
-
-				but @char = "."
-					if NOT Q(cNumber).Contains(".")
-						cNumber += "."
-					ok
-				ok
-
-			end
-		
-			nFound++
-
-			if nFound = n
-				cResult = Q(cNumber).ThisLastCharRemoved(".")
-				exit
-			ok
-		
-		next
-
-		return cResult
+		return This.NumbersComingAfterCS(pcSubStr, pCaseSensitive)[n]
 
 		#< @FunctionAlternativeForm
 

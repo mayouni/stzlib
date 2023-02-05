@@ -122,7 +122,7 @@ class stzCCode
 			ReplaceCSQ(" -@Number ", :By = " - This[@i] ", :CS = FALSE).
 
 			ReplaceManyCSQ([
-				" @NextPosition ", " @Next@i ", " @NextI "],
+				" @NextPosition ", " @NextI "],
 
 				:By = " @i + 1 ", :CS = FALSE).
 				
@@ -137,7 +137,7 @@ class stzCCode
 				:By = " This[@i + 1] ", :CS = FALSE).
 
 			ReplaceManyCSQ([
-				" @PreviousPosition ", " @Previous@i ", " @PreviousI "],
+				" @PreviousPosition ", " @PreviousI "],
 
 				:By = " @i - 1 ", :CS = FALSE).
 
@@ -155,64 +155,154 @@ class stzCCode
 
 			ReplaceManyCSQ([
 
-				"@CharQ", "@StringQ", "@LineQ",
+				" @CharQ ", " @StringQ ", " @LineQ ",
 
-				"@NumberQ",
+				" @NumberQ ",
 
-				"@ItemQ", "@ListQ",
-				"@PairQ", "@SectionQ",
+				" @ItemQ ", " @ListQ ",
+				" @PairQ ", " @SectionQ ",
 
-				"@ObjectQ" ],
+				" @ObjectQ " ],
 
-				:By = "Q(This[@i])", :CS = FALSE).
-
-			ReplaceManyCSQ([
-
-				"@EachCharQ", "@EachStringQ", "@EachLineQ",
-
-				"@EachNumberQ",
-
-				"@EachItemQ", "@EachListQ",
-				"@EachPairQ", "@EachSectionQ",
-
-				"@EachObjectQ" ],
-
-				:By = "Q(This[@i])", :CS = FALSE).
+				:By = " Q(This[@i]) ", :CS = FALSE).
 
 			ReplaceManyCSQ([
 
-				"@PreviousCharQ", "@PreviousStringQ",
-				"@PreviousLineQ",
+				" @EachCharQ ", " @EachStringQ ", " @EachLineQ ",
 
-				"@PreviousNumberQ",
+				" @EachNumberQ ",
 
-				"@PreviousItemQ", "@PreviousListQ",
-				"@PreviousPairQ", "@PreviousSectionQ",
+				" @EachItemQ ", " @EachListQ ",
+				" @EachPairQ ", " @EachSectionQ ",
 
-				"@PreviousObjectQ" ],
+				" @EachObjectQ " ],
 
-				:By = "Q(This[@i-1])", :CS = FALSE).
+				:By = " Q(This[@i]) ", :CS = FALSE).
 
 			ReplaceManyCSQ([
 
-				"@NextCharQ", "@NextStringQ",
-				"@NextLineQ",
+				" @PreviousCharQ ", " @PreviousStringQ ",
+				" @PreviousLineQ ",
 
-				"@NextNumberQ",
+				" @PreviousNumberQ ",
 
-				"@NextItemQ", "@NextListQ",
-				"@NextPairQ", "@NextSectionQ",
+				" @PreviousItemQ ", " @PreviousListQ ",
+				" @PreviousPairQ ", " @PreviousSectionQ ",
 
-				"@NextObjectQ" ],
+				" @PreviousObjectQ " ],
 
-				:By = "Q(This[@i+1])", :CS = FALSE).
+				:By = " Q(This[@i-1]) ", :CS = FALSE).
+
+			ReplaceManyCSQ([
+
+				" @NextCharQ ", " @NextStringQ ",
+				" @NextLineQ ",
+
+				" @NextNumberQ ",
+
+				" @NextItemQ ", " @NextListQ ",
+				" @NextPairQ ", " @NextSectionQ ",
+
+				" @NextObjectQ " ],
+
+				:By = " Q(This[@i+1]) ", :CS = FALSE).
 
 			Trimmed()
 
 		return cResult
 
-
 	def ExecutableSection()
+		# This version of the function assumes that the conditional
+		# code uses only This[@i] like code. No @NextItem, @PreviousI,
+		# and other keywords can be use here.
+
+		# You can always rempalce them by a This[@i] like alternative/
+		# For ewxample @NewtItem can be written as This[@+1], and
+		# @PreviousItem can be written as This[@i-1], and so on.
+
+		# This will lead to a better speed. But if expressivenes is
+		# a priority over performance, then you can use them and call
+		# the extended version of the function insetead: ExecutableSectionXT()
+
+		acSubStrings = This.CodeQ().Between("[","]")
+		nLenSubStr = len(acSubStrings)
+
+		acNumbersAfter = []
+		for i = 1 to nLenSubStr
+			acNumbers = Q(acSubStrings[i]).NumbersAfter("@i")
+			if len(acNumbers) > 0
+				acNumbersAfter + acNumbers[1]
+			ok
+		next
+
+		nLenAfter = len(acNumbersAfter)
+
+		if len(acNumbersAfter) = 0
+			return [ 1, :Last ]
+		ok
+
+		anNumbers = []
+		for i = 1 to nLenAfter
+			cNumber = acNumbersAfter[i]
+			if cNumber[1] = "+" or cNumber[1] = "-"
+				anNumbers + (0+ cNumber)
+			ok
+		next
+		oNumbers = new stzList(anNumbers)
+
+		anResult = [ 1, :Last ]
+
+		if nLenAfter = 1
+			n =  anNumbers[1]
+
+			if n > 0
+				anResult = [ 1, (-n -1) ]
+
+			but n < 0
+				anResult = [ Abs(n) + 1, :Last ]
+
+			ok
+		else
+			nMin = 0+ oNumbers.Smallest()
+			nMax = 0+ oNumbers.Greatest()
+	
+			if BothAreNegative( nMin, nMax )
+				nMin = Abs( nMin )
+				nMax = :Last
+	
+			but BothArePositive( nMin, nMax )
+				nMin = 1
+				nMax = - nMax -1
+	
+			but nMin < 0 and nMax > 0
+				nMin = Abs(nMin) + 1
+				nMax = - nMax -1
+	
+			else
+				nMin = 1
+				nMax = :Last
+			ok
+	
+			anResult = [ nMin, nMax ]
+		ok
+
+		return anResult
+
+	def ExecutableSectionXT()
+		# A less performant version with less chekcs.
+		# Only This[ @i + ] like syntaw is possible.
+
+		# Use it when you want to be more expressive
+		# in your conditional code and use @NextItem,
+		# @PreviousItem and alike keywords, instead
+		# of This[@i+1] and This[@i-1], @EachItem,
+		# @EachItemQ and etc.
+
+		# In this case, there is a performance tax
+		# you should pay for. Hence, if you need to
+		# be efficient, then you should use
+		# ExecutableSection(), without ...XT(), instead.
+
 		/* EXAMPLE
 
 		o1 = new stzCCode('{ This[ @i ] = This[ @i + 3 ] }')
@@ -223,10 +313,16 @@ class stzCCode
 
 		oCode = new stzString( This.Transpiled() )
 	
-		acNumbersAfter = oCode.NumbersComingAfter("@i")
-		# NOTE: Takes most time!
-		# TODO: Has been optimised once but try more!
-? @@S(acNumbersAfter)
+		acSubStrings = oCode.Between("[","]")
+		nLenSubStr = len(acSubStrings)
+
+		acNumbersAfter = []
+		for i = 1 to nLenSubStr
+			acNumbers = Q(acSubStrings[i]).NumbersAfter("@i")
+			if len(acNumbers) > 0
+				acNumbersAfter + acNumbers[1]
+			ok
+		next
 
 		nLenAfter = len(acNumbersAfter)
 
@@ -236,7 +332,10 @@ class stzCCode
 
 		anNumbers = []
 		for i = 1 to nLenAfter
-			anNumbers + (0+ acNumbersAfter[i])
+			cNumber = acNumbersAfter[i]
+			if cNumber[1] = "+" or cNumber[1] = "-"
+				anNumbers + (0+ cNumber)
+			ok
 		next
 		oNumbers = new stzList(anNumbers)
 
