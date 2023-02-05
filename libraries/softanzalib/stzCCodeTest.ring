@@ -45,50 +45,16 @@ o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
 proff()
 # Executed in 0.18 second(s)
 
-/*---------- TODO: Add stzTest class
-*/
-StartProfiler()
-
-StzTestQ() {
-
-	@Class       = :stzCCode
-	@Function    = :ExecutableSection
-	@Description = ''
-
-	@Code = '
-
-	o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
-	? o1.ExecutableSection()'
-
-	@Result = '
-	#--> [ 4, -4 ]
-	'
-
-	Run()
-
-	? Output()
-	#--> [ 4, -4 ]
-
-	? Succeed()
-	#--> TRUE
-
-	? Failed()
-	#--> FALSE
-}
-
-StopProfiler()
-# Executed in 0.35 seconds seconds.
-
 /*----------
 
 StartProfiler()
-	
-	o1 = new stzCCode('{ This[ @i-3 ] = This[ @i + 3 ] and @i = 10 }')
-	? o1.ExecutableSection()
-	#--> [4, -4]
-	
+
+o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
+? o1.ExecutableSection()
+#--> [4, -3]
+
 StopProfiler()
-# Executed in 0.14 second(s)
+# Executed in 0.22 second(s).
 
 /*----------
 
@@ -119,7 +85,7 @@ StartProfiler()
 # section by using the ...XT() form like this:
 
 	? o1.ExecutableSectionXT()
-	#--> [ 1, -2 ]
+	#--> [ 1, -1 ]
 
 # We can check this visually by seeing the transpiled code
 # made by ExecutableSectionXT() in the background:
@@ -128,7 +94,7 @@ StartProfiler()
 	#--> This[@i] = This[@i + 1] + 5
 
 StopProfiler()
-# Executed in 0.20 second(s)
+# Executed in 0.43 second(s)
 
 /*----------
 
@@ -139,7 +105,7 @@ StartProfiler()
 	#--> [ 2, :Last ]
 
 StopProfiler()
-# Executed in 0.18 second(s)
+# Executed in 0.26 second(s)
 
 /*----------
 
@@ -150,7 +116,7 @@ StartProfiler()
 	#--> [ 5, :Last ]
 
 StopProfiler()
-# Executed in 0.16 second(s)
+# Executed in 0.14 second(s)
 
 /*----------
 
@@ -167,10 +133,10 @@ StartProfiler()
 	o1 = new stzCCode('{ @number = -@number }')
 	? o1.ExecutableSectionXT()
 	#--> [ 1, :Last ]
-	# Executed in 0.16 second(s)
+	# Executed in 0.22 second(s)
 
 StopProfiler()
-# Executed in 0.21 second(s)
+# Executed in 0.28 second(s)
 
 /*----------
 
@@ -180,11 +146,11 @@ StartProfiler()
 	? o1.Transpiled()
 	#-->Q( This[@i] ).IsUppercase()
 
-	? o1.ExecutableSection()
+	? o1.ExecutableSectionXT()
 	#--> [ 1, :Last ]
 
 StopProfiler()
-# Executed in 0.21 second(s)
+# Executed in 0.36 second(s)
 
 /*----------
 
@@ -192,13 +158,13 @@ StartProfiler()
 
 	o1 = new stzCCode('{ This[ @NextPosition ] = This[ @CurrentPosition ] + "O" }')
 	? o1.ExecutableSectionXT()
-	#--> [ 1, -2 ]
+	#--> [ 1, -1 ]
 
 StopProfiler()
-# Executed in 0.25 second(s)
+# Executed in 0.28 second(s)
 
 /*----------
-
+*/
 StartProfiler()
 
 	o1 = new stzCCode('{
@@ -206,7 +172,7 @@ StartProfiler()
 	}')
 
 	? o1.ExecutableSectionXT()
-	#--> [ 1, -2 ]
+	#--> [ 1, -1 ]
 
 StopProfiler()
-# Executed in 0.26 second(s)
+# Executed in 0.29 second(s)
