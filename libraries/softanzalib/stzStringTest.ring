@@ -1,32 +1,31 @@
 load "stzlib.ring"
 
+/*------------
+
 pron()
 #                   1  4 6  9 1   567      456
 o1 = new stzString("...<<ring>>...<<softanza>>...")
 
-/*---
-
-? o1.FindBetween("<<",">>")
+? @@S( o1.FindBetween("<<",">>") )
 #--> [6, 17]
 
-? o1.FindBetweenAsSections("<<",">>")
+? @@S( o1.FindBetweenAsSections("<<",">>") )
 #--> [ [6, 9], [17, 24] ]
 
-? o1.Between("<<",">>")
+? @@S( o1.Between("<<",">>") )
 #--> ["ring", "softanza"]
- */
 
-? o1.FindBetweenXT("<<",">>")
+? @@S( o1.FindBetweenXT("<<",">>") )
 #--> [4, 15]
 
 ? @@S( o1.FindBetweenAsSectionsXT("<<",">>") )
 #--> [ [4, 11], [15, 26] ]
 
-? o1.BetweenXT("<<",">>")
+? @@S( o1.BetweenXT("<<",">>") )
 #--> ["<<ring>>", "<<softanza>>"]
 
 proff()
-# Executed in 0.13 second(s)
+# Executed in 0.25 second(s)
 
 /*------------
 
@@ -82,7 +81,7 @@ o1 = new stzString('This[@i] = This[@i + 1] + @i - 2')
 #--> [ "+1", "-2" ]
 
 StopProfiler()
-# Executed in 0.19 second(s)
+# Executed in 0.14 second(s)
 
 /*------------
 
@@ -93,7 +92,7 @@ o1 = new stzString(" @i + 10, @i- 125, e11")
 #--> [ "+10", "-125", "11" ]
 
 proff()
-# Executed in 0.13 second(s)
+# Executed in 0.11 second(s)
 
 /*------------
 
@@ -104,7 +103,7 @@ o1 = new stzString("emm +   12_456.50 emm 11. and -   4.12_")
 #--> [ "+12_456.50", "11", "-4.12" ]
 
 proff()
-# Executed in 0.24 second(s)
+# Executed in 0.19 second(s)
 
 /*------------
 
@@ -1164,17 +1163,29 @@ o1 = new stzString("...456...")
 */    
 
 StartProfiler()
-#                      4   8 1   4 6 8
-o1 = new stzString("...12..1212..121212...")
-? o1.SubStringsMadeOf("12")
-
-//? @@S( o1.FindMadeOf("12") )
+#                      4   8 01  4 6 89  23
+o1 = new stzString("...12..1212..121212..12.")
+? @@S( o1.FindMadeOf("12") )
 #--> [ 4, 8, 10, 14, 16, 18 ]
+
+? @@S( o1.FindMadeOfAsSections("12") )
+#--> [ [ 4, 5 ], [ 8, 11 ], [ 14, 19 ], [ 22, 23 ] ]
+
+? @@S( o1.SubStringsMadeOf("12") )
+#--> [ "12", "1212", "121212", "12" ]
+
+? @@S( o1.SubStringsMadeOfXT("12") )
+#--> [
+#	[ "12", [ 4, 5 ] ],
+#	[ "1212", [ 8, 11 ] ],
+#	[ "121212", [ 14, 19 ] ],
+#	[ "12", [ 22, 23 ] ]
+# ]
 
 StopProfiler()
 
 /*----------------
-*/
+
 o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
 ? o1.SplitW('@CurrentItem = "*"')
 
