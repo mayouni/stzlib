@@ -8539,6 +8539,17 @@ class stzString from stzObject
 			#>
 		#>	
 
+	  #----------------------------------------------------------#
+	 #   GETTING A SECTION (OR SLICE) OF THE STRING -- EXTENDED  #
+	#----------------------------------------------------------#
+
+	def SectionXT(n1, n2)
+		aResult = [ This.Section(n1, n2), [n1, n2] ]
+		return aResult
+
+		def SliceXT(n1, n2)
+			return This.Secrion(n1, n2)
+
 	  #-----------------------------------#
 	 #   GETTING A RANGE OF THE STRING   #
 	#-----------------------------------#
@@ -8696,6 +8707,14 @@ class stzString from stzObject
 			return aResult
 
 		#>
+
+	  #--------------------------------------------#
+	 #  GETTING A RANGEOF THE STRING -- EXTENDED  #
+	#--------------------------------------------#
+
+	def RangeXT(nStartPos, nRange)
+		aResult = [ This.Range(nStartPos, nRange), [nStartPos, nRange] ]
+		return aResult
 
 	  #---------------------------------------#
 	 #   GETIING MANY SECTIONS (OR SLICES)   #
@@ -10991,35 +11010,62 @@ class stzString from stzObject
 	
 		*/
 	
-		acResult = []
-	
-		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
-		#--> [ 4, 8, 15 ]
-		nLen = len(anPos)
+		aSections = This.FindSubStringsMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		acResult = This.Sections(aSections)
+		
+		return acResult
+		
+		def MadeOfCS(pcSubStr, pCaseSensitive)
+			return This.SubStringsMadeOfCS(pcSubStr, pCaseSensitive)
 
-		nLenSubStr = Q(pcSubStr).NumberOfChars()
-	
-		
-		
-	
 	#-- WITHOUT CASESENSITIVITY
 	
 	def SubStringsMadeOf(pcSubStr)
 		return This.SubStringsMadeOfCS(pcSubStr, :CaseSensitive = TRUE)
 	
+		def MadeOf(pcSubStr)
+			return This.SubStringsMadeOf(pcSubStr)
+
+	  #==============================================#
+	 #  SUBSTRINGS MADE OF A GIVEN OTHER SUBSTRING  #
+	#==============================================#
+	
+	def SubStringsMadeOfXTCS(pcSubStr, pCaseSensitive)
+		aSections = This.FindSubStringsMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		aResult = This.SectionsXT(aSections)
+		return aResult
+
+		def MadeOfCSXT(pcSubStr, pCaseSensitive)
+			return This.SubStringsMadeOfXTCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+	
+	def SubStringsMadeOfXT(pcSubStr)
+		return This.SubStringsMadeOfXTCS(pcSubStr, :CaseSensitive = TRUE)
+	
+		def MadeOfXT(pcSubStr)
+			return This.SubStringsMadeOfXT(pcSubStr)
+
 	  #------------------------------------------------#
 	 #  FINDING SUBSTRINGS MADE OF A GIVEN SUBSTRING  #
 	#------------------------------------------------#
 
 	def FindMadeOfCS(pcSubStr, pCaseSensitive)
+		nLenSubStr = Q(pcSubStr).NumberOfChars()
 		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
+		nLen = len(anPos)
 
-		anPos = Q([ anPos[1]-2 ] + anPos).Flattened()
+		anResult = [ anPos[1] ]
+		for i = 2 to nLen
+			if anPos[i] - anPos[i-1] = nLenSubStr
+				loop
+			ok
 
-		anResult = Q(anPos).
-			   YieldW('This[@i]', ' ( This[@i+1] - This[@i] ) > 1 ')
+			anResult + anPos[i]
+		next
 
 		return anResult
+
 
 		def FindSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
 			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
@@ -11055,6 +11101,89 @@ class stzString from stzObject
 
 		def PositionsOfubStringsMadeOf(pcSubStr)
 			return This.FindMadeOf(pcSubStr)
+
+	  #------------------------------------------------#
+	 #  FINDING SUBSTRINGS MADE OF A GIVEN SUBSTRING  #
+	#------------------------------------------------#
+
+	def FindMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		/* EXAMPLE
+		#                      4   8 1   4 6 8   2
+		o1 = new stzString("...12..1212..121212..12.")
+		? @@S( o1.FindMadeOf("12") )
+		#--> [ 4, 8, 10, 14, 16, 18 ]
+
+		*/
+
+		# Preparing some values we need
+
+		nLenStr = This.NumberOfChars()
+		nLenSubStr = Q(pcSubStr).NumberOfChars()
+		cFirstChar = Q(pcSubStr).FirstChar()
+
+		# Finding the positions of pcSubStr in the string
+
+		anPos = This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+		nLenPos = len(anPos)
+
+		aResult = []
+		
+		# For each postion
+		for i = 1 to nLenPos
+
+			# we start parsing the string from that position
+			n = anPos[i]
+			nNext = 0
+			if i < nLenPos
+				nNext = anPos[i+1]
+			ok
+
+			# if the char we are parsing does not belong to
+			# pcSubStr, then we stop the parsing and return
+			# the section (done for each psotion)
+
+			while TRUE
+				n += nLenSubStr
+				if n > nLenStr or
+				   (nNext != 0 and n >= nNext)
+					exit
+				ok
+		
+				if NOT This.CharQ(n).IsEqualToCS(cFirstChar, pCaseSensitive)
+					aTempSection = [ anPos[i], (n-1) ]
+
+					if len(aResult) > 0 and
+					   anPos[i] = aResult[len(aResult)][1]
+
+						aResult[len(aResult)][2] = (n-1)
+
+					else
+						aResult + [ anPos[i], (n-1) ]
+					ok
+				ok
+
+				
+			end
+		next
+		
+		return aResult
+
+		def FindSubStringsMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def PositionsOfSubStringsMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+	#--  WITHOUT CASESENSITIVITY
+
+	def FindMadeOfAsSections(pcSubStr)
+		return This.FindMadeOfAsSectionsCS(pcSubStr, :CaseSensitiv = TRUE)
+
+		def FindSubStringsMadeOfAsSections(pcSubStr)
+			return This.FindMadeOfAsSections(pcSubStr)
+
+		def PositionsOfSubStringsMadeOfAsSections(pcSubStr)
+			return This.FindMadeOfAsSections(pcSubStr)
 
 	  #=============================================================================#
 	 #  YIELDING CHARS STARTING AT A GIVEN POSITION UNTIL A CONDITION IS VERIFIED  #
@@ -15313,11 +15442,14 @@ o1 = new stzString("12*34*56*78")
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
+		nLenSubStr = len(pacSubStr)
 		aSections = []
 
-		for str in pacSubStr
-			for aSection in This.FindAsSectionsCS(str, pCaseSensitive)
-				aSections + aSection
+		for i = 1 to nLenSubStr
+			aSections = This.FindAsSectionsCS(pacSubStr[i], pCaseSensitive)
+			nLenSections = len(aSections)
+			for j = 1 to nLenSections
+				aSections + aSections[j]
 			next
 		next
 
@@ -31727,13 +31859,15 @@ o1 = new stzString("12*34*56*78")
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		pcCode = Q(pcCode).
-				ReplaceCSQ("@char", "@item", :CS = FALSE).Content()
+		oCode = stzString(pcCode)
+		if oCode.ContainsCS("@substring", :CS = FALSE)
+			aTempList = This.SubStrings()
 
-		pcCondition = Q(pcCondition).
-				ReplaceCSQ("@char", "@item", :CS = FALSE).Content()
+		else
+			aTempList = This.Chars()
+		ok
 
-		acResult = This.CharsQ().YieldW(pcCode, pcCondition)
+		acResult = Q(aTempList).YieldW(pcCode, pcCondition)
 		return acResult
 
 		#< @FunctionFluentForm
