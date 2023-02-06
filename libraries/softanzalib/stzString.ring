@@ -13188,6 +13188,12 @@ class stzString from stzObject
 	def NumberOfMarkers()
 		return len( This.ExtractMarkers() )
 
+		def CountMarquers()
+			return This.NumberOfMarquers()
+
+		def HowManyMarquers()
+			return This.NumberOfMarquers()
+
 	  #--------------------------------------------#
 	 #  GETTING MARQUERS POSITIONS IN THE STRING  #
 	#--------------------------------------------#
@@ -16539,7 +16545,7 @@ o1 = new stzString("12*34*56*78")
 		def CountBetween(pcSubStr, pcBound1, pcBound2)
 			return This.NumberOfOccurrenceBetween(pcSubStr, pcBound1, pcBound2)
 
-		def HaowManyBetween(pcSubStr, pcBound1, pcBound2)
+		def HowManyBetween(pcSubStr, pcBound1, pcBound2)
 			return This.NumberOfOccurrenceBetween(pcSubStr, pcBound1, pcBound2)
 
 		#>
@@ -18282,6 +18288,16 @@ o1 = new stzString("12*34*56*78")
 	def NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 		return len(This.SubStringsBoundedByCS(pacBounds, pCaseSensitive))
 
+		#< @FunctionAlternativeForms
+
+		def CountSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		def HowManySubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		#--
+
 		def NumberOfSubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 			if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
 				pcBound2 = pcBound2[2]
@@ -18289,13 +18305,43 @@ o1 = new stzString("12*34*56*78")
 
 			return This.NumberOfSubStringsBoundedByCS(pacBounds[1], pacBounds[2], pCaseSensitive)
 
+		def CountSubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.NumberOfSubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def HowManySubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.NumberOfSubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfSubStringsBoundedBy(pacBounds)
 		return This.NumberOfSubStringsBoundedByCS(pacBounds, :CaseSensitive = TRUE)
 
-		def NumberOfSubStringsBetween(pcSubStr1, pcSubStr2)
-			return This.NumberOfSubStringsBetweenCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
+		#< @FunctionAlternativeForms
+
+		def CountSubStringsBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+		def HowManySubStringsBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+		#--
+
+		def NumberOfSubStringsBetween(pcBound1, pcBound2)
+			if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
+				pcBound2 = pcBound2[2]
+			ok
+
+			return This.NumberOfSubStringsBoundedBy(pacBounds[1], pacBounds[2])
+
+		def CountSubStringsBetween(pcBound1, pcBound2)
+			return This.NumberOfSubStringsBetween(pcBound1, pcBound2)
+
+		def HowManySubStringsBetween(pcBound1, pcBound2)
+			return This.NumberOfSubStringsBetweenCS(pcBound1, pcBound2)
+
+		#>
 
 	  #=================================================================#
 	 #   EXTRACTING BETWEEN TWO OTHER SUBSTRINGS AND THEIR POSITIONS   #
@@ -29205,12 +29251,24 @@ o1 = new stzString("12*34*56*78")
 		def CountCharsWhere(pcCondition)
 			return This.NumberOfCharsW(pcCondition)
 
+		def HowManyCharsW(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
+		def HowManyCharsWhere(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
 		# Items-based naming as required for natural-coding
 
 		def NumberOfItemsW(pcCondition)
 			return This.NumberOfCharsW(pcCondition)
 
 		def NumberOfItemsWhere(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
+		def HowManyItemsW(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
+		def HowManyItemsWhere(pcCondition)
 			return This.NumberOfCharsW(pcCondition)
 
 	  #-----------------------#
@@ -33231,6 +33289,12 @@ o1 = new stzString("12*34*56*78")
 
 	def NumberOfNumbers()
 		return len( This.Numbers() )
+
+		def CountNumbers()
+			return This.NumberOfNumbers()
+
+		def HowManyNumbers()
+			return This.NumberOfNumbers()
 
 	  #-------------------------------------------------------------------------#
 	 #  GETTING THE NUMBERS INCLUDED IN THE STRING ALONG WITH THEIR POSITIONS  #
