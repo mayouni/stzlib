@@ -254,7 +254,7 @@ StopProfiler()
 # Executed in 0.03 second(s)
 
 /*-----------
-*/
+
 # Testing FindLast() on a very large string (~2M chars)
 
 StartProfiler()
@@ -278,9 +278,46 @@ StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
 ? oLargeStr.FindLast(";")
+#--> 1897793
 
 StopProfiler()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
+
+/*-----------
+
+StartProfiler()
+
+oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
+? oLargeStr.Contains("ALIF")
+#--> TRUE
+
+? oLargeStr.FindFirst("ALIF")
+#--> 130655
+
+? oLargeStr.NumberOfOccurrence("ALIF")
+#--> 4
+
+? oLargeStr.FindNth(4, "ALIF")
+#--> 1703275
+
+? oLargeStr.FindLast("ALIF")
+#--> 1703275
+
+StopProfiler()
+# Executed in 0.08 second(s)
+
+/*-----------
+*/
+StartProfiler()
+
+oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
+? oLargeStr.Contains("Plane 15 Private Use")
+
+? oLarge.HowMany("Plane 15 Private Use")
+
+
+StopProfiler()
+#--> Executed in 0.02 second(s)
 
 /*-----------
 
