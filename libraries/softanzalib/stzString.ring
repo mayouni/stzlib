@@ -1714,6 +1714,9 @@ class stzString from stzObject
 
 		return nResult
 
+		def HowManySubstrings()
+			return This.NumberOfSubStrings()
+
 	def UniqueSubStrings()
 		acSubStrings = This.SubStrings()
 
@@ -1732,6 +1735,9 @@ class stzString from stzObject
 
 	def NumberOfUniqueSubStrings()
 		return len( This.UniqueSubStrings() )
+
+		def HowManyUniqueSubstrings()
+			return This.NumberOfUniqueSubStrings()
 
 	def SubStrings()
 		cMainSubStr = ""
@@ -1992,7 +1998,11 @@ class stzString from stzObject
 	 #    MARQUERS    #
 	#================#
 
+	  #------------------------#
+	 #  NORMALIZING MARQUERS  #
+	#------------------------#
 	// Removing zeros at the begining of marquer numbers
+
 	def NormalizeMarquers()
 		/* Example
 
@@ -2020,12 +2030,20 @@ class stzString from stzObject
 		def NormaliseMarquers()
 			This.NormaliseMarquers()
 
+	  #--------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS MARQUERS  #
+	#--------------------------------------------#
+
 	def ContainsMarquers()
 		if This.NumberOfMarquers() > 0
 			return TRUE
 		else
 			return FALSE
 		ok
+
+	  #----------------------------------------------#
+	 #  GETTING THE LIST OF MARQUERS IN THE STRING  #
+	#----------------------------------------------#
 
 	def Marquers()
 		anPos = This.FindAll("#")
@@ -2074,6 +2092,10 @@ class stzString from stzObject
 				stzRaise("Unsupported return type!")
 			off
 
+	  #---------------------------------------------------------------------#
+	 #  GETTING THE LIST OF MARQUERS IN THE STRING -- WITHOUT DUPLICATION  #
+	#---------------------------------------------------------------------#
+
 	def UniqueMarquers()
 		return StzListQ(This.Marquers()).UniqueItems()
 
@@ -2114,8 +2136,22 @@ class stzString from stzObject
 					stzRaise("Unsupported return type!")
 				off
 
+	  #------------------------------------------------#
+	 #  GETTING THE NUMBER OF MARQUERS IN THE STRING  #
+	#------------------------------------------------#
+
 	def NumberOfMarquers()
 		return len(This.Marquers())
+
+		def CountMarquers()
+			return This.NumberOfMarquers()
+
+		def HowManyMarquers()
+			return This.NumberOfMarquers()
+
+	  #-------------------------------------------------------------#
+	 #  GETTING THE NUMBER OF CHARS IN EACH MARQUER IN THE STRING  #
+	#-------------------------------------------------------------#
 
 	def NumberOfCharsInEachMarquer()
 		aResult = []
@@ -2126,6 +2162,12 @@ class stzString from stzObject
 		return aResult
 
 		def MarquersNumbersOfChars()
+			return This.NumberOfCharsInEachMarquer()
+
+		def CountCharsInEachMarquer()
+			return This.NumberOfCharsInEachMarquer()
+
+		def HowManyCharsInEachMarquer()
 			return This.NumberOfCharsInEachMarquer()
 
 	  #----------------------------------#
@@ -3284,6 +3326,9 @@ class stzString from stzObject
 		def CountCS(pcSubStr, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
+		def HowManyCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	def NumberOfOccurrence(pcSubStr)
@@ -3305,6 +3350,9 @@ class stzString from stzObject
 				return This.NumberOfOccurrenceOfSubstring(pcStr)
 
 		def Count(pcSubStr)
+			return This.NumberOfOccurrence(pcSubStr)
+
+		def HowMany(pcSubStr)
 			return This.NumberOfOccurrence(pcSubStr)
 
 		#>
@@ -3331,6 +3379,9 @@ class stzString from stzObject
 		def CountBytes()
 			return This.NumberOfBytes()
 
+		def HowManyBytes()
+			return This.NumberOfBytes()
+
 		#>
 	
 	def NumberOfBytesPerChar()
@@ -3343,6 +3394,9 @@ class stzString from stzObject
 		return aResult
 
 		def CountBytesPerChar()
+			return This.NumberOfBytesPerChar()
+
+		def HowManyBytesPerChar()
 			return This.NumberOfBytesPerChar()
 
 	  #-----------------------------------------#
@@ -5968,21 +6022,6 @@ class stzString from stzObject
 	  #============================#
 	 #   REPEATED LEADING CHARS   #
 	#============================#
-
-	def HasRepeatedLeadingCharsCS(pCaseSensitive)
-
-		if This.RepeatedLeadingCharsCS(pCaseSensitive) != NULL
-			return TRUE
-		else
-
-			return FALSE
-		ok
-
-		def HasLeadingRepeatedCharsCS(pCaseSensitive)
-			return This.HasRepeatedLeadingCharsCS(pCaseSensitive)
-
-		def HasLeadingCharsCS(pCaseSensitive)
-			return This.HasRepeatedLeadingCharsCS(pCaseSensitive)
 	
 	def RepeatedLeadingCharsCS(pCaseSensitive)
 		/* Example:
@@ -6026,9 +6065,15 @@ class stzString from stzObject
 			ok
 		ok
 
+		#< @FunctionFluentForm
+
 		def RepeatedLeadingCharsCSQ(pCaseSensitive)
 			return new stzString( This.RepeatedLeadingCharsCS(pCaseSensitive) )
 	
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def LeadingRepeatedCharsCS(pCaseSensitive)
 			return This.RepeatedLeadingCharsCS(pCaseSensitive)
 
@@ -6041,11 +6086,50 @@ class stzString from stzObject
 			def LeadingCharsCSQ(pCaseSensitive)
 				return new stzString( This.LeadingCharsCS(pCaseSensitive) )
 	
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedLeadingChars()
+		return This.RepeatedLeadingCharsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RepeatedLeadingCharsQ()
+			return new stzString( This.RepeatedLeadingChars() )
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def LeadingRepeatedChars()
+			return This.RepeatedLeadingChars()
+
+			def LeadingRepeatedCharsQ()
+				return new stzString( This.LeadingRepeatedChars() )
+	
+		def LeadingChars()
+			return This.RepeatedLeadingChars()
+
+			def LeadingCharsQ()
+				return new stzString( This.LeadingChars() )
+	
+		#>
+
+	  #-------------------------------------#
+	 #  GETTING THE REPEATED LEADING CHAR  #
+	#-------------------------------------#
+
 	def RepeatedLeadingCharCS(pCaseSensitive)
 
 		if This.HasRepeatedLeadingCharsCS(pCaseSensitive)
 			return This[1]
 		ok
+
+		#< @FunctionFleuntForms
+
+		def RepeatedLeadingCharCSQ(pCaseSensitive)
+			return This.RepeatedLeadingCharCSQR(pCaseSensitive, :stzChar)
 
 		def RepeatedLeadingCharCSQR(pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -6057,14 +6141,15 @@ class stzString from stzObject
 				return new stzChar(This.RepeatedLeadingCharCS(pCaseSensitive))
 
 			on :stzString
-				return new stzString(This.RepeatedLeadingChar(pCaseSensitive))
+				return new stzString(This.RepeatedLeadingCharCS(pCaseSensitive))
 			other
 				stzRaise("Unsupported returned type!")
 			off
 
-		def RepeatedLeadingCharCSQ(pCaseSensitive)
-			return This.RepeatedLeadingCharCSQR(pCaseSensitive, :stzChar)
-	
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def LeadingRepeatedCharCS(pCaseSensitive)
 			return This.RepeatedLeadingCharCS(pCaseSensitive)
 
@@ -6076,7 +6161,7 @@ class stzString from stzObject
 				return This.RepeatedLeadingCharCSQR(pCaseSensitive, pcReturnType)
 
 			def LeadingRepeatedCharCSQ(pCaseSensitive)
-				return This.LeadingRepeatedCharQR(pCaseSensitive, :stzChar)
+				return This.LeadingRepeatedCharCSQR(pCaseSensitive, :stzChar)
 	
 		def LeadingCharCS(pCaseSensitive)
 			return This.RepeatedLeadingCharCS(pCaseSensitive)
@@ -6091,6 +6176,72 @@ class stzString from stzObject
 			def LeadingCharCSQ(pCaseSensitive)
 				return This.LeadingCharCSQR(pCaseSensitive, :stzChar)
 	
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedLeadingChar(pCaseSensitive)
+		return This.RepeatedLeadingCharCS(:CaseSensitive = TRUE)
+
+
+		#< @FunctionFleuntForms
+
+		def RepeatedLeadingCharQ()
+			return This.RepeatedLeadingCharQR(:stzChar)
+
+		def RepeatedLeadingCharQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzChar
+				return new stzChar(This.RepeatedLeadingChar())
+
+			on :stzString
+				return new stzString(This.RepeatedLeadingChar())
+			other
+				stzRaise("Unsupported returned type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def LeadingRepeatedChar()
+			return This.RepeatedLeadingChar()
+
+			def LeadingRepeatedCharQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				return This.RepeatedLeadingCharQR(pcReturnType)
+
+			def LeadingRepeatedCharQ()
+				return This.LeadingRepeatedCharQR(:stzChar)
+				# TODO: Should it be always :stzString by default?
+				# check this beghaviour all over the library!
+	
+		def LeadingChar()
+			return This.RepeatedLeadingChar()
+
+			def LeadingCharQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				return This.RepeatedLeadingCharQR(pcReturnType)
+
+			def LeadingCharQ()
+				return This.LeadingCharQR(:stzChar)
+	
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  GETTING THE NUMBER OF REPEATED LEADING CHARS IN THE STRING  #
+	#--------------------------------------------------------------#
+
 	def NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
 		if This.HasRepeatedLeadingCharsCS(pCaseSensitive)
 			return StzStringQ( This.RepeatedLeadingCharsCS(pCaseSensitive) ).NumberOfChars()
@@ -6098,12 +6249,59 @@ class stzString from stzObject
 			return 0
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def NumberOfLeadingRepeatedCharsCS(pCaseSensitive)
 			return This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
 
 		def NumberOfLeadingCharsCS(pCaseSensitive)
 			return This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
 	
+		def CountLeadingRepeatedCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+
+		def HowManyLeadingRepeatedCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+
+		def CountLeadingCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+
+		def HowManyLeadingCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfRepeatedLeadingChars()
+		return This.NumberOfRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfLeadingRepeatedChars()
+			return This.NumberOfRepeatedLeadingChars()
+
+		def NumberOfLeadingChars()
+			return This.NumberOfRepeatedLeadingChars()
+	
+		def CountLeadingRepeatedChars()
+			return This.NumberOfRepeatedLeadingChars()
+
+		def HowManyLeadingRepeatedChars()
+			return This.NumberOfRepeatedLeadingChars()
+
+		def CountLeadingChars()
+			return This.NumberOfRepeatedLeadingChars()
+
+		def HowManyLeadingChars()
+			return This.NumberOfRepeatedLeadingChars()
+
+		#>
+
+	  #---------------------------------------------------------------------#
+	 #  CHECKING IF A GIVEN CHAR IS A REPEATED LEADING CHAR IN THE STRING  #
+	#---------------------------------------------------------------------#
+
 	def RepeatedLeadingCharIsCS(c, pCaseSensitive)
 		if This.HasRepeatedLeadingCharsCS(pCaseSensitive) and
 		   This.FirstCharQ().IsEqualToCS(c, pCaseSensitive)
@@ -6113,117 +6311,94 @@ class stzString from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def LeadingRepeatedCharIsCS(c, pCaseSensitive)
 			return This.RepeatedLeadingCharIsCS(c, pCaseSensitive)
 
 		def LeadingCharIsCS(c, pCaseSensitive)
 			return This.RepeatedLeadingCharIsCS(c, pCaseSensitive)
 	
-	#---
+		#>
 
-	def HasRepeatedLeadingChars()
-		return This.HasRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
+	#-- WITHOUT CASESENSITIVITY()
 
-		def HasLeadingRepeatedChars()
-			return This.HasRepeatedLeadingChars()
-
-		def HasLeadingChars()
-			return This.HasRepeatedLeadingChars()
-	
-	def RepeatedLeadingChars()
-		/* Example:
-			    'eeeTUNIS' 	--> 'eee'
-			'exeeeeeTUNIS' 	--> ''
-		*/
-
-		return This.RepeatedLeadingCharsCS(:CaseSensitive = TRUE)
-
-		def RepeatedLeadingCharsQ()
-			return new stzString( This.RepeatedLeadingChars() )
-	
-		def LeadingRepeatedChars()
-			return This.RepeatedLeadingChars()
-
-			def LeadingRepeatedCharsQ()
-				return new stzString( This.LeadingRepeatedChars() )
-	
-		def LeadingChars()
-			return This.RepeatedLeadingChars()
-
-			def LeadingCharsQ()
-				return new stzString( This.LeadingChars() )
-	
-	def RepeatedLeadingChar()
-		cResult = This.RepeatedLeadingCharCS(:CaseSensitive = TRUE)
-		return cResult
-
-		def RepeatedLeadingCharQ()
-			return This.RepeatedLeadingCharQR(:stzString)
-
-		def RepeatedLeadingCharQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzString
-				return new stzString(This.RepeatedLeadingChar())
-
-			on :stzChar
-				return new stzChar(This.RepeatedLeadingChar())
-
-
-			other
-				stzRaise("Unsupported returned type!")
-			off
-	
-		def LeadingRepeatedChar()
-			return This.RepeatedLeadingChar()
-
-			def LeadingRepeatedCharQ()
-				return This.LeadingRepeatedCharQR(:stzString)
-
-			def LeadingRepeatedCharQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.RepeatedLeadingCharQR(pcReturnType)
-	
-		def LeadingChar()
-			return This.RepeatedLeadingChar()
-
-			def LeadingCharQ()
-				return This.LeadingCharQR(:stzString)
-
-			def LeadingCharQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.RepeatedLeadingCharQR(pcReturnType)
-	
-	def NumberOfRepeatedLeadingChars()
-		return This.NumberOfRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
-
-		def NumberOfLeadingRepeatedChars()
-			return This.NumberOfRepeatedLeadingChars()
-
-		def NumberOfLeadingChars()
-			return This.NumberOfRepeatedLeadingChars()
-	
-	def RepeatedLeadingCharIs(c)
+	def RepeatedLeadingCharIs(c, pCaseSensitive)
 		return This.RepeatedLeadingCharIsCS(c, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def LeadingRepeatedCharIs(c)
 			return This.RepeatedLeadingCharIs(c)
 
 		def LeadingCharIs(c)
 			return This.RepeatedLeadingCharIs(c)
+	
+		#>
 
-	  #-----------------------------#
-	 #   REPEATED TRAILING CHARS   #
-	#-----------------------------#
+	  #----------------------------------------------------#
+	 #  CHECKING IF THE STRING HAS REPEATED LEADING CHAR  #
+	#----------------------------------------------------#
+
+	def HasRepeatedLeadingCharsCS(pCaseSensitive)
+		if This.RepeatedLeadingCharsCS(pCaseSensitive) != NULL
+			return TRUE
+		else
+
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def HasLeadingRepeatedCharsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingCharsCS(pCaseSensitive)
+
+		def HasLeadingCharsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingCharsCS(pCaseSensitive)
+
+		#--
+
+		def ContainsRepeatedLeadingCharsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingCharsCS(pCaseSensitive)
+
+		def ContainsLeadingRepeatedCharsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingCharsCS(pCaseSensitive)
+
+		def ContainsLeadingCharsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingCharsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def HasRepeatedLeadingChars()
+		return This.HasRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def HasLeadingRepeatedChars()
+			return This.HasRepeatedLeadingChars()
+
+		def HasLeadingChars()
+			return This.HasRepeatedLeadingChars()
+
+		#--
+
+		def ContainsRepeatedLeadingChars()
+			return This.HasRepeatedLeadingChars()
+
+		def ContainsLeadingRepeatedChars()
+			return This.HasRepeatedLeadingChars()
+
+		def ContainsLeadingChars()
+			return This.HasRepeatedLeadingChars()
+
+		#>
+
+
+	  #--------------------------------------------------------#
+	 #   CHECKING IF THE STRING HAS REPEATED TRAILING CHARS   #
+	#--------------------------------------------------------#
 
 	def HasRepeatedTrailingCharsCS(pCaseSensitive)
 		return This.Copy().ReverseCharsQ().HasRepeatedLeadingCharsCS(pCaseSensitive)
@@ -6234,6 +6409,21 @@ class stzString from stzObject
 		def HasTrailingCharsCS(pCaseSensitive)
 			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
 	
+	#-- WITHOUT CASESENSITIVITY
+
+	def HasRepeatedTrailingChars()
+		return This.HasRepeatedTrailingCharsCS(:CaseSensitive = TRUE)
+
+		def HasTrailingRepeatedChars()
+			return This.HasRepeatedTrailingChars()
+
+		def HasTrailingChars()
+			return This.HasRepeatedTrailingChars()
+
+	  #-----------------------------------------#
+	 #   GETTING THE REPEATED TRAILING CHARS   #
+	#-----------------------------------------#
+
 	def RepeatedTrailingCharsCS(pCaseSensitive)
 		/* Example:
 			'TUNISeee' 	--> 'eee'
@@ -6258,6 +6448,30 @@ class stzString from stzObject
 			def TrailingCharsCSQ(pCaseSensitive)
 				return new stzString( This.TrailingCharsCS(pCaseSensitive) )
 	
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedTrailingChars()
+		return This.RepeatedTrailingCharsCS(:CaseSensitive = TRUE)
+
+		def RepeatedTrailingCharsQ()
+			return new stzString( This.RepeatedTrailingChars() )
+	
+		def TrailingRepeatedChars()
+			return This.RepeatedTrailingChars()
+
+			def TrailingRepeatedCharsQ()
+				return new stzString( This.TrailingRepeatedChars() )
+	
+		def TrailingChars()
+			return This.RepeatedTrailingChars()
+
+			def TrailingCharsQ()
+				return new stzString( This.TrailingChars() )
+
+	  #----------------------------------------#
+	 #   GETTING THE REPEATED TRAILING CHAR   #
+	#----------------------------------------#
+
 	def RepeatedTrailingCharCS(pCaseSensitive)
 		if This.HasRepeatedTrailingCharsCS(pCaseSensitive)
 			return This[:LastChar]
@@ -6308,68 +6522,8 @@ class stzString from stzObject
 			def TrailingCharCSQ(pCaseSensitive)
 				return This.TrailingCharCSQR(pCaseSensitive, :stzChar)
 	
-	def NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-		if This.HasRepeatedTrailingCharsCS(pCaseSensitive)
-			return StzStringQ( This.RepeatedTrailingCharsCS(pCaseSensitive) ).NumberOfChars()
-		else
-			return 0
-		ok
+	#-- WITHOUT CASESENSITIVITY
 
-		def NumberOfTrailingRepeatedCharsCS(pCaseSensitive)
-			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-
-		def NumberOfTrailingCharsCS(pCaseSensitive)
-			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-	
-	def RepeatedTrailingCharIsCS(c, pCaseSensitive)
-		if This.HasRepeatedTrailingCharsCS(pCaseSensitive) and
-		   This.LastCharQ().IsEqualToCS(c, pCaseSensitive)
-
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		def TrailingRepeatedCharIsCS(c, pCaseSensitive)
-			return This.RepeatedTrailingCharIsCS(c, pCaseSensitive)
-
-		def TrailingCharIsCS(c, pCaseSensitive)
-			return This.RepeatedTrailingCharIsCS(c, pCaseSensitive)
-	
-	#---
-	
-	def HasRepeatedTrailingChars()
-		return This.HasRepeatedTrailingCharsCS(:CaseSensitive = TRUE)
-
-		def HasTrailingRepeatedChars()
-			return This.HasRepeatedTrailingChars()
-
-		def HasTrailingChars()
-			return This.HasRepeatedTrailingChars()
-	
-	def RepeatedTrailingChars()
-		/* Example:
-			'TUNISeee' 	--> 'eee'
-			'TUNISexeeeee' 	--> ''
-		*/
-
-		return This.RepeatedTrailingCharsCS(:CaseSensitive = TRUE)
-
-		def RepeatedTrailingCharsQ()
-			return new stzString( This.RepeatedTrailingChars() )
-	
-		def TrailingRepeatedChars()
-			return This.RepeatedTrailingChars()
-
-			def TrailingRepeatedCharsQ()
-				return new stzString( This.TrailingRepeatedChars() )
-	
-		def TrailingChars()
-			return This.RepeatedTrailingChars()
-
-			def TrailingCharsQ()
-				return new stzString( This.TrailingChars() )
-	
 	def RepeatedTrailingChar()
 		return This.RepeatedTrailingCharCS(:CaseSensitive = TRUE)
 
@@ -6418,7 +6572,26 @@ class stzString from stzObject
 				ok
 
 				return This.RepeatedTrailingCharQR(pcReturnType)
+
+	  #--------------------------------------------------#
+	 #   GETTING THE NUMBER OF REPEATED TRAILING CHARS  #
+	#--------------------------------------------------#
+
+	def NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+		if This.HasRepeatedTrailingCharsCS(pCaseSensitive)
+			return StzStringQ( This.RepeatedTrailingCharsCS(pCaseSensitive) ).NumberOfChars()
+		else
+			return 0
+		ok
+
+		def NumberOfTrailingRepeatedCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+
+		def NumberOfTrailingCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
 	
+	#-- WITHOUT CASESENSITIVITY
+
 	def NumberOfRepeatedTrailingChars()
 		return This.NumberOfRepeatedTrailingCharsCS(:CaseSensitive = TRUE)
 
@@ -6427,7 +6600,28 @@ class stzString from stzObject
 
 		def NumberOfTrailingChars()
 			return This.NumberOfRepeatedTrailingChars()
+
+	  #------------------------------------------------------------#
+	 #   CHECHKING IF A GIVEN CHAR IS THE REPEATED TRAILING CHAR  #
+	#------------------------------------------------------------#
+
+	def RepeatedTrailingCharIsCS(c, pCaseSensitive)
+		if This.HasRepeatedTrailingCharsCS(pCaseSensitive) and
+		   This.LastCharQ().IsEqualToCS(c, pCaseSensitive)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def TrailingRepeatedCharIsCS(c, pCaseSensitive)
+			return This.RepeatedTrailingCharIsCS(c, pCaseSensitive)
+
+		def TrailingCharIsCS(c, pCaseSensitive)
+			return This.RepeatedTrailingCharIsCS(c, pCaseSensitive)
 	
+	#-- WITHOUT CASESENSITIVITY
+
 	def RepeatedTrailingCharIs(c)
 		return This.RepeatedTrailingCharIsCS(c, :CaseSensitive = TRUE)
 
@@ -6474,7 +6668,7 @@ class stzString from stzObject
 		def LeadingCharsRemovedCS(pCaseSensitive)
 			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedLeadingChars()
 		This.RemoveRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
@@ -6861,7 +7055,7 @@ class stzString from stzObject
 		def TrailingCharRemovedCS(c, pCaseSensitive)
 			return This.ThisRepeatedTrailingCharRemovedCS(c, pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisRepeatedTrailingChar(c)
 		if This.RepeatedTrailingCharQ().IsEqualTo(c)
@@ -6952,7 +7146,7 @@ class stzString from stzObject
 		def TheseLeadingAndTrailingCharsRemovedCS(c1, c2, pCaseSensitive)
 			return This.TheseRepeatedLeadingAndTrailingCharsRemoved(c1, c2, pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveTheseRepeatedLeadingAndTrailingChars(c1, c2)
 		This.RemoveTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, :CaseSensitive = TRUE)
@@ -7219,7 +7413,6 @@ class stzString from stzObject
 
 		def EachTrailingRepeatedCharReplaced(cNewSubStr)
 			return This.EachRepeatedTrailingCharReplaced(cNewSubStr)
-
 
 	  #-----------------------------------------------#
 	 #   REPLACING EACH LEADING AND TRAILING CHARS   #
@@ -8876,6 +9069,12 @@ class stzString from stzObject
 
 	def NumberOfAntiSections(paSections)
 		return len( This.FindAntiSections(paSections) )
+
+		def CountAntiSections(paSections)
+			return This.NumberOfAntiSections(paSections)
+
+		def HowManyAntiSections(paSections)
+			return This.NumberOfAntiSections(paSections)
 
 	def FindAntiSections(paSections)
 
@@ -13661,6 +13860,7 @@ o1 = new stzString("12*34*56*78")
 	#-----------------------------------------------------------------------#
 
 	def FindFirstOccurrenceXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		#< QtBased : Uses QStringObject >
 
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
@@ -13677,14 +13877,6 @@ o1 = new stzString("12*34*56*78")
 		if NOT isNumber(pnStartingAt)
 			stzRaise("Incorrect param type! pnStartingAt must be a number.")
 		ok
-
-
-		if NOT This.SectionQ(pnStartingAt, :Last).ContainsCS(pcSubStr, pCaseSensitive)
-			return 0
-		ok
-
-		nPos = 0 
-		aResult = []
 
 		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
@@ -13773,7 +13965,14 @@ o1 = new stzString("12*34*56*78")
 	// or returns 0 if nothing found
 
 	def FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
-		return This.FindFirstOccurrenceXTCS(pcSubStr, 1, pCaseSensitive)
+		#< QtBased : Uses QStringObject >
+
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			pcSubStr = pcSubStr[2]
+		ok
+
+		nResult = This.QStringObject().indexOf(pcSubStr, 0, pCaseSensitive) + 1
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -13956,27 +14155,13 @@ o1 = new stzString("12*34*56*78")
 			return 0
 		ok
 
-		nResult = 0
-		nLen = This.NumberOfChars()
+		n = This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+		if n = 0
+			return 0
+		ok
 
-		oSubStr = new stzString(pcSubStr)
-		cLastChar = oSubStr.LastChar()
-		nLenSubStr = oSubStr.NumberOfChars()
-
-		for i = nLen to 1 step - 1
-
-			if This.CharQ(i).IsEqualToCS(cLastChar, pCaseSensitive) and
-			   This.SectionQ(i - nLenSubStr + 1, i).IsEqualToCS(pcSubStr, pCaseSensitive)
-
-				nResult = i - nLenSubStr + 1
-				exit
-
-			ok
-		end
-
-
+		nResult = This.NthOccurrenceCS(n, pcSubStr, pCaseSensitive)
 		return nResult
-
 
 		#< @FunctionAlternativeForm
 	
@@ -16322,20 +16507,42 @@ o1 = new stzString("12*34*56*78")
 		anResult = len( This.FindBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive) )
 		return anResult
 
+		#< @FunctionAlternativeForms
+
 		def NumberOfOccurrencesBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			return This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 		def NumberOfSectionsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			return This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
+		def CountBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+		def HaowManyBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceBetween(pcSubStr, pcBound1, pcBound2)
 		return This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def NumberOfOccurrencesBetween(pcSubStr, pcBound1, pcBound2)
+			return This.NumberOfOccurrenceBetween(pcSubStr, pcBound1, pcBound2)
+
 		def NumberOfSectionsBetween(pcSubStr, pcBound1, pcBound2)
 			return This.NumberOfOccurrenceBetween(pcSubStr, pcBound1, pcBound2)
 
+		def CountBetween(pcSubStr, pcBound1, pcBound2)
+			return This.NumberOfOccurrenceBetween(pcSubStr, pcBound1, pcBound2)
+
+		def HaowManyBetween(pcSubStr, pcBound1, pcBound2)
+			return This.NumberOfOccurrenceBetween(pcSubStr, pcBound1, pcBound2)
+
+		#>
 	  #-----------------------------------------------------------------------#
 	 #  NUMBER OF OCCURRENCE OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
 	#-----------------------------------------------------------------------#
@@ -16388,10 +16595,79 @@ o1 = new stzString("12*34*56*78")
 		nResult = This.NumberOfOccurrenceBetweenCS(pcSubStr, pacBetween[1], pacBetween[2], pCaseSensitive)
 		return nResult
 
+		#< @FunctionAlternativeForm
+	
+		def NumberOfOccurrencesXTCS(pcSubStr, pacBetween, pCaseSensitive)
+			return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
+
+		def NumberOfOccurrenceOfSubstringXTCS(pcSubStr, pacBetween, pCaseSensitive)
+			return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
+
+		def NumberOfOccurrencesOfSubstringXTCS(pcSubStr, pacBetween, pCaseSensitive)
+			return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
+
+		def CountXTCS(pcSubStr, pacBetween, pCaseSensitive)
+			return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
+
+		def HowManyXTCS(pcSubStr, pacBetween, pCaseSensitive)
+			return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceXT(pcSubStr, pacBetween)
 		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+	
+		def NumberOfOccurrencesXT(pcSubStr, pacBetween)
+			return This.NumberOfOccurrenceXT(pcSubStr, pacBetween)
+
+		def NumberOfOccurrenceOfSubstringXT(pcSubStr, pacBetween)
+			return This.NumberOfOccurrenceXT(pcSubStr, pacBetween)
+
+		def NumberOfOccurrencesOfSubstringXT(pcSubStr, pacBetween)
+			return This.NumberOfOccurrenceXT(pcSubStr, pacBetween)
+
+		def CountXT(pcSubStr, pacBetween)
+			return This.NumberOfOccurrenceXT(pcSubStr, pacBetween)
+
+		def HowManyXT(pcSubStr, pacBetween)
+			return This.NumberOfOccurrenceXT(pcSubStr, pacBetween)
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #  GETTING THE NUMBER OF CHARS/SUBSTRINGS VERIFYING A GIVEN CONDITION  #
+	#----------------------------------------------------------------------#
+
+	def NumberOfOccurrenceW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		oCondition = new stzString(pccondition)
+
+		if oCondition.ContainsCS("@substring", :CS = FALSE)
+			return This.NumberOfSubStringsW(pcCondition)
+		else
+			return This.NumberOfCharsW(pcCondition)
+		ok
+
+		#< @FunctionAlternativeForm
+
+		def CountW(pcCondition, pCaseSensitive)
+			return This.NumberOfOccurrenceW(pcCondition, pCaseSensitive)
+
+		def HowManyW(pcCondition, pCaseSensitive)
+			return This.NumberOfOccurrenceW(pcCondition, pCaseSensitive)
+
+		#>
 
 	  #----------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS N OCCURRENCES OF A GIVEN SUBSTRING  #
@@ -19118,28 +19394,35 @@ o1 = new stzString("12*34*56*78")
 	 #   CONTAINMENT OF A GIVEN SUBSTRING   #
 	#======================================#
 
-	def ContainsCS(cSubStr, pCaseSensitive) # :CaseSensitive = TRUE or :CaseSensitive = FALSE
-	
-		if isList(cSubStr)
-			return This.ContainsTheseSubStringsCS(cSubStr, pCaseSensitive)
+	def ContainsCS(pcSubStr, pCaseSensitive) # :CaseSensitive = TRUE or :CaseSensitive = FALSE
+		#< QtBased : Uses QString.indexOf() >
+
+		# Checking params
+
+		if isList(pcSubStr)
+			return This.ContainsTheseSubStringsCS(pcSubStr, pCaseSensitive)
 		ok
 
-		if NOT isString(cSubStr)
+		if NOT isString(pcSubStr)
 			stzRaise("Incorrect param type! cSubStr must be a STRING, while you are providing a " + ring_type(cSubStr) + ".")
 		ok
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if isNumber(pCaseSensitive) and
-			  (pCaseSensitive = 0 or pCaseSensitive = 1)
-
-			return QStringObject().contains(cSubStr, pCaseSensitive)
-
-		else
+		if NOT IsBoolean(pCaseSensitive)
 			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
-	
+		ok
+
+		# Doing the job (Qt-side)
+
+		nPos = This.QStringObject().indexOf(pcSubStr, 0, pCaseSensitive) + 1
+
+		if nPos > 0
+			return TRUE
+		else
+			return FALSE
 		ok
 
 		#< @FunctionAlternativeForm
@@ -19184,8 +19467,8 @@ o1 = new stzString("12*34*56*78")
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def Contains(cSubStr)
-		return This.ContainsCS(cSubstr, :CaseSensitive = TRUE)
+	def Contains(pcSubStr)
+		return This.ContainsCS(pcSubstr, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -28919,9 +29202,6 @@ o1 = new stzString("12*34*56*78")
 		def CountCharsW(pcCondition)
 			return This.NumberOfCharsW(pcCondition)
 
-		def CountW(pcCondition)
-			return This.NumberOfCharsW(pcCondition)
-
 		def CountCharsWhere(pcCondition)
 			return This.NumberOfCharsW(pcCondition)
 
@@ -29435,18 +29715,30 @@ o1 = new stzString("12*34*56*78")
 
 		def Length()
 			return This.NumberOfChars()
-	
+
+		def CountChars()
+			return This.NumberOfChars()
+
+		def HowManyChars()
+			return This.NumberOfChars()
+
 	def NumberOfLetters()
 		return len(This.OnlyLetters())
-
-		def NumberOfLettersQ()
-			return new stzNumber(This.NumberOfLetters())
 	
+		def CountLetters()
+			return This.NumberOfLetters()
+
+		def HowManyLetters()
+			return This.NumberOfLetters()
+
 	def NumberOfSpaces()
 		return len(This.FindAll(" "))
 
-		def NumberOfSpacesQ()
-			return new stzNumber(This.NumberOfSpaces())
+		def CountSpaces()
+			return This.NumberOfSpaces()
+
+		def HowManySpaces()
+			return This.NumberOfSpaces()
 
 	  #--------------------------------------------------------------#
 	 #  CHECKING IF THE STRING HAS MORE CHARS THAN AN OTHER STRING  #
