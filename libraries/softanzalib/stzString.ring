@@ -13411,6 +13411,10 @@ class stzString from stzObject
 			stzRaise("Incorrect param type! pcSubStr must be as a string.")
 		ok
 
+		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+			return 0
+		ok
+
 		if isString(n)
 			if Q(n).Lowercased() = "first"
 				n = 1
@@ -13672,6 +13676,11 @@ o1 = new stzString("12*34*56*78")
 
 		if NOT isNumber(pnStartingAt)
 			stzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+
+
+		if NOT This.SectionQ(pnStartingAt, :Last).ContainsCS(pcSubStr, pCaseSensitive)
+			return 0
 		ok
 
 		nPos = 0 
@@ -13941,6 +13950,10 @@ o1 = new stzString("12*34*56*78")
 	def FindLastOccurrenceCS(pcSubstr, pCaseSensitive)
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
+		ok
+
+		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+			return 0
 		ok
 
 		nResult = 0
@@ -14743,7 +14756,7 @@ o1 = new stzString("12*34*56*78")
 	#-------------------------------------------------#
 
 	def FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
-		#< QtBased >
+		#< QtBased : Uses QString as a backend for searching>
 
 		# Resolving the pcSubStr param
 
@@ -14760,6 +14773,10 @@ o1 = new stzString("12*34*56*78")
 
 		if NOT isString(pcSubStr)
 			stzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+			return []
 		ok
 
 		# Resolving pCaseSensitive
