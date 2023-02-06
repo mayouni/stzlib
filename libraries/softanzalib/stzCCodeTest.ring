@@ -164,7 +164,7 @@ StopProfiler()
 # Executed in 0.28 second(s)
 
 /*----------
-*/
+
 StartProfiler()
 
 	o1 = new stzCCode('{

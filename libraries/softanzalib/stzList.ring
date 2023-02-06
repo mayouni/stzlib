@@ -15097,6 +15097,9 @@ class stzList from stzObject
 			pItem = pItem[2]
 		ok
 	
+		if NOT This.ContainsCS(pItem, pCaseSensitive)
+			return []
+		ok
 
 		nLen = This.NumberOfItems()
 		anResult = []
@@ -15377,6 +15380,10 @@ class stzList from stzObject
 			ok
 		ok
 
+		if NOT This.ContainsCS(pItem, pCaseSensitive)
+			return 0
+		ok
+
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -15580,6 +15587,10 @@ class stzList from stzObject
 
 		if isObject(pItem)
 			StzRaise("Can't process! Objects can not be found yet.")
+		ok
+
+		if NOT This.ContainsCS(pItem, pCaseSensitive)
+			return 0
 		ok
 
 		cType = ring_type(pItem)
@@ -16800,6 +16811,10 @@ class stzList from stzObject
 
 		cItem = Q(pItem).Stringified()
 		if cItem = ""
+			return 0
+		ok
+
+		if NOT This.ContainsCS(pItem, pCaseSensitive)
 			return 0
 		ok
 

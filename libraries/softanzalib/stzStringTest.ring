@@ -135,29 +135,31 @@ o1 = new stzString([
 #--> <<__♥___RING___>>
 
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*-----------
 
 StartProfiler()
 
-oLargeStr = new stzString( UnicodeData() )
+oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
 
 ? oLargeStr.NumberOfChars()
 #--> 1_897_793
 # Executed in 0.02 second(s)
 
 ? oLargeStr.NumberOfLines()
-#--> 34_626
+#--> 34_627
 # Executed in 0.02 second(s)
 
 ? oLargeStr.SplitQ(NL).NumberOfItems()
+#--> 34_627
 #--> Executed in 0.45 second(s)
 
 StopProfiler()
 # Executed in 0.85 second(s)
 
 /*-----------
+# WARNING: takes 14 seconds to complete!
 
 StartProfiler()
 
@@ -169,7 +171,7 @@ StopProfiler()
 # Executed in 14.56 second(s)
 
 /*-----------
-
+	
 # Testing extreme cases in FindNthNext()/FindNthPrevious on a small string
 
 StartProfiler()
@@ -202,7 +204,7 @@ o1 = new stzString("•••••••••")
 #--> 1
 
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.12 second(s)
 
 /*-----------
 
@@ -252,14 +254,20 @@ StopProfiler()
 # Executed in 0.03 second(s)
 
 /*-----------
-
+*/
 # Testing FindLast() on a very large string (~2M chars)
 
 StartProfiler()
 
 o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
+? o1.Contains("جميل")
+#--> FALSE
+
 ? o1.FindLast("جميل")
-#--> 0
+#--> FALSE
+
+? o1.FindLast("جميل")
+#--> FALSE
 
 StopProfiler()
 # Executed in 0.03 second(s)
@@ -1218,15 +1226,11 @@ o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
 ? @@S( o1.SplitW('This[@i] = "*"') )
 # [ [ 4, 8, 10 ], [ 14, 16 ], [ 18 ] ]
 
-//? o1.FindWXT('@CurrentItem = "*"')
-
-//? o1.SplitWXT('@CurrentItem = "*"')
-
 proff()
 # Executed in 0.07 second(s)
 
 /*--------
-*/
+
 pron()
 
 o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
@@ -1305,24 +1309,32 @@ o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
 #--> [ [ 7, 11 ], [ 21, 26 ], [ 39, 43 ], [ 55, 59 ] ]
 
 /*================
-*/
+
 StartProfiler()
 
-o1 = new stzString( " This: @i - 1.23 and this: @i + 378.12! " )
+o1 = new stzString( " This 10 : @i - 1.23 and this: @i + 378.12! " )
 ? o1.NumbersComingAfter("@i")
-#--> [ "-1.23", "378.12" ]
+#--> [ "-1.23", "+378.12" ]
 
 ? o1.NthNumberComingAfter(2, "@i")
-#--> "378.12"
+#--> "+378.12"
 
 ? o1.Numbers()
+#--> [ "10", "-1.23", "+378.12" ]
 
-/*
+StopProfiler()
+# Executed in 0.51 second(s)
+
+/*-----------------
+
+pron()
+
 o1 = new stzString( " This[ @i - 1 ] = This[ @i + 3 ] " )
 ? o1.NumbersComingAfter("@i")
-#--> [ "-1", "3" ]
-*/
-StopProfiler()
+#--> [ "-1", "+3" ]
+
+proff()
+#--> Executed in 0.14 second(s)
 
 /*-----------------
 
