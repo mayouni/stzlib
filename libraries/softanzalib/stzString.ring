@@ -13152,7 +13152,6 @@ class stzString from stzObject
 
 		#>
 		
-
 	  #===========================================#
 	 #  CHECKING IF THE STRING CONTAINS MARKERS  #
 	#===========================================#
@@ -13167,62 +13166,6 @@ class stzString from stzObject
 		else
 			return FALSE
 		ok
-
-	  #---------------------------------------#
-	 #  EXTRACTING MARQUERS FROM THE STRING  #
-	#---------------------------------------#
-
-	def ExtractMarkers()
-		/*
-		? StzString('My kids are #1, #2, and #3!').ExtractMarkers()
-
-		# --> [ "#1", "#2", "#3" ]
-		*/
-
-		return StzHashListQ( This.ExtractMarkersXT() ).Keys()
-
-	  #------------------------------------------------#
-	 #  GETTING THE NUMBER OF MARQUERS IN THE STRING  #
-	#------------------------------------------------#
-
-	def NumberOfMarkers()
-		return len( This.ExtractMarkers() )
-
-		def CountMarquers()
-			return This.NumberOfMarquers()
-
-		def HowManyMarquers()
-			return This.NumberOfMarquers()
-
-	  #--------------------------------------------#
-	 #  GETTING MARQUERS POSITIONS IN THE STRING  #
-	#--------------------------------------------#
-
-	def ExtractMarkersPositions()
-		/*
-		? StzString('My kids are #1, #2, and #3!').ExtractMarkersXT()
-
-		# --> [ 13, 16, 23 ]
-		*/
-
-		return StzHashListQ( This.ExtractMarkersXT() ).Values()
-
-	  #------------------------------------------------------#
-	 #  GETTING MARQUERS AND THEIR POSITIONS IN THE STRING  #
-	#------------------------------------------------------#
-
-	def ExtractMarkersXT() # TODO
-		/*
-		? StzString('My kids are #1, #2, and #3!').ExtractMarkersXT()
-
-		# --> [ "#1" = 13, "#2" = 16, "#3" = 23 ]
-		*/
-
-
-		/* ... */
-
-		def ExtractMArkersAndTheirPositions()
-			return This.ExtractMarkersXT()
 
 	  #=============================================#
 	 #    CHECKING IF THE STRING IS A RING CODE    # 
@@ -13445,7 +13388,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def StartsWith(pcSubStr)
-		return @oQString.startsWith(pcSubStr, 0)
+		return This.StartsWithCS(pcSubStr, :CaseSensitive = TRUE)
 
 		def BeginsWith(pcSubStr)
 			return This.StartsWith(pcSubStr)
@@ -13748,9 +13691,9 @@ class stzString from stzObject
 
 		? o1.FindNthXT(2, "word", :StartingAt = 5)
 
-o1 = new stzString("12*34*56*78")
-? o1.FirstXTT("*", :Between = ["*", "*"])
-
+		o1 = new stzString("12*34*56*78")
+		? o1.FirstXTT("*", :Between = ["*", "*"])
+		
 		*/
 
 		# Enabling the syntax :BoundedBy = "*"
@@ -13963,9 +13906,9 @@ o1 = new stzString("12*34*56*78")
 	
 		#>
 
-	  #---------------------------------------------------#
-	 #      FINDING FIRST OCCURRENCE OF A SUBSTRING      #
-	#---------------------------------------------------#
+	  #--------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING   #
+	#--------------------------------------------#
 
 	// Returns the position of the 1st occurrence of the substring inside the string
 	// or returns 0 if nothing found
@@ -13975,6 +13918,14 @@ o1 = new stzString("12*34*56*78")
 
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
+		ok
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must 0 or 1 (TRUE or FALSE).")
 		ok
 
 		nResult = This.QStringObject().indexOf(pcSubStr, 0, pCaseSensitive) + 1
@@ -14152,23 +14103,96 @@ o1 = new stzString("12*34*56*78")
 	 #      FINDING LAST OCCURRENCE OF A SUBSTRING     #
 	#-------------------------------------------------#
 
+	def FirstHalf()
+
+		nPos = floor(This.NumberOfChars() / 2)
+		acResult = This.Section(1, nPos)
+
+		return acResult
+		
+	def SecondHalf()
+		nLen = This.NumberOfChars()
+		nPos = floor(nLen / 2) + 1
+		acResult = This.Section(nPos, nLen)
+
+		return acResult
+
+	def FirstHalfXT()
+
+		nPos = ceil(This.NumberOfChars() / 2)
+		acResult = This.Section(1, nPos)
+
+		return acResult
+		
+	def SecondHalfXT()
+		nLen = This.NumberOfChars()
+		nPos = ceil(nLen / 2) + 1
+		acResult = This.Section(nPos, nLen)
+
+		return acResult
+
+	def Halves()
+		acResult = []
+		acResult + This.FirstHalf() + This.SecondHalf()
+
+		return acResult
+
+		def Bisect()
+			return his.Halves()
+
 	def FindLastOccurrenceCS(pcSubstr, pCaseSensitive)
+		/* EXAMPLE
+
+		#                      4   8   2  5 
+		o1 = new stzString("---*---*---*---")
+		? o1.FindLast("*")
+		#--> 12
+
+		*/
+
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
-		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+		if NOT This.ContainsCS(pcSubstr, pCaseSensitive)
 			return 0
 		ok
 
-		n = This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
-		if n = 0
-			return 0
-		ok
+		nLen = This.NumberOfChars()
 
-		nResult = This.NthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+		cSection = This.String()
+
+		while TRUE
+			if This.NumberOfOccurrenceCS(pcsubStr, pCaseSensitive) = 1
+				exit
+			ok
+
+			acHalves = Q(cSection).Bisect()
+			if Q(acHalves[2]).ContainsCS(pcSubStr, pCaseSensitive)
+				cSection = acHalves[2]
+
+			but Q(acHalves[1]).ContainsCS(pcSubStr, pCaseSensitive)
+				cSection = acHalves[1]
+
+			ok
+
+			
+		end
+
+		# work on thtat cSection
+
+		? cSection
+/*
+Solution 2
+		n = This.NumberOfOccurrenceCS(pcSubstr, pCaseSensitive)
+		nResult = This.FindNthCS(n, pcsubStr, pCaseSensitive)
 		return nResult
+Solution 3
+		n = This.ReverseQ().FindFirstCS( Q(pcSubStr).Reversed(), pCaseSensitive )
+		nResult = This.NumberOfChars() - n
 
+		return nResult
+*/
 		#< @FunctionAlternativeForm
 	
 		def FindLastCS(pcSubStr, pCaseSensitive)
@@ -14870,24 +14894,7 @@ o1 = new stzString("12*34*56*78")
 
 		nResult = This.SectionQ(1, pnStartingAt - 1).FindLastCS(pcSubStr, pCaseSensitive)
 		return nResult
-/*
-? oSection.content()
-		nLen = oSection.NumberOfItems()
-		i = nLen + 1
 
-		while TRUE
-			i--
-			if i = 0
-				exit
-			ok
-
-			if Q(oSection[i]).IsEqualToCS(pcSubStr, pCaseSensitive)
-				return i
-			ok
-		end
-
-		return 0	
-*/
 
 		def FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 			return This.FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)

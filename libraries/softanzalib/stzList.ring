@@ -5903,7 +5903,7 @@ class stzList from stzObject
 	def IsPairOfLists()
 		return This.IsPair() and This.IsListOfLists()
 
-		def IsAPairOfList()
+		def IsAPairOfLists()
 			return This.IsPairOfLists()
 
 	def IsListOfPairsOfLists()
@@ -15264,9 +15264,6 @@ class stzList from stzObject
 		nLen = This.NumberOfItems()
 		anResult = []
 
-		nPos = 1
-		n = 0
-
 		# Managing the first item apart
 
 		firstItem = This.FirstItem()
@@ -15288,13 +15285,18 @@ class stzList from stzObject
 
 		# Managing the rest of the list
 
+		nPos = 1
+		n = 0
+		nMax = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+
 		while TRUE
 			n++
-			if n > nLen
+			if n > nLen or len(anResult) = nMax
 				exit
 			ok
 
 			nPos = This.FindNextCS(pItem, :StartingAt = nPos, pCaseSensitive)
+
 			if nPos != 0
 				anResult + nPos
 
@@ -15526,6 +15528,13 @@ class stzList from stzObject
 	# UPDATE: Lists are now findable (only objects are left for future)
 
 	def FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzList([ 1, 2, "*", 4, 5, "*", 7, 8, "*", 10 ])
+		? o1.FindNth(3, "*")
+		#--> 9
+
+		*/
 
 		if isObject(pItem)
 			StzRaise("Can't process! Objects can not be found yet.")
@@ -15538,6 +15547,10 @@ class stzList from stzObject
 			but n = :Last or n = :LastOccurrence
 				return This.FindLastCS(pItem, pCaseSensitive)
 			ok
+
+		but isNumber(n) and n = 1
+			return This.FindFirstCS(pItem, pCaseSensitive)
+
 		ok
 
 		if NOT This.ContainsCS(pItem, pCaseSensitive)
@@ -15547,6 +15560,12 @@ class stzList from stzObject
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
+
+		if n > This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+			return 0
+		ok
+
+		#-- Doing the job
 
 		cType = ring_type(pItem)
 
@@ -15570,7 +15589,7 @@ class stzList from stzObject
 				nTimes++
 
 				if nTimes = n
-					nResult = nPos
+					nResult = nPos - 1
 					return nPos	
 				else
 					nStart = nPos + 1
@@ -15693,8 +15712,27 @@ class stzList from stzObject
 	#---------------------------------------------------#
 
 	def FindFirstOccurrenceCS(pItem, pCaseSensitive)
-		return This.FindNthCS(1, pItem, pCaseSensitive)
+		if isList(pItem) and Q(pItem).IsOfNamedParam()
+			pItem = pItem[2]
+		ok
 
+		if isObject(pItem)
+			StzRaise("Can't process! Objects can not be found yet.")
+		ok
+
+		cItem = Q(pItem).Stringified()
+
+		acSplitted = This.ToCodeQ().SplitCS(cItem, pCaseSensitive)
+
+		nResult = 0
+
+		if len(acSplitted) > 1
+
+			nResult = Q(acSplitted[1]).
+				  NumberOfOccurrence(",") + 1
+		ok
+
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -16730,6 +16768,18 @@ class stzList from stzObject
 
 	def FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
 
+		if (isString(n) and (n = :First or n = :FirstOccurrence)) or
+		   (isNumber(n) and n = 1)
+
+			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+		ok
+
+		if (isString(n) and (n = :Last or n = :LastOccurrence))
+
+			return This.FindLastOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+		ok
 
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
@@ -16763,9 +16813,9 @@ class stzList from stzObject
 			return nLen
 		ok
 
-		# Full check
+		# Doing the job
 
-		nResult  = This.SectionQ(nStart+1, :LastItem).
+		nResult  = This.SectionQ(nStart+1, nLen).
 				FindNthCS(n, pItem, pCaseSensitive)
 
 		if nResult != 0
@@ -16938,25 +16988,52 @@ class stzList from stzObject
 	 #      STARTING AT A GIVEN POSITION           #
 	#---------------------------------------------#
 
-	def FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
-		return This.FindNextNthOccurrenceCS(1, pItem, nStart, pCaseSensitive)
-	
+	def FindNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
+		? o1.FindNext("*", :StartingAt = 4)
+		#--> 7
+
+		*/
+
+		if isList(pItem) and Q(pItem).IsOfNamedParam()
+			pItem = pItem[2]
+		ok
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		nResult = This.SectionQ(pnStartingAt + 1, This.NumberOfItems()).
+			FindFirstCS(pItem, pCaseSensitive) + pnStartingAt
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
 		def FindNextCS( pItem, nStart, pCaseSensitive )
 			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
 
 		def NextOccurrenceCS( pItem, nStart, pCaseSensitive )
 			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNextOccurrence(pItem, nStart)
-		return This.FindNextNthOccurrenceCS(1, pItem, nStart, :CaseSensitive = TRUE)
+		return This.FindNextOccurrenceCS(pItem, nStart, :CaseSensitive = TRUE)
 	
+		#< @FunctionAlternativeForms
+
 		def FindNext( pItem, nStart )
 			return This.FindNextOccurrence(pItem, nStart)
 
 		def NextOccurrence( pItem, nStart )
 			return This.FindNextOccurrence(pItem, nStart)
+
+		#>
 
 	   #-------------------------------------------------#
 	  #      FINDING PREVIOUS OCCURRENCE OF AN ITEM     #
@@ -16965,6 +17042,29 @@ class stzList from stzObject
 
 	def FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
+		/* EXAMPLE
+
+		o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
+		? o1.FindPrevious("*", :StartingAt = 7)
+		#--> 7
+
+		*/
+
+
+		if isList(pItem) and Q(pItem).IsOfNamedParam()
+			pItem = pItem[2]
+		ok
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		nResult = This.SectionQ(1, pnStartingAt - 1).
+			FindLastCS(pItem, pCaseSensitive)
+
+		return nResult
+
+/*
 		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
@@ -17001,7 +17101,7 @@ class stzList from stzObject
 		end
 
 		return 0
-	
+	*/
 		def FindPreviousCS( pItem, nStart, pCaseSensitive )
 			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
 
@@ -20903,6 +21003,18 @@ class stzList from stzObject
 		def ToCodeQ()
 			return new stzString(This.ToCode())
 
+	def ToCodeSimplified()
+		return This.ToCodeQ().Simplified()
+
+		return This.ToCodeSimplifiedQ()
+			return new stzString( This.ToCodeSimplified() )
+
+		def ToCodeSF()
+			return This.ToCodeSimplified()
+
+			def ToCodeSFQ()
+				return This.ToCodeSimplified()
+
 	  #--------------------------------------------------------------#
 	 #  STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BE STRINGS)  #
 	#--------------------------------------------------------------#
@@ -20979,10 +21091,10 @@ class stzList from stzObject
 			if isList(pOption[2]) and
 			   Q(pOption[2]).IsOneOfTheseNamedParams([ :Using, :With ])
 
-				paOption[2] = pOption[2][2]
+				pOption[2] = pOption[2][2]
 			ok
 
-			return This.StringifyQR(:stzListOfStrings).ConcatenatedUsing(paOption[2])
+			return This.StringifyQR(:stzListOfStrings).ConcatenatedUsing(pOption[2])
 		ok
 
 		StzRaise("Unsupprorted syntax!")
@@ -27565,6 +27677,39 @@ class stzList from stzObject
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and
 			(This[1] = :Last or This[1] = :Last@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsConcatenatedNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :Concatenated or This[1] = :Concatenated@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsConcatenatedUsingNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :ConcatenatedUsing or This[1] = :ConcatenatedUsing@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsConcatenatedWithParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :ConcatenatedWith or This[1] = :ConcatenatedWith@ ) )
 
 			return TRUE
 
