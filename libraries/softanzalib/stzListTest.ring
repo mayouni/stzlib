@@ -33,7 +33,68 @@ proff()
 # Executed in 0.07 second(s)
 
 /*-----------
-*/
+
+pron()
+
+o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 7 ])
+
+? @@( o1.ToString() )
+#-->
+# "1
+#  2
+#  3
+#  *
+#  5
+#  6
+#  *
+#  7"
+# Executed in 0.03 second(s)
+
+? @@S( o1.Stringified() )
+#--> [ "1", "2", "3", "*", "5", "6", "*", "7" ]
+# Executed in 0.02 second(s)
+
+? o1.ToCode()
+#--> [
+#	1,
+#	2,
+#	3,
+#	"*",
+#	5,
+#	6,
+#	"*",
+#	7
+# ]
+# Executed in 0.02 second(s)
+
+? o1.ToCodeSimplified() # Or ToCodeSF()
+#--> '[ 1, 2, 3, "*", 5, 6, "*", 7 ]'
+# Executed in 0.05 second(s)
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-----------
+
+pron()
+
+o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8 ])
+
+? o1.HowMany("*")
+#--> 2
+
+? o1.FindFirst("*")
+#--> 4
+# Executed in 0.02 second(s)
+
+? o1.FindLast("*")
+#--> Executed in 0.02 second(s)
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----------//////
+
 pron()
 
 o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ])
@@ -445,7 +506,7 @@ StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
 
-	aLargeListOfStr = ["_", "_", "♥"]
+	aLargeListOfStr = [ "_", "_" ]
 	for i = 1 to 100_000
 		aLargeListOfStr + "_"
 	next
@@ -455,42 +516,45 @@ StartProfiler()
 	for i = 1 to 50_000
 		aLargeListOfStr + "_"
 	next i
-	
-	aLargeListOfStr + "♥" + "_" + "_" + "♥"
-	
-	for i = 1 to 10
-		aLargeListOfStr + "_"
-	next i
 
 # Find "♥" in several ways
 	o1 = new stzList(aLargeListOfStr)
 
+	? o1.NumberOfOccurrence("♥")
+	#--> 2
+	# Executed in 1.66 second(s)
+
 	? o1.FindFirst("♥")
-	#--> 3
-	# Executed in 0.10 second(s)
+	#--> 100003
+	# Executed in 2.92 second(s)
 	
 	? o1.FindLast("♥")
-	#--> 150011
-	# Executed in 0.12 second(s)
-	
+	#--> 100006
+	# Executed in 3.09 second(s)
+
+	? o1.FindNth(2, "♥")
+	#--> 100006
+	# Executed in 5.32 second(s)
+
 	? o1.FindNext("♥", :StartingAt = 3)
-	#--> 100004
-	# Executed in 1.59 second(s)
+	#--> 100003
+	# Executed in 2.92 second(s)
+
+
+	? o1.FindNthNext(2, "♥", :StartingAt = 3)
+	#--> 100006
+	# Executed in 8.92 second(s)
 	
-	? o1.FindNthNext(1, "♥", :StartingAt = 3)
-	#--> 100004
-	# Executed in 1.37 second(s)
-	
-	? o1.FindPrevious("♥", :StartingAt = 20)
-	#--> 3
-	# Executed in 0.01 second(s)
+	? o1.FindPrevious("♥", :StartingAt = 120_000)
+	#--> 100006
+	# Executed in 3.27 second(s)
 
 	? o1.FindNthPrevious(2, "♥", :StartingAt = 33)
 	#--> 3
-	# Executed in 0.36 second(s)
+	# Executed in 2.90 second(s)
 
 StopProfiler()
-# Executed in 3.57 second(s)
+# Executed in 31.56 second(s)
 
 /*------------
 
@@ -524,40 +588,7 @@ StartProfiler()
 	#--> [ "_", "HI", "ME", "YOU" ]
 
 StopProfiler()
-# Executed in 3.42 second(s)
-
-/*------------
-
-StartProfiler()
-
-# Fabricating a large list of strings (more then 150K items)
-
-	aLargeListOfStr = []
-	for i = 1 to 100_000
-		aLargeListOfStr + "_"
-	next
-	
-	aLargeListOfStr + "HI" + "ME"
-	
-	for i = 1 to 50_000
-		aLargeListOfStr + "_"
-	next i
-	
-	aLargeListOfStr + "HI" + "YOU"
-	
-	for i = 1 to 10
-		aLargeListOfStr + "_"
-	next i
-
-# Removing dupicates
-
-	o1 = new stzList(aLargeListOfStr)
-
-	? o1.Duplicates()
-	#--> [ "_", "HI" ]
-	
-StopProfiler()
-# Executed in 12.13 second(s)
+# Executed in 3.58 second(s)
 
 /*============
 
@@ -579,7 +610,7 @@ o1 = new stzList([ "_", "_", "A":"C", "_", "A":"C", "_", "_", "A":"C", "_", "_" 
 #--> 8
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.15 second(s)
 
 /*------------
 
@@ -589,6 +620,7 @@ o1 = new stzList([ 1, 2, 3, "A":"C", 5, 7, 8, 9, "A":"C" ])
 #--> 0
 
 StopProfiler()
+# Executed in 0.22 second(s)
 
 /*------------
 
@@ -599,7 +631,7 @@ o1 = new stzList([ 1, 2, 3, "A":"C", "A":"C", 6, 7, "A":"C" ])
 #--> 4
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.25 second(s)
 
 /*------------
 
@@ -617,18 +649,18 @@ StartProfiler()
 	o1 = new stzList(aLargeList)
 	? o1.FindNth(2, "A":"C")
 	#--> 100002
-	# Executed in 0.28 second(s)
+	# Executed in 3.30 second(s)
 
 	? o1.FindNext("A":"C", :StartingAt = 89_000)
 	#--> 100001
-	# Executed in 0.05 second(s)
+	# Executed in 0.45 second(s)
 
 	? o1.FindNthPrevious(3, "A":"C", :StartingAt = 100_010)
 	#--> 100002
-	# Executed in 10.78 second(s)
+	# Executed in 4.69 second(s)
 
 StopProfiler()
-# Executed in 10.68 second(s)
+# Executed in 8.38 second(s)
 
 /*------------
 
@@ -643,10 +675,10 @@ o1 = new stzList([ 1, 2, "A":"C", 4, 5, "A":"C", 7, "A":"C"])
 #--> 8
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.38 second(s)
 
-/*-------------
-
+/*----------
+*/
 StartProfiler()
 
 # Fabricating a large list
@@ -671,22 +703,22 @@ StartProfiler()
 
 	? o1.FindFirst(["A", "B", "C", "عربي", "كلام", "D"])
 	#--> 100003
-	# Executed in 0.30 second(s)
+	# Executed in 2.26 second(s)
 
 # Finding the last occurrence
 
 	? o1.FindLast(["A", "B", "C", "عربي", "كلام", "D"])
 	#--> 100010
-	# Executed in 0.02 second(s)
+	# Executed in 2.24 second(s)
 
 # Finding the 2nd occurrence
 
 	? o1.FindNth(2, ["A", "B", "C", "عربي", "كلام", "D"])
 	#--> 100007
-	# Executed in 0.22 second(s)
+	# Executed in 3.35 second(s)
 
 StopProfiler()
-# Executed in 0.52 second(s)
+# Executed in 7.94 second(s)
 
 /*============
 
@@ -789,7 +821,7 @@ StartProfiler()
 	#-->  [1, 100003, 150016]
 	
 StopProfiler()
-#--> Executed in 1.47 second(s)
+#--> Executed in 9.01 second(s)
 
 /*----
 
@@ -798,19 +830,19 @@ StartProfiler()
 o1 = new stzList(["__", "♥", "_", "__", "♥", "♥", "__", "♥" ])
 ? o1.FindAll("♥")
 #--> [2, 5, 6, 8 ]
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 o1 = new stzList(["__", 1:3, "_", "__", 1:3, 1:3, "__", 1:3 ])
 ? o1.FindAll(1:3)
 #--> [2, 5, 6, 8 ]
-# Executed in 0.04 second(s)
+# Executed in 0.58 second(s)
 
 StopProfiler()
-# Executed in 0.06 second(s)
+# Executed in 0.60 second(s)
 
 /*==========
 
-/*
+
 TODO - NAMING REFORM
 
 ..RemoveBetweenXT() : removes also bounds
@@ -834,7 +866,7 @@ ReplaceXT()
 
 RemoveXT()
 #--> DONE
-*/
+
 
 /*-----------
 

@@ -264,24 +264,55 @@ o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
 #--> FALSE
 
 ? o1.FindLast("جميل")
-#--> FALSE
-
-? o1.FindLast("جميل")
-#--> FALSE
+#--> 0
 
 StopProfiler()
 # Executed in 0.03 second(s)
 
 /*-----------
+*/
+pron()
 
+o1 = new stzString("123456789")
+
+? o1.FirstHalf()
+#--> 1234
+? o1.SecondHalf()
+#--> 56789
+
+? o1.Halves() # Or Bisect()
+#--> [ "1234", "56789" ]
+
+? o1.FirstHalfXT()
+#--> 12345
+? o1.SecondHalfXT()
+#--> 6789
+
+? o1.HalvesXT() # Or BisectXT()
+#--> [ "12345", "6789" ]
+
+
+proff()
+# Executed in 0.02 second(s)
+
+/*-----------
+
+		#                      4   8   2  5 
+		o1 = new stzString("---*---*---*---")
+		? o1.FindLast("*")
+		#--> 12
+
+/*-----------
+
+*/
 StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
 ? oLargeStr.FindLast(";")
-#--> 1897793
+#--> 1897787
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 13.15 second(s)
 
 /*-----------
 
@@ -304,20 +335,36 @@ oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
 #--> 1703275
 
 StopProfiler()
-# Executed in 0.08 second(s)
+# Executed in 0.06 second(s)
 
 /*-----------
-*/
+
 StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
+
 ? oLargeStr.Contains("Plane 15 Private Use")
+#--> TRUE
+# Executed in 0.02 second(s)
 
-? oLarge.HowMany("Plane 15 Private Use")
+? oLargeStr.HowMany("Plane 15 Private Use")
+#--> 2
+# Executed in 0.03 second(s)
 
+? oLargeStr.FindAll("Plane 15 Private Use")
+#--> [ 1_897_586, 1_897_640 ]
+# Executed in 0.02 second(s)
+
+? oLargeStr.FindFirst("Plane 15 Private Use")
+#--> 1_897_586
+# Executed in 0.02 second(s)
+
+? oLargeStr.FindLast("Plane 15 Private Use")
+#--> 1897640
+# Executed in 0.04 second(s)
 
 StopProfiler()
-#--> Executed in 0.02 second(s)
+#--> Executed in 0.06 second(s)
 
 /*-----------
 
@@ -333,10 +380,10 @@ o1 = new stzString("•♥••••♥••")
 #--> 6
 
 StopProfiler()
-#--> Executed in 0.36 second(s)
+#--> Executed in 0.45 second(s)
 
 /*===========
-
+*/
 StartProfiler()
 
 ? Q("RING").StringCase()
