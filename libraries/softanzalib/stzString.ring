@@ -14103,43 +14103,6 @@ class stzString from stzObject
 	 #      FINDING LAST OCCURRENCE OF A SUBSTRING     #
 	#-------------------------------------------------#
 
-	def FirstHalf()
-
-		nPos = floor(This.NumberOfChars() / 2)
-		acResult = This.Section(1, nPos)
-
-		return acResult
-		
-	def SecondHalf()
-		nLen = This.NumberOfChars()
-		nPos = floor(nLen / 2) + 1
-		acResult = This.Section(nPos, nLen)
-
-		return acResult
-
-	def FirstHalfXT()
-
-		nPos = ceil(This.NumberOfChars() / 2)
-		acResult = This.Section(1, nPos)
-
-		return acResult
-		
-	def SecondHalfXT()
-		nLen = This.NumberOfChars()
-		nPos = ceil(nLen / 2) + 1
-		acResult = This.Section(nPos, nLen)
-
-		return acResult
-
-	def Halves()
-		acResult = []
-		acResult + This.FirstHalf() + This.SecondHalf()
-
-		return acResult
-
-		def Bisect()
-			return his.Halves()
-
 	def FindLastOccurrenceCS(pcSubstr, pCaseSensitive)
 		/* EXAMPLE
 
@@ -33581,6 +33544,56 @@ Solution 3
 			return This.LastNumberComingAfter(pcSubStr)
 
 		#>
+
+	  #------------------------------------#
+	 #  BISECTING THE STRING INTO HALVES  #
+	#------------------------------------#
+
+	def FirstHalf()
+
+		nPos = floor(This.NumberOfChars() / 2)
+		acResult = This.Section(1, nPos)
+
+		return acResult
+		
+	def SecondHalf()
+		nLen = This.NumberOfChars()
+		nPos = floor(nLen / 2) + 1
+		acResult = This.Section(nPos, nLen)
+
+		return acResult
+
+	def FirstHalfXT()
+
+		nPos = ceil(This.NumberOfChars() / 2)
+		acResult = This.Section(1, nPos)
+
+		return acResult
+		
+	def SecondHalfXT()
+		nLen = This.NumberOfChars()
+		nPos = ceil(nLen / 2) + 1
+		acResult = This.Section(nPos, nLen)
+
+		return acResult
+
+	def Halves()
+		acResult = []
+		acResult + This.FirstHalf() + This.SecondHalf()
+
+		return acResult
+
+		def Bisect()
+			return his.Halves()
+
+	def HalvesXT()
+		acResult = []
+		acResult + This.FirstHalfXT() + This.SecondHalfXT()
+
+		return acResult
+
+		def BisectXT()
+			return his.Halves()
 
 	  #------------------------------------------#
 	 #   STRINGIFY(), TOSTRING(), AND TOCODE()  #

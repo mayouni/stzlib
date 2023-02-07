@@ -11862,6 +11862,56 @@ class stzList from stzObject
 		def IsContinuous()
 			return IsContiguous()
 
+	  #==================================#
+	 #  BISECTING THE LIST INTO HALVES  #
+	#==================================#
+
+	def FirstHalf()
+
+		nPos = floor(This.NumberOfItems() / 2)
+		acResult = This.Section(1, nPos)
+
+		return acResult
+		
+	def SecondHalf()
+		nLen = This.NumberOfItems()
+		nPos = floor(nLen / 2) + 1
+		acResult = This.Section(nPos, nLen)
+
+		return acResult
+
+	def FirstHalfXT()
+
+		nPos = ceil(This.NumberOfItems() / 2)
+		acResult = This.Section(1, nPos)
+
+		return acResult
+		
+	def SecondHalfXT()
+		nLen = This.NumberOfItems()
+		nPos = ceil(nLen / 2) + 1
+		acResult = This.Section(nPos, nLen)
+
+		return acResult
+
+	def Halves()
+		acResult = []
+		acResult + This.FirstHalf() + This.SecondHalf()
+
+		return acResult
+
+		def Bisect()
+			return his.Halves()
+
+	def HalvesXT()
+		acResult = []
+		acResult + This.FirstHalfXT() + This.SecondHalfXT()
+
+		return acResult
+
+		def BisectXT()
+			return his.Halves()
+
 	  #============================================================#
 	 #  INDEXING THE LIST BY POSITION OR BY NUMBER OF OCCURRENCE  #
 	#============================================================#

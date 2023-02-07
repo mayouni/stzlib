@@ -1,5 +1,30 @@
 load "stzlib.ring"
 
+/*-----------
+*/
+pron()
+
+o1 = new stzList([ "1", "2", "3", "4", "5" ])
+
+? @@S( o1.FirstHalf() )
+#--> [ "1", "2" ]
+? @@S( o1.SecondHalf() )
+#--> [ "3", "4", "5" ]
+
+? @@S( o1.Halves() ) # Or Bisect()
+#--> [ [ "1", "2" ], [ "3", "4", "5" ] ]
+
+? @@S( o1.FirstHalfXT() )
+#--> [ "1", "2", "3" ]
+? @@S( o1.SecondHalfXT() )
+#--> [ "4", "5" ]
+
+? @@S( o1.HalvesXT() ) # Or BisectXT()
+#--> [ [ "1", "2", "3" ], [ "4", "5" ] ]
+
+proff()
+# Executed in 0.03 second(s)
+
 /*------------
 
 pron()
