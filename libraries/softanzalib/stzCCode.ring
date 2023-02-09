@@ -81,19 +81,21 @@ class stzCCode
 
 		cCode = Q(cCode).TheseSubstringsSpacifiedCS([
 
-				"@items", "@allItems",
-								
-				"@chars", "@allChars",
-				"@strings", "@allStrings",
-				
-				"@numbers","@allNumbers",
-				
-				"@lists", "@allLists",
-				"@pairs", "@allPairs",
-				
-				"@objects", "@allObjects",
+				"@items", "@allItems", "@item",
+			
+				"@chars", "@allChars", "@char",
+				"@strings", "@allStrings", "@string",
+				"@strinItems", "@allStringItems", "@StringItem",
 
-				"@position", "@CurrentPosition",
+				
+				"@numbers","@allNumbers", "@number",
+				
+				"@lists", "@allLists", "@list",
+				"@pairs", "@allPairs", "@pair",
+				
+				"@objects", "@allObjects", "@object",
+
+				"@positions", "@position", "@CurrentPosition",
 				"@EachPosition",
 
 				"-@Number",

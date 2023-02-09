@@ -14106,10 +14106,10 @@ class stzString from stzObject
 	def FindLastOccurrenceCS(pcSubstr, pCaseSensitive)
 		/* EXAMPLE
 
-		#                      4   8   2  5 
-		o1 = new stzString("---*---*---*---")
-		? o1.FindLast("*")
-		#--> 12
+		#                      4     0     6    1
+		o1 = new stzString("---***---***---***---")
+		? o1.FindLast("***")
+		#--> 16
 
 		*/
 
@@ -14121,41 +14121,10 @@ class stzString from stzObject
 			return 0
 		ok
 
-		nLen = This.NumberOfChars()
-
-		cSection = This.String()
-
-		while TRUE
-			if This.NumberOfOccurrenceCS(pcsubStr, pCaseSensitive) = 1
-				exit
-			ok
-
-			acHalves = Q(cSection).Bisect()
-			if Q(acHalves[2]).ContainsCS(pcSubStr, pCaseSensitive)
-				cSection = acHalves[2]
-
-			but Q(acHalves[1]).ContainsCS(pcSubStr, pCaseSensitive)
-				cSection = acHalves[1]
-
-			ok
-
-			
-		end
-
-		# work on thtat cSection
-
-		? cSection
-/*
-Solution 2
 		n = This.NumberOfOccurrenceCS(pcSubstr, pCaseSensitive)
 		nResult = This.FindNthCS(n, pcsubStr, pCaseSensitive)
 		return nResult
-Solution 3
-		n = This.ReverseQ().FindFirstCS( Q(pcSubStr).Reversed(), pCaseSensitive )
-		nResult = This.NumberOfChars() - n
 
-		return nResult
-*/
 		#< @FunctionAlternativeForm
 	
 		def FindLastCS(pcSubStr, pCaseSensitive)
@@ -20012,6 +19981,10 @@ Solution 3
 	#------------------------------------------------#
 
 	def ContainsBothCS(pcStr1, pcStr2, pCaseSensitive)
+		if isList(pcStr2) and Q(pcStr2).IsAndNamedParam()
+			pcStr2 = pcStr2[2]
+		ok
+
 		return This.ContainsEachCS( [pcStr1, pcStr2], pCaseSensitive )
 
 	#-- WITHOUT CASESENSITIVITY
@@ -26152,47 +26125,191 @@ Solution 3
 	 #  SPACIFYING THE STRING   #
 	#==========================#
 
-	def SpacifyXT(paOptions)
+	def SpacifyXT(pcSeparator, pnStep, pcDirection)
 		/* EXAMPLE
 
+		Basic mode:
+
 		o1 = new stzString("99999999999")
-		? o1.SpacifiedXT([ :EachNChars = 3, :StartingFrom = :End, :Using = "_" ])
+		? o1.SpacifiedXT(:Separator = "_", :Step = 3, :Direction = :Backward)
 		#--> 99_999_999_999
+
+		Advanced mode:
+		
+		o1 = new stzString("99999999999")
+		o1.SpacifyXT(
+			:Using    = [ ".", :AndThen = " " ],
+			:Stepping = [ 2, :AndThen = 3],
+			:Going    = :Backward
+		)
+		
+		? o1.Content()
+		#--> 99 999 999.99
 
 		*/
 
-		# Reading options
+		cMode = :Basic
+		cSeparator2 = ""
+		nStep2 = 0
 
-		nEachChars = paOptions[:EachNChars]
-		nStep      = paOptions[:Step]
+		
+		# Checking params correctness
 
-		if Q(paOptions).DeepContainsBoth(nEachChars, nStep)
-			StzRaise("Incorrect syntax! :EachNChars and :Step options are the same! Use just one of them.")
+		if isList(pcSeparator) and Q(pcSeparator).IsOneOfTheseNamedParams([ :Using, :Separator ])
+			pcSeparator = pcSeparator[2]
 		ok
 
-		if isNull(nEachChars) and isNumber(nStep)
-			nSteps = nStep
-
-		but isNull(nStep) and isNumber(nEachChars)
-			nSteps = nEachChars
+		if isList(pnStep) and Q(pnStep).IsOneOfTheseNamedParams([ :Step, :Stepping, :EachNChars ])
+			pnStep = pnStep[2]
 		ok
 
-		if BothAreStrings(nEachChars, nStep) and
-		   BothAreNull(nEachChars, nStep)
-			nSteps = 1
+		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+			pcDirection = pcDirection[2]
 		ok
 
-		#--
-#TODO
+		# checking :Using = [ ".", :AndThen = " " ]
+		if isList(pcSeparator) and (isString(pcSeparator[2]))
+
+			cMode = :Extended
+			pcSeparator = pcSeparator[1]
+			cSeparator2 = pcSeparator[2]
+
+		but isList(pcSeparator) and isList(pcSeparator[2]) and
+		    Q(pcSeparator[2]).IsOneOfTheseNamedParams([:And, :AndThen]) and
+		    isString(pcSeparator[2][2])
+
+			cMode = :Extended
+			cSeparator2 = pcSeparator[2][2]
+			pcSeparator = pcSeparator[1]
+			
+		ok
+
+		# checking :Stepping = [ 2, :AndThen = 3]
+		if isList(pnStep) and (isNumber(pnStep[2]))
+
+			cMode = :Extended
+			pnStep = pnStep[1]
+			nStep2 = pnStep[2]
+
+		but isList(pnStep) and isList(pnStep[2]) and
+		    Q(pnStep[2]).IsOneOfTheseNamedParams([:And, :AndThen]) and
+		    isNumber(pnStep[2][2])
+
+			cMode = :Extended
+			nStep2 = pnStep[2][2]
+			pnstep = pnstep[1]
+			
+		ok
+
+		if NOT (isString(pcSeparator) and pcSeparator != "")
+			StzRaise("Incorrect param type! pcSeparator must be a non null string.")
+		ok
+
+		if NOT (isNumber(pnStep) and pnStep != 0)
+			StzRaise("Incorrect param type! pnStep must be a non null number.")
+		ok
+
+		if NOT (isString(pcDirection) and Q(pcDirection).IsEitherCS(:Forward, :Or = :Backward, :CS = FALSE) )
+			StzRaise("Incorrect param type! pcDirection must be a string equalt to :Forward or :Backward.")
+		ok
+
+		# Doing the job
+
+		nLen = This.NumberOfChars()
+
+		if cMode = :Basic
+			anPos = []
+			if pcDirection = :Forward
+				for i = pnStep to nLen - pnStep step pnStep
+					anPos + i
+				next
+		
+			but pcDirection = :Backward
+		
+				for i = nLen - pnStep to 1 step -pnStep
+					anPos + i
+				next
+			ok
+
+			This.InsertAfterThesePositions(anPos, pcSeparator)
+
+		but cMode = :Extended
+			
+			nStart = 0
+			if pcDirection = :Forward
+				This.InsertBefore( pnStep + 1, pcSeparator )
+				nStart = pnStep + nStep2 + 1
+			else
+				This.InsertBefore( nLen - pnStep + 1, pcSeparator )
+				nStart = nLen - pnStep - nStep2
+			ok
+
+			pnStep = nStep2
+			pcSeparator = cSeparator2
+			anPos = []
+
+			if pcDirection = :Forward
+				for i = nStart to nLen step pnStep
+					anPos + i
+				next
+		
+			but pcDirection = :Backward
+		
+				for i = nStart to 1 step -pnStep
+					anPos + i
+				next
+			ok
+
+			This.InsertAfterThesePositions(anPos, pcSeparator)
+
+		ok
+
+		def SpacifyXTQ(pcSeparator, pnStep, pcDirection)
+			This.SpacifyXT(pcSeparator, pnStep, pcDirection)
+			return This
+
+	def SpacifiedXT(pcSeparator, pnStep, pcDirection)
+		return This.Copy().SpacifyXTQ(pcSeparator, pnStep, pcDirection).Content()
+
 	  #----------------------------------------#
 	 #   SPACIFYING THE CHARS OF THE STRING   #
 	#----------------------------------------#
 
-	def SpacifyNTimes(n)
-		This.SpacifyCharsNTimes(n)
+	def SpacifyEachNChars(n)
+		This.SpacifyXT(:Using = " ", :EachNChars = n, :Forward)
 
-	def SpacifyCharsNTimes(n)
-		This.SpacifyCharsNTimesUsing(n, " ")
+		def SpacifyEachNCharsQ(n)
+			This.SpacifyEachNChars(n)
+			return This
+
+	def EachNCharsSpacified(n)
+		return This.Copy().SpacifyEachNCharsQ(n).Content()
+
+	#--
+
+	def SpacifyEachNCharsForward(n)
+		This.SpacifyXT(:Using = " ", :EachNChars = n, :Forward)
+
+		def SpacifyEachNCharsForwardQ(n)
+			This.SpacifyEachNCharsForward(n)
+			return This
+
+	def EachNCharsSpacifiedForward(n)
+		return This.Copy().SpacifyEachNCharsForwardQ(n).Content()
+
+	#--
+
+	def SpacifyEachNCharsBackward(n)
+		This.SpacifyXT(:Using = " ", :EachNChars = n, :Backward)
+
+		def SpacifyEachNCharsBackwardQ(n)
+			This.SpacifyEachNCharsBackward(n)
+			return This
+
+	def EachNCharsSpacifiedBackward(n)
+		return This.Copy().SpacifyEachNCharsBackwardQ(n).Content()
+
+	#--
 
 	def SpacifyChars()
 		/* EXAMPLE
@@ -26201,8 +26318,7 @@ Solution 3
 		#--> R I N G O R I A L A N D
 
 		*/
-
-		This.NSpacifyChars(1)
+		This.SpacifyXT(:Using = " ", :EachNChars = 1, :Forward)
 
 		def SpacifyCharsQ()
 			This.SpacifyChars()
@@ -26222,20 +26338,6 @@ Solution 3
 		def Spacified()
 			return This.CharsSpacified()
 
-	def NSpacifyChars(n)
-		This.Simplify()
-
-		cInterSpaces = ( Q(" ") * n ).Content()
-		This.InsertAfterW('@i = @PreviousPosition + 1', cInterSpaces)
-		
-
-		def NSpacifyCharsQ(n)
-			This.NSpacifyChars(n)
-			return This
-
-	def CharsSpacifiedN(n)
-		return This.Copy().NSpacifyCharsQ(n).Content()
-
 	  #----------------------------------------------------------------#
 	 #   SPACIFYING THE CHARS OF THE STRING USING A GIVEN SEPARATOR   #
 	#----------------------------------------------------------------#
@@ -26248,25 +26350,15 @@ Solution 3
 
 		*/
 
-		This.RemoveSpacesQ().InsertAfterWQ('@char', pcSep).RemoveFromEnd(pcSep)
+		This.SpacifyXT(:Using = pcSep, :EachNChars = 1, :Forward)
 
 		def SpacifyCharsUsingQ(pcSep)
 			This.SpacifyCharsUsing(pcSep)
 			return This
 
-		def SpacifyUsing(pcSep)
-			This.SpacifyCharsUsing(pcSep)
-
-			def SpacifyUsingQ(pcSep)
-				This.SpacifyUsing(pcSep)
-				return This
-
 	def CharsSpacifiedUsing(pcSep)
 		cResult = This.Copy().SpacifyCharsUsingQ(pcSep).Content()
 		return cResult
-
-		def SpacifiedUsing(pcSep)
-			return This.CharsSpacifiedUsing(pcSep)
 
 	  #----------------------------------------------------#
 	 #   SPACIFYING A GIVEN SUBSTRING INSIDE THE STRING   #
@@ -26375,7 +26467,7 @@ Solution 3
 		def TheseSubStringsSpacifiedCS(pacSubStr, pCaseSensitive)
 			return This.SubStringsSpacifiedCS(pacSubStr, pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def SpacifySubStrings(pacSubStr)
 		This.SpacifySubStringsCS(pacSubStr, :CaseSensitive = TRUE)
@@ -26429,7 +26521,7 @@ Solution 3
 		def TheseSubStringsSpacifiedUsingCS(pacSubStr, pcSep, pCaseSensitive)
 			return This.SubStringsSpacifiedUsing(pacSubStr, pcSep, pCaseSensitive)
 
-	#---
+	#-- WITHOUT CASESENSITIVITY
 
 	def SpacifySubStringsUsing(pacSubStr, pcSep)
 		This.SpacifySubStringsUsingCS(pacSubStr, pcSep, :CaseSensitive = TRUE)
@@ -26451,9 +26543,9 @@ Solution 3
 		def TheseSubStringsSpacifiedUsing(pacSubStr, pcSep)
 			return This.SubStringsSpacifiedUsing(pacSubStr, pcSep)
 
-	  #------------------------------------------------#
+	  #================================================#
 	 #    GETTING POSITION AFTER A GIVEN SUBSTRING    #
-	#------------------------------------------------#
+	#================================================#
 
 	def PositionAfterCS(cSubStr, pCaseSensitive)
 		return This.PositionAfterNthOccurrenceCS(1, cSubStr, pCaseSensitive)
@@ -33545,9 +33637,11 @@ Solution 3
 
 		#>
 
-	  #------------------------------------#
+	  #====================================#
 	 #  BISECTING THE STRING INTO HALVES  #
-	#------------------------------------#
+	#====================================#
+
+	#-- FIRST HALF
 
 	def FirstHalf()
 
@@ -33555,14 +33649,21 @@ Solution 3
 		acResult = This.Section(1, nPos)
 
 		return acResult
+
+	def FirstHalfAndPosition()
+		aResult = [ This.FirstHalf(), 1 ]
+		return aResult
+
+		def FirstHalfAndItsPosition()
+			return This.FirstHalfAndPosition()
+
+	def FirstHalfAndSection()
+		aResult = [ This.FirstHalf(), [1, floor(This.NumberOfChars() / 2)] ]
+		return aResult
+
+		def FirstHalfAndItsSection()
+			return This.FirstHalfAndSection()
 		
-	def SecondHalf()
-		nLen = This.NumberOfChars()
-		nPos = floor(nLen / 2) + 1
-		acResult = This.Section(nPos, nLen)
-
-		return acResult
-
 	def FirstHalfXT()
 
 		nPos = ceil(This.NumberOfChars() / 2)
@@ -33570,12 +33671,73 @@ Solution 3
 
 		return acResult
 		
+	def FirstHalfAndPositionXT()
+		aResult = [ This.FirstHalfXT(), 1 ]
+		return aResult
+
+		def FirstHalfAndItsPositionXT()
+			return This.FirstHalfAndPositionXT()
+
+	def FirstHalfAndSectionXT()
+		aResult = [ This.FirstHalfXT(), [1, ceil(This.NumberOfChars() / 2)] ]
+		return aResult
+
+		def FirstHalfAndItsSectionXT()
+			return This.FirstHalfAndSectionXT()
+
+	#-- SECOND HALF
+
+	def SecondHalf()
+		nLen = This.NumberOfChars()
+		nPos = floor(nLen / 2) + 1
+		acResult = This.Section(nPos, nLen)
+
+		return acResult
+
+	def SecondHalfAndPosition()
+		nLen = This.NumberOfChars()
+		nPos = floor(nLen / 2) + 1
+		aResult = [ This.SecondHalf(), nPos ]
+		return aResult
+
+		def SecondHalfAndItsPosition()
+			return This.SecondHalfAndPosition()
+
+	def SecondHalfAndSection()
+		nLen = This.NumberOfChars()
+		nPos = floor(nLen / 2) + 1
+		aResult = [ This.SecondHalf(), [ nPos, nLen ] ]
+		return aResult
+
+		def SecondHalfAndItsSection()
+			return This.SecondHalfAndSection()
+
 	def SecondHalfXT()
 		nLen = This.NumberOfChars()
 		nPos = ceil(nLen / 2) + 1
 		acResult = This.Section(nPos, nLen)
 
 		return acResult
+
+	def SecondHalfAndPositionXT()
+		nLen = This.NumberOfChars()
+		nPos = ceil(nLen / 2) + 1
+		aResult = [ This.SecondHalfXT(), nPos ]
+		return aResult
+
+		def SecondHalfAndItsPositionXT()
+			return This.SecondHalfAndPositionXT()
+
+	def SecondHalfAndSectionXT()
+		nLen = This.NumberOfChars()
+		nPos = ceil(nLen / 2) + 1
+		aResult = [ This.SecondHalfXT(), [ nPos, nLen ] ]
+		return aResult
+
+		def SecondHalfAndItsSectionXT()
+			return This.SecondHalfAndSectionXT()
+
+	#-- THE TWO HALVES
 
 	def Halves()
 		acResult = []
@@ -33584,7 +33746,7 @@ Solution 3
 		return acResult
 
 		def Bisect()
-			return his.Halves()
+				return This.Halves()
 
 	def HalvesXT()
 		acResult = []
@@ -33593,11 +33755,39 @@ Solution 3
 		return acResult
 
 		def BisectXT()
-			return his.Halves()
+			return This.Halves()
 
-	  #------------------------------------------#
+	def HalvesAndPositions()
+		aResult = [ This.FirstHalfAndPosition(), This.SecondHalfAndPosition() ]
+		return aResult
+
+		def HalvesAndTheirPositions()
+			return This.HalvesAndPositions()
+
+	def HalvesAndPositionsXT()
+		aResult = [ This.FirstHalfAndPositionXT(), This.SecondHalfAndPositionXT() ]
+		return aResult
+
+		def HalvesAndTheirPositionsXT()
+			return This.HalvesAndPositionsXT()
+
+	def HalvesAndSections()
+		aResult = [ This.FirstHalfAndSection(), This.SecondHalfAndSection() ]
+		return aResult
+
+		def HalvesAndTheirSections()
+			return This.HalvesAndSections()
+
+	def HalvesAndSectionsXT()
+		aResult = [ This.FirstHalfAndSectionXT(), This.SecondHalfAndSectionXT() ]
+		return aResult
+
+		def HalvesAndTheirSectionsXT()
+			return This.HalvesAndSectionsXT()
+
+	  #==========================================#
 	 #   STRINGIFY(), TOSTRING(), AND TOCODE()  #
-	#------------------------------------------#
+	#==========================================#
 
 	def Stringify()
 		# Do nothing, the object is naturally stringified
@@ -33709,3 +33899,12 @@ Solution 3
 
 	def IsText()
 		return TRUE
+
+	def ToStzCCode()
+		return new stzCCode(This.String())
+
+		def ToStzCCodeObject()
+			return This.ToStzCCode()
+
+		def ToStzCCodeQ()
+			return This.ToStzCCode()
