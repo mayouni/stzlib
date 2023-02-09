@@ -1,29 +1,112 @@
 load "stzlib.ring"
 
-/*-----------
+/*------------
+
+pron()
+
+o1 = new stzList([ :StartingAt, 5 ])
+? o1.IsAPairQ().Where('{ isString(@pair[1]) and isNumber(@pair[2]) }')
+
+proff()
+# Executed in 0.02 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzList([ "ONE", "TWO", "THREE" ])
+? o1.AllItemsAre([ :Uppercase, :Strings ])
+#--> TRUE
+
+proff()
+# Executed in 0.11 second(s)
+
+/*------------
 */
 pron()
 
-o1 = new stzList([ "1", "2", "3", "4", "5" ])
+o1 = new stzList([ "ONE", "TWO", "THREE" ])
 
-? @@S( o1.FirstHalf() )
-#--> [ "1", "2" ]
-? @@S( o1.SecondHalf() )
-#--> [ "3", "4", "5" ]
-
-? @@S( o1.Halves() ) # Or Bisect()
-#--> [ [ "1", "2" ], [ "3", "4", "5" ] ]
-
-? @@S( o1.FirstHalfXT() )
-#--> [ "1", "2", "3" ]
-? @@S( o1.SecondHalfXT() )
-#--> [ "4", "5" ]
-
-? @@S( o1.HalvesXT() ) # Or BisectXT()
-#--> [ [ "1", "2", "3" ], [ "4", "5" ] ]
+? o1.IsAPairQ().Where('{
+	Q(@Pair).AllItemsAre([ :Uppercase, :Strings ])
+}')
+#--> FALSE
 
 proff()
-# Executed in 0.03 second(s)
+
+/*============
+*/
+pron()
+   
+o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
+
+# FIRST HALF
+
+	? @@S( o1.FirstHalf() )
+	#--> [ "1", "2", "3", "4" ]
+	? @@S( o1.FirstHalfXT() )
+	#--> [ "1", "2", "3", "4", "5" ]
+	
+	? @@S( o1.FirstHalfAndItsPosition() )
+	#--> [ [ "1", "2", "3", "4" ], 1 ]
+	? @@S( o1.FirstHalfAndItsSection() )
+	#--> [ [ "1", "2", "3", "4" ], [ 1, 4 ] ]
+	
+	? @@S( o1.FirstHalfAndItsPositionXT() )
+	#--> [ [ "1", "2", "3", "4", "5" ], 1 ]
+	? @@S( o1.FirstHalfAndItsSectionXT() )
+	#--> [ [ "1", "2", "3", "4", "5" ], [ 1, 5 ] ]
+
+# SECOND HALF
+
+	? @@S( o1.SecondHalf() )
+	#--> [ "5", "6", "7", "8", "9" ]
+	? @@S( o1.SecondHalfXT() )
+	#--> [ "6", "7", "8", "9" ]
+	
+	? @@S( o1.SecondHalfAndItsPosition() )
+	#--> [ [ "5", "6", "7", "8", "9" ], 5 ]
+	? @@S( o1.SecondHalfAndItsSection() )
+	#--> [ [ "5", "6", "7", "8", "9" ], [ 5, 9 ] ]
+	
+	? @@S( o1.SecondHalfAndItsPositionXT() )
+	#--> [ [ "6", "7", "8", "9" ], 6 ]
+	? @@S( o1.SecondHalfAndItsSectionXT() )
+	#--> [ [ "6", "7", "8", "9" ], [ 6, 9 ] ]
+
+#-- THE TWO HALVES
+
+	? @@S( o1.Halves() )
+	#--> [ [ "1", "2", "3", "4" ], [ "5", "6", "7", "8", "9" ] ]
+
+	? @@S( o1.HalvesXT() )
+	#--> [ [ "1", "2", "3", "4", "5" ], [ "6", "7", "8", "9" ] ]
+
+	? @@S( o1.HalvesAndPositions() )
+	#--> [
+	# 	[ [ "1", "2", "3", "4" ], 1 ],
+	# 	[ [ "5", "6", "7", "8", "9" ], 5 ]
+	# ]
+
+	? @@S( o1.HalvesAndPositionsXT() )
+	#--> [
+	# 	[ [ "1", "2", "3", "4", "5" ], 1 ],
+	# 	[ [ "6", "7", "8", "9" ], 6 ]
+	# ]
+
+	? @@S( o1.HalvesAndSections() )
+	#--> [
+	# 	[ [ "1", "2", "3", "4" ], [ 1, 4 ] ],
+	# 	[ [ "5", "6", "7", "8", "9" ], [ 5, 9 ] ]
+	# ]
+
+	? @@S( o1.HalvesAndSectionsXT() )
+	#--> [
+	# 	[ [ "1", "2", "3", "4", "5" ], [ 1, 5 ] ],
+	# 	[ [ "6", "7", "8", "9" ], [ 6, 9 ] ]
+	# ]
+
+proff()
 
 /*------------
 

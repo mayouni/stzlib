@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-/*------------
+/*------
 
 pron()
 #                   1  4 6  9 1   567      456
@@ -269,8 +269,8 @@ o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
 StopProfiler()
 # Executed in 0.03 second(s)
 
-/*-----------
-*/
+/*============
+
 pron()
 
 o1 = new stzString("123456789")
@@ -295,30 +295,104 @@ o1 = new stzString("123456789")
 proff()
 # Executed in 0.02 second(s)
 
+/*============
+
+pron()
+   
+o1 = new stzString("123456789")
+
+# FIRST HALF
+
+	? o1.FirstHalf()
+	#--> 1234
+	? o1.FirstHalfXT()
+	#--> 12345
+	
+	? @@S( o1.FirstHalfAndItsPosition() )
+	#--> [ "1234", 1 ]
+	? @@S( o1.FirstHalfAndItsSection() )
+	#--> [ "1234", [ 1, 4 ] ]
+	
+	? @@S( o1.FirstHalfAndItsPositionXT() )
+	#--> [ "12345", 1 ]
+	? @@S( o1.FirstHalfAndItsSectionXT() )
+	#--> [ "12345", [ 1, 5 ] ]
+
+# SECOND HALF
+
+	? o1.SecondHalf()
+	#--> 56789
+	? o1.SecondHalfXT()
+	#--> 6789
+	
+	? @@S( o1.SecondHalfAndItsPosition() )
+	#--> [ "56789", 5 ]
+	? @@S( o1.SecondHalfAndItsSection() )
+	#--> [ "56789", [ 5, 9 ] ]
+	
+	? @@S( o1.SecondHalfAndItsPositionXT() )
+	#--> [ "6789", 6 ]
+	? @@S( o1.SecondHalfAndItsSectionXT() )
+	#--> [ "6789",  [ 6, 9 ] ]
+
+#-- THE TWO HALVES
+
+	? @@S( o1.Halves() )
+	#--> [ "1234", "56789" ]
+
+	? @@S( o1.HalvesXT() )
+	#--> [ "12345", "6789" ]
+
+	? @@S( o1.HalvesAndPositions() )
+	#--> [ [ "1234", 1 ], [ "56789", 5 ] ]
+
+	? @@S( o1.HalvesAndPositionsXT() )
+	#--> [ [ "12345", 1 ], [ "6789", 6 ] ]
+
+	? @@S( o1.HalvesAndSections() )
+	#--> [ [ "1234", [ 1, 4 ] ], [ "56789", [ 5, 9 ] ] ]
+
+	? @@S( o1.HalvesAndSectionsXT() )
+	#--> [ [ "12345", [ 1, 5 ] ], [ "6789", [ 6, 9 ] ] ]
+
+proff()
+
+/*------------
+
+pron()
+
+#                      4     0     6    1
+o1 = new stzString("---***---***---***---")
+
+? o1.HowMany("***")
+#--> 3
+
+? o1.Nth(3, "***")
+#--> 16
+
+? o1.FindLast("***")
+#--> 16
+
+proff()
+
 /*-----------
 
-		#                      4   8   2  5 
-		o1 = new stzString("---*---*---*---")
-		? o1.FindLast("*")
-		#--> 12
-
-/*-----------
-
-*/
 StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
 ? oLargeStr.FindLast(";")
-#--> 1897787
+#--> 1897793
 
 StopProfiler()
-# Executed in 13.15 second(s)
+# Executed in 12.99 second(s)
 
 /*-----------
 
 StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
+? @@S( oLargeStr.FindAll("ALIF") )
+
 ? oLargeStr.Contains("ALIF")
 #--> TRUE
 
@@ -372,7 +446,7 @@ StartProfiler()
 
 #                    2    7
 o1 = new stzString("•♥••••♥••")
-? o1.FindNthW(2, '@char = "♥"')
+//? o1.FindNthW(2, '@char = "♥"')
 #--> 7
 # Executed in 0.13 second(s)
 
@@ -380,10 +454,10 @@ o1 = new stzString("•♥••••♥••")
 #--> 6
 
 StopProfiler()
-#--> Executed in 0.45 second(s)
+#--> Executed in 0.30 second(s)
 
 /*===========
-*/
+
 StartProfiler()
 
 ? Q("RING").StringCase()
@@ -399,7 +473,7 @@ StartProfiler()
 #--> :Hybridcase
 
 StopProfiler()
-# Executed in 0.21 second(s)
+# Executed in 0.18 second(s)
 
 /*----------
 
@@ -412,6 +486,7 @@ StartProfiler()
 #--> TRUE
 
 StopProfiler()
+# Executed in 0.01 second(s)
 
 /*----------
 
@@ -428,6 +503,7 @@ StartProfiler()
 # but Softanza accepts it.
 
 StopProfiler()
+# Executed in 0.02 second(s)
 
 /*----------
 
@@ -440,13 +516,19 @@ StartProfiler()
 #--> TRUE
 
 StopProfiler()
+# Executed in 0.05 second(s)
 
 /*==================
+
+pron()
 
 o1 = new stzString("ABC*EF")
 o1.QStringObject().replace(3, 1, "D")
 ? o1.Content()
 #--> "ABCDEF"
+
+proff()
+# Executed in 0.02 second(s)
 
 /*-----------------
 
@@ -466,15 +548,16 @@ StopProfiler()
 StartProfiler()
 
 o1 = new stzString("ABC*EF")
-
 o1.ReplaceSection( 4, 4, "D")
-
 ? o1.Content()
+#--> ABCDEF
 
 StopProfiler()
 #--> Executed in 0.01 second(s)
 
 /*===========
+
+pron()
 
 ? Q("121212").IsMadeOf("12")
 #--> TRUE
@@ -482,7 +565,12 @@ StopProfiler()
 ? Q("984332").IsMadeOfNumbers()
 #--> TRUE
 
+proff()
+# Executed in 0.06 second(s)
+
 /*-----------
+
+pron()
 
 o1 = new stzString("ABCDEF
 GHIJKL
@@ -496,6 +584,9 @@ RSTUVW
 
 ? Q( o1.Lines()[3] ).IsMadeOfNumbers()
 #--> TRUE
+
+proff()
+# Executed in 0.05 second(s)
 
 /*-----------
 
@@ -513,9 +604,7 @@ RSTUVW
 ")
 
 o1.TrimQ().RemoveLinesW(' Q(@line).IsMadeOfNumbers() ')
-? o1.Content() # TODO/ERR: when we use @@S( o1.Content() ) we observe
-		# that the NL are replaced by spaces: this is incorrect!
-
+? @@(o1.Content())
 #-->
 # "ABCDEF
 #  GHIJKL
@@ -523,15 +612,16 @@ o1.TrimQ().RemoveLinesW(' Q(@line).IsMadeOfNumbers() ')
 #  RSTUVW"
 
 StopProfiler()
+# Executed in 0.14 second(s)
 
-/*-----------
+/*=============
 
 StartProfiler()
 
 o1 = new stzString("I love <<Ring>> and <<Softanza>>!")
 
 # Finding the positions of substrings enclosed between << and >>
-? o1.FindBetween("<<",">>")
+? @@S( o1.FindBetween("<<",">>") )
 #--> [10, 23]
 
 	# Returning the same result as sections
@@ -539,26 +629,28 @@ o1 = new stzString("I love <<Ring>> and <<Softanza>>!")
 	#--> [ [10, 13], [23, 30] ]
 
 	# Getting the substrings themselves
-	? o1.Between("<<",">>")
+	? @@S( o1.Between("<<",">>") ) # Or SubStringsBetween("<<", :And = ">>")
 	#--> [ "Ring", "Softanza" ]
 
 # Now, we need to do the same thing but we want to return the
 # bounding chars << and >> in the result as well. To do so,
-# we can use the eXTended version of the same functions above:
+# we can use the eXTended version of the same functions like this:
 
-? o1.FindBetweenXT("<<",">>")
+? @@S( o1.FindBetweenXT("<<",">>") )
 #--> [8, 21]
 
 	? @@S( o1.FindBetweenAsSectionsXT("<<",">>") )
 	#--> [ [ 8, 15 ], [ 21, 32 ] ]
 
-	? o1.BetweenXT("<<",">>")
+	? @@S( o1.BetweenXT("<<",">>") )
 	#--> [ <<Ring>>, <<Softanza>> ]
 
 StopProfiler()
-#--> Executed in 0.18 second(s)
+#--> Executed in 0.12 second(s)
 
-/*-----------
+/*----------- /////////////  TODO   /////////////////////
+
+pron()
 
 o1 = new stzString('[
 	"1", "1",
@@ -584,26 +676,58 @@ for i = 1 to nLen
 	? aList[i] + NL + NL + "--" + NL
 next
 
-StopProfiler()
+proff()
 
 #--> Executed in 0.61 second(s)
 
-/*---------- ERROR
+/*=============
 
-StartProfiler()
+pron()
 
 o1 = new stzString("99999999999")
-o1.SpacifyXT([ :EachNChars = "n", :StartingFrom = :End, :Using = "_" ])
-? o1.Content()
-#--> 99_999_999_999
-/*
 ? o1.Spacified()
 #--> 9 9 9 9 9 9 9 9 9 9 9 
 
 ? o1.SpacifiedUsing("_")
 #--> 9_9_9_9_9_9_9_9_9_9_9
 
+proff()
+# Executed in 0.37 second(s)
+
+/*----------
+*/
+StartProfiler()
+
+o1 = new stzString("99999999999")
+o1.SpacifyChars()
+o1.SpacifyCharsUsing("_")
+//o1.SpacifyEachNChars(3)
+//o1.SpacifyXT( "_", 3, :Backward )
+# Or you can be explicit and name the params like this:
+# //o1.SpacifyXT( :Using = "_", :Step = 3, :Direction = :Backward )
+
+? o1.Content()
+#--> 99_999_999_999
+
 StopProfiler()
+
+/*----------
+
+StartProfiler()
+
+o1 = new stzString("9999999999")
+o1.SpacifyXT(
+	:Using    = [ ".", :AndThen = " " ],
+	:Stepping = [ 2, :AndThen = 3],
+	:Going    = :Backward
+)
+
+? o1.Content()
+#--> 99 999 999.99
+
+
+StopProfiler()
+# Executed in 0.05 second(s)
 
 /*--------------
 
@@ -613,7 +737,7 @@ StopProfiler()
 		o1.InsertXT("_", [ :After, :EachNChars = 3, :Going = :Forward ])
 
 		? o1.Content()
-		#--> 99_999_999_999é
+		#--> 99_999_999_999
 
 /*--------------
 

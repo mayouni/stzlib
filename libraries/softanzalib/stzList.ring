@@ -5840,8 +5840,18 @@ class stzList from stzObject
 	def IsPair()
 		return This.NumberOfItems() = 2
 
+		def IsPairQ()
+			if This.IsPair()
+				return This
+			else
+				return StzFalseObjectQ()
+			ok
+
 		def IsAPair()
 			return This.IsPair()
+
+			def IsAPairQ()
+				return This.IsPairQ()
 
 	def IsPairOfStrings()
 		return This.IsPair() and This.IsListOfStrings()
@@ -11866,20 +11876,29 @@ class stzList from stzObject
 	 #  BISECTING THE LIST INTO HALVES  #
 	#==================================#
 
+	#-- FIRST HALF
+
 	def FirstHalf()
 
 		nPos = floor(This.NumberOfItems() / 2)
 		acResult = This.Section(1, nPos)
 
 		return acResult
+
+	def FirstHalfAndPosition()
+		aResult = [ This.FirstHalf(), 1 ]
+		return aResult
+
+		def FirstHalfAndItsPosition()
+			return This.FirstHalfAndPosition()
+
+	def FirstHalfAndSection()
+		aResult = [ This.FirstHalf(), [1, floor(This.NumberOfItems() / 2)] ]
+		return aResult
+
+		def FirstHalfAndItsSection()
+			return This.FirstHalfAndSection()
 		
-	def SecondHalf()
-		nLen = This.NumberOfItems()
-		nPos = floor(nLen / 2) + 1
-		acResult = This.Section(nPos, nLen)
-
-		return acResult
-
 	def FirstHalfXT()
 
 		nPos = ceil(This.NumberOfItems() / 2)
@@ -11887,12 +11906,73 @@ class stzList from stzObject
 
 		return acResult
 		
+	def FirstHalfAndPositionXT()
+		aResult = [ This.FirstHalfXT(), 1 ]
+		return aResult
+
+		def FirstHalfAndItsPositionXT()
+			return This.FirstHalfAndPositionXT()
+
+	def FirstHalfAndSectionXT()
+		aResult = [ This.FirstHalfXT(), [1, ceil(This.NumberOfItems() / 2)] ]
+		return aResult
+
+		def FirstHalfAndItsSectionXT()
+			return This.FirstHalfAndSectionXT()
+
+	#-- SECOND HALF
+
+	def SecondHalf()
+		nLen = This.NumberOfItems()
+		nPos = floor(nLen / 2) + 1
+		acResult = This.Section(nPos, nLen)
+
+		return acResult
+
+	def SecondHalfAndPosition()
+		nLen = This.NumberOfItems()
+		nPos = floor(nLen / 2) + 1
+		aResult = [ This.SecondHalf(), nPos ]
+		return aResult
+
+		def SecondHalfAndItsPosition()
+			return This.SecondHalfAndPosition()
+
+	def SecondHalfAndSection()
+		nLen = This.NumberOfItems()
+		nPos = floor(nLen / 2) + 1
+		aResult = [ This.SecondHalf(), [ nPos, nLen ] ]
+		return aResult
+
+		def SecondHalfAndItsSection()
+			return This.SecondHalfAndSection()
+
 	def SecondHalfXT()
 		nLen = This.NumberOfItems()
 		nPos = ceil(nLen / 2) + 1
 		acResult = This.Section(nPos, nLen)
 
 		return acResult
+
+	def SecondHalfAndPositionXT()
+		nLen = This.NumberOfItems()
+		nPos = ceil(nLen / 2) + 1
+		aResult = [ This.SecondHalfXT(), nPos ]
+		return aResult
+
+		def SecondHalfAndItsPositionXT()
+			return This.SecondHalfAndPositionXT()
+
+	def SecondHalfAndSectionXT()
+		nLen = This.NumberOfItems()
+		nPos = ceil(nLen / 2) + 1
+		aResult = [ This.SecondHalfXT(), [ nPos, nLen ] ]
+		return aResult
+
+		def SecondHalfAndItsSectionXT()
+			return This.SecondHalfAndSectionXT()
+
+	#-- THE TWO HALVES
 
 	def Halves()
 		acResult = []
@@ -11901,7 +11981,7 @@ class stzList from stzObject
 		return acResult
 
 		def Bisect()
-			return his.Halves()
+				return This.Halves()
 
 	def HalvesXT()
 		acResult = []
@@ -11910,7 +11990,35 @@ class stzList from stzObject
 		return acResult
 
 		def BisectXT()
-			return his.Halves()
+			return This.Halves()
+
+	def HalvesAndPositions()
+		aResult = [ This.FirstHalfAndPosition(), This.SecondHalfAndPosition() ]
+		return aResult
+
+		def HalvesAndTheirPositions()
+			return This.HalvesAndPositions()
+
+	def HalvesAndPositionsXT()
+		aResult = [ This.FirstHalfAndPositionXT(), This.SecondHalfAndPositionXT() ]
+		return aResult
+
+		def HalvesAndTheirPositionsXT()
+			return This.HalvesAndPositionsXT()
+
+	def HalvesAndSections()
+		aResult = [ This.FirstHalfAndSection(), This.SecondHalfAndSection() ]
+		return aResult
+
+		def HalvesAndTheirSections()
+			return This.HalvesAndSections()
+
+	def HalvesAndSectionsXT()
+		aResult = [ This.FirstHalfAndSectionXT(), This.SecondHalfAndSectionXT() ]
+		return aResult
+
+		def HalvesAndTheirSectionsXT()
+			return This.HalvesAndSectionsXT()
 
 	  #============================================================#
 	 #  INDEXING THE LIST BY POSITION OR BY NUMBER OF OCCURRENCE  #
@@ -14502,12 +14610,16 @@ class stzList from stzObject
 	#--------------------------------------------------#
 
 	def ContainsBothCS(pItem1, pItem2, pCaseSensitive)
+		if isList(pItem2) and Q(pItem2).IsAndNamedParam()
+			pItem2 = pItem2[2]
+		ok
+
 		return This.ContainsEachCS( [pItem1, pItem2], pCaseSensitive )
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsBoth(pItem1, pItem2)
-		return This.ContainsEach( [pItem1, pItem2] )
+		return This. ContainsBothCS(pItem1, pItem2, :CaseSensitive = TRUE)
 
 	  #--------------------------------------------------------------------#
 	 #  CHECKING IF EACH ONE OF THE GIVEN ITEMS EXISTS IN THE GIVEN LIST  #
@@ -22383,7 +22495,17 @@ class stzList from stzObject
 
 	def IsThenNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Then )
+		   ( isString(This[1]) and  (This[1] = :Then or This[1] = :Then@) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndThenNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  (This[1] = :AndThen or This[1] = :AndThen@) )
 
 			return TRUE
 
@@ -27756,10 +27878,109 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsConcatenatedWithParam()
+	def IsConcatenatedWithNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and
 			(This[1] = :ConcatenatedWith or This[1] = :ConcatenatedWith@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEachNCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :EachNChars or This[1] = :EachNChars@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEachNItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :EachNItems or This[1] = :EachNItems@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEachNStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :EachNStrings or This[1] = :EachNStrings@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEachNNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :EachNNumbers or This[1] = :EachNNumbers@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEachNListsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :EachNLists or This[1] = :EachNLists@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEachNPairsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :EachNPairs or This[1] = :EachNPairs@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEachNObjectsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :EachNObjects or This[1] = :EachNObjects@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsGoingNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :Going or This[1] = :Going@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsSteppingNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :Stepping or This[1] = :Stepping@ ) )
 
 			return TRUE
 
@@ -27792,3 +28013,35 @@ class stzList from stzObject
 
 		def ToListInShortForm()
 			return This.ToListInStringInShortForm()
+
+	#---------#
+	#  WHERE  #
+	#---------#
+
+	def Where(pcCondition)
+		/* EXAMPLE
+
+		o1 = new stzList([ :StartingAt, 5 ])
+		? o1.IsAPairQ().Where('{ isString(@pair[1]) and isNumber(@pair[2]) }')
+		#--> TRUE
+
+		o1 = new stzList([ "ONE", "TWO", "THREE" ])
+		? o1.IsAPairQ().Where('{ Q(@Pair).AllItemsAre([ :Uppercase, :Strings ]) }')
+		#--> FALSE
+
+		*/
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		cCondition = Q(pcCondition).
+				TrimQ().
+				RemoveBoundsQ(["{","}"]).
+				ReplaceManyCSQ([ "@list", "@pair" ], "This", :CS = FALSE).
+				Content()
+
+		cCode = 'bOk = (' + cCondition + ')'
+
+		eval(cCode)
+		return bOk
