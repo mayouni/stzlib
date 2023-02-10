@@ -682,34 +682,56 @@ proff()
 
 /*=============
 
+StartProfiler()
+
+o1 = new stzString("99999999999")
+o1.SpacifyChars()
+
+? o1.Content()
+#--> 9 9 9 9 9 9 9 9 9 9 9
+
+StopProfiler()
+# Executed in 0.03 second(s)
+
+/*----------
+
 pron()
 
 o1 = new stzString("99999999999")
 ? o1.Spacified()
 #--> 9 9 9 9 9 9 9 9 9 9 9 
 
+//? o1.SpacifiedUsing("_")
+#--> 9_9_9_9_9_9_9_9_9_9_9
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzString("99999999999")
 ? o1.SpacifiedUsing("_")
 #--> 9_9_9_9_9_9_9_9_9_9_9
 
 proff()
-# Executed in 0.37 second(s)
+# Executed in 0.03 second(s)
 
 /*----------
-*/
-StartProfiler()
+
+pron()
 
 o1 = new stzString("99999999999")
-o1.SpacifyChars()
-o1.SpacifyCharsUsing("_")
-//o1.SpacifyEachNChars(3)
-//o1.SpacifyXT( "_", 3, :Backward )
+o1.SpacifyXT( "_", 3, :Backward )
 # Or you can be explicit and name the params like this:
 # //o1.SpacifyXT( :Using = "_", :Step = 3, :Direction = :Backward )
 
 ? o1.Content()
 #--> 99_999_999_999
 
-StopProfiler()
+proff()
+# Executed in 0.03 second(s)
 
 /*----------
 
@@ -717,16 +739,151 @@ StartProfiler()
 
 o1 = new stzString("9999999999")
 o1.SpacifyXT(
-	:Using    = [ ".", :AndThen = " " ],
-	:Stepping = [ 2, :AndThen = 3],
-	:Going    = :Backward
+	:Using     = [ ".", :AndThen = " " ],
+	:Step      = [ 2, :AndThen = 3],
+	:Direction = :Backward
 )
 
 ? o1.Content()
 #--> 99 999 999.99
 
-
 StopProfiler()
+# Executed in 0.05 second(s)
+
+/*==============
+
+pron()
+
+o1 = new stzString(" so ftan  za ")
+o1.Unspacify()
+? o1.Content()
+#--> so ftan  za
+
+proff()
+# Executed in 0.01 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzListOfStrings([" r   in g", "r ing", "  r     i ng  "])
+? o1.SpacesRemoved()
+#--> [ "ring", "ring", "ring" ]
+
+# Content of the string remained the same, because ...ed() functions
+# work on a copy of it.
+
+o1.RemoveSpaces()
+? o1.Content()
+#--> [ "ring", "ring", "ring" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*--------------
+
+pron()
+
+? @@( Q(" ").Unspacified() )
+#--> ""
+
+? @@( Q("  ").Unspacified() )
+#--> " "
+
+? @@( Q("   ").Unspacified() )
+#--> " "
+
+? @@( Q(" ♥").Unspacified() )
+#--> "♥"
+
+? @@( Q("♥ ").Unspacified() )
+#--> "♥"
+
+? @@( Q(" ♥ ").Unspacified() )
+#--> "♥"
+
+? Q("r  in  g ").Unspacified() # Does not remove spaces inside!
+#--> "r  in  g"
+
+? Q("    r  in  g ").Unspacified()
+#--> "r  in  g"
+
+proff()
+
+/*--------------
+
+pron()
+
+o1 = new stzString("r  in  g language is like a r  ing at your fingertips!")
+
+acSubStringsXT =  o1.SubStringsBetweenAndTheirSectionsXT("r","g")
+//? @@S(acSubStringsXT)
+#--> [
+#	[ "r in g", [  1, 8  ] ],
+#	[ "r ing",  [ 29, 34 ] ],
+#	[ "r fing", [ 42, 47 ] ]
+# ]
+
+
+oHashList = QR(acSubStringsXT, :stzHashList)
+acWithoutSpaces = oHashList.KeysQR(:stzListOfStrings).WithoutSapces()
+#-->  [ "ring", "ring", "rfing" ]
+
+aSectionsPos = Q(acWithoutSpaces).FindW('This[@i] = "ring"')
+#--> [1, 2]
+
+aSectionsToBeUnSpacified = oHashList.ValuesQ().ItemsAtPositions(aSectionsPos)
+//? @@S(aSectionsToBeUnSpacified)
+#--> [ [ 1, 8 ], [ 29, 34 ] ]
+
+o1.UnspacifySections(aSectionsToBeUnSpacified)
+? o1.Content()
+
+proff()
+# Executed in 0.12 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzString("   r  in  g  is a rin  g  ")
+? @@S( o1.FindBetweenAsSectionsXT("r","g") )
+#--> [ [ 4, 11 ], [ 19, 24 ] ]
+
+? o1.SubStringsBetweenXTQR("r","g", :stzListOfStrings).WithoutSapces()
+# NOTE: WithoutSapces() is misspelled and the correct form is WithoutSpaces!
+# Despite that, softanza accepts it ;)
+#--> [ "ring", "ring" ]
+
+proff()
+#--> Executed in 0.07 second(s)
+
+/*--------------
+
+*/
+pron()
+
+o1 = new stzString("IbelieveinRingfutureandengageforit!")
+
+o1.SpacifySubStrings([
+	"believe", "in", "Ring", "future",
+	"and", "engage", "for"
+])
+
+? @@S( o1.TheseSubStringsAndTheirSections([ "believe", "in", "Ring", "future",
+	"and", "engage", "for"
+]) )
+
+/*
+? @@S( o1.FindAsSectionsXT([ "believe", "in", "Ring", "future",
+	"and", "engage", "for"
+]) )
+*/
+
+//? o1.Content()
+#--> I believe in R ing futur and engage for it!
+
+proff()
 # Executed in 0.05 second(s)
 
 /*--------------
@@ -741,27 +898,7 @@ StopProfiler()
 
 /*--------------
 
-StartProfiler()
 
-o1 = new stzString("99999999999")
-? o1.Spacified()
-#--> 9 9 9 9 9 9 9 9 9 9 9 
-
-? o1.SpacifiedUsing("_")
-#--> 9_9_9_9_9_9_9_9_9_9_9
-
-//? o1.SpacifiedXT(:EachNChars = 3, :StartingFrom = :End, :Using = "_") # TODO
-#--> 99_999_999_999
-
-anPos = o1.WalkXT([ :From = :LastChar, :To = 1, :Step = 3 ]) # ERROR
-? @@S( anPos )
-
-anPos = []
-nLen = o1.NumberOfChars()
-for i = nLen + 1 to 1 step -3
-	anPos + i
-next
-del(anPos, 1)
 
 //o1.InsertBeforePositions(anPos, "_") # TODO: Add this function
 o1.InsertBefore(anPos, "_")

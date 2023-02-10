@@ -18152,3 +18152,55 @@ class stzListOfStrings from stzList
 		but pcOp = "+"
 			This.AddString(pValue)
 		ok
+
+	  #====================================#
+	 #  REMOVING SPACES FROM EACH STRING  #
+	#====================================#
+
+	def RempoveSpacesFromEachString()
+		nLen = This.NumberOfStrings()
+		for i = 1 to nLen
+
+			This.ReplaceNthString(i, :With = This.StringQ(i).WithoutSpaces())
+		next
+
+		def RemoveSpacesFromEachStringQ()
+			This.RempoveSpacesFromEachString()
+			return This
+
+		def RemoveSpacesFromEachStringItem()
+			This.RempoveSpacesFromEachString()
+
+			def RemoveSpacesFromEachStringItemQ()
+				This.RemoveSpacesFromEachStringItem()
+				return This
+
+		def RemoveSpaces()
+			This.RempoveSpacesFromEachString()
+
+			def RemoveSpacesQ()
+				This.RemoveSpaces()
+				return This
+
+	def SpacesRemovedFromEachString()
+		acResult = This.Copy().RemoveSpacesFromEachStringQ().Content()
+		return acResult
+
+		def SpacesRemoved()
+			return This.SpacesRemovedFromEachString()
+
+		def StringsWithoutSpace()
+			return This.SpacesRemovedFromEachString()
+
+		def StringItemsWithoutSpaces()
+			return This.SpacesRemovedFromEachString()
+
+		def WithoutSpaces()
+			return This.SpacesRemovedFromEachString()
+
+			#< @FunctionMisspelledForm
+
+			def withoutSapces()
+				return This.SpacesRemovedFromEachString()
+
+			#>
