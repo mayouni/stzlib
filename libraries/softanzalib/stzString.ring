@@ -2048,6 +2048,9 @@ class stzString from stzObject
 		def AllSubStringsXTTCS(pCaseSensitive)
 			return This.SubStringsAndTheirSectionsCS(pCaseSensitive)
 
+		def FindSubStringsXTTCS(pCaseSensitive)
+			return This.SubStringsAndTheirSectionsCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -2064,6 +2067,9 @@ class stzString from stzObject
 			return This.SubStringsAndTheirSections()
 
 		def AllSubStringsXTT()
+			return This.SubStringsAndTheirSections()
+
+		def FindSubStringsXTT()
 			return This.SubStringsAndTheirSections()
 
 		#>
@@ -15397,7 +15403,7 @@ class stzString from stzObject
 	  #------------------------------------------------------#
 	 #  FINDING ALL OCCURRENCES OF A SUBSTRING -- EXTENDED  #
 	#------------------------------------------------------#
-
+	
 	def FindXTCS(pcSubStr, paOption, pCaseSensitive)
 		/* EXAMPLES
 		o1 = new stzString("my <<word>> and your <<word>>")
@@ -15916,10 +15922,11 @@ class stzString from stzObject
 		# Doing the job
 
 		aResult = []
+		nLen = len(pacSubStr)
 
-		for str in pacSubStr
-			anPositions = This.FindAllCS(str, pCaseSensitive)
-			aResult + [ str, anPositions ]
+		for i = 1 to nLen
+			anPositions = This.FindAllCS(pacSubStr[i], pCaseSensitive)
+			aResult + [ pacSubStr[i], anPositions ]
 		next
 		
 		return aResult
@@ -16008,9 +16015,10 @@ class stzString from stzObject
 		# Doing the job
 
 		aResult = []
+		nLen = len(pacSubStr)
 
-		for str in pacSubStr
-			aResult + This.FindAllXTTCS(str, pCaseSensitive)
+		for i = 1 to nLen
+			aResult + [ pacSubStr[i], This.FindAsSectionsCS(pacSubStr[i], pCaseSensitive) ]
 		next
 		
 		return aResult
@@ -16431,6 +16439,7 @@ class stzString from stzObject
 			off
 
 		#>
+
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -19860,8 +19869,6 @@ class stzString from stzObject
 			stzRaise("Incorrect params!")
 		ok
 
-		
-
 
 /*
 	
@@ -19990,6 +19997,23 @@ class stzString from stzObject
 		def ContainsNeither(pcSubStr1, pcSubStr2)
 			return This.ContainsNeitherCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 		#>
+
+	  #------------------------------------------------------------------#
+	 #   CHECKING IF THE STRING IS CONTAINED IN AN OTHER GIVEN STRING   #
+	#------------------------------------------------------------------#
+
+	def IsContainedInCS(pcOtherStr, pCaseSensitive)
+		if NOT isString(pcOtherStr)
+			StzRaise("Incorrect param type! pcOtherStr must be a string.")
+		ok
+
+		bResult = Q(pcOtherStr).ContainsCS(This.String(), pCaseSensitive) 
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsContainedIn(pcOtherStr)
+		return This.IsContainedInCS(pcOtherStr, :CaseSensitive = TRUE)
 
 	  #------------------------------------------------#
 	 #   CHECKING CONATAINMENT ON A GIVEN CONDITION   #
@@ -22782,7 +22806,7 @@ class stzString from stzObject
 		ok
 
 		if NOT isString(pcClassifier)
-			steRaise("Incorrect param type! pcClassifier must be a string.")
+			stzRaise("Incorrect param type! pcClassifier must be a string.")
 		ok
 
 		aResult = This.UniquePartsQ(pcClassifier).
@@ -26956,22 +26980,104 @@ class stzString from stzObject
 	#----------------------------------------------#
 
 	def SpacifySubStringsCS(pacSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("IbelieveinRingfutureandengageforit!")
+
+		o1.SpacifyTheseSubStrings([
+			"believe", "in", "Ring", "future", "and", "engage", "for"
+		])
+
+		#--> I believe in Ring future and engage for it!
+
+		*/
+
 		if NOT ( isList(pacSubStr) and Q(pacSubStr).isListOfStrings() )
 			stzRaise("Incorrect param! pacSubStr must be a list of strings.")
 		ok
 
-		acSubStrings = StzListOfStringsQ(pacSubStr).Sorted()
-		nLen = len(acSubStrings)
+		# Removing duplicates from the provided substrings
 
+		pacSubStr = Q(pacSubStr).DuplicatesRemoved()
+		nLen = len(pacSubStr)
+
+		# Among the substrings provided, idenifying those that
+		# actually exist in the string (others are ignored)
+
+		acSubstrings = []
 		for i = 1 to nLen
-			This.SpacifySubStringCS(acSubStrings[i], pCaseSensitive)
-			# TODO: Unspacify substrings that contain other substrings from
-			# the provided list of strings
-
-			# ...
-
+			if This.ContainsCS(pacSubStr[i], pCaseSensitive)
+				acSubstrings + pacSubStr[i]
+			ok
 		next
+		#--> [ "believe", "in", "Ring", "future", "and", "engage", "for" ]
+		nLenSubStr = len(acSubStrings)
 
+		# Identifying those among them, that will be altered
+		# after Spacify function is is used
+
+		acToBeAltered = QR(pacSubStr, :stzListOfStrings).SubStrongs()
+		#--> [ "Ring" ]
+		nLenToBeAltered = len(acToBeAltered)
+
+		# Deducing those that will be not altered (they will be
+		# successfully spacified by the Spacify function)
+
+		# If there is no altered substrings, then it is safe
+		# to spacify them all and quit...
+
+		if nLenToBeAltered = 0
+			for i = 1 to nLenSubStr
+				This.SpacifySubStringCS(acSubstrings[i], pCaseSensitive)
+			next
+
+			return
+		ok
+
+		# Otherwise, we start by separating the ones that will
+		# not be altered (will be well spacified automatically)
+
+		acWellSpacified = Q(pacSubStr).ManyRemoved(acToBeAltered)
+		#-->  "believe", "in", "future", "and", "engage", "for" ]
+		nLenWellSpacified = len(acWellSpacified)
+
+		# Defining the sections of the (to-be) altered substrings
+
+		nLenAltered = len(acToBeAltered)
+		aSections = []
+		for i = 1 to nLenAltered
+			cSubStr = acToBeAltered[i]
+			aTempSections = This.FindAsSectionsCS(cSubStr, pCaseSensitive)
+			nTempLen = len(aTempSections)
+
+			for j = 1 to nTempLen
+				aSections + aTempSections[j]
+			next
+		next
+		#--> aSections = [ [11, 14] ]
+
+		# Taking the antisections (corresponding to the substrings
+		# that will be successfully spacified and spacifying them
+
+		acAntiSections = This.AntiSections(aSections)
+		#--> [ "Ibelievein", "futureandengageforit!" ]
+		nLenAntiSections = len(acAntiSections)
+
+		for i = 1 to nLenAntiSections
+			oSection = new stzString(acAntiSections[i])
+			for j = 1 to nLenWellSpacified
+				oSection.SpacifySubStringCS(acWellSpacified[j], pCaseSensitive)
+			next
+
+			This.ReplaceCS( acAntiSections[i], oSection.Content(), pCaseSensitive)
+		next
+		
+		# Then we safly spacify the ones that, otherwise, would be altered
+
+		for i = 1 to nLenAltered
+			This.ReplaceCS(acToBeAltered[i], " " + acToBeAltered[i] + " ", pCaseSensitive)
+		next
+		
 		#< @FuncionFluentForm
 
 		def SpacifySubStringsCSQ(pacSubStr, pCaseSensitive)
@@ -30520,16 +30626,16 @@ class stzString from stzObject
 	*/
 
 	def NumberOfCharsCS(pCaseSensitive)
-		
+
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSenssitive = pCaseSensitive[2]
+			pCaseSensitive = pCaseSensitive[2]
 		ok
 
 		if NOT IsBoolean(pCaseSensitive)
-			SteRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
-		if bCaseSensitive = TRUE
+		if pCaseSensitive = TRUE
 			return @oQString.count()
 
 		else
