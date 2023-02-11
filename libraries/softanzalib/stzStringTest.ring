@@ -860,31 +860,49 @@ proff()
 
 /*--------------
 
-*/
+pron()
+
+o1 = new stzListOfStrings([
+	"I", "believe", "in", "Ring", "future", "and", "engage", "for", "it!"
+])
+
+? o1.SubStrongs() # the strings containing other strings from the list
+#--> [ "Ring" ]
+
+? o1.SubStreaks() # the strings that are contained in other strings from the list
+#--> [ "in" ]
+
+proff()
+
+/*--------------
+
 pron()
 
 o1 = new stzString("IbelieveinRingfutureandengageforit!")
-
-o1.SpacifySubStrings([
-	"believe", "in", "Ring", "future",
-	"and", "engage", "for"
+o1.SpacifyTheseSubStrings([
+	"believe", "in", "Ring", "future", "and", "engage", "for"
 ])
 
-? @@S( o1.TheseSubStringsAndTheirSections([ "believe", "in", "Ring", "future",
-	"and", "engage", "for"
-]) )
-
-/*
-? @@S( o1.FindAsSectionsXT([ "believe", "in", "Ring", "future",
-	"and", "engage", "for"
-]) )
-*/
-
-//? o1.Content()
-#--> I believe in R ing futur and engage for it!
+? o1.Content()
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.13 second(s)
+
+/*--------------
+*/
+pron()
+
+o1 = new stzString(
+"MahmoudBertAhmedMansourIlirGalMajdi"
+)
+
+o1.SpacifyTheseSubStrings([
+	"Mahmoud", "Bert", "Ahmed", "Mansour", "Ilir", "Gal", "Majdi" ])
+
+? o1.Content()
+#--> Mahmoud Bert Ahmed Mansour Ilir Gal Majdi
+
+proff()
 
 /*--------------
 

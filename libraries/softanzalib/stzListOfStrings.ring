@@ -18204,3 +18204,86 @@ class stzListOfStrings from stzList
 				return This.SpacesRemovedFromEachString()
 
 			#>
+
+	  #----------------------------------------------#
+	 #  GETTING THE LIST OF SUBSTRONGS IN THE LIST  #
+	#----------------------------------------------#
+
+	// A substrong is any string containg other strings from the list
+	
+	def SubStrongsCS(pCaseSensitive)
+		/* EXAMPLE
+		o1 = new stzListOfStrings([
+			"I", "believe", "in", "Ring", "future", "and", "engage", "for", "it!"
+		])
+		
+		? o1.SubStrongs()
+		#--> [ "Ring" ]
+
+
+		*/
+
+		acResult = []
+		nLen = This.NumberOfStrings()
+
+		for i = 1 to nLen
+			for j = 1 to nLen
+				if j = i
+					loop
+				ok
+
+				if This.StringQ(i).ContainsCS(This.String(j), pCaseSensitive)
+					acResult + This.String(i)
+				ok
+
+			next
+
+		next
+
+		return acResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStrongs()
+		return This.SubStrongsCS(:CaseSensitive = TRUE)
+
+	  #-----------------------------------------------#
+	 #  GETTING THE LIST OF SUBSTREACKS IN THE LIST  #
+	#-----------------------------------------------#
+
+	// A substreak is any string containg other strings from the list
+
+	def SubStreaksCS(pCaseSensitive)
+		/* EXAMPLE
+		o1 = new stzListOfStrings([
+			"I", "believe", "in", "Ring", "future", "and", "engage", "for", "it!"
+		])
+		
+		? o1.SubStreaks()
+		#--> [ "in" ]
+
+		*/
+
+		acResult = []
+		nLen = This.NumberOfStrings()
+
+		for i = 1 to nLen
+			for j = 1 to nLen
+				if j = i
+					loop
+				ok
+
+				if This.StringQ(i).IsContainedInCS(This.String(j), pCaseSensitive)
+					acResult + This.String(i)
+				ok
+
+			next
+
+		next
+
+		return acResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStreaks()
+		return This.SubStreaksCS(:CaseSensitive = TRUE)
