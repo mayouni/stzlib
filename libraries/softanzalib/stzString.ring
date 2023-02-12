@@ -9745,7 +9745,7 @@ class stzString from stzObject
 			return This.AntiRanges()
 
 	  #========================#
-	 #  INSERTING SUBSTRINGS  # TODO
+	 #  INSERTING SUBSTRINGS  # TODO / UNCOMPLETE
 	#========================#
 
 	def InsertXT(pcSubStr, paOptions)
@@ -9765,6 +9765,28 @@ class stzString from stzObject
 		#--> 9_99.99_99.99_99
 
 		*/
+
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		if isList(paOptions)
+
+			oOptions = new stzList(paOptions)
+
+			# Case : Q("999999").InsertXT("-", :EachNChars = 2) --> 99-99-99
+			if oOptions.IsOneOfTheseNamedParams([ :Step, :EachNChars ])
+
+				This.SpacifyXT(
+					:Using = pcSubStr,
+					:EachNChars = paOptions[2],
+					:Going = :Forward)
+
+			# Add other cases here
+
+				/* ... */
+			ok
+		ok
 
 	def InsertBeforeEachNChars(n, pcSubStr)
 		This.InsertBeforeEachNCharsXT(n, pcSubStr, :FromEndToStart)
@@ -9908,6 +9930,12 @@ class stzString from stzObject
 	#----------------------------------------------------#
 
 	def InsertAfter(nPos, pcSubStr)
+		#< QtBased >
+
+		if isList(nPos) and Q(nPos).IsListOfNumbers()
+			This.InsertAtPositons(anPos, pcSubStr)
+		ok
+
 		@oQString.insert(nPos, pcSubStr)
 
 		//VerifyConstraints()
@@ -10065,6 +10093,9 @@ class stzString from stzObject
 		def InsertAfterManyPositions(panPositions, pcSubstr)
 			This.InsertAfterThesePositions(panPositions, pcSubStr)
 
+		def InsertAfterPositions(panPositions, pcSubstr)
+			This.InsertAfterThesePositions(panPositions, pcSubStr)
+
 	  #-------------------------------------------------#
 	 #   INSERTING A SUBSTRING BEFORE MANY POSITIONS   #
 	#-------------------------------------------------#
@@ -10084,6 +10115,9 @@ class stzString from stzObject
 		This.InsertAfterThesePositions(anPositions, pcSubStr)
 
 		def InsertBeforeManyPositions(panPositions, pcSubStr)
+			This.InsertBeforeThesePositions(panPositions, pcSubStr)
+
+		def InsertBeforePositions(panPositions, pcSubStr)
 			This.InsertBeforeThesePositions(panPositions, pcSubStr)
 
 	  #-------------------------------------#
@@ -17050,11 +17084,10 @@ class stzString from stzObject
 
 	def FindBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 
-		aSections = This.FindBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-		aResult = StzListOfPairsQ(aSections).FirstItems()
+		aSections = This.FindBetweenZCS(pcBound1, pcBound2, pCaseSensitive)
+		aResult = StzListOfPairsQ(aSections).SecondItems()
 
 		return aResult
-
 
 		#< @FunctionAlternativeForms
 
@@ -17078,6 +17111,63 @@ class stzString from stzObject
 			return This.FindBoundedBy(pcBound1, pcBound2)
 
 		#>
+
+	   #------------------------------------------------------#
+	  #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
+	 #  AND RETURNING THE SUBSTRINGS AND THEIR SECTIONS     #
+	#------------------------------------------------------#
+
+	def FindBetweenZZCS(pcBound1, pcBound2, pCaseSensitive)
+
+		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
+			pcBound2 = pcBound2[2]
+		ok
+
+		anPositions2   = This.FindAllCS(pcBound2, pCaseSensitive)
+		nNumPositions2 = len(anPositions2)
+		nLenBound1     = StzStringQ(pcBound1).NumberOfChars()
+
+		aResult = []
+
+		for i = 1 to nNumPositions2
+			nPos = anPositions2[i]
+
+			nPos1 = This.FindPreviousCS(pcBound1, :StartingAt = nPos, pCaseSensitive)
+			nPos2 = This.FindPreviousCS(pcBound2, :StartingAt = nPos, pCaseSensitive)
+
+			if nPos1 > nPos2
+				n1 = nPos1 + nLenBound1
+				n2 = nPos - 1
+				aResult + [ This.Section(n1, n2), [ n1, n2 ] ]
+			ok
+		next
+
+		return aResult
+
+	def FindBetweenZZ(pcBound1, pcBound2)
+		return FindBetweenZZCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
+
+	   #------------------------------------------------------#
+	  #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
+	 #  AND RETURNING THE SUBSTRINGS AND THEIR POSITIONS    #
+	#------------------------------------------------------#
+
+	def FindBetweenZCS(pcBound1, pcBound2, pCaseSensitive)
+		aBetweenZZ = This.FindBetweenZZCS(pcBound1, pcBound2, pCaseSensitive)
+		nLen = len(aBetweenZZ)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aBetweenZZ[i][1], aBetweenZZ[i][2][1] ]
+		next
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBetweenZ(pcBound1, pcBound2)
+		return This.FindBetweenZCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
 
 	   #------------------------------------------------------#
 	  #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
@@ -18090,6 +18180,87 @@ class stzString from stzObject
 				return This.SectionsBoundedByQR(pacBounds,  pcReturnType)
 
 		#>
+
+	  #--------------------------------------------------------#
+	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- ZEXTENDED  #
+	#--------------------------------------------------------#
+
+	def SubStringsBetweenZCS( pcSubStr1, pcSubStr2, pcMore, pCaseSensitive )
+		/* EXAMPLE
+
+		o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
+
+		? o1.SubstringsBetweenZ("<<", ">>", :AlongWith = :Positions )
+		#--> [ "word1", "word2" ]
+
+		? o1.SubstringsBetweenZ("<<", ">>", :AlongWith = :Sections )
+		#--> [ [ "word1", 14], [ "word2", 32] ]
+
+		# --> [ "word1", "word2" ]
+		*/
+
+		bDynamic = FALSE
+
+		if isList(pcMore) and
+		   Q(pcMore).IsOneOfTheseNamedParams([
+			:With, :WithTheir, :And, :AndTheir, :AlongWith, :AlongWithTheir
+		   ])
+
+			if Q(pcMore[1]).LastChar() = "@"
+				bDynamic = TRUE
+			ok
+			pcMore = pcMore[2]
+		ok
+
+		if NOT isString(pcMore)
+			StzRaise("Incorrect param type! pcMore must be a string.")
+		ok
+
+		
+		if Q(pcMore).IsOneOfThese([ NULL, :Nothing, :Default ])
+
+			return This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		but Q(pcMore).IsOneOfThese([
+			:Position, :TheirPosition, :Positions, :TheirPositions,
+			:AndPosition, :AndTheirPosition, :AndPositions, :AndTheirPositions
+			])
+
+			aResult = []
+			acSubStringsBetween = This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			nLen = len(acSubStringsBetween)
+
+			for i = 1 to nLen
+				aResult + [ acSubStringsBetween[i], This.FindCS(acSubStringsBetween[i], pCaseSensitive) ]
+			next
+
+			return aResult
+
+		but Q(pcMore).IsOneOfThese([ 
+			:Section, :TheirSection, :Sections, :TheirSections,
+			:AndSection, :AndTheirSection, :AndSections, :AndTheirSections
+			])
+
+			aResult = []
+			acSubStringsBetween = This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			nLen = len(acSubStringsBetween)
+
+			for i = 1 to nLen
+				aResult + [ acSubStringsBetween[i], This.FindAsSectionsCS(acSubStringsBetween[i], pCaseSensitive) ]
+			next
+
+			return aResult
+	
+		else
+			if bDynamic # TODO
+				/* ... */
+			ok
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenZ( pcSubStr1, pcSubStr2, pcMore )
+		return This.SubStringsBetweenZCS( pcSubStr1, pcSubStr2, pcMore, :CaseSensitive = TRUE)
 
 	  #-------------------------------------------------------------------#
 	 #   SUBSTRINGS ENCLOSED BETWEEN TWO OTHER SUBSTRINGS  -- EXTENDED   # 
@@ -26695,7 +26866,6 @@ class stzString from stzObject
 		cSeparator2 = ""
 		nStep2 = 0
 
-		
 		# Checking params correctness
 
 		if isList(pcSeparator) and Q(pcSeparator).IsOneOfTheseNamedParams([ :Using, :Separator ])
@@ -26761,20 +26931,27 @@ class stzString from stzObject
 		nLen = This.NumberOfChars()
 
 		if cMode = :Basic
+
 			anPos = []
 			if pcDirection = :Forward
-				for i = pnStep to nLen - pnStep step pnStep
+					
+				for i = (pnStep + 1) to nLen step pnStep
 					anPos + i
 				next
-		
+
+				This.InsertBeforeThesePositions(anPos, pcSeparator)
+
 			but pcDirection = :Backward
 		
-				for i = nLen - pnStep to 1 step -pnStep
+				for i = (nLen - pnStep) to 1 step -pnStep
+
 					anPos + i
 				next
+
+				This.InsertAfterThesePositions(anPos, pcSeparator)
 			ok
 
-			This.InsertAfterThesePositions(anPos, pcSeparator)
+			
 
 		but cMode = :Extended
 			

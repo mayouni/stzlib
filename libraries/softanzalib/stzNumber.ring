@@ -793,6 +793,31 @@ func BothAreZeros(n1, n2)
 		return FALSE
 	ok
 
+func IsEven(n)
+	return Q(n).IsEven()
+
+	func IsZawji(n)
+		return IsEven(n)
+
+	funcn IsNotOdd(n)
+		return IsEven(n)
+
+	func IsNotFardi(n)
+		return IsEven(n)
+
+func IsOdd(n)
+	return Q(n).IsOdd()
+
+	func IsFardi(n)
+		return IsOdd(n)
+
+	funcn IsNotEven(n)
+		return IsOdd(n)
+
+	func IsNotZawji(n)
+		return IsOdd(n)
+
+
 #---- used for natural-coding (don't remove them!)
 
 func Number(n)
@@ -1114,12 +1139,39 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForm
+
+		def IsFardi() # Added because I have a confusion between odd() and even()
+			return This.IsOdd()
+
+		ded IsNotMultipleOf2()
+			return This.IsOdd()
+
+		#>
+
+		#< @FunctionNegativeForm
+
+		def IsNotOdd()
+			return NOT This.IsOdd()
+
+		#>
+
 	def IsEven()
 		if This.OddOrEven() = 2
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForm
+
+		def IsZawji() # Added because I have a confusion between odd() and even()
+			return This.IsEven()
+
+		ded IsMultipleOf2()
+			return This.IsEven()
+
+		#>
 
 		#< @FunctionNegativeForm
 

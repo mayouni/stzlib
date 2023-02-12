@@ -22824,9 +22824,39 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsAlongWithNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  (This[1] = :AlongWith or This[1] = :AlongWith@)  )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAlongWithTheirNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  (This[1] = :AlongWithTheir or This[1] = :AlongWithTheir@)  )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsAndNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :And )
+		   ( isString(This[1]) and  (This[1] = :And or This[1] = :And@)  )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAndTheirNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  (This[1] = :AndTheir or This[1] = :AndTheir@)  )
 
 			return TRUE
 
@@ -23014,7 +23044,18 @@ class stzList from stzObject
 	def IsWithNamedParam()
 		if This.NumberOfItems() = 2 and
 
-		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :With, :With@ ]) )
+		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :With, :With@ ]) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsWithTheirNamedParam()
+		if This.NumberOfItems() = 2 and
+
+		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :WithTheir, :WithTheir@ ]) )
 
 			return TRUE
 
