@@ -889,7 +889,7 @@ proff()
 # Executed in 0.13 second(s)
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzString(
@@ -903,42 +903,71 @@ o1.SpacifyTheseSubStrings([
 #--> Mahmoud Bert Ahmed Mansour Ilir Gal Majdi
 
 proff()
+# Executed in 0.08 second(s)
 
 /*--------------
 
-	def InsertXT(pcSubStr, paOptions)
-		/*
-		o1 = new stzString("99999999999")
-		o1.InsertXT("_", [ :After, :EachNChars = 3, :Going = :Forward ])
+pron()
 
-		? o1.Content()
-		#--> 99_999_999_999
+o1 = new stzString("99999999999")
 
-/*--------------
+o1.InsertXT("_", :EachNChars = 3)
+//o1.InsertXT("_", [ :EachNChars = 3, :Forward ]) # TODO
 
+? o1.Content()
+#--> 999_999_999_99
 
+proff()
+# Executed in 0.05 second(s)
 
-//o1.InsertBeforePositions(anPos, "_") # TODO: Add this function
-o1.InsertBefore(anPos, "_")
+/*-------------
+
+pron()
+
+o1 = new stzString("123456789")
+
+o1.InsertBefore([4, 7], "_") # or o1.InsertBeforePositions([4, 7], "_")
+#--> 123_456_789
+
+? o1.Content()
+#--> 123_456_789
+
+proff()
+
+/*-------------
+
+pron()
+
+o1 = new stzString("123456789")
+
+o1.InsertAfterPositions([3, 6], "_") # or o1.InsertAfterPositions([4, 7], "_")
+#--> 123_456_789
+
 //o1.InsertAfterEachNCharsXT(3, :StartingFrom = :End)
 ? o1.Content()
-#--> 9_999_999_999_9
+#--> 123_456_789
 
-StopProfiler()
+proff()
+# Executed in 0.03 second(s)
 
-/*--------------
+/*============
+*/
 
 StartProfiler()
 
-int max = RingMaxInteger();
-int min = RingMinInteger();
-
 o1 = new stzString("The range of integers is {min} to {max}")
-? @@S( o1.SubStringsBetweenXT("{", :And = "}") )
+
+? @@S( o1.FindBetween("{", "}") ) + NL
+#--> [ 27, 36 ]
+
+? @@S( o1.FindBetweenZ("{", "}") ) + NL
+#--> [ [ "min", 27 ], [ "max", 36 ] ]
+
+? @@S( o1.FindBetweenZZ("{", "}") )
 #--> [ [ "min", [ 27, 29 ] ], [ "max", [ 36, 38 ] ] ]
 
-
 StopProfiler()
+# Executed in 0.10 second(s)
 
 /*========================
 /* NOTE :

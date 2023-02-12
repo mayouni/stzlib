@@ -1,5 +1,15 @@
 load "stzlib.ring"
 
+pron()
+
+? Q(12).IsZawji()	# or IsEven()
+#--> TRUE
+
+? Q(13).IsFardi()	# or IsOdd()
+#--> TRUE
+
+proff()
+
 /*--------------------
 
 # TODO : Fix the point at the end of the result

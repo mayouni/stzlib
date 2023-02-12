@@ -2450,7 +2450,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllExceptNth(pcStr, n)
-		return This.FindAllExceptNthCS(pcStr, n, :CaseSensitive)
+		return This.FindAllExceptNthCS(pcStr, n, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -2516,7 +2516,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllExceptFirst(pcStr)
-		return This.FindAllExceptFirstCS(pcStr, :CaseSensitive)
+		return This.FindAllExceptFirstCS(pcStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -2582,7 +2582,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllExceptLast(pcStr)
-		return This.FindAllExceptLastCS(pcStr, :CaseSensitive)
+		return This.FindAllExceptLastCS(pcStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -18205,9 +18205,9 @@ class stzListOfStrings from stzList
 
 			#>
 
-	  #----------------------------------------------#
+	  #==============================================#
 	 #  GETTING THE LIST OF SUBSTRONGS IN THE LIST  #
-	#----------------------------------------------#
+	#==============================================#
 
 	// A substrong is any string containg other strings from the list
 	
@@ -18287,3 +18287,75 @@ class stzListOfStrings from stzList
 
 	def SubStreaks()
 		return This.SubStreaksCS(:CaseSensitive = TRUE)
+
+	  #-----------------------------------#
+	 #  SUBSTRONGS AND THEIR SUBSTREAKS  # TODO
+	#-----------------------------------#
+
+	def SubStrongsAndTheirSubStreaksCS(pCaseSensitive)
+		/* ... */
+
+		def SubStrongsAndSubStreaksCS(pCaseSensitive)
+			return This.SubStrongsAndTheirSubStreaksCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStrongsAndTheirSubStreaks()
+		return This.SubStrongsAndTheirSubStreaksCS(:CaseSensitive = TRUE)
+
+		def SubStrongsAndSubStreaks()
+			return This.SubStrongsAndTheirSubStreaks()
+
+	  #-----------------------------------#
+	 #  SUBSTREAKS AND THEIR SUBSTRONGS  # TODO
+	#-----------------------------------#
+
+	def SubStreaksAndTheirSubStrongsCS(pCaseSensitive)
+		/* ... */
+
+		def SubStreaksAndSubStrongsCS(pCaseSensitive)
+			return This.SubStreaksAndTheirSubStrongsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStreaksAndTheirSubStrongs()
+		return This.SubStreaksAndTheirSubStrongsCS(:CaseSensitive = TRUE)
+
+		def SubStreaksAndSubStrongs()
+			return This.SubStreaksAndTheirSubStrongs()
+
+	  #----------------------------------#
+	 #  FINDING SUBSTRONGS IN THE LIST  # TODO
+	#----------------------------------#
+
+	def FindSubStrongsCS(pCaseSensitive)
+		/* ... */
+
+		def FindAllSubStrongsCS(pCaseSensitive)
+			return This.FindSubStrongsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStrongs()
+		/* ... */
+
+		def FindAllSubStrongs()
+			return This.FindSubStrongs()
+
+	  #----------------------------------#
+	 #  FINDING SUBSTREAKS IN THE LIST  # TODO
+	#----------------------------------#
+
+	def FindSubStreaksCS(pCaseSensitive)
+		/* ... */
+
+		def FindAllSubStreaksCS(pCaseSensitive)
+			return This.FindFindSubStreaksCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStreaks()
+		/* ... */
+
+		def FindAllSubStreaks()
+			return This.FindSubStreaks()
