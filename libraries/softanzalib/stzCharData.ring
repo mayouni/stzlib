@@ -2139,5 +2139,14 @@ Diacritics
 	func CheckMark()
 		return "✓"
 
+		func Tick()
+			return CheckMark()
+
 	func Dot()
 		return "•"
+
+	func Flower()
+		return "❀"
+
+	func Moon()
+		return "🌔"

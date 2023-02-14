@@ -951,23 +951,228 @@ proff()
 # Executed in 0.03 second(s)
 
 /*============
+
+pron()
+
+o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
+
+? o1.FindFirst("♥♥♥")
+#--> 6
+
+? o1.FindFirstAsSection("♥♥♥")
+#--> [6, 8]
+
+? o1.FindFirstZ("♥♥♥")
+#--> [ "♥♥♥", 6 ]
+
+? o1.FindFirstZZ("♥♥♥")
+#--> [ "♥♥♥", [6, 8] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
+
+? o1.FindLast("♥♥♥")
+#--> 22
+
+? o1.FindLastAsSection("♥♥♥")
+#--> [22, 24]
+
+? o1.FindLastZ("♥♥♥")
+#--> [ "♥♥♥", 22 ]
+
+? o1.FindLastZZ("♥♥♥")
+#--> [ "♥♥♥", [22, 24] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
+
+? o1.FindNth(2, "♥♥♥")
+#--> 22
+
+? o1.FindNthAsSection(2, "♥♥♥")
+#--> [22, 24]
+
+? o1.FindNthZ(2, "♥♥♥")
+#--> [ "♥♥♥", 22 ]
+
+? o1.FindNthZZ(2, "♥♥♥")
+#--> [ "♥♥♥", [22, 24] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*=================
 */
+pron()
+
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+
+# Spacifying the starting prosition with the S extension
+? o1.FindNthS(2, "♥♥♥", :StartingAt = 3)
+#--> 8
+
+? o1.FindFirstS("♥♥♥", :StartingAt = 5)
+#--> 8
+
+? o1.FindLastS("♥♥♥", :StartingAt = 6)
+#--> 13
+
+#--- Spacifying the direection with SD extension
+
+? o1.FindNthSD(2, "♥♥♥", :StartingAt = 11, :Going = :Backward)
+#--> 3
+
+? o1.FindFirstSD("♥♥♥", :StartingAt = 14, :Backward)
+#--> 8
+
+? o1.FindLastSD("♥♥♥", :StartingAt = 6, :Direction = :Backward)
+#--> 3
+
+proff()
+# Executed in 0.05 second(s)
+
+# Add ...D() extension to Z()
+
+/*-----------------
+
+pron()
+
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+
+? o1.FindNthSZ(2, "♥♥♥", :StartingAt = 3)
+#--> [ "♥♥♥", 8 ]
+
+? o1.FindFirstSZ("♥♥♥", :StartingAt = 5)
+#--> [ "♥♥♥", 8 ]
+
+? o1.FindLastSZ("♥♥♥", :StartingAt = 6)
+#--> [ "♥♥♥", 13 ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-----------------
+
+pron()
+
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥90♥♥♥")
+
+? o1.FindNthSZZ(2, "♥♥♥", :StartingAt = 3)
+#--> [ "♥♥♥", [8, 10] ]
+
+? o1.FindFirstSZZ("♥♥♥", :StartingAt = 5)
+#--> [ "♥♥♥", [8, 10] ]
+
+? o1.FindLastSZZ("♥♥♥", :StartingAt = 6)
+#--> [ "♥♥♥", [13, 15] ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-----------------
+
+FindOccurrences()
+FindOccurrencesS([ 2, 3], :StartingAt)
+
+/*-----------------
+
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥90♥♥♥")
+
+FindNextS() # FindNextOccurrences()
+FindNextNthS()
+FindNextNthSZ()
+FindNextNthSZZ()
+
+# Same for Previous
+/*-----------------
+
+pron()
+
+o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
+
+? o1.FindFirstStartingAt("♥♥♥", 8)
+? o1.FindFirstS("♥♥♥", :StartingAt = 8)
+#--> Eliminate FindFirstXT("♥♥♥", :StartingAt = ...)
+
+FindLastXT(..., :startingat)
+FindNthXT(..., :startingat)
+
+proff()
+
+/*---------------
 
 StartProfiler()
 
-o1 = new stzString("The range of integers is {min} to {max}")
+o1 = new stzString("The range is between {min} and {max}")
 
 ? @@S( o1.FindBetween("{", "}") ) + NL
-#--> [ 27, 36 ]
+#--> [ 23, 33 ]
+
+? @@S( o1.FindBetweenAsSections("{", "}") ) + NL
+#--> [ [ 23, 25 ], [ 33, 35 ] ]
 
 ? @@S( o1.FindBetweenZ("{", "}") ) + NL
-#--> [ [ "min", 27 ], [ "max", 36 ] ]
+#--> [ [ "min", 23 ], [ "max", 33 ] ]
 
-? @@S( o1.FindBetweenZZ("{", "}") )
-#--> [ [ "min", [ 27, 29 ] ], [ "max", [ 36, 38 ] ] ]
+? @@S( o1.FindBetweenZZ("{", "}") ) # Or 
+#--> [ [ "min", [ 23, 25 ] ], [ "max", [ 33, 35 ] ] ]
 
 StopProfiler()
 # Executed in 0.10 second(s)
+
+/*------------/////
+
+StartProfiler()
+
+o1 = new stzString("The range is between {min} and {max}")
+
+? @@S( o1.FindBetweenXT("{", "}") ) + NL
+#--> [ 22, 32 ]
+
+//? @@S( o1.FindBetweenXTZ("{", "}") ) + NL
+#--> [ [ "min", 23 ], [ "max", 33 ] ]
+
+? @@S( o1.FindBetweenXTZZ("{", "}") )
+#--> [ [ "min", [ 23, 25 ] ], [ "max", [ 33, 35 ] ] ]
+
+StopProfiler()
+# Executed in 0.10 second(s)
+
+/*============
+
+pron()
+
+o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla {✤✤✤}")
+? @@S( o1.Find([ "♥♥♥", "✤✤✤" ]) ) # or FindMany()
+#-->[ 6, 22, 35 ]
+
+? @@S( o1.FindZ([ "♥♥♥", "✤✤✤" ]) ) + NL # or FindManyZ()
+#--> [ [ "♥♥♥", [ 6, 22 ] ], [ "✤✤✤", [ 35 ] ] ]
+
+? @@S( o1.FindZZ([ "♥♥♥", "✤✤✤" ]) ) # or FindManyZZ()
+#--> [
+#	[ "♥♥♥",   [ [6, 8], [22, 24] ] ],
+# 	[ "✤✤✤", [ [ 35, 37 ] ] ]
+# ]
+
+proff()
+# Executed in 0.07 second(s)
 
 /*========================
 /* NOTE :
@@ -5930,6 +6135,32 @@ o1 = new stzString("🐨")
 
 ? Q('[1, 2, 3]').ToList() #--> [1, 2, 3]
 
+/*=============
+
+? Heart()
+#--> "♥"
+
+? Smile()
+#--> "😆"
+
+? Handshake()
+#--> "🤝"
+
+? Sun()
+#--> "🌞"
+
+? Star()
+#--> "★"
+
+? CheckMark()
+#--> "✓"
+
+? Dot()
+#--> "•"
+
+? Flower()
+#--> "✤"
+
 /*================
 
 StzStringQ("MustHave@32@Chars") {
@@ -5950,6 +6181,8 @@ o1 = new stzString("MustHave@32@CharsAnd@8@Spaces")
 
 o1 = new stzString("MustHave32CharsAnd8Spaces")
 ? @@( o1.SubstringsBetween("@","@") ) #--> [ ]
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////                                       ////////////////////////////////

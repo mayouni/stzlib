@@ -13869,10 +13869,11 @@ class stzString from stzObject
 		ok
 
 		if isString(n)
-			if Q(n).Lowercased() = "first"
+			cNLowercased = Q(n).Lowercased()
+			if cNLowercased = :First or cNLowercased = :FirstOccurrence
 				n = 1
 
-			but Q(n).Lowercased() = "last"
+			but cNLowercased = :Last or cNLowercased = :LastOccurrence
 				n = This.NumberOfOccurrenceCs(pcSubStr, pCaseSensitive)
 
 			else
@@ -13978,9 +13979,257 @@ class stzString from stzObject
 	def FindNthAsSection(n, pcSubStr)
 		return This.FindNthAsSectionCS(n, pcSubStr, :CaseSensitive = TRUE)
 
-	  #------------------------------------------------------#
+	  #-------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- Z-EXTENDED  #
+	#-------------------------------------------------------#
+
+	def FindNthZCS(n, pcSubStr, pCaseSensitive)
+		anPos = This.FindNthCS(n, pcSubStr, pCaseSensitive)
+		aResult = [ pcSubStr, anPos ]
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthZ(n, pcSubStr)
+		return This.FindNthZCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- ZZ-EXTENDED  #
+	#----------------------------------------------------------#
+
+	def FindNthZZCS(n, pcSubStr, pCaseSensitive)
+		aSection = This.FindNthAsSectionCS(n, pcSubStr, pCaseSensitive)
+		aResult = [ pcSubStr, aSection ]
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthZZ(n, pcSubStr)
+		return This.FindNthZZCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+	  #=======================================================================#
+	 #  FINDING NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION   #
+	#=======================================================================#
+
+	def FindNthSCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+		/* EXAMPLE
+		#                     3  6  9
+		o1 = new stzString("12♥45♥78♥")
+		? o1.FindNthS(2, "♥", :StartingAt = 3)
+		#--> 6
+
+		*/
+
+		return This.FindNthSDCS(n, pcSubStr, pnstartingAt, :Forward, pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthS(n, pcsubStr, pnStartingAt)
+		return This.FindNthSCS(n, pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION  #
+	#------------------------------------------------------------------------#
+
+	def FindFirstSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindNthSCS(1, pcSubStr, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstS(pcSubStr, pnStartingAt)
+		return This.FindFirstSCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION  #
+	#-----------------------------------------------------------------------#
+
+	def FindLastSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindNthSCS(:LastOccurrence, pcSubStr, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastS(pcSubStr, pnStartingAt)
+		return This.FindLastSCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+	   #==========================================================================#
+	  #  FINDING NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION AND  #
+	 #  GOING EITHER IN FORWARD OR BACKWARD DIRECTION                           #
+	#==========================================================================#
+
+	def FindNthSDCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		# Checking params
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			StzRaise("Incorrect param type! pnstartingAt must be a number.")
+		ok
+
+		if isList(pcDirection) and
+		   Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+			pcDirection = pcDirection[2]
+		ok
+
+		if NOT ( isString(pcDirection) and
+			 Q(pcDirection).IsEither(:Forward, :Or = :Backward) )
+
+			StzRaise("Incorrect param! pcDirection must be a string. Allowed values are :Forward and :Backward.")
+
+		ok
+
+		# doing the job
+
+		nResult = 0
+
+		if pcDirection = :Forward
+
+			nPos  = This.SectionQ(pnStartingAt, :LastChar).
+				FindNthCS(n, pcSubStr, pCaseSensitive)
+
+
+			if nPos > 0
+				nResult = nPos + pnStartingAt - 1
+			ok
+
+		else // :Backward
+
+			nResult  = This.FindNthPreviousCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		ok
+
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthSD(n, pcSubStr, pnStartingAt, pcDirection)
+		return This.FindNthSDCS(n, pcSubStr, pnStartingAt, pcDirection, :CS = TRUE)
+
+	   #----------------------------------------------------------------------------#
+	  #  FINDING FIRST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION AND  #
+	 #  GOING EITHER IN FORWARD OR BACKWARD DIRECTION                             #
+	#----------------------------------------------------------------------------#
+
+	def FindFirstSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+		return This.FindNthSDCS(1, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstSD(pcSubStr, pnStartingAt, pcDirection)
+		return This.FindFirstSDCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+	   #---------------------------------------------------------------------------#
+	  #  FINDING LAST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION AND  #
+	 #  GOING EITHER IN FORWARD OR BACKWARD DIRECTION                            #
+	#---------------------------------------------------------------------------#
+
+	def FindLastSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+		return This.FindNthSDCS(:LastOccurrence, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastSD(pcSubStr, pnStartingAt, pcDirection)
+		return This.FindLastSDCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+	  #===================================================================================#
+	 #  FINDING NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION -- ZEXTENDED  #
+	#===================================================================================#
+
+	def FindNthSZCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+		/* EXAMPLE
+		#                     3  6  9
+		o1 = new stzString("12♥45♥78♥")
+		? o1.FindNthSZ(2, "♥", :StartingAt = 3)
+		#--> [ "♥", 6 ]
+		*/
+
+		aResult = [ pcSubStr, This.FindNthSCS(n, pcSubStr, pnStartingAt, pCaseSensitive) ]
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthSZ(n, pcsubStr, pnStartingAt)
+		return This.FindNthSZCS(n, pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #-------------------------------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION -- ZEXTENDED  #
+	#-------------------------------------------------------------------------------------#
+
+	def FindFirstSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindNthSZCS(1, pcSubStr, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstSZ(pcSubStr, pnStartingAt)
+		return This.FindFirstSZCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION -- ZEXTENDED  #
+	#------------------------------------------------------------------------------------#
+
+	def FindLastSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindNthSZCS(:Last, pcSubStr, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastSZ(pcSubStr, pnStartingAt)
+		return This.FindLastSZCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #====================================================================================#
+	 #  FINDING NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION -- ًZEXTENDED  #
+	#====================================================================================#
+
+	def FindNthSZZCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+		/* EXAMPLE
+		#                     3  6  9
+		o1 = new stzString("12♥45♥78♥")
+		? o1.FindNthSZ(2, "♥", :StartingAt = 3)
+		#--> [ "♥", 6 ]
+		*/
+		nPos = This.FindNthSCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+		nLen = StzStringQ(pcSubStr).NumberOfChars()
+		aSection = [ nPos, nPos + nLen - 1 ]
+
+		aResult = [ pcSubStr, aSection ]
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthSZZ(n, pcsubStr, pnStartingAt)
+		return This.FindNthSZZCS(n, pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION -- ZZEXTENDED  #
+	#--------------------------------------------------------------------------------------#
+
+	def FindFirstSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindNthSZZCS(1, pcSubStr, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstSZZ(pcSubStr, pnStartingAt)
+		return This.FindFirstSZZCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #-------------------------------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION -- ZZEXTENDED  #
+	#-------------------------------------------------------------------------------------#
+
+	def FindLastSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindNthSZZCS(:Last, pcSubStr, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastSZZ(pcSubStr, pnStartingAt)
+		return This.FindLastSZZCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #======================================================#
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- EXTENDED   #
-	#------------------------------------------------------#
+	#======================================================#
 
 	def FindNthXTCS(n, pcSubStr, paOption, pCaseSensitive)
 		/* EXAMPLE
@@ -14211,9 +14460,9 @@ class stzString from stzObject
 	
 		#>
 
-	  #--------------------------------------------#
+	  #============================================#
 	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING   #
-	#--------------------------------------------#
+	#============================================#
 
 	// Returns the position of the 1st occurrence of the substring inside the string
 	// or returns 0 if nothing found
@@ -14332,13 +14581,13 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 	
 		def FindFirstAsSectionCS(pcSubStr, pCaseSensitive)
-			return This.Find FirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
 
 		def  FirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
 			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
 
 		def FindFirstSubStringAsSectionCS(pcSubStr, pCaseSensitive)
-			return This.Find FirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
 
 		def  FirstSubStringAsSectionCS(pcSubStr, pCaseSensitive)
 			return This.FindFirstOccurrenceAsSectionCS(pcSubStr, pCaseSensitive)
@@ -14404,9 +14653,39 @@ class stzString from stzObject
 
 		#>
 
-	  #-------------------------------------------------#
+	  #---------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING -- Z-EXTENDED  #
+	#---------------------------------------------------------#
+
+	def FindFirstZCS(pcSubStr, pCaseSensitive)
+		anPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
+		aResult = [ pcSubStr, anPos ]
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstZ(pcSubStr)
+		return This.FindFirstZCS(pcSubStr, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING -- ZZ-EXTENDED  #
+	#----------------------------------------------------------#
+
+	def FindFirstZZCS(pcSubStr, pCaseSensitive)
+		aSection = This.FindFirstAsSectionCS(pcSubStr, pCaseSensitive)
+		aResult = [ pcSubStr, aSection ]
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstZZ(pcSubStr)
+		return This.FindFirstZZCS(pcSubStr, :CaseSensitive = TRUE)
+
+	  #=================================================#
 	 #      FINDING LAST OCCURRENCE OF A SUBSTRING     #
-	#-------------------------------------------------#
+	#=================================================#
 
 	def FindLastOccurrenceCS(pcSubstr, pCaseSensitive)
 		/* EXAMPLE
@@ -14597,9 +14876,39 @@ class stzString from stzObject
 
 		#>
 
-	  #--------------------------------------------------------------------#
+	  #---------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A SUBSTRING -- Z-EXTENDED  #
+	#---------------------------------------------------------#
+
+	def FindLastZCS(pcSubStr, pCaseSensitive)
+		anPos = This.FindLastCS(pcSubStr, pCaseSensitive)
+		aResult = [ pcSubStr, anPos ]
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastZ(pcSubStr)
+		return This.FindLastZCS(pcSubStr, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A SUBSTRING -- ZZ-EXTENDED  #
+	#----------------------------------------------------------#
+
+	def FindLastZZCS(pcSubStr, pCaseSensitive)
+		aSection = This.FindLastAsSectionCS(pcSubStr, pCaseSensitive)
+		aResult = [ pcSubStr, aSection ]
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastZZ(pcSubStr)
+		return This.FindLastZZCS(pcSubStr, :CaseSensitive = TRUE)
+
+	  #====================================================================#
 	 #   FINDING THE POSITIONS OF SOME OCCURRENCES OF A GIVEN SUBSTRING   #
-	#--------------------------------------------------------------------#
+	#====================================================================#
 
 	# TODO: Add FindOccurrencesAsSectionsCS()
 
@@ -14687,10 +14996,10 @@ class stzString from stzObject
 	
 		#>
 
-	   #---------------------------------------------#
+	   #=============================================#
 	  #   FINDING NEXT OCCURRENCES OF A SUBSTRING   #
 	 #   STARTING AT A GIVEN POSITION              #
-	#---------------------------------------------#
+	#=============================================#
 
 	# TODO: Add FindNextOccurrencesAsSectionsCS()
 
@@ -14797,10 +15106,10 @@ class stzString from stzObject
 
 		#>
 
-	   #-----------------------------------------------------#
+	   #=====================================================#
 	  #      FINDING NTH NEXT OCCURRENCE OF A SUBSTRING     #
 	 #      STARTING AT A GIVEN POSITION                   #
-	#-----------------------------------------------------#
+	#=====================================================#
 
 	# Add FindNthNextOccurrenceAsSectionsCS( n, pcSubStr, nStart, pCaseSensitive )
  
@@ -14914,10 +15223,10 @@ class stzString from stzObject
 		def NextNthOccurrence(n, pcSubStr, nStart)
 			return This.FindNthNextOccurrence(n, pcSubStr, nStart)
 
-	   #---------------------------------------------------------#
+	   #=========================================================#
 	  #      FINDING NTH PREVIOUS OCCURRENCE OF A SUBSTRING     #
 	 #      STARTING AT A GIVEN POSITION                       #
-	#---------------------------------------------------------#
+	#=========================================================#
 
 	# Add FindNthPreviousOccurrenceAsSectionsCS( n, pcSubStr, nStart, pCaseSensitive )
 
@@ -14931,6 +15240,21 @@ class stzString from stzObject
 
 		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
 			nStart = nStart[2]
+		ok
+
+		if isString(nStart) and Q(nStart).IsEither(:Last, :Or = :LastChar)
+			nStart = This.NumberOfChars()
+		ok
+
+		if isString(n)
+			oNString = Q(n)
+
+			if oNString.IsEither(:First, :Or = :FirstOccurrence)
+				n = 1
+
+			but oNString.IsEither(:Last, :Or = :LastOccurrence)
+				n = This.SectionQ(1, nStart).NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+			ok
 		ok
 
 		if NOT BothAreNumbers(n, nStart)
@@ -15767,9 +16091,82 @@ class stzString from stzObject
 	def FindLastSubStringW(pcCondition)
 		return This.FindNthSubStringW(:Last, pcCondition)
 
-	  #--------------------------------------------------#
-	 #      FINDING MANY SYBSTRINGS IN THE SAME TIME    # 
-	#--------------------------------------------------#
+	  #-----------------------------------------------------------#
+	 #  FINDING MANY SYBSTRINGS IN THE SAME TIME -- ZZ-EXTENDED  # 
+	#-----------------------------------------------------------#
+
+	def FindManyZZCS(pacSubStr, pCaseSensitive)
+		aResult = []
+		nLen = len(pacSubStr)
+
+		for i = 1 to nLen
+			cSubStr = pacSubStr[i]
+			nLenStr = Q(cSubStr).NumberOfChars()
+
+			anPos = This.FindCS(cSubStr, pCaseSensitive)
+			nLenPos = len(anPos)
+			aSections = []
+
+			for j = 1 to nLenPos
+				aSections + [ anPos[j], anPos[j] + nLenStr - 1 ]
+			next
+
+			aResult + [ cSubStr, aSections ]
+
+		next
+
+		return aResult
+
+		def FindZZCS(pacSubStr, pCaseSensitive)
+			return This.FindManyZZCS(pacSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindManyZZ(pacSubStr)
+		return This.FindManyZZCS(pacSubStr, :CaseSensitive = TRUE)
+
+		def FindZZ(pacSubStr)
+			return This.FindManyZZ(pacSubStr)
+
+	  #----------------------------------------------------------#
+	 #  FINDING MANY SYBSTRINGS IN THE SAME TIME -- Z-EXTENDED  # 
+	#----------------------------------------------------------#
+
+	def FindManyZCS(pacSubStr, pCaseSensitive)
+		aManyZZ = This.FindManyZZCS(pacSubStr, pCaseSensitive)
+		nLen = len(aManyZZ)
+
+		aResult = []
+
+		for i = 1 to nLen
+			
+			aSections = aManyZZ[i][2]
+			nLenSections = len(aSections)
+
+			anPositions = []
+			for j = 1 to nLenSections
+				anPositions + aSections[j][1]
+			next
+
+			aResult + [ aManyZZ[i][1], anPositions ]
+		next
+
+		return aResult
+
+		def FindZCS(pacSubStr, pCaseSensitive)
+			return This.FindManyZCS(pacSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindManyZ(pacSubStr)
+		return This.FindManyZCS(pacSubStr, :CaseSensitive = TRUE)
+
+		def FindZ(pacSubStr)
+			return This.FindManyZ(pacSubStr)
+
+	  #--------------------------------------------#
+	 #  FINDING MANY SYBSTRINGS IN THE SAME TIME  # 
+	#--------------------------------------------#
 
 	def FindManyCS(pacSubStr, pCaseSensitive)
 		/*
@@ -15783,10 +16180,11 @@ class stzString from stzObject
 		aResult = []
 
 		for str in pacSubStr
+
 			aResult + This.FindAllCS(str, pCaseSensitive)
 		next
 
-		aResult = Q(aResult).RemoveQ([]).FlattenQ().SortQ().DuplicatesRemoved()
+		aResult = Q(aResult).FlattenQ().Sorted()
 		return aResult
 
 		#< @FunctionFluentForm
@@ -15936,7 +16334,6 @@ class stzString from stzObject
 	  #------------------------------------------------------------#
 	 #    FINDING MANY SYBSTRINGS IN THE SAME TIME -- EXTENDED    # 
 	#------------------------------------------------------------#
-	# Returns substrings and their positions
 
 	def FindManyXTCS(pacSubStr, pCaseSensitive)
 		/*
@@ -17225,9 +17622,9 @@ class stzString from stzObject
 
 		#>
 
-	  #-------------------------------------------------------------------#
+	  #===================================================================#
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED   #
-	#-------------------------------------------------------------------#
+	#===================================================================#
 	#--> Bounds are also considered in the result (TODO: Generalise this feature)
 
 	def FindBetweenXTCS(pcBound1, pcBound2, pCaseSensitive)
