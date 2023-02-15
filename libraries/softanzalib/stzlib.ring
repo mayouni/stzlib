@@ -13,13 +13,21 @@ load "stzGlobals.ring"
 
 load "stzObject.ring"
 load "stzObjectError.ring"
+
 load "stzListOfObjects.ring"
+load "stzObjects.ring"
+
 load "stzNumber.ring"
 load "stzNumberError.ring"
 load "stzDecimalToBinary.ring"
 load "stzDecimalToBinaryError.ring"
+
 load "stzListOfNumbers.ring"
+load "stzNumbers.ring"
+
 load "stzListOfUnicodes.ring"
+load "stzUnicodes.ring"
+
 load "stzBinaryNumber.ring"
 load "stzBinaryNumberError.ring"
 load "stzHexNumber.ring"
@@ -35,10 +43,16 @@ load "stzMultilingualStringError.ring"
 
 load "stzStopWords.ring"
 load "stzStopWordsData.ring"
+
 load "stzListOfStrings.ring"
+load "stzStrings.ring"
+
 load "stzListOfStringsError.ring"
 load "stzListInString.ring"
+
 load "stzListOfBytes.ring"
+load "stzBytes.ring"
+
 load "stzListOfBytesError.ring"
 
 load "stzChar.ring"
@@ -47,20 +61,32 @@ load "stzCharError.ring"
 load "stzCharData.ring"
 
 load "stzUnicodeNames.ring"
+
 load "stzListOfChars.ring"
+load "stzChars.ring"
+
 load "stzListOfCharsError.ring"
+
 load "stzList.ring"
 load "stzListError.ring"
 load "stzHashList.ring"
 load "stzAssociativeList.ring"
+
 load "stzListOfHashLists.ring"
+load "stzHashLists.ring"
 load "stzSet.ring"
 
 load "stzListOfLists.ring"
+load "stzLists.ring"
+
 load "stzListOfPairs.ring"
+load "stzPairs.ring"
+
 load "stzPair.ring"
 
 load "stzListOfSets.ring"
+load "stzSets.ring"
+
 load "stzListOfSetsError.ring"
 load "stzPairOfLists.ring"
 load "stzTree.ring"

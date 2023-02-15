@@ -5430,7 +5430,7 @@ class stzList from stzObject
 		ok
 
 	def IsEmpty()
-		if len(This.List()) = 0
+		if This.NumberOfItems() = 0
 			return TRUE
 		else
 			return FALSE

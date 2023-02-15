@@ -1,8 +1,77 @@
 load "stzlib.ring"
 
+/*==================
 
-/*------------------
+pron()
+
+o1 = new stzLists([ 1:3, 1:5, 1:2 ])
+
+? o1.Smallest()
+#--> [1, 2]
+
+? o1.SmallestSize()
+#--> 2
+
+? o1.FindSmallest()
+#--> 3
+
+? "--"
+
+? o1.Largest()
+#--> [1,2, 3, 4, 5]
+
+? o1.LargestSize()
+#--> 5
+
+? o1.FindLargest()
+#--> 2
+
+proff()
+#--> Executed in 0.03 second(s)
+
+/*-------------------
+
+pron()
+
+o1 = new stzLists([ 1:2, 1:5, 1:3, 1:5 ])
+
+? o1.FindLargestLists()
+#--> [2, 4]
+
+? @@S( o1.LargestLists() )
+#--> [ [ 1, 2, 3, 4, 5 ], [ 1, 2, 3, 4, 5 ] ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-------------------
 */
+pron()
+
+o1 = new stzLists([ 1:2, 1:5, 1:3, 1:2 ])
+
+? o1.FindSmallestLists()
+#--> [1, 4]
+
+? @@S( o1.SmallestLists() )
+#--> [ [1, 2], [1, 2] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*==================
+
+pron()
+
+o1 = new stzLists([ "A":"C", 1:3 ])
+? o1.Associated()
+
+proff()
+
+/*==================
+
+pron()
+
 o1 = new stzList([
 	[ 1, 2, 3 ],
 	[ 4, 5, 6, 7, 8 ],
@@ -20,6 +89,9 @@ o1 = new stzList([ "A":"C", "E":"D", "G": "Y" ])
 
 ? o1.EachItemIs(:ListOfChars)
 #--> TRUE
+
+proff()
+# Executed in 0.25 second(s)
 
 /*==================
 

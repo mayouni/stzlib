@@ -108,10 +108,10 @@ class stzListOfNumbersList
 
 		*/
 
-	def Associate()
+	def Associate() #TODO
 	/* Example:
 
-		o1 = stzListOfNumbersListQ([
+		o1 = new stzListOfNumbersList([
 			[ 3, 6, 3 ],
 			[ 2, 1, 3 ],
 			[ 2, 0, 1 ]
@@ -128,7 +128,7 @@ class stzListOfNumbersList
 
 		*/
 
-	def Alternate()
+	def Alternate() #TODO
 	/* Example:
 
 		o1 = stzListOfNumbersListQ([
@@ -140,6 +140,6 @@ class stzListOfNumbersList
 		o1.Associate()
 		? o1.Content()
 
-		# --> [ 3, 2, 2, 6, 1, 0, 3, 3, 1  ]
+		#--> [ 3, 2, 2, 6, 1, 0, 3, 3, 1  ]
 
 		*/
