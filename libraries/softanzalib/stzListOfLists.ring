@@ -137,8 +137,20 @@ class stzListOfLists from stzList
 		def ListAt(n)
 			return This.NthList()
 
+			def ListAtQ(n)
+				return This.NthListQ(n)
+
 		def ListAtPosition(n)
-			return  This.NthList(n)
+			return This.NthList(n)
+
+			def ListAtPositionQ(n)
+				return This.NthListQ(n)
+
+		def List(n)
+			return This.NthList(n)
+
+			def ListQ(n)
+				return This.NthListQ(n)
 
 		#>
 
@@ -247,21 +259,6 @@ class stzListOfLists from stzList
 
 		return aResult
 
-	def SmallestSize()
-		return StzListOfNumbersQ( StzSetQ(This.Sizes()).Content() ).Min()
-
-		def MinSize()
-			return This.SmallestSize()
-
-	def BiggestSize()
-		return StzListOfNumbersQ( StzSetQ(This.Sizes()).Content() ).Max()
-
-		def MaxSize()
-			return This.BiggestSize()
-
-		def Largestsize()
-			return This.BiggestSize()
-
 	def ListsHaveSameNumberOfItems()
 		bResult = TRUE
 		
@@ -277,24 +274,25 @@ class stzListOfLists from stzList
 		def ListsHaveSameSize()
 			return This.ListsHaveSameNumberOfItems()
 
+		def IsHomologuous()
+			return This.ListsHaveSameNumberOfItems()
+
 	  #--------------------------------#
 	 #   SMALLEST AND BIGGEST LISTS   #
 	#--------------------------------#
 
 	def SmallestLists()
 
-		aListOfLists = This.Content()
-		nLen = len(aListOfLists)
+		nLen = This.NumberOfLists()
 		nSmallestSize = This.SmallestSize()
 
 		aResult = []
 
 		for i = 1 to nLen
-			aList = aListOfLists[i]
-			nLenList = len(aList)
+			nLenList = This.SizeOfList(i)
 
 			if nLenList = nSmallestSize
-				aResult + aList
+				aResult + This.List(i)
 			ok
 		next
 
@@ -524,6 +522,221 @@ class stzListOfLists from stzList
 				return This.ListsAtPositionQR(n, pcReturnType)
 
 		#>
+
+	  #=================#
+	 #  SMALLEST LIST  #
+	#=================#
+
+	def FindSmallestList()
+		nLen = This.NumberOfLists()
+		if nLen = 0
+			return NULL
+
+		but nLen = 1
+			return This.List(1)
+		ok
+
+		nResult = 1
+		for i = 2 to nLen
+			if len( This.List(i) ) < len( This.List(nResult) )
+				nResult = i
+			ok
+		next
+
+		return nResult
+
+		def FindSmallest()
+			return This.FindSmallestList()
+
+	def SmallestList()
+		# Returns the smallest list
+		# If they are many, returns only the first
+		# To return them all, use SmallestLists()
+
+		nLen = This.NumberOfLists()
+		if nLen = 0
+			return NULL
+
+		but nLen = 1
+			return This.List(1)
+		ok
+
+		nPos = 1
+		for i = 2 to nLen
+			if len( This.List(i) ) < len( This.List(nPos) )
+				nPos = i
+			ok
+		next
+
+		aResult = This.List(nPos)
+		return aResult
+
+		def Smallest()
+			return This.SmallestList()
+
+	  #-------------------------#
+	 #  SIZE OF SMALLEST LIST  #
+	#-------------------------#
+
+	def SizeOfSmallestList()
+		nResult = len( This.SmallestList() )
+		return nResult
+
+		def SmallestListSize()
+			return This.SizeOfSmallestList()
+
+		def SmallestSize()
+			return This.SizeOfSmallestList()
+
+	  #----------------#
+	 #  LARGEST LIST  #
+	#----------------#
+
+	def FindLargestList()
+		nLen = This.NumberOfLists()
+		if nLen = 0
+			return NULL
+
+		but nLen = 1
+			return This.List(1)
+		ok
+
+		nResult = 1
+		for i = 2 to nLen
+			if len( This.List(i) ) > len( This.List(nResult) )
+				nResult = i
+			ok
+		next
+
+		return nResult
+
+		def FindLargest()
+			return This.FindLargestList()
+
+	def LargestList()
+		
+		nLen = This.NumberOfLists()
+		if nLen = 0
+			return NULL
+
+		but nLen = 1
+			return This.List(1)
+		ok
+
+		nPos = 1
+		for i = 2 to nLen
+			if len( This.List(i) ) > len( This.List(nPos) )
+				nPos = i
+			ok
+		next
+
+		aResult = This.List(nPos)
+		return aResult
+
+
+		def BiggestList()
+			return This.LargestList()
+
+		def Largest()
+			return This.LargestList()
+
+		def Biggest()
+			return This.LargestList()
+
+	  #------------------------#
+	 #  SIZE OF LARGEST LIST  #
+	#------------------------#
+
+	def SizeOfLargestList()
+		nResult = len( This.LargestList() )
+		return nResult
+
+		def LargestListSize()
+			return This.SizeOfLargestList()
+
+		def LargestSize()
+			return This.SizeOfLargestList()
+
+		def SizeOfBiggestList()
+			return This.SizeOfLargestList()
+
+		def BiggestListSize()
+			return This.SizeOfLargestList()
+
+		def BiggestSize()
+			return This.SizeOfLargestList()
+	
+	  #--------------------------------#
+	 #  EXTENDING THE LIST OF LISTS   #
+	#--------------------------------#
+
+	def SizeOfList(n)
+		nResult = len( This.List(n) )
+		return nResult
+
+		def Size(n)
+			return This.SizeOfList(n)
+
+	def Extend()
+		This.ExtendTo( This.SizeOfLargestList() )
+
+	def ExtendTo(n)
+		This.ExtendToXT(n, NULL)
+
+	def ExtendToXT(n, pItem)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if NOT ( n > This.SizeOfLargestList() )
+			StzRaise("Can't proceed! n must be greater then the size of largest list.")
+		ok
+
+		nLen = This.NumberOfLists()
+		for i = 1 to nLen
+			nSize = This.SizeOfList(i)
+			if nSize < n
+				aTemp = This.List(i)
+				for j = 1 to n - nSize
+					aTemp + pItem
+				next
+
+				This.Replace(i, aTemp)
+			ok
+
+		next
+
+	  #--------------------------------#
+	 #  SHRINKING THE LIST OF LISTS   #
+	#--------------------------------#
+
+	def Shrink()
+
+	def ShrinkTo(n)
+
+
+	  #----------------------------------------#
+	 #   ASSOCIATING THE LISTS ITEM BY ITEM   #
+	#----------------------------------------#
+
+	def Associate()
+		if NOT ( This.IsEmpty() and This.NumberOfLists() > 1 )
+			StzRaise("Can't proceed! The list must contain at least 2 lists.")
+		ok
+
+		
+
+		#< @functionFluentForm
+
+		def AssociateQ()
+			This.Associate()
+			return This
+
+		#>
+
+	def Associated()
+		aResult = This.Copy().AssociateQ().Content()
+		return aResult
 
 	  #-------------------------------------#
 	 #   REVERSING THE ITEMS OF THE LIST   #
