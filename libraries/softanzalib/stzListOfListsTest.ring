@@ -1,5 +1,184 @@
 load "stzlib.ring"
 
+/*=============== EXTENDING A LIST
+
+pron()
+
+o1 = new stzList([ "A", "B", "C" ])
+o1.ExtendTo(5)
+
+? @@S( o1.content() )
+#--> [ "A", "B", "C", "", "" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ "A", "B", "C" ])
+o1.ExtendToXT(5, :Using = AHeart())
+
+? @@S( o1.content() )
+#--> [ "A", "B", "C", "♥", "♥" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*=============== EXTENDING THE LISTS OF A LIST OF LISTS
+
+pron()
+
+o1 = new stzLists([
+	[ "A", "B" ],
+	[ "C", "D", "E", "F"],
+	[ "I" ]
+])
+ 
+? o1.IsHomolog() # or o1.IsHomologuous() or o1.ListsHaveSameSize()
+#--> FALSE
+
+? o1.SizeOfLargestList()
+#--> 4
+
+o1.Extend()
+
+? @@S( o1.Content() )
+#--> [
+#	[ "A", "B",  "",  "" ],
+#	[ "C", "D", "E", "F" ],
+#	[ "I",  "",  "",  "" ]
+# ]
+
+? o1.IsHomolog()
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------------
+
+pron()
+
+# You can extend a list of lists to any number of itemslike this:
+
+o1 = new stzLists([
+	[ "A", "B" ],
+	[ "C", "D", "E", "F"],
+	[ "I" ]
+])
+
+? o1.IsHomolog()
+#--> FALSE
+
+o1.ExtendTo(4)
+# By default, the items are extended using the NULL char
+# Use ExtendToXT(n, char) to specify your own (next example)
+
+? @@S( o1.Content() )
+#--> [
+#	[ "A", "B",  "",  "" ],
+#	[ "C", "D", "E", "F" ],
+#	[ "I",  "",  "",  "" ]
+# ]
+
+? o1.IsHomolog()
+#--> TRUE
+
+proff()
+#--> Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+# You can even extend to n items and specify
+# the value of the item to extend them with, like this:
+
+o1 = new stzLists([
+	[ "A", "B" ],
+	[ "C", "D", "E", "F"],
+	[ "I" ]
+])
+
+o1.ExtendToXT(4, :Using = AHeart())
+
+? @@S( o1.Content() )
+#--> [
+#	[ "A", "B", "♥", "♥" ],
+#	[ "C", "D", "E", "F" ],
+#	[ "I", "♥", "♥", "♥" ]
+# ]
+
+? o1.IsHomolog()
+#--> TRUE
+
+proff()
+
+/*---------------
+
+pron()
+
+# If the lists are to be extended to a number
+# smaller then the largest size in the list,
+# then only the smaller lists extended:
+
+o1 = new stzLists([
+	[ "A", "B" ],
+	[ "C", "D", "E", "F"],
+	[ "I" ]
+])
+
+? o1.IsHomolog()
+#--> FALSE
+
+o1.ExtendToXT(3, :Using = AHeart())
+# Only the 1st and 3d lists are extended
+
+? @@S( o1.Content() )
+#--> [
+#	[ "A", "B", "♥" ],
+#	[ "C", "D", "E", "F" ],
+#	[ "I", "♥", "♥" ]
+# ]
+
+? o1.IsHomolog()
+#--> FALSE
+
+proff()
+
+/*---------------
+
+pron()
+
+# If the lists are to be extended to a number
+# larger then the largest size in the list,
+# then all the lists are extended:
+
+o1 = new stzLists([
+	[ "A", "B" ],
+	[ "C", "D", "E", "F"],
+	[ "I" ]
+])
+
+? o1.IsHomolog()
+#--> FALSE
+
+o1.ExtendToXT(5, :Using = AHeart())
+# Only the 1st and 3d lists are extended
+
+? @@S( o1.Content() )
+#--> [
+#	[ "A", "B", "♥", "♥", "♥" ],
+#	[ "C", "D", "E", "F", "♥" ],
+#	[ "I", "♥", "♥", "♥", "♥" ]
+# ]
+
+? o1.IsHomolog()
+#--> TRUE
+
+proff()
 /*==================
 
 pron()
@@ -45,7 +224,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*-------------------
-*/
+
 pron()
 
 o1 = new stzLists([ 1:2, 1:5, 1:3, 1:2 ])
@@ -60,7 +239,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*==================
-
+*/
 pron()
 
 o1 = new stzLists([ "A":"C", 1:3 ])

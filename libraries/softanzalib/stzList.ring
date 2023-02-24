@@ -2525,6 +2525,8 @@ class stzList from stzObject
 			StzRaise("Invalid param type! n must be a number.")
 		ok
 
+		nLen = This.NumberOfItems()
+
 		if isString(n)
 			if Q(n).IsOneOfThese([
 				:First, :FirstPosition, :FirstItem ])
@@ -2534,11 +2536,11 @@ class stzList from stzObject
 			but Q(n).IsOneOfThese([
 				:Last, :LastPosition, :LastItem ])
 
-				n = This.NumberOfItems()
+				n = nLen
 			ok
 		ok
 
-		if n < 1 or n > This.NumberOfItems()
+		if n < 1 or n > nLen
 			StzRaise("the Nth position you provided is out of range!")
 		ok
 
@@ -28028,6 +28030,24 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	def IsUsingOrWithOrByNamedParam()
+		return This.IsOneOfTheseNamedParams([ :Using, :With, :By ])
+
+		def IsUsingOrByOrWithNamedParam()
+			return This.IsUsingOrWithOrByNamedParam()
+
+		def IsByOrWithOrUsingNamedParam()
+			return This.IsUsingOrWithOrByNamedParam()
+
+		def IsByOrUsingOrWithNamedParam()
+			return This.IsUsingOrWithOrByNamedParam()
+
+		def IsWithOrByOrUsingNamedParam()
+			return This.IsUsingOrWithOrByNamedParam()
+
+		def IsWithOrUsingOrByNamedParam()
+			return This.IsUsingOrWithOrByNamedParam()
 
 	  #===========#
 	 #   MISC.   #
