@@ -2121,32 +2121,96 @@ Diacritics
 	func InvisibleChars()
 		return UnicodesToChars( InvisibleUnicodes() )
 
+	  #---------------------#
+	 #  SOME USEFUL CHARS  #
+	#---------------------#
+
 	func Heart()
 		return "♥"
+
+		func AHeart()
+			return Heart()
+
+		func TheHeart()
+			return Heart()
 
 	func Smile()
 		return "😆"
 
+		func ASmile()
+			return Smile()
+
+		func TheSmile()
+			return Smile()
+
 	func Handshake()
 		return "🤝"
+
+		func AHandshake()
+			return Handshake()
+
+		func TheHandshake()
+			return Handshake()
 
 	func Sun()
 		return "🌞"
 
+		func ASun()
+			return Sun()
+
+		func TheSun()
+			return Sun()
+
 	func Star()
 		return "★"
+
+		func AStar()
+			return Star()
+
+		func TheStar()
+			return Star()
 
 	func CheckMark()
 		return "✓"
 
+		func ACheckMark()
+			return CheckMark()
+
+		func TheCheckMark()
+			return CheckMark()
+
 		func Tick()
 			return CheckMark()
+
+			func ATick()
+				return Tick()
+	
+			func TheTick()
+				return Tick()
 
 	func Dot()
 		return "•"
 
+		func ADot()
+			return Dot()
+
+		func TheDot()
+			return Dot()
+
 	func Flower()
 		return "❀"
 
+		func AFlower()
+			return Flower()
+
+		func TheFlower()
+			return Flower()
+
 	func Moon()
 		return "🌔"
+
+		func AMoon()
+			return Moon()
+
+		func TheMoon()
+			return Moon()

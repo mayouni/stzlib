@@ -146,12 +146,6 @@ class stzListOfLists from stzList
 			def ListAtPositionQ(n)
 				return This.NthListQ(n)
 
-		def List(n)
-			return This.NthList(n)
-
-			def ListQ(n)
-				return This.NthListQ(n)
-
 		#>
 
 	  #------------------#
@@ -271,11 +265,34 @@ class stzListOfLists from stzList
 
 		return bResult
 
-		def ListsHaveSameSize()
-			return This.ListsHaveSameNumberOfItems()
+		#< @FunctionAlternativeForms
 
 		def IsHomologuous()
 			return This.ListsHaveSameNumberOfItems()
+
+		def IsHomolog()
+			return This.ListsHaveSameNumberOfItems()
+
+		#--
+
+		def HaveSameNumberOfItems()
+			return This.ListsHaveSameNumberOfItems()
+
+		def HasSameNumbersOfItems()
+			return This.ListsHaveSameNumberOfItems()
+
+		#--
+
+		def ListsHaveSameSize()
+			return This.ListsHaveSameNumberOfItems()
+
+		def HaveSameSize()
+			return This.ListsHaveSameNumberOfItems()
+
+		def HasSameSizes()
+			return This.ListsHaveSameNumberOfItems()
+
+		#>
 
 	  #--------------------------------#
 	 #   SMALLEST AND BIGGEST LISTS   #
@@ -292,7 +309,10 @@ class stzListOfLists from stzList
 			nLenList = This.SizeOfList(i)
 
 			if nLenList = nSmallestSize
-				aResult + This.List(i)
+				aResult + This.NthList(i)
+				# WARNING: You can't say List(i) because
+				# the class inherits stzList that contains
+				# the same fuction!
 			ok
 		next
 
@@ -533,12 +553,12 @@ class stzListOfLists from stzList
 			return NULL
 
 		but nLen = 1
-			return This.List(1)
+			return This.NthList(1)
 		ok
 
 		nResult = 1
 		for i = 2 to nLen
-			if len( This.List(i) ) < len( This.List(nResult) )
+			if len( This.NthList(i) ) < len( This.NthList(nResult) )
 				nResult = i
 			ok
 		next
@@ -558,17 +578,17 @@ class stzListOfLists from stzList
 			return NULL
 
 		but nLen = 1
-			return This.List(1)
+			return This.NthList(1)
 		ok
 
 		nPos = 1
 		for i = 2 to nLen
-			if len( This.List(i) ) < len( This.List(nPos) )
+			if len( This.NthList(i) ) < len( This.NthList(nPos) )
 				nPos = i
 			ok
 		next
 
-		aResult = This.List(nPos)
+		aResult = This.NthList(nPos)
 		return aResult
 
 		def Smallest()
@@ -598,12 +618,12 @@ class stzListOfLists from stzList
 			return NULL
 
 		but nLen = 1
-			return This.List(1)
+			return This.NthList(1)
 		ok
 
 		nResult = 1
 		for i = 2 to nLen
-			if len( This.List(i) ) > len( This.List(nResult) )
+			if len( This.NthList(i) ) > len( This.NthList(nResult) )
 				nResult = i
 			ok
 		next
@@ -620,17 +640,17 @@ class stzListOfLists from stzList
 			return NULL
 
 		but nLen = 1
-			return This.List(1)
+			return This.NthList(1)
 		ok
 
 		nPos = 1
 		for i = 2 to nLen
-			if len( This.List(i) ) > len( This.List(nPos) )
+			if len( This.NthList(i) ) > len( This.NthList(nPos) )
 				nPos = i
 			ok
 		next
 
-		aResult = This.List(nPos)
+		aResult = This.NthList(nPos)
 		return aResult
 
 
@@ -666,16 +686,26 @@ class stzListOfLists from stzList
 		def BiggestSize()
 			return This.SizeOfLargestList()
 	
-	  #--------------------------------#
-	 #  EXTENDING THE LIST OF LISTS   #
-	#--------------------------------#
+	  #---------------------#
+	 #  SIZE OF NTH LIST   #
+	#---------------------#
 
 	def SizeOfList(n)
-		nResult = len( This.List(n) )
+		nResult = len( This.NthList(n) )
 		return nResult
 
 		def Size(n)
 			return This.SizeOfList(n)
+
+		def SizeOfNthList(n)
+			return This.SizeOfList(n)
+
+		def NumberOfItemsOfList(n)
+			return This.SizeOfList(n)
+
+	  #--------------------------------#
+	 #  EXTENDING THE LIST OF LISTS   #
+	#--------------------------------#
 
 	def Extend()
 		This.ExtendTo( This.SizeOfLargestList() )
@@ -688,21 +718,23 @@ class stzListOfLists from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		if NOT ( n > This.SizeOfLargestList() )
-			StzRaise("Can't proceed! n must be greater then the size of largest list.")
+		if isList(pItem) and Q(pItem).IsUsingOrWithOrByNamedParam()
+			pItem = pItem[2]
 		ok
+
+		# Doing the job
+
 
 		nLen = This.NumberOfLists()
 		for i = 1 to nLen
 			nSize = This.SizeOfList(i)
-			if nSize < n
-				aTemp = This.List(i)
-				for j = 1 to n - nSize
-					aTemp + pItem
-				next
 
-				This.Replace(i, aTemp)
-			ok
+			aTemp = This.NthList(i)
+			for j = 1 to n - nSize
+				aTemp + pItem
+			next
+
+			This.ReplaceItemAt(i, aTemp)
 
 		next
 
