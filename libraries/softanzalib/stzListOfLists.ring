@@ -59,6 +59,29 @@ func ListsFlatten(paListOfLists)
 	return StzListOfListsQ(paListOfLists).Flattened()
 
 
+func Association(paLists)
+	if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
+		StzRaise("Incorrect param type! paLists must be a list of lists.")
+	ok
+
+	if len(paLists) < 2
+		StzRaise("Can't proceed! paLists must contain at least two lists.")
+	ok
+
+	aFirstList = paLists[1]
+	aLastList = paLists[ len(paLists) ]
+
+	if isList(aFirstList) and Q(aFirstList).IsOfNamedParam()
+		paLists[1] = aFirstList[2]
+	ok
+
+	if isList(aLastList) and Q(aLastList).IsAndNamedParam()
+		paLists[ len(paLists) ] = aLastList[2]
+	ok
+
+	aResult = StzListOfListsQ(paLists).Associated()
+	return aResult
+
 class stzListOfLists from stzList
 
 	@aContent = []
@@ -123,6 +146,20 @@ class stzListOfLists from stzList
 	#---------------#
 
 	def NthList(n)
+		if isString(n)
+			if n = :First or n = :FirstList
+				n = 1
+
+			but n = :First or n = :FirstList
+				n = This.NumberOfLists()
+
+			ok
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
 		return This.ListOfLists()[n]
 
 		#< @FunctionFluentForm
@@ -147,6 +184,12 @@ class stzListOfLists from stzList
 				return This.NthListQ(n)
 
 		#>
+
+	def FirstList()
+		return This.NthList(1)
+
+	def LastList()
+		return This.NthList( This.NumberOfLists() )
 
 	  #------------------#
 	 #   LISTS WHERE    #
@@ -703,17 +746,110 @@ class stzListOfLists from stzList
 		def NumberOfItemsOfList(n)
 			return This.SizeOfList(n)
 
-	  #--------------------------------#
-	 #  EXTENDING THE LIST OF LISTS   #
-	#--------------------------------#
+	  #==============================================#
+	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS  #
+	#==============================================#
 
 	def Extend()
 		This.ExtendTo( This.SizeOfLargestList() )
 
+		#< @FunctionFluentForm
+
+		def ExtendQ()
+			This.Extend()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ExtendEachList()
+			This.Extend()
+
+			def ExtendEachListQ()
+				This.ExtendEachList()
+				return This
+
+		#>
+
+	def Extended()
+		aResult = This.Copy().ExtendQ().Content()
+		return aResult
+
+		def ExtendedEachList()
+			return This.Extended()
+
+	  #----------------------------------------------------------------#
+	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS WITH A GIVEN ITEM  #
+	#----------------------------------------------------------------#
+
+	def ExtendXT(pItem)
+		This.ExtendToXT( This.SizeOfLargestList(), pItem )
+
+		#< @FunctionFluentForm
+
+		def ExtendXTQ(pItem)
+			This.ExtendXT(pItem)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ExtendEachListXT(pItem)
+			This.ExtendXT(pItem)
+
+			def ExtendEachListXTQ(pItem)
+				This.ExtendEachListXT(pItem)
+				return This
+
+		#>
+
+	def ExtendedXT(pItem)
+		aResult = This.Copy().ExtendXTQ(pItem).Content()
+		return aResult
+
+		def ExtendedEachListXT(pItem)
+			return This.ExtendedXT(pItem)
+
+	  #------------------------------------------------------------------------------------#
+	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION WITH A NULL VALUE  #
+	#------------------------------------------------------------------------------------#
+
 	def ExtendTo(n)
 		This.ExtendToXT(n, NULL)
 
+		def ExtendToQ(n)
+			This.ExtendTo(n)
+			return This
+
+		def ExtendToPosition(n)
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			This.ExtendTo(n)
+
+	def ExtendedTo(n)
+		aResult = This.Copy().ExtendToQ(n).Content()
+		return aResult
+
+		def ExtendedToPosition(n)
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			return This.ExtendedTo(n)	
+
+	  #------------------------------------------------------------------------------------#
+	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION WITH A GIVEN ITEM  #
+	#------------------------------------------------------------------------------------#
+
 	def ExtendToXT(n, pItem)
+		if isList(n) and Q(n).IsPositionNamedParam()
+			n = n[2]
+		ok
+
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -723,7 +859,6 @@ class stzListOfLists from stzList
 		ok
 
 		# Doing the job
-
 
 		nLen = This.NumberOfLists()
 		for i = 1 to nLen
@@ -738,25 +873,130 @@ class stzListOfLists from stzList
 
 		next
 
-	  #--------------------------------#
+		#< @FunctionFluentForm
+
+		def ExtendToXTQ(n, pItem)
+			This.ExtendToXT(n, pItem)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ExtendToPositionXT(n, pItem)
+			This.ExtendToXT(n, pItem)
+
+			def ExtendToPositionXTQ(n, pItem)
+				This.ExtendToPositionXT(n, pItem)
+				return This
+
+		#>
+
+	def ExtendedToXT(n, pItem)
+		aResult = This.Copy().ExtendToQ(n).Content()
+		return aResult
+
+		def ExtendedToPositionXT(n, pItem)
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			return This.ExtendedToXT(n, pItem)	
+
+	  #================================#
 	 #  SHRINKING THE LIST OF LISTS   #
-	#--------------------------------#
+	#================================#
 
 	def Shrink()
+		This.ShrinkTo( This.SizeOfSmallestList() )
+
+		def ShrinkQ()
+			This.Shrink()
+			return This
+
+	def Shrinked()
+		aResult = This.Copy().ShrinkQ().Content()
+		return aResult
+
+	  #------------------------------------------------------------------#
+	 #  SHRINKING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION  #
+	#------------------------------------------------------------------#
 
 	def ShrinkTo(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
 
+		nLen = This.NumberOfLists()
+		for i = 1 to nLen
+			nSize = This.SizeOfList(i)
 
-	  #----------------------------------------#
+			aTemp = []
+			if n < nSize
+				aTemp = This.NthListQ(i).Section(1, n)
+				This.ReplaceItemAt(i, aTemp)
+			ok
+
+		next
+
+		#< @FunctionFluentForm
+
+		def ShrinkToQ(n)
+			This.ShrinkTo(n)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ShrinkToPosition(n)
+			This.ShrinkTo(n)
+
+			def ShrinkToPositionQ(n)
+				This.ShrinkToPosition(n)
+				return This
+
+		#>
+
+	def ShrinkedTo(n)
+		aResult = This.Copy().ShrinkToQ(n).Content()
+		return aResult
+
+		def ShrinkedToPosition(n)
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			return This.ShrinkedTo(n)
+
+	  #========================================#
 	 #   ASSOCIATING THE LISTS ITEM BY ITEM   #
-	#----------------------------------------#
+	#========================================#
 
 	def Associate()
-		if NOT ( This.IsEmpty() and This.NumberOfLists() > 1 )
+		if This.IsEmpty() or This.NumberOfLists() = 1
 			StzRaise("Can't proceed! The list must contain at least 2 lists.")
 		ok
 
-		
+		This.Extend()
+
+		nLen = This.NumberOfLists()
+		nItems = len(This.FirstList())
+
+		aResult = []
+
+		for i = 1 to nItems
+
+			aTempList = []
+
+			for j = 1 to nLen
+				aTempList + This.NthList(j)[i]
+			next
+
+			aResult + aTempList
+		next
+
+		This.Update(aResult)
 
 		#< @functionFluentForm
 

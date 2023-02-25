@@ -1,6 +1,6 @@
 func StzListOfHashListsQ(paList)
 	return new stzListOfHashLists(paList)
-	
+
 class stzListOfHashLists from stzList
 	@aListOfHashLists
 

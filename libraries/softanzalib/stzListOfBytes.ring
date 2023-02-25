@@ -1,3 +1,13 @@
+#-------------------------------------------------------------------------------#
+# 		   SOFTANZA LIBRARY (V1.0) - stzListOfBytes			#
+#		 An accelerative library for Ring applications	      		#
+#-------------------------------------------------------------------------------#
+#										#
+# 	Description	: The core class for managing lists of bytes		#
+#	Version		: V1.0 (2020-2023)					#
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)		   	#
+#										#
+#-------------------------------------------------------------------------------#
 
 /*
 Internatlly, stzListOfBytes (and thus QByteArray) use UTF-8 encoding of bytes.
