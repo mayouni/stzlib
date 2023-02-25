@@ -61,6 +61,77 @@ proff()
 
 pron()
 
+o1 = new stzLists([
+	[ "A", "B" ],
+	[ "C", "D", "E", "F"],
+	[ "I" ]
+])
+
+o1.ExtendXT(:Using = AHeart())
+
+? @@S( o1.Content() )
+#--> [
+#	[ "A", "B", "♥", "♥" ],
+#	[ "C", "D", "E", "F" ],
+#	[ "I", "♥", "♥", "♥" ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*================= SHRINKING A LIST
+
+pron()
+
+o1 = new stzList([ "A", "B", "C", "D", "E" ])
+o1.ShrinkTo(3)
+
+? o1.Content()
+#--> [ "A", "B", "C" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*================= SHRINKING A LIST OF LISTS
+
+pron()
+
+o1 = new stzLists([
+	[ "A", "B", "C" ],
+	[ "D", "E", "F", "G"],
+	[ "H", "I" ]
+])
+
+o1.Shrink()
+
+? @@S( o1.Content() )
+#--> [ [ "A", "B" ], [ "D", "E" ], [ "H", "I" ] ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzLists([
+	[ "A", "B", "C" ],
+	[ "D", "E", "F", "G"],
+	[ "H", "I" ]
+])
+
+o1.ShrinkTo(1)
+
+? @@S( o1.Content() )
+#--> [ [ "A" ], [ "D" ], [ "H" ] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*=================
+
+pron()
+
 # You can extend a list of lists to any number of itemslike this:
 
 o1 = new stzLists([
@@ -239,13 +310,25 @@ proff()
 # Executed in 0.03 second(s)
 
 /*==================
-*/
+
 pron()
 
 o1 = new stzLists([ "A":"C", 1:3 ])
-? o1.Associated()
+? @@S( o1.Associated() )
+#--> [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
 
 proff()
+# Executed in 0.03 second(s)
+
+/*------------------
+*/
+pron()
+
+? @@S( Association([ :Of = ["A", "B", "C"], :And = [1, 2, 3] ]) )
+#--> [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*==================
 

@@ -1,7 +1,7 @@
 
 // TODO
 
-func StzListOfObjecsQ()
+func StzListOfObjectsQ()
 	return new stzListOfObjects
 
 class stzListOfObjects from stzList

@@ -13680,9 +13680,9 @@ class stzList from stzObject
 			This.Minus(paOtherList)
 			return This
 
-	  #----------------------------------------------#
-	 #     EXTENDING THE LIST TO A GIVEN PSOTION    #
-	#----------------------------------------------#
+	  #==========================================#
+	 #  EXTENDING THE LIST TO A GIVEN POSITION  #
+	#==========================================#
 
 	def ExtendToPosition(n)
 		if This.IsListOfNumbers()
@@ -13696,25 +13696,15 @@ class stzList from stzObject
 			This.ExtendToPosition(n)
 			return This
 
-		def ExtendToPositionN(n)
-			This.ExtendToPosition(n)
-			
-			def ExtendToPositionNQ(n)
-				This.ExtendToPositionN(n)
-				return This
-
 		def ExtendTo(n)
+			if isList(n) and Q(n).IsPositionNamedParam()
+				n = n[2]
+			ok
+	
 			This.ExtendToPosition(n)
 			
 			def ExtendToQ(n)
 				This.ExtendTo(n)
-				return This
-
-		def ExtendToN(n)
-			This.ExtendToPosition(n)
-			
-			def ExtendToNQ(n)
-				This.ExtendToN(n)
 				return This
 
 	def ExtendedToPosition(n)
@@ -13725,9 +13715,10 @@ class stzList from stzObject
 			return This.ExtendedToPosition(n)
 
 		def ExtendedTo(n)
-			return This.ExtendedToPosition(n)
-
-		def ExtendedToN(n)
+			if isList(n) and Q(n).IsPositionNamedParam()
+				n = n[2]
+			ok
+	
 			return This.ExtendedToPosition(n)
 
 	  #------------------------------------------------------------------#
@@ -13735,6 +13726,7 @@ class stzList from stzObject
 	#------------------------------------------------------------------#
 
 	def ExtendToPositionXT(n, pWith)
+
 		if NOT isNumber(n)
 			StzRaise("Incorrect param! n must be a number.")
 		ok
@@ -13791,43 +13783,78 @@ class stzList from stzObject
 			This.ExtendToPositionXT(n, pWith)
 			return This
 
-		def ExtendToPositionNXT(n, pWith)
-			This.ExtendToPositionXT(n, pWith)
-			
-			def ExtendToPositionNXTQ(n, pWith)
-				This.ExtendToPositionNXT(n, pWith)
-				return This
-
 		def ExtendToXT(n, pWith)
+			if isList(n) and Q(n).IsPositionNamedParam()
+				n = n[2]
+			ok
+	
 			This.ExtendToPositionXT(n, pWith)
 			
 			def ExtendToXTQ(n, pWith)
 				This.ExtendToXT(n, pWith)
 				return This
 
-		def ExtendToNXT(n, pWith)
-			This.ExtendToPositionXT(n, pWith)
-			
-			def ExtendToNXTQ(n, pWith)
-				This.ExtendToNXT(n, pWith)
-				return This
-
 	def ExtendedToPositionXT(n, pWith)
 		aResult = This.Copy().ExtendToPositionXTQ(n, pWith).Content()
 		return aResult
 
-		def ExtendedToPositionNXT(n, pWith)
-			return This.ExtendedToPositionXT(n, pWith)
-
 		def ExtendedToXT(n, pWith)
+			if isList(n) and Q(n).IsPositionNamedParam()
+				n = n[2]
+			ok
+	
 			return This.ExtendedToPositionXT(n, pWith)
 
-		def ExtendedToNXT(n, pWith)
-			return This.ExtendedToPositionXT(n, pWith)
+	  #-----------------------------------------------------------------#
+	 #  SHRINKING THE LIST TO A GIVEN PSOTION (XT) WITH A GIVEN VALUE  #
+	#-----------------------------------------------------------------#
 
-	  #----------------------------------------------------#
-	 #     MERGING THE LIST - IF IT IS A LIST OF LISTS    #
-	#----------------------------------------------------#
+	def ShrinkTo(n)
+		if isList(n) and Q(n).IsPositionNamedParam()
+			n = n[2]
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		nLen = This.NumberOfItems()
+		if n < nLen
+			This.RemoveItemsAtPositions( (n+1) : nLen )
+		ok
+
+		#< @FunctionFluentForm
+
+		def ShrinkToQ(n)
+			This.ShrinkTo(n)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ShrinkToPosition(n)
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			This.ShrinkTo(n)
+
+			def ShrinkToPositionQ(n)
+				This.ShrinkToPosition(n)
+
+		#>
+
+	def ShrinkedTo(n)
+		aResult = This.Copy().ShrinkToQ(n).Content()
+		return aResult
+
+		def ShrinkedToPosition(n)
+			return This.ShrinkedTo(n)
+
+	  #===============================================#
+	 #  MERGING THE LIST - IF IT IS A LIST OF LISTS  #
+	#===============================================#
 
 	def Merge()
 		# TODO: Optimise for performance
