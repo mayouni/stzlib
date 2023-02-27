@@ -7,6 +7,11 @@ TODO:
 		If you need to host other values, use a stzTable insetad.
 
 	--> DECISION: stzGrid would contains only nodes that are strings.
+
+	Also: the Show() function will not show an accurate grif if nodes
+	contains strings of many chars! So:
+
+	- Should stzGrid contain only chars?
 */
 
 _cEmptyNodeChar = "."
@@ -169,10 +174,22 @@ class stzGrid from stzObject
 		
 		on "LIST"
 
-			if len(p) = 2 and isNumber(p[1]) and isNumber(p[2])
+			if len(p) = 2
 
-				nV = p[1] nH = p[2]
-		
+				nV = p[1]
+				if isList(nV) and Q(nV).IsOfNamedParam()
+					nV = nV[2]
+				ok
+
+				nH = p[2]
+				if isList(nH) and Q(nH).IsByNamedParam()
+					nH = nH[2]
+				ok
+
+				if NOT BothAreNumbers(nV, nH)
+					StzRaise("Incorrect param! p must be a pair of numbers.")
+				ok
+
 				for i=1 to nV
 					aHLine + EmptyNode()
 				next i
@@ -219,9 +236,6 @@ class stzGrid from stzObject
 
 	def Content()
 		return @aContent
-
-	def SetGridSize(pnNumberOfVLines, pnNumberOfHLines) # TODO
-		/* ... */
 
 	def Size()
 		anResult = [ This.NumberOfHLines(), This.NumberOfVLines() ]
@@ -355,9 +369,9 @@ class stzGrid from stzObject
 		def NodePosition(n)
 			return PositionOfNode(n)
 
-	  #-----------------------------------------#
+	  #----------------------------------------#
 	 #     NUMBERED VLines, HLines & GRID     #
-	#-----------------------------------------#
+	#----------------------------------------#
 
 	def NumberedVLines(pnVLine)
 		n = StzCounterQ([ :StartAt = 1, :WhenYouReach = 10, :RestartAt = 0 ]).CountTo(pnVLine)
@@ -1004,7 +1018,7 @@ class stzGrid from stzObject
 		CurrentLayer = n
 
 	def SetOpacity(n)
-		if n=0 or n=1
+		if n = 0 or n = 1
 			Opacity = n
 		else
 			StzRaise("Opacity can be eighter 0 or 1!")
@@ -1065,9 +1079,78 @@ class stzGrid from stzObject
 			This.ReplaceAll(pcValue)
 			return This
 
+	  #------------------------------------------#
+	 #  FILLING THE GRID WITH A LIST OF ITEMS   #
+	#------------------------------------------#
+	# NOTE: Currently, only adding a list of chars is allowed
+
+	def FillWith(paList)
+		 This.FillWithXT(paList, :Direction = :Horizontally)
+
+	def FillWithXT(paList, pcDirection)
+
+		# Checking params
+
+		if NOT ( isList(paList) and Q(paList).IsListOfChars() )
+			StzRaise("Incorrect param type! paList must be a list of chars.")
+		ok
+
+		if isList(pcDirection) and
+		   Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+
+			pcDirection = pcDirection[2]
+		ok
+
+		if NOT ( isString(pcDirection) and Q(pcDirection).IsOneOfThese([ :Horizontally, :Vertically ]) )
+			StzRaise("Incorrect param! pcDirection must be a string equal to :Horizontally, :Vertically, or :Default.")
+		ok
+
+		# Doing the job
+
+		nLen = len(paList)
+
+		aTemp = []
+
+		if pcDirection = :Default or pcDirection = :Horizontally
+
+			aTemp = []
+			nV = This.NumberOfVLines()
+
+			for i = 1 to nLen step nV
+
+				nEnd = i + nV - 1
+				if i = nLen
+					nEnd = nLen
+				ok
+
+				aTemp + Q(paList).Section( i, nEnd)
+			next
+
+			aTemp = StzListOfListsQ(aTemp).Extended()
+
+			This.SetGrid(aTemp)
+
+		but pcDirection = :Vertically
+			StzRaise("Feature unavailable in this release!")
+
+		ok
+
+		def FillWithD(paList, pcDirection)
+			This. FillWithXT(paList, pcDirection)
+
 	  #-----------#
 	 #   MISC.   #
 	#-----------#
 
 	def IsAGrid() # required by stzChainOfTruth
 		return TRUE
+
+	def SetGridSize(pnNumberOfVLines, pnNumberOfHLines) # TODO
+		/* ... */
+
+	def Extend() # TODO
+		/* ... */
+
+	def Shrink() # TODO
+		/* ... */
+

@@ -110,8 +110,9 @@ class stzListOfChars from stzListOfStrings
 	def init(pValue)
 
 		if isList(pValue) and Q(pValue).IsListOfNumbers()
-
-			for nUnicode in pValue
+			nLen = len(pValue)
+			for i = 1 to nLen
+				nUnicode = pValue[i]
 				@aContent + StzCharQ(nUnicode).Content()
 			next
 
@@ -120,7 +121,16 @@ class stzListOfChars from stzListOfStrings
 			@aContent = pValue
 
 		but isString(pValue)
-			@aContent = Q(pValue).Chars()
+			try
+				aTempList = StzStringQ(pValue).ToList()
+				if NOT Q(aTempList).IsListOfChars()
+					StzRaise("Can't proceed. The list you provided does not correspond to a list of chars.")
+				ok
+
+				@aContent = aTempList
+			catch
+				StzRaise("Can't transform the string to a list!")
+			done
 
 		else
 			StzRaise(stzListOfCharsError(:CanNotCreateListOfChars))

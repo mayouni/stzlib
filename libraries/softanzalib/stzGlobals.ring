@@ -956,7 +956,18 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 		return ""+ pValue
 
 	but isString(pValue)
-		return '"' + pValue + '"'
+
+		cChar = ""
+
+		if Q('"').
+		   Occurs( :Before = "'", :In = pValue )
+			cChar = '"'
+
+		else
+			cChar = "'"
+		ok
+
+		return cChar + pValue + cChar
 
 	but isList(pValue)
 		return ListToCode(pValue)
@@ -994,7 +1005,7 @@ func ComputableFormSimplified(pValue)
 
 	but isString(pValue)
 		# NOTE: strings inside the pValue must be enclosed
-		# between two "s anf not between two 's.
+		# between two (")s anf not between two (')s.
 
 		oStr = new stzString(pValue)
 

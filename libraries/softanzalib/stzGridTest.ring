@@ -1,5 +1,135 @@
 load "stzlib.ring"
 
+/*---------
+
+pron()
+
+o1 = new stzString(@@( [ " ", "!", "'+ char(34) +'", "#", "y"] ))
+? o1.Replace( @@("'+ char(34) +'"), @@('"') )
+
+? o1.Content()
+#--> [
+#	" ",
+#	"!",
+#	'"', // Note that " is encolsed by tow (')s
+#	"#",
+#	"y"
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------
+
+pron()
+
+? List(:From = "A", :To = "C") # Same as "A":"C" (more useful for non latin chars)
+#--> [ "A", "B", "C" ]
+
+# Can also be written:
+
+? Contig("ج","ر") # Or ContigList() or Contiguous() or ContiguousList()
+
+proff()
+# Executed in 0.06 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzList(' "ج":"ر" ')
+? o1.Content()
+
+proff()
+# Executed in 0.18 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzListOfChars(' "ج":"ر" ')
+? o1.Content()
+
+proff()
+# Executed in 0.18 second(s)
+
+/*----------
+
+pron()
+
+? CharsBetween( "A", :And = "C" )
+#--> [ "B" ]
+
+? CharsBetweenXT( "A", :And = "C" ) # CharsBetweenB("A", "C")
+#--> [ "A", "B", "C" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*----------
+
+pron()
+
+? NumberOfCharsBetweenXT(" ", "z")
+#--> 91
+
+? NumberOfCharsBetween(" ", "z")
+#--> 89
+
+proff()
+#--> Executed in 0.05 second(s)
+
+/*----------
+
+pron()
+
+? NumberOfCharsBetweenXT("A", "B")
+#--> 2
+
+? NumberOfCharsBetween("A", "B")
+#--> 0
+
+proff()
+#--> Executed in 0.05 second(s)
+
+/*=======
+
+o1 = new stzGrid(CharsBetweenXT(" ", :And = "z") )
+? o1.Show()
+
+proff()
+#--> Executed in 0.02 second(s)
+
+/*---------------
+*/
+pron()
+
+# Create a grid of 10 by 10 nodes
+StzGridQ([ :Of = 10, :By = 10 ]) {
+
+	# Fill the grid with the chars between " " and "z"
+	FillWith( CharsBetween(" ", :And = "z") )
+
+	# Show the grid
+	Show()
+}
+#-->
+#	! " # $ % & ' ( ) *
+#	+ , - . / 0 1 2 3 4
+#	5 6 7 8 9 : ; < = >
+#	? @ A B C D E F G H
+#	I J K L M N O P Q R
+#	S T U V W X Y Z [ \
+#	] ^ _ ` a b c d e f
+#	g h i j k l m n o p
+
+proff()
+#--> Executed in 0.15 second(s)
+
+/*----------
+
+pron()
+
 o1 = new stzGrid(9)
 o1.Show()
 #-->
@@ -13,6 +143,9 @@ o1.Show()
 # * * *
 # * * *
 # * * *
+
+proff()
+# Executed in 0.02 second(s)
 
 /*----------
 
