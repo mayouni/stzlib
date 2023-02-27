@@ -1085,7 +1085,11 @@ class stzGrid from stzObject
 	# NOTE: Currently, only adding a list of chars is allowed
 
 	def FillWith(paList)
-		 This.FillWithXT(paList, :Direction = :Horizontally)
+		This.FillWithXT(paList, :Direction = :Horizontally)
+
+		def FillWithQ(paList)
+			This.FillWith(paList)
+			return This
 
 	def FillWithXT(paList, pcDirection)
 
@@ -1135,8 +1139,24 @@ class stzGrid from stzObject
 
 		ok
 
+		#< @FunctionFluentForm
+
+		def FillWithXTQ(paList, pcDirection)
+			This.FillWithXT(paList, pcDirection)
+			return This
+
+		#>
+
+		#< @FunctionAlternativess
+
 		def FillWithD(paList, pcDirection)
 			This. FillWithXT(paList, pcDirection)
+
+			def FillWithDQ(paList, pcDirection)
+				This.FillWithD(paList, pcDirection)
+				return This
+
+		#>
 
 	  #-----------#
 	 #   MISC.   #
