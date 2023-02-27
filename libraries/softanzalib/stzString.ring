@@ -11731,7 +11731,7 @@ class stzString from stzObject
 						:With = "item", :CS = FALSE)
 		ok
 
-		cAction  = StzCCodeQ(pcAction).TranspiledFor(:stzList)
+		cAction  = StzCCodeQ(pcAction).Transpiled()
 		acResult = This.CharsQ().YieldXT(cAction, pnStartingAt, pUpToOrUntil)
 		return acResult
 

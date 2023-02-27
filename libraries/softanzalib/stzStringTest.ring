@@ -2,6 +2,55 @@ load "stzlib.ring"
 
 /*------
 
+? Q([ "I", "believe", "in","Ring!" ]).ReduceXT('@string + " "')
+#--> I believe in Ring!
+
+proff()
+#--> Executed in 0.93
+
+/*------
+
+pron()
+
+# To return the ascii code of each letter we say:
+? Q("ring is owsome!").UppercaseQ().LettersQ().YieldXT('ascii(@item) - 65')
+#--> [ 17, 8, 13, 6, 8, 18, 14, 22, 18, 14, 12, 4 ]
+
+# To return the letter along with the asscii code, we write:
+? Q("ring is owsome!").UppercaseQ().LettersQ().YieldXT('[ @item, ascii(@item) - 65 ]')
+#--> [
+#	[ "R", 17 ], [ "I", 17 ], [ "N", 13 ],
+#	[ "G", 6  ], [ "I", 8  ], [ "S", 18 ],
+#	[ "O", 14 ], [ "W", 22 ], [ "S", 18 ],
+#	[ "O", 14 ], [ "M", 12 ], [ "E", 4  ]
+# ]
+
+proff()
+# Executed in 3.02 second(s)
+
+/*------
+
+pron()
+
+? Q(["A", "B", "C"]).YieldXT('[ @item, ascii(@item) - 64 ]')
+
+proff()
+
+/*------
+
+pron()
+
+? @@S( Q("ring is owsome!").UppercaseQ().LettersQ().YieldXT('[ @item, ascii(@item) - 65 ]') )
+#--> [
+#	[ "R", 17 ], [ "I", 8  ], [ "N", 13 ],
+#	[ "G", 6  ], [ "I", 8  ], [ "S", 18 ],
+#	[ "O", 14 ], [ "W", 22 ], [ "S", 18 ],
+#	[ "O", 14 ], [ "M", 12 ], [ "E", 4  ]
+# ]
+proff()
+
+/*=======
+
 pron()
 #                   1  4 6  9 1   567      456
 o1 = new stzString("...<<ring>>...<<softanza>>...")
@@ -264,7 +313,7 @@ o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
 #--> FALSE
 
 ? o1.FindLast("جميل")
-#--> 0
+#--> FALSE
 
 StopProfiler()
 # Executed in 0.03 second(s)
@@ -357,7 +406,7 @@ o1 = new stzString("123456789")
 
 proff()
 
-/*------------
+/*==============
 
 pron()
 
@@ -374,13 +423,23 @@ o1 = new stzString("---***---***---***---")
 #--> 16
 
 proff()
+# Executed in 0.02 second(s)
 
-/*-----------
-
+/*=============
+*/
 StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
-? oLargeStr.FindLast(";")
+aSplitted = oLargeStr.Split(";")
+nLen = len(aSplitted)
+nPos = 0
+
+for i = 1 to nLen - 1
+	nPos += Q(aSplitted[i]).NumberOfChars()
+next
+nPos++
+N nPos
+//? oLargeStr.FindLast(";")
 #--> 1897793
 
 StopProfiler()
@@ -1014,7 +1073,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*=================
-*/
+
 pron()
 
 #                     3    8    3
@@ -1054,6 +1113,25 @@ pron()
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
 ? o1.FindNthSZ(2, "♥♥♥", :StartingAt = 3)
+#--> [ "♥♥♥", 8 ]
+
+? o1.FindFirstSZ("♥♥♥", :StartingAt = 5)
+#--> [ "♥♥♥", 8 ]
+
+? o1.FindLastSZ("♥♥♥", :StartingAt = 6)
+#--> [ "♥♥♥", 13 ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-----------------
+*/
+pron()
+
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+
+? o1.FindNthSDZ(2, "♥♥♥", :StartingAt = 3, :Direction = :Backward)
 #--> [ "♥♥♥", 8 ]
 
 ? o1.FindFirstSZ("♥♥♥", :StartingAt = 5)

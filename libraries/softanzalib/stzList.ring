@@ -8788,7 +8788,7 @@ class stzList from stzObject
 		ok
 
 		oCCode = StzCCodeQ(pcCondition)
-		cCode = 'bOk = ( ' + oCCode.TranspiledFor(:stzList) + ' )'
+		cCode = 'bOk = ( ' + oCCode.Transpiled() + ' )'
 		oCode = StzStringQ(cCode)
 		
 		nLenPositions = len(panPositions)
@@ -8986,11 +8986,18 @@ class stzList from stzObject
 	*/
 
 	def Yield(pcCode)
+		nLen = This.NumberOfItems()
+
 		aSection = StzCCodeQ(pcCode).ExecutableSection()
 		n1 = aSection[1]
-		n2 = aSection[2] + 1
+		n2 = aSection[2]
+
+		if isString(n2) and n2 = :Last
+			n2 = nLen
+		ok
+
 		if n2 < 0
-			n2 += This.NumberOfItems()
+			n2 += nLen
 		ok
 
 		return This.YieldFrom( n1 : n2, pcCode )
@@ -9130,7 +9137,7 @@ class stzList from stzObject
 	This function is less performan then it's simplest form Yield(),
 	because it takes time to analyze the conditional code provided,
 	spacify it, transile it for :stzList, so a keyword like @PrecedentItem
-	for example, can be used, and the function will transpile it to
+	for example, can be used, and the function will transpiled it to
 	"This[@i-1]" automatically.
 
 	If performance is critical to you, don't use it.
@@ -9608,7 +9615,7 @@ class stzList from stzObject
 			return aTemp
 		ok
 
-		pcCode = StzCCodeQ(pcCode).TranspiledFor(:stzList)
+		pcCode = StzCCodeQ(pcCode).Transpiled()
 
 		cCode = "aResult + ( " + pcCode + " )"
 		oCode = StzStringQ(cCode)
@@ -10543,7 +10550,7 @@ class stzList from stzObject
 	 #  YIELDING AND CUMULATING VALUES ON EACH ITEM  #
 	#===============================================#
 
-	def YieldAndCumulate(pcCode, paReturnLast)
+	def YieldAndCumulate(pcCode, paReturnEachOrLast)
 		/* EXAMPLE
 			o1 = new stzList([ 1, 2, 3 ])
 			? o1.YieldAndCumulate("@item", :ReturnEach)
@@ -10555,17 +10562,17 @@ class stzList from stzObject
 
 		bReturnLast = FALSE
 
-		if isList(paReturnLast)
-			if len(paReturnLast) = 2 and
-			   isString(paReturnLast[1]) and
-			   paReturnLast[1] = :ReturnLast and
-			   isNumber(paReturnLast[2]) and
-			   Q(paReturnLast[2]).IsEither(TRUE, :Or = FALSE)
-				bReturnLast = paReturnLast[2]
+		if isList(paReturnEachOrLast)
+			if len(paReturnEachOrLast) = 2 and
+			   isString(paReturnEachOrLast[1]) and
+			   paReturnEachOrLast[1] = :ReturnLast and
+			   isNumber(paReturnEachOrLast[2]) and
+			   Q(paReturnEachOrLast[2]).IsEither(TRUE, :Or = FALSE)
+				bReturnLast = paReturnEachOrLast[2]
 			ok
 
-		but isString(paReturnLast)
-			if paReturnLast = :ReturnLast
+		but isString(paReturnEachOrLast)
+			if paReturnEachOrLast = :ReturnLast
 				bReturnLast = TRUE
 			ok	
 		ok
@@ -10601,18 +10608,18 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def YieldAndCumulateQ(pcAction, paReturnLast)
-			return Q(This.YieldAndCumulate(pcAction, paReturnLast))
+		def YieldAndCumulateQ(pcCode, paReturnEachOrLast)
+			return Q(This.YieldAndCumulate(pcCode, paReturnEachOrLast))
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def HarvestAndCumulate(pcAction, paReturnLast)
-			return This.YieldAndCumulate(pcAction, paReturnLast)
+		def HarvestAndCumulate(pcCode, paReturnEachOrLast)
+			return This.YieldAndCumulate(pcCode, paReturnEachOrLast)
 
-			def HarvestAndCumulateQ(pcAction, paReturnLast)
-				This.YieldAndCumulateQ(pcAction, paReturnLAst)
+			def HarvestAndCumulateQ(pcCode, paReturnEachOrLast)
+				This.YieldAndCumulateQ(pcCode, paReturnEachOrLast)
 
 		#>
 
@@ -10620,21 +10627,21 @@ class stzList from stzObject
 	 #  YIELDING AND CUMULATING VALUES ON EACH ITEM -- EXTENDED  #
 	#-----------------------------------------------------------#
 
-	def YieldAndCumulateXT(pcCode, paReturnLast)
+	def YieldAndCumulateXT(pcCode, paReturnEachOrLast)
 
 		bReturnLast = FALSE
 
-		if isList(paReturnLast)
-			if len(paReturnLast) = 2 and
-			   isString(paReturnLast[1]) and
-			   paReturnLast[1] = :ReturnLast and
-			   isNumber(paReturnLast[2]) and
-			   Q(paReturnLast[2]).IsEither(TRUE, :Or = FALSE)
-				bReturnLast = paReturnLast[2]
+		if isList(paReturnEachOrLast)
+			if len(paReturnEachOrLast) = 2 and
+			   isString(paReturnEachOrLast[1]) and
+			   paReturnEachOrLast[1] = :ReturnLast and
+			   isNumber(paReturnEachOrLast[2]) and
+			   Q(paReturnEachOrLast[2]).IsEither(TRUE, :Or = FALSE)
+				bReturnLast = paReturnEachOrLast[2]
 			ok
 
-		but isString(paReturnLast)
-			if paReturnLast = :ReturnLast
+		but isString(paReturnEachOrLast)
+			if paReturnEachOrLast = :ReturnLast
 				bReturnLast = TRUE
 			ok	
 		ok
@@ -10670,20 +10677,40 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def YieldAndCumulateXTQ(pcCode, paReturnLast)
-			return Q(This.YieldAndCumulateXT(pcCode, paReturnLast))
+		def YieldAndCumulateXTQ(pcCode, paReturnEachOrLast)
+			return Q(This.YieldAndCumulateXT(pcCode, paReturnEachOrLast))
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def HarvestAndCumulateXT(pcCode, paReturnLast)
-			return This.YieldAndCumulateXT(pcCode, paReturnLast)
+		def HarvestAndCumulateXT(pcCode, paReturnEachOrLast)
+			return This.YieldAndCumulateXT(pcCode, paReturnEachOrLast)
 
-			def HarvestAndCumulateXTQ(pcCode, paReturnLast)
-				This.YieldAndCumulateXTQ(pcCode, paReturnLAst)
+			def HarvestAndCumulateXTQ(pcCode, paReturnEachOrLast)
+				This.YieldAndCumulateXTQ(pcCode, paReturnEachOrLast)
 
 		#>
+
+	  #--------------------------------------------------------#
+	 #  APPLYING A REDUCE OPERATION ON THE ITEMS OF THE LIST  #
+	#--------------------------------------------------------#
+
+	def Reduce(pcCode)
+		return This.YieldAndCumulate(pcCode, :ReturnLast)
+
+		def ReduceQ(pcCode, paReturnEachOrLast)
+			return This.Reduce(pcCode, paReturnEachOrLast)
+
+	  #--------------------------------------------------------------------#
+	 #  APPLYING A REDUCE OPERATION ON THE ITEMS OF THE LIST -- EXTENDED  #
+	#--------------------------------------------------------------------#
+
+	def ReduceXT(pcCode)
+		return This.YieldAndCumulateXT(pcCode, :ReturnLast)
+
+		def ReduceXTQ(pcCode, paReturnEachOrLast)
+			return This.ReduceXT(pcCode, paReturnEachOrLast)
 
 	  #=======================================#
 	 #   PERFORMING AN ACTION ON EACH ITEM   #
