@@ -72,6 +72,10 @@ Diacritics
 	 #   UNICODE SCRIPTS, DIRECTIONS, CATEGORIES, BLOCKS, AND VERSIONS    #
 	#--------------------------------------------------------------------#
 
+	# Number of chars in Unicode
+
+	_nNumberOfCharsInUnicode = 149_186 # Version 15.0
+
 	# Unicode scripts
 
 	_aUnicodeScriptsXT = [
@@ -2120,6 +2124,9 @@ Diacritics
 
 	func InvisibleChars()
 		return UnicodesToChars( InvisibleUnicodes() )
+
+	func NumberOfCharsInUnicode()
+		return _nNumberOfCharsInUnicode
 
 	  #---------------------#
 	 #  SOME USEFUL CHARS  #

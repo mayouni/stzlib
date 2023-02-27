@@ -381,25 +381,128 @@ func ListOfNTimes(n, pItem)
 	next
 	return aResult
 
-func ContiguousListOfChars(cChar1, cChar2)
-	anUnicodes = []
-	for i = CharUnicode(cChar1) to CharUnicode(cChar2)
-		anUnicodes + i
-	next
+func NumberOfCharsBetweenXT(p1, p2)
+
+	# Checking params
+
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
+
+	if BothAreChars(p1, p2)
+		p1 = Unicode(p1)
+		p2 = Unicode(p2)
+	ok
+
+	if NOT BothAreNumbers(p1, p2)
+		StzRaise("Incorrect params! p1 and p2 must corrspond to valid Unicode numbers.")
+	ok
+
+	aSorted = Q([ p1, p2 ]).Sorted()
+	n1 = aSorted[1]
+	n2 = aSorted[2]
+
+	if (n1 <= 0 or n2 <= 0) or
+	   (n1 > NumberOfCharsInUnicode() or n2 > NumberOfCharsInUnicode())
+
+		StzRaise("Incorrect params! p1 and p2 must correspond to valid chars in the unicode database.")
+	ok
+
+	# Doing the job
+
+	nResult = n2 - n1 + 1
+	return nResult
+
+func CharsBetweenXT(p1, p2)
+
+	# Checking params
+
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
+
+	if BothAreChars(p1, p2)
+		p1 = Unicode(p1)
+		p2 = Unicode(p2)
+	ok
+
+	if NOT BothAreNumbers(p1, p2)
+		StzRaise("Incorrect params! p1 and p2 must corrspond to valid Unicode numbers.")
+	ok
+
+	aSorted = Q([ p1, p2 ]).Sorted()
+	n1 = aSorted[1]
+	n2 = aSorted[2]
+
+	if (n1 <= 0 or n2 <= 0) or
+	   (n1 > NumberOfCharsInUnicode() or n2 > NumberOfCharsInUnicode())
+
+		StzRaise("Incorrect params! p1 and p2 must correspond to valid chars in the unicode database.")
+	ok
+
+	# Doing the job
 
 	aResult = []
+	for i = n1 to n2
+		aResult + StzCharQ(i).Content()
+	next
 
-	if StzListOfNumbersQ(anUnicodes).IsContiguous()
+	return aResult
 
-		for n in anUnicodes
-			aResult + StzCharQ(n).Content()
+	func CharsBetweenB(p1, p2) # ...B() extension --> Bounds included in the result
+		return CharsBetweenXT(p1, p2)
+
+func NumberOfCharsBetween(p1, p2)
+	return NumberOfCharsBetweenXT(p1, p2) - 2 # Bounds included
+
+func CharsBetween(p1, p2)
+
+	# Checking params
+
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
+	ok
+
+	if NOT ( BothAreNumbers(p1, p2) or BothAreChars(p1, p2) )
+		StzRaise("Error!")
+	ok
+
+	if BothAreChars(p1, p2)
+		p1 = Unicode(p1)
+		p2 = Unicode(p2)
+	ok
+
+	aSorted = Q([ p1, p2 ]).Sorted()
+	n1 = aSorted[1]
+	n2 = aSorted[2]
+
+	if (n1 <= 0 or n2 <= 0) or
+	   (n1 > NumberOfCharsInUnicode() or n2 > NumberOfCharsInUnicode())
+
+		StzRaise("Incorrect params! p1 and p2 must correspond to valid chars in the unicode database.")
+	ok
+
+	# Doing the job
+
+	if n1 = n2 + 1
+		return []
+
+	else
+		aResult = []
+		for i = n1 + 1 to n2 - 1
+			aResult + StzCharQ(i).Content()
 		next
 	
 		return aResult
-
-	else
-		StzRaise( "The chars you privided don't form a contiguous list!")
 	ok
+
+func ContiguousListOfChars(cChar1, cChar2)
+	aResult = []
+	for i = CharUnicode(cChar1) to CharUnicode(cChar2)
+		aResult + StzCharQ(i).Content()
+	next
+
+	return aResult
 
 	func ContiguousList(cChar1, cChar2)
 		return ContinuousListOfChars(cChar1, cChar2)
@@ -409,6 +512,16 @@ func ContiguousListOfChars(cChar1, cChar2)
 
 	func ContinuousList(cChar1, cChar2)
 		return ContiguousList(cChar1, cChar2)
+
+	func Contig(cChar1, cChar2)
+		return ContiguousList(cChar1, cChar2)
+
+	func ContigList(cChar1, cChar2)
+		return ContiguousList(cChar1, cChar2)
+
+	func CL(cChar1, cChar2)
+		return ContiguousList(cChar1, cChar2)
+
 
 func ListXT(p)
 
@@ -5689,11 +5802,12 @@ class stzList from stzObject
 		ok
 
 		bResult = TRUE
+		nLen = This.NumberOfItems()
 
-		for item in This.List()
-			if NOT ( isString(item) and
-			   	 StzStringQ(item).NumberOfChars() = 1 )
+		for i = 1 to nLen
+			item = This.ItemAt(i)
 
+			if NOT (isString(item) and Q(item).IsChar())
 				bResult = FALSE
 				exit
 			ok
@@ -21151,8 +21265,9 @@ class stzList from stzObject
 
 		# TODO: This code uses windowsnl() --> check if that works
 		# on other operating systems as well
-
 		# TODO: Ask Mahmoud: Is WindowsNL() multiplatform?
+
+		# TODO: Rewrite it.
 
 		cTabs = ring_copy( char(9), List2CodeTabsCounter )
 		cCode = cTabs + "[" + Windowsnl()
@@ -21175,20 +21290,25 @@ class stzList from stzObject
 			ok
 
 			if isString(item)
-				item2 = substr( item, '"','"+ char(34)+"')
+				item2 = substr( item, '"',"'+ char(34) +'")
 				cCode += ( cTabs +'"' + item2 + '"'  )
 
 			but isnumber(item)
 				cCode += ( cTabs + "" + item )
 
 			but islist(item)
-				cCode += Q(item).ToCode() # Not this is a recursive call
+				cCode += Q(item).ToCode() # Note that this is a recursive call!
 			ok
 		next
 
 		List2CodeTabsCounter--
 		cTabs = ring_copy(char(9), List2CodeTabsCounter)
 		cCode += ( windowsnl() + cTabs + "]" )
+
+		cOld = @@("'+ char(34) +'")
+		cNew = @@('"')
+		cCode = Q(cCode).ReplaceQ(cOld, cNew).Content()
+
 		return cCode
 
 		def ToCodeQ()
@@ -24727,18 +24847,6 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsDirectionNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Direction ) and
-		   ( isString( This[2] ) and Q(This[2]).IsOneOfThese([
-			:Forward, :Backward, :Left, :Right, :Center, :Up, :Down, :Default ]) )
-		  
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
 	def IsUpToNCharsNamedParam()
 		if This.NumberOfItems() = 2 and
  		   isString(This[1]) and  This[1] = :UpToNChars
@@ -28029,6 +28137,17 @@ class stzList from stzObject
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and
 			(This[1] = :EachNObjects or This[1] = :EachNObjects@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsDirectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :Direction or This[1] = :Direction@ ) )
 
 			return TRUE
 
