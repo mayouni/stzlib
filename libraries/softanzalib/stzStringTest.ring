@@ -426,20 +426,11 @@ proff()
 # Executed in 0.02 second(s)
 
 /*=============
-*/
+
 StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
-aSplitted = oLargeStr.Split(";")
-nLen = len(aSplitted)
-nPos = 0
-
-for i = 1 to nLen - 1
-	nPos += Q(aSplitted[i]).NumberOfChars()
-next
-nPos++
-N nPos
-//? oLargeStr.FindLast(";")
+? oLargeStr.FindLast(";")
 #--> 1897793
 
 StopProfiler()
@@ -1133,6 +1124,9 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
 ? o1.FindNthSDZ(2, "♥♥♥", :StartingAt = 3, :Direction = :Backward)
 #--> [ "♥♥♥", 8 ]
+
+	o1.FindNthSD(2, "♥♥♥", :StartingAt = 3, :Direction = :Backward)
+
 
 ? o1.FindFirstSZ("♥♥♥", :StartingAt = 5)
 #--> [ "♥♥♥", 8 ]
