@@ -1094,8 +1094,6 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 proff()
 # Executed in 0.05 second(s)
 
-# Add ...D() extension to Z()
-
 /*-----------------
 
 pron()
@@ -1116,17 +1114,14 @@ proff()
 # Executed in 0.05 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? o1.FindNthSDZ(2, "♥♥♥", :StartingAt = 3, :Direction = :Backward)
+? o1.FindNthSDZ(2, "♥♥♥", :StartingAt = 3, :Direction = :Forward)
 #--> [ "♥♥♥", 8 ]
-
-	o1.FindNthSD(2, "♥♥♥", :StartingAt = 3, :Direction = :Backward)
-
 
 ? o1.FindFirstSZ("♥♥♥", :StartingAt = 5)
 #--> [ "♥♥♥", 8 ]
@@ -1151,6 +1146,25 @@ o1 = new stzString("12♥♥♥67♥♥♥90♥♥♥")
 #--> [ "♥♥♥", [8, 10] ]
 
 ? o1.FindLastSZZ("♥♥♥", :StartingAt = 6)
+#--> [ "♥♥♥", [13, 15] ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-----------------
+*/
+pron()
+
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥90♥♥♥")
+
+? o1.FindNthSDZZ(2, "♥♥♥", :StartingAt = 3, :Direction = :Forward)
+#--> [ "♥♥♥", [8, 10] ]
+
+? o1.FindFirstSDZZ("♥♥♥", :StartingAt = 5, :Direction = :Forward)
+#--> [ "♥♥♥", [8, 10] ]
+
+? @@S(o1.FindLastSDZZ("♥♥♥", :StartingAt = 6, :Direction = :Forward))
 #--> [ "♥♥♥", [13, 15] ]
 
 proff()
