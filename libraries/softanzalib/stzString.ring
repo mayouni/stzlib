@@ -14083,6 +14083,21 @@ class stzString from stzObject
 
 		ok
 
+		if isString(n)
+			if n = :First or n = :FirstOccurrence
+				n = 1
+
+			but n = :Last or n = :LastOccurrence
+
+				n = This.SectionQ(pnStartingAt, :LastChar).
+					NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+	
+			else
+				StzRaise("Incorrect param! n must be a number or one these " +
+					 "two strings (:First or :Last).")
+			ok
+		ok
+
 		# doing the job
 
 		nResult = 0
@@ -14091,7 +14106,6 @@ class stzString from stzObject
 
 			nPos  = This.SectionQ(pnStartingAt, :LastChar).
 				FindNthCS(n, pcSubStr, pCaseSensitive)
-
 
 			if nPos > 0
 				nResult = nPos + pnStartingAt - 1
@@ -14234,7 +14248,7 @@ class stzString from stzObject
 	#===========================================================================#
 
 	def FindNthSDZCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
-		aResult = [ pSubStr, This.FindNthSDCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
+		aResult = [ pcSubStr, This.FindNthSDCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
 		return aResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -14279,7 +14293,7 @@ class stzString from stzObject
 	def FindNthSDZZCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 		n1 = This.FindNthSDCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 		n2 = n1 + Q(pcSubStr).NumberOfChars() - 1
-		aResult = [ pSubStr, [n1, n2] ]
+		aResult = [ pcSubStr, [n1, n2] ]
 		return aResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -14313,7 +14327,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSDZZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindLastSDZCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindLastSDZZCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
 
 
 	  #======================================================#
