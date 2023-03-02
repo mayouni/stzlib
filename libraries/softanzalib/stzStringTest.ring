@@ -1152,7 +1152,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 #                     3    8    3
@@ -1170,12 +1170,52 @@ o1 = new stzString("12♥♥♥67♥♥♥90♥♥♥")
 proff()
 # Executed in 0.05 second(s)
 
+/*=================
+*/
+pron()
+
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥90♥♥♥")
+/*
+? @@S( o1.FindOccurrences( :Of = "♥♥♥" ) )
+#--> [3, 8, 13 ]
+
+? @@S( o1.FindOccurrencesZ( :Of = "♥♥♥") )
+#--> [ "♥♥♥", [3, 8, 13 ] ]
+
+? @@S( o1.FindOccurrencesZZ( :Of = "♥♥♥") )
+#--> [ "♥♥♥", [ [3, 5], [8, 10], [13, 15] ] ]
+*/
+#--
+
+? @@S( o1.FindOccurrencesD( :Of = "♥♥♥", :Backward ) )
+#--> [3, 8, 13 ]
+
+? @@S( o1.FindOccurrencesDZ( :Of = "♥♥♥", :Backward) )
+#--> [ "♥♥♥", [3, 8, 13 ] ]
+
+? @@S( o1.FindOccurrencesDZZ( :Of = "♥♥♥", :Backward) )
+#--> [ "♥♥♥", [ [3, 5], [8, 10], [13, 15] ] ]
+
+#--
+/*
+? o1.FindOccurrencesS( :Of = "♥♥♥", :StartingAt = 6 )
+#--> [8, 13 ]
+
+? o1.FindOccurrencesSZ( :Of = "♥♥♥", :StartingAt = 6 )
+#--> [ "♥♥♥", [8, 13 ] ]
+
+? o1.FindOccurrencesSZZ( :Of = "♥♥♥", :StartingAt = 6 )
+#--> [ "♥♥♥", [ [8, 10], [13, 15] ] ]
+*/
+
+proff()
+
 /*-----------------
 
-FindOccurrences()
-FindOccurrencesS([ 2, 3], :StartingAt)
+FindTheseOccurrencesS([ 2, 3], :StartingAt)
 
-/*-----------------
+/*=================
 
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥90♥♥♥")
