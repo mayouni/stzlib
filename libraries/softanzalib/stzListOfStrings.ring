@@ -2246,7 +2246,7 @@ class stzListOfStrings from stzList
 
 		#>
 
-	#-- WITHOUT CASESENSITIVE
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindAll(pcStrItem)
 		return This.FindallCS(pcStrItem, :CaseSensitive = TRUE)
@@ -5329,7 +5329,7 @@ class stzListOfStrings from stzList
 
 		#>
 
-	#-- WITHOUT CASESENSITIVE
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubString(pcSubStr)
 		return This.FindSubStringCS(pcSubStr, :CaseSensitive = TRUE)
@@ -5670,7 +5670,7 @@ class stzListOfStrings from stzList
 			return This.FindLastOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
 
 
-	#-- WITHOUT CASESENSITIVE
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastOccurrenceOfSubString(pcSubStr)
 		return This.FindLastOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
@@ -12603,7 +12603,7 @@ class stzListOfStrings from stzList
 		def PreviousNthOccurrenceRemovedCS(n, pcString, pnStartingAt, pCaseSensitive)
 			return This.NthPreviousOccurrenceRemovedCS(n, pcString, pnStartingAt, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVE
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemovePreviousNthOccurrence(n, pcString, pnStartingAt)
 		This.RemovePreviousNthOccurrenceCS(n, pcString, pnStartingAt, :Cs = TRUe)
@@ -17158,7 +17158,7 @@ class stzListOfStrings from stzList
 	#===============================================#
 
 	def Align( pcDirection )
-		if isList(pcDirection) and ( Q(pcDirection).IsDirectionNamedParam() or
+		if isList(pcDirection) and ( Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ]) or
 			Q(pcDirection).IsToNamedParam() )
 
 			pcDirection = pcDirection[2]
@@ -17232,7 +17232,7 @@ class stzListOfStrings from stzList
 			pcChar = pcChar[2]
 		ok
 
-		if isList(pcDirection) and ( Q(pcDirection).IsDirectionNamedParam() or
+		if isList(pcDirection) and ( Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ]) or
 			Q(pcDirection).IsToNamedParam() )
 
 			pcDirection = pcDirection[2]
