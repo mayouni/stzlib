@@ -14,6 +14,24 @@ Get insipration of realworld use cases and features from this article
 describing the difference between NumPy and Pandas (Pyhthon ecosystem):
 https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-pandas-c31fa921a43
 
+#TODO (Future): use Apache Arrow as a C++ backend for stzTable
+# https://arrow.apache.org/
+
+	Apache Arrow is a software development platform for
+	building high performance applications that process
+	and transport large data sets. It is designed to both
+	improve the performance of analytical algorithms and
+	the efficiency of moving data from one system or
+	programming language to another.
+
+	A critical component of Apache Arrow is its in-memory
+	columnar format, a standardized, language-agnostic
+	specification for representing structured, table-like
+	datasets in-memory. This data format has a rich data
+	type system (included nested and user-defined data types)
+	designed to support the needs of analytic database
+	systems, data frame libraries, and more.
+
 */
 
 func StzTableQ(paTable)

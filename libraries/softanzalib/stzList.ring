@@ -6847,7 +6847,7 @@ class stzList from stzObject
 			pReturn = :WalkedPositions
 		ok
 
-		if isList(pcDirection) and Q(pcDirection).IsDirectionNamedParam()
+		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -6976,7 +6976,7 @@ class stzList from stzObject
 			pReturn = :WalkedPositions
 		ok
 
-		if isList(pcDirection) and Q(pcDirection).IsDirectionNamedParam()
+		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -7087,7 +7087,7 @@ class stzList from stzObject
 			pReturn = :WalkedPositions
 		ok
 
-		if isList(pcDirection) and Q(pcDirection).IsDirectionNamedParam()
+		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -7183,7 +7183,7 @@ class stzList from stzObject
 			pReturn = :WalkedPositions
 		ok
 
-		if isList(pcDirection) and Q(pcDirection).IsDirectionNamedParam()
+		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 

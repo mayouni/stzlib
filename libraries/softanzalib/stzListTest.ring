@@ -1,6 +1,7 @@
 load "stzlib.ring"
 
-/*------------
+
+/*===========
 
 pron()
 
@@ -22,7 +23,7 @@ proff()
 # Executed in 0.11 second(s)
 
 /*------------
-*/
+
 pron()
 
 o1 = new stzList([ "ONE", "TWO", "THREE" ])
