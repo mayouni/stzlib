@@ -34698,15 +34698,20 @@ class stzUnicodeData
 		cHex = This.CharHexCodeByName(pcCharName)
 		nUnicode = HexToDecimal( cHex )
 
+? "ici"
+? cHex
+? nUnicode
 		cChar = StzCharQ(nUnicode).Content()
 		return cChar
 
 	def CharHexCodeByName(pcCharName)
 		n = This.FindCharName(";"+ pcCharName + ";")
+
 		if n > 0
 			n2 = n - 1
 			n1 = @oStzStrUnicodeData.PreviousOccurrence(NL, n) + 1
 			cHex = HexPrefix() + @oStzStrUnicodeData.Section(n1, n2)
+
 			return cHex
 		ok
 
