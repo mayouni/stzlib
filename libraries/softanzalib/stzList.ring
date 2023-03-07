@@ -4001,7 +4001,7 @@ class stzList from stzObject
 				return This
 
 	def NextOccurrenceRemovedCS(pItem, pnStartingAt, pCaseSensitive)
-		aRresult =  This.Copy().
+		aResult =  This.Copy().
 				RemoveNextOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive).
 				Content()
 		return aResult
@@ -20329,6 +20329,9 @@ class stzList from stzObject
 			on :stzListOfNumbers
 				return new stzListOfNumbers( This.Section(n1, n2) )
 
+			on :stzListOfPairs
+				return new stzListOfPairs( This.Section(n1, n2) )
+
 			on :stzListOfLists
 				return new stzListOfLists( This.Section(n1, n2) )
 
@@ -20474,7 +20477,7 @@ class stzList from stzObject
 			return []
 		ok
 
-		if NOT Q(paSections).IsListOfPairsOfNumbers()
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 

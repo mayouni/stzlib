@@ -2,6 +2,33 @@ load "stzlib.ring"
 
 pron()
 
+? StzCharQ("0x10481").Content() #--> ERR, should be "𐒁"
+/*
+//? Q("Schöne Grüße").Length() # means "Kind Regards" in german
+#--> 12
+
+? StzUnicodeDataQ().CharByName("OSMANYA LETTER BA")
+#--> 0x10481
+#--> 66689
+
+? StzCharQ("ҁ").Name()
+#--> CYRILLIC SMALL LETTER KOPPA
+
+? StzCharQ("𐒁") # TODO-ERROR
+#--> Can't create char object!
+
+? Q("𐒁").CharName() # TODO-ERROR: correct it to be OSMANYA LETTER BA
+#--> QUESTION MARK
+
+? StzCharQ("OSMANYA LETTER BA").Content()
+#--> ҁ
+*/
+proff()
+
+#------
+/*
+pron()
+
 ? Smile()
 #--> 😆
 
