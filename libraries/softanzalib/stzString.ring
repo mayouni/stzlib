@@ -19066,6 +19066,14 @@ class stzString from stzObject
 		def FindSubStringsBoundedByXTCS(pcBound1, pcBound2, pCaseSensitive)
 			return This.FindBoundedByXTCS(pcBound1, pcBound2, pCaseSensitive)
 
+		#--
+
+		def FindSubStringsBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindBetweenXTCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def FindSubStringsBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindBoundedByXTCS(pcBound1, pcBound2, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -19080,6 +19088,15 @@ class stzString from stzObject
 
 		def FindSubStringsBoundedByXT(pcBound1, pcBound2)
 			return This.FindBoundedByXT(pcBound1, pcBound2)
+
+		#--
+
+		def FindSubStringsBetweenIB(pcBound1, pcBound2)
+			return This.FindBetweenXT(pcBound1, pcBound2)
+
+		def FindSubStringsBoundedByIB(pcBound1, pcBound2)
+			return This.FindBoundedByXT(pcBound1, pcBound2)
+
 
 		#>
 
@@ -19115,6 +19132,14 @@ class stzString from stzObject
 		def FindSubStringsBoundedByAsSectionsXTCS(pcBound1, pcBound2, pCaseSensitive)
 			return This.FindBoundedByAsSectionsXTCS(pcBound1, pcBound2, pCaseSensitive)
 
+		#--
+
+		def FindSubStringsBetweenAsSectionsIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindBetweenAsSectionsXTCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def FindSubStringsBoundedByAsSectionsXIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindBoundedByAsSectionsXTCS(pcBound1, pcBound2, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -19122,11 +19147,23 @@ class stzString from stzObject
 	def FindBetweenAsSectionsXT(pcBound1, pcBound2)
 		return This.FindBetweenAsSectionsXTCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def FindSubStringsBetweenAsSectionsXT(pcBound1, pcBound2)
 			return This.FindBetweenAsSectionsXT(pcBound1, pcBound2)
 
 		def FindSubStringsBoundedByAsSectionsXT(pcBound1, pcBound2)
 			return This.FindBoundedByAsSectionsXT(pcBound1, pcBound2)
+
+		#--
+
+		def FindSubStringsBetweenAsSectionsIB(pcBound1, pcBound2)
+			return This.FindBetweenAsSectionsXT(pcBound1, pcBound2)
+
+		def FindSubStringsBoundedByAsSectionsIB(pcBound1, pcBound2)
+			return This.FindBoundedByAsSectionsXT(pcBound1, pcBound2)
+
+		#>
 
 	  #======================================================================================#
 	 #   FINDING NTH OCCURRENCE (AS SECTIONS) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS   #
@@ -19332,6 +19369,17 @@ class stzString from stzObject
 		def FindNthBoundedByAsSectionsXTCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 			return This.FindNthSubStringBetweenAsSectionsXTCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 
+		#--
+
+		def FindNthBetweenAsSectionsIBCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindNthSubStringBetweenAsSectionsXTCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+		
+		def FindNthSubStringBoundedByAsSectionsIBCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindNthSubStringBetweenAsSectionsXTCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+
+		def FindNthBoundedByAsSectionsIBCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindNthSubStringBetweenAsSectionsXTCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -19348,6 +19396,17 @@ class stzString from stzObject
 			return This.FindNthSubStringBetweenAsSectionsXT(n, pcSubStr, pcBound1, pcbound2)
 
 		def FindNthBoundedByAsSectionsXT(n, pcSubStr, pcBound1, pcbound2)
+			return This.FindNthSubStringBetweenAsSectionsXT(n, pcSubStr, pcBound1, pcbound2)
+
+		#--
+
+		def FindNthBetweenAsSectionsIB(n, pcSubStr, pcBound1, pcbound2)
+			return This.FindNthSubStringBetweenAsSectionsXT(n, pcSubStr, pcBound1, pcbound2)
+		
+		def FindNthSubStringBoundedByAsSectionsIB(n, pcSubStr, pcBound1, pcbound2)
+			return This.FindNthSubStringBetweenAsSectionsXT(n, pcSubStr, pcBound1, pcbound2)
+
+		def FindNthBoundedByAsSectionsIB(n, pcSubStr, pcBound1, pcbound2)
 			return This.FindNthSubStringBetweenAsSectionsXT(n, pcSubStr, pcBound1, pcbound2)
 
 		#>
@@ -19380,6 +19439,17 @@ class stzString from stzObject
 		def FindFirstBoundedByAsSectionsXTCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 			return This.FindFirstSubStringBetweenAsSectionsXTCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 
+		#--
+
+		def FindFirstBetweenAsSectionsIBCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindFirstSubStringBetweenAsSectionsXTCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+		
+		def FindFirstSubStringBoundedByAsSectionsIBCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindFirstSubStringBetweenAsSectionsXTCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+
+		def FindFirstBoundedByAsSectionsIBCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindFirstSubStringBetweenAsSectionsXTCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -19396,6 +19466,17 @@ class stzString from stzObject
 			return This.FindFirstSubStringBetweenAsSectionsXT(pcSubStr, pcBound1, pcbound2)
 
 		def FindFirstBoundedByAsSectionsXT(pcSubStr, pcBound1, pcbound2)
+			return This.FindFirstSubStringBetweenAsSectionsXT(pcSubStr, pcBound1, pcbound2)
+
+		#--
+
+		def FindFirstBetweenAsSectionsIB(pcSubStr, pcBound1, pcbound2)
+			return This.FindFirstSubStringBetweenAsSectionsXT(pcSubStr, pcBound1, pcbound2)
+		
+		def FindFirstSubStringBoundedByAsSectionsIB(pcSubStr, pcBound1, pcbound2)
+			return This.FindFirstSubStringBetweenAsSectionsXT(pcSubStr, pcBound1, pcbound2)
+
+		def FindFirstBoundedByAsSectionsIB(pcSubStr, pcBound1, pcbound2)
 			return This.FindFirstSubStringBetweenAsSectionsXT(pcSubStr, pcBound1, pcbound2)
 
 		#>
@@ -19428,6 +19509,17 @@ class stzString from stzObject
 		def FindLastBoundedByAsSectionsXTCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 			return This.FindLastSubStringBetweenAsSectionsXTCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 
+		#--
+
+		def FindLastBetweenAsSectionsIBCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindLastSubStringBetweenAsSectionsXTCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+		
+		def FindLastSubStringBoundedByAsSectionsIBCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindLastSubStringBetweenAsSectionsXTCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+
+		def FindLastBoundedByAsSectionsIBCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindLastSubStringBetweenAsSectionsXTCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -19444,6 +19536,17 @@ class stzString from stzObject
 			return This.FindLastSubStringBetweenAsSectionsXT(pcSubStr, pcBound1, pcbound2)
 
 		def FindLastBoundedByAsSectionsXT(pcSubStr, pcBound1, pcbound2)
+			return This.FindLastSubStringBetweenAsSectionsXT(pcSubStr, pcBound1, pcbound2)
+
+		#--
+
+		def FindLastBetweenAsSectionsIB(pcSubStr, pcBound1, pcbound2)
+			return This.FindLastSubStringBetweenAsSectionsXT(pcSubStr, pcBound1, pcbound2)
+		
+		def FindLastSubStringBoundedByAsSectionsIB(pcSubStr, pcBound1, pcbound2)
+			return This.FindLastSubStringBetweenAsSectionsXT(pcSubStr, pcBound1, pcbound2)
+
+		def FindLastBoundedByAsSectionsIB(pcSubStr, pcBound1, pcbound2)
 			return This.FindLastSubStringBetweenAsSectionsXT(pcSubStr, pcBound1, pcbound2)
 
 		#>
