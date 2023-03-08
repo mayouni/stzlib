@@ -1589,7 +1589,6 @@ o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
 
 ? o1.FindFirstStartingAt("♥♥♥", 8)
 ? o1.FindFirstS("♥♥♥", :StartingAt = 8)
-#--> Eliminate FindFirstXT("♥♥♥", :StartingAt = ...)
 
 FindLastXT(..., :startingat)
 FindNthXT(..., :startingat)
