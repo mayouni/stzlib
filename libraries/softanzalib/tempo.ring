@@ -1,10 +1,22 @@
 load "stzlib.ring"
 
+/*--------------
 
 pron()
 
-o1 = new stzString("**345**")
-/*
+? Q("SOFTANZA").Section(:From = "F", :To = "A") #--> "FTA"
+
+? Q("SOFTANZA").CharsQ().Section(:From = "F", :To = "A")
+#--> ["F", "T", "A"]
+
+proff()
+
+/*--------------
+
+pron()
+
+o1 = new stzString("1234567")
+
 ? o1.Section(3, 5)
 #--> 345
 
@@ -16,15 +28,48 @@ o1 = new stzString("**345**")
 
 ? o1.Section(-3, 3)
 #--> 543
-*/
 
 ? o1.Range(3, 3)
 #--> 345
 
 ? o1.Range(3, -3)
+#--> 123
 
+? o1.Range(-5, -3)
+#--> 123
 
 proff()
+# Executed in 0.04 second(s)
+
+/*--------------
+*/
+pron()
+
+o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7" ])
+
+? o1.Section(3, 5)
+#--> [ "3", "4", "5" ]
+
+? o1.Section(5, 3)
+#--> [ "5", "4", "3" ]
+
+? o1.Section(3, -3)
+#--> [ "3", "4", "5" ]
+
+? o1.Section(-3, 3)
+#--> [ "5", "4", "3" ]
+
+? o1.Range(3, 3)
+#--> [ "3", "4", "5" ]
+
+? o1.Range(3, -3)
+#--> [ "1", "2", "3" ]
+
+? o1.Range(-5, -3)
+#--> [ "1", "2", "3" ]
+
+proff()
+# Executed in 0.02 second(s)
 
 /*-----------
 

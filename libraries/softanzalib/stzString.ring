@@ -8939,7 +8939,7 @@ class stzString from stzObject
 		ok
 
 		if isList(n2) and
-		   StzListQ(n1).IsOneOfTheseNamedParams([
+		   StzListQ(n2).IsOneOfTheseNamedParams([
 				:To, :ToPosition,
 				:Until, :UntilPosition,
 				:UpTo, :UpToPosion
@@ -9018,6 +9018,10 @@ class stzString from stzObject
 		# If the params are not numbers, so find them and take their positions
 		# EXAMPLE: ? Q("SOFTANZA").Section(:From = "F", :To = "A") #--> "FTA"
 
+		if isString(n1)
+			n1 = This.FindFirst(n1)
+		ok
+
 		if NOT isNumber(n1)
 			n1 = This.FindFirst(n1)
 		ok
@@ -9034,6 +9038,10 @@ class stzString from stzObject
 
 		if n1 > 0 and n2 = :EndOfWord # TODO: should move to stzText?
 			return This.ToStzText().ForwardToEndOfWord( :StartingAt = n1 )
+		ok
+
+		if isString(n2)
+			n2 = This.FindFirst(n2)
 		ok
 
 		if NOT isNumber(n2)
@@ -9056,7 +9064,7 @@ class stzString from stzObject
 		ok
 
 		# Finally, we're ready to extract the section...
-		# NOTRE: when positions are given in inversed order
+		# NOTE: when positions are given in inversed order
 		# --> Reversing the section
 
 
@@ -9111,11 +9119,45 @@ class stzString from stzObject
 	// Returns a subset of the string starting from nStart and ranging over nRange Chars
 	def Range(nStartPos, nRange)
 		
-		if nRange = 0
-			return NULL
-		else
-			return Section( nStartPos, nStartPos + nRange -1 )
+		# Chacking params
+
+		if isString(nStartPos)
+			if nStartPos = :First or nStartPos = :FirstChar
+				nStartPos = 1
+
+			but nStartPos = :Last or nStartPos = :LastChar
+				nStartPos = This.NumberOfChars()
+			ok
 		ok
+
+		if NOT BothAreNumbers(nStartPos, nRange)
+			StzRaise("Incorrect param type! nStartPos and nRange must be both numbers.")
+		ok
+
+		# Doing the job
+
+		if nStartPos < 0
+			nStartPos = This.NumberOfChars() + nStartPos + 1
+		ok
+
+		if nStartPos = 0 or nRange = 0
+			return NULL
+		ok
+
+		cResult = ""
+
+		if nRange > 0
+			cResult = This.Section( nStartPos, nStartPos + nRange -1 )
+
+		else
+			n1 = nStartPos + nRange + 1
+
+			if n1 > 0
+				cResult = This.Section( n1, nStartPos )
+			ok	
+		ok
+
+		return cResult
 
 		#< @FunctionFluentForm
 

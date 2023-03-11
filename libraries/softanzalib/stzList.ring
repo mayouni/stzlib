@@ -20172,7 +20172,6 @@ class stzList from stzObject
 
 	def Section(n1, n2)
 
-
 		# Managing the use of :From and :To named params
 
 		if isList(n1) and
@@ -20231,7 +20230,7 @@ class stzList from stzObject
 			but Q(n1).IsOneOfThese([ :Last, :LastItem, :EndOfList ])
 				n1 = This.NumberOfItems()
 
-			but Q(n1) = :@
+			but n1 = :@
 				n1 = n2
 			ok
 		ok
@@ -20243,7 +20242,7 @@ class stzList from stzObject
 			but Q(n2).IsOneOfThese([ :First, :FirstItem, :StartOfList ])
 				n2 = 1
 
-			but Q(n2) = :@
+			but n2 = :@
 				n2 = n1
 			ok
 		ok
@@ -20270,6 +20269,14 @@ class stzList from stzObject
 			n1 = This.FindFirst(n1)
 		ok
 
+		if NOT isNumber(n1)
+			n1 = This.FindFirst(n1)
+		ok
+
+		if NOT isNumber(n2)
+			n2 = This.FindFirst(n2)
+		ok
+
 		if NOT isNumber(n2)
 			n2 = This.FindFirst(n2)
 		ok
@@ -20280,32 +20287,24 @@ class stzList from stzObject
 			StzRaise("Incorrect params! n1 and n2 must be numbers.")
 		ok
 
-		# If the params are given in inversed order, return reversed section
-
-		if n1 > n2
-			nTemp = n1
-			n1 = n2
-			n2 = nTemp
-
-			return This.SectionQ(n1, n2).Reversed()
-		ok
-	
-		# Managing out of range params
-
-		if NOT 	( Q(n1).IsBetween(1, This.NumberOfItems()) and
-			  Q(n2).IsBetween(1, This.NumberOfItems())
-			)
-			
-			return []
-		ok
-
 		# Finally, we're ready to extract the section
 
 		aResult = []
-		for i = n1 to n2
-			aResult + This.Content()[i]
-		next i
-		
+
+		if n1 = n2
+			aResult + This.Item(n1)
+
+		but n1 < n2
+			for i = n1 to n2
+				aResult + This.Content()[i]
+			next i
+	
+		else
+			for i = n2 to n1 step - 1
+				aResult + This.Content()[i]
+			next i
+		ok
+
 		return aResult	
 
 		#< @FunctionFluentForm
@@ -20639,7 +20638,47 @@ class stzList from stzObject
 	#-----------------------------------#
 
 	def Range(pnStart, pnRange)
-		return This.Section( pnStart, pnStart + pnRange - 1)
+		# Chacking params
+
+		if isString(pnStart)
+			if pnStart = :First or pnStart = :FirstChar
+				pnStart = 1
+
+			but pnStart = :Last or pnStart = :LastChar
+				pnStart = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT BothAreNumbers(pnStart, pnRange)
+			StzRaise("Incorrect param type! pnStart and pnRange must be both numbers.")
+		ok
+
+		# Doing the job
+
+		if pnStart < 0
+			pnStart = This.NumberOfItems() + pnStart + 1
+		ok
+
+		if pnStart = 0 or pnRange = 0
+			return NULL
+		ok
+
+		aResult = []
+
+		if pnRange > 0
+			aResult + This.Section( pnStart, pnStart + pnRange -1 )
+
+		else
+			n1 = pnStart + pnRange + 1
+
+			if n1 > 0
+				aResult + This.Section( n1, pnStart )
+			ok	
+		ok
+
+		return aResult
+
+		#< @FunctionFluentForms
 
 		def RangeQ(pnStart, pnRange)
 			return This.RangeQR(pnStart, pnRange, :stzList)
@@ -20669,6 +20708,8 @@ class stzList from stzObject
 			other
 				StzRaise("Unsupported return type!")
 			off
+
+		#>
 
 	  #------------------------------------#
 	 #   GETTING MANY RANGES OF THE LIST  #
@@ -28251,8 +28292,8 @@ class stzList from stzObject
 		def ToListInShortForm()
 			return This.ToListInStringInShortForm()
 
-	#---------#
-	#  WHERE  #
+	  #---------#
+	 #  WHERE  #
 	#---------#
 
 	def Where(pcCondition)
@@ -28282,3 +28323,23 @@ class stzList from stzObject
 
 		eval(cCode)
 		return bOk
+
+	  #-----------------------------------------#
+	 #  GETTING THE LIST OF CHARS IN THE LIST  #
+	#-----------------------------------------#
+
+	def Chars()
+		aResult = []
+		nLen = This.NumberOfItems()
+
+		for i = 1 to nLen
+			item = This.Item(i)
+			if isString(item) and Q(item).IsChar()
+				aResult + item
+			ok
+		next
+
+		return aResult
+
+	def NumberOfChars()
+		return len(This.Chars())
