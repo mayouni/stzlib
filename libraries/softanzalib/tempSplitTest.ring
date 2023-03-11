@@ -51,7 +51,7 @@ o1 = new stzString("*2*45*78*0*")
 # Then you can use the extended version of the function ..XT() and
 # pass the "*" char as a parameter like this:
 
-? @@S( o1.FindBetweenXT("*") )
+? @@S( o1.FindBetweenIB("*") )
 #--> [ 2, 4, 7, 10 ]
 
 StopProfiler()

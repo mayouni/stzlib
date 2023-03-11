@@ -954,7 +954,7 @@ StopProfiler()
 
 TODO - NAMING REFORM
 
-..RemoveBetweenXT() : removes also bounds
+..RemoveBetweenIB() : removes also bounds
 #--> DONE
 
 ...Bounds  --> ...( [b1,b2] )	why? to be able to use ...( b ) if the 2 bounds are sale
@@ -1218,7 +1218,7 @@ o1 = new stzString('[
 ]')
 
 
-aList = o1.SectionsBetweenXT("[", "]")
+aList = o1.SectionsBetweenIB("[", "]")
 nLen = len(aList)
 for i = 1 to nLen
 	? aList[i] + NL + NL + "--" + NL
@@ -1281,11 +1281,11 @@ next
 # Executed in 0.64 second(s)
 
 	//o1.ReplaceAnyBetween("[", "]", "***")
-	//o1.RemoveSubStringsBetweenXT("]","[")
+	//o1.RemoveSubStringsBetweenIB("]","[")
 	//? o1.SubStringsBetween("]","[") # ..BoundedBy
 	//? o1.SubStringsBoundedBy(["]","["])  # Add it
-	//o1.RemoveSubStringsBetweenXT("]","[")
-	//o1.RemoveAnySectionsBoundedByXT("]","[")
+	//o1.RemoveSubStringsBetweenIB("]","[")
+	//o1.RemoveAnySectionsBoundedByIB("]","[")
 	//? o1.Content()
 
 StopProfiler()
@@ -3075,10 +3075,10 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 		? @@S( WalkBetween( 3, 5 ) )
 		#--> [ 3, 4, 5 ]
 
-		? @@S( WalkBetweenXT( 3, 5, :WalkedItems ) )
+		? @@S( WalkBetweenIB( 3, 5, :WalkedItems ) )
 		#--> [ "C", "D", "E" ]
 
-		? @@S( WalkBetweenXT( 5, 3, :WalkedItems ) )
+		? @@S( WalkBetweenIB( 5, 3, :WalkedItems ) )
 		#--> [ "E", "D", "C" ]
 
 	// Walking the list forth and back
