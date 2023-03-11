@@ -381,7 +381,7 @@ func ListOfNTimes(n, pItem)
 	next
 	return aResult
 
-func NumberOfCharsBetweenXT(p1, p2)
+func NumberOfCharsBetweenIB(p1, p2)
 
 	# Checking params
 
@@ -413,7 +413,7 @@ func NumberOfCharsBetweenXT(p1, p2)
 	nResult = n2 - n1 + 1
 	return nResult
 
-func CharsBetweenXT(p1, p2)
+func CharsBetweenIB(p1, p2)
 
 	# Checking params
 
@@ -450,10 +450,10 @@ func CharsBetweenXT(p1, p2)
 	return aResult
 
 	func CharsBetweenB(p1, p2) # ...B() extension --> Bounds included in the result
-		return CharsBetweenXT(p1, p2)
+		return CharsBetweenIB(p1, p2)
 
 func NumberOfCharsBetween(p1, p2)
-	return NumberOfCharsBetweenXT(p1, p2) - 2 # Bounds included
+	return NumberOfCharsBetweenIB(p1, p2) - 2 # Bounds included
 
 func CharsBetween(p1, p2)
 
@@ -7247,9 +7247,9 @@ class stzList from stzObject
 	#===================#
 
 	def WalkBetween(n1, n2)
-		return This.WalkBetweenXT(n1, n2, :WalkedPositions)
+		return This.WalkBetweenIB(n1, n2, :WalkedPositions)
 
-	def WalkBetweenXT(n1, n2, pReturn)
+	def WalkBetweenIB(n1, n2, pReturn)
 
 		# Checking params
 
@@ -15424,7 +15424,7 @@ class stzList from stzObject
 
 	def NumberOfLevels()
 				
-		oCopy = @@SQ( This.Content() ).RemoveSectionsBetweenXTQ("]","[")
+		oCopy = @@SQ( This.Content() ).RemoveSectionsBetweenIBQ("]","[")
 		nResult = oCopy.NumberOfOccurrence("[")
 
 		return nResult
@@ -25719,9 +25719,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsBetweenXTNamedParam()
+	def IsBetweenIBNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenXT )
+		   ( isString(This[1]) and  This[1] = :BetweenIB )
 
 			return TRUE
 
@@ -27616,9 +27616,9 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsBoundedByXTNamedParam()
+	def IsBoundedByIBNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :BoundedByXT )
+		   ( isString(This[1]) and This[1] = :BoundedByIB )
 
 			return TRUE
 		else

@@ -16,10 +16,10 @@ proff()
 pron()
 
 o1 = new stzString('{ This[@i] = This[@i + 1] + 5 }')
-? @@S( o1.FindBetweenAsSectionsXT("[", :And = "]") )
+? @@S( o1.FindBetweenAsSectionsIB("[", :And = "]") )
 #--> [ [ 7, 10 ], [ 18, 25 ] ]
 
-? @@S( o1.BetweenXT("[", :And = "]") )
+? @@S( o1.BetweenIB("[", :And = "]") )
 #--> [ "[@i]", "[@i + 1]" ]
 
 ? @@S( o1.FindBetweenAsSections("[", "]") )

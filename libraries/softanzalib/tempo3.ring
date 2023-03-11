@@ -386,13 +386,13 @@ o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
 ? @@S( o1.SubStringsBetween('"','"') )
 #--> [ " value ", " 12 " ]
 
-? @@S( o1.SubStringsBetweenXT('"','"') )
+? @@S( o1.SubStringsBetweenIB('"','"') )
 #--> [ [ " value ", [ 16, 25 ] ], [ " 12 ", [ 42, 47 ] ] ]
 
 ? @@S( o1.FindSubStringsBetween('"','"') )
 #--> [ 16, 42 ]
 
-? @@S( o1.FindSubStringsBetweenXT('"','"') )
+? @@S( o1.FindSubStringsBetweenIB('"','"') )
 #--> [ [ 16, " value " ], [ 42, " 12 " ] ]
 
 STOP()
@@ -625,7 +625,7 @@ o1.ExtendToNChars(10, :Using = ".")
 /*=================
 
 ? Q("-♥-").IsBoundedBy("-") #--> TRUE
-? Q("♥").IsBoundedByXT("-", :In = "... -♥- ...") # ERROR
+? Q("♥").IsBoundedByIB("-", :In = "... -♥- ...") # ERROR
 
 /*---------------- ERROR
 

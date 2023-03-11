@@ -1,5 +1,81 @@
 load "stzlib.ring"
 
+
+pron()
+
+o1 = new stzString("**345**")
+/*
+? o1.Section(3, 5)
+#--> 345
+
+? o1.Section(5, 3)
+#--> 543
+
+? o1.Section(3, -3)
+#--> 345
+
+? o1.Section(-3, 3)
+#--> 543
+*/
+
+? o1.Range(3, 3)
+#--> 345
+
+? o1.Range(3, -3)
+
+
+proff()
+
+/*-----------
+
+pron()
+
+# Let's take this string of text:
+
+o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
+
+# You may want to get the section between two positions:
+
+? o1.Between(3, 5)
+#--> ♥♥♥
+
+# You can also tell:
+? o1.Section(3, 5)
+#--> ♥♥♥
+# But let's stick with the Between() function
+# to see how it is flexible...
+
+# Ok. What if you want to get all the substrings bounded by << and >>:
+? o1.Between("<<", ">>")
+#--> ["♥♥♥", "stars", "♥♥♥"]
+
+# They are 3, 2 of them are the same! No worry, you can get
+# a unique instance of each of them by extending the function
+# name by the "U" letter (for Unique):
+
+? o1.BetweenU("<<", ">>")
+#--> ["♥♥♥", "stars"]
+
+# Sometimes, people have different interpretations for the
+# term BETWEEN, and they may want to have the strings inbetween
+# along with the bounds themselves...
+
+# You can do it simply by adding the IB extensions to the name
+# of the fuction ("IB" for "Include Bounds")
+
+? o1.BetweenIB("<<", ">>")
+#--> [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ]
+
+# Oh, great! But "<<♥♥♥>>" is repeated twice...
+# Well, you know how to manage it: just add the "U" extension:
+
+ ? o1.BetweenIBU("<<", ">>")
+#--> [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*-------- TODO:ERROR
 pron()
 
 ? StzCharQ("0x10481").Content() #--> ERR, should be "𐒁"
@@ -390,7 +466,7 @@ StartProfiler()
 
 	o1 = new stzString("__/♥\__")
 
-	o1.RemoveThisBetweenXT("♥", "/", "\") # ..XT() -> Bounds are also removed
+	o1.RemoveThisBetweenIB("♥", "/", "\") # ..XT() -> Bounds are also removed
 	? o1.Content()
 	#--> ____
 
@@ -415,7 +491,7 @@ StopProfiler()
 StartProfiler()
 
 	Q("__/\/\__/♥\__") {
-		RemoveXT("♥", :BetweenXT = ["/", "\"]) # BetweenXT -> Bounds are also removed
+		RemoveXT("♥", :BetweenIB = ["/", "\"]) # BetweenIB -> Bounds are also removed
 		? Content()
 		#--> __/\/\____
 	}
@@ -441,7 +517,7 @@ StopProfiler()
 StartProfiler()
 
 	Q("__/\/\__^^♥^^__") {
-		RemoveXT("♥", :BoundedByXT = "^^")
+		RemoveXT("♥", :BoundedByIB = "^^")
 		? Content()
 		#--> __/\/\____
 	}
@@ -454,7 +530,7 @@ StopProfiler()
 StartProfiler()
 
 	Q("__/\/\_^^♥^^_") {
-		RemoveXT("♥", :BoundedByXT = "^^") # ..XT -> Bounds also removed
+		RemoveXT("♥", :BoundedByIB = "^^") # ..XT -> Bounds also removed
 		? Content()
 		#--> __/\/\__
 	}
@@ -480,7 +556,7 @@ StopProfiler()
 StartProfiler()
 
 	Q("/♥^♥\__/♥\/vv\__/^^^\__") {
-		RemoveXT([], :BetweenXT = ["/", :And = "\"]) # XT -> Bounds are also removed
+		RemoveXT([], :BetweenIB = ["/", :And = "\"]) # XT -> Bounds are also removed
 		? Content()
 		#--> ______
 	}
@@ -614,16 +690,16 @@ StopProfiler()
 StartProfiler()
 		
 	o1 = new stzString("♥")
-	? o1.IsBoundedByXT("-", :In = "...-♥-...") # You can use :Inside instead of :In
+	? o1.IsBoundedByIB("-", :In = "...-♥-...") # You can use :Inside instead of :In
 	#--> TRUE
 	
-	? o1.IsBoundedByXT(["/", "\"], :InSide = "__/♥\__")
+	? o1.IsBoundedByIB(["/", "\"], :InSide = "__/♥\__")
 	#--> TRUE
 		
-	? o1.IsBetweenXT(["/", "\"], :InSide = "__/♥\__")
+	? o1.IsBetweenIB(["/", "\"], :InSide = "__/♥\__")
 	#--> TRUE
 	
-	? o1.IsBetweenXT(["/", :And = "\"], :InSide = "__/♥\__")
+	? o1.IsBetweenIB(["/", :And = "\"], :InSide = "__/♥\__")
 	#--> TRUE
 	
 StopProfiler()

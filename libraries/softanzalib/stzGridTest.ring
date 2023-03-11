@@ -60,7 +60,7 @@ pron()
 ? CharsBetween( "A", :And = "C" )
 #--> [ "B" ]
 
-? CharsBetweenXT( "A", :And = "C" ) # CharsBetweenB("A", "C")
+? CharsBetweenIB( "A", :And = "C" ) # CharsBetweenB("A", "C")
 #--> [ "A", "B", "C" ]
 
 proff()
@@ -70,7 +70,7 @@ proff()
 
 pron()
 
-? NumberOfCharsBetweenXT(" ", "z")
+? NumberOfCharsBetweenIB(" ", "z")
 #--> 91
 
 ? NumberOfCharsBetween(" ", "z")
@@ -83,7 +83,7 @@ proff()
 
 pron()
 
-? NumberOfCharsBetweenXT("A", "B")
+? NumberOfCharsBetweenIB("A", "B")
 #--> 2
 
 ? NumberOfCharsBetween("A", "B")
@@ -94,7 +94,7 @@ proff()
 
 /*=======
 
-o1 = new stzGrid(CharsBetweenXT(" ", :And = "z") )
+o1 = new stzGrid(CharsBetweenIB(" ", :And = "z") )
 ? o1.Show()
 
 proff()

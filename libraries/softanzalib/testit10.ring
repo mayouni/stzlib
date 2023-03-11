@@ -46,13 +46,13 @@ o1 = new stzString("bla bla <<word1>> bla bla <<word2>> bla <<word3>>")
 //? o1.FindBetween("<<", ">>")
 #--> [11, 29, 43]
 
-//? o1.FindBetweenXT("<<", ">>")
+//? o1.FindBetweenIB("<<", ">>")
 #--> [ [11, "word1"], [29, "word2"], [43, "word2"] ]
 
 ? o1.FindBetweenAsSections("<<", ">>")
 #--> [ [11, 15], [29, 33], [43, 47] ]
 
-? o1.FindBetweenAsSectionsXT("<<", ">>")
+? o1.FindBetweenAsSectionsIB("<<", ">>")
 #--> [ [ "word1", [11, 15] ], [ "word2", [29, 33] ], [ "word3", [43, 47] ] ]
 
 /*---------------
@@ -100,7 +100,7 @@ o1 = new stzString("bla bla <<word1>> bla bla <<word2>> bla <<word3>>")
 ? o1.SubstringsBetween("<<", ">>")
 #--> [ "word1", "word2", "word3" ]
 
-? o1.SubstringsBetweenXT("<<", ">>")
+? o1.SubstringsBetweenIB("<<", ">>")
 #--> [
 #	[ "word1", [11, 15] ],
 #	[ "word2", [29, 33] ],
