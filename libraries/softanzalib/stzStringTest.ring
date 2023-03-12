@@ -3523,10 +3523,10 @@ o1 = new stzString("12*♥*78*♥*")
 /*-----------------
 
 o1 = new stzString("12*34*56*78")
-? o1.FindNthXT(2, "*", :StartingAt = 4)
+? o1.FindNthS(2, "*", :StartingAt = 4)
 #--> 6
 
-? o1.FirstXTT("*", :StartingAT = 4)
+? o1.FirstS("*", :StartingAT = 4)
 #--> 3
 
 /*-----------------

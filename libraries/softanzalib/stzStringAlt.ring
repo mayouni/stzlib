@@ -4,9 +4,260 @@ func StzStringAltQ(pcStr)
 
 class stzStringAlt from stzString
 
-	  #---------------------------#
-	 #  ALTERNATIVES OF FindA()  #
-	#---------------------------#
+	  #--------------------------------#
+	 #  ALTERNATIVES OF SubStrings()  #
+	#--------------------------------#
+
+	def AllSubStringsCS(pCaseSitive)
+		return This.SubStringsCS(pCaseSitive)
+
+		def AllSubStringsCSQ(pCaseSitive)
+			return This.SubStringsCSQ(pCaseSitive)
+
+		def AllSubStringsCSQR(pCaseSitive, pcReturnType)
+			return This.SubStringsCSQR(pCaseSitive, pcReturnType)
+
+	def AllPossibleSubStringsCS(pCaseSitive)
+		return This.SubStringsCS(pCaseSitive)
+
+		def AllPossibleSubStringsCSQ(pCaseSitive)
+			return This.SubStringsCSQ(pCaseSitive)
+
+		def AllPossibleSubStringsCSQR(pCaseSitive, pcReturnType)
+			return This.SubStringsCSQR(pCaseSitive, pcReturnType)
+
+	def PossibleSubStringsCS(pCaseSitive)
+		return This.SubStringsCS(pCaseSitive)
+
+		def PossibleSubStringsCSQ(pCaseSitive)
+			return This.SubStringsCSQ(pCaseSitive)
+
+		def PossibleSubStringsCSQR(pCaseSitive, pcReturnType)
+			return This.SubStringsCSQR(pCaseSitive, pcReturnType)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def AllSubStrings()
+		return This.SubStrings()
+
+		def AllSubStringsQ()
+			return This.SubStringsQ()
+
+		def AllSubStringsQR(pcReturnType)
+			return This.SubStringsQR(pcReturnType)
+
+	def AllPossibleSubStrings()
+		return This.SubStrings()
+
+		def AllPossibleSubStringsQ()
+			return This.SubStringsQ()
+
+		def AllPossibleSubStringsQR(pcReturnType)
+			return This.SubStringsQR(pcReturnType)
+
+	def PossibleSubStrings()
+		return This.SubStrings()
+
+		def PossibleSubStringsQ()
+			return This.SubStringsQ()
+
+		def PossibleSubStringsQR(pcReturnType)
+			return This.SubStringsQR(pcReturnType)
+
+	  #----------------------------#
+	 #  ALTERNATIVES OF Append()  #
+	#----------------------------#
+
+	def Add(pcOtherStr)
+		This.Append(pcOtherStr)
+
+		def AddQ(pcOtherStr)
+			This.Add(pcOtherStr)
+			return This
+
+	def AddToEnd(pcOtherStr)
+		This.Append(pcOtherStr)
+
+		def AddToEndQ(pcOtherStr)
+			This.AddToEnd(pcOtherStr)
+			return This
+
+	def AddEnd(pcOtherStr)
+		This.Append(pcOtherStr)
+
+		def AddEndQ(pcOtherStr)
+			This.AddEnd(pcOtherStr)
+			return This
+
+	#--
+
+	def AppendEnd(pcOtherStr)
+		This.Append(pcOtherStr)
+
+		def AppendEndQ(pcOtherStr)
+			This.AppendEnd(pcOtherStr)
+			return This
+
+	def AppendFromEnd(pcOtherStr)
+		This.Append(pcOtherStr)
+
+		def AppendFromEndQ(pcOtherStr)
+			This.AppendFromEnd(pcOtherStr)
+			return This
+
+	def AppendAtEnd(pcOtherStr)
+		This.Append(pcOtherStr)
+
+		def AppendAtEndQ(pcOtherStr)
+			This.AppendAtEnd(pcOtherStr)
+			return This
+
+	#--
+
+	def Extend(pcOtherStr)
+		This.Append(pcOtherStr)
+
+		def ExtendQ(pcOtherStr)
+			This.Extend(pcOtherStr)
+			return This
+
+	def ExtendEnd(pcOtherStr)
+		This.Append(pcOtherStr)
+
+		def ExtendEndQ(pcOtherStr)
+			This.ExtendEnd(pcOtherStr)
+			return This
+
+	def ExtendFromEnd(pcOtherStr)
+		This.Append(pcOtherStr)
+
+		def ExtendFromEndQ(pcOtherStr)
+			This.ExtendFromEnd(pcOtherStr)
+			return This
+
+	def ExtendAtEnd(pcOtherStr)
+		This.Append(pcOtherStr)
+
+		def ExtendAtEndQ(pcOtherStr)
+			This.ExtendFAtEnd(pcOtherStr)
+			return This
+
+	  #-------------------------------#
+	 #   ALTERNATIVES OF Appended()  #
+	#-------------------------------#
+
+	def Added(pcOtherStr)
+		return This.Appended(pcOtherStr)
+
+	def AddedToEnd(pcOtherStr)
+		return This.Appended(pcOtherStr)
+
+	def AppendedFromEnd(pcOtherStr)
+		return This.Appended(pcOtherStr)
+
+	def AppendedAtEnd(pcOtherStr)
+		return This.Appended(pcOtherStr)
+
+	#--
+
+	def Extended(pcOtherStr)
+		return This.Appended(pcOtherStr)
+
+	def ExtendedFromEnd(pcOtherStr)
+		return This.Appended(pcOtherStr)
+
+	def ExtendedAtEnd(pcOtherStr)
+		return This.Appended(pcOtherStr)
+
+	  #----------------------------#
+	 #  ALTERNATIVES OF Prepend()  #
+	#----------------------------#
+
+	def AddStart(pcOtherStr)
+		This.Prepend(pcOtherStr)
+
+		def AddStartQ(pcOtherStr)
+			This.AddStart(pcOtherStr)
+			return This
+
+	def AddToStart(pcOtherStr)
+		This.Prepend(pcOtherStr)
+
+		def AddToStartQ(pcOtherStr)
+			This.AddToStart(pcOtherStr)
+			return This
+
+	def AddAtStart(pcOtherStr)
+		This.Prepend(pcOtherStr)
+
+		def AddAtStartQ(pcOtherStr)
+			This.AddAtStart(pcOtherStr)
+			return This
+
+	def AddFromStart(pcOtherStr)
+		This.Prepend(pcOtherStr)
+
+		def AddFromStartQ(pcOtherStr)
+			This.AddFromStart(pcOtherStr)
+			return This
+
+	#--
+
+	def ExtendStart(pcOtherStr)
+		This.Prepend(pcOtherStr)
+
+		def ExtendStartQ(pcOtherStr)
+			This.ExtendStart(pcOtherStr)
+			return This
+
+	def ExtendToStart(pcOtherStr)
+		This.Prepend(pcOtherStr)
+
+		def ExtendToStartQ(pcOtherStr)
+			This.ExtendToStart(pcOtherStr)
+			return This
+
+	def ExtendAtStart(pcOtherStr)
+		This.Prepend(pcOtherStr)
+
+		def ExtendAtStartQ(pcOtherStr)
+			This.ExtendAtStart(pcOtherStr)
+			return This
+
+	def ExtendFromStart(pcOtherStr)
+		This.Prepend(pcOtherStr)
+
+		def ExtendFromStartQ(pcOtherStr)
+			This.ExtendFromStart(pcOtherStr)
+			return This
+
+	  #--------------------------------#
+	 #   ALTERNATIVES OF Prepended()  #
+	#--------------------------------#
+
+	def AddedToStart(pcOtherStr)
+		return This.Prepended(pcOtherStr)
+
+	def AppendedFromStart(pcOtherStr)
+		return This.Prepended(pcOtherStr)
+
+	def AppendedAtStart(pcOtherStr)
+		return This.Prepended(pcOtherStr)
+
+	#--
+
+	def ExtendedToStart(pcOtherStr)
+		return This.Prepended(pcOtherStr)
+
+	def ExtendedFromStart(pcOtherStr)
+		return This.Prepended(pcOtherStr)
+
+	def ExtendedAtStart(pcOtherStr)
+		return This.Prepended(pcOtherStr)
+
+	  #--------------------------#
+	 #  ALTERNATIVES OF Find()  #
+	#--------------------------#
 
 	def FindAllOccurrencesCS(pcSubStr, pCaseSensitive)
 		return This.FindCS(pcSubStr, pCaseSensitive)
@@ -233,53 +484,53 @@ class stzStringAlt from stzString
 
 		#>
 
-	  #--------------------------------#
-	 #  ALTERNATIVES OF FindManyXT()  #
-	#--------------------------------#
+	  #-------------------------------#
+	 #  ALTERNATIVES OF FindManyZ()  #
+	#-------------------------------#
 
 	def TheseSubStringsAndTheirPositionsCS(pacSubStr, pCaseSensitive)
-		return This.FindManyXTCS(pacSubStr, pCaseSensitive)
+		return This.FindManyZCS(pacSubStr, pCaseSensitive)
 
-		def TheseSubStringsAndTheirPositionsCSQ(pCaseSensitive)
-			return This.FindManyXTCSQ(pacSubStr, pCaseSensitive)
+		def TheseSubStringsAndTheirPositionsCSQ(pacSubStr, pCaseSensitive)
+			return This.FindManyZCSQ(pacSubStr, pCaseSensitive)
 
 		def TheseSubStringsAndTheirPositionsCSQR(pacSubStr, pcReturnType)
-			return This.FindManyXTCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			return This.FindManyZCSQR(pacSubStr, pCaseSensitive, pcReturnType)
 
-	#--
+	#-- WITHOUT CASESENSITIVITY
 
 	def TheseSubStringsAndTheirPositions(pacSubStr)
-		return This.FindManyXT(pacSubStr)
+		return This.FindManyZ(pacSubStr)
 
 		def TheseSubStringsAndTheirPositionsQ(pacSubStr)
-			return This.FindManyXTQ(pacSubStr)
+			return This.FindManyZZQ(pacSubStr)
 
 		def TheseSubStringsAndTheirPositionsQR(pacSubStr, pcReturnType)
-			return This.FindManyXTQR(pacSubStr, pcReturnType)
+			return This.FindManyZQR(pacSubStr, pcReturnType)
 
-	  #---------------------------------#
-	 #  ALTERNATIVES OF FindManyXTT()  #
-	#---------------------------------#
+	  #--------------------------------#
+	 #  ALTERNATIVES OF FindManyZZ()  #
+	#--------------------------------#
 
 	def TheseSubStringsAndTheirSectionsCS(pacSubStr, pCaseSensitive)
-		return This.FindManyXTTCS(pacSubStr, pCaseSensitive)
+		return This.FindManyZZCS(pacSubStr, pCaseSensitive)
 
 		def TheseSubStringsAndTheirSectionsCSQ(pacSubStr, pCaseSensitive)
-			return This.FindManyXTTCSQ(pacSubStr, pCaseSensitive)
+			return This.FindManyZZCSQ(pacSubStr, pCaseSensitive)
 
 		def TheseSubStringsAndTheirSectionsCSQR(pacSubStr, pcReturnType)
-			return This.FindManyXTTCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			return This.FindManyZZCSQR(pacSubStr, pCaseSensitive, pcReturnType)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def TheseSubStringsAndTheirSections(pacSubStr)
-		return This.FindManyXTT(pacSubStr)
+		return This.FindManyZZ(pacSubStr)
 
 		def TheseSubStringsAndTheirSectionsQ(pacSubStr)
-			return This.FindManyXTTQ(pacSubStr)
+			return This.FindManyZZQ(pacSubStr)
 
 		def TheseSubStringsAndTheirSectionsQR(pacSubStr, pcReturnType)
-			return This.FindManyXTTQR(pacSubStr, pcReturnType)
+			return This.FindManyZZQR(pacSubStr, pcReturnType)
 
 	  #------------------------------------#
 	 #  ALTERNATIVES OF FindAsSections()  #
@@ -1542,7 +1793,340 @@ class stzStringAlt from stzString
 		def FindSeparatedByAsSectionsQR(pcSubStr, pcReturnType)
 			return This.FindSplittedByAsSectionsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)				
 
+	  #--------------------------------#
+	 #  ALTERNATIVE OF DeepBetween()  #
+	#--------------------------------#
 
+	def AnyDeepBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepBetweenCS(pcChar1, pcChar2, pCaseSensitive)
 
+	#--
 
+	def DeepSubStringsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepBetweenCS(pcChar1, pcChar2, pCaseSensitive)
 
+	def AnyDeepSubStringBetweenCS(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepSubStringsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSubStringBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+			return This.DeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSubStringBetweenCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+			return This.DeepSubStringsBetweenQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+
+	def AnyDeepSubStringsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepSubStringsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+			return This.DeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSubStringsBetweenCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+			return This.DeepSubStringsBetweenQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+
+	#-- Allowing the use of "SECTION" along with "SUBSTRING"
+
+	def DeepSectionsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepSubstringsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
+
+		def DeepSectionsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+			return This.DeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+
+	def AnyDeepSectionBetweenCS(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepSectionsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSectionBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+			return This.DeepSectionsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSectionBetweenCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+			return This.DeepSectionsBetweenQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+
+	def AnyDeepSectionsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepSectionsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSectionsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+			return This.DeepSectionsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepDeepSectionsBetweenCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+			return This.DeepDeepSectionsBetweenQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def AnyDeepBetweenQ(pcChar1, pcChar2)
+		return This.DeepSubStringsBetween(pcChar1, pcChar2)
+
+	#--
+
+	def AnyDeepSubStringBetween(pcChar1, pcChar2)
+		return This.DeepSubStringsBetween(pcChar1, pcChar2)
+
+		def AnyDeepSubStringBetweenQ(pcChar1, pcChar2)
+			return This.DeepSubStringsBetweenQ(pcChar1, pcChar2)
+
+		def AnyDeepSubStringBetweenQR(pcChar1, pcChar2, pcReturnType)
+			return This.DeepSubStringsBetweenQR(pcChar1, pcChar2, pcReturnType)
+
+	def AnyDeepSubStringsBetween(pcChar1, pcChar2)
+		return This.DeepSubStringsBetween(pcChar1, pcChar2)
+
+		def AnyDeepSubStringsBetweenQ(pcChar1, pcChar2)
+			return This.DeepSubStringsBetweenQ(pcChar1, pcChar2)
+
+		def AnyDeepSubStringsBetweenQR(pcChar1, pcChar2, pcReturnType)
+			return This.DeepSubStringsBetweenQR(pcChar1, pcChar2, pcReturnType)
+
+	#-- Allowing the use of "SECTION" along with "SUBSTRING"
+
+	def DeepSectionsBetween(pcChar1, pcChar2)
+		return This.DeepSubstringsBetween(pcChar1, pcChar2)
+
+		def DeepSectionsBetweenQ(pcChar1, pcChar2)
+			return This.DeepSubStringsBetweenQ(pcChar1, pcChar2)
+
+	def AnyDeepSectionBetween(pcChar1, pcChar2)
+		return This.DeepSectionsBetween(pcChar1, pcChar2)
+
+		def AnyDeepSectionBetweenQ(pcChar1, pcChar2)
+			return This.DeepSectionsBetweenQ(pcChar1, pcChar2)
+
+		def AnyDeepSectionBetweenQR(pcChar1, pcChar2, pcReturnType)
+			return This.DeepSectionsBetweenQR(pcChar1, pcChar2, pcReturnType)
+
+	def AnyDeepSectionsBetween(pcChar1, pcChar2)
+		return This.DeepSectionsBetween(pcChar1, pcChar2)
+
+		def AnyDeepSectionsBetweenQ(pcChar1, pcChar2)
+			return This.DeepSectionsBetweenQ(pcChar1, pcChar2)
+
+		def AnyDeepSectionsBetweenQR(pcChar1, pcChar2, pcReturnType)
+			return This.DeepSectionsBetweenQR(pcChar1, pcChar2, pcReturnType)
+
+	  #------------------------------------------#
+	 #  ALTERNATIVE OF DeepSubStringsBetween()  #
+	#------------------------------------------#
+
+	def AnyDeepBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepSubStringsBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepBetweenIBCSQ(pcChar1, pcChar2, pCaseSensitive)
+			return This.DeepSubStringsBetweenIBQCS(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepBetweenIBCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+			return This.DeepSubStringsBetweenIBQRCS(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+
+	def AnyDeepSubStringBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepSubStringsBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSubStringBetweenIBCSQ(pcChar1, pcChar2, pCaseSensitive)
+			return This.DeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSubStringBetweenIBCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+			return This.DeepSubStringsBetweenIBQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+
+	def AnyDeepSubStringsBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepSubStringsBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSubStringsBetweenIBCSQ(pcChar1, pcChar2, pCaseSensitive)
+			return This.DeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSubStringsBetweenIBCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+			return This.DeepSubStringsBetweenIBQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+
+	#-- Allowing the use of "SECTION" along with "SUBSTRING"
+
+	def DeepSectionsBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepSubstringsBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
+
+		def DeepSectionsBetweenIBCSQ(pcChar1, pcChar2, pCaseSensitive)
+			return This.DeepSubStringsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+
+	def AnyDeepSectionBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepSectionsBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSectionBetweenIBCSQ(pcChar1, pcChar2, pCaseSensitive)
+			return This.DeepSectionsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSectionBetweenIBCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+			return This.DeepSectionsBetweenIBQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+
+	def AnyDeepSectionsBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
+		return This.DeepSectionsBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepSectionsBetweenIBCSQ(pcChar1, pcChar2, pCaseSensitive)
+			return This.DeepSectionsBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
+
+		def AnyDeepDeepSectionsBetweenIBCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+			return This.DeepDeepSectionsBetweenIBQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def AnyDeepBetweenIB(pcChar1, pcChar2)
+		return This.DeepSubStringsBetweenIB(pcChar1, pcChar2)
+
+		def AnyDeepBetweenIBQ(pcChar1, pcChar2)
+			return This.DeepSubStringsBetweenIBQ(pcChar1, pcChar2)
+
+		def AnyDeepBetweenIBQR(pcChar1, pcChar2, pcReturnType)
+			return This.DeepSubStringsBetweenIBQR(pcChar1, pcChar2, pcReturnType)
+
+	def AnyDeepSubStringBetweenIB(pcChar1, pcChar2)
+		return This.DeepSubStringsBetweenIB(pcChar1, pcChar2)
+
+		def AnyDeepSubStringBetweenIBQ(pcChar1, pcChar2)
+			return This.DeepSubStringsBetweenIBQ(pcChar1, pcChar2)
+
+		def AnyDeepSubStringBetweenIBQR(pcChar1, pcChar2, pcReturnType)
+			return This.DeepSubStringsBetweenIBQR(pcChar1, pcChar2, pcReturnType)
+
+	def AnyDeepSubStringsBetweenIB(pcChar1, pcChar2)
+		return This.DeepSubStringsBetweenIB(pcChar1, pcChar2)
+
+		def AnyDeepSubStringsBetweenIBQ(pcChar1, pcChar2)
+			return This.DeepSubStringsBetweenIBQ(pcChar1, pcChar2)
+
+		def AnyDeepSubStringsBetweenIBQR(pcChar1, pcChar2, pcReturnType)
+			return This.DeepSubStringsBetweenIBQR(pcChar1, pcChar2, pcReturnType)
+
+	#-- Allowing the use of "SECTION" along with "SUBSTRING"
+
+	def DeepSectionsBetweenIB(pcChar1, pcChar2)
+		return This.DeepSubstringsBetweenIB(pcChar1, pcChar2)
+
+		def DeepSectionsBetweenIBQ(pcChar1, pcChar2)
+			return This.DeepSubStringsBetweenIBQ(pcChar1, pcChar2)
+
+	def AnyDeepSectionBetweenIB(pcChar1, pcChar2)
+		return This.DeepSectionsBetweenIB(pcChar1, pcChar2)
+
+		def AnyDeepSectionBetweenIBQ(pcChar1, pcChar2)
+			return This.DeepSectionsBetweenIBQ(pcChar1, pcChar2)
+
+		def AnyDeepSectionBetweenIBQR(pcChar1, pcChar2, pcReturnType)
+			return This.DeepSectionsBetweenIBQR(pcChar1, pcChar2, pcReturnType)
+
+	def AnyDeepSectionsBetweenIB(pcChar1, pcChar2)
+		return This.DeepSectionsBetweenIB(pcChar1, pcChar2)
+
+		def AnyDeepSectionsBetweenIBQ(pcChar1, pcChar2)
+			return This.DeepSectionsBetweenIBQ(pcChar1, pcChar2)
+
+		def AnyDeepSectionsBetweenIBQR(pcChar1, pcChar2, pcReturnType)
+			return This.DeepSectionsBetweenIBQR(pcChar1, pcChar2, pcReturnType)
+
+	  #--------------------------------------#
+	 #  ALTERNATIVE OF RemoveSubStringAt()  #
+	#--------------------------------------#
+
+	def RemoveAtCS(n, pcSubStr, pCaseSensitive)
+		This.RemoveSubStringAtCS(n, pcSubStr, pCaseSensitive)
+
+		def RemoveAtCSQ(n, pcSubStr, pCaseSensitive)
+			This.RemoveAtCS(n, pcSubStr, pCaseSensitive)
+			return This
+
+	def RemoveAtPositionCS(n, pcSubStr, pCaseSensitive)
+		This.RemoveSubStringAtCS(n, pcSubStr, pCaseSensitive)
+
+		def RemoveAtPositionCSQ(n, pcSubStr, pCaseSensitive)
+			This.RemoveAtPositionCS(n, pcSubStr, pCaseSensitive)
+			return This
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveAt(n, pcSubStr)
+		This.RemoveSubStringAtPosition(n, pcSubStr)
+
+		def RemoveAtQ(n, pcSubStr)
+			This.RemoveAt(n, pcSubStr)
+			return This
+
+	def RemoveAtPosition(n, pcSubStr)
+		This.RemoveSubStringAtPosition(n, pcSubStr)
+
+		def RemoveAtPositionQ(n, pcSubStr)
+			This.RemoveAtPosition(n, pcSubStr)
+			return This
+
+	  #---------------------------------#
+	 #  ALTERNATIVE OF ContainsSome()  #
+	#---------------------------------#
+
+	def ContainsOneOrMoreOccurrencesCS(paSubStr, pCaseSensitive)
+		return This.ContainsSomeCS(paSubStr, pCaseSensitive)
+
+	def ContainsOneOrMoreOfTheseCS(paSubStr, pCaseSensitive)
+		return This.ContainsSomeCS(paSubStr, pCaseSensitive)
+
+	def ContainsSomeOfTheseCS(paSubStr, pCaseSensitive)
+		return This.ContainsSomeCS(paSubStr, pCaseSensitive)
+
+	#--
+
+	 def ContainsOneOrMoreOfTheseSubStringsCS(paSubStr, pCaseSensitive)
+		return This.ContainsSomeCS(paSubStr, pCaseSensitive)
+
+	def ContainsSomeOfTheseSubStringsCS(paSubStr, pCaseSensitive)
+		return This.ContainsSomeCS(paSubStr, pCaseSensitive)
+
+	#--
+
+	def ContainsOneOrMoreSubStringOfCS(paSubStr, pCaseSensitive)
+		return This.ContainsSomeCS(paSubStr, pCaseSensitive)
+
+	def ContainsOneOrMoreSubStringOfTheseCS(paSubStr, pCaseSensitive)
+		return This.ContainsSomeCS(paSubStr, pCaseSensitive)
+
+	#--
+
+	def ContainsManyOccurrencesCS(pcSubstr, pCaseSensitive)
+		return This.ContainsSomeCS(pcSubstr, pCaseSensitive)
+		
+	def ContainsManyCS(pcSubStr, pCaseSensitive)
+		return This.ContainsSomeCS(pcSubstr, pCaseSensitive)
+		
+	def ContainsSomeOccurrencesCS(pcSubstr, pCaseSensitive)
+		return This.ContainsSomeCS(pcSubstr, pCaseSensitive)
+				
+	def ContainsMoreThenOneCS(pcSubStr, pCaseSensitive)
+		return This.ContainsSomeCS(pcSubstr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsOneOrMoreOccurrences(paSubStr)
+		return This.ContainsSome(paSubStr)
+
+	def ContainsOneOrMoreOfThese(paSubStr)
+		return This.ContainsSome(paSubStr)
+
+	def ContainsSomeOfThese(paSubStr)
+		return This.ContainsSome(paSubStr)
+
+	#--
+
+	 def ContainsOneOrMoreOfTheseSubStrings(paSubStr)
+		return This.ContainsSome(paSubStr)
+
+	def ContainsSomeOfTheseSubStrings(paSubStr)
+		return This.ContainsSome(paSubStr)
+
+	#--
+
+	def ContainsOneOrMoreSubStringOf(paSubStr)
+		return This.ContainsSome(paSubStr)
+
+	def ContainsOneOrMporeSubStringOfThese(paSubStr)
+		return This.ContainsSome(paSubStr)
+
+	#--
+
+	def ContainsManyOccurrences(pcSubstr)
+		return This.ContainsSome(pcSubstr)
+		
+	def ContainsMany(pcSubStr)
+		return This.ContainsSome(pcSubstr)
+		
+	def ContainsSomeOccurrences(pcSubstr)
+		return This.ContainsSome(pcSubstr)
+				
+	def ContainsMoreThenOne(pcSubStr)
+		return This.ContainsSome(pcSubstr)
+	

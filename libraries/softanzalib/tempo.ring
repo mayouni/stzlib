@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-/*--------------
+/*================
 
 pron()
 
@@ -42,7 +42,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7" ])
@@ -71,8 +71,8 @@ o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7" ])
 proff()
 # Executed in 0.02 second(s)
 
-/*-----------
-
+/*=============
+*/
 pron()
 
 # Let's take this string of text:
