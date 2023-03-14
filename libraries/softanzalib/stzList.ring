@@ -25770,6 +25770,26 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsBetweenIBSNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenIBS )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBetweenSNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenS )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsBetweenCSNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :BetweenCS )

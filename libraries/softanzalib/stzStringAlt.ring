@@ -1769,9 +1769,9 @@ class stzStringAlt from stzString
 		def AnySectionsBoundedByQR(pacBounds,  pcReturnType)
 			return This.SectionsBoundedByQR(pacBounds,  pcReturnType)
 
-	  #---------------------------------------------#
-	 #  ALTERNATIVE OF FindSplittedByAsSections()  #
-	#---------------------------------------------#
+	  #----------------------------------------------#
+	 #  ALTERNATIVES OF FindSplittedByAsSections()  #
+	#----------------------------------------------#
 
 	def FindSeparatedByAsSectionsCS(pcSubStr, pCaseSensitive)
 		return This.FindSplittedByAsSectionsCS(pcSubStr, pCaseSensitive)
@@ -1793,9 +1793,9 @@ class stzStringAlt from stzString
 		def FindSeparatedByAsSectionsQR(pcSubStr, pcReturnType)
 			return This.FindSplittedByAsSectionsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)				
 
-	  #--------------------------------#
-	 #  ALTERNATIVE OF DeepBetween()  #
-	#--------------------------------#
+	  #---------------------------------#
+	 #  ALTERNATIVES OF DeepBetween()  #
+	#---------------------------------#
 
 	def AnyDeepBetweenCSQ(pcChar1, pcChar2, pCaseSensitive)
 		return This.DeepBetweenCS(pcChar1, pcChar2, pCaseSensitive)
@@ -1900,9 +1900,9 @@ class stzStringAlt from stzString
 		def AnyDeepSectionsBetweenQR(pcChar1, pcChar2, pcReturnType)
 			return This.DeepSectionsBetweenQR(pcChar1, pcChar2, pcReturnType)
 
-	  #------------------------------------------#
-	 #  ALTERNATIVE OF DeepSubStringsBetween()  #
-	#------------------------------------------#
+	  #-------------------------------------------#
+	 #  ALTERNATIVES OF DeepSubStringsBetween()  #
+	#-------------------------------------------#
 
 	def AnyDeepBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
 		return This.DeepSubStringsBetweenIBCS(pcChar1, pcChar2, pCaseSensitive)
@@ -2012,9 +2012,9 @@ class stzStringAlt from stzString
 		def AnyDeepSectionsBetweenIBQR(pcChar1, pcChar2, pcReturnType)
 			return This.DeepSectionsBetweenIBQR(pcChar1, pcChar2, pcReturnType)
 
-	  #--------------------------------------#
-	 #  ALTERNATIVE OF RemoveSubStringAt()  #
-	#--------------------------------------#
+	  #---------------------------------------#
+	 #  ALTERNATIVES OF RemoveSubStringAt()  #
+	#---------------------------------------#
 
 	def RemoveAtCS(n, pcSubStr, pCaseSensitive)
 		This.RemoveSubStringAtCS(n, pcSubStr, pCaseSensitive)
@@ -2046,9 +2046,9 @@ class stzStringAlt from stzString
 			This.RemoveAtPosition(n, pcSubStr)
 			return This
 
-	  #---------------------------------#
-	 #  ALTERNATIVE OF ContainsSome()  #
-	#---------------------------------#
+	  #----------------------------------#
+	 #  ALTERNATIVES OF ContainsSome()  #
+	#----------------------------------#
 
 	def ContainsOneOrMoreOccurrencesCS(paSubStr, pCaseSensitive)
 		return This.ContainsSomeCS(paSubStr, pCaseSensitive)
@@ -2130,3 +2130,609 @@ class stzStringAlt from stzString
 	def ContainsMoreThenOne(pcSubStr)
 		return This.ContainsSome(pcSubstr)
 	
+	  #--------------------------------------#
+	 #  ALTERNATIVES OF RemoveAnyBetween()  #
+	#--------------------------------------#
+
+	def RemoveSubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveSubStringsBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveSubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySubStringBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySubStringBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySubStringBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySubStringsBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	#--
+
+	def RemoveAnyBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnyBoundedByCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnyBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveSubStringsBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveSubStringsBoundedByCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveSubStringsBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySubStringBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySubStringBoundedByCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySubStringBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySubStringsBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySubStringsBoundedByCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySubStringsBoundedByCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	#-- Allowing the use of "SECTION" instead of "SUBSTRING"
+
+	def RemoveSectionsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveSectionsBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveSectionsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySectionBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySectionBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySectionBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySectionsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySectionsBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySectionsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	#--
+
+	def RemoveSectionsBoundedByCS(paBounds, pCaseSensitive)
+		This.RemoveBetweenByCS(paBounds[1], paBounds[2], pCaseSensitive)
+
+		def RemoveSectionsBoundedByCSQ(paBounds, pCaseSensitive)
+			This.RemoveSectionsBoundedByCS(paBounds, pCaseSensitive)
+			return This
+
+	def RemoveAnySectionBoundedByCS(paBounds, pCaseSensitive)
+		This.RemoveAnyBetweenCS(paBounds[1], paBounds[2], pCaseSensitive)
+
+		def RemoveAnySectionBoundedByCSQ(paBounds, pCaseSensitive)
+			This.RemoveAnySectionBoundedByCS(paBounds, pCaseSensitive)
+			return This
+
+	def RemoveAnySectionsBoundedByCS(paBounds, pCaseSensitive)
+		This.RemoveBetweenByCS(paBounds[1], paBounds[2], pCaseSensitive)
+
+		def RemoveAnySectionsBoundedByCSQ(paBounds, pCaseSensitive)
+			This.RemoveAnySectionsBoundedByCS(paBounds, pCaseSensitive)
+			return This
+	
+	#-- WTHOUT CASESENSITIVITY
+
+	def RemoveSubStringsBetween(pcBound1, pcBound2)
+		This.RemoveAnyBetween(pcBound1, pcBound2)
+
+		def RemoveSubStringsBetweenQ(pcBound1, pcBound2)
+			This.RemoveSubStringsBetween(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySubStringBetween(pcBound1, pcBound2)
+		This.RemoveAnyBetween(pcBound1, pcBound2)
+
+		def RemoveAnySubStringBetweenQ(pcBound1, pcBound2)
+			This.RemoveAnySubStringBetween(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySubStringsBetween(pcBound1, pcBound2)
+		This.RemoveAnyBetween(pcBound1, pcBound2)
+
+		def RemoveAnySubStringsBetweenQ(pcBound1, pcBound2)
+			This.RemoveAnySubStringsBetween(pcBound1, pcBound2)
+			return This
+
+	#--
+
+	def RemoveAnyBoundedBy(pcBound1, pcBound2)
+		This.RemoveBoundedBy(pcBound1, pcBound2)
+
+		def RemoveAnyBoundedByQ(pcBound1, pcBound2)
+			This.RemoveAnyBoundedBy(pcBound1, pcBound2)
+			return This
+
+	def RemoveSubStringsBoundedBy(pcBound1, pcBound2)
+		This.RemoveBoundedBy(pcBound1, pcBound2)
+
+		def RemoveSubStringsBoundedByQ(pcBound1, pcBound2)
+			This.RemoveSubStringsBoundedBy(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySubStringBoundedBy(pcBound1, pcBound2)
+		This.RemoveBoundedBy(pcBound1, pcBound2)
+
+		def RemoveAnySubStringBoundedByQ(pcBound1, pcBound2)
+			This.RemoveAnySubStringBoundedBy(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySubStringsBoundedBy(pcBound1, pcBound2)
+		This.RemoveBoundedBy(pcBound1, pcBound2)
+
+		def RemoveAnySubStringsBoundedByQ(pcBound1, pcBound2)
+			This.RemoveAnySubStringsBoundedBy(pcBound1, pcBound2)
+			return This
+
+	#-- Allowing the use of "SECTION" instead of "SUBSTRING"
+
+	def RemoveSectionsBetween(pcBound1, pcBound2)
+		This.RemoveAnyBetween(pcBound1, pcBound2)
+
+		def RemoveSectionsBetweenQ(pcBound1, pcBound2)
+			This.RemoveSectionsBetween(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySectionBetween(pcBound1, pcBound2)
+		This.RemoveAnyBetween(pcBound1, pcBound2)
+
+		def RemoveAnySectionBetweenQ(pcBound1, pcBound2)
+			This.RemoveAnySectionBetween(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySectionsBetween(pcBound1, pcBound2)
+		This.RemoveAnyBetween(pcBound1, pcBound2)
+
+		def RemoveAnySectionsBetweenQ(pcBound1, pcBound2)
+			This.RemoveAnySectionsBetween(pcBound1, pcBound2)
+			return This
+
+	#--
+
+	def RemoveSectionsBoundedBy(paBounds)
+		This.RemoveBetweenBy(paBounds[1], paBounds[2])
+
+		def RemoveSectionsBoundedByQ(paBounds)
+			This.RemoveSectionsBoundedBy(paBounds)
+			return This
+
+	def RemoveAnySectionBoundedBy(paBounds)
+		This.RemoveAnyBetween(paBounds[1], paBounds[2])
+
+		def RemoveAnySectionBoundedByQ(paBounds)
+			This.RemoveAnySectionBoundedBy(paBounds)
+			return This
+
+	def RemoveAnySectionsBoundedBy(paBounds)
+		This.RemoveBetweenBy(paBounds[1], paBounds[2])
+
+		def RemoveAnySectionsBoundedByQ(paBounds)
+			This.RemoveAnySectionsBoundedBy(paBounds)
+			return This
+
+	  #---------------------------------------#
+	 #  ALTERNATIVES OF AnyBetweenRemoved()  #
+	#---------------------------------------#
+
+	def SubStringsBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def AnySubStringBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def AnySubStringsBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+
+	#--
+
+	def AnyBoundedByRemovedCS(paBounds, pCaseSensitive)
+		return This.AnyBetweenRemovedCS(paBounds[1], paBounds[2], pCaseSensitive)
+
+	def SubStringsBoundedByRemovedCS(paBounds, pCaseSensitive)
+		return This.AnyBetweenRemovedCS(paBounds[1], paBounds[2], pCaseSensitive)
+
+	def AnySubStringBoundedByRemovedCS(paBounds, pCaseSensitive)
+		return This.AnyBetweenRemovedCS(paBounds[1], paBounds[2], pCaseSensitive)
+
+	def AnySubStringsBoundedByRemovedCS(paBounds, pCaseSensitive)
+		return This.AnyBetweenRemovedCS(paBounds[1], paBounds[2], pCaseSensitive)
+
+	#-- Allowing the use of "SECTION" instead of "SUBSTRING"
+
+	def AnySectionBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def AnySectionsBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+
+	#--
+
+	def SectionsBoundedByRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def AnySectionBoundedByRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def AnySectionsBoundedByRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenRemoved(pcBound1, pcBound2)
+		return This.AnyBetweenRemoved(pcBound1, pcBound2)
+
+	def AnySubStringBetweenRemoved(pcBound1, pcBound2)
+		return This.AnyBetweenRemoved(pcBound1, pcBound2)
+
+	def AnySubStringsBetweenRemoved(pcBound1, pcBound2)
+		return This.AnyBetweenRemoved(pcBound1, pcBound2)
+
+	#--
+
+	def AnyBoundedByRemoved(paBounds)
+		return This.AnyBetweenRemoved(paBounds[1], paBounds[2])
+
+	def SubStringsBoundedByRemoved(paBounds)
+		return This.AnyBetweenRemoved(paBounds[1], paBounds[2])
+
+	def AnySubStringBoundedByRemoved(paBounds)
+		return This.AnyBetweenRemoved(paBounds[1], paBounds[2])
+
+	def AnySubStringsBoundedByRemoved(paBounds)
+		return This.AnyBetweenRemoved(paBounds[1], paBounds[2])
+
+	#-- Allowing the use of "SECTION" instead of "SUBSTRING"
+
+	def AnySectionBetweenRemoved(pcBound1, pcBound2)
+		return This.AnyBetweenRemoved(pcBound1, pcBound2)
+
+	def AnySectionsBetweenRemoved(pcBound1, pcBound2)
+		return This.AnyBetweenRemoved(pcBound1, pcBound2)
+
+	#--
+
+	def SectionsBoundedByRemoved(pcBound1, pcBound2)
+		return This.AnyBetweenRemoved(pcBound1, pcBound2)
+
+	def AnySectionBoundedByRemoved(pcBound1, pcBound2)
+		return This.AnyBetweenRemoved(pcBound1, pcBound2)
+
+	def AnySectionsBoundedByRemoved(pcBound1, pcBound2)
+		return This.AnyBetweenRemoved(pcBound1, pcBound2)
+
+	  #-----------------------------------#
+	 #  ALTERNATIVES OF RemoveBetween()  #
+	#-----------------------------------#
+
+	def RemoveThisBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveBetweenCS(pcSubStr,pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveThisBetweenCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveThisBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveThisSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+		This.RemoveBetweenCS(pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
+
+		def RemoveThisSubStringBoundedByCSQ(pcSubStr, pacBounds, pCaseSensitive)
+			This.RemoveThisSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This
+
+	#--
+
+	def RemoveSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveBetweenCS(pcSubStr,pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveSubStringBetweenCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+		This.RemoveBetweenCS(pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
+
+		def RemoveSubStringBoundedByCSQ(pcSubStr, pacBounds, pCaseSensitive)
+			This.RemoveSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This
+
+	#--
+
+	def RemoveThisSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveBetweenCS(pcSubStr,pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveThisSubStringBetweenCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveThisBetween(pcSubStr, pcBound1, pcBound2)
+		This.RemoveBetween(pcSubStr,pcBound1, pcBound2)
+
+		def RemoveThisBetweenQ(pcSubStr, pcBound1, pcBound2)
+			This.RemoveThisBetween(pcSubStr, pcBound1, pcBound2)
+			return This
+
+	def RemoveThisSubStringBoundedBy(pcSubStr, pacBounds)
+		This.RemoveBetween(pcSubStr, pacBounds[1], pacBounds[2])
+
+		def RemoveThisSubStringBoundedByQ(pcSubStr, pacBounds)
+			This.RemoveThisSubStringBoundedBy(pcSubStr, pacBounds)
+			return This
+
+	#--
+
+	def RemoveSubStringBetween(pcSubStr, pcBound1, pcBound2)
+		This.RemoveBetween(pcSubStr,pcBound1, pcBound2)
+
+		def RemoveSubStringBetweenQ(pcSubStr, pcBound1, pcBound2)
+			This.RemoveSubStringBetween(pcSubStr, pcBound1, pcBound2)
+			return This
+
+	def RemoveSubStringBoundedBy(pcSubStr, pacBounds)
+		This.RemoveBetween(pcSubStr, pacBounds[1], pacBounds[2])
+
+		def RemoveSubStringBoundedByQ(pcSubStr, pacBounds)
+			This.RemoveSubStringBoundedBy(pcSubStr, pacBounds)
+			return This
+
+	#--
+
+	def RemoveThisSubStringBetween(pcSubStr, pcBound1, pcBound2)
+		This.RemoveBetween(pcSubStr,pcBound1, pcBound2)
+
+		def RemoveThisSubStringBetweenQ(pcSubStr, pcBound1, pcBound2)
+			This.RemoveSubStringBetween(pcSubStr, pcBound1, pcBound2)
+			return This
+
+	  #--------------------------------------#
+	 #  ALTERNATIVES OF RemoveAnyBetween()  #
+	#--------------------------------------#
+
+	def RemoveSubStringsBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveSubStringsBetweenIBCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveSubStringsBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySubStringBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySubStringBetweenIBCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySubStringBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySubStringsBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySubStringsBetweenIBCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySubStringsBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	#--
+
+	def RemoveSubStringsBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveSubStringsBoundedByIBCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveSubStringsBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySubStringBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySubStringBoundedByIBCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySubStringBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySubStringsBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySubStringsBoundedByIBCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySubStringsBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	#-- Allowing the use of "SECTION" instead of "SUBSTRING"
+
+	def RemoveSectionsBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveSectionsBetweenIBCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveSectionsBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySectionBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySectionBetweenIBCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySectionBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySectionsBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySectionsBetweenIBCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySectionsBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	#--
+
+	def RemoveSectionsBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveSectionsBoundedByIBCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveSectionsBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySectionBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySectionBoundedByIBCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySectionBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	def RemoveAnySectionsBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def RemoveAnySectionsBoundedByIBCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnySectionsBoundedByIBCS(pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveSubStringsBetweenIB(pcBound1, pcBound2)
+		This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+		def RemoveSubStringsBetweenIBQ(pcBound1, pcBound2)
+			This.RemoveSubStringsBetweenIB(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySubStringBetweenIB(pcBound1, pcBound2)
+		This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+		def RemoveAnySubStringBetweenIBQ(pcBound1, pcBound2)
+			This.RemoveAnySubStringBetweenIB(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySubStringsBetweenIB(pcBound1, pcBound2)
+		This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+		def RemoveAnySubStringsBetweenIBQ(pcBound1, pcBound2)
+			This.RemoveAnySubStringsBetweenIB(pcBound1, pcBound2)
+			return This
+
+	#--
+
+	def RemoveSubStringsBoundedByIB(pcBound1, pcBound2)
+		This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+		def RemoveSubStringsBoundedByIBQ(pcBound1, pcBound2)
+			This.RemoveSubStringsBoundedByIB(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySubStringBoundedByIB(pcBound1, pcBound2)
+		This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+		def RemoveAnySubStringBoundedByIBQ(pcBound1, pcBound2)
+			This.RemoveAnySubStringBoundedByIB(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySubStringsBoundedByIB(pcBound1, pcBound2)
+		This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+		def RemoveAnySubStringsBoundedByIBQ(pcBound1, pcBound2)
+			This.RemoveAnySubStringsBoundedByIB(pcBound1, pcBound2)
+			return This
+
+	#-- Allowing the use of "SECTION" instead of "SUBSTRING"
+
+	def RemoveSectionsBetweenIB(pcBound1, pcBound2)
+		This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+		def RemoveSectionsBetweenIBQ(pcBound1, pcBound2)
+			This.RemoveSectionsBetweenIB(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySectionBetweenIB(pcBound1, pcBound2)
+		This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+		def RemoveAnySectionBetweenIBQ(pcBound1, pcBound2)
+			This.RemoveAnySectionBetweenIB(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySectionsBetweenIB(pcBound1, pcBound2)
+		This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+		def RemoveAnySectionsBetweenIBQ(pcBound1, pcBound2)
+			This.RemoveAnySectionsBetweenIB(pcBound1, pcBound2)
+			return This
+
+	#--
+
+	def RemoveSectionsBoundedByIB(pcBound1, pcBound2)
+		This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+		def RemoveSectionsBoundedByIBQ(pcBound1, pcBound2)
+			This.RemoveSectionsBoundedByIB(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySectionBoundedByIB(pcBound1, pcBound2)
+		This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+		def RemoveAnySectionBoundedByIBQ(pcBound1, pcBound2)
+			This.RemoveAnySectionBoundedByIB(pcBound1, pcBound2)
+			return This
+
+	def RemoveAnySectionsBoundedByIB(pcBound1, pcBound2)
+		This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+		def RemoveAnySectionsBoundedByIBQ(pcBound1, pcBound2)
+			This.RemoveAnySectionsBoundedByIB(pcBound1, pcBound2)
+			return This
+
+	  #-----------------------------------------#
+	 #  ALTERNATIVES OF AnyBetweenRemovedIB()  #
+	#-----------------------------------------#
+
+	def SubStringsBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def AnySubStringBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def AnySubStringsBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+	#--
+
+	def AnyBoundedByRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def SubStringsBoundedByRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def AnySubStringBoundedByRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def AnySubStringsBoundedByRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+	#-- Allowing the use of "SECTION" instead of "SUBSTRING"
+
+	def AnySectionBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def AnySectionsBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+	#--
+
+	def SectionsBoundedByRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def AnySectionBoundedByRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def AnySectionsBoundedByRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.AnyBetweenRemovedIBCS(pcBound1, pcBound2, pCaseSensitive)
+
