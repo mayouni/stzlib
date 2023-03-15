@@ -6662,13 +6662,459 @@ o1 = new stzString("MustHave@32@CharsAnd@8@Spaces")
 o1 = new stzString("MustHave32CharsAnd8Spaces")
 ? @@( o1.SubstringsBetween("@","@") ) #--> [ ]
 
+/*======== REMOVE XT ==================================================
 
+StartProfiler()
+	
+	o1 = new stzString("Ring programming♥ language")
+	o1.RemoveXT("♥", :From = "programming♥")
+	
+	? o1.Content()
+	#--> Ring programming language
+	
+StopProfiler()
+# Executed in 0.02 second(s)
+	
+/*----------------
+	
+StartProfiler()
+	
+	o1 = new stzString("Ring *progr*amming* language")
+	o1.RemoveXT( :Each = "*", :From = "*progr*amming*")
+	
+	? o1.Content()
+	#--> Ring programming language
+	
+StopProfiler()
+# Executed in 0.02 second(s)
+	
+/*----------------
 
-///////////////////////////////////////////////////////////////////////////////////////////
-////////////////////                                       ////////////////////////////////
-////////////////////            TO BE FIXED LATER          ////////////////////////////////
-////////////////////                                       ////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////
+StartProfiler()
+	
+	o1 = new stzString("Ring *progr*amming* language")
+	o1.RemoveXT( :Nth = [ 2, "*" ], :From = "*progr*amming*")
+	
+	? o1.Content()
+	#--> Ring *programming* language
+	
+StopProfiler()
+# Executed in 0.02 second(s)
+	
+/*----------------
+
+StartProfiler()
+	
+	o1 = new stzString("Ring *progr*amming* language")
+	o1.RemoveXT( :First = "*", :From = "*progr*amming*")
+	
+	? o1.Content()
+	#--> Ring progr*amming* language
+	
+StopProfiler()
+# Executed in 0.02 second(s)
+	
+/*----------------
+
+StartProfiler()
+	
+	o1 = new stzString("Ring *progr*amming* language")
+	o1.RemoveXT( :Last = "*", :From = "*progr*amming*")
+	
+	? o1.Content()
+	#--> Ring *progr*amming language
+	
+StopProfiler()
+# Executed in 0.02 second(s)
+	
+/*----------------
+
+StartProfiler()
+	
+	o1 = new stzString("Ring *progr*amming* language")
+	o1.RemoveXT( :Nth = [ [1,3], "*" ], :From = "*progr*amming*")
+	
+	? o1.Content()
+	#--> Ring progr*amming language
+	
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*==---------
+
+StartProfiler()
+	
+	o1 = new stzString("programming*")
+	o1.RemoveFromEnd("*")
+	? o1.Content()
+	#--> programming
+
+StopProfiler()
+# Executed in 0.01 second(s)
+
+/*======== REMOVING AFTER
+
+StartProfiler()
+	
+Q("Ring programming* language.") {
+	
+	RemoveXT("*", :After = "programming")
+	? Content()
+	#--> Ring programming language.
+	
+}
+	
+StopProfiler()
+#--> Executed in 0.04 second(s)
+	
+/*-----------
+
+StartProfiler()
+	
+Q("__♥)__♥)__♥)__") {
+	
+	RemoveXT( ")", :AfterEach = "♥" ) # ... you can also say :After = "♥"
+	? Content()
+	#--> __♥__♥__♥__
+}
+	
+StopProfiler()
+# Executed in 0.04 second(s)
+	
+/*-----------
+
+StartProfiler()
+	
+Q("__♥__♥)__♥__") {
+	
+	RemoveXT( ")", :AfterNth = [2, "♥"] )
+	? Content()
+	#--> __♥__♥__♥__
+	
+}
+	
+StopProfiler()
+# Executed in 0.04 second(s)
+	
+/*-----------------
+
+StartProfiler()
+	
+Q("__♥)__♥__♥__") {
+
+	RemoveXT( ")", :AfterFirst = "♥" )
+	? Content()
+	#--> __♥__♥__♥__
+}
+	
+StopProfiler()
+# Executed in 0.04 second(s)
+	
+/*-----------------
+
+StartProfiler()
+	
+Q("__♥__♥__♥)__") {
+	
+	RemoveXT( ")", :AfterLast = "♥" )
+	? Content()
+	#--> __♥__♥__♥__
+}
+	
+StopProfiler()
+# Executed in 0.05 second(s)
+
+/*========== REMOVING BEFORE
+
+StartProfiler()
+	
+Q("Ring ***programming language.") {
+	
+	RemoveXT("***", :Before = "programming")
+	? Content()
+	#--> Ring programming language.
+	
+}
+	
+StopProfiler()
+#--> Executed in 0.05 second(s)
+	
+/*-----------
+
+StartProfiler()
+	
+Q("__(♥__(♥__(♥__") {
+
+	RemoveXT( "(", :BeforeEach = "♥" ) # ... you can also say :Before = "♥"
+	? Content()
+	#--> __♥__♥__♥__
+}
+	
+StopProfiler()
+# Executed in 0.04 second(s)
+	
+/*-----------
+
+StartProfiler()
+	
+Q("__♥__(♥__♥__") {
+	
+	RemoveXT( "(", :BeforeNth = [2, "♥"] )
+	? Content()
+	#--> __♥__♥__♥__
+
+}
+	
+StopProfiler()
+# Executed in 0.07 second(s)
+	
+/*-----------------
+
+StartProfiler()
+	
+Q("__(♥__♥__♥__") {
+
+	RemoveXT( "(", :BeforeFirst = "♥" )
+	? Content()
+	#--> __♥__♥__♥__
+}
+	
+StopProfiler()
+# Executed in 0.07 second(s)
+	
+/*-----------------
+
+StartProfiler()
+	
+Q("__♥__♥__(♥__") {
+	
+	RemoveXT( "(", :BeforeLast = "♥" )
+	? Content()
+	#--> __♥__♥__♥__
+}
+	
+StopProfiler()
+# Executed in 0.07 second(s)
+	
+/*------- REMOVING AROUND
+
+StartProfiler()
+	
+Q("_-♥-_-♥-_-♥-_") {
+	
+	RemoveXT("-", :AroundEach = "♥") # Or simply :Around
+	? Content()
+	#--> _♥_♥_♥_
+}
+	
+StopProfiler()
+# Executed in 0.07 second(s)
+
+/*-----------------
+
+StartProfiler()
+	
+Q("__/♥\__/♥\__/♥\__") {
+	
+	RemoveXT([ "/","\" ], :Around = "♥") # or just :AroundEach = "♥" if you want
+	? Content()
+	#--> __♥__♥__♥__
+}
+	
+StopProfiler()
+# Executed in 0.06 second(s)
+
+/*-----------------
+
+StartProfiler()
+	
+Q("__♥__/♥\__♥__") {
+
+	RemoveXT([ "/","\" ], :AroundNth = [2, "♥"])
+	? Content()
+	#--> __♥__♥__♥__
+}
+	
+StopProfiler()
+# Executed in 0.06 second(s)
+
+/*-----------------
+
+StartProfiler()
+	
+Q("__/♥\__♥__♥__") {
+	
+	RemoveXT( [ "/","\" ], :AroundFirst = "♥" )
+	? Content()
+	#--> __♥__♥__♥__
+}
+	
+StopProfiler()
+# Executed in 0.10 second(s)
+	
+/*-----------------
+
+StartProfiler()
+	
+Q("__♥__♥__/♥\__") {
+	
+	RemoveXT( [ "/","\" ], :AroundLast = "♥" )
+	? Content()
+	#--> __♥__♥__♥__
+}
+	
+StopProfiler()
+# Executed in 0.10 second(s)
+
+/*---------
+
+StartProfiler()
+
+	Q("/♥♥♥\__/\/\__/♥♥♥\__") {
+		RemoveXT("♥♥♥", :Between = ["/", :And = "\"])
+		? Content()
+		#--> /\__/\/\__/\__
+	}
+
+StopProfiler()
+# Executed in 0.08 second(s)
+
+/*---------
+
+StartProfiler()
+
+	Q("__/\/\__/♥\__") {
+		RemoveXT("♥", :BetweenIB = ["/", "\"]) # BetweenIB -> Bounds are also removed
+		? Content()
+		#--> __/\/\____
+	}
+
+StopProfiler()
+# Executed in 0.09 second(s)
+
+/*---------
+
+StartProfiler()
+
+	Q("__^^^__^^♥^^__") {
+		RemoveXT("♥", :BoundedBy = "^^")
+		? Content()
+		#--> __^^^__^^^^__
+	}
+
+StopProfiler()
+# Executed in 0.09 second(s)
+
+/*---------
+
+StartProfiler()
+
+	Q("__/\/\__^^♥^^__") {
+		RemoveXT("♥", :BoundedByIB = "^^")
+		? Content()
+		#--> __/\/\____
+	}
+
+StopProfiler()
+# Executed in 0.12 second(s)
+
+/*---------
+
+StartProfiler()
+
+	Q("/♥^♥\__/♥\/vv\__/^^^\__") {
+		RemoveXT([], :Between = ["/", :And = "\"])
+		? Content()
+		#--> /\__/\/\__/\__
+	}
+
+StopProfiler()
+# Executed in 0.08 second(s)
+
+/*---------
+
+StartProfiler()
+
+	Q("/♥^♥\__/♥\/vv\__/^^^\__") {
+		RemoveXT([], :BetweenIB = ["/", :And = "\"])
+		? Content()
+		#--> ______
+	}
+
+StopProfiler()
+# Executed in 0.08 second(s)
+
+/*---------
+
+StartProfiler()
+
+	Q("/♥♥♥\__/♥\/♥♥\__/♥\__") {
+		RemoveXT("♥", [])
+		? Content()
+		#--> /\__/\/\__/\__
+	}
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*---------
+
+StartProfiler()
+
+	Q("/♥♥♥\__/♥\/♥♥\__/♥\__") {
+		RemoveXT([], "♥")
+		? Content()
+		#--> /\__/\/\__/\__
+	}
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*---------
+
+StartProfiler()
+
+	Q("_/♥\_/♥\_/♥♥\_/♥\_") {
+		RemoveXT(:Nth = 4, "♥")
+		? Content()
+		#--> _/♥\_/♥\_/♥\_/♥\_
+	}
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*---------
+
+StartProfiler()
+
+	Q("^^♥^^") {
+		RemoveXT( "♥", :AtPosition = 3)
+		? Content()
+		#--> ^^^^
+	}
+
+StopProfiler()
+# Executed in 0.04 second(s)
+
+/*---------
+
+StartProfiler()
+
+	Q("♥^^♥^^♥") {
+		RemoveXT( "♥", :AtPositions = [1, 7]) # or :At = [1, 7]
+		? Content()
+		#--> ^^♥^^
+	}
+
+StopProfiler()
+# Executed in 0.08 second(s)
+
+                 ///////////////////////////////////////////////
+                //                              ///////////////
+      ///////////      TO BE FIXED LATER       /////////////
+ ///////////////                              //
+///////////////////////////////////////////////
+
 /*---------------- TODO : AFTER CONSTRAINT IMPLEMENTED
 
 aList = [
