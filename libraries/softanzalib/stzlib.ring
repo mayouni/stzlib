@@ -36,8 +36,6 @@ load "stzOctalNumber.ring"
 load "stzOctalNumberError.ring"
 
 load "stzString.ring"
-load "stzStringAlt.ring"
-
 load "stzStringError.ring"
 load "stzSplitter.ring"
 load "stzMultiString.ring"

@@ -1474,6 +1474,10 @@ class stzList from stzObject
 				return This
 
 		def Replace(pItem, pNewItem)
+			if isList(pItem) and Q(pItem).IsEachNamedParam()
+				pItem = pItem[2]
+			ok
+
 			This.ReplaceAllOccurrences(pItem, pNewItem)
 
 			def ReplaceQ(pItem, pNewIteme)
@@ -3469,6 +3473,10 @@ class stzList from stzObject
 				return This
 
 		def Remove(pItem)
+			if isList(pItem) and Q(pItem).IsEachNamedParam()
+				pItem = pItem[2]
+			ok
+
 			This.RemoveAll(pItem)
 
 			def RemoveQ(pItem)

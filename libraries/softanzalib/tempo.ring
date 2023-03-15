@@ -72,7 +72,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*=============
-*/
+
 pron()
 
 # Let's take this string of text:
@@ -143,7 +143,7 @@ pron()
 
 ? StzCharQ("OSMANYA LETTER BA").Content()
 #--> ҁ
-*/
+
 proff()
 
 #------
@@ -176,317 +176,14 @@ pron()
 
 proff()
 
-/*======== REMOVE XT
 
-StartProfiler()
-	
-	o1 = new stzString("Ring programming♥ language")
-	o1.RemoveXT("♥", :From = "programming♥")
-	
-	? o1.Content()
-	#--> Ring programming language
-	
-StopProfiler()
-# Executed in 0.02 second(s)
-	
-/*----------------
-	
-StartProfiler()
-	
-	o1 = new stzString("Ring *progr*amming* language")
-	o1.RemoveXT( :Each = "*", :From = "*progr*amming*")
-	
-	? o1.Content()
-	#--> Ring programming language
-	
-StopProfiler()
-# Executed in 0.02 second(s)
-	
-/*----------------
 
-StartProfiler()
-	
-	o1 = new stzString("Ring *progr*amming* language")
-	o1.RemoveXT( :Nth = [ 2, "*" ], :From = "*progr*amming*")
-	
-	? o1.Content()
-	#--> Ring *programming* language
-	
-StopProfiler()
-# Executed in 0.02 second(s)
-	
-/*----------------
-
-StartProfiler()
-	
-	o1 = new stzString("Ring *progr*amming* language")
-	o1.RemoveXT( :First = "*", :From = "*progr*amming*")
-	
-	? o1.Content()
-	#--> Ring progr*amming* language
-	
-StopProfiler()
-# Executed in 0.02 second(s)
-	
-/*----------------
-
-StartProfiler()
-	
-	o1 = new stzString("Ring *progr*amming* language")
-	o1.RemoveXT( :Last = "*", :From = "*progr*amming*")
-	
-	? o1.Content()
-	#--> Ring *progr*amming language
-	
-StopProfiler()
-# Executed in 0.02 second(s)
-	
-/*----------------
-
-StartProfiler()
-	
-	o1 = new stzString("Ring *progr*amming* language")
-	o1.RemoveXT( :Nth = [ [1,3], "*" ], :From = "*progr*amming*")
-	
-	? o1.Content()
-	#--> Ring progr*amming language
-	
-StopProfiler()
-# Executed in 0.02 second(s)
-
-/*==---------
-
-StartProfiler()
-	
-	o1 = new stzString("programming*")
-	o1.RemoveFromEnd("*")
-	? o1.Content()
-	#--> programming
-
-StopProfiler()
-# Executed in 0.01 second(s)
-
-/*======== REMOVING AFTER
-
-StartProfiler()
-	
-	Q("Ring programming* language.") {
-	
-		RemoveXT("*", :After = "programming")
-		? Content()
-		#--> Ring programming language.
-	
-	}
-	
-StopProfiler()
-#--> Executed in 0.02 second(s)
-	
-/*-----------
-
-StartProfiler()
-	
-	Q("__♥)__♥)__♥)__") {
-	
-		RemoveXT( ")", :AfterEach = "♥" ) # ... you can also say :After = "♥"
-		? Content()
-		#--> __♥__♥__♥__
-	}
-	
-StopProfiler()
-# Executed in 0.03 second(s)
-	
-/*-----------
-	
-StartProfiler()
-	
-	Q("__♥__♥)__♥__") {
-	
-		RemoveXT( ")", :AfterNth = [2, "♥"] )
-		? Content()
-		#--> __♥__♥__♥__
-	
-	}
-	
-StopProfiler()
-# Executed in 0.03 second(s)
-	
-/*-----------------
-
-StartProfiler()
-	
-	Q("__♥)__♥__♥__") {
-	
-		RemoveXT( ")", :AfterFirst = "♥" )
-		? Content()
-		#--> __♥__♥__♥__
-	}
-	
-StopProfiler()
-# Executed in 0.03 second(s)
-	
-/*-----------------
-
-StartProfiler()
-	
-	Q("__♥__♥__♥)__") {
-	
-		RemoveXT( ")", :AfterLast = "♥" )
-		? Content()
-		#--> __♥__♥__♥__
-	}
-	
-StopProfiler()
-# Executed in 0.04 second(s)
-
-/*========== REMOVING BEFORE
-
-StartProfiler()
-	
-	Q("Ring ***programming language.") {
-	
-		RemoveXT("***", :Before = "programming")
-		? Content()
-		#--> Ring programming language.
-	
-	}
-	
-StopProfiler()
-#--> Executed in 0.05 second(s)
-	
-/*-----------
-
-StartProfiler()
-	
-	Q("__(♥__(♥__(♥__") {
-	
-		RemoveXT( "(", :BeforeEach = "♥" ) # ... you can also say :Before = "♥"
-		? Content()
-		#--> __♥__♥__♥__
-	}
-	
-StopProfiler()
-# Executed in 0.04 second(s)
-	
-/*-----------
-
-StartProfiler()
-	
-	Q("__♥__(♥__♥__") {
-	
-		RemoveXT( "(", :BeforeNth = [2, "♥"] )
-		? Content()
-		#--> __♥__♥__♥__
-	
-	}
-	
-StopProfiler()
-# Executed in 0.05 second(s)
-	
-/*-----------------
-	
-StartProfiler()
-	
-	Q("__(♥__♥__♥__") {
-	
-		RemoveXT( "(", :BeforeFirst = "♥" )
-		? Content()
-		#--> __♥__♥__♥__
-	}
-	
-StopProfiler()
-# Executed in 0.05 second(s)
-	
-/*-----------------
-
-StartProfiler()
-	
-	Q("__♥__♥__(♥__") {
-	
-		RemoveXT( "(", :BeforeLast = "♥" )
-		? Content()
-		#--> __♥__♥__♥__
-	}
-	
-StopProfiler()
-# Executed in 0.05 second(s)
-	
-------- REMOVING AROUND
-
-StartProfiler()
-	
-	Q("_-♥-_-♥-_-♥-_") {
-	
-		RemoveXT("-", :AroundEach = "♥") # Or simplt :Around
-		? Content()
-		#--> _♥_♥_♥_
-	}
-	
-StopProfiler()
-# Executed in 0.06 second(s)
-
-/*-----------------
-
-StartProfiler()
-	
-	Q("__/♥\__/♥\__/♥\__") {
-	
-		RemoveXT([ "/","\" ], :AroundEach = "♥") # or just :Around = "♥" if you want
-		? Content()
-		#--> __♥__♥__♥__
-	}
-	# Executed in 0.06 second(s)
-	
-StopProfiler()
-# Executed in 0.06 second(s)
-
-/*-----------------
-
-StartProfiler()
-	
-	Q("__♥__/♥\__♥__") {
-
-		RemoveXT([ "/","\" ], :AroundNth = [2, "♥"])
-		? Content()
-		#--> __♥__♥__♥__
-	}
-	
-StopProfiler()
-# Executed in 0.06 second(s)
-
-/*-----------------
-
-StartProfiler()
-	
-	Q("__/♥\__♥__♥__") {
-	
-		RemoveXT( [ "/","\" ], :AroundFirst = "♥" )
-		? Content()
-		#--> __♥__♥__♥__
-	}
-	
-StopProfiler()
-# Executed in 0.10 second(s)
-	
-/*-----------------
-
-StartProfiler()
-	
-	Q("__♥__♥__/♥\__") {
-	
-		RemoveXT( [ "/","\" ], :AroundLast = "♥" )
-		? Content()
-		#--> __♥__♥__♥__
-	}
-	
-StopProfiler()
-# Executed in 0.11 second(s)
-
-/*==------
-
+/*=============== # TODO: Add FindXT()
+*/
 StartProfiler()
 
 o1 = new stzString("/♥♥♥\__/\/\__/♥♥♥\__")
-? o1.FindThisBetweenAsSections("♥♥♥", "/", "\")	# FindXT( "♥", :Between = ["/","\"], :ReturnedAS = :Sections )
+? o1.FindBetweenAsSections("♥♥♥", "/", "\")	# FindXT( "♥", :Between = ["/","\"], :ReturnedAS = :Sections )
 #--> [ [2, 14], [15, 17] )
 
 StopProfiler()
@@ -498,7 +195,7 @@ StartProfiler()
 
 	o1 = new stzString("__/♥\__")
 
-	o1.RemoveThisBetween("♥", "/", "\")
+	o1.RemoveBetween("♥", "/", "\")
 	? o1.Content()
 	#--> __/\__
 
@@ -511,7 +208,7 @@ StartProfiler()
 
 	o1 = new stzString("__/♥\__")
 
-	o1.RemoveThisBetweenIB("♥", "/", "\") # ..XT() -> Bounds are also removed
+	o1.RemoveBetweenIB("♥", "/", "\") # ..XT() -> Bounds are also removed
 	? o1.Content()
 	#--> ____
 
@@ -520,148 +217,6 @@ StopProfiler()
 
 /*---------
 
-StartProfiler()
-
-	Q("/♥♥♥\__/\/\__/♥♥♥\__") {
-		RemoveXT("♥♥♥", :Between = ["/", :And = "\"])
-		? Content()
-		#--> /\__/\/\__/\__
-	}
-
-StopProfiler()
-# Executed in 0.08 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("__/\/\__/♥\__") {
-		RemoveXT("♥", :BetweenIB = ["/", "\"]) # BetweenIB -> Bounds are also removed
-		? Content()
-		#--> __/\/\____
-	}
-
-StopProfiler()
-# Executed in 0.07 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("__^^^__^^♥^^__") {
-		RemoveXT("♥", :BoundedBy = "^^")
-		? Content()
-		#--> __^^^__^^^^__
-	}
-
-StopProfiler()
-# Executed in 0.09 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("__/\/\__^^♥^^__") {
-		RemoveXT("♥", :BoundedByIB = "^^")
-		? Content()
-		#--> __/\/\____
-	}
-
-StopProfiler()
-# Executed in 0.09 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("__/\/\_^^♥^^_") {
-		RemoveXT("♥", :BoundedByIB = "^^") # ..XT -> Bounds also removed
-		? Content()
-		#--> __/\/\__
-	}
-
-StopProfiler()
-# Executed in 0.09 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("/♥^♥\__/♥\/vv\__/^^^\__") {
-		RemoveXT([], :Between = ["/", :And = "\"])
-		? Content()
-		#--> /\__/\/\__/\__
-	}
-
-StopProfiler()
-# Executed in 0.08 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("/♥^♥\__/♥\/vv\__/^^^\__") {
-		RemoveXT([], :BetweenIB = ["/", :And = "\"]) # XT -> Bounds are also removed
-		? Content()
-		#--> ______
-	}
-
-StopProfiler()
-# Executed in 0.08 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("/♥♥♥\__/♥\/♥♥\__/♥\__") {
-		RemoveXT("♥", [])
-		? Content()
-		#--> /\__/\/\__/\__
-	}
-
-StopProfiler()
-# Executed in 0.02 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("/♥♥♥\__/♥\/♥♥\__/♥\__") {
-		RemoveXT([], "♥")
-		? Content()
-		#--> /\__/\/\__/\__
-	}
-
-StopProfiler()
-# Executed in 0.02 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("_/♥\_/♥\_/♥♥\_/♥\_") {
-		RemoveXT(:Nth = 4, "♥")
-		? Content()
-		#--> _/♥\_/♥\_/♥\_/♥\_
-	}
-
-StopProfiler()
-# Executed in 0.02 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("_/♥\_/♥\_/♥♥\_/♥\_") {
-		RemoveXT(:Nth = 4, "♥")
-		? Content()
-		#--> _/♥\_/♥\_/♥\_/♥\_
-	}
-
-StopProfiler()
-
-/*---------
-*/
 StartProfiler()
 
 ? Q("^^♥♥♥^^").ContainsSubStringBoundedBy("♥♥♥", ["^^","^^"])
@@ -679,7 +234,7 @@ StopProfiler()
 # Executed in 0.03 second(s)
  
 /*---------
-*/
+
 StartProfiler()
 
 ? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", 3, 5)
@@ -687,19 +242,6 @@ StartProfiler()
 
 StopProfiler()
 # Executed in 0.01 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("^^♥^^") {
-		RemoveXT( "♥", :AtPosition = 3)
-		? Content()
-		#--> ^^^^
-	}
-
-StopProfiler()
-# Executed in 0.03 second(s)
 
 /*==================
 
