@@ -1005,7 +1005,7 @@ func ComputableFormSimplified(pValue)
 
 	but isString(pValue)
 		# NOTE: strings inside the pValue must be enclosed
-		# between two (")s anf not between two (')s.
+		# between two (")s and not between two (')s.
 
 		oStr = new stzString(pValue)
 
@@ -1023,11 +1023,10 @@ func ComputableFormSimplified(pValue)
 			cResult = cChar + Q(pValue).Simplified() + cChar
 		else
 
-			aAntiSections = oStr.FindAntiSections( oStr.FindBetweenAsSections('"','"') )
-		
-			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
-			#--> this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"
+			aAntiSections = oStr.AntiFindAsSections( oStr.AnySubStringsBetween('"','"') )
 
+			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
+			
 			cResult = cChar + oStr.Content() + cChar
 		ok
 
