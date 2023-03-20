@@ -1529,24 +1529,24 @@ proff()
 # Executed in 0.15 second(s)
 
 #---------
-
+*/
 pron()
 #                      4 6      3 5
 o1 = new stzString("*<<***>>**<<***>>*")
 
-? o1.FindBetween("<<", ">>")
+? o1.FindAnyBetween("<<", ">>")
 #--> [4, 13]
 
-? @@S( o1.FindBetweenAsSections("<<", ">>") )
+? @@S( o1.FindAnyBetweenAsSections("<<", ">>") )
 #--> [ [ 4, 6 ], [ 13, 15 ] ]
 
 ? "--"
 
-? o1.FindBetweenIB("<<", ">>")
+? o1.FindAnyBetweenIB("<<", ">>")
 #--> [2, 11]
 
-? @@S( o1.FindBetweenAsSections("<<", ">>") )
-#--> [ [ 2, 8 ], [ 11, 17 ] ]
+? @@S( o1.FindAnyBetweenAsSections("<<", ">>") )
+#--> [ [ 4, 6 ], [ 13, 15 ] ]
 
 proff()
 # Executed in 0.07 second(s)
@@ -1558,10 +1558,10 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 
-? @@S( o1.FindBetween("67", "12") ) # Same as o1.FindSubStringsBetween("67", "12")
+? @@S( o1.FindAnyBetween("67", "12") ) # Same as o1.FindSubStringsBetween("67", "12")
 #--> [ 8 ]
 
-? @@S( o1.FindThisBetween("♥♥♥", "67", "12") )
+? @@S( o1.FindBetween("♥♥♥", "67", "12") )
 # Same  as o1.FindSubStringsBetween( "♥♥♥", "67", "12")
 #--> [ 8 ]
 
@@ -1569,11 +1569,11 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 //? o1.FindXT( "♥♥♥", :BetweenIB = ["12", :And = "67" ]) # TODO
 #--> [3, 13]
 
-? @@S( o1.FindBetweenAsSectionsIB("12", "67") ) + NL
-#--> [ [ 3, 5 ], [ 13, 15 ] ]
+? @@S( o1.FindAnyBetweenAsSectionsIB("12", "67") ) + NL
+#--> [ [ 1, 7 ], [ 11, 17 ] ]
 
-? @@S( o1.FindBetweenAsSections("♥♥♥", "♥♥♥") )
-#--> [ [ 1, 2 ], [ 6, 7 ], [ 11, 12 ], [ 16, 17 ] ]
+? @@S( o1.FindAnyBetweenAsSections("♥♥♥", "♥♥♥") )
+#--> [ [ 6, 7 ] ]
 
 proff()
 

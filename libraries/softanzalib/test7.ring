@@ -92,20 +92,130 @@ proff()
 #--> Executed in 0.07 second(s)
 
 /*----------------
-*/
+
 pron()
 
-o1 = new stzString("bla bla /***/ and bla!")
-? o1.FindAnyBetween("/", "/")
-
+o1 = new stzString("bla bla /.../ and bla!")
 o1.ReplaceAnyBetween("/", "/", "bla")
+
+? o1.Content()
+
+proff()
+
+/*================ Find and AntiFind
+
+pron()
+
+o1 = new stzString("ring...")
+? @@S( o1.FindAsSection("ring") )
+#--> [1, 4]
+
+? @@S( o1.AntiFindAsSection("ring") )
+#--> [5, 7]
+
+proff()
+#--> Executed in 0.07 second(s)
+
+/*----------------
+
+pron()
+#                   1  4  78
+o1 = new stzString("...ring...")
+
+? o1.FindFirst("ring")
+#--> 4
+
+? @@S( o1.FindAsSection("ring") )
+#--> [ 4, 7 ]
+
+? @@S( o1.AntiFind("ring") )
+#--> [1, 8]
+
+? @@S( o1.AntiFindAsSections("ring") )
+#--> [ [ 1, 3 ], [ 8, 10 ] ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("...456...012...")
+
+? o1.Sections([ [4, 6], [10, 12] ])
+#--> [ "456", "012" ]
+
+? o1.AntiSections([ [4, 6], [10, 12] ])
+#--> [ "...", "...", "..." ]
+
+? @@S( o1.FindAsSections([ "456", "012" ]) )
+#--> [ [ 4, 6 ], [ 10, 12 ] ]
+
+? @@S( o1.AntiFindAsSections([ "456", "012" ]) )
+#--> [ [ 1, 3 ], [ 7, 9 ], [ 13, 15 ] ]
+
+proff()
+
+/*----------------
+*/
+
+pron()
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? o1.BoundedBy("&")
+#--> [ "^^^", "vvv" ]
+
+//? o1.BoundedByD("&", :Going = :Backward)
+#--> [ "...", "..." ]
+
+? o1.BoundedByIB("&")
+#--> [ "&^^^&", "&vvv&" ]
+
+proff()
 
 /*----------------
 */
 pron()
 
-o1 = new stzString("bla bla /***/ and bla!")
-//o1.ReplaceXT( [], :BoundedBy = '/', :With = "bla" )
+o1 = new stzString('this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"')
+
+? @@S( o1.SubStringsBetween('"', '"') )
+
+? @@S( o1.AntiFindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
+#--> [ [ 1, 19 ], [ 44, 66 ] ]
+
+proff()
+
+/*----------------
+
+*/
+pron()
+#      1...*....0....*....2....*....3....*....4....*....5....*....6....*....7....*....8....
+? @@S('this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"')
+
+
+proff()
+
+/*----------------
+
+*/
+pron()
+
+o1 = new stzString("bla bla /.../ and bla!")
+o1.ReplaceAnyBetweenXT("/", "/", "bla")
+
+? o1.Content()
+
+proff()
+
+/*----------------
+
+pron()
+
+o1 = new stzString("bla bla /.../ and bla!")
+o1.ReplaceXT( [], :BoundedBy = '/', :With = "bla" )
 #--> 
 
 ? o1.Content()

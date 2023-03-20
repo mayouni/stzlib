@@ -36,7 +36,7 @@ o1 = new stzList([ "ONE", "TWO", "THREE" ])
 proff()
 
 /*============
-*/
+
 pron()
    
 o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
@@ -108,6 +108,7 @@ o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
 	# ]
 
 proff()
+# Executed in 0.31 second(s)
 
 /*------------
 
@@ -787,7 +788,7 @@ StopProfiler()
 # Executed in 0.38 second(s)
 
 /*----------
-*/
+
 StartProfiler()
 
 # Fabricating a large list
@@ -827,7 +828,7 @@ StartProfiler()
 	# Executed in 3.35 second(s)
 
 StopProfiler()
-# Executed in 7.94 second(s)
+# Executed in 8.50 second(s)
 
 /*============
 
@@ -1001,14 +1002,42 @@ StopProfiler()
 
 /*-----------
 
+pron()
+#                     3 5
+o1 = new stzString("12•4•67")
+
+? o1.FindNext("•", :StartingAt = 3)
+#--> 5
+
+? o1.FindNextNth(2, "•", :StartingAt = 3)
+#--> 5
+
+? o1.FindPrevious("•", :StartingAt = 5)
+#--> 3
+
+? o1.FindPreviousNth(2, "•", :StartingAt = 5)
+#--> 3
+
+proff()
+# Executed in 0.08 second(s)
+
+/*-----------
+
 StartProfiler()
 #                   1    2    3    4    5    6    7
 o1 = new stzList([ "_", "_", "•", "_", "•", "_", "_" ])
-? o1.FindNext("•", :StartingAt = 5)
-#--> 0
 
-? o1.FindPrevious("•", :StartingAt = 3)
-#--> 0
+? o1.FindNext("•", :StartingAt = 3)
+#--> 5
+
+? o1.FindNextNth(2, "•", :StartingAt = 3)
+#--> 5
+
+? o1.FindPrevious("•", :StartingAt = 5)
+#--> 3
+
+? o1.FindPreviousNth(2, "•", :StartingAt = 5)
+#--> 3
 
 StopProfiler()
 # Executed in 0.03 second(s)
@@ -1028,20 +1057,66 @@ o1 = new stzString("[••[•[••]•[•]]••[••]]")
 ? o1.FindNext("[", :StartingAt = 17)
 #--> 0
 
-? o1.FindPrevious("]", :StartingAt = 9)
-#--> 0
+? o1.FindPrevious("]", :StartingAt = 13)
+#--> 9
 
 StopProfiler()
+# Executed in 0.03 second(s)
 
 /*-----------
-
+*/
 StartProfiler()
 #                   1..4.6..9.1.34..7..0
 o1 = new stzString("[••[•[••]•[•]]••[••]]")
-? o1.DistanceTo("[",:StartingAt = 1)
+
+#--
+
+? o1.DistanceTo("[", :StartingAt = 1)
+#--> 2
+
+? o1.DistanceTo( :Next = "[", :StartingAt = 1 )
+#--> 2
+
+? o1.DistanceTo( :NextNth = [ 2, "[" ], :StartingAt = 1 )
+#--> 2
+
+#--
+? NL + "--" + NL
+
+? o1.DistanceToXT("[", :StartingAt = 1)
 #--> 4
 
-//? @@S( o1.FindBetweenAsSections("[","]") )
+? o1.DistanceToXT( :Next = "[", :StartingAt = 1 )
+#--> 4
+
+? o1.DistanceToXT( :NextNth = [2, "["], :StartingAt = 1 )
+#--> 4
+
+? NL + "--" + NL
+
+? o1.DistanceToXT( :Previous = "[", :StartingAt = 9 )
+#--> 4
+
+? o1.DistanceToXT( :PreviousNth = [2, "["], :StartingAt = 9 )
+#--> 6
+
+? o1.DistanceTo( :Previous = "[", :StartingAt = 9 )
+#--> 2
+
+? o1.DistanceTo( :PreviousNth = [2, "["], :StartingAt = 9 )
+#--> 4
+
+StopProfiler()
+# Executed in 0.16 second(s)
+
+/*-----------
+*/
+StartProfiler()
+#                   1..4.6..9.1.34..7..0
+o1 = new stzString("[••[•[••]•[•]]••[••]]")
+
+? @@S( o1.FindAnyBetweenAsSections("[","]") )
+#--> [ [ 2, 8 ], [ 5, 12 ], [ 7, 13 ], [ 12, 19 ], [ 18, 20 ] ]
 
 StopProfiler()
 #--> Executed in 0.02 second(s)
@@ -1052,7 +1127,7 @@ StartProfiler()
 #                   1..4.6..9.1.34..7..0
 o1 = new stzString("[••[•[••]•[•]]••[••]]")
 
-? @@S( o1.FindBetweenAsSections("[","]") )
+? @@S( o1.FindAnyBetweenAsSections("[","]") )
 
 StopProfiler()
 #--> [ [ 7, 8 ], [ 12, 12 ], [ 18, 19 ] ]
@@ -1172,17 +1247,17 @@ o1 = new stzString("[••[•[••]•[••]]••[••]]")
 StopProfiler()
 
 /*-----------
-
+*/
 StartProfiler()
  #                  ...4.6...v...4.v.v..1.v..
 o1 = new stzString("---[ [===]---[=] ]--[=]--")
 #                   ...^.^...0...^.6.8..^.3..
 
-//? o1.FindBetween("[","]")
+? o1.FindAnyBetween("[","]")
 #--> [2, 6]
 # Executed in 0.04s
 
-? @@S( o1.FindBetween("[","]") )
+? @@S( o1.FindAnyBetween("[","]") )
 #--> [ [ 2, 12 ], [ 6, 8 ] ]
 
 StopProfiler()

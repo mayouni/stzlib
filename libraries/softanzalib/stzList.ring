@@ -17155,11 +17155,11 @@ class stzList from stzObject
 
 		# Doing the job
 
-		nResult  = This.SectionQ(nStart+1, nLen).
+		nResult  = This.SectionQ(nStart, nLen).
 				FindNthCS(n, pItem, pCaseSensitive)
 
 		if nResult != 0
-			nResult += nStart
+			nResult += nStart - 1
 		ok
 
 		return nResult
@@ -20096,23 +20096,22 @@ class stzList from stzObject
 
 	def SplitToNParts(n)
 
-		aResult = []
-	
-		nParts = ceil( This.NumberOfItems() / n )
+		if NOT isNumber(n)
+			StzRaisr("Incorrect param type! n must be a number.")
+		ok
 
 		nLen = This.NumberOfItems()
-		nMax = Max([ n, nLen ])
 
-		for i = 1 to nMax step nParts
-			
-			if i <= nLen
-				aTemp = This.Range(i, nParts)
-			else
-				aTemp = []
-			ok
+		if n > nLen
+			StzRaise("Can't proceed! n must be smaller then list size.")
+		ok
 
-			aResult + aTemp	
-		next
+		if n = 1
+			return This.List()
+
+		ok
+	
+		/* ... */
 
 		return aResult
 
@@ -20308,7 +20307,8 @@ class stzList from stzObject
 			next i
 	
 		else
-			for i = n2 to n1 step - 1
+
+			for i = n1 to n2 step - 1
 				aResult + This.Content()[i]
 			next i
 		ok
@@ -28293,6 +28293,58 @@ class stzList from stzObject
 
 		def IsWithOrUsingOrByNamedParam()
 			return This.IsUsingOrWithOrByNamedParam()
+
+	def IsNextNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :Next or This[1] = :Next@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsNextNthNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :NextNth or This[1] = :NextNth@  or 
+			 This[1] = :NthNext or This[1] = :NthNext@) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsNthNextNamedParam()
+			return This.IsNextNthNamedParam()
+
+	def IsPreviousNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :Previous or This[1] = :Previous@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsPreviousNthNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :PreviousNth or This[1] = :PreviousNth@  or 
+			 This[1] = :NthPrevious or This[1] = :NthPrevious@) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsNthPreviousNamedParam()
+			return This.IsPreviousNthNamedParam()
 
 	  #===========#
 	 #   MISC.   #
