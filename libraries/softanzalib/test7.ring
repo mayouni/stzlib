@@ -157,22 +157,184 @@ o1 = new stzString("...456...012...")
 
 proff()
 
+/*=================
+
+pron()
+
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+/*
+? o1.BoundedBy("&")
+#--> [ "^^^", "vvv" ]
+
+? o1.BoundedByIB("&")
+#--> [ "&^^^&", "&vvv&" ]
+
+? o1.BoundedByD("&", :Going = :Backward)
+#--> [ "...", "..." ]
+
+? "--"
+? @@S( o1.BoundedByDIB("&", :Going = :Backward) )
+
+proff()
+
 /*----------------
-*/
 
 pron()
 #                   ...4...8...2...6...2...   
 o1 = new stzString("...&^^^&...&vvv&...&...")
 
-? o1.BoundedBy("&")
+? @@S( o1.BoundedBy("&") )
 #--> [ "^^^", "vvv" ]
 
-//? o1.BoundedByD("&", :Going = :Backward)
-#--> [ "...", "..." ]
-
-? o1.BoundedByIB("&")
+? @@S( o1.BoundedByIB("&") )
 #--> [ "&^^^&", "&vvv&" ]
 
+/*----------------
+
+pron()
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? @@S( o1.FindAnyBoundedByAsSectionsD("&", :Forward) )
+#--> [ [ 5, 7 ], [ 13, 15 ] ]
+
+? @@S( o1.FindAnyBoundedByD("&", :Forward) )
+#--> [ 5, 13 ]
+
+? @@S( o1.BoundedByD("&", :Going = :Backward) )
+#--> [ "...", "..." ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*----------------
+
+pron()
+
+#                   ...4.6...0.2...6.8...2.4...8.0...   
+o1 = new stzString("...&&&^^^&&&...&&&vvv&&&...&&&...")
+
+? o1.Section(-9, -7)
+#--> "..."
+
+? o1.Section(-21, -19)
+#--> "..."
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+#                   ...4.6...0.2...6.8...2.4...8.0...   
+o1 = new stzString("...&&&^^^&&&...&&&vvv&&&...&&&...")
+
+? @@S( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Forward) )
+#--> [ [ 4, 12 ], [ 16, 24 ] ]
+
+? @@S( o1.BoundedByDIB("&&&", :Forward) )
+#--> [ "&&&^^^&&&", "&&&vvv&&&" ]
+
+? NL + "--" + NL
+
+? @@S( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Backward) )
+#--> [ [ -24, -16 ], [ -12, -4 ] ]
+
+? @@S( o1.BoundedByDIB("&&&", :Backward) )
+#--> [ "&&&...&&&", "&&&...&&&" ]
+
+proff()
+# Executed in 0.14 second(s)
+
+/*----------------
+
+pron()
+
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? @@S( o1.FindAnyBoundedByAsSectionsDIB("&", :Forward) )
+#--> [ [ 4, 8 ], [ 12, 16 ] ]
+
+? @@S( o1.BoundedByDIB("&", :Forward) )
+# [ "&^^^&", "&vvv&" ]
+
+? NL + "--" + NL
+
+? @@S( o1.FindAnyBoundedByAsSectionsDIB("&", :Backward) )
+#--> [ [ 4, 8 ], [ 12, 16 ] ]
+
+? @@S( o1.BoundedByDIB("&", :Going = :Backward) )
+#--> [ "&...&", "&...&" ]
+
+proff()
+#--> Executed in 0.16 second(s)
+
+/*----------------
+
+pron()
+
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? @@S( o1.BoundedByZ("&") )
+# [
+#	[ "^^^", [ 5  ] ],
+#	[ "vvv", [ 13 ] ]
+# ]
+
+?  @@S( o1.BoundedByZZ("&") )
+# [
+#	[ "^^^", [ [ 5, 7   ] ] ],
+#	[ "vvv", [ [ 13, 15 ] ] ]
+# ]
+
+proff()
+# Executed in 0.16 second(s)
+
+/*----------------
+*/
+
+pron()
+
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? o1.FindAnyBoundedBy("&")
+#--> [5, 13]
+
+? o1.FindAnyBoundedByIB("&")
+#--> [4, 12]
+
+? NL + "--" + NL
+
+? o1.FindAnyBoundedByAsSections("&")
+#--> [5, 13]
+
+? o1.FindAnyBoundedByAsSectionsIB("&")
+#--> [4, 12]
+
+proff()
+
+/*----------------
+*/
+
+pron()
+
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+/*
+? @@S( o1.BoundedByIBZ("&") )
+# [ "&^^^&", "&vvv&" ]
+/*
+? @@S( o1.BoundedDZ("&", :Forward) )
+# [ "&^^^&", "&vvv&" ]
+
+? @@S( o1.BoundedByDIBZ("&", :Forward) )
+# [ "&^^^&", "&vvv&" ]
+*/
 proff()
 
 /*----------------

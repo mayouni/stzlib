@@ -1,5 +1,14 @@
 load "stzlib.ring"
 
+/*===========
+
+pron()
+
+? Association([ [ 1, 2, 3 ], [ "One", "Two", "Three" ] ])
+#--> [ [ 1, "One" ], [ 2, "Two" ], [ 3, "Three" ] ]
+
+
+proff()
 
 /*===========
 
@@ -977,18 +986,6 @@ ReplaceXT()
 RemoveXT()
 #--> DONE
 
-
-/*-----------
-
-StartProfiler()
-
-o1 = new stzString("---456---")
-? o1.DistanceTo("6", :StartingAt = 4)
-#--> 3
-
-StopProfiler()
-# Executed in 0.02 second(s)
-
 /*-----------
 
 StartProfiler()
@@ -1063,8 +1060,23 @@ o1 = new stzString("[••[•[••]•[•]]••[••]]")
 StopProfiler()
 # Executed in 0.03 second(s)
 
+/*==============
+
+StartProfiler()
+
+o1 = new stzString("---456---")
+
+? o1.DistanceTo("6", :StartingAt = 4)
+#--> 1
+
+? o1.DistanceToXT("6", :StartingAt = 4)
+#--> 3
+
+StopProfiler()
+# Executed in 0.04 second(s)
+
 /*-----------
-*/
+
 StartProfiler()
 #                   1..4.6..9.1.34..7..0
 o1 = new stzString("[••[•[••]•[•]]••[••]]")
@@ -1110,7 +1122,7 @@ StopProfiler()
 # Executed in 0.16 second(s)
 
 /*-----------
-*/
+
 StartProfiler()
 #                   1..4.6..9.1.34..7..0
 o1 = new stzString("[••[•[••]•[•]]••[••]]")
@@ -1122,7 +1134,7 @@ StopProfiler()
 #--> Executed in 0.02 second(s)
 
 /*-----------
-*/
+
 StartProfiler()
 #                   1..4.6..9.1.34..7..0
 o1 = new stzString("[••[•[••]•[•]]••[••]]")
@@ -1132,7 +1144,7 @@ o1 = new stzString("[••[•[••]•[•]]••[••]]")
 StopProfiler()
 #--> [ [ 7, 8 ], [ 12, 12 ], [ 18, 19 ] ]
 
-/*-----------
+/*============
 
 StartProfiler()
 
@@ -1234,33 +1246,63 @@ end
 
 StopProfiler()
 
-/*-----------
-
-StartProfiler()
-
-#                   1..4.6..v.1..vv..8..vv
-o1 = new stzString("[••[•[••]•[••]]••[••]]")
-#                   ^..^.^..9.^..45..^..21
-
-? @@S( o1.FindBetweenAsSections("[","]") )
-
-StopProfiler()
-
-/*-----------
+/*============
 */
 StartProfiler()
  #                  ...4.6...v...4.v.v..1.v..
 o1 = new stzString("---[ [===]---[=] ]--[=]--")
 #                   ...^.^...0...^.6.8..^.3..
 
-? o1.FindAnyBetween("[","]")
-#--> [2, 6]
-# Executed in 0.04s
-
-? @@S( o1.FindAnyBetween("[","]") )
-#--> [ [ 2, 12 ], [ 6, 8 ] ]
+? o1.DeepFindBetweenAsSections("[", "]")
 
 StopProfiler()
+
+/*-----------
+
+StartProfiler()
+# NOTE: In this example, it is better to use DeepBetween
+
+#                   1..4.6..v.1..vv..8..vv
+o1 = new stzString("[••[•[••]•[••]]••[••]]")
+#                   ^..^.^..9.^..45..^..21
+
+? @@S( o1.FindAnyBetweenAsSections("[","]") )
+#--> [ [ 2, 8 ], [ 5, 13 ], [ 7, 14 ], [ 12, 20 ], [ 19, 21 ] ]
+
+? @@S( o1.AnyBetweenZZ("[","]") )
+#--> [
+#	[ "••[•[••", 	[ [ 2, 8 ] ] ],
+#	[ "•[••]•[••", 	[ [ 5, 13 ] ] ],
+#	[ "••]•[••]", 	[ [ 7, 14 ] ] ],
+#	[ "••]]••[••", 	[ [ 12, 20 ] ] ],
+#	[ "••]", 	[ [ 7, 9 ], [ 12, 14 ], [ 19, 21 ] ] ]
+# ]
+
+StopProfiler()
+
+/*-----------
+
+StartProfiler()
+ #                  ...4.6...v...4.v.v..1.v..
+o1 = new stzString("---[ [===]---[=] ]--[=]--")
+#                   ...^.^...0...^.6.8..^.3..
+
+? @@S( o1.FindAnyBetween("[","]") )
+#--> [ 5, 7, 15, 22 ]
+
+? @@S( o1.FindAnyBetweenAsSections("[","]") )
+#--> [ [ 5, 9 ], [ 7, 15 ], [ 15, 17 ], [ 22, 22 ] ]
+
+? @@S( o1.BetweenZZ("[","]") )
+#--> [
+#	[ " [===", 	[ [ 5, 9 ] ] ],
+#	[ "===]---[=", 	[ [ 7, 15 ] ] ],
+#	[ "=] ", 		[ [ 15, 17 ] ] ],
+#	[ "=", 		[ [ 7, 7 ], [ 8, 8 ], [ 9, 9 ], [ 15, 15 ], [ 22, 22 ] ] ]
+#]
+
+StopProfiler()
+# Executed in 0.22 second(s)
 
 /*-----------
 
@@ -1271,9 +1313,10 @@ StartProfiler()
 	# --> [ "word1", "word2" ]
 
 StopProfiler()
+# Executed in 0.04 second(s)
 
 /*----------- TODO
-*/
+
 StartProfiler()
 
 o1 = new stzString('[

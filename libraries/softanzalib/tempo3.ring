@@ -406,17 +406,17 @@ o1 = new stzString("blabla bla <<word>> bla bla <<word>>")
 /*----------------
 
 o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
-? o1.FindBetween("<<", ">>")
+? o1.FindAnyBetween("<<", ">>")
 #--> [ 14, 32 ]
 
 o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
-? o1.FindBetweenAsSections("<<", ">>")
+? o1.FindAnyBetweenAsSections("<<", ">>")
 #--> [ [14, 18], [32, 36] ]
 
 /*----------------
 
 o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
-aSections = o1.FindBetweenAsSections('"', '"')
+aSections = o1.FindAnyBetweenAsSections('"', '"')
 #--> [ [24 ,41], [56, 63] ]
 
 aAntiSections = o1.FindAntiSections(aSections)
@@ -432,7 +432,7 @@ aAntiSections = o1.FindAntiSections(aSections)
 /*----------------
 
 o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
-aBetween = o1.FindBetweenAsSections('"', '"')
+aBetween = o1.FindAnyBetweenAsSections('"', '"')
 #--> [ [24 ,41], [56, 63] ]
 
 ? o1.Sections( aBetween )
@@ -484,7 +484,7 @@ aBetween = o1.FindBetweenAsSections('"', '"')
 /*---------------
 
 o1 = new stzString(' this code:   txt1  = "<    withspaces    >"   and txt2="<nospaces>"  ')
-aAntiSections = o1.FindAntiSections( o1.FindBetweenAsSections('"','"') )
+aAntiSections = o1.FindAntiSections( o1.FindAnyBetweenAsSections('"','"') )
 
 o1.ReplaceSections(aAntiSections, :With = '|***|')
 ? o1.Content()
@@ -493,7 +493,7 @@ o1.ReplaceSections(aAntiSections, :With = '|***|')
 /*----------------
 
 o1 = new stzString(' this code    :   txt1  = "<    leave spaces    >"   and this    code:  txt2 =   "< leave spaces >"  ')
-aAntiSections = o1.FindAntiSections( o1.FindBetweenAsSections('"','"') )
+aAntiSections = o1.FindAntiSections( o1.FindAnyBetweenAsSections('"','"') )
 
 o1.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
 ? o1.Content()
@@ -925,6 +925,9 @@ o1 = new stzString("ring __ ring __ ring __ ring")
 ? o1.FindNthOccurrence(2, "ring")
 
 /*=========================================
+*/
+
+pron()
 
 # In Softanza, you can divide the content of a string to 3 parts
 cNumbers = "ABCDEFG"
@@ -938,3 +941,6 @@ cNumbers = "ABCDEFG"
 # And you can configure the share of each part at your will:
 ? Q(cNumbers) / [ :Hussein = 3, :Haneen = 1, :Teeba = 3 ]
 #--> [ :Hussein = "ABC", :Haneen = "D", :Teeba = "EFG" ]
+
+proff()
+#--> Executed in 0.07 second(s)
