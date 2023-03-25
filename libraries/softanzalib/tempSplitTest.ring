@@ -2,21 +2,20 @@ load "stzlib.ring"
 
 StartProfiler()
 
-
 # You can find the positions of any substring occurring between
 # two bounds by saying:
 
 o1 = new stzString("txt <<ring>> txt <<php>>")
-? @@S( o1.FindBetween("<<",">>") )
+? @@S( o1.FindAnyBetween("<<",">>") )
 #--> [7, 20]
 
-# In fact, "ring" occures in position 7 and "php" in position 20.
+# In fact, the substring "ring" occures in position 7 and "php" in position 20.
 
 # Now, if you have the following case where the two bounds are
 # the same (equal to "*" here):
 
 o1 = new stzString("*2*45*78*0*")
-? @@S( o1.FindBetween("*","*") )
+? @@S( o1.FindAnyBetween("*","*") )
 #--> [2, 7]
 
 # then you get "2" that starts at position 2 and "78" at position 7.
@@ -30,7 +29,7 @@ o1 = new stzString("*2*45*78*0*")
 # corresonds to a substring ("2") between "*" and "*". Then it
 # takes its position 2.
 
-# Second, Softanza starts from position 3 and scans the remaining
+# Then, Softanza restarts from position 3 and scans the remaining
 # substring "45*78*0*" for any other substring between "*" and "*".
 # It finds it at position 7 (substring "78").
 
@@ -48,11 +47,15 @@ o1 = new stzString("*2*45*78*0*")
 	# the occurences:   ^ ^  ^  ^
 	# --> [2, 4, 7, 10]
 
-# Then you can use the extended version of the function ..XT() and
+# Then you can use FindAnySplittedBy() function and
 # pass the "*" char as a parameter like this:
 
-? @@S( o1.FindBetweenIB("*") )
+? @@S( o1.AnySplittedBy("*"))
+? @@S( o1.FindAnySplittedBy("*") )
 #--> [ 2, 4, 7, 10 ]
+
+? @@S( o1.SeparatedBy("*") )
+? @@S( o1.FindSeparatedBy("*") )
 
 StopProfiler()
 

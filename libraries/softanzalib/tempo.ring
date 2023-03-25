@@ -184,7 +184,7 @@ StartProfiler()
 
 o1 = new stzString("/♥♥♥\__/\/\__/♥♥♥\__")
 ? o1.FindBetweenAsSections("♥♥♥", "/", "\")	# FindXT( "♥", :Between = ["/","\"], :ReturnedAS = :Sections )
-#--> [ [2, 14], [15, 17] )
+#--> [ [2, 4], [15, 17] )
 
 StopProfiler()
 # Executed in 0.02 second(s)
