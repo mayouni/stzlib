@@ -8268,7 +8268,7 @@ class stzString from stzObject
 		   StzListQ(n2).IsOneOfTheseNamedParams([
 				:To, :ToPosition,
 				:Until, :UntilPosition,
-				:UpTo, :UpToPosion
+				:UpTo, :UpToPosition
 				])
 
 			n2 = n2[2]
@@ -8300,6 +8300,10 @@ class stzString from stzObject
 					:NthToLast, :NthToLastChar ])
 
 			n2 = This.NumberOfChars() - n2[2]
+
+		but isList(n2) and Q(n2).IsStoppingAtNamedParam()
+
+			n2 = n2[2]
 		ok
 
 		# Managing the case of :First and :Last keywords
@@ -16864,14 +16868,24 @@ def ReplaceIBS()
 
 		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
-			nStoppingAt = This.NumberOfChars()
+			nStoppingAt  = This.NumberOfChars()
 		
 		but isList(pnStartingAt) and Q(pnStartingAt).IsPairOfNumbers()
 			pnStartingAt = pnStartingAt[1]
-			nStoppingAt = pnStartingAt[2]
+			nStoppingAt  = pnStartingAt[2]
+
+		but isList(pnStartingAt) and Q(pnStartingAt).IsInSectionNamedParam()
+
+			if isList(pnStartingAt[2]) and Q(pnStartingAt[2]).IsPairOfNumbers()
+				nStoppingAt  = pnStartingAt[2][2]
+				pnStartingAt = pnStartingAt[2][1]
+
+			else
+				StzRaise("Incorrect param! Correct form is :InSection = [n1, n2].")
+			ok
 
 		but isList(pnStartingAt) and Q(pnStartingAt).IsStoppingAtNamedParam()
-			nStoppingAt = pnStartingAt
+			nStoppingAt  = pnStartingAt
 			pnStartingAt = 1
 		ok
 
