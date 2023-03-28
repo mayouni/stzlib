@@ -16843,13 +16843,81 @@ def ReplaceIBS()
 
 		#>
 
+	  #-------------------------------------------------------------------#
+	 # FINDING ANY SUBSTRING BETWEEN TOW OTHER SUBSTRINGS -- S/EXTENDED  #
+	#-------------------------------------------------------------------#
+
+	def FindAnyBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("...<<***>>...<<***>>...")
+
+		? o1.FindAnyBetween("<<", ">>")
+		#--> [ 6, 16 ]
+
+		? o1.FindAnyBetweenS("<<", ">>", :StartingAt = 10)
+		#--> [ 16 ]
+
+		*/
+
+		nStoppingAt = 0
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+			nStoppingAt = This.NumberOfChars()
+		
+		but isList(pnStartingAt) and Q(pnStartingAt).IsPairOfNumbers()
+			pnStartingAt = pnStartingAt[1]
+			nStoppingAt = pnStartingAt[2]
+
+		but isList(pnStartingAt) and Q(pnStartingAt).IsStoppingAtNamedParam()
+			nStoppingAt = pnStartingAt
+			pnStartingAt = 1
+		ok
+
+		anPos = This.SectionQ(pnStartingAt, nStoppingAt).
+			FindAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+
+		nLen = len(anPos)
+		for i = 1 to nLen
+			anPos[i] += pnStartingAt - 1
+		next
+
+		return anPos
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAnyBetweenS(pcBound1, pcBound2, pnStartingAt)
+		return This.FindAnyBetweenSCS(pcBound1, pcBound2, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------------#
+	 # FINDING ANY SUBSTRING BETWEEN TOW OTHER SUBSTRINGS -- SD/EXTENDED  #
+	#--------------------------------------------------------------------#
+
+	def FindAnyBetweenSD()
+
+	  #---------------------------------------------------------------------#
+	 # FINDING ANY SUBSTRING BETWEEN TOW OTHER SUBSTRINGS -- SIB/EXTENDED  #
+	#---------------------------------------------------------------------#
+
+	def FindAnyBetweenSIB()
+
+	  #----------------------------------------------------------------------#
+	 # FINDING ANY SUBSTRING BETWEEN TOW OTHER SUBSTRINGS -- SDIB/EXTENDED  #
+	#----------------------------------------------------------------------#
+
+	def FindAnyBetweenSDIB()
+
 	  #-----------------------------------------#
 	 # TODO - EXTENDED VERSIONS OF FindBetween #
 	#-----------------------------------------#
+/*
+	def FindBetweenS()
+	def FindBetweenSD()
 
-	// def FindAnyBetweenS()
-	// def FindAnyBetweenSD()
-
+	def FindBetweenSIB()
+	def FindBetweenSDIB()
+*/
 	   #======================================================#
 	  #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS           #
