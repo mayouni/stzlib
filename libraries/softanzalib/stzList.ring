@@ -20194,7 +20194,7 @@ class stzList from stzObject
 		   StzListQ(n2).IsOneOfTheseNamedParams([
 				:To, :ToPosition,
 				:Until, :UntilPosition,
-				:UpTo, :UpToPosion
+				:UpTo, :UpToPosition
 				])
 
 			n2 = n2[2]
@@ -22668,6 +22668,19 @@ class stzList from stzObject
 		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
 					:StartingAt, :StartingAtPosition,
 					:StartingAtOccurrence ]) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStoppingAtNamedParam()
+		if This.NumberOfItems() = 2 and
+
+		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
+					:StoppingAt, :StoppingAtPosition,
+					:StoppingAtOccurrence ]) )
 
 			return TRUE
 
@@ -27877,6 +27890,11 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		# Misspelled form
+
+		def IsUpToPosionNamedParam()
+			return This.IsUptoPositionNamedParam()
 
 	def IsUpToNNamedParam()
 		if This.NumberOfItems() = 2 and
