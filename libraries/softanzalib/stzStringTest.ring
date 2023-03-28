@@ -1,6 +1,643 @@
 load "stzlib.ring"
 
-/*------
+/*=============
+
+pron()
+
+Q("♥♥♥ Ring programing language ♥♥♥") {
+
+	ReplaceXT( :Each = "♥", [], :With = "*")
+	? Content()
+	#--> *** Ring programing language ***
+
+	ReplaceXT("*", :With = "♥", [])
+	? Content()
+	#--> ♥♥♥ Ring programing language ♥♥♥
+}
+
+proff()
+# Executed in 0.05 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzString("_/♥\__/♥\__/♥♥__/♥\_")
+o1.ReplaceXT(:Nth = 4, "♥", :With = "\")
+? o1.Content()
+#--> _/♥\__/♥\__/♥\__/♥\_
+
+proff()
+#--> Executed in 0.03 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzString("_♥♥\__/♥\__/♥\_")
+o1.ReplaceXT(:First, "♥", :With = "/")
+? o1.Content()
+#--> _/♥\__/♥\__/♥\__/♥\_
+
+proff()
+#--> Executed in 0.03 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzString("_/♥\__/♥\__/♥♥_")
+o1.ReplaceXT(:Last, "♥", :With = "\")
+? o1.Content()
+#--> _/♥\__/♥\__/♥\__/♥\_
+
+proff()
+#--> Executed in 0.03 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzString("~♥/♥\~~")
+o1.ReplaceXT("♥", :At = 2, :With = "~") # Or :AtPosition
+? o1.Content()
+#--> ~~/♥\~~
+
+proff()
+#-- Executed in 0.04 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzString("~♥/♥\~♥")
+o1.ReplaceXT("♥", :AtPositions = [2, 7], :With = "~") # Or :AtPositions
+? o1.Content()
+#--> ~~/♥\~~
+
+proff()
+#-- Executed in 0.06 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("bla bla <<♥♥♥>> and bla!")
+o1.ReplaceXT( [], :Between = ["<<",">>"], :With = "bla" )
+#--> bla bla <<bla>> and bla!
+
+? o1.Content()
+
+proff()
+#--> Executed in 0.07 second(s)
+
+/*============ ReplaceXT( ..., In = ..., :With = ... )
+
+pron()
+
+# Suppose you have this string:
+o1 = new stzString("*** Ring programmin* language ***")
+
+# As you see, the substring "programmin*" contains a
+# misspelled char at the end (the "*").
+
+# Let's try to fix it.
+
+# You make think that replacing the "*" by "g" solves it:
+o1.Replace("*", :With = "g")
+? o1.Content()
+#--> ggg Ring programing language ggg
+
+# but it doesn't! Because all the other "*"s are also replaced!
+
+# To this particular situation, Softanza has an anwser:
+# the ReplaceIn() function:
+
+o1 = new stzString("*** Ring programmin* language ***")
+
+? o1.ReplaceXT("*", :In = "programmin*", :With = "g")
+? o1.Content()
+#--> *** Ring programming language ***
+
+proff()
+# Executed in 0.07 second(s)
+
+/*========== REMOVE BETWEEN
+
+StartProfiler()
+
+	o1 = new stzString("__/♥\__")
+
+	o1.RemoveBetween("♥", "/", "\")
+	? o1.Content()
+	#--> __/\__
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*---------
+
+StartProfiler()
+
+	o1 = new stzString("__/♥\__")
+
+	o1.RemoveBetweenIB("♥", "/", "\") # ..XT() -> Bounds are also removed
+	? o1.Content()
+	#--> ____
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*==================
+
+pron()
+
+o1 = new stzString("bla bla /.../ and /---/!")
+o1.ReplaceAnyBetween("/", "/", "bla")
+? o1.Content()
+#--> bla bla /bla/ and /bla/!
+
+o1 = new stzString("bla bla /.../ and /---/!")
+o1.ReplaceAnyBetweenIB("/", "/", "bla")
+? o1.Content()
+#--> bla bla bla and bla!
+
+proff()
+# Executed in 0.08 second(s)
+ 
+/*----------------
+
+pron()
+
+o1 = new stzString("bla bla /.../ and bla!")
+o1.ReplaceXT( [], :BoundedBy = '/', :With = "bla" )
+? o1.Content()
+#--> bla bla /bla/ and bla!
+
+o1 = new stzString("bla bla /.../ and bla!")
+o1.ReplaceXT( [], :BoundedByIB = '/', :With = "bla" )
+? o1.Content()
+#--> bla bla bla and bla!
+
+proff()
+#--> Executed in 0.12 second(s)
+
+/*================ Find and AntiFind
+
+pron()
+
+o1 = new stzString("ring...")
+? @@S( o1.FindAsSection("ring") )
+#--> [1, 4]
+
+? @@S( o1.AntiFindAsSection("ring") )
+#--> [5, 7]
+
+proff()
+#--> Executed in 0.07 second(s)
+
+/*----------------
+
+pron()
+#                   1  4  78
+o1 = new stzString("...ring...")
+
+? o1.FindFirst("ring")
+#--> 4
+
+? @@S( o1.FindAsSection("ring") )
+#--> [ 4, 7 ]
+
+? @@S( o1.AntiFind("ring") )
+#--> [1, 8]
+
+? @@S( o1.AntiFindAsSections("ring") )
+#--> [ [ 1, 3 ], [ 8, 10 ] ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*---------------- Sections and AntiSections
+
+pron()
+
+o1 = new stzString("...456...012...")
+
+? o1.Sections([ [4, 6], [10, 12] ])
+#--> [ "456", "012" ]
+
+? o1.AntiSections([ [4, 6], [10, 12] ])
+#--> [ "...", "...", "..." ]
+
+? @@S( o1.FindAsSections([ "456", "012" ]) )
+#--> [ [ 4, 6 ], [ 10, 12 ] ]
+
+? @@S( o1.AntiFindAsSections([ "456", "012" ]) )
+#--> [ [ 1, 3 ], [ 7, 9 ], [ 13, 15 ] ]
+
+proff()
+# Executed in 0.20 second(s)
+
+/*-------------------
+
+pron()
+
+o1 = new stzString('this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"')
+
+? @@S( o1.FindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
+#--> [ [ 20, 43 ], [ 67, 84 ] ]
+
+? @@S( o1.AntiFindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
+#--> [ [ 1, 19 ], [ 44, 66 ] ]
+
+proff()
+# Executed in 0.15 second(s)
+/*================ Find and AntiFind
+
+pron()
+
+o1 = new stzString("ring...")
+? @@S( o1.FindAsSection("ring") )
+#--> [1, 4]
+
+? @@S( o1.AntiFindAsSection("ring") )
+#--> [5, 7]
+
+proff()
+#--> Executed in 0.07 second(s)
+
+/*----------------
+
+pron()
+#                   1  4  78
+o1 = new stzString("...ring...")
+
+? o1.FindFirst("ring")
+#--> 4
+
+? @@S( o1.FindAsSection("ring") )
+#--> [ 4, 7 ]
+
+? @@S( o1.AntiFind("ring") )
+#--> [1, 8]
+
+? @@S( o1.AntiFindAsSections("ring") )
+#--> [ [ 1, 3 ], [ 8, 10 ] ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*---------------- Sections and AntiSections
+
+pron()
+
+o1 = new stzString("...456...012...")
+
+? o1.Sections([ [4, 6], [10, 12] ])
+#--> [ "456", "012" ]
+
+? o1.AntiSections([ [4, 6], [10, 12] ])
+#--> [ "...", "...", "..." ]
+
+? @@S( o1.FindAsSections([ "456", "012" ]) )
+#--> [ [ 4, 6 ], [ 10, 12 ] ]
+
+? @@S( o1.AntiFindAsSections([ "456", "012" ]) )
+#--> [ [ 1, 3 ], [ 7, 9 ], [ 13, 15 ] ]
+
+proff()
+# Executed in 0.20 second(s)
+
+/*================ Find and AntiFind
+
+pron()
+
+o1 = new stzString("ring...")
+? @@S( o1.FindAsSection("ring") )
+#--> [1, 4]
+
+? @@S( o1.AntiFindAsSection("ring") )
+#--> [5, 7]
+
+proff()
+#--> Executed in 0.07 second(s)
+
+/*----------------
+
+pron()
+#                   1  4  78
+o1 = new stzString("...ring...")
+
+? o1.FindFirst("ring")
+#--> 4
+
+? @@S( o1.FindAsSection("ring") )
+#--> [ 4, 7 ]
+
+? @@S( o1.AntiFind("ring") )
+#--> [1, 8]
+
+? @@S( o1.AntiFindAsSections("ring") )
+#--> [ [ 1, 3 ], [ 8, 10 ] ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*---------------- Sections and AntiSections
+
+pron()
+
+o1 = new stzString("...456...012...")
+
+? o1.Sections([ [4, 6], [10, 12] ])
+#--> [ "456", "012" ]
+
+? o1.AntiSections([ [4, 6], [10, 12] ])
+#--> [ "...", "...", "..." ]
+
+? @@S( o1.FindAsSections([ "456", "012" ]) )
+#--> [ [ 4, 6 ], [ 10, 12 ] ]
+
+? @@S( o1.AntiFindAsSections([ "456", "012" ]) )
+#--> [ [ 1, 3 ], [ 7, 9 ], [ 13, 15 ] ]
+
+proff()
+# Executed in 0.20 second(s)
+
+/*------------------- FindAsSections() and AntiFindAsSections()
+
+pron()
+
+o1 = new stzString('this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"')
+
+? @@S( o1.FindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
+#--> [ [ 20, 43 ], [ 67, 84 ] ]
+
+? @@S( o1.AntiFindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
+#--> [ [ 1, 19 ], [ 44, 66 ] ]
+
+proff()
+# Executed in 0.15 second(s)
+
+/*================= BOUNDEDBY
+
+pron()
+
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? o1.BoundedBy("&")
+#--> [ "^^^", "vvv" ]
+
+? o1.BoundedByIB("&")
+#--> [ "&^^^&", "&vvv&" ]
+
+? o1.BoundedByD("&", :Going = :Backward)
+#--> [ "...", "..." ]
+
+? o1.BoundedByDIB("&", :Going = :Backward)
+#--> [ "&...&", "&...&" ]
+
+proff()
+# Executed in 0.10 second(s)
+
+/*----------------
+
+pron()
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? @@S( o1.FindAnyBoundedByAsSectionsD("&", :Forward) )
+#--> [ [ 5, 7 ], [ 13, 15 ] ]
+
+? @@S( o1.FindAnyBoundedByD("&", :Forward) )
+#--> [ 5, 13 ]
+
+? @@S( o1.BoundedByD("&", :Going = :Backward) )
+#--> [ "...", "..." ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*----------------
+
+pron()
+
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? @@S( o1.FindAnyBoundedByAsSectionsD("&", :Backward) )
+#--> [ [ 9, 11 ], [ 17, 19 ] ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+pron()
+
+#                   ...4.6...0.2...6.8...2.4...8.0...   
+o1 = new stzString("...&&&^^^&&&...&&&vvv&&&...&&&...")
+
+? @@S( o1.FindAnyBoundedByAsSectionsD("&&&", :Backward) )
+#--> [ [ 13, 15 ], [ 25, 27 ] ]
+
+? @@S( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Backward) )
+#--> [ [ 10, 18 ], [ 22, 30 ] ]
+
+proff()
+# Executed in 0.08 second(s)
+
+/*----------------
+
+pron()
+
+#                   ...4.6...0.2...6.8...2.4...8.0...   
+o1 = new stzString("...&&&^^^&&&...&&&vvv&&&...&&&...")
+
+? @@S( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Forward) )
+#--> [ [ 4, 12 ], [ 16, 24 ] ]
+
+? @@S( o1.BoundedByDIB("&&&", :Forward) )
+#--> [ "&&&^^^&&&", "&&&vvv&&&" ]
+
+? NL + "--" + NL
+
+? @@S( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Backward) )
+#--> [ [ 10, 18 ], [ 22, 30 ] ]
+
+? @@S( o1.BoundedByDIB("&&&", :Backward) )
+#--> [ "&&&...&&&", "&&&...&&&" ]
+
+proff()
+# Executed in 0.14 second(s)
+
+/*----------------
+
+pron()
+
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? @@S( o1.FindAnyBoundedByAsSectionsDIB("&", :Forward) )
+#--> [ [ 4, 8 ], [ 12, 16 ] ]
+
+? @@S( o1.BoundedByDIB("&", :Forward) )
+# [ "&^^^&", "&vvv&" ]
+
+? NL + "--" + NL
+
+? @@S( o1.FindAnyBoundedByAsSectionsDIB("&", :Backward) )
+#--> [ [ 8, 12 ], [ 16, 20 ] ]
+
+? @@S( o1.BoundedByDIB("&", :Going = :Backward) )
+#--> [ "&...&", "&...&" ]
+
+proff()
+#--> Executed in 0.14 second(s)
+
+/*----------------
+
+pron()
+
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? @@S( o1.BoundedByZ("&") )
+# [
+#	[ "^^^", [ 5  ] ],
+#	[ "vvv", [ 13 ] ]
+# ]
+
+?  @@S( o1.BoundedByZZ("&") )
+# [
+#	[ "^^^", [ [ 5, 7   ] ] ],
+#	[ "vvv", [ [ 13, 15 ] ] ]
+# ]
+
+proff()
+# Executed in 0.16 second(s)
+
+/*----------------
+
+pron()
+
+#                   ..3...7..0...4..7...1..4...8..  
+o1 = new stzString("..&^^^&..&^^^&..&---&..&---&..")
+
+? @@S( o1.BoundedByZ("&") )
+#--> [
+#	[ "^^^", [  4, 11 ] ],
+#	[ "---", [ 18, 25 ] ]
+# ]
+
+? @@S( o1.BoundedByZZ("&") )
+#--> [
+#	[ "^^^", [ [  4,  6 ], [ 11, 13 ] ] ],
+#	[ "---", [ [ 18, 20 ], [ 25, 27 ] ] ]
+# ]
+
+proff()
+# Executed in 0.18 second(s)
+
+/*----------------
+
+pron()
+
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? o1.FindAnyBoundedBy("&")
+#--> [5, 13]
+
+? o1.FindAnyBoundedByIB("&")
+#--> [4, 12]
+
+? NL + "--" + NL
+
+? @@S( o1.FindAnyBoundedByAsSections("&") )
+#--> [ [ 5, 7 ], [ 13, 15 ] ]
+
+? @@S( o1.FindAnyBoundedByAsSectionsIB("&") )
+#--> [ [ 4, 8 ], [ 12, 16 ] ]
+
+proff()
+# Executed in 0.09 second(s)
+
+/*----------------
+
+pron()
+
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? @@S( o1.BoundedByIBZ("&") )
+#--> [ [ "&^^^&", 4 ], [ "&vvv&", 12 ] ]
+
+? @@S( o1.BoundedByIBZZ("&") )
+#--> [ [ "&^^^&", [ 4, 8 ] ], [ "&vvv&", [ 12, 16 ] ] ]
+
+proff()
+# Executed in 0.14 second(s)
+
+/*----------------
+
+
+pron()
+
+#                   ...4...8...2...6...2...   
+o1 = new stzString("...&^^^&...&vvv&...&...")
+
+? @@S( o1.BoundedByD("&", :Forward) )
+#--> [ "^^^", "vvv" ]
+
+? @@S( o1.BoundedByD("&", :Backward) )
+#--> [ "...", "..." ]
+
+? NL + "--" + NL
+
+? @@S( o1.BoundedByDZ("&", :Forward) )
+#--> [ [ "^^^", 5 ], [ "vvv", 13 ] ]
+
+? @@S( o1.BoundedByDZ("&", :Backward) )
+#--> [ [ "...", 9 ], [ "...", 17 ] ]
+
+? @@S( o1.BoundedByDZZ("&", :Backward) )
+#--> [ [ "...", [ 9, 11 ] ], [ "...", [ 17, 19 ] ]
+
+? NL + "--" + NL
+
+? @@S( o1.BoundedByDIBZ("&", :Forward) )
+#--> [ [ "&^^^&", 4 ], [ "&vvv&", 12 ] ]
+
+? @@S( o1.BoundedByDIBZZ("&", :Forward) )
+#--> [ [ "&^^^&", [ 4, 8 ] ], [ "&vvv&", [ 12, 16 ] ] ]
+
+? @@S( o1.BoundedByDIBZ("&", :Backward) )
+#--> [ [ "&...&", 8 ], [ "&...&", 16 ] ]
+
+? @@S( o1.BoundedByDIBZZ("&", :Backward) )
+#--> [ [ "&...&", [ 8, 12 ] ], [ "&...&", [ 16, 20 ] ] ]
+
+proff()
+# Executed in 0.58 second(s)
+
+/*-------------------
+
+pron()
+
+o1 = new stzString('this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"')
+
+? @@( o1.SubStringsBoundedBy('"') )
+#--> [
+#	'<    leave spaces    >',
+#	'< leave spaces >'
+# ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*===================
 
 ? Q([ "I", "believe", "in","Ring!" ]).ReduceXT('@string + " "')
 #--> I believe in Ring!
