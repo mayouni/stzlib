@@ -375,6 +375,13 @@ class stzListOfPairs from stzList
 			This.Swap()
 			return This
 
+		def SwapItems()
+			This.Swap()
+
+			def SwapItemsQ()
+				This.SwapItems()
+				return This
+
 	def Swapped()
 		aResult = This.ListOfPairs()
 
@@ -385,6 +392,9 @@ class stzListOfPairs from stzList
 		next
 
 		return aResult
+
+		def ItemsSwapped()
+			return This.Swapped()
 
 	  #-----------------------------------------#
 	 #   REVERSING THE THE PAIRS OF THE LIST   #

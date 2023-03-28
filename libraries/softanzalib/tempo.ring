@@ -189,39 +189,7 @@ o1 = new stzString("/♥♥♥\__/\/\__/♥♥♥\__")
 StopProfiler()
 # Executed in 0.02 second(s)
 
-/*------
 
-StartProfiler()
-
-	o1 = new stzString("__/♥\__")
-
-	o1.RemoveBetween("♥", "/", "\")
-	? o1.Content()
-	#--> __/\__
-
-StopProfiler()
-# Executed in 0.02 second(s)
-
-/*---------
-
-StartProfiler()
-
-	o1 = new stzString("__/♥\__")
-
-	o1.RemoveBetweenIB("♥", "/", "\") # ..XT() -> Bounds are also removed
-	? o1.Content()
-	#--> ____
-
-StopProfiler()
-# Executed in 0.02 second(s)
-
-/*---------
-
-StartProfiler()
-
-? Q("^^♥♥♥^^").ContainsSubStringBoundedBy("♥♥♥", ["^^","^^"])
-
-StopProfiler()
 
 /*---------
 
