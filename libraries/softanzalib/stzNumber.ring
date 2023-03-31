@@ -4022,7 +4022,7 @@ class stzNumber from stzObject
 			ok
 	
 		on "^"
-			nResult = ring_pow(n1,n2)
+			nResult = ring_pow(n1, n2)
 	
 		on "sin"
 			nResult = ring_sin(n1)

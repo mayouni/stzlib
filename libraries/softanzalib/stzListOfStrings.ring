@@ -9797,20 +9797,20 @@ class stzListOfStrings from stzList
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceThisNthStringItemCS(n, pcStr, pCaseSennsitive)
-			This.ReplaceThisNthString(n, pcStr, pCaseSennsitive)
+		def ReplaceThisNthStringItemCS(n, pcStr, pCaseSensitive)
+			This.ReplaceThisNthString(n, pcStr, pCaseSensitive)
 
-		def ReplaceThisStringAtCS(n, pcStr, pCaseSennsitive)
-			This.ReplaceThisNthStringCS(n, pcStr, pCaseSennsitive)
+		def ReplaceThisStringAtCS(n, pcStr, pCaseSensitive)
+			This.ReplaceThisNthStringCS(n, pcStr, pCaseSensitive)
 
-		def ReplaceThisStringItemAtCS(n, pcStr, pCaseSennsitive)
-			This.ReplaceThisNthStringCS(n, pcStr, pCaseSennsitive)
+		def ReplaceThisStringItemAtCS(n, pcStr, pCaseSensitive)
+			This.ReplaceThisNthStringCS(n, pcStr, pCaseSensitive)
 
-		def ReplaceThisStringAtPositionCS(n, pcStr, pCaseSennsitive)
-			This.ReplaceThisNthStringCS(n, pcStr, pCaseSennsitive)
+		def ReplaceThisStringAtPositionCS(n, pcStr, pCaseSensitive)
+			This.ReplaceThisNthStringCS(n, pcStr, pCaseSensitive)
 
-		def ReplaceThisStringItemAtPostionCS(n, pcStr, pCaseSennsitive)
-			This.ReplaceThisNthStringCS(n, pcStr, pCaseSennsitive)
+		def ReplaceThisStringItemAtPostionCS(n, pcStr, pCaseSensitive)
+			This.ReplaceThisNthStringCS(n, pcStr, pCaseSensitive)
 
 		#>
 
