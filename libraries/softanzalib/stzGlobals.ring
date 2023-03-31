@@ -548,8 +548,8 @@ func ring_cos(n)
 func ring_sin(n)
 	return sin(n)
 
-func ring_pow(n)
-	return pow(n)
+func ring_pow(n, nPower)
+	return pow(n, nPower)
 
 func ring_left(str, n)
 	return left(str, n)

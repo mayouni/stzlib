@@ -91,7 +91,8 @@ func Min(panNumbers)
 		StzRaise("Incorrect param! panNumbers must be a list of numbers!")
 	ok
 
-	return StzListOfNumbersQ(panNumbers).Min()
+	nResult = StzListOfNumbersQ(panNumbers).Min()
+	return nResult
 
 func Max(panNumbers)
 
@@ -99,8 +100,8 @@ func Max(panNumbers)
 		StzRaise("Incorrect param! panNumbers must be a list of numbers!")
 	ok
 
-	return StzListOfNumbersQ(panNumbers).Max()
-
+	nResult = StzListOfNumbersQ(panNumbers).Max()
+	return nResult
 
 func Sum(panNumbers)
 	oListOfNumbers = new stzListOfNumbers(panNumbers)
@@ -271,7 +272,14 @@ class stzListOfNumbers from stzList
 	#-------------------------#
 
 	def Min()
-		return This.ToStzList().SortInAscendingQ().FirstItem()
+
+		if len(This.Content()) = 0
+			StzRaise("Can't proceed! Because the list is empty.")
+		ok
+
+		aSorted = This.Sorted()
+		nResult = aSorted[1]
+		return nResult
 
 		def MinQ(n)
 			return This.MinQR(n, :stzNumber)
@@ -561,7 +569,14 @@ class stzListOfNumbers from stzList
 	#-------------------------#
 
 	def Max()
-		return This.ToStzList().RemoveDuplicatesQ().SortInAscendingQ().LastItem()
+		if len(This.Content()) = 0
+			StzRaise("Can't proceed! Because the list is empty.")
+		ok
+
+		aSorted = This.Sorted()
+		nLen = len(aSorted)
+		nResult = aSorted[nLen]
+		return nResult
 
 		def MaxQ(n)
 			return This.MaxQR(n, :stzNumber)
