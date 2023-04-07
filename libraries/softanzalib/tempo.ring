@@ -10,6 +10,7 @@ pron()
 #--> ["F", "T", "A"]
 
 proff()
+# Executed in 0.10 second(s)
 
 /*--------------
 
@@ -41,84 +42,7 @@ o1 = new stzString("1234567")
 proff()
 # Executed in 0.04 second(s)
 
-/*--------------
 
-pron()
-
-o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7" ])
-
-? o1.Section(3, 5)
-#--> [ "3", "4", "5" ]
-
-? o1.Section(5, 3)
-#--> [ "5", "4", "3" ]
-
-? o1.Section(3, -3)
-#--> [ "3", "4", "5" ]
-
-? o1.Section(-3, 3)
-#--> [ "5", "4", "3" ]
-
-? o1.Range(3, 3)
-#--> [ "3", "4", "5" ]
-
-? o1.Range(3, -3)
-#--> [ "1", "2", "3" ]
-
-? o1.Range(-5, -3)
-#--> [ "1", "2", "3" ]
-
-proff()
-# Executed in 0.02 second(s)
-
-/*=============
-
-pron()
-
-# Let's take this string of text:
-
-o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
-
-# You may want to get the section between two positions:
-
-? o1.Between(3, 5)
-#--> ♥♥♥
-
-# You can also tell:
-? o1.Section(3, 5)
-#--> ♥♥♥
-# But let's stick with the Between() function
-# to see how it is flexible...
-
-# Ok. What if you want to get all the substrings bounded by << and >>:
-? o1.Between("<<", ">>")
-#--> ["♥♥♥", "stars", "♥♥♥"]
-
-# They are 3, 2 of them are the same! No worry, you can get
-# a unique instance of each of them by extending the function
-# name by the "U" letter (for Unique):
-
-? o1.BetweenU("<<", ">>")
-#--> ["♥♥♥", "stars"]
-
-# Sometimes, people have different interpretations for the
-# term BETWEEN, and they may want to have the strings inbetween
-# along with the bounds themselves...
-
-# You can do it simply by adding the IB extensions to the name
-# of the fuction ("IB" for "Include Bounds")
-
-? o1.BetweenIB("<<", ">>")
-#--> [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ]
-
-# Oh, great! But "<<♥♥♥>>" is repeated twice...
-# Well, you know how to manage it: just add the "U" extension:
-
- ? o1.BetweenIBU("<<", ">>")
-#--> [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ]
-
-proff()
-# Executed in 0.12 second(s)
 
 /*-------- TODO:ERROR
 pron()
