@@ -16852,52 +16852,10 @@ def ReplaceIBS()
 	#====================================================================#
 
 	def FindAnyBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-		/* EXAMPLE
-
-		o1 = new stzString("...<<***>>...<<***>>...")
-
-		? o1.FindAnyBetween("<<", ">>")
-		#--> [ 6, 16 ]
-
-		? o1.FindAnyBetweenS("<<", ">>", :StartingAt = 10)
-		#--> [ 16 ]
-
-		*/
-
-		nStoppingAt = 0
-
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-			nStoppingAt  = This.NumberOfChars()
-		
-		but isList(pnStartingAt) and Q(pnStartingAt).IsPairOfNumbers()
-			pnStartingAt = pnStartingAt[1]
-			nStoppingAt  = pnStartingAt[2]
-
-		but isList(pnStartingAt) and Q(pnStartingAt).IsInSectionNamedParam()
-
-			if isList(pnStartingAt[2]) and Q(pnStartingAt[2]).IsPairOfNumbers()
-				nStoppingAt  = pnStartingAt[2][2]
-				pnStartingAt = pnStartingAt[2][1]
-
-			else
-				StzRaise("Incorrect param! Correct form is :InSection = [n1, n2].")
-			ok
-
-		but isList(pnStartingAt) and Q(pnStartingAt).IsStoppingAtNamedParam()
-			nStoppingAt  = pnStartingAt
-			pnStartingAt = 1
-		ok
-
-		anPos = This.SectionQ(pnStartingAt, nStoppingAt).
-			FindAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
-
-		nLen = len(anPos)
-		for i = 1 to nLen
-			anPos[i] += pnStartingAt - 1
-		next
-
-		return anPos
+		aSections = This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		//anResult = QR(aSections, :stzListOfPairs).FirstItems()
+anResult = StzListOfPairsQ(aSections).FirstItems()
+		return anResult
 
 		#< @FunctionAlternativeForm
 
@@ -16962,7 +16920,7 @@ def ReplaceIBS()
 
 	  #--------------------------------------------------------------------#
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- S/EXTENDED  #
-	#--------------------------------------------------------------------#
+	#====================================================================#
 
 	def FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
@@ -16991,16 +16949,16 @@ def ReplaceIBS()
 			pnStartingAt = 1
 		ok
 
-		aSections = This.SectionQ(pnStartingAt, nStoppingAt).
+		aTempSections = This.SectionQ(pnStartingAt, nStoppingAt).
 				FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
 
-		nLen = len(aSections)
+		nLen = len(aTempSections)
 		for i = 1 to nLen
-			aSections[i][1] += pnStartingAt - 1
-			aSections[i][2] += pnStartingAt - 1
+			aTempSections[i][1] += pnStartingAt - 1
+			aTempSections[i][2] += pnStartingAt - 1
 		next
 
-		return aSections
+		return aTempSections
 
 		#< @FunctionAlternativeForm
 
@@ -17065,10 +17023,11 @@ def ReplaceIBS()
 
 	  #---------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- S/EXTENDED  #
-	#---------------------------------------------------------#
+	#=========================================================#
 
 	def BetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		aSections = This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+? ">>" + @@S(aSections)
 		acResult  = This.Sections(aSections)
 
 		return acResult
@@ -17223,9 +17182,9 @@ def ReplaceIBS()
 
 		#>
 
-	  #--------------------------------------------------------------------#
+	  #----------------------------------------------------------------------#
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- SIB/EXTENDED  #
-	#--------------------------------------------------------------------#
+	#======================================================================#
 
 	def FindAnyBetweenAsSectionsSIBCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
@@ -17328,7 +17287,7 @@ def ReplaceIBS()
 
 	  #-----------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- SIB/EXTENDED  #
-	#-----------------------------------------------------------#
+	#===========================================================#
 
 	def BetweenSIBCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		aSections = This.FindAnyBetweenAsSectionsSIBCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
@@ -17390,40 +17349,10 @@ def ReplaceIBS()
 
 		*/
 
-		nStoppingAt = 0
+		aSections = This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		anResult  = QR(aSections, :stzListOfPairs).FirstItems()
 
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-			nStoppingAt  = This.NumberOfChars()
-		
-		but isList(pnStartingAt) and Q(pnStartingAt).IsPairOfNumbers()
-			pnStartingAt = pnStartingAt[1]
-			nStoppingAt  = pnStartingAt[2]
-
-		but isList(pnStartingAt) and Q(pnStartingAt).IsInSectionNamedParam()
-
-			if isList(pnStartingAt) and Q(pnStartingAt).IsPairOfNumbers()
-				nStoppingAt  = pnStartingAt[2][2]
-				pnStartingAt = pnStartingAt[2][1]
-
-			else
-				StzRaise("Incorrect param! Correct form is :InSection = [n1, n2].")
-			ok
-
-		but isList(pnStartingAt) and Q(pnStartingAt).IsStoppingAtNamedParam()
-			nStoppingAt  = pnStartingAt
-			pnStartingAt = 1
-		ok
-
-		anPos = This.SectionQ(pnStartingAt, pcDirection, nStoppingAt).
-			FindAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
-
-		nLen = len(anPos)
-		for i = 1 to nLen
-			anPos[i] += pnStartingAt - 1
-		next
-
-		return anPos
+		return anResult
 
 		#< @FunctionAlternativeForm
 
@@ -17488,11 +17417,11 @@ def ReplaceIBS()
 
 	  #---------------------------------------------------------------------#
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- SD/EXTENDED  #
-	#---------------------------------------------------------------------#
+	#=====================================================================#
 
-	def FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+	def FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
 		
-		# Resolving the starting and stopping positions
+		# Resolving the starting (nMin) and stopping positions (nMin)
 
 		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
@@ -17508,60 +17437,59 @@ def ReplaceIBS()
 
 		nLenStr = This.NumberOfChars()
 
-		nStartAt = 1
-		if pcDirection = :Backward
-			nStartAt = nLenStr
-		ok
+		nMin = 1
+		nMax = nLenStr
 
-		nStopAt  = nLenStr
+		bIsStartingAtNamedParam = FALSE
+		bIsStoppingAtNamedParam = FALSE
 
-		if isList(pnStartingAt)
-			oTemp = Q(pnStartingAt)
+		if isList(pnStartingOrStoppingAt)
+			oTemp = Q(pnStartingOrStoppingAt)
 
 			if oTemp.IsStartingAtNamedParam()
-				if pcDirection = :Backward
-					nStartAt = pnStartingAt[2]
-					nStopAt  = 1
-
-				else
-					nStartAt = 1
-					nStopAt = pnStartingAt[2]
-				ok
+				bIsStartingAtNamedParam = TRUE
 
 			but oTemp.IsStoppingAtNamedParam()
-
-				if pcDirection = :Backward
-					nStartAt = nLenStr
-					nStopAt = pnStartingAt[2]
-
-				else
-					nStartAt = 1
-					nStopAt = pnStartingAt[2]
-				ok
-
-			but oTemp.IsPairOfNumbers()
-				nStartAt = pnStartingAt[1]
-				nStopAt  = pnStartingAt[2]
-
+				bIsStoppingAtNamedParam
 			ok
 		ok
 
-		if isString(nStartAt) and Q(nStartAt).IsOneOfThese([ :First, :FirstChar ])
-			nStart = 1
+		if pcDirection = :Forward
+
+			if bIsStartingAtNamedParam
+				nMin = pnStartingOrStoppingAt[2]
+				if isString(nMin) and Q(nMin).IsOneOfThese([ :First, :FirstChar ])
+					nMin = 1
+				ok
+
+			but bIsStoppingAtNamedParam
+				nMax = pnStartingOrStoppingAt[2]
+				if isString(nMax) and Q(nMax).IsOneOfThese([ :Last, :LastChar ])
+					nMin = nLenStr
+				ok
+
+			ok
+
+		else // pcDirection = :Backward
+			if bIsStartingAtNamedParam
+				nMax = pnStartingOrStoppingAt[2]
+				if isString(nMax) and Q(nMax).IsOneOfThese([ :Last, :LastChar ])
+					nMax = nLenStr
+				ok
+
+			but bIsStoppingAtNamedParam
+				nMin = pnStartingOrStoppingAt[2]
+				if isString(nMin) and Q(nMin).IsOneOfThese([ :First, :FirstChar ])
+					nMin = 1
+				ok
+			ok
 		ok
 
-		if isString(nStopAt) nad Q(nStopAt).IsOneOfThese([ :Last, :LastChar ])
-			nStop = nLenStr
-		ok
-
-		if NOT BothAreNumbers(nStartAt, nStopAt)
+		if NOT BothAreNumbers(nMin, nMax)
 			StzRaise("Incorrect params types! nStartAt and nStopAt must be numbers.")
 		ok
 
 		# Doing the job
-
-		nMin = Min([nStartAt, nStopAt])
-		nMax = Max([nStartAt, nStopAt])
 
 		aSections = This.FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 		nLenSections = len(aSections)
@@ -17641,12 +17569,14 @@ def ReplaceIBS()
 
 		#>
 
-	  #---------------------------------------------------------#
+	  #----------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- SD/EXTENDED  #
-	#---------------------------------------------------------#
+	#==========================================================#
 
 	def BetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+? "hi"
 		aSections = This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+? @@S(aSections)
 		acResult  = This.Sections(aSections)
 
 		return acResult
@@ -17693,16 +17623,10 @@ def ReplaceIBS()
 	#=======================================================================#
 
 	def FindAnyBetweenSDIBCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		aSections = This.FindAnyBetweenAsSectionsSDIBCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		anResult  = QR(aSections, :stzListOfPairs).FirstItems()
 
-		anPos   = This.FindAnyBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-		nLenPos = len(anPos)
-		nLenStr = This.NumberOfChars()
-
-		for i = 1 to nLenPos
-			anPos[i] -= nLenStr
-		next
-
-		return anPos
+		return anResult
 
 		#< @FunctionAlternativeForm
 
@@ -17767,7 +17691,7 @@ def ReplaceIBS()
 
 	  #-----------------------------------------------------------------------#
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- SDIB/EXTENDED  #
-	#-----------------------------------------------------------------------#
+	#=======================================================================#
 
 	def FindAnyBetweenAsSectionsSDIBCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
@@ -17855,7 +17779,7 @@ def ReplaceIBS()
 
 	  #------------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- SDIB/EXTENDED  #
-	#------------------------------------------------------------#
+	#============================================================#
 
 	def BetweenSDIBCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 		aSections = This.FindAnyBetweenAsSectionsSDIBCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
@@ -17900,7 +17824,7 @@ def ReplaceIBS()
 
 		#>
 
-	   #======================================================#
+	   #------------------------------------------------------#
 	  #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS           #
 	#======================================================#
@@ -17965,7 +17889,7 @@ def ReplaceIBS()
 	   #--------------------------------------------------------#
 	  #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS    #
 	 #  AND RETURNING THEIR POSITIONS -- D/EXTENDED           #
-	#--------------------------------------------------------#
+	#========================================================#
 	
 	def FindAnyBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 		anResult = QR( This.FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive), :stzListOfPairs).FirstItems()
@@ -18000,8 +17924,8 @@ def ReplaceIBS()
 	   #-----------------------------------------------------------#
 	  #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS       #
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS -- D/EXTENDED  #
-	#-----------------------------------------------------------#
-	
+	#===========================================================#
+
 	def FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		# Checking params
@@ -18116,7 +18040,7 @@ def ReplaceIBS()
 			next
 			
 		ok
-	
+
 		return aResult
 
 		#< @FunctionAlternativeForm
@@ -18147,7 +18071,7 @@ def ReplaceIBS()
 	
 	  #---------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- D/EXTENDED  #
-	#----------------------------------------------------------#
+	#=========================================================#
 	
 	def AnyBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 		aSections = This.FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
@@ -18227,9 +18151,9 @@ def ReplaceIBS()
 	
 		#>
 	
-	  #---------------------------------------------------------#
+	  #----------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- DZ/EXTENDED  #
-	#----------------------------------------------------------#
+	#==========================================================#
 	
 	def AnyBetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
@@ -18321,7 +18245,7 @@ def ReplaceIBS()
 
 	  #-----------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- DZZ/EXTENDED  #
-	#-----------------------------------------------------------#
+	#===========================================================#
 	
 	def AnyBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
@@ -18414,7 +18338,7 @@ def ReplaceIBS()
 	   #--------------------------------------------------------#
 	  #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS    #
 	 #  AND RETURNING THEIR POSITIONS -- DIB/EXTENDED         #
-	#--------------------------------------------------------#
+	#========================================================#
 	
 	def FindAnyBetweenDIBCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 		anResult = QR( This.FindAnyBetweenAsSectionsDIBCS(pcBound1, pcBound2, pcDirection, pCaseSensitive), :stzListOfPairs).FirstItems()
@@ -18449,7 +18373,7 @@ def ReplaceIBS()
 	   #-------------------------------------------------------------#
 	  #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS         #
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS -- DIB/EXTENDED  #
-	#-------------------------------------------------------------#
+	#=============================================================#
 
 	def FindAnyBetweenAsSectionsDIBCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
@@ -18507,7 +18431,7 @@ def ReplaceIBS()
 	
 	  #-----------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- DIB/EXTENDED  #
-	#-----------------------------------------------------------#
+	#===========================================================#
 	
 	def AnyBetweenDIBCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
@@ -18596,7 +18520,7 @@ def ReplaceIBS()
 	
 	  #------------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- DIBZ/EXTENDED  #
-	#------------------------------------------------------------#
+	#============================================================#
 	
 	def AnyBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
@@ -18687,7 +18611,7 @@ def ReplaceIBS()
 
 	  #-------------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- DIBZZ/EXTENDED  #
-	#-------------------------------------------------------------#
+	#=============================================================#
 	
 	def AnyBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
@@ -18776,10 +18700,10 @@ def ReplaceIBS()
 		def AnySubStringBoundedByDIBZZ(pacBounds, pcDirection)
 			return This.AnyBoundedByDIBZZ(pacBounds, pcDirection)
 
-	  #===================================================================#
-	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED   #
-	#===================================================================#
-	#--> Bounds are also considered in the result (TODO: Generalise this feature)
+	  #---------------------------------------------------------------------#
+	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- IB/EXTENDED  #
+	#=====================================================================#
+	#--> Bounds are also considered in the result
 
 	def FindAnyBetweenIBCS(pcBound1, pcBound2, pCaseSensitive)
 		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
@@ -18824,10 +18748,10 @@ def ReplaceIBS()
 
 		#>
 
-	  #---------------------------------------------------------------------------------#
-	 #  FINDING ANY SUBSTRING (AS SECTIONS) BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED   #
-	#---------------------------------------------------------------------------------#
-	#--> Bounds are also considered in the result (TODO: Generalise this feature)
+	  #-----------------------------------------------------------------------------------#
+	 #  FINDING ANY SUBSTRING (AS SECTIONS) BETWEEN TWO OTHER SUBSTRINGS -- IB/EXTENDED  #
+	#===================================================================================#
+	#--> Bounds are also considered in the result
 
 	def FindAnyBetweenAsSectionsIBCS(pcBound1, pcBound2, pCaseSensitive)
 
@@ -18876,9 +18800,9 @@ def ReplaceIBS()
 
 		#>
 
-	  #======================================================================================#
-	 #   FINDING NTH OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS   #
-	#======================================================================================#
+	  #-----------------------------------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
+	#===================================================================================#
 
 	def FindNthBetweenAsSectionCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		/* EXAMPLE
@@ -18943,9 +18867,9 @@ def ReplaceIBS()
 
 		#>
 
-	  #----------------------------------------------------------------------------------------#
+	  #---------------------------------------------------------------------------------------#
 	 #   FINDING FIRST OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS   #
-	#----------------------------------------------------------------------------------------#
+	#=======================================================================================#
 
 	def FindFirstBetweenAsSectionCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		/* EXAMPLE
@@ -18991,9 +18915,9 @@ def ReplaceIBS()
 
 		#>
 
-	  #---------------------------------------------------------------------------------------#
+	  #--------------------------------------------------------------------------------------#
 	 #   FINDING LAST OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS   #
-	#---------------------------------------------------------------------------------------#
+	#======================================================================================#
 
 	def FindLastBetweenAsSectionCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		/* EXAMPLE
@@ -19040,8 +18964,8 @@ def ReplaceIBS()
 		#>
 
 	  #--------------------------------------------------------------------------------------------------#
-	 #   FINDING NTH OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED   #
-	#--------------------------------------------------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- IB/EXTENDED  #
+	#==================================================================================================#
 	# Bounds are considered in the result. Otherwise use FindNthAsSections() instead (without ..IB())
 
 	def FindNthBetweenAsSectionIBCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
@@ -19114,9 +19038,9 @@ def ReplaceIBS()
 
 		#>
 
-	  #------------------------------------------------------------------------------------------------#
-	 # FINDING FIRST OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED #
-	#------------------------------------------------------------------------------------------------#
+	  #---------------------------------------------------------------------------------------------------#
+	 # FINDING FIRST OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- IB/EXTENDED  #
+	#===================================================================================================#
 
 	def FindFirstBetweenAsSectionIBCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		/* EXAMPLE
@@ -19160,9 +19084,9 @@ def ReplaceIBS()
 
 		#>
 
-	  #---------------------------------------------------------------------------------------#
-	 #   FINDING LAST OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS   #
-	#---------------------------------------------------------------------------------------#
+	  #------------------------------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
+	#====================================================================================#
 
 	def FindLastBetweenAsSectionsIBCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		/* EXAMPLE
@@ -19574,7 +19498,7 @@ def ReplaceIBS()
 
 	  #------------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- Z/EXTENDED  #
-	#------------------------------------------------------------------#
+	#==================================================================#
 
 	def BetweenZCS(p1, p2, pCaseSensitive)
 
@@ -19628,7 +19552,7 @@ def ReplaceIBS()
 
 	  #-------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS  #
-	#-------------------------------------------#
+	#===========================================#
 
 	def SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
@@ -19675,7 +19599,7 @@ def ReplaceIBS()
 
 	  #---------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- Z/EXTENDED  #
-	#---------------------------------------------------------#
+	#=========================================================#
 
 	def SubStringsBetweenZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		acSubStr = This.SubStringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -19710,7 +19634,7 @@ def ReplaceIBS()
 
 	  #-------------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- ZZ/EXTENDED  #
-	#-------------------------------------------------------------------#
+	#===================================================================#
 
 	def BetweenZZCS(p1, p2, pCaseSensitive)
 
@@ -19764,7 +19688,7 @@ def ReplaceIBS()
 
 	  #----------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- ZZ/EXTENDED  #
-	#----------------------------------------------------------#
+	#==========================================================#
 	
 	def SubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
 		acSubStr = This.SubStringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -19797,7 +19721,7 @@ def ReplaceIBS()
 
 		#>
 
-	  #==============================================================================#
+	  #------------------------------------------------------------------------------#
 	 #  SUBSTRING(S) ENCLOSED BETWEEN TWO SUBSTRINGS (OR POSITIONS) -- IB/EXTENDED  # 
 	#==============================================================================#
 
@@ -19878,7 +19802,7 @@ def ReplaceIBS()
 
 	  #-----------------------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO SUBSTRINGS (OR POSITIONS) -- IB/Z() EXTENDED  #
-	#-----------------------------------------------------------------------#
+	#=======================================================================#
 
 	def BetweenIBZCS(p1, p2, pCaseSensitive)
 	
@@ -19927,7 +19851,7 @@ def ReplaceIBS()
 		
 	  #------------------------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO SUBSTRINGS (OR POSITIONS) -- IB/ZZ() EXTENDED  #
-	#------------------------------------------------------------------------#
+	#========================================================================#
 
 	def BetweenIBZZCS(p1, p2, pCaseSensitive)
 	
@@ -19978,7 +19902,7 @@ def ReplaceIBS()
 
 	  #----------------------------------------------------------------------#
 	 #   SUBSTRINGS ENCLOSED BETWEEN TWO OTHER SUBSTRINGS  -- IB/EXTENDED   # 
-	#----------------------------------------------------------------------#
+	#======================================================================#
 	# Bounds are considered in the results
 
 	def SubstringsBetweenIBCS(pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -20035,7 +19959,7 @@ def ReplaceIBS()
 
 	  #--------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO SUBSTRINGS -- IB/Z() EXTENDED  #
-	#--------------------------------------------------------#
+	#========================================================#
 
 	def SubStringsBetweenIBZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 	
@@ -20098,7 +20022,7 @@ def ReplaceIBS()
 		
 	  #---------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO SUBSTRINGS -- IB/ZZ() EXTENDED  #
-	#---------------------------------------------------------#
+	#=========================================================#
 
 	def SubStringsBetweenIBZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 	
@@ -20159,7 +20083,7 @@ def ReplaceIBS()
 
 		#>
 
-	  #============================================================================#
+	  #----------------------------------------------------------------------------#
 	 #  UNIQUE SUBSTRING(S) ENCLOSED BETWEEN TWO OTHER SUBSTRINGS (OR POSITIONS)  # 
 	#============================================================================#
 
@@ -20267,7 +20191,7 @@ def ReplaceIBS()
 
 	  #--------------------------------------------------------------------------#
 	 #  UNIQUE SUBSTRINGS ENCLOSED BETWEEN TWO OTHER SUBSTRINGS (OR POSITIONS)  #
-	#--------------------------------------------------------------------------#
+	#==========================================================================#
 
 	def SubstringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		acResult = This.SubStringsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive).
@@ -20330,9 +20254,9 @@ def ReplaceIBS()
 
 		#>
 
-	  #==========================================================================================#
-	 #  UNIQUE SUBSTRING(S) ENCLOSED BETWEEN TWO OTHER SUBSTRINGS (OR POSITIONS) -- IB/Extended # 
-	#==========================================================================================#
+	  #-------------------------------------------------------------------------------------------#
+	 #  UNIQUE SUBSTRING(S) ENCLOSED BETWEEN TWO OTHER SUBSTRINGS (OR POSITIONS) -- IB/Extended  # 
+	#===========================================================================================#
 
 	def BetweenIBUCS(p1, p2, pCaseSensitive)
 		if isList(p1) and Q(p1).IsOneOfTheseNamedParams([ :SubString, :Position, :SubStrings, :Positions ])
@@ -20438,7 +20362,7 @@ def ReplaceIBS()
 
 	  #-----------------------------------------------------------------------------#
 	 #   UNIQUE SUBSTRINGS ENCLOSED BETWEEN TWO OTHER SUBSTRINGS  -- IB/EXTENDED   # 
-	#-----------------------------------------------------------------------------#
+	#=============================================================================#
 
 	def SubstringsBetweenIBUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		acResult = This.SubStringsBetweenIBCSQ(pcSubStr1, pcSubStr2, pCaseSensitive).
@@ -20499,6 +20423,40 @@ def ReplaceIBS()
 			return This.SubstringsBetweenIBUQR(pcSubStr1, pcSubStr2, pcReturnType)
 
 		#>
+
+	  #-------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SZ/EXTENDED  #
+	#===================================================================#
+
+	def BetweenSZCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		
+		anPositions  = This.FindAnyBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		acSubStrings = This.BetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+
+		aResult = Association([ acSubStrings, anPositions ])
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVE
+
+	def BetweenSZ(pcSubStr1, pcSubStr2, pnStartingAt)
+		return This.BetweenSZCS(pcSubStr1, pcSubStr2, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SZZ/EXTENDED  #
+	#====================================================================#
+
+	def BetweenSZZCS(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+		acSubStrings = This.BetweenSCS(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+		aSections = This.FindAnyBetweenAsSectionsSCS(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+		aResult = Association([ acSubStrings, aSections ])
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVE
+
+	def BetweenSZZ(pcSubStr1, pcSubStr2, pnStartingAt)
+		return This.BetweenSZZCS(pcSubStr1, pcSubStr2, pnStartingAt, :CaseSensitive = TRUE)
 
 	  #======================================================================#
 	 #  GETIING THE NUMBER OF SUBSTRINGS BOUNDED BY GIVEN OTHER SUBSTRINGS  #
@@ -28139,7 +28097,7 @@ def ReplaceIBS()
 		nLenSubStr = len(acSubStrings)
 
 		# Identifying those among them, that will be altered
-		# after Spacify function is is used
+		# after Spacify function is used
 
 		acToBeAltered = QR(pacSubStr, :stzListOfStrings).SubStrongs()
 		#--> [ "Ring" ]

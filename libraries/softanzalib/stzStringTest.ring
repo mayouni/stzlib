@@ -1,5 +1,256 @@
 load "stzlib.ring"
 
+/*------------
+
+StartProfiler()
+
+? Q("^^♥♥♥^^").ContainsSubStringBoundedBy("♥♥♥", ["^^","^^"])
+#--> TRUE
+
+StopProfiler()
+# Executed in 0.28 second(s)
+
+/*=============
+
+pron()
+
+# Let's take this string of text:
+
+o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
+
+# You may want to get the section between two positions:
+
+? o1.Between(3, 5)
+#--> ♥♥♥
+
+# You can also say:
+? o1.Section(3, 5)
+#--> ♥♥♥
+# But let's stick with the Between() function
+# to see how mutch it is flexible...
+
+# Ok. What if you want to get all the substrings bounded by << and >>:
+? o1.Between("<<", ">>")
+#--> ["♥♥♥", "stars", "♥♥♥"]
+
+# They are 3, 2 of them are the same! No worry, you can get
+# a unique instance of each of them by extending the function
+# name by the "U" letter (for Unique):
+
+? o1.BetweenU("<<", ">>")
+#--> ["♥♥♥", "stars"]
+
+# Sometimes, people have different interpretations for the
+# term BETWEEN, and they may want to have the strings inbetween
+# along with the bounds themselves...
+
+# You can do it simply by adding the IB extensions to the name
+# of the fuction ("IB" for "Include Bounds")
+
+? o1.BetweenIB("<<", ">>")
+#--> [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ]
+
+# Oh, great! But "<<♥♥♥>>" is repeated twice...
+# Well, you know how to manage it: just add the "U" extension:
+
+ ? o1.BetweenIBU("<<", ">>")
+#--> [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ]
+
+proff()
+# Executed in 0.15 second(s)
+
+/*===============
+*/
+pron()
+
+o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<♥♥♥>>...")
+? @@S( o1.FindAnyBetweenAsSectionsD("<<", ">>", :Backward) )
+#--> [ [ 25, 27 ], [ 16, 17 ], [ 6, 8 ] ]
+
+? @@S( o1.FindAnyBetweenAsSectionsS("<<", ">>", :StartingAt = 10) )
+#--> [ [ 16, 17 ], [ 25, 27 ] ]
+
+? @@S( o1.FindAnyBetweenAsSectionsSD("<<", ">>", :StoppingAt = 10, :Backward) )
+#--> [ [ 25, 27 ], [ 16, 17 ] ]
+? @@S( o1.FindAnyBetweenAsSectionsSDIB("<<", ">>", :StoppingAt = 10, :Backward) )
+#--> [ [ 23, 29 ], [ 14, 19 ] ]
+
+? @@S( o1.FindAnyBetweenAsSectionsSD("<<", ">>", :StoppingAt = 10, :Forward) )
+#--> [ [ 6, 8 ] ]
+? @@S( o1.FindAnyBetweenAsSectionsSDIB("<<", ">>", :StoppingAt = 10, :Forward) )
+#--> [ [ 4, 10 ] ]
+
+? @@S( o1.BetweenSD("<<", ">>", :StoppingAt = 10, :Going = :Backward) )
+#--> [ "♥♥♥", "★★" ]
+
+? @@S( o1.BetweenSDIB("<<", ">>", :StoppingAt = 10, :Going = :Backward) )
+#--> [ "<<♥♥♥>>", "<<★★>>" ]
+
+proff()
+# Executed in 0.42 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<--->>...")
+
+? @@S( o1.FindAnyBetweenAsSectionsSDIB("<<",">>", :StoppingAt = 10, :Going = :Backward) )
+#--> [ [ 23, 29 ], [ 14, 19 ] ]
+
+? @@S( o1.BetweenSDIB("<<", ">>", :StoppingAt = 10, :Going = :Backward) )
+#--> [ "<<--->>", "<<★★>>" ]
+
+? @@S( o1.FindAnyBetweenAsSectionsSDIB("<<", ">>", :InSection = [4, 20], :Going = :Forward) )
+#--> [ [ 4, 10 ], [ 14, 19 ] ]
+
+? @@S( o1.BetweenSDIB("<<", ">>", :InSection = [4, 20], :Going = :Forward) )
+#--> [ "<<♥♥♥>>", "<<★★>>" ]
+
+proff()
+# Executed in 0.26 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<--->>...")
+
+? @@S( o1.FindAnyBetweenSDIB("<<",">>", :StoppingAt = 10, :Going = :Backward) )
+#--> [ 23, 14 ]
+
+? @@S( o1.FindAnyBetweenSDIB("<<", ">>", :InSection = [4, 20], :Going = :Forward) )
+#--> [ 4, 14 ]
+
+proff()
+# Executed in 0.16 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzString("...<<♥♥♥>>...<<★★>>...")
+
+? o1.BetweenIB("<<", ">>")
+#--> [ "<<♥♥♥>>", "<<★★>>" ]
+
+? o1.BetweenSIB("<<", ">>", :StartingAt = 10)
+#--> [ <<★★>> ]
+
+? o1.BetweenSIB("<<", ">>", :StoppingAt = 10)
+#--> [ <<♥♥♥>>]
+
+? o1.BetweenSIB("<<", ">>", :InSection = [4, 20])
+#--> [ "<<♥♥♥>>", "<<★★>>" ]
+
+proff()
+# Executed in 0.20 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("...<<***>>...<<***>>...")
+
+? @@S( o1.FindAnyBetweenAsSectionsIB("<<", ">>") )
+#--> [ [ 4, 10 ], [ 14, 20 ] ]
+
+? @@S( o1.FindAnyBetweenAsSectionsSIB("<<", ">>", :StartingAt = 10) )
+#--> [ [ 14, 20 ] ]
+
+? @@S( o1.FindAnyBetweenAsSectionsSIB("<<", ">>", :StoppingAt = 10) )
+#--> [ [ 4, 10 ] ]
+
+? @@S( o1.FindAnyBetweenAsSectionsSIB("<<", ">>", :InSection = [4, 20]) )
+#--> [ [ 4, 10 ], [ 14, 20 ] ]
+
+proff()
+# Executed in 0.19 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("...<<***>>...<<***>>...")
+
+? o1.FindAnyBetweenIB("<<", ">>")
+#--> [ 4, 14 ]
+
+? o1.FindAnyBetweenSIB("<<", ">>", :StartingAt = 10)
+#--> [ 14 ]
+
+? o1.FindAnyBetweenSIB("<<", ">>", :StoppingAt = 10)
+#--> [ 4 ]
+
+? o1.FindAnyBetweenSIB("<<", ">>", :InSection = [4, 20])
+#--> [ 4, 14 ]
+
+proff()
+# Executed in 0.16 second(s)
+
+/*=============
+
+pron()
+
+o1 = new stzString("...<<♥♥♥>>...<<★★>>...")
+
+? o1.Between("<<", ">>")
+#--> [ "♥♥♥", "★★" ]
+
+? o1.BetweenS("<<", ">>", :StartingAt = 10)
+#--> [ "★★" ]
+
+? o1.BetweenS("<<", ">>", :StoppingAt = 10)
+#--> [ "♥♥♥" ]
+
+? o1.BetweenS("<<", ">>", :InSection = [4, 20])
+#--> [ "♥♥♥", "★★" ]
+
+proff()
+# Executed in 0.16 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("...<<***>>...<<***>>...")
+
+? @@S( o1.FindAnyBetweenAsSections("<<", ">>") )
+#--> [ [ 6, 8 ], [ 16, 18 ] ]
+
+? @@S( o1.FindAnyBetweenAsSectionsS("<<", ">>", :StartingAt = 10) )
+#--> [ [ 16, 18 ] ]
+
+? @@S( o1.FindAnyBetweenAsSectionsS("<<", ">>", :StoppingAt = 10) )
+#--> [ [ 6, 8 ] ]
+
+? @@S( o1.FindAnyBetweenAsSectionsS("<<", ">>", :InSection = [4, 20]) )
+#--> [ [ 6, 8 ], [ 16, 18 ] ]
+
+proff()
+# Executed in 0.19 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("...<<***>>...<<***>>...")
+
+? o1.FindAnyBetween("<<", ">>")
+#--> [ 6, 16 ]
+
+? o1.FindAnyBetweenS("<<", ">>", :StartingAt = 10)
+#--> [ 16 ]
+
+? o1.FindAnyBetweenS("<<", ">>", :StoppingAt = 10)
+#--> [ 6 ]
+
+? o1.FindAnyBetweenS("<<", ">>", :InSection = [4, 20])
+#--> [ 6, 16 ]
+
+proff()
+# Executed in 0.16 second(s)
+
 /*=============
 
 pron()
