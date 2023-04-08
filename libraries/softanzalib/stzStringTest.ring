@@ -192,6 +192,70 @@ proff()
 
 pron()
 
+o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<--->>...")
+
+? @@S( o1.FindAnyBetweenAsSectionsS("<<", ">>", :StartingAt = 10) )
+#--> [ [ 16, 17 ], [ 25, 27 ] ]
+
+? @@S( o1.FindAnyBetweenS("<<", ">>", :StartingAt = 10) )
+#--> [ 16, 25 ]
+
+? @@S( o1.BetweenS("<<", ">>", :StartingAt = 10) )
+#--> [ "★★", "---" ]
+
+? NL + "--" + NL
+
+? @@S( o1.FindAnyBetweenAsSectionsSD( "<<", ">>", :StartingAt = :LastChar, :Backward ) )
+#--> [ [ 25, 27 ], [ 16, 17 ], [ 6, 8 ] ]
+
+? @@S( o1.FindAnyBetweenAsSectionsSD("<<", ">>", :StartingAt = 10, :Going = :Backward ) )
+#--> [ [ 6, 8 ] ]
+
+? @@S( o1.BetweenSD("<<", ">>", :StartingAt = 10, :Going = :Backward ) )
+#--> [ "♥♥♥" ]
+
+? NL + "--" + NL
+
+? @@S( o1.BetweenSDZ("<<", ">>", :StartingAt = 10, :Going = :Backward ) )
+#--> [ [ "♥♥♥", 6 ] ]
+
+? @@S( o1.BetweenSDZZ("<<", ">>", :StartingAt = 10, :Going = :Backward ) )
+#--> [ [ "♥♥♥", [ 6, 8 ] ] ]
+
+? NL + "--" + NL
+
+? @@S( o1.BetweenSD("<<", ">>", :StartingAt = 10, :Forward) )
+#--> [ "★★", "---" ]
+
+? @@S( o1.BetweenSZ("<<", ">>", :StartingAt = 10) )
+#--> [ [ "★★", 16 ], [ "---", 25 ] ]
+
+? NL + "--" + NL
+
+? @@S( o1.BetweenSZZ("<<", ">>", :StartingAt = 10) )
+#--> [ [ "★★", [ 16, 17 ] ], [ "---", [ 25, 27 ] ] ]
+
+? @@S( o1.BetweenSDZ("<<", ">>", :StartingAt = 10, :Forward) )
+#--> [ [ "★★", 16 ], [ "---", 25 ] ]
+
+? @@S( o1.BetweenSDZZ("<<", ">>", :StartingAt = 10, :Forward) )
+#--> [ [ "★★", [ 16, 17 ] ], [ "---", [ 25, 27 ] ] ]
+
+? NL + "--" + NL
+
+? @@S( o1.BetweenSDIBZ("<<", ">>", :StartingAt = 10, :Forward) )
+#--> [ [ "<<★★>>", 14 ], [ "<<--->>", 23 ] ]
+
+? @@S( o1.BetweenSDIBZZ("<<", ">>", :StartingAt = 10, :Forward) )
+#--> [ [ "<<★★>>", [ 14, 19 ] ], [ "<<--->>", [ 23, 29 ] ] ]
+
+proff()
+# Executed in 0.78 second(s)
+
+/*=============
+
+pron()
+
 o1 = new stzString("...<<♥♥♥>>...<<★★>>...")
 
 ? o1.Between("<<", ">>")
