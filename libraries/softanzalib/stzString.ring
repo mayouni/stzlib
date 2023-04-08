@@ -17026,11 +17026,11 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	#=========================================================#
 
 	def BetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-		aSections = This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-? ">>" + @@S(aSections)
-		acResult  = This.Sections(aSections)
 
-		return acResult
+		aSections = This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)		
+		aResult = This.Sections(aSections)
+
+		return aResult
 
 		#< @FunctionFluentForm
 
@@ -17573,48 +17573,47 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- SD/EXTENDED  #
 	#==========================================================#
 
-	def BetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-? "hi"
-		aSections = This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-? @@S(aSections)
+	def BetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
+
+		aSections = This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
 		acResult  = This.Sections(aSections)
 
 		return acResult
 
 		#< @FunctionFluentForm
 
-		def AnyBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.BetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		def AnyBetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
+			return This.BetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
 
-		def SubStringsBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.BetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		def SubStringsBetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
+			return This.BetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
 
-		def AnySubStringsBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.BetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		def AnySubStringsBetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
+			return This.BetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
 
-		def SubStringBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.BetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		def SubStringBetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
+			return This.BetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def BetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-		return This.BetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+	def BetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
+		return This.BetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def AnyBetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.BetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
+		def AnyBetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
+			return This.BetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
 
-		def SubStringsBetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.BetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
+		def SubStringsBetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
+			return This.BetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
 
-		def AnySubStringsBetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.BetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
+		def AnySubStringsBetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
+			return This.BetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
 
-		def SubStringBetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.BetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
+		def SubStringBetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
+			return This.BetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
 
 		#>
 
@@ -20429,10 +20428,11 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	#===================================================================#
 
 	def BetweenSZCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+	
+		aSections = This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		acSubStrings = This.Sections(aSections)
+		anPositions = QR(aSections, :stzListOfPairs).FirstItems()
 		
-		anPositions  = This.FindAnyBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-		acSubStrings = This.BetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
 		aResult = Association([ acSubStrings, anPositions ])
 
 		return aResult
@@ -20446,10 +20446,14 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SZZ/EXTENDED  #
 	#====================================================================#
 
-	def BetweenSZZCS(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
-		acSubStrings = This.BetweenSCS(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
-		aSections = This.FindAnyBetweenAsSectionsSCS(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+	def BetweenSZZCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+
+		aSections = This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		acSubStrings = This.Sections(aSections)
+		
 		aResult = Association([ acSubStrings, aSections ])
+
+		return aResult
 
 		return aResult
 
@@ -20457,6 +20461,84 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 	def BetweenSZZ(pcSubStr1, pcSubStr2, pnStartingAt)
 		return This.BetweenSZZCS(pcSubStr1, pcSubStr2, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SDZ/EXTENDED  #
+	#====================================================================#
+
+	def BetweenSDZCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+	
+		aSections = This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		acSubStrings = This.Sections(aSections)
+		anPositions = QR(aSections, :stzListOfPairs).FirstItems()
+		
+		aResult = Association([ acSubStrings, anPositions ])
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVE
+
+	def BetweenSDZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection)
+		return This.BetweenSDZCS(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SDZZ/EXTENDED  #
+	#=====================================================================#
+
+	def BetweenSDZZCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+
+		aSections = This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		acSubStrings = This.Sections(aSections)
+		
+		aResult = Association([ acSubStrings, aSections ])
+
+		return aResult
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVE
+
+	def BetweenSDZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection)
+		return This.BetweenSDZZCS(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SDIBZ/EXTENDED  #
+	#======================================================================#
+
+	def BetweenSDIBZCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+	
+		aSections = This.FindAnyBetweenAsSectionsSDIBCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		acSubStrings = This.Sections(aSections)
+		anPositions = QR(aSections, :stzListOfPairs).FirstItems()
+		
+		aResult = Association([ acSubStrings, anPositions ])
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVE
+
+	def BetweenSDIBZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection)
+		return This.BetweenSDIBZCS(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SDIBZZ/EXTENDED  #
+	#=======================================================================#
+
+	def BetweenSDIBZZCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+
+		aSections = This.FindAnyBetweenAsSectionsSDIBCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		acSubStrings = This.Sections(aSections)
+		
+		aResult = Association([ acSubStrings, aSections ])
+
+		return aResult
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVE
+
+	def BetweenSDIBZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection)
+		return This.BetweenSDIBZZCS(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
 
 	  #======================================================================#
 	 #  GETIING THE NUMBER OF SUBSTRINGS BOUNDED BY GIVEN OTHER SUBSTRINGS  #
