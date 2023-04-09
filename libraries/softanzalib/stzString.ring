@@ -15732,7 +15732,8 @@ def ReplaceIBS()
 
 			# FindXT( "*", :Between = [ "<<", :And = ">>" ])
 			if  oP2.IsBetweenNamedParam()
-				return This.FindBetweenCS(p1, p2, pCaseSensitive)
+				p2 = p2[2]
+				return This.FindBetweenCS(p1, p2[1], p2[2], pCaseSensitive)
 
 			# FindXT( "*", :BoundedBy = '"' )
 			but oP2.IsBoundedByNamedParam()
@@ -15785,7 +15786,7 @@ def ReplaceIBS()
 				return This.FindXTCS( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
 
 			# FindXT( :3rd = "*", :Between = [ "<<", ">>" ])
-			but isList(p1) and
+			but isList(p1) and isString(p1[2]) and
 			    isString(p1[1]) and
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
@@ -15797,7 +15798,7 @@ def ReplaceIBS()
 				return This.FindNthBetweenCS(n, p1[2], p2[1], p2[2], pCaseSensitve)
 
 			# FindXT( :3rd = "*", :BoundedBy = '"' ])
-			but isList(p1) and
+			but isList(p1) and  isString(p1[2]) and
 			    isString(p1[1]) and
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
@@ -15805,35 +15806,111 @@ def ReplaceIBS()
 			    isList(p2) and Q(p2).IsBoundedByNamedParam()
 
 				n = 0+ Q(p1[1]).FirstNumber()
-				return This.FindNthBoundedByCS(n, p1[2], p2], pCaseSensitve)
+				return This.FindNthBoundedByCS(n, p1[2], p2, pCaseSensitve)
 
 			# FindXT( :3rd = "*", :InSection = [5, 24] ])
+			but isList(p1) and isString(p1[2]) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsInSectionNamedParam() and
+			    isList(p2[2]) and Q(p2[2]).IsPair()
+
+				n = 0+ Q(p1[1]).FirstNumber()
+				nPos = This.SectionQ(p2[2][1], p2[2][2]).FindNthCS(n, p1[2], pCaseSensitive)
+				nPos += p2[2][1]
+
+				return nPos
 
 			# FindXT( :3rd = "*", :Before = '!' ])
+			but isList(p1) and isString(p1[2]) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsBeforeNamedParam()
+
+				if isString(p2[2])
+					n = This.FindFirstCS(p2[2], pCaseSensitive)
+					return This.FindXTCS( p1[2], :InSection = [1, n], pCaseSensitive)
+
+			 	but isNumber(p2[2])
+					return This.FindXTCS( p1[2], :InSection = [1, p2[2] ], pCaseSensitive )
+
+				else
+					StzRaise("Incorrect param type! :Before = ... must be fellowed by a string or number.")
+				ok
 
 			# FindXT( :3rd = "*", :BeforePosition = 12 ])
+			but isList(p1) and isString(p1[2]) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsBeforePositionNamedParam()
+
+				return This.FindXTCS( p1[2], :InSection = [ 1, p2[2] ], pCaseSensitive )
+
 
 			# FindXT( :3rd = "*", :After = '!' ])
+			but isList(p1) and isString(p1[2]) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsAfterNamedParam()
+
+				if isString(p2[2])
+					n = This.FindLastCS(p2[2], pCaseSensitive)
+					return This.FindXTCS( p1[2], :InSection = [n, :LastChar], pCaseSensitive)
+
+			 	but isNumber(p2[2])
+					return This.FindXTCS( p1[2], :InSection = [p2[2], :LastChar], pCaseSensitive )
+
+				else
+					StzRaise("Incorrect param type! :Before = ... must be fellowed by a string or number.")
+				ok
 
 			# FindXT( :3rd = "*", :AfterPosition = 12 ])
+			but isList(p1) and isString(p1[2]) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsAfterPositionNamedParam()
+
+				return This.FindXTCS( p1[2], :InSection = [ p2[2], :LastChar ], pCaseSensitive )
 
 			# FindXT( :AnySubString, :Between = ["<<", ">>" )
+			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
+			    isList(p2) and Q(p2).IsBetweenNamedParam() and
+			    isList(p2[2]) and Q(p2[2]).IsPairOfStrings()
+
+				return This.FindAnyBetweenCS(p2[2][1], p2[2][1], pCaseSensitive)
 
 			# FindXT( :Any, :BoundedBy = '"' )
+			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
+			    isList(p2) and Q(p2).IsBoundedByNamedParam()
 
-			# FindXT( :Any, :InSection = [5, 24] )
+				return This.FindAnyBoundedByCS(p2[2], pCaseSensitive)
 
+			# FindXT( "*", :InSection = [5, 24] )
+			but isList(p2) and Q(p2).IsInSectionNamedParam() and Q(p2).IsPairOfNumbers()
+
+				nPos = This.SectionQ(p2[1], p2[2]).FindCS(p1, pCaseSensitive)
+				nResult = nPos + p2[1]
+				return nResult
 			ok
 		ok
 
-		
-
+		StzRaise("Insupported syntax!")
 
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindXT(p1, p2)
-		return This.FindXT(p1, p2, :CaseSensitive = TRUE)
+		return This.FindXTCS(p1, p2, :CaseSensitive = TRUE)
 
 	   #=====================================================#
 	  #   CHECKING IF STRING OCCURES BEFORE/AFTER A GIVEN   #
@@ -16483,6 +16560,7 @@ def ReplaceIBS()
 	#=========================================================================#
 
 	def FindBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
 		/* EXAMPLE 1:
 
 		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
@@ -16513,44 +16591,12 @@ def ReplaceIBS()
 			StzRaise("Incorrect param type! pcBound2 must be a string.")
 		ok
 	
+		nLenBound1 = Q(pcBound1).NumberOfChars()
+
 		# Doing the job
 
-		anResult = []
-
-		if pcBound1 = pcBound2
-			nLen = Q(pcBound1).NumberOfChars()
-			aSections = This.FindAllCSQ(pcBound1, pCaseSensitive).
-				     Yield('{ [ (0+@item)+' + ""+nLen + ' , (0+@NextItem)-1 ] }')
-
-			for aSection in aSections
-
-				if This.SectionQ(aSection[1], aSection[2]).
-				   IsEqualToCS(pcSubStr, pCaseSensitive)
-
-					anResult + aSection[1]
-				ok
-			next
-
-		else
-			nLen1 = Q(pcBound1).NumberOfChars()
-			nLen2 = Q(pcBound2).NumberOfChars()
-
-			aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
-
-			for aSection in aSections
-
-				if This.SectionQ( aSection[1] - nLen1, aSection[1] - 1 ).
-					IsEqualToCS(pcBound1, pCaseSensitive) and
-
-				   This.SectionQ( aSection[2] + 1, aSection[2] + nLen2 ).
-					IsEqualToCS(pcBound2, pCaseSensitive)
-
-					anResult + aSection[1]
-				ok
-
-			next
-		ok
-
+		anPos = This.FindAllCS( pcBound1 + pcsubStr + pcBound2, pCaseSensitive )
+		anResult = QR(anPos, :stzListOfNumbers).AddedToEach(nLenBound1)
 		return anResult
 
 		#< @FunctionFluentForm
