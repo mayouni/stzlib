@@ -60,7 +60,7 @@ proff()
 # Executed in 0.15 second(s)
 
 /*===============
-*/
+
 pron()
 
 o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<♥♥♥>>...")

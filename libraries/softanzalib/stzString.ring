@@ -14583,7 +14583,7 @@ def ReplaceIBS()
 	def FindPrevious(pcSubStr, nStart)
 		return This.FindPreviousCS(pcSubStr, nStart, :CaseSensitive = TRUE)
 	
-	  #=================================================#
+	  #-------------------------------------------------#
 	 #      FINDING ALL OCCURRENCES OF A SUBSTRING     #
 	#=================================================#
 
@@ -14693,9 +14693,9 @@ def ReplaceIBS()
 
 		#>
 
-	  #-------------------------------------------------------------------------------------#
-	 # FINDING ALL OCCURRENCES OF A SUBSTRING -- RETURNING THE SUBSTRING AND ITS POSITIONS #   #
-	#-------------------------------------------------------------------------------------#
+	  #---------------------------------------------------------------------------------------#
+	 #  FINDING ALL OCCURRENCES OF A SUBSTRING -- RETURNING THE SUBSTRING AND ITS POSITIONS  #
+	#=======================================================================================#
 
 	def FindZCS(pcSubStr, pCaseSensitive)
 
@@ -15716,6 +15716,124 @@ def ReplaceIBS()
 
 	def FindManyAsSections(pacSubStr)
 		return This.FindManyAsSectionsCS(pacSubStr, :CaseSensitive = TRUE)
+
+	  #=====================================#
+	 #  FINDING THINGS, THE EXTENDED FORM  #
+	#=====================================#
+
+	def FindXTCS(p1, p2, pCaseSensitive)
+
+		# EXAMPLES
+
+		if ( isString(p1) OR ( isList(p1) and Q(p1).IsSubStringNamedParam() ) ) AND
+		   ( isList(p2) )
+
+			oP2 = Q(p2)
+
+			# FindXT( "*", :Between = [ "<<", :And = ">>" ])
+			if  oP2.IsBetweenNamedParam()
+				return This.FindBetweenCS(p1, p2, pCaseSensitive)
+
+			# FindXT( "*", :BoundedBy = '"' )
+			but oP2.IsBoundedByNamedParam()
+				return This.FindBoundedByCS(p1, p2, pCaseSensitive)
+
+			# FindXT( "*", :InSection = [10 , 14 ] )
+			but oP2.IsInSectionNamedParam()
+				anPos = This.SectionQ(p2[2]).FindCS(p1, pCaseSensitive)
+				anPos = QR(anPos, :stzListOfNumbers).AddedToEach(p2[2])
+				return anPos
+
+			# FindXT( "*", :Before = "--")
+			but oP2.IsBeforeNamedParam()
+				if isString(p2[2])
+					nPos = This.FindFirstCS(p2, pCaseSensitive)
+					if nPos > 0
+						return This.FindXTCS( p1, :InSection = [1, nPos], pCaseSensitive )
+
+					else
+						return []
+					ok
+
+				but isNumber(p2[2])
+					return This.FindXTCS( p1, :InSection = [1, p2[2]], pCaseSensitive )
+
+				ok
+
+			# FindXT( "*", :BeforePosition = 10)
+			but oP2.IsBeforePositionNamedParam()
+				return This.FindXTCS( p1, :InSection = [1, p2[2]], pCaseSensitive )
+
+			# FindXT( "*", :After = "--")
+			but oP2.IsAfterNamedParam()
+				if isString(p2[2])
+					nPos = This.FindFirstCS(p2, pCaseSensitive)
+					if nPos > 0
+						return This.FindXTCS( p1, :InSection = [nPos, :LastChar], pCaseSensitive )
+
+					else
+						return []
+					ok
+
+				but isNumber(p2[2])
+					return This.FindXTCS( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
+
+				ok
+
+			# FindXT( "*", :AfterPosition = 3)
+			but oP2.IsAfterPositionNamedParam()
+				return This.FindXTCS( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
+
+			# FindXT( :3rd = "*", :Between = [ "<<", ">>" ])
+			but isList(p1) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsBetweenNamedParam() and
+			    isList(p2[2]) and Q(p2[2]).IsPair()
+
+				n = 0+ Q(p1[1]).FirstNumber()
+				return This.FindNthBetweenCS(n, p1[2], p2[1], p2[2], pCaseSensitve)
+
+			# FindXT( :3rd = "*", :BoundedBy = '"' ])
+			but isList(p1) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsBoundedByNamedParam()
+
+				n = 0+ Q(p1[1]).FirstNumber()
+				return This.FindNthBoundedByCS(n, p1[2], p2], pCaseSensitve)
+
+			# FindXT( :3rd = "*", :InSection = [5, 24] ])
+
+			# FindXT( :3rd = "*", :Before = '!' ])
+
+			# FindXT( :3rd = "*", :BeforePosition = 12 ])
+
+			# FindXT( :3rd = "*", :After = '!' ])
+
+			# FindXT( :3rd = "*", :AfterPosition = 12 ])
+
+			# FindXT( :AnySubString, :Between = ["<<", ">>" )
+
+			# FindXT( :Any, :BoundedBy = '"' )
+
+			# FindXT( :Any, :InSection = [5, 24] )
+
+			ok
+		ok
+
+		
+
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindXT(p1, p2)
+		return This.FindXT(p1, p2, :CaseSensitive = TRUE)
 
 	   #=====================================================#
 	  #   CHECKING IF STRING OCCURES BEFORE/AFTER A GIVEN   #
