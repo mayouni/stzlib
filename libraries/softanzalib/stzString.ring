@@ -15739,6 +15739,11 @@ def ReplaceIBS()
 			but oP2.IsBoundedByNamedParam()
 				return This.FindBoundedByCS(p1, p2, pCaseSensitive)
 
+			# FindXT( "*", :InBetween = [ "<<", :And = ">>" ])
+			but  oP2.IsInBetweenNamedParam()
+				p2 = p2[2]
+				return This.FindInBetweenCS(p1, p2[1], p2[2], pCaseSensitive)
+
 			# FindXT( "*", :InSection = [10 , 14 ] )
 			but oP2.IsInSectionNamedParam()
 				anPos = This.SectionQ(p2[2]).FindCS(p1, pCaseSensitive)
@@ -15911,6 +15916,26 @@ def ReplaceIBS()
 
 	def FindXT(p1, p2)
 		return This.FindXTCS(p1, p2, :CaseSensitive = TRUE)
+
+	  #=================================================#
+	 #  FINDING THINGS AS SECTIONS, THE EXTENDED FORM  #
+	#=================================================#
+
+	def FindAsSectionsXTCS(pcSubStr, pacBetween, pCaseSensitive)
+		if isList(pacBetween) and
+		   Q(pacBetween).IsBetweenNamedParam() and
+		   isList(pacBetween[2]) and
+		   Q(pacBetween[2]).IsPairOfStrings()
+
+			return This.FindBetweenAsSectionsCS(pcSubStr, pacBetween[2][1], pacBetween[2][2], pCaseSensitive)
+
+		else
+			stzRaise("Syntax error!")
+		ok
+	#-- WITHOUT CASESENSITIVE
+
+	def FindAsSectionsXT(pcSubStr, pacBetween)
+		return This.FindAsSectionsXTCS(pcSubStr, pacBetween, :CaseSensitive = TRUE)
 
 	   #=====================================================#
 	  #   CHECKING IF STRING OCCURES BEFORE/AFTER A GIVEN   #
@@ -16861,9 +16886,9 @@ def ReplaceIBS()
 
 		#>
 
-	  #--------------------------------------------------------------------#
+	  #====================================================================#
 	 #  NUMBER OF OCCURRENCE OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
-	#--------------------------------------------------------------------#
+	#====================================================================#
 
 	def NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		anResult = len( This.FindBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive) )
