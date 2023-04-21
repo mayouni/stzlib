@@ -25781,9 +25781,29 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsInBetweenNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InBetween )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsBetweenIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :BetweenIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsInBetweenIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InBetweenIB )
 
 			return TRUE
 
@@ -25801,6 +25821,16 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsInBetweenIBSNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InBetweenIBS )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsBetweenSNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :BetweenS )
@@ -25811,9 +25841,29 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsInBetweenSNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InBetweenS )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsBetweenCSNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :BetweenCS )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsInBetweenCSNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InBetweenCS )
 
 			return TRUE
 
