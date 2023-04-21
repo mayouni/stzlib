@@ -15,17 +15,6 @@ proff()
 */
 pron()
 
-# 		         6       4
-o1 = new stzString("...<<*>>...<<*>>...")
-? @@S( o1.FindAsSectionsXT( "*", :Between = [ "<<", ">>" ]) )
-#--> [ [ 6, 6 ], [ 14, 14 ] ]
-
-proff()
-
-/*----------
-*/
-pron()
-
 # 		           8
 o1 = new stzString("...<<--*-->>...")
 ? @@S( o1.FindXT( "*", :InBetween = [ "<<", ">>" ]) ) # or :InSubStringsBetween

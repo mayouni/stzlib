@@ -1881,7 +1881,10 @@ class stzString from stzObject
 			return This.SubStringsZZCS(pCaseSensitive)
 
 		def AllSubStringsAndTheirSectionsCS(pCaseSensitive)
-			SubStringsZZCS(pCaseSensitive)
+			return This.SubStringsZZCS(pCaseSensitive)
+
+		def SubStringsCSZZ(pCaseSensitive)
+			return This.SubStringsZZCS(pCaseSensitive)
 
 		#>
 
@@ -13213,6 +13216,9 @@ def ReplaceIBS()
 
 		return aResult
 
+		def FindNthCSZZ(n, pcSubStr, pCaseSensitive)
+			return This.FindNthZZCS(n, pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthZZ(n, pcSubStr)
@@ -13465,6 +13471,9 @@ def ReplaceIBS()
 		aResult = [ pcSubStr, This.FindNthSCS(n, pcSubStr, pnStartingAt, pCaseSensitive) ]
 		return aResult
 
+		def FindNthSCSZ(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNthSZCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSZ(n, pcsubStr, pnStartingAt)
@@ -13477,6 +13486,9 @@ def ReplaceIBS()
 	def FindFirstSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		return This.FindNthSZCS(1, pcSubStr, pnStartingAt, pCaseSensitive)
 
+		def FindFirstSCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSZ(pcSubStr, pnStartingAt)
@@ -13488,6 +13500,9 @@ def ReplaceIBS()
 
 	def FindLastSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		return This.FindNthSZCS(:Last, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FindLastSCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -13512,6 +13527,9 @@ def ReplaceIBS()
 		aResult = [ pcSubStr, aSection ]
 		return aResult
 
+		def FindNthSCSZZ(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNthSZZCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSZZ(n, pcsubStr, pnStartingAt)
@@ -13524,6 +13542,9 @@ def ReplaceIBS()
 	def FindFirstSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		return This.FindNthSZZCS(1, pcSubStr, pnStartingAt, pCaseSensitive)
 
+		def FindFirstSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSZZ(pcSubStr, pnStartingAt)
@@ -13535,6 +13556,9 @@ def ReplaceIBS()
 
 	def FindLastSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		return This.FindNthSZZCS(:Last, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FindLastSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -13552,6 +13576,9 @@ def ReplaceIBS()
 		aResult = [ pcSubStr, This.FindNthSDCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
 		return aResult
 
+		def FindNthSDCSZ(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindNthSDZCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSDZ(n, pcSubStr, pnStartingAt, pcDirection)
@@ -13564,8 +13591,10 @@ def ReplaceIBS()
 	#------------------------------------------------------------------------------#
 
 	def FindFirstSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
-
 		return This.FindNthSDZCS(1, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def FindFirstSDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindFirstSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -13580,6 +13609,9 @@ def ReplaceIBS()
 
 	def FindLastSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 		return This.FindNthSDZCS(:LastOccurrence, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def FindLastSDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindLastSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -13598,6 +13630,9 @@ def ReplaceIBS()
 		aResult = [ pcSubStr, [n1, n2] ]
 		return aResult
 
+		def FindNthSDCSZZ(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindNthSDZZCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSDZZ(n, pcSubStr, pnStartingAt, pcDirection)
@@ -13612,6 +13647,9 @@ def ReplaceIBS()
 	def FindFirstSDZZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 		return FindNthSDZZCS(1, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
+		def FindFirstSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindFirstSDZZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSDZZ(pcSubStr, pnStartingAt, pcDirection)
@@ -13625,6 +13663,9 @@ def ReplaceIBS()
 
 	def FindLastSDZZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 		return FindNthSDZZCS(:LastOccurrence, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def FindLastSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindLastSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -13712,8 +13753,18 @@ def ReplaceIBS()
 			stzRaise("Incorrect format!")
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def NthXTCS(n, pcSubStr, paOption, pCaseSensitive)
 			return This.FindNthXTCS(n, pcSubStr, paOption, pCaseSensitive)
+
+		def NthCSXT(n, pcSubStr, paOption, pCaseSensitive)
+			return This.FindNthXTCS(n, pcSubStr, paOption, pCaseSensitive)
+
+		def FindNthCSXT(n, pcSubStr, paOption, pCaseSensitive)
+			return This.FindNthCSXT(n, pcSubStr, paOption, pCaseSensitive)
+
+		#>
 
 	#-- WTIHOUT CASESENSITIVITY
 
@@ -13730,8 +13781,18 @@ def ReplaceIBS()
 	def FirstXTCS(pcSubStr, paOption, pCaseSensitive)
 		return This.NthXTCS(1, pcSubStr, paOption, pCaseSensitive)
 
+		#< @FuntionAlternativeForm
+
 		def FindFirstXTCS(pcSubStr, paOption, pCaseSensitive)
 			return This.FirstXTCS(pcSubStr, paOption, pCaseSensitive)
+
+		def FindFirstCSXT(pcSubStr, paOption, pCaseSensitive)
+			return This.FirstXTCS(pcSubStr, paOption, pCaseSensitive)
+
+		def FirstCSXT(pcSubStr, paOption, pCaseSensitive)
+			return This.FirstXTCS(pcSubStr, paOption, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -13748,8 +13809,18 @@ def ReplaceIBS()
 	def LastXTCS(pcSubStr, paOption, pCaseSensitive)
 		return This.NthXT(:Last, pcSubStr, paOption, pCaseSensitive)
 
+		#< @FuntionAlternativeForm
+
+		def LastCSXT(pcSubStr, pOption, pCaseSensitive)
+			return This.LastXTCS(pcSubStr, paOption, pCaseSensitive)
+
 		def FindLastXTCS(pcSubStr, paOption, pCaseSensitive)
 			return This.LastXTCS(pcSubStr, paOption, pCaseSensitive)
+
+		def FindLastCSXT(pcSubStr, paOption, pCaseSensitive)
+			return This.LastXTCS(pcSubStr, paOption, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -13886,6 +13957,9 @@ def ReplaceIBS()
 
 		return aResult
 
+		def FindFirstCSZ(pcSubStr, pCaseSensitive)
+			return This.FindFirstZCS(pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstZ(pcSubStr)
@@ -13901,6 +13975,9 @@ def ReplaceIBS()
 		aResult = [ pcSubStr, aSection ]
 
 		return aResult
+
+		def FindFirstCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindFirstZZCS(pcSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -13975,6 +14052,9 @@ def ReplaceIBS()
 		aResult = [ pcSubStr, This.FindNthDCS(n, pcSubStr, pcDirection, pCaseSensitive) ]
 		return aResult
 
+		def FindNthDCSZ(n, pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindNthDZCS(n, pcSubStr, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthDZ(n, pcSubStr, pcDirection)
@@ -13987,6 +14067,9 @@ def ReplaceIBS()
 
 	def FindFirstDZCS(pcSubStr, pcDirection, pCaseSensitive)
 		return This.FindNthDZCS(1, pcSubStr, pcDirection, pCaseSensitive)
+
+		def FindFirstDCSZ(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindFirstDZCS(pcSubStr, pcDirection, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -14008,6 +14091,9 @@ def ReplaceIBS()
 	def FindLastDZCS(pcSubStr, pcDirection, pCaseSensitive)
 		return This.FindNthDZCS(:LastOccurrence, pcSubStr, pcDirection, pCaseSensitive)
 
+		def FindLastDCSZ(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindLastDZCS(pcSubStr, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastDZ(pcSubStr, pcDirection)
@@ -14022,6 +14108,9 @@ def ReplaceIBS()
 		aResult = [ pcSubStr, This.FindNthAsSectionDCS(n, pcSubStr, pcDirection, pCaseSensitive) ]
 		return aResult
 
+		def FindNthDCSZZ(n, pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindNthDZZCS(n, pcSubStr, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthDZZ(n, pcSubStr, pcDirection)
@@ -14034,6 +14123,9 @@ def ReplaceIBS()
 
 	def FindFirstDZZCS(pcSubStr, pcDirection, pCaseSensitive)
 		return This.FindNthDZZCS(1, pcSubStr, pcDirection, pCaseSensitive)
+
+		def FindFirstDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindFirstDZZCS(pcSubStr, pcDirection, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -14054,6 +14146,9 @@ def ReplaceIBS()
 
 	def FindLastDZZCS(pcSubStr, pcDirection, pCaseSensitive)
 		return This.FindNthDZZCS(:LastOccurrence, pcSubStr, pcDirection, pCaseSensitive)
+
+		def FindLastDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindLastDZZCS(pcSubStr, pcDirection, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -14172,6 +14267,9 @@ def ReplaceIBS()
 
 		return aResult
 
+		def FindLastCSZ(pcSubStr, pCaseSensitive)
+			return This.FindLastZCS(pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastZ(pcSubStr)
@@ -14186,6 +14284,9 @@ def ReplaceIBS()
 		aResult = [ pcSubStr, aSection ]
 
 		return aResult
+
+		def FindLastCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindLastZZCS(pcSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -14739,6 +14840,13 @@ def ReplaceIBS()
 			off
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def FindCSZ(pcSubStr, pCaseSensitive)
+			return This.FindZCS(pcSubStr, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindZ(pcSubStr)
@@ -14798,6 +14906,13 @@ def ReplaceIBS()
 			other
 				stzRaise("Unsupported return type!")
 			off
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def FindCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindZZCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -14945,6 +15060,13 @@ def ReplaceIBS()
 			off
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def FindDCSZ(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindDZCS(pcSubStr, pcDirection, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDZ(pcSubStr, pcDirection)
@@ -15030,6 +15152,12 @@ def ReplaceIBS()
 			off
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def FindDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindDZZCS(pcSubStr, pcDirection, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -15169,6 +15297,13 @@ def ReplaceIBS()
 			off
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def FindSCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSZ(pcSubStr, pnStartingAt)
@@ -15231,6 +15366,12 @@ def ReplaceIBS()
 			off
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def FindSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -15302,6 +15443,13 @@ def ReplaceIBS()
 		aResult = [ pcSubStr, This.FindSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
 		return aResult
 
+		#< @FunctionAlternativeForm
+
+		def FindSDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVIY
 
 	def FindSDZ(pcSubStr, pnStartingAt, pcDirection)
@@ -15324,6 +15472,13 @@ def ReplaceIBS()
 
 		aResult = [ pcSubStr, This.FindAsSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
 		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def FindSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindSDZZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVIY
 
@@ -15586,6 +15741,13 @@ def ReplaceIBS()
 
 		return aResult
 
+		#< @FunctionAlternativeForm
+
+		def FindManyCSZZ(pacSubStr, pCaseSensitive)
+			return This.FindManyZZCS(pacSubStr, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindManyZZ(pacSubStr)
@@ -15615,6 +15777,13 @@ def ReplaceIBS()
 		next
 
 		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def FindManyCSZ(pacSubStr, pCaseSensitive)
+			return This.FindManyZCS(pacSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -15911,6 +16080,12 @@ def ReplaceIBS()
 
 		StzRaise("Insupported syntax!")
 
+		#< @FunctionAlternativeForm
+
+		def FindCSXT(p1, p2, pCaseSensitive)
+			return This.FindXTCS(p1, p2, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -15932,6 +16107,14 @@ def ReplaceIBS()
 		else
 			stzRaise("Syntax error!")
 		ok
+
+		#< @FuncctionAlternativeForm
+
+		def FindAsSectionsCSXT(pcSubStr, pacBetween, pCaseSensitive)
+			return This.FindAsSectionsXTCS(pcSubStr, pacBetween, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVE
 
 	def FindAsSectionsXT(pcSubStr, pacBetween)
@@ -16439,17 +16622,27 @@ def ReplaceIBS()
 		aResult = [ pcSubStr, This.FindAllSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
 		return aResult
 
+		def FindAsSectionsSDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindAsSectionsSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def FindAsSectionsSDZ(pcSubStr, pnStartingAt, pcDirection)
 		return This.FindAsSectionsSDZCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
 
 	   #--------------------------------------------------------------------#
 	  #  FINDING A SUBSTRING AS SECTIONS, STARTING FROM A GIVEN POSITION,  #
-	 #  AND GOING IN A GIVEN DIRECTION -- ZZ/EXTENDED                      #
+	 #  AND GOING IN A GIVEN DIRECTION -- ZZ/EXTENDED                     #
 	#--------------------------------------------------------------------#
 
 	def FindAsSectionsSDZZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 		aResult = [ pcSubStr, This.FindAsSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
 		return aResult
+
+		def FindAsSectionsSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindAsSectionsSDZZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsSectionsSDZZ(pcSubStr, pnStartingAt, pcDirection)
 		return This.FindAsSectionsSDZZCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
@@ -16583,6 +16776,26 @@ def ReplaceIBS()
 	  #=========================================================================#
 	 #   FINDING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS   #
 	#=========================================================================#
+
+	def FindInBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
+		? o1.FindInBetweenAsSections( "hi!", "<<", ">>" )
+		#--> [ [8, 10], [29, 30] ]
+
+		# TODO
+		? @@S( o1.FindXT( "*", :InBetween = [ "<<", ">>" ]) ) # or :InSubStringsBetween
+		
+		*/
+
+		acBetweenZZ = This.BetweenZZCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+? @@S(acBetweenZZ)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInBetween(pcSubStr, pcBound1, pcBound2)
+		return This.FindInBetweenCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
 
 	def FindBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
@@ -16953,6 +17166,8 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 	
+		def NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
+			return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
 
 		#>
 
@@ -17042,8 +17257,7 @@ def ReplaceIBS()
 
 	def FindAnyBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		aSections = This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-		//anResult = QR(aSections, :stzListOfPairs).FirstItems()
-anResult = StzListOfPairsQ(aSections).FirstItems()
+		anResult = StzListOfPairsQ(aSections).FirstItems()
 		return anResult
 
 		#< @FunctionAlternativeForm
@@ -18354,17 +18568,32 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	
 		#< @FunctionAlternativeForms
 	
+		def AnyBetweenDCSZ(pcBounAnyBetweenDZCSd1, pcBound2, pcDirection, pCaseSensitive)
+			return This.AnyBetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
 		def BetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	
+			def BetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		def SubStringsBetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
+			def SubStringsBetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	
 		def AnySubStringsBetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
+			def AnySubStringsBetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	
 		def AnySubStringBetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	
+			def AnySubStringBetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		#--
 	
@@ -18379,17 +18608,32 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 
+			def AnyBoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
+
 		def BoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
+	
+			def BoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		def SubStringsBoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
 	
+			def SubStringsBoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
+	
 		def AnySubStringsBoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
 	
+			def AnySubStringsBoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
+	
 		def AnySubStringBoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
+	
+			def AnySubStringBoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		#>
 	
@@ -18446,17 +18690,32 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	
 		#< @FunctionAlternativeForms
 	
+		def AnyBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+			return This.AnyBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
 		def BetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	
+			def BetweenDCZZS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		def SubStringsBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
+			def SubStringsBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	
 		def AnySubStringsBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
+			def AnySubStringsBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	
 		def AnySubStringBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
+			def AnySubStringBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		#--
 	
@@ -18471,17 +18730,32 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 
+		def AnyBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
+			return This.AnyBoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
+
 		def BoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
+
+			def BoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		def SubStringsBoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
+
+			def SubStringsBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		def AnySubStringsBoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
 	
+			def AnySubStringsBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
+	
 		def AnySubStringBoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
+
+			def AnySubStringBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDZZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		#>
 	
@@ -18720,17 +18994,32 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	
 		#< @FunctionAlternativeForms
 	
+		def AnyBetweenDIBCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+			return This.AnyBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
 		def BetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
+			def BetweenDIBCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		def SubStringsBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
+			def SubStringsBetweenDIBCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		def AnySubStringsBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
+			def AnySubStringsBetweenDIBCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		def AnySubStringBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
+			def AnySubStringBetweenDIBCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDIBZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		#--
 	
@@ -18746,18 +19035,33 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 			ok
-	
+
+			def AnyBoundedByDIBCSZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
+
 		def BoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
+
+			def BoundedByDIBCSZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		def SubStringsBoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
+
+			def SubStringsBoundedByDIBCSZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		def AnySubStringsBoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
+
+			def AnySubStringsBoundedByDIBCSZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		def AnySubStringBoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
+
+			def AnySubStringBoundedByDIBCSZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDIBZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		#>
 	
@@ -18810,18 +19114,33 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		return aResult
 	
 		#< @FunctionAlternativeForms
-	
+
+		def AnyBetweenDIBCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+			return This.AnyBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
 		def BetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
+			def BetweenDIBCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		def SubStringsBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
+			def SubStringsBetweenDIBCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		def AnySubStringsBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
+			def AnySubStringsBetweenDIBCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		def AnySubStringBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
+			def AnySubStringBetweenDIBCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+				return This.AnyBetweenDIBZZCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
 		#--
 	
@@ -18837,18 +19156,33 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 			ok
+
+			def AnyBoundedByDIBCSZZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		def BoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
-	
+
+			def BoundedByDIBCSZZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.BoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
+
 		def SubStringsBoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
+
+			def SubStringsBoundedByDIBCSZZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		def AnySubStringsBoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
+
+			def AnySubStringsBoundedByDIBCSZZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		def AnySubStringBoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
 			return This.AnyBoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
+
+			def AnySubStringBoundedByDIBCSZZ(pacBounds, pcDirection, pCaseSensitive)
+				return This.AnyBoundedByDIBZZCS(pacBounds, pcDirection, pCaseSensitive)
 	
 		#>
 	
@@ -19410,6 +19744,8 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	#---------------------------------------------------------------------------------------#
 
 	def FindAnydSplittedByAsSectionsCS(pcSplitter, pCaseSensitive)
+		# TODO: Uses generated code. Chek it for performance,
+		# and rempliment it if necessary
 
 		/* EXAMPLE
 
@@ -19601,6 +19937,10 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		return nResult
 
+
+		def DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.DistanceToXTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def DistanceToXT(pcSubStr, pnStartingAt)
@@ -19701,9 +20041,15 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		
 		#< @FunctionAlternativeForm
 
+		def BetweenCSZ(p1, p2, pCaseSensitive)
+			return This.BetweenZCS(p1, p2, pCaseSensitive)
+
 		def AnyBetweenZCS(p1, p2, pCaseSensitive)
 			return This.BetweenZCS(p1, p2, pCaseSensitive)
 
+			def AnyBetweenCSZ(p1, p2, pCaseSensitive)
+				return This.BetweenZCS(p1, p2, pCaseSensitive)
+	
 		def BoundedByZCS(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
 				return This.BetweenZCS(pacBounds, pacBounds, pCaseSensitive)
@@ -19715,8 +20061,14 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 			ok
 
+			def BoundedByCSZ(pacBounds, pCaseSensitive)
+				return This.BoundedByZCS(pacBounds, pCaseSensitive)
+
 		def AnyBoundedByZCS(pacBounds, pCaseSensitive)
 			return This.BoundedByZCS(pacBounds, pCaseSensitive)
+
+			def AnyBoundedByCSZ(pacBounds, pCaseSensitive)
+				return This.AnyBoundedByZCS(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -19803,9 +20155,14 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		#< @FunctionAlternativeForm
 
+		def SubStringsBetweenCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubStringsBetweenZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+	
 		def AnySubStringsBetweenZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SubStringsBetweenZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		
+			def AnySubStringsBetweenCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.AnySubStringsBetweenZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -19837,8 +20194,14 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		
 		#< @FunctionAlternativeForm
 
+		def BetweenCSZZ(p1, p2, pCaseSensitive)
+			return This.BetweenZZCS(p1, p2, pCaseSensitive)
+
 		def AnyBetweenZZCS(p1, p2, pCaseSensitive)
 			return This.BetweenZZCS(p1, p2, pCaseSensitive)
+
+			def AnyBetweenCSZZ(p1, p2, pCaseSensitive)
+				return This.AnyBetweenZZCS(p1, p2, pCaseSensitive)
 		
 		def BoundedByZZCS(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
@@ -19851,8 +20214,14 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 			ok
 
+			def BoundedByCSZZ(pacBounds, pCaseSensitive)
+				return This.BoundedByZZCS(pacBounds, pCaseSensitive)
+
 		def AnyBoundedByZZCS(pacBounds, pCaseSensitive)
 			return This.BoundedByZCS(pacBounds, pCaseSensitive)
+
+			def AnyBoundedByCSZZ(pacBounds, pCaseSensitive)
+				return This.AnyBoundedByZZCS(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -19892,8 +20261,14 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		#< @FunctionAlternativeForm
 
+		def SubStringsBetweenCSZZ( pcSubStr1, pcSubStr2, pCaseSensitive )
+			return This.SubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
+
 		def AnySubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
 			return This.SubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
+
+			def AnySubStringsBetweenCSZZ( pcSubStr1, pcSubStr2, pCaseSensitive )
+				return This.AnySubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
 
 		#>
 		
@@ -20002,9 +20377,15 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	
 		#< @FunctionAlternativeForms
 	
+		def BetweenIBCSZ(p1, p2, pCaseSensitive)
+			return This.BetweenIBZCS(p1, p2, pCaseSensitive)
+
 		def AnyBetweenIBZCS(p1, p2, pCaseSensitive)
 			return This.BetweenIBZCS(p1, p2, pCaseSensitive)
 	
+			def AnyBetweenIBCSZ(p1, p2, pCaseSensitive)
+				return This.AnyBetweenIBZCS(p1, p2, pCaseSensitive)
+
 		def BoundedByIBZCS(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
 				return This.BetweenIBZCS(pacBounds, pacBounds, pCaseSensitive)
@@ -20013,10 +20394,16 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
+
+			def BoundedByIBCSZ(pacBounds, pCaseSensitive)
+				return This.BoundedByIBZCS(pacBounds, pCaseSensitive)
 	
 		def AnyBoundedByIBZCS(pacBounds, pCaseSensitive)
 			return This.BoundedByIBZCS(pacBounds, pCaseSensitive)
-	
+
+			def AnyBoundedByIBCSZ(pacBounds, pCaseSensitive)
+				return This.AnyBoundedByIBZCS(pacBounds, pCaseSensitive)
+
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
@@ -20051,9 +20438,15 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	
 		#< @FunctionAlternativeForms
 	
+		def BetweenIBCSZZ(p1, p2, pCaseSensitive)
+			return This.BetweenIBZZCS(p1, p2, pCaseSensitive)
+
 		def AnyBetweenIBZZCS(p1, p2, pCaseSensitive)
 			return This.BetweenIBZZCS(p1, p2, pCaseSensitive)
-	
+
+			def AnyBetweenIBCSZZ(p1, p2, pCaseSensitive)
+				return This.AnyBetweenIBZZCS(p1, p2, pCaseSensitive)
+
 		def BoundedByIBZZCS(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
 				return This.BetweenIBZZCS(pacBounds, pacBounds, pCaseSensitive)
@@ -20064,10 +20457,16 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
+
+			def BoundedByIBCSZZ(pacBounds, pCaseSensitive)
+				return This.BoundedByIBZZCS(pacBounds, pCaseSensitive)
 	
 		def AnyBoundedByIBZZCS(pacBounds, pCaseSensitive)
 			return This.BoundedByIBZZCS(pacBounds, pCaseSensitive)
 	
+			def AnyBoundedByIBCSZZ(pacBounds, pCaseSensitive)
+				return This.AnyBoundedByIBZZCS(pacBounds, pCaseSensitive)
+
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
@@ -20159,11 +20558,20 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	
 		#< @FunctionAlternativeForms
 	
+		def SubStringsBetweenIBCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubStringsBetweenIBZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
 		def AnySubStringBetweenIBZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.BetweenIBZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
+			def AnySubStringBetweenIBCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.AnySubStringBetweenIBZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
 		def AnySubStringsBetweenIBZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.BetweenIBZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+	
+			def AnySubStringsBetweenIBCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.BetweenIBZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 	
 		def SubStringsBoundedByIBZCS(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
@@ -20175,13 +20583,22 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
+
+			def SubStringsBoundedByIBCSZ(pacBounds, pCaseSensitive)
+				return This.SubStringsBoundedByIBZCS(pacBounds, pCaseSensitive)
 	
 		def AnySybStringBoundedByIBZCS(pacBounds, pCaseSensitive)
 			return This.SubStringsBoundedByIBZCS(pacBounds, pCaseSensitive)
 
+			def AnySybStringBoundedByIBCSZ(pacBounds, pCaseSensitive)
+				return This.AnySybStringBoundedByIBZCS(pacBounds, pCaseSensitive)
+
 		def AnySybStringsBoundedByIBZCS(pacBounds, pCaseSensitive)
 			return This.SubStringsBoundedByIBZCS(pacBounds, pCaseSensitive)
 	
+			def AnySybStringsBoundedByIBCSZ(pacBounds, pCaseSensitive)
+				return This.AnySybStringsBoundedByIBZCS(pacBounds, pCaseSensitive)
+
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
@@ -20221,13 +20638,22 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		return aResult
 	
 		#< @FunctionAlternativeForms
+
+		def SubStringsBetweenIBCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubStringsBetweenIBZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 	
 		def AnySubStringBetweenIBZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SubStringsBetweenIBZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
+			def AnySubStringBetweenIBCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubStringsBetweenIBZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+	
 		def AnySubStringsBetweenIBZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SubStringsBetweenIBZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
+			def AnySubStringsBetweenIBCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+				return This.SubStringsBetweenIBZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+	
 		def SubStringsBoundedByIBZZCS(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
 				return This.SubstringsBetweenIBZZCS(pacBounds, pacBounds, pCaseSensitive)
@@ -20239,12 +20665,21 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 	
+			def SubStringsBoundedByIBCSZZ(pacBounds, pCaseSensitive)
+				return This.SubStringsBoundedByIBZZCS(pacBounds, pCaseSensitive)
+
 		def AnySubstringBoundedByIBZZCS(pacBounds, pCaseSensitive)
 			return This.SubStringsBoundedByIBZZCS(pacBounds, pCaseSensitive)
+
+			def AnySubstringBoundedByIBCSZZ(pacBounds, pCaseSensitive)
+				return This.AnySubstringBoundedByIBZZCS(pacBounds, pCaseSensitive)
 
 		def AnySubstringsBoundedByIBZZCS(pacBounds, pCaseSensitive)
 			return This.SubStringsBoundedByIBZZCS(pacBounds, pCaseSensitive)
 	
+			def AnySubstringsBoundedByIBCSZZ(pacBounds, pCaseSensitive)
+				return This.AnySubstringsBoundedByIBZZCS(pacBounds, pCaseSensitive)
+
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
@@ -20626,6 +21061,9 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		return aResult
 
+		def BetweenSCSZ(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+			return This.BetweenSZCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVE
 
 	def BetweenSZ(pcSubStr1, pcSubStr2, pnStartingAt)
@@ -20644,7 +21082,8 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		return aResult
 
-		return aResult
+		def BetweenSCSZZ(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+			return This.BetweenSZZCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVE
 
@@ -20665,6 +21104,9 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		return aResult
 
+		def BetweenSDCSZ(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.BetweenSDZCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVE
 
 	def BetweenSDZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection)
@@ -20683,7 +21125,8 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		return aResult
 
-		return aResult
+		def BetweenSDCSZZ(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.BetweenSDZZCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVE
 
@@ -20704,6 +21147,10 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		return aResult
 
+		def BetweenSDIBCSZ(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.BetweenSDIBZCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+
+
 	#-- WITHOUT CASESENSITIVE
 
 	def BetweenSDIBZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection)
@@ -20722,7 +21169,8 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		return aResult
 
-		return aResult
+		def BetweenSDIBCSZZ(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.BetweenSDIBZZCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVE
 
@@ -20783,6 +21231,9 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		aResult = [cSubStr, anPos]
 		return aResult
 
+		def NthBetweenCSZ(n, pcBound1, pcBound2, pCaseSensitive)
+			return This.NthBetweenZCS(n, pcBound1, pcBound2, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NthBetweenZ(n, p1, p2)
@@ -20798,6 +21249,9 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		aResult = [cSubStr, aSection]
 		return aResult
+
+		def NthBetweenCSZZ(n, p1, p2, pCaseSensitive)
+			return This.NthBetweenZZCS(n, p1, p2, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -20829,6 +21283,9 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		return aResult
 
+		def NthBetweenIBCSZ(n, pcBound1, pcBound2, pCaseSensitive)
+			return This.NthBetweenIBZCS(n, pcBound1, pcBound2, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NthBetweenIBZ(n, pcBound1, pcBound2)
@@ -20849,6 +21306,9 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		aResult = [ cSubStr, aSection ]
 
 		return aResult
+
+		def NthBetweenIBCSZZ(n, pcBound1, pcBound2, pCaseSensitive)
+			return This.NthBetweenIBZZCS(n, pcBound1, pcBound2, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -22424,6 +22884,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		bResult = TRUE
 
+		# TODO: change for in with for loop --> better performance
 		i = 0
 		for n in panPositions
 			i++
@@ -22514,6 +22975,8 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 	def ContainsOneOrMoreCS(paSubStr, pCaseSensitive)
 		bResult = FALSE
+
+		# TODO: change for in with for loop --> better performance
 		for cSubStr in paSubStr
 			if This.ContainsCS(cSubStr, pCaseSensitive)
 				bResult = TRUE
@@ -24204,9 +24667,21 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		aResult = This.PartsQ(pcPartionner).DuplicatesRemoved()
 		return aResult
 
+		#< @FunctionAlternativeForm
+
+		def PartsU(pcPartitionner)
+			return This.UniqueParts(pcPartionner)
+
+		#>
+
+		#< @FunctionFluentForms
+
 		def UniquePartsQ(pcPartionner)
 			return This.UniquePartsQR(pcPartionner, :stzList)
 
+			def PartsUQ(pcPartionner)
+				return This.UniquePartsQ(pcPartionner)
+	
 		def UniquePartsQR(pcPartionner, pcReturnType)
 			switch pcReturnType
 			on :stzList
@@ -24218,6 +24693,11 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 			other
 				stzRaise("Unsupported return type!")
 			off
+
+			def PartsUQR(pcPartionner, pcReturnType)
+				return This.UniquePartsQR(pcPartionner, pcReturnType)
+
+		#>
 
 	  #---------------------------------------#
 	 #     PARTS OF THE STRING CLASSIFIED    #
@@ -24260,7 +24740,6 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		*/
 
 		StzRaise("Function unavailable yet!")
-
 		
 	  #=============================#
 	 #     DIVIDING THE STRING     #
@@ -26692,6 +27171,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	
 		aStzChars = This.ToListOfStzChars()
 
+		# TODO: Replace for/in with for --> better performance
 		for oChar in aStzChars
 			if NOT oChar.IsANumber()
 				cResult += oChar.Content()
@@ -29752,7 +30232,6 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		def ToNumberFormattedQ(cFormat)
 			return new stzNumber( This.ToNumberFormatted() )
-		
 
 	  #------------------------------------------------#
 	 #    UNICODE CODES OF THE CHARS OF THE STRING    #
@@ -29906,6 +30385,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
+		# TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if aLanguageInfo[1] = This.String()
 				bResult = TRUE
@@ -29922,6 +30402,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
+		# TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[3]) = lower(This.String())
 				bResult = TRUE
@@ -29935,6 +30416,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
+		# TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[4]) = lower(This.String())
 				bResult = TRUE
@@ -29954,6 +30436,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
+		# TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 
 			if lower(aLanguageInfo[3]) = lower(This.String()) OR
@@ -29969,6 +30452,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
+		# TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[3]) = lower(This.String())
 				bResult = TRUE
@@ -29982,6 +30466,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
+		# TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[4]) = lower(This.String())
 				bResult = TRUE
@@ -30013,6 +30498,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
+		# TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[2]) = lower(This.String())
 				bResult = TRUE
@@ -30041,6 +30527,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		cAbbr = This.String()
 		bResult = FALSE
+		# TODO: Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if UPPER(aCountryInfo[3]) = UPPER(cAbbr) OR
 			   UPPER(aCountryInfo[4]) = UPPER(cAbbr)
@@ -30057,6 +30544,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		cName = This.String()
 		bResult = FALSE
+		# TODO: Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if lower(aCountryInfo[2]) = lower(cName)
 				bResult = TRUE
@@ -30080,6 +30568,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		cPhoneCode = This.String()
 		bResult = FALSE
 
+		# TODO: Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if aCountryInfo[5] = cPhoneCode
 				bResult = TRUE
@@ -30095,6 +30584,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		cNumber = This.String()
 		bResult = FALSE
 
+		# TODO: Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if lower(aCountryInfo[1]) = lower(cNumber)
 				bResult = TRUE
@@ -30112,6 +30602,8 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		cAbbr = This.String()
 		bResult = FALSE
+
+		# TODO: Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if UPPER(aCountryInfo[3]) = UPPER(cAbbr)
 
@@ -30130,6 +30622,8 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		cAbbr = This.String()
 		bResult = FALSE
+
+		# TODO: Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if UPPER(aCountryInfo[4]) = UPPER(cAbbr)
 				bResult = TRUE
@@ -30172,6 +30666,8 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		cAbbr = This.String()
 		bResult = FALSE
+
+		# TODO: Replace for/in with for --> better performance
 		for aScriptInfo in LocaleScriptsXT()
 			if lower(aScriptInfo[3]) = lower(cAbbr)
 				bResult = TRUE
@@ -30187,6 +30683,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		cScript = This.String()
 		bResult = FALSE
 
+		# TODO: Replace for/in with for --> better performance
 		for aScriptInfo in LocaleScriptsXT()
 			if lower(aScriptInfo[2]) = lower(cScript)
 				bResult = TRUE
@@ -30207,6 +30704,8 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		cScript = This.String()
 		bResult = FALSE
+
+		# TODO: Replace for/in with for --> better performance
 		for aScriptInfo in LocaleScriptsXT()
 			if lower(aScriptInfo[1]) = lower(cScript)
 				bResult = TRUE
@@ -30255,6 +30754,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		bResult = FALSE
 
+		# TODO: Replace for/in with for --> better performance
 		for aCurrencyInfo in CurrenciesXT()
 			if lower(aCurrencyInfo[1]) = This.Lowercased()
 				bResult = TRUE
@@ -30519,7 +31019,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 			return FALSE
 		ok
 				 
-		/*
+		/* INFO
 		Non calculable numbers are: 
 		-  other numbers in Uniocde, like circled number icons,
 		   roman and indian numbers and others
@@ -30769,6 +31269,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		bTemp = FALSE
 
+		# TODO: Replace for/in with for --> better performance
 		for cBinPrefix in BinaryPrefixes()
 			oCopy = This.Copy()
 			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
@@ -30855,6 +31356,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		bTemp = FALSE
 
+		# TODO: Replace for/in with for --> better performance
 		for cHexPrefix in HexPrefixes()
 			oCopy = This.Copy()
 			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
@@ -30961,6 +31463,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		bTemp = FALSE
 
+		# TODO: Replace for/in with for --> better performance
 		for cOctalPrefix in OctalPrefixes()
 			oCopy = This.Copy()
 			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
@@ -31542,6 +32045,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	def IsMadeOfSome(acSubstrings)
 		oCopy = This.Copy()
 		
+		# TODO: Replace for/in with for --> better performance
 		for cSubstr in acSubstrings
 			if This.Contains(cSubStr)
 				oCopy.RemoveAll(cSubStr)
@@ -31599,7 +32103,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		#< @FunctionFluentForm
 
-			def UniqueCharsQ()
+		def UniqueCharsQ()
 			return This.UniqueCharsQR(:stzList)
 		#>
 
@@ -31757,6 +32261,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		acResult = []
 
+		# TODO: Replace for/in with for --> better performance
 		for n in panPositions
 			acResult + This.CharAt(n)
 		next
@@ -32182,6 +32687,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	def Letters()
 		aResult = []
 		
+		# TODO: Replace for/in with for --> better performance
 		for c in This.Chars()
 			if Q(c).IsALetter()
 				aResult + c
@@ -32216,6 +32722,7 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 	def IsMadeOf(acSubStr)
 		oCopy = This.Copy()
 		
+		# TODO: Replace for/in with for --> better performance
 		for cSubstr in acSubStr
 			if NOT This.Contains(cSubStr)
 				return FALSE
@@ -32282,41 +32789,41 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		This.MultiplyBy(paByValue)
 
 	def MultiplyBy(pValue)
+		cResult = NULL
+
+		if ring_type(pValue) = "NUMBER"
+			cResult = This.RepeatedNTimes(pValue)
+		
+		but ring_type(pValue) = "STRING"
+
+			if pValue = NULL { return NULL }
+
 			cResult = NULL
+			cTemp = NULL
 
-			if ring_type(pValue) = "NUMBER"
-				cResult = This.RepeatedNTimes(pValue)
+			for i=1 to This.NumberOfChars()
+				cTemp = @oQString.mid(i-1,1) + pValue
+				cResult += cTemp
+			next
 		
-			but ring_type(pValue) = "STRING"
-
-				if pValue = NULL { return NULL }
-
-				cResult = NULL
-				cTemp = NULL
-
-				for i=1 to This.NumberOfChars()
-					cTemp = @oQString.mid(i-1,1) + pValue
-					cResult += cTemp
-				next
-		
-			but ring_type(pValue) = "LIST"
-				aValue = pValue // just for expressivity
-				cResult = ""
-				cTemp = ""
+		but ring_type(pValue) = "LIST"
+			aValue = pValue // just for expressivity
+			cResult = ""
+			cTemp = ""
 				
-				for i=1 to This.NumberOfChars()
-					for v=1 to len(aValue)
-						cTemp = @oQString.mid(i-1,1) + aValue[v]
-						cResult += cTemp 
-					next
-										
-					if i != NumberOfChars() // avoiding adding space at the end
-						cResult += " "
-					ok
+			for i=1 to This.NumberOfChars()
+				for v=1 to len(aValue)
+					cTemp = @oQString.mid(i-1,1) + aValue[v]
+					cResult += cTemp 
 				next
-			ok
+										
+				if i != NumberOfChars() // avoiding adding space at the end
+					cResult += " "
+				ok
+			next
+		ok
 
-			This.Update( cResult )
+		This.Update( cResult )
 
 		#< @FunctionFluentForm
 
@@ -32799,12 +33306,16 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 
 		#>
 
-	  #-----------------------------------------#
+	  #=========================================#
 	 #  SWAPPING CHARS AT TWO GIVEN POSITIONS  #
-	#-----------------------------------------#
-	# TODO: Should be generalized to swap two substrings not only chars
+	#=========================================#
 
 	def Swap(n1, n2)
+		if BothAreStrings(n1, n2)
+			This.SwapSubStrings(n1, n2)
+			return
+		ok
+
 		if isList(n1) and
 		   Q(n1).IsOneOfTheseNamedPArams([
 			:Between, :BetweenPosition, :BetweenPositions,
@@ -32828,13 +33339,29 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 		This.ReplaceCharAtPosition(n2, :By = This[n1])
 		This.ReplaceCharAtPosition(n1, :By = copy)
 
+		#< @FunctionFluentForm
+
+		def SwapQ(n1, n2)
+			This.Swap(n1, n2)
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def SwapBetween(n1, n2)
 			This.Swap(n1, n2)
 
+			def SwapBetweenQ(n1, n2)
+				This.SwapBetween(n1, n2)
+				return This
+
 		def SwapBetweenPositions(n1, n2)
 			This.Swap(n1, n2)
+
+			def SwapBetweenPositionsQ(n1, n2)
+				This.SwapBetweenPositions(n1, n2)
+				return This
 
 		def SwapItems(n1, n2)
 			if isList(n1) and
@@ -32848,6 +33375,10 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 			ok
 	
 			This.Swap(n1, n2)
+
+			def SwapItemsQ(n1, n2)
+				This.SwapItems(n1, n2)
+				return This
 
 		def SwapChar(n1, n2)
 			if isList(n1) and
@@ -32863,11 +33394,75 @@ anResult = StzListOfPairsQ(aSections).FirstItems()
 			ok
 	
 			This.Swap(n1, n2)
+
+			def SwapCharQ(n1, n2)
+				This.SwapChar(n1, n2)
+				return This
+
+		def SwapChars(n1, n2)
+			This.Swap(n1, n2)
+
+			def SwapCharsQ(n1, n2)
+				This.SwapChars(n1, n2)
+				return This
+
+		def SwapCharsAtPositions(n1, n2)
+			This.Swap(n1, n2)
+
+			def SwapCharsAtPositionsQ(n1, n2)
+				This.SwapCharsAtPositions(n1, n2)
+				return This
+
 		#>
 
-	  #----------------------------------#
+	  #-----------------------------------------#
+	 #  SWAPPING CHARS AT TWO GIVEN POSITIONS  #
+	#=========================================#
+
+	def SwapSubStringsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("TWO, ONE, THREE!")
+		o1.SwapSubStrings("TWO", "ONE")
+
+		? o1.Content()
+		#--> ONE, TWO, THREE!
+
+		*/
+
+		if isList(pcSubStr2) and Q(pcSubStr2).IsOneOfThese([ :And, :With, :By ])
+			pcSubStr2 = pcSubStr2[2]
+		ok
+
+		if NOT This.ContainsBothCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			StzRaisr("Incorrect param types! Both pcSubStr1 and pcSubStr2 must be strings.")
+		ok
+
+		# NOTE: if the string contains more then one occurrence form a substring,
+		# then only the first occurence is considered
+
+		aSectionSubStr1 = This.FindAsSectionsCS(pcSubStr1, pCaseSensitive)[1]
+		aSectionSubStr2 = This.FindAsSectionsCS(pcSubStr2, pCaseSensitive)[1]
+
+		This.ReplaceSection(aSectionSubStr1[1], aSectionSubStr1[2], pcSubStr2)
+		This.ReplaceSection(aSectionSubStr2[1], aSectionSubStr2[2], pcSubStr1)
+
+		def SwapSubStringsCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
+			This.SwapSubStringsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SwapSubStrings(pcSubStr1, pcSubStr2)
+		This.SwapSubStringsCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+		def SwapSubStringsQ(pcSubStr1, pcSubStr2)
+			This.SwapSubStrings(pcSubStr1, pcSubStr2)
+			return This
+
+	  #==================================#
 	 #   REVERSING THE ORDER OF CHARS   #
-	#----------------------------------#
+	#==================================#
 
 	def ReverseCharsOrder()
 		cInversed = ""
