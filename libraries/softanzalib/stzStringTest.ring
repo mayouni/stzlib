@@ -1,6 +1,31 @@
 load "stzlib.ring"
 
-/*------------
+/*==============
+
+pron()
+
+# 		         6       4
+o1 = new stzString("...<<*>>...<<*>>...")
+? @@S( o1.FindAsSectionsXT( "*", :Between = [ "<<", ">>" ]) )
+#--> [ [ 6, 6 ], [ 14, 14 ] ]
+
+proff()
+
+/*----------
+
+StartProfiler()
+
+o1 = new stzString("/♥♥♥\__/\/\__/♥♥♥\__")
+//? o1.FindBetweenAsSections("♥♥♥", "/", "\")	# FindXT( "♥", :Between = ["/","\"], :AsSections )
+#--> [ [2, 4], [15, 17] ]
+
+? o1.FindAsSectionsXT( "♥♥♥", :Between = ["/","\"])
+#--> [ [2, 4], [15, 17] ]
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*==============
 
 StartProfiler()
 
