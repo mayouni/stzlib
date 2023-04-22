@@ -22314,7 +22314,33 @@ def ReplaceIBS()
 
 			return This.ContainsSubStringsW(p2[2])
 
-		#== UNSUPPORTED FORMAT
+		# ? Q("^^♥^^").ContainsXT("♥", :AtPosition = 3)
+		but ( isString(p1) or
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
+		    ) and
+
+		    isList(p2) and Q(p2).IsOneOfTheseNamedParams([ :At, :AtPosition ]) and
+		    isNumber(p2[2])
+
+			if isList(p1)
+				p1 = p1[2]
+			ok
+
+			return This.ContainsAt(p2[2], p1)
+
+		# ? Q("♥^^♥^^♥").ContainsXT("♥", :AtPositions = [1, 4, 7])
+		but ( isString(p1) or
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
+		    ) and
+
+		    isList(p2) and Q(p2).IsOneOfTheseNamedParams([ :At, :AtPositions ]) and
+		    isList(p2[2]) and Q(p2[2]).IsListOfNumbers()
+
+			if isList(p1)
+				p1 = p1[2]
+			ok
+
+			return This.ContainsAtPositions(p2[2], p1)
 
 		else
 
@@ -22459,6 +22485,10 @@ def ReplaceIBS()
 	#--------------------------------------------------------------#
 
 	def ContainsBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+
+		if isList(p1) and Q(p1).IsOneOfTheseNamedParams([ :Position, :Positions ])
+			p1 = p1[2]
+		ok
 
 		if isList(p2) and Q(p2).IsAndNamedParam()
 			p2 = p2[2]
@@ -22771,11 +22801,63 @@ def ReplaceIBS()
 	def SubStringAtPositionsRemoved(panPos, pcSubStr)
 		return This.SubStringAtPositionsRemovedCS(panPos, pcSubStr, :CaseSensitive = TRUE)
 
+	  #================================================#
+	 #   CONTAINING A SUBSTRING AT A GIVEN POSITION   #
+	#================================================#
+
+	def ContainsAtCS(n, pcSubStr, pCaseSensitive)
+
+		if isList(n) and Q(n).IsOneOfTheseNamedParams([ :Position, :SubString ])
+			n = n[2]
+		ok
+
+		if isList(pcSubStr) and Q(pcSubStr).IsOneOfTheseNamedParams([ :Position, :SubString ])
+			pcSubStr = pcSubStr[2]
+		ok
+
+		if ( (isNumber(n)) and (isString(pcSubStr)) ) or
+		   ( (isString(n)) and (isNumber(pcSubStr)) )
+
+			return This.ContainsAtPositionCS(n, pcSubStr, pCaseSensitive)
+
+		but ( isList(n) and Q(n).IsListOfNumbers() and isString(pcSubStr) ) or
+		    ( isString(n) and isList(pcSubStr) and Q(pcSubStr).IsListOfNumbers() )
+
+			return This.ContainsAtPositionsCS(n, pcSubStr, pCaseSensitive)
+
+		else
+			StzRaise("Incorrect param types! n must be a number and pcSubStr must be a string or vice versa.")
+		ok
+
+		def ContainsSubStringAtCS(n, pcSubStr, pCaseSensitive)
+			return This.ContainsAtCS(n, pcSubStr, pCaseSensitive)
+
+	def ContainsAt(n, pcSubStr)
+		return This.ContainsAtCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def ContainsSubStringAt(n, pcSubStr)
+			return This.ContainsAt(n, pcSubStr)
+
 	  #------------------------------------------------#
 	 #   CONTAINING A SUBSTRING AT A GIVEN POSITION   #
-	#------------------------------------------------#
+	#================================================#
 
-	def ContainsSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
+	def ContainsAtPositionCS(n, pcSubStr, pCaseSensitive)
+
+		if isList(n) and Q(n).IsOneOfTheseNamedParams([ :Position, :SubString ])
+			n = n[2]
+		ok
+
+		if isList(pcSubStr) and Q(pcSubStr).IsOneOfTheseNamedParams([ :Position, :SubString ])
+			pcSubStr = pcSubStr[2]
+		ok
+
+		if isString(n) and isNumber(pcSubStr)
+			temp = pcSubStr
+			pcSubStr = n
+			n = temp
+		ok
+
 		if NOT isNumber(n)
 			stzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -22790,60 +22872,57 @@ def ReplaceIBS()
 		bContinue = TRUE
 		i = 1
 
-		while bContinue
-			nPos = This.FindNextCS(pcSubStr, :StartingAt = i, pCaseSensitive)
-
-			if nPos = 0
-				bResult = FALSE
-				bContinue = FALSE
-
-			but nPos = n
-				bResult = TRUE
-				bContinue = FALSE
-			else
-
-				i = nPos + 1
-			ok
-		end
+		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
+		bResult = ring_find(anPos, n)
 
 		return bResult
 
 		#< @FunctionAlternativeForms
 
-		def ContainsSubStringAtCS(n, pcSubStr, pCaseSensitive)
-			return This.ContainsSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
-
-		def ContainsAtCS(n, pcSubStr, pCaseSensitive)
-			return This.ContainsSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
+		def ContainsSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
+			return This.ContainsAtCS(n, pcSubStr, pCaseSensitive)
 
 		def SubStringExistsAtPositionCS(n, pcSubStr, pCaseSensitive)
-			return This.ContainsSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
+			return This.ContainsAtCS(n, pcSubStr, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsSubStringAtPosition(n, pcSubStr)
-		return This.ContainsSubStringAtPositionCS(n, pcSubStr, :CaseSensitive = TRUE)
+	def ContainsAtPosition(n, pcSubStr)
+		return This.ContainsAtPositionCS(n, pcSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def ContainsSubStringAt(n, pcSubStr)
-			return This.ContainsSubStringAtPosition(n, pcSubStr)
-
-		def ContainsAt(n, pcSubStr)
-			return This.ContainsSubStringAtPosition(n, pcSubStr)
+		def ContainsSubStringAtPosition(n, pcSubStr)
+			return This.ContainsAt(n, pcSubStr)
 
 		def SubStringExistsAtPosition(n, pcSubStr)
-			return This.ContainsSubStringAtPosition(n, pcSubStr)
+			return This.ContainsAt(n, pcSubStr)
 
 		#>
 
-	  #------------------------------------------------#
-	 #   CONTAINING A SUBSTRING AT GIVEN (MANY) POSITIONS    #
-	#------------------------------------------------#
+	  #------------------------------------------------------#
+	 #   CONTAINING A SUBSTRING AT GIVEN (MANY) POSITIONS   #
+	#======================================================#
 
 	def ContainsAtPositionsCS(panPositions, pcSubStr, pCaseSensitive)
+
+		if isList(panPositions) and
+		   Q(panPositions).IsOneOfTheseNamedParams([ :Positions, :SubString ])
+			panPositions = panPositions[2]
+		ok
+
+		if isList(pcSubStr) and
+		   Q(pcSubStr).IsOneOfTheseNamedParams([ :Positions, :SubString ])
+			pcSubStr = pcSubStr[2]
+		ok
+
+		if isString(panPositions) and isList(pcSubStr) and Q(pcSubStr).IsListOfNumbers()
+			temp = pcSubStr
+			pcSubStr = panPositions
+			panPositions = temp
+		ok
 
 		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
 
@@ -22855,9 +22934,10 @@ def ReplaceIBS()
 		ok
 
 		bResult = TRUE
+		nLen = len(panPositions)
 
-		for n in panPositions
-			if NOT This.ContainsSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
+		for i = 1 to nLen
+			if NOT This.ContainsSubStringAtPositionCS(panPositions[i], pcSubStr, pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
