@@ -16098,11 +16098,17 @@ def ReplaceIBS()
 
 	def FindAsSectionsXTCS(pcSubStr, pacBetween, pCaseSensitive)
 		if isList(pacBetween) and
-		   Q(pacBetween).IsBetweenNamedParam() and
+		   Q(pacBetween).IsOneOfTheseNamedParams([ :Between, :InBetween ]) and
 		   isList(pacBetween[2]) and
 		   Q(pacBetween[2]).IsPairOfStrings()
 
-			return This.FindBetweenAsSectionsCS(pcSubStr, pacBetween[2][1], pacBetween[2][2], pCaseSensitive)
+			if pacBetween[1] = :Between
+				return This.FindBetweenAsSectionsCS(pcSubStr, pacBetween[2][1], pacBetween[2][2], pCaseSensitive)
+
+			but pacBetween[1] = :InBetween
+				return This.FindInBetweenAsSectionsCS(pcSubStr, pacBetween[2][1], pacBetween[2][2], pCaseSensitive)
+
+			ok
 
 		else
 			stzRaise("Syntax error!")
@@ -16777,26 +16783,6 @@ def ReplaceIBS()
 	 #   FINDING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS   #
 	#=========================================================================#
 
-	def FindInBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		/* EXAMPLE
-
-		o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
-		? o1.FindInBetweenAsSections( "hi!", "<<", ">>" )
-		#--> [ [8, 10], [29, 30] ]
-
-		# TODO
-		? @@S( o1.FindXT( "*", :InBetween = [ "<<", ">>" ]) ) # or :InSubStringsBetween
-		
-		*/
-
-		acBetweenZZ = This.BetweenZZCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-? @@S(acBetweenZZ)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindInBetween(pcSubStr, pcBound1, pcBound2)
-		return This.FindInBetweenCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
-
 	def FindBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 		/* EXAMPLE 1:
@@ -17098,6 +17084,48 @@ def ReplaceIBS()
 				return This.FindBetweenAsSectionsQR(pcSubStr, pcBound1, pcbound2, pcReturnType)
 
 		#>
+
+	  #========================================================================#
+	 #  FINDING SUBSTRINGS IN-BETWEEN (INSIDE THE SUBSTRINGS BOUNDED BY) TWO  #
+	#  GIVEN SUBSTRINGS (PSOTITIONS ARE RETURNED AS SECTIONS)                #
+	#=======================================================================#
+
+	def FindInBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
+		? o1.FindInBetweenAsSections( "hi!", "<<", ">>" )
+		#--> [ [8, 10], [29, 30] ]
+
+		# TODO
+		? @@S( o1.FindXT( "*", :InBetween = [ "<<", ">>" ]) ) # or :InSubStringsBetween
+		
+		*/
+
+		acBetweenZZ = This.BetweenZZCS(pcBound1, pcBound2, pCaseSensitive)
+		aResult = acBetweenZZ[pcSubStr]
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInBetweenAsSections(pcSubStr, pcBound1, pcBound2)
+		return This.FindInBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------------------------------------------#
+	 #  FINDING SUBSTRINGS IN-BETWEEN (INSIDE THE SUBSTRINGS BOUNDED BY) TWO GIVEN SUBSTRINGS  #
+	#=========================================================================================#
+
+	def FindInBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		aSections = This.FindInBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		aResult = QR(aSections, :stzListOfPairs).FirstItems()
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInBetween(pcSubStr, pcBound1, pcBound2)
+		return This.FindInBetweenCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
 
 	  #====================================================================#
 	 #  NUMBER OF OCCURRENCE OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
@@ -33705,32 +33733,37 @@ def ReplaceIBS()
 	def HashWithMD5()
 		This.Hash(:MD5)
 
-		#< @FunctionAlternativeForms
-		#>
+		def HashWithMD5Q()
+			This.HashWithMD5()
+			return This
 
 	def HashWithSHA1()
 		This.Hash(:SHA1)
 
-		#< @FunctionAlternativeForms
-		#>
+		def HashWithSHA1Q()
+			This.HashWithSHA1()
+			return This
 
 	def HashWithSHA256()
 		This.Hash(:SHA256)
 
-		#< @FunctionAlternativeForms
-		#>
+		def HashWithSHA256Q()
+			This.HashWithSHA256()
+			return This
 
 	def HashWithSHA384()
 		This.Hash(:SHA384)
 
-		#< @FunctionAlternativeForms
-		#>
+		def HashWithSHA384Q()
+			This.HashWithSHA384()
+			return This
 
 	def HashWithSHA224()
 		This.Hash(:SHA224)
 
-		#< @FunctionAlternativeForms
-		#>
+		def HashWithSHA224Q()
+			This.HashWithSHA224()
+			return This
 
 	  #------------------------------------------#
 	 #   ENCRYPTING AND DECRYPTING THE STRING   #
@@ -33749,7 +33782,7 @@ def ReplaceIBS()
 		#< @FunctionAlternativeForms
 
 		def EncryptWithBlowfishQ(cSecretKey, cIV)
-			return new stzListOfBytes( EncryptWithBlowfish(cSecretKey, cIV) )
+			return new stzListOfBytes( This.EncryptWithBlowfish(cSecretKey, cIV) )
 
 		#>
 
@@ -33776,12 +33809,16 @@ def ReplaceIBS()
 			This.UpdateFromURLL(cURL)
 			return This
 
+		def FromURL(cURL)
+			This.UpdateFromURL(cURL)
+
+			def FromURLQ(cURL)
+				This.FromURL(cURL)
+				return This
+
 	def UpdatedFromURL(cURL)
 		cResult = This.Copy().UpdateFromURLQ(cURL).Content()
 		return cResult
-
-		def FromURL(cURL)
-			return This.ImportedFromURL(cURL)
 
 	  #====================================================#
 	 #     WALKING THE STRING AND RETURNING SOMETHING     #
@@ -33979,18 +34016,18 @@ def ReplaceIBS()
 		and Q(1:3).RepeatNTimes(3) will produce the list
 		[ 1:3, 1:3, 1:3 ].
 
-		You may ask we we opted for a different behavior for
+		You may ask why we opted for a different behavior for
 		strings compared to other types?
 
 		Well, because I think it's more obvious to update the
 		string when we ask to repeat it, and have a string as a
 		result not a list!
 
-		If you want to avoid any confusion due to this,
+		If you want to avoid any confusion due to this choice,
 		use RproduceIn() instead, and specify explicitly what
 		you hant to have, like this:
 
-		? Q("Hi!").ReproduceddXT( :NTimes = 3, :InString)
+		? Q("Hi!").ReproducedXT( :NTimes = 3, :InString)
 		#--> "Hi!Hi:Hi!
 
 		? Q("Hi!").ReproducedXT( :NTimes = 3, :InList)
@@ -34046,7 +34083,7 @@ def ReplaceIBS()
 
 		cCompressed = ""
 
-		for i=1 to len(cBinary)
+		for i = 1 to len(cBinary)
 			if cBinary[i] = "1" and i <= This.NumberOfChars()					
 				cCompressed += This[i]
 			ok
@@ -34098,7 +34135,7 @@ def ReplaceIBS()
 
 		bResult = FALSE
 
-		# Case 1 : The list is in normal [_,_,_] fprm
+		# Case 1 : The list is in normal [_,_,_] form
 
 		if oCopy.IsBoundedBy([ "[","]" ]) and
 			oCopy.Contains(",")
@@ -34306,7 +34343,7 @@ def ReplaceIBS()
 				acMembers = StzListQ(acMembers).FirstAndLastItems()
 
 				/*
-				TODO : replace wth this when Split() is finished.
+				TODO : replace with this when Split() is finished.
 
 				acMembers = This.TrimQ().
 						RemoveBoundsQ("[","]").
@@ -36244,6 +36281,9 @@ def ReplaceIBS()
 	def UniqueNumbers()
 		return This.NumbersQ().DuplicatesRemoved()
 
+		def NumbersU()
+			return This.UniqueNumbers()
+
 	  #-------------------------------------------------------#
 	 #  GETTTING THE NUMBER OF UNIQUE NUMBERS IN THE STRING  #
 	#-------------------------------------------------------#
@@ -36650,7 +36690,7 @@ def ReplaceIBS()
 
 	def Stringify()
 		# Do nothing, the object is naturally stringified
-		# becauses it a string
+		# becauses it is already a string
 
 		def StringifiyQ()
 			return new stzString( This.String() )
@@ -36665,7 +36705,22 @@ def ReplaceIBS()
 			return new stzString( This.ToString() )
 	
 	def ToCode()
-		return '"' + This.String() + '"'
+		cResult = ""
+
+		cQuote = "'"
+		cDoubleQuote = '"'
+
+		if This.IsBoundedBy(cDoubleQuote)
+			cResult = cQuote + This.String() + cQuote
+
+		but This.IsBoundedBy(cQuote)
+			cResult = cDoubleQuote + This.String() + cDoubleQuote
+
+		else
+			cResult = This.String()
+		ok
+
+		return cResult
 
 		def ToCodeQ()
 			return new stzString( This.ToCode() )
