@@ -101,36 +101,50 @@ pron()
 proff()
 
 
-
 /*===============
-*/
-StartProfiler()
-
-o1 = new stzString("/♥♥♥\__/\/\__/♥♥♥\__")
-//? o1.FindBetweenAsSections("♥♥♥", "/", "\")	# FindXT( "♥", :Between = ["/","\"], :AsSections )
-#--> [ [2, 4], [15, 17] ]
-
-? o1.FindAsSectionsXT( "♥♥♥", :Between = ["/","\"])
-#--> [ [2, 4], [15, 17] ]
-
-StopProfiler()
-# Executed in 0.02 second(s)
-
-/*---------
 
 StartProfiler()
 
 ? Q("^^♥^^").ContainsAt(3, "♥")
 #--> TRUE
 
+? Q("^^♥^^").ContainsAt("♥", :Position = 3)
+#--> TRUE
+
+? Q("^^♥^^").ContainsXT("♥", :AtPosition = 3)
+
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.07 second(s)
  
 /*---------
 
+pron()
+
+? Q("^♥^^♥^^♥^").ContainsAtPositions([2, 5, 8], "♥")
+#--> TRUE
+
+? Q("♥^^♥^^♥").ContainsAtPosition("♥", 1)
+
+proff()
+
+/*---------
+
+pron()
+
+? Q("♥^^♥^^♥").ContainsAt([1, 4, 7], "♥")
+#--> TRUE
+
+? Q("♥^^♥^^♥").ContainsXT("♥", :AtPositions = [1, 4, 7])
+#--> TRUE
+
+proff()
+# Executed in 0.05 second(s)
+
+/*---------
+*/
 StartProfiler()
 
-? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", 3, 5)
+? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", :Position = 3, :And = 5)
 #--> TRUE
 
 StopProfiler()
