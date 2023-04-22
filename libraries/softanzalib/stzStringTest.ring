@@ -3877,6 +3877,18 @@ o1.Move( :ItemFromPosition = 3, :ToPosition = 2 )
 o1.Swap( :Positions = 2, :And = 3 )
 ? o1.Content() #--> [ "A", "C", "B" ]
 
+/*------------------
+
+pron()
+
+o1 = new stzString("TWO, ONE, THREE!")
+o1.SwapSubStrings("TWO", "ONE")
+? o1.Content()
+#--> ONE, TWO, THREE!
+
+proff()
+# Executed in 0.03 second(s)
+
 /*=================
 
 o1 = new stzString("*AB*")
