@@ -140,15 +140,86 @@ pron()
 proff()
 # Executed in 0.05 second(s)
 
+/*=========
+
+pron()
+
+? @@S( Association([ :of = [ :one, :two, :three ], :with = [1, 2, 3] ]) )
+#--> [ [ "one", 1 ], [ "two", 2 ], [ "three", 3 ] ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*=========
+*/
+pron()
+
+o1 = new stzString("__<<teeba>>__<<rined>>__<<teeba>>")
+? @@S( o1.BetweenZ("<<", ">>") ) + NL
+#--> [ [ "teeba", 5 ], [ "rined", 16 ], [ "teeba", 27 ] ]
+
+? @@S( o1.BetweenZZ("<<", ">>") )
+
+proff()
+#--> Executed in 0.26
+
 /*---------
 */
+
+pron()
+
+o1 = new stzString("<<hi!>>..<<--♥♥♥--♥♥♥-->>..<<hi!>>")
+? @@S( o1.BetweenZZ("<<", ">>") ) + NL
+#--> [	[ "hi!", [3, 5] ],
+#	[ "--♥♥♥--♥♥♥--", [ 12, 23 ] ],
+#	[ "hi!", [ 12, 23 ] ]
+# ]
+# Executed in 0.16 second(s)
+
+? @@S( o1.BetweenUZZ("<<", ">>") )
+#--> [
+#	[ "hi!", [ [ 3, 5 ], [ 30, 32 ] ] ],
+#	[ "--♥♥♥--♥♥♥--", [ [ 12, 23 ] ] ]
+# ]
+
+proff()
+#--> Executed in 0.24 second(s)
+
+/*---------
+*/
+pron()
+/*
+o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
+? o1.FindInBetween( "hi!", "<<", ">>" )
+#--> [8, 29]
+
+? Q("...<<--hi!-->>...<<-->>...<<hi!>>...").FindInBetween( "hi!", "<<", ">>" )
+*/
+? @@S( Q("..<<--♥♥♥--♥♥♥-->>..").FindInBetweenAsSections("♥♥♥", "<<", ">>") )
+
+proff()
+
+/*---------
+
 StartProfiler()
 
 ? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", :Position = 3, :And = 5)
 #--> TRUE
 
+? Q("^^♥♥♥^^").ContainsInSection("♥♥♥", 3, 5)
+#--> TRUE
+
+? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :Between = [3, 5])
+#--> TRUE
+
+? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :InSection = [3, 5])
+#--> TRUE
+
+? Q("..<<--♥♥♥-->>..").ContainsXT("♥♥♥", :InBetween = ["<<", ">>"])
+#--> TRUE
+
 StopProfiler()
-# Executed in 0.01 second(s)
+# Executed in 0.05 second(s)
 
 /*==================
 

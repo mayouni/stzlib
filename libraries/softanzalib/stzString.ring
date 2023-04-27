@@ -10754,7 +10754,7 @@ class stzString from stzObject
 	  #-------------------------------------------------------------------------#
 	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	#-------------------------------------------------------------------------#
-"ici"
+"todo"
 def ReplaceBetweenIB()
 def ReplaceBetweenS()
 def ReplaceIBS()
@@ -17102,8 +17102,31 @@ def ReplaceIBS()
 		
 		*/
 
-		acBetweenZZ = This.BetweenZZCS(pcBound1, pcBound2, pCaseSensitive)
-		aResult = acBetweenZZ[pcSubStr]
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		acBetweenZZ = This.AnyBetweenZZCS(pcBound1, pcBound2, pCaseSensitive)
+# "ici"
+# ? @@S(acBetweenZZ)
+		nLen = len(acBetweenZZ)
+		nLenSubStr = Q(pcSubStr).NumberOfChars()
+
+		aResult = []
+
+		for i = 1 to nLen
+			oBetween = Q(acBetweenZZ[i][1])
+
+			if oBetween.ContainsCS(pcSubStr, pCaseSensitive)
+				anPos = oBetween.FindAllCS(pcSubStr, pCaseSensitive)
+				nLenPos = len(anPos)
+
+				for j = 1 to nLenPos
+					aResult + [ anPos[j], anPos[j] + nLenSubStr ]
+				next
+
+			ok
+		next
 
 		return aResult
 
@@ -17117,8 +17140,11 @@ def ReplaceIBS()
 	#=========================================================================================#
 
 	def FindInBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		aResult = []
 		aSections = This.FindInBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		aResult = QR(aSections, :stzListOfPairs).FirstItems()
+		if len(aSections) > 0
+			aResult = QR(aSections, :stzListOfPairs).FirstItems()
+		ok
 
 		return aResult
 
@@ -18357,7 +18383,8 @@ def ReplaceIBS()
 	#===========================================================#
 
 	def FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
+		#< @MotherFunctionOf = [ :FindAnyBetweenAsSectionsCS() ] >
+
 		# Checking params
 	
 		if NOT isString(pcBound1)
@@ -19978,7 +20005,13 @@ def ReplaceIBS()
 	 #   SUBSTRING(S) ENCLOSED BETWEEN TWO SUBSTRINGS OR POSITIONS  # 
 	#==============================================================#
 
+# TODO: Add
+def SubStringBetween(pcSubString, p1, p2)
+
 	def BetweenCS(p1, p2, pCaseSensitive)
+
+		# Checking params
+
 		if isList(p1) and Q(p1).IsOneOfTheseNamedParams([ :SubString, :Position, :SubStrings, :Positions ])
 			p1 = p1[2]
 		ok
@@ -19987,7 +20020,9 @@ def ReplaceIBS()
 			p1 = p1[2]
 		ok
 
-		if BothAreNumbers(p1, p2)
+		# Doing the job
+
+		if BothAreNumbers(p1, p2) # In case p1 and p2 are numbers forming a section
 			return This.Section(p1, p2)
 
 		but BothAreStrings(p1, p2)
@@ -20060,7 +20095,7 @@ def ReplaceIBS()
 
 		between = This.BetweenCS(p1, p2, pCaseSensitive)
 
-		if isString(between)
+		if isString(between) # In case p1 and p2 are numbers forming a section
 			return [ between, This.FindCS(between, pCaseSensitive) ]
 		
 		else
@@ -20170,14 +20205,32 @@ def ReplaceIBS()
 	#=========================================================#
 
 	def SubStringsBetweenZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		acSubStr = This.SubStringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		#< @MotherFunctionOf = [ :SubStringsBetweenZCS() ] #>
+
+		acSubStr = This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		nLen = len(acSubStr)
 
 		aResult = []
+		acDone = []
 
 		for i = 1 to nLen
-			aResult + [ acSubStr[i], This.FindAllCS(acSubStr[i], pCaseSensitive) ]
+			if ring_find(acDone, acSubStr[i])
+				loop
+			ok
+
+			nOccurr = Q(acSubStr).NumberOfOccurrence(acSubStr[i])
+
+			for j = 1 to nOccurr
+				nPos = This.FindNthCS(j, acSubStr[i], pCaseSensitive)
+				aResult + [ acSubStr[i], nPos ]
+			next
+
+			acDone + acSubStr[i]
+			
 		next
+
+		# TODO: Can be optimised for performance by using native Ring
+		aResult = StzListOfPairsQ(aResult).SortQ().ItemsSwapped()
 
 		return aResult
 
@@ -20195,8 +20248,8 @@ def ReplaceIBS()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenZ( pcSubStr1, pcSubStr2, pcMore )
-		return This.SubStringsBetweenZCS( pcSubStr1, pcSubStr2, pcMore, :CaseSensitive = TRUE)
+	def SubStringsBetweenZ( pcSubStr1, pcSubStr2 )
+		return This.SubStringsBetweenZCS( pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -20205,15 +20258,15 @@ def ReplaceIBS()
 		
 		#>
 
-	  #-------------------------------------------------------------------#
-	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- ZZ/EXTENDED  #
-	#===================================================================#
+	  #--------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- UZZ/EXTENDED  #
+	#====================================================================#
 
 	def BetweenZZCS(p1, p2, pCaseSensitive)
 
 		between = This.BetweenCS(p1, p2, pCaseSensitive)
 
-		if isString(between)
+		if isString(between) # Case where p1 and p2 are numbers
 			return [ between, This.FindAsSectionsCS(between, pCaseSensitive) ]
 
 		else
@@ -20246,7 +20299,7 @@ def ReplaceIBS()
 				return This.BoundedByZZCS(pacBounds, pCaseSensitive)
 
 		def AnyBoundedByZZCS(pacBounds, pCaseSensitive)
-			return This.BoundedByZCS(pacBounds, pCaseSensitive)
+			return This.BoundedByZZCS(pacBounds, pCaseSensitive)
 
 			def AnyBoundedByCSZZ(pacBounds, pCaseSensitive)
 				return This.AnyBoundedByZZCS(pacBounds, pCaseSensitive)
@@ -20276,13 +20329,16 @@ def ReplaceIBS()
 	#==========================================================#
 	
 	def SubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
-		acSubStr = This.SubStringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		nLen = len(acSubStr)
+		aBetweenZ = This.SubStringsBetweenZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
+		nLen = len(aBetweenZ)
 
 		aResult = []
 
 		for i = 1 to nLen
-			aResult + [ acSubStr[i], This.FindAsSectionsCS(acSubStr[i], pCaseSensitive) ]
+			cSubStr = aBetweenZ[i][1]
+			nLenSubStr = Q(cSubStr).NumberOfChars()
+			aSection = [ aBetweenZ[i][2], (aBetweenZ[i][2] + nLenSubStr - 1) ]
+			aResult + [ cSubStr, aSection ]
 		next
 
 		return aResult
@@ -20302,8 +20358,8 @@ def ReplaceIBS()
 		
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenZZ( pcSubStr1, pcSubStr2, pcMore )
-		return This.SubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pcMore, :CaseSensitive = TRUE)
+	def SubStringsBetweenZZ( pcSubStr1, pcSubStr2 )
+		return This.SubStringsBetweenZZCS( pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -20397,10 +20453,10 @@ def ReplaceIBS()
 
 	def BetweenIBZCS(p1, p2, pCaseSensitive)
 	
-		acBetweenIB = This.BetweenIBCS(p1, p2, pCaseSensitive)
-		anPositions = This.FindAnyBetweenIBCS(p1, p2, pCaseSensitive)
+		acBetweenIBU = This.BetweenIBCS(p1, p2, pCaseSensitive)
+		anPositions  = This.FindAnyBetweenIBCS(p1, p2, pCaseSensitive)
 
-		aResult = Association([ acBetweenIB,  anPositions ])
+		aResult = Association([ acBetweenIBU,  anPositions ])
 		return aResult
 	
 		#< @FunctionAlternativeForms
@@ -20418,7 +20474,7 @@ def ReplaceIBS()
 			if isString(pacBounds)
 				return This.BetweenIBZCS(pacBounds, pacBounds, pCaseSensitive)
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.BetweenIBZCS(pacBounds[1], pacBounds[2], pCaseSensitive)
+				return This.BetweenIBUZCS(pacBounds[1], pacBounds[2], pCaseSensitive)
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
@@ -20734,7 +20790,7 @@ def ReplaceIBS()
 
 		#>
 
-	  #----------------------------------------------------------------------------#
+"here"	  #----------------------------------------------------------------------------#
 	 #  UNIQUE SUBSTRING(S) ENCLOSED BETWEEN TWO OTHER SUBSTRINGS (OR POSITIONS)  # 
 	#============================================================================#
 
@@ -20751,7 +20807,7 @@ def ReplaceIBS()
 			return This.Section(p1, p2)
 
 		but BothAreStrings(p1, p2)
-			acResult = This.BetweenCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+			acResult = This.BetweenCSQ(p1, p2, pCaseSensitive).DupplicatesRemoved()
 			return acResult
 
 		else
@@ -21074,6 +21130,348 @@ def ReplaceIBS()
 			return This.SubstringsBetweenIBUQR(pcSubStr1, pcSubStr2, pcReturnType)
 
 		#>
+
+	  #-------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- UZ/EXTENDED  #
+	#===================================================================#
+
+#vvvvv TODO: add FluentForms and AlternativeForms
+
+	def BetweenUZCS(p1, p2, pCaseSensitive)
+		acBetween = This.BetweenUCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+		nLen = len(acBetween)
+	
+		aResult = []
+		for i = 1 to nLen
+			anPos = This.FindSubStringBetweenCS(acBetween[i], p1, p2, pCaseSensitive)
+			aResult + [ acBetween[i], anPos ]
+		next i
+	
+		return aResult
+	
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenUZ(p1, p2, pCaseSensitive)
+		return BetweenUZCS(p1, p2, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- UZ/EXTENDED  #
+	#============================================================#
+
+	def SubStringsBetweenUZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.BetweenUZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenUZ(pcSubStr1, pcSubStr2)
+		return This.SubStringsBetweenUZCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- UZZ/EXTENDED  #
+	#====================================================================#
+
+	def BetweenUZZCS(p1, p2, pCaseSensitive)
+		acBetween = This.BetweenUCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+		nLen = len(acBetween)
+	
+		aResult = []
+		for i = 1 to nLen
+			aSections = This.FindBetweenAsSectionsCS(acBetween[i], p1, p2, pCaseSensitive)
+			aResult + [ acBetween[i], aSections ]
+		next i
+	
+		return aResult
+	
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenUZZ(p1, p2)
+		return BetweenUZZCS(p1, p2, :CaseSensitive = TRUE)
+
+	  #-------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- UZZ/EXTENDED  #
+	#=============================================================#
+
+	def SubStringsBetweenUZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.BetweenUZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenUZZ(pcSubStr1, pcSubStr2)
+		return This.SubStringsBetweenUZZCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- IBUZ/EXTENDED  #
+	#=====================================================================#
+
+	def BetweenIBUZCS(p1, p2, pCaseSensitive)
+		acBetween = This.BetweenIBCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+		nLen = len(acBetween)
+	
+		aResult = []
+		for i = 1 to nLen
+			anPos = This.FindSubStringBetweenCS(acBetween[i], p1, p2, pCaseSensitive)
+			aResult + [ acBetween[i], anPos ]
+		next i
+	
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenIBUZ(p1, p2)
+		return This.BetweenIBUZCS(p1, p2, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- IBUZ/EXTENDED  #
+	#==============================================================#
+
+	def SubStringsBetweenIBUZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.BetweenIBUZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenIBUZ(pcSubStr1, pcSubStr2)
+		return This.SubStringsBetweenIBUZCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- IBUZZ/EXTENDED  #
+	#======================================================================#
+
+	def BetweenIBUZZCS(p1, p2, pCaseSensitive)
+		acBetween = This.BetweenIBCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+		nLen = len(acBetween)
+	
+		aResult = []
+		for i = 1 to nLen
+			aSections = This.FindBetweenAsSectionsCS(acBetween[i], p1, p2, pCaseSensitive)
+			aResult + [ acBetween[i], aSections ]
+		next i
+	
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenIBUZZ(p1, p2)
+		return This.BetweenIBUZZCS(p1, p2, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- IBUZZ/EXTENDED  #
+	#===============================================================#
+
+	def SubStringsBetweenIBUZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.BetweenIBUZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenIBUZZ(pcSubStr1, pcSubStr2)
+		return This.SubStringsBetweenIBUZZCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SUZ/EXTENDED  #
+	#====================================================================#
+
+	def BetweenSUZCS(p1, p2, pCaseSensitive)
+		acBetween = This.BetweenSCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+		nLen = len(acBetween)
+	
+		aResult = []
+		for i = 1 to nLen
+			anPos = This.FindSubStringBetweenCS(acBetween[i], p1, p2, pCaseSensitive)
+			aResult + [ acBetween[i], anPos ]
+		next i
+	
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenSUZ(p1, p2)
+		return This.BetweenSUZCS(p1, p2, :CaseSensitive = TRUE)
+
+	  #-------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- SUZ/EXTENDED  #
+	#=============================================================#
+
+	def SubStringsBetweenSUZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.BetweenSUZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenSUZ(pcSubStr1, pcSubStr2)
+		return This.SubStringsBetweenSUZCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SUZZ/EXTENDED  #
+	#=====================================================================#
+
+	def BetweenSUZZCS(p1, p2, pCaseSensitive)
+		acBetween = This.BetweenSCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+		nLen = len(acBetween)
+	
+		aResult = []
+		for i = 1 to nLen
+			aSections = This.FindBetweenAsSectionsCS(acBetween[i], p1, p2, pCaseSensitive)
+			aResult + [ acBetween[i], aSections ]
+		next i
+	
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenSUZZ(p1, p2)
+		return This.BetweenSUZZCS(p1, p2, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- SUZZ/EXTENDED  #
+	#==============================================================#
+
+	def SubStringsBetweenSUZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.BetweenSUZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenSUZZ(pcSubStr1, pcSubStr2)
+		return This.SubStringsBetweenSUZZCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SDUZ/EXTENDED  #
+	#=====================================================================#
+
+	def BetweenSDUZCS(p1, p2, pnStartingAt, pCaseSensitive)
+		acBetween = This.BetweenSDCSQ(p1, p2, pnStartingAt, pCaseSensitive).DuplicatesRemoved()
+		nLen = len(acBetween)
+	
+		aResult = []
+		for i = 1 to nLen
+			anPos = This.FindSubStringBetweenCS(acBetween[i], p1, p2, pCaseSensitive)
+			aResult + [ acBetween[i], anPos ]
+		next i
+	
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenSDUZ(p1, p2)
+		return This.BetweenSDUZCS(p1, p2, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- SDUZ/EXTENDED  #
+	#==============================================================#
+
+	def SubStringsBetweenSDUZCS(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+		return This.BetweenSDUZCS(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenSDUZ(pcSubStr1, pcSubStr2, pnStartingAt)
+		return This.SubStringsBetweenSDUZCS(pcSubStr1, pcSubStr2, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SDUZZ/EXTENDED  #
+	#======================================================================#
+
+	def BetweenSDUZZCS(p1, p2, pnStartingAt, pCaseSensitive)
+		acBetween = This.BetweenSCSQ(p1, p2, pnStartingAt, pCaseSensitive).DuplicatesRemoved()
+		nLen = len(acBetween)
+	
+		aResult = []
+		for i = 1 to nLen
+			aSections = This.FindBetweenAsSectionsCS(acBetween[i], p1, p2, pCaseSensitive)
+			aResult + [ acBetween[i], aSections ]
+		next i
+	
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenSDUZZ(p1, p2, pnStartingAt)
+		return This.BetweenSDUZZCS(p1, p2, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- SDUZZ/EXTENDED  #
+	#===============================================================#
+
+	def SubStringsBetweenSDUZZCS(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+		return This.BetweenSDUZZCS(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenSDUZZ(pcSubStr1, pcSubStr2, pnStartingAt)
+		return This.SubStringsBetweenSDUZZCS(pcSubStr1, pcSubStr2, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SDIBUZ/EXTENDED  #
+	#=======================================================================#
+
+	def BetweenSDIBUZCS(p1, p2, pnStartingAt, pcDirection, pCaseSensitive)
+		acBetween = This.BetweenSDIBCSQ(p1, p2, pnStartingAt, pcDirection, pcCaseSensitive).DuplicatesRemoved()
+		nLen = len(acBetween)
+	
+		aResult = []
+		for i = 1 to nLen
+			anPos = This.FindSubStringBetweenCS(acBetween[i], p1, p2, pCaseSensitive)
+			aResult + [ acBetween[i], anPos ]
+		next i
+	
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenSDIBUZ(p1, p2)
+		return This.BetweenSDIBUZCS(p1, p2, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- SDIBUZ/EXTENDED  #
+	#================================================================#
+
+	def SubStringsBetweenSDIBUZCS(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, pCaseSensitive)
+		return This.BetweenSDIBUZCS(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenSDIBUZ(pcSubStr1, pcSubStr2, pcDirection, pnStartingAt)
+		return This.SubStringsBetweenSDIBUZCS(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SDIBUZZ/EXTENDED  #
+	#========================================================================#
+
+	def BetweenSDIBUZZCS(p1, p2, pnStartingAt, pcDirection, pCaseSensitive)
+		acBetween = This.BetweenSDCSQ(p1, p2, pnStartingAt, pcDirection, pCaseSensitive).DuplicatesRemoved()
+		nLen = len(acBetween)
+	
+		aResult = []
+		for i = 1 to nLen
+			aSections = This.FindBetweenAsSectionsCS(acBetween[i], p1, p2, pCaseSensitive)
+			aResult + [ acBetween[i], aSections ]
+		next i
+	
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenSDIBUZZ(p1, p2, pnStartingAt, pcDirection)
+		return This.BetweenSDIBUZZCS(p1, p2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- SDIBUZZ/EXTENDED  #
+	#=================================================================#
+
+	def SubStringsBetweenSDIBUZZCS(pcSubStr1, pcSubStr2, pnStartingAt, pcDirectionpCaseSensitive)
+		return This.BetweenSDIBUZZCS(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenSDIBUZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection)
+		return This.SubStringsBetweenSDIBUZZCS(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+#---------------------------
+
+# TODO (future): Add ..CR() to update functions
+#--> Cheks if the function has really made its jobs (returns TRUE or FALSE)
+
+# TODO (future): Add ..XP() to explain what the function does
+
+
+#---------------------------
 
 	  #-------------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SZ/EXTENDED  #
@@ -22154,13 +22552,31 @@ def ReplaceIBS()
 				p2[2] = p2[2][2]
 			ok
 
-			if isListOfStrings(p2[2])
+			if Q(p2[2]).isListOfStrings()
 				return This.ContainsThisSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
 
-			but isListOfNumbers(p2[2])
+			but Q(p2[2]).isListOfNumbers()
 				return This.ContainsThisSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
 
 			ok
+
+		# ? Q("..<<--♥♥♥-->>..").ContainsXT("♥♥♥", :InBetween = ["<<", ">>"])
+		but isString(p1) and isList(p2) and Q(p2).IsInBetweenNamedParam()
+
+			if Q(p2[2]).IsAndNamedParam()
+				p2[2] = p2[2][2]
+			ok
+
+			if Q(p2[2]).isListOfStrings()
+				return This.ContainsInBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
+			ok
+
+		but isString(p1) and isList(p2) and
+		    Q(p2).IsInSectionNamedParam() and
+		    isList(p2[2]) and Q(p2[2]).IsPairOfNumbers()
+
+			return This.containsInSectionCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
+
 
 		but isString(p1) and isList(p2) and Q(p2).IsBetweenSubStringsNamedParam()
 
@@ -22514,6 +22930,24 @@ def ReplaceIBS()
 	def ContainsBetween(pcSubStr, p1, p2)
 		return This.ContainsBetweenCS(pcSubStr, p1, p2, :CaseSensitive = TRUE)
 
+	  #-----------------------------------------------------------------#
+	 #  CONTAINING A SUBSTRING IN-BETWEEN TWO POSITIONS OR SUBSTRINGS  #
+	#-----------------------------------------------------------------#
+
+	def ContainsInBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+
+		if len(This.FindInBetweenCS(pcSubStr, p1, p2, pCaseSensitive)) > 0
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#-- WTHOUT CASESENSITIVITY
+
+	def ContainsInBetween(pcSubStr, p1, p2)
+		return This.ContainsInBetweenCS(pcSubStr, p1, p2, :CaseSensitive = TRUE)
+
 	  #------------------------------------------------------#
 	 #  CONTAINING A SUBSTRING BETWEEN TWO GIVEN POSITIONS  #
 	#------------------------------------------------------#
@@ -22537,6 +22971,9 @@ def ReplaceIBS()
 		def ContainsThisBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
 			return This.ContainsBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
 
+		def ContainsInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.ContainsBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
+
 		#>
 
 	#-- WTHOUT CASESENSITIVITY
@@ -22550,7 +22987,10 @@ def ReplaceIBS()
 			return This.ContainsBetweenPositions(pcSubStr, n1, n2)
 
 		def ContainsThisBetweenPositions(pcSubStr, n1, n2)
-			return This.ContainsBetweenPositionsCS(pcSubStr, n1, n2)
+			return This.ContainsBetweenPositions(pcSubStr, n1, n2)
+
+		def ContainsInSection(pcSubStr, n1, n2)
+			return This.ContainsBetweenPositions(pcSubStr, n1, n2)
 
 		#>
 

@@ -23095,6 +23095,16 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsAndOrWithNamedParam()
+		if This.IsAndNamedParam() or This.IsWithNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsWithOrAndNamedParam()
+			return This.IsIsAndOrWithNamedParam()
+
 	def IsAndTheirNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  (This[1] = :AndTheir or This[1] = :AndTheir@)  )
