@@ -75,7 +75,7 @@ func Association(paLists)
 		paLists[1] = aFirstList[2]
 	ok
 
-	if isList(aLastList) and Q(aLastList).IsAndNamedParam()
+	if isList(aLastList) and Q(aLastList).IsAndOrWithNamedParam()
 		paLists[ len(paLists) ] = aLastList[2]
 	ok
 
