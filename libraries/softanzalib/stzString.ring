@@ -17106,9 +17106,8 @@ def ReplaceIBS()
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		acBetweenZZ = This.AnyBetweenZZCS(pcBound1, pcBound2, pCaseSensitive)
-# "ici"
-# ? @@S(acBetweenZZ)
+		acBetweenZZ = This.BetweenZZCS(pcBound1, pcBound2, pCaseSensitive)
+
 		nLen = len(acBetweenZZ)
 		nLenSubStr = Q(pcSubStr).NumberOfChars()
 
@@ -17116,13 +17115,15 @@ def ReplaceIBS()
 
 		for i = 1 to nLen
 			oBetween = Q(acBetweenZZ[i][1])
-
+			
 			if oBetween.ContainsCS(pcSubStr, pCaseSensitive)
 				anPos = oBetween.FindAllCS(pcSubStr, pCaseSensitive)
 				nLenPos = len(anPos)
 
 				for j = 1 to nLenPos
-					aResult + [ anPos[j], anPos[j] + nLenSubStr ]
+					n1 = anPos[j] + acBetweenZZ[i][2][1] - 1
+					n2 = n1 + nLenSubStr - 1
+					aResult + [ n1, n2 ]
 				next
 
 			ok
@@ -20153,31 +20154,32 @@ def SubStringBetween(pcSubString, p1, p2)
 
 		#>
 
-	  #-------------------------------------------#
-	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS  #
-	#===========================================#
+	  #---------------------------------------------------------#
+	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- ZZ/EXTENDED #
+	#=========================================================#
 
-	def SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def SubStringsBetweenZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		aSections = This.FindAnyBetweenAsSectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		return This.Sections(aSections)
+		acSubStr  = This.Sections(aSections)
+
+		aResult = Association([ acSubStr, aSections ])
+
+		return aResult
 
 		#< @FunctionFluentForm
 
-		def SubStringsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubStringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
+		def SubStringsBetweenZZCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubStringsBetweenZZCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
 
-		def SubStringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+		def SubStringsBetweenZZCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
+				return new stzList( This.SubStringsBetweenZZCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
 
-			on :stzListOfStrings
-				return new stzListOfStrings( This.AnyBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-
-			on :stzPair
-				return new stzPair( This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
+			on :stzListOfPairs
+				return new stzListOfPairs( This.SubStringsBetweenZZCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
 
 			other
 				StzRaise( "Unsupported return type!")
@@ -20187,16 +20189,16 @@ def SubStringBetween(pcSubString, p1, p2)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetween(pcSubStr1, pcSubStr2)
-		return This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def SubStringsBetweenZZ(pcSubStr1, pcSubStr2)
+		return This.SubStringsBetweenZZCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def subStringsBetweenQ(pcSubStr1, pcSubStr2)
-			return This.SubStringsBetweenCSQ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+		def subStringsBetweenZZQ(pcSubStr1, pcSubStr2)
+			return This.SubStringsBetweenZZCSQ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
-		def SubStringsBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
-			return This.SubStringsBetweenCSQR(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE, pcReturnType)
+		def SubStringsBetweenZZQR(pcSubStr1, pcSubStr2, pcReturnType)
+			return This.SubStringsBetweenZZCSQR(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE, pcReturnType)
 
 		#>
 
@@ -20205,32 +20207,13 @@ def SubStringBetween(pcSubString, p1, p2)
 	#=========================================================#
 
 	def SubStringsBetweenZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		#< @MotherFunctionOf = [ :SubStringsBetweenZCS() ] #>
-
-		acSubStr = This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		nLen = len(acSubStr)
+		aBetweenZZ = This.SubStringsBetweenZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		nLen = len(aBetweenZZ)
 
 		aResult = []
-		acDone = []
-
 		for i = 1 to nLen
-			if ring_find(acDone, acSubStr[i])
-				loop
-			ok
-
-			nOccurr = Q(acSubStr).NumberOfOccurrence(acSubStr[i])
-
-			for j = 1 to nOccurr
-				nPos = This.FindNthCS(j, acSubStr[i], pCaseSensitive)
-				aResult + [ acSubStr[i], nPos ]
-			next
-
-			acDone + acSubStr[i]
-			
+			aResult + [ aBetweenZZ[i][1], aBetweenZZ[i][2][1] ]
 		next
-
-		# TODO: Can be optimised for performance by using native Ring
-		aResult = StzListOfPairsQ(aResult).SortQ().ItemsSwapped()
 
 		return aResult
 
@@ -20324,47 +20307,36 @@ def SubStringBetween(pcSubString, p1, p2)
 
 		#>
 
-	  #----------------------------------------------------------#
-	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- ZZ/EXTENDED  #
-	#==========================================================#
+	  #------------------------------------------#
+	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS #
+	#==========================================#
 	
-	def SubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
-		aBetweenZ = This.SubStringsBetweenZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
-		nLen = len(aBetweenZ)
+	def SubStringsBetweenCS( pcSubStr1, pcSubStr2, pCaseSensitive )
+		aBetweenZZ = This.SubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
+		nLen = len(aBetweenZZ)
 
 		aResult = []
 
 		for i = 1 to nLen
-			cSubStr = aBetweenZ[i][1]
-			nLenSubStr = Q(cSubStr).NumberOfChars()
-			aSection = [ aBetweenZ[i][2], (aBetweenZ[i][2] + nLenSubStr - 1) ]
-			aResult + [ cSubStr, aSection ]
+			aResult + aBetweenZZ[i][1]
 		next
 
 		return aResult
 
 		#< @FunctionAlternativeForm
 
-		def SubStringsBetweenCSZZ( pcSubStr1, pcSubStr2, pCaseSensitive )
-			return This.SubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
-
-		def AnySubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
-			return This.SubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
-
-			def AnySubStringsBetweenCSZZ( pcSubStr1, pcSubStr2, pCaseSensitive )
-				return This.AnySubStringsBetweenZZCS( pcSubStr1, pcSubStr2, pCaseSensitive )
+		// See them in bottom of file
 
 		#>
 		
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenZZ( pcSubStr1, pcSubStr2 )
-		return This.SubStringsBetweenZZCS( pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def SubStringsBetween( pcSubStr1, pcSubStr2 )
+		return This.SubStringsBetweenCS( pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def AnySubStringsBetweenZZ( pcSubStr1, pcSubStr2 )
-			return This.SubStringsBetweenZZ( pcSubStr1, pcSubStr2 )
+		// See them in bottom of file
 
 		#>
 
@@ -20790,7 +20762,7 @@ def SubStringBetween(pcSubString, p1, p2)
 
 		#>
 
-"here"	  #----------------------------------------------------------------------------#
+	  #----------------------------------------------------------------------------#
 	 #  UNIQUE SUBSTRING(S) ENCLOSED BETWEEN TWO OTHER SUBSTRINGS (OR POSITIONS)  # 
 	#============================================================================#
 

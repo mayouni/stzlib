@@ -151,7 +151,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*=========
-*/
+
 pron()
 
 o1 = new stzString("__<<teeba>>__<<rined>>__<<teeba>>")
@@ -164,7 +164,6 @@ proff()
 #--> Executed in 0.26
 
 /*---------
-*/
 
 pron()
 
@@ -185,21 +184,52 @@ o1 = new stzString("<<hi!>>..<<--♥♥♥--♥♥♥-->>..<<hi!>>")
 proff()
 #--> Executed in 0.24 second(s)
 
-/*---------
+/*================
+
+pron()
+
+o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
+? @@S( o1.SubStringsBetween("<<", ">>") )
+#--> [ "--hi!--", "--", "hi!" ]
+
+? @@S( o1.BetweenZZ("<<", ">>") )
+#--> [
+#	[ "--hi!--", 	[  6, 12 ] ],
+#	[ "--", 	[ 20, 21 ] ],
+#	[ "hi!", 	[ 29, 31 ] ]
+#]
+
+proff()
+#--> Executed in 0.14 second(s)
+
+/*================
 */
 pron()
-/*
-o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
-? o1.FindInBetween( "hi!", "<<", ">>" )
-#--> [8, 29]
 
-? Q("...<<--hi!-->>...<<-->>...<<hi!>>...").FindInBetween( "hi!", "<<", ">>" )
-*/
-? @@S( Q("..<<--♥♥♥--♥♥♥-->>..").FindInBetweenAsSections("♥♥♥", "<<", ">>") )
+o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
+? @@S( o1.FindInBetweenAsSections( "hi!", "<<", ">>" ) )
+#--> [ [ 8, 10 ], [ 29, 31 ] ]
+
+? @@S( o1.FindInBetween( "hi!", "<<", ">>" ) )
+#--> [ 8, 29 ]
+
+proff()
+# Executed in 0.19 second(s)
 
 proff()
 
-/*---------
+/*-----------------
+
+pron()
+
+? @@S( Q("..<<--♥♥♥--♥♥♥-->>..<<---♥♥♥>>..").
+	FindInBetweenAsSections("♥♥♥", "<<", ">>") )
+#--> [ [ 7, 9 ], [ 12, 14 ], [ 26, 28 ] ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*================
 
 StartProfiler()
 
