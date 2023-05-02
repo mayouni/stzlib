@@ -1,5 +1,63 @@
 load "stzlib.ring"
 
+/*=========== TODO:ERROR
+
+pron()
+
+? StzCharQ("0x10481").Content() #--> ERR, should be "𐒁"
+
+? Q("Schöne Grüße").Length() # means "Kind Regards" in german
+#--> 12
+
+? StzUnicodeDataQ().CharByName("OSMANYA LETTER BA")
+#--> 0x10481
+#--> 66689
+
+? StzCharQ("ҁ").Name()
+#--> CYRILLIC SMALL LETTER KOPPA
+
+? StzCharQ("𐒁") # TODO-ERROR
+#--> Can't create char object!
+
+? Q("𐒁").CharName() # TODO-ERROR: correct it to be OSMANYA LETTER BA
+#--> QUESTION MARK
+
+? StzCharQ("OSMANYA LETTER BA").Content()
+#--> ҁ
+
+proff()
+
+#------
+
+pron()
+
+? Smile()
+#--> 😆
+
+? Heart()
+#--> ♥
+
+? Flower()
+#--> ❀
+
+? Sun()
+#--> 🌞
+
+? Moon()
+#--> 🌔
+
+? Handshake()
+#--> 🤝
+
+? Dot()
+#--> •
+
+? Tick()
+#--> ✓
+
+proff()
+# Executed in 0.02 second(s)
+
 /*================
 
 pron()
@@ -42,69 +100,10 @@ o1 = new stzString("1234567")
 proff()
 # Executed in 0.04 second(s)
 
-
-
-/*-------- TODO:ERROR
-pron()
-
-? StzCharQ("0x10481").Content() #--> ERR, should be "𐒁"
-/*
-//? Q("Schöne Grüße").Length() # means "Kind Regards" in german
-#--> 12
-
-? StzUnicodeDataQ().CharByName("OSMANYA LETTER BA")
-#--> 0x10481
-#--> 66689
-
-? StzCharQ("ҁ").Name()
-#--> CYRILLIC SMALL LETTER KOPPA
-
-? StzCharQ("𐒁") # TODO-ERROR
-#--> Can't create char object!
-
-? Q("𐒁").CharName() # TODO-ERROR: correct it to be OSMANYA LETTER BA
-#--> QUESTION MARK
-
-? StzCharQ("OSMANYA LETTER BA").Content()
-#--> ҁ
-
-proff()
-
-#------
-/*
-pron()
-
-? Smile()
-#--> 😆
-
-? Heart()
-#--> ♥
-
-? Flower()
-#--> ❀
-
-? Sun()
-#--> 🌞
-
-? Moon()
-#--> 🌔
-
-? Handshake()
-#--> 🤝
-
-? Dot()
-#--> •
-
-? Tick()
-#--> ✓
-
-proff()
-
-
 /*===============
-
+*/
 StartProfiler()
-
+/*
 ? Q("^^♥^^").ContainsAt(3, "♥")
 #--> TRUE
 
@@ -112,6 +111,31 @@ StartProfiler()
 #--> TRUE
 
 ? Q("^^♥^^").ContainsXT("♥", :AtPosition = 3)
+#--> TRUE
+
+? Q("^^♥^^").ContainsInSection("♥", 2, 4)
+#--> TRUE
+
+? Q("^^♥^^").ContainsBetweenPositions("♥", 2, 4)
+#--> TRUE
+
+? Q("^^♥^^").ContainsBoundedBy("♥", :Positions = [ 2, :And = 4])
+#--> TRUE
+*/
+
+? Q("^^♥^^").ContainsInSection("♥", 1, 3)
+
+? Q("^^♥^^").ContainsBefore("♥", 4)
+
+/*
+? Q("^^♥^^").ContainsBefore("♥", "^^")
+
+? Q("^^♥^^").ContainsXT("^", :BeforePosition = 3)
+#--> TRUE
+
+? Q("^^♥^^").ContainsXT("^", :AfterPosition = 3)
+#--> TRUE
+*/
 
 StopProfiler()
 # Executed in 0.07 second(s)
@@ -159,9 +183,10 @@ o1 = new stzString("__<<teeba>>__<<rined>>__<<teeba>>")
 #--> [ [ "teeba", 5 ], [ "rined", 16 ], [ "teeba", 27 ] ]
 
 ? @@S( o1.BetweenZZ("<<", ">>") )
+#--> [ [ "teeba", [ 5, 9 ] ], [ "rined", [ 16, 20 ] ], [ "teeba", [ 27, 31 ] ] ]
 
 proff()
-#--> Executed in 0.26
+#--> Executed in 0.17
 
 /*---------
 
@@ -171,9 +196,8 @@ o1 = new stzString("<<hi!>>..<<--♥♥♥--♥♥♥-->>..<<hi!>>")
 ? @@S( o1.BetweenZZ("<<", ">>") ) + NL
 #--> [	[ "hi!", [3, 5] ],
 #	[ "--♥♥♥--♥♥♥--", [ 12, 23 ] ],
-#	[ "hi!", [ 12, 23 ] ]
+#	[ "hi!", [ 12, 32 ] ]
 # ]
-# Executed in 0.16 second(s)
 
 ? @@S( o1.BetweenUZZ("<<", ">>") )
 #--> [
@@ -182,7 +206,7 @@ o1 = new stzString("<<hi!>>..<<--♥♥♥--♥♥♥-->>..<<hi!>>")
 # ]
 
 proff()
-#--> Executed in 0.24 second(s)
+#--> Executed in 0.20 second(s)
 
 /*================
 
@@ -214,9 +238,7 @@ o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
 #--> [ 8, 29 ]
 
 proff()
-# Executed in 0.19 second(s)
-
-proff()
+# Executed in 0.16 second(s)
 
 /*-----------------
 
@@ -261,7 +283,7 @@ o1 = new stzString("__♥♥♥__/♥♥♥\__♥♥♥__")
 
 StopProfiler()
 
-/*-----------------
+/*================
 
 StartProfiler()
 
