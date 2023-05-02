@@ -22739,17 +22739,13 @@ def SubStringBetween(pcSubString, p1, p2)
 			StzRaise("Incorrect param type! p must be a number or string.")
 		ok
 
-		nPos = p
+		nPosBefore = p
 
 		if isString(p)
-			nPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
+			nPosBefore = This.FindLastCS(p, pCaseSensitive)
 		ok
 
-		bResult = FALSE
-
-		if nPos > 2
-			bResult = This.ContainsInSectionCS(pcSubStr, 1, p - 1, pCaseSensitive)
-		ok
+		bResult = This.ContainsInSectionCS(pcSubStr, 1, nPosBefore-1, pCaseSensitive)
 
 		return bResult
 
@@ -22775,18 +22771,14 @@ def SubStringBetween(pcSubString, p1, p2)
 			StzRaise("Incorrect param type! p must be a number or string.")
 		ok
 
-		nLen = This.NumberOfChars()
-		nPos = p
+		nPosAfter = p
 
 		if isString(p)
-			nPos = This.FindLastCS(pcSubStr, pCaseSensitive)
+			nPosAfter = This.FindFirstCS(p, pCaseSensitive)
 		ok
 
-		bResult = FALSE
-
-		if nPos < nLen
-			bResult = This.ContainsInSectionCS(pcSubStr, p+1, nLen, pCaseSensitive)
-		ok
+		nLenSubStr = This.NumberOfChars()
+		bResult = This.ContainsInSectionCS(pcSubStr, nPosAfter+1, nLenSubStr, pCaseSensitive)
 
 		return bResult
 
@@ -22794,6 +22786,54 @@ def SubStringBetween(pcSubString, p1, p2)
 
 	def ContainsAfter(pcSubStr, p)
 		return This.ContainsAfterCS(pcSubStr, p, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING BEFORE A GIVEN POSITON  #
+	#----------------------------------------------------------------------------#
+
+	def ContainsBeforePositionCS(pcSubStr, pnPos, pCaseSensitive)
+		return This.ContainsBeforeCS(pcSubStr, :Position = pnPos, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsBeforePosition(pcSubStr, pnPos)
+		return This.ContainsBeforePositionCS(pcSubStr, pnPos, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING BEFORE A GIVEN SUBSTRING  #
+	#------------------------------------------------------------------------------#
+
+	def ContainsBeforeSubStringCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.ContainsBeforeCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsBeforeSubString(pcSubStr1, pcSubStr2)
+		return This.ContainsBeforeSubStringCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING AFTER A GIVEN POSITON  #
+	#---------------------------------------------------------------------------#
+
+	def ContainsAfterPositionCS(pcSubStr, pnPos, pCaseSensitive)
+		return This.ContainsAfterCS(pcSubStr, :Position = pnPos, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsAfterPosition(pcSubStr, pnPos)
+		return This.ContainsAfterPositionCS(pcSubStr, pnPos, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING AFTER A GIVEN SUBSTRING  #
+	#-----------------------------------------------------------------------------#
+
+	def ContainsAfterSubStringCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.ContainsAfterCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsAfterSubString(pcSubStr1, pcSubStr2)
+		return This.ContainsAfterSubStringCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
 	  #=======================================#
 	 #   CHECKING CONATAINMENT -- EXTENDED   #
@@ -23070,6 +23110,62 @@ def SubStringBetween(pcSubString, p1, p2)
 
 			return This.ContainsAtPositions(p2[2], p1)
 
+		# ? Q("^^♥^^").ContainsXT("^", :Before = "♥^")
+		# ? Q("^^♥^^").ContainsXT("^", :Before = 3)
+		but ( isString(p1) or
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
+		    ) and
+
+		    isList(p2) and Q(p2).IsBeforeNamedParam() and Q(p2[2]).IsStringOrNumber()
+
+			return This.ContainsBefore(p1, p2[2])
+
+		# ? Q("--♥^^").ContainsXT("^", :After = "-♥")
+		# ? Q("^^♥^^").ContainsXT("^", :After = 3)
+		but ( isString(p1) or
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
+		    ) and
+
+		    isList(p2) and Q(p2).IsAfterNamedParam() and Q(p2[2]).IsStringOrNumber()
+
+			return This.ContainsAfter(p1, p2[2])
+
+		# ? Q("^^♥^^").ContainsXT("^", :BeforePosition = 3)
+		but ( isString(p1) or
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
+		    ) and
+
+		    isList(p2) and Q(p2).IsBeforePositionNamedParam() and isNumber(p2[2])
+
+			return This.ContainsBefore(p1, :Position = p2[2])
+
+		# ? Q("^^♥^^").ContainsXT("^", :AfterPosition = 3)
+		but ( isString(p1) or
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
+		    ) and
+
+		    isList(p2) and Q(p2).IsAfterPositionNamedParam() and isNumber(p2[2])
+
+			return This.ContainsAfter(p1, :Position = p2[2])
+
+		# ? Q("^^♥^^").ContainsXT("^", :BeforeSubString = "♥^")
+		but ( isString(p1) or
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
+		    ) and
+
+		    isList(p2) and Q(p2).IsBeforeSubStringNamedParam() and isString(p2[2])
+
+			return This.ContainsBefore(p1, :SubString = p2[2])
+
+		# ? Q("--♥^^").ContainsXT("^", :AfterSubString = "-♥")
+		but ( isString(p1) or
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
+		    ) and
+
+		    isList(p2) and Q(p2).IsAfterSubStringNamedParam() and isString(p2[2])
+
+			return This.ContainsAfter(p1, :SubString = p2[2])
+
 		else
 
 			StzRaise("Insupported syntax")
@@ -23314,7 +23410,7 @@ def SubStringBetween(pcSubString, p1, p2)
 		ok
 
 		if NOT BothAreNumbers(n1, n2)
-			StzRais("Incorrect param types! Both n1 and n2 must be numbers.")
+			StzRaise("Incorrect param types! Both n1 and n2 must be numbers.")
 		ok
 
 		return This.ContainsBetweenCS(pcSubStr, n1, n2, pCaseSensitive)
@@ -23361,6 +23457,7 @@ def SubStringBetween(pcSubString, p1, p2)
 
 		if NOT BothAreStrings(pcBound1, pcBound2)
 			StzRais("Incorrect param types! Both pcBound1 and pcBound2 must be numbers.")
+			# NOTE that this is a misspelled form of StzRaise()
 		ok
 
 		return This.ContainsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)

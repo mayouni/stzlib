@@ -468,6 +468,13 @@ func StzRaise(paMessage)
 		raise("Error in StzRaise > Incorrect param type!")
 	ok
 
+	#< @FunctionMisspelledForm >
+
+	func StzRais(paMessage)
+		return StzRaise(paMessage)
+
+	#>
+
 #-----
 
 # Wrappers to ring functions, that we use inside a softanza class

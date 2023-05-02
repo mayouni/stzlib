@@ -101,9 +101,9 @@ proff()
 # Executed in 0.04 second(s)
 
 /*===============
-*/
-StartProfiler()
-/*
+
+pron()
+
 ? Q("^^♥^^").ContainsAt(3, "♥")
 #--> TRUE
 
@@ -113,6 +113,13 @@ StartProfiler()
 ? Q("^^♥^^").ContainsXT("♥", :AtPosition = 3)
 #--> TRUE
 
+proff()
+# Executed in 0.05 second(s)
+
+/*-----------
+
+pron()
+
 ? Q("^^♥^^").ContainsInSection("♥", 2, 4)
 #--> TRUE
 
@@ -121,30 +128,94 @@ StartProfiler()
 
 ? Q("^^♥^^").ContainsBoundedBy("♥", :Positions = [ 2, :And = 4])
 #--> TRUE
-*/
 
 ? Q("^^♥^^").ContainsInSection("♥", 1, 3)
 #--> TRUE
 
-? Q("^^♥^^").ContainsBefore("♥", 4)
+proff()
+# Executed in 0.05 second(s)
+
+/*-----------
+
+pron()
+
+? Q("^^♥^^").ContainsBefore("♥", :Position = 4)
 #--> TRUE
 
 ? Q("^^^♥^").ContainsAfter("♥", 3)
 #--> TRUE
 
-/*
-? Q("^^♥^^").ContainsBefore("♥", "^^")
+? Q("--♥--^^").ContainsBefore("♥", :SubString = "^^")
+#--> TRUE
+
+? Q("--^^--♥^^").ContainsAfter("♥", "^^")
+#--> TRUE
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-----------
+
+pron()
+
+? Q("^^♥^^").ContainsXT("^", :AfterPosition = 2)
+? Q("^^♥^^").ContainsInSection("^", 5, 3)
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-----------
+
+pron()
 
 ? Q("^^♥^^").ContainsXT("^", :BeforePosition = 3)
 #--> TRUE
 
-? Q("^^♥^^").ContainsXT("^", :AfterPosition = 3)
+? Q("--♥^^").ContainsXT("^", :AfterPosition = 2)
 #--> TRUE
-*/
 
-StopProfiler()
-# Executed in 0.07 second(s)
+proff()
+# Executed in 0.06 second(s)
  
+/*-----------
+
+pron()
+
+? Q("^^♥^^").ContainsXT("^", :Before = 3)
+#--> TRUE
+
+? Q("--♥^^").ContainsXT("^", :After = 2)
+#--> TRUE
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-----------
+
+pron()
+
+? Q("^^♥^^").ContainsXT("^", :BeforeSubString = "♥^")
+#--> TRUE
+
+? Q("--♥^^").ContainsXT("^", :AfterSubString = "-♥")
+#--> TRUE
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-----------
+*/
+pron()
+
+? Q("^^♥^^").ContainsXT("^", :Before = "♥^")
+#--> TRUE
+
+? Q("--♥^^").ContainsXT("^", :After = "-♥")
+#--> TRUE
+
+proff()
+# Executed in 0.06 second(s)
+
 /*---------
 
 pron()
@@ -155,6 +226,7 @@ pron()
 ? Q("♥^^♥^^♥").ContainsAtPosition("♥", 1)
 
 proff()
+# Executed in 0.03 second(s)
 
 /*---------
 
@@ -167,7 +239,7 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.07 second(s)
 
 /*=========
 
