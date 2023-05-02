@@ -124,8 +124,13 @@ StartProfiler()
 */
 
 ? Q("^^♥^^").ContainsInSection("♥", 1, 3)
+#--> TRUE
 
 ? Q("^^♥^^").ContainsBefore("♥", 4)
+#--> TRUE
+
+? Q("^^^♥^").ContainsAfter("♥", 3)
+#--> TRUE
 
 /*
 ? Q("^^♥^^").ContainsBefore("♥", "^^")
