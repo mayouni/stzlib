@@ -2145,13 +2145,9 @@ class stzString from stzObject
 			This.RemoveEmptyLines()
 			return This
 
-	  #================#
-	 #    MARQUERS    #
-	#================#
-
-	  #------------------------#
+	  #========================#
 	 #  NORMALIZING MARQUERS  #
-	#------------------------#
+	#========================#
 	// Removing zeros at the begining of marquer numbers
 
 	def NormalizeMarquers()
@@ -2183,7 +2179,7 @@ class stzString from stzObject
 
 	  #--------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS MARQUERS  #
-	#--------------------------------------------#
+	#============================================#
 
 	def ContainsMarquers()
 		if This.NumberOfMarquers() > 0
@@ -2194,7 +2190,7 @@ class stzString from stzObject
 
 	  #----------------------------------------------#
 	 #  GETTING THE LIST OF MARQUERS IN THE STRING  #
-	#----------------------------------------------#
+	#==============================================#
 
 	def Marquers()
 		anPos = This.FindAll("#")
@@ -2245,10 +2241,15 @@ class stzString from stzObject
 
 	  #---------------------------------------------------------------------#
 	 #  GETTING THE LIST OF MARQUERS IN THE STRING -- WITHOUT DUPLICATION  #
-	#---------------------------------------------------------------------#
+	#=====================================================================#
 
 	def UniqueMarquers()
 		return StzListQ(This.Marquers()).UniqueItems()
+
+		#< @FunctionFluentForms
+
+		def UniqueMarquersQ()
+			return This.UniqueMarquersQR(:stzList)
 
 		def UniqueMarquersQR(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -2267,29 +2268,33 @@ class stzString from stzObject
 				stzRaise("Unsupported return type!")
 			off
 
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def SetOfMarquers()
 			return This.UniqueMarquers()
 
+			def SetOfMarquersQ()
+				return This.UniqueMarquersQ()
+
 			def SetOfMarquersQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-	
-				on :stzListOfStrings
-					return new stzListOfStrings(This.SetOfMarquers())
-	
-				on :stzList
-					return new stzList(This.SetOfMarquers())
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.UniqueMarquersQR(pcReturnType)
+
+		def MarquersU()
+			return This.UniqueMarquers()
+
+			def MarquersUQ()
+				return This.UniqueMarquersQ()
+
+			def MarquersUQR(pcReturnType)
+				return This.UniqueMarquersQR(pcReturnType)
+
+		#>
 
 	  #------------------------------------------------#
 	 #  GETTING THE NUMBER OF MARQUERS IN THE STRING  #
-	#------------------------------------------------#
+	#================================================#
 
 	def NumberOfMarquers()
 		return len(This.Marquers())
@@ -2302,7 +2307,7 @@ class stzString from stzObject
 
 	  #-------------------------------------------------------------#
 	 #  GETTING THE NUMBER OF CHARS IN EACH MARQUER IN THE STRING  #
-	#-------------------------------------------------------------#
+	#=============================================================#
 
 	def NumberOfCharsInEachMarquer()
 		aResult = []
@@ -2311,6 +2316,9 @@ class stzString from stzObject
 		next
 
 		return aResult
+
+		def SizeOfEachMarquer()
+			return This.NumberOfCharsInEachMarquer()
 
 		def MarquersNumbersOfChars()
 			return This.NumberOfCharsInEachMarquer()
@@ -2321,9 +2329,9 @@ class stzString from stzObject
 		def HowManyCharsInEachMarquer()
 			return This.NumberOfCharsInEachMarquer()
 
-	  #----------------------------------#
-	 #   MARQUERS AND THEIR POSITIONS   #
-	#----------------------------------#
+	  #-------------------------------#
+	 #   MFINDING ARQUERS POSITIONS  #
+	#===============================#
 
 	def MarquersPositions()
 		/* Example:
@@ -2331,7 +2339,7 @@ class stzString from stzObject
 		StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 		
 			? MarquersPositions()
-			# --> [   12,   25,   44,   66 ]
+			# --> [ 12, 25, 44, 66 ]
 		
 		}
 		*/
@@ -2384,21 +2392,7 @@ class stzString from stzObject
 				return This.MarquersOccurrencesQR(:stzListOfNumbers)
 	
 			def MarquersOccurrencesQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers(This.MarquersOccurrences())
-	
-				on :stzList
-					return new stzList(This.MarquersOccurrences())
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.MarquersPositionsQR(pcReturnType)
 
 		def FindMarquers()
 			return This.MarquersPositions()
@@ -2407,29 +2401,20 @@ class stzString from stzObject
 				return This.FindMarquersQR(:stzListOfNumbers)
 	
 			def FindMarquersQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+				return This.MarquersPositionsQR(pcReturnType)
 
-				switch pcReturnType
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers(This.FindMarquers())
-	
-				on :stzList
-					return new stzList(This.FindMarquers())
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
 		#>
+
+	  #------------------------------------------------#
+	 #   MARQUERS AND THEIR POSITIONS -- Z/Extension  #
+	#================================================#
 
 	def MarquersAndPositions()
 		/* Example:
 
 		StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 		
-			? MarquersAndPositions()
+			? MarquersAndPositions() " Use MarquersZ() instead
 			# --> [ "#1" = 12, "#2" = 25 , "#3" = 44, "#1" = 66 ]
 		
 		}
@@ -2463,6 +2448,15 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def MarquersAndTheirPositions()
+			return This.MarquersAndPositions()
+
+			def MarquersAndTheirPositionsQ()
+				return This.MarquersAndPositionsQ()
+
+			def MarquersAndTheirPositionsQR(pcReturnType)
+				return This.MarquersAndPositionsQR(pcReturnType)
+
 		def MarquersAndOccurrences()
 			return This.MarquersAndPositions()
 
@@ -2470,28 +2464,49 @@ class stzString from stzObject
 				return This.MarquersAndPositionsQ()
 
 			def MarquersAndOccurrencesQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
 				return This.MarquersAndPositionsQR(pcReturnType)
+
+		def MarquersAndTheirOccurrences()
+			return This.MarquersAndPositions()
+
+			def MarquersAndTheirOccurrencesQ()
+				return This.MarquersAndPositionsQ()
+
+			def MarquersAndTheirOccurrencesQR(pcReturnType)
+				return This.MarquersAndPositionsQR(pcReturnType)
+
+		def MarquersZ()
+			return This.MarquersAndPositions()
+
+			def MarquersZQ()
+				return This.MarquersAndPositionsQR(:stzList)
+
+			def MarquersZQR(pcReturnType)
+				return This.MarquersAndPositionsQR(pcReturntype)
+
 		#>
 
-	def MarquersAndTheirPositions()
+	  #-------------------------------------------------------#
+	 #   UNIQUE MARQUERS AND THEIR POSITIONS -- Z/Extension  #
+	#=======================================================#
+
+	def UniqueMarquersAndPositions()
 		/* Example:
 
 		StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 		
-			? MarquersAndTheirpositions()
+			? UniqueMarquersAndPositions() # Use MarquersUZ() instead
 			# --> [ "#1" = [12, 66], "#2" = [26], "#3" = [44] ]
 		
 		}
 		*/
 		acMarquers = This.UniqueMarquers()
+		nLen = len(acMarquers)
+
 		aResult = []
 
-		for cMarquer in acMarquers
-			anPos = This.FindAll(cMarquer)
+		for i = 1 to nLen
+			anPos = This.FindAll(acMarquers[i])
 			aResult + [ cMarquer, anPos ]
 		next
 
@@ -2499,38 +2514,79 @@ class stzString from stzObject
 		
 		#< @FunctionFluentForm
 
-		def MarquersAndTheirPositionsQR(pcReturnType)
+		def UniqueMarquersAndPositionsQ()
+			return This.UniqueMarquersAndPositionsQR(:stzList)
+
+		def UniqueMarquersAndPositionsQR(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
+			on :stzList
+				return new stzList( This.UniqueMarquersAndPositions() )
 
 			on :stzHashList
-				return new stzHashList( This.MarquersAndTheirPositions() )
-
-			on :stzList
-				return new stzList( This.MarquersAndTheirPositions() )
+				return new stzHashList( This.UniqueMarquersAndPositions() )
 
 			other
-				stzRaise("Invalid param type!")
+				stzRaise("Insupported returned type!")
 			off
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
-		def MarquersAndTheirOccurrences()
-			return This.MarquersAndTheirPositions()
+		def UniqueMarquersAndTheirPositions()
+			return This.UniqueMarquersAndPositions()
 
-		def MarquersAndPositionsXT()
-			return This.MarquersAndTheirPositions()
+			def UniqueMarquersAndTheirPositionsQ()
+				return This.UniqueMarquersAndPositionsQ()
+
+			def UniqueMarquersAndTheirPositionsQR(pcReturnType)
+				return This.UniqueMarquersAndPositionsQR(pcReturnType)
+
+		def UniqueMarquersAndOccurrences()
+			return This.UniqueMarquersAndPositions()
+
+			def UniqueMarquersAndOccurrencesQ()
+				return This.UniqueMarquersAndPositionsQ()
+
+			def UniqueMarquersAndOccurrencesQR(pcReturnType)
+				return This.UniqueMarquersAndPositionsQR(pcReturnType)
+
+		def UniqueMarquersAndTheirOccurrences()
+			return This.UniqueMarquersAndPositions()
+
+			def UniqueMarquersAndTheirOccurrencesQ()
+				return This.UniqueMarquersAndPositionsQ()
+
+			def UniqueMarquersAndTheirOccurrencesQR(pcReturnType)
+				return This.UniqueMarquersAndPositionsQR(pcReturnType)
+
+		def UniqueMarquersZ()
+			return This.UniqueMarquersAndPositions()
+
+			def UniqueMarquersZQ()
+				return This.UniqueMarquersAndPositionsQR(:stzList)
+
+			def UniqueMarquersZQR(pcReturnType)
+				return This.UniqueMarquersAndPositionsQR(pcReturntype)
+
+		def MarquersZU()
+			return This.UniqueMarquersAndPositions()
+
+			def MarquersZUQ()
+				return This.UniqueMarquersAndPositionsQR(:stzList)
+
+			def MarquersZUQR(pcReturnType)
+				return This.UniqueMarquersAndPositionsQR(pcReturntype)
 
 		#>
 
 	  #----------------------------#
 	 #      FINDING A MARQUER     #
-	#----------------------------#
+	#============================#
 
 	def OccurrencesOfMarquer(pcMarquer)
 		
@@ -2598,16 +2654,18 @@ class stzString from stzObject
 
 	  #-------------------------------------#
 	 #    GETTING A MARQUER BY POSITION    #
-	#-------------------------------------#
+	#=====================================#
 
 	def MarquerByPosition(pnPosition)
 		aMarquers = This.MarquersAndTheirPositions()
+		nLen = len(aMarquers)
+
 		cResult = ""
 
-		for aLine in aMarquers
-			n = ring_find(aLine[2], pnPosition)
+		for i = 1 to nLen
+			n = ring_find(aMarquers[2], pnPosition)
 			if n > 0
-				cResult = aLine[1]
+				cResult = aMarquers[1]
 				exit
 			ok
 		next
@@ -2623,9 +2681,9 @@ class stzString from stzObject
 			def MarquerByOccurrenceQ(pnPosition)
 				return new stzString( This.MarquerByOccurrence(pnPosition) )
 
-	  #---------------------------------#
-	 #   MARQUERS AND THEIR SECTIONS   #
-	#---------------------------------#
+	  #----------------------------------#
+	 #   FINDING MARQUERS AS SECTIONS   #
+	#==================================#
 
 	def MarquersSections()
 		/* Example:
@@ -2655,20 +2713,43 @@ class stzString from stzObject
 		def MarquersSectionsQ()
 			return new stzList( This.MarquersSections() )
 
+		def MarquersSectionsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.MarquersSections() )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.MarquersSections() )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.MarquersSections() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
 		#>
 
+		#< @FunctionAlternativeForm >
+
+		def FindMarquersAsSections()
+			return This.MarquersSections()
+
+			def FindMarquersAsSectionsQ()
+				return This.MarquersSectionsQ()
+
+			def FindMarquersAsSectionsQR(pcReturnType)
+				return This.MarquersSectionsQR(pcReturnType)
+
+		#>
+
+	  #------------------------------------------------#
+	 #   MARQUERS AND THEIR SECTIONS -- ZZ/Extended   #
+	#================================================#
+
 	def MarquersAndSections()
-		/* Example:
 
-		StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
-		
-			? MarquersAndPositions()
-			# --> [ "#1" = 12, "#2" = 25 , "#3" = 44, "#1" = 66 ]
-		
-		}
-		*/
-
-		aResult = StzPairOfListsQ( This.Marquers(), This.MarquersSections() ).AssociateQ().Content()
+		aResult = Association([ This.Marquers(), This.MarquersSections() ])
 		return aResult
 
 		#< @FunctionFluentForm
@@ -2694,28 +2775,51 @@ class stzString from stzObject
 
 		#>
 
-	def MarquersAndTheirSections()
-		/* Example:
+		#< @FunctionAlternativeForm
 
-		StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
-		
-			? MarquersAndTheirpositions()
-			# --> [ "#1" = [12, 66], "#2" = [26], "#3" = [44] ]
-		
-		}
-		*/
+		def MarquersZZ()
+			return This.MarquersAndSections()
+
+			def MarquersZZQ()
+				return This.MarquersAndSectionsQ()
+
+			def MarquersZZQR(pcReturnType)
+				return This.MarquersAndSectionsQR(pcReturnType)
+
+		def MarquersAndTheirSections()
+			return This.MarquersAndSections()
+
+			def MarquersAndTheirSectionsQ()
+				return This.MarquersAndSectionsQ()
+
+			def MarquersAndTheirSectionsQR(pcReturnType)
+				return This.MarquersAndSectionsQR(pcReturnType)
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #  UNIQUE MARQUERS AND THEIR SECTIONS -- ZZU/Extended   #
+	#=======================================================#
+
+	def UniqueMarquersAndSections()
 
 		aMarquers = This.MarquersAndTheirPositions()
+		nLen = len(aMarquers)
+
 		aResult = []
 
-		for aMarquer in aMarquers
-			cMarquer = aMarquer[1]
-			anMarquerPositions = aMarquer[2]
+		for i = 1 to nLen
+			cMarquer = aMarquers[i][1]
+			nLenMarquer = Q(cMarquer).NumberOfChars()
+
+			anMarquerPositions = aMarquers[i][2]
+			nNumberOfPos = len(anMarquerPositions)
 
 			aMarquerSections = []
 
-			for nPos in anMarquerPositions
-				aMarquerSections + [ nPos, nPos + len(cMarquer) - 1 ]
+			for j = 1 to nNumberOfPos
+				nPos = anMarquerPositions[j]
+				aMarquerSections + [ nPos, nPos + nLenMarquer - 1 ]
 			next
 
 			aResult + [ cMarquer, aMarquerSections ]
@@ -2725,7 +2829,7 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def MarquersAndTheirSectionsQR(pcReturnType)
+		def UniqueMarquersAndSectionsQR(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -2733,27 +2837,42 @@ class stzString from stzObject
 			switch pcReturnType
 
 			on :stzHashList
-				return new stzHashList( This.MarquersAndTheirSections() )
+				return new stzHashList( This.UniqueMarquersAndSections() )
 
 			on :stzList
-				return new stzList( This.MarquersAndTheirSections() )
+				return new stzList( This.UniqueMarquersAndSections() )
 
 			other
-				stzRaise("Invalid param type!")
+				stzRaise("Unsupported return type!")
 			off
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def MarquersAndSectionsXT()
-			return This.MarquersAndTheirSections()
+		def MarquersZZU()
+			return This.UniqueMarquersAndSections()
+
+			def MarquersZZUQ()
+				return This.UniqueMarquersAndSectionsQ()
+
+			def MarquersZZUQR(pcReturnType)
+				return This.UniqueMarquersAndSectionsQR(pcReturnType)
+
+		def UniqueMarquersAndTheirSections()
+			return This.UniqueMarquersAndSections()
+
+			def UniqueMarquersAndTheirSectionsQ()
+				return This.UniqueMarquersAndSections()
+
+			def UniqueMarquersandTheirSectionsQR(pcReturnType)
+				return This.UniqueMarquersAndSectionsQR(pcReturnType)
 
 		#>
 	
 	  #-----------------------------------------#
 	 #    SORTING MARQUERS INSIDE THE STRING   #
-	#-----------------------------------------#
+	#=========================================#
 
 	def MarquersAreSorted()
 		bResult = StzListQ(This.Marquers()).ItemsAreSorted()
@@ -2805,6 +2924,8 @@ class stzString from stzObject
 		def MarquersSortedInAscendingAndTheirPositions()
 			return This.MarquersAndPositionsSortedInAscending()
 
+		def MarquersAndTheirPositionsSortedOInDescending()
+			return This.MarquersAndPositionsSortedInAscending()
 
 	def MarquersAndPositionsSortedInDescending()
 		acMarquers  = This.MarquersSortedInDescending()
@@ -2817,18 +2938,24 @@ class stzString from stzObject
 		def MarquersSortedInDescendingAndTheirPositions()
 			return This.MarquersAndPositionsSortedInDescending()
 
+		def MarquersAndTheirPositionsSortedInDescending()
+			return This.MarquersAndPositionsSortedInDescending()
+
 	def MarquersAndSectionsSortedInAscending()
 		acMarquers  = This.MarquersSortedInAscending()
+		nLen = len(acMarquers)
+
 		anPositions = This.MarquersPositionsSortedInAscending()
 
 		aResult = []
 		i = 0
 
-		for cMarquer in acMarquers
-			i++
+		for i = 1 to nLen
+			cMarquer = acMarquers[i]
+			nLenMarquer = Q(cMarquer).NumberOfChars()
 
 			n1 = anPositions[i]
-			n2 = n1 + len(cMarquer) - 1
+			n2 = n1 + nLenMarquer - 1
 		
 			aResult + [ cMarquer, [ n1, n2 ] ]
 		next
@@ -2840,16 +2967,19 @@ class stzString from stzObject
 
 	def MarquersAndSectionsSortedInDescending()
 		acMarquers  = This.MarquersSortedInDescending()
+		nLenMarquers = len(acMarquers)
+
 		anPositions = This.MarquersPositionsSortedInAscending()
 
 		aResult = []
 		i = 0
 
-		for cMarquer in acMarquers
-			i++
+		for i = 1 to nLenMarquers
+			cMarquer = acMarquers[i]
+			nLenMarquer = Q(cMarquer).NumberOfChars()
 
 			n1 = anPositions[i]
-			n2 = n1 + len(cMarquer) - 1
+			n2 = n1 + nLenMarquers - 1
 		
 			aResult + [ cMarquer, [ n1, n2 ] ]
 		next
@@ -2935,7 +3065,7 @@ class stzString from stzObject
 
 	  #--------------------------------------------#
 	 #  REPLACING MARQUERS WITH GIVEN SUBSTRINGS  #
-	#--------------------------------------------#
+	#============================================#
 
 	def ReplaceMarquers(pacSubStrings)
 		if isList(pacSubStrings) and Q(pacSubStrings).IsWithOrByNamedParam()
@@ -2958,7 +3088,6 @@ class stzString from stzObject
 			This.ReplaceMarquers(pacSubStrings)
 			return This
 
-
 	def MarquersReplaced(pacSubStrings)
 		return This.Copy().ReplaceMarquersQ(pacSubStrings).Content()
 
@@ -2971,7 +3100,7 @@ class stzString from stzObject
 
 	  #------------------------------------------#
 	 #    REPLACING SUBSTRINGS WITH MARQUERS    # TODO: Test it
-	#------------------------------------------#
+	#==========================================#
 
 	def ReplaceSubstringsWithMarquersCS(pacSubstrings, pCaseSensitive)
 
@@ -3003,7 +3132,7 @@ class stzString from stzObject
 
 	  #------------------------#
 	 #    PARSING MARQUERS    #
-	#------------------------#
+	#========================#
 
 	def NthMarquer(n)
 		if NOT isNumber(n)
@@ -3033,7 +3162,9 @@ class stzString from stzObject
 		def LastMarquerQ()
 			return new stzString( This.LastMarquer() )
 
-	#-----
+	  #------------------------------#
+	 #    FINDING THE NTH MARQUER   #
+	#==============================#
 
 	def FindNthMarquer(n)
 		if isString(n)
@@ -3080,7 +3211,9 @@ class stzString from stzObject
 			return This.FindLastMarquer()
 
 
-	#----- NEXT MARQUERS
+	  #--------------------------------------------------#
+	 #    NEXT MARQUERS STARTING AT A GIVEN POSITION    #
+	#==================================================#
 
 	def NextMarquers(pnStartingAt)
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
@@ -3124,6 +3257,10 @@ class stzString from stzObject
 				stzRaise("Unsupported return type!")
 			off
 
+	  #--------------------------------------#
+	 #    RETURNING THE NTH NEXT MARQUER    #
+	#======================================#
+
 	def NthNextMarquer(n, pnStartingAt)
 		/*
 		StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
@@ -3165,6 +3302,10 @@ class stzString from stzObject
 
 			def NextNthMarquerQ(n, pnStartingAt)
 				return new stzString( This.NextNthMarquer(n, pnStartingAt) )
+
+	  #------------------------------------#
+	 #    FINDING THE NTH NEXT MARQUER    #
+	#====================================#
 
 	def FindNthNextMarquer(n, pnStartingAt)
 		/*
@@ -3222,6 +3363,10 @@ class stzString from stzObject
 		def PositionOfNextNthMarquer(n, pnStartingAt)
 			return This.FindNthNextMarquer(n, pnStartingAt)
 
+	  #-------------------------------------------------#
+	 #    NTH NEXT MARQUER, ALONG WITH ITS POSITION    #
+	#=================================================#
+
 	def NthNextMarquerAndItsPosition(n, pnStartingAt)
 		cMarquer  = This.NthNextMarquer(n, pnStartingAt)
 		nPosition = This.FindNthNextMarquer(n, pnStartingAt)
@@ -3256,10 +3401,22 @@ class stzString from stzObject
 		def NextNthMarquerAndItsPosition(n, pnStartingAt)
 			return This.NthNextMarquerAndItsPosition(n, pnStartingAt)
 
+			def NextNthMarquerAndItsPositionQ(n, pnStartingAt)
+				return This.NextNthMarquerAndItsPositionQ(n, pnStartingAt)
+
+			def NextNthMarquerAndItsPositionQR(n, pnStartingAt, pcReturnType)
+				return This.NextNthMarquerAndItsPositionQ(n, pnStartingAt)
+
+		def NextNthMarquerDZ(n, pnStartingAt)
+			return This.NextNthMarquerAndItsPosition(n, pnStartingAt)
+
 		#>
 
-	def FindNextMarquer(pnStartingAt)
+	  #---------------------------------------------------------#
+	 #    FINDING NEXT MARQUER STARTING AT A GIVEN POSITION    #
+	#=========================================================#
 
+	def FindNextMarquer(pnStartingAt)
 		return This.FindNthNextMarquer(1, pnStartingAt)
 
 		def NextMarquerPosition(pnStartingAt)
@@ -3271,17 +3428,32 @@ class stzString from stzObject
 		def NextMarquerOccurrence(pnStartingAt)
 			return This.FindNextMarquer(pnStartingAt)
 
+		def FindNextMarquerD(pnStartingAt)
+			return This.FindNextMarquer(pnStartingAt)
+
+	  #---------------------------------------------------------#
+	 #    GETTING NEXT MARQUER STARTING AT A GIVEN POSITION    #
+	#=========================================================#
+
 	def NextMarquer(pnStartingAt)
 		return This.NthNextMarquer(1, pnStartingAt)
 
 		def NextMarquerQ(pnStartingAt)
 			return new stzString( This.NextMarquer(pnStartingAt) )
 
+		def NextMarquerD(pnStartingAt)
+			return This.NextMarquer(pnStartingAt)
+
+	  #--------------------------------------------------------------------------#
+	 #    GETTING NEXT MARQUER AND ITS POSITION STARTING AT A GIVEN POSITION    #
+	#==========================================================================#
+
 	def NextMarquerAndItsPosition(pnStartingAt)
 		cMarquer  = This.NextMarquer(pnStartingAt)
 		nPosition = This.NextMarquerPosition(pnStartingAt)
 
-		return [ cMarquer, nPosition ]
+		aResult = [ cMarquer, nPosition ]*
+		return aResult
 
 		def NextMarquerAndItsPositionQ(pnStartingAt)
 			return new stzString( This.NextMarquerAndItsPosition(pnStartingAt) )
@@ -3292,7 +3464,15 @@ class stzString from stzObject
 			def NextMarquerAndItsOccurrenceQ(pnStartingAt)
 				return new stzString( This.NextMarquerAndItsOccurrence(pnStartingAt) )
 
-	#----- PREVIOUS MARQUERS
+		def NextMarquerDZ(pnStartingAt)
+			return This.NextMarquerAndItsPosition(pnStartingAt)
+
+		def NextMarquerZ(pnStartingAt)
+			return This.NextMarquerAndItsPosition(pnStartingAt)
+
+	  #---------------------------------#
+	 #    GETTING PREVIOUS MARQUERS    #
+	#=================================#
 
 	def PreviousMarquers(pnStartingAt)
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
@@ -3317,6 +3497,8 @@ class stzString from stzObject
 
 		return This.SectionQ(1, pnStartingAt).Marquers()
 
+		#< @FunctionFluentForms
+
 		def PreviousMarquersQ(pnStartingAt)
 			return This.PreviousMarquersQR(pnstartingAt, :stzList)
 
@@ -3336,6 +3518,25 @@ class stzString from stzObject
 				stzRaise("Unsupported return type!")
 			off
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PreviousMarquersD(pnStartingAt)
+			return This.PreviousMarquers(pnStartingAt)
+
+			def PreviousMarquersDQ()
+				return This.PreviousMarquersQ()
+
+			def PreviousMarquersDQR(pnStartingAt, pcReturnType)
+				return This.PreviousMarquersQR(pnstartingAt, pcReturnType)
+
+		#>
+
+	  #------------------------------------#
+	 #    GETTING NTH PREVIOUS MARQUER    #
+	#====================================#
+
 	def NthPreviousMarquer(n, pnStartingAt)
 		nPos = This.FindNthPreviousMarquer(n, pnStartingAt)
 
@@ -3349,6 +3550,10 @@ class stzString from stzObject
 
 			def PreviousNthMarquerQ(n, pnStartingAt)
 				return new stzString( This.PreviousNthMarquer(n, pnStartingAt) )
+
+	  #------------------------------------#
+	 #    FINDING NTH PREVIOUS MARQUER    #
+	#====================================#
 
 	def FindNthPreviousMarquer(n, pnStartingAt)
 
@@ -3407,6 +3612,10 @@ class stzString from stzObject
 
 		#>
 
+	  #-------------------------------------------------------------------------#
+	 #   FINDING NTH PREVIOUS MARQUER  ALONG WITH ITS POSITION -- Z/Extended   #
+	#=========================================================================#
+
 	def NthPreviousMarquerAndItsPosition(n, pnStartingAt)
 		cMarquer  = This.NthPreviousMarquer(n, pnStartingAt)
 		nPosition = This.FindNthPreviousMarquer(n, pnStartingAt)
@@ -3441,7 +3650,24 @@ class stzString from stzObject
 		def PreviousNthMarquerAndItsPosition(n, pnStartingAt)
 			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
 
+		def NthPreviousMarquerAndItsPositionD(n, pnStartingAt)
+			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
+
+		def NthPreviousMarquerZ(n, pnStartingAt)
+			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
+
+
+		def PreviousNthMarquerZ(n, pnstartingAt)
+			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
+
+		def PreviousNthMarquerZD(n, pnstartingAt)
+			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
+ 
 		#>
+
+	  #------------------------------#
+	 #   FINDING PREVIOUS MARQUER   #
+	#==============================#
 
 	def FindPreviousMarquer(pnStartingAt)
 		return This.FindNthPreviousMarquer(1, pnStartingAt)
@@ -3455,20 +3681,35 @@ class stzString from stzObject
 		def PreviousMarquerOccurrence(pnStartingAt)
 			return This.FindPreviousMarquer(pnStartingAt)
 
+	  #------------------------------#
+	 #   GETTING PREVIOUS MARQUER   #
+	#==============================#
+
 	def PreviousMarquer(pnStartingAt)
 		return This.NthPreviousMarquer(1, pnStartingAt)
 
 		def PreviousMarquerQ(pnStartingAt)
 			return new stzString( This.PreviousMarquer(pnStartingAt) )
 
+	  #--------------------------------------------------------------------#
+	 #   FINDING PREVIOUS MARQUER ALONG WITH ITS POSITION -- Z/Extension  #
+	#====================================================================#
+
 	def PreviousMarquerAndItsPosition(pnStartingAt)
 		cMarquer  = This.PreviousMarquer(pnStartingAt)
 		nPosition = This.PreviousMarquerPosition(pnStartingAt)
 
-		return [ cMarquer, nPosition ]
+		aResult = [ cMarquer, nPosition ]
+		return aResult
+
+		#< @FunctionFluentForm
 
 		def PreviousMarquerAndItsPositionQ(pnStartingAt)
 			return new stzString( This.PreviousMarquerAndItsPosition(pnStartingAt) )
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def PreviousMarquerAndItsOccurrence(pnStartingAt)
 			return This.PreviousMarquerAndItsPosition(pnStartingAt)
@@ -3476,16 +3717,43 @@ class stzString from stzObject
 			def PreviousMarquerAndItsOccurrenceQ(pnStartingAt)
 				return new stzString( This.PreviousMarquerAndItsOccurrence(pnStartingAt) )
 
-	  #------------------#
-	 #      TO TEXT     #
-	#------------------#
+		def PreviousMarquerAndItsPositionD(pnStartingAt)
+			return This.PreviousMarquerAndItsPosition(pnStartingAt)
+
+			def PreviousMarquerAndItsPositionDQ(pnStartingAt)
+				return This.PreviousMarquerAndItsPositionQ(pnStartingAt)
+
+		def PreviousMarquerAndItsOccurrenceD(pnStartingAt)
+			return This.PreviousMarquerAndItsPosition(pnStartingAt)
+
+			def PreviousMarquerAndItsOccurrenceDQ(pnStartingAt)
+				return This.PreviousMarquerAndItsPositionQ(pnStartingAt)
+
+		def PreviousMarquerZ(pnStartingAt)
+			return This.PreviousMarquerAndItsPosition(pnStartingAt)
+
+			def PreviousMarquerZQ(pnStartingAt)
+				return This.PreviousMarquerAndItsPositionQ(pnStartingAt)
+
+		def PreviousMarquerDZ(pnStartingAt)
+			return This.PreviousMarquerAndItsPosition(pnStartingAt)
+
+			def PreviousMarquerDZQ(pnStartingAt)
+				return This.PreviousMarquerAndItsPositionQ(pnStartingAt)
+
+		#>
+
+
+	  #===============================================#
+	 #   TRANSFORMING THE STRING TO A STZTEXTOBJECT  #
+	#===============================================#
 
 	def ToStzText()
 		return new stzText( This.String() )
 
-	  #-----------------------------------------------#
+	  #===============================================#
 	 #      NUMBER OF OCCURRENCE OF A SUBSTRING      #
-	#-----------------------------------------------#
+	#===============================================#
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
@@ -22746,9 +23014,64 @@ def SubStringBetween(pcSubString, p1, p2)
 
 	def ContainsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive) # :CaseSensitive = TRUE or :CaseSensitive = FALSE
 
-		if isList(pacBounds) and len(pacBounds) = 2 and
-		   isList(pacBounds[2]) and Q(pacBounds[2]).IsAndNamedParam()
-			pacBounds[2] = pacBounds[2][2]
+		# Case where bounds are provided as numbers
+
+		if isList(pacBounds) and Q(pacBounds).IsSectionNamedParam() and
+		   Q(pacBounds[2]).IsPairOfNumbers()
+
+			pacBounds = pacBounds[2]
+		ok
+
+		if isList(pacBounds) and Q(pacBounds).IsPositionsNamedParam() and
+		   Q(pacBounds[2]).IsPairOfNumbers()
+
+			pacBounds = pacBounds[2]
+		ok
+
+		# ? Q("^^♥^^").ContainsBoundedBy("♥", :Positions = [ 2, :And = 4])
+
+		if isList(pacBounds) and Q(pacBounds).IsPositionsNamedParam() and
+		   isList(pacBounds[2]) and len(pacBounds[2]) = 2 and
+		   Q(pacBounds[2][2]).IsAndNamedParam()
+
+				aTemp = []
+				aTemp + pacBounds[2][1]
+				aTemp + pacBounds[2][2][2]
+				pacBounds = aTemp
+		ok
+
+		if isList(pacBounds) and len(pacBounds) = 2
+			
+			if isList(pacBounds[1]) and Q(pacBounds[1]).IsOneOfTheseNamedParams([ :Position, :Positions ])
+				pacBounds[1] = pacBounds[1][2]
+			ok
+
+			if isList(pacBounds[2]) and Q(pacBounds[2]).IsOneOfTheseNamedParams([ :And, :AndPosition ])
+				pacBounds[2] = pacBounds[2][2]
+			ok 
+		ok
+
+		if isList(pacBounds) and Q(pacBounds).IsPairOfNumbers()
+
+			aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+
+			nLen = len(aSections)
+
+			for i = 1 to nLen
+				if aSections[i][1] = pacBounds[1] + 1 and
+				   aSections[i][2] = pacBounds[2]  - 1
+
+					return TRUE
+				ok
+			next
+
+			return FALSE
+		ok
+
+		# Case where bounds are provided as strings
+
+		if isList(pacBounds) and Q(pacBounds).IsAndNamedParam()
+			pacBounds[2] = pacBounds[2]
 		ok
 
 		bResult = Q(pcSubStr).IsBoundedByIB(pacBounds, :InSide = This.String())
@@ -22886,39 +23209,28 @@ def SubStringBetween(pcSubString, p1, p2)
 
 		# Q("^^♥♥♥^^").ContainsBetween("♥♥♥", 3, 5)
 		if BothAreNumbers(p1, p2)
-			if This.Section(p1, p2) = pcSubStr
+			if This.SectionQ(p1, p2).ContainsCS(pcSubStr, pCaseSensitive)
 				bResult = TRUE
 			ok
 
 		# Q("<<♥♥♥>>").ContainsBetween("♥♥♥", "<<", ">>")
 		but BothAreStrings(p1, p2)
-			This.ContainsSubstringBoundedByCS("♥♥♥", [p1, p2], pCaseSensitive)
+			This.ContainsSubstringBoundedByCS(pcSubStr, [p1, p2], pCaseSensitive)
 		ok
 
 		return bResult
+
+
+		def ContainsInBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+			return This.ContainsBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
 
 	#-- WTHOUT CASESENSITIVITY
 
 	def ContainsBetween(pcSubStr, p1, p2)
 		return This.ContainsBetweenCS(pcSubStr, p1, p2, :CaseSensitive = TRUE)
 
-	  #-----------------------------------------------------------------#
-	 #  CONTAINING A SUBSTRING IN-BETWEEN TWO POSITIONS OR SUBSTRINGS  #
-	#-----------------------------------------------------------------#
-
-	def ContainsInBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
-
-		if len(This.FindInBetweenCS(pcSubStr, p1, p2, pCaseSensitive)) > 0
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	#-- WTHOUT CASESENSITIVITY
-
-	def ContainsInBetween(pcSubStr, p1, p2)
-		return This.ContainsInBetweenCS(pcSubStr, p1, p2, :CaseSensitive = TRUE)
+		def ContainsInBetween(pcSubStr, p1, p2)
+			return This.ContainsBetween(pcSubStr, p1, p2)
 
 	  #------------------------------------------------------#
 	 #  CONTAINING A SUBSTRING BETWEEN TWO GIVEN POSITIONS  #
