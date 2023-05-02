@@ -36670,7 +36670,7 @@ def SubStringBetween(pcSubString, p1, p2)
 				if cFirstOrLast = :FirstCharIf
 
 					if cCondition = :EqualTo
-						if IsNumberOrString(pValue)
+						if Q(pValue).IsNumberOrString()
 							if This.FirstChar() = pValue
 								This.RemoveFirstChar()
 								return This

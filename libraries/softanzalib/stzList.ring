@@ -2638,7 +2638,7 @@ class stzList from stzObject
 			? o1.Content()	# --> [ "A", "B", "C" ]
 		*/
 
-		if NOT IsNumberOrString(n)
+		if NOT Q(n).IsNumberOrString()
 			StzRaise("Invalid param type! n must be a number.")
 		ok
 
@@ -18329,7 +18329,7 @@ class stzList from stzObject
 			for v = 1 to nLenAPairs
 				aPair = aPairs[v]
 
-				if IsNumberOrString(pItem) and IsNumberOrString(aPair[1])
+				if Q(pItem).IsNumberOrString() and Q(aPair[1]).IsNumberOrString()
 
 					if aPair[1] = pItem
 						anItemPositions + aPair[2]
@@ -18383,7 +18383,7 @@ class stzList from stzObject
 			for v = 1 to nLenAPairs
 				aPair = aPairs[v]
 
-				if IsNumberOrString(pItem) and IsNumberOrString(aPair[1])
+				if Q(pItem).IsNumberOrString() and Q(aPair[1]).IsNumberOrString()
 
 					if aPair[1] = pItem
 						anItemPositions + aPair[2]

@@ -7641,7 +7641,7 @@ Class stzTable
 			p = p[2]
 		ok
 
-		if NOT IsNumberOrString(p)
+		if NOT Q(p).IsNumberOrString()
 			StzRaise("Incorrect param type! p must be a number or string.")
 		ok
 
@@ -7716,7 +7716,7 @@ Class stzTable
 			return p
 		ok
 
-		if NOT IsNumberOrString(p)
+		if NOT Q(p).IsNumberOrString()
 			StzRaise("Incorrect param type! p must be a number or string.")
 		ok
 

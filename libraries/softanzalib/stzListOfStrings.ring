@@ -9615,7 +9615,7 @@ class stzListOfStrings from stzList
 			? o1.Content()	# --> [ "A", "B", "C" ]
 		*/
 
-		if NOT IsNumberOrString(n)
+		if NOT Q(n).IsNumberOrString()
 			StzRaise("Invalid param type! n must be a number.")
 		ok
 
