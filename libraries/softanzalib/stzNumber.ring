@@ -1337,7 +1337,7 @@ class stzNumber from stzObject
 		#>
 
 	def IsStrictlyEqualTo(pOtherNumber)
-		if NOT IsNumberOrString(pOtherNumber)
+		if NOT Q(pOtherNumber).IsNumberOrString()
 			return FALSE
 		ok
 
@@ -1580,7 +1580,7 @@ class stzNumber from stzObject
 			StzRaise(stzNumberError(:CanNotRoundSutchLargeNumber))
 		ok
 
-		if NOT IsNumberOrString(pRound)
+		if NOT Q(pRound).IsNumberOrString()
 			StzRaise("Incorrect param type!")
 		ok
 
