@@ -1,20 +1,20 @@
 load "stzlib.ring"
 
 /*------------
-*/
+
 StartProfiler()
 
 o1 = new stzListOfStrings([ "  ", " ", "  one ", " two ", "    three", "    ", " "])
 o1.Trim()
 ? @@S(o1.Content())
-#--> [ " one ", " two ", " three", " ", " " ]
+#--> [ " one ", " two ", " three" ]
 
 o1.TrimStrings()
 ? @@S(o1.Content())
 #--> [ "one", "two", "three" ]
 
 StopProfiler()
-# [ " one ", " two ", " three" ]
+# Executed in 0.08 second(s)
 
 /*-------------
 
@@ -1120,30 +1120,83 @@ o1 = new stzListOfStrings([
 # --> [ 1, 2, 4, 6, 7, 9, 10, 14 ]
 
 /* =================== MANAGING DUPLICATED STRINGS
+*/
+pron()
 
 o1 = new stzListOfStrings([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
 	"tunis", "tunis", "regueb", "sfax", "regueb", "Tunis"
 ])
 
-? o1.ContainsDuplicatedStrings() #--> TRUE
-
-? @@( o1.DuplicatedStrings() )
+/*
+? o1.ContainsDuplicatedStrings()
+#--> TRUE
+# Executed in 0.10 second(s)
+/*
+? @@S( o1.DuplicatedStrings() )
 #--> [ "tunis", "regueb" ]
+# Executed in 0.24 second(s)
 
-? @@( o1.FindDuplicatedStrings() )
-#--> [ 1, 10 ]
+? @@S( o1.DuplicatedStringsZ() )
+# [
+#	[ "tunis",  [ 1, 2, 3, 5, 6, 8, 9 ] ],
+#	[ "regueb", [ 10, 12 ] ]
+# ]
+# Executed in 0.37 second(s)
 
-? o1.ContainsThisDuplicatedString("tunis") #--> TRUE
-? o1.FindDuplicatedString("tunis") 	#--> 1
+? @@S( o1.FindDuplicatedStrings() )
+#--> [ 1, 2, 3, 5, 6, 8, 9, 10, 12 ]
+# Executed in 0.41 second(s)
 
-? o1.ContainsThisDuplicatedString("regueb") #--> TRUE
-? o1.FindDuplicatedString("regueb")	#--> 10
+? o1.ContainsDuplicatedString("tunis")
+#--> TRUE
+# Executed in 0.10 second(s)
 
-? o1.NumberOfDuplicates() 			#--> 7
-? o1.NumberOfDuplicatesOfString("tunis") 	#--> 6
-? o1.NumberOfDuplicatesOfString("regueb")	#--> 1
+? @@S( o1.FindDuplicatedString("tunis") )
+#--> [ 1, 2, 3, 5, 6, 8, 9 ]
+# Executed in 0.12 second(s)
 
+? @@S( o1.FindDuplicatedStringCS("tunis", :CS = FALSE) )
+#--> [ 1, 2, 3, 5, 6, 8, 9, 13 ]
+# Executed in 0.12 second(s)
+
+? o1.ContainsDuplicatedString("regueb") #--> TRUE
+#--> TRUE
+# Executed in 0.06 second(s)
+
+? o1.FindDuplicatedString("regueb")
+#--> [10, 12]
+# Executed in 0.07 second(s)
+
+#--
+
+? o1.NumberOfDuplicatedStrings()
+#--> 2
+# Executed in 0.25 second(s)
+
+? o1.DuplicatedStrings()
+#--> [ "tunis", "regueb" ]
+# Executed in 0.24 second(s)
+
+? o1.NumberOfDuplicates()
+#--> 7
+# Executed in 0.24 second(s)
+*/
+? o1.NonDuplicatedStrings()
+
+? o1.FindDuplicates()
+
+#--
+/*
+? o1.NumberOfDuplicatesOfString("tunis")
+#--> 6
+#--> Executed in 0.17 second(s)
+
+? o1.NumberOfDuplicatesOfString("regueb")
+#--> 1
+# Executed in 0.10 second(s)
+
+/*
 ? o1.StringIsDuplicatedNTimes("tunis", 6)	#--> TRUE
 ? o1.StringIsDuplicatedNTimes("regueb", 1)	#--> TRUE
 
@@ -1158,6 +1211,9 @@ o1 = new stzListOfStrings([
 
 ? @@( o1.FindDuplicatesXT() )
 #--> [ "tunis" = [ 2, 3, 5, 6, 8, 9 ], [ "regueb" = [ 12 ] ]
+*/
+
+proff()
 
 /*--------------
 

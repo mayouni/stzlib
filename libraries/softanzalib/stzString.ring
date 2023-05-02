@@ -20590,7 +20590,26 @@ def SubStringBetween(pcSubString, p1, p2)
 
 		return aResult
 
-		#< @FunctionAlternativeForm
+		#< @FunctionFluentForm
+
+		def SubStringsBetweenCSQ( pcSubStr1, pcSubStr2, pCaseSensitive )
+			return This.SubStringsBetweenCSQR( pcSubStr1, pcSubStr2, pCaseSensitive, :stzList )
+
+		def SubStringsBetweenCSQR( pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType )
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SubStringsBetweenCS( pcSubStr1, pcSubStr2, pCaseSensitive ) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SubStringsBetweenCS( pcSubStr1, pcSubStr2, pCaseSensitive ) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		// See them in bottom of file
 
@@ -22895,7 +22914,7 @@ def SubStringBetween(pcSubString, p1, p2)
 				p1 = p1[2]
 			ok
 
-			return This.ContainsThisSubStringBoundedByCS(p1, p2[2], pCaseSensitive)
+			return This.ContainsSubStringBoundedByCS(p1, p2[2], pCaseSensitive)
 		
 		# ? Q("_/♥\_").ContainsXT("♥", :Between = ["/", :And = "\"])
 		but isString(p1) and isList(p2) and Q(p2).IsBetweenNamedParam()
@@ -22905,10 +22924,10 @@ def SubStringBetween(pcSubString, p1, p2)
 			ok
 
 			if Q(p2[2]).isListOfStrings()
-				return This.ContainsThisSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
+				return This.ContainsSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
 
 			but Q(p2[2]).isListOfNumbers()
-				return This.ContainsThisSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
+				return This.ContainsSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
 
 			ok
 
@@ -23365,11 +23384,13 @@ def SubStringBetween(pcSubString, p1, p2)
 
 	def ContainsBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
 
-		if isList(p1) and Q(p1).IsOneOfTheseNamedParams([ :Position, :Positions ])
+		if isList(p1) and Q(p1).IsOneOfTheseNamedParams([
+			:Position, :Positions, :SubString, :SubStrings ])
 			p1 = p1[2]
 		ok
 
-		if isList(p2) and Q(p2).IsAndNamedParam()
+		if isList(p2) and Q(p2).IsOneOfTheseNamedParams([
+			:And, :AndPosition, :AndSubString ])
 			p2 = p2[2]
 		ok
 
@@ -23383,7 +23404,10 @@ def SubStringBetween(pcSubString, p1, p2)
 
 		# Q("<<♥♥♥>>").ContainsBetween("♥♥♥", "<<", ">>")
 		but BothAreStrings(p1, p2)
-			This.ContainsSubstringBoundedByCS(pcSubStr, [p1, p2], pCaseSensitive)
+			bResult = This.ContainsSubstringBoundedByCS(pcSubStr, [p1, p2], pCaseSensitive)
+
+		else
+			StzRaise("Incorrect param! p1 and p2 must be both numbers or strings.")
 		ok
 
 		return bResult

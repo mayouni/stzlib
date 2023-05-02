@@ -4,6 +4,83 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
+? @@S( o1.FindInBetweenAsSections( "hi!", "<<", ">>" ) )
+#--> [ [ 8, 10 ], [ 29, 31 ] ]
+
+? @@S( o1.FindInBetween( "hi!", "<<", ">>" ) )
+#--> [ 8, 29 ]
+
+proff()
+# Executed in 0.19 second(s)
+
+/*-----------------
+
+pron()
+
+? @@S( Q("..<<--♥♥♥--♥♥♥-->>..<<---♥♥♥>>..").
+	FindInBetweenAsSections("♥♥♥", "<<", ">>") )
+#--> [ [ 7, 9 ], [ 12, 14 ], [ 26, 28 ] ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*=========
+
+pron()
+
+o1 = new stzString("__<<teeba>>__<<rined>>__<<teeba>>")
+? @@S( o1.BetweenZ("<<", ">>") ) + NL
+#--> [ [ "teeba", 5 ], [ "rined", 16 ], [ "teeba", 27 ] ]
+
+? @@S( o1.BetweenZZ("<<", ">>") )
+#--> [ [ "teeba", [ 5, 9 ] ], [ "rined", [ 16, 20 ] ], [ "teeba", [ 27, 31 ] ] ]
+
+proff()
+#--> Executed in 0.17
+
+/*---------
+
+pron()
+
+o1 = new stzString("<<hi!>>..<<--♥♥♥--♥♥♥-->>..<<hi!>>")
+? @@S( o1.BetweenZZ("<<", ">>") ) + NL
+#--> [	[ "hi!", [3, 5] ],
+#	[ "--♥♥♥--♥♥♥--", [ 12, 23 ] ],
+#	[ "hi!", [ 30, 32 ] ]
+# ]
+
+? @@S( o1.BetweenUZZ("<<", ">>") )
+#--> [
+#	[ "hi!", [ [ 3, 5 ], [ 30, 32 ] ] ],
+#	[ "--♥♥♥--♥♥♥--", [ [ 12, 23 ] ] ]
+# ]
+
+proff()
+#--> Executed in 0.20 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
+? @@S( o1.SubStringsBetween("<<", ">>") )
+#--> [ "--hi!--", "--", "hi!" ]
+
+? @@S( o1.BetweenZZ("<<", ">>") )
+#--> [
+#	[ "--hi!--", 	[  6, 12 ] ],
+#	[ "--", 	[ 20, 21 ] ],
+#	[ "hi!", 	[ 29, 31 ] ]
+#]
+
+proff()
+#--> Executed in 0.14 second(s)
+
+/*================
+
+pron()
+
 ? Q("SOFTANZA").Section(:From = "F", :To = "A") #--> "FTA"
 
 ? Q("SOFTANZA").CharsQ().Section(:From = "F", :To = "A")
@@ -209,7 +286,7 @@ proff()
 # Executed in 0.11 second(s)
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
@@ -228,15 +305,15 @@ o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
 # Yielding the sections not just the positions
 
 ? o1.FindInBetweenAsSections( "hi!", "<<", ">>" )
-#--> [ [8, 10], [29, 30] ]
+#--> [ [8, 10], [29, 31] ]
 
 # Written in a near-natural form:
 
 ? o1.FindAsSectionsXT( "hi!", :InBetween = ["<<", ">>"] )
-#--> [ [8, 10], [29, 30] ]
+#--> [ [8, 10], [29, 31] ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.34 second(s)
 
 /*-----------
 
