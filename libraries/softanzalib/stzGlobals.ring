@@ -1547,3 +1547,48 @@ func eval@(pcExpr, paItems) # WARNING: if you change paItems name,
 
 	return aResult
 
+func Todo()
+	return TodoXT(:InCurrent)
+
+func TodoInFuture()
+	return TodoXT(:InFuture)
+
+	func TodoFuture()
+		return TodoInFuture()
+
+	func TodoInFutureRelease()
+		return TodoInFuture()
+
+	func TodoFutureRelease()
+		return TodoInFuture()
+
+func TodoInCurrent()
+	return TodoXT(:InCurrent)
+
+	func TodoCurrent()
+		return TodoInCurrent()
+
+	func TodoInCurrentRelease()
+		return TodoInCurrent()
+
+	func TodoCurrentRelease()
+		return TodoInCurrent()
+
+func TodoXT(pcCurrentOrFuture)
+	if NOT isString(pcCurrentOrFuture) and
+	   Q(pcCurrentOrFuture).IsOneOfThese([
+		:Current, :InCurrent, :Future, :InFuture,
+		:CurrentRelease, :InCurrentRelease, :FutureRelease, :InFutureRelease,
+
+		# Misspelled variations
+		:Fture, :InFture, :FtureRelease, :InFtureRelease ])
+
+		StzRaisr("Incorrect param! pcCurrentOrFuture must be a string equal to :Current or :Future.")
+	ok
+
+	if Q(pcCurrentOrFuture).IsOneOfThese([ :Future, :InFuture, :FutureRelase, :InFutureRelase ])
+		StzRaise("Unavailable feature in current version (TODO in the future!)")
+
+	else
+		StzRaise("Feature not yet implemented, but it should be (TODO in current release)")
+	ok

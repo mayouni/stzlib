@@ -68,98 +68,50 @@ pron()
 proff()
 # Executed in 0.05 second(s)
 
-/*=========
-*/
-pron()
-
-o1 = new stzString("__<<teeba>>__<<rined>>__<<teeba>>")
-? @@S( o1.BetweenZ("<<", ">>") ) + NL
-#--> [ [ "teeba", 5 ], [ "rined", 16 ], [ "teeba", 27 ] ]
-
-? @@S( o1.BetweenZZ("<<", ">>") )
-#--> [ [ "teeba", [ 5, 9 ] ], [ "rined", [ 16, 20 ] ], [ "teeba", [ 27, 31 ] ] ]
-
-proff()
-#--> Executed in 0.17
-
-/*---------
-
-pron()
-
-o1 = new stzString("<<hi!>>..<<--♥♥♥--♥♥♥-->>..<<hi!>>")
-? @@S( o1.BetweenZZ("<<", ">>") ) + NL
-#--> [	[ "hi!", [3, 5] ],
-#	[ "--♥♥♥--♥♥♥--", [ 12, 23 ] ],
-#	[ "hi!", [ 12, 32 ] ]
-# ]
-
-? @@S( o1.BetweenUZZ("<<", ">>") )
-#--> [
-#	[ "hi!", [ [ 3, 5 ], [ 30, 32 ] ] ],
-#	[ "--♥♥♥--♥♥♥--", [ [ 12, 23 ] ] ]
-# ]
-
-proff()
-#--> Executed in 0.20 second(s)
-
 /*================
 
 pron()
 
-o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
-? @@S( o1.SubStringsBetween("<<", ">>") )
-#--> [ "--hi!--", "--", "hi!" ]
-
-? @@S( o1.BetweenZZ("<<", ">>") )
-#--> [
-#	[ "--hi!--", 	[  6, 12 ] ],
-#	[ "--", 	[ 20, 21 ] ],
-#	[ "hi!", 	[ 29, 31 ] ]
-#]
-
-proff()
-#--> Executed in 0.14 second(s)
-
-/*================
-*/
-pron()
-
-o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
-? @@S( o1.FindInBetweenAsSections( "hi!", "<<", ">>" ) )
-#--> [ [ 8, 10 ], [ 29, 31 ] ]
-
-? @@S( o1.FindInBetween( "hi!", "<<", ">>" ) )
-#--> [ 8, 29 ]
-
-proff()
-# Executed in 0.16 second(s)
-
-/*-----------------
-
-pron()
-
-? @@S( Q("..<<--♥♥♥--♥♥♥-->>..<<---♥♥♥>>..").
-	FindInBetweenAsSections("♥♥♥", "<<", ">>") )
-#--> [ [ 7, 9 ], [ 12, 14 ], [ 26, 28 ] ]
-
-proff()
-# Executed in 0.12 second(s)
-
-/*================
-
-StartProfiler()
-
-? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", :Position = 3, :And = 5)
+? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", :Position = 3, :AndPosition = 5)
 #--> TRUE
 
 ? Q("^^♥♥♥^^").ContainsInSection("♥♥♥", 3, 5)
 #--> TRUE
 
-? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :Between = [3, 5])
+? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :BetweenPositions = [ 3, :And = 5])
 #--> TRUE
 
 ? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :InSection = [3, 5])
 #--> TRUE
+
+proff()
+# Executed in 0.06 second(s)
+
+/*--------------
+
+pron()
+
+? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", "^^", "^^")
+#--> TRUE
+
+? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", :SubString = "^^", :AndSubString = "^^")
+#--> TRUE
+
+proff()
+# Executed in 0.49 second(s)
+
+/*--------------
+*/
+pron()
+
+? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :Between = [ "^^", "^^" ] )
+
+//? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :BetweenSubStrings = [ "^^", :And = "^^" ] )
+#--> TRUE
+
+proff()
+
+/*--------------
 
 ? Q("..<<--♥♥♥-->>..").ContainsXT("♥♥♥", :InBetween = ["<<", ">>"])
 #--> TRUE
