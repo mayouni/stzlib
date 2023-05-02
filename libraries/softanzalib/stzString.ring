@@ -3743,7 +3743,6 @@ class stzString from stzObject
 
 		#>
 
-
 	  #===============================================#
 	 #   TRANSFORMING THE STRING TO A STZTEXTOBJECT  #
 	#===============================================#
@@ -3805,16 +3804,16 @@ class stzString from stzObject
 
 		#>
 
-	  #-------------------------------------------------------#
+	  #=======================================================#
 	 #    CHECKING IF THE STRING IS ONE OF THE RING TYPES    #
-	#-------------------------------------------------------#
+	#=======================================================#
 
 	def IsRingType()
 		return This.UppercaseQ().IsOneOfThese([ "NUMBER", "STRING", "LIST", "OBJECT", "COBJECT" ])
 
-	  #-------------------------#
+	  #=========================#
 	 #      SIZE IN BYTES      #
-	#-------------------------#
+	#=========================#
 
 	def NumberOfBytes()
 		return This.ToStzListOfBytes().NumberOfBytes()
@@ -3850,9 +3849,9 @@ class stzString from stzObject
 		def HowManyBytesPerChar()
 			return This.NumberOfBytesPerChar()
 
-	  #-----------------------------------------#
+	  #=========================================#
 	 #   N CHARS, LEFT & RIGHT, FIRST & LAST   #
-	#-----------------------------------------#
+	#=========================================#
 							
 	// Returns n chars from the right
 	def NRightChars(n)
@@ -22722,6 +22721,79 @@ def SubStringBetween(pcSubString, p1, p2)
 		bResult = This.SubStringsQ().ContainsW(pcCondition)
 
 		return bResult
+
+	  #--------------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING BEFORE A GIVEN POSITON/SUBSTRING  #
+	#--------------------------------------------------------------------------------------#
+
+	def ContainsBeforeCS(pcSubStr, p, pCaseSensitive)
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		if isList(p) and Q(p).IsOneOfTheseNamedParams([ :Position, :SubString ])
+			p = p[2]
+		ok
+
+		if NOT Q(p).IsNumberOrString() // can be wriiten Q(p).IsA([ :Number, :Or = :String ])
+			StzRaise("Incorrect param type! p must be a number or string.")
+		ok
+
+		nPos = p
+
+		if isString(p)
+			nPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
+		ok
+
+		bResult = FALSE
+
+		if nPos > 2
+			bResult = This.ContainsInSectionCS(pcSubStr, 1, p - 1, pCaseSensitive)
+		ok
+
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsBefore(pcSubStr, p)
+		return This.ContainsBeforeCS(pcSubStr, p, :CaseSensitive = TRUE)
+
+	  #-------------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING AFTER A GIVEN POSITON/SUBSTRING  #
+	#-------------------------------------------------------------------------------------#
+
+	def ContainsAfterCS(pcSubStr, p, pCaseSensitive)
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		if isList(p) and Q(p).IsOneOfTheseNamedParams([ :Position, :SubString ])
+			p = p[2]
+		ok
+
+		if NOT Q(p).IsNumberOrString() // can be wriiten Q(p).IsA([ :Number, :Or = :String ])
+			StzRaise("Incorrect param type! p must be a number or string.")
+		ok
+
+		nLen = This.NumberOfChars()
+		nPos = p
+
+		if isString(p)
+			nPos = This.FindLastCS(pcSubStr, pCaseSensitive)
+		ok
+
+		bResult = FALSE
+
+		if nPos < nLen
+			bResult = This.ContainsInSectionCS(pcSubStr, p+1, nLen, pCaseSensitive)
+		ok
+
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsAfter(pcSubStr, p)
+		return This.ContainsAfterCS(pcSubStr, p, :CaseSensitive = TRUE)
 
 	  #=======================================#
 	 #   CHECKING CONATAINMENT -- EXTENDED   #

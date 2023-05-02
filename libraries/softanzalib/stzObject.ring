@@ -1223,6 +1223,12 @@ class stzObject
 
 		return bResult
 
+	def IsNumberOrString()
+		return This.IsA([ :Number, :Or = :String ])
+
+		def IsStringOrNumber()
+			return This.IsNumberOrString()
+
 	def IsA(pcType)
 
 		/* Example
