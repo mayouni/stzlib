@@ -15642,9 +15642,10 @@ class stzListOfStrings from stzList
 
 	def ContainsDuplicatedStringsCS(pCaseSensitive)
 		bResult = FALSE
+		nLen = This.NumberOfStrings()
 
-		for str in This.ListOfStrings()
-			n = This.NumberOfOccurrenceCS(str, pCaseSensitive)
+		for i = 1 to nLen
+			n = This.NumberOfOccurrenceCS(This.String(i), pCaseSensitive)
 
 			if n > 1
 				bResult = TRUE
@@ -15657,12 +15658,24 @@ class stzListOfStrings from stzList
 		def ContainsDuplicatedStringItemsCS(pCaseSensitive)
 			return This.ContainsDuplicatedStringsCS(pCaseSensitive)
 
+		def ContainsDuplicationsCS(pCaseSensitive)
+			return This.ContainsDuplicatedStringsCS(pCaseSensitive)
+
+		def ContainsDuplicatesCS(pCaseSensitive)
+			return This.ContainsDuplicatedStringsCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicatedStrings()
 		return This.ContainsDuplicatedStringsCS(:CaseSensitive = TRUE)
 	
 		def ContainsDuplicatedStringItems()
+			return This.ContainsDuplicatedStrings()
+
+		def ContainsDuplications()
+			return This.ContainsDuplicatedStrings()
+
+		def ContainsDuplicates()
 			return This.ContainsDuplicatedStrings()
 
 	  #----------------------------------------------#
@@ -15758,6 +15771,8 @@ class stzListOfStrings from stzList
 		
 		return nResult
 
+		#< @FunctionAlternativeForms
+
 		def NumberOfTimesStringItemIsDuplicatedCS(pcString, pCaseSensitive)
 			return This.NumberOfTimesStringIsDuplicatedCS(pcString, pCaseSensitive)
 
@@ -15775,15 +15790,28 @@ class stzListOfStrings from stzList
 		def NumberOfDuplicatesOfStringItemCS(pcString, pCaseSensitive)
 			return This.NumberOfTimesStringIsDuplicatedCS(pcString, pCaseSensitive)
 
+		#--
+
+		def NumberOfDuplicationsOfStringCS(pcString, pCaseSensitive)
+			return This.NumberOfTimesStringIsDuplicatedCS(pcString, pCaseSensitive)
+
+		def NumberOfDuplicationsOfStringItemCS(pcString, pCaseSensitive)
+			return This.NumberOfTimesStringIsDuplicatedCS(pcString, pCaseSensitive)
+
+		def NumberOfDuplicationsOfCS(pcString, pCaseSensitive)
+			return This.NumberOfTimesStringIsDuplicatedCS(pcString, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfTimesStringIsDuplicated(pcString)
 		return This.NumberOfTimesStringIsDuplicatedCS(pcString, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def NumberOfTimesStringItemIsDuplicated(pcString)
 			return This.NumberOfTimesStringIsDuplicated(pcString)
-
-		#--
 
 		def NumberOfTimesThisStringIsDuplicated(pcString)
 			return This.NumberOfTimesStringIsDuplicated(pcString)
@@ -15799,7 +15827,20 @@ class stzListOfStrings from stzList
 		def NumberOfDuplicatesOfStringItem(pcString)
 			return This.NumberOfTimesStringIsDuplicated(pcString)
 
-	  #====================================================#
+		#--
+
+		def NumberOfDuplicationsOfString(pcString)
+			return This.NumberOfTimesStringIsDuplicated(pcString)
+
+		def NumberOfDuplicationsOfStringItem(pcString)
+			return This.NumberOfTimesStringIsDuplicated(pcString)
+
+		def NumberOfDuplicationsOf(pcString)
+			return This.NumberOfTimesStringIsDuplicated(pcString)
+
+		#>
+
+	  #----------------------------------------------------#
 	 #  CHECKING THE EXISTENCE OF NON DUPLICATED STRINGS  #
 	#====================================================#
 
@@ -15817,10 +15858,16 @@ class stzListOfStrings from stzList
 
 		return bResult
 
+		def ContainsNoDuplicationsCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedStringsCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNonDuplicatedStrings()
 		return This.ContainsNonDuplicatedStringsCS(:CaseSensitive = TRUE)
+
+		def ContainsNoDuplications()
+			return This.ContainsNonDuplicatedStrings()
 
 	  #----------------------------------------------#
 	 #  GETTING THE LIST OF NON DUPLICATED STRINGS  #
@@ -15906,43 +15953,39 @@ class stzListOfStrings from stzList
 
 	def NumberOfDuplicatesCS(pCaseSensitive)
 
-		acUniqueStrings = This.UniqueStringsCS(pCaseSensitive)
-
-		nLen = len(acUniqueStrings)
-
-		nResult = 0
-		for i = 1 to nLen
-			n = This.NumberOfOccurrenceCS(acUniqueStrings[i], pCaseSensitive)
-			if n > 1
-				nResult += (n - 1)
-			ok
-		next
-
+		nResult = len( This.FindDuplicatesCS(pCaseSensitive) )
 		return nResult
+
+		def HowManyDuplicatesCS(pCaseSensitive)
+			return This.NumberOfDuplicatesCS(pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDuplicates()
 		return This.NumberOfDuplicatesCS(:CaseSensitive = TRUE)
 
+		def HowManyDuplicates()
+			return This.NumberOfDuplicates()
+
 	  #----------------------#
 	 #  FINDING DUPLICATES  #
 	#----------------------#
 
 	def FindDuplicatesCS(pCaseSensitive)
-		acUnique = This.DuplicatedStringsCSQ(pCaseSensitive).DuplicatesRemoved()
-		nLen = len(acUnique)
+		nLen = This.NumberOfStrings()
+		aTemp = []
 
 		anResult = []
 		for i = 1 to nLen
-			anPos = This.FindCSQ(acUnique[i], pCaseSensitive).FirstItemRemoved()
-			nLenPos = len(anPos)
-			for j = 1 to nLenPos
-				anResult + anPos[j]
-			next
+
+			if NOT Q(aTemp).ContainsCS(This.String(i), pCaseSensitive)
+				aTemp + This.String(i)
+			else
+				anResult + i
+			ok
+
 		next
 
-		anResult = Q(anResult).Sorted()
 		return anResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -15955,15 +15998,10 @@ class stzListOfStrings from stzList
 	#------------------------------------------------#
 
 	def DuplicatesAndTheirPositionsCS(pCaseSensitive)
-		acDuplicated = This.DuplicatedStringsCS(pCaseSensitive)
-		nLen = len(acDuplicated)
+		acDuplicates = This.DuplicatesCS(pCaseSensitive)
+		anPositions = This.FindDuplicatesCS(pCaseSensitive)
 
-		aResult = []
-		for i = 1 to nLen
-			anPos = This.FindDuplicatesOfStringCS(acDuplicated[i], pCaseSensitive)
-			aResult + [ acDuplicated[i], anPos ]
-		next i
-
+		aResult = Association([ acDuplicates, anPositions ])
 		return aResult
 
 		def DuplicatesZCS(pCaseSensitive)
@@ -15977,6 +16015,35 @@ class stzListOfStrings from stzList
 		def DuplicatesZ()
 			return This.DuplicatesAndTheirPositions()
 
+	  #-------------------------------------------------#
+	 #  DUPLICATES AND THEIR POSITIONS -- UZ/Extended  #
+	#-------------------------------------------------#
+
+	def DuplicatesAndTheirPositionsUCS(pCaseSensitive)
+		acDuplicated = This.DuplicatedStringsCS(pCaseSensitive)
+		nLen = len(acDuplicated)
+
+		aResult = []
+		for i = 1 to nLen
+			anPos = This.FindCSQ(acDuplicated[i], pCaseSensitive).FirstItemRemoved()
+			if len(anPos) > 0
+				aResult + [ acDuplicated[i], anPos ]
+			ok
+		next
+
+		return aResult
+
+		def DuplicatesUZCS(pCaseSensitive)
+			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DuplicatesAndTheirPositionsU()
+		return This.DuplicatesAndTheirPositionsUCS(:CaseSensitive = TRUE)
+
+		def DuplicatesUZ()
+			return This.DuplicatesAndTheirPositionsU()
+
 	  #----------------------------------#
 	 #   NUMBER OF DUPLICATED STRINGS   #
 	#==================================#
@@ -15988,6 +16055,12 @@ class stzListOfStrings from stzList
 		def NumberOfDuplicatedStringItemsCS(pCaseSensitive)
 			return This.NumberOfDuplicatedStringsCS(pCaseSensitive)
 
+		def HowManyDuplicatedStringsCS(pCaseSensitive)
+			return This.NumberOfDuplicatedStringsCS(pCaseSensitive)
+
+		def HowManyDuplicatedStringItemsCS(pCaseSensitive)
+			return This.NumberOfDuplicatedStringsCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDuplicatedStrings()
@@ -15996,24 +16069,28 @@ class stzListOfStrings from stzList
 		def NumberOfDuplicatedStringItems()
 			return This.NumberOfDuplicatedStrings()
 
+		def HowManyDuplicatedStrings()
+			return This.NumberOfDuplicatedStrings()
+
+		def HowManyDuplicatedStringItems()
+			return This.NumberOfDuplicatedStrings()
+
 	  #------------------------#
 	 #   DUPLICATED STRINGS   #
 	#------------------------#
 
 	def DuplicatedStringsCS(pCaseSensitive)
-		acUniqueStrings = This.DuplicatesRemoved()
-		nLen = len(acUniqueStrings)
-
+		nLen = This.NumberOfStrings()
 		aResult = []
 
 		for i = 1 to nLen
-			if This.NumberOfOccurrenceCS(acUniqueStrings[i], pCaseSensitive) > 1 and
-			   (NOT Q(aResult).ContainsCS(acUniqueStrings[i], pCaseSensitive))
+			if This.NumberOfOccurrenceCS(This.String(i), pCaseSensitive) > 1 and
+			   (NOT Q(aResult).ContainsCS(This.String(i), pCaseSensitive))
 
-				aResult + Q(acUniqueStrings[i]).Lowercased()
+				aResult + This.String(i)
 			ok
 		next
-
+		
 		return aResult
 		
 		#< @FunctionFluentForm
@@ -16327,13 +16404,66 @@ class stzListOfStrings from stzList
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def DuplicatedStringItemsAndTheirPositionsCS(pCaseSensitive)
+			return This.DuplicatedStringsAndTheirPositionsCS(pCaseSensitive)
+
 		def DuplicatedStringsZCS(pCaseSensitive)
 			return This.DuplicatedStringsAndTheirPositionsCS(pCaseSensitive)
 
+		def DuplicatedStringItemsZCS(pCaseSensitive)
+			return This.DuplicatedStringsAndTheirPositionsCS(pCaseSensitive)
+
+		#-- By nature, duplicated items are unique, so for convenience, we can add
+		#-- the U extension to all of these alternatives
+
+		def DuplicatedStringsAndTheirPositionsUCS(pCaseSensitive)
+			return This.DuplicatedStringsAndTheirPositionsCS(pCaseSensitive)
+
+		def DuplicatedStringItemsAndTheirPositionsUCS(pCaseSensitive)
+			return This.DuplicatedStringsAndTheirPositionsCS(pCaseSensitive)
+
+		def DuplicatedStringsUZCS(pCaseSensitive)
+			return This.DuplicatedStringsAndTheirPositionsCS(pCaseSensitive)
+
+		def DuplicatedStringItemsUZCS(pCaseSensitive)
+			return This.DuplicatedStringsAndTheirPositionsCS(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
-	def DuplicatedStringsZ()
+	def DuplicatedStringsAndTheirPositions()
 		return This.DuplicatedStringsAndTheirPositionsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def DuplicatedStringItemsAndTheirPositions()
+			return This.DuplicatedStringsAndTheirPositions()
+
+		def DuplicatedStringsZ()
+			return This.DuplicatedStringsAndTheirPositions()
+
+		def DuplicatedStringItemsZ()
+			return This.DuplicatedStringsAndTheirPositions()
+
+		#-- By nature, duplicated items are unique, so for convenience, we can add
+		#-- the U extension to all of these alternatives
+
+		def DuplicatedStringsAndTheirPositionsU()
+			return This.DuplicatedStringsAndTheirPositions()
+
+		def DuplicatedStringItemsAndTheirPositionsU()
+			return This.DuplicatedStringsAndTheirPositions()
+
+		def DuplicatedStringsUZ()
+			return This.DuplicatedStringsAndTheirPositions()
+
+		def DuplicatedStringItemsUZ()
+			return This.DuplicatedStringsAndTheirPositions()
+
+		#>
 
 	  #---------------------------------------#
 	 #   FINDING A GIVEN DUPLICATED STRING   #
@@ -16614,8 +16744,6 @@ class stzListOfStrings from stzList
 		def PositionsOfDuplicatesOfStringItemCS(pcStr, pCaseSensitive)
 			return This.FindDuplicatesOfStringCS(pcStr, pCaseSensitive)
 
-		def DuplicatesOfStringItemPositionsCS(pcStr, pCaseSensitive)
-			return This.FindDuplicatesOfStringCS(pcStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -16628,12 +16756,9 @@ class stzListOfStrings from stzList
 		def PositionsOfDuplicatesOfStringItem(pcStr)
 			return This.FindDuplicatesOfString(pcStr)
 
-		def DuplicatesOfStringItemPositions(pcStr)
-			return This.FindDuplicatesOfString(pcStr)
-
 
 	  #----------------------------------------------------#
-	 #   REMOVING ALL DUPLICATES IN THE LIST of STRINGS   #
+	 #   REMOVING ALL DUPLICATES IN THE LIST OF STRINGS   #
 	#----------------------------------------------------#
 
 	def RemoveDuplicatesCS(pCaseSensitive)
