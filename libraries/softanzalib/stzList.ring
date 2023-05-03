@@ -4480,8 +4480,8 @@ class stzList from stzObject
 			ok
 		ok
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param! n must be a number.")
+		if NOT (isNumber(n) and n != 0 )
+			StzRaise("Incorrect param! n must be a number different from zero.")
 		ok
 
 		# Doing the job
@@ -4754,6 +4754,11 @@ class stzList from stzObject
 	#=====================================================#
 
 	def RemoveItemsAtPositions(panPositions)
+		if NOT (isList(panPositions) and len(panPositions) > 0 and
+			Q(panPositions).IsListOfNumbers() )
+
+			StzRaise("Incorrect pram! panPositions must be a non empty list of numbers.")
+		ok
 
 		anPositions = StzListQ(panPositions).SortedInDescending()
 
@@ -15764,7 +15769,7 @@ class stzList from stzObject
 			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
 
 			def FindCSQ(pItem, pCaseSensitive)
-				return This.FindCSQR(pItem, pCaseSensitive, pcReturnType)
+				return This.FindCSQR(pItem, pCaseSensitive, :stzList)
 
 			def FindCSQR(pItem, pCaseSensitive, pcReturnType)
 				return This.FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
