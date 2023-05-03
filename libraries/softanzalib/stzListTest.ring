@@ -506,12 +506,112 @@ StopProfiler()
 
 /*==========
 
-StartProfiler()
+pron()
 
 o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
-? @@S( o1.FindDuplicates() )
 
-StopProfiler()
+? o1.ContainsDuplicates()
+#--> TRUE
+# Executed in 0.03 second(s)
+
+? @@S( o1.FindDuplicates() )
+#--> [ 3, 4, 6, 9 ]
+# Executed in 0.18 second(s)
+
+? @@S( o1.Duplicates() )
+#--> [ "_", "_", "_", "*" ]
+# Executed in 0.22 second(s)
+
+? @@S( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
+#--> [ [ "_", [ 3, 4, 6 ] ], [ "*", [ 9 ] ] ]
+# Executed in 0.19 second(s)
+
+o1.RemoveDuplicates()
+? @@S( o1.Content() )
+#--> [ "_", "ONE", "TWO", "THREE", "*" ]
+# Executed in 0.04 second(s)
+
+proff()
+# Executed in 0.55 second(s)
+
+/*======= MANAGING DUPLICATES
+
+pron()
+
+o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
+
+# NOTE: the same code shown here can work as-is for stzListOfStrings!
+# to test it just replace the line above with the following:
+// o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7" ])
+
+? o1.ContainsDuplicates()
+#--> TRUE
+# Executed in 0.03 second(s)
+
+? o1.HowManyDuplicates()
+#--> 3
+# Executed in 0.06 second(s)
+
+? @@S( o1.FindDuplicates() )
+#--> [ 3, 4, 6 ]
+# Executed in 0.06 second(s)
+
+? @@S( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
+#--> [ [ 5, 3 ], [ 5, 4 ], [ 7, 6 ] ]
+#--> the number 5 is duplicated at position 3, and then
+#    the number 5 is duplicated (again) at position 4, and finally,
+#    the number 7 is duplicated at position 6.
+# Executed in 0.25 second(s)
+
+? @@S( o1.DuplicatesUZ() )
+#--> [ [ 5, [ 3, 4 ] ], [ 7, [ 6 ] ] ]
+#--> The number 5 is duplicated at positions 3 and 4, and
+#    the number 7 is duplicated at position 6.
+# Executed in 0.17 second(s)
+
+o1.RemoveDuplicates()
+? @@S( o1.Content() )
+#--> [ 5, 7, 4 ]
+# Executed in 0.07 second(s)
+
+proff()
+# Executed in 0.54 second(s)
+
+/*======= MANAGING DUPLICATED ITEMS
+*/
+pron()
+
+o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
+
+# NOTE: the same code shown here can work as-is for stzListOfStrings!
+# to test it just replace the line above with the following:
+// o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7" ])
+
+? o1.ContainsDuplicatedItems()
+#--> TRUE
+# Executed in 0.03 second(s)
+
+? o1.HowManyDuplicatedItems()		# Add: HowManyDuplications() --> 5
+#--> 2
+# Executed in 0.09 second(s)
+
+? @@S( o1.FindDuplicatedItems() )
+#--> [ 1, 2, 3, 4, 6 ]
+# Executed in 0.16 second(s)
+
+//? @@S( o1.DuplicatedItemsZ() ) # Or DuplicatesAndTheirPositions()
+#--> [ [ 5, [ 1, 3, 4 ] ], [ 7, [ 2, 6 ] ] ]
+#--> the number 5 is duplicated at position 1, 3 and 4, and,
+#    the number 7 is duplicated at positions 2 and 6?
+# Executed in 0.17 second(s)
+
+o1.RemoveDuplicatedItems()
+? @@S( o1.Content() )
+#--> [ 4 ]
+# Executed in 0.17 second(s)
+
+proff()
+# Executed in 0.54 second(s)
 
 /*==========
 
