@@ -22579,8 +22579,8 @@ def SubStringBetween(pcSubString, p1, p2)
 			ok
 	
 			StzHashListQ(paOptions) {
-				RemovePairByKeyQ(:Casesensitive)
-				RemovePairByKeyQ(:CS)
+				RemovePairByKeyQ(:Casesensitive = TRUE)
+				RemovePairByKeyQ(:CS = TRUE)
 				paOptions = Content()
 			}
 	

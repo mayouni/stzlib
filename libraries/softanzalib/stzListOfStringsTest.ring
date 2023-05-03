@@ -1120,7 +1120,7 @@ o1 = new stzListOfStrings([
 # --> [ 1, 2, 4, 6, 7, 9, 10, 14 ]
 
 /* =================== MANAGING DUPLICATED STRINGS
-*/
+
 pron()
 
 o1 = new stzListOfStrings([
@@ -1178,13 +1178,7 @@ o1 = new stzListOfStrings([
 #--> [ "tunis", "regueb" ]
 # Executed in 0.24 second(s)
 
-? o1.NumberOfDuplicates()
-#--> 7
-# Executed in 0.24 second(s)
-*/
-? o1.NonDuplicatedStrings()
 
-? o1.FindDuplicates()
 
 #--
 /*
@@ -1196,7 +1190,7 @@ o1 = new stzListOfStrings([
 #--> 1
 # Executed in 0.10 second(s)
 
-/*
+
 ? o1.StringIsDuplicatedNTimes("tunis", 6)	#--> TRUE
 ? o1.StringIsDuplicatedNTimes("regueb", 1)	#--> TRUE
 
@@ -1211,9 +1205,269 @@ o1 = new stzListOfStrings([
 
 ? @@( o1.FindDuplicatesXT() )
 #--> [ "tunis" = [ 2, 3, 5, 6, 8, 9 ], [ "regueb" = [ 12 ] ]
-*/
+
 
 proff()
+
+/*===============
+
+
+pron()
+
+o1 = new stzListOfStrings([
+	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
+	"tunis", "tunis", "regueb", "sfax", "regueb", "Tunis"
+])
+
+? @@S( o1.FindDuplicatesOfString("tunis") )
+#--> [ 2, 3, 5, 6, 8, 9 ]
+# Executed in 0.11 second(s)
+
+? @@S( o1.FindDuplicatesOfStringCS("tunis", :CS = FALSE) )
+#--> [ 2, 3, 5, 6, 8, 9, 13 ]
+# Executed in 0.12 second(s)
+
+proff()
+# Executed in 0.20 second(s)
+
+/*===============
+
+pron()
+
+o1 = new stzListOfStrings([
+	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
+	"tunis", "tunis", "regueb", "sfax", "regueb", "Tunis"
+])
+
+? o1.NumberOfDuplicates()
+#--> 7
+# Executed in 0.24 second(s)
+
+? @@S( o1.FindDuplicates() )
+#--> [ 2, 3, 5, 6, 8, 9, 12 ]
+# Executed in 0.37 second(s)
+
+? @@S( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
+#--> [
+#	[ "tunis",  [ 2, 3, 5, 6, 8, 9 ] ],
+#	[ "regueb", [ 12 ] ]
+# ]
+# Executed in 0.37 second(s)
+
+#-- Same thing but with case sensitivity
+? NL + "--" + NL
+
+
+? o1.NumberOfDuplicatesCS(FALSE)
+#--> 8
+# Executed in 0.67 second(s)
+
+? @@S( o1.FindDuplicatesCS(FALSE) )
+#--> [ 2, 3, 5, 6, 8, 9, 12, 13 ]
+# Executed in 0.47 second(s)
+
+? @@S( o1.DuplicatesZCS(FALSE) ) # Or DuplicatesAndTheirPositions()
+#--> [
+#	[ "tunis",  [ 2, 3, 5, 6, 8, 9, 13 ] ],
+#	[ "regueb", [ 12 ] ]
+# ]
+# Executed in 0.47 second(s)
+
+proff()
+# Executed in 2.46 second(s)
+
+/*===============
+
+pron()
+
+o1 = new stzListOfStrings([
+	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
+	"tunis", "tunis", "regueb", "sfax", "regueb", "Tunis"
+])
+
+o1.RemoveDuplicates()
+? @@S( o1.Content() )
+#--> [ "tunis", "gatfsa", "gabes", "regueb", "sfax", "Tunis" ]
+
+proff()
+# Executed in 0.03 second(s): so fast because it uses Qt
+
+/*--------------
+
+pron()
+
+o1 = new stzListOfStrings([
+	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
+	"tunis", "tunis", "regueb", "sfax", "regueb", "Tunis"
+])
+
+o1.RemoveDuplicatesCS(FALSE)
+? @@S(o1.Content())
+#--> [ "tunis", "gatfsa", "gabes", "regueb", "sfax" ]
+
+proff()
+# Executed in 0.49 second(s): takes a while because it's not based on Qt
+
+/*===============
+
+pron()
+
+o1 = new stzListOfStrings([
+	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
+	"tunis", "tunis", "Regueb", "sfax", "regueb", "Tunis"
+])
+
+? @@S( o1.DuplicatedStringsCS(FALSE) )
+#--> [ "tunis", "regueb" ]
+# Executed in 0.38 second(s)
+
+? @@S( o1.FindDuplicatedStringsCS(FALSE) )
+#--> [ 1, 2, 3, 5, 6, 8, 9, 13, 10, 12 ]
+# Executed in 0.50 second(s)
+
+? @@S( o1.DuplicatedStringsZCS(FALSE) )
+#--> [
+#	[ "tunis",  [ 1, 2, 3, 5, 6, 8, 9, 13 ] ],
+#	[ "regueb", [ 10, 12 ] ]
+# ]
+# Executed in 0.52 second(s)
+
+#--
+? NL + "--" + NL
+
+? @@S( o1.DuplicatedStringsCS(TRUE) )
+#--> [ "tunis" ]
+# Executed in 0.27 second(s)
+
+? @@S( o1.FindDuplicatedStringsCS(TRUE) )
+#--> [ 1, 2, 3, 5, 6, 8, 9 ]
+# Executed in 0.35 second(s)
+
+? @@S( o1.DuplicatedStringsZCS(TRUE) )
+#--> [ [ "tunis", [ 1, 2, 3, 5, 6, 8, 9 ] ] ]
+# Executed in 0.35 second(s)
+
+proff()
+# Executed in 2.22 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzListOfStrings([
+	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
+	"tunis", "tunis", "Regueb", "sfax", "regueb", "Tunis"
+])
+
+? @@S( o1.DuplicatedStringsCS(FALSE) )
+#--> [ "tunis", "regueb" ]
+# Executed in 0.36 second(s)
+
+o1.RemoveDuplicatedStringsCS(FALSE)
+? @@S( o1.Content() )
+#--> [ "gatfsa", "gabes", "sfax" ]
+
+proff()
+# Executed in 0.87 second(s)
+
+/*=========
+
+pron()
+
+o1 = new stzListOfStrings([
+	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
+	"tunis", "tunis", "Regueb", "sfax", "regueb", "Tunis"
+])
+
+? o1.ContainsNonDuplicatedStrings()
+#--> TRUE
+# Executed in 0.26 second(s)
+
+? @@S( o1.NumberOfNonDuplicatedStrings() )
+#--> 6
+# Executed in 0.34 second(s)
+
+? @@S( o1.FindNonDuplicatedStrings() )
+#--> [ 4, 7, 10, 11, 12, 13 ]
+#--> Executed in 0.34 second(s)
+
+? @@S( o1.NonDuplicatedStrings() )
+#--> [ "gatfsa", "gabes", "Regueb", "sfax", "regueb", "Tunis" ]
+# Executed in 0.34 second(s)
+
+? @@S( o1.NonDuplicatedStringsZ() ) # Or NonDuplicatedStringsAndTheirPositions()
+#--> [
+#	[ "gatfsa", 4  ],
+#	[ "gabes",  7  ],
+#	[ "Regueb", 10 ],
+#	[ "sfax",   11 ],
+#	[ "regueb", 12 ],
+#	[ "Tunis",  13 ]
+# ]
+# Executed in 0.36 second(s)
+
+proff()
+# Executed in 1.59 second(s)
+
+/*--------------
+*/
+pron()
+
+o1 = new stzListOfStrings([ "one", "ONE", "two", "TWO" ])
+
+? o1.ContainsNonDuplicatedStringsCS(TRUE)
+#--> TRUE: In fact all strings are different when case sensitivity applies
+# Executed in 0.03 second(s)
+
+? o1.ContainsNonDuplicatedStringsCS(FALSE)
+#--> FALSE: In fact, "one" equals "ONE" and "two" equals "TWO" when case sensitiviy
+# is applied. So, the list contains duplicated strings and the result is FALSE.
+# Executed in 0.14 second(s)
+
+? @@S( o1.NumberOfNonDuplicatedStringsCS(TRUE) )
+#--> 4
+# Executed in 0.12 second(s)
+
+? @@S( o1.FindNonDuplicatedStringsCS(TRUE) )
+#--> [ 1, 2, 3, 4 ]
+#--> Executed in 0.1é second(s)
+
+? @@S( o1.NonDuplicatedStringsCS(TRUE) )
+#--> [ "one", "ONE", "two", "TWO" ]
+# Executed in 0.12 second(s)
+
+? @@S( o1.NonDuplicatedStringsZCS(TRUE) ) # Or NonDuplicatedStringsAndTheirPositionsCS()
+#--> [
+#	[ "one", 1 ],
+#	[ "ONE", 2 ],
+#	[ "two", 3 ],
+#	[ "TWO", 4 ]
+# ]
+# Executed in 0.15 second(s)
+
+proff()
+# Executed in 0.59 second(s)
+
+/*=========
+
+pron()
+
+o1 = new stzListOfStrings([
+	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
+	"tunis", "tunis", "Regueb", "sfax", "regueb", "Tunis"
+])
+
+//? @@S( o1.DuplicatedStringsCS(TRUE) )
+#--> [ "tunis" ]
+# Executed in 0.26 second(s)
+
+o1.RemoveDuplicatedStringsCS(TRUE)
+? @@S( o1.Content() )
+#--> [ "gatfsa", "gabes", "Regueb", "sfax", "regueb", "Tunis" ]
+# Executed in 0.35 second(s)
+
+proff()
+# Executed in 0.58 second(s)
 
 /*--------------
 
