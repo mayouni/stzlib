@@ -1608,9 +1608,9 @@ class stzString from stzObject
 		def HowManySubStrings()
 			return This.NumberOfSubStrings()
 
-	  #------------------------------------------------------------#
-	 #  GETING THE LIST OF ALL POSSIBLE SUBSTRINGS IN THE STRING  #
-	#------------------------------------------------------------#
+	  #-------------------------------------------------------------#
+	 #  GETTING THE LIST OF ALL POSSIBLE SUBSTRINGS IN THE STRING  #
+	#-------------------------------------------------------------#
 
 	def SubStringsCS(pCaseSensitive)
 		if This.IsEmpty()
@@ -1988,9 +1988,9 @@ class stzString from stzObject
 		def NumberOfUniqueSubStringsMadeOfNChars(n)
 			return This.NumberOfUniqueSubStringsOfNChars(n)
 
-	  #=================#
-	 #   SUBSTRING     #
-	#=================#
+	  #=================================================#
+	 #  SUBSTRING USED IN NEAR-NATURAL LANGUAGE STYLE  #
+	#=================================================#
 
 	def SubStringCS(pcSubStr, paOption, pCaseSensitive)
 		/*
@@ -2021,6 +2021,7 @@ class stzString from stzObject
 	def SubString(pcSubStr, paOption)
 		return This.SubStringCS(pcSubStr, paOption, :CaseSensitive = TRUE)
 		
+
 	  #=================#
 	 #      LINES      #
 	#=================#
@@ -2089,7 +2090,7 @@ class stzString from stzObject
 	 #  REMOVING LINES UNDER A GIVEN CONDITION  #
 	#------------------------------------------#
 
-	def RemoveLinesW(pcCondition) // TODO
+	def RemoveLinesW(pcCondition)
 		/* EXAMPLE
 
 		o1 = new stzString("
@@ -3099,7 +3100,7 @@ class stzString from stzObject
 		#>
 
 	  #------------------------------------------#
-	 #    REPLACING SUBSTRINGS WITH MARQUERS    # TODO: Test it
+	 #    REPLACING SUBSTRINGS WITH MARQUERS    # TODO: Test it!
 	#==========================================#
 
 	def ReplaceSubstringsWithMarquersCS(pacSubstrings, pCaseSensitive)
@@ -3452,7 +3453,7 @@ class stzString from stzObject
 		cMarquer  = This.NextMarquer(pnStartingAt)
 		nPosition = This.NextMarquerPosition(pnStartingAt)
 
-		aResult = [ cMarquer, nPosition ]*
+		aResult = [ cMarquer, nPosition ]
 		return aResult
 
 		def NextMarquerAndItsPositionQ(pnStartingAt)
@@ -3491,7 +3492,7 @@ class stzString from stzObject
 			ok
 		ok
 
-		if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
+		if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0 )
 			StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
 		ok
 
@@ -3742,6 +3743,1121 @@ class stzString from stzObject
 				return This.PreviousMarquerAndItsPositionQ(pnStartingAt)
 
 		#>
+
+	  #===========================================================#
+	 #   CHECKING IF THE STRING CONTAINS DUPLICATED SUBSTRINGS   #
+	#===========================================================#
+
+	def ContainsDuplicatedSubStringsCS(pCaseSensitive)
+
+		acSubStrings = This.SubStringsCS(pCaseSensitive)
+		bResult = This.SubStringsCSQ(pCaseSensitive).ContainsDuplicatedItemsCS(pCaseSensitive)
+
+		return bResult
+
+		def ContainsDuplicationsCS(pCaseSensitive)
+			return This.ContainsDuplicatedSubStringsCS(pCaseSensitive)
+
+		def ContainsDuplicatesCS(pCaseSensitive)
+			return This.ContainsDuplicatedSubStringsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsDuplicatedSubStrings()
+		return This.ContainsDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+	
+		def ContainsDuplications()
+			return This.ContainsDuplicatedSubStrings()
+
+		def ContainsDuplicates()
+			return This.ContainsDuplicatedSubStrings()
+
+	  #----------------------------------------------------------------#
+	 #   CHECHKING IF A GIVEN SUBSTRING IS DUPLICATED IN THE STRING   #
+	#----------------------------------------------------------------#
+
+	def ContainsDuplicatedCS(pcSubStr, pCaseSensitive)
+		bResult = This.SubStringsCSQ(pCaseSensitive).ContainsDuplicatedCS(pcSubStr, pCaseSensitive)
+		return bResult
+
+		def ContainsDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
+			return This.ContainsDuplicatedCS(pcSubStr, pCaseSensitive)
+
+		def ContainsThisDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
+			return This.ContainsDuplicatedCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsDuplicated(pcSubStr)
+		return This.ContainsDuplicatedCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def ContainsDuplicatedSubString(pcSubStr)
+			return This.ContainsDuplicated(pcSubStr)
+
+		def ContainsThisDuplicatedSubString(pcSubStr)
+			return This.ContainsDuplicated(pcSubStr)
+
+	  #-----------------------------------------------------------------------#
+	 #   CHECHKING IF A GIVEN SUBSTRING IS DUPLICATED N-TIMES IN THE STRING  #
+	#-----------------------------------------------------------------------#
+
+	def ContainsDuplicatedNTimesCS(n, pcSubStr, pCaseSensitive)
+		if This.NumberOfDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive) = n
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def ContainsThisDuplicatedSubStringNTimesCS(n, pcSubStr, pCaseSensitive)
+			return This.ContainsDuplicatedNTimesCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringIsDuplicatedNTimesCS(n, pcSubStr, pCaseSensitive)
+			return This.ContainsDuplicatedNTimesCS(n, pcSubStr, pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsDuplicatedNTimes(n, pcSubStr)
+		return This.ContainsDuplicatedNTimesCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def ContainsThisDuplicatedSubStringNTimes(n, pcSubStr)
+			return This.ContainsDuplicatedNTimes(n, pcSubStr)
+
+		def SubStringIsDuplicatedNTimes(n, pcSubStr)
+			return This.ContainsDuplicatedNTimes(n, pcSubStr, pItem)
+
+	  #-----------------------------------------------------------------------#
+	 #   HOW MANY TIMES A GIVEN SUBSTRING IS DUPLICATED INSIDE THE STRING?   #
+	#-----------------------------------------------------------------------#
+
+	def NumberOfTimesSubStringIsDuplicatedCS(pcSubStr, pCaseSensitive)
+
+		nResult =  This.SubStringsCSQ(pCaseSensitive).
+				NumberOfTimesSubStringIsDuplicatedCS(pcSubStr, pCaseSensitive)
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfTimesThisSubStringIsDuplicatedCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfTimesSubStringIsDuplicatedCS(pcSubStr, pCaseSensitive)
+
+		#--
+
+		def NumberOfDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfTimesSubStringIsDuplicatedCS(pcSubStr, pCaseSensitive)
+
+		def NumberOfDuplicationsOfSubStringCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfTimesSubStringIsDuplicatedCS(pcSubStr, pCaseSensitive)
+
+		def NumberOfDuplicationsOfCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfTimesSubStringIsDuplicatedCS(pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfTimesSubStringIsDuplicated(pcSubStr)
+		return This.NumberOfTimesSubStringIsDuplicatedCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfTimesThisSubStringIsDuplicated(pcSubStr)
+			return This.NumberOfTimesSubStringIsDuplicated(pcSubStr)
+
+		#--
+
+		def NumberOfDuplicatesOfSubString(pcSubStr)
+			return This.NumberOfTimesSubStringIsDuplicated(pcSubStr)
+
+		def NumberOfDuplicationsOfSubString(pcSubStr)
+			return This.NumberOfTimesSubStringIsDuplicated(pcSubStr)
+
+		def NumberOfDuplicationsOf(pcSubStr)
+			return This.NumberOfTimesSubStringIsDuplicated(pcSubStr)
+
+		#>
+
+	  #---------------------------------------------------------------------#
+	 #  CHECKING THE EXISTENCE OF NON DUPLICATED SUBSTRINGS IN THE STRING  #
+	#=====================================================================#
+
+	def ContainsNonDuplicatedSubStringsCS(pCaseSensitive)
+
+		bResult = This.SubStringsCSQ(pCaseSensitive).
+			       ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
+		return bResult
+
+		def ContainsNoDuplicationsCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedSubStringsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsNonDuplicatedsubStrings()
+		return This.ContainsNonDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+
+		def ContainsNoDuplications()
+			return This.ContainsNonDuplicatedSubStrings()
+
+	  #-------------------------------------------------#
+	 #  GETTING THE LIST OF NON DUPLICATED SUBSTRINGS  #
+	#-------------------------------------------------#
+
+	def NonDuplicatedSubStringsCS(pCaseSensitive)
+		acResult = This.Copy().RemoveDuplicatedSubStringsCSQ(pCaseSensitive).Content()
+		return acResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NonDuplicatedISubStrings()
+		return This.NonDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+
+	  #---------------------------------------#
+	 #  NUMBER OF NON DUPLICATED SUBSTRINGS  #
+	#---------------------------------------#
+
+	def NumberOfNonDuplicatedSubStringsCS(pCaseSensitive)
+		nResult = This.SubStringsCSQ(pCaseSensitive).NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfNonDuplicatedSubStrings()
+		return This.NumberOfNonDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+
+	  #-------------------------------------#
+	 #  FINDING NON DUPLICATED SUBSTRINGS  #
+	#-------------------------------------#
+
+	def FindNonDuplicatedSubStringsCS(pCaseSensitive)
+		acNonDuplicated = This.NonDuplicatedSubStringsCS(pCaseSensitive)
+		nLen = len(acNonDuplicated)
+		anResult = []
+
+		for i = 1 to nLen
+			# By defintion, a non duplicated substring apprears once
+			nPos = This.FindFirstCS(acNonDuplicated[i], pCaseSensitive)
+			anResult + nPos
+		next
+
+		anResult = Q(anResult).Sorted()
+		return anResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNonDuplicatedSubStrings()
+		return This.FindNonDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+
+	  #-------------------------------------------------#
+	 #  NON DUPLICATED SUBSTRINGS AND THEIR POSITIONS  #
+	#-------------------------------------------------#
+
+	def NonDuplicatedSubStringsAndTheirPositionsCS(pCaseSensitive)
+
+		acNonDuplicated = This.NonDuplicatedSubStringsCS(pCaseSensitive)
+		nLen = len(acNonDuplicated)
+
+		aResult = []
+		for i = 1 to nLen
+			# By definition, a non duplicated substrings appears once
+			nPos = This.FindFirstCS(acNonDuplicated[i], pCaseSensitive)
+			aResult + [ acNonDuplicated[i], nPos ]
+		next
+
+		return aResult
+
+		def NonDuplicatedSubstringsZCS(pCaseSensitive)
+			return This.NonDuplicatedSubStringsAndTheirPositionsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NonDuplicatedSubStringsAndTheirPositions()
+		return This.NonDuplicatedSubStringsAndTheirPositionsCS(:CaseSensitive = TRUE)
+
+		def NonDuplicatedSubStringsZ()
+			return This.NonDuplicatedSubStringsAndTheirPositions()
+
+	  #--------------------------#
+	 #   NUMBER OF DUPLICATES   #
+	#==========================#
+
+	def NumberOfDuplicatesCS(pCaseSensitive)
+
+		nResult = len( This.FindDuplicatesCS(pCaseSensitive) )
+		return nResult
+
+		def HowManyDuplicatesCS(pCaseSensitive)
+			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
+		#< @FunctionMisspelledForm
+
+		def HowManuDuplicatesCS(pCaseSensitive)
+			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfDuplicates()
+		return This.NumberOfDuplicatesCS(:CaseSensitive = TRUE)
+
+		def HowManyDuplicates()
+			return This.NumberOfDuplicates()
+
+		#< @FunctionMisspelledForm
+
+		def HowManuDuplicates()
+			return This.NumberOfDuplicates()
+
+		#>
+
+	  #----------------------#
+	 #  FINDING DUPLICATES  #
+	#----------------------#
+
+	def FindDuplicatesCS(pCaseSensitive)
+
+		acSubStrings = This.SubStringsCS(pCaseSensitive)
+		nLen = len(acSubStrings)
+		aTemp = []
+
+		anResult = []
+		for i = 1 to nLen
+
+			if NOT Q(aTemp).ContainsCS(acSubStrings[i], pCaseSensitive)
+				aTemp + This.acSubStrings[i]
+			else
+				anResult + i
+			ok
+
+		next
+
+		return anResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicates()
+		return This.FindDuplicatesCS(:CaseSensitive = TRUE)
+
+	  #--------------#
+	 #  DUPLICATES  #
+	#--------------#
+
+	def DuplicatesCS(pCaseSensitive)
+
+		acResult = This.SubStringsCSQ(pCaseSensitive).DuplicatesCS(pCaseSensitive)
+		return acResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Duplicates()
+		return This.DuplicatesCS(:CaseSensitive = TRUE)
+
+	  #------------------------------------------------#
+	 #  DUPLICATES AND THEIR POSITIONS -- Z/Extended  #
+	#------------------------------------------------#
+
+	def DuplicatesAndTheirPositionsCS(pCaseSensitive)
+		aDuplicates = This.DuplicatesCS(pCaseSensitive)
+		anPositions = This.FindDuplicatesCS(pCaseSensitive)
+
+		aResult = Association([ aDuplicates, anPositions ])
+		return aResult
+
+		def DuplicatesZCS(pCaseSensitive)
+			return This.DuplicatesAndTheirPositionsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DuplicatesAndTheirPositions()
+		return This.DuplicatesAndTheirPositionsCS(:CaseSensitive = TRUE)
+
+		def DuplicatesZ()
+			return This.DuplicatesAndTheirPositions()
+
+	  #------------------------------------------------#
+	 #  DUPLICATES AND THEIR POSITIONS -- UZ/Extended  #
+	#------------------------------------------------#
+
+	def DuplicatesAndTheirPositionsUCS(pCaseSensitive)
+		acDuplicated = This.DuplicatedItemsCS(pCaseSensitive)
+		nLen = len(acDuplicated)
+
+		aResult = []
+		for i = 1 to nLen
+			anPos = This.FindCSQ(acDuplicated[i], pCaseSensitive).FirstItemRemoved()
+			if len(anPos) > 0
+				aResult + [ acDuplicated[i], anPos ]
+			ok
+		next
+
+		return aResult
+
+		def DuplicatesUZCS(pCaseSensitive)
+			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DuplicatesAndTheirPositionsU()
+		return This.DuplicatesAndTheirPositionsUCS(:CaseSensitive = TRUE)
+
+		def DuplicatesUZ()
+			return This.DuplicatesAndTheirPositionsU()
+
+	  #-------------------------------------#
+	 #   NUMBER OF DUPLICATED SUBSTRINGS   #
+	#=====================================#
+
+	def NumberOfDuplicatedSubStringsCS(pCaseSensitive)
+		nResult = len( This.DuplicatedSubStringsCS(pCaseSensitive) )
+		return nResult
+
+		def HowManyDuplicatedSubStringsCS(pCaseSensitive)
+			return This.NumberOfDuplicatedsubStringsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfDuplicatedSubStrings()
+		return This.NumberOfDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+
+		def HowManyDuplicatedSubStrings()
+			return This.NumberOfDuplicatedSubStrings()
+
+	  #---------------------------#
+	 #   DUPLICATED SUBSTRINGS   #
+	#---------------------------#
+
+	def DuplicatedSubStringsCS(pCaseSensitive)
+		acResult = This.SubStringsCSQ(pCaseSensitive).DuplicatedItemsCS(pCaseSensitive)
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def DuplicatedSubStringsCSQ(pCaseSensitive)
+			return This.DuplicatedSubStringsCSQR(pCaseSensitive, :stzList)
+
+		def DuplicatedSubStringsCSQR(pCaseSensitive, pcReturntype)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.DuplicatedSubStringsCS(pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.DuplicatedSubStringsCS(pCaseSensitive) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.DuplicatedSubStringsCS(pCaseSensitive) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.DuplicatedSubStringsCS(pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DuplicatedSubStrings()
+		return This.DuplicatedSubStringsCS(:CaseSensitive = TRUE)
+		
+		#< @FunctionFluentForm
+
+		def DuplicatedSubStringsQ()
+			return This.DuplicatedSubStringsQR(:stzList)
+
+		def DuplicatedSubStringsQR(pcReturntype)
+			return This.DuplicatedSubStringsCSQR(:CaseSensitive = TRUE, pcReturntype)
+		#>
+
+	  #-----------------------------------#
+	 #   FINDING DUPLICATED SUBSTRINGS   #
+	#-----------------------------------#
+
+	def FindDuplicatedSubStringsCS(pCaseSensitive)
+		anResult = []
+
+		acDuplicated = This.DuplicatedSubStringsCS(pCaseSensitive)
+
+		nLen = len(aDuplicated)
+
+		for i = 1 to nLen
+			anPos = This.FindCS(acDuplicated[i], pCaseSensitive)
+			nLenPos = len(anPos)
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = Q(anResult).Sorted()
+		return anResult
+
+		
+		#< @FunctionFluentForm
+
+		def FindDuplicatedSubStringsCSQ(pCaseSensitive)
+			return This.FindDuplicatedSubStringsCSQR(pCaseSensitive, :stzList)
+
+		def FindDuplicatedSubStringsCSQR(pCaseSensitive, pcReturntype)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindDuplicatedSubStringsCS(pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.FindDuplicatedSubStringsCS(pCaseSensitive) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindDuplicatedSubStringsCS(pCaseSensitive) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.FindDuplicatedSubStringsCS(pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PositionsOfDuplicatedSubStringsCS(pCaseSensitive)
+			return This.FindDuplicatedSubStringsCS(pCaseSensitive)
+
+			def PositionsOfDuplicatedSubStringsCSQ(pCaseSensitive)
+				return This.PositionsOfDuplicatedSubStringsCSQR(pCaseSensitive, :stzList)
+
+			def PositionsOfDuplicatedSubStringsCSQR(pCaseSensitive, pcReturntype)
+				return This.FindDuplicatedSubStringsCSQR(pCaseSensitive, pcReturntype)
+
+		def DuplicatedSubStringsPositionsCS(pCaseSensitive)
+			return This.FindDuplicatedSubStringsCS(pCaseSensitive)
+
+			def DuplicatedSubStringsPositionsCSQ(pCaseSensitive)
+				return This.PositionsOfDuplicatedSubStringsCSQR(pCaseSensitive, :stzList)
+
+			def DuplicatedSubStringsPositionsCSQR(pCaseSensitive, pcReturntype)
+				return This.FindDuplicatedSubStringsCSQR(pCaseSensitive, pcReturntype)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicatedSubStrings()
+		return This.FindDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+		
+		#< @FunctionFluentForm
+
+		def FindDuplicatedSubStringsQ()
+			return This.FindDuplicatedSubStringsQR(:stzList)
+
+		def FindDuplicatedSubStringsQR(pcReturntype)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindDuplicatedSubStrings() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindDuplicatedSubStrings() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.FindDuplicatedSubStrings() )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.FindDuplicatedSubStrings() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PositionsOfDuplicatedSubStrings()
+			return This.FindDuplicatedSubStrings()
+
+			def PositionsOfDuplicatedSubStringsQ()
+				return This.PositionsOfDuplicatedSubStringsQR(:stzList)
+
+			def PositionsOfDuplicatedSubStringsQR(pcReturntype)
+				return This.FindDuplicatedSubStringsQR(pcReturntype)
+
+		def DuplicatedSubStringsPositions()
+			return This.FindDuplicatedSubStrings()
+
+			def DuplicatedSubStringsPositionsQ()
+				return This.PositionsOfDuplicatedSubStringsQR(:stzList)
+
+			def DuplicatedSubStringsPositionsQR(pcReturntype)
+				return This.FindDuplicatedSubStringsCSQR(pcReturntype)
+
+		#>
+
+	  #-----------------------------------------------#
+	 #   DUPLICATED SUBSTRINGS AND THEIR POSITIONS   #
+	#-----------------------------------------------#
+
+	def DuplicatedSubStringsAndTheirPositionsCS(pCaseSensitive)
+		acDuplicatedSubStr = This.DuplicatedSubStringsCS(pCaseSensitive)
+		nLen = len(acDuplicatedSubStr)
+
+		acResult = []
+		for i = 1 to nLen
+			str = acDuplicatedSubStr[i]
+			acResult + [ str, This.FindAllCS(str, pCaseSensitive) ]
+		next
+
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def DuplicatedSubStringsZCS(pCaseSensitive)
+			return This.DuplicatedSubStringsAndTheirPositionsCS(pCaseSensitive)
+
+		#-- By nature, duplicated substrings are unique, so for convenience, we can add
+		#-- the U extension as alternatives
+
+		def DuplicatedSubStringsAndTheirPositionsUCS(pCaseSensitive)
+			return This.DuplicatedSubStringsAndTheirPositionsCS(pCaseSensitive)
+
+		def DuplicatedSubStringsUZCS(pCaseSensitive)
+			return This.DuplicatedSubStringsAndTheirPositionsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DuplicatedSubStringsAndTheirPositions()
+		return This.DuplicatedSubStringsAndTheirPositionsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def DuplicatedSubStringsZ()
+			return This.DuplicatedSubStringsAndTheirPositions()
+
+		#-- By nature, duplicated substrings are unique, so for convenience, we can add
+		#-- the U extension as alternatives
+
+		def DuplicatedSubStringsAndTheirPositionsU()
+			return This.DuplicatedSubStringsAndTheirPositions()
+
+		def DuplicatedSubStringsUZ()
+			return This.DuplicatedSubStringsAndTheirPositions()
+
+		#>
+
+	  #------------------------------------------#
+	 #   FINDING A GIVEN DUPLICATED SUBSTRING   #
+	#==========================================#
+
+	def FindDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
+
+		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
+
+		if len(anPos) > 1
+			return anPos
+		else
+			return 0
+		ok
+
+		#< @FunctionFluentForm
+
+		def FindDuplicatedSubStringCSQ(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatedSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+		def FindDuplicatedSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindDuplicatedSubStringCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindDuplicatedSubstringCS(pcSubStr, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindDuplicatedCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
+
+			def FindDuplicatedCSQ(pcSubStr, pCaseSensitive)
+				return This.FindDuplicatedCSQR(pcSubStr, pCaseSensitive, :stzList)
+	
+			def FindDuplicatedCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindDuplicatedsubStrCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+
+		def PositionsOfDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
+
+			def PositionsOfDuplicatedSubStringCSQ(pcSubStr, pCaseSensitive)
+				return This.PositionsOfDuplicatedSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+			def PositionsOfDuplicatedSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindDuplicatedCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		def DuplicatedSubStringPositionsCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
+
+			def DuplicatedSubStringPositionsCSQ(pcSubStr, pCaseSensitive)
+				return This.PositionsOfDuplicatedSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+			def DuplicatedSubStringPositionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindDuplicatedCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicatedSubString(pcSubStr)
+
+		return This.FindDuplicatedSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def FindDuplicatedSubStringQ(pcSubStr)
+			return This.FindDuplicatedSubStringQR(pcSubStr, :stzList)
+
+		def FindDuplicatedSubStringQR(pcSubStr, pcReturnType)
+			return This.FindDuplicatedSubStringCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindDuplicated(pcSubStr)
+			return This.FindDuplicatedSubString(pcSubStr)
+
+			def FindDuplicatedQ(pcSubStr)
+				return This.FindDuplicatedQR(pcSubStr, :stzList)
+	
+			def FindDuplicatedQR(pcSubStr, pcReturnType)
+				return This.FindDuplicatedSubStringQR(pcSubStr, pcReturnType)
+
+		def PositionsOfDuplicatedSubString(pcSubStr)
+			return This.FindDuplicatedSubString(pcSubStr)
+
+			def PositionsOfDuplicatedSubStringQ(pcSubStr)
+				return This.PositionsOfDuplicatedSubStringQR(pcSubStr, :stzList)
+
+			def PositionsOfDuplicatedSubStringQR(pcSubStr, pcReturnType)
+				return This.FindDuplicatedQR(pcSubStr, pcReturnType)
+
+		def DuplicatedSubStringPositions(pcSubStr)
+			return This.FindDuplicatedSubString(pcSubStr)
+
+			def DuplicatedSubStringPositionsQ(pcSubStr)
+				return This.PositionsOfDuplicatedSubStringQR(pcSubStr, :stzList)
+
+			def DuplicatedSubStringPositionsQR(pcSubStr, pcReturnType)
+				return This.FindDuplicatedQR(pcSubStr, pcReturnType)
+
+		#>
+
+	  #---------------------------------------------#
+	 #   FINDING DUPLICATES OF A GIVEN SUBSTRING   #
+	#---------------------------------------------#
+
+	def FindDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
+		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
+		nLen = len(anPos)
+
+		anResult = []
+
+		if nLen > 1
+			anResult = Q(anPos).FirstItemRemoved()
+		ok
+
+		return anResult
+		
+
+		def PositionsOfDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicatesOfSubString(pcSubStr)
+		return This.FindDuplicatesOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def PositionsOfDuplicatesOfSubString(pcSubStr)
+			return This.FindDuplicatesOfSubString(pcSubStr)
+
+	  #------------------------------------------------------#
+	 #   FINDING A GIVEN DUPLICATED SUBSTRING AS SECTIONS   #
+	#------------------------------------------------------#
+
+	def FindDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		aSectionss = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		if len(anPos) > 1
+			return anPos
+		else
+			return 0
+		ok
+
+		#< @FunctionFluentForm
+
+		def FindDuplicatedSubStringAsSectionsCSQ(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatedSubStringAsSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+		def FindDuplicatedSubStringAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindDuplicatedSubstringAsSectionsCS(pcSubStr, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindDuplicatedAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+
+			def FindDuplicatedAsSectionsCSQ(pcSubStr, pCaseSensitive)
+				return This.FindDuplicatedAsSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
+	
+			def FindDuplicatedAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindDuplicatedSubStringAsSectionsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+
+		def PositionsOfDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+
+			def PositionsOfDuplicatedSubStringAsSectionsCSQ(pcSubStr, pCaseSensitive)
+				return This.PositionsOfDuplicatedSubStringAsSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+			def PositionsOfDuplicatedSubStringAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindDuplicatedAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		def DuplicatedSubStringPositionsAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+
+			def DuplicatedSubStringPositionsAsSectionsCSQ(pcSubStr, pCaseSensitive)
+				return This.PositionsOfDuplicatedSubStringAsSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+			def DuplicatedSubStringPositionsAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindDuplicatedAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicatedSubStringAsSections(pcSubStr)
+
+		return This.FindDuplicatedSubStringAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def FindDuplicatedSubStringAsSectionsQ(pcSubStr)
+			return This.FindDuplicatedSubStringAsSectionsQR(pcSubStr, :stzList)
+
+		def FindDuplicatedSubStringAsSectionsQR(pcSubStr, pcReturnType)
+			return This.FindDuplicatedSubStringAsSectionsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindDuplicatedAsSections(pItem)
+			return This.FindDuplicatedSubStringAsSections(pcSubStr)
+
+			def FindDuplicatedAsSectionsQ(pcSubStr)
+				return This.FindDuplicatedAsSectionsQR(pcSubStr, :stzList)
+	
+			def FindDuplicatedAsSectionsQR(pcSubStr, pcReturnType)
+				return This.FindDuplicatedItemAsSectionsQR(pcSubStr, pcReturnType)
+
+		def PositionsOfDuplicatedSubStringAsSections(pcSubStr)
+			return This.FindDuplicatedSubStringAsSections(pcSubStr)
+
+			def PositionsOfDuplicatedSubStringAsSectionsQ(pcSubStr)
+				return This.PositionsOfDuplicatedSubStringAsSectionsQR(pcSubStr, :stzList)
+
+			def PositionsOfDuplicatedSubStringAsSectionsQR(pcSubStr, pcReturnType)
+				return This.FindDuplicatedAsSectionsQR(pcSubStr, pcReturnType)
+
+		def DuplicatedSubStringPositionsAsSections(pcSubStr)
+			return This.FindDuplicatedSubStringAsSections(pcSubStr)
+
+			def DuplicatedSubStringPositionsAsSectionsQ(pcSubStr)
+				return This.PositionsOfDuplicatedSubStringAsSectionsQR(pcSubStr, :stzList)
+
+			def DuplicatedSubStringPositionsAsSectionsQR(pcSubStr, pcReturnType)
+				return This.FindDuplicatedAsSectionsQR(pcSubStr, pcReturnType)
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #   FINDING DUPLICATES OF A GIVEN SUBSTRING AS SECTIONS   #
+	#---------------------------------------------------------#
+
+	def FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		nLen = len(anPos)
+
+		aResult = []
+
+		if nLen > 1
+			aResult = Q(aSections).FirstItemRemoved()
+		ok
+
+		return aResult
+		
+
+		def PositionsOfDuplicatesOfSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicatesOfSubStringAsSections(pcSubStr)
+		return This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def PositionsOfDuplicatesOfSubStringAsSections(pcSubStr)
+			return This.FindDuplicatesOfSubStringAsSections(pcSubStr)
+
+	  #-------------------------------------------#
+	 #   REMOVING ALL DUPLICATES IN THE STRING   #
+	#===========================================#
+
+	def RemoveDuplicatesCS(pCaseSensitive)
+
+		aSections = This.FindDuplicatesAsSectionsCS(pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		def RemoveDuplicatesCSQ(pCaseSensitive)
+			This.RemoveDuplicatesCS(pCaseSensitive)
+			return This
+
+	def DuplicatesRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveDuplicatesCSQ(pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveDuplicates()
+		This.RemoveDuplicatesCS(:CaseSensitive = TRUE)
+
+		def RemoveDuplicatesQ()
+			This.RemoveDuplicates()
+			return This
+
+	def DuplicatesRemoved()
+		aResult = This.Copy().RemoveDuplicatesQ().Content()
+		return aResult
+
+  	  #----------------------------------------------#
+	 #   REMOVING DUPLICATES OF A GIVEN SUBSTRING   #
+	#----------------------------------------------#
+
+	def RemoveDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
+		aSections = This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		#< @FunctionFluentForm
+
+		def RemoveDuplicatesOfSubStringCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveDuplicatesOfThisSubStringCS(pcSubStr, pCaseSensitive)
+			This.RemoveDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
+
+			def RemoveDuplicatesOfThisSubStringCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveDuplicatesOfThisSubStringCS(pcSubStr, pCaseSensitive)
+				return This
+
+		#>
+
+	def DuplicatesOfSubStringRemovedCS(pcSubStr, pCaseSensitive)
+
+		aResult = This.Copy().
+				RemoveDuplicatesOfSubStringCSQ(pcSubStr, pCaseSensitive).
+				Content()
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def DuplicatesOfThisSubstringRemovedCS(pcSubStr, pCaseSensitive)
+			return This.DuplicatesOfSubStringRemovedCS(pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveDuplicatesOfSubString(pcSubStr)
+		This.RemoveDuplicatesOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RemoveDuplicatesOfSubStringQ(pcSubStr)
+			This.RemoveDuplicatesOfSubString(pcsubStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveDuplicatesOfThisSubString(pcSubStr)
+			This.RemoveDuplicatesOfSubString(pcSubStr)
+
+			def RemoveDuplicatesOfThisSubStringQ(pcSubStr)
+				This.RemoveDuplicatesOfThisSubString(pcSubStr)
+				return This
+
+		#>
+
+	def DuplicatesOfSubStringRemoved(pcSubStr)
+		return This.DuplicatesOfSubStringRemovedCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def DuplicatesOfThisSubStringRemoved(pcSubStr)
+			return This.DuplicatesOfSubStringRemoved(pcSubStr)
+
+		#>
+
+	  #--------------------------------------------------#
+	 #   REMOVING DUPLICATES OF MANY GIVEN SUBSTRINGS   #
+	#--------------------------------------------------#
+
+	def RemoveDuplicatesOfSubStringsCS(pacSubStr, pCaseSensitive)
+
+		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+			StzRaise("Incorrect param! paItems must be a list of strings.")
+		ok
+
+		nLen = len(pacSubStr)
+
+		for i = 1 to nLen
+			This.RemoveDuplicatesOfItemCS(pacSubStr[i], pCaseSensitive)
+		next
+
+		#< @FuntionFluentForm
+
+		def RemoveDuplicatesOfSubStringsCSQ(pacSubStr, pCaseSensitive)
+			This.RemoveDuplicatesOfSubStringsCS(pacSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def  RemoveDuplicatesOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
+			This.RemoveDuplicatesOfSubStringsCS(pacSubStr, pCaseSensitive)
+
+			def RemoveDuplicatesOfTheseSubStringsCSQ(pacSubStr, pCaseSensitive)
+				This.RemoveDuplicatesOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
+				return This
+
+		#>
+		
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveDuplicatesOfSubStrings(pacSubStr)
+		This.RemoveDuplicatesOfSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+
+		#< @FuntionFluentForm
+
+		def RemoveDuplicatesOfSubStringsQ(pacSubStr)
+			This.RemoveDuplicatesOfSubStrings(pacSubStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveDuplicatesOfTheseSubStrings(pacSubStr)
+			This.RemoveDuplicatesOfSubStrings(pacSubStr)
+
+			def RemoveDuplicatesOfTheseSubStringsQ(pacSubStr)
+				This.RemoveDuplicatesOfTheseSubStrings(pacSubStr)
+				return This
+
+		#>
+
+	  #----------------------------------#
+	 #  REMOVING DUPLICATED SUBSTRINGS  #
+	#----------------------------------#
+
+	def RemoveDuplicatedSubStringsCS(pCaseSensitive)
+		aSections = This.FindDuplicatedSubStringsAsSectionsCS(pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		#< @FunctionFluentForm
+
+		def RemoveDuplicatedSubStringsCSQ(pCaseSensitive)
+			This.RemoveDuplicatedSubStringsCS(pCaseSensitive)
+			return This
+
+		#>
+
+	def DuplicatedSubStringsRemovedCS(pCaseSensitive)
+		aResult = This.Copy().RemoveDuplicatedSubStringsCSQ(pCaseSensitive).Content()
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveDuplicatedSubStrings()
+		return This.RemoveDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RemoveDuplicatedSubStringsQ()
+			This.RemoveDuplicatedSubStrings()
+			return This
+
+		#>
+
+	def DuplicatedSubStringsRemoved()
+		acResult = This.Copy().RemoveDuplicatedItemsQ().Content()
+		return acResult
 
 	  #===============================================#
 	 #   TRANSFORMING THE STRING TO A STZTEXTOBJECT  #

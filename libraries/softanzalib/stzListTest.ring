@@ -599,7 +599,7 @@ o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 #--> [ 1, 2, 3, 4, 6 ]
 # Executed in 0.16 second(s)
 
-//? @@S( o1.DuplicatedItemsZ() ) # Or DuplicatesAndTheirPositions()
+? @@S( o1.DuplicatedItemsZ() ) # Or DuplicatesAndTheirPositions()
 #--> [ [ 5, [ 1, 3, 4 ] ], [ 7, [ 2, 6 ] ] ]
 #--> the number 5 is duplicated at position 1, 3 and 4, and,
 #    the number 7 is duplicated at positions 2 and 6?
