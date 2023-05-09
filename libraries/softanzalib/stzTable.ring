@@ -1061,7 +1061,7 @@ Class stzTable
 		#==
 
 		def CellsInTheseColsAsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)*
+			return This.CellsInColsAsPositions(paCols)
 
 		def CellsToTheseColsAsPositions(paCols)
 			return This.CellsInColsAsPositions(paCols)

@@ -14321,7 +14321,7 @@ class stzList from stzObject
 		ok
 
 		def ContainsThisDuplicatedItemNTimesCS(n, pItem, pCaseSensitive)
-			return This.ContainsDuplicatedNTimesCS(n, pItezm, pCaseSensitive)
+			return This.ContainsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
 
 		def ItemIsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
 			return This.ContainsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
@@ -14452,13 +14452,13 @@ class stzList from stzObject
 	#--------------------------------#
 
 	def FindNonDuplicatedItemsCS(pCaseSensitive)
-		acNonDuplicated = This.NonDuplicatedItemsCS(pCaseSensitive)
-		nLen = len(acNonDuplicated)
+		aNonDuplicated = This.NonDuplicatedItemsCS(pCaseSensitive)
+		nLen = len(aNonDuplicated)
 		anResult = []
 
 		for i = 1 to nLen
 			# By defintion, a non duplicated item apprears once
-			nPos = This.FindFirstCS(acNonDuplicated[i], pCaseSensitive)
+			nPos = This.FindFirstCS(aNonDuplicated[i], pCaseSensitive)
 			anResult + nPos
 		next
 
@@ -14508,8 +14508,15 @@ class stzList from stzObject
 		nResult = len( This.FindDuplicatesCS(pCaseSensitive) )
 		return nResult
 
+		def HowManyDuplicatesCS(pCaseSensitive)
+			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
+		#< @FunctionMisspelledForm
+
 		def HowManuDuplicatesCS(pCaseSensitive)
 			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -14518,6 +14525,13 @@ class stzList from stzObject
 
 		def HowManyDuplicates()
 			return This.NumberOfDuplicates()
+
+		#< @FunctionMisspelledForm
+
+		def HowManuDuplicates()
+			return This.NumberOfDuplicates()
+
+		#>
 
 	  #----------------------#
 	 #  FINDING DUPLICATES  #
@@ -14852,13 +14866,13 @@ class stzList from stzObject
 	#------------------------------------------#
 
 	def DuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-		aDuplicatedSItems = This.DuplicatedItemsCS(pCaseSensitive)
-		nLen = len(aDuplicatedSItems)
+		aDuplicatedItems = This.DuplicatedItemsCS(pCaseSensitive)
+		nLen = len(aDuplicatedItems)
 
 		aResult = []
 		for i = 1 to nLen
-			str = aDuplicatedSItems[i]
-			aResult + [ str, This.FindAllCS(str, pCaseSensitive) ]
+			item = aDuplicatedItems[i]
+			aResult + [ item, This.FindAllCS(str, pCaseSensitive) ]
 		next
 
 		return aResult
@@ -15175,8 +15189,8 @@ class stzList from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveDuplicatesOfString(pItem)
-		This.RemoveDuplicatesOfStringCS(pItem, :CaseSensitive = TRUE)
+	def RemoveDuplicatesOfItem(pItem)
+		This.RemoveDuplicatesOfItemCS(pItem, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -15302,7 +15316,7 @@ class stzList from stzObject
 
 		#>
 
-	def DuplicatedItemssRemoved()
+	def DuplicatedItemsRemoved()
 		acResult = This.Copy().RemoveDuplicatedItemsQ().Content()
 		return acResult
 
