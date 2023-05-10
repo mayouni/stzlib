@@ -1,5 +1,5 @@
 #---------------------------------------------------------------------------#
-# 		    SOFTANZA LIBRARY (V1.0) - STZITEM			    #
+# 		    SOFTANZA LIBRARY (V1.0) - StzItem			    #
 #		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
 #									    #
@@ -14947,7 +14947,7 @@ class stzList from stzObject
 				return new stzList( This.FindDuplicatedItemCS(pItem, pCaseSensitive) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicatedSItemCS(pItem, pCaseSensitive) )
+				return new stzListOfNumbers( This.FindDuplicatedItemCS(pItem, pCaseSensitive) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -14957,7 +14957,7 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindDuplicatedCS(pItem, pCaseSensitive)
-			return This.FindDuplicatedSItemCS(pItem, pCaseSensitive)
+			return This.FindDuplicatedItemCS(pItem, pCaseSensitive)
 
 			def FindDuplicatedCSQ(pItem, pCaseSensitive)
 				return This.FindDuplicatedCSQR(pItem, pCaseSensitive, :stzList)
@@ -15003,7 +15003,7 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindDuplicated(pItem)
-			return This.FindDuplicatedSItem(pItem)
+			return This.FindDuplicatedItem(pItem)
 
 			def FindDuplicatedQ(pItem)
 				return This.FindDuplicatedQR(pItem, :stzList)
@@ -20743,9 +20743,22 @@ class stzList from stzObject
 
 	o1.Section(:@, ']5, 8]') --> [6, 7, 8]
 
+	UPDATE: It's more elegant to pass only one param between barackets:
+
+	o1.Section([5, 8]) --> [5, 6, 7, 8]
+
+	And if we need to not return the left item for example we use
+	a string instead like this:
+
+	o1.Section(']5, 8]') --> [6, 7, 8]
+
 	*/
 
 	def Section(n1, n2)
+
+		if This.NumberOfItems() = 0
+			return []
+		ok
 
 		# Managing the use of :From and :To named params
 
@@ -20858,7 +20871,9 @@ class stzList from stzObject
 
 		# Params must be numbers
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT ( BothAreNumbers(n1, n2) and
+			 QR([n1, n2], :stzPairOfNumbers).BothAreBetween(1, This.NumberOfItems()) )
+
 			StzRaise("Incorrect params! n1 and n2 must be numbers.")
 		ok
 
@@ -20875,7 +20890,10 @@ class stzList from stzObject
 			next i
 	
 		else
-
+? @@S( This.Content() )
+? "n1 : " + n1
+? "n2 : " + n2
+stop()
 			for i = n1 to n2 step - 1
 				aResult + This.Content()[i]
 			next i

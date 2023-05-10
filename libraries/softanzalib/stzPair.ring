@@ -49,3 +49,31 @@ class stzPair from stzList
 
 	def Swapped()
 		return This.Copy().SwapQ().Content()
+
+	def BothAreNumbers()
+		if isNumber(This.Item1()) and isNumber(This.Item2())
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def BothAreStrings()
+		if isString(This.Item1()) and isString(This.Item2())
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def BothAreLists()
+		if isList(This.Item1()) and isList(This.Item2())
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def BothAreObjects()
+		if isObject(This.Item1()) and isObject(This.Item2())
+			return TRUE
+		else
+			return FALSE
+		ok
