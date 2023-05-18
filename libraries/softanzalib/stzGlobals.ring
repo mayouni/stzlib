@@ -964,14 +964,12 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 
 	but isString(pValue)
 
-		cChar = ""
+		cChar = '"'
 
-		if Q('"').
-		   Occurs( :Before = "'", :In = pValue )
-			cChar = '"'
+		if Q(pValue).IsBoundedBy('"')
 
-		else
 			cChar = "'"
+
 		ok
 
 		return cChar + pValue + cChar
@@ -1004,6 +1002,12 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 	#>
 
 func ComputableFormSimplified(pValue)
+	/* EXAMPLE
+
+	? @@S('   str = "  ...  "     and   str !=    "  *** " ')
+	#--> 'str = "  ...  " and str != "  *** "'
+
+	*/
 
 	cResult = ""
 
@@ -1011,30 +1015,60 @@ func ComputableFormSimplified(pValue)
 		cResult = ""+ pValue
 
 	but isString(pValue)
-		# NOTE: strings inside the pValue must be enclosed
-		# between two (")s and not between two (')s.
 
-		oStr = new stzString(pValue)
+		# The rationale of this code is that we don't want to simplify
+		# any substrings bounded by "...  " or "...  .."
+		# So if the main string is:
 
-		cChar = ""
+		# 	'   str = "  ...  "     and   str !=    "  *** " ', then it becomes
+		# 	'str = "  ...  " and str != "  *** "'
 
-		if Q('"').
-		   Occurs( :Before = "'", :In = pValue )
-			cChar = '"'
+		# Note that the spaces between the keywords are simplified, byt the content
+		# the content of the substrings (values assigned to str variable) are left
+		# as they are!
 
-		else
-			cChar = "'"
+		if NOT Q(pValue).ContainsOneOfThese([ '"', "'" ])
+			return '"' + pValue + '"'
 		ok
 
-		if oStr.ContainsNo('"')
-			cResult = cChar + Q(pValue).Simplified() + cChar
+		oStr = Q(pValue).TrimQ()
+
+		if oStr.IsBoundedBy('"')  and
+		   oStr.NumberOfOccurrenceQ("'").IsEven()
+
+			aAntiSections = oStr.AntiFindAsSections( oStr.AnySubStringsBoundedBy("'") )
+			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
+			# Well... Sometimes, we permit a bit of magic!
+			# Todo/Future: Think of a more performant implementation.
+				
+			cResult = oStr.Content()
+	
+
+		but oStr.IsBoundedBy("'") and
+		    oStr.NumberOfOccurrenceQ('"').IsEven()
+
+			aAntiSections = oStr.AntiFindAsSections( oStr.AnySubStringsBoundedBy('"') )
+			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
+				
+			cResult = oStr.Content()
+
+		but oStr.NumberOfOccurrenceQ('"').IsEven()
+
+			aAntiSections = oStr.FindAsAntiSections( oStr.AnySubStringsBoundedBy('"') )
+			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
+				
+			cResult = oStr.Content()
+
+		but oStr.NumberOfOccurrenceQ("'").IsEven()
+
+			aAntiSections = oStr.FindAsAntiSections( oStr.AnySubStringsBoundedBy("'") )
+			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
+				
+			cResult = oStr.Content()
+
 		else
 
-			aAntiSections = oStr.AntiFindAsSections( oStr.AnySubStringsBetween('"','"') )
-
-			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
-			
-			cResult = cChar + oStr.Content() + cChar
+			cResult = @@Q(pValue).Simplified()
 		ok
 
 	but isList(pValue)
@@ -1323,8 +1357,9 @@ func QR(p, pcType)
 		StzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
 	ok
 
-	if StringIsStzClassName(pcType)
+	if Q(pcType).IsStzClassName()
 		cCode = "oResult = new " + pcType + "(" + @@(p) + ")"
+
 		eval(cCode)
 
 		return oResult

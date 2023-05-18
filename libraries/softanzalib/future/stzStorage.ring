@@ -39,7 +39,7 @@ class stzStorage from stzObject
 			// Create the SQLite database
 
 		other
-			stzWarning(:InsupportedStorageType)
+			stzWarning(:UnsupportedStorageType)
 		off
 
 	def Delete()

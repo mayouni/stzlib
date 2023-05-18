@@ -1,5 +1,117 @@
 load "stzlib.ring"
 
+/*----------------- ERR
+
+pron()
+
+o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
+? o1.FindLast(2)
+
+proff()
+
+/*-----------------
+
+pron()
+
+o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
+? o1.FindFirst("*")
+#--> 4
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
+? o1.FindNext("*", :StartingAt = 4)
+#--> 7
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-----------------
+
+pron()
+
+? ring_find( 1:100_000, 67_000 )
+
+proff()
+
+/*-----------------
+
+pron()
+
+? OddOrEven(5)
+#--> :Odd
+
+? OddOrEven(120)
+#--> :Even
+
+proff()
+# Executed in 0.02 second(s)
+
+/*-----------------
+
+pron()
+
+aList = 1: 100_000
+nLen = len(aList)
+
+bResult = TRUE
+for i = 1 to nLen
+	if NOT isNumber(aList[i])
+		bResult = FALSE
+		exit
+	ok
+next
+
+? bResult
+
+proff()
+# Executed in 0.22 second(s)
+
+/*-----------------
+
+*/
+pron()
+
+//o1 = new stzList([ 14, 10, 4, 20 ])
+o1 = new stzList(1: 100_000)
+? o1.IsListOfNumbers()
+
+//? o1.FindFirst(67_000)
+
+proff()
+#--> Executed in 0.26 second(s)
+
+/*-----------------
+*
+pron()
+
+o1 = new stzList([ 14, 10, 14, 20 ])
+? o1.FindFirst(4)
+? o1.FindNext(4, :StartingAt = 2)
+
+//? o1.Find(4)
+
+proff()
+
+/*---------------
+
+pron()
+
+o1 = new stzList([ 12, 88 ])
+? o1.BothAreNumbers()
+#--> TRUE
+
+o1 = new stzList([ 12, 88 ])
+? o1.BothAreStrings()
+#--> TRUE
+
+proff()
+
 /*============
 
 pron()

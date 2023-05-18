@@ -60,7 +60,7 @@ func CacheAddLine(pcCacheName,pcEntry,pcStorageType)
 	on :InMemomry	_cMemCache + cCacheLine
 	on :InDatabase	DatabaseAddLine(_cCacheDatabase, _cCacheTable, cCacheLine)
 	other
-		stzError(:InsupportedCacheStorage)
+		stzError(:UnsupportedCacheStorage)
 	off
 
 func CacheFileHandler(pcCacheName)
@@ -179,7 +179,7 @@ class stzCache from stzObject
 		on :InDatabase
 			//TODO
 		other
-			stzError(:InsupportedCacheStorage)
+			stzError(:UnsupportedCacheStorage)
 		off
 	
 class stzCacheStorage from stzObject

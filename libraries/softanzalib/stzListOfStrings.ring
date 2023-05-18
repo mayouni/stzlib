@@ -1570,7 +1570,7 @@ class stzListOfStrings from stzList
 			n2 = This.NumberOfStrings()
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT Q([n1, n2]).BothAreNumbers()
 			StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
@@ -1813,30 +1813,38 @@ class stzListOfStrings from stzList
 	// Returns an Associative List (HashList) from the main list and an other list
 
 	def AssociateWith(paOtherList)
+		/* EXAMPLE
+
+		o1 = new stzList([ "Name", "Age", "Job" ])
+		o1.AssociateWith([ "Ali", 24, "Programmer" ])
+		? o1.Content()
+
+		#--> [ "Name" = "Ali", "Age" = 24, "Job" = "Programmer" ]
+
+		TEST: What idf the first list contains items that are not strings?
+		This leads to a ListOfLists but not to a HashList!
+
+		*/
+
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
+		nLenOtherList = len(paOtherList)
+		nLen = This.NumberOfItems()
+		aContent = This.Content()
+
 		aResult = []
-		for i = 1 to This.NumberOfItems()
-			OtherItem = NULL
-			if i <= len(paOtherList)
-				OtherItem = paOtherList[i]
+		for i = 1 to nLen
+			otherItem = NULL
+			if i <= nLenOtherList
+				otherItem = paOtherList[i]
 			ok
 
-			aResult + [ This[i], OtherItem ]
+			aResult + [ aContent[i], otherItem ]
 		next
 
 		This.Update( aResult )
-
-		/*
-			Example:
-			o1 = new stzList([ "Name", "Age", "Job" ])
-			o1.AssociateWith([ "Ali", 24, "Programmer" ])
-			? o1.Content()
-
-			Returns:
-			[ "Name" = "Ali", "Age" = 24, "Job" = "Programmer" ]
-
-			TEST: What idf the first list contains items that are not strings?
-			This leads to a ListOfLists but not to a HashList!
-		*/
 
 		def AssociateWithQ(paOtherList)
 			This.AssociateWith(paOtherList)
@@ -1852,9 +1860,11 @@ class stzListOfStrings from stzList
 
 	def CharsSortingOrders()
 		acResult = []
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			acResult + This.StringAtQ(i).CharsSortingOrder()
+		for i = 1 to nLen
+			acResult + Q(aCcontent[i]).CharsSortingOrder()
 		next
 
 		return acResult
@@ -1873,9 +1883,11 @@ class stzListOfStrings from stzList
 
 	def NumberOfStringsWhereCharsAreSortedInAscending()
 		nResult = 0
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			if This.StringAtQ(i).CharsAreSortedInAscending()
+		for i = 1 to nLen
+			if Q(acContent[i]).CharsAreSortedInAscending()
 				nResult ++
 			ok
 		next
@@ -1884,9 +1896,11 @@ class stzListOfStrings from stzList
 
 	def NumberOfStringsWhereCharsAreSortedInDescending()
 		nResult = 0
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			if This.StringAtQ(i).CharsAreSortedInDescending()
+		for i = 1 to nLen
+			if Q(acContent[i]).CharsAreSortedInDescending()
 				nResult ++
 			ok
 		next
@@ -1905,9 +1919,11 @@ class stzListOfStrings from stzList
 
 	def SortCharsOfEachStringInAscending()
 		aResult = []
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			aResult + This.StringAtQ(i).StringWithCharsSortedInAscending()
+		for i = 1 to nLen
+			aResult + Q(acContent[i]).StringWithCharsSortedInAscending()
 		next
 
 		This.Update( aResult )
@@ -1925,18 +1941,22 @@ class stzListOfStrings from stzList
 
 	def CharsOfEachStringSortedInAscending()
 		aResult = []
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			aResult + This.StringAtQ(i).StringWithCharsSortedInAscending()
+		for i = 1 to nLen
+			aResult + Q(acContent[i]).StringWithCharsSortedInAscending()
 		next
 
 		return aResult
 
 	def SortCharsOfEachStringInDescending()
 		aResult = []
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			aResult + This.StringAtQ(i).StringWithCharsSortedInDescending()
+		for i = 1 to nLen
+			aResult + Q(acContent[i]).StringWithCharsSortedInDescending()
 		next
 
 		This.Update( aResult )
@@ -1954,9 +1974,11 @@ class stzListOfStrings from stzList
 
 	def CharsOfEachStringSortedInDescending()
 		aResult = []
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			aResult + This.StringatQ(i).StringWithCharsSortedInDescending()
+		for i = 1 to nLen
+			aResult + Q(acContent[i]).StringWithCharsSortedInDescending()
 		next
 
 		return aResult
@@ -1967,9 +1989,11 @@ class stzListOfStrings from stzList
 
 	def WordsSortingOrders()
 		acResult = []
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			acResult + This.StringAtQ(i).WordsSortingOrder()
+		for i = 1 to nLen
+			acResult + Q(This.StringAtQ(i)).WordsSortingOrder()
 		next
 
 		return acResult
@@ -1988,9 +2012,11 @@ class stzListOfStrings from stzList
 
 	def NumberOfStringsWhereWordsAreSortedInAscending()
 		nResult = 0
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			if This.StringAtQ(i).WordsAreSortedInAscending()
+		for i = 1 to nLen
+			if Q(acContent[i]).WordsAreSortedInAscending()
 				nResult ++
 			ok
 		next
@@ -1999,9 +2025,11 @@ class stzListOfStrings from stzList
 
 	def NumberOfStringsWhereWordsAreSortedInDescending()
 		nResult = 0
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			if This.StringAtQ(i).WordsAreSortedInDescending()
+		for i = 1 to nLen
+			if Q(acContent[i]).WordsAreSortedInDescending()
 				nResult ++
 			ok
 		next
@@ -2020,9 +2048,11 @@ class stzListOfStrings from stzList
 
 	def SortWordsOfEachStringInAscending()
 		aResult = []
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			aResult + This.StringAtQ(i).StringWithWordsSortedInAscending()
+		for i = 1 to nLen
+			aResult + Q(acContent[i]).StringWithWordsSortedInAscending()
 		next
 
 		This.Update( aResult )
@@ -2033,18 +2063,22 @@ class stzListOfStrings from stzList
 
 	def WordsOfEachStringSortedInAscending()
 		aResult = []
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			aResult + This.StringAtQ(i).StringWithWordsSortedInAscending()
+		for i = 1 to nLen
+			aResult + Q(acContent[i]).StringWithWordsSortedInAscending()
 		next
 
 		return aResult
 
 	def SortWordsOfEachStringInDescending()
 		aResult = []
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			aResult + This.StringAtQ(i).StringWithWordsSortedInDescending()
+		for i = 1 to nLen
+			aResult + Q(acContent[i]).StringWithWordsSortedInDescending()
 		next
 
 		This.Update( aResult )
@@ -2055,9 +2089,11 @@ class stzListOfStrings from stzList
 
 	def WordsOfEachStringSortedInDescending()
 		aResult = []
+		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
-		for i = 1 to This.NumberOfStrings()
-			aResult + This.StringAtQ(i).StringWithWordsSortedInDescending()
+		for i = 1 to nLen
+			aResult + Q(acContent[i]).StringWithWordsSortedInDescending()
 		next
 
 	  #==============================================================#
@@ -10565,14 +10601,14 @@ class stzListOfStrings from stzList
 		if isString(n2)
 
 			if Q(n2).IsOnOfTheseCS([
-				:Last, :LastPosition, :LastString, :LastStringItem ]
-				, :CS = FALSE)
+				:Last, :LastPosition, :LastString, :LastStringItem ],
+				:CS = FALSE)
 
 				n2 = This.NumberOfStrings()
 			ok
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT Q([n1, n2]).BothAreNumbers()
 			StzRaise("Incorrect params! n1 and n2 must be numbers.")
 		ok
 
@@ -10620,7 +10656,7 @@ class stzListOfStrings from stzList
 			ok
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT Q([n1, n2]).BothAreNumbers()
 			StzRaise("Incorrect params! n1 and n2 must be numbers.")
 		ok
 
@@ -10669,7 +10705,7 @@ class stzListOfStrings from stzList
 			ok
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT Q([n1, n2]).BothAreNumbers()
 			StzRaise("Incorrect params! n1 and n2 must be numbers.")
 		ok
 
@@ -15695,12 +15731,6 @@ class stzListOfStrings from stzList
 		def ContainsDuplicatedStringItemCS(pcString, pCaseSensitive)
 			return This.ContainsDuplicatedCS(pcString, pCaseSensitive)
 
-		def ContainsThisDuplicatedStringCS(pcString, pCaseSensitive)
-			return This.ContainsDuplicatedCS(pcString, pCaseSensitive)
-
-		def ContainsThisDuplicatedStringItemCS(pcString, pCaseSensitive)
-			return This.ContainsDuplicatedCS(pcString, pCaseSensitive)
-
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicated(pcString)
@@ -15711,12 +15741,6 @@ class stzListOfStrings from stzList
 
 		def ContainsDuplicatedStringItem(pcString)
 			return This.ContainsDuplicatedCS(pcString)
-
-		def ContainsThisDuplicatedString(pcString)
-			return This.ContainsDuplicated(pcString)
-
-		def ContainsThisDuplicatedStringItem(pcString)
-			return This.ContainsDuplicated(pcString)
 
 	  #------------------------------------------------------#
 	 #   CHECHKING IF A STRING-ITEM IS DUPLICATED N-TIMES   #
@@ -15729,12 +15753,6 @@ class stzListOfStrings from stzList
 			return FALSE
 		ok
 
-		def ContainsThisDuplicatedStringNTimesCS(n, pcString, pCaseSensitive)
-			return This.ContainsDuplicatedNTimesCS(n, pcString, pCaseSensitive)
-
-		def ContainsThisDuplicatedStringItemNTimesCS(n, pcString, pCaseSensitive)
-			return This.ContainsDuplicatedNTimesCS(n, pcString, pCaseSensitive)
-
 		def StringIsDuplicatedNTimesCS(n, pcString, pCaseSensitive)
 			return This.ContainsDuplicatedNTimesCS(n, pcString, pCaseSensitive)
 
@@ -15745,12 +15763,6 @@ class stzListOfStrings from stzList
 
 	def ContainsDuplicatedNTimes(n, pcString)
 		return This.ContainsDuplicatedNTimesCS(n, pcString, :CaseSensitive = TRUE)
-
-		def ContainsThisDuplicatedStringNTimes(n, pcString)
-			return This.ContainsDuplicatedNTimes(n, pcString)
-
-		def ContainsThisDuplicatedStringItemNTimes(n, pcString)
-			return This.ContainsDuplicatedNTimes(n, pcString)
 
 		def StringIsDuplicatedNTimes(n, pcString)
 			return This.ContainsDuplicatedNTimes(n, pcString)
@@ -18441,9 +18453,11 @@ class stzListOfStrings from stzList
 	#------------------------------------#
 
 	def TrimStrings()
-		for i = 1 to This.NumberOfStrings()
-			str = This[i]
-			this.ReplaceNthString(i, Q(str).Trimmed())
+		acContent = This.Content()
+		nLen = This.NumberOfStrings()
+		
+		for i = 1 to nLen
+			this.ReplaceNthString(i, Q(acContent[i]).Trimmed())
 		next
 
 		def TrimStringsQ()
@@ -18478,8 +18492,11 @@ class stzListOfStrings from stzList
 
 	def InfereTypes()
 		aResult = []
-		for str in This.ListOfStrings()
-			aResult + Q(str).InfereType()
+		acContent = This.Content()
+		nLen = This.NumberOfStrings()
+
+		for i = 1 to nLen
+			aResult + Q(acContent[i]).InfereType()
 		next
 	
 		return aResult
@@ -18506,13 +18523,18 @@ class stzListOfStrings from stzList
 					pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved("{","}")
 					anResult = []
 	
-					@i = 0
-					for @string in This.ListOfStrings()
-						@i++
-						cCode = 'if ( ' + pcCondition + ' )' + NL +
-							'	anResult + @i' + NL +
-							'ok'
+					nLen = This.NumberOfStrings()
+
+					for @i = 1 to nLen
+
+						@string = acContent[@i]
+
+						cCode = 'bOk = ( ' + pcCondition + ' )'
 						eval(cCode)
+						if bOk
+							anResult + @i
+						ok
+
 					next
 	
 					return anResult
@@ -18567,9 +18589,10 @@ class stzListOfStrings from stzList
 
 	def RempoveSpacesFromEachString()
 		nLen = This.NumberOfStrings()
-		for i = 1 to nLen
+		acContent = This.Content()
 
-			This.ReplaceNthString(i, :With = This.StringQ(i).WithoutSpaces())
+		for i = 1 to nLen
+			This.ReplaceNthString(i, :With = Q(acContent[i]).WithoutSpaces())
 		next
 
 		def RemoveSpacesFromEachStringQ()
@@ -18617,7 +18640,7 @@ class stzListOfStrings from stzList
 	 #  GETTING THE LIST OF SUBSTRONGS IN THE LIST  #
 	#==============================================#
 
-	// A substrong is any string containg other strings from the list
+	// A substrOng is any string containg other strings from the list
 	
 	def SubStrongsCS(pCaseSensitive)
 		/* EXAMPLE
@@ -18627,12 +18650,13 @@ class stzListOfStrings from stzList
 		
 		? o1.SubStrongs()
 		#--> [ "Ring" ]
-
+		# In fact, "Ring" contains "in", and "in" is an item among the list
 
 		*/
 
 		acResult = []
 		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
 		for i = 1 to nLen
 			for j = 1 to nLen
@@ -18640,10 +18664,9 @@ class stzListOfStrings from stzList
 					loop
 				ok
 
-				if This.StringQ(i).ContainsCS(This.String(j), pCaseSensitive)
-					acResult + This.String(i)
+				if Q(acContent[i]).ContainsCS(Q(acContent[j]), pCaseSensitive)
+					acResult + acContent[i]
 				ok
-
 			next
 
 		next
@@ -18669,11 +18692,12 @@ class stzListOfStrings from stzList
 		
 		? o1.SubStreaks()
 		#--> [ "in" ]
-
+		# In fact "in" is contained in "Ring" and "Ring" is an item from the list
 		*/
 
 		acResult = []
 		nLen = This.NumberOfStrings()
+		acContent = This.Content()
 
 		for i = 1 to nLen
 			for j = 1 to nLen
@@ -18681,8 +18705,8 @@ class stzListOfStrings from stzList
 					loop
 				ok
 
-				if This.StringQ(i).IsContainedInCS(This.String(j), pCaseSensitive)
-					acResult + This.String(i)
+				if Q(acContent[i]).IsContainedInCS(Q(acContent[j]), pCaseSensitive)
+					acResult + acContent[i]
 				ok
 
 			next

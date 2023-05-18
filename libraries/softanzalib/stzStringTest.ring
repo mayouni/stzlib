@@ -2214,8 +2214,8 @@ o1 = new stzString("   r  in  g  is a rin  g  ")
 proff()
 #--> Executed in 0.07 second(s)
 
-/*--------------
-
+/*-------------- SUBSTRONGS & SUBSTREAKS
+*/
 pron()
 
 o1 = new stzListOfStrings([
@@ -2224,11 +2224,14 @@ o1 = new stzListOfStrings([
 
 ? o1.SubStrongs() # the strings containing other strings from the list
 #--> [ "Ring" ]
+# In fact, "Ring" contains "in" and "in" is an item from the list
 
 ? o1.SubStreaks() # the strings that are contained in other strings from the list
 #--> [ "in" ]
+# In fact, "in" is contained in the item "Ring"
 
 proff()
+# Executed in 0.08 second(s)
 
 /*--------------
 

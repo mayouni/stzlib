@@ -472,6 +472,17 @@ func Decuple(n)
 func Abs(n)
 	return fabs(n)
 
+func OddOrEven(n)
+	if NOT isNumber(n)
+		StzRaise("Incorrect param type! n must be a number.")
+	ok
+
+	if n % 2 = 0
+		return :Even
+	else
+		return :Odd
+	ok
+
 #---- ROUNDS
 
 func MaxRingRound()
@@ -1126,12 +1137,6 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
-	// Changing the name of the current EvenOrOdd() Ring function
-	// To be consistent with the logical order "Odd" (1) and then "Even" (2)
-	def OddOrEven() # => Odd = 1 and Even = 2
-		return EvenOrOdd(This.NumericValue())
-		# !!! IF THIS WILL BE CORRECTED IN RING THEN CHANGE IT HERE !!!
-
 	def IsOdd()
 		if This.OddOrEven() = 1
 			return TRUE
@@ -1157,7 +1162,7 @@ class stzNumber from stzObject
 		#>
 
 	def IsEven()
-		if This.OddOrEven() = 2
+		if OddOrEven(This.NumericValue()) = 2
 			return TRUE
 		else
 			return FALSE
@@ -1179,6 +1184,31 @@ class stzNumber from stzObject
 			return NOT This.IsEven()
 
 		#>
+
+	def IsOddOrEven()
+		If This.IsOdd()
+			return :Odd
+		else
+			return :Even
+		ok
+
+		def IsEvenOrOdd()
+			return This.IsOddOrEven()
+
+		# Two alternatives (in arabic) made
+		# because I always get confused in
+		# distniguishing Odd fro Even!
+		#--> PX, or Programmer Experience
+
+		def IsZawjiOrFardi()
+			If This.IsZawji()
+				return :Zawji
+			else
+				return :Fardi
+			ok
+
+		def IsFardiOrZawji()
+			return This.IsZawjiOrFardi()
 
 	def IsPrimeNumber() # We can't use isPrime() because this function is coined by Ring
 		// A prime number must be an integer Greater than 1!

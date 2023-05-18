@@ -1,5 +1,27 @@
 load "stzlib.ring"
 
+/*----------
+
+pron()
+
+? Q([ [], [] ]).AllItemsAreEmptyLists()
+#--> TRUE
+
+? @@( Association([ [], [] ]) )
+#--> Error: Can't associate empty lists!
+
+proff()
+
+/*----------
+
+pron()
+
+? Q(:stzPairOfNumbers).IsStzClassName()
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s)
+
 /*=========== TODO:ERROR
 
 pron()
@@ -101,15 +123,16 @@ proff()
 # Executed in 0.49 second(s)
 
 /*--------------
-*/
+
 pron()
 
 ? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :Between = [ "^^", "^^" ] )
 
-//? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :BetweenSubStrings = [ "^^", :And = "^^" ] )
+? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :BetweenSubStrings = [ "^^", :And = "^^" ] )
 #--> TRUE
 
 proff()
+#--> Executed in 0.48 second(s)
 
 /*--------------
 
@@ -482,7 +505,7 @@ StopProfiler()
 	
 	Q("__♥__♥__♥__") {
 	
-		AddXT([ "/","\" ], :AroundEach = "♥") # ... or just :Around = "♥" if you want
+		AddXT([ "/", "\" ], :AroundEach = "♥") # ... or just :Around = "♥" if you want
 		? Content()
 		#--> __/♥\__/♥\__/♥\__
 	}

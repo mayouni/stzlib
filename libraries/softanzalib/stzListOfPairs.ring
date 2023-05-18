@@ -1,4 +1,6 @@
 
+# TODO/FUTURE: Support CaseSensitivity
+
 func StzListOfPairsQ(paLists)
 	return new stzListOfPairs(paLists)
 
@@ -69,11 +71,11 @@ class stzListOfPairs from stzList
 	def Content()
 		return @aContent
 
-	def ListOfPairs()
-		return This.Content()
-
 	def Copy()
 		return new stzListOfPairs( This.Content() )
+
+	def ListOfPairs()
+		return This.Content()
 
 	def UpdateWith(paListOfPairs)
 		if isList(paListOfPairs) and Q(paListOfPairs).IsListOfPairs()
@@ -86,17 +88,64 @@ class stzListOfPairs from stzList
 	def ToStzList()
 		return new stzList( This.Pair() )
 
+	  #-------------------------------#
+	 #  GETTING THE NUMBER OF PAIRS  #
+	#-------------------------------#
+
 	def NumberOfPairs()
 		return len(@aContent)
+
+	  #------------------------#
+	 #  GETTING THE NTH PAIR  #
+	#------------------------#
 
 	def PairAt(n)
 		return Content()[n]
 
+		def PairAtQ(n)
+			return This.PairAtQR(n, :stzList)
+
+		def PairAtQR(n, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.PairAt(n) )
+			on :stzPair
+				return new stzPair( This.PairAt(n) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
 		def Pair(n)
 			return This.PairAt(n)
 
+			def PairQ(n)
+				return This.PairAtQ(n)
+
+			def PairQR(n, pcReturnType)
+				return This.PairAtQR(n, pcReturnType)
+
+	  #-------------------------------------------------#
+	 #  FINDING POSITIONS OF A GIVEN PAIR IN THE LIST  #
+	#-------------------------------------------------#
+
 	def FindPair(aPair)
 		return This.ToStzList().FindItem(paPair)
+
+	  #------------------------------------------------------------------#
+	 #  FINDING POSITIONS OF A VALUE IN THE LIST OF FIRST/SECOND ITEMS  #
+	#------------------------------------------------------------------#
+
+	def FindInFirstItems(pValue)
+		anResult = This.FirstItemsQ().Find(pValue)
+		return anResult
+
+	def FindInSecondItems(pValue)
+		anResult = This.SecondItemsQ().Find(pValue)
+		return anResult
+
+	  #---------------------------------------------#
+	 #  CHECKING IF PAIRS ARE MADE OF EQUAL ITEMS  #
+	#---------------------------------------------#
 
 	def PairsAreMadeOfEqualItems()
 		bResult = TRUE
@@ -121,6 +170,36 @@ class stzListOfPairs from stzList
 
 		return aResult
 
+		#< @FunctionFluentForm
+
+		def FirstItemsQ()
+			return This.FirstItemsQR(:stzList)
+
+		def FirstItemsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FirstItems() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FirstItems() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.FirstItems() )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.FirstItems() )
+
+			on :stzListOfPairs
+				return new stzListOfNumbers( This.FirstItems() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def FirstItemsOfEachPair()
 			return This.FirstItems()
 
@@ -136,6 +215,8 @@ class stzListOfPairs from stzList
 		def FirstValuesInEachPair()
 			return This.FirstItems()
 
+		#>
+
 	  #-----------------------------#
 	 #  SECOND ITEMS OF EACH PAIR  #
 	#-----------------------------#
@@ -149,6 +230,36 @@ class stzListOfPairs from stzList
 		next
 
 		return aResult
+
+		#< @FunctionFluentForm
+
+		def SecondItemsQ()
+			return This.SecondItemsQR(:stzList)
+
+		def SecondItemsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SecondItems() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.SecondItems() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SecondItems() )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.SecondItems() )
+
+			on :stzListOfPairs
+				return new stzListOfNumbers( This.SecondItems() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def SecondItemsOfEachPair()
 			return This.SecondItems()
@@ -164,6 +275,8 @@ class stzListOfPairs from stzList
 
 		def SecondValuesInEachPair()
 			return This.SecondItems()
+
+		#>
 
 	  #--------------------#
 	 #  REPLACING A PAIR  #
@@ -188,24 +301,16 @@ class stzListOfPairs from stzList
 
 	def SortInAscending()
 
-		/*
-		o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
-		o1.SortInAscending()
-		? o1.Content()
-		#--> [ [1,3], [4, 7], [8, 9] ]
-
-		*/
-
 		aResult = []
 
-		# Sort each pair in ascending
-		#--> [ [4, 7], [1, 3], [8, 9] ]		: Note that [3,1] became [1, 3]
-
+		aContent = This.Content()
 		nLen = This.NumberOfPairs()
 
+		# Sort each pair in asscending
+		#--> [ [4, 7], [1, 3], [8, 9] ]	: Note the [3, 1] became [1, 3]
+		
 		for i = 1 to nLen
-			aPairSorted = Q( This.Pair(i) ).SortedInAscending()
-			This.ReplacePair(i, aPairSorted)
+			aContent[i] = Q(aContent[i]).SortedInAscending()
 		next
 
 		# Take the list of the first items of each pair
@@ -213,22 +318,23 @@ class stzListOfPairs from stzList
 
 		aFirstItems = This.FirstItems()
 
-		# Sort it in ascending
+		# Sort them in asscending
 		#--> [ 1, 4, 8 ]
 
 		aFirstItemsSorted = Q(aFirstItems).SortedInAscending()
+		nLenSorted = len(aFirstItemsSorted)
 
 		# Rearrange the pairs accrodingly
-		#--> [ [1, 3], [4, 7], [8, 9] ]
+		#--> [  [1, 3], [4, 7], [8, 9] ]
 
-		nLen = len(aFirstItemsSorted)
-		for n = 1 to nLen
-			i = Q(aFirstItems).FindFirst(aFirstItemsSorted[n])
-			aResult + This[i]
+		for i = 1 to nLenSorted
+			n = Q(aFirstItems).FindFirst(aFirstItemsSorted[i])
+			aResult + aContent[n]
 		next
 
 		# Update the list of pairs
 		This.UpdateWith(aResult)
+
 
 		def Sort()
 			This.SortInAscending()
@@ -260,7 +366,8 @@ class stzListOfPairs from stzList
 	#-------------------------------#
 
 	def SortInDescending()
-		/*
+		/* EXAMPLE
+
 		o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 		o1.SortInDescending()
 		? o1.Content()
@@ -268,35 +375,35 @@ class stzListOfPairs from stzList
 
 		*/
 
-		if NOT This.IsSortable()
-			StzRaise("Can't sort the list of pairs! Because pairs are not made of distinct items.")
-		ok
-
 		aResult = []
 
-		# Sort each pair in descending
-		#--> [ [7, 4], [3, 1], [9, 8] ]
+		aContent = This.Content()
+		nLen = This.NumberOfPairs()
 
-		for aPair in This.ListOfPairs()
-			aPair = Q(aPair).SortedInDescending()
+		# Sort each pair in asscending
+		#--> [ [4, 7], [1, 3], [8, 9] ]	: Note the [3, 1] became [1, 3]
+		
+		for i = 1 to nLen
+			aContent[i] = Q(aContent[i]).SortedInAscending()
 		next
 
 		# Take the list of the first items of each pair
-		#--> [ 7, 3, 9 ]
+		#--> [ 4, 1, 8 ]
 
 		aFirstItems = This.FirstItems()
 
-		# Sort it in descending
-		#--> [ 9, 7, 3 ]
+		# Sort them in descending
+		#--> [ 8, 4, 1 ]
 
 		aFirstItemsSorted = Q(aFirstItems).SortedInDescending()
+		nLenSorted = len(aFirstItemsSorted)
 
 		# Rearrange the pairs accrodingly
-		#--> [  [9, 8], [7, 4], [3, 1] ]
+		#--> [  [8, 9], [4, 7], [1, 3] ]
 
-		for n in aFirstItemsSorted
-			i = Q(aFirstItems).FindFirst(n)
-			aResult + This[i]
+		for i = 1 to nLenSorted
+			n = Q(aFirstItems).FindFirst(aFirstItemsSorted[i])
+			aResult + aContent[n]
 		next
 
 		# Update the list of pairs

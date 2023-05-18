@@ -1897,7 +1897,7 @@ Class stzTable
 				return new stzHashList( This.CellsToHashList() )
 
 			other
-				StzRaise("Insupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -7039,7 +7039,7 @@ Class stzTable
 			ok
 		ok
 
-		if NOT BothAreNumbers(pnFrom, pnTo)
+		if NOT Q([pnFrom, pnTo]).BothAreNumbers()
 			StzRaise("Incorrect param types! Both pnFrom and pnTo must be numbers.")
 		ok
 

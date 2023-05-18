@@ -978,6 +978,10 @@ class stzListOfLists from stzList
 			StzRaise("Can't proceed! The list must contain at least 2 lists.")
 		ok
 
+		if This.AllItemsAreEmptyLists()
+			StzRaise("Can't associate empty lists!")
+		ok
+
 		This.Extend()
 
 		nLen = This.NumberOfLists()
@@ -1327,9 +1331,10 @@ class stzListOfLists from stzList
 
 		aResult = []
 		nLenLists = This.NumberOfLists()
+		aContent = This.Content()
 
 		for i = 1 to nLenLists
-			aList = This[i]
+			aList = aContent[i]
 			nLenList = len(aList)
 
 			for v = 1 to nLenList
