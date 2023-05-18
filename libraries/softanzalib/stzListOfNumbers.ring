@@ -2019,12 +2019,13 @@ class stzListOfNumbers from stzList
 		ok
 
 		bResult = TRUE
+		aContent = This.Content()
 
 		if This.ToStzList().SortingOrder() = :Ascending
 
 			for i = 2 to This.NumberOfNumbers()
 	
-				if NOT ( This[i] = This[i-1] + 1 )
+				if NOT ( aContent[i] = aContent[i-1] + 1 )
 					bResult = FALSE
 					exit
 				ok
@@ -2034,7 +2035,7 @@ class stzListOfNumbers from stzList
 
 			for i = 2 to This.NumberOfNumbers()
 
-				if NOT ( This[i] = This[i-1] - 1 )
+				if NOT ( aContent[i] = aContent[i-1] - 1 )
 					bResult = FALSE
 					exit
 				ok

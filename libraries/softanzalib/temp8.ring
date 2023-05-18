@@ -1,16 +1,232 @@
 load "stzlib.ring"
 
+/*----------
+
+pron()
+
+? @@("n")	#--> "n"
+? @@('n')	#--> "n"
+? @@("'n'")	#--> "'n'"
+? @@('"n"')	#--> '"n"'
+
+proff()
+#--> Executed in 0.02 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzList([ "a", "ab", "abnA", "abAb" ])
+
+? o1.Contains("n")
+#--> FALSE
+
+? o1.FindFirst("n")
+#--> FALSE
+
+proff()
+# Executed in 0.02 second(s)
+
+/*----------
+
+pron()
+o1 = new stzList([ "a", "ab", 1:3, "abA", "abAb", 1:3 ])
+
+? o1.ContainsCS("ab", TRUE)
+#--> TRUE
+
+? o1.FindFirstCS("AB", FALSE)
+#--> 2
+
+? o1.FindLastCS("ABA", FALSE)
+#--> 4
+
+? o1.FindFirst(1:3)
+#--> 3
+
+? o1.FindLast(1:3)
+#--> 6
+
+proff()
+# Executed in 0.09 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzString("abAb")
+
+? o1.NumberOfSubStrings()
+#--> 10
+# Executed in 0.02 second(s)
+
+? @@S( o1.SubStrings() )
+#--> [ "a", "ab", "abA", "abAb", "b", "bA", "bAb", "A", "Ab", "b" ]
+# Executed in 0.04 second(s)
+
+? o1.NumberOfSubStringsCS(FALSE)
+#--> 7
+# Executed in 0.12 second(s)
+
+? @@S( o1.SubStringsCS(FALSE) )
+#--> [ "a", "ab", "abA", "abAb", "b", "bA", "bAb" ]
+# Executed in 0.12 second(s)
+
+proff()
+#--> Executed in 0.27 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzString("hello")
+? o1.NumberOfSubStrings()
+#--> 15
+
+? @@S( o1.SubStrings() )
+#--> [
+#	"h", "he", "hel", "hell", "hello",
+#	"e", "el", "ell", "ello",
+#	"l", "ll", "llo", "l", "lo",
+#	"o"
+# ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzString("hello")
+? o1.NumberOfSubStringsCS(FALSE)
+#--> 14
+
+? @@S( o1.SubStringsCS(FALSE) )
+#--> [
+#	"h", "he", "hel", "hell", "hello",
+#	"e", "el", "ell", "ello",
+#	"l", "ll", "llo", "lo",
+#	"o"
+# ]
+
+proff()
+# Executed in 0.54 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzString("*4*34")
+? o1.NumberOfSubStrings()
+#--> 15
+
+? @@S( o1.SubStrings() )
+#--> [
+#	"*", "*4", "*4*", "*4*3", "*4*34",
+#	"4", "4*", "4*3", "4*34", "*",
+#	"*3", "*34", "3", "34", "4"
+# ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*=============
+
+pron()
+
+o1 = new stzList([ "*", "4", "*", "3", "4" ])
+//o1 = new stzString("*4*34")
+
+? o1.NumberOfDuplicates()
+#--> 2
+
+? o1.Duplicates()
+#--> [ "*", "4" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+#
+/*----------
+
+pron()
+
+o1 = new stzList([
+	"*", "*4", "*4*", "*4*3", "*4*34",
+	"4", "4*", "4*3", "4*34", "*", "*3",
+	"*34", "3", "34", "4"
+])
+
+? o1.NumberOfDuplicates()
+#--> 2
+
+? o1.FindDuplicates()
+#--> [10, 15]
+
+? o1.Duplicates()
+#--> ["*", 4]
+
+? o1.DuplicatesZ()
+#--> [ "*" = 10, "4" = 15 ]
+
+proff()
+# Executed in 0.25 second(s)
+
+/*-----------
+
+pron()
+
+o1 = new stzString("*4*34")
+
+? o1.NumberOfDuplicates()
+#--> 2
+
+? o1.Duplicates()
+#--> [ "*", "4" ]
+
+proff()
+# Executed in 0.28 second(s)
+
+/*----------
 
 pron()
 ? "Please wait..."
-o1 = new stzString("ring php ringoria ruby ringza")
+o1 = new stzString("ring php ringoria")
+? o1.NumberOfDuplicates()
+#--> 12
+
 ? o1.Duplicates()
+#--> [
+#	"p", " ", "r", "ri", "rin",
+#	"ring", "i", "in", "ing",
+#	"n", "ng", "g", "r", "ri","i"
+# ]
 
 proff()
+# Executed in 3.33 second(s)
 
+/*----------
+*/
+pron()
+
+o1 = new stzString("RINGORIALAND")
+? o1.ContainsDuplicates()
+#--> TRUE
+
+? o1.NumberOfDuplicates()
+#--> 5
+
+? @@S( o1.Duplicates() )
+#--> [ "R", "RI", "I", "A", "N" ]
+
+? @@S( o1.DuplicatesZ() )
+
+proff()
+# Executed in 1.66 second(s)
 
 /*----------------------------------------------------------
-
+TODO: SUBSTRING
 	  #==============================================================#
 	 #   SUBSTRING(S) ENCLOSED BETWEEN TWO SUBSTRINGS OR POSITIONS  # 
 	#==============================================================#
@@ -72,7 +288,7 @@ proff()
 					return new stzListOfStrings(Between)
 
 				other
-					StzRaise("Insupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 			ok
@@ -424,7 +640,7 @@ proff()
 				on :stzListOfStrings
 					return new stzListOfStrings(Between)
 				other
-					StzRaise("Insupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 			ok
 
@@ -847,7 +1063,7 @@ proff()
 				on :stzListOfStrings
 					return new stzListOfStrings(Between)
 				other
-					StzRaise("Insupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 			ok
 
@@ -1018,7 +1234,7 @@ proff()
 				on :stzListOfStrings
 					return new stzListOfStrings(Between)
 				other
-					StzRaise("Insupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 			ok
 

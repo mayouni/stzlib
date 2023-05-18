@@ -84,6 +84,8 @@ load "stzListOfPairs.ring"
 load "stzPairs.ring"
 
 load "stzPair.ring"
+load "stzPairOfNumbers.ring"
+load "stzPairOfLists.ring"
 
 load "stzListOfSets.ring"
 load "stzSets.ring"

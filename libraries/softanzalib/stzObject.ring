@@ -568,8 +568,11 @@ func StzClassesXT()
 		[ :stzListOfHashLists, 		:stzListOfHashLists	],
 		[ :stzSet, 			:stzSets		],
 		[ :stzListOfLists, 		:stzListsOfLists	],
+
 		[ :stzListOfPairs, 		:stzListsOfPairs	],
 		[ :stzPair, 			:stzPairs		],
+		[ :stzPairOfNumbers, 		:stzPairsOfNumbers	],
+		[ :stzPairOfLists,		:stzPairsOfList		],
 		
 		[ :stzListOfSets, 		:stzListsOfSets		],
 		[ :stzPairOfLists, 		:stzPairsOfLists	],

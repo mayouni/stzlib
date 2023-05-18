@@ -1,15 +1,124 @@
 load "stzlib.ring"
 
+pron()
 
+? 
+
+proff()
+
+/*--------------
+
+pron()
+
+o1 = new stzListOfStrings([ "[ 4, 7 ]", "[ 1, 3 ]", "[ 8, 9 ]" ])
+? o1.Sorted()
+
+proff()
+#--> Executed in 0.03 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+o1.SortInAscending()
+? @@S( o1.Content() )
+#--> [ [1,3], [4, 7], [8, 9] ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*------------
+
+pron()
+
+? @@S(  Association([ [4, 14, 9], [6, 16] ]) )
+#--> [ [ 4, 6 ], [ 14, 16 ], [ 9, "" ] ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------------
+*/
+pron()
+
+o1 = new stzString("...emm...eh..emm...eh")
+
+//? o1.Find([ "emm", "eh" ])
+#--> [4, 10, 14, 20 ]
+
+? @@S(o1.FindManyAsSections([ "emm", "eh" ]))
+#--> [ [4, 6], [4, 6], [4, 6], [4, 6] ]
+
+proff()
+
+/*------------
+
+pron()
+
+o1 = new stzString("...|---|....|--|..--")
+? @@( o1.Find("--") )
+
+? @@( o1.FindAsSection("--") )
+/*
+? o1.BoundedBy("|")
+? @@S( o1.FindAsSections([ "---", "--" ]) )
+
+//? @@( o1.FindAsSections( o1.BoundedBy("|") ) )
+*/
+proff()
+
+/*------------
+
+pron()
+
+o1 = new stzString('   str = "  ...  "     and   str !=    "  *** " ')
+
+? @@( o1.BoundedBy('"') )
+#--> [ "  ...  ", "  *** " ]
+# Executed in 0.06 second(s)
+
+? @@( o1.FindAsSections( o1.BoundedBy('"') ) )
+#--> [ [11, 17], ...
+
+proff()
+
+/*------------
+
+pron()
+
+? @@S('   str = "  ...  "     and   str !=    "  *** " ')
+#--> 'str = "  ...  " and str != "  *** "'
+
+proff()
+
+/*-----------
+
+pron()
+
+o1 = new stzString("SOanzNZA")
+//o1.ReplaceSectionW(3, 5, 'Q(@char).IsLowercase()', 'Q(@Char).Uppercased()')
+
+proff()
+
+/*-----------
+
+pron()
+
+o1 = new stzString("SOanzNZA")
+o1.ReplaceSection(3, 5, :With@ = 'Q(@char).Uppercased()')
+? o1.Content()
+#--> SOANZNZA
+
+proff()
+# Executed in 1.09
+
+/*---------------
+*/
 # eval@ is useful internally when writing Conditional Code.
 # Especially when a dynamic named param is used, like in
 # the following example:
 
-o1 = new stzString("SOanzNZA")
-o1.ReplaceSectionW(3, 5, 'Q(@char).IsLowercase()', 'Q(@Char).Uppercased()')
-//o1.ReplaceSection(3, 5, :With@ = 'Q(@char).Uppercased()')
-? o1.Content()
-/*
 StartProfiler()
 
 	? eval@(:With@ = '2 + 3')

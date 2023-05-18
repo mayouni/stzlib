@@ -1314,7 +1314,7 @@ class stzList from stzObject
 			n2 = This.NumberOfItems()
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT Q([n1, n2]).BothAreNumbers()
 			StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
@@ -2776,6 +2776,7 @@ class stzList from stzObject
 		ok
 
 		nLen = len(panPositions)
+		aContent = This.Content()
 
 		if isList(pOtherItem) and
 		   Q(pOtherItem).IsWithOrByNamedParam() and
@@ -2786,7 +2787,7 @@ class stzList from stzObject
 			for i = 1 to nLen
 				@Position = panPositions[i]
 				@i = @Position
-				@item = This[i]
+				@item = aContent[i]
 
 				eval(cCode)
 				This.ReplaceItemAtPosition(@Position, @cNewItem)
@@ -5253,7 +5254,7 @@ class stzList from stzObject
 	#--------------------------------------#
 
 	def ExtractSection(n1, n2)
-		if NOT BothAreNumbers(n1, n2) and
+		if NOT Q([n1, n2]).BothAreNumbers() and
 		   Q(n1).IsBetween(1, This.NumberOfItems()) and
 		   Q(n2).IsBetween(1, This.NumberOfItems())
 
@@ -5688,20 +5689,23 @@ class stzList from stzObject
 		bResult = TRUE
 		aTempKeys = []
 
-		for i = 1 to len(This.List())
+		nLen = This.NumberOfItems()
+		aContent = This.Content()
 
-			if NOT ( isList(This[i]) and len(This[i]) = 2 and
-				 isString(This[i][1]) )
+		for i = 1 to nLen
+
+			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
+				 isString(aContent[i][1]) )
 
 				bResult = FALSE
 				exit
 			else
-				if ring_find(aTempKeys, This[i][1]) > 0
+				if ring_find(aTempKeys, aContent[i][1]) > 0
 					bResult = FALSE
 					exit
 				ok
 
-				aTempKeys + This[i][1]
+				aTempKeys + aContent[i][1]
 			ok
 		next
 
@@ -6263,11 +6267,11 @@ class stzList from stzObject
 
 		bResult = TRUE
 		nLen = This.NumberOfItems()
+		aContent = This.Content()
 
 		for i = 1 to nLen
-			item = This[i]
-
-			if NOT ( isList(item) and len(item) = 2 )
+			
+			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 )
 				bResult = FALSE
 				exit
 			ok
@@ -6375,11 +6379,19 @@ class stzList from stzObject
 	*/
 
 	def ContainsOnlyNumbers()
-		if len(This.OnlyNumbers()) = This.NumberOfItems()
-			return TRUE
-		else
-			return FALSE
-		ok
+		bResult = TRUE
+		nLen = This.NumberOfItems()
+		aContent = This.Content()
+
+		for i = 1 to nLen
+
+			if NOT isNumber(aContent[i])
+				bResult = FALSE
+				exit
+			ok
+
+		next
+		return bResult
 
 		def ItemsAreAllNumbers()
 			return This.ContainsOnlyNumbers()
@@ -6393,12 +6405,22 @@ class stzList from stzObject
 	def ContainsOnlyOddNumbers()
 		
 		bResult = TRUE
-		for item in This.Content()
-			oTempNumber = new stzNumber(item)
-			if NOT oTempNumber.IsOdd()
+		nLen = This.NumberOfItems()
+
+		aContent = This.Content()
+
+		for i = 1 to nLen
+
+			if NOT isNumber(aContent[i])
 				bResult = FALSE
 				exit
 			ok
+
+			if NOT OddOrEven(aContent[i]) = :Odd
+				bResult = FALSE
+				exit
+			ok
+
 		next
 		return bResult
 
@@ -6414,12 +6436,22 @@ class stzList from stzObject
 	def ContainsOnlyEvenNumbers()
 
 		bResult = TRUE
-		for item in This.Content()
-			oTempNumber = new stzNumber(item)
-			if NOT oTempNumber.IsEven()
+		nLen = This.NumberOfItems()
+
+		aContent = This.Content()
+
+		for i = 1 to nLen
+
+			if NOT isNumber(aContent[i])
 				bResult = FALSE
 				exit
 			ok
+
+			if NOT OddOrEven(aContent[i]) = :Even
+				bResult = FALSE
+				exit
+			ok
+
 		next
 		return bResult
 
@@ -6434,18 +6466,19 @@ class stzList from stzObject
 
 	def ContainsOnlyDigits()
 
-		aDigits = 0:9
-		oTempList = new stzList(aDigits)
-
 		bResult = TRUE
-		
-		for item in This.Content()
-			if NOT oTempList.Contains(item)
+		nLen = This.NumberOfItems()
+
+		aContent = This.Content()
+
+		for i = 1 to nLen
+
+			if NOT ( isNumber(aContent[i]) and aContent[i] >= 0 and aContent[i] < 10 )
 				bResult = FALSE
 				exit
 			ok
-		next
 
+		next
 		return bResult
 
 		def ItemsAreAllDigits()
@@ -6460,14 +6493,18 @@ class stzList from stzObject
 	def ContainsOnlyStrings()
 
 		bResult = TRUE
+		nLen = This.NumberOfItems()
 
-		for item in This.List()
-			if NOT isString(item)
+		aContent = This.Content()
+
+		for i = 1 to nLen
+
+			if NOT isString(aContent[i])
 				bResult = FALSE
 				exit
 			ok
-		next
 
+		next
 		return bResult
 
 
@@ -6482,11 +6519,17 @@ class stzList from stzObject
 
 	def ItemsAreAllEqualTo(pValue)
 		bResult = TRUE
-		for item in This.List()
-			if item != pValue
+		nLen = This.NumberOfItems()
+
+		aContent = This.Content()
+
+		for i = 1 to nLen
+			
+			if NOT Q(aContent[i]).IsEqualTo(pValue)
 				bResult = FALSE
 				exit
 			ok
+
 		next
 		return bResult
 
@@ -6498,11 +6541,18 @@ class stzList from stzObject
 
 	def ContainsOnlyNullStrings()
 		bResult = TRUE
-		for item in This.Content()
-			if NOT (isString(item) and item = NULL)
+		nLen = This.NumberOfItems()
+
+		aContent = This.Content()
+
+		for i = 1 to nLen
+			item = This.Item(i)
+
+			if ( NOT isString(aContent[i]) and aContent[i] = "" )
 				bResult = FALSE
 				exit
 			ok
+
 		next
 		return bResult
 
@@ -6538,14 +6588,18 @@ class stzList from stzObject
 
 	def ContainsOnlyLists()
 		bResult = TRUE
+		nLen = This.NumberOfItems()
 
-		for item in This.Content()
-			if NOT isList(item)
+		aContent = This.Content()
+
+		for i = 1 to nLen
+
+			if NOT isList(aContent[i])
 				bResult = FALSE
 				exit
 			ok
-		next
 
+		next
 		return bResult
 
 		def ItemsAreAllLists()
@@ -6559,29 +6613,36 @@ class stzList from stzObject
 
 	def AllItemsArePairs()
 		bResult = TRUE
+		nLen = This.NumberOfItems()
 
-		for item in This.List()
-			if NOT ( isList(item) and Q(item).IsPair() )
+		aContent = This.Content()
+
+		for i = 1 to nLen
+
+			if (NOT isList(aContent[i]) and len(aContent[i]) = 2)
 				bResult = FALSE
 				exit
 			ok
+
 		next
-
 		return bResult
-
-		def IsMadeOfPairs()
-			return This.AllItemsArePairs()
 
 	def AllItemsArePairsOfNumbers()
 		bResult = TRUE
+		nLen = This.NumberOfItems()
 
-		for item in This.List()
-			if NOT ( isList(item) and Q(item).IsPairOfNumbers() )
+		aContent = This.Content()
+
+		for i = 1 to nLen
+
+			if NOT (isList(aContent[i]) and len(aContent[i]) = 2 and
+				isNumber(aContent[i][1]) and isNumber(aContent[i][2]))
+
 				bResult = FALSE
 				exit
 			ok
-		next
 
+		next
 		return bResult
 
 		def IsMadeOfPairsOfNumbers()
@@ -6589,14 +6650,20 @@ class stzList from stzObject
 
 	def AllItemsArePairsOfStrings()
 		bResult = TRUE
+		nLen = This.NumberOfItems()
 
-		for item in This.List()
-			if NOT ( isList(item) and Q(item).IsPairOfStrings() )
+		aContent = This.Content()
+
+		for i = 1 to nLen
+
+			if NOT (isList(aContent[i]) and len(aContent[i]) = 2 and
+				isString(aContent[i][1]) and isString(aContent[i][2]))
+
 				bResult = FALSE
 				exit
 			ok
-		next
 
+		next
 		return bResult
 
 		def IsMadeOfPairsOfStrings()
@@ -6604,14 +6671,20 @@ class stzList from stzObject
 
 	def AllItemsArePairsOfLists()
 		bResult = TRUE
+		nLen = This.NumberOfItems()
 
-		for item in This.List()
-			if NOT ( isList(item) and Q(item).IsPairOfLists() )
+		aContent = This.Content()
+
+		for i = 1 to nLen
+			
+			if NOT (isList(aContent[i]) and len(aContent[i]) = 2 and
+				isList(aContent[i][1]) and isList(aContent[i][2]))
+
 				bResult = FALSE
 				exit
 			ok
-		next
 
+		next
 		return bResult
 
 		def IsMadeOfPairsOfLists()
@@ -6619,14 +6692,21 @@ class stzList from stzObject
 
 	def AllItemsArePairsOfObjects()
 		bResult = TRUE
+		nLen = This.NumberOfItems()
 
-		for item in This.List()
-			if NOT ( isList(item) and Q(item).IsPairOfObjects() )
+		aContent = This.Content()
+
+		for i = 1 to nLen
+			item = This.Item(i)
+
+			if NOT (isList(aContent[i]) and len(aContent[i]) = 2 and
+				isObjects(aContent[i][1]) and isObject(aContent[i][2]))
+
 				bResult = FALSE
 				exit
 			ok
-		next
 
+		next
 		return bResult
 
 		def IsMadeOfPairsOfObjects()
@@ -6634,11 +6714,17 @@ class stzList from stzObject
 
 	def ContainsOnlyEmptyLists()
 		bResult = TRUE
-		for item in This.Content()
-			if NOT (isList(item) and len(item) = 0)
+		nLen = This.NumberOfItems()
+
+		aContent = This.Content()
+
+		for i = 1 to nLen
+			
+			if NOT ( isList(aContent[i]) and len(aContent[i]) = 0 )
 				bResult = FALSE
 				exit
 			ok
+
 		next
 		return bResult
 
@@ -6653,16 +6739,32 @@ class stzList from stzObject
 
 	def ContainsOnlyListsWithSameNumberOfItems()
 		bResult = TRUE
-		if This.ContainsOnlyLists()
-			for i=2 to This.NumberOfItems()
-				if len(This[i-1]) != len(This[i])
-					bResult = FALSE
-					exit
-				ok
-			next
-		else
-			bResult = FALSE
+		nLen = This.NumberOfItems()
+
+		if nLen = 0
+			return FALSE
 		ok
+
+		if NOT isList(This[1])
+			return FALSE
+		ok
+
+		nLen = len(This[1])
+		if nLen = 1
+			return TRUE
+		ok
+
+		aContent = This.Content()
+
+		for i = 2 to nLen
+			item = This.Item(i)
+
+			if NOT ( isList(aContent[i]) and len(aContent[i]) = nLen )
+				bResult = FALSE
+				exit
+			ok
+
+		next
 		return bResult
 
 		def ItemsAreAllListsWithSameNumberOfItems()
@@ -6676,14 +6778,18 @@ class stzList from stzObject
 
 	def ContainsOnlyObjects()
 		bResult = TRUE
+		nLen = This.NumberOfItems()
 
-		for item in This.List()
-			if NOT isObject(item)
+		aContent = This.Content()
+
+		for i = 1 to nLen
+			
+			if NOT isObject(aContent[i])
 				bResult = FALSE
 				exit
 			ok
-		next
 
+		next
 		return bResult
 
 		def ItemsAreAllObjects()
@@ -6698,8 +6804,16 @@ class stzList from stzObject
 	def ContainsOnlyValidRingCodes()
 		bResult = TRUE
 
-		for item in This.List()
-			if NOT( isString(item) and Q(@item).IsValidRingCode() )
+		if NOT This.IsListOfStrings()
+			return FALSE
+		ok
+
+		nLen = This.NumberOfItems()
+		aContent = This.Content()
+
+		for i = 1 to nLen
+
+			if NOT Q(aContent[i]).IsValidRingCode()
 				bResult = FALSE
 				exit
 			ok
@@ -6719,8 +6833,16 @@ class stzList from stzObject
 	def ContainsOnlyStzCalssNames()
 		bResult = TRUE
 
-		for item in This.List()
-			if NOT( isString(item) and Q(@item).IsStzClassName() )
+		if NOT This.IsListOfStrings()
+			return FALSE
+		ok
+
+		nLen = This.NumberOfItems()
+		aContent = This.Content()
+
+		for i = 1 to nLen
+
+			if NOT Q(aContent[i]).IsStzClassName()
 				bResult = FALSE
 				exit
 			ok
@@ -7274,7 +7396,7 @@ class stzList from stzObject
 			n2 = n2[2]
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT Q([ n1, n2 ]).BothAreNumbers()
 			StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
@@ -8126,7 +8248,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if NOT BothAreNumbers(pnForward, pnBackward)
+		if NOT Q([pnForward, pnBackward]).BothAreNumbers()
 			StzRaise("Incorrect param type! Both pnForward and pnBackward must be numbers.")
 		ok
 
@@ -8250,7 +8372,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if NOT BothAreNumbers(pnBackward, pnForward)
+		if NOT Q([pnBackward, pnForward]).BothAreNumbers()
 			StzRaise("Incorrect param type! Both pnForward and pnBackward must be numbers.")
 		ok
 
@@ -8381,7 +8503,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if NOT BothAreNumbers(pnFromStart, pnFromEnd)
+		if NOT Q([pnFromStart, pnFromEnd]).BothAreNumbers()
 			StzRaise("Incorrect param type! Both pnFromStart and pnFromEnd must be numbers.")
 		ok
 
@@ -8507,7 +8629,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if NOT BothAreNumbers(pnFromEnd, pnFromStart)
+		if NOT Q(pnFromEnd, pnFromStart).BothAreNumbers()
 			StzRaise("Incorrect param type! Both pnFromStart and pnFromEnd must be numbers.")
 		ok
 
@@ -11286,10 +11408,19 @@ class stzList from stzObject
 	#--------------------------------------------------------#
 
 	def ItemsHaveSameOrderAs(paOtherList)
+		if NOT isList(paOtherList)
+			StzRaise("Uncorrect param type! paOtherList must be a list.")
+		ok
+
+		aContent = This.Content()
+		nLenList = This.NumberOfItems()
+		nLenOtherList = len(paOtherList)
+		nMin = Min(nLenList, nLenOtherList)
+
 		bResult = TRUE
 
-		for i = 1 to min([ len(This.List()), len(paOtherList) ])
-			if Q(This[i]).IsNotEqualTo(paOtherList[i])
+		for i = 1 to nMin
+			if Q(aContent[i]).IsNotEqualTo(paOtherList[i])
 				bResult = FALSE
 				exit
 			ok
@@ -11323,18 +11454,103 @@ class stzList from stzObject
 		def ItemsAreStringsOrNumbers()
 			return This.AllItemsAreNumbersOrStrings()
 
+	  #-------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS 2 NUMBERS  #
+	#-------------------------------------------#
+
+	def BothAreNumbers()
+		if This.NumberOfItems() = 2 and
+		   isNumber(This[1]) and isNumber(This[2])
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def ContainsTwoNumbers()
+			return This.BothAreNumbers()
+
+		def Contains2Numbers()
+			return This.BothAreNumbers()
+
+	  #-------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS 2 STRINGS  #
+	#-------------------------------------------#
+
+	def BothAreStringss()
+		if This.NumberOfItems() = 2 and
+		   isString(This[1]) and isString(This[2])
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def ContainsTwoStrings()
+			return This.BothAreStrings()
+
+		def Contains2Strings()
+			return This.BothAreStrings()
+
+	  #-----------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS 2 LISTS  #
+	#-----------------------------------------#
+
+	def BothAreLists()
+		if This.NumberOfItems() = 2 and
+		   isList(This[1]) and isList(This[2])
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def ContainsTwoLists()
+			return This.BothAreLists()
+
+		def Contains2Lists()
+			return This.BothAreLists()
+
+	  #-------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS 2 OBJECTS  #
+	#-------------------------------------------#
+
+	def BothAreObjects()
+		if This.NumberOfItems() = 2 and
+		   isObject(This[1]) and isObject(This[2])
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def ContainsTwoObjects()
+			return This.BothAreObjects()
+
+		def Contains2Objects()
+			return This.BothAreObjects()
+
 	  #--------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS THE REVERSE OF AN OTHER LIST  #
 	#--------------------------------------------------------#
 
 	def IsReverseOf(paOtherList)
-		bResult = TRUE
-		if This.NumberOfItems() != len(paOtherList)
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
+		nLen = This.NumberOfItems()
+		nLenOtherList = len(paOtherList)
+
+		if nLen != nOtherList
 			return FALSE
 		ok
 
-		for i = 1 to This.NumberOfItems()
-			if _(This[i]).@.IsDifferentFrom( paOtherList[ len(paOtherList) - i + 1 ] )
+		aContent = This.Content()
+
+		bResult = TRUE
+		for i = 1 to nLen
+			if Q(aContent[i]).IsDifferentFrom( paOtherList[ nLenOtherList - i + 1 ] )
 				bResult = FALSE
 				exit
 			ok
@@ -12353,12 +12569,19 @@ class stzList from stzObject
 	#---------------------------------------------------------#
 
 	def DifferentItemsWithCS(paOtherList, pCaseSensitive)
+		if NOT isList(pOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
 		aResult = This.OverItemsComparedToCS(paOtherList, pCaseSensitive)
+
 		acLackingItems = This.LackingItemsComparedToCS(paOtherList, pCaseSensitive)
 		nLen = len(acLackingItems)
 
+		aContent = This.Content()
+
 		for i = 1 to nLen
-			aResult + This[i]
+			aResult + aContent[i]
 		next
 	
 		return aResult
@@ -12369,9 +12592,16 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DifferentItemsWith(paOtherList)
+		if NOT isList(pOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
 		aResult = This.OverItemsComparedTo(paOtherList)
-		for item in This.LackingItemsComparedTo(paOtherList)
-			aResult + item
+		aLacking = This.LackingItemsComparedTo(paOtherList)
+		nLen = len(aLacking)
+
+		for i = 1 to nLen
+			aResult + aLacking[i]
 		next
 	
 		return aResult
@@ -12384,15 +12614,21 @@ class stzList from stzObject
 	#--------------------------------------------------------------------#
 
 	def OverItemsComparedToCS(paOtherList, pCaseSensitive)
+		if NOT isList(pOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
 		aResult = []
 
 		oOtherList = new stzList(paOtherList)
 		nLen = This.NumberOfItems()
 
+		aContent = This.Content()
+
 		for i = 1 to nLen
-			item = This[i]
-			if NOT oOtherList.ContainsCS(item, pCaseSensitive)
-				aResult + item
+
+			if NOT oOtherList.ContainsCS(aContent[i], pCaseSensitive)
+				aResult + aContent[i]
 			ok
 		next
 
@@ -12658,10 +12894,11 @@ class stzList from stzObject
 		If they are identical, then the list is sorted in ascending order!
 		*/
 
-		oSortedInAscending = This.Copy().SortInAscendingQ()
+		aSortedInAscending = This.Copy().SortedInAscendingQ()
+		aContent = This.Content()
 
 		for i = 1 to This.NumberOfItems()
-			if NOT AreEqual([ oSortedInAscending[i] , This[i] ])
+			if NOT AreEqual([ aSortedInAscending[i] , aContent[i] ])
 				return FALSE
 			ok
 		next
@@ -12699,24 +12936,35 @@ class stzList from stzObject
 		def ItemsAreNotSorted()
 			return NOT This.IsUnsorted()
 
+	  #-------------------------------------------------------------#
+	 #  CHECKING IF THE LIST IS SORTABLE (MADE OF SORTABLE ITEMS)  #
+	#-------------------------------------------------------------#
+ 
+	def IsSortable()
+		if This.SortableItems() = This.NumberOfItems()
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	  #-------------------------------------#
 	 #  SORTABLE ITEMS & UNSORTABLE ITEMS  #
 	#-------------------------------------#
  
 	def SortableItems()
 		/*
-		Only numbers, strings, stzNumbers, and stzStrings are sortable.
+		Number, strings and lists are sortable.
 
-		Means that lists and objects (other then stzNumber and stzString objects)
-		are not sortable!
+		Objects are not sortable except if they are stzNumber, stzString or stzList,
+		or anyone of their derivaties.
 
-		NB: This may change in the future and other types become sortable.
+		NB: This may change in the future and normal ring objects become sortable.
 
 		*/
 		aResult = []
 		for item in Content()
-			if isNumber(item) or isString(item) or
-			   isStzNumber(item) or isStzString(item)
+			if isNumber(item) or isString(item) or isList(item) or
+			   isStzNumber(item) or isStzString(item) or isStzList(item)
 				aResult + item
 			ok
 		next
@@ -12733,8 +12981,8 @@ class stzList from stzObject
 		*/
 		aResult = []
 		for item in Content()
-			if isNumber(item) or isString(item) or
-			   isStzNumber(item) or isStzString(item)
+			if isNumber(item) or isString(item) or isList(item) or
+			   isStzNumber(item) or isStzString(item) or isStzList(item)
 				// do nothing, skip!
 			else
 				aResult + item
@@ -12742,9 +12990,9 @@ class stzList from stzObject
 		next
 		return aResult
 
-	  #------------------------------------#
+	  #----------------------------------#
 	 #  SORTING THE ITEM IN ASSCENDING  #
-	#------------------------------------#
+	#----------------------------------#
  
 	def SortInAscending()
 		/*
@@ -12938,17 +13186,23 @@ class stzList from stzObject
 
 		*/
 
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param tpe!")
+		ok
+
 		aResult = []
-		nLenThisList  = This.NumberOfItems()
+		nLen  = This.NumberOfItems()
 		nLenOtherList = len(paOtherList)
 
-		for i = 1 to nLenThisList
-			OtherItem = NULL
+		aContent = This.Content()
+
+		for i = 1 to nLen
+			otherItem = NULL
 			if i <= nLenOtherList
-				OtherItem = paOtherList[i]
+				otherItem = paOtherList[i]
 			ok
 
-			aResult + [ This[i], OtherItem ]
+			aResult + [ aContent[i], otherItem ]
 		next
 
 		This.Update( aResult )
@@ -13001,11 +13255,14 @@ class stzList from stzObject
 			--> []
 		*/
 
+		aContent = This.Content()
+		nLen = This.NumberOfItems()
+
 		if NOT This.IsEmpty()
 			cResult = ""
 	
 			i = 1
-			while This[i] = This[1] and i <= This.NumberOfItems()
+			while aContent[i] = aContent[1] and i <= nLen
 				i++
 			end
 
@@ -14015,16 +14272,17 @@ class stzList from stzObject
 
 		aMerged = []
 		nLen = This.NumberOfItems()
+		aContent = This.Content()
 
 		for i = 1 to nLen
-			item = This[i]
-			if NOT isList(item)
-				aMerged + item
+
+			if NOT isList(aContent[i])
+				aMerged + aContent[i]
 
 			else
-				nLen2 = len(item)
+				nLen2 = len(aContent[i])
 				for j = 1 to nLen2
-					aMerged + item[j]
+					aMerged + aContent[i][j]
 				next
 			ok
 
@@ -14138,42 +14396,61 @@ class stzList from stzObject
 	  #----------------------#
 	 #     FROM/TO LIST     #
 	#----------------------#
-	
+	# TODO: Do it for all Softanza classes()
+
 	def ToStzSet()
 		return new stzSet( This.ToSet() )
+
+		def ToSetQ()
+			return This.ToStzSet()
 
 	def ToStzListOfNumbers()
 		return new stzListOfNumbers( This.Content() )
 
+		def ToListOfNumbersQ()
+			return This.ToStzListOfNumbers()
+
 	def ToStzListOfLists()
-		if This.IsListOfLists()
-			return new stzListOfLists(This.Content())
-		ok
+		return new stzListOfLists(This.Content())
 
 		def ToListOfListsQ()
 			return This.ToStzListOfLists()
-	
+
+	def ToStzListOfPairs()
+		return new stzListOfPairs(This.Content())
+
+		def ToListOfPairsQ()
+			return This.ToStzListOfPairs()
+
 	def ToStzListOfStrings()
 		return new stzListOfStrings(This.Content())
 
-	def ToListOfStrings()
+		def ToListOfStringsQ()
+			return This.ToStzListOfStrings()
+
+	def ToListOfStringifiedItems()
+		# TODO: alternative of Stringified()
+
 		aResult = []
 		nLen = This.NumberOfItems()
+		aContent = This.Content()
 
 		for i = 1 to nLen
-			aResult + @@S( This[i] )
+			aResult + @@S( aContent[i] )
 		next
 
 		return aResult
 
-		def ToListOfStringsQ()
-			return new stzList( This.ToListOfStrings() )
-	
+
 	def ToStzHashList()
 		return new stzHashList( This.List() )
 	
 		def ToHashListQ()
 			return This.ToStzHashList()
+
+	  #---------------------------------#
+	 #  CHECKING IF THE LIST IS A SET  #
+	#---------------------------------#
 
 	def IsSet()
 		bIsSet = TRUE
@@ -14264,23 +14541,30 @@ class stzList from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
 		def ContainsDuplicationsCS(pCaseSensitive)
 			return This.ContainsDuplicatedItemsCS(pCaseSensitive)
 
 		def ContainsDuplicatesCS(pCaseSensitive)
 			return This.ContainsDuplicatedItemsCS(pCaseSensitive)
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicatedItems()
 		return This.ContainsDuplicatedItemsCS(:CaseSensitive = TRUE)
 	
+		#< @FunctionAlternativeForms
+
 		def ContainsDuplications()
 			return This.ContainsDuplicatedItems()
 
 		def ContainsDuplicates()
 			return This.ContainsDuplicatedItems()
 
+		#>
 	  #---------------------------------------------#
 	 #   CHECHKING IF A GIVEN ITEM IS DUPLICATED   #
 	#---------------------------------------------#
@@ -14292,22 +14576,24 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def ContainsDuplicatedItemCS(pItem, pCaseSensitive)
 			return This.ContainsDuplicatedCS(pItem, pCaseSensitive)
 
-		def ContainsThisDuplicatedItemCS(pItem, pCaseSensitive)
-			return This.ContainsDuplicatedCS(pItem, pCaseSensitive)
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicated(pItem)
 		return This.ContainsDuplicatedCS(pItem, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def ContainsDuplicatedItem(pItem)
 			return This.ContainsDuplicated(pItem)
 
-		def ContainsThisDuplicatedItem(pItem)
-			return This.ContainsDuplicated(pItem)
+		#>
 
 	  #-----------------------------------------------------#
 	 #   CHECHKING IF A GIVEN ITEM IS DUPLICATED N-TIMES   #
@@ -14320,20 +14606,13 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def ContainsThisDuplicatedItemNTimesCS(n, pItem, pCaseSensitive)
-			return This.ContainsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
-
 		def ItemIsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
 			return This.ContainsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
-
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicatedNTimes(n, pItem)
 		return This.ContainsDuplicatedNTimesCS(n, pItem, :CaseSensitive = TRUE)
-
-		def ContainsThisDuplicatedItemNTimes(n, pItem)
-			return This.ContainsDuplicatedNTimes(n, pItem)
 
 		def ItemIsDuplicatedNTimes(n, pItem)
 			return This.ContainsDuplicatedNTimes(n, pItem, pItem)
@@ -14508,8 +14787,12 @@ class stzList from stzObject
 		nResult = len( This.FindDuplicatesCS(pCaseSensitive) )
 		return nResult
 
+		#< @FunctionAlternativeForm
+
 		def HowManyDuplicatesCS(pCaseSensitive)
 			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
+		#>
 
 		#< @FunctionMisspelledForm
 
@@ -14523,8 +14806,12 @@ class stzList from stzObject
 	def NumberOfDuplicates()
 		return This.NumberOfDuplicatesCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForm
+
 		def HowManyDuplicates()
 			return This.NumberOfDuplicates()
+
+		#>
 
 		#< @FunctionMisspelledForm
 
@@ -14555,41 +14842,51 @@ class stzList from stzObject
 
 		return anResult
 
+		#< @FunctionAlternativeForm
+
+		def FindDuplicationsCS(pCaseSensitive)
+			return This.FindDuplicatesCS(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicates()
 		return This.FindDuplicatesCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def FindDuplications()
+			return This.FindDuplicates()
+
+		#>
 
 	  #--------------#
 	 #  DUPLICATES  #
 	#--------------#
 
 	def DuplicatesCS(pCaseSensitive)
-		aDuplicated = This.DuplicatedItemsCS(pCaseSensitive)
-		nLen = len(aDuplicated)
-
-		aResult = []
-		aTemp = []
-		for i = 1 to nLen
-			anPos = This.FindDuplicatesOfItemCS(aDuplicated[i], pCaseSensitive)
-			nLenPos = len(anPos)
-
-			for j = 1 to nLenPos
-				aTemp + [ anPos[j], aDuplicated[i] ]
-			next j
-			
-		next i
-
-		oTemp = StzListOfPairsQ(aTemp)
-		oTemp.Sort()
-		aResult = oTemp.SecondItems()
-
+		aResult = This.ItemsAtPositions( This.FindDuplicatesCS(pCaseSensitive) )
 		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def DuplicationsCS(pCaseSensitive)
+			return This.DuplicatesCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def Duplicates()
 		return This.DuplicatesCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def Duplications()
+			return This.Duplicates()
+
+		#>
 
 	  #------------------------------------------------#
 	 #  DUPLICATES AND THEIR POSITIONS -- Z/Extended  #
@@ -15833,16 +16130,100 @@ class stzList from stzObject
 
 		return bResult
 
-		def ContainsNOfCS(n, paItems, pCaseSensitive)
+		#< @FunctionAlternativeForms
+
+		def ContainsNOccurrencesOfCS(n, paItems, pCaseSensitive)
 			return This.ContainsNCS(n, paItems, pCaseSensitive)
+
+		def ContainsNOccurrencesCS(n, paItems, pCaseSensitive)
+			if isList(n) and Q(n).IsOfNamedParam()
+				n = n[2]
+			ok
+			return This.ContainsNCS(n, paItems, pCaseSensitive)
+
+		def ContainsExactlyNCS(n, pItems, pCaseSensitive)
+			return This.ContainsNCS(n, paItems, pCaseSensitive)
+
+		def ContainsExactlyNOccurrencesOfCS(n, paItems, pCaseSensitive)
+			return This.ContainsNCS(n, paItems, pCaseSensitive)
+
+		def ContainsExactlyNOccurrencesCS(n, paItems, pCaseSensitive)
+			if isList(n) and Q(n).IsOfNamedParam()
+				n = n[2]
+			ok
+			return This.ContainsNCS(n, paItems, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsN(n, paItems)
 		return This.ContainsNCS(n, paItems, :CaseSensitive = TRUE)
 
-		def ContainsNOf(n, paItems)
+		#< @FunctionAlternativeForms
+
+		def ContainsNOccurrencesOf(n, paItems)
 			return This.ContainsN(n, paItems)
+
+		def ContainsNOccurrences(n, paItems)
+			if isList(n) and Q(n).IsOfNamedParam()
+				n = n[2]
+			ok
+			return This.ContainsN(n, paItems)
+
+		def ContainsExactlyN(n, pItems)
+			return This.ContainsN(n, paItems)
+
+		def ContainsExactlyNOccurrencesOf(n, paItems)
+			return This.ContainsN(n, paItems)
+
+		def ContainsExactlyNOccurrences(n, paItems)
+			if isList(n) and Q(n).IsOfNamedParam()
+				n = n[2]
+			ok
+			return This.ContainsN(n, paItems)
+
+		#>
+
+	  #-------------------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS MORE THEN N OCCURRENCES OF A GIVEN ITEM  #
+	#-------------------------------------------------------------------------#
+
+	def ContainsMoreThenCS(n, pItem, pCaseSensitive)
+		if NOT isNumber(n)
+			StzRaise("Uncorrect param type! n must be a number.")
+		ok
+
+		if This.NumberOfOccurrenceCS(pItem, pCaseSensitive) > n
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def ContainsMoreThen(n, pItem)
+		return This.ContainsMoreThen(n, pItem)
+
+	  #-------------------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS LESS THEN N OCCURRENCES OF A GIVEN ITEM  #
+	#-------------------------------------------------------------------------#
+
+	def ContainsLessThenCS(n, pItem, pCaseSensitive)
+		if NOT isNumber(n)
+			StzRaise("Uncorrect param type! n must be a number.")
+		ok
+
+		if This.NumberOfOccurrenceCS(pItem, pCaseSensitive) < n
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def ContainsLessThen(n, pItem)
+		return This.ContainsLessThen(n, pItem)
 
 	  #-----------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS NUMBERS  #
@@ -16293,6 +16674,12 @@ class stzList from stzObject
 	#--------------------------------------#
 
 	def FindAllOccurrencesCS(pItem, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzList([ "ring", "php", "ring", "ring", "_" ])
+		? o1.Find("ring")
+
+		*/
 
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
@@ -16327,11 +16714,16 @@ class stzList from stzObject
 		# Managing the rest of the list
 
 		nPos = 1
+		if len(anResult) = 1
+			nPos = 2
+		ok
+
 		n = 0
 		nMax = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
 
 		while TRUE
 			n++
+
 			if n > nLen or len(anResult) = nMax
 				exit
 			ok
@@ -16720,20 +17112,6 @@ class stzList from stzObject
 
 		#>
 
-	  #---------------------------------------------------------------#
-	 #  CHECKING IF THE LIST CONTAINS N OCCURRENCES OF A GIVEN ITEM  #
-	#---------------------------------------------------------------#
-
-	def ContainsNOccurrencesCS(n, pItem, pCaseSensitive)
-		if This.NumberOfOccurrenceCS(pItem, pCaseSensitive) = n
-			return TRUE
-		else
-			return FALSE
-		ok
-
-	def ContainsNOccurrences(n, pItem)
-		return This.ContainsNOccurrences(n, pItem, :CaseSensitive = TRUE)
-
 	  #----------------------------------------------------------------#
 	 #    FINDING NTH TO LAST OCCURRENCE OF AN ITEM INSIDE THE LIST   #
 	#----------------------------------------------------------------#
@@ -16761,17 +17139,34 @@ class stzList from stzObject
 			StzRaise("Can't process! Objects can not be found yet.")
 		ok
 
-		cItem = Q(pItem).Stringified()
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
 
-		acSplitted = This.ToCodeQ().SplitCS(cItem, pCaseSensitive)
+		if NOT IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
 
 		nResult = 0
 
-		if len(acSplitted) > 1
+		if This.IsListOfNumbersOrStrings() and
+		   Q(pItem).IsNumberOrString() and
+		   pCaseSensitive = TRUE
 
-			nResult = Q(acSplitted[1]).
-				  NumberOfOccurrence(",") + 1
+			nResult = ring_find( This.List(), pItem )
+			return nResult
 		ok
+
+		cItem = @@S(pItem)
+
+		nLen = This.NumberOfItems()
+		for i = 1 to nLen
+	
+			if Q(cItem).IsEqualToCS( @@S(This.Item(i)), pCaseSensitive )
+				nResult = i
+				exit
+			ok
+		next
 
 		return nResult
 
@@ -16832,49 +17227,43 @@ class stzList from stzObject
 			return 0
 		ok
 
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		nResult = 0
+		nLen = This.NumberOfItems()
 		cType = ring_type(pItem)
 
-		if cType = "STRING" or cType = "NUMBER"
+		if This.IsListOfNumbersOrStrings() and
+		   Q(pITem).IsNumberOrString() and
+		   pCaseSensitive = TRUE
 
 			n = ring_find( ring_reverse(This.List()), pItem )
 
-			if n = 0
-				return 0
+			if n > 0
+				return nLen - n + 1
 			else
-				nResult = (1 - n) + This.NumberOfItems()
-				return nResult
+				return 0
 			ok
-
-		but cType = "LIST"
-			# For performance reasons, we rely on stzString
-
-			# Turning the pItem to a string
-
-			cPItem = Q(pItem).ToCodeQ().Simplified()
-			
-			aList = This.List()
-			nLen = This.NumberOfItems()
-			nResult = 0
-			n = 0
-
-			for i = nLen to 1 step -1
-				n++
-				item = aList[i]
-				cItem = ""
-			
-				if isList(item)
-					cItem = Q(item).ToCodeQ().Simplified()
-				
-					if cItem = cPItem
-						nResult = nLen - n + 1
-						return nResult
-					ok
-				ok
-			
-			next
 		ok
 
-		return FALSE
+		cItem = @@S(pItem)
+		n = 0
+	
+		for i = nLen to 1 step -1
+			n++
+			if Q(cItem).IsEqualToCS( @@S(This.Item(i)), pCaseSensitive )
+				nResult = nLen - n + 1
+				exit
+			ok
+		next
+
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -16898,7 +17287,8 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastOccurrence(pItem)
-		return This.FindLastOccurrenceCS(pItem, :CaseSensitiv = TRUE)
+
+		return This.FindLastOccurrenceCS(pItem, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17697,10 +18087,9 @@ class stzList from stzObject
 			nStart = nStart[2]
 		ok
 
-		if NOT BothAreNumbers(n, nStart)
+		if NOT Q([ n, nStart]).BothAreNumbers()
 			StzRaise("Incorrect param type! n and nStart must be numbers.")
 		ok
-
 
 		# Early checks (gains performance for large strings)
 
@@ -17802,7 +18191,7 @@ class stzList from stzObject
 			nStart = nStart[2]
 		ok
 
-		if NOT BothAreNumbers(n, nStart)
+		if NOT Q([n, nStart]).BothAreNumbers()
 			StzRaise("Incorrect param type! n and nStart must be numbers.")
 		ok
 
@@ -19386,11 +19775,12 @@ class stzList from stzObject
 	#=================================================#
 
 	def LowercaseStrings()
-		for i = 1 to This.NumberOfItems()
-			item = This[i]
+		aContent = This.Content()
 
-			if isString(item)
-				cStrLow = Q(item).Lowercased()
+		for i = 1 to This.NumberOfItems()
+
+			if isString(aContent[i])
+				cStrLow = Q(aContent[i]).Lowercased()
 				This.ReplaceItemAtPosition(i, cStrLow)
 			ok
 		next
@@ -19422,12 +19812,13 @@ class stzList from stzObject
 
 	def StringsLowercased()
 		aResult = []
+		aContent = This.Content()
+		nLen = This.NumberOfItems()
 
-		for i = 1 to This.NumberOfItems()
-			item = This[i]
+		for i = 1 to nLen
 
-			if isString(item)
-				cStrLow = Q(item).Lowercased()
+			if isString(aContent[i])
+				cStrLow = Q(aContent[i]).Lowercased()
 				aResult + cStrLow
 			ok
 		next
@@ -19439,11 +19830,13 @@ class stzList from stzObject
 	#=================================================#
 
 	def UppercaseStrings()
-		for i = 1 to This.NumberOfItems()
-			item = This[i]
+		aContent = This.Content()
+		nLen = This.NumberOfItems()
 
-			if isString(item)
-				cStrUpp = Q(item).Uppercased()
+		for i = 1 to nLen
+			
+			if isString(aContent[i])
+				cStrUpp = Q(aContent[i]).Uppercased()
 				This.ReplaceItemAtPosition(i, cStrUpp)
 			ok
 		next
@@ -19475,12 +19868,13 @@ class stzList from stzObject
 
 	def StringsUppercased()
 		aResult = []
+		aContent = This.Content()
+		nLen = This.NumberOfItems()
 
-		for i = 1 to This.NumberOfItems()
-			item = This[i]
+		for i = 1 to nLen
 
-			if isString(item)
-				cStrUpp = Q(item).Uppercased()
+			if isString(aContent[i])
+				cStrUpp = Q(aContent[i]).Uppercased()
 				aResult + cStrUpp
 			ok
 		next
@@ -19492,11 +19886,13 @@ class stzList from stzObject
 	#=================================================#
 
 	def TitlecaseStrings()
-		for i = 1 to This.NumberOfItems()
-			item = This[i]
+		aContent = This.Content()
+		nLen = This.NumberOfItems()
 
-			if isString(item)
-				cStrTtl = Q(item).Titlecased()
+		for i = 1 to nLen
+
+			if isString(aContent[i])
+				cStrTtl = Q(aContent[i]).Titlecased()
 				This.ReplaceItemAtPosition(i, cStrTtl)
 			ok
 		next
@@ -19528,12 +19924,13 @@ class stzList from stzObject
 
 	def StringsTitlecased()
 		aResult = []
+		aContent = This.Content()
+		nLen = This.NumberOfItems()
 
-		for i = 1 to This.NumberOfItems()
-			item = This[i]
+		for i = 1 to nLen
 
-			if isString(item)
-				cStrTtl = Q(item).Titlecased()
+			if isString(aContent[i])
+				cStrTtl = Q(aContent[i]).Titlecased()
 				aResult + cStrTtl
 			ok
 		next
@@ -19545,12 +19942,14 @@ class stzList from stzObject
 	#==================================================#
 
 	def CapitaliseStrings()
-		for i = 1 to This.NumberOfItems()
-			item = This[i]
+		aContent = This.Content()
+		nLen = This.NumberOfItems()
 
-			if isString(item)
-				cStrCap = Q(item).Capitalised()
-				This.ReplaceItemAtPosition(i, cStrTtl)
+		for i = 1 to nLen
+			
+			if isString(aContent[i])
+				cStrCap = Q(aContent[i]).Capitalised()
+				This.ReplaceItemAtPosition(i, cStrCap)
 			ok
 		next
 
@@ -19601,13 +20000,14 @@ class stzList from stzObject
 
 	def StringsCapitalised()
 		aResult = []
+		aContent = This.Content()
+		nLen = This.NumberOfItems()
 
-		for i = 1 to This.NumberOfItems()
-			item = This[i]
+		for i = 1 to nLen
 
-			if isString(item)
-				cStrCap = Q(item).Capitalised()
-				aResult + cStrTtl
+			if isString(aContent[i])
+				cStrCap = Q(aContent[i]).Capitalised()
+				aResult + cStrCap
 			ok
 		next
 
@@ -20871,7 +21271,7 @@ class stzList from stzObject
 
 		# Params must be numbers
 
-		if NOT ( BothAreNumbers(n1, n2) and
+		if NOT ( Q([n1, n2]).BothAreNumbers() and
 			 QR([n1, n2], :stzPairOfNumbers).BothAreBetween(1, This.NumberOfItems()) )
 
 			StzRaise("Incorrect params! n1 and n2 must be numbers.")
@@ -20890,10 +21290,7 @@ class stzList from stzObject
 			next i
 	
 		else
-? @@S( This.Content() )
-? "n1 : " + n1
-? "n2 : " + n2
-stop()
+
 			for i = n1 to n2 step - 1
 				aResult + This.Content()[i]
 			next i
@@ -21243,7 +21640,7 @@ stop()
 			ok
 		ok
 
-		if NOT BothAreNumbers(pnStart, pnRange)
+		if NOT Q([pnStart, pnRange]).BothAreNumbers()
 			StzRaise("Incorrect param type! pnStart and pnRange must be both numbers.")
 		ok
 
@@ -21624,7 +22021,15 @@ stop()
 	#-------------------------------------------------------------#
 
 	def StartsWithCS(paItems, pCaseSensitive)
-		if len(paItems) > This.NumberOfItems()
+
+		if NOT isList(paItems)
+			StzRaise("Incorrect param type! paItems must be a list.")
+		ok
+
+		nLen = This.NumberOfItems()
+		nLenItems = len(paItems)
+
+		if nLenItems > nLen
 			return FALSE
 		ok
 
@@ -21633,10 +22038,10 @@ stop()
 		ok
 
 		bResult = TRUE
-		nLen = len(paItems)
+		aContent = This.Content()
 
-		for i = 1 to nLen
-			if Q(This[i]).IsNotEqualToCS(paItems[i], pCaseSensitive)
+		for i = 1 to nLenItems
+			if Q(aContent[i]).IsNotEqualToCS(paItems[i], pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -21660,7 +22065,14 @@ stop()
 	#-----------------------------------------------------------#
 
 	def EndsWithCS(paItems, pCaseSensitive)
-		if len(paItems) > This.NumberOfItems()
+		if NOT isList(paItems)
+			StzRaise("Incorrect param type! paItems must be a list.")
+		ok
+
+		nLenItems = len(paItems)
+		nLen = This.NumberOfItems()
+
+		if nLenItems > nLen
 			return FALSE
 		ok
 
@@ -21669,13 +22081,14 @@ stop()
 		ok
 
 		bResult = TRUE
+		
+		aLastItems = This.NLastItems( nLenItems )
+		nLenLastItems = len(aLastItems)
+		aContent = This.Content()
 
-		aLastItems = This.NLastItems( len(paItems) )
-		nLen = len(aLastItems)
+		for i = 1 to nLenLastItems
 
-		for i = 1 to nLen
-
-			if Q(This[i]).IsNotEqualToCS(aListItems[i], pCaseSensitive)
+			if Q(aContent[i]).IsNotEqualToCS(aLastItems[i], pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -21689,26 +22102,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def EndsWith(paItems)
-		if len(paItems) > This.NumberOfItems()
-			return FALSE
-		ok
-
-		if This.IsStrictlyEqualTo(paItems)
-			return TRUE
-		ok
-
-		bResult = TRUE
-
-		i = 0
-		for item in This.NLastItems( len(paItems) )
-			i++
-			if Q(This[i]).IsNotEqualTo(item)
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
+		return This.EndsWithCS(paItems, :CS = TRUE)
 
 		def FinishesWith(paItems)
 			return This.EndsWith(paItems)
@@ -22040,6 +22434,9 @@ stop()
 	def Stringified()
 		acResult = This.Copy().StringifyQ().Content()
 		return acResult
+
+		def ItemsStringified()
+			return This.Stringified()
 
 	  #--------------------------------------------------#
 	 #  TRANSFORMING THE ITEMS OF THE LIST TO A STRING  #
@@ -29009,6 +29406,41 @@ stop()
 
 		def IsNthPreviousNamedParam()
 			return This.IsPreviousNthNamedParam()
+
+	#--
+
+	def IsExactlyNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :Exactly or This[1] = :Exactly@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsMoreThenNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :MoreThen or This[1] = :MoreThen@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsLessThenNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :LessThen or This[1] = :LessThen@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
 
 	  #===========#
 	 #   MISC.   #

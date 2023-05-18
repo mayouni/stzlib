@@ -1,11 +1,94 @@
 load "stzlib.ring"
 
+/*------------
+
+pron()
+
+? Q("--♥-♥--").ContainsXT( 2, "♥")
+#--> TRUE
+
+? Q("--♥-♥--").ContainsXT( :Exactly = 2, "♥") # Or ContainsExactly(2, "♥")
+#--> TRUE
+
+? Q("--♥-♥--").ContainsXT( :MoreThen = 1, "♥") # Or ContainsMoreThen(1, "♥")
+#--> TRUE
+
+? Q("--♥-♥--").ContainsXT( :LessThen = 3, "♥") # ContainsLessThen(3, "♥")
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+o1.SortInAscending()
+? @@S(o1.Content())
+#--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 9 ] ]
+
+proff()
+#--> Executed in 0.05 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+o1.SortInDescending()
+? @@S(o1.Content())
+#--> [ [8, 9], [4, 7], [1,3] ]
+
+proff()
+#--> Executed in 0.05 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzList([ "ring", "php", "ring", "ring", "_" ])
+? o1.Find("ring")
+#--> [1, 3, 4]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzListOfPairs([
+	[ "♥", "_"],
+	[ "_", " "],
+	[ "♥", "_"],
+	[ "♥", " "],
+	[ "_", "_"]
+])
+
+? o1.FindInFirstItems("♥")
+#--> [1, 3, 4]
+
+? o1.FindInSecondItems("_")
+#--> [1, 3, 5]
+
+proff()
+# Executed in 0.10 second(s)
+
+/*===================
 
 pron()
 
 ? StzCCodeQ('[ @CurrentItem, @NextItem]').Transpiled()
+#--> [  @CurrentItem, This[@i + 1] ]
 
-/*
+proff()
+# Executed in 0.96 second(s)
+
+/*----------------- ERR
+
+pron()
+
 #                  1  2 3  4 5 6  7
 o1 = new stzList([ 1, 3,4, 7,8,9, 12 ])
 ? StzCCodeQ('This[@i+2]').ExecutableSection()
@@ -14,13 +97,13 @@ o1 = new stzList([ 1, 3,4, 7,8,9, 12 ])
 ? @@S( o1.Section(1, -3) )
 #--> [ 1, 3, 4, 7, 8 ]
 
-? @@S(o1.Yield('[ @CurrentItem, @NextItem ]'))
+? @@S(o1.YieldXT('[ @CurrentItem, @NextItem ]'))
 #--> [ [ 1, 4 ], [ 3, 7 ], [ 4, 8 ], [ 7, 9 ], [ 8, 12 ] ]
 
-? @@S( o1.FindW('@CurrentItem = @NextItem') )
+//? @@S( o1.FindW('@CurrentItem = @NextItem') )
 
-//? @@S( o1.YieldW('[ This[@i], This[@i+1] ]', :Where = 'This[@i] = This[@i+1]+1') )
-*/
+? @@S( o1.YieldW('[ This[@i], This[@i+1] ]', :Where = 'This[@i] = This[@i+1]+1') )
+
 proff()
 /*-----------------
 

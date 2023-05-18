@@ -1592,8 +1592,25 @@ class stzString from stzObject
 			return 0
 		ok
 
-		n = This.NumberOfCharsCS(pCaseSensitive)
-		nResult = n * (n + 1) / 2
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT isBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		nResult = 0
+
+		if pCaseSensitive = TRUE
+			n = This.NumberOfChars()
+			nResult = n * (n + 1) / 2
+	
+		else
+			# TODO (Future): Think of a numeric solution
+			acSubStringsCS = This.SubStringsCS(FALSE)
+			nResult = len(acSubStringsCS)
+		ok
 
 		return nResult
 
@@ -1613,6 +1630,8 @@ class stzString from stzObject
 	#-------------------------------------------------------------#
 
 	def SubStringsCS(pCaseSensitive)
+		# NOTE: Got help from Google Bard for the basic algorithm used here
+
 		if This.IsEmpty()
 			return []
 		ok
@@ -1625,33 +1644,26 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
-		cMainSubStr = ""
-		acSubStrings = []
-		
+		acResult = []
 		nLen = This.NumberOfChars()
 
 		for i = 1 to nLen
-			cMainSubStr += This[i]
-			acSubStrings + cMainSubStr
-		
-			nLenMainSubStr = Q(cMainSubStr).NumberOfChars()
+			for j = i to nLen
+				cSubStr = This.Section(i, j)
+				if pCaseSensitive = TRUE
+					acResult + cSubStr
 
-			if nLenMainSubStr > 1
-				cSubStr = ""
-				for j = nLenMainSubStr to 2 step -1
-					cSubStr = Q(cMainSubStr)[j] + cSubStr
-					acSubStrings + cSubStr
-				next
-			ok
+				else
+					# TODO: Optimise it for performance
+					if NOT Q(acResult).ContainsCS(cSubStr, FALSE)
+						acResult + cSubStr
+					ok
+				ok
+			next
 		next
 		
-		if pCaseSensitive = TRUE
-			acResult = acSubStrings
-		else
-			acResult = QR(acSubStrings, :stzListOfStrings).DuplicatesRemovedCS(:CS = FALSE)
-		ok
+		 return acResult
 
-		return acResult
 
 		#< @FunctionFluentForm
 
@@ -2442,7 +2454,7 @@ class stzString from stzObject
 				return new stzHashList( This.MarquersAndPositions() )
 
 			other
-				stzRaise("Insupported returned type!")
+				stzRaise("Unsupported returned type!")
 			off
 
 		#>
@@ -2531,7 +2543,7 @@ class stzString from stzObject
 				return new stzHashList( This.UniqueMarquersAndPositions() )
 
 			other
-				stzRaise("Insupported returned type!")
+				stzRaise("Unsupported returned type!")
 			off
 
 		#>
@@ -2771,7 +2783,7 @@ class stzString from stzObject
 				return new stzHashList( This.MarquersAndSections() )
 
 			other
-				stzRaise("Insupported returned type!")
+				stzRaise("Unsupported returned type!")
 			off
 
 		#>
@@ -3783,18 +3795,12 @@ class stzString from stzObject
 		def ContainsDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
 			return This.ContainsDuplicatedCS(pcSubStr, pCaseSensitive)
 
-		def ContainsThisDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
-			return This.ContainsDuplicatedCS(pcSubStr, pCaseSensitive)
-
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicated(pcSubStr)
 		return This.ContainsDuplicatedCS(pcSubStr, :CaseSensitive = TRUE)
 
 		def ContainsDuplicatedSubString(pcSubStr)
-			return This.ContainsDuplicated(pcSubStr)
-
-		def ContainsThisDuplicatedSubString(pcSubStr)
 			return This.ContainsDuplicated(pcSubStr)
 
 	  #-----------------------------------------------------------------------#
@@ -3808,20 +3814,13 @@ class stzString from stzObject
 			return FALSE
 		ok
 
-		def ContainsThisDuplicatedSubStringNTimesCS(n, pcSubStr, pCaseSensitive)
-			return This.ContainsDuplicatedNTimesCS(n, pcSubStr, pCaseSensitive)
-
 		def SubStringIsDuplicatedNTimesCS(n, pcSubStr, pCaseSensitive)
 			return This.ContainsDuplicatedNTimesCS(n, pcSubStr, pCaseSensitive)
-
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicatedNTimes(n, pcSubStr)
 		return This.ContainsDuplicatedNTimesCS(n, pcSubStr, :CaseSensitive = TRUE)
-
-		def ContainsThisDuplicatedSubStringNTimes(n, pcSubStr)
-			return This.ContainsDuplicatedNTimes(n, pcSubStr)
 
 		def SubStringIsDuplicatedNTimes(n, pcSubStr)
 			return This.ContainsDuplicatedNTimes(n, pcSubStr, pItem)
@@ -4089,7 +4088,7 @@ class stzString from stzObject
 	#------------------------------------------------#
 
 	def DuplicatesAndTheirPositionsUCS(pCaseSensitive)
-		acDuplicated = This.DuplicatedItemsCS(pCaseSensitive)
+		acDuplicated = This.DuplicatedSubStringsCS(pCaseSensitive)
 		nLen = len(acDuplicated)
 
 		aResult = []
@@ -4883,24 +4882,48 @@ class stzString from stzObject
 		nResult = -1 + This.SplitCSQ(pcSubStr, pCaseSensitive).NumberOfItems()
 		return nResult
 
+		#< @FunctionFluentForm
+
+		def NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
+			return new stzNumber( This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) )
+
+		#>
+
 		#< @FunctionAlternativeForm
 	
 		def NumberOfOccurrencesCS(pcSubStr, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
+			def NumberOfOccurrencesCSQ(pcSubStr, pCaseSensitive)
+				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
+	
 		def NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
-			def NumberOfOccurrencesOfSubstringCS(pcSubStr, pCaseSensitive)
-				return This.NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
+			def NumberOfOccurrenceOfSubstringCSQ(pcSubStr, pCaseSensitive)
+				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
+	
+		def NumberOfOccurrencesOfSubstringCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
+
+			def NumberOfOccurrencesOfSubstringCSQ(pcSubStr, pCaseSensitive)
+				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
 	
 		def CountCS(pcSubStr, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
+			def CountCSQ(pcSubStr, pCaseSensitive)
+				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
+	
 		def HowManyCS(pcSubStr, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
+			def HowManyCSQ(pcSubStr, pCaseSensitive)
+				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
+	
 		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrence(pcSubStr)
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
@@ -4909,23 +4932,45 @@ class stzString from stzObject
 
 		return NumberOfOccurrenceCS(pcSubStr, :CaseSensitive = TRUE)
 
-		#< @FunctionAlternativeForm
+		#< @FunctionFluentForm
 
+		def NumberOfOccurrenceQ(pcSubStr)
+			return new stzNumber( This.NumberOfOccurrence(pcSubStr) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+	
 		def NumberOfOccurrences(pcSubStr)
 			return This.NumberOfOccurrence(pcSubStr)
 
+			def NumberOfOccurrencesQ(pcSubStr)
+				return This.NumberOfOccurrenceQ(pcSubStr)
+	
 		def NumberOfOccurrenceOfSubstring(pcSubStr)
 			return This.NumberOfOccurrence(pcSubStr)
 
-			def NumberOfOccurrencesOfSubstring(pcSubStr)
-				return This.NumberOfOccurrenceOfSubstring(pcStr)
+			def NumberOfOccurrenceOfSubstringCQ(pcSubStr)
+				return This.NumberOfOccurrenceQ(pcSubStr)
+	
+		def NumberOfOccurrencesOfSubstring(pcSubStr)
+			return This.NumberOfOccurrenceOfSubstring(pcSubStr)
 
+			def NumberOfOccurrencesOfSubstringQ(pcSubStr)
+				return This.NumberOfOccurrenceQ(pcSubStr)
+	
 		def Count(pcSubStr)
 			return This.NumberOfOccurrence(pcSubStr)
 
+			def CountQ(pcSubStr)
+				return This.NumberOfOccurrenceQ(pcSubStr)
+	
 		def HowMany(pcSubStr)
 			return This.NumberOfOccurrence(pcSubStr)
 
+			def HowManyQ(pcSubStr)
+				return This.NumberOfOccurrenceQ(pcSubStr)
+	
 		#>
 
 	  #=======================================================#
@@ -4960,9 +5005,10 @@ class stzString from stzObject
 	
 	def NumberOfBytesPerChar()
 		aResult = []
+		nLen = This.NumberOfChars()
 
-		for i = 1 to This.NumberOfChars()
-			aResult + [ This[i], StzStringQ(This[i]).NumberOfBytes() ]
+		for i = 1 to nLen
+			aResult + [ This.Char(i), This.CharQ(i).NumberOfBytes() ]
 		next
 
 		return aResult
@@ -4986,7 +5032,7 @@ class stzString from stzObject
 			if This.IsRightToleft()
 				cResult = This.Section( 1, n )
 			else
-				cResult = This.Section( This.NumberOfChars()-n+1, NumberOfChars() )
+				cResult = This.Section( This.NumberOfChars() - n + 1, NumberOfChars() )
 			end
 					
 			return cResult
@@ -7113,6 +7159,8 @@ class stzString from stzObject
 
 		if NOT This.IsEmpty()
 
+			nLen = This.NumberOfChars()
+
 			cResult = ""
 	
 			bContinue = TRUE
@@ -7122,13 +7170,13 @@ class stzString from stzObject
 			while bContinue
 				i++
 
-				if i > This.NumberOfChars()
+				if i > nLen
 					bContinue = FALSE
 				ok
 
-				cCurrentChar = This[i]
+				cCurrentChar = This.Char(i)
 
-				if NOT StzStringQ(cCurrentChar).IsEqualToCS(cFirstChar, pCaseSensitive)
+				if NOT Q(cCurrentChar).IsEqualToCS(cFirstChar, pCaseSensitive)
 					bContinue = FALSE
 				ok
 
@@ -12638,7 +12686,7 @@ def ReplaceIBS()
 	#--  WITHOUT CASESENSITIVITY
 
 	def FindMadeOfAsSections(pcSubStr)
-		return This.FindMadeOfAsSectionsCS(pcSubStr, :CaseSensitiv = TRUE)
+		return This.FindMadeOfAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
 
 		def FindSubStringsMadeOfAsSections(pcSubStr)
 			return This.FindMadeOfAsSections(pcSubStr)
@@ -17258,17 +17306,19 @@ def ReplaceIBS()
 		ok
 
 		nLenSubStr = len(pacSubStr)
+
 		aResult = []
 
 		for i = 1 to nLenSubStr
 			aSections = This.FindAsSectionsCS(pacSubStr[i], pCaseSensitive)
+
 			nLenSections = len(aSections)
 			for j = 1 to nLenSections
 				aResult + aSections[j]
 			next
 		next
 
-		aResult = StzListOfPairsQ(aResult).Sorted()
+		aResult = Q(aResult).ToStzListOfPairs().Sorted()
 
 		return aResult
 
@@ -17469,7 +17519,7 @@ def ReplaceIBS()
 			ok
 		ok
 
-		StzRaise("Insupported syntax!")
+		StzRaise("Unsupported syntax!")
 
 		#< @FunctionAlternativeForm
 
@@ -17842,9 +17892,7 @@ def ReplaceIBS()
 		ok
 
 		anFirstPositions = This.FindCS(pcSubStr, pCaseSensitive)
-
 		nLen = StzStringQ(pcSubStr).NumberOfChars()
-
 		anLastPositions = StzListOfNumbersQ(anFirstPositions).AddToEachQ(nLen-1).Content()
 
 		aResult = StzListQ(anFirstPositions).AssociatedWith(anLastPositions)
@@ -18654,8 +18702,48 @@ def ReplaceIBS()
 			return FALSE
 		ok
 
+		def ContainsExactlyNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+			return This.ContainsNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def ContainsNOccurrences(n, pcSubStr)
 		return This.ContainsNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def ContainsExactlyNOccurrences(n, pcSubStr)
+			return This.ContainsNOccurrences(n, pcSubStr)
+
+	  #--------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS MORE THEN N OCCURRENCES OF A GIVEN SUBSTRING  #
+	#--------------------------------------------------------------------------------#
+
+	def ContainsMoreThenNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+		if This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) > n
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsMoreThenNOccurrences(n, pcSubStr)
+		return This.ContainsMoreThenNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS LESS THEN N OCCURRENCES OF A GIVEN SUBSTRING  #
+	#--------------------------------------------------------------------------------#
+
+	def ContainsLessThenNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+		if This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) < n
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsLessThenNOccurrences(n, pcSubStr)
+		return This.ContainsLessThenNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
 
 	  #======================================================#
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
@@ -21454,7 +21542,7 @@ def ReplaceIBS()
 					return new stzListOfStrings(Between)
 
 				other
-					StzRaise("Insupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 
 			ok
@@ -21542,11 +21630,13 @@ def ReplaceIBS()
 
 		#>
 
-	  #---------------------------------------------------------#
-	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- ZZ/EXTENDED #
-	#=========================================================#
+	  #----------------------------------------------------------#
+	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- ZZ/EXTENDED  #
+	#==========================================================#
 
 	def SubStringsBetweenZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+? pcSubStr1
+? pcSubStr2
 
 		aSections = This.FindAnyBetweenAsSectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		acSubStr  = This.Sections(aSections)
@@ -21806,7 +21896,7 @@ def ReplaceIBS()
 				on :stzListOfStrings
 					return new stzListOfStrings(Between)
 				other
-					StzRaise("Insupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 			ok
 
@@ -22229,7 +22319,7 @@ def ReplaceIBS()
 				on :stzListOfStrings
 					return new stzListOfStrings(Between)
 				other
-					StzRaise("Insupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 			ok
 
@@ -22400,7 +22490,7 @@ def ReplaceIBS()
 				on :stzListOfStrings
 					return new stzListOfStrings(Between)
 				other
-					StzRaise("Insupported return type!")
+					StzRaise("Unsupported return type!")
 				off
 			ok
 
@@ -23721,7 +23811,7 @@ def ReplaceIBS()
 		ok
 
 		if NOT isString(pcSubStr)
-			stzRaise("Incorrect param type! cSubStr must be a STRING, while you are providing a " + ring_type(cSubStr) + ".")
+			stzRaise("Incorrect param type! pcSubStr must be a STRING, while you are providing a " + ring_type(cSubStr) + ".")
 		ok
 
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
@@ -24015,6 +24105,18 @@ def ReplaceIBS()
 		but isNumber(p1) and isString(p2)
 			return This.ContainsNOccurrencesCS(p1, p2, pCaseSensitive)
 		
+		# ? Q("__♥__♥__").ContainsXT( :Exactly = 2, "♥" )
+		but isList(p1) and Q(p1).IsExactlyNamedParam()
+			return This.ContainsNOccurrencesCS(p1[2], p2, pCaseSensitive)
+
+		# ? Q("__♥__♥__").ContainsXT( :MoreThen = 1, "♥")
+		but isList(p1) and Q(p1).IsMoreThenNamedParam()
+			return This.ContainsMoreThenNOccurrencesCS(p1[2], p2, pCaseSensitive)
+
+		# ? Q("__♥__♥__").ContainsXT( :LessThen = 3, "♥")
+		but isList(p1) and Q(p1).IsLessThenNamedParam()
+			return This.ContainsLessThenNOccurrencesCS(p1[2], p2, pCaseSensitive)
+
 		# ? Q("__♥__").ContainsXT("♥", [])
 		but isString(p1) and isList(p2) and len(p2) = 0 and
 			NOT Q(p2).IsWhereNamedParam()
@@ -24074,7 +24176,7 @@ def ReplaceIBS()
 				p2[2] = p2[2][2]
 			ok
 
-			return This.ContainsThisSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
+			return This.ContainsSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
 		
 		but isString(p1) and isList(p2) and Q(p2).IsBetweenPositionsNamedParam()
 
@@ -24082,7 +24184,7 @@ def ReplaceIBS()
 				p2[2] = p2[2][2]
 			ok
 
-			return This.ContainsThisSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
+			return This.ContainsSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
 		
 		# ? Q("__-♥-__").ContainsXT(["_", "-", "♥"], [])
 		but isList(p1) and Q(p1).IsListOfStrings() and isList(p2) and len(p2) = 0
@@ -24094,7 +24196,7 @@ def ReplaceIBS()
 		
 			nLen = len(p1)
 			for i = 1 to nLen
-				if NOT This.ContainsThisSubStringBoundedByCS(p1[i], p2[2], pCaseSensitive)
+				if NOT This.ContainsSubStringBoundedByCS(p1[i], p2[2], pCaseSensitive)
 					bResult = FALSE
 					exit
 				ok
@@ -24112,7 +24214,7 @@ def ReplaceIBS()
 		
 			nLen = len(p1)
 			for i = 1 to nLen
-				if NOT This.ContainsThisSubStringBetweenCS(p1[1], p2[2][1], p2[2][2], pCaseSensitive)
+				if NOT This.ContainsSubStringBetweenCS(p1[1], p2[2][1], p2[2][2], pCaseSensitive)
 					bResult = FALSE
 					exit
 				ok
@@ -24306,7 +24408,7 @@ def ReplaceIBS()
 
 		else
 
-			StzRaise("Insupported syntax")
+			StzRaise("Unsupported syntax")
 		ok
 
 	#-- WITOUT CASESENSITIVITY
@@ -24384,12 +24486,9 @@ def ReplaceIBS()
 
 		return bResult
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
 
 		def ContainsSubstringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
-			return This.ContainsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
-
-		def ContainsThisSubstringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 			return This.ContainsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
 		#>
@@ -24399,12 +24498,9 @@ def ReplaceIBS()
 	def ContainsBoundedBy(pcSubStr, pacBounds)
 		return This.ContainsSubstringBoundedByCS(pcSubStr, pacBounds, :CaseSensitive = TRUE)
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
 
 		def ContainsSubStringBoundedBy(pcSubStr, pacBounds)
-			return This.ContainsBoundedBy(pcSubStr, pacBounds)
-
-		def ContainsThisSubstringBoundedBy(pcSubStr, pacBounds)
 			return This.ContainsBoundedBy(pcSubStr, pacBounds)
 
 		#>
@@ -24457,7 +24553,7 @@ def ReplaceIBS()
 		bResult = FALSE
 
 		if isString(paBounds)
-			bResult = This.ContainsCS(paBounds)
+			bResult = This.NumberOfOccurrenceCSQ(paBounds, pCaseSensitive).IsEven()
 
 		but isList(paBounds) and Q(paBounds).IsPair()
 			if isList(paBounds[2]) and Q(paBounds[2]).IsAndNamedParam()
@@ -24487,8 +24583,8 @@ def ReplaceIBS()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsSubStringsBoundedBy(pcSubStr, paBounds)
-		return This.ContainsSubStringsBoundedByCS(pcSubStr, paBounds, :CaseSensitive = TRUE)
+	def ContainsSubStringsBoundedBy(paBounds)
+		return This.ContainsSubStringsBoundedByCS(paBounds, :CaseSensitive = TRUE)
 
 		#< @FuntionAlternativeForm
 
@@ -24531,16 +24627,31 @@ def ReplaceIBS()
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def ContainsSubstringBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+			return This.ContainsBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
 
 		def ContainsInBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
 			return This.ContainsBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+
+		def ContainsSubstringInBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+			return This.ContainsBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+
+		#>
 
 	#-- WTHOUT CASESENSITIVITY
 
 	def ContainsBetween(pcSubStr, p1, p2)
 		return This.ContainsBetweenCS(pcSubStr, p1, p2, :CaseSensitive = TRUE)
 
+		def ContainsSubstringBetween(pcSubStr, p1, p2)
+			return This.ContainsBetween(pcSubStr, p1, p2)
+
 		def ContainsInBetween(pcSubStr, p1, p2)
+			return This.ContainsBetween(pcSubStr, p1, p2)
+
+		def ContainsSubstringInBetween(pcSubStr, p1, p2)
 			return This.ContainsBetween(pcSubStr, p1, p2)
 
 	  #------------------------------------------------------#
@@ -24560,10 +24671,7 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
-		def ContainsThisSubstringBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
-			return This.ContainsBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
-
-		def ContainsThisBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
+		def ContainsSubstringBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
 			return This.ContainsBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
 
 		def ContainsInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
@@ -24578,10 +24686,7 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
-		def ContainsThisSubstringBetweenPositions(pcSubStr, n1, n2)
-			return This.ContainsBetweenPositions(pcSubStr, n1, n2)
-
-		def ContainsThisBetweenPositions(pcSubStr, n1, n2)
+		def ContainsSubstringBetweenPositions(pcSubStr, n1, n2)
 			return This.ContainsBetweenPositions(pcSubStr, n1, n2)
 
 		def ContainsInSection(pcSubStr, n1, n2)
@@ -24605,7 +24710,7 @@ def ReplaceIBS()
 
 		return This.ContainsBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
-		def ContainsThisBetweenSubStringsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		def ContainsSubStringBetweenSubStringsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			return This.ContainsBetweenSubStringsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 	#-- WTHOUT CASESENSITIVITY
@@ -24613,7 +24718,7 @@ def ReplaceIBS()
 	def ContainsBetweenSubStrings(pcSubStr, pcBound1, pcBound2)
 		return This.ContainsBetweenSubStringsCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
 
-		def ContainsThisBetweenSubStrings(pcSubStr, pcBound1, pcBound2)
+		def ContainsSubstringBetweenSubStrings(pcSubStr, pcBound1, pcBound2)
 			return This.ContainsBetweenSubStrings(pcSubStr, pcBound1, pcBound2)
 
 	  #------------------------------------------------------------------------#
@@ -24689,23 +24794,6 @@ def ReplaceIBS()
 
 	def ContainsNoSpaces()
 		return NOT This.ContainsSpaces()
-
-	  #---------------------------------------------------#
-	 #    CONTAINING EACH ONE OF THE GIVEN SUBSTRINGS    #
-	#---------------------------------------------------#
-
-	def ContainsEachCS(paSubStr, pCaseSensitive)
-		bContainsThemAll = TRUE
-		for str in paSubStr
-			bContainsThemAll = This.ContainsCS(str, pCaseSensitive)
-			if bContainsThemAll = FALSE
-				exit
-			ok
-		next
-		return bContainsThemAll
-
-	def ContainsEach(paSubStr)
-		return This.ContainsEachCS(paSubStr, :CaseSensitive = TRUE)
 
 	  #------------------------------------------------#
 	 #    CONTAINING BOTH OF THE GIVEN SUBSTRINGS     #
@@ -25290,6 +25378,91 @@ def ReplaceIBS()
 		def ContainsManyCS(pacSubStr, pCaseSensitive)
 			return This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
 
+		def ContainsEachCS(pacSubStr, pCaseSensitive)
+			if isList(pacSubStr) and
+			   Q(pacSubStr).IsOneOfTheseNamedParams([
+				:Of, :OfThese, :OfTheseSubStrings ])
+
+				pacSubStr = pacSubStr[2]
+			ok
+
+			return This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsEachOfCS(pacSubStr, pCaseSensitive)
+			return This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+	
+		def ContainsEachOfTheseCS(pacSubStr, pCaseSensitive)
+			return This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsEachTheseSubStringsCS(pacSubStr, pCaseSensitive)
+			return This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsEachOneCS(pacSubStr, pCaseSensitive)
+			if isList(pacSubStr) and
+			   Q(pacSubStr).IsOneOfTheseNamedParams([
+				:Of, :OfThese, :OfTheseSubStrings ])
+
+				pacSubStr = pacSubStr[2]
+			ok
+			return This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsEachOneOfTheseCS(pacSubStr, pCaseSensitive)
+			return This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsEachOneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
+			return This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsEachSubStringOfCS(pacSubStr, pCaseSensitive)
+			return This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsEachSubStringOfTheseCS(pacSubStr, pCaseSensitive)
+			return This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsEachSubStringOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
+			return This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		#>
+
+		#< @FunctionNegativeForms
+
+		def ContainsNoneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
+			return NOT This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsNoneOfTheseCS(pacSubStr, pCaseSensitive)
+			return NOT This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsNoneCS(pacSubStr, pCaseSensitive)
+			if isList(pacSubStr) and
+			   Q(pacSubStr).IsOneOfTheseNamedParams([
+				:Of, :OfThese, :OfTheseSubStrings ])
+
+				pacSubStr = pacSubStr[2]
+			ok
+
+			return NOT This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsNoOneOfCS(pacSubStr, pCaseSensitive)
+			if isList(pacSubStr) and
+			   Q(pacSubStr).IsOneOfTheseNamedParams([ :These, :TheseSubStrings ])
+
+				pacSubStr = pacSubStr[2]
+			ok
+
+			return NOT This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+	
+		def ContainsNoSubStringOfTheseCS(pacSubStr, pCaseSensitive)
+			return NOT This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		def ContainsNoSubStringCS(pacSubStr, pCaseSensitive)
+			if isList(pacSubStr) and
+			   Q(pacSubStr).IsOneOfTheseNamedParams([
+				:Of, :OfThese, :OfTheseSubStrings ])
+
+				pacSubStr = pacSubStr[2]
+			ok
+
+			return NOT This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -25304,6 +25477,58 @@ def ReplaceIBS()
 
 		def ContainsMany(pacSubStr)
 			return This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsEach(pacSubStr)
+			return This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsEachOf(pacSubStr)
+			return This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsEachOfThese(pacSubStr)
+			return This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsEachTheseSubStrings(pacSubStr)
+			return This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsEachOne(pacSubStr)
+			return This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsEachOneOfThese(pacSubStr)
+			return This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsEachOneOfTheseSubStrings(pacSubStr)
+			return This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsEachSubStringOf(pacSubStr)
+			return This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsEachSubStringOfThese(pacSubStr)
+			return This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsEachSubStringOfTheseSubStrings(pacSubStr)
+			return This.ContainsTheseSubStrings(pacSubStr)
+
+		#>
+
+		#< @FunctionNegativeForm
+
+		def ContainsNoneOfTheseSubStrings(pacSubStr)
+			return NOT This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsNoneOfThese(pacSubStr)
+			return NOT This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsNone(pacSubStr)
+			return NOT This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsNoOneOf(pacSubStr)
+			return NOT This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsNoSubStringOfThese(pacSubStr)
+			return NOT This.ContainsTheseSubStrings(pacSubStr)
+
+		def ContainsNoSubString(pacSubStr)
+			return NOT This.ContainsTheseSubStrings(pacSubStr)
 
 		#>
 
@@ -25335,13 +25560,12 @@ def ReplaceIBS()
 			return FALSE
 		ok
 
-		def ContainsThisLetter(pcLetter)
-			return This.ContainsLetter(pcLetter)
-
 	def ContainsLetters()
 		bResult = FALSE
-		for i = 1 to This.NumberOfChars()
-			if StzCharQ( This[i] ).IsLetter()
+		nLen = This.NumberOfChars()
+		
+		for i = 1 to nLen
+			if This.CharQ(i).IsLetter()
 				bResult = TRUE
 				exit
 			ok
@@ -25356,7 +25580,7 @@ def ReplaceIBS()
 		#>
 
 	def ContainsTheLetters(pacLetters)
-		if ListIsListOfLetters(pacLetters)
+		if Q(pacLetters).IsListOfLetters()
 			bResult = TRUE
 			oStr = This.UppercaseQ()
 
@@ -25373,8 +25597,10 @@ def ReplaceIBS()
 
 	def ContainsArabicLetters()
 		bResult = FALSE
-		for i = 1 to This.NumberOfChars()
-			if StzCharQ( This[i] ).IsArabicLetter()
+		nLen = This.NumberOfChars()
+
+		for i = 1 to nLen
+			if This.CharQ(i).IsArabicLetter()
 				bResult = TRUE
 				exit
 			ok
@@ -25390,8 +25616,10 @@ def ReplaceIBS()
 
 	def ContainsLatinLetters()
 		bResult = FALSE
-		for i = 1 to This.NumberOfChars()
-			if StzCharQ( This[i] ).IsLatinLetter()
+		nLen = This.NumberOfChars()
+
+		for i = 1 to nLen
+			if This.CharQ(i).IsLatinLetter()
 				bResult = TRUE
 				exit
 			ok
@@ -25407,8 +25635,10 @@ def ReplaceIBS()
 
 	def ContainsLettersInScript(pcScript)
 		bResult = FALSE
-		for i = 1 to This.NumberOfChars()
-			if StzCharQ( This[i] ).IsLetterInScript(pcScript)
+		nLen = This.NumberOfChars()
+
+		for i = 1 to nLen
+			if This.CharQ(i).IsLetterInScript(pcScript)
 				bResult = TRUE
 				exit
 			ok
@@ -25436,7 +25666,6 @@ def ReplaceIBS()
 		- splitting to parts of n chars (or exactly n chars)
 		- splitting at, before, or after a condition is verified on a char,
 		  substring, or a char position or substring position
-
 
 	*/
 
@@ -25571,7 +25800,7 @@ def ReplaceIBS()
 				return new stzListOfObjects( This.SplitCS(pSubStrOrPos, pCaseSensitive) )
 
 			other
-				StzRaise("Insupported param type!")
+				StzRaise("Unsupported param type!")
 			off
 
 		#>
@@ -25613,7 +25842,7 @@ def ReplaceIBS()
 				return new stzListOfObjects( This.Split(pSubStrOrPos) )
 
 			other
-				StzRaise("Insupported param type!")
+				StzRaise("Unsupported param type!")
 			off
 
 		#>
@@ -25700,7 +25929,7 @@ def ReplaceIBS()
 				return new stzListOfObjects( This.SplitAtCS(pSubStrOrPos, pCaseSensitive) )
 
 			other
-				StzRaise("Insupported param type!")
+				StzRaise("Unsupported param type!")
 			off
 
 		#>
@@ -25980,7 +26209,7 @@ def ReplaceIBS()
 				return new stzListOfObjects( This.SplitBeforeCS(pSubStrOrPos, pCaseSensitive) )
 
 			other
-				StzRaise("Insupported param type!")
+				StzRaise("Unsupported param type!")
 			off
 
 		#>
@@ -26202,7 +26431,7 @@ def ReplaceIBS()
 				return new stzListOfObjects( This.SplitAfterCS(pSubStrOrPos, pCaseSensitive) )
 
 			other
-				StzRaise("Insupported param type!")
+				StzRaise("Unsupported param type!")
 			off
 
 		#>
@@ -26617,7 +26846,7 @@ def ReplaceIBS()
 		cCode = "cPartionner = ( '' + " + cCode + " )"
 
 		if This.NumberOfChars() = 1
-			@char = This[1]
+			@char = This.FirstChar()
 			eval(cCode)
 			aResult = [ @char, cPartionner ]
 
@@ -26627,30 +26856,30 @@ def ReplaceIBS()
 		cPart = This.FirstChar()
 		aParts = []
 
-		@char = This[1]
+		@char = This.FirstChar()
 		eval(cCode)
 		cPrevious = cPartionner
 
 		for i = 2 to This.NumberOfChars()
-			
 
-			oCurrentChar = new stzChar(This[i])
-			@char = oCurrentChar.Content()
+			cCurrentChar = This.Char(i)
+			oCurrentChar = new stzChar(cCurrentChar)
+			@char = cCurrentChar
 
 			eval(cCode)
 			cCurrent = cPartionner
 
-			oPreviousChar = new stzChar(This[i-1])
+			oPreviousChar = new stzChar(This.Char(i-1))
 			@char = oPreviousChar.Content()
 			eval(cCode)
 			cPrevious = cPartionner
 
 			if cCurrent = cPrevious
-				cPart += This[i]
+				cPart += cCurrentChar
 
 			else
 				aParts + [ cPart, cPrevious ]
-				cPart = This[i]
+				cPart = cCurrentChar
 			ok
 
 		end
@@ -26976,9 +27205,10 @@ def ReplaceIBS()
 		*/
 
 		oSortedInAscending = This.Copy().SortCharsInAscendingQ()
+		nLen = This.NumberOfChars()
 
-		for i = 1 to This.NumberOfChars()
-			if NOT AreEqual([ oSortedInAscending[i] , This[i] ])
+		for i = 1 to nLen
+			if NOT AreEqual([ oSortedInAscending[i] , This.Char(i) ])
 				return FALSE
 			ok
 		next
@@ -30031,11 +30261,13 @@ def ReplaceIBS()
 
 		cSubStrToRemove = ""
 
-		for @i = 1 to This.NumberOfChars()
-			@char = This[i]
+		nLen = This.NumberOfChars()
+
+		for @i = 1 to nLen
+			@char = This.Char(@i)
 			bEval = TRUE
 
-			if @i = This.NumberOfChars() and
+			if @i = nLen and
 			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i+1]", :CS = FALSE )
 
 				bEval = FALSE
@@ -30100,7 +30332,7 @@ def ReplaceIBS()
 		cSubStrToRemove = ""
 
 		for @i = 1 to This.NumberOfChars()
-			@char = This[i]
+			@char = This.Char(@i)
 			bEval = TRUE
 
 			if @i = This.NumberOfChars() and
@@ -31431,20 +31663,20 @@ def ReplaceIBS()
 	 #   DOES THE STRING CONTAIN A GIVEN CENTRAL CHAR?   #
 	#---------------------------------------------------#
 
-	def ContainsThisCharInTheCenter(c)
+	def ContainsCharInTheCenter(c)
 		return This.CentralChar() = c
 
-		def ContainsThisCharInTheMiddle(c)
-			return This.ContainsThisCharInTheCenter()
+		def ContainsCharInTheMiddle(c)
+			return This.ContainsCharInTheCenter()
 
-		def HasThisCharInTheCenter(c)
-			return This.ContainsThisCharInTheCenter(c)
+		def HasCharInTheCenter(c)
+			return This.ContainsCharInTheCenter(c)
 
-		def HasThisCharInTheMiddle(c)
-			return This.ContainsThisCharInTheMiddle(c)
+		def HasCharInTheMiddle(c)
+			return This.ContainsCharInTheMiddle(c)
 
 	  #----------------------------------------------------#
-	 #    DOES THE STRING CONTAIN ANY MIDDLE SUBSTRING?    #
+	 #    DOES THE STRING CONTAIN ANY MIDDLE SUBSTRING?   #
 	#----------------------------------------------------#
 
 	def ContainsMiddleSubstring()
@@ -31468,7 +31700,7 @@ def ReplaceIBS()
 	 #    DOES THE STRING CONTAIN A GIVEN MIDDLE SUBSTRING?    #
 	#---------------------------------------------------------#
 
-	def HasThisSubstringInTheMiddle(pcSubStr)
+	def ContainsSubstringInTheMiddle(pcSubStr)
 		if IsStzString(pcSubStr)
 			pcSubStr = pcSubStr.Content()
 		ok
@@ -31479,14 +31711,14 @@ def ReplaceIBS()
 			return FALSE
 		ok
 
-		def ContainsThisSubstringInTheMiddle(c)
-			return This.HasThisSubstringInTheMiddle(c)
+		def HasSubstringInTheCenter(pcSubStr)
+			return This.ContainsSubstringInTheMiddle(c)
 
-		def HasThisSubstringInTheCenter(pcSubStr)
-			return This.HasThisSubstringInTheMiddle(c)
+		def ContainsSubstringInTheCenter(c)
+			return This.ContainsSubstringInTheMiddle(c)
 
-		def ContainsThisSubstringInTheCenter(c)
-			return This.HasThisSubstringInTheMiddle(c)
+		def HasSubstringInTheMiddle(pcSubStr)
+			return This.ContainsSubstringInTheMiddle(c)
 
 	  #---------------------------------------------------#
 	 #    GETTING THE MIDDLE SUBSTRING UP TO N CHARS     #
@@ -31663,10 +31895,11 @@ def ReplaceIBS()
 	// Transforms the string to a list of chars with indication of their orientation
 	def CharsWithOrientation()
 		aResult = []
+		nLen = This.NumberOfChars()
 
-		for i = 1 to This.NumberOfChars()
-			oTempChar = new stzChar(This[i])
-			aResult + [ This[i] , oTempChar.Orientation() ]
+		for i = 1 to nLen
+			oTempChar = This.CharQ(i)
+			aResult + [ This.Char(i) , oTempChar.Orientation() ]
 		next
 
 		return aResult
@@ -31677,11 +31910,13 @@ def ReplaceIBS()
 	// Transforms the string to a list of letters with indication of their orientation
 	def LettersWithOrientation()
 		aResult = []
+		nLen = This.NumberOfChars()
 
-		for i = 1 to This.NumberOfChars()
-			oTempChar = new stzChar(This[i])
+		for i = 1 to nLen
+			oTempChar = This.CharQ(i)
+
 			if oTempChar.isLetter()
-				aResult + [ This[i] , oTempChar.Orientation() ]
+				aResult + [ This.Char(i) , oTempChar.Orientation() ]
 			ok
 		next
 
@@ -31705,8 +31940,9 @@ def ReplaceIBS()
 
 	def OnlyNumbers()
 		cResult = ""
+		nLen = This.NumberOfChars()
 
-		for i = 1 to This.NumberOfChars()
+		for i = 1 to nLen
 			c = This.NthChar(i)
 
 			oChar = new stzChar(c)
@@ -31721,8 +31957,9 @@ def ReplaceIBS()
 
 	def OnlyDecimalDigits()
 		cResult = NULL
+		nLen = This.NumberOfChars()
 
-		for i = 1 to This.NumberOfChars()
+		for i = 1 to nLen
 			c = This.NthChar(i)
 
 			oChar = new stzChar(c)
@@ -31742,8 +31979,9 @@ def ReplaceIBS()
 	// Returns (as a string) only the letters contained in the string
 	def OnlyLetters()
 		cResult = NULL
+		nLen = This.NumberOfChars()
 
-		for i = 1 to This.NumberOfChars()
+		for i = 1 to nLen
 			c = This.NthChar(i)
 
 			oChar = new stzChar(c)
@@ -31760,11 +31998,12 @@ def ReplaceIBS()
 
 	def OnlyLettersAndSpaces()
 		cResult = ""
+		nLen = This.NumberOfChars()
 
-		for i = 1 to This.NumberOfChars()
+		for i = 1 to nLen
 			c = This.NthChar(i)
 
-			if StzCharQ( c ).IsLetterOrSpace()
+			if StzCharQ(c).IsLetterOrSpace()
 
 				cResult += c
 			ok
@@ -31782,10 +32021,11 @@ def ReplaceIBS()
 		# t0 = clock() # Takes almost 0.62s
 
 		cResult = ""
+		nLen = This.NumberOfChars()
 
-		for i = 1 to This.NumberOfChars()
+		for i = 1 to nLen
 			c = This.NthChar(i)
-			oChar = new stzChar( c )
+			oChar = new stzChar(c)
 
 			if oChar.IsLetterOrSpaceOrChar(pcChar)
 				cResult += c
@@ -32226,7 +32466,7 @@ def ReplaceIBS()
 	 #  JUSTIFYING THE STRING -- EXTENDED  #
 	#-------------------------------------#
 
-	def JustifyXT(nWidth, cChar)
+	def JustifyXT(nWidth, pcChar)
 
 		# See comment in LeftAlign() method
  
@@ -32241,21 +32481,25 @@ def ReplaceIBS()
 		nPoints = nWidth - This.NumberOfChars()
 		aTemp = []
 
-		for i = 1 to This.NumberOfChars() - 1
+		nLen = This.NumberOfChars()
 
-			if NOT ( CharIsArabicShaddah(This[i]) or CharIsArabic7arakah(This[i]) )
+		for i = 1 to nLen - 1
 
-				aTemp + This[i]
+			cCurrentChar = This.Char(i)
+
+			if NOT ( CharIsArabicShaddah(cChar) or CharIsArabic7arakah(cCurrentChar) )
+
+				aTemp + cCurrentChar
 			else
 				if len(aTemp) != 0
-					aTemp[ len(aTemp) ] = aTemp[ len(aTemp) ] + This[i]
+					aTemp[ len(aTemp) ] = aTemp[ len(aTemp) ] + cCurrentChar
 				ok
 			ok
 		next
 
 		while nPoints > 0
 			for i = 1 to len(aTemp)
-				aTemp[i] = aTemp[i] + cChar
+				aTemp[i] = aTemp[i] + pcChar
 				nPoints--
 				if nPoints = 0 { exit }
 			next
@@ -32268,15 +32512,15 @@ def ReplaceIBS()
 			cResult += str
 		next
 
-		cResult = Q(cResult).ReplaceQ(" ", cChar).Content()
+		cResult = Q(cResult).ReplaceQ(" ", pcChar).Content()
 		This.Update( cResult )
 
-		def JustifyXTQ(nWidth, cChar)
-			This.JustifyXT(nWidth, cChar)
+		def JustifyXTQ(nWidth, pcChar)
+			This.JustifyXT(nWidth, pcChar)
 			return This
 
-	def JustifiedXT(nWidth, cChar)
-		cResult = This.Copy().JustifyXTQ(nWidth, cChar).Content()
+	def JustifiedXT(nWidth, pcChar)
+		cResult = This.Copy().JustifyXTQ(nWidth, pcChar).Content()
 
 	  #==================================#
 	 #    TEXT ENCODING & CONVERTING    #
@@ -32438,8 +32682,10 @@ def ReplaceIBS()
 
 	def CharsAndUnicodes()
 		aResult = []
-		for i = 1 to This.NumberOfChars()
-			aResult + [ This[i], This.UnicodeOfCharN(i) ]
+		nLen = This.NumberOfChars()
+
+		for i = 1 to nLen
+			aResult + [ This.Char(i), This.UnicodeOfCharN(i) ]
 		next
 
 		return aResult
@@ -32452,9 +32698,10 @@ def ReplaceIBS()
 
 	def UnicodesAndChars()
 		aResult = []
+		nLen = This.NumberOfChars()
 
-		for i = 1 to This.NumberOfChars()
-			aResult + [ This.UnicodeOfCharN(i), This[i] ]
+		for i = 1 to nLen
+			aResult + [ This.UnicodeOfCharN(i), This.Char(i) ]
 		next
 
 		return aResult
@@ -32475,9 +32722,10 @@ def ReplaceIBS()
 
 	def CharsNames()
 		acResult = []
+		nLen = This.NumberOfChars()
 
-		for i = 1 to This.NumberOfChars()
-			acResult + StzCharQ( This[i] ).Name()
+		for i = 1 to nLen
+			acResult + This.CharQ(i).Name()
 		next
 
 		return acResult
@@ -33783,10 +34031,12 @@ def ReplaceIBS()
 			
 	def ToListOfStzChars()
 		aResult = []
-		for i = 1 to This.NumberOfChars()
+		nLen = This.This.NumberOfChars()
+
+		for i = 1 to nLen
 		# Warning: Note that using 'for in' yields erronous
 		# result for strings coded on more then 1 byte
-			aResult + new stzChar(This[i])
+			aResult + This.CharQ(i)
 		next
 		return aResult
 
@@ -33916,14 +34166,14 @@ def ReplaceIBS()
 	def AllCharsAreNumbers()
 		nLen = This.NumberOfChars()
 
-		if nLen = 0 or (nLen = 1 and NOT Q(This[1]).IsANumber() )
+		if nLen = 0 or (nLen = 1 and NOT This.FirstCharQ().IsANumber() )
 			return FALSE
 		ok
 
 		bResult = TRUE
 		
 		for i = 1 to nLen
-			if NOT QR(This[i], :stzChar).IsANumber()
+			if NOT This.CharQ(i).IsANumber()
 				bResult = FALSE
 				exit
 			ok
@@ -34242,7 +34492,7 @@ def ReplaceIBS()
 	#------------------#
 
 	def UniqueChars()
-		acResult = This.CharQR(:stzListOfStrings).DuplicatesRemoved()
+		acResult = This.CharsQR(:stzListOfStrings).DuplicatesRemoved()
 		return acResult
 
 		#< @FunctionFluentForm
@@ -34437,7 +34687,7 @@ def ReplaceIBS()
 				return new stzListOfChars( This.CharsAtPositionsQR(panPositions, pcReturnType) )
 
 			other
-				stzRaise("Insupported param type!")
+				stzRaise("Unsupported param type!")
 			off
 
 		#>
@@ -35799,7 +36049,7 @@ def ReplaceIBS()
 		ok
 
 		if NOT Q(pcHashingAlgo).IsOneOfThese([ :MD5, :SHA1, :SHA256, :SHA512, :SHA384, :SHA224 ])
-			StzRaise("Insupported hashing algorithm! Allowed values are :MD5, :SHA1, :SHA256, :SHA512, :SHA384 and :SHA224.")
+			StzRaise("Unsupported hashing algorithm! Allowed values are :MD5, :SHA1, :SHA256, :SHA512, :SHA384 and :SHA224.")
 		ok
 
 		cHashed = ""
@@ -36018,7 +36268,7 @@ def ReplaceIBS()
 
 		for i = pnFromPosition to pnToPosition step pnStep
 			anPositions + i
-			acChars + This[i]
+			acChars + This.Char(i)
 		next
 
 		aResult = []
@@ -36198,16 +36448,18 @@ def ReplaceIBS()
 		ok
 
 		cCompressed = ""
+		nLenBinary = len(cBinary)
+		nLen = This.NumberOfChars()
 
-		for i = 1 to len(cBinary)
-			if cBinary[i] = "1" and i <= This.NumberOfChars()					
-				cCompressed += This[i]
+		for i = 1 to nLenBinary
+			if cBinary[i] = "1" and i <= nLen					
+				cCompressed += This.Char(i)
 			ok
 		next
 			
-		if This.NumberOfChars() > len(cBinary)
-			for i = len(cBinary)+1 to This.NumberOfChars()
-				cCompressed += This[i] 
+		if nLen > nLenBinary
+			for i = NLenBinary + 1 to nLen
+				cCompressed += This.CHar(i) 
 			next
 		ok
 
@@ -37556,12 +37808,16 @@ def ReplaceIBS()
 					anResult = []
 
 					@char = ""
-					for i = 1 to This.NumberOfChars()
-						@char = This[i]
-						cCode = 'if ( ' + pcCondition + ' )' + NL +
-							'	anResult + i' + NL +
-							'ok'
+					nLen = This.NumberOfChars()
+
+					for @i = 1 to nLen
+						@char = This.Char(@i)
+						cCode = 'bOk = ( ' + pcCondition + ' )'
+
 						eval(cCode)
+						if bOk
+							anResult + @i
+						ok
 					next
 
 					return anResult
@@ -37984,13 +38240,7 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
-		def StartsWithThisNumber(n)
-			return This.StartsWithNumber(n)
-
 		def StartsWithLeadingNumber(n)
-			return This.StartsWithNumber(n)
-
-		def StartsWithThisLeadingNumber(n)
 			return This.StartsWithNumber(n)
 
 		def ContainsStartingNumber(n)
@@ -37999,22 +38249,10 @@ def ReplaceIBS()
 		def ContainsLeadingNumber(n)
 			return This.StartsWithNumber(n)
 
-		def ContainsThisStartingNumber(n)
-			return This.StartsWithNumber(n)
-
-		def ConatainsThisLeadingNumber(n)
-			return This.StartsWithNumber(n)
-
 		def HasLeadingNumber(n)
 			return This.StartsWithNumber(n)
 
-		def HasThisLeadingNumber(n)
-			return This.StartsWithNumber(n)
-
 		def HasStartingNumber(n)
-			return This.StartsWithNumber(n)
-
-		def HasThisStartingNumber(n)
 			return This.StartsWithNumber(n)
 
 		#>
@@ -38080,14 +38318,15 @@ def ReplaceIBS()
 		cResult = ""
 		bContinue = TRUE
 		i = 0
+		nLen = This.NumberOfChars()
 
 		while bContinue
 			i++
-			if i > This.NumberOfChars()
+			if i > nLen
 				bContinue = FALSE
 
 			else
-				cCurrentChar = This[i]
+				cCurrentChar = This.Char(i)
 
 				if NOT ( Q(cCurrentChar).IsANumberInString() or
 					 Q(cCurrentChar).IsOneOfThese([ "+", "-", "_", "." ]) )
@@ -38140,19 +38379,10 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
-		def EndsWithThisNumber(n)
-			return This.EndsWithNumber(n)
-
 		def EndsWithTrailingNumber(n)
 			return This.EndsWithNumber(n)
 
-		def EndsWithThisTrailingNumber(n)
-			return This.EndsWithNumber(n)
-
 		def EndsWithFinalNumber(n)
-			return This.EndsWithNumber(n)
-
-		def EndsWithThisFinalNumber(n)
 			return This.EndsWithNumber(n)
 
 		def ContainsTrailingNumber(n)
@@ -38161,16 +38391,7 @@ def ReplaceIBS()
 		def ContainsFinalNumber(n)
 			return This.StartsWithNumber(n)
 
-		def ContainsThisTrailingNumber(n)
-			return This.StartsWithNumber(n)
-
-		def ConatainsThisFinalNumber(n)
-			return This.StartsWithNumber(n)
-
 		def ContainsEndingNumber(n)
-			return This.StartsWithNumber(n)
-
-		def ContainsThisEndingNumber(n)
 			return This.StartsWithNumber(n)
 
 		#>
@@ -38229,7 +38450,7 @@ def ReplaceIBS()
 				bContinue = FALSE
 
 			else
-				cCurrentChar = This[i]
+				cCurrentChar = This.Char(i)
 
 				if NOT ( Q(cCurrentChar).IsANumberInString() or
 					 Q(cCurrentChar).IsOneOfThese([ "+", "-", "."]) )

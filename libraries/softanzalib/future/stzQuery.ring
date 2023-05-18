@@ -102,7 +102,7 @@ class stzQuery from stzObject
 				aValue = pValue
 
 			else
-				StzRaise("Insupported value!")
+				StzRaise("Unsupported value!")
 			ok
 
 			// Adding the request result dependening on the condition
