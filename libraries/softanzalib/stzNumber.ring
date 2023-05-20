@@ -804,31 +804,6 @@ func BothAreZeros(n1, n2)
 		return FALSE
 	ok
 
-func IsEven(n)
-	return Q(n).IsEven()
-
-	func IsZawji(n)
-		return IsEven(n)
-
-	funcn IsNotOdd(n)
-		return IsEven(n)
-
-	func IsNotFardi(n)
-		return IsEven(n)
-
-func IsOdd(n)
-	return Q(n).IsOdd()
-
-	func IsFardi(n)
-		return IsOdd(n)
-
-	funcn IsNotEven(n)
-		return IsOdd(n)
-
-	func IsNotZawji(n)
-		return IsOdd(n)
-
-
 #---- used for natural-coding (don't remove them!)
 
 func Number(n)
@@ -1138,7 +1113,7 @@ class stzNumber from stzObject
 		ok
 
 	def IsOdd()
-		if This.OddOrEven() = 1
+		if OddOrEven(This.NumericValue()) = :Odd
 			return TRUE
 		else
 			return FALSE
@@ -1162,7 +1137,7 @@ class stzNumber from stzObject
 		#>
 
 	def IsEven()
-		if OddOrEven(This.NumericValue()) = 2
+		if OddOrEven(This.NumericValue()) = :Even
 			return TRUE
 		else
 			return FALSE
