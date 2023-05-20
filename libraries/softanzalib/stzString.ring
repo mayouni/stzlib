@@ -3983,7 +3983,7 @@ class stzString from stzObject
 
 	def NumberOfDuplicatesCS(pCaseSensitive)
 
-		nResult = len( This.FindDuplicatesCS(pCaseSensitive) )
+		nResult = len( This.DuplicatesCS(pCaseSensitive) )
 		return nResult
 
 		def HowManyDuplicatesCS(pCaseSensitive)
@@ -4016,15 +4016,19 @@ class stzString from stzObject
 	#----------------------#
 
 	def FindDuplicatesCS(pCaseSensitive)
-
-		acDuplicatesAndTheirPositions = This.DuplicatesUZCS(pCaseSensitive)
-		aListOfanPositions = QR(acDuplicatesAndTheirPositions, :stzListOfPairs).SecondItems()
-		nLen = len(aListOfanPositions)
+		acDuplicates = This.DuplicatesCS(pCaseSensitive)
+		nLen = len(acDuplicates)
 
 		anResult = []
+
 		for i = 1 to nLen
-			anPos = Q(aListOfanPositions[i]).FirstItemRemoved()
-			anResult + anPos
+			anPos = This.FindCSQ(acDuplicates[i], pCaseSensitive).FirstItemRemoved()
+			nLenPos = len(anPos)
+			for j = 1 to nLenPos
+				if ring_find(anResult, anPos[j]) = 0
+					anResult + anPos[j]
+				ok
+			next
 		next
 
 		return anResult
@@ -4040,7 +4044,7 @@ class stzString from stzObject
 
 	def FindDuplicatesAsSectionsCS(pCaseSensitive)
 
-		acDuplicates = This.
+//>>>>>>>		
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -4066,10 +4070,25 @@ class stzString from stzObject
 	#------------------------------------------------#
 
 	def DuplicatesAndTheirPositionsCS(pCaseSensitive)
-		aDuplicates = This.DuplicatesCS(pCaseSensitive)
-		anPositions = This.FindDuplicatesCS(pCaseSensitive)
+		# WARNING: Don't use FindDuplicates() direcly here
+		# because it may lead to a wrong result when more
+		# than a substring is duplicated in the same position.
+ 
+		acDuplicates = This.DuplicatesCS(pCaseSensitive)
+		nLen = len(acDuplicates)
 
-		aResult = Association([ aDuplicates, anPositions ])
+		aResult = []
+		anPos = []
+
+		for i = 1 to nLen
+			anTempPos = This.FindCSQ(acDuplicates[i], pCaseSensitive).FirstItemRemoved()
+			nLenPos = len(anTempPos)
+			for j = 1 to nLenPos
+				anPos + anTempPos[j]
+			next
+		next
+
+		aResult = Association([ acDuplicates, anPos ])
 		return aResult
 
 		def DuplicatesZCS(pCaseSensitive)
@@ -4101,16 +4120,36 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def UniqueDuplicatesAndTheirPositionsCS(pCaseSensitive)
+			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
+
 		def DuplicatesUZCS(pCaseSensitive)
 			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
+
+		def UniqueDuplicatesZCS(pCaseSensitive)
+			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesAndTheirPositionsU()
 		return This.DuplicatesAndTheirPositionsUCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def UniqueDuplicatesAndTheirPositions()
+			return This.DuplicatesAndTheirPositionsU()
+
 		def DuplicatesUZ()
 			return This.DuplicatesAndTheirPositionsU()
+
+		def UniqueDuplicatesZ()
+			return This.DuplicatesAndTheirPositionsU()
+
+		#>
 
 	  #-------------------------------------#
 	 #   NUMBER OF DUPLICATED SUBSTRINGS   #

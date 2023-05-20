@@ -1,13 +1,15 @@
 load "stzlib.ring"
 
-/*----------------- ERR
+/*-----------------
 
 pron()
 
 o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
-? o1.FindLast(2)
+? o1.FindLast("*")
+#--> 7
 
 proff()
+# Executed in 0.02 second(s)
 
 /*-----------------
 
@@ -18,7 +20,7 @@ o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
 #--> 4
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*-----------------
 
@@ -36,18 +38,7 @@ proff()
 pron()
 
 ? ring_find( 1:100_000, 67_000 )
-
-proff()
-
-/*-----------------
-
-pron()
-
-? OddOrEven(5)
-#--> :Odd
-
-? OddOrEven(120)
-#--> :Even
+#--> 67000
 
 proff()
 # Executed in 0.02 second(s)

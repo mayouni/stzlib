@@ -1,18 +1,6 @@
 load "stzlib.ring"
 
-/*----------
 
-pron()
-
-? @@("n")	#--> "n"
-? @@('n')	#--> "n"
-? @@("'n'")	#--> "'n'"
-? @@('"n"')	#--> '"n"'
-
-proff()
-#--> Executed in 0.02 second(s)
-
-/*----------
 
 pron()
 
@@ -22,7 +10,7 @@ o1 = new stzList([ "a", "ab", "abnA", "abAb" ])
 #--> FALSE
 
 ? o1.FindFirst("n")
-#--> FALSE
+#--> 0
 
 proff()
 # Executed in 0.02 second(s)
@@ -207,8 +195,14 @@ proff()
 # Executed in 3.33 second(s)
 
 /*----------
-*/
+
 pron()
+
+# Duplicates can be found, not only inside a list,
+# but also inside a string. Duplicates are the
+# kind of substrings that occur more then once.
+# We can track them using the same functions as
+# in stzList.
 
 o1 = new stzString("RINGORIALAND")
 ? o1.ContainsDuplicates()
@@ -217,13 +211,16 @@ o1 = new stzString("RINGORIALAND")
 ? o1.NumberOfDuplicates()
 #--> 5
 
+? @@S( o1.FindDuplicates() )
+
 ? @@S( o1.Duplicates() )
 #--> [ "R", "RI", "I", "A", "N" ]
 
 ? @@S( o1.DuplicatesZ() )
+#--> [ [ "R", 6 ], [ "RI", 6 ], [ "I", 7 ], [ "A", 10 ], [ "N", 11 ] ]
 
 proff()
-# Executed in 1.66 second(s)
+# Executed in 1.57 second(s)
 
 /*----------------------------------------------------------
 TODO: SUBSTRING

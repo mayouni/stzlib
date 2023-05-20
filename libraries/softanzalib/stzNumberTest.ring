@@ -1,5 +1,20 @@
 load "stzlib.ring"
 
+/*-----------------
+
+pron()
+
+? OddOrEven(5)
+#--> :Odd
+
+? OddOrEven(120)
+#--> :Even
+
+proff()
+# Executed in 0.02 second(s)
+
+/*-----------------
+*/
 pron()
 
 ? Q(12).IsZawji()	# or IsEven()
@@ -9,6 +24,7 @@ pron()
 #--> TRUE
 
 proff()
+# Executed in 0.02 second(s)
 
 /*--------------------
 
