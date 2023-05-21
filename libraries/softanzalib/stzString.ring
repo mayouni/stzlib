@@ -3767,9 +3767,6 @@ class stzString from stzObject
 
 		return bResult
 
-		def ContainsDuplicationsCS(pCaseSensitive)
-			return This.ContainsDuplicatedSubStringsCS(pCaseSensitive)
-
 		def ContainsDuplicatesCS(pCaseSensitive)
 			return This.ContainsDuplicatedSubStringsCS(pCaseSensitive)
 
@@ -3778,9 +3775,6 @@ class stzString from stzObject
 	def ContainsDuplicatedSubStrings()
 		return This.ContainsDuplicatedSubStringsCS(:CaseSensitive = TRUE)
 	
-		def ContainsDuplications()
-			return This.ContainsDuplicatedSubStrings()
-
 		def ContainsDuplicates()
 			return This.ContainsDuplicatedSubStrings()
 
@@ -4022,7 +4016,7 @@ class stzString from stzObject
 		anResult = []
 
 		for i = 1 to nLen
-			anPos = This.FindCSQ(acDuplicates[i], pCaseSensitive).FirstItemRemoved()
+			anPos = This.FindCSQ(acDuplicates[i], pCaseSensitive)
 			nLenPos = len(anPos)
 			for j = 1 to nLenPos
 				if ring_find(anResult, anPos[j]) = 0
@@ -4044,7 +4038,10 @@ class stzString from stzObject
 
 	def FindDuplicatesAsSectionsCS(pCaseSensitive)
 
-//>>>>>>>		
+		acDuplicates = This.DuplicatesCS(pCaseSensitive)
+		aResult = This.FindAsSectionsCS(acDuplicates)
+		
+		return aResult
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -4070,26 +4067,13 @@ class stzString from stzObject
 	#------------------------------------------------#
 
 	def DuplicatesAndTheirPositionsCS(pCaseSensitive)
-		# WARNING: Don't use FindDuplicates() direcly here
-		# because it may lead to a wrong result when more
-		# than a substring is duplicated in the same position.
- 
-		acDuplicates = This.DuplicatesCS(pCaseSensitive)
-		nLen = len(acDuplicates)
+		aDuplicatesZZ = DuplicatesAndTheirSectionsCS(pCaseSensitive)
+		nLen = len(aDuplicates)
 
 		aResult = []
-		anPos = []
-
 		for i = 1 to nLen
-			anTempPos = This.FindCSQ(acDuplicates[i], pCaseSensitive).FirstItemRemoved()
-			nLenPos = len(anTempPos)
-			for j = 1 to nLenPos
-				anPos + anTempPos[j]
-			next
+			aResult + [ aDuplicatesZZ[1], aDuplicatesZZ[2][1] ]
 		next
-
-		aResult = Association([ acDuplicates, anPos ])
-		return aResult
 
 		def DuplicatesZCS(pCaseSensitive)
 			return This.DuplicatesAndTheirPositionsCS(pCaseSensitive)
@@ -4103,432 +4087,26 @@ class stzString from stzObject
 			return This.DuplicatesAndTheirPositions()
 
 	  #------------------------------------------------#
-	 #  DUPLICATES AND THEIR POSITIONS -- UZ/Extended  #
+	 #  DUPLICATES AND THEIR SECTIONS -- ZZ/Extended  #
 	#------------------------------------------------#
 
-	def DuplicatesAndTheirPositionsUCS(pCaseSensitive)
-		acDuplicated = This.DuplicatedSubStringsCS(pCaseSensitive)
-		nLen = len(acDuplicated)
-
-		aResult = []
-		for i = 1 to nLen
-			anPos = This.FindCSQ(acDuplicated[i], pCaseSensitive).FirstItemRemoved()
-			if len(anPos) > 0
-				aResult + [ acDuplicated[i], anPos ]
-			ok
-		next
-
+	def DuplicatesAndTheirSectionsCS(pCaseSensitive)
+		acDuplicates = This.DuplicatesCS(pCaseSensitive)
+		aSections = This.FindAsSectionsCS(acDuplicates)
+		aResult = Association([ acDuplicates, aSections ])
+		
 		return aResult
 
-		#< @FunctionAlternativeForms
-
-		def UniqueDuplicatesAndTheirPositionsCS(pCaseSensitive)
-			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
-
-		def DuplicatesUZCS(pCaseSensitive)
-			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
-
-		def UniqueDuplicatesZCS(pCaseSensitive)
-			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
-
-		#>
+		def DuplicatesZZCS(pCaseSensitive)
+			return This.DuplicatesAndTheirSectionsCS(pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def DuplicatesAndTheirPositionsU()
-		return This.DuplicatesAndTheirPositionsUCS(:CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def UniqueDuplicatesAndTheirPositions()
-			return This.DuplicatesAndTheirPositionsU()
-
-		def DuplicatesUZ()
-			return This.DuplicatesAndTheirPositionsU()
-
-		def UniqueDuplicatesZ()
-			return This.DuplicatesAndTheirPositionsU()
-
-		#>
-
-	  #-------------------------------------#
-	 #   NUMBER OF DUPLICATED SUBSTRINGS   #
-	#=====================================#
-
-	def NumberOfDuplicatedSubStringsCS(pCaseSensitive)
-		nResult = len( This.DuplicatedSubStringsCS(pCaseSensitive) )
-		return nResult
-
-		def HowManyDuplicatedSubStringsCS(pCaseSensitive)
-			return This.NumberOfDuplicatedsubStringsCS(pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def NumberOfDuplicatedSubStrings()
-		return This.NumberOfDuplicatedSubStringsCS(:CaseSensitive = TRUE)
-
-		def HowManyDuplicatedSubStrings()
-			return This.NumberOfDuplicatedSubStrings()
-
-	  #---------------------------#
-	 #   DUPLICATED SUBSTRINGS   #
-	#---------------------------#
-
-	def DuplicatedSubStringsCS(pCaseSensitive)
-		acResult = This.SubStringsCSQ(pCaseSensitive).DuplicatedItemsCS(pCaseSensitive)
-		return acResult
-
-		#< @FunctionFluentForm
-
-		def DuplicatedSubStringsCSQ(pCaseSensitive)
-			return This.DuplicatedSubStringsCSQR(pCaseSensitive, :stzList)
-
-		def DuplicatedSubStringsCSQR(pCaseSensitive, pcReturntype)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.DuplicatedSubStringsCS(pCaseSensitive) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.DuplicatedSubStringsCS(pCaseSensitive) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.DuplicatedSubStringsCS(pCaseSensitive) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.DuplicatedSubStringsCS(pCaseSensitive) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def DuplicatedSubStrings()
-		return This.DuplicatedSubStringsCS(:CaseSensitive = TRUE)
-		
-		#< @FunctionFluentForm
-
-		def DuplicatedSubStringsQ()
-			return This.DuplicatedSubStringsQR(:stzList)
-
-		def DuplicatedSubStringsQR(pcReturntype)
-			return This.DuplicatedSubStringsCSQR(:CaseSensitive = TRUE, pcReturntype)
-		#>
-
-	  #-----------------------------------#
-	 #   FINDING DUPLICATED SUBSTRINGS   #
-	#-----------------------------------#
-
-	def FindDuplicatedSubStringsCS(pCaseSensitive)
-		anResult = []
-
-		acDuplicated = This.DuplicatedSubStringsCS(pCaseSensitive)
-
-		nLen = len(aDuplicated)
-
-		for i = 1 to nLen
-			anPos = This.FindCS(acDuplicated[i], pCaseSensitive)
-			nLenPos = len(anPos)
-			for j = 1 to nLenPos
-				anResult + anPos[j]
-			next
-		next
-
-		anResult = Q(anResult).Sorted()
-		return anResult
-
-		
-		#< @FunctionFluentForm
-
-		def FindDuplicatedSubStringsCSQ(pCaseSensitive)
-			return This.FindDuplicatedSubStringsCSQR(pCaseSensitive, :stzList)
-
-		def FindDuplicatedSubStringsCSQR(pCaseSensitive, pcReturntype)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindDuplicatedSubStringsCS(pCaseSensitive) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.FindDuplicatedSubStringsCS(pCaseSensitive) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicatedSubStringsCS(pCaseSensitive) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.FindDuplicatedSubStringsCS(pCaseSensitive) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def PositionsOfDuplicatedSubStringsCS(pCaseSensitive)
-			return This.FindDuplicatedSubStringsCS(pCaseSensitive)
-
-			def PositionsOfDuplicatedSubStringsCSQ(pCaseSensitive)
-				return This.PositionsOfDuplicatedSubStringsCSQR(pCaseSensitive, :stzList)
-
-			def PositionsOfDuplicatedSubStringsCSQR(pCaseSensitive, pcReturntype)
-				return This.FindDuplicatedSubStringsCSQR(pCaseSensitive, pcReturntype)
-
-		def DuplicatedSubStringsPositionsCS(pCaseSensitive)
-			return This.FindDuplicatedSubStringsCS(pCaseSensitive)
-
-			def DuplicatedSubStringsPositionsCSQ(pCaseSensitive)
-				return This.PositionsOfDuplicatedSubStringsCSQR(pCaseSensitive, :stzList)
-
-			def DuplicatedSubStringsPositionsCSQR(pCaseSensitive, pcReturntype)
-				return This.FindDuplicatedSubStringsCSQR(pCaseSensitive, pcReturntype)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindDuplicatedSubStrings()
-		return This.FindDuplicatedSubStringsCS(:CaseSensitive = TRUE)
-		
-		#< @FunctionFluentForm
-
-		def FindDuplicatedSubStringsQ()
-			return This.FindDuplicatedSubStringsQR(:stzList)
-
-		def FindDuplicatedSubStringsQR(pcReturntype)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindDuplicatedSubStrings() )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicatedSubStrings() )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.FindDuplicatedSubStrings() )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.FindDuplicatedSubStrings() )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def PositionsOfDuplicatedSubStrings()
-			return This.FindDuplicatedSubStrings()
-
-			def PositionsOfDuplicatedSubStringsQ()
-				return This.PositionsOfDuplicatedSubStringsQR(:stzList)
-
-			def PositionsOfDuplicatedSubStringsQR(pcReturntype)
-				return This.FindDuplicatedSubStringsQR(pcReturntype)
-
-		def DuplicatedSubStringsPositions()
-			return This.FindDuplicatedSubStrings()
-
-			def DuplicatedSubStringsPositionsQ()
-				return This.PositionsOfDuplicatedSubStringsQR(:stzList)
-
-			def DuplicatedSubStringsPositionsQR(pcReturntype)
-				return This.FindDuplicatedSubStringsCSQR(pcReturntype)
-
-		#>
-
-	  #-----------------------------------------------#
-	 #   DUPLICATED SUBSTRINGS AND THEIR POSITIONS   #
-	#-----------------------------------------------#
-
-	def DuplicatedSubStringsAndTheirPositionsCS(pCaseSensitive)
-		acDuplicatedSubStr = This.DuplicatedSubStringsCS(pCaseSensitive)
-		nLen = len(acDuplicatedSubStr)
-
-		acResult = []
-		for i = 1 to nLen
-			str = acDuplicatedSubStr[i]
-			acResult + [ str, This.FindAllCS(str, pCaseSensitive) ]
-		next
-
-		return acResult
-
-		#< @FunctionAlternativeForms
-
-		def DuplicatedSubStringsZCS(pCaseSensitive)
-			return This.DuplicatedSubStringsAndTheirPositionsCS(pCaseSensitive)
-
-		#-- By nature, duplicated substrings are unique, so for convenience, we can add
-		#-- the U extension as alternatives
-
-		def DuplicatedSubStringsAndTheirPositionsUCS(pCaseSensitive)
-			return This.DuplicatedSubStringsAndTheirPositionsCS(pCaseSensitive)
-
-		def DuplicatedSubStringsUZCS(pCaseSensitive)
-			return This.DuplicatedSubStringsAndTheirPositionsCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def DuplicatedSubStringsAndTheirPositions()
-		return This.DuplicatedSubStringsAndTheirPositionsCS(:CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def DuplicatedSubStringsZ()
-			return This.DuplicatedSubStringsAndTheirPositions()
-
-		#-- By nature, duplicated substrings are unique, so for convenience, we can add
-		#-- the U extension as alternatives
-
-		def DuplicatedSubStringsAndTheirPositionsU()
-			return This.DuplicatedSubStringsAndTheirPositions()
-
-		def DuplicatedSubStringsUZ()
-			return This.DuplicatedSubStringsAndTheirPositions()
-
-		#>
-
-	  #------------------------------------------#
-	 #   FINDING A GIVEN DUPLICATED SUBSTRING   #
-	#==========================================#
-
-	def FindDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
-
-		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
-
-		if len(anPos) > 1
-			return anPos
-		else
-			return 0
-		ok
-
-		#< @FunctionFluentForm
-
-		def FindDuplicatedSubStringCSQ(pcSubStr, pCaseSensitive)
-			return This.FindDuplicatedSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
-
-		def FindDuplicatedSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindDuplicatedSubStringCS(pcSubStr, pCaseSensitive) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicatedSubstringCS(pcSubStr, pCaseSensitive) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def FindDuplicatedCS(pcSubStr, pCaseSensitive)
-			return This.FindDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
-
-			def FindDuplicatedCSQ(pcSubStr, pCaseSensitive)
-				return This.FindDuplicatedCSQR(pcSubStr, pCaseSensitive, :stzList)
-	
-			def FindDuplicatedCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindDuplicatedsubStrCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
-
-		def PositionsOfDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
-
-			def PositionsOfDuplicatedSubStringCSQ(pcSubStr, pCaseSensitive)
-				return This.PositionsOfDuplicatedSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
-
-			def PositionsOfDuplicatedSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindDuplicatedCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-
-		def DuplicatedSubStringPositionsCS(pcSubStr, pCaseSensitive)
-			return This.FindDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
-
-			def DuplicatedSubStringPositionsCSQ(pcSubStr, pCaseSensitive)
-				return This.PositionsOfDuplicatedSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
-
-			def DuplicatedSubStringPositionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindDuplicatedCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindDuplicatedSubString(pcSubStr)
-
-		return This.FindDuplicatedSubStringCS(pcSubStr, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def FindDuplicatedSubStringQ(pcSubStr)
-			return This.FindDuplicatedSubStringQR(pcSubStr, :stzList)
-
-		def FindDuplicatedSubStringQR(pcSubStr, pcReturnType)
-			return This.FindDuplicatedSubStringCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def FindDuplicated(pcSubStr)
-			return This.FindDuplicatedSubString(pcSubStr)
-
-			def FindDuplicatedQ(pcSubStr)
-				return This.FindDuplicatedQR(pcSubStr, :stzList)
-	
-			def FindDuplicatedQR(pcSubStr, pcReturnType)
-				return This.FindDuplicatedSubStringQR(pcSubStr, pcReturnType)
-
-		def PositionsOfDuplicatedSubString(pcSubStr)
-			return This.FindDuplicatedSubString(pcSubStr)
-
-			def PositionsOfDuplicatedSubStringQ(pcSubStr)
-				return This.PositionsOfDuplicatedSubStringQR(pcSubStr, :stzList)
-
-			def PositionsOfDuplicatedSubStringQR(pcSubStr, pcReturnType)
-				return This.FindDuplicatedQR(pcSubStr, pcReturnType)
-
-		def DuplicatedSubStringPositions(pcSubStr)
-			return This.FindDuplicatedSubString(pcSubStr)
-
-			def DuplicatedSubStringPositionsQ(pcSubStr)
-				return This.PositionsOfDuplicatedSubStringQR(pcSubStr, :stzList)
-
-			def DuplicatedSubStringPositionsQR(pcSubStr, pcReturnType)
-				return This.FindDuplicatedQR(pcSubStr, pcReturnType)
-
-		#>
+	def DuplicatesAndTheirSections()
+		return This.DuplicatesAndTheirSectionsCS(:CaseSensitive = TRUE)
+
+		def DuplicatesZZ()
+			return This.DuplicatesAndTheirSections()
 
 	  #---------------------------------------------#
 	 #   FINDING DUPLICATES OF A GIVEN SUBSTRING   #
@@ -4557,123 +4135,6 @@ class stzString from stzObject
 
 		def PositionsOfDuplicatesOfSubString(pcSubStr)
 			return This.FindDuplicatesOfSubString(pcSubStr)
-
-	  #------------------------------------------------------#
-	 #   FINDING A GIVEN DUPLICATED SUBSTRING AS SECTIONS   #
-	#------------------------------------------------------#
-
-	def FindDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
-
-		aSectionss = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
-
-		if len(anPos) > 1
-			return anPos
-		else
-			return 0
-		ok
-
-		#< @FunctionFluentForm
-
-		def FindDuplicatedSubStringAsSectionsCSQ(pcSubStr, pCaseSensitive)
-			return This.FindDuplicatedSubStringAsSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
-
-		def FindDuplicatedSubStringAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicatedSubstringAsSectionsCS(pcSubStr, pCaseSensitive) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def FindDuplicatedAsSectionsCS(pcSubStr, pCaseSensitive)
-			return This.FindDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
-
-			def FindDuplicatedAsSectionsCSQ(pcSubStr, pCaseSensitive)
-				return This.FindDuplicatedAsSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
-	
-			def FindDuplicatedAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindDuplicatedSubStringAsSectionsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
-
-		def PositionsOfDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
-			return This.FindDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
-
-			def PositionsOfDuplicatedSubStringAsSectionsCSQ(pcSubStr, pCaseSensitive)
-				return This.PositionsOfDuplicatedSubStringAsSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
-
-			def PositionsOfDuplicatedSubStringAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindDuplicatedAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-
-		def DuplicatedSubStringPositionsAsSectionsCS(pcSubStr, pCaseSensitive)
-			return This.FindDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
-
-			def DuplicatedSubStringPositionsAsSectionsCSQ(pcSubStr, pCaseSensitive)
-				return This.PositionsOfDuplicatedSubStringAsSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
-
-			def DuplicatedSubStringPositionsAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindDuplicatedAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindDuplicatedSubStringAsSections(pcSubStr)
-
-		return This.FindDuplicatedSubStringAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def FindDuplicatedSubStringAsSectionsQ(pcSubStr)
-			return This.FindDuplicatedSubStringAsSectionsQR(pcSubStr, :stzList)
-
-		def FindDuplicatedSubStringAsSectionsQR(pcSubStr, pcReturnType)
-			return This.FindDuplicatedSubStringAsSectionsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def FindDuplicatedAsSections(pItem)
-			return This.FindDuplicatedSubStringAsSections(pcSubStr)
-
-			def FindDuplicatedAsSectionsQ(pcSubStr)
-				return This.FindDuplicatedAsSectionsQR(pcSubStr, :stzList)
-	
-			def FindDuplicatedAsSectionsQR(pcSubStr, pcReturnType)
-				return This.FindDuplicatedItemAsSectionsQR(pcSubStr, pcReturnType)
-
-		def PositionsOfDuplicatedSubStringAsSections(pcSubStr)
-			return This.FindDuplicatedSubStringAsSections(pcSubStr)
-
-			def PositionsOfDuplicatedSubStringAsSectionsQ(pcSubStr)
-				return This.PositionsOfDuplicatedSubStringAsSectionsQR(pcSubStr, :stzList)
-
-			def PositionsOfDuplicatedSubStringAsSectionsQR(pcSubStr, pcReturnType)
-				return This.FindDuplicatedAsSectionsQR(pcSubStr, pcReturnType)
-
-		def DuplicatedSubStringPositionsAsSections(pcSubStr)
-			return This.FindDuplicatedSubStringAsSections(pcSubStr)
-
-			def DuplicatedSubStringPositionsAsSectionsQ(pcSubStr)
-				return This.PositionsOfDuplicatedSubStringAsSectionsQR(pcSubStr, :stzList)
-
-			def DuplicatedSubStringPositionsAsSectionsQR(pcSubStr, pcReturnType)
-				return This.FindDuplicatedAsSectionsQR(pcSubStr, pcReturnType)
-
-		#>
 
 	  #---------------------------------------------------------#
 	 #   FINDING DUPLICATES OF A GIVEN SUBSTRING AS SECTIONS   #
@@ -4867,43 +4328,6 @@ class stzString from stzObject
 				return This
 
 		#>
-
-	  #----------------------------------#
-	 #  REMOVING DUPLICATED SUBSTRINGS  #
-	#----------------------------------#
-
-	def RemoveDuplicatedSubStringsCS(pCaseSensitive)
-		aSections = This.FindDuplicatedSubStringsAsSectionsCS(pCaseSensitive)
-		This.RemoveSections(aSections)
-
-		#< @FunctionFluentForm
-
-		def RemoveDuplicatedSubStringsCSQ(pCaseSensitive)
-			This.RemoveDuplicatedSubStringsCS(pCaseSensitive)
-			return This
-
-		#>
-
-	def DuplicatedSubStringsRemovedCS(pCaseSensitive)
-		aResult = This.Copy().RemoveDuplicatedSubStringsCSQ(pCaseSensitive).Content()
-		return aResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RemoveDuplicatedSubStrings()
-		return This.RemoveDuplicatedSubStringsCS(:CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def RemoveDuplicatedSubStringsQ()
-			This.RemoveDuplicatedSubStrings()
-			return This
-
-		#>
-
-	def DuplicatedSubStringsRemoved()
-		acResult = This.Copy().RemoveDuplicatedItemsQ().Content()
-		return acResult
 
 	  #===============================================#
 	 #   TRANSFORMING THE STRING TO A STZTEXTOBJECT  #
@@ -14384,7 +13808,7 @@ def ReplaceIBS()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindNth(n, pcSubstr, pCaseSensitive)
+	def FindNth(n, pcSubstr)
 		return This.FindNthCS(n, pcSubstr, :CaseSensitive = TRUE)
 
 	  #===============================================================================#
@@ -14456,11 +13880,24 @@ def ReplaceIBS()
 
 		return anResult
 
+		#< @FunctionMisspelledForm
+
+		def FindLasteAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastAsSectionCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastAsSection(pcSubStr)
 		return This.FindLasteAsSectionCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionMisspelledForm
+
+		def FindLasteAsSection(pcSubStr)
+			return This.FindLastAsSection(pcSubStr)
+
+		#>
 
 	  #============================================#
 	 #  FINDING THE ANTI-SECTIONS OF A SUBSTRING  #
@@ -14679,10 +14116,22 @@ def ReplaceIBS()
 
 		return aResult
 
+		def FindNthCSZ(n, pcSubStr, pCaseSensitive)
+			return This.FindNthZCS(n, pcSubStr, pCaseSensitive)
+
+		def NthZCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthZCS(n, pcSubStr, pCaseSensitive)
+
+		def NthCSZ(n, pcSubStr, pCaseSensitive)
+			return This.FindNthZCS(n, pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthZ(n, pcSubStr)
 		return This.FindNthZCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def NthZ(n, pcSubStr)
+			return This.FindNthZ(n, pcSubStr)
 
 	  #----------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- ZZ-EXTENDED  #
@@ -14697,10 +14146,19 @@ def ReplaceIBS()
 		def FindNthCSZZ(n, pcSubStr, pCaseSensitive)
 			return This.FindNthZZCS(n, pcSubStr, pCaseSensitive)
 
+		def NthCSZZ(n, pcSubStr, pCaseSensitive)
+			return This.FindNthZZCS(n, pcSubStr, pCaseSensitive)
+
+		def NthZZCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthZZCS(n, pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthZZ(n, pcSubStr)
 		return This.FindNthZZCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		def NthZZ(n, pcSubStr)
+			return This.FindNthZZ(n, pcSubStr)
 
 	  #=======================================================================#
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION   #
@@ -14952,10 +14410,19 @@ def ReplaceIBS()
 		def FindNthSCSZ(n, pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindNthSZCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
 
+		def NthSCSZ(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNthSZCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def NthSZCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNthSZCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSZ(n, pcsubStr, pnStartingAt)
 		return This.FindNthSZCS(n, pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		def NthSZ(n, pcsubStr, pnStartingAt)
+			return This.FindNthSZ(n, pcsubStr, pnStartingAt)
 
 	  #-------------------------------------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION -- ZEXTENDED  #
@@ -14967,10 +14434,19 @@ def ReplaceIBS()
 		def FindFirstSCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindFirstSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
+		def FirstSCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FirstSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSZ(pcSubStr, pnStartingAt)
 		return This.FindFirstSZCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		def FirstSZ(pcSubStr, pnStartingAt)
+			return This.FindFirstSZ(pcSubStr, pnStartingAt)
 
 	  #------------------------------------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION -- ZEXTENDED  #
@@ -14982,10 +14458,19 @@ def ReplaceIBS()
 		def FindLastSCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindLastSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
+		def LastSCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def LastSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastSZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSZ(pcSubStr, pnStartingAt)
 		return This.FindLastSZCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		def LastSZ(pcSubStr, pnStartingAt)
+			return This.FindLastSZ(pcSubStr, pnStartingAt)
 
 	  #====================================================================================#
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION -- ًZEXTENDED  #
@@ -15008,10 +14493,19 @@ def ReplaceIBS()
 		def FindNthSCSZZ(n, pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindNthSZZCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
 
+		def NthSCSZZ(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNthSZZCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def NthSZZCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNthSZZCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSZZ(n, pcsubStr, pnStartingAt)
 		return This.FindNthSZZCS(n, pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		def NthSZZ(n, pcsubStr, pnStartingAt)
+			return This.FindNthSZZ(n, pcsubStr, pnStartingAt)
 
 	  #--------------------------------------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION -- ZZEXTENDED  #
@@ -15023,10 +14517,19 @@ def ReplaceIBS()
 		def FindFirstSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindFirstSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
+		def FirstSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FirstSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindFirstSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSZZ(pcSubStr, pnStartingAt)
 		return This.FindFirstSZZCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		def FirstSZZ(pcSubStr, pnStartingAt)
+			return This.FindFirstSZZ(pcSubStr, pnStartingAt)
 
 	  #-------------------------------------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION -- ZZEXTENDED  #
@@ -15038,10 +14541,19 @@ def ReplaceIBS()
 		def FindLastSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindLastSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
+		def LastSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def LastSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindLastSZZCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSZZ(pcSubStr, pnStartingAt)
 		return This.FindLastSZZCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		def LastSZZ(pcSubStr, pnStartingAt)
+			return This.FindLastSZZ(pcSubStr, pnStartingAt)
 
 	    #===========================================================================#
 	   #  FINDING NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION AND   #
@@ -15057,10 +14569,19 @@ def ReplaceIBS()
 		def FindNthSDCSZ(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 			return This.FindNthSDZCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
+		def NthSDCSZ(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindNthSDZCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def NthSDZCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindNthSDZCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSDZ(n, pcSubStr, pnStartingAt, pcDirection)
 		return This.FindNthSDZCS(n, pcSubStr, pnStartingAt, pcDirection, :CS = TRUE)
+
+		def NthSDZ(n, pcSubStr, pnStartingAt, pcDirection)
+			return This.FindNthSDZ(n, pcSubStr, pnStartingAt, pcDirection)
 
 	    #------------------------------------------------------------------------------#
 	   #  FINDING FIRST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION AND    #
@@ -15074,10 +14595,19 @@ def ReplaceIBS()
 		def FindFirstSDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 			return This.FindFirstSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
+		def FirstSDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindFirstSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def FirstSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindFirstSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSDZ(pcSubStr, pnStartingAt, pcDirection)
 		return This.FindFirstSDZCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+		def FirstSDZ(pcSubStr, pnStartingAt, pcDirection)
+			return This.FindFirstSDZ(pcSubStr, pnStartingAt, pcDirection)
 
 	    #---------------------------------------------------------------------------#
 	   #  FINDING LAST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION AND  #
@@ -15091,10 +14621,19 @@ def ReplaceIBS()
 		def FindLastSDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 			return This.FindLastSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
+		def LastSDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindLastSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def LastSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindLastSDZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSDZ(pcSubStr, pnStartingAt, pcDirection)
 		return This.FindLastSDZCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+		def LastSDZ(pcSubStr, pnStartingAt, pcDirection)
+			return This.FindLastSDZ(pcSubStr, pnStartingAt, pcDirection)
 
 	    #===========================================================================#
 	   #  FINDING NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION AND   #
@@ -15111,10 +14650,19 @@ def ReplaceIBS()
 		def FindNthSDCSZZ(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 			return This.FindNthSDZZCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
+		def NthSDCSZZ(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindNthSDZZCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def NthSDZZCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindNthSDZZCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSDZZ(n, pcSubStr, pnStartingAt, pcDirection)
 		return This.FindNthSDZZCS(n, pcSubStr, pnStartingAt, pcDirection, :CS = TRUE)
+
+		def NthSDZZ(n, pcSubStr, pnStartingAt, pcDirection)
+			return This.FindNthSDZZ(n, pcSubStr, pnStartingAt, pcDirection)
 
 	    #------------------------------------------------------------------------------#
 	   #  FINDING FIRST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION AND    #
@@ -15128,16 +14676,25 @@ def ReplaceIBS()
 		def FindFirstSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 			return This.FindFirstSDZZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
+		def FirstSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindFirstSDZZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def FirstSDZZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindFirstSDZZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSDZZ(pcSubStr, pnStartingAt, pcDirection)
 		return This.FindFirstSDZZCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
 
-	    #---------------------------------------------------------------------------#
-	   #  FINDING LAST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION AND  #
-	  #  GOING EITHER IN FORWARD OR BACKWARD DIRECTION -- RETURNING THE SUBSTRING #
- 	 #  ALONG WITH ITS POSITION AS A SECTION                                     #                          #
-	#---------------------------------------------------------------------------#
+		def FirstSDZZ(pcSubStr, pnStartingAt, pcDirection)
+			return This.FindFirstSDZZ(pcSubStr, pnStartingAt, pcDirection)
+
+	    #----------------------------------------------------------------------------#
+	   #  FINDING LAST OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION AND   #
+	  #  GOING EITHER IN FORWARD OR BACKWARD DIRECTION -- RETURNING THE SUBSTRING  #
+ 	 #  ALONG WITH ITS POSITION AS A SECTION                                      #                          #
+	#----------------------------------------------------------------------------#
 
 	def FindLastSDZZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 		return FindNthSDZZCS(:LastOccurrence, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
@@ -15145,10 +14702,19 @@ def ReplaceIBS()
 		def FindLastSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 			return This.FindLastSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
+		def LastSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindLastSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def LastSDZZCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindLastSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSDZZ(pcSubStr, pnStartingAt, pcDirection)
 		return This.FindLastSDZZCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+		def LastSDZZ(pcSubStr, pnStartingAt, pcDirection)
+			return This.FindLastSDZZ(pcSubStr, pnStartingAt, pcDirection)
 
 	  #======================================================#
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- EXTENDED   #
@@ -15435,13 +15001,26 @@ def ReplaceIBS()
 
 		return aResult
 
+		#< @FunctionAlternatives
+
 		def FindFirstCSZ(pcSubStr, pCaseSensitive)
 			return This.FindFirstZCS(pcSubStr, pCaseSensitive)
+
+		def FirstCSZ(pcSubStr, pCaseSensitive)
+			return This.FindFirstZCS(pcSubStr, pCaseSensitive)
+
+		def FirstZCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstZCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstZ(pcSubStr)
 		return This.FindFirstZCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FirstZ(pcSubStr)
+			return This.FindFirstZ(pcSubStr)
 
 	  #----------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING -- ZZ-EXTENDED  #
@@ -15454,13 +15033,26 @@ def ReplaceIBS()
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def FindFirstCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindFirstZZCS(pcSubStr, pCaseSensitive)
+
+		def FirstCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindFirstZZCS(pcSubStr, pCaseSensitive)
+
+		def FirstZZCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstZZCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstZZ(pcSubStr)
 		return This.FindFirstZZCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FirstZZ(pcSubStr)
+			return This.FindFirstZZ(pcSubStr)
 
 	  #-------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- D-EXTENDED  #
@@ -15487,6 +15079,7 @@ def ReplaceIBS()
 			
 		nResult = FindNthSDCS(n, pcSubStr, nStart, pcDirection, pCaseSensitive)
 		return nResult
+
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -15533,10 +15126,16 @@ def ReplaceIBS()
 		def FindNthDCSZ(n, pcSubStr, pcDirection, pCaseSensitive)
 			return This.FindNthDZCS(n, pcSubStr, pcDirection, pCaseSensitive)
 
+		def NthDZCS(n, pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindNthDZCS(n, pcSubStr, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthDZ(n, pcSubStr, pcDirection)
 		return This.FindNthDZCS(n, pcSubStr, pcDirection, :CaseSensitive = TRUE)
+
+		def NthDZ(n, pcSubStr, pcDirection)
+			return This.FindNthDZ(n, pcSubStr, pcDirection)
 
 	  #----------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING -- DZ-EXTENDED  #
@@ -15549,10 +15148,16 @@ def ReplaceIBS()
 		def FindFirstDCSZ(pcSubStr, pcDirection, pCaseSensitive)
 			return This.FindFirstDZCS(pcSubStr, pcDirection, pCaseSensitive)
 
+		def FirstDZCS(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindFirstDZCS(pcSubStr, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstDZ(pcSubStr, pcDirection)
 		return This.FindFirstDZCS(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+
+		def FirstDZ(pcSubStr, pcDirection)
+			return This.FindFirstDZ(pcSubStr, pcDirection)
 
 		#< @FunctionMisspelledForm
 
@@ -15572,10 +15177,16 @@ def ReplaceIBS()
 		def FindLastDCSZ(pcSubStr, pcDirection, pCaseSensitive)
 			return This.FindLastDZCS(pcSubStr, pcDirection, pCaseSensitive)
 
+		def LastDZCS(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindLastDZCS(pcSubStr, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastDZ(pcSubStr, pcDirection)
 		return This.FindLastDZCS(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+
+		def LastDZ(pcSubStr, pcDirection)
+			return This.FindLastDZ(pcSubStr, pcDirection)
 
 	  #---------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- DZZ-EXTENDED  #
@@ -15589,10 +15200,16 @@ def ReplaceIBS()
 		def FindNthDCSZZ(n, pcSubStr, pcDirection, pCaseSensitive)
 			return This.FindNthDZZCS(n, pcSubStr, pcDirection, pCaseSensitive)
 
+		def NthDZZCS(n, pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindNthDZZCS(n, pcSubStr, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthDZZ(n, pcSubStr, pcDirection)
 		return This.FindNthDZZCS(n, pcSubStr, pcDirection, :CaseSensitive = TRUE)
+
+		def NthDZZ(n, pcSubStr, pcDirection)
+			return This.FindNthDZZ(n, pcSubStr, pcDirection)
 
 	  #-----------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING -- DZZ-EXTENDED  #
@@ -15605,10 +15222,16 @@ def ReplaceIBS()
 		def FindFirstDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
 			return This.FindFirstDZZCS(pcSubStr, pcDirection, pCaseSensitive)
 
+		def FirstDZZCS(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindFirstDZZCS(pcSubStr, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstDZZ(pcSubStr, pcDirection)
 		return This.FindFirstDZZCS(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+
+		def FirstDZZ(pcSubStr, pcDirection)
+			return This.FindFirstDZZ(pcSubStr, pcDirection)
 
 		#< @FunctionMisspelledForm
 
@@ -15628,10 +15251,16 @@ def ReplaceIBS()
 		def FindLastDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
 			return This.FindLastDZZCS(pcSubStr, pcDirection, pCaseSensitive)
 
+		def LastDZZCS(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindLastDZZCS(pcSubStr, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastDZZ(pcSubStr, pcDirection)
 		return This.FindLastDZZCS(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+
+		def LastDZZ(pcSubStr, pcDirection)
+			return This.FindLastDZZ(pcSubStr, pcDirection)
 
 	  #=================================================#
 	 #      FINDING LAST OCCURRENCE OF A SUBSTRING     #
@@ -15748,14 +15377,20 @@ def ReplaceIBS()
 		def FindLastCSZ(pcSubStr, pCaseSensitive)
 			return This.FindLastZCS(pcSubStr, pCaseSensitive)
 
+		def LastZCS(pcSubStr, pCaseSensitive)
+			return This.FindLastZCS(pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastZ(pcSubStr)
 		return This.FindLastZCS(pcSubStr, :CaseSensitive = TRUE)
 
-	  #----------------------------------------------------------#
+		def LastZ(pcSubStr)
+			return This.FindLastZ(pcSubStr)
+
+	  #---------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A SUBSTRING -- ZZ-EXTENDED  #
-	#----------------------------------------------------------#
+	#---------------------------------------------------------#
 
 	def FindLastZZCS(pcSubStr, pCaseSensitive)
 		aSection = This.FindLastAsSectionCS(pcSubStr, pCaseSensitive)
@@ -15766,10 +15401,16 @@ def ReplaceIBS()
 		def FindLastCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindLastZZCS(pcSubStr, pCaseSensitive)
 
+		def LastZZCS(pcSubStr, pCaseSensitive)
+			return This.FindLastZZCS(pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastZZ(pcSubStr)
 		return This.FindLastZZCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def LastZZ(pcSubStr)
+			return This.FindLastZZ(pcSubStr)
 
 	  #====================================================================#
 	 #   FINDING THE POSITIONS OF SOME OCCURRENCES OF A GIVEN SUBSTRING   #
@@ -15869,7 +15510,7 @@ def ReplaceIBS()
 	#-------------------------------------------------#
 
 	# TODO:
-	# 	def findPreviousAsSection()
+	# 	def FindAllPreviousAsSection()
 	# 	def FindAllNextAsSection()
 
 	def FindAllPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
@@ -15878,7 +15519,6 @@ def ReplaceIBS()
 		ok
 
 		oSection = This.SectionQ(1, pnStartingAt)
-
 		anPositions = oSection.FindAllCS(pcSubStr, pCaseSensitive)
 		
 		return anPositions
@@ -23907,8 +23547,9 @@ def ReplaceIBS()
 	#------------------------------------------------------------------#
 
 	def IsContainedInCS(pcOtherStr, pCaseSensitive)
-		if NOT isString(pcOtherStr)
-			StzRaise("Incorrect param type! pcOtherStr must be a string.")
+
+		if NOT isStringOrList(pcOtherStr)
+			StzRaise("Incorrect param type! pcOtherStr must be a string or list.")
 		ok
 
 		bResult = Q(pcOtherStr).ContainsCS(This.String(), pCaseSensitive) 
@@ -25203,6 +24844,11 @@ def ReplaceIBS()
 	#--------------------------------------------#
 
 	def ContainsOneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
+
+		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfString() )
+			StzRaise("Uncorrect param type! pacSubStr must be a list of strings.")
+		ok
+
 		bResult = FALSE
 		nLen = len(pacSubStr)
 
@@ -25244,13 +24890,22 @@ def ReplaceIBS()
 	 #   CONTAINING SOME (ONE OR MORE) SUBSTRINGS   #
 	#----------------------------------------------#
 
-	def ContainsOneOrMoreCS(paSubStr, pCaseSensitive)
+	def ContainsOneOrMoreCS(pacSubStr, pCaseSensitive)
+		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfString() )
+			StzRaise("Uncorrect param type! pacSubStr must be a list of strings.")
+		ok
+
 		bResult = FALSE
 
-		# TODO: change for in with for loop --> better performance
-		for cSubStr in paSubStr
-			if This.ContainsCS(cSubStr, pCaseSensitive)
-				bResult = TRUE
+		nLen = len(pacSubStr)
+		n = 0
+		for i = 1 to nLen
+			if This.ContainsCS(pacSubStr[i], pCaseSensitive)
+				n++
+				if n > 1
+					bResult = TRUE
+					exit
+				ok
 			ok
 		next
 
@@ -39101,6 +38756,37 @@ def ReplaceIBS()
 		def ToCodeQ()
 			return new stzString( This.ToCode() )
 
+	  #-------------------------------------------------------------------------#
+	 #  GETTING THE COMMON SUBSTRINGS BETWEEN THIS STRING AND AN OTHER STRING  #
+	#-------------------------------------------------------------------------#
+
+	def CommonSubStringsCS(pcOtherStr, pCaseSensitive)
+		if isList(pcOtherStr) and Q(pcOtherStr).IsWithNamedParam()
+			pcOtherStr = pcOtherStr[2]
+		ok
+
+		if NOT isString(pcOtherStr)
+			StzRaise("Uncorrect param type! pcOtherStr must be a string.")
+		ok
+
+		acSubStr = This.SubStringsCS(pCaseSensitive)
+
+		acResult = Q(pcOtherStr).SubStringsCSQ(pCaseSensitive).
+			   CommonItemsCS( acSubStr, pCaseSensitive)
+		
+		return acResult
+
+		def IntersectionCS(pcOtherStr, pCaseSensitive)
+			return This.CommonSubStringsCS(pcOtherStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def CommonSubStrings(pcOtherStr)
+		return This.CommonSubStringsCS(pcOtherStr, :CaseSensitive = TRUE)
+
+		def Intersection(pcOtherStr)
+			return This.CommonSubStrings(pcOtherStr)
+
 	  #===========#
 	 #   MISC.   #
 	#===========#
@@ -39199,7 +38885,7 @@ def ReplaceIBS()
 		def ToStzCCodeQ()
 			return This.ToStzCCode()
   
-                                                               
+                                                              
                  ///////////////////////////////////////////////
                 //                              ///////////////
       ///////////      ALTERNATIVE FORMS       /////////////

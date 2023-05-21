@@ -6517,6 +6517,69 @@ class stzList from stzObject
 		def IsMadeOfStrings()
 			return This.ContainsOnlyStrings()
 
+	  #-----------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE EQUAL  #
+	#-----------------------------------#
+
+	def ItemsAreAllEqualCS(pCaseSensitive)
+
+		nLen = This.NumberOfItems()
+		if nLen = 0
+			return FALSE
+		but nLen = 1
+			return TRUE
+		ok
+
+		aContent = This.Content()
+
+		oFirstItem = Q(aContent[1])
+
+		bResult = TRUE
+		for i = 2 to nLen
+			if NOT oFirstItem.IsEqualToCS(aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+		
+		#< @FunctionAlternativeForms
+
+		def ItemsAreEqualCS(pCaseSensitive)
+			return This.ItemsAreAllEqualCS(pCaseSensitive)
+
+		def AllItemsAreEqualCS(pCaseSensitive)
+			return This.ItemsAreAllEqualCS(pCaseSensitive)
+
+		def AreEqualCS(pCaseSensitive)
+			return This.ItemsAreAllEqualCS(pCaseSensitive)
+
+		#>
+
+	#-- CASESENSITIVITY
+
+	def ItemsAreAllEqual()
+		return This.ItemsAreAllEqualCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ItemsAreEqual()
+			return This.ItemsAreAllEqual()
+
+		def AllItemsAreEqual()
+			return This.ItemsAreAllEqual()
+
+		def AreEqual(pCaseSensitive)
+			return This.ItemsAreAllEqual()
+
+		#>
+
+
+	  #----------------------------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE EQUAL TO A GIVEN VALUE  #
+	#----------------------------------------------------#
+
 	def ItemsAreAllEqualTo(pValue)
 		bResult = TRUE
 		nLen = This.NumberOfItems()
@@ -12706,88 +12769,87 @@ class stzList from stzObject
 	 #  GETTING THE COMMON-ITEMS (INTERSECTION) BETWEEN THE MAIN LIST AN OTHER GIVEN LIST  #
 	#-------------------------------------------------------------------------------------#
 
-	def CommonItemsWithCS(paOtherList, pCaseSensitive)
+	def CommonItemsCS(paOtherList, pCaseSensitive)
 
-		if isList(paOtherList) and Q(paOtherList).IsListOfLists()
-			return This.CommonItemsWithManyCS(paListOfLists, pCaseSensitive)
+		/*
+		The intersection between a list of lists (ie their common items) is
+		given by the duplicated items of the merged list of all those lists.
+		*/
+
+		if isList(paOtherList) and Q(paOtherList).IsWithNamedParam()
+			paOtherList = paOtherList[2]
 		ok
 
-		if This.NumberOfItems() <= len(paOtherList)
-			aMainList  = This.List()
-			aOtherList = paOtherList
-		else
-			aMainList  = paOtherList
-			aOtherList = This.List()
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
 		ok
 
-		aResult = []
-		nLen = len(aTempList)
-
-		for i = 1 to nLen
-			item = aMainList[i]
-			if Q(aOtherList).FindFirstCS( item, pCaseSensitive ) > 0
-				aResult + item
-			ok
-		next
-
+		aResult = This.MergeWithQ(paOtherList).Duplicates()
+		
 		return aResult
 
-		def CommonItemsWithCSQ(paOtherList, pCaseSensitive)
-			return new stzlist( This.CommonItemsWithCS(paOtherList, pCaseSensitive) )
+		#< FunctionFluentForm
+
+		def CommonItemsCSQ(paOtherList, pCaseSensitive)
+			return new stzlist( This.CommonItemsCS(paOtherList, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def IntersectionCS(paOtherList, pCaseSensitive)
+			return This.CommonItemsCS(paOtherList, pCaseSensitive)
+
+			def IntersectionCSQ(paOtherList, pCaseSensitive)
+				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
+
+		def CommonItemsWithCS(paOtherList, pCaseSensitive)
+			return This.CommonItemsCS(paOtherList, pCaseSensitive)
+
+			def CommonItemsWithCSQ(paOtherList, pCaseSensitive)
+				return new stzList( This.CommonItemsWithCS(paOtherList, pCaseSensitive) )
 
 		def IntersectionWithCS(paOtherList, pCaseSensitive)
-			return This.CommonItemsWithCS(paOtherList, pCaseSensitive)
+			return This.CommonItemsCS(paOtherList, pCaseSensitive)
 
 			def IntersectionWithCSQ(paOtherList, pCaseSensitive)
 				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
-	def CommonItemsWith(paOtherList)
-		oTempSet = new stzSet(This.List())
-		return oTempSet.IntersectionWith(paOtherList)
+	def CommonItems(paOtherList)
+		return This.CommonItemsCS(paOtherList, :CaseSensitive = TRUE)
 
-		def CommonItemsWithQ(paOtherList)
-			return new stzlist( This.CommonItemsWith(paOtherList) )
+		#< @FunctionFluentForm
+
+		def CommonItemsQ(paOtherList)
+			return new stzlist( This.CommonItems(paOtherList) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def Intersection(paOtherList)
+			return This.CommonItems(paOtherList)
+
+			def IntersectionQ(paOtherList)
+				return This.CommonItemsWithQ(paOtherList)
+
+		def CommonItemsWith(paOtherList)
+			return This.CommonItems(paOtherList)
+
+			def CommonItemsWithQ(paOtherList)
+				return new stzList( This.CommonItemsWith(paOtherList) )
 
 		def IntersectionWith(paOtherList)
-			return This.CommonItemsWith(paOtherList)
+			return This.CommonItems(paOtherList)
 
 			def IntersectionWithQ(paOtherList)
-				return This.CommonItemsWithQ(paOtherList, pCaseSensitive)
+				return This.CommonItemsWithQ(paOtherList)
 
-	  #------------------------------------------------------------------------------------#
-	 #  GETTING THE ITEMS FORMING THE INTERSECTION BETWEEN THE LIST AND MANY OTHER LISTS  #
-	#------------------------------------------------------------------------------------#
-
-	def CommonItemsWithManyCS(paListOfLists, pCaseSensitive)
-
-		aMerged = Q(paListOfLists).Merged()
-		aResult = This.CommonItemsWithCS(aMerged, pCaseSensitive)
-		return aResult
-
-		def CommonItemsWithManyCSQ(paListOfLists, pCaseSensitive)
-			return new stzlist( This.CommonItemsWithManyCS(paListOfLists, pCaseSensitive) )
-
-		def IntersectionWithManyCS(paListOfLists, pCaseSensitive)
-			return This.CommonItemsWithManyCS(paListOfLists, pCaseSensitive)
-
-			def IntersectionWithManyCSQ(paListOfLists, pCaseSensitive)
-				return This.CommonItemsWithCSQ(paListOfLists, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def CommonItemsWithMany(paListOfLists)
-		return This.CommonItemsWithManyCS(paListOfLists, :CaseSensitive = TRUE)
-
-		def CommonItemsWithManyQ(paListOfLists)
-			return new stzlist( This.CommonItemsWithMany(paListOfLists) )
-
-		def IntersectionWithMany(paListOfLists)
-			return This.CommonItemsWithMany(paListOfLists)
-
-			def IntersectionWithManyQ(paListOfLists)
-				return This.CommonItemsWithManyQ(paListOfLists, pCaseSensitive)
+		#>
 
 	  #------------------------------------------------------------------------#
 	 #  NUMBER OF COMMON ITEMS BETWEEN THE MAIN LIST AND AN OTHER GIVEN LIST  #
@@ -14526,7 +14588,7 @@ class stzList from stzObject
 	 #   CHECKING IF THE LIST CONTAINS DUPLICATED ITEMS   #
 	#====================================================#
 
-	def ContainsDuplicatedItemsCS(pCaseSensitive)
+	def ContainsDuplicatesCS(pCaseSensitive)
 		bResult = FALSE
 		nLen = This.NumberOfItems()
 
@@ -14541,135 +14603,38 @@ class stzList from stzObject
 
 		return bResult
 
-		#< @FunctionAlternativeForms
-
-		def ContainsDuplicationsCS(pCaseSensitive)
-			return This.ContainsDuplicatedItemsCS(pCaseSensitive)
-
-		def ContainsDuplicatesCS(pCaseSensitive)
-			return This.ContainsDuplicatedItemsCS(pCaseSensitive)
-
-		#>
+		def ContainsDuplicatedItemsCS(pCaseSensitive)
+			return This.ContainsDuplicatesCS(pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsDuplicatedItems()
-		return This.ContainsDuplicatedItemsCS(:CaseSensitive = TRUE)
-	
-		#< @FunctionAlternativeForms
+	def ContainsDuplicates()
+		return This.ContainsDuplicatesCS(:CaseSensitive = TRUE)
 
-		def ContainsDuplications()
-			return This.ContainsDuplicatedItems()
-
-		def ContainsDuplicates()
-			return This.ContainsDuplicatedItems()
-
-		#>
-	  #---------------------------------------------#
-	 #   CHECHKING IF A GIVEN ITEM IS DUPLICATED   #
-	#---------------------------------------------#
-
-	def ContainsDuplicatedCS(pItem, pCaseSensitive)
-		if This.NumberOfOccurrencesCS(pItem, pCaseSensitive) > 1
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		#< @FunctionAlternativeForms
-
-		def ContainsDuplicatedItemCS(pItem, pCaseSensitive)
-			return This.ContainsDuplicatedCS(pItem, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ContainsDuplicated(pItem)
-		return This.ContainsDuplicatedCS(pItem, :CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def ContainsDuplicatedItem(pItem)
-			return This.ContainsDuplicated(pItem)
-
-		#>
+		def ContainsDuplicatedItems()
+			return This.ContainsDuplicates()
 
 	  #-----------------------------------------------------#
 	 #   CHECHKING IF A GIVEN ITEM IS DUPLICATED N-TIMES   #
 	#-----------------------------------------------------#
 
-	def ContainsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
+	def ItemIsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
 		if This.NumberOfDuplicatesOfItemCS(pItem, pCaseSensitive) = n
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def ItemIsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
-			return This.ContainsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
+		def ItemOccursNTimesCS(n, pItem, pCaseSensitive)
+			return This.ItemIsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsDuplicatedNTimes(n, pItem)
-		return This.ContainsDuplicatedNTimesCS(n, pItem, :CaseSensitive = TRUE)
+	def ItemIsDuplicatedNTimes(n, pItem)
+		return This.ItemIsDuplicatedNTimesCS(n, pItem, :CaseSensitive = TRUE)
 
-		def ItemIsDuplicatedNTimes(n, pItem)
-			return This.ContainsDuplicatedNTimes(n, pItem, pItem)
-
-	  #--------------------------------------------#
-	 #   HOW MANY TIMES AN ITEM IS DUPLICATED ?   #
-	#--------------------------------------------#
-
-	def NumberOfTimesItemIsDuplicatedCS(pItem, pCaseSensitive)
-		nResult = 0
-
-		if This.NumberOfOccurrenceCS(pItem, pCaseSensitive) > 1
-			nResult = This.NumberOfOccurrence(pItem) - 1
-		ok
-		
-		return nResult
-
-		#< @FunctionAlternativeForms
-
-		def NumberOfTimesThisItemIsDuplicatedCS(pItem, pCaseSensitive)
-			return This.NumberOfTimesItemIsDuplicatedCS(pItem, pCaseSensitive)
-
-		#--
-
-		def NumberOfDuplicatesOfItemCS(pItem, pCaseSensitive)
-			return This.NumberOfTimesItemIsDuplicatedCS(pItem, pCaseSensitive)
-
-		def NumberOfDuplicationsOfItemCS(pItem, pCaseSensitive)
-			return This.NumberOfTimesItemIsDuplicatedCS(pItem, pCaseSensitive)
-
-		def NumberOfDuplicationsOfCS(pItem, pCaseSensitive)
-			return This.NumberOfTimesItemIsDuplicatedCS(pItem, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def NumberOfTimesStringIsDuplicated(pItem)
-		return This.NumberOfTimesStringIsDuplicatedCS(pItem, :CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def NumberOfTimesThisItemIsDuplicated(pItem)
-			return This.NumberOfTimesItemIsDuplicated(pItem)
-
-		#--
-
-		def NumberOfDuplicatesOfItem(pItem)
-			return This.NumberOfTimesItemIsDuplicated(pItem)
-
-		def NumberOfDuplicationsOfItem(pItem)
-			return This.NumberOfTimesItemIsDuplicated(pItem)
-
-		def NumberOfDuplicationsOf(pItem)
-			return This.NumberOfTimesItemIsDuplicated(pItem)
-
-		#>
+		def ItemOccursNTimes(n, pItem)
+			return This.ItemIsDuplicatedNTimes(n, pItem, pItem)
 
 	  #--------------------------------------------------#
 	 #  CHECKING THE EXISTENCE OF NON DUPLICATED ITEMS  #
@@ -14705,7 +14670,8 @@ class stzList from stzObject
 	#--------------------------------------------#
 
 	def NonDuplicatedItemsCS(pCaseSensitive)
-		aResult = This.Copy().RemoveDuplicatedItemsCSQ(pCaseSensitive).Content()
+		anPositions = This.FindNonDuplicatedItemsCS(pCaseSensitive)
+		aResult = This.ItemsAtPositions(anPositions)
 		return aResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -14842,6 +14808,30 @@ class stzList from stzObject
 
 		return anResult
 
+		#< @FunctionFluentForms
+
+		def FindDuplicatesCSQ(pCaseSensitive)
+			return This.FindDuplicatesCSQR(pCaseSensitive, :stzList)
+
+		def FindDuplicatesCSQR(pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindDuplicatesCS(pCaseSensitive) )
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindDuplicatesCS(pCaseSensitive) )
+
+			on :stzPair
+				return new stzPair( This.FindDuplicatesCS(pCaseSensitive) )
+
+			on :stzPairOfNumbers
+				return new stzPairOfNumbers( This.FindDuplicatesCS(pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!!")
+			off
+
+		#>
+
 		#< @FunctionAlternativeForm
 
 		def FindDuplicationsCS(pCaseSensitive)
@@ -14853,6 +14843,16 @@ class stzList from stzObject
 
 	def FindDuplicates()
 		return This.FindDuplicatesCS(:CaseSensitive = TRUE)
+
+		#< @FunctionFluentForms
+
+		def FindDuplicatesQ()
+			return This.FindDuplicatesCSQ(:CaseSensitive = TRUE)
+
+		def FindDuplicatesQR(pcReturnType)
+			return This.FindDuplicatesCSQR(:CaseSensitive = TRUE, pcReturnType)
+
+		#>
 
 		#< @FunctionAlternativeForm
 
@@ -14866,27 +14866,21 @@ class stzList from stzObject
 	#--------------#
 
 	def DuplicatesCS(pCaseSensitive)
-		aResult = This.ItemsAtPositions( This.FindDuplicatesCS(pCaseSensitive) )
+		anPos = This.FindDuplicatesCS(pCaseSensitive)
+		aResult = This.ItemsAtPositionsQ( anPos ).ToSet()
+
 		return aResult
 
-		#< @FunctionAlternativeForm
-
-		def DuplicationsCS(pCaseSensitive)
-			return This.DuplicatesCS(pCaseSensitive)
-
-		#>
+		def DuplicatesCSQ(pCaseSensitive)
+			return new stzList(This.DuplicatesCS(pCaseSensitive))
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def Duplicates()
 		return This.DuplicatesCS(:CaseSensitive = TRUE)
 
-		#< @FunctionAlternativeForm
-
-		def Duplications()
-			return This.Duplicates()
-
-		#>
+		def DuplicatesQ()
+			return new stzList(This.Duplicates())
 
 	  #------------------------------------------------#
 	 #  DUPLICATES AND THEIR POSITIONS -- Z/Extended  #
@@ -14910,17 +14904,17 @@ class stzList from stzObject
 		def DuplicatesZ()
 			return This.DuplicatesAndTheirPositions()
 
-	  #------------------------------------------------#
+	  #-------------------------------------------------#
 	 #  DUPLICATES AND THEIR POSITIONS -- UZ/Extended  #
-	#------------------------------------------------#
+	#-------------------------------------------------#
 
 	def DuplicatesAndTheirPositionsUCS(pCaseSensitive)
-		aDuplicated = This.DuplicatedItemsCS(pCaseSensitive)
+		aDuplicated = This.DuplicatsCS(pCaseSensitive)
 		nLen = len(aDuplicated)
 
 		aResult = []
 		for i = 1 to nLen
-			anPos = This.FindCSQ(aDuplicated[i], pCaseSensitive).FirstItemRemoved()
+			anPos = This.FindCSQ(aDuplicated[i], pCaseSensitive)
 			if len(anPos) > 0
 				aResult + [ aDuplicated[i], anPos ]
 			ok
@@ -14938,395 +14932,6 @@ class stzList from stzObject
 
 		def DuplicatesUZ()
 			return This.DuplicatesAndTheirPositionsU()
-
-	  #--------------------------------#
-	 #   NUMBER OF DUPLICATED ITEMS   #
-	#================================#
-
-	def NumberOfDuplicatedItemsCS(pCaseSensitive)
-		nResult = len( This.DuplicatedItemsCS(pCaseSensitive) )
-		return nResult
-
-		def HowManyDuplicatedItemsCS(pCaseSensitive)
-			return This.NumberOfDuplicatedItemsCS(pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def NumberOfDuplicatedItems()
-		return This.NumberOfDuplicatedItemsCS(:CaseSensitive = TRUE)
-
-		def HowManyDuplicatedItems()
-			return This.NumberOfDuplicatedItems()
-
-	  #----------------------#
-	 #   DUPLICATED ITEMS   #
-	#----------------------#
-
-	def DuplicatedItemsCS(pCaseSensitive)
-		nLen = This.NumberOfItems()
-		aResult = []
-
-		for i = 1 to nLen
-			if This.NumberOfOccurrenceCS(This.Item(i), pCaseSensitive) > 1 and
-			   (NOT Q(aResult).ContainsCS(This.Item(i), pCaseSensitive))
-
-				aResult + This.Item(i)
-			ok
-		next
-		
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def DuplicatedItemsCSQ(pCaseSensitive)
-			return This.DuplicatedItemsCSQR(pCaseSensitive, :stzList)
-
-		def DuplicatedItemsCSQR(pCaseSensitive, pcReturntype)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.DuplicatedItemsCS(pCaseSensitive) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.DuplicatedItemsCS(pCaseSensitive) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.DuplicatedItemsCS(pCaseSensitive) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.DuplicatedItemsCS(pCaseSensitive) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def DuplicatedItems()
-		return This.DuplicatedItemsCS(:CaseSensitive = TRUE)
-		
-		#< @FunctionFluentForm
-
-		def DuplicatedItemsQ()
-			return This.DuplicatedItemsQR(:stzList)
-
-		def DuplicatedItemsQR(pcReturntype)
-			return This.DuplicatedItemsCSQR(:CaseSensitive = TRUE, pcReturntype)
-		#>
-
-	  #------------------------------#
-	 #   FINDING DUPLICATED ITEMS   #
-	#------------------------------#
-
-	def FindDuplicatedItemsCS(pCaseSensitive)
-		anResult = []
-
-		aDuplicated = This.DuplicatedItemsCS(pCaseSensitive)
-
-		nLen = len(aDuplicated)
-
-		for i = 1 to nLen
-			anPos = This.FindCS(aDuplicated[i], pCaseSensitive)
-			nLenPos = len(anPos)
-			for j = 1 to nLenPos
-				anResult + anPos[j]
-			next
-		next
-
-		anResult = Q(anResult).Sorted()
-		return anResult
-
-		
-		#< @FunctionFluentForm
-
-		def FindDuplicatedItemsCSQ(pCaseSensitive)
-			return This.FindDuplicatedItemsCSQR(pCaseSensitive, :stzList)
-
-		def FindDuplicatedItemsCSQR(pCaseSensitive, pcReturntype)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindDuplicatedItemsCS(pCaseSensitive) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.FindDuplicatedItemsCS(pCaseSensitive) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicatedItemsCS(pCaseSensitive) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.FindDuplicatedItemsCS(pCaseSensitive) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def PositionsOfDuplicatedItemsCS(pCaseSensitive)
-			return This.FindDuplicatedItemsCS(pCaseSensitive)
-
-			def PositionsOfDuplicatedItemsCSQ(pCaseSensitive)
-				return This.PositionsOfDuplicatedItemsCSQR(pCaseSensitive, :stzList)
-
-			def PositionsOfDuplicatedItemsCSQR(pCaseSensitive, pcReturntype)
-				return This.FindDuplicatedItemsCSQR(pCaseSensitive, pcReturntype)
-
-		def DuplicatedItemsPositionsCS(pCaseSensitive)
-			return This.FindDuplicatedItemsCS(pCaseSensitive)
-
-			def DuplicatedItemsPositionsCSQ(pCaseSensitive)
-				return This.PositionsOfDuplicatedItemsCSQR(pCaseSensitive, :stzList)
-
-			def DuplicatedItemsPositionsCSQR(pCaseSensitive, pcReturntype)
-				return This.FindDuplicatedItemsCSQR(pCaseSensitive, pcReturntype)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindDuplicatedItems()
-		return This.FindDuplicatedItemsCS(:CaseSensitive = TRUE)
-		
-		#< @FunctionFluentForm
-
-		def FindDuplicatedItemsQ()
-			return This.FindDuplicatedItemsQR(:stzList)
-
-		def FindDuplicatedItemsQR(pcReturntype)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindDuplicatedItems() )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicatedItems() )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.FindDuplicatedItems() )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.FindDuplicatedItems() )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def PositionsOfDuplicatedItems()
-			return This.FindDuplicatedItems()
-
-			def PositionsOfDuplicatedItemsQ()
-				return This.PositionsOfDuplicatedItemsQR(:stzList)
-
-			def PositionsOfDuplicatedItemsQR(pcReturntype)
-				return This.FindDuplicatedItemsQR(pcReturntype)
-
-		def DuplicatedItemsPositions()
-			return This.FindDuplicatedItems()
-
-			def DuplicatedItemsPositionsQ()
-				return This.PositionsOfDuplicatedItemsQR(:stzList)
-
-			def DuplicatedItemsPositionsQR(pcReturntype)
-				return This.FindDuplicatedItemsCSQR(pcReturntype)
-
-		#>
-
-	  #------------------------------------------#
-	 #   DUPLICATED ITEMS AND THEIR POSITIONS   #
-	#------------------------------------------#
-
-	def DuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-		aDuplicatedItems = This.DuplicatedItemsCS(pCaseSensitive)
-		nLen = len(aDuplicatedItems)
-
-		aResult = []
-		for i = 1 to nLen
-			item = aDuplicatedItems[i]
-			aResult + [ item, This.FindAllCS(str, pCaseSensitive) ]
-		next
-
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def DuplicatedItemsZCS(pCaseSensitive)
-			return This.DuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-
-		#-- By nature, duplicated items are unique, so for convenience, we can add
-		#-- the U extension as alternatives
-
-		def DuplicatedItemsAndTheirPositionsUCS(pCaseSensitive)
-			return This.DuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-
-		def DuplicatedItemsUZCS(pCaseSensitive)
-			return This.DuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def DuplicatedItemsAndTheirPositions()
-		return This.DuplicatedItemsAndTheirPositionsCS(:CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def DuplicatedItemsZ()
-			return This.DuplicatedItemsAndTheirPositions()
-
-		#-- By nature, duplicated items are unique, so for convenience, we can add
-		#-- the U extension as alternatives
-
-		def DuplicatedItemsAndTheirPositionsU()
-			return This.DuplicatedItemsAndTheirPositions()
-
-		def DuplicatedItemsUZ()
-			return This.DuplicatedItemsAndTheirPositions()
-
-		#>
-
-	  #-------------------------------------#
-	 #   FINDING A GIVEN DUPLICATED ITEM   #
-	#-------------------------------------#
-
-	def FindDuplicatedItemCS(pItem, pCaseSensitive)
-
-		anPos = This.FindAllCS(pItem, pCaseSensitive)
-
-		if len(anPos) > 1
-			return anPos
-		else
-			return 0
-		ok
-
-		#< @FunctionFluentForm
-
-		def FindDuplicatedItemCSQ(pItem, pCaseSensitive)
-			return This.FindDuplicatedItemCSQR(pItem, pCaseSensitive, :stzList)
-
-		def FindDuplicatedItemCSQR(pItem, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindDuplicatedItemCS(pItem, pCaseSensitive) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicatedItemCS(pItem, pCaseSensitive) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def FindDuplicatedCS(pItem, pCaseSensitive)
-			return This.FindDuplicatedItemCS(pItem, pCaseSensitive)
-
-			def FindDuplicatedCSQ(pItem, pCaseSensitive)
-				return This.FindDuplicatedCSQR(pItem, pCaseSensitive, :stzList)
-	
-			def FindDuplicatedCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindDuplicatedItemCSQR(pItem, :CaseSensitive = TRUE, pcReturnType)
-
-		def PositionsOfDuplicatedItemCS(pItem, pCaseSensitive)
-			return This.FindDuplicatedItemCS(pItem, pCaseSensitive)
-
-			def PositionsOfDuplicatedItemCSQ(pItem, pCaseSensitive)
-				return This.PositionsOfDuplicatedItemCSQR(pItem, pCaseSensitive, :stzList)
-
-			def PositionsOfDuplicatedItemCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindDuplicatedCSQR(pItem, pCaseSensitive, pcReturnType)
-
-		def DuplicatedItemPositionsCS(pItem, pCaseSensitive)
-			return This.FindDuplicatedItemCS(pItem, pCaseSensitive)
-
-			def DuplicatedItemPositionsCSQ(pItem, pCaseSensitive)
-				return This.PositionsOfDuplicatedItemCSQR(pItem, pCaseSensitive, :stzList)
-
-			def DuplicatedItemPositionsCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindDuplicatedCSQR(pItem, pCaseSensitive, pcReturnType)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindDuplicatedItem(pItem)
-
-		return This.FindDuplicatedItemCS(pItem, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def FindDuplicatedItemQ(pItem)
-			return This.FindDuplicatedItemQR(pItem, :stzList)
-
-		def FindDuplicatedItemQR(pItem, pcReturnType)
-			return This.FindDuplicatedItemCSQR(pItem, :CaseSensitive = TRUE, pcReturnType)
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def FindDuplicated(pItem)
-			return This.FindDuplicatedItem(pItem)
-
-			def FindDuplicatedQ(pItem)
-				return This.FindDuplicatedQR(pItem, :stzList)
-	
-			def FindDuplicatedQR(pItem, pcReturnType)
-				return This.FindDuplicatedItemQR(pItem, pcReturnType)
-
-		def PositionsOfDuplicatedItem(pItem)
-			return This.FindDuplicatedItem(pItem)
-
-			def PositionsOfDuplicatedItemQ(pItem)
-				return This.PositionsOfDuplicatedItemQR(pItem, :stzList)
-
-			def PositionsOfDuplicatedItemQR(pItem, pcReturnType)
-				return This.FindDuplicatedQR(pItem, pcReturnType)
-
-		def DuplicatedItemPositions(pItem)
-			return This.FindDuplicatedItem(pItem)
-
-			def DuplicatedItemPositionsQ(pItem)
-				return This.PositionsOfDuplicatedItemQR(pItem, :stzList)
-
-			def DuplicatedItemPositionsQR(pItem, pcReturnType)
-				return This.FindDuplicatedQR(pItem, pcReturnType)
-
-		#>
 
 	  #----------------------------------------#
 	 #   FINDING DUPLICATES OF A GIVEN ITEM   #
@@ -15576,46 +15181,6 @@ class stzList from stzObject
 				return This
 
 		#>
-
-	  #-----------------------------#
-	 #  REMOVING DUPLICATED ITEMS  #
-	#-----------------------------#
-
-	def RemoveDuplicatedItemsCS(pCaseSensitive)
-		anPos = This.FindDuplicatedItemsCS(pCaseSensitive)
-
-		if len(anPos) > 0
-			This.RemoveItemsAtPositions(anPos)
-		ok
-
-		#< @FunctionFluentForm
-
-		def RemoveDuplicatedItemsCSQ(pCaseSensitive)
-			This.RemoveDuplicatedItemsCS(pCaseSensitive)
-			return This
-
-		#>
-
-	def DuplicatedItemsRemovedCS(pCaseSensitive)
-		aResult = This.Copy().RemoveDuplicatedItemsCSQ(pCaseSensitive).Content()
-		return aResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RemoveDuplicatedItems()
-		return This.RemoveDuplicatedItemsCS(:CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def RemoveDuplicatedItemsQ()
-			This.RemoveDuplicatedItems()
-			return This
-
-		#>
-
-	def DuplicatedItemsRemoved()
-		acResult = This.Copy().RemoveDuplicatedItemsQ().Content()
-		return acResult
 
 	  #====================#
 	 #     CONTAINMENT    #
@@ -18854,24 +18419,64 @@ class stzList from stzObject
 	 #   GETTING ITEMS AT GIVEN POSITIONS   #
 	#======================================#
 
-	def ItemsAtPositions(panPositions)
+	def ItemsAtPositions(panPos)
+		if NOT isList(panPos) and Q(panPos).IsListOfNumbers()
+			StzRaise("Uncorrect param type! panPos must be a list of numbers.")
+		ok
 
 		aResult = []
-		nLen = len(panPositions)
+		nLen = len(panPos)
 
 		for i = 1 to nLen
-			n = panPositions[i]
+			n = panPos[i]
 			aResult + This.ItemAtPosition(n)
 		next
 
 		return aResult
 
-		def ItemsAtThesePositions(panPositions)
-			return This.ItemsAtPositions(panPositions)
+		#< @FunctionFluentForms
 
-		def ItemsAt(panPositions)
-			return This.ItemsAtPositions(panPositions)
+		def ItemsAtPositionsQ(panPos)
+			return This.ItemsAtPositionsQR(panPos, :stzList)
 
+		def ItemsAtPositionsQR(panPos, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ItemsAtPositions(panPos) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( ItemsAtPositions(panPos) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( ItemsAtPositions(panPos) )
+
+			on :stzListOfLists
+				return new stzListOfLists( ItemsAtPositions(panPos) )
+
+			on :stzListOfObjects
+				return new stzListOfObjects( ItemsAtPositions(panPos) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( ItemsAtPositions(panPos) )
+
+			on :stzListOfHashLists
+				return new stzListOfHashLists( ItemsAtPositions(panPos) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ItemsAtThesePositions(panPos)
+			return This.ItemsAtPositions(panPos)
+
+		def ItemsAt(panPos)
+			return This.ItemsAtPositions(panPos)
+
+		#>
 
 	  #===============================================#
 	 #   GETTING ITEMS VERIFYING A GIVEN CONDITION   #
@@ -28950,7 +28555,15 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsUnderNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Under )
 
+			return TRUE
+
+		else
+			return FALSE
+		ok
 
 	def IsExpressionNamedParam()
 

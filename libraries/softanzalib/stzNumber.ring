@@ -2373,58 +2373,17 @@ class stzNumber from stzObject
 
 		def LeastCommonMultipleQ(pOtherNumber)
 			return new stzNumber(This.LeastCommonMultiple(pOtherNumber))
-	
-		def LCM(pOtherNumber)
-			return This.LeastCommonMultiple(pOtherNumber)
-
-			def LCMQ(pOtherNumber)
-				return new stzNumber( This.LCM(pOtherNumber) )
-
-	# LEAST COMMON MULTIPLE
-
-	def LeastCommonMultipleOfManyNumbers(paOtherNumbers)
-		if NOT 	( isList(paOtherNumbers) and
-				( Q(paOtherNumbers).IsListOfNumbers() or
-				  Q(paOtherNumbers).IsListOfNumbersInStrings() )
-			)
-
-			StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or list of numbers in strings.")
-		ok
-
-		if len(paOtherNumbers) = 0
-			StzRaise("Incorrect value! paOtherNumbers must not be empty list.")
-		ok
-	
-		cResult = This.Number()
-		for number in paOtherNumbers
-			cResult = StzNumberQ(cResult).LCM( :With = number )
-		next
-
-		return cResult
-
-		def LCMOfManyNumbers(paOtherNumbers)
-			return This.LeastCommonMultipleOfManyNumbers(paOtherNumbers)
-
-		def LeastCommonMultipleOfMany(paOtherNumbers)
-			return This.LeastCommonMultipleOfManyNumbers(paOtherNumbers)
-
-		def LCMOfMany(paOtherNumbers)
-			return This.LeastCommonMultipleOfManyNumbers(paOtherNumbers)
-
 
 	# GREATEST COMMON DIVIDOR
 
 	def GreatestCommonDividor(pOtherNumber)
 		return This.pvtCalculate( "GCD", pOtherNumber)
 
-		def GreatCommonDividorQ(n)
+		def GreatestCommonDividorQ(n)
 			return new stzNumber(This.GreatCommonDividor())
 
-		def GCD(pOtherNumber)
+		def CommonGreatestDividor(pOtherNumber)
 			return This.GreatestCommonDividor(pOtherNumber)
-
-			def GCDQ(pOtherNumber)
-				return new stzNumber( This.GCD(pOtherNumber) )
 	
 	# INVERSE
 
@@ -2495,7 +2454,7 @@ class stzNumber from stzObject
 
 	def Multiples(pOtherNumber)
 		if isList(pOtherNumber) and
-		   Q(pOtherNumber).IsOneOfTheseNamedParams([ :Until, :UpTo ])
+		   Q(pOtherNumber).IsOneOfTheseNamedParams([ :Until, :UpTo, :Under ])
 			pOtherNumber = pOtherNumber[2]
 		ok
 
@@ -2592,6 +2551,8 @@ class stzNumber from stzObject
 		def MultiplesUpTo(pOtherNumber)
 			return This.MultiplesUntil(pOtherNumber)
 
+		def MultiplesUnder(pOtherNumber)
+			return This.MultiplesUntil(pOtherNumber)
 
 	# DIVIDABILITY
 

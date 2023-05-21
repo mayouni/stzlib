@@ -1380,33 +1380,50 @@ Diacritics
 		return _aWorldLanguages
 
 	func LanguagesInScript(cScript)	
-		for item in UnicodeScriptsXT()
-			if item[2] = cScript
-				return ring_sort(item[4])
+		if NOT isString(cScipt)
+			StzRaise("Uncorrect param type! cScript must be a string")
+		ok
+
+		acUnicodeScriptsXT = UnicodeScriptsXT()
+		nLen = len(acUnicodeScriptsXT)
+
+		acResult = []
+		for i = 1 to nLen
+			if acUnicodeScriptsXT[i][2] = cScript
+				acResult = ring_sort(acUnicodeScriptsXT[i][4])
+				exit
 			ok
 		next
 
+		return acResult
+
 	func CommonLanguagesInScripts(pacScripts)
+		if NOT isList(pacScripts) and Q(pacScripts).IsListOfStrings()
+			StzRaise("Uncorrect param type! pacScripts must be a list of strings.")
+		ok
+
+		nLen = len(pacScripts)
 		aListOfLists = []
-		for cScript in pacScripts
-			aListOfLists + LanguagesInScript(cScript)
+
+		for i = 1 to nLen
+			aListOfLists + LanguagesInScript(pacScripts[i])
 		next
 
-		oListOfLists = new stzListOfLists(aListOfLists)
-
-		aMergedList = oListOfLists.Merge()
-
-
-		oMergedList = new stzList(aMergedList)
-		return oMergedList.DuplicatedItems()
+		acResult = StzListOfListsQ(aListOfLists).CommonItems()
+		return acResult
 
 	func ScriptsForLanguage(pcLang)
 		return StzLangaugeQ(pcLang).Scripts()
 
 	func CommonScriptsForLanguages(pacLangs)
+		if NOT isList(pacLangs) and Q(pacLangs).IsListOfStrings()
+			StzRaise("Uncorrect param type! pacLangs must be a list of strings.")
+		ok
+
+		nLen = len(pacLangs)
 		acResult = []
-		for cLang in pacLangs
-			acResult + StzLanguageQ(cLang).Script()
+		for i = 1 to nLen
+			acResult + StzLanguageQ(pacLangs[i]).Script()
 		next
 		return acResult
 

@@ -2215,7 +2215,7 @@ proff()
 #--> Executed in 0.07 second(s)
 
 /*-------------- SUBSTRONGS & SUBSTREAKS
-*/
+
 pron()
 
 o1 = new stzListOfStrings([
@@ -2233,7 +2233,7 @@ o1 = new stzListOfStrings([
 proff()
 # Executed in 0.08 second(s)
 
-/*--------------
+/*============
 
 pron()
 
@@ -2243,6 +2243,7 @@ o1.SpacifyTheseSubStrings([
 ])
 
 ? o1.Content()
+#--> I believe in Ring future and engage for it!
 
 proff()
 # Executed in 0.13 second(s)
@@ -2264,7 +2265,7 @@ o1.SpacifyTheseSubStrings([
 proff()
 # Executed in 0.08 second(s)
 
-/*--------------
+/*==============
 
 pron()
 
@@ -2292,6 +2293,7 @@ o1.InsertBefore([4, 7], "_") # or o1.InsertBeforePositions([4, 7], "_")
 #--> 123_456_789
 
 proff()
+# Executed in 0.03 second(s)
 
 /*-------------
 
@@ -2302,7 +2304,16 @@ o1 = new stzString("123456789")
 o1.InsertAfterPositions([3, 6], "_") # or o1.InsertAfterPositions([4, 7], "_")
 #--> 123_456_789
 
-//o1.InsertAfterEachNCharsXT(3, :StartingFrom = :End)
+proff()
+# Executed in 0.03 second(s)
+
+/*------------- TODO
+
+pron()
+
+o1 = new stzString("123456789")
+
+o1.InsertAfterEachNCharsXT(3, :StartingFrom = :End)
 ? o1.Content()
 #--> 123_456_789
 
@@ -2337,14 +2348,14 @@ o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
 ? o1.FindFirstAsSection("♥♥♥")
 #--> [6, 8]
 
-? o1.FindFirstZ("♥♥♥")
+? o1.FirstZ("♥♥♥") # Or FindFirstZ()
 #--> [ "♥♥♥", 6 ]
 
-? o1.FindFirstZZ("♥♥♥")
+? o1.FirstZZ("♥♥♥") # Or FindfirstZZ()
 #--> [ "♥♥♥", [6, 8] ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*---------------
 
@@ -2355,8 +2366,8 @@ o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
 ? o1.FindLast("♥♥♥")
 #--> 22
 
-? o1.FindLastAsSection("♥♥♥")
-#--> [22, 24]
+? o1.FindLasteAsSection("♥♥♥") 	# Note that the function is misspelled (there is an
+#--> [22, 24]			# erronous "e" after "Last", but Softanza lets it go!
 
 ? o1.FindLastZ("♥♥♥")
 #--> [ "♥♥♥", 22 ]
@@ -2379,10 +2390,10 @@ o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
 ? o1.FindNthAsSection(2, "♥♥♥")
 #--> [22, 24]
 
-? o1.FindNthZ(2, "♥♥♥")
+? o1.NthZ(2, "♥♥♥") # Or o1.FindNthZ()
 #--> [ "♥♥♥", 22 ]
 
-? o1.FindNthZZ(2, "♥♥♥")
+? o1.FindNthZZ(2, "♥♥♥") # Or o1.NthZZ()
 #--> [ "♥♥♥", [22, 24] ]
 
 proff()
@@ -2395,17 +2406,17 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-//? o1.FindNthS(1, "♥♥♥", :StartingAt = 3)
+? o1.FindNthS(1, "♥♥♥", :StartingAt = 3)
 #--> 3
 
 ? o1.FindNext("♥♥♥", :StartingAt = 3)
-#--> 3
-
-? o1.FindPrevious("♥♥♥", :StartingAt = 10)
 #--> 8
 
+? o1.FindPrevious("♥♥♥", :StartingAt = 10)
+#--> 3
+
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.06 second(s)
 
 /*================= Using ..S() and ..SD() extension
 
