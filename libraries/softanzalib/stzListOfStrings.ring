@@ -18664,7 +18664,7 @@ class stzListOfStrings from stzList
 					loop
 				ok
 
-				if Q(acContent[i]).ContainsCS(Q(acContent[j]), pCaseSensitive)
+				if Q(acContent[i]).ContainsCS(acContent[j], pCaseSensitive)
 					acResult + acContent[i]
 				ok
 			next
@@ -18705,7 +18705,7 @@ class stzListOfStrings from stzList
 					loop
 				ok
 
-				if Q(acContent[i]).IsContainedInCS(Q(acContent[j]), pCaseSensitive)
+				if Q(acContent[i]).IsContainedInCS(acContent[j], pCaseSensitive)
 					acResult + acContent[i]
 				ok
 

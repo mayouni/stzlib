@@ -1305,24 +1305,6 @@ class stzListOfLists from stzList
 		next
 		return aResult
 
-	  #----------------------------------#
-	 #   INTERSECTION & COMMON ITEMS    #
-	#----------------------------------#
-
-	def HaveSameContent()
-		// TODO
-
-	def CommonItems()
-		return This.Intersection()
-
-	def Intersection()
-		/*
-		The intersection between a list of lists (ie their common item) is
-		given by the duplicated items of the merged list of all those lists.
-		*/
-		oStzList = new stzList(This.Merge())
-		return oStzList.DuplicatedItems()
-
 	  #-----------------------------------------------------#
 	 #   MERGING THE LISTS AND RETURNING ONE MERGED LIST   #
 	#-----------------------------------------------------#
@@ -1410,6 +1392,86 @@ class stzListOfLists from stzList
 
 	def Flattened()
 		return This.Flatten()
+
+	  #------------------------------------------------#
+	 #  CHECKING IF A GIVEN ITEM EXISTS IN ALL LISTS  #
+	#------------------------------------------------#
+
+	def EachListContainsCS(pItem, pCaseSensitive)
+		bResult = TRUE
+		aLists = This.Content()
+		nLen = len(aLists)
+
+		for i = 1 to nLen
+			if NOT Q(aLists[i]).ContainsCS(pItem, pCaseSensitive)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ContainsItemInAllListsCS(pItem, pCaseSensitive)
+			return This.EachListContainsCS(pItem, pCaseSensitive)
+
+		def ContainsItemInEachListCS(pItem, pCaseSensitive)
+			return This.EachListContainsCS(pItem, pCaseSensitive)
+
+		def ItemExistsInAllListsCS(pItem, pCaseSensitive)
+			return This.EachListContainsCS(pItem, pCaseSensitive)
+
+		def ItemIsCommonToAllListsCS(pItem, pCaseSensitive)
+			return This.EachListContainsCS(pItem, pCaseSensitive)
+
+		def AllListsContainCS(pItem, pCaseSensitive)
+			return This.EachListContainsCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def EachListContains(pItem)
+		return This.EachListContainsCS(pItem, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ContainsItemInAllLists(pItem)
+			return This.EachListContains(pItem)
+
+		def ContainsItemInEachList(pItem)
+			return This.EachListContains(pItem)
+
+		def ItemExistsInAllLists(pItem)
+			return This.EachListContains(pItem)
+
+		def ItemIsCommonToAllLists(pItem)
+			return This.EachListContains(pItem)
+
+		def AllListsContain(pItem)
+			return This.EachListContains(pItem)
+
+		#>
+
+	  #--------------------------------------#
+	 #  COMMON ITEMS BETWEEN ALL THE LISTS  #
+	#--------------------------------------#
+
+	def CommonItemsCS(pCaseSensitive)
+		aResult = This.FlattenQ().Duplicates()
+		return aResult
+
+		def IntersectionCS(pCaseSensitive)
+			return This.CommonItemsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def CommonItems()
+		return This.CommonItemsCS(:CaseSensitive = TRUE)
+
+		def Intersection()
+			return This.CommonItems()
 
 	  #---------------------#
 	 #   TO OTHER TYPES    #

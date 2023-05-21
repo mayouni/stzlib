@@ -1054,6 +1054,9 @@ class stzObject
 		return :Object
 		# NOTE: Unlike Ring, Softanza returns the type in lowercase
 
+		def RingType()
+			return :Object
+
 	def TypeXT()
 		return [ This.Content(), This.Type() ]
 

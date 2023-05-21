@@ -14,7 +14,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 ? Q(12).IsZawji()	# or IsEven()
@@ -26,50 +26,55 @@ pron()
 proff()
 # Executed in 0.02 second(s)
 
-/*--------------------
+/*===========
 
 # TODO : Fix the point at the end of the result
 o1 = new stzNumber("601793176.32")
 ? o1.ToHexForm()
 #!--> 0x23DEA298.
 
-/*-----------------
+/*=============
 
-? Q(25).MultiplesUntilQR(1050, :stzListOfNumbers).
-	LeastCommonNumber(:With = Q(42).MultiplesUntil(1050) )
-#--> 1050
+pron()
 
-/*-----------------
+? LCM(25, 42) # or LeastCommonMultiple(:Of = 25, :And = 42)
+#--> Executed in 0.03 second(s)
 
-o1 = new stzListOfNumbers([8, 12, 89, 46])
-? o1.LeastCommonNumber(:With = [4, 6, 12, 89]) 		#--> 12
-? o1.GreatestCommonNumber(:With = [4, 6, 12, 89])	#--> 89
+? GCD(250, 420) # or GreatestCommonDividor(:Of = 250, :And = 420)
+#--> 10
 
-/*-----------------
+proff()
+# Executed in 0.02 second(s)
 
-? Q([ "13", "7", "-8.10" ]).isListOfNumbersInStrings() #--> TRUE
-
-/*-----------------
-
-# Least common multiple between 25 and 42
-? Q(25).LeastCommonMultiple(:With = 42) # or simply Q(25).LCM(42)
-#--> 1050
-
-? Q(25).LCM( :With = [ 42, 12 ] )
-
-/*-----------------
+/*--------
 */
-? Q(2).LCM( :With = [3, 5, 9] )
-#--> 90
 
-? StzListOfNumbersQ([2, 3, 5, 9]).LCM()
-#--> 90
+pron()
 
-/*----------------- ERROR: stack oveflow
+? StzListOfListsQ([ [ "a", "b", "c" ], [ 1, "b", 2, "c" ] ]).CommonItems()
+#--> [ "b", "c" ]
+
+//? CommonItems( :Between = [ "a", "b", "c" ], :And = [ 1, "b", 2, "c" ])
+
+proff()
+# Executed in 0.07 second(s)
+
+/*--------
+*/
+pron()
+
+? Q(25).MultiplesUntilQR(1080, :stzListOfNumbers).
+	LeastCommonNumber(:With = Q(42).MultiplesUntil(1080) )
+#--> 1050
+#--> Executed in 12.97 second(s)
+
+proff()
 
 # Ok, but how this is found in practice, like if we make it by hand?
-# First, let's see the multiples of 25 up to 1050
-aList1 = Q(25).Multiples(:UpTo = 1050)
+# First, let's see the multiples of 25 under 1080
+
+aList1 = Q(25).Multiples(:Under = 1080) # Use ? @@S( aList1 ) to show the list
+
 #--> [
 #	25, 50, 75, 100, 125,
 #	150, 175, 200, 225, 250,
@@ -79,14 +84,12 @@ aList1 = Q(25).Multiples(:UpTo = 1050)
 #	650, 675, 700, 725, 750,
 #	775, 800, 825, 850, 875,
 #	900, 925, 950, 975,
-#	1000, 1025, 1050
+#	1000, 1025, 1050, 1075
 # ]
-/*
-# This means that 25 should be multiplied 42 times to obtain 1050.
-? len(aList1)
+# Executed in 8.05 second(s)
 
-# Then we look to the multiples of 42 up to 1050
-aList2 = Q(42).Multiples(:UpTo = 1050)
+# Then we look to the multiples of 42 under 1080
+aList2 = Q(42).Multiples(:Under = 1080) # Use ? @@S( aList2 ) to show the list
 #--> [
 #	42, 84, 126, 168, 210,
 #	252, 294, 336, 378, 420,
@@ -94,42 +97,21 @@ aList2 = Q(42).Multiples(:UpTo = 1050)
 #	672, 714, 756, 798, 840,
 #	882, 924, 966, 1008, 1050
 # ]
+# Executed in 4.77 second(s)
 
-# Note that they are 25 times:
-? len(aList2) # You can also use Q(42).NumberOfMultiples(:UpTp = 1050)
+# We can visually recognize 1050 as the Least Common Multiplier between
+# the two numbers (25 and 42) before we exceed 1080.
 
-#--> The fact of multipying 25 up to 42 times before we reach 1050,
-# and multiplying 42 up to 25 times to reach the same number,
-# means that the two numbers actually don't have any common multiple
-# before 1050 itself. This can be suffucent to deduce that 1050 is
-# effectively the Least Common Multiple of 25 and 42.
+# We can get this instantly by saying:
 
-# But, I know, for some of us, this seams to be some how abstract.
-# Hopefully, there is an other concrete way to check it. And this is
-# what we do in practice:
-
-# we scan the numbers of aList1 and aList2 and see what is the first
-# common number between them. Try to do it manually...
-
-# It takes some time before you see that the last number, 1050, is
-# actually the uniqie common number between the two lists! Now we
-# are convainced the output of Sioftanza function LCM() was correct/
-
-# for 1050 to effectively be the LCM of 25 and 42, the least common
-# number between aList1 and aList2 should be 1050. Let's check it:
 ? StzListOfNumbersQ(aList1).LeastCommonNumber(aList2)
 #--> 1050
 
-# We are done! We demonstrated our initial result.
-
-# We would be able to make the job in only one line
-? Q(25).MultiplesUntilQR(1050, :stzListOfNumbers).
-	LeastCommonNumber(:With = Q(42).MultiplesUntil(1050) )
-#--> 1050
+proff()
 
 /*-----------------
 
-? @@S( Q(25).MultiplesUpTo(1050) ) + NL
+? @@S( Q(25).MultiplesUnder(1080) ) + NL
 #--> [
 #	25, 50, 75, 100, 125,
 #	150, 175, 200, 225, 250,
@@ -139,10 +121,10 @@ aList2 = Q(42).Multiples(:UpTo = 1050)
 #	650, 675, 700, 725, 750,
 #	775, 800, 825, 850, 875,
 #	900, 925, 950, 975,
-#	1000, 1025, 1050
+#	1000, 1025, 1050, 1075
 # ]
 
-? @@S( Q(42).MultiplesUpTo(1050) ) + NL
+? @@S( Q(42).MultiplesUnder(1080) ) + NL
 #--> [
 #	42, 84, 126, 168, 210,
 #	252, 294, 336, 378, 420,
@@ -190,7 +172,7 @@ next
 ( Q(11) * [2, 3] ).Content()
 
 
-/*------------------
+/*===================
 
 o1 = new stzNumber(11)
 //? o1.RepeatedNTimes(3)
