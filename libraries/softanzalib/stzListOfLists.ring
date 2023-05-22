@@ -1305,93 +1305,12 @@ class stzListOfLists from stzList
 		next
 		return aResult
 
-	  #-----------------------------------------------------#
-	 #   MERGING THE LISTS AND RETURNING ONE MERGED LIST   #
-	#-----------------------------------------------------#
-
-	def Merge()
-
-		aResult = []
-		nLenLists = This.NumberOfLists()
-		aContent = This.Content()
-
-		for i = 1 to nLenLists
-			aList = aContent[i]
-			nLenList = len(aList)
-
-			for v = 1 to nLenList
-				aResult + aList[v]
-			next
-		next
-
-		return aResult
-
-		def MergeQ()
-			return This.MergeQR(:stzList)
-
-		def MergeQR(pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Merged() )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Merged() )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.Merged() )
-
-			on :stzListOfChars
-				return new stzListOfChars( This.Merged() )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.Merged() )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.Merged() )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-	def Merged()
-		return This.Merge()
-
-	  #-----------------------------------------------------------#
-	 #   FLATTENING THE LISTS AND RETURNING ONE FLATTENED LIST   #
-	#-----------------------------------------------------------#
-
-	def Flatten()
-		aResult = This.ToStzList().Flattened()
-		return aResult
-
-		def FlattenQ()
-			return This.FlattenQR(:stzList)
-
-		def FlattenQR(pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Flattened() )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Flattened() )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.Flattened() )
-
-			on :stzListOfChars
-				return new stzListOfChars( This.Flattened() )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.Flattened() )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.Flattened() )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
+	  #----------------------------------------#
+	 #  GETTING A FLATTENED COPY OF THE LIST  #
+	#----------------------------------------#
 
 	def Flattened()
-		return This.Flatten()
+		return This.ToStzList().Flattened()
 
 	  #------------------------------------------------#
 	 #  CHECKING IF A GIVEN ITEM EXISTS IN ALL LISTS  #

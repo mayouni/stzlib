@@ -4754,18 +4754,22 @@ class stzList from stzObject
 	 #  REMOVING MANY ITEMS BY SPECIFYING THEIR POSITIONS  #
 	#=====================================================#
 
-	def RemoveItemsAtPositions(panPositions)
-		if NOT (isList(panPositions) and len(panPositions) > 0 and
-			Q(panPositions).IsListOfNumbers() )
+	def RemoveItemsAtPositions(panPos)
+		if NOT (isList(panPos) and len(panPos) > 0 and
+			Q(panPos).IsListOfNumbers() )
 
-			StzRaise("Incorrect pram! panPositions must be a non empty list of numbers.")
+			StzRaise("Incorrect pram! panPos must be a non empty list of numbers.")
 		ok
 
-		anPositions = StzListQ(panPositions).SortedInDescending()
+		nLen = len(panPos)
+		if nLen = 0
+			return
+		ok
 
-		for i = 1 to len( anPositions )
-			n = anPositions[i]
-			This.RemoveItemAtPosition(n)
+		anPosSorted = StzListQ(panPos).SortedInDescending()
+		
+		for i = 1 to nLen
+			This.RemoveItemAtPosition(anPosSorted[i])
 
 		next
 
@@ -14385,6 +14389,40 @@ class stzList from stzObject
 	 #     FLATTENING THE LIST    #
 	#----------------------------#
 	
+	def Flatten() 
+		/* EXAMPLE
+
+		o1 = nex stzList([ "A", [ "B", "C" ], "D" ]
+		? o1.Flatten()
+
+		#--> [ "A", "B", "C", "D" ]
+
+		NOTE: if you need to flatten sublists at any level,
+		then you should use Deepflatten()
+
+		*/
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aFlattened = []
+
+		for i = 1 to nLen
+			if NOT isList(aContent[i])
+				aFlattened + aContent[i]
+
+			else
+				nLenList = len(aContent[i])
+				for j = 1 to nLenList
+					aFlattened + aContent[i][j]
+				next
+			ok
+		next
+
+		This.Update(aFlattened)
+
+
+/*
 	# Works if items are numbers, strings and lists (not for objects!)
 	# --> TODO: make it for objects also after making equality
 
@@ -14392,8 +14430,6 @@ class stzList from stzObject
 	# brackes in ListToCode() with a srambled text, and then this same
 	# scrambled text is replaced with []...
 	# --> TODO: think of a better implementation!
-
-	def Flatten() 
 
 		aResult = []
 	
@@ -14412,6 +14448,7 @@ class stzList from stzObject
 		eval(cCode)
 
 		This.Update( aResult )
+*/
 
 		#< @FunctionFluentForm
 
@@ -14463,52 +14500,20 @@ class stzList from stzObject
 	def ToStzSet()
 		return new stzSet( This.ToSet() )
 
-		def ToSetQ()
-			return This.ToStzSet()
-
 	def ToStzListOfNumbers()
 		return new stzListOfNumbers( This.Content() )
-
-		def ToListOfNumbersQ()
-			return This.ToStzListOfNumbers()
 
 	def ToStzListOfLists()
 		return new stzListOfLists(This.Content())
 
-		def ToListOfListsQ()
-			return This.ToStzListOfLists()
-
 	def ToStzListOfPairs()
 		return new stzListOfPairs(This.Content())
-
-		def ToListOfPairsQ()
-			return This.ToStzListOfPairs()
 
 	def ToStzListOfStrings()
 		return new stzListOfStrings(This.Content())
 
-		def ToListOfStringsQ()
-			return This.ToStzListOfStrings()
-
-	def ToListOfStringifiedItems()
-		# TODO: alternative of Stringified()
-
-		aResult = []
-		nLen = This.NumberOfItems()
-		aContent = This.Content()
-
-		for i = 1 to nLen
-			aResult + @@S( aContent[i] )
-		next
-
-		return aResult
-
-
 	def ToStzHashList()
 		return new stzHashList( This.List() )
-	
-		def ToHashListQ()
-			return This.ToStzHashList()
 
 	  #---------------------------------#
 	 #  CHECKING IF THE LIST IS A SET  #
@@ -14794,12 +14799,13 @@ class stzList from stzObject
 
 		nLen = This.NumberOfItems()
 		aTemp = []
+		aContent = This.Content()
 
 		anResult = []
 		for i = 1 to nLen
 
-			if NOT Q(aTemp).ContainsCS(This.Item(i), pCaseSensitive)
-				aTemp + This.Item(i)
+			if NOT Q(aTemp).ContainsCS(aContent[i], pCaseSensitive)
+				aTemp + aContent[i]
 			else
 				anResult + i
 			ok
@@ -14866,6 +14872,7 @@ class stzList from stzObject
 	#--------------#
 
 	def DuplicatesCS(pCaseSensitive)
+
 		anPos = This.FindDuplicatesCS(pCaseSensitive)
 		aResult = This.ItemsAtPositionsQ( anPos ).ToSet()
 
@@ -14985,8 +14992,9 @@ class stzList from stzObject
 		# Otherwise, we do it by ourselves
 
 		anPos = This.FindDuplicatesCS(pCaseSensitive)
-		This.RemoveItemsAtPositions(anPos)
-
+		if len(anPos) > 0
+			This.RemoveItemsAtPositions(anPos)
+		ok
 
 		def RemoveDuplicatesCSQ(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
@@ -15033,17 +15041,56 @@ class stzList from stzObject
 		def ToSet()
 			return This.DuplicatesRemoved()
 
+			def ToSetQ()
+				return This.ToSetQR(:stzList)
+			
+			def ToSetQR(pcReturnType)
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.ToSet() )
+
+				on :stzSet
+					return new stzSet( This.ToSet() )
+
+				other
+					StzRaise("Unsupported return type!")
+				off
+
 		def ToSetOfItems()
 			return This.DuplicatesRemoved()
+
+			def ToSetOfItemsQ()
+				return This.ToSetQR(:stzList)
+			
+			def ToSetOfItemsQR(pcReturnType)
+				return This.ToSetQR(pcReturnType)
 
 		def UniqueItems()
 			return This.DuplicatesRemoved()
 
+			def UniqueItemsQ()
+				return This.ToSetQR(:stzList)
+			
+			def UniqueItemsQR(pcReturnType)
+				return This.ToSetQR(pcReturnType)
+
 		def UniqueStringItems()
 			return This.DuplicatesRemoved()
 
+			def UniqueStringItemsQ()
+				return This.ToSetQR(:stzList)
+			
+			def UniqueStringItemsQR(pcReturnType)
+				return This.ToSetQR(pcReturnType)
+
 		def ItemsU()
 			return This.DuplicatesRemoved()
+
+			def ItemsUQ()
+				return This.ToSetQR(:stzList)
+			
+			def ItemsUQR(pcReturnType)
+				return This.ToSetQR(pcReturnType)
 
 		#>
 
@@ -18426,10 +18473,10 @@ class stzList from stzObject
 
 		aResult = []
 		nLen = len(panPos)
+		aContent = This.List()
 
 		for i = 1 to nLen
-			n = panPos[i]
-			aResult + This.ItemAtPosition(n)
+			aResult + aContent[i]
 		next
 
 		return aResult
@@ -21990,9 +22037,9 @@ class stzList from stzObject
 			def ToCodeSFQ()
 				return This.ToCodeSimplified()
 
-	  #--------------------------------------------------------------#
-	 #  STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BE STRINGS)  #
-	#--------------------------------------------------------------#
+	  #------------------------------------------------------------------#
+	 #  STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BECOME STRINGS)  #
+	#------------------------------------------------------------------#
 	# TODO: Abstract this function in stzObject
 
 	def Stringify()
@@ -22041,6 +22088,9 @@ class stzList from stzObject
 		return acResult
 
 		def ItemsStringified()
+			return This.Stringified()
+
+		def ToListOfStringifiedItems()
 			return This.Stringified()
 
 	  #--------------------------------------------------#
