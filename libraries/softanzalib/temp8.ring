@@ -14,7 +14,7 @@ proff()
 #--> Executed in 0.06 second(s)
 
 /*-------------
-
+*/
 pron()
 
 o1 = new stzListOfLists([
@@ -23,11 +23,16 @@ o1 = new stzListOfLists([
 	[ "C#", "PHP", "Python", "Ring" ]
 ])
 
-? o1.CommonItems()
-#--> [ "Ring", "Pyhton" ]
+? @@S( o1.Flattened() )
+#--> [ "Ring", "Ruby", "Python", "Julia", "Ring", "Go", "Python", "C#", "PHP", "Python", "Ring" ]
 
 proff()
 #--> Executed in 0.10 second(s)
+
+//? o1.CommonItems()
+#--> [ "Ring", "Pyhton" ]
+
+
 
 /*-------------
 
@@ -44,26 +49,36 @@ proff()
 
 pron()
 
-o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3, "c" ])
+? Q([ "a", "ab", "b", [ 1, 2, 3 ] ]).ToSet()
+#--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
+
+proff()
+#--> Executed in 0.04 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3,"c" ])
 
 ? o1.FindDuplicates()
 #--> [ 5, 6, 8, 10 ]
 # Executed in 0.11 second(s)
 
-? @@S( o1.ItemsAtPositions([ 5, 6, 8, 10 ]) )
+? @@S( o1.ItemsAtPositions( o1.FindDuplicates() ) )
 #--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
 # Executed in 0.02 second(s)
 
 ? @@S( o1.Duplicates() )
 #--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
-# Executed in 0.12 second(s)
+# Executed in 0.14 second(s)
 
 ? @@S( o1.DuplicatesZ() )
 #--> [ [ "a", 5 ], [ "ab", 6 ], [ "b", 8 ], [ [ 1, 2, 3 ], 10 ] ]
 # Executed in 0.23 second(s)
 
 proff()
-# Executed in 0.46 second(s)
+# Executed in 0.44 second(s)
 
 /*-------------
 
@@ -93,15 +108,15 @@ o1 = new stzListOfLists([ aList1, aList2 ])
 #--> Executed in 0.64 second(s)
 
 proff()
-# Executed in 0.98 second(s)
+# Executed in 1.00 second(s)
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzString("Ring is nice")
 ? @@S( o1.CommonSubStrings(:With = "I love Ring") )
-#--> [ " ", "R", "Ri", "Rin", "Ring", "e", "g", "i", "in", "ing", "n", "ng" ]
+#--> [ " ", "R", "Ri", "Rin", "Ring", "i", "in", "ing", "n", "ng", "g", "e" ]
 
 proff()
 # Executed in 0.60 second(s)

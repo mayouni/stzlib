@@ -4054,7 +4054,7 @@ class stzString from stzObject
 
 	def DuplicatesCS(pCaseSensitive)
 
-		acResult = This.SubStringsCSQ(pCaseSensitive).DuplicatesCS(pCaseSensitive)
+		acResult = This.SubStringsCSQ(pCaseSensitive).DuplicatesCSQ(pCaseSensitive).ToSet()
 		return acResult
 
 	#-- WITHOUT CASESENSITIVITY
