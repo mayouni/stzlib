@@ -1305,9 +1305,41 @@ class stzListOfLists from stzList
 		next
 		return aResult
 
+	  #----------------------------------------------#
+	 #  GETTING A MERGED COPY OF THE LIST OF LISTS  #
+	#----------------------------------------------#
+
+	def Merge()
+		StzRaise("Can't merge the list of lists! Instead you can return a merged copy of it using Merged()")
+
+		def MergeQ()
+			StzRaise("Can't merge the list of lists! Instead you can return a merged copy of it using Merged()")
+
+	def Merged()
+		
+		aResult = []
+
+		aContent = This.Lists()
+		nLen = This.NumberOfLists()
+
+		for i = 1 to nLen
+			nLenList = len(aContent[i])
+			for j = 1 to nLenList
+		   		aResult + aContent[i][j]
+			next
+		next
+		
+		return aResult
+
 	  #----------------------------------------#
 	 #  GETTING A FLATTENED COPY OF THE LIST  #
 	#----------------------------------------#
+
+	def Flatten()
+		StzRaise("Can't flatten the list of lists! Instead you can return a flattend copy of it using Flattened()")
+
+		def FlattenQ()
+			StzRaise("Can't flatten the list of lists! Instead you can return a flattend copy of it using Flattened()")
 
 	def Flattened()
 		return This.ToStzList().Flattened()

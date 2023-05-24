@@ -5310,13 +5310,9 @@ class stzList from stzObject
 	def ExtractPrevious(item, pnStartingAt)
 		return This.ExtractPreviousCS(item, pnStartingAt, :CaseSensitive = TRUE)
 
-	  #============================#
-	 #     BOUNDS OF THE LIST     #
-	#============================#
-
-	  #--------------------------------------------#
+	  #============================================#
 	 #  BOUNDS OF AN ITEM UP TO N NEIGHBOR ITEMS  #
-	#--------------------------------------------#
+	#============================================#
 
 	def BoundsOfCS(pItem, pnUpToNItems, pCaseSensitive)
 		if isList(pnUpToNItems) and
@@ -14062,7 +14058,7 @@ class stzList from stzObject
 			ok
 
 		but pcOp = "-"
-			if isList(pValue) and This.ContainsNo(pValue)
+			if isList(pValue)
 				This.RemoveMany(pValue)
 			
 			else	
@@ -14334,27 +14330,25 @@ class stzList from stzObject
 	#===============================================#
 
 	def Merge()
-		# TODO: Optimise for performance
 
-		aMerged = []
-		nLen = This.NumberOfItems()
 		aContent = This.Content()
+		nLen = This.NumberOfItems()
+
+		aResult = []
 
 		for i = 1 to nLen
-
-			if NOT isList(aContent[i])
-				aMerged + aContent[i]
-
-			else
-				nLen2 = len(aContent[i])
-				for j = 1 to nLen2
-					aMerged + aContent[i][j]
+			if isList(aContent[i])
+				nLenList = len(aContent[i])
+				for j = 1 to nLenList
+					aResult + aContent[i][j]
 				next
+			else
+				aResult + aContent[i]
 			ok
-
 		next
 
-		This.Update(aMerged)
+		This.Update(aResult)
+
 
 		def MergeQ()
 			This.Merge()
@@ -14373,8 +14367,10 @@ class stzList from stzObject
 			StzRaise("Incorrect param! paOtherList must be a list.")
 		ok
 
-		for item in paOtherList
-			This.Add(item)
+		nLen = len(paOtherList)
+
+		for i = 1 to nLen
+			This.Add(paOtherList[i])
 		next
 
 		def MergeWithQ(paOtherList)
@@ -14392,63 +14388,35 @@ class stzList from stzObject
 	def Flatten() 
 		/* EXAMPLE
 
-		o1 = nex stzList([ "A", [ "B", "C" ], "D" ]
+		o1 = new stzList([ "A", [ "]B[", "C" ], "D", [ [ "E", "F" ] ] ]
 		? o1.Flatten()
 
 		#--> [ "A", "B", "C", "D" ]
 
-		NOTE: if you need to flatten sublists at any level,
-		then you should use Deepflatten()
-
 		*/
 
 		aContent = This.Content()
-		nLen = len(aContent)
-
-		aFlattened = []
+		nLen = This.NumberOfItems()
+		
+		aResult = []
+		aTemp = []
 
 		for i = 1 to nLen
-			if NOT isList(aContent[i])
-				aFlattened + aContent[i]
 
-			else
-				nLenList = len(aContent[i])
-				for j = 1 to nLenList
-					aFlattened + aContent[i][j]
+			if isList(aContent[i])
+
+				aTemp = Q(aContent[i]).Flattened()
+				nLenTemp = len(aTemp)
+
+				for j = 1 to nLenTemp
+					aResult + aTemp[j]
 				next
+			else
+				aResult + aContent[i]
 			ok
 		next
-
-		This.Update(aFlattened)
-
-
-/*
-	# Works if items are numbers, strings and lists (not for objects!)
-	# --> TODO: make it for objects also after making equality
-
-	# WARNING: This uses a risky implementation that it replaces empty
-	# brackes in ListToCode() with a srambled text, and then this same
-	# scrambled text is replaced with []...
-	# --> TODO: think of a better implementation!
-
-		aResult = []
-	
-		cListInString = ""
-	
-		StzStringQ( listtocode(This.Content()) ) {
-			Simplify()
-			ReplaceMany([ "[]", "[ ]" ], :With = "#!9#!7#EMPTYLIST#!3#!#4")
-			RemoveMany([ "[", "]" ])
-			ReplaceAll("#!9#!7#EMPTYLIST#!3#!#4", :With = "[]")
-	
-			cListInString = Content()
-		}
-	
-		cCode = "aResult = [" + cListInString + "]"
-		eval(cCode)
-
-		This.Update( aResult )
-*/
+		
+		This.Update(aResult)
 
 		#< @FunctionFluentForm
 
@@ -21125,7 +21093,8 @@ class stzList from stzObject
 
 		aSorted = StzListOfPairsQ(paSections).SortedInAscending()
 		#--> [ [3,5], [7,8] ]
-
+? @@S(aSorted)
+return
 		aAntiSections = []
 		n1 = 1
 
@@ -21191,7 +21160,7 @@ class stzList from stzObject
 		#--> [ ["A", "B"], ["F"], ["I", "J"] ]
 		*/
 
-		aResult = This.Sections(This.FindAntiSections(paSections))
+		aResult = This.Sections( This.FindAntiSections(paSections) )
 		return aResult
 
 		def SectionsOtherThan(paSections)

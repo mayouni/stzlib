@@ -2849,7 +2849,7 @@ proff()
 # Executed in 0.15 second(s)
 
 #---------
-*/
+
 pron()
 #                      4 6      3 5
 o1 = new stzString("*<<***>>**<<***>>*")
@@ -2869,37 +2869,77 @@ o1 = new stzString("*<<***>>**<<***>>*")
 #--> [ [ 4, 6 ], [ 13, 15 ] ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.17 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 
-? @@S( o1.FindAnyBetween("67", "12") ) # Same as o1.FindSubStringsBetween("67", "12")
+? @@S( o1.FindAnyBetween("67", :And = "12") ) # Same as o1.FindSubStringsBetween("67", "12")
 #--> [ 8 ]
 
-? @@S( o1.FindBetween("♥♥♥", "67", "12") )
-# Same  as o1.FindSubStringsBetween( "♥♥♥", "67", "12")
+? @@S( o1.FindBetween("♥♥♥", "67", :And = "12") ) # Same  as o1.FindSubStringsBetween( "♥♥♥", "67", "12")
 #--> [ 8 ]
 
+? @@S( o1.FindXT( "♥♥♥", :Between = [ "67", :And = "12" ]) )
+#--> [ 8 ]
 
-//? o1.FindXT( "♥♥♥", :BetweenIB = ["12", :And = "67" ]) # TODO
+? @@S( o1.FindAsSectionsXT( "♥♥♥", :Between = [ "67", :And = "12" ]) )
+#--> [ [ 8, 10 ] ]
+
+? @@S( o1.FindAsSectionsXT( "♥♥♥", :BetweenIB = [ "67", :And = "12" ]) )
+#--> [ [ 6, 12 ] ]
+
+? @@S( o1.FindAsSectionsXT( "♥♥♥", :Between = [ "12", :And = "67" ]) )
+#--> [ [ 3, 5 ], [ 13, 15 ] ]
+
+? @@S( o1.FindAsSectionsXT( "♥♥♥", :BetweenIB = [ "12", "67" ]) )
+#--> [ [ 1, 7 ], [ 11, 17 ] ]
+
+#-----
+
+? @@S( o1.FindXT( "♥♥♥", :Between = ["12", :And = "67" ]) )
 #--> [3, 13]
 
-? @@S( o1.FindAnyBetweenAsSectionsIB("12", "67") ) + NL
+? @@S( o1.FindAsSectionsXT( "♥♥♥", :Between = ["12", :And = "67" ]) )
+#--> [ [ 3, 5 ], [ 13, 15 ] ]
+
+? @@S( o1.FindXT( "♥♥♥", :BetweenIB = ["12", :And = "67" ]) )
+#--> [1, 11]
+
+? @@S( o1.FindAsSectionsXT( "♥♥♥", :BetweenIB = ["12", :And = "67" ]) )
+#--> [ [ 1, 7 ], [ 11, 17 ] ]
+
+proff()
+# Executed in 0.30 second(s)
+
+/*---------------
+
+pron()
+
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
+
+? @@S( o1.FindAnyBetweenAsSectionsIB("12", "67") )
 #--> [ [ 1, 7 ], [ 11, 17 ] ]
 
 ? @@S( o1.FindAnyBetweenAsSections("♥♥♥", "♥♥♥") )
 #--> [ [ 6, 7 ] ]
 
 proff()
-
+# Executed in 0.09 second(s)
 /*-----------------
+*/
 
-FindTheseOccurrencesS([ 2, 3], :Of = "♥♥♥", :StartingAt = 2)
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
+
+? o1.FindTheseOccurrences([ 2, 3], :Of = "♥♥♥")
+
+? o1.FindTheseOccurrencesS([ 2, 3], :Of = "♥♥♥", :StartingAt = 2)
 
 /*-----------------
 

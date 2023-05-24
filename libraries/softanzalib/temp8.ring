@@ -1,5 +1,121 @@
 load "stzlib.ring"
 
+/*---------------
+
+pron()
+
+o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
+
+//o1.Flatten()
+#--> Error message:
+# Can't flatten the list of lists!
+# Instead you can return a flattend copy of it using Flattened()
+
+? @@S( o1.Flattened() )
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+
+//o1.Merge()
+#--> Error message:
+# Can't flatten the list of lists!
+# Instead you can return a flattend copy of it using Flattened()
+
+? @@S( o1.Merged() )
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzList([
+	[1, 2],
+	[3, [4, 5:7 ] ],
+	8,
+	[ [ 9, [10] ] ]
+])
+
+? @@S( o1.Flattened() )
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzList([ [1, 2], [3, [4]], 5 ])
+? @@S( o1.Merged() )
+#--> [ 1, 2, 3, [ 4 ], 5 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+? @@S( ListsMerge([ [3, 5], [7, [8]] ]) )
+#--> [ 3, 5, 7, [ 8 ] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+StzListOfPairsQ([ [3, 5], [7, 8] ]) {
+	Sort()
+	? @@S( Content() )
+}
+
+proff()
+
+/*---------------
+
+pron()
+
+o1 = new stzList(1:7)
+o1 - 4:6
+
+? @@S( o1.Content() )
+#--> [ 1, 2, 3, 7 ]
+
+proff()
+# Executed in 0.10 second(s)
+
+/*---------------
+
+*/
+o1 = new stzList("A":"J")
+? o1.FindAntiSections( :Of = [ [3, 5], [7, 8] ] )
+#--> [ ["A", "B"], ["F"], ["I", "J"] ]
+
+proff()
+
+//? o1.FindAntiSections( :Of = [ [3,5], [7,8] ])
+#--> [ [1, 2], [6, 6], [9, 10] ]
+
+/*---------------
+
+pron()
+
+o1 = new stzList([ "A", [ "]B[", "C" ], "D", [ [ "E", "F" ] ] ])
+? o1.Flatten()
+
+proff()
+
+/*--------------
+
+pron()
+
+o1 = new stzList([ 1, 2, [ 3, [4, 5], 6 ], [ [ [ 7, 8] ] ] ])
+? o1.Flatten()
+
+proff()
 
 /*-------------
 
