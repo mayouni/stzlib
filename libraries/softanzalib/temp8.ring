@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-/*---------------
+/*=============
 
 pron()
 
@@ -63,16 +63,16 @@ pron()
 proff()
 # Executed in 0.03 second(s)
 
-/*---------------
+/*================
 
 pron()
 
-StzListOfPairsQ([ [3, 5], [7, 8] ]) {
-	Sort()
-	? @@S( Content() )
-}
+o1 = new stzListOfPairs([ [7, 8], [5, 3] ])
+o1.Sort()
+? @@S( o1.Content() )
 
 proff()
+#--> Executed in 0.05 second(s)
 
 /*---------------
 
@@ -90,14 +90,18 @@ proff()
 /*---------------
 
 */
+pron()
+
 o1 = new stzList("A":"J")
-? o1.FindAntiSections( :Of = [ [3, 5], [7, 8] ] )
+
+? @@S( o1.FindAntiSections( :Of = [ [3, 5], [7, 8] ] ) )
+#--> [ [ 1, 2 ], [ 6, 6 ], [ 9, 10 ] ]
+
+? @@S( o1.AntiSections(:Of = [ [3, 5], [7, 8] ] ) )
 #--> [ ["A", "B"], ["F"], ["I", "J"] ]
 
 proff()
-
-//? o1.FindAntiSections( :Of = [ [3,5], [7,8] ])
-#--> [ [1, 2], [6, 6], [9, 10] ]
+# Executed in 0.10 second(s)
 
 /*---------------
 
