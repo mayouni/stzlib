@@ -17033,6 +17033,11 @@ def ReplaceIBS()
 				p2 = p2[2]
 				return This.FindInBetweenCS(p1, p2[1], p2[2], pCaseSensitive)
 
+			# FindXT( "*", :BetweenIB = [ "<<", :And = ">>" ])
+			but  oP2.IsBetweenIBNamedParam()
+				p2 = p2[2]
+				return This.FindBetweenIBCS(p1, p2[1], p2[2], pCaseSensitive)
+
 			# FindXT( "*", :InSection = [10 , 14 ] )
 			but oP2.IsInSectionNamedParam()
 				anPos = This.SectionQ(p2[2]).FindCS(p1, pCaseSensitive)
@@ -17217,8 +17222,16 @@ def ReplaceIBS()
 	#=================================================#
 
 	def FindAsSectionsXTCS(pcSubStr, pacBetween, pCaseSensitive)
+
+		if isList(pacBetween) and len(pacBetween) = 2 and
+		   isList(pacBetween[2]) and len(pacBetween[2]) = 2 and
+		   isList(pacBetween[2][2]) and Q(pacBetween[2][2]).IsAndNamedParam()
+
+			pacBetween[2][2] = pacBetween[2][2][2]
+		ok
+
 		if isList(pacBetween) and
-		   Q(pacBetween).IsOneOfTheseNamedParams([ :Between, :InBetween ]) and
+		   Q(pacBetween).IsOneOfTheseNamedParams([ :Between, :InBetween, :BetweenIB ]) and
 		   isList(pacBetween[2]) and
 		   Q(pacBetween[2]).IsPairOfStrings()
 
@@ -17228,6 +17241,8 @@ def ReplaceIBS()
 			but pacBetween[1] = :InBetween
 				return This.FindInBetweenAsSectionsCS(pcSubStr, pacBetween[2][1], pacBetween[2][2], pCaseSensitive)
 
+			but pacBetween[1] = :BetweenIB
+				return  This.FindBetweenAsSectionsIBCS(pcSubStr, pacBetween[2][1], pacBetween[2][2], pCaseSensitive)
 			ok
 
 		else
@@ -17988,13 +18003,76 @@ def ReplaceIBS()
 	#---------------------------------------------------------------------#
 
 	def FindBetweenIBCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
 		anPos = This.FindBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
-		if isList(pcBound1)
-			pcBound1 = pcBound1[2]
+		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
+			pcBound2 = pcBound2[2]
 		ok
+
 		nLenBound1 = Q(pcBound1).NumberOfChars()
-		anResult = Q(anPos).AddedToEach( - nLenBound1 )
+		anResult = QR(anPos, :stzListOfNumbers).AddedToEach( - nLenBound1 )
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBetweenAsSectionsIBCS(cSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.FindBetweenAsSectionsIBCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+		def FindBoundedByAsSectionsIBCS(pcSubStr, pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.FindBetweenAsSectionsIBCS(pcSubStr, pacBounds, pacBounds, pCaseSensitive)
+
+			but isLisy(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.FindBetweenAsSectionsIBCS(pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
+			ok
+
+		def FindSubStringBoundedByAsSectionsIBCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindBoundedByAsSectionsIBCS(pcSubStr, pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBetweenAsSectionsIB(pcSubStr, pcBound1, pcBound2)
+		return This.FindBetweenAsSectionsIBCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBetweenAsSectionsIB(cSubStr, pcBound1, pcBound2)
+			return This.FindBetweenAsSectionsIB(pcSubStr, pcBound1, pcBound2)
+
+		def FindBoundedByAsSectionsIB(pcSubStr, pacBounds)
+			return This.FindBoundedByAsSectionsIBCS(pcSubStr, pacBounds, :CaseSensitive = TRUE)
+
+		def FindSubStringBoundedByAsSectionsIB(pcSubStr, pacBounds)
+			return FindBoundedByAsSectionsIB(pcSubStr, pacBounds)
+
+	  #-----------------------------------------------------------------------------------#
+	 #  FINDING (AS SECTIONS) A SUBSTRING BETWEEN TWO GIVEN SUBSTRINGS -- IB() EXTENDED  #
+	#-----------------------------------------------------------------------------------#
+
+	def FindBetweenAsSectionsIBCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+		aSections = This.FindBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
+			pcBound2 = pcBound2[2]
+		ok
+
+		nLen = len(aSections)
+		nLenBound1 = Q(pcBound1).NumberOfChars()
+		nLenBound2 = Q(pcBound2).NumberOfChars()
+
+		anResult = []
+
+		for i = 1 to nLen
+			anResult + [ aSections[i][1] - nLenBound1, aSections[i][2] + nLenBound2 ]
+		next
 
 		return anResult
 

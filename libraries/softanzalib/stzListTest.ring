@@ -65,17 +65,16 @@ proff()
 
 /*-----------------
 
-*/
 pron()
 
-//o1 = new stzList([ 14, 10, 4, 20 ])
 o1 = new stzList(1: 100_000)
 ? o1.IsListOfNumbers()
 
-//? o1.FindFirst(67_000)
+? o1.FindFirst(67_000)
+#--> 67000
 
 proff()
-#--> Executed in 0.26 second(s)
+#--> Executed in 0.51
 
 /*-----------------
 *
@@ -690,18 +689,24 @@ o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 # to test it just replace the line above with the following:
 // o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7" ])
 
-? o1.ContainsDuplicatedItems()
+? o1.ContainsDuplicates()
 #--> TRUE
 # Executed in 0.03 second(s)
 
-? o1.HowManyDuplicatedItems()		# Add: HowManyDuplications() --> 5
-#--> 2
+? o1.HowManyDuplicates()
+#--> 3
 # Executed in 0.09 second(s)
 
-? @@S( o1.FindDuplicatedItems() )
-#--> [ 1, 2, 3, 4, 6 ]
-# Executed in 0.16 second(s)
+? o1.FindDuplicates()
+#--> [ 3, 4, 6 ]
 
+? o1.Duplicates()
+
+? o1.HowManyDuplicatedItems()
+
+? o1.DuplicatedItems()
+
+/*
 ? @@S( o1.DuplicatedItemsZ() ) # Or DuplicatesAndTheirPositions()
 #--> [ [ 5, [ 1, 3, 4 ] ], [ 7, [ 2, 6 ] ] ]
 #--> the number 5 is duplicated at position 1, 3 and 4, and,
@@ -712,7 +717,7 @@ o1.RemoveDuplicatedItems()
 ? @@S( o1.Content() )
 #--> [ 4 ]
 # Executed in 0.17 second(s)
-
+*/
 proff()
 # Executed in 0.54 second(s)
 
