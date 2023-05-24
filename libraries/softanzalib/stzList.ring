@@ -21093,19 +21093,21 @@ class stzList from stzObject
 
 		aSorted = StzListOfPairsQ(paSections).SortedInAscending()
 		#--> [ [3,5], [7,8] ]
-? @@S(aSorted)
-return
+		nLen = len(aSorted)
+
 		aAntiSections = []
 		n1 = 1
 
 		i = 0
 		bLastPair = FALSE
 
-		for aPair in aSorted
-			i++
-			if i = len(aSorted)
+		for i = 1 to nLen
+
+			if i = nLen
 				bLastPair = TRUE
 			ok
+
+			aPair = aSorted[i]
 
 			if aPair[1] > n1
 				n2 =  aPair[1] - 1
@@ -21117,11 +21119,11 @@ return
 			ok
 		next
 
-		nLast = aSorted[ len(aSorted) ][2]
-		nSize = This.NumberOfItems()
+		nLast = aSorted[ nLen ][2]
+		nLenList = This.NumberOfItems()
 
-		if nLast < nSize
-			aAntiSections + [ nLast + 1, nSize ]
+		if nLast < nLenList
+			aAntiSections + [ nLast + 1, nLenList ]
 		ok
 
 		aResult = aAntiSections
