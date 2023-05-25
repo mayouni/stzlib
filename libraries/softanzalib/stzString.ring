@@ -4054,7 +4054,8 @@ class stzString from stzObject
 
 	def DuplicatesCS(pCaseSensitive)
 
-		acResult = This.SubStringsCSQ(pCaseSensitive).DuplicatesCSQ(pCaseSensitive).ToSet()
+		acResult = This.SubStringsCSQ(pCaseSensitive).DuplicatesCS(pCaseSensitive)
+
 		return acResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -38847,10 +38848,12 @@ def ReplaceIBS()
 			StzRaise("Uncorrect param type! pcOtherStr must be a string.")
 		ok
 
-		acSubStr = This.SubStringsCS(pCaseSensitive)
+		aTempList = [
+			This.SubStringsCS(pCaseSensitive),
+			Q(pcOtherStr).SubStringsCS(pCaseSensitive)
+		]
 
-		acResult = Q(pcOtherStr).SubStringsCSQ(pCaseSensitive).
-			   CommonItemsCS( acSubStr, pCaseSensitive)
+		acResult = StzListOfListsQ(aTempList).CommonItemsCS(pCaseSensitive)
 		
 		return acResult
 

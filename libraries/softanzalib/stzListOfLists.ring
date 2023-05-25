@@ -82,6 +82,19 @@ func Association(paLists)
 	aResult = StzListOfListsQ(paLists).Associated()
 	return aResult
 
+func CommonItemsCS(paLists, pCaseSensitive)
+	aResult = StzListOfListsQ(paLists).CommonItemsCS(pCaseSensitive)
+	return aResult
+
+	func IntersectionCS(paLists, pCaseSensitive)
+		return CommonItemsCS(paList, pCaseSensitive)
+
+func CommonItems(paLists)
+	return CommonItemsCS(paLists, :CaseSensitive = TRUE)
+
+	func Intersection(paLists)
+		return CommonItems(paLists)
+
 class stzListOfLists from stzList
 
 	@aContent = []
@@ -1410,7 +1423,24 @@ class stzListOfLists from stzList
 	#--------------------------------------#
 
 	def CommonItemsCS(pCaseSensitive)
-		aResult = This.FlattenQ().Duplicates()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+		ok
+
+		aResult = Q(aContent[1]).ToSet()
+
+		if nLen = 1
+			return aResult
+		ok
+
+		for i = 2 to nLen
+			aResult = Q(aResult).Intersection(:With = aContent[i])
+		next
+
 		return aResult
 
 		def IntersectionCS(pCaseSensitive)

@@ -6190,6 +6190,186 @@ class stzList from stzObject
 		def IsAListOfStzLists()
 			return This.IsListOfStzLists()
 
+	#--
+
+	def IsPairOfNumberAndString()
+		if This.NumberOfItems() = 2 and isNumber(This.Item(1)) and isString(This.Item(2))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAPairOfNumberAndString()
+			return This.IsPairOfNumberAndString()
+
+		def IsPairOfANumberAndAString()
+			return This.IsPairOfNumberAndString()
+
+		def IsAPairOfANumberAndAString()
+			return This.IsPairOfNumberAndString()
+
+	def IsPairOfStringAndNumber()
+		if This.NumberOfItems() = 2 and isString(This.Item(1)) and isNumber(This.Item(2))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAPairOfStringAndNumber()
+			return This.IsPairOfStringAndNumber()
+
+		def IsPairOfAStringAndANumber()
+			return This.IsPairOfStringAndNumber()
+
+		def IsAPairOfAStringAndANumber()
+			return This.IsPairOfStringAndNumber()
+
+	def IsPairOfNumberAndList()
+		if This.NumberOfItems() = 2 and isNumber(This.Item(1)) and isList(This.Item(2))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAPairOfNumberAndList()
+			return This.IsPairOfNumberAndList()
+
+		def IsPairOfANumberAndAList()
+			return This.IsPairOfNumberAndList()
+
+		def IsAPairOfANumberAndAList()
+			return This.IsPairOfNumberAndList()
+
+	def IsPairOfListAndNumber()
+		if This.NumberOfItems() = 2 and isList(This.Item(1)) and isNumber(This.Item(2))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAPairOfListAndNumber()
+			return This.IsPairOfListAndNumber()
+
+		def IsPairOfAListAndANumber()
+			return This.IsPairOfListAndNumber()
+
+		def IsAPairOfAListAndANumber()
+			return This.IsPairOfListAndNumber()
+
+	def IsPairOfNumberAndObject()
+		if This.NumberOfItems() = 2 and isNumber(This.Item(1)) and isObject(This.Item(2))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAPairOfNumberAndObject()
+			return This.IsPairOfNumberAndObject()
+
+		def IsPairOfANumberAndAnObject()
+			return This.IsPairOfNumberAndObject()
+
+		def IsAPairOfANumberAndAnObject()
+			return This.IsPairOfNumberAndObject()
+
+	def IsPairOfObjectAndNumber()
+		if This.NumberOfItems() = 2 and isObject(This.Item(1)) and isNumber(This.Item(2))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAPairOfObjectAndNumber()
+			return This.IsPairOfObjectAndNumber()
+
+		def IsPairOfAnObjectAndANumber()
+			return This.IsPairOfObjectAndNumber()
+
+		def IsAPairOfAnObjectAndANumber()
+			return This.IsPairOfObjectAndNumber()
+
+	def IsPairOfStringAndList()
+		if This.NumberOfItems() = 2 and isString(This.Item(1)) and isList(This.Item(2))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAPairOfStringAndList()
+			return This.IsPairOfStringAndList()
+
+		def IsPairOfAStringAndAList()
+			return This.IsPairOfStringAndList()
+
+		def IsAPairOfAStringAndAList()
+			return This.IsPairOfStringAndList()
+
+	def IsPairOfListAndString()
+		if This.NumberOfItems() = 2 and isList(This.Item(1)) and isString(This.Item(2))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAPairOfListAndString()
+			return This.IsPairOfListAndString()
+
+		def IsPairOfAListAndAString()
+			return This.IsPairOfListAndString()
+
+		def IsAPairOfAListAndAString()
+			return This.IsPairOfListAndString()
+
+	def IsPairOfStringAndObject()
+		if This.NumberOfItems() = 2 and isString(This.Item(1)) and isObject(This.Item(2))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAPairOfStringAndObject()
+			return This.IsPairOfStringAndObject()
+
+		def IsPairOfAStringAndAnObject()
+			return This.IsPairOfStringAndObject()
+
+		def IsAPairOfAStringAndAnObject()
+			return This.IsPairOfStringAndObject()
+
+	def IsPairOfObjectAndString()
+		if This.NumberOfItems() = 2 and isObject(This.Item(1)) and isString(This.Item(2))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAPairOfObjectAndString()
+			return This.IsAPairOfObjectAndString()
+
+		def IsPairOfAnObjectAndAString()
+			return This.IsAPairOfObjectAndString()
+
+		def IsAPairOfAnObjectAndAString()
+			return This.IsAPairOfObjectAndString()
+
+	def IsPairOfListAndObject()
+		if This.NumberOfItems() = 2 and isList(This.Item(1)) and isObject(This.Item(2))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAPairOfListAndObject()
+			return This.IsPairOfListAndObject()
+
+		def IsPairOfAListAndAnObject()
+			return This.IsPairOfListAndObject()
+
+		def IsAPairOfAListAndAnObject()
+			return This.IsPairOfListAndObject()
+
+	#--
+
 	def IsPairOfStzObjects()
 		return This.IsPair() and This.IsListOfStzObjects()
 
@@ -12771,11 +12951,6 @@ class stzList from stzObject
 
 	def CommonItemsCS(paOtherList, pCaseSensitive)
 
-		/*
-		The intersection between a list of lists (ie their common items) is
-		given by the duplicated items of the merged list of all those lists.
-		*/
-
 		if isList(paOtherList) and Q(paOtherList).IsWithNamedParam()
 			paOtherList = paOtherList[2]
 		ok
@@ -12784,8 +12959,20 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! paOtherList must be a list.")
 		ok
 
-		aResult = This.MergeWithQ(paOtherList).Duplicates()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
 		
+		for i = 1 to nLen
+
+			if (NOT Q(aResult).ContainsCS(aContent[i], pCaseSensitive)) and
+			   Q(paOtherList).ContainsCS(aContent[i], pCaseSensitive)
+
+				aResult + aContent[i]
+			ok
+
+		next
+
 		return aResult
 
 		#< FunctionFluentForm
@@ -12801,6 +12988,12 @@ class stzList from stzObject
 			return This.CommonItemsCS(paOtherList, pCaseSensitive)
 
 			def IntersectionCSQ(paOtherList, pCaseSensitive)
+				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
+
+		def IntersectCS(paOtherList, pCaseSensitive)
+			return This.CommonItemsCS(paOtherList, pCaseSensitive)
+
+			def IntersectCSQ(paOtherList, pCaseSensitive)
 				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
 
 		def CommonItemsWithCS(paOtherList, pCaseSensitive)
@@ -12835,6 +13028,12 @@ class stzList from stzObject
 			return This.CommonItems(paOtherList)
 
 			def IntersectionQ(paOtherList)
+				return This.CommonItemsWithQ(paOtherList)
+
+		def Intersect(paOtherList)
+			return This.CommonItems(paOtherList)
+
+			def IntersectQ(paOtherList)
 				return This.CommonItemsWithQ(paOtherList)
 
 		def CommonItemsWith(paOtherList)
@@ -14507,9 +14706,11 @@ class stzList from stzObject
 			pItem = pItem[2]
 		ok
 
-		cItem = Q(pItem).ToCodeQ().Simplified()
+		cItem = @@S(pItem)
+		cList = @@S(This.Content())
 
-		nResult = -1 + This.ToCodeQ().SimplifyQ().SplitQ(cItem).Size()
+		nResult = Q(cList).NumberOfOccurrenceCS(cItem, pCaseSensitive)
+
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -14835,19 +15036,54 @@ class stzList from stzObject
 
 		#>
 
+	  #------------------------------#
+	 #  NUMBER OF DUPLICATED ITEMS  #
+	#------------------------------#
+
+	def NumberOfDuplicatedItemsCS(pCaseSensitive)
+		nResult = len(This.DuplicatesCS(pCaseSensitive))
+		return nResult
+
+		def HowManyDuplicatedItemsCS(pCaseSensitive)
+			return This.NumberOfDuplicatedItemsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfDuplicatedItems()
+		return This.NumberOfDuplicatedItemsCS(:CaseSensitive = TRUE)
+
+		def HowManyDuplicatedItems()
+			return This.NumberOfDuplicatedItems()
+
 	  #--------------#
 	 #  DUPLICATES  #
 	#--------------#
 
 	def DuplicatesCS(pCaseSensitive)
 
-		anPos = This.FindDuplicatesCS(pCaseSensitive)
-		aResult = This.ItemsAtPositionsQ( anPos ).ToSet()
+		aUniqueSubStr = This.ToSetCS(pCaseSensitive)
+		nLen = len(aUniqueSubStr)
 
-		return aResult
+		acResult = []
+
+		for i = 1 to nLen
+
+			if This.NumberOfOccurenceCS(aUniqueSubStr[i], pCaseSensitive) > 1
+
+				acResult + aUniqueSubStr[i]
+			ok
+		next
+
+		return acResult
 
 		def DuplicatesCSQ(pCaseSensitive)
 			return new stzList(This.DuplicatesCS(pCaseSensitive))
+
+		def DuplicatedItemsCS(pCaseSensitive)
+			return This.DuplicatesCS(pCaseSensitive)
+
+			def DuplicatedItemsCSQ(pCaseSensitive)
+				return This.DuplicatesCSQ(pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -14856,6 +15092,12 @@ class stzList from stzObject
 
 		def DuplicatesQ()
 			return new stzList(This.Duplicates())
+
+		def DuplicatedItems()
+			return This.Duplicates()
+
+			def DuplicatedItemsQ()
+				return This.DuplicatesQ()
 
 	  #------------------------------------------------#
 	 #  DUPLICATES AND THEIR POSITIONS -- Z/Extended  #
@@ -14868,16 +15110,36 @@ class stzList from stzObject
 		aResult = Association([ aDuplicates, anPositions ])
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def DuplicatesZCS(pCaseSensitive)
 			return This.DuplicatesAndTheirPositionsCS(pCaseSensitive)
+
+		def DuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
+			return This.DuplicatesAndTheirPositionsCS(pCaseSensitive)
+
+		def DuplicatedItemsZCS(pCaseSensitive)
+			return This.DuplicatesAndTheirPositionsCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesAndTheirPositions()
 		return This.DuplicatesAndTheirPositionsCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def DuplicatesZ()
 			return This.DuplicatesAndTheirPositions()
+
+		def DuplicatedItemsAndTheirPositions()
+			return This.DuplicatesAndTheirPositions()
+
+		def DuplicatedItemsZ()
+			return This.DuplicatesAndTheirPositions()
+
+		#>
 
 	  #-------------------------------------------------#
 	 #  DUPLICATES AND THEIR POSITIONS -- UZ/Extended  #
@@ -14897,16 +15159,36 @@ class stzList from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def DuplicatesUZCS(pCaseSensitive)
 			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
+
+		def DuplicatedItemsAndTheirPositionsUCS(pCaseSensitive)
+			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
+
+		def DuplicatedItemsUZCS(pCaseSensitive)
+			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesAndTheirPositionsU()
 		return This.DuplicatesAndTheirPositionsUCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def DuplicatesUZ()
 			return This.DuplicatesAndTheirPositionsU()
+
+		def DuplicatedItemsAndTheirPositionsU()
+			return This.DuplicatesAndTheirPositionsU()
+
+		def DuplicatedItemsUZ()
+			return This.DuplicatesAndTheirPositionsU()
+
+		#>
 
 	  #----------------------------------------#
 	 #   FINDING DUPLICATES OF A GIVEN ITEM   #
@@ -14964,9 +15246,19 @@ class stzList from stzObject
 			This.RemoveItemsAtPositions(anPos)
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def RemoveDuplicatesCSQ(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
 			return This
+
+		def RemoveDuplicatedItemsCS(pCaseSensitive)
+			This.RemoveDuplicatesCS(pCaseSensitive)
+
+			def RemoveDuplicatedItemsCSQ(pCaseSensitive)
+				This.RemoveDuplicatesCSQ(pCaseSensitive)
+
+		#>
 
 	def DuplicatesRemovedCS(pCaseSensitive)
 		aResult = This.Copy().RemoveDuplicatesCSQ(pCaseSensitive).Content()
@@ -14989,6 +15281,9 @@ class stzList from stzObject
 		def ItemsUCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
+		def DuplicatedItemsRemovedCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -14996,9 +15291,19 @@ class stzList from stzObject
 	def RemoveDuplicates()
 		This.RemoveDuplicatesCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def RemoveDuplicatesQ()
 			This.RemoveDuplicates()
 			return This
+
+		def RemoveDuplicatedItems()
+			This.RemoveDuplicates()
+
+			def RemoveDuplicatedItemsQ()
+				This.RemoveDuplicatesQ()
+
+		#>
 
 	def DuplicatesRemoved()
 		aResult = This.Copy().RemoveDuplicatesQ().Content()
@@ -15059,6 +15364,9 @@ class stzList from stzObject
 			
 			def ItemsUQR(pcReturnType)
 				return This.ToSetQR(pcReturnType)
+
+		def DuplicatedItemsRemoved()
+			return This.DuplicatesRemoved()
 
 		#>
 
@@ -21942,6 +22250,46 @@ class stzList from stzObject
 	#------------------------------------------------------------#
 
 	def ToCode()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		cCode = "[ "
+		n = 0 # Used to count the objects contained in the list
+
+		for i = 1 to nLen
+			item = aContent[i]
+			if isNumber(item)
+				cCode += item + ", "
+
+			but isString(item)
+				if Q(item).IsBoundedBy('"')
+					cCode += "'" + item + "'" + ", "
+
+				else
+					cCode += '"' + item + '"' + ", "
+				ok
+
+			but isList(item)
+				cCode += Q(item).ToCode() + ", "	# Recursive call!
+				
+			but isObject(item)
+
+				n++
+				cObjectName = "obj#" + n
+				eval(cObjectName + ' = item')
+
+				cCode += cObjectName + ", "
+
+				# WARNING: It's impossible to get the name of the object
+				# by code (should be requested from Mahmoud in future Ring)
+			ok
+
+		next
+
+		cCode = Q(cCode).RemovedFromEnd(", ") + " ]"
+
+		return cCode
+/*
 		# NOTE: uses the same code as list2code() from Ring standard
 		# library and enhances it for better performance
 
@@ -21992,7 +22340,7 @@ class stzList from stzObject
 		cCode = Q(cCode).ReplaceQ(cOld, cNew).Content()
 
 		return cCode
-
+*/
 		def ToCodeQ()
 			return new stzString(This.ToCode())
 

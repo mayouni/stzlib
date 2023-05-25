@@ -688,7 +688,7 @@ o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 # NOTE: the same code shown here can work as-is for stzListOfStrings!
 # to test it just replace the line above with the following:
 // o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7" ])
-
+/*
 ? o1.ContainsDuplicates()
 #--> TRUE
 # Executed in 0.03 second(s)
@@ -701,12 +701,14 @@ o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 #--> [ 3, 4, 6 ]
 
 ? o1.Duplicates()
+#--> [5, 7]
 
 ? o1.HowManyDuplicatedItems()
+#--> 2
 
 ? o1.DuplicatedItems()
-
-/*
+#--> [5, 7]
+*/
 ? @@S( o1.DuplicatedItemsZ() ) # Or DuplicatesAndTheirPositions()
 #--> [ [ 5, [ 1, 3, 4 ] ], [ 7, [ 2, 6 ] ] ]
 #--> the number 5 is duplicated at position 1, 3 and 4, and,
@@ -720,6 +722,135 @@ o1.RemoveDuplicatedItems()
 */
 proff()
 # Executed in 0.54 second(s)
+
+/*-----------
+*/
+pron()
+
+o1 = new stzList([ "*", "4", "*", "3", "4" ])
+
+? o1.NumberOfDuplicates()
+#--> 2
+
+? o1.Duplicates()
+#--> [ "*", "4" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*==========
+
+pron()
+
+o1 = new stzList(1:7)
+o1 - 4:6
+
+? @@S( o1.Content() )
+#--> [ 1, 2, 3, 7 ]
+
+proff()
+# Executed in 0.10 second(s)
+
+/*==========
+
+pron()
+
+o1 = new stzList("A":"J")
+
+? @@S( o1.FindAntiSections( :Of = [ [3, 5], [7, 8] ] ) )
+#--> [ [ 1, 2 ], [ 6, 6 ], [ 9, 10 ] ]
+
+? @@S( o1.AntiSections(:Of = [ [3, 5], [7, 8] ] ) )
+#--> [ ["A", "B"], ["F"], ["I", "J"] ]
+
+proff()
+# Executed in 0.10 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ "Ring", "Ruby", "Python" ])
+
+? o1.CommonItems(:With = [ "Julia", "Ring", "Go", "Python" ])
+#--> [ "Ring", "Python" ]
+
+proff()
+#--> Executed in 0.06 second(s)
+
+/*==========
+
+pron()
+
+o1 = new stzList([ "a", "ab", "abnA", "abAb" ])
+
+? o1.Contains("n")
+#--> FALSE
+
+? o1.FindFirst("n")
+#--> FALSE
+
+proff()
+# Executed in 0.02 second(s)
+
+/*----------
+
+pron()
+o1 = new stzList([ "a", "ab", 1:3, "abA", "abAb", 1:3 ])
+
+? o1.ContainsCS("ab", TRUE)
+#--> TRUE
+
+? o1.FindFirstCS("AB", FALSE)
+#--> 2
+
+? o1.FindLastCS("ABA", FALSE)
+#--> 4
+
+? o1.FindFirst(1:3)
+#--> 3
+
+? o1.FindLast(1:3)
+#--> 6
+
+proff()
+# Executed in 0.09 second(s)
+
+/*==========
+
+pron()
+
+o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3,"c" ])
+
+? o1.FindDuplicates()
+#--> [ 5, 6, 8, 10 ]
+# Executed in 0.11 second(s)
+
+? @@S( o1.ItemsAtPositions( o1.FindDuplicates() ) )
+#--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
+# Executed in 0.02 second(s)
+
+? @@S( o1.Duplicates() )
+#--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
+# Executed in 0.14 second(s)
+
+? @@S( o1.DuplicatesZ() )
+#--> [ [ "a", 5 ], [ "ab", 6 ], [ "b", 8 ], [ [ 1, 2, 3 ], 10 ] ]
+# Executed in 0.23 second(s)
+
+proff()
+# Executed in 0.44 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ "a", "ab", "b" ])
+? o1.Intersection(:with = [ "a", "ab", "abc", "b", "bc", "c" ]) # Or CommonItems()
+#--> [ "a", "ab", "b" ]
+
+proff()
+# Executed in 0.04 second(s)
 
 /*==========
 

@@ -3348,6 +3348,48 @@ o1 = new stzListOfStrings([ "Ring", "Python", "PHP", "JS" ])
 
 StopProfiler()
 # Executed in 0.05 second(s)
+
+/*==================
+
+pron()
+
+o1 = new stzString("ab")
+? @@S( o1.CommonSubStrings(:With = "abc") )
+#--> [ "a", "ab", "b" ]
+
+proff()
+# Executed in 0.08 second(s)
+
+/*-------------
+
+pron()
+
+aList1 = Q("Ring is nice").SubStrings()
+aList2 = Q("I love Ring").SubStrings()
+
+? @@S( Q(aList1).CommonItems(aList2) ) + NL
+#--> [ "R", "Ri", "Rin", "Ring", "i", "in", "ing", "n", "ng", "g", " ", "e" ]
+# Executed in 0.64 second(s)
+
+o1 = new stzListOfLists([ aList1, aList2 ])
+? @@S( o1.CommonItems() )
+#--> [ "i", " ", "n", "e", "R", "Ri", "Rin", "Ring", "in", "ing", "ng", "g" ]
+#--> Executed in 0.64 second(s)
+
+proff()
+# Executed in 1.04 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzString("Ring is nice")
+? @@S( o1.CommonSubStrings(:With = "I love Ring") )
+#--> [ "R", "Ri", "Rin", "Ring", "i", "in", "ing", "n", "ng", "g", " ", "e" ]
+
+proff()
+# Executed in 0.64 second(s)
+
 /*==================
 
 StartProfiler()
@@ -3411,24 +3453,108 @@ o1 = new stzString("12345")
 ? o1.Section(:@, 3)
 #--> "3"
 
+/*=============
+
+/*================
+
+pron()
+
+o1 = new stzString("abAb")
+
+? o1.NumberOfSubStrings()
+#--> 10
+# Executed in 0.02 second(s)
+
+? @@S( o1.SubStrings() )
+#--> [ "a", "ab", "abA", "abAb", "b", "bA", "bAb", "A", "Ab", "b" ]
+# Executed in 0.04 second(s)
+
+? o1.NumberOfSubStringsCS(FALSE)
+#--> 7
+# Executed in 0.12 second(s)
+
+? @@S( o1.SubStringsCS(FALSE) )
+#--> [ "a", "ab", "abA", "abAb", "b", "bA", "bAb" ]
+# Executed in 0.12 second(s)
+
+proff()
+#--> Executed in 0.27 second(s)
+
 /*----------
+
+pron()
+
+o1 = new stzString("hello")
+? o1.NumberOfSubStrings()
+#--> 15
+
+? @@S( o1.SubStrings() )
+#--> [
+#	"h", "he", "hel", "hell", "hello",
+#	"e", "el", "ell", "ello",
+#	"l", "ll", "llo", "l", "lo",
+#	"o"
+# ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzString("hello")
+? o1.NumberOfSubStringsCS(FALSE)
+#--> 14
+
+? @@S( o1.SubStringsCS(FALSE) )
+#--> [
+#	"h", "he", "hel", "hell", "hello",
+#	"e", "el", "ell", "ello",
+#	"l", "ll", "llo", "lo",
+#	"o"
+# ]
+
+proff()
+# Executed in 0.54 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzString("*4*34")
+? o1.NumberOfSubStrings()
+#--> 15
+
+? @@S( o1.SubStrings() )
+#--> [
+#	"*", "*4", "*4*", "*4*3", "*4*34",
+#	"4", "4*", "4*3", "4*34", "*",
+#	"*3", "*34", "3", "34", "4"
+# ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+pron()
 
 o1 = new stzString("123456")
 ? o1.NumberOfSubStrings()
 #--> 21
 
-//? o1.SubStrings()
+? @@S( o1.SubStrings() )
 #--> [
-#	"123456", "6", "56", "456", "3456", "23456",
-#	"12345", "5", "45", "345", "2345",
-#	"1234", "4", "34", "234",
-#	"123", "3", "23",
-#	"12", "2",
-#	"1"
+#	"1", "12", "123", "1234", "12345", "123456", "2",
+#	"23", "234", "2345", "23456", "3", "34", "345",
+#	"3456", "4", "45", "456", "5", "56", "6"
 # ]
 
-stop()
-/*----------
+proff()
+# Executed in 0.06 second(s)
+
+/*==========
 
 o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] }')
 ? o1.NumbersComingAfter("@i")
