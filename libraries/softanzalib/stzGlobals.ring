@@ -14,6 +14,8 @@ Programming, by Heart! By: M.Ayouni╭
   ╰╯
 '
 
+@ = [] # Used to store the named objects used in the program
+
 _t0 = 0 # Used by StartProfiler() and StopProfiler() functions
 
 _aRingTypes = [ :number, :string, :list, :object, :cobject ]
@@ -355,6 +357,9 @@ _acStzCCKeywords = [
 		:@Range
 	
 	]
+
+func NamedObjects()
+	return StzHashListQ(@).Keys()
 
 func StzKeywords()
 	return _acStzCCKeywords

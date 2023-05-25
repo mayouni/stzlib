@@ -1,5 +1,136 @@
 load "stzlib.ring"
 
+/*=============
+
+pron()
+
+o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
+
+//o1.Flatten()
+#--> Error message:
+# Can't flatten the list of lists!
+# Instead you can return a flattend copy of it using Flattened()
+
+? @@S( o1.Flattened() )
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+
+//o1.Merge()
+#--> Error message:
+# Can't flatten the list of lists!
+# Instead you can return a flattend copy of it using Flattened()
+
+? @@S( o1.Merged() )
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzList([
+	[1, 2],
+	[3, [4, 5:7 ] ],
+	8,
+	[ [ 9, [10] ] ]
+])
+
+? @@S( o1.Flattened() )
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzList([ [1, 2], [3, [4]], 5 ])
+? @@S( o1.Merged() )
+#--> [ 1, 2, 3, [ 4 ], 5 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+? @@S( ListsMerge([ [3, 5], [7, [8]] ]) )
+#--> [ 3, 5, 7, [ 8 ] ]
+
+proff()
+# Executed in 0.03 second(s)
+/*-------------
+
+pron()
+
+aMyLists = [
+	[ "a", "ab", "b", "b" ],
+	[ "a", "a", "ab", "abc", "b", "bc", "c" ],
+	[ "ab", "xt", "b", "xt" ]
+]
+
+? @@S( Intersection(aMyLists) )
+#--> [ "ab", "b" ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "a", "ab", "b", "b" ],
+	[ "a", "a", "ab", "abc", "b", "bc", "c" ],
+	[ "ab", "xt", "b", "xt" ]
+])
+
+? @@S( o1.CommonItems() )
+#--> [ "ab", "b" ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*===============
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "Ring", "Ruby", "Python" ],
+	[ "Julia", "Ring", "Go", "Python" ],
+	[ "C#", "PHP", "Python", "Ring" ]
+])
+
+? o1.CommonItems()
+#--> [ "Ring", "Pyhton" ]
+
+proff()
+
+/*-------------
+# Executed in 0.07 second(s)
+
+pron()
+
+o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3, "c" ])
+? @@S( o1.ToSet() )
+#--> [ "a", "ab", "b", [ 1, 2, 3 ], "abc", "bc", "c" ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*-------------
+
+pron()
+
+? Q([ "a", "ab", "b", [ 1, 2, 3 ] ]).ToSet()
+#--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
+
+proff()
+#--> Executed in 0.04 second(s)
+
 /*=============== EXTENDING A LIST
 
 pron()
