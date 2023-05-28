@@ -1443,6 +1443,29 @@ this: lefttoright
 	def IsHashList() # required by stzChainOfTruth
 		return TRUE
 
+	def ToCode()
+		aPairs = This.Content()
+		nLen = len(aPairs)
+
+		cResult = "[ "
+
+		for i = 1 to nLen
+			cKey = aPairs[i][1]
+			cValue = Q(aPairs[i][2]).Stringified()
+
+			cBound = '"'
+			if Q(cValue).IsBoundedBy('"')
+				cBound = "'"
+			ok
+			cValue = cBound + cValue + cBound
+
+			cPair = ":" + cKey + " = " + cValue + ", "
+			cResult += cPair
+		next
+
+		cResult = Q(cResult).RemovedFromEnd(", ") + " ]"
+		return cResult
+
 	  #-----------------------------#
 	 #     Operator overloading    #
 	#-----------------------------#

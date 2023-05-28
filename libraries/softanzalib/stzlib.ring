@@ -13,6 +13,7 @@ load "stzGlobals.ring"
 
 load "stzObject.ring"
 load "stzObjectError.ring"
+load "stzNamedObject.ring"
 
 load "stzListOfObjects.ring"
 load "stzObjects.ring"
