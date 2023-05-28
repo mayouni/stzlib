@@ -6,7 +6,7 @@ new stzNamedNumber(:o1 = "12.453")
 #--> "12.453"
 
 ? @[:o1].StzType()
-#--> stznumber
+#--> :stzNumber
 
 new stzNamedNumber(:o2 = -120.234)
 ? @[:o2].Content()

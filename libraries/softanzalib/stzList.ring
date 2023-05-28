@@ -21372,9 +21372,10 @@ class stzList from stzObject
 	def SectionsXT(pItem1, pItem2)
 		return This.SectionsXTCS(pItem1, pItem2, :CaseSensitive = TRUE)
 
-	  #----------------------------------------------------------#
-	 #   GETIING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS   #
-	#----------------------------------------------------------#
+	   #--------------------------------------------------------------#
+	  #   FINDING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS AND   #
+	 #   RETURNING THEM AS PAIRS OF NUMBERS                         #
+	#--------------------------------------------------------------#
 
 	def FindAntiSections(paSections)
 		/* EXAMPLE
@@ -21463,6 +21464,9 @@ class stzList from stzObject
 
 		#>
 
+		def AntiSectionsAsPairsOfNumbers(paSections)
+			return This.FindAntiSections(paSections)
+
 	def AntiSections(paSections)
 		/* EXAMPLE
 		o1 = new stzList("A":"J")
@@ -21532,6 +21536,9 @@ class stzList from stzObject
 			off
 
 		#>
+
+		def SectionsAndAntiSectionsAsPairsOfNumbers(paSections)
+			return This.FindAsSectionsAndAntiSections(paSections)
 
 	def SectionsAndAntiSections(paSections)
 		aAllSections = This.FindAsSectionsAndAntiSections(paSections)
@@ -22259,10 +22266,14 @@ class stzList from stzObject
 		for i = 1 to nLen
 			item = aContent[i]
 			if isNumber(item)
-				cCode += item + ", "
+				cCode += ""+ item + ", "
 
 			but isString(item)
-				if Q(item).IsBoundedBy('"')
+				oItem = Q(item)
+				if oItem.IsBoundedBy([ "@[:", "]" ])
+					cCode += oItem.BoundsRemoved('"') + ", "
+
+				but oItem.IsBoundedBy('"')
 					cCode += "'" + item + "'" + ", "
 
 				else

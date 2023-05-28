@@ -960,10 +960,18 @@ class stzObject
 
 	def init(pObject)
 
+		# Creating an object from an existing object
 		if isObject(pObject)
 			@oObject = pObject
 
+		# Creating an object from the name of an existing object
 		but IsNonNullString(pObject)
+
+			cCode = 'bOk = isObject(' + pObject + ')'
+			eval(cCode)
+			if NOT bOk
+				StzRaise("Can't create a stzObject from the provided string! The string must be a valid object name.")
+			ok
 
 			@cObjectVarName = pObject
 
@@ -1023,6 +1031,12 @@ class stzObject
 			aResult + [ cAttribute, This.ObjectValues()[i] ]
 		next
 		return aResult
+
+		def Content()
+			return This.ObjectAttributesAndValues()
+
+		def AttributesXT()
+			return This.ObjectAttributesAndValues()
 
 		def AttributesAndValues()
 			return This.ObjectAttributesAndValues()

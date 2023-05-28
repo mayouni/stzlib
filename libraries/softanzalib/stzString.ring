@@ -4444,9 +4444,9 @@ class stzString from stzObject
 	def IsRingType()
 		return This.UppercaseQ().IsOneOfThese([ "NUMBER", "STRING", "LIST", "OBJECT", "COBJECT" ])
 
-	  #=========================#
-	 #      SIZE IN BYTES      #
-	#=========================#
+	  #==============================#
+	 #  GETTING THE SIZE IN BYTES   #
+	#==============================#
 
 	def NumberOfBytes()
 		return This.ToStzListOfBytes().NumberOfBytes()
@@ -4483,12 +4483,63 @@ class stzString from stzObject
 		def HowManyBytesPerChar()
 			return This.NumberOfBytesPerChar()
 
-	  #=========================================#
-	 #   N CHARS, LEFT & RIGHT, FIRST & LAST   #
-	#=========================================#
-							
-	// Returns n chars from the right
-	def NRightChars(n)
+	  #------------------------------#
+	 #   BYTES AND BYTES PER CHAR   #
+	#==============================#
+
+	def Bytes()
+		return This.ToStzListOfBytes().Content()
+
+		#< @FunctionFluentForm
+
+		def BytesQ()
+			return This.ToStzListOfBytes()
+
+		#>
+	
+		#< @FunctionAlternativeForm
+
+		def ToListOfBytes()
+			return This.Bytes()
+
+			#< @FunctionFluentForm
+	
+			def ToListOfBytesQ()
+				return This.BytesQ()
+		
+			#>
+	
+		#>
+
+	def BytesPerChar()
+		return This.ToStzListOfBytes().BytesPerChar()
+
+	  #--------------------------------------#
+	 #   BYTECODES AND BYTECODES PER CHAR   #
+	#--------------------------------------#
+
+	def Bytecodes()
+		return This.ToStzListOfBytes().Bytecodes()
+
+	def BytecodesPerChar()
+		return This.ToStzListOfBytes().BytecodesPerChar()
+
+	  #--------------------------------------------------------#
+	 #   TRANSFORMING THE STRING TO A stzListOfBytes OBJECT   #
+	#--------------------------------------------------------#
+
+	def ToStzListOfBytes()
+		return new stzListOfBytes( This.String() )
+
+	  #===========================================#
+	 #   N RIGHT CHARS RETURNED AS A SUBSTRING   #
+	#===========================================#
+
+	def NRightCharsAsSubString(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
 
 		if n = 0
 			return NULL
@@ -4504,29 +4555,100 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def NRightCharsQ(n)
-			return new stzString( This.NRightChars(n) )
+		def NRightCharsAsSubStringQ(n)
+			return new stzString( This.NRightCharsAsSubString(n) )
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
-		def RightNChars(n)
-			return This.NRightChars(n)
+		def NRightCharsAsString(n)
+			return This.NRightCharsAsSubString(n)
+
+			def NRightCharsAsStringQ(n)
+				return This.NRightCharsAsSubStringQ(n)
+
+		def RightNCharsAsSubString(n)
+			return This.NRightCharsAsSubString(n)
 	
-			def RightNCharsQ(n)
-				return This.NRightCharsQ(n)
+			def RightNCharsAsString(n)
+				return This.RightNCharsAsSubString(n)
+
+			def RightNCharsAsSubStringQ(n)
+				return This.NRightCharsAsSubStringQ(n)
+
+			def RightNCharsAsStringQ(n)
+				return This.NRightCharsAsSubStringQ(n)
 	
 		def Right(n)
-			return This.NRightChars(n)
+			return This.NRightCharsAsSubString(n)
 
 			def RightQ(n)
-				return This.NRightCharsQ(n)
+				return This.NRightCharsAsSubStringQ(n)
 
 		#>
 
-	// Returns n Chars from the left
-	def NLeftChars(n)
+		#< @FunctionSpecificForms
+
+		def Right2CharsAsSubString()
+			return This.NRightCharsAsSubString(2)
+
+			def Right2CharsAsString()
+				return This.Right2CharsAsSubString()
+
+			def 2RightCharsAsSubString()
+				return This.NRightCharsAsSubString(2)
+
+			def 2RightCharsAsString()
+				return This.NRightCharsAsSubString(2)
+
+			def RightTwoCharsAsSubString()
+				return This.NRightCharsAsSubString(2)
+
+			def RightTwoCharsAsString()
+				return This.NRightCharsAsSubString(2)
+
+			def TwoRightCharsAsSubString()
+				return This.NRightCharsAsSubString(2)
+
+			def TwoRightCharsAsString()
+				return This.NRightCharsAsSubString(2)
+
+		def Right3CharsAsSubString()
+			return This.NRightCharsAsSubString(3)
+
+			def Right3CharsAsString()
+				return This.Right3CharsAsSubString()
+
+			def 3RightCharsAsSubString()
+				return This.NRightCharsAsSubString(3)
+
+			def 3RightCharsAsString()
+				return This.NRightCharsAsSubString(3)
+
+			def RightThreeCharsAsSubString()
+				return This.NRightCharsAsSubString(3)
+
+			def RightThreeCharsAsString()
+				return This.NRightCharsAsSubString(3)
+
+			def ThreeRightCharsAsSubString()
+				return This.NRightCharsAsSubString(3)
+
+			def ThreeRightCharsAsString()
+				return This.NRightCharsAsSubString(3)
+
+		#>
+
+	  #------------------------------------------#
+	 #   N LEFT CHARS RETURNED AS A SUBSTRING   #
+	#------------------------------------------#
+
+	def NLeftCharsAsSubString(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
 		if n = 0
 			return NULL
 		else
@@ -4541,76 +4663,295 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def NLeftCharsQ(n)
-			return new stzString( This.NLeftChars(n) )
+		def NLeftCharsAsSubStringQ(n)
+			return new stzString( This.NLeftCharsAsSubString(n) )
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def LeftNChars(n)
-			return This.NLeftChars(n)
+		def NLeftCharsAsString(n)
+			return This.NLeftCharsAsSubString(n)
+
+			def NLeftCharsAsStringQ(n)
+				return This.NLeftCharsAsStringQ(n)
+
+		def LeftNCharsAsSubString(n)
+			return This.NLeftCharsAsSubString(n)
 	
-			def LeftNCharsQ(n)
-				return This.NLeftCharsQ(n)
+			def LeftNCharsAsSubStringQ(n)
+				return This.NLeftCharsAsSubStringQ(n)
 	
+		def LeftNCharsAsString(n)
+			return This.NLeftCharsAsSubString(n)
+	
+			def LeftNCharsAsStringQ(n)
+				return This.NLeftCharsAsSubStringQ(n)
+
 		def Left(n)
-			return This.NLeftChars(n)
+			return This.NLeftCharsAsSubString(n)
 
 			def LeftQ(n)
-				return This.NLeftCharsQ(n)
+				return This.NLeftCharsAsSubStringQ(n)
 
 		#>
 
-	def NFirstChars(n)
-		if This.IsRightToLeft()
-			return This.NRightChars(n)
+		#< @FunctionSpecificForms
+
+		def Left2CharsAsSubString()
+			return This.NLeftCharsAsSubString(2)
+
+			def Left2CharsAsString()
+				return This.Left2CharsAsSubString()
+
+			def 2LefthtCharsAsSubString()
+				return This.NLefttCharsAsSubString(2)
+
+			def 2LefthtCharsAsString()
+				return This.NLefttCharsAsSubString(2)
+
+			def LeftTwoCharsAsSubString()
+				return This.NLeftCharsAsSubString(2)
+
+			def LeftTwoCharsAsString()
+				return This.NLeftCharsAsSubString(2)
+
+			def TwoLeftCharsAsSubString()
+				return This.NLeftCharsAsSubString(2)
+
+			def TwoLeftCharsAsString()
+				return This.NLeftCharsAsSubString(2)
+
+		def Left3CharsAsSubString()
+			return This.NLeftCharsAsSubString(3)
+
+			def Left3CharsAsString()
+				return This.Left3CharsAsSubString()
+
+			def 3LeftCharsAsSubString()
+				return This.NLeftCharsAsSubString(3)
+
+			def 3LeftCharsAsString()
+				return This.NLeftCharsAsSubString(3)
+
+			def LeftThreeCharsAsSubString()
+				return This.NLeftCharsAsSubString(3)
+
+			def LeftThreeCharsAsString()
+				return This.NLeftCharsAsSubString(3)
+
+			def ThreeLeftCharsAsSubString()
+				return This.NLeftCharsAsSubString(3)
+
+			def ThreeLeftCharsAsString()
+				return This.NLeftCharsAsSubString(3)
+
+		#>
+
+	  #-------------------------------------------#
+	 #   N FIRST CHARS RETURNED AS A SUBSTRING   #
+	#-------------------------------------------#
+
+	def NFirstCharsAsSubString(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if This.IsRightToLeftAsSubString()
+			return This.NRightCharsAsSubString(n)
 		else
-			return This.NLeftChars(n)
+			return This.NLeftCharsAsSubString(n)
 		ok
 
 		#< @FunctionFluentForm
 
-		def NFirstCharsQ(n)
-			return new stzString( This.NFirstChars(n) )
+		def NFirstCharsAsSubStringQ(n)
+			return new stzString( This.NFirstCharsAsSubString(n) )
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def FirstNChars(n)
-			return This.NFirstChars(n)
+		def NFirstCharsAsString(n)
+			return This.NFirstCharsAsSubString(n)
+
+			def NFirstCharsAsStringQ(n)
+				return This.NFirstCharsAsSubStringQ(n)
 	
-			def FirstNCharsQ(n)
-				return This.NFirstCharsQ(n)
+		def FirstNCharsAsSubString(n)
+			return This.NFirstCharsAsSubString(n)
+	
+			def FirstNCharsAsSubStringQ(n)
+				return This.NFirstCharsAsSubStringQ(n)
+
+		def FirstNCharsAsString(n)
+			return This.NFirstCharsAsSubString(n)
+	
+			def FirstNCharsAsStringQ(n)
+				return This.NFirstCharsAsSubStringQ(n)
+		#>
+
+		#< @FunctionSpecificForms
+
+		def First2CharsAsSubString()
+			return This.NFirstCharsAsSubString(2)
+
+			def First2CharsAsString()
+				return This.NFirstCharsAsSubString(2)
+
+			def 2FirstCharsAsSubString()
+				return This.NFirstCharsAsSubString(2)
+
+			def 2FirstCharsAsString()
+				return This.NFirstCharsAsSubString(2)
+
+			def FirstTwoCharsAsSubString()
+				return This.NFirstCharsAsSubString(2)
+
+			def FirstTwoCharsAsString()
+				return This.NFirstCharsAsSubString(2)
+
+			def TwoFirstCharsAsSubString()
+				return This.NFirstCharsAsSubString(2)
+
+			def TwoFirstCharsAsString()
+				return This.NFirstCharsAsSubString(2)
+
+		def First3CharsAsSubString()
+			return This.NFirstCharsAsSubString(3)
+
+			def First3CharsAsString()
+				return This.NFirstCharsAsSubString(3)
+
+			def 3FirstCharsAsSubString()
+				return This.NFirstCharsAsSubString(3)
+
+			def 3FirstCharsAsString()
+				return This.NFirstCharsAsSubString(3)
+
+			def FirstThreeCharsAsSubString()
+				return This.NFirstCharsAsSubString(3)
+
+			def FirstThreeCharsAsString()
+				return This.NFirstCharsAsSubString(3)
+
+			def ThreeFirstCharsAsSubString()
+				return This.NFirstCharsAsSubString(3)
+
+			def ThreeFirstCharsAsString()
+				return This.NFirstCharsAsSubString(3)
 
 		#>
 
-	def NLastChars(n)
-		if This.IsRightToLeft()
-			return This.NLeftChars(n)
+	  #------------------------------------------#
+	 #   N LAST CHARS RETURNED AS A SUBSTRING   #
+	#------------------------------------------#
+
+	def NLastCharsAsSubString(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if This.IsRightToLeftAsSubString()
+			return This.NLeftCharsAsSubString(n)
 		else
-			return This.NRightChars(n)
+			return This.NRightCharsAsSubString(n)
 		ok
 
 		#< @FunctionFluentForm
 
-		def NLastCharsQ(n)
-			return new stzString( This.NLastChars(n) )
+		def NLastCharsAsSubStringQ(n)
+			return new stzString( This.NLastCharsAsSubString(n) )
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def LastNChars(n)
-			return This.NLastChars(n)
+		def NLastCharsAsString(n)
+			return This.NLastCharsAsSubString(n)
+
+			def NLastCharsAsStringQ(n)
+				return This.NLastCharsAsSubStringQ(n)
+
+		def LastNCharsAsSubString(n)
+			return This.NLastCharsAsSubString(n)
 	
-			def LastNCharsQ(n)
-				return This.NLastCharsQ(n)
+			def LastNCharsAsSubStringQ(n)
+				return This.NLastCharsAsSubStringQ(n)
+
+		def LastNCharsAsString(n)
+			return This.NLastCharsAsSubString(n)
+	
+			def LastNCharsAsStringQ(n)
+				return This.NLastCharsAsSubStringQ(n)
 
 		#>
+
+		#< @FunctionSpecificForms
+
+		def Last2CharsAsSubString()
+			return This.NLastCharsAsSubString(2)
+
+			def Last2CharsAsString()
+				return This.NLastCharsAsSubString(2)
+
+			def 2LastCharsAsSubString()
+				return This.NLastCharsAsSubString(2)
+
+			def 2LastCharsAsString()
+				return This.NLastCharsAsSubString(2)
+
+			def LastTwoCharsAsSubString()
+				return This.NLastCharsAsSubString(2)
+
+			def LastTwoCharsAsString()
+				return This.NLastCharsAsSubString(2)
+
+			def TwoLastCharsAsSubString()
+				return This.NLastCharsAsSubString(2)
+
+			def TwoLastCharsAsString()
+				return This.NLastCharsAsSubString(2)
+
+		def Last3CharsAsSubString()
+			return This.NLastCharsAsSubString(3)
+
+			def Last3CharsAsString()
+				return This.NLastCharsAsSubString(3)
+
+			def 3LastCharsAsSubString()
+				return This.NLastCharsAsSubString(3)
+
+			def 3LastCharsAsString()
+				return This.NLastCharsAsSubString(3)
+
+			def LastThreeCharsAsSubString()
+				return This.NLastCharsAsSubString(3)
+
+			def LastThreeCharsAsString()
+				return This.NLastCharsAsSubString(3)
+
+			def ThreeLastCharsAsSubString()
+				return This.NLastCharsAsSubString(3)
+
+			def ThreeLastCharsAsString()
+				return This.NLastCharsAsSubString(3)
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #   GETTING THE NEXT NTH CHAR STARTING AT A GIVEN POSITION  #
+	#-----------------------------------------------------------#
 
 	def NextNthChar(n, pnStartingAt)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if n = 0
+			return NULL
+		ok
+
 		cResult = ""
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
@@ -4678,26 +5019,41 @@ class stzString from stzObject
 				return This.NthNextCharQR(:stzString)
 	
 			def NthNextCharQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-	
-				switch pcReturnType
-				on :stzString
-					return new stzString( This.NthNextChar(n, pnStartingAt) )
-	
-				on :stzChar
-					return new stzChar( This.NthNextChar(n, pnStartingAt) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.NextNthCharQR(n, pnStartingAt, pcReturnType)
 
 		#>
+
+		#< @FunctionSpecificForms
+
+		def Next2ndChar()
+			return This.NextNthChar(2)
+
+			def 2ndNextChar()
+				return This.NextNthChar(2)
+
+			def NextSecondChar()
+				return This.NextNthChar(2)
+
+			def SecondNextChar()
+				return This.NextNthChar(2)
+
+		def Next3rdChar()
+			return This.NextNthChar(3)
+
+			def 3rdNextChar()
+				return This.NextNthChar(3)
+
+			def NextThirdChar()
+				return This.NextNthChar(3)
+
+			def ThirdNextChar()
+				return This.NextNthChar(3)
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #   GETTING THE NEXT CHAR STARTING AT A GIVEN POSITION  #
+	#-------------------------------------------------------#
 
 	def NextChar(paStartingAt)
 		return This.NextNthChar(1)
@@ -4708,27 +5064,19 @@ class stzString from stzObject
 			return This.NextCharQR(pnStartingAt, :stzString)
 
 		def NextCharQR(pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
+			return This.NextNthCharQR(1, pcReturnType)
 
-			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzString
-				return new stzString( This.NextChar(pnStartingAt) )
-
-			on :stzChar
-				return new stzChar( This.NextChar(pnStartingAt) )
-
-			other
-				stzRaise("Unsupported return type!")
-			off	
 		#>
 
+	  #----------------------------------------------------------------#
+	 #   GETTING THE PREVIOUS NTH CHAR STARTING AT A GIVEN POSITION   #
+	#----------------------------------------------------------------#
+
 	def PreviousNthChar(n, pnStartingAt)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
 		cResult = ""
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
@@ -4796,26 +5144,41 @@ class stzString from stzObject
 				return This.NthPreviousCharQR(:stzString)
 	
 			def NthPreviousCharQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-	
-				switch pcReturnType
-				on :stzString
-					return new stzString( This.NthPreviousChar(n, pnStartingAt) )
-	
-				on :stzChar
-					return new stzChar( This.NthPreviousChar(n, pnStartingAt) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.PreviousNthCharQR(n, pnStartingAt, pcReturnType)
 
 		#>
+
+		#< @FunctionSpecificForms
+
+		def Previous2ndChar()
+			return This.PreviousNthChar(2)
+
+			def 2ndPreviousChar()
+				return This.PreviousNthChar(2)
+
+			def PreviousSecondChar()
+				return This.PreviousNthChar(2)
+
+			def SecondPreviousChar()
+				return This.PreviousNthChar(2)
+
+		def Previous3rdChar()
+			return This.PreviousNthChar(3)
+
+			def 3rdPreviousChar()
+				return This.PreviousNthChar(3)
+
+			def PreviousThirdChar()
+				return This.PreviousNthChar(3)
+
+			def ThirdPreviousChar()
+				return This.PreviousNthChar(3)
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #   GETTING THE PREVIOUS CHAR STARTING AT A GIVEN POSITION   #
+	#------------------------------------------------------------#
 
 	def PreviousChar(n)
 		return This.PreviousNthChar(n, 1)
@@ -4846,9 +5209,571 @@ class stzString from stzObject
 			off	
 		#>
 
-	  #---------------------------------------------#
-	 #  NEXT N CHARS STARTING AT A GIVEN POSITION  #
-	#---------------------------------------------#
+	  #------------------------------------------------------------------------#
+	 #  NEXT N CHARS STARTING AT A GIVEN POSITION (RETURNED AS A SUBSTRING)   #
+	#------------------------------------------------------------------------#
+
+	def NextNCharsAsSubString(n, pnStartingAt)
+
+		# Checking params
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if isString(pnStartingAt)
+			if pnStartingAt = :First or pnStartingAt = :FirstChar
+				pnStartingAt = 1
+
+			but pnStartingAt = :Last or pnStartingAt = :LastChar
+				pnStartingAt = This.NumberOfChars()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			StzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+
+		if pnStartingAt < 0
+			pnStartingAt = This.NumberOfChars() - Abs(pnStartingAt) + 1
+		ok
+
+		# Doing the job
+
+		cResult = This.Section(pnStartingAt, pnStartingAt + n - 1)
+
+		return cResult
+
+		#< @FunctionFluentForm
+
+		def NextNCharsAsSubStringQ(n, pnStartingAt)
+			return new stzString(This.NextNCharsAsSubString(n, pnStartingAt))
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def NextNCharsAsString(n, pnStartingAt)
+			return This.NextNCharsAsSubString(n, pnStartingAt)
+
+			def NextNCharsAsStringQ(n, pnStartingAt)
+				return This.NextNCharsAsSubStringQ(n, pnStartingAt)
+
+		#>
+
+		#< @FunctionSpecificForms
+
+		def Next2CharsAsSubString(pnStartingAt)
+			return This.NextNCharsAsSubString(2, pnStartingAt)
+
+			def Next2CharsAsString(pnStartingAt)
+				return This.Next2CharsAsSubString(pnStartingAt)
+
+			def 2NextCharsAsSubString(pnStartingAt)
+				return This.NextNCharsAsSubString(2, pnStartingAt)
+
+			def 2NextCharsAsString(pnStartingAt)
+				return This.NextNCharsAsSubString(2, pnStartingAt)
+
+			def NextTwoCharsAsSubString(pnStartingAt)
+				return This.NextNCharsAsSubString(2, pnStartingAt)
+
+			def NextTwoCharsAsString(pnStartingAt)
+				return This.NextNCharsAsSubString(2, pnStartingAt)
+
+			def TwoNextCharsAsSubString(pnStartingAt)
+				return This.NextNCharsAsSubString(2, pnStartingAt)
+
+			def TwoNextCharsAsString(pnStartingAt)
+				return This.NextNCharsAsSubString(2, pnStartingAt)
+
+		def Next3CharsAsSubString(pnStartingAt)
+			return This.NextNCharsAsSubString(3, pnStartingAt)
+
+			def Next3CharsAsString(pnStartingAt)
+				return This.Next3CharsAsSubString(pnStartingAt)
+
+			def 3NextCharsAsSubString(pnStartingAt)
+				return This.NextNCharsAsSubString(3, pnStartingAt)
+
+			def 3NextCharsAsString(pnStartingAt)
+				return This.NextNCharsAsSubString(3, pnStartingAt)
+
+			def NextThreeCharsAsSubString(pnStartingAt)
+				return This.NextNCharsAsSubString(3, pnStartingAt)
+
+			def NextThreeCharsAsString(pnStartingAt)
+				return This.NextNCharsAsSubString(3, pnStartingAt)
+
+			def ThreeNextCharsAsSubString(pnStartingAt)
+				return This.NextNCharsAsSubString(3, pnStartingAt)
+
+			def ThreeNextCharsAsString(pnStartingAt)
+				return This.NextNCharsAsSubString(3, pnStartingAt)
+
+		#>
+
+	  #-------------------------------------------------------------------------#
+	 #  PREVIOUS N CHARS STARTING AT A GIVEN POSITION RETURNED AS A SUBSTRING  #
+	#-------------------------------------------------------------------------#
+
+	def PreviousNCharsAsSubString(n, pnStartingAt)
+
+		# Checking params
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if isString(pnStartingAt)
+			if pnStartingAt = :First or pnStartingAt = :FirstChar
+				pnStartingAt = 1
+
+			but pnStartingAt = :Last or pnStartingAt = :LastChar
+				pnStartingAt = This.NumberOfChars()
+			ok
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			StzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+
+		if pnStartingAt < 0
+			pnStartingAt = This.NumberOfChars() - Abs(pnStartingAt) + 1
+		ok
+
+		# Doing the job
+
+		cResult = This.Section(pnStartingAt - n + 1, pnStartingAt)
+
+		return cResult
+
+		#< @FunctionFluentForm
+
+		def PreviousNCharsAsSubStringQ(n, pnStartingAt)
+			return new stzString( This.PreviousNCharsAsSubString(n, pnStartingAt) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def PreviousNCharsAsString(n, pnStartingAt)
+			return This.PreviousNCharsAsSubString(n, pnStartingAt)
+
+			def PreviousNCharsAsStringQ(n, pnStartingAt)
+				return This.PreviousNCharsAsSubStringQ(n, pnStartingAt)
+	
+		#>
+
+		#< @FunctionSpecificForms
+
+		def Previous2CharsAsSubString(pnStartingAt)
+			return This.PreviousNCharsAsSubString(2, pnStartingAt)
+
+			def Previous2CharsAsString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(2, pnStartingAt)
+
+			def 2PreviousCharsAsSubString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(2, pnStartingAt)
+
+			def 2PreviousCharsAsString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(2, pnStartingAt)
+
+			def PreviousTwoCharsAsSubString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(2, pnStartingAt)
+
+			def PreviousTwoCharsAsString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(2, pnStartingAt)
+
+			def TwoPreviousCharsAsSubString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(2, pnStartingAt)
+
+			def TwoPreviousCharsAsString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(2, pnStartingAt)
+
+		def Previous3CharsAsSubString(pnStartingAt)
+			return This.PreviousNCharsAsSubString(3, pnStartingAt)
+
+			def Previous3CharsAsString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(3, pnStartingAt)
+
+			def 3PreviousCharsAsSubString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(3, pnStartingAt)
+
+			def 3PreviousCharsAsString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(3, pnStartingAt)
+	
+			def PreviousThreeCharsAsSubString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(3, pnStartingAt)
+
+			def PreviousThreeCharsAsString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(3, pnStartingAt)
+
+			def ThreePreviousCharsAsSubString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(3, pnStartingAt)
+
+			def ThreePreviousCharsAsString(pnStartingAt)
+				return This.PreviousNCharsAsSubString(3, pnStartingAt)
+
+		#>
+
+	  #===============================================#
+	 #   N RIGHT CHARS RETURNED AS A LIST OF CHARS   #
+	#===============================================#
+
+	def NRightChars(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if n = 0
+			return []
+		ok
+
+		acResult = []
+
+		if This.IsRightToleft()
+			acResult = This.SectionQ( 1, n ).Chars()
+		else
+			acResult = This.SectionQ( This.NumberOfChars() - n + 1, NumberOfChars() ).Chars()
+		end
+					
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def NRightCharsQ(n)
+			return This.NRightCharsQR(n, :stzList)
+
+		def NRightCharsQR(n, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NRightChars(n) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.NRightChars(n) )
+
+			on :stzListOfChars
+				return new stzListOfchars( This.NRightChars(n) )
+
+			on :stzString
+				return new stzString( This.This.NRightCharsQR(n, :stzListOfStrings).Concatenated() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RightNChars(n)
+			return This.NRightChars(n)
+	
+			def RightNCharsQ(n)
+				return This.NRightCharsQ(n)
+
+			def RightNCharsQR(n, pcReturnType)
+				return This.NRightCharsQR(n, pcReturnType)
+
+		#>
+
+		#< @FunctionSpecificForms
+
+		def Right2Chars()
+			return This.NRightChars(2)
+
+			def 2RightChars()
+				return This.NRightChars(2)
+
+			def RightTwoChars()
+				return This.NRightChars(2)
+
+			def TwoRightChars()
+				return This.NRightChars(2)
+
+	
+		def Right3Chars()
+			return This.NRightChars(3)
+
+			def 3RightChars()
+				return This.NRightChars(3)
+
+			def RightThreeChars()
+				return This.NRightChars(3)
+
+			def ThreeRightChars()
+				return This.NRightChars(3)
+
+		#>
+
+	  #----------------------------------------------#
+	 #   N LEFT CHARS RETURNED AS A LIST OF CHARS   #
+	#----------------------------------------------#
+
+	def NLeftChars(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if n = 0
+			return []
+		ok
+
+		acResult = []
+
+		if IsRightToleft()
+			acResult = SectionQ( This.NumberOfChars()-n+1, NumberOfChars() ).Chars()
+		else
+			acResult = SectionQ( 1, n).Chars()
+		end
+	
+		return acResult
+
+
+		#< @FunctionFluentForm
+
+		def NLeftCharsQ(n)
+			return This.NLeftCharsQR(n, :stzList)
+
+		def NLeftCharsQR(n, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NLeftChars(n) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.NLeftChars(n) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.NLeftChars(n) )
+
+			on :stzString
+				return new stzString( This.This.NLeftCharsQR(n, :stzListOfStrings).Concatenated() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def LeftNChars(n)
+			return This.NLeftChars(n)
+	
+			def LeftNCharsQ(n)
+				return This.NLeftCharsQ(n)
+
+			def LeftNCharsQR(n, pcReturnType)
+				return This.NLeftCharsQR(n, pcReturnType)
+
+		#>
+
+		#< @FunctionSpecificForms
+
+		def Left2Chars()
+			return This.NLeftChars(2)
+
+			def 2LefthtChars()
+				return This.NLefttChars(2)
+
+			def LeftTwoChars()
+				return This.NLeftChars(2)
+
+			def TwoLeftChars()
+				return This.NLeftChars(2)
+
+	
+		def Left3Chars()
+			return This.NLeftChars(3)
+
+			def 3LeftChars()
+				return This.NLeftChars(3)
+
+			def LeftThreeChars()
+				return This.NLeftChars(3)
+
+			def ThreeLeftChars()
+				return This.NLeftChars(3)
+
+		#>
+
+	  #-----------------------------------------------#
+	 #   N FIRST CHARS RETURNED AS A LIST OF CHARS   #
+	#-----------------------------------------------#
+
+	def NFirstChars(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if n = 0
+			return []
+		ok
+
+		if This.IsRightToLeft()
+			return This.NRightChars(n)
+		else
+			return This.NLeftChars(n)
+		ok
+
+		#< @FunctionFluentForm
+
+		def NFirstCharsQ(n)
+			return This.NLeftCharsQR(n, :stzList)
+
+		def NFirstCharsQR(n, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NFirstChars(n) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.NFirstChars(n) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.NFirstChars(n) )
+
+			on :stzString
+				return new stzString( This.This.NFirstCharsQR(n, :stzListOfStrings).Concatenated() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def FirstNChars(n)
+			return This.NFirstChars(n)
+	
+			def FirstNCharsQ(n)
+				return This.NFirstCharsQ(n)
+
+			def FirstNCharsQR(n, pcReturnType)
+				return This.NFirstCharsQR(n, pcReturnType)
+
+		#>
+
+		#< @FunctionSpecificForms
+
+		def First2Chars()
+			return This.NFirstChars(2)
+
+			def 2FirstChars()
+				return This.NFirstChars(2)
+
+			def FirstTwoChars()
+				return This.NFirstChars(2)
+
+			def TwoFirstChars()
+				return This.NFirstChars(2)
+
+		def First3Chars()
+			return This.NFirstChars(3)
+
+			def 3FirstChars()
+				return This.NFirstChars(3)
+
+			def FirstThreeChars()
+				return This.NFirstChars(3)
+
+			def ThreeFirstChars()
+				return This.NFirstChars(3)
+
+		#>
+
+	  #----------------------------------------------#
+	 #   N LAST CHARS RETURNED AS A LIST OF CHARS   #
+	#----------------------------------------------#
+
+	def NLastChars(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if This.IsRightToLeft()
+			return This.NLeftChars(n)
+		else
+			return This.NRightChars(n)
+		ok
+
+		#< @FunctionFluentForm
+
+		def NLastCharsQ(n)
+			return This.NLastCharsQR(n, pcReturnType)
+
+		def NLastCharsQR(n, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NLastChars(n) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.NLastChars(n) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.NLastChars(n) )
+
+			on :stzString
+				return new stzString( This.This.NLastCharsQR(n, :stzListOfStrings).Concatenated() )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def LastNChars(n)
+			return This.NLastChars(n)
+	
+			def LastNCharsQ(n)
+				return This.NLastCharsQ(n)
+
+			def LastNCharsQR(n, pcReturnType)
+				return This.NLastCharsQR(n, pcReturnType)
+
+		#>
+
+		#< @FunctionSpecificForms
+
+		def Last2Chars()
+			return This.NLastChars(2)
+
+			def 2LastChars()
+				return This.NLastChars(2)
+
+			def LastTwoChars()
+				return This.NLastChars(2)
+
+			def TwoLastChars()
+				return This.NLastChars(2)
+
+		def Last3Chars()
+			return This.NLastChars(3)
+
+			def 3LastChars()
+				return This.NLastChars(3)
+
+			def LastThreeChars()
+				return This.NLastChars(3)
+
+			def ThreeLastChars()
+				return This.NLastChars(3)
+
+		#>
+
+	  #---------------------------------------------------------------------------#
+	 #  NEXT N CHARS STARTING AT A GIVEN POSITION (RETURNED AS A LIST OF CHARS)  #
+	#---------------------------------------------------------------------------#
 
 	def NextNChars(n, pnStartingAt)
 
@@ -4902,14 +5827,55 @@ class stzString from stzObject
 				return new stzListOfChars( This.NextNChars(n, pnStartingAt) )
 
 			other
-				StzRaise("Unsupported return type!")
-			off
+				stzRaise("Unsupported return type!")
+			off		
 
 		#>
 
-	  #-------------------------------------------------#
-	 #  PREVIOUS N CHARS STARTING AT A GIVEN POSITION  #
-	#-------------------------------------------------#
+		#< @FunctionAlternativeForms
+
+		def NNextChars(n, pnStartingAt)
+			return This.NextNChars(n, pnStartingAt)
+
+			def NNextCharsQ(n, pnStartingAt)
+				return This.NNextCharsQR(n, pnStartingAt, :stzList)
+
+			def NNextCharsQR(n, pnStartingAt, pcReturnType)
+				return This.NextNCharsQR(n, pnStartingAt, pcReturnType)
+
+		#>
+
+		#< @FunctionSpecificForms
+
+		def Next2Chars(pnStartingAt)
+			return This.NextNChars(2, pnStartingAt)
+
+			def 2NextChars(pnStartingAt)
+				return This.NextNChars(2, pnStartingAt)
+
+			def NextTwoChars(pnStartingAt)
+				return This.NextNChars(2, pnStartingAt)
+
+			def TwoNextChars(pnStartingAt)
+				return This.NextNChars(2, pnStartingAt)
+
+		def Next3Chars(pnStartingAt)
+			return This.NextNChars(3, pnStartingAt)
+
+			def 3NextChars(pnStartingAt)
+				return This.NextNChars(3, pnStartingAt)
+
+			def NextThreeChars(pnStartingAt)
+				return This.NextNChars(3, pnStartingAt)
+
+			def ThreeNextChars(pnStartingAt)
+				return This.NextNChars(3, pnStartingAt)
+
+		#>
+
+	  #-----------------------------------------------------------------------------#
+	 #  PREVIOUS N CHARS STARTING AT A GIVEN POSITION RETURNED AS A LIST OF CHARS  #
+	#-----------------------------------------------------------------------------#
 
 	def PreviousNChars(n, pnStartingAt)
 
@@ -4963,54 +5929,51 @@ class stzString from stzObject
 				return new stzListOfChars( This.PreviousNChars(n, pnStartingAt) )
 
 			other
-				StzRaise("Unsupported return type!")
-			off
+				stzRaise("Unsupported return type!")
+			off		
 
 		#>
 
-	  #------------------------------#
-	 #   BYTES AND BYTES PER CHAR   #
-	#------------------------------#
+		#< @FunctionAlternativeForms
 
-	def ToStzListOfBytes()
-		return new stzListOfBytes( This.String() )
+		def NPreviousChars(n, pnStartingAt)
+			return This.PreviousNChars(n, pnStartingAt)
 
-	def Bytes()
-		return This.ToStzListOfBytes().Content()
+			def NPreviousCharsQ(n, pnStartingAt)
+				return This.NPreviousCharsQR(n, pnStartingAt, :stzList)
 
-		#< @FunctionFluentForm
-
-		def BytesQ()
-			return This.ToStzListOfBytes()
+			def NPreviousCharsQR(n, pnStartingAt, pcReturnType)
+				return This.PreviousNCharsQR(n, pnStartingAt, pcReturnType)
 
 		#>
-	
-		#< @FunctionAlternativeForm
 
-		def ToListOfBytes()
-			return This.Bytes()
+		#< @FunctionSpecificForms
 
-			#< @FunctionFluentForm
-	
-			def ToListOfBytesQ()
-				return This.BytesQ()
-		
-			#>
-	
+		def Previous2Chars(pnStartingAt)
+			return This.PreviousNChars(2, pnStartingAt)
+
+			def 2PreviousChars(pnStartingAt)
+				return This.PreviousNChars(2, pnStartingAt)
+
+			def PreviousTwoChars(pnStartingAt)
+				return This.PreviousNChars(2, pnStartingAt)
+
+			def TwoPreviousChars(pnStartingAt)
+				return This.PreviousNChars(2, pnStartingAt)
+
+		def Previous3Chars(pnStartingAt)
+			return This.PreviousNChars(3, pnStartingAt)
+
+			def 3PreviousChars(pnStartingAt)
+				return This.PreviousNChars(3, pnStartingAt)
+
+			def PreviousThreeChars(pnStartingAt)
+				return This.PreviousNChars(3, pnStartingAt)
+
+			def ThreePreviousChars(pnStartingAt)
+				return This.PreviousNChars(3, pnStartingAt)
+
 		#>
-
-	def BytesPerChar()
-		return This.ToStzListOfBytes().BytesPerChar()
-
-	  #--------------------------------------#
-	 #   BYTECODES AND BYTECODES PER CHAR   #
-	#--------------------------------------#
-
-	def Bytecodes()
-		return This.ToStzListOfBytes().Bytecodes()
-
-	def BytecodesPerChar()
-		return This.ToStzListOfBytes().BytecodesPerChar()
 
 	  #====================================================#
 	 #  INFERING A RING OR SOFTANZA TYPE FROM THE STRING  #
@@ -9719,6 +10682,21 @@ class stzString from stzObject
 		def HowManyAntiSections(paSections)
 			return This.NumberOfAntiSections(paSections)
 
+	   #-------------------------------------------------------------#
+	  #   FINDING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS AND  #
+	 #  RETURNING THEM AS PAIRS OF NUMBERS                         #
+	#-------------------------------------------------------------#
+
+	def FindAntiSections(paSections)
+		aResult = StzListQ( 1 : This.NumberOfChars() ).
+				FindAntiSectionsQ(paSections).
+				Content()
+
+		return aResult
+
+		def AntiSectionsAsPairsOfNumbers(paSections)
+			return This.FindAntiSections(paSections)
+
 	  #----------------------------------------------------------#
 	 #   GETIING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS   #
 	#----------------------------------------------------------#
@@ -9730,11 +10708,7 @@ class stzString from stzObject
 		#--> [ "AB", "F", "IJ" ]
 		*/
 
-		aAntiSections = StzListQ( 1 : This.NumberOfChars() ).
-				FindAntiSectionsQ(paSections).
-				Content()
-
-		aResult = This.Sections( aAntiSections )
+		aResult = This.Sections( This.AntiSectionsAsPairsOfNumbers(paSections) )
 
 		return aResult
 
@@ -30625,7 +31599,7 @@ def ReplaceIBS()
 	 #   SIMPLIFYING THE STRING EXCEPT SOME SECTIONS   #
 	#-------------------------------------------------#
 
-	def SimplifyExcept(paSections) # TODO
+	def SimplifyExcept(paSections)
 		/* EXAMPLE
 
 		o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
@@ -30635,7 +31609,50 @@ def ReplaceIBS()
 
 		*/
 
-		/* ... */
+		if isList(paSections) and Q(paSections).IsSectionsNamedParam()
+			paSections = paSections[2]
+		ok
+
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+		ok
+
+		aAntiSections = This.AntiSectionsAsPairsOfNumbers(paSections)
+		nLen = len(aAntiSections)
+
+		for i = nLen to 1 step -1
+
+			n1 = aAntiSections[i][1]
+			n2 = aAntiSections[i][2]
+
+			cSection = This.Section(n1, n2)
+
+			cSectionSimplified = Q(cSection).Simplified()
+
+			if (n2 - n1 + 1) > 2
+				if Q(cSection).LastChar() = " " and
+				   Q(cSectionSimplified).Last2Chars() != "  "
+	
+					cSectionSimplified += " "
+	
+				but Q(cSection).FirstChar() = " " and
+				    Q(cSectionSimplified).First2Chars() != "  "
+	
+					cSectionSimplified = " " + cSectionSimplified
+				ok
+			ok
+
+			This.ReplaceSection(n1, n2, cSectionSimplified)
+		next
+
+
+		def SimplifyExceptQ(paSections)
+			This.SimplifyExcept(paSections)
+			return This
+
+	def SimplifiedExcept(paSections)
+		cResult = This.Copy().SimplifyExceptQ().Content()
+		return cResult
 
 	  #==========================#
 	 #  SPACIFYING THE STRING   #

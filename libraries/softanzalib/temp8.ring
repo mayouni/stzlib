@@ -1,5 +1,35 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzString("abCDE")
+? o1.First2Chars()
+#--> "ab"
+
+? o1.Last3Chars()
+#--> "CDE"
+
+? o1.Next3Chars(:StartingAt = 3)
+#--> [ "C", "D", "E" ]
+
+proff()
+
+/*------------
+
+pron()
+
+'  this code:   txt1  ="    withspaces    " and txt2="nospaces"  '
+'this code: txt1 ="    withspaces    "and txt2="nospaces"'
+
+o1 = new stzString(' this code:   txt1  = "    withspaces    " and txt2="nospaces"  ')
+o1.SimplifyExcept( [ [23, 42], [51, 64] ] )
+
+? o1.Content()
+
+#--> 'var txt = "    nice    "'
+
+proff()
+
 /*================
 
 pron()
@@ -61,25 +91,97 @@ o1 = new stzList([
 proff()
 
 /*------------------
-*/
+
 pron()
 
-//new stzString(:o1 = "str1")
-
 new stzNamedString(:oMyStr = "hi!")
-new stzNamedPair(:oMyPair = [ "X", "Y" ])
+new stzNamedList(:oMyList = [ "X", "Y" ])
+
+? @[:oMyStr].Content()
+#--> "hi!"
+
+? Obj(:oMyStr)
+#--> @[:omystr]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*------------------
+
+pron()
+
+o1 = new Friend { Name = "Mahmoud" Job = "Programmer" }
+
+new stzNamedObject( :oFriend = o1 )
+
+? @@( @C[:oFriend] )
+#--> [ :name = "Mahmoud", :job = "Programmer" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+class Friend
+	Name Job
+
+/*------------------
+*/
+
+pron()
+
+new stzNamedObject(
+	:oMahmoud = 'new Friend { Name = "Mahmoud" Job = "Programmer" }'
+)
+
+ShowHL( @C[:oMahmoud] )
+#--> [ :name = "Mahmoud", :job = "Programmer" ]
+
+/*
+new stzNamedObjects([
+	:oSalem  = 'new Friend { Name = "Salem" Job = "Author" }',
+	:oKarl   = 'new Friend { Name = "Karl" Job = "Farmer" }',
+	:oKarim	 = 'new Friend { Name = "Karim" Job = "Painter" }'
+])
+*/
+
+
+proff()
+# Executed in 0.06 second(s)
+
+class Friend
+	Name Job
+
+/*------------------
+
+pron()
+
+new stzNamedString( :oMyStr = "hi!" )
+new stzNamedList( :oMyList = [ "X", "Y" ] )
+
 
 o1 = new stzList([
-	"*", '"*"', oMystr, "*4", [ "A", "B" , oMyPair, "'C'"], 12
+	"*", '"*"', Obj(:oMystr), "*4", [ "A", "B" , Obj(:oMyList), "'C'"], 12
 ])
 
 ? o1.ToCode()
-#--> [ "*", '"*"', "*4", [ "A", "B", "'C'" ], 12 ]
+#--> [ "*", '"*"', @[:omystr], "*4", [ "A", "B", @[:omylist], "'C'" ], 12, @[:omyfriend] ]
+
+? @@( [ "1", @C[:oMyStr], "2", @C[:oMyList], "3" ] )
+#--> [ "1", "hi!", "2", [ "X", "Y" ], "3" ]
+
+proff()
+# Executed in 0.12 second(s)
+
+
+/*------------------
+
+//? o1.FindNext( Obje(:oMyStr), :StartingAt = 1)
+
+//? o1.Find( Obj(:oMystr) )
 
 proff()
 
 /*------------------
-*/
+
 pron()
 
 o1 = new stzList([
@@ -111,7 +213,7 @@ o1 = new stzList([
 proff()
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzList([

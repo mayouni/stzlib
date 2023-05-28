@@ -14,7 +14,8 @@ Programming, by Heart! By: M.Ayouni╭
   ╰╯
 '
 
-@ = [] # Used to store the named objects used in the program
+@ = [] # Used to store the named objects used in the program along their values
+@C = [] # Used to store the contents of the named objects used in the program
 
 _t0 = 0 # Used by StartProfiler() and StopProfiler() functions
 
@@ -961,6 +962,34 @@ func Unicode(p)
 func Scripts(paListStr)
 	return StzListOfStringsQ(paListStr).Scripts()
 
+func Show(pValue)
+	? ComputableFormSimplified(pValue)
+
+	func ShowQ(pValue)
+		return new stzString( Show(pValue) )
+
+func ShowHL(pValue)
+	if NOT (isList(pValue) and Q(pValue).IsHashList())
+		StzRaise("Incorrect param type! pValue must be a hashlist.")
+	ok
+
+	? StzHashListQ(pValue).ToCode()
+
+	func ShowHashList(pValue)
+		ShowHL(pValue)
+
+	func ShowAsHashList(pValue)
+		ShowHL(pValue)
+
+	func ShowHList(pValue)
+		ShowHL(pValue)
+
+	func ShowAsHList(pValue)
+		ShowHL(pValue)
+
+	func ShowAsHL(pValue)
+		ShowHL(pValue)
+
 // Computable form, (equivalent of ring listtocode() function)
 func ComputableForm(pValue) # TODO: case of object --> return its name
 
@@ -1003,7 +1032,6 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 
 		func CFQ(pValue)
 			return new stzString( CF(pValue) )
-
 	#>
 
 func ComputableFormSimplified(pValue)
@@ -1021,15 +1049,15 @@ func ComputableFormSimplified(pValue)
 
 	but isString(pValue)
 
-		# The rationale of this code is that we don't want to simplify
+		# The rationale of this example code is that we don't want to simplify
 		# any substrings bounded by "...  " or "...  .."
 		# So if the main string is:
 
 		# 	'   str = "  ...  "     and   str !=    "  *** " ', then it becomes
 		# 	'str = "  ...  " and str != "  *** "'
 
-		# Note that the spaces between the keywords are simplified, byt the content
-		# the content of the substrings (values assigned to str variable) are left
+		# Note that the spaces between the keywords are simplified, but the content
+		# of the substrings (values assigned to str variable) are left
 		# as they are!
 
 		if NOT Q(pValue).ContainsOneOfThese([ '"', "'" ])
@@ -1345,14 +1373,6 @@ func Q(p)
 		return new stzObject(p)
 	ok
 
-	func _Q(p)
-		return Q(p)
-
-	func _@(p)
-		return Q(p)
-
-	func @(p)
-		return Q(p)
 
 	func Softanzify(p)
 		return Q(p)

@@ -4,7 +4,7 @@ func StzNamedListQ(paNameAndList)
 
 class stzNamedList from stzList
 	@cName
-	@cContent
+	@aContent
 
 	def init(paNameAndList)
 		if NOT 	( isList(paNameAndList) and
@@ -12,7 +12,7 @@ class stzNamedList from stzList
 			)
 
 			StzRaise("Can't create the stzNamedList object!" + NL +
-				  "You must provide a pair of a string and a list, specifying the name along with the list value.")
+				  "You must provide a pair of a string and list, specifying the name along with the list value.")
 
 		ok
 
@@ -21,9 +21,13 @@ class stzNamedList from stzList
 			StzRaise("The name you provided (:" + @cName + ") is already used by an other object!")
 		ok
 
-		@cContent = Q(paNameAndList[2]).ToCode()
+		@aContent = paNameAndList[2]
 
-		cCode = 'obj = new stzList(' + @cContent + ')'
-
+		cCode = 'obj = new stzList(' + Q(paNameAndList[2]).ToCode() + ')'
 		eval(cCode)
+
 		@ + [ @cName, obj ]
+		@C + [ @cName, obj.Content() ]
+
+	def ObjectName()
+		return @cName

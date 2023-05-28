@@ -31,3 +31,7 @@ class stzNamedString from stzString
 
 		eval(cCode)
 		@ + [ @cName, obj ]
+		@C + [ @cName, obj.Content() ]
+
+	def ObjectName()
+		return @cName
