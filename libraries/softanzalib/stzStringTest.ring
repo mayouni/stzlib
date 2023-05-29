@@ -2934,12 +2934,17 @@ proff()
 /*-----------------
 */
 
+pron()
+
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 
 ? o1.FindTheseOccurrences([ 2, 3], :Of = "♥♥♥")
+#--> [3, 8]
 
 ? o1.FindTheseOccurrencesS([ 2, 3], :Of = "♥♥♥", :StartingAt = 2)
+
+proff()
 
 /*-----------------
 

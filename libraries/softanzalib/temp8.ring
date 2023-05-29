@@ -61,7 +61,6 @@ pron()
 proff()
 
 /*=========
-*/
 
 pron()
 
@@ -75,7 +74,6 @@ proff()
 
 /*=========
 
-*/
 pron()
 
 o1 = new stzString("aaA...")
@@ -98,11 +96,25 @@ proff()
 */
 pron()
 
-o1 = new stzString("---<<...>>---<<...>>---")
-? @@( o1.FindBetweenAsSections("...", "<<", ">>") )
-#--> [ [ 6, 8 ], [ 16, 18 ] ]
+o1 = new stzString("---|ABC|---|ABC|---")
+/*
+? @@( o1.FindBetweenAsSections("ABC", "|", "|") )
+#--> [ [ 5, 7 ], [ 13, 15 ] ]
 
-? @@( o1.FindBoundedBy("...", '"') )
+? @@( o1.FindBoundedByAsSections("ABC", '|') )
+#--> [ [ 5, 7 ], [ 13, 15 ] ]
+
+? @@( o1.FindXT("ABC", :Between = [ "|", "|" ]) )
+#--> [ 5, 13 ]
+
+? @@( o1.FindAsSectionsXT("ABC", :Between = [ "|", "|" ]) )
+#--> [ [ 5, 7 ], [ 13, 15 ] ]
+*/
+
+? @@( o1.FindXT("ABC", :BoundedBy = "|") )
+#--> [ 5, 13 ]
+
+? @@( o1.FindAsSectionsXT("ABC", :BoundedBy = "|") )
 
 proff()
 
