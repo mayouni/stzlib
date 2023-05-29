@@ -319,7 +319,7 @@ func IsRangeNamedParamList(paList)
 		return This.IsRangeNamedParamList(paList)
 
 func ListToCode(paList)
-	return StzListQ( paList ).ToCode()
+	return StzListQ(paList).ToCode()
 
 
 func AllTheseAreNull(paList)
@@ -15224,15 +15224,33 @@ class stzList from stzObject
 
 	def RemoveDuplicatesCS(pCaseSensitive)
 
+		# Resolving pCaseSensitive
+
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( isNumber(pCaseSensitive) and IsBoolean(pCaseSensitive) )
-			StzRaise("Incorrect param! pCaseSensitive must be TRUE or FALSE.")
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
 		# If we are lucky, we use directly a Qt-based solution
+
 		if pCaseSensitive = TRUE and This.IsListOfStrings()
 			aTemp = This.ToStzListOfStrings().DuplicatesRemoved()
 			This.Update(aTemp)
@@ -17027,13 +17045,32 @@ class stzList from stzObject
 			StzRaise("Can't process! Objects can not be found yet.")
 		ok
 
+		# Resolving pCaseSensitive
+
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
 
 		nResult = 0
 
@@ -17115,13 +17152,32 @@ class stzList from stzObject
 			return 0
 		ok
 
+		# Resolving pCaseSensitive
+
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
 
 		nResult = 0
 		nLen = This.NumberOfItems()
@@ -22282,7 +22338,7 @@ class stzList from stzObject
 
 			but isList(item)
 				cCode += Q(item).ToCode() + ", "	# Recursive call!
-				
+
 			but isObject(item)
 
 				n++
@@ -22297,61 +22353,11 @@ class stzList from stzObject
 
 		next
 
-		cCode = Q(cCode).RemovedFromEnd(", ") + " ]"
+		cCode += " ]"
+		cCode = Q(cCode).ReplaceQ(",  ]", " ]").Content()
 
 		return cCode
-/*
-		# NOTE: uses the same code as list2code() from Ring standard
-		# library and enhances it for better performance
 
-		# TODO: This code uses windowsnl() --> check if that works
-		# on other operating systems as well
-		# TODO: Ask Mahmoud: Is WindowsNL() multiplatform?
-
-		# TODO: Rewrite it.
-
-		cTabs = ring_copy( char(9), List2CodeTabsCounter )
-		cCode = cTabs + "[" + Windowsnl()
-
-		lStart = True
-		List2CodeTabsCounter++
-
-		cTabs = ring_copy( char(9), List2CodeTabsCounter )
-	
-		aList = This.List()
-		nLen = This.NumberOfItems()
-
-		for i = 1 to nLen
-			item = aList[i]
-
-			if !lStart 
-				cCode += ( "," + Windowsnl() )
-			else 
-				lStart = False
-			ok
-
-			if isString(item)
-				item2 = substr( item, '"',"'+ char(34) +'")
-				cCode += ( cTabs +'"' + item2 + '"'  )
-
-			but isnumber(item)
-				cCode += ( cTabs + "" + item )
-
-			but islist(item)
-				cCode += Q(item).ToCode() # Note that this is a recursive call!
-			ok
-		next
-
-		List2CodeTabsCounter--
-		cTabs = ring_copy(char(9), List2CodeTabsCounter)
-		cCode += ( windowsnl() + cTabs + "]" )
-
-		cOld = @@("'+ char(34) +'")
-		cNew = @@('"')
-		cCode = Q(cCode).ReplaceQ(cOld, cNew).Content()
-
-		return cCode
-*/
 		def ToCodeQ()
 			return new stzString(This.ToCode())
 

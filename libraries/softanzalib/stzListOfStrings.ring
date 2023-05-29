@@ -2135,9 +2135,32 @@ class stzListOfStrings from stzList
 
 	def FindAllCS(pcStrItem, pCaseSensitive)
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		# Resolving pCaseSensitive
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
+
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
 
 		anResult = []
 
@@ -3067,13 +3090,32 @@ class stzListOfStrings from stzList
 		# NOTE: QStringList does not contain a find method!
 		# so we do it in pure Ring...
 
+		# Resolving pCaseSensitive
+
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSesitive must be TRUE or FALSE.")
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
 
 		nResult = 0
 
@@ -6671,18 +6713,38 @@ class stzListOfStrings from stzList
 	#---------------------------------------------------------#
 
 	def StringItemsContainingSubStringCS(pcSubStr, pCaseSensitive)
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+
+		# Resolving pCaseSensitive
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
-			 
-		if isNumber(pCaseSensitive) and ( pCaseSensitive = 0 or pCaseSensitive = 1 )
 
-			oQList = This.QStringListObject().filter(pcSubStr, pCaseSensitive)
-			return QStringListContent(oQList)
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
 
-		else
-			StzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+			 
+		oQList = This.QStringListObject().filter(pcSubStr, pCaseSensitive)
+		bResult = QStringListContent(oQList)
+
+		return bResult
 
 		#< @FunctionfluentForm
 
@@ -14158,11 +14220,11 @@ class stzListOfStrings from stzList
 	#=====================================================#
 
 	def RemoveSubStringCS(pcSubStr, pCaseSensitive)
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
 
-		/* NOTE: replace with Qt.ReplaceInStrings() when supported by RingQt
+		/* NOTE:
+
+		We could use Qt.ReplaceInStrings() directly when supported
+		by RingQt, like this:
 
 		This.QStringListObject().replaceInStrings( pcSubStr, "", pCaseSensitive)
 
@@ -14184,19 +14246,26 @@ class stzListOfStrings from stzList
 		#--> [ "1" = [ 13 ], "3" = [ 6, 21 ] ]
 		*/
 		
-	
+		acContent = This.Content()
+		nLen = len(acContent)
+
 		acResult = []
-		for str in This.ListOfStrings()
-			cString = StzStringQ(str).RemoveCS(pcSubStr, pCaseSensitive)
-			acResult + cString
+
+		for i = 1 to nLen
+			acResult + Q(acContent[i]).RemoveCSQ(pcSubStr, pCaseSensitive).Content()
 		next
+		
+		This.Update(acResult)
 
-		This.Update( acResult )
-
+		#< @FunctionFluentForm
 
 		def RemoveSubStringCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveSubStringCS(pcSubStr, pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def RemoveAllOccurrencesOfSubStringCS(pcSubStr, pCaseSensitive)
 			This.RemoveStringCS(pcSubStr, pCaseSensitive)
@@ -14205,14 +14274,22 @@ class stzListOfStrings from stzList
 				This.RemoveAllOccurrencesOfStringCS(pcSubStr, pCaseSensitive)
 				return This
 
-	#---
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubString(pcSubStr)
 		This.RemoveSubStringCS(pcSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
 		def RemoveSubStringQ(pcSubStr)
 			This.RemoveSubString(pcSubStr)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def RemoveAllOccurrencesOfSubString(pcSubStr)
 			This.RemoveSubStringCS(pcSubStr, pCaseSensitive)
@@ -14220,6 +14297,8 @@ class stzListOfStrings from stzList
 			def RemoveAllOccurrencesOfSubStringQ(pcSubStr)
 				This.RemoveAllOccurrencesOfSubString(pcSubStr)
 				return This
+
+		#>
 
 	  #------------------------------------------------------------------#
 	 #   REMOVING NTH OCCURRENCE OF A SUBSTRING IN THE LIST OF STRINGS  #
@@ -16775,13 +16854,32 @@ class stzListOfStrings from stzList
 
 	def RemoveDuplicatesCS(pCaseSensitive)
 
+		# Resolving pCaseSensitive
+
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( isNumber(pCaseSensitive) and IsBoolean(pCaseSensitive) )
-			StzRaise("Incorrect param! pCaseSensitive must be TRUE or FALSE.")
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
 
 		if pCaseSensitive = TRUE
 			# If we are lucky, we use directly a Qt-based solution

@@ -1,34 +1,125 @@
 load "stzlib.ring"
 
+/*============
+
 pron()
 
 o1 = new stzString("abCDE")
+
 ? o1.First2Chars()
+#--> [ "a", "b" ]
+
+? o1.First2CharsAsString()
 #--> "ab"
 
 ? o1.Last3Chars()
+#--> [ "C", "D", "E" ]
+
+? o1.Last3CharsAsString()
 #--> "CDE"
 
 ? o1.Next3Chars(:StartingAt = 3)
 #--> [ "C", "D", "E" ]
 
-proff()
+? o1.Next3CharsAsString(:StartingAt = 3)
+#--> "CDE"
 
-/*------------
+proff()
+# Executed in 0.07 second(s)
+
+/*=========
 
 pron()
 
-'  this code:   txt1  ="    withspaces    " and txt2="nospaces"  '
-'this code: txt1 ="    withspaces    "and txt2="nospaces"'
+? List2Code([ [ 6, 8 ], [ 16, 18 ] ]) # Ring standard function
+#--> "[
+#	[
+#		6,
+#		8
+#	],
+#	[
+#		16,
+#		18
+#	]
+# ]"
 
-o1 = new stzString(' this code:   txt1  = "    withspaces    " and txt2="nospaces"  ')
-o1.SimplifyExcept( [ [23, 42], [51, 64] ] )
+? ListToCode([ [ 6, 8 ], [ 16, 18 ] ]) # Softanza function
+#--> "[ [ 6, 8 ], [ 16, 18 ] ]"
+
+#--
+
+? List2Code([ "A", '"B"', "'C'" ]) # Ring standard function
+#--> [
+#	"A",
+#	""+char(34)+"B"+char(34)+"",
+#	"'C'"
+# ]
+
+? ListToCode([ "A", '"B"', "'C'" ]) # Softanza function
+#--> [ "A", '"B"', "'C'" ]
+
+proff()
+
+/*=========
+*/
+
+pron()
+
+o1 = new stzListOfStrings([ "--**-*", "*---*", "--*-***" ])
+o1.RemoveSubString("*")
+? @@( o1.Content() )
+#--> [ "---", "---", "---" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*=========
+
+*/
+pron()
+
+o1 = new stzString("aaA...")
+
+? o1.FindCS("a", :CaseSensitive) # Or :IsCaseSensitive or :CS or :IsCS
+				 # or :CaseSensitive = TRUE or :CS = TRUE or TRUE
+#--> [1, 2]
+
+? o1.FindCS("a", :CaseInSensitive) # Or :NotCaseSensitive or :NotCS
+				   # or :IsNotCaseSensitive  or :IsNotCS
+				   # or :CaseSensitive = FALSE
+				   # or :CS = FALSE
+				   # or FALSE
+#--> [1, 2, 3]
+
+proff()
+
+/*=========
+
+*/
+pron()
+
+o1 = new stzString("---<<...>>---<<...>>---")
+? @@( o1.FindBetweenAsSections("...", "<<", ">>") )
+#--> [ [ 6, 8 ], [ 16, 18 ] ]
+
+? @@( o1.FindBoundedBy("...", '"') )
+
+proff()
+
+/*=========
+
+*/
+pron()
+
+o1 = new stzString(' this code:   txt1  =   "    withspaces    " and txt2  =  "nospaces"  ')
+o1.SimplifyExcept( o1.FindAnyBoundedByAsSections('"') )
 
 ? o1.Content()
 
-#--> 'var txt = "    nice    "'
+#--> 'this code: txt1 = "    withspaces    " and txt2 = "nospaces"'
 
 proff()
+# Executed in 0.08 second(s)
 
 /*================
 
