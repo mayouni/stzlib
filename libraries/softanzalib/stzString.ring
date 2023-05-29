@@ -4,7 +4,7 @@
 #-------------------------------------------------------------------------#
 #									  #
 # 	Description	: The core class for managing Unicode strings     #
-#	Version		: V1.0 (2020-2022)				  #
+#	Version		: V1.0 (2020-2023)				  #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		  #
 #									  #
 #-------------------------------------------------------------------------#
@@ -356,9 +356,32 @@ func StringsAreEqualCS(paStrings, pCaseSensitive)
 		stzRaise("You must provide at least two strings in the list!")
 	ok
 
-	if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+	# Resolving pCaseSensitive
+
+	if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 		pCaseSensitive = pCaseSensitive[2]
 	ok
+
+	if isString(pCaseSensitive)
+		if Q(pCaseSensitive).IsOneOfThese([
+			:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+			pCaseSensitive = TRUE
+			
+		but Q(pCaseSensitive).IsOneOfThese([
+			:CaseInSensitive, :NotCaseSensitive, :NotCS,
+			:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+			pCaseSensitive = FALSE
+		ok
+
+	ok
+
+	if NOT IsBoolean(pCaseSensitive)
+		stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+	ok
+
+	# Doing the job
 
 	bResult = TRUE
 
@@ -1592,13 +1615,32 @@ class stzString from stzObject
 			return 0
 		ok
 
+		# Resolving pCaseSensitive
+
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT isBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
 
 		nResult = 0
 
@@ -1636,16 +1678,36 @@ class stzString from stzObject
 			return []
 		ok
 
+		# Resolving pCaseSensitive
+
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
 
 		acResult = []
 		nLen = This.NumberOfChars()
+		# TODO: Chexk wether ..CS() extension is needed here!
 
 		for i = 1 to nLen
 			for j = i to nLen
@@ -1654,7 +1716,7 @@ class stzString from stzObject
 					acResult + cSubStr
 
 				else
-					# TODO: Optimise it for performance
+					# TODO: Optimise it for better performance
 					if NOT Q(acResult).ContainsCS(cSubStr, FALSE)
 						acResult + cSubStr
 					ok
@@ -4757,7 +4819,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		if This.IsRightToLeftAsSubString()
+		if This.IsRightToLeft()
 			return This.NRightCharsAsSubString(n)
 		else
 			return This.NLeftCharsAsSubString(n)
@@ -4852,7 +4914,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		if This.IsRightToLeftAsSubString()
+		if This.IsRightToLeft()
 			return This.NLeftCharsAsSubString(n)
 		else
 			return This.NRightCharsAsSubString(n)
@@ -7569,49 +7631,43 @@ class stzString from stzObject
 	  #============================#
 	 #   REPEATED LEADING CHARS   #
 	#============================#
-	
+
 	def RepeatedLeadingCharsCS(pCaseSensitive)
 		/* Example:
 			'eeeTUNIS' 	--> 'eee'
 			'exeeeeeTUNIS' 	--> ''
 		*/
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
+		if This.IsEmpty()
+			return ""
 		ok
 
-		if NOT isBoolean(pCaseSensitive)
-			stzRaise("Incorrect param! pCaseSensitive must be TRUE or FALSE.")
-		ok
+		nLen = This.NumberOfChars()
+		# TODO: Check wether the ...CS() extension is needed here!
 
-		if NOT This.IsEmpty()
-
-			nLen = This.NumberOfChars()
-
-			cResult = ""
+		cResult = ""
 	
-			bContinue = TRUE
-			cFirstChar = This.FirstChar()
-			i = 1
+		bContinue = TRUE
+		cFirstChar = This.FirstChar()
+		i = 1
 
-			while bContinue
-				i++
+		while bContinue
+			i++
 
-				if i > nLen
-					bContinue = FALSE
-				ok
-
-				cCurrentChar = This.Char(i)
-
-				if NOT Q(cCurrentChar).IsEqualToCS(cFirstChar, pCaseSensitive)
-					bContinue = FALSE
-				ok
-
-			end
-
-			if i > 2
-				return This.NFirstChars(i-1)
+			if i > nLen
+				bContinue = FALSE
 			ok
+
+			cCurrentChar = This.Char(i)
+
+			if NOT Q(cCurrentChar).IsEqualToCS(cFirstChar, pCaseSensitive)
+				bContinue = FALSE
+			ok
+
+		end
+
+		if i > 2
+			return This.NFirstChars(i-1)
 		ok
 
 		#< @FunctionFluentForm
@@ -14543,19 +14599,34 @@ def ReplaceIBS()
 
 	def StartsWithCS(pcSubStr, pCaseSensitive)
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		# Resolving pCaseSensitive
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( isNumber(pCaseSensitive) and
-			( pCaseSensitive = 0 or pCaseSensitive = 1 ) )
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
 
-			stzRaise("Invalid param. pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
 
-		else
-			bResult = @oQString.startsWith(pcSubStr, pCaseSensitive)
-			return bResult
+				pCaseSensitive = FALSE
+			ok
+
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		bResult = @oQString.startsWith(pcSubStr, pCaseSensitive)
+		return bResult
+
 
 		def BeginsWithCS(pcSubStr, pCaseSensitive)
 			return This.StartsWithCS(pcSubStr, pCaseSensitive)
@@ -14620,20 +14691,34 @@ def ReplaceIBS()
 	#----------------------------------------------------------#
 
 	def EndsWithCS(pcSubStr, pCaseSensitive)
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		# Resolving pCaseSensitive
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( isNumber(pCaseSensitive) and
-			( pCaseSensitive = 0 or pCaseSensitive = 1 ) )
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
 
-			stzRaise("Invalid param. pCaseSensitive must be TRUE or FALSE (0 or 1).")
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
 
-		else
+				pCaseSensitive = FALSE
+			ok
 
-			bResult = @oQString.endsWith(pcSubStr, pCaseSensitive)
-			return bResult
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		bResult = @oQString.endsWith(pcSubStr, pCaseSensitive)
+		return bResult
+
 
 		def FinishsWithCS(pcSubStr, pCaseSensitive)
 				return This.EndsWithCS(pcSubStr, pCaseSensitive)
@@ -15193,15 +15278,29 @@ def ReplaceIBS()
 			StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
 		ok
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		# Resolving pCaseSensitive
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT  isNumber(pCaseSensitive) and
-			( pCaseSensitive = 0 or pCaseSensitive = 1 )
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
 
-			stzRaise("Invalid param. pCaseSensitive must be TRUE or FALSE (0 or 1).")
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
 
+				pCaseSensitive = FALSE
+			ok
+
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 		
 		# Doing the job
@@ -15854,7 +15953,7 @@ def ReplaceIBS()
 	#============================================#
 
 	// Returns the position of the 1st occurrence of the substring inside the string
-	// or returns 0 if nothing found
+	// or returns 0 if nothing is found
 
 	def FindFirstCS(pcSubStr, pCaseSensitive)
 		#< QtBased : Uses QStringObject >
@@ -15863,13 +15962,32 @@ def ReplaceIBS()
 			pcSubStr = pcSubStr[2]
 		ok
 
+		# Resolving pCaseSensitive
+
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must 0 or 1 (TRUE or FALSE).")
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
 
 		nResult = This.QStringObject().indexOf(pcSubStr, 0, pCaseSensitive) + 1
 		return nResult
@@ -16718,13 +16836,32 @@ def ReplaceIBS()
 			StzRaise("Incorrect param type! nStart must be a number.")
 		ok
 
+		# Resolving pCaseSensitive
+
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
 
 		nLen = This.NumberOfChars()
 		if nLen = 1 or nStart = nLen
@@ -16782,7 +16919,7 @@ def ReplaceIBS()
 	#=================================================#
 
 	def FindCS(pcSubStr, pCaseSensitive)
-		#< QtBased : Uses QString as a backend for searching>
+		#< QtBased | Uses QString as a backend for searching>
 
 		# Resolving the pcSubStr param
 
@@ -16807,14 +16944,27 @@ def ReplaceIBS()
 
 		# Resolving pCaseSensitive
 
-		bCaseSensitive = TRUE
-		if isNumber(pCaseSensitive) and Q(pCaseSensitive).IsBoolean()
-			bCaseSensitive = pCaseSensitive
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
 
-		but isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			if isNumber(pCaseSensitive[2]) and Q(pCaseSensitive[2]).IsBoolean()
-				bCaseSensitive = pCaseSensitive[2]
-			ok	
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
 		# Doing the job
@@ -16833,7 +16983,7 @@ def ReplaceIBS()
 
 		while bContinue
 			
-			nPos = This.QStringObject().indexOf(pcSubStr, nPos, bCaseSensitive) + 1
+			nPos = This.QStringObject().indexOf(pcSubStr, nPos, pCaseSensitive) + 1
 
 			if nPos = 0
 				bContinue = FALSE
@@ -18956,6 +19106,17 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms: SeeBottomOfFile #>
 
+		def FindBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.FindBetweenCS(pcSubStr, pacBounds, pacBounds, pCaseSensitive)
+
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.FindBetweenCS(pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
+			ok
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindBetween(pcSubStr, pcBound1, pcBound2)
@@ -18972,6 +19133,9 @@ def ReplaceIBS()
 		#>
 
 		#< @FunctionAlternativeForms: SeeBottomOfFile #>
+
+		def FindBoundedBy(pcSubStr, pacBounds)
+			return This.FindBoundedByCS(pcSubStr, pacBounds, :CaseSensitive = TRUE)
 
 	  #---------------------------------------------------------------------#
 	 #  FINDING A SUBSTRING BETWEEN TWO GIVEN SUBSTRINGS -- IB() EXTENDED  #
@@ -24533,8 +24697,8 @@ def ReplaceIBS()
 	 #   CONTAINMENT OF A GIVEN SUBSTRING   #
 	#======================================#
 
-	def ContainsCS(pcSubStr, pCaseSensitive) # :CaseSensitive = TRUE or :CaseSensitive = FALSE
-		#< QtBased : Uses QString.indexOf() >
+	def ContainsCS(pcSubStr, pCaseSensitive)
+		#< QtBased | Uses QString.indexOf() >
 
 		# Checking params
 
@@ -24546,12 +24710,29 @@ def ReplaceIBS()
 			stzRaise("Incorrect param type! pcSubStr must be a STRING, while you are providing a " + ring_type(cSubStr) + ".")
 		ok
 
+		# Resolving pCaseSensitive param
+
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
+		ok
+
 		if NOT IsBoolean(pCaseSensitive)
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+			stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
 		# Doing the job (Qt-side)
@@ -28042,20 +28223,37 @@ def ReplaceIBS()
 	// --> For lists presented to the user, use SystemLocaleCompare()
 
 	def UnicodeCompareWithCS(pcOtherStr, pCaseSensitive)
-		# pCaseSensitive -> :CaseSensitive = TRUE or FALSE
+		#< QtBased | Uses QString.compare() >
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		# Resolving pCaseSensitive
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if isNumber(pCaseSensitive) and
-		   ( pCaseSensitive = 0 or pCaseSensitive = 1 )
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
 
-			nQtResult = @oQString.compare(pcOtherStr, pCaseSensitive)
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
 
-		else
-			stzRaise("Incorrect value of pCaseSensitive! Should be 0 or 1 (TRUE or FALSE).")
+				pCaseSensitive = FALSE
+			ok
+
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		nQtResult = @oQString.compare(pcOtherStr, pCaseSensitive)
+
 	
 		if  nQtResult = 0
 			return :Equal	# Be careful :Equal is "equal" and not "Equal" with capital "E"
@@ -28152,12 +28350,35 @@ def ReplaceIBS()
 			return FALSE
 		ok
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		# Resolving pCaseSensitive
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
 		if pCaseSensitive = TRUE
-			# Double-check for potential performance gain
+			# We do a double-check for potential performance gain
 			if This.NumberOfChars() != Q(pcOtherStr).NumberOfChars()
 				return FALSE
 
@@ -28165,7 +28386,7 @@ def ReplaceIBS()
 				return This.String() = pcOtherStr
 			ok
 
-		but pCaseSensitive = FALSE
+		else // pCaseSensitive = FALSE
 			return This.Lowercased() = StzStringQ(pcOtherStr).Lowercased()
 		ok
 		
@@ -28331,6 +28552,10 @@ def ReplaceIBS()
 			This.RemoveCS(pSubStr, pCaseSensitive)
 			return This
 
+	def RemovedCS(pSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveCSQ(pSubStr, pCaseSensitive).Content()
+		return cResult
+		
 	#-- WITHOUT CASESENSITIVITY
 
 	def Remove(pcSubStr) # replace with @oQString.remove() when added to RingQt
@@ -28340,6 +28565,10 @@ def ReplaceIBS()
 			This.Remove(pcSubStr)
 			return This
 	
+	def Removed(pSubStr)
+		cResult = This.Copy().RemoveCSQ(pSubStr).Content()
+		return cResult
+
 	  #----------------------------------------------#
 	 #   REMOVING SOME OCCURRENCES OF A SUBSTRING   #
 	#----------------------------------------------#
@@ -31631,12 +31860,12 @@ def ReplaceIBS()
 
 			if (n2 - n1 + 1) > 2
 				if Q(cSection).LastChar() = " " and
-				   Q(cSectionSimplified).Last2Chars() != "  "
+				   Q(cSectionSimplified).Last2CharsAsString() != "  "
 	
 					cSectionSimplified += " "
 	
 				but Q(cSection).FirstChar() = " " and
-				    Q(cSectionSimplified).First2Chars() != "  "
+				    Q(cSectionSimplified).First2CharsAsString() != "  "
 	
 					cSectionSimplified = " " + cSectionSimplified
 				ok
@@ -31645,6 +31874,7 @@ def ReplaceIBS()
 			This.ReplaceSection(n1, n2, cSectionSimplified)
 		next
 
+		This.Trim()
 
 		def SimplifyExceptQ(paSections)
 			This.SimplifyExcept(paSections)
@@ -35669,14 +35899,34 @@ def ReplaceIBS()
 	*/
 
 	def NumberOfCharsCS(pCaseSensitive)
+		#< QtBased | Uses QString.count() >
+
+		# Resolving pCaseSensitive
 
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
 		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
 
 		if pCaseSensitive = TRUE
 			return @oQString.count()
