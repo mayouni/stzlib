@@ -93,6 +93,114 @@ proff()
 
 /*=========
 
+pron()
+
+o1 = new stzString("softanza")
+? o1.Section(4, 6)
+#--> "tan"
+
+? o1.Section(6, 4)
+#--> "tan"
+
+proff()
+
+/*----
+
+pron()
+
+o1 = new stzList([ "s", "o", "f", "t", "a", "n", "z", "a" ])
+? @@( o1.Section(4, 6) )
+#--> [ "t", "a", "n" ]
+
+? @@( o1.Section(6, 4) )
+#--> [ "t", "a", "n" ]
+
+proff()
+
+/*==========
+*/
+
+pron()
+
+o1 = new stzString("..3..♥..♥..2..")
+? o1.FindInSection("♥", 3, 12)
+#--> [6, 9]
+
+? o1.FindInSection("♥", 12, 3)
+#--> [6, 9]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*=========
+
+*/
+pron()
+
+o1 = new stzList([ "a", "bcd", "♥", "b", "♥♥♥" ])
+
+#--
+
+? o1.NumberOfChars()
+#--> 3
+
+? o1.Chars()
+#--> [ "a", "♥" , "b" ]
+
+? @@( o1.CharsZ() ) # Or CharsAndTheirPositions()
+
+#--
+
+? o1.NumberOfLetters()
+
+? @@( o1.Letters() )
+
+? @@( o1.LettersZ() )
+
+#--
+
+? o1.NumberOfNumbers()
+
+? @@( o1.Numbers() )
+
+? @@( o1.NumbersZ() )
+
+#--
+
+? o1.NumberOfStrings()
+
+? @@( o1.Strings() )
+
+? @@( o1.StringsZ() )
+
+#--
+
+? o1.NumberOfLists()
+
+? @@( o1.Lists() )
+
+? @@( o1.ListsZ() )
+
+#--
+
+? o1.NumberOfPairs()
+
+? @@( o1.Pairs() )
+
+? @@( o1.PairsZ() )
+
+#--
+
+? o1.NumberOfObjects()
+
+? @@( o1.Objects() )
+
+? @@( o1.ObjectsZ() )
+
+
+proff()
+
+/*=========
 */
 pron()
 
