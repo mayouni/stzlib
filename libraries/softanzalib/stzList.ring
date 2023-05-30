@@ -21274,10 +21274,7 @@ class stzList from stzObject
 			next i
 	
 		else
-
-			for i = n1 to n2 step - 1
-				aResult + This.Content()[i]
-			next i
+			aResult = This.Section(n2, n1)
 		ok
 
 		return aResult	
@@ -23164,6 +23161,13 @@ class stzList from stzObject
 		next
 
 		return bResult
+
+		#< @FunctionMisspelledForm
+
+		def IsOneTheseNamedParams(pacParamNames)
+			return This.IsOneOfTheseNamedParams(pacParamNames)
+
+		#>
 
 	def IsRemoveAtOptionsNamedParam()
 		bResult = FALSE
