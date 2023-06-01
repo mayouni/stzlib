@@ -2014,36 +2014,44 @@ class stzListOfNumbers from stzList
 		return len( This.Content() )
 
 	def IsContiguous()
-		if This.NumberOfNumbers() < 2
+		nLen = This.NumberOfNumbers()
+
+		if nLen = 0 or nLen = 1
 			return FALSE
 		ok
 
-		bResult = TRUE
 		aContent = This.Content()
 
-		if This.ToStzList().SortingOrder() = :Ascending
+		if nLen = 2
+			if aContent[1] = aContent[2]
+				return FALSE
+			ok
+		ok
 
-			for i = 2 to This.NumberOfNumbers()
-	
-				if NOT ( aContent[i] = aContent[i-1] + 1 )
+		# Case nLen > 2 (3 and more)
+
+		n1 = aContent[1]
+		n2 = aContent[2]
+
+		bResult = TRUE
+		if n1 < n2
+			for i = 3 to nLen
+				if aContent[i] != aContent[i-1] + 1
+					bResult = FALSE
+					exit
+				ok
+			next
+		else // n1 > n2
+			for i = 3 to nLen
+				if aContent[i] != aContent[i-1] - 1
 					bResult = FALSE
 					exit
 				ok
 			next
 
-		else # SortingOrder --> :Descending
-
-			for i = 2 to This.NumberOfNumbers()
-
-				if NOT ( aContent[i] = aContent[i-1] - 1 )
-					bResult = FALSE
-					exit
-				ok
-			next
 		ok
 
 		return bResult
-
 
 		def IsContinuous()
 			return This.IsContiguous()

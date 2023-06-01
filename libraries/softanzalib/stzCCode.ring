@@ -78,7 +78,6 @@ class stzCCode
 
 			Content()
 
-
 		cCode = Q(cCode).TheseSubstringsSpacifiedCS([
 
 				"@items", "@allItems", "@item",

@@ -1,5 +1,85 @@
 load "stzlib.ring"
 
+/*--------------
+
+pron()
+#                     3  6  9  2 
+o1 = new stzString("..♥^^♥..^♥♥^..")
+
+? @@( o1.SubStringsW('
+
+	Q(@SubString).NumberOfChars() = 4 and
+	Q(@SubString).ContainsXT( 2, "♥") and
+	Q(@SubString).ContainsXT( :MoreThen = 1, "^")
+
+') )
+
+#--> [ "♥^^♥", "^♥♥^" ]
+
+proff()
+# Executed in 1.96 second(s)
+
+/*--------------
+
+pron()
+#                     3  6  9  2 
+o1 = new stzString("..♥^^♥..^♥♥^..")
+
+? @@( o1.FindSubStringsAsSectionsW('
+
+	Q(@SubString).NumberOfChars() = 4 and
+	Q(@SubString).ContainsXT( 2, "♥") and
+	Q(@SubString).ContainsXT( :MoreThen = 1, "^")
+
+') )
+
+#--> [ [ 3, 6 ], [ 9, 12 ] ]
+
+proff()
+# Executed in 1.96 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzString("...♥...♥...")
+? o1.FindW('@char = "♥"')
+#--> [4, 8]
+
+proff()
+# Executed in 1.69 second(s)
+
+/*--------------
+*/
+pron()
+
+# Usecase 1: Dividing the string into 3 equal parts
+? @@( Q("RingRingRing") / 3 )
+# --> [ "Ring", "Ring", "Ring" ]
+
+# Usecase 2: Splitting the string using a given char (or substring)
+? @@( Q("Ring;Python;Ruby") / ";" )
+# --> [ "Ring", "Python", "Ruby" ]
+
+# Usecase 3: Splitting the string on each char verifying a condition
+? @@( Q("Ring:Python;Ruby") / W('Q(@Char).IsNotLetter()') )
+#--> [ "Ring", "Python", "Ruby" ]
+
+# Usecase 4: Sharing the string equally between three stakeholders
+? @@( Q("RingRubyJava") / [ "Qute", "Nice", "Good" ] )
+# --> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]
+
+# Usecase 5: Specifying how mutch char we should give to every stakeholder
+? @@( Q("IAmRingDeveloper") / [
+        :Subject = 1,
+        :Verb = 2,
+        :Noun1 = 4,
+        :Noun2 = :RemainingChars
+] )
+#--> [ :Subject = "I", :Verb = "Am", :Noun1 = "Ring", :Noun2 = "Developer" ]
+
+proff()
+
 /*============
 
 pron()
@@ -240,41 +320,6 @@ o1.SimplifyExcept( o1.FindAnyBoundedByAsSections('"') )
 
 proff()
 # Executed in 0.08 second(s)
-
-/*================
-
-pron()
-
-# Usecase 1: Dividing the string into 3 equal parts
-? Q("RingRingRing") / 3
-# --> [ "Ring", "Ring", "Ring" ]
-
-
-# Usecase 2: Splitting the string using a given char (or substring)
-? Q("Ring;Python;Ruby") / ";"
-# --> [ "Ring", "Python", "Ruby" ]
-
-
-# Usecase 3: Splitting the string on each char verifying a condition
-? Q("Ring:Python;Ruby") / W('Q(@Char).IsNotLetter()')
-#--> [ "Ring", "Python", "Ruby" ]
-
-
-# Usecase 4: Sharing the string equally between three stakeholders
-? Q("RingRubyJava") / [ "Qute", "Nice", "Good" ]
-# --> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]
-
-
-# Usecase 5: Specifying how mutch char we should give to every stakeholder
-? Q("IAmRingDeveloper") / [
-        :Subject = 1,
-        :Verb = 2,
-        :Noun1 = 4,
-        :Noun2 = :RemainingChars
-]
-#--> [ :Subject = "I", :Verb = "Am", :Noun1 = "Ring", :Noun2 = "Developer" ]
-
-proff()
 
 /*============
 

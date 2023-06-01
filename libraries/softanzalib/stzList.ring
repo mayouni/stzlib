@@ -312,6 +312,7 @@ func ListIsListOfStrings(paList)
 	func IsListOfStrings(paList)
 		return ListIsListOfStrings(paList)
 
+
 func IsRangeNamedParamList(paList)
 	return StzListQ(paList).IsRangeNamedParam()
 
@@ -5810,8 +5811,19 @@ class stzList from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForm
+
 		def IsAListOfStrings()
 			return This.IsListOfStrings()
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def IsListOfSrtrings()
+			return This.IsListOfStrings()
+
+		#>
 
 	def IsListOfChars()
 		if This.NumberOfItems() = 0
@@ -6714,11 +6726,27 @@ class stzList from stzObject
 
 		oFirstItem = Q(aContent[1])
 
+
 		bResult = TRUE
 		for i = 2 to nLen
-			if NOT oFirstItem.IsEqualToCS(aContent[i])
-				bResult = FALSE
-				exit
+
+			if isNumber(aContent[i])
+				if NOT aContent[i] = aContent[1]
+					bResult = FALSE
+					exit
+				ok
+
+			but isString(aContent[i]) or isList(aContent[i])
+				if NOT oFirstItem.IsEqualtToCS(aContent[i])
+					bResult = FALSE
+					exit
+				ok
+
+			else // isObject(aContent[i])
+				if NOT oFirstItem.IsEqualTo(aContent[i])
+					bResult = FALSE
+					exit
+				ok
 			ok
 		next
 
@@ -11532,7 +11560,7 @@ class stzList from stzObject
 			off
 		#>
 
-		#< @AlternativeForm
+		#< @FunctionAlternativeForm
 
 		def DoW( pcAction, pcCondition )
 			This.PerformW( pcAction, pcCondition )
@@ -11571,42 +11599,44 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def IsEqualCS(paOtherList, pCaseSensitive)
+			if isList(paOtherList) and Q(paOtherList).IsToNamedParam()
+				pOtherList = pOtherList[2]
+			ok
+
 			return This.IsEqualToCS(paOtherList, pCaseSensitive)
 
 		def IsNotEqualToCS(paOtherList, pCaseSensitive)
 			return NOT This.IsEqualToCS(paOtherList, pCaseSensitive)
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsEqualTo(paOtherList)
-		/*
-		Two lists are equal when they have:
-			1. same type
-			2. same number of items AND
-			3. same content
-		*/
+		return This.IsEqualToCS(paOtherList, :CaseSensitive = TRUE)
 
-		if isList(paOtherList) and
-		   len(paOtherList) = len(This.List()) and
-		   This.HasSameContentAs(paOtherList)
-
-			return TRUE
-		else
-			return FALSE
-		ok
+		#< @FunctionAlternativeForms
 
 		def IsEqual(paOtherList)
+			if isList(paOtherList) and Q(paOtherList).IsToNamedParam()
+				pOtherList = pOtherList[2]
+			ok
+
 			return This.IsEqualTo(paOtherList)
 
 		def IsNotEqualTo(paOtherList)
 			return NOT This.IsEqualTo(paOtherList)
 
+		#>
+
 	  #-----------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS STRICTLY EQUAL TO AN OTHER LIST  #
 	#-----------------------------------------------------------#
 
-	def IsStrictlyEqualTo(paOtherList)
+	def IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
 
 		/*
 		Tow lists are striclty equal when:
@@ -11614,15 +11644,59 @@ class stzList from stzObject
 			2. they have same order of items (ItemsHaveSameOrder())
 		*/
 		
-		if This.IsEqualTo(paOtherList) and
-		   This.HasSameSortingOrderAs(paOtherList)
+		if This.IsEqualToCS(paOtherList, pCaseSensitive) and
+		   This.ItemsHaveSameOrderAs(paOtherList)
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsStrictlyEqual(paOtherList)
+		#< @FunctionAlternativeForms
+
+		def IsStrictlyEqualCS(paOtherList, pCaseSensitive)
+			if isList(paOtherList) and Q(paOtherList).IsToNamedParam()
+				pOtherList = pOtherList[2]
+			ok
+
+			return This.IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
+
+		def IsIdenticalToCS(paOtherList, pCaseSensitive)
+			return This.IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
+
+		def IsIdenticalCS(paOtherList, pCaseSensitive)
+			if isList(paOtherList) and Q(paOtherList).IsToNamedParam()
+				pOtherList = pOtherList[2]
+			ok
+
+			return This.IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsStrictlyEqualTo(paOtherList)
+		return This.IsStrictlyEqualToCS(paOtherList, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def IsStrictlyEqual(paOtherList, pCaseSensitive)
+			if isList(paOtherList) and Q(paOtherList).IsToNamedParam()
+				pOtherList = pOtherList[2]
+			ok
+
 			return This.IsStrictlyEqualTo(paOtherList)
+
+		def IsIdenticalTo(paOtherList)
+			return This.IsStrictlyEqualTo(paOtherList)
+
+		def IsIdentical(paOtherList)
+			if isList(paOtherList) and Q(paOtherList).IsToNamedParam()
+				pOtherList = pOtherList[2]
+			ok
+
+			return This.IsStrictlyEqualTo(paOtherList)
+
+		#>
 
 	  #--------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS QUEIT EQUAL TO AN OTHER LIST  #
@@ -11658,7 +11732,7 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLenList = This.NumberOfItems()
 		nLenOtherList = len(paOtherList)
-		nMin = Min(nLenList, nLenOtherList)
+		nMin = Min([nLenList, nLenOtherList])
 
 		bResult = TRUE
 
@@ -13155,32 +13229,23 @@ class stzList from stzObject
 		If they are identical, then the list is sorted in ascending order!
 		*/
 
-		aSortedInAscending = This.Copy().SortedInAscendingQ()
-		aContent = This.Content()
-
-		for i = 1 to This.NumberOfItems()
-			if NOT AreEqual([ aSortedInAscending[i] , aContent[i] ])
-				return FALSE
-			ok
-		next
-
-		return TRUE
+		aSortedInAscending = This.Copy().SortedInAscending()
+		bResult = This.IsIdenticalTo(aSortedInAscending)
+		return bResult
 
 		def ItemsAreSortedInAscending()
 			return This.IsSortedInAscending()
 
 	def IsSortedInDescending()
 		/*
-		The idea is to reverse the list, and check if its reversed
-		copy is sorted in ASCENDING order. If so, then the list itself
-		is actually sorted in DESCENDING order!
+		The idea is to sort a copy of the list in descending order
+		and then compare the copy to the original list...
+		If they are identical, then the list is sorted in descending order!
 		*/
-		oTemp = new stzlist( This.ReversedItems() )
-		if oTemp.IsSortedInAscending()
-			return TRUE
-		else
-			return FALSE
-		ok
+
+		aSortedInDescending = This.Copy().SortedInDescending()
+		bResult = This.IsIdenticalTo(aSortedInDescending)
+		return bResult
 
 		def ItemsAreSortedInDescending()
 			return This.IsSortedInDescending()
@@ -29438,6 +29503,83 @@ class stzList from stzObject
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and
 			(This[1] = :LessThen or This[1] = :LessThen@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOfTheseNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :OfThese or This[1] = :OfThese@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOfTheseSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :OfTheseSubStrings or This[1] = :OfTheseSubStrings@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOfTheseNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :OfTheseNumbers or This[1] = :OfTheseNumbers@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOfTheseListsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :OfTheseLists or This[1] = :OfTheseLists@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOfTheseObjectsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :OfTheseObjects or This[1] = :OfTheseObjects@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOfTheseCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :OfTheseChars or This[1] = :OfTheseChars@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOfTheseLettersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :OfTheseLetters or This[1] = :OfTheseLetters@ ) )
 
 			return TRUE
 
