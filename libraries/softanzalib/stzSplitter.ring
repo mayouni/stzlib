@@ -2,7 +2,7 @@
 /*
 This class is a numrical solution to splitting things.
 
-A splitter recieves a number N positions. If it is a list then its
+A splitter recieves a number of N positions. If it is a list then its
 number of items is considered as N.
 
 Then the splitter initializes an internal list of numbers from 1 to N.
@@ -29,6 +29,7 @@ class stzSplitter from stzListOfNumbers
 	#--------------------------------#
 
 	def init(n)
+
 		if isNumber(n)
 
 			if n < 0
@@ -195,7 +196,7 @@ class stzSplitter from stzListOfNumbers
 			but Q(p).IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
 				return This.SplitAtPosition(p[2])
 
-			but Q(n).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
+			but Q(p).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
 				return This.SplitAtPositions(p[2])
 
 			but Q(p).IsOneOfTheseNamedParams([ :Section, :ThisSection ])
@@ -296,10 +297,10 @@ class stzSplitter from stzListOfNumbers
 
 		nLen = This.NumberOfPositions()
 
-		if n > 1 and n < nLen
+		if n > 1 and n <= nLen
 			aResult = [ [ 1, n-1], [n, nLen ] ]
 		else
-			aResult = [ 1 , This.NumberOfPositions() ]
+			aResult = [ [ 1 , nLen ] ]
 		ok
 
 		return aResult

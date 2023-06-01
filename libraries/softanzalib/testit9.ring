@@ -56,15 +56,17 @@ o1 = new stzString("...♥♥...♥♥...")
 
 /*============ SPLITTING AT
 */
-# Splitting at a given substring with case sensitivity
+pron()
 
+# Splitting at a given substring with case sensitivity
+/*
 o1 = new stzString("__a__A__")
 ? o1.SplitCS("a", :CS = FALSE)
 #--> [ "__", "__", "__" ]
 
 # Splitting at a given substring (without case sensitivity)
 
-? @@S( o1.Split("a") )
+? @@( o1.Split("a") )
 #--> [ "__", "__A__" ]
 
 # Splitting at a given position
@@ -99,13 +101,13 @@ o1 = new stzString("...♥♥♥...")
 o1 = new stzString("...♥♥♥...♥♥...")
 ? o1.Split( :AtSections = [ [ 4, 6 ], [10, 11] ] )
 #--> [ "...", "...", "..."]
-
+*/
 # Splitting at a char described by a condition
 
 o1 = new stzString("...♥...♥...")
 ? o1.SplitW('@char = "♥"')
 #--> [ "...", "...", "..." ]
-
+/*
 # Splitting at a substring described by a condition
 
 o1 = new stzString("...♥♥...♥♥...")
@@ -121,6 +123,8 @@ o1 = new stzString("...ONE...TWO...ONE")
 
 ? @@S( o1.SplitW('{ Q(@SubString).IsEither( "ONE", :Or = "TWO") }') )
 #--> [ "...", "...", "..." ]
+*/
+proff()
 
 /*============ SPLITTING AFTER
 
@@ -166,12 +170,12 @@ o1 = new stzString("...ONE...TWO...ONE")
 ? o1.AntiSections([ [ 4, 6 ], [ 10, 12 ], [ 16, 18 ] ])	#--> [ "...", "...", "..." ]
 
 /*-----------------
-
+*/
 o1 = new stzString("...ONE...TWO...ONE")
 //? @@S( o1.FindSubstringsW('{ @SubString = "ONE" or @SubString = "TWO" }') )
 #--> [ 4, 10, 16 ]
 
-? @@S( o1.FindSubstringsWXT('{ @SubString = "ONE" or @SubString = "TWO" }') )
+? @@S( o1.FindSubstringsAsSectionsW('{ @SubString = "ONE" or @SubString = "TWO" }') )
 #--> [ [ 4, 6 ], [ 10, 12 ], [ 16, 18 ] ]
 
 /*-----------------
@@ -180,7 +184,7 @@ o1 = new stzString("...♥♥...♥♥...")
 ? @@S( o1.FindSubStringsW('{ @SubString = "♥♥" }') )
 #--> [ 4, 9 ]
 
-? @@S( o1.FindSubStringsWXT('{ @SubString = "♥♥" }') )
+? @@S( o1.FindSubStringsAsSectionsW('{ @SubString = "♥♥" }') )
 #--> [ [ 4, 5 ], [ 9, 10 ] ]
 
 #---

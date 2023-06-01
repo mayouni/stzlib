@@ -2142,3 +2142,18 @@ class stzObject
 
 	def Stringified()
 		StzRaise("Feature unavailable yet!")
+
+	def IfQ(pcCondition)
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type!")
+		ok
+
+		cCode = 'bOk = (' + pcCondition + ')'
+		eval(ccode)
+
+		if bOk
+			return This
+		else
+			# An error message is returned:
+			#--> Error (R13) : Object is required 
+		ok

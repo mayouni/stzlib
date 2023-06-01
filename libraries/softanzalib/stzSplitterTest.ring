@@ -1,6 +1,50 @@
 load "stzlib.ring"
 
+/*-----------
+
+pron()
+
+? Q(1:5).IsEqualTo(5:1)
+#--> TRUE
+
+? Q(1:5).IsIdenticalTo(5:1)
+#--> FALSE
+
+? Q("A":"E").IsSortedInAscending()
+#--> TRUE
+
+? Q("E":"A").IsSortedInDescending()
+#--> TRUE
+
+? Q("A":"E").IsContiguous()
+#--> TRUE
+
+? Q("E":"A").IsCOntiguous()
+#--> TRUE
+
+proff()
+# Executed in 0.24 second(s)
+
+/*-----------
+
+pron()
+
+o1 = new stzSplitter(1:10)
+? @@( o1.SplitAtSection([3, 5]) )
+# [ [ 1, 2 ], [ 6, 10 ] ]
+
+? @@( o1.Split( :AtSections = [ [3,5], [8,9] ] ) )
+# 1..2..3..4..5..6..7..8..9..10
+#       ^-----^        ^--^
+
+#--> [ [1,2], [6,7], [10,10] ]
+
+proff()
+# Executed in 0.14 second(s)
+
 /*====================
+
+pron()
 
 o1 = new stzSplitter(1:10)
 
@@ -28,9 +72,17 @@ o1 = new stzSplitter(1:10)
 ? @@S( o1.SplitAt( :Sections = [ [ 4, 6 ] ] ) )
 #--> [ [ 1, 3 ], [ 7, 10 ] ]
 
+proff()
+# Executed in 0.23 second(s)
+
 /*====================
 
+pron()
+
 o1 = new stzSplitter(1:10)
+
+? @@S( o1.SplitBefore( :Position = 10) )
+#--> [ [ 1, 9 ], [ 10, 10 ] ]
 
 ? @@S( o1.SplitBefore( :Position = 5) )
 #--> [ [1, 4], [5, 10] ]
@@ -56,9 +108,17 @@ o1 = new stzSplitter(1:10)
 ? @@S( o1.SplitBefore( :Sections = [ [ 4, 6 ] ] ) )
 #--> [ [ 1, 3 ], [ 4, 10 ] ]
 
+proff()
+# Executed in 0.17 second(s)
+
 /*====================
 
+pron()
+
 o1 = new stzSplitter(1:10)
+
+? @@S( o1.SplitAfter( :Position = 9) )
+#--> [ [ 1, 9 ], [ 10, 10 ] ]
 
 ? @@S( o1.SplitAfter( :Position = 5) )
 #--> [ [ 1, 5 ], [ 6, 10 ] ]
@@ -69,8 +129,9 @@ o1 = new stzSplitter(1:10)
 ? @@S( o1.SplitAfterSection([ 4, 7 ]) )
 #--> [ [ 1, 7 ], [ 8, 10 ] ]
 
-? @@S( o1.SplitAfterSection([ 2, 9 ]) )
-#--> [ [ 1, 9 ], [ 10, 10 ] ]
+? @@S( o1.SplitAfterSection([ 2, 9 ]) ) # TODO: Correct it
+#--> Returned [ 1, 10 ]
+#--> Should return [ [1, 9], [10, 10] ]
 
 ? @@S( o1.SplitAfterSections([ [3,5], [7, 8] ]) )
 #--> [ [ 1, 5 ], [ 6, 8 ], [ 9, 10 ] ]
@@ -84,7 +145,12 @@ o1 = new stzSplitter(1:10)
 ? @@S( o1.SplitAfter( :Sections = [ [ 4, 6 ] ] ) )
 #--> [ [ 1, 6 ], [ 7, 10 ] ]
 
+proff()
+# Executed in 0.19 second(s)
+
 /*====================
+
+pron()
 
 o1 = new stzSplitter(1:10)
 
@@ -97,7 +163,12 @@ o1 = new stzSplitter(1:10)
 ? @@S( o1.Split( :ToNParts = 4 ) )
 # --> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 10 ] ]
 
+proff()
+#--> Executed in 0.16 second(s)
+
 /*--------------------
+
+pron()
 
 o1 = new stzSplitter(1:10)
 
@@ -120,6 +191,9 @@ o1 = new stzSplitter(12)
 ? @@S( o1.SplitToPartsOfExactlyNPositions(5) )
 #--> [ [ 1, 5 ], [ 6, 10 ] ]
 
+proff()
+# Executed in 0.09 second(s)
+
 /*================== TODO: Retest this sample after adding splitting to stzList
 
 # Softanza is designed with Programmer Experience in mind.
@@ -132,7 +206,7 @@ o1 = new stzSplitter(12)
 # To avoid that, Softanza usually incorporates many alternatives
 # of the same function. This allows it to be flexible and permissive:
 # Whatever comes to your mind expressing your intent, the library
-# will do its best to understood it and execute it!
+# will do its best to understand it and execute it!
 
 # All the following formulations lead to the same result:
 # splitting at a some positions given by a conditional expression...

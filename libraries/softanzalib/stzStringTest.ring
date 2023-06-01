@@ -2797,19 +2797,41 @@ pron()
 
 #                     3    8   3
 o1 = new stzString("**aa***aa**aa***")
-//? @@S( o1.Split("aa") )
+? o1.SplitQ("aa").IfQ('NumberOfItems() > 2').RemoveFirstAndLastItemsQ().Content()
+#--> ["***", "**"]
 
-? o1.FindAnyBetween("aa", "aa")
-#--> [ 3, 8, 13 ]
+# TODO: Needs more thinking, because the ELSE case should also be considered.
+#--> A use case better suited for stzChainOfValue
 
-#----
+proff()
+
+/*-----------------
+*/
+pron()
 
 #                     3    8   3
-o1 = new stzString("**aa***aa**aa")
-//? @@S( o1.Split("aa") )
+o1 = new stzString("**aa***aa**aa***")
+? o1.
+? o1.SplitQ("aa").RemoveFirstAndLastItemsQ().Content()
+#--> ["***", "**"]
 
-? o1.FindAnyBetween("aa", "aa")
-#--> [ 3, 8 ]
+# TODO: Needs more thinking, because the ELSE case should also be considered.
+#--> A use case better suited for stzChainOfValue
+
+proff()
+
+
+/*-----------------
+*/
+pron()
+
+#                     3    8   3
+o1 = new stzString("**aa***aa**aa***")
+? o1.SplitQ("aa").IfQ('This.NumberOfItems() > 2').RemoveFirstAndLastItemsQ().Content()
+? o1.FindAnyBetweenAsSections("aa", "aa")
+#--> [ 5, 7 ]
+
+proff()
 
 #---------
 
@@ -2818,20 +2840,28 @@ pron()
 #                        6
 o1 = new stzString("*aa***aa**aa***aa*")
 
-? @@S( o1.FindAsSections("aa") )
-# [ [ 1, 2 ], [ 6, 7 ], [ 10, 11 ], [ 15, 16 ] ] )
+? @@( o1.FindAsSections("aa") )
+# [ [ 2, 3 ], [ 7, 8 ], [ 11, 12 ], [ 16, 17 ] ]
 
-? @@S( o1.FindAsAntiSections("aa") )
-# [ [ 3, 5 ], [ 8, 9 ], [ 12, 14 ] ]
+? @@( o1.FindAsAntiSections("aa") )
+# [ [ 1, 1 ], [ 4, 6 ], [ 9, 10 ], [ 13, 15 ], [ 18, 18 ] ]
 
-? o1.ContainsXT( :SubString = "***", :BoundedBy = "aa") #--> TRUE
-# can also be written: ? o1.ContainsSubStringBoundedBy("***", "aa")
+? o1.ContainsXT( :SubString = "***", :BoundedBy = "aa") # Or ? o1.ContainsSubStringBoundedBy()
+#--> TRUE
 
 proff()
-# Executed in 0.44 second(s)
+# Executed in 0.19 second(s)
 
-//? o1.FindBetween("aa", "aa")
-#--> [ 3, 8 ]
+#---------
+
+pron()
+
+#                        6
+o1 = new stzString("*aa***aa**aa***aa*")
+? @@( o1.FindAnyBetweenAsSections("aa", "aa") ) # o1.FindAnyBetweenAsSections("aa", "aa")
+#--> [ [ 4, 6 ], [ 13, 15 ] ]
+
+proff()
 
 #---------
 
@@ -2932,8 +2962,8 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 proff()
 # Executed in 0.09 second(s)
 
-/*-----------------
-
+/*===================
+*/
 pron()
 
 #                     3    8    3
@@ -2974,29 +3004,55 @@ proff()
 
 /*-----------------
 */
-
 pron()
 
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 
-? @@( o1.FindAllOccurrences( :Of = "♥♥♥" ) ) # Or FindAllOccurrences()
+? @@( o1.FindOccurrences( :Of = "♥♥♥" ) ) # Or FindAllOccurrences()
 #--> [ 3, 8, 13 ]
 
-? @@( o1.FindOccurrencesXT([ 2, 3], :Of = "♥♥♥") ) # Or FindTheseOccurrences()
-#--> [ 3, 8 ]
+? @@( o1.FindTheseOccurrences([ 2, 3], :Of = "♥♥♥") ) # Or FindOccurrencesXT()
+#--> [ 8, 13 ]
 
-? @@( o1.FindOccurrencesAsSectionsXT([ 2, 3], :Of = "♥♥♥") ) # Or FindTheseOccurrencesAsSections
-#--> [ [ 3, 5 ], [ 8, 10 ] ]
+? @@( o1.FindTheseOccurrencesAsSections([ 2, 3], :Of = "♥♥♥") ) # Or FindOccurrencesAsSectionsXT
+#--> [ [ 8, 10 ], [ 13, 15 ] ]
 
-? @@( o1.FindOccurrencesXTS([ 2, 3], :Of = "♥♥♥", :StartingAt = 2) ) # Or FindTheseOccurrences()
+? @@( o1.FindTheseOccurrencesS([ 2, 3], :Of = "♥♥♥", :StartingAt = 2) ) # Or FindOccurrencesXTS()
+#--> [ 3, 8, 13 ]
 
-? o1.FindOccurrencesXTS([ 2, 3], :Of = "♥♥♥", :StartingAt = 2) # Or FindTheseOccurrencesS
+? @@( o1.FindTheseOccurrencesAsSectionsS([ 2, 3], :Of = "♥♥♥", :StartingAt = 2) ) # Or FindOccurrencesXTS()
+#--> [ [ 3, 5 ], [ 8, 10 ], [ 13, 15 ] ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.09 second(s)
 
 /*-----------------
+*/
+pron()
+
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
+
+? @@( o1.FindD( :Of = "♥♥♥", :Backward ) ) 
+#--> [ 13, 8, 3 ]
+
+? @@( o1.FindTheseOccurrencesD([ 1, 2], :Of = "♥♥♥", :Backward) )
+#--> [ 13, 8 ]
+
+? @@( o1.FindTheseOccurrencesAsSectionsD([ 1, 2], :Of = "♥♥♥", :Backward) )
+#--> [ [ 13, 15 ], [ 8, 10 ] ]
+
+? @@( o1.FindTheseOccurrencesSD([ 1, 2], :Of = "♥♥♥", :StartingAt = 12, :Bakcward) )
+#--> [ 8, 3 ]
+
+? @@( o1.FindTheseOccurrencesAsSectionsSD([ 1, 2], :Of = "♥♥♥", :StartingAt = 12, :Backward) )
+#--> [ [ 8, 10 ], [ 3, 5 ] ]
+
+proff()
+# Executed in 0.10 second(s)
+
+/*================
 
 pron()
 
