@@ -11,7 +11,7 @@ o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
 # Can't flatten the list of lists!
 # Instead you can return a flattend copy of it using Flattened()
 
-? @@S( o1.Flattened() )
+? @@( o1.Flattened() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
 //o1.Merge()
@@ -19,7 +19,7 @@ o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
 # Can't flatten the list of lists!
 # Instead you can return a flattend copy of it using Flattened()
 
-? @@S( o1.Merged() )
+? @@( o1.Merged() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
 proff()
@@ -36,7 +36,7 @@ o1 = new stzList([
 	[ [ 9, [10] ] ]
 ])
 
-? @@S( o1.Flattened() )
+? @@( o1.Flattened() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
 proff()
@@ -47,7 +47,7 @@ proff()
 pron()
 
 o1 = new stzList([ [1, 2], [3, [4]], 5 ])
-? @@S( o1.Merged() )
+? @@( o1.Merged() )
 #--> [ 1, 2, 3, [ 4 ], 5 ]
 
 proff()
@@ -57,7 +57,7 @@ proff()
 
 pron()
 
-? @@S( ListsMerge([ [3, 5], [7, [8]] ]) )
+? @@( ListsMerge([ [3, 5], [7, [8]] ]) )
 #--> [ 3, 5, 7, [ 8 ] ]
 
 proff()
@@ -72,7 +72,7 @@ aMyLists = [
 	[ "ab", "xt", "b", "xt" ]
 ]
 
-? @@S( Intersection(aMyLists) )
+? @@( Intersection(aMyLists) )
 #--> [ "ab", "b" ]
 
 proff()
@@ -88,7 +88,7 @@ o1 = new stzListOfLists([
 	[ "ab", "xt", "b", "xt" ]
 ])
 
-? @@S( o1.CommonItems() )
+? @@( o1.CommonItems() )
 #--> [ "ab", "b" ]
 
 proff()
@@ -115,7 +115,7 @@ proff()
 pron()
 
 o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3, "c" ])
-? @@S( o1.ToSet() )
+? @@( o1.ToSet() )
 #--> [ "a", "ab", "b", [ 1, 2, 3 ], "abc", "bc", "c" ]
 
 proff()
@@ -138,7 +138,7 @@ pron()
 o1 = new stzList([ "A", "B", "C" ])
 o1.ExtendTo(5)
 
-? @@S( o1.content() )
+? @@( o1.content() )
 #--> [ "A", "B", "C", "", "" ]
 
 proff()
@@ -151,7 +151,7 @@ pron()
 o1 = new stzList([ "A", "B", "C" ])
 o1.ExtendToXT(5, :Using = AHeart())
 
-? @@S( o1.content() )
+? @@( o1.content() )
 #--> [ "A", "B", "C", "♥", "♥" ]
 
 proff()
@@ -175,7 +175,7 @@ o1 = new stzLists([
 
 o1.Extend()
 
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [
 #	[ "A", "B",  "",  "" ],
 #	[ "C", "D", "E", "F" ],
@@ -200,7 +200,7 @@ o1 = new stzLists([
 
 o1.ExtendXT(:Using = AHeart())
 
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [
 #	[ "A", "B", "♥", "♥" ],
 #	[ "C", "D", "E", "F" ],
@@ -235,7 +235,7 @@ o1 = new stzLists([
 
 o1.Shrink()
 
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ [ "A", "B" ], [ "D", "E" ], [ "H", "I" ] ]
 
 proff()
@@ -253,7 +253,7 @@ o1 = new stzLists([
 
 o1.ShrinkTo(1)
 
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ [ "A" ], [ "D" ], [ "H" ] ]
 
 proff()
@@ -278,7 +278,7 @@ o1.ExtendTo(4)
 # By default, the items are extended using the NULL char
 # Use ExtendToXT(n, char) to specify your own (next example)
 
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [
 #	[ "A", "B",  "",  "" ],
 #	[ "C", "D", "E", "F" ],
@@ -306,7 +306,7 @@ o1 = new stzLists([
 
 o1.ExtendToXT(4, :Using = AHeart())
 
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [
 #	[ "A", "B", "♥", "♥" ],
 #	[ "C", "D", "E", "F" ],
@@ -338,7 +338,7 @@ o1 = new stzLists([
 o1.ExtendToXT(3, :Using = AHeart())
 # Only the 1st and 3d lists are extended
 
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [
 #	[ "A", "B", "♥" ],
 #	[ "C", "D", "E", "F" ],
@@ -370,7 +370,7 @@ o1 = new stzLists([
 o1.ExtendToXT(5, :Using = AHeart())
 # Only the 1st and 3d lists are extended
 
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [
 #	[ "A", "B", "♥", "♥", "♥" ],
 #	[ "C", "D", "E", "F", "♥" ],
@@ -419,7 +419,7 @@ o1 = new stzLists([ 1:2, 1:5, 1:3, 1:5 ])
 ? o1.FindLargestLists()
 #--> [2, 4]
 
-? @@S( o1.LargestLists() )
+? @@( o1.LargestLists() )
 #--> [ [ 1, 2, 3, 4, 5 ], [ 1, 2, 3, 4, 5 ] ]
 
 proff()
@@ -434,7 +434,7 @@ o1 = new stzLists([ 1:2, 1:5, 1:3, 1:2 ])
 ? o1.FindSmallestLists()
 #--> [1, 4]
 
-? @@S( o1.SmallestLists() )
+? @@( o1.SmallestLists() )
 #--> [ [1, 2], [1, 2] ]
 
 proff()
@@ -445,7 +445,7 @@ proff()
 pron()
 
 o1 = new stzLists([ "A":"C", 1:3 ])
-? @@S( o1.Associated() )
+? @@( o1.Associated() )
 #--> [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
 
 proff()
@@ -455,7 +455,7 @@ proff()
 */
 pron()
 
-? @@S( Association([ :Of = ["A", "B", "C"], :And = [1, 2, 3] ]) )
+? @@( Association([ :Of = ["A", "B", "C"], :And = [1, 2, 3] ]) )
 #--> [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
 
 proff()
@@ -489,29 +489,29 @@ proff()
 /*==================
 
 o1 = new stzList([ "A", 1:3, "B", 4:7, 8:10 ])
-? @@S( o1.MergeQ().Content() )
+? @@( o1.MergeQ().Content() )
 #--> [ "A", 1, 2, 3, "B", 4, 5, 6, 7, 8, 9, 10 ]
 
 o1 = new stzList([ "A", 1:3, "B", 4:7, [ "C", 99:100, "D" ], 8:10 ])
-? @@S( o1.MergeQ().Content() )
+? @@( o1.MergeQ().Content() )
 #--> [ "A", 1, 2, 3, "B", 4, 5, 6, 7, "C", [ 99, 100 ], "D", 8, 9, 10 ]
 
 o1 = new stzList([ "A", 1:3, "B", 4:7, [ "C", 99:100, "D" ], 8:10 ])
-? @@S( o1.FlattenQ().Content() )
+? @@( o1.FlattenQ().Content() )
 #--> [ "A", 1, 2, 3, "B", 4, 5, 6, 7, "C", 99, 100, "D", 8, 9, 10 ]
 
 /*-----------------
 
 o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
-? @@S( o1.MergeQ().Content() )
+? @@( o1.MergeQ().Content() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
 o1 = new stzListOfLists([ 1:3, 4:7, 8:10, [ "A", 0:1, "B" ] ])
-? @@S( o1.Merged() )
+? @@( o1.Merged() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "A", [ 0, 1 ], "B" ]
 
 o1 = new stzListOfLists([ 1:3, 4:7, 8:10, [ "A", 0:1, "B" ] ])
-? @@S( o1.Flattened() )
+? @@( o1.Flattened() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "A", 0, 1, "B" ]
 
 /*==================
@@ -547,19 +547,19 @@ o1 = new stzListOfLists([
 
 /*-----------
 
-? @@S( StzListQ( 4:8 ).ToListInString() )
+? @@( StzListQ( 4:8 ).ToListInString() )
 #--> "[ 4, 5, 6, 7, 8 ]"
 
-? @@S( StzListQ( 4:8 ).ToListInStringInShortForm() )
+? @@( StzListQ( 4:8 ).ToListInStringInShortForm() )
 #--> '4:8'
 
 /*-----------
 
 o1 = new stzListOfLists([ 1:3, 4:5, 6:7 ])
-? @@S( o1.ToListInString() )
+? @@( o1.ToListInString() )
 #--> "[ [ 1, 2, 3 ], [ 4, 5 ], [ 6, 7 ] ]"
 
-? @@S( o1.ToListInStringInShortForm() )
+? @@( o1.ToListInStringInShortForm() )
 #--> [ "1:3", "4:5", "6:7" ]
 
 /*----------
@@ -576,22 +576,22 @@ o1 = new stzListOfLists([
 
 ? o1.NthList(4) 			#--> [3, 5]
 
-? @@S( o1.ItemsAtPositionN(2) ) 	# --> [ 2, 5, 0, 5, 6 ]
+? @@( o1.ItemsAtPositionN(2) ) 	# --> [ 2, 5, 0, 5, 6 ]
 
-? @@S( o1.ListsOfSize(2) )		# --> [ [9,0], [3,5] ]
+? @@( o1.ListsOfSize(2) )		# --> [ [9,0], [3,5] ]
 ? o1.PositionsOfListsOfSize(2)		# --> [     3,    4  ]
 
-? @@S( o1.Sizes() )			# --> [ 3, 5, 2, 2, 3 ]
+? @@( o1.Sizes() )			# --> [ 3, 5, 2, 2, 3 ]
 ? o1.SmallestSize()			# --> 2
 ? o1.BiggestSize()			# --> 5
-? @@S( o1.SmallestLists() )		# --> [ [9,0], [3,5] ]
+? @@( o1.SmallestLists() )		# --> [ [9,0], [3,5] ]
 
 ? o1.PositionsOfSmallestLists()		# --> [ 3, 4 ]
 
-? @@S( o1.ListsW('Q(@list).Size() <= 3') )
+? @@( o1.ListsW('Q(@list).Size() <= 3') )
 # --> [ [ 1, 2, 3 ], [ 9, 0 ], [ 3, 5 ], [ 5, 6, 7 ] ]
 
-? @@S( o1.Yield('{ len(@list) }') ) 	# --> [ 3, 5, 2, 2, 3 ]
+? @@( o1.Yield('{ len(@list) }') ) 	# --> [ 3, 5, 2, 2, 3 ]
 
 //? ElapsedTime()
 
@@ -600,7 +600,7 @@ o1 = new stzListOfLists([
 // Merging many lists in one list
 o1 = new stzListOfLists([ 1:3, 4:7, 8:9, [10, 11:13] ])
 
-? @@S( o1.Flattened() )
+? @@( o1.Flattened() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ]
 
 /*================
@@ -615,7 +615,7 @@ o1 = new stzListOfLists([
 	[ 5, 6, 7 ]
 ])
 
-? @@S( o1.ListsOfSizeN(2) )
+? @@( o1.ListsOfSizeN(2) )
 #--> [ [ 9, 0 ], [ 3, 5 ] ]
 
 ? ElapsedTime()
@@ -635,7 +635,7 @@ o1 = new stzListOfLists([ a1, a2, a3 ])
 # in each list
 
 aIndex = o1.IndexBy(:Position)
-? @@S( aIndex ) + NL
+? @@( aIndex ) + NL
 #--> [
 #	[ "A", [ [1,1], [1,3], [2,1], [3,3] ] ],
 #	[ "B", [ [1,2], [2,2] ] ],
@@ -643,14 +643,14 @@ aIndex = o1.IndexBy(:Position)
 #	[ "D", [ [3,2] ] ]
 # ]	
 
-? @@S( aIndex["A"] ) + NL # Showing just the index of "A"
+? @@( aIndex["A"] ) + NL # Showing just the index of "A"
 #--> [ [1,1], [1,3], [2,1], [3,3] ]
 
 // And then, we index them by number of occurrence of each
 # character in each list:
 
 aIndex = o1.IndexBy(:NumberOfOccurrence)
-? @@S( aIndex ) + NL
+? @@( aIndex ) + NL
 #--> [
 #	[ "A", [2, 1, 1] ],
 #	[ "B", [1, 1, 0] ],
@@ -658,6 +658,6 @@ aIndex = o1.IndexBy(:NumberOfOccurrence)
 #	[ "D", [0, 0, 1] ]
 # ]	
 
-? @@S( aIndex["C"] ) # howing just the index of "C"
+? @@( aIndex["C"] ) # howing just the index of "C"
 #--> [0, 0, 1]
 

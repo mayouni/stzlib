@@ -926,11 +926,79 @@ class stzListOfNumbers from stzList
 			return This.TopNumbersAndTheirPositions(n)
 		#>
 
+	  #==========================================================================#
+	 #  NEAREST NUMBER IN THE LIST TO A GIVEN NUMBER COMING BEFORE OR AFTER IT  #
+	#==========================================================================#
+
+	def NearestToXT(n, pcBeforeOrAfter)
+
+		if isList(pcBeforeOrAfter) and
+		   Q(pcBeforeOrAfter).IsComingNamedParam()
+
+			pcBeforeOrAfter = pcBeforeOrAfter[2]
+		ok
+
+		if NOT 	( isString(pcBeforeOrAfter) and
+			  Q(pcBeforeOrAfter).IsOneOfThese([
+				:Before, :After, :BeforeIt, :AfterIt,
+				:BeforeOrAfter, :BeforeOrAfterIt,
+				:AfterOrBefore, :AfterOrBeforeIt,
+
+				:ComingBefore, :ComingAfter, :ComingBeforeIt, :ComingAfterIt,
+				:ComingBeforeOrAfter, :ComingBeforeOrAfterIt,
+				:ComingAfterOrBefore, :ComingAfterOrBeforeIt
+
+			  ])
+			)
+
+			StzRaise("Incorrect param type! pcComingBeforeOrAfter must be a string equal to :Before, :After, or :BeforeOrAfter.")
+
+		ok
+
+		if Q( pcBeforeOrAfter ).IsOneOfThese([
+			:BeforeOrAfter, :BeforeOrAfterIt,
+			:AfterOrBefore, :AfterOrBeforeIt,
+
+			:ComingBeforeOrAfter, :ComingBeforeOrAfterIt,
+			:ComingAfterOrBefore, :ComingAfterOrBeforeIt
+			])
+
+			nResult = This.NearestTo(n)
+
+		but Q( pcBeforeOrAfter ).IsOneOfThese([
+			:Before, :BeforeIt,
+			:ComingBefore, :ComingBeforeIt
+			])
+
+			anPair = ring_sort( This.NeighborsOf(n) )
+			return anPair[1]
+
+		but Q( pcBeforeOrAfter ).IsOneOfThese([
+			:After, :AfterIt,
+			:ComingAfter, :ComingAfterIt
+			])
+
+			anPair = ring_sort( This.NeighborsOf(n) )
+			nResult = anPair[2]
+
+		else # Impossible case, but let's deal with it
+			StzRaise("Syntax error!")
+		ok
+
+		return nResult
+
 	  #----------------------------------------------------#
 	 #     NEAREST NUMBER IN THE LIST TO A GIVEN NUMBER   #
 	#----------------------------------------------------#
 
 	def NearestTo(n) 
+		/* EXAMPLE
+
+		? Q([ 2, 7, 18, 10, 25, 4 ]).NearestTo(12)
+		#--> 10
+		
+		*/
+
 		# Let n = 12
 		# Let This = [ 2, 7, 18, 10, 25, 4 ]
 

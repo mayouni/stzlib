@@ -84,7 +84,7 @@ proff()
 
 pron()
 
-? @@S( Association([ :of = [ :one, :two, :three ], :with = [1, 2, 3] ]) )
+? @@( Association([ :of = [ :one, :two, :three ], :with = [1, 2, 3] ]) )
 #--> [ [ "one", 1 ], [ "two", 2 ], [ "three", 3 ] ]
 
 proff()
@@ -204,10 +204,10 @@ StartProfiler()
 		"Mabrooka!"
 	])
 	
-	? @@S( o1.FindSubString("name") )
+	? @@( o1.FindSubString("name") )
 	#--> [ [ 1, [ 13 ] ], [ 3, [6, 18 ] ] ]
 
-	? @@S( o1.FindSubstringXT("name") )
+	? @@( o1.FindSubstringXT("name") )
 	#--> [ [ 1, 13 ], [ 3, 6 ], [ 3, 18 ] ]
 
 StopProfiler()

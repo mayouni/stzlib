@@ -63,14 +63,14 @@ class stzTest
 
 			cRes =  "Succeeded!" + NL +
 				"~~~~~~~~~~" + NL +
-				"Correcly returned: " + @@S(@Output)
+				"Correcly returned: " + @@(@Output)
 
 
 		else
 			cRes =  "Failed!" + NL +
 				"~~~~~~~" + NL +
-				"Must return : " + @@S(@Result) + NL +
-				"But returned: " + @@S(@Output)
+				"Must return : " + @@(@Result) + NL +
+				"But returned: " + @@(@Output)
 
 		ok
 

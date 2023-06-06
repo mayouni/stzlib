@@ -6,7 +6,7 @@ pron()
 
 # 		         6       4
 o1 = new stzString("...<<*>>...<<*>>...")
-?: @@S( o1.FindXT( "*", :Between = [ "<<", ">>" ]) )
+?: @@( o1.FindXT( "*", :Between = [ "<<", ">>" ]) )
 #--> [ 6, 14 ]
 
 proff()
@@ -17,7 +17,7 @@ pron()
 
 # 		           8
 o1 = new stzString("...<<--*-->>...")
-? @@S( o1.FindXT( "*", :InBetween = [ "<<", ">>" ]) ) # or :InSubStringsBetween
+? @@( o1.FindXT( "*", :InBetween = [ "<<", ">>" ]) ) # or :InSubStringsBetween
 
 proff()
 

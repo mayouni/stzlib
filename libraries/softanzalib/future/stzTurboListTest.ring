@@ -4,7 +4,7 @@ load "stzlib.ring"
 
 pron()
 
-? @@S( Q([ [ 1 ], [ 2 ], [ 3, 5, 8 ], [ 4 ], [ 6 ], [ 7 ], [ 9 ]  ]).flattened() )
+? @@( Q([ [ 1 ], [ 2 ], [ 3, 5, 8 ], [ 4 ], [ 6 ], [ 7 ], [ 9 ]  ]).flattened() )
 
 proff()
 #--> Executed in 0.03 second(s)
@@ -28,14 +28,14 @@ o1 = new stzTurbolist([
 ])
 # Executed in 0.09 second(s)
 
-? @@S( o1.@Items() )
-? @@S( o1.@Positions() ) + NL
+? @@( o1.@Items() )
+? @@( o1.@Positions() ) + NL
 #-->
 # [   1,     2,       "*",       4,     6,     7,     9   ]
 # [ [ 1 ], [ 2 ], [ 3, 5, 8 ], [ 4 ], [ 6 ], [ 7 ], [ 9 ] ]
 
 
-? @@S( o1.Content()) + NL
+? @@( o1.Content()) + NL
 #--> [ "1", "2", "*", "4", "*", "6", "7", "*", "9" ]
 
 

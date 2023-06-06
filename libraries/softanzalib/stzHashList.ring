@@ -1421,7 +1421,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 	def Show()
 		cStr = ""
 		for i = 1 to This.NumberOfPairs()
-			cStr += "'" + This.NthKey(i) + "'" + ": " + @@S(This.NthValue(i))
+			cStr += "'" + This.NthKey(i) + "'" + ": " + @@(This.NthValue(i))
 			if i < This.NumberOfPairs()
 				cStr += NL
 			ok

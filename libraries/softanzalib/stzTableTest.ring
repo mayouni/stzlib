@@ -37,10 +37,10 @@ StartProfiler()
 
 	//? o1.RowsToString()
 
-	//? @@S( o1.CellsInColsAsPositions([ :EMPLOYEE, :SALARY ]) )
+	//? @@( o1.CellsInColsAsPositions([ :EMPLOYEE, :SALARY ]) )
 
 	//? o1.CellsToHashList()["[ 3, 4 ]"]
-	? @@S( o1.SectionAsPositions([2,2], [3, 4]) )
+	? @@( o1.SectionAsPositions([2,2], [3, 4]) )
 
 StopProfiler()
 
@@ -187,7 +187,7 @@ o1.Show()
 
 /*----------------
 
-? @@S( StzTableQ([ 3, 3 ]).Filled(:With = "A") )
+? @@( StzTableQ([ 3, 3 ]).Filled(:With = "A") )
 #--> [
 # 	[ "col1", [ "A", "A", "A" ] ],
 # 	[ "col2", [ "A", "A", "A" ] ],
@@ -241,7 +241,7 @@ o1 = new stzTable([
 # WAY 1 : Creating an empty table with just a column and a row with just an empty cell
 o1 = new stzTable([])
 
-? @@S( o1.Content() ) + NL
+? @@( o1.Content() ) + NL
 #--> [ [ "COL1", [ "" ] ] ]
 
 o1.ShowXT([ :ReplaceEmptyCellsWith = "NULL" ])
@@ -572,16 +572,16 @@ o1 = new stzTable([
 	[ 30,	"Abraham",	48	]
 ])
 
-? @@S( o1.ColAsPositions(:NAME) ) + NL
+? @@( o1.ColAsPositions(:NAME) ) + NL
 #--> [ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ] ]
 
-? @@S( o1.ColsAsPositions([ :NAME, :AGE ]) ) + NL
+? @@( o1.ColsAsPositions([ :NAME, :AGE ]) ) + NL
 #--> [ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 3, 1 ], [ 3, 2 ], [ 3, 3 ] ]
 
-? @@S( o1.RowAsPositions(3) ) + NL
+? @@( o1.RowAsPositions(3) ) + NL
 #--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
 
-? @@S( o1.RowsAsPositions([2, 3]) ) + NL
+? @@( o1.RowsAsPositions([2, 3]) ) + NL
 #--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 1, 3 ], [ 2, 3 ], [ 3, 3 ] ]
 
 /*--------------
@@ -597,10 +597,10 @@ o1 = new stzTable([
 	[   "abcd",   "R4"  ]
 ])
 
-? @@S( o1.CellsInCols([:COL1, :COL2]) ) + NL
+? @@( o1.CellsInCols([:COL1, :COL2]) ) + NL
 #--> [ "a", "abcde", "abc", "ab", "b", "abcd", "R1", "R5", "R3", "R2", "R1", "R4" ]
 
-? @@S( o1.CellsInRows([1, 3, 5]) ) + NL
+? @@( o1.CellsInRows([1, 3, 5]) ) + NL
 #--> [ "a", "R1", "abc", "R3", "b", "R1" ]
 
 /*===============
@@ -673,17 +673,17 @@ o1 = new stzTable([
 
 /*==============
 
-? @@S( o1.SectionAsPositions([2, 2], [3, 3]) )
+? @@( o1.SectionAsPositions([2, 2], [3, 3]) )
 #--> [ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ] ]
 
 /*--------------
 
-? @@S(o1.Section([2, 2], [3, 3])) + NL
+? @@(o1.Section([2, 2], [3, 3])) + NL
 #--> [ "Dan Mikovitch Mo", 28900, "Ali Sa", 25982 ]
 
 /*--------------
 
-? @@S(o1.SectionXT([2, 2], [3, 3]))
+? @@(o1.SectionXT([2, 2], [3, 3]))
 #--> [
 #	[ [ 2, 2 ], "Dan Mikovitch Mo" ],
 #	[ [ 3, 2 ], 28900 ],
@@ -693,7 +693,7 @@ o1 = new stzTable([
 
 /*--------------
 
-? @@S( o1.Section(:FirstCell, :LastCell) )
+? @@( o1.Section(:FirstCell, :LastCell) )
 #--> [
 #	10, "Ali Sandy", 35000,
 #	20, "Dan Mikovitch Mo", 28900,
@@ -703,7 +703,7 @@ o1 = new stzTable([
 
 /*==============
 
-? @@S( o1.Cells() ) + NL
+? @@( o1.Cells() ) + NL
 #--> [
 #	10, "Ali Sandy", 35000,
 #	20, "Dan Mikovitch Mo", 28900,
@@ -711,7 +711,7 @@ o1 = new stzTable([
 #	40, "Ali Aziza", 49540
 # ]
 
-? @@S( o1.CellsXT() ) + NL # Same as CellsAndPositions()
+? @@( o1.CellsXT() ) + NL # Same as CellsAndPositions()
 #--> [
 #	[ 10, 			[ 1, 1 ] ],
 #	[ "Ali Sandy", 		[ 2, 1 ] ],
@@ -727,7 +727,7 @@ o1 = new stzTable([
 #	[ 49540, 		[ 3, 4 ] ]
 # ]
 
-? @@S( o1.PositionsAndCells() ) + NL
+? @@( o1.PositionsAndCells() ) + NL
 #--> [
 #	[ [ 1, 1 ], 10	 ],
 #	[ [ 2, 1 ], "Ali Sandy" ],
@@ -743,7 +743,7 @@ o1 = new stzTable([
 #	[ [ 3, 4 ], 49540 ]
 # ]
 
-? @@S( o1.CellsToHashList() ) + NL
+? @@( o1.CellsToHashList() ) + NL
 #--> [
 #	[ "[ 1, 1 ]", 10	 ],
 #	[ "[ 2, 1 ]", "Ali Sandy" ],
@@ -759,7 +759,7 @@ o1 = new stzTable([
 #	[ "[ 3, 4 ]", 49540 ]
 # ]
 
-? @@S( o1.SectionToHashList([2, 2], [3, 3]) )
+? @@( o1.SectionToHashList([2, 2], [3, 3]) )
 #--> [
 #	[ "[ 2, 2 ]", "Dan Mikovitch Mo" ],
 #	[ "[ 3, 2 ]", 28900 ],
@@ -785,11 +785,11 @@ o1 = new stzTable([
 
 /*==============
 
-? @@S( o1.Cell(2, 2) )	#--> "Dan Mikovitch Mo"
+? @@( o1.Cell(2, 2) )	#--> "Dan Mikovitch Mo"
 
 ? o1.Cell(:EMPLOYEE, 2)	#--> "Dan Mikovitch Mo"
 
-? @@S( o1.Cell(5, 7) )	#--> ERR: Array Access (Index out of range) ! 
+? @@( o1.Cell(5, 7) )	#--> ERR: Array Access (Index out of range) ! 
 
 /*==============
 
@@ -799,13 +799,13 @@ o1 = new stzTable([
 
 /*==============
 
-? @@S( o1.Header() ) + NL
+? @@( o1.Header() ) + NL
 #--> [ "id", "employee", "salary" ]
 
 /*==============
 
 o1.AddCol(:AGE = [ 55, 35, 28, 65 ])
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [
 #	[ "id", [ 10, 20, 30, 40 ] ],
 #	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ],
@@ -821,33 +821,33 @@ o1.AddCol(:AGE = [ 55, 35, 28, 65 ])
 
 /*==============
 
-? @@S( o1.NthCol(0) )   #--> [ 1, 2, 3, 4 ]
-? @@S( o1.NthColXT(0) ) #--> [ "#", 1, 2, 3, 4 ]
+? @@( o1.NthCol(0) )   #--> [ 1, 2, 3, 4 ]
+? @@( o1.NthColXT(0) ) #--> [ "#", 1, 2, 3, 4 ]
 
 /*--------------
 
-? @@S( o1.NthCol(3) )
+? @@( o1.NthCol(3) )
 #--> [ 35000, 28900, 25982, 49540 ]
 
-? @@S( o1.NthColXT(3) )
+? @@( o1.NthColXT(3) )
 #--> [ "salary", 35000, 28900, 25982, 49540 ]
 
 /*--------------
 
-? @@S( o1.FirstColXT() )
+? @@( o1.FirstColXT() )
 #--> [ "id", 10, 20, 30, 40 ]
 
-? @@S( o1.LastColXT() )
+? @@( o1.LastColXT() )
 #--> [ "salary", 35000, 28900, 25982, 49540 ]
 
 /*==============
 
-? @@S( o1.Row(2) )
+? @@( o1.Row(2) )
 #--> [ 20, "Dan Mikovitch Mo", 28900 ]
 
 /*--------------
 
-? @@S( o1.Rows() )
+? @@( o1.Rows() )
 #-->
 # [
 #	[ 10, "Ali Sandy",        35000 ],
@@ -859,7 +859,7 @@ o1.AddCol(:AGE = [ 55, 35, 28, 65 ])
 /*==============
 
 o1.AddCol( :THING = [ "Thing1", "Thing2", "Thing3", "Thing4" ] )
-? @@S( o1.Content() ) + NL
+? @@( o1.Content() ) + NL
 #--> [
 #	[ "id", [ 10, 20, 30, 40 ] ],
 #	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ],
@@ -870,7 +870,7 @@ o1.AddCol( :THING = [ "Thing1", "Thing2", "Thing3", "Thing4" ] )
 
 
 o1.RemoveCol(:THING)
-? @@S( o1.Content() ) + NL
+? @@( o1.Content() ) + NL
 #--> [
 #	[ "id", [ 10, 20, 30, 40 ] ],
 #	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ],
@@ -880,23 +880,23 @@ o1.RemoveCol(:THING)
 /*--------------
 
 o1.RemoveCol([ :ID, :EMPLOYEE ])
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ [ "salary", [ 35000, 28900, 25982, 49540 ] ] ]
 
 /*==============
 
-? @@S( o1.Cols() )
+? @@( o1.Cols() )
 /*--> [ "id", "employee", "salary" ]
  
 /*==============
 
-? @@S( o1.MaxSizeInEachCol() )
+? @@( o1.MaxSizeInEachCol() )
 #--> [ 2, 16, 5 ]
 
-? @@S( o1.MaxSizeInEachColXT() )
+? @@( o1.MaxSizeInEachColXT() )
 #--> [ 1, 2, 16, 5 ]
 
-?  @@S( o1.MaxSizeInEachRow() )
+?  @@( o1.MaxSizeInEachRow() )
 #--> [ 9, 16, 6, 9 ]
 
 ? o1.HeaderToString()
@@ -909,7 +909,7 @@ o1.RemoveCol([ :ID, :EMPLOYEE ])
 
 /*==============
 
-? @@S( o1.Col(3) ) # Same as  o1.ColData(3), o1.Col(:SALARY), and o1.ColData(:SALARY)
+? @@( o1.Col(3) ) # Same as  o1.ColData(3), o1.Col(:SALARY), and o1.ColData(:SALARY)
 #--> [ 35000, 28900, 25982, 49540 ]
 
 /*--------------
@@ -918,7 +918,7 @@ o1.RemoveCol([ :ID, :EMPLOYEE ])
 
 /*==============
 
-? @@S( o1.SubTable([ :ID, :SALARY ]) ) // Same as o1.TheseColumnsXT([1, 2])
+? @@( o1.SubTable([ :ID, :SALARY ]) ) // Same as o1.TheseColumnsXT([1, 2])
 #--> [
 #	[ "id", 	[ 10, 20, 30, 40 ] 		],
 #	[ "salary", 	[ 35000, 28900, 25982, 49540 ] 	]
@@ -931,14 +931,14 @@ o1.RemoveCol([ :ID, :EMPLOYEE ])
 
 /*--------------
 
-? @@S( o1.TheseColumns([1, 2]) ) + NL 	// Same as o1.TheseColumns([:ID, :EMPLOYEE])
+? @@( o1.TheseColumns([1, 2]) ) + NL 	// Same as o1.TheseColumns([:ID, :EMPLOYEE])
 					// and o1.TheseColData([:ID, :EMPLOYEE])
 #--> [
 #	[ 10, 20, 30, 40 ],
 #	[ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ]
 # ]
 
-? @@S( o1.TheseColumnsXT([1, 2]) )
+? @@( o1.TheseColumnsXT([1, 2]) )
 #--> [
 #	[ "id", [ 10, 20, 30, 40 ] ],
 #	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ]
@@ -957,7 +957,7 @@ o1.RemoveCol([ :ID, :EMPLOYEE ])
 ? o1.IsEmpty() #--> FALSE
 o1.Erase()
 ? o1.IsEmpty() #--> TRUE
-? @@S( o1.Content() )
+? @@( o1.Content() )
 
 #--> [
 #	[ "id", 	[ NULL, NULL, NULL, NULL ] ],
@@ -1004,17 +1004,17 @@ o1.EraseCell(2, 3)
 /*--------------
 
 # Finding cells, in column :EMPLOYEE, made of the string "Ali Sa":
-? @@S( o1.FindInCol(:EMPLOYEE, "Ali Sa") ) #--> [ [2, 3] ]
+? @@( o1.FindInCol(:EMPLOYEE, "Ali Sa") ) #--> [ [2, 3] ]
 
 # And we can be more expressive and say:
 ? o1.FindCellsInColumn(:EMPLOYEE, :MadeOf = "Ali Sa")
 
 /*--------------
 */
-//? @@S( o1.VerticalSectionAsPositions(:EMPLOYEE, 2, :LastRow) )
+//? @@( o1.VerticalSectionAsPositions(:EMPLOYEE, 2, :LastRow) )
 #--> [ [ 2, 2 ], [ 2, 3 ], [ 2, 4 ] ]
 
-//? @@S( o1.VerticalSectionAsPositions(:EMPLOYEE, 2, :LastRow) )
+//? @@( o1.VerticalSectionAsPositions(:EMPLOYEE, 2, :LastRow) )
 
 /*--------------
 
@@ -1026,12 +1026,12 @@ o1.EraseCell(2, 3)
 
 /*==============
 
-? @@S( o1.Col(:EMPLOYEE) )
+? @@( o1.Col(:EMPLOYEE) )
 #--> [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ]
 
 /*--------------
 
-? @@S( o1.ColXT(:EMPLOYEE) ) // Same as o1.CellsAndPositionsInCol(:EMPLOYEE)
+? @@( o1.ColXT(:EMPLOYEE) ) // Same as o1.CellsAndPositionsInCol(:EMPLOYEE)
 			     // and o1.CellsInColXT(:EMPLOYEE)
 #--> [
 #	["Ali Sandy", 		[2, 1] ],
@@ -1043,13 +1043,13 @@ o1.EraseCell(2, 3)
 
 /*--------------
 
-? @@S( o1.CellsInCol(:EMPLOYEE) ) // same as Col(:EMPLOYEE)
+? @@( o1.CellsInCol(:EMPLOYEE) ) // same as Col(:EMPLOYEE)
 #--> [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ]
 
-? @@S( o1.CellsInColAsPositions(:EMPLOYEE) ) // same as ColAsPositions(:EMPLOYEE)
+? @@( o1.CellsInColAsPositions(:EMPLOYEE) ) // same as ColAsPositions(:EMPLOYEE)
 #--> [ [2, 1], [2, 2], [2, 3], [2, 4] ]
 
-? @@S( o1.CellsInColXT(:EMPLOYEE) )
+? @@( o1.CellsInColXT(:EMPLOYEE) )
 #--> [
 #	[ "Ali Sandy", 		[2, 1] ],
 #	[ "Dan Mikovitch Mo", 	[2, 2] ],
@@ -1059,12 +1059,12 @@ o1.EraseCell(2, 3)
 
 /*==============
 
-? @@S( o1.Row(2) )
+? @@( o1.Row(2) )
 #--> [ 20, "Dan Mikovitch Mo", 28900 ]
 
 /*--------------
 
-? @@S( o1.RowXT(2) ) // Same as o1.CellsAndPositionsInRow(2)
+? @@( o1.RowXT(2) ) // Same as o1.CellsAndPositionsInRow(2)
 		     // and o1.CellsInRowXT(2)
 #--> [
 #	[ 20, 			[ 1, 2 ] ],
@@ -1074,13 +1074,13 @@ o1.EraseCell(2, 3)
 
 /*--------------
 
-? @@S( o1.CellsInRow(2) ) + NL // same as Row(2)
+? @@( o1.CellsInRow(2) ) + NL // same as Row(2)
 #--> [ 20, "Dan Mikovitch Mo", 28900 ]
 
-//? @@S( o1.CellsInRowAsPositions(2) ) + NL // same as RowAsPositions(2)
+//? @@( o1.CellsInRowAsPositions(2) ) + NL // same as RowAsPositions(2)
 #--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
 
-? @@S( o1.CellsInRowXT(2) )
+? @@( o1.CellsInRowXT(2) )
 #--> [
 #	[ 20, 			[ 1, 2 ] ],
 #	[ "Dan Mikovitch Mo", 	[ 2, 2 ] ],
@@ -1090,10 +1090,10 @@ o1.EraseCell(2, 3)
 /*==============
 
 # Finding the cells, in column :EMPLOYEE, CONTAINING the substring "Ali":
-? @@S( o1.FindInCellsInCol(:EMPLOYEE, "Ali") ) + NL
+? @@( o1.FindInCellsInCol(:EMPLOYEE, "Ali") ) + NL
 #--> [ [ 1 ], [ ], [ 1 ], [ 1 ] ]
 
-? @@S( o1.FindInCellsInColXT(:EMPLOYEE, "Ali") )
+? @@( o1.FindInCellsInColXT(:EMPLOYEE, "Ali") )
 #--> [
 #	[ [ 1 ], [ 2, 1 ] ],
 #	[ [ 1 ], [ 2, 3 ] ],
@@ -1103,20 +1103,20 @@ o1.EraseCell(2, 3)
 /*==============
 
 ? o1.Cell(:EMPLOYEE, 2) #--> Dan Mikovitch Mo
-? @@S( o1.FindInCell(:EMPLOYEE, 2, "Ali") ) #--> []
-? @@S( o1.FindInCell(:EMPLOYEE, 2, "Mo") )  #--> [ 15 ]
+? @@( o1.FindInCell(:EMPLOYEE, 2, "Ali") ) #--> []
+? @@( o1.FindInCell(:EMPLOYEE, 2, "Mo") )  #--> [ 15 ]
 
 /*--------------
 
 // Finding a subvalue in a number of cells
-? @@S( o1.FindInCells([ [2, 1], [1, 2], [2, 2], [2, 3] ], "Ali") )
+? @@( o1.FindInCells([ [2, 1], [1, 2], [2, 2], [2, 3] ], "Ali") )
 #--> [
 #	[ [ 2, 1 ], [ 1 ] ],
 #	[ [ 2, 3 ], [ 1 ] ]
 #    ]
 
 // Finding a subvalue inside the cells of a given column
-? @@S( o1.FindInCells( o1.ColCellsAsPositions(:EMPLOYEE), "Ali" ) )
+? @@( o1.FindInCells( o1.ColCellsAsPositions(:EMPLOYEE), "Ali" ) )
 #--> [
 #	[ [ 2, 1 ], [ 1 ] ],
 #	[ [ 2, 3 ], [ 1 ] ],
@@ -1124,14 +1124,14 @@ o1.EraseCell(2, 3)
 #    ]
 
 // Same as above:
-? @@S( o1.FindInCellsInColumn(:EMPLOYEE, "Ali") )
+? @@( o1.FindInCellsInColumn(:EMPLOYEE, "Ali") )
 
 // Finding a suvalue inside the cells of a given row
-? @@S( o1.FindInCells( o1.RowCellsAsPositions(3), "Ali" ) )
+? @@( o1.FindInCells( o1.RowCellsAsPositions(3), "Ali" ) )
 #--> [ [ [ 2, 3 ], [ 1 ] ] ]
 
 // Same as above
-? @@S( o1.FindInCellsInRow(3, "Ali") )
+? @@( o1.FindInCellsInRow(3, "Ali") )
 
 /*--------------
 
@@ -1144,10 +1144,10 @@ o1.EraseCell(2, 3)
 
 /*--------------
 
-? @@S( o1.FindCell("Dan Mikovitch Mo") )
+? @@( o1.FindCell("Dan Mikovitch Mo") )
 #--> [ [ 2, 2 ] ]
 
-? @@S( o1.FindCell("Ali Sandy") )
+? @@( o1.FindCell("Ali Sandy") )
 #--> [ [ 2, 1 ] ]
 
 /*--------------
@@ -1162,13 +1162,13 @@ o1 = new stzTable([
 
 /*------------
 
-? @@S( o1.FindAll("Red") )
+? @@( o1.FindAll("Red") )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
-? @@S( o1.FindInCol(:PALETTE1, "Blue") )
+? @@( o1.FindInCol(:PALETTE1, "Blue") )
 #--> [ [ 1, 2 ], [ 1, 3 ] ]
 
-? @@S( o1.FindInRow(2, "Red") ) 
+? @@( o1.FindInRow(2, "Red") ) 
 #--> [ [ 2, 2 ], [ 2, 3 ] ]
 
 /*===============
@@ -1181,17 +1181,17 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? @@S( o1.Section([1,2], [3,2]) ) + NL
+? @@( o1.Section([1,2], [3,2]) ) + NL
 #--> [ "Blue", "Red", "Red" ]
 
-? @@S( o1.SectionXT([1,2], [3,2]) ) + NL
+? @@( o1.SectionXT([1,2], [3,2]) ) + NL
 #--> [
 #	[ [ 1, 2 ], "Blue" ],
 #	[ [ 2, 2 ], "Red"  ],
 #	[ [ 3, 2 ], "Red"  ]
 #    ]
 
-? @@S( o1.SectionAsPositions([1,2], [3,2]) )
+? @@( o1.SectionAsPositions([1,2], [3,2]) )
 #--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
 
 /*==========
@@ -1204,7 +1204,7 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? @@S( o1.FindInSection([1,2], [3,2], "Red") )
+? @@( o1.FindInSection([1,2], [3,2], "Red") )
 #--> [ [ 2, 2 ], [ 3, 2 ] ]
 
 /*----------
@@ -1217,7 +1217,7 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? @@S( o1.SectionXT(:From = :FirstCell, :To = [3,2]) )
+? @@( o1.SectionXT(:From = :FirstCell, :To = [3,2]) )
 #--> [
 #	[ [ 1, 1 ], "Red" 	],
 #	[ [ 2, 1 ], "White" 	],
@@ -1237,13 +1237,13 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? @@S( o1.FindInSectionCS([1, 1], [3, 2], "red", :CS = TRUE) )
+? @@( o1.FindInSectionCS([1, 1], [3, 2], "red", :CS = TRUE) )
 #--> []
 
-? @@S( o1.FindInSectionCS([1, 1], [3, 2], "Red", :CS = TRUE) )
+? @@( o1.FindInSectionCS([1, 1], [3, 2], "Red", :CS = TRUE) )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
-? @@S( o1.FindInSectionCS([1, 1], [3, 2], "red", :CS = FALSE) )
+? @@( o1.FindInSectionCS([1, 1], [3, 2], "red", :CS = FALSE) )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
 /*-----------
@@ -1310,37 +1310,37 @@ o1 = new stzTable([
 #	3       Blue      Green    Magenta
 #	4      White       Gray      Black
 
-//? @@S( o1.SectionXT(:From = [1,2], :To = [3,2]) ) + NL
+//? @@( o1.SectionXT(:From = [1,2], :To = [3,2]) ) + NL
 #--> [
 #	[ [ 1, 2 ], "Blue" 	],
 #	[ [ 2, 2 ], "Red" 	],
 #	[ [ 3, 2 ], "Red" 	]
 #    ]
 
-//? @@S( o1.FindInSection([1,2], [3,2], :SubValue = "e") ) + NL
+//? @@( o1.FindInSection([1,2], [3,2], :SubValue = "e") ) + NL
 #--> [
 #	[ [ 1, 2 ], [ 4 ] ],
 #	[ [ 2, 2 ], [ 2 ] ],
 #	[ [ 3, 2 ], [ 2 ] ]
 #    ]
 
-//? @@S( o1.FindNthInSection(:First, [1,2], [3,2], :SubValue = "e") ) + NL
+//? @@( o1.FindNthInSection(:First, [1,2], [3,2], :SubValue = "e") ) + NL
 #--> [ [ 1, 2 ], 4 ]
 
-? @@S( o1.FindNthInSection(:Last, [1,2], [3,2], :SubValue = "e") ) + NL
+? @@( o1.FindNthInSection(:Last, [1,2], [3,2], :SubValue = "e") ) + NL
 #--> [ [ 3, 2 ], 2 ]
 
 /*
-? @@S( o1.FindLastInSection([1,2], [3,2], :SubValue = "e") ) + NL
+? @@( o1.FindLastInSection([1,2], [3,2], :SubValue = "e") ) + NL
 #--> [ [ 3, 2 ], [ 2 ] ]
 
 /*=============
 
-? @@S( o1.FindCells( "Red" ) )
+? @@( o1.FindCells( "Red" ) )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
 # Same as:
-? @@S( o1.FindAllOccurrences( :Of = "Red") )
+? @@( o1.FindAllOccurrences( :Of = "Red") )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
 /*-----------
@@ -1357,7 +1357,7 @@ o1 = new stzTable([
 
 /*-----------
 
-? @@S( o1.Col(2) ) #--> [ "White", "Red", "Green", "Gray" ]
+? @@( o1.Col(2) ) #--> [ "White", "Red", "Green", "Gray" ]
 
 /*-----------
 
@@ -1366,23 +1366,23 @@ o1 = new stzTable([
 
 /*-----------
 
-? @@S( o1.Cols() )
+? @@( o1.Cols() )
 #--> [ "palette1", "palette2", "palette3" ]
 
 /*==========
 
 o1.AddCol( :PALETTE4 = [ "Magenta", "Blue", "White", "Red" ])
 
-? @@S( o1.Cols() )
+? @@( o1.Cols() )
 #--> [ "palette1", "palette2", "palette3", "palette4" ]
 
 ? o1.HasColName(:PALETTE4) #--> TRUE
 
-? @@S( o1.Col(:PALETTE4) )
+? @@( o1.Col(:PALETTE4) )
 #--> [ "Magenta", "Blue", "White", "Red" ]
 
 o1.RemoveCol(:PALETTE4)
-? @@S( o1.Cols() )
+? @@( o1.Cols() )
 #--> [ "palette1", "palette2", "palette3" ]
 
 /*----------
@@ -1517,7 +1517,7 @@ o1 = new stzTable([
 	[ 30,	"Ben",		25982	]
 ])
 
-? @@S( o1.Rows() ) + NL
+? @@( o1.Rows() ) + NL
 #--> [
 #	[ 10, "Ali", 35000 ],
 #	[ 20, "Dan", 28900 ],
@@ -1526,7 +1526,7 @@ o1 = new stzTable([
 
 o1.AddRow( [ 40, "Mo", 12800 ] )
 
-? @@S( o1.Rows() )
+? @@( o1.Rows() )
 #--> [
 #	[ 10, "Ali", 35000 ],
 #	[ 20, "Dan", 28900 ],
@@ -1574,7 +1574,7 @@ o1 = new stzTable([
 
 o1.AddCol( :TEMPO = [ NULL, NULL, NULL ])
 ? o1.LastColName()  #--> "tempo"
-? @@S(o1.LastCol()) #--> [ "", "", "" ]
+? @@(o1.LastCol()) #--> [ "", "", "" ]
 
 /*----------
 
@@ -1590,10 +1590,10 @@ o1.AddCols([
 	:TWOS = [ 2, 2, 2 ]
 ])
 
-? @@S( o1.Cols() )
+? @@( o1.Cols() )
 #--> [ "id", "employee", "salary", "ones", "twos" ]
 
-? @@S( o1.TheseColumns([ :ONES, :TWOS ]) )
+? @@( o1.TheseColumns([ :ONES, :TWOS ]) )
 #--> [ [ "ones", [ 1, 1, 1 ] ], [ "twos", [ 2, 2, 2 ] ] ]
 
 /*==========
@@ -1612,7 +1612,7 @@ o1.Show()
 #	2   20        Dan    28900
 #	3   30        Ben    25982
 
-? @@S( o1.SubTable([ :EMPLOYEE, :SALARY ]) ) + NL
+? @@( o1.SubTable([ :EMPLOYEE, :SALARY ]) ) + NL
 #--> [
 #	[ "employee", [ "Ali", "Dan", "Ben" ] ],
 #	[ "salary"  , [ 35000, 28900, 25982 ] ]
@@ -1634,7 +1634,7 @@ o1 = new stzTable([
 	[ 30,	"Ben",		25982	]
 ])
 
-? @@S(o1.CellsAsPositions())
+? @@(o1.CellsAsPositions())
 #--> [
 #	[ 1, 1 ], [ 2, 1 ], [ 3, 1 ],
 #	[ 1, 2 ], [ 2, 2 ], [ 3, 2 ],
@@ -1653,11 +1653,11 @@ o1 = new stzTable([
 ? o1.Contains( :Cell = "Ali" )	 #--> TRUE	(same as ? o1.ContainsCell("Ali"))
 ? o1.Contains( :SubValue = "a" ) #--> TRUE	(same as ? o1.ContainsSubValue("a"))
 
-? @@S( o1.FindCell("Ali") )
+? @@( o1.FindCell("Ali") )
 #--> [ [ 2, 1 ] ]
 #--> One occurrence of "Ali" in the cell [2, 1]
 
-? @@S( o1.FindSubValue("a") )
+? @@( o1.FindSubValue("a") )
 #--> [
 #	[ [ 2, 2 ], [ 2, 5 ] ],
 #	[ [ 2, 3 ], [ 2 ]    ]
@@ -1675,16 +1675,16 @@ o1 = new stzTable([
 	[ 30,	"Ben",		25982	]
 ])
 
-? @@S( o1.FindNth(1, :Cell = "Ali") ) #--> [2, 1]
-# Same as ? @@S( o1.FindFirst( :Cell = "Ali" ) )
+? @@( o1.FindNth(1, :Cell = "Ali") ) #--> [2, 1]
+# Same as ? @@( o1.FindFirst( :Cell = "Ali" ) )
 
-? @@S( o1.FindNthCS(3, :SubValue = "A", :CS = FALSE) )
+? @@( o1.FindNthCS(3, :SubValue = "A", :CS = FALSE) )
 #--> [ [ 2, 2 ], 5 ]
 #--> 2nd occurrence of "A" (or "a") found in the cell [2, 2] ("Dania") in position 5
 
-? @@S( o1.FindFirstCS(:SubValue = "A", :CS = FALSE) ) #--> [ [ 2, 1 ], 1 ]
+? @@( o1.FindFirstCS(:SubValue = "A", :CS = FALSE) ) #--> [ [ 2, 1 ], 1 ]
 
-? @@S( o1.FindLastCS(:SubValue = "A", :CS = FALSE) ) #--> [ [ 2, 3 ], 2 ]
+? @@( o1.FindLastCS(:SubValue = "A", :CS = FALSE) ) #--> [ [ 2, 3 ], 2 ]
 
 /*-------------
 
@@ -1734,17 +1734,17 @@ o1 = new stzTable([
 ])
 
 ? o1.Cell(:EMPLOYEE, 3) #--> "Han"
-? @@S( o1.CellXT(:EMPLOYEE, 3) ) + NL #--> [ "Han", [2, 3] ]
+? @@( o1.CellXT(:EMPLOYEE, 3) ) + NL #--> [ "Han", [2, 3] ]
 
 ? o1.Count( :Cells = "Ali" ) #--> 2
 	# Same as NumberOfOccurrence( :OfCell = "Ali" )
 	# Or you can say: ? o1.CountOfCell( "Ali" )
 
-? @@S( o1.FindCell("Ali") ) + NL
+? @@( o1.FindCell("Ali") ) + NL
 #--> [ [ 2, 1 ], [2, 4] ]
 #--> One occurrence of "Ali" in the cell [2, 1]
 
-? @@S( o1.FindSubValue("a") ) + NL
+? @@( o1.FindSubValue("a") ) + NL
 #--> [
 #	[ [ 2, 2 ], [ 2, 5 ] ],
 #	[ [ 2, 3 ], [ 2 ] ]
@@ -1753,7 +1753,7 @@ o1 = new stzTable([
 #	--> 2 occurrences in cell [2, 2] ("Dania"), in the 2nd and 5th chars.
 #	--> 1 occurrence in cell [2, 3] ("Han"), in position 2.
 
-? @@S( o1.FindSubValueCS("a", :CaseSensitive = FALSE) ) + NL
+? @@( o1.FindSubValueCS("a", :CaseSensitive = FALSE) ) + NL
 #--> [
 #	[ [ 2, 1 ], [ 1 ] ],
 #	[ [ 2, 2 ], [ 2, 5 ] ],
@@ -1775,7 +1775,7 @@ o1 = new stzTable([
 
 /*=============
 
-? @@S( o1.TheseCellsAndTheirPositions([ [1,2], [2,2], [2,3] ]) )
+? @@( o1.TheseCellsAndTheirPositions([ [1,2], [2,2], [2,3] ]) )
 #--> [ [ 20, [ 1, 2 ] ], [ "Dania", [ 2, 2 ] ], [ "Han", [ 2, 3 ] ] ]
 
 /*-------------
@@ -1789,7 +1789,7 @@ o1 = new stzTable([
 	[ 40,	 "Ali",		12870	]
 ])
 
-? @@S( o1.TheseCells([ [1,2], [2,2], [2,3] ]) )
+? @@( o1.TheseCells([ [1,2], [2,2], [2,3] ]) )
 #--> [ 20, "Dania", "Ben" ]
 
 /*===============
@@ -1805,10 +1805,10 @@ o1 = new stzTable([
 	[ 40,	 "Ali",		12870	]
 ])
 
-? @@S( o1.FindInCells( [ [1,2], [2,2], [2,3] ], :Value = "Dania" ) ) + NL
+? @@( o1.FindInCells( [ [1,2], [2,2], [2,3] ], :Value = "Dania" ) ) + NL
 #--> [ [2, 2] ]
 
-? @@S( o1.FindInCells( [ [1,2], [2,2], [2,3] ], :SubValue = "a" ) )
+? @@( o1.FindInCells( [ [1,2], [2,2], [2,3] ], :SubValue = "a" ) )
 #--> [
 #	[ [ 2, 2 ], [ 2, 5 ] ],
 #	[ [ 2, 3 ], [ 2 ]    ]
@@ -1827,20 +1827,20 @@ o1 = new stzTable([
 	[ 30,	"Han",		25982	]
 ])
 
-? @@S( o1.FindNthInCells( 1, [ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
+? @@( o1.FindNthInCells( 1, [ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
 #--> [2, 2]
 
-? @@S( o1.FindNthInCells( 1, [ [1,2], [2,2], [2,3] ], :Value = "blabla" ) )
+? @@( o1.FindNthInCells( 1, [ [1,2], [2,2], [2,3] ], :Value = "blabla" ) )
 #--> [ ]
 
-? @@S( o1.FindNthInCells( 2, [ [1,2], [2,2], [2,3] ], :SubValue = "a" ) ) 
+? @@( o1.FindNthInCells( 2, [ [1,2], [2,2], [2,3] ], :SubValue = "a" ) ) 
 #--> [ [ 2, 2 ], 5 ]
 // Sames as: ? o1.FindNthSubValueInCells( 2, [ [1,2], [2,2], [2,3] ], "a" ) )
 
-? @@S( o1.FindFirstInCells([ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
+? @@( o1.FindFirstInCells([ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
 #--> [ 2, 2 ]
 
-? @@S( o1.FindLastInCells([ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
+? @@( o1.FindLastInCells([ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
 #--> [ 2, 2 ]
 
 /*-------------
@@ -1857,13 +1857,13 @@ o1 = new stzTable([
 # Let's take this selection of cells
 aMyCells = [ [2,1], [2,3], [2,4] ]
 # And get them along with their positions:
-? @@S( o1.TheseCellsXT( aMyCells ) ) + NL
+? @@( o1.TheseCellsXT( aMyCells ) ) + NL
 #--> [ [ "Ali", [ 2, 1 ] ], [ "Han", [ 2, 3 ] ], [ "Ali", [ 2, 4 ] ] ]
 
 # How many cell made of the value "Ali" does exist in those cells?
 ? o1.CountInCells( aMyCells, :Value = "Ali" )  #--> 2
 # Where do they exist exactly:
-? @@S( o1.FindInCells( aMyCells, :Value = "Ali" ) )
+? @@( o1.FindInCells( aMyCells, :Value = "Ali" ) )
 #--> [ [ 2, 1 ], [ 2, 4 ] ]
 
 # How many subvalue "A" does exist in the same list of cells?
@@ -1871,7 +1871,7 @@ aMyCells = [ [2,1], [2,3], [2,4] ]
 # How many subvalue "A" whatever case it has?
 ? o1.CountInCellsCS( aMyCells, :SubValue = "A", :CS = FALSE ) #--> 3
 # And where do they exist exactly?
-? @@S( o1.FindInCellsCS( aMyCells, :SubValue = "A", :CS = FALSE ) )
+? @@( o1.FindInCellsCS( aMyCells, :SubValue = "A", :CS = FALSE ) )
 #--> [
 #	[ [ 2, 1 ], [ 1 ] ],
 #	[ [ 2, 3 ], [ 2 ] ],
@@ -1911,18 +1911,18 @@ o1 = new stzTable([
 	[ "Ali",	"Ali"     ]
 ])
 
-? @@S( o1.FindInRow(2, :Value = "Ali") ) + NL
+? @@( o1.FindInRow(2, :Value = "Ali") ) + NL
 #--> [ [ 1, 2 ] ]
 
-? @@S( o1.FindInRow(3, :Value = "Ali" ) ) + NL
+? @@( o1.FindInRow(3, :Value = "Ali" ) ) + NL
 #--> [ [1, 3], [2, 3] ]
 
-? @@S( o1.FindInRow( 2, :SubValue = "a" ) ) + NL
+? @@( o1.FindInRow( 2, :SubValue = "a" ) ) + NL
 #--> [
 #	[ [2, 2], [4, 6] ]
 #    ]
 
-? @@S( o1.FindInRowCS( 2, :SubValue = "a", :CS = FALSE ) )
+? @@( o1.FindInRowCS( 2, :SubValue = "a", :CS = FALSE ) )
 #--> [
 #	[ [1, 2], [1]    ],
 #	[ [2, 2], [1, 4, 6] ],
@@ -1939,20 +1939,20 @@ o1 = new stzTable([
 	[ "Ali",	"Ali"     ]
 ])
 
-? @@S( o1.FindNthInRow(:Nth = 1, :InRow = 2, :OfValue = "Abraham") )
+? @@( o1.FindNthInRow(:Nth = 1, :InRow = 2, :OfValue = "Abraham") )
 #--> [2, 2]
 
 # Or you can use this short form:
-? @@S( o1.FindNthInRow(1, 2, "Abraham") )
+? @@( o1.FindNthInRow(1, 2, "Abraham") )
 #--> [2, 2]
 
-? @@S( o1.FindNthInRow(:N = 2, :Row = 3, :Value = "Ali") )
+? @@( o1.FindNthInRow(:N = 2, :Row = 3, :Value = "Ali") )
 #--> [2, 3]
 
-? @@S( o1.FindFirstInRow(3, :Value = "Ali") )
+? @@( o1.FindFirstInRow(3, :Value = "Ali") )
 #--> [1, 3]
 
-? @@S( o1.FindLastInRow(3, :Value = "Ali") )
+? @@( o1.FindLastInRow(3, :Value = "Ali") )
 #--> [2, 3]
 
 #-----------
@@ -1967,12 +1967,12 @@ o1 = new stzTable([
 	[ "Ali",	"Ali"     ]
 ])
 
-? @@S( o1.FindInRow(2, :SubValue = "a") ) + NL
+? @@( o1.FindInRow(2, :SubValue = "a") ) + NL
 #--> [
 #	[ [ 2, 2 ], [ 4, 6 ] ]
 #    ]
 
-? @@S( o1.FindNthInRow(:Nth = 2, :InRow = 2, :OfSubValue = "a") )
+? @@( o1.FindNthInRow(:Nth = 2, :InRow = 2, :OfSubValue = "a") )
 #--> [ [ 2, 2 ], 6 ]
 
 #-----------
@@ -2020,19 +2020,19 @@ o1 = new stzTable([
 	[ "Ali",	"Ali"     ]
 ])
 
-? @@S( o1.FindInCol(:FIRSTNAME, "Ali") ) + NL
+? @@( o1.FindInCol(:FIRSTNAME, "Ali") ) + NL
 #--> [ [ 1, 2 ], [ 1, 3 ] ]
 
-? @@S( o1.FindInCol(2, :Value = "Ali") ) + NL
+? @@( o1.FindInCol(2, :Value = "Ali") ) + NL
 #--> [ [ 2, 3 ] ]
 
-? @@S( o1.FindInCol(:LASTNAME, :SubValue = "a" ) ) + NL
+? @@( o1.FindInCol(:LASTNAME, :SubValue = "a" ) ) + NL
 #--> [
 #	[ [ 2, 1 ], [ 2 ] ],
 #	[ [ 2, 2 ], [ 4, 6 ] ]
 #    ]
 
-? @@S( o1.FindInColCS(:LASTNAME, :SubValue = "a", :CS = FALSE ) )
+? @@( o1.FindInColCS(:LASTNAME, :SubValue = "a", :CS = FALSE ) )
 #--> [
 #	[ [ 2, 1 ], [ 2 ] 	],
 #	[ [ 2, 2 ], [ 1, 4, 6 ] ],
@@ -2050,20 +2050,20 @@ o1 = new stzTable([
 	[ "Ali",	"Ali"     ]
 ])
 
-? @@S( o1.FindNthInCol(:Occurrence = 1, :InCol = :LASTNAME, :OfValue = "Abraham") )
+? @@( o1.FindNthInCol(:Occurrence = 1, :InCol = :LASTNAME, :OfValue = "Abraham") )
 #--> [2, 2]
 
 # Or you can use this short form:
-? @@S( o1.FindNthInCol(1, 2, "Abraham") )
+? @@( o1.FindNthInCol(1, 2, "Abraham") )
 #--> [2, 2]
 
-? @@S( o1.FindNthInCol(2, :FIRSTNAME, "Ali") )
+? @@( o1.FindNthInCol(2, :FIRSTNAME, "Ali") )
 #--> [1, 3]
 
-? @@S( o1.FindFirstInCol(:FIRSTNAME, "Ali") )
+? @@( o1.FindFirstInCol(:FIRSTNAME, "Ali") )
 #--> [1, 2]
 
-? @@S( o1.FindLastInCol(:FIRSTNAME, "Ali") )
+? @@( o1.FindLastInCol(:FIRSTNAME, "Ali") )
 #--> [1, 3]
 
 /*-----------
@@ -2077,16 +2077,16 @@ o1 = new stzTable([
 	[ "Ali",	"Ali"     ]
 ])
 
-? @@S( o1.FindInCol(:LASTNAME, :SubValue = "a") ) + NL
+? @@( o1.FindInCol(:LASTNAME, :SubValue = "a") ) + NL
 #--> [
 #	[ [ 2, 1 ], [ 2 ] 	],
 #	[ [ 2, 2 ], [ 4, 6 ] 	]
 #    ]
 
-? @@S( o1.FindNthInCol(:Nth = 2, :InCol = 2, :OfSubValue = "a") ) + NL
+? @@( o1.FindNthInCol(:Nth = 2, :InCol = 2, :OfSubValue = "a") ) + NL
 #--> [ [ 2, 2 ], 4 ]
 
-? @@S( o1.FindFirstInCol(:LASTNAME, :SubValue = "a") )
+? @@( o1.FindFirstInCol(:LASTNAME, :SubValue = "a") )
 #--> [ [ 2, 1 ], 2 ]
 
 /*-----------

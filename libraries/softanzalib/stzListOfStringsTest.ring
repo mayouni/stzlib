@@ -1,16 +1,28 @@
 load "stzlib.ring"
 
-/*------------
+/*=========
+
+pron()
+
+o1 = new stzListOfStrings([ "--**-*", "*---*", "--*-***" ])
+o1.RemoveSubString("*")
+? @@( o1.Content() )
+#--> [ "---", "---", "---" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*============
 
 StartProfiler()
 
 o1 = new stzListOfStrings([ "  ", " ", "  one ", " two ", "    three", "    ", " "])
 o1.Trim()
-? @@S(o1.Content())
+? @@(o1.Content())
 #--> [ " one ", " two ", " three" ]
 
 o1.TrimStrings()
-? @@S(o1.Content())
+? @@(o1.Content())
 #--> [ "one", "two", "three" ]
 
 StopProfiler()
@@ -22,13 +34,13 @@ StartProfiler()
 
 o1 = new stzListOfStrings([ "  ", " ", "  one ", " two ", "    three", "    ", " "])
 o1.TrimStart()
-? @@S(o1.Content())
+? @@(o1.Content())
 #--> [ " one ", " two ", " three", " ", " " ]
 
 o1.TrimEnd()
 #--> [ " one ", " two ", " three" ]
 
-? @@S(o1.Content())
+? @@(o1.Content())
 
 StopProfiler()
 # Executed in 0.04 second(s)
@@ -38,7 +50,7 @@ StopProfiler()
 StartProfiler()
 
 o1 = new stzListOfStrings([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
-? @@S( o1.FindDuplicates() )
+? @@( o1.FindDuplicates() )
 
 
 StopProfiler()
@@ -58,12 +70,12 @@ StartProfiler()
 o1 = new stzList([ "", "", "", "ONE", "TWO", "THREE", "", "", "" ])
 
 o1.RemoveSection(1,3)
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "ONE", "TWO", "THREE", "", "", "" ]
 
 o1.RemoveRange(:Last, -3)
-//? @@S( o1.Content() )
-? @@S( o1.Content() )
+//? @@( o1.Content() )
+? @@( o1.Content() )
 #--> [ "ONE", "TWO", "THREE" ]
 
 StopProfiler()
@@ -75,12 +87,12 @@ StartProfiler()
 o1 = new stzListOfStrings([ "", "", "", "ONE", "TWO", "THREE", "", "", "" ])
 
 o1.RemoveSection(1,3)
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "ONE", "TWO", "THREE", "", "", "" ]
 
 o1.RemoveRange(:Last, -3)
-//? @@S( o1.Content() )
-? @@S( o1.Content() )
+//? @@( o1.Content() )
+? @@( o1.Content() )
 #--> [ "ONE", "TWO", "THREE" ]
 
 StopProfiler()
@@ -92,11 +104,11 @@ StartProfiler()
 o1 = new stzListOfStrings([ "", "", "", "ONE", "TWO", "THREE", "", "", "" ])
 
 o1.TrimStart()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "ONE", "TWO", "THREE", "", "", "" ]
 
 o1.TrimEnd()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "ONE", "TWO", "THREE" ]
 
 StopProfiler()
@@ -107,7 +119,7 @@ StartProfiler()
 
 o1 = new stzListOfStrings([ "", "", "", "ONE", "TWO", "THREE", "", "", "" ])
 o1.Trim()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "ONE", "TWO", "THREE" ]
 
 StopProfiler()
@@ -124,7 +136,7 @@ o1 = new stzListOfStrings([
 ])
 
 o1.RemoveAtQ([5, 8]).TrimQ()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "ABCDEF", "GHIJKL", "MNOPQU", "RSTUVW" ]
 
 StopProfiler()
@@ -132,7 +144,7 @@ StopProfiler()
 
 o1 = new stzListOfStrings([ "name", "اسم", "姓名" ])
 o1.RemoveAt(2)
-? @@S(o1.Content())
+? @@(o1.Content())
 #--> [ "name", "姓名" ]
 
 /*---------------
@@ -160,27 +172,27 @@ StartProfiler()
 o1 = new stzListOfStrings([ "_", "A", "B", "C", "_", "D", "E", "_" ])
 
 o1.RemoveFirstItem()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "A", "B", "C", "_", "D", "E", "_" ]
 
 o1.RemoveThisNthItem(1, "A")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "B", "C", "_", "D", "E", "_" ]
 
 o1.RemoveNth(2, "_")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "B", "C", "_", "D", "E" ]
 
 o1.RemoveFirstXT("_")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "B", "C", "D", "E" ]
 
 o1.RemoveThisFirstItemCS("b", :CS = FALSE)
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "C", "D", "E" ]
 
 o1.RemoveNthItem(:Last)
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "C", "D" ]
 
 StopProfiler()
@@ -233,7 +245,7 @@ o1 = new stzListOfStrings([
 	"-;-;-",
 	"*;*;*"
 ])
-? @@S( o1.Splitted(:Using = ";") )
+? @@( o1.Splitted(:Using = ";") )
 #--> [
 #	[ ".", ".", "." ],
 #	[ "-", "-", "-" ],
@@ -249,7 +261,7 @@ o1 = new stzListOfStrings([
 	"........  "
 ])
 
-? @@S( o1.StringsTrimmed() )
+? @@( o1.StringsTrimmed() )
 #--> [
 # 	"........",
 # 	"........",
@@ -280,7 +292,7 @@ o1.ReplaceStringCS("B", "_", :CS = FALSE)
 
 o1 = new stzListOfStrings([ "A", "B", "C", "D", "E", "F"])
 o1.ReplaceManyOneByOneCS([ "b", "d", "f"], :With = [ "1", "2", "3" ], :CS=FALSE)
-? @@S( o1.Content() ) #--> [ "A", "1", "C", "2", "E", "3" ]
+? @@( o1.Content() ) #--> [ "A", "1", "C", "2", "E", "3" ]
 
 /*------------
 
@@ -315,10 +327,10 @@ o1.Swap(:BetweenString = 1, :AndString = 2)
 
 o1 = new stzListOfStrings([ "*", "A*B*C", "*" ])
 
-? @@S( o1.Find( :String = "*" ) ) + NL
+? @@( o1.Find( :String = "*" ) ) + NL
 #--> [1, 3]
 
-? @@S( o1.Find( :SubString = "*" ) )
+? @@( o1.Find( :SubString = "*" ) )
 #--> [ [1, [1]], [2, [2, 4]], [3, [1]] ]
 
 /*----------------
@@ -738,12 +750,12 @@ o1 = new stzListOfStrings([
 # The following finds the hole string "name" (whatever case it has)
 # and sees if it exists AS AN ITEM of the list of strings
 
-? @@S( o1.FindStringCS("name", :CS = TRUE) ) # --> [ ]
+? @@( o1.FindStringCS("name", :CS = TRUE) ) # --> [ ]
 
 # While the following analyses the strings themselves and finds
 # where they may include the SUBSTRING "name"
 
-? @@S( o1.FindSubstringCS("name", :CS = FALSE) )
+? @@( o1.FindSubstringCS("name", :CS = FALSE) )
 #--> [
 #	[ 1, [ 13    ] ],
 #	[ 3, [ 6, 21 ] ]
@@ -754,12 +766,12 @@ o1 = new stzListOfStrings([
 #	- in the 3rd string at positions 6 and 21
 
 # Now guess the following:
-? @@S( o1.FindStringCS("mabrooka", :CaseSensitive = FALSE) )
+? @@( o1.FindStringCS("mabrooka", :CaseSensitive = FALSE) )
 #--> [ 2, 6 ]
 #--> "mabourka" exists (whatever case is) as an entire string item in positions 2 and 6
 
 # And this one:
-? @@S( o1.FindSubstringCS("mabrooka", :CaseSensitive = FALSE) )
+? @@( o1.FindSubstringCS("mabrooka", :CaseSensitive = FALSE) )
 #--> [
 # 	[ 2, [ 1 ] ],
 # 	[ 6, [ 1 ] ]
@@ -779,13 +791,13 @@ o1 = new stzListOfStrings([
 	"Mabrooka"
 ])
 
-? @@S( o1.FindSubstringCS("name", :CaseSensitive = TRUE) ) + NL
+? @@( o1.FindSubstringCS("name", :CaseSensitive = TRUE) ) + NL
 #--> [
 #	[ 1, [ 13    ] ],
 #	[ 3, [ 6, 21 ] ]
 #    ]
 
-? @@S( o1.FindNthSubstringCS(2, "name", :CS = TRUE) )
+? @@( o1.FindNthSubstringCS(2, "name", :CS = TRUE) )
 # --> [ 3, 6 ]
 # --> The 2nd occurrenc of "name" in the list
 # of strings is in position 6 of the 3rd string.
@@ -801,7 +813,7 @@ o1 = new stzListOfStrings([
 	"Mabrooka"
 ])
 
-? @@S( o1.FindManySubstringsXTCS([ "name", "nice" ], :CaseSensitive = TRUE) )
+? @@( o1.FindManySubstringsXTCS([ "name", "nice" ], :CaseSensitive = TRUE) )
 # --> [
 #	[ "name" , [ [ 1, 13 ], [ 3, 6 ], [ 3, 21 ] ] ],
 #	[ "nice" , [ [ 3, 16 ] ] ]
@@ -1133,18 +1145,18 @@ o1 = new stzListOfStrings([
 #--> TRUE
 # Executed in 0.10 second(s)
 /*
-? @@S( o1.DuplicatedStrings() )
+? @@( o1.DuplicatedStrings() )
 #--> [ "tunis", "regueb" ]
 # Executed in 0.24 second(s)
 
-? @@S( o1.DuplicatedStringsZ() )
+? @@( o1.DuplicatedStringsZ() )
 # [
 #	[ "tunis",  [ 1, 2, 3, 5, 6, 8, 9 ] ],
 #	[ "regueb", [ 10, 12 ] ]
 # ]
 # Executed in 0.37 second(s)
 
-? @@S( o1.FindDuplicatedStrings() )
+? @@( o1.FindDuplicatedStrings() )
 #--> [ 1, 2, 3, 5, 6, 8, 9, 10, 12 ]
 # Executed in 0.41 second(s)
 
@@ -1152,11 +1164,11 @@ o1 = new stzListOfStrings([
 #--> TRUE
 # Executed in 0.10 second(s)
 
-? @@S( o1.FindDuplicatedString("tunis") )
+? @@( o1.FindDuplicatedString("tunis") )
 #--> [ 1, 2, 3, 5, 6, 8, 9 ]
 # Executed in 0.12 second(s)
 
-? @@S( o1.FindDuplicatedStringCS("tunis", :CS = FALSE) )
+? @@( o1.FindDuplicatedStringCS("tunis", :CS = FALSE) )
 #--> [ 1, 2, 3, 5, 6, 8, 9, 13 ]
 # Executed in 0.12 second(s)
 
@@ -1219,11 +1231,11 @@ o1 = new stzListOfStrings([
 	"tunis", "tunis", "regueb", "sfax", "regueb", "Tunis"
 ])
 
-? @@S( o1.FindDuplicatesOfString("tunis") )
+? @@( o1.FindDuplicatesOfString("tunis") )
 #--> [ 2, 3, 5, 6, 8, 9 ]
 # Executed in 0.11 second(s)
 
-? @@S( o1.FindDuplicatesOfStringCS("tunis", :CS = FALSE) )
+? @@( o1.FindDuplicatesOfStringCS("tunis", :CS = FALSE) )
 #--> [ 2, 3, 5, 6, 8, 9, 13 ]
 # Executed in 0.12 second(s)
 
@@ -1243,11 +1255,11 @@ o1 = new stzListOfStrings([
 #--> 7
 # Executed in 0.24 second(s)
 
-? @@S( o1.FindDuplicates() )
+? @@( o1.FindDuplicates() )
 #--> [ 2, 3, 5, 6, 8, 9, 12 ]
 # Executed in 0.37 second(s)
 
-? @@S( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
+? @@( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
 #--> [
 #	[ "tunis",  [ 2, 3, 5, 6, 8, 9 ] ],
 #	[ "regueb", [ 12 ] ]
@@ -1262,11 +1274,11 @@ o1 = new stzListOfStrings([
 #--> 8
 # Executed in 0.67 second(s)
 
-? @@S( o1.FindDuplicatesCS(FALSE) )
+? @@( o1.FindDuplicatesCS(FALSE) )
 #--> [ 2, 3, 5, 6, 8, 9, 12, 13 ]
 # Executed in 0.47 second(s)
 
-? @@S( o1.DuplicatesZCS(FALSE) ) # Or DuplicatesAndTheirPositions()
+? @@( o1.DuplicatesZCS(FALSE) ) # Or DuplicatesAndTheirPositions()
 #--> [
 #	[ "tunis",  [ 2, 3, 5, 6, 8, 9, 13 ] ],
 #	[ "regueb", [ 12 ] ]
@@ -1286,7 +1298,7 @@ o1 = new stzListOfStrings([
 ])
 
 o1.RemoveDuplicates()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "tunis", "gatfsa", "gabes", "regueb", "sfax", "Tunis" ]
 
 proff()
@@ -1302,7 +1314,7 @@ o1 = new stzListOfStrings([
 ])
 
 o1.RemoveDuplicatesCS(FALSE)
-? @@S(o1.Content())
+? @@(o1.Content())
 #--> [ "tunis", "gatfsa", "gabes", "regueb", "sfax" ]
 
 proff()
@@ -1317,15 +1329,15 @@ o1 = new stzListOfStrings([
 	"tunis", "tunis", "Regueb", "sfax", "regueb", "Tunis"
 ])
 
-? @@S( o1.DuplicatedStringsCS(FALSE) )
+? @@( o1.DuplicatedStringsCS(FALSE) )
 #--> [ "tunis", "regueb" ]
 # Executed in 0.38 second(s)
 
-? @@S( o1.FindDuplicatedStringsCS(FALSE) )
+? @@( o1.FindDuplicatedStringsCS(FALSE) )
 #--> [ 1, 2, 3, 5, 6, 8, 9, 13, 10, 12 ]
 # Executed in 0.50 second(s)
 
-? @@S( o1.DuplicatedStringsZCS(FALSE) )
+? @@( o1.DuplicatedStringsZCS(FALSE) )
 #--> [
 #	[ "tunis",  [ 1, 2, 3, 5, 6, 8, 9, 13 ] ],
 #	[ "regueb", [ 10, 12 ] ]
@@ -1335,15 +1347,15 @@ o1 = new stzListOfStrings([
 #--
 ? NL + "--" + NL
 
-? @@S( o1.DuplicatedStringsCS(TRUE) )
+? @@( o1.DuplicatedStringsCS(TRUE) )
 #--> [ "tunis" ]
 # Executed in 0.27 second(s)
 
-? @@S( o1.FindDuplicatedStringsCS(TRUE) )
+? @@( o1.FindDuplicatedStringsCS(TRUE) )
 #--> [ 1, 2, 3, 5, 6, 8, 9 ]
 # Executed in 0.35 second(s)
 
-? @@S( o1.DuplicatedStringsZCS(TRUE) )
+? @@( o1.DuplicatedStringsZCS(TRUE) )
 #--> [ [ "tunis", [ 1, 2, 3, 5, 6, 8, 9 ] ] ]
 # Executed in 0.35 second(s)
 
@@ -1359,12 +1371,12 @@ o1 = new stzListOfStrings([
 	"tunis", "tunis", "Regueb", "sfax", "regueb", "Tunis"
 ])
 
-? @@S( o1.DuplicatedStringsCS(FALSE) )
+? @@( o1.DuplicatedStringsCS(FALSE) )
 #--> [ "tunis", "regueb" ]
 # Executed in 0.36 second(s)
 
 o1.RemoveDuplicatedStringsCS(FALSE)
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "gatfsa", "gabes", "sfax" ]
 
 proff()
@@ -1383,19 +1395,19 @@ o1 = new stzListOfStrings([
 #--> TRUE
 # Executed in 0.26 second(s)
 
-? @@S( o1.NumberOfNonDuplicatedStrings() )
+? @@( o1.NumberOfNonDuplicatedStrings() )
 #--> 6
 # Executed in 0.34 second(s)
 
-? @@S( o1.FindNonDuplicatedStrings() )
+? @@( o1.FindNonDuplicatedStrings() )
 #--> [ 4, 7, 10, 11, 12, 13 ]
 #--> Executed in 0.34 second(s)
 
-? @@S( o1.NonDuplicatedStrings() )
+? @@( o1.NonDuplicatedStrings() )
 #--> [ "gatfsa", "gabes", "Regueb", "sfax", "regueb", "Tunis" ]
 # Executed in 0.34 second(s)
 
-? @@S( o1.NonDuplicatedStringsZ() ) # Or NonDuplicatedStringsAndTheirPositions()
+? @@( o1.NonDuplicatedStringsZ() ) # Or NonDuplicatedStringsAndTheirPositions()
 #--> [
 #	[ "gatfsa", 4  ],
 #	[ "gabes",  7  ],
@@ -1424,19 +1436,19 @@ o1 = new stzListOfStrings([ "one", "ONE", "two", "TWO" ])
 # is applied. So, the list contains duplicated strings and the result is FALSE.
 # Executed in 0.14 second(s)
 
-? @@S( o1.NumberOfNonDuplicatedStringsCS(TRUE) )
+? @@( o1.NumberOfNonDuplicatedStringsCS(TRUE) )
 #--> 4
 # Executed in 0.12 second(s)
 
-? @@S( o1.FindNonDuplicatedStringsCS(TRUE) )
+? @@( o1.FindNonDuplicatedStringsCS(TRUE) )
 #--> [ 1, 2, 3, 4 ]
 #--> Executed in 0.1é second(s)
 
-? @@S( o1.NonDuplicatedStringsCS(TRUE) )
+? @@( o1.NonDuplicatedStringsCS(TRUE) )
 #--> [ "one", "ONE", "two", "TWO" ]
 # Executed in 0.12 second(s)
 
-? @@S( o1.NonDuplicatedStringsZCS(TRUE) ) # Or NonDuplicatedStringsAndTheirPositionsCS()
+? @@( o1.NonDuplicatedStringsZCS(TRUE) ) # Or NonDuplicatedStringsAndTheirPositionsCS()
 #--> [
 #	[ "one", 1 ],
 #	[ "ONE", 2 ],
@@ -1457,12 +1469,12 @@ o1 = new stzListOfStrings([
 	"tunis", "tunis", "Regueb", "sfax", "regueb", "Tunis"
 ])
 
-//? @@S( o1.DuplicatedStringsCS(TRUE) )
+//? @@( o1.DuplicatedStringsCS(TRUE) )
 #--> [ "tunis" ]
 # Executed in 0.26 second(s)
 
 o1.RemoveDuplicatedStringsCS(TRUE)
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "gatfsa", "gabes", "Regueb", "sfax", "regueb", "Tunis" ]
 # Executed in 0.35 second(s)
 

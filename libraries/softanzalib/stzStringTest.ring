@@ -1,14 +1,260 @@
 load "stzlib.ring"
 
+/*===============
+
+pron()
+#                     3  6  9  2
+o1 = new stzString("..♥^^♥..^♥♥^..")
+
+? @@( o1.SubStringsW('
+
+	Q(@SubString).NumberOfChars() = 4 and
+	Q(@SubString).ContainsXT( 2, "♥") and
+	Q(@SubString).ContainsXT( :MoreThen = 1, "^")
+
+') )
+
+#--> [ "♥^^♥", "^♥♥^" ]
+
+proff()
+# Executed in 1.98 second(s)
+
+/*--------------
+
+pron()
+#                     3  6  9  2 
+o1 = new stzString("..♥^^♥..^♥♥^..")
+
+? @@( o1.FindSubStringsAsSectionsW('
+
+	Q(@SubString).NumberOfChars() = 4 and
+	Q(@SubString).ContainsXT( 2, "♥") and
+	Q(@SubString).ContainsXT( :MoreThen = 1, "^")
+
+') )
+
+#--> [ [ 3, 6 ], [ 9, 12 ] ]
+
+proff()
+# Executed in 1.92 second(s)
+
+/*=============
+
+pron()
+
+o1 = new stzString("...♥...♥...")
+? o1.FindW('@char = "♥"')
+#--> [4, 8]
+
+proff()
+# Executed in 1.69 second(s)
+
+/*============
+
+pron()
+
+o1 = new stzString("abCDE")
+
+? o1.First2Chars()
+#--> [ "a", "b" ]
+
+? o1.First2CharsAsString()
+#--> "ab"
+
+? o1.Last3Chars()
+#--> [ "C", "D", "E" ]
+
+? o1.Last3CharsAsString()
+#--> "CDE"
+
+? o1.Next3Chars(:StartingAt = 3)
+#--> [ "C", "D", "E" ]
+
+? o1.Next3CharsAsString(:StartingAt = 3)
+#--> "CDE"
+
+proff()
+# Executed in 0.07 second(s)
+
+/*=========
+
+pron()
+
+o1 = new stzString("aaA...")
+
+? o1.FindCS("a", :CaseSensitive) # Or :IsCaseSensitive or :CS or :IsCS
+				 # or :CaseSensitive = TRUE or :CS = TRUE or TRUE
+#--> [1, 2]
+
+? o1.FindCS("a", :CaseInSensitive) # Or :NotCaseSensitive or :NotCS
+				   # or :IsNotCaseSensitive  or :IsNotCS
+				   # or :CaseSensitive = FALSE
+				   # or :CS = FALSE
+				   # or FALSE
+#--> [1, 2, 3]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*=========
+
+pron()
+
+o1 = new stzString("softanza")
+? o1.Section(4, 6)
+#--> "tan"
+
+? o1.Section(6, 4)
+#--> "tan"
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----
+
+pron()
+
+o1 = new stzList([ "s", "o", "f", "t", "a", "n", "z", "a" ])
+? @@( o1.Section(4, 6) )
+#--> [ "t", "a", "n" ]
+
+? @@( o1.Section(6, 4) )
+#--> [ "t", "a", "n" ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*==========
+
+pron()
+
+o1 = new stzString("..3..♥..♥..2..")
+? o1.FindInSection("♥", 3, 12)
+#--> [6, 9]
+
+? o1.FindInSection("♥", 12, 3)
+#--> [6, 9]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*=========
+
+pron()
+
+o1 = new stzString("---|ABC|---|ABC|---")
+
+? @@( o1.FindBetweenAsSections("ABC", "|", "|") )
+#--> [ [ 5, 7 ], [ 13, 15 ] ]
+
+? @@( o1.FindBoundedByAsSections("ABC", '|') )
+#--> [ [ 5, 7 ], [ 13, 15 ] ]
+
+? @@( o1.FindXT("ABC", :Between = [ "|", "|" ]) )
+#--> [ 5, 13 ]
+
+? @@( o1.FindAsSectionsXT("ABC", :Between = [ "|", "|" ]) )
+#--> [ [ 5, 7 ], [ 13, 15 ] ]
+
+? @@( o1.FindXT("ABC", :BoundedBy = "|") )
+#--> [ 5, 13 ]
+
+? @@( o1.FindAsSectionsXT("ABC", :BoundedBy = "|") )
+#--> [ [ 5, 7 ], [ 13, 15 ] ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*=========
+
+pron()
+
+o1 = new stzString(' this code:   txt1  =   "    withspaces    " and txt2  =  "nospaces"  ')
+o1.SimplifyExcept( o1.FindAnyBoundedByAsSections('"') )
+
+? o1.Content()
+
+#--> 'this code: txt1 = "    withspaces    " and txt2 = "nospaces"'
+
+proff()
+# Executed in 0.08 second(s)
+
+
+/*-----------
+
+pron()
+
+o1 = new stzString("*4*34")
+
+? o1.NumberOfDuplicates()
+#--> 2
+
+? @@( o1.Duplicates() )
+#--> [ "*", "4" ]
+
+proff()
+# Executed in 0.17 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzString("ring php ringoria")
+? o1.NumberOfDuplicates()
+#--> 12
+
+? o1.Duplicates()
+#--> [ "r", "ri", "rin", "ring", "i", "in", "ing", "n", "ng", "g", " ", "p" ]
+
+proff()
+# Executed in 1.32 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzString("RINGORIALAND")
+
+# Are there any duplicated substrings in this string?
+? o1.ContainsDuplicates()
+#--> TRUE
+# Executed in 0.35 second(s)
+
+# The number of duplicates is 5:
+? o1.NumberOfDuplicates()
+#--> 5
+# Executed in 0.37 second(s)
+
+# But, if we check their positions we get only 4 !
+? @@( o1.FindDuplicates() )
+#--> [ 6, 7, 10, 11 ]
+# Executed in 0.45 second(s)
+
+# The dupicates are effectively 5:
+? @@( o1.Duplicates() )
+#--> [ "R", "RI", "I", "A", "N" ]
+# Executed in 0.45 second(s)
+
+# To find an explication, let's use the DuplicatesAndTheirPositions()
+# function, or use its short form DuplicatesZ()
+? @@( o1.DuplicatesZ() )
+#--> [ [ "R", 6 ], [ "RI", 6 ], [ "I", 7 ], [ "A", 10 ], [ "N", 11 ] ]
+# Executed in 0.80 second(s)
+
+# Hence we see that position 6 corresponds to two duplicated substrings: "R" and "RI"                                                                                                                             
+
+proff()
+# Executed in 2.20 second(s)
+
 /*================
 
 pron()
 
 o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
-? @@S( o1.FindInBetweenAsSections( "hi!", "<<", ">>" ) )
+? @@( o1.FindInBetweenAsSections( "hi!", "<<", ">>" ) )
 #--> [ [ 8, 10 ], [ 29, 31 ] ]
 
-? @@S( o1.FindInBetween( "hi!", "<<", ">>" ) )
+? @@( o1.FindInBetween( "hi!", "<<", ">>" ) )
 #--> [ 8, 29 ]
 
 proff()
@@ -18,7 +264,7 @@ proff()
 
 pron()
 
-? @@S( Q("..<<--♥♥♥--♥♥♥-->>..<<---♥♥♥>>..").
+? @@( Q("..<<--♥♥♥--♥♥♥-->>..<<---♥♥♥>>..").
 	FindInBetweenAsSections("♥♥♥", "<<", ">>") )
 #--> [ [ 7, 9 ], [ 12, 14 ], [ 26, 28 ] ]
 
@@ -30,10 +276,10 @@ proff()
 pron()
 
 o1 = new stzString("__<<teeba>>__<<rined>>__<<teeba>>")
-? @@S( o1.BetweenZ("<<", ">>") ) + NL
+? @@( o1.BetweenZ("<<", ">>") ) + NL
 #--> [ [ "teeba", 5 ], [ "rined", 16 ], [ "teeba", 27 ] ]
 
-? @@S( o1.BetweenZZ("<<", ">>") )
+? @@( o1.BetweenZZ("<<", ">>") )
 #--> [ [ "teeba", [ 5, 9 ] ], [ "rined", [ 16, 20 ] ], [ "teeba", [ 27, 31 ] ] ]
 
 proff()
@@ -44,13 +290,13 @@ proff()
 pron()
 
 o1 = new stzString("<<hi!>>..<<--♥♥♥--♥♥♥-->>..<<hi!>>")
-? @@S( o1.BetweenZZ("<<", ">>") ) + NL
+? @@( o1.BetweenZZ("<<", ">>") ) + NL
 #--> [	[ "hi!", [3, 5] ],
 #	[ "--♥♥♥--♥♥♥--", [ 12, 23 ] ],
 #	[ "hi!", [ 30, 32 ] ]
 # ]
 
-? @@S( o1.BetweenUZZ("<<", ">>") )
+? @@( o1.BetweenUZZ("<<", ">>") )
 #--> [
 #	[ "hi!", [ [ 3, 5 ], [ 30, 32 ] ] ],
 #	[ "--♥♥♥--♥♥♥--", [ [ 12, 23 ] ] ]
@@ -64,10 +310,10 @@ proff()
 pron()
 
 o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
-? @@S( o1.SubStringsBetween("<<", ">>") )
+? @@( o1.SubStringsBetween("<<", ">>") )
 #--> [ "--hi!--", "--", "hi!" ]
 
-? @@S( o1.BetweenZZ("<<", ">>") )
+? @@( o1.BetweenZZ("<<", ">>") )
 #--> [
 #	[ "--hi!--", 	[  6, 12 ] ],
 #	[ "--", 	[ 20, 21 ] ],
@@ -267,19 +513,19 @@ pron()
 o1 = new stzString("...<<hi!>>...<<-->>...<<hi!>>...")
 
 # Finding the substring "hi!" bounded by "<<" and ">>"
-? @@S( o1.FindBetween("hi!", "<<", ">>") )
+? @@( o1.FindBetween("hi!", "<<", ">>") )
 #--< [ 6, 25 ]
 
 # Written in a near-natural form:
-? @@S( o1.FindXT("hi!", :Between = ["<<", ">>"]) )
+? @@( o1.FindXT("hi!", :Between = ["<<", ">>"]) )
 #--> [ 6, 25 ]
 
 # We can yield not only the positions but the hole sections:
-? @@S( o1.FindBetweenAsSections("hi!", "<<", ">>") )
+? @@( o1.FindBetweenAsSections("hi!", "<<", ">>") )
 #--> [ [ 6, 8 ], [ 25, 27 ] ]
 
 # Written in a near-natural form:
-? @@S( o1.FindAsSectionsXT("hi!", :Between = ["<<", ">>"]) )
+? @@( o1.FindAsSectionsXT("hi!", :Between = ["<<", ">>"]) )
 #--> [ [ 6, 8 ], [ 25, 27 ] ]
 
 proff()
@@ -335,7 +581,7 @@ pron()
 
 # 		         6       4
 o1 = new stzString("...<<*>>...<<*>>...")
-? @@S( o1.FindAsSectionsXT( "*", :Between = [ "<<", ">>" ]) )
+? @@( o1.FindAsSectionsXT( "*", :Between = [ "<<", ">>" ]) )
 #--> [ [ 6, 6 ], [ 14, 14 ] ]
 
 proff()
@@ -418,26 +664,26 @@ proff()
 pron()
 
 o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<♥♥♥>>...")
-? @@S( o1.FindAnyBetweenAsSectionsD("<<", ">>", :Backward) )
+? @@( o1.FindAnyBetweenAsSectionsD("<<", ">>", :Backward) )
 #--> [ [ 25, 27 ], [ 16, 17 ], [ 6, 8 ] ]
 
-? @@S( o1.FindAnyBetweenAsSectionsS("<<", ">>", :StartingAt = 10) )
+? @@( o1.FindAnyBetweenAsSectionsS("<<", ">>", :StartingAt = 10) )
 #--> [ [ 16, 17 ], [ 25, 27 ] ]
 
-? @@S( o1.FindAnyBetweenAsSectionsSD("<<", ">>", :StoppingAt = 10, :Backward) )
+? @@( o1.FindAnyBetweenAsSectionsSD("<<", ">>", :StoppingAt = 10, :Backward) )
 #--> [ [ 25, 27 ], [ 16, 17 ] ]
-? @@S( o1.FindAnyBetweenAsSectionsSDIB("<<", ">>", :StoppingAt = 10, :Backward) )
+? @@( o1.FindAnyBetweenAsSectionsSDIB("<<", ">>", :StoppingAt = 10, :Backward) )
 #--> [ [ 23, 29 ], [ 14, 19 ] ]
 
-? @@S( o1.FindAnyBetweenAsSectionsSD("<<", ">>", :StoppingAt = 10, :Forward) )
+? @@( o1.FindAnyBetweenAsSectionsSD("<<", ">>", :StoppingAt = 10, :Forward) )
 #--> [ [ 6, 8 ] ]
-? @@S( o1.FindAnyBetweenAsSectionsSDIB("<<", ">>", :StoppingAt = 10, :Forward) )
+? @@( o1.FindAnyBetweenAsSectionsSDIB("<<", ">>", :StoppingAt = 10, :Forward) )
 #--> [ [ 4, 10 ] ]
 
-? @@S( o1.BetweenSD("<<", ">>", :StoppingAt = 10, :Going = :Backward) )
+? @@( o1.BetweenSD("<<", ">>", :StoppingAt = 10, :Going = :Backward) )
 #--> [ "♥♥♥", "★★" ]
 
-? @@S( o1.BetweenSDIB("<<", ">>", :StoppingAt = 10, :Going = :Backward) )
+? @@( o1.BetweenSDIB("<<", ">>", :StoppingAt = 10, :Going = :Backward) )
 #--> [ "<<♥♥♥>>", "<<★★>>" ]
 
 proff()
@@ -449,16 +695,16 @@ pron()
 
 o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<--->>...")
 
-? @@S( o1.FindAnyBetweenAsSectionsSDIB("<<",">>", :StoppingAt = 10, :Going = :Backward) )
+? @@( o1.FindAnyBetweenAsSectionsSDIB("<<",">>", :StoppingAt = 10, :Going = :Backward) )
 #--> [ [ 23, 29 ], [ 14, 19 ] ]
 
-? @@S( o1.BetweenSDIB("<<", ">>", :StoppingAt = 10, :Going = :Backward) )
+? @@( o1.BetweenSDIB("<<", ">>", :StoppingAt = 10, :Going = :Backward) )
 #--> [ "<<--->>", "<<★★>>" ]
 
-? @@S( o1.FindAnyBetweenAsSectionsSDIB("<<", ">>", :InSection = [4, 20], :Going = :Forward) )
+? @@( o1.FindAnyBetweenAsSectionsSDIB("<<", ">>", :InSection = [4, 20], :Going = :Forward) )
 #--> [ [ 4, 10 ], [ 14, 19 ] ]
 
-? @@S( o1.BetweenSDIB("<<", ">>", :InSection = [4, 20], :Going = :Forward) )
+? @@( o1.BetweenSDIB("<<", ">>", :InSection = [4, 20], :Going = :Forward) )
 #--> [ "<<♥♥♥>>", "<<★★>>" ]
 
 proff()
@@ -470,10 +716,10 @@ pron()
 
 o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<--->>...")
 
-? @@S( o1.FindAnyBetweenSDIB("<<",">>", :StoppingAt = 10, :Going = :Backward) )
+? @@( o1.FindAnyBetweenSDIB("<<",">>", :StoppingAt = 10, :Going = :Backward) )
 #--> [ 23, 14 ]
 
-? @@S( o1.FindAnyBetweenSDIB("<<", ">>", :InSection = [4, 20], :Going = :Forward) )
+? @@( o1.FindAnyBetweenSDIB("<<", ">>", :InSection = [4, 20], :Going = :Forward) )
 #--> [ 4, 14 ]
 
 proff()
@@ -506,16 +752,16 @@ pron()
 
 o1 = new stzString("...<<***>>...<<***>>...")
 
-? @@S( o1.FindAnyBetweenAsSectionsIB("<<", ">>") )
+? @@( o1.FindAnyBetweenAsSectionsIB("<<", ">>") )
 #--> [ [ 4, 10 ], [ 14, 20 ] ]
 
-? @@S( o1.FindAnyBetweenAsSectionsSIB("<<", ">>", :StartingAt = 10) )
+? @@( o1.FindAnyBetweenAsSectionsSIB("<<", ">>", :StartingAt = 10) )
 #--> [ [ 14, 20 ] ]
 
-? @@S( o1.FindAnyBetweenAsSectionsSIB("<<", ">>", :StoppingAt = 10) )
+? @@( o1.FindAnyBetweenAsSectionsSIB("<<", ">>", :StoppingAt = 10) )
 #--> [ [ 4, 10 ] ]
 
-? @@S( o1.FindAnyBetweenAsSectionsSIB("<<", ">>", :InSection = [4, 20]) )
+? @@( o1.FindAnyBetweenAsSectionsSIB("<<", ">>", :InSection = [4, 20]) )
 #--> [ [ 4, 10 ], [ 14, 20 ] ]
 
 proff()
@@ -548,59 +794,59 @@ pron()
 
 o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<--->>...")
 
-? @@S( o1.FindAnyBetweenAsSectionsS("<<", ">>", :StartingAt = 10) )
+? @@( o1.FindAnyBetweenAsSectionsS("<<", ">>", :StartingAt = 10) )
 #--> [ [ 16, 17 ], [ 25, 27 ] ]
 
-? @@S( o1.FindAnyBetweenS("<<", ">>", :StartingAt = 10) )
+? @@( o1.FindAnyBetweenS("<<", ">>", :StartingAt = 10) )
 #--> [ 16, 25 ]
 
-? @@S( o1.BetweenS("<<", ">>", :StartingAt = 10) )
+? @@( o1.BetweenS("<<", ">>", :StartingAt = 10) )
 #--> [ "★★", "---" ]
 
 ? NL + "--" + NL
 
-? @@S( o1.FindAnyBetweenAsSectionsSD( "<<", ">>", :StartingAt = :LastChar, :Backward ) )
+? @@( o1.FindAnyBetweenAsSectionsSD( "<<", ">>", :StartingAt = :LastChar, :Backward ) )
 #--> [ [ 25, 27 ], [ 16, 17 ], [ 6, 8 ] ]
 
-? @@S( o1.FindAnyBetweenAsSectionsSD("<<", ">>", :StartingAt = 10, :Going = :Backward ) )
+? @@( o1.FindAnyBetweenAsSectionsSD("<<", ">>", :StartingAt = 10, :Going = :Backward ) )
 #--> [ [ 6, 8 ] ]
 
-? @@S( o1.BetweenSD("<<", ">>", :StartingAt = 10, :Going = :Backward ) )
+? @@( o1.BetweenSD("<<", ">>", :StartingAt = 10, :Going = :Backward ) )
 #--> [ "♥♥♥" ]
 
 ? NL + "--" + NL
 
-? @@S( o1.BetweenSDZ("<<", ">>", :StartingAt = 10, :Going = :Backward ) )
+? @@( o1.BetweenSDZ("<<", ">>", :StartingAt = 10, :Going = :Backward ) )
 #--> [ [ "♥♥♥", 6 ] ]
 
-? @@S( o1.BetweenSDZZ("<<", ">>", :StartingAt = 10, :Going = :Backward ) )
+? @@( o1.BetweenSDZZ("<<", ">>", :StartingAt = 10, :Going = :Backward ) )
 #--> [ [ "♥♥♥", [ 6, 8 ] ] ]
 
 ? NL + "--" + NL
 
-? @@S( o1.BetweenSD("<<", ">>", :StartingAt = 10, :Forward) )
+? @@( o1.BetweenSD("<<", ">>", :StartingAt = 10, :Forward) )
 #--> [ "★★", "---" ]
 
-? @@S( o1.BetweenSZ("<<", ">>", :StartingAt = 10) )
+? @@( o1.BetweenSZ("<<", ">>", :StartingAt = 10) )
 #--> [ [ "★★", 16 ], [ "---", 25 ] ]
 
 ? NL + "--" + NL
 
-? @@S( o1.BetweenSZZ("<<", ">>", :StartingAt = 10) )
+? @@( o1.BetweenSZZ("<<", ">>", :StartingAt = 10) )
 #--> [ [ "★★", [ 16, 17 ] ], [ "---", [ 25, 27 ] ] ]
 
-? @@S( o1.BetweenSDZ("<<", ">>", :StartingAt = 10, :Forward) )
+? @@( o1.BetweenSDZ("<<", ">>", :StartingAt = 10, :Forward) )
 #--> [ [ "★★", 16 ], [ "---", 25 ] ]
 
-? @@S( o1.BetweenSDZZ("<<", ">>", :StartingAt = 10, :Forward) )
+? @@( o1.BetweenSDZZ("<<", ">>", :StartingAt = 10, :Forward) )
 #--> [ [ "★★", [ 16, 17 ] ], [ "---", [ 25, 27 ] ] ]
 
 ? NL + "--" + NL
 
-? @@S( o1.BetweenSDIBZ("<<", ">>", :StartingAt = 10, :Forward) )
+? @@( o1.BetweenSDIBZ("<<", ">>", :StartingAt = 10, :Forward) )
 #--> [ [ "<<★★>>", 14 ], [ "<<--->>", 23 ] ]
 
-? @@S( o1.BetweenSDIBZZ("<<", ">>", :StartingAt = 10, :Forward) )
+? @@( o1.BetweenSDIBZZ("<<", ">>", :StartingAt = 10, :Forward) )
 #--> [ [ "<<★★>>", [ 14, 19 ] ], [ "<<--->>", [ 23, 29 ] ] ]
 
 proff()
@@ -633,16 +879,16 @@ pron()
 
 o1 = new stzString("...<<***>>...<<***>>...")
 
-? @@S( o1.FindAnyBetweenAsSections("<<", ">>") )
+? @@( o1.FindAnyBetweenAsSections("<<", ">>") )
 #--> [ [ 6, 8 ], [ 16, 18 ] ]
 
-? @@S( o1.FindAnyBetweenAsSectionsS("<<", ">>", :StartingAt = 10) )
+? @@( o1.FindAnyBetweenAsSectionsS("<<", ">>", :StartingAt = 10) )
 #--> [ [ 16, 18 ] ]
 
-? @@S( o1.FindAnyBetweenAsSectionsS("<<", ">>", :StoppingAt = 10) )
+? @@( o1.FindAnyBetweenAsSectionsS("<<", ">>", :StoppingAt = 10) )
 #--> [ [ 6, 8 ] ]
 
-? @@S( o1.FindAnyBetweenAsSectionsS("<<", ">>", :InSection = [4, 20]) )
+? @@( o1.FindAnyBetweenAsSectionsS("<<", ">>", :InSection = [4, 20]) )
 #--> [ [ 6, 8 ], [ 16, 18 ] ]
 
 proff()
@@ -856,10 +1102,10 @@ proff()
 pron()
 
 o1 = new stzString("ring...")
-? @@S( o1.FindAsSection("ring") )
+? @@( o1.FindAsSection("ring") )
 #--> [1, 4]
 
-? @@S( o1.AntiFindAsSection("ring") )
+? @@( o1.AntiFindAsSection("ring") )
 #--> [5, 7]
 
 proff()
@@ -874,13 +1120,13 @@ o1 = new stzString("...ring...")
 ? o1.FindFirst("ring")
 #--> 4
 
-? @@S( o1.FindAsSection("ring") )
+? @@( o1.FindAsSection("ring") )
 #--> [ 4, 7 ]
 
-? @@S( o1.AntiFind("ring") )
+? @@( o1.AntiFind("ring") )
 #--> [1, 8]
 
-? @@S( o1.AntiFindAsSections("ring") )
+? @@( o1.AntiFindAsSections("ring") )
 #--> [ [ 1, 3 ], [ 8, 10 ] ]
 
 proff()
@@ -898,10 +1144,10 @@ o1 = new stzString("...456...012...")
 ? o1.AntiSections([ [4, 6], [10, 12] ])
 #--> [ "...", "...", "..." ]
 
-? @@S( o1.FindAsSections([ "456", "012" ]) )
+? @@( o1.FindAsSections([ "456", "012" ]) )
 #--> [ [ 4, 6 ], [ 10, 12 ] ]
 
-? @@S( o1.AntiFindAsSections([ "456", "012" ]) )
+? @@( o1.AntiFindAsSections([ "456", "012" ]) )
 #--> [ [ 1, 3 ], [ 7, 9 ], [ 13, 15 ] ]
 
 proff()
@@ -913,10 +1159,10 @@ pron()
 
 o1 = new stzString('this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"')
 
-? @@S( o1.FindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
+? @@( o1.FindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
 #--> [ [ 20, 43 ], [ 67, 84 ] ]
 
-? @@S( o1.AntiFindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
+? @@( o1.AntiFindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
 #--> [ [ 1, 19 ], [ 44, 66 ] ]
 
 proff()
@@ -926,10 +1172,10 @@ proff()
 pron()
 
 o1 = new stzString("ring...")
-? @@S( o1.FindAsSection("ring") )
+? @@( o1.FindAsSection("ring") )
 #--> [1, 4]
 
-? @@S( o1.AntiFindAsSection("ring") )
+? @@( o1.AntiFindAsSection("ring") )
 #--> [5, 7]
 
 proff()
@@ -944,13 +1190,13 @@ o1 = new stzString("...ring...")
 ? o1.FindFirst("ring")
 #--> 4
 
-? @@S( o1.FindAsSection("ring") )
+? @@( o1.FindAsSection("ring") )
 #--> [ 4, 7 ]
 
-? @@S( o1.AntiFind("ring") )
+? @@( o1.AntiFind("ring") )
 #--> [1, 8]
 
-? @@S( o1.AntiFindAsSections("ring") )
+? @@( o1.AntiFindAsSections("ring") )
 #--> [ [ 1, 3 ], [ 8, 10 ] ]
 
 proff()
@@ -968,10 +1214,10 @@ o1 = new stzString("...456...012...")
 ? o1.AntiSections([ [4, 6], [10, 12] ])
 #--> [ "...", "...", "..." ]
 
-? @@S( o1.FindAsSections([ "456", "012" ]) )
+? @@( o1.FindAsSections([ "456", "012" ]) )
 #--> [ [ 4, 6 ], [ 10, 12 ] ]
 
-? @@S( o1.AntiFindAsSections([ "456", "012" ]) )
+? @@( o1.AntiFindAsSections([ "456", "012" ]) )
 #--> [ [ 1, 3 ], [ 7, 9 ], [ 13, 15 ] ]
 
 proff()
@@ -982,10 +1228,10 @@ proff()
 pron()
 
 o1 = new stzString("ring...")
-? @@S( o1.FindAsSection("ring") )
+? @@( o1.FindAsSection("ring") )
 #--> [1, 4]
 
-? @@S( o1.AntiFindAsSection("ring") )
+? @@( o1.AntiFindAsSection("ring") )
 #--> [5, 7]
 
 proff()
@@ -1000,13 +1246,13 @@ o1 = new stzString("...ring...")
 ? o1.FindFirst("ring")
 #--> 4
 
-? @@S( o1.FindAsSection("ring") )
+? @@( o1.FindAsSection("ring") )
 #--> [ 4, 7 ]
 
-? @@S( o1.AntiFind("ring") )
+? @@( o1.AntiFind("ring") )
 #--> [1, 8]
 
-? @@S( o1.AntiFindAsSections("ring") )
+? @@( o1.AntiFindAsSections("ring") )
 #--> [ [ 1, 3 ], [ 8, 10 ] ]
 
 proff()
@@ -1024,10 +1270,10 @@ o1 = new stzString("...456...012...")
 ? o1.AntiSections([ [4, 6], [10, 12] ])
 #--> [ "...", "...", "..." ]
 
-? @@S( o1.FindAsSections([ "456", "012" ]) )
+? @@( o1.FindAsSections([ "456", "012" ]) )
 #--> [ [ 4, 6 ], [ 10, 12 ] ]
 
-? @@S( o1.AntiFindAsSections([ "456", "012" ]) )
+? @@( o1.AntiFindAsSections([ "456", "012" ]) )
 #--> [ [ 1, 3 ], [ 7, 9 ], [ 13, 15 ] ]
 
 proff()
@@ -1039,10 +1285,10 @@ pron()
 
 o1 = new stzString('this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"')
 
-? @@S( o1.FindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
+? @@( o1.FindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
 #--> [ [ 20, 43 ], [ 67, 84 ] ]
 
-? @@S( o1.AntiFindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
+? @@( o1.AntiFindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]) )
 #--> [ [ 1, 19 ], [ 44, 66 ] ]
 
 proff()
@@ -1076,13 +1322,13 @@ pron()
 #                   ...4...8...2...6...2...   
 o1 = new stzString("...&^^^&...&vvv&...&...")
 
-? @@S( o1.FindAnyBoundedByAsSectionsD("&", :Forward) )
+? @@( o1.FindAnyBoundedByAsSectionsD("&", :Forward) )
 #--> [ [ 5, 7 ], [ 13, 15 ] ]
 
-? @@S( o1.FindAnyBoundedByD("&", :Forward) )
+? @@( o1.FindAnyBoundedByD("&", :Forward) )
 #--> [ 5, 13 ]
 
-? @@S( o1.BoundedByD("&", :Going = :Backward) )
+? @@( o1.BoundedByD("&", :Going = :Backward) )
 #--> [ "...", "..." ]
 
 proff()
@@ -1095,7 +1341,7 @@ pron()
 #                   ...4...8...2...6...2...   
 o1 = new stzString("...&^^^&...&vvv&...&...")
 
-? @@S( o1.FindAnyBoundedByAsSectionsD("&", :Backward) )
+? @@( o1.FindAnyBoundedByAsSectionsD("&", :Backward) )
 #--> [ [ 9, 11 ], [ 17, 19 ] ]
 
 proff()
@@ -1108,10 +1354,10 @@ pron()
 #                   ...4.6...0.2...6.8...2.4...8.0...   
 o1 = new stzString("...&&&^^^&&&...&&&vvv&&&...&&&...")
 
-? @@S( o1.FindAnyBoundedByAsSectionsD("&&&", :Backward) )
+? @@( o1.FindAnyBoundedByAsSectionsD("&&&", :Backward) )
 #--> [ [ 13, 15 ], [ 25, 27 ] ]
 
-? @@S( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Backward) )
+? @@( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Backward) )
 #--> [ [ 10, 18 ], [ 22, 30 ] ]
 
 proff()
@@ -1124,18 +1370,18 @@ pron()
 #                   ...4.6...0.2...6.8...2.4...8.0...   
 o1 = new stzString("...&&&^^^&&&...&&&vvv&&&...&&&...")
 
-? @@S( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Forward) )
+? @@( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Forward) )
 #--> [ [ 4, 12 ], [ 16, 24 ] ]
 
-? @@S( o1.BoundedByDIB("&&&", :Forward) )
+? @@( o1.BoundedByDIB("&&&", :Forward) )
 #--> [ "&&&^^^&&&", "&&&vvv&&&" ]
 
 ? NL + "--" + NL
 
-? @@S( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Backward) )
+? @@( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Backward) )
 #--> [ [ 10, 18 ], [ 22, 30 ] ]
 
-? @@S( o1.BoundedByDIB("&&&", :Backward) )
+? @@( o1.BoundedByDIB("&&&", :Backward) )
 #--> [ "&&&...&&&", "&&&...&&&" ]
 
 proff()
@@ -1148,18 +1394,18 @@ pron()
 #                   ...4...8...2...6...2...   
 o1 = new stzString("...&^^^&...&vvv&...&...")
 
-? @@S( o1.FindAnyBoundedByAsSectionsDIB("&", :Forward) )
+? @@( o1.FindAnyBoundedByAsSectionsDIB("&", :Forward) )
 #--> [ [ 4, 8 ], [ 12, 16 ] ]
 
-? @@S( o1.BoundedByDIB("&", :Forward) )
+? @@( o1.BoundedByDIB("&", :Forward) )
 # [ "&^^^&", "&vvv&" ]
 
 ? NL + "--" + NL
 
-? @@S( o1.FindAnyBoundedByAsSectionsDIB("&", :Backward) )
+? @@( o1.FindAnyBoundedByAsSectionsDIB("&", :Backward) )
 #--> [ [ 8, 12 ], [ 16, 20 ] ]
 
-? @@S( o1.BoundedByDIB("&", :Going = :Backward) )
+? @@( o1.BoundedByDIB("&", :Going = :Backward) )
 #--> [ "&...&", "&...&" ]
 
 proff()
@@ -1172,13 +1418,13 @@ pron()
 #                   ...4...8...2...6...2...   
 o1 = new stzString("...&^^^&...&vvv&...&...")
 
-? @@S( o1.BoundedByZ("&") )
+? @@( o1.BoundedByZ("&") )
 # [
 #	[ "^^^", [ 5  ] ],
 #	[ "vvv", [ 13 ] ]
 # ]
 
-?  @@S( o1.BoundedByZZ("&") )
+?  @@( o1.BoundedByZZ("&") )
 # [
 #	[ "^^^", [ [ 5, 7   ] ] ],
 #	[ "vvv", [ [ 13, 15 ] ] ]
@@ -1194,13 +1440,13 @@ pron()
 #                   ..3...7..0...4..7...1..4...8..  
 o1 = new stzString("..&^^^&..&^^^&..&---&..&---&..")
 
-? @@S( o1.BoundedByZ("&") )
+? @@( o1.BoundedByZ("&") )
 #--> [
 #	[ "^^^", [  4, 11 ] ],
 #	[ "---", [ 18, 25 ] ]
 # ]
 
-? @@S( o1.BoundedByZZ("&") )
+? @@( o1.BoundedByZZ("&") )
 #--> [
 #	[ "^^^", [ [  4,  6 ], [ 11, 13 ] ] ],
 #	[ "---", [ [ 18, 20 ], [ 25, 27 ] ] ]
@@ -1224,10 +1470,10 @@ o1 = new stzString("...&^^^&...&vvv&...&...")
 
 ? NL + "--" + NL
 
-? @@S( o1.FindAnyBoundedByAsSections("&") )
+? @@( o1.FindAnyBoundedByAsSections("&") )
 #--> [ [ 5, 7 ], [ 13, 15 ] ]
 
-? @@S( o1.FindAnyBoundedByAsSectionsIB("&") )
+? @@( o1.FindAnyBoundedByAsSectionsIB("&") )
 #--> [ [ 4, 8 ], [ 12, 16 ] ]
 
 proff()
@@ -1240,10 +1486,10 @@ pron()
 #                   ...4...8...2...6...2...   
 o1 = new stzString("...&^^^&...&vvv&...&...")
 
-? @@S( o1.BoundedByIBZ("&") )
+? @@( o1.BoundedByIBZ("&") )
 #--> [ [ "&^^^&", 4 ], [ "&vvv&", 12 ] ]
 
-? @@S( o1.BoundedByIBZZ("&") )
+? @@( o1.BoundedByIBZZ("&") )
 #--> [ [ "&^^^&", [ 4, 8 ] ], [ "&vvv&", [ 12, 16 ] ] ]
 
 proff()
@@ -1257,35 +1503,35 @@ pron()
 #                   ...4...8...2...6...2...   
 o1 = new stzString("...&^^^&...&vvv&...&...")
 
-? @@S( o1.BoundedByD("&", :Forward) )
+? @@( o1.BoundedByD("&", :Forward) )
 #--> [ "^^^", "vvv" ]
 
-? @@S( o1.BoundedByD("&", :Backward) )
+? @@( o1.BoundedByD("&", :Backward) )
 #--> [ "...", "..." ]
 
 ? NL + "--" + NL
 
-? @@S( o1.BoundedByDZ("&", :Forward) )
+? @@( o1.BoundedByDZ("&", :Forward) )
 #--> [ [ "^^^", 5 ], [ "vvv", 13 ] ]
 
-? @@S( o1.BoundedByDZ("&", :Backward) )
+? @@( o1.BoundedByDZ("&", :Backward) )
 #--> [ [ "...", 9 ], [ "...", 17 ] ]
 
-? @@S( o1.BoundedByDZZ("&", :Backward) )
+? @@( o1.BoundedByDZZ("&", :Backward) )
 #--> [ [ "...", [ 9, 11 ] ], [ "...", [ 17, 19 ] ]
 
 ? NL + "--" + NL
 
-? @@S( o1.BoundedByDIBZ("&", :Forward) )
+? @@( o1.BoundedByDIBZ("&", :Forward) )
 #--> [ [ "&^^^&", 4 ], [ "&vvv&", 12 ] ]
 
-? @@S( o1.BoundedByDIBZZ("&", :Forward) )
+? @@( o1.BoundedByDIBZZ("&", :Forward) )
 #--> [ [ "&^^^&", [ 4, 8 ] ], [ "&vvv&", [ 12, 16 ] ] ]
 
-? @@S( o1.BoundedByDIBZ("&", :Backward) )
+? @@( o1.BoundedByDIBZ("&", :Backward) )
 #--> [ [ "&...&", 8 ], [ "&...&", 16 ] ]
 
-? @@S( o1.BoundedByDIBZZ("&", :Backward) )
+? @@( o1.BoundedByDIBZZ("&", :Backward) )
 #--> [ [ "&...&", [ 8, 12 ] ], [ "&...&", [ 16, 20 ] ] ]
 
 proff()
@@ -1346,7 +1592,7 @@ proff()
 
 pron()
 
-? @@S( Q("ring is owsome!").UppercaseQ().LettersQ().YieldXT('[ @item, ascii(@item) - 65 ]') )
+? @@( Q("ring is owsome!").UppercaseQ().LettersQ().YieldXT('[ @item, ascii(@item) - 65 ]') )
 #--> [
 #	[ "R", 17 ], [ "I", 8  ], [ "N", 13 ],
 #	[ "G", 6  ], [ "I", 8  ], [ "S", 18 ],
@@ -1361,22 +1607,22 @@ pron()
 #                   1  4 6  9 1   567      456
 o1 = new stzString("...<<ring>>...<<softanza>>...")
 
-? @@S( o1.FindAnyBetween("<<",">>") )
+? @@( o1.FindAnyBetween("<<",">>") )
 #--> [6, 17]
 
-? @@S( o1.FindAnyBetweenAsSections("<<",">>") )
+? @@( o1.FindAnyBetweenAsSections("<<",">>") )
 #--> [ [6, 9], [17, 24] ]
 
-? @@S( o1.AnyBetween("<<",">>") )
+? @@( o1.AnyBetween("<<",">>") )
 #--> ["ring", "softanza"]
 
-? @@S( o1.FindAnyBetweenIB("<<",">>") )
+? @@( o1.FindAnyBetweenIB("<<",">>") )
 #--> [4, 15]
 
-? @@S( o1.FindAnyBetweenAsSectionsIB("<<",">>") )
+? @@( o1.FindAnyBetweenAsSectionsIB("<<",">>") )
 #--> [ [4, 11], [15, 26] ]
 
-? @@S( o1.AnyBetweenIB("<<",">>") )
+? @@( o1.AnyBetweenIB("<<",">>") )
 #--> ["<<ring>>", "<<softanza>>"]
 
 proff()
@@ -1391,7 +1637,7 @@ o1 = new stzString("___<<<__<<<__")
 ? o1.FindFirst("<<<")
 #--> 4
 
-? @@S( o1.FindFirstAsSection("<<<") )
+? @@( o1.FindFirstAsSection("<<<") )
 #--> [4, 6]
 
 proff()
@@ -1407,7 +1653,7 @@ o1 = new stzString("___<<<__<<<__")
 ? o1.FindLast("<<<")
 #--> 9
 
-? @@S( o1.FindLastAsSection("<<<") )
+? @@( o1.FindLastAsSection("<<<") )
 #--> [9, 11]
 
 proff()
@@ -1465,7 +1711,7 @@ proff()
 pron()
 
 o1 = new stzString("Math: 18, Geo: 16, :Physics: 17.80")
-? @@S( o1.ExtractNumbers() )
+? @@( o1.ExtractNumbers() )
 #--> [ "18", "16", "17.80" ]
 
 ? o1.Content()
@@ -1663,14 +1909,14 @@ o1 = new stzString("123456789")
 	? o1.FirstHalfXT()
 	#--> 12345
 	
-	? @@S( o1.FirstHalfAndItsPosition() )
+	? @@( o1.FirstHalfAndItsPosition() )
 	#--> [ "1234", 1 ]
-	? @@S( o1.FirstHalfAndItsSection() )
+	? @@( o1.FirstHalfAndItsSection() )
 	#--> [ "1234", [ 1, 4 ] ]
 	
-	? @@S( o1.FirstHalfAndItsPositionXT() )
+	? @@( o1.FirstHalfAndItsPositionXT() )
 	#--> [ "12345", 1 ]
-	? @@S( o1.FirstHalfAndItsSectionXT() )
+	? @@( o1.FirstHalfAndItsSectionXT() )
 	#--> [ "12345", [ 1, 5 ] ]
 
 # SECOND HALF
@@ -1680,34 +1926,34 @@ o1 = new stzString("123456789")
 	? o1.SecondHalfXT()
 	#--> 6789
 	
-	? @@S( o1.SecondHalfAndItsPosition() )
+	? @@( o1.SecondHalfAndItsPosition() )
 	#--> [ "56789", 5 ]
-	? @@S( o1.SecondHalfAndItsSection() )
+	? @@( o1.SecondHalfAndItsSection() )
 	#--> [ "56789", [ 5, 9 ] ]
 	
-	? @@S( o1.SecondHalfAndItsPositionXT() )
+	? @@( o1.SecondHalfAndItsPositionXT() )
 	#--> [ "6789", 6 ]
-	? @@S( o1.SecondHalfAndItsSectionXT() )
+	? @@( o1.SecondHalfAndItsSectionXT() )
 	#--> [ "6789",  [ 6, 9 ] ]
 
 #-- THE TWO HALVES
 
-	? @@S( o1.Halves() )
+	? @@( o1.Halves() )
 	#--> [ "1234", "56789" ]
 
-	? @@S( o1.HalvesXT() )
+	? @@( o1.HalvesXT() )
 	#--> [ "12345", "6789" ]
 
-	? @@S( o1.HalvesAndPositions() )
+	? @@( o1.HalvesAndPositions() )
 	#--> [ [ "1234", 1 ], [ "56789", 5 ] ]
 
-	? @@S( o1.HalvesAndPositionsXT() )
+	? @@( o1.HalvesAndPositionsXT() )
 	#--> [ [ "12345", 1 ], [ "6789", 6 ] ]
 
-	? @@S( o1.HalvesAndSections() )
+	? @@( o1.HalvesAndSections() )
 	#--> [ [ "1234", [ 1, 4 ] ], [ "56789", [ 5, 9 ] ] ]
 
-	? @@S( o1.HalvesAndSectionsXT() )
+	? @@( o1.HalvesAndSectionsXT() )
 	#--> [ [ "12345", [ 1, 5 ] ], [ "6789", [ 6, 9 ] ] ]
 
 proff()
@@ -1747,7 +1993,7 @@ StopProfiler()
 StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
-? @@S( oLargeStr.FindAll("ALIF") )
+? @@( oLargeStr.FindAll("ALIF") )
 
 ? oLargeStr.Contains("ALIF")
 #--> TRUE
@@ -1977,28 +2223,28 @@ StartProfiler()
 o1 = new stzString("I love <<Ring>> and <<Softanza>>!")
 
 # Finding the positions of substrings enclosed between << and >>
-? @@S( o1.FindanyBetween("<<",">>") )
+? @@( o1.FindanyBetween("<<",">>") )
 #--> [10, 23]
 
 	# Returning the same result as sections
-	? @@S( o1.FindAnyBetweenAsSections("<<",">>") )
+	? @@( o1.FindAnyBetweenAsSections("<<",">>") )
 	#--> [ [10, 13], [23, 30] ]
 
 	# Getting the substrings themselves
-	? @@S( o1.AnyBetween("<<",">>") ) # Or SubStringsBetween("<<", :And = ">>")
+	? @@( o1.AnyBetween("<<",">>") ) # Or SubStringsBetween("<<", :And = ">>")
 	#--> [ "Ring", "Softanza" ]
 
 # Now, we need to do the same thing but we want to return the
 # bounding chars << and >> in the result as well. To do so,
 # we can use the IB/extended version of the same functions like this:
 
-? @@S( o1.FindAnyBetweenIB("<<",">>") )
+? @@( o1.FindAnyBetweenIB("<<",">>") )
 #--> [8, 21]
 
-	? @@S( o1.FindAnyBetweenAsSectionsIB("<<",">>") )
+	? @@( o1.FindAnyBetweenAsSectionsIB("<<",">>") )
 	#--> [ [ 8, 15 ], [ 21, 32 ] ]
 
-	? @@S( o1.AnyBetweenIB("<<",">>") )
+	? @@( o1.AnyBetweenIB("<<",">>") )
 	#--> [ <<Ring>>, <<Softanza>> ]
 
 StopProfiler()
@@ -2024,7 +2270,7 @@ o1 = new stzString('[
 
 ]')
 
-//? @@S( o1.DeepFindAnyBetweenAsSections("[", "]") )
+//? @@( o1.DeepFindAnyBetweenAsSections("[", "]") )
 
 aList = o1.DeepSubStringsBetweenIB("[", "]")
 nLen = len(aList)
@@ -2173,7 +2419,7 @@ pron()
 o1 = new stzString("r  in  g language is like a r  ing at your fingertips!")
 
 acSubStringsXT =  o1.SubStringsBetweenAndTheirSectionsXT("r","g")
-//? @@S(acSubStringsXT)
+//? @@(acSubStringsXT)
 #--> [
 #	[ "r in g", [  1, 8  ] ],
 #	[ "r ing",  [ 29, 34 ] ],
@@ -2189,7 +2435,7 @@ aSectionsPos = Q(acWithoutSpaces).FindW('This[@i] = "ring"')
 #--> [1, 2]
 
 aSectionsToBeUnSpacified = oHashList.ValuesQ().ItemsAtPositions(aSectionsPos)
-//? @@S(aSectionsToBeUnSpacified)
+//? @@(aSectionsToBeUnSpacified)
 #--> [ [ 1, 8 ], [ 29, 34 ] ]
 
 o1.UnspacifySections(aSectionsToBeUnSpacified)
@@ -2203,7 +2449,7 @@ proff()
 pron()
 
 o1 = new stzString("   r  in  g  is a rin  g  ")
-? @@S( o1.FindAnyBetweenAsSectionsIB("r","g") )
+? @@( o1.FindAnyBetweenAsSectionsIB("r","g") )
 #--> [ [ 4, 11 ], [ 19, 24 ] ]
 
 ? o1.SubStringsBetweenIBQR("r","g", :stzListOfStrings).WithoutSapces()
@@ -2519,7 +2765,7 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 ? o1.FindFirstSDZZ("♥♥♥", :StartingAt = 5, :Direction = :Forward)
 #--> [ "♥♥♥", [8, 10] ]
 
-? @@S(o1.FindLastSDZZ("♥♥♥", :StartingAt = 6, :Direction = :Forward))
+? @@(o1.FindLastSDZZ("♥♥♥", :StartingAt = 6, :Direction = :Forward))
 #--> [ "♥♥♥", [13, 15] ]
 
 proff()
@@ -2705,7 +2951,7 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 ? o1.FindNthDZZ(2, "♥♥♥", :Backward)
 #--> [ "♥♥♥", [8, 10] ]
 
-? @@S( o1.FindDZZ("♥♥♥", :Backward) )
+? @@( o1.FindDZZ("♥♥♥", :Backward) )
 #--> [ "♥♥♥"", [ [ 13, 15 ], [ 8, 10 ], [ 3, 5 ] ] ]
 
 proff()
@@ -2718,13 +2964,13 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 /*
-? @@S( o1.Find( "♥♥♥" ) ) # or FindOccurrences( :Of = "♥♥♥" )
+? @@( o1.Find( "♥♥♥" ) ) # or FindOccurrences( :Of = "♥♥♥" )
 #--> [3, 8, 13 ]
 
-? @@S( o1.FindZ( :Of = "♥♥♥") )
+? @@( o1.FindZ( :Of = "♥♥♥") )
 #--> [ "♥♥♥", [3, 8, 13 ] ]
 
-? @@S( o1.FindZZ( :Of = "♥♥♥") )
+? @@( o1.FindZZ( :Of = "♥♥♥") )
 #--> [ "♥♥♥", [ [3, 5], [8, 10], [13, 15] ] ]
 
 proff()
@@ -2736,16 +2982,16 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? @@S( o1.FindD( "♥♥♥", :Backward ) )
+? @@( o1.FindD( "♥♥♥", :Backward ) )
 #--> [ 13, 8, 3 ]
 
 ? o1.FindAsSectionsD( "♥♥♥", :Backward )
 #--> [ [13, 5], [8, 10], [3, 5] ]
 
-? @@S( o1.FindDZ( "♥♥♥", :Backward) )
+? @@( o1.FindDZ( "♥♥♥", :Backward) )
 #--> [ "♥♥♥", [ 13, 8, 3 ] ]
 
-? @@S( o1.FindDZZ( "♥♥♥", :Backward) )
+? @@( o1.FindDZZ( "♥♥♥", :Backward) )
 #--> [ "♥♥♥", [ [ 13, 15 ], [ 8, 10 ], [ 3, 5 ] ] ]
 
 proff()
@@ -2760,10 +3006,10 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 ? o1.FindS( "♥♥♥", :StartingAt = 6 )
 #--> [8, 13 ]
 
-? @@S( o1.FindSZ( "♥♥♥", :StartingAt = 6 ) )
+? @@( o1.FindSZ( "♥♥♥", :StartingAt = 6 ) )
 #--> [ "♥♥♥", [8, 13 ] ]
 
-? @@S( o1.FindSZZ( "♥♥♥", :StartingAt = 6 ) )
+? @@( o1.FindSZZ( "♥♥♥", :StartingAt = 6 ) )
 #--> [ "♥♥♥", [ [8, 10], [13, 15] ] ]
 
 proff()
@@ -2782,10 +3028,10 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 ? o1.FindSDZ( "♥♥♥", :StartingAt = 6, :Backward )
 #--> [ "♥♥♥", [13, 8] ]
 
-? @@S( o1.FindAsSectionsSD("♥♥♥", :StartingAt = 6, :Backward) )
+? @@( o1.FindAsSectionsSD("♥♥♥", :StartingAt = 6, :Backward) )
 #--> [ [ 13, 15 ], [ 8, 10 ] ]
 
-? @@S( o1.FindSDZZ( "♥♥♥", :StartingAt = 6, :Backward ) )
+? @@( o1.FindSDZZ( "♥♥♥", :StartingAt = 6, :Backward ) )
 #--> [ "♥♥♥", [ [ 13, 15 ], [ 8, 10 ] ] ]
 
 proff()
@@ -2806,30 +3052,50 @@ o1 = new stzString("**aa***aa**aa***")
 proff()
 
 /*-----------------
-*/
+
 pron()
 
 #                     3    8   3
 o1 = new stzString("**aa***aa**aa***")
-? o1.
-? o1.SplitQ("aa").RemoveFirstAndLastItemsQ().Content()
+
+? o1.SplitQ("aa").IfQ('This.NumberOfItems() > 2').RemoveFirstAndLastItemsQ().Content()
 #--> ["***", "**"]
 
-# TODO: Needs more thinking, because the ELSE case should also be considered.
+# TODO: IfQ() function Needs more thinking, because the ELSE case should also be considered.
 #--> A use case better suited for stzChainOfValue
 
 proff()
+# Executed in 0.03 second(s)
 
-
-/*-----------------
+/*===============
 */
 pron()
 
+o1 = new stzString("aa***aa**aa***")
+
+? o1.FindAnyBetween("aa", "aa")
+
+? o1.FindAnyBetweenAsSections("aa", "aa")
+
+
+proff()
+
+/*---------------
+*/
+pron()
 #                     3    8   3
 o1 = new stzString("**aa***aa**aa***")
-? o1.SplitQ("aa").IfQ('This.NumberOfItems() > 2').RemoveFirstAndLastItemsQ().Content()
-? o1.FindAnyBetweenAsSections("aa", "aa")
-#--> [ 5, 7 ]
+
+? @@(o1.FindAnyBetweenAsSectionsS("aa", "aa", 1))
+#--> [ [ 5, 7 ], [ 10, 11 ] ]
+
+? @@(o1.FindAnyBetweenAsSectionsD("aa", "aa", :Backward))
+#--> [ [ 10, 11 ], [ 5, 7 ] ]
+
+? @@(o1.FindAnyBetweenAsSectionsS("aa", "aa", :StartingAt = 3))
+#--> [ [ 10, 11 ] ]
+
+? @@(o1.FindAnyBetweenAsSectionsSD("aa", "aa", :StartingAt = 3, :Going = :Forward))
 
 proff()
 
@@ -2850,7 +3116,7 @@ o1 = new stzString("*aa***aa**aa***aa*")
 #--> TRUE
 
 proff()
-# Executed in 0.19 second(s)
+# Executed in 0.18 second(s)
 
 #---------
 
@@ -2872,7 +3138,7 @@ o1 = new stzString("*aa***aa**aa***aa*")
 ? o1.FindAnyBetween("aa", "aa")
 #--> [4, 9, 13]
 
-? @@S( o1.FindAnyBetweenAsSections("aa", "aa") )
+? @@( o1.FindAnyBetweenAsSections("aa", "aa") )
 #--> [ [ 4, 6 ], [ 9, 10 ], [ 13, 15 ] ]
 
 proff()
@@ -2887,7 +3153,7 @@ o1 = new stzString("*<<***>>**<<***>>*")
 ? o1.FindAnyBetween("<<", ">>")
 #--> [4, 13]
 
-? @@S( o1.FindAnyBetweenAsSections("<<", ">>") )
+? @@( o1.FindAnyBetweenAsSections("<<", ">>") )
 #--> [ [ 4, 6 ], [ 13, 15 ] ]
 
 ? "--"
@@ -2895,7 +3161,7 @@ o1 = new stzString("*<<***>>**<<***>>*")
 ? o1.FindAnyBetweenIB("<<", ">>")
 #--> [2, 11]
 
-? @@S( o1.FindAnyBetweenAsSections("<<", ">>") )
+? @@( o1.FindAnyBetweenAsSections("<<", ">>") )
 #--> [ [ 4, 6 ], [ 13, 15 ] ]
 
 proff()
@@ -2908,39 +3174,39 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 
-? @@S( o1.FindAnyBetween("67", :And = "12") ) # Same as o1.FindSubStringsBetween("67", "12")
+? @@( o1.FindAnyBetween("67", :And = "12") ) # Same as o1.FindSubStringsBetween("67", "12")
 #--> [ 8 ]
 
-? @@S( o1.FindBetween("♥♥♥", "67", :And = "12") ) # Same  as o1.FindSubStringsBetween( "♥♥♥", "67", "12")
+? @@( o1.FindBetween("♥♥♥", "67", :And = "12") ) # Same  as o1.FindSubStringsBetween( "♥♥♥", "67", "12")
 #--> [ 8 ]
 
-? @@S( o1.FindXT( "♥♥♥", :Between = [ "67", :And = "12" ]) )
+? @@( o1.FindXT( "♥♥♥", :Between = [ "67", :And = "12" ]) )
 #--> [ 8 ]
 
-? @@S( o1.FindAsSectionsXT( "♥♥♥", :Between = [ "67", :And = "12" ]) )
+? @@( o1.FindAsSectionsXT( "♥♥♥", :Between = [ "67", :And = "12" ]) )
 #--> [ [ 8, 10 ] ]
 
-? @@S( o1.FindAsSectionsXT( "♥♥♥", :BetweenIB = [ "67", :And = "12" ]) )
+? @@( o1.FindAsSectionsXT( "♥♥♥", :BetweenIB = [ "67", :And = "12" ]) )
 #--> [ [ 6, 12 ] ]
 
-? @@S( o1.FindAsSectionsXT( "♥♥♥", :Between = [ "12", :And = "67" ]) )
+? @@( o1.FindAsSectionsXT( "♥♥♥", :Between = [ "12", :And = "67" ]) )
 #--> [ [ 3, 5 ], [ 13, 15 ] ]
 
-? @@S( o1.FindAsSectionsXT( "♥♥♥", :BetweenIB = [ "12", "67" ]) )
+? @@( o1.FindAsSectionsXT( "♥♥♥", :BetweenIB = [ "12", "67" ]) )
 #--> [ [ 1, 7 ], [ 11, 17 ] ]
 
 #-----
 
-? @@S( o1.FindXT( "♥♥♥", :Between = ["12", :And = "67" ]) )
+? @@( o1.FindXT( "♥♥♥", :Between = ["12", :And = "67" ]) )
 #--> [3, 13]
 
-? @@S( o1.FindAsSectionsXT( "♥♥♥", :Between = ["12", :And = "67" ]) )
+? @@( o1.FindAsSectionsXT( "♥♥♥", :Between = ["12", :And = "67" ]) )
 #--> [ [ 3, 5 ], [ 13, 15 ] ]
 
-? @@S( o1.FindXT( "♥♥♥", :BetweenIB = ["12", :And = "67" ]) )
+? @@( o1.FindXT( "♥♥♥", :BetweenIB = ["12", :And = "67" ]) )
 #--> [1, 11]
 
-? @@S( o1.FindAsSectionsXT( "♥♥♥", :BetweenIB = ["12", :And = "67" ]) )
+? @@( o1.FindAsSectionsXT( "♥♥♥", :BetweenIB = ["12", :And = "67" ]) )
 #--> [ [ 1, 7 ], [ 11, 17 ] ]
 
 proff()
@@ -2953,10 +3219,10 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 
-? @@S( o1.FindAnyBetweenAsSectionsIB("12", "67") )
+? @@( o1.FindAnyBetweenAsSectionsIB("12", "67") )
 #--> [ [ 1, 7 ], [ 11, 17 ] ]
 
-? @@S( o1.FindAnyBetweenAsSections("♥♥♥", "♥♥♥") )
+? @@( o1.FindAnyBetweenAsSections("♥♥♥", "♥♥♥") )
 #--> [ [ 6, 7 ] ]
 
 proff()
@@ -3072,10 +3338,10 @@ StartProfiler()
 
 o1 = new stzString("The range is between {min} and {max}")
 
-? @@S( o1.FindAnyBetween("{", "}") ) + NL
+? @@( o1.FindAnyBetween("{", "}") ) + NL
 #--> [ 23, 33 ]
 
-? @@S( o1.FindAnyBetweenAsSections("{", "}") ) + NL
+? @@( o1.FindAnyBetweenAsSections("{", "}") ) + NL
 #--> [ [ 23, 25 ], [ 33, 35 ] ]
 
 StopProfiler()
@@ -3087,13 +3353,13 @@ StartProfiler()
 
 o1 = new stzString("The range is between {min} and {max}")
 
-? @@S( o1.FindAnyBetweenIB("{", "}") ) + NL
+? @@( o1.FindAnyBetweenIB("{", "}") ) + NL
 #--> [ 22, 32 ]
 
-//? @@S( o1.FindAnyBetweenIBZ("{", "}") ) + NL
+//? @@( o1.FindAnyBetweenIBZ("{", "}") ) + NL
 #--> [ [ "min", 23 ], [ "max", 33 ] ]
 
-? @@S( o1.FindAnyBetweenIBZZ("{", "}") )
+? @@( o1.FindAnyBetweenIBZZ("{", "}") )
 #--> [ [ "min", [ 23, 25 ] ], [ "max", [ 33, 35 ] ] ]
 
 StopProfiler()
@@ -3104,13 +3370,13 @@ StopProfiler()
 pron()
 
 o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla {✤✤✤}")
-? @@S( o1.Find([ "♥♥♥", "✤✤✤" ]) ) # or FindMany()
+? @@( o1.Find([ "♥♥♥", "✤✤✤" ]) ) # or FindMany()
 #-->[ 6, 22, 35 ]
 
-? @@S( o1.FindZ([ "♥♥♥", "✤✤✤" ]) ) + NL # or FindManyZ()
+? @@( o1.FindZ([ "♥♥♥", "✤✤✤" ]) ) + NL # or FindManyZ()
 #--> [ [ "♥♥♥", [ 6, 22 ] ], [ "✤✤✤", [ 35 ] ] ]
 
-? @@S( o1.FindZZ([ "♥♥♥", "✤✤✤" ]) ) # or FindManyZZ()
+? @@( o1.FindZZ([ "♥♥♥", "✤✤✤" ]) ) # or FindManyZZ()
 #--> [
 #	[ "♥♥♥",   [ [6, 8], [22, 24] ] ],
 # 	[ "✤✤✤", [ [ 35, 37 ] ] ]
@@ -3118,6 +3384,327 @@ o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla {✤✤✤}")
 
 proff()
 # Executed in 0.07 second(s)
+
+/*==================================================
+			 
+ +-------------------+--------+--------+-------+
+ |       SPLITTING   |   At   | Before | After |
+ +===================+========+========+=======+
+ |      A Position   |   ✓   |   ✓   |   ✓   |
+ +-------------------+--------+--------+-------+
+ |  Many Positions   |   ✓   |   ✓   |   ✓   |
+ +-------------------+--------+--------+-------+
+ |     A SubString   |   ✓   |   ✓   |   ✓   |
+ +-------------------+--------+--------+-------+
+ |  Many SubStrings  |   ✓   |   ✓   |   ✓   |
+ +-------------------+--------+--------+-------+
+ |	Section	     |   ✓   |   ✓   |   ✓   |
+ +-------------------+--------+--------+-------+
+ |  Many Sections    |   ✓   |   ✓   |   ✓   |
+ +-------------------+--------+--------+-------+
+ |           Where   |   ✓   |   ✓   |   ✓   |
+ +-------------------+--------+--------+-------+
+
+
+/*============ SPLITTING BEFORE
+
+# Splitting before a given substring with case sensitivity
+
+o1 = new stzString("__a__A__")
+? @@( o1.SplitBeforeCS("a", :CS = FALSE) )
+#--> [ "__", "a__", "A__" ]
+
+? @@( o1.SplitCS( :Before = "a", :CS = FALSE) )
+#--> [ "__", "a__", "A__" ]
+
+? @@( o1.Split( :Before = [ "a", "A" ] ) ) + NL
+#--> [ "__", "a__", "A__" ]
+
+o1 = new stzString("...♥...♥...")
+? @@( o1.Split( :BeforePosition = 4 ) )
+#--> [ "...", "♥...♥..." ]
+
+? @@( o1.Split( :BeforePositions = [ 4, 8 ] ) )
+#--> [ "...", "♥...", "♥..." ]
+
+? @@( o1.Split( :BeforeSection = [ 4,  8 ] ) )
+#--> [ "...", "♥...♥..." ]
+
+o1 = new stzString("...♥♥♥..♥♥..")
+? @@( o1.Split( :BeforeSections = [ [4, 6], [9, 10] ] ) )
+#--> [ "...", "♥♥♥..", "♥♥.." ]
+
+o1 = new stzString("...♥...♥...")
+? @@( o1.SplitBeforeW(' @char = "♥" ') )
+#--> [ "...", "♥...", "♥..." ]
+
+o1 = new stzString("...♥♥...♥♥...")
+? @@( o1.SplitBeforeW(' @SubString = "♥♥" ') )
+#--> [ "...", "♥♥...", "♥♥..." ]
+
+/*============ SPLITTING AT
+
+pron()
+
+# Splitting at a given substring with case sensitivity
+
+o1 = new stzString("__a__A__")
+? o1.SplitCS("a", :CS = FALSE)
+#--> [ "__", "__", "__" ]
+
+# Splitting at a given substring (without case sensitivity)
+
+? @@( o1.Split("a") )
+#--> [ "__", "__A__" ]
+
+# Splitting at a given position
+
+o1 = new stzString("...♥...")
+? o1.Split( :At = 4 )
+#--> [ "...", "..." ]
+
+# Splitting at many positions
+
+o1 = new stzString("...♥...♥...")
+? o1.Split( :At = [ 4, 8 ] )
+#--> [ "...", "...", "..." ]
+
+# Splitting at many substrings
+
+o1 = new stzString("...♥...★...")
+? o1.Split( :At = [ "♥", "★" ] )
+#--> [ "...", "...", "..." ]
+
+# Splitting at a given section
+
+o1 = new stzString("...♥♥♥...")
+? o1.SplitAt( :Section = [ 4, 6 ] )
+#--> [ "...", "..." ]
+
+? @@( o1.Split( :AtSection = [ 4, 6 ] ) )
+#--> [ "...", "..." ]
+
+# Splitting at many sections
+
+o1 = new stzString("...♥♥♥...♥♥...")
+? o1.Split( :AtSections = [ [ 4, 6 ], [10, 11] ] )
+#--> [ "...", "...", "..."]
+
+# Splitting at a char described by a condition
+
+o1 = new stzString("...♥...♥...")
+? o1.SplitW('@char = "♥"')
+#--> [ "...", "...", "..." ]
+
+# Splitting at a substring described by a condition
+
+o1 = new stzString("...♥♥...♥♥...")
+? o1.SplitW('{ @SubString = "♥♥" }')
+#--> [ "...", "...", "..." ]
+
+o1 = new stzString("...ONE...TWO...ONE")
+? o1.SplitW('{ @SubString = "ONE" or @SubString = "TWO" }')
+#--> [ "...", "...", "..." ]
+
+? o1.SplitW('{ Q(@SubString).IsOneOfThese([ "ONE", "TWO"]) }')
+#--> [ "...", "...", "..." ]
+
+? o1.SplitW('{ Q(@SubString).IsEither( "ONE", :Or = "TWO") }')
+#--> [ "...", "...", "..." ]
+
+proff()
+
+/*============ SPLITTING AFTER
+
+pron()
+
+# Splitting before a given substring with case sensitivity
+
+o1 = new stzString("__a__A__")
+? @@( o1.SplitAfterCS("a", :CS = FALSE) )
+#--> [ "__a", "__A", "__" ]
+
+? @@( o1.SplitCS( :After = "a", :CS = FALSE) )
+#--> [ "__a", "__A", "__" ]
+
+? @@( o1.Split( :After = [ "a", "A" ] ) )
+#--> [ "__a", "__A", "__" ]
+
+o1 = new stzString("...♥...")
+? @@( o1.Split( :AfterPosition = 4 ) )
+#--> [ "...♥", "..." ]
+
+o1 = new stzString("...♥...♥...")
+? @@( o1.Split( :AfterPositions = [ 4, 8 ] ) )
+#--> [ "...♥", "...♥", "..." ]
+
+? @@( o1.Split( :AfterSection = [ 4,  8 ] ) )
+#--> [ "...♥...♥", "..." ]
+
+o1 = new stzString("...♥♥♥..♥♥..")
+? @@( o1.Split( :AfterSections = [ [4, 6], [9, 10] ] ) )
+#--> [ "...♥♥♥", "..♥♥", ".." ]
+
+o1 = new stzString("...♥...♥...")
+? @@( o1.SplitAfterW(' @char = "♥" ') )
+#--> [ "...♥", "...♥", "..." ]
+
+o1 = new stzString("...♥♥...♥♥...")
+? @@( o1.SplitAfterW(' @SubString = "♥♥" ') )
+#--> [ "...♥", "♥...♥", "♥..." ]
+
+proff()
+# Executed in 3.89 second(s)
+
+/*==================
+
+pron()
+
+o1 = new stzString("...ONE...TWO...ONE")
+
+? o1.Sections([ [ 4, 6 ], [ 10, 12 ], [ 16, 18 ] ])
+#--> [ "ONE", "TWO", "THREE"
+
+? o1.AntiSections([ [ 4, 6 ], [ 10, 12 ], [ 16, 18 ] ])
+#--> [ "...", "...", "..." ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzString("...ONE...TWO...ONE")
+? @@( o1.FindSubstringsW('{ @SubString = "ONE" or @SubString = "TWO" }') )
+#--> [ 4, 10, 16 ]
+
+? @@( o1.FindSubstringsAsSectionsW('{ @SubString = "ONE" or @SubString = "TWO" }') )
+#--> [ [ 4, 6 ], [ 10, 12 ], [ 16, 18 ] ]
+
+proff()
+# Executed in 3.91 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzString("...♥♥...♥♥...")
+
+? @@( o1.FindSubStringsW('{ @SubString = "♥♥" }') )
+#--> [ 4, 9 ]
+
+? @@( o1.FindSubStringsAsSectionsW('{ @SubString = "♥♥" }') )
+#--> [ [ 4, 5 ], [ 9, 10 ] ]
+
+proff()
+# Executed in 3.79 second(s)
+
+#-----------
+
+pron()
+
+o1 = new stzString("..ONE..TWO..ONE..")
+
+? o1.NumberOfSubStrings()
+#--> 153
+
+? o1.NumberOfUniqueSubStrings()
+#--> 120
+
+proff()
+# Executed in 0.28 second(s)
+
+#---------
+
+pron()
+
+o1 = new stzString("ABA")
+
+? @@( o1.SubStrings() )
+#--> [ "A", "AB", "B", "ABA", "A", "BA" ]
+
+? @@( o1.UniqueSubStrings() ) # Or SubStringsU()
+#--> [ "A", "AB", "ABA", "B", "BA" ]
+
+? @@( o1.SubStringsZ() )
+#--> [
+#	[ "A", 	 [ 1, 3 ] ],
+#	[ "AB",  [ 1 ] ],
+#	[ "ABA", [ 1 ] ],
+#	[ "B", 	 [ 2 ] ],
+#	[ "BA",  [ 2 ] ]
+# ]
+
+? @@( o1.SubStringsZZ() )
+#--> [
+#	"A"	= [ [ 1, 1 ], [ 3, 3 ] ],
+#	"AB"	= [ [ 1, 2 ] ],
+#	"ABA"	= [ [ 1, 3 ] ],
+#	"B"	= [ [ 2, 2 ] ],
+#	"BA"	= [ [ 2, 3 ] ]
+# ]
+
+proff()
+# Executed in 0.19 second(s)
+
+#-------
+
+pron()
+
+? Q("one").IsEitherCS("ONE", :Or = "TWO", :CS = FALSE)
+#--> TRUE
+
+proff()
+
+#-------
+
+pron()
+
+o1 = new stzString("<<word>> and __word__")
+? @@( o1.Bounds( :Of = "word", :UpToNChars = 2 ) )
+#--> [ [ "<<", ">>" ], [ "__", "__" ] ]
+
+proff()
+# Executed in 0.11 second(s)
+	
+#-------
+
+pron()
+	
+o1 = new stzString("<<word>> and __word__")
+? @@( o1.Bounds( :Of = "word", :UpToNChars = [ 2, 2 ]  ) )
+#--> [ [ "<<", ">>" ], [ "__", "__" ] ]
+
+proff()
+# Executed in 0.11 second(s)
+		
+#-------
+
+pron()
+
+o1 = new stzString("<<word>>> and  _word__")
+? @@( o1.Bounds( :Of = "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ]  ) )
+#--> [ [ "<<", ">>>" ], [ "_", "__" ] ]
+
+proff()
+# Executed in 0.09 second(s)
+
+/*--------------
+
+pron()
+
+? Q(:IsBoundedBy = ".").IsISBoundedByNamedParam()
+#--> TRUE
+
+? Q(".♥.").SubStringIsBoundedBy("♥", ".")
+#--> TRUE
+
+? Q(".♥.").SubString("♥", :IsBoundedBy = ".")
+#--> TRUE
+
+proff()
+# Executed in 0.17 second(s)
 
 /*========================
 /* NOTE :
@@ -3465,7 +4052,7 @@ StopProfiler()
 pron()
 
 o1 = new stzString("ab")
-? @@S( o1.CommonSubStrings(:With = "abc") )
+? @@( o1.CommonSubStrings(:With = "abc") )
 #--> [ "a", "ab", "b" ]
 
 proff()
@@ -3478,12 +4065,12 @@ pron()
 aList1 = Q("Ring is nice").SubStrings()
 aList2 = Q("I love Ring").SubStrings()
 
-? @@S( Q(aList1).CommonItems(aList2) ) + NL
+? @@( Q(aList1).CommonItems(aList2) ) + NL
 #--> [ "R", "Ri", "Rin", "Ring", "i", "in", "ing", "n", "ng", "g", " ", "e" ]
 # Executed in 0.64 second(s)
 
 o1 = new stzListOfLists([ aList1, aList2 ])
-? @@S( o1.CommonItems() )
+? @@( o1.CommonItems() )
 #--> [ "i", " ", "n", "e", "R", "Ri", "Rin", "Ring", "in", "ing", "ng", "g" ]
 #--> Executed in 0.64 second(s)
 
@@ -3495,7 +4082,7 @@ proff()
 pron()
 
 o1 = new stzString("Ring is nice")
-? @@S( o1.CommonSubStrings(:With = "I love Ring") )
+? @@( o1.CommonSubStrings(:With = "I love Ring") )
 #--> [ "R", "Ri", "Rin", "Ring", "i", "in", "ing", "n", "ng", "g", " ", "e" ]
 
 proff()
@@ -3530,19 +4117,19 @@ StopProfil er()
 
 o1 = new stzString("_♥_★_♥_")
 
-? @@S( o1.FindMany([ "♥", "★" ]) )
+? @@( o1.FindMany([ "♥", "★" ]) )
 #--> [ 2, 4, 6 ]
 
 o1 = new stzList([ "_", "♥", "_", "★", "_", "♥" ])
-? @@S( o1.FindMany([ "♥", "★" ]) )
+? @@( o1.FindMany([ "♥", "★" ]) )
 #--> [ 2, 4, 6 ]
 
 o1 = new stzString("_♥_★_♥_")
-? @@S( o1.FindManyXT([ "♥", "★" ]) )
+? @@( o1.FindManyXT([ "♥", "★" ]) )
 #--> [ [ "♥", [ 2, 6 ] ], [ "★", [ 4 ] ] ]
 
 o1 = new stzList([ "_", "♥", "_", "★", "_", "♥" ])
-? @@S( o1.FindManyXT([ "♥", "★" ]) )
+? @@( o1.FindManyXT([ "♥", "★" ]) )
 #--> [ [ "♥", [ 2, 6 ] ], [ "★", [ 4 ] ] ]
 
 /*-----------------
@@ -3574,7 +4161,7 @@ o1 = new stzString("abAb")
 #--> 10
 # Executed in 0.02 second(s)
 
-? @@S( o1.SubStrings() )
+? @@( o1.SubStrings() )
 #--> [ "a", "ab", "abA", "abAb", "b", "bA", "bAb", "A", "Ab", "b" ]
 # Executed in 0.04 second(s)
 
@@ -3582,7 +4169,7 @@ o1 = new stzString("abAb")
 #--> 7
 # Executed in 0.12 second(s)
 
-? @@S( o1.SubStringsCS(FALSE) )
+? @@( o1.SubStringsCS(FALSE) )
 #--> [ "a", "ab", "abA", "abAb", "b", "bA", "bAb" ]
 # Executed in 0.12 second(s)
 
@@ -3597,7 +4184,7 @@ o1 = new stzString("hello")
 ? o1.NumberOfSubStrings()
 #--> 15
 
-? @@S( o1.SubStrings() )
+? @@( o1.SubStrings() )
 #--> [
 #	"h", "he", "hel", "hell", "hello",
 #	"e", "el", "ell", "ello",
@@ -3616,7 +4203,7 @@ o1 = new stzString("hello")
 ? o1.NumberOfSubStringsCS(FALSE)
 #--> 14
 
-? @@S( o1.SubStringsCS(FALSE) )
+? @@( o1.SubStringsCS(FALSE) )
 #--> [
 #	"h", "he", "hel", "hell", "hello",
 #	"e", "el", "ell", "ello",
@@ -3635,7 +4222,7 @@ o1 = new stzString("*4*34")
 ? o1.NumberOfSubStrings()
 #--> 15
 
-? @@S( o1.SubStrings() )
+? @@( o1.SubStrings() )
 #--> [
 #	"*", "*4", "*4*", "*4*3", "*4*34",
 #	"4", "4*", "4*3", "4*34", "*",
@@ -3653,7 +4240,7 @@ o1 = new stzString("123456")
 ? o1.NumberOfSubStrings()
 #--> 21
 
-? @@S( o1.SubStrings() )
+? @@( o1.SubStrings() )
 #--> [
 #	"1", "12", "123", "1234", "12345", "123456", "2",
 #	"23", "234", "2345", "23456", "3", "34", "345",
@@ -3679,7 +4266,7 @@ o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] }')
 
 o1 = new stzString("@item = This[ @i+1 ]")
 ? o1.Numbers()
-//? @@S( o1.NumbersAfter("@i") )
+//? @@( o1.NumbersAfter("@i") )
 
 /*=================
 
@@ -3693,21 +4280,21 @@ o1 = new stzString("... ____ ... ____")
 ? o1.Find("...")
 #--> [ 1, 10 ]
 
-? @@S( o1.FindOccurrencesXT( :Of = "...", :AndReturnThemAs = :Positions ) )
+? @@( o1.FindOccurrencesXT( :Of = "...", :AndReturnThemAs = :Positions ) )
 #--> [ 1, 10 ]
 
-? @@S( o1.FindOccurrencesXT( :Of = "...", :AndReturnThemAs = :Sections ) )
+? @@( o1.FindOccurrencesXT( :Of = "...", :AndReturnThemAs = :Sections ) )
 #--> [ [ 1, 3 ], [ 10, 12 ] ]
 
 /*----------------
 
 o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12")
-? @@S( o1.Find("12.34") )
+? @@( o1.Find("12.34") )
 #--> [ 7, 39 ]
-? @@S( o1.FindAsSections("12.34") )
+? @@( o1.FindAsSections("12.34") )
 #--> [ [ 7, 11 ], [ 39, 43 ] ]
 
-? @@S( o1.FindManyAsSections([ "12.34", "-56.30", "77.12" ]) )
+? @@( o1.FindManyAsSections([ "12.34", "-56.30", "77.12" ]) )
 #--> [ [ 7, 11 ], [ 21, 26 ], [ 39, 43 ], [ 55, 59 ] ]
 
 /*=================
@@ -3771,26 +4358,26 @@ o1 = new stzList([ ".", ".", "M", ".", "I", "X" ])
 /*----------------- 
 
 o1 = new stzString("..ONE...TWO..")
-? @@S( o1.FindW(:Where = 'QR(@char, :stzChar).IsALetter()') )
+? @@( o1.FindW(:Where = 'QR(@char, :stzChar).IsALetter()') )
 #--> [ 3, 4, 5, 9, 10, 11 ]
 
-? @@S( o1.YieldW( '@char', :Where = 'Q(@char).IsALetter()' ) )
+? @@( o1.YieldW( '@char', :Where = 'Q(@char).IsALetter()' ) )
 #--> [ "O", "N", "E", "T", "W", "O" ]
 
 /*------------------
 
 o1 = new stzString("AB12CD345")
-? @@S( o1.SplitToPartsOfNChars(2) )
+? @@( o1.SplitToPartsOfNChars(2) )
 #--> [ "AB", "12", "CD", "34", "5" ]
 
-? @@S( o1.SplitToPartsOfNCharsXT(2) )
+? @@( o1.SplitToPartsOfNCharsXT(2) )
 # Or you can be more explicit and say: SplitToPartsOfExactlyNChars(2)
 #--> [ "AB", "12", "CD", "34" ]
 
 /*===================
 
 o1 = new stzString("ABC")
-? @@S( o1.SubStrings() )
+? @@( o1.SubStrings() )
 #--> [ "A", "AB", "B", "ABC", "C", "BC" ]
 
 /*------------------
@@ -3832,22 +4419,21 @@ o1 = new stzString("...456...")
 ? o1.PreviousNChars(3, :StartingAtPosition = 6)
 #--> [ "4", "5", "6" ]
 
-
 /*================== 
 
 StartProfiler()
 #                      4   8 01  4 6 89  23
 o1 = new stzString("...12..1212..121212..12.")
-? @@S( o1.FindMadeOf("12") )
+? @@( o1.FindMadeOf("12") )
 #--> [ 4, 8, 10, 14, 16, 18 ]
 
-? @@S( o1.FindMadeOfAsSections("12") )
+? @@( o1.FindMadeOfAsSections("12") )
 #--> [ [ 4, 5 ], [ 8, 11 ], [ 14, 19 ], [ 22, 23 ] ]
 
-? @@S( o1.SubStringsMadeOf("12") )
+? @@( o1.SubStringsMadeOf("12") )
 #--> [ "12", "1212", "121212", "12" ]
 
-? @@S( o1.SubStringsMadeOfXT("12") )
+? @@( o1.SubStringsMadeOfXT("12") )
 #--> [
 #	[ "12", [ 4, 5 ] ],
 #	[ "1212", [ 8, 11 ] ],
@@ -3862,7 +4448,7 @@ StopProfiler()
 pron()
 
 o1 = new stzSplitter(1:8)
-? @@S( o1.SplitAt([3, 5]) )
+? @@( o1.SplitAt([3, 5]) )
 #--> [ [ 1, 2 ], [ 4, 4 ], [ 6, 8 ] ]
 
 proff()
@@ -3877,7 +4463,7 @@ o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
 #--> [4, 7]
 # Executed in 0.05 second(s)
 
-? @@S( o1.SplitAtPositions([ 4, 7]) )
+? @@( o1.SplitAtPositions([ 4, 7]) )
 #--> [ [ 4, 8, 10 ], [ 14, 16 ], [ 18 ] ]
 # Executed in 0.03 second(s)
 
@@ -3889,7 +4475,7 @@ proff()
 pron()
 
 o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
-? @@S( o1.SplitW('This[@i] = "*"') )
+? @@( o1.SplitW('This[@i] = "*"') )
 # [ [ 4, 8, 10 ], [ 14, 16 ], [ 18 ] ]
 
 proff()
@@ -3904,7 +4490,7 @@ o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
 ? o1.FindWXT('@CurrentItem = "*"')
 # Executed in 0.22 second(s)
 
-? @@S(o1.SplitWXT('@CurrentItem = "*"'))
+? @@(o1.SplitWXT('@CurrentItem = "*"'))
 #--> [ [ 4, 8, 10 ], [ 14, 16 ], [ 18 ] ]
 # Executed in 0.22 second(s)
 
@@ -3914,10 +4500,10 @@ proff()
 /*==============
 
 o1 = new stzString("..._...__...___...")
-? @@S( o1.FindALL("_") )
+? @@( o1.FindALL("_") )
 #--> [ 4, 8, 9, 13, 14, 15 ]
 
-? @@S( o1.FindSubstringsMadeOf("_") )
+? @@( o1.FindSubstringsMadeOf("_") )
 #--> [ 4, 8, 13 ]
 
 ? o1.SubStringsMadeOf("_")
@@ -3944,18 +4530,18 @@ o1 = new stzString("_-132__114.45_ euros")
 
 o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12")
 
-? @@S( o1.Numbers() ) + NL
+? @@( o1.Numbers() ) + NL
 #--> [ "12.34", "-56.30", "12.34", "77.12" ]
 
 
-? @@S( o1.UniqueNumbers() )
+? @@( o1.UniqueNumbers() )
 #--> [ "12.34", "-56.30", "77.12" ]
 
 
-? @@S( o1.FindNumbers()) + NL
+? @@( o1.FindNumbers()) + NL
 #--> [ 7, 21, 39, 55 ]
 
-? @@S( o1.NumbersAndTheirPositions() ) + NL
+? @@( o1.NumbersAndTheirPositions() ) + NL
 #-->
 # [
 # 	[ "12.34",  [ 7, 39 ] ],
@@ -3963,7 +4549,7 @@ o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
 #	[ "77.12",  [ 55 ]    ]
 # ]
 
-? @@S( o1.NumbersAndTheirSections() ) # TODO: Enhance performance!
+? @@( o1.NumbersAndTheirSections() ) # TODO: Enhance performance!
 #-->
 # [
 # 	[ "12.34", 	[ [ 7, 11 ], [ 39, 43 ]	] ],
@@ -3971,7 +4557,7 @@ o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
 #	[ "77.12", 	[ [ 55, 59 ] 			] ]
 # ]
 
-? @@S( o1.FindNumbersAsSections() ) + NL
+? @@( o1.FindNumbersAsSections() ) + NL
 #--> [ [ 7, 11 ], [ 21, 26 ], [ 39, 43 ], [ 55, 59 ] ]
 
 /*================
@@ -4033,7 +4619,7 @@ Programming, by Heart! By: M.Ayouni╭
 
 ? Q("Go").RepeatedNTimes(3) #--> GoGoGo
 
-? @@S( Q([ "A", "B" ]).RepeatedNTimes(3) )
+? @@( Q([ "A", "B" ]).RepeatedNTimes(3) )
 #--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
 
 ? Five(Star()) #--> ★★★★★
@@ -4349,13 +4935,13 @@ str = "sun"
 
 /*----------------
 
-? @@S( Q("5").RepeatedXT(:InA = :List, :OfSize = 2) )
+? @@( Q("5").RepeatedXT(:InA = :List, :OfSize = 2) )
 #--> [ "5", "5" ]
 
 ? Q("A").RepeatedInAPair()
 #--> [ "A", "A" ]
 
-? @@S( Q("5").RepeatedXT(:InA = :ListOfNumbers, :OfSize = 3) )
+? @@( Q("5").RepeatedXT(:InA = :ListOfNumbers, :OfSize = 3) )
 #--> [ 5, 5, 5 ]
 
 ? Q("5").RepeatedXT(:InA = :String, :OfSize = 3)
@@ -4367,22 +4953,22 @@ str = "sun"
 ? Q("5").RepeatedXT(:InA = :ListOfNumbers, :OfSize = 3)
 #--> [ 5, 5, 5 ]
 
-? @@S( Q(5).RepeatedXT(:InA = :ListOfStrings, :OfSize = 3) )
+? @@( Q(5).RepeatedXT(:InA = :ListOfStrings, :OfSize = 3) )
 #--> [ "5", "5", "5" ]
 
-? @@S( Q("A").RepeatedXT(:InA = :ListOfPairs, :OfSize = 3) ) + NL
+? @@( Q("A").RepeatedXT(:InA = :ListOfPairs, :OfSize = 3) ) + NL
 #--> [ [ "A", "A" ], [ "A", "A" ], [ "A", "A" ] ]
 
-? @@S( Q("A").RepeatedXT(:InA = :ListOfLists, :OfSize = 3) ) + NL
+? @@( Q("A").RepeatedXT(:InA = :ListOfLists, :OfSize = 3) ) + NL
 #--> [ [ "A" ], [ "A" ], [ "A" ] ]
 
-? @@S( Q("A").
+? @@( Q("A").
 	RepeatXTQ(:InA = :List, :OfSize = 3).
 	RepeatedXT(:InA = :List, :OfSize = 3)
 ) + NL
 #--> [ [ "A", "A", "A" ], [ "A", "A", "A" ], [ "A", "A", "A" ] ]
 
-? @@S( Q("A").RepeatedXT(:InA = :Grid, :OfSize = [3, 3]) ) + NL
+? @@( Q("A").RepeatedXT(:InA = :Grid, :OfSize = [3, 3]) ) + NL
 #-->
 # [
 # 	[ "A", "A", "A" ],
@@ -4390,7 +4976,7 @@ str = "sun"
 # 	[ "A", "A", "A" ]
 # ]
 
-? @@S( Q("A").RepeatedXT(:InA = :Table, :OfSize = [3, 3]) ) + NL
+? @@( Q("A").RepeatedXT(:InA = :Table, :OfSize = [3, 3]) ) + NL
 #--> [
 #	[ "COL1", [ "A", "A", "A" ] ],
 #	[ "COL2", [ "A", "A", "A" ] ],
@@ -4461,11 +5047,11 @@ o1 = new stzString("ab_cd_ef_gh")
 
 o1 = new stzString("How many <<many>> are there in (many <<<many>>>): so <many>>!")
 
-? @@S(o1.Bounds(:Of = "many", :UpToNChars = [ 0, 2, 0, 3, [1,2] ])) + NL
+? @@(o1.Bounds(:Of = "many", :UpToNChars = [ 0, 2, 0, 3, [1,2] ])) + NL
 #--> [ [ NULL, NULL ], [ "<<", ">>" ], [ NULL, NULL ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
 
 //Same as:
-? @@S(o1.Bounds(:Of = "many", :UpToNChars = [ [0,0], [2, 2], [0,0], [3,3], [1,2] ]))
+? @@(o1.Bounds(:Of = "many", :UpToNChars = [ [0,0], [2, 2], [0,0], [3,3], [1,2] ]))
 #--> [ [ NULL, NULL ], [ "<<", ">>" ], [ NULL, NULL ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
 
 /*=================
@@ -4511,13 +5097,13 @@ proff()
 
 o1 = new stzString("*AB*")
 
-? @@S( o1.Find("*") )	#--> [1, 4]
+? @@( o1.Find("*") )	#--> [1, 4]
 
 # Or you can say:
-? @@S( o1.Find( :SubString = "*" ) )	#--> [1, 4]
+? @@( o1.Find( :SubString = "*" ) )	#--> [1, 4]
 
 # Or also:
-? @@S( o1.FindSubString( "*" ) )	#--> [1, 4]
+? @@( o1.FindSubString( "*" ) )	#--> [1, 4]
 
 # And many other alternatives that you can discover in the fucntion code
 
@@ -4706,10 +5292,10 @@ o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!
 
 ? o1.NumberOfOccurrence(:OfSubString = "many")
 #--> 5
-? @@S( o1.Positions(:of = "many") ) + NL	# or o1.FindSubString("many")
+? @@( o1.Positions(:of = "many") ) + NL	# or o1.FindSubString("many")
 #--> [5, 12, 33, 40, 54]
 
-? @@S(o1.Sections(:Of = "many")) + NL		# or o1.FindAsSections(:OfSubString = "many")
+? @@(o1.Sections(:Of = "many")) + NL		# or o1.FindAsSections(:OfSubString = "many")
 #--> [ [ 5, 8 ], [ 12, 15 ], [ 33, 36 ], [ 40, 43 ], [ 54, 57 ] ]
 
 	# Note that Sections() has an other syntax that returns, not the sections
@@ -4752,37 +5338,37 @@ o1 = new stzString("what a <<nice>>> day!")
 
 o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
 
-? @@S( o1.Bounds( :Of = "many", :UpToNChars = 1 ) ) + NL
+? @@( o1.Bounds( :Of = "many", :UpToNChars = 1 ) ) + NL
 #--> [ [ " ", " " ], [ "<", ">" ], [ "(", " " ], [ "<", ">" ], [ "<", ">" ] ]
 
 # Same as:
-? @@S( o1.Bounds( :Of = "many", :UpToNChars = [1, 1] ) ) + NL
+? @@( o1.Bounds( :Of = "many", :UpToNChars = [1, 1] ) ) + NL
 #--> [ [ " ", " " ], [ "<", ">" ], [ "(", " " ], [ "<", ">" ], [ "<", ">" ] ]
 
-? @@S( o1.Bounds( :Of = "many", :UpToNChars = [ 0, 2, 0 ] ) ) + NL
+? @@( o1.Bounds( :Of = "many", :UpToNChars = [ 0, 2, 0 ] ) ) + NL
 #--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ] ]
 
-? @@S( o1.Bounds(:Of = "many", :UpToNChars = [ 0, 2, 0, 2, 2 ] ) ) + NL
+? @@( o1.Bounds(:Of = "many", :UpToNChars = [ 0, 2, 0, 2, 2 ] ) ) + NL
 #--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ], [ "<<", ">>" ], [ "<<", ">>" ] ]
 
-? @@S( o1.Bounds(:Of = "many", :UpToNChars = [ [0,0], [2,2] ] ) ) + NL
+? @@( o1.Bounds(:Of = "many", :UpToNChars = [ [0,0], [2,2] ] ) ) + NL
 #--> [ [ "", "" ], [ "<<", ">>" ] ]
 
-? @@S( o1.Bounds(:Of = "many", :UpToNChars = [ 0, [2,2], 0, 2, [2, 2] ] ) ) + NL
+? @@( o1.Bounds(:Of = "many", :UpToNChars = [ 0, [2,2], 0, 2, [2, 2] ] ) ) + NL
 #--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ], [ "<<", ">>" ], [ "<<", ">>" ] ]
 
 /*----------
 
 o1 = new stzString("what a <<<nice>>> day!")
-? @@S( o1.Bounds(:Of = "nice", :UpToNChars = 3) )
+? @@( o1.Bounds(:Of = "nice", :UpToNChars = 3) )
 #--> [ [ "<<<", ">>>" ] ]
 
 o1 = new stzString("what a <nice>>> day!")
-? @@S( o1.Bounds(:Of = "nice", :UpToNChars = [1, 3]) )
+? @@( o1.Bounds(:Of = "nice", :UpToNChars = [1, 3]) )
 #--> [ [ "<", ">>>" ] ]
 
 o1 = new stzString("what a <<nice>>> day! Really <nice>>.")
-? @@S( o1.Bounds(:Of = "nice", :UpToNChars = [ [2, 3], [1, 2] ]) )
+? @@( o1.Bounds(:Of = "nice", :UpToNChars = [ [2, 3], [1, 2] ]) )
 #--> [ [ "<<", ">>>" ], [ "<", ">>" ] ]
 
 /*==================
@@ -4827,19 +5413,19 @@ o1 = new stzString("what a 123nice>>> day!")
 /*=================
 
 o1 = new stzString("How many words in <<many many words>>? So many!")
-? @@S( o1.FindPositions(:Of = "many") )
+? @@( o1.FindPositions(:Of = "many") )
 #--> [ 5, 21, 26, 43 ]
-? @@S( o1.FindAsSections(:Of = "many") ) + NL
+? @@( o1.FindAsSections(:Of = "many") ) + NL
 #--> [ [ 5, 8 ], [ 21, 24 ], [ 26, 29 ], [ 43, 46 ] ]
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? @@S( o1.AnySubstringsBetween("<<", :and = ">>") )
+? @@( o1.AnySubstringsBetween("<<", :and = ">>") )
 # --> [ "word", "noword", "word" ]
 
-? @@S( o1.FindSubStringsBetween("<<", :and = ">>") ) + NL
+? @@( o1.FindSubStringsBetween("<<", :and = ">>") ) + NL
 # --> [ 11, 28, 43 ]
 
-? @@S( o1.FindAnyBetweenAsSections("<<",">>") )
+? @@( o1.FindAnyBetweenAsSections("<<",">>") )
 # --> [ [ 11, 14 ], [ 28, 33 ], [ 43, 46 ] ]
 
 
@@ -5006,29 +5592,29 @@ o1 = new stzString("12abc67abc12abc")
 /*=================
 
 o1 = new stzString("**3**67**012**56**92**")
-? @@S( FindAnySeparatedBy("**") )
+? @@( FindAnySeparatedBy("**") )
 #--> [ 3, 6, 10, 15, 19 ]
 
-? @@S( o1.FindAnySeparatedByIB("**") )
+? @@( o1.FindAnySeparatedByIB("**") )
 #--> [ [3,3], [6, 7], [10, 12], [15,16], [19,20] ]
 
 /*-----------------
 */
 o1 = new stzString("***ONE***TWO***THREE***")
-? @@S( o1.FindManyCS([ "ONE", "TWO", "THREE"], 0) )
+? @@( o1.FindManyCS([ "ONE", "TWO", "THREE"], 0) )
 #--> [ [ 4 ], [ 10 ], [ 16 ] ]
 
 o1 = new stzString("***ONE***TWO***THREE***")
-? @@S( o1.FindManyCS([ "ONE", "TWO", "THREE"], 0) )
+? @@( o1.FindManyCS([ "ONE", "TWO", "THREE"], 0) )
 
 /*
 ? o1.SplitQ(:Using = "***").FindIn(o1.Content())
 
 /*
-? @@S( o1.FindAnyBoundedByIB("**") )
+? @@( o1.FindAnyBoundedByIB("**") )
 #--> [ 2, 4, 7, 10 ]
 
-? @@S( o1.FindAnyBoundedByAsSectionsIB("**") )
+? @@( o1.FindAnyBoundedByAsSectionsIB("**") )
 
 
 /*-----------------
@@ -5037,7 +5623,7 @@ o1 = new stzString("***ONE***TWO***THREE***")
 # two bounds by saying:
 
 o1 = new stzString("txt <<ring>> txt <<php>>")
-? @@S( o1.FindAnyBetween("<<",">>") )
+? @@( o1.FindAnyBetween("<<",">>") )
 #--> [7, 20]
 
 # In fact, "ring" occures in position 7 and "php" in position 20.
@@ -5046,7 +5632,7 @@ o1 = new stzString("txt <<ring>> txt <<php>>")
 # the same (equal to "*" here):
 
 o1 = new stzString("*2*45*78*0*")
-? @@S( o1.FindAnyBetween("*","*") )
+? @@( o1.FindAnyBetween("*","*") )
 #--> [2, 7]
 
 # then you get "2" that starts at position 2 and "78" at position 7.
@@ -5081,7 +5667,7 @@ o1 = new stzString("*2*45*78*0*")
 # Then you can use the extended version of the function ..XT() and
 # pass the "*" char as a parameter like this:
 
-? @@S( o1.FindAnyBetweenIB("*") )
+? @@( o1.FindAnyBetweenIB("*") )
 #--> [ 2, 4, 7, 10 ]
 
 /*--------------
@@ -5092,14 +5678,14 @@ o1 = new stzString("*2*45*78*0*")
 # adding the keyword Sections like this:
 
 o1 = new stzString("txt <<ring>> txt <<php>>")
-? @@S( o1.FindAnyBetweenAsSections("<<",">>") )
+? @@( o1.FindAnyBetweenAsSections("<<",">>") )
 #--> [ [ 7, 9 ], [ 20, 21 ] ]
 
 o1 = new stzString("*2*45*78*0*")
-? @@S( o1.FindAnyBetweenAsSections("*","*") )
+? @@( o1.FindAnyBetweenAsSections("*","*") )
 #--> [ [ 2, 2 ], [ 7, 8 ] ]
 
-? @@S( o1.FindAnyBetweenAsSectionsIB("*") )
+? @@( o1.FindAnyBetweenAsSectionsIB("*") )
 #--> [ 2, 4, 7, 10 ]
 
 /*-----------------
@@ -5112,13 +5698,13 @@ str = 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!'
 
 /*
 
-? @@S( 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!' )
+? @@( 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!' )
 #--> 'for txt = "   val1  " to "   val2" do this or that!'
 
 /*-----------------
 
 o1 = new stzString("12*♥*78*♥*")
-? @@S( o1.FindAnyBetween("♥", "*","*") )
+? @@( o1.FindAnyBetween("♥", "*","*") )
 #--> [ 4, 9 ]
 
 /*-----------------
@@ -5145,7 +5731,7 @@ o1 = new stzString("12*A*33*A*")
 ? o1.FindLast("*")
 #--> 10
 
-? @@S( o1.FindAsSections("*") )
+? @@( o1.FindAsSections("*") )
 #--> [ [ 3, 3 ], [ 5, 5 ], [ 8, 8 ], [ 10, 10 ] ]
 
 /*-----------------
@@ -5221,16 +5807,16 @@ o1 = new stzString("12*♥*56*♥*")
 /*-----------------
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
-? @@S( o1.FindBetween("word", "<<", ">>") )
+? @@( o1.FindBetween("word", "<<", ">>") )
 #--> [ 11 ]
 
-? @@S( o1.FindBetweenAsSections("word", "<<", ">>") )
+? @@( o1.FindBetweenAsSections("word", "<<", ">>") )
 #--> [ [ 11, 14 ] ]
 
-? @@S( o1.FindAnyBetween("<<",">>") )
+? @@( o1.FindAnyBetween("<<",">>") )
 #--> [ 11, 28, 43 ]
 
-? @@S( o1.FindAnyBetweenAsSections("<<",">>") )
+? @@( o1.FindAnyBetweenAsSections("<<",">>") )
 #--> [ [ 11, 14 ], [ 28, 33 ], [ 43, 49 ] ]
 
 /*-----------------
@@ -5456,16 +6042,16 @@ StzStringQ('') {
 /*-----------------
 
 StzStringQ("ring is not the ring you ware but the ring you program with") {
-	? @@S( FindAllOccurrencesCS(:Of = "ring", :CS = FALSE) )
+	? @@( FindAllOccurrencesCS(:Of = "ring", :CS = FALSE) )
 	# --> [ 1, 17, 39 ]
 
-	? @@S( FindAsSectionsCS(:Of = "ring", :CS = FALSE) )
+	? @@( FindAsSectionsCS(:Of = "ring", :CS = FALSE) )
 	#--> [ [ 1, 4 ], [ 17, 20 ], [ 39, 42 ] ]
 
-	? @@S( FindOccurrences([1, 3], :Of = "ring") )
+	? @@( FindOccurrences([1, 3], :Of = "ring") )
 	#--> [1, 39]
 
-	? @@S( FindOccurrences([1, 3], :Of = "foo") )
+	? @@( FindOccurrences([1, 3], :Of = "foo") )
 	#--> [ ]
 }
 
@@ -5533,16 +6119,16 @@ StzStringQ("My name is #2, my age is #3, and my job is #1.") {
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? @@S( Marquers() )
+	? @@( Marquers() )
 	# --> [ "#1", "#2", "#3", "#1" ]
 
-	? @@S( MarquersPositions() ) # or FindMarquers()
+	? @@( MarquersPositions() ) # or FindMarquers()
 	# --> [   12,   25,   44,   66 ]
 
-	? @@S( MarquersAndPositions() )
+	? @@( MarquersAndPositions() )
 	# --> [ "#1" = 12, "#2" = 25 , "#3" = 44, "#1" = 66 ]
 
-	? @@S( MarquersAndPositionsXT() )
+	? @@( MarquersAndPositionsXT() )
 	# --> [ "#1" = [12, 66], "#2" = [26], "#3" = [44] ]
 
 }
@@ -5602,14 +6188,14 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? @@S( MarquersAndPositionsXT() )
+	? @@( MarquersAndPositionsXT() )
 	# --> # --> [ "#1" = [12, 66], "#2" = [26], "#3" = [44] ]
 
-	? @@S( FindMarquer("#1") ) #--> [ 12, 66]
+	? @@( FindMarquer("#1") ) #--> [ 12, 66]
 	# Or ? OccurrencesOfMarquer("#1")
 	
 
-	? @@S( FindMarquer("#7") ) # --> []
+	? @@( FindMarquer("#7") ) # --> []
 
 	? MarquerByPosition(66)	  # --> #1
 	? MarquerByPosition(44)   # --> #3
@@ -5635,20 +6221,20 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
 	? NthPreviousMarquerPosition(1, :StartingAt = 50)		# --> 44
-	? @@S( PreviousMarquerAndItsPosition(:StartingAt = 50) )	# --> [ "#3", 44 ]
+	? @@( PreviousMarquerAndItsPosition(:StartingAt = 50) )	# --> [ "#3", 44 ]
 
 }
 
 /*---------------------- 
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
-	? @@S( MarquersSections() ) + NL
+	? @@( MarquersSections() ) + NL
 	# --> [ [ 12, 13 ], [ 26, 27 ], [ 44, 45 ], [ 66, 67 ] ]
 
-	? @@S( MarquersAndSections() ) + NL
+	? @@( MarquersAndSections() ) + NL
 	# --> [ [ "#1", [ 12, 13 ] ], [ "#2", [ 26, 27 ] ], [ "#3", [ 44, 45 ] ], [ "#1", [ 66, 67 ] ] ]
 
-	? @@S( MarquersAndSectionsXT() )
+	? @@( MarquersAndSectionsXT() )
 	# --> [ [ "#1", [ [ 12, 13 ], [ 66, 67 ] ] ], [ "#2", [ [ 26, 27 ] ] ], [ "#3", [ [ 44, 45 ] ] ] ]
 }
 
@@ -5722,17 +6308,17 @@ StzStringQ("The first candidate is #3, the second is #1, while the third is #2!"
 /*---------------------- 
 
 o1 = new stzString("My name is #2, may age is #1, and my job is #3.")
-? @@S( o1.MarquersAndSectionsSortedInDescending() )
+? @@( o1.MarquersAndSectionsSortedInDescending() )
 # --> [ [ "#3", [ 12, 13 ] ], [ "#2", [ 27, 28 ] ], [ "#1", [ 45, 46 ] ] ]
 
 /*---------------------- 
 
 StzStringQ("My name is #1, my age is #3, and my job is #2. Again: my name is #1!") {	
 
-	? @@S( MarquersAndPositionsSortedInAscending() )
+	? @@( MarquersAndPositionsSortedInAscending() )
 	#--> [ [ "#1", 12 ], [ "#1", 26 ], [ "#2", 44 ], [ "#3", 66 ] ]
 
-	? @@S( MarquersAndSectionsSortedInAscending() )
+	? @@( MarquersAndSectionsSortedInAscending() )
 	#--> [ [ "#1", [ 12, 13 ] ], [ "#1", [ 26, 27 ] ], [ "#2", [ 44, 45 ] ], [ "#3", [ 66, 67 ] ] ]
 }
 
@@ -5816,17 +6402,17 @@ o1 = new stzString("BCAADDEFAGTILNXV")
 /*=======================
 
 o1 = new stzString("My name is Mansour. What's your name please?")
-? @@S( o1.FindManyCS( [ "name", "your", "please" ], :CS = TRUE ) )
+? @@( o1.FindManyCS( [ "name", "your", "please" ], :CS = TRUE ) )
 # --> [ [ 4, 33 ], [ 28 ], [ 38 ] ]
 
-? @@S( o1.FindMany( [ "name", "your", "please" ] ) )
+? @@( o1.FindMany( [ "name", "your", "please" ] ) )
 # --> [ [ 4, 33 ], [ 28 ], [ 38 ] ]
 
-? @@S( o1.FindManyXTCS( [ "name", "your", "please" ], :CS = TRUE ) )
+? @@( o1.FindManyXTCS( [ "name", "your", "please" ], :CS = TRUE ) )
 # --> [ "name" = [ 4, 33 ], "your" = [ 28 ], "please" = [ 38 ] ]
 
 o1 = new stzString("My name is Mansour. What's your name please?")
-? @@S(o1.FindManyXT( [ "name", "nothing", "please" ] ))
+? @@(o1.FindManyXT( [ "name", "nothing", "please" ] ))
 #--> [ [ "name", [ 4, 33 ] ], [ "nothing", [ ] ], [ "please", [ 38 ] ] ]
 
 /*====================
@@ -5933,17 +6519,17 @@ StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 
 	? HasLeadingItems() # --> TRUE
 	? NumberOfLeadingItems() # 3
-	? @@S( LeadingItems() ) # --> [ "*", "*", "*" ]
+	? @@( LeadingItems() ) # --> [ "*", "*", "*" ]
 	
 	? HasTrailingItems() # --> TRUE
 	? NumberOfTrailingItems() # 2
-	? @@S( TrailingItems() ) # --> [ "+", "+" ]
+	? @@( TrailingItems() ) # --> [ "+", "+" ]
 
 	ReplaceLeadingItems(:With = "+")
-	? @@S( Content() ) # --> [ "+", "+", "+", "R", "i", "n", "g", "+", "+" ]
+	? @@( Content() ) # --> [ "+", "+", "+", "R", "i", "n", "g", "+", "+" ]
 	
 	ReplaceLeadingAndTrailingItems(:With = "*")
-	? @@S( Content() ) # --> [ "*", "*", "*", "R", "i", "n", "g", "*", "*" ]
+	? @@( Content() ) # --> [ "*", "*", "*", "R", "i", "n", "g", "*", "*" ]
 }
 
 # Note that, as far as strings are concerned, this feature is sensitive to case,
@@ -6666,7 +7252,7 @@ StzStringQ("original text before hashing") {
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 
-? @@S(o1.PartsAsSubstrings( :Using = 'StzCharQ(@char).CharCase()' )) # or simply o1.Parts('StzCharQ(@char)')
+? @@(o1.PartsAsSubstrings( :Using = 'StzCharQ(@char).CharCase()' )) # or simply o1.Parts('StzCharQ(@char)')
 # [
 # 	[ "H", "uppercase" ],
 # 	[ "anine", "lowercase" ],
@@ -6688,7 +7274,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 /*-----------------
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? @@S(o1.PartsAsSections( :Using = 'StzCharQ(@char).CharCase()' ))
+? @@(o1.PartsAsSections( :Using = 'StzCharQ(@char).CharCase()' ))
 
 #--> [
 # 	[ [ 1, 1 ], 	"uppercase" 	],
@@ -6711,7 +7297,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 /*-----------------
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? @@S( o1.PartsAsSubstringsAndSections( :Using = 'StzCharQ(@char).CharCase()' ) )
+? @@( o1.PartsAsSubstringsAndSections( :Using = 'StzCharQ(@char).CharCase()' ) )
 
 #-->
 # [ 	
@@ -6735,7 +7321,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 /*-----------------
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? @@S( o1.PartsAsSectionsAndSubstrings( :Using = 'StzCharQ(@char).CharCase()' ) )
+? @@( o1.PartsAsSectionsAndSubstrings( :Using = 'StzCharQ(@char).CharCase()' ) )
 
 #-->
 # [ 	
@@ -6759,7 +7345,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 /*-----------------
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? @@S( o1.PartsClassified( :Using = 'StzCharQ(@char).Script()' ) )
+? @@( o1.PartsClassified( :Using = 'StzCharQ(@char).Script()' ) )
 
 # --> [
 #	:latin	 	= [ "Hanine", "is", "a", "nice", "years", "old", "girl" ],
@@ -6773,7 +7359,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 
-? @@S( o1.Parts('{ StzCharQ(@char).Script() }') )
+? @@( o1.Parts('{ StzCharQ(@char).Script() }') )
 
 #--> [
 #	[ "Hanine", "latin" 	],
@@ -7224,7 +7810,7 @@ StzStringQ("What a tutorial! Very instructive tutorial.") {
 
 	? NumberOfChars() + NL #--> 43
 	 
-	? @@S( SplitToPartsOfNChars(12) ) + NL
+	? @@( SplitToPartsOfNChars(12) ) + NL
 	#--> [
 	# 	"What a tutor",
 	# 	"ial! Very in",
@@ -7232,14 +7818,14 @@ StzStringQ("What a tutorial! Very instructive tutorial.") {
 	# 	"torial."
 	#    ]
 
-	? @@S( SplitBeforePositions([ 17, 34 ]) ) + NL
+	? @@( SplitBeforePositions([ 17, 34 ]) ) + NL
 	#--> [
 	# 	"What a tutorial!",
 	# 	" Very instructive",
 	# 	" tutorial."
 	#    ]
 
-	? @@S( SplitBeforeW(' @char = "a" ') ) + NL
+	? @@( SplitBeforeW(' @char = "a" ') ) + NL
 	# --> [
 	# 	"Wh", "at ", "a tutori",
 	# 	"al! Very instructive tutori", "al."
@@ -7652,7 +8238,7 @@ o1 = new stzString("سلام عليكم ياأهل مصر hello الكرام")
 /*----------------
 
 o1 = new stzString("ring language isسلام  a nice language")
-? @@S( o1.Parts(:Using = 'StzCharQ(@char).Orientation()') ) + NL
+? @@( o1.Parts(:Using = 'StzCharQ(@char).Orientation()') ) + NL
 #--> [
 # 	[ "ring language is", "lefttoright" ],
 o# 	[ "سلام", "righttoleft" ],
@@ -7660,7 +8246,7 @@ o# 	[ " a nice language", "lefttoright" ]
 # ]
 
 o1 = new stzString("سلام عليكم ياأهل مصر hello الكرام")
-? @@S( o1.Parts(:By = 'StzCharQ(@char).Orientation()') )
+? @@( o1.Parts(:By = 'StzCharQ(@char).Orientation()') )
 #--> [
 o# 	[ "سلام", "righttoleft",
 o# 	[ " ", "lefttoright" ],
@@ -8143,7 +8729,7 @@ oStr.append_2(oChar)
 /*--------------
 
 o1 = new stzString("abcbbaccbtttx")
-? @@S( o1.UniqueChars() )
+? @@( o1.UniqueChars() )
 #--> [ "a", "b", "c", "t", "x" ]
 
 ? o1.ContainsNOccurrences(2, :Of = "a")
@@ -8155,13 +8741,13 @@ o1 = new stzString("saस्तेb")
 ? o1.NumberOfChars()
 #--> 7
 
-? @@S( o1.Unicodes() )
+? @@( o1.Unicodes() )
 #--> [ 115, 97, 2360, 2381, 2340, 2375, 98 ]
 
-? @@S( o1.UnicodesXT() )
+? @@( o1.UnicodesXT() )
 #--> [ [ 115, "s" ], [ 97, "a" ], [ 2360, "स" ], [ 2381, "्" ], [ 2340, "त" ], [ 2375, "े" ], [ 98, "b" ] ]
 
-? @@S( o1.CharsAndTheirUnicodes() )
+? @@( o1.CharsAndTheirUnicodes() )
 #--> [ [ "s", 115 ], [ "a", 97 ], [ "स", 2360 ], [ "्", 2381 ], [ "त", 2340 ], [ "े", 2375 ], [ "b", 98 ] ]
 
 /*---------------
@@ -8187,7 +8773,7 @@ o1 = new stzString("100011")
 /*---------------
 
 o1 = new stzString("Приве́т नमस्ते שָׁלוֹם")
-? @@S( o1.Parts( :Using = "StzCharQ(@char).Script()" ) )
+? @@( o1.Parts( :Using = "StzCharQ(@char).Script()" ) )
 #--> [
 # 	[ "Приве", "cyrillic" 	],
 # 	[ "́", 	   "inherited" 	],

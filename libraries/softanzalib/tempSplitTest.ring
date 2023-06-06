@@ -6,7 +6,7 @@ StartProfiler()
 # two bounds by saying:
 
 o1 = new stzString("txt <<ring>> txt <<php>>")
-? @@S( o1.FindAnyBetween("<<",">>") )
+? @@( o1.FindAnyBetween("<<",">>") )
 #--> [7, 20]
 
 # In fact, the substring "ring" occures in position 7 and "php" in position 20.
@@ -15,7 +15,7 @@ o1 = new stzString("txt <<ring>> txt <<php>>")
 # the same (equal to "*" here):
 
 o1 = new stzString("*2*45*78*0*")
-? @@S( o1.FindAnyBetween("*","*") )
+? @@( o1.FindAnyBetween("*","*") )
 #--> [2, 7]
 
 # then you get "2" that starts at position 2 and "78" at position 7.
@@ -50,12 +50,12 @@ o1 = new stzString("*2*45*78*0*")
 # Then you can use FindAnySplittedBy() function and
 # pass the "*" char as a parameter like this:
 
-? @@S( o1.AnySplittedBy("*"))
-? @@S( o1.FindAnySplittedBy("*") )
+? @@( o1.AnySplittedBy("*"))
+? @@( o1.FindAnySplittedBy("*") )
 #--> [ 2, 4, 7, 10 ]
 
-? @@S( o1.SeparatedBy("*") )
-? @@S( o1.FindSeparatedBy("*") )
+? @@( o1.SeparatedBy("*") )
+? @@( o1.FindSeparatedBy("*") )
 
 StopProfiler()
 

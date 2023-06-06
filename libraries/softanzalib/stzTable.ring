@@ -1923,7 +1923,7 @@ Class stzTable
 
 		for i = 1 to nLen
 			cellPos = paCellsPos[i]
-			aResult + [ @@S(cellPos), This.Cell(cellPos[1], cellPos[2]) ]
+			aResult + [ @@(cellPos), This.Cell(cellPos[1], cellPos[2]) ]
 		next
 
 		return aResult
@@ -6921,7 +6921,7 @@ Class stzTable
 				if isString(cell)
 					cRow += '"' + cell + '"'
 				else
-					cRow += @@S(cell)
+					cRow += @@(cell)
 				ok
 				if i < len(aRow)
 					cRow += ", "
@@ -7521,7 +7521,7 @@ Class stzTable
 				cell = cEmptyCell
 
 			but isList(cell)
-				cell = "'" + @@S(cell) + "'"
+				cell = "'" + @@(cell) + "'"
 			ok
 			
 			cRow += @@SQ(cell).
