@@ -9,7 +9,7 @@ load "stzlib.ring"
 #	"THREE"
 #    ]
 
-? @@S( [ "ONE", "TWO", "THREE" ] )	#-- S for Simplified
+? @@( [ "ONE", "TWO", "THREE" ] )	#-- S for Simplified
 #--> [ "ONE", "TWO", "THREE" ]
 
 STOP()
@@ -25,7 +25,7 @@ o1 = new stzList([
 ])
 
 o1.Replace("me", :By = "you")
-? @@S( o1.Content() ) + NL
+? @@( o1.Content() ) + NL
 #--> [
 #	"you",
 #	"other",
@@ -45,7 +45,7 @@ o1 = new stzList([
 ])
 
 o1.DeepReplace("me", :By = "you")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [
 #	"you",
 #	"other",
@@ -295,14 +295,14 @@ o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 /*================= POSSIBLE SUBSTRINGS IN THE STRING
 
 o1 = Q("ABAAC")
-? @@S( o1.SubStrings() )
+? @@( o1.SubStrings() )
 #--> [
 # 	"A", "B", "C", "B", "B", "D", "A",
 # 	"AB", "CB", "BD", "ABC", "BBD",
 # 	"ABCB", "ABCBB", "ABCBBD", "ABCBBDA"
 # ]
 
-? @@S( o1.SubStringsAndTheirPositions() ) # TODO: Optimise performance!
+? @@( o1.SubStringsAndTheirPositions() ) # TODO: Optimise performance!
 #--> [
 # 	[ "A", [ 1, 3, 4 ] ], [ "B", [ 2 ] ], [ "C", [ 5 ] ],
 # 	[ "AB", [ 1 ] ], [ "AA", [ 3 ] ], [ "ABA", [ 1 ] ],
@@ -383,16 +383,16 @@ STOP()
 /*----------------
 
 o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
-? @@S( o1.SubStringsBetween('"','"') )
+? @@( o1.SubStringsBetween('"','"') )
 #--> [ " value ", " 12 " ]
 
-? @@S( o1.SubStringsBetweenIB('"','"') )
+? @@( o1.SubStringsBetweenIB('"','"') )
 #--> [ [ " value ", [ 16, 25 ] ], [ " 12 ", [ 42, 47 ] ] ]
 
-? @@S( o1.FindSubStringsBetween('"','"') )
+? @@( o1.FindSubStringsBetween('"','"') )
 #--> [ 16, 42 ]
 
-? @@S( o1.FindSubStringsBetweenIB('"','"') )
+? @@( o1.FindSubStringsBetweenIB('"','"') )
 #--> [ [ 16, " value " ], [ 42, " 12 " ] ]
 
 STOP()
@@ -576,16 +576,16 @@ aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 
 /*=========
 
-? ComputableFormSimplified('len    var1 = "    value "  and var2 =  " 12   " ')
+? ComputableForm('len    var1 = "    value "  and var2 =  " 12   " ')
 #--> 'len var1 = "    value " and var2 = " 12   "'
 
-? ComputableFormSimplified("len    var1 = '    value '  and var2 =  ' 12   ' ")
+? ComputableForm("len    var1 = '    value '  and var2 =  ' 12   ' ")
 #--> 'len var1 = "    value " and var2 = " 12   "'
 
 /*================= CHECK PERFORMANCE
 
 o1 = new stzString("Av♥♥c♥♥")
-? @@S( o1.FindSubStringsW('{
+? @@( o1.FindSubStringsW('{
 	Q(@SubString).NumberOfChars() = 2	
 }') )
 #--> [
@@ -599,7 +599,7 @@ o1 = new stzString("Av♥♥c♥♥")
 /*------------- ERROR
 
 o1 = new stzString("Av♥♥c♥♥")
-? @@S( o1.FindSubStringsW('{
+? @@( o1.FindSubStringsW('{
 	Q(@SubString).NumberOfChars() = 2 and NOT Q(@SubString).Contains("♥")
 }') )
 

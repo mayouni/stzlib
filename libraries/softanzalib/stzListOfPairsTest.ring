@@ -25,7 +25,7 @@ pron()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 o1.SortInAscending()
-? @@S(o1.Content())
+? @@(o1.Content())
 #--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 9 ] ]
 
 proff()
@@ -37,7 +37,7 @@ pron()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 o1.SortInDescending()
-? @@S(o1.Content())
+? @@(o1.Content())
 #--> [ [8, 9], [4, 7], [1,3] ]
 
 proff()
@@ -94,15 +94,15 @@ o1 = new stzList([ 1, 3,4, 7,8,9, 12 ])
 ? StzCCodeQ('This[@i+2]').ExecutableSection()
 #--> [1, -3]
 
-? @@S( o1.Section(1, -3) )
+? @@( o1.Section(1, -3) )
 #--> [ 1, 3, 4, 7, 8 ]
 
-? @@S(o1.YieldXT('[ @CurrentItem, @NextItem ]'))
+? @@(o1.YieldXT('[ @CurrentItem, @NextItem ]'))
 #--> [ [ 1, 4 ], [ 3, 7 ], [ 4, 8 ], [ 7, 9 ], [ 8, 12 ] ]
 
-//? @@S( o1.FindW('@CurrentItem = @NextItem') )
+//? @@( o1.FindW('@CurrentItem = @NextItem') )
 
-? @@S( o1.YieldW('[ This[@i], This[@i+1] ]', :Where = 'This[@i] = This[@i+1]+1') )
+? @@( o1.YieldW('[ This[@i], This[@i+1] ]', :Where = 'This[@i] = This[@i+1]+1') )
 
 proff()
 /*-----------------
@@ -113,13 +113,13 @@ o1 = new stzListOfPairs([
 	[ 1, 4], [6, 8], [9, 10], [12, 13], [13, 15]
 ])
 
-? @@S( o1.Yield('[ This[@i][2], This[@i+1][1] ]') )
+? @@( o1.Yield('[ This[@i][2], This[@i+1][1] ]') )
 #--> [ [ 4, 6 ], [ 8, 9 ], [ 10, 12 ], [ 13, 13 ] ]
 
-? @@S( o1.YieldW('[ This[@i][2], This[@i+1][1] ]', :Where = 'Q(@i).IsEven()') )
+? @@( o1.YieldW('[ This[@i][2], This[@i+1][1] ]', :Where = 'Q(@i).IsEven()') )
 #--> [ [ 8, 9 ], [ 13, 13 ] ]
 
-? @@S( o1.YieldW('[ This[@i][2], This[@i+1][1] ]',
+? @@( o1.YieldW('[ This[@i][2], This[@i+1][1] ]',
 		:Where = 'This[@i][2] = This[@i+1][1]-1') )
 
 /*
@@ -133,7 +133,7 @@ StopProfiler()
 
 o1 = new stzListOfPairs([ [ 9, 10 ], [ 1, 2 ], [ 6, 6 ] ])
 o1.SortInAscending()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ [ 1, 2 ], [ 6, 6 ], [ 9, 10 ] ]
 
 /*-----------------
@@ -150,7 +150,7 @@ StopProfiler()
 StartProfiler()
 
 o1 = new stzListOfPairs([ [ 18, 22 ], [ 8, 12], [ 3, 5] ])
-? @@S( o1.Sorted() )
+? @@( o1.Sorted() )
 #--> [ [ 3, 5 ], [ 8, 12 ], [ 18, 22 ] ]
 
 StopProfiler()
@@ -197,7 +197,7 @@ o1 = new stzListOfPairs([
 	[ 18, 22 ], [ 8, 12], [ 3, 5]
 ])
 
-? @@S( o1.Swapped() ) #--> [ [ 22, 18 ], [ 12, 8 ], [ 5, 3 ] ]
+? @@( o1.Swapped() ) #--> [ [ 22, 18 ], [ 12, 8 ], [ 5, 3 ] ]
 
 /*------
 
@@ -225,8 +225,8 @@ o1 = new stzListOfPairs([
 	[ 3, 5], [8, 12], [20, 23]
 ])
 
-? @@S( o1.ExpandedIfPairsOfNumbers() ) + NL
+? @@( o1.ExpandedIfPairsOfNumbers() ) + NL
 #--> [ [ 3, 4, 5 ], [ 8, 9, 10, 11, 12 ], [ 20, 21, 22, 23 ] ]
 
 anPositions = o1.ExpandedIfPairsOfNumbersQ().MergeQ().RemoveDuplicatesQ().SortedInAscending()
-? @@S( anPositions ) #--> [ 3, 4, 5, 8, 9, 10, 11, 12, 20, 21, 22, 23 ]
+? @@( anPositions ) #--> [ 3, 4, 5, 8, 9, 10, 11, 12, 20, 21, 22, 23 ]

@@ -14,9 +14,6 @@ Programming, by Heart! By: M.Ayouni╭
   ╰╯
 '
 
-@ = [] # Used to store the named objects used in the program along their values
-@C = [] # Used to store the contents of the named objects used in the program
-
 _t0 = 0 # Used by StartProfiler() and StopProfiler() functions
 
 _aRingTypes = [ :number, :string, :list, :object, :cobject ]
@@ -477,6 +474,9 @@ func StzRaise(paMessage)
 	#< @FunctionMisspelledForm >
 
 	func StzRais(paMessage)
+		return StzRaise(paMessage)
+
+	func SzRaise(paMessage)
 		return StzRaise(paMessage)
 
 	#>
@@ -963,7 +963,7 @@ func Scripts(paListStr)
 	return StzListOfStringsQ(paListStr).Scripts()
 
 func Show(pValue)
-	? ComputableFormSimplified(pValue)
+	? ComputableForm(pValue)
 
 	func ShowQ(pValue)
 		return new stzString( Show(pValue) )
@@ -1033,97 +1033,6 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 		func CFQ(pValue)
 			return new stzString( CF(pValue) )
 	#>
-
-func ComputableFormSimplified(pValue)
-	/* EXAMPLE
-
-	? @@S('   str = "  ...  "     and   str !=    "  *** " ')
-	#--> 'str = "  ...  " and str != "  *** "'
-
-	*/
-
-	cResult = ""
-
-	if isNumber(pValue)
-		cResult = ""+ pValue
-
-	but isString(pValue)
-
-		# The rationale of this example code is that we don't want to simplify
-		# any substrings bounded by "...  " or "...  .."
-		# So if the main string is:
-
-		# 	'   str = "  ...  "     and   str !=    "  *** " ', then it becomes
-		# 	'str = "  ...  " and str != "  *** "'
-
-		# Note that the spaces between the keywords are simplified, but the content
-		# of the substrings (values assigned to str variable) are left
-		# as they are!
-
-		if NOT Q(pValue).ContainsOneOfThese([ '"', "'" ])
-			return '"' + pValue + '"'
-		ok
-
-		oStr = Q(pValue).TrimQ()
-
-		if oStr.IsBoundedBy('"')  and
-		   oStr.NumberOfOccurrenceQ("'").IsEven()
-
-			aAntiSections = oStr.AntiFindAsSections( oStr.AnySubStringsBoundedBy("'") )
-			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
-			# Well... Sometimes, we permit a bit of magic!
-			# Todo/Future: Think of a more performant implementation.
-				
-			cResult = oStr.Content()
-	
-
-		but oStr.IsBoundedBy("'") and
-		    oStr.NumberOfOccurrenceQ('"').IsEven()
-
-			aAntiSections = oStr.AntiFindAsSections( oStr.AnySubStringsBoundedBy('"') )
-			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
-				
-			cResult = oStr.Content()
-
-		but oStr.NumberOfOccurrenceQ('"').IsEven()
-
-			aAntiSections = oStr.FindAsAntiSections( oStr.AnySubStringsBoundedBy('"') )
-			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
-				
-			cResult = oStr.Content()
-
-		but oStr.NumberOfOccurrenceQ("'").IsEven()
-
-			aAntiSections = oStr.FindAsAntiSections( oStr.AnySubStringsBoundedBy("'") )
-			oStr.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
-				
-			cResult = oStr.Content()
-
-		else
-
-			cResult = @@Q(pValue).Simplified()
-		ok
-
-	but isList(pValue)
-		cResult = @@Q(pValue).Simplified()
-	ok
-
-	return cResult
-
-	func ComputableFormSimplifiedQ(pValue)
-		return new stzString( ComputableFormSimplified(pValue) )
-
-	func @@SF(pValue)
-		return ComputableFormSimplified(pValue)
-
-		func @@SFQ(pValue)
-			return new stzString( @@SF(pValue) )
-
-	func @@S(pValue)
-		return ComputableFormSimplified(pValue)
-
-		func @@SQ(pValue)
-			return new stzString( @@S(pValue) )
 
 func YaAllah()
 	return "يَا أَلله"
@@ -1341,7 +1250,7 @@ func new_stz(cType, p)
 		StzRaise("Incorrect param type! cType must be a string.")
 	ok
 	
-	cCode = 'oObject = new stz' + cType + '(' + @@S(p) + ')'
+	cCode = 'oObject = new stz' + cType + '(' + @@(p) + ')'
 
 	eval(cCode)
 

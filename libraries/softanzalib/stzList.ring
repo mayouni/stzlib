@@ -233,7 +233,7 @@ func HaveSameContent(paItems)
 
 	bResult = TRUE
 	for i = 2 to len(paItems)
-		bOk = Q( @@S( paItems[i] ) ).IsEqualTo( @@S( paItems[1] ) )
+		bOk = Q( @@( paItems[i] ) ).IsEqualTo( @@( paItems[1] ) )
 		if NOT bOk
 			bResult = FALSE
 			exit
@@ -4638,7 +4638,8 @@ class stzList from stzObject
 		#>
 
 	def FirstAndLastItemsRemoved()
-		return This.Copy().RemoveFirstAndLastItemsQ().Content()
+		aResult = This.Copy().RemoveFirstAndLastItemsQ().Content()
+		return aResult
 
 		def LastAndFirstItemsRemoved()
 			return This.FirstAndLastItemsRemoved()
@@ -6201,6 +6202,30 @@ class stzList from stzObject
 
 		def IsAListOfStzLists()
 			return This.IsListOfStzLists()
+
+	#--
+
+	def IsNamedObject()
+		if This.IsPairOfStringAndObject()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsListOfNamedObjects()
+		bResult = TRUE
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and Q(aContent[i]).IsNamedObject() )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
 
 	#--
 
@@ -12097,7 +12122,7 @@ class stzList from stzObject
 		for pClass in aCLasses
 			anPositions = This.FindAll(pClass)
 
-			cClass = @@S( pClass )
+			cClass = @@( pClass )
 
 			aResult + [ cClass, anPositions ]
 
@@ -14771,8 +14796,8 @@ class stzList from stzObject
 			pItem = pItem[2]
 		ok
 
-		cItem = @@S(pItem)
-		cList = @@S(This.Content())
+		cItem = @@(pItem)
+		cList = @@(This.Content())
 
 		nResult = Q(cList).NumberOfOccurrenceCS(cItem, pCaseSensitive)
 
@@ -15126,11 +15151,44 @@ class stzList from stzObject
 
 	def DuplicatesCS(pCaseSensitive)
 
+
+		if This.IsEmpty()
+			return []
+		ok
+
+		# Resolving pCaseSensitive
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if isString(pCaseSensitive)
+			if Q(pCaseSensitive).IsOneOfThese([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+
+				pCaseSensitive = TRUE
+			
+			but Q(pCaseSensitive).IsOneOfThese([
+				:CaseInSensitive, :NotCaseSensitive, :NotCS,
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+
+				pCaseSensitive = FALSE
+			ok
+
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
 		aUniqueSubStr = This.ToSetCS(pCaseSensitive)
+
 		nLen = len(aUniqueSubStr)
 
 		acResult = []
-
+		# TODO: Enhance this loop for performance
 		for i = 1 to nLen
 
 			if This.NumberOfOccurenceCS(aUniqueSubStr[i], pCaseSensitive) > 1
@@ -16571,7 +16629,7 @@ class stzList from stzObject
 			StzListOfHashListsQ( This.List() ).Show()
 
 		other
-			? @@S( This.Content() )
+			? @@( This.Content() )
 		ok
 
 	  #---------------------------#
@@ -17147,12 +17205,12 @@ class stzList from stzObject
 			return nResult
 		ok
 
-		cItem = @@S(pItem)
+		cItem = @@(pItem)
 
 		nLen = This.NumberOfItems()
 		for i = 1 to nLen
 	
-			if Q(cItem).IsEqualToCS( @@S(This.Item(i)), pCaseSensitive )
+			if Q(cItem).IsEqualToCS( @@(This.Item(i)), pCaseSensitive )
 				nResult = i
 				exit
 			ok
@@ -17261,12 +17319,12 @@ class stzList from stzObject
 			ok
 		ok
 
-		cItem = @@S(pItem)
+		cItem = @@(pItem)
 		n = 0
 	
 		for i = nLen to 1 step -1
 			n++
-			if Q(cItem).IsEqualToCS( @@S(This.Item(i)), pCaseSensitive )
+			if Q(cItem).IsEqualToCS( @@(This.Item(i)), pCaseSensitive )
 				nResult = nLen - n + 1
 				exit
 			ok
@@ -17670,9 +17728,9 @@ class stzList from stzObject
 
 	def DeepContainsCS(pItem, pCaseSensitive)
 		
-		cList = @@S(This.List())
+		cList = @@(This.List())
 
-		cItem = @@S(pItem)
+		cItem = @@(pItem)
 		if isString(pItem)
 			cItem = Q(cItem).FirstAndLastCharsRemoved()
 		ok
@@ -23710,7 +23768,8 @@ class stzList from stzObject
 
 		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
 					:StartingAt, :StartingAtPosition,
-					:StartingAtOccurrence ]) )
+					:StartingAtOccurrence, :StartAt,
+					:StartAtPosition, :StartAtOccurrence ]) )
 
 			return TRUE
 
@@ -23723,7 +23782,8 @@ class stzList from stzObject
 
 		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
 					:StoppingAt, :StoppingAtPosition,
-					:StoppingAtOccurrence ]) )
+					:StoppingAtOccurrence, :StopAt,
+					:StopAtPosition, :StopAtOccurrence ]) )
 
 			return TRUE
 
@@ -28912,6 +28972,26 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsSectionOrInSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and (This[1] = :Section or This[1] = :InSection) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsSectionsOrInSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and (This[1] = :Sections or This[1] = :InSections) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
 	def IsOfSizeNamedParam()
 
 		if This.NumberOfItems() = 2 and
@@ -29394,6 +29474,17 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsComingNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and
+			(This[1] = :Coming or This[1] = :Coming@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsSteppingNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and
@@ -29664,3 +29755,43 @@ class stzList from stzObject
 
 	def NumberOfChars()
 		return len(This.Chars())
+
+	  #-------------------------------------------#
+	 #  GETTING THE LIST OF LETTERS IN THE LIST  #
+	#-------------------------------------------#
+
+	def Letters()
+		aResult = []
+		nLen = This.NumberOfItems()
+
+		for i = 1 to nLen
+			item = This.Item(i)
+			if isString(item) and Q(item).IsLetter()
+				aResult + item
+			ok
+		next
+
+		return aResult
+
+	def NumberOfLetters()
+		return len(This.Letters())
+
+	  #-----------------------------------------#
+	 #  GETTING THE LIST OF PAIRS IN THE LIST  #
+	#-----------------------------------------#
+
+	def Pairs()
+		aResult = []
+		nLen = This.NumberOfItems()
+
+		for i = 1 to nLen
+			item = This.Item(i)
+			if isList(item) and Q(item).IsPair()
+				aResult + item
+			ok
+		next
+
+		return aResult
+
+	def NumberOfPairs()
+		return len(This.Pairs())

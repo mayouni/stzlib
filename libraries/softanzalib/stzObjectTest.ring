@@ -73,7 +73,7 @@ StartProfiler()
 }')
 #--> 400
 # In fact:
-	? @@S( Q("Ring").Unicodes() )
+	? @@( Q("Ring").Unicodes() )
 	#--> [ 82, 105, 110, 103 ]
 
 ? Q("Ring").ToNumberXT('{

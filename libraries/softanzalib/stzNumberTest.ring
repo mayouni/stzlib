@@ -73,7 +73,7 @@ proff()
 # Ok, but how this is found in practice, like if we make it by hand?
 # First, let's see the multiples of 25 under 1080
 
-aList1 = Q(25).Multiples(:Under = 1080) # Use ? @@S( aList1 ) to show the list
+aList1 = Q(25).Multiples(:Under = 1080) # Use ? @@( aList1 ) to show the list
 
 #--> [
 #	25, 50, 75, 100, 125,
@@ -89,7 +89,7 @@ aList1 = Q(25).Multiples(:Under = 1080) # Use ? @@S( aList1 ) to show the list
 # Executed in 8.05 second(s)
 
 # Then we look to the multiples of 42 under 1080
-aList2 = Q(42).Multiples(:Under = 1080) # Use ? @@S( aList2 ) to show the list
+aList2 = Q(42).Multiples(:Under = 1080) # Use ? @@( aList2 ) to show the list
 #--> [
 #	42, 84, 126, 168, 210,
 #	252, 294, 336, 378, 420,
@@ -111,7 +111,7 @@ proff()
 
 /*-----------------
 
-? @@S( Q(25).MultiplesUnder(1080) ) + NL
+? @@( Q(25).MultiplesUnder(1080) ) + NL
 #--> [
 #	25, 50, 75, 100, 125,
 #	150, 175, 200, 225, 250,
@@ -124,7 +124,7 @@ proff()
 #	1000, 1025, 1050, 1075
 # ]
 
-? @@S( Q(42).MultiplesUnder(1080) ) + NL
+? @@( Q(42).MultiplesUnder(1080) ) + NL
 #--> [
 #	42, 84, 126, 168, 210,
 #	252, 294, 336, 378, 420,
@@ -140,10 +140,10 @@ proff()
 ? Q(25).LCM(42)
 #--> 1050
 
-? @@S( Q(1050).PrimeFactorsXT() ) + NL
+? @@( Q(1050).PrimeFactorsXT() ) + NL
 #--> [ [ 2, 525 ], [ 3, 350 ], [ 5, 210 ], [ 7, 150 ] ]
 
-? @@S( Q(1050).FactorsXT() )
+? @@( Q(1050).FactorsXT() )
 #--> [
 #	[ 1, 1050 ], [ 2, 525 ], [ 3, 350 ],
 #	[ 5, 210 ], [ 6, 175 ], [ 7, 150 ],
@@ -196,13 +196,13 @@ o1.MultiplyByMany([2, 3])
 /*------------------
 
 o1 = new stzNumber(5)
-? @@S( o1.RepeatXT(:InA = :List, :OfSize = 2) )
+? @@( o1.RepeatXT(:InA = :List, :OfSize = 2) )
 #--> [ 5, 5 ]
 
 ? o1.RepeatXT(:InA = :String, :OfSize = 7)
 #--> "5555555"
 
-? @@S( o1.RepeatXT(:InA = :Grid, :OfSize = [3, 3]) )
+? @@( o1.RepeatXT(:InA = :Grid, :OfSize = [3, 3]) )
 #-->
 # [
 # 	[ "5", "5", "5" ],
@@ -227,7 +227,7 @@ o1 = new stzNumber(5)
 
 /*-----------------------
 
-? @@S( CircledNumbers() )
+? @@( CircledNumbers() )
 #--> [ "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⓪" ]
 
 ? StzNumberQ("⓪").Number() #--> 0 

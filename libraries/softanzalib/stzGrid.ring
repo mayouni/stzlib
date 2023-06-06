@@ -832,7 +832,7 @@ class stzGrid from stzObject
 		ok
 
 		for i = 1 to This.NumberOfHLines()
-			cStr += @@S( This.VLine(n)[i] )
+			cStr += @@( This.VLine(n)[i] )
 
 			if i < This.NumberOfHLines()
 				cStr += NL

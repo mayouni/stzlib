@@ -931,9 +931,6 @@ func IsQObject(p)
 func ObjectClassName(cObjectVarName)
 	return StzObjectQ(cObjectVarName).ObjectClassName()
 
-func ObjectUID(cObjectVarName)
-	return StzObjectQ(cObjectVarName).ObjectUID()
-
 func ObjectAttributes(cObjectVarName)
 	return StzObjectQ(cObjectVarName).ObjectAttributes()
 
@@ -1003,19 +1000,16 @@ class stzObject
 	def ObjectClassName() # Depricated, use ClassName()
 		return classname(This)
 
-	def ObjectUID()
-		return objectid(This.Object())
-
-		def UID()
-			return This.ObjectUID()
-
 	def ObjectAttributes() # Depricated, use Attributes() instead
-		return ring_attributes(This.Object())
+		return ring_attributes(This)
 
 	def ObjectValues()
 		aResult = []
-		for cAttribute in This.ObjectAttributes()
-			cCode = "aResult + This.Object()." + cAttribute
+		acAttributes = This.ObjectAttributes()
+		nLen = len(acAttributes)
+
+		for i = 1 to nLen 
+			cCode = "aResult + This." + acAttributes[i]
 			eval(cCode)
 		next
 		return aResult
@@ -1024,12 +1018,11 @@ class stzObject
 			return This.ObjectValues()
 
 	def ObjectAttributesAndValues()
-		aResult = []
-		i = 0
-		for cAttribute in This.ObjectAttributes()
-			i++
-			aResult + [ cAttribute, This.ObjectValues()[i] ]
-		next
+		aResult = Association([
+				This.ObjectAttributes(),
+				This.ObjectValues()
+		])
+
 		return aResult
 
 		def Content()

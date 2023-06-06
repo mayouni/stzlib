@@ -1,5 +1,23 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzListOfNumbers([ 2, 7, 18, 10, 25, 4 ])
+
+//? @@( Min( o1.NeighborsOf(12) ) )
+
+//? o1.NearestTo(12)
+#--> 10
+
+? o1.NearestToXT(12, :Coming = :BeforeIt)
+#--> 10
+
+? o1.NearestToXT(17, :ComingAfterIt)
+#--> 18
+
+proff()
+# Executed in 0.03 second(s)
+
 /*-----------
 
 pron()
@@ -57,6 +75,7 @@ o1 = new stzListOfNumbers([ 1, 2, 999, 4, 5, 999, 7, 8, 999 ])
 #--> [6, 9]
 
 ? o1.LastNOccurrencesXT(2, :Of = 999, :StartingAt = 10)
+# ERROR : Array Access (Index out of range) ! In method section() in tzList.ring
 #--> [6, 9]
 
 StopProfiler()

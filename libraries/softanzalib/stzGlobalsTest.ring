@@ -1,5 +1,23 @@
 load "stzlib.ring"
 
+/*============
+
+pron()
+
+? @@([
+	"*", '"*"', "*4", "*4*", "*4*3", "*4*34",
+	"4", "4*", "4*3", "4*34", "*", "*3",
+	"*34", "3", "34", "4"
+])
+#--> [
+#	"*", '"*"', "*4", "*4*", "*4*3", "*4*34",
+#	"4", "4*", "4*3", "4*34", "*", "*3",
+#	"*34", "3", "34", "4"
+# ]
+
+proff()
+# Executed in 0.05 second(s)
+
 /*=============
 
 */
@@ -29,7 +47,7 @@ pron()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 o1.SortInAscending()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ [1,3], [4, 7], [8, 9] ]
 
 proff()
@@ -39,7 +57,7 @@ proff()
 
 pron()
 
-? @@S(  Association([ [4, 14, 9], [6, 16] ]) )
+? @@(  Association([ [4, 14, 9], [6, 16] ]) )
 #--> [ [ 4, 6 ], [ 14, 16 ], [ 9, "" ] ]
 
 proff()
@@ -54,7 +72,7 @@ o1 = new stzString("...emm...eh..emm...eh")
 //? o1.Find([ "emm", "eh" ])
 #--> [4, 10, 14, 20 ]
 
-? @@S(o1.FindManyAsSections([ "emm", "eh" ]))
+? @@(o1.FindManyAsSections([ "emm", "eh" ]))
 #--> [ [4, 6], [4, 6], [4, 6], [4, 6] ]
 
 proff()
@@ -69,7 +87,7 @@ o1 = new stzString("...|---|....|--|..--")
 ? @@( o1.FindAsSection("--") )
 /*
 ? o1.BoundedBy("|")
-? @@S( o1.FindAsSections([ "---", "--" ]) )
+? @@( o1.FindAsSections([ "---", "--" ]) )
 
 //? @@( o1.FindAsSections( o1.BoundedBy("|") ) )
 */
@@ -94,7 +112,7 @@ proff()
 
 pron()
 
-? @@S('   str = "  ...  "     and   str !=    "  *** " ')
+? @@('   str = "  ...  "     and   str !=    "  *** " ')
 #--> 'str = "  ...  " and str != "  *** "'
 
 proff()
@@ -303,7 +321,7 @@ StopProfiler()
 #--> "stznumber"
 # You can also say: ? StzNumberClass()
 
-? @@S(Stz(:Number, :Attributes))
+? @@(Stz(:Number, :Attributes))
 #--> [ "@oobject", "@cobjectvarname", "@cnumber" ]
 # You can also say: ? StzNumberAttributes()
 
@@ -316,7 +334,7 @@ StopProfiler()
 ? Q("A").RepeatedNTimes(3) # Or Repeated(3)
 #--> "AAA"
 
-? @@S( Q([1,2]).RepeatedNTimes(3) ) # Or Repeated(3)
+? @@( Q([1,2]).RepeatedNTimes(3) ) # Or Repeated(3)
 #--> [ [ 1, 2 ], [ 1, 2 ], [ 1, 2 ] ]
 
 ? Q(10).RepeatedNTimes(3) # Or Repeated(3)
@@ -449,7 +467,7 @@ QQ([ "A", 20, "B", 30 ]) {
 	? Type()	#--> "object"
 	? StzType()	#--> "stzlist"
 
-	? @@S( Types() )
+	? @@( Types() )
 	#--> [ "string", "number", "string", "number" ]
 }
 
@@ -459,7 +477,7 @@ Q([ "A", 20, [ "B" ], 30 ]){
 	? Type()	#--> "object"
 	? StzType()	#--> "stzlist"
 
-	? @@S( Types() )
+	? @@( Types() )
 	#--> [ "string", "number", "list", "number" ]
 }
 
@@ -469,7 +487,7 @@ Q([ "A", 20, [ "B", 10 ], 30 ]){
 	? Type()	#--> "object"
 	? StzType()	#--> "stzlist"
 
-	? @@S( Types() )
+	? @@( Types() )
 	#--> [ "string", "number", "list", "number" ]
 }
 
@@ -548,7 +566,7 @@ o1 = new stzString("A")
 #	"a"
 #]
 
-? ComputableFormSimplified([ 1, 2, "a" ]) # or use the abbreviated form @@S(...)
+? ComputableForm([ 1, 2, "a" ]) # or use the abbreviated form @@(...)
 #--> [ 1, 2, "a" ]
 
 /*================

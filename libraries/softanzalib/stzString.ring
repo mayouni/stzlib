@@ -347,13 +347,13 @@ func BothStringsAreEqualCS(pcStr1, pcStr2, pCaseSensitive)
 func BothStringsAreEqual(pcStr1, pcStr2)
 	return BothStringsAreEqualCS(pcStr1, pcStr2, :CaseSensitive = TRUE)
 
-func StringsAreEqualCS(paStrings, pCaseSensitive)
-	if NOT ListIsListOfStrings(paStrings)
-		stzRaise("You must provide a list of strings!")
+func StringsAreEqualCS(pacStr, pCaseSensitive)
+	if NOT ListIsListOfStrings(paStr)
+		stzRaise("Incorrect param type! pacStr must b a list of strings!")
 	ok
 
-	if NOT len(paStrings) > 1
-		stzRaise("You must provide at least two strings in the list!")
+	if NOT len(paStr) > 1
+		stzRaise("You must provide at least two strings pacStr!")
 	ok
 
 	# Resolving pCaseSensitive
@@ -384,12 +384,13 @@ func StringsAreEqualCS(paStrings, pCaseSensitive)
 	# Doing the job
 
 	bResult = TRUE
+	nLen = len(pacStr)
 
 	if pCaseSensitive = TRUE
 		
-		cFirstStr = StzStringQ(paStrings[1]).Lowercased()
-
-		for i = 2 to len(paStrings)
+		cFirstStr = StzStringQ(pacStr[1]).Lowercased()
+		
+		for i = 2 to nLen
 			if StzStringQ(paStrings[i]).Lowercased() != cFirstStr
 				bResult = FALSE
 				exit
@@ -400,8 +401,8 @@ func StringsAreEqualCS(paStrings, pCaseSensitive)
 	else
 
 		cFirstStr = paStrings[1]
-
-		for i = 1 to len(paStrings)
+		
+		for i = 1 to nLen
 			if paStrings[i] != cFirstStr
 				bResult = FALSE
 				exit
@@ -1676,31 +1677,6 @@ class stzString from stzObject
 
 		if This.IsEmpty()
 			return []
-		ok
-
-		# Resolving pCaseSensitive
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if isString(pCaseSensitive)
-			if Q(pCaseSensitive).IsOneOfThese([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
-
-				pCaseSensitive = TRUE
-			
-			but Q(pCaseSensitive).IsOneOfThese([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
-
-				pCaseSensitive = FALSE
-			ok
-
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
 		# Doing the job
@@ -3848,10 +3824,11 @@ class stzString from stzObject
 
 	def ContainsDuplicatedSubStringsCS(pCaseSensitive)
 
-		acSubStrings = This.SubStringsCS(pCaseSensitive)
-		bResult = This.SubStringsCSQ(pCaseSensitive).ContainsDuplicatedItemsCS(pCaseSensitive)
-
-		return bResult
+		if This.NumberOfDuplicatesCS(pCaseSensitive) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
 
 		def ContainsDuplicatesCS(pCaseSensitive)
 			return This.ContainsDuplicatedSubStringsCS(pCaseSensitive)
@@ -4096,21 +4073,8 @@ class stzString from stzObject
 	#----------------------#
 
 	def FindDuplicatesCS(pCaseSensitive)
-		acDuplicates = This.DuplicatesCS(pCaseSensitive)
-		nLen = len(acDuplicates)
-
-		anResult = []
-
-		for i = 1 to nLen
-			anPos = This.FindCSQ(acDuplicates[i], pCaseSensitive)
-			nLenPos = len(anPos)
-			for j = 1 to nLenPos
-				if ring_find(anResult, anPos[j]) = 0
-					anResult + anPos[j]
-				ok
-			next
-		next
-
+		anPos = This.FindDuplicatesXTCS(pCaseSensitive)
+		anResult = Q(anPos).ToSet()
 		return anResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -4119,14 +4083,43 @@ class stzString from stzObject
 		return This.FindDuplicatesCS(:CaseSensitive = TRUE)
 
 	  #----------------------------------#
+	 #  FINDING DUPLICATES -- EXTENDED  #
+	#----------------------------------#
+
+	# This extended form keeps the positions even if they are duplicated
+	# For example :
+	# 	
+	def FindDuplicatesXTCS(pCaseSensitive)
+		aSections = This.FindDuplicatesAsSectionsCS(pCaseSensitive)
+		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+		return anResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicatesXT()
+		return This.FindDuplicatesXTCS(:CaseSensitive = TRUE)
+
+	  #----------------------------------#
 	 #  FINDING DUPLICATES AS SECTIONS  #
 	#----------------------------------#
 
 	def FindDuplicatesAsSectionsCS(pCaseSensitive)
-
 		acDuplicates = This.DuplicatesCS(pCaseSensitive)
-		aResult = This.FindAsSectionsCS(acDuplicates)
-		
+		nLen = len(acDuplicates)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aSections = This.FindAsSectionsCSQ(acDuplicates[i], pCaseSensitive).
+					 FirstItemRemoved()
+
+			nLenSections = len(aSections)
+			for j = 1 to nLenSections
+				aResult + aSections[j]
+			next
+		next
+
+		aResult = QR(aResult, :stzListOfPairs).Sorted()
 		return aResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -4139,9 +4132,31 @@ class stzString from stzObject
 	#--------------#
 
 	def DuplicatesCS(pCaseSensitive)
+		
+		if This.IsEmpty()
+			return []
+		ok
 
-		acResult = This.SubStringsCSQ(pCaseSensitive).DuplicatesCS(pCaseSensitive)
+		# Doing the job
 
+		acResult = []
+
+		nLen = This.NumberOfChars()
+
+		for i = 1 to nLen
+			for j = i to nLen
+
+				cSubStr = This.Section(i, j)
+
+				if Q(acResult).ContainsNoCS(cSubStr, pCaseSensitive) and
+				   This.NumberOfOccurrenceCS(cSubStr, TRUE) > 1
+
+					acResult + cSubStr
+				ok
+
+			next
+		next
+		
 		return acResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -4154,13 +4169,11 @@ class stzString from stzObject
 	#------------------------------------------------#
 
 	def DuplicatesAndTheirPositionsCS(pCaseSensitive)
-		aDuplicatesZZ = DuplicatesAndTheirSectionsCS(pCaseSensitive)
-		nLen = len(aDuplicates)
-
-		aResult = []
-		for i = 1 to nLen
-			aResult + [ aDuplicatesZZ[1], aDuplicatesZZ[2][1] ]
-		next
+		acDuplicates = This.DuplicatesCS(pCaseSensitive)
+		aSections = This.FindDuplicatesXTCS(pCaseSensitive)
+		aResult = Association([ acDuplicates, aSections ])
+		
+		return aResult
 
 		def DuplicatesZCS(pCaseSensitive)
 			return This.DuplicatesAndTheirPositionsCS(pCaseSensitive)
@@ -4179,7 +4192,7 @@ class stzString from stzObject
 
 	def DuplicatesAndTheirSectionsCS(pCaseSensitive)
 		acDuplicates = This.DuplicatesCS(pCaseSensitive)
-		aSections = This.FindAsSectionsCS(acDuplicates)
+		aSections = This.FindDuplicatesAsSectionsCS(pCaseSensitive)
 		aResult = Association([ acDuplicates, aSections ])
 		
 		return aResult
@@ -4200,12 +4213,11 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def FindDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
-		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
-		nLen = len(anPos)
 
 		anResult = []
-
-		if nLen > 1
+		anPos = This.FindOccurrenceCS(pcSubStr, pCaseSensitive)
+		
+		if len(anPos) > 1
 			anResult = Q(anPos).FirstItemRemoved()
 		ok
 
@@ -4228,13 +4240,11 @@ class stzString from stzObject
 	#---------------------------------------------------------#
 
 	def FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
-		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
-		nLen = len(anPos)
-
 		aResult = []
-
-		if nLen > 1
-			aResult = Q(aSections).FirstItemRemoved()
+		anPos = This.FindOccurrencesAsSectionsCS(pcSubStr, pCaseSensitive)
+		
+		if len(anPos) > 1
+			aResult = Q(anPos).FirstItemRemoved()
 		ok
 
 		return aResult
@@ -10767,14 +10777,21 @@ class stzString from stzObject
 	#-------------------------------------------------------------#
 
 	def FindAntiSections(paSections)
+
 		aResult = StzListQ( 1 : This.NumberOfChars() ).
-				FindAntiSectionsQ(paSections).
-				Content()
+			  FindAntiSectionsQ(paSections).
+			  Content()
 
 		return aResult
 
+		def FindAntiSectionsQ(paSections)
+			return new stzList( This.FindAntiSections(paSections) )
+
 		def AntiSectionsAsPairsOfNumbers(paSections)
 			return This.FindAntiSections(paSections)
+
+			def AntiSectionsAsPairsOfNumbersQ(paSections)
+				return This.AntiSectionsAsPairsOfNumbers(paSections)
 
 	  #----------------------------------------------------------#
 	 #   GETIING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS   #
@@ -13136,7 +13153,7 @@ def ReplaceIBS()
 		/* EXAMPLE
 		#                      4   8 1   4 6 8   2
 		o1 = new stzString("...12..1212..121212..12.")
-		? @@S( o1.FindMadeOf("12") )
+		? @@( o1.FindMadeOf("12") )
 		#--> [ 4, 8, 10, 14, 16, 18 ]
 
 		*/
@@ -14621,6 +14638,7 @@ def ReplaceIBS()
 	#---------------------------------------------------------#
 
 	def StartsWithCS(pcSubStr, pCaseSensitive)
+		#< QtBased | Uses QString.startsWith() >
 
 		# Resolving pCaseSensitive
 
@@ -14714,6 +14732,8 @@ def ReplaceIBS()
 	#----------------------------------------------------------#
 
 	def EndsWithCS(pcSubStr, pCaseSensitive)
+		#< QtBased | Uses oQString.endsWith() >
+
 		# Resolving pCaseSensitive
 
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
@@ -15269,7 +15289,7 @@ def ReplaceIBS()
 	#------------------------------------------------------------------------#
 
 	def FindFirstSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		#< QtBased : Uses QStringObject >
+		#< QtBased | Uses QString.IndexOf() >
 
 		# Resolving params
 
@@ -15979,7 +15999,7 @@ def ReplaceIBS()
 	// or returns 0 if nothing is found
 
 	def FindFirstCS(pcSubStr, pCaseSensitive)
-		#< QtBased : Uses QStringObject >
+		#< QtBased | Uses QString.IndexOf() >
 
 		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
@@ -17280,7 +17300,7 @@ def ReplaceIBS()
 	#=================================================#
 
 	def FindCS(pcSubStr, pCaseSensitive)
-		#< QtBased | Uses QString as a backend for searching>
+		#< QtBased | Uses QString.IndexOf() >
 
 		# Resolving the pcSubStr param
 
@@ -20078,7 +20098,7 @@ def ReplaceIBS()
 		#--> [ [8, 10], [29, 30] ]
 
 		# TODO
-		? @@S( o1.FindXT( "*", :InBetween = [ "<<", ">>" ]) ) # or :InSubStringsBetween
+		? @@( o1.FindXT( "*", :InBetween = [ "<<", ">>" ]) ) # or :InSubStringsBetween
 		
 		*/
 
@@ -20400,43 +20420,60 @@ def ReplaceIBS()
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- S/EXTENDED  #
 	#====================================================================#
 
-	def FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+	def FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartOrStopOrSection, pCaseSensitive)
 
-		nStoppingAt = 0
+		# Checking the pnStartOrStopOrSection param
 
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-			nStoppingAt  = This.NumberOfChars()
-		
-		but isList(pnStartingAt) and Q(pnStartingAt).IsPairOfNumbers()
-			pnStartingAt = pnStartingAt[1]
-			nStoppingAt  = pnStartingAt[2]
+		nLenStr = This.NumberOfChars()
+		startAt = 1
+		stopAt = nLenStr
 
-		but isList(pnStartingAt) and Q(pnStartingAt).IsInSectionNamedParam()
+		if isNumber(pnStartOrStopOrSection)
+				startAt = pnStartOrStopOrSection
 
-			if isList(pnStartingAt[2]) and Q(pnStartingAt[2]).IsPairOfNumbers()
-				nStoppingAt  = pnStartingAt[2][2]
-				pnStartingAt = pnStartingAt[2][1]
+		but isList(pnStartOrStopOrSection)
+			oTemp = Q(pnStartOrStopOrSection)
 
-			else
-				StzRaise("Incorrect param! Correct form is :InSection = [n1, n2].")
+			if oTemp.IsOneOfTheseNamedParams([ :StartingAt, :StartAt, :Start ])
+				startAt = pnStartOrStopOrSection[2]
+
+			but oTemp.IsOneOfTheseNamedParams([ :StoppingAt, :StopAt, :Stop ])
+				stopAt = pnStartOrStopOrSection[2]
+
+			but oTemp.IsOneOfTheseNamedParams([ :Section, :InSection ])
+				startAt = pnStartOrStopOrSection[2][1]
+				stopAt  = pnStartOrStopOrSection[2][2]
+
 			ok
-
-		but isList(pnStartingAt) and Q(pnStartingAt).IsStoppingAtNamedParam()
-			nStoppingAt  = pnStartingAt
-			pnStartingAt = 1
 		ok
 
-		aTempSections = This.SectionQ(pnStartingAt, nStoppingAt).
+		# Cheching the startAt value (the only one we use in this function)
+		#--> we leave the checking of stopAt to the called .Section() function
+
+		if isString(startAt)
+			oTemp = Q(startAt)
+
+			if oTemp.IsOneOfThese([ :First, :FirstChar ])
+				startAt = 1
+
+			but oTemp.IsOneOfThese([ :Last, :LastChar ])
+				startAt = nLenStr
+			ok
+		ok
+
+		# Doing the job
+
+		aSections = This.SectionQ(startAt, stopAt).
 				FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
 
-		nLen = len(aTempSections)
+		nLen = len(aSections)
+
+		aResult = []
 		for i = 1 to nLen
-			aTempSections[i][1] += pnStartingAt - 1
-			aTempSections[i][2] += pnStartingAt - 1
+			aResult + [ aSections[i][1] + startAt - 1, aSections[i][2] + startAt - 1 ]
 		next
 
-		return aTempSections
+		return aResult
 
 		#< @FunctionAlternativeForm
 
@@ -20897,94 +20934,31 @@ def ReplaceIBS()
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- SD/EXTENDED  #
 	#=====================================================================#
 
-	def FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
+	def FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartOrStopOrSection, pcDirection, pCaseSensitive)
 		
-		# Resolving the starting (nMin) and stopping positions (nMin)
+		# Resolving the pcDirection param
 
 		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
-		if NOT isString(pcDirection) and Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward ])
+		if NOT ( isString(pcDirection) and Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward ]) )
 			StzRaise("Incorrect param! pcDirection must be a string equal to :Default, :Forward or :Backward.")
 		ok
 
 		if pcDirection = :Default
-			pcDirection = Forward
-		ok
-
-		nLenStr = This.NumberOfChars()
-
-		nMin = 1
-		nMax = nLenStr
-
-		bIsStartingAtNamedParam = FALSE
-		bIsStoppingAtNamedParam = FALSE
-
-		if isList(pnStartingOrStoppingAt)
-			oTemp = Q(pnStartingOrStoppingAt)
-
-			if oTemp.IsStartingAtNamedParam()
-				bIsStartingAtNamedParam = TRUE
-
-			but oTemp.IsStoppingAtNamedParam()
-				bIsStoppingAtNamedParam
-			ok
-		ok
-
-		if pcDirection = :Forward
-
-			if bIsStartingAtNamedParam
-				nMin = pnStartingOrStoppingAt[2]
-				if isString(nMin) and Q(nMin).IsOneOfThese([ :First, :FirstChar ])
-					nMin = 1
-				ok
-
-			but bIsStoppingAtNamedParam
-				nMax = pnStartingOrStoppingAt[2]
-				if isString(nMax) and Q(nMax).IsOneOfThese([ :Last, :LastChar ])
-					nMin = nLenStr
-				ok
-
-			ok
-
-		else // pcDirection = :Backward
-			if bIsStartingAtNamedParam
-				nMax = pnStartingOrStoppingAt[2]
-				if isString(nMax) and Q(nMax).IsOneOfThese([ :Last, :LastChar ])
-					nMax = nLenStr
-				ok
-
-			but bIsStoppingAtNamedParam
-				nMin = pnStartingOrStoppingAt[2]
-				if isString(nMin) and Q(nMin).IsOneOfThese([ :First, :FirstChar ])
-					nMin = 1
-				ok
-			ok
-		ok
-
-		if NOT BothAreNumbers(nMin, nMax)
-			StzRaise("Incorrect params types! nStartAt and nStopAt must be numbers.")
+			pcDirection = :Forward
 		ok
 
 		# Doing the job
 
-		aSections = This.FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		nLenSections = len(aSections)
+		aResult = This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartOrStopOrSection, pCaseSensitive)
+		if pcDirection = :Backward
+			aResult = Q(aResult).Reversed()
+		ok
 
-		aResult = []
-		for i = 1 to nLenSections
-			n1 = aSections[i][1]
-			n2 = aSections[i][2]
-
-			if n1 >= nMin and n2 >= nMin and
-			   n1 <= nMax  and n2 <= nMax
-
-				aResult + [n1, n2]
-			ok
-		next
-		
 		return aResult
+
 
 		#< @FunctionAlternativeForm
 
@@ -21307,7 +21281,72 @@ def ReplaceIBS()
 	#======================================================#
 
 	def FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-		return This.FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, :Forward, pCaseSensitive)
+
+		# Checking the pcBound1 and pcBound2 params
+
+		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
+			pcBound2 = pcBound2[2]
+		ok
+
+		if NOT BothAreStrings(pcBound1, pcBound2)
+			StzRaise("Incorrect param type! pcBound1 and pcBound2 must both be strings.")
+		ok
+
+		# Doing the job
+
+		if This.ContainsNoCS(pcBound1, pCaseSensitive) or
+		   This.ContainsNoCS(pcBound2, pCaseSensitive)
+
+			return []
+		ok
+
+		aResult = []
+
+		if pcBound1 = pcBound2
+
+			if This.NumberOfOccurrenceCS(pcBound1, pCaseSensitive) = 1
+				return []
+			ok
+
+			aSections = This.FindAsSectionsCS(pcBound1, pCaseSensitive)
+
+			if This.IsBoundedByCS(pcBound1, pCaseSensitive)
+
+				aResult = This.FindAntiSectionsQ(aSections).Content()
+
+			else
+
+				aResult = This.FindAntiSectionsQ(aSections).
+					      FirstAndLastItemsRemoved()
+			ok
+
+		else // pcBound1 != pcBound2
+? "in"
+			anPos1 = StzListOfNumbersQ( This.FindCS(pcBound1, pCaseSensitive) ).
+				 AddedToEach( Q(pcBound1).NumberOfChars() )
+	
+			anPos2 = StzListOfNumbersQ( This.FindCS(pcBound2, pCaseSensitive) ).
+				 AddedToEach( -1 )
+	
+			nLen1 = len(anPos1)
+			nLen2 = len(anPos2)
+	
+			if nLen1 > 0 and nLen2 > 0
+				n = 1
+				for j = 1 to nLen2
+					if anPos2[j] < anPos1[1]
+						n++
+					ok
+				next
+	
+				anPos2 = Q(anPos2).Section(n, nLen2)
+				aResult = StzListOfListsQ([anPos1, anPos2]).ShrinkQ().Associated()
+	
+			ok
+	
+		ok
+
+		return aResult
 
 		#< @FunctionAlternativeForms
 		# NOTE: Reorganise! some alternatives are in bottom of file
@@ -21404,122 +21443,29 @@ def ReplaceIBS()
 	#===========================================================#
 
 	def FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		#< @MotherFunctionOf = [ :FindAnyBetweenAsSectionsCS() ] >
 
-		# Checking params
-	
-		if NOT isString(pcBound1)
-			StzRaise("Incorrect param type! pcBound1 must be a string.")
-		ok
-	
-		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
-			pcBound2 = pcBound2[2]
-		ok
-	
-		if NOT isString(pcBound2)
-			StzRaise("Incorr²e a string.")
-		ok
-	
-		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		# Checking pcDirection param
+
+		if isList(pcDirection) and
+		   Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+
 			pcDirection = pcDirection[2]
 		ok
-	
-		if NOT ( isString(pcDirection) and Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward ]) )
-			StzRaise("Incorrect param type! pcDirection must be a string. Allowed values are :Default, :Forward, and :Backward.")
+
+		if NOT ( isString(pcDirection) and Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+			SzRaise("Incorrect param type! pcDirection must be a string equal to :Forward, :Backward, or :Default.")
+			# NOTE this is a misspelled form of StzRaise()
 		ok
 
 		# Doing the job
-	
-		aResult = []
 
-		if pcDirection = :Default or pcDirection = :Forward
-	
-			aResult = []
+		aSections = This.FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
 
-			nLenBound1 = Q(pcBound1).NumberOfChars()
-			nLenBound2 = Q(pcBound2).NumberOfChars()
-	
-			if pcBound1 = pcBound2
-	
-				anPos = This.FindCS(pcBound1, pCaseSensitive)
-				nLen = len(anPos)
-				
-				if nLen <= 1
-					return []
-				ok
-	
-				if Q(nLen).IsOdd()
-					anPos = Q(anPos).LastItemRemoved()
-				ok
-	
-				nLen = len(anPos)
-	
-				aResult = []
-				nTemp = 0
-				nPreviousI = 0
-	
-				for i = 1 to nLen
-					nTemp++
-	
-					if nTemp = 1
-						nPreviousI = i
-	
-					but nTemp = 2
-						n1 = anPos[nPreviousI] + nLenBound1
-						n2 = anPos[i] - 1
-	
-						aResult + [ n1, n2 ]
-						nTemp = 0
-					ok	
-				next
-	
-			else # pcBound1 != pcBound2
-	
-				anPos1 = StzListOfNumbersQ( This.FindCS(pcBound1, pCaseSensitive) ).
-					 AddedToEach( Q(pcBound1).NumberOfChars() )
-	
-				anPos2 = StzListOfNumbersQ( This.FindCS(pcBound2, pCaseSensitive) ).
-					 AddedToEach( -1 )
-	
-				nLen1 = len(anPos1)
-				nLen2 = len(anPos2)
-	
-				if nLen1 > 0 and nLen2 > 0
-					n = 1
-					for j = 1 to nLen2
-						if anPos2[j] < anPos1[1]
-							n++
-						ok
-					next
-	
-					anPos2 = Q(anPos2).Section(n, nLen2)
-					aResult = StzListOfListsQ([anPos1, anPos2]).ShrinkQ().Associated()
-	
-				ok
-	
-			ok
-	
-		but pcDirection = :Backward
-
-			aSections = This.Copy().ReverseQ().FindAnyBetweenAsSectionsDCS(pcBound2, pcBound1, :Forward, pCaseSensitive)
-			# NOTE: pcBound2 is put before pcBound1
-
-			nLenSections = len(aSections)
-			nLenString   = This.NumberOfChars()
-
-			for i = 1 to nLenSections
-				aSections[i][1] = nLenString - aSections[i][1] + 1
-				aSections[i][2] = nLenString - aSections[i][2] + 1
-			next
-
-			nLenSections = len(aSections)
-			for i = 1 to nLenSections
-				aResult + [ aSections[i][2], aSections[i][1] ]
-			next
-			
+		if pcDirection = :Backward
+			aSections = Q(aSections).Reversed()
 		ok
 
-		return aResult
+		return aSections
 
 		#< @FunctionAlternativeForm
 	
@@ -22746,7 +22692,7 @@ def ReplaceIBS()
 		/* EXAMPLE :
 
 		o1 = new stzString("12*45*78*9")
-		? @@S( o1.FindAnySplittedBy("*") )
+		? @@( o1.FindAnySplittedBy("*") )
 		#--> [ 1, 4, 7, 9 ]
 
 		*/
@@ -23027,29 +22973,10 @@ def ReplaceIBS()
 	#==============================================================#
 
 	def BetweenCS(p1, p2, pCaseSensitive)
+		aSections = This.FindAnyBetweenAsSectionsCS(p1, p2, pCaseSensitive)
+		acResult = This.Sections(aSections)
 
-		# Checking params
-
-		if isList(p1) and Q(p1).IsOneOfTheseNamedParams([ :SubString, :Position, :SubStrings, :Positions ])
-			p1 = p1[2]
-		ok
-
-		if isList(p2) and Q(p2).IsOneOfTheseNamedParams([ :And, :AndSubString, :AndPosition ])
-			p1 = p1[2]
-		ok
-
-		# Doing the job
-
-		if BothAreNumbers(p1, p2) # In case p1 and p2 are numbers forming a section
-			return This.Section(p1, p2)
-
-		but BothAreStrings(p1, p2)
-			return This.SubStringsBetweenCS(p1, p2, pCaseSensitive)
-
-		else
-			StzRaise("Incorrect param's types! p1 and p2 must be both numbers or both strings.")
-
-		ok
+		return acResult
 
 		#< @FunctionFluentForms
 
@@ -23089,6 +23016,8 @@ def ReplaceIBS()
 			ok
 
 		#>
+
+		# See alternatives in bottom of file including BoundedBy()
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -23151,6 +23080,7 @@ def ReplaceIBS()
 			def AnyBoundedByCSZ(pacBounds, pCaseSensitive)
 				return This.AnyBoundedByZCS(pacBounds, pCaseSensitive)
 
+		
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -23176,8 +23106,6 @@ def ReplaceIBS()
 	#==========================================================#
 
 	def SubStringsBetweenZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-? pcSubStr1
-? pcSubStr2
 
 		aSections = This.FindAnyBetweenAsSectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		acSubStr  = This.Sections(aSections)
@@ -27614,7 +27542,9 @@ def ReplaceIBS()
 	#-----------------------------------#
 
 	def SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
+
 		anPos = This.FindCS(pacSubStr, pCaseSensitive)
+
 		acResult = This.SplitAtPositions(anPos)
 		return acResult
 
@@ -39687,9 +39617,16 @@ def ReplaceIBS()
 				acSplitted = This.SplitW(pValue[2])
 				return acSplitted
 			
-			but isList(pValue) and Q(pValue).IsListOfSrtrings() # NOT this is misspelled!
-				acSplitted = This.SplitAtSubStrings(pValue)
-				return acSplitted
+			but isList(pValue) and Q(pValue).IsListOfSrtrings() # NOTE this is misspelled!
+				/* EXAMPLE
+				? @@( Q("RingRubyJava") / [ "Qute", "Nice", "Good" ] )
+				# --> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]	
+				*/
+
+				nLen = len(pValue)
+				acSplitted = This.SplitToNParts(nLen)
+				aResult = Association([ pValue, acSplitted ])
+				return aResult
 
 			but isList(pValue) and Q(pValue).IsHashList()
 

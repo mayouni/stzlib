@@ -1,6 +1,193 @@
 load "stzlib.ring"
 
-/*-----------------
+/*================
+
+pron()
+
+o1 = new stzList([
+	"*", '"*"', "*4", [ "A", "B" , "'C'"], 12
+])
+
+? o1.ToCode()
+#--> [ "*", '"*"', "*4", [ "A", "B", "'C'" ], 12 ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------------------
+
+pron()
+
+o1 = new stzList([
+	"*", '"*"', "*4", "*4*", "*4*3", "*4*34",
+	"4", "4*", "4*3", "4*34", "*", "*3",
+	"*34", "3", "34", "4"
+])
+
+? o1.ToCode()
+
+proff()
+# Executed in 0.05 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzList([
+	"*", '"*"', "*4", "*4*", "*4*3", "*4*34",
+	"4", "4*", "4*3", "4*34", "*", "*3",
+	"*34", '"*"', "3", "34", "4", '"*"'
+])
+
+? o1.NumberOfOccurrence('"*"')
+#--> 3
+
+? o1.Find('"*"')
+#--> [2, 14, 18]
+
+proff()
+# Executed in 0.15 second(s)
+
+/*===========
+
+pron()
+
+o1 = new stzList([
+	"*", "*4", "*4*", "*4*3", "*4*34",
+	"4", "4*", "4*3", "4*34", "*", "*3",
+	"*34", "3", "34", "4"
+])
+
+? o1.NumberOfDuplicates()
+#--> 2
+
+? @@( o1.FindDuplicates() )
+#--> [ 10, 15 ]
+
+? @@( o1.Duplicates() )
+#--> [ "*", 4 ]
+
+? @@( o1.DuplicatesZ() )
+#--> [ "*" = 10, "4" = 15 ]
+
+proff()
+# Executed in 0.90 second(s)
+
+/*=========
+
+pron()
+
+o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
+
+#--
+
+? o1.NumberOfChars()
+#--> 3
+
+? @@( o1.Chars() )
+#--> [ "a", "♥" , "b" ]
+
+//? @@( o1.CharsZ() ) # Or CharsAndTheirPositions()
+
+#--
+
+? o1.NumberOfLetters()
+#--> 2
+
+? @@( o1.Letters() )
+#--> [ "a", "b" ]
+
+//? @@( o1.LettersZ() ) # TODO
+
+#--
+
+? o1.NumberOfNumbers()
+#--> 1
+
+? @@( o1.Numbers() )
+#--> [ 5 ]
+
+# ? @@( o1.NumbersZ() ) # TODO
+
+#--
+
+? o1.NumberOfStrings()
+#--> 5
+
+? @@( o1.Strings() )
+#--> [ "a", "bcd", "♥", "b", "♥♥♥" ]
+
+# ? @@( o1.StringsZ() ) # TODO
+
+#--
+
+? o1.NumberOfLists()
+#--> 1
+
+? @@( o1.Lists() )
+#--> [ [ 1, 2 ] ]
+
+# ? @@( o1.ListsZ() ) # TODO
+
+#--
+
+? o1.NumberOfPairs()
+#--> 1
+
+? @@( o1.Pairs() )
+#--> [ [ 1, 2 ] ]
+# ? @@( o1.PairsZ() ) # TODO
+
+#--
+
+? o1.NumberOfObjects()
+#--> 0
+
+? @@( o1.Objects() )
+#--> []
+
+# ? @@( o1.ObjectsZ() ) # TODO
+
+proff()
+# Executed in 0.12 second(s)
+
+/*========= Ring List2Code() VS Softanza ListToCode()
+
+pron()
+
+? List2Code([ [ 6, 8 ], [ 16, 18 ] ]) # Ring standard function
+#--> "[
+#	[
+#		6,
+#		8
+#	],
+#	[
+#		16,
+#		18
+#	]
+# ]"
+
+? ListToCode([ [ 6, 8 ], [ 16, 18 ] ]) # Softanza function
+#--> "[ [ 6, 8 ], [ 16, 18 ] ]"
+
+#--
+
+? List2Code([ "A", '"B"', "'C'" ]) # Ring standard function
+#--> [
+#	"A",
+#	""+char(34)+"B"+char(34)+"",
+#	"'C'"
+# ]
+
+? ListToCode([ "A", '"B"', "'C'" ]) # Softanza function
+#--> [ "A", '"B"', "'C'" ]
+
+proff()
+# Executed in 0.04 second(s)
+
+# NOTE: Also, Softanza version is more performant (testit for a large list)
+
+/*==================
 
 pron()
 
@@ -184,65 +371,65 @@ o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
 
 # FIRST HALF
 
-	? @@S( o1.FirstHalf() )
+	? @@( o1.FirstHalf() )
 	#--> [ "1", "2", "3", "4" ]
-	? @@S( o1.FirstHalfXT() )
+	? @@( o1.FirstHalfXT() )
 	#--> [ "1", "2", "3", "4", "5" ]
 	
-	? @@S( o1.FirstHalfAndItsPosition() )
+	? @@( o1.FirstHalfAndItsPosition() )
 	#--> [ [ "1", "2", "3", "4" ], 1 ]
-	? @@S( o1.FirstHalfAndItsSection() )
+	? @@( o1.FirstHalfAndItsSection() )
 	#--> [ [ "1", "2", "3", "4" ], [ 1, 4 ] ]
 	
-	? @@S( o1.FirstHalfAndItsPositionXT() )
+	? @@( o1.FirstHalfAndItsPositionXT() )
 	#--> [ [ "1", "2", "3", "4", "5" ], 1 ]
-	? @@S( o1.FirstHalfAndItsSectionXT() )
+	? @@( o1.FirstHalfAndItsSectionXT() )
 	#--> [ [ "1", "2", "3", "4", "5" ], [ 1, 5 ] ]
 
 # SECOND HALF
 
-	? @@S( o1.SecondHalf() )
+	? @@( o1.SecondHalf() )
 	#--> [ "5", "6", "7", "8", "9" ]
-	? @@S( o1.SecondHalfXT() )
+	? @@( o1.SecondHalfXT() )
 	#--> [ "6", "7", "8", "9" ]
 	
-	? @@S( o1.SecondHalfAndItsPosition() )
+	? @@( o1.SecondHalfAndItsPosition() )
 	#--> [ [ "5", "6", "7", "8", "9" ], 5 ]
-	? @@S( o1.SecondHalfAndItsSection() )
+	? @@( o1.SecondHalfAndItsSection() )
 	#--> [ [ "5", "6", "7", "8", "9" ], [ 5, 9 ] ]
 	
-	? @@S( o1.SecondHalfAndItsPositionXT() )
+	? @@( o1.SecondHalfAndItsPositionXT() )
 	#--> [ [ "6", "7", "8", "9" ], 6 ]
-	? @@S( o1.SecondHalfAndItsSectionXT() )
+	? @@( o1.SecondHalfAndItsSectionXT() )
 	#--> [ [ "6", "7", "8", "9" ], [ 6, 9 ] ]
 
 #-- THE TWO HALVES
 
-	? @@S( o1.Halves() )
+	? @@( o1.Halves() )
 	#--> [ [ "1", "2", "3", "4" ], [ "5", "6", "7", "8", "9" ] ]
 
-	? @@S( o1.HalvesXT() )
+	? @@( o1.HalvesXT() )
 	#--> [ [ "1", "2", "3", "4", "5" ], [ "6", "7", "8", "9" ] ]
 
-	? @@S( o1.HalvesAndPositions() )
+	? @@( o1.HalvesAndPositions() )
 	#--> [
 	# 	[ [ "1", "2", "3", "4" ], 1 ],
 	# 	[ [ "5", "6", "7", "8", "9" ], 5 ]
 	# ]
 
-	? @@S( o1.HalvesAndPositionsXT() )
+	? @@( o1.HalvesAndPositionsXT() )
 	#--> [
 	# 	[ [ "1", "2", "3", "4", "5" ], 1 ],
 	# 	[ [ "6", "7", "8", "9" ], 6 ]
 	# ]
 
-	? @@S( o1.HalvesAndSections() )
+	? @@( o1.HalvesAndSections() )
 	#--> [
 	# 	[ [ "1", "2", "3", "4" ], [ 1, 4 ] ],
 	# 	[ [ "5", "6", "7", "8", "9" ], [ 5, 9 ] ]
 	# ]
 
-	? @@S( o1.HalvesAndSectionsXT() )
+	? @@( o1.HalvesAndSectionsXT() )
 	#--> [
 	# 	[ [ "1", "2", "3", "4", "5" ], [ 1, 5 ] ],
 	# 	[ [ "6", "7", "8", "9" ], [ 6, 9 ] ]
@@ -301,7 +488,7 @@ o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 7 ])
 #  7"
 # Executed in 0.03 second(s)
 
-? @@S( o1.Stringified() )
+? @@( o1.Stringified() )
 #--> [ "1", "2", "3", "*", "5", "6", "*", "7" ]
 # Executed in 0.02 second(s)
 
@@ -377,7 +564,7 @@ StopProfiler()
 StartProfiler()
 
 o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ])
-? @@S( o1.BoundsOf("*", :UpToNItems = 2) )
+? @@( o1.BoundsOf("*", :UpToNItems = 2) )
 #--> [
 #	[ [ 1, 2 ], [ 4, 5 ] ],
 #	[ [ 5, 6 ], [ 8, 9 ] ]
@@ -426,7 +613,7 @@ o1 = new stzList([ "A", "B", "C" ])
 ? o1.ExtractAll()
 #--> [ "A", "B", "C" ]
 
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> []
 
 StopProfiler()
@@ -528,7 +715,7 @@ o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
 ? o1.ExtractNext("♥", :StartingAt = 4)
 #--> "♥"
 
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ 1, 2, "♥", 4, 6, "♥" ]
 
 StopProfiler()
@@ -542,7 +729,7 @@ o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
 ? o1.ExtractPrevious("♥", :StartingAt = 6)
 #--> "♥"
 
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ 1, 2, 4, "♥", 6, "♥" ]
 
 StopProfiler()
@@ -616,20 +803,20 @@ o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
 #--> TRUE
 # Executed in 0.03 second(s)
 
-? @@S( o1.FindDuplicates() )
+? @@( o1.FindDuplicates() )
 #--> [ 3, 4, 6, 9 ]
 # Executed in 0.18 second(s)
 
-? @@S( o1.Duplicates() )
+? @@( o1.Duplicates() )
 #--> [ "_", "_", "_", "*" ]
 # Executed in 0.22 second(s)
 
-? @@S( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
+? @@( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
 #--> [ [ "_", [ 3, 4, 6 ] ], [ "*", [ 9 ] ] ]
 # Executed in 0.19 second(s)
 
 o1.RemoveDuplicates()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "_", "ONE", "TWO", "THREE", "*" ]
 # Executed in 0.04 second(s)
 
@@ -654,25 +841,25 @@ o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 #--> 3
 # Executed in 0.06 second(s)
 
-? @@S( o1.FindDuplicates() )
+? @@( o1.FindDuplicates() )
 #--> [ 3, 4, 6 ]
 # Executed in 0.06 second(s)
 
-? @@S( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
+? @@( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
 #--> [ [ 5, 3 ], [ 5, 4 ], [ 7, 6 ] ]
 #--> the number 5 is duplicated at position 3, and then
 #    the number 5 is duplicated (again) at position 4, and finally,
 #    the number 7 is duplicated at position 6.
 # Executed in 0.25 second(s)
 
-? @@S( o1.DuplicatesUZ() )
+? @@( o1.DuplicatesUZ() )
 #--> [ [ 5, [ 3, 4 ] ], [ 7, [ 6 ] ] ]
 #--> The number 5 is duplicated at positions 3 and 4, and
 #    the number 7 is duplicated at position 6.
 # Executed in 0.17 second(s)
 
 o1.RemoveDuplicates()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ 5, 7, 4 ]
 # Executed in 0.07 second(s)
 
@@ -709,14 +896,14 @@ o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 ? o1.DuplicatedItems()
 #--> [5, 7]
 */
-? @@S( o1.DuplicatedItemsZ() ) # Or DuplicatesAndTheirPositions()
+? @@( o1.DuplicatedItemsZ() ) # Or DuplicatesAndTheirPositions()
 #--> [ [ 5, [ 1, 3, 4 ] ], [ 7, [ 2, 6 ] ] ]
 #--> the number 5 is duplicated at position 1, 3 and 4, and,
 #    the number 7 is duplicated at positions 2 and 6?
 # Executed in 0.17 second(s)
 
 o1.RemoveDuplicatedItems()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ 4 ]
 # Executed in 0.17 second(s)
 */
@@ -745,7 +932,7 @@ pron()
 o1 = new stzList(1:7)
 o1 - 4:6
 
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ 1, 2, 3, 7 ]
 
 proff()
@@ -757,10 +944,10 @@ pron()
 
 o1 = new stzList("A":"J")
 
-? @@S( o1.FindAntiSections( :Of = [ [3, 5], [7, 8] ] ) )
+? @@( o1.FindAntiSections( :Of = [ [3, 5], [7, 8] ] ) )
 #--> [ [ 1, 2 ], [ 6, 6 ], [ 9, 10 ] ]
 
-? @@S( o1.AntiSections(:Of = [ [3, 5], [7, 8] ] ) )
+? @@( o1.AntiSections(:Of = [ [3, 5], [7, 8] ] ) )
 #--> [ ["A", "B"], ["F"], ["I", "J"] ]
 
 proff()
@@ -826,15 +1013,15 @@ o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3,"c" ])
 #--> [ 5, 6, 8, 10 ]
 # Executed in 0.11 second(s)
 
-? @@S( o1.ItemsAtPositions( o1.FindDuplicates() ) )
+? @@( o1.ItemsAtPositions( o1.FindDuplicates() ) )
 #--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
 # Executed in 0.02 second(s)
 
-? @@S( o1.Duplicates() )
+? @@( o1.Duplicates() )
 #--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
 # Executed in 0.14 second(s)
 
-? @@S( o1.DuplicatesZ() )
+? @@( o1.DuplicatesZ() )
 #--> [ [ "a", 5 ], [ "ab", 6 ], [ "b", 8 ], [ [ 1, 2, 3 ], 10 ] ]
 # Executed in 0.23 second(s)
 
@@ -1496,7 +1683,7 @@ StartProfiler()
 #                   1..4.6..9.1.34..7..0
 o1 = new stzString("[••[•[••]•[•]]••[••]]")
 
-? @@S( o1.FindAnyBetweenAsSections("[","]") )
+? @@( o1.FindAnyBetweenAsSections("[","]") )
 #--> [ [ 2, 8 ], [ 5, 12 ], [ 7, 13 ], [ 12, 19 ], [ 18, 20 ] ]
 
 StopProfiler()
@@ -1508,7 +1695,7 @@ StartProfiler()
 #                   1..4.6..9.1.34..7..0
 o1 = new stzString("[••[•[••]•[•]]••[••]]")
 
-? @@S( o1.FindAnyBetweenAsSections("[","]") )
+? @@( o1.FindAnyBetweenAsSections("[","]") )
 
 StopProfiler()
 #--> [ [ 7, 8 ], [ 12, 12 ], [ 18, 19 ] ]
@@ -1548,7 +1735,7 @@ for q = 1 to nLen2
 	ok
 next
 
-? @@S(aSections)
+? @@(aSections)
 
 StopProfiler()
 
@@ -1609,7 +1796,7 @@ while TRUE
 
 end
 
-? @@S(aSections)
+? @@(aSections)
 
 
 
@@ -1635,10 +1822,10 @@ StartProfiler()
 o1 = new stzString("[••[•[••]•[••]]••[••]]")
 #                   ^..^.^..9.^..45..^..21
 
-? @@S( o1.FindAnyBetweenAsSections("[","]") )
+? @@( o1.FindAnyBetweenAsSections("[","]") )
 #--> [ [ 2, 8 ], [ 5, 13 ], [ 7, 14 ], [ 12, 20 ], [ 19, 21 ] ]
 
-? @@S( o1.AnyBetweenZZ("[","]") )
+? @@( o1.AnyBetweenZZ("[","]") )
 #--> [
 #	[ "••[•[••", 	[ [ 2, 8 ] ] ],
 #	[ "•[••]•[••", 	[ [ 5, 13 ] ] ],
@@ -1656,13 +1843,13 @@ StartProfiler()
 o1 = new stzString("---[ [===]---[=] ]--[=]--")
 #                   ...^.^...0...^.6.8..^.3..
 
-? @@S( o1.FindAnyBetween("[","]") )
+? @@( o1.FindAnyBetween("[","]") )
 #--> [ 5, 7, 15, 22 ]
 
-? @@S( o1.FindAnyBetweenAsSections("[","]") )
+? @@( o1.FindAnyBetweenAsSections("[","]") )
 #--> [ [ 5, 9 ], [ 7, 15 ], [ 15, 17 ], [ 22, 22 ] ]
 
-? @@S( o1.BetweenZZ("[","]") )
+? @@( o1.BetweenZZ("[","]") )
 #--> [
 #	[ " [===", 	[ [ 5, 9 ] ] ],
 #	[ "===]---[=", 	[ [ 7, 15 ] ] ],
@@ -1788,7 +1975,7 @@ o1 = new stzList(
 #--> 5
 # Executed in 0.04s
 
-? @@S( o1.DeepFind("♥") )
+? @@( o1.DeepFind("♥") )
 #--> [ [ 2, 2 ], [ 3, 2 ], [ 5, 2 ], [ 5, 2 ], [ 4, 3 ] ]
 # Executed in 0.07s
 
@@ -1842,26 +2029,26 @@ o1.SortBy('len(@item)')
 o1 = new stzList([ "_", "A", "B", "C", "_", "D", "E", "_" ])
 
 o1.RemoveFirstItem()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "A", "B", "C", "_", "D", "E", "_" ]
 
 o1.RemoveThisNthItem(1, "A")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "B", "C", "_", "D", "E", "_" ]
 
 o1.RemoveNth(2, "_")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "B", "C", "_", "D", "E" ]
 
 o1.RemoveFirstXT("_")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 
 o1.RemoveThisFirstItemCS("b", :CS = FALSE)
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "C", "D", "E" ]
 
 o1.RemoveNthItem(:Last)
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "C", "D" ]
 
 /*-----------------
@@ -1870,10 +2057,10 @@ StartProfiler()
 
 	o1 = new stzList([ "A", "B", "A", "C", "C", "D", "A", "E" ])
 	
-	? @@S( o1.IndexBy(:NumberOfOccurrence) ) + NL
+	? @@( o1.IndexBy(:NumberOfOccurrence) ) + NL
 	#--> [ [ "A", 3 ], [ "B", 1 ], [ "C", 2 ], [ "D", 1 ], [ "E", 1 ] ]
 	
-	? @@S( o1.IndexBy(:Position) )
+	? @@( o1.IndexBy(:Position) )
 	#--> [
 	#	[ "A", [ 1, 3, 7 ] ],
 	#	[ "B", [ 2 ] ],
@@ -1937,15 +2124,15 @@ o1 = new stzList([ 7, 3, 3, 10, 8, 8 ])
 ? o1.Smallest() #--> 3
 ? o1.Largest() #--> 10
 
-? @@S( o1.FindSmallest() ) #--> [2, 3]
+? @@( o1.FindSmallest() ) #--> [2, 3]
 ? o1.NumberOfOccurrencesOfSmallestItem() #--> 2
 # or more simply
 ? o1.NumberOfSmallest() #--> 2
 
-? @@S( o1.FindLargest() ) #--> [ 4 ]
+? @@( o1.FindLargest() ) #--> [ 4 ]
 
 ? o1.NthSmallest(3) #--> 8
-? @@S( o1.FindNthSmallest(3) ) #--> [ 5, 6 ]
+? @@( o1.FindNthSmallest(3) ) #--> [ 5, 6 ]
 
 /*=================
 
@@ -1963,7 +2150,7 @@ o1 = new stzList([ ".", ".", "3", "4", ".", ".", "7", "8", "9", ".", "." ])
 
 /*=================
 
-? @@S( Q([ "AB", 12, ["A", "B"] ]).TypesXT() )
+? @@( Q([ "AB", 12, ["A", "B"] ]).TypesXT() )
 #--> [ [ "AB", "STRING" ], [ 12, "NUMBER" ], [ [ "A", "B" ], "LIST" ] ]
 
 /*-----------------
@@ -2132,7 +2319,7 @@ o1.PerformW(
 	:if = '{ Q(@item).IsANumber() }'
 )
 
-? @@S(o1.Content())
+? @@(o1.Content())
 #--> [ [ 0, 0 ], [ 2, 2 ], [ 0, 0 ], [ 3, 3 ], [ 1, 2 ] ]
 
 /*------------------
@@ -2213,7 +2400,7 @@ o1 = new stzList([
 ])
 
 o1.Replace("me", :By = "you")
-? @@S( o1.Content() ) + NL
+? @@( o1.Content() ) + NL
 #--> [
 #	"you",
 #	"other",
@@ -2233,7 +2420,7 @@ o1 = new stzList([
 ])
 
 o1.DeepReplace("me", :By = "you")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [
 #	"you",
 #	"other",
@@ -2470,7 +2657,7 @@ o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
 o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
 
 o1.Removeduplicates()
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ] ]
 
 /*================
@@ -2512,16 +2699,16 @@ StzListQ(' "ا" : "ج" ') {
 
 /*-----------------
 
-? @@S( List( :From = "A", :To = "E" ) )
+? @@( List( :From = "A", :To = "E" ) )
 #--> [ "A", "B", "C", "D", "E" ]
 
-? @@S( List( :From = "ا", :To = "ث" ) )
+? @@( List( :From = "ا", :To = "ث" ) )
 o#--> [ "ا", "ب", "ة", "ت", "ث" ]
 
-? @@S( ListXT( ' "A" : "E" ' ) )
+? @@( ListXT( ' "A" : "E" ' ) )
 #--> [ "A", "B", "C", "D", "E" ]
 
-? @@S( ListXT( ' "ا" : "ث" ' ) )
+? @@( ListXT( ' "ا" : "ث" ' ) )
 o#--> [ "ا", "ب", "ة", "ت", "ث" ]
 
 /*-----------------
@@ -2529,23 +2716,23 @@ o#--> [ "ا", "ب", "ة", "ت", "ث" ]
 # As we all know, Ring provides us with this elegant syntax:
 
 aList = "A" : "D"
-? @@S( aList )	#--> [ "A", "B", "C", "D" ]
+? @@( aList )	#--> [ "A", "B", "C", "D" ]
 
 # Unfortunaltely, this is limited to ASCII chars.
 # And if we use it with other UNICODE chars we get
 # just the first char:
 
 aList = "ا" : "ج"
-? @@S( aList )	# --> "ا"
+? @@( aList )	# --> "ا"
 
 # Fortunately, Softanza solves this by the List() function:
 
-? @@S( List( :From = "ا", :To = "ج" ) )
+? @@( List( :From = "ا", :To = "ج" ) )
 #--> Gives [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
 # You won't need it but it manages ASCIIs as well:
 
-? @@S( List("A", "D")	) #--> [ "A", "B", "C", "D" ]
+? @@( List("A", "D")	) #--> [ "A", "B", "C", "D" ]
 
 # Interestingly, you can put the list in a string and mimics
 # the "_" : "_" Ring syntax, by using the ..XT() form of the function:
@@ -2603,7 +2790,7 @@ o1 = new stzList([
 	1:5, 3:9, 1:5, 10:15, 3:9, 12:20, 10:15, 1:5, 12:20
 ])
 
-? @@S( o1.Classify() )	# Same as Categorize()
+? @@( o1.Classify() )	# Same as Categorize()
 #--> [
 #	[ "[ 1, 2, 3, 4, 5 ]",   [1, 3, 8 ] ],	
 #	[ "[ 3, 4, 5, 6, 7, 8, 9 ]",   [2, 5 ] ],
@@ -2780,7 +2967,7 @@ o1 = new stzList([ "by", "except", "stopwords" ])
 
 # If you want to simplify the output by eliminating spaces:
 
-? @@S( [ "q", "r", [ 2, 1 ] ] ) # S for Simplified. Same as ComputerFormSimplified()
+? @@( [ "q", "r", [ 2, 1 ] ] ) # S for Simplified. Same as ComputerFormSimplified()
 #--> [ "q", "r", [ 2, 1 ] ]
 
 /*===============
@@ -2896,33 +3083,33 @@ StzListQ([ -1 , 2, 3, 4 ]) {
 
 o1 = new stzList([ "1", "2", "*", "4", "5" ])
 o1.ReplaceItemAtPosition(3, :By = "3")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "1", "2", "3", "4", "5" ]
 
 o1 = new stzList([ "1", "2", "*", "4", "5" ])
 o1.ReplaceItemAtPosition(3, :By@ = '{ 8 - 5 }' )
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "1", "2", "3", "4", "5" ]
 
 o1 = new stzList([ "1", "_", "3", "_", "_" ])
 o1.ReplaceNextNthOccurrence( 2, :Of = "_", :With = "5", :StartingAt = 3)
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "1", "_", "3", "_", "5" ]
 
 o1 = new stzList([ "1", "_", "3", "_", "_" ])
 o1.ReplaceNextNthOccurrence( 2, :Of = "_", :With@ = '{ 8 - 3 }', :StartingAt = 3)
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "1", "_", "3", "_", "5" ]
 
 /*------------------
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	ReplaceNextNthOccurrences([2, 3], :of = "A", :with = "*",  :StartingAt = 3)
-	? @@S( Content() ) # --> [ "A" , "B", "A", "C", "*", "D", "*" ]
+	? @@( Content() ) # --> [ "A" , "B", "A", "C", "*", "D", "*" ]
 }
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	? @@S( NextNthOccurrencesReplaced([2, 3], :Of = "A", :With = "*",  :StartingAt = 3) )
+	? @@( NextNthOccurrencesReplaced([2, 3], :Of = "A", :With = "*",  :StartingAt = 3) )
 	#--> [ "A", "B", "A", "C", "*", "D", "*" ]
 }
 
@@ -2931,14 +3118,14 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
 	ReplacePreviousNthOccurrences([1, 2, 3], :of = "A", :with = "*",  :StartingAt = 5)
-	? @@S( Content() ) # --> [ "*" , "B", "*", "C", "*", "D", "A" ]
+	? @@( Content() ) # --> [ "*" , "B", "*", "C", "*", "D", "A" ]
 }
 
 /*------------------
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	ReplacePreviousNthOccurrences([3, 1], "A", :With = [ "#3", "#1" ], :StartingAt = 5)
-	? @@S( Content() ) # --> [ [ "#3", "#1" ], "B", "A", "C", [ "#3", "#1" ], "D", "A" ]
+	? @@( Content() ) # --> [ [ "#3", "#1" ], "B", "A", "C", [ "#3", "#1" ], "D", "A" ]
 }
 
 /*------------------
@@ -3068,13 +3255,13 @@ o1 = new stzList([ "a", "b", "c" ])
 
 o1 = new stzList([ "a", "b", "c" ])
 o1 - [ "b", "a" ] 
-? @@S( o1.Content() ) # --> [ "c" ]
+? @@( o1.Content() ) # --> [ "c" ]
 
 /*-----------------------
 
 o1 = new stzList([ "a", "b", "c" ])
 o1 - [ "b", "a", "c" , "q" ]
-? @@S( o1.Content() ) # --> [ ]
+? @@( o1.Content() ) # --> [ ]
 
 /*=====================
 
@@ -3122,7 +3309,7 @@ o1 = new stzList([ "a", "b", "c" ])
 
 /*---------------------
 
-? @@S( StzListQ([ "a", [ "b", [ "c",  "d" ], "e" ], "f" ]).Flattened() )
+? @@( StzListQ([ "a", [ "b", [ "c",  "d" ], "e" ], "f" ]).Flattened() )
 # --> [ "a","b","c","d","e","f" ]
 
 /*---------------------
@@ -3137,12 +3324,12 @@ o1 = new stzList([ "a", "b", "c" ])
 
 StzListQ([ "a",[ [ [], "c", [ 1, [] ], 2 ] ],"b" ]) {
 	Flatten()
-	? @@S( Content() )
+	? @@( Content() )
 	# --> [ "a",[ ],"c",1,[ ],2,"b" ]
 
 	? NumberOfItems() 		# --> 7
 	? ItemAtPosition(3)		# --> "c"
-	? @@S(ItemAtPosition(5))	# --> [ ]
+	? @@(ItemAtPosition(5))	# --> [ ]
 	
 }
 
@@ -3153,7 +3340,7 @@ o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 ? o1.FindMany([ :one, :five ])
 # --> [ 1, 2, 3, 5, 6 ]
 
-? @@S(o1.FindManyXT([ :one, :five ]))
+? @@(o1.FindManyXT([ :one, :five ]))
 # --> [ :one = [1, 3, 5], :five = [ ] ]
 
 /*---------------------
@@ -3173,7 +3360,7 @@ o1.ExtendToPosition(5)
 ? o1.Content() # --> [ 1, 2, 3, 0, 0 ]
 
 o1.ExtendToPositionXT( 8, :With = 5 )
-? @@S(o1.Content())
+? @@(o1.Content())
 #--> [ 1, 2, 3, 0, 0, 5, 5, 5 ]
 
 /*=====================
@@ -3233,7 +3420,7 @@ StopProfiler()
 StartProfiler()
 
 o1 = new stzList([ "I", "love", "Ring!" ])
-? @@S( o1.YieldAndCumulate('{ @item +  " " }', :ReturnEach ) )
+? @@( o1.YieldAndCumulate('{ @item +  " " }', :ReturnEach ) )
 #--> [ [ "I ", "I love ", "I love Ring!" ]
 
 ? o1.YieldAndCumulateQ('{ @item +  " " }', :ReturnLast).Trimmed()
@@ -3354,10 +3541,10 @@ StartProfiler()
 # Finding positions where next number is double of previous number
 o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
 
-? @@S( o1.FindWXT( '{ Q( @NextNumber ).IsDoubleOf( @PreviousNumber ) }' ) ) # --> [ 8, 11 ]
+? @@( o1.FindWXT( '{ Q( @NextNumber ).IsDoubleOf( @PreviousNumber ) }' ) ) # --> [ 8, 11 ]
 ? ElapsedTime() + NL #--> Takes 0.40s
 
-? @@S( o1.FindW( '{ Q( This[@i+1] ).IsDoubleOf( This[@i-1] ) }' ) )  #--> [ 8, 11 ]
+? @@( o1.FindW( '{ Q( This[@i+1] ).IsDoubleOf( This[@i-1] ) }' ) )  #--> [ 8, 11 ]
 # Takes 0.05s only!
 
 StopProfiler()
@@ -3419,11 +3606,11 @@ StartProfiler()
 
 o1 = new stzList( [ 0, 8, 0, 0, 1, 8, 0, 0 ] )
 
-? @@S( o1.FindWXT('{ This[ @i - 3 ] = This[ @i + 3 ] }') ) #--> [ 4 ]
+? @@( o1.FindWXT('{ This[ @i - 3 ] = This[ @i + 3 ] }') ) #--> [ 4 ]
 ? ElapsedTime()
 #--> 0.57 second(s)
 
-? @@S( o1.FindW('{ This[ @i - 3 ] = This[ @i + 3 ] }') ) #--> [ 4 ]
+? @@( o1.FindW('{ This[ @i - 3 ] = This[ @i + 3 ] }') ) #--> [ 4 ]
 #--> 0.22 second(s)
 
 StopProfiler()
@@ -3548,121 +3735,121 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 
 	// Walking the list from the postion where a condition is verified
 
-		? @@S( WalkWhen( ' @item = "D" ' ) )
+		? @@( WalkWhen( ' @item = "D" ' ) )
 		#--> [ 4, 5, 6, 7 ]
 
-		? @@S( WalkWhenXT( ' @item = "D" ', :Forward, :WalkedItems ) )
+		? @@( WalkWhenXT( ' @item = "D" ', :Forward, :WalkedItems ) )
 		#--> [ "D", "E", "F", "G" ]
 
-		? @@S( WalkWhenXT( ' @item = "D" ', :Backward, :WalkedItems ) )
+		? @@( WalkWhenXT( ' @item = "D" ', :Backward, :WalkedItems ) )
 		#--> [ "D", "C", "B", "A" ]
 
 	// Walking the list from the postion where a condition is verified
 
-		? @@S( WalkBetween( 3, 5 ) )
+		? @@( WalkBetween( 3, 5 ) )
 		#--> [ 3, 4, 5 ]
 
-		? @@S( WalkBetweenIB( 3, 5, :WalkedItems ) )
+		? @@( WalkBetweenIB( 3, 5, :WalkedItems ) )
 		#--> [ "C", "D", "E" ]
 
-		? @@S( WalkBetweenIB( 5, 3, :WalkedItems ) )
+		? @@( WalkBetweenIB( 5, 3, :WalkedItems ) )
 		#--> [ "E", "D", "C" ]
 
 	// Walking the list forth and back
-		? @@S( WalkForthAndBack() ) + NL
+		? @@( WalkForthAndBack() ) + NL
 		#--> [ 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1 ]
 
-		? @@S( WalkForthAndBackXT(:Return = :WalkedItems) ) + NL
+		? @@( WalkForthAndBackXT(:Return = :WalkedItems) ) + NL
 		#--> [ "A", "B", "C", "D", "E", "F", "G", "F", "E", "D", "C", "B", "A" ]
 
 
 	// Walking the list back and forth
-		? @@S( WalkBackAndForth() ) + NL
+		? @@( WalkBackAndForth() ) + NL
 		#--> [ 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7 ]
 
-		? @@S( WalkBackAndForthXT(:Return = :WalkedItems) ) + NL
+		? @@( WalkBackAndForthXT(:Return = :WalkedItems) ) + NL
 		#--> [ "G", "F", "E", "D", "C", "B", "A", "B", "C", "D", "E", "F", "G" ]
 
 	// Walking n steps forward
-		? @@S( WalkNForward(2) ) + NL
+		? @@( WalkNForward(2) ) + NL
 		#--> [ 1, 3, 5, 7 ]
 
-		? @@S( WalkNForwardXT(2, :Return = :WalkedItems) ) + NL
+		? @@( WalkNForwardXT(2, :Return = :WalkedItems) ) + NL
 		#--> [ "A", "C", "E", "G" ]
 
 	// Walking n steps backward
-		? @@S( WalkNBackward(2) ) + NL
+		? @@( WalkNBackward(2) ) + NL
 		#--> [ 7, 5, 3, 1 ]
 
-		? @@S( WalkNBackwardXT(2, :Return = :WalkedItems) ) + NL
+		? @@( WalkNBackwardXT(2, :Return = :WalkedItems) ) + NL
 		#--> [ "G", "E", "C", "A" ]
 
 	// Walking n progressive steps forward
-		? @@S( WalkNMoreForward(2) ) + NL
+		? @@( WalkNMoreForward(2) ) + NL
 		#--> [ 1, 3, 7 ]
 
-		? @@S( WalkNMoreForwardXT(2, :Return = :WalkedItems) ) + NL
+		? @@( WalkNMoreForwardXT(2, :Return = :WalkedItems) ) + NL
 		#--> [ "A", "C", "G" ]
 
 	// Walking n progressive steps backward
-		? @@S( WalkNMoreBackward(2) ) + NL
+		? @@( WalkNMoreBackward(2) ) + NL
 		#--> [ 7, 5, 1 ]
 
-		? @@S( WalkNMoreBackwardXT(2, :Return = :WalkedItems) ) + NL
+		? @@( WalkNMoreBackwardXT(2, :Return = :WalkedItems) ) + NL
 		#--> [ "G", "E", "A" ]
 
 	// Walking n steps forward and then n steps backward
 
-		? @@S( WalkForwardBackward(1, 1) )
+		? @@( WalkForwardBackward(1, 1) )
 		#--> [ ]
 
-		? @@S( WalkForwardBackward(1, 2) )
+		? @@( WalkForwardBackward(1, 2) )
 		#--> [ 2, 3, 1 ]
 
-		? @@S( WalkForwardBackwardXT(1, 2, :Return = :WalkedItems) )
+		? @@( WalkForwardBackwardXT(1, 2, :Return = :WalkedItems) )
 		#--> [ "B", "C", "A" ]
 
 		#--
 
-		? @@S( WalkForwardBackward(3, 1) )
+		? @@( WalkForwardBackward(3, 1) )
 		#--> [ 1, 4, 3, 6, 5 ]
 
-		? @@S( WalkForwardBackwardXT(3, 1, :Return = :WalkedItems) )
+		? @@( WalkForwardBackwardXT(3, 1, :Return = :WalkedItems) )
 		#--> [ "A", "D", "C", "F", "E" ]
 
 	// Walking n steps backward n steps forward
 
-		? @@S( WalkBackwardForward(1, 2) )
+		? @@( WalkBackwardForward(1, 2) )
 		#--> [ 6, 5, 7 ]
 
-		? @@S( WalkBackwardForwardXT(1, 2, :WalkedItems) )
+		? @@( WalkBackwardForwardXT(1, 2, :WalkedItems) )
 		#--> [ "F", "E", "G" ]
 
 		#--
 
-		? @@S( WalkBackwardForward(3, 2) )
+		? @@( WalkBackwardForward(3, 2) )
 		#--> [ 7, 4, 6, 3, 5, 2, 4, 1, 3 ]
 
-		? @@S( WalkBackwardForwardXT(3, 2, :WalkedItems) )
+		? @@( WalkBackwardForwardXT(3, 2, :WalkedItems) )
 		#--> [ "G", "D", "F", "C", "E", "B", "D", "A", "C" ]
 
 	// Walking n steps from the start and n steps from the end
 
-		? @@S( WalkNStartNEnd(1, 1) )
+		? @@( WalkNStartNEnd(1, 1) )
 		#--> [ 1, 2, 6, 3, 5, 4 ]
 
-		? @@S( WalkNStartNEnd(2, 3) )
+		? @@( WalkNStartNEnd(2, 3) )
 		#--> [ 1, 3, 4 ]
 
-		? @@S( WalkNStartNEndXT(2, 3, :WalkedItems) )
+		? @@( WalkNStartNEndXT(2, 3, :WalkedItems) )
 		#--> [ "A", "C", "D" ]
 
 		#--
 
-		? @@S( WalkNEndNStart(1, 1) )
+		? @@( WalkNEndNStart(1, 1) )
 		#--> [ 7, 6, 1, 5, 2, 4, 3 ]
 
-		? @@S( WalkNEndNStartXT(1, 1, :WalkedItems) )
+		? @@( WalkNEndNStartXT(1, 1, :WalkedItems) )
 		#--> [ "G", "F", "A", "E", "B", "D", "C" ]
 
 }
@@ -3986,8 +4173,8 @@ o1 = new stzList([
 
 /*----------------------
 
-? @@S( StzListQ("A":"E").Reversed() )		#--> [ "E", "D", "C", "B", "A" ]
-? @@S( StzListQ("A":"E").ItemsReversed() )	#--> [ "E", "D", "C", "B", "A" ]
+? @@( StzListQ("A":"E").Reversed() )		#--> [ "E", "D", "C", "B", "A" ]
+? @@( StzListQ("A":"E").ItemsReversed() )	#--> [ "E", "D", "C", "B", "A" ]
 
 /*----------------------
 
@@ -4068,11 +4255,11 @@ o1.ReplaceItemAtPosition(2, :By = "A")
 
 o1 = new stzList([ "A", "a", "A" ])
 o1.ReplaceItemAtPosition(2, :By@ = "Q(@item).Uppercased()")
-? @@S( o1.Content() )  # --> [ "A", "A", "A" ]
+? @@( o1.Content() )  # --> [ "A", "A", "A" ]
 
 o1 = new stzList([ "1", "2", "_", "_", "_", "4", "5" ])
 o1.ReplaceSection(3, 5, :With = "3")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "1", "2", "3", "4", "5" ]
 
 /*=======================
@@ -4091,7 +4278,7 @@ StopProfiler()
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 
 o1.ReplaceAt(2, "♥")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "♥", "♥", "♥", "♥", 5 ]
 
 /*----------------------
@@ -4099,7 +4286,7 @@ o1.ReplaceAt(2, "♥")
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 
 o1.ReplaceAt([2, 5], "♥")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "♥", "♥", "♥", "♥", "♥" ]
 
 /*----------------------
@@ -4108,7 +4295,7 @@ StartProfiler()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 o1.ReplaceItemAtPosition(5, :with@ = '{ @item * 2 }')
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "♥", 2, "♥", "♥", 10 ]
 
 StopProfiler()
@@ -4120,7 +4307,7 @@ StartProfiler()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 o1.ReplaceItemsAtPositions([2, 5], :With = "♥")
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "♥", "♥", "♥", "♥", "♥" ]
 
 StopProfiler()
@@ -4132,7 +4319,7 @@ StartProfiler()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 o1.ReplaceItemsAtPositions([1, 3, 4], :With@ = '@Position')
-? @@S( o1.Content() )
+? @@( o1.Content() )
 #--> [ "♥", "A", "♥", "♥", "A" ]
 
 StopProfiler()
@@ -4199,7 +4386,7 @@ o1 = new stzList([ "a", "b", 3, "c"])
 
 /*--------------
 
-? @@S( StzListQ([ "a", 1, "b", 2, "c", 3 ]).Types() )
+? @@( StzListQ([ "a", 1, "b", 2, "c", 3 ]).Types() )
 #--> [ "STRING", "NUMBER", "STRING", "NUMBER", "STRING", "NUMBER" ]
 
 ? StzListQ([ "a", 1, "b", 2, "c", 3 ]).UniqueTypes()
@@ -4346,41 +4533,41 @@ o1.NumberOfOccurrenceW('{  }') #--> 6
 
 o1 = new stzSplitter( 1:5 )
 
-? @@S(o1.SplitToPartsOfNItems(2))
+? @@(o1.SplitToPartsOfNItems(2))
 #--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ] ]
 
-? @@S(o1.SplitBeforePositions( [ 3, 5 ] ))
+? @@(o1.SplitBeforePositions( [ 3, 5 ] ))
 #--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ] ]
 
-? @@S(o1.SplitAfterPositions( [ 3, 5 ] ))
+? @@(o1.SplitAfterPositions( [ 3, 5 ] ))
 #--> [ [ 1, 3 ], [ 4, 5 ], [ 5, 5 ] ]
 
 /*-------------
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
 
-? @@S( o1.SplitToPartsOfNItems(2) )
+? @@( o1.SplitToPartsOfNItems(2) )
 #--> [ [ "a", "b" ], [ "c", "d" ], [ "e" ] ]
 
-? @@S( o1.SplitAfterPositions([ 3, 5 ]) )
+? @@( o1.SplitAfterPositions([ 3, 5 ]) )
 #--> [ [ "a", "b", "c" ], [ "d", "e" ], [ "e" ] ]
 
-? @@S( o1.SplitBeforePositions([ 3, 5 ]) )
+? @@( o1.SplitBeforePositions([ 3, 5 ]) )
 # Returns [ ["a","b"], ["c", "d"], ["e"] ]
 
 /*------------- TEST IT
 
 o1 = new stzString("abcde")
 
-? @@S( o1.SplitToPartsOfNChars(2) )
+? @@( o1.SplitToPartsOfNChars(2) )
 #--> [ "ab", "cd", "e" ]
-? @@S( o1.SplitToPartsOfNCharsXT(2, :ExcludeRemaining = TRUE) )
+? @@( o1.SplitToPartsOfNCharsXT(2, :ExcludeRemaining = TRUE) )
 #--> [ "ab", "cd" ]
 
-? @@S( o1.SplitAfterPositions([ 3, 5 ]) )
+? @@( o1.SplitAfterPositions([ 3, 5 ]) )
 #--> [ "abc", "de", "e" ]
 
-? @@S( o1.SplitBeforePositions([ 3, 5 ]) )
+? @@( o1.SplitBeforePositions([ 3, 5 ]) )
 # Returns [ "ab", "cd", "e" ]
 
 /*================
@@ -5010,7 +5197,7 @@ o1 = new stzList([
 
 ? o1.NumberOfLevels() # --> 4
 
-? @@S( o1.ItemsThatAreLists_AtAnyLevel_XT() )
+? @@( o1.ItemsThatAreLists_AtAnyLevel_XT() )
 # -->
 #	[
 #		[ :Path = [ 2 ], :Level = 1, :Position = 2 ],

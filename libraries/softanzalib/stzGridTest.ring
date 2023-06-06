@@ -340,10 +340,10 @@ StzGridQ(9) {
 	#    1 2 3
 	#    E F G
 
-	? @@S( Diagonal1() )
+	? @@( Diagonal1() )
 	#--> [ "A", "2", "G" ]
 
-	? @@S( Diagonal2() )
+	? @@( Diagonal2() )
 	#--> [ "C", "2", E" ]
 
 }
