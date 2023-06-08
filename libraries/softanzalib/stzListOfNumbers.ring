@@ -930,7 +930,19 @@ class stzListOfNumbers from stzList
 	 #  NEAREST NUMBER IN THE LIST TO A GIVEN NUMBER COMING BEFORE OR AFTER IT  #
 	#==========================================================================#
 
-	def NearestToXT(n, pcBeforeOrAfter)
+	def NearestXT(n, pcBeforeOrAfter)
+
+		# Checking the n param
+
+		if isList(n) and Q(n).IsToNamedParam()
+			n = n[2]
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		# Checking the pcBeforeOrAfter param
 
 		if isList(pcBeforeOrAfter) and
 		   Q(pcBeforeOrAfter).IsComingNamedParam()
@@ -955,6 +967,8 @@ class stzListOfNumbers from stzList
 
 		ok
 
+		# Doing the job
+
 		if Q( pcBeforeOrAfter ).IsOneOfThese([
 			:BeforeOrAfter, :BeforeOrAfterIt,
 			:AfterOrBefore, :AfterOrBeforeIt,
@@ -962,22 +976,22 @@ class stzListOfNumbers from stzList
 			:ComingBeforeOrAfter, :ComingBeforeOrAfterIt,
 			:ComingAfterOrBefore, :ComingAfterOrBeforeIt
 			])
-
+? "#1"
 			nResult = This.NearestTo(n)
 
 		but Q( pcBeforeOrAfter ).IsOneOfThese([
 			:Before, :BeforeIt,
 			:ComingBefore, :ComingBeforeIt
 			])
-
+? "#2"
 			anPair = ring_sort( This.NeighborsOf(n) )
-			return anPair[1]
+			nResult = anPair[1]
 
 		but Q( pcBeforeOrAfter ).IsOneOfThese([
 			:After, :AfterIt,
 			:ComingAfter, :ComingAfterIt
 			])
-
+? "#3"
 			anPair = ring_sort( This.NeighborsOf(n) )
 			nResult = anPair[2]
 
@@ -987,11 +1001,28 @@ class stzListOfNumbers from stzList
 
 		return nResult
 
+		#< @FunctionAlternativeForm
+
+		def NearestToXT(n, pcBeforeOrAfter)
+			return This.NearestXT(n, pcBeforeOrAfter)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def NearstXT(n, pcBeforeOrAfter)
+			return This.NearestXT(n, pcBeforeOrAfter)
+
+		def NearstToXT(n, pcBeforeOrAfter)
+			return This.NearestXT(n, pcBeforeOrAfter)
+
+		#>
+
 	  #----------------------------------------------------#
 	 #     NEAREST NUMBER IN THE LIST TO A GIVEN NUMBER   #
 	#----------------------------------------------------#
 
-	def NearestTo(n) 
+	def Nearest(n) 
 		/* EXAMPLE
 
 		? Q([ 2, 7, 18, 10, 25, 4 ]).NearestTo(12)
@@ -999,79 +1030,200 @@ class stzListOfNumbers from stzList
 		
 		*/
 
-		# Let n = 12
-		# Let This = [ 2, 7, 18, 10, 25, 4 ]
+		# Checking the n param
 
-		anDif = []
-		for nbr in This.ListOfNumbers()
-			nDif = n - nbr
-			if nDif < 0 { nDif = -nDif }
-			anDif + nDif
+		if isList(n) and Q(n).IsToNamedParam()
+			n = n[2]
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		# Doing the job
+
+		anSorted = This.ToSetQ().Sorted()
+		nLen = len(anSorted)
+
+		# Case where the list contains only one number
+		# (even if duplicated, like in [ 2, 2, 2 ])
+
+		if nLen = 1
+			if anSorted[1] = n
+				return NULL
+			else
+				return anSorted[1]
+			ok
+
+		# Case where n does not extist in the list
+
+		but n > anSorted[nLen]
+			return anSorted[nLen]
+
+		but n < anSorted[1]
+			return anSorted[1]
+		ok
+
+		# Case where n exists in the list
+
+		nPos = ring_find(anSorted, n)
+
+		if nPos > 0
+			if nPos = 1
+				return anSorted[2]
+
+			but nPos = nLen
+				return anSorted[nLen - 1]
+
+			else
+				nDif1 = abs( n - anSorted[nPos-1] )
+				nDif2 = abs( n - anSorted[nPos+1] )
+
+				if nDif1 < nDif2
+					return anSorted[nPos-1]
+				else
+					return anSorted[nPos+1]
+				ok
+			ok
+		ok
+
+		# Case where n is not outside the list
+		# nor it is an item of the list. Example:
+		# n = 7 while the list is [ 3, 4, 8 , 12 ]
+
+		nNearest = anSorted[1]
+		for i = 2 to nLen
+
+			nDif2 = abs(n - anSorted[i])
+			nDif1 = abs(n - anSorted[i-1])
+
+			if nDif2 < nDif1
+				nNearest = anSorted[i]
+			ok
+					
 		next
+	
+		return nNearest
 
-		#--> anDif = [ -10, -5, 6, -2, 13, -8]
-		#--> anDif = [  10,  5, 6,  2, 13, 8 ]
 
-		anDifCopy = anDif
+		#< @FunctionAlternativeForm
 
-		anDifCopy = ring_sort(anDifCopy)
-		#--> anDif = [  2, 5, 6, 8, 10, 13]
-		nMinDif = anDifCopy[1] #--> 2
+		def NearestTo(n)
+			return This.Nearest(n)
 
-		nMinPos = ring_find( anDif, nMinDif)
+		#>
 
-		#--> anDif = [  10, 5, 6, 2, 13, 8 ]
-		#             ------------^--------
-		#                         4
+		#< @FunctionMisspelledForm
 
-		nResult = This.Content()[ nMinPos ]
-		#--> [ 2, 7, 18, 10, 25, 4 ]
-		#     -----------^---------
+		def Nearst(n)
+			return This.Nearest(n)
 
-		return nResult
-			
+		def NearstTo(n)
+			return This.Nearest(n)
+
+		#>
+
 	  #---------------------------------------------------#
 	 #   FARTHEST NUMBER IN THE LIST TO A GIVEN NUMBER   #
 	#---------------------------------------------------#
 
-	def FarthestTo(n) 
-		# Let n = 12
-		# Let This = [ 2, 7, 18, 10, 25, 4 ]
+	def Farthest(n) 
 
-		anDif = []
-		for nbr in This.ListOfNumbers()
-			nDif = n - nbr
-			if nDif < 0 { nDif = -nDif }
-			anDif + nDif
+		# Checking the n param
+
+		if isList(n) and Q(n).IsToNamedParam()
+			n = n[2]
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		# Doing the job
+
+		anSorted = This.ToSetQ().Sorted()
+		nLen = len(anSorted)
+
+		# Case where the list contains only one number
+		# (even if duplicated, like in [ 2, 2, 2 ])
+
+		if nLen = 1
+			if anSorted[1] = n
+				return NULL
+			else
+				return anSorted[1]
+			ok
+
+		# Case where n does not extist in the list
+
+		but n > anSorted[nLen]
+			return anSorted[1]
+
+		but n < anSorted[1]
+			return anSorted[nLen]
+		ok
+
+		# Case where n exists in the list
+
+		nPos = ring_find(anSorted, n)
+
+		if nPos > 0
+			nDif1 = abs( n - anSorted[1] )
+			nDif2 = abs( n - anSorted[nLen] )
+
+			if nDif1 > nDif2
+				return anSorted[1]
+			else
+				return anSorted[nLen]
+			ok
+		ok
+
+		# Case where n is not outside the list
+		# nor it is an item of the list. Example:
+		# n = 7 while the list is [ 3, 4, 8 , 12 ]
+
+		nFarthest = anSorted[1]
+		for i = 2 to nLen
+
+			nDif2 = abs(n - anSorted[1])
+			nDif1 = abs(n - anSorted[nLen])
+
+			if nDif2 < nDif1
+				nFarthest = anSorted[nLen]
+			ok
+					
 		next
+	
+		return nFarthest
 
-		#--> anDif = [ -10, -5, 6, -2, 13, -8]
-		#--> anDif = [  10,  5, 6,  2, 13, 8 ]
+		#< @FunctionAlternativeForm
 
-		anDifCopy = anDif
+		def FarthestTo(n)
+			return This.Farthest(n)
 
-		anDifCopy = ring_sort(anDifCopy)
-		#--> anDif = [  2, 5, 6, 8, 10, 13]
-		nMinDif = anDifCopy[len(anDifCopy)] #--> 13
+		#>
 
-		nMinPos = ring_find( anDif, nMinDif)
+		#< @FunctionMisspelledForms
 
-		#--> anDif = [  10, 5, 6, 2, 13, 8 ]
-		#             ---------------^------
-		#                            6
+		def Fartehst(n)
+			return This.Farthest(n)
 
-		nResult = This.Content()[ nMinPos ]
-		#--> [ 2, 7, 18, 10, 25, 4 ]
-		#     ---------------^------
+		def FartehstTo(n)
+			return This.Farthest(n)
 
-		return nResult
+		def Farthst(n)
+			return This.Farthest(n)
+
+		def FarthstTo(n)
+			return This.Farthest(n)
+
+		#>
 
 	  #-------------------------------------------------------#
 	 #  GETTING THE TWO NIGHBORS (IF ANY) OF A GIVEN NUMBER  #
 	#-------------------------------------------------------#
 
-
-	def NeighborsOf(n)
+	def Neighbors(n)
 		/* EXAMPLE
 
 		o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
@@ -1080,37 +1232,161 @@ class stzListOfNumbers from stzList
 		
 		*/
 
-		anSorted = This.Sorted()
-		nLen = len(anSorted)
+		# Checking the n param
 
-		if ring_find(anSorted, n) > 0 or n < anSorted[1] or n > anSorted[nLen]
-			return []
+		if isList(n) and Q(n).IsToNamedParam()
+			n = n[2]
 		ok
 
-		aResult = []
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
 
-		for i = 1 to nLen - 1
-			n1 = anSorted[i]
-			n2 = anSorted[i+1]
+		# Doing the job
+	
+		anSorted = This.ToSetQ().Sorted()
+		nLen = len(anSorted)
 
-			if Q(n).IsBetween(anSorted[i], anSorted[i+1])
-				aResult = [n1, n2]
-				exit
+		if nLen = 0 or nLen = 1
+			return [ NULL, NULL ]
+		ok
+
+		nFirst = anSorted[1]
+		nLast  = anSorted[nLen]
+
+		if n > nLast
+			aResult = [ nLast, NULL ]
+			return aResult
+	
+		but n < nFirst
+			aResult = [ NULL, nFirst ]
+			return aResult
+	
+		ok
+
+		nPos = ring_find( anSorted, n )
+
+		if nPos > 0
+			if nPos = 1
+				aResult = [ NULL, anSorted[2] ]
+
+			but nPos = nLen
+				aResult = [ anSorted[nLen-1], NULL ]
+
+			else
+				aResult = [ anSorted[nPos-1], anSorted[nPos+1] ]
+
 			ok
-		next
+
+		else
+			aResult = [ NULL, NULL ]
+		ok
 
 		return aResult
 
-		#< @FunctionMisspelledForm
+		#< @functionAlternativeForm
+
+		def NeighborsOf(n)
+			return This.Neighbors(n)
+
+		def NearestNeighbors(n)
+			return This.Neighbors(n)
+
+		def NearestNeighborsOf(n)
+			return This.Neighbors(n)
+
+		def NNeighbors(n)
+			return This.Neighbors(n)
+
+		def NNeighborsOf(n)
+			return This.Neighbors(n)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def Nighbors(n)
+			return NeighborsOf(n)
+
+		def NearestNighbors(n)
+			return NeighborsOf(n)
 
 		def NighborsOf(n)
 			return NeighborsOf(n)
 
+		def NearestNighborsOf(n)
+			return NeighborsOf(n)
+
 		#>
 
-	  #------------------------------------------------------#
+	def FarthestNeighbors(n)
+
+		# Checking the n param
+
+		if isList(n) and Q(n).IsToNamedParam()
+			n = n[2]
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		# Doing the job
+	
+		anSorted = This.ToSetQ().Sorted()
+		nLen = len(anSorted)
+
+		if ring_find( anSorted, n ) = 0
+			return [ NULL, NULL ]
+		ok
+
+		nPos = ring_find( anSorted, n )
+
+		n1 = anSorted[1]
+		n2 = anSorted[nLen]
+
+		if nPos = 1
+			n1 = NULL
+
+		but nPos = nLen
+			n2 = NULL
+		ok
+
+		anResult = [ n1, n2 ]
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FNeighbors(n)
+			return This.FarthestNeighbors(n)
+
+		def FarthestNeighborsOf(n)
+			return This.FarthestNeighbors(n)
+
+		def FNeighborsOf(n)
+			return This.FarthestNeighbors(n)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FarthestNighbors(n)
+			return This.FarthestNeighbors(n)
+
+		def FNighbors(n)
+			return This.FarthestNeighbors(n)
+
+		def FarthstNeighbors(n)
+			return This.FarthestNeighbors(n)
+
+		def FarthstNighbors(n)
+			return This.FarthestNeighbors(n)
+
+		#>
+
+	  #======================================================#
 	 #  LEAST COMMON NUMBER WITH AN OTHER LIST OF NUMBERS   #
-	#------------------------------------------------------#
+	#======================================================#
 
 	def LeastCommonNumber(panOtherList)
 		/* EXAMPLE
@@ -1258,16 +1534,22 @@ class stzListOfNumbers from stzList
 
 	def Product()
 		nResult = 1
-		for n in This.ListOfNumbers()
-			nResult *= n
+		nLen = This.NumberOfItems()
+		anContent = This.Content()
+
+		for i = 1 to nLen
+			nResult *= anContent[i]
 		next
 
 		return nResult
 
 	def Sum()
 		nResult = 0
-		for n in This.ListOfNumbers()
-			nResult += n
+		nLen = This.NumberOfItems()
+		anContent = This.Content()
+
+		for i = 1 to nLen
+			nResult += anContent[i]
 		next
 		return nResult
 
