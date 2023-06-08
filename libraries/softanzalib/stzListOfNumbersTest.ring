@@ -1,24 +1,156 @@
 load "stzlib.ring"
 
+/*-------------
+
 pron()
 
-o1 = new stzListOfNumbers([ 2, 7, 18, 10, 25, 4 ])
+o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 25, 4 ])
 
-//? @@( Min( o1.NeighborsOf(12) ) )
+? @@( o1.Neighbors(10) )
+#--> [ 7, 18 ]
 
-//? o1.NearestTo(12)
+? @@( o1.Neighbors(25) )
+#--> [18, NULL ]
+
+? @@( o1.Neighbors(2) )
+#--> [ NULL, 4 ]
+
+? @@( o1.Neighbors(88) )
+#--> [ NULL, NULL ]
+
+? @@( o1.FarthestNighbors(10) ) # Misspelled for of FarthestNeighbors()
+				# You can use the short form FNeighbors()
+#--> [ 2, 25 ]
+
+proff()
+# Executed in 0.18 second(s)
+
+/*-------------
+
+pron()
+
+? abs(-5)
+
+proff()
+
+/*-------------
+
+pron()
+
+o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 12, 25, 4 ])
+
+? o1.Nearest(88)
+#--> 25
+
+? o1.Nearst(17) # NOTE this is a misspelled form of Nearest()
+#--> 18
+
+? o1.NearestTo(10)
+#--> 12
+
+? o1.Nearest( :To = 12 )
 #--> 10
+
+? o1.Nearest(2)
+#--> 4
+
+? o1.Nearest(1)
+#--> 2
+
+proff()
+# Executed in 0.17 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzListOfNumbers([ 4, 8, 10, 16, 18 ])
+
+? o1.Farthest(88)
+#--> 4
+
+? o1.Farthest(17) 
+#--> 4
+
+? o1.FarthestTo(10)
+#--> 18
+
+? o1.Farthest( :To = 12 )
+#--> 4
+
+? o1.Farthest(2)
+#--> 18
+
+? o1.Farthest(1)
+#--> 18
+
+proff()
+# Executed in 0.14 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
+
+? @@( o1.NeighborsOf(5) )
+#--> [ NULL, NULL ]
+
+? @@( o1.Neighbors(11) )
+#--> [ 6, 18 ]
+
+? @@( o1.Neighbors(1) )
+#--> [ NULL, 4 ]
+
+? @@( o1.Neighbors(22) )
+#--> [ 18, NULL ]
+
+proff()
+# Executed in 0.11 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
+
+? @@( o1.FarthestNeighborsOf(5) ) # or FNeighborsOf(5)
+#--> [ NULL, NULL ]
+
+? @@( o1.FNeighbors(11) )
+#--> [ 1, 18 ]
+
+? @@( o1.FNeighbors(1) )
+#--> [ NULL, 18 ]
+
+? @@( o1.FNeighbors(18) )
+#--> [ 1, NULL ]
+
+proff()
+# Executed in 0.11 second(s)
+
+/*-------------
+*/
+pron()
+
+o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 12, 15, 25, 4 ])
 
 ? o1.NearestToXT(12, :Coming = :BeforeIt)
 #--> 10
 
+? o1.NearestToXT(12, :Coming = :AfterIt)
+#--> 15
+
+? @@( o1.NearestXT(:To = 2, :BeforeIt) )
+
+/*
 ? o1.NearestToXT(17, :ComingAfterIt)
 #--> 18
-
+*/
 proff()
 # Executed in 0.03 second(s)
 
-/*-----------
+/*===========
 
 pron()
 
@@ -38,12 +170,6 @@ proff()
 
 ? Product([2, 3, 2])
 #--> 12
-
-/*-----------------
-
-o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
-? o1.NeighborsOf(5)
-#--> [4, 6]
 
 /*-----------------
 */
