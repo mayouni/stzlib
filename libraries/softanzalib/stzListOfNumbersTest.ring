@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-/*-------------
+/*===============
 
 pron()
 
@@ -16,22 +16,14 @@ o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 25, 4 ])
 #--> [ NULL, 4 ]
 
 ? @@( o1.Neighbors(88) )
-#--> [ NULL, NULL ]
+#--> [ 25, NULL ]
 
-? @@( o1.FarthestNighbors(10) ) # Misspelled for of FarthestNeighbors()
+? @@( o1.FarthestNighbors(10) ) # Misspelled form of FarthestNeighbors()
 				# You can use the short form FNeighbors()
 #--> [ 2, 25 ]
 
 proff()
-# Executed in 0.18 second(s)
-
-/*-------------
-
-pron()
-
-? abs(-5)
-
-proff()
+# Executed in 0.15 second(s)
 
 /*-------------
 
@@ -58,7 +50,7 @@ o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 12, 25, 4 ])
 #--> 2
 
 proff()
-# Executed in 0.17 second(s)
+# Executed in 0.18 second(s)
 
 /*-------------
 
@@ -85,7 +77,7 @@ o1 = new stzListOfNumbers([ 4, 8, 10, 16, 18 ])
 #--> 18
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.13 second(s)
 
 /*-----------------
 
@@ -106,7 +98,7 @@ o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
 #--> [ 18, NULL ]
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.10 second(s)
 
 /*-----------------
 
@@ -127,28 +119,55 @@ o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
 #--> [ 1, NULL ]
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.10 second(s)
 
 /*-------------
-*/
+
 pron()
 
-o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 12, 15, 25, 4 ])
+o1 = new stzListOfNumbers([ 2, 4, 7, 10, 12, 15, 18, 25 ])
+
+? o1.FarthestToXT(12, :Coming = :BeforeIt)
+#--> 2
+
+? @@( o1.FarthestToXT(12, :Coming = :AfterIt) )
+#--> 25
+
+? @@( o1.FarthestXT( :To = 2, :Before) )
+#--> NULL
+
+? @@( o1.FarthestToXT(17, :ComingAfterIt) )
+#--> NULL
+
+? @@( o1.FarthestToXT(25, :ComingAfterIt) )
+#--> NULL
+
+proff()
+# Executed in 0.30 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzListOfNumbers([ 2, 4, 7, 10, 12, 15, 18, 25 ])
 
 ? o1.NearestToXT(12, :Coming = :BeforeIt)
-#--> 10
+#--> 2
 
-? o1.NearestToXT(12, :Coming = :AfterIt)
-#--> 15
+? @@( o1.NearestToXT(12, :Coming = :AfterIt) )
+#--> 25
 
-? @@( o1.NearestXT(:To = 2, :BeforeIt) )
+? @@( o1.NearestXT( :To = 2, :Before) )
+#--> NULL
 
-/*
-? o1.NearestToXT(17, :ComingAfterIt)
-#--> 18
-*/
+? @@( o1.NearestToXT(17, :ComingAfterIt) )
+#--> NULL
+
+? @@( o1.NearestToXT(25, :ComingAfterIt) )
+#--> NULL
+
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.30 second(s)
 
 /*===========
 
