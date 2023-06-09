@@ -182,7 +182,7 @@ pron()
 proff()
 # Executed in 0.04 second(s)
 
-/*---------------------
+/*===============
 
 ? Sum([ 2, 3, 2 ])
 #--> 7
@@ -190,66 +190,99 @@ proff()
 ? Product([2, 3, 2])
 #--> 12
 
-/*-----------------
-*/
+/*============
 
 StartProfiler()
 
 o1 = new stzListOfNumbers([ 1, 2, 999, 4, 5, 999, 7, 8, 999 ])
 
-? o1.FindAll(999)
+? @@( o1.FindAll(999) )
 #--> [3, 6, 9]
 
 # Note: the following functions work the same for stzString, 
 # stzList, and stzListOfStrings, because they are abstracted in stzObject
 
-
-? o1.NFirstOccurrences(2, :Of = 999) 
+? @@( o1.NFirstOccurrences(2, :Of = 999) )
 #--> [3, 6]
 
-? o1.NFirstOccurrencesXT(2, :Of = 999, :StartingAt = 1)
+? @@( o1.NFirstOccurrencesXT(2, :Of = 999, :StartingAt = 1) )
 #--> [3, 6]
 
-? o1.NLastOccurrences(2, :Of = 999)
+? @@( o1.NLastOccurrences(2, :Of = 999) )
 #--> [6, 9]
 
-? o1.NLastOccurrencesXT(2, 999, :StartingAt = 1)
+? @@( o1.NLastOccurrencesXT(2, 999, :StartingAt = 1) )
 #--> [6, 9]
 
-? o1.NFirstOccurrencesXT(2, :Of = 999, :StartingAt = 6)
+? @@( o1.NFirstOccurrencesXT(2, :Of = 999, :StartingAt = 6) )
 #--> [6, 9]
 
-? o1.LastNOccurrencesXT(2, :Of = 999, :StartingAt = 10)
+? @@( o1.LastNOccurrencesXT(1, :Of = 999, :StartingAt = 9) )
 # ERROR : Array Access (Index out of range) ! In method section() in tzList.ring
-#--> [6, 9]
+#--> [ 9 ]
 
 StopProfiler()
+# Executed in 0.44 second(s)
 
-/*--------------
+/*===============
 
-? StzListOfNumbersQ( 12:22 ).SortingOrder()	#--> :Ascending
-? StzListOfNumbersQ( 17:8 ).SortingOrder()	#--> :Descending
+pron()
 
-/*--------------
+? StzListOfNumbersQ( 12:22 ).SortingOrder()
+#--> :Ascending
 
-? StzListOfNumbersQ( 12:22 ).IsContiguous()	#--> TRUE
-? StzListOfNumbersQ( 17:8 ).IsContiguous()	#--> TRUE
+? StzListOfNumbersQ( 17:8 ).SortingOrder()
+#--> :Descending
 
-? StzListOfNumbers([10, 12, 18]).IsContiguous()	#--> FALSE
-? StzListOfNumbers([10, 11, 10]).IsContiguous()	#--> FALSE
+proff()
+# Executed in 0.15 second(s)
 
+/*==============
 
-/*--------------
+pron()
+
+? StzListOfNumbersQ( 12:22 ).IsContiguous()
+#--> TRUE
+
+? StzListOfNumbersQ( 17:8 ).IsContiguous()
+#--> TRUE
+
+? StzListOfNumbersQ([10, 12, 18]).IsContiguous()
+#--> FALSE
+
+? StzListOfNumbersQ([10, 11, 10]).IsContiguous()
+#--> FALSE
+
+proff()
+# Executed in 0.03 second(s)
+
+/*========
+
+pron()
 
 o1 = new stzListOfNumbers([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ])
+
 o1.Cumulate()
-? @@( o1.Content() ) #--> [ 1, 2, 5, 9, 14, 20, 27, 35, 44 ]
 
-/*--------------
+? @@( o1.Content() )
+#--> [ 1, 2, 5, 9, 14, 20, 27, 35, 44 ]
 
-? StzListOfNumbersQ( 1:5 ).Reversed() # --> 5:1
+proff()
+# Executed in 0.03 second(s)
 
-/*--------------
+/*========
+
+pron()
+
+? StzListOfNumbersQ( 1:5 ).Reversed()
+#--> 5:1
+
+proff()
+# Executed in 0.03 second(s)
+
+/*========
+*/
+pron()
 
 StzListOfNumbersQ([ 2, 10, 7, 4, 19, 7, 19 ]) {
 
@@ -278,6 +311,8 @@ StzListOfNumbersQ([ 2, 10, 7, 4, 19, 7, 19 ]) {
 	? FindMinNumbers(3) # --> [ 1, 3, 4, 6 ]
 
 }
+
+proff()
 
 /*==================
 

@@ -11757,7 +11757,7 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLenList = This.NumberOfItems()
 		nLenOtherList = len(paOtherList)
-		nMin = Min([nLenList, nLenOtherList])
+		nMin = StzListOfNumbersQ([nLenList, nLenOtherList]).Min()
 
 		bResult = TRUE
 
@@ -21245,7 +21245,7 @@ class stzList from stzObject
 	 #    GETTING A SECTION (OR SLICE) OF THE LIST    #
 	#------------------------------------------------#
 	/*
-	TODO: Think of a syntax that return the section withount the
+	TODO: Think of a syntax that return the section without the
 	extremities, like for example:
 
 	o1.Section(:@, ']5, 8]') --> [6, 7, 8]
@@ -23906,6 +23906,19 @@ class stzList from stzObject
 
 		def IsSubStringOrStringONamedParam()
 			return This.IsStringOrSubStringNamedParam()
+
+	#--
+
+	def IsToOrOfNamedParam()
+		if This.IsToNamedParam() or This.IsOfNamedParam()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsOfOrToNamedParam()
+			return This.IsToOrOfNamedParam()
 
 	#--
 
