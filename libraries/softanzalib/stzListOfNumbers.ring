@@ -976,23 +976,23 @@ class stzListOfNumbers from stzList
 			:ComingBeforeOrAfter, :ComingBeforeOrAfterIt,
 			:ComingAfterOrBefore, :ComingAfterOrBeforeIt
 			])
-? "#1"
+
 			nResult = This.NearestTo(n)
 
 		but Q( pcBeforeOrAfter ).IsOneOfThese([
 			:Before, :BeforeIt,
 			:ComingBefore, :ComingBeforeIt
 			])
-? "#2"
-			anPair = ring_sort( This.NeighborsOf(n) )
+
+			anPair = This.NeighborsOf(n)
 			nResult = anPair[1]
 
 		but Q( pcBeforeOrAfter ).IsOneOfThese([
 			:After, :AfterIt,
 			:ComingAfter, :ComingAfterIt
 			])
-? "#3"
-			anPair = ring_sort( This.NeighborsOf(n) )
+
+			anPair = This.NeighborsOf(n)
 			nResult = anPair[2]
 
 		else # Impossible case, but let's deal with it
@@ -1015,6 +1015,162 @@ class stzListOfNumbers from stzList
 
 		def NearstToXT(n, pcBeforeOrAfter)
 			return This.NearestXT(n, pcBeforeOrAfter)
+
+		#>
+
+	  #---------------------------------------------------------------------------#
+	 #  FARTHEST NUMBER IN THE LIST TO A GIVEN NUMBER COMING BEFORE OR AFTER IT  #
+	#---------------------------------------------------------------------------#
+
+	def FarthestXT(n, pcBeforeOrAfter)
+
+		# Checking the n param
+
+		if isList(n) and Q(n).IsToNamedParam()
+			n = n[2]
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		# Checking the pcBeforeOrAfter param
+
+		if isList(pcBeforeOrAfter) and
+		   Q(pcBeforeOrAfter).IsComingNamedParam()
+
+			pcBeforeOrAfter = pcBeforeOrAfter[2]
+		ok
+
+		if NOT ( isString(pcBeforeOrAfter) and
+			  Q(pcBeforeOrAfter).IsOneOfThese([
+				:Before, :After, :BeforeIt, :AfterIt,
+				:BeforeOrAfter, :BeforeOrAfterIt,
+				:AfterOrBefore, :AfterOrBeforeIt,
+
+				:ComingBefore, :ComingAfter, :ComingBeforeIt, :ComingAfterIt,
+				:ComingBeforeOrAfter, :ComingBeforeOrAfterIt,
+				:ComingAfterOrBefore, :ComingAfterOrBeforeIt
+
+			  ])
+			)
+
+			StzRaise("Incorrect param type! pcComingBeforeOrAfter must be a string equal to :Before, :After, or :BeforeOrAfter.")
+
+		ok
+
+		# Doing the job
+
+		if Q( pcBeforeOrAfter ).IsOneOfThese([
+			:BeforeOrAfter, :BeforeOrAfterIt,
+			:AfterOrBefore, :AfterOrBeforeIt,
+
+			:ComingBeforeOrAfter, :ComingBeforeOrAfterIt,
+			:ComingAfterOrBefore, :ComingAfterOrBeforeIt
+			])
+
+			nResult = This.FarthestTo(n)
+
+		but Q( pcBeforeOrAfter ).IsOneOfThese([
+			:Before, :BeforeIt,
+			:ComingBefore, :ComingBeforeIt
+			])
+
+			anSorted = This.ToSetQ().Sorted()
+			nLen = len(anSorted)
+			
+			if nLen = 0
+				return NULL
+
+			but nLen = 1
+				if anSorted[1] = n
+					return NULL
+
+				else
+					return anSorted[1]
+				ok
+
+			else
+				nPos = ring_find(anSorted, n)
+
+				if nPos > 1
+					nFirst = anSorted[1]
+					nLast  = anSorted[nLen]
+
+					nDif1 = abs(n - nFirst)
+					nDif2 = abs(n - nLast)
+
+					if nDif1 > nDif2
+						return nLast
+					else
+						return nFirst
+					ok
+
+				else
+					return NULL
+				ok
+
+			ok
+
+		but Q( pcBeforeOrAfter ).IsOneOfThese([
+			:After, :AfterIt,
+			:ComingAfter, :ComingAfterIt
+			])
+
+			anSorted = This.ToSetQ().Sorted()
+			nLen = len(anSorted)
+
+			if nLen = 0
+				return NULL
+
+			but nLen = 1
+				if anSorted[1] = n
+					return NULL
+
+				else
+					return anSorted[1]
+				ok
+
+			else
+				nPos = ring_find(anSorted, n)
+
+				if nPos > 0 and nPos < nLen
+					nFirst = anSorted[1]
+					nLast  = anSorted[nLen]
+
+					nDif1 = abs(n - nFirst)
+					nDif2 = abs(n - nLast)
+
+					if nDif1 > nDif2
+						return nFirst
+					else
+						return nLast
+					ok
+
+				else
+					return NULL
+				ok
+
+			ok		
+
+		ok
+
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FarthestToXT(n, pcBeforeOrAfter)
+			return This.FarthestXT(n, pcBeforeOrAfter)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def FarthstXT(n, pcBeforeOrAfter)
+			return This.FarthestXT(n, pcBeforeOrAfter)
+
+		def FarthstToXT(n, pcBeforeOrAfter)
+			return This.FarthestXT(n, pcBeforeOrAfter)
 
 		#>
 
@@ -1048,20 +1204,15 @@ class stzListOfNumbers from stzList
 		# Case where the list contains only one number
 		# (even if duplicated, like in [ 2, 2, 2 ])
 
-		if nLen = 1
+		if nLen = 0
+			return NULL
+
+		but nLen = 1
 			if anSorted[1] = n
 				return NULL
 			else
 				return anSorted[1]
 			ok
-
-		# Case where n does not extist in the list
-
-		but n > anSorted[nLen]
-			return anSorted[nLen]
-
-		but n < anSorted[1]
-			return anSorted[1]
 		ok
 
 		# Case where n exists in the list
@@ -1085,26 +1236,25 @@ class stzListOfNumbers from stzList
 					return anSorted[nPos+1]
 				ok
 			ok
-		ok
 
-		# Case where n is not outside the list
-		# nor it is an item of the list. Example:
-		# n = 7 while the list is [ 3, 4, 8 , 12 ]
+		# Case where n does not exist in the list
 
-		nNearest = anSorted[1]
-		for i = 2 to nLen
+		else
 
-			nDif2 = abs(n - anSorted[i])
-			nDif1 = abs(n - anSorted[i-1])
-
-			if nDif2 < nDif1
-				nNearest = anSorted[i]
-			ok
-					
-		next
+			nNearest = anSorted[1]
+			for i = 2 to nLen
 	
-		return nNearest
-
+				nDif2 = abs(n - anSorted[i])
+				nDif1 = abs(n - anSorted[i-1])
+	
+				if nDif2 < nDif1
+					nNearest = anSorted[i]
+				ok
+						
+			next
+		
+			return nNearest
+		ok
 
 		#< @FunctionAlternativeForm
 
@@ -1147,20 +1297,15 @@ class stzListOfNumbers from stzList
 		# Case where the list contains only one number
 		# (even if duplicated, like in [ 2, 2, 2 ])
 
-		if nLen = 1
+		if nLen = 0
+			return NULL
+
+		but nLen = 1
 			if anSorted[1] = n
 				return NULL
 			else
 				return anSorted[1]
 			ok
-
-		# Case where n does not extist in the list
-
-		but n > anSorted[nLen]
-			return anSorted[1]
-
-		but n < anSorted[1]
-			return anSorted[nLen]
 		ok
 
 		# Case where n exists in the list
@@ -1176,25 +1321,24 @@ class stzListOfNumbers from stzList
 			else
 				return anSorted[nLen]
 			ok
-		ok
+		
+		# Case where n does not extist in the list
+		else
 
-		# Case where n is not outside the list
-		# nor it is an item of the list. Example:
-		# n = 7 while the list is [ 3, 4, 8 , 12 ]
-
-		nFarthest = anSorted[1]
-		for i = 2 to nLen
-
-			nDif2 = abs(n - anSorted[1])
-			nDif1 = abs(n - anSorted[nLen])
-
-			if nDif2 < nDif1
-				nFarthest = anSorted[nLen]
-			ok
-					
-		next
+			nFarthest = anSorted[1]
+			for i = 2 to nLen
 	
-		return nFarthest
+				nDif2 = abs(n - anSorted[1])
+				nDif1 = abs(n - anSorted[nLen])
+	
+				if nDif2 < nDif1
+					nFarthest = anSorted[nLen]
+				ok
+						
+			next
+		
+			return nFarthest
+		ok
 
 		#< @FunctionAlternativeForm
 
@@ -1266,20 +1410,19 @@ class stzListOfNumbers from stzList
 
 		nPos = ring_find( anSorted, n )
 
-		if nPos > 0
-			if nPos = 1
-				aResult = [ NULL, anSorted[2] ]
+		if nPos = 0
+			return [ NULL, NULL ]
+		ok
 
-			but nPos = nLen
-				aResult = [ anSorted[nLen-1], NULL ]
+		if nPos = 1
+			aResult = [ NULL, anSorted[2] ]
 
-			else
-				aResult = [ anSorted[nPos-1], anSorted[nPos+1] ]
-
-			ok
+		but nPos = nLen
+			aResult = [ anSorted[nLen-1], NULL ]
 
 		else
-			aResult = [ NULL, NULL ]
+			aResult = [ anSorted[nPos-1], anSorted[nPos+1] ]
+
 		ok
 
 		return aResult
@@ -1335,12 +1478,16 @@ class stzListOfNumbers from stzList
 	
 		anSorted = This.ToSetQ().Sorted()
 		nLen = len(anSorted)
-
-		if ring_find( anSorted, n ) = 0
+			
+		if nLen = 0
 			return [ NULL, NULL ]
 		ok
 
 		nPos = ring_find( anSorted, n )
+
+		if nPos = 0
+			return [ NULL, NULL ]
+		ok
 
 		n1 = anSorted[1]
 		n2 = anSorted[nLen]
