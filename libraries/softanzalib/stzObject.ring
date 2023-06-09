@@ -1996,10 +1996,10 @@ class stzObject
 
 		#>
 
-	   #-------------------------------------------------------#
-	  #  FINDING LAST N OCCURRENCES OF A SUBSTRING STARTING   #
-	 #  AT A GIVEN POSITION -- EXTENDTED                     #
-	#-------------------------------------------------------#
+	   #------------------------------------------------------------#
+	  #  FINDING LAST N OCCURRENCES OF A SUBSTRING/ITEM STARTING   #
+	 #  AT A GIVEN POSITION -- EXTENDTED                          #
+	#------------------------------------------------------------#
 
 	def FindLastNOccurrencesXTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
 		if isList(pStrOrItem) and

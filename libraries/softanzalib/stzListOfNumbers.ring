@@ -242,13 +242,17 @@ class stzListOfNumbers from stzList
 		return new stzList(This.Content())
 
 	def ToStzListOfStrings()
-		acResult = []
+		anContent = This.Content()
+		nLen = len(anContent)
 
-		for n in This.ListOfNumbers()
-			acResult + ( ""+ n )
+		acStrings = []
+
+		for i = 1 to nLen
+			acStrings + ( ""+ anContent[i] )
 		next
 
-		return new stzListOfStrings(acResult)
+		oResult = new stzListOfStrings(acResult)
+		return oResult
 
 	def NumbersTurnedToStrings()
 		aResult = This.ToStzListOfStrings().Content()
@@ -400,10 +404,13 @@ class stzListOfNumbers from stzList
 		#>
 
 	def FindMinNumbers(n)
+		anNumbers = This.MinNumbers()
+		nLen = len(anNumbers)
+
 		aResult = []
 
-		for number in This.MinNumbers(n)
-			aResult + This.FindAll(number)
+		for i = 1 to nLen
+			aResult + This.FindAll(anNumbers[i])
 		next
 
 		aResult = StzListQ(aResult).FlattenQ().SortInAscendingQ().Content()
@@ -561,6 +568,35 @@ class stzListOfNumbers from stzList
 				other
 					StzRaise("Unsupported return type!")
 				off
+
+		#>
+
+	def MinNumbersAndTheirPositions(n)
+
+		anNumbers = This.MinNumbers(n)
+		nLen = len(anNumbers)
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			cNumber     = ""+ anNumbers[i]
+			anPositions = This.ToStzList().FindAll(anNumbers[i])
+
+			aResult + [ cNumber, anPositions ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def MinNNumbersAndTheirPositions(n)
+			return This.MinNumbersAndTheirPositions(n)
+
+		#--
+
+		def MinNumbersZ(n)
+			return This.MinNumbersAndTheirPositions(n)
 
 		#>
 
@@ -859,10 +895,13 @@ class stzListOfNumbers from stzList
 			return This.TopThreeNumbers()
 
 	def FindTop(n)
+		anNumbers = This.Top(n)
+		nLen = len(anNumbers)
+
 		aResult = []
 
-		for number in This.Top(n)
-			aResult + This.FindAll(number)
+		for i = 1 to nLen
+			aResult + This.FindAll(anNumbers[i])
 		next
 
 		aResult = stzListQ(aResult).FlattenQ().SortedInAscending()
@@ -904,13 +943,14 @@ class stzListOfNumbers from stzList
 	def TopNumbersAndTheirPositions(n)
 
 		anNumbers = This.Top(n)
+		nLen = len(anNumbers)
 
 		aResult = []
 
-		for number in anNumbers
+		for i = 1 to nLen
 
-			cNumber     = ""+ number
-			anPositions = This.ToStzList().FindAll(number)
+			cNumber     = ""+ anNumbers[i]
+			anPositions = This.ToStzList().FindAll(anNumbers[i])
 
 			aResult + [ cNumber, anPositions ]
 		next
@@ -924,6 +964,18 @@ class stzListOfNumbers from stzList
 
 		def MaxNumbersAndTheirPositions(n)
 			return This.TopNumbersAndTheirPositions(n)
+
+		#--
+
+		def TopNumbersZ(n)
+			return This.TopNumbersAndTheirPositions(n)
+
+		def TopNNumbersZ(n)
+			return This.TopNumbersAndTheirPositions(n)
+
+		def MaxNumbersZ(n)
+			return This.TopNumbersAndTheirPositions(n)
+
 		#>
 
 	  #==========================================================================#
@@ -1006,6 +1058,14 @@ class stzListOfNumbers from stzList
 		def NearestToXT(n, pcBeforeOrAfter)
 			return This.NearestXT(n, pcBeforeOrAfter)
 
+		#--
+
+		def NearestNumberXT(n, pcBeforeOrAfter)
+			return This.NearestXT(n, pcBeforeOrAfter)
+
+		def NearestNumberToXT(n, pcBeforeOrAfter)
+			return This.NearestXT(n, pcBeforeOrAfter)
+
 		#>
 
 		#< @FunctionMisspelledForm
@@ -1014,6 +1074,14 @@ class stzListOfNumbers from stzList
 			return This.NearestXT(n, pcBeforeOrAfter)
 
 		def NearstToXT(n, pcBeforeOrAfter)
+			return This.NearestXT(n, pcBeforeOrAfter)
+
+		#--
+
+		def NearstNumberXT(n, pcBeforeOrAfter)
+			return This.NearestXT(n, pcBeforeOrAfter)
+
+		def NearstNumberToXT(n, pcBeforeOrAfter)
 			return This.NearestXT(n, pcBeforeOrAfter)
 
 		#>
@@ -1172,13 +1240,24 @@ class stzListOfNumbers from stzList
 		def FarthstToXT(n, pcBeforeOrAfter)
 			return This.FarthestXT(n, pcBeforeOrAfter)
 
+		#--
+
+		def FarthestNumberXT(n, pcBeforeOrAfter)
+			return This.FarthestXT(n, pcBeforeOrAfter)
+
+		def FarthstNumberXT(n, pcBeforeOrAfter)
+			return This.FarthestXT(n, pcBeforeOrAfter)
+
+		def FarthstNumberToXT(n, pcBeforeOrAfter)
+			return This.FarthestXT(n, pcBeforeOrAfter)
+
 		#>
 
 	  #----------------------------------------------------#
 	 #     NEAREST NUMBER IN THE LIST TO A GIVEN NUMBER   #
 	#----------------------------------------------------#
 
-	def Nearest(n) 
+	def Nearest(n)
 		/* EXAMPLE
 
 		? Q([ 2, 7, 18, 10, 25, 4 ]).NearestTo(12)
@@ -1271,13 +1350,24 @@ class stzListOfNumbers from stzList
 		def NearstTo(n)
 			return This.Nearest(n)
 
+		#--
+
+		def NearestNumber(n)
+			return This.Nearest(n)
+
+		def NearstNumber(n)
+			return This.Nearest(n)
+
+		def NearstNumberTo(n)
+			return This.Nearest(n)
+
 		#>
 
 	  #---------------------------------------------------#
 	 #   FARTHEST NUMBER IN THE LIST TO A GIVEN NUMBER   #
 	#---------------------------------------------------#
 
-	def Farthest(n) 
+	def Farthest(n)
 
 		# Checking the n param
 
@@ -1345,6 +1435,11 @@ class stzListOfNumbers from stzList
 		def FarthestTo(n)
 			return This.Farthest(n)
 
+		#--
+
+		def FarthestNumber(n)
+			return This.Farthest(n)
+
 		#>
 
 		#< @FunctionMisspelledForms
@@ -1359,6 +1454,20 @@ class stzListOfNumbers from stzList
 			return This.Farthest(n)
 
 		def FarthstTo(n)
+			return This.Farthest(n)
+
+		#--
+
+		def FartehstNumber(n)
+			return This.Farthest(n)
+
+		def FartehstNumberTo(n)
+			return This.Farthest(n)
+
+		def FarthstNumber(n)
+			return This.Farthest(n)
+
+		def FarthstNumberTo(n)
 			return This.Farthest(n)
 
 		#>
@@ -1378,7 +1487,7 @@ class stzListOfNumbers from stzList
 
 		# Checking the n param
 
-		if isList(n) and Q(n).IsToNamedParam()
+		if isList(n) and Q(n).IsToOrOfNamedParam()
 			n = n[2]
 		ok
 
@@ -1438,10 +1547,43 @@ class stzListOfNumbers from stzList
 		def NearestNeighborsOf(n)
 			return This.Neighbors(n)
 
+		def NearestNeighborsTo(n)
+			return This.Neighbors(n)
+
 		def NNeighbors(n)
 			return This.Neighbors(n)
 
 		def NNeighborsOf(n)
+			return This.Neighbors(n)
+
+		def NNeighborsTo(n)
+			return This.Neighbors(n)
+
+
+		#--
+
+		def NeighboringNumbers(n)
+			return This.Neighbors(n)
+
+		def NeighboringNumbersOf(n)
+			return This.Neighbors(n)
+
+		def NearestNeighboringNumbers(n)
+			return This.Neighbors(n)
+
+		def NearestNeighboringNumbersOf(n)
+			return This.Neighbors(n)
+
+		def NearestNeighboringNumbersTo(n)
+			return This.Neighbors(n)
+
+		def NNeighboringNumbers(n)
+			return This.Neighbors(n)
+
+		def NNeighboringNumbersOf(n)
+			return This.Neighbors(n)
+
+		def NNeighboringNumbersTo(n)
 			return This.Neighbors(n)
 
 		#>
@@ -1460,13 +1602,19 @@ class stzListOfNumbers from stzList
 		def NearestNighborsOf(n)
 			return NeighborsOf(n)
 
+		def NighborsTo(n)
+			return NeighborsOf(n)
+
+		def NearestNighborsTo(n)
+			return NeighborsOf(n)
+
 		#>
 
 	def FarthestNeighbors(n)
 
 		# Checking the n param
 
-		if isList(n) and Q(n).IsToNamedParam()
+		if isList(n) and Q(n).IsToOrOfNamedParam()
 			n = n[2]
 		ok
 
@@ -1511,6 +1659,33 @@ class stzListOfNumbers from stzList
 			return This.FarthestNeighbors(n)
 
 		def FNeighborsOf(n)
+			return This.FarthestNeighbors(n)
+
+		def FarthestNeighborsTo(n)
+			return This.FarthestNeighbors(n)
+
+		def FNeighborsTo(n)
+			return This.FarthestNeighbors(n)
+
+
+		#--
+
+		def FarthestNeighboringNumbers(n)
+			return This.FarthestNeighbors(n)
+
+		def FNeighboringNumbers(n)
+			return This.FarthestNeighbors(n)
+
+		def FarthestNeighboringNumbersOf(n)
+			return This.FarthestNeighbors(n)
+
+		def FNeighboringNumbersOf(n)
+			return This.FarthestNeighbors(n)
+
+		def FarthestNeighboringNumbersTo(n)
+			return This.FarthestNeighbors(n)
+
+		def FNeighboringNumbersTo(n)
 			return This.FarthestNeighbors(n)
 
 		#>
@@ -1564,9 +1739,11 @@ class stzListOfNumbers from stzList
 			anOther = anThisSorted
 		ok
 
-		for n in anMain
-			if Q(anOther).FindFirst(n) > 0
-				return n
+		nLen = len(anMain)
+
+		for i = 1 to nLen
+			if Q(anOther).FindFirst(anMain[i]) > 0
+				return anMain[i]
 			ok
 		next
 
@@ -1611,10 +1788,11 @@ class stzListOfNumbers from stzList
 			anMain  = anOtherSorted
 			anOther = anThisSorted
 		ok
+		nLen = len(anMain)
 
-		for n in anMain
-			if Q(anOther).FindFirst(n) > 0
-				return n
+		for i = 1 to nLen
+			if Q(anOther).FindFirst(anMain[i]) > 0
+				return anMain[i]
 			ok
 		next
 
@@ -1644,9 +1822,12 @@ class stzListOfNumbers from stzList
 	#----------------------------------------#
 
 	def Absolute()
-		for n in This.ListOfNumbers()
-			if n < 0
-				n = -n
+		anContent = This.Content()*
+		nLen = len(anContent)
+
+		for i = 1 to nLen
+			if anContent[i] < 0
+				anContent[i] = -anContent[i]
 			ok
 		next
 
@@ -1662,9 +1843,12 @@ class stzListOfNumbers from stzList
 	#----------------------------------------#
 
 	def Negate()
-		for n in This.ListOfNumbers()
-			if n > 0
-				n = -n
+		anContent = This.Content()
+		nLen = len(anContent)
+
+		for i = 1 to nLen
+			if anContent[i] > 0
+				anContent[i] = -anContent[i]
 			ok
 		next
 
@@ -1734,12 +1918,16 @@ class stzListOfNumbers from stzList
 		ok
 
 	def DividableNumbersBy(n)
+		anContent = This.Content()
+		nLen = len(anContent)
+
 		aResult = []
 
-		for number in This.ListOfNumbers()
-			oNumber = new stzNumber(number)
+		for i = 1 to nLen
+			n = anContent[i]
+			oNumber = new stzNumber(n)
 			if oNumber.IsDividableBy(n)
-				aResult + number
+				aResult + n
 			ok
 		next
 
@@ -1761,7 +1949,12 @@ class stzListOfNumbers from stzList
 		// --> Should return: [ 3, 3, 3, 4, 5, 5, 5, 5, 5 ])
 		*/
 
-		for n in This.ListOfNumbers()
+		anContent = This.Content()
+		nLen = len(anContent)
+
+		for i = 1 to nLen
+			n = anContent[i]
+
 			if n < nMin
 				n = nMin
 			but n > nMax
@@ -1824,8 +2017,8 @@ class stzListOfNumbers from stzList
 
 	def Cumulate()
 		aResult = []
-
-		for i = 3 to This.NumberOfNumbers()
+		nLen = This.Content()
+		for i = 3 to nLen
 			@anContent[i] += @anContent[i-1]
 		next
 			
@@ -1871,8 +2064,14 @@ class stzListOfNumbers from stzList
 	# name OnlyUnicodes()
 
 	def Unicodes()
+		anContent = This.Content()
+		nLen = len(anContent)
+
 		aResult = []
-		for n in This.ListOfNumbers()
+
+		for i = 1 to nLen
+			n = anContent[i]
+
 			if IsUnicodeNumber(n)
 				aResult + n
 			ok
@@ -1944,8 +2143,11 @@ class stzListOfNumbers from stzList
 	#------------------------------------------------#
 
 	def SubstractFromEach(n)
-		for number in @anContent
-			number -= n
+		anContent = This.Content()
+		nLen = This.NumberOfItems()
+
+		for i = 1 to nLen
+			anContent[i] -= anContent[i]
 		next
 
 		def SubstractFromEachQ(n)
@@ -1961,8 +2163,12 @@ class stzListOfNumbers from stzList
 	#---------------------------------------------#
 
 	def MultiplyEachBy(n)
-		for number in This.Content()
-			number *= n
+		anContent = This.Content()
+		nLen = len(anContent)
+
+		for i = 1 to nLen
+
+			anContent[i] *= n
 		next
 
 		def MultiplyEachByQ(n)
@@ -1978,8 +2184,12 @@ class stzListOfNumbers from stzList
 	#------------------------------------------#
 
 	def DivideEachBy(n)
-		for number in This.Content()
-			number /= n
+		anContent = This.Content()
+		nLen = len(anContent)
+
+		for i = 1 to nLen
+
+			anContent[i] /= n
 		next
 
 		def DivideEachByQ(n)
@@ -2000,15 +2210,14 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
+		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
 		nLen2 = len(paNumbers)
 
-		i = 0
-		for number in This.Content()
-			i++
+		for i = 1 to nLen1
 
 			if i <= nLen1 and i <= nLen2
-				number += paNumbers[i]
+				anContent[i] += paNumbers[i]
 			ok
 
 		next
@@ -2031,15 +2240,15 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
+		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
 		nLen2 = len(paNumbers)
 
-		i = 0
-		for number in This.Content()
+		for i = 1 to nLen1
 			i++
 
 			if i <= nLen1 and i <= nLen2
-				number -= paNumbers[i]
+				anContent[i] -= paNumbers[i]
 			ok
 
 		next
@@ -2062,15 +2271,14 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
+		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
 		nLen2 = len(paNumbers)
 
-		i = 0
-		for number in This.Content()
-			i++
+		for i = 1 to nLen1
 
 			if i <= nLen1 and i <= nLen2
-				number *= paNumbers[i]
+				anContent[i] *= paNumbers[i]
 			ok
 
 		next
@@ -2099,15 +2307,15 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
+		anContent = []
+
 		nLen1 = This.NumberOfNumbers()
 		nLen2 = len(paNumbers)
 
-		i = 0
-		for number in This.ListOfNumbers()
-			i++
+		for i = 1 to nLen1
 
 			if i <= nLen1 and i <= nLen2
-				number /= paNumbers[i]
+				anContent[i] /= paNumbers[i]
 			ok
 
 		next
@@ -2138,17 +2346,19 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
+		anContent = This.Content()
+		nLen = len(anContent())
+
 		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzListOfNumbers)
 
 		cCode = "bOk = (" + cCondition + ")"
 		oCode = new stzString(cCode)
 
-		@i = 0
-		for @number in This.ListOfNumbers()
-			@i++
+		for @i = 1 to nLen
+			@number = anContent[i]
 			bEval = TRUE
 
-			if @i = This.NumberOfNumbers() and
+			if @i = nLen and
 			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[i+1]", :CS = FALSE )
 
 				bEval = FALSE
@@ -2210,23 +2420,25 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
+		anContent = This.Content()
+		nLen = len(anContent)
+
 		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzListOfNumbers)
 		cCode = "bOk = (" + cCondition + ")"
 		oCode = new stzString(cCode)
 
-		@i = 0
-		for @number in This.ListOfNumbers()
-			@i++
+		for @i = 1 to nLen
+			@number = anContent[i]
 			bEval = TRUE
 
-			if @i = This.NumberOfNumbers() and
+			if @i = nLen and
 			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[i+1]", :CS = FALSE )
 
 				bEval = FALSE
 
 			ok
 
-			if @ = 1 and
+			if @i = 1 and
 			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[i-1]", :CS = FALSE )
 
 				bEval = TRUE
@@ -2401,13 +2613,15 @@ class stzListOfNumbers from stzList
 		ok
 
 		cCode = oCode.Content()
-		
-		for @i in panPositions
+		nLenPos = len(panPositions)
+		nLen = this.NumberOfNumbers()
 
+		for i = 1 to nLenPos
+			@i = panPositions[i]
 			@number = This[ @i ]
 			bEval = TRUE
 
-			if @i = This.NumberOfNumbers() and
+			if @i = nLen and
 			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i+1]", :CS=FALSE )
 
 				bEval = FALSE
