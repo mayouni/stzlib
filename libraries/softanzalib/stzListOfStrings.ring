@@ -10536,10 +10536,10 @@ class stzListOfStrings from stzList
 	 #    REPLACING MANY SECTIONS OF STRINGS BY A GIVEN STRING   #
 	#-----------------------------------------------------------#
 	
-	def ReplaceManySections(panSections, pcNewStr)
+	def ReplaceManySections(paSections, pcNewStr)
 
-		if NOT ( isList(panSections) and StzListQ(panSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param! panSections must be a list of pairs of numbers.")
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
 		if isList(pcNewStr) and Q(pcNewStr).IsWithOrByNamedParam()
@@ -10551,7 +10551,7 @@ class stzListOfStrings from stzList
 		ok
 
 		anPositions = []
-		for anSection in panSections
+		for anSection in paSections
 			n1 = anSection[1]
 			n2 = anSection[2]
 			anTemp = n1:n2
@@ -10607,34 +10607,34 @@ class stzListOfStrings from stzList
 	 #   REPLACING EACH STRING IN MANY SECTIONS BY A GIVEN STRING   #
 	#--------------------------------------------------------------#
 
-	def ReplaceEachStringInManySections(panSections, pcNewStr)
-		for anSection in panSections
+	def ReplaceEachStringInManySections(paSections, pcNewStr)
+		for anSection in paSections
 			n1 = anSection[1]
 			n2 = anSection[2]
 			This.ReplaceEachStringInSection(n1, n2, pcNewStr)
 		next
 
-		def ReplaceEachStringInManySectionsQ(panSections, pcNewStr)
-			This.ReplaceEachStringInManySections(panSections, pcNewStr)
+		def ReplaceEachStringInManySectionsQ(paSections, pcNewStr)
+			This.ReplaceEachStringInManySections(paSections, pcNewStr)
 			return This
 
-		def ReplaceEachStringItemInManySections(panSections, pcNewStr)
-			This.ReplaceEachStringInManySections(panSections, pcNewStr)
+		def ReplaceEachStringItemInManySections(paSections, pcNewStr)
+			This.ReplaceEachStringInManySections(paSections, pcNewStr)
 
-			def ReplaceEachStringItemInManySectionsQ(panSections, pcNewStr)
-				This.ReplaceEachStringItemInManySections(panSections, pcNewStr)
+			def ReplaceEachStringItemInManySectionsQ(paSections, pcNewStr)
+				This.ReplaceEachStringItemInManySections(paSections, pcNewStr)
 				return This
 
-	def EachStringInManySectionsReplaced(panSections, pcNewStr)
+	def EachStringInManySectionsReplaced(paSections, pcNewStr)
 
 		acResult = This.Copy().
-				ReplaceEachStringInManySectionsQ(panSections, pcNewStr).
+				ReplaceEachStringInManySectionsQ(paSections, pcNewStr).
 				Content()
 
 		return acResult
 
-		def EachStringItemInManySectionsReplaced(panSections, pcNewStr)
-			return This.EachStringInManySectionsRelaced(panSections, pcNewStr)
+		def EachStringItemInManySectionsReplaced(paSections, pcNewStr)
+			return This.EachStringInManySectionsRelaced(paSections, pcNewStr)
 
 	   #----------------------------------------------------#
 	  #   REPLACING A SECTION OF STRINGS BY MANY STRINGS   #
@@ -10777,21 +10777,21 @@ class stzListOfStrings from stzList
 	  #   REPLACING MANY SECTIONS OF STRINGS BY MANY STRINGS  #
 	#--------------------------------------------------------#
 
-	def ReplaceSectionsByMany(panSections, pacOtherListOfStr)
+	def ReplaceSectionsByMany(paSections, pacOtherListOfStr)
 
-		if NOT ( isList(panSections) and Q(panSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 
-			StzRaise("Incorrect param! panSections must be a list of pairs of numbers.")
+			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
 		if NOT ( isList(pacOtherListOfStr) and Q(pacOtherListOfStr).IsListOfStrings() )
 
-			StzRaise("Incorrect param! panSections must be a list of strings.")
+			StzRaise("Incorrect param! paSections must be a list of strings.")
 		ok
 
 		anPositions = []
 
-		for anSection in panSections
+		for anSection in paSections
 			n1 = anSection[1]
 			n2 = anSection[2]
 
@@ -10810,13 +10810,13 @@ class stzListOfStrings from stzList
 
 		This.ReplaceStringsAtPositionsByMany(anPositions, pacOtherListOfStr)
 
-		def ReplaceSectionsByManyQ(panSections, pacOtherListOfStr)
-			This.ReplaceSectionsByMany(panSections, pacOtherListOfStr)
+		def ReplaceSectionsByManyQ(paSections, pacOtherListOfStr)
+			This.ReplaceSectionsByMany(paSections, pacOtherListOfStr)
 			return This
 
-	def SectionsReplacedByMany(panSections, pacOtherListOfStr)
+	def SectionsReplacedByMany(paSections, pacOtherListOfStr)
 		acResult = This.Copy().
-				ReplaceSectionsByManyQ(panSections, pacOtherListOfStr).
+				ReplaceSectionsByManyQ(paSections, pacOtherListOfStr).
 				Content()
 
 		return acResult
@@ -10825,21 +10825,21 @@ class stzListOfStrings from stzList
 	 #   REPLACING MANY SECTIONS OF STRINGS BY MANY STRINGS -- EXTENDED  #
 	#-------------------------------------------------------------------#
 
-	def ReplaceSectionsByManyXT(panSections, pacOtherListOfStr)
+	def ReplaceSectionsByManyXT(paSections, pacOtherListOfStr)
 
-		if NOT ( isList(panSections) and Q(panSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 
-			StzRaise("Incorrect param! panSections must be a list of pairs of numbers.")
+			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
 		if NOT ( isList(pacOtherListOfStr) and Q(pacOtherListOfStr).IsListOfStrings() )
 
-			StzRaise("Incorrect param! panSections must be a list of strings.")
+			StzRaise("Incorrect param! paSections must be a list of strings.")
 		ok
 
 		anPositions = []
 
-		for anSection in panSections
+		for anSection in paSections
 			n1 = anSection[1]
 			n2 = anSection[2]
 
@@ -10852,13 +10852,13 @@ class stzListOfStrings from stzList
 
 		This.ReplaceStringsAtPositionsByManyXT(anPositions, pacOtherListOfStr)
 
-		def ReplaceSectionsByManyXTQ(panSections, pacOtherListOfStr)
-			This.ReplaceSectionsByManyXT(panSections, pacOtherListOfStr)
+		def ReplaceSectionsByManyXTQ(paSections, pacOtherListOfStr)
+			This.ReplaceSectionsByManyXT(paSections, pacOtherListOfStr)
 			return This
 
-	def SectionsReplacedByManyXT(panSections, pacOtherListOfStr)
+	def SectionsReplacedByManyXT(paSections, pacOtherListOfStr)
 		acResult = This.Copy().
-				ReplaceSectionsByManyXTQ(panSections, pacOtherListOfStr).
+				ReplaceSectionsByManyXTQ(paSections, pacOtherListOfStr).
 				Content()
 
 		return acResult

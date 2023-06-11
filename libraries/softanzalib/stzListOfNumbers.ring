@@ -404,7 +404,7 @@ class stzListOfNumbers from stzList
 		#>
 
 	def FindMinNumbers(n)
-		anNumbers = This.MinNumbers()
+		anNumbers = This.MinNumbers(n)
 		nLen = len(anNumbers)
 
 		aResult = []
@@ -974,6 +974,12 @@ class stzListOfNumbers from stzList
 			return This.TopNumbersAndTheirPositions(n)
 
 		def MaxNumbersZ(n)
+			return This.TopNumbersAndTheirPositions(n)
+
+		def TopZ(n)
+			return This.TopNumbersAndTheirPositions(n)
+
+		def MaxZ(n)
 			return This.TopNumbersAndTheirPositions(n)
 
 		#>
@@ -2126,17 +2132,24 @@ class stzListOfNumbers from stzList
 
 	def AddToEach(n)
 		
-		for i = 1 to This.NumberOfNumbers()
-			@anContent[i] += n
+		anContent = This.Content()
+		nLen = len(anContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			anResult + (anContent[i] + n)
 		next
+
+		This.Update(anResult)
 
 		def AddToEachQ(n)
 			This.AddToEach(n)
 			return This
 
 	def AddedToEach(n)
-		aResult = This.Copy().AddToEachQ(n).Content()
-		return aResult
+		anResult = This.Copy().AddToEachQ(n).Content()
+		return anResult
 
 	  #------------------------------------------------#
 	 #     SUBSTRACTING A NUMBER FROM EACH NUMBER     #
@@ -2144,19 +2157,23 @@ class stzListOfNumbers from stzList
 
 	def SubstractFromEach(n)
 		anContent = This.Content()
-		nLen = This.NumberOfItems()
+		nLen = len(anContent)
+
+		anResult = []
 
 		for i = 1 to nLen
-			anContent[i] -= anContent[i]
+			anResult + (anContent[i] - n)
 		next
+
+		This.Update(anResult)
 
 		def SubstractFromEachQ(n)
 			This.SubstractFromEach(n)
 			return This
 
 	def SubstractedFromEach(n)
-		aResult = This.Copy().SubstractFromEachQ(n).Content()
-		return aResult
+		anResult = This.Copy().SubstractFromEachQ(n).Content()
+		return anResult
 
 	  #---------------------------------------------#
 	 #     MULTIPLYING EACH NUMBER BY A NUMBER     #
@@ -2166,18 +2183,21 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 
-		for i = 1 to nLen
+		anResult = []
 
-			anContent[i] *= n
+		for i = 1 to nLen
+			anResult + (anContent[i] * n)
 		next
+
+		This.Update(anResult)
 
 		def MultiplyEachByQ(n)
 			This.MultiplyEachBy(n)
 			return This
 
 	def EachMultipliedBy(n)
-		aResult = This.Copy().MultiplyEachByQ(n).Content()
-		return aResult
+		anResult = This.Copy().MultiplyEachByQ(n).Content()
+		return anResult
 
 	  #------------------------------------------#
 	 #     DIVIDING EACH NUMBER BY A NUMBER     # 
@@ -2187,18 +2207,21 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 
-		for i = 1 to nLen
+		anResult = []
 
-			anContent[i] /= n
+		for i = 1 to nLen
+			anResult + (anContent[i] / n)
 		next
+
+		This.Update(anResult)
 
 		def DivideEachByQ(n)
 			This.DivideEachBy(n)
 			return This
 
 	def EachDividedBy(n)
-		aResult = This.Copy().DivideEachByQ(n).Content()
-		return aResult
+		anResult = This.Copy().DivideEachByQ(n).Content()
+		return anResult
 
 	  #====================================#
 	 #   ADDING MANY NUMBERS ONE BY ONE   #
@@ -2214,21 +2237,27 @@ class stzListOfNumbers from stzList
 		nLen1 = This.NumberOfNumbers()
 		nLen2 = len(paNumbers)
 
-		for i = 1 to nLen1
+		nLen = nLen1
+		if nLen2 < nLen1
+			nLen = nLen2
+		ok
 
-			if i <= nLen1 and i <= nLen2
-				anContent[i] += paNumbers[i]
-			ok
+		anResult = []
 
+		for i = 1 to nLen
+			nSum = anContent[i] + paNumbers[i]
+			anResult + nSum
 		next
+
+		This.Update(anResult)
 
 		def AddManyOneByOneQ(paNumbers)
 			This.AddManyOneByOne(paNumbers)
 			return This
 
 	def ManyAddOneByOne(paNumbers)
-		aResult = This.Copy().AddManyOneByOneQ(n).Content()
-		return aResult
+		anResult = This.Copy().AddManyOneByOneQ(n).Content()
+		return anResult
 
 	  #------------------------------------------#
 	 #   SUBSTRACTING MANY NUMBERS ONE BY ONE   #
@@ -2240,18 +2269,27 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
+		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+			StzRaise("Incorrect param type! You must provide a list of numbers.")
+		ok
+
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
 		nLen2 = len(paNumbers)
 
-		for i = 1 to nLen1
-			i++
+		nLen = nLen1
+		if nLen2 < nLen1
+			nLen = nLen2
+		ok
 
-			if i <= nLen1 and i <= nLen2
-				anContent[i] -= paNumbers[i]
-			ok
+		anResult = []
 
+		for i = 1 to nLen
+			nDif = anContent[i] - paNumbers[i]
+			anResult + nDif
 		next
+
+		This.Update(anResult)
 
 		def SubstractManyOneByOneQ(paNumbers)
 			This.SubstractManyOneByOne(paNumbers)
@@ -2275,13 +2313,20 @@ class stzListOfNumbers from stzList
 		nLen1 = This.NumberOfNumbers()
 		nLen2 = len(paNumbers)
 
-		for i = 1 to nLen1
+		nLen = nLen1
+		if nLen2 < nLen1
+			nLen = nLen2
+		ok
 
-			if i <= nLen1 and i <= nLen2
-				anContent[i] *= paNumbers[i]
-			ok
+		anResult = []
 
+		for i = 1 to nLen
+			nProd = anContent[i] * paNumbers[i]
+			anResult + nProd
 		next
+
+		This.Update(anResult)
+
 
 		def MultiplyWithManyOneByOneQ(paNumbers)
 			This.MultiplyWithManyOneByOne(paNumbers)
@@ -2291,8 +2336,8 @@ class stzListOfNumbers from stzList
 			return This.MultiplyWithManyOneByOne(paNumbers)
 
 	def MultipliedWithManyOneByOne(paNumbers)
-		aResult = This.Copy().MultiplyWithManyOneByOneQ(n).Content()
-		return aResult
+		anResult = This.Copy().MultiplyWithManyOneByOneQ(n).Content()
+		return anResult
 
 		def MultipliedByManyOneByOne(paNumbers)
 			return This.MultipliedWithManyOneByOne(paNumbers)
@@ -2307,36 +2352,43 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
-		anContent = []
-
+		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
 		nLen2 = len(paNumbers)
 
-		for i = 1 to nLen1
+		nLen = nLen1
+		if nLen2 < nLen1
+			nLen = nLen2
+		ok
 
-			if i <= nLen1 and i <= nLen2
-				anContent[i] /= paNumbers[i]
-			ok
+		anResult = []
 
+		for i = 1 to nLen
+			nDiv = anContent[i] / paNumbers[i]
+			anResult + nDiv
 		next
+
+		This.Update(anResult)
 
 		def DivideByManyOneByOneQ(paNumbers)
 			This.DivideByManyOneByOne(paNumbers)
 			return This
 
 	def DividedByManyOneByOne(paNumbers)
-		aResult = This.Copy().DivideByManyOneByOneQ(n).Content()
-		return aResult
+		anResult = This.Copy().DivideByManyOneByOneQ(n).Content()
+		return anResult
 
 	  #===================================================#
 	 #   ADDING NUMBER TO EACH UNDER A GIVEN CONDITION   #
 	#===================================================#
 
 	def AddToEachW(n, pcCondition)
+
+		# Checking params
+
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
-
 
 		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
 			pcCondition = pcCondition[2]
@@ -2346,37 +2398,40 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
+		# Doing the job
+
 		anContent = This.Content()
-		nLen = len(anContent())
+		nLen = len(anContent)
+		if nLen = 0
+			return []
+		ok
 
-		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzListOfNumbers)
+		oCCode = StzCCodeQ(pcCondition)
+		aSection = oCCode.ExecutableSection()
 
-		cCode = "bOk = (" + cCondition + ")"
-		oCode = new stzString(cCode)
+		nStart = aSection[1]
+		if nStart = :First
+			nStart = 1
+		ok
 
-		for @i = 1 to nLen
-			@number = anContent[i]
-			bEval = TRUE
+		nEnd = aSection[2]
+		if nEnd = :Last
+			nEnd = nLen
+		ok
 
-			if @i = nLen and
-			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[i+1]", :CS = FALSE )
+		cCode = oCCode.Transpiled()
+		cCode = 'bOk + (' + cCode + ')'
 
-				bEval = FALSE
-			ok
+		anResult = []
 
-			if @i = 1 and
-			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[i-1]", :CS = FALSE )
-
-				bEval = FALSE
-			ok
-
-			if bEval
-				eval(cCode)
-				if bOk
-					@number += n
-				ok
+		for @i = nStart to nEnd
+			eval(cCode)
+			if bOk
+				anResult + (anContent[@i] + n)
 			ok
 		next
+
+		This.Update( anResult )
 
 		def AddToEachWQ(n)
 			This.AddToEachW(n)
@@ -2423,7 +2478,7 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 
-		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzListOfNumbers)
+		cCondition = StzCCodeQ(cCondition).Transpiled()
 		cCode = "bOk = (" + cCondition + ")"
 		oCode = new stzString(cCode)
 
