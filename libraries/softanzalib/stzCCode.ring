@@ -65,7 +65,7 @@ class stzCCode
 		return new stzCCode( This.Content() )
 
 	def Transpiled()
-
+? "مرحبا"
 		cCode = StzStringQ(This.Code()).
 			TrimQ().
 			RemoveBoundsQ([ "{","}" ]).
@@ -77,7 +77,7 @@ class stzCCode
 			ReplaceAllQ("]", :By = " ]").
 
 			Content()
-
+? cCode
 		cCode = Q(cCode).TheseSubstringsSpacifiedCS([
 
 				"@items", "@allItems", "@item",
@@ -201,9 +201,9 @@ class stzCCode
 		# code uses only This[@i] like code. No @NextItem, @PreviousI,
 		# and other keywords can be use here.
 
-		# You can always rempalce them by a This[@i] like alternative/
-		# For ewxample @NewtItem can be written as This[@+1], and
-		# @PreviousItem can be written as This[@i-1], and so on.
+		# You can always repalce them by a This[@i] like alternative.
+		# For example @NewtItem can be written as This[@i + 1], and
+		# @PreviousItem can be written as This[@i - 1], and so on.
 
 		# This will lead to a better speed. But if expressivenes is
 		# a priority over performance, then you can use them and call
@@ -275,7 +275,7 @@ class stzCCode
 
 	def ExecutableSectionXT()
 		# A less performant version with less chekcs.
-		# Only This[ @i + ] like syntaw is possible.
+		# Only This[ @i + ... ] like syntaw is possible.
 
 		# Use it when you want to be more expressive
 		# in your conditional code and use @NextItem,

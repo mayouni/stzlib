@@ -2983,21 +2983,21 @@ class stzList from stzObject
 	 #    REPLACING MANY SECTIONS BY A GIVEN ITEM   #
 	#----------------------------------------------#
 
-	def ReplaceManySections(panSections, pNewItem)
-		for anSection in panSections
+	def ReplaceManySections(paSections, pNewItem)
+		for anSection in paSections
 			This.ReplaceSection(anSection, pNewItem)
 		next
 
-		def ReplaceManySectionsQ(panSections, pNewItem)
-			This.ReplaceManySections(panSections, pNewItem)
+		def ReplaceManySectionsQ(paSections, pNewItem)
+			This.ReplaceManySections(paSections, pNewItem)
 			return This
 		
-	def ManySectionsReplaced(panSections, pNewItem)
-		aResult = This.Copy().ReplaceManySectionsQ(panSections, pNewItem).Content()
+	def ManySectionsReplaced(paSections, pNewItem)
+		aResult = This.Copy().ReplaceManySectionsQ(paSections, pNewItem).Content()
 		return aResult
 
-		def ManySectionsReplacedWith(panSections, pNewItem)
-			return This.ManySectionsReplaced(panSections, pNewItem)
+		def ManySectionsReplacedWith(paSections, pNewItem)
+			return This.ManySectionsReplaced(paSections, pNewItem)
 
 	  #------------------------------------------------------#
 	 #   REPLACING EACH ITEM IN SECTION BY ONE GIVEN ITEM   #
@@ -3035,21 +3035,21 @@ class stzList from stzObject
 	 #   REPLACING EACH ITEM IN MANY SECTIONS BY A GIVEN ITEM   #
 	#----------------------------------------------------------#
 
-	def ReplaceEachItemInManySections(panSections, pNewItem)
-		for anSection in panSections
+	def ReplaceEachItemInManySections(paSections, pNewItem)
+		for anSection in paSections
 			n1 = anSection[1]
 			n2 = anSection[2]
 			This.ReplaceEachItemInSection(n1, n2, pNewItem)
 		next
 
-		def ReplaceEachItemInManySectionsQ(panSections, pNewItem)
-			This.ReplaceEachItemInManySections(panSections, pNewItem)
+		def ReplaceEachItemInManySectionsQ(paSections, pNewItem)
+			This.ReplaceEachItemInManySections(paSections, pNewItem)
 			return This
 
-	def EachItemInManySectionsReplaced(panSections, pNewItem)
+	def EachItemInManySectionsReplaced(paSections, pNewItem)
 
 		acResult = This.Copy().
-				ReplaceEachItemInManySectionsQ(panSections, pNewItem).
+				ReplaceEachItemInManySectionsQ(paSections, pNewItem).
 				Content()
 
 		return acResult
@@ -3093,20 +3093,20 @@ class stzList from stzObject
 	 #   BY MANY ITEMS ONE BY ONE                        #
 	#---------------------------------------------------#
 
-	def ReplaceManySectionsByMany(panSections, paOtherListOfItems)
-		for anSection in panSections
-			n1 = panSections[1]
-			n2 = panSections[2]
+	def ReplaceManySectionsByMany(paSections, paOtherListOfItems)
+		for anSection in paSections
+			n1 = paSections[1]
+			n2 = paSections[2]
 			This.ReplaceSectionByMany(n1, n2, paOtherListOfItems)
 		next
 
-		def ReplaceManySectionsByManyQ(panSections, paOtherListOfItems)
-			This.ReplaceManySectionsByMany(panSections, paOtherListOfItems)
+		def ReplaceManySectionsByManyQ(paSections, paOtherListOfItems)
+			This.ReplaceManySectionsByMany(paSections, paOtherListOfItems)
 			return This
 
-	def ManySectionsReplacedByMany(panSections, paOtherListOfStr)
+	def ManySectionsReplacedByMany(paSections, paOtherListOfStr)
 		acResult = This.Copy().
-				ReplaceManySectionsByManyQ(panSections, paOtherListOfItems).
+				ReplaceManySectionsByManyQ(paSections, paOtherListOfItems).
 				Content()
 
 		return acResult
@@ -18580,7 +18580,17 @@ class stzList from stzObject
 	#===================================================#
 
 	def FindAllItemsW(pcCondition)
-		/* WARNING
+		/*
+		pcCondition can only contain the @i and This[@i...] keywords.
+		@NextItem, @PreviousItem, @item ans so on can not be used.
+
+		This is alway the better option to take if you want a more
+		performant code.
+
+		If you want to be more expressive and include them in your
+		pccondition string, use FindWXT() instead. 
+
+		WARNING
 
 		We can't use this solution:
 
@@ -18673,7 +18683,7 @@ class stzList from stzObject
 	  #--------------------------------------------------------------#
 	 #  FINDING FIRST ITEM VERIFYING A GIVEN CONDITION -- EXTENDED  #
 	#--------------------------------------------------------------#
-	# Condditional code can contains keuwords other then This[@i] and cie,
+	# Condditional code can contains keywords other then This[@i] and cie,
 	# like @NextItem, @PreviousItem etc.
 
 	def FindAllItemsWXT(pcCondition)
@@ -18693,7 +18703,7 @@ class stzList from stzObject
 		nLen = This.NumberOfItems()
 		cCode = StzCCodeQ(pcCondition).Transpiled()
 
-		aExecutableSection = StzCCodeQ(cCode).ExecutableSection()
+		aExecutableSection = StzCCodeQ(cCode).ExecutableSectionXT()
 
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]

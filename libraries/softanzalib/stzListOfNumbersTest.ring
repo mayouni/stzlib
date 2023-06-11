@@ -281,7 +281,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*========
-*/
+
 pron()
 
 StzListOfNumbersQ([ 2, 10, 7, 4, 19, 7, 19 ]) {
@@ -298,9 +298,9 @@ StzListOfNumbersQ([ 2, 10, 7, 4, 19, 7, 19 ]) {
 	? FindMaxNumbers(3) # --> [ 2, 3, 5, 6, 7 ]
 	# You can also say: ? FindTop(3)
 
-	? MaxNumbersAndTheirPositions(3)
+	? @@( MaxNumbersZ(3) )
 	# --> [ "19" = [ 5, 7 ], "10" = [ 2 ], "7" = [ 3, 6 ] ]
-	# You can also say: ? TopNumbersAndTheirPositions(3)
+	# You can also say: ? TopZ(3)
 
 	# Let's do the same with the min numbers
 
@@ -313,56 +313,271 @@ StzListOfNumbersQ([ 2, 10, 7, 4, 19, 7, 19 ]) {
 }
 
 proff()
+# Executed in 0.55 second(s)
 
 /*==================
+
+pron()
 
 ? StzListOfNumbersQ([ 1, 2, 3 ]).AddedToEach(5)
 #--> [6, 7, 8]
 
-/*-----------------
+proff()
+# Executed in 0.03 second(s)
 
-# Adding a number to each number in the list of numbers
+/*-----------------
+pron()
 
 StzListOfNumbersQ([ 1, 2, 3 ]) {
-	? @@( Content() ) # --> [ 1, 2, 3 ]
+
+	? @@( Content() )
+	#--> [ 1, 2, 3 ]
  
 	AddToEach(3)
-	? @@( Content() ) # --> [ 4, 5, 6 ]
+	? @@( Content() )
+	#--> [ 4, 5, 6 ]
 
 	MultiplyEachBy(3)
-	? @@( Content() ) # --> [ 12, 15, 18 ]
+	? @@( Content() )
+	#--> [ 12, 15, 18 ]
 
 	DivideEachBy(3)
-	? @@( Content() ) # --> [ 4, 5, 6 ]
+	? @@( Content() )
+	#--> [ 4, 5, 6 ]
 }
+
+proff()
+# Executed in 0.04 second(s)
 
 /*-------------------
 
-# Adding many numbers, one by one, to the list of numbers
+pron()
 
-StzListOfNumbers([ 2, 4, 8 , 10 , 12 ]) {
+o1 = new stzListOfNumbers([ 8, 10, 14 ])
+
+o1.SubStractManyOneByOne([ 6, 7, 7 ])
+
+? @@( o1.Content() )
+#--> [ 2, 3, 7 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------------
+
+pron()
+
+StzListOfNumbersQ([ 2, 4, 8 , 10 , 12 ]) {
 
 	AddManyOneByOne([ 8, 6, 2, 0, -2 ])
-	? @@( Content() )	#--> [ 10, 10, 10 , 10 , 10 ]
+	? @@( Content() )
+	#--> [ 10, 10, 10 , 10 , 10 ]
 
 	SubstractManyOneByOne([ 5, 5, 5, 5, 5 ])
-	? @@( Content() ) # --> [ 5, 5, 5, 5, 5 ]
+	? @@( Content() )
+	# --> [ 5, 5, 5, 5, 5 ]
 
 	MultiplyByManyOneByOne([ 1, 2, 3, 4, 5 ])
-	? @@( Content() ) # --> [ 5, 10, 15, 20, 25 ]
+	? @@( Content() )
+	# --> [ 5, 10, 15, 20, 25 ]
 
 	DivideByManyOneByOne([ 5, 5, 5, 5, 5 ])
-	? @@( Content() ) # --> [ 1, 2, 3, 4, 5 ])
+	? @@( Content() )
+	#--> [ 1, 2, 3, 4, 5 ])
 
 }
 
+proff()
+# Executed in 0.05 second(s)
+
 /*-------------------
 
-# Adding a number to each number verifying a given condition
+pron()
+
+o1 = new stzString("helloringprogrammer!")
+o1.SpacifySubStringUsing("ring", "_")
+? o1.Content()
+#--> hello_ring_programmer!
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-------------------
+
+pron()
+
+o1 = new stzString("whatisyournameplease?")
+o1.SpacifySubStringsUsing(["is", "your", "name"], "_")
+#--> what_is_your_name_please?
+
+? o1.Content()
+
+proff()
+# Executed in 0.09 second(s)
+
+/*-------------------
+
+pron()
+
+o1 = new stzString("whatisyournameplease?")
+
+o1.SpacifySubStringsUsing(["is", "your", "name"], " ")
+? o1.Content()
+#--> what is your name please?
+
+proff()
+# Executed in 0.10 second(s)
+
+/*=================
+
+pron()
+
+o1 = new stzCCode('{ Q(This[@i]).IsDividableBy(4) and This[@i] <= 20 }')
+? o1.ExecutableSection()
+#--> [1, :Last]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*-------------------
+
+pron()
 
 o1 = new stzListOfNumbers([ 4, 7, 36, 9, 20 ])
-o1.AddToEachW( 1, :Where = '{ Q(@number).IsDividableBy(4) and @number <= 20 }' )
+
+? o1.FindW('{ Q(This[@i]).IsDividableBy(4) and This[@i] <= 20 }')
+#--> [1, 5]
+
+proff()
+# Executed in 0.15 second(s)
+
+/*-------------------
+
+pron()
+
+o1 = new stzList("A":"E")
+o1.Update([])
+
+? @@( o1.Content() )
+#--> [ ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*======================
+
+pron()
+
+o1 = new stzString("---ring---ring--ring--")
+? @@( o1.FindInSections("ring", [ [3, 8], [10, 15], [16, 21] ]) )
+#--> [4, 11, 17 ]
+
+? @@( o1.FindInSectionsAsSections("ring", [ [3, 8], [10, 15], [16, 21] ]) )
+#--> [ [ 4, 7 ], [ 11, 14 ], [ 17, 20 ] ]
+
+proff()
+# Executed in 0.10 second(s)
+
+/*--------------------
+
+pron()
+
+o1 = new stzString("---ring---ruby--python--python--")
+? @@( o1.FindInSection("ring", 4, 7) )
+#--> [ 4 ]
+
+? @@( o1.FindInSection("ruby", 9, 16) )
+#--> [ 11 ]
+
+? @@( o1.FindInSectionAsSections("python", 15, :Last) )
+#--> [ [ 17, 22 ], [ 25, 30 ] ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*--------------------
+
+pron()
+
+o1 = new stzString("iloveringprogramminglanguage!!")
+
+? @@( o1.FindInSection("ring", 18, 22) )
+#--> []
+
+? @@( o1.FindInSection("ring", 3, 12) )
+#--> [ 6 ]
+
+? @@( o1.FindXT("ring", :InSection = [ 3, 12] ) )
+#--> [ 6 ]
+
+proff()
+
+/*--------------------
+
+pron()
+
+o1 = new stzString("iloveringprogramminglanguage!!")
+
+? @@( o1.FindXT("ring", :InSections = [ [3, 12] ] ) )
+#--> [ 6 ]
+
+? @@( o1.FindInSections("ring", [ [3, 12], [18, 20] ] ) )
+#--> [ 6 ]
+
+proff()
+
+/*--------------------
+*/
+pron()
+
+o1 = new stzString("iloveringprogramminglanguage!!")
+
+/*
+
+aSections1 = o1.FindAntisections( o1.FindAsSections("language") )
+#--> [ [ 1, 20 ], [ 29, 30 ] ]
+
+? @@( o1.FindInSections("ring", aSections1) )
+
+//? o1.TheseSubStringsSpacified(["i", "ring", "language"]) # TODO: correct
+*/
+proff()
+
+/*--------------------
+
+pron()
+
+o1 = new stzString("iloveringprogramminglanguage")
+? o1.TheseSubStringsSpacified([ "php", "ruby" ]) # Nothing happens because these substrings
+						 # do not exist in the main string
+#--> iloveringprogramminglanguage
+
+proff()
+# Executed in 0.06 second(s)
+
+/*--------------------
+
+pron()
+
+o1 = new stzString("iloveringprogramminglanguage")
+? o1.TheseSubStringsSpacified([ "php", "ruby", "programming" ]) # Only "programming" is spacified
+						 		# because "php" and "ruby" do no
+								# exist in the main string
+#--> ilovering programming language
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-------------------
+*/
+pron()
+
+o1 = new stzListOfNumbers([ 4, 7, 36, 9, 20 ])
+o1.AddToEachW( 1, :Where = '{ Q(This[@i]).IsDividableBy(4) and This[@i] <= 20 }' )
+
 ? @@(o1.Content()) # --> [ 5, 7, 36, 9, 21 ]
+
+proff()
 
 /*-------------------
 

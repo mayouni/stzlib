@@ -33,9 +33,9 @@ func SectionToRange(panSection)
 		StzRaise("Incorrect param! paRange must be a pair of numbers.")
 	ok
 
-func SectionsToRanges(panSections)
+func SectionsToRanges(paSections)
 	anRanges = []
-	for anSection in panSections
+	for anSection in paSections
 		anRanges + SectionToRange(anSection)
 	next
 	return anRanges
