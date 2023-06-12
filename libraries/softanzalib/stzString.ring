@@ -33075,6 +33075,9 @@ def ReplaceIBS()
 		def TheseSubStringsSpacifiedCS(pacSubStr, pCaseSensitive)
 			return This.SubStringsSpacifiedCS(pacSubStr, pCaseSensitive)
 
+		def TheseSpacifiedCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsSpacifiedCS(pacSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def SpacifySubStrings(pacSubStr)
@@ -33091,10 +33094,20 @@ def ReplaceIBS()
 				This.SpacifyTheseSubStrings(pacSubStr)
 				return This
 
+		def SpacifyThese(pacSubStr)
+			This.SpacifySubStrings(pacSubStr)
+
+			def SpacifyTheseQ(pacSubStr)
+				This.SpacifyThese(pacSubStr)
+				return This
+
 	def SubStringsSpacified(pacSubStr)
 		return This.Copy().SpacifySubStringsQ(pacSubStr).Content()
 
 		def TheseSubStringsSpacified(pacSubStr)
+			return This.SubStringsSpacified(pacSubStr)
+
+		def TheseSpaccified(pacSubStr)
 			return This.SubStringsSpacified(pacSubStr)
 
 	  #----------------------------------------------------------------------#
@@ -33133,7 +33146,35 @@ def ReplaceIBS()
 			return
 		ok
 
-		# Identifying those among them, that will be altered
+		# Sort the substrings in descending order
+
+		acSubStrings = Q(acSubStrings).SortedInDesendingBy(:NumberOfChars)
+		nLenSubStr = len(acSubStrings)
+
+		aSections = []
+		
+		aSectionsNow = [ [ 1, This.NumberOfChars() ] ]
+
+		for i = 1 to nLenSubStr
+? "#" + i
+? acSubStrings[i]
+? "aSectionsNow: " + @@( aSectionsNow )
+			aTempSections = This.FindInSectionsAsSectionsCS(
+					acSubStrings[i], aSectionsNow, pCaseSensitive)
+? "aTempSections: " + @@( aTempSections)
+			nLenTemp = len(aTempSections)
+			for j = 1 to nLenTemp
+				aSections + aTempSections[j]
+			next
+? "aSections: " + @@( aSections )
+
+			aSectionsNow = This.FindAntiSections( aSections )
+? "----"
+		next
+
+		This.SpacifySections(aSections)
+
+/*		# Identifying those among them, that will be altered
 		# after Spacify function is used
 
 		acToBeAltered = QR(pacSubStr, :stzListOfStrings).SubStrongs()
@@ -33197,12 +33238,16 @@ def ReplaceIBS()
 		for i = 1 to nLenAltered
 			This.ReplaceCS(acToBeAltered[i], pcSep + acToBeAltered[i] + pcSep, pCaseSensitive)
 		next
-
-		#< @FunctionAlternativeForm
+*/
+		#< @FunctionFluentForm
 
 		def SpacifySubStringsUsingCSQ(pacSubStr, pcSep, pCaseSensitive)
 			This.SpacifySubStringsUsingCS(pacSubStr, pcSep, pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def SpacifyTheseSubStringsUsingCS(pacSubStr, pcSep, pCaseSensitive)
 			This.SpacifySubStringsUsingCS(pacSubStr, pcSep, pCaseSensitive)
@@ -33211,21 +33256,45 @@ def ReplaceIBS()
 				This.SpacifyTheseSubStringsUsingCS(pacSubStr, pcSep, pCaseSensitive)
 				return This
 
+		def SpacifyTheseUsingCS(pacSubStr, pcSep, pCaseSensitive)
+			This.SpacifySubStringsUsingCS(pacSubStr, pcSep, pCaseSensitive)
+
+			def SpacifyTheseUsingCSQ(pacSubStr, pcSep, pCaseSensitive)
+				This.SpacifyTheseSubStringsUsingCS(pacSubStr, pcSep, pCaseSensitive)
+				return This
+
+		#>
 
 	def SubStringsSpacifiedUsingCS(pacSubStr, pcSep, pCaseSensitive)
 		return This.Copy().SpacifySubStringsUsingCSQ(pacSubStr, pcSep, pCaseSensitive).Content()
 
+		#< @FunctionAlternativeForms
+
 		def TheseSubStringsSpacifiedUsingCS(pacSubStr, pcSep, pCaseSensitive)
-			return This.SubStringsSpacifiedUsing(pacSubStr, pcSep, pCaseSensitive)
+			return This.SubStringsSpacifiedUsingCS(pacSubStr, pcSep, pCaseSensitive)
+
+		def TheseSpacifiedUsingCS(pacSubStr, pcSep, pCaseSensitive)
+			return This.SubStringsSpacifiedUsingCS(pacSubStr, pcSep, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SpacifySubStringsUsing(pacSubStr, pcSep)
 		This.SpacifySubStringsUsingCS(pacSubStr, pcSep, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
 		def SpacifySubStringsUsingQ(pacSubStr, pcSep)
 			This.SpacifySubStringsUsing(pacSubStr, pcSep)
 			return This
+
+		def TheseSpacifiedUsingUsing(pacSubStr, pcSep)
+			return This.SubStringsSpacifiedUsing(pacSubStr, pcSep)
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def SpacifyTheseSubStringsUsing(pacSubStr, pcSep)
 			This.SpacifySubStringsUsing(pacSubStr, pcSep)
@@ -33233,6 +33302,8 @@ def ReplaceIBS()
 			def SpacifyTheseSubStringsUsingQ(pacSubStr, pcSep)
 				This.SpacifyTheseSubStringsUsing(pacSubStr, pcSep)
 				return This
+
+		#>
 
 	def SubStringsSpacifiedUsing(pacSubStr, pcSep)
 		return This.Copy().SpacifySubStringsUsingQ(pacSubStr, pcSep).Content()
@@ -33296,7 +33367,7 @@ def ReplaceIBS()
 	 #   UNSPACIFYING THE STRING --> REMOVING SPACES  #
 	#================================================#
 
-	def Unspacify()
+	def UnSpacify()
 		if This.Content() = ""
 			return
 
@@ -33317,18 +33388,18 @@ def ReplaceIBS()
 		ok
 
 
-		def UnspacifyQ()
-			This.Unspacify()
+		def UnSpacifyQ()
+			This.UnSpacify()
 			return This
 
 	def Unspacified()
-		return This.Copy().UnspacifyQ().Content()
+		return This.Copy().UnSpacifyQ().Content()
 
 	  #------------------------------------------------------#
 	 #   UNSPACIFYING A GIVEN SUBSTRING INSIDE THE STRING   #
 	#------------------------------------------------------#
 
-	def UnspacifySubStringCS(pcSubStr, pCaseSensitive)
+	def UnSpacifySubStringCS(pcSubStr, pCaseSensitive)
 
 		if NOT ( isString(pcSubStr) and Q(pcSubStr).ContainsSpaces() )
 			StzRaise("Incorrect param! pcSubStr must be a string containing spaces.")
@@ -33341,29 +33412,29 @@ def ReplaceIBS()
 		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 		This.ReplaceSections( aSections, Q(pcSubStr).Unspacified() )
 
-	def UnspacifySubString(pcSubStr)
-		This.UnspacifySubStringCS(pcSubStr, :CaseSensitive = TRUE)
+	def UnSpacifySubString(pcSubStr)
+		This.UnSpacifySubStringCS(pcSubStr, :CaseSensitive = TRUE)
 
 	  #--------------------------------------------#
 	 #   UNSPACIFITYING A SECTION OF THE STRING   #
 	#--------------------------------------------#
 
-	def UnspacifySection(n1, n2)
+	def UnSpacifySection(n1, n2)
 		This.ReplaceSection(n1, n2, :By = Q(This.SectionQ(n1, n2).Unspacified()) )
 
-		def UnspacifySectionQ(n1, n2)
-			This.UnspacifySection(n1, n2)
+		def UnSpacifySectionQ(n1, n2)
+			This.UnSpacifySection(n1, n2)
 			return This
 
-	def SectionUnspacified(n1, n2)
-		cResult = This.Copy().UnspacifySectionQ(n1, n2).Content()
+	def SectionUnSpacified(n1, n2)
+		cResult = This.Copy().UnSpacifySectionQ(n1, n2).Content()
 		return cResult
 
 	  #------------------------------------------------#
 	 #   UNSPACIFITYING MANY SECTIONS OF THE STRING   #
 	#------------------------------------------------#
 
-	def UnspacifySections(paSections)
+	def UnSpacifySections(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
@@ -33380,12 +33451,12 @@ def ReplaceIBS()
 
 		next
 
-		def UnspacifySectionsQ(paSections)
-			This.UnspacifySections(paSections)
+		def UnSpacifySectionsQ(paSections)
+			This.UnSpacifySections(paSections)
 			return This
 
-	def SectionsUnspacified(paSections)
-		cResult = This.Copy().UnspacifySectionsQ(paSections).Content()
+	def SectionsUnSpacified(paSections)
+		cResult = This.Copy().UnSpacifySectionsQ(paSections).Content()
 		return cResult
 
 	  #================================================#

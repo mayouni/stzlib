@@ -530,17 +530,50 @@ proff()
 */
 pron()
 
+o1 = new stzTable([
+	//[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+		
+? o1.ColNames()
+? o1.Row(2)
+
+
+proff()
+/*--------------------
+*/
+pron()
+
+o1 = new stzTable([ [ "i", 1 ], [ "ring", 4 ], [ "language", 8 ] ])
+o1.Rows()
+
+proff()
+
+/*--------------------
+
+*/
+pron()
+
+o1 = new stzListOfStrings([ "i", "ring", "language" ])
+o1.SortInDescendingBy('Q(@string).NumberOfChars()')
+
+? o1.Content()
+
+proff()
+
+/*--------------------
+
+*/
+pron()
+
 o1 = new stzString("iloveringprogramminglanguage!!")
 
-/*
+o1.SpacifySubStrings([ "i", "ring", "language" ])
 
-aSections1 = o1.FindAntisections( o1.FindAsSections("language") )
-#--> [ [ 1, 20 ], [ 29, 30 ] ]
+? o1.Content()
 
-? @@( o1.FindInSections("ring", aSections1) )
-
-//? o1.TheseSubStringsSpacified(["i", "ring", "language"]) # TODO: correct
-*/
 proff()
 
 /*--------------------

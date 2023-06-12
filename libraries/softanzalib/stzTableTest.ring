@@ -15,7 +15,7 @@ StopProfiler()
 cTable = This.HeaderToString() + NL + This.RowsToStringXT(paOptions)
 
 /*--------------
-*/
+
 StartProfiler()
 
 	o1 = new stzTable([
@@ -27,22 +27,40 @@ StartProfiler()
 		[ 40,	 "Ali",		12870	]
 	])
 
-//	? o1.Show()
+	o1.Show()
 
-//	? o1.MaxWidthInEachCol()
+	? o1.MaxWidthInEachCol()
+	#--> [ 2, 5, 5 ]
 
-//	? o1.MaxWidthInCol(:EMPLOYEE)
-//	? o1.NthColName(:LastCol)
-//	? o1.RowToString(2)
+	? o1.MaxWidthInCol(:EMPLOYEE)
+	#--> 5
 
-	//? o1.RowsToString()
+	? o1.NthColName(:LastCol)
+	#--> :SALARY
 
-	//? @@( o1.CellsInColsAsPositions([ :EMPLOYEE, :SALARY ]) )
+	? o1.RowToString(2)
+	#--> 20   Dania   28900
 
-	//? o1.CellsToHashList()["[ 3, 4 ]"]
+	? o1.RowsToString()
+	#--> 1   10     Ali   35000
+	#    2   20   Dania   28900
+	#    3   30     Han   25982
+	#    4   40     Ali   12870
+
+	? @@( o1.CellsInColsAsPositions([ :EMPLOYEE, :SALARY ]) )
+	#--> [
+	# 	[ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 2, 4 ],
+	# 	[ 3, 1 ], [ 3, 2 ], [ 3, 3 ], [ 3, 4 ]
+	# ]
+
+	? o1.CellsToHashList()["[ 3, 4 ]"]
+	#--> 12870
+
 	? @@( o1.SectionAsPositions([2,2], [3, 4]) )
+	#--> [ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ], [ 2, 4 ], [ 3, 4 ] ]
 
 StopProfiler()
+# Executed in 1.56 second(s)
 
 /*--------------
 
@@ -50,13 +68,13 @@ StartProfiler()
 
 o1 = new stzTable([3, 3])
 
-//o1.Fill( :With = "." )
-//o1.Show() + NL
+o1.Fill( :With = "." )
+o1.Show() + NL
 #--> #   COL1   COL2   COL3
 #    1      .      .      .
 #    2      .      .      .
 #    3      .      .      .
-/*
+
 o1.ReplaceRow(2, :With = [ "+", "+" ])
 o1.Show() + NL
 #--> #   COL1   COL2   COL3
@@ -77,10 +95,13 @@ o1.Show()
 #    1      .      .      .
 #    2      +      +      +
 #    3      .      .      .
-*/
+
 StopProfiler()
+# Executed in 1.89 second(s)
 
 /*--------------
+
+pron()
 
 o1 = new stzTable([3, 3])
 o1.Fill( :With = "." )
@@ -97,7 +118,12 @@ o1.Show()
 #    2      +      +      +
 #    3      +      +      +
 
+proff()
+# Executed in 0.98 second(s)
+
 /*--------------
+
+pron()
 
 o1 = new stzTable([2, 3])
 o1.Fill( :With = "." )
@@ -128,7 +154,12 @@ o1.Show()
 #    2      .      +
 #    3      .      +
 
+proff()
+# Executed in 1.31 second(s)
+
 /*--------------
+
+pron()
 
 o1 = new stzTable([3, 3])
 o1.Fill( :With = "." )
@@ -145,7 +176,12 @@ o1.Show()
 #    2      B      B      B
 #    3      C      C      C
 
+proff()
+# Executed in 1.02 second(s)
+
 /*----------------
+
+pron()
 
 o1 = new stzTable([3, 3])
 o1.Fill( :With = "." )
@@ -162,15 +198,26 @@ o1.Show()
 #    2      A      B      .
 #    3      A      B      .
 
+proff()
+# Executed in 1.09 second(s)
+
 /*----------------
+
+pron()
 
 ? Q([
 	[ "COL1", [ "A", "B", "C" ] ],
 	[ "COL2", [ "a", "b", "c" ] ],
 	[ "COL3", [ "1", "2", "3" ] ]
-]).IsHashList() #--> TRUE
+]).IsHashList()
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
 
 /*----------------
+
+pron()
 
 o1 = new stzTable([
 	[ "COL1", [ "A", "B", "C" ] ],
@@ -185,7 +232,12 @@ o1.Show()
 # 2      B      b      2
 # 3      C      c      3
 
+proff()
+# Executed in 0.54 second(s)
+
 /*----------------
+
+pron()
 
 ? @@( StzTableQ([ 3, 3 ]).Filled(:With = "A") )
 #--> [
@@ -194,16 +246,26 @@ o1.Show()
 # 	[ "col3", [ "A", "A", "A" ] ]
 # ]
 
+proff()
+# Executed in 0.09 second(s)
+
 /*----------------
 
-o1 = StzTableQ([ 3, 3 ]).FillQ(:With = "A")
+pron()
+
+o1 = StzTableQ([ 3, 3 ]) { Fill(:With = "A") }
 o1.Show()
 #--> #   COL1   COL2   COL3
 #    1      A      A      A
 #    2      A      A      A
 #    3      A      A      A
 
+proff()
+# Executed in 0.48 second(s)
+
 /*----------------
+
+pron()
 
 o1 = new stzTable([3, 3])
 o1.Fill( :With = "." )
@@ -227,14 +289,12 @@ o1.Show()
 #    2      B      B      B
 #    3      C      C      C
 
-/*--------------
-
-o1 = new stzTable([
-	:ID = :Number,
-	:NAME = :String
-])
+proff()
+# Executed in 1.58 second(s)
 
 /*===============
+
+pron()
 
 # A table can be created in 5 different ways:
 
@@ -249,7 +309,12 @@ o1.ShowXT([ :ReplaceEmptyCellsWith = "NULL" ])
 # #   COL1
 # 1   NULL
 
+proff()
+# Executed in 0.08 second(s)
+
 /*--------------
+
+pron()
 
 # WAY 2 : Creating an empty table with 3 columns and 3 rows
 o1 = new stzTable([3, 2])
@@ -265,7 +330,12 @@ o1.ShowXT([ :ReplaceEmptyCellsWith = "NULL" ])
 # 1   NULL   NULL   NULL
 # 2   NULL   NULL   NULL
 
+proff()
+# Executed in 0.53 second(s)
+
 /*---------------
+
+pron()
 
 # WAY 3: Creating a table by provding a list of lists, formatted as you
 # would find it in the real world (the first line is for column names!)
@@ -287,7 +357,12 @@ o1.Show()
 # 3   30        Han    25982
 # 4   40        Ali    12870
 
+proff()
+# Executed in 0.61 second(s)
+
 /*---------------
+
+pron()
 
 # WAY 4: Creating a table by provding just the rows, without
 # column names (they are added automatically by softanza):
@@ -307,10 +382,16 @@ o1.Show()
 # 3     30     Han   25982
 # 4     40     Ali   12870
 
+proff()
+# Executed in 0.61 second(s)
+
 /*-----------------
+
+pron()
 
 # WAY 5: Creating a table by providing a hashtable where
 # the column names are keys and rows are values
+# (internally, stzTable content is hosted in this hashlist)
 
 o1 = new stzTable([
  	:NAME   = [ "Ali", 	  "Dania", 	"Han" 	 ],
@@ -324,10 +405,16 @@ o1.Show()
 #	2   Dania      Manager    50000
 #	3     Han       Doctor    62500
 
+proff()
+# Executed in 0.47 second(s)
+
 /*==============
+
+pron()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
 	[ 10,	"Karim",	52   	],
 	[ 20,	"Hatem", 	46	],
 	[ 30,	"Abraham",	48	]
@@ -341,7 +428,12 @@ o1.ReplaceCol(:AGE, :With = [ "_", "_", "_" ])
 ? o1.Col(:AGE)
 #--> [ "_", "_", "_" ]
 
+proff()
+# Executed in 0.15 second(s)
+
 /*==============
+
+pron()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -350,8 +442,11 @@ o1 = new stzTable([
 	[ 30,	"Abraham",	48	]
 ])
 
-? o1.ColName(3)		#--> :AGE
-? o1.ColName(:NAME)	#--> :NAME
+? o1.ColName(3)
+#--> :AGE
+
+? o1.ColName(:NAME)
+#--> :NAME
 
 o1.ReplaceColName(:NAME, :EMPLOYEE)
 o1.Show() + NL
@@ -361,7 +456,12 @@ o1.Show() + NL
 # 2   20     Hatem    46
 # 3   30   Abraham    48
 
+proff()
+# Executed in 0.48 second(s)
+
 /*--------------
+
+pron()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -370,19 +470,32 @@ o1 = new stzTable([
 	[ 30,	"Abraham",	48	]
 ])
 
-? o1.ColNumber(:AGE) 	#--> 3
-? o1.ColNumber(2)	#--> 2
+? o1.ColNumber(:AGE) 
+#--> 3
 
-? o1.ColNumber(:NONE)	#--> ERROR:
+? o1.ColNumber(2)
+#--> 2
+
+//? o1.ColNumber(:NONE)
+#--> Error message:
 # Incorrect param value! p must be a number or string.
-# Allowed strings are :First, :FirstCol, :Last, :LastCol and any valid column name.
+# Allowed strings are :First, :FirstCol, :Last,
+# :LastCol and any valid column name.
 
-? o1.ColNumber(22)	#--> ERROR: Incorrect value! n must be a number between 1 and 3.
+//? o1.ColNumber(22)
+#--> Error message:
+# Incorrect value! n must be a number between 1 and 3.
+
+proff()
+# Executed in 0.05 second(s)
 
 /*==============
 
+pron()
+
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
 	[ 10,	"Karim",	52   	],
 	[ 20,	"Hatem", 	46	],
 	[ 30,	"Abraham",	48	]
@@ -396,10 +509,16 @@ o1.Show()
 # 2   20     Hatem    46
 # 3   10     Karim    52
 
+proff()
+# Executed in 0.51 second(s)
+
 /*--------------
+
+pron()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
 	[ 10,	"Karim",	52   	],
 	[ 20,	"Hatem", 	46	],
 	[ 30,	"Abraham",	48	]
@@ -415,11 +534,22 @@ o1.Show() + NL
 
 o1.SwapColumns( :BetweenPosition = 2, :And = 3)
 o1.Show()
+#-->
+# #   ID   AGE      NAME
+# 1   10   52     Karim
+# 2   30   48   Abraham
+# 3   20   46     Hatem
+
+proff()
+# Executed in 1.05 second(s)
 
 /*==============
 
+pron()
+
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
 	[ 10,	"Karim",	52   	],
 	[ 20,	"Hatem", 	46	],
 	[ 30,	"Abraham",	48	]
@@ -435,19 +565,30 @@ o1.MoveCol( :ID, :ToPosition = 3 )
 
 o1.Show()
 
+proff()
+# Executed in 0.48 second(s)
+
 /*--------------
+
+pron()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
 	[ 10,	"Karim",	52   	],
 	[ 20,	"Hatem", 	46	],
 	[ 30,	"Abraham",	48	]
 ])
 
 o1.AddCol( :AGE = [ 1, 2, 3 ] )
-#--> ERROR: Can't add the column! The name your provided already exists.
+#--> Error message:
+# Can't add the column! The name your provided already exists.
+
+proff()
 
 /*--------------
+
+pron()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -464,70 +605,83 @@ o1.Show()
 # 2   20    46     Hatem
 # 3   30    48   Abraham
 
+proff()
+# Executed in 0.71 second(s)
+
 /*--------------
+
+pron()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
 	[ 10,	"Karim",	52   	],
 	[ 20,	"Hatem", 	46	],
 	[ 30,	"Abraham",	48	]
 ])
 
 o1.ReplaceColName( :NAME, :FRIEND )
-? o1.ColName(2) #--> :FRIEND
+? o1.ColName(2)
+#--> :FRIEND
+
+proff()
+# Executed in 0.06 second(s)
 
 /*===============
+
+pron()
 
 # Softanza is so flexible! Let's see it in action, for example,
 # in using ReplaceCol(). So, you have a table like this:
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
 	[ 10,	"Karim",	52   	],
 	[ 20,	"Hatem", 	46	],
 	[ 30,	"Abraham",	48	]
 ])
 
-# And you want to replace the coluim :AGE and make them all young:
+# And you want to replace the column :AGE and make them all young:
 o1.ReplaceCol( :AGE, :By = [ 22, 20, 21 ] )
 # The column is changed:
 ? o1.Col(:AGE) #--> [ 22, 20, 21 ]
 
 # Now, if you want to change just the name of the column, then
-# pass the name as a second param, like this:
+# pass the name instead of the list of values, like this:
 o1.ReplaceCol( :AGE, :By = :LENGTH )
 # then the name is changed:
 ? o1.ColName(3) #--> :LENGTH
 
 # Of course, you could use this specific function:
 o1.ReplaceColName( :LENGTH, :BY = :AGE )
+# and the age turns back to its original name
 ? o1.ColName(3) #--> AGE
 
-# But I wanted to highlight here, is the flexibility of Softanza
-# to cope with the programmer intent, in context, without forcing
-# him to change his mind and starting thinkin of an other fucton!
-
-# Hope you got it ;)
+proff()
+# Executed in 0.21 second(s)
 
 /*==============
-*/
+
 StartProfiler()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
 	[ 10,	"Karim",	52   	],
 	[ 20,	"Hatem", 	46	],
 	[ 30,	"Abraham",	48	]
 ])
 
 o1.Sort(:By = :NAME)
+
 o1.Show() + NL
 #-->
 # #	ID	NAME		AGE
 # 1	30	Abraham		48
 # 2	20	Hatem		46
 # 3	10	Karim		52
-/*
+
 o1.Sort(:By = :ID)
 o1.Show() + NL
 #-->
@@ -543,10 +697,15 @@ o1.Show()
 # 1   20     Hatem    46
 # 2   30   Abraham    48
 # 3   10     Karim    52
-*/
+
 StopProfiler()
+# Executed in 1.93 second(s)
+
+# NOTE/TODO: Show() function takes time! Optimise it...
 
 /*--------------
+
+pron()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -563,7 +722,12 @@ o1.Show()
 # 2   20     Hatem    46
 # 3   10     Karim    52
 
+proff()
+# Executed in 0.65 second(s)
+
 /*--------------
+
+pron()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -584,7 +748,12 @@ o1 = new stzTable([
 ? @@( o1.RowsAsPositions([2, 3]) ) + NL
 #--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 1, 3 ], [ 2, 3 ], [ 3, 3 ] ]
 
+proff()
+# Executed in 0.13 second(s)
+
 /*--------------
+
+pron()
 
 o1 = new stzTable([
 	[  "COL1",   "COL2" ],
@@ -603,7 +772,12 @@ o1 = new stzTable([
 ? @@( o1.CellsInRows([1, 3, 5]) ) + NL
 #--> [ "a", "R1", "abc", "R3", "b", "R1" ]
 
+proff()
+# Executed in 0.21 second(s)
+
 /*===============
+
+pron()
 
 o1 = new stzTable([
 	[  "COL1",   "COL2" ],
@@ -645,7 +819,12 @@ o1.Show()
 # 5       b     R1
 # 6       a     R1
 
+proff()
+# Executed in 2.22 second(s)
+
 /*==============
+
+pron()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -661,6 +840,7 @@ o1 = new stzTable([
 	:NAME = [ "Imed", "Hatem", "Karim" ],
 	:AGE  = [ 52, 46, 48 ]
 ])
+#--> TRUE
 
 ? o1.ContainsRow([ 20, "Hatem", 46 ])
 #--> TRUE
@@ -671,25 +851,43 @@ o1 = new stzTable([
 ])
 #--> TRUE
 
+proff()
+# Executed in 0.33 second(s)
+
 /*==============
+*/
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
 
 ? @@( o1.SectionAsPositions([2, 2], [3, 3]) )
 #--> [ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ] ]
 
-/*--------------
-
 ? @@(o1.Section([2, 2], [3, 3])) + NL
-#--> [ "Dan Mikovitch Mo", 28900, "Ali Sa", 25982 ]
+#--> [ "Hatem", 46, "Karim", 48 ]
+
+? @@(o1.SectionXT([2, 2], [3, 3])) # or SectionZ()
+#--> [
+#	[ [ 2, 2 ], "Hatem" ],
+#	[ [ 3, 2 ], 46 ],
+#	[ [ 2, 3 ], "Karim"],
+#	[ [ 3, 3 ], 48 ]
+# ]
+
+proff()
 
 /*--------------
 
-? @@(o1.SectionXT([2, 2], [3, 3]))
-#--> [
-#	[ [ 2, 2 ], "Dan Mikovitch Mo" ],
-#	[ [ 3, 2 ], 28900 ],
-#	[ [ 2, 3 ], "Ali Sa"],
-#	[ [ 3, 3 ], 25982 ]
-# ]
+
+
+/*--------------
+
+
 
 /*--------------
 
