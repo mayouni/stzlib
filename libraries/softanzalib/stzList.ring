@@ -13375,21 +13375,54 @@ class stzList from stzObject
 
 		This.Update( aResult )
 
+		#< @FunctionFluentForm
+
 		def SortInAscendingQ()
 			This.SortInAscending()
 			return This
-		
+
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def Sort()
 			This.SortInAscending()
 
 			def SortQ()
 				return This.SortInAscendingQ()
 
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def SortInAsending()
+			This.SortInAscending()
+
+			def SortInAsendingQ()
+				This.SortInAsending()
+				return This
+
+
+		def SortInAssending()
+			This.SortInAscending()
+
+			def SortInAssendingQ()
+				This.SortInAssending()
+				return This
+
+		#>
+
 	def SortedInAscending()
 		aResult = This.Copy().SortInAscendingQ().Content()
 		return aResult
 
 		def Sorted()
+			return This.SortedInAscending()
+
+		def SortedInAsending()
+			return This.SortedInAscending()
+
+		def SortedInAssending()
 			return This.SortedInAscending()
 
 	  #------------------------------------#
@@ -13400,13 +13433,42 @@ class stzList from stzObject
  		aResult = This.SortInAscendingQ().Content()
 		This.Update( ListReverse(aResult) )
 
+		#< @FunctionFluentForm
+
 		def SortInDescendingQ()
 			This.SortInDescending()
 			return This
-			
+		
+		#>
+	
+		#< @FunctionMisspelledForms
+
+		def SortInDesending()
+			This.SortInDescending()
+
+			def SortInDesendingQ()
+				This.SortInDescending()
+				return This
+
+
+		def SortInDessending()
+			This.SortInDescending()
+
+			def SortInDessendingQ()
+				This.SortInDescending()
+				return This
+
+		#>
+
 	def SortedInDescending()
 		aResult = This.Copy().SortInDescendingQ().Content()
 		return aResult
+
+		def SortedInDesending()
+			return This.SortedInDescending()
+
+		def SortedInDessending()
+			return This.SortedInDescending()
 
 	  #-------------------------------------------#
 	 #  SORTING THE ITEM IN THE REVERSE ORDER  #

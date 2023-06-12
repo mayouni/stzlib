@@ -49,13 +49,13 @@ Class stzTable
 	# 	]
 
 	# This choice is made firstly, because columns have names and
-	# rows have'nt. But maily, to enable (future) data analytics and
+	# rows have'nt. But mainly, to enable (future) data analytics and
 	# data science operations on tables of data, where variables are
 	# always represented as columns.
 
 	def init(paTable)
 
-		# A table can be created in 4 different ways
+		# A table can be created in 5 different ways
 
 		if NOT isList(paTable)
 			StzRaise("Incorrect param format! paTable must be a list.")
@@ -882,7 +882,7 @@ Class stzTable
 	 #   GETTING THE POSITIONS OF THE CELLS OF A GIVEN COLUMN   #
 	#----------------------------------------------------------#
 
-	def CellsInColAsPositions(pCol)
+	def ColAsPositions(pCol)
 		nCol = This.ColToColNumber(pCol)
 		nNumberOfRows = This.NumberOfRows()
 
@@ -897,72 +897,72 @@ Class stzTable
 		#< @FunctionAlternativeForms
 
 		def CellsInColPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def ColCellsAsPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def CellsAsPositionsInCol(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
-		def ColAsPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+		def CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		#--
 
 		def CellsInColumnAsPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def CellsInColumnPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def ColumnCellsAsPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def CellsAsPositionsInColumn(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def ColumnAsPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		#==
 
 		def PositionsOfCellsInCol(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def PositionsOfCellsInColumn(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		#==
 
 		def CellsToColAsPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def CellsToColPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def ColCellsToPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def CellsToPositionsInCol(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def ColToPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		#--
 
 		def CellsInColumnToPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def ColumnCellsToPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def CellsToPositionsInColumn(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		def ColumnToPositions(pCol)
-			return This.CellsInColAsPositions(pCol)
+			return This.ColAsPositions(pCol)
 
 		#>
 
@@ -970,7 +970,7 @@ Class stzTable
 	 #   GETTING THE POSITIONS OF THE CELLS OF MANY COLUMNS   #
 	#--------------------------------------------------------#
 
-	def CellsInColsAsPositions(paCols)
+	def ColsAsPositions(paCols)
 		nLen = len(paCols)
 		anColNumbers = This.TheseColsAsNumbers(paCols)
 		aResult = []
@@ -986,105 +986,72 @@ Class stzTable
 		#< @FunctionAlternativeForms
 
 		def CellsInColsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
 		def ColsCellsAsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
 		def CellsAsPositionsInCols(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
+
+		def CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
 		#--
 
 		def CellsInColumnsAsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
 		def CellsInColumnsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
 		def ColumnsCellsAsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
 		def CellsAsPositionsInColumns(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
+
+		def ColumnsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
+
+		#==
+
+		def PositionsOfCellsInCols(paCols)
+			return This.ColsAsPositions(paCols)
+
+		def PositionsOfCellsInColumns(paCols)
+			return This.ColsAsPositions(paCols)
 
 		#==
 
 		def CellsToColsAsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
 		def CellsToColsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
 		def ColsCellsToPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
-		def CellsToPositionsInCols(paCols)
-			return This.CellsInColsAsPositions(paCols)
+		def CellsToPositionsInCols(pCol)
+			return This.ColsAsPositions(pCol)
+
+		def ColsToPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
 		#--
 
 		def CellsInColumnsToPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
 		def ColumnsCellsToPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
 		def CellsToPositionsInColumns(paCols)
-			return This.CellsInColsAsPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
-		#==
-
-		def CellsInTheseColsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		def TheseColsCellsAsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		def CellsAsPositionsInTheseCols(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		#--
-
-		def CellsInTheseColumnsAsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		def CellsInTheseColumnsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		def TheseColumnsCellsAsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		def CellsAsPositionsInTheseColumns(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		#==
-
-		def CellsInTheseColsAsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		def CellsToTheseColsAsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		def CellsToTheseColsPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		def TheseColsCellsToPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		def CellsToPositionsInTheseCols(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		#--
-
-		def CellsInTheseColumnsToPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		def TheseColumnsCellsToPositions(paCols)
-			return This.CellsInColsAsPositions(paCols)
-
-		def CellsToPositionsInTheseColumns(paCols)
-			return This.CellsInColsAsPositions(paCols)
+		def ColumnsToPositions(paCols)
+			return This.ColsAsPositions(paCols)
 
 		#>
 
@@ -1385,6 +1352,15 @@ Class stzTable
 
 		#< @FunctionAlternativeForms
 
+		def CellsInRowZ(n)
+			return This.CellsAndPositionsInRow(p)
+
+			def CellsInRowZQ(n)
+				return This.CellsAndPositionsInRowNQR(n, :stzList)
+
+			def CellsInRowZQR(n, pcReturnType)
+				return This.CellsInRowNAndTheirsPositionsQR(n, pcReturnType)
+
 		def CellsInRowNAndTheirPositions(n)
 			return This.CellsAndPositionsInRow(p)
 
@@ -1438,7 +1414,7 @@ Class stzTable
 	 #   GETTING THE POSITIONS OF THE CELLS OF A GIVEN ROW   #
 	#-------------------------------------------------------#
 
-	def CellsInRowAsPositions(pnRow)
+	def RowAsPositions(pnRow)
 		if isString(pnRow)
 			if pnRow = :First or pnRow = :FirstRow
 				pnRow = 1
@@ -1461,32 +1437,62 @@ Class stzTable
 
 		return aResult
 
-		#< @FunctionAlternativeForms
+		#< @Alternativefunctions
 
 		def CellsInRowPositions(pnRow)
-			return This.CellsInRowAsPositions(pnRow)
-
-		def RowAsPositions(pnRow)
-			return This.CellsInRowAsPositions(pnRow)
+			return This.RowAsPositions(pnRow)
 
 		def RowCellsAsPositions(pnRow)
-			return This.CellsInRowAsPositions(pnRow)
+			return This.RowAsPositions(pnRow)
 
 		def CellsAsPositionsInRow(pnRow)
-			return This.CellsInRowAsPositions(pnRow)
+			return This.RowAsPositions(pnRow)
+
+		def CellsInRowAsPositions(pnRow)
+			return This.RowAsPositions(pnRow)
 
 		#--
 
-		def PositionsOfCellsInRow(pCol)
-			return This.CellsInRowAsPositions(pCol)
+		def CellsInRowToPositions(pnRow)
+			return This.RowAsPositions(pnRow)
+
+		def RowCellsToPositions(pnRow)
+			return This.RowAsPositions(pnRow)
+
+		def CellsToPositionsInRow(pnRow)
+			return This.RowAsPositions(pnRow)
+
+		#==
+
+		def CellsInThisRowAsPositions(pnRow)
+			return This.RowAsPositions(pnRow)
+
+		def CellsInThisRowPositions(pnRow)
+			return This.RowAsPositions(pnRow)
+
+		def ThisRowCellsAsPositions(pnRow)
+			return This.RowAsPositions(pnRow)
+
+		def CellsAsPositionsInThisRow(pnRow)
+			return This.RowAsPositions(pnRow)
+
+		#--
+
+		def CellsInThisRowToPositions(pnRow)
+			return This.RowAsPositions(pnRow)
+
+		def ThisRowCellsToPositions(pnRow)
+			return This.RowAsPositions(pnRow)
+
+		def CellsToPositionsInThisRow(pnRow)
+			return This.RowAsPositions(pnRow)
 
 		#>
-
 	  #----------------------------------------------------#
 	 #   GETTING THE POSITIONS OF THE CELLS OF MANY ROWS  #
 	#----------------------------------------------------#
 
-	def CellsInRowsAsPositions(panRows)
+	def RowsAsPositions(panRows)
 		nRows = len(panRows)
 		aResult = []
 
@@ -1506,49 +1512,52 @@ Class stzTable
 		#< @FunctionAlternativeForms
 
 		def CellsInRowsPositions(panRows)
-			return This.CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		def RowsCellsAsPositions(panRows)
-			return This.CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		def CellsAsPositionsInRows(panRows)
-			return This.CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
+
+		def CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		#--
 
 		def CellsInRowsToPositions(panRows)
-			return This.CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		def RowsCellsToPositions(panRows)
-			return This.CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		def CellsToPositionsInRows(panRows)
-			return This.CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		#==
 
 		def CellsInTheseRowsAsPositions(panRows)
-			return This.CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		def CellsInTheseRowsPositions(panRows)
-			return This.CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		def TheseRowsCellsAsPositions(panRows)
-			return This.CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		def CellsAsPositionsInTheseRows(panRows)
-			return This.CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		#--
 
 		def CellsInTheseRowsToPositions(panRows)
-			return This.CellsInTheseRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		def TheseRowsCellsToPositions(panRows)
-			return This.CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		def CellsToPositionsInTheseRows(panRows)
-			return This.CellsInRowsAsPositions(panRows)
+			return This.RowsAsPositions(panRows)
 
 		#>
 
@@ -2008,6 +2017,7 @@ Class stzTable
 
 		return aResult
 
+		#< @FunctionFluentForms
 
 		def SectionXTQ( panCellPos1, panCellPos2 )
 			return This.SectionXTQR( panCellPos1, panCellPos2, :stzList )
@@ -2023,6 +2033,21 @@ Class stzTable
 			other
 				StzRaise("Unsupported return type!")
 			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SectionZ( panCellPos1, panCellPos2 )
+			return This.SectionXT( panCellPos1, panCellPos2 )
+
+			def SectionZQ( panCellPos1, panCellPos2 )
+				return This.This.SectionXTQ( panCellPos1, panCellPos2 )
+
+			def SectionZQR( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionXTQR( panCellPos1, panCellPos2, pcReturnType )
+	
+		#>
 
 	def SectionAsPositions( panCellPos1, panCellPos2 )
 		if isList(panCellPos1) and Q(panCellPos1).IsFromNamedParam()
@@ -5967,18 +5992,19 @@ Class stzTable
 		This.ReplaceCellsByMany(aRowCells, paNewRow)
 
 	# Replacing all the rows with the provided row
-	def ReplaceAllRows(paNewRow)
-		if isList(paNewRow) and
-		   Q(paNewRow).IsOneOfTheseNamedParams([ :With, :By, :Using ])
-			paNewRow = paNewRow[2]
+	def ReplaceAllRows(paNewRows)
+		if isList(paNewRows) and
+		   Q(paNewRows).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+			paNewRows = paNewRows[2]
 		ok
 
-		if NOT isList(paNewRow) 
-			StzRaise("Incorrect param type! paNewRow must be a list.")
+		if NOT isList(paNewRows) 
+			StzRaise("Incorrect param type! paNewRows must be a list.")
 		ok
 
-		for i = 1 to This.NumberOfRows()
-			This.ReplaceRow(i, paNewRow)
+		nLen = This.NumberOfRows()
+		for i = 1 to nLen
+			This.ReplaceRow(i, paNewRows[i])
 		next
 
 		def ReplaceRows(paNewRows)
@@ -6906,33 +6932,12 @@ Class stzTable
 
 		nInitialColPos = This.ColToNumber(pCol)
 		This.MoveCol(pCol, :To = :FirstPosition)
-	
+
 		# STEP 2: Turn the rows into a list of strings and sort them using
 		# the stzListOfStrings sorting service
 
-		acRows = []
+		ocRows = This.RowsQ().StringifyQ().ToStzListOfStrings()
 
-		for aRow in This.Rows()
-
-			cRow = "[ "
-			i = 0
-			for cell in aRow
-				i++
-				if isString(cell)
-					cRow += '"' + cell + '"'
-				else
-					cRow += @@(cell)
-				ok
-				if i < len(aRow)
-					cRow += ", "
-				ok
-			next
-			cRow += " ]"
-
-			acRows + cRow
-		next
-	
-		ocRows = new stzListOfStrings(acRows)
 		if pcDirection = :Ascending or pcDirection = :InAscending
 			ocRows.SortInAscending()
 
@@ -7372,7 +7377,7 @@ Class stzTable
 				ok
 			ok
 		ok
-? ElapsedTime()
+
 		aColContent = This.Col(pCol)
 		nNumberOfCols = len(aColContent)
 		nMax = 0
@@ -7438,7 +7443,7 @@ Class stzTable
 
 		aRow = This.Row(p)
 		for cell in aRow
-			anSizes + @@SQ(cell).RemoveBoundsQ('"').NumberOfChars()
+			anSizes + @@Q(cell).RemoveBoundsQ('"').NumberOfChars()
 		next
 
 		nResult = StzListOfNumbersQ(anSizes).Max()
@@ -7453,7 +7458,7 @@ Class stzTable
 		for i = 1 to This.NumberOfRows()
 			anSizes = []
 			for cell in This.NthRow(i)
-				anSizes + @@SQ(cell).RemoveBoundsQ('"').NumberOfChars()
+				anSizes + @@Q(cell).RemoveBoundsQ('"').NumberOfChars()
 			next
 
 			anResult + StzListOfNumbersQ(anSizes).Max()
@@ -7465,15 +7470,16 @@ Class stzTable
 		anMax = This.MaxWidthInEachColXT()
 
 		acStr = This.ColNamesQ().
-				UppercaseQ().
-				InsertBeforeQ(1, "#").
-				Content()
+			     UppercaseQ().
+			     InsertBeforeQ(1, "#").
+			     Content()
 
 		cResult = ""
-		i = 0
-		for str in acStr
-			i++
-			cResult += Q(str).AlignedtoRightXT(anMax[i], " ")
+		nLen = len(acStr)
+
+		for i = 1 to nLen
+
+			cResult += Q(acStr[i]).AlignedtoRightXT(anMax[i], " ")
 			if i < len(anMax)
 				cResult += "   "
 			ok
@@ -7487,8 +7493,8 @@ Class stzTable
 	def RowsToStringXT(paOptions)
 
 		cRows = ""
-		//nNumberOfRows = 
-		for y = 1 to This.NumberOfRows()
+		nLen = This.NumberOfRows()
+		for y = 1 to nLen
 			cRows += ""+ y + "   " + This.RowToStringXT(y, paOptions) + NL
 		next
 
@@ -7524,7 +7530,7 @@ Class stzTable
 				cell = "'" + @@(cell) + "'"
 			ok
 			
-			cRow += @@SQ(cell).
+			cRow += @@Q(cell).
 				RemoveBoundsQ('"').
 				RemoveBoundsQ("'").
 				AlignedToRightXT( anMax[i], " " )

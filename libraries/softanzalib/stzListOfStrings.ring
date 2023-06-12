@@ -1803,8 +1803,35 @@ class stzListOfStrings from stzList
 	 #  SORTING THE STRING BY - IN DESCENDING  #
 	#-----------------------------------------#
  
-	def SortInDescendingBy(pcExpr) # TODO
-		/* ... */
+	def SortInDescendingBy(pcExpr)
+		if NOT isString(pcExpr)
+			StzRaise("Incorrect param type! pcExpr must be a string.")
+		ok
+
+		if NOT Q(pcExpr).ContainsCS("@string", :CaseSensitive = FALSE)
+			StzRaise("Syntax error! pcExpr must contain the keyword '@string'.")
+		ok
+
+		cCode = 'val = ' + Q(pcExpr).BoundsRemoved([ "{", "}" ])
+		acContent = This.Content()
+		nLen = len(acContent)
+		aValuesXT = []
+
+		for @i = 1 to nLen
+			@string = acContent[@i]
+			eval(cCode)
+			aValuesXT + [ @string, val ]
+		next
+
+? @@( aValuesXT )
+		oTable  = new stzTable(aValuesXT)
+oTable.Show()
+stop()
+		oTable.SortInDescending(:COL2)
+		aSorted = oTable.Content()
+
+		aResult = StzListOfPairsQ(aSorted).FirstItems()
+		This.Update(aResult)
 
 	  #---------------------------------------#
 	 #     ASSOCIATE WITH AN ANOTHER LIST    #
