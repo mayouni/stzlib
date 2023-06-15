@@ -1779,7 +1779,7 @@ class stzListOfStrings from stzList
 	 #  SORTING THE STRING BY - IN ASCENDING  #
 	#----------------------------------------#
  
-	def SortInAscendingBy(pcExpr) # TODO: use same functin in stzList
+	def SortInAscendingBy(pcExpr)
 		/* EXAMPLE
 		o1 = new stzListOfStrings([ "a", "abcde", "abc", "ab", "abcd" ])
 		o1.SortBy('len(@item)')
@@ -1789,12 +1789,49 @@ class stzListOfStrings from stzList
 
 		*/
 
-		/* ... */
+		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@string", :CS = FALSE))
+			StzRaise("Incorrect param! pcExpr must be a string containing @string keyword.")
+		ok
 
-		def SortBy(pcExpr) # TODO
+		acContent = This.Content()
+		nLen = len(acContent)
 
-	def SortedByInAscendingBy(pcExpr) # TODO
-		/* ... */
+		cCode = 'value = ' + Q(pcExpr).BoundsRemoved([ "{", "}" ])
+		aValues = []
+		
+		for @i = 1 to nLen
+			@string = acContent[@i]
+			eval(cCode)
+			aValues + value
+		next
+
+		
+		oTable = new stzTable([ :COL1 = acContent, :COL2 = aValues ])
+		acSorted = oTable.SortByQ(:COL2).Col(1)
+
+		This.Update(acSorted)
+
+		#< @FunctionFluentForm
+
+		def SortInAscendingByQ(pcExpr)
+			This.SortInAscendingBy(pcExpr)
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SortBy(pcExpr)
+			return This.SortInAscendingBy(pcExpr)
+
+			def SortByQ(pcExpr)
+				This.SortBy(pcExpr)
+				return This
+
+		#>
+
+	def SortedByInAscendingBy(pcExpr)
+		acResult = This.Copy().SortByAscendingByQ(pcExpr).Content()
+		return This
 
 		def SortedBy(pcExpr)
 			return This.SortedByInAscendingBy(pcExpr)
@@ -1804,34 +1841,15 @@ class stzListOfStrings from stzList
 	#-----------------------------------------#
  
 	def SortInDescendingBy(pcExpr)
-		if NOT isString(pcExpr)
-			StzRaise("Incorrect param type! pcExpr must be a string.")
-		ok
+		acSorted = This.SortInAscendingQ(pcExpr).SortedInDescending()
+		This.Update(acSorted)
 
-		if NOT Q(pcExpr).ContainsCS("@string", :CaseSensitive = FALSE)
-			StzRaise("Syntax error! pcExpr must contain the keyword '@string'.")
-		ok
+		def SortInDescendingByQ(pcExp)
+			This.SortInDescendingBy(pcExpr)
+			return This
 
-		cCode = 'val = ' + Q(pcExpr).BoundsRemoved([ "{", "}" ])
-		acContent = This.Content()
-		nLen = len(acContent)
-		aValuesXT = []
-
-		for @i = 1 to nLen
-			@string = acContent[@i]
-			eval(cCode)
-			aValuesXT + [ @string, val ]
-		next
-
-? @@( aValuesXT )
-		oTable  = new stzTable(aValuesXT)
-oTable.Show()
-stop()
-		oTable.SortInDescending(:COL2)
-		aSorted = oTable.Content()
-
-		aResult = StzListOfPairsQ(aSorted).FirstItems()
-		This.Update(aResult)
+	def SortedInDescendingBy(pcExpr)
+		acContent = This.Copy().SortInDescendingByQ(pcExpr).Content()
 
 	  #---------------------------------------#
 	 #     ASSOCIATE WITH AN ANOTHER LIST    #

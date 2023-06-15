@@ -1613,7 +1613,7 @@ class stzObject
 			@number = This.Number()
 		ok
 		
-		cCode = @@SQ(pcCode).
+		cCode = @@(Q(pcCode)).
 			RemoveBoundsQ('"').
 			RemoveThisFirstCharQ("{").
 			RemoveThisLastCharQ("}").

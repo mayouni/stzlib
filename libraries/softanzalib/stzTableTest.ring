@@ -855,7 +855,7 @@ proff()
 # Executed in 0.33 second(s)
 
 /*==============
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -871,7 +871,7 @@ o1 = new stzTable([
 ? @@(o1.Section([2, 2], [3, 3])) + NL
 #--> [ "Hatem", 46, "Karim", 48 ]
 
-? @@(o1.SectionXT([2, 2], [3, 3])) # or SectionZ()
+? @@(o1.SectionZ([2, 2], [3, 3])) + NL # or SectionAndPosiition()
 #--> [
 #	[ [ 2, 2 ], "Hatem" ],
 #	[ [ 3, 2 ], 46 ],
@@ -879,320 +879,722 @@ o1 = new stzTable([
 #	[ [ 3, 3 ], 48 ]
 # ]
 
-proff()
-
-/*--------------
-
-
-
-/*--------------
-
-
-
-/*--------------
-
 ? @@( o1.Section(:FirstCell, :LastCell) )
-#--> [
-#	10, "Ali Sandy", 35000,
-#	20, "Dan Mikovitch Mo", 28900,
-#	30, "Ali Sa", 25982,
-#	40, "Ali Aziza", 49540
-# ]
+#--> [ 10, "Imed", 52, 20, "Hatem", 46, 30, "Karim", 48 ]
+
+proff()
+# Executed in 0.17 second(s)
 
 /*==============
 
-? @@( o1.Cells() ) + NL
-#--> [
-#	10, "Ali Sandy", 35000,
-#	20, "Dan Mikovitch Mo", 28900,
-#	30, "Ali Sa", 25982,
-#	40, "Ali Aziza", 49540
-# ]
+pron()
 
-? @@( o1.CellsXT() ) + NL # Same as CellsAndPositions()
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+? @@( o1.Cells() ) + NL
+#--> [ 10, "Imed", 52, 20, "Hatem", 46, 30, "Karim", 48 ]
+
+? @@( o1.CellsXT() ) + NL # Same as CellsAndPositions() and CellsZ()
 #--> [
-#	[ 10, 			[ 1, 1 ] ],
-#	[ "Ali Sandy", 		[ 2, 1 ] ],
-#	[ 35000, 		[ 3, 1 ] ],
-#	[ 20, 			[ 1, 2 ] ],
-#	[ "Dan Mikovitch Mo", 	[ 2, 2 ] ],
-#	[ 28900, 		[ 3, 2 ] ],
-#	[ 30, 			[ 1, 3 ] ],
-#	[ "Ali Sa", 		[ 2, 3 ] ],
-#	[ 25982, 		[ 3, 3 ] ],
-#	[ 40, 			[ 1, 4 ] ],
-#	[ "Ali Aziza", 		[ 2, 4 ] ],
-#	[ 49540, 		[ 3, 4 ] ]
+#	[ 10, 		[ 1, 1 ] ],
+#	[ "Imed", 	[ 2, 1 ] ],
+#	[ 52, 		[ 3, 1 ] ],
+#	[ 20, 		[ 1, 2 ] ],
+#	[ "Hatem", 	[ 2, 2 ] ],
+#	[ 46, 		[ 3, 2 ] ],
+#	[ 30, 		[ 1, 3 ] ],
+#	[ "Karim", 	[ 2, 3 ] ],
+#	[ 48, 		[ 3, 3 ] ]
 # ]
 
 ? @@( o1.PositionsAndCells() ) + NL
 #--> [
-#	[ [ 1, 1 ], 10	 ],
-#	[ [ 2, 1 ], "Ali Sandy" ],
-#	[ [ 3, 1 ], 35000 ],
-#	[ [ 1, 2 ], 20 ],
-#	[ [ 2, 2 ], "Dan Mikovitch Mo" ],
-#	[ [ 3, 2 ], 28900 ],
-#	[ [ 1, 3 ], 30 ],
-#	[ [ 2, 3 ], "Ali Sa" ],
-#	[ [ 3, 3 ], 25982 ],
-#	[ [ 1, 4 ], 40 ],
-#	[ [ 2, 4 ], "Ali Aziza" ],
-#	[ [ 3, 4 ], 49540 ]
+#	[ [ 1, 1 ],	10	 ],
+#	[ [ 2, 1 ],	"Imed"	 ],
+#	[ [ 3, 1 ],	52	 ],
+#	[ [ 1, 2 ],	20	 ],
+#	[ [ 2, 2 ],	"Hatem"	 ],
+#	[ [ 3, 2 ],	46	 ],
+#	[ [ 1, 3 ],	30	 ],
+#	[ [ 2, 3 ],	"Karim"	 ],
+#	[ [ 3, 3 ],	48	 ]
 # ]
 
 ? @@( o1.CellsToHashList() ) + NL
 #--> [
-#	[ "[ 1, 1 ]", 10	 ],
-#	[ "[ 2, 1 ]", "Ali Sandy" ],
-#	[ "[ 3, 1 ]", 35000 ],
-#	[ "[ 1, 2 ]", 20 ],
-#	[ "[ 2, 2 ]", "Dan Mikovitch Mo" ],
-#	[ "[ 3, 2 ]", 28900 ],
-#	[ "[ 1, 3 ]", 30 ],
-#	[ "[ 2, 3 ]", "Ali Sa" ],
-#	[ "[ 3, 3 ]", 25982 ],
-#	[ "[ 1, 4 ]", 40 ],
-#	[ "[ 2, 4 ]", "Ali Aziza" ],
-#	[ "[ 3, 4 ]", 49540 ]
+#	"[ 1, 1 ]" = 10,
+#	"[ 2, 1 ]" = "Imed",
+#	"[ 3, 1 ]" = 52,
+#	"[ 1, 2 ]" = 20,
+#	"[ 2, 2 ]" = "Hatem",
+#	"[ 3, 2 ]" = 46,
+#	"[ 1, 3 ]" = 30,
+#	"[ 2, 3 ]" = "Karim",
+#	"[ 3, 3 ]" = 48
 # ]
 
 ? @@( o1.SectionToHashList([2, 2], [3, 3]) )
 #--> [
-#	[ "[ 2, 2 ]", "Dan Mikovitch Mo" ],
-#	[ "[ 3, 2 ]", 28900 ],
-#	[ "[ 2, 3 ]", "Ali Sa" ],
-#	[ "[ 3, 3 ]", 25982 ]
+#	[ "[ 2, 2 ]", "Hatem" ],
+#	[ "[ 3, 2 ]", 46 ],
+#	[ "[ 2, 3 ]", "Karim" ],
+#	[ "[ 3, 3 ]", 48 ]
 # ]
 
-/*==============
-
-? o1.NumberOfColumns() #--> 3
-
-/*--------------
-
-? o1.HasCol(:EMPLOYEE) #--> TRUE
-
-/*--------------
-
-? o1.ColNames() #--> [ "id", "employee", "salary" ]
-
-/*--------------
-
-? o1.ColName(2) #--> "employee"
+proff()
+# Executed in 0.36 second(s)
 
 /*==============
 
-? @@( o1.Cell(2, 2) )	#--> "Dan Mikovitch Mo"
+pron()
 
-? o1.Cell(:EMPLOYEE, 2)	#--> "Dan Mikovitch Mo"
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
 
-? @@( o1.Cell(5, 7) )	#--> ERR: Array Access (Index out of range) ! 
+? o1.NumberOfColumns()
+#--> 3
+
+? o1.HasCol(:NAME)
+#--> TRUE
+
+? o1.ColNames()
+#--> [ "id", "name", "age" ]
+
+? o1.ColName(2)
+#--> "name"
+
+proff()
+# Executed in 0.05 second(s)
 
 /*==============
 
-? o1.NumberOfRows()	#--> 4
-? o1.NumberOfCols()	#--> 3
-? o1.NumberOfCells()	#--> 12
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+? @@( o1.Cell(2, 2) )
+#--> "Hatem"
+
+? o1.Cell(:EMPLOYEE, 2)
+#--> Error message:
+# Syntax error in (employee)! This column name is inexistant.
+
+? o1.Cell(5, 7) )
+#--> Error message:
+# Array Access (Index out of range) ! 
+
+proff()
 
 /*==============
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+? o1.NumberOfRows()
+#--> 3
+
+? o1.NumberOfCols()
+#--> 3
+
+? o1.NumberOfCells()
+#--> 12
+
+proff()
+# Executed in 0.03 second(s)
+
+/*==============
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
 
 ? @@( o1.Header() ) + NL
-#--> [ "id", "employee", "salary" ]
+#--> [ "id", "name", "age" ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*==============
 
-o1.AddCol(:AGE = [ 55, 35, 28, 65 ])
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME 	],
+	[ 10,	"Imed" 	],
+	[ 20,	"Hatem" ],
+	[ 30,	"Karim" ]
+])
+
+o1.AddCol(:AGE = [ 55, 35, 28 ])
 ? @@( o1.Content() )
 #--> [
-#	[ "id", [ 10, 20, 30, 40 ] ],
-#	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ],
-#	[ "salary", [ 35000, 28900, 25982, 49540 ] ],
-#	[ "age", [ 55, 35, 28, 65 ] ]
+#	[ "id", 	[ 10, 20, 30 ] 			],
+#	[ "name", 	[ "Imed", "Hatem", "Karim" ] 	],
+#	[ "age", 	[ 55, 35, 28 ] 			]
 # ]
 
+proff()
+# Executed in 0.05 second(s)
 
 /*==============
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME 	],
+	#---------------#
+	[ NULL,	NULL 	],
+	[ NULL,	NULL 	],
+	[ NULL,	NULL 	]
+])
 
 // A table is empty when all its cells are NULL
-? o1.IsEmpty() #--> FALSE
+? o1.IsEmpty()
+#--> TRUE
+
+proff()
+# Executed in 0.10 second(s)
 
 /*==============
 
-? @@( o1.NthCol(0) )   #--> [ 1, 2, 3, 4 ]
-? @@( o1.NthColXT(0) ) #--> [ "#", 1, 2, 3, 4 ]
+pron()
 
-/*--------------
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
 
 ? @@( o1.NthCol(3) )
-#--> [ 35000, 28900, 25982, 49540 ]
+#--> [ 52, 46, 48 ]
 
-? @@( o1.NthColXT(3) )
-#--> [ "salary", 35000, 28900, 25982, 49540 ]
+proff()
+# Executed in 0.04 second(s)
 
 /*--------------
 
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
 ? @@( o1.FirstColXT() )
-#--> [ "id", 10, 20, 30, 40 ]
+#--> [ "id", 10, 20, 30 ]
 
 ? @@( o1.LastColXT() )
-#--> [ "salary", 35000, 28900, 25982, 49540 ]
+#-->[ "age", 52, 46, 48 ]
+
+proff()
+# Executed in 0.06 second(s)
 
 /*==============
 
-? @@( o1.Row(2) )
-#--> [ 20, "Dan Mikovitch Mo", 28900 ]
+pron()
 
-/*--------------
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+? @@( o1.Row(2) ) + NL
+#--> [ 20, "Hatem", 46 ]
 
 ? @@( o1.Rows() )
 #-->
 # [
-#	[ 10, "Ali Sandy",        35000 ],
-#	[ 20, "Dan Mikovitch Mo", 28900 ],
-#	[ 30, "Ali Sa",           25982 ],
-#	[ 40, "Ali Aziza",        49540 ]
+#	[ 10, "Imed",	52 ],
+#	[ 20, "Hatem", 	46 ],
+#	[ 30, "Karim",	48 ]
 # ]
+
+proff()
+# Executed in 0.08 second(s)
 
 /*==============
 
-o1.AddCol( :THING = [ "Thing1", "Thing2", "Thing3", "Thing4" ] )
-? @@( o1.Content() ) + NL
-#--> [
-#	[ "id", [ 10, 20, 30, 40 ] ],
-#	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ],
-#	[ "salary", [ 35000, 28900, 25982, 49540 ] ],
-#	[ "thing", [ "Thing1", "Thing2", "Thing3", "Thing4" ] ]
-# 
-]
+pron()
 
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
 
-o1.RemoveCol(:THING)
-? @@( o1.Content() ) + NL
-#--> [
-#	[ "id", [ 10, 20, 30, 40 ] ],
-#	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ],
-#	[ "salary", [ 35000, 28900, 25982, 49540 ] ]
-# ]
+//o1.AddCol( :JOB = [ "Pilot", "Designer", "Author", "thing" ] )
+#--> Error message:
+# Incorrect number of cells! paColNameAndData must contain extactly 3 cells.
+
+o1.AddCol( :JOB = [ "Pilot", "Designer", "Author" ] )
+? o1.Show()
+#-->
+# #   ID    NAME   AGE        JOB
+# 1   10    Imed   52      Pilot
+# 2   20   Hatem   46   Designer
+# 3   30   Karim   48     Author
+
+o1.RemoveCol(:JOB)
+o1.Show()
+#-->
+# #   ID    NAME   AGE
+# 1   10    Imed   52
+# 2   20   Hatem   46
+# 3   30   Karim   48
+
+proff()
+# Executed in 0.04 second(s) without Show() function
+# Executed in 1.05 second(s) with Show function
+# TODO: Show() function should be optimised!
 
 /*--------------
 
-o1.RemoveCol([ :ID, :EMPLOYEE ])
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+o1.RemoveCol([ :ID, :AGE ])
 ? @@( o1.Content() )
-#--> [ [ "salary", [ 35000, 28900, 25982, 49540 ] ] ]
+#--> [ [ "name", [ "Imed", "Hatem", "Karim" ] ] ]
+
+proff()
+# Executed in 0.16 second(s)
 
 /*==============
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
 
 ? @@( o1.Cols() )
-/*--> [ "id", "employee", "salary" ]
+#--> [ "id", "name", "age" ]
  
+proff()
+# Executed in 0.04 second(s)
+
 /*==============
 
-? @@( o1.MaxSizeInEachCol() )
-#--> [ 2, 16, 5 ]
+# Functions used internallu to generate the output of Show()
 
-? @@( o1.MaxSizeInEachColXT() )
-#--> [ 1, 2, 16, 5 ]
+pron()
 
-?  @@( o1.MaxSizeInEachRow() )
-#--> [ 9, 16, 6, 9 ]
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+? @@( o1.MaxWidthInEachCol() )
+#--> [ 2, 5, 2 ]
+
+? @@( o1.MaxWidthInEachColXT() )
+#--> [ 1, 2, 5, 2 ]
+
+?  @@( o1.MaxWidthInEachRow() )
+#--> [ 4, 5, 5 ]
 
 ? o1.HeaderToString()
-#--> "#   id           employee   salary"
+#--> "#   ID    NAME   AGE"
+
+proff()
+# Executed in 0.51 second(s)
 
 /*--------------
 
-? o1.MaxSizeInCol("EMPLOYEE") #--> 16
-? o1.MaxSizeInRow(3) #--> 6
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+? o1.MaxWidthInCol("NAME")
+#--> 5
+
+? o1.MaxWidthInRow(3)
+#--> 5
+
+proff()
+# Executed in 0.12 second(s)
 
 /*==============
 
-? @@( o1.Col(3) ) # Same as  o1.ColData(3), o1.Col(:SALARY), and o1.ColData(:SALARY)
-#--> [ 35000, 28900, 25982, 49540 ]
+pron()
 
-/*--------------
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
 
-? o1.ColName(3) #--> salary
+
+? @@( o1.Col(3) ) # Same as  o1.ColData(3), o1.Col(:AGE), and o1.ColData(:AGE)
+#--> [ 52, 46, 48 ]
+
+? o1.ColName(3)
+#--> age
+
+proff()
+# Executed in 0.05 second(s)
 
 /*==============
 
-? @@( o1.SubTable([ :ID, :SALARY ]) ) // Same as o1.TheseColumnsXT([1, 2])
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+
+? @@( o1.TheseColumnsXT([ :ID, :NAME ]) ) // Same as o1.TheseColumnsXT([1, 2])
 #--> [
-#	[ "id", 	[ 10, 20, 30, 40 ] 		],
-#	[ "salary", 	[ 35000, 28900, 25982, 49540 ] 	]
+#	[ "id", 	[ 10, 20, 30 ] 			],
+#	[ "name", 	[ "Imed", "Hatem", "Karim" ] 	]
 # ]
+
+proff()
+# Executed in 0.14 second(s)
 
 /*--------------
 
-? o1.ColNumbersToNames([1, 3])
-#--> [ "id", "salary" ]
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+? @@( o1.ColZ(2) )
+#--> [ [ "Imed", [ 2, 1 ] ], [ "Hatem", [ 2, 2 ] ], [ "Karim", [ 2, 3 ] ] ]
+
+proff()
+# Executed in 0.06 second(s)
 
 /*--------------
 
-? @@( o1.TheseColumns([1, 2]) ) + NL 	// Same as o1.TheseColumns([:ID, :EMPLOYEE])
-					// and o1.TheseColData([:ID, :EMPLOYEE])
-#--> [
-#	[ 10, 20, 30, 40 ],
-#	[ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ]
-# ]
+pron()
 
-? @@( o1.TheseColumnsXT([1, 2]) )
-#--> [
-#	[ "id", [ 10, 20, 30, 40 ] ],
-#	[ "employee", [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ] ]
-# ]
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+? o1.ColNames()
+#--> [ "id", "name", "age" ]
+
+? o1.IsColName(:name)
+#--> TRUE
+
+? o1.IsColNumber(3)
+#--> TRUE
+
+? o1.IsColNameOrNumber(:age)
+#--> TRUE
+
+? o1.AreColNamesOrNumbers([ :name, :age ])
+#--> TRUE
+
+? o1.AreColID([ :name, :age ])
+#--> TRUE
+
+proff()
 
 /*--------------
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+? @@( o1.AllCols() )
+#--> [
+#	[ 10, 20, 30 ],
+#	[ "Imed", "Hatem", "Karim" ],
+#	[ 52, 46, 48 ]
+# ]
+
+? @@( o1.TheseCols([ 1, 3 ]) ) + NL
+#--> [
+#	[ 10, 20, 30 ],
+#	[ 52, 46, 48 ]
+# ]
+
+? @@( o1.ColsXT() )
+#--> [
+#	:ID 	= [ 10, 20, 30 ],
+#	:NAMED 	= [ "Imed", "Hatem", "Karim" ],
+#	:AGE 	= [ 52, 46, 48 ]
+# ]
+
+
+? @@( o1.TheseColsXT([ 1, 3 ]) )
+#--> [
+#	[ "id", [ 10, 20, 30 ] ],
+#	[ "age", [ 52, 46, 48 ] ]
+# ]
+
+? @@( o1.CellsInCols([ :name, :age ]) )
+#--> [ "Imed", "Hatem", "Karim", 52, 46, 48 ]
+
+proff()
+# Executed in 0.31 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+
+? o1.ColNumbersToNames([3, 1])
+#--> [ "age", "id" ]
+
+? @@( o1.ColNamesToNumbers([ :AGE, :ID ]) )
+#--> [ 3, 1 ]
+
+
+proff()
+# Executed in 0.07 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
 
 ? o1.TheseColNames([1, 2]) #--> [ "id", "employee" ]
+#--> [ "id", "name" ]
+
+proff()
+# Executed in 0.04 second(s)
 
 /*==============
 
-? Q(["", "", ""]).AllItemsAreNull() #--> TRUE
+? Q(["", "", ""]).AllItemsAreNull()
+#--> TRUE
 
 /*--------------
 
-? o1.IsEmpty() #--> FALSE
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE, :SALARY ],
+	#--------------------------#
+	[ "001", "Salem", 12499.20 ],
+	[ "002", "Henri", 10890.10 ],
+	[ "003", "Sonia", 12740.30 ]
+])
+
+? o1.IsEmpty()
+#--> FALSE
+
 o1.Erase()
-? o1.IsEmpty() #--> TRUE
-? @@( o1.Content() )
 
-#--> [
-#	[ "id", 	[ NULL, NULL, NULL, NULL ] ],
-#	[ "employee", 	[ NULL, NULL, NULL, NULL ] ],
-#	[ "salary", 	[ NULL, NULL, NULL, NULL ] ]
-# ]
+? o1.IsEmpty()
+#--> TRUE
+
+? o1.Show()
+#-->
+# #   ID    EMPLOYEE   	SALARY
+# 1   NULL  NULL	NULL
+# 2   NULL  NULL	NULL
+# 3   NULL  NULL	NULL
+
+proff()
+# Executed in 0.57 second(s)
 
 /*--------------
 
-? o1.Cell(:EMPLOYEE, 3)	#--> "Ali Sa"
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE, :SALARY ],
+	#--------------------------#
+	[ "001", "Salem", 12499.20 ],
+	[ "002", "Henri", 10890.10 ],
+	[ "003", "Sonia", 12740.30 ]
+])
+
+? o1.Cell(:EMPLOYEE, 3)
+#--> "Sonia"
+
 o1.EraseCell(2, 3)
-? @@( o1.Cell(2, 3) )	#--> NULL
+
+? @@( o1.Cell(2, 3) )
+#--> NULL
+
+proff()
+# Executed in 0.09 second(s)
 
 /*==============
 
-? o1.Cell(:EMPLOYEE, :LastRow)	#--> "Ali Aziza"
+pron()
 
-/*--------------
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE, :SALARY ],
+	#--------------------------#
+	[ "001", "Salem", 12499.20 ],
+	[ "002", "Henri", 10890.10 ],
+	[ "003", "Sonia", 12740.30 ]
+])
+
+? o1.Cell(:EMPLOYEE, :LastRow)
+#--> "Sonia"
+
 
 ? o1.Cell(:FirsCol, :LastRow)
 #--> ERR: Syntax error in (firscol)! Allowed values are
 #	  :First or :Last (or :FirstCol or :LastCol).
 
-/*--------------
-
-? o1.FirstColName() #--> "id"
-? o1.LastColName()  #--> "salary"
+proff()
+# Executed in 0.09 second(s)
 
 /*--------------
 
-? o1.Col(:First) #--> [ 10, "Ali Sandy", 35000 ]
-? o1.Col(:Last)  #--> [ 40, "Ali Aziza", 49540 ]
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE, :SALARY ],
+	#--------------------------#
+	[ "001", "Salem", 12499.20 ],
+	[ "002", "Henri", 10890.10 ],
+	[ "003", "Sonia", 12740.30 ]
+])
+
+? o1.FirstColName()
+#--> "id"
+
+? o1.LastColName()
+#--> "salary"
+
+proff()
+# Executed in 0.04 second(s)
 
 /*--------------
 
-? o1.Row(:First) #--> [ 10, "Ali Sandy", 35000 ]
-? o1.Row(:Last)  #--> [ 40, "Ali Aziza", 49540 ]
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE, :SALARY ],
+	#--------------------------#
+	[ "001", "Salem", 12499.20 ],
+	[ "002", "Henri", 10890.10 ],
+	[ "003", "Sonia", 12740.30 ]
+])
+
+
+? o1.Col(:First)
+#--> [ "001", "002", "003" ]
+
+? o1.Col(:Last)
+#--> [ 12499.20, 10890.10, 12740.30 ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*--------------
+*/
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE, :SALARY ],
+	#--------------------------#
+	[ "001", "Salem", 12499.20 ],
+	[ "002", "Henri", 10890.10 ],
+	[ "003", "Sonia", 12740.30 ]
+])
+
+? o1.Row(:First)
+#--> [ "001", "Salem", 12499.20 ]
+
+? o1.Row(:Last)
+#--> [ "003", "Sonia", 12740.30 ]
+
+proff()
+# Executed in 0.06 second(s)
 
 /*==============
 
@@ -1262,13 +1664,25 @@ o1.EraseCell(2, 3)
 
 /*--------------
 
-? @@( o1.RowXT(2) ) // Same as o1.CellsAndPositionsInRow(2)
-		     // and o1.CellsInRowXT(2)
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+
+? @@( o1.RowZ(2) ) // Same as o1.CellsAndPositionsInRow(2)
 #--> [
-#	[ 20, 			[ 1, 2 ] ],
-#	[ "Dan Mikovitch Mo", 	[ 2, 2 ] ],
-#	[ 28900, 		[ 3, 2 ] ]
+#	[ 20, 	   [ 1, 2 ] ],
+#	[ "Hatem", [ 2, 2 ] ],
+#	[ 46, 	   [ 3, 2 ] ]
 #    ]
+
+proff()
 
 /*--------------
 

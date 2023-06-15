@@ -797,6 +797,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def ReplacePairsW(pcCondition) // TODO
 		/* ... */
+		StzRaise("Inexistant feature in this release!")
 
 	  #-----------------#
 	 #     FINDING     #

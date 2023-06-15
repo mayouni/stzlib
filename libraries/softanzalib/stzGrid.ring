@@ -1167,10 +1167,12 @@ class stzGrid from stzObject
 
 	def SetGridSize(pnNumberOfVLines, pnNumberOfHLines) # TODO
 		/* ... */
+		StzRaise("Inexistant feature in this release!")
 
 	def Extend() # TODO
 		/* ... */
+		StzRaise("Inexistant feature in this release!")
 
 	def Shrink() # TODO
 		/* ... */
-
+		StzRaise("Inexistant feature in this release!")

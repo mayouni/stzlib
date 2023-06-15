@@ -1,6 +1,31 @@
 load "stzlib.ring"
 
 /*-------------
+pron()
+
+o1 = new stzListOfStrings([ "a", "abcde", "abc", "ab", "abcd" ])
+o1.SortBy('len(@string)')
+
+? o1.Content()
+#--> [ "a", "ab", "abc", "abcd", "abcde" ]
+
+proff()
+#--> Executed in 0.30 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
+
+o1.SortBy('len(@item)')
+? o1.Content()
+#--> [ "a", "ab", "abc", "abcd", "abcde" ]
+
+proff()
+# Executed in 0.29 second(s)
+
+/*-------------
 
 ? @@( [ "ONE", "TWO", "THREE" ] )
 #--> [
