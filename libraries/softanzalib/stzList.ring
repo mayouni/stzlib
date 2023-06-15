@@ -6530,12 +6530,14 @@ class stzList from stzObject
 
 	def IsPivotTable() # TODO
 		/* ... */
+		StzRaise("Inexistant feature in this release!")
 
 		def IsAPivotTable()
 			return This.IsPivotTable()
 
 	def IsGraph() # TODO
 		/* ... */
+		StzRaise("Inexistant feature in this release!")
 
 	  #----------------------------#
 	 #   SAME TYPE & SAME VALUE   #
@@ -6835,22 +6837,33 @@ class stzList from stzObject
 		def IsMadeOfItemsEqualTo(pValue)
 			return This.AllItemsAreEqualTo(pValue)
 
+	  #------------------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE NULL STRINGS  #
+	#------------------------------------------#
+
 	def ContainsOnlyNullStrings()
+
 		bResult = TRUE
-		nLen = This.NumberOfItems()
 
 		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			item = This.Item(i)
 
-			if ( NOT isString(aContent[i]) and aContent[i] = "" )
+			item = aContent[i]
+
+			if NOT isString(item) or
+			   ( isString(item) and item != "" )
+
 				bResult = FALSE
 				exit
 			ok
 
 		next
+
 		return bResult
+
+		#< @FunctionAlternativeForms
 
 		def ContainsOnlyEmptyStrings()
 			return This.ContainsOnlyNullStrings()
@@ -6882,6 +6895,12 @@ class stzList from stzObject
 		def IsMadeOfEmptyStrings()
 			return This.ContainsOnlyNullStrings()
 
+		#>
+
+	  #-----------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE LISTS  #
+	#-----------------------------------#
+
 	def ContainsOnlyLists()
 		bResult = TRUE
 		nLen = This.NumberOfItems()
@@ -6907,6 +6926,10 @@ class stzList from stzObject
 		def IsMadeOfLists()
 			return This.ContainsOnlyLists()
 
+	  #-----------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE PAIRS  #
+	#-----------------------------------#
+
 	def AllItemsArePairs()
 		bResult = TRUE
 		nLen = This.NumberOfItems()
@@ -6922,6 +6945,10 @@ class stzList from stzObject
 
 		next
 		return bResult
+
+	  #----------------------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE PAIRS OF NUMBERS  #
+	#----------------------------------------------#
 
 	def AllItemsArePairsOfNumbers()
 		bResult = TRUE
@@ -6944,6 +6971,10 @@ class stzList from stzObject
 		def IsMadeOfPairsOfNumbers()
 			return This.AllItemsArePairsOfNumbers()
 
+	  #----------------------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE PAIRS OF STRINGS  #
+	#----------------------------------------------#
+
 	def AllItemsArePairsOfStrings()
 		bResult = TRUE
 		nLen = This.NumberOfItems()
@@ -6964,6 +6995,10 @@ class stzList from stzObject
 
 		def IsMadeOfPairsOfStrings()
 			return This.AllItemsArePairsOfStrings()
+
+	  #--------------------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE PAIRS OF LISTS  #
+	#--------------------------------------------#
 
 	def AllItemsArePairsOfLists()
 		bResult = TRUE
@@ -6986,6 +7021,10 @@ class stzList from stzObject
 		def IsMadeOfPairsOfLists()
 			return This.AllItemsArePairsOfLists()
 
+	  #----------------------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE PAIRS OF OBJECTS  #
+	#----------------------------------------------#
+
 	def AllItemsArePairsOfObjects()
 		bResult = TRUE
 		nLen = This.NumberOfItems()
@@ -7007,6 +7046,10 @@ class stzList from stzObject
 
 		def IsMadeOfPairsOfObjects()
 			return This.AllItemsArePairsOfObjects()
+
+	  #-----------------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE EMPTY LISTS  #
+	#-----------------------------------------#
 
 	def ContainsOnlyEmptyLists()
 		bResult = TRUE
@@ -7032,6 +7075,10 @@ class stzList from stzObject
 
 		def MadeOfEmptyLists()
 			return This.ContainsOnlyEmptyLists()
+
+	  #---------------------------------------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE LISTS HAVING SAME NUMBER OF ITEMS  #
+	#---------------------------------------------------------------#
 
 	def ContainsOnlyListsWithSameNumberOfItems()
 		bResult = TRUE
@@ -7072,6 +7119,10 @@ class stzList from stzObject
 		def IsMadeOfListsWithSameNumberOfItems()
 			return This.ContainsOnlyListsWithSameNumberOfItems()
 
+	  #-------------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE OBJECTS  #
+	#-------------------------------------#
+
 	def ContainsOnlyObjects()
 		bResult = TRUE
 		nLen = This.NumberOfItems()
@@ -7096,6 +7147,10 @@ class stzList from stzObject
 
 		def IsMadeOfObjects()
 			return This.ContainsOnlyObjects()
+
+	  #-----------------------------------------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE STRINGS CONTAINING VALID RING CODES  #
+	#-----------------------------------------------------------------#
 
 	def ContainsOnlyValidRingCodes()
 		bResult = TRUE
@@ -7125,6 +7180,10 @@ class stzList from stzObject
 
 		def IsMadeOfValidRingCodes()
 			return This.ContainsOnlyValidRingCodes()
+
+	  #---------------------------------------------------------------------#
+	 #  CHECKING IF ALL ITEMS ARE STRINGS CONTAINING SOFTANZA CLASS NAMES  #
+	#---------------------------------------------------------------------#
 
 	def ContainsOnlyStzCalssNames()
 		bResult = TRUE
@@ -7190,12 +7249,14 @@ class stzList from stzObject
 
 	def FindWalker(pcWalker) # TODO
 		/* ... */
+		StzRaise("Inexistant feature in this release!")
 
 	def RemoveWalker(pcWalker)
 		del( @aWalkers, This.FindWalker(pcWalker) )
 
 	def RemoveTheseWalkers(pacNames) # TODO
 		/* ... */
+		StzRaise("Inexistant feature in this release!")
 
 	def RemoveWalkers()
 		@aWalkers = []
@@ -7205,12 +7266,14 @@ class stzList from stzObject
 
 	def CombineTheseWalkers(pacNames) # TODO
 		/* ... */
+		StzRaise("Inexistant feature in this release!")
 
 		def ComposeTheseWalkers(pacNames)
 			return This.CombineTheseWalkers(pacNames)
 
 	def CombineWalkers()
 		/* ... */
+		StzRaise("Inexistant feature in this release!")
 
 		def CombineAllWalkers()
 			This.CombineWalkers()
@@ -7223,6 +7286,7 @@ class stzList from stzObject
 
 	def CombinedWalkers() # TODO
 		/* ... */
+		StzRaise("Inexistant feature in this release!")
 
 		def ComposedWalkers()
 			return This.CombinedWalkers()
@@ -13508,34 +13572,33 @@ class stzList from stzObject
 	def SortBy(pcExpr)  // TODO: TEST IT!
 		/* EXAMPLE
 		o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
-		o1.SortUsing('len(@item)')
+		o1.SortBy('len(@item)')
 		? o1.Content()
 
 		#--> [ "a", "ab", "abc", "abcd", "abcde" ]
 
 		*/
-//? o1.Content()
-		cCode = "value = " + StzCCodeQ(pcExpr).Transpiled()
 
-		oTable = new stzTable([2, This.NumberOfItems()])
-//oTable.Show() + NL
+		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@item", :CS = FALSE))
+			StzRaise("Incorrect param! pcExpr must be a string containing @item keyword.")
+		ok
+
+		acContent = This.Content()
+		nLen = len(acContent)
+
+		cCode = 'value = ' + Q(pcExpr).BoundsRemoved([ "{", "}" ])
+		aValues = []
 		
-		aList = This.List()
-		nLen = len(aList)
-
 		for @i = 1 to nLen
-			@item = aList[@i]
+			@item = acContent[@i]
 			eval(cCode)
-			oTable.ReplaceRow(@i, [ @item, value ])
+			aValues + value
 		next
-//oTable.Show() + NL
 
-		oTable.SortInAscending( :By = oTable.ColName(2) )
-//oTable.Show() + NL
-//sdsd
-		aSortedList = oTable.Col(1)
+		oTable = new stzTable([ :COL1 = acContent, :COL2 = aValues ])
+		acSorted = oTable.SortByQ(:COL2).Col(1)
 
-		This.UpdateWith( aSortedList )
+		This.Update(acSorted)
 
 		#< @FunctionFluentForm
 
@@ -16605,7 +16668,7 @@ class stzList from stzObject
 
 	def NumberOfLevels()
 				
-		oCopy = @@SQ( This.Content() ).RemoveSectionsBetweenIBQ("]","[")
+		oCopy = @@( Q( This.Content() ).RemoveSectionsBetweenIBQ("]","[") )
 		nResult = oCopy.NumberOfOccurrence("[")
 
 		return nResult
@@ -16683,6 +16746,8 @@ class stzList from stzObject
 			+-- nItem3
 		*/
 
+		StzRaise("Unsupported feature yet!")
+
 	def Show()
 		if This.IsHashList()
 			StzHashListQ( This.List() ).Show()
@@ -16700,18 +16765,22 @@ class stzList from stzObject
 
 	def Levels()
 		// TODO
+		StzRaise("Unsupported feature yet!")
 
 	def NthLevel(n)
 		// TODO
+		StzRaise("Unsupported feature yet!")
 
 	def ContentOfLevel(n)
 		// TODO
+		StzRaise("Unsupported feature yet!")
 
 		def ItemsOfLevel(n)
 			return This.ContentOfLevel(n)
 
 	def LevelsAndTheirItems()
 		// TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #-----------------------------------------------------------#
 	 #   SUBLISTS OF THE LIST --> LISTS IN LEVEL 1 OF THE LIST   #
@@ -16953,8 +17022,7 @@ class stzList from stzObject
 			def FindCSQR(pItem, pCaseSensitive, pcReturnType)
 				return This.FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
 
-		#>
-	
+		#>	
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -17790,7 +17858,7 @@ class stzList from stzObject
 
 	def DeepContainsCS(pItem, pCaseSensitive)
 		
-		cList = @@(This.List())
+		cList = @@( This.List() )
 
 		cItem = @@(pItem)
 		if isString(pItem)
@@ -17953,8 +18021,8 @@ class stzList from stzObject
 		]
 		*/
 
-		oListStr = @@SQ( This.Content() )
-		cItem = @@SQ(pItem).FirstAndLastCharsRemoved()
+		oListStr = @@( Q(This.Content()) )
+		cItem = @@( Q(pItem).FirstAndLastCharsRemoved() )
 
 		anPos = oListStr.FindCS(cItem, pCaseSensitive) #--> [21, 52]
 		nLenPos = len(anPos)
@@ -21258,7 +21326,7 @@ class stzList from stzObject
 
 		ok
 	
-		/* ... */
+		aResult = This / n
 
 		return aResult
 
