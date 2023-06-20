@@ -576,6 +576,9 @@ func ring_del(paList, n)
 func ring_copy(p1, p2)
 	return copy(p1, p2)
 
+func ring_len(p)
+	return len(p)
+
 #-----
 
 func StzFindCS(pThing, paIn, pCaseSensitive)

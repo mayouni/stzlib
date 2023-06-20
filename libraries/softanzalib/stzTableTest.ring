@@ -1575,7 +1575,6 @@ proff()
 # Executed in 0.06 second(s)
 
 /*--------------
-*/
 
 pron()
 
@@ -1598,71 +1597,167 @@ proff()
 
 /*==============
 
-? o1.FindCol(:SALARY) #--> 3
-? o1.FindRow([ 20, "Dan Mikovitch Mo", 28900 ]) #--> 2
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE, :SALARY ],
+	#--------------------------#
+	[ "001", "Salem", 12499.20 ],
+	[ "002", "*****", 10000.10 ],
+	[ "003", "Sonia", 12740.30 ],
+	[ "002", "*****", 10000.10 ]
+])
+
+? @@( o1.FindCol(:SALARY) )
+#--> 3
+
+? @@( o1.FindRow([ "002", "*****", 10000.10 ]) )
+#--> [ 2, 4 ]
+
+proff()
+# Executed in 0.20 second(s)
 
 /*--------------
 
-# Finding cells, in column :EMPLOYEE, made of the string "Ali Sa":
-? @@( o1.FindInCol(:EMPLOYEE, "Ali Sa") ) #--> [ [2, 3] ]
+pron()
 
-# And we can be more expressive and say:
-? o1.FindCellsInColumn(:EMPLOYEE, :MadeOf = "Ali Sa")
+o1 = new stzTable([
+	[ :ID,	   :EMPLOYEE, 	:SALARY   ],
+	#---------------------------------#
+	[ "001",   "Salima", 	12499.20  ],
+	[ "002",   "Sonia", 	10000.10  ],
+	[ "003",   "So",	12780.45  ],
+	[ "004",   "GonSonSo", 	12740.30  ],
+	[ "005",   "Mansour", 	10000.10  ],
+	[ "006",   "so", 	14800.10  ]
+])
+
+? @@( o1.FindInCol(:EMPLOYEE, "---") )
+#--> [ ]
+
+? @@( o1.FindInCol(:EMPLOYEE, "So") )
+#--> [ [ 2, 3 ] ]
+
+? @@( o1.FindInColCS(:EMPLOYEE, "So", :CS = FALSE) )
+#--> [ [ 2, 3 ], [ 2, 6 ] ]
+
+
+? @@( o1.FindInCol(:EMPLOYEE, :SubValue = "So") )
+#--> [
+#	[ [ 2, 2 ], [ 1 ] 	],
+#	[ [ 2, 3 ], [ 1 ] 	],
+#	[ [ 2, 4 ], [ 4, 7 ] 	]
+# ]
+
+? @@( o1.FindInColCS(:EMPLOYEE, :SubValue = "So", :CS = FALSE) )
+#--> [
+# 	[ [ 2, 2 ], [ 1 ] 	],
+#	[ [ 2, 3 ], [ 1 ] 	],
+#	[ [ 2, 4 ], [ 4, 7 ] 	],
+#	[ [ 2, 5 ], [ 4 ] 	],
+#	[ [ 2, 6 ], [ 1 ] 	]
+# ]
+
+proff()
+# Executed in 0.62 second(s)
+
+/*===================
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE, :SALARY ],
+	#--------------------------#
+	[ "001", "Salem", 12499.20 ],
+	[ "002", "Henri", 10890.10 ],
+	[ "003", "Sonia", 12740.30 ]
+])
+
+? @@( o1.VerticalSection(:EMPLOYEE, :From = 2, :To = :LastRow) )
+#--> [ "Henri", "Sonia" ]
+
+? @@( o1.VerticalSectionAsPositions(:EMPLOYEE, 2, :LastRow) )
+#--> [ [ 2, 2 ], [ 2, 3 ] ]
+
+proff()
+# Executed in 0.10 second(s)
 
 /*--------------
-*/
-//? @@( o1.VerticalSectionAsPositions(:EMPLOYEE, 2, :LastRow) )
-#--> [ [ 2, 2 ], [ 2, 3 ], [ 2, 4 ] ]
 
-//? @@( o1.VerticalSectionAsPositions(:EMPLOYEE, 2, :LastRow) )
+pron()
 
-/*--------------
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE, :SALARY ],
+	#--------------------------#
+	[ "001", "Salem", 12499.20 ],
+	[ "002", "Henri", 10890.10 ],
+	[ "003", "Sonia", 12740.30 ]
+])
 
-? o1.CellAtPosition(2, 3) #--> "Ali Sa"
+? o1.CellAtPosition(2, 3)
+#--> "Sonia"
 
-? o1.TheseCells([ [ 2, 2 ], [ 2, 3 ], [ 2, 4 ] ]) // Same as o1.CellsAt() and
-					          // CellsAtPositions()
-#--> [ "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ]
+? o1.TheseCells([ [ 2, 1 ], [ 2, 3 ] ])
+#--> [ "Salem", "Sonia" ]
+
+proff()
+# Executed in 0.04 second(s)
 
 /*==============
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE, :SALARY ],
+	#--------------------------#
+	[ "001", "Salem", 12499.20 ],
+	[ "002", "Henri", 10890.10 ],
+	[ "003", "Sonia", 12740.30 ]
+])
 
 ? @@( o1.Col(:EMPLOYEE) )
-#--> [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ]
+#--> [ "Salem", "Henri", "Sonia" ]
 
-/*--------------
-
-? @@( o1.ColXT(:EMPLOYEE) ) // Same as o1.CellsAndPositionsInCol(:EMPLOYEE)
-			     // and o1.CellsInColXT(:EMPLOYEE)
+? @@( o1.ColZ(:EMPLOYEE) ) // Same as o1.CellsAndPositionsInCol(:EMPLOYEE)
+			   // and o1.CellsInColZ(:EMPLOYEE)
 #--> [
-#	["Ali Sandy", 		[2, 1] ],
-#	["Dan Mikovitch Mo", 	[2, 2] ],
-#	["Ali Sa", 		[2, 3] ],
-#	["Ali Aziza", 		[2, 4] ]
-#    ]
+#	[ "Salem", [ 2, 1 ] ],
+#	[ "Henri", [ 2, 2 ] ],
+#	[ "Sonia", [ 2, 3 ] ]
+# ]
 
+proff()
+# Executed in 0.15 second(s)
 
 /*--------------
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE, :SALARY ],
+	#--------------------------#
+	[ "001", "Salem", 12499.20 ],
+	[ "002", "Henri", 10890.10 ],
+	[ "003", "Sonia", 12740.30 ]
+])
 
 ? @@( o1.CellsInCol(:EMPLOYEE) ) // same as Col(:EMPLOYEE)
-#--> [ "Ali Sandy", "Dan Mikovitch Mo", "Ali Sa", "Ali Aziza" ]
+#--> [ "Salem", "Henri", "Sonia" ]
 
 ? @@( o1.CellsInColAsPositions(:EMPLOYEE) ) // same as ColAsPositions(:EMPLOYEE)
-#--> [ [2, 1], [2, 2], [2, 3], [2, 4] ]
+#--> [ [2, 1], [2, 2], [2, 3] ]
 
-? @@( o1.CellsInColXT(:EMPLOYEE) )
+? @@( o1.CellsInColZ(:EMPLOYEE) )
 #--> [
-#	[ "Ali Sandy", 		[2, 1] ],
-#	[ "Dan Mikovitch Mo", 	[2, 2] ],
-#	[ "Ali Sa", 		[2, 3] ],
-#	[ "Ali Aziza", 		[2, 4] ]
-#    ]
+#	[ "Salem", [ 2, 1 ] ],
+#	[ "Henri", [ 2, 2 ] ],
+#	[ "Sonia", [ 2, 3 ] ]
+# ]
+
+proff()
+# Executed in 0.18 second(s)
 
 /*==============
-
-? @@( o1.Row(2) )
-#--> [ 20, "Dan Mikovitch Mo", 28900 ]
-
-/*--------------
 
 pron()
 
@@ -1683,72 +1778,349 @@ o1 = new stzTable([
 #    ]
 
 proff()
+# Executed in 0.05 second(s)
 
 /*--------------
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
 
 ? @@( o1.CellsInRow(2) ) + NL // same as Row(2)
-#--> [ 20, "Dan Mikovitch Mo", 28900 ]
+#--> [ 20, "Hatem", 46 ]
 
-//? @@( o1.CellsInRowAsPositions(2) ) + NL // same as RowAsPositions(2)
+? @@( o1.CellsInRowAsPositions(2) ) + NL // same as RowAsPositions(2)
 #--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
 
-? @@( o1.CellsInRowXT(2) )
+? @@( o1.CellsInRowZ(2) )
 #--> [
-#	[ 20, 			[ 1, 2 ] ],
-#	[ "Dan Mikovitch Mo", 	[ 2, 2 ] ],
-#	[ 28900, 		[ 3, 2 ] ]
+#	[ 20, 		[ 1, 2 ] ],
+#	[ "Hatem", 	[ 2, 2 ] ],
+#	[ 46, 		[ 3, 2 ] ]
 #    ]
+
+proff()
+# Executed in 0.08 second(s)
 
 /*==============
 
-# Finding the cells, in column :EMPLOYEE, CONTAINING the substring "Ali":
-? @@( o1.FindInCellsInCol(:EMPLOYEE, "Ali") ) + NL
-#--> [ [ 1 ], [ ], [ 1 ], [ 1 ] ]
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME ],
+	[ "Andy", 	"Maestro" ],
+	[ "Ali", 	"Abraham" ],
+	[ "Ali",	"Ali"     ]
+])
 
-? @@( o1.FindInCellsInColXT(:EMPLOYEE, "Ali") )
+? @@( o1.FindInCol( :FIRSTNAME, :Value = "Ali" ) )
+#--> [ [ 1, 2], [1, 3] ]
+
+? @@( o1.FindInCol( :FIRSTNAME, :SubValue = "a" ) )
+#--> [ ]
+
+? @@( o1.FindInColCS( :LASTNAME, :SubValue = "a", :CS = FALSE ) )
 #--> [
-#	[ [ 1 ], [ 2, 1 ] ],
-#	[ [ 1 ], [ 2, 3 ] ],
-#	[ [ 1 ], [ 2, 4 ] ]
-#    ]
+#	[ [2, 1], [2]    ],
+#	[ [2, 2], [1, 4, 6] ],
+#	[ [2, 3], [1] ]
+# ]
+
+proff()
+# Executed in 4.37 second(s)
 
 /*==============
 
-? o1.Cell(:EMPLOYEE, 2) #--> Dan Mikovitch Mo
-? @@( o1.FindInCell(:EMPLOYEE, 2, "Ali") ) #--> []
-? @@( o1.FindInCell(:EMPLOYEE, 2, "Mo") )  #--> [ 15 ]
+pron()
+
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME ],
+	[ "Andy", 	"Maestro" ],
+	[ "Alibaba", 	"Abraham" ],
+	[ "Alibaba",	"AliAli"  ]
+])
+
+? o1.Cell(:FIRSTNAME, 2)
+#--> Alibaba
+
+? @@( o1.FindInCell(:FIRSTNAME, 2, "ba") )
+#--> [ 4, 6 ]
+
+? @@( o1.FindInCell(:LASTNAME, 3, "Ali") )
+#--> [ 1, 4 ]
+
+proff()
+# Executed in 0.18 second(s)
 
 /*--------------
 
-// Finding a subvalue in a number of cells
-? @@( o1.FindInCells([ [2, 1], [1, 2], [2, 2], [2, 3] ], "Ali") )
-#--> [
-#	[ [ 2, 1 ], [ 1 ] ],
-#	[ [ 2, 3 ], [ 1 ] ]
-#    ]
+pron()
 
-// Finding a subvalue inside the cells of a given column
-? @@( o1.FindInCells( o1.ColCellsAsPositions(:EMPLOYEE), "Ali" ) )
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME ],
+	[ "Andy", 	"Maestro" ],
+	[ "Alibaba", 	"Abraham" ],
+	[ "Alibaba",	"AliAli"  ]
+])
+
+? @@( o1.ColCellsAsPositions(:ANY) )
+#--> Error message:
+# Incorrect param value! pCol is not a valid column identifier.
+
+? @@( o1.ColCellsAsPositions(:FIRSTNAME) )
+#--> [ [ 1, 1 ], [ 1, 2 ], [ 1, 3 ] ]
+
+proff()
+
+/*--------------
+
+pron()
+
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME ],
+
+	[ "Andy", 	"Maestro" ],
+	[ "Ali", 	"Abraham" ],
+	[ "AliAli",	"Ali"     ]
+])
+
+? @@( o1.FindInCells( [ [1, 1], [1, 2], [1, 3] ], :Value = "Ali" ) ) + NL
+#--> [ [ 1, 2 ] ]
+
+? @@( o1.FindInCells( [ [1, 1], [1, 2], [1, 3] ], :SubValue = "Ali" ) ) + NL
 #--> [
-#	[ [ 2, 1 ], [ 1 ] ],
+#	[ [ 1, 2 ], [ 1 ] ],
+#	[ [ 1, 3 ], [ 1, 4 ] ]
+# ]
+
+? @@( o1.FindInCells( [ [1, 1], [1, 2], [1, 3] ], "Ali" ) )
+#--> [
+#	[ [ 1, 2 ], [ 1 ] ],
+#	[ [ 1, 3 ], [ 1, 4 ] ]
+# ]
+
+proff()
+
+/*--------------
+
+pron()
+
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME ],
+
+	[ "Andy", 	"Maestro" ],
+	[ "Ali", 	"Abraham" ],
+	[ "AliAli",	"Ali"     ],
+	[ "Ali",	"Ben Ali" ]
+])
+
+? @@( o1.FindInCol( :FIRSTNAME, :Value = "Ali" ) ) + NL
+#--> [ [ 1, 2 ], [ 1, 4 ] ]
+
+? @@( o1.FindInCol( :FIRSTNAME, :SubValue = "Ali" ) ) + NL
+#--> [
+#	[ [ 1, 2 ], [ 1 ] ],
+#	[ [ 1, 3 ], [ 1, 4 ] ],
+#	[ [ 1, 4 ], [ 1 ] ]
+# ]
+
+? @@( o1.FindInColCS( :LASTNAME, :SubValue = "A", :CS = FALSE ) )
+#-->[
+#	[ [ 2, 1 ], [ 2 ] ],
+#	[ [ 2, 2 ], [ 1, 4, 6 ] ],
 #	[ [ 2, 3 ], [ 1 ] ],
-#	[ [ 2, 4 ], [ 1 ] ]
-#    ]
+#	[ [ 2, 4 ], [ 5 ] ]
+# ]
 
-// Same as above:
-? @@( o1.FindInCellsInColumn(:EMPLOYEE, "Ali") )
-
-// Finding a suvalue inside the cells of a given row
-? @@( o1.FindInCells( o1.RowCellsAsPositions(3), "Ali" ) )
-#--> [ [ [ 2, 3 ], [ 1 ] ] ]
-
-// Same as above
-? @@( o1.FindInCellsInRow(3, "Ali") )
+proff()
+# Executed in 0.33 second(s)
 
 /*--------------
 
-? o1.NumberOfOccurrenceInCellsInCol(:EMPLOYEE, "Ali") #--> 3
-? o1.NumberOfOccurrenceInCellsInRow(3, "Ali") #--> 1
+pron()
+
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME ],
+	[ "Andy", 	"Maestro" ],
+	[ "Ali", 	"Abraham" ],
+	[ "Alibaba",	"AliAli"  ]
+])
+
+? @@( o1.FindInRow(3, :SubValue = "Ali") )
+#--> [
+# 	[ [ 1, 3 ], [ 1 ] ],
+# 	[ [ 2, 3 ], [ 1, 4 ] ]
+# ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzTable([
+	[ :NAME,	:AGE ],
+	[ "Ali",	24   ],
+	[ "Lio",	25   ],
+	[ "Dan",	42   ]
+])
+
+? o1.CellQ(:NAME, 2).Conttains("io") # NOTE: A misspelled form of Contains()
+#--> TRUE
+
+proff()
+
+/*--------------
+
+pron()
+
+o1 = new stzTable([
+	[ :NAME,	:AGE ],
+	[ "Ali",	24   ],
+	[ "Lio",	25   ],
+	[ "Dan",	42   ]
+])
+
+
+? o1.CellContainsSubValue(:NAME, 2, "io")
+#--> TRUE
+
+? o1.CellXT(:NAME, 2, :ContainsSubValue, "io")
+#--> TRUE
+
+proff()
+
+/*--------------
+
+pron()
+
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME ],
+
+	[ "Andy", 	"Maestro" ],
+	[ "Ali", 	"Abraham" ],
+	[ "AliAli",	"Ali"     ],
+	[ "Ali",	"Ben Ali" ]
+])
+
+? o1.NumberOfOccurrenceInCol(:FIRSTNAME, "Ali")
+#--> 2
+
+? o1.NumberOfOccurrenceInCol(:FIRSTNAME, :OfValue = "Ali")
+#--> 2
+
+? o1.NumberOfOccurrenceInCol(:FIRSTNAME, :OfSubValue = "Ali")
+#--> 4
+
+? o1.NumberOfOccurrenceXT(:InCol = :FIRSTNAME, :OfSubValue = "Ali")
+#--> 4
+
+? o1.NumberOfOccurrenceXT(:InRow = 3, :OfSubValue = "Ali")
+#--> 3
+
+? o1.NumberOfOccurrenceInRow(3, "Ali")
+#--> 1
+
+? o1.NumberOfOccurrenceInCell(2, 3, :OfSubValue = "Ali")
+#--> 1
+
+? o1.NumberOfOccurrenceXT(:InCell = [ 2, 3], :OfSubValue = "Ali")
+#--> 1
+
+proff()
+# Executed in 0.32 second(s)
+
+/*======================
+
+pron()
+
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
+	[ "Andy", 	"Maestro",	"Programmer" 	],
+	[ "Ali", 	"Abraham",	"Designer"	],
+	[ "Alibaba",	"AliAli",	"Tester"	]
+])
+
+? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], "Ali" ) )
+#--> [ [ 1, 2 ] ]
+
+# Same as:
+? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], :Value = "Ali" ) ) # Added the :Value named param
+#--> [ [ 1, 2 ] ]
+
+? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], :SubValue = "Ali" ) )
+#--> [
+#	[ [ 1, 2 ], [ 1 ] ],
+#	[ [ 1, 3 ], [ 1 ] ],
+#	[ [ 2, 3 ], [ 1, 4 ] ]
+# ]
+
+
+proff()
+# Executed in 0.28
+
+/*--------------
+
+pron()
+
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
+	[ "Andy", 	"Maestro",	"Programmer" 	],
+	[ "Ali", 	"Abraham",	"Designer"	],
+	[ "Alibaba",	"AliAli",	"Tester"	]
+])
+
+? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], "Ali" ) )
+#--> [ [ 1, 2 ] ]
+# Executed in 0.11 second(s)
+
+# If you need a better performance then use column numbers instead
+# of column names:
+
+? @@( o1.FindInCols( [ 1, 2 ], "Ali" ) )
+#--> [ [ 1, 2 ] ]
+# Executed in 0.06 second(s)
+
+proff()
+# Executed in 0.15 second(s)
+
+/*--------------
+*/
+pron()
+
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
+	#-----------------------------------------------#
+	[ "Andy", 	"Maestro",	"Programmer" 	],
+	[ "Ali", 	"Abraham",	"Designer"	],
+	[ "Alibaba",	"AliAli",	"Tester"	]
+])
+
+? o1.ColContains(2, "Ali")
+#--> FALSE
+
+? o1.ColContains(2, :SubValue = "Ali")
+#--> TRUE
+
+? o1.ColsContain([ :FIRSTNAME, :JOB ], "Ali")
+#--> TRUE
+
+? o1.ColsContain([ :LASTNAME, :JOB ], "Ali")
+#--> FALSE
+
+? o1.ColsContain([ :LASTNAME, :JOB ], :SubValue = "Ali")
+#--> TRUE
+
+? @@( o1.FindInCols([ :LASTNAME, :JOB ], :SubValue = "Ali") )
+# [ [ [ 2, 3 ], [ 1, 4 ] ] ]
+
+proff()
+# Executed in 0.40 second(s)
 
 /*==============
 
@@ -2299,7 +2671,7 @@ o1 = new stzTable([
 ? @@( o1.FindLastCS(:SubValue = "A", :CS = FALSE) ) #--> [ [ 2, 3 ], 2 ]
 
 /*-------------
-
+*/
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
 	[ 10,	"Ali",		35000	],
@@ -2346,7 +2718,7 @@ o1 = new stzTable([
 ])
 
 ? o1.Cell(:EMPLOYEE, 3) #--> "Han"
-? @@( o1.CellXT(:EMPLOYEE, 3) ) + NL #--> [ "Han", [2, 3] ]
+? @@( o1.CellZ(:EMPLOYEE, 3) ) + NL #--> [ "Han", [2, 3] ]
 
 ? o1.Count( :Cells = "Ali" ) #--> 2
 	# Same as NumberOfOccurrence( :OfCell = "Ali" )
