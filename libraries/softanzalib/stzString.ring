@@ -25438,6 +25438,16 @@ def ReplaceIBS()
 
 		#>
 
+		#< @FunctionMisspelledForm
+	
+		def CottainsCS(pcSubStr, pCaseSensitive)
+			return This.ContainsCS(pcSubStr, pCaseSensitive)
+
+		def ConttainsCS(pcSubStr, pCaseSensitive)
+			return This.ContainsCS(pcSubStr, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def Contains(pcSubStr)
@@ -25453,6 +25463,16 @@ def ReplaceIBS()
 
 		def ContainsNo(pcSubStr)
 			return NOT This.Contains(pcSubStr)
+
+		#>
+
+		#< @FunctionMisspelledForm
+	
+		def Cottains(pcSubStr)
+			return This.Contains(pcSubStr)
+
+		def Conttains(pcSubStr)
+			return This.Contains(pcSubStr)
 
 		#>
 

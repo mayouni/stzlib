@@ -15826,6 +15826,17 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForm
+	
+		def CottainsCS(pItem, pCaseSensitive)
+			return This.ContainsCS(pItem, pCaseSensitive)
+
+		def ConttainsCS(pItem, pCaseSensitive)
+			return This.ContainsCS(pItem, pCaseSensitive)
+
+		#>
+
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def Contains(pItem)
@@ -15863,6 +15874,16 @@ class stzList from stzObject
 			ok
 
 			return This.ContainsNoneOfThese([pItem1, pItem2])
+
+		#>
+
+		#< @FunctionMisspelledForm
+	
+		def Cottains(pItem)
+			return This.Contains(pItem)
+
+		def Conttains(pItem)
+			return This.ContainsCS(pItem)
 
 		#>
 
@@ -23655,6 +23676,24 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsInCellNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :InCell)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInCellsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :InCells)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	#--
 
 	def IsSubValueNamedParam()
@@ -23719,6 +23758,23 @@ class stzList from stzObject
 		def IsOfColumnNamedParam()
 			return This.IsOfColNamedParam()
 
+	def IsOfColOrColumnNamedParam()
+		if This.IsOfColNamedParam() or This.IsOfColumnNamedParam()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsOfColumnOrColNamedParam()
+			return This.IsOfColOrColumnNamedParam()
+
+		def IsOfColOrOfColumnNamedParam()
+			return This.IsOfColOrColumnNamedParam()
+
+		def IsOfColumnOrOfColNamedParam()
+			return This.IsOfColOrColumnNamedParam()
+
 	def IsInColNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and (This[1] = :InCol or This[1] = :InColumn) )
@@ -23730,6 +23786,23 @@ class stzList from stzObject
 
 		def IsInColumnNamedParam()
 			return This.IsInColNamedParam()
+
+	def IsInColOrColumnNamedParam()
+		if This.IsInColNamedParam() or This.IsInColumnNamedParam()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsInColumnOrColNamedParam()
+			return This.IsInColOrColumnNamedParam()
+
+		def IsInColOrInColumnNamedParam()
+			return This.IsInColOrColumnNamedParam()
+
+		def IsInColumnOrInColNamedParam()
+			return This.IsInColOrColumnNamedParam()
 
 	def IsColsNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -23755,6 +23828,24 @@ class stzList from stzObject
 		def IsOfColumnsNamedParam()
 			return This.IsOfColsNamedParam()
 
+	def IsOfColsOrColumnsNamedParam()
+		if This.IsOfColsNamedParam() or This.IsOfColumnsNamedParam()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsOfColumnsOrColsNamedParam()
+			return This.IsOfColsOrColumnsNamedParam()
+
+		def IsOfColsOrOfColumnsNamedParam()
+			return This.IsOfColsOrColumnsNamedParam()
+
+		def IsOfColumnsOrOfColsNamedParam()
+			return This.IsOfColsOrColumnsNamedParam()
+
+
 	def IsInColsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and (This[1] = :InCols or This[1] = :InColumns) )
@@ -23766,6 +23857,23 @@ class stzList from stzObject
 
 		def IsInColumnsNamedParam()
 			return This.IsInColsNamedParam()
+
+	def IsInColsOrColumnsNamedParam()
+		if This.IsInColsNamedParam() or This.IsInColumnsNamedParam()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsInColumnsOrColNamedParam()
+			return This.IsInColsOrColumnsNamedParam()
+
+		def IsInColsOrInColumnsNamedParam()
+			return This.IsInColsOrColumnsNamedParam()
+
+		def IsInColumnsOrInColNamedParam()
+			return This.IsInColsOrColumnsNamedParam()
 
 	#--
 
