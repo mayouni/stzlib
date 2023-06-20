@@ -2035,7 +2035,37 @@ o1 = new stzTable([
 proff()
 # Executed in 0.32 second(s)
 
-/*======================
+/*=====================
+
+pron()
+
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
+	[ "Andy", 	"Maestro",	"Programmer" 	],
+	[ "Ali", 	"Abraham",	"Designer"	],
+	[ "Alibaba",	"AliAli",	"Tester"	]
+])
+
+? o1.NumberOfOccurrenceInCols([ :FIRSTNAME, :LASTNAME ], "Ali")
+#--> 1
+
+? @@( o1.FindInCols([ :FIRSTNAME, :LASTNAME ], "Ali") )
+#--> [ [ 1, 2 ] ]
+
+? o1.NumberOfOccurrenceInCols([ :FIRSTNAME, :LASTNAME ], :OfSubValue = "Ali")
+#--> 4
+
+? @@( o1.FindInCols([ :FIRSTNAME, :LASTNAME ], :SubValue = "Ali") )
+#--> [
+#	[ [ 1, 2 ], [ 1 ] ],
+#	[ [ 1, 3 ], [ 1 ] ],
+#	[ [ 2, 3 ], [ 1, 4 ] ]
+# ]
+
+proff()
+# Executed in 0.36 second(s)
+
+/*----------------------
 
 pron()
 
@@ -2090,7 +2120,7 @@ proff()
 # Executed in 0.15 second(s)
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -2122,7 +2152,82 @@ o1 = new stzTable([
 proff()
 # Executed in 0.40 second(s)
 
-/*==============
+/*===============================================================
+
+pron()
+
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
+	[ "Andy", 	"Maestro",	"Programmer" 	],
+	[ "Ali", 	"Abraham",	"Designer"	],
+	[ "Alibaba",	"AliAli",	"Tester"	]
+])
+
+? @@( o1.RowAsPositions(2) )
+#--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
+
+? @@( o1.RowsAsPositions([ 1 , 3 ]) )
+#--> [
+#	[ 1, 1 ], [ 2, 1 ], [ 3, 1 ],
+#	[ 1, 3 ], [ 2, 3 ], [ 3, 3 ]
+# ]
+
+? o1.NumberOfOccurrenceInRows([ 2, 3 ], "Ali")
+#--> 1
+
+? @@( o1.FindInRows([ 2, 3 ], "Ali") )
+#--> [ [ 1, 2 ] ]
+
+? o1.NumberOfOccurrenceInRows([ 2, 3 ], :OfSubValue = "Ali")
+#--> 4
+
+? @@( o1.FindInRows([ 2, 3 ], :SubValue = "Ali") )
+#--> [
+#	[ [ 1, 2 ], [ 1 ] ],
+#	[ [ 1, 3 ], [ 1 ] ],
+#	[ [ 2, 3 ], [ 1, 4 ] ]
+# ]
+
+proff()
+# Executed in 0.20 second(s)
+
+/*--------------
+*/
+pron()
+
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
+	#-----------------------------------------------#
+	[ "Andy", 	"Maestro",	"Programmer" 	],
+	[ "Ali", 	"Abraham",	"Designer"	],
+	[ "Alibaba",	"AliAli",	"Tester"	]
+])
+
+? o1.RowContains(3, "Ali")
+#--> FALSE
+
+? o1.RowContains(3, :SubValue = "Ali")
+#--> TRUE
+
+? o1.RowsContain([ 1, 3 ], "Ali")
+#--> FALSE
+
+? o1.RowsContain([ 1, 2 ], "Ali")
+#--> TRUE
+
+? o1.RowsContain([ 1, 3 ], :SubValue = "Ali")
+#--> TRUE
+
+? @@( o1.FindInRows([ 1, 3 ], :SubValue = "Ali") )
+#--> [
+#	[ [ 1, 3 ], [ 1 ] ],
+#	[ [ 2, 3 ], [ 1, 4 ] ]
+# ]
+
+proff()
+# Executed in 0.20 second(s)
+
+/*===============================================================
 
 ? o1.FindCol(:SALARY) #--> 3
 
