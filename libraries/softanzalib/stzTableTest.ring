@@ -1831,7 +1831,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 4.37 second(s)
+# Executed in 4.32 second(s)
 
 /*==============
 
@@ -1877,7 +1877,7 @@ o1 = new stzTable([
 proff()
 
 /*--------------
-
+*/
 pron()
 
 o1 = new stzTable([
@@ -1892,6 +1892,8 @@ o1 = new stzTable([
 #--> [ [ 1, 2 ] ]
 
 ? @@( o1.FindInCells( [ [1, 1], [1, 2], [1, 3] ], :SubValue = "Ali" ) ) + NL
+# NOTE: In place of :SubValue = ... you can say :CellPart or :SubPart = ...
+
 #--> [
 #	[ [ 1, 2 ], [ 1 ] ],
 #	[ [ 1, 3 ], [ 1, 4 ] ]
@@ -2192,7 +2194,7 @@ proff()
 # Executed in 0.20 second(s)
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -2229,29 +2231,43 @@ proff()
 
 /*===============================================================
 
-? o1.FindCol(:SALARY) #--> 3
+pron()
 
-/*--------------
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
+	#-----------------------------------------------#
+	[ "Andy", 	"Maestro",	"Programmer" 	],
+	[ "Ali", 	"Abraham",	"Designer"	],
+	[ "Alibaba",	"AliAli",	"Tester"	]
+])
 
-? @@( o1.FindCell("Dan Mikovitch Mo") )
+? o1.FindCol(:JOB)
+#--> 3
+
+? @@( o1.FindCell("Abraham") )
 #--> [ [ 2, 2 ] ]
 
-? @@( o1.FindCell("Ali Sandy") )
-#--> [ [ 2, 1 ] ]
+? @@( o1.FindCell("Programmer") )
+#--> [ [ 3, 1 ] ]
+
+proff()
+# Executed in 0.15 second(s)
 
 /*--------------
+*/
+
+pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	#-------------------------------------#
 	[     "Red",     "White",    "Yellow" ],
 	[    "Blue",       "Red",       "Red" ],
 	[    "Blue",     "Green",   "Magenta" ],
 	[   "White",      "Gray",     "Black" ]
 ])
 
-/*------------
-
-? @@( o1.FindAll("Red") )
+? @@( o1.Find("Red") )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
 ? @@( o1.FindInCol(:PALETTE1, "Blue") )
@@ -2259,6 +2275,9 @@ o1 = new stzTable([
 
 ? @@( o1.FindInRow(2, "Red") ) 
 #--> [ [ 2, 2 ], [ 2, 3 ] ]
+
+proff()
+# Executed in 0.20 second(s)
 
 /*===============
 

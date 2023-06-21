@@ -3532,18 +3532,20 @@ Class stzTable
 	 #  FINDING A GIVEN VALUE OR SUBVALUE IN A GIVEN CELL  #
 	#=====================================================#
 
-	def FindInCellCS(pCellCol, pCellRow, pValueOrSubValue, pCaseSensitive)
+	def FindInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
 		bValue = FALSE
 		bSubValue = TRUE
 
-		if isList(pValueOrSubValue)
-			if Q(pValueOrSubValue).IsValueNamedParam()
-				pValueOrSubValue = pValueOrSubValue[2]
+		if isList(pCellValueOrSubValue)
+			oTemp = Q(pCellValueOrSubValue)
+
+			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+				pCellValueOrSubValue = pCellValueOrSubValue[2]
 				bValue = TRUE
 				bSubValue = FALSE
 
-			but Q(pValueOrSubValue).IsSubValueNamedParam()
-				pValueOrSubValue = pValueOrSubValue[2]
+			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+				pCellValueOrSubValue = pCellValueOrSubValue[2]
 				bValue = FALSE
 				bSubValue = TRUE
 			ok
@@ -3551,19 +3553,19 @@ Class stzTable
 		ok
 
 		if bValue
-			bResult = This.FindCellCS(pCellCol, pCellRow, pValueOrSubValue, pCaseSensitive)
+			bResult = This.CellQ(pCellCol, pCellRow).IsEqualToCs(pCellValueOrSubValue, pCaseSensitive)
 			return bResult
 
 		else // bSubValue
 
-			anResult = This.CellQ(pCellCol, pCellRow).FindCS(pValueOrSubValue, pCaseSensitive)
+			anResult = This.CellQ(pCellCol, pCellRow).FindCS(pCellValueOrSubValue, pCaseSensitive)
 			return anResult
 		ok
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindInCell(pCellCol, pCellRow, pValue)
-		return This.FindInCellCS(pCellCol, pCellRow, pValue, :CaseSensitive = TRUE)
+	def FindInCell(pCellCol, pCellRow, pCellValueOrSubValue)
+		return This.FindInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, :CaseSensitive = TRUE)
 
 	  #---------------------------------------------#
 	 #  FINDING A GIVEN VALUE INSIDE A GIVEN CELL  #
@@ -3589,7 +3591,7 @@ Class stzTable
 	 #  FINDING POSITIONS OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN A GIVEN NUMBER OF CELLS  #
 	#================================================================================================#
 
-	def FindAllInCellsCS(paCells, pValueOrSubValue, pCaseSensitive)
+	def FindAllInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)
 		if NOT ( isList(paCells) and Q(paCells).IsListOfPairs() )
 			StzRaise("Incorrect param type! paCells must be a list of pairs.")
 		ok
@@ -3597,10 +3599,24 @@ Class stzTable
 		bValue = FALSE
 		bSubValue = TRUE
 
-		if isList(pValueOrSubValue) and Q(pValueOrSubValue).IsValueNamedParam()
-			bValue = TRUE
-			bSubValue = FALSE
-			pValueOrSubValue = pValueOrSubValue[2]
+		if isList(pCellValueOrSubValue)
+
+			oTemp = Q(pCellValueOrSubValue)
+
+			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+
+				bValue = TRUE
+				bSubValue = FALSE
+				pCellValueOrSubValue = pCellValueOrSubValue[2]
+
+			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+
+				bValue = FALSE
+				bSubValue = TRUE
+				pCellValueOrSubValue = pCellValueOrSubValue[2]
+
+			ok
+
 		ok
 
 		nLen = len(paCells)
@@ -3610,7 +3626,7 @@ Class stzTable
 
 			for i = 1 to nLen
 
-				if Q( This.Cell(paCells[i][1], paCells[i][2]) ).IsEqualToCS(pValueOrSubValue, pCaseSensitive)
+				if Q( This.Cell(paCells[i][1], paCells[i][2]) ).IsEqualToCS(pCellValueOrSubValue, pCaseSensitive)
 					aResult + paCells[i]
 				ok
 			next
@@ -3618,9 +3634,9 @@ Class stzTable
 		else // bSubValue
 
 			for i = 1 to nLen
-				anPos = This.FindInCellCS(paCells[i][1], paCells[i][2], pValueOrSubValue, pCaseSensitive)
-				if len(anPos) > 0
-					aResult + [ paCells[i], anPos ]
+				aPos = This.FindSubValueInCellCS(paCells[i][1], paCells[i][2], pCellValueOrSubValue, pCaseSensitive)
+				if len(aPos) > 0
+					aResult + [ paCells[i], aPos ]
 				ok
 			next
 		ok
@@ -4658,8 +4674,22 @@ Class stzTable
 		     ]
 		*/
 
-		aResult = This.FindInCells( This.RowCellsAsPositions(pRow), pCellValueOrSubValue )
-		return aResult
+		aCellsPos = This.RowCellsAsPositions(pRow)
+
+		if isList(pCellValueOrSubValue)
+			oTemp = Q(pCellValueOrSubValue)
+
+			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+				return This.FindValueInCellsCS(aCellsPos, pCellValueOrSubValue[2], pCaseSensitive)
+
+			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+				return This.FindSubValueInCellsCS(aCellsPos, pCellValueOrSubValue[2], pCaseSensitive)
+
+			ok
+		ok
+
+		return This.FindValueInCellsCS(aCellsPos, pCellValueOrSubValue, pCaseSensitive)
+
 
 		#-- WITHOUT CASESENSITIVITY
 
@@ -5092,21 +5122,18 @@ Class stzTable
 		     ]
 		*/
 
-		bValue = TRUE
-		bSubValue = FALSE
-
 		aCellsPositions = This.RowsToCellsAsPositions(panRows)
 
 		if isList(pCellValueOrSubValue)
-			oTemp = Q(pCellValueOrSubValue)
-			if oTemp.IsSubValueNamedParam()
 
-				return This.FindInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
-		
-			but oTemp.IsValueNamedParam()
-				
+			oTemp = Q(pCellValueOrSubValue)
+
+			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
 				return This.FindValueInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
 		
+			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+				return This.FindInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
+				
 			ok
 		ok
 
@@ -5529,12 +5556,13 @@ Class stzTable
 		aRowPos = This.RowsAsPositions(panRows)
 
 		if isList(pCellValueOrSubValue)
+
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsValueNamedParam()
+			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
 				return This.ContainsValueInCellsCS(aRowPos, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oTemp.IsSubValueNamedParam()
+			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
 				return This.ContainsSubValueInCellsCS(aRowPos, pCellValueOrSubValue[2], pCaseSensitive)
 
 			ok
@@ -5668,8 +5696,20 @@ Class stzTable
 		pCol = This.ColToName(pCol)
 		aCellsPositions = This.ColAsPositions(pCol)
 
-		aResult = This.FindInCellsCS(aCellsPositions, pCellValueOrSubValue, pCaseSensitive)
-		return aResult
+		if isList(pCellValueOrSubValue)
+
+			oTemp = Q(pCellValueOrSubValue)
+
+			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+				return This.FindValueInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
+
+			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+				return This.FindSubValueInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
+
+			ok
+		ok
+
+		return This.FindValueInCellsCS(aCellsPositions, pCellValueOrSubValue, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -6422,12 +6462,10 @@ Class stzTable
 
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsValueNamedParam()
-
+			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
 				return This.ContainsValueInCellsCS(aCellsPos, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oTemp.IsSubValueNamedParam()
-
+			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
 				return This.ContainsSubValueInCellsCS(aCellsPos, pCellValueOrSubValue[2], pCaseSensitive)
 
 			ok
@@ -6626,12 +6664,11 @@ Class stzTable
 
 		if isList(pCellValueOrSubValue)
 			oTemp = Q(pCellValueOrSubValue)
-			if oTemp.IsSubValueNamedParam()
 
+			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
 				return This.FindInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
 		
-			but oTemp.IsValueNamedParam()
-				
+			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
 				return This.FindValueInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
 		
 			ok
@@ -7354,10 +7391,10 @@ Class stzTable
 		if isList(pCellValueOrSubValue)
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsValueNamedParam()
+			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
 				return This.ContainsValueInCellsCS(aColPos, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oTemp.IsSubValueNamedParam()
+			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
 				return This.ContainsSubValueInCellsCS(aColPos, pCellValueOrSubValue[2], pCaseSensitive)
 
 			ok
