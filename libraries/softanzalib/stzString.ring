@@ -34014,29 +34014,65 @@ def ReplaceIBS()
 	 #    ALIGNING THE STRING   #
 	#==========================#
 
-	def Align(cDirection)
-		This.AlignXT( :Max, " ", cDirection )
+	def Align(pcDirection)
+		This.AlignXT( :Max, " ", pcDirection )
 
-		def AlignQ(cDirection)
-			This.Align(cDirection)
+		#< @FunctionFluentForms
+
+		def AlignQ(pcDirection)
+			This.Align(pcDirection)
 			return This
 
-		def AlignQC(cDirection)
-			return This.Copy().Align(cDirection)
+		def AlignQC(pcDirection)
+			return This.Copy().Align(pcDirection)
 
-		def AlignToQ(cDirection)
-			This.Align(cDirection)
-			return This
+		#>
 
-		def AlignToQC(cDirection)
-			return This.Copy().Align(cDirection)
+		#< @FunctionAlternativeForms
+
+		def AlignTo(pcDirection)
+			This.Align(pcDirection)
+
+			def AlignToQ(cDirection)
+				return This.AlignQ(cDirection)
+	
+			def AlignToQC(cDirection)
+				return This.AlignQC(cDirection)
+
+		def Adjust(pcDirection)
+			This.Align(pcDirection)
+
+			def AdjustQ(cDirection)
+				return This.AlignQ(cDirection)
+	
+			def AdjustQC(cDirection)
+				return This.AlignQC(cDirection)
+
+		def AdjustTo(pcDirection)
+			This.Align(pcDirection)
+
+			def AdjustToQ(cDirection)
+				return This.AlignQ(cDirection)
+	
+			def AdjustToQC(cDirection)
+				return This.AlignQC(cDirection)
+		#>
 		
 	def Aligned(cDirection)
 		return This.Copy().AlignQ(cDirection).Content()
 
+		#< @FunctionAlternativeForms
+
 		def AlignedTo(cDirection)
 			return This.Aligned(cDirection)
 
+		def Adjusted(cDirection)
+			return This.Aligned(cDirection)
+
+		def AdjustedTo(cDirection)
+			return This.Aligned(cDirection)
+
+		#>
 	  #-----------------------------------#
 	 #  ALIGNING THE STRING -- EXTENDED  #
 	#-----------------------------------#
@@ -34085,13 +34121,30 @@ def ReplaceIBS()
 			stzRaise(stzStringError(:UnsupportedStringJustificationDirection))
 		end
 
+		#< @FunctionFluentForm
+
 		def AlignXTQ(nWidth, cChar, cDirection)
 			This.AlignXT(nWidth, cChar, cDirection)
 			return This
 	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AdjustXT(nWidth, cChar, cDirection)
+			This.AlignXT(nWidth, cChar, cDirection)
+
+			def AdjustXTQ(nWidth, cChar, cDirection)
+				return This.AlignXTQ(nWidth, cChar, cDirection)
+
+		#>
+
 	def AlignedXT(nWidth, cChar, cDirection)
 		cResult = This.Copy().AlignXTQ(nWidth, cChar, cDirection).Content()
 		return cResult
+
+		def AdjustedXT(nWidth, cChar, cDirection)
+			return This.AlignedXT(nWidth, cChar, cDirection)
 
 	  #-----------------------------------#
 	 #  ALIGNING THE STRING TO THE LEFT  #
@@ -34100,30 +34153,64 @@ def ReplaceIBS()
 	def LeftAlign(nWidth)
 		This.LeftAlignXT(nWidth, " ")
 
+		#< @FunctionFluentForm
+
 		def LeftAlignQ(nWidth)
 			This.LeftAlign(nWidth)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def AlignLeft(nWidth)
 			This.LeftAlign(nWidth)
 
 			def AlignLeftQ(nWidth)
-				This.AlignLeft(nWidth)
-				return This
+				return This.LeftAlignQ(nWidth)
 
 		def AlignToLeft(nWidth)
 			This.LeftAlign(nWidth)
 
 			def AlignToLeftQ(nWidth)
-				This.AlignToLeft(nWidth)
-				return This
+				return This.LeftAlignQ(nWidth)
+
+		def LeftAdjust(nWidth)
+			This.LeftAlign(nWidth)
+
+			def LeftAdjustQ(nWidth)
+				return This.LeftAlignQ(nWidth)
+
+		def AdjustLeft(nWidth)
+			This.LeftAlign(nWidth)
+
+			def AdjustLeftQ(nWidth)
+				return This.LeftAlignQ(nWidth)
+
+		def AdjustToLeft(nWidth)
+			This.LeftAlign(nWidth)
+
+			def AdjustToLeftQ(nWidth)
+				return This.LeftAlignQ(nWidth)
+
+		#>
 
 	def LeftAligned(nWidth)
 		cResult = This.Copy().LeftAlignQ(nWidth).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def AlignedToLeft(nWidth)
 			return This.LeftAligned(nWidth)
+
+		def LeftAdjusted(nWidth)
+			return This.LeftAligned(nWidth)
+
+		def AdjustedToLeft(nWidth)
+			return This.LeftAligned(nWidth)
+
+		#>
 
 	  #-----------------------------------------------#
 	 #  ALIGNING THE STRING TO THE LEFT -- EXTENDED  #
@@ -34131,7 +34218,8 @@ def ReplaceIBS()
 
 	def LeftAlignXT(nWidth, cChar)
 
-		/*
+		/* NOTE
+
 		Managing the special case of the arabic char (Shaddah)
 		which can alter the justification of text, because Qt
 		treats it as a spearate char with its own position in
@@ -34147,7 +34235,8 @@ def ReplaceIBS()
 		won't be correct!
 
 		Also, for this alignement to work as expected, the font
-		you use in to display the text must be of "fixed size".
+		you use in to display the text on the console must be
+		of "fixed size".
 
  		*/
 
@@ -34171,23 +34260,43 @@ def ReplaceIBS()
 			This.Update( cJustified )
 		ok
 
+		#< @FunctionFluentForm
+
 		def LeftAlignXTQ(nWidth, cChar)
 			This.LeftAlignXT(nWidth, cChar)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def AlignLeftXT(nWidth, cChar)
 			This.LeftAlignXT(nWidth, cChar)
 
 			def AlignLeftXTQ(nWidth, cChar)
-				This.AlignLeftXT(nWidth, cChar)
-				return This
+				return This.LeftAlignXTQ(nWidth, cChar)
+
+		def LeftAdjustXT(nWidth, cChar)
+			This.LeftAlignXT(nWidth, cChar)
+
+			def LeftAdjustXTQ(nWidth, cChar)
+				return This.LeftAlignXTQ(nWidth, cChar)
+
+		#>
 
 	def LeftAlignedXT(nWidth, cChar)
 		cResult = This.Copy().LeftAlignXTQ(nWidth, cChar).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def AlignedToLeftXT(nWidth, cChar)
 			return This.LeftAlignedXT(nWidth, cChar)
+
+		def LeftAdjustedXT(nWidth, cChar)
+			return This.LeftAlignedXT(nWidth, cChar)
+
+		#>
 
 	  #------------------------------------#
 	 #  ALIGNING THE STRING TO THE RIGHT  #
@@ -34196,30 +34305,52 @@ def ReplaceIBS()
 	def RightAlign(nWidth)
 		This.RightAlignXT(nWidth, " ")
 
+		#< @FunctioFluentForm
+
 		def RightAlignQ(nWidth)
 			This.RightAlign(nWidth)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def AlignRight(nWidth)
 			This.RightAlign(nWidth)
 
 			def AlignRightQ(nWidth)
-				This.AlignRight(nWidth)
-				return This
+				return This.RightAlignQ(nWidth)
 
 		def AlignToRight(nWidth)
 			This.RightAlign(nWidth)
 
 			def AlignToRightQ(nWidth)
-				This.AlignToRight(nWidth)
-				return This
+				return This.RightAlignQ(nWidth)
 	
+		def RightAdjust(nWidth)
+			This.RightAlign(nWidth)
+
+			def RightAdjustQ(nWidth)
+				return This.RightAlignQ(nWidth)
+
+		#>
+
 	def RightAligned(nWidth)
 		cResult = This.Copy().RightAlignQ(nWidth).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def AlignedToRight(nWidth)
 			return This.RightAligned(nWidth)
+
+		def RightAdjusted(nWidth)
+			return This.RightAligned(nWidth)
+
+		def AdjustedtoRight(nWidth)
+			return This.RightAligned(nWidth)
+
+		#>
 
 	  #------------------------------------------------#
 	 #  ALIGNING THE STRING TO THE RIGHT -- EXTENDED  #
@@ -34246,24 +34377,47 @@ def ReplaceIBS()
 			This.Update( cJustified )
 		ok
 
+		#< @FunctionFluentForm
+
 		def RightAlignXTQ(nWidth, cChar)
 			
 			This.RightAlignXT(nWidth, cChar)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def AlignRightXT(nWidth, cChar)
 			This.RightAlignXT(nWidth, cChar)
 
 			def AlignRightXTQ(nWidth, cChar)
-				This.AlignRightXT(nWidth, cChar)
-				return This
+				return This.RightAlignXTQ(nWidth, cChar)
+
+		def RightAdjustXT(nWidth, cChar)
+			This.RightAlignXT(nWidth, cChar)
+
+			def RightAdjustXTQ(nWidth, cChar)
+				return This.RightAlignXTQ(nWidth, cChar)
+
+		#>
 
 	def RightAlignedXT(nWidth, cChar)
 		cResult = This.Copy().RightAlignXTQ(nWidth, cChar).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def AlignedToRightXT(nWidth, cChar)
 			return This.RightAlignedXT(nWidth, cChar)
+
+		def RightAdjustedXT(nWidth, cChar)
+			return This.RightAlignedXT(nWidth, cChar)
+
+		def AdjustedToRightXT(nWidth, cChar)
+			return This.RightAlignedXT(nWidth, cChar)
+
+		#>
 
 	  #------------------------#
 	 #  CENTERING THE STRING  #
@@ -34272,40 +34426,73 @@ def ReplaceIBS()
 	def CenterAlign(nWidth)
 		This.CenterAlignXT(nWidth, " ")
 
+		#< @FunctionFluentForm
+
 		def CenterAlignQ(nWidth)
 			This.CenterAlign(nWidth)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def AlignToCenter(nWidth)
 			This.CenterAlign(nWidth)
 
 			def AlignToCenterQ(nWidth)
-				This.AlignToCenter(nWidth)
-				return This
+				return This.CenterAlignQ(nWidth)
 
 		def AlignCenter(nWidth)
 			This.CenterAlign(nWidth)
 
 			def AlignCenterQ(nWidth)
-				This.AlignCenter(nWidth)
-				return This
+				return This.CenterAlignQ(nWidth)
+
+		def CenterAdjust(nWidth)
+			This.CenterAlign(nWidth)
+
+			def CenterAdjustQ(nWidth)
+				return This.CenterAlignQ(nWidth)
+
+		def AdjustToCenter(nWidth)
+			This.CenterAlign(nWidth)
+
+			def AdjustToCenterQ(nWidth)
+				return This.CenterAlignQ(nWidth)
+
+		def AdjustCenter(nWidth)
+			This.CenterAlign(nWidth)
+
+			def AdjustCenterQ(nWidth)
+				return This.CenterAlignQ(nWidth)
 
 		def Center(nWidth)
 			This.CenterAlign(nWidth)
 
 			def CenterQ(nWidth)
-				This.Center(nWidth)
-				return This
+				return This.CenterAlignQ(nWidth)
+
+		#>
 
 	def CenterAligned(nWidth)
 		cResult = This.Copy().CenterAlignQ(nWidth).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def AlignedToCenter(nWidth)
+			return This.CenterAligned(nWidth)
+
+		def AdjustedToCenter(nWidth)
+			return This.CenterAligned(nWidth)
+
+		def CenterAdjusted(nWidth)
 			return This.CenterAligned(nWidth)
 
 		def Centered(nWidth)
 			This.CenterAligned(nWidth)
+
+		#>
 
 	  #------------------------------------#
 	 #  CENTERING THE STRING -- EXTENDED  #
@@ -34317,7 +34504,7 @@ def ReplaceIBS()
  
 		nWidth += This.NumberOfOccurrence( ArabicShaddah() )
 
-		# Computing the justification using Qt
+		# Computing the justification
 
 		if nWidth > This.NumberOfChars()
 
@@ -34341,41 +34528,73 @@ def ReplaceIBS()
 			This.Update( cResult )
 		ok
 
+		#< @FunctionFluentForm
+
 		def CenterAlignXTQ(nWidth, cChar)
 			This.CenterAlignXT(nWidth, cChar)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def AlignCenterXT(nWidth, cChar)
 			This.CenterAlignXT(nWidth, cChar)
 
 			def AlignCenterXTQ(nWidth, cChar)
-				This.AlignCenterXT(nWidth, cChar)
-				return This
+				return This.CenterAlignXTQ(nWidth, cChar)
 
 		def AlignToCenterXT(nWidth, cChar)
 			This.CenterAlignXT(nWidth, cChar)
 
 			def AlignToCenterXTQ(nWidth, cChar)
-				This.AlignToCenterXT(nWidth, cChar)
-				return This
+				return This.CenterAlignXTQ(nWidth, cChar)
+
+		def CenterAdjustXT(nWidth, cChar)
+			This.CenterAlignXT(nWidth, cChar)
+
+			def CenterAdjustXTQ(nWidth, cChar)
+				return This.CenterAlignXTQ(nWidth, cChar)
+
+		def AdjustCenterXT(nWidth, cChar)
+			This.CenterAlignXT(nWidth, cChar)
+
+			def AdjustCenterXTQ(nWidth, cChar)
+				return This.CenterAlignXTQ(nWidth, cChar)
+
+		def AdjustToCenterXT(nWidth, cChar)
+			This.CenterAlignXT(nWidth, cChar)
+
+			def AdjustToCenterXTQ(nWidth, cChar)
+				return This.CenterAlignXTQ(nWidth, cChar)
 
 		def CenterXT(nWidth, cChar)
 			This.CenterAlignXT(nWidth, cChar)
 
 			def CenterXTQ(nWidth, cChar)
-				This.CenterXT(nWidth, cChar)
-				return This
+				return This.CenterAlignXTQ(nWidth, cChar)
+
+		#>
 
 	def CenterAlignedXT(nWidth, cChar)
 		cResult = This.Copy().CenterAlignXTQ(nWidth, cChar).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def AlignedToCenterXT(nWidth, cChar)
+			return This.CenterAlignedXT(nWidth, cChar)
+
+		def CenterAdjustedXT(nWidth, cChar)
+			return This.CenterAlignedXT(nWidth, cChar)
+
+		def AdjustedToCenterXT(nWidth, cChar)
 			return This.CenterAlignedXT(nWidth, cChar)
 
 		def CenteredXT(nWidth, cChar)
 			return This.CenterAlignedXT(nWidth, cChar)
 
+		#>
 
 	  #-------------------------#
 	 #  JUSTIFYING THE STRING  #
