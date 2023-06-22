@@ -1381,7 +1381,7 @@ Diacritics
 
 	func LanguagesInScript(cScript)	
 		if NOT isString(cScipt)
-			StzRaise("Uncorrect param type! cScript must be a string")
+			StzRaise("Incorrect param type! cScript must be a string")
 		ok
 
 		acUnicodeScriptsXT = UnicodeScriptsXT()
@@ -1399,7 +1399,7 @@ Diacritics
 
 	func CommonLanguagesInScripts(pacScripts)
 		if NOT isList(pacScripts) and Q(pacScripts).IsListOfStrings()
-			StzRaise("Uncorrect param type! pacScripts must be a list of strings.")
+			StzRaise("Incorrect param type! pacScripts must be a list of strings.")
 		ok
 
 		nLen = len(pacScripts)
@@ -1417,7 +1417,7 @@ Diacritics
 
 	func CommonScriptsForLanguages(pacLangs)
 		if NOT isList(pacLangs) and Q(pacLangs).IsListOfStrings()
-			StzRaise("Uncorrect param type! pacLangs must be a list of strings.")
+			StzRaise("Incorrect param type! pacLangs must be a list of strings.")
 		ok
 
 		nLen = len(pacLangs)

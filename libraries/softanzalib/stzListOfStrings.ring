@@ -262,7 +262,7 @@ class stzListOfStrings from stzList
 				off
 					
 	def StringsW(pcCondition)
-		return This.YieldW('@string', pcCondition)
+		return This.YieldW('This[@i]', pcCondition)
 
 		def StringsWQ(pcCondition)
 			return StringsWQR(pcCondition, :stzList)
@@ -288,7 +288,7 @@ class stzListOfStrings from stzList
 			off
 
 	def UniqueStringsW(pcCondition)
-		acResult = This.YieldWQR('@string', pcCondition, :stzListOfStrings).
+		acResult = This.YieldWQR('This[@i]', pcCondition, :stzListOfStrings).
 				DuplicatesRemoved()
 
 		return acResult
@@ -11219,7 +11219,7 @@ class stzListOfStrings from stzList
 
 		if cReplace = :With@
 			if NOT isString(pcOtherString)
-				StzRaise("Uncorrect value! The value provided after :With@ must be a string containing a Ring expression.")
+				StzRaise("Incorrect value! The value provided after :With@ must be a string containing a Ring expression.")
 			ok
 		ok
 
@@ -17751,6 +17751,8 @@ class stzListOfStrings from stzList
 			StzRaise("Unsupported direction type!")
 		off
 
+		# @functionFluentForms
+
 		def AlignQ( pcDirection )
 			This.Align( pcDirection )
 			return This
@@ -17758,6 +17760,10 @@ class stzListOfStrings from stzList
 		def AlignQC(pcDirection)
 			oResult = This.Copy().Align(pcDirection)
 			return oResult
+
+		#>
+
+		#< @FuntionAlternativeForms
 
 		def AlignTo(pcDirection)
 			This.Align( pcDirection )
@@ -17767,14 +17773,41 @@ class stzListOfStrings from stzList
 				return This
 
 			def AlignToQC(pcDirection)
-				oCopy = This.Copy().AlignTo(pcDirection)
-				return oCopy
+				return This.AlignQC(pcDirection)
+
+		def Adjust(pcDirection)
+			This.Align( pcDirection )
+
+			def AdjustQ(pcDirection)
+				This.AlignTo(pcDirection)
+				return This
+
+			def AdjustQC(pcDirection)
+				return This.AlignQC(pcDirection)
+
+		def AdjustTo(pcDirection)
+			This.Align( pcDirection )
+
+			def AdjustToQ(pcDirection)
+				This.AlignTo(pcDirection)
+				return This
+
+			def AdjustToQC(pcDirection)
+				return This.AlignQC(pcDirection)
+
+		#>
 
 	def Aligned(pcDirection)
 		acResult = This.Copy().AlignQ(pcDirection).Content()
 		return acResult
 
 		def AlignedTo(pcDirection)
+			return This.Aligned(pcDirection)
+
+		def Adjusted(pcDirection)
+			return This.Aligned(pcDirection)
+
+		def AdjustedTo(pcDirection)
 			return This.Aligned(pcDirection)
 
 	  #---------------------------------------#
@@ -17788,7 +17821,7 @@ class stzListOfStrings from stzList
 		if isList(pnWidth) and Q(pnWidth).IsWidthNamedParam()
 			pnWidth = pnWidth[2]
 		ok
-
+		
 		if isList(pcChar) and ( Q(pcChar).IsUsingNamedParam() or
 			Q(pcChar).IsCharNamedParam() )
 
@@ -17801,25 +17834,51 @@ class stzListOfStrings from stzList
 			pcDirection = pcDirection[2]
 		ok
 
+		# Doing the job
+
+		acContent = This.Content()
+		nLen = len(acContent)
+
 		if pnWidth = :Max
-			pnWidth = This.YieldQR('Q(@string).NumberOfChars()', :stzListOfNumbers).Max()
+			pnWidth = 0
+			anWidths = []
+			for i = 1 to nLen
+				anWidths + StzStringQ(acContent[i]).NumberOfChars()
+			next
+
+			pnWidth = Max(anWidths)
 		ok
 
-		i = 0
-		for str in This.ListOfStrings()
-			i++
-			cStrAligned = StzStringQ(str).AlignXTQ(pnWidth, pcChar, pcDirection).Content()
+		for i = 1 to nLen
+			cStrAligned = StzStringQ(acContent[i]).AlignXTQ(pnWidth, pcChar, pcDirection).Content()
 			This.ReplaceStringAtPosition(i, cStrAligned )
 		next
+
+		#< @FunctionFluentForm
 
 		def AlignXTQ(pnWidth, pcChar, pcDirection)
 			This.AlignXT(pnWidth, pcChar, pcDirection)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AdjustXT(pnWidth, pcChar, pcDirection)
+			This.AlignXT(pnWidth, pcChar, pcDirection)
+
+			def AdjustXTQ(pnWidth, pcChar, pcDirection)
+				return This.AlignXTQ(pnWidth, pcChar, pcDirection)
+
+		#>
+
 	def AlignedXT(pnWidth, pcChar, pcDirection)
 		aResult = This.Copy().AlignXTQ(pnWidth, pcChar, pcDirection).Content()
 		return aResult
 	
+		def AdjustedXT(pnWidth, pcChar, pcDirection)
+			return This.AlignedXT(pnWidth, pcChar, pcDirection)
+
 	  #====================================#
 	 #  ALIGNING THE STRINGS TO THE LEFT  #
 	#====================================#
@@ -17827,19 +17886,49 @@ class stzListOfStrings from stzList
 	def LeftAlign()
 		This.LeftAlignXT( :Max, " " )
 
+		#< @FunctionFluentForm
+
 		def LeftAlignQ()
 			This.LeftAlign()
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def AlignToLeft()
 			This.LeftAlign()
+
+		def LeftAdjust()
+			This.LeftAlign()
+	
+			def LeftAdjustQ()
+				return This.LeftAlignQ()
+	
+		def AdjustToLeft()
+			This.LeftAlign()
+
+			def AdjustToLeftQ()
+				return This.LeftAlignQ()
+
+		#>
 
 	def LeftAligned()
 		acResult = This.Copy().LeftAlignQ().Content()
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def AlignedToLeft()
 			return This.LeftAligned()
+
+		def LeftAdjusted()
+			return This.LeftAligned()
+	
+		def AdjustedToLeft()
+			return This.LeftAligned()
+
+		#>
 
 	  #------------------------------------------------#
 	 #  ALIGNING THE STRINGS TO THE LEFT -- EXTENDED  #
@@ -17848,32 +17937,44 @@ class stzListOfStrings from stzList
 	def LeftAlignXT(pnWidth, pcChar)
 		This.AlignXT(pnWidth, pcChar, :Left)
 
+		#< @FunctionFluentForm
+
 		def LeftAlignXTQ(pnWidth, pcChar)
 			This.LeftAlignXT(pnWidth, pcChar)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def AlignLeftXT(pnWidth, pcChar)
 			This.LeftAlignXT(pnWidth, pcChar)
 
 			def AlignLeftXTQ(pnWidth, pcChar)
-				This.AlignLeftXT(pnWidth, pcChar)
-				return This
+				return This.LeftAlignXTQ(pnWidth, pcChar)
 
 		def AlignToLeftXT(pnWidth, pcChar)
 			This.LeftAlignXT(pnWidth, pcChar)
 
 			def AlignToLeftXTQ(pnWidth, pcChar)
-				This.AlignLeftXT(pnWidth, pcChar)
-				return This
+				return This.return This.LeftAlignXTQ(pnWidth, pcChar)
+
+		#>
 
 	def LeftAlignedXT(pnWidth, pcChar)
 		aResult = This.Copy().LeftAlignXTQ(pnWidth, pcChar).Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def AlignedToLeftXT(pnWidth, pcChar)
-			aResult = This.Copy().LeftAlignXTQ(pnWidth, pcChar).Content()
-			return aResult
+			return This.LeftAlignedXT(pnWidth, pcChar)
 	
+		def AdjustedToLeftXT(pnWidth, pcChar)
+			return LeftAlignedXT(pnWidth, pcChar)
+
+		#>
+
 	  #=====================================#
 	 #  ALIGNING THE STRINGS TO THE RIGHT  #
 	#=====================================#
@@ -17881,20 +17982,46 @@ class stzListOfStrings from stzList
 	def RightAlign()
 		This.RightAlignXT( :Max, " " )
 
+		#< @FunctionFluentForm
+
 		def RightAlignQ()
 			This.RightAlign()
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def AlignToRight()
 			This.RightAlign()
+
+			def AlignToRightQ()
+				return This.RightAlignQ()
+
+		def AdjustToRight()
+			This.RightAlign()
+
+			def AdjustToRightQ()
+				return This.RightAlignQ()
+
+		#>
 
 	def RightAligned()
 		acResult = This.Copy().RightAlignQ().Content()
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def AlignedToRight()
 			return This.RightAligned()
 
+		def RightAdjusted()
+			return This.RightAligned()
+
+		def AdjustedToRight()
+			return This.RightAligned()
+
+		#>
 
 	  #-------------------------------------------------#
 	 #  ALIGNING THE STRINGS TO THE RIGHT -- EXTENDED  #
@@ -17903,31 +18030,50 @@ class stzListOfStrings from stzList
 	def RightAlignXT(pnWidth, pcChar)
 		This.AlignXT(pnWidth, pcChar, :Right)
 
+		#< @FunctionFluentForm
+
 		def RightAlignXTQ(pnWidth, pcChar)
 			This.RightAlignXT(pnWidth, pcChar)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def AlignRightXT(pnWidth, pcChar)
 			This.RightAlignXT(pnWidth, pcChar)
 
 			def AlignRightXTQ(pnWidth, pcChar)
-				This.AlignRightXT(pnWidth, pcChar)
-				return This
+				return This.RightAlignXTQ(pnWidth, pcChar)
 
 		def AlignToRightXT(pnWidth, pcChar)
 			This.RightAlignXT(pnWidth, pcChar)
 
 			def AlignToRightXTQ(pnWidth, pcChar)
-				This.AlignRightXT(pnWidth, pcChar)
-				return This
+				return This.RightAlignXTQ(pnWidth, pcChar)
+
+		def RightAdjustXT(pnWidth, pcChar)
+			This.RightAlignXT(pnWidth, pcChar)
+
+			def RightAdjustXTQ(pnWidth, pcChar)
+				return This.RightAlignXTQ(pnWidth, pcChar)
+
+		#>
 
 	def RightAlignedXT(pnWidth, pcChar)
 		aResult = This.Copy().RightAlignXTQ(pnWidth, pcChar).Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def AlignedToRightXT(pnWidth, pcChar)
-			aResult = This.Copy().RightAlignXTQ(pnWidth, pcChar).Content()
-			return aResult
+			return This.RightAlignedXT(pnWidth, pcChar)
+
+		def RightAdjustedXT(pnWidth, pcChar)
+			return This.RightAlignedXT(pnWidth, pcChar)
+
+		def  AdjustedToRightXT(pnWidth, pcChar)
+			return This.RightAlignedXT(pnWidth, pcChar)
 
 	  #======================================#
 	 #  ALIGNING THE STRINGS TO THE CENTER  #
@@ -17936,25 +18082,46 @@ class stzListOfStrings from stzList
 	def CenterAlign()
 		This.CenterAlignXT( :Max, " " )
 
+		#< @FunctionFluentForm
+
 		def CenterAlignQ()
 			This.CenterAlign()
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def AlignToCenter()
+			This.CenterAlign()
+
+		def CenterAdjust()
+			return This.CenterAlign()
+
+		def AdjustToCenter()
 			This.CenterAlign()
 
 		def Center()
 			This.CenterAlign()
 
+		#>
+
 	def CenterAligned()
 		acResult = This.Copy().CenterAlignQ().Content()
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def AlignedToCenter()
+			return This.CenterAligned()
+
+		def CenterAdjusted()
 			return This.CenterAligned()
 
 		def Centered()
 			return This.CenterAligned()
+
+		#>
 
 	  #--------------------------------------------------#
 	 #  ALIGNING THE STRINGS TO THE CENTER -- EXTENDED  #
@@ -17963,40 +18130,67 @@ class stzListOfStrings from stzList
 	def CenterAlignXT(pnWidth, pcChar)
 		This.AlignXT(pnWidth, pcChar, :Center)
 
+		#< @FunctionFluentForm
+
 		def CenterAlignXTQ(pnWidth, pcChar)
 			This.CenterAlignXT(pnWidth, pcChar)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def AlignCenterXT(pnWidth, pcChar)
 			This.CenterAlignXT(pnWidth, pcChar)
 
 			def AlignCenterXTQ(pnWidth, pcChar)
-				This.AlignCentertXT(pnWidth, pcChar)
-				return This
+				return This.CenterAlignXTQ(pnWidth, pcChar)
 
 		def AlignToCenterXT(pnWidth, pcChar)
 			This.RightCenterXT(pnWidth, pcChar)
 
 			def AlignToCenterXTQ(pnWidth, pcChar)
-				This.AlignCenterXT(pnWidth, pcChar)
-				return This
+				return This.CenterAlignXTQ(pnWidth, pcChar)
+
+		def CenterAdjustXT(pnWidth, pcChar)
+			return This.CenterAlignXT(pnWidth, pcChar)
+
+			def CenterAdjustXTQ(pnWidth, pcChar)
+				return This.CenterAlignXTQ(pnWidth, pcChar)
+
+		def AdjustCenterXT(pnWidth, pcChar)
+			This.CenterAlignXT(pnWidth, pcChar)
+
+			def AdjustCenterXTQ(pnWidth, pcChar)
+				return This.CenterAlignXTQ(pnWidth, pcChar)
+
+		def AdjustToCenterXT(pnWidth, pcChar)
+			This.RightCenterXT(pnWidth, pcChar)
+
+			def AdjustToCenterXTQ(pnWidth, pcChar)
+				return This.CenterAlignXTQ(pnWidth, pcChar)
 
 		def CenterXT(pnWidth, pcChar)
 			This.RightCenterXT(pnWidth, pcChar)
 
 			def CenterXTQ(pnWidth, pcChar)
-				This.CenterXT(pnWidth, pcChar)
-				return This
+				return This.CenterAlignXTQ(pnWidth, pcChar)
+
+		#>
 
 	def CenterAlignedXT(pnWidth, pcChar)
 		aResult = This.Copy().CenterAlignXTQ(pnWidth, pcChar).Content()
 		return aResult
+
+		#< @FunctionAlternativeForms
 
 		def AlignedToCenterXT(pnWidth, pcChar)
 			return This.CenterAlignedXT(pnWidth, pcChar)
 
 		def CenteredXT(pnWodth, pcChar)
 			return This.CenterAlignedXT(pnWidth, pcChar)
+
+		#>
 
 	  #==========================#
 	 #  JUSTIFYING THE STRINGS  #

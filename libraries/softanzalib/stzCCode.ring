@@ -65,7 +65,7 @@ class stzCCode
 		return new stzCCode( This.Content() )
 
 	def Transpiled()
-? "مرحبا"
+
 		cCode = StzStringQ(This.Code()).
 			TrimQ().
 			RemoveBoundsQ([ "{","}" ]).
@@ -77,7 +77,7 @@ class stzCCode
 			ReplaceAllQ("]", :By = " ]").
 
 			Content()
-? cCode
+
 		cCode = Q(cCode).TheseSubstringsSpacifiedCS([
 
 				"@items", "@allItems", "@item",

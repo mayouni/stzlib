@@ -1807,10 +1807,14 @@ Class stzTable
 		*/
 
 		if isString(pExpr)
-			if pExpr = :Contains or pExpr = :ContainsValue
+			if pExpr = :Contains or pExpr = :ContainsValue or
+			   pExpr = :ContainsCellValue
+
 				return This.CellContainsValueCS(pCellCol, pCellRow, pValueORSubValue, pCaseSensitive)
 
-			but pExpr = :ContainsSubValue
+			but pExpr = :ContainsSubValue or pExpr = :ContainsCellPart or
+			    pExpr = :ContainsSubPart
+
 				return This.CellContainsSubValueCS(pCellCol, pCellRow, pValueOrSubValue, pCaseSensitive)
 
 			ok
@@ -4422,7 +4426,7 @@ Class stzTable
 			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue ])
 				return This.NumberOfOccurrencesOfValueInCellCS( pCellCol, pCellRow, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue ])
+			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :CellPart, :OfCellPart, :SubPart, :OfSubPart ])
 				return This.NumberOfOccurrencesOfSubValueInCellCS( pCellCol, pCellRow, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -6666,10 +6670,10 @@ Class stzTable
 			oTemp = Q(pCellValueOrSubValue)
 
 			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
-				return This.FindInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
+				return This.FindValueInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
 		
 			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
-				return This.FindValueInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
+				return This.FindSubValueInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
 		
 			ok
 		ok
@@ -7586,14 +7590,13 @@ Class stzTable
 		*/
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :Cells, :Value ])
+			oTemp = Q(pCellValueOrSubValue)
+
+			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
 				return This.FindValueInSectionCS(paSection1, paSection2, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :SubValue ])
+			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
 				return This.FindSubValueInSectionCS(paSection1, paSection2, pCellValueOrSubValue[2], pCaseSensitive)
-			else
-				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")
-
 			ok
 		ok
 
