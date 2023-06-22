@@ -1377,7 +1377,7 @@ func QQ(p)
 
 func W(cCode)
 	if NOT isString(cCode)
-		StzRaise("Uncorrect param type! cCode must be a string.")
+		StzRaise("Incorrect param type! cCode must be a string.")
 	ok
 
 	cCode = Q(cCode).Trimmed()

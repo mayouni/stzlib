@@ -1636,7 +1636,7 @@ class stzList from stzObject
 
 	def ReplaceManyByMany(pacItems, pacNewItems)
 		if NOT isList(pacItems)
-			StzRaise("Uncorrect param! pacItems must be a list.")
+			StzRaise("Incorrect param! pacItems must be a list.")
 		ok
 
 		if isList(pacNewItems) and Q(pacNewItems).IsWithOrByNamedParam()
@@ -1644,7 +1644,7 @@ class stzList from stzObject
 		ok
 
 		if NOT isList(pacNewItems)
-			StzRaise("Uncorrect param! pacNewItems must be a list.")
+			StzRaise("Incorrect param! pacNewItems must be a list.")
 		ok
 
 		i = 0
@@ -9631,11 +9631,12 @@ class stzList from stzObject
 
 	This function is less performan then it's simplest form Yield(),
 	because it takes time to analyze the conditional code provided,
-	spacify it, transile it for :stzList, so a keyword like @PrecedentItem
-	for example, can be used, and the function will transpiled it to
-	"This[@i-1]" automatically.
+	spacify it, and transpile it, so a keyword like @PrecedentItem
+	for example, can be used (in the keyword, the function is transpiled
+	to "This[@i-1]" automatically).
 
-	If performance is critical to you, don't use it.
+	If performance is critical to you, don't use it, but use the simple
+	form Yield() instead (supporting only the This[@i...]-like keywords).
 
 	*/
 
@@ -11815,7 +11816,7 @@ class stzList from stzObject
 
 	def ItemsHaveSameOrderAs(paOtherList)
 		if NOT isList(paOtherList)
-			StzRaise("Uncorrect param type! paOtherList must be a list.")
+			StzRaise("Incorrect param type! paOtherList must be a list.")
 		ok
 
 		aContent = This.Content()
@@ -13489,9 +13490,9 @@ class stzList from stzObject
 		def SortedInAssending()
 			return This.SortedInAscending()
 
-	  #------------------------------------#
-	 #  SORTING THE ITEM IN DESCENDING  #
-	#------------------------------------#
+	  #-----------------------------------#
+	 #  SORTING THE ITEMS IN DESCENDING  #
+	#-----------------------------------#
 
 	def SortInDescending()
  		aResult = This.SortInAscendingQ().Content()
@@ -13569,7 +13570,7 @@ class stzList from stzObject
 	 #  SORTING THE ITEM BY - IN ASCENDING  #
 	#--------------------------------------#
  
-	def SortBy(pcExpr)  // TODO: TEST IT!
+	def SortBy(pcExpr)
 		/* EXAMPLE
 		o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
 		o1.SortBy('len(@item)')
@@ -16366,7 +16367,7 @@ class stzList from stzObject
 
 	def ContainsMoreThenCS(n, pItem, pCaseSensitive)
 		if NOT isNumber(n)
-			StzRaise("Uncorrect param type! n must be a number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		if This.NumberOfOccurrenceCS(pItem, pCaseSensitive) > n
@@ -16386,7 +16387,7 @@ class stzList from stzObject
 
 	def ContainsLessThenCS(n, pItem, pCaseSensitive)
 		if NOT isNumber(n)
-			StzRaise("Uncorrect param type! n must be a number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		if This.NumberOfOccurrenceCS(pItem, pCaseSensitive) < n
@@ -19084,7 +19085,7 @@ class stzList from stzObject
 
 	def ItemsAtPositions(panPos)
 		if NOT isList(panPos) and Q(panPos).IsListOfNumbers()
-			StzRaise("Uncorrect param type! panPos must be a list of numbers.")
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
 		aResult = []
@@ -23761,6 +23762,35 @@ class stzList from stzObject
 	def IsOfSubValuesNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :OfSubValues)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsOfCellPartNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfCellPart)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfPartNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfPart)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfSubPartNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfSubPart)
 
 			return TRUE
 		else

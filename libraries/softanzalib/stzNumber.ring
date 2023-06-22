@@ -3326,7 +3326,7 @@ class stzNumber from stzObject
 	 #    FORMATTING    #
 	#------------------#
 
-	def ApplyFormatXT(paFormat)	# +99 999.99%	#TODO
+	def ApplyFormatXT(paFormat)	# TOSO: Add formatting strings like +99 999.99%
 
 		# Setting default configs
 
@@ -3529,8 +3529,7 @@ class stzNumber from stzObject
 				next
 			ok
 		ok
-#TODO:	? ">> " + cFractionalPart
-/*----------------------------------------------------------	
+
 		# Managing Sign
 			
 		if bShowSign and This.Sign() = NULL
@@ -3598,7 +3597,7 @@ class stzNumber from stzObject
 
 		cFractionalPart = cNewFractionalPart
 
-		if NOT bRounded # TODO: review the round() mechianism!
+		if NOT bRounded # TODO: review the round() mechanism!
 			if cFractionalPart != ""
 				cFormattedNumber += (cFractionalSep + cFractionalPart)
 			ok
@@ -3638,7 +3637,6 @@ class stzNumber from stzObject
 
 		return cFormattedNumber
 
-/*
 		oNumber = This
 		if bPercent = TRUE
 			cNumber = oNumber.InPercentage()
@@ -3689,14 +3687,12 @@ class stzNumber from stzObject
 		if bPercent = TRUE
 			cNumber += "%"
 		ok
-*/ #-----------------------------------
 			
 	def SetDefaultFormat() // TODO
+		StzRaise("Unsupported feature in this version!")
 
 	def ApplyLocale(pcLocale) // TODO
-
-	def AdjustTo(pcDirection, paWidth) // 
-		// Example: AdjustTo(:Left, :InAWidthOf = 12)
+		StzRaise("Unsupported feature in this version!")
 
 	  #------------------#
 	 #     OPERATORS    #

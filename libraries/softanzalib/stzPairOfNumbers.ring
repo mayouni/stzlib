@@ -20,7 +20,7 @@ func LeastCommonMuliple( n1, n2 )
 	ok
 
 	if NOT BothAreNumbers(n1, n2)
-		StzRaise("Uncorrect param type! n1 and n2 must both be numbers.")
+		StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 	ok
 
 	nResult = LCM(n1, n2) # A Ring function
@@ -44,7 +44,7 @@ func GreatestCommonDividor( n1, n2 )
 	ok
 
 	if NOT BothAreNumbers(n1, n2)
-		StzRaise("Uncorrect param type! n1 and n2 must both be numbers.")
+		StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 	ok
 
 	nResult = GCD(n1, n2) # A Ring function

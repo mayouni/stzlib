@@ -557,13 +557,13 @@ o1 = new stzTable([
 
 o1.MoveCol( :ID, :ToPosition = 3 )
 # or alternatively: o1.MoveCol( :FromPosition = 1, :To = 3 )
+
+o1.Show() // TODO: fix formatting
 #-->
 # #   AGE      NAME   ID
 # 1    52     Karim   10
 # 2    46     Hatem   20
 # 3    48   Abraham   30
-
-o1.Show()
 
 proff()
 # Executed in 0.48 second(s)
@@ -883,7 +883,7 @@ o1 = new stzTable([
 #--> [ 10, "Imed", 52, 20, "Hatem", 46, 30, "Karim", 48 ]
 
 proff()
-# Executed in 0.17 second(s)
+# Executed in 0.15 second(s)
 
 /*==============
 
@@ -1694,7 +1694,7 @@ o1 = new stzTable([
 	[ "003", "Sonia", 12740.30 ]
 ])
 
-? o1.CellAtPosition(2, 3)
+? o1.CellAtPosition(2, 3) + NL
 #--> "Sonia"
 
 ? o1.TheseCells([ [ 2, 1 ], [ 2, 3 ] ])
@@ -1817,21 +1817,21 @@ o1 = new stzTable([
 	[ "Ali",	"Ali"     ]
 ])
 
-? @@( o1.FindInCol( :FIRSTNAME, :Value = "Ali" ) )
-#--> [ [ 1, 2], [1, 3] ]
+? @@( o1.FindInCol( :FIRSTNAME, :Value = "Ali" ) ) + NL
+#--> [ [ 1, 2 ], [ 1, 3 ] ]
 
-? @@( o1.FindInCol( :FIRSTNAME, :SubValue = "a" ) )
+? @@( o1.FindInCol( :FIRSTNAME, :SubValue = "a" ) ) + NL
 #--> [ ]
 
 ? @@( o1.FindInColCS( :LASTNAME, :SubValue = "a", :CS = FALSE ) )
 #--> [
-#	[ [2, 1], [2]    ],
-#	[ [2, 2], [1, 4, 6] ],
-#	[ [2, 3], [1] ]
+#	[ [ 2, 1 ], [ 2 ]      ],
+#	[ [ 2, 2 ], [ 1, 4, 6] ],
+#	[ [ 2, 3 ], [ 1 ]      ]
 # ]
 
 proff()
-# Executed in 4.32 second(s)
+# Executed in 4.48 second(s)
 
 /*==============
 
@@ -1877,7 +1877,7 @@ o1 = new stzTable([
 proff()
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -1952,7 +1952,7 @@ o1 = new stzTable([
 	[ "Alibaba",	"AliAli"  ]
 ])
 
-? @@( o1.FindInRow(3, :SubValue = "Ali") )
+? @@( o1.FindInRow(3, :CellPart = "Ali") )
 #--> [
 # 	[ [ 1, 3 ], [ 1 ] ],
 # 	[ [ 2, 3 ], [ 1, 4 ] ]
@@ -1976,6 +1976,7 @@ o1 = new stzTable([
 #--> TRUE
 
 proff()
+# Executed in 0.08 second(s)
 
 /*--------------
 
@@ -1996,6 +1997,7 @@ o1 = new stzTable([
 #--> TRUE
 
 proff()
+# Executed in 0.14 second(s)
 
 /*--------------
 
@@ -2048,13 +2050,13 @@ o1 = new stzTable([
 	[ "Alibaba",	"AliAli",	"Tester"	]
 ])
 
-? o1.NumberOfOccurrenceInCols([ :FIRSTNAME, :LASTNAME ], "Ali")
+? o1.NumberOfOccurrenceInCols([ :FIRSTNAME, :LASTNAME ], "Ali") + NL
 #--> 1
 
-? @@( o1.FindInCols([ :FIRSTNAME, :LASTNAME ], "Ali") )
+? @@( o1.FindInCols([ :FIRSTNAME, :LASTNAME ], "Ali") ) + NL
 #--> [ [ 1, 2 ] ]
 
-? o1.NumberOfOccurrenceInCols([ :FIRSTNAME, :LASTNAME ], :OfSubValue = "Ali")
+? o1.NumberOfOccurrenceInCols([ :FIRSTNAME, :LASTNAME ], :OfSubValue = "Ali") + NL
 #--> 4
 
 ? @@( o1.FindInCols([ :FIRSTNAME, :LASTNAME ], :SubValue = "Ali") )
@@ -2065,7 +2067,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.36 second(s)
+# Executed in 0.35 second(s)
 
 /*----------------------
 
@@ -2078,11 +2080,11 @@ o1 = new stzTable([
 	[ "Alibaba",	"AliAli",	"Tester"	]
 ])
 
-? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], "Ali" ) )
+? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], "Ali" ) ) + NL
 #--> [ [ 1, 2 ] ]
 
 # Same as:
-? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], :Value = "Ali" ) ) # Added the :Value named param
+? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], :Value = "Ali" ) ) + NL # Added the :Value named param
 #--> [ [ 1, 2 ] ]
 
 ? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], :SubValue = "Ali" ) )
@@ -2107,7 +2109,7 @@ o1 = new stzTable([
 	[ "Alibaba",	"AliAli",	"Tester"	]
 ])
 
-? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], "Ali" ) )
+? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], "Ali" ) ) + NL
 #--> [ [ 1, 2 ] ]
 # Executed in 0.11 second(s)
 
@@ -2119,7 +2121,7 @@ o1 = new stzTable([
 # Executed in 0.06 second(s)
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.14 second(s)
 
 /*--------------
 
@@ -2154,7 +2156,7 @@ o1 = new stzTable([
 proff()
 # Executed in 0.40 second(s)
 
-/*===============================================================
+/*==============
 
 pron()
 
@@ -2165,25 +2167,25 @@ o1 = new stzTable([
 	[ "Alibaba",	"AliAli",	"Tester"	]
 ])
 
-? @@( o1.RowAsPositions(2) )
+? @@( o1.RowAsPositions(2) ) + NL
 #--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
 
-? @@( o1.RowsAsPositions([ 1 , 3 ]) )
+? @@( o1.RowsAsPositions([ 1 , 3 ]) ) + NL
 #--> [
 #	[ 1, 1 ], [ 2, 1 ], [ 3, 1 ],
 #	[ 1, 3 ], [ 2, 3 ], [ 3, 3 ]
 # ]
 
-? o1.NumberOfOccurrenceInRows([ 2, 3 ], "Ali")
+? o1.NumberOfOccurrenceInRows([ 2, 3 ], "Ali") + NL
 #--> 1
 
-? @@( o1.FindInRows([ 2, 3 ], "Ali") )
+? @@( o1.FindInRows([ 2, 3 ], "Ali") ) + NL
 #--> [ [ 1, 2 ] ]
 
-? o1.NumberOfOccurrenceInRows([ 2, 3 ], :OfSubValue = "Ali")
+? o1.NumberOfOccurrenceInRows([ 2, 3 ], :OfSubValue = "Ali") + NL
 #--> 4
 
-? @@( o1.FindInRows([ 2, 3 ], :SubValue = "Ali") )
+? @@( o1.FindInRows([ 2, 3 ], :SubValue = "Ali") ) + NL
 #--> [
 #	[ [ 1, 2 ], [ 1 ] ],
 #	[ [ 1, 3 ], [ 1 ] ],
@@ -2191,7 +2193,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.20 second(s)
+# Executed in 0.26 second(s)
 
 /*--------------
 
@@ -2217,7 +2219,7 @@ o1 = new stzTable([
 ? o1.RowsContain([ 1, 2 ], "Ali")
 #--> TRUE
 
-? o1.RowsContain([ 1, 3 ], :SubValue = "Ali")
+? o1.RowsContain([ 1, 3 ], :SubValue = "Ali") + NL
 #--> TRUE
 
 ? @@( o1.FindInRows([ 1, 3 ], :SubValue = "Ali") )
@@ -2229,7 +2231,7 @@ o1 = new stzTable([
 proff()
 # Executed in 0.20 second(s)
 
-/*===============================================================
+/*===================
 
 pron()
 
@@ -2250,11 +2252,13 @@ o1 = new stzTable([
 ? @@( o1.FindCell("Programmer") )
 #--> [ [ 3, 1 ] ]
 
+? @@( o1.FindCell("Ali") )
+#--> [ [ 1, 2 ] ]
+
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.20 second(s)
 
 /*--------------
-*/
 
 pron()
 
@@ -2267,10 +2271,10 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? @@( o1.Find("Red") )
+? @@( o1.Find("Red") ) + NL
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
-? @@( o1.FindInCol(:PALETTE1, "Blue") )
+? @@( o1.FindInCol(:PALETTE1, "Blue") ) + NL
 #--> [ [ 1, 2 ], [ 1, 3 ] ]
 
 ? @@( o1.FindInRow(2, "Red") ) 
@@ -2281,8 +2285,11 @@ proff()
 
 /*===============
 
+pron()
+
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	#-------------------------------------#
 	[     "Red",     "White",    "Yellow" ],
 	[    "Blue",       "Red",       "Red" ],
 	[    "Blue",     "Green",   "Magenta" ],
@@ -2292,7 +2299,7 @@ o1 = new stzTable([
 ? @@( o1.Section([1,2], [3,2]) ) + NL
 #--> [ "Blue", "Red", "Red" ]
 
-? @@( o1.SectionXT([1,2], [3,2]) ) + NL
+? @@( o1.SectionZ([1,2], [3,2]) ) + NL
 #--> [
 #	[ [ 1, 2 ], "Blue" ],
 #	[ [ 2, 2 ], "Red"  ],
@@ -2302,7 +2309,12 @@ o1 = new stzTable([
 ? @@( o1.SectionAsPositions([1,2], [3,2]) )
 #--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
 
+proff()
+# Executed in 0.12 second(s)
+
 /*==========
+
+pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -2315,7 +2327,12 @@ o1 = new stzTable([
 ? @@( o1.FindInSection([1,2], [3,2], "Red") )
 #--> [ [ 2, 2 ], [ 3, 2 ] ]
 
+proff()
+# Executed in 0.05 second(s)
+
 /*----------
+
+pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -2325,7 +2342,7 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? @@( o1.SectionXT(:From = :FirstCell, :To = [3,2]) )
+? @@( o1.SectionZ(:From = :FirstCell, :To = [3,2]) )
 #--> [
 #	[ [ 1, 1 ], "Red" 	],
 #	[ [ 2, 1 ], "White" 	],
@@ -2335,7 +2352,12 @@ o1 = new stzTable([
 #	[ [ 3, 2 ], "Red" 	]
 #    ]
 
+proff()
+# Executed in 0.09 second(s)
+
 /*-----------
+
+pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -2354,7 +2376,55 @@ o1 = new stzTable([
 ? @@( o1.FindInSectionCS([1, 1], [3, 2], "red", :CS = FALSE) )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
+proff()
+# Executed in 0.14 second(s)
+
 /*-----------
+
+pron()
+
+o1 = new stzTable([
+	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
+	#-----------------------------------------------#
+	[ "Andy", 	"Maestro",	"Programmer" 	],
+	[ "Ali", 	"Abraham",	"Designer"	],
+	[ "Alibaba",	"AliAli",	"Tester"	]
+])
+
+? @@( o1.FindInSection( :From = [1, 2], :To = [2, 3], :CellPart = "Ali" ) )
+#--> [ [ [ 1, 2 ], [ 1 ] ], [ [ 1, 3 ], [ 1 ] ], [ [ 2, 3 ], [ 1, 4 ] ] ]
+
+proff()
+# Executed in 0.08 second(s)
+
+/*-----------
+
+pron()
+
+o1 = new stzTable([
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	#-------------------------------------#
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
+])
+
+? @@( o1.FindNthInSectionCS(2, :From = :FirstCell, :To = [3, 3], "red", :CS = FALSE) )
+#--> [2, 2]
+
+? @@( o1.FindFirstInSection(:From = :FirstCell, :To = [3, 3], "Red") )
+#--> [1, 1]
+
+? @@( o1.FindLastInSection(:From = :FirstCell, :To = [3, 3], "Red") )
+#--> [3, 2]
+
+proff()
+# Executed in 0.22 second(s)
+
+/*-----------
+
+pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -2364,11 +2434,30 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? o1.FindNthInSectionCS(2, :From = :FirstCell, :To = [3, 3], "red", :CS = FALSE) #--> [2, 2]
-? o1.FindFirstInSection(:From = :FirstCell, :To = [3, 3], "Red") #--> [1, 1]
-? o1.FindLastInSection(:From = :FirstCell, :To = [3, 3], "Red") #--> [3, 2]
+? o1.Count("Red")
+#--> 3
+
+? o1.Count(:SubValue = "e")
+#--> 11
+
+? o1.CountInCol(:PALETTE1, "Blue")
+#--> 2
+
+? o1.CountInRow(2, "Red")
+#--> 2
+
+? o1.CountInCells( [ [1, 1], [2,1], [2, 2] ], "Red" )
+#--> 2
+
+? o1.CountInCells( [ [1, 1], [2,1], [2, 2] ], :SubValue = "e" )
+#--> 3
+
+proff()
+# Executed in 0.33 second(s)
 
 /*-----------
+
+pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -2378,30 +2467,45 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? o1.Count("Red") #--> 3
-? o1.Count(:SubValue = "e") #--> 11
+? o1.SectionContains( [1, 2], [3, 2], "Red" )
+#--> TRUE
 
-? o1.CountInCol(:PALETTE1, "Blue") #--> 2
-? o1.CountInRow(2, "Red") #--> 2
+? o1.SectionContains( [1, 2], [3, 2], :SubValue = "ed" )
+#--> TRUE
 
-? o1.CountInCells( [ [1, 1], [2,1], [2, 2] ], "Red" ) #--> 2
-? o1.CountInCells( [ [1, 1], [2,1], [2, 2] ], :SubValue = "e" ) #--> 3
-
-/*-----------
-
-o1 = new stzTable([
-	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
-	[     "Red",     "White",    "Yellow" ],
-	[    "Blue",       "Red",       "Red" ],
-	[    "Blue",     "Green",   "Magenta" ],
-	[   "White",      "Gray",     "Black" ]
-])
-
-? o1.SectionContains( [1, 2], [3, 2], "Red" ) #--> TRUE
-? o1.SectionContains( [1, 2], [3, 2], :SubValue = "ed" ) #--> TRUE
+proff()
+# Executed in 0.08 second(s)
 
 /*==============
 
+pron()
+
+o1 = new stzString("Red")
+? o1.AdjustToRightWith("PALETTE1")
+#    "PALETTE1"
+#--> "     Red"
+
+proff()
+
+/*----------------
+*/
+pron()
+
+o1 = new stzListOfStrings([ ":PALETTE1", "Red", "Blue", "Blue", "White" ])
+? o1.AlignedToRight()
+#-->
+# :PALETTE1
+#       Red
+#      Blue
+#      Blue
+#     White
+
+proff()
+
+/*==============
+*/
+pron()
+
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
 	[     "Red",     "White",    "Yellow" ],
@@ -2410,7 +2514,7 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? o1.Show()
+? o1.Show() # TODO: fix the formatting of the output
 #-->
 #	#   PALETTE1   PALETTE2   PALETTE3
 #	1        Red      White     Yellow
@@ -2418,29 +2522,31 @@ o1 = new stzTable([
 #	3       Blue      Green    Magenta
 #	4      White       Gray      Black
 
-//? @@( o1.SectionXT(:From = [1,2], :To = [3,2]) ) + NL
+? @@( o1.SectionZ(:From = [1,2], :To = [3,2]) ) + NL
 #--> [
 #	[ [ 1, 2 ], "Blue" 	],
 #	[ [ 2, 2 ], "Red" 	],
 #	[ [ 3, 2 ], "Red" 	]
 #    ]
 
-//? @@( o1.FindInSection([1,2], [3,2], :SubValue = "e") ) + NL
+? @@( o1.FindInSection(:From = [1,2], :To = [3,2], :SubValue = "e") ) + NL
 #--> [
 #	[ [ 1, 2 ], [ 4 ] ],
 #	[ [ 2, 2 ], [ 2 ] ],
 #	[ [ 3, 2 ], [ 2 ] ]
 #    ]
 
-//? @@( o1.FindNthInSection(:First, [1,2], [3,2], :SubValue = "e") ) + NL
+? @@( o1.FindNthInSection(:First, :From = [1,2], :To = [3,2], :SubValue = "e") ) + NL
 #--> [ [ 1, 2 ], 4 ]
 
-? @@( o1.FindNthInSection(:Last, [1,2], [3,2], :SubValue = "e") ) + NL
+? @@( o1.FindNthInSection(:Last, :From = [1,2], :To = [3,2], :SubValue = "e") ) + NL
 #--> [ [ 3, 2 ], 2 ]
 
-/*
-? @@( o1.FindLastInSection([1,2], [3,2], :SubValue = "e") ) + NL
-#--> [ [ 3, 2 ], [ 2 ] ]
+? @@( o1.FindLastInSection(:From = [1,2], :To = [3,2], :SubValue = "e") ) + NL
+#--> [ [ 3, 2 ], 2 ]
+
+proff()
+# Executed in 0.87 second(s)
 
 /*=============
 

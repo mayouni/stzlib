@@ -26781,7 +26781,7 @@ def ReplaceIBS()
 	def ContainsOneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
 
 		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfString() )
-			StzRaise("Uncorrect param type! pacSubStr must be a list of strings.")
+			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
 		bResult = FALSE
@@ -26827,7 +26827,7 @@ def ReplaceIBS()
 
 	def ContainsOneOrMoreCS(pacSubStr, pCaseSensitive)
 		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfString() )
-			StzRaise("Uncorrect param type! pacSubStr must be a list of strings.")
+			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
 		bResult = FALSE
@@ -41033,7 +41033,7 @@ def ReplaceIBS()
 		ok
 
 		if NOT isString(pcOtherStr)
-			StzRaise("Uncorrect param type! pcOtherStr must be a string.")
+			StzRaise("Incorrect param type! pcOtherStr must be a string.")
 		ok
 
 		aTempList = [
