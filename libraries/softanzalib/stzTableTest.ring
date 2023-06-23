@@ -2515,9 +2515,17 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? o1.Show() # TODO: fix the formatting of the output
+//? o1.Show()
 
-//? o1.ShowXT(:Separator = " | ", :Alignment = :Left)
+//? o1.ShowXT([ :Alignment = :Center ]) # Also :Left, :Right and :Default
+#-->
+# :PALETTE1  :PALETTE2  :PALETTE3
+#    Red       White     Yellow  
+#   Blue        Red        Red   
+#   Blue       Green     Magenta 
+#   White      Gray       Black  
+
+? o1.ShowXT([ :Separator = " | ", :UnderLineHeader, :ShowRowNumbers ])
 
 proff()
 # Executed in 0.25 second(s)

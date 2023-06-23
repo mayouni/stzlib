@@ -12028,6 +12028,18 @@ class stzString from stzObject
 		def NRightCharsReplaced(pcNewSubStr)
 			return This.RightNCharsReplaced(pcNewSubStr)
 
+	  #-------------------------------#
+	 #     REPLACING MIDDLE CHAR     #
+	#-------------------------------#
+
+	def ReplaceMiddleChar(pcNewSubStr)
+		nPos = This.FindMiddleChar()
+		This.ReplaceSection(nPos, nPos, pcNewSubStr)
+
+		def ReplaceMiddleCharQ(pcNewSubStr)
+			This.ReplaceMiddleChar(pcNewSubStr)
+			return This
+
 	  #-------------------------------------------#
 	 #     REPLACING MANY SUBSTRINGS AT ONCE     #
 	#-------------------------------------------#

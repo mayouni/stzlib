@@ -9634,14 +9634,102 @@ Class stzTable
 	#=====================#
 
 	def Show()
+		? This.ToString()
+	
+	def ShowXT(paOptions)
+		? This.ToStringXT(paOptions)
+
+	def ToString()
+		return This.ToStringXT([ :Separator = :Default, :Alignment = :Default ])
+
+	def ToStringXT(paOptions)
+		/* EXAMPLE
+
+		? o1.toStringXT(:Separator = " | ", :Alignment = :Leftة :UnderLineHeader, :ShowRowNumbers)
+
+		*/
+		if NOT isList(paOptions)
+			StzRaise("Incorrect param type! paOptions must be a list.")
+		ok
+
+		nLen = len(paOptions)
+		aOptions = []
+		for i = 1 to nLen
+
+			if isString(paOptions[i]) and
+			   ( paOptions[i] = :UnderLineHeader or paOptions[i] = :ShowRowNumbers )
+
+				aOptions + [ paOptions[i], TRUE ]
+					
+			else
+				aOptions + paOptions[i]
+			ok
+		next
+
+		if NOT (len(aOptions) = 0 or Q(aOptions).IsHashList())
+			StzRaise("Incorrect param! paOptions must be either an empty list or a hashlist.")
+		ok
+
+		# Reading the options
+
+		cSeparator = "  "
+		cAlignment = :Right
+		bUnderlineHeader = FALSE
+		bShowRowNumbers = FALSE
+
+		#--
+
+		pSeparator = aOptions[:Separator]
+
+		if pSeparator != NULL and isString(pSeparator)
+			if pSeparator = :Default
+				cSeparator = "  "
+			else
+				cSeparator = pSeparator
+			ok
+		ok
+
+		#--
+
+		pAlignment = aOptions[:Alignment]
+
+		if pAlignment != NULL and isString(pAlignment)
+
+			if ( pAlignment = :Right or pAlignment = :Left or pAlignment = :Center)
+				cAlignment = pAlignment
+
+			but pAlignment = :Default
+				cAlignment = :Right
+			ok
+		ok
+
+		#--
+
+		pUnderlineHeader = aOptions[:UnderLineHeader]
+
+		if pUnderlineHeader != NULL and isNumber(pUnderlineHeader)
+
+			if pUnderlineHeader = TRUE
+				bUnderlineHeader = TRUE
+
+			but pUnderlineHeader = FALSE
+				bUnderlineHeader = FALSE
+			ok
+
+		ok
+
+		# Doing the job
+
 		acAdjustedCols = []
 		nLen = This.NumberOfCols()
 		
+		# Adjusting the widths of all cells
+
 		for i = 1 to nLen
 			acCurrentColAdjusted = This.Col(i) + (":" + This.ColName(i))
 
 			oListOfStr = new stzListOfStrings(acCurrentColAdjusted)
-			acCurrentColAdjusted = oListOfStr.AdjustedToRight()
+			acCurrentColAdjusted = oListOfStr.AdjustedTo(cAlignment)
 
 			acAdjustedCols + acCurrentColAdjusted
 	
@@ -9655,6 +9743,8 @@ Class stzTable
 			aTable + [ acAdjustedCols[i][nLast], Q(acAdjustedCols[i]).LastItemRemoved() ]
 		next
 		
+		# Constructing the header
+
 		oTable = new stzTable(aTable)
 		nCols = oTable.NumberOfCols()
 		nRows = oTable.NumberOfRows()
@@ -9662,20 +9752,49 @@ Class stzTable
 		cString = ""
 
 		for i = 1 to nCols
-			cString += oTable.ColNameQ(i).Uppercased() + "  "
+			cString += oTable.ColNameQ(i).Uppercased()
+			if i < nCols
+				cString += cSeparator
+			ok
 		next
+
+		# Underlining the header
+
+		cUnderLine = ""
+
+		if bUnderlineHeader
+			cSep = Q("-").RepeatedNTimes( Q(cSeparator).NumberOfChars() )
+			cSep = Q(cSep).ReplaceMiddleChar(:With = "+").Content()
+
+			for i = 1 to nLen
+				cUnderLine += Q("-").
+				RepeatedNTimes( This.ColNameQ(i).NumberOfChars() + 1 )
+
+				if i < nLen
+					cUnderLine += cSep
+				ok
+			next
+
+			cString += (NL + cUnderline)
+		ok
+
+		# Constructing the rows
 
 		for j = 1 to nRows
 			cRow = ""
 			for i = 1 to nCols
-				cRow += oTable.Cell(i, j) + "  "
+				cRow += oTable.Cell(i, j)
+				if i < nCols
+					cRow += cSeparator
+				ok
+	
 			next
 
 			cString += (NL + cRow)
 		next
 
-		? cString
-		
+		return cString
+
 	  #-----------------------------------------------------------#
 	 #  FILLING ALL THE TABLE WITH A GIVEN CELL, COLUMN, OR ROW  #
 	#-----------------------------------------------------------#
