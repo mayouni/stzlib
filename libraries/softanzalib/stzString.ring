@@ -28253,6 +28253,31 @@ def ReplaceIBS()
 
 		return aResult
 
+		#< @FunctionFluentForms
+
+		def SplitToNPartsQ(n)
+			return This.SplitToNPartsQR(n, :stzList)
+
+		def SplittoNPartsQR(n, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitToNParts(n) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitToNParts(n) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitToNParts(n) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def SplittedToNParts(n)
+		return This.SplitToNParts(n)
+
 	  #-----------------------------------#
 	 #   SPLITTING TO PARTS OF N CHARS   #
 	#-----------------------------------#
@@ -28556,6 +28581,10 @@ def ReplaceIBS()
 			ok
 		ok
 
+		if This.NumberOfChars() = 0
+			return []
+		ok
+
 		cCode = StzStringQ(pcPartionner).
 				SimplifyQ().
 				RemoveBoundsQ(["{","}"]).
@@ -28576,19 +28605,20 @@ def ReplaceIBS()
 		aParts = []
 
 		@char = This.FirstChar()
+		@i = 1
 		eval(cCode)
 		cPrevious = cPartionner
 
-		for i = 2 to This.NumberOfChars()
+		for @i = 2 to This.NumberOfChars()
 
-			cCurrentChar = This.Char(i)
+			cCurrentChar = This.Char(@i)
 			oCurrentChar = new stzChar(cCurrentChar)
 			@char = cCurrentChar
 
 			eval(cCode)
 			cCurrent = cPartionner
 
-			oPreviousChar = new stzChar(This.Char(i-1))
+			oPreviousChar = new stzChar(This.Char(@i-1))
 			@char = oPreviousChar.Content()
 			eval(cCode)
 			cPrevious = cPartionner

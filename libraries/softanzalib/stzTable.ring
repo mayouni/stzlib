@@ -9634,209 +9634,48 @@ Class stzTable
 	#=====================#
 
 	def Show()
-		? This.ToString()
-
-	def ShowXT(paOptions)
-		? This.ToStringXT(paOptions)
-
-	def ToStringXT(paOptions)
-		cTable = This.HeaderToString() + NL + This.RowsToStringXT(paOptions)
-		return cTable
-
-	def ToString()
-		return This.ToStringXT([ :ReplaceEmptyCellsWith = "" ])
-
-	def MaxWidthInCol(pCol)
-		if isString(pCol)
-			if Q(pCol).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
-				pCol = 1
-
-			but Q(pCol).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
-				pCol = This.NumberOfCols()
-
-			else
-				pCol = This.FindCol(pCol)
-				if pCol = 0
-					StzRaise("Inexistant column name!")
-				ok
-			ok
-		ok
-
-		aColContent = This.Col(pCol)
-		nNumberOfCols = len(aColContent)
-		nMax = 0
-
-		for i = 1 to nNumberOfCols
-			cell = aColContent[i]
-
-			if isList(cell)
-				nLen = len(cell)
-			but isString(cell)
-				nLen = Q(cell).NumberOfChars()
-			but isNumber(cell)
-				nLen = len(""+cell)
-			else // case of object
-				# TODO: manage this in the future
-			ok
-
-			if nLen > nMax
-				nMax = nLen
-			ok
-		next
-
-		return nMax
-
-
-		def WidthOfLargestCellInCol(pCol)
-			return This.MaxWidthInCol(pCol)
-
-	def MaxWidthInEachCol()
-		anResult = []
-		nNumberOfCols = This.NumberOfCol()
-
-		for i = 1 to nNumberOfCols
-			anResult + This.MaxWidthInCol(i)
-		next
-
-		return anResult
-
-		def MaxWidthInEachColQ()
-			return This.MaxWidthInEachColQR(:stzList)
-
-		def MaxWidthInEachColQR(pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.MaxWidthInEachCol() )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.MaxWidthInEachCol() )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-	def MaxWidthInEachColXT()
-		anResult = This.MaxWidthInEachColQ().
-				InsertBeforeQ(1, len( "" + This.NumberOfRows() ) ).
-				Content()
-
-		return anResult
-
-	def MaxWidthInRow(p)
-		anSizes = []
-
-		aRow = This.Row(p)
-		nLen = len(aRow)
-
+		acAdjustedCols = []
+		nLen = This.NumberOfCols()
+		
 		for i = 1 to nLen
-			anSizes + @@Q(aRow[i]).RemoveBoundsQ('"').NumberOfChars()
+			acCurrentColAdjusted = This.Col(i) + (":" + This.ColName(i))
+
+			oListOfStr = new stzListOfStrings(acCurrentColAdjusted)
+			acCurrentColAdjusted = oListOfStr.AdjustedToRight()
+
+			acAdjustedCols + acCurrentColAdjusted
+	
+		next
+		
+		nLast = len(acAdjustedCols[1])
+
+		aTable = []
+		
+		for i = 1 to nLen
+			aTable + [ acAdjustedCols[i][nLast], Q(acAdjustedCols[i]).LastItemRemoved() ]
+		next
+		
+		oTable = new stzTable(aTable)
+		nCols = oTable.NumberOfCols()
+		nRows = oTable.NumberOfRows()
+
+		cString = ""
+
+		for i = 1 to nCols
+			cString += oTable.ColNameQ(i).Uppercased() + "  "
 		next
 
-		nResult = StzListOfNumbersQ(anSizes).Max()
-		return nResult
-
-		def WidthOfLargestCellInRow(pRow)
-			return This.WidthOfLargestCellInRow(pRow)
-
-	def MaxWidthInEachRow()
-		anResult = []
-
-		nLen = This.NumberOfRows()
-		for i = 1 to nLen
-			anSizes = []
-
-			aNthRow = This.NthRow(i)
-			nLenRow = len(aNthRow)
-
-			for i = 1 to nLenRow
-				anSizes + @@Q(aNthRow[i]).RemoveBoundsQ('"').NumberOfChars()
+		for j = 1 to nRows
+			cRow = ""
+			for i = 1 to nCols
+				cRow += oTable.Cell(i, j) + "  "
 			next
 
-			anResult + StzListOfNumbersQ(anSizes).Max()
+			cString += (NL + cRow)
 		next
 
-		return anResult
-
-	def HeaderToString()
-		anMax = This.MaxWidthInEachColXT()
-
-		acStr = This.ColNamesQ().
-			     UppercaseQ().
-			     InsertBeforeQ(1, "#").
-			     Content()
-
-		cResult = ""
-		nLen = len(acStr)
-
-		for i = 1 to nLen
-
-			cResult += Q(acStr[i]).AlignedtoRightXT(anMax[i], " ")
-
-			if i < len(anMax)
-				cResult += "   "
-			ok
-		next
-
-		return cResult
-
-	def RowsToString()
-		return This.RowsToStringXT([ :ReplaceEmptyCellsWith = "" ])
-
-	def RowsToStringXT(paOptions)
-
-		cRows = ""
-		nLen = This.NumberOfRows()
-		for y = 1 to nLen
-			cRows += ""+ y + "   " + This.RowToStringXT(y, paOptions) + NL
-		next
-
-		return cRows
-
-	def RowToString(n)
-		return This.RowToStringXT(n, [ :ReplaceEmptyCellsWith = "" ])
-
-	def RowToStringXT(n, paOptions)
-		if NOT ( isList(paOptions) and Q(paOptions).IsHashList() )
-			StzRaise("Incorrect param format! paOtions must be a hashlist.")
-		ok
-
-		cEmptyCell = paOptions[ :ReplaceEmptyCellsWith ]
-
-		anMax = []
-		acColNames   = This.ColNames()
-		nLenColNames = len(acColNames)
-
-		anMax = This.MaxWidthInEachCol()
-
-		cRow = ""
-		aRow = This.Row(n)
-		nLenRow = len(aRow)
-
-		for i = 1 to nLenRow
-			cell = aRow[i]
-
-			if isString(cell) and cell = NULL
-				cell = cEmptyCell
-
-			but isList(cell)
-				cell = "'" + @@(cell) + "'"
-			ok
-			
-			cRow += @@Q(cell).
-				RemoveBoundsQ('"').
-				RemoveBoundsQ("'").
-				AlignedToRightXT( anMax[i], " " )
-
-			if i < nLenRow
-				cRow += "   "
-			ok
-		next
-
-		return cRow
-
-		def RowToStringQ(n)
-			return new stzString( This.RowToString(n) )
-
+		? cString
+		
 	  #-----------------------------------------------------------#
 	 #  FILLING ALL THE TABLE WITH A GIVEN CELL, COLUMN, OR ROW  #
 	#-----------------------------------------------------------#

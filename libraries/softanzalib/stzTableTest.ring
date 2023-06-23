@@ -2488,7 +2488,7 @@ o1 = new stzString("Red")
 proff()
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzListOfStrings([ ":PALETTE1", "Red", "Blue", "Blue", "White" ])
@@ -2501,9 +2501,29 @@ o1 = new stzListOfStrings([ ":PALETTE1", "Red", "Blue", "Blue", "White" ])
 #     White
 
 proff()
+# Executed in 0.09 second(s)
+
+/*--------------
+*/
+pron()
+
+o1 = new stzTable([
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
+])
+
+? o1.Show() # TODO: fix the formatting of the output
+
+//? o1.ShowXT(:Separator = " | ", :Alignment = :Left)
+
+proff()
+# Executed in 0.25 second(s)
 
 /*==============
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -2521,7 +2541,7 @@ o1 = new stzTable([
 #	2       Blue        Red        Red
 #	3       Blue      Green    Magenta
 #	4      White       Gray      Black
-
+/*
 ? @@( o1.SectionZ(:From = [1,2], :To = [3,2]) ) + NL
 #--> [
 #	[ [ 1, 2 ], "Blue" 	],

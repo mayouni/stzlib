@@ -2903,7 +2903,7 @@ class stzNumber from stzObject
 
 		// Removing zeros from the left	
 		oNumber = new stzNumber(cNumber)
-		cNumber = oNumber.RemoveZerosFrom(:TheLeft)
+		cNumber = oNumber.RemoveZeros()
 
 		astructure = [ 	
 			:cTrillions = cTrillions,
@@ -2925,8 +2925,14 @@ class stzNumber from stzObject
 	def UnitsInHundreds()
 		return This.HundredsXT()[ :Units ]
 
+		def Units()
+			return This.UnitsInHundreds()
+
 	def DozensInHundreds()
 		return This.HundredsXT()[ :Dozens ]
+
+		def Dozens()
+			return This.DozensInHundreds()
 
 	def HundredsInHundreds()
 		return This.HundredsXT()[ :Hundreds ]
@@ -3301,7 +3307,7 @@ class stzNumber from stzObject
 	 #    REMOVING ZEROS FROM NUMBER   #
 	#---------------------------------#
 
-	def RemoveZeros()
+	def RemoveZerosFromLeft()
 		oStzStr = This.ToStzString()
 
 		if oStzStr.RepeatedLeadingcharIs("0")
@@ -3314,9 +3320,26 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		def RemoveZerosQ()
-			This.RemoveZeros()
-			return This
+	def RemoveZerosFromRight()
+		oStzStr = This.ToStzString()
+
+		if oStzStr.RepeatedTrailingcharIs("0") and This.IsReal()
+			This.Update( oStzStr.RemoveThisRepeatedtrailingCharQ("0").Content() )
+		ok
+
+	def RemoveZeros()
+		oStzStr = This.ToStzString()
+
+		if oStzStr.RepeatedTrailingcharIs("0")
+			This.Update( oStzStr.RemoveThisRepeatedtrailingCharQ("0").Content() )
+		ok
+
+		if This.IsReal()
+			if oStzStr.RepeatedTrailingCharIs("0")
+				This.Update( oStzStr.RemoveRepeatedTrailingCharQ("0").Content() )
+			ok
+		ok
+		
 
 	def ZerosRemoved()
 		cResult = This.Copy().RemoveZerosQ().Content()
