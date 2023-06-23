@@ -7922,16 +7922,28 @@ class stzListOfStrings from stzList
 			next
 	
 		else
+			nLen = This.NumberOfChars()
+
+			cDynamicExpr = StzCCodeQ(pcNewString).Transpiled()
+			anSection = oCCode.ExecutableSectionXT()
 			
-			cDynamicExpr = StzCCodeQ(pcNewString).UnifiedFor(:stzListOfStrings)
+			n1 = anSection[1]
+			n2 = anSection[2]
 
-			for i = 1 to This.NumberOfStrings()
+			if n1 = :First
+				n1 = 1
 
-				@string = This.StringAtPosition(i)
+			but n2 = :Last
+				n2 = nLen
+			ok
+
+			for @i = n1 to n2
+
+				@string = This.StringAtPosition(@i)
 				cCode = 'cNewStr = ' + cDynamicExpr
 				eval(cCode)
 
-				This.ReplaceStringAtPosition(i, cNewStr)
+				This.ReplaceStringAtPosition(@i, cNewStr)
 			next
 
 		ok

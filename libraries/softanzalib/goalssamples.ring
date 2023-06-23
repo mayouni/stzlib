@@ -337,13 +337,13 @@ load "stzlib.ring"
 #-------------------------------#
 
 	#-- 1. Consistency With Ring Type System
-
+/*
 	Softanza is designed to be consistent with the Ring type system. In fact, the
 	library provides four advanced types that extend the four main types of Ring:
 	stzNumber, stzString, stzList, and stzObject.
 
 	The following are some samples of advanced cases in using them: 
-
+*/
 	? StzStringQ("Hello أهلا 你好").UniqueParts(:Using = 'StzCharQ(@char).Script()')
 	#--> [ "Hello" = :Latin, " " = :Common, "أهلا" = :Arabic, "你好" = :Han ]
 
