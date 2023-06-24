@@ -9648,6 +9648,7 @@ Class stzTable
 		? o1.toStringXT(:Separator = " | ", :Alignment = :Leftة :UnderLineHeader, :ShowRowNumbers)
 
 		*/
+
 		if NOT isList(paOptions)
 			StzRaise("Incorrect param type! paOptions must be a list.")
 		ok
@@ -9718,6 +9719,21 @@ Class stzTable
 
 		ok
 
+		#--
+
+		pShowRowNumbers = aOptions[:ShowRowNumbers]
+
+		if pShowRowNumbers != NULL and isNumber(pShowRowNumbers)
+
+			if pShowRowNumbers = TRUE
+				bShowRowNumbers = TRUE
+
+			but pShowRowNumbers = FALSE
+				bShowRowNumbers = FALSE
+			ok
+
+		ok
+
 		# Doing the job
 
 		acAdjustedCols = []
@@ -9735,6 +9751,8 @@ Class stzTable
 	
 		next
 		
+		# Putting the adjusted cells in a stzTable object
+
 		nLast = len(acAdjustedCols[1])
 
 		aTable = []
@@ -9743,14 +9761,24 @@ Class stzTable
 			aTable + [ acAdjustedCols[i][nLast], Q(acAdjustedCols[i]).LastItemRemoved() ]
 		next
 		
-		# Constructing the header
-
 		oTable = new stzTable(aTable)
 		nCols = oTable.NumberOfCols()
 		nRows = oTable.NumberOfRows()
 
 		cString = ""
 
+		# Constructing the header()
+
+		acRowNumbers = (1 : nRows) + "#"
+
+		acRowNumbersAdjusted  = Q(acRowNumbers).
+					StringifyQ().
+					ToStzListOfStrings().
+					AdjustedToRight()
+
+		if bShowRowNumbers
+			cString = acRowNumbersAdjusted[ len(acRowNumbersAdjusted) ] + cSeparator
+		ok
 		for i = 1 to nCols
 			cString += oTable.ColNameQ(i).Uppercased()
 			if i < nCols
@@ -9763,8 +9791,15 @@ Class stzTable
 		cUnderLine = ""
 
 		if bUnderlineHeader
+
 			cSep = Q("-").RepeatedNTimes( Q(cSeparator).NumberOfChars() )
-			cSep = Q(cSep).ReplaceMiddleChar(:With = "+").Content()
+			cSep = Q(cSep).ReplaceMiddleCharQ(:With = "+").Content()
+
+			if bShowRowNumbers
+				cUnderLine = Q("-").
+					     RepeatedNTimes( Q(acRowNumbersAdjusted[1]).NumberOfChars() ) + cSep
+
+			ok
 
 			for i = 1 to nLen
 				cUnderLine += Q("-").
@@ -9782,6 +9817,10 @@ Class stzTable
 
 		for j = 1 to nRows
 			cRow = ""
+			if bShowRowNumbers
+				cRow += acRowNumbersAdjusted[j] + cSeparator
+			ok
+
 			for i = 1 to nCols
 				cRow += oTable.Cell(i, j)
 				if i < nCols
