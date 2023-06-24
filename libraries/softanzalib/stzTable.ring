@@ -2541,10 +2541,17 @@ Class stzTable
 		*/
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Cells, :Value, :OfValue ])
+			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([
+				:Cell, :OfCell, :Value, :OfValue,
+				:CellValue, :OfCellValue, :Of ])
+
 				return This.FindCellCS(pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue ])
+			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([
+					:SubValue, :OfSubValue,
+					:Part, :OfPart, :CellPart, :OfCellPart,
+					:SubPart, :OfSubPart ])
+
 				return This.FindSubValueCS(pCellValueOrSubValue[2], pCaseSensitive)
 			else
 				StzRaise("Incorrect param format! pCellValueOrSubValue must take the form :Cell = ... or :SubValue = ...")

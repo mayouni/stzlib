@@ -23704,6 +23704,15 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsOfCellValueNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :OfCellValue)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsCellPartNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :CellPart)

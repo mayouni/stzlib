@@ -2503,8 +2503,8 @@ o1 = new stzListOfStrings([ ":PALETTE1", "Red", "Blue", "Blue", "White" ])
 proff()
 # Executed in 0.09 second(s)
 
-/*--------------
-*/
+/*===============
+
 pron()
 
 o1 = new stzTable([
@@ -2523,7 +2523,12 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? o1.ShowXT([ :Separator = " | ", :Alignment = :Left, :UnderLineHeader, :ShowRowNumbers ])
+? o1.ShowXT([
+	:Separator = " | ",
+	:Alignment = :Left,
+	:UnderLineHeader,
+	:ShowRowNumbers
+])
 #-->
 #  # | :PALETTE1 | :PALETTE2 | :PALETTE3
 # ---+-----------+-----------+----------
@@ -2541,7 +2546,7 @@ o1 = new stzTable([
 # 12 | White     | Gray      | Black    
 
 proff()
-# Executed in 0.81 second(s)
+# Executed in 0.74 second(s)
 
 /*==============
 
@@ -2555,14 +2560,14 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? o1.Show() # TODO: fix the formatting of the output
+? o1.ShowXT([ :ShowRowNumbers ])
 #-->
 #	#   PALETTE1   PALETTE2   PALETTE3
 #	1        Red      White     Yellow
 #	2       Blue        Red        Red
 #	3       Blue      Green    Magenta
 #	4      White       Gray      Black
-/*
+
 ? @@( o1.SectionZ(:From = [1,2], :To = [3,2]) ) + NL
 #--> [
 #	[ [ 1, 2 ], "Blue" 	],
@@ -2587,9 +2592,20 @@ o1 = new stzTable([
 #--> [ [ 3, 2 ], 2 ]
 
 proff()
-# Executed in 0.87 second(s)
+# Executed in 0.51 second(s)
 
 /*=============
+*/
+
+pron()
+
+o1 = new stzTable([
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
+])
 
 ? @@( o1.FindCells( "Red" ) )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
@@ -2597,6 +2613,8 @@ proff()
 # Same as:
 ? @@( o1.FindAllOccurrences( :Of = "Red") )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
+
+proff()
 
 /*-----------
 
