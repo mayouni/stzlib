@@ -12040,6 +12040,10 @@ class stzString from stzObject
 			This.ReplaceMiddleChar(pcNewSubStr)
 			return This
 
+	def MiddleCharReplaced(pcNewSubStr)
+		cResult = This.Copy().ReplaceMiddleCharQ(pcNewSubStr).Content()
+		return cResult
+
 	  #-------------------------------------------#
 	 #     REPLACING MANY SUBSTRINGS AT ONCE     #
 	#-------------------------------------------#
