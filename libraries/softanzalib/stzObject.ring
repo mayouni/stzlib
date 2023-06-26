@@ -1242,6 +1242,12 @@ class stzObject
 		def IsStringOrNumber()
 			return This.IsNumberOrString()
 
+	def IsStringOrList()
+		return This.IsA([ :String, :Or = :List ])
+
+		def IsListOrString()
+			return This.IsListOrString()
+
 	def IsA(pcType)
 
 		/* Example
