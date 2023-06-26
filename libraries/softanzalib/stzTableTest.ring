@@ -3752,7 +3752,7 @@ proff()
 # Executed in 0.11 second(s)
 
 /*=================
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -3767,25 +3767,37 @@ o1 = new stzTable([
 
 o1.ReplaceCell(:FIRSTNAME, 3, :With = "Saber")
 
-? @@( o1.Cell(:FIRSTNAME, 3) )#--> "Saber"
+? @@( o1.Cell(:FIRSTNAME, 3) )
+#--> "Saber"
 
 proff()
 # Executed in 0.16 second(s)
 
 /*-----------------
 
+pron()
+
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE ],
 	[ "___",	"Arabic"  ],
-	[ "France",	"___"  ],
-	[ "USA",	"___" ]
+	[ "France",	"___"     ],
+	[ "USA",	"___"     ]
 ])
 
-? o1.Cell(2, 3) #--> "___"
-o1.ReplaceCell(2, 3, "English")
-? o1.Cell(2, 3) #--> "English"
+? o1.Cell(2, 3)
+#--> "___"
+
+o1.ReplaceCell(2, 3, :With = "English")
+
+? o1.Cell(2, 3)
+#--> "English"
+
+proff()
+# Executed in 0.05 second(s)
 
 /*-----------------
+
+pron()
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE ],
@@ -3807,3 +3819,46 @@ o1.Show()
 # 1   Tunisia     Arabic
 # 2    France     French
 # 3       USA    English
+
+proff()
+# Executed in 0.19 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzTable([
+	[ :NATION,	:LANGUAGE ],
+	[ "___",	"Arabic"  ],
+	[ "France",	"___"     ],
+	[ "USA",	"___"     ]
+])
+
+o1.ReplaceAll("___", :By = ".....")
+
+o1.Show()
+#-->
+#	:NATION  :LANGUAGE
+#	  .....     Arabic
+#	 France      .....
+#	   USA      .....
+
+proff()
+# Executed in 0.21 second(s)
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzTable([
+	[ :NATION,	:LANGUAGE ],
+	[ "Tunisia",	"Arabic"  ],
+	[ "France",	"French"  ],
+	[ "USA",	"english" ]
+])
+
+o1.ReplaceCellsInCol(:LANGUAGE, :By = ".....")
+
+o1.Show()
+
+proff()
