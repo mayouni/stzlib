@@ -8042,17 +8042,45 @@ Class stzTable
 		cCol = This.ColToName(pCol)
 		This.Table()[cCol][pnRow] = pNewCellValue
 
-	def ReplaceCells(paCellsPos, paNewCellsValues)
-		if isList(paNewCellsValues) and Q(paNewCellsValues).IsOneOfTheseNamedParams([ :By, :With, :Using ])
-			paNewCellsValues = paNewCellsValues[2]
+
+
+	def ReplaceCells(paCellsPos, paNewCellValue)
+		if isList(paNewCellValue) and Q(paNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
+			paNewCellValue = paNewCellValue[2]
 		ok
 	
 		for i = 1 to len(paCellsPos)
-			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], paNewCellsValues[i])
+			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], paNewCellsValues)
 		next
 
-		def ReplaceTheseCells(paCellsPos, paNewValues)
-			This.ReplaceCells(paCellsPos, paNewValues)
+		#< @FunctionAlternatives
+
+		def ReplaceTheseCells(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		#--
+
+		def ReplaceEachCell(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceEachOfTheseCells(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceEachCellOfThese(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		#--
+
+		def ReplaceEveryCell(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceEveryOneOfTheseCells(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceEveryCellOfThese(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		#>
 
 	def ReplaceCellsByMany(paCellsPos, paNewValues)
 
@@ -8200,11 +8228,33 @@ Class stzTable
 		aCellsPos = This.FindAllCS(pCellValue, pCaseSensitive)
 		This.ReplaceCells(aCellsPos, pNewCellValue)
 
-		# TODO: Add alternative forms: ReplaceAllOccurrences...
+		#< @FunctionAlternatives
+
+		def ReplaceAllOccurrencesOfCell(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCell(pCellValue, pNewCellValue, pCaseSensitive)
+
+		def ReplaceEachOccurrenceOfCell(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCell(pCellValue, pNewCellValue, pCaseSensitive)
+
+		def ReplaceEveryOccurrenceOfCell(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCell(pCellValue, pNewCellValue, pCaseSensitive)
+
+		#--
+
+		def ReplaceAllOccurrences(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCell(pCellValue, pNewCellValue, pCaseSensitive)
+
+		def ReplaceEachOccurrence(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCell(pCellValue, pNewCellValue, pCaseSensitive)
+
+		def ReplaceEveryOccurrence(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCell(pCellValue, pNewCellValue, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceAll(pCellValue, pNewCellValue, pCaseSensitive)
+	def ReplaceAll(pCellValue, pNewCellValue)
 		This.ReplaceAllCS(pCellValue, pNewCellValue, :CaseSensitive = TRUE)
 
 	  #---------------------------------------------------#
