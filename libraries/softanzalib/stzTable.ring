@@ -8030,9 +8030,9 @@ Class stzTable
 			def SectionContainsSubValue(paSection1, paSection2, pSubValue)
 				return This.ContainsSubValueInSection(paSection1, paSection2, pSubValue)
 
-	  #=================================================#
-	 #  REPLACING CELLS (PASTING NEW VALUES IN CELLS)  #
-	#=================================================#
+	  #==========================================================================#
+	 #  REPLACING A GIVEN CELL, DEFINED BY ITS POSITION, BY THE PROVIDED VALUE  #
+	#==========================================================================#
 
 	def ReplaceCell(pCol, pnRow, pNewCellValue)
 		if isList(pNewCellValue) and Q(pNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
@@ -8042,15 +8042,18 @@ Class stzTable
 		cCol = This.ColToName(pCol)
 		This.Table()[cCol][pnRow] = pNewCellValue
 
-
+	  #---------------------------------------------------------------------------#
+	 #  REPLACING MANY CELLS, DEFINED BY THEIR POSITIONS, BY THE PROVIDED VALUE  #
+	#---------------------------------------------------------------------------#
 
 	def ReplaceCells(paCellsPos, paNewCellValue)
+
 		if isList(paNewCellValue) and Q(paNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
 			paNewCellValue = paNewCellValue[2]
 		ok
 	
 		for i = 1 to len(paCellsPos)
-			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], paNewCellsValues)
+			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], paNewCellValue)
 		next
 
 		#< @FunctionAlternatives
@@ -8058,9 +8061,25 @@ Class stzTable
 		def ReplaceTheseCells(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		def ReplaceMany(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
 		#--
 
+		# TODO: Add the fellowing semantics to all simular functions in the library
+
+		def ReplaceEachOne(paCellsPos, paNewCellValue)
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+				paCellsPos = paCellsPos[2]
+			ok
+
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
 		def ReplaceEachCell(paCellsPos, paNewCellValue)
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+				paCellsPos = paCellsPos[2]
+			ok
+
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
 		def ReplaceEachOfTheseCells(paCellsPos, paNewCellValue)
@@ -8071,7 +8090,18 @@ Class stzTable
 
 		#--
 
+		def ReplaceEveryOne(paCellsPos, paNewCellValue)
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+				paCellsPos = paCellsPos[2]
+			ok
+
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
 		def ReplaceEveryCell(paCellsPos, paNewCellValue)
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+				paCellsPos = paCellsPos[2]
+			ok
+
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
 		def ReplaceEveryOneOfTheseCells(paCellsPos, paNewCellValue)
@@ -8081,6 +8111,10 @@ Class stzTable
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
 		#>
+
+	  #-----------------------------------------------------------------------------#
+	 #  REPLACING MANY CELLS, DEFINED BY THEIR POSITIONS, BY MANY PROVIDED VALUES  #
+	#-----------------------------------------------------------------------------#
 
 	def ReplaceCellsByMany(paCellsPos, paNewValues)
 
@@ -8112,6 +8146,93 @@ Class stzTable
 			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], aValues[i])
 		next
 
+		#< @FunctionAlternatives
+
+		def ReplaceTheseCellsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceManyByMany(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		#--
+
+		# TODO: Add the fellowing semantics to all simular functions in the library
+
+		def ReplaceEachCellByMany(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceEachOfTheseCellsByMany(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceEachCellOfTheseByMany(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		#--
+
+		def ReplaceEveryCellByMany(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceEveryOneOfTheseCellsByMany(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceEveryCellOfTheseByMany(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		#>
+
+	  #---------------------------------------------------------------------------------------#
+	 #  REPLACING MANY CELLS, DEFINED BY THEIR POSITIONS, BY MANY PROVIDED VALUES, EXTENDED  #
+	#---------------------------------------------------------------------------------------#
+
+	def ReplaceCellsByManyXT(paCellsPos, paNewValues)
+		if NOT BothAreLists(paCellsPos, :And = paNewValues)
+			StzRaise("Incorrect param types! paCellsPos and paNewValues must both be lists.")
+		ok
+
+		nLenPos = len(paCellsPos)
+		nLenNew = len(paNewValues)
+
+		if nLenNew < nLenPos
+			paNewValues = Q(paNewValues).ExtendXT(:To = nLenPos, :ByRepeatingItems)
+
+		but nLenNew > nLenPos
+			This.ExtendTo( QR(paCellsPos, :stzListOfPairs).Max() )
+		ok
+
+		This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		#< @FunctionAlternatives
+
+		def ReplaceTheseCellsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceManyByManyXT(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		#--
+
+		def ReplaceEachCellByManyXT(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEachOfTheseCellsByManyXT(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEachCellOfTheseByManyXT(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		#--
+
+		def ReplaceEveryCellByManyXT(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEveryOneOfTheseCellsByManyXT(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEveryCellOfTheseByManyXT(paCellsPos, paNewCellValue)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		#>
+
 	  #==============================#
 	 #  REPLACING CELLS IN COLUMNS  #
 	#==============================#
@@ -8122,20 +8243,25 @@ Class stzTable
 			paNewCol = paNewCol[2]
 		ok
 
-		if isString(paNewCol)
-			This.ReplaceColName(pCol, paNewCol)
-			return
-		ok
+		aColCells = This.ColAsPositions(pCol) # or .CellsInColAsPositions()
+		This.ReplaceCells(aColCells, paNewCol)
 
-		if NOT isList(paNewCol)
-			StzRaise("Incorrect param type! paNewCol must be a list.")
-		ok
-
-		aColCells = This.ColAsPositions(pCol)
-		This.ReplaceCellsByMany(aColCells, paNewCol)
+		#< @FunctionAlternativeForms
 
 		def ReplaceColumn(pCol, paNewCol)
 			This.ReplaceCol(pCol, pNewCol)
+
+		def ReplaceCellsInCol(pCol, paNewCol)
+			This.ReplaceCol(pCol, paNewCol)
+
+		def ReplaceCellsInColumn(pCol, paNewCol)
+			This.ReplaceCol(pCol, paNewCol)
+
+		#>
+
+	  #------------------------------------------------------------------------------------------------#
+	 #  REPLACING ALL THE COLUMNS IN THE TABLE WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS)  #
+	#------------------------------------------------------------------------------------------------#
 
 	def ReplaceAllCols(paNewCol)
 		if isList(paNewCol) and
@@ -8151,6 +8277,8 @@ Class stzTable
 			This.ReplaceCol(i, paNewCol)
 		next
 
+		#< @FunctionAlternativeForms
+
 		def ReplaceAllColumns(paNewCol)
 			This.ReplaceAllCols(paNewCol)
 
@@ -8160,16 +8288,75 @@ Class stzTable
 		def ReplaceColumns(paNewCol)
 			This.ReplaceAllCols(paNewCol)
 
-	def ReplaceTheseCols(paCols, paNewCols)
+		#--
+
+		def ReplaceAllCellsInAllCols(paNewCol)
+			This.ReplaceAllCols(paNewCol)
+
+		def ReplaceCellsInAllCols(paNewCol)
+			This.ReplaceAllCols(paNewCol)
+
+		def ReplaceAllCellsInAllColumns(paNewCol)
+			This.ReplaceAllCols(paNewCol)
+
+		def ReplaceCellsInAllColumns(paNewCol)
+			This.ReplaceAllCols(paNewCol)
+
+		#>
+
+	  #----------------------------------------------------------------------------------------------#
+	 #  REPLACING ALL THE COLUMNS IN THE TABLE WITH THE GIVEN COLUMNS (PROVIDED AS LISTS OF CELLS)  #
+	#----------------------------------------------------------------------------------------------#
+
+	def ReplaceAllColsByMany(paCols, paNewCols)
+		/* ... */
+
+		StzRaise("Insupported feature in this release!")
+
+		def ReplaceAllColumsByMany(paCols, paNewCols)
+			This.ReplaceAllColsByMany(paCols, paNewCols)
+
+	  #------------------------------------------------------------------------------------------------#
+	 #  REPLACING THE GIVEN COLUMNS WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS)  #
+	#------------------------------------------------------------------------------------------------#
+
+	def ReplaceTheseCols(paCols, paNewCol)
+		if Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+			paNewCol = paNewCol[2]
+		ok
+
+		/* ... */
+
+		StzRaise("Insupported feature in this release!")
+
+		def ReplaceTheseColumns(paCols, paNewCol)
+			This.ReplaceTheseCols(paCols, paNewCol)
+
+	  #-----------------------------------------------------------------------------------#
+	 #  REPLACING THE GIVEN COLUMNS WITH THE GIVEN COLUMNS (PROVIDED AS LISTS OF CELLS)  #
+	#-----------------------------------------------------------------------------------#
+
+	def ReplaceTheseColsByMany(paCols, paNewCols)
 		if Q(paNewCols).IsOneOfTheseNamedParams([ :With, :By, :Using ])
 			paNewCols = paNewCols[2]
 		ok
 
-		aCells = This.CellsInTheseColsAsPositions(paCols)
-		This.ReplaceCells(aCells, paNewCols)
+		/* ... */
 
-		def ReplaceTheseColumns(paCols, paNewCols)
-			This.ReplaceTheseCols(paCols, paNewCols)
+		StzRaise("Insupported feature in this release!")
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceTheseColumnsByMany(paCols, paNewCols)
+			This.ReplaceTheseColsByMany(paCols, paNewCols)
+
+		def ReplaceColsByMany(paCols, paNewCols)
+			This.ReplaceTheseColsByMany(paCols, paNewCols)
+
+		def ReplaceColumnsByMany(paCols, paNewCols)
+			This.ReplaceTheseColsByMany(paCols, paNewCols)
+
+		#>
 
 	  #===========================#
 	 #  REPLACING CELLS IN ROWS  #

@@ -3806,8 +3806,6 @@ o1 = new stzTable([
 	[ "USA",	"___"     ]
 ])
 
-aSomeCells = [ [1, 1], [2, 2], [2, 3] ]
-
 o1.ReplaceCellsByMany(
 	[     [1, 1],   [2, 2],    [2, 3] ],
 	[  "Tunisia", "French", "English" ]
@@ -3822,6 +3820,34 @@ o1.Show()
 
 proff()
 # Executed in 0.19 second(s)
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzTable([
+	[ :NATION,	:LANGUAGE ],
+	#-------------------------#
+	[ "France",	"___"     ],
+	[ "USA",	"___"     ],
+	[ "Niger",	"___"	  ],
+	[ "Egypt",	"___"	  ],
+	[ "Kuwait",	"___"     ]
+])
+
+o1.ReplaceCellsByManyXT(
+	[ [2, 1], [2, 2], [2, 3], [2, 4], [2, 5] ],
+	[   "01",   "02",   "03" ]
+)
+
+o1.Show()
+#-->
+# #    NATION   LANGUAGE
+# 1   Tunisia     Arabic
+# 2    France     French
+# 3       USA        ___
+
+proff()
 
 /*-----------------
 
@@ -3847,7 +3873,7 @@ proff()
 # Executed in 0.21 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -3860,5 +3886,12 @@ o1 = new stzTable([
 o1.ReplaceCellsInCol(:LANGUAGE, :By = ".....")
 
 o1.Show()
+#-->
+# :NATION  :LANGUAGE
+# Tunisia      .....
+# France      .....
+#    USA      .....
 
 proff()
+# Executed in 0.33 second(s)
+
