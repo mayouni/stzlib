@@ -14580,6 +14580,8 @@ class stzList from stzObject
 			This.ExtendToPositionXT(n, :With = "")
 		ok
 
+		#< @FunctionAlternativeForm
+
 		def ExtendToPositionQ(n)
 			This.ExtendToPosition(n)
 			return This
@@ -14595,6 +14597,17 @@ class stzList from stzObject
 				This.ExtendTo(n)
 				return This
 
+		def Extend(n)
+			if isList(n) and Q(n).IsToOrToPositionNamedParam(n)
+				n = n[2]
+			ok
+
+			This.ExtendToPosition(n)
+
+			def ExtendQ(n)
+				This.Extend(n)
+				return This
+
 	def ExtendedToPosition(n)
 		aResult = This.Copy().ExtendToPositionQ(n).Content()
 		return aResult
@@ -14607,6 +14620,13 @@ class stzList from stzObject
 				n = n[2]
 			ok
 	
+			return This.ExtendedToPosition(n)
+
+		def Extended(n)
+			if isList(n) and Q(n).IsToOrToPositionNamedParam(n)
+				n = n[2]
+			ok
+
 			return This.ExtendedToPosition(n)
 
 	  #------------------------------------------------------------------#
