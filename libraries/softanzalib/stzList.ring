@@ -14629,6 +14629,124 @@ class stzList from stzObject
 
 			return This.ExtendedToPosition(n)
 
+	  #---------------------------------------#
+	 #  EXTENDING THE LIST -- EXTENDED FORM  #
+	#---------------------------------------#
+
+	def ExtendXT(pnToPos, pBy)
+		/* EXAMPLE
+
+		o1 = new stzList([ "A", "B", "C" ])
+		o1.ExtendXT( :To = 8, :By = :Repeatingitems )
+		? o1.Content()
+
+		#--> [ "A", "B", "C", "A", "B", "C", "A", "B" ]
+
+		*/
+
+		# Checking params
+
+		if isList(pnToPos) and Q(pnToPos).IsToOrToPositionNamedParam()
+			pnToPos = pnToPos[2]
+		ok
+
+		if isList(pBy) and 
+		   Q(pBy).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+
+			pBy = pBy[2]
+
+		but isList(pBy) and
+		    Q(pBy).IsOneOfTheseNamedParams([ :WithItemsIn, :ByItemsIn, :UsingItemsIn ])
+
+			/* ... */
+
+		ok
+
+		# Doing the job
+
+		if isString(pBy) and
+		   ( pBy = :RepeatingItems or pBy = :RepeadtedItems or pBy = :RepeatItems )
+
+			aContent = This.Content()
+			nLen = len(aContent)
+
+			n = pnToPos - nLen
+
+			pBy = []
+
+			if n > 0
+				j = 0
+				for i = 1 to n
+					j++
+					if j > nLen
+						j = 1
+					ok
+
+					pBy + aContent[j]
+				next
+			ok
+
+			This.ExtendWith(pBy)
+
+		else
+			This.ExtendToPositionXT(pnToPos, pBy)
+		ok
+
+		#< @FunctionFluentForm
+
+		def ExtendXTQ(pnToPos, pBy)
+			This.ExtendXT(pnToPos, pBy)
+			return This
+		#>
+
+	def ExtendedWithXT(pnToPos, pBy)
+		aResult = This.Copy().ExtendWithXT(pnToPos, pBy)
+		return aResult
+
+	  #-------------------------------------------#
+	 #  EXTENDING THE LIST WITH THE GIVEN ITEMS  #
+	#-------------------------------------------#
+
+	def ExtendWith(paItems)
+		if NOT isList(paItems)
+			StzRaise("Incorrect param type! paItems must be a list.")
+		ok
+
+		nLen = len(paItems)
+
+		for i = 1 to nLen
+			@aContent + paItems[i]
+			/* NOTE
+			Using This.Add() is better then using @aContent directly,
+			but I do it to gain performance on large lists
+			*/
+		next
+
+		def ExtendWithQ(paItems)
+			This.ExtendWith(paItems)
+			return This
+
+		def ExtendWithItems(paItems)
+			This.ExtendWith(paItems)
+
+			def ExtendWithItemsQ(paItems)
+				This.ExtendWithItems(paItems)
+				return This
+
+	def ExtendedWith(paItems)
+		aResult = This.Copy().ExtendWithQ(paItems).Content()
+		return aResult
+
+		def ExtendedWithItems(paItems)
+			return This.ExtendedWith(paItems)
+
+	  #--------------------------------------------------------------------------#
+	 #  EXTENDING THE LIST TO A GIVEN POSITION WITH THE ITEMS OF AN OTHER LIST  #
+	#--------------------------------------------------------------------------#
+
+	def ExtendWithXT(pnStart, paItems)
+
+
 	  #------------------------------------------------------------------#
 	 #  EXTENDING THE LIST TO A GIVEN PSOTION (XT) WITH A GIVEN VALUE   #
 	#------------------------------------------------------------------#
@@ -24284,6 +24402,24 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsToOrToPositionNamedParam()
+
+		if This.IsToNamedParam() or This.IsToPositionNamedParam()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsToOrToPositionNamedParams()
+			return This.IsToOrToPositionNamedParam()
+
+		def IsToPositionOrToNamedParam()
+			return This.IsToOrToPositionNamedParam()
+
+		def IsToPositionOrToNamedParams()
+			return This.IsToOrToPositionNamedParam()
+
 	def IsToPositionOfItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :ToPositionOfItem )
@@ -24754,6 +24890,39 @@ class stzList from stzObject
 		if This.NumberOfItems() = 2 and
 
 		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :With, :With@ ]) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsWithItemsInNamedParam() 
+		if This.NumberOfItems() = 2 and
+
+		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :WithItemsIn, :WithItemsIn@ ]) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsByItemsInNamedParam()
+		if This.NumberOfItems() = 2 and
+
+		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :ByItemsIn, :ByItemsIn@ ]) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUsingItemsInNamedParam()
+		if This.NumberOfItems() = 2 and
+
+		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :UsingItemsIn, :UsingItemsIn@ ]) )
 
 			return TRUE
 
