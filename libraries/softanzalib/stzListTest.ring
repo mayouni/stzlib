@@ -1,6 +1,31 @@
 load "stzlib.ring"
 
 /*================
+*/
+pron()
+
+Q([ "A", "B", "C" ]) {
+
+	ExtendXT( :To = 5, :WithItemsIn = [ "A", "B" ] )
+	Show()
+	#--> [ "A", "B", "C", "A", "B" ]
+
+//	ExtendXT( :T
+
+}
+
+
+/*
+o1.ExtendXT( :ToPosition = 8, :By = :Repeatingitems )
+o1.Show()
+#--> [ "A", "B", "C", "A", "B", "C", "A", "B" ]
+*/
+proff()
+# Executed in 0.05 second(s)
+
+
+
+/*================
 
 pron()
 
@@ -906,7 +931,7 @@ o1.RemoveDuplicatedItems()
 ? @@( o1.Content() )
 #--> [ 4 ]
 # Executed in 0.17 second(s)
-*/
+
 proff()
 # Executed in 0.54 second(s)
 
