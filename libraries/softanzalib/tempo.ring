@@ -1,5 +1,37 @@
 load "stzlib.ring"
 
+/*-----
+*/
+pron()
+
+o1 = new stzString("okay one pepsi two three ")
+
+# Declaring a condition in a string
+
+cMyConditionIsVerified = '
+	Q(This[@i]).ContainsAnyOfThese( Q("vwto").Chars() )
+'
+
+# Using the condition to find the words verifying it (using FindW())
+# after the string is splitted (using Split())
+
+? o1.SplitQ(" ").FindW(cMyConditionIsVerified)
+#--> [ 1, 2, 4, 5 ]
+
+# Getting the words themselves using ItemsW()
+
+? o1.SplitQ(" ").ItemsW(cMyConditionIsVerified)
+#--> [ "okay", "one", "two", "three" ]
+
+# In general, any function in Softanza, like Find() and Items() here,
+# can be used as they are, or exented with the W() letter, so we can
+# instruct them to their job upon a given condition.
+
+proff()
+# Executed in 0.&'46 second(s)
+
+/*----------
+//o1.SplitQ(" ").FindWXT(' Q(@item).ContainsAnyOfThese( Q("vwto").Chars() ')
 /*----------
 
 pron()

@@ -1679,9 +1679,9 @@ class stzListOfStrings from stzList
 				This.SwapString(n1, n2)
 		#>
 
-	  #----------------------------#
-	 #     SORTING THE STRINGS    #
-	#----------------------------#
+	  #==========================================#
+	 #    ِCHECKING IF THE STRINGS ARE SORTED    #
+	#==========================================#
 
 	def IsSorted()
 		return This.IsSortedInAscending() or This.IsSortedInDescending()
@@ -1715,6 +1715,10 @@ class stzListOfStrings from stzList
 		def StringsAreSortedInDescending()
 			return This.IsSortedInDescending()
 
+	  #------------------------------------#
+	 #  SORTING THE STRINGS IN ASCENDING  #
+	#------------------------------------#
+
 	def SortInAscending()
 		This.QStringListObject().sort()
 
@@ -1737,6 +1741,10 @@ class stzListOfStrings from stzList
 
 		def StringsSortedInAscending()
 			return This.SortedInAscending()
+
+	  #-------------------------------------#
+	 #  SORTING THE STRINGS IN DESCENDING  #
+	#-------------------------------------#
 
 	def SortInDescending()
 		This.Update( ListReverse( This.Copy().SortedInAscending() ) )
@@ -1761,6 +1769,10 @@ class stzListOfStrings from stzList
 		def StringsSortedInDescending()
 			return This.SortedInDescending()
 		
+	  #-----------------------------------------#
+	 #  GETTING THE SORT ORDER OF THE STRINGS  #
+	#-----------------------------------------#
+
 	def SortingOrder()
 
 		cResult = :Unsorted
@@ -1829,27 +1841,63 @@ class stzListOfStrings from stzList
 
 		#>
 
-	def SortedByInAscendingBy(pcExpr)
+		#< @FunctionMisspelledForm
+
+		def SortInAsendingBy(pcExpr)
+			This.SortInAscendingBy(pcExpr)
+
+			def SortInAsendingByQ(pcExpr)
+				This.SortInAsendingBy(pcExpr)
+				return This
+
+		#>
+
+	def SortedInAscendingBy(pcExpr)
 		acResult = This.Copy().SortByAscendingByQ(pcExpr).Content()
 		return This
 
 		def SortedBy(pcExpr)
 			return This.SortedByInAscendingBy(pcExpr)
 
+		#< @FunctionMisspelledForm
+
+		def SortedInAsendingBy(pcExpr)
+			return This.SortedInAscendingBy(pcExpr)
+
+		#>
+
 	  #-----------------------------------------#
 	 #  SORTING THE STRING BY - IN DESCENDING  #
 	#-----------------------------------------#
  
 	def SortInDescendingBy(pcExpr)
-		acSorted = This.SortInAscendingQ(pcExpr).SortedInDescending()
+		acSorted = This.SortInAscendingByQ(pcExpr).SortedInDescending()
 		This.Update(acSorted)
 
-		def SortInDescendingByQ(pcExp)
+		#< @FunctionFluentForm
+
+		def SortInDescendingByQ(pcExpr)
 			This.SortInDescendingBy(pcExpr)
 			return This
 
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def SortInDesendingBy(pcExpr)
+			This.SortInDescendingBy(pcExpr)
+
+		#>
+
 	def SortedInDescendingBy(pcExpr)
 		acContent = This.Copy().SortInDescendingByQ(pcExpr).Content()
+
+		#< @FunctionMisspelledForm
+
+		def SortedInDesendingBy(pcExpr)
+			return This.SortedInDescendingBy(pcExpr)
+
+		#>
 
 	  #---------------------------------------#
 	 #     ASSOCIATE WITH AN ANOTHER LIST    #
@@ -3817,22 +3865,34 @@ class stzListOfStrings from stzList
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
 		def ContainsOneOfTheseCS(paStrings, pCaseSensitive)
 			return This.ContainsAnyCS(paStrings, pCaseSensitive)
 
 		def ContainsAnyOneOfTheseCS(paStrings, pCaseSensitive)
 			return This.ContainsAnyCS(paStrings, pCaseSensitive)
 
+		def ContainsAnyOfTheseCS(paStrings, pCaseSensitive)
+			return This.ContainsAnyCS(paStrings, pCaseSensitive)
+
 		def IsMadeOfOneOfTheseCS(paStrings, pCaseSensitive)
+			return This.ContainsAnyCS(paStrings, pCaseSensitive)
+
+		def IsMadeOfAnyOfTheseCS(paStrings, pCaseSensitive)
 			return This.ContainsAnyCS(paStrings, pCaseSensitive)
 
 		def ContainsOneCS(paStrings, pCaseSensitive)
 			return This.ContainsAnyCS(paStrings, pCaseSensitive)
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsAny(paStrings)
 		return This.ContainsAnyCS(paStrings, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def ContainsOneOfThese(paStrings)
 			return This.ContainsAny(paStrings)
@@ -3840,11 +3900,19 @@ class stzListOfStrings from stzList
 		def ContainsAnyOneOfThese(paStrings)
 			return This.ContainsAny(paStrings)
 
+		def ContainsAnyOfThese(paStrings)
+			return This.ContainsAny(paStrings)
+
 		def IsMadeOfOneOfThese(paStrings)
+			return This.ContainsAny(paStrings)
+
+		def IsMadeOfAnyOfThese(paStrings)
 			return This.ContainsAny(paStrings)
 
 		def ContainsOne(paStrings)
 			return This.ContainsAny(paStrings)
+
+		#>
 
 	  #----------------------------------------------------------------#
 	 #    CHECKING IF THE LIST CONTAINS SOME OF THE GIVEN STRINGS     #

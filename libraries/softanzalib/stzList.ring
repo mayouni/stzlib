@@ -14568,144 +14568,9 @@ class stzList from stzObject
 			This.Minus(paOtherList)
 			return This
 
-	  #==========================================#
-	 #  EXTENDING THE LIST TO A GIVEN POSITION  #
-	#==========================================#
-
-	def ExtendToPosition(n)
-		if This.IsListOfNumbers()
-			This.ExtendToPositionXT(n, :With = 0)
-
-		else
-			This.ExtendToPositionXT(n, :With = "")
-		ok
-
-		#< @FunctionAlternativeForm
-
-		def ExtendToPositionQ(n)
-			This.ExtendToPosition(n)
-			return This
-
-		def ExtendTo(n)
-			if isList(n) and Q(n).IsPositionNamedParam()
-				n = n[2]
-			ok
-	
-			This.ExtendToPosition(n)
-			
-			def ExtendToQ(n)
-				This.ExtendTo(n)
-				return This
-
-		def Extend(n)
-			if isList(n) and Q(n).IsToOrToPositionNamedParam(n)
-				n = n[2]
-			ok
-
-			This.ExtendToPosition(n)
-
-			def ExtendQ(n)
-				This.Extend(n)
-				return This
-
-	def ExtendedToPosition(n)
-		aResult = This.Copy().ExtendToPositionQ(n).Content()
-		return aResult
-
-		def ExtendedToPositionN(n)
-			return This.ExtendedToPosition(n)
-
-		def ExtendedTo(n)
-			if isList(n) and Q(n).IsPositionNamedParam()
-				n = n[2]
-			ok
-	
-			return This.ExtendedToPosition(n)
-
-		def Extended(n)
-			if isList(n) and Q(n).IsToOrToPositionNamedParam(n)
-				n = n[2]
-			ok
-
-			return This.ExtendedToPosition(n)
-
-	  #---------------------------------------#
-	 #  EXTENDING THE LIST -- EXTENDED FORM  #
-	#---------------------------------------#
-
-	def ExtendXT(pnToPos, pBy)
-		/* EXAMPLE
-
-		o1 = new stzList([ "A", "B", "C" ])
-		o1.ExtendXT( :To = 8, :By = :Repeatingitems )
-		? o1.Content()
-
-		#--> [ "A", "B", "C", "A", "B", "C", "A", "B" ]
-
-		*/
-
-		# Checking params
-
-		if isList(pnToPos) and Q(pnToPos).IsToOrToPositionNamedParam()
-			pnToPos = pnToPos[2]
-		ok
-
-		if isList(pBy) and 
-		   Q(pBy).IsOneOfTheseNamedParams([ :With, :By, :Using ])
-
-			pBy = pBy[2]
-
-		but isList(pBy) and
-		    Q(pBy).IsOneOfTheseNamedParams([ :WithItemsIn, :ByItemsIn, :UsingItemsIn ])
-
-			/* ... */
-
-		ok
-
-		# Doing the job
-
-		if isString(pBy) and
-		   ( pBy = :RepeatingItems or pBy = :RepeadtedItems or pBy = :RepeatItems )
-
-			aContent = This.Content()
-			nLen = len(aContent)
-
-			n = pnToPos - nLen
-
-			pBy = []
-
-			if n > 0
-				j = 0
-				for i = 1 to n
-					j++
-					if j > nLen
-						j = 1
-					ok
-
-					pBy + aContent[j]
-				next
-			ok
-
-			This.ExtendWith(pBy)
-
-		else
-			This.ExtendToPositionXT(pnToPos, pBy)
-		ok
-
-		#< @FunctionFluentForm
-
-		def ExtendXTQ(pnToPos, pBy)
-			This.ExtendXT(pnToPos, pBy)
-			return This
-		#>
-
-	def ExtendedWithXT(pnToPos, pBy)
-		aResult = This.Copy().ExtendWithXT(pnToPos, pBy)
-		return aResult
-
-	  #-------------------------------------------#
+	  #===========================================#
 	 #  EXTENDING THE LIST WITH THE GIVEN ITEMS  #
-	#-------------------------------------------#
+	#===========================================#
 
 	def ExtendWith(paItems)
 		if NOT isList(paItems)
@@ -14716,10 +14581,10 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 			@aContent + paItems[i]
-			/* NOTE
-			Using This.Add() is better then using @aContent directly,
-			but I do it to gain performance on large lists
-			*/
+			# NOTE
+			# Using This.Add() is better then using @aContent directly,
+			# but I do it to gain performance on large lists
+
 		next
 
 		def ExtendWithQ(paItems)
@@ -14740,100 +14605,238 @@ class stzList from stzObject
 		def ExtendedWithItems(paItems)
 			return This.ExtendedWith(paItems)
 
-	  #--------------------------------------------------------------------------#
-	 #  EXTENDING THE LIST TO A GIVEN POSITION WITH THE ITEMS OF AN OTHER LIST  #
-	#--------------------------------------------------------------------------#
+	  #-------------------------------------#
+	 #  EXTENDINF THE LIST TO N POSITIONS  #
+	#-------------------------------------#
 
-	def ExtendWithXT(pnStart, paItems)
-
-
-	  #------------------------------------------------------------------#
-	 #  EXTENDING THE LIST TO A GIVEN PSOTION (XT) WITH A GIVEN VALUE   #
-	#------------------------------------------------------------------#
-
-	def ExtendToPositionXT(n, pWith)
+	def ExtendToPosition(n)
 
 		if NOT isNumber(n)
-			StzRaise("Incorrect param! n must be a number.")
+			StzRaise("Incorrect param type! n must ba s number.")
 		ok
 
-		bDynamic = FALSE
+		nLen = This.NumberOfItems()
 
-		if isList(pWith) and
-		   Q(pWith).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+		if n > nLen
 
-			if Q(pWith[1]).LastChar() = "@"
-				bDynamic = TRUE
+			value = ""
+			if This.IsListOfNumbers()
+				value = 0
 			ok
 
-			pWith = pWith[2]
-		ok
-
-		if n <= This.NumberOfItems()
-			StzRaise(stzListError(:CanNotExtendTheList))
-		ok
-
-		if NOT bDynamic
-			for i = This.NumberOfItems() + 1 to n
-				This + pWith
+			nExtend = n - nLen
+			for i = 1 to nExtend
+				@aContent + value
 			next
-		else
-			if isString(pWith) and Q(pWith).WithoutSpaces() = "@items"
-
-				u = 0
-				for i = This.NumberOfItems() + 1 to n
-					u++
-					This + This[u]
-				next
-
-			but isList(pWith)
-
-				u = 0
-				for i = This.NumberOfItems() + 1 to n
-					u++
-
-					if u <= len(pWith)
-						This + pWith[u]
-					else
-						if Q(pWith).IsListOfNumbers()
-							This + 0
-						else
-							This + NULL
-						ok
-					ok
-				next
-			ok
 		ok
-	
-		def ExtendToPositionXTQ(n, pWith)
-			This.ExtendToPositionXT(n, pWith)
+		
+		#< @FunctionFluentForm
+
+		def ExtendToPositionQ(n)
+			This.ExtendToPosition(n)
 			return This
 
-		def ExtendToXT(n, pWith)
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ExtendTo(n)
 			if isList(n) and Q(n).IsPositionNamedParam()
 				n = n[2]
 			ok
 	
-			This.ExtendToPositionXT(n, pWith)
+			This.ExtendToPosition(n)
 			
-			def ExtendToXTQ(n, pWith)
-				This.ExtendToXT(n, pWith)
+			def ExtendToQ(n)
+				This.ExtendTo(n)
 				return This
 
-	def ExtendedToPositionXT(n, pWith)
-		aResult = This.Copy().ExtendToPositionXTQ(n, pWith).Content()
-		return aResult
-
-		def ExtendedToXT(n, pWith)
+		def Extend(n)
 			if isList(n) and Q(n).IsPositionNamedParam()
 				n = n[2]
 			ok
 	
-			return This.ExtendedToPositionXT(n, pWith)
+			This.ExtendToPosition(n)
+			
+			def ExtendQ(n)
+				This.Extend(n)
+				return This
 
-	  #-----------------------------------------------------------------#
+		#>
+
+	def ExtendedToPosition(n)
+		aResult = This.Copy().ExtendToPositionQ(n).Content()
+		return aResult
+
+		def ExtendedTo(n)
+			return This.ExtendedToPosition(n)
+
+		def Extended(n)
+			return This.ExtendedToPosition(n)
+
+	  #-------------------------------------------------------------#
+	 #  EXTENDINT THE LIST TO A GIVEN POSITION WITH A GIVEN VALUE  #
+	#-------------------------------------------------------------#
+
+	def ExtendToPositionWith(n, pValue)
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must ba s number.")
+		ok
+
+		nLen = This.NumberOfItems()
+
+		if n > nLen
+
+			nExtend = n - nLen
+			for i = 1 to nExtend
+				@aContent + pValue
+			next
+		ok
+
+		def ExtendToWith(n, pValue)
+			This.ExtendToPositionWith(n, pValue)
+
+	  #----------------------------------------------------------------------#
+	 #  EXTENDING THE LIST TO A GIVEN POSITION BY REPEATING THE LIST ITEMS  #
+	#----------------------------------------------------------------------#
+
+	def ExtendToPositionWithItemsRepeadted(n)
+		This.ExtendToPositionWithItemsIn(n, This.List())
+
+		#< @FunctionAlternativeForm
+
+		def ExtendToWithItemsRepeated(n)
+			This.ExtendToPositionWithItemsRepeadted(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ExtendToWithItemsRepeadted(n)
+			This.ExtendToPositionWithItemsRepeadted(n)
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #  EXTENDING THE LIST TO A GIVEN POSITION BY REPEATING THE LIST ITEMS  #
+	#----------------------------------------------------------------------#
+
+	def ExtendToPositionWithItemsIn(n, paItems)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if NOT isList(paItems)
+			StzRaise("Incorrect param type! paItems must be a list.")
+		ok
+
+		nLen = len(paItems)
+		nTemp = n - nLen
+		aTemp = []
+
+		if nTemp > 0
+			j = 0
+			for i = 1 to nTemp
+				j++
+				if j > nLen
+					j = 1
+				ok
+
+				aTemp + paItems[j]
+			next
+		ok
+
+		This.ExtendWith(aTemp)
+
+		def ExtendToWithItemsIn(n, paItems)
+			return This.ExtendToPositionWithItemsIn(n, paItems)
+
+	  #------------------------------------------------#
+	 #  EXTENDING THE LIST - A GENERAL EXTENDED FORM  #
+	#------------------------------------------------#
+
+	def ExtendXT(n, pWith)
+		/*
+		EXAMPLE 1
+
+		o1 = new stzList([ "A", "B", "C" ])
+		o1.ExtendXT( :List, :With = ["D", "E"])
+		o1.Show()
+		#--> [ "A", "B", "C", "D", "E" ])
+
+		EXAMPLE 2
+
+		o1 = new stzList([ "A", "B", "C" ])
+		o1.ExtendXT( :List, :ToPosition = 5 )
+		o1.Show()
+		#--> [ "A", "B", "C", "", "" ]
+
+		EXAMPLE 3
+
+		o1 = new stzList([ "A", "B", "C" ])
+		o1.ExtendXT( :ToPosition = 5, :With = :ItemsRepeadted )
+		o1.Show()
+		#--> [ "A", "B", "C", "A", "B" ])
+
+		EXAMPLE 4
+
+		o1 = new stzList([ "A", "B", "C" ])
+		o1.ExtendXT( :ToPosition = 5, :With = "*" )
+		o1.Show()
+		#--> [ "A", "B", "C", "*", "*" ]
+
+		EXAMPLE 5
+
+		o1 = new stzList([ "A", "B", "C" ])
+		o1.ExtendXT( :ToPostion = 5, :WithItemsIn = [ "D", "E" ])
+		o1.Show()
+		#--> [ "A", "B", "C", "D", "E" ]
+
+		*/
+
+		if isString(n) and n = :List
+
+			# Case 1: o1.ExtendXT( :List, :With = ["D", "E"])
+			if isList(pWith) and Q(pWith).IsWithOrByOrUsingNamedParam()
+				This.ExtendWith(pWith[2])
+				return
+
+			# Case 2: o1.ExtendXT( :List, :ToPosition = 5 )
+			but isList(pWith) and Q(pWith).IsToOrToPositionNamedParam()
+				This.ExtendToPosition(pWith[2])
+				return
+
+			ok
+
+		but isList(n) and Q(n).IsToOrToPositionNamedParam()
+
+			if Q(pWith).IsWithOrUsingNamedParam() 
+
+				# Case 3: o1.ExtendXT( :ToPosition = 5, :With = :ItemsRepeated )
+				if isString(pWith[2]) and pWith[2] = :ItemsRepeadted
+					This.ExtendToPositionWithItemsRepeadted(n[2])
+					return
+	
+				# Case 4: o1.ExtendXT( :ToPosition = 5, :With = "*" )
+				else
+					This.ExtendToPositionWith(n[2], pWith[2])
+					return
+				ok
+
+			# Case 5: o1.ExtendXT( :ToPostion = 5, :WithItemsIn = [ "D", "E" ])
+			but Q(pWith).IsWithItemsInNamedParam()
+				This.ExtendToPositionWithItemsIn(n[2], pWith[2])
+				return
+
+			ok
+		ok
+
+		StzRaise("Unsupported syntax!")
+
+	  #=================================================================#
 	 #  SHRINKING THE LIST TO A GIVEN PSOTION (XT) WITH A GIVEN VALUE  #
-	#-----------------------------------------------------------------#
+	#=================================================================#
 
 	def ShrinkTo(n)
 		if isList(n) and Q(n).IsPositionNamedParam()
@@ -14860,15 +14863,22 @@ class stzList from stzObject
 		#< @FunctionAlternativeForm
 
 		def ShrinkToPosition(n)
-			if NOT isNumber(n)
-				StzRaise("Incorrect param type! n must be a number.")
-			ok
-
 			This.ShrinkTo(n)
 
 			def ShrinkToPositionQ(n)
 				This.ShrinkToPosition(n)
+				return This
 
+		def Shrink(n)
+			if isList(n) and Q(n).IsToOrToPositionNamedParam()
+				n = n[2]
+			ok
+
+			This.ShrinkTo(n)
+
+			def ShrinkQ(n)
+				This.Shrink(n)
+				return This
 		#>
 
 	def ShrinkedTo(n)
@@ -14876,6 +14886,9 @@ class stzList from stzObject
 		return aResult
 
 		def ShrinkedToPosition(n)
+			return This.ShrinkedTo(n)
+
+		def Shrinked(n)
 			return This.ShrinkedTo(n)
 
 	  #===============================================#
@@ -16321,13 +16334,22 @@ class stzList from stzObject
 		def ContainsAnyOneOfTheseCS(pSetOfItems, pCaseSensitive)
 			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
 
+		def ContainsAnyOfTheseCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+
 		def IsMadeOfOneOfTheseCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+
+		def IsMadeOfAnyOfTheseCS(pSetOfItems, pCaseSensitive)
 			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
 
 		def ContainsOneCS(pSetOfItems, pCaseSensitive)
 			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
 
 		def ContainsOneOfTheCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+
+		def ContainsAnyOfTheCS(pSetOfItems, pCaseSensitive)
 			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
 
 		#>
@@ -16345,13 +16367,22 @@ class stzList from stzObject
 		def ContainsAnyOneOfThese(pSetOfItems)
 			return This.ContainsAny(pSetOfItems)
 
+		def ContainsAnyOfThese(pSetOfItems)
+			return This.ContainsAny(pSetOfItems)
+
 		def IsMadeOfOneOfThese(pSetOfItems)
+			return This.ContainsAny(pSetOfItems)
+
+		def IsMadeOfAnyOfThese(pSetOfItems)
 			return This.ContainsAny(pSetOfItems)
 
 		def ContainsOne(pSetOfItems)
 			return This.ContainsAny(pSetOfItems)
 
 		def ContainsOneOfThe(pSetOfItems)
+			return This.ContainsAny(pSetOfItems)
+
+		def ContainsAnyOfThe(pSetOfItems)
 			return This.ContainsAny(pSetOfItems)
 
 		#>
@@ -24411,6 +24442,8 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def IsToOrToPositionNamedParams()
 			return This.IsToOrToPositionNamedParam()
 
@@ -24419,6 +24452,8 @@ class stzList from stzObject
 
 		def IsToPositionOrToNamedParams()
 			return This.IsToOrToPositionNamedParam()
+
+		#>
 
 	def IsToPositionOfItemNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -24899,7 +24934,6 @@ class stzList from stzObject
 
 	def IsWithItemsInNamedParam() 
 		if This.NumberOfItems() = 2 and
-
 		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :WithItemsIn, :WithItemsIn@ ]) )
 
 			return TRUE
@@ -26951,6 +26985,22 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	def IsWithOrUsingNamedParam()
+		if This.IsWithNamedParam() or This.IsUsingNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsWithOrUsingNamedParams()
+			return This.IsWithOrUsingNamedParam()
+
+		def IsUsingOrWithNamedParam()
+			return This.IsWithOrUsingNamedParam()
+
+		def IsUsingOrWithNamedParams()
+			return This.IsWithOrUsingNamedParam()
 
 	def IsMadeOfNamedParam()
 		if This.NumberOfItems() = 2 and
