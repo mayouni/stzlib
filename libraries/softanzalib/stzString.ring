@@ -26393,10 +26393,39 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
+		def ContainsAnyOfTheseCS(paSubStr, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+
 		def ContainsOneOfCS(paSubStr, pCaseSensitive)
 			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
 
+		def ContainsAnyOfCS(paSubStr, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+
 		def ContainsOneOfTheCS(paSubStr, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		def ContainsAnyOfTheCS(paSubStr, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		#--
+
+		def ContainsOneOfTheseSubStringsCS(paSubStr, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		def ContainsAnyOfTheseSubStringsCS(paSubStr, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		def ContainsOneOfSubStringsCS(paSubStr, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		def ContainsAnyOfSubStringsCS(paSubStr, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		def ContainsOneOfTheSubStringsCS(paSubStr, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		def ContainsAnyOfTheSubStringsCS(paSubStr, pCaseSensitive)
 			return This.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
 
 		#>
@@ -26408,10 +26437,39 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
+		def ContainsAnyOfThese(paSubStr)
+			return This.ContainsOneOfThese(paSubStr)
+
 		def ContainsOneOf(paSubStr)
 			return This.ContainsOneOfThese(paSubStr)
 
+		def ContainsAnyOf(paSubStr)
+			return This.ContainsOneOfThese(paSubStr)
+
 		def ContainsOneOfThe(paSubStr)
+			return This.ContainsOneOfThese(paSubStr)
+
+		def ContainsAnyOfThe(paSubStr)
+			return This.ContainsOneOfThese(paSubStr)
+
+		#--
+
+		def ContainsOneOfTheseSubStrings(paSubStr)
+			return This.ContainsOneOfThese(paSubStr)
+
+		def ContainsAnyOfTheseSubStrings(paSubStr)
+			return This.ContainsOneOfThese(paSubStr)
+
+		def ContainsOneOfSubStrings(paSubStr)
+			return This.ContainsOneOfThese(paSubStr)
+
+		def ContainsAnyOfSubStrings(paSubStr)
+			return This.ContainsOneOfThese(paSubStr)
+
+		def ContainsOneOfTheSubStrings(paSubStr)
+			return This.ContainsOneOfThese(paSubStr)
+
+		def ContainsAnyOfTheSubStrings(paSubStr)
 			return This.ContainsOneOfThese(paSubStr)
 
 		#>
@@ -26423,8 +26481,12 @@ def ReplaceIBS()
 	def ContainsSpaces()
 		return This.Contains(" ")
 
-	def ContainsNoSpaces()
-		return NOT This.ContainsSpaces()
+		#< @FunctionNegativeForm
+
+		def ContainsNoSpaces()
+			return NOT This.ContainsSpaces()
+
+		#>
 
 	  #------------------------------------------------#
 	 #    CONTAINING BOTH OF THE GIVEN SUBSTRINGS     #
@@ -26787,53 +26849,6 @@ def ReplaceIBS()
 
 		def ContainsManyAt(panPositions, pacSubStr)
 			return This.ContainsSubStringsAtPositions(panPositions, pacSubStr)
-
-		#>
-
-	  #--------------------------------------------#
-	 #   CONTAINING ONE OF THE GIVEN SUBSTRINGS   #
-	#--------------------------------------------#
-
-	def ContainsOneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
-
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfString() )
-			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
-		ok
-
-		bResult = FALSE
-		nLen = len(pacSubStr)
-
-		for i = 1 to nLen
-			if This.ContainsCS(pacSubStr[i], pCaseSensitive)
-				bResult = TRUE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def ContainsOfTheseCS(pacSubStr, pCaseSensitive)
-			return This.ContainsOneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
-
-		def ContainsOfCS(pacSubStr, pCaseSensitive)
-			return This.ContainsOneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
-
-		#>
-
-	#--
-
-	def ContainsOneOfTheseSubStrings(pacSubStr)
-		return This.ContainsOneOfTheseSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def ContainsOfThese(pacSubStr)
-			return This.ContainsOneOfTheseSubStrings(pacSubStr)
-
-		def ContainsOf(pacSubStr)
-			return This.ContainsOneOfTheseSubStrings(pacSubStr)
 
 		#>
 
@@ -33214,7 +33229,7 @@ def ReplaceIBS()
 
 		# Sort the substrings in descending order
 
-		acSubStrings = Q(acSubStrings).SortedInDesendingBy(:NumberOfChars)
+		acSubStrings = QR(acSubStrings, :stzListOfStrings).SortedInDesendingBy(:NumberOfChars)
 		nLenSubStr = len(acSubStrings)
 
 		aSections = []
@@ -33222,20 +33237,17 @@ def ReplaceIBS()
 		aSectionsNow = [ [ 1, This.NumberOfChars() ] ]
 
 		for i = 1 to nLenSubStr
-? "#" + i
-? acSubStrings[i]
-? "aSectionsNow: " + @@( aSectionsNow )
+
 			aTempSections = This.FindInSectionsAsSectionsCS(
 					acSubStrings[i], aSectionsNow, pCaseSensitive)
-? "aTempSections: " + @@( aTempSections)
+
 			nLenTemp = len(aTempSections)
 			for j = 1 to nLenTemp
 				aSections + aTempSections[j]
 			next
-? "aSections: " + @@( aSections )
 
 			aSectionsNow = This.FindAntiSections( aSections )
-? "----"
+
 		next
 
 		This.SpacifySections(aSections)

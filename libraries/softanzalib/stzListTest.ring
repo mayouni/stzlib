@@ -1,7 +1,140 @@
 load "stzlib.ring"
 
-/*================
+/*=============
+
+pron()
+
+o1 = new stzList("A" : "C")
+o1.ExtendWith(["D", "E"])
+o1.Show()
+#--> [ "A", "B", "C", "D", "E" ]
+
+proff()
+# Executed in 0.04 second(s)
+# Including 0.02 seconds consumed by the Show() function
+
+/*----------------
+
+pron()
+
+o1 = new stzList("A" : "C")
+o1.ExtendTo(5)
+o1.Show()
+#--> [ "A", "B", "C", "", "" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList(1 : 3)
+o1.ExtendTo(5)
+o1.Show()
+#--> [ 1, 2, 3, 0, 0 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList("A" : "C")
+o1.ExtendToWith(3, "*")
+o1.Show()
+#--> [ "A", "B", "C", "*", "*" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList(1 : 3)
+o1.ExtendToWithItemsRepeated(8)
+o1.Show()
+#--> [ 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList(1 : 3)
+o1.ExtendToWithItemsIn( 8, "A":"C" )
+o1.Show()
+#--> [ 1, 2, 3, "A", "B", "C", "A", "B" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList([ "A", "B", "C" ])
+o1.ExtendXT( :List, :With = ["D", "E"])
+o1.Show()
+#--> [ "A", "B", "C", "D", "E" ])
+
+proff()
+# Executed in 0.04 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList([ "A", "B", "C" ])
+o1.ExtendXT( :List, :ToPosition = 5 )
+o1.Show()
+#--> [ "A", "B", "C", "", "" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList([ "A", "B", "C" ])
+o1.ExtendXT( :ToPosition = 5, :With = :ItemsRepeadted )
+o1.Show()
+#--> [ "A", "B", "C", "A", "B" ])
+
+proff()
+# Executed in 0.04 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList([ "A", "B", "C" ])
+o1.ExtendXT( :ToPosition = 5, :With = "*" )
+o1.Show()
+#--> [ "A", "B", "C", "*", "*" ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*----------------
 */
+pron()
+
+o1 = new stzList([ "A", "B", "C" ])
+o1.ExtendXT( :ToPosition = 5, :WithItemsIn = [ "D", "E" ])
+o1.Show()
+#--> [ "A", "B", "C", "D", "E" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*================
+
 pron()
 
 Q([ "A", "B", "C" ]) {
