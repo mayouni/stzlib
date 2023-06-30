@@ -1,5 +1,15 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzString("ABC")
+o1.ExtendTo(5)
+o1.Show()
+#--> "ABC  "
+
+proff()
+# Executed in 0.03 second(s)
+
 /*=======
 
 pron()
@@ -42,7 +52,7 @@ proff()
 # Executed in 0.24 second(s)
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzString("okay one pepsi two three ")

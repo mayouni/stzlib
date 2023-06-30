@@ -1,5 +1,137 @@
 load "stzlib.ring"
 
+/*=============
+
+pron()
+
+o1 = new stzString("ABC")
+o1.ExtendWith("DE")
+o1.Show()
+#--> [ "A", "B", "C", "D", "E" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("ABC")
+o1.ExtendToNChars(5)
+o1.Show()
+#--> "ABC  "
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("ABC")
+o1.ExtendToWith(5, "*")
+o1.Show()
+#--> "ABC**"
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("123")
+o1.ExtendToWithCharsRepeated(8)
+o1.Show()
+#--> "12312312"
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("123")
+o1.ExtendToWithCharsIn( 8, "1":"3" )
+o1.Show()
+#--> "12312312"
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("ABC")
+o1.ExtendXT( :String, :With = "DE" )
+o1.Show()
+#--> "ABCDE"
+
+proff()
+# Executed in 0.04 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("ABC")
+o1.ExtendXT( :String, :ToPosition = 5 )
+o1.Show()
+#--> "ABC  "
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("ABC")
+o1.ExtendXT( :ToPosition = 5, :With = :CharsRepeated )
+o1.Show()
+#--> "ABCAB"
+
+proff()
+# Executed in 0.04 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("ABC")
+o1.ExtendXT( :ToPosition = 5, :With = "*" )
+o1.Show()
+#--> "ABC**"
+
+proff()
+# Executed in 0.04 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("ABC")
+o1.ExtendXT( :ToPosition = 5, :WithCharsIn = [ "D", "E" ])
+o1.Show()
+#--> "ABCDED"
+
+proff()
+# Executed in 0.04 second(s)
+
+/*----------------
+*/
+pron()
+
+o1 = new stzString("ABCDE")
+o1.Shrink( :ToPosition = 3 )
+o1.Show()
+#--> "ABC"
+
+proff()
+# Executed in 0.05 second(s)
+
 /*===============
 
 pron()

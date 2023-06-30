@@ -38,11 +38,11 @@ proff()
 # Executed in 0.03 second(s)
 
 /*----------------
-
+*/
 pron()
 
 o1 = new stzList("A" : "C")
-o1.ExtendToWith(3, "*")
+o1.ExtendToWith(5, "*")
 o1.Show()
 #--> [ "A", "B", "C", "*", "*" ]
 
@@ -102,7 +102,7 @@ proff()
 pron()
 
 o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendXT( :ToPosition = 5, :With = :ItemsRepeadted )
+o1.ExtendXT( :ToPosition = 5, :With = :ItemsRepeated )
 o1.Show()
 #--> [ "A", "B", "C", "A", "B" ])
 
@@ -122,13 +122,25 @@ proff()
 # Executed in 0.04 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzList([ "A", "B", "C" ])
 o1.ExtendXT( :ToPosition = 5, :WithItemsIn = [ "D", "E" ])
 o1.Show()
 #--> [ "A", "B", "C", "D", "E" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList([ "A", "B", "C", "D", "E" ])
+o1.Shrink( :ToPosition = 3 )
+o1.Show()
+#--> [ "A", "B", "C" ]
 
 proff()
 # Executed in 0.05 second(s)

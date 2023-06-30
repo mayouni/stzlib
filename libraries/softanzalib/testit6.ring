@@ -14,10 +14,11 @@ load "stzlib.ring"
 	C)- Cases of replacing SOME occurrences ONLY of a substring
 	D)- Cases of replacing substrings AT GIVEN POSITIONS inside the string
 	E)- Cases where MANY substrings are involved in the replacement operation
-	F)- Cases of a substring BETWEEN two buonding substrings 
+	F)- Cases of replacing a substring BETWEEN two buonding substrings 
 	G)- Cases of replacing the NTH occurrence of a substring
-	H)- Cases of replacing NEXT/PREVIOUS nth occurrence
-	I)- Two more use cases, for maximum freedom: DYNAMIC and CONDITIONAL replacement! 
+	H)- Cases of replacing NEXT/PREVIOUS nth occurrence of a substring
+	I)- Two more use cases, for maximum freedom:
+	    DYNAMIC and CONDITIONAL replacement of substrings! 
 
 #--------------------------------------------------#
 #  A. INTRODUCTION: COMPLETENESS AS A DESIGN GOAL  #
@@ -32,7 +33,7 @@ load "stzlib.ring"
 	stzString, made using the Replace() function.
 
 /*--	In its simplest form, we can use it like this:
-
+*/
 		o1 = new stzString("ring php ruby ring python ring")
 		o1.Replace("ring", :With = "♥♥♥")
 	
@@ -136,9 +137,9 @@ load "stzlib.ring"
 	
 		? o1.Content() #--> "#1 php ring ruby #3 python ring csharp #5"
 
-#---------------------------------------------------------------------------#
+#----------------------------------------------------------------------------#
 #  D)- CASES OF REPLACING SUBSTRINGS "AT GIVEN POSITIONS" INSIDE THE STRING  #
-#---------------------------------------------------------------------------#
+#----------------------------------------------------------------------------#
 
 	Now, what if you need to replace substrings by specifying their positions inside
 /*--	the string, something like this:
@@ -153,7 +154,7 @@ load "stzlib.ring"
 			          +----------------------------------------------------------------------+
 	          REPLACE         |                            A SUBSTRING                               |
 	+=========================+======================================================================+
-	|   AT A GIVEN PSOTION    |                                (7)                                   |
+	|   AT A GIVEN POSITION   |                                (7)                                   |
 	|     BY A SUBSTRING      |          ReplaceSubStringAtPosition(n, pcSubStr, pcNewSubStr)        | 
 	+-------------------------+----------------------------------------------------------------------+
 	| AT SOME GIVEN POSITIONS |                                (8)                                   |
@@ -180,7 +181,7 @@ load "stzlib.ring"
 		? o1.Content() #--> "♥♥♥ ruby ring php ♥♥♥"
 
 /*--	(9) REPALCING A SUBSTRING AT A SOME GIVEN POSITIONS BY MANY OTHER SUBSTRINGS
-*/
+
 		o1 = new stzString("ring php ring ruby ring python ring csharp ring")
 		o1.ReplaceSubstringAtPositionsByMany([ 10, 20, 32], "ring", :By = [ "♥", "♥♥", "♥♥♥" ])
 
@@ -361,7 +362,7 @@ load "stzlib.ring"
 
 /*--	(19) REPLACING PREVIOUS OCCURRENCE OF A SUBSTRING STARTING
 	     AT A GIVEN POSITION
-*/
+
 	o1 = new stzString("ring php ring ruby ring python ring")
 	o1.ReplacePreviousOccurrence(:Of = "ring", :StartingAtPosition = 25, :By = "♥♥♥")
 	# or you can say :StartingAt = 2 instead of :StartingAtPosition

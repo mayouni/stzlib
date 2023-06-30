@@ -14612,7 +14612,7 @@ class stzList from stzObject
 	def ExtendToPosition(n)
 
 		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must ba s number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		nLen = This.NumberOfItems()
@@ -14641,7 +14641,9 @@ class stzList from stzObject
 		#< @FunctionAlternativeForm
 
 		def ExtendTo(n)
-			if isList(n) and Q(n).IsPositionNamedParam()
+			if isList(n) and
+			   ( Q(n).IsPositionNamedParam() or Q(n).IsToNItemsNamedParam() )
+
 				n = n[2]
 			ok
 	
@@ -14651,8 +14653,15 @@ class stzList from stzObject
 				This.ExtendTo(n)
 				return This
 
+		def ExtendToNItems(n)
+			This.ExtendToPosition(n)
+			
+			def ExtendToNItemsQ(n)
+				This.ExtendToNItems(n)
+				return This
+
 		def Extend(n)
-			if isList(n) and Q(n).IsPositionNamedParam()
+			if isList(n) and Q(n).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToNItems ])
 				n = n[2]
 			ok
 	
@@ -14668,20 +14677,34 @@ class stzList from stzObject
 		aResult = This.Copy().ExtendToPositionQ(n).Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def ExtendedTo(n)
-			return This.ExtendedToPosition(n)
+			cResult = This.Copy().ExtendToQ(n).Content()
+			return cResult
 
 		def Extended(n)
+			cResult = This.Copy().ExtendQ(n).Content()
+			return cResult
+
+		def ExtendedToNItems(n)
 			return This.ExtendedToPosition(n)
 
+		#>
+
 	  #-------------------------------------------------------------#
-	 #  EXTENDINT THE LIST TO A GIVEN POSITION WITH A GIVEN VALUE  #
+	 #  EXTENDING THE LIST TO A GIVEN POSITION WITH A GIVEN VALUE  #
 	#-------------------------------------------------------------#
 
 	def ExtendToPositionWith(n, pValue)
 
+		if isString(pValue) and pValue = :ItemsRepeated
+			This.ExtendToPositionWithItemsRepeadted(n)
+			return
+		ok
+
 		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must ba s number.")
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		nLen = This.NumberOfItems()
@@ -14814,7 +14837,7 @@ class stzList from stzObject
 			if Q(pWith).IsWithOrUsingNamedParam() 
 
 				# Case 3: o1.ExtendXT( :ToPosition = 5, :With = :ItemsRepeated )
-				if isString(pWith[2]) and pWith[2] = :ItemsRepeadted
+				if isString(pWith[2]) and pWith[2] = :ItemsRepeated
 					This.ExtendToPositionWithItemsRepeadted(n[2])
 					return
 	
@@ -14834,9 +14857,9 @@ class stzList from stzObject
 
 		StzRaise("Unsupported syntax!")
 
-	  #=================================================================#
-	 #  SHRINKING THE LIST TO A GIVEN PSOTION (XT) WITH A GIVEN VALUE  #
-	#=================================================================#
+	  #------------------------------------------#
+	 #  SHRINKING THE LIST TO A GIVEN POSITION  #
+	#==========================================#
 
 	def ShrinkTo(n)
 		if isList(n) and Q(n).IsPositionNamedParam()
@@ -14869,8 +14892,22 @@ class stzList from stzObject
 				This.ShrinkToPosition(n)
 				return This
 
+		def ShrinkToNItems(n)
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			This.ShrinkToPosition(n)
+
+			def ShrinkToNItemsQ(n)
+				This.ShrinkToNItems(n)
+				return This
+
 		def Shrink(n)
-			if isList(n) and Q(n).IsToOrToPositionNamedParam()
+			if isList(n) and
+			   ( Q(n).IsToOrToPositionNamedParam() or
+			     Q(n).IsToNCharsNamedParam() )
+
 				n = n[2]
 			ok
 
@@ -14885,11 +14922,22 @@ class stzList from stzObject
 		aResult = This.Copy().ShrinkToQ(n).Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def ShrinkedToPosition(n)
 			return This.ShrinkedTo(n)
 
+		def ShrinkedToNItems(n)
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			return Thus.ShrinkedToPosition(n)
+
 		def Shrinked(n)
 			return This.ShrinkedTo(n)
+
+		#>
 
 	  #===============================================#
 	 #  MERGING THE LIST - IF IT IS A LIST OF LISTS  #
@@ -24954,6 +25002,16 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsWithCharsInNamedParam() 
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :WithcharsIn, :WithCharsIn@ ]) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsByItemsInNamedParam()
 		if This.NumberOfItems() = 2 and
 
@@ -29687,9 +29745,78 @@ class stzList from stzObject
 		ok
 
 	def IsExpressionNamedParam()
-
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Expression )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToNCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ToNChars )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToNItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ToNItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToNStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ToNStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToNStringItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ToNStringItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToNNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ToNNumbers )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToNListsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ToNLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToNObjectsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :ToNObjects )
 
 			return TRUE
 

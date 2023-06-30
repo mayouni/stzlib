@@ -692,32 +692,49 @@ class stzString from stzObject
 		def IsHybridCased()
 			return This.IsHybridcase()
 
-	  #=======================================#
-	 #   APPENDING THE STRING FROM THEN END  #
-	#=======================================#
+	  #===========================================#
+	 #   APPENDING THE STRING WITH A SUBSTRING   #
+	#===========================================#
 
-	def Append(pcOtherStr)
-		if isList(pcOtherStr) and Q(pcOtherStr).IsWithOrByNamedParam()
-			pcOtherStr = pcOtherStr[2]
+	def AppendWith(pcStr)
+
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcStr must be a string.")
 		ok
 
-		if NOT isString(pcOtherStr)
-			StzRaise("Incorrect param type! pcOtherStr must be a string.")
-		ok
-
-		cResult = This.String() + pcOtherStr
-		This.Update( cResult )
+		cResult = This.String() + pcStr
+		This.UpdateWith( cResult )
 
 		#< @FunctionFluentForm
 
-		def AppendQ(pcOtherStr)
-			This.Append(pcOtherStr)
+		def AppendWithQ(pcStr)
+			This.AppendWith(pcStr)
 			return This
 	
 		#>
 
-	def Appended(pcOtherStr)
-		return This.Copy().AppendQ(pcOtherStr).Content()
+		#< @FunctionAlternative
+
+		def Append(pcStr)
+			if isList(pcStr) and Q(pcStr).IsWithOrByNamedParam()
+				pcStr = pcStr[2]
+			ok
+
+			This.AppendWith(pcStr)
+
+			def AppendQ(pcStr)
+				This.Append(pcStr)
+				return This
+	
+		#>
+
+	def AppendedWith(pcStr)
+		cResult = This.Copy().AppendWithQ(pcStr).Content()
+		return cResult
+
+		def Appended(pcStr)
+			cResult = This.Copy().AppendQ(pcStr).Content()
+			return cResult
 
 	  #-------------------------------------#
 	 #   APPENDING THE STRING FROM START   #
@@ -887,6 +904,415 @@ class stzString from stzObject
 
 	def AddedXT(pcNewSubStr, pcSubStr)
 		return This.Copy().AddXTQ(pcNewSubStr, pcSubStr).Content()
+
+	  #=================================================#
+	 #  EXTENDING THE STRING WITH THE GIVEN SUBSTRING  #
+	#=================================================#
+
+	def ExtendWith(pSubStr)
+		if isList(pSubStr)
+			This.ExtendWithMany(pSubStr)
+			return
+		ok
+
+		if NOT isString(pSubStr)
+			StzRaise("Incorrect param type! pSubStr must be a string.")
+		ok
+
+		This.AppendWith(pSubStr)
+
+		#< @FunctionFluentForm
+
+		def ExtendWithQ(pSubStr)
+			This.ExtendWith(pSubStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ExtendWithSubString(pSubStr)
+			This.ExtendWith(pSubStr)
+
+			def ExtendWithSubStringQ(pSubStr)
+				This.ExtendWithSubString(pSubStr)
+				return This
+
+		#>
+
+	def ExtendedWith(pSubStr)
+		aResult = This.Copy().ExtendWithQ(pSubStr).Content()
+		return aResult
+
+		def ExtendedWithSubString(pSubStr)
+			return This.ExtendedWith(pSubStr)
+
+	  #---------------------------------------------#
+	 #  EXTENDING THE STRING WITH MANY SUBSTRINGS  #
+	#---------------------------------------------#
+
+	def ExtendWithMany(pacSubStr)
+		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+		ok
+
+		This.AppendWith( QR(pacSubStr, :stzListOfStrings).Concatenated() )
+
+		#< @FunctionFluentForm
+
+		def ExtendWithManyQ(pacSubStr)
+			This.ExtendWithMany(pacSubStr)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ExtendWithTheseSubStrings(pacSubStr)
+			This.ExtendWithTheseSubStrings(pacSubStr)
+
+		def ExtendWithSubStrings(pacSubStr)
+			This.ExtendWithTheseSubStrings(pacSubStr)
+
+		def ExtendWithThese(pacSubStr)
+			This.ExtendWithTheseSubStrings(pacSubStr)
+
+		#>
+
+	def ExtendedWithMany(pacSubStr)
+		cResult = This.Copy().ExtendWithManyQ(pacSubStr).Content()
+		return cResult
+
+		def ExtendedWithTheseSubStrings(pacSubStr)
+			return This.ExtendedWithMany(pacSubStr)
+
+		def ExtendedWithThese(pacSubStr)
+			return This.ExtendedWithMany(pacSubStr)
+
+	  #-----------------------------------#
+	 #  EXTENDING THE STRING TO N CHARS  #
+	#-----------------------------------#
+
+	def ExtendToPosition(n)
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		nLen = This.NumberOfItems()
+
+		This.AppendWith( Q(" ").RepeatedNTimes( n - nLen ) )
+		
+		#< @FunctionFluentForm
+
+		def ExtendToPositionQ(n)
+			This.ExtendToPosition(n)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ExtendTo(n)
+			if isList(n) and
+			   ( Q(n).IsPositionNamedParam() or Q(n).IsToNCharsNamedParam() )
+
+				n = n[2]
+			ok
+	
+			This.ExtendToPosition(n)
+			
+			def ExtendToQ(n)
+				This.ExtendTo(n)
+				return This
+
+		def ExtendToNChars(n)
+			This.ExtendToPosition(n)
+			
+			def ExtendToNCharsQ(n)
+				This.ExtendToNChars(n)
+				return This
+
+		def Extend(n)
+			if isList(n) and Q(n).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToNChars ])
+				n = n[2]
+			ok
+	
+			This.ExtendToPosition(n)
+			
+			def ExtendQ(n)
+				This.Extend(n)
+				return This
+
+		#>
+
+	def ExtendedToPosition(n)
+		cResult = This.Copy().ExtendToPositionQ(n).Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def ExtendedTo(n)
+			cResult = This.Copy().ExtendToQ(n).Content()
+			return cResult
+
+		def Extended(n)
+			cResult = This.Copy().ExtendQ(n).Content()
+			return cResult
+
+		def ExtendedToNChars(n)
+			return This.ExtendedToPosition(n)
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  EXTENDING THE STRING TO A GIVEN POSITION WITH A GIVEN CHAR  #
+	#--------------------------------------------------------------#
+
+	def ExtendToPositionWith(n, pcChar)
+
+		if isString(pcChar) and pcChar = :CharsRepeated
+			This.ExtendToPositionWithCharsRepeadted(n)
+			return
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if NOT ( isString(pcChar) and Q(pcChar).IsChar() )
+			StzRaise("Incorrect param type! pcChar must be a char.")
+		ok
+
+		nLen = This.NumberOfChars()
+
+		if n > nLen
+			This.AppendWith( Q(pcChar).RepeatedNTimes(n - nLen) )
+		ok
+
+		def ExtendToWith(n, pcChar)
+			This.ExtendToPositionWith(n, pcChar)
+
+	  #--------------------------------------------------------------------------#
+	 #  EXTENDING THE STRING TO A GIVEN POSITION BY REPEATING THE STRING CHARS  #
+	#--------------------------------------------------------------------------#
+
+	def ExtendToPositionWithCharsRepeadted(n)
+		This.ExtendToPositionWithCharsIn(n, This.Chars())
+
+		#< @FunctionAlternativeForm
+
+		def ExtendToWithCharsRepeated(n)
+			This.ExtendToPositionWithCharsRepeadted(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ExtendToWithCharsRepeadted(n)
+			This.ExtendToPositionWithCharsRepeadted(n)
+
+		#>
+
+	  #-------------------------------------------------------------------------#
+	 #  EXTENDING THE STRING TO A GIVEN POSITION BY REPEATING THE GIVEN CHARS  #
+	#-------------------------------------------------------------------------#
+
+	def ExtendToPositionWithCharsIn(n, pacChars)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if NOT ( isList(pacChars) and Q(pacChars).IsListOfChars() )
+			StzRaise("Incorrect param type! pacChars must be a list or chars.")
+		ok
+
+		nLen = len(pacChars)
+		nTemp = n - nLen
+
+		cTemp = ""
+
+		if nTemp > 0
+			j = 0
+			for i = 1 to nTemp
+				j++
+				if j > nLen
+					j = 1
+				ok
+
+				cTemp += pacChars[j]
+			next
+		ok
+
+		This.ExtendWith(cTemp)
+
+		def ExtendToWithCharsIn(n, pacChars)
+			return This.ExtendToPositionWithCharsIn(n, pacChars)
+
+	  #-----------------------------------------#
+	 #  EXTENDING THE STRING - A GENERAL FORM  #
+	#-----------------------------------------#
+
+	def ExtendXT(n, pWith)
+		/*
+		EXAMPLE 1
+
+		o1 = new stzString("ABC")
+		o1.ExtendXT( :String, :With = "DE")
+		o1.Show()
+		#--> "ABCDE"
+
+		EXAMPLE 2
+
+		o1 = new stzString("ABC")
+		o1.ExtendXT( :String, :ToPosition = 5 )
+		o1.Show()
+		#--> "ABCDE  "
+
+		EXAMPLE 3
+
+		o1 = new stzString("ABC")
+		o1.ExtendXT( :ToPosition = 5, :With = :CharsRepeadted )
+		o1.Show()
+		#--> "ABCDEAB"
+
+		EXAMPLE 4
+
+		o1 = new stzString("ABC")
+		o1.ExtendXT( :ToPosition = 5, :With = "*" )
+		o1.Show()
+		#--> "ABCDE**"
+
+		EXAMPLE 5
+
+		o1 = new stzString("ABC")
+		o1.ExtendXT( :ToPostion = 5, :WithCharsIn = [ "D", "E" ])
+		o1.Show()
+		#--> "ABCDEDE"
+
+		*/
+
+		if isString(n) and n = :String
+
+			# Case 1: o1.ExtendXT( :String, :With = "DE")
+			if isList(pWith) and Q(pWith).IsWithOrByOrUsingNamedParam()
+				This.ExtendWith(pWith[2])
+				return
+
+			# Case 2: o1.ExtendXT( :String, :ToPosition = 5 )
+			but isList(pWith) and Q(pWith).IsToOrToPositionNamedParam()
+				This.ExtendToPosition(pWith[2])
+				return
+
+			ok
+
+		but isList(n) and Q(n).IsToOrToPositionNamedParam()
+
+			if Q(pWith).IsWithOrUsingNamedParam() 
+
+				# Case 3: o1.ExtendXT( :ToPosition = 5, :With = :CharsRepeadted )
+				if isString(pWith[2]) and pWith[2] = :CharsRepeated
+					This.ExtendToPositionWithCharsRepeadted(n[2])
+					return
+	
+				# Case 4: o1.ExtendXT( :ToPosition = 5, :With = "*" )
+				else
+					This.ExtendToPositionWith(n[2], pWith[2])
+					return
+				ok
+
+			# Case 5: o1.ExtendXT( :ToPostion = 5, :WithCharsIn = [ "D", "E" ])
+			but Q(pWith).IsWithCharsInNamedParam()
+				This.ExtendToPositionWithCharsIn(n[2], pWith[2])
+				return
+
+			ok
+		ok
+
+		StzRaise("Unsupported syntax!")
+
+	  #--------------------------------------------#
+	 #  SHRINKING THE STRING TO A GIVEN POSITION  #
+	#============================================#
+
+	def ShrinkTo(n)
+		if isList(n) and
+		   ( Q(n).IsPositionNamedParam() or Q(n).IsNCharsNamedParam() )
+
+			n = n[2]
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		nLen = This.NumberOfItems()
+		if n < nLen
+			This.RemoveSection( n+1, nLen )
+		ok
+
+		#< @FunctionFluentForm
+
+		def ShrinkToQ(n)
+			This.ShrinkTo(n)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ShrinkToPosition(n)
+			This.ShrinkTo(n)
+
+			def ShrinkToPositionQ(n)
+				This.ShrinkToPosition(n)
+				return This
+
+		def ShrinkToNChars(n)
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			This.ShrinkToPosition(n)
+
+			def ShrinkToNCharsQ(n)
+				This.ShrinkToNChars(n)
+				return This
+
+		def Shrink(n)
+			if isList(n) and
+			   ( Q(n).IsToOrToPositionNamedParam() or
+			     Q(n).IsToNCharsNamedParam() )
+
+				n = n[2]
+			ok
+
+			This.ShrinkTo(n)
+
+			def ShrinkQ(n)
+				This.Shrink(n)
+				return This
+		#>
+
+	def ShrinkedTo(n)
+		aResult = This.Copy().ShrinkToQ(n).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ShrinkedToPosition(n)
+			return This.ShrinkedTo(n)
+
+		def ShrinkedToNChars(n)
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			return Thus.ShrinkedToPosition(n)
+
+		def Shrinked(n)
+			return This.ShrinkedTo(n)
+
+		#>
 
 	  #===============================#
 	 #     LOWERCASING THE STRING    #
@@ -13212,7 +13638,7 @@ def ReplaceIBS()
 
 			# if the char we are parsing does not belong to
 			# pcSubStr, then we stop the parsing and return
-			# the section (done for each psotion)
+			# the section (done for each position)
 
 			while TRUE
 				n += nLenSubStr
@@ -14509,13 +14935,12 @@ def ReplaceIBS()
 		def RunAndReturn()
 			This.ExecuteAndReturn()
 
-	  #============================#
+	  #----------------------------#
 	 #     CLEARING THE STRING    #
-	#============================#
+	#----------------------------#
 
-	// Clears the string (text becomes "")
 	def Clear()
-		This.Update("")
+		This.UpdateWith("")
 
 		#< @FunctionFluentForm
 
@@ -14527,27 +14952,41 @@ def ReplaceIBS()
 
 		#>
 
-	// Verifies if the string text is empty (null, in Ring terms)
+	  #---------------------------------------------------------#
+	 #  VERIFYING IF THE STRING IS EMPTY (NULL IN RING TERMS)  #
+	#---------------------------------------------------------#
+
 	def IsEmpty()
 		return This.Content() = ""
 
-	  #---------------------------------------#
-	 #      RESIZING, FILLING & UPDATING     #
-	#---------------------------------------#
+	  #-----------------------------------------------------------#
+	 #  FILLING THE STRING WITH N COPIES OF THE GIVEN SUBSTRING  #
+	#-----------------------------------------------------------#
 
-	// Resizes the string and fills the new Chars with cChar
-	def Fill(n, cChar)
-		// TODO
+	def FillWith(n, cSubStr)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if NOT isString(cSubStr)
+			StzRaise("Incorrect param type! cSubStr must be a string.")
+		ok
+
+		cStr = Q(cSubStr).RepeatedNTimes(n)
+		This.UpdateWith(cStr)
 
 		#< @FunctionFluentForm
 
-		def FillQ(n, cChar)
-			This.Fill(n, cChar)
+		def FillWillQ(n, cChar)
+			This.FillWith(n, cChar)
 			return This
 
 		#>
 		
-	// Sets the size of the string to n Chars
+	  #-----------------------#
+	 #  RESIZING THE STRING  #
+	#-----------------------#
+
 	def Resize(n)
 		cResult = NULL
 
@@ -14567,21 +15006,16 @@ def ReplaceIBS()
 	
 		#>
 
-	def ExtendToNChars(n, pcUsingChar)
-		if isList(pcUsingChar) and Q(pcUsingChar).IsUsingNamedParam()
-			pcUsingChar = pcUsingChar[2]
-		ok
-
-		if NOT ( isString(pcUsingChar) and Q(pcUsingChar).IsChar() )
-			StzRaise("Incorrect param type! pcUsingChar must be a char.")
-		ok
-
-		if n > This.NumberOfChars()
-			This.AddSubString( Q(pcUsingChar).RepeatedNTimes(n) )
-		ok
+	  #-----------------------------------------------#
+	 #  ADDING A SUBSTRING AT THE END OF THE STRING  #
+	#-----------------------------------------------#
 
 	def AddSubString(pcSubStr)
 		This.Update( :With = This.Content() + pcSubStr )
+
+	  #------------------------------------------#
+	 #  ADDING A CHAR AT THE END OF THE STRING  #
+	#------------------------------------------#
 
 	def AddChar(c)
 		if isString(c) and Q(c).IsChar()
@@ -14590,42 +15024,51 @@ def ReplaceIBS()
 			stzRaise("Incorrect param type! c must be a char.")
 		ok
 
-	// Updates the string with a new text
-	def Update(pcNewText)
-		if isList(pcNewText) and
-		   ( StzListQ(pcNewText).IsWithNamedParam() or StzListQ(pcNewText).IsUsingNamedParam() )
 
-			pcNewText = pcNewText[2]
+	  #-----------------------#
+	 #  UPDATING THE STRING  #
+	#-----------------------#
+
+	def Update(pcNewStr)
+		#< QtBased | Uses QString.clear() and QString.append() >
+
+		if isList(pcNewStr) and
+		   ( StzListQ(pcNewStr).IsWithNamedParam() or StzListQ(pcNewStr).IsUsingNamedParam() )
+
+			pcNewStr = pcNewStr[2]
 
 		ok
 	
 		@oQString.clear()
-		@oQString.append(pcNewText)
+		@oQString.append(pcNewStr)
 
 		//This.VerifyConstraints()
 
 		#< @FunctionAlternativeForms
 
-		def UpdateWith(cNewText)
-			This.Update(cNewText)
+		def UpdateWith(pcNewStr)
+			This.Update(pcNewStr)
 
 		#>
 
 		#< @FunctionFluentForm	
 
-		def UpdateQ(cNewText)
+		def UpdateQ(pcNewStr)
 			This.Update()
 			return This
 
 			#< @FunctionAlternativeForms
 
-			def UpdateWithQ(cNewText)
-				This.UpdateWith(cNewText)
+			def UpdateWithQ(pcNewStr)
+				This.UpdateWith(pcNewStr)
 				return This		
 
 			#>
 
 		#>
+
+	def UpdatedWith(pcNewStr)
+		return pcNewStr
 
 	  #----------------------------------------#
 	 #     CONTAINING ONLY SPACES & LETTERS   #
@@ -41326,7 +41769,7 @@ def ReplaceIBS()
 		// TODO
 
 	def Show()
-		? This.Content()
+		? @@( This.Content() )
 
 	def Methods()
 		return ring_methods(This)
@@ -41622,36 +42065,6 @@ def ReplaceIBS()
 			This.AppendAtEnd(pcOtherStr)
 			return This
 
-	#--
-
-	def Extend(pcOtherStr)
-		This.Append(pcOtherStr)
-
-		def ExtendQ(pcOtherStr)
-			This.Extend(pcOtherStr)
-			return This
-
-	def ExtendEnd(pcOtherStr)
-		This.Append(pcOtherStr)
-
-		def ExtendEndQ(pcOtherStr)
-			This.ExtendEnd(pcOtherStr)
-			return This
-
-	def ExtendFromEnd(pcOtherStr)
-		This.Append(pcOtherStr)
-
-		def ExtendFromEndQ(pcOtherStr)
-			This.ExtendFromEnd(pcOtherStr)
-			return This
-
-	def ExtendAtEnd(pcOtherStr)
-		This.Append(pcOtherStr)
-
-		def ExtendAtEndQ(pcOtherStr)
-			This.ExtendFAtEnd(pcOtherStr)
-			return This
-
 	  #-------------------------------#
 	 #   ALTERNATIVES OF Appended()  #
 	#-------------------------------#
@@ -41666,17 +42079,6 @@ def ReplaceIBS()
 		return This.Appended(pcOtherStr)
 
 	def AppendedAtEnd(pcOtherStr)
-		return This.Appended(pcOtherStr)
-
-	#--
-
-	def Extended(pcOtherStr)
-		return This.Appended(pcOtherStr)
-
-	def ExtendedFromEnd(pcOtherStr)
-		return This.Appended(pcOtherStr)
-
-	def ExtendedAtEnd(pcOtherStr)
 		return This.Appended(pcOtherStr)
 
 	  #----------------------------#
@@ -41711,36 +42113,6 @@ def ReplaceIBS()
 			This.AddFromStart(pcOtherStr)
 			return This
 
-	#--
-
-	def ExtendStart(pcOtherStr)
-		This.Prepend(pcOtherStr)
-
-		def ExtendStartQ(pcOtherStr)
-			This.ExtendStart(pcOtherStr)
-			return This
-
-	def ExtendToStart(pcOtherStr)
-		This.Prepend(pcOtherStr)
-
-		def ExtendToStartQ(pcOtherStr)
-			This.ExtendToStart(pcOtherStr)
-			return This
-
-	def ExtendAtStart(pcOtherStr)
-		This.Prepend(pcOtherStr)
-
-		def ExtendAtStartQ(pcOtherStr)
-			This.ExtendAtStart(pcOtherStr)
-			return This
-
-	def ExtendFromStart(pcOtherStr)
-		This.Prepend(pcOtherStr)
-
-		def ExtendFromStartQ(pcOtherStr)
-			This.ExtendFromStart(pcOtherStr)
-			return This
-
 	  #--------------------------------#
 	 #   ALTERNATIVES OF Prepended()  #
 	#--------------------------------#
@@ -41754,17 +42126,6 @@ def ReplaceIBS()
 	def AppendedAtStart(pcOtherStr)
 		return This.Prepended(pcOtherStr)
 
-	#--
-
-	def ExtendedToStart(pcOtherStr)
-		return This.Prepended(pcOtherStr)
-
-	def ExtendedFromStart(pcOtherStr)
-		return This.Prepended(pcOtherStr)
-
-	def ExtendedAtStart(pcOtherStr)
-		return This.Prepended(pcOtherStr)
-		
 	  #------------------------------#
 	 #  ALTERNATIVES OF FindMany()  #
 	#------------------------------#
