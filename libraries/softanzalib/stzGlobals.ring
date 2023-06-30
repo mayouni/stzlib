@@ -1392,9 +1392,12 @@ func W(cCode)
 		return W(cCode)
 
 func STOP()
-	StzRaise( NL + 	"----------------" + NL +
-		       	"    STOPPED!    " + NL +
-			"----------------" + NL )
+	StzRaise( NL + 
+	    "----------------" + NL +
+	    "    STOPPED!    " + NL +
+	    "----------------"
+	)
+	
 
 func StartTimer()
 	_t0 = clock()
