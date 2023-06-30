@@ -19036,7 +19036,6 @@ class stzList from stzObject
 		ok
 
 		cCode = 'bOk = (' + Q(cCode).TrimQ().BoundsRemoved(["{","}"]) + ')'
-
 		anResult = []
 
 		for @i = nStart to nEnd

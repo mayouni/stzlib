@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-/*-----
+/*=======
 
 pron()
 
@@ -11,8 +11,8 @@ o1 = new stzList("A" : "E")
 proff()
 #--> Executed in 0.03 second(s)
 
-/*-----
-*/
+/*========
+
 pron()
 
 o1 = new stzString("okay one pepsi two three ")
@@ -42,7 +42,15 @@ proff()
 # Executed in 0.24 second(s)
 
 /*----------
-//o1.SplitQ(" ").FindWXT(' Q(@item).ContainsAnyOfThese( Q("vwto").Chars() ')
+*/
+pron()
+
+o1 = new stzString("okay one pepsi two three ")
+? o1.SplitQ(" ").FindWXT(' Q(@item).ContainsAnyOfThese( Q("vwto").Chars() ) ')
+
+proff()
+# Executed in 0.58 second(s)
+
 /*----------
 
 pron()

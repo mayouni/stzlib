@@ -33229,7 +33229,7 @@ def ReplaceIBS()
 
 		# Sort the substrings in descending order
 
-		acSubStrings = QR(acSubStrings, :stzListOfStrings).SortedInDesendingBy(:NumberOfChars)
+		acSubStrings = QR(acSubStrings, :stzListOfStrings).SortedInDesendingBy('Q(@string).NumberOfChars()')
 		nLenSubStr = len(acSubStrings)
 
 		aSections = []
@@ -33252,71 +33252,7 @@ def ReplaceIBS()
 
 		This.SpacifySections(aSections)
 
-/*		# Identifying those among them, that will be altered
-		# after Spacify function is used
 
-		acToBeAltered = QR(pacSubStr, :stzListOfStrings).SubStrongs()
-		#--> [ "Ring" ]
-		nLenToBeAltered = len(acToBeAltered)
-
-		# Deducing those that will be not altered (they will be
-		# successfully spacified by the Spacify function)
-
-		# If there is no altered substrings, then it is safe
-		# to spacify them all and quit...
-
-		if nLenToBeAltered = 0
-			for i = 1 to nLenSubStr
-				This.SpacifySubStringUsingCS(acSubstrings[i], pcSep, pCaseSensitive)
-			next
-
-			return
-		ok
-
-		# Otherwise, we start by separating the ones that will
-		# not be altered (will be well spacified automatically)
-
-		acWellSpacified = Q(pacSubStr).ManyRemoved(acToBeAltered)
-		#-->  "believe", "in", "future", "and", "engage", "for" ]
-		nLenWellSpacified = len(acWellSpacified)
-
-		# Defining the sections of the (to-be) altered substrings
-
-		nLenAltered = len(acToBeAltered)
-		aSections = []
-		for i = 1 to nLenAltered
-			cSubStr = acToBeAltered[i]
-			aTempSections = This.FindAsSectionsCS(cSubStr, pCaseSensitive)
-			nTempLen = len(aTempSections)
-
-			for j = 1 to nTempLen
-				aSections + aTempSections[j]
-			next
-		next
-		#--> aSections = [ [11, 14] ]
-
-		# Taking the antisections (corresponding to the substrings
-		# that will be successfully spacified and spacifying them
-
-		acAntiSections = This.AntiSections(aSections)
-		#--> [ "Ibelievein", "futureandengageforit!" ]
-		nLenAntiSections = len(acAntiSections)
-
-		for i = 1 to nLenAntiSections
-			oSection = new stzString(acAntiSections[i])
-			for j = 1 to nLenWellSpacified
-				oSection.SpacifySubStringUsingCS(acWellSpacified[j], pcSep, pCaseSensitive)
-			next
-
-			This.ReplaceCS( acAntiSections[i], oSection.Content(), pCaseSensitive)
-		next
-		
-		# Then we safly spacify the ones that, otherwise, would be altered
-
-		for i = 1 to nLenAltered
-			This.ReplaceCS(acToBeAltered[i], pcSep + acToBeAltered[i] + pcSep, pCaseSensitive)
-		next
-*/
 		#< @FunctionFluentForm
 
 		def SpacifySubStringsUsingCSQ(pacSubStr, pcSep, pCaseSensitive)
