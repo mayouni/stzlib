@@ -1794,7 +1794,7 @@ class stzListOfStrings from stzList
 	def SortInAscendingBy(pcExpr)
 		/* EXAMPLE
 		o1 = new stzListOfStrings([ "a", "abcde", "abc", "ab", "abcd" ])
-		o1.SortBy('len(@item)')
+		o1.SortBy('len(@string)')
 		? o1.Content()
 
 		#--> [ "a", "ab", "abc", "abcd", "abcde" ]
