@@ -1,6 +1,17 @@
 load "stzlib.ring"
 
 /*-----
+
+pron()
+
+o1 = new stzList("A" : "E")
+? o1.ItemsAtPositions([2, 3])
+#--> [ "B", "C" ]
+
+proff()
+#--> Executed in 0.03 second(s)
+
+/*-----
 */
 pron()
 
@@ -15,12 +26,12 @@ cMyConditionIsVerified = '
 # Using the condition to find the words verifying it (using FindW())
 # after the string is splitted (using Split())
 
-? o1.SplitQ(" ").FindW(cMyConditionIsVerified)
+? o1.SplitQ(" ").FindWhere(cMyConditionIsVerified) # Or .FindW() for short!
 #--> [ 1, 2, 4, 5 ]
 
 # Getting the words themselves using ItemsW()
 
-? o1.SplitQ(" ").ItemsW(cMyConditionIsVerified)
+? o1.SplitQ(" ").ItemsWhere(cMyConditionIsVerified)
 #--> [ "okay", "one", "two", "three" ]
 
 # In general, any function in Softanza, like Find() and Items() here,
@@ -28,7 +39,7 @@ cMyConditionIsVerified = '
 # instruct them to their job upon a given condition.
 
 proff()
-# Executed in 0.&'46 second(s)
+# Executed in 0.24 second(s)
 
 /*----------
 //o1.SplitQ(" ").FindWXT(' Q(@item).ContainsAnyOfThese( Q("vwto").Chars() ')

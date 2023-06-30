@@ -19262,7 +19262,7 @@ class stzList from stzObject
 		aContent = This.List()
 
 		for i = 1 to nLen
-			aResult + aContent[i]
+			aResult + aContent[panPos[i]]
 		next
 
 		return aResult
@@ -19337,6 +19337,8 @@ class stzList from stzObject
 
 		return aResult
 
+		#< @FunctionFluentForms
+
 		def ItemsWQ(pcCondition)
 			return ItemsWQR(pcCondition, :stzList)
 
@@ -19375,11 +19377,22 @@ class stzList from stzObject
 				StzRaise("Unsupported return type!")
 			off
 
-			def OnlyW(pcCondition)
-				return This.ItemsW(pcCondition)
+		#>
 
-			def OnlyWhere(pcCondition)
-				return This.ItemsW(pcCondition)
+		#< @FunctionAlternativeForms
+
+		def OnlyW(pcCondition)
+			return This.ItemsW(pcCondition)
+
+		#--
+
+		def ItemsWhere(pcCondition)
+			return This.ItemsW(pcCondition)
+	
+		def OnlyWhere(pcCondition)
+			return This.ItemsW(pcCondition)
+
+		#>
 
 	  #-----------------------------------------------------------------#
 	 #  GETTINIG THE NTH ITEM IN THE LIST VERIFYING A GIVEN CONDITION  #
