@@ -6664,10 +6664,13 @@ class stzString from stzObject
 	#------------------------------------------------------------------#
 
 	def IsPluralOfAStzType()
-		oHash = new stzHashList( StzTypesXT() )
-		anPos = oHash.FindValue( This.Lowercased() )
-		if len(anPos) > 0
+
+		if QR( StzTypesXT(), :stzListOfPairs ).
+		   SecondItemsQ().
+		   ContainsCS( This.Content(), :CaseSensitive = FALSE )
+
 			return TRUE
+
 		else
 			return FALSE
 		ok

@@ -452,7 +452,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*------------------
-*/
+
 pron()
 
 ? @@( Association([ :Of = ["A", "B", "C"], :And = [1, 2, 3] ]) )
@@ -462,7 +462,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*==================
-
+*/
 pron()
 
 o1 = new stzList([

@@ -1,5 +1,12 @@
 load "stzlib.ring"
 
+pron()
+
+? Q(:stzListsOfStrings).IsPluralOfAStzType()
+#--> TRUE
+
+proff()
+
 /*=============
 
 pron()
