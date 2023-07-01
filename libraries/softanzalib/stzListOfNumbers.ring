@@ -2551,9 +2551,8 @@ class stzListOfNumbers from stzList
 	#=====================================================#
 
 	def Update(panNewListOfNumbers)
-
-		if isList(panNewListOfNumbers) and StzListQ(panNewListOfNumbers).IsWithNamedParam()
-			pnNewListOfNumbers = pnNewListOfNumbers[2]
+		if isList(panNewListOfNumbers) and Q(panNewListOfNumbers).IsWithOrByOrUsingNamedParam()
+			panNewListOfNumbers = panNewListOfNumbers[2]
 		ok
 
 		if NOT ( isList(panNewListOfNumbers) and
@@ -2565,16 +2564,51 @@ class stzListOfNumbers from stzList
 
 		@anContent = panNewListOfNumbers
 
+		#< @FunctionFluentForm
+
+		def UpdateQ(panNewListOfNumbers)
+			This.Update(panNewListOfNumbers)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def UpdateWith(panNewListOfNumbers)
-			if NOT ( isList(panNewListOfNumbers) and
-				 Q(panNewListOfNumbers).IsListOfNumbers()
-			       )
+			This.Update(panNewListOfNumbers)
 
-				StzRaise("Incorrect param! You must provide a list of numbers.")
-			ok
+			def UpdateWithQ(panNewListOfNumbers)
+				return This.UpdateQ(panNewListOfNumbers)
+	
+		def UpdateBy(panNewListOfNumbers)
+			This.Update(panNewListOfNumbers)
 
-			@anContent = panNewListOfNumbers
+			def UpdateByQ(panNewListOfNumbers)
+				return This.UpdateQ(panNewListOfNumbers)
 
+		def UpdateUsing(panNewListOfNumbers)
+			This.Update(panNewListOfNumbers)
+
+			def UpdateUsingQ(panNewListOfNumbers)
+				return This.UpdateQ(panNewListOfNumbers)
+
+		#>
+
+	def Updated(panNewListOfNumbers)
+		return panNewListOfNumbers
+
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(panNewListOfNumbers)
+			return This.Updated(panNewListOfNumbers)
+
+		def UpdatedBy(panNewListOfNumbers)
+			return This.Updated(panNewListOfNumbers)
+
+		def UpdatedUsing(panNewListOfNumbers)
+			return This.Updated(panNewListOfNumbers)
+
+		#>
 
 	  #-----------------------------------------------------------#
 	 #     REPLACING A NUMBER AT A GIVEN POSITION IN THE LIST    #

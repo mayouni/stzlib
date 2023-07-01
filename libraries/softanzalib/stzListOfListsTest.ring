@@ -14,16 +14,28 @@ o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
 ? @@( o1.Flattened() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
+proff()
+# Executed in 0.04 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
+
 //o1.Merge()
 #--> Error message:
-# Can't flatten the list of lists!
-# Instead you can return a flattend copy of it using Flattened()
+# Can't merge the list of lists!
+# Instead you can return a merged copy of it using Merged()
 
 ? @@( o1.Merged() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
 proff()
 # Executed in 0.03 second(s)
+
+# NOTE: You will understand the difference between Flatten() and Merge()
+# by reading the fellowing two ewxamples...
 
 /*---------------
 
@@ -47,6 +59,7 @@ proff()
 pron()
 
 o1 = new stzList([ [1, 2], [3, [4]], 5 ])
+
 ? @@( o1.Merged() )
 #--> [ 1, 2, 3, [ 4 ], 5 ]
 
@@ -62,6 +75,7 @@ pron()
 
 proff()
 # Executed in 0.03 second(s)
+
 /*-------------
 
 pron()
@@ -72,23 +86,7 @@ aMyLists = [
 	[ "ab", "xt", "b", "xt" ]
 ]
 
-? @@( Intersection(aMyLists) )
-#--> [ "ab", "b" ]
-
-proff()
-# Executed in 0.07 second(s)
-
-/*-------------
-
-pron()
-
-o1 = new stzListOfLists([
-	[ "a", "ab", "b", "b" ],
-	[ "a", "a", "ab", "abc", "b", "bc", "c" ],
-	[ "ab", "xt", "b", "xt" ]
-])
-
-? @@( o1.CommonItems() )
+? @@( Intersection(aMyLists) ) # Same as CommonItems()
 #--> [ "ab", "b" ]
 
 proff()
@@ -104,13 +102,13 @@ o1 = new stzListOfLists([
 	[ "C#", "PHP", "Python", "Ring" ]
 ])
 
-? o1.CommonItems()
+? o1.CommonItems() # Same as Intersection()
 #--> [ "Ring", "Pyhton" ]
 
 proff()
+# Executed in 0.11 second(s)
 
 /*-------------
-# Executed in 0.07 second(s)
 
 pron()
 
@@ -119,7 +117,7 @@ o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3, "c" ])
 #--> [ "a", "ab", "b", [ 1, 2, 3 ], "abc", "bc", "c" ]
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.17 second(s)
 
 /*-------------
 
@@ -129,7 +127,7 @@ pron()
 #--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
 
 proff()
-#--> Executed in 0.04 second(s)
+#--> Executed in 0.06 second(s)
 
 /*=============== EXTENDING A LIST
 
@@ -149,13 +147,13 @@ proff()
 pron()
 
 o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendToXT(5, :Using = AHeart())
+o1.ExtendXT( :ToPosition = 5, :Using = AHeart() )
 
 ? @@( o1.content() )
 #--> [ "A", "B", "C", "♥", "♥" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 /*=============== EXTENDING THE LISTS OF A LIST OF LISTS
 
@@ -186,7 +184,7 @@ o1.Extend()
 #--> TRUE
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.07 second(s)
 
 /*---------------
 
@@ -208,7 +206,50 @@ o1.ExtendXT(:Using = AHeart())
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.08 second(s)
+
+/*---------------
+*/
+pron()
+
+o1 = new stzLists([
+	[ "A", "B" ],
+	[ "C", "D", "E", "F"],
+	[ "I" ]
+])
+
+o1.ExtendToXT( :Position = 6, :Using = :RepeatedItems )
+
+? @@( o1.Content() )
+#--> [
+#	[ "A", "B", "♥", "♥", "♥", "♥" ],
+#	[ "C", "D", "E", "F", "♥", "♥" ],
+#	[ "I", "♥", "♥", "♥", "♥", "♥" ]
+# ]
+
+proff()
+#--> Executed in 0.07 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzLists([
+	[ "A", "B" ],
+	[ "C", "D", "E", "F"],
+	[ "I" ]
+])
+
+o1.ExtendToXT( :Position = 6, :Using = AHeart())
+
+? @@( o1.Content() )
+#--> [
+#	[ "A", "B", "♥", "♥", "♥", "♥" ],
+#	[ "C", "D", "E", "F", "♥", "♥" ],
+#	[ "I", "♥", "♥", "♥", "♥", "♥" ]
+# ]
+
+proff()
 
 /*================= SHRINKING A LIST
 
@@ -229,7 +270,7 @@ pron()
 
 o1 = new stzLists([
 	[ "A", "B", "C" ],
-	[ "D", "E", "F", "G"],
+	[ "D", "E", "F", "G" ],
 	[ "H", "I" ]
 ])
 
@@ -239,15 +280,15 @@ o1.Shrink()
 #--> [ [ "A", "B" ], [ "D", "E" ], [ "H", "I" ] ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.09 second(s)
 
 /*-----------------
-
+*/
 pron()
 
 o1 = new stzLists([
 	[ "A", "B", "C" ],
-	[ "D", "E", "F", "G"],
+	[ "D", "E", "F", "G" ],
 	[ "H", "I" ]
 ])
 
@@ -257,7 +298,7 @@ o1.ShrinkTo(1)
 #--> [ [ "A" ], [ "D" ], [ "H" ] ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.07 second(s)
 
 /*=================
 
@@ -462,7 +503,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*==================
-*/
+
 pron()
 
 o1 = new stzList([
@@ -484,7 +525,7 @@ o1 = new stzList([ "A":"C", "E":"D", "G": "Y" ])
 #--> TRUE
 
 proff()
-# Executed in 0.25 second(s)
+# Executed in 1.19 second(s)
 
 /*==================
 

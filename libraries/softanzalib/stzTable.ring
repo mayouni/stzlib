@@ -8601,8 +8601,8 @@ Class stzTable
 	 #  UPDATING THE TABLE  #
 	#======================#
 
-	def Update( paNewTable )
-		if isList(paNewTable) and Q(paNewTable).IsWithNamedParam()
+	def Update(paNewTable)
+		if isList(paNewTable) and Q(paNewTable).WithOrByOrUsingNamedParam()
 			paNewTable = paNewTable[2]
 		ok
 
@@ -8613,6 +8613,52 @@ Class stzTable
 		ok
 
 		@aTable = paNewTable
+
+		#< @FunctionFluentForm
+
+		def UpdateQ(paNewTable)
+			This.Update(paNewTable)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def UpdateWith(paNewTable)
+			This.Update(paNewTable)
+
+			def UpdateWithQ(paNewTable)
+				return This.UpdateQ(paNewTable)
+	
+		def UpdateBy(paNewTable)
+			This.Update(paNewTable)
+
+			def UpdateByQ(paNewTable)
+				return This.UpdateQ(paNewTable)
+
+		def UpdateUsing(paNewTable)
+			This.Update(paNewTable)
+
+			def UpdateUsingQ(paNewTable)
+				return This.UpdateQ(paNewTable)
+
+		#>
+
+	def Updated(paNewTable)
+		return paNewTable
+
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(paNewTable)
+			return This.Updated(paNewTable)
+
+		def UpdatedBy(paNewTable)
+			return This.Updated(paNewTable)
+
+		def UpdatedUsing(paNewTable)
+			return This.Updated(paNewTable)
+
+		#>
 
 	  #====================#
 	 #  RENAMING COLUMNS  #

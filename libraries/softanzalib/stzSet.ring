@@ -41,12 +41,11 @@ class stzSet from stzList
 	def ToStzList()
 		return new stzList( This.Set() )
 
+	#--
+
 	def Update(paOtherSet)
-		if isList(paOtherSet) and
-		   ( StzListQ(paOtherSet).IsWithNamedParam() or StzListQ(paOtherSet).IsUsingNamedParam() )
-
+		if isList(paOtherSet) and Q(paOtherSet).IsWithOrByOrUsingNamedParam()
 			paOtherSet = paOtherSet[2]
-
 		ok
 
 		If NOT ListIsSet(paOtherSet)
@@ -55,27 +54,55 @@ class stzSet from stzList
 
 		@aContent = paOtherSet
 
+		#< @FunctionFluentForm
+
+		def UpdateQ(paOtherSet)
+			This.Update(paOtherSet)
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def UpdateWith(paOtherSet)
 			This.Update(paOtherSet)
 
+			def UpdateWithQ(paOtherSet)
+				return This.UpdateQ(paOtherSet)
+	
+		def UpdateBy(paOtherSet)
+			This.Update(paOtherSet)
+
+			def UpdateByQ(paOtherSet)
+				return This.UpdateQ(paOtherSet)
+
+		def UpdateUsing(paOtherSet)
+			This.Update(paOtherSet)
+
+			def UpdateUsingQ(paOtherSet)
+				return This.UpdateQ(paOtherSet)
+
 		#>
 
-	def UpdateQ(paOtherSet)
-		This.Update(paOtherSet)
-		return This
+	def Updated(paOtherSet)
+		return paOtherSet
 
 		#< @FunctionAlternativeForms
 
-		def UpdateWithQ(paOtherSet)
-			This.UpdateQ(paOtherSet)
+		def UpdatedWith(paOtherSet)
+			return This.Updated(paOtherSet)
+
+		def UpdatedBy(paOtherSet)
+			return This.Updated(paOtherSet)
+
+		def UpdatedUsing(paOtherSet)
+			return This.Updated(paOtherSet)
 
 		#>
 
-	  #------------------#
-	 #    ADD ELEMENT   #
-	#------------------#
+	  #----------------------------------#
+	 #   ADDING AN ELEMENT TO THE SET   #
+	#----------------------------------#
 
 	def AddElement(pElm)
 		if not This.Contains(pElm)	# From StzList

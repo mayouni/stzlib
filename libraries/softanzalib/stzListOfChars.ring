@@ -155,11 +155,11 @@ class stzListOfChars from stzListOfStrings
 
 		#>
 
-	def Update(paOtherListOfChars)
-		if isList(paOtherListOfChars) and
-		   Q(paOtherListOfChars).IsOneOfTheseNamedParams([ :With, :Using ])
-			pcString = pcString[2]
+	#--
 
+	def Update(paOtherListOfChars)
+		if isList(paOtherListOfChars) and Q(paOtherListOfChars).IsWithOrByOrUsingNamedParam()
+			paOtherListOfChars = paOtherListOfChars[2]
 		ok
 
 		if Q(paOtherListOfChars).IsListOfChars()
@@ -170,12 +170,45 @@ class stzListOfChars from stzListOfStrings
 			StzRaise(stzListOfCharsError(:CanNotUpdateListOfChars)) # TODO
 		ok
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def UpdateWith(paOtherListOfChars)
-			return This.Update(paOtherListOfChars)
+			This.Update(paOtherListOfChars)
+
+			def UpdateWithQ(paOtherListOfChars)
+				return This.UpdateQ(paOtherListOfChars)
+	
+		def UpdateBy(paOtherListOfChars)
+			This.Update(paOtherListOfChars)
+
+			def UpdateByQ(paOtherListOfChars)
+				return This.UpdateQ(paOtherListOfChars)
+
+		def UpdateUsing(paOtherListOfChars)
+			This.Update(paOtherListOfChars)
+
+			def UpdateUsingQ(paOtherListOfChars)
+				return This.UpdateQ(paOtherListOfChars)
 
 		#>
+
+	def Updated(paOtherListOfChars)
+		return paOtherListOfChars
+
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(paOtherListOfChars)
+			return This.Updated(paOtherListOfChars)
+
+		def UpdatedBy(paOtherListOfChars)
+			return This.Updated(paOtherListOfChars)
+
+		def UpdatedUsing(paOtherListOfChars)
+			return This.Updated(paOtherListOfChars)
+
+		#>
+
+	#--
 
 	def ToListOfStzChars()
 		aResult = []
