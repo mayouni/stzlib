@@ -218,13 +218,13 @@ o1 = new stzLists([
 	[ "I" ]
 ])
 
-o1.ExtendToXT( :Position = 6, :Using = :RepeatedItems )
+o1.ExtendToXT( :Position = 6, :ByRepeatingItems ) # or :Using = :RepeatedItems
 
 ? @@( o1.Content() )
 #--> [
-#	[ "A", "B", "♥", "♥", "♥", "♥" ],
-#	[ "C", "D", "E", "F", "♥", "♥" ],
-#	[ "I", "♥", "♥", "♥", "♥", "♥" ]
+#	[ "A", "B", "A", "B", "A", "B" ],
+#	[ "C", "D", "E", "F", "C", "D" ],
+#	[ "I", "I", "I", "I", "I", "I" ]
 # ]
 
 proff()

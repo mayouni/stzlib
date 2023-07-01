@@ -835,7 +835,7 @@ class stzListOfLists from stzList
 		aResult = This.Copy().ExtendQ().Content()
 		return aResult
 
-		def ExtendedEachList()
+		def EachListExtended()
 			return This.Extended()
 
 	  #----------------------------------------------------------------#
@@ -868,7 +868,7 @@ class stzListOfLists from stzList
 		aResult = This.Copy().ExtendXTQ(pItem).Content()
 		return aResult
 
-		def ExtendedEachListXT(pItem)
+		def EachListExtendedXT(pItem)
 			return This.ExtendedXT(pItem)
 
 	  #------------------------------------------------------------------------------------#
@@ -878,9 +878,15 @@ class stzListOfLists from stzList
 	def ExtendTo(n)
 		This.ExtendToXT(n, NULL)
 
+		#< @FunctionFluentForm
+
 		def ExtendToQ(n)
 			This.ExtendTo(n)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def ExtendToPosition(n)
 			if NOT isNumber(n)
@@ -888,6 +894,13 @@ class stzListOfLists from stzList
 			ok
 
 			This.ExtendTo(n)
+
+
+			def ExtendToPositionQ(n)
+				This.ExtendToPositionQ(n)
+				return This
+		#>
+
 
 	def ExtendedTo(n)
 		aResult = This.Copy().ExtendToQ(n).Content()
@@ -918,7 +931,7 @@ class stzListOfLists from stzList
 		ok
 
 		if isString(pItem) and
-		    ( pItem = :ItemsRepeated or pItem = :RepeatingItems )
+		    ( pItem = :ItemsRepeated or pItem = :RepeatingItems or pItem = :RepeatedItems )
 
 			This.ExtendToByRepeatingItems(n)
 			return
@@ -984,8 +997,36 @@ class stzListOfLists from stzList
 		next
 
 		This.UpdateWith(aResult)
-		
+
+		#< @FunctionAlternativeForm
+
+		def ExtendToByRepeatingItemsQ(n)
+			This.ExtendToByRepeatingItems(n)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ExtendToWithItemsRepeated(n)
+			This.ExtendToByRepeatingItems(n)
+
+			def ExtendToWithItemsRepeatedQ(n)
+				This.ExtendToWithItemsRepeated(n)
+				return This
+
+		#>
+
+
+	#----
+	# 
+	#---
+
 	def ExtendByRepeatingItems()
+
+	#----
+	# 
+	#---
 
 	def ExtendToWithItemsIn(n, paItems)
 

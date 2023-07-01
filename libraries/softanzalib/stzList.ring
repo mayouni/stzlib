@@ -14612,9 +14612,15 @@ class stzList from stzObject
 
 		next
 
+		#< @FunctionFluentForm
+
 		def ExtendWithQ(paItems)
 			This.ExtendWith(paItems)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def ExtendWithItems(paItems)
 			This.ExtendWith(paItems)
@@ -14622,6 +14628,8 @@ class stzList from stzObject
 			def ExtendWithItemsQ(paItems)
 				This.ExtendWithItems(paItems)
 				return This
+
+		#>
 
 	def ExtendedWith(paItems)
 		aResult = This.Copy().ExtendWithQ(paItems).Content()
@@ -14742,30 +14750,90 @@ class stzList from stzObject
 			next
 		ok
 
+		#< @FunctionFluentForm
+
+		def ExtendToPositionWithQ(n, pValue)
+			This.ExtendToPositionWith(n, pValue)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def ExtendToWith(n, pValue)
 			This.ExtendToPositionWith(n, pValue)
+
+			def ExtendToWithQ(n, pValue)
+				This.ExtendToWith(n, pValue)
+				return This
+
+		#>
+
+	def ExtendedToPositionWith(n, pValue)
+		aResult = This.Copy().ExtendToPositionWithQ(n, pValue).Content()
+		return aResult
+
+		def ExtendedToWith(n, pValue)
+			return This.ExtendedToPositionWith(n, pValue)
 
 	  #----------------------------------------------------------------------#
 	 #  EXTENDING THE LIST TO A GIVEN POSITION BY REPEATING THE LIST ITEMS  #
 	#----------------------------------------------------------------------#
 
-	def ExtendToPositionWithItemsRepeadted(n)
+	def ExtendToPositionWithItemsRepeated(n)
 		This.ExtendToPositionWithItemsIn(n, This.List())
 
-		#< @FunctionAlternativeForm
+		#< @FunctionFluentForm
+
+		def ExtendToPositionWithItemsRepeatedQ(n)
+			This.ExtendToPositionWithItemsRepeated(n)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def ExtendToWithItemsRepeated(n)
-			This.ExtendToPositionWithItemsRepeadted(n)
+			This.ExtendToPositionWithItemsRepeated(n)
+
+			def ExtendToWithItemsRepeatedQ(n)
+				This.ExtendToWithItemsRepeated(n)
+				return This
+
+		def ExtendToByRepeatingItems(n)
+			This.ExtendToPositionWithItemsRepeated(n)
+
+			def ExtendtoByRepeatingItemsQ(n)
+				This.ExtendtoByRepeatingItems(n)
+				return This
 
 		#>
 
 		#< @FunctionMisspelledForm
 
 		def ExtendToWithItemsRepeadted(n)
-			This.ExtendToPositionWithItemsRepeadted(n)
+			This.ExtendToPositionWithItemsRepeated(n)
 
-		def ExtendtoByRepeatingItems(n)
-			This.ExtendToPositionWithItemsRepeadted(n)
+		#>
+
+	def ExtendedToPositionWithItemsRepeated(n)
+		aResult = This.Copy().ExtendToPositionWithItemsRepeatedQ(n).Content()
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def ExtendedToWithItemsRepeated(n)
+			return This.ExtendedToPositionWithItemsRepeated(n)
+
+		def ExtendedToByRepeatingItems(n)
+			return This.ExtendedToPositionWithItemsRepeated(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ExtendedToWithItemsRepeadted(n)
+			return This.ExtendedToPositionWithItemsRepeated(n)
 
 		#>
 
@@ -14800,8 +14868,31 @@ class stzList from stzObject
 
 		This.ExtendWith(aTemp)
 
+		#< @FunctionFluentForm
+
+		def ExtendToPositionWithItemsInQ(n, paItems)
+			This.ExtendToPositionWithItemsIn(n, paItems)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def ExtendToWithItemsIn(n, paItems)
 			return This.ExtendToPositionWithItemsIn(n, paItems)
+
+			def ExtendToWithItemsInQ(n, paItems)
+				This.ExtendToWithItemsIn(n, paItems)
+				return This
+
+		#>
+
+	def ExtendedToPositionWithItemsIn(n, paItems)
+		aResult = This.Copy().ExtendToPositionWithItemsInQ(n, paItems).Content()
+		return aResult
+
+		def ExtendedToWithItemsIn(n, paItems)
+			return This.ExtendedToPositionWithItemsIn(n, paItems)
 
 	  #------------------------------------------------#
 	 #  EXTENDING THE LIST - A GENERAL EXTENDED FORM  #
@@ -14893,6 +14984,18 @@ class stzList from stzObject
 		ok
 
 		StzRaise("Unsupported syntax!")
+
+		#< @FunctionFluentForm
+
+		def ExtendXTQ(n, pWith)
+			This.ExtendXT(n, pWith)
+			return This
+
+		#>
+
+	def ExtendedXT(n, pWith)
+		aResult = This.Copy().ExtendXTQ(n, pWith).Content()
+		return aResult
 
 	  #------------------------------------------#
 	 #  SHRINKING THE LIST TO A GIVEN POSITION  #
