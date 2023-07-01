@@ -1089,8 +1089,31 @@ class stzString from stzObject
 			This.AppendWith( Q(pcChar).RepeatedNTimes(n - nLen) )
 		ok
 
+		#< @FunctionFluentForm
+
+		def ExtendToPositionWithQ(n, pcChar)
+			This.ExtendToPositionWith(n, pcChar)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def ExtendToWith(n, pcChar)
 			This.ExtendToPositionWith(n, pcChar)
+
+			def ExtendToWithQ(n, pcChar)
+				This.ExtendToWith(n, pcChar)
+				return This
+
+		#>
+
+	def ExtendedToPositionWith(n, pcChar)
+		cResult = This.Copy().ExtendToPositionWithQ(n, pcChar)
+		return This
+
+		def ExtendedToWith(n, pcChar)
+			return This.ExtendedToPositionWith(n, pcChar)
 
 	  #--------------------------------------------------------------------------#
 	 #  EXTENDING THE STRING TO A GIVEN POSITION BY REPEATING THE STRING CHARS  #
@@ -1099,16 +1122,69 @@ class stzString from stzObject
 	def ExtendToPositionWithCharsRepeadted(n)
 		This.ExtendToPositionWithCharsIn(n, This.Chars())
 
+		#< @FunctionFluentForm
+
+		def ExtendToPositionWithCharsRepeadtedQ(n)
+			This.ExtendToPositionWithCharsRepeadted(n)
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForm
 
 		def ExtendToWithCharsRepeated(n)
 			This.ExtendToPositionWithCharsRepeadted(n)
+
+			def ExtendToWithCharsRepeatedQ(n)
+				This.ExtendToWithCharsRepeated(n)
+				return This
+
+		def ExtendToPositionByRepeadingChars(n)
+			This.ExtendToPositionWithCharsRepeadted(n)
+
+			def ExtendToPositionByRepeadingCharsQ(n)
+				This.ExtendToPositionByRepeadingChars(n)
+				return This
+
+		def ExtendToByRepeatingChars(n)
+			This.ExtendToPositionWithCharsRepeadted(n)
+
+			def ExtendToByRepeatingCharsQ(n)
+				This.ExtendToByRepeatingChars(n)
+				return This
 
 		#>
 
 		#< @FunctionMisspelledForm
 
 		def ExtendToWithCharsRepeadted(n)
+			This.ExtendToPositionWithCharsRepeadted(n)
+
+			def ExtendToWithCharsRepeadtedQ(n)
+				This.ExtendToWithCharsRepeadted(n)
+				return This
+		#>
+
+	def ExtendedToPositionWithCharsRepeadted(n)
+		cResult = This.Copy().ExtendToPositionWithCharsRepeadtedQ(n).Content()
+		return cResult
+
+		#< @FunctionAlternativeForm
+
+		def ExtendedToWithCharsRepeated(n)
+			This.ExtendToPositionWithCharsRepeadted(n)
+
+		def ExtendedToPositionByRepeadingChars(n)
+			This.ExtendToPositionWithCharsRepeadted(n)
+
+		def ExtendedToByRepeatingChars(n)
+			This.ExtendToPositionWithCharsRepeadted(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ExtendedToWithCharsRepeadted(n)
 			This.ExtendToPositionWithCharsRepeadted(n)
 
 		#>
@@ -1145,8 +1221,31 @@ class stzString from stzObject
 
 		This.ExtendWith(cTemp)
 
+		#< @FunctionFluentForm
+
+		def ExtendToPositionWithCharsInQ(n, pacChars)
+			This.ExtendToPositionWithCharsIn(n, pacChars)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def ExtendToWithCharsIn(n, pacChars)
 			return This.ExtendToPositionWithCharsIn(n, pacChars)
+
+			def ExtendToWithCharsInQ(n, pacChars)
+				This.ExtendToWithCharsIn(n, pacChars)
+				return This
+
+		#>
+
+	def ExtendedToPositionWithCharsIn(n, pacChars)
+		cResult = This.Copy().ExtendToPositionWithCharsInQ(n, pacChars).Content()
+		return cResult
+
+		def ExtendedToWithCharsIn(n, pacChars)
+			return This.ExtendedToPositionWithCharsIn(n, pacChars)
 
 	  #-----------------------------------------#
 	 #  EXTENDING THE STRING - A GENERAL FORM  #
@@ -1237,6 +1336,18 @@ class stzString from stzObject
 		ok
 
 		StzRaise("Unsupported syntax!")
+
+		#< @FunctionFluentForm
+	
+		def ExtendXTQ(n, pWith)
+			This.ExtendXT(n, pWith)
+			return This
+
+		#>
+
+	def ExtendedXT(n, pWith)
+		cResult = This.Copy().ExtendXTQ(n, pWith).Content()
+		return cResult
 
 	  #--------------------------------------------#
 	 #  SHRINKING THE STRING TO A GIVEN POSITION  #
