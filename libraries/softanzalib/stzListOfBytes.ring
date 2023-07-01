@@ -514,17 +514,55 @@ class stzListOfBytes from stzObject
 
 		// Updating the main QByteArray object with the result
 		This.Update(cResult)
+	#--
 
-	def Update(pcString)
-		if isList(pcString) and
-		   ( StzListQ(pcString).IsWithNamedParam() or StzListQ(pcString).IsUsingNamedParam() )
-
-			pcString = pcString[2]
-
+	def Update(pcStr)
+		if isList(pcStr) and Q(pcStr).IsWithOrByOrUsingNamedParam()
+			pcStr = pcStr[2]
 		ok
 
 		@oQByteArray = new QByteArray()
 		@oQByteArray.append(cResult)
+
+		#< @FunctionAlternativeForms
+
+		def UpdateWith(pcStr)
+			This.Update(pcStr)
+
+			def UpdateWithQ(pcStr)
+				return This.UpdateQ(pcStr)
+	
+		def UpdateBy(pcStr)
+			This.Update(pcStr)
+
+			def UpdateByQ(pcStr)
+				return This.UpdateQ(pcStr)
+
+		def UpdateUsing(pcStr)
+			This.Update(pcStr)
+
+			def UpdateUsingQ(pcStr)
+				return This.UpdateQ(pcStr)
+
+		#>
+
+	def Updated(pcStr)
+		return pcStr
+
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(pcStr)
+			return This.Updated(pcStr)
+
+		def UpdatedBy(pcStr)
+			return This.Updated(pcStr)
+
+		def UpdatedUsing(pcStr)
+			return This.Updated(pcStr)
+
+		#>
+
+	#---
 
 	// TODO: For the 2 following functions (Bits() and ToStzListOfBits)
 	// we need to write stzListOfBits class based on QTBitArray.

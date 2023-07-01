@@ -1305,16 +1305,13 @@ class stzListOfStrings from stzList
 			def InsertInEachAfterQ(n, pcSubStr)
 				return This.InsertInEachAfter(n, pcSubStr)
 
-	  #---------------#
-	 #    UPDATING   #
-	#---------------#
+	  #--------------------------------#
+	 #  UPDATING THE LIST OF STRINGS  #
+	#--------------------------------#
 
 	def Update(pNewListOfStr)
-		if isList(pNewListOfStr) and
-		   ( StzListQ(pNewListOfStr).IsWithNamedParam() or StzListQ(pNewListOfStr).IsUsingNamedParam() )
-
+		if isList(pNewListOfStr) and Q(pNewListOfStr).IsWithOrByOrUsingNamedParam()
 			pNewListOfStr = pNewListOfStr[2]
-
 		ok
 
 		if IsQStringListObject(pNewListOfStr)
@@ -1332,6 +1329,52 @@ class stzListOfStrings from stzList
 			StzRaise("Param you provided is not a list of strings!")
 	
 		ok
+
+		#< @FunctionFluentForm
+
+		def UpdateQ(pNewListOfStr)
+			This.Update(pNewListOfStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def UpdateWith(pNewListOfStr)
+			This.Update(pNewListOfStr)
+
+			def UpdateWithQ(pNewListOfStr)
+				return This.UpdateQ(pNewListOfStr)
+	
+		def UpdateBy(pNewListOfStr)
+			This.Update(pNewListOfStr)
+
+			def UpdateByQ(pNewListOfStr)
+				return This.UpdateQ(pNewListOfStr)
+
+		def UpdateUsing(pNewListOfStr)
+			This.Update(pNewListOfStr)
+
+			def UpdateUsingQ(pNewListOfStr)
+				return This.UpdateQ(pNewListOfStr)
+
+		#>
+
+	def Updated(pNewListOfStr)
+		return pNewListOfStr
+
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(pNewListOfStr)
+			return This.Updated(pNewListOfStr)
+
+		def UpdatedBy(pNewListOfStr)
+			return This.Updated(pNewListOfStr)
+
+		def UpdatedUsing(pNewListOfStr)
+			return This.Updated(pNewListOfStr)
+
+		#>
 
 	  #====================================================#
 	 #  CONCATENATING THE STRINGS OF THE LIST OF STRINGS  #

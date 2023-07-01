@@ -127,7 +127,15 @@ class stzListOfLists from stzList
 	def NumberOfLists()
 		return len(@aContent)
 
-	def Update( paList )
+	  #-------------------------------#
+	 #   UPDATING THE LIST OF LISTS  #
+	#-------------------------------#
+
+	def Update(paList)
+		if isList(paList) and Q(paList).IsWithOrByOrUsingNamedParam()
+			paList = paList[2]
+		ok
+
 
 		if isList(paList) and Q(paList).IsListOfLists()
 
@@ -141,9 +149,47 @@ class stzListOfLists from stzList
 			])
 		ok
 
-	  #----------------#
-	 #   ADD LISTS    #
-	#----------------#
+		#< @FunctionAlternativeForms
+
+		def UpdateWith(paList)
+			This.Update(paList)
+
+			def UpdateWithQ(paList)
+				return This.UpdateQ(paList)
+	
+		def UpdateBy(paList)
+			This.Update(paList)
+
+			def UpdateByQ(paList)
+				return This.UpdateQ(paList)
+
+		def UpdateUsing(paList)
+			This.Update(paList)
+
+			def UpdateUsingQ(paList)
+				return This.UpdateQ(paList)
+
+		#>
+
+	def Updated(paList)
+		return paList
+
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(paList)
+			return This.Updated(paList)
+
+		def UpdatedBy(paList)
+			return This.Updated(paList)
+
+		def UpdatedUsing(paList)
+			return This.Updated(paList)
+
+		#>
+
+	  #-----------------#
+	 #   ADDING LISTS  #
+	#-----------------#
 
 	def AddList(paList)
 		@aContent + paList
@@ -871,6 +917,13 @@ class stzListOfLists from stzList
 			pItem = pItem[2]
 		ok
 
+		if isString(pItem) and
+		    ( pItem = :ItemsRepeated or pItem = :RepeatingItems )
+
+			This.ExtendToByRepeatingItems(n)
+			return
+		ok
+
 		# Doing the job
 
 		nLen = This.NumberOfLists()
@@ -915,6 +968,26 @@ class stzListOfLists from stzList
 			ok
 
 			return This.ExtendedToXT(n, pItem)	
+
+	#----
+	# 
+	#---
+
+	def ExtendToByRepeatingItems(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + Q(aContent[i]).ExtendedToByRepeatingItems(n)
+		next
+
+		This.UpdateWith(aResult)
+		
+	def ExtendByRepeatingItems()
+
+	def ExtendToWithItemsIn(n, paItems)
 
 	  #================================#
 	 #  SHRINKING THE LIST OF LISTS   #

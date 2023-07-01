@@ -353,12 +353,11 @@ class stzChar from stzObject
 		oCopy = new stzChar( This.Content() )
 		return oCopy
 
-	def Update( pChar )
-		if isList(pChar) and
-		   ( StzListQ(pChar).IsWithNamedParam() or StzListQ(pChar).IsUsingNamedParam() )
+	#---
 
-			pValue = pValue[2]
-
+	def Update(pChar)
+		if isList(pChar) and Q(pChar).IsWithOrByOrUsingNamedParam()
+			pChar = pChar[2]
 		ok
 
 		if isString(pChar)
@@ -374,6 +373,46 @@ class stzChar from stzObject
 		else
 			StzRaise("Can't update the char!")
 		ok
+
+	#< @FunctionAlternativeForms
+
+		def UpdateWith(pChar)
+			This.Update(pChar)
+
+			def UpdateWithQ(pChar)
+				return This.UpdateQ(pChar)
+	
+		def UpdateBy(pChar)
+			This.Update(pChar)
+
+			def UpdateByQ(pChar)
+				return This.UpdateQ(pChar)
+
+		def UpdateUsing(pChar)
+			This.Update(pChar)
+
+			def UpdateUsingQ(pChar)
+				return This.UpdateQ(pChar)
+
+		#>
+
+	def Updated(pChar)
+		return pChar
+
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(pChar)
+			return This.Updated(pChar)
+
+		def UpdatedBy(pChar)
+			return This.Updated(pChar)
+
+		def UpdatedUsing(pChar)
+			return This.Updated(pChar)
+
+		#>
+
+	#---
 
 	// Returns the unicode code point of the Char in decimal
 	def Unicode()

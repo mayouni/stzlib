@@ -480,21 +480,58 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		aResult = This.ValuesQ().ItemsAtPositions(anPositions)
 		return aResult
 
-	  #------------------#
-	 #     UPDATING     #
-	#------------------#
+	  #---------------------------#
+	 #   UPDATING THE HASHLIST   #
+	#---------------------------#
 
-	def Update( paNewHashList )
-		if isList(paNewHashList) and
-		   ( StzListQ(paNewHashList).IsWithNamedParam() or StzListQ(paNewHashList).IsUsingNamedParam() )
-
+	def Update(paNewHashList)
+		if isList(paNewHashList) and Q(paNewHashList).IsWithOrByOrUsingNamedParam()
 			paNewHashList = paNewHashList[2]
-
 		ok
 
 		if isList(paNewHashList) and StzListQ(paNewHashList).IsHashList()
 			@aContent = paNewHashList
 		ok
+
+		#< @FunctionAlternativeForms
+
+		def UpdateWith(paNewHashList)
+			This.Update(paNewHashList)
+
+			def UpdateWithQ(paNewHashList)
+				return This.UpdateQ(paNewHashList)
+	
+		def UpdateBy(paNewHashList)
+			This.Update(paNewHashList)
+
+			def UpdateByQ(paNewHashList)
+				return This.UpdateQ(paNewHashList)
+
+		def UpdateUsing(paNewHashList)
+			This.Update(paNewHashList)
+
+			def UpdateUsingQ(paNewHashList)
+				return This.UpdateQ(paNewHashList)
+
+		#>
+
+	def Updated(paNewHashList)
+		return paNewHashList
+
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(paNewHashList)
+			return This.Updated(paNewHashList)
+
+		def UpdatedBy(paNewHashList)
+			return This.Updated(paNewHashList)
+
+		def UpdatedUsing(paNewHashList)
+			return This.Updated(paNewHashList)
+
+		#>
+
+	#---
 
 	def UpdateNthPair(n, paNewPair)
 

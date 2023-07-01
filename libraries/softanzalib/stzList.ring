@@ -949,30 +949,55 @@ class stzList from stzObject
 	*/
 
 	def Update(paNewList)
-		if isList(paNewList) and
-		   ( StzListQ(paNewList).IsWithNamedParam() or StzListQ(paNewList).IsUsingNamedParam() )
-
+		if isList(paNewList) and Q(paNewList).IsWithOrByOrUsingNamedParam()
 			paNewList = paNewList[2]
-
 		ok
 
 		@aContent = paNewList
 
-		#< @FunctionAlternativeForm
+		#< @FunctionFluentForm
+
+		def UpdateQ(paNewList)
+			This.Update(paNewList)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def UpdateWith(paNewList)
 			This.Update(paNewList)
 
+			def UpdateWithQ(paNewList)
+				return This.UpdateQ(paNewList)
+	
+		def UpdateBy(paNewList)
+			This.Update(paNewList)
+
+			def UpdateByQ(paNewList)
+				return This.UpdateQ(paNewList)
+
+		def UpdateUsing(paNewList)
+			This.Update(paNewList)
+
+			def UpdateUsingQ(paNewList)
+				return This.UpdateQ(paNewList)
+
 		#>
 
-	def UpdateQ(paNewList)
-		This.Update(paNewList)
-		return This
+	def Updated(paNewList)
+		return paNewList
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
-		def UpdateWithQ(paNewList)
-			return This.UpdateQ(paNewList)
+		def UpdatedWith(paNewList)
+			return This.Updated(paNewList)
+
+		def UpdatedBy(paNewList)
+			return This.Updated(paNewList)
+
+		def UpdatedUsing(paNewList)
+			return This.Updated(paNewList)
 
 		#>
 
@@ -14739,6 +14764,9 @@ class stzList from stzObject
 		def ExtendToWithItemsRepeadted(n)
 			This.ExtendToPositionWithItemsRepeadted(n)
 
+		def ExtendtoByRepeatingItems(n)
+			This.ExtendToPositionWithItemsRepeadted(n)
+
 		#>
 
 	  #----------------------------------------------------------------------#
@@ -14799,6 +14827,7 @@ class stzList from stzObject
 
 		o1 = new stzList([ "A", "B", "C" ])
 		o1.ExtendXT( :ToPosition = 5, :With = :ItemsRepeadted )
+		# Or: o1.ExtendXT( :ToPosition = 5, :ByRepeatingItems )
 		o1.Show()
 		#--> [ "A", "B", "C", "A", "B" ])
 
@@ -14834,10 +14863,12 @@ class stzList from stzObject
 
 		but isList(n) and Q(n).IsToOrToPositionNamedParam()
 
-			if Q(pWith).IsWithOrUsingNamedParam() 
+			if Q(pWith).IsWithOrUsingOrByNamedParam() 
 
 				# Case 3: o1.ExtendXT( :ToPosition = 5, :With = :ItemsRepeated )
-				if isString(pWith[2]) and pWith[2] = :ItemsRepeated
+				if isString(pWith[2]) and
+				   ( pWith[2] = :ItemsRepeated or pWith[2] = :RepeatingItems )
+
 					This.ExtendToPositionWithItemsRepeadted(n[2])
 					return
 	
@@ -14846,6 +14877,12 @@ class stzList from stzObject
 					This.ExtendToPositionWith(n[2], pWith[2])
 					return
 				ok
+
+			but isString(pWith) and
+			    ( pWith = :ByRepeatingItems or pWith = :WithItemsRepeated )
+
+				This.ExtendToPositionWithItemsRepeadted(n)
+				return
 
 			# Case 5: o1.ExtendXT( :ToPostion = 5, :WithItemsIn = [ "D", "E" ])
 			but Q(pWith).IsWithItemsInNamedParam()

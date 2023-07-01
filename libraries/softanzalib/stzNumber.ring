@@ -912,20 +912,66 @@ class stzNumber from stzObject
 	def StringValue()
 		return @cNumber
 
+	  #----------------------------#
+	 #   CHECKING IF THE NUMBER   #
+	#----------------------------#
+
 	def Update(pNumber)
-		if isList(pNumber) and
-		   ( StzListQ(pNumber).IsWithNamedParam() or StzListQ(pNumber).IsUsingNamedParam() )
-
-			pNumber = pNumber[2]
-
+		if isList(cNewCode) and Q(cNewCode).IsWithOrByOrUsingNamedParam()
+			cNewCode = cNewCode[2]
 		ok
 
 		@cNumber = ""+ pNumber
 
+		#< @FunctionFluentForm
 
-	  #-------------------#
-	 #    MULTIPLE OF    #
-	#-------------------#
+		def UpdateQ(paNewList)
+			This.Update(paNewList)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def UpdateWith(paNewList)
+			This.Update(paNewList)
+
+			def UpdateWithQ(paNewList)
+				return This.UpdateQ(paNewList)
+	
+		def UpdateBy(paNewList)
+			This.Update(paNewList)
+
+			def UpdateByQ(paNewList)
+				return This.UpdateQ(paNewList)
+
+		def UpdateUsing(paNewList)
+			This.Update(paNewList)
+
+			def UpdateUsingQ(paNewList)
+				return This.UpdateQ(paNewList)
+
+		#>
+
+	def Updated(paNewList)
+		return paNewList
+
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(paNewList)
+			return This.Updated(paNewList)
+
+		def UpdatedBy(paNewList)
+			return This.Updated(paNewList)
+
+		def UpdatedUsing(paNewList)
+			return This.Updated(paNewList)
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #   CHECKING IF THE NUMBER IS MULTIPLE OF A GIVEN NUMBER  #
+	#---------------------------------------------------------#
 
 	def IsMultipleOf(n)
 		if This.NumericValue() = 0

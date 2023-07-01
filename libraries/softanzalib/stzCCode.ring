@@ -58,8 +58,62 @@ class stzCCode
 			def CodeQ()
 				return This.ContentQ()
 
+	#----
+
 	def Update(cNewCode)
+		if isList(cNewCode) and Q(cNewCode).IsWithOrByOrUsingNamedParam()
+			cNewCode = cNewCode[2]
+		ok
+
 		@cContent = cNewCode
+
+		#< @FunctionFluentForm
+
+		def UpdateQ(cNewCode)
+			This.Update(cNewCode)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def UpdateWith(cNewCode)
+			This.Update(cNewCode)
+
+			def UpdateWithQ(cNewCode)
+				return This.UpdateQ(cNewCode)
+	
+		def UpdateBy(cNewCode)
+			This.Update(cNewCode)
+
+			def UpdateByQ(cNewCode)
+				return This.UpdateQ(cNewCode)
+
+		def UpdateUsing(cNewCode)
+			This.Update(cNewCode)
+
+			def UpdateUsingQ(cNewCode)
+				return This.UpdateQ(cNewCode)
+
+		#>
+
+	def Updated(cNewCode)
+		return cNewCode
+
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(cNewCode)
+			return This.Updated(cNewCode)
+
+		def UpdatedBy(cNewCode)
+			return This.Updated(cNewCode)
+
+		def UpdatedUsing(cNewCode)
+			return This.Updated(cNewCode)
+
+		#>
+
+	#---
 
 	def Copy()
 		return new stzCCode( This.Content() )

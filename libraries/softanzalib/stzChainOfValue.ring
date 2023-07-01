@@ -124,15 +124,66 @@ class stzChainOfValue from stzObject
 	def Copy()
 		return new stzChainOfValue( This.VarName() )
 
+	  #-------------------------------#
+	 #  UPDATING THE CHAIN OF VALUE  #
+	#-------------------------------#
+
 	def Update(pValue)
-		if isList(pValue) and
-		   ( StzListQ(pValue).IsWithNamedParam() or StzListQ(pValue).IsUsingNamedParam() )
-
-			pValue = pValue[2]
-
+		if isList(pValue) and Q(pValue).IsWithOrByOrUsingNamedParam()
+			cNewCode = cNewCode[2]
 		ok
 
 		@pValue = pValue
+
+		#< @FunctionFluentForm
+
+		def UpdateQ(pValue)
+			This.Update(pValue)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def UpdateWith(pValue)
+			This.Update(pValue)
+
+			def UpdateWithQ(pValue)
+				return This.UpdateQ(pValue)
+	
+		def UpdateBy(pValue)
+			This.Update(pValue)
+
+			def UpdateByQ(pValue)
+				return This.UpdateQ(pValue)
+
+		def UpdateUsing(pValue)
+			This.Update(pValue)
+
+			def UpdateUsingQ(pValue)
+				return This.UpdateQ(pValue)
+
+		#>
+
+	def Updated(pValue)
+		return pValue
+
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(pValue)
+			return This.Updated(pValue)
+
+		def UpdatedBy(pValue)
+			return This.Updated(pValue)
+
+		def UpdatedUsing(pValue)
+			return This.Updated(pValue)
+
+		#>
+
+	  #------------------------------------------#
+	 #  GETTING THE CODE OF THE CHAIN OF VALUE  #
+	#------------------------------------------#
 
 	def Code()
 		return @cCode

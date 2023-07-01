@@ -1210,7 +1210,9 @@ class stzString from stzObject
 			if Q(pWith).IsWithOrUsingNamedParam() 
 
 				# Case 3: o1.ExtendXT( :ToPosition = 5, :With = :CharsRepeadted )
-				if isString(pWith[2]) and pWith[2] = :CharsRepeated
+				if isString(pWith[2]) and
+				   ( pWith[2] = :CharsRepeated or pWith[2] = :RepeatingChars )
+
 					This.ExtendToPositionWithCharsRepeadted(n[2])
 					return
 	
@@ -1219,6 +1221,12 @@ class stzString from stzObject
 					This.ExtendToPositionWith(n[2], pWith[2])
 					return
 				ok
+
+			but isString(pWith) and
+			    ( pWith = :ByRepeatingChars or pWith = :WithCharsRepeated )
+
+				This.ExtendToPositionWithCharsRepeadted(n)
+				return
 
 			# Case 5: o1.ExtendXT( :ToPostion = 5, :WithCharsIn = [ "D", "E" ])
 			but Q(pWith).IsWithCharsInNamedParam()
@@ -15035,11 +15043,8 @@ def ReplaceIBS()
 	def Update(pcNewStr)
 		#< QtBased | Uses QString.clear() and QString.append() >
 
-		if isList(pcNewStr) and
-		   ( StzListQ(pcNewStr).IsWithNamedParam() or StzListQ(pcNewStr).IsUsingNamedParam() )
-
+		if isList(pcNewStr) and Q(pcNewStr).IsWithOrByOrUsingNamedParam()
 			pcNewStr = pcNewStr[2]
-
 		ok
 	
 		@oQString.clear()
@@ -15047,31 +15052,51 @@ def ReplaceIBS()
 
 		//This.VerifyConstraints()
 
+		#< @FunctionFluentForm
+
+		def UpdateQ(pcNewStr)
+			This.Update(pcNewStr)
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def UpdateWith(pcNewStr)
 			This.Update(pcNewStr)
 
-		#>
-
-		#< @FunctionFluentForm	
-
-		def UpdateQ(pcNewStr)
-			This.Update()
-			return This
-
-			#< @FunctionAlternativeForms
-
 			def UpdateWithQ(pcNewStr)
-				This.UpdateWith(pcNewStr)
-				return This		
+				return This.UpdateQ(pcNewStr)
+	
+		def UpdateBy(pcNewStr)
+			This.Update(pcNewStr)
 
-			#>
+			def UpdateByQ(pcNewStr)
+				return This.UpdateQ(pcNewStr)
+
+		def UpdateUsing(pcNewStr)
+			This.Update(pcNewStr)
+
+			def UpdateUsingQ(pcNewStr)
+				return This.UpdateQ(pcNewStr)
 
 		#>
 
-	def UpdatedWith(pcNewStr)
+	def Updated(pcNewStr)
 		return pcNewStr
+
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(pcNewStr)
+			return This.Updated(pcNewStr)
+
+		def UpdatedBy(pcNewStr)
+			return This.Updated(pcNewStr)
+
+		def UpdatedUsing(pcNewStr)
+			return This.Updated(pcNewStr)
+
+		#>
 
 	  #----------------------------------------#
 	 #     CONTAINING ONLY SPACES & LETTERS   #
