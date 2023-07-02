@@ -14776,10 +14776,15 @@ class stzList from stzObject
 		def ExtendedToWith(n, pValue)
 			return This.ExtendedToPositionWith(n, pValue)
 
+		#-- Misspelled
+
+		def ExtendtedToWith(n, pValue)
+			return This.ExtendedToPositionWith(n, pValue)
+
 	  #----------------------------------------------------------------------#
 	 #  EXTENDING THE LIST TO A GIVEN POSITION BY REPEATING THE LIST ITEMS  #
 	#----------------------------------------------------------------------#
-
+	
 	def ExtendToPositionWithItemsRepeated(n)
 		This.ExtendToPositionWithItemsIn(n, This.List())
 
@@ -14809,9 +14814,12 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionMisspelledForm
+		#< @FunctionMisspelledForms
 
 		def ExtendToWithItemsRepeadted(n)
+			This.ExtendToPositionWithItemsRepeated(n)
+
+		def ExtendToPositionWithItemsRepeadted(n)
 			This.ExtendToPositionWithItemsRepeated(n)
 
 		#>
@@ -14833,6 +14841,12 @@ class stzList from stzObject
 		#< @FunctionMisspelledForm
 
 		def ExtendedToWithItemsRepeadted(n)
+			return This.ExtendedToPositionWithItemsRepeated(n)
+
+		def ExtendtedToWithItemsRepeadted(n)
+			return This.ExtendedToPositionWithItemsRepeated(n)
+
+		def ExtendtedToWithItemsRepeated(n)
 			return This.ExtendedToPositionWithItemsRepeated(n)
 
 		#>
@@ -14892,6 +14906,11 @@ class stzList from stzObject
 		return aResult
 
 		def ExtendedToWithItemsIn(n, paItems)
+			return This.ExtendedToPositionWithItemsIn(n, paItems)
+
+		#-- Misspelled
+
+		def ExtendtedToWithItemsIn(n, paItems)
 			return This.ExtendedToPositionWithItemsIn(n, paItems)
 
 	  #------------------------------------------------#
@@ -14954,13 +14973,14 @@ class stzList from stzObject
 
 		but isList(n) and Q(n).IsToOrToPositionNamedParam()
 
-			if Q(pWith).IsWithOrUsingOrByNamedParam() 
+			if isList(pWith) and Q(pWith).IsWithOrUsingOrByNamedParam() 
 
 				# Case 3: o1.ExtendXT( :ToPosition = 5, :With = :ItemsRepeated )
 				if isString(pWith[2]) and
 				   ( pWith[2] = :ItemsRepeated or pWith[2] = :RepeatingItems )
 
 					This.ExtendToPositionWithItemsRepeadted(n[2])
+					# Note this is a misspelled form --> ...Repea(d)ted()
 					return
 	
 				# Case 4: o1.ExtendXT( :ToPosition = 5, :With = "*" )
@@ -14970,7 +14990,12 @@ class stzList from stzObject
 				ok
 
 			but isString(pWith) and
-			    ( pWith = :ByRepeatingItems or pWith = :WithItemsRepeated )
+			    Q(pWith).IsOneOfThese([
+				:ByRepeatingItems, :WithItemsRepeated, :ByItemsRepeated ] )
+
+				if isList(n) and Q(n).IsToOrToPositionNamedParam()
+					n = n[2]
+				ok
 
 				This.ExtendToPositionWithItemsRepeadted(n)
 				return
@@ -14996,6 +15021,11 @@ class stzList from stzObject
 	def ExtendedXT(n, pWith)
 		aResult = This.Copy().ExtendXTQ(n, pWith).Content()
 		return aResult
+
+		#< @FunctionMisspelledForm
+
+		def ExtendtedXT(n, pWith)
+			return This.ExtendedXT(n, pWith)
 
 	  #------------------------------------------#
 	 #  SHRINKING THE LIST TO A GIVEN POSITION  #
@@ -30349,8 +30379,19 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	
 	def IsUsingOrWithOrByNamedParam()
-		return This.IsOneOfTheseNamedParams([ :Using, :With, :By ])
+
+		if This.IsUsingNamedParam() or
+		   This.IsWithNamedParam() or
+		   This.IsOrNamedParam()
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
 
 		def IsUsingOrByOrWithNamedParam()
 			return This.IsUsingOrWithOrByNamedParam()
@@ -30366,6 +30407,28 @@ class stzList from stzObject
 
 		def IsWithOrUsingOrByNamedParam()
 			return This.IsUsingOrWithOrByNamedParam()
+
+		#--
+
+		def IsUsingOrWithOrByNamedParams()
+			return This.IsUsingOrWithOrByNamedParam()
+
+		def IsUsingOrByOrWithNamedParams()
+			return This.IsUsingOrWithOrByNamedParam()
+
+		def IsByOrWithOrUsingNamedParams()
+			return This.IsUsingOrWithOrByNamedParam()
+
+		def IsByOrUsingOrWithNamedParams()
+			return This.IsUsingOrWithOrByNamedParam()
+
+		def IsWithOrByOrUsingNamedParams()
+			return This.IsUsingOrWithOrByNamedParam()
+
+		def IsWithOrUsingOrByNamedParams()
+			return This.IsUsingOrWithOrByNamedParam()
+
+		#>
 
 	def IsNextNamedParam()
 		if This.NumberOfItems() = 2 and

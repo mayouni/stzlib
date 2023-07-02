@@ -931,7 +931,10 @@ class stzListOfLists from stzList
 		ok
 
 		if isString(pItem) and
-		    ( pItem = :ItemsRepeated or pItem = :RepeatingItems or pItem = :RepeatedItems )
+		    	Q(pItem).IsOneOfThese([
+				:ItemsRepeated, :RepeatingItems,
+				:RepeatedItems, :ByRepeatingItems
+			])
 
 			This.ExtendToByRepeatingItems(n)
 			return
@@ -982,9 +985,9 @@ class stzListOfLists from stzList
 
 			return This.ExtendedToXT(n, pItem)	
 
-	#----
-	# 
-	#---
+	  #---------------------------------------------------------------------------------------#
+	 #  EXTENDING THE LIST OF LISTS TO A GIVEN POSITION BY REPEATING THE ITEMS OF EACH LIST  #
+	#---------------------------------------------------------------------------------------#
 
 	def ExtendToByRepeatingItems(n)
 		aContent = This.Content()
@@ -1001,7 +1004,7 @@ class stzListOfLists from stzList
 		#< @FunctionAlternativeForm
 
 		def ExtendToByRepeatingItemsQ(n)
-			This.ExtendToByRepeatingItems(n)
+			This.ExtendedToByRepeatingItems(n)
 			return This
 
 		#>
@@ -1009,26 +1012,119 @@ class stzListOfLists from stzList
 		#< @FunctionAlternativeForm
 
 		def ExtendToWithItemsRepeated(n)
-			This.ExtendToByRepeatingItems(n)
+			This.ExtendedToByRepeatingItems(n)
 
-			def ExtendToWithItemsRepeatedQ(n)
-				This.ExtendToWithItemsRepeated(n)
+			def ExtendedToWithItemsRepeatedQ(n)
+				This.ExtendedToWithItemsRepeated(n)
 				return This
 
 		#>
 
 
-	#----
-	# 
-	#---
+	  #----------------------------------------------------------#
+	 #  EXTENDING THE LIST OF LISTS TO THE SIZE OF LARGER LIST  #
+	#----------------------------------------------------------#
 
 	def ExtendByRepeatingItems()
+		This.ExtendToByRepeatingItems( This.SizeOfLargestList() )
 
-	#----
-	# 
-	#---
+		#< @FunctionFluentForm
+
+		def ExtendByRepeatingItemsQ()
+			This.ExtendToByRepeatingItems()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ExtendWithItemsRepeated()
+			This.ExtendByRepeatingItems()
+
+			def ExtendWithItemsRepeatedQ()
+				This.ExtendWithItemsRepeated()
+				return This
+
+		def ExtendByItemsRepeated()
+			This.ExtendByRepeatingItems()
+
+			def ExtendByItemsRepeatedQ()
+				This.ExtendByItemsRepeated()
+				return This
+
+		#>
+
+	def ExtendedByRepeatingItems()
+		aResult = This.Copy().ExtendByRepeatingItemsQ().Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ExtendedWithItemsRepeated()
+			return This.ExtendedByRepeatingItems()
+
+		def ExtendedByItemsRepeated()
+			return This.ExtendedByRepeatingItems()
+
+		#>
+
+	  #-------------------------------------------------------------------------#
+	 #  EXTENDIND THE LIST OF LISTS TO A GIVEN POSITION USING THE GIVEN ITEMS  #
+	#-------------------------------------------------------------------------#
 
 	def ExtendToWithItemsIn(n, paItems)
+		aContent = This.Content()
+		nLen = len(aConten)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + Q(aContent[i]).ExtendedToWithItemsIn(n, paItems)
+		next
+
+		This.UpdateWith(aResult)
+
+		def ExtendToWithItemsInQ(n, paItems)
+			This.ExtendToWithItemsIn(n, paItems)
+			return This
+
+		def ExtendToUsingItemsIn(n, paItems)
+			This.ExtendToWithItemsIn(n, paItems)
+
+			def ExtendToUsingItemsInQ(n, paItems)
+				This.ExtendToUsingItemsIn(n, paItems)
+
+	def ExtendedToWithItemsIn(n, paItems)
+		aResult = This.Copy().ExtendToWithItemsInQ(n, paItems).Content()
+		return aResult
+
+		def ExtendedToUsingItemsIn(n, paItems)
+			return This.ExtendedToWithItemsIn(n, paItems)
+
+	  #-----------------------------------------------------#
+	 #  EXTENDIND THE LIST OF LISTS USING THE GIVEN ITEMS  #
+	#-----------------------------------------------------#
+
+	def ExtendWithItemsIn(paItems)
+		This.ExtendToWithItemsIn( This.SizeOfLargestList(), paItems)
+
+		def ExtendWithItemsInQ(paItems)
+			This.ExtendWithItemsIn(paItems)
+			return This
+
+		def ExtendUsingItemsIn(paItems)
+			This.ExtendWithItemsIn(paItems)
+
+			def ExtendUsingItemsInQ(paItems)
+				This.ExtendUsingItemsIn(paItems)
+				return This
+
+	def ExtendedWithItemsIn(paItems)
+		aResult = This.Copy().ExtendWithItemsInQ(paItems).Content()
+		return aResult
+
+		def ExtendedUsingItemsIn(paItems)
+			return This.ExtendedWithItemsIn(paItems)
 
 	  #================================#
 	 #  SHRINKING THE LIST OF LISTS   #
@@ -1095,6 +1191,72 @@ class stzListOfLists from stzList
 			ok
 
 			return This.ShrinkedTo(n)
+
+	  #--------------------------------------------------------------------------------------#
+	 #  SHRINKING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION USING A GIVEN VALUE  #
+	#--------------------------------------------------------------------------------------#
+
+	def ShrinkToWith(n, pWith)
+		if isList(n) and Q(n).IsToOrToPosition(n)
+			n = n[2]
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+		nLargest = This.SizeOfLargestList()
+
+		aResult = []
+
+		for i = 1 to nLen
+			nLenList = len(aContent[i])
+
+			if n > nLargest
+				loop
+			ok
+
+			if n < nLenList
+				aResult + Q(aContent[i]).ShrinkedTo(n)
+
+			else
+				aResult + Q(aContent[i]).ExtendtedToWith(n, pWith)
+				# Note this a misspelled form --> Extend(t)edToWith
+			ok
+		next
+
+		This.UpdateWith(aResult)
+
+
+		def ShrinkToWithQ(n, pWith)
+			This.ShrinkToWith(n, pWith)
+			return This
+
+		def ShrinkToUsing(n, pUsing)
+			This.ShrinkToWith(n, pWith)
+
+			def ShrinkToUsingQ(n, pUsing)
+				This.ShrinkToUsing(n, pUsing)
+				return This
+
+		def ShrinkToBy(n, pBy)
+			This.ShrinkToWith(n, pWith)
+
+			def ShrinkToByQ(n, pUsing)
+				This.ShrinkToBy(n, pUsing)
+				return This
+
+	def ShrinkedToWith(n, pWith)
+		aResult = This.Copy().ShrinkToWithQ(n, pWith).Content()
+		return aResult
+
+		def ShrinkedToUsing(n, pUsing)
+			return This.ShrinkedToWith(n, pWith)
+
+		def ShrinkedToBy(n, pBy)
+			return This.ShrinkedToWith(n, pWith)
 
 	  #========================================#
 	 #   ASSOCIATING THE LISTS ITEM BY ITEM   #

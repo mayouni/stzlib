@@ -38,7 +38,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzList("A" : "C")
@@ -98,11 +98,13 @@ proff()
 # Executed in 0.05 second(s)
 
 /*----------------
-
+*/
 pron()
 
 o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendXT( :ToPosition = 5, :With = :ItemsRepeated )
+o1.ExtendXT( :ToPosition = 5, :ByItemsRepeated )
+// ByItemsRepeated
+
 o1.Show()
 #--> [ "A", "B", "C", "A", "B" ])
 
