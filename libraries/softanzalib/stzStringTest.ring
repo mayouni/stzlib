@@ -106,6 +106,19 @@ proff()
 # Executed in 0.04 second(s)
 
 /*----------------
+*/
+pron()
+
+o1 = new stzString("ABC")
+o1.ExtendXT( :ToPosition = 5, :ByCharsRepeated )
+
+o1.Show()
+#--> "ABCAB"
+
+proff()
+# Executed in 0.04 second(s)
+
+/*----------------
 
 pron()
 
@@ -130,7 +143,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzString("ABCDE")

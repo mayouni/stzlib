@@ -1108,12 +1108,20 @@ class stzString from stzObject
 
 		#>
 
+
 	def ExtendedToPositionWith(n, pcChar)
 		cResult = This.Copy().ExtendToPositionWithQ(n, pcChar)
 		return This
 
 		def ExtendedToWith(n, pcChar)
 			return This.ExtendedToPositionWith(n, pcChar)
+
+		#< @FunctionMisspelledForm
+
+		def ExtendtedToWith(n, pcChar)
+			return This.ExtendedToPositionWith(n, pcChar)
+
+		#>
 
 	  #--------------------------------------------------------------------------#
 	 #  EXTENDING THE STRING TO A GIVEN POSITION BY REPEATING THE STRING CHARS  #
@@ -1165,27 +1173,27 @@ class stzString from stzObject
 				return This
 		#>
 
-	def ExtendedToPositionWithCharsRepeadted(n)
-		cResult = This.Copy().ExtendToPositionWithCharsRepeadtedQ(n).Content()
+	def ExtendedToPositionWithCharsRepeated(n)
+		cResult = This.Copy().ExtendToPositionWithCharsRepeatedQ(n).Content()
 		return cResult
 
 		#< @FunctionAlternativeForm
 
 		def ExtendedToWithCharsRepeated(n)
-			This.ExtendToPositionWithCharsRepeadted(n)
+			This.ExtendToPositionWithCharsRepeated(n)
 
 		def ExtendedToPositionByRepeadingChars(n)
-			This.ExtendToPositionWithCharsRepeadted(n)
+			This.ExtendToPositionWithCharsRepeated(n)
 
 		def ExtendedToByRepeatingChars(n)
-			This.ExtendToPositionWithCharsRepeadted(n)
+			This.ExtendToPositionWithCharsRepeated(n)
 
 		#>
 
 		#< @FunctionMisspelledForm
 
 		def ExtendedToWithCharsRepeadted(n)
-			This.ExtendToPositionWithCharsRepeadted(n)
+			This.ExtendToPositionWithCharsRepeated(n)
 
 		#>
 
@@ -1306,6 +1314,58 @@ class stzString from stzObject
 
 		but isList(n) and Q(n).IsToOrToPositionNamedParam()
 
+			if isList(pWith) and Q(pWith).IsWithOrUsingOrByNamedParam() 
+
+				# Case 3: o1.ExtendXT( :ToPosition = 5, :With = :CharsRepeated )
+				if isString(pWith[2]) and
+				   ( pWith[2] = :CharsRepeated or pWith[2] = :RepeatingChars )
+
+					This.ExtendToPositionWithCharsRepeadted(n[2])
+					# Note this is a misspelled form --> ...Repea(d)ted()
+					return
+	
+				# Case 4: o1.ExtendXT( :ToPosition = 5, :With = "*" )
+				else
+					This.ExtendToPositionWith(n[2], pWith[2])
+					return
+				ok
+
+			but isString(pWith) and
+			    Q(pWith).IsOneOfThese([
+				:ByRepeatingChars, :WithCharsItemsRepeated, :ByCharsRepeated ] )
+
+				if isList(n) and Q(n).IsToOrToPositionNamedParam()
+					n = n[2]
+				ok
+
+				This.ExtendToPositionWithCharsRepeadted(n)
+				return
+
+			# Case 5: o1.ExtendXT( :ToPostion = 5, :WithCharsIn = "DE")
+			but Q(pWith).IsWithCharsInNamedParam()
+				This.ExtendToPositionWithCharsIn(n[2], pWith[2])
+				return
+
+			ok
+		ok
+
+/*
+		if isString(n) and n = :String
+
+			# Case 1: o1.ExtendXT( :String, :With = "DE")
+			if isList(pWith) and Q(pWith).IsWithOrByOrUsingNamedParam()
+				This.ExtendWith(pWith[2])
+				return
+
+			# Case 2: o1.ExtendXT( :String, :ToPosition = 5 )
+			but isList(pWith) and Q(pWith).IsToOrToPositionNamedParam()
+				This.ExtendToPosition(pWith[2])
+				return
+
+			ok
+
+		but isList(n) and Q(n).IsToOrToPositionNamedParam()
+
 			if Q(pWith).IsWithOrUsingNamedParam() 
 
 				# Case 3: o1.ExtendXT( :ToPosition = 5, :With = :CharsRepeadted )
@@ -1336,7 +1396,7 @@ class stzString from stzObject
 		ok
 
 		StzRaise("Unsupported syntax!")
-
+*/
 		#< @FunctionFluentForm
 	
 		def ExtendXTQ(n, pWith)

@@ -159,7 +159,7 @@ proff()
 
 pron()
 
-o1 = new stzLists([
+o1 = new stzListOfLists([ # or stzLists()
 	[ "A", "B" ],
 	[ "C", "D", "E", "F"],
 	[ "I" ]
@@ -190,7 +190,7 @@ proff()
 
 pron()
 
-o1 = new stzLists([
+o1 = new stzListOfLists([
 	[ "A", "B" ],
 	[ "C", "D", "E", "F"],
 	[ "I" ]
@@ -209,10 +209,10 @@ proff()
 # Executed in 0.08 second(s)
 
 /*---------------
-*/
+
 pron()
 
-o1 = new stzLists([
+o1 = new stzListOfLists([
 	[ "A", "B" ],
 	[ "C", "D", "E", "F"],
 	[ "I" ]
@@ -234,7 +234,7 @@ proff()
 
 pron()
 
-o1 = new stzLists([
+o1 = new stzLists([ # or stzListOfLists()
 	[ "A", "B" ],
 	[ "C", "D", "E", "F"],
 	[ "I" ]
@@ -250,6 +250,7 @@ o1.ExtendToXT( :Position = 6, :Using = AHeart())
 # ]
 
 proff()
+# Executed in 0.10 second(s)
 
 /*================= SHRINKING A LIST
 
@@ -283,7 +284,7 @@ proff()
 # Executed in 0.09 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzLists([
@@ -298,7 +299,28 @@ o1.ShrinkTo(1)
 #--> [ [ "A" ], [ "D" ], [ "H" ] ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.12 second(s)
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzLists([ # or stzListOfLists()
+	[ "A", "B" ],
+	[ "C", "D", "E", "F"],
+	[ "I" ]
+])
+
+o1.ShrinkToWith(3, AHeart())
+o1.Show()
+#--> [
+#	[ "A", "B", "♥" ],
+#	[ "C", "D", "E" ],
+#	[ "I", "♥", "♥" ]
+# 
+
+proff()
+# Executed in 0.06 second(s)
 
 /*=================
 
