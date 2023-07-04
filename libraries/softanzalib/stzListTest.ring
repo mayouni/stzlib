@@ -1,5 +1,16 @@
 load "stzlib.ring"
 
+/*-------------
+*/
+pron()
+
+o1 = new stzList(1:299_000)
+//? o1.ToCodeQ()
+? o1.Stringified()
+
+proff()
+
+
 /*=============
 
 pron()
@@ -98,7 +109,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzList([ "A", "B", "C" ])
@@ -157,20 +168,10 @@ Q([ "A", "B", "C" ]) {
 	Show()
 	#--> [ "A", "B", "C", "A", "B" ]
 
-//	ExtendXT( :T
-
 }
 
-
-/*
-o1.ExtendXT( :ToPosition = 8, :By = :Repeatingitems )
-o1.Show()
-#--> [ "A", "B", "C", "A", "B", "C", "A", "B" ]
-*/
 proff()
-# Executed in 0.05 second(s)
-
-
+# Executed in 0.06 second(s)
 
 /*================
 
@@ -436,14 +437,164 @@ proff()
 #--> Executed in 0.51
 
 /*-----------------
-*
+
 pron()
 
-o1 = new stzList([ 14, 10, 14, 20 ])
-? o1.FindFirst(4)
-? o1.FindNext(4, :StartingAt = 2)
+o1 = new stzList([ 14, 10, 14, 14, 20 ])
 
-//? o1.Find(4)
+? @@( o1.Find(14) )
+#--> [ 1, 3, 4 ]
+
+? o1.FindFirst(14)
+#--> 1
+
+? o1.FindLast(14)
+#--> 4
+
+? o1.FindNext(14, :StartingAt = 2)
+#--> 3
+
+proff()
+# Executed in 0.10 second(s)
+
+/*----------------- Error: fix it!
+
+pron()
+
+o1 = new stzString([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])
+#!--> Should return an error!
+
+proff()
+
+/*-----------------
+
+pron()
+
+o1 = new stzString("[ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]")
+o1.RemoveSection(2, 10)
+? @@(o1.Content())
+
+proff()
+
+/*-----------------
+
+pron()
+
+o1 = new stzList(1:10)
+oListInStr = o1.ToCodeQ()
+n = oListInStr.FindNth(3, ",")
+
+? oListInStr.RemoveSectionQ(2, n).Content()
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzList(1:10)
+oListInStr = o1.ToCodeQ()
+
+n1 = oListInStr.FindNth(3, ",")
+n2 = oListInStr.FindNth(7, ",")
+
+? oListInStr.Section(n1-1, n2-1)
+#--> "3, 4, 5, 6, 7"
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzList(1:10)
+? o1.Section(3, 10)
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-----------------
+
+pron()
+
+Q(1:299_000).Section(100, 299_000)
+
+proff()
+# Executed in 0.43 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzList([ 14, 10, 14, 14, 20 ])
+
+? QR([2, 4], :stzPairOfNumbers).BothAreBetween(1, o1.NumberOfItems())
+#--> TRUE
+
+? QR([0, 4], :stzPairOfNumbers).BothAreBetween(1, o1.NumberOfItems())
+#--> FALSE
+
+proff()
+
+/*----------------- ERROR: Perf problem!
+
+pron()
+
+
+o1 = new stzList([ 14, 10, 14, 14, 20 ])
+
+//? o1.Section(0, :Last)
+#--> Error message: Indexes out of range!
+
+? o1.FindNext(14, :StartingAt = 1)
+#--> 3
+# Executed in 0.06 second(s)
+
+? @@( o1.Find(14) )
+#--> [  ]
+
+//o1.FindFirst(4)
+#--> 0
+
+proff()
+
+/*-----------------
+
+pron()
+
+o1 = new stzList(1:14 + 12)
+? o1.NumberOfOccurrence(12)
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzList(1:299_000 + 120000)
+
+? o1.NumberOfOccurrence(120000)
+#--> 2
+# Executed in 1.48 second(s)
+
+? o1.Contains(120000)
+#--> TRUE
+# Executed in 0.87 second(s)
+
+proff()
+# Executed in 2.15 second(s)
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzList(1:299_000)
+? o1.find(4)
+//? o1.FindNext(120_001, :StartingAt = 2)
+
 
 proff()
 
@@ -1038,7 +1189,7 @@ o1.RemoveDuplicates()
 proff()
 # Executed in 0.54 second(s)
 
-/*======= MANAGING DUPLICATED ITEMS
+/*======= MANAGING DUPLICATED ITEMS: Check errros
 */
 pron()
 
@@ -2541,7 +2692,7 @@ o1 *= new stzList([ 0, 2, 0, 3, [1,2] ])
 ? o1.IsListOfNumbersAndPairsOfNumbers() #--> TRUE
 
 /*========= Deep finding items at any level : TODO
-
+*/
 o1 = new stzList([
 	"you",
 	"other",

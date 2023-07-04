@@ -15291,12 +15291,11 @@ class stzList from stzObject
 			pItem = pItem[2]
 		ok
 
-		cItem = @@(pItem)
-		cList = @@(This.Content())
+		oListInStr = new stzString( This.ToCodeQ().LastNCharsRemoved(2) + ", ]" )
 
-		nResult = Q(cList).NumberOfOccurrenceCS(cItem, pCaseSensitive)
-
+		nResult = len( oListInStr.SplitCS( " " + @@(pItem) + ",", pCaseSensitive) ) - 1
 		return nResult
+
 
 		#< @FunctionAlternativeForms
 
@@ -17253,61 +17252,22 @@ class stzList from stzObject
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
-	
-		if NOT This.ContainsCS(pItem, pCaseSensitive)
-			return []
-		ok
 
-		nLen = This.NumberOfItems()
+		acStrings = This.Stringified()
+		nLen = len(acStrings)
+
+		cItem = @@(pItem)
 		anResult = []
 
-		# Managing the first item apart
-
-		firstItem = This.FirstItem()
-
-		if isNumber(firstItem) or isObject(firstItem)
-		# they do not support case sensitivity --> use IsEqualTo()
-
-			if This.FirstItemQ().IsEqualTo(pItem)
-				anResult + 1
+		for i = 1 to nLen
+			if StzStringQ(acStrings[i]).IsEqualToCS(cItem, pCaseSensitive)
+				anResult + i
 			ok
-
-		else # isList or isString
-		# they do support case sensitivity --> use IsEqualToCS()
-
-			if This.FirstItemQ().IsEqualToCS(pItem, pCaseSensitive)
-				anResult + 1
-			ok
-		ok
-
-		# Managing the rest of the list
-
-		nPos = 1
-		if len(anResult) = 1
-			nPos = 2
-		ok
-
-		n = 0
-		nMax = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
-
-		while TRUE
-			n++
-
-			if n > nLen or len(anResult) = nMax
-				exit
-			ok
-
-			nPos = This.FindNextCS(pItem, :StartingAt = nPos, pCaseSensitive)
-
-			if nPos != 0
-				anResult + nPos
-
-			else
-				exit
-			ok
-		end
+		next
 
 		return anResult
+	
+
 
 		#< @FunctionFluentForm
 
@@ -17436,8 +17396,8 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllOccurrences(pItem)
-
-		return This.FindAllOccurrencesCS(pItem, :CaseSensitive = TRUE)
+		aResult = This.FindAllOccurrencesCS(pItem, :CaseSensitive = TRUE)
+		return aResult
 
 		#< @FunctionFluentForm
 
@@ -18430,7 +18390,7 @@ class stzList from stzObject
 		]
 		*/
 
-		oListStr = @@( Q(This.Content()) )
+		oListStr = new stzString( @@( Q(This.Content()) ) )
 		cItem = @@( Q(pItem).FirstAndLastCharsRemoved() )
 
 		anPos = oListStr.FindCS(cItem, pCaseSensitive) #--> [21, 52]
@@ -18900,6 +18860,11 @@ class stzList from stzObject
 
 		*/
 
+		nLen = This.NumberOfItems()
+		if nLen < 2
+			return 0
+		ok
+
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
@@ -18908,8 +18873,23 @@ class stzList from stzObject
 			pnStartingAt = pnStartingAt[2]
 		ok
 
-		nResult = This.SectionQ(pnStartingAt + 1, This.NumberOfItems()).
-			FindFirstCS(pItem, pCaseSensitive) + pnStartingAt
+		if isNumber(pnStartingAt) and
+		   ( NOT Q(pnStartingAt).IsBetween(1, nLen - 1) )
+
+			StzRaise("Incorrect param! pnStartingAt must be between 1 and " + (nLen - 1) + ".")
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		nResult = 0
+
+		for i = pnStartingAt + 1 to nLen
+				if Q(aContent[i]).IsEqualToCS(pItem, pCaseSensitive)
+					nResult = i
+					exit
+				ok
+			next
 
 		return nResult
 
@@ -18926,8 +18906,9 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNextOccurrence(pItem, nStart)
-		return This.FindNextOccurrenceCS(pItem, nStart, :CaseSensitive = TRUE)
-	
+		nResult = This.FindNextOccurrenceCS(pItem, nStart, :CaseSensitive = TRUE)
+		return nResult
+
 		#< @FunctionAlternativeForms
 
 		def FindNext( pItem, nStart )
@@ -21939,24 +21920,48 @@ class stzList from stzObject
 
 		# Params must be numbers
 
-		if NOT ( Q([n1, n2]).BothAreNumbers() and
-			 QR([n1, n2], :stzPairOfNumbers).BothAreBetween(1, This.NumberOfItems()) )
-
+		if NOT Q([n1, n2]).BothAreNumbers()
 			StzRaise("Incorrect params! n1 and n2 must be numbers.")
+		ok
+
+		if NOT QR([n1, n2], :stzPairOfNumbers).BothAreBetween(1, This.NumberOfItems())
+			StzRaise("Indexes out of range!")
 		ok
 
 		# Finally, we're ready to extract the section
 
+		aContent = This.Content()
+		nLen = len(aContent)
 		aResult = []
 
 		if n1 = n2
 			aResult + This.Item(n1)
 
 		but n1 < n2
-			for i = n1 to n2
-				aResult + This.Content()[i]
-			next i
+
+			oListInStr = This.ToCodeQ()
+
+			if n1 = 1
+				n1 = 2
+
+			else
+				if n1 > 1
+					n1--
+				ok
 	
+				n1 = oListInStr.FindNth(n1, ",") + 1
+			ok
+
+			if n2 = nLen
+				n2 = oListInStr.NumberOfChars() - 1
+			else
+				n2 = oListInStr.FindNth(n2, ",") - 1
+			ok
+
+			cCode = 'aResult = [ ' + oListInStr.Section(n1, n2) + " ]"
+
+			eval(cCode)
+
 		else
 			aResult = This.Section(n2, n1)
 		ok
@@ -23060,29 +23065,39 @@ class stzList from stzObject
 	# TODO: Abstract this function in stzObject
 
 	def Stringify()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		acResult = []
-		nLen = This.NumberOfItems()
 		cItem = ""
+		n = 0 # Used to count the objects contained in the list
 
 		for i = 1 to nLen
-			item = This.Item(i)
-			cType = ring_type(item)
-			switch cType
-			on "NUMBER"
+			item = aContent[i]
+			if isNumber(item)
 				cItem = ""+ item
 
-			on "STRING"
+			but isString(item)
 				cItem = item
 
-			on "LIST"
-				cItem = Q(item).ToCodeQ().Simplified()
+			but isList(item)
+				cItem = @@(item)
 
-			off
+			but isObject(item)
+
+				n++
+				cObjectName = "obj#" + n
+				cItem = cObjectName
+
+				# WARNING: It's impossible to get the name of the object
+				# by code (should be requested from Mahmoud in future Ring)
+			ok
 
 			acResult + cItem
 		next
 
-		This.Update( acResult )
+		This.UpdateWith(acResult)
 
 		#< @FunctionFluentForm
 

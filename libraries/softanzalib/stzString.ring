@@ -26045,7 +26045,8 @@ def ReplaceIBS()
 		ok
 
 		if NOT isString(pcSubStr)
-			stzRaise("Incorrect param type! pcSubStr must be a STRING, while you are providing a " + ring_type(cSubStr) + ".")
+			stzRaise("Incorrect param type! pcSubStr must be a STRING, while you are providing a " +
+				   ring_type(pcSubStr) + ".")
 		ok
 
 		# Resolving pCaseSensitive param
@@ -31248,6 +31249,7 @@ def ReplaceIBS()
 
 		def LeftNCharsRemoved(n)
 			return This.NLeftCharsRemoved(n)
+
 
 	  #----------------------------#
 	 #   REMOVING N RIGHT CHARS   #

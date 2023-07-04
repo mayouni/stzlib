@@ -1,5 +1,18 @@
 load "stzlib.ring"
 
+StartProfiler()
+
+o1 = new stzList([ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "🌞"] ] ])
+
+? o1.DeepContains("🌞")
+#--> TRUE
+
+? @@( o1.DeepFind("🌞") )
+
+StopProfiler()
+
+/*=======
+
 pron()
 
 o1 = new stzString("ABC")
