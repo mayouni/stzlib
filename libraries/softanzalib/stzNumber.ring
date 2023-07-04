@@ -1356,6 +1356,9 @@ class stzNumber from stzObject
 	 #    COMPARAISON    #
         #-------------------#
 		
+	def IsEqualToCS(pOtherNumber, pCaseSensitive)
+		return This.IsEqualTo(pOtherNumber)
+
 	def IsEqualTo(pOtherNumber)
 		if NOT ( isNumber(pOtherNumber) or
 			 (isString(pOtherNumber) and _(pOtherNumber).@.RepresentsNumberInString()) )

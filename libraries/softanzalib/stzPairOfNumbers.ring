@@ -87,8 +87,8 @@ class stzPairOfNumbers from stzPair
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
-		if QR(n1, :stzNumber).IsBetween(n1, n2) and
-		   QR(n2, :stzNumber).IsBetween(n1, n2)
+		if QR(This.FirstNumber(), :stzNumber).IsBetween(n1, n2) and
+		   QR(This.SecondNumber(), :stzNumber).IsBetween(n1, n2)
 
 			return TRUE
 		else
