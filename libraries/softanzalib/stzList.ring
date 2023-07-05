@@ -17253,21 +17253,49 @@ class stzList from stzObject
 			pItem = pItem[2]
 		ok
 
-		acStrings = This.Stringified()
-		nLen = len(acStrings)
-
-		cItem = @@(pItem)
+		aContent = This.Content()
 		anResult = []
 
-		for i = 1 to nLen
-			if StzStringQ(acStrings[i]).IsEqualToCS(cItem, pCaseSensitive)
-				anResult + i
-			ok
-		next
+		if This.ItemsAreNumbersOrStrings() and
+		   (isNumber(pItem) or isString(pItem))
 
-		return anResult
+			bContinue = TRUE
+			n = 0
+
+			while bContinue
 	
+				nPos = ring_find(aContent, pItem)
+	
+				if nPos = 0
+					bContinue = FALSE
+				else
+					anResult + (nPos + n)
+					del(aContent, nPos)
+					n++
+				ok
+			end
 
+			return anResult
+	
+		but isNumber(pItem) or isString(pItem)
+
+			aTempList = This.NumbersAndStringsZ()
+			nLen = len(aTempList)
+
+			anResult = []
+			for i = 1 to nLen
+				if aTempList[i][1] = pItem
+					anResult + aTempList[i][2]
+				ok
+			next
+			
+			return anResult
+
+		else
+			StzRaise("Case find lists")
+		ok
+
+	
 
 		#< @FunctionFluentForm
 
@@ -17694,13 +17722,14 @@ class stzList from stzObject
 
 		# Doing the job
 
+		aContent = This.Content()
 		nResult = 0
 
-		if This.IsListOfNumbersOrStrings() and
-		   Q(pItem).IsNumberOrString() and
+		if ( This.IsListOfNumbers() or This.IsListsOfStrings() ) and
+		   ( isNumber(pItem) or isString(pItem) ) and
 		   pCaseSensitive = TRUE
 
-			nResult = ring_find( This.List(), pItem )
+			nResult = ring_find( aContent, pItem )
 			return nResult
 		ok
 
@@ -20025,6 +20054,19 @@ class stzList from stzObject
 		def HowManyNumers()
 			return This.NumberOfNumbers()
 
+	def FindNumbers()
+		aContent = This.Content()
+		nLen = len(acontent)
+		aResult = []
+
+		for i = 1 to nLen
+			if isNumber(aContent[i])
+				aResult + i
+			ok
+		next
+		
+		return aResult		
+
 	def Numbers()
 		/* WARNING
 
@@ -20035,14 +20077,16 @@ class stzList from stzObject
 		#--> Stackovervlow!
 		*/
 
+		aContent = This.COntent()
+		nLen = len(aContent)
 		aResult = []
 
-		for item in This.List()
-			if isNumber(item)
-				aResult + item
+		for i = 1 to nLen
+			if isNumber(aContent[i])
+				aResult + aContent[i]
 			ok
 		next
-		
+
 		return aResult
 
 		#< @FunctionFluentForm
@@ -20094,22 +20138,12 @@ class stzList from stzObject
 
 		#>
 
-	  #==================================#
+	  #----------------------------------#
 	 #   REMOVING ITEMS OF TYPE NUMBER  #
-	#==================================#
+	#----------------------------------#
 
 	def RemoveNumbers()
-		anPositions = []
-
-		i = 0
-		for item in This.List()
-			i++
-			if isNumber(item)
-				anPositions + i
-			ok
-		next
-
-		This.RemoveItemsAtThesePositions(anPositions)
+		This.RemoveItemsAtPositions( This.FindNumbers() )
 
 		def RemoveNumbersQ()
 			This.RemoveNumbers()
@@ -20122,21 +20156,53 @@ class stzList from stzObject
 				This.RemoveOnlyNumbers()
 				return This
 
-	  #========================================#
+	def NumbersRemoved()
+		aResult = This.Copy().RemoveNumbersQ().Content()
+		return aResult
+
+	  #-------------------------------------------#
+	 #  GETTING THE NUMBERS AND THEIR POSITIONS  #
+	#-------------------------------------------#
+
+	def NumbersZ()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		for i = 1 to nLen
+			if isNumber(aContent[i])
+				aResult + [ aContent[i], i ]
+			ok
+		next
+
+		return aResult
+
+		def NumbersAndTheirPositions()
+			return This.NumbersZ()
+
+		def NumbersAndPositions()
+			return This.NumbersZ()
+
+	  #----------------------------------------#
 	 #   GETTING ITEMS WHICH ARE NOT NUMBERS  #
 	#========================================#
 
-	def NonNumbers()
-
+	def FindNonNumbers()
+		aContent = This.Content()
+		nLen = len(acontent)
 		aResult = []
 
-		for item in This.List()
-			if NOT isNumber(item)
-				aResult + item
+		for i = 1 to nLen
+			if NOT isNumber(aContent[i])
+				aResult + i
 			ok
 		next
 		
-		return aResult		
+		return aResult	
+
+	def NonNumbers()
+		aResult = This.ItemsAtPositions( This.FindNonNumbers() )
+		return aResult
 
 		def NonNumbersQ()
 			return This.NonNumbersQR(:stzList)
@@ -20179,22 +20245,12 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 
-	  #=========================================#
+	  #-----------------------------------------#
 	 #   REMOVING ITEMS WHICH ARE NOT NUMBERS  #
-	#=========================================#
+	#-----------------------------------------#
 
 	def RemoveNonNumbers()
-		anPositions = []
-
-		i = 0
-		for item in This.List()
-			i++
-			if NOT isNumber(item)
-				anPositions + i
-			ok
-		next
-
-		This.RemoveItemsAtThesePositions(anPositions)
+		This.RemoveItemsAtPositions( This.FindNonNumbers() )
 
 		def RemoveNonNumbersQ()
 			This.RemoveNonNumbers()
@@ -20214,9 +20270,36 @@ class stzList from stzObject
 				This.RemoveAllExceptNumbers()
 				return This
 		
-	  #====================================#
-	 #   GETTING ITEMS WHICH ARE ITEMS  #
-	#====================================#
+	def NonNumbersRemoved()
+		aResult = This.Copy().RemoveNonNumbersQ().Content()
+		return aResult
+
+	  #-----------------------------------------------#
+	 #  GETTING THE NON-NUMBERS AND THEIR POSITIONS  #
+	#-----------------------------------------------#
+
+	def NonNumbersZ()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		for i = 1 to nLen
+			if NOT isNumber(aContent[i])
+				aResult + [ aContent[i], i ]
+			ok
+		next
+
+		return aResult
+
+		def NonNumbersAndTheirPositions()
+			return This.NonNumbersZ()
+
+		def NonNumbersAndPositions()
+			return This.NonNumbersZ()
+
+	  #==============================================#
+	 #   GETTING THE STRINGS CONTAINED IN THE LIST  #
+	#==============================================#
 
 	def NumberOfStrings()
 		return len( This.Strings() )
@@ -20226,6 +20309,19 @@ class stzList from stzObject
 
 		def HowManyStrings()
 			return This.NumberOfStrings()
+
+	def FindStrings()
+		aContent = This.Content()
+		nLen = len(acontent)
+		aResult = []
+
+		for i = 1 to nLen
+			if isString(aContent[i])
+				aResult + i
+			ok
+		next
+		
+		return aResult		
 
 	def Strings()
 		/* WARNING
@@ -20237,14 +20333,16 @@ class stzList from stzObject
 		#--> Stackovervlow!
 		*/
 
+		aContent = This.COntent()
+		nLen = len(aContent)
 		aResult = []
 
-		for item in This.List()
-			if isString(item)
-				aResult + item
+		for i = 1 to nLen
+			if isString(aContent[i])
+				aResult + aContent[i]
 			ok
 		next
-		
+
 		return aResult
 
 		#< @FunctionFluentForm
@@ -20296,22 +20394,13 @@ class stzList from stzObject
 
 		#>
 
-	  #=====================================#
+	  #-------------------------------------#
 	 #   REMOVING ITEMS WHICH ARE STRINGS  #
-	#=====================================#
+	#-------------------------------------#
 
 	def RemoveStrings()
-		anPositions = []
 
-		i = 0
-		for item in This.List()
-			i++
-			if isString(item)
-				anPositions + i
-			ok
-		next
-
-		This.RemoveItemsAtThesePositions(anPositions)
+		This.RemoveItemsAtThesePositions(This.FindStrings())
 
 		def RemoveStringsQ()
 			This.RemoveStrings()
@@ -20324,21 +20413,49 @@ class stzList from stzObject
 				This.RemoveOnlyStrings()
 				return This
 
-	  #========================================#
+	  #-------------------------------------------#
+	 #  GETTING THE STRINGS AND THEIR POSITIONS  #
+	#-------------------------------------------#
+
+	def StringsZ()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		for i = 1 to nLen
+			if isString(aContent[i])
+				aResult + [ aContent[i], i ]
+			ok
+		next
+
+		return aResult
+
+		def StringsAndTheirPositions()
+			return This.StringsZ()
+
+		def StringsAndPositions()
+			return This.StringsZ()
+
+	  #----------------------------------------#
 	 #   GETTING ITEMS WHICH ARE NOT STRING   #
 	#========================================#
 
-	def NonStrings()
+	def FindNonStrings()
+		aContent = This.Content()
+		nLen = len(acontent)
+		anResult = []
 
-		aResult = []
-
-		for item in This.List()
-			if NOT isString(item)
-				aResult + item
+		for i = 1 to nLen
+			if NOT isString(aContent[i])
+				anResult + i
 			ok
 		next
 		
-		return aResult		
+		return anResult		
+
+	def NonStrings()
+		aResult = This.ItemsAtPositions( This.FindNonStrings() )
+		return aResult	
 
 		def NonStringsQ()
 			return This.NonStringsQR(:stzList)
@@ -20381,22 +20498,35 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 
-	  #=========================================#
-	 #   REMOVING ITEMS WHICH ARE NOT STRINGS  #
-	#=========================================#
+	  #-----------------------------------------------#
+	 #  GETTING THE NON-STRINGS AND THEIR POSITIONS  #
+	#-----------------------------------------------#
 
-	def RemoveNonStrings()
-		anPositions = []
+	def NonStringsZ()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
 
-		i = 0
-		for item in This.List()
-			i++
-			if NOT isString(item)
-				anPositions + i
+		for i = 1 to nLen
+			if NOT isString(aContent[i])
+				aResult + [ aContent[i], i ]
 			ok
 		next
 
-		This.RemoveItemsAtThesePositions(anPositions)
+		return aResult
+
+		def NonStringsAndTheirPositions()
+			return This.NonStringsZ()
+
+		def NonStringsAndPositions()
+			return This.NonStringsZ()
+
+	  #-----------------------------------------#
+	 #   REMOVING ITEMS WHICH ARE NOT STRINGS  #
+	#-----------------------------------------#
+
+	def RemoveNonStrings()
+		This.RemoveItemsAtPositions( This.FindNonStrings() )
 
 		def RemoveNonStringsQ()
 			This.RemoveNonStrings()
@@ -20416,8 +20546,9 @@ class stzList from stzObject
 				This.RemoveAllExceptStrings()
 				return This
 
-	def ListWithNonStringsRemoved()
-		return This.Copy().RemoveNonStringsQ().Content()
+	def NonStringsRemoved()
+		acResult = This.Copy().RemoveNonStringsQ().Content()
+		return acResult
 
 	  #=================================================#
 	 #  LOWERCASING THE STRINGS CONTAINED IN THE LIST  #
@@ -20701,10 +20832,8 @@ class stzList from stzObject
 			This.LowercaseListsOfStrings()
 			return This
 
-	def ListWithListsOfStringsLowercased()
-		return This.Copy().LowercaseListsOfStringsQ().Content()
-
 	def ListsOfStringsLowercased()
+		return This.Copy().LowercaseListsOfStringsQ().Content()
 
 	#----
 
@@ -20719,12 +20848,12 @@ class stzList from stzObject
 			This.LowercaseListsOfStrings()
 			return This
 
-	def ListWithListsOfStringsUppercased()
+	def ListsOfStringsUppercased()
 		return This.Copy().UppercaseListsOfStringsQ().Content()
 
-	  #-----------------------------------------------#
+	  #-==============================================#
 	 #     GETTING & REMOVING ITEMS OF TYPE LIST     #
-	#-----------------------------------------------#
+	#===============================================#
 
 	def NumberOfLists()
 		return len( This.Lists() )
@@ -20745,14 +20874,16 @@ class stzList from stzObject
 		#--> Stackovervlow!
 		*/
 
+		aContent = This.COntent()
+		nLen = len(aContent)
 		aResult = []
 
-		for item in This.List()
-			if isList(item)
-				aResult + item
+		for i = 1 to nLen
+			if isList(aContent[i])
+				aResult + aContent[i]
 			ok
 		next
-		
+
 		return aResult
 
 		#< @FunctionFluentForm
@@ -20804,17 +20935,29 @@ class stzList from stzObject
 
 		#>
 
-	def RemoveLists()
-		anPositions = []
+	  #----------------------------------#
+	 #  FINDING THE LISTS IN THE LISTS  #
+	#----------------------------------#
 
-		i = 0
-		for item in This.List()
-			i++
-			if isList(item)
-				anPositions + i
+	def FindLists()
+		aContent = This.Content()
+		nLen = len(acontent)
+		aResult = []
+
+		for i = 1 to nLen
+			if isList(aContent[i])
+				aResult + i
 			ok
 		next
+		
+		return aResult		
 
+	  #--------------------------------------------#
+	 #  REMOVING THE LISTS CONTAINED IN THE LIST  #
+	#--------------------------------------------#
+
+	def RemoveLists()
+		anPositions = This.FindLists()
 		This.RemoveItemsAtThesePositions(anPositions)
 
 		def RemoveListsQ()
@@ -20828,16 +20971,116 @@ class stzList from stzObject
 				This.RemoveOnlyLists()
 				return This
 
-	def NonLists()
+	def ListsRemoved()
+		aResult = This.Copy().RemoveListsQ().Content()
+		return aResult
 
+	  #-----------------------------------------#
+	 #  GETTING THE /÷SلإS AND THEIR POSITIONS  #
+	#-----------------------------------------#
+
+	def ListsZ()
+		aContent = This.Content()
+		nLen = len(aContent)
 		aResult = []
 
-		for item in This.List()
-			if NOT isList(item)
-				aResult + item
+		for i = 1 to nLen
+			if isList(aContent[i])
+				aResult + [ aContent[i], i ]
+			ok
+		next
+
+		return aResult
+
+		def ListsAndTheirPositions()
+			return This.ListsZ()
+
+		def ListsAndPositions()
+			return This.ListsZ()
+
+	  #===============================================#
+	 #  GETTING THE NUMBERS AND STRINGS IN THE LIST  #
+	#===============================================#
+
+	def FindNumbersAndStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		for i = 1 to nLen
+			if isNumber(aContent[i]) or isString(aContent[i])
+				aResult + i
+			ok
+		next
+
+		return aResult
+
+		def FindStringsAndNumbers()
+			return This.FindNumbersAndStrings()
+
+	def NumbersAndStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		for i = 1 to nLen
+			if isNumber(aContent[i]) or isString(aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+
+		return aResult
+
+		def StringsAndNumbers()
+			return This.NumbersAndStrings()
+
+	def NumbersAndStringsZ()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		for i = 1 to nLen
+			if isNumber(aContent[i]) or isString(aContent[i])
+				aResult + [ aContent[i], i ]
+			ok
+		next
+
+		return aResult
+
+		def StringsAndNumbersZ()
+			return This.NumberAndStringsZ()
+
+	def RemoveNumbersAndStrings()
+		This.RemoveItemsAtPositions( This.FindNumbersAndStrings() )
+
+		def RemoveStringsAndNumbers()
+
+	def NumbersAndStringsRemoved()
+		aResult = This.Copy().RemoveNumbersAndStringsQ().Content()
+		return aResult
+
+		def StringsAndNumbersRemoved()
+			return This.NumbersAndStringsRemoved()
+
+	  #=====================================#
+	 #  GETTING THE NON-LISTS IN THE LIST  #
+	#=====================================#
+
+	def FindNonLists()
+		aContent = This.Content()
+		nLen = len(acontent)
+		aResult = []
+
+		for i = 1 to nLen
+			if NOT isList(aContent[i])
+				aResult + i
 			ok
 		next
 		
+		return aResult		
+
+	def NonLists()
+		aResult = This.ItemsAtPositions( This.FindNonLists() )
 		return aResult		
 
 		def NonListsQ()
@@ -20880,18 +21123,12 @@ class stzList from stzObject
 				other
 					StzRaise("Unsupported return type!")
 				off
+	  #------------------------------------#
+	 #  REMOVING NON LISTS FROM THE LIST  #
+	#------------------------------------#
 
 	def RemoveNonLists()
-		anPositions = []
-
-		i = 0
-		for item in This.List()
-			i++
-			if NOT isList(item)
-				anPositions + i
-			ok
-		next
-
+		anPositions = This.FindNonLists()
 		This.RemoveItemsAtThesePositions(anPositions)
 
 		def RemoveNonListsQ()
@@ -20912,9 +21149,36 @@ class stzList from stzObject
 				This.RemoveAllExceptLists()
 				return This
 
-	  #-------------------------------------------------#
+	def NonListsRemoved()
+		aResult = This.Copy().RemoveNonListsQ().Content()
+		return aResult
+
+	  #---------------------------------------------#
+	 #  GETTING THE NON-LISTS AND THEIR POSITIONS  #
+	#---------------------------------------------#
+
+	def NonListsZ()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		for i = 1 to nLen
+			if NOT isList(aContent[i])
+				aResult + [ aContent[i], i ]
+			ok
+		next
+
+		return aResult
+
+		def NonListsAndTheirPositions()
+			return This.NonListsZ()
+
+		def NonListsAndPositions()
+			return This.NonListsZ()
+
+	  #=================================================#
 	 #     GETTING & REMOVING ITEMS OF TYPE OBJECT     #
-	#-------------------------------------------------#
+	#=================================================#
 
 	def NumberOfObjects()
 		return len( This.Objects() )
@@ -20935,14 +21199,16 @@ class stzList from stzObject
 		#--> Stackovervlow!
 		*/
 
+		aContent = This.COntent()
+		nLen = len(aContent)
 		aResult = []
 
-		for item in This.Object()
-			if isObject(item)
-				aResult + item
+		for i = 1 to nLen
+			if isObject(aContent[i])
+				aResult + aContent[i]
 			ok
 		next
-		
+
 		return aResult
 
 		#< @FunctionFluentForm
@@ -20994,18 +21260,10 @@ class stzList from stzObject
 
 		#>
 
+	#--
+
 	def RemoveObjects()
-		anPositions = []
-
-		i = 0
-		for item in This.Object()
-			i++
-			if isObject(item)
-				anPositions + i
-			ok
-		next
-
-		This.RemoveItemsAtThesePositions(anPositions)
+		This.RemoveItemsAtThesePositions(This.FindObjects())
 
 		def RemoveObjectsQ()
 			This.RemoveObjects()
@@ -21018,17 +21276,37 @@ class stzList from stzObject
 				This.RemoveOnlyObjects()
 				return This
 
-	def NonObjects()
+	def ObjectsRemoved()
+		aResult = This.Copy().RemoveObjectsQ().Content()
+		return aResult
 
-		aResult = []
+	#--
 
-		for item in This.Object()
-			if NOT isObject(item)
-				aResult + item
+	def FindNonObjects()
+		aContent = This.COntent()
+		nLen = len(aContent)
+		anResult = []
+
+		for i = 1 to nLen
+			if NOT isObject(aContent[i])
+				anResult + i
 			ok
 		next
-		
-		return aResult		
+
+		return anResult
+
+	def NonObjects()
+		aContent = This.COntent()
+		nLen = len(aContent)
+		aResult = []
+
+		for i = 1 to nLen
+			if NOT isObject(aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+
+		return aResult
 
 		def NonObjectsQ()
 			return This.NonObjectsQR(:stzObject)
@@ -21072,17 +21350,7 @@ class stzList from stzObject
 				off
 
 	def RemoveNonObjects()
-		anPositions = []
-
-		i = 0
-		for item in This.Object()
-			i++
-			if NOT isObject(item)
-				anPositions + i
-			ok
-		next
-
-		This.RemoveItemsAtThesePositions(anPositions)
+		This.RemoveItemsAtThesePositions( This.FindNonObjects() )
 
 		def RemoveNonObjectsQ()
 			This.RemoveNonObjects()
@@ -21101,6 +21369,10 @@ class stzList from stzObject
 			def RemoveAllExceptObjectsQ()
 				This.RemoveAllExceptObjects()
 				return This
+
+	def NonObjectsRemoved()
+		aResult = This.Copy().RemoveNonObjectsQ().Content()
+		return aResult
 
 	  #--------------------------------------------------#
 	 #     COUNTING ITEMS VERIFYING A GIVEN CONDITION   #
