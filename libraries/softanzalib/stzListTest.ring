@@ -1,15 +1,14 @@
 load "stzlib.ring"
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzList(1:299_000)
-//? o1.ToCodeQ()
-? o1.Stringified()
+o1.Stringified()
 
 proff()
-
+# Executed in 4.08 second(s)
 
 /*=============
 
@@ -588,16 +587,125 @@ proff()
 # Executed in 2.15 second(s)
 
 /*-----------------
-*/
+
 pron()
 
-o1 = new stzList(1:299_000)
-? o1.find(4)
+? find(1:299_000, 40_000)
+#--> 40000
+proff()
+# Executed in 0.04 second(s)
+
+/*-----------------
+
+pron()
+
+? Q([1, 2, 3, 4, 5, 3, 7]).Find(3)
+#--> [ 3, 6 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzList( 1:7 + "str1" + "str2" + [ "+", "-" ] )
+? o1.OnlyNumbers()
+
+proff()
+
+/*-----------------
+
+pron()
+
+o1 = new stzList( 10:12 + "str1" + "str2" + [ "+", "-" ] + o1 )
+
+? @@( o1.NumbersAndStrings() )
+#--> [ 10, 11, 12, "str1", "str2" ]
+
+? @@( o1.NumbersAndStringsZ() )
+#--> [ [ 10, 1 ], [ 11, 2 ], [ 12, 3 ], [ "str1", 4 ], [ "str2", 5 ] ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-----------------
+
+pron()
+
+aLarge = []
+for i = 1 to 299_000
+	aLarge + "*"
+next
+
+? ElapsedTime()
+#--> Extecuted in 0.14 second(s)
+
+o1 = new stzList( aLarge + 10 + 20 + [ "+", "-" ] )
+? len( o1.OnlyStrings() )
+#--> 299000
+# Executed in 2 second(s)
+
+proff()
+# Executed in 2.38 second(s)
+
+/*-----------------
+
+pron()
+
+aLarge = []
+for i = 1 to 299_000
+	aLarge + "*"
+next
+
+? ElapsedTime()
+#--> Extecuted in 0.14 second(s)
+
+o1 = new stzList( aLarge + 10 + 20 + [ "+", "-" ] + 30 + 40 + [ "*" ] )
+? len( o1.NumbersAndStringsZ() )
+#--> 299000
+# Executed in 2 second(s)
+
+proff()
+# Executed in 3.87 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList( 1:299_000 + "str1" + "str2" + [ "+", "-" ] )
+? len( o1.OnlyNumbers() )
+#--> 299000
+proff()
+# Executed in 1.08 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzList(1:299_000+4)
+
+? o1.Find(4)
+#--> [4, 299_001]
+
+//? o1.findlast(4)
 //? o1.FindNext(120_001, :StartingAt = 2)
 
 
 proff()
+# Executed in 4.60 second(s)
 
+/*---------------
+*/
+
+pron()
+
+o1 = new stzList( 1:299_000 + "str1" + "str2" + 12 + [ "+", "-" ]  + o1 )
+? o1.find(12)
+#--> [12, 299003]
+
+proff()
+# Executed in 7.06 second(s)
 /*---------------
 
 pron()
