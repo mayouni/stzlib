@@ -368,7 +368,7 @@ o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
 #--> 7
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.04 second(s)
 
 /*-----------------
 
@@ -379,7 +379,7 @@ o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
 #--> 4
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.05 second(s)
 
 /*-----------------
 
@@ -390,7 +390,7 @@ o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
 #--> 7
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.05 second(s)
 
 /*-----------------
 
@@ -428,12 +428,13 @@ pron()
 
 o1 = new stzList(1: 100_000)
 ? o1.IsListOfNumbers()
+#--> TRUE
 
 ? o1.FindFirst(67_000)
 #--> 67000
 
 proff()
-#--> Executed in 0.51
+#--> Executed in 0.54
 
 /*-----------------
 
@@ -454,23 +455,70 @@ o1 = new stzList([ 14, 10, 14, 14, 20 ])
 #--> 3
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.05 second(s)
 
-/*----------------- Error: fix it!
-
-pron()
+/*-----------------
 
 o1 = new stzString([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])
 #!--> Should return an error!
-
-proff()
+# Incorrect param! You must provide a list of strings.
 
 /*-----------------
 
 pron()
 
+o1 = new stzList([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])
+o1.RemoveSection(3, 8)
+? @@( o1.Content() )
+#--> [ 1, 2, 9, 10 ]
+
+proff()
+
+
+/*-----------------
+
+pron()
+
+o1 = new stzList([ "1", "2", "_", "_", "_", "3", "4" ])
+o1.RemoveSection(3, 5)
+? @@( o1.Content() )
+#--> [ "1", "2", "3", "4" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+*-----------------
+
+pron()
+
+o1 = new stzList([ "1", "2", "_", "_", "_", "3", "4" ])
+o1.RemoveRange(3, 3)
+? @@( o1.Content() )
+#--> [ "1", "2", "3", "4" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----------------
+
+*/
+pron()
+
+o1 = new stzList(1:299_000)
+o1.RemoveSection(73_900, 120_010)
+? len( o1.Content() )
+#--> 252889
+
+proff()
+# Executed in 0.99 second(s)
+
+/*-----------------
+
+*/
+pron()
+
 o1 = new stzString("[ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]")
-o1.RemoveSection(2, 10)
+o1.RemoveSection(4, 10)
 ? @@(o1.Content())
 
 proff()
@@ -705,42 +753,68 @@ proff()
 # Executed in 3.40 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 
 o1 = new stzList(1:299_000+4)
-o1.Section(80_002, 210_001)
+? len( o1.Section(80_002, 210_001) )
+#--> 130_000
+
 //? o1.FindNext(120_001, :StartingAt = 2)
 
 
 proff()
-# Executed in 4.16 second(s)
+# Executed in 0.22 second(s)
+
+*-----------------
+
+pron()
+
+
+o1 = new stzList(1:299_000+4)
+
+? o1.FindNext(120_001, :StartingAt = 2)
+#--> 120_001
+# Executed in 1.62 second(s)
+
+? o1.FindPrevious(4, :StartingAt = 180_000)
+#--> 4
+# Executed in 1.02 second(s)
+
+? o1.FindNthNext(2, 4, :StartingAt = 2)
+#--> 299001
+# Executed in 3.27 second(s)
+
+proff()
+# Executed in Executed in 5.68 second(s) second(s)
 
 /*---------------
 
 pron()
 
 o1 = new stzList( 1:299_000 + "str1" + "str2" + 12 + [ "+", "-" ]  + o1 )
+
 ? o1.Find(12)
 #--> [12, 299003]
 
 proff()
-# Executed in 7.01 second(s)
+# Executed in 2.62 second(s)
 
 /*---------------
 
 pron()
 
 o1 = new stzList( 1:299_000 + "str1" + "str2" + 12 + [ "+", "-" ] + "str1" + o1 )
+
 ? o1.Find("str1")
 #--> [299001, 299005]
 
 proff()
-# Executed in 7.06 second(s)
+# Executed in 0.82 second(s)
 
 /*---------------
-
+*/
 pron()
 
 o1 = new stzList(
@@ -751,7 +825,7 @@ o1 = new stzList(
 #--> [299004, 299007]
 
 proff()
-# Executed in 4.95 second(s)
+# # Executed in 0.82 second(s)
 
 /*==============
 
