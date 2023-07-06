@@ -17249,15 +17249,27 @@ class stzList from stzObject
 
 		*/
 
+		if This.IsEmpty() or (NOT This.ContainsCS(pItem, pCaseSensitive))
+			return []
+		ok
+
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
+
+		bCaseSensitive = TRUE
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			bCaseSensitive = pCaseSensitive[2]
+		ok
+
+		# Doing the job
 
 		aContent = This.Content()
 		anResult = []
 
 		if This.ItemsAreNumbersOrStrings() and
-		   (isNumber(pItem) or isString(pItem))
+		   (isNumber(pItem) or isString(pItem)) and
+		   bCaseSensitive = TRUE
 
 			bContinue = TRUE
 			n = 0
@@ -17284,18 +17296,31 @@ class stzList from stzObject
 
 			anResult = []
 			for i = 1 to nLen
-				if aTempList[i][1] = pItem
+				if Q(aTempList[i][1]).IsEqualToCS(pItem, pCaseSensitive)
 					anResult + aTempList[i][2]
 				ok
 			next
 			
 			return anResult
 
-		else
-			StzRaise("Case find lists")
-		ok
+		but isList(pItem)
 
-	
+
+			aTempLists = This.ListsZ()
+			nLen = len(aTempLists)
+			anResult = []
+
+			for i = 1 to nLen
+				if StzListQ(aTempLists[i][1]).IsEqualToCS(pItem, pCaseSensitive)
+					anResult + aTempLists[i][2]
+				ok
+			next
+
+			return anResult
+
+		else // isObject(pItem)
+			StzRaise("Can't find objet items!")
+		ok
 
 		#< @FunctionFluentForm
 
@@ -17525,105 +17550,118 @@ class stzList from stzObject
 
 		*/
 
-		if isObject(pItem)
-			StzRaise("Can't process! Objects can not be found yet.")
-		ok
-
 		if isString(n)
 			if n = :First or n = :FirstOccurrence
-				return This.FindFirstCS(pItem, pCaseSensitive)
+				return This.FindfirstCS(pItem, pCaseSensitive)
 
 			but n = :Last or n = :LastOccurrence
 				return This.FindLastCS(pItem, pCaseSensitive)
 			ok
-
-		but isNumber(n) and n = 1
-			return This.FindFirstCS(pItem, pCaseSensitive)
-
-		ok
-
-		if NOT This.ContainsCS(pItem, pCaseSensitive)
-			return 0
 		ok
 
 		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
+			SrzRaise("Incorrect  param type! n must be a number.")
 		ok
 
-		if n > This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
-			return 0
+		if n = 1
+			return This.FirstOccurrenceCS(pItem, pCaseSensitive)
+
+		but n = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+			return This.LastOccurrenceCS(pItem, pCaseSensitive)
 		ok
 
-		#-- Doing the job
+		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+			pItem = pItem[2]
+		ok
 
-		cType = ring_type(pItem)
+		bCaseSensitive = TRUE
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			bCaseSensitive = pCaseSensitive[2]
+		ok
 
-		if cType = "STRING" or cType = "NUMBER"
-			
-			nLenList = This.NumberOfItems()
-			nStart = 1
-			nTimes = 0
-			nResult = 0
+		# Doing the job
 
+		if n = 1
+			return This.FirstOccurrenceCS(pItem, pCaseSensitive)
+
+		but n = This.NumberOfItems()
+			return This.LastOccurrenceCS(pItem, pCaseSensitive)
+		ok
+
+		if This.ItemsAreNumbersOrStrings() and
+		   (isNumber(pItem) or isString(pItem)) and
+		   bCaseSensitive = TRUE
+
+			aContent = This.Content()
+			anPos = []
 			bContinue = TRUE
+			i = 0
+
 			while bContinue
-				aSection = This.Section(nStart, nLenList)
-			
-				nPos = ring_find( aSection, pItem )
-				nPos += nStart - 1
+
+				nPos = ring_find(aContent, pItem)
+
 				if nPos = 0
-					exit
-				ok
+					bContinue = FALSE
 
-				nTimes++
-
-				if nTimes = n
-					nResult = nPos - 1
-					return nPos	
 				else
-					nStart = nPos + 1
+					anPos + (nPos + i)
+
+					if len(anPos) = n
+						return nPos + i
+					ok
+
+					del(aContent, nPos)
+					i++
 				ok
 			end
 
-		but cType = "LIST"
+			return 0
+	
+		but isNumber(pItem) or isString(pItem)
 
-			# Turning the pItem to a string
-			# (we use stzString for better performance)
-
-			cPItem = Q(pItem).ToCodeQ().Simplified()
-		
-			# Parsing the list. When an item is
-			# a list, then check if it could be
-			# equal to pItem
-
-			aList = This.List()
-			nLen = This.NumberOfItems()
-			nResult = 0
-			
-			nTimes = 0
+			aTempList = This.NumbersAndStringsZ()
+			nLen = len(aTempList)
+			anPos = []
 
 			for i = 1 to nLen
-				
-				item = aList[i]
-						
-				if isList(item)
 
-					cItem = Q(item).ToCodeQ().Simplified()
-	
-					if cItem = cPItem
-						nTimes++
-	
-						if nTimes = n
-							return i
-						ok
+				if Q(aTempList[i][1]).IsEqualToCS(pItem, pCaseSensitive)
+
+					anPos + aTempList[i][2]
+
+					if len(anPos) = n
+						return aTempList[i][2]
 					ok
-
 				ok
-		
 			next
+			
+			return 0
+
+		but isList(pItem)
+
+			aTempLists = This.ListsZ()
+			nLen = len(aTempLists)
+			anPos = []
+
+			for i = 1 to nLen
+
+				if StzListQ(aTempLists[i][1]).IsEqualToCS(pItem, pCaseSensitive)
+
+					anPos + aTempLists[i][2]
+
+					if len(anPos) = n
+						return aTempLists[i][2]
+					ok
+				ok
+			next
+
+			return 0
+
+		else // isObject(pItem)
+			StzRaise("Can't find objet items!")
 		ok
 
-		return FALSE
 
 		#< @FunctionAlternativeForms
 
@@ -17725,7 +17763,7 @@ class stzList from stzObject
 		aContent = This.Content()
 		nResult = 0
 
-		if ( This.IsListOfNumbers() or This.IsListsOfStrings() ) and
+		if ( This.IsListOfNumbers() or This.IsListOfStrings() ) and
 		   ( isNumber(pItem) or isString(pItem) ) and
 		   pCaseSensitive = TRUE
 
@@ -17795,14 +17833,6 @@ class stzList from stzObject
 
 	def FindLastOccurrenceCS(pItem, pCaseSensitive)
 
-		if isObject(pItem)
-			StzRaise("Can't process! Objects can not be found yet.")
-		ok
-
-		if NOT This.ContainsCS(pItem, pCaseSensitive)
-			return 0
-		ok
-
 		# Resolving pCaseSensitive
 
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
@@ -17810,12 +17840,13 @@ class stzList from stzObject
 		ok
 
 		if isString(pCaseSensitive)
-			if Q(pCaseSensitive).IsOneOfThese([
+			oCase = Q(pCaseSensitive)
+			if oCase.IsOneOfThese([
 				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
 
 				pCaseSensitive = TRUE
 			
-			but Q(pCaseSensitive).IsOneOfThese([
+			but oCase.IsOneOfThese([
 				:CaseInSensitive, :NotCaseSensitive, :NotCS,
 				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
 
@@ -17833,6 +17864,10 @@ class stzList from stzObject
 		nResult = 0
 		nLen = This.NumberOfItems()
 		cType = ring_type(pItem)
+
+		if cType = "OBJECT"
+			StzRaise("Can't process! Objects can not be found yet.")
+		ok
 
 		if This.IsListOfNumbersOrStrings() and
 		   Q(pITem).IsNumberOrString() and
@@ -22104,13 +22139,13 @@ class stzList from stzObject
 
 		# Managing the use of :NthToFirst named param
 
-		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+		if isList(n1) and StzListQ(n1).IsOneOfTheseNamedParams([
 					:NthToFirst, :NthToFirstItem ])
 
 			n1 = n1[2] + 1
 		ok
 
-		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+		if isList(n2) and StzListQ(n2).IsOneOfTheseNamedParams([
 					:NthToFirst, :NthToFirstItem ])
 
 			n2 = n2[2] + 1
@@ -22124,7 +22159,7 @@ class stzList from stzObject
 			n1 = This.NumberOfItems() - n1[2]
 		ok
 
-		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+		if isList(n2) and StzListQ(n2).IsOneOfTheseNamedParams([
 					:NthToLast, :NthToLastItem ])
 
 			n2 = This.NumberOfItems() - n2[2]
@@ -22133,10 +22168,10 @@ class stzList from stzObject
 		# Managing the case of :First and :Last keywords
 
 		if isString(n1)
-			if Q(n1).IsOneOfThese([ :First, :FirstItem, :StartOfList ])
+			if stzStringQ(n1).IsOneOfThese([ :First, :FirstItem, :StartOfList ])
 				n1 = 1
 
-			but Q(n1).IsOneOfThese([ :Last, :LastItem, :EndOfList ])
+			but StzStringQ(n1).IsOneOfThese([ :Last, :LastItem, :EndOfList ])
 				n1 = This.NumberOfItems()
 
 			but n1 = :@
@@ -22145,10 +22180,10 @@ class stzList from stzObject
 		ok
 	
 		if isString(n2)
-			if Q(n2).IsOneOfThese([ :Last, :LastItem, :EndOfList ])
+			if StzStringQ(n2).IsOneOfThese([ :Last, :LastItem, :EndOfList ])
 				n2 = This.NumberOfItems()
 
-			but Q(n2).IsOneOfThese([ :First, :FirstItem, :StartOfList ])
+			but StzStringQ(n2).IsOneOfThese([ :First, :FirstItem, :StartOfList ])
 				n2 = 1
 
 			but n2 = :@
@@ -22192,12 +22227,8 @@ class stzList from stzObject
 
 		# Params must be numbers
 
-		if NOT Q([n1, n2]).BothAreNumbers()
+		if NOT ( isNumber(n1) and isNumber(n2) )
 			StzRaise("Incorrect params! n1 and n2 must be numbers.")
-		ok
-
-		if NOT QR([n1, n2], :stzPairOfNumbers).BothAreBetween(1, This.NumberOfItems())
-			StzRaise("Indexes out of range!")
 		ok
 
 		# Finally, we're ready to extract the section
@@ -22210,29 +22241,9 @@ class stzList from stzObject
 			aResult + This.Item(n1)
 
 		but n1 < n2
-
-			oListInStr = This.ToCodeQ()
-
-			if n1 = 1
-				n1 = 2
-
-			else
-				if n1 > 1
-					n1--
-				ok
-	
-				n1 = oListInStr.FindNth(n1, ",") + 1
-			ok
-
-			if n2 = nLen
-				n2 = oListInStr.NumberOfChars() - 1
-			else
-				n2 = oListInStr.FindNth(n2, ",") - 1
-			ok
-
-			cCode = 'aResult = [ ' + oListInStr.Section(n1, n2) + " ]"
-
-			eval(cCode)
+			for i = n1 to n2
+				aResult + aContent[i]
+			next
 
 		else
 			aResult = This.Section(n2, n1)

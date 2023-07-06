@@ -590,7 +590,7 @@ proff()
 
 pron()
 
-? find(1:299_000, 40_000)
+? ring_find(1:299_000, 40_000)
 #--> 40000
 proff()
 # Executed in 0.04 second(s)
@@ -683,30 +683,77 @@ proff()
 
 pron()
 
+o1 = new stzList(1 : 299_000 + 4)
+
+? o1.FindFirst(4)
+#--> 4
+# Executed in 0.86 second(s)
+
+? o1.FindLast(4)
+#--> 299001
+# Executed in 0.96 second(s)
+
+? o1.FindNth(:First, 4)
+#--> 299001
+# Executed in 0.87 second(s)
+
+? o1.FindNth(:Last, 4)
+#--> 299001
+# Executed in 0.94 second(s)
+
+proff()
+# Executed in 3.40 second(s)
+
+/*-----------------
+*/
+pron()
+
+
 o1 = new stzList(1:299_000+4)
-
-? o1.Find(4)
-#--> [4, 299_001]
-
-//? o1.findlast(4)
+o1.Section(80_002, 210_001)
 //? o1.FindNext(120_001, :StartingAt = 2)
 
 
 proff()
-# Executed in 4.60 second(s)
+# Executed in 4.16 second(s)
 
 /*---------------
-*/
 
 pron()
 
 o1 = new stzList( 1:299_000 + "str1" + "str2" + 12 + [ "+", "-" ]  + o1 )
-? o1.find(12)
+? o1.Find(12)
 #--> [12, 299003]
 
 proff()
-# Executed in 7.06 second(s)
+# Executed in 7.01 second(s)
+
 /*---------------
+
+pron()
+
+o1 = new stzList( 1:299_000 + "str1" + "str2" + 12 + [ "+", "-" ] + "str1" + o1 )
+? o1.Find("str1")
+#--> [299001, 299005]
+
+proff()
+# Executed in 7.06 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzList(
+	1:299_000 + "str1" + "str2" + 12 + [ "*", "+" ] + "str1" + o1 +  [ "*", "+" ]
+)
+
+? o1.Find([ "*", "+" ] )
+#--> [299004, 299007]
+
+proff()
+# Executed in 4.95 second(s)
+
+/*==============
 
 pron()
 
