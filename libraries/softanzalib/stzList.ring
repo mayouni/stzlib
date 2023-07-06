@@ -11886,7 +11886,7 @@ class stzList from stzObject
 	 #  CHECKING IF THE LIST CONTAINS 2 STRINGS  #
 	#-------------------------------------------#
 
-	def BothAreStringss()
+	def BothAreStrings()
 		if This.NumberOfItems() = 2 and
 		   isString(This[1]) and isString(This[2])
 
