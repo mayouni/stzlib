@@ -4919,28 +4919,9 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! pnRange must be a number.")
 		ok
 
-		# Checking the correctness of the range of the two params
-
-		nLen = This.NumberOfItems()
-
-		if (pnStart < 1) or (pnStart + pnRange -1 > nLen) or
-		   ( pnStart = nLen and pnRange != 1 )
-			StzRaise("Out of range!")
-		ok
-
 		# Doing the job
 
-		if pnStart = 1
-			aResult = This[1]
-		else
-			aResult = This.Section(1, pnstart-1)
-		ok
-
-		for item in This.Section(pnStart + pnRange, nLen)
-			aResult + item
-		next		
-		  
-		This.Update( aResult )
+		This.RemoveSection( pnStart, (pnStart + pnRange - 1) )
 
 		#< @FunctionFluentForm
 
@@ -5013,15 +4994,11 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
-		if NOT  ( StzNumberQ(n1).IsBetween(1, This.NumberOfItems() ) and
-			  StzNumberQ(n2).IsBetween(1, This.NumberOfItems() ) )
+		# Doing the job
 
-			StzRaise("Out of range!")
-		ok
-
-		# Doing the job (Qt-side)
-
-		This.RemoveRange( n1, n2 - n1 + 1 )
+		nLen = This.NumberOfItems()
+		aResult = This.SectionQ(1, n1 - 1).ExtendedWith( This.Section(n2 + 1, nLen) )
+		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
@@ -17249,10 +17226,6 @@ class stzList from stzObject
 
 		*/
 
-		if This.IsEmpty() or (NOT This.ContainsCS(pItem, pCaseSensitive))
-			return []
-		ok
-
 		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
@@ -17264,63 +17237,102 @@ class stzList from stzObject
 
 		# Doing the job
 
-		aContent = This.Content()
 		anResult = []
 
-		if This.ItemsAreNumbersOrStrings() and
-		   (isNumber(pItem) or isString(pItem)) and
-		   bCaseSensitive = TRUE
+		if isNumber(pItem)
+			anNumbersZ = This.NumbersZ()
+			nLen = len(anNumbersZ)
 
-			bContinue = TRUE
-			n = 0
-
-			while bContinue
-	
-				nPos = ring_find(aContent, pItem)
-	
-				if nPos = 0
-					bContinue = FALSE
-				else
-					anResult + (nPos + n)
-					del(aContent, nPos)
-					n++
-				ok
-			end
-
-			return anResult
-	
-		but isNumber(pItem) or isString(pItem)
-
-			aTempList = This.NumbersAndStringsZ()
-			nLen = len(aTempList)
-
-			anResult = []
 			for i = 1 to nLen
-				if Q(aTempList[i][1]).IsEqualToCS(pItem, pCaseSensitive)
-					anResult + aTempList[i][2]
+				if anNumbersZ[i][1] = pItem
+					anResult + anNumbersZ[i][2]
 				ok
 			next
-			
+
+			return anResult
+
+		but isString(pItem)
+			acStringsZ = This.StringsZ()
+			nLen = len(acStringsZ)
+
+			for i = 1 to nLen
+				if acStringsZ[i][1] = pItem
+					anResult + acStringsZ[i][2]
+				ok
+			next
+
 			return anResult
 
 		but isList(pItem)
-
-
-			aTempLists = This.ListsZ()
-			nLen = len(aTempLists)
-			anResult = []
+			aListsZ = This.ListsZ()
+			nLen = len(aListsZ)
 
 			for i = 1 to nLen
-				if StzListQ(aTempLists[i][1]).IsEqualToCS(pItem, pCaseSensitive)
-					anResult + aTempLists[i][2]
+				if StzListQ(aListsZ[i][1]).IsEqualToCS(pItem, pCaseSensitive)
+					anResult + aListsZ[i][2]
 				ok
 			next
 
 			return anResult
 
 		else // isObject(pItem)
-			StzRaise("Can't find objet items!")
+			aoObjectsZ = This.ObjectsZ()
+			nLen = len(aoObjectsZ)
+
+			for i = 1 to nLen
+				if StzObjectQ(aoObjectsZ[i][1]).IsEqualTo(pItem)
+					anResult + aoObjectsZ[i][2]
+				ok
+			next
+
+			return anResult
 		ok
+
+/*
+		aContent = This.Content()
+		nLen = len(aContent)
+		oItem = Q(pItem)
+		cItem = oItem.ToCode()
+		anResult = []
+
+		if isNumber(pItem) or isString(pItem)
+
+			for i = 1 to nLen
+
+				if ( isNumber(aContent[i]) or isString(aContent[i]) )
+					if oItem.IsEqualToCS(aContent[i], pCaseSensitive)
+						anResult + i
+					ok
+
+				but isList(aContent[i])
+					if cItem = @@(aContent[i])
+						anResult + i
+					ok
+					
+				else // isObject(aConten[i])
+					# ToDo; Do nothing (unsupported feature)
+				ok
+			next
+
+		but isList(pItem)
+			for i = 1 to nLen
+				if isList(aContent[i]) and
+				   oItem.IsEqualToCS(aContent[i], pCaseSensitive)
+
+					anResult + i
+				ok
+			next
+
+		else // isObject(pItem)
+			# ToDo; Do nothing (unsupported feature)
+
+			if This.ContainsNoObjects()
+				return []
+			ok
+		ok
+
+		return anResult
+*/
 
 		#< @FunctionFluentForm
 
@@ -18694,8 +18706,8 @@ class stzList from stzObject
 	 #      STARTING AT A GIVEN POSITION               #
 	#-------------------------------------------------#
 
-	def FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
-
+	def FindNthNextOccurrenceCS( n, pItem, pnStartingAt, pCaseSensitive )
+/*
 		if (isString(n) and (n = :First or n = :FirstOccurrence)) or
 		   (isNumber(n) and n = 1)
 
@@ -18748,6 +18760,22 @@ class stzList from stzObject
 		if nResult != 0
 			nResult += nStart - 1
 		ok
+
+		return nResult
+*/
+
+		if isList(pItem) and Q(pItem).IsOfNamedParam()
+			pItem = pItem[2]
+		ok
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		# Doing the job
+
+		nResult = This.SectionQ(pnStartingAt + 1, This.NumberOfItems()).
+			FindNthCS(n, pItem, pCaseSensitive) + pnStartingAt
 
 		return nResult
 
@@ -18923,11 +18951,7 @@ class stzList from stzObject
 		#--> 7
 
 		*/
-
-		nLen = This.NumberOfItems()
-		if nLen < 2
-			return 0
-		ok
+//return This.FindNextNthOccurrenceCS(1, pItem, pnStartingAt, pCaseSensitive)
 
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
@@ -18937,23 +18961,8 @@ class stzList from stzObject
 			pnStartingAt = pnStartingAt[2]
 		ok
 
-		if isNumber(pnStartingAt) and
-		   ( NOT Q(pnStartingAt).IsBetween(1, nLen - 1) )
-
-			StzRaise("Incorrect param! pnStartingAt must be between 1 and " + (nLen - 1) + ".")
-		ok
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		nResult = 0
-
-		for i = pnStartingAt + 1 to nLen
-				if Q(aContent[i]).IsEqualToCS(pItem, pCaseSensitive)
-					nResult = i
-					exit
-				ok
-			next
+		nResult = This.SectionQ(pnStartingAt + 1, :Last).
+			FindFirstCS(pItem, pCaseSensitive) + pnStartingAt
 
 		return nResult
 
@@ -19012,44 +19021,7 @@ class stzList from stzObject
 
 		return nResult
 
-/*
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
 
-		cItem = Q(pItem).Stringified()
-		if cItem = ""
-			return 0
-		ok
-
-		if NOT This.ContainsCS(pItem, pCaseSensitive)
-			return 0
-		ok
-
-		acItemsAsStrings = This.SectionQ(1, pnStartingAt-1).
-				  StringifyQ().Content()
-		
-		if NOT Q(acItemsAsStrings).ContainsCS(cItem, pCaseSensitive)
-			return 0
-		ok
-
-		nLen = len(acItemsAsStrings)
-		i = nLen + 1
-
-		while TRUE
-			i--
-
-			if i = 0
-				exit
-			ok
-
-			if Q(acItemsAsStrings[i]).IsEqualToCS(cItem, pCaseSensitive)
-				return i
-			ok
-		end
-
-		return 0
-	*/
 		def FindPreviousCS( pItem, nStart, pCaseSensitive )
 			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
 

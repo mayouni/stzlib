@@ -463,6 +463,10 @@ class stzString from stzObject
 
 		but isList(pcStr)
 
+			if StzListQ(pcStr).IsListOfNumbers()
+				StzRaise("Incorrect param! You must provide a list of strings.")
+			ok
+
 			# This case is added to facilitate the creation of
 			# large strings to test them against stzString methods
 
@@ -492,7 +496,6 @@ class stzString from stzObject
 
 			cResult = ""
 			
-
 			for i = 1 to nLen
 				item = aTempList[i]
 			
