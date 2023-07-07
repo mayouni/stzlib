@@ -11,7 +11,7 @@ aList = [
 
 o1 = new stzListOfHashLists( aList )
 ? o1.ToSetOfHashLists()
-# -->
+#-->
 /*
 	[ :number = 1, :name = "teeba", :age = 10 	],
 	[ :number = 2, :name = [ "haneen", "hussein" ], :age = [ 7, 1]	],

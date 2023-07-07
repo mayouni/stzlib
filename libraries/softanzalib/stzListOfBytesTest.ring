@@ -8,7 +8,7 @@ load "stzlib.ring"
 */
 o1 = new stzListOfBytes("で")
 ? o1.ToHex() 
-# Returns e381a7 # --> (\xE3 \x81 \xa7 in UTF-8 --> TODO)
+# Returns e381a7 #--> (\xE3 \x81 \xa7 in UTF-8 --> TODO)
 
 /*--------------------
 

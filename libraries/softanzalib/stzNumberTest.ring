@@ -250,15 +250,15 @@ o1 = new stzNumber(5)
 
 o1 = new stzNumber( 55993400908134 )
 decimals(12) # TODO: should return numbers above in string form with the max round
-? o1.Sine()		# --> -0.999864884364
-? o1.Cosine()		# --> -0.016438157335
-? o1.Tangent() 		# --> 60.825849514064
-? o1.Cotangent() 	# --> 0.016440378687
+? o1.Sine()		#--> -0.999864884364
+? o1.Cosine()		#--> -0.016438157335
+? o1.Tangent() 		#--> 60.825849514064
+? o1.Cotangent() 	#--> 0.016440378687
 
 /*-----------------------
 
-? StzNumberQ(1).UpTo(7) 	# --> 1:7
-? StzNumberQ(7).DownTo(1)	# --> 7:1
+? StzNumberQ(1).UpTo(7) 	#--> 1:7
+? StzNumberQ(7).DownTo(1)	#--> 7:1
 
 /*-----------------------
 
@@ -268,7 +268,7 @@ decimals(12) # TODO: should return numbers above in string form with the max rou
 
 /*-----------------------
 
-? RingMaxRound()	# --> 90
+? RingMaxRound()	#--> 90
 
 /*-----------------------
 
@@ -278,26 +278,26 @@ o1 = new stzNumber(-123)
 /*-----------------------
 
 o1 = new stzNumber("123") 
-? o1.RoundTo(:Max)	# --> "123.000000000000"
+? o1.RoundTo(:Max)	#--> "123.000000000000"
 
 o1 = new stzNumber("123345678912345")
-? o1.RoundTo(:Max)	# --> "123345678912345"
+? o1.RoundTo(:Max)	#--> "123345678912345"
 
 /*----------------------- REVIEW
 
 o1 = new stzNumber("123.")
-? o1.RoundTo(:Max)	# --> "123.0000000000"
+? o1.RoundTo(:Max)	#--> "123.0000000000"
 
 /*-----------------------
 
 o1 = new stzNumber("12.456")
-? o1.RoundTo(:Max)	# --> 12.456
+? o1.RoundTo(:Max)	#--> 12.456
 ? o1.RoundTo(0) 	# --? "12"
-? o1.RoundTo(1) 	# --> "12.5"
-? o1.RoundTo(2) 	# --> "12.46"
-? o1.RoundTo(3) 	# --> "12.456"
-? o1.RoundTo(4)	 	# --> "12.456"
-? o1.RoundTo(5)		# --> "12.456"
+? o1.RoundTo(1) 	#--> "12.5"
+? o1.RoundTo(2) 	#--> "12.46"
+? o1.RoundTo(3) 	#--> "12.456"
+? o1.RoundTo(4)	 	#--> "12.456"
+? o1.RoundTo(5)		#--> "12.456"
 
 
 /*-----------------------

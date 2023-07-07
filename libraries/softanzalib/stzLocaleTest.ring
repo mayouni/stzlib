@@ -21,9 +21,9 @@ StzLocaleQ([ :Country = :Ttunisia ]) {
 /*---------------
 
 StzCountryQ(:palau) {
-	? Name()		# --> palau
+	? Name()		#--> palau
 
-	? LocaleAbbreviation() # --> "en-PW"
+	? LocaleAbbreviation() #--> "en-PW"
 }
 
 /*---------------
@@ -31,20 +31,20 @@ StzCountryQ(:palau) {
 o1 = new QLocale("ja-PW")
 ? o1.country() #--> 108
 
-? StzCountryQ("108").Name() # --> japan
+? StzCountryQ("108").Name() #--> japan
 
 /*---------------
 
 StzLocaleQ("ja-JP") {
-	? CountryName()		# --> japan
-	? LanguageName()	# --> japanese
+	? CountryName()		#--> japan
+	? LanguageName()	#--> japanese
 }
 
 /*---------------
 
 StzLocaleQ("en-PW") {
-	? CountryName()		# --> palau
-	? LanguageName()	# --> english
+	? CountryName()		#--> palau
+	? LanguageName()	#--> english
 }
 
 /*--------------- ERROR: returns NULL!
@@ -56,22 +56,22 @@ StzLocaleQ([ :Country = :palau ]) {
 /*---------------
 
 StzLocaleQ("fr-TN") {
-	? CountryName()		# --> tunisia
-	? LanguageName()	# --> arabic
+	? CountryName()		#--> tunisia
+	? LanguageName()	#--> arabic
 }
 
 /*----------------
 
 StzLocaleQ("ps-AF") {
-	? CountryName()		# --> afghanistan
-	? LanguageName()	# --> pashto
+	? CountryName()		#--> afghanistan
+	? LanguageName()	#--> pashto
 }
 
 /*----------------
 
 StzLocaleQ("zh-CN") {		
-	? CountryName()		# --> china
-	? LanguageName()	# --> literary_chinese
+	? CountryName()		#--> china
+	? LanguageName()	#--> literary_chinese
 }
 /*----------------
 
@@ -80,19 +80,19 @@ StzLocaleQ("zh-CN") {
 /*----------------
 
 StzCountryQ(:american_samoa) {
-	? Name()			# --> american_samoa
-	? Language()			# --> samaon
+	? Name()			#--> american_samoa
+	? Language()			#--> samaon
 
-	? LanguageAbbreviation()	# --> "sm"
-	? Abbreviation()		# --> "AS"
+	? LanguageAbbreviation()	#--> "sm"
+	? Abbreviation()		#--> "AS"
 
-	? LocaleAbbreviation()		# --> "en-AS"
+	? LocaleAbbreviation()		#--> "en-AS"
 }
 
 /*----------------
 
-? StzLocaleQ("sm-AS").Abbreviation()	# --> "C" but !--> "sm_AS"
-//? StzLocaleQ([ :Country = :american_samoa ]).Abbreviation()	# ---> "C" but !--> "sm_AS"
+? StzLocaleQ("sm-AS").Abbreviation()	#--> "C" but !--> "sm_AS"
+//? StzLocaleQ([ :Country = :american_samoa ]).Abbreviation()	#--> "C" but !--> "sm_AS"
 
 /*----------------
 
@@ -135,90 +135,90 @@ oQLocale = new QLocale("cmn-CN")
 */
 
 StzLocaleQ([ :Country = :Iran ]) {
-	? Abbreviation()			 # --> fa_IR
-	? NthDayOfWeek(1)			 # --> saturday
-	? NativeNthDayOfWeek(1) + NL		 # --> شنبه
+	? Abbreviation()			 #--> fa_IR
+	? NthDayOfWeek(1)			 #--> saturday
+	? NativeNthDayOfWeek(1) + NL		 #--> شنبه
 
-	? NthDayOfWeekAbbreviation(1)		 # --> Sat
-	? NativeNthDayOfWeekAbbreviation(1) + NL # --> دوشنبه
+	? NthDayOfWeekAbbreviation(1)		 #--> Sat
+	? NativeNthDayOfWeekAbbreviation(1) + NL #--> دوشنبه
 
-	? NthDayOfWeekSymbol(1)			 # --> S
-	? NativeNthDayOfWeekSymbol(1)		 # --> د
+	? NthDayOfWeekSymbol(1)			 #--> S
+	? NativeNthDayOfWeekSymbol(1)		 #--> د
 }
 
 /*----------------------
 
 StzLocaleQ([ :Language = :Persian ]) {
-	? Abbreviation()			 # --> fa_IR
-	? NthDayOfWeek(1)			 # --> saturday
-	? NativeNthDayOfWeek(1) + NL		 # --> شنبه
+	? Abbreviation()			 #--> fa_IR
+	? NthDayOfWeek(1)			 #--> saturday
+	? NativeNthDayOfWeek(1) + NL		 #--> شنبه
 
-	? NthDayOfWeekAbbreviation(1)		 # --> Sat
-	? NativeNthDayOfWeekAbbreviation(1) + NL # --> دوشنبه
+	? NthDayOfWeekAbbreviation(1)		 #--> Sat
+	? NativeNthDayOfWeekAbbreviation(1) + NL #--> دوشنبه
 
-	? NthDayOfWeekSymbol(1)			 # --> S
-	? NativeNthDayOfWeekSymbol(1)		 # --> د
+	? NthDayOfWeekSymbol(1)			 #--> S
+	? NativeNthDayOfWeekSymbol(1)		 #--> د
 }
 
 /*----------------------
 
 StzLocaleQ([ :Script = :Arabic ]) {
-	? Abbreviation()			 # --> ar_EG
-	? NthDayOfWeek(1)			 # --> saturday
-	? NativeNthDayOfWeek(1) + NL		 # --> السبت
+	? Abbreviation()			 #--> ar_EG
+	? NthDayOfWeek(1)			 #--> saturday
+	? NativeNthDayOfWeek(1) + NL		 #--> السبت
 
-	? NthDayOfWeekAbbreviation(1)		 # --> Sat
-	? NativeNthDayOfWeekAbbreviation(1) + NL # --> الاثنين
+	? NthDayOfWeekAbbreviation(1)		 #--> Sat
+	? NativeNthDayOfWeekAbbreviation(1) + NL #--> الاثنين
 
-	? NthDayOfWeekSymbol(1)			 # --> S
-	? NativeNthDayOfWeekSymbol(1)		 # --> ن
+	? NthDayOfWeekSymbol(1)			 #--> S
+	? NativeNthDayOfWeekSymbol(1)		 #--> ن
 }
 
 /*----------------------
 
 StzLocaleQ([ :Language = :russian, :Country = :Russia ]) {
-	? Abbreviation()			 # --> ru_RU
-	? NthDayOfWeek(1)			 # --> monday
-	? NativeNthDayOfWeek(1) + NL		 # --> понедельник
+	? Abbreviation()			 #--> ru_RU
+	? NthDayOfWeek(1)			 #--> monday
+	? NativeNthDayOfWeek(1) + NL		 #--> понедельник
 
-	? NthDayOfWeekAbbreviation(1)		 # --> Mon
-	? NativeNthDayOfWeekAbbreviation(1) + NL # --> пн
+	? NthDayOfWeekAbbreviation(1)		 #--> Mon
+	? NativeNthDayOfWeekAbbreviation(1) + NL #--> пн
 
-	? NthDayOfWeekSymbol(1)			 # --> M
-	? NativeNthDayOfWeekSymbol(1)		 # --> пн
+	? NthDayOfWeekSymbol(1)			 #--> M
+	? NativeNthDayOfWeekSymbol(1)		 #--> пн
 }
 
 /*----------------------
 
 StzLocaleQ([ :Language = :russian, :Script = :latin ]) {
-	? Abbreviation()			 # --> ru_RU
-	? NthDayOfWeek(1)			 # --> monday
-	? NativeNthDayOfWeek(1) + NL		 # --> понедельник
+	? Abbreviation()			 #--> ru_RU
+	? NthDayOfWeek(1)			 #--> monday
+	? NativeNthDayOfWeek(1) + NL		 #--> понедельник
 
-	? NthDayOfWeekAbbreviation(1)		 # --> Mon
-	? NativeNthDayOfWeekAbbreviation(1) + NL # --> пн
+	? NthDayOfWeekAbbreviation(1)		 #--> Mon
+	? NativeNthDayOfWeekAbbreviation(1) + NL #--> пн
 
-	? NthDayOfWeekSymbol(1)			 # --> M
-	? NativeNthDayOfWeekSymbol(1)		 # --> пн
+	? NthDayOfWeekSymbol(1)			 #--> M
+	? NativeNthDayOfWeekSymbol(1)		 #--> пн
 }
 
 /*----------------------
 
 StzLocaleQ([ :Script = :Latin, :Country = :Russia ]) {
-	? Abbreviation()			 # --> ru_RU		
-	? NthDayOfWeek(1)			 # --> monday
-	? NativeNthDayOfWeek(1) + NL		 # --> понедельник
+	? Abbreviation()			 #--> ru_RU		
+	? NthDayOfWeek(1)			 #--> monday
+	? NativeNthDayOfWeek(1) + NL		 #--> понедельник
 
-	? NthDayOfWeekAbbreviation(1)		 # --> Mon
-	? NativeNthDayOfWeekAbbreviation(1) + NL # --> пн
+	? NthDayOfWeekAbbreviation(1)		 #--> Mon
+	? NativeNthDayOfWeekAbbreviation(1) + NL #--> пн
 
-	? NthDayOfWeekSymbol(1)			 # --> M
-	? NativeNthDayOfWeekSymbol(1)		 # --> пн
+	? NthDayOfWeekSymbol(1)			 #--> M
+	? NativeNthDayOfWeekSymbol(1)		 #--> пн
 }
 
 /*-----------------------
 
-? Q("ar_arab_tn").ContainsNTimes(2,"_")	# --> TRUE
+? Q("ar_arab_tn").ContainsNTimes(2,"_")	#--> TRUE
 
 /*-----------------------
 
@@ -244,17 +244,17 @@ StzLocaleQ([ :Script = :Latin, :Country = :Russia ]) {
 /*-----------------------
 
 ? NamesOfDaysIn(:Persian)
-# --> [ "شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه" ]
+#--> [ "شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه" ]
 
 /*-----------------------
 
 ? NamesOfDaysIn(:Japanese)
-# --> [ "日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日" ]
+#--> [ "日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日" ]
 
 /*-----------------------
 
 ? NamesOfMonthsIn(:Japanese)
-# --> [ "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月" ]
+#--> [ "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月" ]
 
 /*----------------------- ///// TEST: returns english names!
 */
@@ -282,21 +282,21 @@ o1 = new Qlocale("fr_FR")
 /*--------------
 
 o1 = new stzLocale([ :Language = :Spanish, :Country = :Spain ])
-? o1.Abbreviation()	# --> es_ES
+? o1.Abbreviation()	#--> es_ES
 
 /*--------------
 
 o1 = new stzLocale("ar-TN")
-? o1.Abbreviation()	# --> ar_TN
+? o1.Abbreviation()	#--> ar_TN
 
 /*-------------
 
-? StringIsLanguageAbbreviation("")	# --> FALSE
+? StringIsLanguageAbbreviation("")	#--> FALSE
 
 /*-------------
 
-? StzListQ([ :Country = :Tunisia ]).IsLocaleList()	# --> TRUE
-? StzLocaleQ([ :Country = :Tunisia ]).Abbreviation()	# --> ar_TN
+? StzListQ([ :Country = :Tunisia ]).IsLocaleList()	#--> TRUE
+? StzLocaleQ([ :Country = :Tunisia ]).Abbreviation()	#--> ar_TN
 
 
 /*-------------//// functional error ////
@@ -312,7 +312,7 @@ StzLocaleQ([ :Language = :French ]) {
 
 StzStringQ("tunisian dinar") {
 	TitlecaseInLocale("fr-FR")
-	? Content()			# --> Tunisian dinar
+	? Content()			#--> Tunisian dinar
 
 	TitlecaseInLocale("en-US")	# !--> Tunisian Dinar
 	? Content()
@@ -322,22 +322,22 @@ StzStringQ("tunisian dinar") {
 */
 StzLocaleQ([ :Country = :Qatar ]) {
 
-	? CurrencyName()		# --> Qatari Riyal
-	? CurrencyNativeName()		# --> ريال قطري
-	? CurrencySymbol()		# --> ر.ق.‏
-	? CurrencyAbbreviation()	# --> QAR
-	? CurrencyFraction()		# --> Dirham
-	? CurrencyBase()		# --> 100
+	? CurrencyName()		#--> Qatari Riyal
+	? CurrencyNativeName()		#--> ريال قطري
+	? CurrencySymbol()		#--> ر.ق.‏
+	? CurrencyAbbreviation()	#--> QAR
+	? CurrencyFraction()		#--> Dirham
+	? CurrencyBase()		#--> 100
 
 }
 
 /*-------------
 
-? StzStringQ(:Ar).IsLanguageAbbreviation()	# --> TRUE
+? StzStringQ(:Ar).IsLanguageAbbreviation()	#--> TRUE
 
 /*-------------
 
-? StzLocaleQ("ar_eg").CountryPhoneCode()	# --> "+20"
+? StzLocaleQ("ar_eg").CountryPhoneCode()	#--> "+20"
 
 /*------------- ///// RETURNS NULL --> FIX //////
 
@@ -357,69 +357,69 @@ StzLocaleQ("tn") {
 
 /*-------------
 
-? StzLocaleQ("ar_Arab").CountryName()		# --> egypt
-? StzLocaleQ("ar_Arab").CountryNativeName()	# --> مصر
-StzLocaleQ("ar_Arab").LanguageName()		# --> arabic
-? StzLocaleQ("ar_Arab").LanguageNativeName()	# --> العربية
+? StzLocaleQ("ar_Arab").CountryName()		#--> egypt
+? StzLocaleQ("ar_Arab").CountryNativeName()	#--> مصر
+StzLocaleQ("ar_Arab").LanguageName()		#--> arabic
+? StzLocaleQ("ar_Arab").LanguageNativeName()	#--> العربية
 
 /*-------------
 
 StzLocaleQ("tn_ZA") {
-	? CountryName()		# --> south_africa
-	? CountryNativeName()	# --> iNingizimu Afrika
-	? LanguageName()	# --> tswana
-	? LanguageNativeName()	# --> isiZulu
+	? CountryName()		#--> south_africa
+	? CountryNativeName()	#--> iNingizimu Afrika
+	? LanguageName()	#--> tswana
+	? LanguageNativeName()	#--> isiZulu
 }
 
 /*-------------
 
 StzLocaleQ("ar_TN") {
-	? CountryName()		# --> tunisia
-	? CountryNativeName()	# --> تونس
-	? LanguageName()	# --> arabic
-	? LanguageNativeName()	# --> العربية
+	? CountryName()		#--> tunisia
+	? CountryNativeName()	#--> تونس
+	? LanguageName()	#--> arabic
+	? LanguageNativeName()	#--> العربية
 }
 
 /*-------------
 
 StzLocaleQ("fa_IR") {
-	? CountryName()		# --> iran
-	? CountryNativeName()	# --> ايران
-	? LanguageName()	# --> persian
-	? LanguageNativeName()	# --> فارسی
+	? CountryName()		#--> iran
+	? CountryNativeName()	#--> ايران
+	? LanguageName()	#--> persian
+	? LanguageNativeName()	#--> فارسی
 }
 /*-------------
 
 StzLocaleQ("ru_RU") {
-	? CountryName()		# --> russia
-	? CountryNativeName()	# --> Россия
-	? LanguageName()	# --> russian
-	? LanguageNativeName()	# --> русский
+	? CountryName()		#--> russia
+	? CountryNativeName()	#--> Россия
+	? LanguageName()	#--> russian
+	? LanguageNativeName()	#--> русский
 }
 
 /*-------------
 
 StzLocaleQ("en_US") {
-	? CountryName()		# --> united_states
-	? CountryNativeName()	# --> United States
-	? LanguageName()	# --> english
-	? LanguageNativeName()	# --> American English
+	? CountryName()		#--> united_states
+	? CountryNativeName()	#--> United States
+	? LanguageName()	#--> english
+	? LanguageNativeName()	#--> American English
 }
 
 /*-------------
 
-? StzLocaleQ([ :Country = :south_africa ]).CountryNativeName()	# --> iNingizimu Afrika
+? StzLocaleQ([ :Country = :south_africa ]).CountryNativeName()	#--> iNingizimu Afrika
 
 /*-------------
 
-? StzLocaleQ([ :Country = :Tunisia ]).CountryNumber()	# --> "216"
+? StzLocaleQ([ :Country = :Tunisia ]).CountryNumber()	#--> "216"
 
 /*-------------/////
 
 o1 = new stzLocale("fr_FR")
-? o1.ToUppercase("tunis") # --> TUNIS
-? o1.ToLowercase("tunis") # --> tunis
-? o1.ToTitlecase("tunis") # --> Tunis
+? o1.ToUppercase("tunis") #--> TUNIS
+? o1.ToLowercase("tunis") #--> tunis
+? o1.ToTitlecase("tunis") #--> Tunis
 
 /*-------------
 

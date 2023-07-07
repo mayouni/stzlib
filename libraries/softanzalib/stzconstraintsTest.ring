@@ -16,7 +16,7 @@ StzStringQ("softanza") {
 ? ConstraintRingCode(:MustBeUpperCase, :OnStzString)
 # :MustBeUpperCase contains no dynamic pars (bounded by @ and @),
 # so we return its corresponding Ring code in stzConstraintsData as is:
-# --> 'Q(@str).IsUpperCase()'
+#--> 'Q(@str).IsUpperCase()'
 
 ? ConstraintRingCode(:MustHave@8@CharsIncluding@2@Spaces)
 # :MustHave@n@Chars contains a dynamic part.

@@ -176,13 +176,13 @@ class stzChainOfTruth from stzObject
 
 		/* Examples
 
-		_(89).Is(:Number)._	# --> TRUE
-		_("G").Is(:Letter)._ 	# --> TRUE
+		_(89).Is(:Number)._	#--> TRUE
+		_("G").Is(:Letter)._ 	#--> TRUE
 
-		_("H").Is('LetterOf("HUSSEIN")')._	# --> TRUE
+		_("H").Is('LetterOf("HUSSEIN")')._	#--> TRUE
 
 		o1 = new Person
-		_(:o1).Is(:Object)	# --> TRUE
+		_(:o1).Is(:Object)	#--> TRUE
 		class Person
 		*/
 
@@ -350,7 +350,7 @@ class stzChainOfTruth from stzObject
 			cFunCode = cFuncName + '(' + FunctionParam(pThing) + ')'
 			cCode = 'bResult = _(' + ComputableForm(This.Value()) + ').@.Is' + cFunCode
 	
-			# --> Example of generated code:
+			#--> Example of generated code:
 			# bResult = _("H").@.IsLetterOf("HUSSEIN")
 
 			# Which invoques the IsLetterOf() method from stzString
@@ -681,7 +681,7 @@ class stzChainOfTruth from stzObject
 	def th(pcThing)
 		/* Example:
 	
-		_(7).nth('LetterOf("HUSSEIN")').@ 	# --> "N"
+		_(7).nth('LetterOf("HUSSEIN")').@ 	#--> "N"
 	
 		*/
 		if This._Type() = "NUMBER" and

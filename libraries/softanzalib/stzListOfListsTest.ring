@@ -639,22 +639,22 @@ o1 = new stzListOfLists([
 
 ? o1.NthList(4) 			#--> [3, 5]
 
-? @@( o1.ItemsAtPositionN(2) ) 	# --> [ 2, 5, 0, 5, 6 ]
+? @@( o1.ItemsAtPositionN(2) ) 	#--> [ 2, 5, 0, 5, 6 ]
 
-? @@( o1.ListsOfSize(2) )		# --> [ [9,0], [3,5] ]
-? o1.PositionsOfListsOfSize(2)		# --> [     3,    4  ]
+? @@( o1.ListsOfSize(2) )		#--> [ [9,0], [3,5] ]
+? o1.PositionsOfListsOfSize(2)		#--> [     3,    4  ]
 
-? @@( o1.Sizes() )			# --> [ 3, 5, 2, 2, 3 ]
-? o1.SmallestSize()			# --> 2
-? o1.BiggestSize()			# --> 5
-? @@( o1.SmallestLists() )		# --> [ [9,0], [3,5] ]
+? @@( o1.Sizes() )			#--> [ 3, 5, 2, 2, 3 ]
+? o1.SmallestSize()			#--> 2
+? o1.BiggestSize()			#--> 5
+? @@( o1.SmallestLists() )		#--> [ [9,0], [3,5] ]
 
-? o1.PositionsOfSmallestLists()		# --> [ 3, 4 ]
+? o1.PositionsOfSmallestLists()		#--> [ 3, 4 ]
 
 ? @@( o1.ListsW('Q(@list).Size() <= 3') )
-# --> [ [ 1, 2, 3 ], [ 9, 0 ], [ 3, 5 ], [ 5, 6, 7 ] ]
+#--> [ [ 1, 2, 3 ], [ 9, 0 ], [ 3, 5 ], [ 5, 6, 7 ] ]
 
-? @@( o1.Yield('{ len(@list) }') ) 	# --> [ 3, 5, 2, 2, 3 ]
+? @@( o1.Yield('{ len(@list) }') ) 	#--> [ 3, 5, 2, 2, 3 ]
 
 //? ElapsedTime()
 

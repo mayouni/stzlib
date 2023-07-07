@@ -485,8 +485,8 @@ func StzRaise(paMessage)
 
 # Wrappers to ring functions, that we use inside a softanza class
 # where the same name is needed (example: insert() inside stzString)
-# --> This will allow us to avoid conflicts!
-# --> For you as a Ring programmer, this won't alter you Ring experience
+#--> This will allow us to avoid conflicts!
+#--> For you as a Ring programmer, this won't alter you Ring experience
 #     when you want to use natibe Ring form. But if you are inside a
 #     softanza object, then the softanza version will apply, unless you
 #     you for the Ring's version using ring_...()

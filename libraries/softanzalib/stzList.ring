@@ -1708,7 +1708,7 @@ class stzList from stzObject
 			? Content()
 
 		}
-		# --> [ "#1", "#2", "#1", "#2", "#1" ]
+		#--> [ "#1", "#2", "#1", "#2", "#1" ]
 		*/
 
 		if isList(paOtherItems) and
@@ -2655,13 +2655,13 @@ class stzList from stzObject
 
 			o1 = new stzList([ "ONE", "two" ])
 			o1.ReplaceItemAtPosition(2, :With = "TWO")
-			? o1.Content	# --> [ "ONE", "TWO" ]
+			? o1.Content	#--> [ "ONE", "TWO" ]
 
 		Example 2:
 
 			o1 = new stzList([ "A", "b", "C" ])
 			o1.ReplaceItemAtPosition(2, :With@ = "upper(@item)")
-			? o1.Content()	# --> [ "A", "B", "C" ]
+			? o1.Content()	#--> [ "A", "B", "C" ]
 		*/
 
 		if NOT Q(n).IsNumberOrString()
@@ -4353,7 +4353,7 @@ class stzList from stzObject
 
 		StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 			RemovePreviousNthOccurrences([2, 3], :of = "A", :StartingAt = 5)
-			? Content() # --> [ "A" , "B", "C", "D", "A" ]
+			? Content() #--> [ "A" , "B", "C", "D", "A" ]
 		}		
 
 		*/
@@ -5086,7 +5086,7 @@ class stzList from stzObject
 		o1.RemoveAllItemsW(:Where = '{ StzCharQ(@item).IsANumber() }')
 		? o1.Content()
 
-		# --> Gives: [ "a", "b", "c" ]
+		#--> Gives: [ "a", "b", "c" ]
 		*/
 
 		# Checking the provided param for the pCondition
@@ -6430,7 +6430,7 @@ class stzList from stzObject
 	def IsListOf(pcType)
 		/* EXAMPLES
 
-			Q([ 1, 2, 3 ]).IsListOf(:Number)	# --> TRUE
+			Q([ 1, 2, 3 ]).IsListOf(:Number)	#--> TRUE
 
 			pcType should be a string containing the name of:
 				- a string containing one of the 4 Ring types (given by RingTypes() )
@@ -7312,7 +7312,7 @@ class stzList from stzObject
 		o1 = new stzList([ 1, "A", 3, "B", "_", 6 ])
 
 		? WalkWhere("isNumber(@item)")
-		# --> [1, 3, 6]
+		#--> [1, 3, 6]
 		*/
 
 		# Checking params
@@ -7424,17 +7424,17 @@ class stzList from stzObject
 		/*
 		[ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]
 
-		WalkUntil("@item = 'D'", :Return = :WalkedPositions  )  # --> 1:5
-		WalkUntil("@item = 'D'", :Return = :LastPosition )  # --> 5
+		WalkUntil("@item = 'D'", :Return = :WalkedPositions  )  #--> 1:5
+		WalkUntil("@item = 'D'", :Return = :LastPosition )  #--> 5
 
 		WalkUntil("@item = 'D'", :Return = :WalkedItems )
-		# --> [ "A", "B", 12, "C", "D" ]
+		#--> [ "A", "B", 12, "C", "D" ]
 
-		WalkUntil("@item = 'D'", :Return = :LastItem ) # --> "D"
+		WalkUntil("@item = 'D'", :Return = :LastItem ) #--> "D"
 
 
-		WalkUntil("isNumber(@item)") # --> 1:3
-		WalkUntil("isNumber(@item) and @item > 20") # --> 1:9
+		WalkUntil("isNumber(@item)") #--> 1:3
+		WalkUntil("isNumber(@item) and @item > 20") #--> 1:9
 		*/
 
 		bWalkBefore = FALSE
@@ -7552,7 +7552,7 @@ class stzList from stzObject
 		o1 = new stzList([ "A", "B", "_", "*", 12, "C", "D", 4 ])
 
 		? WalkWhile("Q(@item).IsNotNumber()")
-		# --> 1:4
+		#--> 1:4
 		*/
 
 		# Checking params
@@ -11225,7 +11225,7 @@ class stzList from stzObject
 		o1.Perform('{ @item += " is a " + aWhatIs[@item] }')
 		
 		? o1.Content()
-		# ---> [ "Ring is a programming language", "Softanza is a Ring library", "Qt is a C++ framework" ]
+		#--> [ "Ring is a programming language", "Softanza is a Ring library", "Qt is a C++ framework" ]
 
 		*/
 
@@ -17978,7 +17978,7 @@ class stzList from stzObject
 		/*
 		o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 		? o1.FindMany([ :one, :two, :four ])
-		# --> [ 1, 2, 3, 5, 6 ]
+		#--> [ 1, 2, 3, 5, 6 ]
 		*/
 
 		aResult = []
@@ -18040,7 +18040,7 @@ class stzList from stzObject
 		/*
 		o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 		? o1.FindManyXT([ :one, :two, :four ])
-		# --> [ :one = [1, 3, 5], :two = [2], :three = [6] ]
+		#--> [ :one = [1, 3, 5], :two = [2], :three = [6] ]
 		*/
 
 		aResult = []
@@ -19943,13 +19943,13 @@ class stzList from stzObject
 		o1 = new stzList([ "A", "m", "n", "B", "A", "x", "C", "z", "B" ])
 		
 		? o1.ItemsW('Q(@item).IsUppercase()')
-		# --> [ "A", "B", "A", "C", "B" ]
+		#--> [ "A", "B", "A", "C", "B" ]
 		
 		? o1.ItemsPositionsW('Q(@item).IsUppercase()') # Say also o1.FindItemsW(...)
-		# --> [ 1, 4, 5, 7, 9 ]
+		#--> [ 1, 4, 5, 7, 9 ]
 		
 		? o1.ItemsAndTheirPositionsW('Q(@item).IsUppercase()')
-		# --> [ "A" = [1, 5], "B" = [4, 9], "C" = [7] ]
+		#--> [ "A" = [1, 5], "B" = [4, 9], "C" = [7] ]
 		*/
 
 		aItems = This.ItemsW(pcCondition)
@@ -23302,18 +23302,6 @@ class stzList from stzObject
 		def ToCodeQ()
 			return new stzString(This.ToCode())
 
-	def ToCodeSimplified()
-		return This.ToCodeQ().Simplified()
-
-		return This.ToCodeSimplifiedQ()
-			return new stzString( This.ToCodeSimplified() )
-
-		def ToCodeSF()
-			return This.ToCodeSimplified()
-
-			def ToCodeSFQ()
-				return This.ToCodeSimplified()
-
 	  #------------------------------------------------------------------#
 	 #  STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BECOME STRINGS)  #
 	#------------------------------------------------------------------#
@@ -24136,7 +24124,7 @@ class stzList from stzObject
 			:CaseSensitive, :CS ])
 			# NOTE: I've decided to keep CS as a suffix in the function
 			# name and never use it as an internal option...
-			# --> more simple mental model to keep things memprable
+			#--> more simple mental model to keep things memprable
 
 			if This.ToStzHashList().
 				KeysQR(:stzListOfStrings).

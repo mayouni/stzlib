@@ -28,7 +28,7 @@
 	This may generate a loss of precision like in the following example:
 
 	o1 = new stzNumber(12.234)
-	? o1.Content() # --> "12.23" # if the current round was left at its
+	? o1.Content() #--> "12.23" # if the current round was left at its
 				     # default Ring value or has been set
 				     # explicitly to decimals(2)
 
@@ -36,7 +36,7 @@
 	class is made), you should provide a number in string like this:
 
 	o1 = new stzNumber("12.234")
-	? o1.Content() # --> "12.234"
+	? o1.Content() #--> "12.234"
 
 	 NOTE
 	------
@@ -823,7 +823,7 @@ func Number@(n)	# TODO: Check if it's orphelin and, if so, remove it!
 class stzNumber from stzObject
 
 	@cNumber = ""
-	# --> Holds the number WITHOUT eventual
+	#--> Holds the number WITHOUT eventual
 	# underscores introduced by the user!
 
 	  #------------#
@@ -1823,7 +1823,7 @@ class stzNumber from stzObject
 	def UnifyRoundWithXT(pOtherNumber, pcRoundTo)	# :toGreatest :toSmallest
 	# Unify the round of two numbers (the main number and an other one
 	# that is provided) to their greatest or smallest round
-	# --> Returns a list like  the following:
+	#--> Returns a list like  the following:
 	# 
 	# 	[ :cMainNumberRounded  = ... ,
 	# 	  :cOtherNumberRounded = ... ,
@@ -4017,7 +4017,7 @@ class stzNumber from stzObject
 		# other mathematic operations (sin, cos, tan, log...) in
 		# a round-independent way:
 
-		# --> Whatever the active round defined by decimals() is,
+		#--> Whatever the active round defined by decimals() is,
 		# the result is always returned in a string containing the
 		# effective number of the decimals.
 	
@@ -4117,7 +4117,7 @@ class stzNumber from stzObject
 			nResult = 1 / n1
 
 		# Special case: the result is a list of integers!
-		# --> Nothing to round: return the list of factors directly
+		#--> Nothing to round: return the list of factors directly
 		on "factors"
 			return ring_factors(n1)		
 

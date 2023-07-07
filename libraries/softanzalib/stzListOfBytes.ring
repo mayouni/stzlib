@@ -310,7 +310,7 @@ class stzListOfBytes from stzObject
 		next i
 		return aResult
 
-	def NumberOfBytesPerChar() # ---> stzString domain
+	def NumberOfBytesPerChar() #--> stzString domain
 		/* Exp:
 			o1 = new stzListOfBytes("s㊱m")
 			? o2.NumberOfBytesPerChar()
@@ -327,11 +327,11 @@ class stzListOfBytes from stzObject
 
 		return aResult
 
-	def NumberOfBytesInNthChar(n) # ---> stzChar domain
+	def NumberOfBytesInNthChar(n) #--> stzChar domain
 
 		return This.NumberOfBytesPerChar()[n][2]
 
-	def NumberOfBytesInChar(pcCaract) # ---> stzChar domain
+	def NumberOfBytesInChar(pcCaract) #--> stzChar domain
 		return This.NumberOfBytesPerChar()[pcCaract]
 
 	// Sets each byte in the list of bytes using the provided ascii character

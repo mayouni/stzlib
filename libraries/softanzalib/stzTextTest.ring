@@ -7,7 +7,7 @@ str = "Пи++е́тو**שָׁ ب d ("
 #--> [ "П", "и", "+", "+", "е", "́", "т", "و", "*", "*", "ש", "ָ", "ׁ", " ", "ب", " ", "d", " ", "(" ]
 
 ? @@( TQ(str).Letters() ) # Uses stzText
-# --> [ "П", "и", "е", "т", "و", "ש", "ب", "d" ]
+#--> [ "П", "и", "е", "т", "و", "ש", "ب", "d" ]
 
 /*========================
 
@@ -63,21 +63,21 @@ txt = "مودّتي"
 
 /*------------------
 
-? StzStringQ("和平").Script() # --> :Han
+? StzStringQ("和平").Script() #--> :Han
 
-? StzStringQ("和平 210").Script() # --> :Han
-? StzStringQ("和平 210").Scripts() # --> [ :Han, :Common ]
+? StzStringQ("和平 210").Script() #--> :Han
+? StzStringQ("和平 210").Scripts() #--> [ :Han, :Common ]
 
-? StzStringQ("和平 is 'peace' in chineese!").Script() # --> :Hybrid
-? StzStringQ("和平 is 'peace' in chineese!").Scripts() # --> [ :Han, :Common, :Latin ]
-# --> Returns :Hybrid
+? StzStringQ("和平 is 'peace' in chineese!").Script() #--> :Hybrid
+? StzStringQ("和平 is 'peace' in chineese!").Scripts() #--> [ :Han, :Common, :Latin ]
+#--> Returns :Hybrid
 
 /*------------------
 
-? StzStringQ("سلام").ScriptIs(:Arabic) # --> TRUE
-? StzStringQ("Peace").ScriptIs(:Latin) # --> TRUE
-? StzStringQ("和平").ScriptIs(:Han) # --> TRUE (China)
-? StzStringQ("શાંતિ").ScriptIs(:Gujarati) # --> TRUE (India, Pakistan)
+? StzStringQ("سلام").ScriptIs(:Arabic) #--> TRUE
+? StzStringQ("Peace").ScriptIs(:Latin) #--> TRUE
+? StzStringQ("和平").ScriptIs(:Han) #--> TRUE (China)
+? StzStringQ("શાંતિ").ScriptIs(:Gujarati) #--> TRUE (India, Pakistan)
 
 /*--------------------
 
@@ -87,11 +87,11 @@ txt = "مودّتي"
 # The word contains some letters and diacritics
 # Let's see what is the script of one letter
 
-? StzStringQ("س").Script() # --> :Arabic
+? StzStringQ("س").Script() #--> :Arabic
 
 # And what is the script of a diacritic, the Fat7ah
 # for example (the small line above the letter سَـ
-? StzStringQ(ArabicFat7ah()).Script() # --> :Inherited
+? StzStringQ(ArabicFat7ah()).Script() #--> :Inherited
 
 # In fact, Unicode considers it as an inherited script
 # because it inherits is script from a previous char.
@@ -102,13 +102,13 @@ txt = "مودّتي"
 # makes no mistaks (and corrects Unicode in this regard)
 # and says it is an arabic script
 
-? StzStringQ("سَلَامُُ").Script() # --> :Arabic
+? StzStringQ("سَلَامُُ").Script() #--> :Arabic
 
 # And even if you include some chars belonging to
 # :Common script, like space for example, the result
 # is as expected, an :Arabic script
-? StzStringQ("السَّلَامُ عَلَيْكُمْ").Script() # --> :Arabic
-? StzStringQ("السلام عليكم").Script() # --> :Arabic
+? StzStringQ("السَّلَامُ عَلَيْكُمْ").Script() #--> :Arabic
+? StzStringQ("السلام عليكم").Script() #--> :Arabic
 
 /*--------------------
 
@@ -123,14 +123,14 @@ txt = "مودّتي"
 
 /*-------------------
 
-? StzStringQ(" 4  ُ  ").Scripts() # --> [ :Common, :Inherited ]
-? StzStringQ(" 4  ُ  ").Script()	 # --> :Inherited
+? StzStringQ(" 4  ُ  ").Scripts() #--> [ :Common, :Inherited ]
+? StzStringQ(" 4  ُ  ").Script()	 #--> :Inherited
 
 /*-------------------
 
-? StzStringQ(" 4  ُ  ").IsScript(:Hybrid) # --> TRUE
-? StzStringQ("  ").IsScript(:Common) # --> TRUE
-? StzStringQ(ArabicDhammah()).IsScript(:Inherited) # --> TRUE
+? StzStringQ(" 4  ُ  ").IsScript(:Hybrid) #--> TRUE
+? StzStringQ("  ").IsScript(:Common) #--> TRUE
+? StzStringQ(ArabicDhammah()).IsScript(:Inherited) #--> TRUE
 
 /*-------------------
 
@@ -152,10 +152,10 @@ o1 = new stzString("Abc285XY&من")
 StzTextQ("Programming Without Code Technology") {
 
 	? Initials()
-	# --> [ "P", "W", "C", "T" ]
+	#--> [ "P", "W", "C", "T" ]
 
 	? InitialsAsString()
-	# --> PWCT
+	#--> PWCT
 
 	# Or you can return any type you need using the QR() construct:
 	? InitialsQR(:stzString).Content()
@@ -170,17 +170,17 @@ Well.. there is a set of supplemental “Punctuation” in Unicode.
 
 StzTextQ(str) {
 
-	? NumberOfPunctuations() # --> 12
-	? Punctuations() # --> [ "“", "”", "!", ";", ",", "?", "!", ":", "”", "." ]
+	? NumberOfPunctuations() #--> 12
+	? Punctuations() #--> [ "“", "”", "!", ";", ",", "?", "!", ":", "”", "." ]
 
-	? NumberOfUniquePunctuations() # --> 7
-	? UniquePunctuations() # --> [ "“", "”", "!", ";", ",", "?", "." ]
+	? NumberOfUniquePunctuations() #--> 7
+	? UniquePunctuations() #--> [ "“", "”", "!", ";", ",", "?", "." ]
 
-	? NumberOfGeneralPunctuations() # --> 4
-	? GeneralPunctuations() # --> [ "“", "”", "“", "”" ]
+	? NumberOfGeneralPunctuations() #--> 4
+	? GeneralPunctuations() #--> [ "“", "”", "“", "”" ]
 
-	? NumberOfSupplementalPunctuations() # --> 0
-	? SupplementalPunctuations() # --> [ ]
+	? NumberOfSupplementalPunctuations() #--> 0
+	? SupplementalPunctuations() #--> [ ]
 
 }
 
@@ -192,17 +192,17 @@ str = "
 
 StzTextQ(str) {
 
-	? NumberOfPunctuations() # --> 8
-	? Punctuations() # --> [ "،","؟","؟","!",":",".",".","." ]
+	? NumberOfPunctuations() #--> 8
+	? Punctuations() #--> [ "،","؟","؟","!",":",".",".","." ]
 
-	? NumberOfUniquePunctuations() # --> 5
-	? UniquePunctuations() # --> [ "،","؟","!",":","." ]
+	? NumberOfUniquePunctuations() #--> 5
+	? UniquePunctuations() #--> [ "،","؟","!",":","." ]
 
-	? NumberOfGeneralPunctuations() # --> 0
-	? GeneralPunctuations() # --> [ ]
+	? NumberOfGeneralPunctuations() #--> 0
+	? GeneralPunctuations() #--> [ ]
 
-	? NumberOfSupplementalPunctuations() # --> 0
-	? SupplementalPunctuations() # --> [ ]
+	? NumberOfSupplementalPunctuations() #--> 0
+	? SupplementalPunctuations() #--> [ ]
 
 }
 
@@ -221,22 +221,22 @@ StzTextQ(str) {
 # Softanza makes its best to accurately identify words inside a string.
 
 //? StzTextQ("Softanza: playing with words!!").Words()
-# --> [ :softanza, :playing, :with, :words, 1001, times ]
+#--> [ :softanza, :playing, :with, :words, 1001, times ]
 
 # Or even more complex string like this:
 
 //? StzTextQ('Softanza: "playing" with words 1001 times!!').Words()
-# --> [ :softanza, :playing, :with, :words, 1001, times ]
+#--> [ :softanza, :playing, :with, :words, 1001, times ]
 
 # And you can avoid some words like this:
 //? StzTextQ('Softanza: "playing" with words 1001 times!!').WordsExcept([ "with", "1001" ])
-# --> [ :softanza, :playing, :words, times ]
+#--> [ :softanza, :playing, :words, times ]
 
 # For a given language (english by default), you can avoid stop-words alltogether:
 
 StopWordsMustBeRemoved()
 ? StzTextQ('Softanza: "playing" with words 1001 times!!').Words()
-# --> [ :softanza, :playing, :words, 1001, times ]
+#--> [ :softanza, :playing, :words, 1001, times ]
 
 # Note that :with has been removed from the output. That's because
 # it figures in the EnglisgStopWords() list defined by default
@@ -249,7 +249,7 @@ StopWordsMustBeRemoved()
 
 StopWordsMustNotBeRemoved()
 ? StzTextQ('Softanza: "playing" with words 1001 times!!').Words()
-# --> [ :softanza, :playing, :words, :with, 1001, times ]
+#--> [ :softanza, :playing, :words, :with, 1001, times ]
 
 # and you can see the word :with in the output again.
 
@@ -263,12 +263,12 @@ StopWordsMustNotBeRemoved()
 IdentifiyWordsInQuickMode()
 
 str = StzStringQ('').FromURL("https://ring-lang.github.io/doc1.16/qt.html")
-? StzTextQ(str).Words() # --> [ ... ]
+? StzTextQ(str).Words() #--> [ ... ]
 
 # Quiet quick, isn't it? But if we say:
 
 IdentifyWordsInStrictMode()
-? StzTextQ(str).Words() # --> [ ... ]
+? StzTextQ(str).Words() #--> [ ... ]
 
 # Then you will get a more accurate result but takes mutch more time!
 
@@ -352,7 +352,7 @@ StzTextQ("mahmoud, ahmed, mohamed, Mahmoud, mahmoud, ahmed.") {
 		:Except = [],
 		:StopWords = :MustNotBeRemoved
 	])
-	# --> "#1, #2, #3, #4, #5, #6."
+	#--> "#1, #2, #3, #4, #5, #6."
 }
 
 /*------------
@@ -384,41 +384,41 @@ Second son of John second is William second."
 
 StzTextQ(cText) {
 ? "#1"
-	? NumberOfWords() # --> 15
-	? UniqueWords()	# --> [ "john", "is", "the", "son", "of", "second", "william" ]
+	? NumberOfWords() #--> 15
+	? UniqueWords()	#--> [ "john", "is", "the", "son", "of", "second", "william" ]
 ? "#2"
 	? WordsAndTheirFrequencies()
-	# --> [ [ "john", 0.20 ], [ "is", 0.13 ], [ "the", 0.07 ],
+	#--> [ [ "john", 0.20 ], [ "is", 0.13 ], [ "the", 0.07 ],
 	# 	[ "son", 0.13 ], [ "of", 0.13 ], [ "second", 0.20 ],
 	# 	[ "william", 0.27 ] ]
 	#     ]
 ? "#3"
 	? UniqueWordsFrequencies()
-	# --> [ 0.20, 0.13, 0.07, 0.13, 0.13, 0.27, 0.07 ]
+	#--> [ 0.20, 0.13, 0.07, 0.13, 0.13, 0.27, 0.07 ]
 ? "#4"
-	? WordFrequency(:son)		# --> 0.13
-	? WordAndItsFrequency(:son) 	# --> [ :son, 0.13 ]
+	? WordFrequency(:son)		#--> 0.13
+	? WordAndItsFrequency(:son) 	#--> [ :son, 0.13 ]
 ? "#5"
 	? TheseWordsFrequencies([ :son, :second, :john ])
-	# --> [ 0.13, 0.27, 0.20 ]
+	#--> [ 0.13, 0.27, 0.20 ]
 ? "#6"
 	? TheseWordsAndTheirFrequencies([ :son, :second, :john ])
-	# --> [ :son = 0.13, :second = 0.27, :john = 0.20 ]
+	#--> [ :son = 0.13, :second = 0.27, :john = 0.20 ]
 ? "#7"
 	? WordsHavingThisFrequency(0.13)
-	# --> [ "is", "son", "of" ]
+	#--> [ "is", "son", "of" ]
 ? "#8"
 	? WordsHavingTheseFrequencies([ 0.13, 0.20 ])
-	# --> [ "is", "son", "of", "john", "second" ]
+	#--> [ "is", "son", "of", "john", "second" ]
 ? "#9"
 	? FequenciesAndTheirWords([ 0.13, 0.20 ])
-	# --> [ "0.13" = [ "is", "son", "of" ], "0.20" = [ "john", "second" ] ]
+	#--> [ "0.13" = [ "is", "son", "of" ], "0.20" = [ "john", "second" ] ]
  ? "#10"
-	? NMostFrequentWords(3) # --> [ "william", "john", "second" ]
+	? NMostFrequentWords(3) #--> [ "william", "john", "second" ]
 	# You can also say ? Top3FrequentWords()
 ? "#11"
 	? NMostFrequentWordsAndTheirFrequencies(3)
-	# --> [ "william" = 0.27, "john" = 0.20, "second" = 0.20 ]
+	#--> [ "william" = 0.27, "john" = 0.20, "second" = 0.20 ]
 
 }
 
@@ -431,68 +431,68 @@ StopWordsMustBeRemoved()
 
 StzTextQ(cText) {
 ? "#1"
-	? NumberOfWords() # --> 6
-	? UniqueWords()	# --> [ "john", "son", "william" ]
+	? NumberOfWords() #--> 6
+	? UniqueWords()	#--> [ "john", "son", "william" ]
 ? "#2"
 	? WordsAndTheirFrequencies()
-	# --> [ [ "john", 0.50 ], [ "son", 0.33 ], [ "william", 0.50 ] ]
+	#--> [ [ "john", 0.50 ], [ "son", 0.33 ], [ "william", 0.50 ] ]
 	#     ]
 ? "#3"
 	? UniqueWordsFrequencies()
-	# --> [ 0.50, 0.33, 0.17 ] ERROR in 0.17?
+	#--> [ 0.50, 0.33, 0.17 ] ERROR in 0.17?
 ? "#4"
-	? WordFrequency(:son)		# --> 0.33
-	? WordAndItsFrequency(:son) 	# --> [ :son, 0.33 ]
+	? WordFrequency(:son)		#--> 0.33
+	? WordAndItsFrequency(:son) 	#--> [ :son, 0.33 ]
 ? "#5"
 	? TheseWordsFrequencies([ :son, :second, :john ])
-	# --> [ 0.33, 0.67, 0.50 ] !!!!! ERROR : second is a stopword, shouldnt be counted
+	#--> [ 0.33, 0.67, 0.50 ] !!!!! ERROR : second is a stopword, shouldnt be counted
 ? "#6"
 	? TheseWordsAndTheirFrequencies([ :son, :second, :john ])
-	# --> [ :son = 0.33, :second = 0.67, :john = 0.50 ]
+	#--> [ :son = 0.33, :second = 0.67, :john = 0.50 ]
 ? "#7"
 	? WordsHavingThisFrequency(0.50)
-	# --> [ "john", "william" ]
+	#--> [ "john", "william" ]
 ? "#8"
 	? WordsHavingTheseFrequencies([ 0.50, 0.67 ]) # change to [ 0.50, 0.33 ]
 	# !--> [ "john", "william", "son" ]
 ? "#9"
 	? FequenciesAndTheirWords([ 0.50, 0.67 ])
-	# --> ERROR
+	#--> ERROR
  ? "#10"
-	? NMostFrequentWords(2) # --> [ "william", "john" ]
+	? NMostFrequentWords(2) #--> [ "william", "john" ]
 	# You can also say ? Top3FrequentWords()
 ? "#11"
 	? NMostFrequentWordsAndTheirFrequencies(2)
-	# --> [ "john" = 0.50, "william" = 0.50 ]
+	#--> [ "john" = 0.50, "william" = 0.50 ]
 
 }
 
 /*----------------------
 
 # ? StopWordsIn(:english)
-? Q("that").IsStopWordIn(:english) # --> TRUE
+? Q("that").IsStopWordIn(:english) #--> TRUE
 
 # ? StopWordsIn(:arabic)
-? Q("في").IsStopWordIn(:arabic) # --> TRUE
+? Q("في").IsStopWordIn(:arabic) #--> TRUE
 
-? Q("that").IsStopWord() # --> TRUE
-? Q("في").IsStopWord() # --> TRUE
-
-/*----------------------
-
-? Q("that").LanguageIfStopWord() 	# --> :English
-? Q("في").LanguageIfStopWord() 		# --> :Arabic
+? Q("that").IsStopWord() #--> TRUE
+? Q("في").IsStopWord() #--> TRUE
 
 /*----------------------
 
-? StzTextQ("Kırşehir").DiacriticsRemoved() # --> "Kirsehir" / Turkish
-? StzTextQ("Þingvellir").DiacriticsRemoved() # --> "Pingvellir" / Iceland
-? stzTextQ("Malmö").DiacriticsRemoved() # --> "Malmo"	/ Swidesh
+? Q("that").LanguageIfStopWord() 	#--> :English
+? Q("في").LanguageIfStopWord() 		#--> :Arabic
+
+/*----------------------
+
+? StzTextQ("Kırşehir").DiacriticsRemoved() #--> "Kirsehir" / Turkish
+? StzTextQ("Þingvellir").DiacriticsRemoved() #--> "Pingvellir" / Iceland
+? stzTextQ("Malmö").DiacriticsRemoved() #--> "Malmo"	/ Swidesh
 
 /*----------------- ///// ERRROR /////
 
 # When you try to remove the diacritics of the german word "München"
-? StzTextgQ("München").DiacriticsRemoved() # --> "Munchen"
+? StzTextgQ("München").DiacriticsRemoved() #--> "Munchen"
 
 # Softanza tries its best and returns "Munchen".
 
@@ -516,10 +516,10 @@ o1 = new stzText("A la recherche du temps perdu")
 
 StzTextQ( "Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl !" ) {
 	? OnlyArabic()
-	# --> Returns: "حنين جميلة وعمرها 7 سنوات !"
+	#--> Returns: "حنين جميلة وعمرها 7 سنوات !"
 
 	? OnlyLatin()
-	# --> Returns: "Hanine is a nice 7 years-old girl!"
+	#--> Returns: "Hanine is a nice 7 years-old girl!"
 }
 
 

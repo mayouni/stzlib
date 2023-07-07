@@ -554,7 +554,7 @@ o1 = new stzString("A")
 /*=================
 
 ? ComputableForm(4) # or use the abbreviated form @@(4)
-# --> 4
+#--> 4
 
 ? ComputableForm("Ring")
 #--> "Ring"
@@ -575,20 +575,20 @@ o1 = new stzString("A")
 
 	StartProfiler()
 	
-	? "۰" = "٠"	# --> FALSE
-	? "۱" = "١"	# --> FALSE
-	? "۲" = "٢"	# --> FALSE
-	? "۳" = "٣"	# --> FALSE
-	? "۸" = "٨"	# --> FALSE		
-	? "۹" = "٩"	# --> FALSE
+	? "۰" = "٠"	#--> FALSE
+	? "۱" = "١"	#--> FALSE
+	? "۲" = "٢"	#--> FALSE
+	? "۳" = "٣"	#--> FALSE
+	? "۸" = "٨"	#--> FALSE		
+	? "۹" = "٩"	#--> FALSE
 	? ""
-	? Unicode("۱")	# --> 1777
-	? Unicode("١")	# --> 1633
+	? Unicode("۱")	#--> 1777
+	? Unicode("١")	#--> 1633
 	? ""
-	? AreEqual([ "O", "Ο", "О" ]) # --> FALSE
+	? AreEqual([ "O", "Ο", "О" ]) #--> FALSE
 	? ""
-	? Unicodes([ "O", "Ο", "О" ]) # --> [ 79, 927, 1054 ]
-	? Scripts([ "O", "Ο", "О" ]) # --> [ :Latin, :Greek, :Cyrillic ]
+	? Unicodes([ "O", "Ο", "О" ]) #--> [ 79, 927, 1054 ]
+	? Scripts([ "O", "Ο", "О" ]) #--> [ :Latin, :Greek, :Cyrillic ]
 	
 	StopProfiler()
 

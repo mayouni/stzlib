@@ -38,7 +38,7 @@ class stzWalker from stzList
 	@cName
 	@nStartPosition
 	@nEndPosition
-	@nStep	# --> Number of positions walked in one step
+	@nStep	#--> Number of positions walked in one step
 
 	@anWalkedPositions = []
 
@@ -282,10 +282,10 @@ class stzWalker from stzList
 		/*
 		StzWalkerQ([ :StartingAt = 1, :EndingAt = 8, :Step = 2 ]) {
 			? WalkedPositions()
-			# --> [ 1, 3, 5, 8, 10 ]
+			#--> [ 1, 3, 5, 8, 10 ]
 
 			? Steps()
-			# --> [ 1:3, 3:5, 5:8, 8:10 ]
+			#--> [ 1:3, 3:5, 5:8, 8:10 ]
 		}
 
 		*/

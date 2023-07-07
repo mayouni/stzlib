@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-? StopWords() # --> All stopwords concatenated in one list
+? StopWords() #--> All stopwords concatenated in one list
 
-? StopWordLanguage("my") # --> :English
-? StopWordLanguage("لو") # --> :Arabic
+? StopWordLanguage("my") #--> :English
+? StopWordLanguage("لو") #--> :Arabic

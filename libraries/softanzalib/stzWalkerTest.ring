@@ -5,19 +5,19 @@ load "stzlib.ring"
 o1 = new stzWalker([])
 
 o1 {
-	? Name() # --> :Walker0
+	? Name() #--> :Walker0
 
-	? NumberOfPositions() # --> 2
+	? NumberOfPositions() #--> 2
 
-	? StartPosition() # --> 1
-	? EndPosition() # --> 2
+	? StartPosition() #--> 1
+	? EndPosition() #--> 2
 
-	? NStep() # --> 1	
+	? NStep() #--> 1	
 
-	? Positions() # --> [ 1, 2 ]
+	? Positions() #--> [ 1, 2 ]
 
-	? WalkedPositions() # --> [ 1, 2 ]
-	? UnwalkedPositions() # --> [ 1, 2 ]
+	? WalkedPositions() #--> [ 1, 2 ]
+	? UnwalkedPositions() #--> [ 1, 2 ]
 
 }
 
@@ -30,31 +30,31 @@ o1 {
 # positions per step, like this:
 
 oWalker = new stzWalker([ :Direction = :Forward, :StartingAt = 1, :EndingAt = 8, :Step = 2 ])
-? oWalker.Positions() # --> [ 1, 3, 5, 8 ]
+? oWalker.Positions() #--> [ 1, 3, 5, 8 ]
 /*
 # Now, if you do not provide a paramter, Softanza gives a default value to it:
 
 oWalker = new stzWalker([ :EndingAt = 8, :Jump = 2 ])
-? oWalker.Positions() # --> [ 1, 3, 5, 8 ]
-? oWalker.StartingPosition() # --> 1	(Set automatically by Softanza)
+? oWalker.Positions() #--> [ 1, 3, 5, 8 ]
+? oWalker.StartingPosition() #--> 1	(Set automatically by Softanza)
 
 oWalker = new stzWalker([ :EndingAt = 8 ])
-? oWalker.Positions() # --> [ 1, 2, 3, 4, 5, 6, 7, 8 ]
-? oWalker.StartingPosition() 	# --> 1	(Set automatically by Softanza)
-? oWalker.Jump() 		# --> 1 (Idem)
+? oWalker.Positions() #--> [ 1, 2, 3, 4, 5, 6, 7, 8 ]
+? oWalker.StartingPosition() 	#--> 1	(Set automatically by Softanza)
+? oWalker.Jump() 		#--> 1 (Idem)
 
 # Even when, you provide a large value for a param, Softanza corrects it
 oWalker = new stzWalker([ :StartingAt = 1, :EndingAt = 8, :Jump = 32 ])
-? oWalker.Positions() 	# --> [ 1, 2, 3, 4, 5, 6, 7, 8 ]
-? oWalker.Jump() 	# --> 1	(Set automatically by Softanza)
+? oWalker.Positions() 	#--> [ 1, 2, 3, 4, 5, 6, 7, 8 ]
+? oWalker.Jump() 	#--> 1	(Set automatically by Softanza)
 
 # When nothing is provided, a "hanicaped" walker is created:
 
 oWalker = new stzWalker([])
-? oWalker.Positions() # --> [ 1 ]
-? oWalker.StartingPosition() # --> 1	(Given automatically by Softanza)
-? oWalker.EndPosition() # --> 1		(Idem)
-? oWalker.Jump() # --> 0 (Can't walk)	(Idem)
+? oWalker.Positions() #--> [ 1 ]
+? oWalker.StartingPosition() #--> 1	(Given automatically by Softanza)
+? oWalker.EndPosition() #--> 1		(Idem)
+? oWalker.Jump() #--> 0 (Can't walk)	(Idem)
 
 /*-------------------
 

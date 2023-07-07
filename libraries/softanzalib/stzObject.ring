@@ -36,7 +36,7 @@
 
 	Hence, you can say:
 
-		? oStzObj.ObjectName()	# --> "oPerson"
+		? oStzObj.ObjectName()	#--> "oPerson"
 
 	All the meta data provided by Ring to objects are provided by this class:
 
