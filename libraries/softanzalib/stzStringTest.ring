@@ -13,7 +13,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzString("Ringprogramminglanguageispowerful!")
@@ -24,6 +24,18 @@ o1.SpacifySections([ [ 5, 15 ], [ 24, 25 ] ])
 
 proff()
 # Executed in 0.04 second(s)
+
+/*------------
+*/
+pron()
+
+o1 = new stzString("Ringprogramminglanguageispowerful!")
+o1.SpacifySubStrings([ "programming", "is" ])
+? o1.Content()
+#--> Ring programming language is powerful!
+
+proff()
+# Executed in 0.27 second(s)
 
 /*=============
 

@@ -33877,31 +33877,25 @@ def ReplaceIBS()
 
 		acSubStrings = QR(acSubStrings, :stzListOfStrings).SortedInDescendingBy('Q(@string).NumberOfChars()')
 		nLenSubStr = len(acSubStrings)
-? @@(acSubStrings)
+
 		aSections = []
 		aSectionsNow = [ [ 1, This.NumberOfChars() ] ]
-? "aSectionsNow = " + @@(aSectionsNow)
+
 		for i = 1 to nLenSubStr
-? "----"
-? "i = " + i
-? "acSubStrings[i] = " + @@(acSubStrings[i])
 
 			aTempSections = This.FindInSectionsAsSectionsCS(
 					acSubStrings[i], aSectionsNow, pCaseSensitive)
-? "aTempSections = " + @@( aTempSections )
 
 			nLenTemp = len(aTempSections)
-? "nLenTemp = " + nLenTemp
+
 			for j = 1 to nLenTemp
 				aSections + aTempSections[j]
 			next
-? "aSections = " + @@(aSections)
+
 			aSectionsNow = This.FindAntiSections( aSections )
-? "aSectionsNow = " + @@(aSectionsNow)
 
 		next
-? "====="
-? @@(aSections)
+
 		This.SpacifySections(aSections)
 
 

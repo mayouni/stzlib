@@ -995,18 +995,6 @@ proff()
 # Executed in 0.20 second(s)
 
 /*------------
-*/
-pron()
-
-o1 = new stzString("Ringprogramminglanguageispowerful!")
-o1.SpacifySubStrings([ "programming", "is" ]) # Test with "isaa"!!
-? o1.Content()
-#--> Ring programming language is powerful!
-
-proff()
-# Executed in 0.21 second(s)
-
-/*------------
 
 pron()
 
