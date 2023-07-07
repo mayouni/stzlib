@@ -326,7 +326,7 @@ class stzChainOfValue from stzObject
 			
 			@cOneOrManyLoops = :Many
 
-		else # --> Becomes() is used AFTER DoThis()
+		else #--> Becomes() is used AFTER DoThis()
 
 			if This.ValueInitiator() = :Since
 

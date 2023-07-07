@@ -3,7 +3,7 @@ load "stzlib.ring"
 /*----------
 
 	? @@( "A" : "D" ) # Computable form of the list
-	# --> [
+	#--> [
 	# 	"A",
 	# 	"B",
 	# 	"C",
@@ -19,19 +19,19 @@ load "stzlib.ring"
 		ReplaceItemByAlternance("A", :With = [ "#1", "#2" ])
 		? Content()
 	}
-	# --> [ "#1", "#2", "#1", "#2", "#1" ]
+	#--> [ "#1", "#2", "#1", "#2", "#1" ]
 
 /*----------
 
 	o1 = new stzList([ "ONE", "two" ])
 	o1.ReplaceItemAtPosition(2, :With = "TWO")
-	? o1.Content()	# --> [ "ONE", "TWO" ]
+	? o1.Content()	#--> [ "ONE", "TWO" ]
 
 /*----------
 
 	o1 = new stzList([ "A", "b", "C" ])
 	o1.ReplaceItemAtPosition(2, :With@ = "upper(@item)")
-	? o1.Content()	# --> [ "A", "B", "C" ]
+	? o1.Content()	#--> [ "A", "B", "C" ]
 
 /*----------
 

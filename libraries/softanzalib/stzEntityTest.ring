@@ -13,7 +13,7 @@ o1 = new stzEntity([ :name = "Avionav", :type = "" ])
 # You must provide a name property while creating an entity
 
 StzEntityQ([ :type = "Company", :domain = "Technology" ])
-# --> ERROR: Can't create the entity object!
+#--> ERROR: Can't create the entity object!
 
 /*---------------
 
@@ -45,7 +45,7 @@ StzEntityQ([ :name = "*__!", :type = "Company", :domain = "Technology" ])
 # they are automatically lowercased
 
 ? StzEntityQ([ ["NAME" , "Apple"], [ "TYPE", "Company" ] ]).Content()
-# --> [ ["name" , "Apple"], [ "type", "Company" ] ]
+#--> [ ["name" , "Apple"], [ "type", "Company" ] ]
 
 # which is equivalent to the usual form we use for hashlist:
 # -> [ :name = "Apple", :type = "Company" ]

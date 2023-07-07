@@ -126,7 +126,7 @@ _aLocaleAbbreviationsXT = [
 
 		[ :chakma = "ccp-BD", :chakma_chakma = "ccp-Cakm-BD" ]
 		# Returns C Locale in Qt!
-		# --> may be a bug in Qt or in the standard itself!
+		#--> may be a bug in Qt or in the standard itself!
 		# Provide a solution based on this data :
 		# https://metacpan.org/dist/DateTime-Locale/view/lib/DateTime/Locale/ccp_BD.pod
 	],

@@ -2841,7 +2841,7 @@ class stzString from stzObject
 			? Content()
 		}
 
-		# --> "The first candidate is #3, the second is #1, while the third is #2!"
+		#--> "The first candidate is #3, the second is #1, while the third is #2!"
 		*/
 		if This.Contains("#0")
 
@@ -3022,7 +3022,7 @@ class stzString from stzObject
 		StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 		
 			? MarquersPositions()
-			# --> [ 12, 25, 44, 66 ]
+			#--> [ 12, 25, 44, 66 ]
 		
 		}
 		*/
@@ -3098,7 +3098,7 @@ class stzString from stzObject
 		StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 		
 			? MarquersAndPositions() " Use MarquersZ() instead
-			# --> [ "#1" = 12, "#2" = 25 , "#3" = 44, "#1" = 66 ]
+			#--> [ "#1" = 12, "#2" = 25 , "#3" = 44, "#1" = 66 ]
 		
 		}
 		*/
@@ -3179,7 +3179,7 @@ class stzString from stzObject
 		StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 		
 			? UniqueMarquersAndPositions() # Use MarquersUZ() instead
-			# --> [ "#1" = [12, 66], "#2" = [26], "#3" = [44] ]
+			#--> [ "#1" = [12, 66], "#2" = [26], "#3" = [44] ]
 		
 		}
 		*/
@@ -3374,7 +3374,7 @@ class stzString from stzObject
 		StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 		
 			? MarquersPositions()
-			# --> [  [12, 13], [ 25, 26],  [44, 45], [66, 67]  ]
+			#--> [  [12, 13], [ 25, 26],  [44, 45], [66, 67]  ]
 		
 		}
 		*/
@@ -3687,7 +3687,7 @@ class stzString from stzObject
 
 		aMarquersSections = This.MarquersAndSectionsSortedInAscending()
 		/* Reminder
-		# --> [ "#1" = [12, 13], "#1" = [26, 27], "#2" = [44, 45], "#3" = [66, 67] ]
+		#--> [ "#1" = [12, 13], "#1" = [26, 27], "#2" = [44, 45], "#3" = [66, 67] ]
 		*/
 
 		for i = len(aMarquersSections) to 1 step -1
@@ -3727,7 +3727,7 @@ class stzString from stzObject
 			? MarquersAndSections()
 		}
 
-		# --> [ "#1" = [12, 13], "#2" = [27, 28], "#3" = [45, 46]  ]
+		#--> [ "#1" = [12, 13], "#2" = [27, 28], "#3" = [45, 46]  ]
 		*/
 
 		for i = nLen to 1 step - 1
@@ -3950,7 +3950,7 @@ class stzString from stzObject
 			? NthNextMarquer(2, :StartingAt = 14)
 		}
 
-		# --> #3
+		#--> #3
 		*/
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
@@ -3996,7 +3996,7 @@ class stzString from stzObject
 			? NthNextMarquer(2, :StartingAt = 14)
 		}
 
-		# --> 44
+		#--> 44
 		*/
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
@@ -10782,7 +10782,7 @@ class stzString from stzObject
 	
 			o1 = new stzString( "Mohammed Ali
 				Ben Salah" )
-			? o1.BackwardToStartOfLine( :StartingAt = 16 ) # --> Ben
+			? o1.BackwardToStartOfLine( :StartingAt = 16 ) #--> Ben
 			
 		*/
 
@@ -10978,7 +10978,7 @@ class stzString from stzObject
 
 		# Finally, we're ready to extract the section...
 		# NOTE: when positions are given in inversed order
-		# --> Revert them!
+		#--> Revert them!
 
 		if n1 = n2
 			cResult = This.Char(n1)
@@ -13148,7 +13148,7 @@ class stzString from stzObject
 		ok	
 
 		# Keeping only the adequate number of positsions and new substrings
-		# --> Avoids incorrect results when the number of provided positions is
+		#--> Avoids incorrect results when the number of provided positions is
 		#     different from the number of provided new substrings
 
 		nMin = Min([ len(panPositions), len(pacNewSubStrings) ])
@@ -14276,11 +14276,11 @@ def ReplaceIBS()
 		*/
 
 		# Checking the correctness of the pcCondition param
-			# --> Not necessary! It will be done by the
+			#--> Not necessary! It will be done by the
 			# mother function FindAllCharsW()
 
 		# Checking the correctness of the pcNewSubStr param
-			# --> Not necceary! It will be done by the
+			#--> Not necceary! It will be done by the
 			# called function ReplaceCharsAtPositions()
 
 		# Doing the job
@@ -19115,7 +19115,7 @@ def ReplaceIBS()
 		# TODO: Change implementation for better performance
 		# There is no need to traverse all the charsW and then
 		# returning the nth one.
-		# --> Add FindNextCharW() and use it instead.
+		#--> Add FindNextCharW() and use it instead.
 
 		if isString(n)
 			if n = :FirstChar or n = :First
@@ -19142,7 +19142,7 @@ def ReplaceIBS()
 		# TODO: Change implementation for better performance
 		# There is no need to traverse all the charsW and then
 		# returning the nth one.
-		# --> Add FindNextSubStringW() and use it instead.
+		#--> Add FindNextSubStringW() and use it instead.
 
 		if isString(n)
 			if n = :FirstSubString or n = :First
@@ -19271,7 +19271,7 @@ def ReplaceIBS()
 		o1 = new stzString("My name is Mansour. What's your name please?")
 		? o1.FindManyCS( [ "name", "your", "please" ], :CS = TRUE )
 
-		# --> [ [ 4, 33 ], [ 28 ], [ 38 ] ]
+		#--> [ [ 4, 33 ], [ 28 ], [ 38 ] ]
 
 		*/
 
@@ -20087,9 +20087,9 @@ def ReplaceIBS()
 	def FindInside(pcTemplate) // TODO
 		/*
 		o1 = new stzString("opsus amcKLMbmi findus")
-		o1.FindInside("KLM", 'amc@bmi') # --> 10
+		o1.FindInside("KLM", 'amc@bmi') #--> 10
 
-		o1.FindInside("KLM", lower("AMC") + '@' + lower("BMI") # -->
+		o1.FindInside("KLM", lower("AMC") + '@' + lower("BMI") #-->
 
 		*/
 
@@ -24288,7 +24288,7 @@ def ReplaceIBS()
 		o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
 		? o1.SubstringsBetweenIB("<<", ">>")
 
-		# --> [ "<<word1>>", "<<word2>>" ]
+		#--> [ "<<word1>>", "<<word2>>" ]
 		*/
 
 		aSections = This.FindAnyBetweenAsSectionsIBCS(pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -25917,7 +25917,7 @@ def ReplaceIBS()
 		ok
 
 		# At this level, we are sur the params are well formed
-		# --> Let's do the job!
+		#--> Let's do the job!
 
 		if bSpacified
 			cString= @@( This.Spacified() )
@@ -31388,7 +31388,7 @@ def ReplaceIBS()
 			[1,2], [8, 10], [16, 17], [23, 25]
 		])
 		
-		? o1.Content() # --> "blablablablabla"
+		? o1.Content() #--> "blablablablabla"
 
 		*/
 
@@ -31788,7 +31788,7 @@ def ReplaceIBS()
 		
 		o1.ReplaceManySections([ [1,2], [8, 10], [16, 17], [23, 25] ], "_" )
 		
-		? o1.Content() # --> "_word1_word2_word3_"
+		? o1.Content() #--> "_word1_word2_word3_"
 		*/
 
 		if NOT( isList(paListOfSections) and Q(paListOfSections).IsListOfPairsOfNumbers() )
@@ -33876,11 +33876,10 @@ def ReplaceIBS()
 
 		# Sort the substrings in descending order
 
-		acSubStrings = QR(acSubStrings, :stzListOfStrings).SortedInDesendingBy('Q(@string).NumberOfChars()')
+		acSubStrings = QR(acSubStrings, :stzListOfStrings).SortedInDescendingBy('Q(@string).NumberOfChars()')
 		nLenSubStr = len(acSubStrings)
 
 		aSections = []
-		
 		aSectionsNow = [ [ 1, This.NumberOfChars() ] ]
 
 		for i = 1 to nLenSubStr
@@ -38752,7 +38751,7 @@ def ReplaceIBS()
 		/*
 		Example:
 		? StzStringQ("LIFE").Turned()
-		# --> ƎℲI⅂
+		#--> ƎℲI⅂
 		*/
 
 		# NOTE: Applies to latin script only
@@ -38950,9 +38949,9 @@ def ReplaceIBS()
 	#------------------------------------------#
 	
 	# Encrypts the string using the blowfish algorithm:
-	# --> returns what's called a cipher in a binary string
+	#--> returns what's called a cipher in a binary string
 
-	# --> TODO: - what the cIV param means?
+	#--> TODO: - what the cIV param means?
 	# 	    - check: key must be between 4 and 56 bytes long 
 
 	def EncryptWithBlowfish(cSecretKey, cIV)
@@ -38967,7 +38966,7 @@ def ReplaceIBS()
 		#>
 
 	# Updates the string from a cipher encrypted with the blowfish algorithm
-	# --> cCypher should be in binary form (list of bytes)
+	#--> cCypher should be in binary form (list of bytes)
 	def FromDecryptedWithBlowfish(cCypher, cSecret, cIV)
 		This.Update( decrypt(cCypher, cSecret, cIV) )
 
@@ -40722,7 +40721,7 @@ def ReplaceIBS()
 			but isList(pValue) and Q(pValue).IsListOfSrtrings() # NOTE this is misspelled!
 				/* EXAMPLE
 				? @@( Q("RingRubyJava") / [ "Qute", "Nice", "Good" ] )
-				# --> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]	
+				#--> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]	
 				*/
 
 				nLen = len(pValue)

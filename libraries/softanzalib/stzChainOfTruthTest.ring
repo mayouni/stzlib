@@ -120,9 +120,9 @@ class Person
 
 /*----------------- ERROR
 
-? _("ring").IsNotA(:String)._	# --> FALSE
-? _("ring").IsNotA(:String).Which('Contains("x")')._	# --> TRUE
-? _("ring").IsNotA(:String).Which('Contains("i")')._	# --> FALSE
+? _("ring").IsNotA(:String)._	#--> FALSE
+? _("ring").IsNotA(:String).Which('Contains("x")')._	#--> TRUE
+? _("ring").IsNotA(:String).Which('Contains("i")')._	#--> FALSE
 
 /*----------------- ERROR
 
@@ -156,8 +156,8 @@ class Person
 
 /*-----------------
 
-? _([]).IsNotA(:String)._	# --> FALSE
-? _([]).IsNot(:AString)._	# --> FALSE
+? _([]).IsNotA(:String)._	#--> FALSE
+? _([]).IsNot(:AString)._	#--> FALSE
 
 /*-----------------
 

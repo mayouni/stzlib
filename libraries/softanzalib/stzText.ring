@@ -66,19 +66,19 @@ func PossibleWordInstancesXT(pcWord, cWordPositionInSentence)
 	# Word and sentence separators
 
 	? WordSeparators()
-	# --> gives [ " ", ".", ",", ";", ":", "!", "?", "؟", "،", "'", "’", "—"  ]
+	#--> gives [ " ", ".", ",", ";", ":", "!", "?", "؟", "،", "'", "’", "—"  ]
 
 	? SentenceSeparators()
-	# --> gives [ ".", "!", "?", "؟" ]
+	#--> gives [ ".", "!", "?", "؟" ]
 
 	? WordBoundingChars()
-	# --> gives 
+	#--> gives 
 	# [
 	# 	[ "(", ")" ], [ "[", "]" ], [ "{", "}" ], [ "'", "'" ], [ '"', '"' ]
 	# ]
 
 	? WordNonLetterChars()
-	# --> gives ListsMerge([
+	#--> gives ListsMerge([
 	# 	[ "_", "-", "*", "/", "\", "+" ],
 	# 	ArabicNumbers()
 	# ]) # Sutch as: C++, Win32, ART*F, AS/400
@@ -1790,7 +1790,7 @@ class stzText from stzString
 			? WordsPositions()
 		}
 
-		# --> [ 1, 10, 17, 26, 35, 44 ]
+		#--> [ 1, 10, 17, 26, 35, 44 ]
 		*/
 
 		aResult = []
@@ -1879,7 +1879,7 @@ class stzText from stzString
 			? WordsAndTheirPositions()
 		}
 
-		# --> [
+		#--> [
 			:mahmoud = [ 1, 26, 35 ],
 			:ahmed   = [ 10, 44 ],
 			:mohamed = [ 17 ]
@@ -1904,7 +1904,7 @@ class stzText from stzString
 
 		Q("mahmoud, ahmed, mohamed, Mahmoud, mahmoud, ahmed.") {
 			? WordsAndTheirPositionsXT()
-			# --> [
+			#--> [
 			# 	:mahmoud = [ 1:7, 26:32, 35:41 ],
 			# 	:ahmed   = [ 10:14, 44:48 ],
 			# 	:mohamed = [ 17:23 ]
@@ -1951,7 +1951,7 @@ class stzText from stzString
 			? WordsAndNumbersOfTheirOccurrences()
 		}
 
-		# --> [
+		#--> [
 			:mahmoud = 3,
 			:ahmed   = 2,
 			:mohamed = 1
@@ -2275,7 +2275,7 @@ class stzText from stzString
 		o1 = stzText(cText)
 		? o1.NMostFrequentWords(3)
 
-		# --> [ "william", "john", "second" ]
+		#--> [ "william", "john", "second" ]
 
 		Look to the intermediate results hereafter...
 		*/
@@ -2283,13 +2283,13 @@ class stzText from stzString
 		# STEP 1: Getting the max frequencies
 
 		anMaxFreqs = This.NMaxFrequencies(n)
-		# --> [ 0.27, 0.20, 0.13 ]
+		#--> [ 0.27, 0.20, 0.13 ]
 
 		# STEP 2 : Sorting those max frequencies in descending
 		# and then getting them and their relative words
 
 		aFreqsWords = This.FequenciesAndTheirWords( reverse(sort(anMaxFreqs)) )
-		# --> [
+		#--> [
 		# 	[ "0.27", [ "william" ] ],
 		# 	[ "0.20", [ "john", "second" ] ],
 		# 	[ "0.13", [ "is", "son", "of" ] ]
@@ -2303,7 +2303,7 @@ class stzText from stzString
 		oHashList = new stzHashList( aFreqsWords )
 		acWords = ListsMerge( oHashList.Values() )
 
-		# --> [  "william", "john", "second", "is", "son", "of" ]
+		#--> [  "william", "john", "second", "is", "son", "of" ]
 
 		# STEP 4: Finally, we take the first n words of it
 
@@ -2323,16 +2323,16 @@ class stzText from stzString
 		o1 = stzText(cText)
 		? o1.NMostFrequentWords(3)
 
-		# --> [ "william", "john", "second" ]
+		#--> [ "william", "john", "second" ]
 
 		Look to the intermediate results hereafter...
 		*/
 
 		anMaxFreqs = This.NMaxFrequencies(n)
-		# --> [ 0.27, 0.20, 0.13 ]
+		#--> [ 0.27, 0.20, 0.13 ]
 
 		aFreqsWords = This.FequenciesAndTheirWords( reverse(sort(anMaxFreqs)) )
-		# --> [
+		#--> [
 		# 	[ "0.27", [ "william" ] ],
 		# 	[ "0.20", [ "john", "second" ] ],
 		# 	[ "0.13", [ "is", "son", "of" ] ]
@@ -2340,7 +2340,7 @@ class stzText from stzString
 
 		oHashList = new stzHashList( aFreqsWords )
 		acWords = ListsMerge( oHashList.Values() )
-		# --> [  "william", "john", "second", "is", "son", "of" ]
+		#--> [  "william", "john", "second", "is", "son", "of" ]
 
 		# For the first n words of that list, looking for their frequencies
 
@@ -2631,7 +2631,7 @@ class stzText from stzString
 				:Except = [],
 				:StopWords = :MustNotBeRemoved
 			])
-			# --> "#1, #2, #3, #4, #5, #6."
+			#--> "#1, #2, #3, #4, #5, #6."
 		}
 		*/
 
@@ -3111,8 +3111,8 @@ class stzText from stzString
 		/* Example:
 	
 			o1 = new stzString( "Mohammed Ali Ben Salah" )
-			? o1.ForwardToEndOfWord( 14 ) # --> Ben
-			? o1.ForwardToEndOfWord( :StartingAt = 14 ) # --> Ben
+			? o1.ForwardToEndOfWord( 14 ) #--> Ben
+			? o1.ForwardToEndOfWord( :StartingAt = 14 ) #--> Ben
 			
 		*/
 
@@ -3218,8 +3218,8 @@ class stzText from stzString
 		/* Example:
 	
 			o1 = new stzString( "Mohammed Ali Ben Salah" )
-			? o1.BackwardToStartOfWord( 12 ) # --> Ali
-			? o1.BackwardToStartOfWord( :StartingAt = 12 ) # --> Ali
+			? o1.BackwardToStartOfWord( 12 ) #--> Ali
+			? o1.BackwardToStartOfWord( :StartingAt = 12 ) #--> Ali
 			
 		*/
 
@@ -4185,7 +4185,7 @@ class stzText from stzString
 	def RemoveDiacriticsInLocale(pLocale)
 		# TODO: add more speciefic languages (only german is managed here)
 		# and special cases as documented in the Unicode standard here:
-		# --> http://unicode.org/Public/UNIDATA/SpecialCasing.txt
+		#--> http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 
 		cLang = StzLocaleQ(pLocale).Language()
 

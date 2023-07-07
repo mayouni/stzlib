@@ -1080,13 +1080,13 @@ class stzLocale from stzObject
 		*/
 		switch pcTypeOfSymbol
 		on :ISOSymbol
-			return @oQLocale.currencySymbol(0)	# --> CurrencyAbbreviation() in Softanza
+			return @oQLocale.currencySymbol(0)	#--> CurrencyAbbreviation() in Softanza
 
 		on :NativeSymbol
-			return @oQLocale.currencySymbol(1)	# --> CurrencySymbol() in Softanza
+			return @oQLocale.currencySymbol(1)	#--> CurrencySymbol() in Softanza
 
 		on :NativeName
-			return @oQLocale.currencySymbol(2)	# --> NativeName() In Softanza
+			return @oQLocale.currencySymbol(2)	#--> NativeName() In Softanza
 
 		other
 			StzRaise(stzLocaleError(:CanNotProvideCurrencySymbol))

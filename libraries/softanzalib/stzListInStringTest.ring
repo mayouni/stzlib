@@ -6,13 +6,13 @@ load "stzlib.ring"
 
 cList = '[ "A", "T", "B", 5, "C", "A", "A", "D", "E", 2, 7, "D" , 8 ]'
 
-? StringIsListInString(cList) # --> TRUE
+? StringIsListInString(cList) #--> TRUE
 
 /*---------------------
 
 cList = '[ "A", "T", [ :hi, :bye ], 5, "C", "A", "A", 2 ]'
 
-? StringIsListInString(cList) # --> TRUE
+? StringIsListInString(cList) #--> TRUE
 
 /*---------------------
 
@@ -21,14 +21,14 @@ obj2 = new Person { name = "kamel" }
 
 cList = '[ "A", "T", [ :hi, :bye ], 5, obj1, "C", "A", obj2, "A", 2 ]'
 
-? StringIsListInString(cList) # --> TRUE
+? StringIsListInString(cList) #--> TRUE
 
 class Person name
 
 /*---------------------
 
-? PluralOfStzClassName("stzList") # --> :stzLists
-? PluralOfStzClassName("stzListOfStrings") # --> :stzListsOfStrings
+? PluralOfStzClassName("stzList") #--> :stzLists
+? PluralOfStzClassName("stzListOfStrings") #--> :stzListsOfStrings
 
 //? QR([ "H", "USS", "EI", "N" ], :stzListOfStrings).Concatenated()
 /*
@@ -37,11 +37,11 @@ obj2 = new Person { name = "kamel" }
 
 StzListInStringQ('[ "A", "T", [ :hi, :bye ], 4, obj1, "C", "A", obj2, "A", 10 ]') {
 
-	? List()[3] # --> [ :hi, :bye ]
-	? List()[7] # --> "A"
+	? List()[3] #--> [ :hi, :bye ]
+	? List()[7] #--> "A"
 
-	? ListQ().NumberOfItems() # --> 10
-	? ListQR(:stzList).NumberOfItems() # --> 10
+	? ListQ().NumberOfItems() #--> 10
+	? ListQR(:stzList).NumberOfItems() #--> 10
 	
 }
 

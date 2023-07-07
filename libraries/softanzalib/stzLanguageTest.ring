@@ -5,17 +5,17 @@ load "stzlib.ring"
 /*-----------------------
 
 StzLanguageQ("tn") {
-	? Name()		# --> tswana
-	? DefaultCountry()	# --> south_africa
+	? Name()		#--> tswana
+	? DefaultCountry()	#--> south_africa
 }
 
 /*-----------------------
 
 ? StzLanguageQ(:english).Scripts()
-# --> [ "deseret", "latin", "shavian" ]
+#--> [ "deseret", "latin", "shavian" ]
 
 ? StzLanguageQ(:english).ScriptsAbbreviations()
-# --> [ "dsrt", "latn", "shaw" ]
+#--> [ "dsrt", "latn", "shaw" ]
 
 /*-----------------------
 

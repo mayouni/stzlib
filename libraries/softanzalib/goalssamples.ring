@@ -298,38 +298,38 @@ load "stzlib.ring"
 	# Feature 4: Large support of UNICODE
 /*
 */
-		? UnicodeToChar(65021) # --> ﷽
-		? Unicode("ↈ") # --> 8584
+		? UnicodeToChar(65021) #--> ﷽
+		? Unicode("ↈ") #--> 8584
 	
 		StzCharQ(12500) { ? Content() + " : " + Name() } #--> ピ : KATAKANA LETTER PI
 	
 		? StzCharQ("س").Name() #--> "ARABIC LETTER SEEN"
-		? StzCharQ("ARABIC LETTER SEEN").Content() # --> "س"
+		? StzCharQ("ARABIC LETTER SEEN").Content() #--> "س"
 		
 		? Q("⛅⛱☕").CharsNames()
 		#--> [ "SUN BEHIND CLOUD", "UMBRELLA ON GROUND", "HOT BEVERAGE" ]
 	
 		? StzCharQ(" ").CharType() #--> separator_space
 	
-		? StzCharQ("Ŵ").DiacriticRemoved() # --> W
-		? StzCharQ("ſ").DiacriticRemoved() # --> s
+		? StzCharQ("Ŵ").DiacriticRemoved() #--> W
+		? StzCharQ("ſ").DiacriticRemoved() #--> s
 	
 		? "LIFE"
-		? @("LIFE").Inverted() # --> ƎℲI⅂
+		? @("LIFE").Inverted() #--> ƎℲI⅂
 
 	# Feature 5: Large Support of ISO Locales
 
 		# Your customer
 		StzLocaleQ([ :Country = :Iran ]) {
-			? Abbreviation()			 # --> fa_IR
-			? NthDayOfWeek(1)			 # --> saturday
-			? NativeNthDayOfWeek(1) + NL		 # --> شنبه
+			? Abbreviation()			 #--> fa_IR
+			? NthDayOfWeek(1)			 #--> saturday
+			? NativeNthDayOfWeek(1) + NL		 #--> شنبه
 		
-			? NthDayOfWeekAbbreviation(1)		 # --> Sat
-			? NativeNthDayOfWeekAbbreviation(1) + NL # --> دوشنبه
+			? NthDayOfWeekAbbreviation(1)		 #--> Sat
+			? NativeNthDayOfWeekAbbreviation(1) + NL #--> دوشنبه
 		
-			? NthDayOfWeekSymbol(1)			 # --> S
-			? NativeNthDayOfWeekSymbol(1)		 # --> د
+			? NthDayOfWeekSymbol(1)			 #--> S
+			? NativeNthDayOfWeekSymbol(1)		 #--> د
 		}
 
 #-------------------------------#
@@ -531,7 +531,7 @@ load "stzlib.ring"
 /*		Or like this:
 */		o1 = new stzListOfStrings([ "village.txt", "town.txt", "country.txt" ])
 		o1.Perform('{ @string = Q(@string).SubStringRemoved(".txt") }')
-		? o1.Content() # ---> [ "village", "town", "country" ]
+		? o1.Content() #--> [ "village", "town", "country" ]
 
 /*		Or like this:
 */		TypeOf = [ :Ring = "programming language", :Softanza = "Ring library",
@@ -540,7 +540,7 @@ load "stzlib.ring"
 		o1 = new stzList([ :Ring, :Softanza, :Qt ])
 		o1.Perform('@item += " is a " + TypeOf[@item]')
 		? o1.Content()
-		# ---> [ "Ring is a programming language", "Softanza is a Ring library",
+		#--> [ "Ring is a programming language", "Softanza is a Ring library",
 			  "Qt is a C++ framework" ]
 
 /*		In addition to other features like using walkers, conditional code, and	
@@ -583,7 +583,7 @@ load "stzlib.ring"
 			ShowFF([ :CenterChar = "♥", :ShowCenter = TRUE ]) }
 			# 	1 . . . 2
 			# 	. . . . .
-			# -->	. . ♥ . .
+			#-->	. . ♥ . .
 			# 	. . . . .
 			# 	4 . . . 3 
 

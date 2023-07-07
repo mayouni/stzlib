@@ -1790,7 +1790,7 @@ class stzListOfStrings from stzList
 	#-------------------------------------#
 
 	def SortInDescending()
-		This.Update( ListReverse( This.Copy().SortedInAscending() ) )
+		This.Update( This.SortedInDescending() )
 
 		def SortInDescendingQ()
 			This.SortInDescending()
@@ -1807,7 +1807,8 @@ class stzListOfStrings from stzList
 		oQCopy = This.QStringListObject()
 		oQCopy.sort()
 
-		return ListReverse( QStringListContent(oQCopy) )
+		acResult = ListReverse( QStringListContent(oQCopy) )
+		return acResult
 
 		def StringsSortedInDescending()
 			return This.SortedInDescending()
@@ -1844,8 +1845,8 @@ class stzListOfStrings from stzList
 
 		*/
 
-		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@string", :CS = FALSE))
-			StzRaise("Incorrect param! pcExpr must be a string containing @string keyword.")
+		if NOT (isString(pcExpr) and Q(pcExpr).ContainsOneOfTheseCS([ "This[@i]", "@string" ], :CS = FALSE))
+			StzRaise("Incorrect param! pcExpr must be a string containing This[@i] or @string keyword.")
 		ok
 
 		acContent = This.Content()
@@ -1860,7 +1861,6 @@ class stzListOfStrings from stzList
 			aValues + value
 		next
 
-		
 		oTable = new stzTable([ :COL1 = acContent, :COL2 = aValues ])
 		acSorted = oTable.SortByQ(:COL2).Col(1)
 
@@ -1896,11 +1896,11 @@ class stzListOfStrings from stzList
 		#>
 
 	def SortedInAscendingBy(pcExpr)
-		acResult = This.Copy().SortByAscendingByQ(pcExpr).Content()
-		return This
+		acResult = This.Copy().SortInAscendingByQ(pcExpr).Content()
+		return acResult
 
 		def SortedBy(pcExpr)
-			return This.SortedByInAscendingBy(pcExpr)
+			return This.SortedInInAscendingBy(pcExpr)
 
 		#< @FunctionMisspelledForm
 
@@ -1914,7 +1914,7 @@ class stzListOfStrings from stzList
 	#-----------------------------------------#
  
 	def SortInDescendingBy(pcExpr)
-		acSorted = This.SortInAscendingByQ(pcExpr).SortedInDescending()
+		acSorted = This.SortInAscendingByQ(pcExpr).Reversed()
 		This.Update(acSorted)
 
 		#< @FunctionFluentForm
@@ -1934,6 +1934,7 @@ class stzListOfStrings from stzList
 
 	def SortedInDescendingBy(pcExpr)
 		acContent = This.Copy().SortInDescendingByQ(pcExpr).Content()
+		return acContent
 
 		#< @FunctionMisspelledForm
 
@@ -3420,7 +3421,7 @@ class stzListOfStrings from stzList
 
 		? o1.FindStringItemsCS( [ "name", "your", "please" ], :CS = TRUE )
 
-		# --> [ 4, 33, 28, 38 ]
+		#--> [ 4, 33, 28, 38 ]
 		*/
 
 		aResult = []
@@ -3656,8 +3657,8 @@ class stzListOfStrings from stzList
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsBoth(pcStr1, pcStr2, pCaseSensitive)
-		return This.ContainsBoth(pcStr1, pcStr2)
+	def ContainsBoth(pcStr1, pcStr2)
+		return This.ContainsBothCS(pcStr1, pcStr2, :CaseSensitive = TRUE)
 	
 	  #--------------------------------------------------------------------#
 	 #    CHECKING IF EACH STRING OF THE LIST EXISTS In THE GIVEN LIST    #
@@ -9890,11 +9891,11 @@ class stzListOfStrings from stzList
 		/* Example 1:
 			o1 = new stzListOfStrings([ "ONE", "two" ])
 			o1.ReplaceStringAtPosition(2, :With = "TWO")
-			? o1.Content	# --> [ "ONE", "TWO" ]
+			? o1.Content	#--> [ "ONE", "TWO" ]
 		Example 2:
 			o1 = new stzListOfStrings([ "A", "b", "C" ])
 			o1.ReplaceStringAtPosition(2, :With@ = "upper(@string)")
-			? o1.Content()	# --> [ "A", "B", "C" ]
+			? o1.Content()	#--> [ "A", "B", "C" ]
 		*/
 
 		if NOT Q(n).IsNumberOrString()
@@ -12955,7 +12956,7 @@ class stzListOfStrings from stzList
 
 		StzListOfStringsQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 			RemovePreviousNthOccurrences([2, 3], :of = "A", :StartingAt = 5)
-			? Content() # --> [ "A" , "B", "C", "D", "A" ]
+			? Content() #--> [ "A" , "B", "C", "D", "A" ]
 		}		
 
 		*/
@@ -13917,7 +13918,7 @@ class stzListOfStrings from stzList
 		o1.RemoveAllStringsW(:Where = '{ StzCharQ(@string).IsANumber() }')
 		? o1.Content()
 
-		# --> Gives: [ "a", "b", "c" ]
+		#--> Gives: [ "a", "b", "c" ]
 		*/
 
 		# Checking the provided param for the pCondition
@@ -15715,7 +15716,7 @@ class stzListOfStrings from stzList
 		o1 = new stzListOfStrings([ "village.txt", "town.txt", "country.txt" ])
 		o1.ForEachStringPerform('{ Q(@str).RemoveQ(".txt").Content() }')
 
-		o1.Content() # ---> [ "village", "town", "country" ]
+		o1.Content() #--> [ "village", "town", "country" ]
 		*/
 		 
 		This.PerformOnThesePositions(1:This.NumberOfStrings(), pcCode)
@@ -18416,7 +18417,7 @@ class stzListOfStrings from stzList
 			"abc;123;tunis;rgs", "jhd;343;gafsa;ghj", "lki;112;beja;okp"
 		])
 		
-		? o1.Split(";")	   # --> [
+		? o1.Split(";")	   #--> [
 				   # 		[ "abc", "123", "tunis", "rgs" ],
 				   # 		[ "jhd", "343", "gafsa", "ghj" ],
 				   # 		[ "lki", "112", "beja" , "okp" ]
@@ -18539,21 +18540,21 @@ class stzListOfStrings from stzList
 			"abc;123;tunis;rgs", "jhd;343;gafsa;ghj", "lki;112;beja;okp"
 		])
 		
-		? o1.Split(";")	   # --> [
+		? o1.Split(";")	   #--> [
 				   # 		[ "abc", "123", "tunis", "rgs" ],
 				   # 		[ "jhd", "343", "gafsa", "ghj" ],
 				   # 		[ "lki", "112", "beja" , "okp" ]
 				   #     ]
 		
-		? o1.Split(";")[1] # --> [ "abc", "123", "tunis", "rgs" ]
-		? o1.Split(";")[2] # --> [ "jhd", "343", "gafsa", "ghj" ]
-		? o1.Split(";")[3] # --> [ "lki", "112", "beja" , "okp" ]
+		? o1.Split(";")[1] #--> [ "abc", "123", "tunis", "rgs" ]
+		? o1.Split(";")[2] #--> [ "jhd", "343", "gafsa", "ghj" ]
+		? o1.Split(";")[3] #--> [ "lki", "112", "beja" , "okp" ]
 		
 		? o1.NthSubstringsAfterSplittingStringsUsing(3, ";")
-		# --> [ "tunis", "gafsa", "beja" ]
+		#--> [ "tunis", "gafsa", "beja" ]
 		
 		# The same function can be expressed like this
-		? o1.NthSubstrings(3, :AfterSplittingStringsUsing = ";") # --> [ "tunis", "gafsa", "beja" ]
+		? o1.NthSubstrings(3, :AfterSplittingStringsUsing = ";") #--> [ "tunis", "gafsa", "beja" ]
 
 		*/
 
@@ -18791,7 +18792,7 @@ class stzListOfStrings from stzList
 	def IsEqualToCS(pcOtherListOfStr, pCaseSensitive)
 
 		# Doublechecking inequality for potential performance gain
-		# --> Of the two lists have different sizes, then they'r NOT equal!
+		#--> Of the two lists have different sizes, then they'r NOT equal!
 
 		if This.NumberOfStrings() != Q(pcOtherListOfStr).NumberOfStrings()
 			return FALSE

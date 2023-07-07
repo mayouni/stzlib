@@ -33,7 +33,7 @@ class stzSplitter from stzListOfNumbers
 		if isNumber(n)
 
 			if n < 0
-				StzRaise("p must be positive!") # --> TODO: stzListError
+				StzRaise("p must be positive!") #--> TODO: stzListError
 			ok
 
 			@nNumberOfPositions = n

@@ -56,7 +56,7 @@ class stzCurrency
 
 	# NOTE: the class have a @cCurrencyInfo@ attribute in PRIVATE section
 	# We put it there, because we use it just for initializing the object.
-	# --> it does not necesarilay contain all the information the class
+	#--> it does not necesarilay contain all the information the class
 	# could provide about the currency.
 
 	def init(pcCurrencyIdentifier)

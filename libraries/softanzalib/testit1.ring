@@ -527,7 +527,7 @@ o1.Perform('@char = Q(@char).Uppercased()')
 o1 = new stzListOfStrings([ "village.txt", "town.txt", "country.txt" ])
 o1.Perform('{ @string = Q(@string).RemoveQ(".txt").Content() }')
 
-? o1.Content() # ---> [ "village", "town", "country" ]
+? o1.Content() #--> [ "village", "town", "country" ]
 
 /*----------
 
@@ -541,7 +541,7 @@ o1 = new stzList([ "Ring", "Softanza", "Qt" ])
 o1.Perform('{ @item += " is a " + aWhatIs[@item] }')
 
 ? o1.Content()
-# ---> [ "Ring is a programming language", "Softanza is a Ring library", "Qt is a C++ framework" ]
+#--> [ "Ring is a programming language", "Softanza is a Ring library", "Qt is a C++ framework" ]
 
   #------------------------#
  #  PERFORM ON POSITIONS  #
@@ -1019,7 +1019,7 @@ o1 = new stzListOfStrings([
 ? o1.NumberOfOccurrenceOfSubStringCS("man", :CS = FALSE) #--> 5
 
 ? @@(o1.FindSubstringCS("man", :CS = FALSE))
-# --> [
+#--> [
 #	"1" = [ 5, 23 ],
 #	"2" = [ 23 ],
 #	"3" = [ 5 ],
@@ -1137,7 +1137,7 @@ o1.BoundSubStringsWithCS([ "word1", "word2", "word3" ], "<<", ">>", :CS = FALSE)
 ? StzListOfListsQR([ 1:3, 3:5, 1:3, 6:8, 3:5 ]).
 	RemoveDuplicatesQ().
 	ToListInStringInShortForm()
-# --> [ "1 : 3", "3 : 5", "6 : 8" ]
+#--> [ "1 : 3", "3 : 5", "6 : 8" ]
 
 /*------------------------ TODO: Retest after completing SPlitXT()
 

@@ -49,11 +49,11 @@ o1 = new stzListOfEntities() {
 	AddEntity([ :name = "Jobs", :type = "People" ])
 	AddEntity([ :name = "MacOS", :type = "Technology" ])
 
-	? NumberOfEntities() # --> 3
+	? NumberOfEntities() #--> 3
 
-	? Entity(2) # --> [ :name = "Jobs", :type = "People" ]
+	? Entity(2) #--> [ :name = "Jobs", :type = "People" ]
 
-	? Names() # --> [ "Apple", "Jobs", "MacOS" ]
-	? Types() # --> [ "Company", "People", "Technology" ]
+	? Names() #--> [ "Apple", "Jobs", "MacOS" ]
+	? Types() #--> [ "Company", "People", "Technology" ]
 }
 

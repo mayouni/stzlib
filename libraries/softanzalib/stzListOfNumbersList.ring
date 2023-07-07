@@ -38,7 +38,7 @@ class stzListOfNumbersList
 		o1.Completewith(0)
 		? o1.Content()
 
-		# --> [
+		#--> [
 			[ 3, 6, 2, 0 ],
 			[ 2, 4, 0, 0 ],
 			[ 2, 1, 3, 5 ]
@@ -104,7 +104,7 @@ class stzListOfNumbersList
 		o1.AddOneToOne()
 		? o1.Content()
 
-		# --> [ 7, 7, 7 ]
+		#--> [ 7, 7, 7 ]
 
 		*/
 
@@ -120,7 +120,7 @@ class stzListOfNumbersList
 		o1.Associate()
 		? o1.Content()
 
-		# --> [
+		#--> [
 			[ 3, 2, 1 ],
 			[ 6, 1, 0 ],
 			[ 3, 3, 1 ]

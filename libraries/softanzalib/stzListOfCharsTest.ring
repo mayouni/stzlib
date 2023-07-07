@@ -31,8 +31,8 @@ o1 = new stzListOfChars([ "1", "2", "♥", "4", "5", "♥", "7", "8", "♥" ])
 
 /*----------------
 
-? StzListOfCharsQ("A":"E").IsContiguous() # --> TRUE
-? StzListOfCharsQ("1":"5").IsContiguous() # --> TRUE
+? StzListOfCharsQ("A":"E").IsContiguous() #--> TRUE
+? StzListOfCharsQ("1":"5").IsContiguous() #--> TRUE
 ? StzListOfCharsQ('"ا":"ج"').IsContiguous() #--> TRUE	TODO: ERROR!
 
 /*-------------
@@ -82,7 +82,7 @@ SetHilightChar("♥")
 
 ? StzListOfCharsQ("A":"E").BoxedXT([ :Line = :Dashed, :AllCorners = :Round ])
 
-# -->
+#-->
 # ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
 # ┊ A ┊ B ┊ C ┊ D ┊ E ┊
 # ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
@@ -90,7 +90,7 @@ SetHilightChar("♥")
 /*-------------
 
 ? StzListOfCharsQ("SOFTANZA").Boxed()
-# -->
+#-->
 # ┌───┬───┬───┬───┬───┬───┬───┬───┐
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
 # └───┴───┴───┴───┴───┴───┴───┴───┘

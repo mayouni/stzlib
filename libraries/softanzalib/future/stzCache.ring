@@ -52,7 +52,7 @@ func CacheCompleteFileName(pcCacheName)
 
 func CacheComposeLine(paPieces)
 	return TransformListToString(paPieces, ["|",","])
-	# --> This function is undefined
+	#--> This function is undefined
 
 func CacheAddLine(pcCacheName,pcEntry,pcStorageType)
 	switch pcStorageType

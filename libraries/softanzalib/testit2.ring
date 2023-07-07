@@ -186,7 +186,7 @@ load "stzlib.ring"
 	o1 = new stzListOfStrings([ "A", "A", "A", "A", "A" ])
 	o1.ReplaceStringByAlternance("A", :With = [ "#1", "#2" ])
 	? @@( o1.Content() )
-	# --> [ "#1", "#2", "#1", "#2", "#1" ]
+	#--> [ "#1", "#2", "#1", "#2", "#1" ]
 
 /*------- REPLACING NTH OCCURRENCE OF A STRING
 

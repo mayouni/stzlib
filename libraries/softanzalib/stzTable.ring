@@ -67,7 +67,7 @@ Class stzTable
 		#--> Creates an empty table with just a column and a row
 
 		# Way 2: new stzTable([3, 4])
-		# --> Creates a tale of 3 columns and 4 rows, all cells are empty
+		#--> Creates a tale of 3 columns and 4 rows, all cells are empty
 
 		# Both ways (1 and 2) are made by the following code:
 		
@@ -135,7 +135,7 @@ Class stzTable
 		# WAY 4: Similar to way 3 but the line of column names is
 		# not provided. Means that you privided only the rows of
 		# your table!
-		# --> Softanza accepts the rows and adds automatically the
+		#--> Softanza accepts the rows and adds automatically the
 		# column names as :COL1, :COL2, :COL3...
 
 		# EXAMPLE:

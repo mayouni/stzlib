@@ -202,7 +202,7 @@ class stzScript
 
 	# NOTE: the class have a @aScriptInfo@ attribute in PRIVATE section
 	# We put it there, because we use it just for initializing the object.
-	# --> it does not necessarilay contain all the information the class
+	#--> it does not necessarilay contain all the information the class
 	# could provide about the script.
 
 	def init(pcScriptIdentifier)
@@ -356,4 +356,4 @@ class stzScript
 	PRIVATE
 
 	@aScriptInfo@	# The two @ conventionally mean that the attribute is private
-			# --> TODO: Generalize this convention in all the library
+			#--> TODO: Generalize this convention in all the library

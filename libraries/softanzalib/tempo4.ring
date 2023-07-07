@@ -28,7 +28,7 @@ o1 = new stzString("1234567890")
 #--> [ "123", "456", "789" ]
 
 ? @@( o1.Split( :ToNParts = 4 ) )
-# --> [ "12", "34", "56", "7890" ]
+#--> [ "12", "34", "56", "7890" ]
 
 /*================
 
@@ -68,7 +68,7 @@ o1 = new stzString("ABCDE")
 
 o1 = new stzString("AB12CD34")
 ? @@( o1.SplitToPartsOfNChars(2) )
-# --> [ "AB", "12", "CD", "34" ]
+#--> [ "AB", "12", "CD", "34" ]
 
 o1 = new stzString("ABC123DEF456")
 ? @@( o1.SplitToPartsOfNChars(3))

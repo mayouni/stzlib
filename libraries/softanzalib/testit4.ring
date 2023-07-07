@@ -326,11 +326,11 @@ load "stzlib.ring"
 	o1 = new stzList([ "1", "♥", "2", "♥", "3", "♥" ])
 	o1.RemoveItemsW(:Where = '{ StzCharQ(@item).IsANumber() }')
 
-	? @@( o1.Content() ) # --> [ "♥", "♥", "♥" ]
+	? @@( o1.Content() ) #--> [ "♥", "♥", "♥" ]
 
 /*---
 
 	o1 = new stzListOfStrings([ "1", "♥", "2", "♥", "3", "♥" ])
 	o1.RemoveItemsW(:Where = '{ StzCharQ(@string).IsANumber() }')
 
-	? @@( o1.Content() ) # --> [ "♥", "♥", "♥" ]
+	? @@( o1.Content() ) #--> [ "♥", "♥", "♥" ]
