@@ -4,6 +4,31 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzString("Ringprogramminglanguageispowerful!")
+//o1.InsertAfterPositions([ 4, 15, 23, 25], " ")
+o1.InsertBeforePositions([ 5, 16, 24, 26], " ")
+#--> Ring programming language is powerful!
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------
+*/
+pron()
+
+o1 = new stzString("Ringprogramminglanguageispowerful!")
+
+o1.SpacifySections([ [ 5, 15 ], [ 24, 25 ] ])
+? o1.Content()
+#--> Ring programming language is powerful!
+
+proff()
+# Executed in 0.04 second(s)
+
+/*=============
+
+pron()
+
 ? Q(:stzListsOfStrings).IsPluralOfAStzType()
 #--> TRUE
 

@@ -9477,9 +9477,9 @@ Class stzTable
 				StzRaise("Unsupported return type!")
 			off
 
-	  #=====================#
-	 #  SORTING THE TABLE  #
-	#=====================#
+	  #======================================#
+	 #  SORTING THE TABLE BY A GIVEN COLUM  #
+	#======================================#
 
 	def Sort(pCol)
 		This.SortInAscending(pCol)
@@ -9495,6 +9495,17 @@ Class stzTable
 				This.SortBy(pCol)
 				return This
 	
+	def Sorted(pCol)
+		aResult = This.Copy().SortInAscendingQ().Content()
+		return aResult
+
+		def SortedBy(pCol)
+			return This.Sorted(pCol)
+
+	  #---------------------------------------------------#
+	 #  SORTING THE TABLE BY A GIVEN COLUMN -- EXTENDED  #
+	#---------------------------------------------------#
+
 	def SortXT(pCol, pcDirection)
 		/*
 		o1 = new stzTable([
@@ -9522,10 +9533,7 @@ Class stzTable
 
 		# Checking params
 
-		if isList(pCol) and
-			( Q(pCol).IsByNamedParam() or
-			  Q(pCol).IsByColNamedParam() or
-			  Q(pCol).IsByColumnNamedParam() )
+		if isList(pCol) and Q(pCol).IsOneOfTheseNamedParams([ :By, :ByCol, :ByColumn ])
 
 			pCol = pCol[2]
 		ok
@@ -9599,10 +9607,32 @@ Class stzTable
 
 		This.MoveCol(1, :ToPosition = nInitialColPos)
 
+		#< @FunctionFluentForm
 
 		def SortXTQ(pCol, pcDirection)
 			This.SortXT(pCol, pcDirection)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SortByXT(pCol, pcDirection)
+			This.SortXT(pCol, pcDirection)
+
+			def SortByXTQ(pCol, pcDirection)
+				This.SortByXT(pCol, pcDirection)
+				return This
+
+		#>
+
+	def SortedXT(pCol, pcDirection)
+		aResult = This.Copy().SortXTQ(pCol, pcDirection).Content()
+		return aResult
+
+	  #-----------------------------------------------------#
+	 #  SORTING THE TABLE IN ASCENDING BY A GIVEN COLUMN   #
+	#-----------------------------------------------------#
 
 	def SortInAscending(pCol)
 		/* EXAMPLE
@@ -9628,12 +9658,45 @@ Class stzTable
 			This.SortInAscending(pCol)
 			return This
 
+		def SortInAscendingBy(pCol)
+			This.SortInAscending(pCol)
+			return This
+
+			def SortInAscendingByQ(pCol)
+				This.SortInAscendingBy(pCol)
+				return This
+
+	def SortedInAscending(pCol)
+		aResult = This.Copy().SortInAscendingQ(pCol).Content()
+		return aResult
+
+		def SortedInAscendingBy(pCol)
+			return This.SortedInAscending(pCol)
+
+	  #------------------------------------------------------#
+	 #  SORTING THE TABLE IN DESCENDING BY A GIVEN COLUMN   #
+	#------------------------------------------------------#
+
 	def SortInDescending(pCol)
 		This.SortXT(pCol, :InDescending)
 
 		def SortInDescendingQ(pCol)
 			This.SortInDescending(pCol)
 			return This
+
+		def SortInDescendingBy(pCol)
+			This.SortInDescending(pCol)
+
+			def SortInDescendingByQ(pCol)
+				This.SortInDescending(pCol)
+				return This
+
+	def SortedInDescending(pCol)
+		acResult = This.Copy().SortInDescendingQ(pCol).Content()
+		return acResult
+
+		def SortedInDescendingBy(pCol)
+			return This.SortedInDescending(pCol)
 
 	  #==============================================#
 	 #   MOVING A ROW FROM A POSITION TO AN OTHER   #

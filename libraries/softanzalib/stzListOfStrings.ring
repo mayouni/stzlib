@@ -1862,7 +1862,7 @@ class stzListOfStrings from stzList
 		next
 
 		oTable = new stzTable([ :COL1 = acContent, :COL2 = aValues ])
-		acSorted = oTable.SortByQ(:COL2).Col(1)
+		acSorted = oTable.SortInDescendingByQ(:COL2).Col(1)
 
 		This.Update(acSorted)
 
@@ -1914,7 +1914,7 @@ class stzListOfStrings from stzList
 	#-----------------------------------------#
  
 	def SortInDescendingBy(pcExpr)
-		acSorted = This.SortInAscendingByQ(pcExpr).Reversed()
+		acSorted = This.Copy().SortInAscendingByQ(pcExpr).Reversed()
 		This.Update(acSorted)
 
 		#< @FunctionFluentForm
