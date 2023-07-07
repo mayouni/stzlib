@@ -983,12 +983,23 @@ o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
 proff()
 # Executed in 0.32 second(s)
 
-/*------------ TODO
+/*============
+
+pron()
+
+o1 = new stzListOfStrings([ "programming", "is" ])
+? o1.SortedInAscendingBy('Q(@string).NumberOfChars()')
+#--> [ "is", "programming" ]
+
+proff()
+# Executed in 0.20 second(s)
+
+/*------------
 */
 pron()
 
 o1 = new stzString("Ringprogramminglanguageispowerful!")
-o1.SpacifySubStrings([ "programming", "is" ])
+o1.SpacifySubStrings([ "programming", "is" ]) # Test with "isaa"!!
 ? o1.Content()
 #--> Ring programming language is powerful!
 

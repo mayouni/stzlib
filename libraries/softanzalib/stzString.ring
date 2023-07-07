@@ -12109,13 +12109,12 @@ class stzString from stzObject
 			stzRaise("Incorrect param! pcSubStr must be a string.")
 		ok
 
-		if NOT len(panPositions) = 0
-			anPositions = StzListQ(panPositions).SortedInDescending()
-	
-			for n in anPositions
-				This.InsertAfter(n, pcSubStr)
-			next
-		ok	
+		anPos = ring_sort(panPositions)
+		nLen = len(anPos)
+
+		for i = nLen to 1 step -1
+			This.InsertAfter(anPos[i], pcSubStr)
+		next
 
 		def InsertAfterManyPositions(panPositions, pcSubstr)
 			This.InsertAfterThesePositions(panPositions, pcSubStr)
@@ -33874,28 +33873,35 @@ def ReplaceIBS()
 			return
 		ok
 
-		# Sort the substrings in descending order
+		# Sorting the substrings in descending order
 
 		acSubStrings = QR(acSubStrings, :stzListOfStrings).SortedInDescendingBy('Q(@string).NumberOfChars()')
 		nLenSubStr = len(acSubStrings)
-
+? @@(acSubStrings)
 		aSections = []
 		aSectionsNow = [ [ 1, This.NumberOfChars() ] ]
-
+? "aSectionsNow = " + @@(aSectionsNow)
 		for i = 1 to nLenSubStr
+? "----"
+? "i = " + i
+? "acSubStrings[i] = " + @@(acSubStrings[i])
 
 			aTempSections = This.FindInSectionsAsSectionsCS(
 					acSubStrings[i], aSectionsNow, pCaseSensitive)
+? "aTempSections = " + @@( aTempSections )
 
 			nLenTemp = len(aTempSections)
+? "nLenTemp = " + nLenTemp
 			for j = 1 to nLenTemp
 				aSections + aTempSections[j]
 			next
-
+? "aSections = " + @@(aSections)
 			aSectionsNow = This.FindAntiSections( aSections )
+? "aSectionsNow = " + @@(aSectionsNow)
 
 		next
-
+? "====="
+? @@(aSections)
 		This.SpacifySections(aSections)
 
 
@@ -34007,13 +34013,13 @@ def ReplaceIBS()
 		ok
 
 		nLen = len(paSections)
-
+		anPos = []
 		for i = 1 to nLen
-			This.ReplaceSection(
-				paSections[i][1], paSections[i][2],
-				:By = This.SectionQ(paSections[i][1], paSections[i][2]).Spacified()
-			)
+			anPos + paSections[i][1]
+			anPos + (paSections[i][2] + 1)
 		next
+
+		This.InsertBeforePositions(anPos, " ")
 
 		def SpacifySectionsQ(paSections)
 			This.SpacifySections(paSections)
