@@ -15602,7 +15602,7 @@ class stzList from stzObject
 	#------------------------------#
 
 	def NumberOfDuplicatedItemsCS(pCaseSensitive)
-		nResult = len(This.DuplicatesCS(pCaseSensitive))
+		nResult = len( This.DuplicatedItemsCS(pCaseSensitive) )
 		return nResult
 
 		def HowManyDuplicatedItemsCS(pCaseSensitive)
@@ -15621,7 +15621,6 @@ class stzList from stzObject
 	#--------------#
 
 	def DuplicatesCS(pCaseSensitive)
-
 
 		if This.IsEmpty()
 			return []
@@ -15698,10 +15697,16 @@ class stzList from stzObject
 	#------------------------------------------------#
 
 	def DuplicatesAndTheirPositionsCS(pCaseSensitive)
-		aDuplicates = This.DuplicatesCS(pCaseSensitive)
-		anPositions = This.FindDuplicatesCS(pCaseSensitive)
 
-		aResult = Association([ aDuplicates, anPositions ])
+		aDuplicates = This.Duplicates()
+		nLen = len(aDuplicates)
+		aResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindCSQ(aDuplicates[i], pCaseSensitive).FirstItemRemoved()
+			aResult + [ aDuplicates[i], anPos ]
+		next
+
 		return aResult
 
 		#< @FunctionAlternativeForms

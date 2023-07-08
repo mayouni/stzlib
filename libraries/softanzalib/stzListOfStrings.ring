@@ -16258,10 +16258,15 @@ class stzListOfStrings from stzList
 	#------------------------------------------------#
 
 	def DuplicatesAndTheirPositionsCS(pCaseSensitive)
-		acDuplicates = This.DuplicatesCS(pCaseSensitive)
-		anPositions = This.FindDuplicatesCS(pCaseSensitive)
+		aDuplicates = This.Duplicates()
+		nLen = len(aDuplicates)
+		aResult = []
 
-		aResult = Association([ acDuplicates, anPositions ])
+		for i = 1 to nLen
+			anPos = This.FindCSQ(aDuplicates[i], pCaseSensitive).FirstItemRemoved()
+			aResult + [ aDuplicates[i], anPos ]
+		next
+
 		return aResult
 
 		def DuplicatesZCS(pCaseSensitive)
