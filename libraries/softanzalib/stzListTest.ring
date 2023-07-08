@@ -1015,7 +1015,7 @@ proff()
 # Executed in 0.12 second(s)
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 7 ])
@@ -1041,7 +1041,7 @@ o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 7 ])
 # Executed in 0.02 second(s)
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.06 second(s)
 
 /*-----------
 
@@ -1062,21 +1062,22 @@ o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8 ])
 proff()
 # Executed in 0.03 second(s)
 
-/*-----------//////
+/*-----------
 
 pron()
 
 o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ])
+
 ? o1.FindW('NOT isNumber(This[@i + 1])')
 #--> [2, 6]
-# Executed in 0.08 second(s)
+# Executed in 0.13 second(s)
 
 ? o1.FindWXT(' Q(@NextItem).IsNotANumber() ')
 #--> [2, 6]
-#--> Executed in 0.24 second(s)
+#--> Executed in 0.59 second(s)
 
 proff()
-# Executed in 0.32 second(s)
+# Executed in 0.70 second(s)
 
 /*===========
 
@@ -1398,63 +1399,84 @@ proff()
 # Executed in 0.54 second(s)
 
 /*======= MANAGING DUPLICATED ITEMS: Check errros
-*/
+
 pron()
 
-o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
-
-# NOTE: the same code shown here can work as-is for stzListOfStrings!
-# to test it just replace the line above with the following:
-// o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7" ])
-/*
-? o1.ContainsDuplicates()
-#--> TRUE
-# Executed in 0.03 second(s)
-
-? o1.HowManyDuplicates()
-#--> 3
-# Executed in 0.09 second(s)
-
-? o1.FindDuplicates()
-#--> [ 3, 4, 6 ]
+o1 = new stzList([ 5, 7, 5, 5, 4, 7, 1 ])
 
 ? o1.Duplicates()
 #--> [5, 7]
 
-? o1.HowManyDuplicatedItems()
+? o1.FindDuplicates()
+#--> [3, 4, 6]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ 5, 7, 5, 5, 4, 7, 1 ])
+
+# NOTE: the same code shown here can work as-is for stzListOfStrings!
+# to test it just replace the line above with the following:
+//o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7", "1" ])
+
+? o1.ContainsDuplicates()
+#--> TRUE
+# Executed in 0.03 second(s)
+
+? o1.HowManyDuplicates() + NL
+#--> 3
+# Executed in 0.03 second(s)
+
+? o1.FindDuplicates()
+#--> [ 3, 4, 6 ]
+# Executed in 0.03 second(s)
+
+? o1.Duplicates() # Or DuplicatesItems()
+#--> [5, 7]
+# Executed in 0.03 second(s)
+
+? o1.HowManyDuplicatedItems() + NL # Not the same as HowManyDuplicates()
 #--> 2
+# Executed in 0.04 second(s)
 
 ? o1.DuplicatedItems()
 #--> [5, 7]
-*/
-? @@( o1.DuplicatedItemsZ() ) # Or DuplicatesAndTheirPositions()
-#--> [ [ 5, [ 1, 3, 4 ] ], [ 7, [ 2, 6 ] ] ]
-#--> the number 5 is duplicated at position 1, 3 and 4, and,
-#    the number 7 is duplicated at positions 2 and 6?
-# Executed in 0.17 second(s)
+# Executed in 0.04 second(s)
 
-o1.RemoveDuplicatedItems()
+? @@( o1.DuplicatedItemsZ() ) # Same as DuplicatesZ()
+#--> [ [ 5, [ 3, 4 ] ], [ 7, [ 6 ] ] ]
+#--> the item 5 is duplicated twice at position 3 and 4, and,
+#    the item 7 is duplicated once at position 6.
+
+# Executed in 0.06 second(s)
+
+o1.RemoveDuplicates() # Same as RemoveDuplicatedItems()
+# Executed in 0.03 second(s)
+
 ? @@( o1.Content() )
-#--> [ 4 ]
-# Executed in 0.17 second(s)
+#--> [ 5, 7, 4, 1 ]
 
 proff()
-# Executed in 0.54 second(s)
+# Executed in 0.13 second(s)
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzList([ "*", "4", "*", "3", "4" ])
 
-? o1.NumberOfDuplicates()
+? o1.NumberOfDuplicates() + NL
 #--> 2
 
 ? o1.Duplicates()
 #--> [ "*", "4" ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.08 second(s)
 
 /*==========
 
@@ -1467,7 +1489,7 @@ o1 - 4:6
 #--> [ 1, 2, 3, 7 ]
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.03 second(s)
 
 /*==========
 
@@ -1482,7 +1504,7 @@ o1 = new stzList("A":"J")
 #--> [ ["A", "B"], ["F"], ["I", "J"] ]
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.07 second(s)
 
 /*-------------
 
@@ -1494,7 +1516,7 @@ o1 = new stzList([ "Ring", "Ruby", "Python" ])
 #--> [ "Ring", "Python" ]
 
 proff()
-#--> Executed in 0.06 second(s)
+#--> Executed in 0.03 second(s)
 
 /*==========
 
@@ -1532,7 +1554,7 @@ o1 = new stzList([ "a", "ab", 1:3, "abA", "abAb", 1:3 ])
 #--> 6
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.07 second(s)
 
 /*==========
 
@@ -1557,7 +1579,7 @@ o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3,"c" ])
 # Executed in 0.23 second(s)
 
 proff()
-# Executed in 0.44 second(s)
+# Executed in 0.67 second(s)
 
 /*-------------
 
@@ -1568,10 +1590,10 @@ o1 = new stzList([ "a", "ab", "b" ])
 #--> [ "a", "ab", "b" ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*==========
-
+*/
 StartProfiler()
 #                   1    2    3    4    5    6    7     8    9   10
 o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" , "♥", "_", "_" ])

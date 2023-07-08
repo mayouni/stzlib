@@ -26,7 +26,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*------------
-*/
+
 pron()
 
 o1 = new stzString("Ringprogramminglanguageispowerful!")
@@ -143,7 +143,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzString("ABC")
@@ -3260,6 +3260,8 @@ proff()
 
 /*===============
 */
+? "hi"
+
 pron()
 
 o1 = new stzString("aa***aa**aa***")
