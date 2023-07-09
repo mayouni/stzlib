@@ -15343,15 +15343,40 @@ class stzList from stzObject
 	#====================================================#
 
 	def ContainsDuplicatesCS(pCaseSensitive)
-		
-		aSet = This.DuplicatesRemoved()
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensittive[2]
+		ok
 
-		if len(aSet) != This.NumberOfItems()
-			return TRUE
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
 
-		else
+		aContent = []
+
+		if pCaseSensitive = TRUE
+
+			aContent = This.Copy().
+					StringifyAndReplaceQ(",", "*").
+					Content()
+
+		else // pCaseSensitive = FALSE
+
+			aContent = This.Copy().
+					StringifyLowercaseAndReplaceQ(",", "*").
+					Content()
+		ok
+
+	
+		nLen = len(aContent)
+		if nLen < 2
 			return FALSE
 		ok
+
+		bResult = FALSE
+
+		/* ... */
+
+		return bResult
 
 		def ContainsDuplicatedItemsCS(pCaseSensitive)
 			return This.ContainsDuplicatesCS(pCaseSensitive)
@@ -23440,7 +23465,8 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
 					cItem = item
 				else
-					oQStr.replace(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+					oQStr.replace_2(pcSubStr, pcOtherSubStr, pCaseSensitive)
 					cItem = oQStr.mid(0, oQStr.count())
 				ok
 
@@ -23465,7 +23491,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			This.StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
 			return This
 
-		def StringifyAndReplaceCSQR(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		def StringifyAndReplaceCSQR(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfstrings( This.StringifiedAndReplacedCS(pcSubStr, pcOtherSubStr, pCaseSensitive) )
@@ -23493,7 +23519,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			This.StringifyAndReplace(pcSubStr, pcOtherSubStr)
 			return This
 
-		def StringifyAndReplaceQR(pcSubStr, pcOtherSubStr)
+		def StringifyAndReplaceQR(pcSubStr, pcOtherSubStr, pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfstrings( This.StringifiedAndReplaced(pcSubStr, pcOtherSubStr) )
@@ -23509,6 +23535,143 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		def ItemsStringifiedAndReplaced(pcSubStr, pcOtherSubStr)
 			return This.StringifiedAndReplaced(pcSubStr, pcOtherSubStr)
+
+	  #--------------------------------------------------------------------------------------------------#
+	 #  STRINGIFYING THE ITEMS, LOWERCASING THEM, AND REPLACING A SUBSTRING BY AN OTHER IN EACH STRING  #
+	#--------------------------------------------------------------------------------------------------#
+
+	# A special function used internally by Softanza to boost its performance
+
+	def StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		#< QtBased | Uses QString2() #>
+
+		# Resolving params
+
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		if isList(pcOtherSubStr) and Q(pcOtherSubStr).IsWithOrByOrUsingNamedParam()
+			pcOtherSubStr = pcOtherSubStr[2]
+		ok
+
+		if NOT isString(pcOtherSubStr)
+			StzRaise("Incorrect param type! pcOtherSubStr must be a string.")
+		ok
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT (pCaseSensitive = TRUE or pCaseSensitive = FALSE)
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		acResult = []
+		cItem = ""
+		n = 0 # Used to count the objects contained in the list
+
+		for i = 1 to nLen
+			item = aContent[i]
+			if isNumber(item)
+				cItem = ""+ item
+
+			but isString(item)
+
+				oQStr = new QString2()
+				oQStr.append(item)
+
+				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
+					cItem = item
+				else
+					oQStr.replace_2(pcSubStr, pcOtherSubStr, pCaseSensitive)
+					cItem = oQStr.mid(0, oQStr.count())
+				ok
+
+			but isList(item)
+				item = @@(item)
+				oQStr = new QString2()
+				oQStr.append(item)
+
+				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
+					cItem = item
+				else
+					oQStr.replace(pcSubStr, pcOtherSubStr, pCaseSensitive)
+					cItem = oQStr.mid(0, oQStr.count())
+				ok
+
+			but isObject(item)
+
+				n++
+				cObjectName = "{obj#" + n + "}"
+				cItem = cObjectName
+
+				# WARNING: It's impossible to get the name of the object
+				# by code (should be requested from Mahmoud in future Ring)
+			ok
+
+			oQLocale = new QLocale("C")
+			cItem = oQLocale.toLower( oQStr.mid(0, oQStr.count()) )
+			acResult + cItem
+		next
+
+		This.UpdateWith(acResult)
+
+		#< @FunctionFluentForm
+
+		def StringifyLowercaseAndReplaceCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			This.StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This
+
+		def StringifyLowercaseAndReplaceCSQR(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzListOfStrings
+				return new stzListOfstrings( This.StringifiedLowercasedAndReplacedCS(pcSubStr, pcOtherSubStr, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def StringifiedLowercasedAndReplacedCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		acResult = This.Copy().StringifyLowercaseAndReplaceCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()
+		return acResult
+
+		def ItemsStringifiedLowercasedAndReplacedCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.StringifiedLowercasedAndCommaReplacedCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def StringifyLowercaseAndReplace(pcSubStr, pcOtherSubStr)
+		This.StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def StringifyLowercaseAndReplaceQ(pcSubStr, pcOtherSubStr)
+			This.StringifyLowercaseAndReplace(pcSubStr, pcOtherSubStr)
+			return This
+
+		def StringifyLowercaseAndReplaceQR(pcSubStr, pcOtherSubStr, pcReturnType)
+			switch pcReturnType
+			on :stzListOfStrings
+				return new stzListOfstrings( This.StringifiedLowercasedAndReplaced(pcSubStr, pcOtherSubStr) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def StringifiedLowercasedAndReplaced(pcSubStr, pcOtherSubStr)
+		acResult = This.Copy().StringifyLowercaseAndReplaceQ(pcSubStr, pcOtherSubStr).Content()
+		return acResult
+
+		def ItemsStringifiedLowercasedAndReplaced(pcSubStr, pcOtherSubStr)
+			return This.StringifiedLowercasedAndReplaced(pcSubStr, pcOtherSubStr)
 
 	  #--------------------------------------------------#
 	 #  TRANSFORMING THE ITEMS OF THE LIST TO A STRING  #

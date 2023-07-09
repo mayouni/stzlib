@@ -71,7 +71,37 @@ o1.Stringified()
 proff()
 # Executed in 0.75 second(s)
 
+/*-------------
 
+pron()
+
+oQLocale = new QLocale("C")
+? oQLocale.toLower("RING")
+#--> "ring"
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------
+
+pron()
+
+aLargeList = []
+for i = 1 to 1_000
+	aLargeList + "R_ING"
+next
+
+o1 = new stzList(aLargeList)
+o1.StringifyLowercaseAndReplace("_", "♥")
+
+? o1.FirstNItems(3)
+#--> [ "r♥ing", "r♥ing", "r♥ing" ]
+
+? o1.LastNItems(3)
+#--> [ "r♥ing", "r♥ing", "r♥ing" ]
+
+proff()
+Executed in 0.12 second(s)
 
 /*-------------
 
@@ -85,7 +115,7 @@ o1.StringifyAndReplace("_", "♥")
 proff()
 # Executed in 0.04 second(s)
 
-/*------------- # TODO: check performance for large lists over 10K items
+/*-------------
 
 pron()
 
@@ -97,10 +127,14 @@ next
 o1 = new stzList(aLargeList)
 o1.StringifyAndReplace("_", "♥")
 
-#--> [ "--♥--", "[ 12, "--♥--", 10 ]", "--♥--", "9" ]
+? o1.FirstNItems(5)
+#--> [ "--♥--", '[ 12, "--♥--", 10 ]', "--♥--", "9", "♥--♥" ]
+
+? o1.LastNItems(3)
+#--> [ "♥--♥" ], "♥--♥" ], "♥--♥" ]
 
 proff()
-# Executed in 2.09 second(s)
+# Executed in 0.09 second(s)
 
 /*-------------
 
@@ -124,20 +158,20 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-------------
-*/
+
 pron()
 
 aList = ["_", "_", "♥"]
 
-for i = 1 to 10
-	? @@(aList)
+for i = 1 to 100_000
+	@@(aList)
 next
 
 proff()
+# Executed in 21.59 second(s)
 
 /*-------------
 
-*/
 pron()
 
 	aLargeList = ["_", "_", "♥"]
@@ -161,44 +195,11 @@ pron()
 	# ElapsedTime: 0.11
 
 	o1.StringifyAndReplace("♥", :With = "*")
-	? @@( o1.LastNItems(10) )
+	o1.LastNItems(40_000)
 	#--> [ "*", "_", "_", "*" ]
 
 proff()
-# Executed in 5.41 second(s)
-
-/*-------------
-pron()
-
-	aLargeList = ["_", "_", "♥"]
-	for i = 1 to 100_000
-		aLargeList + "_"
-	next
-	
-	aLargeList + "♥" + "_" + "_" + "♥"
-	
-	for i = 1 to 50_000
-		aLargeList + "_"
-	next i
-	
-	aLargeList + "♥" + "_" + "_" + "♥"
-	
-	for i = 1 to 10
-		aLargeList + "_"
-	next i
-
-	? len(aLargeList)
-	nLen = len(aLargeList)
-	aTemp = []
-
-	for i = 1 to nLen
-		oQStr = new QString2()
-		oQStr.append(aLargeList[i])
-		
-	next
-
-	
-proff()
+# Executed in 5.62 second(s)
 
 /*==============
 
