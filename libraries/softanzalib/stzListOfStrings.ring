@@ -11429,6 +11429,8 @@ class stzListOfStrings from stzList
 
 	def ReplaceSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			
+		# Resolving funcrtion params
+
 		bDynamic = FALSE
 
 		if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithOrByNamedParam()
@@ -11444,6 +11446,8 @@ class stzListOfStrings from stzList
 			StzRaise("Incorrect param! pcNewSubStr must be a string.")
 		ok
 
+		# Defining if a dynamaic expression is used
+
 		cDynamicExpr = NULL
 
 		if bDynamic
@@ -11451,10 +11455,16 @@ class stzListOfStrings from stzList
 					RemoveBoundsQ(["{","}"]).Content()
 		ok
 
+		# Doing the job
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		@SubString = pcSubStr
 		@i = 0
-		for str in This.ListOfStrings()
-			@i++
+
+		for @i = 1 to nLen
+	? @i
 			@StringPosition = @i
 			
 			if bDynamic
@@ -11464,13 +11474,42 @@ class stzListOfStrings from stzList
 
 			@NewSubString = pcNewSubStr
 
-			cNewSubStr = StzStringQ(str).ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
-			This.ReplaceStringAtPosition(@i, cNewSubStr)
+			oStr = StzStringQ(aContent[i])
+			if oStr.ContainsCS(aContent[i], pCaseSensitive)
+				cNewSubStr = oStr.ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
+				This.ReplaceStringAtPosition(@i, cNewSubStr)
+			ok
 		next
 
-		def ReplaceSubStringCSQ(pcSubStr, pcNewStr, pCaseSensitive)
-			This.ReplaceSubStringCS(pcSubStr, pcNewStr, pCaseSensitive)
+		#< @FunctionFluentForm
+
+		def ReplaceSubStringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceInStringsCS(pSubStr, pcNewSubStr, pCaseSensitive)
+			if isList(pSubStr)
+				This.ReplaceManySubStringsCS(pcpSubStrSubStr, pcNewSubStr, pCaseSensitive)
+			else
+				This.ReplaceSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			ok
+
+			def ReplaceInStringsCSQ(pSubStr, pcNewSubStr, pCaseSensitive)
+				This.ReplaceInStringsCS(pSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceInStringItemsCS(pSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceInStringsCS(pSubStr, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceInStringItemsCSQ(pSubStr, pcNewSubStr, pCaseSensitive)
+				This.ReplaceInStringItemsCS(pSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		#>
 
 	def SubStringReplacedCS(pcSubStr, pcNewStr, pCaseSensitive)
 		acResult = This.Copy().ReplaceSubStringCSQ(pcSubStr, pcNewStr, pCaseSensitive).Content()
@@ -11479,11 +11518,31 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubString(pcSubStr, pcNewStr)
+? "lllll"
+stop()
 		This.ReplaceSubStringCS(pcSubStr, pcNewStr, :CaseSensitive = TRUE)
 
-		def ReplaceSubStringQ(pcSubStr, pcNewStr)
-			This.ReplaceSubString(pcSubStr, pcNewStr)
+		#< @FunctionFluentForm
+
+		def ReplaceSubStringQ(pcSubStr, pcNewSubStr)
+			This.ReplaceSubString(pcSubStr, pcNewSubStr)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceInStrings(pSubStr, pcNewSubStr)
+			This.ReplaceInStringsCS(pSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+
+		def ReplaceInStringItems(pSubStr, pcNewSubStr)
+			This.ReplaceInStrings(pSubStr, pcNewSubStr)
+
+			def ReplaceInStringItemsQ(pSubStr, pcNewSubStr)
+				This.ReplaceInStringItems(pSubStr, pcNewSubStr)
+				return This
+
+		#>
 
 	def SubStringReplaced(pcSubStr, pcNewStr)
 		acResult = This.Copy().ReplaceSubStringQ(pcSubStr, pcNewStr).Content()

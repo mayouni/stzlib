@@ -1,5 +1,181 @@
 load "stzlib.ring"
 
+/*----------------
+
+pron()
+
+o1 = new stzlist(1:120_000)
+
+? o1.FindNext(3, :StartingAt = 10)
+#--> 0
+
+? o1.FindNext(10, :StartingAt = 10)
+#--> 0
+
+? o1.FindNext(11, :StartingAt = 10)
+#--> 11
+
+? o1.FindNext(100_000, :StartingAt = 70_000)
+#--> 100_000
+
+#--
+
+? o1.FindPrevious(10, :StartingAt = 5)
+#--> 0
+
+? o1.FindPrevious(10, :StartingAt = 10)
+#--> 0
+
+? o1.FindPrevious(7, :StartingAt = 10)
+#--> 7
+
+? o1.FindPrevious(110_000, :StartingAt = 112_000)
+#--> 110000
+
+//
+
+proff()
+# Executed in 0.52 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzlist(1:120_000)
+o1.Stringified()
+
+proff()
+# Executed in 0.75 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzlist(1:120_000)
+o1.StringifyAndReplaceComma(:With = "*")
+//? o1.ContainsDuplicates()
+
+proff()
+# Executed in 0.75 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ "--_--", [ 12, "--_--", 10], "--_--", 9 ])
+o1.StringifyAndReplace("_", "♥")
+? @@( o1.Content() )
+#--> [ "--♥--", "[ 12, "--♥--", 10 ]", "--♥--", "9" ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------------- # TODO: check performance for large lists over 10K items
+
+pron()
+
+aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
+for i = 1 to 1_000
+	aLargeList + "_--_"
+next
+
+o1 = new stzList(aLargeList)
+o1.StringifyAndReplace("_", "♥")
+
+#--> [ "--♥--", "[ 12, "--♥--", 10 ]", "--♥--", "9" ]
+
+proff()
+# Executed in 2.09 second(s)
+
+/*-------------
+
+pron()
+
+# TODO: General note on performance
+# For all loops on large data (tens of thousands of times and more)
+# don't relay on stzString services, but use Qt directly instead!
+
+oQStr = new QString2()
+oQStr.append("I talk in Ring language!")
+
+? oQStr.contains("ring", FALSE)
+#--> TRUE
+
+oQStr.replace_2("ring", "RING", FALSE)
+? oQStr.mid(0, oQStr.count())
+#--> I talk in RING language!
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------
+
+*/
+pron()
+
+	aLargeList = ["_", "_", "♥"]
+	for i = 1 to 100_000
+		aLargeList + "_"
+	next
+	
+	aLargeList + "♥" + "_" + "_" + "♥"
+	
+	for i = 1 to 50_000
+		aLargeList + "_"
+	next i
+	
+	aLargeList + "♥" + "_" + "_" + "♥"
+	
+
+	# ElapseTime: 0.08s
+
+	o1 = new stzList(aLargeList)
+
+	# ElapsedTime: 0.11
+
+	o1.StringifyAndReplace("♥", :With = "*")
+	? o1.LastNItems(4)
+proff()
+
+	? len(aLargeList)
+	nLen = len(aLargeList)
+	aTemp = []
+
+/*-------------
+pron()
+
+	aLargeList = ["_", "_", "♥"]
+	for i = 1 to 100_000
+		aLargeList + "_"
+	next
+	
+	aLargeList + "♥" + "_" + "_" + "♥"
+	
+	for i = 1 to 50_000
+		aLargeList + "_"
+	next i
+	
+	aLargeList + "♥" + "_" + "_" + "♥"
+	
+	for i = 1 to 10
+		aLargeList + "_"
+	next i
+
+	? len(aLargeList)
+	nLen = len(aLargeList)
+	aTemp = []
+
+	for i = 1 to nLen
+		oQStr = new QString2()
+		oQStr.append(aLargeList[i])
+		
+	next
+
+	
+proff()
+
+/*==============
+
 StartProfiler()
 
 o1 = new stzList([ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "🌞"] ] ])
