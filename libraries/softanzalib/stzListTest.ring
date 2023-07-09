@@ -1,6 +1,5 @@
 load "stzlib.ring"
 
-
 /*============
 
 pron()
@@ -12,14 +11,14 @@ proff()
 # Executed in 0.05 second(s)
 
 /*============
-*/
+
 pron()
 
 o1 = new stzList(1:299_000)
 o1.Stringified()
 
 proff()
-# Executed in 4.08 second(s)
+# Executed in 3.35 second(s)
 
 /*=============
 
@@ -1337,7 +1336,7 @@ StopProfiler()
 #--> Executed in 0.05 second(s)
 
 /*==========
-
+*/
 pron()
 
 o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
