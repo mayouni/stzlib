@@ -1,6 +1,17 @@
 load "stzlib.ring"
 
-/*-------------
+
+/*============
+*/
+pron()
+
+o1 = new stzList(1:100_000)
+? o1.NLastItems(10)
+
+proff()
+# Executed in 0.18 second(s)
+
+/*============
 
 pron()
 
@@ -1356,19 +1367,21 @@ proff()
 # Executed in 0.55 second(s)
 
 /*======= MANAGING DUPLICATES
-
+*/
 pron()
 
-o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
+//o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 
 # NOTE: the same code shown here can work as-is for stzListOfStrings!
 # to test it just replace the line above with the following:
 // o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7" ])
 
+o1 = new stzList(1:228000)
+
 ? o1.ContainsDuplicates()
 #--> TRUE
 # Executed in 0.03 second(s)
-
+/*
 ? o1.HowManyDuplicates()
 #--> 3
 # Executed in 0.06 second(s)
@@ -1378,23 +1391,16 @@ o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 # Executed in 0.06 second(s)
 
 ? @@( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
-#--> [ [ 5, 3 ], [ 5, 4 ], [ 7, 6 ] ]
-#--> the number 5 is duplicated at position 3, and then
-#    the number 5 is duplicated (again) at position 4, and finally,
+#--> [ [ 5, [ 3, 4 ] ], [ 7, [ 6 ] ] ]
+#--> the number 5 is duplicated at positions 3 and 4, and
 #    the number 7 is duplicated at position 6.
 # Executed in 0.25 second(s)
-
-? @@( o1.DuplicatesUZ() )
-#--> [ [ 5, [ 3, 4 ] ], [ 7, [ 6 ] ] ]
-#--> The number 5 is duplicated at positions 3 and 4, and
-#    the number 7 is duplicated at position 6.
-# Executed in 0.17 second(s)
 
 o1.RemoveDuplicates()
 ? @@( o1.Content() )
 #--> [ 5, 7, 4 ]
 # Executed in 0.07 second(s)
-
+*/
 proff()
 # Executed in 0.54 second(s)
 
@@ -1593,7 +1599,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*==========
-*/
+
 StartProfiler()
 #                   1    2    3    4    5    6    7     8    9   10
 o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" , "♥", "_", "_" ])
@@ -1608,9 +1614,9 @@ o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" , "♥", "_", "_" ])
 #--> 3
 
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.09 second(s)
 
-/*------------
+/*===============
 
 StartProfiler()
 
@@ -1621,26 +1627,31 @@ StartProfiler()
 		aLargeListOfStr + "_"
 	next
 	
-	aLargeListOfStr + "♥" + "_" + "_" + "♥"
+	//aLargeListOfStr + "♥" + "_" + "_" + "♥"
 	
 	for i = 1 to 50_000
 		aLargeListOfStr + "_"
 	next i
 	
-	aLargeListOfStr + "♥" + "_" + "_" + "♥"
+	//aLargeListOfStr + "♥" + "_" + "_" + "♥"
 	
 	for i = 1 to 10
 		aLargeListOfStr + "_"
 	next i
 
-# Finding previous "♥"
+	# ElapsedTime: 0.08s
+
+# Finding next "♥"
 
 	o1 = new stzList(aLargeListOfStr)
+	# ElapsedTime: 0.11s
 
 	? o1.FindNext("♥", :StartingAt = 12_000)
 	#--> 100_004
 	# Executed in 2.25 second(s)
-	
+
+	? o1.FindNth(6, "♥")
+
 	? o1.FindNthNext(6, "♥", :StartingAt = 1)
 	#--> 150_011
 	# Executed in 3.50 second(s)
@@ -1785,7 +1796,7 @@ StopProfiler()
 # Executed in 31.56 second(s)
 
 /*------------
-
+*/
 StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
@@ -1806,15 +1817,16 @@ StartProfiler()
 	for i = 1 to 10
 		aLargeListOfStr + "_"
 	next i
-
+? ElapsedTime()
 # Removing dupicates
 
 	o1 = new stzList(aLargeListOfStr)
-
+? o1.FindDuplicates()
+/*
 	o1.RemoveDuplicates()
 	? o1.Content()
 	#--> [ "_", "HI", "ME", "YOU" ]
-
+*/
 StopProfiler()
 # Executed in 3.58 second(s)
 

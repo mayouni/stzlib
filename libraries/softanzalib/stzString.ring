@@ -461,7 +461,7 @@ class stzString from stzObject
 		but IsQString(pcStr)
 			@oQString = pcStr
 
-		but isList(pcStr)
+/*		but isList(pcStr)
 
 			if StzListQ(pcStr).IsListOfNumbers()
 				StzRaise("Incorrect param! You must provide a list of strings.")
@@ -489,7 +489,7 @@ class stzString from stzObject
 				[ 10, "_" ],
 				'{ Q("anycode").Uppercased() }'
 			])
-			*/
+		
 
 			aTempList = pcStr
 			nLen = len(aTempList)
@@ -515,7 +515,7 @@ class stzString from stzObject
 
 			@oQString = new QString2()
 			@oQString.append(cResult)
-
+*/
 		else
 			stzRaise("Can't create the stzString object! You must provide a string, a QString, or a list.")
 		ok
@@ -12521,16 +12521,54 @@ class stzString from stzObject
 		
 		#>
 
+		#< @FunctionAlternativeForms
+
+		#--> See bottom of file!
+
+		#>
+
 	def SubStringReplacedCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		return This.Copy().ReplaceSubStringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 
-	#---
+		#< @FunctionAlternativeForms
+
+		#--> See bottom of file!
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def Replace(pcSubStr, pcNewSubStr)
 		This.ReplaceCS(pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+		
+		def ReplaceQ(pcSubStr, pcNewSubStr)
+			This.Replace(pcSubStr, pcNewSubStr)
+			return This
+		
+		#>
+
+		#< @FunctionAlternativeForms
+
+		#--> See bottom of file!
+
+		#>
+
 	def SubStringReplaced(pcSubStr, pcNewSubStr)
 		return This.Copy().ReplaceSubStringQ(pcSubStr, pcNewSubStr).Content()
+
+		#< @FunctionAlternativeForms
+
+		#--> See bottom of file!
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		#--> See bottom of file!
+
+		#>
 
 	  #---------------------------------#
 	 #     REPLACING FIRST N CHARS     #
@@ -45304,10 +45342,6 @@ def ReplaceIBS()
 			return This		
 
 	#-- WIHTOUT CASESENSITIVITY
-
-	def ReplaceQ(pcSubStr, pcNewSubStr)
-		This.Replace(pcSubStr, pcNewSubStr)
-		return This
 
 	def ReplaceAll(pcSubStr, pcNewSubStr)
 		This.Replace(pcSubStr, pcNewSubStr)

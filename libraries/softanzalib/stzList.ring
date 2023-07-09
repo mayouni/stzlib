@@ -753,7 +753,18 @@ class stzList from stzObject
 				return This.NFirstItemsQR(n, pcReturnType)
 
 	def NLastItems(n)
-		return This.Section( This.NumberOfItems() - n + 1, :LastItem)
+		aContent = This.Content()
+		nLen = len(aContent)
+		n1 = nLen - n + 1
+		n2 = nLen
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + aContent[i]
+		next
+
+		return aResult
 
 		def NLastItemsQ(n)
 			return NLastItemsQR(n, :stzList)
@@ -6549,20 +6560,23 @@ class stzList from stzObject
 		return This.IsPureList()
 
 	def ItemsHaveSameValue()
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		bResult = TRUE
 		if This.ItemsHaveSameType()
 			if This.ItemsAreAllNumbers() or This.ItemsAreAllStrings()
-				for i = 2 to This.NumberOfItems()		
-					if This.Item(i) != This.Item(i-1)
+				for i = 2 to nLen		
+					if aContent[i] != aContent[i-1]
 						bResult = FALSE
 						exit
 					ok
 				next
 
 			but This.ItemsAreAllLists()
-				for i=2 to This.NumberOfItems()
-					oTempList = new stzList(Item(i))
-					if oTempList.IsEqualTo(Item(i-1))
+				for i = 2 to nLen
+					oTempList = new stzList(aContent[i])
+					if oTempList.IsEqualTo(aContent[i-1])
 						bResult = FALSE
 						exit
 					ok
@@ -7028,13 +7042,12 @@ class stzList from stzObject
 	#----------------------------------------------#
 
 	def AllItemsArePairsOfObjects()
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
 		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
 
 		for i = 1 to nLen
-			item = This.Item(i)
 
 			if NOT (isList(aContent[i]) and len(aContent[i]) = 2 and
 				isObjects(aContent[i][1]) and isObject(aContent[i][2]))
@@ -7083,26 +7096,25 @@ class stzList from stzObject
 	#---------------------------------------------------------------#
 
 	def ContainsOnlyListsWithSameNumberOfItems()
-		bResult = TRUE
-		nLen = This.NumberOfItems()
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		if nLen = 0
 			return FALSE
 		ok
 
-		if NOT isList(This[1])
+		if NOT isList(aContent[1])
 			return FALSE
 		ok
 
-		nLen = len(This[1])
-		if nLen = 1
+		nLenFirst = len(aContent[1])
+		if nLenFirst = 1
 			return TRUE
 		ok
 
-		aContent = This.Content()
+		bResult = TRUE
 
 		for i = 2 to nLen
-			item = This.Item(i)
 
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = nLen )
 				bResult = FALSE
@@ -15324,19 +15336,15 @@ class stzList from stzObject
 	#====================================================#
 
 	def ContainsDuplicatesCS(pCaseSensitive)
-		bResult = FALSE
-		nLen = This.NumberOfItems()
+		
+		aSet = This.DuplicatesRemoved()
 
-		for i = 1 to nLen
-			n = This.NumberOfOccurrenceCS(This.Item(i), pCaseSensitive)
+		if len(aSet) != This.NumberOfItems()
+			return TRUE
 
-			if n > 1
-				bResult = TRUE
-				exit
-			ok
-		next
-
-		return bResult
+		else
+			return FALSE
+		ok
 
 		def ContainsDuplicatedItemsCS(pCaseSensitive)
 			return This.ContainsDuplicatesCS(pCaseSensitive)
@@ -15376,11 +15384,13 @@ class stzList from stzObject
 	#==================================================#
 
 	def ContainsNonDuplicatedItemsCS(pCaseSensitive)
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		bResult = FALSE
 
-		nLen = This.NumberOfItems()
 		for i = 1 to nLen
-			anPos = This.FindCS(This.Item(i), pCaseSensitive)
+			anPos = This.FindCS(aContent[i], pCaseSensitive)
 			if len(anPos) = 1
 				bResult = TRUE
 				exit
@@ -15740,55 +15750,6 @@ class stzList from stzObject
 
 		#>
 
-	  #-------------------------------------------------#
-	 #  DUPLICATES AND THEIR POSITIONS -- UZ/Extended  #
-	#-------------------------------------------------#
-
-	def DuplicatesAndTheirPositionsUCS(pCaseSensitive)
-		aDuplicated = This.DuplicatsCS(pCaseSensitive)
-		nLen = len(aDuplicated)
-
-		aResult = []
-		for i = 1 to nLen
-			anPos = This.FindCSQ(aDuplicated[i], pCaseSensitive)
-			if len(anPos) > 0
-				aResult + [ aDuplicated[i], anPos ]
-			ok
-		next
-
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def DuplicatesUZCS(pCaseSensitive)
-			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
-
-		def DuplicatedItemsAndTheirPositionsUCS(pCaseSensitive)
-			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
-
-		def DuplicatedItemsUZCS(pCaseSensitive)
-			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def DuplicatesAndTheirPositionsU()
-		return This.DuplicatesAndTheirPositionsUCS(:CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def DuplicatesUZ()
-			return This.DuplicatesAndTheirPositionsU()
-
-		def DuplicatedItemsAndTheirPositionsU()
-			return This.DuplicatesAndTheirPositionsU()
-
-		def DuplicatedItemsUZ()
-			return This.DuplicatesAndTheirPositionsU()
-
-		#>
-
 	  #----------------------------------------#
 	 #   FINDING DUPLICATES OF A GIVEN ITEM   #
 	#----------------------------------------#
@@ -15851,17 +15812,35 @@ class stzList from stzObject
 		# If we are lucky, we use directly a Qt-based solution
 
 		if pCaseSensitive = TRUE and This.IsListOfStrings()
-			aTemp = This.ToStzListOfStrings().DuplicatesRemoved()
-			This.Update(aTemp)
+
+			aResult = This.ToStzListOfStrings().DuplicatesRemoved()
+
+			This.UpdateWith(aResult)
 			return
 		ok
 
 		# Otherwise, we do it by ourselves
 
-		anPos = This.FindDuplicatesCS(pCaseSensitive)
-		if len(anPos) > 0
-			This.RemoveItemsAtPositions(anPos)
+		aSorted = ring_sort( This.Content() )
+		nLen = len(aSorted)
+
+		if nLen < 2
+			return
 		ok
+
+		aResult = []
+
+		for i = 2 to nLen
+
+			oQCurrent = new QString2()
+			oQCurrent.append( @@(aSorted[i]) )
+			
+			oQPrevious = new QString2()
+			oQPrevious.append( @@(aSorted[i-1]) )
+
+		next
+
+		This.UpdateWith(aResult)
 
 		#< @FunctionAlternativeForms
 
@@ -17604,7 +17583,7 @@ class stzList from stzObject
 		but n = This.NumberOfItems()
 			return This.LastOccurrenceCS(pItem, pCaseSensitive)
 		ok
-
+/*
 		if This.ItemsAreNumbersOrStrings() and
 		   (isNumber(pItem) or isString(pItem)) and
 		   bCaseSensitive = TRUE
@@ -17678,7 +17657,19 @@ class stzList from stzObject
 		else // isObject(pItem)
 			StzRaise("Can't find objet items!")
 		ok
+*/
 
+		if isNumber(pItem)
+
+		but isString(pItem)
+"em"
+			acStringsZ = This.StringsZ()
+
+		but isList(pItem)
+
+		else // isObject(pItem)
+
+		ok
 
 		#< @FunctionAlternativeForms
 
@@ -17778,6 +17769,8 @@ class stzList from stzObject
 		# Doing the job
 
 		aContent = This.Content()
+		nLen = len(aContent)
+
 		nResult = 0
 
 		if ( This.IsListOfNumbers() or This.IsListOfStrings() ) and
@@ -17790,10 +17783,9 @@ class stzList from stzObject
 
 		cItem = @@(pItem)
 
-		nLen = This.NumberOfItems()
 		for i = 1 to nLen
 	
-			if Q(cItem).IsEqualToCS( @@(This.Item(i)), pCaseSensitive )
+			if Q(cItem).IsEqualToCS( @@(aContent[i]), pCaseSensitive )
 				nResult = i
 				exit
 			ok
@@ -17878,14 +17870,6 @@ class stzList from stzObject
 
 		# Doing the job
 
-		nResult = 0
-		nLen = This.NumberOfItems()
-		cType = ring_type(pItem)
-
-		if cType = "OBJECT"
-			StzRaise("Can't process! Objects can not be found yet.")
-		ok
-
 		if This.IsListOfNumbersOrStrings() and
 		   Q(pITem).IsNumberOrString() and
 		   pCaseSensitive = TRUE
@@ -17902,9 +17886,14 @@ class stzList from stzObject
 		cItem = @@(pItem)
 		n = 0
 	
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		nResult = 0
+
 		for i = nLen to 1 step -1
 			n++
-			if Q(cItem).IsEqualToCS( @@(This.Item(i)), pCaseSensitive )
+			if Q(cItem).IsEqualToCS( @@(aContent[i]), pCaseSensitive )
 				nResult = nLen - n + 1
 				exit
 			ok
@@ -18730,12 +18719,12 @@ class stzList from stzObject
 			pItem = pItem[2]
 		ok
 
-		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
-			nStart = nStart[2]
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
 		ok
 
-		if NOT Q([ n, nStart]).BothAreNumbers()
-			StzRaise("Incorrect param type! n and nStart must be numbers.")
+		if NOT Q([ n, pnStartingAt]).BothAreNumbers()
+			StzRaise("Incorrect param type! n and pnStartingAt must be numbers.")
 		ok
 
 		# Early checks (gains performance for large strings)
@@ -18746,8 +18735,8 @@ class stzList from stzObject
 
 		nLen = This.NumberOfItems()
 
-		if (NOT Q(n).IsBetween(1, nLen - nStart)) or
-		   (NOT Q(nStart).IsBetween(1, nLen - n))
+		if (NOT Q(n).IsBetween(1, nLen - pnStartingAt)) or
+		   (NOT Q(pnStartingAt).IsBetween(1, nLen - n))
 
 			return 0
 		ok
@@ -18759,16 +18748,17 @@ class stzList from stzObject
 
 		# Doing the job
 
-		nResult  = This.SectionQ(nStart, nLen).
+		nResult  = This.SectionQ(pnStartingAt, nLen).
 				FindNthCS(n, pItem, pCaseSensitive)
 
 		if nResult != 0
-			nResult += nStart - 1
+			nResult += pnStartingAt - 1
 		ok
 
 		return nResult
-*/
 
+
+*/
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
 		ok
@@ -18778,12 +18768,13 @@ class stzList from stzObject
 		ok
 
 		# Doing the job
-
+This.Section(pnStartingAt + 1, This.NumberOfItems())
+/*
 		nResult = This.SectionQ(pnStartingAt + 1, This.NumberOfItems()).
 			FindNthCS(n, pItem, pCaseSensitive) + pnStartingAt
 
 		return nResult
-
+*/
 		#< @FunctionAlternativeForms
 
 		def FindNextNthOccurrenceCS( n, pItem, nStart, pCaseSensitive )
@@ -18887,9 +18878,9 @@ class stzList from stzObject
 		# Until this point, elapsed time approches 0.80 second
 		# in parsing a list of +150K hynrid items
 
-		# For the same list, the following check take about 2.76 second
+		# For the same list, the following check take about 2.76 seconds
 
-		nPos = This.SectionQ(nStart, 1).
+		nPos = This.SectionQ(nStart, 1).ReverseQ().
 			    FindNthCS(n, pItem, pCaseSensitive)
 
 		if nPos != 0
@@ -18956,7 +18947,6 @@ class stzList from stzObject
 		#--> 7
 
 		*/
-//return This.FindNextNthOccurrenceCS(1, pItem, pnStartingAt, pCaseSensitive)
 
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
@@ -18967,7 +18957,11 @@ class stzList from stzObject
 		ok
 
 		nResult = This.SectionQ(pnStartingAt + 1, :Last).
-			FindFirstCS(pItem, pCaseSensitive) + pnStartingAt
+			FindFirstCS(pItem, pCaseSensitive)
+
+		if nResult != 0
+			nResult += pnStartingAt
+		ok
 
 		return nResult
 
@@ -23335,7 +23329,7 @@ class stzList from stzObject
 			but isObject(item)
 
 				n++
-				cObjectName = "obj#" + n
+				cObjectName = "{obj#" + n + "}"
 				cItem = cObjectName
 
 				# WARNING: It's impossible to get the name of the object
@@ -23372,6 +23366,143 @@ class stzList from stzObject
 
 		def ToListOfStringifiedItems()
 			return This.Stringified()
+
+	  #-------------------------------------------------------------------------------#
+	 #  STRINGIFYING THE ITEMS AND REPLACING A SUBSTRING BY AN OTHER IN EACH STRING  #
+	#-------------------------------------------------------------------------------#
+
+	def StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		#< QtBased | Uses QString2() #>
+
+		# NOTE: General note on performance
+		# For all loops running on large data (tens of thousands of times and more)
+		# don't rely on softanza objects services (stzString and alike), use Qt directly instead!
+
+		# Resolving params
+
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		if isList(pcOtherSubStr) and Q(pcOtherSubStr).IsWithOrByOrUsingNamedParam()
+			pcOtherSubStr = pcOtherSubStr[2]
+		ok
+
+		if NOT isString(pcOtherSubStr)
+			StzRaise("Incorrect param type! pcOtherSubStr must be a string.")
+		ok
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT (pCaseSensitive = TRUE or pCaseSensitive = FALSE)
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		acResult = []
+		cItem = ""
+		n = 0 # Used to count the objects contained in the list
+
+		for i = 1 to nLen
+			item = aContent[i]
+			if isNumber(item)
+				cItem = ""+ item
+
+			but isString(item)
+
+				oQStr = new QString2()
+				oQStr.append(item)
+
+				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
+					cItem = item
+				else
+					oQStr.replace_2(pcSubStr, pcOtherSubStr, pCaseSensitive)
+					cItem = oQStr.mid(0, oQStr.count())
+				ok
+
+			but isList(item)
+				item = @@(item)
+				oQStr = new QString2()
+				oQStr.append(item)
+
+				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
+					cItem = item
+				else
+					oQStr.replace(pcSubStr, pcOtherSubStr, pCaseSensitive)
+					cItem = oQStr.mid(0, oQStr.count())
+				ok
+
+			but isObject(item)
+
+				n++
+				cObjectName = "{obj#" + n + "}"
+				cItem = cObjectName
+
+				# WARNING: It's impossible to get the name of the object
+				# by code (should be requested from Mahmoud in future Ring)
+			ok
+
+			acResult + cItem
+		next
+
+		This.UpdateWith(acResult)
+
+		#< @FunctionFluentForm
+
+		def StringifyAndReplaceCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			This.StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This
+
+		def StringifyAndReplaceCSQR(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			switch pcReturnType
+			on :stzListOfStrings
+				return new stzListOfstrings( This.StringifiedAndReplacedCS(pcSubStr, pcOtherSubStr, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def StringifiedAndReplacedCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		acResult = This.Copy().StringifyAndReplaceCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()
+		return acResult
+
+		def ItemsStringifiedAndReplacedCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.StringifiedAndCommaReplacedCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def StringifyAndReplace(pcSubStr, pcOtherSubStr)
+		This.StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def StringifyAndReplaceQ(pcSubStr, pcOtherSubStr)
+			This.StringifyAndReplace(pcSubStr, pcOtherSubStr)
+			return This
+
+		def StringifyAndReplaceQR(pcSubStr, pcOtherSubStr)
+			switch pcReturnType
+			on :stzListOfStrings
+				return new stzListOfstrings( This.StringifiedAndReplaced(pcSubStr, pcOtherSubStr) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def StringifiedAndReplaced(pcSubStr, pcOtherSubStr)
+		acResult = This.Copy().StringifyAndReplaceQ(pcSubStr, pcOtherSubStr).Content()
+		return acResult
+
+		def ItemsStringifiedAndReplaced(pcSubStr, pcOtherSubStr)
+			return This.StringifiedAndReplaced(pcSubStr, pcOtherSubStr)
 
 	  #--------------------------------------------------#
 	 #  TRANSFORMING THE ITEMS OF THE LIST TO A STRING  #
@@ -23653,11 +23784,13 @@ class stzList from stzObject
 			cMainClass = 'stz' + Q(p[1]).InfereStzClass()
 			cCode = 'oObj = new ' + cMainClass + '(@item)'
 
+			aContent = This.Content()
+			nLenList = len(aContent)
+
 			bResult = TRUE
-			nLenList = This.NumberOfItems()
 
 			for i = 1 to nLenList
-				@item = This.Item(i)
+				@item = aContent[i]
 		
 				for j = 2 to nLenMethods
 
@@ -30920,12 +31053,14 @@ class stzList from stzObject
 	#-----------------------------------------#
 
 	def Chars()
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		aResult = []
-		nLen = This.NumberOfItems()
 
 		for i = 1 to nLen
-			item = This.Item(i)
-			if isString(item) and Q(item).IsChar()
+			item = aContent[i]
+			if isString(item) and StzStringQ(item).IsChar()
 				aResult + item
 			ok
 		next
@@ -30940,11 +31075,13 @@ class stzList from stzObject
 	#-------------------------------------------#
 
 	def Letters()
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		aResult = []
-		nLen = This.NumberOfItems()
 
 		for i = 1 to nLen
-			item = This.Item(i)
+			item = aContent[i]
 			if isString(item) and Q(item).IsLetter()
 				aResult + item
 			ok
@@ -30960,11 +31097,13 @@ class stzList from stzObject
 	#-----------------------------------------#
 
 	def Pairs()
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		aResult = []
-		nLen = This.NumberOfItems()
 
 		for i = 1 to nLen
-			item = This.Item(i)
+			item = aContent[i]
 			if isList(item) and Q(item).IsPair()
 				aResult + item
 			ok
