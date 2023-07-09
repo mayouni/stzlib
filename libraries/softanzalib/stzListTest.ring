@@ -2,17 +2,17 @@ load "stzlib.ring"
 
 
 /*============
-*/
+
 pron()
 
 o1 = new stzList(1:100_000)
 ? o1.NLastItems(10)
 
 proff()
-# Executed in 0.18 second(s)
+# Executed in 0.05 second(s)
 
 /*============
-
+*/
 pron()
 
 o1 = new stzList(1:299_000)
