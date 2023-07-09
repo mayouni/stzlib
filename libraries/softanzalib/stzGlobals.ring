@@ -1000,7 +1000,7 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 		return ""+ pValue
 
 	but isString(pValue)
-
+/*
 		cChar = '"'
 
 		if Q(pValue).IsBoundedBy('"')
@@ -1010,9 +1010,69 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 		ok
 
 		return cChar + pValue + cChar
+*/
+
+		cChar = '"'
+
+		oQStr = new QString2()
+		oQStr.append(pValue)
+		c1 = oQStr.mid(0, 1)
+		c2 = oQStr.mid(oQStr.count()-1, 1)
+
+		if c1 = '"' and
+		   c2 = '"'
+			cChar = "'"
+		ok
+
+		cResult = cChar + pValue + cChar
+		return cResult
 
 	but isList(pValue)
-		return ListToCode(pValue)
+		# NOTE: I duplicate the same code as StzListQ().ToCode() here
+		# so @@() can be more performant when used in large loops
+
+		aContent = pValue
+		nLen = len(aContent)
+
+		cResult = "[ "
+
+		for i = 1 to nLen
+			if isNumber(aContent[i])
+				cResult += "" +
+					   aContent[i] + ", "
+
+			but isString(aContent[i])
+				cChar = '"'
+		
+				oQStr = new QString2()
+				oQStr.append(aContent[i])
+				c1 = oQStr.mid(0, 1)
+				c2 = oQStr.mid(oQStr.count()-1, 1)
+		
+				if c1 = '"' and
+				   c2 = '"'
+					cChar = "'"
+				ok
+		
+				cResult += (cChar + aContent[i] + cChar + ", ")
+
+
+			but isList(aContent[i])
+				cResult += ( ComputableForm(aContent[i]) + ", ")
+
+			else // isObject(pValue[i])
+				cResult += "{obj}, "
+			ok
+
+		next
+
+		oQStr = new QString2()
+		oQStr.append(cResult)
+		oQStr.replace( (oQStr.count() - 2), 2, "" )
+		oQStr.append(" ]")
+
+		cResult = oQStr.mid(0, oQStr.count())
+		return cResult
 	ok
 
 	#< @FunctionFluentForm

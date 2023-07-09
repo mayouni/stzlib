@@ -713,7 +713,14 @@ class stzList from stzObject
 		return This.NumberOfItemsQ().IsNotEven()
 
 	def NFirstItems(n)
-		return This.Section(1, n)
+		aContent = This.Content()
+		aResult = []
+
+		for i = 1 to n
+			aResult + aContent[i]
+		next
+
+		return aResult
 		
 		def NFirstItemsQ(n)
 			return NFirstItemsQR(n, :stzList)
@@ -760,7 +767,7 @@ class stzList from stzObject
 
 		aResult = []
 
-		for i = 1 to nLen
+		for i = n1 to n2
 			aResult + aContent[i]
 		next
 
@@ -23256,47 +23263,46 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		cCode = "[ "
-		n = 0 # Used to count the objects contained in the list
+		cResult = "[ "
 
 		for i = 1 to nLen
-			item = aContent[i]
-			if isNumber(item)
-				cCode += ""+ item + ", "
+			if isNumber(aContent[i])
+				cResult += "" +
+					   aContent[i] + ", "
 
-			but isString(item)
-				oItem = Q(item)
-				if oItem.IsBoundedBy([ "@[:", "]" ])
-					cCode += oItem.BoundsRemoved('"') + ", "
-
-				but oItem.IsBoundedBy('"')
-					cCode += "'" + item + "'" + ", "
-
-				else
-					cCode += '"' + item + '"' + ", "
+			but isString(aContent[i])
+				cChar = '"'
+		
+				oQStr = new QString2()
+				oQStr.append(aContent[i])
+				c1 = oQStr.mid(0, 1)
+				c2 = oQStr.mid(oQStr.count()-1, 1)
+		
+				if c1 = '"' and
+				   c2 = '"'
+					cChar = "'"
 				ok
+		
+				cResult += (cChar + aContent[i] + cChar + ", ")
 
-			but isList(item)
-				cCode += Q(item).ToCode() + ", "	# Recursive call!
 
-			but isObject(item)
+			but isList(aContent[i])
+				cResult += ( ComputableForm(aContent[i]) + ", ")
 
-				n++
-				cObjectName = "obj#" + n
-				eval(cObjectName + ' = item')
-
-				cCode += cObjectName + ", "
-
-				# WARNING: It's impossible to get the name of the object
-				# by code (should be requested from Mahmoud in future Ring)
+			else // isObject(pValue[i])
+				cResult += "{obj}, "
 			ok
 
 		next
 
-		cCode += " ]"
-		cCode = Q(cCode).ReplaceQ(",  ]", " ]").Content()
+		oQStr = new QString2()
+		oQStr.append(cResult)
+		oQStr.replace( (oQStr.count() - 2), 2, "" )
+		oQStr.append(" ]")
 
-		return cCode
+		cResult = oQStr.mid(0, oQStr.count())
+		return cResult
+
 
 		def ToCodeQ()
 			return new stzString(This.ToCode())

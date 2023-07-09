@@ -2,6 +2,30 @@ load "stzlib.ring"
 
 /*----------------
 
+str = "ring"
+for i = 1 to 10000
+	str += "ring"
+next
+
+pron()
+
+oQStr = new QString2()
+oQStr.append(str)
+
+c1 = oQStr.mid(0, 1)
+#--> "r"
+
+c2 = oQStr.mid(oQStr.count()-1, 1)
+#--> "g"
+
+? c1
+? c2
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
 pron()
 
 o1 = new stzlist(1:120_000)
@@ -47,16 +71,7 @@ o1.Stringified()
 proff()
 # Executed in 0.75 second(s)
 
-/*-------------
 
-pron()
-
-o1 = new stzlist(1:120_000)
-o1.StringifyAndReplaceComma(:With = "*")
-//? o1.ContainsDuplicates()
-
-proff()
-# Executed in 0.75 second(s)
 
 /*-------------
 
@@ -109,6 +124,18 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-------------
+*/
+pron()
+
+aList = ["_", "_", "♥"]
+
+for i = 1 to 10
+	? @@(aList)
+next
+
+proff()
+
+/*-------------
 
 */
 pron()
@@ -134,12 +161,11 @@ pron()
 	# ElapsedTime: 0.11
 
 	o1.StringifyAndReplace("♥", :With = "*")
-	? o1.LastNItems(4)
-proff()
+	? @@( o1.LastNItems(10) )
+	#--> [ "*", "_", "_", "*" ]
 
-	? len(aLargeList)
-	nLen = len(aLargeList)
-	aTemp = []
+proff()
+# Executed in 5.41 second(s)
 
 /*-------------
 pron()
