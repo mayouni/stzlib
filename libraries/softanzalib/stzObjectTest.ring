@@ -269,12 +269,16 @@ class Person
 		? "Job  : " + job
 
 /*----------------
+*/
+pron()
 
 o1 = new QString()
 ? IsQObject(o1)
 ? IsQtObject(o1)
 
 # Both return TRUE --> Flexible syntax!
+
+proff()
 
 /*----------------
 

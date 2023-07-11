@@ -15344,7 +15344,7 @@ class stzList from stzObject
 
 	def ContainsDuplicatesCS(pCaseSensitive)
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensittive[2]
+			pCaseSensitive = pCaseSensitive[2]
 		ok
 
 		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
@@ -15366,7 +15366,6 @@ class stzList from stzObject
 					Content()
 		ok
 
-	
 		nLen = len(aContent)
 		if nLen < 2
 			return FALSE
@@ -15374,7 +15373,13 @@ class stzList from stzObject
 
 		bResult = FALSE
 
-		/* ... */
+		for i = 1 to nLen
+			if ring_find(aContent, aContent[i]) > 1
+				bResult = TRUE
+				exit
+			ok
+		next
+
 
 		return bResult
 
@@ -23297,17 +23302,17 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 			but isString(aContent[i])
 				cChar = '"'
-		
+	
 				oQStr = new QString2()
 				oQStr.append(aContent[i])
 				c1 = oQStr.mid(0, 1)
 				c2 = oQStr.mid(oQStr.count()-1, 1)
 		
-				if c1 = '"' and
+				if c1 = '"' or
 				   c2 = '"'
 					cChar = "'"
 				ok
-		
+	
 				cResult += (cChar + aContent[i] + cChar + ", ")
 
 
@@ -23398,11 +23403,14 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def ToListOfStringifiedItems()
 			return This.Stringified()
 
-	  #-------------------------------------------------------------------------------#
-	 #  STRINGIFYING THE ITEMS AND REPLACING A SUBSTRING BY AN OTHER IN EACH STRING  #
-	#-------------------------------------------------------------------------------#
 
-	def StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+	  #---------------------------------------------------------------------------------------#
+	 #  STRINGIFYING ITEMS AND REPLACING A SUBSTRING BY AN OTHER IN EACH STRING -- EXTENDED  #
+	#---------------------------------------------------------------------------------------#
+	# This extented version returns along the stringified items, the list of positions of
+	# those beeing affected by the replacement operation
+
+	def StringifyAndReplaceXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
 		#< QtBased | Uses QString2() #>
 
 		# NOTE: General note on performance
@@ -23437,6 +23445,8 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		nLen = len(aContent)
 
 		acResult = []
+		anPos = []
+
 		cItem = ""
 		n = 0 # Used to count the objects contained in the list
 
@@ -23455,6 +23465,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 				else
 					oQStr.replace_2(pcSubStr, pcOtherSubStr, pCaseSensitive)
 					cItem = oQStr.mid(0, oQStr.count())
+					anPos + i
 				ok
 
 			but isList(item)
@@ -23483,7 +23494,69 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			acResult + cItem
 		next
 
-		This.UpdateWith(acResult)
+		aResult = [ acResult, anPos ]
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def StringifyAndReplaceXTCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			This.StringifyAndReplaceXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This
+
+		def StringifyAndReplaceXTCSQR(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzListOfStrings
+				return new stzListOfstrings( This.StringifiedAndReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def StringifiedAndReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		acResult = This.Copy().StringifyAndReplaceXTCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()
+		return acResult
+
+		def ItemsStringifiedAndReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.StringifiedAndCommaReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def StringifyAndReplaceXT(pcSubStr, pcOtherSubStr)
+		This.StringifyAndReplaceXTCS(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def StringifyAndReplaceXTQ(pcSubStr, pcOtherSubStr)
+			This.StringifyAndReplaceXT(pcSubStr, pcOtherSubStr)
+			return This
+
+		def StringifyAndReplaceXTQR(pcSubStr, pcOtherSubStr, pcReturnType)
+			switch pcReturnType
+			on :stzListOfStrings
+				return new stzListOfstrings( This.StringifiedAndReplacedXT(pcSubStr, pcOtherSubStr) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def StringifiedAndReplacedXT(pcSubStr, pcOtherSubStr)
+		acResult = This.Copy().StringifyAndReplaceXTQ(pcSubStr, pcOtherSubStr).Content()
+		return acResult
+
+		def ItemsStringifiedAndReplacedXT(pcSubStr, pcOtherSubStr)
+			return This.StringifiedAndReplacedXT(pcSubStr, pcOtherSubStr)
+
+	  #-------------------------------------------------------------------------------#
+	 #  STRINGIFYING THE ITEMS AND REPLACING A SUBSTRING BY AN OTHER IN EACH STRING  #
+	#-------------------------------------------------------------------------------#
+
+	def StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		#< QtBased | Uses QString2() #>
+
+		aResult = This.Copy().StringifyAndReplaceXTCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()[1]
+		This.Update(aResult)
 
 		#< @FunctionFluentForm
 
@@ -23536,13 +23609,13 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def ItemsStringifiedAndReplaced(pcSubStr, pcOtherSubStr)
 			return This.StringifiedAndReplaced(pcSubStr, pcOtherSubStr)
 
-	  #--------------------------------------------------------------------------------------------------#
-	 #  STRINGIFYING THE ITEMS, LOWERCASING THEM, AND REPLACING A SUBSTRING BY AN OTHER IN EACH STRING  #
-	#--------------------------------------------------------------------------------------------------#
+	  #----------------------------------------------------------------------------------------------------------#
+	 #  STRINGIFYING ITEMS, LOWERCASING THEM, AND REPLACING A SUBSTRING BY AN OTHER IN EACH STRING -- EXTENDED  #
+	#==========================================================================================================#
 
 	# A special function used internally by Softanza to boost its performance
 
-	def StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+	def StringifyLowercaseAndReplaceXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
 		#< QtBased | Uses QString2() #>
 
 		# Resolving params
@@ -23573,6 +23646,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		nLen = len(aContent)
 
 		acResult = []
+		anPos = []
 		cItem = ""
 		n = 0 # Used to count the objects contained in the list
 
@@ -23591,6 +23665,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 				else
 					oQStr.replace_2(pcSubStr, pcOtherSubStr, pCaseSensitive)
 					cItem = oQStr.mid(0, oQStr.count())
+					anPos + i
 				ok
 
 			but isList(item)
@@ -23616,12 +23691,75 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			ok
 
 			oQLocale = new QLocale("C")
-			cItem = oQLocale.toLower( oQStr.mid(0, oQStr.count()) )
+			cItem = oQLocale.toLower( cItem )
 			acResult + cItem
 		next
 
-		This.UpdateWith(acResult)
+		aResult = [ acResult, anPos ]
+		This.UpdateWith(aResult)
 
+		#< @FunctionFluentForm
+
+		def StringifyLowercaseAndReplaceXTCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			This.StringifyLowercaseAndReplaceXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This
+
+		def StringifyLowercaseAndReplaceXTCSQR(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzListOfStrings
+				return new stzListOfstrings( This.StringifiedLowercasedAndReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def StringifiedLowercasedAndReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		acResult = This.Copy().StringifyLowercaseAndReplaceXTCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()
+		return acResult
+
+		def ItemsStringifiedLowercasedAndReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.StringifiedLowercasedAndCommaReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def StringifyLowercaseAndReplaceXT(pcSubStr, pcOtherSubStr)
+		This.StringifyLowercaseAndReplaceXTCS(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def StringifyLowercaseAndReplaceXTQ(pcSubStr, pcOtherSubStr)
+			This.StringifyLowercaseAndReplaceXT(pcSubStr, pcOtherSubStr)
+			return This
+
+		def StringifyLowercaseAndReplaceXTQR(pcSubStr, pcOtherSubStr, pcReturnType)
+			switch pcReturnType
+			on :stzListOfStrings
+				return new stzListOfstrings( This.StringifiedLowercasedAndReplacedXT(pcSubStr, pcOtherSubStr) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def StringifiedLowercasedAndReplacedXT(pcSubStr, pcOtherSubStr)
+		acResult = This.Copy().StringifyLowercaseAndReplaceXTQ(pcSubStr, pcOtherSubStr).Content()
+		return acResult
+
+		def ItemsStringifiedLowercasedAndReplacedXT(pcSubStr, pcOtherSubStr)
+			return This.StringifiedLowercasedAndReplacedXT(pcSubStr, pcOtherSubStr)
+
+	  #-----------------------------------------------------------------------------------------------#
+	 #  STRINGIFYING ITEMS, LOWERCASING THEM, AND REPLACING A SUBSTRING BY AN OTHER IN EACH STRING   #
+	#-----------------------------------------------------------------------------------------------#
+	# A special function used internally by Softanza to boost its performance
+
+	def StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		#< QtBased | Uses QString2() #>
+
+		aResult = This.Copy().StringifyLowercaseAndReplaceXTCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()[1]
+		This.Update(aResult)
+		
 		#< @FunctionFluentForm
 
 		def StringifyLowercaseAndReplaceCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive)
@@ -23673,9 +23811,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def ItemsStringifiedLowercasedAndReplaced(pcSubStr, pcOtherSubStr)
 			return This.StringifiedLowercasedAndReplaced(pcSubStr, pcOtherSubStr)
 
-	  #--------------------------------------------------#
+	  #==================================================#
 	 #  TRANSFORMING THE ITEMS OF THE LIST TO A STRING  #
-	#--------------------------------------------------#
+	#==================================================#
 
 	def ToString()
 		return This.ToStringXT(:ConcatenatedUsing = NL)
