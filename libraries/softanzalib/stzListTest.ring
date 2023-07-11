@@ -1336,7 +1336,7 @@ StopProfiler()
 #--> Executed in 0.05 second(s)
 
 /*==========
-*/
+
 pron()
 
 o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
@@ -1344,7 +1344,7 @@ o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
 ? o1.ContainsDuplicates()
 #--> TRUE
 # Executed in 0.03 second(s)
-
+/*
 ? @@( o1.FindDuplicates() )
 #--> [ 3, 4, 6, 9 ]
 # Executed in 0.18 second(s)
@@ -1365,7 +1365,46 @@ o1.RemoveDuplicates()
 proff()
 # Executed in 0.55 second(s)
 
-/*======= MANAGING DUPLICATES
+/*--------------- 
+
+pron()
+
+o1 = new stzList([ "A", "b", "C", "B", '"B",', "D", "E" ])
+? o1.ToCode()
+#-->  [ "A", "b", "C", "B", '"B",', "D", "E" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*--------------- 
+*/
+
+pron()
+
+o1 = new stzList([ 10, [ :Tunis, :Paris ], "ONE," ])
+o1.StringifyAndReplaceQ(",", "*").Show()
+
+proff()
+
+/*--------------- 
+*/
+
+pron()
+
+aLarge = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two" ]
+for i = 1 to 10
+	aLarge + ("*"+i)
+next
+aLarge + "in" + "out" + "IN" + "OUT"
+
+o1 = new stzList(aLarge)
+? @@( o1.StringifyAndReplaceQ(",", "*").Content() )
+//? o1.ContainsDuplicates()
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
 */
 pron()
 
@@ -1375,7 +1414,7 @@ pron()
 # to test it just replace the line above with the following:
 // o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7" ])
 
-o1 = new stzList(1:228000)
+//o1 = new stzList(1:228000)
 
 ? o1.ContainsDuplicates()
 #--> TRUE

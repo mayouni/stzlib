@@ -108,15 +108,70 @@ Executed in 0.12 second(s)
 pron()
 
 o1 = new stzList([ "--_--", [ 12, "--_--", 10], "--_--", 9 ])
-o1.StringifyAndReplace("_", "♥")
+o1.StringifyAndReplaceXT("_", "♥")
 ? @@( o1.Content() )
-#--> [ "--♥--", "[ 12, "--♥--", 10 ]", "--♥--", "9" ]
+#--> [
+#	[ "--♥--", "[ 12, "--♥--", 10 ]", "--♥--", "9" ],
+#	[ 1, 3 ]
+# ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
+
+*-------------
+
+pron()
+
+o1 = new stzList([ "--_--", [ 12, "--_--", 10], "--_--", 9 ])
+o1.StringifyAndReplace("_", "♥")
+? @@( o1.Content() )
+#--> [ "--_--", [ 12, "--_--", 10 ], "--_--", 9 ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*-------------
 
+pron()
+
+aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
+for i = 1 to 1_000
+	aLargeList + "ring"
+next
+
+o1 = new stzList(aLargeList)
+o1.StringifyAndReplaceXT("_", "*")
+? o1.Content()[2]
+#--> [1, 3]
+
+proff()
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ 1, "r_INg", 2, "R_ng", 3, "R_ING" ])
+o1.StringifyLowercaseAndReplaceXT("_", :With = AHeart())
+o1.Show()
+#--> [ [ "1", "r♥ing", "2", "r♥ng", "3", "r♥ing" ], [ 2, 4, 6 ] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------
+*/
+pron()
+
+o1 = new stzList([ 1, "r_INg", 2, "R_ng", 3, "R_ING" ])
+o1.StringifyLowercaseAndReplace("_", :With = AHeart())
+o1.Show()
+#--> [ "1", "r♥ing", "2", "r♥ng", "3", "r♥ing" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------
+*/
 pron()
 
 aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
