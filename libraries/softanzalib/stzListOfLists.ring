@@ -383,6 +383,9 @@ class stzListOfLists from stzList
 		def HasSameNumbersOfItems()
 			return This.ListsHaveSameNumberOfItems()
 
+		def ContainsSameNumberOfItems()
+			return This.ListsHaveSameNumberOfItems()
+
 		#--
 
 		def ListsHaveSameSize()

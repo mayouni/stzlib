@@ -1000,17 +1000,6 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 		return ""+ pValue
 
 	but isString(pValue)
-/*
-		cChar = '"'
-
-		if Q(pValue).IsBoundedBy('"')
-
-			cChar = "'"
-
-		ok
-
-		return cChar + pValue + cChar
-*/
 
 		cChar = '"'
 
@@ -1019,7 +1008,7 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 		c1 = oQStr.mid(0, 1)
 		c2 = oQStr.mid(oQStr.count()-1, 1)
 
-		if c1 = '"' and
+		if c1 = '"' or
 		   c2 = '"'
 			cChar = "'"
 		ok
@@ -1029,10 +1018,14 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 
 	but isList(pValue)
 		# NOTE: I duplicate the same code as StzListQ().ToCode() here
-		# so @@() can be more performant when used in large loops
+		# so @@() can hopefully be more performant when used in large loops
 
 		aContent = pValue
 		nLen = len(aContent)
+
+		if nLen = 0
+			return "[ ]"
+		ok
 
 		cResult = "[ "
 
@@ -1049,7 +1042,7 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 				c1 = oQStr.mid(0, 1)
 				c2 = oQStr.mid(oQStr.count()-1, 1)
 		
-				if c1 = '"' and
+				if c1 = '"' or
 				   c2 = '"'
 					cChar = "'"
 				ok
