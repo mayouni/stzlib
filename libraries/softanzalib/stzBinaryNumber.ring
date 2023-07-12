@@ -171,6 +171,9 @@ class stzBinaryNumber from stzObject
 			return FALSE
 		ok
 
+		def ContainsFractionalPart()
+			return This.HasFractionalPart()
+
 	def FractionalPartReversed()
 		return StzStringQ(This.FractionalPart()).Reversed()
 

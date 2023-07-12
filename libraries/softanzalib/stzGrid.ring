@@ -266,6 +266,9 @@ class stzGrid from stzObject
 			return FALSE
 		ok
 
+		def ContainsNVLines(n)
+			return This.HasNVLines(n)
+
 	def HasNHLines(n)
 		if This.NumberOfHLines() = n
 			return TRUE
@@ -273,12 +276,18 @@ class stzGrid from stzObject
 			return FALSE
 		ok
 
+		def ContainsNHLines(n)
+			return This.HasNHLines(n)
+
 	def HasNNodes(n)
 		if This.NumberOfNodes() = n
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		def ContainsNVNodes(n)
+			return This.HasNVNodes(n)
 		
 	def AllNodesOf_NthVLineAre_Strings(n)
 		bResult = TRUE
@@ -413,6 +422,9 @@ class stzGrid from stzObject
 			return FALSE
 		ok
 
+		def ContainsCentralHLine()
+			return This.HasCentralHLine()
+
 	def RankOfCentralHLine()
 		if This.HasCentralHLine()
 			return 1+ StzNumberQ( ""+ (This.NumberOfHLines()/2) ).IntegerPart()
@@ -432,6 +444,9 @@ class stzGrid from stzObject
 			return FALSE
 		ok
 
+		def ContainsCentralVLine()
+			return This.HasCentralVLine()
+
 	def RankOfCentralVLine()
 		if This.HasCentralVLine() 
 			return 1+ StzNumberQ( ""+ (This.NumberOfVLines()/2) ).IntegerPart()		
@@ -450,6 +465,9 @@ class stzGrid from stzObject
 			return FALSE
 		ok
 
+		def ContainsCentralNode()
+			return This.HasCentralNode()
+
 	def HasCentralRegion()
 		if NOT This.HasCentralNode()
 			return TRUE
@@ -457,6 +475,9 @@ class stzGrid from stzObject
 			return FALSE
 
 		ok
+
+		def ContainsCentralRegion()
+			return This.HasCentralRegion()
 
 	def PositionOfCentralNode()
 		if This.HasCentralNode()

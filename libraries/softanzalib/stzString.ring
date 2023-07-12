@@ -8658,7 +8658,6 @@ class stzString from stzObject
 
 		#>
 
-
 	  #--------------------------------------------------------#
 	 #   CHECKING IF THE STRING HAS REPEATED TRAILING CHARS   #
 	#--------------------------------------------------------#
@@ -8666,22 +8665,52 @@ class stzString from stzObject
 	def HasRepeatedTrailingCharsCS(pCaseSensitive)
 		return This.Copy().ReverseCharsQ().HasRepeatedLeadingCharsCS(pCaseSensitive)
 
+		#< @FunctionAlternativeForms
+
 		def HasTrailingRepeatedCharsCS(pCaseSensitive)
 			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
 
 		def HasTrailingCharsCS(pCaseSensitive)
 			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
-	
+
+		#--
+
+		def ContainsRepeatedTrailingCharsCS(pCaseSensitive)
+			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
+
+		def ContainsTrailingRepeatedCharsCS(pCaseSensitive)
+			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
+
+		def ContainsTrailingCharsCS(pCaseSensitive)
+			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasRepeatedTrailingChars()
 		return This.HasRepeatedTrailingCharsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def HasTrailingRepeatedChars()
 			return This.HasRepeatedTrailingChars()
 
 		def HasTrailingChars()
 			return This.HasRepeatedTrailingChars()
+
+		#--
+
+		def ContainsRepeatedTrailingChars()
+			return This.HasRepeatedTrailingChars()
+
+		def ContainsTrailingRepeatedChars()
+			return This.HasRepeatedTrailingChars()
+
+		def ContainsTrailingChars()
+			return This.HasRepeatedTrailingChars()
+
+		#>
 
 	  #-----------------------------------------#
 	 #   GETTING THE REPEATED TRAILING CHARS   #
@@ -8964,6 +8993,54 @@ class stzString from stzObject
 		def LeadingCharsRemoved()
 			return This.RepeatedLeadingCharsRemoved()
 
+	  #------------------------------------------------#
+	 #  FINDING POSITIONS OF REPEATED TRAILING CHARS  # TODO
+	#================================================#
+
+	def FindRepeatedTrailingCharsCS(pCaseSensitive)
+		StzRaise("Unavailable in this version of the library!")
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRepeatedTrailingChars()
+		return This.FindRepeatedTrailingCharsCS(:CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------#
+	 #  GETTING REPEATED TRAILING CHARS ALONG WITH THEIR POSITIONS  # TODO
+	#--------------------------------------------------------------#
+
+	def RepeatedTrailingCharsZCS(pCaseSensitive)
+		StzRaise("Unavailable in this version of the library!")
+
+		def RepeatedTrailingCharsAndTheirPositionsCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepatedTrailingCharsZ()
+		return This.RepeatedTrailingCharsZCS(:CaseSensitive = TRUE)
+
+		def RepeatedTrailingCharsAndTheirPositions()
+			return This.RepatedTrailingCharsZ()
+
+	  #-------------------------------------------------------------#
+	 #  GETTING REPEATED TRAILING CHARS ALONG WITH THEIR SECTIONS  # TODO
+	#-------------------------------------------------------------#
+
+	def RepeatedTrailingCharsZZCS(pCaseSensitive)
+		StzRaise("Unavailable in this version of the library!")
+
+		def RepeatedTrailingCharsAndTheirSectionsCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsZZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedTrailingCharsZZ()
+		return This.RepeatedTrailingCharsZZCS(:CaseSensitive = TRUE)
+
+		def RepeatedTrailingCharsAndTheirSections()
+			return This.RepeatedTrailingCharsZZ()
+
 	  #--------------------------------------#
 	 #   REMOVING REPEATED TRAILING CHARS   #
 	#--------------------------------------#
@@ -9034,6 +9111,75 @@ class stzString from stzObject
 		def TrailingCharsRemoved()
 			return This.RepeatedTrailingCharsRemoved()
 	
+	  #------------------------------------------------------------#
+	 #  FINDING POSITIONS OF REPEATED LEADING AND TRAILING CHARS  # TODO
+	#============================================================#
+
+	def FindRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+		StzRaise("Unavailable in this version of the library!")
+
+		def FindRepeatedTrailingAndLeadingChars(pCaseSensitive)
+			return This.FindRepeatedLeadingAndTrailingChars(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRepeatedLeadingAndTrailingChars()
+		return This.FindRepeatedLeadingAndTrailingCharsCS(:CaseSensitive = TRUE)
+
+	  #-------------------------------------------------------------------------#
+	 #  GETTING REPEATED LEADING AND Trailing CHARS ALONG WITH THEIR POSITIONS  # TODO
+	#-------------------------------------------------------------------------#
+
+	def RepeatedLeadingAndTrailingCharsZCS(pCaseSensitive)
+		StzRaise("Unavailable in this version of the library!")
+
+		def RepeatedLeadingAndTrailingCharsAndTheirPositionsCS(pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingCharsZCS(pCaseSensitive)
+
+		def RepeatedTrailingCharsAndLeadingZCS(pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingCharsZCS(pCaseSensitive)
+
+		def RepeatedTrailingAndLeadingCharsAndTheirPositionsCS(pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingCharsZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepatedLeadingAndTrailingCharsZ()
+		return This.RepeatedLeadingAndTrailingCharsZCS(:CaseSensitive = TRUE)
+
+		def RepeatedLeadingAndTrailingCharsAndTheirPositions()
+			return This.RepatedLeadingAndTrailingCharsZ()
+
+	  #----------------------------------------------------------------#
+	 #  GETTING REPEATED LEADING AND CHARS ALONG WITH THEIR SECTIONS  # TODO
+	#----------------------------------------------------------------#
+
+	def RepeatedLeadingAndTrailingCharsZZCS(pCaseSensitive)
+		StzRaise("Unavailable in this version of the library!")
+
+		def RepeatedLeadingAndTrailingCharsAndTheirSectionsCS(pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingCharsZZCS(pCaseSensitive)
+
+		def RepeatedTrailingAndLeadingCharsZZCS(pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingCharsZZCS(pCaseSensitive)
+
+		def RepeatedTrailingAndLeadingCharsAndTheirSectionsCS(pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingCharsZZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedLeadingAndTrailingCharsZZ()
+		return This.RepeatedLeadingAndTrailingCharsZZCS(:CaseSensitive = TRUE)
+
+		def RepeatedLeadingAndTrailingCharsAndTheirSections()
+			return This.RepeatedLeadingAndTrailingCharsZZ()
+
+		def RepeatedTrailingAndLeadingCharsZZ()
+			return This.RepeatedLeadingAndTrailingCharsZZ()
+
+		def RepeatedTrailingAndLeadingCharsAndTheirSections()
+			return This.RepeatedLeadingAndTrailingCharsZZ()
+
 	  #--------------------------------------------------#
 	 #   REMOVING REPEATED LEADING AND TRAILING CHARS   #
 	#--------------------------------------------------#
@@ -9095,7 +9241,7 @@ class stzString from stzObject
 				This.RemoveLeadingAndTrailingChars()
 				return This
 	
-	def RepeatedTLeadingAndrailingCharsRemoved()
+	def RepeatedLeadingAndrailingCharsRemoved()
 		cResult = This.Copy().RemoveRepeatedLeadingAndTrailingCharsQ().Content()
 		return cResult
 
@@ -9105,6 +9251,116 @@ class stzString from stzObject
 		def LeadingAndTrailingCharsRemoved()
 			return This.RepeatedLeadingAndTrailingCharsRemoved()
 
+	  #--------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS REPEATED CHARS  #
+	#==================================================#
+
+	def HasRepeatedCharsCS(pCaseSensitive) # TODO: Test it!
+		nLen = @oQString.count()
+		if nLen < 2
+			return FALSE
+		ok
+
+		nResult = FALSE
+
+		for i = 2 to nLen
+			if @oQString.at(i-1) = @oQString.at(i-2)
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def ContainsRepeatedCharsCS(pCaseSensitive)
+			return This.HasRepeatedCharsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def HasRepeatedChars()
+		return This.HasRepeatedCharsCS(:CaseSensitive = TRUE)
+
+		def ContainsRepeatedChars()
+			return This.HasRepeatedChars()
+
+	  #---------------------------------------#
+	 #  FINDING POSITIONS OF REPEATED CHARS  # TODO
+	#---------------------------------------#
+
+	def FindRepeatedCharsCS(pCaseSensitive)
+		StzRaise("Unavailable in this version of the library!")
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRepeatedChars()
+		return This.FindRepeatedCharsCS(:CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------#
+	 #  GETTING REPEATED CHARS ALONG WITH THEIR POSITIONS  # TODO
+	#-----------------------------------------------------#
+
+	def RepeatedCharsZCS(pCaseSensitive)
+		StzRaise("Unavailable in this version of the library!")
+
+		def RepeatedCharsAndTheirPositionsCS(pCaseSensitive)
+			return This.RepeatedCharsZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepatedCharsZ()
+		return This.RepeatedCharsZCS(:CaseSensitive = TRUE)
+
+		def RepeatedCharsAndTheirPositions()
+			return This.RepatedCharsZ()
+
+	  #----------------------------------------------------#
+	 #  GETTING REPEATED CHARS ALONG WITH THEIR SECTIONS  # TODO
+	#----------------------------------------------------#
+
+	def RepeatedCharsZZCS(pCaseSensitive)
+		StzRaise("Unavailable in this version of the library!")
+
+		def RepeatedCharsAndTheirSectionsCS(pCaseSensitive)
+			return This.RepeatedCharsZZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepatedCharsZZ()
+		return This.RepeatedCharsZZCS(:CaseSensitive = TRUE)
+
+		def RepeatedCharsAndTheirSecions()
+			return This.RepatedCharsZZ()
+
+	  #-------------------------#
+	 #  REMOVE REPEATED CHARS  #
+	#-------------------------#
+
+	def RemoveRepeatedCharsCS(pCaseSensitive)
+		cResult = This.CharsQ().
+			  RemoveDuplicatesQR(:stzListOfStrings).Concatenated()
+
+		This.UpdateWith(cResult)
+
+		def RemoveRepeatedCharsCSQ(pCaseSensitive)
+			This.RemoveRepeatedCharsCS(pCaseSensitive)
+			return This
+
+	def RepeatedCharsRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveRepeatedCharsCSQ(pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveRepeatedChars()
+		return This.RemoveRepeatedCharsCS(:CaseSensitive = TRUE)
+
+		def RemoveRepeatedCharsQ()
+			This.RemoveRepeatedChars()
+			return This
+
+	def RepeatedCharsRemoved()
+		return This.RepeatedCharsRemovedCS(:CaseSensitive = TRUE)
+		
 	  #----------------------------------------------------------#
 	 #  CHECHKING IF THE STRING HAS LEADING AND TRAILING CHARS  #
 	#----------------------------------------------------------#
@@ -9118,6 +9374,8 @@ class stzString from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def HasRepeatedTrailingAndLeadingCharsCS(pCaseSensitive)
 			return This.HasRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
 
@@ -9127,10 +9385,28 @@ class stzString from stzObject
 		def HasTrailingAndLeadingCharsCS(pCaseSensitive)
 			return This.HasRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
 
+		#--
+
+		def ContainsRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+
+		def ContainsRepeatedTrailingAndLeadingCharsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+
+		def ContainsLeadingAndTrailingCharsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+
+		def ContainsTrailingAndLeadingCharsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasRepeatedLeadingAndTrailingChars()
 		return This.HasRepeatedLeadingAndTrailingCharsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def HasRepeatedTrailingAndLeadingChars()
 			return This.HasRepeatedLeadingAndTrailingChars()
@@ -9140,6 +9416,70 @@ class stzString from stzObject
 
 		def HasTrailingAndLeadingChars()
 			return This.HasRepeatedLeadingAndTrailingChars()
+
+		#--
+
+		def ContainsRepeatedLeadingAndTrailingChars()
+			return This.HasRepeatedLeadingAndTrailingChars()
+
+		def ContainsRepeatedTrailingAndLeadingChars()
+			return This.HasRepeatedLeadingAndTrailingChars()
+
+		def ContainsLeadingAndTrailingChars()
+			return This.HasRepeatedLeadingAndTrailingChars()
+
+		def ContainsTrailingAndLeadingChars()
+			return This.HasRepeatedLeadingAndTrailingChars()
+
+		#>
+
+	  #-----------------------------------------------#
+	 #  FINDING POSITIONS OF REPEATED LEADING CHARS  # TODO
+	#===============================================#
+
+	def FindRepeatedLeadingCharsCS(pCaseSensitive)
+		StzRaise("Unavailable in this version of the library!")
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRepeatedLeadingChars()
+		return This.FindRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
+
+	  #-------------------------------------------------------------#
+	 #  GETTING REPEATED LEADING CHARS ALONG WITH THEIR POSITIONS  # TODO
+	#-------------------------------------------------------------#
+
+	def RepeatedLeadingCharsZCS(pCaseSensitive)
+		StzRaise("Unavailable in this version of the library!")
+
+		def RepeatedLeadingCharsAndTheirPositionsCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepatedLeadingCharsZ()
+		return This.RepeatedLeadingCharsZCS(:CaseSensitive = TRUE)
+
+		def RepeatedLeadingCharsAndTheirPositions()
+			return This.RepatedLeadingCharsZ()
+
+	  #------------------------------------------------------------#
+	 #  GETTING REPEATED LEADING CHARS ALONG WITH THEIR SECTIONS  # TODO
+	#------------------------------------------------------------#
+
+	def RepeatedLeadingCharsZZCS(pCaseSensitive)
+		StzRaise("Unavailable in this version of the library!")
+
+		def RepeatedLeadingCharsAndTheirSectionsCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsZZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedLeadingCharsZZ()
+		return This.RepeatedLeadingCharsZZCS(:CaseSensitive = TRUE)
+
+		def RepeatedLeadingCharsAndTheirSections()
+			return This.RepeatedLeadingCharsZZ()
 
 	  #--------------------------------------------#
 	 #   REMOVING A GIVEN REPEATED LEADING CHAR   #
@@ -37878,22 +38218,63 @@ def ReplaceIBS()
 	 #  CHECKING IF THE STRING HAS LESS CHARS THAN AN OTHER STRING  #
 	#--------------------------------------------------------------#
 
-	def HasLessNumberOfChars(paOtherString)
-		if isList(paOtherString) and Q(paOtherString).IsThenNamedParam()
-			paOtherString = paOtherString[2]
+	def HasLessNumberOfChars(pcOtherStr)
+		if isList(pcOtherStr) and Q(pcOtherStr).IsThenNamedParam()
+			pcOtherString = pcOtherString[2]
 		ok
 
-		if This.NumberOfChars() < len(paOtherString)
+		if NOT isString(pcOtherStr)
+			StzRaise("Incorrect param type! pcOtherStr must be a string.")
+		ok
+
+		if This.NumberOfChars() < Q(pcOtherStr).NumberOfChars()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def HasLessChars(paOtherString)
-			return This.HasLessNumberOfChars(paOtherString)
+		#< @FunctionAlternativeForms
 
-		def IsSmaller(paOtherString)
-			return This.HasLessNumberOfChars(paOtherString)
+		def HasLessChars(pcOtherStr)
+			return This.HasLessNumberOfChars(pcOtherStr)
+
+		def IsSmaller(pcOtherStr)
+			return This.HasLessNumberOfChars(pcOtherStr)
+
+		#--
+
+		def ContainsLessChars(pcOtherStr)
+			return This.HasLessNumberOfChars(pcOtherStr)
+
+		def ContainsLessNumberOfChars(pcOtherStr)
+			return This.HasLessNumberOfChars(pcOtherStr)
+
+		#>
+
+	def HasLessNumberOfCharsThen(pcOtherStr)
+		if NOT isString(pcOtherStr)
+			StzRaise("Incorrect param type! pcOtherStr must be a string.")
+		ok
+
+		return This.HasLessNumberOfChars(pcOtherStr)
+
+		#< @FunctionAlternativeForms
+
+		def HasLessCharsThen(pcOtherStr)
+			return This.HasLessNumberOfCharsThen(pcOtherStr)
+
+		def IsSmallerThen(pcOtherStr)
+			return This.HasLessNumberOfCharsThen(pcOtherStr)
+
+		#--
+
+		def ContainsLessCharsThen(pcOtherStr)
+			return This.HasLessNumberOfCharsThen(pcOtherStr)
+
+		def ContainsLessNumberOfCharsThen(pcOtherStr)
+			return This.HasLessNumberOfCharsThen(pcOtherStr)
+
+		#>
 
 	  #-----------------------#
 	 #   IS IT A LETTER?     #

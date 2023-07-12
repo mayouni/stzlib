@@ -61,7 +61,7 @@ func QStringListToList(oQStrList)
 	ok
 
 	aResult = []
-	for i=0 to oQStrList.size()-1
+	for i = 0 to oQStrList.size()-1
 		aResult + oQStrList.at(i)	
 	next
 
@@ -70,31 +70,24 @@ func QStringListToList(oQStrList)
 	func QStringListObjectToList(oQStrList)
 		return QStringListToList(oQStrList)
 
+	func QStringListContent(oQStrList)
+		return QStringListToList(oQStrList)
+
+	func QStringListObjectContent(oQStrList)
+		return QStringListToList(oQStrList)
+
+	func QStringListToRingList(oQStrList)
+		return QStringListToList(oQStrList)
+
+	func QStringListObjectToRingList(oQStrList)
+		return QStringListToList(oQStrList)
+
 func QStringListToStzListOfStrings(oQStrList)
 	return new stzListOfStrings(QStringListToList(oQStrList))
 
 	func QStringListObjectToStzListOfStrings(oQStrList)
 		return QStringListToStzListOfStrings(oQStrList)
 
-func QStringListContent(poQStrList)
-		if IsQStringListObject(poQStrList)
-			aResult = []
-			for i = 0 to poQStrList.size() - 1
-				aResult + poQStrList.at(i)	
-			next
-			return aResult
-		else
-			StzRaise("A QStringList Qt object is exepected as a param!")
-		ok
-
-	func QStringListObjectContent(poQStrList)
-		return QStringListContent(poQStrList)
-
-	func QStringListToRingList(poQStrList)
-		return QStringListContent(poQStrList)
-
-	func QStringListObjectToRingList(poQStrList)
-		return QStringListContent(poQStrList)
 
 func ListOfStringsToUnicodes(pacListStr)
 	return StzListOfStringsQ( pacListStr ).Unicodes()

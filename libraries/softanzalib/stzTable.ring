@@ -216,6 +216,8 @@ Class stzTable
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
 		def HasColName(pcName)
 			return This.HasColumName(pcName)
 
@@ -224,6 +226,16 @@ Class stzTable
 
 		def HasColumn(pcName)
 			return This.HasColumName(pcName)
+
+		#--
+
+		def ContainsColumName(pcName)
+			return This.HasColumName(pcName)
+
+		def ContainsColName(pcName)
+			return This.HasColumName(pcName)
+
+		#>
 
 	def HasColumnsNames(pacNames)
 		nLen = len(pacNames)
@@ -237,6 +249,8 @@ Class stzTable
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
 		def HasColNames(pacNames)
 			return This.HasColumnsNames(pacNames)
 
@@ -245,6 +259,16 @@ Class stzTable
 
 		def HasCols(pacNames)
 			return This.HasColumnsNames(pacNames)
+
+		#--
+
+		def ContainsColumnsNames(pacNames)
+			return This.HasColumnsNames(pacNames)
+
+		def ContainsColNames(pacNames)
+			return This.HasColumnsNames(pacNames)
+
+		#>
 
 	  #-------------------------------#
 	 #   GETTING NUMBER OF COULMNS   #

@@ -1352,6 +1352,15 @@ class stzNumber from stzObject
 	def HasSign()
 		return This.IsSigned()
 
+		def HasASign()
+			return This.HasSign()
+
+		def ContainsSign()
+			return This.HasSign()
+
+		def ContainsASign()
+			return This.HasSign()
+
 	  #-------------------#
 	 #    COMPARAISON    #
         #-------------------#
@@ -1524,6 +1533,12 @@ class stzNumber from stzObject
 		ok
 
 		def HasDecimalPart()
+			return This.HasFractionalPart()
+
+		def ContainsFractionalPart()
+			return This.HasFractionalPart()
+
+		def ContainsDecimalPart()
 			return This.HasFractionalPart()
 
 	// Returns the fraction part of the number (with a leading "0.")
@@ -2997,6 +3012,9 @@ class stzNumber from stzObject
 				return FALSE
 		ok
 
+		def ContainsHundreds()
+			return This.HasHundreds()
+
 	#-- TOUHSANDS --#
 	def Thousands()
 		return This.Structure()[ :cThousands ]
@@ -3022,6 +3040,9 @@ class stzNumber from stzObject
 		else
 			return FALSE
 		ok
+
+		def ContainsThousands()
+			return This.HasThousands()
 
 	#-- MILLIONS --#
 	def Millions()
@@ -3049,6 +3070,9 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
+		def ContainsMillions()
+			return This.HasMillions()
+
 	#-- BILLIONS --#
 	def Billions()
 		return This.Structure()[ :cBillions ]
@@ -3073,6 +3097,9 @@ class stzNumber from stzObject
 		else
 			return FALSE
 		ok
+
+		def ContainsBillions()
+			return This.HasBillions()
 
 	#-- TRILLIONS --#
 	def Trillions()
@@ -3099,6 +3126,9 @@ class stzNumber from stzObject
 		else
 			return FALSE
 		ok
+
+		def ContainsTrillions()
+			return This.HasTrillions()
 
 	#-- ALL IN ONCE --#
 	def AllUnits()
@@ -3132,15 +3162,6 @@ class stzNumber from stzObject
 	def ContainsDigits()
 		return TRUE
 
-	def ContainsSign()
-		return This.HasSign()
-
-	def ContainsFractionalPart()
-		return This.HasFractionalPart()
-
-		def ContainsDecimalPart()
-			return This.ContainsFractionalPart()
-
 	def Contains(pcDigit)
 		return StzStringQ(This.Content()).Contains(pcDigit)
 
@@ -3150,13 +3171,25 @@ class stzNumber from stzObject
 	def ContainsZeros()
 		return This.Contains("0")
 
+		def HasZeros()
+			return This.ContainsZeros()
+
 	def ContainsOnes()
 		return This.Contains("1")
+
+		def HasOnes()
+			return This.ContainsOnes()
 
 	def ContainsSeveral(pcDigit)
 		return StzStringQ(This.Content()).NumberOfOccurrence(pcDigit) > 1
 
 		def ContainsMany(pcDigit)
+			return This.ContainsSeveral(pcDigit)
+
+		def HasSeveral(pcDigit)
+			return This.ContainsSeveral(pcDigit)
+
+		def HasMany(pcDigit)
 			return This.ContainsSeveral(pcDigit)
 
 	def ContainsSeveralZeros()
@@ -3165,155 +3198,291 @@ class stzNumber from stzObject
 		def ContainsManyZeros()
 			return This.ContainsSeveralZeros()
 
+		def HasSeveralZeros()
+			return This.ContainsSeveralZeros()
+
+		def HasManyZeros()
+			return This.ContainsSeveralZeros()
+
 	def ContainsSeveralOnes()
 		return This.ContainsSeveral("1")
 
 		def ContainsManyOnes()
 			return This.ContainsSeveralOnes()
 
+		def HasSeveralOnes()
+			return This.ContainsSeveralOnes()
+
+		def HasManyOnes()
+			return This.ContainsSeveralOnes()
+
 	def ContainsDozens()
 		return This.NumericValue() >= 10
 
 		def ContainsSeveralDozens()
-			return This.NumericValue() >= 20
+			return This.ContainsDozens()
 
 		def ContainsManyDozens()
-			return This.NumericValue() >= 20
+			return This.ContainsDozens()
 
-	def ContainsHundreds()
-		return This.NumericValue() >= 100
-
-		def ContainsSeveralHundreds()
-			return This.NumericValue() >= 200
+	def ContainsSeveralHundreds()
+		return This.NumericValue() >= 200
 
 		def ContainsManyHundreds()
-			return This.NumericValue() >= 200
+			return This.ContainsSeveralHundreds()
 
-	def ContainsThousands()
-		return This.NumericValue() >= 1000
+		def HasSeveralHundreds()
+			return This.ContainsSeveralHundreds()
 
-		def ContainsSeveralThousands()
-			return This.NumericValue() >= 2000
+		def HasManyHundreds()
+			return This.ContainsSeveralHundreds()
+
+	def ContainsSeveralThousands()
+		return This.NumericValue() >= 2000
 
 		def ContainsManyThousands()
-			return This.NumericValue() >= 2000
+			return This.ContainsSeveralThousands()
+
+		def HasSeveralThousands()
+			return This.ContainsSeveralThousands()
+
+		def HasManyThousands()
+			return This.ContainsSeveralThousands()
 
 	def ContainsTensOfThousands()
 		return This.NumericValue() >= 10_000
 
 		def ContainsSeveralTensOfThousands()
-			return This.NumericValue() >= 20_000
+			return This.ContainsTensOfThousands()
 
 		def ContainsManyTensOfThousands()
-			return This.NumericValue() >= 20_000
+			return This.ContainsTensOfThousands()
+
+		def HasTensOfThousands()
+			return This.ContainsTensOfThousands()
+
+		def HasSeveralTensOfThousands()
+			return This.ContainsSeveralTensOfThousands()
+
+		def HasManyTensOfThousands()
+			return This.ContainsSeveralTensOfThousands()
 
 	def ContainsHundredsOfThousands()
 		return This.NumericValue() >= 100_000
 
 		def ContainsSeveralHundredsOfThousands()
-			return This.NumericValue() >= 200_000
+			return This.ContainsHundredsOfThousands()
 
 		def ContainsManyHundredsOfThousands()
-			return This.NumericValue() >= 200_000
+			return This.ContainsHundredsOfThousands()
 
-	def ContainsMillions()
-		return This.NumericValue() >= 1_000_000
+		def HasHundredsOfThousands()
+			return This.ContainsHundredsOfThousands()
 
-		def ContainsSeveralMillions()
-			return This.NumericValue() >= 2_000_000
+		def HasSeveralHundredsOfThousands()
+			return This.ContainsHundredsOfThousands()
+
+		def HasManyHundredsOfThousands()
+			return This.ContainsHundredsOfThousands()
+
+	def ContainsSeveralMillions()
+		return This.NumericValue() >= 2_000_000
 
 		def ContainsManyMillions()
-			return This.NumericValue() >= 2_000_000
+			return This.ContainsSeveralMillions()
 
 		def ContainsThousandsOfThousands()
 			return This.ContainsMillions()
 
 		def ContainsSeveralThousandsOfThousands()
-			return This.NumericValue() >= 2_000_000
+			return This.ContainsSeveralMillions()
 
 		def ContainsManyThousandsOfThousands()
-			return This.NumericValue() >= 2_000_000
+			return This.ContainsSeveralMillions()
+
+		#--
+
+		def HasSeveralMilllions()
+			return This.ContainsSeveralMillions()
+
+		def HsManyMillions()
+			return This.ContainsSeveralMillions()
+
+		def HasThousandsOfThousands()
+			return This.ContainsMillions()
+
+		def HasSeveralThousandsOfThousands()
+			return This.ContainsSeveralMillions()
+
+		def HasManyThousandsOfThousands()
+			return This.ContainsSeveralMillions()
 
 	def ContainsTensOfMillions()
 		return This.NumericValue() >= 10_000_000
 
 		def ContainsSeveralTensOfMillions()
-			return This.NumericValue() >= 20_000_000
+			return This.ContainsTensOfMillions()
 
 		def ContainsManyTensOfMillions()
-			return This.NumericValue() >= 20_000_000
+			return This.ContainsTensOfMillions()
+
+		#--
+
+		def HasTensOfMillions()
+			return This.ContainsTensOfMillions()
+
+		def HasSeveralTensOfMillions()
+			return This.ContainsTensOfMillions()
+
+		def HasMayTensOfMillions()
+			return This.ContainsTensOfMillions()
 
 	def ContainsHundredsOfMillions()
 		return This.NumericValue() >= 100_000_000
 
 		def ContainsSeveralHundredsOfMillions()
-			return This.NumericValue() >= 200_000_000
+			return This.ContainsHundredsOfMillions()
 
 		def ContainsManyHundredsOfMillions()
-			return This.NumericValue() >= 200_000_000
+			return This.ContainsHundredsOfMillions()
 
-	def ContainsBillions()
-		return This.NumericValue() >= 1_000_000_000
+		#--
 
-		def ContainsSeveralBillions()
+		def HasHundredsOfMillions()
+			return This.ContainsHundredsOfMillions()
+
+		def HasSeveralHundredsOfMillions()
+			return This.ContainsHundredsOfMillions()
+
+		def HasManyHundredsOfMillions()
+			return This.ContainsHundredsOfMillions()
+
+	def ContainsSeveralBillions()
 			return This.NumericValue() >= 2_000_000_000
 
 		def ContainsManyBillions()
-			return This.NumericValue() >= 1_000_000_000
+			return This.ontainsSeveralBillions()
 
 		def ContainsThousandsOfMillions()
-			return This.ContainsBillions()
+			return This.ontainsSeveralBillions()
 
 		def ContainsSeveralThousandsOfMillions()
-			return This.NumericValue() >= 2_000_000_000
+			return This.ontainsSeveralBillions()
 
 		def ContainsManyThousandsOfMillions()
-			return This.NumericValue() >= 1_000_000_000
+			return This.ontainsSeveralBillions()	
+
+		#--
+
+		def HasSeveralBillions()
+			return This.ContainsSeveralBillions()
+
+		def HasManyBillions()
+			return This.ontainsSeveralBillions()
+
+		def HasThousandsOfMillions()
+			return This.ContainsBillions()
+
+		def HasSeveralThousandsOfMillions()
+			return This.ontainsSeveralBillions()
+
+		def HasManyThousandsOfMillions()
+			return This.ontainsSeveralBillions()
 
 	def ContainsTensOfBillions()
 		return This.NumericValue() >= 10_000_000_000
 
 		def ContainsSeveralTensOfBillions()
-			return This.NumericValue() >= 20_000_000_000
+			return This.ContainsTensOfBillions()
 
 		def ContainsManyTensOfBillions()
-			return This.NumericValue() >= 20_000_000_000
+			return This.ContainsTensOfBillions()
+
+		#--
+
+		def HasTensOfBillions()
+			return This.ContainsTensOfBillions()
+
+		def HasSeveralTensOfBillions()
+			return This.HasManyTensOfBillions()
+
+		def HasManyTensOfBillions()
+			return This.HasManyTensOfBillions()
 
 	def ContainsHundredsOfBillions()
 		return This.NumericValue() >= 100_000_000_000
 
 		def ContainsSeveralHundredsOfBillions()
-			return This.NumericValue() >= 200_000_000_000
+			return This.ContainsHundredsOfBillions()
 
 		def ContainsManyHundredsOfBillions()
-			return This.NumericValue() >= 200_000_000_000
+			return This.ContainsHundredsOfBillions()
 
-	def ContainsTrillions()
-		return This.NumericValue() > 1_000_000_000_000
+		#--
 
-		def ContainsSeveralTrillions()
-			return This.NumericValue() >= 2_000_000_000_000
+		def HasHundredsOfBillions()
+			return This.ContainsHundredsOfBillions()
+
+		def HasSeveralHundredsOfBillions()
+			return This.ContainsHundredsOfBillions()
+
+		def HasManyHundredsOfBillions()
+			return This.ContainsHundredsOfBillions()
+
+	def ContainsSeveralTrillions()
+		return This.NumericValue() >= 2_000_000_000_000
 
 		def ContainsManyTrillions()
-			return This.NumericValue() >= 2_000_000_000_000
+			return This.ContainsSeveralTrillions()
+
+		#--
+
+		def HasSeveralTrillions()
+			return This.ContainsSeveralTrillions()
+
+		def HasManyTrillions()
+			return This.ContainsSeveralTrillions()
+
 
 	def ContainsTensOfTrillions()
 		return This.NumericValue() >= 10_000_000_000_000
 
 		def ContainsSeveralTensOfTrillions()
-			return This.NumericValue() >= 10_000_000_000_000
+			return This.ContainsTensOfTrillions()
 
 		def ContainsManyTensOfTrillions()
-			return This.NumericValue() >= 10_000_000_000_000
+			return This.ContainsTensOfTrillions()
+
+		#--
+
+		def HasTensOfTrillions()
+			return This.ContainsTensOfTrillions()
+
+		def HasSeveralTensOfTrillions()
+			return This.ContainsTensOfTrillions()
+
+		def HasManyTensOfTrillions()
+			return This.ContainsTensOfTrillions()
 
 	def ContainsHundredsOfTrillions()
 		return This.NumericValue() >= 100_000_000_000_000
 
 		def ContainsSeveralHundredsOfTrillions()
-			return This.NumericValue() >= 200_000_000_000_000
+			return This.HasHundredsOfTrillions()
 
 		def ContainsManyHundredsOfTrillions()
-			return This.NumericValue() >= 200_000_000_000_000
+			return This.HasHundredsOfTrillions()
+
+		#--
+
+		def HasHundredsOfTrillions()
+			return This.ContainsHundredsOfTrillions()
+
+		def HasSeveralHundredsOfTrillions()
+			return This.HasHundredsOfTrillions()
+
+		def HasManyHundredsOfTrillions()
+			return This.HasHundredsOfTrillions()
 
 	  #----------------------------------#
 	 #    REMOVING SPACES FROM NUMBER   #

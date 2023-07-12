@@ -159,7 +159,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzList([ 1, "r_INg", 2, "R_ng", 3, "R_ING" ])
@@ -171,7 +171,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-------------
-*/
+
 pron()
 
 aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
@@ -190,6 +190,24 @@ o1.StringifyAndReplace("_", "♥")
 
 proff()
 # Executed in 0.09 second(s)
+
+/*-------------
+
+pron()
+
+aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
+for i = 1 to 10_000
+	aLargeList + "ring"
+next
+aLargeList + "--_--" + "--_--"
+
+o1 = new stzList(aLargeList)
+o1.StringifyAndReplaceXT("_", "♥")
+? o1.Content()[2]
+#--> [1, 3, 1005, 1006]
+
+proff()
+# Executed in 0.37 second(s)
 
 /*-------------
 
@@ -216,18 +234,33 @@ proff()
 
 pron()
 
+# ComputableForm() function, abreviated with @@(), is not intended to
+# be used inside large loops like this:
+
 aList = ["_", "_", "♥"]
 
 for i = 1 to 100_000
 	@@(aList)
 next
+#--> Takes more then 20 seconds!
+
+# Instead, you shoud do this:
+
+cList = @@(aList)
+for i = 1 to 100_000
+	cList
+next
+# Takes only 0.05 seconds!
+#--> 400 times more performant.
 
 proff()
-# Executed in 21.59 second(s)
+# Executed in 21.3657 second(s)
 
 /*-------------
-
+*/
 pron()
+
+# In this example, the large list contains +160K items...
 
 	aLargeList = ["_", "_", "♥"]
 	for i = 1 to 100_000
@@ -250,11 +283,14 @@ pron()
 	# ElapsedTime: 0.11
 
 	o1.StringifyAndReplace("♥", :With = "*")
+
+	# ElapsedTime: 12.83s
+
 	o1.LastNItems(40_000)
 	#--> [ "*", "_", "_", "*" ]
 
 proff()
-# Executed in 5.62 second(s)
+# Executed in 12.80 second(s)
 
 /*==============
 

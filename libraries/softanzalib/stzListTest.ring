@@ -1376,18 +1376,29 @@ o1 = new stzList([ "A", "b", "C", "B", '"B",', "D", "E" ])
 proff()
 # Executed in 0.03 second(s)
 
+/*---------------
+
+pron()
+
+o1 = new stzList([ 10, '"[ :Tunis, :Paris ]"', "ONE," ])
+? o1.ToCode()
+#-- [ 10, '"[ :Tunis, :Paris ]"', "ONE," ]
+
+proff()
+# Executed in 0.03 second(s)
+
 /*--------------- 
-*/
 
 pron()
 
 o1 = new stzList([ 10, [ :Tunis, :Paris ], "ONE," ])
-o1.StringifyAndReplaceQ(",", "*").Show()
+? o1.StringifyAndReplaceQ(",", "*").Content()
+#--> [ "10", '[ "tunis"* "paris" ]', "ONE*" ]
 
 proff()
+# Executed in 0.03 second(s)
 
 /*--------------- 
-*/
 
 pron()
 
@@ -1398,36 +1409,148 @@ next
 aLarge + "in" + "out" + "IN" + "OUT"
 
 o1 = new stzList(aLarge)
+
 ? @@( o1.StringifyAndReplaceQ(",", "*").Content() )
-//? o1.ContainsDuplicates()
+#--> [
+#	"10", "20", "One", "ONE",
+#	'[ "tunis"* "paris" ]',
+#	"30", "two", "*1", "*2",
+#	"*3", "*4", "*5", "*6",
+#	"*7", "*8", "*9", "*10",
+#	"in", "out", "IN", "OUT"
+# ]
+
+? o1.ContainsDuplicates()
+#--> FALSE
+
+proff()
+# Executed in 0.04 second(s)
+
+/*--------------- 
+
+pron()
+
+#                                         v                              v
+aLarge = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two", [ :Tunis, :Paris ] ]
+#                                         ^                              ^
+
+for i = 1 to 100_000
+	aLarge + ("*"+i)
+next
+
+aLarge + "in" + "out" + "IN" + "OUT"
+
+o1 = new stzList(aLarge)
+? o1.ContainsDuplicates()
+#--> TRUE
+
+proff()
+# Executed in 8.32 second(s)
+
+/*--------------- 
+
+pron()
+
+aLarge = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two" ]
+
+for i = 1 to 100_000
+	aLarge + ("*"+i)
+next
+
+aLarge + "in" + "out" + "IN" + "OUT"
+
+o1 = new stzList(aLarge)
+? o1.ContainsDuplicates()
+#--> FALSE
+
+proff()
+# Executed in 8.22 second(s)
+
+/*--------------- 
+
+pron()
+
+aLarge = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two" ]
+
+for i = 1 to 100_000
+	aLarge + ("*"+i)
+next
+
+aLarge + "in" + "out" + "IN" + "OUT"
+
+o1 = new stzList(aLarge)
+? o1.ContainsDuplicatesCS(FALSE)
+#--> TRUE
+
+//? o1.NumberOfDuplicationsCS(FALSE)
+#--> 3
+# Executed in 12.41 second(s)
+
+proff()
+# Executed in 12.05 second(s)
+
+/*--------------- 
+
+pron()
+
+aLarge = [ 10, 20, "hi", "hi", [ :Tunis, :Paris ], 20 ]
+
+for i = 1 to 100_000
+	aLarge + ("*"+ i)
+next
+
+aLarge + [ :Tunis, :Paris ] + "hi"
+
+o1 = new stzList(aLarge)
+aContainsXT = o1.ContainsDuplicatesXT()
+
+? aContainsXT[1]
+#--> TRUE
+
+? aContainsXT[2]
+#--> 4
+
+proff()
+
+/*---------------
+
+pron()
+
+aList = [ "5", "7", "5", "5", "4", "7" ]
+
+o1 = new QStringList()
+for i = 1 to len(aList)
+	o1.append(aList[i])
+next
+o1.sort()
+? QStringListContent(o1)
+#--> [ "4", "5", "5", "5", "7", "7" ]
 
 proff()
 # Executed in 0.03 second(s)
 
 /*---------------
-*/
+
 pron()
 
-//o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
+o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 
 # NOTE: the same code shown here can work as-is for stzListOfStrings!
 # to test it just replace the line above with the following:
 // o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7" ])
 
-//o1 = new stzList(1:228000)
-
-? o1.ContainsDuplicates()
+//? o1.ContainsDuplicates()
 #--> TRUE
 # Executed in 0.03 second(s)
-/*
-? o1.HowManyDuplicates()
+
+//? o1.HowManyDuplicates()
 #--> 3
-# Executed in 0.06 second(s)
+# Executed in 0.03 second(s)
 
 ? @@( o1.FindDuplicates() )
 #--> [ 3, 4, 6 ]
-# Executed in 0.06 second(s)
-
+# Executed in 0.03 second(s)
+/*
 ? @@( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
 #--> [ [ 5, [ 3, 4 ] ], [ 7, [ 6 ] ] ]
 #--> the number 5 is duplicated at positions 3 and 4, and
@@ -1438,9 +1561,22 @@ o1.RemoveDuplicates()
 ? @@( o1.Content() )
 #--> [ 5, 7, 4 ]
 # Executed in 0.07 second(s)
-*/
+
 proff()
 # Executed in 0.54 second(s)
+
+/*----------
+*/
+pron()
+
+o1 = new stzList(1:100_000 + 10 + 100 + 1000)
+//? o1.ContainsDuplicates()
+#--> TRUE
+
+? o1.FindDuplicates()
+
+proff()
+# Executed in 2.19 second(s)
 
 /*======= MANAGING DUPLICATED ITEMS: Check errros
 
