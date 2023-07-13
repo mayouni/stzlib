@@ -180,6 +180,32 @@ func CharIsLineSeparator(c)
 func RemoveDiacritic(pcChar)
 	return StzCharQ(pcChar).DiacriticRemoved()
 
+func ACharOtherThen(pcChar)
+	/* ... */
+
+	n = Unicode(pcChar)
+	n = StzListOfNumbersQ( 1: MaxUnicode()).ANumberOtherThen(n)
+
+	def ACharDifferentThen(pcChar)
+		return ACharOtherThen(pcChar)
+
+	def ACharDifferentFrom(pcChar)
+		return ACharOtherThen(pcChar)
+
+	def CharOtherThen(pcChar)
+		return ACharOtherThen(pcChar)
+
+	def CharDifferentThen(pcChar)
+		return ACharOtherThen(pcChar)
+
+	def CharDifferentFrom(pcChar)
+		return ACharOtherThen(pcChar)
+
+func LastUnicodeChar()
+	return StzCharQ( NumberOfUnicodeChars() ).Content()
+
+func FirstUnicodeChar()
+	return StzCharQ( 1 ).Content()
 
 #---- Functions used for natural-coding
 # TODO: generate all the possible functions based on stzChar methods

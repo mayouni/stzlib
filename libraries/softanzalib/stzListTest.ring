@@ -1597,25 +1597,98 @@ proff()
 # Executed in 0.03 second(s)
 
 /*----------
-*/
+
 pron()
 
-o1 = new stzList(1:10_000 + 10 + 100 + 1000)
-o1.PositionsOfEachItemQ().Last3Items() # Or FindItems()
+o1 = new stzList(1:20_000 + 3 + 5 + 7 + 10 + 100 + 1000)
+? @@( o1.PositionsOfEachItemQ().First7Items() ) # Or FindItems()
+#--> [
+#	[ "1", [ 1 ] ],
+#	[ "2", [ 2 ] ],
+#	[ "3", [ 3, 10001 ] ],
+#	[ "4", [ 4 ] ],
+#	[ "5", [ 5, 10002 ] ],
+#	[ "6", [ 6 ] ],
+#	[ "7", [ 7, 10003 ] ]
+# ]
 
 proff()
-# Executed in 2.23 second(s)
+# Executed in 9.78 second(s)
+
+/*----------
 
 /*----------
 
 */
 pron()
 
-o1 = new stzList(1:10_000 + 10 + 100 + 1000)
+o1 = new stzList(
+	[] +
+	"emm, ahh," +		#--> "emm* ahh*"	<<< [1]
+	"emm, ahh*" +		#--> "emm* ahh*"	<<< [2]
+
+	"emm* ahh*" +		#--> "emm* ahh*_"	!!!! [3]
+
+	1:3 +			#--> "[1* 2* 3*]"
+	10 +
+	100 +
+	1:3 +			#--> "[1* 2* 3*]"
+	1000 +
+
+	"oh, bah,," +		#--> "oh* bah**"	<<< [9]
+
+	"[ 1* 2* 3 ]"		#--> "[ 1* 2* 3 ]_"	!!!! [10]
+)
+
+o1.StringifyAndReplaceXT(",", "*")
+o1.Show()
+
+# [
+#	[
+#		"emm* ahh*",	<<< [1]
+#		"emm* ahh*",	<<< [2]
+#		"[ 1* 2* 3 ]",
+#		"10",
+#		"100",
+#		"[ 1* 2* 3 ]",
+#		"1000",
+#		"oh* bah**",	<<< [8]
+#		"[ 1* 2* 3 ]"*
+#	],
+#
+#	[ 1, 2, 8 ]
+# ]
+
+proff()
+
+/*----------
+
+*/
+pron()
+
+o1 = new stzList(
+	1:10_000 +
+
+	"emm, ahh," +	#--> "emm* ahh*"
+	"emm, ahh*" +	#--> "emm* ahh*"
+
+	1:3 + 10 +
+	100 + 1:3 +
+	1000 +
+
+	"oh, bah,," +	#--> "oh* bah**"
+	"[ 1* 2* 3 ]"	#--> "[ 1* 2* 3 ]"
+)
+
 //? o1.ContainsDuplicates()
 #--> TRUE
 
-? o1.FindDuplicates()
+//? @@( o1.FindDuplicates() )
+#--> [
+#	[ "10", [ 10, 10001 ] ],
+#	[ "100", [ 100, 10002 ] ],
+#	[ "1000", [ 1000, 10003 ] ]
+# ]
 
 proff()
 # Executed in 2.19 second(s)

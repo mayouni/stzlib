@@ -1,5 +1,20 @@
 load "stzlib.ring"
 
+pron()
+
+? MaxUnicode()
+#--> 1_114_112
+
+? NumberOfUnicodeChars()
+#--> 149_186
+
+? LastUnicodeChar()
+#--> 䛂
+
+? Unicode("䛂")
+
+proff()
+
 /*------------------
 
 ? Q("✓").CharName() 			#--> CHECK MARK

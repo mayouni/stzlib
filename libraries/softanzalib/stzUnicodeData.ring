@@ -22,6 +22,10 @@ TODO: understand and include this resource (if necessary):
 https://www.unicode.org/Public/UCD/latest/ucd/NameAliases.txt
 */
 
+_nNumberOfUnicodeChars = 149_186
+
+_nMaxUnicode = 1_114_112
+
 _cUnicodeData = "
 0000;<control>;Cc;0;BN;;;;;N;NULL;;;;
 0001;<control>;Cc;0;BN;;;;;N;START OF HEADING;;;;
@@ -34662,6 +34666,14 @@ func UnicodeData()
 		func UnicodeDataAsStringQ()
 			return new stzUnicodeDataAsString()
 
+func MaxUnicode()
+	return _nMaxUnicode
+
+	func LastUnicode()
+		return MaxUnicode()
+
+func NumberOfUnicodeChars()
+	return _nNumberOfUnicodeChars
 
 class stzUnicodeDataAsString from stzUnicodeData
 

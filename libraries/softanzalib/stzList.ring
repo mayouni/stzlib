@@ -15772,8 +15772,8 @@ class stzList from stzObject
 	 #  CHECKING IF THE LIST CONTAINS DUPLICATED ITEMS -- EXTENDED  #
 	#--------------------------------------------------------------#
 	# NOTE: This extended form returns along with result of ContainsDuplicates()
-	# the number of those duplicates (use it if you need both for performance
-	# gain, instead of using both ContaisDuplicates() and NumberOfDuplicates()
+	# the number of those duplicates (use it to get them both in relatively better
+	# performance then if you use separately ContaisDuplicates() and NumberOfDuplicates()
 
 	def ContainsDuplicatesXTCS(pCaseSensitive)
 		#< @QtBased | Uses QStringList >
@@ -15812,7 +15812,7 @@ class stzList from stzObject
 					Content()
 		ok
 
-		# We use QStringList to make tow copies of the stringified list,
+		# We use QStringList to make two copies of the stringified list,
 		# remove duplicates of one of them, and compare their size
 
 		@oQStrList1 = new QStringList()			
@@ -15830,7 +15830,7 @@ class stzList from stzObject
 		nLen1 = @oQStrList1.count()
 		nLen2 = @oQStrList2.count()
 
-		# The size will tell us if the list contains duplicatesenabled()
+		# The size will tell us if the list contains duplicates or not
 
 		aResult = []
 
@@ -16230,40 +16230,78 @@ class stzList from stzObject
 		aContent = []
 
 		# We stringify the list (all items are becoming strings)
+		# so we can manipulate them efficently with QStringList()
 
 		if pCaseSensitive = TRUE
 
 			aContent = This.Copy().
-					StringifyAndReplaceQ(",", "*").
+					StringifyAndReplaceXTQ(",", "*").
 					Content()
 
 		else // pCaseSensitive = FALSE
 
 			aContent = This.Copy().
-					StringifyLowercaseAndReplaceQ(",", "*").
+					StringifyLowercaseAndReplaceXTQ(",", "*").
 					Content()
 		ok
 
+		# Reverting the strings containing "*"
+
+		anPos = aContent[2]
+		nLenPos = len(anPos)
+? @@(anPos)
+sdkhs
+		for i = 1 to nLenPos
+			cStr = @@Q( This.Item(anPos[i]) )
+			oQStr = new QString2()
+			oQStr.append( cStr )
+
+			if oQStr.contains("*", 0)
+				aContent[anPos[i]] = cStr
+			ok
+		next
+
+		# Go forward
+
+		acItems = []
+		anOccur = []
 
 		oQStrList = new QStringList()
 		for i = 1 to nLen
-			oQStrList.append(aContent[i])
+			oQStrList.append(aContent[1][i])
 		next
-/*
-		oQStrSet = new QStringList()
+
 		for i = 1 to nLen
-			oQStrSet.append(aContent[i])
-		next
-		oQStrSet.removeDuplicates()
-		nLenSet = oQStrSet.count()
-*/
-		anResult = []
 
-		for i = 1 to nLenSet
-			
+			cCurrentItem = aContent[1][i]
+			nPos = oQStrList.indexof(cCurrentItem, 0)
+			if nPos = -1
+				loop
+			ok
+
+			nPos = ring_find(acItems, cCurrentItem)
+
+			if nPos = 0
+				acItems + cCurrentItem
+				anOccur + [i]
+
+			else
+				n = ring_find(acItems, cCurrentItem)
+				anOccur[n] + i
+			ok
+
 		next
 
-		return anResult
+		aResult = []
+		nLen = len(acItems)
+
+		for i = 1 to nLen
+			if len(anOccur[i]) > 1
+				aResult + [ acItems[i], anOccur[i] ]
+			ok
+		next
+
+		return aResult 
 
 		#< @FunctionFluentForms
 
@@ -24153,6 +24191,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		# For all loops running on large data (tens of thousands of times and more)
 		# don't rely on softanza objects services (stzString and alike), use Qt directly instead!
 
+		# In fact the problem comes, not from Softanza objects themselves, but from
+		# going back and forth between Ring and Qt
+
 		# Resolving params
 
 		if NOT isString(pcSubStr)
@@ -24182,6 +24223,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		acResult = []
 		anPos = []
+		anPosExt = []
 
 		cItem = ""
 		n = 0 # Used to count the objects contained in the list
@@ -24196,6 +24238,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 				oQStr = new QString2()
 				oQStr.append(item)
 
+				bExtend = FALSE
+				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
+					bExtend = TRUE
+				ok
+
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
 					cItem = item
 				else
@@ -24204,10 +24251,20 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 					anPos + i
 				ok
 
+				if bExtend and ring_find(anPos, i) = 0
+					cItem += "---"
+					anPosExt + i
+				ok
+
 			but isList(item)
 				item = @@(item)
 				oQStr = new QString2()
 				oQStr.append(item)
+
+				bExtend = FALSE
+				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
+					bExtend = TRUE
+				ok
 
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
 					cItem = item
@@ -24215,6 +24272,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 					oQStr.replace_2(pcSubStr, pcOtherSubStr, pCaseSensitive)
 					cItem = oQStr.mid(0, oQStr.count())
+				ok
+
+				if bExtend and ring_find(anPos, i) = 0
+					cItem += "---"
+					anPosExt + i
 				ok
 
 			but isObject(item)
@@ -24230,7 +24292,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			acResult + cItem
 		next
 
-		aResult = [ acResult, anPos ]
+		aResult = [ acResult, anPos, anPosExt ]
 		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
