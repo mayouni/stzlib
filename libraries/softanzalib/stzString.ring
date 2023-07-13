@@ -6393,6 +6393,90 @@ class stzString from stzObject
 			def ThreeFirstChars()
 				return This.NFirstChars(3)
 
+		def First4Chars()
+			return This.FirstNChars(4)
+	
+			def 4FirstChars()
+				return This.First4Chars()
+	
+			def FirstFourChars()
+				return This.First4Chars()
+	
+			def FourFirstChars()
+				return This.First4Chars()
+	
+		def First5Chars()
+			return This.FirstNChars(5)
+	
+			def 5FirstChars()
+				return This.First5Chars()
+	
+			def FirstFiveChars()
+				return This.First5Chars()
+	
+			def FiveFirstChars()
+				return This.First5Chars()
+	
+		def First6Chars()
+			return This.FirstNChars(6)
+	
+			def 6FirstChars()
+				return This.First6Chars()
+	
+			def FirstSixChars()
+				return This.First6Chars()
+	
+			def SixFirstChars()
+				return This.First6Chars()
+	
+		def First7Chars()
+			return This.FirstNChars(7)
+	
+			def 7FirstChars()
+				return This.First7Chars()
+	
+			def FirstSevenChars()
+				return This.First7Chars()
+	
+			def SevenFirstChars()
+				return This.First7Chars()
+	
+		def First8Chars()
+			return This.FirstNChars(8)
+	
+			def 8FirstChars()
+				return This.First8Chars()
+	
+			def FirstEightChars()
+				return This.First8Chars()
+	
+			def EightFirstChars()
+				return This.First8Chars()
+	
+		def First9Chars()
+			return This.FirstNChars(9)
+	
+			def 9FirstChars()
+				return This.First9Chars()
+	
+			def FirstNineChars()
+				return This.First9Chars()
+	
+			def NineFirstChars()
+				return This.First9Chars()
+	
+		def First10Chars()
+			return This.FirstNChars(10)
+	
+			def 10FirstChars()
+				return This.First10Chars()
+	
+			def FirstTenChars()
+				return This.First10Chars()
+	
+			def TenFirstChars()
+				return This.First10Chars()
+	
 		#>
 
 	  #----------------------------------------------#
@@ -6473,6 +6557,90 @@ class stzString from stzObject
 			def ThreeLastChars()
 				return This.NLastChars(3)
 
+		def Last4Chars()
+			return This.LastNChars(4)
+	
+			def 4LastChars()
+				return This.Last4Chars()
+	
+			def LastFourChars()
+				return This.Last4Chars()
+	
+			def FourLastChars()
+				return This.Last4Chars()
+	
+		def Last5Chars()
+			return This.LastNChars(5)
+	
+			def 5LastChars()
+				return This.Last5Chars()
+	
+			def LastFiveChars()
+				return This.Last5Chars()
+	
+			def FiveLastChars()
+				return This.Last5Chars()
+	
+		def Last6Chars()
+			return This.LastNChars(6)
+	
+			def 6LastChars()
+				return This.Last6Chars()
+	
+			def LastSixChars()
+				return This.Last6Chars()
+	
+			def SixLastChars()
+				return This.Last6Chars()
+	
+		def Last7Chars()
+			return This.LastNChars(7)
+	
+			def 7LastChars()
+				return This.Last7Chars()
+	
+			def LastSevenChars()
+				return This.Last7Chars()
+	
+			def SevenLastChars()
+				return This.Last7Chars()
+	
+		def Last8Chars()
+			return This.LastNChars(8)
+	
+			def 8LastChars()
+				return This.Last8Chars()
+	
+			def LastEightChars()
+				return This.Last8Chars()
+	
+			def EightLastChars()
+				return This.Last8Chars()
+	
+		def Last9Chars()
+			return This.LastNChars(9)
+	
+			def 9LastChars()
+				return This.Last9Chars()
+	
+			def LastNineChars()
+				return This.Last9Chars()
+	
+			def NineLastChars()
+				return This.Last9Chars()
+	
+		def Last10Chars()
+			return This.LastNChars(10)
+	
+			def 10LastChars()
+				return This.Last10Chars()
+	
+			def LastTenChars()
+				return This.Last10Chars()
+	
+			def TenLastChars()
+				return This.Last10Chars()
+	
 		#>
 
 	  #---------------------------------------------------------------------------#

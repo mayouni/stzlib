@@ -1566,10 +1566,52 @@ proff()
 # Executed in 0.54 second(s)
 
 /*----------
+
+pron()
+
+aList = [ "Ab", "Im", "Ab", "Cf", "Fd", "Ab", "Cf" ]
+o1 = new QStringList()
+for str in aList
+	o1.append(str)
+next
+
+? o1.indexof("Ab", 2)
+#--> 2
+
+proff()
+
+/*----------
+
+pron()
+
+o1 = new stzList([ "Ab", "Im", "Ab", "Cf", "Fd", "Ab", "Cf" ])
+? @@( o1.FindItems() ) # Or PositionsOfEachItem()
+#--> [
+#	[ "Ab", [ 1, 3, 6 ] ],
+#	[ "Im", [ 2 ] ],
+#	[ "Cf", [ 4, 7 ] ],
+#	[ "Fd", [ 5 ] ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------
 */
 pron()
 
-o1 = new stzList(1:100_000 + 10 + 100 + 1000)
+o1 = new stzList(1:10_000 + 10 + 100 + 1000)
+o1.PositionsOfEachItemQ().Last3Items() # Or FindItems()
+
+proff()
+# Executed in 2.23 second(s)
+
+/*----------
+
+*/
+pron()
+
+o1 = new stzList(1:10_000 + 10 + 100 + 1000)
 //? o1.ContainsDuplicates()
 #--> TRUE
 
@@ -1970,7 +2012,9 @@ StopProfiler()
 # Executed in 31.56 second(s)
 
 /*------------
+
 */
+
 StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
