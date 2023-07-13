@@ -715,6 +715,10 @@ class stzList from stzObject
 		def ContainsCentralItem()
 			return This.HasCentralItem()
 
+	  #-------------------------------------#
+	 #  GETTING THE LIST OF N FIRST ITEMS  #
+	#-------------------------------------#
+
 	def NFirstItems(n)
 		aContent = This.Content()
 		aResult = []
@@ -725,6 +729,8 @@ class stzList from stzObject
 
 		return aResult
 		
+		#< @FunctionFluentForms
+
 		def NFirstItemsQ(n)
 			return NFirstItemsQR(n, :stzList)
 
@@ -753,6 +759,10 @@ class stzList from stzObject
 				StzRaise("Unsupported return type!")
 			off
 
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def FirstNItems(n)
 			return This.NFirstItems(n)
 
@@ -761,6 +771,124 @@ class stzList from stzObject
 
 			def FirstNItemsQR(n, pcReturnType)
 				return This.NFirstItemsQR(n, pcReturnType)
+
+		#>
+
+		#< @FunctionSpecieficForms
+
+		def First2Items()
+			return This.FirstNItems(2)
+	
+			def 2FirstItems()
+				return This.First2Items()
+	
+			def FirstTwoItems()
+				return This.First2Items()
+	
+			def TwoFirstItems()
+				return This.First2Items()
+	
+		def First3Items()
+			return This.FirstNItems(3)
+	
+			def 3FirstItems()
+				return This.First3Items()
+	
+			def FirstThreeItems()
+				return This.First2Items()
+	
+			def ThreeFirstItems()
+				return This.First3Items()
+	
+		def First4Items()
+			return This.FirstNItems(4)
+	
+			def 4FirstItems()
+				return This.First4Items()
+	
+			def FirstFourItems()
+				return This.First4Items()
+	
+			def FourFirstItems()
+				return This.First4Items()
+	
+		def First5Items()
+			return This.FirstNItems(5)
+	
+			def 5FirstItems()
+				return This.First5Items()
+	
+			def FirstFiveItems()
+				return This.First5Items()
+	
+			def FiveFirstItems()
+				return This.First5Items()
+	
+		def First6Items()
+			return This.FirstNItems(6)
+	
+			def 6FirstItems()
+				return This.First6Items()
+	
+			def FirstSixItems()
+				return This.First6Items()
+	
+			def SixFirstItems()
+				return This.First6Items()
+	
+		def First7Items()
+			return This.FirstNItems(7)
+	
+			def 7FirstItems()
+				return This.First7Items()
+	
+			def FirstSevenItems()
+				return This.First7Items()
+	
+			def SevenFirstItems()
+				return This.First7Items()
+	
+		def First8Items()
+			return This.FirstNItems(8)
+	
+			def 8FirstItems()
+				return This.First8Items()
+	
+			def FirstEightItems()
+				return This.First8Items()
+	
+			def EightFirstItems()
+				return This.First8Items()
+	
+		def First9Items()
+			return This.FirstNItems(9)
+	
+			def 9FirstItems()
+				return This.First9Items()
+	
+			def FirstNineItems()
+				return This.First9Items()
+	
+			def NineFirstItems()
+				return This.First9Items()
+	
+		def First10Items()
+			return This.FirstNItems(10)
+	
+			def 10FirstItems()
+				return This.First10Items()
+	
+			def FirstTenItems()
+				return This.First10Items()
+	
+			def TenFirstItems()
+			return This.First10Items()
+
+		#>
+
+	  #------------------------------------#
+	 #  GETTING THE LIST OF N LAST ITEMS  #
+	#------------------------------------#
 
 	def NLastItems(n)
 		aContent = This.Content()
@@ -775,6 +903,8 @@ class stzList from stzObject
 		next
 
 		return aResult
+
+		#< @FunctionFluentForms
 
 		def NLastItemsQ(n)
 			return NLastItemsQR(n, :stzList)
@@ -803,6 +933,10 @@ class stzList from stzObject
 				StzRaise("Unsupported return type!")
 			off
 
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def LastNItems(n)
 			return This.NLastItems(n)
 
@@ -812,9 +946,123 @@ class stzList from stzObject
 			def LastNItemsQR(n, pcReturnType)
 				return This.NLastItemsQR(n, pcReturnType)
 
+		#>
+
+		#< @FunctionSpecieficForms
+
+		def Last2Items()
+			return This.LastNItems(2)
+	
+			def 2LastItems()
+				return This.Last2Items()
+	
+			def LastTwoItems()
+				return This.Last2Items()
+	
+			def TwoLastItems()
+				return This.Last2Items()
+	
+		def Last3Items()
+			return This.LastNItems(3)
+	
+			def 3LastItems()
+				return This.Last3Items()
+	
+			def LastThreeItems()
+				return This.Last2Items()
+	
+			def ThreeLastItems()
+				return This.Last3Items()
+	
+		def Last4Items()
+			return This.LastNItems(4)
+	
+			def 4LastItems()
+				return This.Last4Items()
+	
+			def LastFourItems()
+				return This.Last4Items()
+	
+			def FourLastItems()
+				return This.Last4Items()
+	
+		def Last5Items()
+			return This.LastNItems(5)
+	
+			def 5LastItems()
+				return This.Last5Items()
+	
+			def LastFiveItems()
+				return This.Last5Items()
+	
+			def FiveLastItems()
+				return This.Last5Items()
+	
+		def Last6Items()
+			return This.LastNItems(6)
+	
+			def 6LastItems()
+				return This.Last6Items()
+	
+			def LastSixItems()
+				return This.Last6Items()
+	
+			def SixLastItems()
+				return This.Last6Items()
+	
+		def Last7Items()
+			return This.LastNItems(7)
+	
+			def 7LastItems()
+				return This.Last7Items()
+	
+			def LastSevenItems()
+				return This.Last7Items()
+	
+			def SevenLastItems()
+				return This.Last7Items()
+	
+		def Last8Items()
+			return This.LastNItems(8)
+	
+			def 8LastItems()
+				return This.Last8Items()
+	
+			def LastEightItems()
+				return This.Last8Items()
+	
+			def EightLastItems()
+				return This.Last8Items()
+	
+		def Last9Items()
+			return This.LastNItems(9)
+	
+			def 9LastItems()
+				return This.Last9Items()
+	
+			def LastNineItems()
+				return This.Last9Items()
+	
+			def NineLastItems()
+				return This.Last9Items()
+	
+		def Last10Items()
+			return This.LastNItems(10)
+	
+			def 10LastItems()
+				return This.Last10Items()
+	
+			def LastTenItems()
+				return This.Last10Items()
+	
+			def TenLastItems()
+				return This.Last10Items()
+	
+		#>
+
 	  #---------------------------------------------#
 	 #  NEXT N ITEMS STARTING AT A GIVEN POSITION  #
-	#---------------------------------------------#
+	#=============================================#
 
 	def NextNItems(n, pnStartingAt)
 
@@ -15822,12 +16070,144 @@ class stzList from stzObject
 
 		#>
 
+	  #-------------------------------------------------#
+	 #  FINDING THE NUMBER OF OCCURRENCE OF EACH ITEM  #
+	#-------------------------------------------------#
+	# NOTE: for performance reason, the items are stringified.
+
+	def FindItemsCS(pCaseSensitive)
+		#< @QtBased | Uses QStringList >
+
+		# Checking params
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		nLen = This.NumberOfItems()
+		if nLen < 2
+			return []
+		ok
+
+		aContent = []
+
+		# We stringify the list (all items are becoming strings)
+
+		if pCaseSensitive = TRUE
+
+			aContent = This.Copy().
+					StringifyAndReplaceQ(",", "*").
+					Content()
+
+		else // pCaseSensitive = FALSE
+
+			aContent = This.Copy().
+					StringifyLowercaseAndReplaceQ(",", "*").
+					Content()
+		ok
+
+
+		acItems = []
+		anOccur = []
+
+		for i = 1 to nLen
+
+			cCurrentItem = aContent[i]
+			nPos = ring_find(acItems, cCurrentItem)
+
+			if nPos = 0
+				acItems + cCurrentItem
+				anOccur + [i]
+
+			else
+				n = ring_find(acItems, cCurrentItem)
+				anOccur[n] + i
+			ok
+
+		next
+
+		aResult = []
+		nLen = len(acItems)
+
+		for i = 1 to nLen
+			aResult + [ acItems[i], anOccur[i] ]
+		next
+
+		return aResult 
+
+		#< @FunctionFluentForms
+
+		def FindItemsCSQ(pCaseSensitive)
+			return This.FindItemsCSQR(pCaseSensitive, :stzList)
+
+		def FindItemsCSQR(pCaseSensitive, pcReturnType)
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindItemsCS(pCaseSensitive) )
+
+			on :stzHashList
+				return new stzHashList( This.FindItemsCS(pCaseSensitive) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.FindItemsCS(pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def PositionsOfEachItemCS(pCaseSensitive)
+			return This.FindItemsCS(pCaseSensitive)
+
+			def PositionsOfEachItemCSQ(pCaseSensitive)
+				return This.PositionsOfEachItemCSQ(pCaseSensitive)
+
+			def PositionsOfEachItemCSQR(pCaseSensitive, pcReturnType)
+				return This.PositionsOfEachItemCSQR(pCaseSensitive, pcReturnType)
+
+		#>
+
+	def FindItems()
+		return This.FindItemsCS(:CaseSensitive = TRUE)
+			
+		#< @FunctionFluentForms
+
+		def FindItemsQ()
+			return This.FindItemsCSQ(:CaseSensitive = TRUE)
+
+		def FindItemsQR(pcReturnType)
+			return This.FindItemsCSQR(:CaseSensitive = TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def PositionsOfEachItem()
+			return This.FindItems()
+
+			def PositionsOfEachItemQ()
+				return This.FindItemsQ()
+
+			def PositionsOfEachItemQR(pcReturnType)
+				return This.FindItemsQR(pcReturnType)
+
+		#>
+
 	  #----------------------#
 	 #  FINDING DUPLICATES  #
 	#----------------------#
 
 	def FindDuplicatesCS(pCaseSensitive)
-
 		#< @QtBased | Uses QStringList >
 
 		# Checking params
@@ -15869,27 +16249,19 @@ class stzList from stzObject
 		for i = 1 to nLen
 			oQStrList.append(aContent[i])
 		next
-
+/*
 		oQStrSet = new QStringList()
 		for i = 1 to nLen
 			oQStrSet.append(aContent[i])
 		next
 		oQStrSet.removeDuplicates()
 		nLenSet = oQStrSet.count()
+*/
+		anResult = []
 
-		 anPos = []
-		 anSeen = []
-		    
-		 for i = 1 to nLen
-		        if ring_find(anPos, item) 
-		            seen[item] := append(seen[item], i)
-		        else
-		            seen[item] := [i]
-		        
-		        if count(seen[item]) > 1
-		            positions := append(positions, seen[item])
-		    
-		    return positions
+		for i = 1 to nLenSet
+			
+		next
 
 		return anResult
 
