@@ -2,6 +2,14 @@ load "stzlib.ring"
 
 pron()
 
+? ACharOtherThen("䛂")
+
+proff()
+
+/*------------------
+
+pron()
+
 ? MaxUnicode()
 #--> 1_114_112
 
@@ -14,6 +22,7 @@ pron()
 ? Unicode("䛂")
 
 proff()
+# Executed in 0.04 second(s)
 
 /*------------------
 

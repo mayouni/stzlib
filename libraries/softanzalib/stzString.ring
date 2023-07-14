@@ -6169,7 +6169,7 @@ class stzString from stzObject
 				return new stzListOfchars( This.NRightChars(n) )
 
 			on :stzString
-				return new stzString( This.This.NRightCharsQR(n, :stzListOfStrings).Concatenated() )
+				return new stzString( This.NRightCharsQR(n, :stzListOfStrings).Concatenated() )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -6260,7 +6260,7 @@ class stzString from stzObject
 				return new stzListOfChars( This.NLeftChars(n) )
 
 			on :stzString
-				return new stzString( This.This.NLeftCharsQR(n, :stzListOfStrings).Concatenated() )
+				return new stzString( This.NLeftCharsQR(n, :stzListOfStrings).Concatenated() )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -6346,7 +6346,7 @@ class stzString from stzObject
 				return new stzListOfChars( This.NFirstChars(n) )
 
 			on :stzString
-				return new stzString( This.This.NFirstCharsQR(n, :stzListOfStrings).Concatenated() )
+				return new stzString( This.NFirstCharsQR(n, :stzListOfStrings).Concatenated() )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -6511,7 +6511,7 @@ class stzString from stzObject
 				return new stzListOfChars( This.NLastChars(n) )
 
 			on :stzString
-				return new stzString( This.This.NLastCharsQR(n, :stzListOfStrings).Concatenated() )
+				return new stzString( This.NLastCharsQR(n, :stzListOfStrings).Concatenated() )
 			other
 				StzRaise("Unsupported return type!")
 			off
@@ -18848,10 +18848,10 @@ def ReplaceIBS()
 		#< @FunctionAlternativeForm
 
 		def FindOccurrencesDCS(pcSubStr, pcDirection, pCaseSensitive)
-			return This.This.FindDCS(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindDCS(pcSubStr, pcDirection, pCaseSensitive)
 
 		def FindAllOccurrencesDCS(pcSubStr, pcDirection, pCaseSensitive)
-			return This.This.FindDCS(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindDCS(pcSubStr, pcDirection, pCaseSensitive)
 
 		#>
  
@@ -30356,11 +30356,27 @@ def ReplaceIBS()
 	def IsUnicodeEqualTo(pcOtherStr)
 		return This.UnicodeCompareWith(pcOtherNumber) = :Equal
 
+		def IsUnicodeEqualWith(pcOtherStr)
+			return This.IsUnicodeEqualTo(pcOtherStr)
+
+		#< @FunctionNegativeForm
+
 		def IsUnicodeDifferentFrom(pcOtherStr)
+			return NOT This.IsUnicodeEqualTo(pcOtherStr)
+
+		def IsUnicodeDifferentTo(pcOtherStr)
+			return NOT This.IsUnicodeEqualTo(pcOtherStr)
+
+		def IsUnicodeDifferentWith(pcOtherStr)
 			return NOT This.IsUnicodeEqualTo(pcOtherStr)
 
 		def IsNotUnicodeEqualTo(pcOtherStr)
 			return NOT This.IsUnicodeEqualTo(pcOtherStr)
+
+		def IsNotUnicodeEqualWith(pcOtherStr)
+			return NOT This.IsUnicodeEqualTo(pcOtherStr)
+
+		#>
 
 	def IsUnicodeEqualToInLocale(pcOtherStr, pLocale)
 		return This.UnicodeCompareWithInLocale(pcOtherNumber, pLocale) = :Equal
@@ -30433,28 +30449,58 @@ def ReplaceIBS()
 			return This.Lowercased() = StzStringQ(pcOtherStr).Lowercased()
 		ok
 		
+		def IsEqualWithCS(pcOtherStr, pCaseSensitive)
+			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+
 		#< @FunctionNegativeForm
 
 		def IsNotEqualToCS(pcOtherStr, pCaseSensitive)
 			return NOT This.IsEqualToCS(pcOtherStr, pCaseSensitive)
 
-			def IsDifferentFromCS(pcOtherStr, pCaseSensitive)
-				return This.IsNotEqualToCS(pcOtherStr, pCaseSensitive)
+		def IsNotEqualWithCS(pcOtherStr, pCaseSensitive)
+			return NOT This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+
+		def IsDifferentFromCS(pcOtherStr, pCaseSensitive)
+			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
 	
+		def IsDifferentToCS(pcOtherStr, pCaseSensitive)
+			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+
+		def IsDifferentOfCS(pcOtherStr, pCaseSensitive)
+			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+
 		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def IsEqualTo(pcOtherStr)
 		return This.IsEqualToCS(pcOtherStr, :CaseSensitive = TRUE)
+
+		def IsEqualWith(pcOtherStr)
+			return This.IsEqualTo(pcOtherStr)
 
 		#< @FunctionNegativeForm
 
 		def IsNotEqualTo(pcOtherStr)
 			return NOT This.IsEqualTo(pcOtherStr)
 
-			def IsDifferentFrom(pcOtherStr)
-				return This.IsNotEqualTo(pcOtherStr)
+		def IsNotEqualWith(pcOtherStr)
+			return NOT This.IsEqualTo(pcOtherStr)
+
+		def IsDifferentFrom(pcOtherStr)
+			return This.IsNotEqualTo(pcOtherStr)
 	
+		def IsDifferentTo(pcOtherStr)
+			return This.IsNotEqualTo(pcOtherStr)
+
+		def IsDifferentOf(pcOtherStr)
+			return This.IsNotEqualTo(pcOtherStr)
+
 		#>
+
+	  #--------------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS STRICTLY EQUAL TO ANOTHER STRING  #
+	#--------------------------------------------------------------#
 
 	def IsStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
 		if This.IsEqualToCS(pcOtherStr, pCaseSensitive) and
@@ -30466,18 +30512,58 @@ def ReplaceIBS()
 			return FALSE
 		ok
 
+		def IsStrictlyEqualWithCS(pcOtherStr, pCaseSensitive)
+			return This.IsStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
+
 		#< @FunctionNegativeForm
 
 		def IsNotStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
-			return NOT This.IsStrictlyEqualTo(pcOtherStr, pCaseSensitive)
+			return NOT This.IsStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
+
+		def IsNotStrictlyEqualWithCS(pcOtherStr, pCaseSensitive)
+			return NOT This.IsStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
+
+		def IsStrictlyDifferentFromCS(pcOtherStr, pCaseSensitive)
+			return This.IsStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
 	
+		def IsStrictlyDifferentToCS(pcOtherStr, pCaseSensitive)
+			return This.IsStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
+
+		def IsStrictlyDifferentOfCS(pcOtherStr, pCaseSensitive)
+			return This.IsStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
+
 		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def IsStrictlyEqualTo(pcOtherStr)
 		return This.IsStrictlyEqualToCS(pcOtherStr, :CaseSensitive = TRUE)
 
+		def IsStrictlyEqualWith(pcOtherStr)
+			return This.IsStrictlyEqualTo(pcOtherStr)
+
+		#< @FunctionNegativeForm
+
 		def IsNotStrictlyEqualTo(pcOtherStr)
 			return NOT This.IsStrictlyEqualTo(pcOtherStr)
+
+		def IsNotStrictlyEqualWith(pcOtherStr)
+			return NOT This.IsStrictlyEqualTo(pcOtherStr)
+
+		def IsStrictlyDifferentFrom(pcOtherStr)
+			return This.IsStrictlyEqualTo(pcOtherStr)
+	
+		def IsStrictlyDifferentTo(pcOtherStr)
+			return This.IsStrictlyEqualTo(pcOtherStr)
+
+		def IsStrictlyDifferentOf(pcOtherStr)
+			return This.IsStrictlyEqualTo(pcOtherStr)
+
+		#>
+
+	  #------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS EQUAL TO ONE OF THE PROVIDED STRINGS  #
+	#------------------------------------------------------------------#
 
 	def IsEqualToOneOfTheseCS(pacOtherStr, pCaseSensitive)
 		bResult = TRUE
@@ -30489,20 +30575,74 @@ def ReplaceIBS()
 		next
 		return bResult
 
+	#-- WITHOUT CASESENSITIVITY
+
 	def IsEqualToOneOfThese(pacOtherStr)
 		return This.IsEqualToOneOfTheseCS(pacOtherStr, :CaseSensitive = TRUE)
 
-	def IsLessThan(pcOtherStr)
+	  #--------------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS SMALLER THAN THE PROVIDED STRING  #
+	#--------------------------------------------------------------#
+
+	def IsSmaller(pcOtherStr)
+		if isList(pcOtherStr) and Q(pcOtherStr).IsThanNamedParam()
+			pcOtherStr = pcOtherStr[2]
+		ok
+
 		return This.IsIncludedIn(pcOtherStr)
 
-		def IsStrictlyLessThan(pcOtherStr)
-			return This.IsLessThan(pcOtherStr)
+		#< @FunctionAlternativeForms
 
-	def IsGreaterThan(pcOtherStr)
+		def IsSmallerThan(pcOtherStr)
+			return This.IsSmaller(pcOtherStr)
+
+		def HasLessNumberOfChars(pcOtherStr)
+			return This.IsSmaller(pcOtherStr)
+
+		def HasLessNumberOfCharsThan(pcOtherStr)
+			return This.IsSmaller(pcOtherStr)
+
+		def HasLessChars(pcOtherStr)
+			return This.IsSmaller(pcOtherStr)
+
+		def ContainsLessNumberOfChars(pcOtherStr)
+			return This.IsSmaller(pcOtherStr)
+
+		def ContainsLessNumberOfCharsThan(pcOtherStr)
+			return This.IsSmaller(pcOtherStr)
+
+		def ContainsLessChars(pcOtherStr)
+			return This.IsSmaller(pcOtherStr)
+
+		#>
+
+	def IsLarger(pcOtherStr)
 		return This.Contains(pcOtherStr)
 
-		def IsStrictlyGreaterThan(pcOtherStr)
-			return This.IsGreaterThan(pcOtherStr)
+		#< @FunctionAlternativeForms
+
+		def IsLargerThan(pcOtherStr)
+			return This.IsLarger(pcOtherStr)
+
+		def HasMoreNumberOfChars(pcOtherStr)
+			return This.IsLarger(pcOtherStr)
+
+		def HasMoreNumberOfCharsThan(pcOtherStr)
+			return This.IsLarger(pcOtherStr)
+
+		def ContainsMoreChars(pcOtherStr)
+			return This.IsLarger(pcOtherStr)
+
+		def ContainsMoreNumberOfChars(pcOtherStr)
+			return This.IsLarger(pcOtherStr)
+
+		def ContainsMoreNumberOfCharsThan(pcOtherStr)
+			return This.IsLarger(pcOtherStr)
+
+		def HasMoreChars(pcOtherStr)
+			return This.IsLarger(pcOtherStr)
+
+		#>
 
 	def IsQuietEqualTo(pcOtherStr)
 		# WARNING: Performance issue is caused by DiacriticsRemoved()
@@ -37370,7 +37510,7 @@ def ReplaceIBS()
 			
 	def ToListOfStzChars()
 		aResult = []
-		nLen = This.This.NumberOfChars()
+		nLen = This.NumberOfChars()
 
 		for i = 1 to nLen
 		# Warning: Note that using 'for in' yields erronous
@@ -38360,89 +38500,6 @@ def ReplaceIBS()
 
 		def HowManySpaces()
 			return This.NumberOfSpaces()
-
-	  #--------------------------------------------------------------#
-	 #  CHECKING IF THE STRING HAS MORE CHARS THAN AN OTHER STRING  #
-	#--------------------------------------------------------------#
-
-	def HasMoreNumberOfChars(paOtherString)
-		if isList(paOtherString) and Q(paOtherString).IsThenNamedParam()
-			paOtherString = paOtherString[2]
-		ok
-
-		if This.NumberOfChars() > len(paOtherString)
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		def HasMoreChars(paOtherString)
-			return This.HasMoreNumberOfChars(paOtherString)
-
-		def IsLarger(paOtherString)
-			return This.HasMoreNumberOfChars(paOtherString)
-
-	  #--------------------------------------------------------------#
-	 #  CHECKING IF THE STRING HAS LESS CHARS THAN AN OTHER STRING  #
-	#--------------------------------------------------------------#
-
-	def HasLessNumberOfChars(pcOtherStr)
-		if isList(pcOtherStr) and Q(pcOtherStr).IsThenNamedParam()
-			pcOtherString = pcOtherString[2]
-		ok
-
-		if NOT isString(pcOtherStr)
-			StzRaise("Incorrect param type! pcOtherStr must be a string.")
-		ok
-
-		if This.NumberOfChars() < Q(pcOtherStr).NumberOfChars()
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		#< @FunctionAlternativeForms
-
-		def HasLessChars(pcOtherStr)
-			return This.HasLessNumberOfChars(pcOtherStr)
-
-		def IsSmaller(pcOtherStr)
-			return This.HasLessNumberOfChars(pcOtherStr)
-
-		#--
-
-		def ContainsLessChars(pcOtherStr)
-			return This.HasLessNumberOfChars(pcOtherStr)
-
-		def ContainsLessNumberOfChars(pcOtherStr)
-			return This.HasLessNumberOfChars(pcOtherStr)
-
-		#>
-
-	def HasLessNumberOfCharsThen(pcOtherStr)
-		if NOT isString(pcOtherStr)
-			StzRaise("Incorrect param type! pcOtherStr must be a string.")
-		ok
-
-		return This.HasLessNumberOfChars(pcOtherStr)
-
-		#< @FunctionAlternativeForms
-
-		def HasLessCharsThen(pcOtherStr)
-			return This.HasLessNumberOfCharsThen(pcOtherStr)
-
-		def IsSmallerThen(pcOtherStr)
-			return This.HasLessNumberOfCharsThen(pcOtherStr)
-
-		#--
-
-		def ContainsLessCharsThen(pcOtherStr)
-			return This.HasLessNumberOfCharsThen(pcOtherStr)
-
-		def ContainsLessNumberOfCharsThen(pcOtherStr)
-			return This.HasLessNumberOfCharsThen(pcOtherStr)
-
-		#>
 
 	  #-----------------------#
 	 #   IS IT A LETTER?     #

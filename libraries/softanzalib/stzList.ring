@@ -24224,6 +24224,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		acResult = []
 		anPos = []
 		anPosExt = []
+		cExtension = AStringOtherThen(pcOtherSubStr)
 
 		cItem = ""
 		n = 0 # Used to count the objects contained in the list
@@ -24252,7 +24253,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 				ok
 
 				if bExtend and ring_find(anPos, i) = 0
-					cItem += "---"
+					cItem += cExtension
 					anPosExt + i
 				ok
 
@@ -24275,7 +24276,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 				ok
 
 				if bExtend and ring_find(anPos, i) = 0
-					cItem += "---"
+					cItem += cExtendion
 					anPosExt + i
 				ok
 
@@ -32120,6 +32121,109 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		def ToListInShortForm()
 			return This.ToListInStringInShortForm()
+
+	  #---------------------------------------#
+	 #  GETTING A RANDOM ITEM FROM THE LIST  #
+	#---------------------------------------#
+
+	def AnyItem()
+		nLen = This.NumberOfItems() 
+		if nLen = 0
+			StzRaise("Can't return any item because the list is empty!")
+		ok
+
+		if nLen = 1
+			return This.Item(1)
+		ok
+
+		n = random(nLen)
+		if n = 0
+			n = 1
+		ok
+
+		return This.Item(n)
+
+		def RandomItem()
+			return This.AnyItem()
+
+		def ARandomItem()
+			return This.AnyItem()
+
+	  #---------------------------------------------------------#
+	 #  GETTING AN ITEM FROM THE LIST OTHER THEN A GIVEN ITEM  #
+	#---------------------------------------------------------#
+
+	def AnItemOtherThanCS(pItem, pCaseSensitive)
+		if NOT This.ContainsCS(pItem, pCaseSensitive)
+			return This.AnyItem()
+
+		else
+			nPos = This.ToSetQ().FindFirstCS(pItem, pCaseSensitive)
+			n = StzListOfNumbersQ( 1: len(aSet) ).AnyNumberOtherThan(nPos)
+			return This.Item(n)
+		ok
+	
+		#< @FunctionAlternativeForms
+	
+		def AnItemDifferentThan(pcChar)
+			return AnItemOtherThan(pcChar)
+	
+		def AnItemDifferentTo(pcChar)
+			return AnItemOtherThan(pcChar)
+
+		def AnItemDifferentFrom(pcChar)
+			return AnItemOtherThan(pcChar)
+	
+		#--
+	
+		def ItemOtherThan(pcChar)
+			return ANumberOtherThan(pcChar)
+	
+		def ItemDifferentThan(pcChar)
+			return ANumberOtherThan(pcChar)
+	
+		def ItemDifferentTo(pcChar)
+			return ANumberOtherThan(pcChar)
+
+		def ItemDifferentFrom(pcChar)
+			return ANumberOtherThan(pcChar)
+	
+		#--
+	
+		def AnyItemOtherThan(pcChar)
+			return ANumberOtherThan(pcChar)
+	
+		def AnyItemDifferentThan(pcChar)
+			return ANumberOtherThan(pcChar)
+	
+		def AnyItemDifferentTo(pcChar)
+			return ANumberOtherThan(pcChar)
+
+		def AnyItemDifferentFrom(pcChar)
+			return ANumberOtherThan(pcChar)
+	
+		#>
+
+		#< @FunctionMisspelledForms
+
+		# Mistake --> Th(e)n and must be Th(a)n
+
+		def AnItemDifferentThen(pcChar)
+			return AnItemOtherThan(pcChar)
+
+		def ItemOtherThen(pcChar)
+			return ANumberOtherThan(pcChar)
+	
+		def ItemDifferentThen(pcChar)
+			return ANumberOtherThan(pcChar)
+
+		def AnyItemOtherThen(pcChar)
+			return ANumberOtherThan(pcChar)
+	
+		def AnyItemDifferentThen(pcChar)
+			return ANumberOtherThan(pcChar)
+
+		#>
 
 	  #---------#
 	 #  WHERE  #

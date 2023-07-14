@@ -4,6 +4,32 @@ load "stzlib.ring"
 
 pron()
 
+? ARandomNumber( :Between = 5, :And = 10 )
+#--> 5
+#--> 7
+#--> 9
+#--> 8
+#--> 7
+
+proff()
+
+/*-----------------
+*/
+pron()
+
+? ARandomNumber( :Between = 1, :And = 5 ) # To include bounds (1 and 5) use ...XT()
+#--> 2
+#--> 4
+#--> 3
+#--> 4
+#--> 3
+
+proff()
+
+/*-----------------
+
+pron()
+
 ? OddOrEven(5)
 #--> :Odd
 
