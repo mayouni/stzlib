@@ -2894,6 +2894,17 @@ class stzListOfNumbers from stzList
 		def NumberAfterOrBefore(n)
 			return This.AnyNumberBeforeOrAfter(n)
 
+		#--
+
+		def AnyNumberOtherThan(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
+		def ANumberOtherThan(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
+		def NumberOtherThan(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
 		#>
 
 	  #--------------------------------------------------------#
