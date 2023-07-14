@@ -104,6 +104,8 @@
 func StzNumberQ(cNumber)
 	return new stzNumber(cNumber)
 
+#-- RANDOM NUMBERS
+
 func StzRandomXT(nMin, nMax) # XT --> bounds are included
 
 	if isList(nMin) and StzListQ(nMin).IsBetweenNamedParam()
@@ -141,12 +143,35 @@ func StzRandomXT(nMin, nMax) # XT --> bounds are included
 	func ARandomNumberXT(nMin, nMax)
 		return StzRandomXT(nMin, nMax)
 
+	#--
+
+	func StzRandomIB(nMin, nMax)
+		return StzRandomXT(nMin, nMax)
+
+	func StzRandomNumberIB(nMin, nMax)
+		return StzRandomXT(nMin, nMax)
+
+	func RandomNumberBetweenIB(nMin, nMax)
+		return StzRandomXT(nMin, nMax)
+
+	func ARandomNumberBetweenIB(nMin, nMax)
+		return StzRandomXT(nMin, nMax)
+
+	func ARandomNumberIB(nMin, nMax)
+		return StzRandomXT(nMin, nMax)
+
 	#>
 
 func StzRandom(nMin, nMax) # Bound are not included. To include them add ...XT()
 
-	if isList(nMin) and StzListQ(nMin).IsBetweenNamedParam()
-		nMin = nMin[2]
+	if isList(nMin)
+		oMin = StzListQ(nMin)
+		if oMin.IsBetweenXTNamedParam()
+			return StzRandomXT(nMin[2], nMax)
+		
+		but oMin.IsBetweenNamedParam()
+			nMin = nMin[2]
+		ok
 	ok
 
 	if isList(nMax) and StzListQ(nMax).IsAndNamedParam()
@@ -174,6 +199,505 @@ func StzRandom(nMin, nMax) # Bound are not included. To include them add ...XT()
 		return StzRandom(nMin, nMax)
 
 	#>
+
+#-- N RANDOM NUMBERS
+
+func NRandomNumbersXT(n, nMin, nMax) # XT or IB --> bounds are included
+
+	if NOT isNumber(n)
+		StzRaise("Incorrect param type! n must be a number.")
+	ok
+
+	if isList(nMin) and StzListQ(nMin).IsBetweenNamedParam()
+		nMin = nMin[2]
+	ok
+
+	if isList(nMax) and StzListQ(nMax).IsAndNamedParam()
+		nMax = nMax[2]
+	ok
+
+	if NOT (isNumber(nMin) and isNumber(nMax))
+		StzRaise("Incorrect param types! nMin and nMax must be both numbers.")
+	ok
+
+	if nMin > nMax
+		nTemp = nMax
+		nMax = nMin
+		nMin = nMax
+	ok
+
+	anResult = []
+	for i = 1 to n
+		anResult + ( random(nMin) + nMax - nMin	 )# random is a Ring function
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForm
+
+	func NRandomNumbersIB(nMin, nMax)
+		return NRandomNumbersXT(nMin, nMax)
+
+	func NRandomNumbersBetweeXT(nMin, nMax)
+		return NRandomNumbersXT(nMin, nMax)
+
+	func NRandomNumbersBetweeIB(nMin, nMax)
+		return NRandomNumbersXT(nMin, nMax)
+
+	#>
+
+func NRandomNumbers(n, nMin, nMax) # XT --> bounds are included
+
+	if isList(nMin)
+		oMin = StzListQ(nMin)
+		if oMin.IsBetweenXTNamedParam()
+			return StzNRandomNumbersXT(nMin[2], nMax)
+		
+		but oMin.IsBetweenNamedParam()
+			nMin = nMin[2]
+		ok
+	ok
+
+	if isList(nMin) and StzListQ(nMin).IsBetweenNamedParam()
+		nMin = nMin[2]
+	ok
+
+	if isList(nMax) and StzListQ(nMax).IsAndNamedParam()
+		nMax = nMax[2]
+	ok
+
+	if NOT (isNumber(nMin) and isNumber(nMax))
+		StzRaise("Incorrect param types! nMin and nMax must be both numbers.")
+	ok
+
+	return NRandomNumbersXT( nMin++, nMax-- )
+
+	#< @FunctionAlternativeForm
+
+	func NRandomNumbersBetween(nMin, nMax)
+		return RandomNumbers(nMin, nMax)
+
+	#>
+
+#--
+
+func 2RandomNumbersXT(nMin, nMax)
+	return NRandomNumbersXT(2, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 2RandomNumbersBetweenXT(nMin, nMax)
+		return 2RandomNumbersXT(nMin, nMax)
+
+	func TwoRandomNumbersXT(nMin, nMax)
+		return 2RandomNumbersXT(nMin, nMax)
+
+	func TwoRandomNumbersBetweenXT(nMin, nMax)
+		return 2RandomNumbersXT(nMin, nMax)
+
+	#--
+
+	func 2RandomNumbersIB(nMin, nMax)
+		return This.2RandomNumbersXT(nMin, nMax)
+
+	func 2RandomNumbersBetweenIB(nMin, nMax)
+		return 2RandomNumbersXT(nMin, nMax)
+
+	func TwoRandomNumbersIB(nMin, nMax)
+		return 2RandomNumbersXT(nMin, nMax)
+
+	func TwoRandomNumbersBetweenIB(nMin, nMax)
+		return 2RandomNumbersXT(nMin, nMax)
+
+	#>
+
+func 3RandomNumbersXT(nMin, nMax)
+	return NRandomNumbersXT(3, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 3RandomNumbersBetweenXT(nMin, nMax)
+		return 3RandomNumbersXT(nMin, nMax)
+
+	func ThreeRandomNumbersXT(nMin, nMax)
+		return 3RandomNumbersXT(nMin, nMax)
+
+	func ThreeRandomNumbersBetweenXT(nMin, nMax)
+		return 3RandomNumbersXT(nMin, nMax)
+
+	#--
+
+	func 3RandomNumbersIB(nMin, nMax)
+		return This.3RandomNumbersXT(nMin, nMax)
+
+	func 3RandomNumbersBetweenIB(nMin, nMax)
+		return 3RandomNumbersXT(nMin, nMax)
+
+	func ThreeRandomNumbersIB(nMin, nMax)
+		return 3RandomNumbersXT(nMin, nMax)
+
+	func ThreeRandomNumbersBetweenIB(nMin, nMax)
+		return 3RandomNumbersXT(nMin, nMax)
+
+	#>
+
+func 4RandomNumbersXT(nMin, nMax)
+	return NRandomNumbersXT(4, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 4RandomNumbersBetweenXT(nMin, nMax)
+		return 4RandomNumbersXT(nMin, nMax)
+
+	func FourRandomNumbersXT(nMin, nMax)
+		return 4RandomNumbersXT(nMin, nMax)
+
+	func FourRandomNumbersBetweenXT(nMin, nMax)
+		return 4RandomNumbersXT(nMin, nMax)
+
+	#--
+
+	func 4RandomNumbersIB(nMin, nMax)
+		return This.4RandomNumbersXT(nMin, nMax)
+
+	func 4RandomNumbersBetweenIB(nMin, nMax)
+		return 4RandomNumbersXT(nMin, nMax)
+
+	func FourRandomNumbersIB(nMin, nMax)
+		return 4RandomNumbersXT(nMin, nMax)
+
+	func FourRandomNumbersBetweenIB(nMin, nMax)
+		return 4RandomNumbersXT(nMin, nMax)
+
+	#>
+
+func 5RandomNumbersXT(nMin, nMax)
+	return NRandomNumbersXT(5, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 5RandomNumbersBetweenXT(nMin, nMax)
+		return 5RandomNumbersXT(nMin, nMax)
+
+	func FiveRandomNumbersXT(nMin, nMax)
+		return 5RandomNumbersXT(nMin, nMax)
+
+	func FiveRandomNumbersBetweenXT(nMin, nMax)
+		return 5RandomNumbersXT(nMin, nMax)
+
+	#--
+
+	func 5RandomNumbersIB(nMin, nMax)
+		return This.5RandomNumbersXT(nMin, nMax)
+
+	func 5RandomNumbersBetweenIB(nMin, nMax)
+		return 5RandomNumbersXT(nMin, nMax)
+
+	func FiveRandomNumbersIB(nMin, nMax)
+		return 5RandomNumbersXT(nMin, nMax)
+
+	func FiveRandomNumbersBetweenIB(nMin, nMax)
+		return 5RandomNumbersXT(nMin, nMax)
+
+	#>
+
+func 6RandomNumbersXT(nMin, nMax)
+	return NRandomNumbersXT(6, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 6RandomNumbersBetweenXT(nMin, nMax)
+		return 6RandomNumbersXT(nMin, nMax)
+
+	func SixRandomNumbersXT(nMin, nMax)
+		return 6RandomNumbersXT(nMin, nMax)
+
+	func SixRandomNumbersBetweenXT(nMin, nMax)
+		return 6RandomNumbersXT(nMin, nMax)
+
+	#--
+
+	func 6RandomNumbersIB(nMin, nMax)
+		return This.6RandomNumbersXT(nMin, nMax)
+
+	func 6RandomNumbersBetweenIB(nMin, nMax)
+		return 6RandomNumbersXT(nMin, nMax)
+
+	func SixRandomNumbersIB(nMin, nMax)
+		return 6RandomNumbersXT(nMin, nMax)
+
+	func SixRandomNumbersBetweenIB(nMin, nMax)
+		return 6RandomNumbersXT(nMin, nMax)
+
+	#>
+
+func 7RandomNumbersXT(nMin, nMax)
+	return NRandomNumbersXT(7, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 7RandomNumbersBetweenXT(nMin, nMax)
+		return 7RandomNumbersXT(nMin, nMax)
+
+	func SevenRandomNumbersXT(nMin, nMax)
+		return 7RandomNumbersXT(nMin, nMax)
+
+	func SevenRandomNumbersBetweenXT(nMin, nMax)
+		return 7RandomNumbersXT(nMin, nMax)
+
+	#--
+
+	func 7RandomNumbersIB(nMin, nMax)
+		return This.7RandomNumbersXT(nMin, nMax)
+
+	func 7RandomNumbersBetweenIB(nMin, nMax)
+		return 7RandomNumbersXT(nMin, nMax)
+
+	func SevenRandomNumbersIB(nMin, nMax)
+		return 7RandomNumbersXT(nMin, nMax)
+
+	func SevenRandomNumbersBetweenIB(nMin, nMax)
+		return 7RandomNumbersXT(nMin, nMax)
+
+	#>
+
+func 8RandomNumbersXT(nMin, nMax)
+	return NRandomNumbersXT(8, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 8RandomNumbersBetweenXT(nMin, nMax)
+		return 8RandomNumbersXT(nMin, nMax)
+
+	func EightRandomNumbersXT(nMin, nMax)
+		return 7RandomNumbersXT(nMin, nMax)
+
+	func EightRandomNumbersBetweenXT(nMin, nMax)
+		return 7RandomNumbersXT(nMin, nMax)
+
+	#--
+
+	func 8RandomNumbersIB(nMin, nMax)
+		return This.8RandomNumbersXT(nMin, nMax)
+
+	func 8RandomNumbersBetweenIB(nMin, nMax)
+		return 8RandomNumbersXT(nMin, nMax)
+
+	func EightRandomNumbersIB(nMin, nMax)
+		return 8RandomNumbersXT(nMin, nMax)
+
+	func EightRandomNumbersBetweenIB(nMin, nMax)
+		return 8RandomNumbersXT(nMin, nMax)
+
+	#>
+
+func 9RandomNumbersXT(nMin, nMax)
+	return NRandomNumbersXT(9, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 9RandomNumbersBetweenXT(nMin, nMax)
+		return 9RandomNumbersXT(nMin, nMax)
+
+	func NineRandomNumbersXT(nMin, nMax)
+		return 9RandomNumbersXT(nMin, nMax)
+
+	func NineRandomNumbersBetweenXT(nMin, nMax)
+		return 9RandomNumbersXT(nMin, nMax)
+
+	#--
+
+	func 9RandomNumbersIB(nMin, nMax)
+		return This.8RandomNumbersXT(nMin, nMax)
+
+	func 9RandomNumbersBetweenIB(nMin, nMax)
+		return 9RandomNumbersXT(nMin, nMax)
+
+	func NineRandomNumbersIB(nMin, nMax)
+		return 9RandomNumbersXT(nMin, nMax)
+
+	func NineRandomNumbersBetweenIB(nMin, nMax)
+		return 9RandomNumbersXT(nMin, nMax)
+
+	#>
+
+func 10RandomNumbersXT(nMin, nMax)
+	return NRandomNumbersXT(10, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 10RandomNumbersBetweenXT(nMin, nMax)
+		return 10RandomNumbersXT(nMin, nMax)
+
+	func TenRandomNumbersXT(nMin, nMax)
+		return 10RandomNumbersXT(nMin, nMax)
+
+	func TenRandomNumbersBetweenXT(nMin, nMax)
+		return 10RandomNumbersXT(nMin, nMax)
+
+	#--
+
+	func 10RandomNumbersIB(nMin, nMax)
+		return This.10RandomNumbersXT(nMin, nMax)
+
+	func 10RandomNumbersBetweenIB(nMin, nMax)
+		return 10RandomNumbersXT(nMin, nMax)
+
+	func TenRandomNumbersIB(nMin, nMax)
+		return 10RandomNumbersXT(nMin, nMax)
+
+	func TenRandomNumbersBetweenIB(nMin, nMax)
+		return 10RandomNumbersXT(nMin, nMax)
+
+	#>
+
+#--
+
+func 2RandomNumbers(nMin, nMax)
+	return NRandomNumbers(2, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 2RandomNumbersBetween(nMin, nMax)
+		return 2RandomNumbers(nMin, nMax)
+
+	func TwoRandomNumbers(nMin, nMax)
+		return 2RandomNumbers(nMin, nMax)
+
+	func TwoRandomNumbersBetween(nMin, nMax)
+		return 2RandomNumbers(nMin, nMax)
+
+	#>
+
+func 3RandomNumbers(nMin, nMax)
+	return NRandomNumbers(3, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 3RandomNumbersBetween(nMin, nMax)
+		return 3RandomNumbers(nMin, nMax)
+
+	func ThreeRandomNumbers(nMin, nMax)
+		return 3RandomNumbers(nMin, nMax)
+
+	func ThreeRandomNumbersBetween(nMin, nMax)
+		return 3RandomNumbers(nMin, nMax)
+
+	#>
+
+func 4RandomNumbers(nMin, nMax)
+	return NRandomNumbers(4, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 4RandomNumbersBetween(nMin, nMax)
+		return 4RandomNumbers(nMin, nMax)
+
+	func FourRandomNumbers(nMin, nMax)
+		return 4RandomNumbers(nMin, nMax)
+
+	func FourRandomNumbersBetween(nMin, nMax)
+		return 4RandomNumbers(nMin, nMax)
+
+	#>
+
+func 5RandomNumbers(nMin, nMax)
+	return NRandomNumbers(5, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 5RandomNumbersBetween(nMin, nMax)
+		return 5RandomNumbers(nMin, nMax)
+
+	func FiveRandomNumbers(nMin, nMax)
+		return 5RandomNumbers(nMin, nMax)
+
+	func FiveRandomNumbersBetween(nMin, nMax)
+		return 5RandomNumbers(nMin, nMax)
+
+	#>
+
+func 6RandomNumbers(nMin, nMax)
+	return NRandomNumbers(6, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 6RandomNumbersBetween(nMin, nMax)
+		return 6RandomNumbers(nMin, nMax)
+
+	func SixRandomNumbers(nMin, nMax)
+		return 6RandomNumbers(nMin, nMax)
+
+	func SixRandomNumbersBetween(nMin, nMax)
+		return 6RandomNumbers(nMin, nMax)
+
+	#>
+
+func 7RandomNumbers(nMin, nMax)
+	return NRandomNumbers(7, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 7RandomNumbersBetween(nMin, nMax)
+		return 7RandomNumbers(nMin, nMax)
+
+	func SevenRandomNumbers(nMin, nMax)
+		return 7RandomNumbers(nMin, nMax)
+
+	func SevenRandomNumbersBetween(nMin, nMax)
+		return 7RandomNumbers(nMin, nMax)
+
+	#>
+
+func 8RandomNumbers(nMin, nMax)
+	return NRandomNumbers(8, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 8RandomNumbersBetween(nMin, nMax)
+		return 8RandomNumbers(nMin, nMax)
+
+	func EightRandomNumbers(nMin, nMax)
+		return 7RandomNumbers(nMin, nMax)
+
+	func EightRandomNumbersBetween(nMin, nMax)
+		return 7RandomNumbers(nMin, nMax)
+
+	#>
+
+func 9RandomNumbers(nMin, nMax)
+	return NRandomNumbers(9, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 9RandomNumbersBetween(nMin, nMax)
+		return 9RandomNumbers(nMin, nMax)
+
+	func NineRandomNumbers(nMin, nMax)
+		return 9RandomNumbers(nMin, nMax)
+
+	func NineRandomNumbersBetween(nMin, nMax)
+		return 9RandomNumbers(nMin, nMax)
+
+	#>
+
+func 10RandomNumbers(nMin, nMax)
+	return NRandomNumbers(10, nMin, nMax)
+
+	#< @FunctionAlternativeForms
+
+	func 10RandomNumbersBetween(nMin, nMax)
+		return 10RandomNumbers(nMin, nMax)
+
+	func TenRandomNumbers(nMin, nMax)
+		return 10RandomNumbers(nMin, nMax)
+
+	func TenRandomNumbersBetween(nMin, nMax)
+		return 10RandomNumbers(nMin, nMax)
+
+	#>
+
+#======
 
 func StzNumberMethods()
 	return Stz(:Number, :Methods)
