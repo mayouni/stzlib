@@ -29210,9 +29210,29 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return FALSE
 		ok
 
+	def IsBetweenXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :BetweenXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsInBetweenNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :InBetween )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsInBetweenXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InBetweenXT )
 
 			return TRUE
 
