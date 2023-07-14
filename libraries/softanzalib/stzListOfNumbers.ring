@@ -271,6 +271,9 @@ class stzListOfNumbers from stzList
 		def NumberAtPosition(n)
 			return This.NumberAt(n)
 
+		def Number(n)
+			return This.NumberAt(n)
+
 	  #-------------------------#
 	 #     MINIMUM NUMBER(S)   #
 	#-------------------------#
@@ -2855,6 +2858,216 @@ class stzListOfNumbers from stzList
 
 		def IsContinuous()
 			return This.IsContiguous()
+
+	  #=====================================================#
+	 #  GETTING ANY NUMBER BEFORE OR AFTER A GIVEN NUMBER  #
+	#=====================================================#
+
+	def AnyNumberBeforeOrAfter(n)
+		if isList(n) and Q(n).IsPositionNamedParam()
+			n = n[2]
+		ok
+
+		if random(1) = 0
+			n = This.AnyNumberBefore(n)
+
+		else
+			n = This.AnyNumberAfter(n)
+		ok
+
+		return This.Item(n)
+
+		#< @FunctionAlternativeForms
+
+		def AnyNumberAfterOrBefore(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
+		def ANumberBeforeOrAfter(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
+		def ANumberAfterOrBefore(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
+		def NumberBeforeOrAfter(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
+		def NumberAfterOrBefore(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
+		#>
+
+	  #--------------------------------------------------------#
+	 #  GETTING ANY NUMBER BEFORE A GIVEN NUMBER OR POSITION  #
+	#--------------------------------------------------------#
+
+	def AnyNumberBefore(n)
+		if isList(n) and Q(n).IsPositionNamedParam(n)
+			return This.AnyNumberBeforePosition(n)
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		nPos = ring_find( This.Content(), n)
+		return This.AnyNumberBeforePosition(nPos)
+
+	  #----------------------------------------------#
+	 #  GETTING ANY NUMBER BEFORE A GIVEN POSITION  #
+	#----------------------------------------------#
+
+	def AnyNumberBeforePosition(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		nLen = This.NumberOfNumbers()
+		
+		if n <= 1 or n > nLen
+			StzRaise("Index out of range!")
+		ok
+
+		if n = 2
+			return This.Number(1)
+		ok
+
+		nRandom = random(n - 1)
+		if nRandom = 0
+			nRandom = 1
+		ok
+
+		return This.Number(nRandom)
+
+	  #--------------------------------------------------------#
+	 #  GETTING ANY NUMBER AFTER A GIVEN NUMBER OR POSITION  #
+	#--------------------------------------------------------#
+
+	def AnyNumberAfter(n)
+		if isList(n) and Q(n).IsPositionNamedParam(n)
+			return This.AnyNumberAfterPosition(n)
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		nPos = ring_find( ring_reverse(This.Content()), n )
+		return This.AnyNumberAfterPosition(nPos)
+
+	  #---------------------------------------------#
+	 #  GETTING ANY NUMBER AFETR A GIVEN POSITION  #
+	#---------------------------------------------#
+
+	def AnyNumberAfterPosition(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		nLen = This.NumberOfNumbers()
+
+		if n < 1 or n >= nLen
+			StzRaise("Index out of range!")
+		ok
+
+		if n = nLen - 1
+			return This.Number(nLen)
+		ok
+
+		n--
+		nRandom = random(n)
+		if nRandom = 0
+			nRandom = 1
+		ok
+
+		return This.Number(n + nRandom - 1)
+
+##########
+	def AnyNumberBetween()
+
+	#--
+	#  
+	#--
+
+	def AnyNumberAfterOrBeforePosition(n)
+		return This.AnyNumberBeforeOrAfter(n)
+
+	def ANumberBeforeOrAfterPosition(n)
+		return This.AnyNumberBeforeOrAfter(n)
+
+	def ANumberAfterOrBeforePosition(n)
+		return This.AnyNumberBeforeOrAfter(n)
+
+	def NumberBeforeOrAfterPosition(n)
+		return This.AnyNumberBeforeOrAfter(n)
+
+	def NumberAfterOrBeforePosition(n)
+		return This.AnyNumberBeforeOrAfter(n)
+
+	  #------------------------------------------------------------#
+	 #  GETTING A NUMBER FROM THE LIST OTHER THEN A GIVEN NUMBER  #
+	#------------------------------------------------------------#
+
+	def ANumberOtherThen(n)
+		nLen = This.NumberOfItems()
+		if nLen = 0
+			StzRaise("Can't return any number because the list is empty!")
+		but nLen = 1
+			return This.Number(1)
+		ok
+
+		nPos = This.Find(n)
+		if nPos = 0
+			nRandom = random(nLen)
+			if nRandom = 0
+				nRandom = 1
+			ok
+			return nRandom
+
+		else
+			if nRandom = nLen
+				n =This.AnyNumberBeforePosition(nLen)
+
+			but nRandom = 1
+				n = This.AnyNumberAftePosition(1)
+
+			else
+				n = This.AnyNumberBeforeOrAfter(nRandom)
+			ok
+
+			return This.Item(n)
+		ok
+
+		#< @FunctionAlternativeForms
+	
+		def ANumberDifferentThen(pcChar)
+			return ANumberOtherThen(pcChar)
+	
+		def ANumberDifferentFrom(pcChar)
+			return ANumberOtherThen(pcChar)
+	
+		#--
+	
+		def NumberOtherThen(pcChar)
+			return ANumberOtherThen(pcChar)
+	
+		def NumberDifferentThen(pcChar)
+			return ANumberOtherThen(pcChar)
+	
+		def NumberDifferentFrom(pcChar)
+			return ANumberOtherThen(pcChar)
+	
+		#--
+	
+		def AnyNumberOtherThen(pcChar)
+			return ANumberOtherThen(pcChar)
+	
+		def AnyNumberDifferentThen(pcChar)
+			return ANumberOtherThen(pcChar)
+	
+		def AnyNumberDifferentFrom(pcChar)
+			return ANumberOtherThen(pcChar)
+	
+		#>
 
 	  #------------------------------#
 	 #     OPERATORS OVERLOADING    # 

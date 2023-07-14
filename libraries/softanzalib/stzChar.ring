@@ -181,16 +181,22 @@ func RemoveDiacritic(pcChar)
 	return StzCharQ(pcChar).DiacriticRemoved()
 
 func ACharOtherThen(pcChar)
-	/* ... */
 
-	n = Unicode(pcChar)
-	n = StzListOfNumbersQ( 1: MaxUnicode()).ANumberOtherThen(n)
+	nUnicode = Unicode(pcChar)
+	n = StzListOfNumbersQ( 1: NumberOfUnicodeChars()).ANumberOtherThen(nUnicode)
+
+	cResult = StzCharQ(n).Content()
+	return cResult
+
+	#< @FunctionAlternativeForms
 
 	def ACharDifferentThen(pcChar)
 		return ACharOtherThen(pcChar)
 
 	def ACharDifferentFrom(pcChar)
 		return ACharOtherThen(pcChar)
+
+	#--
 
 	def CharOtherThen(pcChar)
 		return ACharOtherThen(pcChar)
@@ -200,6 +206,19 @@ func ACharOtherThen(pcChar)
 
 	def CharDifferentFrom(pcChar)
 		return ACharOtherThen(pcChar)
+
+	#--
+
+	def AnyCharOtherThen(pcChar)
+		return ACharOtherThen(pcChar)
+
+	def AnyCharDifferentThen(pcChar)
+		return ACharOtherThen(pcChar)
+
+	def AnyCharDifferentFrom(pcChar)
+		return ACharOtherThen(pcChar)
+
+	#>
 
 func LastUnicodeChar()
 	return StzCharQ( NumberOfUnicodeChars() ).Content()

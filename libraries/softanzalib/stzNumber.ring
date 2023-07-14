@@ -104,6 +104,77 @@
 func StzNumberQ(cNumber)
 	return new stzNumber(cNumber)
 
+func StzRandomXT(nMin, nMax) # XT --> bounds are included
+
+	if isList(nMin) and StzListQ(nMin).IsBetweenNamedParam()
+		nMin = nMin[2]
+	ok
+
+	if isList(nMax) and StzListQ(nMax).IsAndNamedParam()
+		nMax = nMax[2]
+	ok
+
+	if NOT (isNumber(nMin) and isNumber(nMax))
+		StzRaise("Incorrect param types! nMin and nMax must be both numbers.")
+	ok
+
+	if nMin > nMax
+		nTemp = nMax
+		nMax = nMin
+		nMin = nMax
+	ok
+
+	nResult = random(nMin) + nMax - nMin	# random is a Ring function
+	return nResult
+
+	#< @FunctionAlternativeForms
+
+	func StzRandomNumberXT(nMin, nMax)
+		return StzRandomXT(nMin, nMax)
+
+	func RandomNumberBetweenXT(nMin, nMax)
+		return StzRandomXT(nMin, nMax)
+
+	func ARandomNumberBetweenXT(nMin, nMax)
+		return StzRandomXT(nMin, nMax)
+
+	func ARandomNumberXT(nMin, nMax)
+		return StzRandomXT(nMin, nMax)
+
+	#>
+
+func StzRandom(nMin, nMax) # Bound are not included. To include them add ...XT()
+
+	if isList(nMin) and StzListQ(nMin).IsBetweenNamedParam()
+		nMin = nMin[2]
+	ok
+
+	if isList(nMax) and StzListQ(nMax).IsAndNamedParam()
+		nMax = nMax[2]
+	ok
+
+	if NOT (isNumber(nMin) and isNumber(nMax))
+		StzRaise("Incorrect param types! nMin and nMax must be both numbers.")
+	ok
+
+	return StzRandomXT( nMin++, nMax-- )
+
+	#< @FunctionAlternativeForms
+
+	func StzRandomNumber(nMin, nMax)
+		return StzRandom(nMin, nMax)
+
+	func RandomNumberBetween(nMin, nMax)
+		return StzRandom(nMin, nMax)
+
+	func ARandomNumberBetween(nMin, nMax)
+		return StzRandom(nMin, nMax)
+
+	func ARandomNumber(nMin, nMax)
+		return StzRandom(nMin, nMax)
+
+	#>
+
 func StzNumberMethods()
 	return Stz(:Number, :Methods)
 
@@ -1381,6 +1452,9 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
+		def IsEqualWith(pOtherNumber)
+			return This.IsEqualTo(pOtherNumber)
+
 		#< @FunctionNegativeForm
 
 		def IsNotEqualTo(pOtherNumber)
@@ -1392,7 +1466,16 @@ class stzNumber from stzObject
 	
 			#< @FunctionAlternativeForm
 
+			def IsNotEqualWith(pOtherNumber)
+				return This.IsNotEqualTo(pOtherNumber)
+
 			def IsDifferentFrom(pOtherNumber)
+				return This.IsNotEqualTo(pOtherNumber)
+
+			def IsDifferentTo(pOtherNumber)
+				return This.IsNotEqualTo(pOtherNumber)
+
+			def IsDifferentOf(pOtherNumber)
 				return This.IsNotEqualTo(pOtherNumber)
 
 			#>
@@ -1409,51 +1492,154 @@ class stzNumber from stzObject
 
 		return cThisNumber = cOtherNumber
 
-	def IsLessThan(pOtherNumber)
-		return IsLessOrEqualTo(0+ pOtherNumber)
+	def IsLess(pOtherNumber)
+		if isList(pOtherNumber) and Q(pOtherNumber).IsThanNamedParam()
+			pOtherNumber = pOtherNumber[2]
+		ok
+
+		if This.NumericValue() <= StringToNumber(0+ pOtherNumber)
+			return TRUE
+		else
+			return FALSE
+		ok
 
 		#< @FunctionAlternativeForms
 
+		def IsLessThan(pOtherNumber)
+			return This.IsLess(pOtherNumber)
+
 		def IsLessOrEqualTo(pOtherNumber)
-			if This.NumericValue() <= StringToNumber(0+ pOtherNumber)
-				return TRUE
-			else
-				return FALSE
-			ok
-	
+			return This.IsLess(pOtherNumber)
+
+		def IsSmallerOrEqualTo(pOtherNumber)
+			return This.IsLess(pOtherNumber)
+
 		def IsEqualOrLessThan(pOtherNumber)
-			return This.IsLessOrEqualTo(0+ pOtherNumber)
+			return This.IsLess(pOtherNumber)
+
+		def IsEqualOrSmallerThan(pOtherNumber)
+			return This.IsLess(pOtherNumber)
+
+		def IsSmallerThqn(pOtherNumber)
+			return This.IsLess(pOtherNumber)
 
 		#>
 	
-	def IsStriclyLessThan(pOtherNumber)
+	def IsStriclyLess(pOtherNumber)
+		if isList(pOtherNumber) and Q(pOtherNumber).IsThanNamedParam()
+			pOtherNumber = pOtherNumber[2]
+		ok
+
 		if This.NumericValue() < StringToNumber(0+ pOtherNumber)
 			return TRUE
 
 		else
 			return FALSE
-
 		ok
 
-	def IsGreaterThan(pOtherNumber)
-		return IsGreaterOrEqualTo(pOtherNumber)
+		if isList(pOtherNumber) and Q(pOtherNumber).IsThanNamedParam()
+			pOtherNumber = pOtherNumber[2]
+		ok
 
-		def IsGreaterOrEqualTo(pOtherNumber)
-			if This.NumericValue() >= StringToNumber(0+ pOtherNumber)
-				return TRUE
-			else
-				return FALSE
-			ok
-
-		def IsEqualOrGreater(pOtherNumber)
-			return This.IsGreaterOrEqualTo(pOtherNumber)
-
-	def IsStrictlyGreaterThan(pOtherNumber)
-		if This.NumericValue() > StringToNumber(0+ pOtherNumber)
+		if This.NumericValue() <= StringToNumber(0+ pOtherNumber)
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsStrictlyLessThan(pOtherNumber)
+			return This.IsStrictlyLess(pOtherNumber)
+
+		def IsStrictlyLessOrEqualTo(pOtherNumber)
+			return This.IsStrictlyLess(pOtherNumber)
+
+		def IsStrictlySmallerOrEqualTo(pOtherNumber)
+			return This.IsStrictlyLess(pOtherNumber)
+
+		def IsStrictlyEqualOrLessThan(pOtherNumber)
+			return This.IsStrictlyLess(pOtherNumber)
+
+		def IsStrictlyEqualOrSmallerThan(pOtherNumber)
+			return This.IsStrictlyLess(pOtherNumber)
+
+		def IsStrictlySmallerThqn(pOtherNumber)
+			return This.IsStrictlyLess(pOtherNumber)
+
+		#>
+
+	def IsGreater(pOtherNumber)
+		if isList(pOtherNumber) and Q(pOtherNumber).IsThanNamedParam()
+			pOtherNumber = pOtherNumber[2]
+		ok
+
+		if This.NumericValue() >= StringToNumber(0+ pOtherNumber)
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsGreaterThan(pOtherNumber)
+			return This.IsGreater(pOtherNumber)
+
+		def IsEqualOrGreater(pOtherNumber)
+			return This.IsGreater(pOtherNumber)
+
+		def IsEqualOrGreaterThan(pOtherNumber)
+			return This.IsGreater(pOtherNumber)
+
+		def IsBigger(pOtherNumber)
+			return This.IsGreater(pOtherNumber)
+
+		def IsBiggerThan(pOtherNumber)
+			return This.IsGreater(pOtherNumber)
+
+		def IsEqualOrBigger(pOtherNumber)
+			return This.IsGreater(pOtherNumber)
+
+		def IsEqualOrBiggerThan(pOtherNumber)
+			return This.IsGreater(pOtherNumber)
+
+		#>
+
+	def IsStrictlyGreater(pOtherNumber)
+		if isList(pOtherNumber) and Q(pOtherNumber).IsThanNamedParam()
+			pOtherNumber = pOtherNumber[2]
+		ok
+
+		if This.NumericValue() >= StringToNumber(0+ pOtherNumber)
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsStrictlyGreaterThan(pOtherNumber)
+			return This.IsStrictlyGreater(pOtherNumber)
+
+		def IsStrictlyEqualOrGreater(pOtherNumber)
+			return This.IsStrictlyGreater(pOtherNumber)
+
+		def IsStrictlyEqualOrGreaterThan(pOtherNumber)
+			return This.IsGreater(pOtherNumber)
+
+		def IsStrictlyBigger(pOtherNumber)
+			return This.IsStrictlyGreater(pOtherNumber)
+
+		def IsStrictlyBiggerThan(pOtherNumber)
+			return This.IsStrictlyGreater(pOtherNumber)
+
+		def IsStrictlyEqualOrBigger(pOtherNumber)
+			return This.IsStrictlyGreater(pOtherNumber)
+
+		def IsStrictlyEqualOrBiggerThan(pOtherNumber)
+			return This.IsStrictlyGreater(pOtherNumber)
+
+		#>
 
 	def IsBetween(pNumber1, pNumber2)
 		n1 = 0+ pNumber1

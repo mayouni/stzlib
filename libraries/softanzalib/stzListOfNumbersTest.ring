@@ -1,5 +1,81 @@
 load "stzlib.ring"
 
+/*---------------
+
+pron()
+
+? QQ(1:7).AnyNumberBeforePosition(5)
+#--> 3
+#--> 2
+#--> 3
+#--> 2
+#--> 1
+
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+? QQ([ 12, 4, 35, 102, 22, 98, 5 ]).AnyNumberBefore(22)
+#--> 102
+#--> 4
+#--> 4
+#--> 12
+#--> 192
+
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+*/
+pron()
+
+? QQ(1:7).AnyNumberAfterPosition(5)
+#--> 7
+#--> 5
+#--> 5
+#--> 4
+#--> 4
+
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+? QQ([ 12, 4, 35, 102, 22, 98, 5 ]).AnyNumberBefore(22)
+#--> 102
+#--> 4
+#--> 4
+#--> 12
+#--> 192
+
+
+proff()
+# Executed in 0.03 second(s)
+/*---------------
+
+pron()
+
+? QQ(1:7).AnyNumberBeforeOrAfter(3)
+
+proff()
+
+/*---------------
+
+pron()
+
+o1 = new stzListOfNumbers(1: 10)
+? o1.ANumberOtherThen(5)
+
+proff()
+
 /*===============
 
 pron()

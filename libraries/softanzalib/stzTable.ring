@@ -2259,7 +2259,7 @@ Class stzTable
 			return This.SectionZ( panCellPos1, panCellPos2 )
 
 			def SectionAndPositionQ( panCellPos1, panCellPos2 )
-				return This.This.SectionZQ( panCellPos1, panCellPos2 )
+				return This.SectionZQ( panCellPos1, panCellPos2 )
 
 			def SectionAndPositionQR( panCellPos1, panCellPos2, pcReturnType )
 				return This.SectionZQR( panCellPos1, panCellPos2, pcReturnType )
@@ -2268,7 +2268,7 @@ Class stzTable
 			return This.SectionZ( panCellPos1, panCellPos2 )
 
 			def SectionAndItsPositionQ( panCellPos1, panCellPos2 )
-				return This.This.SectionZQ( panCellPos1, panCellPos2 )
+				return This.SectionZQ( panCellPos1, panCellPos2 )
 
 			def SectionAndItsPositionQR( panCellPos1, panCellPos2, pcReturnType )
 				return This.SectionZQR( panCellPos1, panCellPos2, pcReturnType )
