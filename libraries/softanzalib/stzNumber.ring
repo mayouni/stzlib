@@ -238,10 +238,10 @@ func NRandomNumbersXT(n, nMin, nMax) # XT or IB --> bounds are included
 	func NRandomNumbersIB(nMin, nMax)
 		return NRandomNumbersXT(nMin, nMax)
 
-	func NRandomNumbersBetweeXT(nMin, nMax)
+	func NRandomNumbersBetweenXT(nMin, nMax)
 		return NRandomNumbersXT(nMin, nMax)
 
-	func NRandomNumbersBetweeIB(nMin, nMax)
+	func NRandomNumbersBetweenIB(nMin, nMax)
 		return NRandomNumbersXT(nMin, nMax)
 
 	#>
@@ -728,6 +728,98 @@ func RandomNumberGreaterThan(n)
 
 	func ARandomNumberBiggerThan(n)
 		return RandomNumberGreaterThan(n)
+
+	#>
+
+#-----
+
+func NRandomNumbersGreaterThanIB(n, nValue)
+	if NOT (isNumber(n) and isNumber(nValue))
+		StzRaise("Incorrect param type! n and nValue must be numbers.")
+	ok
+
+	anResult = []
+	for i = 1 to n
+		anResult = ARandomNumberGreaterThanIB(nValue)
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	func NRandomNumbersGreaterThanXT(n, nValue)
+		return NRandomNumbersGreaterThanIB(n, nValue)
+
+	func NRandomNumbersLargerThanIB(n, nValue)
+		return NRandomNumbersGreaterThanIB(n, nValue)
+
+	func NRandomNumbersLargerThanXT(n, nValue)
+		return NRandomNumbersGreaterThanIB(n, nValue)
+
+	#>
+
+func NRandomNumbersGreaterThan(n, nValue)
+	if NOT (isNumber(n) and isNumber(nValue))
+		StzRaise("Incorrect param type! n and nValue must be numbers.")
+	ok
+
+	anResult = []
+	for i = 1 to n
+		anResult = ARandomNumberGreaterThan(nValue)
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForm
+
+	func NRandomNumbersLargerThan(n, nValue)
+		return NRandomNumbersGreaterThan(n, nValue)
+
+	#>
+
+#--
+
+func NRandomNumbersLessThanIB(n, nValue)
+	if NOT (isNumber(n) and isNumber(nValue))
+		StzRaise("Incorrect param type! n and nValue must be numbers.")
+	ok
+
+	anResult = []
+	for i = 1 to n
+		anResult = ARandomNumberLessThanIB(nValue)
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	func NRandomNumbersLessThanXT(n, nValue)
+		return NRandomNumbersLessThanIB(n, nValue)
+
+	func NRandomNumbersSmallerThanIB(n, nValue)
+		return NRandomNumbersLessThanIB(n, nValue)
+
+	func NRandomNumbersSmallerThanXT(n, nValue)
+		return NRandomNumbersGreaterThanIB(n, nValue)
+
+	#>
+
+func NRandomNumbersLessThan(n, nValue)
+	if NOT (isNumber(n) and isNumber(nValue))
+		StzRaise("Incorrect param type! n and nValue must be numbers.")
+	ok
+
+	anResult = []
+	for i = 1 to n
+		anResult = ARandomNumberLessThan(nValue)
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForm
+
+	func NRandomNumbersSmallerThan(n, nValue)
+		return NRandomNumbersGreaterThan(n, nValue)
 
 	#>
 
@@ -4867,7 +4959,7 @@ class stzNumber from stzObject
 			return This.IsStrictlyGreaterThan(pValue)
 
 		but pOp = ">="
-			return This.IsGreaterThenOrEqualTo(pValue)
+			return This.IsGreaterThanOrEqualTo(pValue)
 
 		but pOp = "<"
 			return This.IsStrictlyLessThan(pValue)
