@@ -1,6 +1,35 @@
 load "stzlib.ring"
 
+/*=================
+
+pron()
+
+? RandomNumberGreaterThan(12)
+#--> 999_999_999_999_995
+#--> 999_999_999_999_990
+#--> 999_999_999_999_988
+#--> 999_999_999_999_991
+#--> 999_999_999_999_992
+
+proff()
+# Executed in 0.03 second(s)
+
 /*-----------------
+
+*/
+pron()
+
+? RandomNumberLessThan(12)
+#--> 10
+#--> 9
+#--> 10
+#--> 9
+#--> 10
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------------------
 
 pron()
 
@@ -14,7 +43,7 @@ pron()
 proff()
 
 /*-----------------
-*/
+
 pron()
 
 ? ARandomNumber( :Between = 1, :And = 5 ) # To include bounds (1 and 5) use ...XT()
@@ -23,6 +52,18 @@ pron()
 #--> 3
 #--> 4
 #--> 3
+
+proff()
+
+/*-----------------
+
+pron()
+
+? 3RandomNumbers( :Between = 1, :And = 5 )
+#--> [ 4, 3, 3 ]
+
+? 3RandomNumbersIB( :Between = 1, :And = 5 )
+#--> [ 4, 5, 4 ]
 
 proff()
 

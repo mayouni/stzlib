@@ -270,12 +270,12 @@ func NRandomNumbers(n, nMin, nMax) # XT --> bounds are included
 		StzRaise("Incorrect param types! nMin and nMax must be both numbers.")
 	ok
 
-	return NRandomNumbersXT( nMin++, nMax-- )
+	return NRandomNumbersXT( n, nMin++, nMax-- )
 
 	#< @FunctionAlternativeForm
 
-	func NRandomNumbersBetween(nMin, nMax)
-		return RandomNumbers(nMin, nMax)
+	func NRandomNumbersBetween(n, nMin, nMax)
+		return RandomNumbers(n, nMin, nMax)
 
 	#>
 
@@ -328,7 +328,7 @@ func 3RandomNumbersXT(nMin, nMax)
 	#--
 
 	func 3RandomNumbersIB(nMin, nMax)
-		return This.3RandomNumbersXT(nMin, nMax)
+		return 3RandomNumbersXT(nMin, nMax)
 
 	func 3RandomNumbersBetweenIB(nMin, nMax)
 		return 3RandomNumbersXT(nMin, nMax)
@@ -358,7 +358,7 @@ func 4RandomNumbersXT(nMin, nMax)
 	#--
 
 	func 4RandomNumbersIB(nMin, nMax)
-		return This.4RandomNumbersXT(nMin, nMax)
+		return 4RandomNumbersXT(nMin, nMax)
 
 	func 4RandomNumbersBetweenIB(nMin, nMax)
 		return 4RandomNumbersXT(nMin, nMax)
@@ -388,7 +388,7 @@ func 5RandomNumbersXT(nMin, nMax)
 	#--
 
 	func 5RandomNumbersIB(nMin, nMax)
-		return This.5RandomNumbersXT(nMin, nMax)
+		return 5RandomNumbersXT(nMin, nMax)
 
 	func 5RandomNumbersBetweenIB(nMin, nMax)
 		return 5RandomNumbersXT(nMin, nMax)
@@ -418,7 +418,7 @@ func 6RandomNumbersXT(nMin, nMax)
 	#--
 
 	func 6RandomNumbersIB(nMin, nMax)
-		return This.6RandomNumbersXT(nMin, nMax)
+		return 6RandomNumbersXT(nMin, nMax)
 
 	func 6RandomNumbersBetweenIB(nMin, nMax)
 		return 6RandomNumbersXT(nMin, nMax)
@@ -448,7 +448,7 @@ func 7RandomNumbersXT(nMin, nMax)
 	#--
 
 	func 7RandomNumbersIB(nMin, nMax)
-		return This.7RandomNumbersXT(nMin, nMax)
+		return 7RandomNumbersXT(nMin, nMax)
 
 	func 7RandomNumbersBetweenIB(nMin, nMax)
 		return 7RandomNumbersXT(nMin, nMax)
@@ -478,7 +478,7 @@ func 8RandomNumbersXT(nMin, nMax)
 	#--
 
 	func 8RandomNumbersIB(nMin, nMax)
-		return This.8RandomNumbersXT(nMin, nMax)
+		return 8RandomNumbersXT(nMin, nMax)
 
 	func 8RandomNumbersBetweenIB(nMin, nMax)
 		return 8RandomNumbersXT(nMin, nMax)
@@ -508,7 +508,7 @@ func 9RandomNumbersXT(nMin, nMax)
 	#--
 
 	func 9RandomNumbersIB(nMin, nMax)
-		return This.8RandomNumbersXT(nMin, nMax)
+		return 8RandomNumbersXT(nMin, nMax)
 
 	func 9RandomNumbersBetweenIB(nMin, nMax)
 		return 9RandomNumbersXT(nMin, nMax)
@@ -538,7 +538,7 @@ func 10RandomNumbersXT(nMin, nMax)
 	#--
 
 	func 10RandomNumbersIB(nMin, nMax)
-		return This.10RandomNumbersXT(nMin, nMax)
+		return 10RandomNumbersXT(nMin, nMax)
 
 	func 10RandomNumbersBetweenIB(nMin, nMax)
 		return 10RandomNumbersXT(nMin, nMax)
@@ -697,6 +697,40 @@ func 10RandomNumbers(nMin, nMax)
 
 	#>
 
+#------
+
+func RandomNumberLessThan(n)
+	return RandomNumberBetween(1, n)
+
+	#< @FunctionAlternativeForms
+
+	func ARandomNumberLessThan(n)
+		return RandomNumberLessThan(n)
+
+	func RandomNumberSmallerThan(n)
+		return RandomNumberLessThan(n)
+
+	func ARandomNumberSmallerThan(n)
+		return RandomNumberLessThan(n)
+
+	#>
+
+func RandomNumberGreaterThan(n)
+	return RandomNumberBetween(n, MaxRingNumber())
+
+	#< @FunctionAlternativeForms
+
+	func ARandomNumberGreaterThan(n)
+		return RandomNumberGreaterThan(n)
+
+	func RandomNumberBiggerThan(n)
+		return RandomNumberGreaterThan(n)
+
+	func ARandomNumberBiggerThan(n)
+		return RandomNumberGreaterThan(n)
+
+	#>
+
 #======
 
 func StzNumberMethods()
@@ -780,6 +814,18 @@ func MaxCalculableNumber()
 	func RingMaxNumber()
 		return MaxCalculableNumber()
 
+	func MaxRingNumber()
+		return MaxCalculableNumber()
+
+	func MaxNumber()
+		return MaxCalculableNumber()
+
+	func GreatestNumber()
+		return MaxCalculableNumber()
+
+	func LargestNumber()
+		return MaxCalculableNumber()
+
 	#--
 
 	func MaxCalculableNumberXT()
@@ -788,10 +834,28 @@ func MaxCalculableNumber()
 	func RingMaxNumberXT()
 		return MaxCalculableNumberXT()
 
+	func MaxRingNumberXT()
+		return MaxCalculableNumberXT()
+
 func MinCalculableNumber()
 	return -1 * MaxCalculableNumber()
 		
 	func RingMinNumber()
+		return MinCalculableNumber()
+
+	func MinRingNumber()
+		return MinCalculableNumber()
+
+	func SmallestRingNumber()
+		return MinCalculableNumber()
+
+	func RingSmallestNumber()
+		return MinCalculableNumber()
+
+	func MinNumber()
+		return MinCalculableNumber()
+
+	func SmallestNumber()
 		return MinCalculableNumber()
 
 	#--
@@ -799,13 +863,42 @@ func MinCalculableNumber()
 	func MinCalculableNumberXT()
 		return "-" + _cMaxCalculableInteger
 
+	func SmallestCalculableNumberXT()
+		return "-" + _cMaxCalculableInteger
+
+	func CalculableMinNumberXT()
+		return "-" + _cMaxCalculableInteger
+
+	func CalculableSmallestNumberXT()
+		return "-" + _cMaxCalculableInteger
+
 	func RingMinNumberXT()
+		return MinCalculableNumberXT()
+
+	func MinRingNumberXT()
 		return MinCalculableNumberXT()
 
 func MaxCalculableInteger()
 	return MaxCalculableNumber()
-		 
+		
+	#< @FunctionAlternativeForms
+ 
 	func RingMaxInteger()
+		return MaxCalculableInteger()
+
+	func MaxRingInteger()
+		return MaxCalculableInteger()
+
+	func RingLargestInteger()
+		return MaxCalculableInteger()
+
+	func RingGreatestInteger()
+		return MaxCalculableInteger()
+
+	func LargestRingInteger()
+		return MaxCalculableInteger()
+
+	func GreatestRingInteger()
 		return MaxCalculableInteger()
 
 	#--
@@ -815,11 +908,39 @@ func MaxCalculableInteger()
 
 	func RingMaxIntegerXT()
 		return MaxCalculableIntegerXT()
+
+	func MaxRingIntegerXT()
+		return MaxCalculableIntegerXT()
+
+	func RingLargestIntegerXT()
+		return MaxCalculableIntegerXT()
+
+	func RingGreatestIntegerXT()
+		return MaxCalculableIntegerXT()
+
+	func LargestRingIntegerXT()
+		return MaxCalculableIntegerXT()
+
+	func GreatestRingIntegerXT()
+		return MaxCalculableIntegerXT()
 	
+	#>
+
 func MinCalculableInteger()
 	return MinCalculableNumber()
 		
+	#< @FunctionAlternativeForms
+
 	func RingMinInteger()
+		return MinCalculableInteger()
+
+	func MinRingInteger()
+		return MinCalculableInteger()
+
+	func RingSmallestInteger()
+		return MinCalculableInteger()
+
+	func SmallestRingInteger()
 		return MinCalculableInteger()
 
 	#--
@@ -830,6 +951,17 @@ func MinCalculableInteger()
 	func RingMinIntegerXT()
 		return MinCalculableIntegerXT()
 
+	func MinRingIntegerXT()
+		return MinCalculableIntegerXT()
+
+	func RingSmallestIntegerXT()
+		return MinCalculableIntegerXT()
+
+	func SmallestRingIntegerXT()
+		return MinCalculableIntegerXT()
+
+	#>
+
 func MaxCalculableRealNumber()
 	oStr = new stzString(_cMaxCalculableRealNumber)
 	cMax - "_"
@@ -837,7 +969,21 @@ func MaxCalculableRealNumber()
 
 	return 0+ cMax
 
+	#< @FunctionAlternativeForms
+
+	func GreatestCalculableRealNumber()
+		return MaxCalculableRealNumber()
+
+	func LargestCalculableRealNumber()
+		return MaxCalculableRealNumber()
+
 	func RingMaxRealNumber()
+		return MaxCalculableRealNumber()
+
+	func RingGreatestRealNumber()
+		return MaxCalculableRealNumber()
+
+	func RingLargestRealNumber()
 		return MaxCalculableRealNumber()
 
 	#--
@@ -845,12 +991,31 @@ func MaxCalculableRealNumber()
 	func MaxCalculableRealNumberXT()
 		return _cMaxCalculableRealNumber
 
+	func GreatestCalculableRealNumberXT()
+		return MaxCalculableRealNumberXT()
+
+	func LargestCalculableRealNumberXT()
+		return MaxCalculableRealNumberXT()
+
 	func RingMaxRealNumberXT()
 		return MaxCalculableRealNumberXT()
+
+	func RingGreatestRealNumberXT()
+		return MaxCalculableRealNumberXT()
+
+	func RingLargestRealNumberXT()
+		return MaxCalculableRealNumberXT()
+
+	#>
 		
 func MinCalculableRealNumber()
 	return -1 * MaxCalculableRealNumber()
 	
+	#< @FunctionAlternativeForms
+
+	func SmallestCalculableRealNumber()
+		return MinCalculableRealNumber()
+
 	func RingMinRealNumber()
 		return MinCalculableRealNumber()
 
@@ -861,6 +1026,11 @@ func MinCalculableRealNumber()
 
 	func RingMinRealNumberXT()
 		return MinCalculableRealNumberXT()
+
+	func RingSmallestRealNumberXT()
+		return MinCalculableRealNumberXT()
+
+	#>
 
 func MoneyNumberPrefix()
 	return _cMoneyNumberPrefix
