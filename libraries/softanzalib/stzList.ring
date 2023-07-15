@@ -32142,9 +32142,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def ToListInShortForm()
 			return This.ToListInStringInShortForm()
 
-	  #---------------------------------------#
+	  #=======================================#
 	 #  GETTING A RANDOM ITEM FROM THE LIST  #
-	#---------------------------------------#
+	#=======================================#
 
 	def AnyItem()
 		nLen = This.NumberOfItems() 
@@ -32156,18 +32156,258 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return This.Item(1)
 		ok
 
-		n = random(nLen)
-		if n = 0
-			n = 1
-		ok
-
+		n = ARandomNumberBetweenIB(1, nLen)
 		return This.Item(n)
+
+		#< @FunctionAlternativeForms
 
 		def RandomItem()
 			return This.AnyItem()
 
 		def ARandomItem()
 			return This.AnyItem()
+
+		def AnItem()
+			return This.AnyItem()
+
+		#>
+
+	  #---------------------------------------------------------------#
+	 #  GETTING A RANDOM ITEM FROM THE LIST ALONG WITH ITS POSITION  #
+	#---------------------------------------------------------------#
+
+	def AnyItemZ() # AnyItemAndItsPosition()
+		nLen = This.NumberOfItems() 
+		if nLen = 0
+			StzRaise("Can't return any item because the list is empty!")
+		ok
+
+		if nLen = 1
+			return This.Item(1)
+		ok
+
+		aRresult = [ This.Item(n), ARandomNumberBetweenIB(1, nLen) ]
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RandomItemZ()
+			return This.AnyItemZ()
+
+		def ARandomItemZ()
+			return This.AnyItemZ()
+
+		def AnItemZ()
+			return This.AnyItemZ()
+
+		#--
+
+		def AnyItemAndItsPosition()
+			return This.AnyItemZ()
+
+		def RandomItemAndItsPosition()
+			return This.AnyItemZ()
+
+		def ARandomItemAndItsPosition()
+			return This.AnyItemZ()
+
+		def AnItemAndItsPosition()
+			return This.AnyItemZ()
+
+		#>
+
+	  #----------------------------------------#
+	 #  GETIING N RANDOM ITEMS FROM THE LIST  #
+	#----------------------------------------#
+
+	def NRandomItemsCS(pCaseSensitive)
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		if pCaseSensitive = TRUE
+			anPos = NRandomNumbersBetween(1, This.NumberOfItems())
+			return This.ItemsAtPositions(anPos)
+
+		else
+#>>>>>>>		# TODO: Add case sensitivity
+			StzRaise("Case sensitivity is not supported yet for this fucntion!")
+		ok
+	
+		#< @functionAlternativeForm
+
+		def NAnyItemsCS(pCaseSensitive)
+			return This.NRandomItemsCS(pCaseSensitive)
+
+		def NItemsCS(pCaseSensitive)
+			return This.NRandomItemsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NRandomItems()
+		return This.NRandomItemsCS(:CaseSensitive = TRUE)
+
+		#< @functionAlternativeForm
+
+		def NAnyItems()
+			return This.NRandomItems()
+
+		def NItems()
+			return This.NRandomItems()
+
+		#>
+
+	  #-------------------------------------------------------------------#
+	 #  GETIING N RANDOM ITEMS FROM THE LIST ALONG WITH THEIR POSITIONS  #
+	#-------------------------------------------------------------------#
+
+	def NRandomItemsCSZ(pCaseSensitive) # NRandomItemsAndTheirPositions()
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		if pCaseSensitive = TRUE
+			anPos = NRandomNumbersBetween(1, This.NumberOfItems())
+			aItems = This.ItemsAtPositions(anPos)
+			return [ aItems, anPos ]
+
+		else
+#>>>>>>>		# TODO: Add case sensitivity
+			StzRaise("Case sensitivity is not supported yet for this fucntion!")
+		ok
+		
+		#< @FunctionAlternativeForms
+
+		def NAnyItemsCSZ(pCaseSensitive)
+			return This.NRandomItemsCSZ(pCaseSensitive)
+
+		def NItemsCSZ(pCaseSensitive)
+			return This.NRandomItemsCSZ(pCaseSensitive)
+
+		def NRandomItemsAndTheirPositionsCS(pCaseSensitive)
+			return This.NRandomItemsCSZ(pCaseSensitive)
+
+		def NAnyItemsAndTheirPositionsCS(pCaseSensitive)
+			return This.NRandomItemsCSZ(pCaseSensitive)
+
+		def NItemsAndTheirPositionsCS(pCaseSensitive)
+			return This.NRandomItemsCSZ(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NRandomItemsZ()
+		return This.NRandomItemsCSZ(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NAnyItemsZ()
+			return This.NRandomItemsZ()
+
+		def NItemsZ()
+			return This.NRandomItemsZ()
+
+		def NRandomItemsAndTheirPositions()
+			return This.NRandomItemsZ()
+
+		def NAnyItemsAndTheirPositions()
+			return This.NRandomItemsZ()
+
+		def NItemsAndTheirPositions()
+			return This.NRandomItemsZ()
+
+		#>
+
+	  #-------------------------------------------#
+	 #  GETIING SOME RANDOM ITEMS FROM THE LIST  #
+	#-------------------------------------------#
+
+	def SomeRandomItemsCS(pCaseSensitive)
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		if pCaseSensitive = TRUE
+
+			n = ARandomNumberBetweenIB( 1, This.NumberOfItems() )
+			aResult = This.NRandomItems(n)
+	
+			return aResult
+		else
+#>>>>>>>		# TODO: Add case sensitivity
+			StzRaise("Case sensitivity is not supported yet for this fucntion!")
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def RandomItemsCS(pCaseSensitive)
+			return This.SomeRandomItemsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SomeRandomItems()
+		return This.SomeRandomItemsCS(pCaseSensitive)
+
+		#< @FunctionAlternativeForms
+
+		def RandomItems()
+			return This.SomeRandomItems()
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #  GETIING SOME RANDOM ITEMS FROM THE LIST ALONG WITH THEIR POSITIONS  #
+	#----------------------------------------------------------------------#
+
+	def SomeRandomItemsCSZ(pCaseSensitive) # SomeRandomItemsAndTheirPositions
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		if pCaseSensitive = TRUE
+
+			n = ARandomNumberBetweenIB( 1, This.NumberOfItems() )
+			aResult = This.NRandomItemsZ(n)
+	
+			return aResult
+		else
+#>>>>>>>		# TODO: Add case sensitivity
+			StzRaise("Case sensitivity is not supported yet for this fucntion!")
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def SomeRandomItemsAndTheirPosotionsCS(pCaseSensitive)
+			return This.SomeRandomItemsCSZ(pCaseSensitive)
+
+		def RandomItemsCSZ(pCaseSensitive)
+			return This.SomeRandomItemsCSZ(pCaseSensitive)
+
+		def RandomItemsAndTheirPositionsZ(pCaseSensitive)
+			return This.SomeRandomItemsCSZ(pCaseSensitive)
+
+		#>
 
 	  #---------------------------------------------------------#
 	 #  GETTING AN ITEM FROM THE LIST OTHER THEN A GIVEN ITEM  #
@@ -32245,9 +32485,280 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		#>
 
-	  #---------#
+	#==============
+
+	def AnItemOtherThanCSZ(pItem, pCaseSensitive)
+
+	  #-------------------------------------------------------#
+	 #  GETTING A EANDOM ITEM OTHER THAN THE ITEMS PROVIDED  #
+	#-------------------------------------------------------#
+
+	def AnyRandomItemOtherThanManyCS(paItems)
+
+	#==============
+
+	def AnyRandomItemOtherThanManyCSZ(paItems)
+
+	  #--------------------------------------------------#
+	 #  GETTING N RANDOM ITEMS OTHER THAN A GIVEN ITEM  #
+	#--------------------------------------------------#
+
+	def NRandomItemsOtherThanCS(pItem)
+
+	#==============
+
+	def NRandomItemsOtherThanCSZ(pItem)
+
+	  #-----------------------------------------------------#
+	 #  GETTING SOME RANDOM ITEMS OTHER THAN A GIVEN ITEM  #
+	#-----------------------------------------------------#
+
+	def SomeRandomItemsOtherThanCS(pItem)
+
+	#==============
+
+	def SomeRandomItemsOtherThanCSZ(pItem)
+
+	  #--------------------------------------------------------#
+	 #  GETTING N RANDOM ITEMS OTHER THAN A MANY GIVEN ITEMS  #
+	#--------------------------------------------------------#
+
+	def NRandomItemsOtherThanManyCS(pItem)
+
+	#==============
+
+	def NRandomItemsOtherThanManyCSZ(pItem)
+
+	  #-----------------------------------------------------------#
+	 #  GETTING SOME RANDOM ITEMS OTHER THAN A MANY GIVEN ITEMS  #
+	#-----------------------------------------------------------#
+
+	def SomeRandomItemsOtherThanManyCS(pItem)
+
+	#==============
+
+	def SomeRandomItemsOtherThanManyCSZ(pItem)
+
+	  #--------------------------------------------------------#
+	 #  GETTING AN ITEM BETWEEN TWO OTHER ITEMS OR POSITIONS  #
+	#========================================================#
+
+	def AnItemBetweenCS(pMin, pMax, pCaseSensitive) # InSection
+
+	def AnItemBetweenCSZ(pMin, pMax, pCaseSensitive)
+
+	#---------------
+
+	def AnItemBetweenIBCS(pMin, pMax, pCaseSensitive)
+
+	def AnItemBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+
+	  #------------------------------------------------------------#
+	 #  GETTING AN ITEM NOT BETWEEN TWO OTHER ITEMS OR POSITIONS  #
+	#------------------------------------------------------------#
+
+	def AnItemNotBetweenCS(pMin, pMax, pCaseSensitive) # OutsideInSection
+
+	def AnItemNotBetweenCSZ(pMin, pMax, pCaseSensitive)
+
+	#---------------
+
+	def AnItemNotBetweenIBCS(pMin, pMax, pCaseSensitive)
+
+	def AnItemNotBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+
+	  #---------------------------------------------#
+	 #  GETTING AN ITEM INSIDE THE GIVEN SECTIONS  #
+	#=============================================#
+
+	def AnItemBetweenManyCS(pMin, pMax, pCaseSensitive) # InSections
+
+	def AnItemBetweenManyCSZ(pMin, pMax, pCaseSensitive)
+
+	#---------------
+
+	def AnItemBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+
+	def AnItemBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+
+	  #----------------------------------------------#
+	 #  GETTING AN ITEM OUTSIDE THE GIVEN SECTIONS  #
+	#----------------------------------------------#
+
+	def AnItemNotBetweenManyCS(pMin, pMax, pCaseSensitive) # OutsideSections
+
+	def AnItemNotBetweenManyCSZ(pMin, pMax, pCaseSensitive)
+
+	#---------------
+
+	def AnItemNotBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+
+	def AnItemNotBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+
+	  #--------------------------------------------------------#
+	 #  GETTING N ITEMS BETWEEN TWO OTHER ITEMS OR POSITIONS  #
+	#========================================================#
+
+	def NItemsBetweenCS(pMin, pMax, pCaseSensitive) # InSection
+
+	def NItemsBetweenCSZ(pMin, pMax, pCaseSensitive)
+
+	#---------------
+
+	def NItemsBetweenIBCS(pMin, pMax, pCaseSensitive)
+
+	def NItemsBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+
+	  #-----------------------------------------------------------#
+	 #  GETTING SOME ITEMS BETWEEN TWO OTHER ITEMS OR POSITIONS  #
+	#-----------------------------------------------------------#
+
+	def SomeItemsBetweenCS(pMin, pMax, pCaseSensitive)
+
+	def SomeItemsBetweenCSZ(pMin, pMax, pCaseSensitive)
+
+	#---------------
+
+	def SomeItemsBetweenIBCS(pMin, pMax, pCaseSensitive)
+
+	def SomeItemsBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+
+	  #------------------------------------------------------------#
+	 #  GETTING N ITEMS NOT BETWEEN TWO OTHER ITEMS OR POSITIONS  #
+	#------------------------------------------------------------#
+
+	def NItemsNotBetweenCS(pMin, pMax, pCaseSensitive) # OutsideSection
+
+	def NItemsNotBetweenCSZ(pMin, pMax, pCaseSensitive)
+
+	#---------------
+
+	def NItemsNotBetweenIBCS(pMin, pMax, pCaseSensitive)
+
+	def NItemsNotBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+
+	  #---------------------------------------------------------------#
+	 #  GETTING SOME ITEMS NOT BETWEEN TWO OTHER ITEMS OR POSITIONS  #
+	#---------------------------------------------------------------#
+
+	def SomeItemsNotBetweenCS(pMin, pMax, pCaseSensitive)
+
+	def SomeItemsNotBetweenCSZ(pMin, pMax, pCaseSensitive)
+
+	#---------------
+
+	def SomeItemsNotBetweenIBCS(pMin, pMax, pCaseSensitive)
+
+	def SomeItemsNotBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+
+
+	  #---------------------------------------------#
+	 #  GETTING N ITEMS INSIDE THE GIVEN SECTIONS  #
+	#=============================================#
+
+	def NItemsBetweenManyCS(pMin, pMax, pCaseSensitive) # InSections
+
+	def NItemsBetweenManyCSZ(pMin, pMax, pCaseSensitive)
+
+	#---------------
+
+	def NItemsBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+
+	def NItemsBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+
+	  #------------------------------------------------#
+	 #  GETTING SOME ITEMS INSIDE THE GIVEN SECTIONS  #
+	#------------------------------------------------#
+
+	def SomeItemsBetweenManyCS(pMin, pMax, pCaseSensitive) # InSections
+
+	def SomeItemsBetweenManyCSZ(pMin, pMax, pCaseSensitive)
+
+	#---------------
+
+	def SomeItemsBetweenManyIBCS(pMin, pMax, pCaseSensitivity)
+
+	def SomeItemsBetweenManyIBCSZ(pMin, pMax, pCaseSensitivity)
+
+	  #----------------------------------------------#
+	 #  GETTING N ITEMS OUTSIDE THE GIVEN SECTIONS  #
+	#----------------------------------------------#
+
+	def NItemsNotBetweenMayCS(pMin, pMax, pCaseSensitive) # NotInSections
+
+	def NItemsNotBetweenMayCSZ(pMin, pMax, pCaseSensitive)
+
+	#---------------
+
+	def NItemsNotBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+
+	def NItemsNotBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+
+	  #-------------------------------------------------#
+	 #  GETTING SOME ITEMS OUTSIDE THE GIVEN SECTIONS  #
+	#-------------------------------------------------#
+
+	def SomeItemsNotBetweenManyCS(pMin, pMax, pCaseSensitive) # NotInSections
+
+	def SomeItemsNotBetweenManyCSZ(pMin, pMax, pCaseSensitive)
+
+	#---------------
+
+	def SomeItemsNotBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+
+	def SomeItemsNotBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+
+	  #-------------------------------------------#
+	 #  GETTING AN ITEM NOT IN A GIVEN POSITION  #
+	#===========================================#
+
+	def AnItemOutsidePosition(nPos)
+
+	def AnItemOutsidePositionZ(nPos)
+
+	  #---------------------------------------------#
+	 #  GETTING AN ITEM NOT BETWEEN TWO POSITIONS  #
+	#---------------------------------------------#
+
+	def AnItemOutsidePositions(panPos)
+
+	def AnItemOutsidePositionsZ(panPos)
+
+	  #---------------------------------------------#
+	 #  GETTING N ITEMS NOT IN THE GIVEN POSITION  #
+	#=============================================#
+
+	def NItemsOutsidePosition(anPos)
+
+	def NItemsOutsidePositionZ(anPos)
+
+  	  #------------------------------------------------#
+	 #  GETTING SOME ITEMS NOT IN THE GIVEN POSITION  #
+	#------------------------------------------------#
+
+	def SomeItemsOutsidePosition(anPos)
+
+	def SomeItemsOutsidePositionZ(anPos)
+
+	  #----------------------------------------------#
+	 #  GETTING N ITEMS NOT IN THE GIVEN POSITIONS  #
+	#----------------------------------------------#
+
+	def NItemsOutsidePositions(panPos, pCaseSensitive)
+
+	def NItemsOutsidePositionsZ(panPos, pCaseSensitive)
+
+	  #-------------------------------------------------#
+	 #  GETTING SOME ITEMS NOT IN THE GIVEN POSITIONS  #
+	#-------------------------------------------------#
+
+	def SomeItemsOutsidePositions(panPos, pCaseSensitive)
+
+	def SomeItemsOutsidePositionsZ(panPos, pCaseSensitive)
+
+	  #=========#
 	 #  WHERE  #
-	#---------#
+	#=========#
 
 	def Where(pcCondition)
 		/* EXAMPLE
