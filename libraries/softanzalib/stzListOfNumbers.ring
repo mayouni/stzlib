@@ -2859,11 +2859,25 @@ class stzListOfNumbers from stzList
 		def IsContinuous()
 			return This.IsContiguous()
 
+func ANumberOtherThan(nNumber)
+func ANumberLessThan(nNumber)
+func ANumberGreaterThan(nNumber)
+
+	func NNumbersOtherThan(n, nNumber)
+	func NNumbersLessThan(n, nNumber)
+	func NNumbersGreaterThan(n, nNumber)
+
+func ANumberBetween(nMin, nMax)
+func ANumberNotBetween(nMin, nMax)
+
+	func NNumbersBetween(nMin, nMax)
+	func NNumbersNotBetween(nMin, nMax)
+
 	  #=====================================================#
 	 #  GETTING ANY NUMBER BEFORE OR AFTER A GIVEN NUMBER  #
 	#=====================================================#
 
-	def AnyNumberBeforeOrAfter(n)
+	def AnyNumberBeforeOrAfter(n) # Or AnyNumberOtherThan()
 		if isList(n) and Q(n).IsPositionNamedParam()
 			n = n[2]
 		ok
