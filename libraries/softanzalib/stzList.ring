@@ -20318,22 +20318,22 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 				return new stzList( This.ItemsAtPositions(panPos) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( ItemsAtPositions(panPos) )
+				return new stzListOfNumbers( This.ItemsAtPositions(panPos) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( ItemsAtPositions(panPos) )
+				return new stzListOfStrings( This.ItemsAtPositions(panPos) )
 
 			on :stzListOfLists
-				return new stzListOfLists( ItemsAtPositions(panPos) )
+				return new stzListOfLists( This.ItemsAtPositions(panPos) )
 
 			on :stzListOfObjects
-				return new stzListOfObjects( ItemsAtPositions(panPos) )
+				return new stzListOfObjects( This.ItemsAtPositions(panPos) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( ItemsAtPositions(panPos) )
+				return new stzListOfPairs( This.ItemsAtPositions(panPos) )
 
 			on :stzListOfHashLists
-				return new stzListOfHashLists( ItemsAtPositions(panPos) )
+				return new stzListOfHashLists( This.ItemsAtPositions(panPos) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -20343,11 +20343,104 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		#< @FunctionAlternativeForms
 
+		def AllItemsAtPositions(panPos)
+			return This.ItemsAtPositions(panPos)
+
 		def ItemsAtThesePositions(panPos)
+			return This.ItemsAtPositions(panPos)
+
+		def AllItemsAtThesePositions(panPos)
 			return This.ItemsAtPositions(panPos)
 
 		def ItemsAt(panPos)
 			return This.ItemsAtPositions(panPos)
+
+		def AllItemsAt(panPos)
+			return This.ItemsAtPositions(panPos)
+
+		#>
+
+	  #----------------------------------------------#
+	 #   GETTING ITEMS OUTSIDE THE GIVEN POSITIONS  #
+	#----------------------------------------------#
+
+	def ItemsOutsidePositions(panPos)
+		if NOT isList(panPos) and Q(panPos).IsListOfNumbers()
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
+		ok
+
+		panPos = ( Q( 1 : This.NumberOfItems ) - panPos ).Content()
+		aResult = This.ItemsAtPositions(panPos)
+
+		return aResult
+
+		#< @FunctionFluentForms
+
+		def ItemsOutsidePositionsQ(panPos)
+			return This.ItemsOutsidePositionsQR(panPos, :stzList)
+
+		def ItemsOutsidePositionsQR(panPos, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ItemsOutsidePositions(panPos) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.ItemsOutsidePositions(panPos) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.ItemsOutsidePositions(panPos) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.ItemsOutsidePositions(panPos) )
+
+			on :stzListOfObjects
+				return new stzListOfObjects( This.ItemsOutsidePositions(panPos) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.ItemsOutsidePositions(panPos) )
+
+			on :stzListOfHashLists
+				return new stzListOfHashLists( This.ItemsOutsidePositions(panPos) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def AllItemsOutsidePositions(panPos)
+			return This.ItemsOutsidePositions(panPos)
+
+		def ItemsOutsideThesePositions(panPos)
+			return This.ItemsOutsidePositions(panPos)
+
+		def AllItemsOutsideThesePositions(panPos)
+			return This.ItemsOutsidePositions(panPos)
+
+		def ItemsOutside(panPos)
+			return This.ItemsOutsidePositions(panPos)
+
+		def AllItemsOutside(panPos)
+			return This.ItemsOutsidePositions(panPos)
+
+		#--
+
+		def AllItemsNotAtPositions(panPos)
+			return This.ItemsOutsidePositions(panPos)
+
+		def ItemsNotAtThesePositions(panPos)
+			return This.ItemsOutsidePositions(panPos)
+
+		def AllItemsNotAtThesePositions(panPos)
+			return This.ItemsOutsidePositions(panPos)
+
+		def ItemsNotAt(panPos)
+			return This.ItemsOutsidePositions(panPos)
+
+		def AllItemsNotAt(panPos)
+			return This.ItemsOutsidePositions(panPos)
 
 		#>
 
@@ -32243,7 +32336,13 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def NAnyItemsCS(pCaseSensitive)
 			return This.NRandomItemsCS(pCaseSensitive)
 
+		def AnyNItemsCS(pCaseSensitive)
+			return This.NRandomItemsCS(pCaseSensitive)
+
 		def NItemsCS(pCaseSensitive)
+			return This.NRandomItemsCS(pCaseSensitive)
+
+		def RandomNItemsCS(pCaseSensitive)
 			return This.NRandomItemsCS(pCaseSensitive)
 
 		#>
@@ -32258,7 +32357,13 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def NAnyItems()
 			return This.NRandomItems()
 
-		def NItems()
+		def AnyNItems(pCaseSensitive)
+			return This.NRandomItems()
+
+		def NItems(pCaseSensitive)
+			return This.NRandomItems()
+
+		def RandomNItems(pCaseSensitive)
 			return This.NRandomItems()
 
 		#>
@@ -32303,6 +32408,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def NItemsAndTheirPositionsCS(pCaseSensitive)
 			return This.NRandomItemsCSZ(pCaseSensitive)
 
+		def RandomItemsAndTheirPositionsCS(pCaseSensitive)
+			return This.NRandomItemsCSZ(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -32325,6 +32433,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return This.NRandomItemsZ()
 
 		def NItemsAndTheirPositions()
+			return This.NRandomItemsZ()
+
+		def RandomItemsAndTheirPositions()
 			return This.NRandomItemsZ()
 
 		#>
@@ -32414,6 +32525,10 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	#---------------------------------------------------------#
 
 	def AnItemOtherThanCS(pItem, pCaseSensitive)
+		if isList(pItem)
+			return This.AnyRandomItemOtherThanManyCS(pItem, pCaseSensitive)
+		ok
+
 		if NOT This.ContainsCS(pItem, pCaseSensitive)
 			return This.AnyItem()
 
@@ -32425,85 +32540,383 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	
 		#< @FunctionAlternativeForms
 	
-		def AnItemDifferentThan(pcChar)
-			return AnItemOtherThan(pcChar)
+		def AnItemDifferentThanCS(pItem, pCaseSensitive)
+			return This.AnItemOtherThanCS(pItem, pCaseSensitive)
 	
-		def AnItemDifferentTo(pcChar)
-			return AnItemOtherThan(pcChar)
+		def AnItemDifferentToCS(pItem, pCaseSensitive)
+			return This.AnItemOtherThanCS(pItem, pCaseSensitive)
 
-		def AnItemDifferentFrom(pcChar)
-			return AnItemOtherThan(pcChar)
+		def AnItemDifferentFromCS(pItem, pCaseSensitive)
+			return This.AnItemOtherThanCS(pItem, pCaseSensitive)
 	
 		#--
 	
-		def ItemOtherThan(pcChar)
-			return ANumberOtherThan(pcChar)
+		def ItemOtherThanCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
 	
-		def ItemDifferentThan(pcChar)
-			return ANumberOtherThan(pcChar)
+		def ItemDifferentThanCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
 	
-		def ItemDifferentTo(pcChar)
-			return ANumberOtherThan(pcChar)
+		def ItemDifferentToCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
 
-		def ItemDifferentFrom(pcChar)
-			return ANumberOtherThan(pcChar)
+		def ItemDifferentFromCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
 	
 		#--
 	
-		def AnyItemOtherThan(pcChar)
-			return ANumberOtherThan(pcChar)
+		def AnyItemOtherThanCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
 	
-		def AnyItemDifferentThan(pcChar)
-			return ANumberOtherThan(pcChar)
+		def AnyItemDifferentThanCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pcChar, pCaseSensitive)
 	
-		def AnyItemDifferentTo(pcChar)
-			return ANumberOtherThan(pcChar)
+		def AnyItemDifferentToCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
 
-		def AnyItemDifferentFrom(pcChar)
-			return ANumberOtherThan(pcChar)
+		def AnyItemDifferentFromCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
 	
+		#--
+
+		def RandomItemOtherThanCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
+
+		def ARandomItemOtherThanCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
+
 		#>
 
 		#< @FunctionMisspelledForms
 
 		# Mistake --> Th(e)n and must be Th(a)n
 
-		def AnItemDifferentThen(pcChar)
-			return AnItemOtherThan(pcChar)
+		def AnItemDifferentThenCS(pItem, pCaseSensitive)
+			return This.AnItemOtherThan(pItem, pCaseSensitive)
 
-		def ItemOtherThen(pcChar)
-			return ANumberOtherThan(pcChar)
+		def ItemOtherThenCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
 	
-		def ItemDifferentThen(pcChar)
-			return ANumberOtherThan(pcChar)
+		def ItemDifferentThenCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThan(pItem, pCaseSensitive)
 
-		def AnyItemOtherThen(pcChar)
-			return ANumberOtherThan(pcChar)
+		def AnyItemOtherThenCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
 	
-		def AnyItemDifferentThen(pcChar)
-			return ANumberOtherThan(pcChar)
+		def AnyItemDifferentThenCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
+
+		def RandomItemOtherThenCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThenCS(pItem, pCaseSensitive)
+
+		def ARandomItemOtherThenCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
 
 		#>
 
-	#==============
+	#-- WITHOUT CASESENSITIVITY
+
+	def AnItemOtherThan(pItem)
+		return This.AnItemOtherThanCS(pItem, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+	
+		def AnItemDifferentThan(pItem)
+			return This.ANumberOtherThan(pItem)
+	
+		def AnItemDifferentTo(pItem)
+			return This.ANumberOtherThan(pItem)
+
+		def AnItemDifferentFrom(pItem)
+			return This.ANumberOtherThan(pItem)
+	
+		#--
+	
+		def ItemOtherThan(pItem)
+			return This.ANumberOtherThan(pItem)
+	
+		def ItemDifferentThan(pItem)
+			return This.ANumberOtherThan(pItem)
+	
+		def ItemDifferentTo(pItem)
+			return This.ANumberOtherThan(pItem)
+
+		def ItemDifferentFrom(pItem)
+			return This.ANumberOtherThan(pItem)
+	
+		#--
+	
+		def AnyItemOtherThan(pItem)
+			return This.ANumberOtherThan(pItem)
+	
+		def AnyItemDifferentThan(pItem)
+			return This.ANumberOtherThan(pItem)
+	
+		def AnyItemDifferentTo(pItem)
+			return This.ANumberOtherThan(pItem)
+
+		def AnyItemDifferentFrom(pItem)
+			return This.ANumberOtherThan(pItem)
+	
+		#--
+
+		def RandomItemOtherThan(pItem)
+			return This.ANumberOtherThan(pItem)
+
+		def ARandomItemOtherThan(pItem)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		# Mistake --> Th(e)n and must be Th(a)n
+
+		def AnItemDifferentThen(pItem)
+			return This.ANumberOtherThan(pItem)
+
+		def ItemOtherThen(pItem)
+			return This.ANumberOtherThan(pItem)
+	
+		def ItemDifferentThen(pItem)
+			return This.ANumberOtherThan(pItem)
+
+		def AnyItemOtherThen(pItem)
+			return This.ANumberOtherThan(pItem)
+	
+		def AnyItemDifferentThen(pItem)
+			return This.ANumberOtherThan(pItem)
+
+		def RandomItemOtherThen(pItem)
+			return This.ANumberOtherThan(pItem)
+
+		def ARandomItemOtherThen(pItem)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
+
+		#>
+
+	  #---------------------------------------------------------------------------------#
+	 #  GETTING AN ITEM FROM THE LIST OTHER THEN A GIVEN ITEM ALONG WITH ITS POSITION  #
+	#---------------------------------------------------------------------------------#
 
 	def AnItemOtherThanCSZ(pItem, pCaseSensitive)
+		if isList(pItem)
+			return This.AnyRandomItemOtherThanManyCSZ(pItem, pCaseSensitive)
+		ok
+
+		if NOT This.ContainsCS(pItem, pCaseSensitive)
+			return This.AnyItemZ()
+
+		else
+			nPos = This.ToSetQ().FindFirstCS(pItem, pCaseSensitive)
+			n = StzListOfNumbersQ( 1 : len(aSet) ).AnyNumberOtherThan(nPos)
+			return [ This.Item(n), n ]
+		ok
+	
+
+		#< @FunctionAlternativeForms
+	
+		def AnItemDifferentThanCSZ(pItem, pCaseSensitive)
+			return This.AnItemOtherThanCSZ(pItem, pCaseSensitive)
+	
+		def AnItemDifferentToCSZ(pItem, pCaseSensitive)
+			return This.AnItemOtherThanCSZ(pItem, pCaseSensitive)
+
+		def AnItemDifferentFromCSZ(pItem, pCaseSensitive)
+			return This.AnItemOtherThanCSZ(pItem, pCaseSensitive)
+	
+		#--
+	
+		def ItemOtherThanCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+	
+		def ItemDifferentThanCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+	
+		def ItemDifferentToCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+
+		def ItemDifferentFromCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+	
+		#--
+	
+		def AnyItemOtherThanCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+	
+		def AnyItemDifferentThanCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pcChar, pCaseSensitive)
+	
+		def AnyItemDifferentToCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+
+		def AnyItemDifferentFromCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+	
+		#--
+
+		def RandomItemOtherThanCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+
+		def ARandomItemOtherThanCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		# Mistake --> Th(e)n and must be Th(a)n
+
+		def AnItemDifferentThenCSZ(pItem, pCaseSensitive)
+			return This.AnItemOtherThanZ(pItem, pCaseSensitive)
+
+		def ItemOtherThenCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+	
+		def ItemDifferentThenCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanZ(pItem, pCaseSensitive)
+
+		def AnyItemOtherThenCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+	
+		def AnyItemDifferentThenCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+
+		def RandomItemOtherThenCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+
+		def ARandomItemOtherThenCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def AnItemOtherThanZ(pItem)
+		return This.AnItemOtherThanCSZ(pItem, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+	
+		def AnItemDifferentThanZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+	
+		def AnItemDifferentToZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+
+		def AnItemDifferentFromZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+	
+		#--
+	
+		def ItemOtherThanZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+	
+		def ItemDifferentThanZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+	
+		def ItemDifferentToZ(pItem)
+			return This.ANumberOtherThan(pItem)
+
+		def ItemDifferentFromZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+	
+		#--
+	
+		def AnyItemOtherThanZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+	
+		def AnyItemDifferentThanZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+	
+		def AnyItemDifferentToZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+
+		def AnyItemDifferentFromZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+	
+		#--
+
+		def RandomItemOtherThanZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+
+		def ARandomItemOtherThanZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		# Mistake --> Th(e)n and must be Th(a)n
+
+		def AnItemDifferentThenZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+
+		def ItemOtherThenZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+	
+		def ItemDifferentThenZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+
+		def AnyItemOtherThenZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+	
+		def AnyItemDifferentThenZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+
+		def RandomItemOtherThenZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+
+		def ARandomItemOtherThenZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+
+		#>
 
 	  #-------------------------------------------------------#
 	 #  GETTING A EANDOM ITEM OTHER THAN THE ITEMS PROVIDED  #
 	#-------------------------------------------------------#
 
-	def AnyRandomItemOtherThanManyCS(paItems)
+	def AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
+		anPos = This.FindManyCS(paItems, pCaseSensitive)
+		aResult = This.AnyItemsInPositionsOtherThan(anPos)
 
-	#==============
+		return aResult
 
-	def AnyRandomItemOtherThanManyCSZ(paItems)
+	#-- WITHOUT CASESENSITIVITY
 
-	  #--------------------------------------------------#
+	def AnyRandomItemOtherThanMany(paItems)
+		return This.AnyRandomItemOtherThanManyCS(paItems, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------------------------------#
+	 #  GETTING A EANDOM ITEM OTHER THAN THE ITEMS PROVIDED ALONG WITH THEIR POSITIONS  #
+	#----------------------------------------------------------------------------------#
+
+	def AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+		anPos = This.FindManyCS(paItems, pCaseSensitive)
+		aResult = [ This.AnyItemsInPositionsOtherThan(anPos), anPos ]
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def AnyRandomItemOtherThanManyZ(paItems)
+		return This.AnyRandomItemOtherThanManyCSZ(paItems, :CaseSensitive = TRUE)
+
+#>>>	  #--------------------------------------------------#
 	 #  GETTING N RANDOM ITEMS OTHER THAN A GIVEN ITEM  #
 	#--------------------------------------------------#
 
 	def NRandomItemsOtherThanCS(pItem)
+
+		anPos = ( Q(1 : This.NumberOfItems()) -
+			  This.FindCS(pItem, pCaseSensitive) ).
+			Content()
+
+		nRandomPos = NRandomNumbersAmong(anPos) // TODO
+		aResult = This.ItemsAtPositions(nRandomPos)
+
+		return aResult
+
+		def NItemsOtherThanCS(pItem)
 
 	#==============
 
@@ -32753,9 +33166,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	#-------------------------------------------------#
 
 	def SomeItemsOutsidePositions(panPos, pCaseSensitive)
+		def SomeItemsInPositionsOtherThan(panPos, pCaseSensitive)
 
 	def SomeItemsOutsidePositionsZ(panPos, pCaseSensitive)
-
+		def SomeItemsInPositionsOtherThanZ(panPos, pCaseSensitive)
+	
 	  #=========#
 	 #  WHERE  #
 	#=========#
