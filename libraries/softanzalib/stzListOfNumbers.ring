@@ -2858,7 +2858,7 @@ class stzListOfNumbers from stzList
 
 		def IsContinuous()
 			return This.IsContiguous()
-
+/*
 func ANumberOtherThan(nNumber)
 func ANumberLessThan(nNumber)
 func ANumberGreaterThan(nNumber)
@@ -2872,7 +2872,7 @@ func ANumberNotBetween(nMin, nMax)
 
 	func NNumbersBetween(nMin, nMax)
 	func NNumbersNotBetween(nMin, nMax)
-
+*/
 	  #=====================================================#
 	 #  GETTING ANY NUMBER BEFORE OR AFTER A GIVEN NUMBER  #
 	#=====================================================#
@@ -3008,6 +3008,7 @@ func ANumberNotBetween(nMin, nMax)
 
 ##########
 	def AnyNumberBetween()
+		StzRaise("TODO!")
 
 	#--
 	#  
@@ -3092,6 +3093,50 @@ func ANumberNotBetween(nMin, nMax)
 		def AnyNumberDifferentFrom(pcChar)
 			return ANumberOtherThen(pcChar)
 	
+		#>
+
+	  #-------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS FROM THE LIST  #
+	#------------------------------------------#
+
+	def NRandomNumbers(n)
+
+		# Checking param n and the size of the list of numbers
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+		if n <= 0
+			StzRaise("Can't proceed because n must be a positive number greater then 0!")
+		ok
+
+		nLen = This.NumberOfNumbers()
+		if nLen = 0
+			StzRaise("Can't get random numbers because the list is empty!")
+		ok
+
+		if n > nLen
+			StzRaise("Can't proceed because n must be a number equal or less then the size of the list ("+ nLen +")!")
+		ok
+
+		# Doing the job
+
+		anResult = []
+
+		for i = 1 to n
+			anResult + ARandomNumberBetweenIB(1, nLen)
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def RandomNNumbers(n)
+			return This.NRandomNumbers(n)
+
+		def NNumbers(n)
+			return This.NRandomNumbers(n)
+
 		#>
 
 	  #------------------------------#
