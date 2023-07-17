@@ -2858,22 +2858,127 @@ class stzListOfNumbers from stzList
 
 		def IsContinuous()
 			return This.IsContiguous()
-/*
-func ANumberOtherThan(nNumber)
-func ANumberLessThan(nNumber)
-func ANumberGreaterThan(nNumber)
 
-	func NNumbersOtherThan(n, nNumber)
-	func NNumbersLessThan(n, nNumber)
-	func NNumbersGreaterThan(n, nNumber)
+	  #=========================================#
+	 #  GETTING A RANDOM NUMBER FROM THE LIST  #
+	#=========================================#
 
-func ANumberBetween(nMin, nMax)
-func ANumberNotBetween(nMin, nMax)
+	func ARandomNumber()
+		nRandom = ARandomNumberBetween(1, This.NumberOfNumbers())
+		return This.Content()[nRandom]
 
-	func NNumbersBetween(nMin, nMax)
-	func NNumbersNotBetween(nMin, nMax)
-*/
-	  #=====================================================#
+		def ANumber()
+			return ARandomNumber()
+
+		def AnyRandomNumber()
+			return ARandomNumber()
+
+		def AnyNumber()
+			return ARandomNumber()
+
+	  #------------------------------------------------------------------#
+	 #  GETTING A RANDOM NUMBER FROM THE LIST LESS THAN A GIVEN NUMBER  #
+	#------------------------------------------------------------------#
+
+	func ANumberLessThan(nNumber)
+		nResult = This.NumbersLessThanQR(nNumber, :stzListOfNumbers).ARandomNumber()
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def AnyNumberLessThan(nNumber)
+			return This.ANumberLessThan(nNumber)
+
+		def NumberLessThan(nNumber)
+			return This.ANumberLessThan(nNumber)
+
+		#--
+
+		def ARandomNumberLessThan(nNumber)
+			return This.ANumberLessThan(nNumber)
+
+		def RandomNumberLessThan(nNumber)
+			return This.ANumberLessThan(nNumber)
+
+		#==
+
+		def ANumberSmallerThan(nNumber)
+			return This.ANumberLessThan(nNumber)
+
+		def AnyNumberSmallerThan(nNumber)
+			return This.ANumberLessThan(nNumber)
+
+		def NumberSmallerThan(nNumber)
+			return This.ANumberLessThan(nNumber)
+
+		#--
+
+		def ARandomNumberSmallerThan(nNumber)
+			return This.ANumberLessThan(nNumber)
+
+		def RandomNumberSmallerThan(nNumber)
+			return This.ANumberLessThan(nNumber)
+
+		#>
+
+	  #---------------------------------------------------------------------#
+	 #  GETTING A RANDOM NUMBER FROM THE LIST GREATER THAN A GIVEN NUMBER  #
+	#---------------------------------------------------------------------#
+
+	func ANumberGreaterThan(nNumber)
+		nResult = This.NumbersGreaterThanQR(nNumber, :stzListOfNumbers).ARandomNumber()
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def AnyNumberGreaterThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		def NumberGreaterThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		#--
+
+		def ARandomNumberGreaterThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		def RandomNumberGreaterThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		#--
+
+		def ANumberLargerThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		def AnyNumberLargerThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		def NumberLargerThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		def ARandomNumberLargerThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		def RandomNumberLargerThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		#--
+
+		def AnyNumberMoreThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		def NumberMoreThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		def ARandomNumberMoreThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		def RandomNumberMoreThan(nNumber)
+			return This.ANumberGreaterThan(nNumber)
+
+		#>
+
+	  #-----------------------------------------------------#
 	 #  GETTING ANY NUMBER BEFORE OR AFTER A GIVEN NUMBER  #
 	#=====================================================#
 
@@ -2919,6 +3024,23 @@ func ANumberNotBetween(nMin, nMax)
 		def NumberOtherThan(n)
 			return This.AnyNumberBeforeOrAfter(n)
 
+		#--
+
+		def ARandoomNumberAfterOrBefore(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
+		def RandomNumberBeforeOrAfter(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
+		def RandomNumberAfterOrBefore(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
+		def ARandomNumberOtherThan(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
+		def RandomNumberOtherThan(n)
+			return This.AnyNumberBeforeOrAfter(n)
+
 		#>
 
 	  #--------------------------------------------------------#
@@ -2936,6 +3058,22 @@ func ANumberNotBetween(nMin, nMax)
 
 		nPos = ring_find( This.Content(), n)
 		return This.AnyNumberBeforePosition(nPos)
+
+		#< @FunctionAlternativeForms
+
+		def ANumberBefore(n)
+			return This.AnyNumberBefore(n)
+
+		def NumberBefore(n)
+			return This.AnyNumberBefore(n)
+
+		def ARandomNumberBefore(n)
+			return This.AnyNumberBefore(n)
+
+		def RandomNumberBefore(n)
+			return This.AnyNumberBefore(n)
+
+		#>
 
 	  #----------------------------------------------#
 	 #  GETTING ANY NUMBER BEFORE A GIVEN POSITION  #
@@ -2963,9 +3101,25 @@ func ANumberNotBetween(nMin, nMax)
 
 		return This.Number(nRandom)
 
-	  #--------------------------------------------------------#
+		#< @FunctionAlternativeForms
+
+		def ANumberBeforePosition(n)
+			return This.AnyNumberBeforePosition(n)
+
+		def NumberBeforePosition(n)
+			return This.AnyNumberBeforePosition(n)
+
+		def ARandomNumberBeforePosition(n)
+			return This.AnyNumberBeforePosition(n)
+
+		def RandomNumberBeforePosition(n)
+			return This.AnyNumberBeforePosition(n)
+
+		#>
+
+	  #-------------------------------------------------------#
 	 #  GETTING ANY NUMBER AFTER A GIVEN NUMBER OR POSITION  #
-	#--------------------------------------------------------#
+	#-------------------------------------------------------#
 
 	def AnyNumberAfter(n)
 		if isList(n) and Q(n).IsPositionNamedParam(n)
@@ -2978,6 +3132,22 @@ func ANumberNotBetween(nMin, nMax)
 
 		nPos = ring_find( ring_reverse(This.Content()), n )
 		return This.AnyNumberAfterPosition(nPos)
+
+		#< @FunctionAlternativeForms
+
+		def ANumberAfter(n)
+			return This.AnyNumberAfter(n)
+
+		def NumberAfter(n)
+			return This.AnyNumberAfter(n)
+
+		def ARandomNumberAfter(n)
+			return This.AnyNumberAfter(n)
+
+		def RandomNumberAfter(n)
+			return This.AnyNumberAfter(n)
+
+		#>
 
 	  #---------------------------------------------#
 	 #  GETTING ANY NUMBER AFETR A GIVEN POSITION  #
@@ -3006,28 +3176,401 @@ func ANumberNotBetween(nMin, nMax)
 
 		return This.Number(n + nRandom - 1)
 
-##########
-	def AnyNumberBetween()
-		StzRaise("TODO!")
+		#< @FunctionAlternativeForms
 
-	#--
-	#  
-	#--
+		def ANumberAfterPosition(n)
+			return This.AnyNumberAfterPosition(n)
 
-	def AnyNumberAfterOrBeforePosition(n)
-		return This.AnyNumberBeforeOrAfter(n)
+		def NumberAfterPosition(n)
+			return This.AnyNumberAfterPosition(n)
 
-	def ANumberBeforeOrAfterPosition(n)
-		return This.AnyNumberBeforeOrAfter(n)
+		def ARandomNumberAfterPosition(n)
+			return This.AnyNumberAfterPosition(n)
 
-	def ANumberAfterOrBeforePosition(n)
-		return This.AnyNumberBeforeOrAfter(n)
+		def RandomNumberAfterPosition(n)
+			return This.AnyNumberAfterPosition(n)
 
-	def NumberBeforeOrAfterPosition(n)
-		return This.AnyNumberBeforeOrAfter(n)
+		#>
 
-	def NumberAfterOrBeforePosition(n)
-		return This.AnyNumberBeforeOrAfter(n)
+	  #--------------------------------------------------------------------#
+	 #  GETTING A RANDOM NUMBER FROM THE LISTS BETWEEN TOW OTHER NUMBERS  #
+	#--------------------------------------------------------------------#
+
+	def AnyNumberBetween(n1, n2)
+		if isList(n1) and Q(n1).IsPositionOrPositionsNamedParam()
+			return AnyNumberBetweenPositions(n1[2], n2)
+		ok
+
+		if isList(n2) and Q(n2).IsAndNamedParam()
+			n2 = n2[2]
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anNumbers = This.NumbersBetween(n1, n2)
+		nResult = ARandomNumberIn(anNumbers) # TODO: Add ARandomItemIn() function to stzRandomFunctions.ring
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def ANumberBetween(n1, n2)
+			return This.AnyNumberBetween(n1, n2)
+
+		def NumberBetween(n1, n2)
+			return This.AnyNumberBetween(n1, n2)
+
+		#--
+
+		def ARandomNumberBetween(n1, n2)
+			return This.AnyNumberBetween(n1, n2)
+
+		def RandomNumberBetween(n1, n2)
+			return This.AnyNumberBetween(n1, n2)
+
+		#>
+
+	  #---------------------------------------------------------------------------------------#
+	 #  GETTING A RANDOM NUMBER FROM THE LISTS BETWEEN TOW OTHER NUMBERS -- INCLUDING BOUNDS #
+	#---------------------------------------------------------------------------------------#
+
+	def AnyNumberBetweenIB(n1, n2)
+		if isList(n1) and Q(n1).IsPositionOrPositionsNamedParam()
+			return AnyNumberBetweenPositions(n1[2], n2)
+		ok
+
+		if isList(n2) and Q(n2).IsAndNamedParam()
+			n2 = n2[2]
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anNumbers = This.NumbersBetweenIB(n1, n2)
+		nResult = ARandomNumberIn(anNumbers) # TODO: Add ARandomItemIn() function to stzRandomFunctions.ring
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def ANumberBetweenIB(n1, n2)
+			return This.AnyNumberBetweenIB(n1, n2)
+
+		def NumberBetweenIB(n1, n2)
+			return This.AnyNumberBetweenIB(n1, n2)
+
+		#--
+
+		def AnyNumberBetweenXT(n1, n2)
+			return This.AnyNumberBetweenIB(n1, n2)
+
+		def ANumberBetweenXT(n1, n2)
+			return This.AnyNumberBetweenIB(n1, n2)
+
+		def NumberBetweenXT(n1, n2)
+			return This.AnyNumberBetweenIB(n1, n2)
+
+		#--
+
+		def ARandomNumberBetweenIB(n1, n2)
+			return This.AnyNumberBetweenIB(n1, n2)
+
+		def RandomNumberBetweenIB(n1, n2)
+			return This.AnyNumberBetweenIB(n1, n2)
+
+		def ARandomNumberBetweenXT(n1, n2)
+			return This.AnyNumberBetweenIB(n1, n2)
+
+		def RandomNumberBetweenXT(n1, n2)
+			return This.AnyNumberBetweenIB(n1, n2)
+
+		#>
+
+	  #------------------------------------------------------------------------#
+	 #  GETTING A RANDOM NUMBER FROM THE LISTS NOT BETWEEN TWO OTHER NUMBERS  #
+	#-----------------------------------------------------------------------#
+
+	def AnyNumberNotBetween(n1, n2)
+		if isList(n1) and Q(n1).IsPositionOrPositionsNamedParam()
+			return AnyNumberBetweenPositions(n1[2], n2)
+		ok
+
+		if isList(n2) and Q(n2).IsAndNamedParam()
+			n2 = n2[2]
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anNumbers = This.NumbersNotBetween(n1, n2) # TODO
+		nResult = ARandomNumberIn(anNumbers) # TODO: Add ARandomItemIn() function to stzRandomFunctions.ring
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def ANumberNotBetween(n1, n2)
+			return This.AnyNumberNotBetween(n1, n2)
+
+		def NumberNotBetween(n1, n2)
+			return This.AnyNumberNotBetween(n1, n2)
+
+		#--
+
+		def ARandomNumberNotBetween(n1, n2)
+			return This.AnyNumberNotBetween(n1, n2)
+
+		def RandomNumberNotBetween(n1, n2)
+			return This.AnyNumberNotBetween(n1, n2)
+
+		#>
+
+	  #-------------------------------------------------------------------------------------------#
+	 #  GETTING A RANDOM NUMBER FROM THE LISTS NOT BETWEEN TWO OTHER NUMBERS -- INCLUDING BOUNDS #
+	#-------------------------------------------------------------------------------------------#
+
+	def AnyNumberNotBetweenIB(n1, n2)
+		if isList(n1) and Q(n1).IsPositionOrPositionsNamedParam()
+			return AnyNumberBetweenPositions(n1[2], n2)
+		ok
+
+		if isList(n2) and Q(n2).IsAndNamedParam()
+			n2 = n2[2]
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anNumbers = This.NumbersNotBetweenIB(n1, n2) # TODO
+		nResult = ARandomNumberIn(anNumbers) # TODO: Add ARandomItemIn() function to stzRandomFunctions.ring
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def ANumberNotBetweenIB(n1, n2)
+			return This.AnyNumberNotBetweenIB(n1, n2)
+
+		def NumberNotBetweenIB(n1, n2)
+			return This.AnyNumberNotBetweenIB(n1, n2)
+
+		#--
+
+		def AnyNumberNotBetweenXT(n1, n2)
+			return This.AnyNumberNotBetweenIB(n1, n2)
+
+		def ANumberNotBetweenXT(n1, n2)
+			return This.AnyNumberNotBetweenIB(n1, n2)
+
+		def NumberNotBetweenXT(n1, n2)
+			return This.AnyNumberNotBetweenIB(n1, n2)
+
+		#==
+
+		def ARandomNumberNotBetweenIB(n1, n2)
+			return This.AnyNumberNotBetweenIB(n1, n2)
+
+		def RandomNumberNotBetweenIB(n1, n2)
+			return This.AnyNumberNotBetweenIB(n1, n2)
+
+		#--
+
+		def ARandomNumberNotBetweenXT(n1, n2)
+			return This.AnyNumberNotBetweenIB(n1, n2)
+
+		def RandomNumberNotBetweenXT(n1, n2)
+			return This.AnyNumberNotBetweenIB(n1, n2)
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #  GETTING A RANDOM NUMBER FROM THE LISTS BETWEEN TOW OTHER POSITIONS  #
+	#----------------------------------------------------------------------#
+
+	def AnyNumberBetweenPositions(n1, n2)
+		if isList(n2) and Q(n2).IsAndNamedParam()
+			n2 = n2[2]
+		ok
+
+		if NOT BothAreNumbers(n1, n2)
+			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
+		ok
+
+		nMin = Min([ n1, n2 ])
+		nMax = Max([ n1, n2 ])
+
+		anPos = nMin : nMax
+		nRandom = AnyNumberIn(anPos)
+		nResult = This.Number(nRandom)
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def RandomNumberBetweenPositions(n1, n2)
+			return This.AnyNumberBetweenPositions(n1, n2)
+
+		def ARandomNumberBetweenPositions(n1, n2)
+			return This.AnyNumberBetweenPositions(n1, n2)
+
+		def ANumberBetweenPositions(n1, n2)
+			return This.AnyNumberBetweenPositions(n1, n2)
+
+		def NumberBetweenPositions(n1, n2)
+			return This.AnyNumberBetweenPositions(n1, n2)
+
+		#--
+
+		def RandomNumberInSection(n1, n2)
+			return This.AnyNumberBetweenPositions(n1, n2)
+
+		def ARandomNumberInSection(n1, n2)
+			return This.AnyNumberInSection(n1, n2)
+
+		def ANumberInSection(n1, n2)
+			return This.AnyNumberBetweenPositions(n1, n2)
+
+		def NumberInSection(n1, n2)
+			return This.AnyNumberBetweenPositions(n1, n2)
+
+		def AnyNumberInSection(n1, n2)
+			return This.AnyNumberBetweenPositions(n1, n2)
+
+		#>
+
+	  #--------------------------------------------------------------------------#
+	 #  GETTING A RANDOM NUMBER FROM THE LISTS NOT BETWEEN TWO OTHER POSITIONS  #
+	#--------------------------------------------------------------------------#
+
+	def AnyNumberNotBetweenPositions(n1, n2)
+		if isList(n2) and Q(n2).IsAndNamedParam()
+			n2 = n2[2]
+		ok
+
+		if NOT BothAreNumbers(n1, n2)
+			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
+		ok
+
+		nMin = Min([ n1, n2 ])
+		nMax = Max([ n1, n2 ])
+
+		anPos = nMin : nMax
+		nRandom = AnyNumberNotIn(anPos) # TODO
+		nResult = This.Number(nRandom)
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def RandomNumberNotBetweenPositions(n1, n2)
+			return This.AnyNumberNotBetweenPositions(n1, n2)
+
+		def ARandomNumberNotBetweenPositions(n1, n2)
+			return This.AnyNumberNotBetweenPositions(n1, n2)
+
+		def ANumberNotBetweenPositions(n1, n2)
+			return This.AnyNumberNotBetweenPositions(n1, n2)
+
+		def NumberNotBetweenPositions(n1, n2)
+			return This.AnyNumberNotBetweenPositions(n1, n2)
+
+		#--
+
+		def RandomNumberNotInSection(n1, n2)
+			return This.AnyNumberNotBetweenPositions(n1, n2)
+
+		def ARandomNumberNotInSection(n1, n2)
+			return This.AnyNumberNotInSection(n1, n2)
+
+		def ANumberNotInSection(n1, n2)
+			return This.AnyNumberNotBetweenPositions(n1, n2)
+
+		def NumberNotInSection(n1, n2)
+			return This.AnyNumberNotBetweenPositions(n1, n2)
+
+		def AnyNumberNotInSection(n1, n2)
+			return This.AnyNumberNotBetweenPositions(n1, n2)
+
+		#--
+
+		def RandomNumberOutsideSection(n1, n2)
+			return This.AnyNumberNotBetweenPositions(n1, n2)
+
+		def ARandomNumberOutsideSection(n1, n2)
+			return This.AnyNumberNotInSection(n1, n2)
+
+		def ANumberOutsideSection(n1, n2)
+			return This.AnyNumberNotBetweenPositions(n1, n2)
+
+		def NumberOutsideSection(n1, n2)
+			return This.AnyNumberNotBetweenPositions(n1, n2)
+
+		def AnyNumberOutsideSection(n1, n2)
+			return This.AnyNumberNotBetweenPositions(n1, n2)
+
+		#>
+
+	  #---------------------------------------------------#
+	 #  GETTING A RANDOM NUMBER OUSIDE A GIVEN POSITION  #
+	#---------------------------------------------------#
+
+	def AnyNumberOutsidePosition(n)
+		anPositons = ( Q(1 : This.NumberOfItems()) - n ).Content()
+		nRandom = AnyNumberIn(anPositions)
+		nResult = This.Number(nRandom)
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def ANumberOutsidePosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		def NumberOutsidePosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		#--
+
+		def AnyNumberBeforeOrAfterPosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		def AnyNumberAfterOrBeforePosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		def ANumberBeforeOrAfterPosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		def ANumberAfterOrBeforePosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		def NumberBeforeOrAfterPosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		def NumberAfterOrBeforePosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		#--
+
+		def ARandomNumberOutsidePosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		def RandomNumberOutsidePosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		def ARandomNumberBeforeOrAfterPosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		def ARandomNumberAfterOrBeforePosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		def RandomNumberBeforeOrAfterPosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		def RandomNumberAfterOrBeforePosition(n)
+			return This.AnyNumberOutsidePosition(n)
+
+		#>
 
 	  #------------------------------------------------------------#
 	 #  GETTING A NUMBER FROM THE LIST OTHER THEN A GIVEN NUMBER  #
@@ -3093,6 +3636,26 @@ func ANumberNotBetween(nMin, nMax)
 		def AnyNumberDifferentFrom(pcChar)
 			return ANumberOtherThen(pcChar)
 	
+		#--
+
+		def ARandomNumberDifferentThen(pcChar)
+			return ANumberOtherThen(pcChar)
+	
+		def ARandomNumberDifferentFrom(pcChar)
+			return ANumberOtherThen(pcChar)
+	
+		def ARandomNumberOtherThen(pcChar)
+			return ANumberOtherThen(pcChar)
+
+		def RandomNumberOtherThen(pcChar)
+			return ANumberOtherThen(pcChar)
+	
+		def RandomNumberDifferentThen(pcChar)
+			return ANumberOtherThen(pcChar)
+	
+		def RandomNumberDifferentFrom(pcChar)
+			return ANumberOtherThen(pcChar)
+
 		#>
 
 	  #-------------------------------------------#
@@ -3139,9 +3702,465 @@ func ANumberNotBetween(nMin, nMax)
 
 		#>
 
-	  #------------------------------#
+	  #------------------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS OTHER THEN A GIVEN NUMBER  #
+	#------------------------------------------------------#
+
+	def NNumbersOtherThan(n, nNumber)
+		if isList(n)
+			if Q(n).IsPositionNamedParam()
+				return This.NNumbersOutSidePosition(n[2], nNumber)
+
+			but Q(n).IsPositionsNamedParam()
+				return This.NNumbersOutsidePositions(n[2], nNumber)
+
+			else
+				return This.NNumbersOutsidePositions(n, nNumber)
+			ok
+		ok
+
+		anPos = This.Find(n)
+		anPos = ( Q( 1 : This.NumberOfNumbers() ) - anPos ).Content()
+		anRandoms = NRandomNumbersIn(anPos)
+		anResult = This.ItemsAtPositions(anRandoms)
+
+		return anResult
+
+	  #-----------------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS LESS THEN A GIVEN NUMBER  #
+	#-----------------------------------------------------#
+
+	def NNumbersLessThan(n, nNumber)
+		anResult = This.NumbersLessThanQ(nNumber).NRandomNumbers(n)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def NRandomNumbersLessThan(n, nNumber)
+			return This.NNumbersLessThan(n, nNumber)
+
+		def NNumbersSmallerThan(n, nNumber)
+			return This.NNumbersLessThan(n, nNumber)
+
+		def NRandomNumbersSmallerThan(n, nNumber)
+			return This.NNumbersLessThan(n, nNumber)
+
+		#>
+
+	  #--------------------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS GREATER THEN A GIVEN NUMBER  #
+	#--------------------------------------------------------#
+
+	def NNumbersGreaterThan(n, nNumber)
+
+		anResult = This.NumbersGreaterThanQ(nNumber).NRandomNumbers(n)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def NRandomNumbersGreaterThan(n, nNumber)
+			return This.NNumbersLessThan(n, nNumber)
+
+		def NNumbersBiggerThan(n, nNumber)
+			return This.NNumbersLessThan(n, nNumber)
+
+		def NRandomNumbersBiggerThan(n, nNumber)
+			return This.NNumbersLessThan(n, nNumber)
+
+		def NNumbersMoreThan(n, nNumber)
+			return This.NNumbersLessThan(n, nNumber)
+
+		def NRandomNumbersMoreThan(n, nNumber)
+			return This.NNumbersLessThan(n, nNumber)
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS OTHER THEN THE GIVEN NUMBERS  #
+	#---------------------------------------------------------#
+
+	def NNumbersOtherThanMany(n, anNumbers)
+		anPos = ( Q( 1 : This.NumberOfItems() ) - This.Find(anNumbers) ).Content()
+		nRandoms = NRandomsNumbersIn(anPos)
+		aResult = This.ItemsAtPositions(nRandoms)
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def NNumbersDifferentFromMany(n, anNumbers)
+			return This.NNumbersOtherThanMany(n, anNumbers)
+
+		def NNumbersDifferentToMany(n, anNumbers)
+			return This.NNumbersOtherThanMany(n, anNumbers)
+
+		def NNumbersDifferentWithMany(n, anNumbers)
+			return This.NNumbersOtherThanMany(n, anNumbers)
+
+		#--
+
+		def NRandomNumbersOtherThanMany(n, anNumbers)
+			return This.NNumbersOtherThanMany(n, anNumbers)
+
+		def NRandomNumbersDifferentFromMany(n, anNumbers)
+			return This.NNumbersOtherThanMany(n, anNumbers)
+
+		def NRandomNumbersDifferentToMany(n, anNumbers)
+			return This.NNumbersOtherThanMany(n, anNumbers)
+
+		def NRandomNumbersDifferentWithMany(n, anNumbers)
+			return This.NNumbersOtherThanMany(n, anNumbers)
+
+		#>
+
+	  #--------------------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS LESS THEN THE GIVEN NUMBERS  #
+//vvv	#--------------------------------------------------------#
+
+	func NNumbersLessThanMany(n, anNumbers)
+		
+	  #---------------------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS GRATER THEN THE GIVEN NUMBER  #
+	#---------------------------------------------------------#
+
+	func NNumbersGreaterThanMany(n, anNumbers)
+
+	  #------------------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS BETWEEN TWO GIVEN NUMBERS  #
+	#------------------------------------------------------#
+
+	func NNumbersBetween(nMin, nMax)
+
+	  #----------------------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS NOT BETWEEN TWO GIVEN NUMBERS  #
+	#----------------------------------------------------------#
+
+	func NNumbersNotBetween(nMin, nMax)
+
+	  #---------------------------------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
+	#---------------------------------------------------------------------#
+
+	func NNumbersBetweenIB(nMin, nMax)
+
+	  #-------------------------------------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS NOT BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
+	#-------------------------------------------------------------------------#
+
+	func NNumbersNotBetweenIB(nMin, nMax)
+
+	  #------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS FROM THE LIST  #
+	#------------------------------------------#
+
+	func RandomNumbers()
+
+	  #---------------------------------------------#
+	 #  GETTING SOME RANDOM NUMBERS FROM THE LIST  #
+	#=============================================#
+
+	func SomeRandomNumbers()
+
+	  #---------------------------------------------------------#
+	 #  GETTING SOME RANDOM NUMBERS OTHER THEN A GIVEN NUMBER  #
+	#---------------------------------------------------------#
+
+	def SomeNumbersOtherThan(n, nNumber)
+		if isList(n)
+			if Q(n).IsPositionNamedParam()
+				return This.SomeNumbersOutSidePosition(n[2], nNumber)
+
+			but Q(n).IsPositionsNamedParam()
+				return This.SomeNumbersOutsidePositions(n[2], nNumber)
+
+			else
+				return This.SomeNumbersOutsidePositions(n, nNumber)
+			ok
+		ok
+
+		anPos = This.Find(n)
+		anPos = ( Q( 1 : This.NumberOfNumbers() ) - anPos ).Content()
+		anRandoms = SomeRandomNumbersIn(anPos)
+		anResult = This.ItemsAtPositions(anRandoms)
+
+		return anResult
+
+	  #--------------------------------------------------------#
+	 #  GETTING SOME RANDOM NUMBERS LESS THEN A GIVEN NUMBER  #
+	#--------------------------------------------------------#
+
+	def SomeNumbersLessThan(n, nNumber)
+
+	  #----------------------------------------------------------#
+	 #  GETTING SOME RANDOM NUMBERS GRATER THEN A GIVEN NUMBER  #
+	#----------------------------------------------------------#
+
+	def SomeNumbersGreaterThan(n, nNumber)
+
+
+	  #------------------------------------------------------------#
+	 #  GETTING SOME RANDOM NUMBERS OTHER THEN THE GIVEN NUMBERS  #
+	#------------------------------------------------------------#
+
+	def SomeNumbersOtherThanMany(n, aSomeNumbers)
+
+
+	  #-----------------------------------------------------------#
+	 #  GETTING SOME RANDOM NUMBERS LESS THEN THE GIVEN NUMBERS  #
+	#-----------------------------------------------------------#
+
+	func SomeNumbersLessThanMany(n, aSomeNumbers)
+
+	  #------------------------------------------------------------#
+	 #  GETTING SOME RANDOM NUMBERS GRATER THEN THE GIVEN NUMBER  #
+	#------------------------------------------------------------#
+
+	func SomeNumbersGreaterThanMany(n, aSomeNumbers)
+
+	  #---------------------------------------------------------#
+	 #  GETTING SOME RANDOM NUMBERS BETWEEN TWO GIVEN NUMBERS  #
+	#---------------------------------------------------------#
+
+	func SomeNumbersBetween(nMin, nMax)
+
+	  #-------------------------------------------------------------#
+	 #  GETTING SOME RANDOM NUMBERS NOT BETWEEN TWO GIVEN NUMBERS  #
+	#-------------------------------------------------------------#
+
+	func SomeNumbersNotBetween(nMin, nMax)
+
+	  #------------------------------------------------------------------------#
+	 #  GETTING SOME RANDOM NUMBERS BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
+	#------------------------------------------------------------------------#
+
+	func SomeNumbersBetweenIB(nMin, nMax)
+
+	  #----------------------------------------------------------------------------#
+	 #  GETTING SOME RANDOM NUMBERS NOT BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
+	#----------------------------------------------------------------------------#
+
+	func SomeNumbersNotBetweenIB(nMin, nMax)
+
+	  #===================================================#
+	 #  GETTING THE NUMBERS SMALLER THAN A GIVEN NUMBER  #
+	#===================================================#
+
+	def NumbersSmallerThan(n)
+		anContent = This.Content()
+		nLen = len(anContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if anContent[i] < n
+				anResult + anContent[i]
+			ok
+		next
+
+		return anResult
+
+		#< @FunctionFluentForms
+
+		def NumbersSmallerThanQ(n)
+			return This.NumbersSmallerThanQR(n, :stzList)
+
+		def NumbersSmallerThanQR(n, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NumbersSmallerThan(n) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.NumbersSmallerThan(n) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def NumbersLessThan(n)
+			return This.NumbersSmallerThan(n)
+
+			def NumbersLessThanQ(n)
+				return This.NumbersSmallerThanQ(n)
+
+			def NumbersLessThanQR(n, pcReturnType)
+				return This.NumbersSmallerThanQR(n, pcReturnType)
+
+		#>
+
+	  #---------------------------------------------------#
+	 #  GETTING THE NUMBERS GREATER THAN A GIVEN NUMBER  #
+	#---------------------------------------------------#
+
+	def NumbersGreaterThan(n)
+		if NOT This.Contains(n)
+			return []
+		ok
+	
+		anContent = This.Content()
+		nLen = len(anContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if anContent[i] > n
+				anResult + anContent[i]
+			ok
+		next
+
+		return anResult
+
+		#< @FunctionFluentForms
+
+		def NumbersGreaterThanQ(n)
+			return This.NumbersGreaterThanQR(n, :stzList)
+
+		def NumberGreaterThanQR(n, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NumbersGreaterThan(n) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.NumbersGreaterThan(n) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def NumbersLargerThan(n)
+			return This.NumberSmallerThan(n)
+
+			def NumbersLargerThanQ(n)
+				return This.NumberSmallerThanQ(n)
+
+			def NumbersLargerThanQR(n, pcReturnType)
+				return This.NumberSmallerThanQ(n, pcReturnType)
+
+		def NumbersBiggerThan(n)
+			return This.NumberSmallerThan(n)
+
+			def NumbersBiggerThanQ(n)
+				return This.NumberSmallerThanQ(n)
+
+			def NumbersBiggerThanQR(n, pcReturnType)
+				return This.NumberSmallerThanQ(n, pcReturnType)
+
+		def NumbersMoreThan(n)
+			return This.NumberSmallerThan(n)
+
+			def NumbersMoreThanQ(n)
+				return This.NumberSmallerThanQ(n)
+
+			def NumbersMoreThanQR(n, pcReturnType)
+				return This.NumberSmallerThanQ(n, pcReturnType)
+
+		#>
+
+	  #-------------------------------------------------#
+	 #  GETTING THE NUMBERS OTHER THAN A GIVEN NUMBER  #
+	#-------------------------------------------------#
+
+	def NumbersOtherThan(n)
+	
+		anContent = This.Content()
+		nLen = len(anContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if anContent[i] != n
+				anResult + anContent[i]
+			ok
+		next
+
+		return anResult
+
+		#< @FunctionFluentForms
+
+		def NumbersOtherThanQ(n)
+			return new NumbersOtherThanQR(n, :stzList)
+
+		def NumbersOtherThanQR(n, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.NumbersOtherThan(n) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.NumbersOtherThan(n) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def NumbersDifferentFrom(n)
+			return This.NumbersOtherThan(n)
+
+			def NumbersDifferentFromQ(n)
+				return This.NumbersOtherThanQ(n)
+
+			def NumbersDifferentFromQR(n, pcReturnType)
+				return This.NumbersOtherThanQR(n, pcReturnType)
+
+		def NumbersDifferentOf(n)
+			return This.NumbersOtherThan(n)
+
+			def NumbersDifferentOfQ(n)
+				return This.NumbersOtherThanQ(n)
+
+			def NumbersDifferentOfQR(n, pcReturnType)
+				return This.NumbersOtherThanQR(n, pcReturnType)
+
+		def NumbersDifferentWith(n)
+			return This.NumbersOtherThan(n)
+
+			def NumbersDifferentWithQ(n)
+				return This.NumbersOtherThanQ(n)
+
+			def NumbersDifferentWithQR(n, pcReturnType)
+				return This.NumbersOtherThanQR(n, pcReturnType)
+
+		#>
+
+	  #--------------------------------------------#
+	 #  GETTING NUMBERS OUTSIDE A GIVEN POSITION  #
+	#--------------------------------------------#
+
+	def NumbersOutsidePosition(n)
+		anPos = ( Q( 1 : This.NumberOfItems() ) - [n] ).Content()
+		anResult = This.ItemsAtPositions(anPos)
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def NumbersBeforeAndAfterPosition(n)
+			return This.NumbersOutsidePosition(n)
+
+		def NumbersAfterAndBeforePosition(n)
+			return This.NumbersOutsidePosition(n)
+
+		def NumbersBeforeOrAfterPosition(n)
+			return This.NumbersOutsidePosition(n)
+
+		def NumbersAfterOrBeforePosition(n)
+			return This.NumbersOutsidePosition(n)
+
+		#>
+
+	  #==============================#
 	 #     OPERATORS OVERLOADING    # 
-	#------------------------------#
+	#==============================#
 
 	/*
 		TODO: Operators should carry same semantics in all classes...

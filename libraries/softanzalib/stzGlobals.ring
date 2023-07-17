@@ -14,6 +14,13 @@ Programming, by Heart! By: M.Ayouni╭
   ╰╯
 '
 
+_bParamCheck = TRUE # Activates the "# Checking params region" in softanza functions
+		     #--> Set it to FALSE if the functions are used inside large loops
+		     # so you can gain performance (the checks can then be made once,
+		     # by yourself, outside the loop).
+
+		     # Use the SetParamCheckingTo(FALSE)
+
 _t0 = 0 # Used by StartProfiler() and StopProfiler() functions
 
 _aRingTypes = [ :number, :string, :list, :object, :cobject ]
@@ -23,7 +30,7 @@ _CacheFileHandler = NULL
 
 _cCacheMemoryString = ""
 
-_acRingFunctions = [
+_acRingFunctions = [ # TODO: Add the new functions added in Ring 1.18
 	"acos",
 	"add",
 	"addattribute",
@@ -264,7 +271,7 @@ _acRingFunctions = [
 	"write"
 ]
 
-_acRingKeywords = [
+_acRingKeywords = [ # TODO: Review the list for Ring 1.18
 	"again",
 	"and",
 	"but",
@@ -348,13 +355,131 @@ _acStzCCKeywords = [
 	
 	:@Item,
 		:@CurrentItem,
-		:@PreviousSItem,
+		:@PreviousItem,
 		:@NextItem,
 
 		:@Section,
-		:@Range
+		:@Range,
 	
+	:@List,
+		:@CurrentList,
+		:@PreviousList,
+		:@NextList,
+
+	:@Pair,
+		:@CurrentPair,
+		:@PreviousPair,
+		:@NextPair,
+
+	:@Object,
+		:@CurrentObject,
+		:@PreviousObject,
+		:@NextObject
 	]
+
+# Setting the param checking state at the global level
+# --> Useful to decativate it when your functions are used
+# in large loops where performance gains are criticial!
+# --> In this case, you deactivate param checking inside
+# functions, and if you need it, do it by yourself outside teh loop/
+
+func SetParamCheckingTo(bTrueOrFalse)
+	_bParamCheck = bTrueOrFalse
+ 
+	#< @FunctionAlternatives
+
+	func SetCheckParamTo(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+
+	func SetCheckingParamTo(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+
+	#--
+
+	func SetParamsCheckTo(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+
+	func SetParamsCheckingTo(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+ 
+	func SetCheckParamsTo(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+
+	func SetCheckingParamsTo(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+
+	#==
+
+	func SetParamChecking(bTrueOrFalse)
+		if isList(bTrueOrFalse) and Q(bTrueOrFalse).IsToNamedParam()
+			bTrueOrFalse = bTrueOrFalse[2]
+		ok
+
+		SetParamCheckingTo(bTrueOrFalse)
+
+	func SetCheckParam(bTrueOrFalse)
+		SetParamChecking(bTrueOrFalse)
+
+	func SetCheckingParam(bTrueOrFalse)
+		SetParamChecking(bTrueOrFalse)
+
+	#--
+
+	func SetParamsCheck(bTrueOrFalse)
+		SetParamChecking(bTrueOrFalse)
+
+	func SetParamsChecking(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+ 
+	func SetCheckParams(bTrueOrFalse)
+		SetParamChecking(bTrueOrFalse)
+
+	func SetCheckingParams(bTrueOrFalse)
+		SetParamChecking(bTrueOrFalse)
+
+	#>
+
+func ActivateParamChecking()
+	_bParamCheck = FALSE
+
+	func ActivateParamCheck()
+		_bParamCheck = FALSE
+
+	func ActivateParamsChecking()
+		_bParamCheck = FALSE
+
+	func ActivateParamsCheck()
+		_bParamCheck = FALSE
+
+func ParamChecking()
+	return _bParamCheck
+
+	#< @FunctionAlternativeForms
+
+	func ParamsChecking()
+		return _bParamCheck
+
+	func ParamCheck()
+		return _bParamCheck
+
+	func ParamsCheck()
+		return _bParamCheck
+
+	func CheckParam()
+		return _bParamCheck
+
+	func CheckingParam()
+		return _bParamCheck
+
+	func CheckParams()
+		return _bParamCheck
+
+	func CheckingParams()
+		return _bParamCheck
+
+	#>
+
+#---
 
 func NamedObjects()
 	return StzHashListQ(@).Keys()

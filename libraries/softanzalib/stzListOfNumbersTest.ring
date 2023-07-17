@@ -4,6 +4,41 @@ load "stzlib.ring"
 */
 pron()
 
+o1 = new stzListOfNumbers(1:5)
+? o1.NumbersGreaterThan(3)
+#--> [4, 5]
+
+? o1.NumbersLessThan(3)
+#--> [1, 2]
+
+? o1.NumbersOtherThan(3)
+#--> [1, 2, 4, 5]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*---------------
+
+pron()
+
+? 3RandomNumbersIn(1:10)
+#--> [10, 9, 10]
+
+proff()
+
+/*---------------
+
+pron()
+
+? NRandomNumbersIn(3, 1:10)
+#--> [10, 10, 10]
+
+proff()
+
+/*---------------
+
+pron()
+
 ? QQ(1:10).NRandomNumbers(3)
 #--> [9, 10, 10]
 #--> [10, 10, 10]
