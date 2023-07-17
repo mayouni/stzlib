@@ -1274,69 +1274,76 @@ class stzList from stzObject
 	 #     ADDING ITEMS     #
 	#----------------------#
 
-	def SetNumberOfItems(n)
-		nCurrentLen = This.NumberOfItems()
-		nNewLen = n
-
-		aResult = []
-		if nNewLen = nCurrentLen
-			// Do nothing
-
-		but nNewLen > nCurrentLen
-			This.AddItemAt(n)
-
-		but nNewLen < nCurrentLen
-			This.Section(1, nNewLen)
-		ok
+	def AddItem(pItem)
+		@aContent + pItem
 
 		#< @FunctionFluentForm
 
-		def SetNumberOfItemsQ(n)
-			This.SetNumberOfItems(n)
+		def AddItemQ(pItem)
+			This.AddItem(pItem)
 			return This
-
-		#>
-
-	def AddItem(pItem)
-		@aContent + pItem
+		
+		#
 
 		#< @FunctionAlternativeForm
 
 		def Add(pItem)
 			This.AddItem(pItem)
 
+			def AddQ(pItem)
+				This.Add(pItem)
+				return This
+
+		def AppendWith(pItem)
+			This.AddItem(pItem)
+
+			def AppendWithQ(pItem)
+				This.AppendWithQ(pItem)
+				return This
+
+		def Append(pItem)
+			if isList(pItem) and Q(pItem).IsWithOrUsingOrByNamedParam()
+				pItem = pItem[2]
+			ok
+
+			This.AddItem(pItem)
+
+			def AppendQ(pItem)
+				This.Append(pItem)
+				return This
+
 		#>
 
-	def AddItemQ(pItem)
-		This.AddItem(pItem)
-		return This
+	def ItemAdded(pItem)
+		aResult = This.Copy().AddItemQ(pItem).Content()
+		return aResult
 
-		#< @FunctionFluentForm
+		def Added(pItem)
+			return This.ItemAdded(pItem)
 
-		def AddQ(pItem)
-			This.Add(pItem)
-			return This
+		def AppendedWith(pItem)
+			return This.ItemAdded(pItem)
 
-		#>
+		def Appended(pItem)
+			return This.ItemAdded(pItem)
 
-	def AddItemAt(n, pItem)
+	  #-----------------------------------------------------------#
+	 #  ADDING AN ITEM AT A GIVEN POSITION --> INSERT OR EXTEND  #
+	#-----------------------------------------------------------#
 
-		aResult = []
-		// Items can be added only at a position bigger then NumberOfItems()
-		if n < This.NumberOfItems() + 1
-			StzRaise("Can't add the item at this position! n must be bigger than NumberOfItems()")
-		else
-			/*
-			If we add an item at a position bigger then NumberOfItems()
-			then the list is extended and the positions in between are filled
-			with NULL or 0s, depending on wether the list IsHybrid() or it
-			ContainsOnlyNumbers()
-			*/
-			aResult = This.ExtendtoPositionQ(n).Content()
-			aResult + pItem
+	def AddItemAt(n, pItem) # TODO: Test it!
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		This.Update( aResult )
+		if n <= This.NumberOfItems()
+			This.InsertAt(n, pItem)
+
+		else
+			This.ExtendToPosition(n - 1, :With = NULL)
+			This.Add(pItem)
+		ok
 
 		#< @FunctionFluentForm
 
@@ -24147,6 +24154,33 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		def IsUppercased()
 			return This.IsUppercase()
+
+		def IsUpper()
+			return This.IsUppercase()
+
+	  #-----------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS JUST STRINGS IN LOWERCASE  #
+	#-----------------------------------------------------------#
+
+	def IsLowercase()
+		if This.IsListOfStrings() and
+		   LSQ( This.String() ).IsLowercase()
+		   # LSQ() --> abbreviation of StzListOfStringsQ()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsALowercase()
+			return This.IsLowercase()
+
+		def IsLowercased()
+			return This.IsLowercase()
+
+		def IsLower()
+			return This.IsLowercase()
 
 	  #------------------------------------------------------------#
 	 #  TRANSFORMING THE LIST TO ITS REPRESENTATION IN RING CODE  #

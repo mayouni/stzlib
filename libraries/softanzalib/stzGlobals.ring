@@ -377,13 +377,16 @@ _acStzCCKeywords = [
 		:@NextObject
 	]
 
+# Instantiating a global int object to be used with external code
+int = new IntObject
+
 # Setting the param checking state at the global level
 # --> Useful to decativate it when your functions are used
 # in large loops where performance gains are criticial!
 # --> In this case, you deactivate param checking inside
 # functions, and if you need it, do it by yourself outside teh loop/
 
-func SetParamCheckingTo(bTrueOrFalse)
+func SetParamCheckingTo(bTrueOrFalse) # TODO: Test it!
 	_bParamCheck = bTrueOrFalse
  
 	#< @FunctionAlternatives

@@ -1,6 +1,11 @@
 # Set of functions and classes made to make it easy porting code
 # from external languages in Ring
 
+# The idea is to find a solution to a problem on the internet in other langauge,
+# paste the code in Ring, and do little changes to get a computable Ring code
+
+# See examples in stzExtLang.ring file
+
 console = new console
 
 func print(str)
@@ -22,9 +27,20 @@ func $(str) // C#
 	func f(str) // Python
 		return Interpoltate(str)
 
+class IntObject
+	MinValue
+	MaxValue
+	
+	def getMinValue()
+		return RingMinIntegerXT()
+
+	def getMaxValue()
+		return RingMaxIntegerXT()
+
 class console // JS, C#, Java
 	def log(str)
 		? str
 
 	def WriteLine(str)
 		? str
+	

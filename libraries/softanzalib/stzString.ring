@@ -1623,6 +1623,9 @@ class stzString from stzObject
 
 		def IsLowercased()
 			return This.IsLowercase()
+
+		def IsLower()
+			return This.IsLowercase()
 		#>
 
 		#< @FunctionNegativeForm
@@ -1632,6 +1635,10 @@ class stzString from stzObject
 
 		def IsNotLowercased()
 			return This.IsNotLowercase()
+
+		def IsNotLower()
+			return This.IsNotLowercase()
+
 		#>
 
 		#< @FunctionMisspelledForm
@@ -1790,6 +1797,9 @@ class stzString from stzObject
 			return This.IsUppercase()
 
 		def IsAnUppercase()
+			return This.IsUppercase()
+
+		def IsUpper()
 			return This.IsUppercase()
 
 		#>
@@ -15552,7 +15562,7 @@ def ReplaceIBS()
 
 		*/
 
-		aSectionsXT = This.SubStringsBetweenAndTheirSections("{", "}")
+		aSectionsXT = This.SubStringsBetweenZZ("{", "}")
 		#--> [ [ "min", [ 27, 29 ] ], [ "max", [ 36, 38 ] ] ]
 
 		nLen = len(aSectionsXT)
@@ -24447,6 +24457,14 @@ def ReplaceIBS()
 
 		#>
 
+		#< @FunctionAlternativeForms
+
+		# TODO: Add ...AndTheirSections() alternatives to all ...ZZ() functions
+		# TODO: Add ...AndTheirPositions() alternatives to all ...Z() functions
+
+		def SubStringsBetweenAndTheirSectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubStringsBetweenZZCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringsBetweenZZ(pcSubStr1, pcSubStr2)
@@ -24496,9 +24514,15 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
+		def SubStringsBetweenAndTheirPositions( pcSubStr1, pcSubStr2 )
+			return This.SubStringsBetweenZ( pcSubStr1, pcSubStr2 )
+
 		def AnySubStringsBetweenZ(pcSubStr1, pcSubStr2)
 			return This.SubStringsBetweenZ(pcSubStr1, pcSubStr2)
 		
+		def AnySubStringsBetweenAndTheirPositions(pcSubStr1, pcSubStr2)
+			return This.SubStringsBetweenZ(pcSubStr1, pcSubStr2)
+
 		#>
 
 	  #--------------------------------------------------------------------#

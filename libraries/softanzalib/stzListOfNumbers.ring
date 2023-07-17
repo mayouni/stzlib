@@ -3778,6 +3778,8 @@ class stzListOfNumbers from stzList
 	  #---------------------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS OTHER THEN THE GIVEN NUMBERS  #
 	#---------------------------------------------------------#
+	
+	# TODO: Add alternatives of (DifferentTo / Of / From / With) all over the library!
 
 	def NNumbersOtherThanMany(n, anNumbers)
 		anPos = ( Q( 1 : This.NumberOfItems() ) - This.Find(anNumbers) ).Content()
@@ -3797,6 +3799,9 @@ class stzListOfNumbers from stzList
 		def NNumbersDifferentWithMany(n, anNumbers)
 			return This.NNumbersOtherThanMany(n, anNumbers)
 
+		def NNumbersDifferentOfMany(n, anNumbers)
+			return This.NNumbersOtherThanMany(n, anNumbers)
+
 		#--
 
 		def NRandomNumbersOtherThanMany(n, anNumbers)
@@ -3811,19 +3816,10 @@ class stzListOfNumbers from stzList
 		def NRandomNumbersDifferentWithMany(n, anNumbers)
 			return This.NNumbersOtherThanMany(n, anNumbers)
 
+		def NRandomNumbersDifferentOfMany(n, anNumbers)
+			return This.NNumbersOtherThanMany(n, anNumbers)
+
 		#>
-
-	  #--------------------------------------------------------#
-	 #  GETTING N RANDOM NUMBERS LESS THEN THE GIVEN NUMBERS  #
-//vvv	#--------------------------------------------------------#
-
-	func NNumbersLessThanMany(n, anNumbers)
-		
-	  #---------------------------------------------------------#
-	 #  GETTING N RANDOM NUMBERS GRATER THEN THE GIVEN NUMBER  #
-	#---------------------------------------------------------#
-
-	func NNumbersGreaterThanMany(n, anNumbers)
 
 	  #------------------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS BETWEEN TWO GIVEN NUMBERS  #
@@ -3903,19 +3899,6 @@ class stzListOfNumbers from stzList
 	#------------------------------------------------------------#
 
 	def SomeNumbersOtherThanMany(n, aSomeNumbers)
-
-
-	  #-----------------------------------------------------------#
-	 #  GETTING SOME RANDOM NUMBERS LESS THEN THE GIVEN NUMBERS  #
-	#-----------------------------------------------------------#
-
-	func SomeNumbersLessThanMany(n, aSomeNumbers)
-
-	  #------------------------------------------------------------#
-	 #  GETTING SOME RANDOM NUMBERS GRATER THEN THE GIVEN NUMBER  #
-	#------------------------------------------------------------#
-
-	func SomeNumbersGreaterThanMany(n, aSomeNumbers)
 
 	  #---------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS BETWEEN TWO GIVEN NUMBERS  #
@@ -4068,7 +4051,10 @@ class stzListOfNumbers from stzList
 	#-------------------------------------------------#
 
 	def NumbersOtherThan(n)
-	
+		if isList(n)
+			return This.NumbersOtherThanMany(n)
+		ok
+
 		anContent = This.Content()
 		nLen = len(anContent)
 
@@ -4121,18 +4107,67 @@ class stzListOfNumbers from stzList
 			def NumbersDifferentOfQR(n, pcReturnType)
 				return This.NumbersOtherThanQR(n, pcReturnType)
 
-		def NumbersDifferentWith(n)
+		def NumbersDifferentTo(n)
 			return This.NumbersOtherThan(n)
 
-			def NumbersDifferentWithQ(n)
+			def NumbersDifferentToQ(n)
 				return This.NumbersOtherThanQ(n)
 
-			def NumbersDifferentWithQR(n, pcReturnType)
+			def NumbersDifferentToQR(n, pcReturnType)
 				return This.NumbersOtherThanQR(n, pcReturnType)
 
 		#>
 
-	  #--------------------------------------------#
+	  #-----------------------------------------------------#
+	 #  GETTING THE NUMBERS OTHER THAN MANY GIVEN NUMBERS  #
+	#-----------------------------------------------------#
+
+	def NumbersOtherThanMany(anNumbers)
+		if NOT (isList(anNumbers) and Q(anNumbers).IsListOfNumbers())
+			StzRaise("Incorrect param type! anNumbers must be a list of numbers.")
+		ok
+
+		anContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if NOT ring_find(anNumbers, anContent[i])
+				anResult + aContent[i]
+			ok
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def NumbersDifferentFromMany(anNumbers)
+			return This.NumbersOtherThanMany(anNumbers)
+
+		def NumbersDifferentOfMany(anNumbers)
+			return This.NumbersOtherThanMany(anNumbers)
+
+		def NumbersDifferentToMany(anNumbers)
+			return This.NumbersOtherThanMany(anNumbers)
+
+		#--
+
+		def NumbersOtherThanThese(anNumbers)
+			return This.NumbersOtherThanMany(anNumbers)
+
+		def NumbersDifferentFromThese(anNumbers)
+			return This.NumbersOtherThanMany(anNumbers)
+
+		def NumbersDifferentOfThese(anNumbers)
+			return This.NumbersOtherThanMany(anNumbers)
+
+		def NumbersDifferentThese(anNumbers)
+			return This.NumbersOtherThanMany(anNumbers)
+
+		#>
+
+#vvv	  #--------------------------------------------#
 	 #  GETTING NUMBERS OUTSIDE A GIVEN POSITION  #
 	#--------------------------------------------#
 
