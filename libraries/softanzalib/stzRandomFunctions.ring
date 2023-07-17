@@ -1742,7 +1742,7 @@ func RandomNumberOtherThan(n)
 #-- N RANDOM NUMBERS FROM A LIST OF NUMBERS
 
 func NRandomNumbersAmong(n, panNumbers)
-	anResult = StzListNumbersQ(paNumbers).NRandomNumbers(n)
+	anResult = StzListOfNumbersQ(panNumbers).NRandomNumbers(n)
 	return anResult
 
 	#< @FunctionAlternativeForms
@@ -1811,5 +1811,1211 @@ func NRandomNumbersAmong(n, panNumbers)
 
 	func NNumbersFromInside(n, panNumbers)
 		return NRandomNumbersAmong(n, panNumbers)
+
+	#>
+
+#--
+
+func 2RandomNumbersAmong(panNumbers)
+	return NRandomNumbersAmong(2, panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func TwoRandomNumbersAmong(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func Random2NumbersAmong(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func RandomTwoNumbersAmong(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func Any2NumbersAmong(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func AnyTwoNumbersAmong(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func 2NumbersAmong(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func TwoNumbersAmong(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 2RandomNumbersIn(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func TwoRandomNumbersIn(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func Random2NumbersIn(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func RandomTwoNumbersIn(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func Any2NumbersIn(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func AnyTwoNumbersIn(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func 2NumbersIn(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func TwoNumbersIn(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 2RandomNumbersFrom(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func TwoRandomNumbersFrom(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func Random2NumbersFrom(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func RandomTwoNumbersFrom(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func Any2NumbersFrom(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func AnyTwoNumbersFrom(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func 2NumbersFrom(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func TwoNumbersFrom(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 2RandomNumbersInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func TwoRandomNumbersInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func Random2NumbersInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func RandomTwoNumbersInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func Any2NumbersInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func AnyTwoNumbersInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func 2NumbersInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func TwoNumbersInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 2RandomNumbersFromInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func TwoRandomNumbersFromInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func Random2NumbersFromInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func RandomTwoNumbersFromInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func Any2NumbersFromInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func AnyTwoNumbersFromInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func 2NumbersFromInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	func TwoNumbersFromInside(panNumbers)
+		return 2RandomNumbersAmong(panNumbers)
+
+	#>
+
+#--
+
+func 3RandomNumbersAmong(panNumbers)
+	return NRandomNumbersAmong(3, panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func ThreeRandomNumbersAmong(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func Random3NumbersAmong(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func RandomThreeNumbersAmong(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func Any3NumbersAmong(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func AnyThreeNumbersAmong(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func 3NumbersAmong(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func ThreeNumbersAmong(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 3RandomNumbersIn(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func ThreeRandomNumbersIn(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func Random3NumbersIn(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func RandomThreeNumbersIn(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func Any3NumbersIn(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func AnyThreeNumbersIn(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func 3NumbersIn(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func ThreeNumbersIn(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 3RandomNumbersFrom(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func ThreeRandomNumbersFrom(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func Random3NumbersFrom(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func RandomThreeNumbersFrom(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func Any3NumbersFrom(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func AnyThreeNumbersFrom(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func 3NumbersFrom(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func ThreeNumbersFrom(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 3RandomNumbersInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func ThreeRandomNumbersInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func Random3NumbersInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func RandomThreeNumbersInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func Any3NumbersInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func AnyThreeNumbersInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func 3NumbersInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func ThreeNumbersInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 3RandomNumbersFromInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func ThreeRandomNumbersFromInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func Random3NumbersFromInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func RandomThreeNumbersFromInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func Any3NumbersFromInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func AnyThreeNumbersFromInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func 3NumbersFromInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	func ThreeNumbersFromInside(panNumbers)
+		return 3RandomNumbersAmong(panNumbers)
+
+	#>
+
+#--
+
+func 4RandomNumbersAmong(panNumbers)
+	return NRandomNumbersAmong(4, panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func FourRandomNumbersAmong(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func Random4NumbersAmong(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func RandomFourNumbersAmong(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func Any4NumbersAmong(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func AnyFourNumbersAmong(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func 4NumbersAmong(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func FourNumbersAmong(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 4RandomNumbersIn(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func FourRandomNumbersIn(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func Random4NumbersIn(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func RandomFourNumbersIn(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func Any4NumbersIn(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func AnyFourNumbersIn(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func 4NumbersIn(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func FourNumbersIn(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 4RandomNumbersFrom(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func FourRandomNumbersFrom(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func Random4NumbersFrom(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func RandomFourNumbersFrom(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func Any4NumbersFrom(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func AnyFourNumbersFrom(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func 4NumbersFrom(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func FourNumbersFrom(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 4RandomNumbersInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func FourRandomNumbersInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func Random4NumbersInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func RandomFourNumbersInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func Any4NumbersInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func AnyFourNumbersInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func 4NumbersInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func FourNumbersInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 4RandomNumbersFromInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func FourRandomNumbersFromInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func Random4NumbersFromInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func RandomFourNumbersFromInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func Any4NumbersFromInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func AnyFourNumbersFromInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func 4NumbersFromInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	func FourNumbersFromInside(panNumbers)
+		return 4RandomNumbersAmong(panNumbers)
+
+	#>
+
+#--
+
+func 5RandomNumbersAmong(panNumbers)
+	return NRandomNumbersAmong(5, panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func FiveRandomNumbersAmong(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func Random5NumbersAmong(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func RandomFiveNumbersAmong(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func Any5NumbersAmong(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func AnyFiveNumbersAmong(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func 5NumbersAmong(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func FiveNumbersAmong(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 5RandomNumbersIn(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func FiveRandomNumbersIn(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func Random5NumbersIn(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func RandomFiveNumbersIn(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func Any5NumbersIn(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func AnyFiveNumbersIn(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func 5NumbersIn(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func FiveNumbersIn(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 5RandomNumbersFrom(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func FiveRandomNumbersFrom(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func Random5NumbersFrom(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func RandomFiveNumbersFrom(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func Any5NumbersFrom(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func AnyFiveNumbersFrom(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func 5NumbersFrom(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func FiveNumbersFrom(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 5RandomNumbersInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func FiveRandomNumbersInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func Random5NumbersInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func RandomFiveNumbersInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func Any5NumbersInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func AnyFiveNumbersInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func 5NumbersInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func FiveNumbersInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 5RandomNumbersFromInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func FiveRandomNumbersFromInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func Random5NumbersFromInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func RandomFiveNumbersFromInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func Any5NumbersFromInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func AnyFiveNumbersFromInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func 5NumbersFromInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	func FiveNumbersFromInside(panNumbers)
+		return 5RandomNumbersAmong(panNumbers)
+
+	#>
+
+#--
+
+func 6RandomNumbersAmong(panNumbers)
+	return NRandomNumbersAmong(6, panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func SixRandomNumbersAmong(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func Random6NumbersAmong(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func RandomSixNumbersAmong(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func Any6NumbersAmong(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func AnySixNumbersAmong(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func 6NumbersAmong(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func SixNumbersAmong(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 6RandomNumbersIn(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func SixRandomNumbersIn(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func Random6NumbersIn(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func RandomSixNumbersIn(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func Any6NumbersIn(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func AnySixNumbersIn(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func 6NumbersIn(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func SixNumbersIn(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 6RandomNumbersFrom(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func SixRandomNumbersFrom(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func Random6NumbersFrom(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func RandomSixNumbersFrom(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func Any6NumbersFrom(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func AnySixNumbersFrom(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func 6NumbersFrom(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func SixNumbersFrom(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 6RandomNumbersInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func SixRandomNumbersInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func Random6NumbersInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func RandomSixNumbersInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func Any6NumbersInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func AnySixNumbersInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func 6NumbersInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func SixNumbersInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 6RandomNumbersFromInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func SixRandomNumbersFromInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func Random6NumbersFromInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func RandomSixNumbersFromInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func Any6NumbersFromInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func AnySixNumbersFromInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func 6NumbersFromInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	func SixNumbersFromInside(panNumbers)
+		return 6RandomNumbersAmong(panNumbers)
+
+	#>
+
+#--
+
+func 7RandomNumbersAmong(panNumbers)
+	return NRandomNumbersAmong(7, panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func SevenRandomNumbersAmong(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func Random7NumbersAmong(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func RandomSevenNumbersAmong(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func Any7NumbersAmong(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func AnySevenNumbersAmong(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func 7NumbersAmong(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func SevenNumbersAmong(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 7RandomNumbersIn(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func SevenRandomNumbersIn(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func Random7NumbersIn(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func RandomSevenNumbersIn(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func Any7NumbersIn(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func AnySevenNumbersIn(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func 7NumbersIn(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func SevenNumbersIn(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 7RandomNumbersFrom(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func SevenRandomNumbersFrom(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func Random7NumbersFrom(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func RandomSevenNumbersFrom(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func Any7NumbersFrom(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func AnySevenNumbersFrom(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func 7NumbersFrom(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func SevenNumbersFrom(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 7RandomNumbersInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func SevenRandomNumbersInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func Random7NumbersInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func RandomSevenNumbersInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func Any7NumbersInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func AnySevenNumbersInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func 7NumbersInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func SevenNumbersInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 7RandomNumbersFromInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func SevenRandomNumbersFromInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func Random7NumbersFromInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func RandomSevenNumbersFromInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func Any7NumbersFromInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func AnySevenNumbersFromInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func 7NumbersFromInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	func SevenNumbersFromInside(panNumbers)
+		return 7RandomNumbersAmong(panNumbers)
+
+	#>
+
+#--
+
+func 8RandomNumbersAmong(panNumbers)
+	return NRandomNumbersAmong(8, panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func EightRandomNumbersAmong(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func Random8NumbersAmong(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func RandomEightNumbersAmong(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func Any8NumbersAmong(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func AnyEightNumbersAmong(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func 8NumbersAmong(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func EightNumbersAmong(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 8RandomNumbersIn(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func EightRandomNumbersIn(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func Random8NumbersIn(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func RandomEightNumbersIn(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func Any8NumbersIn(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func AnyEightNumbersIn(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func 8NumbersIn(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func EightNumbersIn(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 8RandomNumbersFrom(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func EightRandomNumbersFrom(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func Random8NumbersFrom(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func RandomEightNumbersFrom(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func Any8NumbersFrom(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func AnyEightNumbersFrom(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func 8NumbersFrom(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func EightNumbersFrom(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 8RandomNumbersInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func EightRandomNumbersInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func Random8NumbersInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func RandomEightNumbersInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func Any8NumbersInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func AnyEightNumbersInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func 8NumbersInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func EightNumbersInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 8RandomNumbersFromInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func EightRandomNumbersFromInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func Random8NumbersFromInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func RandomEightNumbersFromInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func Any8NumbersFromInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func AnyEightNumbersFromInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func 8NumbersFromInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	func EightNumbersFromInside(panNumbers)
+		return 8RandomNumbersAmong(panNumbers)
+
+	#>
+
+#--
+
+func 9RandomNumbersAmong(panNumbers)
+	return NRandomNumbersAmong(9, panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func NineRandomNumbersAmong(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func Random9NumbersAmong(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func RandomNineNumbersAmong(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func Any9NumbersAmong(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func AnyNineNumbersAmong(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func 9NumbersAmong(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func NineNumbersAmong(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 9RandomNumbersIn(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func NineRandomNumbersIn(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func Random9NumbersIn(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func RandomNineNumbersIn(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func Any9NumbersIn(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func AnyNineNumbersIn(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func 9NumbersIn(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func NineNumbersIn(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 9RandomNumbersFrom(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func NineRandomNumbersFrom(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func Random9NumbersFrom(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func RandomNineNumbersFrom(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func Any9NumbersFrom(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func AnyNineNumbersFrom(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func 9NumbersFrom(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func NineNumbersFrom(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 9RandomNumbersInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func NineRandomNumbersInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func Random9NumbersInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func RandomNineNumbersInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func Any9NumbersInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func AnyNineNumbersInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func 9NumbersInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func NineNumbersInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 9RandomNumbersFromInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func NineRandomNumbersFromInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func Random9NumbersFromInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func RandomNineNumbersFromInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func Any9NumbersFromInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func AnyNineNumbersFromInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func 9NumbersFromInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	func NineNumbersFromInside(panNumbers)
+		return 9RandomNumbersAmong(panNumbers)
+
+	#>
+
+#--
+
+func 10RandomNumbersAmong(panNumbers)
+	return NRandomNumbersAmong(10, panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func TenRandomNumbersAmong(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func Random10NumbersAmong(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func RandomTenNumbersAmong(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func Any10NumbersAmong(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func AnyTenNumbersAmong(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func 10NumbersAmong(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func TenNumbersAmong(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 10RandomNumbersIn(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func TenRandomNumbersIn(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func Random10NumbersIn(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func RandomTenNumbersIn(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func Any10NumbersIn(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func AnyTenNumbersIn(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func 10NumbersIn(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func TenNumbersIn(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 10RandomNumbersFrom(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func TenRandomNumbersFrom(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func Random10NumbersFrom(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func RandomTenNumbersFrom(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func Any10NumbersFrom(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func AnyTenNumbersFrom(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func 10NumbersFrom(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func TenNumbersFrom(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 10RandomNumbersInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func TenRandomNumbersInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func Random10NumbersInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func RandomTenNumbersInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func Any10NumbersInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func AnyTenNumbersInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func 10NumbersInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func TenNumbersInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	#--
+
+	func 10RandomNumbersFromInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func TenRandomNumbersFromInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func Random10NumbersFromInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func RandomTenNumbersFromInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func Any10NumbersFromInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func AnyTenNumbersFromInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func 10NumbersFromInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
+
+	func TenNumbersFromInside(panNumbers)
+		return 10RandomNumbersAmong(panNumbers)
 
 	#>

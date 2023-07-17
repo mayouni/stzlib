@@ -26519,6 +26519,13 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return FALSE
 		ok
 
+	def IsPositionOrPositionsNamedParam()
+		if This.IsPositionNamedParam() or This.IsPositionsNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsAlongWithNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  (This[1] = :AlongWith or This[1] = :AlongWith@)  )
