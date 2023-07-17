@@ -17658,6 +17658,9 @@ stop()
 
 		return bResult
 
+		def IsLower()
+			return This.IsLowercase()
+
 	def AllStringsAreLowercase()
 		return This.IsLowercase()
 
@@ -17677,10 +17680,13 @@ stop()
 		return bResult
 
 		def IsAnUppercase()
-			return This.Uppercase()
+			return This.IsUppercase()
 
 		def IsUppercased()
-			return This.Uppercase()
+			return This.IsUppercase()
+
+		def IsUpper()
+			return This.IsUppercase()
 
 	def AllStringsAreUppercase()
 		return This.IsUppercase()
