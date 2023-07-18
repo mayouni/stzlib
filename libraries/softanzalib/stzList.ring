@@ -33212,6 +33212,630 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	def SomeItemsOutsidePositionsZ(panPos, pCaseSensitive)
 		def SomeItemsInPositionsOtherThanZ(panPos, pCaseSensitive)
 	
+	  #------------------------------------------------#
+	 #  RANDOMINZING THE ITEMS POSITIONS IN THE LIST  #
+	#================================================#
+
+	def Randomize()
+		anPos = NRandomNumbersBetween(1, This.NumberOfItems())
+		This.UpdateWith( This.ItemsAtPositions(anPos) )
+
+		#< @FunctionFluentForm
+
+		def RandomizeQ()
+			This.Randomize()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomizePositions()
+			This.Randomise()
+
+			def RandomizePositonsQ()
+				This.RandomizePositions()
+				return This
+
+		#--
+
+		def Randomise()
+			This.Randomize()
+
+			def RandomiseQ()
+				This.Randomise()
+				return This
+
+		def RandomisePositions()
+			This.Randomize()
+
+			def RandomisePositionsQ()
+				This.RandomisePositions()
+				return This
+
+		#>
+
+	def Randomized()
+		aResult = This.Copy().RandomizeQ().Content()
+		return aResult
+
+		def Randomised()
+
+	  #---------------------------------------------------------------------#
+	 #  RANDOMINZING THE ITEMS POSITIONS IN THE GIVEN SECTION OF THE LIST  #
+	#---------------------------------------------------------------------#
+
+	def RandomizeSection(n1, n2)
+		anPos = NRandomNumbersBetween(n1, n2)
+		This.UpdateWith( This.ItemsAtPositions(anPos) )
+
+		#< @FunctionFluentForm
+
+		def RandomizeSectionQ(n1, n2)
+			This.RandomizeSection(n1, n2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomizePositionsInSection(n1, n2)
+			This.RandomiseSection(n1, n2)
+
+			def RandomizePositionsInSectionQ(n1, n2)
+				This.RandomizePositionsInSection(n1, n2)
+				return This
+
+		#--
+
+		def RandomiseSection(n1, n2)
+			This.RandomizeSection(n1, n2)
+
+			def RandomiseSectionQ(n1, n2)
+				This.RandomiseSection(n1, n2)
+				return This
+
+		def RandomisePositionsInSection(n1, n2)
+			This.RandomizeSection(n1, n2)
+
+			def RandomisePositionsInSectionQ(n1, n2)
+				This.RandomisePositionsInSection(n1, n2)
+				return This
+
+		#>
+
+	def SectionRandomized(n1, n2)
+		aResult = This.Copy().RandomizeSectionQ(n1, n2).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def PositionsInSectionRandomized(n1, n2)
+			return This.SectionRandomized(n1, n2)
+
+		#--
+
+		def SectionRandomised(n1, n2)
+			return This.SectionRandomized(n1, n2)
+
+		def PositionsInSectionRandomised(n1, n2)
+			return This.SectionRandomized(n1, n2)
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #  RANDOMINZING THE ITEMS POSITIONS IN THE GIVEN SECTIONS OF THE LIST  #
+	#----------------------------------------------------------------------#
+
+	def RandomizeSections(panSections)
+		if CheckParams() = TRUE # Generalise this all over the library
+			if NOT isList(panSections) and Q(panSections).IsListOfPairsOfNumbers()
+				StzRaise("Incorrect param type! panSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		nLen = len(panSections)
+
+		for i = 1 to nLen
+			This.RandomizeSection(panSections[i][1], panSections[i][2])
+		next
+
+		#< @FunctionFluentForm
+
+		def RandomizeSectionsQ(panSections)
+			This.RandomizeSections(panSections)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomizePositionsInSections(panSections)
+			This.RandomiseSections(panSections)
+
+			def RandomizePositionsInSectionsQ(panSections)
+				This.RandomizePositionsInSections(panSections)
+				return This
+
+		#--
+
+		def RandomiseSections(panSections)
+			This.RandomizeSections(panSections)
+
+			def RandomiseSectionsQ(panSections)
+				This.RandomiseSections(panSections)
+				return This
+
+		def RandomisePositionsInSections(panSections)
+			This.RandomizeSections(panSections)
+
+			def RandomisePositionsInSectionsQ(panSections)
+				This.RandomisePositionsInSections(panSections)
+				return This
+
+		#>
+
+	def SectionsRandomized(panSections)
+		aResult = This.Copy().RandomizeSectionsQ(n1, n2).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def PositionsInSectionsRandomized(n1, n2)
+			return This.SectionsRandomized(n1, n2)
+
+		#--
+
+		def SectionsRandomised(n1, n2)
+			return This.SectionsRandomized(n1, n2)
+
+		def PositionsInSectionsRandomised(n1, n2)
+			return This.SectionsRandomized(n1, n2)
+
+		#>
+
+	  #-------------------------------------------------------------------#
+	 #  RANDOMINZING THE ITEMS POSITIONS BETWEEN TWO POSITIONS OR ITEMS  #
+	#-------------------------------------------------------------------#
+
+	def RandomizeBetweenCS(p1, p2, pCaseSensitive)
+		if isList(p1) and Q(p1).IsPositionOrPositionsNamedParam()
+			p1 = p1[2]
+
+			This.RandomizeBetweenPositions(p1, p2) # Or RandomizSection
+		ok
+
+		n1 = This.FindFirstCS(p1, pCaseSensitive)
+		n2 = This.FindLastCS(p2, pCaseSensitive)
+
+		This.RandomizeSection(n1, n2)
+
+
+		#< @FunctionFluentForm
+
+		def RandomizeBetweenCSQ(p1, p2, pCaseSensitive)
+			This.RandomizeBetweenCS(p1, p2, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomiseBetweenCS(p1, p2, pCaseSensitive)
+			This.RandomizeBetweenCS(p1, p2, pCaseSensitive)
+
+			def RandomiseBetweenCSQ(p1, p2, pCaseSensitive)
+				This.RandomiseBetweenCSQ(p1, p2, pCaseSensitive)
+				return This
+
+		#--
+
+		def RandomizePositionsBetweenCS(p1, p2, pCaseSensitive)
+			This.RandomizeBetweenCS(p1, p2, pCaseSensitive)
+
+			def RandomizePositionsBetweenCSQ(p1, p2, pCaseSensitive)
+				This.RandomizePositionsBetweenCSQ(p1, p2, pCaseSensitive)
+				return This
+
+		def RandomisePositionsBetweenCS(p1, p2, pCaseSensitive)
+			This.RandomizeBetweenCS(p1, p2, pCaseSensitive)
+
+			def RandomisePositionsBetweenCSQ(p1, p2, pCaseSensitive)
+				This.RandomisePositionsBetweenCSQ(p1, p2, pCaseSensitive)
+				return This
+
+		#>
+
+	def RandomizedBetweenCS(p1, p2, pCaseSensitive)
+		aResult = This.RandomizeBetweenCSQ(p1, p2, pCaseSensitive).Content()
+		return This
+
+		def RanomisedBetweenCS(p1, p2, pCaseSensitive)
+			return This.RandomizedBetweenCS(p1, p2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RandomizeBetween(p1, p2)
+		This.RandomizeBetweenCS(p1, p2, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RandomizeBetweenQ(p1, p2)
+			This.RandomizeBetween(p1, p2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomiseBetween(p1, p2)
+			This.RandomizeBetween(p1, p2)
+
+			def RandomiseBetweenQ(p1, p2)
+				This.RandomiseBetweenQ(p1, p2)
+				return This
+
+		#--
+
+		def RandomizePositionsBetween(p1, p2)
+			This.RandomizeBetween(p1, p2)
+
+			def RandomizePositionsBetweenQ(p1, p2)
+				This.RandomizePositionsBetweenQ(p1, p2)
+				return This
+
+		def RandomisePositionsBetween(p1, p2)
+			This.RandomizeBetween(p1, p2)
+
+			def RandomisePositionsBetweenQ(p1, p2)
+				This.RandomisePositionsBetweenQ(p1, p2)
+				return This
+
+		#>
+
+	def RandomizedBetween(p1, p2)
+		aResult = This.RandomizeBetweenQ(p1, p2).Content()
+		return This
+
+		def RanomisedBetween(p1, p2)
+			return This.RandomizedBetween(p1, p2)
+
+	  #-------------------------------------------------------------#
+	 #  RANDOMIZING ITEMS POSITIONS BETWEEN TWO ITEMS IN THE LIST  #
+	#-------------------------------------------------------------#
+
+	def RandomizeBetweenItemsCS(p1, p2, pCaseSensitive)
+		n1 = This.FindFirstCS(p1, pCaseSensitive)
+		n2 = This.FindLastCS(p2, pCaseSensitive)
+
+		This.RandomizeSection(n1, n2)
+	
+		#< @FunctionFluentForm
+
+		def RandomizeBetweenItemsCSQ(p1, p2, pCaseSensitive)
+			This.RandomizeBetweenItemsCS(p1, p2, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RandomiseBetweenItemsCS(p1, p2, pCaseSensitive)
+			This.RandomizeBetweenItemsCS(p1, p2, pCaseSensitive)
+
+			def RandomiseBetweenItemsCSQ(p1, p2, pCaseSensitive)
+				This.RandomiseBetweenItemsCS(p1, p2, pCaseSensitive)
+				return This
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RandomizeBetweenItems(p1, p2)
+		This.RandomizeBetweenItemsCS(p1, p2, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RandomizeBetweenItemsQ(p1, p2)
+			This.RandomizeBetweenItems(p1, p2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RandomiseBetweenItems(p1, p2)
+			This.RandomizeBetweenItems(p1, p2)
+
+			def RandomiseBetweenItemsQ(p1, p2)
+				This.RandomiseBetweenItems(p1, p2)
+				return This
+
+		#>
+
+	  #-----------------------------------------------------------------------#
+	 #  RANDOMINZING THE ITEMS POSITIONS NOT BETWEEN TWO POSITIONS OR ITEMS  #
+	#-----------------------------------------------------------------------#
+
+	def RandomizeNotBetweenCS(p1, p2, pCaseSensitive)
+		if isList(p1) and Q(p1).IsPositionOrPositionsNamedParam()
+			p1 = p1[2]
+
+			This.RandomizeNotBetweenPositions(p1, p2) # Or RandomizSection
+		ok
+
+		n1 = This.FindFirstCS(p1, pCaseSensitive)
+		n2 = This.FindLastCS(p2, pCaseSensitive)
+
+		This.RandomizeSection(n1, n2)
+
+
+		#< @FunctionFluentForm
+
+		def RandomizeNotBetweenCSQ(p1, p2, pCaseSensitive)
+			This.RandomizeNotBetweenCS(p1, p2, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomiseNotBetweenCS(p1, p2, pCaseSensitive)
+			This.RandomizeNotBetweenCS(p1, p2, pCaseSensitive)
+
+			def RandomiseNotBetweenCSQ(p1, p2, pCaseSensitive)
+				This.RandomiseNotBetweenCSQ(p1, p2, pCaseSensitive)
+				return This
+
+		#--
+
+		def RandomizePositionsNotBetweenCS(p1, p2, pCaseSensitive)
+			This.RandomizeNotBetweenCS(p1, p2, pCaseSensitive)
+
+			def RandomizePositionsNotBetweenCSQ(p1, p2, pCaseSensitive)
+				This.RandomizePositionsNotBetweenCSQ(p1, p2, pCaseSensitive)
+				return This
+
+		def RandomisePositionsNotBetweenCS(p1, p2, pCaseSensitive)
+			This.RandomizeNotBetweenCS(p1, p2, pCaseSensitive)
+
+			def RandomisePositionsNotBetweenCSQ(p1, p2, pCaseSensitive)
+				This.RandomisePositionsNotBetweenCSQ(p1, p2, pCaseSensitive)
+				return This
+
+		#>
+
+	def RandomizedNotBetweenCS(p1, p2, pCaseSensitive)
+		aResult = This.RandomizeNotBetweenCSQ(p1, p2, pCaseSensitive).Content()
+		return This
+
+		def RanomisedNotBetweenCS(p1, p2, pCaseSensitive)
+			return This.RandomizedNotBetweenCS(p1, p2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RandomizeNotBetween(p1, p2)
+		This.RandomizeNotBetweenCS(p1, p2, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RandomizeNotBetweenQ(p1, p2)
+			This.RandomizeNotBetween(p1, p2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomiseNotBetween(p1, p2)
+			This.RandomizeNotBetween(p1, p2)
+
+			def RandomiseNotBetweenQ(p1, p2)
+				This.RandomiseNotBetweenQ(p1, p2)
+				return This
+
+		#--
+
+		def RandomizePositionsNotBetween(p1, p2)
+			This.RandomizeNotBetween(p1, p2)
+
+			def RandomizePositionsNotBetweenQ(p1, p2)
+				This.RandomizePositionsNotBetweenQ(p1, p2)
+				return This
+
+		def RandomisePositionsNotBetween(p1, p2)
+			This.RandomizeNotBetween(p1, p2)
+
+			def RandomisePositionsNotBetweenQ(p1, p2)
+				This.RandomisePositionsNotBetweenQ(p1, p2)
+				return This
+
+		#>
+
+	def RandomizedNotBetween(p1, p2)
+		aResult = This.RandomizeNotBetweenQ(p1, p2).Content()
+		return This
+
+		def RanomisedNotBetween(p1, p2)
+			return This.RandomizedNotBetween(p1, p2)
+
+	  #-----------------------------------------------------------------#
+	 #  RANDOMIZING ITEMS POSITIONS NOT BETWEEN TWO ITEMS IN THE LIST  #
+	#-----------------------------------------------------------------#
+
+	def RandomizeNotBetweenItemsCS(p1, p2, pCaseSensitive)
+		n1 = This.FindFirstCS(p1, pCaseSensitive)
+		n2 = This.FindLastCS(p2, pCaseSensitive)
+
+		This.RandomizeAntiSection(n1, n2)
+	
+		#< @FunctionFluentForm
+
+		def RandomizeNotBetweenItemsCSQ(p1, p2, pCaseSensitive)
+			This.RandomizeNotBetweenItemsCS(p1, p2, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RandomiseNotBetweenItemsCS(p1, p2, pCaseSensitive)
+			This.RandomizeNotBetweenItemsCS(p1, p2, pCaseSensitive)
+
+			def RandomiseNotBetweenItemsCSQ(p1, p2, pCaseSensitive)
+				This.RandomiseNotBetweenItemsCS(p1, p2, pCaseSensitive)
+				return This
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RandomizeNotBetweenItems(p1, p2)
+		This.RandomizeNotBetweenItemsCS(p1, p2, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RandomizeNotBetweenItemsQ(p1, p2)
+			This.RandomizeNotBetweenItems(p1, p2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RandomiseNotBetweenItems(p1, p2)
+			This.RandomizeNotBetweenItems(p1, p2)
+
+			def RandomiseNotBetweenItemsQ(p1, p2)
+				This.RandomiseNotBetweenItems(p1, p2)
+				return This
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  RANDOMIZING POSITIONS OF ITEMS OUTSIDE THE GIVEN SECTION  #
+	#------------------------------------------------------------#
+
+	def RandomizeAntiSection(n1, n2)
+		anSections = This.FindAntiSections([ [n1, n2] ]) # Or maybe AntiSectionsAsSections()
+		This.RandomizeSections(anSections)
+
+		#< @FunctionFluentForm
+
+		def RandomizeAntiSectionQ(n1, n2)
+			This.RandomizeAntiSection(n1, n2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomizeOutsideSection(n1, n2)
+			This.RandomizeAntiSection(n1, n2)
+	
+			def RandomizeOutsideSectionQ(n1, n2)
+				This.RandomizeOutsideSection(n1, n2)
+				return This
+
+		#--
+
+		def RandomiseAntiSection(n1, n2)
+			This.RandomizeAntiSection(n1, n2)
+
+			def RandomiseAntiSectionQ(n1, n2)
+				This.RandomiseAntiSection(n1, n2)
+				return This
+
+		def RandomiseOutsideSection(n1, n2)
+			This.RandomizeAntiSection(n1, n2)
+	
+			def RandomiseOutsideSectionQ(n1, n2)
+				This.RandomizeOutsideSection(n1, n2)
+				return This
+
+		#>
+
+	def AntiSectionRandomized(n1, n2)
+		aResult = This.Copy().RandomizeAntiSectionQ(n1, n2).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def OutsideSectionRandomized(n1, n2)
+			return This.AntiSectionRandomized(n1, n2)
+
+		#--
+
+		def AntiSectionRandomised(n1, n2)
+			return This.AntiSectionRandomized(n1, n2)
+
+		def OutsideSectionRandomised(n1, n2)
+			return This.AntiSectionRandomized(n1, n2)
+
+		#>
+
+	  #-------------------------------------------------------------#
+	 #  RANDOMIZING POSITIONS OF ITEMS OUTSIDE THE GIVEN SECTIONS  #
+	#-------------------------------------------------------------#
+
+	def RandomizeAntiSections(panSections)
+		anSections = This.FindAntiSections(panSections) # Or maybe AntiSectionsAsSections()
+		This.RandomizeSections(anSections)
+
+		#< @FunctionFluentForm
+
+		def RandomizeAntiSectionsQ(panSections)
+			This.RandomizeAntiSections(panSections)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomizeOutsideSections(panSections)
+			This.RandomizeAntiSections(panSections)
+	
+			def RandomizeOutsideSectionsQ(panSections)
+				This.RandomizeOutsideSections(panSections)
+				return This
+
+		#--
+
+		def RandomiseAntiSections(panSections)
+			This.RandomizeAntiSections(panSections)
+
+			def RandomiseAntiSectionsQ(panSections)
+				This.RandomiseAntiSections(panSections)
+				return This
+
+		def RandomiseOutsideSections(panSections)
+			This.RandomizeAntiSections(panSections)
+	
+			def RandomiseOutsideSectionsQ(panSections)
+				This.RandomizeOutsideSections(panSections)
+				return This
+
+		#>
+
+	def AntiSectionsRandomized(panSections)
+		aResult = This.Copy().RandomizeAntiSectionsQ(panSections).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def OutsideSectionsRandomized(panSections)
+			return This.AntiSectionsRandomized(panSections)
+
+		#--
+
+		def AntiSectionsRandomised(panSections)
+			return This.AntiSectionsRandomized(panSections)
+
+		def OutsideSectionsRandomised(panSections)
+			return This.AntiSectionsRandomized(panSections)
+
+		#>
+
 	  #=========#
 	 #  WHERE  #
 	#=========#

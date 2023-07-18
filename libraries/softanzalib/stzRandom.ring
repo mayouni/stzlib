@@ -6,6 +6,19 @@
  ///   RANDOM FUNCTIONS   ///
 ////////////////////////////
 
+func SeedRandom(n)
+	if isList(n) and Q(n).IsWithOrByOrUsingNamedParam()
+		n = n[2]
+	ok
+	
+	srand(n)
+
+	func SeedRandomWith(n)
+		srand(n)
+
+	func SRandomWith(n)
+		srand(n)
+
 #-- A RANDOM NUMBER BETWEEN TWO NUMBERS
 
 func StzRandom(nMin, nMax) # Bound are not included. To include them add ...XT()
@@ -1829,6 +1842,8 @@ func NRandomNumbersAmong(n, panNumbers)
 
 	#>
 
+	# Z/EXTENDED FORM (TODO)
+
 func NRandomNumbersAmongZ(n, panNumbers)
 
 	nLen = len(panNumbers)
@@ -1911,6 +1926,8 @@ func NRandomNumbersAmongZ(n, panNumbers)
 		return NRandomNumbersAmongZ(n, panNumbers)
 
 	#>
+
+	#-- UZ/EXTENDED FORM (TODO)
 
 #--
 
