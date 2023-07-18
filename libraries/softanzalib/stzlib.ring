@@ -24,7 +24,7 @@ load "stzDecimalToBinaryError.ring"
 load "stzListOfNumbers.ring"
 load "stzNumbers.ring"
 
-load "stzRandomFunctions.ring"
+load "stzRandom.ring"
 
 load "stzListOfUnicodes.ring"
 load "stzUnicodes.ring"
