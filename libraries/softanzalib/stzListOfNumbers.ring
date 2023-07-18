@@ -4305,6 +4305,81 @@ class stzListOfNumbers from stzList
 
 		#>
 
+	# Z/EXTENDED FORM
+
+	def AnyNumberOutsidePositionZ(n)
+		anPositons = ( Q(1 : This.NumberOfItems()) - n ).Content()
+		nRandom = AnyNumberIn(anPositions)
+		aResult = [ This.Number(nRandom), nRandom ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ANumberOutsidePositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def NumberOutsidePositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		#--
+
+		def AnyNumberBeforeOrAfterPositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def AnyNumberAfterOrBeforePositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def ANumberBeforeOrAfterPositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def ANumberAfterOrBeforePositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def NumberBeforeOrAfterPositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def NumberAfterOrBeforePositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		#--
+
+		def ARandomNumberOutsidePositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def RandomNumberOutsidePositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def ARandomNumberBeforeOrAfterPositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def ARandomNumberAfterOrBeforePositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def RandomNumberBeforeOrAfterPositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def RandomNumberAfterOrBeforePositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		#--
+
+		def ARandomNumberNotAtPositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def RandomNumberNotAtPositionZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		#--
+
+		def ARandomNumberNotAtZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		def RandomNumberNotAtZ(n)
+			return This.AnyNumberOutsidePositionZ(n)
+
+		#>
+
 	  #------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS FROM THE LIST  #
 	#------------------------------------------#
@@ -4391,6 +4466,12 @@ class stzListOfNumbers from stzList
 
 		#>
 
+	# U/EXTENDED FORM (TODO)
+
+	
+	# UZ/EXTENDED FORM (TODO)
+
+
 	  #------------------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS OTHER THEN A GIVEN NUMBER  #
 	#------------------------------------------------------#
@@ -4443,6 +4524,11 @@ class stzListOfNumbers from stzList
 
 		return aResult
 
+	# U/EXTENDED FORM (TODO)
+
+	
+	# UZ/EXTENDED FORM (TODO)
+
 	  #-----------------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS LESS THEN A GIVEN NUMBER  #
 	#-----------------------------------------------------#
@@ -4482,6 +4568,11 @@ class stzListOfNumbers from stzList
 			return This.NNumbersLessThanZ(n, nNumber)
 
 		#>
+
+	# U/EXTENDED FORM (TODO)
+
+	
+	# UZ/EXTENDED FORM (TODO)
 
 	  #--------------------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS GREATER THEN A GIVEN NUMBER  #
@@ -4534,6 +4625,11 @@ class stzListOfNumbers from stzList
 			return This.NNumbersLessThanZ(n, nNumber)
 
 		#>
+
+	# U/EXTENDED FORM (TODO)
+
+	
+	# UZ/EXTENDED FORM (TODO)
 
 	  #---------------------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS OTHER THEN THE GIVEN NUMBERS  #
@@ -4629,6 +4725,12 @@ class stzListOfNumbers from stzList
 
 		#>
 
+	# U/EXTENDED FORM (TODO)
+
+	
+	# UZ/EXTENDED FORM (TODO)
+
+
 	  #--------------------------------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS FROM THE LIST BETWEEN TWO GIVEN NUMBERS  #
 	#--------------------------------------------------------------------#
@@ -4653,9 +4755,10 @@ class stzListOfNumbers from stzList
 		def NRandomNumbersBetweenZ(nMin, nMax)
 			return This.NNumbersBetweenZ(nMin, nMax)
 
-	#-- U/EXTENDED FORM
+	#-- U/EXTENDED FORM (TODO)
 
-	#-- UZ/EXTENDED FORM
+	#-- UZ/EXTENDED FORM (TODO)
+
 
 	  #-----------------------------------------------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS FROM THE LIST BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
@@ -4670,6 +4773,24 @@ class stzListOfNumbers from stzList
 		def NRandomNumbersBetweenIB(nMin, nMax)
 			return This.NNumbersBetweenIB(nMin, nMax)
 
+	# Z/EXTENDED FORM
+
+	def NNumbersBetweenIBZ(n, nMin, nMax)
+		anNumbers = This.NumbersBetweenIB(nMin, nMax)
+		aResult = NRandomNumbersInZ(n, anNumbers)
+
+		return anResult
+
+		def NRandomNumbersBetweenIBZ(nMin, nMax)
+			return This.NNumbersBetweenIBZ(nMin, nMax)
+
+
+	# U/EXTENDED FORM (TODO)
+
+	
+	# UZ/EXTENDED FORM (TODO)
+
+
 	  #------------------------------------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS FROM THE LIST NOT BETWEEN TWO GIVEN NUMBERS  #
 	#------------------------------------------------------------------------#
@@ -4682,6 +4803,23 @@ class stzListOfNumbers from stzList
 
 		def NRandomNumbersNotBetween(nMin, nMax)
 			return This.NNumbersNotBetween(nMin, nMax)
+
+	# Z/EXTENDED FORM
+
+	def NNumbersNotBetweenZ(n, nMin, nMax)
+		anNumbers = This.NumbersNotBetween(nMin, nMax)
+		aResult = NRandomNumbersInZ(n, anNumbers)
+
+		return aResult
+
+		def NRandomNumbersNotBetweenZ(nMin, nMax)
+			return This.NNumbersNotBetweenZ(nMin, nMax)
+
+	# U/EXTENDED FORM (TODO)
+
+	
+	# UZ/EXTENDED FORM (TODO)
+
 
 	  #---------------------------------------------------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS FROM THE LIST NOT BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
@@ -4696,6 +4834,23 @@ class stzListOfNumbers from stzList
 		def NRandomNumbersNotBetweenIB(nMin, nMax)
 			return This.NNumbersNotBetweenIB(nMin, nMax)
 
+	# Z/EXTENDED FORM
+
+	def NNumbersNotBetweenIBZ(n, nMin, nMax)
+		anNumbers = This.NumbersNotBetweenIB(nMin, nMax)
+		aResult = NRandomNumbersInZ(n, anNumbers)
+
+		return aResult
+
+		def NRandomNumbersNotBetweenIBZ(nMin, nMax)
+			return This.NNumbersNotBetweenIBZ(nMin, nMax)
+
+	# U/EXTENDED FORM (TODO)
+
+	
+	# UZ/EXTENDED FORM (TODO)
+
+
 	  #---------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS FROM THE LIST  #
 	#=============================================#
@@ -4709,6 +4864,8 @@ class stzListOfNumbers from stzList
 		def SomeNumbers()
 			return This.SomeRandomNumbers()
 
+	# Z/EXTENDED FORM
+
 	def SomeRandomNumbersZ()
 		anPos = SomeRandomNumbersIn(1 : This.NumberOfItems())
 		nLen  = len(anPos)
@@ -4720,6 +4877,11 @@ class stzListOfNumbers from stzList
 		next
 
 		return aResult
+
+	# U/EXTENDED FORM (TODO)
+
+	
+	# UZ/EXTENDED FORM (TODO)
 
 	  #---------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS OTHER THEN A GIVEN NUMBER  #
