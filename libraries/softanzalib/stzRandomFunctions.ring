@@ -1,9 +1,59 @@
 
+# Get inspiration from this great article:
+# https://marketsplash.com/tutorials/python/cracking-the-code-of-randomness-pythons-secrets-revealed/
+
   ////////////////////////////
  ///   RANDOM FUNCTIONS   ///
 ////////////////////////////
 
-#-- A RANDOM NUMBER
+#-- A RANDOM NUMBER BETWEEN TWO NUMBERS
+
+func StzRandom(nMin, nMax) # Bound are not included. To include them add ...XT()
+
+	if isList(nMin)
+		oMin = StzListQ(nMin)
+		if oMin.IsBetweenXTNamedParam()
+			return StzRandomXT(nMin[2], nMax)
+		
+		but oMin.IsBetweenNamedParam()
+			nMin = nMin[2]
+		ok
+	ok
+
+	if isList(nMax) and StzListQ(nMax).IsAndNamedParam()
+		nMax = nMax[2]
+	ok
+
+	if NOT (isNumber(nMin) and isNumber(nMax))
+		StzRaise("Incorrect param types! nMin and nMax must be both numbers.")
+	ok
+
+	return StzRandomXT( nMin++, nMax-- )
+
+	#< @FunctionAlternativeForms
+
+	func StzRandomNumber(nMin, nMax)
+		return StzRandom(nMin, nMax)
+
+	func RandomNumberBetween(nMin, nMax)
+		return StzRandom(nMin, nMax)
+
+	func AnyRandomNumberBetween(nMin, nMax)
+		return StzRandom(nMin, nMax)
+
+	func ARandomNumberBetween(nMin, nMax)
+		return StzRandom(nMin, nMax)
+
+	func ARandomNumber(nMin, nMax)
+		return StzRandom(nMin, nMax)
+
+	func AnyRandomNumber(nMin, nMax)
+		return StzRandom(nMin, nMax)
+
+	func AnyNumber(nMin, nMax)
+		return StzRandom(nMin, nMax)
+
+	#>
 
 func StzRandomXT(nMin, nMax) # XT --> bounds are included
 
@@ -81,16 +131,22 @@ func StzRandomXT(nMin, nMax) # XT --> bounds are included
 
 	#>
 
-func StzRandom(nMin, nMax) # Bound are not included. To include them add ...XT()
+#-- N RANDOM NUMBERS
+
+func NRandomNumbers(n, nMin, nMax) # XT --> bounds are included
 
 	if isList(nMin)
 		oMin = StzListQ(nMin)
 		if oMin.IsBetweenXTNamedParam()
-			return StzRandomXT(nMin[2], nMax)
+			return StzNRandomNumbersXT(nMin[2], nMax)
 		
 		but oMin.IsBetweenNamedParam()
 			nMin = nMin[2]
 		ok
+	ok
+
+	if isList(nMin) and StzListQ(nMin).IsBetweenNamedParam()
+		nMin = nMin[2]
 	ok
 
 	if isList(nMax) and StzListQ(nMax).IsAndNamedParam()
@@ -101,34 +157,26 @@ func StzRandom(nMin, nMax) # Bound are not included. To include them add ...XT()
 		StzRaise("Incorrect param types! nMin and nMax must be both numbers.")
 	ok
 
-	return StzRandomXT( nMin++, nMax-- )
+	return NRandomNumbersXT( n, nMin++, nMax-- )
 
-	#< @FunctionAlternativeForms
+	#< @FunctionAlternativeForm
 
-	func StzRandomNumber(nMin, nMax)
-		return StzRandom(nMin, nMax)
+	func AnyNRandomNumbers(n, nMin, nMax)
+		return NRandomNumbers(n, nMin, nMax)
 
-	func RandomNumberBetween(nMin, nMax)
-		return StzRandom(nMin, nMax)
+	func NRandomNumbersBetween(n, nMin, nMax)
+		return RandomNumbers(n, nMin, nMax)
 
-	func AnyRandomNumberBetween(nMin, nMax)
-		return StzRandom(nMin, nMax)
+	func AnyNRandomNumbersBetween(n, nMin, nMax)
+		return RandomNumbers(n, nMin, nMax)
 
-	func ARandomNumberBetween(nMin, nMax)
-		return StzRandom(nMin, nMax)
+	func AnyNNumbersBetween(n, nMin, nMax)
+		return RandomNumbers(n, nMin, nMax)
 
-	func ARandomNumber(nMin, nMax)
-		return StzRandom(nMin, nMax)
-
-	func AnyRandomNumber(nMin, nMax)
-		return StzRandom(nMin, nMax)
-
-	func AnyNumber(nMin, nMax)
-		return StzRandom(nMin, nMax)
+	func AnyNNumbers(n, nMin, nMax)
+		return RandomNumbers(n, nMin, nMax)
 
 	#>
-
-#-- N RANDOM NUMBERS
 
 func NRandomNumbersXT(n, nMin, nMax) # XT or IB --> bounds are included
 
@@ -191,51 +239,6 @@ func NRandomNumbersXT(n, nMin, nMax) # XT or IB --> bounds are included
 
 	func AnyNumbersIB()
 		return NRandomNumbersXT(nMin, nMax)
-
-	#>
-
-func NRandomNumbers(n, nMin, nMax) # XT --> bounds are included
-
-	if isList(nMin)
-		oMin = StzListQ(nMin)
-		if oMin.IsBetweenXTNamedParam()
-			return StzNRandomNumbersXT(nMin[2], nMax)
-		
-		but oMin.IsBetweenNamedParam()
-			nMin = nMin[2]
-		ok
-	ok
-
-	if isList(nMin) and StzListQ(nMin).IsBetweenNamedParam()
-		nMin = nMin[2]
-	ok
-
-	if isList(nMax) and StzListQ(nMax).IsAndNamedParam()
-		nMax = nMax[2]
-	ok
-
-	if NOT (isNumber(nMin) and isNumber(nMax))
-		StzRaise("Incorrect param types! nMin and nMax must be both numbers.")
-	ok
-
-	return NRandomNumbersXT( n, nMin++, nMax-- )
-
-	#< @FunctionAlternativeForm
-
-	func AnyNRandomNumbers(n, nMin, nMax)
-		return NRandomNumbers(n, nMin, nMax)
-
-	func NRandomNumbersBetween(n, nMin, nMax)
-		return RandomNumbers(n, nMin, nMax)
-
-	func AnyNRandomNumbersBetween(n, nMin, nMax)
-		return RandomNumbers(n, nMin, nMax)
-
-	func AnyNNumbersBetween(n, nMin, nMax)
-		return RandomNumbers(n, nMin, nMax)
-
-	func AnyNNumbers(n, nMin, nMax)
-		return RandomNumbers(n, nMin, nMax)
 
 	#>
 
@@ -693,6 +696,28 @@ func RandomNumberGreaterThan(n)
 
 #-----
 
+func NRandomNumbersGreaterThan(n, nValue)
+	if NOT (isNumber(n) and isNumber(nValue))
+		StzRaise("Incorrect param type! n and nValue must be numbers.")
+	ok
+
+	anResult = []
+	for i = 1 to n
+		anResult + ARandomNumberGreaterThan(nValue)
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForm
+
+	func NRandomNumbersLargerThan(n, nValue)
+		return NRandomNumbersGreaterThan(n, nValue)
+
+	func NRandomNumbersBiggerThan(n, nValue)
+		return NRandomNumbersGreaterThan(n, nValue)
+
+	#>
+
 func NRandomNumbersGreaterThanIB(n, nValue)
 	if NOT (isNumber(n) and isNumber(nValue))
 		StzRaise("Incorrect param type! n and nValue must be numbers.")
@@ -724,30 +749,26 @@ func NRandomNumbersGreaterThanIB(n, nValue)
 
 	#>
 
-func NRandomNumbersGreaterThan(n, nValue)
+#--
+
+func NRandomNumbersLessThan(n, nValue)
 	if NOT (isNumber(n) and isNumber(nValue))
 		StzRaise("Incorrect param type! n and nValue must be numbers.")
 	ok
 
 	anResult = []
 	for i = 1 to n
-		anResult + ARandomNumberGreaterThan(nValue)
+		anResult + ARandomNumberLessThan(nValue)
 	next
 
 	return anResult
 
 	#< @FunctionAlternativeForm
 
-	func NRandomNumbersLargerThan(n, nValue)
-		return NRandomNumbersGreaterThan(n, nValue)
-
-	func NRandomNumbersBiggerThan(n, nValue)
+	func NRandomNumbersSmallerThan(n, nValue)
 		return NRandomNumbersGreaterThan(n, nValue)
 
 	#>
-
-
-#--
 
 func NRandomNumbersLessThanIB(n, nValue)
 	if NOT (isNumber(n) and isNumber(nValue))
@@ -774,26 +795,29 @@ func NRandomNumbersLessThanIB(n, nValue)
 
 	#>
 
-func NRandomNumbersLessThan(n, nValue)
-	if NOT (isNumber(n) and isNumber(nValue))
-		StzRaise("Incorrect param type! n and nValue must be numbers.")
-	ok
+#------
 
-	anResult = []
-	for i = 1 to n
-		anResult + ARandomNumberLessThan(nValue)
-	next
-
-	return anResult
+func 2RandomNumbersGreaterThan(n)
+	return NRandomNumbersGreaterThan(2, n)
 
 	#< @FunctionAlternativeForm
 
-	func NRandomNumbersSmallerThan(n, nValue)
-		return NRandomNumbersGreaterThan(n, nValue)
+	func 2RandomNumbersLargerThan(n)
+		return 2RandomNumbersGreaterThan(n)
+
+	func 2RandomNumbersBiggerThan(n)
+		return 2RandomNumbersGreaterThan(n)
+
+	func TwoRandomNumbersGreaterThan(n)
+		return 2RandomNumbersGreaterThan(n)
+
+	func TwoRandomNumbersLargerThan(n)
+		return 2RandomNumbersGreaterThan(n)
+
+	func TwoRandomNumbersBiggerThan(n)
+		return 2RandomNumbersGreaterThan(n)
 
 	#>
-
-#------
 
 func 2RandomNumbersGreaterThanIB(n)
 	return NRandomNumbersGreaterThanIB(2, n)
@@ -820,28 +844,6 @@ func 2RandomNumbersGreaterThanIB(n)
 
 	func TwoRandomNumbersLargerThanXT(n)
 		return 2RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 2RandomNumbersGreaterThan(n)
-	return NRandomNumbersGreaterThan(2, n)
-
-	#< @FunctionAlternativeForm
-
-	func 2RandomNumbersLargerThan(n)
-		return 2RandomNumbersGreaterThan(n)
-
-	func 2RandomNumbersBiggerThan(n)
-		return 2RandomNumbersGreaterThan(n)
-
-	func TwoRandomNumbersGreaterThan(n)
-		return 2RandomNumbersGreaterThan(n)
-
-	func TwoRandomNumbersLargerThan(n)
-		return 2RandomNumbersGreaterThan(n)
-
-	func TwoRandomNumbersBiggerThan(n)
-		return 2RandomNumbersGreaterThan(n)
 
 	#>
 
@@ -1742,7 +1744,20 @@ func RandomNumberOtherThan(n)
 #-- N RANDOM NUMBERS FROM A LIST OF NUMBERS
 
 func NRandomNumbersAmong(n, panNumbers)
-	anResult = StzListOfNumbersQ(panNumbers).NRandomNumbers(n)
+
+	# NOTE: The same number can appear more than once
+	# To avoid this, use the function with the ...U() extension
+
+	nLen = len(panNumbers)
+	nRandom = ARandomNumberBetween(1, nLen)
+
+	anResult = []
+
+	for i = 1 to nRandom
+		nPos = ARandomNumberBetween(1, nLen)
+		anResult + panNumbers[nPos]
+	next
+
 	return anResult
 
 	#< @FunctionAlternativeForms
@@ -1811,6 +1826,89 @@ func NRandomNumbersAmong(n, panNumbers)
 
 	func NNumbersFromInside(n, panNumbers)
 		return NRandomNumbersAmong(n, panNumbers)
+
+	#>
+
+func NRandomNumbersAmongZ(n, panNumbers)
+
+	nLen = len(panNumbers)
+	nRandom = ARandomNumberBetween(1, nLen)
+
+	aResult = []
+
+	for i = 1 to nRandom
+		nPos = ARandomNumberBetween(1, nLen)
+		aResult + [ panNumbers[nPos], nPos ]
+	next
+
+	return aResult
+
+	#< @FunctionAlternativeForms
+
+	func RandomNNumbersAmongZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func AnyNNumbersAmongZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func NNumbersAmongZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersInZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func RandomNNumbersInZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func AnyNNumbersInZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func NNumbersInZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersFromZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func RandomNNumbersFromZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func AnyNNumbersFromZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func NNumbersFromZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersInsideZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func RandomNNumbersInsideZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func AnyNNumbersInsideZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func NNumbersInsideZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersFromInsideZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func RandomNNumbersFromInsideZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func AnyNNumbersFromInsideZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
+
+	func NNumbersFromInsideZ(n, panNumbers)
+		return NRandomNumbersAmongZ(n, panNumbers)
 
 	#>
 
@@ -3017,5 +3115,209 @@ func 10RandomNumbersAmong(panNumbers)
 
 	func TenNumbersFromInside(panNumbers)
 		return 10RandomNumbersAmong(panNumbers)
+
+	#>
+
+#--
+
+func NRandomNumbersAmongU(n, panNumbers)
+
+	# NOTE: The generated numbers are guranteed to be unique
+
+	nLen = len(panNumbers)
+	nRandom = ARandomNumberBetween(1, nLen)
+
+	anResult = []
+	anSeen = []
+
+	nTrials = 0
+
+	for i = 1 to nRandom
+		nPos = ARandomNumberBetween(1, nLen)
+		
+		if NOT ring_find(anSeen, nPos)
+			anResult + panNumbers[nPos]
+			anSeen + nPos
+		else
+			i--
+
+			# A risky implementation. If the engine tries +1000 times
+			# without generating a unique random number than abort the process!
+
+			nTrials++
+			if nTrials > 1000
+				StzRaise("Can't generate a unique random number!")
+			ok
+		ok
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	func RandomNNumbersAmongU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func AnyNNumbersAmongU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func NNumbersAmongU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersInU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func RandomNNumbersInU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func AnyNNumbersInU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func NNumbersInU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersFromU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func RandomNNumbersFromU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func AnyNNumbersFromU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func NNumbersFromU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersInsideU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func RandomNNumbersInsideU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func AnyNNumbersInsideU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func NNumbersInsideU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersFromInsideU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func RandomNNumbersFromInsideU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func AnyNNumbersFromInsideU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	func NNumbersFromInsideU(n, panNumbers)
+		return NRandomNumbersAmongU(n, panNumbers)
+
+	#>
+
+func NRandomNumbersAmongUZ(n, panNumbers)
+
+	nLen = len(panNumbers)
+	nRandom = ARandomNumberBetween(1, nLen)
+
+	aResult = []
+	anSeen = []
+
+	nTrials = 0
+
+	for i = 1 to nRandom
+		nPos = ARandomNumberBetween(1, nLen)
+		
+		if NOT ring_find(anSeen, nPos)
+			aResult + [ panNumbers[nPos], nPos ]
+			anSeen + nPos
+		else
+			i--
+
+			# A risky implementation. If the engine tries +1000 times
+			# without generating a unique random number than abort the process!
+
+			nTrials++
+			if nTrials > 1000
+				StzRaise("Can't generate a unique random number!")
+			ok
+		ok
+	next
+
+	return aResult
+
+	#< @FunctionAlternativeForms
+
+	func RandomNNumbersAmongUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func AnyNNumbersAmongUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func NNumbersAmongUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersInUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func RandomNNumbersInUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func AnyNNumbersInUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func NNumbersInUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersFromUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func RandomNNumbersFromUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func AnyNNumbersFromUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func NNumbersFromUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersInsideUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func RandomNNumbersInsideUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func AnyNNumbersInsideUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func NNumbersInsideUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersFromInsideUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func RandomNNumbersFromInsideUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func AnyNNumbersFromInsideUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
+
+	func NNumbersFromInsideUZ(n, panNumbers)
+		return NRandomNumbersAmongUZ(n, panNumbers)
 
 	#>
