@@ -14,6 +14,12 @@ Programming, by Heart! By: M.Ayouni╭
   ╰╯
 '
 
+  ///////////////////////////
+ ///  GLOBALS VARIABLES  ///
+///////////////////////////
+
+_aVars = []
+
 _bParamCheck = TRUE # Activates the "# Checking params region" in softanza functions
 		     #--> Set it to FALSE if the functions are used inside large loops
 		     # so you can gain performance (the checks can then be made once,
@@ -379,6 +385,135 @@ _acStzCCKeywords = [
 
 # Instantiating a global int object to be used with external code
 int = new IntObject
+
+  //////////////////////////
+ ///  GLOBAL FUNCTIONS  ///
+//////////////////////////
+
+func V(p)
+	if isList(p) and Q(p).IsHashList()
+		SetV(p)
+
+	but isList(p) and Q(p).IsListOfStrings()
+		return ReadManyV(p)
+
+	else
+		return ReadV(p)
+	ok
+
+	func VrVl(p)
+		return V(p)
+
+	func VarVal(p)
+		return V(p)
+
+func SetV(paVarNamesAndTheirValues)
+	if NOT ( isList(paVarNamesAndTheirValues) and Q(paVarNamesAndTheirValues).IsHashList() )
+		StzRaise("Incorrect param type! paVarNamesAndTheirValues must be a hashlist.")
+	ok
+
+	nLen = len(paVarNamesAndTheirValues)
+	oHash = new stzHashList(_aVars)
+
+	for i = 1 to nLen
+		n = oHash.FindKey(paVarNamesAndTheirValues[i][1])
+		if n = 0
+			_aVars + paVarNamesAndTheirValues[i]
+		else
+			_aVars[n] = paVarNamesAndTheirValues[i]
+		ok
+	next
+
+func ReadV(p)
+	oHash = new stzHashList(_aVars)
+	n = oHash.FindKey(p)
+	return _aVars[n][2]
+
+func ReadManyV(paVars)
+	nLen = len(paVars)
+
+	aResult = []
+	for i = 1 to nLen
+		aResult + ReadV(paVars[i])
+	next
+
+	return aResult
+
+func ForEach(p, pIn)
+	/* EXAMPLES
+
+	ForEach( :Item, :In = [ "a", "b", "c" ] ) {
+		? v(:Item)
+	}
+	#--> "a"
+	#--> "b"
+	#--> "c"
+
+	ForEach( :Char, :In = "ABC" ) {
+		? v(:Char)
+	}
+	#--> "A"
+	#--> "B"
+	#--> "C"
+
+	ForEach( [ :Char, :Number ], :In = [ "A" = 1, "B" = 2, "C" = 3 ] )
+		? v(:Char) + v(:Number)
+	}
+	#--> "A1"
+	#--> "B2"
+	#--> "C3'
+
+	*/
+
+	# Checking params
+
+	if isList(pIn) and Q(pIn).IsInNamedParam()
+		pIn = pIn[2]
+	else
+		StzRaise("Syntax error! pIn must be a named param of the form :In = ...")
+	ok
+
+	if NOT ( isString(p) or ( isList(p) and Q(p).IsListOfStrings() ) )
+		StzRaise("Incorrect param type! p must be a string or a list of strings.")
+	ok
+
+	if NOT (isList(pIn) or isString(pIn))
+		StzRaise("Incorrect param type! pIn must be a string or list.")
+	ok
+
+	if isString(pIn) and isList(p)
+		StzRaise("Incorrect params! pIn can't be a string when p is a List.")
+	ok
+
+	if isList(p)
+		nLen = len(p)
+		
+		if NOT StzListQ(pIn).IsListOfLists()
+			StzRaise("Incorrect param! pIn must be a list of lists containing " + nLen + " items in each list.")
+		ok
+
+		if StzListOfListsQ(pIn).SizeOfEachListIs(nLen)
+
+			StzRaise("Syntax error! Each list in pIn must have the same size as the number of params in p.")
+		ok
+
+	ok
+
+	if isString(p)
+		aTemp = []
+		aTemp + p
+		p = aTemp
+	ok
+
+	# Doing the job
+
+	nLen = len(p)
+	
+	# Declaring the datavars
+	Vr(p)
+
+? @@(_aVars)
+	
 
 # Setting the param checking state at the global level
 # --> Useful to decativate it when your functions are used

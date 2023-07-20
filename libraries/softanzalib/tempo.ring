@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+
+
 /*----------------
 
 str = "ring"

@@ -1,7 +1,187 @@
 load "stzlib.ring"
 
+
+
 /*==== Using a Python code inside Ring ===
+
+pron()
+
+	? range(3)
+	#--> [ 0, 1, 2 ]
+	
+	? range([-3, 3+1, 2])
+	#--> [ -3, -1, 1, 3 ]
+	
+proff()
+# Executed in 0.03 second(s)
+
+/*------------
+
+pron()
+
+bestlang = "Ring"
+
+print( f("My best language is {bestlang}!") )
+#--> My best language is Ring!
+
+proff()
+# Executed in 0.08 second(s)
+
+/*------------
 */
+string1 = "Hello, world!"
+string2 = "Hello, beautiful world!"
+
+oDiff = new diff_algorithm(string1, string2)
+differences = oDiff.diff()
+? @@(difference.diff())
+
+
+for( [ :change, :char ], :in = differences) {
+
+	if v(:change) = '='
+        	print( f("Unchanged: {char}") )
+
+    	but v(:change) = '+'
+        	print( f("Added: {char}") )
+
+    	but v(:change) = '-'
+        	print( f("Deleted: {char}") )
+	ok
+
+}
+	
+class diff_algorithm
+	n
+	m
+	max_length
+	v
+
+	def init(string1, string2)
+		n = len(string1)
+    		m = stlen(string2)
+    		max_length = n + m
+   		v = Q([0]) * (2 * max_length) //<<<
+
+	def snake(k, x, y)
+
+        	while x < n and y < m and string1[x] = string2[y]
+           		x += 1
+            		y += 1
+            		k += 1
+		end
+
+        	return [k, x, y]
+
+   	def diff()
+
+		for d in range(max_length) //<<<
+
+        		for k in range(-d, d + 1, 2) //<<<
+
+            			if k = -d or (k != d and v[k - 1] < v[k + 1])
+               				x = v[k + 1]
+            			else
+                			x = v[k - 1] + 1
+	   			ok
+
+            			y = x - k
+
+            			Vr([ :k, :x, :y ]) = Vl( snake(k, x, y) ) //<<<<<
+           			v[v(:k)] = v(:x)
+
+            			if v(:x) >= n and v(:y) >= m
+                			return construct_diff(v, string1, string2)
+	    			ok
+			next
+		next
+
+		return None  # No diff found
+
+
+	def construct_diff(v, string1, string2)
+
+		diff = []
+		n = len(string1)
+		m = len(string2)
+		x = n
+		y = m
+	
+	    	while x > 0 or y > 0
+	        	if x > 0 and y > 0 and Q(string1[x - 1]).Equals(Q(string2)[y - 1])
+	           		Q(diff).append([ '=', Q(string1)[x - 1] ]) //<<<
+	            		x -= 1
+	           		 y -= 1
+	
+	        	but y > 0 and ( x = 0 or v[x - 1] < v[x + 1] )
+	            		Q(diff).append([ '+', Q(string2)[y - 1] ])
+	           		 y -= 1
+	
+	        	else
+	            		Q(diff).append(['-', Q(string1)[x - 1]])
+	           		 x -= 1
+			ok
+	
+	    	end
+	
+	    	return Q(diff)['::-1'] //<<<<<< diff reversed
+
+
+/*----------------
+
+pron()
+
+# In Softanza, you can define many variables and affect
+# values to them in one line like this:
+
+V([ :x = 10, :y = 20, :z = 30 ])
+
+# Then, you can get the values by calling the variables
+# using their names like this:
+
+? v(:x) #--> 10
+? v(:y)	#--> 20
+? v(:z) #--> 30
+
+? ""
+
+# Or you can compose them in a list and print them like this:
+
+? v([ :x, :y, :z ])
+#--> [ 10, 20, 30 ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+pron()
+
+# In Python, we can assign multiple values to many variables:
+'
+	x, y, z = 10, 20, 30
+
+	print(x)
+	print(y)
+	print(z)
+'
+
+# In Ring, with Softanza, we can say it this way:
+
+	Vr([ :x, :y, :z ]) '=' Vl([ 10, 20, 30 ])
+
+# And then you can call their values like this:
+
+	print( v(:x) )	#--> 10
+	print( v(:y) )	#--> 20
+	print( v(:z) )	#--> 30
+
+
+
+proff()
+
+
+/*--------------
 
 # I asked Bard (Google AI) about a code in Python that returns the
 # uppercase strings from a given list of strings...

@@ -1697,6 +1697,47 @@ class stzListOfLists from stzList
 
 		#>
 
+	  #-----------------------------------------------------------#
+	 #  CHECKING IF THE SIZE OF EACH ITEM EQUALS A GIVEN NUMBER  #
+	#-----------------------------------------------------------#
+
+	def SizeOfEachListIs(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		nResult = TRUE
+
+		for i = 1 to nLen
+			if len(aContent[i]) != n
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return nResult
+
+		#< @FunctionalternativeForms
+
+		def TheSizeOfEachListIs(n)
+			return This.SizeOfEachListIs(n)
+
+		def SizeOfEachListEquals(n)
+			return This.SizeOfEachListIs(n)
+
+		def TheSizeOfEachListEquals(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListHasTheSize(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListHasSize(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListHasItsSizeEqualTo(n)
+			return This.SizeOfEachListIs(n)
+
+		#>
+
 	  #--------------------------------------#
 	 #  COMMON ITEMS BETWEEN ALL THE LISTS  #
 	#--------------------------------------#
