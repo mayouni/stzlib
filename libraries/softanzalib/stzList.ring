@@ -24351,7 +24351,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		acResult = []
 		anPos = []
 		anPosExt = []
-		cExtension = AStringOtherThen(pcOtherSubStr)
+		cExtension = "___" //AStringOtherThen(pcOtherSubStr)
 
 		cItem = ""
 		n = 0 # Used to count the objects contained in the list
@@ -32942,7 +32942,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	def AnyRandomItemOtherThanManyZ(paItems)
 		return This.AnyRandomItemOtherThanManyCSZ(paItems, :CaseSensitive = TRUE)
 
-#>>>	  #--------------------------------------------------#
+	  #--------------------------------------------------#
 	 #  GETTING N RANDOM ITEMS OTHER THAN A GIVEN ITEM  #
 	#--------------------------------------------------#
 
@@ -33138,9 +33138,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	 #  GETTING N ITEMS OUTSIDE THE GIVEN SECTIONS  #
 	#----------------------------------------------#
 
-	def NItemsNotBetweenMayCS(pMin, pMax, pCaseSensitive) # NotInSections
+	def NItemsNotBetweenManyCS(pMin, pMax, pCaseSensitive) # NotInSections
 
-	def NItemsNotBetweenMayCSZ(pMin, pMax, pCaseSensitive)
+	def NItemsNotBetweenManyCSZ(pMin, pMax, pCaseSensitive)
 
 	#---------------
 
@@ -33182,7 +33182,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	 #  GETTING N ITEMS NOT IN THE GIVEN POSITION  #
 	#=============================================#
 
-	def NItemsOutsidePosition(anPos)
+	def NItemsOutsidePosition(nPos)
 
 	def NItemsOutsidePositionZ(anPos)
 

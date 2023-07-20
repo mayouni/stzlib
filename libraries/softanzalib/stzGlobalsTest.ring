@@ -1,6 +1,19 @@
 load "stzlib.ring"
 
 /*============
+*/
+pron()
+
+foreach( [ :char1, :Char2], :in = [ ["e"], ["b"], ["c"] ])
+
+//foreach( :name, :in = [ "mahmoud", "mansour", "bert", "ilir" ])
+
+//ForEach( [ :Name, :Age ], :In = [ :Heni = 25, :Omar = 32, :Sonia = 14 ] )
+
+
+proff()
+
+/*============
 
 pron()
 
@@ -20,7 +33,6 @@ proff()
 
 /*=============
 
-*/
 pron()
 
 ? @@("n")	#--> "n"
