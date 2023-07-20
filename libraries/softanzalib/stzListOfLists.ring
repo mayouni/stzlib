@@ -1718,23 +1718,6 @@ class stzListOfLists from stzList
 
 		#< @FunctionalternativeForms
 
-		def TheSizeOfEachListIs(n)
-			return This.SizeOfEachListIs(n)
-
-		def SizeOfEachListEquals(n)
-			return This.SizeOfEachListIs(n)
-
-		def TheSizeOfEachListEquals(n)
-			return This.SizeOfEachListIs(n)
-
-		def EachListHasTheSize(n)
-			return This.SizeOfEachListIs(n)
-
-		def EachListHasSize(n)
-			return This.SizeOfEachListIs(n)
-
-		def EachListHasItsSizeEqualTo(n)
-			return This.SizeOfEachListIs(n)
 
 		#>
 

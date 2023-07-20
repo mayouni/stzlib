@@ -413,6 +413,264 @@ class stzListOfStrings from stzList
 		def StringsAndTheirNumbersOfBytes()
 			return This.StringItemsAndTheirSizesInBytes()
 
+	  #-------------------------------------------------------------#
+	 #  CHECKING IF THE SIZE OF EACH STRING EQUALS A GIVEN NUMBER  #
+	#-------------------------------------------------------------#
+
+	def SizeOfEachStringIs(n)
+		acContent = This.Content()
+		nLen = len(aContent)
+
+		nResult = TRUE
+
+		for i = 1 to nLen
+			if Q(aContent[i]).NumberOfChars() != n
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return nResult
+
+		#< @FunctionalternativeForms
+
+		def TheSizeOfEachStringIs(n)
+			return This.SizeOfEachStringIs(n)
+
+		def TheSizeInEachStringIs(n)
+			return This.SizeOfEachStringIs(n)
+
+		def TheSizeOfEachStringIsEqualTo(n)
+			return This.SizeOfEachStringIs(n)
+
+		def TheSizeInEachStringIsEqualTo(n)
+			return This.SizeOfEachStringIs(n)
+
+		def SizeOfEachStringEquals(n)
+			return This.SizeOfEachStringIs(n)
+
+		def SizeInEachStringEquals(n)
+			return This.SizeOfEachStringIs(n)
+
+		def SizeOfEachStringIsEqualTo(n)
+			return This.SizeOfEachStringIs(n)
+
+		def SizeInEachStringIsEqualTo(n)
+			return This.SizeOfEachStringIs(n)
+
+		def TheSizeOfEachStringEquals(n)
+			return This.SizeOfEachStringIs(n)
+
+		def TheSizeInEachStringEquals(n)
+			return This.SizeOfEachStringIs(n)
+
+		def EachStringHasTheSize(n)
+			return This.SizeOfEachStringIs(n)
+
+		def EachStringHasSize(n)
+			return This.SizeOfEachStringIs(n)
+
+		def EachStringHasItsSizeEqualTo(n)
+			return This.SizeOfEachStringIs(n)
+
+		def EachStringHasThisSize(n)
+			return This.SizeOfEachStringIs(n)
+
+		def EachStringHasThisSameSize(n)
+			return This.SizeOfEachStringIs(n)
+
+		#--
+
+		def TheNumberOfCharsOfEachStringIs(n)
+			return This.SizeOfEachStringIs(n)
+
+		def TheNumberOfCharsInEachStringIs(n)
+			return This.SizeOfEachStringIs(n)
+
+		def TheNumberOfCharsOfEachStringIsEqualTo(n)
+			return This.SizeOfEachStringIs(n)
+
+		def TheNumberOfCharsInEachStringIsEqualTo(n)
+			return This.SizeOfEachStringIs(n)
+
+		def NumberOfCharsOfEachStringEquals(n)
+			return This.SizeOfEachStringIs(n)
+
+		def NumberOfCharsInEachStringEquals(n)
+			return This.SizeOfEachStringIs(n)
+
+		def NumberOfCharsOfEachStringIsEqualTo(n)
+			return This.SizeOfEachStringIs(n)
+
+		def NumberOfCharsInEachStringIsEqualTo(n)
+			return This.SizeOfEachStringIs(n)
+
+		def TheNumberOfCharsOfEachStringEquals(n)
+			return This.SizeOfEachStringIs(n)
+
+		def TheNumberOfCharsInEachStringEquals(n)
+			return This.SizeOfEachStringIs(n)
+
+		def EachStringHasTheNumberOfChars(n)
+			return This.SizeOfEachStringIs(n)
+
+		def EachStringHasNumberOfChars(n)
+			return This.SizeOfEachStringIs(n)
+
+		def EachStringHasItsNumberOfCharsEqualTo(n)
+			return This.SizeOfEachStringIs(n)
+
+		def EachStringItemHasThisNumberOfChars(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def EachStringItemHasThisSameNumberOfChars(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		#==
+
+		def TheSizeOfEachStringItemIs(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def TheSizeInEachStringItemIs(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def TheSizeOfEachStringItemIsEqualTo(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def TheSizeInEachStringItemIsEqualTo(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def SizeOfEachStringItemEquals(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def SizeInEachStringItemEquals(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def SizeOfEachStringItemIsEqualTo(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def SizeInEachStringItemIsEqualTo(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def TheSizeOfEachStringItemEquals(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def TheSizeInEachStringItemEquals(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def EachStringItemHasTheSize(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def EachStringItemHasSize(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def EachStringItemHasItsSizeEqualTo(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def EachStringItemHasThisSize(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def EachStringItemHasThisSameSize(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		#--
+
+		def TheNumberOfCharsOfEachStringItemIs(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def TheNumberOfCharsInEachStringItemIs(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def TheNumberOfCharsOfEachStringItemIsEqualTo(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def TheNumberOfCharsInEachStringItemIsEqualTo(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def NumberOfCharsOfEachStringItemEquals(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def NumberOfCharsInEachStringItemEquals(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def NumberOfCharsOfEachStringItemIsEqualTo(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def NumberOfCharsInEachStringItemIsEqualTo(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def TheNumberOfCharsOfEachStringItemEquals(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def TheNumberInCharsOfEachStringItemEquals(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def EachStringItemHasTheNumberOfChars(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def EachStringItemHasNumberOfChars(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		def EachStringItemHasItsNumberOfCharsEqualTo(n)
+			return This.SizeOfEachStringItemIs(n)
+
+		#>
+
+	  #----------------------------------------------#
+	 #  CHECKING IF ALL THE STRINGS HAVE SAME SIZE  #
+	#----------------------------------------------#
+
+	def AllStringsHaveSameSize()
+		acContent = this.Content()
+		nLen = len(acContent)
+
+		if nLen = 0
+			return FALSE
+
+		but nLen = 1
+			return TRUE
+		ok
+
+
+		nResult = TRUE
+
+		for i = 1 to nLen - 1
+			if Q(acContent[i]).NumberOfChars() != Q(acConten[i+1]).NumberOfChars()
+				nResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FuncrtionAlternativeForms
+
+		def StringsHaveSameSize()
+			return This.AllStringsHaveSameSize()
+
+		def AllStringsHaveSameNumberOfChars()
+			return This.AllStringsHaveSameSize()
+
+		def StringsHaveSameNumberOfChars()
+			return This.AllStringsHaveSameSize()
+
+		#--
+
+		def AllStringItemsHaveSameSize()
+			return This.AllStringsHaveSameSize()
+
+		def StringItemsHaveSameSize()
+			return This.AllStringsHaveSameSize()
+
+		def AllStringItemsHaveSameNumberOfChars()
+			return This.AllStringsHaveSameSize()
+
+		def StringItemsHaveSameNumberOfChars()
+			return This.AllStringsHaveSameSize()
+
+		#>
+
+
 	  #-------------------------------------------#
 	 #    CONVERTING THE LIST OF STRINGS TO...   #
 	#-------------------------------------------#
