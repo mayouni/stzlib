@@ -1,15 +1,217 @@
 load "stzlib.ring"
 
 /*============
+
+pron()
+
+for i = 1 to 10_000
+	cCode = "str = ''+ i + ' '"
+	eval(cCode)
+next
+# Executed in 8.25 second(s)
+
+proff()
+
+/*----------
+
+pron()
+
+for i = 1 to 1_000
+	cCode = "str = ''+ i + ' '"
+	eval(cCode)
+next
+# Executed in 0.88 second(s)
+
+proff()
+
+/*----------
+
+pron()
+
+# The Ring for loop is quick! Hence it loops 500
+# thousand times in a fraction of second:
+
+for i = 1 to 500_000
+	// Do nothing
+next
+# Executed in 0.06 second(s)
+
+# Cobtrariwise, this Ring for/in loop takes too long to complete:
+
+# for n in 1:500_000
+#	// Do nothing
+# next
+
+# The ForEach alternative, brought Softanza, solves the For/in
+# weakness and performs the same loop as quick as 1.12 second!
+
+ForEach( :number, :in = 1:500_000 ) {
+	// Do nothing
+}
+
+proff()
+
+/*----------
+
+pron()
+
+ForEach( :number, :in = 1:5 ) {
+
+	# Meta programming region
+
+//	? NumberOfVars()
+	#--> 1
+
+//	? @@( Vars() )
+	#--> [ "number" ]
+
+
+//	? @@( Values() )
+	#--> [ 1, 2, 3, 4, 5 ]
+
+//	? NumberOfValues()
+	#--> 5
+
+//	? @@( Content() )
+	#--> [
+	# 	[ "number", [ 1, 2, 3, 4, 5 ] ]
+	# ]
+
+	# The code you want to execute in the loop
+
+	X('
+		? v(:number)
+	')
+
+}
+
+proff()
+
+/*----------
 */
 pron()
 
-foreach( [ :char1, :Char2], :in = [ ["e"], ["b"], ["c"] ])
+ForEach( [ :name, :age ], :in = [ [ "Teebah", 12], ["Haneen", 8], ["Hussein", 2] ] ) {
 
-//foreach( :name, :in = [ "mahmoud", "mansour", "bert", "ilir" ])
+//	? @NumberOfVars()
+	#--> 2
 
-//ForEach( [ :Name, :Age ], :In = [ :Heni = 25, :Omar = 32, :Sonia = 14 ] )
+//	? @@( @Vars() )
+	#--> [ "name", "age" ]
 
+//	? @NumberOfValues()
+	#--> 3
+
+//	? @@( @Values() )
+	#--> [ [ "Teebah", 12 ], [ "Haneen", 8 ], [ "Hussein", 2 ] ]
+
+	//? @@( @Var(1) ) # TODO
+	#--> :name
+
+	// ? @@( @Value(2) ) # TODO
+	#--> ["Haneen", 8]
+
+	//? @@( @Value([ 2, :ForVar = :name ]) ) # Or @ValueXT(2, :ForVar = 1 ] # TODO
+	#--> ...
+
+//	? @@( @Content() )
+	#--> [
+	# 	[ "name", [ "teeba", "haneen", "hussein" ] ],
+	# 	[ "age",  [   12        8,        2      ] ]
+	# ]
+
+	// @Step = 2 # TODO
+	// @ForIterations = [ 1, 3]) # TODO
+	// @Where = '{}'
+
+	//@Iterations = [1, 3]
+
+	X([ [1, 3], '
+		? v(:name) + TAB + v(:age)
+	'])
+	#--> teebah	12
+	#    haneen	8
+	#    hussein	2
+/*
+	? ""
+	Xn( 3, '
+		? v(:name) + TAB + v(:age)
+	')
+	#--> Hussein	2
+
+	? ""
+	Xn( [1, 3], '
+		? v(:name) + TAB + v(:age)
+	')
+	#--> Teebah	12
+	#    Hussein	2
+*/
+
+}
+
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------
+
+*/
+pron()
+
+ForEach( :number, :in = 1:5 ) { X('
+
+	? v(:number)
+
+') }
+
+pron()
+
+/*----------
+
+pron()
+
+ForEach( [ :name, :age ], :in = [ [ "teebah", 12], ["haneen", 8], ["hussein", 2] ] ) { X('
+
+	? v(:name) + TAB + v(:age)
+
+') }
+#--> teebah	12
+#    haneen	8
+#    hussein	2
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------
+*/
+pron()
+
+ForEach( :number, :in = 1:100 ) {@('
+	? v(number)
+')}
+
+proff()
+
+/*-----------
+
+pron()
+
+ForEach( :name, :in = [ "teeba", "haneen", "hussein" ]) { @('
+
+	? upper(name)
+
+')}
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------------
+*/
+pron()
+
+ForEach( [ :Name, :Age ], :In = [ :Heni = 25, :Omar = 32, :Sonia = 14 ] ) {@('
+	? name + " " + age
+')}
 
 proff()
 

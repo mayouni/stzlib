@@ -465,54 +465,7 @@ func ForEach(p, pIn)
 
 	*/
 
-	# Checking params
-
-	if isList(pIn) and Q(pIn).IsInNamedParam()
-		pIn = pIn[2]
-	else
-		StzRaise("Syntax error! pIn must be a named param of the form :In = ...")
-	ok
-
-	if NOT ( isString(p) or ( isList(p) and Q(p).IsListOfStrings() ) )
-		StzRaise("Incorrect param type! p must be a string or a list of strings.")
-	ok
-
-	if NOT (isList(pIn) or isString(pIn))
-		StzRaise("Incorrect param type! pIn must be a string or list.")
-	ok
-
-	if isString(pIn) and isList(p)
-		StzRaise("Incorrect params! pIn can't be a string when p is a List.")
-	ok
-
-	if isList(p)
-		nLen = len(p)
-		
-		if NOT StzListQ(pIn).IsListOfLists()
-			StzRaise("Incorrect param! pIn must be a list of lists containing " + nLen + " items in each list.")
-		ok
-
-		if StzListOfListsQ(pIn).SizeOfEachListIs(nLen)
-
-			StzRaise("Syntax error! Each list in pIn must have the same size as the number of params in p.")
-		ok
-
-	ok
-
-	if isString(p)
-		aTemp = []
-		aTemp + p
-		p = aTemp
-	ok
-
-	# Doing the job
-
-	nLen = len(p)
-	
-	# Declaring the datavars
-	Vr(p)
-
-? @@(_aVars)
+	return new stzForEachObject(p, pIn)
 	
 
 # Setting the param checking state at the global level
@@ -1883,3 +1836,352 @@ func TodoXT(pcCurrentOrFuture)
 	else
 		StzRaise("Feature not yet implemented, but it should be (TODO in current release)")
 	ok
+
+class stzForEachObjectOld
+	@acVars
+	@aValues
+
+	def init(p, pIn)
+
+		# Checking params
+	
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		else
+			StzRaise("Syntax error! pIn must be a named param of the form :In = ...")
+		ok
+	
+		if NOT ( isString(p) or ( isList(p) and Q(p).IsListOfStrings() ) )
+			StzRaise("Incorrect param type! p must be a string or a list of strings.")
+		ok
+	
+		if NOT (isList(pIn) or isString(pIn))
+			StzRaise("Incorrect param type! pIn must be a string or list.")
+		ok
+	
+		if isString(pIn) and isList(p)
+			StzRaise("Incorrect params! pIn can't be a string when p is a List.")
+		ok
+	
+		if isList(p)
+			nLen = len(p)
+			
+			if NOT StzListQ(pIn).IsListOfLists()
+				StzRaise("Incorrect param! pIn must be a list of lists containing " + nLen + " items in each list.")
+			ok
+	
+			if NOT StzListOfListsQ(pIn).SizeOfEachListIs(nLen)
+	
+				StzRaise("Syntax error! Each list in pIn must have the same size as the number of params in p.")
+			ok
+	
+		ok
+	
+		if isString(p)
+			aTemp = []
+			aTemp + p
+			p = aTemp
+
+			if isList(pIn)
+				nLen = len(pIn)
+				aTemp = []
+				for i = 1 to nLen
+					aTemp + [ pIn[i] ]
+				next
+				pIn = aTemp
+			ok
+		ok
+
+		@acVars = p
+ 		@aValues = pIn
+
+	def Vars()
+		return @acVars
+
+		def VarNames()
+			return This.Vars()
+
+	def NumberOfVars()
+		return len(@acVars)
+
+		def NumbersOfVarNames()
+			return This.NumberOfVars()
+
+	def Values()
+		return @aValues
+
+	def NumberOfIterations()
+		return len(@aValues)
+
+		def NumberOfValues()
+			return This.NumberOfIterations()
+
+	def @(pcCode)
+
+		for i = 1 to len(@aValues)
+
+			for j = 1 to len(@aValues[i])
+				cCode = @acVars[j] + ' = @aValues[i][j]'
+				eval(cCode)
+			next
+
+			eval(pcCode)
+		next
+
+		return
+
+class stzForEachObject
+	@acVars
+	@aValues
+
+	@aDataVars
+	@i
+
+	@Iterations
+
+	def init(p, pIn)
+
+		# Checking params
+	
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		else
+			StzRaise("Syntax error! pIn must be a named param of the form :In = ...")
+		ok
+	
+		if NOT ( isString(p) or ( isList(p) and Q(p).IsListOfStrings() ) )
+			StzRaise("Incorrect param type! p must be a string or a list of strings.")
+		ok
+	
+		if NOT (isList(pIn) or isString(pIn))
+			StzRaise("Incorrect param type! pIn must be a string or list.")
+		ok
+	
+		if isString(pIn) and isList(p)
+			StzRaise("Incorrect params! pIn can't be a string when p is a List.")
+		ok
+	
+		if isList(p)
+			nLen = len(p)
+
+			if NOT StzListQ(pIn).IsListOfLists()
+				StzRaise("Incorrect param! pIn must be a list of lists containing " + nLen + " items in each list.")
+			ok
+	
+			if NOT StzListOfListsQ(pIn).SizeOfEachListIs(nLen)
+	
+				StzRaise("Syntax error! Each list in pIn must have the same size as the number of params in p.")
+			ok
+	
+		ok
+	
+		if isString(p)
+			@Iterations = 1 : len(pIn)
+
+			aTemp = []
+			aTemp + [ p, pIn ]
+			p = aTemp
+			@aDataVars = p
+
+			@aValues = @aDataVars[1][2]
+			
+		else
+
+			@acVars = p
+	 		@aValues = pIn
+	
+			@aDataVars = []
+	
+			for i = 1 to len(p)
+				@aDataVars + [ p[i], [] ]
+			next
+	
+	
+			for i = 1 to len(@aDataVars)
+				for j = 1 to len(@aValues)
+					@aDataVars[i][2] + @aValues[j][i]
+				next
+			next
+
+			@Iterations = 1 : len(@aValues)
+		ok
+
+	
+
+	def @Vars()
+		if This.@NumberOfVars() = 1
+			return [ @aDataVars[1][1] ]
+
+		else
+			return @acVars
+		ok
+
+		def @VarNames()
+			return This.@Vars()
+
+	def @NumberOfVars()
+		return len(This.@VarsXT())
+
+		def @NumbersOfVarNames()
+			return This.@NumberOfVars()
+
+	def @Values()
+		return @aValues
+
+	def @Content()
+		return @aDataVars
+
+		#< @FunctionAlternativeForms
+
+		def @VarValues()
+			return This.@Content()
+
+		def @VarsAndValues()
+			return This.@Content()
+
+		def @VarsAndTheirValues()
+			return This.@Content()
+
+		def @VarsXT()
+			return This.@Content()
+
+		def @VarVal()
+			return This.@Content()
+
+		#>
+
+	def @NumberOfIterations()
+		return len(@aValues)
+
+		def @NumberOfValues()
+			return This.@NumberOfIterations()
+
+	def @CurrentIteration()
+		return @i
+
+		def @CurrentIndex()
+			return This.@CurrentIteration()
+
+	def @SetIterations(panPos)
+		@Iterations = panPos
+
+		def @Iterations(panPos)
+			@SetIterations(panPos)
+
+		def @Scope(panPos)
+			@SetIterations(panPos)
+
+		def @SetScope(panPos)
+			@SetIterations(panPos)
+
+		def @IterateOn(panPos)
+			@SetIterations(panPos)
+
+		def @IterateOnThesePositions(panPos)
+			@SetIterations(panPos)
+
+		def @IterateOnlyOn(panPos)
+			@SetIterations(panPos)
+
+		def @IterateOnLyOnThesePositions(panPos)
+			@SetIterations(panPos)
+
+	def Exec(pcCode)
+
+		if isList(pcCode) and len(pcCode) = 2
+			ExecN(pcCode[1], pcCode[2])
+			return
+		ok
+
+		nLen = len(@Iterations)
+
+		if This.@NumberOfVars() = 1
+
+			for i = 1 to nLen
+				@i = @Iterations[i]
+				cCode = @acVars[1] + ' = @aValues[' + @Iterations[i] + ']'
+				eval(cCode)
+				eval(pcCode)
+			next
+		else
+			for i = 1 to nLen
+				@i = @Iterations[i]
+				for j = 1 to len(@aValues[@i])
+					cCode = @acVars[j] + ' = @aValues[' + @Iterations[i] + '][' + j + ']'
+					eval(cCode)
+				next
+	
+				eval(pcCode)
+			next
+		ok
+
+		def Execute(pcCode)
+			This.Exec(pcCode)
+
+		def Run(pcCode)
+			This.Exec(pcCode)
+
+		def @(pcCode)
+			This.Exec(pcCode)
+
+		def _(pcCode)
+			This.Exec(pcCode)
+
+		def X(pcCode)
+			This.Exec(pcCode)
+
+	def ExecN(n, pcCode)
+		anPos = []
+
+		if isNumber(n)
+			anPos + n
+
+		but isList(n) and Q(n).IsListOfNumbers()
+			anPos = n
+		ok
+
+		nLen = len(anPos)
+
+		if This.@NumberOfVars() = 1
+
+			for i = 1 to nLen
+				@i = anPos[i]
+				cCode = @acVars[1] + ' = @aValues[' + anPos[i] + ']'
+				eval(cCode)
+				eval(pcCode)
+			next
+		else
+			for i = 1 to nLen
+				@i = anPos[i]
+				for j = 1 to len(@aValues[@i])
+					cCode = @acVars[j] + ' = @aValues[' + anPos[i] + '][' + j + ']'
+					eval(cCode)
+				next
+	
+				eval(pcCode)
+			next
+		ok
+
+		def ExecuteN(n, pcCode)
+			This.ExecN(n, pcCode)
+
+		def RunN(n, pcCode)
+			This.ExecN(n, pcCode)
+
+		def @n(n, pcCode)
+			This.ExecN(n, pcCode)
+
+		def _n(n, pcCode)
+			This.ExecN(n, pcCode)
+
+		def Xn(n, pcCode)
+			This.ExecN(n, pcCode)
+
+	def v(pcVar)
+
+		if This.@NumberOfVars() = 1
+			return This.@VarsXT()[1][2][@i]
+
+		else
+			return This.@VarsXT()[pcVar][@i]
+		ok

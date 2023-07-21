@@ -670,7 +670,6 @@ class stzListOfStrings from stzList
 
 		#>
 
-
 	  #-------------------------------------------#
 	 #    CONVERTING THE LIST OF STRINGS TO...   #
 	#-------------------------------------------#
