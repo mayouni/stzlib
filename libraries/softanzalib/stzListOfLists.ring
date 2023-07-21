@@ -355,6 +355,10 @@ class stzListOfLists from stzList
 
 		return aResult
 
+	  #-----------------------------------------------#
+	 #  CHECKING IF LISTS HAVE SAME NUMBER OF ITEMS  #
+	#-----------------------------------------------#
+
 	def ListsHaveSameNumberOfItems()
 		bResult = TRUE
 		
@@ -395,6 +399,17 @@ class stzListOfLists from stzList
 			return This.ListsHaveSameNumberOfItems()
 
 		def HasSameSizes()
+			return This.ListsHaveSameNumberOfItems()
+
+		#--
+
+		def AllListsHaveSameSizes()
+			return This.ListsHaveSameNumberOfItems()
+
+		def AllListsHaveSameSize()
+			return This.ListsHaveSameNumberOfItems()
+
+		def AllListsHaveSameNumberOfItems()
 			return This.ListsHaveSameNumberOfItems()
 
 		#>
@@ -1718,6 +1733,97 @@ class stzListOfLists from stzList
 
 		#< @FunctionalternativeForms
 
+		def TheSizeOfEachListIs(n)
+			return This.SizeOfEachListIs(n)
+
+		def TheSizeInEachListIs(n)
+			return This.SizeOfEachListIs(n)
+
+		def TheSizeOfEachListIsEqualTo(n)
+			return This.SizeOfEachListIs(n)
+
+		def TheSizeInEachListIsEqualTo(n)
+			return This.SizeOfEachListIs(n)
+
+		def SizeOfEachListEquals(n)
+			return This.SizeOfEachListIs(n)
+
+		def SizeInEachListEquals(n)
+			return This.SizeOfEachListIs(n)
+
+		def SizeOfEachListIsEqualTo(n)
+			return This.SizeOfEachListIs(n)
+
+		def SizeInEachListIsEqualTo(n)
+			return This.SizeOfEachListIs(n)
+
+		def TheSizeOfEachListEquals(n)
+			return This.SizeOfEachListIs(n)
+
+		def TheSizeInEachListEquals(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListHasTheSize(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListHasSize(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListHasItsSizeEqualTo(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListHasThisSize(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListHasThisSameSize(n)
+			return This.SizeOfEachListIs(n)
+
+		#--
+
+		def TheNumberOfItemsOfEachListIs(n)
+			return This.SizeOfEachListIs(n)
+
+		def TheNumberOfItemsInEachListIs(n)
+			return This.SizeOfEachListIs(n)
+
+		def TheNumberOfItemsOfEachListIsEqualTo(n)
+			return This.SizeOfEachListIs(n)
+
+		def TheNumberOfItemsInEachListIsEqualTo(n)
+			return This.SizeOfEachListIs(n)
+
+		def NumberOfItemsOfEachListEquals(n)
+			return This.SizeOfEachListIs(n)
+
+		def NumberOfItemsInEachListEquals(n)
+			return This.SizeOfEachListIs(n)
+
+		def NumberOfItemsOfEachListIsEqualTo(n)
+			return This.SizeOfEachListIs(n)
+
+		def NumberOfItemsInEachListIsEqualTo(n)
+			return This.SizeOfEachListIs(n)
+
+		def TheNumberOfItemsOfEachListEquals(n)
+			return This.SizeOfEachListIs(n)
+
+		def TheNumberOfCharsInEachStringEquals(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListHasTheNumberOfItems(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListHasNumberOfItems(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListHasItsNumberOfItemsEqualTo(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListItemHasThisNumberOfItems(n)
+			return This.SizeOfEachListIs(n)
+
+		def EachListItemHasThisSameNumberOfItems(n)
+			return This.SizeOfEachListIs(n)
 
 		#>
 

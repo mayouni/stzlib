@@ -4,12 +4,12 @@ load "sqlitelib.ring"
 load "tracelib.ring"
 load "internetlib.ring"
 load "typehints.ring"
-load "stzExtLang.ring"
+load "stzExtCode.ring"
 
 load "stzFalseObject.ring"
 
 load "stzTest.ring"
-load "stzGlobals.ring"
+load "stzGlobal.ring"
 
 load "stzObject.ring"
 load "stzObjects.ring"
