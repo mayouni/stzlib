@@ -279,8 +279,10 @@ class DiffAlgorithm':' # <1>
 
     #              v
     def diff()':'
-	#                          v
+	#      
+it=0                    v
         for d in range(max_length)':'
+it++
 	    #              v               v
             for k in range([-d, d + 1, 2])':'
 		#    v                            v             v   v
@@ -295,10 +297,15 @@ class DiffAlgorithm':' # <1>
 		ok
 
                 y = x - k
+? it
+? @@( snake(k, x, y) )
+? ""
+? "v --> " + @@(v)
 		# vvvvvvvvvvvvvvvv  v  v
                 Vr([ :k, :x, :y ]) '=' Vl( snake(k, x, y) )
-		#  vvv       v
-                v[ v(:k) ] = v(:x)
+		#  vvv    v     v
+? "v(k) --> " + v(:k) + 1
+                v[ v(:k) +1 ] = v(:x)
 		#  v              v
                 if v(:x) >= n and v(:y) >= m':'
 		    #      v

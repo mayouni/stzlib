@@ -439,6 +439,17 @@ func ReadManyV(paVars)
 
 	return aResult
 
+func DataVars()
+	nLen = len(_aVars)
+	aResult = []
+	for i = 1 to nLen
+		aResult + _aVars[i]
+	next
+	return aResult
+
+func DataVarsXT()
+	return _aVars
+
 func ForEach(p, pIn)
 	/* EXAMPLES
 

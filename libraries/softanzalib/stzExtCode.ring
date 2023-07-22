@@ -22,6 +22,7 @@ None = NULL
 
 
 func Vr(pacVars)
+
 	if NOT ( isList(pacVars) and Q(pacVars).IsListOfStrings() )
 		StzRaise("Incorrect param type! pacVars must be a list of strings.")
 	ok
@@ -33,11 +34,16 @@ func Vr(pacVars)
 
 		_aTempVars + [ pacVars[i], NULL ]
 
-		n = ring_find(_aVars, pacVars[i])
+		oHash = StzHashListQ(_aVars)
+		n = oHash.FindKey(pacVars[i])
 		if n = 0
 			_aVars + [ pacVars[i], NULL ]
+
+		else
+			_aVars[n][2] = []
 		ok
 	next
+
 
 func Vl(paVals)
 	if len(_aTempVars) = 0
@@ -59,6 +65,7 @@ func Vl(paVals)
 	ok
 
 	nLen = Min([ len(_aTempVars), len(paVals) ])
+
 	oHash = new stzHashList(_aVars)
 
 	for i = 1 to nLen
