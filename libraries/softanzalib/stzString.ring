@@ -37450,6 +37450,7 @@ def ReplaceIBS()
 
 	def RepresentsNumberInScientificNotation()
 		// TODO
+		StzRaise("Unsupported feature yet!")
 
 		def RepresentsANumberInScientificNotation()
 			return This.RepresentsNumberInScientificNotation()
@@ -37483,11 +37484,16 @@ def ReplaceIBS()
 
 	// Returns the string as a list of Chars
 	def Chars()
-		aResult = []
-		for i = 1 to This.NumberOfChars()
-			aResult + This.NthChar(i)
+? "Inside Chars()"
+
+		acResult = []
+		nLen = This.NumberOfChars()
+
+		for i = 1 to nLen
+			acResult + This.NthChar(i)
 		next
-		return aResult
+
+		return acResult
 
 		#< @FunctionFluentForm
 
@@ -38081,17 +38087,25 @@ def ReplaceIBS()
 	#---------------------------------------#
 	
 	def NthChar(n)
-		#< QtBased >
+		#< QtBased | Uses QString.mid() >
 
 		if NOT isNumber(n)
 			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
-		if n = 0 or n > This.NumberOfChars()
-			return NULL
-		else
-			return @oQString.mid(n-1, 1)
+		cResult = ""
+		nLen = This.NumberOfChars()
+
+		if n = 0 or n > nLen
+			return cResult
 		ok
+
+		if n < 0
+			n = nLen + n + 1
+		ok
+
+		cResult = @oQString.mid(n-1, 1)
+		return cResult
 
 		#< @FunctionFluentForm
 		
@@ -41242,9 +41256,7 @@ def ReplaceIBS()
 	 #  OPERATORS OVERLOADING     #
 	#============================#
 
-	/*
-		TODO: Operators should carry same semantics in all classes...
-	*/
+	# TODO: Operators should carry same semantics in all classes...
 
 	def operator(pOp,pValue)
 
@@ -41263,7 +41275,7 @@ def ReplaceIBS()
 			ok
 
 			if isNumber(pValue)
-			   
+
 				return This.NthChar(pValue)
 							
 			but isString(pValue)

@@ -2,13 +2,23 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzString("ABCDE")
+? o1.CharAt(2)
+? "--"
+
+proff()
+
+/*----------------
+
+pron()
+
 ? Q(["A", "B", "C", "D", "E"])[-3]
 #--> "C"
 
 proff()
 
 /*==============
-*/
+
 pron()
 
 for i = 1 to 3

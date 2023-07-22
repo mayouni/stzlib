@@ -1709,26 +1709,26 @@ func ElapsedTimeXT(pIn)
 		StzRaise("Incorrect value of pIn param! Allowed values are: " +
 		":Clocks, :Seconds, :Minutes and :Hours.")
 	ok
-
+/*
 	if Q(pIn).FirstNChars(2) != "in"
 		pIn = "in" + pIn
 	ok
-
+*/
 	switch pIn
-	on :InClocks
+	on :Clocks
 		return clock() - _t0 + " clocks"
 
-	on :InSeconds
+	on :Seconds
 		nTime = ( clock() - _t0 ) / clockspersecond()
 		cTime = "" + nTime
 		return cTime + " second(s)"
 
-	on :InMinutes
+	on :Minutes
 		nTime = ( clock() - _t0 ) / clockspersecond() / 60
 		cTime = "" + nTime
 		return cTime + " minute(s)"
 
-	on :InHours
+	on :Hours
 		nTime = ( clock() - _t0 ) / clockspersecond() / 3600
 		cTime = "" + nTime
 		return cTime + " hour(s)"
@@ -1783,7 +1783,7 @@ func eval@(pcExpr, paItems) # WARNING: if you change paItems name,
 	if NOT isList(paItems)
 		StzRaise("Incorrect param type! paItems must be a list.")
 	ok
-	
+
 	nLen = len(paItems)
 
 	# Doing the job
