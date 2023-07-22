@@ -4,6 +4,16 @@ load "stzlib.ring"
 
 pron()
 
+? Q("ABCDE")[-2]
+#--> D
+
+proff()
+# Executed in 0.03 second(s)
+
+/*=============
+
+pron()
+
 o1 = new stzString("Ringprogramminglanguageispowerful!")
 //o1.InsertAfterPositions([ 4, 15, 23, 25], " ")
 o1.InsertBeforePositions([ 5, 16, 24, 26], " ")
