@@ -24,32 +24,35 @@ next
 
 proff()
 
-/*----------
-
+/*===========
+*/
 pron()
 
 # The Ring for loop is quick! Hence it loops 500
 # thousand times in a fraction of second:
-
+/*
 for i = 1 to 500_000
 	// Do nothing
 next
 # Executed in 0.06 second(s)
-
-# Cobtrariwise, this Ring for/in loop takes too long to complete:
+*/
+# Contrariwise, this Ring for/in loop takes too long to complete:
 
 # for n in 1:500_000
 #	// Do nothing
 # next
 
 # The ForEach alternative, brought Softanza, solves the For/in
-# weakness and performs the same loop as quick as 1.12 second!
+# weakness and performs the same loop in less than 2 seconds!
 
 ForEach( :number, :in = 1:500_000 ) {
 	// Do nothing
 }
 
 proff()
+# Executed in 1.76 second(s)
+
+# But ForEach offers more flexibility...
 
 /*----------
 
@@ -88,7 +91,7 @@ ForEach( :number, :in = 1:5 ) {
 proff()
 
 /*----------
-*/
+
 pron()
 
 ForEach( [ :name, :age ], :in = [ [ "Teebah", 12], ["Haneen", 8], ["Hussein", 2] ] ) {
@@ -145,7 +148,6 @@ ForEach( [ :name, :age ], :in = [ [ "Teebah", 12], ["Haneen", 8], ["Hussein", 2]
 	')
 	#--> Teebah	12
 	#    Hussein	2
-*/
 
 }
 
@@ -155,7 +157,6 @@ proff()
 
 /*----------
 
-*/
 pron()
 
 ForEach( :number, :in = 1:5 ) { X('
@@ -164,7 +165,14 @@ ForEach( :number, :in = 1:5 ) { X('
 
 ') }
 
-pron()
+#--> 1
+#    2
+#    3
+#    4
+#    5
+
+proff()
+# Executed in 0.04 second(s)
 
 /*----------
 
@@ -183,24 +191,34 @@ proff()
 # Executed in 0.05 second(s)
 
 /*----------
-*/
+
 pron()
 
-ForEach( :number, :in = 1:100 ) {@('
+ForEach( :number, :in = 1:100 ) { X('
 	? v(number)
 ')}
+#--> 1
+#    2
+#    3
+#    ...
+#    99
+#    100
 
 proff()
+# Executed in 0.42 second(s)
 
 /*-----------
 
 pron()
 
-ForEach( :name, :in = [ "teeba", "haneen", "hussein" ]) { @('
+ForEach( :name, :in = [ "teeba", "haneen", "hussein" ]) { X('
 
-	? upper(name)
+	? upper( v(:name) )
 
 ')}
+#--> TEEBA
+#--> HANEEN
+#--> HUSSEIN
 
 proff()
 # Executed in 0.04 second(s)
@@ -209,11 +227,15 @@ proff()
 */
 pron()
 
-ForEach( [ :Name, :Age ], :In = [ :Heni = 25, :Omar = 32, :Sonia = 14 ] ) {@('
+ForEach( [ :Name, :Age ], :In = [ :Heni = 25, :Omar = 32, :Sonia = 14 ] ) { X('
 	? name + " " + age
 ')}
+#--> heni 25
+#    omar 32
+#    sonia 14
 
 proff()
+# Executed in 0.06 second(s)
 
 /*============
 

@@ -1,7 +1,52 @@
 load "stzlib.ring"
 
+
 /*============
+
+pron()
+
+? Q([0]) * 3
+#--> [0, 0, 0]
+
+/*------------
+
+o1 = Q([0])
+o1 * 3
+o1.Show()
+#--> [ 0, 0, 0 ]
+
+proff()
+
+/*------------
 */
+pron()
+
+# Changes the object and returns its content IN THE SAME TIME:
+
+o1 = new stzList([0])
+? o1 * 3
+#--> [0, 0, 0]
+
+o1.Show()
+#--> [ 0, 0, 0 ]
+
+proff()
+
+/*------------
+
+pron()
+
+o1 = new stzList([0, 1, 2])
+o1 * 3
+o1.Show()
+#--> [ 0, 1, 2, 0, 1, 2, 0, 1, 2 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+
+/*============
+
 pron()
 
 o1 = new stzList(1:7)

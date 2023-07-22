@@ -14808,26 +14808,32 @@ class stzList from stzObject
 			if isNumber(pValue)
 				return This.Item(pValue)
 
-			but isString(pValue) and
-			    StzStringQ(pValue).TrimQ().IsBoundedBy([ "{", "}" ])
+			but isString(pValue)
+				// Revturns a reversed copy of the list
+				if pValue = "::-1" # Used for compatibility wirh external Ring code
+					return This.Reversed()
+			
+				but StzStringQ(pValue).TrimQ().IsBoundedBy([ "{", "}" ])
 
-				pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved([ "{", "}" ])
-				anResult = []
+					pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved([ "{", "}" ])
+					anResult = []
+	
+					@i = 0
+					for @item in This.List()
+						@i++
+						cCode = 'if ( ' + pcCondition + ' )' + NL +
+							'	anResult + @i' + NL +
+							'ok'
+						eval(cCode)
+					next
+	
+					return anResult
+				ok
 
-				@i = 0
-				for @item in This.List()
-					@i++
-					cCode = 'if ( ' + pcCondition + ' )' + NL +
-						'	anResult + @i' + NL +
-						'ok'
-					eval(cCode)
-				next
-
-				return anResult
 			else
 				return This.FindAll(pValue)
-			ok	
-			
+			ok
+
 		// Add an item at the beginning of the list
 		but pcOp = "<<"
 			This.InsertBeforePosition(1)
@@ -14860,25 +14866,33 @@ class stzList from stzObject
 				anPositions = This.FindAll(pValue)
 				This.RemoveItemsAtPositions(anPositions)
 			ok
-	
+			return This.Content()
+
 		but pcOp = "*"
 			This.MultiplyBy(pValue)
+			return This.Content()
 
 		but pcOp = "+"
 			This.AddItem(pValue)
+			return This.Content()
 		ok
 
 	  #------------------------------#
 	 #     CALCULATION OPERATORS    #
 	#------------------------------#
 
-	def MultiplyBy(p)	// TODO
+	def MultiplyBy(p)
 		switch ring_type(p)
 		on "NUMBER"
+			aContent = This.Content()
+			nLen = len(aContent)
+
 			aResult = []
 
 			for i = 1 to p
-				aResult + This.List()
+				for j = 1 to nLen
+					aResult + aContent[j]
+				next
 			next
 
 			This.Update( aResult )
@@ -14899,10 +14913,12 @@ class stzList from stzObject
 			next
 
 		on "LIST"
-			// TODO
+			// TODO: Produces a list of lists (matrix)
+			StzRaise("Unavailable feature!")
+
 
 		other
-			// TODO
+			StzRaise("Unsupported type!")
 		off
 
 		#< @FunctionFluentForm
