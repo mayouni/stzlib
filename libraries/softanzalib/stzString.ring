@@ -26713,17 +26713,37 @@ def ReplaceIBS()
 
 	def IsContainedInCS(pcOtherStr, pCaseSensitive)
 
-		if NOT isStringOrList(pcOtherStr)
+		if NOT Q(pcOtherStr).IsStringOrList()
 			StzRaise("Incorrect param type! pcOtherStr must be a string or list.")
 		ok
 
 		bResult = Q(pcOtherStr).ContainsCS(This.String(), pCaseSensitive) 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def IsIncludedInCS(pcOtherStr, pCaseSensitive)
+			return This.IsContainedInCS(pcOtherStr, pCaseSensitive)
+
+		def ExistsInCS(pcOtherStr, pCaseSensitive)
+			return This.IsContainedInCS(pcOtherStr, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsContainedIn(pcOtherStr)
 		return This.IsContainedInCS(pcOtherStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def IsIncludedIn(pcOtherStr)
+			return This.IsContainedIn(pcOtherStr)
+
+		def ExistsIn(pcOtherStr)
+			return This.IsContainedIn(pcOtherStr)
+
+		#>
 
 	  #------------------------------------------------#
 	 #   CHECKING CONATAINMENT ON A GIVEN CONDITION   #
@@ -30345,7 +30365,7 @@ def ReplaceIBS()
 		*/
 
 	def UnicodeCompareWith(pcOtherStr)
-		return CompareWithCS(pcOtherStr, :CaseSensitive = TRUE)
+		return This.CompareWithCS(pcOtherStr, :CaseSensitive = TRUE)
 
 	def UnicodeCompareWithInSystemLocale(pcOtherStr)
 		nQtResult = @oQString.localeAwareCompare(pcOtherStr)
@@ -30425,7 +30445,7 @@ def ReplaceIBS()
 
 	  #-----------------------------------------------#
 	 #     COMPARING THE STRING TO OTHER STRINGS     #
-	#-----------------------------------------------#
+	#===============================================#
 
 	def IsEqualToCS(pcOtherStr, pCaseSensitive)
 
@@ -30618,6 +30638,9 @@ def ReplaceIBS()
 		#< @FunctionAlternativeForms
 
 		def IsSmallerThan(pcOtherStr)
+			return This.IsSmaller(pcOtherStr)
+
+		def IsLessThan(pcOtherStr)
 			return This.IsSmaller(pcOtherStr)
 
 		def HasLessNumberOfChars(pcOtherStr)
@@ -31689,7 +31712,6 @@ def ReplaceIBS()
 
 		def LastCharAndFirstCharRemoved()
 			return This.FirstAndLastCharsRemoved()
-
 
 	  #-----------------------------------------------------------------------------#
 	 #  REMOVING A GIVEN CHAR AT A GIVEN POSITION (IF ANY) WITH A GIVEN SUBSTRING  #
@@ -38995,47 +39017,8 @@ def ReplaceIBS()
 			return This.BoxXT(paBoxOptions)
 
 	  #=================================================#
-	 #   STRING EXISTENCE IN AN OTHER STRING OR LIST   #
-	#=================================================#
-
-	def ExistsInCS( pStrOrList, pCaseSensitive )
-		if isString(pStrOrList)
-			return This.ExistsInStringCS( pStrOrList, pCaseSensitive )
-
-		but isList(pStrOrList)
-			return This.ExistsInListCS( pStrOrList, pCaseSensitive )
-
-		else
-			stzRaise("Unsupported param type! pStrOrList must be a string or list")
-		ok
-
-	def ExistsIn(pStrOrList)
-		return This.ExistsInCS( pStrOrList, :CaseSensitive = TRUE )
-
-	  #--------------------------------------------------------#
-	 #   STRING EXISTENCE AS A SUBSTRING IN AN OTHER STRING   #
-	#--------------------------------------------------------#
-
-	def ExistsInStringCS(pcStr, pCaseSensitive)
-		if NOT isString(pcStr)
-			stzRaise("Incorrect param! pcStr must be a string.")
-		ok
-
-		bResult = StzStringQ(pcStr).ContainsCS( This.String(), pCaseSensitive )
-		return bResult
-
-		def ExistsAsSubStringInStringCS(pcStr, pCaseSensitive)
-			return This.ExistsInStringCS(pcStr, pCaseSensitive)
-
-	def ExistsInString(pcStr)
-		return This.ExistsInStringCS(pcStr, :CaseSensitive = TRUE)
-
-		def ExistsAsSubStringInString(pcStr)
-			return This.ExistsInStringC(pcStr)
-
-	  #-------------------------------------------------#
 	 #   STRING EXISTENCE AS AN ITEM IN A GIVEN LIST   #
-	#-------------------------------------------------#
+	#=================================================#
 
 	def ExistsInListCS(paList, pCaseSensitive)
 
@@ -41319,26 +41302,15 @@ def ReplaceIBS()
 		but pOp = "="
 			return This.IsEqualTo(pValue)
 
-		// Compare strict equality (case-sensitive)
-
-		but pOp = "=="
-			return This.IsStrictlyEqualTo(pValue)
-	
 		// oString < str
 
 		but pOp = "<"
-			return This.IsStrictlyLessThan(pValue)
-
-		but pOp = "<="
-			return This.IsLessThan(pValue)
+			return This.IsSmallerThan(pValue)
 		
 		// compare : oString > str
 
 		but pOp = ">"
-			return This.IsStrictlyGreaterThan(pValue)
-
-		but pOp = ">="
-			return This.IsGreaterThan(pValue)
+			return This.IsLargerThan(pValue)
 	
 		// add : string + string | string + ListOfStrings
 
@@ -41508,6 +41480,8 @@ def ReplaceIBS()
 
 				This.Update( cResult )
 				return This
+				# TODO/NOTE: In stzList, the "-" operator returns This.Content()
+				#--> Hormonize the behaviour of all the operators in all classes!
 			ok
 
 			if StzListQ(pValue).IsListOfStrings()
