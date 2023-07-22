@@ -662,6 +662,13 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! n should be a number.")
 		ok
 
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if n < 0
+			n = nLen + n + 1
+		ok
+
 		return This.Content()[n]
 
 		def ItemQ(n)

@@ -2,14 +2,47 @@ load "stzlib.ring"
 
 pron()
 
+? Q(["A", "B", "C", "D", "E"])[-3]
+#--> "C"
+
+proff()
+
+/*==============
+*/
+pron()
+
+for i = 1 to 3
+	Vr([ :x, :y, :z ]) '=' Vl([ 1*i, 2*i, 3*i ])
+next
+
+? @@( DataVarsXT() )
+#--> [ [ "x", 3 ], [ "y", 6 ], [ "z", 9 ] ]
+
+proff()
+
+/*-------------
+
+pron()
+
+Vr([ :x, :y, :z ]) '=' Vl([ -1, 0, 1 ])
+? v([ :x, :y, :z ])
+#--> [ -1, 0, 1 ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-------------
+
+pron()
+
 Vr([ :x, :y, :z ]) '=' Vl([ 10, 20, 30 ])
 ? v([ :x, :y, :z ])
 #--> [ 10, 20, 30 ]
 
 proff()
+# Executed in 0.06 second(s)
 
-
-/*----------------
+/*=============
 
 str = "ring"
 for i = 1 to 10000
