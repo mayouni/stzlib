@@ -1,14 +1,5 @@
 load "stzlib.ring"
 
-pron()
-
-o1 = new stzString("ABCDE")
-? o1.CharAt(2)
-? "--"
-
-proff()
-
-/*----------------
 
 pron()
 
