@@ -32969,272 +32969,556 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	 #  GETTING N RANDOM ITEMS OTHER THAN A GIVEN ITEM  #
 	#--------------------------------------------------#
 
-	def NRandomItemsOtherThanCS(pItem)
+	def NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+		anPos = ( Q(1 : This.NumberOfItems()) -
+			  This.FindCS(pItem, pCaseSensitive) ).
+			Content()
+
+		anRandomPos = NRandomNumbersIn(anPos)
+		aResult = This.ItemsAtPositions(anRandomPos)
+
+		return aResult
+
+		def NItemsOtherThanCS(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NRandomItemsOtherThanS(pItem)
+		return This.NRandomItemsOtherThanCS(pItem, :CaseSensitive = TRUE)
+
+		def NItemsOtherThan(pItem)
+			return This.NRandomItemsOtherThan(pItem)
+
+	  #----------------------------------------------------------------#
+	 #  GETTING N RANDOM ITEMS OTHER THAN A GIVEN ITEM -- Z/EXTENDED  #
+	#----------------------------------------------------------------#
+
+	def NRandomItemsOtherThanCSZ(pItem)
 
 		anPos = ( Q(1 : This.NumberOfItems()) -
 			  This.FindCS(pItem, pCaseSensitive) ).
 			Content()
 
-		nRandomPos = NRandomNumbersAmong(anPos) // TODO
-		aResult = This.ItemsAtPositions(nRandomPos)
+		anRandomPos = NRandomNumbersIn(anPos)
+		aResult = This.ItemsAtPositionsQ(anRandomPos).AssociatedWith(anRandomPos)
 
 		return aResult
 
-		def NItemsOtherThanCS(pItem)
+		def NItemsOtherThanCSZ(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
 
-	#==============
+	#-- WITHOUT CASESENSITIVITY
 
-	def NRandomItemsOtherThanCSZ(pItem)
+	def NRandomItemsOtherThanZ(pItem)
+		return This.NRandomItemsOtherThanCSZ(pItem, :CS = TRUE)
+
+		def NItemsOtherThanZ(pItem)
+			return This.NRandomItemsOtherThanZ(pItem)
+
+	  #----------------------------------------------------------------#
+	 #  GETTING N RANDOM ITEMS OTHER THAN A GIVEN ITEM -- U/EXTENDED  #
+	#----------------------------------------------------------------#
+
+	#TODO
+
+	  #-----------------------------------------------------------------#
+	 #  GETTING N RANDOM ITEMS OTHER THAN A GIVEN ITEM -- UZ/EXTENDED  #
+	#-----------------------------------------------------------------#
+
+	#TODO
 
 	  #-----------------------------------------------------#
 	 #  GETTING SOME RANDOM ITEMS OTHER THAN A GIVEN ITEM  #
 	#-----------------------------------------------------#
 
 	def SomeRandomItemsOtherThanCS(pItem)
+		anPos = ( Q(1 : This.NumberOfItems()) -
+			  This.FindCS(pItem, pCaseSensitive) ).
+			Content()
 
-	#==============
+		anRandomPos = SomeRandomNumbersIn(anPos)
+		aResult = This.ItemsAtPositions(anRandomPos)
 
-	def SomeRandomItemsOtherThanCSZ(pItem)
+		return aResult
 
-	  #--------------------------------------------------------#
-	 #  GETTING N RANDOM ITEMS OTHER THAN A MANY GIVEN ITEMS  #
-	#--------------------------------------------------------#
+	  #-------------------------------------------------------------------#
+	 #  GETTING SOME RANDOM ITEMS OTHER THAN A GIVEN ITEM -- Z/EXTENDED  #
+	#-------------------------------------------------------------------#
 
-	def NRandomItemsOtherThanManyCS(pItem)
+	def SomeRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+		anPos = ( Q(1 : This.NumberOfItems()) -
+			  This.FindCS(pItem, pCaseSensitive) ).
+			Content()
 
-	#==============
+		anRandomPos = SomeRandomNumbersIn(anPos)
+		aResult = This.ItemsAtPositionsQ(anRandomPos).AssociatedWith(anRandomPos)
 
-	def NRandomItemsOtherThanManyCSZ(pItem)
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SomeRandomItemsOtherThanZ(pItem)
+		return This.SomeRandomItemsOtherThanCSZ(pItem, :CS = TRUE)
+
+	  #-------------------------------------------------------------------#
+	 #  GETTING SOME RANDOM ITEMS OTHER THAN A GIVEN ITEM -- U/EXTENDED  #
+	#-------------------------------------------------------------------#
+
+	#TODO
+
+	  #--------------------------------------------------------------------#
+	 #  GETTING SOME RANDOM ITEMS OTHER THAN A GIVEN ITEM -- UZ/EXTENDED  #
+	#--------------------------------------------------------------------#
+
+	#TODO
+
+	  #------------------------------------------------------#
+	 #  GETTING N RANDOM ITEMS OTHER THAN MANY GIVEN ITEMS  #
+	#------------------------------------------------------#
+
+	def NRandomItemsOtherThanManyCS(paItems, pCaseSensitive)
+		#TODO
+		StzRaise("Unsupported feature yet!")
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NRandomItemsOtherThanMany(paItems)
+		return This.NRandomItemsOtherThanManyCS(paItems, :CS = TRUE)
+
+	  #---------------------------------------------------------------------#
+	 #  GETTING N RANDOM ITEMS OTHER THAN MANY GIVEN ITEMS  -- Z/EXTENDED  #
+	#---------------------------------------------------------------------#
+
+	def NRandomItemsOtherThanManyCSZ(pItem, pCaseSensitive)
+		#TODO
+		StzRaise("Unsupported feature yet!")
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NRandomItemsOtherThanManyZ(pItem)
+		return This.NRandomItemsOtherThanManyCSZ(pItem, :CS = TRUE)
+
+	#-- U/EXTENDED FORM
+
+	#TODO
+
+	#-- UZ/EXTENDED FORM
+
+	#TODO
 
 	  #-----------------------------------------------------------#
 	 #  GETTING SOME RANDOM ITEMS OTHER THAN A MANY GIVEN ITEMS  #
 	#-----------------------------------------------------------#
 
 	def SomeRandomItemsOtherThanManyCS(pItem)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#==============
 
 	def SomeRandomItemsOtherThanManyCSZ(pItem)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #--------------------------------------------------------#
 	 #  GETTING AN ITEM BETWEEN TWO OTHER ITEMS OR POSITIONS  #
 	#========================================================#
 
 	def AnItemBetweenCS(pMin, pMax, pCaseSensitive) # InSection
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def AnItemBetweenCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def AnItemBetweenIBCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def AnItemBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #------------------------------------------------------------#
 	 #  GETTING AN ITEM NOT BETWEEN TWO OTHER ITEMS OR POSITIONS  #
 	#------------------------------------------------------------#
 
 	def AnItemNotBetweenCS(pMin, pMax, pCaseSensitive) # OutsideInSection
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def AnItemNotBetweenCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def AnItemNotBetweenIBCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def AnItemNotBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #---------------------------------------------#
 	 #  GETTING AN ITEM INSIDE THE GIVEN SECTIONS  #
 	#=============================================#
 
 	def AnItemBetweenManyCS(pMin, pMax, pCaseSensitive) # InSections
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def AnItemBetweenManyCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def AnItemBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def AnItemBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #----------------------------------------------#
 	 #  GETTING AN ITEM OUTSIDE THE GIVEN SECTIONS  #
 	#----------------------------------------------#
 
 	def AnItemNotBetweenManyCS(pMin, pMax, pCaseSensitive) # OutsideSections
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def AnItemNotBetweenManyCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def AnItemNotBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def AnItemNotBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #--------------------------------------------------------#
 	 #  GETTING N ITEMS BETWEEN TWO OTHER ITEMS OR POSITIONS  #
 	#========================================================#
 
 	def NItemsBetweenCS(pMin, pMax, pCaseSensitive) # InSection
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def NItemsBetweenCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def NItemsBetweenIBCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def NItemsBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #-----------------------------------------------------------#
 	 #  GETTING SOME ITEMS BETWEEN TWO OTHER ITEMS OR POSITIONS  #
 	#-----------------------------------------------------------#
 
 	def SomeItemsBetweenCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsBetweenCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def SomeItemsBetweenIBCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #------------------------------------------------------------#
 	 #  GETTING N ITEMS NOT BETWEEN TWO OTHER ITEMS OR POSITIONS  #
 	#------------------------------------------------------------#
 
 	def NItemsNotBetweenCS(pMin, pMax, pCaseSensitive) # OutsideSection
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def NItemsNotBetweenCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def NItemsNotBetweenIBCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def NItemsNotBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #---------------------------------------------------------------#
 	 #  GETTING SOME ITEMS NOT BETWEEN TWO OTHER ITEMS OR POSITIONS  #
 	#---------------------------------------------------------------#
 
 	def SomeItemsNotBetweenCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsNotBetweenCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def SomeItemsNotBetweenIBCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsNotBetweenIBCSZ(pMin, pMax, pCaseSensitive)
-
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #---------------------------------------------#
 	 #  GETTING N ITEMS INSIDE THE GIVEN SECTIONS  #
 	#=============================================#
 
 	def NItemsBetweenManyCS(pMin, pMax, pCaseSensitive) # InSections
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def NItemsBetweenManyCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def NItemsBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def NItemsBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #------------------------------------------------#
 	 #  GETTING SOME ITEMS INSIDE THE GIVEN SECTIONS  #
 	#------------------------------------------------#
 
 	def SomeItemsBetweenManyCS(pMin, pMax, pCaseSensitive) # InSections
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsBetweenManyCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def SomeItemsBetweenManyIBCS(pMin, pMax, pCaseSensitivity)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsBetweenManyIBCSZ(pMin, pMax, pCaseSensitivity)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #----------------------------------------------#
 	 #  GETTING N ITEMS OUTSIDE THE GIVEN SECTIONS  #
 	#----------------------------------------------#
 
 	def NItemsNotBetweenManyCS(pMin, pMax, pCaseSensitive) # NotInSections
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def NItemsNotBetweenManyCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def NItemsNotBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def NItemsNotBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #-------------------------------------------------#
 	 #  GETTING SOME ITEMS OUTSIDE THE GIVEN SECTIONS  #
 	#-------------------------------------------------#
 
 	def SomeItemsNotBetweenManyCS(pMin, pMax, pCaseSensitive) # NotInSections
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsNotBetweenManyCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def SomeItemsNotBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsNotBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #-------------------------------------------#
 	 #  GETTING AN ITEM NOT IN A GIVEN POSITION  #
 	#===========================================#
 
 	def AnItemOutsidePosition(nPos)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def AnItemOutsidePositionZ(nPos)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #---------------------------------------------#
 	 #  GETTING AN ITEM NOT BETWEEN TWO POSITIONS  #
 	#---------------------------------------------#
 
 	def AnItemOutsidePositions(panPos)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def AnItemOutsidePositionsZ(panPos)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #---------------------------------------------#
 	 #  GETTING N ITEMS NOT IN THE GIVEN POSITION  #
 	#=============================================#
 
 	def NItemsOutsidePosition(nPos)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def NItemsOutsidePositionZ(anPos)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
   	  #------------------------------------------------#
 	 #  GETTING SOME ITEMS NOT IN THE GIVEN POSITION  #
 	#------------------------------------------------#
 
 	def SomeItemsOutsidePosition(anPos)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsOutsidePositionZ(anPos)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #----------------------------------------------#
 	 #  GETTING N ITEMS NOT IN THE GIVEN POSITIONS  #
 	#----------------------------------------------#
 
 	def NItemsOutsidePositions(panPos, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	def NItemsOutsidePositionsZ(panPos, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
 
 	  #-------------------------------------------------#
 	 #  GETTING SOME ITEMS NOT IN THE GIVEN POSITIONS  #
 	#-------------------------------------------------#
 
 	def SomeItemsOutsidePositions(panPos, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
+
 		def SomeItemsInPositionsOtherThan(panPos, pCaseSensitive)
+			return This.SomeItemsOutsidePositions(panPos, pCaseSensitive)
 
 	def SomeItemsOutsidePositionsZ(panPos, pCaseSensitive)
+		# TODO
+		StzRaise("Unsupported feature yet!")
+
 		def SomeItemsInPositionsOtherThanZ(panPos, pCaseSensitive)
-	
+			return This.SomeItemsOutsidePositionsZ(panPos, pCaseSensitive)
+
+	  #--------------------------------------------------------#
+	 #  GETTING A RANDOM ITEM AFTER A GIVEN ITEM OR POSITION  #
+	#--------------------------------------------------------#
+
+	def AnyItemAfter(p) #TODO
+
+	def AnytemAfterZ(p) #TODO
+
+	  #------------------------------------------------#
+	 #  GETTING A RANDOM ITEM AFTER A GIVEN POSITION  #
+	#------------------------------------------------#
+
+	def AnytemAfterPosition(n) #TODO
+
+	def AnyItemAfterPositionZ(n) #TODO
+
+	  #---------------------------------------------------------#
+	 #  GETTING A RANDOM ITEM BEFORE A GIVEN ITEM OR POSITION  #
+	#---------------------------------------------------------#
+
+	def AnyItemBefore(p) #TODO
+
+	def AnyItemBeforeZ(n) #TODO
+
+	  #-------------------------------------------------#
+	 #  GETTING A RANDOM ITEM BEFORE A GIVEN POSITION  #
+	#-------------------------------------------------#
+
+	def AnyItemBeforeOrAfter(n) #TODO
+
+	def AnyItemBeforeOrAfterZ(n) #TODO
+
+	  #-----------------------------------------------------#
+	 #  GETTING SOME RANDOM ITEMS BEFORE A GIVEN POSITION  #
+	#-----------------------------------------------------#
+
+	def AnyItemsBeforePosition(n) #TODO
+
+	def AnyItemBeforePositionZ(n) #TODO
+
+	  #----------------------------------------------------#
+	 #  GETTING SOME RANDOM ITEMS AFTER A GIVEN POSITION  #
+	#----------------------------------------------------#
+
+	def AnyItemsAfterPosition(n) #TODO
+
+	def AnyItemsAfterPositionZ(n) #TODO
+
+	  #---------------------------------------------------#
+	 #  GETTING SOME RANDOM BETWEEN TWO GIVEN POSITIONS  #
+	#---------------------------------------------------#
+
+	def AnyItemBetweenPositions(n1, n2) #TODO
+
+	def AnyItemBetweenPositionsZ(n1, n2) #TODO
+
 	  #------------------------------------------------#
 	 #  RANDOMINZING THE ITEMS POSITIONS IN THE LIST  #
 	#================================================#
