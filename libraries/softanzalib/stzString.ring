@@ -6,7 +6,7 @@
 # 	Description	: The core class for managing Unicode strings     #
 #	Version		: V1.0 (2020-2023)				  #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		  #
-#									  #
+#								          #
 #-------------------------------------------------------------------------#
 
 /*
@@ -26316,7 +26316,7 @@ def ReplaceIBS()
 		cResult = @@( This.Content() )
 		anPositions = This.FindAll( c )
 
-		nLen = StzString(cRrsult).NumberOfChars()
+		nLen = StzStringQ(cResult).NumberOfChars()
 
 		cViz = " "
 		for i = 1 to nLen - 2
@@ -37485,7 +37485,6 @@ def ReplaceIBS()
 
 	// Returns the string as a list of Chars
 	def Chars()
-? "Inside Chars()"
 
 		acResult = []
 		nLen = This.NumberOfChars()
@@ -41071,6 +41070,7 @@ def ReplaceIBS()
 	#----------------------------------------------------------------#
 
 	def YieldW(pcCode, pcCondition)
+
 		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
 			pcCondition = pcCondition[2]
 		ok
@@ -41079,13 +41079,16 @@ def ReplaceIBS()
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		oCode = stzString(pcCode)
+		oCode = new stzString(pcCode)
 		if oCode.ContainsCS("@substring", :CS = FALSE)
 			aTempList = This.SubStrings()
 
 		else
 			aTempList = This.Chars()
 		ok
+
+		pcCode = Q(pcCode).ReplaceCSQ("@char", "This[@i]", :CS=FALSE).Content()
+		pcCondition = Q(pcCondition).ReplaceCSQ("@char", "This[@i]", :CS=FALSE).Content()
 
 		acResult = Q(aTempList).YieldW(pcCode, pcCondition)
 		return acResult

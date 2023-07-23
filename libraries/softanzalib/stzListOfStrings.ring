@@ -12976,7 +12976,7 @@ stop()
 
 	def NextOccurrenceRemovedCS(pcString, pnStartingAt, pCaseSensitive)
 
-		aRrsult =  This.Copy().
+		aResult =  This.Copy().
 				RemoveNextOccurrenceCSQ(pcString, pnStartingAt, pCaseSensitive).
 				Content()
 
@@ -12993,7 +12993,7 @@ stop()
 
 	def NextOccurrenceRemoved(pcString, pnStartingAt)
 
-		aRrsult =  This.Copy().
+		aResult =  This.Copy().
 				RemoveNextOccurrenceQ(pcString, pnStartingAt).
 				Content()
 
