@@ -2,15 +2,25 @@ load "stzlib.ring"
 
 /*==================
 
+pron()
+
 ? fabs(-5) #--> 5	Ring function
 ? Abs(-5)  #--> 5	Softanza function
 
+proff()
+
 /*------------------
+
+pron()
 
 ? StzNumberQ("-5.23456").Absolute()
 #--> "5.23456"
 
+proff()
+
 /*==================
+*/
+pron()
 
 # There is a difference in Softanza between IsEither() and IsEitherA().
 # The first checks for VALUES while the second checks for TYPES:
@@ -27,7 +37,11 @@ o1 = new stzString("ring")
 ? o1.IsEither("ring", :or = "ruby")	#--> TRUE
 ? o1.IsEitherA(:String, :Or = :List)	#--> TRUE
 
-/*==================
+proff()
+
+/*================== TONumber() and ToNumberW()
+
+pron()
 
 ? Q(5).ToNumber()
 #--> 5
@@ -38,8 +52,10 @@ o1 = new stzString("ring")
 ? Q([ "a", "b", "c" ]).ToNumber()
 #--> 3
 
+proff()
+
 /*------------------
-*/
+
 StartProfiler()
 
 ? Q(-5).ToNumberW('{ @number = Q(@number).Abs() }')
@@ -58,7 +74,7 @@ StopProfiler()
 
 StartProfiler()
 
-? Q("Ring").ToNumberXT('{
+? Q("Ring").ToNumberW('{
 	@number = len(@string)
 }')
 #--> 4
@@ -72,20 +88,21 @@ StartProfiler()
 	@number = Q(@string).UnicodesQR(:stzListOfNumbers).Sum()
 }')
 #--> 400
+
 # In fact:
 	? @@( Q("Ring").Unicodes() )
 	#--> [ 82, 105, 110, 103 ]
 
-? Q("Ring").ToNumberXT('{
-	@number += Q(@char).Unicode()
-}')
-#--> 400
+	? Q("Ring").ToNumberXT('{
+		@number += Q(@char).Unicode()
+	}')
+	#--> 400
 
 StopProfiler()
-#--> Executed in 0.24 seconds seconds.
+#--> Executed in 0.30 seconds seconds.
 
 /*------------------
-*/
+
 pron()
 
 ? Q([ "a", "b", "c" ]).ToNumberW('{ @number = len(@list) }') # Or ToNumberXT()
@@ -107,6 +124,7 @@ pron()
 #--> [2, 3, 4]
 
 proff()
+# Executed in 0.21 second(s)
 
 /*----------------
 

@@ -11177,7 +11177,6 @@ class stzList from stzObject
 		ok
 
 		anPositions = This.FindW(pcCondition)
-
 		aResult = This.YieldFrom(anPositions, pcCode)
 
 		return aResult
@@ -19976,7 +19975,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		pcCondition can only contain the @i and This[@i...] keywords.
 		@NextItem, @PreviousItem, @item ans so on can not be used.
 
-		This is alway the better option to take if you want a more
+		This is always the better option to take if you want a more
 		performant code.
 
 		If you want to be more expressive and include them in your
@@ -20075,7 +20074,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	  #--------------------------------------------------------------#
 	 #  FINDING FIRST ITEM VERIFYING A GIVEN CONDITION -- EXTENDED  #
 	#--------------------------------------------------------------#
-	# Condditional code can contains keywords other then This[@i] and cie,
+	# Condditional code can contain keywords other then This[@i],
 	# like @NextItem, @PreviousItem etc.
 
 	def FindAllItemsWXT(pcCondition)
