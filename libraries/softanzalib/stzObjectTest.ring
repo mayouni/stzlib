@@ -269,25 +269,27 @@ class Person
 		? "Job  : " + job
 
 /*----------------
-*/
+
 pron()
 
-o1 = new QString()
+o1 = new QString2()
 ? IsQObject(o1)
+#--> TRUE
+
 ? IsQtObject(o1)
+#--> TRUE
 
 # Both return TRUE --> Flexible syntax!
 
 proff()
+# Executed in 0.04 second(s)
 
 /*----------------
+*/
+pron()
 
 ? len(RingQtClasses())
+#--> 368
 
-o1 = new stzString("n")
 
-? IsConstraintObjectParam(o1)
-? IsConstraintObjectParam(:In = o1)
-? IsConstraintObjectParam(:InObject = o1)
-? IsConstraintObjectParam(:On = o1)
-? IsConstraintObjectParam(:OnObject = o1)
+proff()

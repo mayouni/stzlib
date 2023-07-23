@@ -428,6 +428,7 @@ func RingQtClasses()
 		:QStackedWidget,
 		:QStandardPaths,
 		:QStatusBar,
+		:QString,
 		:QString2,
 		:QStringList,
 		:QStringRef,
@@ -513,10 +514,18 @@ func RingQtClasses()
 		:QXmlStreamWriter,
 		:Qt3DCamera,
 		:Qt3DWindow,
-		:RingCodeHighlighter
+		:RingCodeHighlighter,
+		:QTextOption # Added in Ring 1.18
+		
 	]
 
 	return aRingQtClasses
+
+func NumberOfRingQtClasses()
+	return len(RingQtClasses())
+
+	func HowManyRingQtClasses()
+		return NumberOfRingQtClasses()
 
 func StzClasses()
 	aResult = []
@@ -532,8 +541,14 @@ func StzClasses()
 	def StzTypes()
 		return StzClasses()
 
+func NumberOfStzClasses()
+	return len(StzClasses())
+
+	func HowManyStzClasses()
+		return NumberOfStzClasses()
+
 func StzClassesXT()
-	# Last update: 11 Nov. 2022
+	# TODO: Update this list!
 	aStzClassesXT = [
 		# [ :Singular,			:Plural			]
 		[ :stzObject, 			:stzObjects 		],
@@ -563,6 +578,7 @@ func StzClassesXT()
 		[ :stzListOfChars, 		:stzListsOfChars	],
 		[ :stzList, 			:stzLists		],
 		[ :stzHashList, 		:stzHashLists		],
+		[ :stzListOfHashLists,		:stzListsOfHashLists	],
 
 		[ :stzAssociativeList, 		:stzAssociativeLists	],
 		[ :stzListOfHashLists, 		:stzListOfHashLists	],
@@ -589,6 +605,7 @@ func StzClassesXT()
 		[ :stzCurrency, 		:stzCurrencies		],
 		[ :stzListParser, 		:stzListsParsers	],
 		[ :stzGrid, 			:stzGrids		],
+		[ :stzListOfGrids,		:stzListsOfGrids	],
 
 		[ :stzCounter, 			:stzCounters		],
 		[ :stzDate, 			:stzDates		],
@@ -611,7 +628,9 @@ func StzClassesXT()
 		[ :stzConstraints, 		:stzConstraints		],
 		
 		[ :stzCCode, 			:stzCCodes		],
-		[ :stzNullObject,		:stzNullObjects		]
+		[ :stzNullObject,		:stzNullObjects		],
+
+		[ :stzExtCode,			:stzExtCodes		]
 	]
 
 	return aStzClassesXT
