@@ -158,11 +158,8 @@ proff()
 # Executed in 0.40 second(s)
 
 /*=================
-*/
+
 pron()
-
-//? Q([ [ "one", "1" ], [ "two", "2" ] ]).IsHashList()
-
 
 ? Q(StzTypesXT()).IsHashList()
 #--> TRUE
@@ -171,8 +168,11 @@ pron()
 #--> 17
 
 proff()
+#--> Executed in 0.06 second(s)
 
 /*-----------------
+
+pron()
 
 ? PluralOfThisStzType(:stzchar)
 #--> "stzchars"
@@ -182,6 +182,9 @@ proff()
 
 ? PluralToStzType(:stzchars)
 #--> "stzchar"
+
+proff()
+# Executed in 0.06 second(s)
 
 /*-----------------
 
@@ -236,25 +239,18 @@ pron()
 proff()
 # Executed in 0.09 second(s)
 
-/*------------ TODO: Check error
+/*------------
 
 pron()
 
-# Using a ChainOfTruth (started with "_" and ended with "_":
-
-? _([10, 20, 30 ]).IsA(:ListOfNumbers)._
+? Q([10, 20, 30 ]).IsA(:ListOfNumbers)
 #--> TRUE
 
-# The chain of truth is more useful when we chain more checks
-# in the same time:
-
-? _([ :name = "mio", :age = 12 ]).
-	IsA(:List).
-	IsA(:HashList).
-	IsA(:Pair)._
+? Q([ :name = "mio", :age = 12 ]).Is([ :AList, :AHashList, :And = :APair ])
 #--> TRUE
 
 proff()
+# Executed in 0.03 second(s)
 
 /*--------------------
 
@@ -269,17 +265,29 @@ o1 = new stzNumber(12500)
 #--> FALSE
 
 proff()
+# Executed in 0.03 second(s)
 
 /*--------------------
+
+pron()
 
 o1 = new stzString("hello")
 ? o1.Is(:StzString)
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
 
 /*--------------------
+
+pron()
 
 o1 = new stzGrid([ [1,2,3], [4,5,6], [7,8,9] ])
 ? o1.Is(:StzGrid) # from stzObject based on the name of the class
 ? o1.IsAGrid() # used by natural code in stzChainOfTruth
+
+proff()
+# Executed in 0.03 second(s)
 
 /*----------------
 
@@ -302,13 +310,11 @@ proff()
 pron()
 
 ? HowManyStzClasses()
-#--> 51
+#--> 60
 
 ? HowManyRingQtClasses()
 #--> 368
 
-/*----------------
-
-? StzClasses()
-
 proff()
+# Executed in 0.03 second(s)
+

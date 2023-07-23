@@ -843,7 +843,7 @@ func IsStzlist(pObject)
 		return FALSE
 	ok
 
-func IsStzhashlist(pObject)
+func IsStzHashlist(pObject)
 	if isObject(pObject) and classname(pObject) = "stzhashlist"
 		return TRUE
 	else
@@ -929,6 +929,13 @@ func IsStzlocale(pObject)
 
 func IsStzconstraint(pObject)
 	if isObject(pObject) and classname(pObject) = "stzconstraint"
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsStzgrid(pObject)
+	if isObject(pObject) and classname(pObject) = "stzgrid"
 		return TRUE
 	else
 		return FALSE
@@ -1087,6 +1094,10 @@ class stzObject
 
 	def StzType()
 		return :stzObject
+		# WARNING: The same function should exist inside each Softanza class
+		#--> if we call it on a stzOject we get :stzobject, but if wa call
+		#    on an other softanza type, say stzString or stzList for example,
+		#    we get, not :stzobject as a resutl, but :stzstring and stzlist!
 
 	def StzTypeXT()
 		return [ :stzObject, This.Content() ]
@@ -1164,6 +1175,30 @@ class stzObject
 
 		#>
 	
+	def IsStzGrid()
+		if This.StzType() = :stzgrid
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForm
+
+		def IsAStzGrid()
+			return This.IsStzGrid()
+
+		#>
+
+		#< @FunctionNegativeForm
+
+		def IsNotStzGrid()
+			return NOT This.IsStzGrid()
+
+		def IsNotAStzGrid()
+			return NOT This.IsStzGrid()
+
+		#>
+
 	def IsStzObject()
 		return TRUE
 
