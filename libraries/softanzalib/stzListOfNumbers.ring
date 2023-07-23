@@ -4850,6 +4850,39 @@ class stzListOfNumbers from stzList
 	
 	# UZ/EXTENDED FORM (TODO)
 
+	  #-----------------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS OUTSIDE A GIVEN POSITION  #
+	#=====================================================#
+
+	def NNumbersOutsidePosition(nPos)
+		return This.NItemsOutsidePosition(nPos)
+
+	#-- 2/EXTENDED FORM
+
+	def NNumbersOutsidePositionsZ(panPos)
+		return This.NItemsOutsidePositionsZ(panPos)
+
+	# U/EXTENDED FORM (TODO)
+
+	
+	# UZ/EXTENDED FORM (TODO)
+
+	  #--------------------------------------------------------#
+	 #  GETTING N RANDOM NUMBERS OUTSIDE THE GIVEN POSITIONS  #
+	#--------------------------------------------------------#
+
+	def NNumbersOutsidePositions(panPos)
+		return This.NItemsOutsidePositions(panPos)
+
+	# Z/EXTENDED FORM
+
+	def NItemsOutsidePositionZ(anPos)
+		return This.NItemsOutsidePositionZ(anPos)
+
+	# U/EXTENDED FORM (TODO)
+
+	
+	# UZ/EXTENDED FORM (TODO)
 
 	  #---------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS FROM THE LIST  #
