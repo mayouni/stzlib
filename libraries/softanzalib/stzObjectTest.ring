@@ -19,7 +19,7 @@ pron()
 proff()
 
 /*==================
-*/
+
 pron()
 
 # There is a difference in Softanza between IsEither() and IsEitherA().
@@ -38,6 +38,7 @@ o1 = new stzString("ring")
 ? o1.IsEitherA(:String, :Or = :List)	#--> TRUE
 
 proff()
+# Executed in 0.06 second(s)
 
 /*================== TONumber() and ToNumberW()
 
@@ -53,6 +54,7 @@ pron()
 #--> 3
 
 proff()
+# Executed in 0.03 second(s)
 
 /*------------------
 
@@ -68,7 +70,7 @@ StartProfiler()
 #--> -1
 
 StopProfiler()
-#--> Executed in 0.07 seconds seconds.
+#--> Executed in 0.12 seconds seconds.
 
 /*------------------
 
@@ -137,7 +139,7 @@ o1 = new stzList([ 1, 2, 3 ])
 #--> 6
 
 proff()
-# Executed in 0.39 second(s)
+# Executed in 0.42 second(s)
 
 /*-----------------
 
@@ -156,12 +158,19 @@ proff()
 # Executed in 0.40 second(s)
 
 /*=================
+*/
+pron()
+
+//? Q([ [ "one", "1" ], [ "two", "2" ] ]).IsHashList()
+
 
 ? Q(StzTypesXT()).IsHashList()
 #--> TRUE
 
 ? StzHashListQ(StzTypesXT()).FindValue('stzchars')
 #--> 17
+
+proff()
 
 /*-----------------
 

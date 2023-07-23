@@ -581,7 +581,6 @@ func StzClassesXT()
 		[ :stzListOfHashLists,		:stzListsOfHashLists	],
 
 		[ :stzAssociativeList, 		:stzAssociativeLists	],
-		[ :stzListOfHashLists, 		:stzListOfHashLists	],
 		[ :stzSet, 			:stzSets		],
 		[ :stzListOfLists, 		:stzListsOfLists	],
 
@@ -591,11 +590,11 @@ func StzClassesXT()
 		[ :stzPairOfLists,		:stzPairsOfList		],
 		
 		[ :stzListOfSets, 		:stzListsOfSets		],
-		[ :stzPairOfLists, 		:stzPairsOfLists	],
 		[ :stzTree, 			:stzTrees		],
 
 		[ :stzWalker, 			:stzWalkers		],
 		[ :stzTable, 			:stzTables		],
+		[ :stzListOfTables,		:stzListsOfTables	],
 		[ :stzLocale, 			:stzLocales		],
 		
 		[ :stzCountry, 			:stzCountries		],
@@ -1376,7 +1375,7 @@ class stzObject
 			ok
 
 		but This.IsAList()
-			if BothAreLists(pValue1, pValue2) and
+			if isList(pValue1) and isList(pValue2) and
 			   ( This.ListQ() = pValue1 or This.ListQ() = pValue2 )
 				return TRUE
 			ok
