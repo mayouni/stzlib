@@ -24332,7 +24332,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	 #  STRINGIFYING ITEMS AND REPLACING A SUBSTRING BY AN OTHER IN EACH STRING -- EXTENDED  #
 	#---------------------------------------------------------------------------------------#
 	# This extented version returns along the stringified items, the list of positions of
-	# those beeing affected by the replacement operation
+	# the items beeing affected by the replacement operation
 
 	def StringifyAndReplaceXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
 		#< QtBased | Uses QString2() #>
@@ -33115,11 +33115,19 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	#==============
+	#-- Z/EXTENDED FORM
 
 	def SomeRandomItemsOtherThanManyCSZ(pItem)
 		# TODO
 		StzRaise("Unsupported feature yet!")
+
+	#-- U/EXTENDED FORM
+
+	#TODO
+
+	#-- UZ/EXTENDED FORM
+
+	#TODO
 
 	  #--------------------------------------------------------#
 	 #  GETTING AN ITEM BETWEEN TWO OTHER ITEMS OR POSITIONS  #
@@ -33129,15 +33137,19 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
+	#-- Z/EXTENDED FORM
+
 	def AnItemBetweenCSZ(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	#---------------
+	#-- IB/EXTENDED FORM
 
 	def AnItemBetweenIBCS(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
+
+	#-- IBZ/EXTENDED FORM
 
 	def AnItemBetweenIBCSZ(pMin, pMax, pCaseSensitive)
 		# TODO

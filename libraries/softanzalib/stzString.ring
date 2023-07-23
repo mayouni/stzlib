@@ -17632,6 +17632,7 @@ def ReplaceIBS()
 	#=================================================#
 
 	def FindLastCS(pcSubStr, pCaseSensitive)
+		#< TODO: @QtBased | Uses QString2.lastIndexOf()
 
 		/* EXAMPLE
 

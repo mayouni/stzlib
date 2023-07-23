@@ -10,7 +10,7 @@ func stzStringError(pcError)
 	on :CanNotTransformQStringToString
 		cErrorMsg += "   What : Can't transform the QString object to a Ring string." + NL
 		cErrorMsg += "   Why  : The value you provided is not of type QString." + NL
-		cErrorMsg += "   Todo : Provide a QString (using new QString() append(cStr) from RingQt) and it will be fine ;)"
+		cErrorMsg += "   Todo : Provide a QString (using new QString2() append(cStr) from RingQt) and it will be fine ;)"
 
 	on :CanNotBoxTheString
 		cErrorMsg += "   What : Can't set a box for the string!" + NL

@@ -8920,7 +8920,7 @@ oChar = new QChar(40220) # the char "鴜" coded on 3 bytes
 
 # Second, we create a QString from that QChar
 
-oStr = new QString()
+oStr = new QString2()
 oStr.append_2(oChar)
 
 # Third, we use toUtf8() on QString to get a QByteArray as a result,
