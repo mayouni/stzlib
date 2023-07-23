@@ -1623,7 +1623,7 @@ class stzObject
 	 #  CASTING THE OBJECT VALUE INTO A NUMBER -- EXTENDED  #
 	#------------------------------------------------------#
 
-	def ToNumberXT(pcCode)
+	def ToNumberW(pcCode)
 
 		if isList(pcCode) and Q(pcCode).IsUsingNamedParam()
 			pcCode = pcCode[2]
@@ -1638,7 +1638,7 @@ class stzObject
 			@number = This.Number()
 		ok
 		
-		cCode = @@(Q(pcCode)).
+		cCode = Q(pcCode).
 			RemoveBoundsQ('"').
 			RemoveThisFirstCharQ("{").
 			RemoveThisLastCharQ("}").
@@ -1653,7 +1653,7 @@ class stzObject
 
 		if Q(cCode).StartsWithEitherCS( "@number=", :Or = "@number =", :CS = FALSE )
 			# EXAMPLE
-			# ? Q([ "a", "b", "c" ]).ToNumberXT('{ @number = len(@list) }')
+			# ? Q([ "a", "b", "c" ]).ToNumberW('{ @number = len(@list) }')
 			#--> 3
 
 			@list = This.Content()
@@ -1665,7 +1665,7 @@ class stzObject
 			# CASE += is used on a list of items or a string
 
 			# EXAMPLE
-			# ? Q([ "Me", "and", "You!" ]).ToNumberXT('{ @number += len(@item) }')
+			# ? Q([ "Me", "and", "You!" ]).ToNumberXTW('{ @number += len(@item) }')
 			#--> 9
 			@number = 0
 
@@ -1696,6 +1696,15 @@ class stzObject
 		ok
 
 		return @number
+
+		def ToNumberWQ(pcCode)
+			return new stzNumber( This.ToNumberW(pcCode) )
+
+		def ToNumberXT(pcCode)
+			return This.ToNumberW(pcCode)
+
+			def ToNumberXTQ(pcCode)
+				return new stzNumber( This.ToNumberXT(pcCode) )
 
 	  #------------------------------------------#
 	 #  CASTING THE OBJECT VALUE INTO A STRING  #

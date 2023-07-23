@@ -39,16 +39,16 @@ o1 = new stzString("ring")
 #--> 3
 
 /*------------------
-
+*/
 StartProfiler()
 
-? Q(-5).ToNumberXT('{ @number = Q(@number).Abs() }')
+? Q(-5).ToNumberW('{ @number = Q(@number).Abs() }')
 #--> 5
 
-? Q(5).ToNumberXT('{ @number = @number + 5 }')
+? Q(5).ToNumberW('{ @number = @number + 5 }')
 #--> 10
 
-? QR([ -1, 2, -3, -4, 5 ], :stzListOfNumbers).ToNumberXT('{ @number = This.Sum() }')
+? QR([ -1, 2, -3, -4, 5 ], :stzListOfNumbers).ToNumberW('{ @number = This.Sum() }')
 #--> -1
 
 StopProfiler()
@@ -85,11 +85,13 @@ StopProfiler()
 #--> Executed in 0.24 seconds seconds.
 
 /*------------------
+*/
+pron()
 
-? Q([ "a", "b", "c" ]).ToNumberXT('{ @number = len(@list) }')
+? Q([ "a", "b", "c" ]).ToNumberW('{ @number = len(@list) }') # Or ToNumberXT()
 #--> 3
 
-? Q([ "a", "b", "c" ]).ToNumberXT('{
+? Q([ "a", "b", "c" ]).ToNumberW('{
 	@number = QR(@list, :stzListOfChars).UnicodesQR(:stzListOfNumbers).Sum()
 }')
 #--> 294
@@ -97,13 +99,18 @@ StopProfiler()
 # In fact:
 ? QR(["a", "b", "c"], :stzListOfChars).Unicodes() #--> [97, 98, 99]
 
-? Q([ "Me", "and", "You!" ]).ToNumberXT('{ @number += len(@item) }')
+? Q([ "Me", "and", "You!" ]).ToNumberW('{ @number += len(@item) }')
 #--> 9
 
 # In fact:
-? Q([ "Me", "and", "You!" ]).Yield('len(@item)') #--> [2, 3, 4]
+? Q([ "Me", "and", "You!" ]).Yield('len(@item)')
+#--> [2, 3, 4]
+
+proff()
 
 /*----------------
+
+pron()
 
 o1 = new stzList([ 1, 2, 3 ])
 ? o1.ToNumberXT('
@@ -111,7 +118,12 @@ o1 = new stzList([ 1, 2, 3 ])
 ')
 #--> 6
 
+proff()
+# Executed in 0.39 second(s)
+
 /*-----------------
+
+pron()
 
 o1 = new stzList([ "one", "two", "three" ])
 ? o1.ToNumber()
@@ -121,6 +133,9 @@ o1 = new stzList([ "one", "two", "three" ])
 	@number = YieldAndCumulateXT("len(@item)", :ReturnLast )
 ')
 #--> 11
+
+proff()
+# Executed in 0.40 second(s)
 
 /*=================
 
@@ -142,6 +157,8 @@ o1 = new stzList([ "one", "two", "three" ])
 #--> "stzchar"
 
 /*-----------------
+
+pron()
 
 ? Q("2").IsA([ :Number, :Or = :String, :Or = :List ])
 #--> TRUE
@@ -189,7 +206,12 @@ o1 = new stzList([ "one", "two", "three" ])
 ? Q([ 10, 20, 30 ]).IsA(:ListOfNumbers)
 #--> TRUE
 
+proff()
+# Executed in 0.09 second(s)
+
 /*------------ TODO: Check error
+
+pron()
 
 # Using a ChainOfTruth (started with "_" and ended with "_":
 
@@ -205,15 +227,21 @@ o1 = new stzList([ "one", "two", "three" ])
 	IsA(:Pair)._
 #--> TRUE
 
-/*--------------------
-
-? StzClasses()
+proff()
 
 /*--------------------
+
+pron()
 
 o1 = new stzNumber(12500)
+
 ? o1.Is(:StzNumber)
+#--> TRUE
+
 ? o1.Is(:String)
+#--> FALSE
+
+proff()
 
 /*--------------------
 
@@ -225,48 +253,6 @@ o1 = new stzString("hello")
 o1 = new stzGrid([ [1,2,3], [4,5,6], [7,8,9] ])
 ? o1.Is(:StzGrid) # from stzObject based on the name of the class
 ? o1.IsAGrid() # used by natural code in stzChainOfTruth
-
-/*--------------------
-
-o1 = new Person { name = "Ali" age = 32 job = "Developer" }
-
-# NOTE: if you provide the name of the object in a string (as :o1),
-# then you can get the variable name of the object using ObjectVarName()
-
-StzObjectQ( :o1 ) {
-
-	? "ID: " + ObjectUID() + NL
-
-	? "Object Name: " + ObjectVarName() + NL
-
-	? "Object class: " + ObjectClassName() + NL
-
-	? "Attributes:"
-	? ObjectAttributes()
-
-	? "Values:"
-	? ObjectValues()
-
-	? "Attributes and their values:"
-	? ObjectAttributesAndValues()
-
-	? "Methods:"
-	? ObjectMethods()
-
-}
-
-class Person
-	name
-	age
-	job
-
-	def init(cName)
-		name = cName
-
-	def show()
-		? "Name : " + name
-		? "Age  : " + age
-		? "Job  : " + job
 
 /*----------------
 
@@ -285,11 +271,17 @@ proff()
 # Executed in 0.04 second(s)
 
 /*----------------
-*/
+
 pron()
 
-? len(RingQtClasses())
+? HowManyStzClasses()
+#--> 51
+
+? HowManyRingQtClasses()
 #--> 368
 
+/*----------------
+
+? StzClasses()
 
 proff()
