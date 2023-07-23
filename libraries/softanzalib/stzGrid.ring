@@ -1186,6 +1186,9 @@ class stzGrid from stzObject
 	def IsAGrid() # required by stzChainOfTruth
 		return TRUE
 
+	def StzType()
+		return :stzgrid
+
 	def SetGridSize(pnNumberOfVLines, pnNumberOfHLines) # TODO
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
