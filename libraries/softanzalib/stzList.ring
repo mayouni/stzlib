@@ -16251,11 +16251,34 @@ class stzList from stzObject
 
 		# Doing the job
 
-		nLen = This.NumberOfItems()
+		aContent = This.Content()
+		nLen = len(aContent)
 		if nLen < 2
 			return []
 		ok
 
+		acContent = []
+
+		for i = 1 to nLen
+			acContent + @@( aContent[i] )
+		next
+
+		aSeen = []
+		anPos = []
+
+		bSeen = FALSE
+		bFound = FALSE
+
+		for i = 1 to nLen
+
+			aSeen + acContent[i]
+			nPos = FindFirstS(
+
+			
+		next
+
+//? @@(acContent)
+/*
 		aContent = []
 
 		# We stringify the list (all items are becoming strings)
@@ -16274,24 +16297,9 @@ class stzList from stzObject
 					Content()
 		ok
 
-		# Reverting the strings containing "*"
-
-		anPos = aContent[2]
-		nLenPos = len(anPos)
-? @@(anPos)
-sdkhs
-		for i = 1 to nLenPos
-			cStr = @@Q( This.Item(anPos[i]) )
-			oQStr = new QString2()
-			oQStr.append( cStr )
-
-			if oQStr.contains("*", 0)
-				aContent[anPos[i]] = cStr
-			ok
-		next
-
 		# Go forward
 
+		nLen = len(aContent[1])
 		acItems = []
 		anOccur = []
 
@@ -16331,7 +16339,7 @@ sdkhs
 		next
 
 		return aResult 
-
+*/
 		#< @FunctionFluentForms
 
 		def FindDuplicatesCSQ(pCaseSensitive)
@@ -24336,9 +24344,10 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	def StringifyAndReplaceXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
 		#< QtBased | Uses QString2() #>
 
-		# NOTE: General note on performance
-		# For all loops running on large data (tens of thousands of times and more)
-		# don't rely on softanza objects services (stzString and alike), use Qt directly instead!
+		# NOTE: General note on performance of code written here in SoftanzaLib
+
+		# For all loops running on large data (tens of thousands of times and more), we
+		# don't rely on softanza objects services (stzString and alike), we use Qt directly instead!
 
 		# In fact the problem comes, not from Softanza objects themselves, but from
 		# going back and forth between Ring and Qt
@@ -24373,7 +24382,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		acResult = []
 		anPos = []
 		anPosExt = []
-		cExtension = "___" //AStringOtherThen(pcOtherSubStr)
+		cExtension = Q("_").RepeatedNTImes( ( Q(pcOtherSubStr).NumberOfChars() * 2 ) )
 
 		cItem = ""
 		n = 0 # Used to count the objects contained in the list
@@ -24402,7 +24411,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 				ok
 
 				if bExtend and ring_find(anPos, i) = 0
-					cItem += cExtension
+					cItem = cExtension + cItem + cExtension
 					anPosExt + i
 				ok
 
@@ -24596,6 +24605,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		acResult = []
 		anPos = []
 		cItem = ""
+		anPosExt = []
+		cExtension = Q("_").RepeatedNTImes( ( Q(pcOtherSubStr).NumberOfChars() * 2 ) )
+		
+		cItem = ""
+
 		n = 0 # Used to count the objects contained in the list
 
 		for i = 1 to nLen
@@ -24608,6 +24622,12 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 				oQStr = new QString2()
 				oQStr.append(item)
 
+
+				bExtend = FALSE
+				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
+					bExtend = TRUE
+				ok
+
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
 					cItem = item
 				else
@@ -24616,16 +24636,31 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 					anPos + i
 				ok
 
+				if bExtend and ring_find(anPos, i) = 0
+					cItem = cExtension + cItem + cExtension
+					anPosExt + i
+				ok
+
 			but isList(item)
 				item = @@(item)
 				oQStr = new QString2()
 				oQStr.append(item)
+
+				bExtend = FALSE
+				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
+					bExtend = TRUE
+				ok
 
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
 					cItem = item
 				else
 					oQStr.replace_2(pcSubStr, pcOtherSubStr, pCaseSensitive)
 					cItem = oQStr.mid(0, oQStr.count())
+				ok
+
+				if bExtend and ring_find(anPos, i) = 0
+					cItem += cExtendion
+					anPosExt + i
 				ok
 
 			but isObject(item)
@@ -24643,7 +24678,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			acResult + cItem
 		next
 
-		aResult = [ acResult, anPos ]
+		aResult = [ acResult, anPos, anPosExt ]
 		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm

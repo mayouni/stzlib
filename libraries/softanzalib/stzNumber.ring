@@ -1045,6 +1045,11 @@ class stzNumber from stzObject
 		def Value()
 			return This.NumericValue()
 	
+		# Misspelled Form
+
+		def NumbericValue()
+			return This.NumericValue()
+
 	def StringValue()
 		return @cNumber
 
@@ -4256,6 +4261,20 @@ class stzNumber from stzObject
 			return This.PreviousNumber()
 
 		but pOp = "[]"
+			if isString(pValue) and Q(pValue).StartsWith("//") 
+
+				cRemainingPart = Q(pValue).SectionQ(3, :LastChar).Trimmed()
+
+				if Q(cRemainingPart).IsNumberInString()
+					n = 0+ cRemainingPart
+					nResult = floor( This.NumbericValue() / n )
+					# NOTE this a misspelled form of NumericValue()!
+
+					return nResult
+				ok
+
+			ok
+
 			return This.Content()[pValue]
 
 		ok

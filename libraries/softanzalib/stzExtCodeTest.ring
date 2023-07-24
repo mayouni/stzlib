@@ -31,7 +31,42 @@ pron()
 proff()
 
 /*--------------
+
+pron()
+
+# In python, we get the integer part of the division using the // operator
+
+'345 // 100'
+#--> 3
+
+# In Ring, we can simulate this Python syntax by saying:
+
+? Q(345)['// 100']
+#--> 3
+
+proff()
+
+/*---------------
 */
+pron()
+
+# In Python, this code concatenates a list of items into a string using a given separator:
+/*
+' + '.join([ "a", "b", "c" ])
+*/
+#--> a + b + c
+
+# In Ring, with Softanza, we can use the same code like this:
+
+? Q(' + ').join([ "a", "b", "c" ])
+#--> a + b + c
+
+proff()
+# Executed in 0.05 second(s)
+
+/*--------------
+
+
 # We asked Bard AI about a python code that performs the
 # Google Diff Algortithm (comparing two strings and
 # showing their differences)...

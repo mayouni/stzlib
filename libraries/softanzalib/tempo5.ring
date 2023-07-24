@@ -1,72 +1,25 @@
 load "stzlib.ring"
 
+pron()
 
-/*------
-*/
-o1 = new stzList([
-	[ "stzobject", "stzobjects" ],
-	[ "stzlistofobjects", "stzlistsofobjects" ],
-	[ "stznumber", "stznumbers" ],
-	[ "stzlistofnumbers", "stzlistsofnumbers" ],
-	[ "stzlistofunicodes", "stzlistsofunicodes" ],
-	[ "stzbinarynumber", "stzbinarynumbers" ],
-	[ "stzhexnumber", "stzhexnumbers" ],
-	[ "stzoctalnumber", "stzoctalnumbers" ],
-	[ "stzstring", "stzstrings" ],
-	[ "stzsplitter", "stzsplitters" ],
-	[ "stzmultistring", "stzmultistrings" ],
-	[ "stzmultilingualstring", "stzmultilingualstrings" ],
-	[ "stzstopwords", "stzstopwords" ],
-	[ "stzlistofstrings", "stzlistsofstrings" ],
-	[ "stzlistinstring", "stzlistsinstrings" ],
-	[ "stzlistofbytes", "stzlistsofbytes" ],
-	[ "stzchar", "stzchars" ],
-	[ "stzunicodenames", "stzunicodenames" ],
-	[ "stzlistofchars", "stzlistsofchars" ],
-	[ "stzlist", "stzlists" ],
-	[ "stzhashlist", "stzhashlists" ],
-	[ "stzlistofhashlists", "stzlistsofhashlists" ],
-	[ "stzassociativelist", "stzassociativelists" ],
-	[ "stzset", "stzsets" ],
-	[ "stzlistoflists", "stzlistsoflists" ],
-	[ "stzlistofpairs", "stzlistsofpairs" ],
-	[ "stzpair", "stzpairs" ],
-	[ "stzpairofnumbers", "stzpairsofnumbers" ],
-	[ "stzpairoflists", "stzpairsoflist" ],
-	[ "stzlistofsets", "stzlistsofsets" ],
-	[ "stzpairoflists", "stzpairsoflists" ],
-	[ "stztree", "stztrees" ],
-	[ "stzwalker", "stzwalkers" ],
-	[ "stztable", "stztables" ],
-	[ "stzlocale", "stzlocales" ],
-	[ "stzcountry", "stzcountries" ],
-	[ "stzlanguage", "stzlanguages" ],
-	[ "stzscript", "stzscripts" ],
+//list = [1, 2, 3, 4, 5, 1, 2, 3]
+list = 1:10_000
+list + 1 + 2 + 3 + 4 + 5 + 1 + 2 + 3
+duplicates = find_duplicates(list)
+? @@(duplicates)
 
+proff()
 
+def find_duplicates(list)
+	duplicates = []
+	nLen = len(list)
 
-	[ "stzcurrency", "stzcurrencies" ],
-	[ "stzlistparser", "stzlistsparsers" ],
-	[ "stzgrid", "stzgrids" ],
-	[ "stzlistofgrids", "stzlistsofgrids" ],
-	[ "stzcounter", "stzcounters" ],
-	[ "stzdate", "stzdates" ],
-	[ "stztime", "stztimes" ],
-	[ "stzfile", "stzfiles" ],
-	[ "stzfolder", "stzfolders" ],
-	[ "stzruntime", "stzruntimes" ],
-	[ "stztextencoding", "stztextencodings" ],
-	[ "stznaturalcode", "stznaturalcodes" ],
-	[ "stzchainofvalue", "stzchainsofvalues" ],
-	[ "stzchainoftruth", "stzchainsoftruth" ],
-	[ "stzentity", "stzentities" ],
-	[ "stzlistofentities", "stzlistsofentities" ],
-	[ "stztext", "stztexts" ],
-	[ "stzstringart", "stzstringarts" ],
-	[ "stzconstraints", "stzconstraints" ],
-	[ "stzccode", "stzccodes" ],
-	[ "stznullobject", "stznullobjects" ],
-	[ "stzextcode", "stzextcodes" ]
-])
+	for i = 1 to nLen - 1
+		for j = i + 1 to nLen
+			if list[i] = list[j]
+				duplicates + [i, j]
+			ok
+		next	
+	next
 
-? o1.IsHashList()
+	return duplicates

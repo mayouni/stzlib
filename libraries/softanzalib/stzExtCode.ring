@@ -81,19 +81,26 @@ func Vl(paVals)
 
 
 func range(p) # Python
-
+	aResult = []
 	if isNumber(p)
 		# Example: range(3) #--> [ 0, 1, 2 ]
 		aResult = 0 : (p - 1)
 
 	but isList(p)
-		if Q(p).IsListOfNumbers() and len(p) = 3
-			# Example: range(-3, 3+1, 2) #--> [ -3, -1, 1, 3 ]
-			aResult = []
-
-			for i = p[1] to p[2]-1 step p[3]
-				aResult + i
-			next
+		if Q(p).IsListOfNumbers()
+			if len(p) = 3
+				# Example: range(-3, 3+1, 2) #--> [ -3, -1, 1, 3 ]
+				aResult = []
+	
+				for i = p[1] to p[2]-1 step p[3]
+					aResult + i
+				next
+	
+			but len(p) = 2
+				# Example: range(1, 5) #--> [1, 2, 3, 4 ]
+				aResult = p[1] : (p[2]-1)
+			
+			ok
 		ok
 
 	else
