@@ -4261,6 +4261,11 @@ class stzNumber from stzObject
 			return This.PreviousNumber()
 
 		but pOp = "[]"
+			# Supporting external Python syntax:
+				# In Pyhton: 345 // 100 #--> 3
+				# In Ring with Softanza:
+				# ? Q(345)['// 100'] #--> 3
+
 			if isString(pValue) and Q(pValue).StartsWith("//") 
 
 				cRemainingPart = Q(pValue).SectionQ(3, :LastChar).Trimmed()
