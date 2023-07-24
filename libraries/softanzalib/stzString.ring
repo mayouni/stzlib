@@ -41616,9 +41616,34 @@ def ReplaceIBS()
 			ok
 		ok // --- End of operator overloading section
 
-	  #================================#
-	 #     USED FOR NATURAL-CODING    #
-	#================================#
+
+	  #=====================================================#
+	 #  METHODS USED FOR CAMPATIBILITY WITH EXTERNAL CODE  #
+	#=====================================================#
+
+	def join(pacItems) # Python
+		/* EXAMPLE
+
+		In Python: ' + '.join([ "a", "b", "c" ])
+		#--> a + b + c
+
+		# In Ring, with Softanza:
+
+		? Q(' + ').join([ "a", "b", "c" ])
+		#--> a + b + c
+
+		*/
+
+		if NOT ( isList(pacItems) and Q(pacItems).IsListOfStrings() )
+			StzRaise("Incorrect param type! pacItems must be a list of strings.")
+		ok
+
+		cResult = QR(pacItems, :stzListOfStrings).ConcatenatedUsing(This.String())
+		return cResult
+
+	  #==========================================#
+	 #   METHODS USED FOR NEAR-NATURAL-CODING   #
+	#==========================================#
 
 	def IsAlmostAFunctionCall()
 		# Why almost? Because it doesn't analyse the correctness of the params
