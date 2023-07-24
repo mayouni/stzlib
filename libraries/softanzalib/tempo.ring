@@ -1,5 +1,14 @@
 load "stzlib.ring"
 
+pron()
+
+c = myfunc(
+
+
+proff()
+
+func myfunc()
+
 /*==============
 
 pron()

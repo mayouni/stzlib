@@ -18474,20 +18474,12 @@ def ReplaceIBS()
 
 		# Doing the job
 
-		nLen = This.NumberOfChars()
+/*		nLen = This.NumberOfChars()
 		if nLen = 1 or nStart = nLen
 			return 0
 		ok
-
-		nPos  = This.SectionQ(nStart + 1, :LastChar).
-				QStringObject().
-				IndexOf(pcSubStr, 0, pCaseSensitive) + 1
-
-		nResult = 0
-
-		if nPos != 0
-			nResult = nPos + nStart
-		ok
+*/
+		nResult = QStringObject().indexof(pcSubStr, nStart, pCaseSensitive) + 1
 
 		return nResult
 		

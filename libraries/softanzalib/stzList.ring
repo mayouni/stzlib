@@ -16257,13 +16257,13 @@ class stzList from stzObject
 			return []
 		ok
 
-		acContent = []
+		oQStrList = new QStringList()
 
 		for i = 1 to nLen
-			acContent + @@( aContent[i] )
+			oQStrList.append( @@(aContent[i]) )
 		next
 
-		aSeen = []
+		aSeen = [ oQStrList.at(0) ]
 		anPos = []
 
 		bSeen = FALSE
@@ -16271,8 +16271,7 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 
-			aSeen + acContent[i]
-			nPos = FindFirstS(
+//			nPos = oQStrList.indexOf_1()
 
 			
 		next
