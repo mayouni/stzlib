@@ -16270,8 +16270,9 @@ class stzList from stzObject
 		bFound = FALSE
 
 		for i = 1 to nLen
-
-//			nPos = oQStrList.indexOf_1()
+			cItem = oQStrList.at(i-1)
+			nPos = oQStrList.indexOf(cItem, i, pCaseSensitive)
+			
 
 			
 		next

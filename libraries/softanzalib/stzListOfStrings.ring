@@ -4668,6 +4668,11 @@ class stzListOfStrings from stzList
 
 	def FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
+		bCaseSensitive = TRUE
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			bCaseSensitive = pCaseSensitive[2]
+		ok
+
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
@@ -4689,9 +4694,16 @@ class stzListOfStrings from stzList
 			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
-		nResult = This.SectionQR(pnStartingAt, This.NumberOfStrings(), :stzListOfStrings).
-			       FindFirstCS(pcStrItem, pCaseSensitive) +
-			       pnStartingAt
+		if bCaseSensitive
+			nResult = This.QStringListObject().indexof(pcStrItem, pnStartingAt+1) + 1
+
+		else
+			nResult =  This.Copy().LowercaseQ().
+					QStringListObject().
+					indexof( Q(pcStrItem).Lowercased(), pnStartingAt+1)
+
+		ok
+
 
 		return nResult
 

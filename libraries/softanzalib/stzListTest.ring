@@ -1766,11 +1766,39 @@ proff()
 # Executed in 0.03 second(s)
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzString("123456789")
 ? o1.FindNext("1", :startingAt = 10)
+
+proff()
+
+/*----------
+
+pron()
+
+? version()
+#--> 1.17
+
+proff()
+/*---------- TODO: Bug in RingQt? Waiting for Mahmoud answer...
+*/
+pron()
+
+aList = [ "A", "*", "B", "C", "D", "*", "E" ]
+
+o1 = new QStringList()
+
+for i = 1 to 7
+    o1.append(aList[i])
+next
+
+? o1.indexof("*", 0) + 1 # To get and Ring-index.
+#--> 2
+
+? o1.indexof("*", 3) + 1
+#!--> 6
 
 proff()
 
