@@ -2,24 +2,14 @@ load "stzlib.ring"
 
 pron()
 
-//list = [1, 2, 3, 4, 5, 1, 2, 3]
-list = 1:10_000
-list + 1 + 2 + 3 + 4 + 5 + 1 + 2 + 3
-duplicates = find_duplicates(list)
-? @@(duplicates)
+aList = []
+for i = 1 to 9_900_000
+	aList + "sometext"
+next
+aList + "A" + "*" + "B" + "C" + "*" + "D"
+
+o1 = new stzListOfStrings([ "A", "*", "B", "C", "*", "D" ])
+? o1.FindNext("*", :startingat = 2)
+#--> 5
 
 proff()
-
-def find_duplicates(list)
-	duplicates = []
-	nLen = len(list)
-
-	for i = 1 to nLen - 1
-		for j = i + 1 to nLen
-			if list[i] = list[j]
-				duplicates + [i, j]
-			ok
-		next	
-	next
-
-	return duplicates
