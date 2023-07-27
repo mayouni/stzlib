@@ -1782,8 +1782,8 @@ pron()
 #--> 1.17
 
 proff()
-/*---------- TODO: Bug in RingQt? Waiting for Mahmoud answer...
-*/
+/*----------
+
 pron()
 
 aList = [ "A", "*", "B", "C", "D", "*", "E" ]
@@ -1803,16 +1803,53 @@ next
 proff()
 
 /*----------
+
+pron()
+
+o1 = new stzList([ 1, "*", 10:12, "B", 2, 1, "*", "A", 3, "*", "B", 10:12, "B" ])
+? @@( o1.DuplicatesZ() )
+#--> [
+#	[ 1, 	 [ 6 ] ],	# 1 is duplicated once at position 5
+#	[ "*", 	 [ 7, 10 ] ],	# "*" is duplicated twice at positions 6 and 9
+#	[ 10:12, [ 12 ] ],	# 10:12 is duplicated once at position 12
+#	[ "B", 	 [ 11, 13 ] ]	# "B" is duplicated twice at positions 10 and 11
+# ]
+proff()
+
+/*----------
 */
+pron()
+
+aList = 1:10
+aList + 1 + "*" + 10:12 + "B" + 2 + 1 + "*" + "A," + 3 + "*" + "B" + 10:12 + "B"
+
+o1 = new stzList(aList)
+o1.DuplicatesZ()
+
+//? @@( o1.DuplicatesZ() )
+
+proff()
+#-->        10 items 	:  0.03 second(s)
+#-->       100 items 	:  0.03 second(s)
+#-->	   500 items	:  0.04 second(s)
+#-->     1_000 items 	:  0.04 second(s)
+#-->   100_000 items	:  0.49 second(s)
+#-->   500_000 items	:  2.78 second(s)
+#--> 1_000_000 items	: 10.35 second(s)
+#--> 1_900_000 items	: 25.70 second(s)
+
+/*----------
+
 o1 = new stzList(
-	1:100_000 +
+	1:10 + //0_000 +
 	10 +
 	"10" +
 	[1, 2, 3] +
 	'[1, 2, 3]' +
 	
 	[1, 2, 3] +
-	10
+	10 +
+	'[ 1* 2* 3 ]'
 )
 
 //? o1.ContainsDuplicates()
@@ -2243,6 +2280,7 @@ StartProfiler()
 	for i = 1 to 10
 		aLargeListOfStr + "_"
 	next i
+
 ? ElapsedTime()
 # Removing dupicates
 
