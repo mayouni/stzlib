@@ -146,26 +146,6 @@ class stzListOfStrings from stzList
 			for i = 1 to nLen
 				@oQStrList.append(pList[i])	
 			next
-
-		but isString(pList)
-
-			try
-				aList = StzStringQ(pList).ToList()
-
-				if StzListQ(aList).IsListOfStrings()
-					@oQStrList = new QStringList()
-					nLen = len(aList)
-
-					for i = 1 to len(aList)
-						@oQStrList.append(aList[i])
-					next
-
-				else
-					StzRaise("The list in the string you provided is not a list of strings!")
-				ok
-			catch
-				StzRaise("Can't transform the string to a list!")
-			done
 			
 		else
 			StzRaise([
@@ -186,9 +166,10 @@ class stzListOfStrings from stzList
 	def Content()
 
 		acResult = []
+		nLen = @oQStrList.count()
 
-		for i = 0 to This.QStringListObject().size()-1
-			acResult + This.QStringListObject().at(i)	
+		for i = 0 to nLen - 1
+			acResult + This.@oQStrList.at(i)	
 		next
 
 		return acResult
@@ -698,6 +679,9 @@ class stzListOfStrings from stzList
 
 	def ToStzList()
 		return new stzList( This.Content() )
+
+		def ToListQ()
+			return This.ToStzList()
 
 	  #------------------------------------------#
 	 #    GETTING STRING AT A GIVEN POSITION    #
@@ -4668,9 +4652,11 @@ class stzListOfStrings from stzList
 
 	def FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
+		# Checking params
+
 		bCaseSensitive = TRUE
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			bCaseSensitive = pCaseSensitive[2]
+			bCaseSensitive = FALSE
 		ok
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
@@ -4694,18 +4680,32 @@ class stzListOfStrings from stzList
 			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
-		if bCaseSensitive
-			nResult = This.QStringListObject().indexof(pcStrItem, pnStartingAt+1) + 1
+		# Doing the job
 
-		else
-			nResult =  This.Copy().LowercaseQ().
-					QStringListObject().
-					indexof( Q(pcStrItem).Lowercased(), pnStartingAt+1)
+		nResult = This.SectionQ(pnStartingAt + 1, :Last).
+			FindFirstCS(pItem, pCaseSensitive)
 
+		if nResult != 0
+			nResult += pnStartingAt
 		ok
 
+		return nResult
+
+		/* WARNING
+
+		This solution based on QStringList is not perfomant for a list made of
+		about 2 millions items, and where the searched item is at the end.
+
+		if bCaseSensitive
+			nResult = This.QStringListObject().indexof(pcStrItem, pnStartingAt - 1) + 1
+
+		else
+			nResult = This.LowercaseQ().QStringListObject().indexof(Q(pcStrItem).Lowercased(), pnStartingAt - 1) + 1
+		ok
 
 		return nResult
+	
+		*/
 
 		#< @FunctionAlternativeForms
 
@@ -6123,7 +6123,9 @@ class stzListOfStrings from stzList
 	#-------------------------------------------------------------------#
 	
 	def FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
-		return This.FindNthOccurrenceOfSubStringCS(1, pcSubStr, pCaseSensitive)
+		#< QtBased | Uses QStringList.indexof() >
+
+		return This.FindNextCS(pcSubStr, :StartingAt = 1, pCaseSensitive)
 
 		def FindFirstSubStringCS(pcSubStr, pCaseSensitive)
 			return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
@@ -6552,6 +6554,7 @@ class stzListOfStrings from stzList
 	#---------------------------------------------------#
 
 	def FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+		#< QtBase | Uses QStringList.indexof() >
 
 		# Checking param correctness
 
@@ -6595,11 +6598,15 @@ class stzListOfStrings from stzList
 
 		# Doing the job
 
+		nResult = This.ToListQ().FindNextNthCS(n, pcSubStr, pCaseSensitive)
+		return nResult
+
+/*
 		oListOfStr = This.SectionQR(pnStartingAt, :LastItem, :stzListOfStrings)
 		aResult = oListOfStr.FindNthOccurrenceOfSubStringCS(n, pcSubStr, pCaseSensitive)
 
 		return nResult
-
+*/
 		#< @FunctionAlternativeForms
 
 		def FindNthNextOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, pCaseSensitive)

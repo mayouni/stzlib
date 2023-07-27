@@ -576,13 +576,6 @@ class stzList from stzObject
 		if isList(paList)
 			@aContent = paList
 
-		but isString(paList)
-			try
-				@aContent = StzStringQ(paList).ToList()
-			catch
-				StzRaise("Can't transform the string to a list!")
-			done
-
 		else
 			StzRaise("Can't create the stzList object!")
 		ok
@@ -16232,164 +16225,323 @@ class stzList from stzObject
 
 		#>
 
-	  #----------------------#
-	 #  FINDING DUPLICATES  #
-	#----------------------#
+	   #=============================================================#
+	  #  STRINGIFYING THE ITEMS, MAKING A REPLACEMENT INSIDE THEM,  #
+	 #  AND THEN CONCATENATING THEM IN ONE RETURNED STRING         #
+	#=============================================================#
+	# Made to be used internally, as an implementation technique,
+	# to boost performance of stzList on large lists
 
-	def FindDuplicatesCS(pCaseSensitive)
+	def StringifiedReplacedAndConcatenated(pcSubStr, pcOtherSubStr, pcSep)
+		return This.StringifiedReplacedAndConcatenatedXT(pcSubStr, pcOtherSubStr, pcSep)[1]
+
+		def StrRepCon(pcSubStr, pcOtherSubStr, pcSep)
+			return This.StringifiedReplacedAndConcatenated(pcSubStr, pcOtherSubStr, pcSep)
+
+	def StringifiedReplacedAndConcatenatedXT(pcSubStr, pcOtherSubStr, pcSep)
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		cResult = ""
+		acStrings = []
+
+		anPosExt = []
+		cExtension = "__"
+
+		anPos = []
+		aResult = []
+
+		cItem = ""
+		n = 0 # Used to count the objects contained in the list
+
+		for i = 1 to nLen
+			item = aContent[i]
+
+			if isNumber(item)
+				cItem = ""+ item
+
+			but isString(item)
+
+				oQStr = new QString2()
+				oQStr.append(item)
+
+				bExtend = FALSE
+				if oQStr.contains(pcOtherSubStr, 0)
+					bExtend = TRUE
+				ok
+
+				if NOT oQStr.contains(pcSubStr, 0)
+					cItem = item
+
+				else
+					oQStr.replace_2(pcSubStr, pcOtherSubStr, 0)
+					cItem = oQStr.mid(0, oQStr.count())
+					anPos + i
+				ok
+
+				if bExtend and ring_find(anPos, i) = 0
+					cItem = cExtension + cItem + cExtension
+					anPosExt + i
+				ok
+
+			but isList(item)
+				item = @@(item)
+				oQStr = new QString2()
+				oQStr.append(item)
+
+				bExtend = FALSE
+				if oQStr.contains(pcOtherSubStr, 0)
+					bExtend = TRUE
+				ok
+
+				if NOT oQStr.contains(pcSubStr, 0)
+					cItem = item
+				else
+
+					oQStr.replace_2(pcSubStr, pcOtherSubStr, 0)
+					cItem = oQStr.mid(0, oQStr.count())
+				ok
+
+				if bExtend and ring_find(anPos, i) = 0
+					cItem += cExtendion
+					anPosExt + i
+				ok
+
+			but isObject(item)
+
+				n++
+				cObjectName = "{obj#" + n + "}"
+				cItem = cObjectName
+
+				# WARNING: It's impossible to get the name of the object
+				# by code (should be requested from Mahmoud in future Ring)
+			ok
+
+			cResult += cItem + pcSep
+			acStrings + cItem
+		next
+
+		cResult = Q(cResult).RemovedFromEnd(pcSep)
+
+		aResult = [ cResult, anPos, anPosExt ]
+		return aResult
+
+		def StrRepConXT(pcSubStr, pcOtherSubStr, pcSep)
+			return This.StringifiedReplacedAndConcatenatedXT(pcSubStr, pcOtherSubStr, pcSep)
+
+	   #-------------------------------------------------------------------#
+	  #  STRINGIFYING THE ITEMS, LOWERCASING THEM, MAKING A REPLACEMENT   #
+	 #  INSIDE THEM, AND THEN CONCATENATING THEM IN ONE RETURNED STRING  #         #
+	#-------------------------------------------------------------------#
+	# See previous function. This particular one lowercases the
+	# stringified items so case sensitivity can be manageed.
+
+	def StringifiedLowercasedReplacedAndConcatenated(pcSubStr, pcOtherSubStr, pcSep)
+		return This.StringifiedLowercasedReplacedAndConcatenatedXT(pcSubStr, pcOtherSubStr, pcSep)[1]
+
+		def StrLowRepCon(pcSubStr, pcOtherSubStr, pcSep)
+			return This.StringifiedLowercasedReplacedAndConcatenated(pcSubStr, pcOtherSubStr, pcSep)
+
+	def StringifiedLowercasedReplacedAndConcatenatedXT(pcSubStr, pcOtherSubStr, pcSep)
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		cResult = ""
+		acStrings = []
+
+		anPosExt = []
+		cExtension = "__"
+
+		anPos = []
+		aResult = []
+
+		cItem = ""
+		n = 0 # Used to count the objects contained in the list
+
+		for i = 1 to nLen
+			item = aContent[i]
+
+			if isNumber(item)
+				cItem = ""+ item
+
+			but isString(item)
+
+				oQStr = new QString2()
+				oQStr.append(item)
+
+				bExtend = FALSE
+				if oQStr.contains(pcOtherSubStr, 0)
+					bExtend = TRUE
+				ok
+
+				if NOT oQStr.contains(pcSubStr, 0)
+					cItem = item
+
+				else
+					oQStr.replace_2(pcSubStr, pcOtherSubStr, 0)
+					cItem = oQStr.mid(0, oQStr.count())
+					anPos + i
+				ok
+
+				if bExtend and ring_find(anPos, i) = 0
+					cItem = cExtension + cItem + cExtension
+					anPosExt + i
+				ok
+
+			but isList(item)
+				item = @@(item)
+				oQStr = new QString2()
+				oQStr.append(item)
+
+				bExtend = FALSE
+				if oQStr.contains(pcOtherSubStr, 0)
+					bExtend = TRUE
+				ok
+
+				if NOT oQStr.contains(pcSubStr, 0)
+					cItem = item
+				else
+
+					oQStr.replace_2(pcSubStr, pcOtherSubStr, 0)
+					cItem = oQStr.mid(0, oQStr.count())
+				ok
+
+				if bExtend and ring_find(anPos, i) = 0
+					cItem += cExtendion
+					anPosExt + i
+				ok
+
+			but isObject(item)
+
+				n++
+				cObjectName = "{obj#" + n + "}"
+				cItem = cObjectName
+
+				# WARNING: It's impossible to get the name of the object
+				# by code (should be requested from Mahmoud in future Ring)
+			ok
+
+			cResult += cItem + pcSep
+			acStrings + cItem
+		next
+
+		cResult = Q(cResult).RemovedFromEnd(pcSep)
+
+		aResult = [ cResult, anPos, anPosExt ]
+		return aResult
+
+		def StrLowRepConXT(pcSubStr, pcOtherSubStr, pcSep)
+			return This.StringifiedLowercasedReplacedAndConcatenatedXT(pcSubStr, pcOtherSubStr, pcSep)
+
+	  #------------------------------------------#
+	 #  GETTING DUPLICATES AND THEIR POSITIONS  #
+	#------------------------------------------#
+
+	def DuplicatesZCS(pCaseSensitive)
 		#< @QtBased | Uses QStringList >
 
 		# Checking params
 
+		bCaseSensitive = TRUE
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
+			bCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+		if NOT ( bCaseSensitive = TRUE or bCaseSensitive = FALSE )
 			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
 		# Doing the job
 
+		a = This.StrRepCon(",", "*", " | ")
+		# or StringifiedReplacedAndConcatenatedXT()
+? @@(a)
+//? @@(aResult)
+
+		# Finding duplicates positions
+
+
+/*
 		aContent = This.Content()
 		nLen = len(aContent)
-		if nLen < 2
-			return []
-		ok
 
-		oQStrList = new QStringList()
-
-		for i = 1 to nLen
-			oQStrList.append( @@(aContent[i]) )
-		next
-
-		aSeen = [ oQStrList.at(0) ]
-		anPos = []
-
-		bSeen = FALSE
-		bFound = FALSE
-
-		for i = 1 to nLen
-			cItem = oQStrList.at(i-1)
-			nPos = oQStrList.indexOf(cItem, i, pCaseSensitive)
-			
-
-			
-		next
-
-//? @@(acContent)
-/*
-		aContent = []
+		acContent = []
 
 		# We stringify the list (all items are becoming strings)
-		# so we can manipulate them efficently with QStringList()
+		# so we can manipulate them using ring_find()
 
-		if pCaseSensitive = TRUE
+		if bCaseSensitive = TRUE
+			for i = 1 to nLen
+				acContent + @@(aContent[i])
+			next
 
-			aContent = This.Copy().
-					StringifyAndReplaceXTQ(",", "*").
-					Content()
-
-		else // pCaseSensitive = FALSE
-
-			aContent = This.Copy().
-					StringifyLowercaseAndReplaceXTQ(",", "*").
-					Content()
+		else
+			for i = 1 to nLen
+				acContent + @@Q(aContent[i]).Lowercased()
+			next
 		ok
 
 		# Go forward
 
-		nLen = len(aContent[1])
-		acItems = []
-		anOccur = []
+		nLen = len(acContent)
 
-		oQStrList = new QStringList()
-		for i = 1 to nLen
-			oQStrList.append(aContent[1][i])
-		next
-
-		for i = 1 to nLen
-
-			cCurrentItem = aContent[1][i]
-			nPos = oQStrList.indexof(cCurrentItem, 0)
-			if nPos = -1
-				loop
-			ok
-
-			nPos = ring_find(acItems, cCurrentItem)
-
-			if nPos = 0
-				acItems + cCurrentItem
-				anOccur + [i]
-
-			else
-				n = ring_find(acItems, cCurrentItem)
-				anOccur[n] + i
-			ok
-
-		next
-
+		aSeen = [ ]
 		aResult = []
-		nLen = len(acItems)
 
-		for i = 1 to nLen
-			if len(anOccur[i]) > 1
-				aResult + [ acItems[i], anOccur[i] ]
+		for i = 1 to nLen - 1
+
+			anPos = []
+			if ring_find(aSeen, acContent[i]) = 0
+				aSeen + acContent[i]
+
+				for j = i + 1 to nLen
+
+					if acContent[i] = acContent[j]
+						anPos + j
+					ok
+
+				next
+
+				nLenPos = len(anPos)
+				if nLenPos > 0
+					aResult + [ aContent[i], anPos ]
+				ok
 			ok
+
+
 		next
 
-		return aResult 
-*/
-		#< @FunctionFluentForms
-
-		def FindDuplicatesCSQ(pCaseSensitive)
-			return This.FindDuplicatesCSQR(pCaseSensitive, :stzList)
-
-		def FindDuplicatesCSQR(pCaseSensitive, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindDuplicatesCS(pCaseSensitive) )
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDuplicatesCS(pCaseSensitive) )
-
-			on :stzPair
-				return new stzPair( This.FindDuplicatesCS(pCaseSensitive) )
-
-			on :stzPairOfNumbers
-				return new stzPairOfNumbers( This.FindDuplicatesCS(pCaseSensitive) )
-
-			other
-				StzRaise("Unsupported return type!!")
-			off
-
-		#>
+		return aResult
+*/ 
 
 		#< @FunctionAlternativeForm
 
-		def FindDuplicationsCS(pCaseSensitive)
-			return This.FindDuplicatesCS(pCaseSensitive)
+		def DuplicatesAndTheirPositionsCS(pCaseSensitive)
+			return This.DuplicatesZCS(pCaseSensitive)
+
+		def DuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
+			return This.DuplicatesZCS(pCaseSensitive)
+
+		def DuplicatedItemsZCS(pCaseSensitive)
+			return This.DuplicatesZCS(pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindDuplicates()
-		return This.FindDuplicatesCS(:CaseSensitive = TRUE)
-
-		#< @FunctionFluentForms
-
-		def FindDuplicatesQ()
-			return This.FindDuplicatesCSQ(:CaseSensitive = TRUE)
-
-		def FindDuplicatesQR(pcReturnType)
-			return This.FindDuplicatesCSQR(:CaseSensitive = TRUE, pcReturnType)
-
-		#>
+	def DuplicatesZ()
+		return This.DuplicatesZCS(:CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def FindDuplications()
-			return This.FindDuplicates()
+		def DuplicatesAndTheirPositions()
+			return This.DuplicatesZ()
+
+		def DuplicatedItemsAndTheirPositions()
+			return This.DuplicatesZ()
+
+		def DuplicatedItemsZ()
+			return This.DuplicatesZ()
 
 		#>
 
@@ -16507,20 +16659,7 @@ class stzList from stzObject
 
 		# Doing the job
 
-		aUniqueSubStr = This.ToSetCS(pCaseSensitive)
-
-		nLen = len(aUniqueSubStr)
-
-		acResult = []
-		# TODO: Enhance this loop for performance
-		for i = 1 to nLen
-
-			if This.NumberOfOccurenceCS(aUniqueSubStr[i], pCaseSensitive) > 1
-
-				acResult + aUniqueSubStr[i]
-			ok
-		next
-
+#>>>>>>>>
 		return acResult
 
 		def DuplicatesCSQ(pCaseSensitive)
@@ -16545,54 +16684,6 @@ class stzList from stzObject
 
 			def DuplicatedItemsQ()
 				return This.DuplicatesQ()
-
-	  #------------------------------------------------#
-	 #  DUPLICATES AND THEIR POSITIONS -- Z/Extended  #
-	#------------------------------------------------#
-
-	def DuplicatesAndTheirPositionsCS(pCaseSensitive)
-
-		aDuplicates = This.Duplicates()
-		nLen = len(aDuplicates)
-		aResult = []
-
-		for i = 1 to nLen
-			anPos = This.FindCSQ(aDuplicates[i], pCaseSensitive).FirstItemRemoved()
-			aResult + [ aDuplicates[i], anPos ]
-		next
-
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def DuplicatesZCS(pCaseSensitive)
-			return This.DuplicatesAndTheirPositionsCS(pCaseSensitive)
-
-		def DuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-			return This.DuplicatesAndTheirPositionsCS(pCaseSensitive)
-
-		def DuplicatedItemsZCS(pCaseSensitive)
-			return This.DuplicatesAndTheirPositionsCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def DuplicatesAndTheirPositions()
-		return This.DuplicatesAndTheirPositionsCS(:CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def DuplicatesZ()
-			return This.DuplicatesAndTheirPositions()
-
-		def DuplicatedItemsAndTheirPositions()
-			return This.DuplicatesAndTheirPositions()
-
-		def DuplicatedItemsZ()
-			return This.DuplicatesAndTheirPositions()
-
-		#>
 
 	  #----------------------------------------#
 	 #   FINDING DUPLICATES OF A GIVEN ITEM   #
