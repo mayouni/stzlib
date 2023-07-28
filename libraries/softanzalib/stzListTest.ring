@@ -1820,23 +1820,23 @@ proff()
 */
 pron()
 
-aList = 1:10
+aList = 1:100_000
 aList + 1 + "*" + 10:12 + "B" + 2 + 1 + "*" + "A," + 3 + "*" + "B" + 10:12 + "B"
 
 o1 = new stzList(aList)
 o1.DuplicatesZ()
 
-//? @@( o1.DuplicatesZ() )
 
 proff()
 #-->        10 items 	:  0.03 second(s)
 #-->       100 items 	:  0.03 second(s)
-#-->	   500 items	:  0.04 second(s)
-#-->     1_000 items 	:  0.04 second(s)
-#-->   100_000 items	:  0.49 second(s)
-#-->   500_000 items	:  2.78 second(s)
-#--> 1_000_000 items	: 10.35 second(s)
-#--> 1_900_000 items	: 25.70 second(s)
+#-->	   500 items	:  0.03 second(s)
+#-->     1_000 items 	:  0.03 second(s)
+#-->    10_000 items 	:  0.03 second(s)
+#-->   100_000 items	:  0.56 second(s)
+#-->   500_000 items	:  4.29 second(s)
+#--> 1_000_000 items	: 11.61 second(s)
+#--> 1_900_000 items	: 28.72 second(s)
 
 /*----------
 

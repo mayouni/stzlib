@@ -16239,11 +16239,12 @@ class stzList from stzObject
 			return This.StringifiedReplacedAndConcatenated(pcSubStr, pcOtherSubStr, pcSep)
 
 	def StringifiedReplacedAndConcatenatedXT(pcSubStr, pcOtherSubStr, pcSep)
+		#< @QtBased | Uses QString >
+
 		aContent = This.Content()
 		nLen = len(aContent)
 
 		cResult = ""
-		acStrings = []
 
 		anPosExt = []
 		cExtension = "__"
@@ -16318,7 +16319,7 @@ class stzList from stzObject
 			ok
 
 			cResult += cItem + pcSep
-			acStrings + cItem
+
 		next
 
 		cResult = Q(cResult).RemovedFromEnd(pcSep)
@@ -16343,11 +16344,12 @@ class stzList from stzObject
 			return This.StringifiedLowercasedReplacedAndConcatenated(pcSubStr, pcOtherSubStr, pcSep)
 
 	def StringifiedLowercasedReplacedAndConcatenatedXT(pcSubStr, pcOtherSubStr, pcSep)
+		#< @QtBased | Uses QString >
+
 		aContent = This.Content()
 		nLen = len(aContent)
 
 		cResult = ""
-		acStrings = []
 
 		anPosExt = []
 		cExtension = "__"
@@ -16422,7 +16424,6 @@ class stzList from stzObject
 			ok
 
 			cResult += cItem + pcSep
-			acStrings + cItem
 		next
 
 		cResult = Q(cResult).RemovedFromEnd(pcSep)
@@ -16433,12 +16434,12 @@ class stzList from stzObject
 		def StrLowRepConXT(pcSubStr, pcOtherSubStr, pcSep)
 			return This.StringifiedLowercasedReplacedAndConcatenatedXT(pcSubStr, pcOtherSubStr, pcSep)
 
-	  #------------------------------------------#
+	  #==========================================#
 	 #  GETTING DUPLICATES AND THEIR POSITIONS  #
-	#------------------------------------------#
+	#==========================================#
 
 	def DuplicatesZCS(pCaseSensitive)
-		#< @QtBased | Uses QStringList >
+		#< @QtBased | Uses QString from inside StrRepCon() >
 
 		# Checking params
 
@@ -16453,10 +16454,101 @@ class stzList from stzObject
 
 		# Doing the job
 
-		a = This.StrRepCon(",", "*", " | ")
+		//aTemp = This.StrRepCon(",", "*", " | ")
 		# or StringifiedReplacedAndConcatenatedXT()
-? @@(a)
-//? @@(aResult)
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		cStr = ""
+		anPos = []
+		acStr = []
+
+		anPosExt = []
+		cExtension = "__"
+		cItem = ""
+		cSubStr = ","
+		cOtherSubStr = "*"
+		cSep = " | "
+
+		n = 0 # Used to count the objects contained in the list
+
+		for i = 1 to nLen
+			item = aContent[i]
+
+			if isNumber(item)
+				cItem = ""+ item
+
+			but isString(item)
+				oQStr = new QString2()
+				oQStr.append(item)
+
+				bExtend = FALSE
+				if oQStr.contains(cOtherSubStr, 0)
+					bExtend = TRUE
+				ok
+
+				if NOT oQStr.contains(cSubStr, 0)
+					cItem = item
+
+				else
+					oQStr.replace_2(cSubStr, cOtherSubStr, 0)
+					cItem = oQStr.mid(0, oQStr.count())
+					anPos + i
+				ok
+
+				if bExtend and ring_find(anPos, i) = 0
+					cItem = cExtension + cItem + cExtension
+					anPosExt + i
+				ok
+
+			but isList(item)
+				item = @@(item)
+				oQStr = new QString2()
+				oQStr.append(item)
+
+				bExtend = FALSE
+				if oQStr.contains(cOtherSubStr, 0)
+					bExtend = TRUE
+				ok
+
+				if NOT oQStr.contains(cSubStr, 0)
+					cItem = item
+				else
+
+					oQStr.replace_2(cSubStr, cOtherSubStr, 0)
+					cItem = oQStr.mid(0, oQStr.count())
+				ok
+
+				if bExtend and ring_find(anPos, i) = 0
+					cItem += cExtension
+					anPosExt + i
+				ok
+
+			but isObject(item)
+
+				n++
+				cObjectName = "{obj#" + n + "}"
+				cItem = cObjectName
+				# WARNING: It's impossible to get the name of the object
+				# by code (should be requested from Mahmoud in future Ring)
+			ok
+
+			cStr += cItem + cSep
+
+			
+			acStr + cItem
+		next
+
+		cStr = Q(cStr).RemovedFromEnd(cSep)
+/*
+? cStr + NL
+
+? @@( acStr ) + NL
+
+? @@(anPos)
+? @@(anPosExt)
+*/
 
 		# Finding duplicates positions
 

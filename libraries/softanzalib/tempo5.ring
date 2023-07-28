@@ -1,6 +1,14 @@
 load "stzlib.ring"
 
+pron()
 
+o1 = new QString2()
+o1.append("tunis tunis tunis")
+? o1.count()
+#--> 17
+
+
+proff()
 
 /*--------
 
