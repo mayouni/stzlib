@@ -2136,6 +2136,7 @@ class stzListOfNumbers from stzList
 	def AddToEach(n)
 		
 		anContent = This.Content()
+
 		nLen = len(anContent)
 
 		anResult = []
@@ -2554,6 +2555,7 @@ class stzListOfNumbers from stzList
 	#=====================================================#
 
 	def Update(panNewListOfNumbers)
+
 		if isList(panNewListOfNumbers) and Q(panNewListOfNumbers).IsWithOrByOrUsingNamedParam()
 			panNewListOfNumbers = panNewListOfNumbers[2]
 		ok

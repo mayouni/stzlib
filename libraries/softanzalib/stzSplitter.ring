@@ -398,8 +398,14 @@ class stzSplitter from stzListOfNumbers
 			StzRaise("Incorrect param type! panPositions must be a list of numbers.")
 		ok
 
-		anPos = StzListOfNumbersQ(panPositions).AddedToEach(1)
-		return This.SplitBeforePositions(anPos)
+		aResult = []
+
+		if len(panPositions) > 0
+			anPos = StzListOfNumbersQ(panPositions).AddedToEach(1)
+			aResult = This.SplitBeforePositions(anPos)
+		ok
+
+		return aResult
 
 		def SplitAfterThesePositions(panPositions)
 			return This.SplitAfterPositions(panPositions)

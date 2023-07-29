@@ -1822,18 +1822,20 @@ class stzString from stzObject
 		# Getting the positions of the words in the string
 		# TODO: delegate the work to stzText when ready
 
-		anPositions = This.FindAll(" ")
+		anPos = This.FindAll(" ")
+		if len(anPos) = 0
+			anPos = [1]
+		else
+			anPos = StzListOfNumbersQ(anPos).AddedToEach(1)
+			ring_insert(anPos, 0, 1)
 
-		anPositions = StzListOfNumbersQ(anPositions).AddedToEach(1)
+		ok
 
-		ring_insert(anPositions, 0, 1)
-
-		nLen = len(anPositions)
+		nLen = len(anPos)
 
 		for i = 1 to nLen
-			n = anPositions[i]
-			cCapChar = Q(This[n]).Uppercased()
-			This.ReplaceCharAtPosition(n, cCapChar)
+			cCapChar = This.CharARQ(anPos[i]).Uppercased()
+			This.ReplaceCharAtPosition(anPos[i], cCapChar)
 		next
 
 		#< @FunctionFluentForm
@@ -1893,19 +1895,24 @@ class stzString from stzObject
 		# Getting the positions of the words in the string
 		# TODO: delegate the work to stzText when ready
 
-		anPositions = oStr.FindAll(" ")
-		anPositions = StzListOfNumbersQ(anPositions).AddedToEach(1)
-		ring_insert(anPositions, 1, 1)
-		anPositions = ring_sort(anPositions)
+		anPos = oStr.FindAll(" ")
+		if len(anPos) = 0
+			anPos = [1]
 
-		nLen = len(anPositions)
+		else
+			anPos = StzListOfNumbersQ(anPos).AddedToEach(1)
+			ring_insert(anPos, 1, 1)
+			anPos = ring_sort(anPos)
+		ok
+
+		nLen = len(anPos)
 
 		for i = 1 to nLen
-			n = anPositions[i]
-			cCapitalizedChar = oStr.CharAtPositionQR(n, :stzString).
+			
+			cCapChar = oStr.CharAtPositionQR(anPos[i], :stzString).
 						UppercasedInLocale(pLocale)
 
-			oStr.ReplaceCharAtPosition(n, cCapitalizedChar)
+			oStr.ReplaceCharAtPosition(anPos[i], cCapChar)
 		next
 
 		This.Update( oStr.Content() )
@@ -12882,12 +12889,16 @@ class stzString from stzObject
 	def InsertBeforeSubstring(pcSubStr, pcNewSubStr)
 
 		nLenSubStr = Q(pcSubStr).NumberOfChars()
-		anPos = StzListOfNumbersQ( This.FindAll(cSubStr) ).AddToEachQ(nLenSubStr).Content()
-		aParts = This.SplitBeforePositions(anPos)
+		anPos = This.FindAll(cSubStr)
+
+		if len(anPos) > 0
+			anPos = StzListOfNumbersQ( anPos ).AddToEachQ(nLenSubStr).Content()
+			aParts = This.SplitBeforePositions(anPos)
 	
-		cResult = StzPairOfListsQ( aParts, ListOfNTimes(len(aParts)-1, pcNewSubStr) ).AlternateQ().ToStzListOfStrings().Concatenate()
+			cResult = StzPairOfListsQ( aParts, ListOfNTimes(len(aParts)-1, pcNewSubStr) ).AlternateQ().ToStzListOfStrings().Concatenate()
 		
-		This.Update( cResult )
+			This.Update( cResult )
+		ok
 
 		#< @FunctionAlternativeForms
 
@@ -18195,10 +18206,13 @@ def ReplaceIBS()
 		ok
 
 		oSection = This.SectionQ(pnStartingAt, :LastChar)
-
-		anPositions = oSection.FindAllCS(pcSubStr, pCaseSensitive)
+		anPos = oSection.FindAllCS(pcSubStr, pCaseSensitive)
 		
-		anResult = StzListOfNumbersQ(anPositions).AddToEachQ(pnStartingAt).Content()
+		anResult = []
+
+		if len(anPos) > 0
+			anResult = StzListOfNumbersQ(anPos).AddToEachQ(pnStartingAt).Content()
+		ok
 
 		return anResult
 		
@@ -18474,11 +18488,6 @@ def ReplaceIBS()
 
 		# Doing the job
 
-/*		nLen = This.NumberOfChars()
-		if nLen = 1 or nStart = nLen
-			return 0
-		ok
-*/
 		nResult = QStringObject().indexof(pcSubStr, nStart, pCaseSensitive) + 1
 
 		return nResult
@@ -19073,7 +19082,13 @@ def ReplaceIBS()
 		# Doing the job
 
 		anPos = This.SectionQ(pnStartingAt, :LastChar).FindCS(pcSubStr, pCaseSensitive)
-		aResult = StzListOfNumbersQ(anPos).AddedToEach(pnStartingAt - 1)
+
+		aResult = []
+
+		if Len(anPos) > 0
+			aResult = StzListOfNumbersQ(anPos).AddedToEach(pnStartingAt - 1)
+		ok
+
 		return aResult
 
 
@@ -20152,6 +20167,10 @@ def ReplaceIBS()
 			# FindAsSectionsXT( "*", :InSection = [10 , 14 ] )
 			but oP2.IsInSectionNamedParam()
 				anPos = This.SectionQ(p2[2]).FindCS(p1, pCaseSensitive)
+				if len(anPos) = 0
+					return []
+				ok
+
 				anPos = QR(anPos, :stzListOfNumbers).AddedToEach(p2[2])
 				nLen = Q(p1).NumberOfChars()
 
@@ -20676,11 +20695,16 @@ def ReplaceIBS()
 			return This.FindManyAsSectionsCS(pcSubStr, pCaseSensitive)
 		ok
 
-		anFirstPositions = This.FindCS(pcSubStr, pCaseSensitive)
-		nLen = StzStringQ(pcSubStr).NumberOfChars()
-		anLastPositions = StzListOfNumbersQ(anFirstPositions).AddToEachQ(nLen-1).Content()
+		anFirstPos = This.FindCS(pcSubStr, pCaseSensitive)
 
-		aResult = StzListQ(anFirstPositions).AssociatedWith(anLastPositions)
+		aResult = []
+
+		if len(anFirstPos) > 0
+			nLen = StzStringQ(pcSubStr).NumberOfChars()
+			anLastPos = StzListOfNumbersQ(anFirstPos).AddToEachQ(nLen-1).Content()
+	
+			aResult = StzListQ(anFirstPos).AssociatedWith(anLastPos)
+		ok
 
 		return aResult
 
@@ -20795,10 +20819,14 @@ def ReplaceIBS()
 
 		# Doing the job
 
-		anPos1 = This.FindSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		anPos2 = StzListOfNumbersQ(anPos1).AddedToEach(Q(pcSubStr).NumberOfChars() - 1)
+		aResult = []
 
-		aResult = Association([ :Of = anPos1, :And = anPos2 ])
+		anPos1 = This.FindSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		if len(anPos1) > 0
+			anPos2 = StzListOfNumbersQ(anPos1).AddedToEach(Q(pcSubStr).NumberOfChars() - 1)
+			aResult = Association([ :Of = anPos1, :And = anPos2 ])
+		ok
 
 		return aResult
 
@@ -21044,8 +21072,14 @@ def ReplaceIBS()
 
 		# Doing the job
 
-		anPos = This.FindAllCS( pcBound1 + pcsubStr + pcBound2, pCaseSensitive )
-		anResult = QR(anPos, :stzListOfNumbers).AddedToEach(nLenBound1)
+		anPos = This.FindAllCS( pcBound1 + pcSubStr + pcBound2, pCaseSensitive )
+
+		anResult = []
+
+		if len(anPos) > 0
+			anResult = QR(anPos, :stzListOfNumbers).AddedToEach(nLenBound1)
+		ok
+
 		return anResult
 
 		#< @FunctionFluentForm
@@ -21111,6 +21145,9 @@ def ReplaceIBS()
 	def FindBetweenIBCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 		anPos = This.FindBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		if len(anPos) = 0
+			return []
+		ok
 
 		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
 			pcBound2 = pcBound2[2]
@@ -43766,6 +43803,10 @@ def ReplaceIBS()
 	#--
 
 	def FindThisSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+		if isString(pacBounds)
+			return This.FindBetweenCS(pcSubStr, pacBounds, pacBounds, pCaseSensitive)
+		ok
+
 		return This.FindBetweenCS(pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
 
 		def FindThisSubStringBoundedByCSQ(pcSubStr, pacBounds, pCaseSensitive)
@@ -43775,6 +43816,10 @@ def ReplaceIBS()
 			return This.FindThisSubStringBoundedByCSQR(pcSubStr, pacBounds, :CaseSensitive = TRUE, pcReturnType)			
 
 	def FindSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+		if isString(pacBounds)
+			return This.FindBetweenCS(pcSubStr, pacBounds, pacBounds, pCaseSensitive)
+		ok
+
 		return This.FindBetweenCS(pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
 
 		def FindSubstringBoundedByCSQ(pcSubStr, pacBounds, pCaseSensitive)
@@ -43784,6 +43829,10 @@ def ReplaceIBS()
 			return This.FindThisSubStringBoundedByCSQR(pcSubStr, pacBounds, :CaseSensitive = TRUE, pcReturnType)			
 
 	def FindThisBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+		if isString(pacBounds)
+			return This.FindBetweenCS(pcSubStr, pacBounds, pacBounds, pCaseSensitive)
+		ok
+
 		return This.FindBetweenCS(pcSubStr, pacBounds, pCaseSensitive)
 
 		def FindThisBoundedByCSQ(pcSubStr, pacBounds, pCaseSensitive)
@@ -43824,6 +43873,10 @@ def ReplaceIBS()
 	#--
 
 	def FindThisSubStringBoundedBy(pcSubStr, pacBounds)
+		if isString(pacBounds)
+			return This.FindBetween(pcSubStr, pacBounds, pacBounds)
+		ok
+
 		return This.FindBetween(pcSubStr, pacBounds[1], pacBounds[2])
 
 		def FindThisSubStringBoundedByQ(pcSubStr, pacBounds)
@@ -43833,6 +43886,10 @@ def ReplaceIBS()
 			return This.FindThisSubStringBoundedByQR(pcSubStr, pacBounds, :CaseSensitive = TRUE, pcReturnType)			
 
 	def FindSubStringBoundedBy(pcSubStr, pacBounds)
+		if isString(pacBounds)
+			return This.FindBetween(pcSubStr, pacBounds, pacBounds)
+		ok
+
 		return This.FindBetween(pcSubStr, pacBounds[1], pacBounds[2])
 
 		def FindSubstringBoundedByQ(pcSubStr, pacBounds)
@@ -43842,7 +43899,11 @@ def ReplaceIBS()
 			return This.FindThisSubStringBoundedByQR(pcSubStr, pacBounds, :CaseSensitive = TRUE, pcReturnType)			
 
 	def FindThisBoundedBy(pcSubStr, pacBounds)
-		return This.FindBetween(pcSubStr, pacBounds)
+		if isString(pacBounds)
+			return This.FindBetween(pcSubStr, pacBounds, pacBounds)
+		ok
+
+		return This.FindBetween(pcSubStr,  pacBounds[1], pacBounds[2])
 
 		def FindThisBoundedByQ(pcSubStr, pacBounds)
 			return This.FindThisBoundedByQR(pcSubStr, pacBounds, :stzList)

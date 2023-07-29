@@ -1023,14 +1023,22 @@ class stzLocale from stzObject
 		# Getting the positions of the words in the string
 		# TODO: delegate the work to stzText when ready
 
-		anPositions = oStr.FindAll(" ")
-		anPositions = StzListOfNumbersQ(anPositions).AddedToEach(1)
-		ring_insert(anPositions, 1, 1)
-		anPositions = ring_sort(anPositions)
+		anPos = oStr.FindAll(" ")
+		if len(anPos) = 0
+			anPos = [1]
 
-		for n in anPositions
-			cCapitalizedChar = oStr.CharAtPositionQ(n).Uppercased()
-			oStr.ReplaceCharAtPosition(n, cCapitalizedChar)
+		else
+			anPos = StzListOfNumbersQ(anPos).AddedToEach(1)
+			ring_insert(anPos, 1, 1)
+			anPos = ring_sort(anPos)
+		ok
+
+		nLen = len(anPos)
+
+		//for n in anPos
+		for i = 1 to nLen
+			cCapitalizedChar = oStr.CharAtPositionQ(anPos[i]).Uppercased()
+			oStr.ReplaceCharAtPosition(anPos[i], cCapitalizedChar)
 		next
 
 		return oStr.Content()
