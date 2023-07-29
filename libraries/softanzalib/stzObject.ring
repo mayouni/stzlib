@@ -1885,7 +1885,10 @@ class stzObject
 		anPos = This.SectionQ(pnStartingAt, :Last).
 				FindAllCS(pStrOrItem, pCaseSensitive)
 
-		anResult = Q(anPos).FirstNItemsQR(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
+		anResult = []
+		if len(anPos) > 0
+			anResult = Q(anPos).FirstNItemsQR(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
+		ok
 
 		return anResult
 

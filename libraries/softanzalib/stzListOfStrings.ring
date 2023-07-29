@@ -9668,14 +9668,16 @@ class stzListOfStrings from stzList
 
 		# Doing the job
 
-		oSection    = This.SectionQR(pnStartingAt, This.NumberOfStrings(), :stzListOfStrings)
-		anPositions = oSection.FindAllCS(pcString, pCaseSensitive)
+		oSection = This.SectionQR(pnStartingAt, This.NumberOfStrings(), :stzListOfStrings)
+		anPos = oSection.FindAllCS(pcString, pCaseSensitive)
 
-		anPositions = StzListOfNumbersQ(anPositions).AddToEachQ(pnStartingAt-1).Content()
-		nPosition   = anPositions[n]
-
-		This.ReplaceStringAtPosition(nPosition, pcNewString)
-
+		if len(anPos) > 0
+			anPos = StzListOfNumbersQ(anPos).AddToEachQ(pnStartingAt-1).Content()
+			nPos   = anPos[n]
+	
+			This.ReplaceStringAtPosition(nPos, pcNewString)
+		ok
+	
 		def ReplaceNextNthOccurrenceCSQ(n, pcString, pnStartingAt, pcNewString, pCaseSensitive)
 			This.ReplaceNextNthOccurrenceCS(n, pcString, pnStartingAt, pcNewString, pCaseSensitive)
 			return This
@@ -12925,12 +12927,14 @@ stop()
 		ok
 
 		oSection   = This.SectionQR(pnStartingAt, :LastString, :stzListOfStrings)
-		aPositions = oSection.FindAllCS(pcString, pCaseSensitive)
+		anPos = oSection.FindAllCS(pcString, pCaseSensitive)
 
-		aPositions = StzListOfNumbersQ(aPositions).AddToEachQ(pnStartingAt - 1).Content()
-		nPosition = aPositions[n]
-
-		This.RemoveStringAtPosition(nPosition)
+		if len(anPos) > 0
+			aPos = StzListOfNumbersQ(anPos).AddToEachQ(pnStartingAt - 1).Content()
+			nPos = anPos[n]
+	
+			This.RemoveStringAtPosition(nPos)
+		ok
 
 		def RemoveNextNthOccurrenceCSQ(n, pcString, pnStartingAt, pCaseSensitive)
 			This.RemoveNextNthOccurrenceCS(n, pcString, pnStartingAt, pCaseSensitive)

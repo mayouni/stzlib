@@ -1,12 +1,32 @@
 load "stzlib.ring"
 
+/*---------
+*/
+pron()
+
+str = "|1|2|1|__*__|[ 10* 11* 12 ]|B|2|1|__*__|A*|3|__*__|B|[ 10* 11* 12 ]|B|"
+o1 = new stzString(str)
+? @@(o1.FindThisBoundedBy("A", "|"))
+
+proff()
+
+/*--------- TODO: review sort in stztable (I may use this Ring native solution)
+
+aList = [ ["mahmoud",15000] , ["ahmed", 14000 ] , ["samir", 16000 ] , ["mohammed", 12000 ] , ["ibrahim",11000 ] ]
+aList2 = sort(aList,1)
+see aList2
+
+/*---------
+
 pron()
 
 o1 = new QString2()
-o1.append("tunis tunis tunis")
+o1.append("tunis * tunis * tunis")
 ? o1.count()
 #--> 17
 
+? o1.indexof("*", 6, 0) # Params --> str, startat, casesensitive
+#--> 6
 
 proff()
 

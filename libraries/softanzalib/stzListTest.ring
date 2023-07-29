@@ -1820,7 +1820,7 @@ proff()
 */
 pron()
 
-aList = 1:100_000
+aList = 1:2
 aList + 1 + "*" + 10:12 + "B" + 2 + 1 + "*" + "A," + 3 + "*" + "B" + 10:12 + "B"
 
 o1 = new stzList(aList)

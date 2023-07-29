@@ -1,13 +1,15 @@
 load "stzlib.ring"
 
 /*------
-*/
+
+pron()
 	o1 = new stzList([ "A", "B", "C", "D", "E" ])
 	? o1.ContainsSome([ "B", "D", "V" ]) #--> TRUE
 
 
 	o1 = new stzListOfStrings([ "A", "B", "C", "D", "E" ])
 	? o1.ContainsSome([ "B", "D", "V" ]) #--> TRUE
+proff()
 
 /*------
 
@@ -1231,6 +1233,8 @@ o1 = new stzListOfNumbers([ 2, 7, 18, 10, 25, 4 ])
 ? o1.FarthestTo(12)	#--> 25
 
 /*---- OK
+*/
+pron()
 
 o1 = new stzListOfStrings([ "Jameel", "Fedy", "Badr" ])
 ? o1.ContainsBothCS("JAMEEL", "BADR", :CS = FALSE) #--> TRUE
@@ -1238,6 +1242,9 @@ o1 = new stzListOfStrings([ "Jameel", "Fedy", "Badr" ])
 
 o1 = new stzListOfNumbers([ 7, 17, 27 ])
 ? o1.AddedToEach(3) #--> [ 10, 20, 30 ]
+
+proff()
+# Executed in 0.04 second(s)
 
 /*------- OK
 
