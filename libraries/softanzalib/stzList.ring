@@ -16447,12 +16447,11 @@ class stzList from stzObject
 
 		# Checking params
 
-		bCaseSensitive = TRUE
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			bCaseSensitive = pCaseSensitive[2]
+			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( bCaseSensitive = TRUE or bCaseSensitive = FALSE )
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
 			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
@@ -16465,37 +16464,78 @@ class stzList from stzObject
 			return []
 		ok
 
-		aSeen = [ @@(aContent[1]) ]
+		aSeen = []
 		anPos = [ [] ]
-		n = 1
-
+		n = 1 # Used tou cout object in the list and then composing names for them
 		acStr = []
-		for i = 1 to nLen
 
-			# Stringifying the item
+		# We duplicate the code because we need to manage casesensitivty
+		# while relying on the performant native ring_find()
 
-			if isNumber(aContent[i])
-				cItem = ""+ aContent[i]
+		# We start by stringifying the list (casting all the items in to strings)
+		# so we can find not onlu numbers and strings, but also lists,
+		# and get relatively beeter performance on larger lists (up to 30K items)
 
-			but isString(aContent[i])
-				cItem = aContent[i]
+		if pCaseSensitive = TRUE
+			aSeen = [ @@(aContent[1]) ]
 
-			but isList(aContent[i])
-				cItem = @@(aContent[i])
-				
-			but isObject(aContent[i])
-				n++
-				cObjectName = "{obj#" + n + "}"
-				cItem = cObjectName
-				# WARNING: It's impossible to get the name of the object
-				# by code (should be requested from Mahmoud in future Ring)
-			ok
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = aContent[i]
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					# WARNING: It's impossible to get the name of the object
+					# by code (should be requested from Mahmoud in future Ring)
+				ok
+	
+				# Commputing item occurrences
+	
+				acStr + cItem
+			next
 
-			# Commputing item occurrences
+		else // pCaseSensitive = FALSE
 
-			acStr + cItem
-		next
+			aSeen = [ @@Q(aContent[1]).Lowercased() ]
 
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = aContent[i]
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					
+				ok
+	
+				# Commputing item occurrences
+	
+				acStr + Q(cItem).Lowercased()
+			next
+
+
+		ok
 
 		# Finding duplicates positions
 
@@ -16528,61 +16568,7 @@ class stzList from stzObject
 		
 
 		return aResult
-//? @@(aResult)
 
-/*------------- scenario 1
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		acContent = []
-
-		# We stringify the list (all items are becoming strings)
-		# so we can manipulate them using ring_find()
-
-		if bCaseSensitive = TRUE
-			for i = 1 to nLen
-				acContent + @@(aContent[i])
-			next
-
-		else
-			for i = 1 to nLen
-				acContent + @@Q(aContent[i]).Lowercased()
-			next
-		ok
-
-		# Go forward
-
-		nLen = len(acContent)
-
-		aSeen = [ ]
-		aResult = []
-
-		for i = 1 to nLen - 1
-
-			anPos = []
-			if ring_find(aSeen, acContent[i]) = 0
-				aSeen + acContent[i]
-
-				for j = i + 1 to nLen
-
-					if acContent[i] = acContent[j]
-						anPos + j
-					ok
-
-				next
-
-				nLenPos = len(anPos)
-				if nLenPos > 0
-					aResult + [ aContent[i], anPos ]
-				ok
-			ok
-
-
-		next
-
-		return aResult
-*/ 
 
 		#< @FunctionAlternativeForm
 
