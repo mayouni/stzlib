@@ -16461,230 +16461,6 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		anPosExt = []
-		cExtension = "__"
-		cItem = ""
-		cSubStr = ","
-		cOtherSubStr = "*"
-		cSep = "|"
-
-		cStr = cSep
-		anPos = []
-		acStr = []
-
-		n = 0 # Used to count the objects contained in the list
-
-		for i = 1 to nLen
-			item = aContent[i]
-
-			if isNumber(item)
-				cItem = ""+ item
-
-			but isString(item)
-				oQStr = new QString2()
-				oQStr.append(item)
-
-				bExtend = FALSE
-				if oQStr.contains(cOtherSubStr, 0)
-					bExtend = TRUE
-				ok
-
-				if NOT oQStr.contains(cSubStr, 0)
-					cItem = item
-
-				else
-					oQStr.replace_2(cSubStr, cOtherSubStr, 0)
-					cItem = oQStr.mid(0, oQStr.count())
-					anPos + i
-				ok
-
-				if bExtend and ring_find(anPos, i) = 0
-					cItem = cExtension + cItem + cExtension
-					anPosExt + i
-				ok
-
-			but isList(item)
-				item = @@(item)
-				oQStr = new QString2()
-				oQStr.append(item)
-
-				bExtend = FALSE
-				if oQStr.contains(cOtherSubStr, 0)
-					bExtend = TRUE
-				ok
-
-				if NOT oQStr.contains(cSubStr, 0)
-					cItem = item
-				else
-
-					oQStr.replace_2(cSubStr, cOtherSubStr, 0)
-					cItem = oQStr.mid(0, oQStr.count())
-				ok
-
-				if bExtend and ring_find(anPos, i) = 0
-					cItem += cExtension
-					anPosExt + i
-				ok
-
-			but isObject(item)
-
-				n++
-				cObjectName = "{obj#" + n + "}"
-				cItem = cObjectName
-				# WARNING: It's impossible to get the name of the object
-				# by code (should be requested from Mahmoud in future Ring)
-			ok
-
-			cStr += cItem + cSep
-			acStr + cItem
-
-		next
-
-		aResult = []
-		oQStr = new QString2()
-		oQStr.append(cStr)
-? cStr + NL
-		for i = 1 to nLen
-			cItem = cSep + acStr[i] + cSep
-? cItem
-			oQStrItem = new QString2()
-			oQStrItem.append(cItem)
-			nLenItem = oQStrItem.count()
-
-			anItemPos = []
-
-			for j = i + 1 to nLen
-				if j > nLen
-					exit
-				ok
-
-				q = j-1
-				nPos = oQStr.indexof(cItem, q, bCaseSensitive)
-? nPos
-				if nPos = -1
-					exit
-				else
-					anItemPos + j
-					j += nLenItem + 1
-				ok
-
-			end
-? ""
-			anPos + anItemPos
-
-		next
-
-//? @@(anPos)
-/*
-? cStr + NL
-
-
-? @@( acStr ) + NL
-
-? @@(anPos)
-? @@(anPosExt)
-
-/*------------- scenario 5
-
-		//aTemp = This.StrRepCon(",", "*", " | ")
-		# or StringifiedReplacedAndConcatenatedXT()
-
-/*------------- scenario 3
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		anPosExt = []
-		cExtension = "__"
-		cItem = ""
-		cSubStr = ","
-		cOtherSubStr = "*"
-		cSep = " | "
-
-		cStr = cSep
-		anPos = []
-		acStr = []
-
-		n = 0 # Used to count the objects contained in the list
-
-		for i = 1 to nLen
-			item = aContent[i]
-
-			if isNumber(item)
-				cItem = ""+ item
-
-			but isString(item)
-				oQStr = new QString2()
-				oQStr.append(item)
-
-				bExtend = FALSE
-				if oQStr.contains(cOtherSubStr, 0)
-					bExtend = TRUE
-				ok
-
-				if NOT oQStr.contains(cSubStr, 0)
-					cItem = item
-
-				else
-					oQStr.replace_2(cSubStr, cOtherSubStr, 0)
-					cItem = oQStr.mid(0, oQStr.count())
-					anPos + i
-				ok
-
-				if bExtend and ring_find(anPos, i) = 0
-					cItem = cExtension + cItem + cExtension
-					anPosExt + i
-				ok
-
-			but isList(item)
-				item = @@(item)
-				oQStr = new QString2()
-				oQStr.append(item)
-
-				bExtend = FALSE
-				if oQStr.contains(cOtherSubStr, 0)
-					bExtend = TRUE
-				ok
-
-				if NOT oQStr.contains(cSubStr, 0)
-					cItem = item
-				else
-
-					oQStr.replace_2(cSubStr, cOtherSubStr, 0)
-					cItem = oQStr.mid(0, oQStr.count())
-				ok
-
-				if bExtend and ring_find(anPos, i) = 0
-					cItem += cExtension
-					anPosExt + i
-				ok
-
-			but isObject(item)
-
-				n++
-				cObjectName = "{obj#" + n + "}"
-				cItem = cObjectName
-				# WARNING: It's impossible to get the name of the object
-				# by code (should be requested from Mahmoud in future Ring)
-			ok
-
-			cStr += cItem + cSep
-			acStr + cItem
-		next
-
-
-? cStr + NL
-
-? @@( acStr ) + NL
-
-? @@(anPos)
-? @@(anPosExt)
-
-/*------------- scenario 2 
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
 		if nLen = 0
 			return []
 		ok
@@ -16727,17 +16503,32 @@ class stzList from stzObject
 		anPos = [ [] ]
 
 		for i = 1 to nLen
+
 			n = ring_find(aSeen, acStr[i])
+
 			if n = 0
 				aSeen + acStr[i]
 				anPos + [ i ]
 			else
 				anPos[ n ] + i
 			ok
+
 		next
 
-		aResult = StzListQ(aSeen).AssociatedWith(anPos)
 
+		aResult = []
+		nLen = len(aSeen)
+
+		for i = 1 to nLen
+			del(anPos[i], 1)
+			if len(anPos[i]) > 0
+				aResult + [ aSeen[i], anPos[i] ]
+			ok
+		next
+		
+
+		return aResult
+//? @@(aResult)
 
 /*------------- scenario 1
 

@@ -1820,7 +1820,52 @@ proff()
 */
 pron()
 
-aList = 1:2
+aList = [ "A", "B", 1, "A", "A", 1, "C", 1:2, "D", "B", "E", '"1"', 1:2 ]
+o1 = new stzList(aList)
+? @@( o1.DuplicatesZ() )
+#--> [
+#	[ "A", 		[ 1, 4, 5 ] ],
+#	[ "B", 		[ 2, 10 ]   ],
+#	[ "1", 		[ 3, 6 ]    ],
+#	[ "C", 		[ 7 ]       ],
+#	[ "[ 1, 2 ]", 	[ 8, 13 ]   ],
+#	[ "D", 		[ 9 ]       ],
+#	[ "E", 		[ 11 ]      ],
+#	[ '"1"', 	[ 12 ]      ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------
+
+pron()
+
+aList = 1:30_000
+
+letters = [ "A", "B", "A", "A", "C", "D", "B", "E" ]
+
+for i = 1 to len(letters)
+	aList + letters[i]
+next
+
+o1 = new stzList(aList)
+o1.DuplicatesZ()
+
+proff()
+#      100 items	:   0.06s
+#    1_000 items	:   0.28s
+#   10_000 items	:   3.35s
+#   20_000 items	:   4.05s
+#   30_000 items	:  11.20s
+#   50_000 items	:  50.23s
+#  100_000 : items	: 227.15s
+
+/*----------
+*/
+pron()
+
+aList = 1:1000
 aList + 1 + "*" + 10:12 + "B" + 2 + 1 + "*" + "A," + 3 + "*" + "B" + 10:12 + "B"
 
 o1 = new stzList(aList)
