@@ -18002,9 +18002,8 @@ class stzList from stzObject
 			pItem = pItem[2]
 		ok
 
-		bCaseSensitive = TRUE
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			bCaseSensitive = pCaseSensitive[2]
+			pCaseSensitive = pCaseSensitive[2]
 		ok
 
 		# Doing the job
@@ -18358,9 +18357,8 @@ class stzList from stzObject
 			pItem = pItem[2]
 		ok
 
-		bCaseSensitive = TRUE
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			bCaseSensitive = pCaseSensitive[2]
+			pCaseSensitive = pCaseSensitive[2]
 		ok
 
 		# Doing the job
@@ -18371,93 +18369,10 @@ class stzList from stzObject
 		but n = This.NumberOfItems()
 			return This.LastOccurrenceCS(pItem, pCaseSensitive)
 		ok
-/*
-		if This.ItemsAreNumbersOrStrings() and
-		   (isNumber(pItem) or isString(pItem)) and
-		   bCaseSensitive = TRUE
 
-			aContent = This.Content()
-			anPos = []
-			bContinue = TRUE
-			i = 0
+		# TODO
 
-			while bContinue
-
-				nPos = ring_find(aContent, pItem)
-
-				if nPos = 0
-					bContinue = FALSE
-
-				else
-					anPos + (nPos + i)
-
-					if len(anPos) = n
-						return nPos + i
-					ok
-
-					del(aContent, nPos)
-					i++
-				ok
-			end
-
-			return 0
-	
-		but isNumber(pItem) or isString(pItem)
-
-			aTempList = This.NumbersAndStringsZ()
-			nLen = len(aTempList)
-			anPos = []
-
-			for i = 1 to nLen
-
-				if Q(aTempList[i][1]).IsEqualToCS(pItem, pCaseSensitive)
-
-					anPos + aTempList[i][2]
-
-					if len(anPos) = n
-						return aTempList[i][2]
-					ok
-				ok
-			next
-			
-			return 0
-
-		but isList(pItem)
-
-			aTempLists = This.ListsZ()
-			nLen = len(aTempLists)
-			anPos = []
-
-			for i = 1 to nLen
-
-				if StzListQ(aTempLists[i][1]).IsEqualToCS(pItem, pCaseSensitive)
-
-					anPos + aTempLists[i][2]
-
-					if len(anPos) = n
-						return aTempLists[i][2]
-					ok
-				ok
-			next
-
-			return 0
-
-		else // isObject(pItem)
-			StzRaise("Can't find objet items!")
-		ok
-*/
-
-		if isNumber(pItem)
-
-		but isString(pItem)
-"em"
-			acStringsZ = This.StringsZ()
-
-		but isList(pItem)
-
-		else // isObject(pItem)
-
-		ok
+		StzRaise("TODO")
 
 		#< @FunctionAlternativeForms
 

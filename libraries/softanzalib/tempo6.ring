@@ -1,6 +1,12 @@
 load "stzlib.ring"
 
+Task
+StzList -->
+Remplimenting FindAll() based on DuplicatesZ()
 
+Task
+StzList -->
+Writing code for FindNth(à
 
 /*-----------
 
