@@ -1817,7 +1817,7 @@ o1 = new stzList([ 1, "*", 10:12, "B", 2, 1, "*", "A", 3, "*", "B", 10:12, "B" ]
 proff()
 
 /*----------
-*/
+
 pron()
 
 aList = [ "A", "B", 1, "A", "A", 1, "C", 1:2, "D", "B", "E", '"1"', 1:2 ]
@@ -1857,15 +1857,15 @@ proff()
 #    1_000 items	:   0.28s
 #   10_000 items	:   3.35s
 #   20_000 items	:   4.05s
-#   30_000 items	:  11.20s
+#   30_000 items	:  10.60s
 #   50_000 items	:  50.23s
 #  100_000 : items	: 227.15s
 
 /*----------
-*/
+
 pron()
 
-aList = 1:1000
+aList = 1:10_000
 aList + 1 + "*" + 10:12 + "B" + 2 + 1 + "*" + "A," + 3 + "*" + "B" + 10:12 + "B"
 
 o1 = new stzList(aList)
@@ -1873,15 +1873,45 @@ o1.DuplicatesZ()
 
 
 proff()
-#-->        10 items 	:  0.03 second(s)
-#-->       100 items 	:  0.03 second(s)
-#-->	   500 items	:  0.03 second(s)
-#-->     1_000 items 	:  0.03 second(s)
-#-->    10_000 items 	:  0.03 second(s)
-#-->   100_000 items	:  0.56 second(s)
-#-->   500_000 items	:  4.29 second(s)
-#--> 1_000_000 items	: 11.61 second(s)
-#--> 1_900_000 items	: 28.72 second(s)
+#-->        10 items 	:   0.02 second(s)
+#-->       100 items 	:   0.02 second(s)
+#-->	   500 items	:   0.03 second(s)
+#-->     1_000 items 	:   0.05 second(s)
+#-->    10_000 items 	:   1.04 second(s)
+#-->    30_000 items	:  15.44 second(s)
+#-->    50_000 items	:  44.63 second(s)
+#-->   100_000 items	: 226.97 second(s)
+
+/*----------
+
+pron()
+
+aList = 1:2
+aList + 1 + "*" + 10:12 + "B" + 2 + 1 + "*" + "A," + 3 + "*" + "B" + 10:12 + "B" + "A,"
+
+o1 = new stzList(aList)
+? @@(o1.DuplicatesZ())
+#--> [
+#	[ "1", [ 3, 8 ] ],
+#	[ "2", [ 7 ] ],
+#	[ "*", [ 9, 12 ] ],
+#	[ "[ 10, 11, 12 ]", [ 14 ] ],
+#	[ "B", [ 13, 15 ] ],
+#	[ "A,", [ 16 ] ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------
+*/
+pron()
+
+o1 = new stzList([ "A", "B", "A", "A", "C", "D", "B", "E", "a" , "b"])
+? @@( o1.DuplicatesZCS(:CaseSensitive = FALSE) )
+
+proff()
+
 
 /*----------
 
