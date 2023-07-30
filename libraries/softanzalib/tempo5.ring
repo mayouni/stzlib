@@ -1,14 +1,30 @@
 load "stzlib.ring"
 
+
+
+
+
+
 /*---------
-*/
+# Performance of QString2 is astonisshing!
+
+
+
+str = "1|2|1|__*__|[ 10* 11* 12 ]|B|2|1|__*__|A*|3|__*__|B|[ 10* 11* 12 ]|B|"
+
+for i = 1 to 1_000_000
+	str += "SomeStringHereAndThere"
+next
+# Executed in 13.31 second(s)
+
 pron()
 
-str = "|1|2|1|__*__|[ 10* 11* 12 ]|B|2|1|__*__|A*|3|__*__|B|[ 10* 11* 12 ]|B|"
+str += "|1|2|1|__*__|[ 10* 11* 12 ]|B|2|1|__*__|A*|3|__*__|B|[ 10* 11* 12 ]|B|"
 o1 = new stzString(str)
-? @@(o1.FindThisBoundedBy("A", "|"))
+? @@(o1.FindThisBoundedBy("1", "|"))
 
 proff()
+# Executed in 0.15 second(s)
 
 /*--------- TODO: review sort in stztable (I may use this Ring native solution)
 
