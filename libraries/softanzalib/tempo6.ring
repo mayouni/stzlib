@@ -6,7 +6,7 @@ Remplimenting FindAll() based on DuplicatesZ()
 
 Task
 StzList -->
-Writing code for FindNth(à
+Writing code for FindNth()
 
 /*-----------
 

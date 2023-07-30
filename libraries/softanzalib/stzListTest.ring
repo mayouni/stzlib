@@ -6,17 +6,21 @@ pron()
 	# NOTE : Let's precise the concepts of Duplicates/Duplications,
 	# and DuplicateItems, as implemented semantically in Softanza
 
-	o1 = new stzList([ "A", "B", ".", "A", "A", "B" ])
+	o1 = new stzList([ "A", "B", ".", "A", "A", "B", 2, 2 ])
 
-	? @@( o1.Duplicates() )
-	#--> [ "A", "B" ]
-	# and we can also call them DuplicateItems()
+	? @@( o1.DuplicatesZ() ) # Or DuplicateItemsZ() or DuplicationsZ()
+	#--> [ [ "A", [ 4, 5 ] ], [ "B", [ 6 ] ], [ 2, [ 8 ] ] ]
+	# "A" is duplicated in positions 4 and 5, "B" is duplicated in position 5,
+	# and 2 is duplicated in position 8
+
+	# To get the list of duplicates (or duplicated items):
+	? @@( o1.Duplicates() ) # Or o1.DuplicatedItems()
+	#--> [ "A", "B", 2 ]
 
 	# To find the positions where these items are duplicated, we say:
-	? @@( o1.FindDuplicates() )
-	#--> [ 4, 5, 6 ]
-	# and we can also call it FindDuplications()
-
+	? @@( o1.FindDuplicates() ) # of FindDuplications()
+	#--> [ 4, 5, 6, 8 ]
+/*
 	# --> note the the first occurrences of "A" and "B" are not counted
 	# --> To get them with the positions of duplicates you can use: 
 	? @@( o1.FindDuplicatedItems() )
@@ -25,6 +29,7 @@ pron()
 	# To get only the first occurrences of each duplicated item, use:
 	? @@( o1.FindFirstOccurrenceOfEachDuplicatedItem() )
 	#--> [ 1, 2 ]
+*/
 proff()
 
 /*============
