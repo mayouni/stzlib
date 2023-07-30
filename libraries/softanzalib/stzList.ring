@@ -16442,6 +16442,26 @@ class stzList from stzObject
 	 #  GETTING DUPLICATES AND THEIR POSITIONS  #
 	#==========================================#
 
+	# NOTE : Let's precise the concepts of Duplicates/Duplications,
+	# and DuplicateItems, as implemented semantically in Softanza
+
+	# To find the positions where these items are duplicated, we say:
+	# o1 = new stzList([ "A", "B", ".", "A", "A", "B" ])
+
+	# o1.Duplicates() --> [ "A", "B" ]
+	# and we can also call them DuplicateItems()
+
+	# o1.FindDuplicates() --> [ 4, 5, 6 ]
+	# and we can also call it FindDuplications()
+
+	# --> note the the first occurrences of "A" and "B" are not counted
+	# --> To get them with the positions of duplicates you can use: 
+	# o1.FindDuplicatedItems() --> [ 1, 2, 4, 6 ]
+
+	# To get only the first occurrences of each duplicated item, use:
+	# o1.FindFirstOccurrenceOfEachDuplicatedItem()
+	# --> [ 1, 2 ]
+
 	def DuplicatesZCS(pCaseSensitive)
 		#< @QtBased | Uses QString from inside StrRepCon() >
 
@@ -16581,6 +16601,12 @@ class stzList from stzObject
 		def DuplicatedItemsZCS(pCaseSensitive)
 			return This.DuplicatesZCS(pCaseSensitive)
 
+		def DuplicationsAndTheirPositionsCS(pCaseSensitive)
+			return This.DuplicatesZCS(pCaseSensitive)
+
+		def DuplicationsZCS(pCaseSensitive)
+			return This.DuplicatesZCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -16599,6 +16625,12 @@ class stzList from stzObject
 		def DuplicatedItemsZ()
 			return This.DuplicatesZ()
 
+		def DuplicationsAndTheirPositions()
+			return This.DuplicatesZ()
+
+		def DuplicationsZ()
+			return This.DuplicatesZ()
+
 		#>
 
 	  #------------------------------#
@@ -16606,66 +16638,11 @@ class stzList from stzObject
 	#------------------------------#
 
 	def NumberOfDuplicationsCS(pCaseSensitive)
-			#< @QtBased | Uses QStringList >
+		#< @MotherFunction = DuplicatesZ() >
+		# TODO: we can gain some performance by reusing only the
+		# necessary parts of DuplicatesZ() code
 
-		# NOTE: for performance reasons, this function uses the same
-		# implementation as ContainsDuplicates(), base on QStringList
-
-		# Checking params
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
-		ok
-
-		# Doing the job
-
-		nLen = This.NumberOfItems()
-		if nLen < 2
-			return FALSE
-		ok
-
-		aContent = []
-
-		# We stringify the list (all items are becoming strings)
-
-		if pCaseSensitive = TRUE
-
-			aContent = This.Copy().
-					StringifyAndReplaceQ(",", "*").
-					Content()
-
-		else // pCaseSensitive = FALSE
-
-			aContent = This.Copy().
-					StringifyLowercaseAndReplaceQ(",", "*").
-					Content()
-		ok
-
-		# We use QStringList to make tow copies of the stringified list,
-		# remove duplicates of one of them, and compare their size
-
-		@oQStrList1 = new QStringList()			
-		for i = 1 to nLen
-			@oQStrList1.append(aContent[i])	
-		next
-
-		@oQStrList2 = new QStringList()			
-		for i = 1 to nLen
-			@oQStrList2.append(aContent[i])	
-		next
-
-		@oQStrList2.removeDuplicates()
-		
-		nLen1 = @oQStrList1.count()
-		nLen2 = @oQStrList2.count()
-
-		nResult = nLen1 - nLen2
-		return nResult
-	
+		nResult = len( This.DuplicatesZCS(pCaseSensitiv) )
 
 		def HowManyDuplicationsCS(pCaseSensitive)
 			return This.NumberOfDuplicationsCS(pCaseSensitive)
@@ -16678,45 +16655,74 @@ class stzList from stzObject
 		def HowManyDuplications()
 			return This.NumberOfDuplications()
 
-	  #--------------#
+	  #----------------------------------#
+	 #   FINDING DUPLICATES POSITIONS   #
+	#----------------------------------#
+	# NOTE : The first occurrence of an item is not considered as a duplicate
+
+	def FindDuplicatesCS(pCaseSensitive)
+		#< @MotherFunction = DuplicatesZ() >
+		# TODO: we can gain some performance by reusing only the
+		# necessary parts of DuplicatesZ() code
+
+		acDuplicatesZ = This.Duplicates
+		nLen = len(acDuplicatesZ)
+
+		anResult = []
+	
+		for i = 1 to nLen
+			anPos = acDuplicatesZ
+			nLenPos = len(anPos)
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+		def FindDuplicationsCS(pCaseSensitive)
+			return This.FindDuplicatesCS(pCaseSensitive)
+
+		def FindDuplicatedItemsCS(pCaseSensitive)
+			return This.FindDuplicatesCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicates()
+		return This.FindDuplicatesCS(:CaseSensitive = TRUE)
+
+		def FindDuolication()
+			return This.FindDuplicates()
+
+		def FindDuplicatedItems()
+			return This.FindDuplicates()
+
+---	  #--------------#
 	 #  DUPLICATES  #
 	#--------------#
 
 	def DuplicatesCS(pCaseSensitive)
+		#< @MotherFunction = DuplicatesZ() >
+		# TODO: we can gain some performance by reusing only the
+		# necessary parts of DuplicatesZ() code
 
-		if This.IsEmpty()
-			return []
-		ok
+		# TODO: Uses eval() because items are stringified in DuplicatesZ()
+		#--> Chek impact on performance!
 
-		# Resolving pCaseSensitive
+		acDuplicatesZ = This.Duplicates
+		nLen = len(acDuplicatesZ)
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
+		aResult = []
+	
+		for i = 1 to nLen
+			cItem = acDuplicatesZ[i][1]
+			cCode = 'item = ' + cItem
+			eval(cCode)
+			aResult + item
+		next
 
-		if isString(pCaseSensitive)
-			if Q(pCaseSensitive).IsOneOfThese([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
-
-				pCaseSensitive = TRUE
-			
-			but Q(pCaseSensitive).IsOneOfThese([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
-
-				pCaseSensitive = FALSE
-			ok
-
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
-		ok
-
-		# Doing the job
-
-#>>>>>>>>
-		return acResult
+		return aResult
 
 		def DuplicatesCSQ(pCaseSensitive)
 			return new stzList(This.DuplicatesCS(pCaseSensitive))

@@ -1,5 +1,9 @@
 load "stzlib.ring"
 
+
+
+/*-----------
+
 pron()
 bigstr = "ring php ruby ring qt csharp ring cobol"
 for i = 1 to 3_000_000
@@ -35,3 +39,5 @@ func findAllCS(str, substr, bcase)
     end
 
     return positions
+
+/*-------

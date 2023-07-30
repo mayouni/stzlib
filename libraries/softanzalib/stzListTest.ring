@@ -1,5 +1,68 @@
 load "stzlib.ring"
 
+/*=======
+*/
+pron()
+	# NOTE : Let's precise the concepts of Duplicates/Duplications,
+	# and DuplicateItems, as implemented semantically in Softanza
+
+	o1 = new stzList([ "A", "B", ".", "A", "A", "B" ])
+
+	? @@( o1.Duplicates() )
+	#--> [ "A", "B" ]
+	# and we can also call them DuplicateItems()
+
+	# To find the positions where these items are duplicated, we say:
+	? @@( o1.FindDuplicates() )
+	#--> [ 4, 5, 6 ]
+	# and we can also call it FindDuplications()
+
+	# --> note the the first occurrences of "A" and "B" are not counted
+	# --> To get them with the positions of duplicates you can use: 
+	? @@( o1.FindDuplicatedItems() )
+	#--> [ 1, 2, 4, 6 ]
+
+	# To get only the first occurrences of each duplicated item, use:
+	? @@( o1.FindFirstOccurrenceOfEachDuplicatedItem() )
+	#--> [ 1, 2 ]
+proff()
+
+/*============
+
+# How Softanza enhances your mental experience as a programmer
+# for some Ring functions, like in this example, the sort() function
+
+pron()
+
+# Each time I need the Ring sort() function, I could not remember
+# wether the function sorts the list in place, or sorts it and
+# returns it. So I have to write an use case to check it...
+
+alist = [ 4, 3, 1 , 2, 5 ]
+alist = ring_sort(alist)
+
+? @@(alist)
+#--> [ 1, 2, 3, 4, 5 ]
+
+# Hopefully, in Softanza, the mental model is crystal-clear
+# If you want to change the list in place you say:
+
+o1 = new stzList([ 4, 3, 1 , 2, 5 ])
+o1.Sort()
+# Now, the list is sorted in place and you can use it, to show it
+# for example like this:
+o1.Show()
+#--> [ 1, 2, 3, 4, 5 ]
+
+# An if you want to sort it and return it in the same time,
+# you would directly say it like this:
+
+aSorted = Q([ 4, 3, 1 , 2, 5 ]).Sorted()
+? @@(aSorted)
+#--> [ 1, 2, 3, 4, 5 ]
+
+proff()
+# Executed in 0.02 second(s)
 
 /*============
 
