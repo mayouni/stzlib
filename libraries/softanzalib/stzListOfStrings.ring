@@ -4654,9 +4654,12 @@ class stzListOfStrings from stzList
 
 		# Checking params
 
-		bCaseSensitive = TRUE
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			bCaseSensitive = FALSE
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()

@@ -13009,32 +13009,10 @@ class stzString from stzObject
 
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
-			bWellFormed = TRUE
-
-		else
-			if isBoolean(pCaseSensitive)
-				bWellFormed = TRUE
-			ok
 		ok
 
-		if NOT bWellFormed
-			stzRaise("Incorrect param types!")
-		ok
-
-		# Resolving the pCaseSensitive option
-
-		bCaseSensitive = TRUE
-		if isNumber(pCaseSensitive) and Q(pCaseSensitive).IsBoolean()
-			bCaseSensitive = pCaseSensitive
-
-		but isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			if isNumber(pCaseSensitive[2]) and Q(pCaseSensitive[2]).IsBoolean()
-				bCaseSensitive = pCaseSensitive[2]
-			ok
-		ok
-
-		if NOT isString(pcNewSubstr)
-			stzRaise("Incorrect param type! pNewcSubstr must be a string.")
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSe).")
 		ok
 
 		# Doing the job
@@ -16102,9 +16080,23 @@ def ReplaceIBS()
 			stzRaise("Incorrect param type! pcSubStr must be as a string.")
 		ok
 
+		# Resolving pCaseSensitive
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Early-checking for better performance (in case of!)
+
 		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
 			return 0
 		ok
+
+		# Resolving the n param
 
 		if isString(n)
 			cNLowercased = Q(n).Lowercased()
@@ -16119,18 +16111,6 @@ def ReplaceIBS()
 			ok
 		ok
 
-		# Resolving pCaseSensitive
-
-		bCaseSensitive = TRUE
-		if isNumber(pCaseSensitive) and Q(pCaseSensitive).IsBoolean()
-			bCaseSensitive = pCaseSensitive
-
-		but isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			if isNumber(pCaseSensitive[2]) and Q(pCaseSensitive[2]).IsBoolean()
-				bCaseSensitive = pCaseSensitive[2]
-			ok	
-		ok
-
 		# Doing the job
 
 		nResult = 0
@@ -16138,7 +16118,7 @@ def ReplaceIBS()
 		nPos = 1
 		for i = 1 to n
 
-			nResult = This.QStringObject().indexOf(pcSubStr, nPos - 1, bCaseSensitive) + 1
+			nResult = This.QStringObject().indexOf(pcSubStr, nPos - 1, pCaseSensitive) + 1
 
 			if nResult = 0
 				exit
@@ -26375,25 +26355,6 @@ def ReplaceIBS()
 
 	def VizFindXT(pcSubStr, paOptions)
 
-		/* THE LOGIC ADOPTED IN CHECKING FUNCTION CORRECTNESS
-		   -------------------------------------------------
-
-		   1. Checking the correctness of the TYPES of the params
-
-		   2. Reading the VALUES of the params provided and giving
-		      default values to them if necessary
-
-		   3. Checking the correctness of those values
-
-		   4. Doing the required job
-
-		TODO --> This logic should be generalized everywhere
-		in the library to keep code consistent and knowledgable!
-
-		FUTURE --> Replace all these checks with declarative Constraints.
-
-		*/
-
 		# STEP 1: Checking params TYPES
 		
 		if NOT isString(pcSubStr)
@@ -26515,7 +26476,7 @@ def ReplaceIBS()
 			])
 		ok
 
-		# At this level, we are sur the params are well formed
+		# At this level, we are sure the params are well formed
 		#--> Let's do the job!
 
 		if bSpacified
@@ -28937,13 +28898,12 @@ def ReplaceIBS()
 			StzRaise("Incorrect param type! pcsubStr must be a string.")
 		ok
 
-		bCaseSensitive = TRUE
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
 
-		if IsBoolean(pCaseSensitive)
-			bCaseSensitive = pCaseSensitive
-		
-		but isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			bCaseSensitive = pCaseSensitive[2]
+		if NOT IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
 		acResult = QStringListToList( QStringObject().split(pcSubStr, 0, bCaseSensitive) )
