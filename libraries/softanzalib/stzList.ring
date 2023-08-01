@@ -15793,9 +15793,9 @@ class stzList from stzObject
 		def ItemsAreDuplicates(paItems)
 			return This.ItemsAreDuplicated(paItems)
 
-	  #====================================================#
+	  #----------------------------------------------------#
 	 #   CHECKING IF THE LIST CONTAINS DUPLICATED ITEMS   #
-	#====================================================#
+	#----------------------------------------------------#
 
 	# REMINDER: Duplication is performed in a reasonable performance
 	# when the size of the list does not exceed 30K items!
@@ -15942,28 +15942,81 @@ class stzList from stzObject
 		def ItemOccursNTimes(n, pItem)
 			return This.ItemIsDuplicatedNTimes(n, pItem, pItem)
 
-	  #-----------------------------------------------#
-	 #  CHECKING IF THE LIST CONTAINS NO DUPLICTAES  #
-	#-----------------------------------------------#
-	#< @FunctionNegativeForm :Of = ContainsDuplicates() >
+	  #---------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS ITEMS THAT ARE NOR DUPLICTAED  #
+	#---------------------------------------------------------------#
 
-	def ContainsNoDuplicatesCS(pCaseSensitive)
-		return NOT This.ContainsDuplicatesCS(pCaseSensitive)
+	def ContainsItemsThatAreNotDuplicatedCS(pCaseSensitive)
+		
+		anPos = This.FindDuplicatesXTCS(pCaseSensitive)
+		nLenPos = len(anPos)
 
-		def ContainsNonDuplicatedItemsCS(pCaseSensitive)
+		nLen = This.NumberOfItems()
+
+		if NOT Q(anPos).IsEqualTo(1:nLen)
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def ContainsItemsNotDuplicatedCS(pCaseSensitive)
 			return This.ContainsNoDuplicatesCS(pCaseSensitive)
 
-		def ContainsNoDuplicationsCS(pCaseSensitive)
+		def ContainsItemsNonDuplicatedCS(pCaseSensitive)
 			return This.ContainsNoDuplicatesCS(pCaseSensitive)
 
+		def ContainsAtLeastOneNonDuplicatedItemsCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def ContainsAtLeastOneItemNonDuplicatedCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def ContainsAtLeastOneItemNotDuplicatedCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def ContainsAtLeastOneItemThatIsNonDuplicatedCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def ContainsAtLeastOneItemThatIsNotDuplicatedCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsNoDuplicates()
-		return This.ContainsNoDuplicatesCS(:CaseSensitive = TRUE)
+	def ContainsItemsThatAreNotDuplicated()
+		return This.ContainsItemsThatAreNotDuplicatedCS(:CaseSensitive = TRUE)
 
-		def ContainsNonDuplicatedItems()
+		#< @FunctionAlternativeForms
+
+		def ContainsItemsNotDuplicated()
 			return This.ContainsNoDuplicates()
+
+		def ContainsItemsNonDuplicatedCS(pCaseSensitive)
+			return This.ContainsNoDuplicates()
+
+		def ContainsAtLeastOneNonDuplicatedItems(pCaseSensitive)
+			return This.ContainsNoDuplicates()
+
+		def ContainsAtLeastOneItemNonDuplicated(pCaseSensitive)
+			return This.ContainsNoDuplicates()
+
+		def ContainsAtLeastOneItemNotDuplicated(pCaseSensitive)
+			return This.ContainsNoDuplicates()
+
+		def ContainsAtLeastOneItemThatIsNonDuplicated(pCaseSensitive)
+			return This.ContainsNoDuplicates()
+
+		def ContainsAtLeastOneItemThatIsNotDuplicated(pCaseSensitive)
+			return This.ContainsNoDuplicates()
+
+		#>
+
+	#---------------
+	# 
+	#----
 
 		def ContainsNoDuplications()
 			return This.ContainsNoDuplicates()
