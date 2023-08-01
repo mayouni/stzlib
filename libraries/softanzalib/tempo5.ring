@@ -1,10 +1,32 @@
 load "stzlib.ring"
 
 
+/*-----------
+*/
 
+# Softanza make programming in Ring more expressive.
+# To showcase this, let's consider how substr() function
+# is used in string, and how Softanza enhances it.
 
+	Find substring
+	Get substring from position to end
+	Get Number of characters from position
+	Transform Substring To Another Substring
 
+cStr = "Welcome to the Ring programming language"
+see substr(cStr,"Ring")         # print 16
 
+cStr = "Welcome to the Ring programming language"
+nPos = substr(cStr,"Ring")      # nPos = 16
+see substr(cStr,nPos)           # print Ring programming language()
+
+cStr = "Welcome to the Ring programming language"
+nPos = substr(cStr,"Ring")      # nPos = 16
+see substr(cStr,nPos,4)         # print Ring
+
+cStr = "Welcome to the New programming language"
+see substr(cStr,"New","Ring") + nl  # print Welcome to the Ring programming language
+see substr(cStr,"new","Ring",1)+ nl # print Welcome to the Ring programming language()
 /*---------
 # Performance of QString2 is astonisshing!
 

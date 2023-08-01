@@ -1,6 +1,23 @@
 load "stzlib.ring"
 
 /*=======
+
+pron()
+
+# REMINDER: Duplication is performed in a reasonable performance
+# when the size of the list does not exceed 30K items!
+
+aBigList = 1:30_000 +
+	   "A" + "B" + "." + "A" + "A" + "B" + 2 + 2
+
+o1 = new stzList(aBigList)
+
+? o1.ContainsDuplicates()
+
+
+proff()
+
+/*-------
 */
 pron()
 	# NOTE : Let's precise the concepts of Duplicates/Duplications,
@@ -8,6 +25,19 @@ pron()
 
 	o1 = new stzList([ "A", "B", ".", "A", "A", "B", 2, 2 ])
 
+	? o1.ContainsDuplicates() # Or ContainsDuplications() or ContainsduplicatedItems()
+	#--> TRUE
+
+	? o1.NumberOfDuplicates()
+	#--> 4
+
+	? o1.NumberOfDuplicatedItems()
+	#--> 3
+
+
+
+
+/*
 	? @@( o1.DuplicatesZ() ) # Or DuplicateItemsZ() or DuplicationsZ()
 	#--> [ [ "A", [ 4, 5 ] ], [ "B", [ 6 ] ], [ 2, [ 8 ] ] ]
 	# "A" is duplicated in positions 4 and 5, "B" is duplicated in position 5,
@@ -20,15 +50,17 @@ pron()
 	# To find the positions where these items are duplicated, we say:
 	? @@( o1.FindDuplicates() ) # of FindDuplications()
 	#--> [ 4, 5, 6, 8 ]
-/*
-	# --> note the the first occurrences of "A" and "B" are not counted
+
+	# --> Note that the first occurrences of "A", "B" and 2 are not counted
 	# --> To get them with the positions of duplicates you can use: 
-	? @@( o1.FindDuplicatedItems() )
-	#--> [ 1, 2, 4, 6 ]
+	? @@( o1.FindDuplicatesXT() )
+	#--> [ 1, 2, 4, 5, 6, 7, 8 ]
 
 	# To get only the first occurrences of each duplicated item, use:
 	? @@( o1.FindFirstOccurrenceOfEachDuplicatedItem() )
-	#--> [ 1, 2 ]
+	#--> [ 1, 2, 7 ]
+
+//	? o1.FindNthDuplicates()
 */
 proff()
 
@@ -1613,29 +1645,6 @@ o1 = new stzList(aLarge)
 
 proff()
 # Executed in 12.05 second(s)
-
-/*--------------- 
-
-pron()
-
-aLarge = [ 10, 20, "hi", "hi", [ :Tunis, :Paris ], 20 ]
-
-for i = 1 to 100_000
-	aLarge + ("*"+ i)
-next
-
-aLarge + [ :Tunis, :Paris ] + "hi"
-
-o1 = new stzList(aLarge)
-aContainsXT = o1.ContainsDuplicatesXT()
-
-? aContainsXT[1]
-#--> TRUE
-
-? aContainsXT[2]
-#--> 4
-
-proff()
 
 /*---------------
 
