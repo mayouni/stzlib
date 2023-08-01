@@ -8,6 +8,9 @@ Task
 StzList -->
 Writing code for FindNth()
 
+Task
+Add HowMany() alternative to all NumberOf() functions
+
 /*-----------
 
 pron()

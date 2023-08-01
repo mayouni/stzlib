@@ -15716,12 +15716,91 @@ class stzList from stzObject
 
 		#
 
+	  #==================================================#
+	 #  CHECKING IF AN ITEM IS DUPPLICATED IN THE LIST  #
+	#==================================================#
+
+	def ItemIsDuplicatedCS(pItem, pCaseSensitive)
+
+		nFirstPos = This.FindFirstCS(pItem, pCaseSensitive)
+
+		nFindBefore = This.FindPreviousCS(pItem, :StartingAt = nFirstPos, pCaseSensitive)
+		if nFindBefore != 0
+			return TRUE
+		ok
+
+		nFindAfter = This.FindNextCS(pItem, :StartingAt = nFirstPos, pCaseSensitive)
+		if nFindAfter != 0
+			return TRUE
+		ok
+
+		return FALSE
+
+		#< @FunctionAlternativeForms
+
+		def ItemIsDuplicateCS(pItem, pCaseSensitive)
+			return This.IsDuplicatedCS(pItem, pCaseSensitive)
+
+		def ItemIsADuplicateCS(pItem, pCaseSensitive)
+			return This.IsDuplicatedCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ItemIsDuplicated(pItem)
+		return This.ItemIsDuplicatedCS(pItem, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ItemIsDuplicate(pItem)
+			return This.IsDuplicated(pItem)
+
+		def ItemIsADuplicate(pItem)
+			return This.IsDuplicated(pItem)
+
+		#>
+
+	  #-----------------------------------------------------#
+	 #  CHECKING IF MANY ITEMS ARE DUPLICATED IN THE LIST  #
+	#-----------------------------------------------------#
+
+	def ItemsAreDuplicatedCS(paItems, pCaseSensitice)
+		if NOT isList(paItems)
+			StzRaise("Incorrect param type! paItems must be a list.")
+		ok
+
+		nLen = len(paItems)
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT This.ItemIsDuplicatedCS(pItem, pCaseSensitive)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def ItemsAreDuplicatesCS(paItems, pCaseSensitive)
+			return This.ItemsAreDuplicatedCS(paItems, pCaseSensitice)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ItemsAreDuplicated(paItems, pCaseSensitice)
+		return This.ItemsAreDuplicatedCS(paItems, :CaseSensitice = TRUE)
+		
+		def ItemsAreDuplicates(paItems)
+			return This.ItemsAreDuplicated(paItems)
+
 	  #====================================================#
 	 #   CHECKING IF THE LIST CONTAINS DUPLICATED ITEMS   #
 	#====================================================#
 
+	# REMINDER: Duplication is performed in a reasonable performance
+	# when the size of the list does not exceed 30K items!
+
 	def ContainsDuplicatesCS(pCaseSensitive)
-		#< @QtBased | Uses QStringList >
 
 		# Checking params
 
@@ -15735,54 +15814,101 @@ class stzList from stzObject
 
 		# Doing the job
 
-		nLen = This.NumberOfItems()
-		if nLen < 2
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
 			return FALSE
 		ok
 
-		aContent = []
+		
+		n = 1 # Used tou cout object in the list and then composing names for them
+		acStr = []
 
-		# We stringify the list (all items are becoming strings)
+		# We duplicate the code because we need to manage casesensitivty
+		# while relying on the performant native ring_find()
+
+		# We start by stringifying the list (casting all the items in to strings)
+		# so we can find not onlu numbers and strings, but also lists,
+		# and get relatively beeter performance on larger lists (up to 30K items)
+
 
 		if pCaseSensitive = TRUE
 
-			aContent = This.Copy().
-					StringifyAndReplaceQ(",", "*").
-					Content()
+			for i = 1 to nLen
+
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = aContent[i]
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					# WARNING: It's impossible to get the name of the object
+					# by code (should be requested from Mahmoud in future Ring)
+				ok
+
+				# Memorising the stringified items so we can used them later
+	
+				acStr + cItem
+			next
 
 		else // pCaseSensitive = FALSE
 
-			aContent = This.Copy().
-					StringifyLowercaseAndReplaceQ(",", "*").
-					Content()
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = aContent[i]
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acStr + Q(cItem).Lowercased()
+			next
+
 		ok
 
-		# We use QStringList to make tow copies of the stringified list,
-		# remove duplicates of one of them, and compare their size
+		# Checking if an item is a duplicate
 
-		@oQStrList1 = new QStringList()			
+		bResult = FALSE
+		acSeen = []
+
 		for i = 1 to nLen
-			@oQStrList1.append(aContent[i])	
+
+			n = ring_find( acSeen, acStr[i] )
+			if n = 0
+				acSeen + acStr[i]
+			else
+				bResult = TRUE
+				exit
+			ok
+
 		next
 
-		@oQStrList2 = new QStringList()			
-		for i = 1 to nLen
-			@oQStrList2.append(aContent[i])	
-		next
-
-		@oQStrList2.removeDuplicates()
-		
-		nLen1 = @oQStrList1.count()
-		nLen2 = @oQStrList2.count()
-
-		# The size will tell us if the list contains duplicatesenabled()
-
-		if nLen1 = nLen2
-			return FALSE
-		else
-			return TRUE
-		ok
-
+		return bResult
+			
 		def ContainsDuplicatedItemsCS(pCaseSensitive)
 			return This.ContainsDuplicatesCS(pCaseSensitive)
 
@@ -15793,91 +15919,6 @@ class stzList from stzObject
 
 		def ContainsDuplicatedItems()
 			return This.ContainsDuplicates()
-
-	  #--------------------------------------------------------------#
-	 #  CHECKING IF THE LIST CONTAINS DUPLICATED ITEMS -- EXTENDED  #
-	#--------------------------------------------------------------#
-	# NOTE: This extended form returns along with result of ContainsDuplicates()
-	# the number of those duplicates (use it to get them both in relatively better
-	# performance then if you use separately ContaisDuplicates() and NumberOfDuplicates()
-
-	def ContainsDuplicatesXTCS(pCaseSensitive)
-		#< @QtBased | Uses QStringList >
-
-		# Checking params
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
-		ok
-
-		# Doing the job
-
-		nLen = This.NumberOfItems()
-		if nLen < 2
-			return FALSE
-		ok
-
-		aContent = []
-
-		# We stringify the list (all items are becoming strings)
-
-		if pCaseSensitive = TRUE
-
-			aContent = This.Copy().
-					StringifyAndReplaceQ(",", "*").
-					Content()
-
-		else // pCaseSensitive = FALSE
-
-			aContent = This.Copy().
-					StringifyLowercaseAndReplaceQ(",", "*").
-					Content()
-		ok
-
-		# We use QStringList to make two copies of the stringified list,
-		# remove duplicates of one of them, and compare their size
-
-		@oQStrList1 = new QStringList()			
-		for i = 1 to nLen
-			@oQStrList1.append(aContent[i])	
-		next
-
-		@oQStrList2 = new QStringList()			
-		for i = 1 to nLen
-			@oQStrList2.append(aContent[i])
-		next
-
-		@oQStrList2.removeDuplicates()
-		
-		nLen1 = @oQStrList1.count()
-		nLen2 = @oQStrList2.count()
-
-		# The size will tell us if the list contains duplicates or not
-
-		aResult = []
-
-		bResult = FALSE
-		if nLen1 != nLen2
-			bResult = TRUE
-		ok
-
-		aResult + bResult + (nLen1 - nLen2)
-		return aResult
-
-		def ContainsDuplicatedItemsXTCS(pCaseSensitive)
-			return This.ContainsDuplicatesXTCS(pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ContainsDuplicatesXT()
-		return This.ContainsDuplicatesXTCS(:CaseSensitive = TRUE)
-
-		def ContainsDuplicatedItemsXT()
-			return This.ContainsDuplicatesXT()
 
 	  #-----------------------------------------------------#
 	 #   CHECHKING IF A GIVEN ITEM IS DUPLICATED N-TIMES   #
@@ -16011,56 +16052,7 @@ class stzList from stzObject
 	#==========================#
 
 	def NumberOfDuplicatesCS(pCaseSensitive)
-		#< @QtBased | Uses QStringList >
-
-		# Checking params
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
-		ok
-
-		# Doing the job
-
-		nLen = This.NumberOfItems()
-		if nLen < 2
-			return FALSE
-		ok
-
-		aContent = []
-
-		# We stringify the list (all items are becoming strings)
-
-		if pCaseSensitive = TRUE
-
-			aContent = This.Copy().
-					StringifyAndReplaceQ(",", "*").
-					Content()
-
-		else // pCaseSensitive = FALSE
-
-			aContent = This.Copy().
-					StringifyLowercaseAndReplaceQ(",", "*").
-					Content()
-		ok
-
-		oQStrList = new QStringList()
-		for i = 1 to nLen
-			oQStrList.append(aContent[i])
-		next
-		oQStrList.sort()
-
-		nResult = 0
-		for i = 1  to nLen - 1
-			
-			if oQStrList.at(i) = oQStrList.at(i-1)
-				nResult++
-			ok
-		next
-
+		nResult = len( This.FindDuplicatesCS(pCaseSensitive) )
 		return nResult
 
 		#< @FunctionAlternativeForm
@@ -16096,9 +16088,9 @@ class stzList from stzObject
 
 		#>
 
-	  #-------------------------------------------------#
+	  #=================================================#
 	 #  FINDING THE NUMBER OF OCCURRENCE OF EACH ITEM  #
-	#-------------------------------------------------#
+	#=================================================#
 	# NOTE: for performance reason, the items are stringified.
 
 	def FindItemsCS(pCaseSensitive)
@@ -16442,6 +16434,25 @@ class stzList from stzObject
 		def HowManyDuplications()
 			return This.NumberOfDuplications()
 
+	  #------------------------------------------------------#
+	 #  GETTING THE NUMBER OF DUPLICATED ITEMS IN THE LIST  #
+	#------------------------------------------------------#
+
+	def NumberOfDuplicatedItemsCS(pCaseSensitive)
+		nResult = len( This.DuplicatedItemsCS(pCaseSensitive) )
+		return nResult
+
+		def HowManyDuplicatedItemsCS(pCaseSensitive)
+			return This.NumberOfDuplicatedItemsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfDuplicatedItems()
+		return This.NumberOfDuplicatedItemsCS(:CaseSensitive = TRUE)
+
+		def HowManyDuplicatedItems()
+			return This.NumberOfDuplicatedItems()
+
 	  #----------------------------------#
 	 #   FINDING DUPLICATES POSITIONS   #
 	#----------------------------------#
@@ -16577,6 +16588,273 @@ class stzList from stzObject
 		def FindDuplicatedItems()
 			return This.FindDuplicates()
 
+	  #----------------------------------------#
+	 #   FINDING DUPLICATES POSITIONS -- XT   #
+	#----------------------------------------#
+	# FinDuplicates() returns the positions of the duplicated items.
+	# Hence, the first occurrences of those items are not returned.
+	# To return them, use this eXTended version of the function
+
+	def FindDuplicatesXTCS(pCaseSensitive)
+
+		# Checking params
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+		ok
+
+		acSeen = []
+		n = 1 # Used tou cout object in the list and then composing names for them
+		acStr = []
+
+		# We duplicate the code because we need to manage casesensitivty
+		# while relying on the performant native ring_find()
+
+		# We start by stringifying the list (casting all the items in to strings)
+		# so we can find not onlu numbers and strings, but also lists,
+		# and get relatively beeter performance on larger lists (up to 30K items)
+
+		if pCaseSensitive = TRUE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = aContent[i]
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					# WARNING: It's impossible to get the name of the object
+					# by code (should be requested from Mahmoud in future Ring)
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acStr + cItem
+			next
+
+		else // pCaseSensitive = FALSE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = aContent[i]
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acStr + Q(cItem).Lowercased()
+			next
+
+
+		ok
+
+		# Finding duplicates positions
+
+		acSeen = []
+		anSeen = []
+
+		anPos = []
+
+		for i = 1 to nLen
+
+			n = ring_find(acSeen, acStr[i])
+
+			if n = 0
+				acSeen + acStr[i]
+				anSeen + i
+			else
+				if ring_find(anPos, anSeen[n]) = 0
+					anPos + anSeen[n]
+				ok
+				anPos + i
+			ok
+
+		next
+
+		anPos = ring_sort(anPos)
+		return anPos
+
+		def FindDuplicationsXTCS(pCaseSensitive)
+			return This.FindDuplicatesXTCS(pCaseSensitive)
+
+		def FindDuplicatedItemsXTCS(pCaseSensitive)
+			return This.FindDuplicatesXTCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicatesXT()
+		return This.FindDuplicatesXTCS(:CaseSensitive = TRUE)
+
+		def FindDuolicationXT()
+			return This.FindDuplicatesXT()
+
+		def FindDuplicatedItemsXT()
+			return This.FindDuplicatesXT()
+
+
+	  #----------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF EACH DUPLICATED ITEM  #
+	#----------------------------------------------------#
+
+	def FindFirstOccurrenceOfEachDuplicatedItemCS(pCaseSensitive)
+
+		# Checking params
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+		ok
+
+		acSeen = []
+		n = 1 # Used tou cout object in the list and then composing names for them
+		acStr = []
+
+		# We duplicate the code because we need to manage casesensitivty
+		# while relying on the performant native ring_find()
+
+		# We start by stringifying the list (casting all the items in to strings)
+		# so we can find not onlu numbers and strings, but also lists,
+		# and get relatively beeter performance on larger lists (up to 30K items)
+
+		if pCaseSensitive = TRUE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = aContent[i]
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					# WARNING: It's impossible to get the name of the object
+					# by code (should be requested from Mahmoud in future Ring)
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acStr + cItem
+			next
+
+		else // pCaseSensitive = FALSE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = aContent[i]
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acStr + Q(cItem).Lowercased()
+			next
+
+
+		ok
+
+		# Finding first duplicates positions
+
+		acSeen = []
+		anSeen = []
+		anPos = []
+
+		anResult = []
+
+		for i = 1 to nLen
+
+			n = ring_find(acSeen, acStr[i])
+
+			if n = 0
+				acSeen + acStr[i]
+				anSeen + i
+			else
+				if ring_find(anPos, anSeen[n]) = 0
+					anPos + anSeen[n]
+					anResult + anSeen[n]
+				ok
+				anPos + i
+			ok
+
+		next
+
+		return anResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstOccurrenceOfEachDuplicatedItem()
+		return This.FindFirstOccurrenceOfEachDuplicatedItemCS(:CaseSensitive = TRUE)
+
 	  #--------------#
 	 #  DUPLICATES  #
 	#--------------#
@@ -16688,19 +16966,19 @@ class stzList from stzObject
 
 		next
 
-		# Composing the association of items and their positions
+		# Constructing the list of items that are duplicated in the list
 
-		acResult = []
+		aResult = []
 		nLen = len(acSeen)
 
 		for i = 1 to nLen
 			if len(anPos[i]) > 1
-				acResult + aContent[anPos[i][1]]
+				aResult + aContent[anPos[i][1]]
 			ok
 		next
 		
 
-		return acResult
+		return aResult
 
 
 		def DuplicatesCSQ(pCaseSensitive)
@@ -16760,63 +17038,8 @@ class stzList from stzObject
 
 	def RemoveDuplicatesCS(pCaseSensitive)
 
-		# Resolving pCaseSensitive
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if isString(pCaseSensitive)
-			if Q(pCaseSensitive).IsOneOfThese([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
-
-				pCaseSensitive = TRUE
-			
-			but Q(pCaseSensitive).IsOneOfThese([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
-
-				pCaseSensitive = FALSE
-			ok
-
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
-		ok
-
-		# If we are lucky, we use directly a Qt-based solution
-
-		if pCaseSensitive = TRUE and This.IsListOfStrings()
-
-			aResult = This.ToStzListOfStrings().DuplicatesRemoved()
-
-			This.UpdateWith(aResult)
-			return
-		ok
-
-		# Otherwise, we do it by ourselves
-
-		aSorted = ring_sort( This.Content() )
-		nLen = len(aSorted)
-
-		if nLen < 2
-			return
-		ok
-
-		aResult = []
-
-		for i = 2 to nLen
-
-			oQCurrent = new QString2()
-			oQCurrent.append( @@(aSorted[i]) )
-			
-			oQPrevious = new QString2()
-			oQPrevious.append( @@(aSorted[i-1]) )
-
-		next
-
-		This.UpdateWith(aResult)
+		anPos = This.FindDuplicatesCS(pCaseSensitive)
+		This.RemoveItemsAtPositions(anPos)
 
 		#< @FunctionAlternativeForms
 
@@ -16828,7 +17051,15 @@ class stzList from stzObject
 			This.RemoveDuplicatesCS(pCaseSensitive)
 
 			def RemoveDuplicatedItemsCSQ(pCaseSensitive)
-				This.RemoveDuplicatesCSQ(pCaseSensitive)
+				This.RemoveDuplicatedItemsCS(pCaseSensitive)
+				return This
+
+		def RemoveDuplicationsCS(pCaseSensitive)
+			This.RemoveDuplicatesCS(pCaseSensitive)
+
+			def RemoveDuplicationsCSQ(pCaseSensitive)
+				This.RemoveDuplicationsCS(pCaseSensitive)
+				return This
 
 		#>
 
@@ -16856,6 +17087,9 @@ class stzList from stzObject
 		def DuplicatedItemsRemovedCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
+		def DuplicationsRemovedCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -16873,7 +17107,15 @@ class stzList from stzObject
 			This.RemoveDuplicates()
 
 			def RemoveDuplicatedItemsQ()
-				This.RemoveDuplicatesQ()
+				This.RemoveDuplicatedItems()
+				return This
+
+		def RemoveDuplications()
+			This.RemoveDuplicates()
+
+			def RemoveDuplicationsQ()
+				This.RemoveDuplications()
+				return This
 
 		#>
 
@@ -16940,6 +17182,21 @@ class stzList from stzObject
 		def DuplicatedItemsRemoved()
 			return This.DuplicatesRemoved()
 
+			def DuplicatedItemsRemovedQ()
+				return This.ToSetQR(:stzList)
+
+			def DuplicatesItemsRemovedQR(pcReturnType)
+				return This.ToSetQR(pcReturnType)
+
+		def DuplicationsRemoved()
+			return This.DuplicatesRemoved()
+
+			def DuplicationsRemovedQ()
+				return This.ToSetQR(:stzList)
+
+			def DuplicationsRemovedQR(pcReturnType)
+				return This.ToSetQR(pcReturnType)
+
 		#>
 
   	  #-----------------------------------------#
@@ -16967,6 +17224,12 @@ class stzList from stzObject
 				This.RemoveDuplicatesOfThisItemCS(pItem, pCaseSensitive)
 				return This
 
+		def RemoveDuplicationsOfItemCS(pItem, pCaseSensitive)
+			This.RemoveDuplicatesOfItemCS(pItem, pCaseSensitive)
+
+			def RemoveDuplicationsOfItemCSQ(pItem, pCaseSensitive)
+				This.RemoveDuplicationsOfItemCS(pItem, pCaseSensitive)
+				return This
 		#>
 
 	def DuplicatesOfItemRemovedCS(pItem, pCaseSensitive)
@@ -16980,6 +17243,12 @@ class stzList from stzObject
 		#< @FunctionAlternativeForm
 
 		def DuplicatesOfThisItemRemovedCS(pItem, pCaseSensitive)
+			return This.DuplicatesOfItemRemovedCS(pItem, pCaseSensitive)
+
+		def DuplicationsOfItemRemovedCS(pItem, pCaseSensitive)
+			return This.DuplicatesOfItemRemovedCS(pItem, pCaseSensitive)
+
+		def DuplicationsOfThisItemRemovedCS(pItem, pCaseSensitive)
 			return This.DuplicatesOfItemRemovedCS(pItem, pCaseSensitive)
 
 		#>
@@ -17006,6 +17275,13 @@ class stzList from stzObject
 				This.RemoveDuplicatesOfThisItem(pItem)
 				return This
 
+		def RemoveDuplicationsOfItem(pItem)
+			This.RemoveDuplicatesOfItem(pItem)
+
+			def RemoveDuplicationsOfItemQ(pItem)
+				This.RemoveDuplicationsOfItem(pItem)
+				return This
+
 		#>
 
 	def DuplicatesOfItemRemoved(pItem)
@@ -17014,6 +17290,12 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def DuplicatesOfThisItemRemoved(pItem)
+			return This.DuplicatesOfItemRemoved(pItem)
+
+		def DuplicationsOfItemRemoved(pItem)
+			return This.DuplicatesOfItemRemoved(pItem)
+
+		def DuplicationsOfThisItemRemoved(pItem)
 			return This.DuplicatesOfItemRemoved(pItem)
 
 		#>
@@ -17051,6 +17333,36 @@ class stzList from stzObject
 				This.RemoveDuplicatesOfTheseItemsCS(paItems, pCaseSensitive)
 				return This
 
+		def  RemoveDuplicationsOfItemsCS(paItems, pCaseSensitive)
+			This.RemoveDuplicatesOfItemsCS(paItems, pCaseSensitive)
+
+			def RemoveDuplicationsOfItemsCSQ(paItems, pCaseSensitive)
+				This.RemoveDuplicationsOfItemsCS(paItems, pCaseSensitive)
+				return This
+
+		def  RemoveDuplicationsOfTheseItemsCS(paItems, pCaseSensitive)
+			This.RemoveDuplicatesOfItemsCS(paItems, pCaseSensitive)
+
+			def RemoveDuplicationsOfTheseItemsCSQ(paItems, pCaseSensitive)
+				This.RemoveDuplicationsOfTheseItemsCS(paItems, pCaseSensitive)
+				return This
+
+		#--
+
+		def  RemoveDuplicatesOfManyItemsCS(paItems, pCaseSensitive)
+			This.RemoveDuplicatesOfItemsCS(paItems, pCaseSensitive)
+
+			def RemoveDuplicatesOfManyItemsCSQ(paItems, pCaseSensitive)
+				This.RemoveDuplicatesOfManyItemsCS(paItems, pCaseSensitive)
+				return This
+
+		def  RemoveDuplicationsOfManyItemsCS(paItems, pCaseSensitive)
+			This.RemoveDuplicatesOfItemsCS(paItems, pCaseSensitive)
+
+			def RemoveDuplicationsOfManyItemsCSQ(paItems, pCaseSensitive)
+				This.RemoveDuplicationsOfManyItemsCS(paItems, pCaseSensitive)
+				return This
+
 		#>
 		
 	#-- WITHOUT CASESENSITIVITY
@@ -17068,12 +17380,43 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def RemoveDuplicatesOfTheseItems(paItems)
+		def  RemoveDuplicatesOfTheseItems(paItems)
 			This.RemoveDuplicatesOfItems(paItems)
 
 			def RemoveDuplicatesOfTheseItemsQ(paItems)
 				This.RemoveDuplicatesOfTheseItems(paItems)
 				return This
+
+		def  RemoveDuplicationsOfItems(paItems)
+			This.RemoveDuplicatesOfItems(paItems)
+
+			def RemoveDuplicationsOfItemsQ(paItems)
+				This.RemoveDuplicationsOfItems(paItems)
+				return This
+
+		def  RemoveDuplicationsOfTheseItems(paItems)
+			This.RemoveDuplicatesOfItems(paItems)
+
+			def RemoveDuplicationsOfTheseItemsQ(paItems)
+				This.RemoveDuplicationsOfTheseItems(paItems)
+				return This
+
+		#--
+
+		def  RemoveDuplicatesOfManyItems(paItems)
+			This.RemoveDuplicatesOfItems(paItems)
+
+			def RemoveDuplicatesOfManyItemsQ(paItems)
+				This.RemoveDuplicatesOfManyItems(paItems)
+				return This
+
+		def  RemoveDuplicationsOfManyItems(paItems)
+			This.RemoveDuplicatesOfItems(paItems)
+
+			def RemoveDuplicationsOfManyItemsQ(paItems)
+				This.RemoveDuplicationsOfManyItems(paItems)
+				return This
+
 
 		#>
 
