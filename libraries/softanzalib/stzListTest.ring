@@ -23,8 +23,9 @@ pron()
 	# NOTE : Let's precise the concepts of Duplicates/Duplications,
 	# and DuplicateItems, as implemented semantically in Softanza
 
-	o1 = new stzList([ "A", "B", ".", "A", "A", "B", 2, 2 ])
+	o1 = new stzList([ "A", "B", "B", "A", "A", "B", 2, 2 ])
 
+/*
 	? o1.ContainsDuplicates() # Or ContainsDuplications() or ContainsduplicatedItems()
 	#--> TRUE
 
@@ -34,10 +35,6 @@ pron()
 	? o1.NumberOfDuplicatedItems()
 	#--> 3
 
-
-
-
-/*
 	? @@( o1.DuplicatesZ() ) # Or DuplicateItemsZ() or DuplicationsZ()
 	#--> [ [ "A", [ 4, 5 ] ], [ "B", [ 6 ] ], [ 2, [ 8 ] ] ]
 	# "A" is duplicated in positions 4 and 5, "B" is duplicated in position 5,
@@ -60,8 +57,11 @@ pron()
 	? @@( o1.FindFirstOccurrenceOfEachDuplicatedItem() )
 	#--> [ 1, 2, 7 ]
 
-//	? o1.FindNthDuplicates()
+	# What about items that are not duplicated:
 */
+	? o1.ContainsItemsNonDuplicated()
+
+
 proff()
 
 /*============
