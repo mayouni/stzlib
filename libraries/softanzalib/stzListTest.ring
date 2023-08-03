@@ -7,15 +7,60 @@ pron()
 # REMINDER: Duplication is performed in a reasonable performance
 # when the size of the list does not exceed 30K items!
 
-aBigList = 1:30_000 +
+aBigList = 1 : 30_000 +
 	   "A" + "B" + "." + "A" + "A" + "B" + 2 + 2
 
 o1 = new stzList(aBigList)
 
 ? o1.ContainsDuplicates()
-
+#--> TRUE
 
 proff()
+# Executed in 4.27 second(s)
+
+/*-------
+
+pron()
+
+	alist = []
+	for i = 1 to 30000
+		alist + 'A' + 'B'
+	next
+	alist + "A" + "A" + 2 + "B" + "B" + 2 + "B"
+
+	o1 = new stzList(alist)
+	
+	? o1.AllItemsAreDuplicated()
+	#--> TRUE
+
+proff()
+# Executed in 4.75 second(s)
+
+/*-------
+
+pron()
+
+	o1 = new stzList([ "A", "B", "2", 1:3, "C", 2 ])
+	? o1.NoItemsAreDuplicated()
+	#--> TRUE
+
+	o1 = new stzList("A":"E")
+	? o1.NoItemsAreDuplicated()
+	#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------
+
+pron()
+
+o1 = new stzList([ "2", 2 ])
+? o1.ContainsDuplicates()
+#--> FALSE
+
+proff()
+# Executed in 0.02 second(s)
 
 /*-------
 */
@@ -23,9 +68,8 @@ pron()
 	# NOTE : Let's precise the concepts of Duplicates/Duplications,
 	# and DuplicateItems, as implemented semantically in Softanza
 
-	o1 = new stzList([ "A", "B", "B", "A", "A", "B", 2, 2 ])
+	o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2 ])
 
-/*
 	? o1.ContainsDuplicates() # Or ContainsDuplications() or ContainsduplicatedItems()
 	#--> TRUE
 
@@ -34,7 +78,7 @@ pron()
 
 	? o1.NumberOfDuplicatedItems()
 	#--> 3
-
+/*
 	? @@( o1.DuplicatesZ() ) # Or DuplicateItemsZ() or DuplicationsZ()
 	#--> [ [ "A", [ 4, 5 ] ], [ "B", [ 6 ] ], [ 2, [ 8 ] ] ]
 	# "A" is duplicated in positions 4 and 5, "B" is duplicated in position 5,
@@ -58,10 +102,12 @@ pron()
 	#--> [ 1, 2, 7 ]
 
 	# What about items that are not duplicated:
+
+//	? o1.ContainsItemsNonDuplicated()
+//	? o1.ContainsAtLeastOneNonDuplicatedItem()
+
+//	? o1. ContainsNoDuplications()
 */
-	? o1.ContainsItemsNonDuplicated()
-
-
 proff()
 
 /*============
