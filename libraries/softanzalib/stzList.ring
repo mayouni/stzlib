@@ -15641,21 +15641,6 @@ class stzList from stzObject
 	def ToStzHashList()
 		return new stzHashList( This.List() )
 
-	  #---------------------------------#
-	 #  CHECKING IF THE LIST IS A SET  #
-	#---------------------------------#
-
-	def IsSet()
-		bIsSet = TRUE
-
-		for item in This.Content()
-			if This.NumberOfOccurrence(item) > 1
-				bIsSet = FALSE
-			ok
-		next
-
-		return bIsSet
-
 	  #-----------------------------------------------------#
 	 #     NUMBER OF OCCURRENCE OF AN ITEM IN THE LIST     #
 	#-----------------------------------------------------#
@@ -15843,7 +15828,7 @@ class stzList from stzObject
 					cItem = ""+ aContent[i]
 	
 				but isString(aContent[i])
-					cItem = aContent[i]
+					cItem = @@(aContent[i])
 	
 				but isList(aContent[i])
 					cItem = @@(aContent[i])
@@ -15871,7 +15856,7 @@ class stzList from stzObject
 					cItem = ""+ aContent[i]
 	
 				but isString(aContent[i])
-					cItem = aContent[i]
+					cItem = @@(aContent[i])
 	
 				but isList(aContent[i])
 					cItem = @@(aContent[i])
@@ -15942,6 +15927,331 @@ class stzList from stzObject
 		def ItemOccursNTimes(n, pItem)
 			return This.ItemIsDuplicatedNTimes(n, pItem, pItem)
 
+
+	  #----------------------------------------------------#
+	 #  CHECKING IF ALL ITEMS IN THE LIST ARE DUPLICATED  #
+	#----------------------------------------------------#
+
+	def AllItemsAreDuplicatedCS(pCaseSensitive)
+
+		# Checking params
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		
+		n = 1 # Used tou cout object in the list and then composing names for them
+		acStr = []
+
+		# We duplicate the code because we need to manage casesensitivty
+		# while relying on the performant native ring_find()
+
+		# We start by stringifying the list (casting all the items in to strings)
+		# so we can find not onlu numbers and strings, but also lists,
+		# and get relatively beeter performance on larger lists (up to 30K items)
+
+
+		if pCaseSensitive = TRUE
+
+			for i = 1 to nLen
+
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					# WARNING: It's impossible to get the name of the object
+					# by code (should be requested from Mahmoud in future Ring)
+				ok
+
+				# Memorising the stringified items so we can used them later
+	
+				acStr + cItem
+			next
+
+		else // pCaseSensitive = FALSE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acStr + Q(cItem).Lowercased()
+			next
+
+		ok
+
+		# Checking if an item is a duplicate
+
+		bResult = TRUE
+		acSeen = []
+		acNonDuplicated = []
+
+		for i = 1 to nLen
+
+			n = ring_find( acSeen, acStr[i] )
+			if n = 0
+				acSeen + acStr[i]
+				acNonDuplicated + acStr[i]
+			else
+				nPos = ring_find( acNonDuplicated, acStr[i] )
+				if nPos > 0
+					ring_del(acNonDuplicated, nPos)
+				ok
+	
+			ok
+
+		next
+
+		if len(acNonDuplicated) > 0
+			bResult = FALSE
+		ok
+
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def AllItemsAreDuplicated()
+		return This.AllItemsAreDuplicatedCS(:CaseSensitive = TRUE)
+
+	  #-------------------------------------------------------------------#
+	 #  CHECKING IF THE LIST IS A SET (CONTAINS NO DUPLICATIONS AT ALL)  #
+	#-------------------------------------------------------------------#
+
+	def ContainsNoDuplicatesCS(pCaseSensitive) # Alternative of IsSet()
+		# Checking params
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		
+		n = 1 # Used tou cout object in the list and then composing names for them
+		acStr = []
+
+		# We duplicate the code because we need to manage casesensitivty
+		# while relying on the performant native ring_find()
+
+		# We start by stringifying the list (casting all the items in to strings)
+		# so we can find not onlu numbers and strings, but also lists,
+		# and get relatively beeter performance on larger lists (up to 30K items)
+
+
+		if pCaseSensitive = TRUE
+
+			for i = 1 to nLen
+
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					# WARNING: It's impossible to get the name of the object
+					# by code (should be requested from Mahmoud in future Ring)
+				ok
+
+				# Memorising the stringified items so we can used them later
+	
+				acStr + cItem
+			next
+
+		else // pCaseSensitive = FALSE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acStr + Q(cItem).Lowercased()
+			next
+
+		ok
+
+		# Checking if an item is a duplicate
+
+		bResult = TRUE
+		acSeen = []
+		acNonDuplicated = []
+
+		for i = 1 to nLen
+
+			n = ring_find( acSeen, acStr[i] )
+			if n = 0
+				acSeen + acStr[i]
+				acNonDuplicated + acStr[i]
+			else
+				nPos = ring_find( acNonDuplicated, acStr[i] )
+				if nPos > 0
+					bResult = FALSE
+					exit
+				ok
+	
+			ok
+
+		next
+
+		return bResult
+
+		#< @FunctionAlterativeForms
+
+		def ContainsNoDuplicatesAtAllCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def ContainsNoDuplicatedItemsCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def ContainsNoDuplicatedItemsAtAllCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def ContainsNoDuplicationsCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def ContainsNoDuplicationsAtAllCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def NoItemsAreDuplicatedCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def NoItemsAreDuplicatesCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def NoItemsAreDuplicatedAtAllCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def NoItemsAreDuplicatesAtAllCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def IsSetCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def IsASetCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsNoDuplicates()
+		return This.ContainsNoDuplicatesCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlterativeForms
+
+		def ContainsNoDuplicatesAtAll()
+			return This.ContainsNoDuplicates()
+
+		def ContainsNoDuplicatedItems()
+			return This.ContainsNoDuplicates()
+
+		def ContainsNoDuplicatedItemsAtAll()
+			return This.ContainsNoDuplicates()
+
+		def ContainsNoDuplications()
+			return This.ContainsNoDuplicates()
+
+		def ContainsNoDuplicationsAtAll()
+			return This.ContainsNoDuplicates()
+
+		def NoItemsAreDuplicated()
+			return This.ContainsNoDuplicates()
+
+		def NoItemsAreDuplicates()
+			return This.ContainsNoDuplicates()
+
+		def NoItemsAreDuplicatedAtAll()
+			return This.ContainsNoDuplicates()
+
+		def NoItemsAreDuplicatesAtAll()
+			return This.ContainsNoDuplicates()
+
+		def IsSet()
+			return This.ContainsNoDuplicates()
+
+		def IsASet()
+			return This.ContainsNoDuplicates()
+
+		#>
+
 	  #---------------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS ITEMS THAT ARE NOR DUPLICTAED  #
 	#---------------------------------------------------------------#
@@ -15982,6 +16292,9 @@ class stzList from stzObject
 		def ContainsAtLeastOneItemThatIsNotDuplicatedCS(pCaseSensitive)
 			return This.ContainsNoDuplicatesCS(pCaseSensitive)
 
+		def ContainsAtLeastOneNonDuplicatedItemCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -15994,32 +16307,28 @@ class stzList from stzObject
 		def ContainsItemsNotDuplicated()
 			return This.ContainsNoDuplicates()
 
-		def ContainsItemsNonDuplicatedCS(pCaseSensitive)
+		def ContainsItemsNonDuplicated()
 			return This.ContainsNoDuplicates()
 
-		def ContainsAtLeastOneNonDuplicatedItems(pCaseSensitive)
+		def ContainsAtLeastOneNonDuplicatedItems()
 			return This.ContainsNoDuplicates()
 
-		def ContainsAtLeastOneItemNonDuplicated(pCaseSensitive)
+		def ContainsAtLeastOneItemNonDuplicated()
 			return This.ContainsNoDuplicates()
 
-		def ContainsAtLeastOneItemNotDuplicated(pCaseSensitive)
+		def ContainsAtLeastOneItemNotDuplicated()
 			return This.ContainsNoDuplicates()
 
-		def ContainsAtLeastOneItemThatIsNonDuplicated(pCaseSensitive)
+		def ContainsAtLeastOneItemThatIsNonDuplicated()
 			return This.ContainsNoDuplicates()
 
-		def ContainsAtLeastOneItemThatIsNotDuplicated(pCaseSensitive)
+		def ContainsAtLeastOneItemThatIsNotDuplicated()
+			return This.ContainsNoDuplicates()
+
+		def ContainsAtLeastOneNonDuplicatedItem()
 			return This.ContainsNoDuplicates()
 
 		#>
-
-	#---------------
-	# 
-	#----
-
-		def ContainsNoDuplications()
-			return This.ContainsNoDuplicates()
 
 	  #--------------------------------------------#
 	 #  GETTING THE LIST OF NON DUPLICATED ITEMS  #
@@ -16340,7 +16649,7 @@ class stzList from stzObject
 					cItem = ""+ aContent[i]
 	
 				but isString(aContent[i])
-					cItem = aContent[i]
+					cItem = @@(aContent[i])
 	
 				but isList(aContent[i])
 					cItem = @@(aContent[i])
@@ -16368,7 +16677,7 @@ class stzList from stzObject
 					cItem = ""+ aContent[i]
 	
 				but isString(aContent[i])
-					cItem = aContent[i]
+					cItem = @@(aContent[i])
 	
 				but isList(aContent[i])
 					cItem = @@(aContent[i])
@@ -16556,7 +16865,7 @@ class stzList from stzObject
 					cItem = ""+ aContent[i]
 	
 				but isString(aContent[i])
-					cItem = aContent[i]
+					cItem = @@(aContent[i])
 	
 				but isList(aContent[i])
 					cItem = @@(aContent[i])
@@ -16584,7 +16893,7 @@ class stzList from stzObject
 					cItem = ""+ aContent[i]
 	
 				but isString(aContent[i])
-					cItem = aContent[i]
+					cItem = @@(aContent[i])
 	
 				but isList(aContent[i])
 					cItem = @@(aContent[i])
@@ -16690,7 +16999,7 @@ class stzList from stzObject
 					cItem = ""+ aContent[i]
 	
 				but isString(aContent[i])
-					cItem = aContent[i]
+					cItem = @@(aContent[i])
 	
 				but isList(aContent[i])
 					cItem = @@(aContent[i])
@@ -16718,7 +17027,7 @@ class stzList from stzObject
 					cItem = ""+ aContent[i]
 	
 				but isString(aContent[i])
-					cItem = aContent[i]
+					cItem = @@(aContent[i])
 	
 				but isList(aContent[i])
 					cItem = @@(aContent[i])
@@ -16828,7 +17137,7 @@ class stzList from stzObject
 					cItem = ""+ aContent[i]
 	
 				but isString(aContent[i])
-					cItem = aContent[i]
+					cItem = @@(aContent[i])
 	
 				but isList(aContent[i])
 					cItem = @@(aContent[i])
@@ -16856,7 +17165,7 @@ class stzList from stzObject
 					cItem = ""+ aContent[i]
 	
 				but isString(aContent[i])
-					cItem = aContent[i]
+					cItem = @@(aContent[i])
 	
 				but isList(aContent[i])
 					cItem = @@(aContent[i])
@@ -16953,7 +17262,7 @@ class stzList from stzObject
 					cItem = ""+ aContent[i]
 	
 				but isString(aContent[i])
-					cItem = aContent[i]
+					cItem = @@(aContent[i])
 	
 				but isList(aContent[i])
 					cItem = @@(aContent[i])
@@ -16981,7 +17290,7 @@ class stzList from stzObject
 					cItem = ""+ aContent[i]
 	
 				but isString(aContent[i])
-					cItem = aContent[i]
+					cItem = @@(aContent[i])
 	
 				but isList(aContent[i])
 					cItem = @@(aContent[i])
