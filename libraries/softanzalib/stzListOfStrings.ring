@@ -290,6 +290,12 @@ class stzListOfStrings from stzList
 				StzRaise("Unsupported return type!")
 			off
 
+		def StringsUW(pcCondition)
+			return This.UniqueStringsW(pcCondition)
+
+		def StringsWithoutDuplicationW(pcCondition)
+			return This.UniqueStringsW(pcCondition)
+
 	def Copy()
 		oCopy = new stzListOfStrings( This.Content() )
 		return oCopy
@@ -7577,6 +7583,8 @@ class stzListOfStrings from stzList
 
 		#>
 
+		#< @FunctionAlternativeForms
+
 		def UniqueStringsContainingSubStringCS(pcSubStr, pCaseSensitive)
 			return This.UniqueStringItemsContainingSubStringCS(pcSubStr, pCaseSensitive)
 
@@ -7584,20 +7592,7 @@ class stzListOfStrings from stzList
 				return This.UniqueStringsContainingSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def UniqueStringsContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.UniqueStringsContainingSubStringCS(pcSubStr, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.UniqueStringsContainingSubStringCS(pcSubStr, pCaseSensitive) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
+				return This.UniqueStringItemsContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def UniqueStringItemsContainingCS(pcSubStr, pCaseSensitive)
 			return This.UniqueStringItemsContainingSubStringCS(pcSubStr, pCaseSensitive)
@@ -7606,20 +7601,7 @@ class stzListOfStrings from stzList
 				return This.UniqueStringItemsContainingCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def UniqueStringItemsContainingCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.UniqueStringItemsContainingCS(pcSubStr, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.UniqueStringItemsContainingCS(pcSubStr, pCaseSensitive) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
+				return This.UniqueStringItemsContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def UniqueStringsContainingCS(pcSubStr, pCaseSensitive)
 			return This.UniqueStringItemsContainingSubStringCS(pcSubStr, pCaseSensitive)
@@ -7628,20 +7610,67 @@ class stzListOfStrings from stzList
 				return This.UniqueStringsContainingCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 			def UniqueStringsContainingCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+				return This.UniqueStringItemsContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.UniqueStringsContainingCS(pcSubStr, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.UniqueStringsContainingCS(pcSubStr, pCaseSensitive) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
+		#--
+
+		def StringItemsUContainingSubStringCS(pcSubStr, pCaseSensitive)
+			return This.UniqueStringItemsContainingSubStringCS(pcSubStr, pCaseSensitive)
+
+			def StringItemsUContainingSubStringCSQ(pcSubStr, pCaseSensitive)
+				return This.UniqueStringsContainingSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+			def StringItemsUContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.UniqueStringItemsContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		def StringItemsUContainingCS(pcSubStr, pCaseSensitive)
+			return This.UniqueStringItemsContainingSubStringCS(pcSubStr, pCaseSensitive)
+
+			def StringItemsUContainingCSQ(pcSubStr, pCaseSensitive)
+				return This.UniqueStringItemsContainingCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+			def StringItemsUContainingCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.UniqueStringItemsContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		def StringsUContainingCS(pcSubStr, pCaseSensitive)
+			return This.UniqueStringItemsContainingSubStringCS(pcSubStr, pCaseSensitive)
+
+			def StringsUContainingCSQ(pcSubStr, pCaseSensitive)
+				return This.UniqueStringsContainingCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+			def StringsUContainingCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.UniqueStringItemsContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		#--
+
+		def StringItemsWithoutDuplicationContainingSubStringCS(pcSubStr, pCaseSensitive)
+			return This.UniqueStringItemsContainingSubStringCS(pcSubStr, pCaseSensitive)
+
+			def StringItemsWithoutDuplicationContainingSubStringCSQ(pcSubStr, pCaseSensitive)
+				return This.UniqueStringsContainingSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+			def StringItemsWithoutDuplicationContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.UniqueStringItemsContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		def StringItemsWithoutDuplicationContainingCS(pcSubStr, pCaseSensitive)
+			return This.UniqueStringItemsContainingSubStringCS(pcSubStr, pCaseSensitive)
+
+			def StringItemsWithoutDuplicationContainingCSQ(pcSubStr, pCaseSensitive)
+				return This.UniqueStringItemsContainingCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+			def StringItemsWithoutDuplicationContainingCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.UniqueStringItemsContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		def StringsWithoutDuplicationContainingCS(pcSubStr, pCaseSensitive)
+			return This.UniqueStringItemsContainingSubStringCS(pcSubStr, pCaseSensitive)
+
+			def StringsWithoutDuplicationContainingCSQ(pcSubStr, pCaseSensitive)
+				return This.UniqueStringsContainingCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+			def StringsWithoutDuplicationContainingCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.UniqueStringItemsContainingSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -7671,6 +7700,8 @@ class stzListOfStrings from stzList
 
 		#>
 
+		#< @FunctionAlternativeForms
+
 		def UniqueStringsContainingSubString(pcSubStr)
 			return This.UniqueStringItemsContainingSubString(pcSubStr)
 
@@ -7678,20 +7709,7 @@ class stzListOfStrings from stzList
 				return This.UniqueStringsContainingSubStringQR(pcSubStr, :stzList)
 
 			def UniqueStringsContainingSubStringQR(pcSubStr, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.UniqueStringsContainingSubString(pcSubStr) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.UniqueStringsContainingSubString(pcSubStr) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
+				return This.UniqueStringItemsContainingSubStringQR(pcSubStr, pcReturnType)
 
 		def UniqueStringItemsContaining(pcSubStr)
 			return This.UniqueStringItemsContainingSubString(pcSubStr)
@@ -7700,20 +7718,7 @@ class stzListOfStrings from stzList
 				return This.UniqueStringItemsContainingQR(pcSubStr, :stzList)
 
 			def UniqueStringItemsContainingQR(pcSubStr, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.UniqueStringItemsContaining(pcSubStr) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.UniqueStringItemsContaining(pcSubStr) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
+				return This.UniqueStringItemsContainingSubStringQR(pcSubStr, pcReturnType)
 
 		def UniqueStringsContaining(pcSubStr)
 			return This.UniqueStringItemsContainingSubString(pcSubStr)
@@ -7722,20 +7727,67 @@ class stzListOfStrings from stzList
 				return This.UniqueStringsContainingQR(pcSubStr, :stzList)
 
 			def UniqueStringsContainingQR(pcSubStr, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+				return This.UniqueStringItemsContainingSubStringQR(pcSubStr, pcReturnType)
 
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.UniqueStringsContaining(pcSubStr) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.UniqueStringsContaining(pcSubStr) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
+		#--
+
+		def StringItemsUContainingSubString(pcSubStr)
+			return This.UniqueStringItemsContainingSubString(pcSubStr)
+
+			def StringItemsUContainingSubStringQ(pcSubStr)
+				return This.UniqueStringsContainingSubStringQR(pcSubStr, :stzList)
+
+			def StringItemsUContainingSubStringQR(pcSubStr, pcReturnType)
+				return This.UniqueStringItemsContainingSubStringQR(pcSubStr, pcReturnType)
+
+		def StringItemsUContaining(pcSubStr)
+			return This.UniqueStringItemsContainingSubString(pcSubStr)
+
+			def StringItemsUContainingQ(pcSubStr)
+				return This.UniqueStringItemsContainingQR(pcSubStr, :stzList)
+
+			def StringItemsUContainingQR(pcSubStr, pcReturnType)
+				return This.UniqueStringItemsContainingSubStringQR(pcSubStr, pcReturnType)
+
+		def StringsUContaining(pcSubStr)
+			return This.UniqueStringItemsContainingSubString(pcSubStr)
+
+			def StringsUContainingQ(pcSubStr)
+				return This.UniqueStringsContainingQR(pcSubStr, :stzList)
+
+			def StringsUContainingQR(pcSubStr, pcReturnType)
+				return This.UniqueStringItemsContainingSubStringQR(pcSubStr, pcReturnType)
+
+		#--
+
+		def StringItemsWithoutDuplicationContainingSubString(pcSubStr)
+			return This.UniqueStringItemsContainingSubString(pcSubStr)
+
+			def StringItemsWithoutDuplicationContainingSubStringQ(pcSubStr)
+				return This.UniqueStringsContainingSubStringQR(pcSubStr, :stzList)
+
+			def StringItemsWithoutDuplicationContainingSubStringQR(pcSubStr, pcReturnType)
+				return This.UniqueStringItemsContainingSubStringQR(pcSubStr, pcReturnType)
+
+		def StringItemsWithoutDuplicationContaining(pcSubStr)
+			return This.UniqueStringItemsContainingSubString(pcSubStr)
+
+			def StringItemsWithoutDuplicationContainingQ(pcSubStr)
+				return This.UniqueStringItemsContainingQR(pcSubSt, :stzList)
+
+			def StringItemsWithoutDuplicationContainingQR(pcSubStr, pcReturnType)
+				return This.UniqueStringItemsContainingSubStringQR(pcSubStr, pcReturnType)
+
+		def StringsWithoutDuplicationContaining(pcSubStr)
+			return This.UniqueStringItemsContainingSubString(pcSubStr)
+
+			def StringsWithoutDuplicationContainingQ(pcSubStr)
+				return This.UniqueStringsContainingQR(pcSubStr, :stzList)
+
+			def StringsWithoutDuplicationContainingQR(pcSubStr, pcReturnType)
+				return This.UniqueStringItemsContainingSubStringQR(pcSubStr, pcReturnType)
+
+		#>
 
   	  #--------------------------------------------------#
 	 #   STRINGS CONTAINING N TIMES A GIVEN SUBSTRING   #
@@ -7982,20 +8034,7 @@ class stzListOfStrings from stzList
 				return This.UniqueStringsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, :stzList)
 	
 			def UniqueStringsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.UniqueStringsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.UniqueStringsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+				return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
 
 		def UniqueStringItemsContainingNTimesCS(n, pcSubStr, pCaseSensitive)
 			return This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
@@ -8004,20 +8043,7 @@ class stzListOfStrings from stzList
 				return This.UniqueStringItemsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, :stzList)
 		
 			def UniqueStringItemsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.UniqueStringItemsContainingNTimesCS(n, pcSubstr, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.UniqueStringItemsContainingNTimesCS(n, pcSubstr, pCaseSensitive) )
-		
-				other
-					StzRaise("Unsupported return type!")
-				off
+				return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
 
 		def UniqueStringsContainingNTimesCS(n, pcSubStr, pCaseSensitive)
 			return This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
@@ -8026,20 +8052,65 @@ class stzListOfStrings from stzList
 				return This.UniqueStringsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, :stzList)
 		
 			def UniqueStringsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+				return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
 
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.UniqueStringsContainingNTimesCS(n, pcSubstr, pCaseSensitive) )
+		#--
+
+		def StringsUContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
+			return This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
+
+			def StringsUContainingNTimesTheSubstringCSQ(n, pcSubstr, pCaseSensitive)
+				return This.UniqueStringsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, :stzList)
 	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.UniqueStringsContainingNTimesCS(n, pcSubstr, pCaseSensitive) )
+			def StringsUContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+
+		def StringItemsUContainingNTimesCS(n, pcSubStr, pCaseSensitive)
+			return This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
+
+			def StringItemsUContainingNTimesCSQ(n, pcSubstr, pCaseSensitive)
+				return This.UniqueStringItemsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, :stzList)
 		
-				other
-					StzRaise("Unsupported return type!")
-				off
+			def StringItemsUContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+
+		def StringsUContainingNTimesCS(n, pcSubStr, pCaseSensitive)
+			return This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
+
+			def StringsUContainingNTimesCSQ(n, pcSubstr, pCaseSensitive)
+				return This.UniqueStringsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, :stzList)
+		
+			def StringsUContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+
+		#--
+
+		def StringsWithoutDuplicationContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
+			return This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
+
+			def StringsWithoutDuplicationContainingNTimesTheSubstringCSQ(n, pcSubstr, pCaseSensitive)
+				return This.UniqueStringsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, :stzList)
+	
+			def StringsWithoutDuplicationContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+
+		def StringItemsWithoutDuplicationContainingNTimesCS(n, pcSubStr, pCaseSensitive)
+			return This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
+
+			def StringItemsWithoutDuplicationContainingNTimesCSQ(n, pcSubstr, pCaseSensitive)
+				return This.UniqueStringItemsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, :stzList)
+		
+			def StringItemsWithoutDuplicationContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+
+		def StringsWithoutDuplicationContainingNTimesCS(n, pcSubStr, pCaseSensitive)
+			return This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, pCaseSensitive)
+
+			def StringsWithoutDuplicationContainingNTimesCSQ(n, pcSubstr, pCaseSensitive)
+				return This.UniqueStringsContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, :stzList)
+		
+			def StringsWithoutDuplicationContainingNTimesCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
+				return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, pCaseSensitive, pcReturn)
 
 		#>
 
@@ -8054,20 +8125,7 @@ class stzListOfStrings from stzList
 			return This.UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, :stzList)
 
 		def UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
+			return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, :CaseSensitive = TRUE, pcReturn)
 		#>
 
 		#< @FunctionAlternativeForms
@@ -8075,24 +8133,11 @@ class stzListOfStrings from stzList
 		def UniqueStringsContainingNTimesTheSubstring(n, pcSubstr)
 			return This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr)
 
-			def UniqueStringsContainingNTimesTheSubstringQ(n, pcSubstr, pCaseSensitive)
+			def UniqueStringsContainingNTimesTheSubstringQ(n, pcSubstr)
 				return This.UniqueStringsContainingNTimesTheSubstringQR(n, pcSubstr, :stzList)
 	
 			def UniqueStringsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.UniqueStringsContainingNTimesTheSubstringCS(n, pcSubstr) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.UniqueStringsContainingNTimesTheSubstring(n, pcSubstr) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+				return This.UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
 
 		def UniqueStringItemsContainingNTimes(n, pcSubStr)
 			return This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr)
@@ -8101,20 +8146,7 @@ class stzListOfStrings from stzList
 				return This.UniqueStringItemsContainingNTimesQR(n, pcSubstr, :stzList)
 		
 			def UniqueStringItemsContainingNTimesQR(n, pcSubstr, pcReturn)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.UniqueStringItemsContainingNTimes(n, pcSubstr) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.UniqueStringItemsContainingNTimes(n, pcSubstr) )
-		
-				other
-					StzRaise("Unsupported return type!")
-				off
+				return This.UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
 
 		def UniqueStringsContainingNTimes(n, pcSubStr)
 			return This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr)
@@ -8123,20 +8155,65 @@ class stzListOfStrings from stzList
 				return This.UniqueStringsContainingNTimesQR(n, pcSubstr, :stzList)
 		
 			def UniqueStringsContainingNTimesQR(n, pcSubstr, pcReturn)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+				return This.UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
 
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.UniqueStringsContainingNTimes(n, pcSubstr) )
+		#--
+
+		def StringsUContainingNTimesTheSubstring(n, pcSubstr)
+			return This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr)
+
+			def StringsUContainingNTimesTheSubstringQ(n, pcSubstr)
+				return This.UniqueStringsContainingNTimesTheSubstringQR(n, pcSubstr, :stzList)
 	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.UniqueStringsContainingNTimes(n, pcSubstr) )
+			def StringsUContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
+				return This.UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
+
+		def StringItemsUContainingNTimes(n, pcSubStr)
+			return This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr)
+
+			def StringItemsUContainingNTimesQ(n, pcSubstr)
+				return This.UniqueStringItemsContainingNTimesQR(n, pcSubstr, :stzList)
 		
-				other
-					StzRaise("Unsupported return type!")
-				off
+			def StringItemsUContainingNTimesQR(n, pcSubstr, pcReturn)
+				return This.UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
+
+		def StringsUContainingNTimes(n, pcSubStr)
+			return This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr)
+
+			def StringsUContainingNTimesQ(n, pcSubstr)
+				return This.UniqueStringsContainingNTimesQR(n, pcSubstr, :stzList)
+		
+			def StringsUContainingNTimesQR(n, pcSubstr, pcReturn)
+				return This.UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
+
+		#--
+
+		def StringsWithoutDuplicationContainingNTimesTheSubstring(n, pcSubstr)
+			return This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr)
+
+			def StringsWithoutDuplicationContainingNTimesTheSubstringQ(n, pcSubstr)
+				return This.UniqueStringsContainingNTimesTheSubstringQR(n, pcSubstr, :stzList)
+	
+			def StringsWithoutDuplicationContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
+				return This.UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
+
+		def StringItemsWithoutDuplicationContainingNTimes(n, pcSubStr)
+			return This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr)
+
+			def StringItemsWithoutDuplicationContainingNTimesQ(n, pcSubstr)
+				return This.UniqueStringItemsContainingNTimesQR(n, pcSubstr, :stzList)
+		
+			def StringItemsWithoutDuplicationContainingNTimesQR(n, pcSubstr, pcReturn)
+				return This.UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
+
+		def StringsWithoutDuplicationContainingNTimes(n, pcSubStr)
+			return This.UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr)
+
+			def StringsWithoutDuplicationContainingNTimesQ(n, pcSubstr)
+				return This.UniqueStringsContainingNTimesQR(n, pcSubstr, :stzList)
+		
+			def StringsWithoutDuplicationContainingNTimesQR(n, pcSubstr, pcReturn)
+				return This.UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
 
 		#>
 
@@ -17460,6 +17537,8 @@ stop()
 		acResult = This.Copy().RemoveDuplicatesCSQ(pCaseSensitive).Content()
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def ToSetCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
@@ -17472,7 +17551,13 @@ stop()
 		def UniqueStringsCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
+		def StringsWithoutDuplicationCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
 		def UniqueStringItemsCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		def StringItemsWithoutDuplicationCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
 		def StringsUCS(pCaseSensitive)
@@ -17480,6 +17565,8 @@ stop()
 
 		def StringItemsUCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -17494,6 +17581,8 @@ stop()
 		acResult = This.Copy().RemoveDuplicatesQ().Content()
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def ToSet()
 			return This.DuplicatesRemoved()
 	
@@ -17506,7 +17595,13 @@ stop()
 		def UniqueStrings()
 			return This.DuplicatesRemoved()
 
+		def StringsWithoutDuplication()
+			return This.DuplicatesRemoved()
+
 		def UniqueStringItems()
+			return This.DuplicatesRemoved()
+
+		def StringItemsWithoutDuplication()
 			return This.DuplicatesRemoved()
 
 		def StringsU()
@@ -17514,6 +17609,8 @@ stop()
 
 		def StringItemsU()
 			return This.DuplicatesRemoved()
+
+		#>
 
   	  #------------------------------------------------#
 	 #   REMOVING DUPLICATES OF A GIVEN STRING-ITEM   #
@@ -17801,6 +17898,8 @@ stop()
 
 		return aResult
 
+		#< @FunctionFluentForms
+
 		def UniqueCharsCSQ(pCaseSensitive)
 			return This.UniqueCharsCSQR(pCaseSensitive, :stzList)
 
@@ -17827,10 +17926,36 @@ stop()
 				StzRaise("Unsupported param type!")
 			off
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def CharsUCS(pCaseSensitive)
+			return This.UniqueCharsCS(pCaseSensitive)
+
+			def CharsUCQ(pCaseSensitive)
+				return This.CharsUCSQR(pCaseSensitive, :stzList)
+
+			def CharsUCSQR(pCaseSensitive, pcReturnType)
+				return This.UniqueCharsCSQR(pCaseSensitive, pcReturnType)
+
+		def CharsWithoutDuplicationCS(pCaseSensitive)
+			return This.UniqueCharsCS(pCaseSensitive)
+
+			def CharsWithoutDuplicationCSQ(pCaseSensitive)
+				return This.CharsWithoutDuplicationCSQR(pCaseSensitive, :stzList)
+
+			def CharsWithoutDuplicationCSQR(pCaseSensitive, pcReturnType)
+				return This.UniqueCharsCSQR(pCaseSensitive, pcReturnType)
+
+		#>	
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def UniqueChars()
 		return This.UniqueCharsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionFluentForms
 
 		def UniqueCharsQ()
 			return This.UniqueCharsQR(:stzList)
@@ -17857,6 +17982,30 @@ stop()
 			other
 				StzRaise("Unsupported param type!")
 			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def CharsU()
+			return This.UniqueChars()
+
+			def CharsQ()
+				return This.CharsUQR(:stzList)
+
+			def CharsUQR(pcReturnType)
+				return This.UniqueCharsQR(pcReturnType)
+
+		def CharsWithoutDuplication()
+			return This.UniqueChars()
+
+			def CharsWithoutDuplicationQ()
+				return This.CharsWithoutDuplicationQR(:stzList)
+
+			def CharsWithoutDuplicationQR(pcReturnType)
+				return This.UniqueCharsQR(pcReturnType)
+
+		#>
 
 	  #------------------------------------------------------------#
 	 #   COMMON CHARS APPEARING IN ALL THE STRINGS OF THE LIST    #

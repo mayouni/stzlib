@@ -2399,12 +2399,18 @@ class stzString from stzObject
 		def SubStringsUCS(pCaseSensitive)
 			return This.UniqueSubStringsCS(pCaseSensitive)
 
+		def SubStringsWithoutDuplicationCS(pCaseSensitive)
+			return This.UniqueSubStringsCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def UniqueSubStrings()
 		return This.UniqueSubStringsCS(:CaseSensitive = TRUE)
 
 		def SubStringsU()
+			return This.UniqueSubStrings()
+
+		def SubStringsWithoutDuplication()
 			return This.UniqueSubStrings()
 
 	  #---------------------------------------------#
@@ -2431,6 +2437,14 @@ class stzString from stzObject
 		def HowManySubStringUCS(pCaseSensitive)
 			return This.NumberOfUniqueSubStringsCS(pCaseSensitive)
 
+		#--
+
+		def NumberOfSubStringsWithoutDuplicationCS(pCaseSensitive)
+			return This.NumberOfUniqueSubStringsCS(pCaseSensitive)
+
+		def HowManySubStringsWithoutDuplicationCS(pCaseSensitive)
+			return This.NumberOfUniqueSubStringsCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -2453,6 +2467,14 @@ class stzString from stzObject
 			return This.NumberOfUniqueSubStrings()
 
 		def HowManySubStringU()
+			return This.NumberOfUniqueSubStrings()
+
+		#--
+
+		def NumberOfSubStringsWithoutDuplication()
+			return This.NumberOfUniqueSubStrings()
+
+		def HowManySubStringsWithoutDuplication()
 			return This.NumberOfUniqueSubStrings()
 
 		#>
@@ -2668,12 +2690,18 @@ class stzString from stzObject
 		def UniqueSubStringsMadeOfNCharsCS(n, pCaseSensitive)
 			return This.UniqueSubStringsOfNCharsCS(n, pCaseSensitive)
 
+		def SubStringsWithoutDuplicationMadeOfNCharsCS(n, pCaseSensitive)
+			return This.UniqueSubStringsOfNCharsCS(n, pCaseSensitive)
+
 	#-- WITHOUT CASESITIVITY
 
 	def UniqueSubStringsOfNChars(n)
 		return This.UniqueSubStringsOfNCharsCS(n, :CaseSensitive = TRUE)
 
 		def UniqueSubStringsMadeOfNChars(n)
+			return This.UniqueSubStringsOfNChars(n)
+
+		def SubStringsWithoutDuplicationMadeOfNChars(n)
 			return This.UniqueSubStringsOfNChars(n)
 
 	  #----------------------------------------------------#
@@ -2807,6 +2835,28 @@ class stzString from stzObject
 			other
 				stzRaise("Unsupported return type!")
 			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def LinesU()
+			return This.UniqueLines()
+
+			def LinesUQ()
+				return This.LinesQR(:stzList)
+
+			def LinesUQR(pcReturnType)
+				return This.UniqueLinesQR(pcReturnType)
+
+		def LinesWithoutDuplication()
+			return This.UniqueLines()
+
+			def LinesWithoutDuplicationQ()
+				return This.LinesWithoutDuplicationQR(:stzList)
+
+			def LinesWithoutDuplicationQR(pcReturnType)
+				return This.UniqueLinesQR(pcReturnType)
 
 		#>
 
@@ -3013,6 +3063,15 @@ class stzString from stzObject
 				return This.UniqueMarquersQ()
 
 			def MarquersUQR(pcReturnType)
+				return This.UniqueMarquersQR(pcReturnType)
+
+		def MarquersWithoutDuplication()
+			return This.UniqueMarquers()
+
+			def MarquersWithoutDuplicationQ()
+				return This.UniqueMarquersQ()
+
+			def MarquersWithoutDuplicationQR(pcReturnType)
 				return This.UniqueMarquersQR(pcReturnType)
 
 		#>
@@ -3317,6 +3376,24 @@ class stzString from stzObject
 			def MarquersZUQR(pcReturnType)
 				return This.UniqueMarquersAndPositionsQR(pcReturntype)
 
+		def MarquersUZ()
+			return This.UniqueMarquersAndPositions()
+
+			def MarquersUZQ()
+				return This.UniqueMarquersAndPositionsQR(:stzList)
+
+			def MarquersUZQR(pcReturnType)
+				return This.UniqueMarquersAndPositionsQR(pcReturntype)
+
+		def MarquersWithoutDuplicationZ()
+			return This.UniqueMarquersAndPositions()
+
+			def MarquersWithoutDuplicationZQ()
+				return This.MarquersWithoutDuplicationQR(:stzList)
+
+			def MarquersWithoutDuplicationZQR(pcReturnType)
+				return This.MarquersUZQR(pcReturnType)
+
 		#>
 
 	  #----------------------------#
@@ -3594,13 +3671,49 @@ class stzString from stzObject
 			def MarquersZZUQR(pcReturnType)
 				return This.UniqueMarquersAndSectionsQR(pcReturnType)
 
+		def MarquersUZZ()
+			return This.UniqueMarquersAndSections()
+
+			def MarquersUZZQ()
+				return This.UniqueMarquersAndSectionsQ()
+
+			def MarquersUZZQR(pcReturnType)
+				return This.UniqueMarquersAndSectionsQR(pcReturnType)
+
 		def UniqueMarquersAndTheirSections()
 			return This.UniqueMarquersAndSections()
 
 			def UniqueMarquersAndTheirSectionsQ()
-				return This.UniqueMarquersAndSections()
+				return This.UniqueMarquersAndSectionsQ()
 
 			def UniqueMarquersandTheirSectionsQR(pcReturnType)
+				return This.UniqueMarquersAndSectionsQR(pcReturnType)
+
+		def MarquersUAndTheirSections()
+			return This.UniqueMarquersAndSections()
+
+			def MarquersUAndTheirSectionsQ()
+				return This.UniqueMarquersAndSectionsQ()
+
+			def MarquersUAndTheirSectionsQR(pcReturnType)
+				return This.UniqueMarquersAndSectionsQR(pcReturnType)
+
+		def MarquersWithoutDuplicationAndTheirSections()
+			return This.UniqueMarquersAndSections()
+
+			def MarquersWithoutDuplicationAndTheirSectionsQ()
+				return This.UniqueMarquersAndSectionsQ()
+
+			def MarquersWithoutDuplicationAndTheirSectionsQR(pcReturnType)
+				return This.UniqueMarquersAndSectionsQR(pcReturnType)
+
+		def MarquersWithoutDuplicationZZ()
+			return This.UniqueMarquersAndSections()
+
+			def MarquersWithoutDuplicationZZQ()
+				return This.UniqueMarquersAndSectionsQ()
+
+			def MarquersWithoutDuplicationZZQR(pcReturnType)
 				return This.UniqueMarquersAndSectionsQR(pcReturnType)
 
 		#>
@@ -30120,20 +30233,10 @@ def ReplaceIBS()
 		aResult = This.PartsQ(pcPartionner).DuplicatesRemoved()
 		return aResult
 
-		#< @FunctionAlternativeForm
-
-		def PartsU(pcPartitionner)
-			return This.UniqueParts(pcPartionner)
-
-		#>
-
 		#< @FunctionFluentForms
 
 		def UniquePartsQ(pcPartionner)
 			return This.UniquePartsQR(pcPartionner, :stzList)
-
-			def PartsUQ(pcPartionner)
-				return This.UniquePartsQ(pcPartionner)
 	
 		def UniquePartsQR(pcPartionner, pcReturnType)
 			switch pcReturnType
@@ -30147,7 +30250,27 @@ def ReplaceIBS()
 				stzRaise("Unsupported return type!")
 			off
 
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def PartsU(pcPartitionner)
+			return This.UniqueParts(pcPartionner)
+
+			def PartsUQ(pcPartionner)
+				return This.UniquePartsQ(pcPartionner)
+
 			def PartsUQR(pcPartionner, pcReturnType)
+				return This.UniquePartsQR(pcPartionner, pcReturnType)
+
+		def PartsWithoutDuplication(pcPartitionner)
+			return This.UniqueParts(pcPartionner)
+
+			def PartsWithoutDuplicationQ(pcPartionner)
+				return This.UniquePartsQ(pcPartionner)
+
+			def PartsWithoutDuplicationQR(pcPartionner, pcReturnType)
 				return This.UniquePartsQR(pcPartionner, pcReturnType)
 
 		#>
@@ -38102,30 +38225,29 @@ def ReplaceIBS()
 	 #   UNIQUE CHARS   #
 	#------------------#
 
-	def UniqueChars()
-		acResult = This.CharsQR(:stzListOfStrings).DuplicatesRemoved()
+	def UniqueCharsCS(pCaseSensitive)
+		acResult = This.CharsQR(:stzListOfStrings).DuplicatesRemovedCS(pCaseSensitive)
 		return acResult
 
-		#< @FunctionFluentForm
+		#< @FunctionFluentForms
 
-		def UniqueCharsQ()
-			return This.UniqueCharsQR(:stzList)
-		#>
+		def UniqueCharsCSQ(pCaseSensitive)
+			return This.UniqueCharsQRCS(:stzList, pCaseSensitive)
 
-		def UniqueCharsQR(pcReturnType)
+		def UniqueCharsQRCS(pcReturnTyp, pCaseSensitivee)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.UniqueChars() )
+				return new stzList( This.UniqueCharsCS(pCaseSensitive) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.UniqueChars() )
+				return new stzListOfStrings( This.UniqueCharsCS(pCaseSensitive) )
 
 			on :stzListOfChars
-				return new stzListOfChars( This.UniqueChars() )
+				return new stzListOfChars( This.UniqueCharsCS(pCaseSensitive) )
 
 			other
 				stzRaise("Unsupported return type!")
@@ -38135,15 +38257,33 @@ def ReplaceIBS()
 
 		#< @FunctionALternativeForm
 
-		def ToSetOfChars()
-			return This.UniqueChars()
+		def ToSetOfCharsCS(pCaseSensitive)
+			return This.UniqueCharsCS(pCaseSensitive)
 	
-			def ToSetOfCharsQ()
-				return This.UniqueCharsQ()
+			def ToSetOfCharsCSQ(pCaseSensitive)
+				return This.UniqueCharsCSQ(pCaseSensitive)
 	
-			def ToSetOfCharsQR(pcReturnType)
-				return This.UniqueCharsQR(pcReturnType)
+			def ToSetOfCharsCSQR(pcReturnType, pCaseSensitive)
+				return This.UniqueCharsQRCS(pcReturnType, pCaseSensitive)
 	
+		def CharsUCS(pCaseSensitive)
+			return This.UniqueCharsCS(pCaseSensitive)
+
+			def CharsUCSQ(pCaseSensitive)
+				return This.UniqueCharsCSQ(pCaseSensitive)
+
+			def CharsUCSQR(pCaseSensitive, pcReturnType)
+				return This.UniqueCharsQRCS(pcReturnType, pCaseSensitive)
+
+		def CharsWithoutDuplicationCS(pCaseSensitive)
+			return This.UniqueCharsCS(pCaseSensitive)
+
+			def CharsWithoutDuplicationCSQ(pCaseSensitive)
+				return This.UniqueCharsCSQ(pCaseSensitive)
+
+			def CharsWithoutDuplicationCSQR(pCaseSensitive, pcReturnType)
+				return This.UniqueCharsQRCS(pcReturnType, pCaseSensitive)
+
 		#>
 
 	  #-----------------------------#
@@ -38789,8 +38929,6 @@ def ReplaceIBS()
 			def LettersWithoutDuplicationQR(pcReturnType)
 				return This.UniqueLettersQR(pcReturnType)
 		#
-
-		#TODO: Add ...WithoutDuplication() as alternative to ...Unique/U() extensions
 
 	  #----------------------------------------------------------------------#
 	 #    CHECKING IF THE STRING IS IN A COMPUTABLE FORM ("str" or 'str')   #
@@ -42357,8 +42495,15 @@ def ReplaceIBS()
 	def UniqueNumbers()
 		return This.NumbersQ().DuplicatesRemoved()
 
+		#< @FunctionAlternativeForms
+
 		def NumbersU()
 			return This.UniqueNumbers()
+
+		def NumbersWithoutDuplication()
+			return This.UniqueNumbers()
+
+		#>
 
 	  #-------------------------------------------------------#
 	 #  GETTTING THE NUMBER OF UNIQUE NUMBERS IN THE STRING  #
@@ -42390,6 +42535,14 @@ def ReplaceIBS()
 			return This.NumberOfUniqueNumbers()
 
 		def HowManyNumberU()
+			return This.NumberOfUniqueNumbers()
+
+		#--
+
+		def NumberOfNumbersWithoutDuplication()
+			return This.NumberOfUniqueNumbers()
+
+		def HowManyNumbersWithoutDuplication()
 			return This.NumberOfUniqueNumbers()
 
 		#>
@@ -44648,6 +44801,15 @@ def ReplaceIBS()
 		def UniqueSubstringsBoundedByCSQR(pacBounds, pCaseSensitive, pcReturnType)
 			return This.SubstringsBetweenUCSQR(pacBounds[1], pacBounds[2], pCaseSensitive, pcReturnType)
 
+	def SubStringsBoundedByWithoutDuplicationCS(pacBounds, pCaseSensitive)
+		return This.SubstringsBetweenUCS(pacBounds[1], pacBounds[2], pCaseSensitive, :stzList)
+
+		def SubStringsBoundedByWithoutDuplicationCSQ(pacBounds, pCaseSensitive)
+			return This.UniqueSubStringsBoundedByCSQ(pacBounds, pCaseSensitive)
+
+		def SubStringsBoundedByWithoutDuplicationCSQR(pacBounds, pCaseSensitive, pcReturnType)
+			return This.UniqueSubstringsBoundedByCSQR(pacBounds, pCaseSensitive, pcReturnType)
+
 	#--
 
 	def UniqueSectionsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -44667,6 +44829,16 @@ def ReplaceIBS()
 
 		def UniqueSectionsBoundedByCSQR(pacBounds, pCaseSensitive, pcReturnType)
 			return This.SubstringsBetweenUCSQR(pacBounds[1], pacBounds[2], pCaseSensitive, pcReturnType)
+
+	def SectionsWithoutDuplicationBetwenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.SubstringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def SectionsWithoutDuplicationBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubstringsBetweenUCSQ(ppacBounds[1], pacBounds[2], pCaseSensitive)
+
+
+		def SectionsWithoutDuplicationBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+			return This.UniqueSectionsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 
 	#==
 
@@ -44726,6 +44898,15 @@ def ReplaceIBS()
 		def UniqueSectionsBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
 			return This.SubstringsBetweenUQR(pacBounds[1], pacBounds[2], pcReturnType)
 
+	def SectionsWithoutDuplicationBetween(pcSubStr1, pcSubStr2)
+		return This.SubstringsBetweenU(pcSubStr1, pcSubStr2)
+
+		def SectionsWithoutDuplicationBetweenQ(pcSubStr1, pcSubStr2)
+			return This.SubstringsBetweenUQ(ppacBounds[1], pacBounds[2])
+
+		def SectionsWithoutDuplicationBetweenQR(pcSubStr1, pcSubStr2, pcReturnType)
+			return This.SubstringsBetweenUQR(pacBounds[1], pacBounds[2], pcReturnType)
+
 	def UniqueSectionsBoundedBy(pacBounds)
 		return This.SubstringsBetweenU(pacBounds[1], pacBounds[2])
 
@@ -44733,6 +44914,15 @@ def ReplaceIBS()
 			return This.SubstringsBetweenUQ(pacBounds[1], pacBounds[2])
 
 		def UniqueSectionsBoundedByQR(pacBounds, pcReturnType)
+			return This.SubstringsBetweenUQR(pacBounds[1], pacBounds[2], pcReturnType)
+
+	def SectionsWithoutDuplicationBoundedBy(pcSubStr1, pcSubStr2)
+		return This.SubstringsBetweenU(pcSubStr1, pcSubStr2)
+
+		def SectionsWithoutDuplicationBoundedByQ(pcSubStr1, pcSubStr2)
+			return This.SubstringsBetweenUQ(ppacBounds[1], pacBounds[2])
+
+		def SectionsWithoutDuplicationBoundedByQR(pcSubStr1, pcSubStr2, pcReturnType)
 			return This.SubstringsBetweenUQR(pacBounds[1], pacBounds[2], pcReturnType)
 
 	#==

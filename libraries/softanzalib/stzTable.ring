@@ -36,6 +36,8 @@ https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-
 	designed to support the needs of analytic database
 	systems, data frame libraries, and more.
 
+# TODO: Add support of Excel functions
+
 */
 
 func StzTableQ(paTable)
