@@ -4,7 +4,7 @@
 #---------------------------------------------------------------------------#
 #									    #
 # 	Description	: The core class for managing lists of lists        #
-#	Version		: V1.0 (2020-2022)				    #
+#	Version		: V1.0 (2020-2023)				    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
 #---------------------------------------------------------------------------#

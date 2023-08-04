@@ -1,3 +1,15 @@
+#-------------------------------------------------------------------------------#
+# 		        SOFTANZA LIBRARY (V1.0) - stzText			#
+#		    An accelerative library for Ring applications	      	#
+#-------------------------------------------------------------------------------#
+#										#
+# 	Description	: The core class for managing texts in Softanza		#
+#	Version		: V1.0 (2020-2023)					#
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)		   	#
+#										#
+#-------------------------------------------------------------------------------#
+
+# TODO: Replace all for/in loops by for loops
 
   ///////////////////
  ///   GLOBALS   ///
@@ -1168,25 +1180,43 @@ class stzText from stzString
 		cResult = StzListOfStringsQ( acListOfChars ).ConcatenateQ().SimplifyQ().Content()
 		return cResult
 
-	  #-----------------#
-	 #      WORDS      #
-	#-----------------#
-
-	#--- 
+	  #---------------------------------#
+	 #   GETTING THE NUMBER OF WORDS   #
+	#---------------------------------#
 
 	def NumberOfWords()
 		return len( This.Words() )
 
-	#--- 
+		def HowManyWords()
+			return This.NumberOfWords()
+
+	  #--------------------------------------------------------#
+	 #   GETTING THE NUMBER OF WORDS -- WIHTOUT DUPLICATION   #
+	#--------------------------------------------------------#
 
 	def NumberOfUniqueWords()
 		return len( This.SetOfWords() )
 
-	#--- 
+		def HowManyUniqueWordsU()
+			return This.NumberOfUniqueWords()
+
+		def NumberOfWordsWithoutDuplication()
+			return This.NumberOfUniqueWords()
+
+	  #------------------------------------#
+	 #   CHECKING IF THE TEXT IS A WORD   #
+	#------------------------------------#
 
 	def IsWord()
 		bResult = This.ToStzString().IsWord()
 		return bResult
+
+		def IsAWord()
+			return This.IsWord()
+
+	  #--------------------------------------------#
+	 #   CHECKING IF THE TEXT IS AN ARABIC WORD   #
+	#--------------------------------------------#
 
 	def IsArabicWord()
 		if This.IsWord() and This.ScriptIs(:Arabic)
@@ -1195,6 +1225,13 @@ class stzText from stzString
 			return FALSE
 		ok
 
+		def IsAnArabicWord()
+			return This.IsArabicWord()
+
+	  #------------------------------------------#
+	 #   CHECKING IF THE TEXT IS A LATIN WORD   #
+	#------------------------------------------#
+
 	def IsLatinWord()
 		if This.IsWord() and This.ScriptIs(:Latin)
 			return TRUE
@@ -1202,9 +1239,16 @@ class stzText from stzString
 			return FALSE
 		ok
 
-	/*
-	TODO: Add other scripts supported by Unicode standard
-	*/
+		def IsALatinWord()
+			return This.IsLatinWord()
+
+
+	#TODO: Add other scripts supported by Unicode standard
+
+
+	  #----------------------------------------------------------#
+	 #   GETTING THE WORDS IN THE TEXT EXCEPT THE GIVEN WORDS   #
+	#----------------------------------------------------------#
 
 	def WordsExcept(pacWords)
 		if NOT ( isList(pacWords) and IsListOfStrings(pacWords) )
@@ -1220,6 +1264,10 @@ class stzText from stzString
 		aResult = oWords.Content()
 
 		return aResult
+
+	  #-------------------------------------------#
+	 #   GETTING THE LIST OF WORDS IN THE TEXT   #
+	#-------------------------------------------#
 
 	def Words()
 		/* TODO
@@ -1288,7 +1336,9 @@ class stzText from stzString
 			off
 		#>
 
-	#--- 
+	  #-------------------------------------------------------#
+	 #   GETTING THE WORDS IN THE TEXT WITHOUT DUPLICATION   #
+	#-------------------------------------------------------#
 
 	def SetOfWords()
 		return This.WordsQR(:stzList).DuplicatesRemoved()
@@ -1354,7 +1404,9 @@ class stzText from stzString
 
 		#>
 
-	#--- 
+	  #---------------------------------------------------------------#
+	 #   GETTING THE LIST OF WORDS IN THE TEXT SORTED IN ASCENDING   #
+	#---------------------------------------------------------------#
 
 	def WordsSortedInAscending()
 		acResult = StzListOfStringsQ( This.Words() ).SortedInAscending()
@@ -1428,7 +1480,9 @@ class stzText from stzString
 
 		#>
 
-	#--- 
+	  #----------------------------------------------------------------#
+	 #   GETTING THE LIST OF WORDS IN THE TEXT SORTED IN DESCENDING   #
+	#----------------------------------------------------------------#
 
 	def WordsSortedInDescending()
 		acWords = StzListOfStringsQ( This.Words() ).SortedInDescending()
@@ -1502,7 +1556,9 @@ class stzText from stzString
 
 		#>
 
-	#--- 
+	  #-----------------------------------------------------------------------------------#
+	 #   GETTING THE LIST OF WORDS IN THE TEXT WITHOUT DUPLICATION SORTED IN ASCENDING   #
+	#-----------------------------------------------------------------------------------#
 
 	def UniqueWordsSortedInAscending()
 		aResult = StzListOfStringsQ( This.UniqueWords() ).SortedInAscending()
@@ -1609,7 +1665,9 @@ class stzText from stzString
 
 		#>
 
-	#--- 
+	  #------------------------------------------------------------------------------------#
+	 #   GETTING THE LIST OF WORDS IN THE TEXT WITHOUT DUPLICATION SORTED IN DESCENDING   #
+	#------------------------------------------------------------------------------------#
 
 	def UniqueWordsSortedInDescending()
 		acResult = StzListOfStringsQ( This.UniqueWords() ).SortedInDescending()
@@ -1716,18 +1774,25 @@ class stzText from stzString
 
 		#>
 
-	#--- 
+	  #-------------------------------------------------------------#
+	 #   GETTING THE LIST OF WORDS IN THE TEXT IN REVERSED ORDER   #
+	#-------------------------------------------------------------#
 
 	def WordsReversed() # Returned in a list
 		return ListReverse( This.Words() )
 
-	#  Reversing the order of words inside the text
+	  #----------------------------------------------#
+	 #   REVERSING THE ORDER OF WORDS IN THE TEXT   #
+	#----------------------------------------------#
+
 	def ReverseWords() # TODO
 		/*
 			1. ReplaceWordsWithMarquers()
 			2. ReverseSortingOrderOfMarquers()
 			3. ReplaceMarquersWithWords()
 		*/
+
+		StzRaise("Feature unavailable!")
 
 		def ReversWordsQR(pcReturnType)
 			This.ReverseWords()
@@ -1736,7 +1801,9 @@ class stzText from stzString
 	def TextWithWordsReversed()
 		return This.Copy().ReverseWordsQ().Content()
 
-	#---
+	  #------------------------------------------------#
+	 #   FINDING THE POSITIONS OF WORDS IN THE TEXT   #
+	#------------------------------------------------#
 
 	def WordsPositions()
 		/* Example:
@@ -1786,6 +1853,9 @@ class stzText from stzString
 		def WordsOccurrences()
 			return This.WordsPositions()
 
+			def WordsOccurrencesQ()
+				return This.WordsOccurrencesQR(:stzList)
+
 			def WordsOccurrencesQR(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 					pcReturnType = pcReturnType[2]
@@ -1802,12 +1872,14 @@ class stzText from stzString
 					StzRaise("Unsupported return type!")
 				off
 
-			def WordsOccurrencesQ()
-				return This.WordsOccurrencesQR(:stzList)
+		def FindWords()
+			return This.WordsPositions()
 
 		#>
 
-	#---
+	  #-----------------------------------------------#
+	 #   FINDING THE SECTIONS OF WORDS IN THE TEXT   #
+	#-----------------------------------------------#
 
 	def WordsSections()
 		aWords = This.Words()
@@ -1826,7 +1898,12 @@ class stzText from stzString
 
 		return aResult
 
-	#---
+		def FindWordsAsSections()
+			return This.WordSections()
+
+	  #----------------------------------------------------------------------#
+	 #   GETTING THE LIST OF WORDS IN THE TEXT ALONG WITH THEIR POSITIONS   #
+	#----------------------------------------------------------------------#
 
 	def WordsAndTheirPositions()
 		/* Example
@@ -1852,7 +1929,12 @@ class stzText from stzString
 		def WordsAndTheirOccurrences()
 			return This.WordsAndTheirPositions()
 
-	#---
+		def WordsZ()
+			return This.WordsAndTheirPositions()
+
+	  #---------------------------------------------------------------------#
+	 #   GETTING THE LIST OF WORDS IN THE TEXT ALONG WITH THEIR SECTIONS   #
+	#---------------------------------------------------------------------#
 
 	def WordsAndTheirSections()
 		/* Example:
@@ -1880,6 +1962,7 @@ class stzText from stzString
 		
 		cWord = ""
 		
+		# TODO: replace for/in with normal for loop --> better performance
 
 		for aLine in aTemp
 			cWord = aLine[1]
@@ -1897,7 +1980,12 @@ class stzText from stzString
 
 		return aResult
 
-	#---
+		def WordsZZ()
+			return This.WordsAndTheirSections()
+
+	  #---------------------------------------------------------------------------------#
+	 #   GETTING THE LIST OF WORDS IN THE TEXT ALONG THE NUMBER OF THEIR OCCURRENCES   #
+	#---------------------------------------------------------------------------------#
 
 	def WordsAndNumbersOfTheirOccurrences()
 		/* Example:
@@ -1922,6 +2010,10 @@ class stzText from stzString
 
 		def WordsAndTheirNumbersOfOccurrences()
 			return This.WordsAndNumbersOfTheirOccurrences()
+
+	  #-----------------------------------------------------------#
+	 #  GETTING THE NUMBER OF OCCURRENCE OF A WORD IN THE TEXT   #
+	#-----------------------------------------------------------#
 	
 	def NumberOfOccurrenceOfWord(pcWord)
 
@@ -1994,7 +2086,9 @@ class stzText from stzString
 		def NumberOfOccurrencesOfWord(pcWord)
 			return This.NumberOfOccurrenceOfWord(pcWord)
 
-	#---
+	  #------------------------------------------------#
+	 #  GETTING THE FREQUENCY OF A WORD IN THE TEXT   #
+	#------------------------------------------------#
 
 	def WordFrequency(pcWord)
 
@@ -2017,13 +2111,21 @@ class stzText from stzString
 		def FrequencyOfThisWord(pcWord)
 			return This.WordFrequency(pcWord)
 
+	  #---------------------------------------------------#
+	 #  GETTING THE WORD AND ITS FREQUENCY IN THE TEXT   #
+	#---------------------------------------------------#
+
 	def WordAndItsFrequency(pcWord)
 		aResult = [ pcWord, This.WordFrequency(pcWord) ]
 		return aResult
-		
+	
+	  #---------------------------------------------------------#
+	 #   GETTING THE REQUENCIES OF ALL THE WORDS IN THE TEXT   #
+	#---------------------------------------------------------#
+	
 	def WordsFrequencies()
 
-		acWords = This.Words()
+		acWords = This.WordsU()
 		aResult = []
 
 		for cWord in acWords
@@ -2056,57 +2158,9 @@ class stzText from stzString
 				StzRaise("Unsupported return type!")
 			off
 
-	def UniqueWordsFrequencies()
-
-		acWords = This.UniqueWords()
-		nLen = len(acWords)
-		aResult = []
-
-		for i = 1 to nLen
-			aResult + This.WordFrequency(acWords[i])
-		next
-
-		return aResult
-
-		def UniqueWordsFrequenciesQ()
-			return This.UniqueWordsFrequenciesQR(:stzList)
-
-		def UniqueWordsFrequenciesQR(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.UniqueWordsFrequencies() )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.UniqueWordsFrequencies() )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		def WordsFrequenciesU()
-			return This.UniqueWordsFrequencies()
-
-			def WordsFequenciesUQ()
-				return This.UniqueWordsFrequenciesQ()
-
-			def WordsFequenciesUQR(pcReturnType)
-				return This.UniqueWordsFrequenciesQR(pcReturnType)
-
-
-		def WordsFrequenciesWithoutDuplication()
-			return This.UniqueWordsFrequencies()
-
-			def WordsFequenciesWithoutDuplicationQ()
-				return This.UniqueWordsFrequenciesQ()
-
-			def WordsFequenciesWithoutDuplicationQR(pcReturnType)
-				return This.UniqueWordsFrequenciesQR(pcReturnType)
-
-	#--
+	  #-------------------------------------------------------------------#
+	 #   GETTING ALL THE WORDS IN THE TEXT ALONG WITH THEIR REQUENCIES   #
+	#-------------------------------------------------------------------#
 
 	def WordsAndTheirFrequencies()
 		aResult = []
@@ -2118,7 +2172,9 @@ class stzText from stzString
 
 		return aResult
 
-	#---
+	  #-------------------------------------------------------------------#
+	 #   GETTING THE FREQUENCIES OF THE PROVIDED WORDS INSIDE THE TEXT   #
+	#-------------------------------------------------------------------#
 
 	def TheseWordsFrequencies(pacWords)
 		aResult = []
@@ -2135,18 +2191,22 @@ class stzText from stzString
 		def FrequenciesOfTheseWords(pacWords)
 			return This.TheseWordsFrequencies(pacWords)
 
+	  #-----------------------------------------------------------------------------#
+	 #   GETTING THE THE PROVIDED WORDS ALONG WITH THEIR FREQUENCIES IN THE TEXT   #
+	#-----------------------------------------------------------------------------#
+
 	def TheseWordsAndTheirFrequencies(pacWords)
 		aResult = []
 
 		acWords = StzListQ(pacWords).DuplicatesRemoved()
-
 		anWordFreqs = This.TheseWordsFrequencies(acWords)
-
 		aResult = StzListQ( acWords ).AssociatedWith( anWordFreqs )
 
 		return aResult
 
-	#---
+	  #------------------------------------------------#
+	 #   GETTING THE MOST FREQUENT WORD IN THE TEXT   #
+	#------------------------------------------------#
 
 	def MostFrequentWord()
 
@@ -2155,10 +2215,15 @@ class stzText from stzString
 		oHashList = StzHashListQ( aWordsFreqs )
 		n = oHashList.ValuesQR(:stzListOfNumbers).FindMax()
 
-		return aWordsFreqs[n][1]
+		cResult = aWordsFreqs[n][1]
+		return cResult
 
 		def TopOneFrequentWord()
 			return This.MostFrequentWord()
+
+	  #-------------------------------------------------------------------------#
+	 #   GETTING THE MOST FREQUENT WORD IN THE TEXT AMONG THE PROVIDED WORDS   #
+	#-------------------------------------------------------------------------#
 
 	def MostFrequentWordAmongTheseWords(pacWords)
 		aWordsFreqs = This.TheseWordsAndTheirFrequencies(pacWords)
@@ -2167,6 +2232,8 @@ class stzText from stzString
 		n = oHashList.ValuesQR(:stzListOfNumbers).FindMax()
 
 		return aWordsFreqs[n][1]
+
+		#< @FunctionAlternativeForms
 
 		def MostFrequentWordAmong(pacWords)
 			return This.MostFrequentWordAmongTheseWords(pacWords)
@@ -2177,7 +2244,19 @@ class stzText from stzString
 		def TopOneFrequentWordAmong(pacWords)
 			return This.MostFrequentWordAmongTheseWords(pacWords)
 
-	#---
+		#--
+
+		def MostFrequentWordIn(pacWords)
+			return This.MostFrequentWordAmongTheseWords(pacWords)
+
+		def TopOneFrequentWordIn(pacWords)
+			return This.MostFrequentWordAmongTheseWords(pacWords)
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #   GETTING THE N MAX FREQUENIES OF WORDS IN THE TEXT   #
+	#-------------------------------------------------------#
 
 	def NMaxFrequencies(n)
 		aWordsFreqs = This.WordsAndTheirFrequencies()
@@ -2186,6 +2265,23 @@ class stzText from stzString
 		anMaxFreq = oHashList.ValuesQR(:stzList).RemoveDuplicatesQ().ToStzListOfNumbers().MaxNumbers(n)
 
 		return anMaxFreq
+
+		#< @FunctionAlternativeForms
+
+		def NMaxWordsFrequencies(n)
+			return This.NMaxFrequencies(n)
+
+		def MaxNFrequencies(n)
+			return This.NMaxFrequencies(n)
+
+		def MaxNWordsFrequencies(n)
+			return This.NMaxFrequencies(n)
+
+		#>
+
+	  #----------------------------------------------------------------#
+	 #   GETTING THE WORDS HAVING THE PROVIDED FREQUENCY IN THE TEXT  #
+	#----------------------------------------------------------------#
 
 	def WordsHavingThisFrequency(pnFreq)
 		aWordsFreqs = This.WordsAndTheirFrequencies()
@@ -2207,12 +2303,23 @@ class stzText from stzString
 		acResult = StzListQ(acResult).DuplicatesRemoved()
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def WordsWithFrequency(pnFreq)
 			return This.WordsHavingThisFrequency(pnFreq)
 
 		def WordsWithThisFrequency(pnFreq)
 			return This.WordsHavingThisFrequency(pnFreq)
 			
+		def WordsHavingFrequency(pnFreq)
+			return This.WordsHavingThisFrequency(pnFreq)
+
+		#>
+
+	  #------------------------------------------------------------------#
+	 #   GETTING THE WORDS HAVING THE PROVIDED FREQUENCIES IN THE TEXT  #
+	#------------------------------------------------------------------#
+
 	def WordsHavingTheseFrequencies(panFreq)
 		panFreq = StzListQ(panFreq).DuplicatesRemoved()
 
@@ -2224,13 +2331,23 @@ class stzText from stzString
 
 		return aResult
 		
+		#< FunctionAlternativeForms
 
 		def WordsWithFrequencies(panFreq)
 			return This.WordsHavingTheseFrequencies(panFreq)
 
 		def WordsWithTheseFrequencies(panFreq)
 			return This.WordsHavingThisFrequencies(panFreq)
+
+		def WordsHavingFrequencies(panFreq)
+			return This.WordsHavingThisFrequencies(panFreq)
 			
+		#>
+
+	  #--------------------------------------------------------------------------#
+	 #   GETTING THE PROVIDED FREQUENCIES AND THEIR RELATIVE WORDS IN THE TEXT  #
+	#--------------------------------------------------------------------------#
+
 	def FequenciesAndTheirWords(panFreq)
 		panFreq = StzListQ(panFreq).DuplicatesRemoved()
 
@@ -2242,6 +2359,10 @@ class stzText from stzString
 		next
 
 		return aResult
+
+	  #---------------------------------------------------#
+	 #   GETTING THE N MOST FREQUENT WORDS IN THE TEXT   #
+	#---------------------------------------------------#
 
 	def NMostFrequentWords(n)
 		/* Example
@@ -2288,8 +2409,22 @@ class stzText from stzString
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def MostNFrequentWords(n)
+			return This.NMostFrequentWords(n)
+
 		def TopNFrequentWords(n)
 			return This.NMostFrequentWords(n)
+
+		def NTopFrequentWords(n)
+			return This.NMostFrequentWords(n)
+
+		#>
+
+	  #--------------------------------------------------------------------------------#
+	 #   GETTING THE N MOST FREQUENT WORDS IN THE TEXT َALONG WITH THEIR FREQUENCIES   #
+	#--------------------------------------------------------------------------------#
 
 	def NMostFrequentWordsAndTheirFrequencies(n)
 		/* Example
@@ -2350,6 +2485,10 @@ class stzText from stzString
 
 		return aResult
 
+	  #---------------------------------------------------------------------------#
+	 #   GETTING THE N MOST FREQUENT WORDS IN THE TEXT َAMONG THE PROVIDED ONES   #
+	#---------------------------------------------------------------------------#
+
 	def NMostFrequentWordsAmongTheseWords(n, pacWords)
 		aWordsFreqs = This.TheseWordsAndTheirFrequencies(pacWords)
 
@@ -2367,7 +2506,9 @@ class stzText from stzString
 		def NMostFrequentWordsAmong(n, pacWords)
 			return This.NMostFrequentWordsAmongTheseWords(n, pacWords)
 
-	#---
+	  #---------------------------------------#
+	 #   GETTING THE TOP 10 FREQUENT WORDS   #
+	#---------------------------------------#
 
 	def TopTenFrequentWords()
 		return This.NMostFrequentWords(10)
@@ -2384,6 +2525,10 @@ class stzText from stzString
 			return This.TopTenFrequentWords()
 
 		#>
+
+	  #--------------------------------------------------------------#
+	 #   GETTING THE TOP 10 FREQUENT WORDS AMONG THE PROVIDED ONES  #
+	#--------------------------------------------------------------#
 
 	def TopTenFrequentWordsAmongTheseWords(pacWords)
 		if len(pacWords) < 10
@@ -2415,7 +2560,17 @@ class stzText from stzString
 		def Top10WordsAmong(pacWords)
 			return This.TopTenFrequentWordsAmongTheseWords(pacWords)
 
+		def TopTenFrequentWordsIn(pacWords)
+			return This.TopThreeFrequentWordsAmongTheseWords(pacWords)
+
+		def Top10WordsIn(pacWords)
+			return This.TopThreeFrequentWordsAmongTheseWords(pacWords)
+
 		#>
+
+	  #--------------------------------------#
+	 #   GETTING THE TOP 5 FREQUENT WORDS   #
+	#--------------------------------------#
 
 	def TopFiveFrequentWords()
 		return This.NMostFrequentWords(5)
@@ -2433,6 +2588,10 @@ class stzText from stzString
 			return This.TopFiveFrequentWords()
 
 		#>
+
+	  #-------------------------------------------------------------#
+	 #   GETTING THE TOP 3 FREQUENT WORDS AMONG THE PROVIDED ONES  #
+	#-------------------------------------------------------------#
 
 	def TopFiveFrequentWordsAmongTheseWords(pacWords)
 		if len(pacWords) < 5
@@ -2464,7 +2623,17 @@ class stzText from stzString
 		def Top5WordsAmong(pacWords)
 			return This.TopFiveFrequentWordsAmongTheseWords(pacWords)
 
+		def TopFiveFrequentWordsIn(pacWords)
+			return This.TopThreeFrequentWordsAmongTheseWords(pacWords)
+
+		def TopTWordsIn(pacWords)
+			return This.TopThreeFrequentWordsAmongTheseWords(pacWords)
+
 		#>
+
+	  #--------------------------------------#
+	 #   GETTING THE TOP 3 FREQUENT WORDS   #
+	#--------------------------------------#
 
 	def TopThreeFrequentWords()
 		return This.NMostFrequentWords(3)
@@ -2481,6 +2650,10 @@ class stzText from stzString
 			return This.TopThreeFrequentWords()
 
 		#>
+
+	  #-------------------------------------------------------------#
+	 #   GETTING THE TOP 3 FREQUENT WORDS AMONG THE PROVIDED ONES  #
+	#-------------------------------------------------------------#
 
 	def TopThreeFrequentWordsAmongTheseWords(pacWords)
 		if len(pacWords) < 3
@@ -2512,9 +2685,17 @@ class stzText from stzString
 		def Top3WordsAmong(pacWords)
 			return This.TopThreeFrequentWordsAmongTheseWords(pacWords)
 
+		def TopThreeFrequentWordsIn(pacWords)
+			return This.TopThreeFrequentWordsAmongTheseWords(pacWords)
+
+		def Top3WordsIn(pacWords)
+			return This.TopThreeFrequentWordsAmongTheseWords(pacWords)
+
 		#>
 
-	#---
+	  #------------------------------------------------#
+	 #   GETTING THE LESS FREQUENT WORD IN THE TEXT   #
+	#------------------------------------------------#
 
 	def LessFrequentWord()
 		aWordsFreqs = This.WordsAndTheirFrequencies()
@@ -2524,18 +2705,32 @@ class stzText from stzString
 
 		return aWordsFreqs[n][1]
 
+	  #------------------------------------------------------------------------#
+	 #   GETTING THE LESS FREQUENT WORD IN THE TEXT AMONG THE PROVIDED ONES   #
+	#------------------------------------------------------------------------#
+
 	def LessFrequentWordAmongTheseWords(pacWords)
 		aWordsFreqs = This.TheseWordsAndTheirFrequencies(pacWords)
 
 		oHashList = StzHashListQ( aWordsFreqs )
 		n = oHashList.ValuesQR(:stzListOfNumbers).FindMin()
 
-		return aWordsFreqs[n][1]
+		cResult = aWordsFreqs[n][1]
+		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def LessFrequentWordAmong(pacWords)
 			return This.LessFrequentWordAmongTheseWords(pacWords)
 
-	#---
+		def LessFrequentWordIn(pacWords)
+			return This.LessFrequentWordAmongTheseWords(pacWords)
+
+		#>
+
+	  #---------------------------------------------------#
+	 #   GETTING THE N LESS FREQUENT WORDS IN THE TEXT   #
+	#---------------------------------------------------#
 
 	def NLessFrequentWords(n)
 		aWordsFreqs = This.WordsAndTheirFrequencies()
@@ -2553,6 +2748,10 @@ class stzText from stzString
 
 		def LessNFrequentWords(n)
 			return This.NLessFrequentWords(n)
+
+	  #---------------------------------------------------------------------------#
+	 #   GETTING THE N LESS FREQUENT WORDS IN THE TEXT AMONG THE PROVIDED ONES   #
+	#---------------------------------------------------------------------------#
 
 	def NLessFrequentWordsAmongTheseWords(n, pacWords)
 		aWordsFreqs = This.TheseWordsAndTheirFrequencies(pacWords)
@@ -2579,7 +2778,9 @@ class stzText from stzString
 		def LessNFrequentWordsAmong(n, pacWords)
 			return This.NLessFrequentWordsAmongTheseWords(n, pacWords)
 
-	#---
+	  #------------------------------------#
+	 #   REMOVING THE WORDS OF THE TEXT   #
+	#------------------------------------#
 			
 	def RemoveWords()
 
@@ -2595,8 +2796,20 @@ class stzText from stzString
 		cResult = This.Copy().RemoveWordsQ().Content()
 		return cResult
 
+	  #-----------------------------------------------#
+	 #   REPLACING WORDS IN THE TEXT WITH MARQUERS   #
+	#-----------------------------------------------#
+
 	def ReplaceWordsWithMarquers()
 		This.ReplaceWordsWithMarquersXT([ :By = :OrderOfOccurrenceOfWords ])
+
+		def ReplaceWordsWithMarquersQ()
+			This.ReplaceWordsWithMarquers()
+			return This
+
+	  #-------------------------------------------------------------------#
+	 #   REPLACING WORDS IN THE TEXT WITH MARQUERS -- EXTENDED VERSION   #
+	#-------------------------------------------------------------------#
 
 	def ReplaceWordsWithMarquersXT(paOptions)
 
@@ -2700,8 +2913,14 @@ class stzText from stzString
 			
 			
 		next
+
+		def ReplaceWordsWithMarquersXTQ(paOptions)
+			This.ReplaceWordsWithMarquersXT(paOptions)
+			return This
 		
-	#-----
+	  #-----------------------------------------------------#
+	 #   CHECKING IF THE TEXT CONTAINS THE PROVIDED WORD   #
+	#-----------------------------------------------------#
 	
 	def ContainsWord(pcWord)
 
@@ -2711,10 +2930,16 @@ class stzText from stzString
 			return FALSE
 		ok
 
-	def ContainsNoWord(pcWord)
-		return NOT This.ContainsWord(pcWord)
+		#< @FunctionNegativeForm
 
-	#-----
+		def ContainsNoWord(pcWord)
+			return NOT This.ContainsWord(pcWord)
+
+		#>
+
+	  #------------------------------------------------------------------#
+	 #   CHECKING IF THE TEXT CONTAINS EACH ONE OF THE PROVIDED WORDS   #
+	#------------------------------------------------------------------#
 
 	def ContainsEachWord(pacWords)
 		bResult = TRUE
@@ -2728,7 +2953,9 @@ class stzText from stzString
 
 		return bResult
 
-	#-----
+	  #-------------------------------------------------------------#
+	 #   CHECKING IF THE TEXT CONTAINS N TIMES THE PROVIDED WORD   #
+	#-------------------------------------------------------------#
 
 	def ContainsNTimesTheWord(n, pcWord)
 		
@@ -2738,15 +2965,29 @@ class stzText from stzString
 			return FALSE
 		ok
 
+		def ContainsNOccurrencesOfTheWord(n, pcWord)
+			return This.ContainsNTimesTheWord(n, pcWord)
+
+		def ContainsNOccurrenceOfTheWord(n, pcWord)
+			return This.ContainsNTimesTheWord(n, pcWord)
+
+	  #-----------------------------------------------------------------------#
+	 #   CHECKING IF THE TEXT CONTAINS ONE OCCURRENCE OF THE PROVIDED WORD   #
+	#-----------------------------------------------------------------------#
+
 	def ContainsOneOccurrenceOfWord(pcWord)
 			return This.ContainsNTimesTheWord(1, pcWord)
+
+	  #---------------------------------------------------------------------------------#
+	 #   CHECKING IF THE TEXT CONTAINS MORE THAN ONE OCCURRENCE OF THE PROVIDED WORD   #
+	#---------------------------------------------------------------------------------#
 
 	def ContainsMoreThanOneOccurrenceOfWord(pcWord)
 		return This.NumberOfOccurrenceOfWord(pcWord) > 1
 
-	  #-------------------#
-	 #   SORTING WORDS   #
-	#-------------------#
+	  #--------------------------------------------------------------#
+	 #  GETTING THE WORDS SORTING ORDER AS THEY APPEAR IN THE TEXT  #
+	#--------------------------------------------------------------#
 
 	def WordsSortingOrder()
 		cResult = :Unsorted
@@ -2761,6 +3002,10 @@ class stzText from stzString
 
 		return cResult
 
+	  #------------------------------------------------------------------------------------------#
+	 #  CHECHKING IF THE WORDS IN THE TEXT HAVE SAME SORTING ORDER AS WORDS IN AN OTHER STRING  #
+	#------------------------------------------------------------------------------------------#
+
 	def HasSameWordsSortingOrderAs(pcOtherStr)
 
 		oOtherWord = new stzWord(pcOtherStr)
@@ -2773,6 +3018,10 @@ class stzText from stzString
 		def HasSameWordsOrderAs(pcOtherStr)
 			return This.HasSameWordsSortingOrderAs(pcOtherStr)
 
+	  #------------------------------------------------#
+	 #  CHECKING IF THE WORDS IN THE TEXT ARE SORTED  #
+	#------------------------------------------------#
+
 	def WordsAreSorted()
 		if This.WordsAreSortedInAscending() or
 		   This.WordsAreSortedInDescending()
@@ -2780,6 +3029,10 @@ class stzText from stzString
 		else
 			return FALSE
 		ok
+
+	  #-------------------------------------------------------------#
+	 #  CHECKING IF THE WORDS IN THE TEXT ARE SORTED IN ASCENDING  #
+	#-------------------------------------------------------------#
 
 	def WordsAreSortedInAscending()
 		/*
@@ -2801,6 +3054,10 @@ class stzText from stzString
 			return FALSE
 		ok
 
+	  #--------------------------------------------------------------#
+	 #  CHECKING IF THE WORDS IN THE TEXT ARE SORTED IN DESCENDING  #
+	#--------------------------------------------------------------#
+
 	def WordsAreSortedInDescending()
 		oSortedCopy = This.WordsQR(:stzList).SortInDescendingQ()
 
@@ -2811,6 +3068,10 @@ class stzText from stzString
 			return FALSE
 		ok
 
+	  #------------------------------------------#
+	 #  SORTING WORDS IN THE TEXT IN ASCENDING  #
+	#------------------------------------------#
+
 	def SortWordsInAscending() # TODO
 		/*
 			1. Replace words with marquers
@@ -2819,6 +3080,8 @@ class stzText from stzString
 
 		*/
 		
+		StzRaise("Unavailable feature!")
+
 		def SortWordsInAscendingQ()
 			This.SortWordsInAscending()
 			return This
@@ -2827,6 +3090,10 @@ class stzText from stzString
 		cResult = This.Copy().SortWordsInAscendingQ().Content()
 		return cResult
 
+	  #-------------------------------------------#
+	 #  SORTING WORDS IN THE TEXT IN DESCENDING  #
+	#-------------------------------------------#
+
 	def SortWordsInDescending() # TODO
 		/*
 			1. Replace words with marquers
@@ -2834,6 +3101,8 @@ class stzText from stzString
 			2. Replace marquers by words
 
 		*/
+
+		StzRaise("Unavailable feature!")
 
 		def SortWordsInDescendingQ()
 			This.SortWordsInDescending()
@@ -2846,8 +3115,6 @@ class stzText from stzString
 	  #----------------------------#
 	 #    REPLACING MANY WORDS    #
 	#----------------------------#
-
-	#==> With CaseSensitive
 
 	def ReplaceWordsCS(pacWords, pacNewWords, pCaseSensitive)
 		This.ReplaceWordsWithMarquers()
@@ -2910,7 +3177,7 @@ class stzText from stzString
 			return This.WordsReplacedCS(pacWords, pacNewWords, pCaseSensitive)
 		
 
-	#==> WITHOUT CASESENSITIVITY
+	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceWords(pacWords, pacNewWords)
 		This.ReplaceWordsWithMarquers()
@@ -2976,8 +3243,6 @@ class stzText from stzString
 	 #    REPLACING ONE GIVEN WORD    #
 	#--------------------------------#
 
-	#==> With CaseSensitive
-
 	def ReplaceWordCS(pcWord, pcNewWord, pCaseSensitive)
 		This.ReplaceWordsCS([ pcWord ], [ pcNewWord ], pCaseSensitive)
 
@@ -3011,7 +3276,7 @@ class stzText from stzString
 		cResult = This.Copy().ReplaceWordCSQ(pcWord, pcNewWord, pCaseSensitive).Content()
 		return cResult
 
-	#==> WITHOUT CASESENSITIVITY
+	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceWord(pcWord, pcNewWord)
 		This.ReplaceWordsCS(pcWord, pcNewWord, :CaseSensitive = TRUE)
@@ -3046,15 +3311,33 @@ class stzText from stzString
 		cResult = This.Copy().ReplaceWordQ(pcWord, pcNewWord).Content()
 		return cResult
 
-	  #----------------------------------------#
-	 #    REPLACING NTH OCCURRENCE OF WORD    # TODO
-	#----------------------------------------#
+	  #-----------------------------------------#
+	 #    REPLACING NTH OCCURRENCE OF A WORD   # TODO
+	#-----------------------------------------#
 	
 	def ReplaceNthWordCS(n, pcWord, pcNewSubStr, pCaseSensitive)
-		// TODO
+		StzRaise("Unavailable feature!")
+
+		def ReplaceNthWordCSQ(n, pcWord, pcNewSubStr, pCaseSensitive)
+			This.ReplaceNthWordCS(n, pcWord, pcNewSubStr, pCaseSensitive)
+			return This
+
+	def NthWordReplacedCS(n, pcWord, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceNthWordCSQ(n, pcWord, pcNewSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNthWord(n, pcWord, pcNewSubStr)
-		// TODO
+		StzRaise("Unavailable feature!")
+
+		def ReplaceNthWordQ(n, pcWord, pcNewSubStr)
+			This.ReplaceNthWord(n, pcWord, pcNewSubStr)
+			return This
+
+	def NthWordReplaced(n, pcWord, pcNewSubStr)
+		cResult = This.Copy().ReplaceNthWordQ(n, pcWord, pcNewSubStr).Content()
+		return cResult
 
 	  #------------------------------------------#
 	 #    REPLACING FIRST OCCURRENCE OF WORD    # 
@@ -3063,26 +3346,66 @@ class stzText from stzString
 	def ReplaceFirstWordCS(pcWord, pcNewSubStr, pCaseSensitive)
 		This.ReplaceNthWordCS(1, pcWord, pcNewSubStr, pCaseSensitive)
 
+		def ReplaceFirstWordCSQ(pcWord, pcNewsubStr, pCaseSensitive)
+			This.ReplaceFirstWordCS(pcWord, pcNewSubStr, pCaseSensitive)
+			return This
+
+	def FirstWordReplacedCS(pcWord, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceFirstWordCSQ(pcWord, pcNewsubStr, pCaseSensitive).Content()
+		return This
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def ReplaceFirstWord(pcWord, pcNewSubStr)
 		This.ReplaceNthWord(1, pcWord, pcNewSubStr)
+
+		def ReplaceFirstWordQ(pcWord, pcNewsubStr)
+			This.ReplaceFirstWord(pcWord, pcNewSubStr)
+			return This
+
+	def FirstWordReplaced(pcWord, pcNewSubStr)
+		cResult = This.Copy().ReplaceFirstWordQ(pcWord, pcNewsubStr).Content()
+		return This
 
 	  #------------------------------------------#
 	 #    REPLACING LAST OCCURRENCE OF WORD     # 
 	#------------------------------------------#
 
-	def ReplaceLastWordCS(pcWord,vpcNewSubStr, pCaseSensitive)
-			This.ReplaceNthWordCS(:Last, pcWord, pcNewSubStr, pCaseSensitive)
-			
+	def ReplaceLastWordCS(pcWord, pcNewSubStr, pCaseSensitive)
+		This.ReplaceNthWordCS(:Last, pcWord, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceLastWordCSQ(pcWord, pcNewSubStr, pCaseSensitive)
+			This.ReplaceLastWordCS(pcWord, pcNewSubStr, pCaseSensitive)
+			return This
+
+	def LastWordReplacedCS(pcWord, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceLastWordCSQ(pcWord, pcNewSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def ReplaceLastWord(pcWord, pcNewSubStr)
 		This.ReplaceNthWord(:Last, pcWord, pcNewSubStr)
 
-	  #--------------------------------#
-	 #     FORWARD TO END OF WORD     #
-        #--------------------------------#
+		def ReplaceLastWordQ(pcWord, pcNewSubStr)
+			This.ReplaceLastWord(pcWord, pcNewSubStr)
+			return This
+
+	def LastWordReplaced(pcWord, pcNewSubStr)
+		cResult = This.Copy().ReplaceLastWordQ(pcWord, pcNewSubStr).Content()
+		return cResult
+
+	  #----------------------------------#
+	 #  GETTING THE NUMBER OF LETTERS   #
+        #----------------------------------#
 
 	def NumberOfLetters()
 		nResult = This.NumberOfLetters()
 		return nResult
+
+	  #-------------------------------------------------------------------------------------#
+	 #  GOINING FORWARAD IN THE TEXT STARTING AT A GIVEN POSITION UNTIL THEN END OF WORD   #
+        #-------------------------------------------------------------------------------------#
 
 	def ForwardToEndOfWord(nStart) # Starting at position n
 		/* Example:
@@ -3137,44 +3460,130 @@ class stzText from stzString
 
 		#>
 	
-	  #---------------------#
-	 #    REMOVING WORD    # 
-	#---------------------#
-
-	def RemoveAllWord(pcWord)
-		// TODO
-
-	def RemoveAllOccurrencesOfWord(pcWord)
-		return This.FindAllWord(pcWord)
+	  #------------------------------------------------------------#
+	 #   REMOVING ALL OCCURRENCES OF A GIVEN WORD FROM THE TEXT   #  TODO
+	#------------------------------------------------------------#
 
 	def RemoveAllWordCS(pcWord, pCaseSensitive)
-		// TODO
+		StzRaise("Feaure unavailable!")
 
-	def RemoveAllOccurrencesOfWordCS(pcWord, pCaseSensitive)
-		return This.FindAllWordCS(pcWord, pCaseSensitive)
-		
-	def RemoveFirstWord(pcWord)
-		// TODO
+		#< @FunctionFluentForm
+
+		def RemoveAllWordCSQ(pcWord, pCaseSensitive)
+			This.RemoveAllWordCS(pcWord, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeforms
+
+		def RemoveWordCS(pcWord, pCaseSensitive)
+			This.RemoveAllWordCS(pcWord, pCaseSensitive)
+
+			def RemoveWordCSQ(pcWord, pCaseSensitive)
+				This.RemoveWordCS(pcWord, pCaseSensitive)
+				return This
+
+		def RemoveAllOccurrencesOfWordCS(pcWord, pCaseSensitive)
+			This.RemoveAllWordCS(pcWord, pCaseSensitive)
+
+			def RemoveAllOccurrencesOfWordCSQ(pcWord, pCaseSensitive)
+				This.RemoveAllOccurrencesOfWord(pcWord, pCaseSensitive)
+				return This
+
+		def RemoveOccurrencesOfWordCS(pcWord, pCaseSensitive)
+			This.RemoveAllWordCS(pcWord, pCaseSensitive)
+
+			def RemoveOccurrencesOfWordCSQ(pcWord, pCaseSensitive)
+				This.RemoveOccurrencesOfWordCS(pcWord, pCaseSensitive)
+				return This
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveAllWord(pcWord)
+		This.RemoveAllWordCS(pcWord, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RemoveAllWordQ(pcWord)
+			This.RemoveAllWord(pcWord)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeforms
+
+		def RemoveWord(pcWord)
+			This.RemoveAllWord(pcWord)
+
+			def RemoveWordQ(pcWord)
+				This.RemoveWord(pcWord)
+				return This
+
+		def RemoveAllOccurrencesOfWord(pcWord)
+			This.RemoveAllWord(pcWord)
+
+			def RemoveAllOccurrencesOfWordQ(pcWord)
+				This.RemoveAllOccurrencesOfWord(pcWord)
+				return This
+
+		def RemoveOccurrencesOfWord(pcWord)
+			This.RemoveAllWordCS(pcWord)
+
+			def RemoveOccurrencesOfWordQ(pcWord)
+				This.RemoveOccurrencesOfWord(pcWord)
+				return This
+
+		#>
+
+	  #---------------------------------------#
+	 #  REMOVING THE FIRST WORD IN THE TEXT  #
+	#---------------------------------------#
 
 	def RemoveFirstWordCS(pcWord, pCaseSensitive)
 		// TODO
 
-	def RemoveLastWord(pcWord)
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveFirstWord(pcWord)
 		// TODO
+
+	  #--------------------------------------#
+	 #  REMOVING THE LAST WORD IN THE TEXT  #
+	#--------------------------------------#
 
 	def RemoveLastWordCS(pcWord, pCaseSensitive)
 		// TODO
 
-	def RemoveNthWord(pcWord)
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveLastWord(pcWord)
 		// TODO
+
+	  #-------------------------------------#
+	 #  REMOVING THE NTH WORD IN THE TEXT  #
+	#-------------------------------------#
 
 	def RemoveNthWordCS(pcWord, pCaseSensitive)
 		// TODO	
 
-	def RemoveManyWords(pacWords)
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveNthWord(pcWord)
 		// TODO
 
+	  #------------------------------------------#
+	 #  REMOVING THE GIVEN WORDS FROM THE TEXT  #
+	#------------------------------------------#
+
 	def RemoveManyWordsCS(pacWords)
+		// TODO
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveManyWords(pacWords)
 		// TODO
 
 	  #--------------------------------------#
@@ -3732,25 +4141,34 @@ class stzText from stzString
 	In fact, pseudo-words are just substrings separated by spaces, no more.
 
 	If they suit for your case, then use them. Otherwise, use Words() and
-	expect yoursel to pay for performance.
+	expect yourself to pay for performance.
 
+	TODO: Use QTextBoundaryFinder class when added to RingQt
 
 
 	*/
 
-	  #---------------------#
-	 #      STOPWORDS      #
-	#---------------------#
+	  #-------------------------------------------------------------#
+	 #    CHECKING IF THE TEXT IS A STOPWOD IN A GIVEN LANGUAGE    #
+	#-------------------------------------------------------------#
 
 	def IsStopWordIn(pcLang)
 		cCode = 'bResult = StopWordsInQ(:' + pcLang + ').Contains(This.Lowercased())'
 		eval(cCode)
 		return bResult
 
+	  #-------------------------------------------------------------------#
+	 #   GETTING THE LANGUAGE OF THE TEXT IF THE CONTENT IS A STOPWORD   #
+	#-------------------------------------------------------------------#
+
 	def LanguageIfStopWord()
 		if This.IsStopWord()
 			return StopWordLanguage(This.String())
 		ok
+
+	  #------------------------------------------#
+	 #   REMOVING STOPWORDS IN A GIVEN SCRIPT   #
+	#------------------------------------------#
 
 	def RemoveStopWordsInScript(pcScript)
 
@@ -3779,9 +4197,22 @@ class stzText from stzString
 				This.RemoveStopWordsIn(pcScript)
 				return This
 
-	  #---------------------#
-	 #      SENTENCES      #
-	#---------------------#
+	  #-------------------------------------#
+	 #   GETTING THE NUMBER OF SENTENCES   #
+	#-------------------------------------#
+
+	def NumberOfSentences()
+		return len( This.Sentences() )
+
+		def HowManySentences()
+			return This.NumberOfSentences()
+
+		def HowManySentence()
+			return This.NumberOfSentences()
+
+	  #------------------------------------#
+	 #   GETTING THE LIST OF SENTENCES   #
+	#-----------------------------------#
 
 	def Sentences()
 		cSep = SentenceSeparator()
@@ -3808,13 +4239,113 @@ class stzText from stzString
 	
 		#>
 
-	  #----------------------#
-	 #      PARAGRAPHS      #
-	#----------------------#
+	  #--------------------------------------------#
+	 #   GETTING THE NUMBER OF UNIQUE SENTENCES   #
+	#--------------------------------------------#
+
+	def NumberOfUniqueSentences()
+		return len( This.UniqueSentences() )
+
+		def HowManyUniqueSentences()
+			return This.NumberOfUniqueSentences()
+
+		def HowManyUniqueSentence()
+			return This.NumberOfUniqueSentences()
+
+	  #------------------------------------------#
+	 #   GETTING THE LIST OF UNIQUE SENTENCES   #
+	#------------------------------------------#
+
+	def UniqueSentences()
+		cSep = SentenceSeparator()
+		acResult = This.SplitQ(cSep).DuplicatesRemoved()
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def UniqueSentencesQ()
+			return This.UniqueSentencesQR(:stzList)
+
+		def UniqueSentencesQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.UniqueSentences() )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.UniqueSentences() )
+			other
+				StzRaise("Unsupported return type!")
+			off
+	
+		#>
+
+	  #---------------------------------------------#
+	 #   GETTING THE NUMBER OF UNIQUE PARAGRAPHS   #
+	#---------------------------------------------#
+
+	def NumberOfUniqueParagraphs()
+		return len( This.UniqueParagraphs() )
+
+		def HowManyUniqueParagraphs()
+			return This.NumberOfUniqueParagraphs()
+
+		def HowManyUniqueParagraph()
+			return This.NumberOfUniqueParagraphs()
+
+	  #-------------------------------------------#
+	 #   GETTING THE LIST OF UNIQUE PARAGRAPHS   #
+	#-------------------------------------------#
+
+	def UniqueParagraphs()
+		cSep = ParagraphSeparator()
+		acResult = This.SplitQ( cSep ).DuplicatesRemoved()
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def UniqueParagraphsQ()
+			return This.UniqueParagraphsQR(:stzList)
+
+		def UniqueParagraphsQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.UniqueParagraphs() )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.UniqueParagraphs() )
+			other
+				StzRaise("Unsupported return type!")
+			off
+	
+		#>
+
+	  #--------------------------------------#
+	 #   GETTING THE NUMBER OF PARAGRAPHS   #
+	#--------------------------------------#
+
+	def NumberOfParagraphs()
+		return len( This.Paragraphs() )
+
+		def HowManyParagraphs()
+			return This.NumberOfParagraphs()
+
+		def HowManyParagraph()
+			return This.NumberOfParagraphs()
+
+	  #------------------------------------#
+	 #   GETTING THE LIST OF PARAGRAPHS   #
+	#------------------------------------#
 
 	def Paragraphs()
 		cSep = ParagraphSeparator()
-		return This.Split( cSep )
+		acResult = This.Split( cSep )
+		return acResult
 
 		#< @FunctionFluentForm
 
@@ -3837,9 +4368,9 @@ class stzText from stzString
 	
 		#>
 
-	  #----------------------#
-	 #     PUNCTUATION      #
-	#----------------------#
+	  #----------------------------------------#
+	 #   GETTING THE NUMBER OF PUNCTUATIONS   # 
+	#----------------------------------------#
 
 	def NumberOfPunctuations()
 		nResult = 0
@@ -3854,6 +4385,16 @@ class stzText from stzString
 
 		return nResult
 
+		def HowManyPunctions()
+			return This.NumberOfPunctuations()
+
+		def HowManyPunction()
+			return This.NumberOfPunctuations()
+
+	  #--------------------------------------#
+	 #   GETTING THE LIST OF PUNCTUATIONS   # 
+	#--------------------------------------#
+
 	def Punctuations()
 		aResult = []
 
@@ -3867,10 +4408,24 @@ class stzText from stzString
 
 		return aResult
 
+	  #-----------------------------------------------#
+	 #    GETTING THE NUMBER OF UNIQUE PUNCTUATIONS  # 
+	#-----------------------------------------------#
+
 	def NumberOfUniquePunctuations()
 		return len( This.UniquePunctuations() )
 
 		return nResult
+
+		def HowManyUniquePunctions()
+			return This.NumberOfUniquePunctuations()
+
+		def HowManyUniquePunction()
+			return This.NumberOfUniquePunctuations()
+
+	  #----------------------------------------------#
+	 #    GETTING THE LISTS OF UNIQUE PUNCTUATIONS  # 
+	#----------------------------------------------#
 
 	def UniquePunctuations()
 		aResult = []
@@ -3893,7 +4448,9 @@ class stzText from stzString
 		def PunctuationsWithoutDuplication()
 			return This.UniquePunctuations()
 
-	#---
+	  #------------------------------------------------#
+	 #    GETTING THE NUMBER OF GENERAL PUNCTUATIONS  # 
+	#------------------------------------------------#
 
 	def NumberOfGeneralPunctuations()
 		nResult = 0
@@ -3908,6 +4465,16 @@ class stzText from stzString
 
 		return nResult
 
+		def HowManyGeneralPunctuations()
+			return This.NumberOfGeneralPunctuations()
+
+		def HowManyGeneralPunctuation()
+			return This.NumberOfGeneralPunctuations()
+
+	  #----------------------------------------------#
+	 #    GETTING THE LIST OF GENERAL PUNCTUATIONS  # 
+	#----------------------------------------------#
+
 	def GeneralPunctuations()
 		aResult = []
 
@@ -3921,8 +4488,22 @@ class stzText from stzString
 
 		return aResult
 
+	  #-----------------------------------------------------------------------#
+	 #    GETTING THE NUMBER OF GENERAL PUNCTUATIONS -- WITHOUT DUPLICATION  # 
+	#-----------------------------------------------------------------------#
+
 	def NumberOfUniqueGeneralPunctuations()
 		return len( This.UniqueGeneralPunctuations() )
+
+		def HowManyUniqueGeneralPunctuations()
+			return This.NumberOfUniqueGeneralPunctuations()
+
+		def HowManyUniqueGeneralPunctuation()
+			return This.NumberOfUniqueGeneralPunctuations()
+
+	  #---------------------------------------------------------------------#
+	 #    GETTING THE LIST OF GENERAL PUNCTUATIONS -- WITHOUT DUPLICATION  # 
+	#---------------------------------------------------------------------#
 
 	def UniqueGeneralPunctuations()
 		aResult = []
@@ -3943,7 +4524,9 @@ class stzText from stzString
 		def GeneralPunctuationsWithoutDuplication()
 			return This.UniqueGeneralPunctuations()
 
-	#---
+	  #------------------------------------------------------#
+	 #    GETTING THE NUMBER OF SUPLEMENTAL PUNCTUATIONS    # 
+	#------------------------------------------------------#
 
 	def NumberOfSupplementalPunctuations()
 		nResult = 0
@@ -3958,6 +4541,16 @@ class stzText from stzString
 
 		return nResult
 
+		def HowManySupplementalPunctuations()
+			return This.NumberOfSupplementalPunctuations()
+
+		def HowManySupplementalPunctuation()
+			return This.NumberOfSupplementalPunctuations()
+ 
+	  #----------------------------------------------------#
+	 #    GETTING THE LIST OF SUPLEMENTAL PUNCTUATIONS    # 
+	#----------------------------------------------------#
+
 	def SupplementalPunctuations()
 		aResult = []
 
@@ -3971,8 +4564,22 @@ class stzText from stzString
 
 		return aResult
 
+	  #---------------------------------------------------------------------------#
+	 #    GETTING THE NUMBER OF SUPLEMENTAL PUNCTUATIONS -- WITHOUT DUPLICATION  # 
+	#---------------------------------------------------------------------------#
+
 	def NumberOfUniqueSupplementalPunctuations()
 		return len( This.UniqueSupplementalPunctuations() )
+
+		def HowManyUniqueSupplementalPunctions()
+			return This.NumberOfUniqueSupplementalPunctuations()
+
+		def HowManyUniqueSupplementalPunction()
+			return This.NumberOfUniqueSupplementalPunctuations()
+
+	  #---------------------------------------------------------------------------#
+	 #    GESTTING THE LIST OF SUPLEMENTAL DUPLICATIONS -- WITHOUT DUPLICATION   # 
+	#---------------------------------------------------------------------------#
 
 	def UniqueSupplementalPunctuations()
 		aResult = []
@@ -3994,9 +4601,11 @@ class stzText from stzString
 		def SupplementalPunctuationsWithoutDuplication()
 			return This.UniqueSupplementalPunctuations()
 
-#------------------------
+	  #---------------------------#
+	 #    REMOVING PUNCTUATION   # 
+	#---------------------------#
 
-	def RemovePunctuation()
+	def RemovePunctuation() # TODO: Use an other ilmplementation for better performance
 		This.RemoveCharsWhere('{ StzCharQ(@char).IsPunctuation() }')
 
 		def RemovePunctuationQ()
@@ -4010,6 +4619,10 @@ class stzText from stzString
 				This.RemovePunctuations()
 				return This
 	
+	  #-----------------------------------------------#
+	 #    REMOVING PUNCTUATION  -- EXCEPT/Extension  # 
+	#-----------------------------------------------#
+
 	def RemovePunctuationExcept(paChars)
 		This.RemoveCharsWhere('StzCharQ(@char).isPunctuation() and NOT Q(@char).IsOneOfThese(' + @@(paChars) + ')')
 
