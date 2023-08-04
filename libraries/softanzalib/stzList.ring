@@ -629,6 +629,9 @@ class stzList from stzObject
 		def HowManyItems()
 			return This.NumberOfItems()
 	
+		def HowManyItem()
+			return This.NumberOfItems()
+
 	def Items()
 		return This.Content()
 
@@ -12689,6 +12692,10 @@ class stzList from stzObject
 		def HowManyClasses()
 			return This.NumberOfClasses()
 
+		def HowManyClass()
+			return This.NumberOfClasses()
+
+
 	def Klass(pcClass)
 		return This.Classify()[pcClass]
 
@@ -12708,14 +12715,15 @@ class stzList from stzObject
 		def CountClass(pcClass)
 			return This.NumberOfOccurrenceOfClass(pcClass)
 
-		def HowManyClass(pcClass)
-			return This.NumberOfOccurrenceOfClass(pcClass)
-
 		def CountOccurrencesOfClass(pcClass)
 			return This.NumberOfOccurrenceOfClass(pcClass)
 
 		def HowManyOccurrencesOfClass(pcClass)
 			return This.NumberOfOccurrenceOfClass(pcClass)
+
+		def HowManyOccurrenceOfClass(pcClass)
+			return This.NumberOfOccurrenceOfClass(pcClass)
+
 
 	def ClassFrequency(pcClass)
 		nResult = This.NumberOfOccurrenceOfClass(pcClass) / This.NumberOfClasses()
@@ -12944,6 +12952,10 @@ class stzList from stzObject
 
 		def HowManyOccurrencesOfClassSF(pcClass)
 			return This.NumberOfOccurrenceOfClassSF(pcClass)
+
+		def HowManyOccurrenceOfClassSF(pcClass)
+			return This.NumberOfOccurrenceOfClassSF(pcClass)
+
 		
 	def ClassFrequencySF(pcClass)
 		nResult = This.NumberOfOccurrenceOfClassSF(pcClass) / This.NumberOfClasses()
@@ -13583,6 +13595,9 @@ class stzList from stzObject
 		def HowManyCommonItemsWithCS(paItem, pCaseSensitive)
 			return This.NumberOfCommonItemsWithCS(paItems, pCaseSensitive)
 
+		def HowManyCommonItemWithCS(paItem, pCaseSensitive)
+			return This.NumberOfCommonItemsWithCS(paItems, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfCommonItemsWith(paItems)
@@ -13595,6 +13610,9 @@ class stzList from stzObject
 			return This.NumberOfCommonItemsWith(paItems)
 
 		def HowManyCommonItemsWith(paItem)
+			return This.NumberOfCommonItemsWith(paItems)
+
+		def HowManyCommonItemWith(paItem)
 			return This.NumberOfCommonItemsWith(paItems)
 
 	  #---------------------------------------------------------------------------#
@@ -13610,6 +13628,9 @@ class stzList from stzObject
 		def HowManyDifferentItemsWithCS(paItem, pCaseSensitive)
 			return This.NumberOfDifferentItemsWithCS(paItems, pCaseSensitive)
 
+		def HowManyDifferentItemWithCS(paItem, pCaseSensitive)
+			return This.NumberOfDifferentItemsWithCS(paItems, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDifferentItemsWith(paItems)
@@ -13619,6 +13640,9 @@ class stzList from stzObject
 			return This.NumberOfDifferentItemsWith(paItems)
 
 		def HowManyDifferentItemsWith(paItem)
+			return This.NumberOfDifferentItemsWith(paItems)
+
+		def HowManyDifferentItemWith(paItem)
 			return This.NumberOfDifferentItemsWith(paItems)
 
 	  #=============================#
@@ -14193,10 +14217,19 @@ class stzList from stzObject
 		def HowManyRepeatedLeadingItems()
 			return This.NumberOfRepeatedLeadingItems()
 
+		def HowManyRepeatedLeadingItem()
+			return This.NumberOfRepeatedLeadingItems()
+
 		def HowManyLeadingRepeatedItems()
 			return This.NumberOfRepeatedLeadingItems()
 
-		def HowmanyLeadingItems()
+		def HowManyLeadingRepeatedItem()
+			return This.NumberOfRepeatedLeadingItems()
+
+		def HowManyLeadingItems()
+			return This.NumberOfRepeatedLeadingItems()
+
+		def HowManyLeadingItem()
 			return This.NumberOfRepeatedLeadingItems()
 
 		#>
@@ -14284,10 +14317,19 @@ class stzList from stzObject
 		def HowManyRepeatedTrailingItems()
 			return This.NumberOfRepeatedTrailingItems()
 
+		def HowManyRepeatedTrailingItem()
+			return This.NumberOfRepeatedTrailingItems()
+
 		def HowManyTrailingRepeatedItems()
 			return This.NumberOfRepeatedTrailingItems()
 
+		def HowManyTrailingRepeatedItem()
+			return This.NumberOfRepeatedTrailingItems()
+
 		def HowmanyTrailingItems()
+			return This.NumberOfRepeatedTrailingItems()
+
+		def HowmanyTrailingItem()
 			return This.NumberOfRepeatedTrailingItems()
 
 		#>
@@ -15707,6 +15749,140 @@ class stzList from stzObject
 
 		#
 
+	  #-----------------------------------------#
+	 #  FINDING THE OCCURRENCES OF MANY ITEMS  #
+	#=========================================#
+	# NOTE: for performance reason, the items are stringified.
+
+	def FindItemsCS(pCaseSensitive)
+
+		# Checking params
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		nLen = This.NumberOfItems()
+		if nLen < 2
+			return []
+		ok
+
+		aContent = []
+
+		# We stringify the list (all items are becoming strings)
+
+		if pCaseSensitive = TRUE
+
+			aContent = This.Copy().
+					StringifyAndReplaceQ(",", "*").
+					Content()
+
+		else // pCaseSensitive = FALSE
+
+			aContent = This.Copy().
+					StringifyLowercaseAndReplaceQ(",", "*").
+					Content()
+		ok
+
+
+		acItems = []
+		anOccur = []
+
+		for i = 1 to nLen
+
+			cCurrentItem = aContent[i]
+			nPos = ring_find(acItems, cCurrentItem)
+
+			if nPos = 0
+				acItems + cCurrentItem
+				anOccur + [i]
+
+			else
+				n = ring_find(acItems, cCurrentItem)
+				anOccur[n] + i
+			ok
+
+		next
+
+		aResult = []
+		nLen = len(acItems)
+
+		for i = 1 to nLen
+			aResult + [ acItems[i], anOccur[i] ]
+		next
+
+		return aResult 
+
+		#< @FunctionFluentForms
+
+		def FindItemsCSQ(pCaseSensitive)
+			return This.FindItemsCSQR(pCaseSensitive, :stzList)
+
+		def FindItemsCSQR(pCaseSensitive, pcReturnType)
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindItemsCS(pCaseSensitive) )
+
+			on :stzHashList
+				return new stzHashList( This.FindItemsCS(pCaseSensitive) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.FindItemsCS(pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def PositionsOfEachItemCS(pCaseSensitive)
+			return This.FindItemsCS(pCaseSensitive)
+
+			def PositionsOfEachItemCSQ(pCaseSensitive)
+				return This.PositionsOfEachItemCSQ(pCaseSensitive)
+
+			def PositionsOfEachItemCSQR(pCaseSensitive, pcReturnType)
+				return This.PositionsOfEachItemCSQR(pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVE
+
+	def FindItems()
+		return This.FindItemsCS(:CaseSensitive = TRUE)
+			
+		#< @FunctionFluentForms
+
+		def FindItemsQ()
+			return This.FindItemsCSQ(:CaseSensitive = TRUE)
+
+		def FindItemsQR(pcReturnType)
+			return This.FindItemsCSQR(:CaseSensitive = TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def PositionsOfEachItem()
+			return This.FindItems()
+
+			def PositionsOfEachItemQ()
+				return This.FindItemsQ()
+
+			def PositionsOfEachItemQR(pcReturnType)
+				return This.FindItemsQR(pcReturnType)
+
+		#>
+
 	  #==================================================#
 	 #  CHECKING IF AN ITEM IS DUPPLICATED IN THE LIST  #
 	#==================================================#
@@ -15778,7 +15954,7 @@ class stzList from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ItemsAreDuplicated(paItems, pCaseSensitice)
+	def ItemsAreDuplicated(paItems)
 		return This.ItemsAreDuplicatedCS(paItems, :CaseSensitice = TRUE)
 		
 		def ItemsAreDuplicates(paItems)
@@ -16071,7 +16247,7 @@ class stzList from stzObject
 
 	  #-------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS A SET (CONTAINS NO DUPLICATIONS AT ALL)  #
-	#-------------------------------------------------------------------#
+	#===================================================================#
 
 	def ContainsNoDuplicatesCS(pCaseSensitive) # Alternative of IsSet()
 		# Checking params
@@ -16270,7 +16446,7 @@ class stzList from stzObject
 	 #  CHECKING IF THE LIST CONTAINS ITEMS THAT ARE NOR DUPLICTAED  #
 	#---------------------------------------------------------------#
 
-	def ContainsItemsThatAreNotDuplicatedCS(pCaseSensitive)
+	def ContainsNonDuplicatedItemsCS(pCaseSensitive)
 		
 		anPos = This.FindDuplicatesXTCS(pCaseSensitive)
 		nLenPos = len(anPos)
@@ -16285,62 +16461,68 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def ContainsItemsThatAreNotDuplicatedCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
 		def ContainsItemsNotDuplicatedCS(pCaseSensitive)
-			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
 
 		def ContainsItemsNonDuplicatedCS(pCaseSensitive)
-			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
 
 		def ContainsAtLeastOneNonDuplicatedItemsCS(pCaseSensitive)
-			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
 
 		def ContainsAtLeastOneItemNonDuplicatedCS(pCaseSensitive)
-			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
 
 		def ContainsAtLeastOneItemNotDuplicatedCS(pCaseSensitive)
-			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
 
 		def ContainsAtLeastOneItemThatIsNonDuplicatedCS(pCaseSensitive)
-			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
 
 		def ContainsAtLeastOneItemThatIsNotDuplicatedCS(pCaseSensitive)
-			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
 
 		def ContainsAtLeastOneNonDuplicatedItemCS(pCaseSensitive)
-			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsItemsThatAreNotDuplicated()
+	def ContainsNonDuplicatedItems()
 		return This.ContainsItemsThatAreNotDuplicatedCS(:CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
+		def ContainsItemsThatAreNotDuplicated()
+			return This.ContainsNonDuplicatedItems()
+
 		def ContainsItemsNotDuplicated()
-			return This.ContainsNoDuplicates()
+			return This.ContainsNonDuplicatedItems()
 
 		def ContainsItemsNonDuplicated()
-			return This.ContainsNoDuplicates()
+			return This.ContainsNonDuplicatedItems()
 
 		def ContainsAtLeastOneNonDuplicatedItems()
-			return This.ContainsNoDuplicates()
+			return This.ContainsNonDuplicatedItems()
 
 		def ContainsAtLeastOneItemNonDuplicated()
-			return This.ContainsNoDuplicates()
+			return This.ContainsNonDuplicatedItems()
 
 		def ContainsAtLeastOneItemNotDuplicated()
-			return This.ContainsNoDuplicates()
+			return This.ContainsNonDuplicatedItems()
 
 		def ContainsAtLeastOneItemThatIsNonDuplicated()
-			return This.ContainsNoDuplicates()
+			return This.ContainsNonDuplicatedItems()
 
 		def ContainsAtLeastOneItemThatIsNotDuplicated()
-			return This.ContainsNoDuplicates()
+			return This.ContainsNonDuplicatedItems()
 
 		def ContainsAtLeastOneNonDuplicatedItem()
-			return This.ContainsNoDuplicates()
+			return This.ContainsNonDuplicatedItems()
 
 		#>
 
@@ -16394,6 +16576,30 @@ class stzList from stzObject
 		def NumberOfUnduplicatedItemsCS(pCaseSensitive)
 			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
 
+		#--
+
+		def HowManyNonDuplicatedItemCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		def HowManyNonDuplicatedItemsCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		#--
+
+		def HowManyNonDuplicatesCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		def HowManyNonDuplicateCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		#--
+
+		def HowManyUnduplicatedItemsCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		def HowManyUnduplicatedItemCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -16409,8 +16615,32 @@ class stzList from stzObject
 		def NumberOfUnduplicatedItems()
 			return This.NumberOfNonDuplicatedItems()
 
-		#>
+		#--
 
+		def HowManyNonDuplicatedItem()
+			return This.NumberOfNonDuplicatedItems()
+
+		def HowManyNonDuplicatedItems()
+			return This.NumberOfNonDuplicatedItems()
+
+		#--
+
+		def HowManyNonDuplicates()
+			return This.NumberOfNonDuplicatedItems()
+
+		def HowManyNonDuplicate()
+			return This.NumberOfNonDuplicatedItems()
+
+		#--
+
+		def HowManyUnduplicatedItems()
+			return This.NumberOfNonDuplicatedItems()
+
+		def HowManyUnduplicatedItem()
+			return This.NumberOfNonDuplicatedItems()
+
+		#>
+vvvv
 	  #--------------------------------#
 	 #  FINDING NON DUPLICATED ITEMS  #
 	#--------------------------------#
@@ -16536,10 +16766,19 @@ class stzList from stzObject
 		def HowManyDuplicatesCS(pCaseSensitive)
 			return This.NumberOfDuplicatesCS(pCaseSensitive)
 
+		def HowManyDuplicateCS(pCaseSensitive)
+			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
 		def HowManyDuplicatedItemsCS(pCaseSensitive)
 			return This.NumberOfDuplicatesCS(pCaseSensitive)
 
+		def HowManyDuplicatedItemCS(pCaseSensitive)
+			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
 		def HowManyDuplicationsCS(pCaseSensitive)
+			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
+		def HowManyDuplicationCS(pCaseSensitive)
 			return This.NumberOfDuplicatesCS(pCaseSensitive)
 
 		#>
@@ -16548,6 +16787,10 @@ class stzList from stzObject
 
 		def HowManuDuplicatesCS(pCaseSensitive)
 			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
+		def HowManuDuplicateCS(pCaseSensitive)
+			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
 
 		#>
 
@@ -16569,10 +16812,19 @@ class stzList from stzObject
 		def HowManyDuplicates()
 			return This.NumberOfDuplicates()
 
+		def HowManyDuplicate()
+			return This.NumberOfDuplicates()
+
 		def HowManyDuplicatedItems()
 			return This.NumberOfDuplicates()
 
+		def HowManyDuplicatedItem()
+			return This.NumberOfDuplicates()
+
 		def HowManyDuplications()
+			return This.NumberOfDuplicates()
+
+		def HowManyDuplication()
 			return This.NumberOfDuplicates()
 
 		#>
@@ -16580,6 +16832,9 @@ class stzList from stzObject
 		#< @FunctionMisspelledForm
 
 		def HowManuDuplicates()
+			return This.NumberOfDuplicates()
+
+		def HowManuDuplicate()
 			return This.NumberOfDuplicates()
 
 		#>
@@ -18626,7 +18881,7 @@ class stzList from stzObject
 		LEVELS OF THE LIST, and
 		SUBLISTS OF THE LIST --> LISTS IN LEVEL 1 OF THE LIST
 
-	- Insure they are all consistent and correct
+	- Ensure they are all consistent and correct
 
 	*/
 
@@ -18795,12 +19050,19 @@ class stzList from stzObject
 
 		return nResult
 
+		#< @FunctionAlternativeForms
+
 		def CountLevels()
 			return This.NumberOfLevels()
 
 		def HowManyLevels()
 			return This.NumberOfLevels()
 
+		def HowManyLevel()
+			return This.NumberOfLevels()
+
+		#>
+	
 	def Depth()
 		return This.NumberOfLevels()
 
@@ -21821,6 +22083,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def HowManyNumers()
 			return This.NumberOfNumbers()
 
+		def HowManyNumer()
+			return This.NumberOfNumbers()
+
 	def FindNumbers()
 		aContent = This.Content()
 		nLen = len(acontent)
@@ -22075,6 +22340,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return This.NumberOfStrings()
 
 		def HowManyStrings()
+			return This.NumberOfStrings()
+
+		def HowManyString()
 			return This.NumberOfStrings()
 
 	def FindStrings()
@@ -22586,6 +22854,10 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def HowManyListsOfStrings()
 			return This.NumberOfListsOfStrings()
 
+		def HowManyListOfStrings()
+			return This.NumberOfListsOfStrings()
+
+
 	#----
 
 	def LowercaseListsOfStrings()
@@ -22629,6 +22901,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return This.NumberOfLists()
 
 		def HowManyLists()
+			return This.NumberOfLists()
+
+		def HowManyList()
 			return This.NumberOfLists()
 
 	def Lists()
@@ -22956,6 +23231,10 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def HowManyObjects()
 			return This.NumberOfObjects()
 
+		def HowManyObject()
+			return This.NumberOfObjects()
+
+
 	def Objects()
 		/* WARNING
 
@@ -23168,16 +23447,39 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		def HowManyItemsW(pcCondition)
 			return This.CountItemsW(pCondition)
+
+		def HowManyItemW(pcCondition)
+			return This.CountItemsW(pCondition)
+
 		#>
 			
 	def NumberOfUniqueItemsW(pCondition)
 		return len( This.UniqueItemsW(pCondition) )
 
+		#< @FunctionAlternativeForms
+
+		def NumberOfItemsUW(pCondition)
+			return This.NumberOfUniqueItemsW(pCondition)
+
 		def CountUniqueItemsW(pccondition)
+			return This.NumberOfUniqueItemsW(pCondition)
+
+		def CountItemsUW(pccondition)
 			return This.NumberOfUniqueItemsW(pCondition)
 
 		def HowManyUniqueItemsW(pcCondition)
 			return This.NumberOfUniqueItemsW(pCondition)
+
+		def HowManyUniqueItemW(pcCondition)
+			return This.NumberOfUniqueItemsW(pCondition)
+
+		def HowManyItemsUW(pcCondition)
+			return This.NumberOfUniqueItemsW(pCondition)
+
+		def HowManyItemUW(pcCondition)
+			return This.NumberOfUniqueItemsW(pCondition)
+
+		#>
 
 	  #--------------------------------------------------------------------#
 	 #  INSERTING ITEM AFTER OR BEFORE ITEMS VERIFYING A GIVEN CONDITION  #
@@ -24885,6 +25187,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def HowManyOccurrencesOfSmallestItem()
 			return This.NumberOfOccurrencesOfSmallestItem()
 
+		def HowManyOccurrenceOfSmallestItem()
+			return This.NumberOfOccurrencesOfSmallestItem()
+
 	def NumberOfOccurrencesOfLargestItem()
 		return len( This.FindAllOccurrencesOfLargestItem() )
 
@@ -24904,6 +25209,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return This.NumberOfOccurrencesOfLargestItem()
 
 		def HowManyOccurrencesOfLargestItem()
+			return This.NumberOfOccurrencesOfLargestItem()
+
+		def HowManyOccurrenceOfLargestItem()
 			return This.NumberOfOccurrencesOfLargestItem()
 
 	  #--------------------------------------------------------------------#
