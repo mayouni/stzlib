@@ -2282,17 +2282,30 @@ class stzString from stzObject
 
 		return nResult
 
+		#< @FunctionAlternativeForms
+
 		def HowManySubstringsCS(pCaseSensitive)
-			return This.NumberOfSubStrings(pCaseSensitive)
+			return This.NumberOfSubStringsCS(pCaseSensitive)
+
+		def HowManySubstringCS(pCaseSensitive)
+			return This.NumberOfSubStringsCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfSubStrings()
 		return This.NumberOfSubStringsCS(:CaseSensitive = TRUE)
 
-		def HowManySubStrings()
+		#< @FunctionAlternativeForms
+
+		def HowManySubstrings()
 			return This.NumberOfSubStrings()
 
+		def HowManySubstring()
+			return This.NumberOfSubStrings()
+
+		#>
 	  #-------------------------------------------------------------#
 	 #  GETTING THE LIST OF ALL POSSIBLE SUBSTRINGS IN THE STRING  #
 	#-------------------------------------------------------------#
@@ -2409,7 +2422,13 @@ class stzString from stzObject
 		def HowManyUniqueSubstringsCS(pCaseSensitive)
 			return This.NumberOfUniqueSubStringsCS(pCaseSensitive)
 
+		def HowManyUniqueSubstringCS(pCaseSensitive)
+			return This.NumberOfUniqueSubStringsCS(pCaseSensitive)
+
 		def HowManySubStringsUCS(pCaseSensitive)
+			return This.NumberOfUniqueSubStringsCS(pCaseSensitive)
+
+		def HowManySubStringUCS(pCaseSensitive)
 			return This.NumberOfUniqueSubStringsCS(pCaseSensitive)
 
 		#>
@@ -2427,7 +2446,13 @@ class stzString from stzObject
 		def HowManyUniqueSubstrings()
 			return This.NumberOfUniqueSubStrings()
 
+		def HowManyUniqueSubstring()
+			return This.NumberOfUniqueSubStrings()
+
 		def HowManySubStringsU()
+			return This.NumberOfUniqueSubStrings()
+
+		def HowManySubStringU()
 			return This.NumberOfUniqueSubStrings()
 
 		#>
@@ -3005,6 +3030,9 @@ class stzString from stzObject
 		def HowManyMarquers()
 			return This.NumberOfMarquers()
 
+		def HowManyMarquer()
+			return This.NumberOfMarquers()
+
 	  #-------------------------------------------------------------#
 	 #  GETTING THE NUMBER OF CHARS IN EACH MARQUER IN THE STRING  #
 	#=============================================================#
@@ -3017,6 +3045,8 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def SizeOfEachMarquer()
 			return This.NumberOfCharsInEachMarquer()
 
@@ -3028,6 +3058,11 @@ class stzString from stzObject
 
 		def HowManyCharsInEachMarquer()
 			return This.NumberOfCharsInEachMarquer()
+
+		def HowManyCharInEachMarquer()
+			return This.NumberOfCharsInEachMarquer()
+
+		#>
 
 	  #-------------------------------#
 	 #   MFINDING ARQUERS POSITIONS  #
@@ -4668,8 +4703,15 @@ class stzString from stzObject
 		nResult = len( This.DuplicatesCS(pCaseSensitive) )
 		return nResult
 
+		#< @FunctionAlternativeForms
+
 		def HowManyDuplicatesCS(pCaseSensitive)
 			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
+		def HowManyDuplicateCS(pCaseSensitive)
+			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
+		#>
 
 		#< @FunctionMisspelledForm
 
@@ -4683,8 +4725,15 @@ class stzString from stzObject
 	def NumberOfDuplicates()
 		return This.NumberOfDuplicatesCS(:CaseSensitive = TRUE)
 
+		#< @functionAlternativeForms
+
 		def HowManyDuplicates()
 			return This.NumberOfDuplicates()
+
+		def HowManyDuplicate()
+			return This.NumberOfDuplicates()
+
+		#>
 
 		#< @FunctionMisspelledForm
 
@@ -5183,7 +5232,13 @@ class stzString from stzObject
 		def HowManyBytes()
 			return This.NumberOfBytes()
 
+		def HowManyByte()
+			return This.NumberOfBytes()
+
 		def LengthInBytes()
+			return This.NumberOfBytes()
+
+		def LengthInByte()
 			return This.NumberOfBytes()
 
 		#>
@@ -5198,10 +5253,15 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeFormss
+
 		def CountBytesPerChar()
 			return This.NumberOfBytesPerChar()
 
 		def HowManyBytesPerChar()
+			return This.NumberOfBytesPerChar()
+
+		def HowManyBytePerChar()
 			return This.NumberOfBytesPerChar()
 
 	  #------------------------------#
@@ -5211,7 +5271,7 @@ class stzString from stzObject
 	def Bytes()
 		return This.ToStzListOfBytes().Content()
 
-		#< @FunctionFluentForm
+		#< @FunctionFluentForms
 
 		def BytesQ()
 			return This.ToStzListOfBytes()
@@ -5222,13 +5282,9 @@ class stzString from stzObject
 
 		def ToListOfBytes()
 			return This.Bytes()
-
-			#< @FunctionFluentForm
 	
 			def ToListOfBytesQ()
 				return This.BytesQ()
-		
-			#>
 	
 		#>
 
@@ -8711,10 +8767,16 @@ class stzString from stzObject
 		def HowManyLeadingRepeatedCharsCS(pCaseSensitive)
 			return This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
 
+		def HowManyLeadingRepeatedCharCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+
 		def CountLeadingCharsCS(pCaseSensitive)
 			return This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
 
 		def HowManyLeadingCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+
+		def HowManyLeadingCharCS(pCaseSensitive)
 			return This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
 
 		#>
@@ -8738,10 +8800,16 @@ class stzString from stzObject
 		def HowManyLeadingRepeatedChars()
 			return This.NumberOfRepeatedLeadingChars()
 
+		def HowManyLeadingRepeatedChar()
+			return This.NumberOfRepeatedLeadingChars()
+
 		def CountLeadingChars()
 			return This.NumberOfRepeatedLeadingChars()
 
 		def HowManyLeadingChars()
+			return This.NumberOfRepeatedLeadingChars()
+
+		def HowManyLeadingChar()
 			return This.NumberOfRepeatedLeadingChars()
 
 		#>
@@ -11914,11 +11982,18 @@ class stzString from stzObject
 
 		return nResult
 
+		#< @FunctionAlternativeForms
+
 		def CountAntiSections(paSections)
 			return This.NumberOfAntiSections(paSections)
 
 		def HowManyAntiSections(paSections)
 			return This.NumberOfAntiSections(paSections)
+
+		def HowManyAntiSection(paSections)
+			return This.NumberOfAntiSections(paSections)
+
+		#>
 
 	   #-------------------------------------------------------------#
 	  #   FINDING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS AND  #
@@ -37867,6 +37942,8 @@ def ReplaceIBS()
 	def NumberOfCharsW(pcCondition)
 		return len( This.CharsW(pcCondition) )
 
+		#< @FunctionAlternativeForms
+
 		def NumberOfCharsWhere(pcCondition)
 			return This.NumberOfCharsW(pcCondition)
 
@@ -37879,7 +37956,13 @@ def ReplaceIBS()
 		def HowManyCharsW(pcCondition)
 			return This.NumberOfCharsW(pcCondition)
 
+		def HowManyCharW(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
 		def HowManyCharsWhere(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
+		def HowManyCharWhere(pcCondition)
 			return This.NumberOfCharsW(pcCondition)
 
 		# Items-based naming as required for natural-coding
@@ -37893,8 +37976,16 @@ def ReplaceIBS()
 		def HowManyItemsW(pcCondition)
 			return This.NumberOfCharsW(pcCondition)
 
+		def HowManyItemW(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
 		def HowManyItemsWhere(pcCondition)
 			return This.NumberOfCharsW(pcCondition)
+
+		def HowManyItemWhere(pcCondition)
+			return This.NumberOfCharsW(pcCondition)
+
+		#>
 
 	  #-----------------------#
 	 #   STRING IS A CHAR?   #
@@ -38470,6 +38561,9 @@ def ReplaceIBS()
 		def HowManyCharsCS(pCaseSensitive)
 			return This.NumberOfCharsCS(pCaseSensitive)
 
+		def HowManyCharCS(pCaseSensitive)
+			return This.NumberOfCharsCS(pCaseSensitive)
+
 		#>
 
 		#< @FunctionMisspelledForm
@@ -38515,6 +38609,9 @@ def ReplaceIBS()
 		def HowManyChars()
 			return This.NumberOfChars()
 
+		def HowManyChar()
+			return This.NumberOfChars()
+
 		#>
 
 		#< @FunctionMisspelledForm
@@ -38531,11 +38628,18 @@ def ReplaceIBS()
 	def NumberOfLetters()
 		return len(This.OnlyLetters())
 	
+		#< @FunctionAlternativeForms
+
 		def CountLetters()
 			return This.NumberOfLetters()
 
 		def HowManyLetters()
 			return This.NumberOfLetters()
+
+		def HowManyLetter()
+			return This.NumberOfLetters()
+
+		#>
 
 	  #-----------------------#
 	 #   NUMBER OF SPACES    #
@@ -38544,15 +38648,22 @@ def ReplaceIBS()
 	def NumberOfSpaces()
 		return len(This.FindAll(" "))
 
+		#< @FunctionAlternativeForms
+
 		def CountSpaces()
 			return This.NumberOfSpaces()
 
 		def HowManySpaces()
 			return This.NumberOfSpaces()
 
-	  #-----------------------#
-	 #   IS IT A LETTER?     #
-	#-----------------------#
+		def HowManySpace()
+			return This.NumberOfSpaces()
+
+		#>
+
+	  #---------------------------------------#
+	 #   ِCHEKING IF THE STRING IS A LETTER   #
+	#---------------------------------------#
 
 	def IsLetter()
 		if This.IsChar() and StzCharQ(This.Content()).IsLetter()
@@ -38561,8 +38672,18 @@ def ReplaceIBS()
 			return FALSE
 		ok
 		
+		#< @FunctionAlternativeForms
+
 		def IsALetter()
 			return This.IsLetter()
+
+		def ContainsJustALetter()
+			return This.IsLetter()
+
+		def ContainsOnlyALetter()
+			return This.IsLetter()
+
+		#>
 
 		#< @FunctionNegativeForm
 
@@ -38574,6 +38695,10 @@ def ReplaceIBS()
 
 		#>
 
+	  #----------------------------------------------------------#
+	 #   ِCHEKING IF THE STRING IS A LETTER OF AN OTHER STRING   #
+	#----------------------------------------------------------#
+
 	def IsLetterOf(pcOtherStr)
 		if This.IsLetter() and Q(pcOtherStr).ContainsLetter(This.Content())
 			return TRUE
@@ -38584,26 +38709,92 @@ def ReplaceIBS()
 		def IsALetterOf(pcOtherStr)
 			return This.IsLetterOf(pcOtherStr)
 
+	  #-----------------------------------------------#
+	 #   ِGETTING THE LIST OF LETTERS IN THE STRING   #
+	#-----------------------------------------------#
+
 	def Letters()
+		aoChars = This.CharsQ().ToListOfStzStrings()
+		nLen = len(acChars)
 		aResult = []
 		
-		# TODO: Replace for/in with for --> better performance
-		for c in This.Chars()
-			if Q(c).IsALetter()
-				aResult + c
+		for i = 1 to nLen
+			if aoChars[i].IsALetter()
+				aResult + aoChars[i].Content()
 			ok
 		next
+
 		return aResult
 
 		def LettersQ()
-			return new stzList( This.Letters() )
+			return This.LettersQR(:stzList)
+
+		def LettersQR(pcReturnType)
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Letters() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Letters() )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.Letters() )
+			off
+
+	  #----------------------------------------------------------------------#
+	 #   ِGETTING THE LIST OF LETTERS IN THE STRING  -- WITHOUT DUPLICATION  #
+	#----------------------------------------------------------------------#
 
 	def UniqueLetters()
-		return This.LettersQ().DuplicatesRemoved()
+		acResult = This.LettersQ().DuplicatesRemoved()
+		return acResult
 
-	  #------------------------------------------------------#
-	 #    STRING IS IN A COMPUTABLE FORM ("str" or 'str')   #
-	#------------------------------------------------------#
+		#< @FunctionFluentForms
+
+		def UniqueLettersQ()
+			return This.UniqueLettersQR(:stzList)
+
+		def UniqueLettersQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.UniqueLetters() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.UniqueLetters() )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.UniqueLetters() )
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def LettersU()
+			return This.UniqueLetters()
+
+			def LettersUQ()
+				return This.LettersUQR(:stzList)
+
+			def LettersUQR(pcReturnType)
+				return This.UniqueLettersQR(pcReturnType)
+	
+		def LettersWithoutDuplication()
+			return This.UniqueLetters()
+
+			def LettersWithoutDuplicationQ()
+				return This.LettersWithoutDuplicationQR(:stzList)
+
+			def LettersWithoutDuplicationQR(pcReturnType)
+				return This.UniqueLettersQR(pcReturnType)
+		#
+
+		#TODO: Add ...WithoutDuplication() as alternative to ...Unique/U() extensions
+
+	  #----------------------------------------------------------------------#
+	 #    CHECKING IF THE STRING IS IN A COMPUTABLE FORM ("str" or 'str')   #
+	#----------------------------------------------------------------------#
 
 	def IsInComputableForm()
 		if This.NumberOfChars() > 2 and
@@ -38615,20 +38806,28 @@ def ReplaceIBS()
 			return FALSE
 		ok
 	
-	  #-------------------------#
-	 #    MADE OF SUBSTRINGS   #
-	#-------------------------#
+		def IsWellFormed()
+			return This.IsInComputableForm()
 
-	def IsMadeOf(acSubStr)
+	  #------------------------------------------------------------#
+	 #   CHECKING IF THE STRING IS MADE OF THE GIVEN SUBSTRINGS   #
+	#------------------------------------------------------------#
+
+	def IsMadeOfCS(acSubStr, pCaseSensitive)
+		IF NOT ( isList(acSubStr) and Q(acSubStr).IsListOfStrings() )
+			StzRaise("Incorrect param type! acSubStr must be a list of strings.")
+		ok
+
 		oCopy = This.Copy()
 		
-		# TODO: Replace for/in with for --> better performance
-		for cSubstr in acSubStr
-			if NOT This.Contains(cSubStr)
+		nLen = len(acSubStr)
+
+		for i = 1 to nLen
+			if NOT This.ContainsCS(acSubStr[i], pCaseSensitive)
 				return FALSE
 			ok
 
-			oCopy.RemoveAll(cSubStr)
+			oCopy.RemoveAllCS(cSubStr, pCaseSensitive)
 		next
 
 		if oCopy.IsEmpty()
@@ -38637,18 +38836,46 @@ def ReplaceIBS()
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
+		def IsMadeOfTheseCS(acSubStr, pCaseSensitive)
+			return This.IsMadeOfCS(acSubStr, pCaseSensitive)
+
+		def IsMadeOfTheseSubstringsCS(acSubStr, pCaseSensitive)
+			This.IsMadeOfCS(acSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsMadeOf(acSubStr)
+		return This.IsMadeOfCS(acSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
 		def IsMadeOfThese(acSubStr)
 			return This.IsMadeOf(acSubStr)
 
 		def IsMadeOfTheseSubstrings(acSubStr)
 			This.IsMadeOf(acSubStr)
 
-	def IsMadeOfTheseChars(acChars)
+		#>
+
+	  #-------------------------------------------------------#
+	 #   CHECKING IF THE STRING IS MADE OF THE GIVEN CHARS   #
+	#-------------------------------------------------------#
+
+	def IsMadeOfTheseCharsCS(acChars, pCaseSensitive)
 		if ListIsListOfChars(acChars)
-			return This.IsMadeOf(acChars)
+			return This.IsMadeOfCS(acChars, pCaseSensitive)
 		else
 			stzRaise("You must provide a list of chars!")
 		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsMadeOfTheseChars(acChars)
+		return This.IsMadeOfTheseCharsCS(acChars, :CaseSensitive = TRUE)
 
 	  #---------------------------------------------#
 	 #  CHECKING IF THE STRING IS MADE OF LETTERS  #
@@ -38666,9 +38893,9 @@ def ReplaceIBS()
 
 		return bResult
 
-	  #---------------------#
-	 #    MADE OF SPACES   #
-	#---------------------#
+	  #-----------------------------------------------#
+	 #   CHEKCIKNG IF THE STRING IS MADE OF SPACES   #
+	#-----------------------------------------------#
 	
 	def IsMadeOfSpaces()
 		if This.NumberOfSpaces() = This.NumberOfChars()
@@ -38676,6 +38903,9 @@ def ReplaceIBS()
 		else
 			return FALSE
 		ok
+
+		def IsBlank()
+			return This.IsMadeOfSpaces()
 
 	  #-----------------#
 	 #   MULTIPLY BY   #	TODO: reclassify it with other calculations
@@ -38701,7 +38931,7 @@ def ReplaceIBS()
 			cResult = NULL
 			cTemp = NULL
 
-			for i=1 to This.NumberOfChars()
+			for i = 1 to This.NumberOfChars()
 				cTemp = @oQString.mid(i-1,1) + pValue
 				cResult += cTemp
 			next
@@ -38711,8 +38941,8 @@ def ReplaceIBS()
 			cResult = ""
 			cTemp = ""
 				
-			for i=1 to This.NumberOfChars()
-				for v=1 to len(aValue)
+			for i = 1 to This.NumberOfChars()
+				for v = 1 to len(aValue)
 					cTemp = @oQString.mid(i-1,1) + aValue[v]
 					cResult += cTemp 
 				next
@@ -42077,31 +42307,48 @@ def ReplaceIBS()
 	def NumberOfNumbers()
 		return len( This.Numbers() )
 
+		#< @FunctionAlternativeForms
+
 		def CountNumbers()
 			return This.NumberOfNumbers()
 
 		def HowManyNumbers()
 			return This.NumberOfNumbers()
 
+		def HowManyNumber()
+			return This.NumberOfNumbers()
+
+		#>
+
 	  #-------------------------------------------------------------------------#
 	 #  GETTING THE NUMBERS INCLUDED IN THE STRING ALONG WITH THEIR POSITIONS  #
 	#-------------------------------------------------------------------------#
 
-	def NumbersAndTheirPositions() # TODO: Enhance performance!
-		return Q(This.UniqueNumbers()).AssociatedWith( This.FindNumbers() )
+	def NumbersAndTheirPositions() # TODO: Check performance!
+		aResult = Q(This.UniqueNumbers()).AssociatedWith( This.FindNumbers() )
+		return aResult
+
+		def NumbersZ()
+			return This.NumbersAndTheirPositions()
 
 	  #------------------------------------------------------------------------#
 	 #  GETTING THE NUMBERS INCLUDED IN THE STRING ALONG WITH THEIR SECTIONS  #
 	#------------------------------------------------------------------------#
 
-	def NumbersAndTheirSections() # TODO: Enhance performance!
+	def NumbersAndTheirSections() # TODO: chek performance!
 		aResult = []
+		acNumbersU = This.UniqueNumbers()
+		nLen = len(acNumbersU)
 
-		for cNumber in This.UniqueNumbers()
-			aResult + [ cNumber, This.FindAsSections(cNumber) ]
+		for i = 1 to nLen
+			aResult + [ acNumbersU[i], This.FindAsSections(acNumbersU[i]) ]
 		next
 
 		return aResult
+
+
+		def NumbersZZ()
+			return This.NumbersAndTheirSections()
 
 	  #----------------------------------------------------#
 	 #  GETTING THE LIST OF UNIQUE NUMBERS IN THE STRING  #
@@ -42119,6 +42366,33 @@ def ReplaceIBS()
 
 	def NumberOfUniqueNumbers()
 		return len( This.UniqueNumbers() )
+
+		#< @FunctionAlternativeForms
+
+		def CountUniqueNumbers()
+			return This.NumberOfUniqueNumbers()
+
+		def NumberOfNumbersU()
+			return This.NumberOfUniqueNumbers()
+
+		def CountNumbersU()
+			return This.NumberOfUniqueNumbers()
+
+		#--
+
+		def HowManyUniqueNumbers()
+			return This.NumberOfUniqueNumbers()
+
+		def HowManyNumbersU()
+			return This.NumberOfUniqueNumbers()
+
+		def HowManyUniqueNumber()
+			return This.NumberOfUniqueNumbers()
+
+		def HowManyNumberU()
+			return This.NumberOfUniqueNumbers()
+
+		#>
 
 	  #----------------------------------------------------------------#
 	 #  FINDING (DECIMAL) NUMBERS IN THE STRING (POSITIONS RETURNED)  #
@@ -44308,6 +44582,9 @@ def ReplaceIBS()
 	def HowManySubStringsBoundedByCS(pacBounds, pCaseSensitive)
 		return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
+	def HowManySubStringBoundedByCS(pacBounds, pCaseSensitive)
+		return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
 	def NumberOfSubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
 			pcBound2 = pcBound2[2]
@@ -44321,12 +44598,18 @@ def ReplaceIBS()
 	def HowManySubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 		return This.NumberOfSubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 
+	def HowManySubStringBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+		return This.NumberOfSubStringsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def CountSubStringsBoundedBy(pacBounds)
 		return This.NumberOfSubStringsBoundedBy(pacBounds)
 
 	def HowManySubStringsBoundedBy(pacBounds)
+		return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+	def HowManySubStringBoundedBy(pacBounds)
 		return This.NumberOfSubStringsBoundedBy(pacBounds)
 
 	#--
@@ -44342,6 +44625,9 @@ def ReplaceIBS()
 		return This.NumberOfSubStringsBetween(pcBound1, pcBound2)
 
 	def HowManySubStringsBetween(pcBound1, pcBound2)
+		return This.NumberOfSubStringsBetweenCS(pcBound1, pcBound2)
+
+	def HowManySubStringBetween(pcBound1, pcBound2)
 		return This.NumberOfSubStringsBetweenCS(pcBound1, pcBound2)
 
 	  #----------------------------------------#

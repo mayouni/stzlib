@@ -301,6 +301,8 @@ class stzListOfStrings from stzList
 	def NumberOfStringItems()
 		return len( This.Content() )
 
+		#< @FunctionAlternativeForms
+
 		def NumberOfStrings()
 			return This.NumberOfStringItems()
 
@@ -316,8 +318,16 @@ class stzListOfStrings from stzList
 		def HowManyStrings()
 			return This.NumberOfStringItems()
 
+		def HowManyString()
+			return This.NumberOfStringItems()
+
 		def HowManyStringItems()
 			return This.NumberOfStringItems()
+
+		def HowManyStringItem()
+			return This.NumberOfStringItems()
+
+		#>
 
 	  #------------------------------------------------------------#
 	 #    GETTING THE SIZE IN BYTES OF THE LIST AND ITS ITEMS     #
@@ -334,11 +344,18 @@ class stzListOfStrings from stzList
 
 		return nSizeInBytes
 
+		#< @FunctionAlternativeForms
+
 		def NumberOfBytes()
 			return This.SizeInBytes()
 
 		def HowManyBytes()
 			return This.SizeInBytes()
+
+		def HowManyByte()
+			return This.SizeInBytes()
+
+		#>
 
 	def SizeInBytesOfEachStringItem()
 		anResult = []
@@ -350,6 +367,8 @@ class stzListOfStrings from stzList
 		next
 
 		return anResult
+
+		#< @FunctionAlternativeForms
 
 		def SizeInBytesOfEachString()
 			return This.SizeInBytesOfEachStringItem()
@@ -363,9 +382,16 @@ class stzListOfStrings from stzList
 		def HowManyBytesInEachString()
 			return This.SizeInBytesOfEachStringItem()
 
+		def HowManyByteInEachString()
+			return This.SizeInBytesOfEachStringItem()
+
 		def HowManyButesInEachStringItem()
 			return This.SizeInBytesOfEachStringItem()
 
+		def HowManyButeInEachStringItem()
+			return This.SizeInBytesOfEachStringItem()
+
+		#>
 
 	def StringItemsAndTheirSizesInBytes()
 		aResult = []
@@ -378,6 +404,8 @@ class stzListOfStrings from stzList
 		next
 
 		return anResult
+
+		#< @FunctionAlternativeForms
 
 		def StringsAndTheirSizesInBytes()
 			return This.StringItemsAndTheirSizesInBytes()
@@ -393,6 +421,8 @@ class stzListOfStrings from stzList
 
 		def StringsAndTheirNumbersOfBytes()
 			return This.StringItemsAndTheirSizesInBytes()
+
+		#>
 
 	  #-------------------------------------------------------------#
 	 #  CHECKING IF THE SIZE OF EACH STRING EQUALS A GIVEN NUMBER  #
@@ -16259,6 +16289,9 @@ stop()
 	 #   CHECKING IF THE LIST CONTAINS DUPLICATED STRINGS   #
 	#======================================================#
 
+	# TODO: Reuse the Duplication code from steList!
+	# --> Hormonize the semantics
+
 	def ContainsDuplicatedStringsCS(pCaseSensitive)
 		bResult = FALSE
 		nLen = This.NumberOfStrings()
@@ -16554,12 +16587,18 @@ stop()
 		def HowManyDuplicatesCS(pCaseSensitive)
 			return This.NumberOfDuplicatesCS(pCaseSensitive)
 
+		def HowManyDuplicateCS(pCaseSensitive)
+			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDuplicates()
 		return This.NumberOfDuplicatesCS(:CaseSensitive = TRUE)
 
 		def HowManyDuplicates()
+			return This.NumberOfDuplicates()
+
+		def HowManyDuplicate()
 			return This.NumberOfDuplicates()
 
 	  #----------------------#
@@ -16658,7 +16697,13 @@ stop()
 		def HowManyDuplicatedStringsCS(pCaseSensitive)
 			return This.NumberOfDuplicatedStringsCS(pCaseSensitive)
 
+		def HowManyDuplicatedStringCS(pCaseSensitive)
+			return This.NumberOfDuplicatedStringsCS(pCaseSensitive)
+
 		def HowManyDuplicatedStringItemsCS(pCaseSensitive)
+			return This.NumberOfDuplicatedStringsCS(pCaseSensitive)
+
+		def HowManyDuplicatedStringItemCS(pCaseSensitive)
 			return This.NumberOfDuplicatedStringsCS(pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -16672,7 +16717,13 @@ stop()
 		def HowManyDuplicatedStrings()
 			return This.NumberOfDuplicatedStrings()
 
+		def HowManyDuplicatedString()
+			return This.NumberOfDuplicatedStrings()
+
 		def HowManyDuplicatedStringItems()
+			return This.NumberOfDuplicatedStrings()
+
+		def HowManyDuplicatedStringItem()
 			return This.NumberOfDuplicatedStrings()
 
 	  #------------------------#
