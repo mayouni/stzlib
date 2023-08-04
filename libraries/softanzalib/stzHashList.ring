@@ -476,6 +476,12 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		aResult = This.ValuesQ().DuplicatesRemoved()
 		return aResult
 
+		def ValuesU()
+			return This.UniqueValues()
+
+		def ValuesWithoutDuplication()
+			return This.UniqueValues()
+
 	def ValuesAtPositions(anPositions)
 		aResult = This.ValuesQ().ItemsAtPositions(anPositions)
 		return aResult

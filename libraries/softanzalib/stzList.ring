@@ -17748,6 +17748,9 @@ vvvv
 		def ItemsUCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
+		def ItemsWithoutDuplicationCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
 		def DuplicatedItemsRemovedCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
@@ -17832,6 +17835,15 @@ vvvv
 				return This.ToSetQR(:stzList)
 			
 			def ItemsUQR(pcReturnType)
+				return This.ToSetQR(pcReturnType)
+
+		def ItemsWithoutDuplication()
+			return This.DuplicatesRemoved()
+
+			def ItemsWithoutDuplicationQ()
+				return This.ToSetQR(:stzList)
+
+			def ItemsWithoutDuplicationQR(pcReturnType)
 				return This.ToSetQR(pcReturnType)
 
 		def DuplicatedItemsRemoved()
@@ -21934,14 +21946,27 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		aResult = This.ItemsWQ(pCondition).ToSet()
 		return aResult
 
+		#< @FunctionFluentForm
+
 		def UniqueItemsWQ(pCondition)
 			return new stzList( This.UniqueItemsW(pCondition) )
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def UniqueItemsWhere(pCondition)
 			return This.UniqueItemsW(pCondition)
 
 			def UniqueItemsWhereQ(pCondition)
-				return new stzList( This.UniqueItemsWhere(pcCondition) )
+				return This.UniqueItemsWQ(pCondition)
+
+		def ItemsWithoutDuplicationW(pCondition)
+			return This.UniqueItemsW(pCondition)
+
+			def ItemsWithoutDuplicationWQ(pCondition)
+				return This.UniqueItemsWQ(pCondition)
+		#>
 
 	  #===============================================#
 	 #   GETTING ALL ITEMS EXCEPT THE ONE PRPVIDED   #
@@ -25004,7 +25029,8 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		aResult = This.ListQ().AssociatedWith( This.Types() )
 		return aResult
 
-	def UniqueTypes()
+	def UniqueTypes() # TODO: Review it for performance!
+
 		aResult = []
 		for item in This.List()
 			if NOT StzListQ(aResult).Contains( ring_type(item) )
@@ -25012,6 +25038,12 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			ok
 		next
 		return aResult
+
+		def TypesU()
+			return This.UniqueTypes()
+
+		def TypesWithoutDuplication()
+			return This.UniqueTypes()
 
 	  #-------------------------------------------------------------#
 	 #  CHECKING IF THE LIST STARTS WITH A GIVEN SUBLIST OF ITEMS  #
