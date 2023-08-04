@@ -4,7 +4,7 @@
 #---------------------------------------------------------------------------#
 #									    #
 # 	Description	: The class for managing tables in SoftanzaLib      #
-#	Version		: V1.0 (2020-2022)				    #
+#	Version		: V1.0 (2020-2023)				    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
 #---------------------------------------------------------------------------#

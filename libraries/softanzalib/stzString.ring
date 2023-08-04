@@ -2732,12 +2732,18 @@ class stzString from stzObject
 		def NumberOfUniqueSubStringsMadeOfNCharsCS(n, pCaseSensitive)
 			return This.NumberOfUniqueSubStringsOfNCharsCS(n, pCaseSensitive)
 	
+		def HowManyUniqueSubStringsOfNCharsCS(n, pCaseSensitive)
+			return This.NumberOfUniqueSubStringsOfNCharsCS(n, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfUniqueSubStringsOfNChars(n)
 		return This.NumberOfUniqueSubStringsOfNCharsCS(n, :CaseSensitive = TRUE)
 
 		def NumberOfUniqueSubStringsMadeOfNChars(n)
+			return This.NumberOfUniqueSubStringsOfNChars(n)
+
+		def HowManyUniqueSubStringsOfNChars(n)
 			return This.NumberOfUniqueSubStringsOfNChars(n)
 
 	  #=================================================#

@@ -4,7 +4,7 @@
 #---------------------------------------------------------------------------#
 #									    #
 # 	Description	: The core class for managing lists in Softanza     #
-#	Version		: V1.0 (2020-2022)				    #
+#	Version		: V1.0 (2020-2023)				    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
 #---------------------------------------------------------------------------#
@@ -23502,6 +23502,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return This.NumberOfUniqueItemsW(pCondition)
 
 		def HowManyItemUW(pcCondition)
+			return This.NumberOfUniqueItemsW(pCondition)
+
+		def NumberOfItemsWithoutDuplicationW(pCondition)
 			return This.NumberOfUniqueItemsW(pCondition)
 
 		#>
