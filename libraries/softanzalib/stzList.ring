@@ -16085,6 +16085,9 @@ class stzList from stzObject
 		def ContainsDuplicationsCS(pCaseSensitive)
 			return This.ContainsDuplicatesCS(pCaseSensitive)
 
+		def ContainsDuplicationCS(pCaseSensitive)
+			return This.ContainsDuplicatesCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -16098,6 +16101,9 @@ class stzList from stzObject
 			return This.ContainsDuplicates()
 
 		def ContainsDuplications()
+			return This.ContainsDuplicates()
+
+		def ContainsDuplication()
 			return This.ContainsDuplicates()
 
 		#>
@@ -16381,6 +16387,12 @@ class stzList from stzObject
 		def ContainsNoDuplicationsAtAllCS(pCaseSensitive)
 			return This.ContainsNoDuplicatesCS(pCaseSensitive)
 
+		def ContainsNoDuplicationCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+		def ContainsNoDuplicationAtAllCS(pCaseSensitive)
+			return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
 		def NoItemsAreDuplicatedCS(pCaseSensitive)
 			return This.ContainsNoDuplicatesCS(pCaseSensitive)
 
@@ -16423,6 +16435,12 @@ class stzList from stzObject
 		def ContainsNoDuplicationsAtAll()
 			return This.ContainsNoDuplicates()
 
+		def ContainsNoDuplication()
+			return This.ContainsNoDuplicates()
+
+		def ContainsNoDuplicationAtAll()
+			return This.ContainsNoDuplicates()
+
 		def NoItemsAreDuplicated()
 			return This.ContainsNoDuplicates()
 
@@ -16457,6 +16475,9 @@ class stzList from stzObject
 			return This.NumberOfDuplicatesCS(pCaseSensitive)
 
 		def NumberOfDuplicationsCS(pCaseSensitive)
+			return This.NumberOfDuplicatesCS(pCaseSensitive)
+
+		def NumberOfDuplicationCS(pCaseSensitive)
 			return This.NumberOfDuplicatesCS(pCaseSensitive)
 
 		#--
@@ -16503,6 +16524,9 @@ class stzList from stzObject
 			return This.NumberOfDuplicates()
 
 		def NumberOfDuplications()
+			return This.NumberOfDuplicates()
+
+		def NumberOfDuplication()
 			return This.NumberOfDuplicates()
 
 		#--
@@ -16834,6 +16858,9 @@ class stzList from stzObject
 		def FindDuplicationsCS(pCaseSensitive)
 			return This.FindDuplicatesCS(pCaseSensitive)
 
+		def FindDuplicationCS(pCaseSensitive)
+			return This.FindDuplicatesCS(pCaseSensitive)
+
 		def FindDuplicatedItemsCS(pCaseSensitive)
 			return This.FindDuplicatesCS(pCaseSensitive)
 
@@ -16845,6 +16872,9 @@ class stzList from stzObject
 		return This.FindDuplicatesCS(:CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
+
+		def FindDuplications()
+			return This.FindDuplicates()
 
 		def FindDuplication()
 			return This.FindDuplicates()
@@ -16982,6 +17012,9 @@ class stzList from stzObject
 		def FindDuplicationsXTCS(pCaseSensitive)
 			return This.FindDuplicatesXTCS(pCaseSensitive)
 
+		def FindDuplicationXTCS(pCaseSensitive)
+			return This.FindDuplicatesXTCS(pCaseSensitive)
+
 		def FindDuplicatedItemsXTCS(pCaseSensitive)
 			return This.FindDuplicatesXTCS(pCaseSensitive)
 
@@ -16993,6 +17026,9 @@ class stzList from stzObject
 		return This.FindDuplicatesXTCS(:CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
+
+		def FindDuplicationsXT()
+			return This.FindDuplicatesXT()
 
 		def FindDuplicationXT()
 			return This.FindDuplicatesXT()
@@ -17166,9 +17202,9 @@ class stzList from stzObject
 
 		#>
 
-	  #--------------#
-	 #  DUPLICATES  #
-	#--------------#
+	  #----------------------------------#
+	 #  GETTING THE LIST OF DUPLICATES  #
+	#----------------------------------#
 
 	def DuplicatesCS(pCaseSensitive)
 		# Checking params
@@ -17306,6 +17342,12 @@ class stzList from stzObject
 			def DuplicatedItemsCSQ(pCaseSensitive)
 				return This.DuplicatesCSQ(pCaseSensitive)
 
+		def DuplicationsCS(pCaseSensitive)
+			return This.DuplicatesCS(pCaseSensitive)
+
+			def DuplicationsCSQ(pCaseSensitive)
+				return This.DuplicatesCSQ(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -17327,6 +17369,12 @@ class stzList from stzObject
 
 			def DuplicatedItemsQ()
 				return This.DuplicatesQ()
+
+		def Duplications(pCaseSensitive)
+			return This.Duplicates(pCaseSensitive)
+
+			def DuplicationsQ(pCaseSensitive)
+				return This.DuplicatesQ(pCaseSensitive)
 
 		#>
 
@@ -17367,6 +17415,12 @@ class stzList from stzObject
 		def FindDuplicationsOfCS(pItem, pCaseSensitive)
 			return This.FindDuplicatesOfItemCS(pItem, pCaseSensitive)
 
+		def FindDuplicationOfItemCS(pItem, pCaseSensitive)
+			return This.FindDuplicatesOfItemCS(pItem, pCaseSensitive)
+
+		def FindDuplicationOfCS(pItem, pCaseSensitive)
+			return This.FindDuplicatesOfItemCS(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -17393,6 +17447,12 @@ class stzList from stzObject
 			return This.FindDuplicatesOfItem(pItem)
 
 		def FindDuplicationsOf(pItem)
+			return This.FindDuplicatesOfItem(pItem)
+
+		def FindDuplicationOfItem(pItem)
+			return This.FindDuplicatesOfItem(pItem)
+
+		def FindDuplicationOf(pItem)
 			return This.FindDuplicatesOfItem(pItem)
 
 		#>
@@ -17975,6 +18035,13 @@ class stzList from stzObject
 				This.RemoveDuplicationsCS(pCaseSensitive)
 				return This
 
+		def RemoveDuplicationCS(pCaseSensitive)
+			This.RemoveDuplicatesCS(pCaseSensitive)
+
+			def RemoveDuplicationCSQ(pCaseSensitive)
+				This.RemoveDuplicationCS(pCaseSensitive)
+				return This
+
 		#>
 
 	def DuplicatesRemovedCS(pCaseSensitive)
@@ -18004,6 +18071,10 @@ class stzList from stzObject
 		def DuplicationsRemovedCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
+		def DuplicationRemovedCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -18030,6 +18101,14 @@ class stzList from stzObject
 			def RemoveDuplicationsQ()
 				This.RemoveDuplications()
 				return This
+
+		def RemoveDuplication()
+			This.RemoveDuplicates()
+
+			def RemoveDuplicationQ()
+				This.RemoveDuplications()
+				return This
+
 
 		#>
 
@@ -18084,6 +18163,24 @@ class stzList from stzObject
 			def ItemsUQR(pcReturnType)
 				return This.ToSetQR(pcReturnType)
 
+		def WithoutDuplication()
+			return This.DuplicatesRemoved()
+
+			def WithoutDuplicationQ()
+				return This.ToSetQR(:stzList)
+
+			def WithoutDuplicationQR(pcReturnType)
+				return This.ToSetQR(pcReturnType)
+
+		def WithoutDuplications()
+			return This.DuplicatesRemoved()
+
+			def WithoutDuplicationsQ()
+				return This.ToSetQR(:stzList)
+
+			def WithoutDuplicationsQR(pcReturnType)
+				return This.ToSetQR(pcReturnType)
+
 		def ItemsWithoutDuplication()
 			return This.DuplicatesRemoved()
 
@@ -18091,6 +18188,15 @@ class stzList from stzObject
 				return This.ToSetQR(:stzList)
 
 			def ItemsWithoutDuplicationQR(pcReturnType)
+				return This.ToSetQR(pcReturnType)
+
+		def ItemsWithoutDuplications()
+			return This.DuplicatesRemoved()
+
+			def ItemsWithoutDuplicationsQ()
+				return This.ToSetQR(:stzList)
+
+			def ItemsWithoutDuplicationsQR(pcReturnType)
 				return This.ToSetQR(pcReturnType)
 
 		def DuplicatedItemsRemoved()
@@ -18109,6 +18215,15 @@ class stzList from stzObject
 				return This.ToSetQR(:stzList)
 
 			def DuplicationsRemovedQR(pcReturnType)
+				return This.ToSetQR(pcReturnType)
+
+		def DuplicationRemoved()
+			return This.DuplicatesRemoved()
+
+			def DuplicationRemovedQ()
+				return This.ToSetQR(:stzList)
+
+			def DuplicationRemovedQR(pcReturnType)
 				return This.ToSetQR(pcReturnType)
 
 		#>
@@ -18145,6 +18260,13 @@ class stzList from stzObject
 				This.RemoveDuplicationsOfItemCS(pItem, pCaseSensitive)
 				return This
 
+		def RemoveDuplicationOfItemCS(pItem, pCaseSensitive)
+			This.RemoveDuplicatesOfItemCS(pItem, pCaseSensitive)
+
+			def RemoveDuplicationOfItemCSQ(pItem, pCaseSensitive)
+				This.RemoveDuplicationsOfItemCS(pItem, pCaseSensitive)
+				return This
+
 		def RemoveDuplicatesOfCS(pItem, pCaseSensitive)
 			if isList(pItem)
 				This.RemoveDuplicatesOfItemsCS(pItem, pCaseSensitive)
@@ -18161,6 +18283,13 @@ class stzList from stzObject
 			This.RemoveDuplicatesOfCS(pItem, pCaseSensitive)
 
 			def RemoveDuplicationsOfCSQ(pItem, pCaseSensitive)
+				This.RemoveDuplicationsOfCS(pItem, pCaseSensitive)
+				return This
+
+		def RemoveDuplicationOfCS(pItem, pCaseSensitive)
+			This.RemoveDuplicatesOfCS(pItem, pCaseSensitive)
+
+			def RemoveDuplicationOfCSQ(pItem, pCaseSensitive)
 				This.RemoveDuplicationsOfCS(pItem, pCaseSensitive)
 				return This
 
@@ -18183,6 +18312,12 @@ class stzList from stzObject
 			return This.DuplicatesOfItemRemovedCS(pItem, pCaseSensitive)
 
 		def DuplicationsOfThisItemRemovedCS(pItem, pCaseSensitive)
+			return This.DuplicatesOfItemRemovedCS(pItem, pCaseSensitive)
+
+		def DuplicationOfItemRemovedCS(pItem, pCaseSensitive)
+			return This.DuplicatesOfItemRemovedCS(pItem, pCaseSensitive)
+
+		def DuplicationOfThisItemRemovedCS(pItem, pCaseSensitive)
 			return This.DuplicatesOfItemRemovedCS(pItem, pCaseSensitive)
 
 		#>
@@ -18230,6 +18365,13 @@ class stzList from stzObject
 				This.RemoveDuplicationsOf(pItem)
 				return This
 
+		def RemoveDuplicationOf(pItem)
+			This.RemoveDuplicatesOf(pItem)
+
+			def RemoveDuplicationOfQ(pItem)
+				This.RemoveDuplicationsOf(pItem)
+				return This
+
 		#>
 
 	def DuplicatesOfItemRemoved(pItem)
@@ -18245,6 +18387,13 @@ class stzList from stzObject
 
 		def DuplicationsOfThisItemRemoved(pItem)
 			return This.DuplicatesOfItemRemoved(pItem)
+
+		def DuplicationOfItemRemoved(pItem)
+			return This.DuplicatesOfItemRemoved(pItem)
+
+		def DuplicationOfThisItemRemoved(pItem)
+			return This.DuplicatesOfItemRemoved(pItem)
+
 
 		#>
 
@@ -18295,6 +18444,20 @@ class stzList from stzObject
 				This.RemoveDuplicationsOfTheseItemsCS(paItems, pCaseSensitive)
 				return This
 
+		def  RemoveDuplicationOfItemsCS(paItems, pCaseSensitive)
+			This.RemoveDuplicatesOfItemsCS(paItems, pCaseSensitive)
+
+			def RemoveDuplicationOfItemsCSQ(paItems, pCaseSensitive)
+				This.RemoveDuplicationsOfItemsCS(paItems, pCaseSensitive)
+				return This
+
+		def  RemoveDuplicationOfTheseItemsCS(paItems, pCaseSensitive)
+			This.RemoveDuplicatesOfItemsCS(paItems, pCaseSensitive)
+
+			def RemoveDuplicationOfTheseItemsCSQ(paItems, pCaseSensitive)
+				This.RemoveDuplicationsOfTheseItemsCS(paItems, pCaseSensitive)
+				return This
+
 		#--
 
 		def  RemoveDuplicatesOfManyItemsCS(paItems, pCaseSensitive)
@@ -18311,8 +18474,43 @@ class stzList from stzObject
 				This.RemoveDuplicationsOfManyItemsCS(paItems, pCaseSensitive)
 				return This
 
+		def  RemoveDuplicationOfManyItemsCS(paItems, pCaseSensitive)
+			This.RemoveDuplicatesOfItemsCS(paItems, pCaseSensitive)
+
+			def RemoveDuplicationOfManyItemsCSQ(paItems, pCaseSensitive)
+				This.RemoveDuplicationsOfManyItemsCS(paItems, pCaseSensitive)
+				return This
+
+
 		#>
 		
+	def DuplicatesOfItemsRemovedCS(paItems, pCaseSensitive)
+
+		aResult = This.Copy().
+				RemoveDuplicatesOfItemsCSQ(paItems, pCaseSensitive).
+				Content()
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def DuplicatesOfTheseItemsRemovedCS(paItems, pCaseSensitive)
+			return This.DuplicatesOfItemsRemovedCS(paItems, pCaseSensitive)
+
+		def DuplicationsOfItemsRemovedCS(paItems, pCaseSensitive)
+			return This.DuplicatesOfItemsRemovedCS(paItems, pCaseSensitive)
+
+		def DuplicationsOfTheseItemsRemovedCS(paItems, pCaseSensitive)
+			return This.DuplicatesOfItemsRemovedCS(paItems, pCaseSensitive)
+
+		def DuplicationOfItemsRemovedCS(paItems, pCaseSensitive)
+			return This.DuplicatesOfItemsRemovedCS(paItems, pCaseSensitive)
+
+		def DuplicationOfTheseItemsRemovedCS(paItems, pCaseSensitive)
+			return This.DuplicatesOfItemsRemovedCS(paItems, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicatesOfItems(paItems)
@@ -18349,6 +18547,14 @@ class stzList from stzObject
 				This.RemoveDuplicationsOfTheseItems(paItems)
 				return This
 
+		def  RemoveDuplicationOfTheseItems(paItems)
+			This.RemoveDuplicatesOfItems(paItems)
+
+			def RemoveDuplicationOfTheseItemsQ(paItems)
+				This.RemoveDuplicationsOfTheseItems(paItems)
+				return This
+
+
 		#--
 
 		def  RemoveDuplicatesOfManyItems(paItems)
@@ -18365,6 +18571,34 @@ class stzList from stzObject
 				This.RemoveDuplicationsOfManyItems(paItems)
 				return This
 
+		def  RemoveDuplicationOfManyItems(paItems)
+			This.RemoveDuplicatesOfItems(paItems)
+
+			def RemoveDuplicationOfManyItemsQ(paItems)
+				This.RemoveDuplicationsOfManyItems(paItems)
+				return This
+
+		#>
+
+	def DuplicatesOfItemsRemoved(paItems)
+		return This.DuplicatesOfItemsRemovedCS(paItems, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def DuplicatesOfTheseItemsRemoved(paItems)
+			return This.DuplicatesOfItemsRemoved(paItems)
+
+		def DuplicationsOfItemsRemoved(paItems)
+			return This.DuplicatesOfItemsRemoved(paItems)
+
+		def DuplicationsOfTheseItemsRemoved(paItems)
+			return This.DuplicatesOfItemsRemoved(paItems)
+
+		def DuplicationOfItemsRemoved(paItems)
+			return This.DuplicatesOfItemsRemoved(paItems)
+
+		def DuplicationOfTheseItemsRemoved(paItems)
+			return This.DuplicatesOfItemsRemoved(paItems)
 
 		#>
 
@@ -18397,6 +18631,13 @@ class stzList from stzObject
 				This.RemoveNonDuplicationsCS(pCaseSensitive)
 				return This
 
+		def RemoveNonDuplicationCS(pCaseSensitive)
+			This.RemoveNonDuplicatesCS(pCaseSensitive)
+
+			def RemoveNonDuplicationCSQ(pCaseSensitive)
+				This.RemoveNonDuplicationCS(pCaseSensitive)
+				return This
+
 		#>
 
 	def NonDuplicatesRemovedCS(pCaseSensitive)
@@ -18410,6 +18651,10 @@ class stzList from stzObject
 
 		def NonDuplicationsRemovedCS(pCaseSensitive)
 			return This.NonDuplicatesRemovedCS(pCaseSensitive)
+
+		def NonDuplicationRemovedCS(pCaseSensitive)
+			return This.NonDuplicatesRemovedCS(pCaseSensitive)
+
 
 		#>
 
@@ -18434,7 +18679,14 @@ class stzList from stzObject
 		def RemoveNonDuplications()
 			This.RemoveNonDuplicates()
 
-			def RemoveNonDuplicationsSQ()
+			def RemoveNonDuplicationsQ()
+				This.RemoveNonDuplications()
+				return This
+
+		def RemoveNonDuplication()
+			This.RemoveNonDuplicates()
+
+			def RemoveNonDuplicationQ()
 				This.RemoveNonDuplications()
 				return This
 
@@ -18451,6 +18703,10 @@ class stzList from stzObject
 
 		def NonDuplicationsRemoved()
 			return This.NonDuplicatesRemoved()
+
+		def NonDuplicationRemoved()
+			return This.NonDuplicatesRemoved()
+
 
 		#>
 

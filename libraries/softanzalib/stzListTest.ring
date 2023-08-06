@@ -144,10 +144,12 @@ proff()
 pron()
 
 o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
+? o1.Withoutduplications()
+/*
 o1.RemoveNonDuplicates()
 ? @@(o1.Content())
 #--> [ "A", "B", "A", "A", "B", 2, 2 ]
-
+*/
 proff()
 # Executed in 0.04 second(s)
 /*============
