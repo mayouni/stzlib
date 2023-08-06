@@ -140,20 +140,48 @@ o1.RemoveDuplicates()
 proff()
 
 /*------------
-*/
+
+pron()
+
+aBigList = 1:30_000
+aMore = [ "A", "B", "2", "A", "A", "B", 2, 2, "." ]
+for i = 1 to len(aMore)
+	aBigList + ("" + aMore[i] + i)
+next
+
+o1 = new stzList(aBigList)
+
+@@( o1.Withoutduplication() ) # Or ToSet()
+#--> [ "A", "B", "2", 2, "." ]
+
+proff()
+# Executed in 4.29 second(s)
+
+/*------------
+
 pron()
 
 o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
-? o1.Withoutduplications()
-/*
+? @@( o1.Withoutduplication() ) # Or ToSet()
+#--> [ "A", "B", "2", 2, "." ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
 o1.RemoveNonDuplicates()
 ? @@(o1.Content())
 #--> [ "A", "B", "A", "A", "B", 2, 2 ]
-*/
+
 proff()
 # Executed in 0.04 second(s)
-/*============
 
+/*============
+*
 # How Softanza enhances your mental experience as a programmer
 # for some Ring functions, like in this example, the sort() function
 
