@@ -5065,10 +5065,8 @@ class stzList from stzObject
 	#=====================================================#
 
 	def RemoveItemsAtPositions(panPos)
-		if NOT (isList(panPos) and len(panPos) > 0 and
-			Q(panPos).IsListOfNumbers() )
-
-			StzRaise("Incorrect pram! panPos must be a non empty list of numbers.")
+		if NOT isList(panPos)
+			StzRaise("Incorrect pram! panPos must be a list.")
 		ok
 
 		nLen = len(panPos)
