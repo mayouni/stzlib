@@ -16443,555 +16443,6 @@ class stzList from stzObject
 
 		#>
 
-	  #---------------------------------------------------------------#
-	 #  CHECKING IF THE LIST CONTAINS ITEMS THAT ARE NOR DUPLICTAED  #
-	#---------------------------------------------------------------#
-
-	def ContainsNonDuplicatedItemsCS(pCaseSensitive)
-		
-		anPos = This.FindDuplicatesXTCS(pCaseSensitive)
-		nLenPos = len(anPos)
-
-		nLen = This.NumberOfItems()
-
-		if NOT Q(anPos).IsEqualTo(1:nLen)
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		# Checking params
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
-		ok
-
-		# Doing the job
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		if nLen = 0
-			return FALSE
-		ok
-
-		#< @FunctionAlternativeForms
-
-		def ContainsItemsThatAreNotDuplicatedCS(pCaseSensitive)
-			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
-
-		def ContainsItemsNotDuplicatedCS(pCaseSensitive)
-			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
-
-		def ContainsItemsNonDuplicatedCS(pCaseSensitive)
-			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
-
-		def ContainsAtLeastOneNonDuplicatedItemsCS(pCaseSensitive)
-			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
-
-		def ContainsAtLeastOneItemNonDuplicatedCS(pCaseSensitive)
-			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
-
-		def ContainsAtLeastOneItemNotDuplicatedCS(pCaseSensitive)
-			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
-
-		def ContainsAtLeastOneItemThatIsNonDuplicatedCS(pCaseSensitive)
-			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
-
-		def ContainsAtLeastOneItemThatIsNotDuplicatedCS(pCaseSensitive)
-			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
-
-		def ContainsAtLeastOneNonDuplicatedItemCS(pCaseSensitive)
-			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ContainsNonDuplicatedItems()
-		return This.ContainsItemsThatAreNotDuplicatedCS(:CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def ContainsItemsThatAreNotDuplicated()
-			return This.ContainsNonDuplicatedItems()
-
-		def ContainsItemsNotDuplicated()
-			return This.ContainsNonDuplicatedItems()
-
-		def ContainsItemsNonDuplicated()
-			return This.ContainsNonDuplicatedItems()
-
-		def ContainsAtLeastOneNonDuplicatedItems()
-			return This.ContainsNonDuplicatedItems()
-
-		def ContainsAtLeastOneItemNonDuplicated()
-			return This.ContainsNonDuplicatedItems()
-
-		def ContainsAtLeastOneItemNotDuplicated()
-			return This.ContainsNonDuplicatedItems()
-
-		def ContainsAtLeastOneItemThatIsNonDuplicated()
-			return This.ContainsNonDuplicatedItems()
-
-		def ContainsAtLeastOneItemThatIsNotDuplicated()
-			return This.ContainsNonDuplicatedItems()
-
-		def ContainsAtLeastOneNonDuplicatedItem()
-			return This.ContainsNonDuplicatedItems()
-
-		#>
-
-	  #--------------------------------------------#
-	 #  GETTING THE LIST OF NON DUPLICATED ITEMS  #
-	#--------------------------------------------#
-
-	def NonDuplicatedItemsCS(pCaseSensitive)
-
-		# Checking params
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
-		ok
-
-		# Doing the job
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		if nLen = 0
-			return FALSE
-		ok
-
-		
-		n = 1 # Used tou cout object in the list and then composing names for them
-		acStr = []
-
-		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
-
-		# We start by stringifying the list (casting all the items in to strings)
-		# so we can find not onlu numbers and strings, but also lists,
-		# and get relatively beeter performance on larger lists (up to 30K items)
-
-
-		if pCaseSensitive = TRUE
-
-			for i = 1 to nLen
-
-				# Stringifying the item
-	
-				if isNumber(aContent[i])
-					cItem = ""+ aContent[i]
-	
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-	
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-					
-				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
-				ok
-
-				# Memorising the stringified items so we can used them later
-	
-				acStr + cItem
-			next
-
-		else // pCaseSensitive = FALSE
-
-			for i = 1 to nLen
-	
-				# Stringifying the item
-	
-				if isNumber(aContent[i])
-					cItem = ""+ aContent[i]
-	
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-	
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-					
-				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					
-				ok
-	
-				# Memorising the stringified items so we can used them later
-	
-				acStr + Q(cItem).Lowercased()
-			next
-
-		ok
-
-		# Doing the job
-
-		acSeen = []
-		acResult = []
-		anPos = []
-
-		for i = 1 to nLen
-
-			n = ring_find(acSeen, acStr[i])
-
-			if n = 0
-				acSeen + acStr[i]
-				acResult + acStr[i]
-				anPos + i
-
-			else
-				nPos = ring_find(acResult, acStr[i])
-
-				if nPos > 0
-					ring_del(acResult, nPos)
-					ring_del(anPos, nPos)
-				ok
-
-			ok
-
-		next
-
-		aResult = []
-		nLen = len(anPos)
-
-		for i = 1 to nLen
-			aResult + aContent[anPos[i]]
-		next
-
-		return aResult
-
-
-		#< @FunctionAlternativeForms
-
-		def NonDuplicatesCS(pCaseSensitive)
-			return This.NonDuplicatedItemsCS(pCaseSensitive)
-
-		def UnduplicatedItemsCS(pCaseSensitive)
-			return This.NonDuplicatedItemsCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def NonDuplicatedItems()
-		return This.NonDuplicatedItemsCS(:CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def NonDuplicates()
-			return This.NonDuplicatedItems()
-
-		def UnduplicatedItems()
-			return This.NonDuplicatedItems()
-
-		#>
-
-	  #----------------------------------#
-	 #  NUMBER OF NON DUPLICATED ITEMS  #
-	#----------------------------------#
-
-	def NumberOfNonDuplicatedItemsCS(pCaseSensitive)
-		nResult = len(This.NonDuplicatedItemsCS(pCaseSensitive))
-		return nResult
-
-		#< @FunctionAlternativeForms
-
-		def NumberOfNonDuplicatesCS(pCaseSensitive)
-			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
-
-		def NumberOfUnduplicatedItemsCS(pCaseSensitive)
-			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
-
-		#--
-
-		def HowManyNonDuplicatedItemCS(pCaseSensitive)
-			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
-
-		def HowManyNonDuplicatedItemsCS(pCaseSensitive)
-			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
-
-		#--
-
-		def HowManyNonDuplicatesCS(pCaseSensitive)
-			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
-
-		def HowManyNonDuplicateCS(pCaseSensitive)
-			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
-
-		#--
-
-		def HowManyUnduplicatedItemsCS(pCaseSensitive)
-			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
-
-		def HowManyUnduplicatedItemCS(pCaseSensitive)
-			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def NumberOfNonDuplicatedItems()
-		return This.NumberOfNonDuplicatedItemsCS(:CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def NumberOfNonDuplicates()
-			return This.NumberOfNonDuplicatedItems()
-
-		def NumberOfUnduplicatedItems()
-			return This.NumberOfNonDuplicatedItems()
-
-		#--
-
-		def HowManyNonDuplicatedItem()
-			return This.NumberOfNonDuplicatedItems()
-
-		def HowManyNonDuplicatedItems()
-			return This.NumberOfNonDuplicatedItems()
-
-		#--
-
-		def HowManyNonDuplicates()
-			return This.NumberOfNonDuplicatedItems()
-
-		def HowManyNonDuplicate()
-			return This.NumberOfNonDuplicatedItems()
-
-		#--
-
-		def HowManyUnduplicatedItems()
-			return This.NumberOfNonDuplicatedItems()
-
-		def HowManyUnduplicatedItem()
-			return This.NumberOfNonDuplicatedItems()
-
-		#>
-vvv
-	  #--------------------------------#
-	 #  FINDING NON DUPLICATED ITEMS  #
-	#--------------------------------#
-
-	def FindNonDuplicatedItemsCS(pCaseSensitive)
-
-		# Checking params
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
-		ok
-
-		# Doing the job
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		if nLen = 0
-			return FALSE
-		ok
-
-		
-		n = 1 # Used tou cout object in the list and then composing names for them
-		acStr = []
-
-		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
-
-		# We start by stringifying the list (casting all the items in to strings)
-		# so we can find not onlu numbers and strings, but also lists,
-		# and get relatively beeter performance on larger lists (up to 30K items)
-
-
-		if pCaseSensitive = TRUE
-
-			for i = 1 to nLen
-
-				# Stringifying the item
-	
-				if isNumber(aContent[i])
-					cItem = ""+ aContent[i]
-	
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-	
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-					
-				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
-				ok
-
-				# Memorising the stringified items so we can used them later
-	
-				acStr + cItem
-			next
-
-		else // pCaseSensitive = FALSE
-
-			for i = 1 to nLen
-	
-				# Stringifying the item
-	
-				if isNumber(aContent[i])
-					cItem = ""+ aContent[i]
-	
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-	
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-					
-				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					
-				ok
-	
-				# Memorising the stringified items so we can used them later
-	
-				acStr + Q(cItem).Lowercased()
-			next
-
-		ok
-
-		# Doing the job
-
-		acSeen = []
-		acResult = []
-		anResult = []
-
-		for i = 1 to nLen
-
-			n = ring_find(acSeen, acStr[i])
-
-			if n = 0
-				acSeen + acStr[i]
-				acResult + acStr[i]
-				anResult + i
-
-			else
-				nPos = ring_find(acResult, acStr[i])
-
-				if nPos > 0
-					ring_del(acResult, nPos)
-					ring_del(anResult, nPos)
-				ok
-
-			ok
-
-		next
-
-		return anResult
-
-		#< @FunctionAlternativeForms
-
-		def FindUndiplicatedItemsCS(pCaseSensitive)
-			return This.FindNonDuplicatedItemsCS(pCaseSensitive)
-
-		def FindNonDuplicatesCS(pCaseSensitive)
-			return This.FindNonDuplicatedItemsCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindNonDuplicatedItems()
-		return This.FindNonDuplicatedItemsCS(:CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def FindUndiplicatedItems()
-			return This.FindNonDuplicatedItems()
-
-		def FindNonDuplicates()
-			return This.FindNonDuplicatedItems()
-
-		#>
-
-	  #--------------------------------------------#
-	 #  NON DUPLICATED ITEMS AND THEIR POSITIONS  #
-	#--------------------------------------------#
-
-	def NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-
-		aNonDuplicated = This.NonDuplicatedItemsCS(pCaseSensitive)
-		nLen = len(aNonDuplicated)
-
-		aResult = []
-		for i = 1 to nLen
-			# By definition, a non duplicated items appears once
-			nPos = This.FindFirstCS(aNonDuplicated[i], pCaseSensitive)
-			aResult + [ aNonDuplicated[i], nPos ]
-		next
-
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def NonDuplicatedItemsZCS(pCaseSensitive)
-			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-
-		def UndiplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-
-		def UndiplicatedItemsZCS(pCaseSensitive)
-			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-
-		def NonDuplicatesAndTheirPositionsCS(pCaseSensitive)
-			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-
-		def NonDuplicatesZCS(pCaseSensitive)
-			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def NonDuplicatedItemsAndTheirPositions()
-		return This.NonDuplicatedItemsAndTheirPositionsCS(:CaseSensitive = TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def NonDuplicatedItemsZ()
-			return This.NonDuplicatedItemsAndTheirPositions()
-
-		def UndiplicatedItemsAndTheirPositions()
-			return This.NonDuplicatedItemsAndTheirPositions()
-
-		def UndiplicatedItemsZ()
-			return This.NonDuplicatedItemsAndTheirPositions()
-
-		def NonDuplicatesAndTheirPositions()
-			return This.NonDuplicatedItemsAndTheirPositions()
-
-		def NonDuplicatesZ()
-			return This.NonDuplicatedItemsAndTheirPositions()
-
-		#>
-
 	  #--------------------------#
 	 #   NUMBER OF DUPLICATES   #
 	#==========================#
@@ -17946,6 +17397,555 @@ vvv
 
 		#>
 
+	  #---------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS ITEMS THAT ARE NOR DUPLICTAED  #
+	#===============================================================#
+
+	def ContainsNonDuplicatedItemsCS(pCaseSensitive)
+		
+		anPos = This.FindDuplicatesXTCS(pCaseSensitive)
+		nLenPos = len(anPos)
+
+		nLen = This.NumberOfItems()
+
+		if NOT Q(anPos).IsEqualTo(1:nLen)
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		# Checking params
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def ContainsItemsThatAreNotDuplicatedCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
+		def ContainsItemsNotDuplicatedCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
+		def ContainsItemsNonDuplicatedCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
+		def ContainsAtLeastOneNonDuplicatedItemsCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
+		def ContainsAtLeastOneItemNonDuplicatedCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
+		def ContainsAtLeastOneItemNotDuplicatedCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
+		def ContainsAtLeastOneItemThatIsNonDuplicatedCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
+		def ContainsAtLeastOneItemThatIsNotDuplicatedCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
+		def ContainsAtLeastOneNonDuplicatedItemCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsNonDuplicatedItems()
+		return This.ContainsItemsThatAreNotDuplicatedCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ContainsItemsThatAreNotDuplicated()
+			return This.ContainsNonDuplicatedItems()
+
+		def ContainsItemsNotDuplicated()
+			return This.ContainsNonDuplicatedItems()
+
+		def ContainsItemsNonDuplicated()
+			return This.ContainsNonDuplicatedItems()
+
+		def ContainsAtLeastOneNonDuplicatedItems()
+			return This.ContainsNonDuplicatedItems()
+
+		def ContainsAtLeastOneItemNonDuplicated()
+			return This.ContainsNonDuplicatedItems()
+
+		def ContainsAtLeastOneItemNotDuplicated()
+			return This.ContainsNonDuplicatedItems()
+
+		def ContainsAtLeastOneItemThatIsNonDuplicated()
+			return This.ContainsNonDuplicatedItems()
+
+		def ContainsAtLeastOneItemThatIsNotDuplicated()
+			return This.ContainsNonDuplicatedItems()
+
+		def ContainsAtLeastOneNonDuplicatedItem()
+			return This.ContainsNonDuplicatedItems()
+
+		#>
+
+	  #--------------------------------------------#
+	 #  GETTING THE LIST OF NON DUPLICATED ITEMS  #
+	#--------------------------------------------#
+
+	def NonDuplicatedItemsCS(pCaseSensitive)
+
+		# Checking params
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		
+		n = 1 # Used tou cout object in the list and then composing names for them
+		acStr = []
+
+		# We duplicate the code because we need to manage casesensitivty
+		# while relying on the performant native ring_find()
+
+		# We start by stringifying the list (casting all the items in to strings)
+		# so we can find not onlu numbers and strings, but also lists,
+		# and get relatively beeter performance on larger lists (up to 30K items)
+
+
+		if pCaseSensitive = TRUE
+
+			for i = 1 to nLen
+
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					# WARNING: It's impossible to get the name of the object
+					# by code (should be requested from Mahmoud in future Ring)
+				ok
+
+				# Memorising the stringified items so we can used them later
+	
+				acStr + cItem
+			next
+
+		else // pCaseSensitive = FALSE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acStr + Q(cItem).Lowercased()
+			next
+
+		ok
+
+		# Doing the job
+
+		acSeen = []
+		acResult = []
+		anPos = []
+
+		for i = 1 to nLen
+
+			n = ring_find(acSeen, acStr[i])
+
+			if n = 0
+				acSeen + acStr[i]
+				acResult + acStr[i]
+				anPos + i
+
+			else
+				nPos = ring_find(acResult, acStr[i])
+
+				if nPos > 0
+					ring_del(acResult, nPos)
+					ring_del(anPos, nPos)
+				ok
+
+			ok
+
+		next
+
+		aResult = []
+		nLen = len(anPos)
+
+		for i = 1 to nLen
+			aResult + aContent[anPos[i]]
+		next
+
+		return aResult
+
+
+		#< @FunctionAlternativeForms
+
+		def NonDuplicatesCS(pCaseSensitive)
+			return This.NonDuplicatedItemsCS(pCaseSensitive)
+
+		def UnduplicatedItemsCS(pCaseSensitive)
+			return This.NonDuplicatedItemsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NonDuplicatedItems()
+		return This.NonDuplicatedItemsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NonDuplicates()
+			return This.NonDuplicatedItems()
+
+		def UnduplicatedItems()
+			return This.NonDuplicatedItems()
+
+		#>
+
+	  #----------------------------------#
+	 #  NUMBER OF NON DUPLICATED ITEMS  #
+	#----------------------------------#
+
+	def NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+		nResult = len(This.NonDuplicatedItemsCS(pCaseSensitive))
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfNonDuplicatesCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		def NumberOfUnduplicatedItemsCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		#--
+
+		def HowManyNonDuplicatedItemCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		def HowManyNonDuplicatedItemsCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		#--
+
+		def HowManyNonDuplicatesCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		def HowManyNonDuplicateCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		#--
+
+		def HowManyUnduplicatedItemsCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		def HowManyUnduplicatedItemCS(pCaseSensitive)
+			return This.NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfNonDuplicatedItems()
+		return This.NumberOfNonDuplicatedItemsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfNonDuplicates()
+			return This.NumberOfNonDuplicatedItems()
+
+		def NumberOfUnduplicatedItems()
+			return This.NumberOfNonDuplicatedItems()
+
+		#--
+
+		def HowManyNonDuplicatedItem()
+			return This.NumberOfNonDuplicatedItems()
+
+		def HowManyNonDuplicatedItems()
+			return This.NumberOfNonDuplicatedItems()
+
+		#--
+
+		def HowManyNonDuplicates()
+			return This.NumberOfNonDuplicatedItems()
+
+		def HowManyNonDuplicate()
+			return This.NumberOfNonDuplicatedItems()
+
+		#--
+
+		def HowManyUnduplicatedItems()
+			return This.NumberOfNonDuplicatedItems()
+
+		def HowManyUnduplicatedItem()
+			return This.NumberOfNonDuplicatedItems()
+
+		#>
+
+	  #--------------------------------#
+	 #  FINDING NON DUPLICATED ITEMS  #
+	#--------------------------------#
+
+	def FindNonDuplicatedItemsCS(pCaseSensitive)
+
+		# Checking params
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		
+		n = 1 # Used tou cout object in the list and then composing names for them
+		acStr = []
+
+		# We duplicate the code because we need to manage casesensitivty
+		# while relying on the performant native ring_find()
+
+		# We start by stringifying the list (casting all the items in to strings)
+		# so we can find not onlu numbers and strings, but also lists,
+		# and get relatively beeter performance on larger lists (up to 30K items)
+
+
+		if pCaseSensitive = TRUE
+
+			for i = 1 to nLen
+
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					# WARNING: It's impossible to get the name of the object
+					# by code (should be requested from Mahmoud in future Ring)
+				ok
+
+				# Memorising the stringified items so we can used them later
+	
+				acStr + cItem
+			next
+
+		else // pCaseSensitive = FALSE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acStr + Q(cItem).Lowercased()
+			next
+
+		ok
+
+		# Doing the job
+
+		acSeen = []
+		acResult = []
+		anResult = []
+
+		for i = 1 to nLen
+
+			n = ring_find(acSeen, acStr[i])
+
+			if n = 0
+				acSeen + acStr[i]
+				acResult + acStr[i]
+				anResult + i
+
+			else
+				nPos = ring_find(acResult, acStr[i])
+
+				if nPos > 0
+					ring_del(acResult, nPos)
+					ring_del(anResult, nPos)
+				ok
+
+			ok
+
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindUndiplicatedItemsCS(pCaseSensitive)
+			return This.FindNonDuplicatedItemsCS(pCaseSensitive)
+
+		def FindNonDuplicatesCS(pCaseSensitive)
+			return This.FindNonDuplicatedItemsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNonDuplicatedItems()
+		return This.FindNonDuplicatedItemsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindUndiplicatedItems()
+			return This.FindNonDuplicatedItems()
+
+		def FindNonDuplicates()
+			return This.FindNonDuplicatedItems()
+
+		#>
+
+	  #--------------------------------------------#
+	 #  NON DUPLICATED ITEMS AND THEIR POSITIONS  #
+	#--------------------------------------------#
+
+	def NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
+
+		aNonDuplicated = This.NonDuplicatedItemsCS(pCaseSensitive)
+		nLen = len(aNonDuplicated)
+
+		aResult = []
+		for i = 1 to nLen
+			# By definition, a non duplicated items appears once
+			nPos = This.FindFirstCS(aNonDuplicated[i], pCaseSensitive)
+			aResult + [ aNonDuplicated[i], nPos ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def NonDuplicatedItemsZCS(pCaseSensitive)
+			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
+
+		def UndiplicatedItemsAndTheirPositionsCS(pCaseSensitive)
+			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
+
+		def UndiplicatedItemsZCS(pCaseSensitive)
+			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
+
+		def NonDuplicatesAndTheirPositionsCS(pCaseSensitive)
+			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
+
+		def NonDuplicatesZCS(pCaseSensitive)
+			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NonDuplicatedItemsAndTheirPositions()
+		return This.NonDuplicatedItemsAndTheirPositionsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NonDuplicatedItemsZ()
+			return This.NonDuplicatedItemsAndTheirPositions()
+
+		def UndiplicatedItemsAndTheirPositions()
+			return This.NonDuplicatedItemsAndTheirPositions()
+
+		def UndiplicatedItemsZ()
+			return This.NonDuplicatedItemsAndTheirPositions()
+
+		def NonDuplicatesAndTheirPositions()
+			return This.NonDuplicatedItemsAndTheirPositions()
+
+		def NonDuplicatesZ()
+			return This.NonDuplicatedItemsAndTheirPositions()
+
+		#>
+
 	  #-----------------------------------------#
 	 #   REMOVING ALL DUPLICATES IN THE LIST   #
 	#=========================================#
@@ -18365,6 +18365,92 @@ vvv
 				This.RemoveDuplicationsOfManyItems(paItems)
 				return This
 
+
+		#>
+
+	  #-----------------------------------------#
+	 #   REMOVING NON DUPLICATES IN THE LIST   #
+	#=========================================#
+
+	def RemoveNonDuplicatesCS(pCaseSensitive)
+
+		anPos = This.FindNonDuplicatesCS(pCaseSensitive)
+		This.RemoveItemsAtPositions(anPos)
+
+		#< @FunctionAlternativeForms
+
+		def RemoveNonDuplicatesCSQ(pCaseSensitive)
+			This.RemoveNonDuplicatesCS(pCaseSensitive)
+			return This
+
+		def RemoveNonDuplicatedItemsCS(pCaseSensitive)
+			This.RemoveNonDuplicatesCS(pCaseSensitive)
+
+			def RemoveNonDuplicatedItemsCSQ(pCaseSensitive)
+				This.RemoveNonDuplicatedItemsCS(pCaseSensitive)
+				return This
+
+		def RemoveNonDuplicationsCS(pCaseSensitive)
+			This.RemoveNonDuplicatesCS(pCaseSensitive)
+
+			def RemoveNonDuplicationsCSQ(pCaseSensitive)
+				This.RemoveNonDuplicationsCS(pCaseSensitive)
+				return This
+
+		#>
+
+	def NonDuplicatesRemovedCS(pCaseSensitive)
+		aResult = This.Copy().RemoveNonDuplicatesCSQ(pCaseSensitive).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def NonDuplicatedItemsRemovedCS(pCaseSensitive)
+			return This.NonDuplicatesRemovedCS(pCaseSensitive)
+
+		def NonDuplicationsRemovedCS(pCaseSensitive)
+			return This.NonDuplicatesRemovedCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveNonDuplicates()
+		This.RemoveNonDuplicatesCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def RemoveNonDuplicatesQ()
+			This.RemoveNonDuplicates()
+			return This
+
+		def RemoveNonDuplicatedItems()
+			This.RemoveNonDuplicates()
+
+			def RemoveNonDuplicatedItemsQ()
+				This.RemoveNonDuplicatedItems()
+				return This
+
+		def RemoveNonDuplications()
+			This.RemoveNonDuplicates()
+
+			def RemoveNonDuplicationsSQ()
+				This.RemoveNonDuplications()
+				return This
+
+		#>
+
+	def NonDuplicatesRemoved()
+		aResult = This.Copy().RemoveNonDuplicatesQ().Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def NonDuplicatedItemsRemoved()
+			return This.NonDuplicatesRemoved()
+
+		def NonDuplicationsRemoved()
+			return This.NonDuplicatesRemoved()
 
 		#>
 

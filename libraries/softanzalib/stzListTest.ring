@@ -63,13 +63,13 @@ proff()
 # Executed in 0.02 second(s)
 
 /*-------
-*/
+
 pron()
 	# NOTE : Let's precise the concepts of Duplicates/Duplications,
 	# and DuplicateItems, as implemented semantically in Softanza
 
 	o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
-/*
+
 	? o1.ContainsDuplicates() # Or ContainsDuplications() or ContainsduplicatedItems()
 	#--> TRUE
 
@@ -108,15 +108,48 @@ pron()
 
 	? o1. ContainsNoDuplications()
 	#--> FALSE
-*/
+
+	? o1.ContainsNonDuplicatedItems()
+	#--> TRUE
+
+	? o1.NumberOfNonDuplicatedItems()
+	#--> 2
+
 	? @@( o1.FindNonDuplicatedItems() )
 	#--> [ 3, 9 ]
 
 	? @@( o1.NonDuplicatedItems() )
 	#--> [ "2", "." ]
 
+	? @@( o1.NonDuplicatedItemsZ() )
+	#--> [ [ "2", 3 ], [ ".", 9 ] ]
+
+
+proff()
+# Executed in 0.08 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
+o1.RemoveDuplicates()
+? @@(o1.Content())
+#--> [ "A", "B", "2", 2, "." ]
+
 proff()
 
+/*------------
+*/
+pron()
+
+o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
+o1.RemoveNonDuplicates()
+? @@(o1.Content())
+#--> [ "A", "B", "A", "A", "B", 2, 2 ]
+
+proff()
+# Executed in 0.04 second(s)
 /*============
 
 # How Softanza enhances your mental experience as a programmer
