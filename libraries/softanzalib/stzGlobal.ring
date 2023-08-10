@@ -1334,7 +1334,7 @@ func ComputableShortFormXT(paList, p)
 		return ComputableForm(paList)
 	ok
 
-	if NOT isNumber(p) or (isList(p) and Q(p).IsPairOfNumbers())
+	if NOT ( isNumber(p) or (isList(p) and Q(p).IsPairOfNumbers()) )
 		StzRaise("Incorrect param type! p must be a number or a pair of numbers.")
 	ok
 
