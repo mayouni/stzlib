@@ -31,7 +31,7 @@ pron()
 proff()
 
 /*--------------
-*/
+
 pron()
 
 # In python, we get the integer part of the division using the // operator
@@ -47,13 +47,12 @@ pron()
 proff()
 
 /*---------------
-*/
+
 pron()
 
 # In Python, this code concatenates a list of items into a string using a given separator:
-/*
-' + '.join([ "a", "b", "c" ])
-*/
+
+# ' + '.join([ "a", "b", "c" ])
 #--> a + b + c
 
 # In Ring, with Softanza, we can use the same code like this:
@@ -65,7 +64,24 @@ proff()
 # Executed in 0.05 second(s)
 
 /*--------------
+*/
+pron()
 
+? range(3)
+#--> [ 0, 1, 2 ]
+
+? range1(3)
+#--> [ 1, 2, 3 ]
+
+? range([ -3, 4, 2 ])
+#--> [ -3, -1, 1, 3 ]
+
+? range1([ -3, 4, 2 ])
+#--> [ -3, -1, 1, 3 ]
+
+proff()
+
+/*--------------
 
 # We asked Bard AI about a python code that performs the
 # Google Diff Algortithm (comparing two strings and

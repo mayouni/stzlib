@@ -181,7 +181,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*============
-*
+
 # How Softanza enhances your mental experience as a programmer
 # for some Ring functions, like in this example, the sort() function
 
@@ -189,7 +189,7 @@ pron()
 
 # Each time I need the Ring sort() function, I could not remember
 # wether the function sorts the list in place, or sorts it and
-# returns it. So I have to write an use case to check it...
+# returns it. So I have to write a use case to check it...
 
 alist = [ 4, 3, 1 , 2, 5 ]
 alist = ring_sort(alist)
@@ -2010,55 +2010,36 @@ o1 = new stzList([ 1, "*", 10:12, "B", 2, 1, "*", "A", 3, "*", "B", 10:12, "B" ]
 proff()
 
 /*----------
-
+*/
 pron()
 
 aList = [ "A", "B", 1, "A", "A", 1, "C", 1:2, "D", "B", "E", '"1"', 1:2 ]
 o1 = new stzList(aList)
 ? @@( o1.DuplicatesZ() )
 #--> [
+#	[ "A", 		[ 4, 5 ] ],
+#	[ "B", 		[ 10 ]   ],
+#	[ 1, 		[ 6 ]    ],
+#	[ [ 1, 2 ], 	[ 13 ]   ]
+# ]
+? ""
+? @@( o1.DuplicatesXTZ() ) # TODO
+#--> [
 #	[ "A", 		[ 1, 4, 5 ] ],
 #	[ "B", 		[ 2, 10 ]   ],
-#	[ "1", 		[ 3, 6 ]    ],
-#	[ "C", 		[ 7 ]       ],
-#	[ "[ 1, 2 ]", 	[ 8, 13 ]   ],
-#	[ "D", 		[ 9 ]       ],
-#	[ "E", 		[ 11 ]      ],
-#	[ '"1"', 	[ 12 ]      ]
+#	[ 1, 		[ 3, 6 ]    ],
+#	[ "C",		[ 7 ]	    ],
+#	[ [ 1, 2 ], 	[ 9, 13 ]   ]
 # ]
 
 proff()
 # Executed in 0.03 second(s)
 
-/*----------
+/*---------- Profiling the Duplicates() function --> Reasonable perf up to 30K items!
 
 pron()
 
-aList = 1:30_000
-
-letters = [ "A", "B", "A", "A", "C", "D", "B", "E" ]
-
-for i = 1 to len(letters)
-	aList + letters[i]
-next
-
-o1 = new stzList(aList)
-o1.DuplicatesZ()
-
-proff()
-#      100 items	:   0.06s
-#    1_000 items	:   0.28s
-#   10_000 items	:   3.35s
-#   20_000 items	:   4.05s
-#   30_000 items	:  10.60s
-#   50_000 items	:  50.23s
-#  100_000 : items	: 227.15s
-
-/*----------
-
-pron()
-
-aList = 1:10_000
+aList = 1:100_000
 aList + 1 + "*" + 10:12 + "B" + 2 + 1 + "*" + "A," + 3 + "*" + "B" + 10:12 + "B"
 
 o1 = new stzList(aList)
@@ -2071,30 +2052,31 @@ proff()
 #-->	   500 items	:   0.03 second(s)
 #-->     1_000 items 	:   0.05 second(s)
 #-->    10_000 items 	:   1.04 second(s)
-#-->    30_000 items	:  15.44 second(s)
-#-->    50_000 items	:  44.63 second(s)
-#-->   100_000 items	: 226.97 second(s)
+#-->    30_000 items	:  10.52 second(s)
+#-->    50_000 items	:  60.99 second(s)
+#-->   100_000 items	: 220.19 second(s)
 
 /*----------
 
 pron()
 
-aList = 1:2
+aList = 1 : 30_000
 aList + 1 + "*" + 10:12 + "B" + 2 + 1 + "*" + "A," + 3 + "*" + "B" + 10:12 + "B" + "A,"
 
 o1 = new stzList(aList)
 ? @@(o1.DuplicatesZ())
 #--> [
-#	[ "1", [ 3, 8 ] ],
-#	[ "2", [ 7 ] ],
-#	[ "*", [ 9, 12 ] ],
-#	[ "[ 10, 11, 12 ]", [ 14 ] ],
-#	[ "B", [ 13, 15 ] ],
-#	[ "A,", [ 16 ] ]
+#	[ 1, [ 30001, 30006 ] ],
+#	[ 2, [ 30005 ] ],
+#	[ 3, [ 30009 ] ],
+#	[ "*", [ 30007, 30010 ] ],
+#	[ [ 10, 11, 12 ], [ 30012 ] ],
+#	[ "B", [ 30011, 30013 ],
+#	[ "A,", [ 30014 ] ]
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 10.70 second(s)
 
 /*----------
 */
@@ -2102,9 +2084,10 @@ pron()
 
 o1 = new stzList([ "A", "B", "A", "A", "C", "D", "B", "E", "a" , "b"])
 ? @@( o1.DuplicatesZCS(:CaseSensitive = FALSE) )
+#--> [ [ "A", [ 3, 4, 9 ] ], [ "B", [ 7, 10 ] ] ]
 
 proff()
-
+# Executed in 0.03 second(s)
 
 /*----------
 

@@ -16882,6 +16882,174 @@ class stzList from stzObject
 
 		#>
 
+	  #------------------------------------------------------#
+	 #  GETTING DUPLICATES AND THEIR POSITIONS -- EXTENDED  #
+	#------------------------------------------------------#
+	# Positions of first duplicates are also returned
+
+	def DuplicatesXTZCS(pCaseSensitive)
+
+		# Checking params
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+		ok
+
+		acSeen = []
+		n = 1 # Used tou cout object in the list and then composing names for them
+		acStr = []
+
+		# We duplicate the code because we need to manage casesensitivty
+		# while relying on the performant native ring_find()
+
+		# We start by stringifying the list (casting all the items in to strings)
+		# so we can find not onlu numbers and strings, but also lists,
+		# and get relatively beeter performance on larger lists (up to 30K items)
+
+		if pCaseSensitive = TRUE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					# WARNING: It's impossible to get the name of the object
+					# by code (should be requested from Mahmoud in future Ring)
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acStr + cItem
+			next
+
+		else // pCaseSensitive = FALSE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					n++
+					cObjectName = "{obj#" + n + "}"
+					cItem = cObjectName
+					
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acStr + Q(cItem).Lowercased()
+			next
+
+
+		ok
+
+		# Finding duplicates positions
+
+		acSeen = []
+		anSeen = []
+
+		anPos = []
+		aResult = []
+
+		for i = 1 to nLen
+
+			n = ring_find(acSeen, acStr[i])
+
+			if n = 0
+				acSeen + acStr[i]
+				anSeen + i
+				aResult + [ aContent[i], [i] ]
+			else
+				if ring_find(anPos, anSeen[n]) = 0
+					anPos + anSeen[n]
+				ok
+				anPos + i
+
+				aResult[n][2] + i
+				
+			ok
+
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def DuplicatesAndTheirPositionsXTCS(pCaseSensitive)
+			return This.DuplicatesXTZCS(pCaseSensitive)
+
+		def DuplicatedItemsAndTheirPositionsXTCS(pCaseSensitive)
+			return This.DuplicatesXTZCS(pCaseSensitive)
+
+		def DuplicatedItemsXTZCS(pCaseSensitive)
+			return This.DuplicatesXTZCS(pCaseSensitive)
+
+		def DuplicationsAndTheirPositionsXTCS(pCaseSensitive)
+			return This.DuplicatesZCS(pCaseSensitive)
+
+		def DuplicationsXTZCS(pCaseSensitive)
+			return This.DuplicatesXTZCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DuplicatesXTZ()
+		return This.DuplicatesXTZCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def DuplicatesAndTheirPositionsXT()
+			return This.DuplicatesXTZ()
+
+		def DuplicatedItemsAndTheirPositionsXT()
+			return This.DuplicatesXTZ()
+
+		def DuplicatedItemsXTZ()
+			return This.DuplicatesXTZ()
+
+		def DuplicationsAndTheirPositionsXT()
+			return This.DuplicatesXTZ()
+
+		def DuplicationsXTZ()
+			return This.DuplicatesXTZ()
+
+		#>
+
 	  #----------------------------------------#
 	 #   FINDING DUPLICATES POSITIONS -- XT   #
 	#----------------------------------------#
