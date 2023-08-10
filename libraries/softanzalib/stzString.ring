@@ -13211,7 +13211,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		@oQString.replace_2(pcSubStr, pcNewSubStr, bCaseSensitive)
+		@oQString.replace_2(pcSubStr, pcNewSubStr, pCaseSensitive)
 
 	
 		#< @FunctionFluentForm
@@ -29100,7 +29100,7 @@ def ReplaceIBS()
 			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
-		acResult = QStringListToList( QStringObject().split(pcSubStr, 0, bCaseSensitive) )
+		acResult = QStringListToList( QStringObject().split(pcSubStr, 0, pCaseSensitive) )
 		return acResult
 
 	def SplittedAtSubStringCS(pcSubStr, pCaseSensitive)
