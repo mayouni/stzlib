@@ -542,16 +542,86 @@ func SetParamCheckingTo(bTrueOrFalse) # TODO: Test it!
 	#>
 
 func ActivateParamChecking()
-	_bParamCheck = FALSE
+	_bParamCheck = TRUE
+
+	#< FunctionAlternativeForms
 
 	func ActivateParamCheck()
-		_bParamCheck = FALSE
+		ActivateParamChecking()
 
 	func ActivateParamsChecking()
-		_bParamCheck = FALSE
+		ActivateParamChecking()
 
 	func ActivateParamsCheck()
-		_bParamCheck = FALSE
+		ActivateParamChecking()
+
+	#--
+
+	func EnableParamCheck()
+		DesactivateParamChecking()
+
+	func EnableParamsChecking()
+		DesactivateParamChecking()
+
+	func EnableParamsCheck()
+		DesactivateParamChecking()
+
+	#--
+
+	func CheckParamOn()
+		ActivateParamChecking()
+
+	func ParamCheckOn()
+		ActivateParamChecking()
+
+	func CheckParamsOn()
+		ActivateParamChecking()
+
+	func ParamsCheckOn()
+		ActivateParamChecking()
+
+	#>
+
+func DesactivateParamChecking()
+	_bParamCheck = FALSE
+
+	#< @FunctionAlternativeForms
+
+	func DesactivateParamCheck()
+		DesactivateParamChecking()
+
+	func DeasctivateParamsChecking()
+		DesactivateParamChecking()
+
+	func DesactivateParamsCheck()
+		DesactivateParamChecking()
+
+	#--
+
+	func DisableParamCheck()
+		DesactivateParamChecking()
+
+	func DisableParamsChecking()
+		DesactivateParamChecking()
+
+	func DisableParamsCheck()
+		DesactivateParamChecking()
+
+	#--
+
+	func CheckParamOff()
+		DesactivateParamChecking()
+
+	func ParamCheckOff()
+		DesactivateParamChecking()
+
+	func CheckParamsOff()
+		DesactivateParamChecking()
+
+	func ParamsCheckOff()
+		DesactivateParamChecking()
+
+	#>
 
 func ParamChecking()
 	return _bParamCheck
@@ -718,6 +788,7 @@ func StzRaise(paMessage)
 #     softanza object, then the softanza version will apply, unless you
 #     you for the Ring's version using ring_...()
 
+# TODO: Add the ring_...() form of all Ring functions
 
 func ring_insert(paList, n, pItem)
 	insert(paList, n, pItem)
@@ -1220,7 +1291,146 @@ func ShowHL(pValue)
 	func ShowAsHL(pValue)
 		ShowHL(pValue)
 
-// Computable form, (equivalent of ring listtocode() function)
+
+func ShowShort(paList)
+	? ShortForm(paList)
+
+func ShowShotXT(paList, p)
+	? ShortFormXT(paList, p)
+
+func ComputableShortForm(paList)
+	return ComputableShortFormXT(paList, 3)
+
+	func ComputableShortFormQ(paList)
+		return new stzString(ComputableShortForm(paList))
+
+	func @@SF(paList)
+		return ComputableShortForm(paList)
+
+		func @@SFQ(paList)
+			return new stzString(@@SF(paList))
+
+	func @@S(paList)
+		return ComputableShortForm(paList)
+
+		func @@SQ(paList)
+			return new stzString(@@S(paList))
+
+	func ShortForm(paList)
+		return ComputableShortForm(paList)
+
+		func ShortFormQ(paList)
+			return new stzString(ShortForm(paList))
+
+func ComputableShortFormXT(paList, p)
+
+	if NOT isList(paList)
+		StzRaise("Incorrect param type! paList must be a list.")
+	ok
+
+	nLen = len(paList)
+
+	if nLen < 10
+		return ComputableForm(paList)
+	ok
+
+	if NOT isNumber(p) or (isList(p) and Q(p).IsPairOfNumbers())
+		StzRaise("Incorrect param type! p must be a number or a pair of numbers.")
+	ok
+
+	n1 = 0
+	n2 = 0
+
+	if isNumber(p)
+		n1 = p
+		n2 = p
+
+	else
+		n1 = p[1]
+		n2 = p[2]
+	ok
+
+	if n1 + n2 >= nLen
+		StzRaise("Incorrect value(s)! The number of items to show exceeds the size of the list.")
+	ok
+
+	aContent = Q(paList).
+			FirstNItemsQ(n1).
+			AddQ("...").
+			AddManyQ( Q(paList).LastNItems(n2) ).
+			Content()
+
+	nLen = len(aContent)
+
+	if nLen = 0
+		return "[ ]"
+	ok
+
+	cResult = "[ "
+
+	for i = 1 to nLen
+		if isNumber(aContent[i])
+			cResult += "" +
+				   aContent[i] + ", "
+
+		but isString(aContent[i])
+			cChar = '"'
+		
+			oQStr = new QString2()
+			oQStr.append(aContent[i])
+			c1 = oQStr.mid(0, 1)
+			c2 = oQStr.mid(oQStr.count()-1, 1)
+		
+			if c1 = '"' or
+			   c2 = '"'
+				cChar = "'"
+			ok
+		
+			cResult += (cChar + aContent[i] + cChar + ", ")
+
+		but isList(aContent[i])
+			cResult += ( ComputableForm(aContent[i]) + ", ")
+
+		else // isObject(pValue[i])
+			cResult += "{obj}, "
+		ok
+
+	next
+
+	oQStr = new QString2()
+	oQStr.append(cResult)
+	oQStr.replace( (oQStr.count() - 2), 2, "" )
+	oQStr.append(" ]")
+
+	cResult = oQStr.mid(0, oQStr.count())
+	return cResult
+
+	#< @FunctionFluentForm
+
+	func ComputableShortFormXTQ(paList, p)
+		return new stzString(ComputableShortFormXT(paList, p))
+
+	#< @FunctionAlternativeForm
+
+	func ShortFormXT(paList, p)
+		return ComputableShortFormXT(paList, p)
+
+		func ShortFormXTQ(paList, p)
+			return new stzString(ShortFormXT(paList, p))
+
+	func @@SFXT(paList, p)
+		return ComputableShortFormXT(paList, p)
+
+		func @@SFXTQ(paList, p)
+			return new stzString(@@SFXT(paList, p))
+
+	func @@SXT(paList, p)
+		return ComputableShortFormXT(paList, p)
+
+		func @@SXTQ(paList, p)
+			return new stzString(@@SFXT(paList, p))
+	#>
+	
 func ComputableForm(pValue) # TODO: case of object --> return its name
 
 	if isNumber(pValue)
@@ -1847,6 +2057,124 @@ func TodoXT(pcCurrentOrFuture)
 	else
 		StzRaise("Feature not yet implemented, but it should be (TODO in current release)")
 	ok
+
+func AreBothListsOfNumbers(aList1, aList2)
+	if isList(aList1) and
+	   isList(aList2) and
+	   Q(aList1).IsListOfNumbers() and
+	   Q(aList2).IsListOfNumbers()
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+func AreBothListsOfStrings(aList1, aList2)
+	if isList(aList1) and
+	   isList(aList2) and
+	   Q(aList1).IsListOfStrings() and
+	   Q(aList2).IsListOfStrings()
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+func AreBothListsOfLists(aList1, aList2)
+	if isList(aList1) and
+	   isList(aList2) and
+	   Q(aList1).IsListOfLists() and
+	   Q(aList2).IsListOfLists()
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+func AreBothListsOfPairs(aList1, aList2)
+	if isList(aList1) and
+	   isList(aList2) and
+	   Q(aList1).IsListOfPairs() and
+	   Q(aList2).IsListOfPairs()
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+func AreBothListsOfSets(aList1, aList2)
+	if isList(aList1) and
+	   isList(aList2) and
+	   Q(aList1).IsListOfSets() and
+	   Q(aList2).IsListOfSets()
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+func AreBothListsOfHashLists(aList1, aList2)
+	if isList(aList1) and
+	   isList(aList2) and
+	   Q(aList1).IsListOfHashLists() and
+	   Q(aList2).IsListOfHashLists()
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+func AreBothListsOfObjects(aList1, aList2)
+	if isList(aList1) and
+	   isList(aList2) and
+	   Q(aList1).IsListOfObjects() and
+	   Q(aList2).IsListOfObjects()
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+func EuclideanDistance(anNumbers1, anNumbers2)
+	if CheckParams()
+		if isList(anNumbers1) and Q(anNumbers1).IsBetweenNamedParam()
+			anNumbers1 = anNumbers1[1]
+		ok
+		if isList(anNumbers2) and Q(anNumbers2).IsAndNamedParam()
+			anNumbers2 = anNumbers2[1]
+		ok
+	
+		if NOT AreBothListsOfNumbers(anNumbers1, anNumbers2)
+			StzRaise("Incorrect param types! anNumbers1 and anNumbers2 must be both lists of numbers.")
+		ok
+	
+		if len(anNumbers1) != len(anNumbers2)
+			StzRaise("Incorrect lists sizes! anNumbers1 and anNumbers2 must both have the same size.")
+		ok
+	ok
+
+	nResult = euc_dist(anNumbers1, anNumbers2)
+	return nResult
+
+def euc_dist(a,b)
+
+	s = 0
+	n = len(a)
+
+	for i = 1 to n
+
+		dist = a[i] - b[i]
+		s += dist * dist
+	next
+
+	return sqrt(s)
 
 class stzForEachObjectOld
 	@acVars

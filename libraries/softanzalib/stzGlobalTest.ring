@@ -1,5 +1,50 @@
 load "stzlib.ring"
 
+/*======== Desabling param checking to enhance performance
+# TODO: Generalize this feature to all Softanza functions
+
+# Softanza functions do a lot of work in checking params correctness.
+# You can see it by yourself by reading any function code.
+# But this comes with a performance cost, especially when you use
+# theses functions in loops dealing with large lists.
+
+# For example, the function EuclideanDistance() cheks by default for
+# the params to be both lists of numbers of same size:
+
+? EuclideanDistance(1:3, 1:5)
+#!--> Incorrect lists sizes! anNumbers1 and anNumbers2 must both have the same size.
+
+# It does not allow you to use incorrect types:
+? EuclideanDistance('A':'C', 1:3)
+#!--> Incorrect param types! anNumbers1 and anNumbers2 must be both lists of numbers.
+
+# And so on.
+
+# Now, if we use the function for a large number of items:
+
+aList1 = 1 : 1_500_000
+aList2 = 4 : 1_500_003
+
+pron()
+
+? EuclideanDistance(aList1, aList2)
+
+proff()
+# It take 25.54 seconds!
+
+# A lot.
+
+# What if we desable the params cheks and see what gain we could obtain:
+
+CheckParamOff()
+
+pron()
+
+? EuclideanDistance(aList1, aList2)
+
+proff()
+# Now the function takes just 2.05 seconds! (10 times faster)
+
 /*============
 
 pron()
@@ -25,17 +70,17 @@ next
 proff()
 
 /*===========
-*/
+
 pron()
 
 # The Ring for loop is quick! Hence it loops 500
 # thousand times in a fraction of second:
-/*
+
 for i = 1 to 500_000
 	// Do nothing
 next
 # Executed in 0.06 second(s)
-*/
+
 # Contrariwise, this Ring for/in loop takes too long to complete:
 
 # for n in 1:500_000
@@ -45,12 +90,12 @@ next
 # The ForEach alternative, brought Softanza, solves the For/in
 # weakness and performs the same loop in less than 2 seconds!
 
-ForEach( :number, :in = 1:500_000 ) {
+ForEach( :number, :in = 1 : 500_000 ) {
 	// Do nothing
 }
 
 proff()
-# Executed in 1.76 second(s)
+# Executed in 2.04 second(s)
 
 # But ForEach offers more flexibility...
 
@@ -224,7 +269,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*------------
-*/
+
 pron()
 
 ForEach( [ :Name, :Age ], :In = [ :Heni = 25, :Omar = 32, :Sonia = 14 ] ) { X('
@@ -235,7 +280,7 @@ ForEach( [ :Name, :Age ], :In = [ :Heni = 25, :Omar = 32, :Sonia = 14 ] ) { X('
 #    sonia 14
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.04 second(s)
 
 /*============
 
@@ -255,7 +300,7 @@ pron()
 proff()
 # Executed in 0.05 second(s)
 
-/*=============
+/*-----------
 
 pron()
 
@@ -267,7 +312,18 @@ pron()
 proff()
 #--> Executed in 0.02 second(s)
 
-/*----------
+/*----------------
+*/
+pron()
+
+? @@( "A" : "Z" )
+#--> [ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" ]
+
+? @@S( "A" : "Z" )
+
+proff()
+
+/*================
 
 pron()
 

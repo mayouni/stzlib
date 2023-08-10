@@ -1381,6 +1381,61 @@ class stzList from stzObject
 
 		#>
 
+	  #---------------------------------#
+	 #  ADDING MANY ITEMS TO THE LIST  #
+	#---------------------------------#
+
+	def AddMany(paItems)
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+		ok
+
+		nLen = len(paItems)
+
+		for i = 1 to nLen
+			@aContent + paItems[i]
+		next
+	
+		#< @FunctionFluentForm
+
+		def AddManyQ(paItems)
+			This.AddMany(paItems)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AddManyItems(paItems)
+			This.AddMany(paItems)
+
+			def AddManyItemsQ(paItems)
+				This.AddManyItems(paItems)
+
+		def AddEach(paItems)
+			This.AddMany(paItems)
+
+			def AddEachQ(paItems)
+				This.AddEach(paItems)
+				return This
+
+		#>
+
+	def ManyAdded(paItems)
+		aResult = This.Copy().AddManyQ(paItems).Content()
+		return aResult
+
+		def ManyItemsAdded(paItems)
+			return This.ManyAdded(paItems)
+
+		def EachAdded(paItems)
+			return This.ManyAdded(paItems)
+
+		def EachItemAdded(paItems)
+			return This.ManyAdded(paItems)
+
 	  #===================================================#
 	 #     INSERTING AN ITEM BEFORE A GIVEN POSITION     #
 	#===================================================#
@@ -19908,6 +19963,17 @@ class stzList from stzObject
 
 		other
 			? @@( This.Content() )
+		ok
+
+	def ShowShort()
+		if This.IsHashList()
+			StzHashListQ( This.List() ).ShowShort()
+
+		but This.IsListOfHashLists()
+			StzListOfHashListsQ( This.List() ).ShowShort()
+
+		other
+			? @@S( This.Content() )
 		ok
 
 	  #---------------------------#

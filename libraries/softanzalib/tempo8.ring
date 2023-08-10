@@ -2,8 +2,6 @@
 #TODO: stzTable add (all) excel functions
 # Some common used functions are:
 
-Sure, here's the updated table with the "Output" column added:
-
 | Function Name     | Short Description           | Example               | Output               |
 |-------------------|-----------------------------|-----------------------|----------------------|
 | SUM               | Sums up a range of cells    | =SUM(A1:A10)          | 55                   |

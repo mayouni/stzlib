@@ -24,28 +24,33 @@ proff()
 # Executed in 0.08 second(s)
 
 /*----------------
-*/
 
 pron()
 
 o1 = new stzString("<<***>>**<<***>>")
-? o1.FindAnyBetweenAsSections("<<", ">>")
+? @@( o1.FindAnyBetweenAsSections("<<", ">>") )
+#--> [ [ 3, 5 ], [ 12, 14 ] ]
 
 proff()
+# Executed in 0.07 second(s)
 
 /*----------------
-*/
+
+pron()
+
 o1 = new stzString("<<***>>**<<***>>")
 
 ? o1.Between("<<", :and = ">>")
+#--> [ "***", "***" ]
 
-//? o1.BoundedBy(["<<", ">>"])
+? o1.BoundedBy(["<<", ">>"])
 #--> [ "***", "***" ]
 
 proff()
+# Executed in 0.13 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzString("aa***aa**aa***aa")
@@ -60,7 +65,7 @@ proff()
 # Executed in 0.10 second(s)
 
 /*==============
-
+*/
 pron()
 
 o1 = new stzString("RINGORIALAND")
@@ -72,10 +77,10 @@ o1 = new stzString("RINGORIALAND")
 #--> [ "R", "RI", "RIN", ..., "N", "ND", "D" ]	# TODO: add Shorten() / ShowShort()
 
 proff()
-#--> Executed in 0.15 second(s)
+#--> Executed in 2.93 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzString("RINGORIALAND")
@@ -84,4 +89,4 @@ o1 = new stzString("RINGORIALAND")
 #--> [ "R", "RI", "I", "N", "A" ]
 
 proff()
-#--> Executed in 0.44 second(s)
+#--> Executed in 0.22 second(s)
