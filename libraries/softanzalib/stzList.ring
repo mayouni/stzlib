@@ -19966,15 +19966,7 @@ class stzList from stzObject
 		ok
 
 	def ShowShort()
-		if This.IsHashList()
-			StzHashListQ( This.List() ).ShowShort()
-
-		but This.IsListOfHashLists()
-			StzListOfHashListsQ( This.List() ).ShowShort()
-
-		other
-			? @@S( This.Content() )
-		ok
+		? @@S( This.Content() )
 
 	  #---------------------------#
 	 #     LEVELS OF THE LIST    #
