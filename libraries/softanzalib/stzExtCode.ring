@@ -79,8 +79,10 @@ func Vl(paVals)
 		ok
 	next
 
-
-func range(p) # Python
+# Python...	: range(3) 		--> [0, 1, 2]
+# Pythin..	: range(-3, 4, 2)	--> [-3, -1, 1, 3 ]
+# JS/PHP/...	: range(1, 3) 		--> [1, 2, 3]
+func range(p)
 	aResult = []
 	if isNumber(p)
 		# Example: range(3) #--> [ 0, 1, 2 ]
@@ -99,6 +101,52 @@ func range(p) # Python
 			but len(p) = 2
 				# Example: range(1, 5) #--> [1, 2, 3, 4 ]
 				aResult = p[1] : (p[2]-1)
+			
+			ok
+		ok
+
+	else
+		StzRaise("Unsupported syntax!")
+	ok
+
+	return aResult
+
+func range1(p)
+	aResult = []
+	if isNumber(p)
+		# Example: range(3) #--> [ 0, 1, 2 ]
+		aResult = 1 : p
+
+	but isList(p)
+		if Q(p).IsListOfNumbers()
+			if len(p) = 3
+				# 			v step
+				# Example: range(-3, 4, 2) #--> [ -3, -1, 1, 3 ]
+				aResult = []
+	
+				if p[1] >= 0
+					p[1]++
+				ok
+
+				if p[2] >= 0
+					p[2]--
+				ok
+
+				for i = p[1] to p[2] step p[3]
+					aResult + i
+				next
+	
+			but len(p) = 2
+				if p[1] >= 0
+					p[1]++
+				ok
+
+				if p[2] >= 0
+					p[2]--
+				ok
+
+				# Example: range(1, 5) #--> [1, 2, 3, 4 ]
+				aResult = p[1] : p[2]
 			
 			ok
 		ok
