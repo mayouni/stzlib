@@ -327,14 +327,20 @@ pron()
 #	"Y", "Z"
 # ]
 
+# Showing a part of a long list
+
 ? @@S( "A" : "Z" ) + NL
 #--> [ "A", "B", "C", "...", "X", "Y", "Z" ]
 
 ? @@S(1:100_000) + NL
 #--> [ 1, 2, 3, "...", 99998, 99999, 100000 ]
 
+# Showing the 2 first items and 2 last items of a long list
+
 ? @@SXT(1:50, 2) + NL
 #--> [ 1, 2, "...", 49, 50 ]
+
+# Showing the 2 first items and the 3 last items of a long list
 
 ? @@SXT(1:50, [2, 3]) + NL
 #--> [ 1, 2, "...", 48, 49, 50 ]

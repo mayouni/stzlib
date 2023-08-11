@@ -4,6 +4,97 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzString("aa***aa**aa***aa")
+? o1.IsBoundedByCS("aa", TRUE)
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("aa***aa**aa***aa")
+
+? @@( o1.BoundedBy("aa") )
+#--> [ "***", "**", "***" ]
+
+proff()
+# Executed in 0.08 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("<<***>>**<<***>>")
+? @@( o1.FindAnyBetweenAsSections("<<", ">>") )
+#--> [ [ 3, 5 ], [ 12, 14 ] ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("<<***>>**<<***>>")
+
+? o1.Between("<<", :and = ">>")
+#--> [ "***", "***" ]
+
+? o1.BoundedBy(["<<", ">>"])
+#--> [ "***", "***" ]
+
+proff()
+# Executed in 0.13 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("aa***aa**aa***aa")
+
+? @@( o1.FindAnyBoundedBy("aa") )
+#--> [ 3, 8, 12 ]
+
+? @@( o1.FindAnyBoundedByAsSections("aa") )
+#--> [ [ 3, 5 ], [ 8, 9 ], [ 12, 14 ] ]
+
+proff()
+# Executed in 0.10 second(s)
+
+/*==============
+
+pron()
+
+o1 = new stzString("RINGORIALAND")
+
+? o1.NumberOfSubStrings()
+#--> 78
+
+? @@S( o1.SubStrings() ) # S --> short : to show just a part of the long list
+#--> [ "R", "RI", "RIN", ..., "N", "ND", "D" ]
+
+proff()
+#--> Executed in 3.01 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzString("RINGORIALAND")
+? o1.Duplicates()
+
+#--> [ "R", "RI", "I", "N", "A" ]
+
+proff()
+#--> Executed in 0.22 second(s)
+
+/*=============
+
+pron()
+
 ? Q("ABCDE")[-2]
 #--> D
 
@@ -3269,22 +3360,22 @@ proff()
 # Executed in 0.03 second(s)
 
 /*===============
-*/
-? "hi"
 
 pron()
 
 o1 = new stzString("aa***aa**aa***")
 
 ? o1.FindAnyBetween("aa", "aa")
+#--> 8
 
 ? o1.FindAnyBetweenAsSections("aa", "aa")
-
+#--> [ 8, 9 ]
 
 proff()
+# Executed in 0.10 second(s)
 
 /*---------------
-*/
+
 pron()
 #                     3    8   3
 o1 = new stzString("**aa***aa**aa***")
@@ -3299,8 +3390,10 @@ o1 = new stzString("**aa***aa**aa***")
 #--> [ [ 10, 11 ] ]
 
 ? @@(o1.FindAnyBetweenAsSectionsSD("aa", "aa", :StartingAt = 3, :Going = :Forward))
+#--> [ [ 10, 11 ] ]
 
 proff()
+# Executed in 0.18 second(s)
 
 #---------
 
@@ -3432,7 +3525,7 @@ proff()
 # Executed in 0.09 second(s)
 
 /*===================
-*/
+
 pron()
 
 #                     3    8    3
@@ -3469,10 +3562,10 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 #--> [ [ 8, 10 ], [ 3, 5 ] ]
 
 proff()
-# Executed in 0.16 second(s)
+# Executed in 0.18 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 #                     3    8    3
@@ -3497,7 +3590,7 @@ proff()
 # Executed in 0.09 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 #                     3    8    3
@@ -3527,11 +3620,15 @@ pron()
 
 o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
 
-? o1.FindFirstStartingAt("♥♥♥", 8)
-? o1.FindFirstS("♥♥♥", :StartingAt = 8)
 
-FindLastXT(..., :startingat)
-FindNthXT(..., :startingat)
+? o1.FindFirstS("♥♥♥", :StartingAt = 8)
+#--> 22
+
+? o1.FindLastS("♥♥♥", :Startingat = 8)
+#--> 22
+
+? o1.FindNthS(2, "♥♥♥", :StartingAt = 3)
+#--> 22
 
 proff()
 
@@ -3550,7 +3647,7 @@ o1 = new stzString("The range is between {min} and {max}")
 StopProfiler()
 # Executed in 0.10 second(s)
 
-/*------------/////
+/*------------
 
 StartProfiler()
 
@@ -3559,14 +3656,14 @@ o1 = new stzString("The range is between {min} and {max}")
 ? @@( o1.FindAnyBetweenIB("{", "}") ) + NL
 #--> [ 22, 32 ]
 
-//? @@( o1.FindAnyBetweenIBZ("{", "}") ) + NL
-#--> [ [ "min", 23 ], [ "max", 33 ] ]
+? @@( o1.AnyBetweenIBZ("{", "}") ) + NL
+#--> [ [ "{min}", 22 ], [ "{max}", 32 ] ]
 
-? @@( o1.FindAnyBetweenIBZZ("{", "}") )
-#--> [ [ "min", [ 23, 25 ] ], [ "max", [ 33, 35 ] ] ]
+? @@( o1.AnyBetweenIBZZ("{", "}") )
+#--> [ [ "{min}", [ 22, 26 ] ], [ "{max}", [ 32, 36 ] ] ]
 
 StopProfiler()
-# Executed in 0.10 second(s)
+# Executed in 0.24 second(s)
 
 /*============
 
@@ -5802,78 +5899,59 @@ o1 = new stzString("**3**67**012**56**92**")
 #--> [ [3,3], [6, 7], [10, 12], [15,16], [19,20] ]
 
 /*-----------------
-*/
-o1 = new stzString("***ONE***TWO***THREE***")
-? @@( o1.FindManyCS([ "ONE", "TWO", "THREE"], 0) )
-#--> [ [ 4 ], [ 10 ], [ 16 ] ]
+
+pron()
 
 o1 = new stzString("***ONE***TWO***THREE***")
-? @@( o1.FindManyCS([ "ONE", "TWO", "THREE"], 0) )
+? @@( o1.FindMany([ "ONE", "TWO", "THREE"]) )
+#--> [ 4, 10, 16 ]
 
-/*
-? o1.SplitQ(:Using = "***").FindIn(o1.Content())
+? @@( o1.SplitQ(:Using = "***").Content() )
+#--> [ "", "ONE", "TWO", "THREE", "" ]
+# TODO: Should we remove the "" from the result?
 
-/*
 ? @@( o1.FindAnyBoundedByIB("**") )
-#--> [ 2, 4, 7, 10 ]
+#--> [ 2, 8, 14 ]
 
 ? @@( o1.FindAnyBoundedByAsSectionsIB("**") )
+#--> [ [ 2, 8 ], [ 8, 14 ], [ 14, 22 ] ]
 
+proff()
+# Executed in 0.14 second(s)
 
 /*-----------------
-*/
-# You can find the positions of any substring occurring between
-# two bounds by saying:
+
+pron()
 
 o1 = new stzString("txt <<ring>> txt <<php>>")
 ? @@( o1.FindAnyBetween("<<",">>") )
 #--> [7, 20]
 
-# In fact, "ring" occures in position 7 and "php" in position 20.
-
-# Now, if you have the following case where the two bounds are
-# the same (equal to "*" here):
-
 o1 = new stzString("*2*45*78*0*")
-? @@( o1.FindAnyBetween("*","*") )
-#--> [2, 7]
 
-# then you get "2" that starts at position 2 and "78" at position 7.
-# Let's understand what happened to get this result:
-
-	# the positions	:  12345678901
-	# the string	: "*2*45*78*0*"
-	# the occurences:   ^    ^
-
-# Softanza starts scanning the string. First, it finds that "*2*"
-# corresonds to a substring ("2") between "*" and "*". Then it
-# takes its position 2.
-
-# Second, Softanza starts from position 3 and scans the remaining
-# substring "45*78*0*" for any other substring between "*" and "*".
-# It finds it at position 7 (substring "78").
-
-# Until now, we have positions 2 and 7.
-
-# Again, Softanza retrives "*78*" from "45*78*0*". Now the substring
-# to be scanned is "45*". There is no substrings between "*" and "*".
-# So the result [2, 7] is returned.
-
-# Now, you would ask me: What if I want to get all the positions of
-# substrings separated by the char "*", like this:
-
-	# the positions	:  12345678901
-	# the string	: "*2*45*78*0*"
-	# the occurences:   ^ ^  ^  ^
-	#--> [2, 4, 7, 10]
-
-# Then you can use the extended version of the function ..XT() and
-# pass the "*" char as a parameter like this:
-
-? @@( o1.FindAnyBetweenIB("*") )
+? @@( o1.FindAnyBetween("*","*") ) # Or o1.FindAnyBoundedBy("*") 
 #--> [ 2, 4, 7, 10 ]
 
+? @@( o1.FindAnyBoundedByIB("*") ) # Or o1.FindAnyBetweenIB("*", "*")
+#--> [ 1, 3, 6, 9 ]
+
+? @@( o1.AnyBoundedBy("*") )
+#--> [ "2", "45", "78", "0" ]
+
+? @@( o1.AnyBoundedByZZ("*") )
+# [
+#	[ "2", 	[ 2, 2 ] ],
+#	[ "45", [ 4, 5 ] ],
+#	[ "78", [ 7, 8 ] ],
+#	[ "0", 	[ 10, 10 ] ]
+# ]
+
+proff()
+# Executed in 0.31 second(s)
+
 /*--------------
+
+pron()
 
 # For each one of the 3 function calls we made so far (see
 # example above), you can get the result as sections and not
@@ -5882,44 +5960,70 @@ o1 = new stzString("*2*45*78*0*")
 
 o1 = new stzString("txt <<ring>> txt <<php>>")
 ? @@( o1.FindAnyBetweenAsSections("<<",">>") )
-#--> [ [ 7, 9 ], [ 20, 21 ] ]
+#--> [ [ 7, 10 ], [ 20, 22 ] ]
 
 o1 = new stzString("*2*45*78*0*")
 ? @@( o1.FindAnyBetweenAsSections("*","*") )
-#--> [ [ 2, 2 ], [ 7, 8 ] ]
+#--> [ [ 2, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
 
-? @@( o1.FindAnyBetweenAsSectionsIB("*") )
-#--> [ 2, 4, 7, 10 ]
+? @@( o1.FindAnyBoundedByAsSectionsIB("*") )
+#--> [ [ 1, 3 ], [ 3, 6 ], [ 6, 9 ], [ 9, 11 ] ]
+
+proff()
+# Executed in 0.13 second(s)
 
 /*-----------------
 
-? Q("txt <<ring>> txt <<ring>>").FindAnyBetweenAsSections("<<",">>")
-#--> [ [7,10], [20,23] ]
+pron()
+
+? @@( Q("txt <<ring>> txt <<ring>>").FindAnyBetweenAsSections("<<",">>") ) + NL
+#--> [ [ 7, 10 ], [ 20, 23 ] ]
 
 str = 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!'
-? Q(str).FindAnyBetweenAsSections('"', '"')
+? @@( Q(str).FindAnyBetweenAsSections('"', '"') ) + NL
+#--> [ [ 18, 26 ], [ 28, 34 ], [ 36, 42 ] ]
 
-/*
+? @@( Q(str).Sections([ [ 18, 26 ], [ 28, 34 ], [ 36, 42 ] ]) )
+#--> [ "   val1  ", "   to  ", "   val2" ]
 
-? @@( 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!' )
-#--> 'for txt = "   val1  " to "   val2" do this or that!'
+proff()
+# Executed in 0.12 second(s)
 
 /*-----------------
+
+pron()
 
 o1 = new stzString("12*♥*78*♥*")
-? @@( o1.FindAnyBetween("♥", "*","*") )
+
+? @@( o1.FindThisBetween("♥", "*","*") )
 #--> [ 4, 9 ]
 
+? @@( o1.FindXT("♥", :Between = ["*", "*"]) )
+#--> [ 4, 9 ]
+
+? @@( o1.FindXT("♥", :BoundedBy = "*" ) )
+#--> [ 4, 9 ]
+
+proff()
+# Executed in 0.08 second(s)
+
 /*-----------------
 
-o1 = new stzString("12*34*56*78")
+pron()
+
+o1 = new stzString("12*45*78*90")
 ? o1.FindNthS(2, "*", :StartingAt = 4)
+#--> 9
+
+? o1.FindFirstS("*", :StartingAt = 4)
 #--> 6
 
-? o1.FirstS("*", :StartingAT = 4)
-#--> 3
+proff()
+# Executed in 0.05 second(s)
 
 /*-----------------
+
+pron()
 
 o1 = new stzString("12*A*33*A*")
 ? o1.FindAll("*")
@@ -5937,22 +6041,37 @@ o1 = new stzString("12*A*33*A*")
 ? @@( o1.FindAsSections("*") )
 #--> [ [ 3, 3 ], [ 5, 5 ], [ 8, 8 ], [ 10, 10 ] ]
 
-/*-----------------
+proff()
+# Executed in 0.05 second(s)
+
+/*----------
+
+pron()
 
 o1 = new stzString("12*A*33*A*")
 ? o1.Sections([ 1:2, 6:7 ])
 #--> [ "12", "33" ]
 
+proff()
+# Executed in 0.03 second(s)
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("12*A*33*A*")
-? o1.FindBetween("A", "*", "*")
+? @@( o1.FindBetween("A", "*", "*") )
 #--> [4, 9]
 
-? o1.FindBetweenAsSections("A", "*", "*")
+? @@( o1.FindBetweenAsSections("A", "*", "*") )
 #--> [ [4, 4], [9, 9] ]
 
+proff()
+# Executed in 0.05 second(s)
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? o1.FindBetweenCS("word", "<<", ">>", :CaseSensitive = FALSE)
@@ -5961,11 +6080,16 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? o1.FindBetweenAsSections("word", "<<", ">>")
 #--> [ [11, 14], [43, 46] ]
 
-//? o1.FindXT("word", :Between = [ "<<", ">>" ])
+? o1.FindXT("word", :Between = [ "<<", ">>" ])
+#--> [ 11, 43 ]
 
+proff()
+# Executed in 0.07 second(s)
 
 /*-----------------
-/
+
+pron()
+
 o1 = new stzString("my <<word>> and your <<word>>")
 ? o1.FindXT("word", :Between = [ "<<", ">>" ])
 #--> [6, 24]
@@ -5973,13 +6097,22 @@ o1 = new stzString("my <<word>> and your <<word>>")
 ? o1.FindXT("word", :BoundedBy = [ "<<", ">>" ])
 #--> [6, 24]
 
+proff()
+# Executed in 0.06 second(s)
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("my <<word>> and your <<word>>")
 ? o1.FindBetween("word", "<<", ">>")
 #--> [6, 24]
 
+proff()
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("my **word** and your **word**")
 
@@ -5989,14 +6122,21 @@ o1 = new stzString("my **word** and your **word**")
 ? o1.FindXT("word", :BoundedBy = "**")
 #--> [6, 24]
 
+proff()
+# Executed in 0.05 second(s)
+
 /*-----------------
+*/
+pron()
 
 o1 = new stzString("my <<word>> and your <<word>>")
-? o1.FindXT("word", :StartingAt = 12)
+//? o1.FindXT("word", :StartingAt = 12)
 #--> [ 13 ]
 
 ? o1.FindXT("word", :InSection = [3, 10])
-#--> [ 4 ]
+#--> [ 6 ]
+
+proff()
 
 /*-----------------
 

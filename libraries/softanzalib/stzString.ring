@@ -18837,6 +18837,10 @@ def ReplaceIBS()
 			pcSubStr = pcSubStr[2]
 		ok
 
+		if isList(pcSubStr)
+			return This.FindManyZCS(pcSubStr, pCaseSensitive)
+		ok
+
 		if NOT isString(pcSubStr)
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
@@ -18903,6 +18907,10 @@ def ReplaceIBS()
 
 		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
+		ok
+
+		if isList(pcSubStr)
+			return This.FindManyZZCS(pcSubStr, pCaseSensitive)
 		ok
 
 		if NOT isString(pcSubStr)
