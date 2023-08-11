@@ -3962,7 +3962,7 @@ proff()
 pron()
 
 o1 = new stzString("<<word>> and __word__")
-? @@( o1.Bounds( :Of = "word", :UpToNChars = 2 ) )
+? @@( o1.BoundsXT( :Of = "word", :UpToNChars = 2 ) )
 #--> [ [ "<<", ">>" ], [ "__", "__" ] ]
 
 proff()
@@ -3973,7 +3973,7 @@ proff()
 pron()
 	
 o1 = new stzString("<<word>> and __word__")
-? @@( o1.Bounds( :Of = "word", :UpToNChars = [ 2, 2 ]  ) )
+? @@( o1.BoundsXT( :Of = "word", :UpToNChars = [ 2, 2 ]  ) )
 #--> [ [ "<<", ">>" ], [ "__", "__" ] ]
 
 proff()
@@ -3984,7 +3984,7 @@ proff()
 pron()
 
 o1 = new stzString("<<word>>> and  _word__")
-? @@( o1.Bounds( :Of = "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ]  ) )
+? @@( o1.BoundsXT( :Of = "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ]  ) )
 #--> [ [ "<<", ">>>" ], [ "_", "__" ] ]
 
 proff()
@@ -5347,11 +5347,11 @@ o1 = new stzString("ab_cd_ef_gh")
 
 o1 = new stzString("How many <<many>> are there in (many <<<many>>>): so <many>>!")
 
-? @@(o1.Bounds(:Of = "many", :UpToNChars = [ 0, 2, 0, 3, [1,2] ])) + NL
+? @@(o1.BoundsXT(:Of = "many", :UpToNChars = [ 0, 2, 0, 3, [1,2] ])) + NL
 #--> [ [ NULL, NULL ], [ "<<", ">>" ], [ NULL, NULL ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
 
 //Same as:
-? @@(o1.Bounds(:Of = "many", :UpToNChars = [ [0,0], [2, 2], [0,0], [3,3], [1,2] ]))
+? @@(o1.BoundsXT(:Of = "many", :UpToNChars = [ [0,0], [2, 2], [0,0], [3,3], [1,2] ]))
 #--> [ [ NULL, NULL ], [ "<<", ">>" ], [ NULL, NULL ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
 
 /*=================
@@ -5638,37 +5638,37 @@ o1 = new stzString("what a <<nice>>> day!")
 
 o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
 
-? @@( o1.Bounds( :Of = "many", :UpToNChars = 1 ) ) + NL
+? @@( o1.BoundsXT( :Of = "many", :UpToNChars = 1 ) ) + NL
 #--> [ [ " ", " " ], [ "<", ">" ], [ "(", " " ], [ "<", ">" ], [ "<", ">" ] ]
 
 # Same as:
-? @@( o1.Bounds( :Of = "many", :UpToNChars = [1, 1] ) ) + NL
+? @@( o1.BoundsXT( :Of = "many", :UpToNChars = [1, 1] ) ) + NL
 #--> [ [ " ", " " ], [ "<", ">" ], [ "(", " " ], [ "<", ">" ], [ "<", ">" ] ]
 
-? @@( o1.Bounds( :Of = "many", :UpToNChars = [ 0, 2, 0 ] ) ) + NL
+? @@( o1.BoundsXT( :Of = "many", :UpToNChars = [ 0, 2, 0 ] ) ) + NL
 #--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ] ]
 
-? @@( o1.Bounds(:Of = "many", :UpToNChars = [ 0, 2, 0, 2, 2 ] ) ) + NL
+? @@( o1.BoundsXT(:Of = "many", :UpToNChars = [ 0, 2, 0, 2, 2 ] ) ) + NL
 #--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ], [ "<<", ">>" ], [ "<<", ">>" ] ]
 
-? @@( o1.Bounds(:Of = "many", :UpToNChars = [ [0,0], [2,2] ] ) ) + NL
+? @@( o1.BoundsXT(:Of = "many", :UpToNChars = [ [0,0], [2,2] ] ) ) + NL
 #--> [ [ "", "" ], [ "<<", ">>" ] ]
 
-? @@( o1.Bounds(:Of = "many", :UpToNChars = [ 0, [2,2], 0, 2, [2, 2] ] ) ) + NL
+? @@( o1.BoundsXT(:Of = "many", :UpToNChars = [ 0, [2,2], 0, 2, [2, 2] ] ) ) + NL
 #--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ], [ "<<", ">>" ], [ "<<", ">>" ] ]
 
 /*----------
 
 o1 = new stzString("what a <<<nice>>> day!")
-? @@( o1.Bounds(:Of = "nice", :UpToNChars = 3) )
+? @@( o1.BoundsXT(:Of = "nice", :UpToNChars = 3) )
 #--> [ [ "<<<", ">>>" ] ]
 
 o1 = new stzString("what a <nice>>> day!")
-? @@( o1.Bounds(:Of = "nice", :UpToNChars = [1, 3]) )
+? @@( o1.BoundsXT(:Of = "nice", :UpToNChars = [1, 3]) )
 #--> [ [ "<", ">>>" ] ]
 
 o1 = new stzString("what a <<nice>>> day! Really <nice>>.")
-? @@( o1.Bounds(:Of = "nice", :UpToNChars = [ [2, 3], [1, 2] ]) )
+? @@( o1.BoundsXT(:Of = "nice", :UpToNChars = [ [2, 3], [1, 2] ]) )
 #--> [ [ "<<", ">>>" ], [ "<", ">>" ] ]
 
 /*==================
@@ -6209,6 +6209,44 @@ o1.RemoveBoundsXT(["<<", ">>"], :OfSubString = "word")
 proff()
 # Executed in 0.07 second(s)
 
+/*------ ReplaceBetween
+
+pron()
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.ReplaceBetween("noword", "<<", ">>", :With = "word")
+? o1.Content() + NL
+#--> bla bla <<word>> bla bla <<word>> bla <<word>>
+
+# or, more naturally, you can say:
+
+o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+o1.ReplaceXT("noword", :Between = ["<<", ">>"], :With = "word")
+? o1.Content()
+#--> bla bla <<word>> bla bla <<word>> bla <<word>>
+
+proff()
+# Executed in 0.12 second(s)
+
+/*------ ReplaceBoundedBy
+
+pron()
+
+o1 = new stzString("bla bla --word-- bla bla --nword- bla --word--")
+o1.ReplaceBoundedBy("word", "--", :With = "WORD")
+? o1.Content() + NL
+#--> bla bla --WORD-- bla bla --nword- bla --WORD--
+
+# or, more naturally, you can say:
+
+o1 = new stzString("bla bla --word-- bla bla --nword- bla --word--")
+o1.ReplaceXT("word", :BoundedBy = "--", :With = "word")
+? o1.Content()
+#--> bla bla --WORD-- bla bla --nword- bla --WORD--
+
+proff()
+# Executed in 0.15 second(s)
+
 /*------ ReplaceBetweenIB
 
 pron()
@@ -6246,47 +6284,40 @@ o1.ReplaceXT("word", :BoundedByIB = "--", :With = "WORD")
 
 proff()
 
-/*------ ReplaceBetween
-
-*/
-pron()
-
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.ReplaceBetween("noword", "<<", ">>", :With = "word")
-? o1.Content() + NL
-#--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
-
-# or, mor naturally, you can say:
-
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.ReplaceXT("noword", :Between = ["<<", ">>"], :With = "word")
-? o1.Content()
-#--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
-
-proff()
-# Executed in 0.12 second(s)
-
 /*------ 
+
+pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.RemoveAnyBetween("<<", ">>")
 ? o1.Content()	#--> "bla bla <<>> bla bla <<>> bla <<>>"
+#--> bla bla <<>> bla bla <<>> bla <<>>
+
+proff()
+# Executed in 0.07 second(s)
 
 /*----------------
+
+pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.RemoveSubStringBetween("noword", "<<", ">>") # Short form of RemoveBetween()
 ? o1.Content()
-#--> "bla bla <<word>> bla bla <<>> bla <<word>>"
+#--> bla bla <<word>> bla bla <<>> bla <<word>>
 
 # Or, more naturally, you can say:
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.RemoveXT("noword", :Between = ["<<", ">>"])
 ? o1.Content()
-#--> "bla bla <<word>> bla bla <<>> bla <<word>>"
+#--> bla bla <<word>> bla bla <<>> bla <<word>>
 
-/*-----------------
+proff()
+# Executed in 0.17 second(s)
+
+/*----------------- RemoveBetween RemoveAt
+
+pron()
 
 # EXAMPLE 1:
 
@@ -6309,15 +6340,26 @@ o1.RemoveXT("word", :AtPositions = [ 11, 43 ])
 ? o1.Content()
 #--> bla bla <<>> bla bla <<noword>> bla <<>>
 
+proff()
+# Executed in 0.20 second(s)
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("<<Go!>>")
 ? o1.BoundsRemoved(["<<", ">>"]) #--> "Go!"
+# Executed in 0.04 second(s)
+
+proff()
+# Executed in 0.04 second(s)
 
 /*=================
 
+pron()
+
 # In Softanza, to remove a substring from left or right
-# you can use RemoveFromLeft() and RemoveFromRight() functions.
+# you can use RemoveFromLeft() and RemoveFromRight() functions:
 
 o1 = new stzString("let's say welcome to everyone!")
 o1.RemoveFromLeft("let's say ")
@@ -6333,7 +6375,7 @@ o1.RemoveFromLeft("let's say ")
 # instead...
 
 o1 = new stzString("هذه الكلمات الّتي سوف تبقى")
-? o1.NRightChars(4) #--> "هذه "
+? o1.NRightCharsAsSubstring(4) #--> "هذه "
 o1.RemoveFromRight("هذه ")
 ? o1.Content() #--> "الكلمات الّتي سوف تبقى"
 
@@ -6345,70 +6387,141 @@ o1 = new stzString("let's say welcome to everyone!")
 o1.RemoveFromStart("let's say ")
 ? o1.Content() #--> welcome to everyone!
 
-# and the same code for arabic:
+# and the same code working for arabic:
 
 o1 = new stzString("هذه الكلمات الّتي سوف تبقى")
 o1.RemoveFromStart("هذه ")
 ? o1.Content() #--> "الكلمات الّتي سوف تبقى"
 
+proff()
+# Executed in 0.07 second(s)
+
 /*========================
 
+pron()
+
 o1 = new stzString("من كان في زمنه من أصحابه فهو من أكبر المحظوظين")
-o1.RemoveNthOccurrence(:Last, " من")
+o1.RemoveLast(" من") # Or o1.RemoveNthOccurrence(:Last, " من")
 ? o1.Content()
 #--> Gives من كان في زمنه من أصحابه فهو أكبر المحظوظين
 
+proff()
+# Executed in 0.03 second(s)
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("**A1****A2***A3")
 o1.RemoveNthOccurrence(:Last, "A")
-? o1.Content() #--> **A1****A2***3
+? o1.Content()
+#--> **A1****A2***3
+
+proff()
+# Executed in 0.03 second(s)
 
 /*-----------------
+
+pron()
 
 o1 = new stzString("**A1****A2***A3")
 o1.RemoveNthOccurrenceCS(:Last, "a", :CaseSensitive = FALSE)
 ? o1.Content() #--> **A1****A2***3
 
+proff()
+# Executed in 0.03 second(s)
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("**A1****A2***A3")
 o1.RemoveLast("A")
-? o1.Content() #--> **A1****A2***3
+? o1.Content()
+#--> **A1****A2***3
+
+proff()
+# Executed in 0.03 second(s)
 
 /*-----------------
 
+pron()
+
 o1 = new stzString("**A1****A2***A3")
 o1.RemoveFirst("A")
-? o1.Content() #--> **1****A2***A3
+? o1.Content()
+#--> **1****A2***A3
+
+proff()
 
 /*==================
 
+pron()
+
 o1 = new stzString("<<word>>")
 
-? o1.IsBoundedBy(["<<", ">>"]) #--> TRUE
+? o1.IsBoundedBy(["<<", ">>"])
+#--> TRUE
 
 o1.RemoveBounds(["<<",">>"])
-? o1.Content() #--> word
+? o1.Content()
+#--> word
+
+proff()
+# Executed in 0.04 second(s)
 
 /*---------------
 
+pron()
+
 o1 = new stzString("word")
-o1.AddBounds(["<<",">>"])	#--> or BoundWith(["<<",">>"])
+o1.AddBounds(["<<",">>"]) # or BoundWith(["<<",">>"])
 ? o1.Content()
 #--> <<word>>
 
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+*/
+pron()
+
+o1 = new stzString("Hello <<<Ring>>, the beautiful ((Ring))!")
+? @@( o1.BoundsOf("Ring") )
+#--> [ ["<<", ">>"], [ "((", "))" ] ]
+
+proff()
+# Executed in 0.08 second(s)
+
+/*---------------
+*/
+pron()
+
+o1 = new stzString("Ring>>, the nice ---Ring---, the beautiful ((Ring")
+? @@( o1.BoundsOf("Ring") )
+#--> [ [ "---", "---" ] ]
+
+proff()
+# Executed in 0.09 second(s)
+
 /*--------------- TODO (future)
+*/
+pron()
 
 o1 = new stzString("<<word>>")
 
-? o1.Bounds() # !--> [ "<<", ">>" ]
+? o1.LeadingCharsAsString()
+? o1.TrailingCharsAsString()
 
-? o1.LeftBound() # !--> "<<"
-? o1.RightBound() # !--> ">>"
+? o1.BoundsXT()		# !--> [ "<<", ">>" ]
+
+//? o1.LeftBound()	# !--> "<<"
+//? o1.RightBound()	# !--> ">>"
 
 # And also FirstBound() and LastBound() for general
 # use with left-to-right and right-toleft strings
+
+proff()
 
 /*=================
 
