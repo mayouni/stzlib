@@ -14105,13 +14105,9 @@ class stzString from stzObject
 	  #-------------------------------------------------------------------------#
 	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	#-------------------------------------------------------------------------#
-"todo"
-def ReplaceBetweenIB()
-def ReplaceBetweenS()
-def ReplaceIBS()
 
 	def ReplaceBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
-		aSections = This.FindSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		aSections = This.FindSubStringBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		This.ReplaceSections(aSections, pcNewSubStr)
 
 		#< @FunctionFluentForm
@@ -14120,6 +14116,15 @@ def ReplaceIBS()
 			This.ReplaceBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForm # (look to other in bottom of file)
+
+		def ReplaceSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+			This.ReplaceBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
+
+			def ReplaceSubStringBetweenCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+				This.ReplaceSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
 		#>
 
 	def SubStringInBetweenReplacedCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
@@ -14137,6 +14142,15 @@ def ReplaceIBS()
 	def ReplaceBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
 		return This.ReplaceBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForm # (look to other in bottom of file)
+
+		def ReplaceSubStringBetween(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+			This.ReplaceBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
+
+			def ReplaceSubStringBetweenQ(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+				This.ReplaceSubStringBetween(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+		#>
+
 	def SubStringInBetweenReplaced(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
 		return This.SubStringInBetweenReplacedCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, :CaseSensitive = TRUE)
 
@@ -14146,9 +14160,119 @@ def ReplaceIBS()
 		def SubstringBoundedByReplaced(pcSubStr, pacBounds, pcNewSubstr)
 			return This.SubStringInBetweenReplaced(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
 
-	  #=====================================#
-	 #  REPLACING A SUBSTRING -- EXTENDED  #
-	#=====================================#
+	  #-------------------------------------------------------------------------#
+	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
+	#-------------------------------------------------------------------------#
+
+"todo"
+
+def ReplaceBetweenS()
+def ReplaceIBS()
+	
+	def ReplaceBetweenIBCS(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+
+		aSections = This.FindSubStringBetweenAsSectionsIBCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		This.ReplaceSections(aSections, pcNewSubStr)
+
+
+		#< @FunctionFluentForm
+
+		def ReplaceBetweenIBCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+			This.ReplaceBetweenIBCS(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceSubStringBetweenIBCS(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+			This.ReplaceBetweenIBCS(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceSubStringBetweenIBCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+				This.ReplaceSubStringBetweenIBCS(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceBoundedByIBCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+			aSections = This.FindSubStringBoundedByAsSectionsIBCS(pcSubStr, pacBounds, pCaseSensitive)
+			This.ReplaceSections(aSections, pcNewSubStr)
+	
+			def ReplaceBoundedByIBCSQ(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+				This.ReplaceBoundedByIBCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceSubStringBoundedByIBCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+			This.ReplaceBoundedByIBCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+	
+			def ReplaceSubStringBoundedByIBCSQ(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+				This.ReplaceSubStringBoundedByIBCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+				return This
+
+		#>
+
+	def SubStringBetweenReplacedIBCS(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceBetweenIBCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive).Content()
+		return cResult
+
+		#< @FunctionAlternativeForm
+
+		def SubStringBoundedByIBCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+			cResult = This.Copy().SubStringBoundedByIBCSQ(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive).Content()
+			return cResult
+	
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceBetweenIB(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+		This.ReplaceBetweenIBCS(pcSubStr, pcBound1, pcBound2, pcNewSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceBetweenIBQ(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+			This.ReplaceBetweenIB(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceSubStringBetweenIB(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+			This.ReplaceBetweenIB(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+
+			def ReplaceSubStringBetweenIBQ(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+				This.ReplaceSubStringBetweenIB(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+				return This
+
+		def ReplaceBoundedByIB(pcSubStr, pacBounds, pcNewSubStr)
+			This.ReplaceBoundedByIBCS(pcSubStr, pacBounds, pcNewSubStr, :CaseSensitive = TRUE)
+
+			def ReplaceBoundedByIBQ(pcSubStr, pacBounds, pcNewSubStr)
+				This.ReplaceBoundedByIB(pcSubStr, pacBounds, pcNewSubStr)
+				return This
+
+		def ReplaceSubStringBoundedByIB(pcSubStr, pacBounds, pcNewSubStr)
+			This.ReplaceBoundedByIB(pcSubStr, pacBounds, pcNewSubStr)
+	
+			def ReplaceSubStringBoundedByIBQ(pcSubStr, pacBounds, pcNewSubStr)
+				This.ReplaceSubStringBoundedByIB(pcSubStr, pacBounds, pcNewSubStr)
+				return This
+
+		#>
+
+	def SubStringBetweenReplacedIB(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+		cResult = This.Copy().ReplaceBetweenIBQ(pcSubStr, pcBound1, pcBound2, pcNewSubStr).Content()
+		return cResult
+
+		#< @FunctionAlternativeForm
+
+		def SubStringBoundedByIB(pcSubStr, pacBounds, pcNewSubStr)
+			return This.SubStringBoundedByIBCS(pcSubStr, pacBounds, pcNewSubStr, :CaseSensitive = TRUE)
+
+		#>	
+
+	  #==============================================================#
+	 #  REPLACING A SUBSTRING -- EXTENDED (NNC : NEAR-NATURAL CODE  #
+	#==============================================================#
 
 	def ReplaceXTCS(p1, p2, p3, pCaseSensitive)
 
@@ -14310,7 +14434,7 @@ def ReplaceIBS()
 				StzRaise("Incorrect param type! p2 must be a pair of strings or numbers.")
 			ok
 
-		# Q("Bla bla /♥♥♥/, and bla!").ReplaceXT([], :BoundedBy = "/", :With = "bla")
+		# Q("Bla bla /♥♥♥/, and bla!").ReplaceXT([], :BoundedByIB = "/", :With = "bla")
 		but ( (isList(p1) and len(p1) = 0) or (isString(p1) and p1 = "") or (isNumber(p1) and p1 = 0) ) and
 		    ( isList(p2) and Q(p2).IsBoundedByIBNamedParam() ) and
 		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
@@ -14319,6 +14443,53 @@ def ReplaceIBS()
 			
 			This.ReplaceAnyBoundedByIBCS(p2, p3, pCaseSensitive)
 
+		# Q("Bla bla <<♥♥♥>>, and bla!").ReplaceXT("♥♥♥", :Between = ["<<",">>"], :With = "bla")
+		but isString(p1) and
+		    ( isList(p2) and Q(p2).IsBetweenNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+
+			p2 = p2[2]
+			
+			if isList(p2) and Q(p2).IsPairOfStrings()
+				This.ReplaceSubstringBetweenCS(p1, p2[1], p2[2], p3, pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param type! p2 must be a pair of strings.")
+			ok
+			
+		# Q("Bla bla /♥♥♥/, and bla!").ReplaceXT("♥♥♥", :BoundedBy = "/", :With = "bla")
+		but isString(p1) and
+		    ( isList(p2) and Q(p2).IsBoundedByNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+
+			p2 = p2[2]
+			
+			This.ReplaceSubStringBoundedByCS(p2, p3, pCaseSensitive)
+
+		# Q("Bla bla <<♥♥♥>>, and bla!").ReplaceXT([], :BetweenIB = ["<<",">>"], :With = "bla")
+		but isString(p1) and
+		    ( isList(p2) and Q(p2).IsBetweenIBNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+
+			p2 = p2[2]
+			
+			if isList(p2) and Q(p2).IsPairOfStrings()
+				This.ReplaceSubstringBetweenIBCS(p1, p2[1], p2[2], p3, pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param type! p2 must be a pair of strings.")
+			ok
+
+		# Q("Bla bla /♥♥♥/, and bla!").ReplaceXT([], :BoundedByIB = "/", :With = "bla")
+		but isString(p1) and
+		    ( isList(p2) and Q(p2).IsBoundedByIBNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+
+			p2 = p2[2]
+			
+			This.ReplaceSubStringBoundedByIBCS(p1, p2, p3, pCaseSensitive)
+
+		#--
 		but ( (isList(p1) and Q(p1).IsBetweenNamedParam() ) and
 		      (isString(p2) or (isList(p2) and Q(p2).IsWithOrByNamedParam())) and
 		      ((isList(p3) and len(p3) = 0) or (isString(p3) and p3 = "") or (isNumber(p3) and p3 = 0)) )
@@ -20135,6 +20306,11 @@ def ReplaceIBS()
 				p2 = p2[2]
 				return This.FindBetweenIBCS(p1, p2[1], p2[2], pCaseSensitive)
 
+			# FindXT("word", :StartingAt = 12)
+			but oP2.IsStartingAtNamedParam()
+				p2 = p2[2]
+				return This.FindSCS(p1, p2,pCaseSensitive)
+
 			# FindXT( "*", :InSection = [10 , 14 ] )
 			but oP2.IsInSectionNamedParam()
 				return This.FindInSectionCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
@@ -21342,7 +21518,7 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
-		def FindSubStringBetweenAsSectionsIBCS(cSubStr, pcBound1, pcBound2, pCaseSensitive)
+		def FindSubStringBetweenAsSectionsIBCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			return This.FindBetweenAsSectionsIBCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 		def FindBoundedByAsSectionsIBCS(pcSubStr, pacBounds, pCaseSensitive)
@@ -32842,6 +33018,16 @@ def ReplaceIBS()
 		#--> "..AA.._..BB.._"
 		*/
 
+		if NOT( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+
+			stzRaise([
+				:Where = "stzString > ReplaceManySections()",
+				:What  = "Can't Replace many sections from the string.",
+				:Why   = "The value you provided is not a list of sections.",
+				:Todo  = "Provide a list of sections as pairs of numbers!"
+			])
+		ok
+
 		if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
 			pcCondition = pcCondition[2]
 
@@ -44184,7 +44370,7 @@ def ReplaceIBS()
 			return This.FindBetweenCSQR(pcSubStr, pcBound1, pcBound2, pCaseSensitive, pcReturnType)
 
 	def FindSubstringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		return This.FindBetweenCS(pcSubStr, pcBound1, pcBound2)
+		return This.FindBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 		def FindSubstringBetweenCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			return This.FindSubstringBetweenCSQR(pcSubStr, pcBound1, pcBound2, pCaseSensitive, :stzList)

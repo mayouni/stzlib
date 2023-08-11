@@ -6125,31 +6125,44 @@ o1 = new stzString("my **word** and your **word**")
 proff()
 # Executed in 0.05 second(s)
 
-/*-----------------
-*/
+/*============= Near Natural Code
+
 pron()
 
 o1 = new stzString("my <<word>> and your <<word>>")
-//? o1.FindXT("word", :StartingAt = 12)
+? @@( o1.FindXT("word", :StartingAt = 12) )
 #--> [ 13 ]
 
-? o1.FindXT("word", :InSection = [3, 10])
+? @@( o1.FindXT("word", :InSection = [3, 10]) )
 #--> [ 6 ]
 
 proff()
+# Executed in 0.08 second(s)
 
 /*-----------------
 
+pron()
+
 o1 = new stzString("12*♥*56*♥*")
+
+? o1.FirstXT("♥", :Between = [ "*", "*"])
+#--> 4
+
 ? o1.FirstXT("♥", :BoundedBy = [ "*", "*"])
 #--> 4
 
 ? o1.FirstXT("♥", :BoundedBy = "*")
 #--> 4
 
-/*-----------------
+proff()
+# Executed in 0.07 second(s)
+
+/*==============
+
+pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
+
 ? @@( o1.FindBetween("word", "<<", ">>") )
 #--> [ 11 ]
 
@@ -6162,38 +6175,96 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
 ? @@( o1.FindAnyBetweenAsSections("<<",">>") )
 #--> [ [ 11, 14 ], [ 28, 33 ], [ 43, 49 ] ]
 
-/*-----------------
+proff()
+# Executed in 0.12 second(s)
+
+/*=================
+
+pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
 o1.ReplaceAnyBetween("<<", ">>", :With = "word")
-? o1.Content()  #--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
+? o1.Content()
+#--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
 
-/*-----------------
+proff()
+# Executed in 0.09 second(s)
+
+/*================ NNC : Near Natural Code
+
+pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 o1.RemoveBoundsOfSubString(["<<", ">>"], "word")
+? o1.Content() + NL
+#--> "bla bla word bla bla word bla word"
+
+# or, more naturally, you can say:
+
+o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
+o1.RemoveBoundsXT(["<<", ">>"], :OfSubString = "word")
 ? o1.Content()
 #--> "bla bla word bla bla word bla word"
+
+proff()
+# Executed in 0.07 second(s)
+
+/*------ ReplaceBetweenIB
+
+pron()
+
+o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>.")
+o1.ReplaceBetweenIB("word", "<<", ">>", "WORD")
+? o1.Content() + NL
+#--> bla bla WORD bla bla WORD bla WORD.
+
+# or, more naturally, you can say:
+
+o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>.")
+o1.ReplaceXT("word", :BetweenIB = ["<<", ">>"], :With = "WORD")
+? o1.Content()
+#-->
+
+proff()
+# Executed in 0.14 second(s)
+
+/*------ ReplaceBoundedByIB
+
+pron()
+
+o1 = new stzString("bla bla --word-- bla bla --word-- bla --word--.")
+o1.ReplaceBoundedByIB("word", "--", "WORD")
+? o1.Content() + NL
+#--> bla bla WORD bla bla WORD bla WORD.
 
 # or, mor naturally, you can say:
 
-o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
-o1.RemoveBoundsXT(["<<", ">>"], :Of = "word")
-? o1.Content() #--> "bla bla word bla bla word bla word"
-#--> "bla bla word bla bla word bla word"
+o1 = new stzString("bla bla --word-- bla bla --word-- bla --word--.")
+o1.ReplaceXT("word", :BoundedByIB = "--", :With = "WORD")
+? o1.Content()
+#--> 
 
-/*------
+proff()
+
+/*------ ReplaceBetween
+
+*/
+pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.ReplaceBetween("noword", "<<", ">>", :With = "word")
-? o1.Content()
+? o1.Content() + NL
 #--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
 
 # or, mor naturally, you can say:
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.ReplaceXT("noword", :Between = ["<<", ">>"], :With = "word")
+? o1.Content()
 #--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
+
+proff()
+# Executed in 0.12 second(s)
 
 /*------ 
 
