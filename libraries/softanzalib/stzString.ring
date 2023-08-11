@@ -7614,7 +7614,7 @@ class stzString from stzObject
 			anUpToNChars = [ Q(acPair[1]).NumberOfChars(),
 					 Q(acPair[2]).NumberOfChars() ]
 
-			acBounds = This.BoundsCS( :Of = pcSubStr, anUpToNChars, pCaseSensitive)
+			acBounds = This.BoundsXTCS( :Of = pcSubStr, anUpToNChars, pCaseSensitive)
 
 			bResult = Q(pacBounds).AllItemsExistIn(acBounds)
 		next
@@ -7745,29 +7745,29 @@ class stzString from stzObject
 		def Enclose(paSection, paHervest)
 			return Sit(paSection, paHervest)
 
-	  #===============================================#
-	 #  GETIING BOUNDS OF A SUBSTRING UP TO N CHARS  #
-	#===============================================#
+	  #==============================================#
+	 #  GETIING BOUNDSOF A SUBSTRING UP TO N CHARS  #
+	#==============================================#
 
-	def BoundsCS(pcSubStr, panUpToNChars, pCaseSensitive)
+	def BoundsXTCS(pcSubStr, panUpToNChars, pCaseSensitive)
 		/* EXAMPLES
 
 		#-- EXAMPLE 1
 
 		o1 = new stzString("<<word>> and __word__")
-		? @@( o1.Bounds( :Of = "word", :UpToNChars = 2 ) )
+		? @@( o1.BoundsXT( :Of = "word", :UpToNChars = 2 ) )
 		#--> [ [ "<<", ">>" ], [ "__", "__" ] ]
 		
 		#-- EXAMPLE 2
 		
 		o1 = new stzString("<<word>> and __word__")
-		? @@( o1.Bounds( :Of = "word", :UpToNChars = [ 2, 2 ]  ) )
+		? @@( o1.BoundsXT( :Of = "word", :UpToNChars = [ 2, 2 ]  ) )
 		#--> [ [ "<<", ">>" ], [ "__", "__" ] ]
 		
 		#-- EXAMPLE 3
 	
 		o1 = new stzString("<<word>>> and  _word__")
-		? o1.Bounds( :Of = "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ]  )
+		? o1.BoundsXT( :Of = "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ]  )
 
 		*/
 
@@ -7869,100 +7869,264 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def BoundsOfCS(pcSubStr, panUpToNChars, pCaseSensitive)
+		def BoundsUpToNCharsCS(pcSubStr, panUpToNChars, pCaseSensitive)
 			if NOT ( isString(pcSubStr) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
 				StzRaise("Incorrect param type! pcSubStr must be a string.")
 			ok
 
-			return This.BoundsCS(pcSubStr, panUpToNChars, pCaseSensitive)
+			return This.BoundsXTCS(pcSubStr, panUpToNChars, pCaseSensitive)
 
 		#>
 
-	def Bounds(pcSubStr, pnUpToNChars)
-		return This.BoundsCS(pcSubStr, pnUpToNChars, :CaseSensitive = TRUE)
+	#-- WITHOUT CASESENSITUVITY
 
-		def BoundsOf(pcSubStr, pnUpToNChars)
+	def BoundsXT(pcSubStr, pnUpToNChars)
+		return This.BoundsXTCS(pcSubStr, pnUpToNChars, :CaseSensitive = TRUE)
+
+		def BoundsUpToNChars(pcSubStr, pnUpToNChars)
 			return This.BoundsOfCS(pcSubStr, panUpToNChars, :CaseSensitive = TRUE)
 	
-	  #---------------------------------------------------------#
-	 #  GETTING THE LIST OF FIRST BOUNDS OF A GIVEN SUBSTRING  #
-	#---------------------------------------------------------#
+	  #--------------------------------------------------#
+	 #  GETTING THE TWO BOUNDS (IF EVER) OF THE STRING  #
+	#==================================================#
 
-	def FirstBoundsCS(pcSubStr, pCaseSensitive)
-		acResult = StzListOfPairsQ( This.BoundsCS(pcSubStr, pCaseSensitive) ).FirstItems()
+	def BoundsCS(pCaseSensitive)
+		/* EXAMPLE 1
+
+		o1 = new stzString("<<Ring>>")
+		? o1.Bounds()
+		#--> [ "<<", ">>" ]
+
+		EXAMPLE 2
+
+		o1 = new stzString("---Ring___")
+		? o1.Bounds()
+		#--> [ "---, "___" ]
+
+		*/
+
+		acResult = [
+			This.LeadingCharsAsStringCS(pCaseSensitive),
+			This.TrailingCharsAsStringCS(pCaseSensitive)
+		]
+
 		return acResult
 
-		def FirstBoundsOfCS(pcSubStr, pCaseSensitive)
-			if NOT ( isString(pcSubStr) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
-				StzRaise("Incorrect param type! pcSubStr must be a string.")
-			ok
+	#-- WITHOUT CASESENSITIVITY
 
-			return This.FirstBoundsCS(pcSubStr, pCaseSensitive)
+	def Bounds()
+		return This.BoundsCS(:CaseSensitive = TRUE)
 
-	  #--------------------------------------------------------#
-	 #  GETTING THE LIST OF LAST BOUNDS OF A GIVEN SUBSTRING  #
-	#--------------------------------------------------------#
+	  #-----------------------------------------#
+	 #  GETTING THE FIRST BOUND OF THE STRING  #
+	#-----------------------------------------#
 
-	def LastBoundsCS(pcSubStr, pCaseSensitive)
-		acResult = StzListOfPairsQ( This.BoundsCS(pcSubStr, pCaseSensitive) ).SecondItems()
-		return acResult
+	def FirstBoundCS(pCaseSensitive)
+		cResult = This.BoundsCS(pCaseSensitive)[1]
+		return cResult
 
-		#< @FunctionAlternativeForm
+	#-- WITHOUT CASESENSITIVITY
 
-		def LastBoundsOfCS(pcSubStr, pCaseSensitive)
-			if NOT ( isString(pcSubStr) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
-				StzRaise("Incorrect param type! pcSubStr must be a string.")
-			ok
+	def FirstBound()
+		return This.FirstBoundCS(:CaseSensitive = TRUE)
 
-			return This.LastBoundsCS(pcSubStr, pCaseSensitive)
+	  #----------------------------------------#
+	 #  GETTING THE LAST BOUND OF THE STRING  #
+	#----------------------------------------#
 
-		#>
+	def LastBoundCS(pCaseSensitive)
+		cResult = This.BoundsCS(pCaseSensitive)[2]
+		return cResult
 
-	  #--------------------------------------------------------#
-	 #  GETTING THE LIST OF LEFT BOUNDS OF A GIVEN SUBSTRING  #
-	#--------------------------------------------------------#
+	#-- WITHOUT CASESENSITIVITY
 
-	def LeftBoundsCS(pcSubStr, pCaseSensitive)
+	def LastBound()
+		return This.LastBoundCS(:CaseSensitive = TRUE)
+
+
+	  #----------------------------------------#
+	 #  GETTING THE LEFT BOUND OF THE STRING  #
+	#----------------------------------------#
+
+	def LeftBoundCS(pCaseSensitive)
 		if This.IsLeftToRight()
-			return This.FirstBoundsCS(pcSubStr, pCaseSensitive)
+			return This.FirstBoundCS(pCaseSensitive)
 
 		else # case IsRightToLeft()
-			return This.LastBoundsCS(pcSubStr, pCaseSensitive)
+			return This.LastBoundCS(pCaseSensitive)
 		ok
 
-		#< @FunctionAltyernativeForm
+	#-- WITHOUT CASESENSITIVE
 
-		def LeftBoundsOfCS(pcSubStr, pCaseSensitive)
-			if NOT ( isString(pcSubStr) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
-				StzRaise("Incorrect param type! pcSubStr must be a string.")
-			ok
+	def LeftBound()
+		return This.LeftBoundCS(:CaseSensitive = TRUE)
 
-			return This.LeftBoundsCS(pcSubStr, pCaseSensitive)
+	  #-----------------------------------------#
+	 #  GETTING THE RIGHT BOUND OF THE STRING  #
+	#-----------------------------------------#
 
-		#>
+	def RightBoundCS(pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.LastBoundCS(pCaseSensitive)
+
+		else # case IsRightToLeft()
+			return This.FirstBoundCS(pCaseSensitive)
+		ok
+
+	#-- WITHOUT CASESENSITIVE
+
+	def RightBound()
+		return This.RightBoundCS(:CaseSensitive = TRUE)
 
 	  #---------------------------------------------------------#
-	 #  GETTING THE LIST OF RIGHT BOUNDS OF A GIVEN SUBSTRING  #
-	#---------------------------------------------------------#
+	 #  GETTING THE BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
+	#=========================================================#
 
-	def RightBoundsCS(pcStr, pCaseSensitive)
-		if This.IsLeftToRight()
-			return This.LastBoundsCS(pcSubStr, pCaseSensitive)
+	def BoundsOfCS(pcSubStr, pCaseSensitive)
+		/* EXAMPLE 1
 
-		else # case IsRightToLeft()
-			return This.FirstBoundsCS(pcSubStr, pCaseSensitive)
+		o1 = new stzString("Hello <<Ring>>, the beautiful ((Ring))!")
+		? o1.BoundsOf("Ring")
+		#--> [ ["<<", ">>"], [ "((", "))" ] ]
+
+		*/
+
+		# Getting the list if chars and sections of pcSubStr
+
+		acChars = This.Chars()
+		nLenStr = len(acChars)
+
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		nLen = len(aSections)
+		if nLen = 0
+			return []
 		ok
 
-		#< @FunctionAltyernativeForm
+		# Removing extreme cases
 
-		def RightBoundsOfCS(pcSubStr, pCaseSensitive)
-			if NOT ( isString(pcSubStr) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
-				StzRaise("Incorrect param type! pcSubStr must be a string.")
-			ok
+		if aSections[1][1] = 1
+			ring_del(aSections, 1)
+			nLen--
+		ok
 
-			return This.RightBoundsCS(pcSubStr, pCaseSensitive)
+		if aSections[nLen][2] = nLenStr
+			ring_del(aSections, nLen)
+			nLen--
+		ok
 
-		#>
+		# Doing the job
+
+		aResult = []
+
+		for i = 1 to nLen
+			acBounds = []
+
+			#--
+
+			n1 = aSections[i][1]
+			c = acChars[n1-1]
+
+			cBound1 = c
+
+			for j = n1 - 2 to 1 step - 1
+				if acChars[j] != c
+					exit
+				else
+					cBound1 += c
+				ok
+			next
+
+			acBounds + cBound1
+
+			#--
+
+			n1 = aSections[i][2]
+			c = acChars[n1+1]
+
+			cBound2 = c
+
+			for j = n1 + 2 to nLenStr
+				if acChars[j] != c
+					exit
+				else
+					cBound2 += c
+				ok
+			next
+
+			acBounds + cBound2
+
+			#--
+
+			aResult + acBounds
+
+		next
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BoundsOf(pcSubstr)
+		return This.BoundsOfCS(pcSubstr, :CaseSensitive = TRUE)
+
+	  #-------------------------------------------------------------#
+	 #  GETTING THE FIRST BOUNDS OF A SUBSTRING INSIDE THE STRING  #
+	#-------------------------------------------------------------#
+
+	def FirstBoundsOfCS(pSubStr, pCaseSensitive)
+		acResult = QR( This.BoundsOfCS(pcSubStr, pCaseSensitive), :stzListOfPairs ).FirstItems()
+		return acResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FirstBoundsOf(pcSubStr)
+		return This.FirstBoundsOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------------#
+	 #  GETTING THE LAST BOUNDS OF A SUBSTRING INSIDE THE STRING  #
+	#------------------------------------------------------------#
+
+	def LastBoundsOfCS(pSubStr, pCaseSensitive)
+		acResult = QR( This.BoundsOfCS(pcSubStr, pCaseSensitive), :stzListOfPairs ).SecondItems()
+		return acResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LastBoundsOf(pcSubStr)
+		return This.LastBoundsOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------#
+	 #  GETTING THE LEFT BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
+	#--------------------------------------------------------------#
+
+	def LeftBoundsOfCS(pcSubStr, pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.FirstBoundsOfCS(pcSubStr, pCaseSensitive)
+
+		else # case IsRightToLeft()
+			return This.LastBoundsOfCS(pcSubStr, pCaseSensitive)
+		ok
+
+	#-- WITHOUT CASESENSITIVE
+
+	def LeftBoundsOf(pcSubStr)
+		return This.LeftBoundOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------------------#
+	 #  GETTING THE RIGHT BOUNDS OF A GIVEN SUBSTRIG INSIDE THE STRING  #
+	#------------------------------------------------------------------#
+
+	def RightBoundsOfCS(pcSubStr, pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.LastBoundsOfCS(pcSubStr, pCaseSensitive)
+
+		else # case IsRightToLeft()
+			return This.FirstBoundsOfCS(pcSubStr, pCaseSensitive)
+		ok
+
+	#-- WITHOUT CASESENSITIVE
+
+	def RightBoundsOf(pcSubStr)
+		return This.RightBoundsOfCS(pcSubStr, :CaseSensitive = TRUE)
 
 	  #============================================#
 	 #     REMOVING BOTH BOUNDS FROM THE STRING   #
@@ -8691,7 +8855,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def RepeatedLeadingCharsCSQ(pCaseSensitive)
-			return new stzString( This.RepeatedLeadingCharsCS(pCaseSensitive) )
+			return new stzList( This.RepeatedLeadingCharsCS(pCaseSensitive) )
 	
 		#>
 
@@ -8701,13 +8865,13 @@ class stzString from stzObject
 			return This.RepeatedLeadingCharsCS(pCaseSensitive)
 
 			def LeadingRepeatedCharsCSQ(pCaseSensitive)
-				return new stzString( This.LeadingRepeatedCharsCS(pCaseSensitive) )
+				return new stzList( This.LeadingRepeatedCharsCS(pCaseSensitive) )
 	
 		def LeadingCharsCS(pCaseSensitive)
 			return This.RepeatedLeadingCharsCS(pCaseSensitive)
 
 			def LeadingCharsCSQ(pCaseSensitive)
-				return new stzString( This.LeadingCharsCS(pCaseSensitive) )
+				return new stzList( This.LeadingCharsCS(pCaseSensitive) )
 	
 		#>
 
@@ -8719,7 +8883,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def RepeatedLeadingCharsQ()
-			return new stzString( This.RepeatedLeadingChars() )
+			return new stzList( This.RepeatedLeadingChars() )
 	
 		#>
 
@@ -8729,13 +8893,120 @@ class stzString from stzObject
 			return This.RepeatedLeadingChars()
 
 			def LeadingRepeatedCharsQ()
-				return new stzString( This.LeadingRepeatedChars() )
+				return new stzList( This.LeadingRepeatedChars() )
 	
 		def LeadingChars()
 			return This.RepeatedLeadingChars()
 
 			def LeadingCharsQ()
-				return new stzString( This.LeadingChars() )
+				return new stzList( This.LeadingChars() )
+	
+		#>
+
+	  #-----------------------------------------------------#
+	 #  GETTING THE REPEATED LEADING CHARS AS A SUBSTRING  #
+	#-----------------------------------------------------#
+
+	def RepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
+		acChars = This.RepeatedLeadingCharsCS(pCaseSensitive)
+		nLen = len(acChars)
+
+		cResult = ""
+		for i = 1 to nLen
+			cResult += acChars[i]
+		next
+
+		return cResult
+
+
+		#< @FunctionFluentForm
+
+		def RepeatedLeadingCharsAsSubStringCSQ(pCaseSensitive)
+			return new stzString( This.RepeatedLeadingCharsAsSubStringCS(pCaseSensitive) )
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def LeadingRepeatedCharsAsSubStringCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
+
+			def LeadingRepeatedCharsAsSubStringCSQ(pCaseSensitive)
+				return new stzString( This.LeadingRepeatedCharsAsSubStringCS(pCaseSensitive) )
+	
+		def LeadingCharsAsSubStringCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
+
+			def LeadingCharsAsSubStringCSQ(pCaseSensitive)
+				return new stzString( This.LeadingCharsAsSubStringCS(pCaseSensitive) )
+	
+		#--
+
+		def RepeatedLeadingCharsAsStringCS(pCaseSensitive)
+			This.RepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
+
+			def RepeatedLeadingCharsAsStringCSQ(pCaseSensitive)
+				return new stzString( This.RepeatedLeadingCharsAsStringCS(pCaseSensitive) )
+
+		def LeadingRepeatedCharsAsStringCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
+
+			def LeadingRepeatedCharsAsStringCSQ(pCaseSensitive)
+				return new stzString( This.LeadingRepeatedCharsAsSubStringCS(pCaseSensitive) )
+	
+		def LeadingCharsAsStringCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
+
+			def LeadingCharsAsStringCSQ(pCaseSensitive)
+				return new stzString( This.LeadingCharsAsSubStringCS(pCaseSensitive) )
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedLeadingCharsAsSubString()
+		return This.RepeatedLeadingCharsAsSubStringCS(:CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RepeatedLeadingCharsAsSubStringQ()
+			return new stzString( This.RepeatedLeadingCharsAsSubString() )
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def LeadingRepeatedCharsAsSubString()
+			return This.RepeatedLeadingCharsAsSubString()
+
+			def LeadingRepeatedCharsAsSubStringQ()
+				return new stzString( This.LeadingRepeatedCharsAsSubString() )
+	
+		def LeadingCharsAsSubString()
+			return This.RepeatedLeadingCharsAsSubString()
+
+			def LeadingCharsAsSubStringQ()
+				return new stzString( This.LeadingCharsAsSubString() )
+
+		#--
+
+		def RepeatedLeadingCharsAsString()
+			This.RepeatedLeadingCharsAsSubString()
+
+			def RepeatedLeadingCharsAsStringQ()
+				return new stzString( This.RepeatedLeadingCharsAsString() )
+
+		def LeadingRepeatedCharsAsString()
+			return This.RepeatedLeadingCharsAsSubString()
+
+			def LeadingRepeatedCharsAsStringQ()
+				return new stzString( This.LeadingRepeatedCharsAsSubString() )
+	
+		def LeadingCharsAsString()
+			return This.RepeatedLeadingCharsAsSubString()
+
+			def LeadingCharsAsStringQ()
+				return new stzString( This.LeadingCharsAsSubString() )
 	
 		#>
 
@@ -9098,19 +9369,19 @@ class stzString from stzObject
 		return cResult
 
 		def RepeatedTrailingCharsCSQ(pCaseSensitive)
-			return new stzString( This.RepeatedTrailingCharsCS(pCaseSensitive) )
+			return new stzList( This.RepeatedTrailingCharsCS(pCaseSensitive) )
 	
 		def TrailingRepeatedCharsCS(pCaseSensitive)
 			return This.RepeatedTrailingCharsCS(pCaseSensitive)
 
 			def TrailingRepeatedCharsCSQ(pCaseSensitive)
-				return new stzString( This.TrailingRepeatedCharsCS(pCaseSensitive) )
+				return new stzList( This.TrailingRepeatedCharsCS(pCaseSensitive) )
 	
 		def TrailingCharsCS(pCaseSensitive)
 			return This.RepeatedTrailingCharsCS(pCaseSensitive)
 
 			def TrailingCharsCSQ(pCaseSensitive)
-				return new stzString( This.TrailingCharsCS(pCaseSensitive) )
+				return new stzList( This.TrailingCharsCS(pCaseSensitive) )
 	
 	#-- WITHOUT CASESENSITIVITY
 
@@ -9118,19 +9389,126 @@ class stzString from stzObject
 		return This.RepeatedTrailingCharsCS(:CaseSensitive = TRUE)
 
 		def RepeatedTrailingCharsQ()
-			return new stzString( This.RepeatedTrailingChars() )
+			return new stzList( This.RepeatedTrailingChars() )
 	
 		def TrailingRepeatedChars()
 			return This.RepeatedTrailingChars()
 
 			def TrailingRepeatedCharsQ()
-				return new stzString( This.TrailingRepeatedChars() )
+				return new stzList( This.TrailingRepeatedChars() )
 	
 		def TrailingChars()
 			return This.RepeatedTrailingChars()
 
 			def TrailingCharsQ()
-				return new stzString( This.TrailingChars() )
+				return new stzList( This.TrailingChars() )
+
+	  #------------------------------------------------------#
+	 #  GETTING THE REPEATED Trailing CHARS AS A SUBSTRING  #
+	#------------------------------------------------------#
+
+	def RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+		acChars = This.RepeatedTrailingCharsCS(pCaseSensitive)
+		nLen = len(acChars)
+
+		cResult = ""
+		for i = 1 to nLen
+			cResult += acChars[i]
+		next
+
+		return cResult
+
+
+		#< @FunctionFluentForm
+
+		def RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+			return new stzString( This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive) )
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedCharsAsSubStringCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def TrailingRepeatedCharsAsSubStringCSQ(pCaseSensitive)
+				return new stzString( This.TrailingRepeatedCharsAsSubStringCS(pCaseSensitive) )
+	
+		def TrailingCharsAsSubStringCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def TrailingCharsAsSubStringCSQ(pCaseSensitive)
+				return new stzString( This.TrailingCharsAsSubStringCS(pCaseSensitive) )
+	
+		#--
+
+		def RepeatedTrailingCharsAsStringCS(pCaseSensitive)
+			This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def RepeatedTrailingCharsAsStringCSQ(pCaseSensitive)
+				return new stzString( This.RepeatedTrailingCharsAsStringCS(pCaseSensitive) )
+
+		def TrailingRepeatedCharsAsStringCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def TrailingRepeatedCharsAsStringCSQ(pCaseSensitive)
+				return new stzString( This.TrailingRepeatedCharsAsSubStringCS(pCaseSensitive) )
+	
+		def TrailingCharsAsStringCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def TrailingCharsAsStringCSQ(pCaseSensitive)
+				return new stzString( This.TrailingCharsAsSubStringCS(pCaseSensitive) )
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedTrailingCharsAsSubString()
+		return This.RepeatedTrailingCharsAsSubStringCS(:CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RepeatedTrailingCharsAsSubStringQ()
+			return new stzString( This.RepeatedTrailingCharsAsSubString() )
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedCharsAsSubString()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def TrailingRepeatedCharsAsSubStringQ()
+				return new stzString( This.TrailingRepeatedCharsAsSubString() )
+	
+		def TrailingCharsAsSubString()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def TrailingCharsAsSubStringQ()
+				return new stzString( This.TrailingCharsAsSubString() )
+
+		#--
+
+		def RepeatedTrailingCharsAsString()
+			This.RepeatedTrailingCharsAsSubString()
+
+			def RepeatedTrailingCharsAsStringQ()
+				return new stzString( This.RepeatedTrailingCharsAsString() )
+
+		def TrailingRepeatedCharsAsString()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def TrailingRepeatedCharsAsStringQ()
+				return new stzString( This.TrailingRepeatedCharsAsSubString() )
+	
+		def TrailingCharsAsString()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def TrailingCharsAsStringQ()
+				return new stzString( This.TrailingCharsAsSubString() )
+	
+		#>
 
 	  #----------------------------------------#
 	 #   GETTING THE REPEATED TRAILING CHAR   #
@@ -14058,9 +14436,9 @@ class stzString from stzObject
 
 		anPositionsW = []
 
-
+		
 		i = 0
-		for @Position in anPositions
+		for @Position in anPositions # TODO: replace for/in with for loop
 
 			i++
 			@CurrentPosition = @Position
@@ -14125,6 +14503,22 @@ class stzString from stzObject
 
 			def ReplaceSubStringBetweenCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
 				This.ReplaceSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+			aSections = This.FindSubStringBoundedByAsSectionsCS(pcSubStr, pacBounds, pCaseSensitive)
+			This.ReplaceSections(aSections, pcNewSubStr)
+
+			def ReplaceBoundedByCSQ(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+				This.ReplaceBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+				return This
+
+		def ReplaceSubstringBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+			This.ReplaceBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceSubstringBoundedByCSQ(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+				This.ReplaceSubstringBoundedByCSCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+				return This
+	
 		#>
 
 	def SubStringInBetweenReplacedCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
@@ -14149,6 +14543,23 @@ class stzString from stzObject
 
 			def ReplaceSubStringBetweenQ(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
 				This.ReplaceSubStringBetween(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+
+		def ReplaceBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
+			aSections = This.FindSubStringBoundedByAsSections(pcSubStr, pacBounds)
+			This.ReplaceSections(aSections, pcNewSubStr)
+
+			def ReplaceBoundedByQ(pcSubStr, pacBounds, pcNewSubStr)
+				This.ReplaceBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
+				return This
+
+		def ReplaceSubStringBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
+			This.ReplaceSubstringBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, :CaseSensitive = TRUE)
+
+			def ReplaceSubStringBoundedByQ(pcSubStr, pacBounds, pcNewSubStr)
+				This.ReplaceSubStringBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
+				return This
+
+
 		#>
 
 	def SubStringInBetweenReplaced(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
@@ -14464,7 +14875,7 @@ def ReplaceIBS()
 
 			p2 = p2[2]
 			
-			This.ReplaceSubStringBoundedByCS(p2, p3, pCaseSensitive)
+			This.ReplaceSubStringBoundedByCS(p1, p2, p3, pCaseSensitive)
 
 		# Q("Bla bla <<♥♥♥>>, and bla!").ReplaceXT([], :BetweenIB = ["<<",">>"], :With = "bla")
 		but isString(p1) and
@@ -21764,6 +22175,9 @@ def ReplaceIBS()
 				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 			ok
 
+		def FindSubStringBoundedByAsSectionsCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindBoundedByAsSectionsCS(pcSubStr, pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -21792,6 +22206,9 @@ def ReplaceIBS()
 				return This.FindBetweenAsSectionsQR(pcSubStr, pcBound1, pcbound2, pcReturnType)
 
 		def FindBoundedByAsSections(pcSubStr, pacBounds)
+			return This.FindBoundedByAsSectionsCS(pcSubStr, pacBounds, :CaseSensitive = TRUE)
+
+		def FindSubStringBoundedByAsSections(pcSubStr, pacBounds)
 			return This.FindBoundedByAsSectionsCS(pcSubStr, pacBounds, :CaseSensitive = TRUE)
 
 		#>
@@ -46729,13 +47146,6 @@ def ReplaceIBS()
 
 	#--
 
-	def ReplaceBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
-		return This.ReplaceBetweenCS(pcSubStr, pacBounds[1], pacBounds[2], pcNewSubstr, pCaseSensitive)
-
-		def ReplaceBoundedByCSQ(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
-			This.ReplaceBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
-			return This
-
 	def ReplaceThisSubStringBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
 		return This.ReplaceThisSubStringBetweenCS(pcSubStr, pacBounds[1], pacBounds[2], pcNewSubstr, pCaseSensitive)
 
@@ -46767,13 +47177,6 @@ def ReplaceIBS()
 			return This
 
 	#--
-
-	def ReplaceBoundedByC(pcSubStr, pacBounds, pcNewSubStr)
-		return This.ReplaceBetween(pcSubStr, pacBounds[1], pacBounds[2], pcNewSubstr)
-
-		def ReplaceBoundedByQ(pcSubStr, pacBounds, pcNewSubStr)
-			This.ReplaceBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
-			return This
 
 	def ReplaceThisSubStringBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
 		return This.ReplaceThisSubStringBetween(pcSubStr, pacBounds[1], pacBounds[2], pcNewSubstr)
