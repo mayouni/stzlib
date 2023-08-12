@@ -43653,6 +43653,21 @@ def ReplaceIBS()
 	def ShowShortN(n)
 		? This.ToShortFormN(n)
 
+		def ShowShortFormN(n)
+			This.ShowShortN(n)
+
+	def ShowShortUsing(pcMiddlePart)
+		? This.ToShortFormUsing(pcMiddlePart)
+
+		def ShowShortFormUsing(pcMiddlePart)
+			This.ShowShortUsing(pcMiddlePart)
+
+	def ShowShortNUsing(n, pcMiddlePart)
+		? This.ToShortFormNUsing(n, pcMiddlePart)
+
+		def ShowShortFormNUsing(n, pcMiddlePart)
+			This.ShowShortNUsing(n, pcMiddlePart)
+
 	  #-------------------------------------------#
 	 #   GETTING A SHORTENED FORM OF THE STRING  #
 	#===========================================#
@@ -43666,9 +43681,12 @@ def ReplaceIBS()
 		def Shortned()
 			return This.ToShortForm()
 
-	  #---------------------------------------------------------#
-	 #   GETTING A SHORTENED FORM OF THE STRING USiNG N CHARS  #
-	#---------------------------------------------------------#
+		def ToShort()
+			return This.ToShortForm()
+
+	  #-----------------------------------------------------------------------#
+	 #   GETTING A SHORTENED FORM OF THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#-----------------------------------------------------------------------#
 
 	def ToShortFormN(n)
 		return This.ToShortFormXT(10, n, " ... ")
@@ -43678,6 +43696,41 @@ def ReplaceIBS()
 
 		def ShortnedN(n)
 			return This.ToShortFormN(n)
+
+		def ToShortN(n)
+			return This.ToShortFormN(n)
+
+	  #---------------------------------------------------------------------#
+	 #   GETTING A SHORTENED FORM OF THE STRING USiNG A GIVEN MIDDLE PART  #
+	#---------------------------------------------------------------------#
+
+	def ToShortFormUsing(pcMiddlePart)
+		return This.ToShortFormXT(10, 3, pcMiddlePart)
+
+		def ShortenedUsing(pcMiddlePart)
+			return This.ToShortFormUsing(pcMiddlePart)
+
+		def ShortnedUsing(pcMiddlePart)
+			return This.ToShortFormUsing(pcMiddlePart)
+
+		def ToShortUsing(pcMiddlePart)
+			return This.ToShortFormUsing(pcMiddlePart)
+
+	  #-----------------------------------------------------------------------------------#
+	 #   GETTING A SHORTENED FORM OF THE STRING USING N CHARS AND THE GIVEN MIDDLE PART  #
+	#-----------------------------------------------------------------------------------#
+
+	def ToShortFormNUsing(n, pcMiddlePart)
+		return This.ToShortFormXT(10, n, pcMiddlePart)
+
+		def ShortenedNUsing(n, pcMiddlePart)
+			return This.ToShortFormNUsing(n, pcMiddlePart)
+
+		def ShortnedNUsing(n, pcMiddlePart)
+			return This.ToShortFormNUsing(n, pcMiddlePart)
+
+		def ToShortNUsing(n, pcMiddlePart)
+			return This.ToShortFormNUsing(n, pcMiddlePart)
 
 	  #------------------------------------------------------#
 	 #  GETTING A SHORTENED FORM OF THE STRING -- EXTENDED  #
@@ -43742,6 +43795,8 @@ def ReplaceIBS()
 		def ShortnedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 			return This.ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 
+		def ToShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+			return This.ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 
 	  #-------------------------#
 	 #  SHORTENING THE STRING  #
@@ -43759,10 +43814,35 @@ def ReplaceIBS()
 	#--------------------------------------#
 
 	def ShortenN(n)
-		This.ShortenXT(10, n, " ... ")
+		cShort = This.SortenedN(n)
+		This.UpdateWith(cShort)
 
 		def ShortenNQ(n)
 			This.ShortenN(n)
+			return This
+
+	  #---------------------------------------#
+	 #  SHORTENING THE STRING USING N CHARS  #
+	#--------------------------------------#
+
+	def ShortenUsing(pcMiddlePart)
+		cShort = This.ToShortenedUsing(pcMiddlePart)
+		This.UpdateWith(cShort)
+
+		def ShortenUsingQ(pcMiddlePart)
+			This.ShortenUsing(pcMiddlePart)
+			return This
+
+	  #-----------------------------------------------------------------#
+	 #  SHORTENING THE STRING USING N CHARS AND THE GIVEN MIDDLE PART  #
+	#-----------------------------------------------------------------#
+
+	def ShortenNUsing(n, pcMiddlePart)
+		cShort = This.ToShortenedNUsing(n, pcMiddlePart)
+		This.UpdateWith(cShort)
+
+		def ShortenNUsingQ(n, pcMiddlePart)
+			This.ShortenNUsing(n, pcMiddlePart)
 			return This
 
 	  #-------------------------------------#

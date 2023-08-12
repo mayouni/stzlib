@@ -1,5 +1,63 @@
 load "stzlib.ring"
 
+/*==============
+
+pron()
+
+o1 = new stzList(1:1_500_000)
+
+o1.ShowShort()
+#--> [ 1, 2, 3, " ... ", 1499998, 1499999, 1500000 ]
+
+proff()
+# Executed in 1.62 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList(1:18)
+
+o1.Show()
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 ]
+
+o1.ShowShort()
+#--> [ 1, 2, 3, " ... ", 16, 17, 18 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------------------
+*/
+pron()
+
+o1 = new stzList(1:18)
+o1.ShowShortUsing("***")
+#--> [ 1, 2, 3, "***", 16, 17, 18 ]
+
+o1.ShowShortN(2)
+#--> [ 1, 2, "...", 17, 18 ]
+
+o1.ShowShortNUsing(2, "***")
+#--> [ 1, 2, "***", 17, 18 ]
+
+proff()
+
+/*==================
+	
+pron()
+
+? Q("1234567890987654321").ShortenedN(2)
+#--> '[ "1", "2", "...", "8", "9" ]'
+		
+? Q("1234567890987654321").ShortenedXT(0, 2, "{...}")
+#--> '[ "1", "2", "{...}", "8", "9" ]'
+
+
+proff()
+
+/*==============
+
 pron()
 
 ? Q("1234567890987654321").Shortened()
@@ -15,6 +73,37 @@ proff()
 # Executed in 0.04 second(s)
 
 /*-------------
+
+pron()
+
+o1 = new stzString("1234567890987654321")
+o1.Shorten()
+? o1.Content()
+#--> 123 ... 321
+
+o1 = new stzString("1234567890987654321")
+o1.ShortenN(5)
+? o1.Content()
+#--> 12345 ... 54321
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------
+*/
+pron()
+
+? Q("1234567890987654321").ShortenedUsing(" {...} ")
+#--> 123 {...} 321
+
+? Q("1234567890987654321").ShortenedNUsing(5, " {...} ")
+#--> 12345 {...} 54321
+
+proff()
+# Executed in 0.04 second(s)
+
+/*============
+
 pron()
 
 o1 = new stzListOfStrings([ "a", "abcde", "abc", "ab", "abcd" ])

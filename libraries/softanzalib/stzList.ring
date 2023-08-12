@@ -19954,23 +19954,9 @@ class stzList from stzObject
 
 		StzRaise("Unsupported feature yet!")
 
-	def Show()
-		if This.IsHashList()
-			StzHashListQ( This.List() ).Show()
-
-		but This.IsListOfHashLists()
-			StzListOfHashListsQ( This.List() ).Show()
-
-		other
-			? @@( This.Content() )
-		ok
-
-	def ShowShort()
-		? @@S( This.Content() )
-
 	  #---------------------------#
 	 #     LEVELS OF THE LIST    #
-	#---------------------------#
+	#===========================#
 
 	def Levels()
 		// TODO
@@ -20038,9 +20024,368 @@ class stzList from stzObject
 		next
 		return bResult
 		
-	  #--------------------------------------#
-	 #  FINDING ALL OCCURRENCES OF AN ITEM  #
+	  #====================#
+	 #  SHOWING THE LIST  #
+	#====================#
+
+	def Show()
+		if This.IsHashList()
+			StzHashListQ( This.List() ).Show()
+
+		but This.IsListOfHashLists()
+			StzListOfHashListsQ( This.List() ).Show()
+
+		other
+			? @@( This.Content() )
+		ok
+
+	def ShowShort()
+		? @@( This.ToShortForm() )
+
+		def ShowShortForm()
+			This.ShowShort()
+
+	def ShowShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		? @@( This.ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart) )
+
+		def ShowShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+			This.ShowShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+
+	def ShowShortN(n)
+		? @@( This.ToShortFormN(n) )
+
+		def ShowShortFormN(n)
+			This.ShowShortN(n)
+
+	def ShowShortUsing(pcMiddlePart)
+		? @@( This.ToShortFormUsing(pcMiddlePart) )
+
+		def ShowShortFormUsing(pcMiddlePart)
+			This.ShowShortUsing(pcMiddlePart)
+
+	def ShowShortNUsing(n, pcMiddlePart)
+		? @@( This.ToShortFormNUsing(n, pcMiddlePart) )
+
+		def ShowShortFormNUsing(n, pcMiddlePart)
+			This.ShowShortNUsing(n, pcMiddlePart)
+
+	  #------------------------------------------#
+	 #   GETTING A SHORTENED FORM OF THE LSIST  #
+	#==========================================#
+
+	def ToShortForm()
+		return This.ToShortFormXT(10, 3, "...")
+
+		def ToShort()
+			return This.ToShortForm()
+
+	  #---------------------------------------------------------------------#
+	 #   GETTING A SHORTENED FORM OF THE LIST WITH N CHARS FROM EACH SIDE  #
+	#---------------------------------------------------------------------#
+
+	def ToShortFormN(n)
+		return This.ToShortFormXT(10, n, "...")
+
+		def ToShortN(n)
+			return This.ToShortFormN(n)
+
+	  #-------------------------------------------------------------------#
+	 #   GETTING A SHORTENED FORM OF THE LIST USiNG A GIVEN MIDDLE PART  #
+	#-------------------------------------------------------------------#
+
+	def ToShortFormUsing(pcMiddlePart)
+		return This.ToShortFormXT(10, 3, pcMiddlePart)
+
+		def ToShortUsing(pcMiddlePart)
+			return This.ToShortFormUsing(pcMiddlePart)
+
+	  #-----------------------------------------------------------------------------------#
+	 #   GETTING A SHORTENED FORM OF THE STRING USING N CHARS AND THE GIVEN MIDDLE PART  #
+	#-----------------------------------------------------------------------------------#
+
+	def ToShortFormNUsing(n, pcMiddlePart)
+		return This.ToShortFormXT(10, n, pcMiddlePart)
+
+		def ToShortNUsing(n, pcMiddlePart)
+			return This.ToShortFormNUsing(n, pcMiddlePart)
+
+	  #----------------------------------------------------#
+	 #  GETTING A SHORTENED FORM OF THE LIST -- EXTENDED  #
+	#----------------------------------------------------#
+
+	def ToShortFormXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
+		# nMinListSize : the minimum size to start shortening
+		# --> if the size of the list is less than this value,
+		#     the list will not be shortened (returned as is)
+
+		# pNumberOfItemsToShow: the number of items to show from
+		# both the beginning and end of the list
+		# --> the other part of the item (coming in the middle)
+		#     will be hided and replaced by pcMiddlePart
+
+		/* EXAMPLES
+
+		? Q([ "1", "2", "3", "4", "5", "6", "7", "8", "9"]).Shortened()
+		#--> '[ "1", "2", "3", "...", "7", "8", "9" ]'
+		
+		? Q("1234567890987654321").ShortenedN(2)
+		#--> '[ "1", "2", "...", "8", "9" ]'
+		
+		? Q("1234567890987654321").ShortenedXT(0, 2, "{...}")
+		#--> '[ "1", "2", "{...}", "8", "9" ]'
+
+		*/
+
+		nLen = This.NumberOfItems()
+		if nLen < nMinListSize
+			This.Show()
+			return
+		ok
+
+		n1 = 0
+		n2 = 0
+
+		if isNumber(pNumberOfItemsToShow)
+			n1 = pNumberOfItemsToShow
+			n2 = pNumberOfItemsToShow
+
+		but isList(p) and Q(pNumberOfItemsToShow).IsPairOfNumbers()
+			n1 = pNumberOfItemsToShow[1]
+			n2 = pNumberOfItemsToShow[2]
+
+		else
+			StzRaise("Incorrect param type! pNumberOfItemsToShow must be a number or pair of numbers.")
+
+		ok
+
+		if n1 = 0 or n2 = 0
+			StzRaise("Incorrect value! n1 and n2 must be different of zero.")
+		ok
+
+		# Doing the job
+
+		aPart1 = This.Section(1, n1)
+		aPart2 = This.Section(nLen - n2 + 1, nLen)
+
+		aResult = aPart1
+		aResult + pcMiddlePart
+
+		for i = 1 to n2
+			aResult + aPart2[i]
+		next
+
+		return aResult
+
+		def ToShortXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
+			return This.ToShortFormXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
+
+	  #-----------------------#
+	 #  SHORTENING THE LIST  #
+	#=======================#
+
+	def Shorten()
+		This.ShortenXT(10, 3, "...")
+
+		def ShortenQ()
+			This.Shorten()
+			return This
+
+	def Shortened()
+? "hi"
+		cResult = This.ToShortFormXT(10, 3, "...")
+		return cResult
+
+	  #-----------------------------------------------#
+	 #  SHORTENING THE LIST TO N ITEMS IN EACH SIDE  #
+	#-----------------------------------------------#
+
+	def ShortenN(n)
+		cShort = This.SortenedN(n)
+		This.UpdateWith(cShort)
+
+		#< @FunctionFluentForm
+
+		def ShortenNQ(n)
+			This.ShortenN(n)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ShortenToN(n)
+			This.ShortenN(n)
+
+			def ShortenToNQ(n)
+				This.ShortenToN(n)
+				return This
+
+		def ShortenToNItems(n)
+			This.ShortenN(n)
+
+			def ShortenToNItemsQ(n)
+				This.ShortenToNItems(n)
+				return This
+
+		def ShortenToNItemsInEachSide(n)
+			This.ShortenN(n)
+
+			def ShortenToNItemsInEachSideQ(n)
+				This.ShortenToNItemsInEachSide(n)
+				return This
+
+		def ShortenToNItemsFromEachSide(n)
+			This.ShortenN(n)
+
+			def ShortenToNItemsFromEachSideQ(n)
+				This.ShortenToNItemsFromEachSide(n)
+				return This
+
+		def ShortenToNItemsAtEachSide(n)
+			This.ShortenN(n)
+
+			def ShortenToNItemsAtEachSideQ(n)
+				This.ShortenToNItemsAtEachSide(n)
+				return This
+
+		#>
+
+	def ShortenedN(n)
+		cResult = This.Copy().ShortenNQ(n).Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def ShortenedToN(n)
+			return This.ShortenedN(n)
+
+		def ShortenedToNItems(n)
+			return This.ShortenedN(n)
+
+		def ShortenedToNItemsInEachSide(n)
+			return This.ShortenedN(n)
+
+		def ShortenedToNItemsFromEachSide(n)
+			return This.ShortenedN(n)
+
+		def ShortenedToNItemsAtEachSide(n)
+			return This.ShortenedN(n)
+
+		#>
+
+	  #---------------------------------------#
+	 #  SHORTENING THE STRING USING N CHARS  #
 	#--------------------------------------#
+
+	def ShortenUsing(pcMiddlePart)
+		cShort = This.ToShortenedUsing(pcMiddlePart)
+		This.UpdateWith(cShort)
+
+		def ShortenUsingQ(pcMiddlePart)
+			This.ShortenUsing(pcMiddlePart)
+			return This
+
+	def ShortenedUsing(pcMiddlePart)
+		cResult = This.Copy().ShortenUsingQ(pcMiddlePart).Content()
+		return cResult
+
+	  #-----------------------------------------------------------------#
+	 #  SHORTENING THE STRING USING N CHARS AND THE GIVEN MIDDLE PART  #
+	#-----------------------------------------------------------------#
+
+	def ShortenNUsing(n, pcMiddlePart)
+		cShort = This.ToShortenedNUsing(n, pcMiddlePart)
+		This.UpdateWith(cShort)
+
+		#< @FunctionFluentForm
+
+		def ShortenNUsingQ(n, pcMiddlePart)
+			This.ShortenNUsing(n, pcMiddlePart)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ShortenToNUsing(n, pcMiddlePart)
+			This.ShortenNUsing(n, pcMiddlePart)
+
+			def ShortenToNUsingQ(n, pcMiddlePart)
+				This.ShortenToNUsing(n, pcMiddlePart)
+				return This
+
+		def ShortenToNItemsUsing(n, pcMiddlePart)
+			This.ShortenNUsing(n, pcMiddlePart)
+
+			def ShortenToNItemsUsingQ(n, pcMiddlePart)
+				This.ShortenToNItemsUsing(n, pcMiddlePart)
+				return This
+
+		def ShortenToNItemsInEachSideUsing(n, pcMiddlePart)
+			This.ShortenNUsing(n, pcMiddlePart)
+
+			def ShortenToNItemsInEachSideUsingQ(n, pcMiddlePart)
+				This.ShortenToNItemsInEachSideUsing(n, pcMiddlePart)
+				return This
+
+		def ShortenToNItemsFromEachSideUsing(n, pcMiddlePart)
+			This.ShortenNUsing(n, pcMiddlePart)
+
+			def ShortenToNItemsFromEachSideUsingQ(n, pcMiddlePart)
+				This.ShortenToNItemsFromEachSideUsing(n, pcMiddlePart)
+				return This
+
+		def ShortenToNItemsAtEachSideUsing(n, pcMiddlePart)
+			This.ShortenNUsing(n, pcMiddlePart)
+
+			def ShortenToNItemsAtEachSideUsingQ(n, pcMiddlePart)
+				This.ShortenToNItemsAtEachSideUsing(n, pcMiddlePart)
+				return This
+
+		#>
+
+	def ShortenedNUsing(n, pcMiddlePart)
+		cResult = This.Copy().ShortenNUsingQ().Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def ShortenedToNUsing(n, pcMiddlePart)
+			return This.ShortenedNUsing(n, pcMiddlePart)
+
+		def ShortenedToNItemsUsing(n, pcMiddlePart)
+			return This.ShortenedNUsing(n, pcMiddlePart)
+
+		def ShortenedToNItemsInEachSideUsing(n, pcMiddlePart)
+			return This.ShortenedNUsing(n, pcMiddlePart)
+
+		def ShortenedToNItemsFromEachSideUsing(n, pcMiddlePart)
+			return This.ShortenedNUsing(n, pcMiddlePart)
+
+		def ShortenedToNItemsAtEachSideUsing(n, pcMiddlePart)
+			return This.ShortenedNUsing(n, pcMiddlePart)
+
+		#>
+
+	  #-------------------------------------#
+	 #  SHORTENING THE STRING -- EXTENDED  #
+	#-------------------------------------#
+
+	def ShortenXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		cShort = This.ToShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		This.UpdateWith(cShort)
+
+		def ShortenXTQ(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+			This.ShortenXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+			return This
+
+	def ShortenedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		cResult = This.Copy().ShortenXTQ(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart).Content()
+		return cResult
+
+	  #======================================#
+	 #  FINDING ALL OCCURRENCES OF AN ITEM  #
+	#======================================#
 
 	def FindAllOccurrencesCS(pItem, pCaseSensitive)
 		/* EXAMPLE
