@@ -8072,7 +8072,7 @@ class stzString from stzObject
 	 #  GETTING THE FIRST BOUNDS OF A SUBSTRING INSIDE THE STRING  #
 	#-------------------------------------------------------------#
 
-	def FirstBoundsOfCS(pSubStr, pCaseSensitive)
+	def FirstBoundsOfCS(pcSubStr, pCaseSensitive)
 		acResult = QR( This.BoundsOfCS(pcSubStr, pCaseSensitive), :stzListOfPairs ).FirstItems()
 		return acResult
 
@@ -8085,7 +8085,7 @@ class stzString from stzObject
 	 #  GETTING THE LAST BOUNDS OF A SUBSTRING INSIDE THE STRING  #
 	#------------------------------------------------------------#
 
-	def LastBoundsOfCS(pSubStr, pCaseSensitive)
+	def LastBoundsOfCS(pcSubStr, pCaseSensitive)
 		acResult = QR( This.BoundsOfCS(pcSubStr, pCaseSensitive), :stzListOfPairs ).SecondItems()
 		return acResult
 
@@ -43631,6 +43631,152 @@ def ReplaceIBS()
 		def Intersection(pcOtherStr)
 			return This.CommonSubStrings(pcOtherStr)
 
+	  #======================#
+	 #  SHOWING THE STRING  #
+	#======================#
+
+	def Show()
+		? @@( This.Content() )
+
+	def ShowShort()
+		? This.ToShortForm()
+
+		def ShowShortForm()
+			This.ShowShort()
+
+	def ShowShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		? This.ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+
+		def ShowShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+			This.ShowShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+
+	def ShowShortN(n)
+		? This.ToShortFormN(n)
+
+	  #-------------------------------------------#
+	 #   GETTING A SHORTENED FORM OF THE STRING  #
+	#===========================================#
+
+	def ToShortForm()
+		return This.ToShortFormXT(10, 3, " ... ")
+
+		def Shortened()
+			return This.ToShortForm()
+
+		def Shortned()
+			return This.ToShortForm()
+
+	  #---------------------------------------------------------#
+	 #   GETTING A SHORTENED FORM OF THE STRING USiNG N CHARS  #
+	#---------------------------------------------------------#
+
+	def ToShortFormN(n)
+		return This.ToShortFormXT(10, n, " ... ")
+
+		def ShortenedN(n)
+			return This.ToShortFormN(n)
+
+		def ShortnedN(n)
+			return This.ToShortFormN(n)
+
+	  #------------------------------------------------------#
+	 #  GETTING A SHORTENED FORM OF THE STRING -- EXTENDED  #
+	#------------------------------------------------------#
+
+	def ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		# nMinStrSize : the minimum size to start shprtening
+		# --> if the size of the string is less than this value,
+		#     the string will not be shortened (returned as is)
+
+		# pNumberOfCharsToShow: the number of chars to show from
+		# both the beginning and end of the string
+		# --> the other part of the string (coming in the middle)
+		#     will be hide and replaced by pcMiddlePart
+
+		/* EXAMPLES
+
+		? Q("1234567890987654321").Shortened()
+		#--> 123 ... 321
+		
+		? Q("1234567890987654321").ShortenedN(5)
+		#--> 12345 ... 54321
+		
+		? Q("1234567890987654321").ShortenedXT(0, 3, " ... ")
+		#--> 123 ... 321
+
+		*/
+
+		nLen = This.NumberOfChars()
+		if nLen < nMinStrSize
+			This.Show()
+			return
+		ok
+
+		n1 = 0
+		n2 = 0
+
+		if isNumber(pNumberOfCharsToShow)
+			n1 = pNumberOfCharsToShow
+			n2 = pNumberOfCharsToShow
+
+		but isList(p) and Q(pNumberOfCharsToShow).IsPairOfNumbers()
+			n1 = pNumberOfCharsToShow[1]
+			n2 = pNumberOfCharsToShow[2]
+
+		else
+			StzRaise("Incorrect param type! pNumberOfCharsToShow must be a number or pair of numbers.")
+
+		ok
+
+		# Doing the job
+
+		cPart1 = This.Section(1, n1)
+		cPart2 = This.Section(nLen - n2 + 1, nLen)
+		cResult = cPart1 + pcMiddlePart + cPart2
+
+		return cResult
+
+		def ShortenedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+			return This.ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+
+		def ShortnedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+			return This.ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+
+
+	  #-------------------------#
+	 #  SHORTENING THE STRING  #
+	#=========================#
+
+	def Shorten()
+		This.ShortenXT(10, 3, " ... ")
+
+		def ShortenQ()
+			This.Shorten()
+			return This
+
+	  #---------------------------------------#
+	 #  SHORTENING THE STRING USING N CHARS  #
+	#--------------------------------------#
+
+	def ShortenN(n)
+		This.ShortenXT(10, n, " ... ")
+
+		def ShortenNQ(n)
+			This.ShortenN(n)
+			return This
+
+	  #-------------------------------------#
+	 #  SHORTENING THE STRING -- EXTENDED  #
+	#-------------------------------------#
+
+	def ShortenXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		cShort = This.ToShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		This.UpdateWith(cShort)
+
+		def ShortenXTQ(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+			This.ShortenXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+			return This
+
 	  #===========#
 	 #   MISC.   #
 	#===========#
@@ -43683,13 +43829,7 @@ def ReplaceIBS()
 	def LastAndFirstChars()
 		aResult = [ This.LastChar(), FirstChar() ]
 		return aResult
-
-	def IsListOfCharsInComputableForm()
-		// TODO
-
-	def Show()
-		? @@( This.Content() )
-
+		
 	def Methods()
 		return ring_methods(This)
 

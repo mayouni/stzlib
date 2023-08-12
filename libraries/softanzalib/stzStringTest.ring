@@ -6483,7 +6483,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*---------------
-*/
+
 pron()
 
 o1 = new stzString("Hello <<<Ring>>, the beautiful ((Ring))!")
@@ -6494,7 +6494,7 @@ proff()
 # Executed in 0.08 second(s)
 
 /*---------------
-*/
+
 pron()
 
 o1 = new stzString("Ring>>, the nice ---Ring---, the beautiful ((Ring")
@@ -6504,31 +6504,52 @@ o1 = new stzString("Ring>>, the nice ---Ring---, the beautiful ((Ring")
 proff()
 # Executed in 0.09 second(s)
 
-/*--------------- TODO (future)
-*/
+/*---------------
+
+pron()
+
+o1 = new stzString("Hello <<<Ring>>, the nice __Ring__ and beautiful ((Ring))!")
+? @@( o1.BoundsOf("Ring") )
+#--> [ [ "<<<", ">>" ], [ "__", "__" ], [ "((", "))" ] ]
+
+? @@( o1.FirstBoundsOf("Ring") )
+#--> [ "<<<", "__", "((" ]
+
+? @@( o1.LastBoundsOf("Ring") )
+#--> [ ">>", "__", "))" ]
+
+proff()
+# Executed in 0.08 second(s)
+
+/*---------------
+
 pron()
 
 o1 = new stzString("<<word>>")
 
-? o1.LeadingCharsAsString()
-? o1.TrailingCharsAsString()
+? o1.Bounds()
+#--> [ "<<", ">>" ]
 
-? o1.BoundsXT()		# !--> [ "<<", ">>" ]
+? o1.LeftBound()
+#--> "<<"
 
-//? o1.LeftBound()	# !--> "<<"
-//? o1.RightBound()	# !--> ">>"
+? o1.RightBound()
+#--> ">>"
 
 # And also FirstBound() and LastBound() for general
 # use with left-to-right and right-toleft strings
 
 proff()
+# Executed in 0.13 second(s)
 
-/*=================
+/*================= StzRaise
+
 
 ? StzRaise("Simple error message!")
 #--> Simple error message! 
 
-/*-----------------
+/*------
+
 
 ? StzRaise([
 	:Where	= "stzString.ring",
@@ -6545,26 +6566,41 @@ proff()
 
 /*-----------------
 
-? Q(:CaseSensitive = TRUE).IsTrue()	#--> TRUE
-? Q(:CaseSensitive = FALSE).IsFalse()	#--> TRUE
-
-/*-----------------
+pron()
 
 o1 = new stzString("@str = Q(@str).Uppercased()")
-? o1.BeginsWithOneOfTheseCS([ "@str =", "@str=" ], :CS = TRUE) #--> TRUE
+? o1.BeginsWithOneOfTheseCS([ "@str =", :Or = "@str=" ], :CS = TRUE)
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
 
 /*-----------------
+
+pron()
 
 o1 = new stzString("Baba, Mama, and Dada")
-? o1.ContainsOneOfTheseCS([ "Mom", "mama" ], :CaseSensitive = FALSE) #--> TRUE
+? o1.ContainsOneOfTheseCS([ "Mom", "mama" ], :CaseSensitive = FALSE)
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
 
 /*-----------------
+*/
+pron()
 
 StzStringQ('') {
-	UpdateFromURL("https://ring-lang.github.io/doc1.16/qt.html")
-	? Content()
+
+	FromURL("https://ring-lang.github.io/doc1.16/qt.html")
+	ShowShort()
+
 }
-#--> Returns the page content as HTML
+#--> Shows the page content as Text/HTML
+
+proff()
+# Executed in 1.84 second(s)
+
 
 /*-----------------
 
