@@ -7,8 +7,9 @@ load "stzlib.ring"
 pron()
 
 o1 = new stzString(">>>word<<<")
-o1.SwapSections([1, 3], [8, 10])
+o1.SwapSections([1, 3], [8, 10]) # or o1.SwapSections([8, 10], [1, 3])
 ? o1.Content()
+#--> <<<word>>>
 
 proff()
 

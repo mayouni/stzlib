@@ -1004,6 +1004,50 @@ func BothAreNumbers(p1, p2)
 	func AreBothNumbers(p1, p2)
 		return BothAreNumbers(p1, p2)
 
+func BothArePairsOfNumbers(p1, p2)
+
+	if BothAreLists(p1, p2) and
+	   isList(p1) and Q(p1).IsPairOfNumbers() and
+	   isList(p2) and Q(p2).IsPairOfNumbers()
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func BothArePairsOfStrings(p1, p2)
+
+	if BothAreLists(p1, p2) and
+	   isList(p1) and Q(p1).IsPairOfStrings() and
+	   isList(p2) and Q(p2).IsPairOfStrings()
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func BothArePairsOfLists(p1, p2)
+
+	if BothAreLists(p1, p2) and
+	   isList(p1) and Q(p1).IsPairOfLists() and
+	   isList(p2) and Q(p2).IsPairOfLists()
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func BothArePairsOfObjects(p1, p2)
+
+	if BothAreLists(p1, p2) and
+	   isList(p1) and Q(p1).IsPairOfObjects() and
+	   isList(p2) and Q(p2).IsPairOfObjects()
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
 func BothAreNumbersInStrings(p1, p2) # NOTE: hex and octal numbers are excluded
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]

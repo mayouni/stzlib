@@ -35289,11 +35289,11 @@ def ReplaceIBS()
 			anLastSection  = panSection1
 		ok
 
-		cResult = This.Section(anFirstSection) +
+		cResult = This.Section(anLastSection[1], anLastSection[2]) +
 			  This.Section(anFirstSection[2] + 1, anLastSection[1] - 1) +
-			  This.Section(anLastSection)
+			  This.Section(anFirstSection[1], anFirstSection[2])
 
-		return cResult
+		This.UpdateWith(cResult)
 
 
 		def SwapSectionsQ(panSection1, panSection2)
