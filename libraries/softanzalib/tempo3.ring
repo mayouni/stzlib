@@ -2,6 +2,15 @@ load "stzlib.ring"
 
 
 
+/*========= SWAPPING TWO SECTIONS
+*/
+pron()
+
+o1 = new stzString(">>>word<<<")
+o1.SwapSections([1, 3], [8, 10])
+? o1.Content()
+
+proff()
 
 
 /*=========
@@ -320,7 +329,79 @@ o1 = new stzString("ABCDE")
 proff()
 # Executed in 0.17 second(s)
 
-/*================ WORKING WITH BOUNDS
+/*================ WORKING WITH BOUNDS OF THE STRING
+
+pron()
+
+o1 = new stzString("<<<word>>>")
+
+? o1.ContainsLeadingChars()
+#--> TRUE
+
+? o1.NumberOfLeadingChars()
+#--> 3
+
+? o1.LeadingCharsAsString() + NL
+#--> "<<<"
+
+#--
+
+? o1.ContainsTrailingChars()
+#--> TRUE
+
+? o1.NumberOfTrailingChars()
+#--> 3
+
+? o1.TrailingCharsAsString()
+#--> ">>>"
+
+proff()
+# Executed in 0.12 second(s)
+
+/*------------------
+
+pron()
+
+o1 = new stzString("<<<word>>>")
+
+? o1.Bounds()
+#--> [ "<<<", ">>>" ]
+
+? @@( o1.FindBounds() )
+#--> [ 1, 8 ]
+
+? @@( o1.FindBoundsAsSections() )
+#--> [ [ 1, 3 ], [ 8, 10 ] ]
+
+proff()
+
+/*------------------
+*/
+pron()
+
+o1 = new stzString("<<<word>>>")
+
+? o1.LeftBound()
+#--> 
+
+? @@( o1.FindLeftBound() )
+#--> 
+
+? @@( o1.FindLeftBoundAsSection() )
+#--> 
+
+? @@( o1.LeftBoundZ() )
+#--> 
+
+? @@( o1.LeftBoundZZ() )
+#--> 
+
+? @@( o1.FindRightAndLeftBounds() )
+
+proff()
+# Executed in 0.13 second(s)
+
+/*================ WORKING WITH BOUNDS INSIDE THE STRING
 
 pron()
 
@@ -334,6 +415,7 @@ o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
 proff()
 
 /*------------------
+
 */
 pron()
 
@@ -342,10 +424,12 @@ o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
 # Bounds of the entire string
 
 ? @@( o1.FindStringBoundsAsSections() )
+#--> [ [ 1, 0 ], [ 38, 37 ] ]
 
+//? @@( o1.FindBoundsAsSections
 # Bounds of a particular substring inside the string
 
-? @@( o1.FindBoundsAsSections(:Of = "word") ) + NL
+? @@( o1.FindSubStringBoundsAsSections(:Of = "word") ) + NL
 #--> [ [ 1, 3 ], [ 8, 10 ], [ 13, 15 ], [ 20, 22 ], [ 28, 30 ], [ 35, 37 ] ]
 
 ? @@( o1.FindFirstBoundsAsSections(:Of = "word") ) + NL

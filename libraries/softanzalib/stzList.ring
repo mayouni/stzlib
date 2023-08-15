@@ -28180,6 +28180,21 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def IsOfColumnOrOfColNamedParam()
 			return This.IsOfColOrColumnNamedParam()
 
+		#--
+
+		def IsOfColOrColumnNamedParams()
+			return This.IsOfColOrColumnNamedParam()
+
+		def IsOfColumnOrColNamedParams()
+			return This.IsOfColOrColumnNamedParam()
+
+		def IsOfColOrOfColumnNamedParams()
+			return This.IsOfColOrColumnNamedParam()
+
+		def IsOfColumnOrOfColNamedParams()
+			return This.IsOfColOrColumnNamedParam()
+
+
 	def IsInColNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and (This[1] = :InCol or This[1] = :InColumn) )
@@ -28207,6 +28222,20 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return This.IsInColOrColumnNamedParam()
 
 		def IsInColumnOrInColNamedParam()
+			return This.IsInColOrColumnNamedParam()
+
+		#--
+
+		def IsInColOrColumnNamedParams()
+			return This.IsInColOrColumnNamedParam()
+
+		def IsInColumnOrColNamedParams()
+			return This.IsInColOrColumnNamedParams()
+
+		def IsInColOrInColumnNamedParams()
+			return This.IsInColOrColumnNamedParams()
+
+		def IsInColumnOrInColNamedParams()
 			return This.IsInColOrColumnNamedParam()
 
 	def IsColsNamedParam()
@@ -28250,6 +28279,20 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def IsOfColumnsOrOfColsNamedParam()
 			return This.IsOfColsOrColumnsNamedParam()
 
+		#--
+
+		def IsOfColsOrColumnsNamedParams()
+			return This.IsOfColsOrColumnsNamedParam()
+
+		def IsOfColumnsOrColsNamedParams()
+			return This.IsOfColsOrColumnsNamedParam()
+
+		def IsOfColsOrOfColumnsNamedParams()
+			return This.IsOfColsOrColumnsNamedParam()
+
+		def IsOfColumnsOrOfColsNamedParams()
+			return This.IsOfColsOrColumnsNamedParam()
+
 
 	def IsInColsNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -28278,6 +28321,20 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return This.IsInColsOrColumnsNamedParam()
 
 		def IsInColumnsOrInColNamedParam()
+			return This.IsInColsOrColumnsNamedParam()
+
+		#--
+
+		def IsInColsOrColumnsNamedParams()
+			return This.IsInColsOrColumnsNamedParam()
+
+		def IsInColumnsOrColNamedParams()
+			return This.IsInColsOrColumnsNamedParam()
+
+		def IsInColsOrInColumnsNamedParams()
+			return This.IsInColsOrColumnsNamedParam()
+
+		def IsInColumnsOrInColNamedParams()
 			return This.IsInColsOrColumnsNamedParam()
 
 	#--
@@ -28557,8 +28614,15 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return FALSE
 		ok
 
+		def IsStringOrSubStringNamedParams()
+			return This.IsStringOrSubStringNamedParam()
+
 		def IsSubStringOrStringONamedParam()
 			return This.IsStringOrSubStringNamedParam()
+
+		def IsSubStringOrStringONamedParams()
+			return This.IsStringOrSubStringNamedParam()
+
 
 	#--
 
@@ -28570,8 +28634,15 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return FALSE
 		ok
 
+		def IsToOrOfNamedParams()
+			return This.IsToOrOfNamedParam()
+
 		def IsOfOrToNamedParam()
 			return This.IsToOrOfNamedParam()
+
+		def IsOfOrToNamedParams()
+			return This.IsToOrOfNamedParam()
+
 
 	#--
 
@@ -28781,7 +28852,13 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return FALSE
 		ok
 
+		def IsInOrInsideNamedParams()
+			return This.IsInOrInsideNamedParam()
+
 		def IsInsideOrInNamedParam()
+			return This.IsInOrInsideNamedParam()
+
+		def IsInsideOrInNamedParams()
 			return This.IsInOrInsideNamedParam()
 
 	def IsWhereNamedParam()
@@ -28813,7 +28890,13 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return FALSE
 		ok
 
+		def IsThatOrWhereNamedParams()
+			return This.IsThatOrWhereNamedParam()
+
 		def IsWhereOrThatNamedParam()
+			return This.IsThatOrWhereNamedParam()
+
+		def IsWhereOrThatNamedParams()
 			return This.IsThatOrWhereNamedParam()
 
 	def IsPositionNamedParam()
@@ -28863,6 +28946,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return FALSE
 		ok
 
+		def IsPositionOrPositionsNamedParams()
+			return This.IsPositionOrPositionsNamedParam()
+
 	def IsAlongWithNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  (This[1] = :AlongWith or This[1] = :AlongWith@)  )
@@ -28892,16 +28978,6 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		else
 			return FALSE
 		ok
-
-	def IsAndOrWithNamedParam()
-		if This.IsAndNamedParam() or This.IsWithNamedParam()
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		def IsWithOrAndNamedParam()
-			return This.IsIsAndOrWithNamedParam()
 
 	def IsAndTheirNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -29090,6 +29166,13 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def IsWhereOrIfNamedParam()
 			return This.IsIfOrWhereNamedParam()
 
+		def IsWhereOrIfNamedParams()
+			return This.IsIfOrWhereNamedParam()
+
+		def IsIfOrWhereNamedParams()
+			return This.IsIfOrWhereNamedParam()
+
+
 	def IsWithNamedParam()
 		if This.NumberOfItems() = 2 and
 
@@ -29100,6 +29183,22 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		else
 			return FALSE
 		ok
+
+	def IsWithOrAndNamedParam()
+		if This.IsWithNamedParam() or This.IsAndNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsWithOrAndNamedParams()
+			return This.IsWithOrAndNamedParam()
+
+		def IsAndOrWithNamedParam()
+			return This.IsWithOrAndNamedParam()
+
+		def IsAndOrWithNamedParams()
+			return This.IsWithOrAndNamedParam()
 
 	def IsWithItemsInNamedParam() 
 		if This.NumberOfItems() = 2 and
@@ -29290,6 +29389,12 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def IsByOrWithNamedParam()
 			return This.IsWithOrByNamedParam()
 
+		def IsByOrWithNamedParams()
+			return This.IsWithOrByNamedParam()
+
+		def IsWithOrByNamedParams()
+			return This.IsWithOrByNamedParam()
+
 	def IsUsingNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Using )
@@ -29317,6 +29422,12 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		ok
 
 		def IsUsingOrAtNamedParam()
+			return This.IsAtOrUsingNamedParam()
+
+		def IsUsingOrAtNamedParams()
+			return This.IsAtOrUsingNamedParam()
+
+		def IsAtOrUsingNamedParams()
 			return This.IsAtOrUsingNamedParam()
 
 	#--
@@ -29386,6 +29497,12 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def IsAtPositionOrAtNamedParam()
 			return This.IsAtOrAtPositionNamedParam()
 
+		def IsAtPositionOrAtNamedParams()
+			return This.IsAtOrAtPositionNamedParam()
+
+		def IsAtOrAtPositionNamedParams()
+			return This.IsAtOrAtPositionNamedParam()
+
 	def IsAtOrAtPositionsNamedParam()
 		if This.IsAtNamedParam() or
 		   This.IsAtPositionsNamedParam()
@@ -29397,6 +29514,12 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		ok
 
 		def IsAtPositionsOrAtNamedParam()
+			return This.IsAtOrAtPositionsNamedParam()
+
+		def IsAtPositionsOrAtNamedParams()
+			return This.IsAtOrAtPositionsNamedParam()
+
+		def IsAtOrAtPositionsNamedParams()
 			return This.IsAtOrAtPositionsNamedParam()
 
 	#==
@@ -30572,6 +30695,27 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	
 		def IsWhereOrUsingOrAtNamedParam()
 			return This.IsUsingOrAtOrWhereNamedParam()
+
+		#--
+
+		def IsUsingOrWhereOrAtNamedParams()
+			return This.IsUsingOrAtOrWhereNamedParam()
+		
+		def IsAtOrUsingOrWhereNamedParams()
+			return This.IsUsingOrAtOrWhereNamedParam()
+	
+		def IsAtOrWhereOrUsingNamedParams()
+			return This.IsUsingOrAtOrWhereNamedParam()
+
+		def IsWhereOrAtOrUsingNamedParams()
+			return This.IsUsingOrAtOrWhereNamedParam()
+	
+		def IsWhereOrUsingOrAtNamedParams()
+			return This.IsUsingOrAtOrWhereNamedParam()
+
+		def IsUsingOrAtOrWhereNamedParams()
+			return This.IsUsingOrAtOrWhereNamedParam()
+
 
 	def IsStepNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -33762,6 +33906,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		else
 			return FALSE
 		ok
+
+		def IsSectionsOrInSectionsNamedParams()
+			return This.IsSectionsOrInSectionsNamedParam()
 
 	#--
 
