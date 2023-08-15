@@ -1,221 +1,64 @@
 load "stzlib.ring"
 
-/*==============
-
-pron()
-
-o1 = new stzList(1:1_500_000)
-
-o1.ShowShort()
-#--> [ 1, 2, 3, " ... ", 1499998, 1499999, 1500000 ]
-
-proff()
-# Executed in 1.62 second(s)
-
-/*----------------
-
-pron()
-
-o1 = new stzList(1:18)
-
-o1.Show()
-#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 ]
-
-o1.ShowShort()
-#--> [ 1, 2, 3, " ... ", 16, 17, 18 ]
-
-proff()
-# Executed in 0.03 second(s)
-
-/*------------------
-*/
-pron()
-
-o1 = new stzList(1:18)
-o1.ShowShortUsing("***")
-#--> [ 1, 2, 3, "***", 16, 17, 18 ]
-
-o1.ShowShortN(2)
-#--> [ 1, 2, "...", 17, 18 ]
-
-o1.ShowShortNUsing(2, "***")
-#--> [ 1, 2, "***", 17, 18 ]
-
-proff()
-
-/*==================
-	
-pron()
-
-? Q("1234567890987654321").ShortenedN(2)
-#--> '[ "1", "2", "...", "8", "9" ]'
-		
-? Q("1234567890987654321").ShortenedXT(0, 2, "{...}")
-#--> '[ "1", "2", "{...}", "8", "9" ]'
 
 
-proff()
 
-/*==============
-
-pron()
-
-? Q("1234567890987654321").Shortened()
-#--> 123 ... 321
-
-? Q("1234567890987654321").ShortenedN(5)
-#--> 12345 ... 54321
-
-? Q("1234567890987654321").ShortenedXT(0, 3, " ... ")
-#--> 123 ... 321
-
-proff()
-# Executed in 0.04 second(s)
-
-/*-------------
-
-pron()
-
-o1 = new stzString("1234567890987654321")
-o1.Shorten()
-? o1.Content()
-#--> 123 ... 321
-
-o1 = new stzString("1234567890987654321")
-o1.ShortenN(5)
-? o1.Content()
-#--> 12345 ... 54321
-
-proff()
-# Executed in 0.03 second(s)
-
-/*-------------
-*/
-pron()
-
-? Q("1234567890987654321").ShortenedUsing(" {...} ")
-#--> 123 {...} 321
-
-? Q("1234567890987654321").ShortenedNUsing(5, " {...} ")
-#--> 12345 {...} 54321
-
-proff()
-# Executed in 0.04 second(s)
-
-/*============
-
-pron()
-
-o1 = new stzListOfStrings([ "a", "abcde", "abc", "ab", "abcd" ])
-o1.SortBy('len(@string)')
-
-? o1.Content()
-#--> [ "a", "ab", "abc", "abcd", "abcde" ]
-
-proff()
-#--> Executed in 0.30 second(s)
-
-/*-------------
-
-pron()
-
-o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
-
-o1.SortBy('len(@item)')
-? o1.Content()
-#--> [ "a", "ab", "abc", "abcd", "abcde" ]
-
-proff()
-# Executed in 0.29 second(s)
-
-/*-------------
-
-? @@( [ "ONE", "TWO", "THREE" ] )
-#--> [
-#	"ONE",
-#	"TWO",
-#	"THREE"
-#    ]
-
-? @@( [ "ONE", "TWO", "THREE" ] )	#-- S for Simplified
-#--> [ "ONE", "TWO", "THREE" ]
-
-STOP()
-
-/*========= Replace and DeepReplace
-
-o1 = new stzList([
-	"me",
-	"other",
-	[ "other", "me", [ "me" ], "other" ],
-	"other",
-	"me"
-])
-
-o1.Replace("me", :By = "you")
-? @@( o1.Content() ) + NL
-#--> [
-#	"you",
-#	"other",
-#	[ "other", "me", [ "me" ], "other" ],
-#	"other",
-#	"you"
-#    ]
-
-/*------------
-
-o1 = new stzList([
-	"me",
-	"other",
-	[ "other", "me", [ "me" ], "other" ],
-	"other",
-	"me"
-])
-
-o1.DeepReplace("me", :By = "you")
-? @@( o1.Content() )
-#--> [
-#	"you",
-#	"other",
-#	[ "other", "you", [ "you" ], "other" ],
-#	"other"
-#    ]
 
 /*=========
 
+pron()
+
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
-? o1.NumberOfSectionsBetween("word", "<<", ">>") #--> 3
-
-? o1.FindSubStringAsSections("word", "<<", ">>")
+? o1.NumberOfSectionsBetween("word", "<<", ">>")
+#--> 3
+	
+? @@( o1.FindSubStringBetweenAsSections("word", "<<", ">>") )
 #--> [ [11, 14], [28, 31], [41, 44] ]
-
-? o1.FindNthSectionBetween(2, "word", "<<", ">>")
+	
+? @@( o1.FindNthBetweenAsSection(2, "word", "<<", ">>") )
 #--> [28, 31]
-
-? o1.FindFirstSectionBetween("word", "<<", ">>") // Same as FindAsSectionBetween()
+	
+? @@( o1.FindFirstBetweenAsSection("word", "<<", ">>") )
 #--> [11, 14]
-
-? o1.FindLastSectionBetween("word", "<<", ">>")
+	
+? @@( o1.FindLastBetweenAsSection("word", "<<", ">>") )
 #--> [41, 44]
+
+proff()
+# Executed in 0.11 second(s)
 
 /*---------
 
+pron()
+
 o1 = new stzString("123 ABC 901 DEF")
 o1.ReplaceSections([ [1, 3], [9, 11] ], "***")
-? o1.Content() #--> #--> *** ABC *** DEF
+? o1.Content()
+#--> *** ABC *** DEF
+
+proff()
+# Executed in 0.04 second(s)
 
 /*----------------
 
+pron()
+
 o1 = new stzString("12345 ABC 123 DEF")
+
 o1.ReplaceSection( 11, 13, :With@ = ' Q("*").RepeatedNTimes( Q(@Section).Size() ) ' )
 ? o1.Content()
-#--> ***** ABC 123 DEF
+#--> 12345 ABC *** DEF
+
 o1.ReplaceSection( 1, 5, :With@ = ' Q("*").RepeatedNTimes( Q(@Section).Size() ) ' )
 ? o1.Content()
 #--> ***** ABC *** DEF
 
-STOP()
+proff()
+# Executed in 0.36 second(s)
+
 /*----------------
+
+pron()
 
 o1 = new stzString("12345 ABC 1234 DEF")
 
@@ -226,9 +69,14 @@ o1.ReplaceSections(
 )
 
 ? o1.Content()
+#--> *** ABC *** DEF
 
-STOP()
+proff()
+# Executed in 0.05 second(s)
+
 /*----------------
+
+pron()
 
 o1 = new stzString("12345 ABC 123 DEF")
 
@@ -242,136 +90,406 @@ o1.ReplaceSections(
 
 ? o1.Content()
 
-#--> ***** ABC *** DEF
+#--> *** ABC *** DEF
 
-STOP()
-
-/*----------------
-
-o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
-? o1.FirstItems()	#--? [ 4, 3, 8 ]
-? o1.SecondItems()	#--> [ 7, 1, 9 ]
+proff()
+# Executed in 0.22 second(s)
 
 /*----------------
 
+pron()
+
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+
+? o1.FirstItems()
+#--> [ 4, 3, 8 ]
+
+? o1.SecondItems()
+#--> [ 7, 1, 9 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzListOfPairs([ [4, 7], [3, 1], [9, 8] ])
 o1.SortInAscending()
-? o1.Content()
-#--> [ [1,3], [4, 7], [8, 9] ]
+? @@( o1.Content() )
+#--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 9 ] ]
+
+proff()
 
 /*----------------
+
+pron()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 o1.SortInDescending()
-? o1.Content()
-#--> [ [9,8], [7,4], [3,1] ]
+? @@( o1.Content() )
+#--> [ [ 9, 8 ], [ 7, 4 ], [ 3, 1 ] ]
+
+proff()
 
 /*----------------
-*
+
+pron()
+
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
-? o1.IsSortedInAscending() #--> FALSE
+? o1.IsSortedInAscending()
+#--> FALSE
 
 o1 = new stzListOfPairs([ [1,3], [4, 7], [8, 9] ])
-? o1.IsSortedInAscending() #--> TRUE
+? o1.IsSortedInAscending()
+#--> TRUE
+
+proff()
+# Executed in 0.07 second(s)
 
 /*----------------
 
+pron()
+
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
-? o1.IsSortedInDescending() #--> FALSE
+
+? o1.IsSortedInDescending()
+#--> FALSE
 
 o1 = new stzListOfPairs([ [9,8], [7,4], [3,1] ])
-? o1.IsSortedInDescending() #--> TRUE
+? o1.IsSortedInDescending()
+#--> TRUE
+
+proff()
+
+/*----------------
+
+pron()
+
+o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+? o1.FindPair([3, 1])
+#--> 2
+
+proff()
 
 /*======================
 
+pron()
+
 o1 = new stzList("A":"J")
-? o1.Sections( [ [3,5], [7,8] ] )
-#--> [ [ "C", "D", "E" ], [ "F" ], [ "G", "H" ] ]
 
-? o1.AntiSections( :Of = [ [3,5], [7,8] ] )
-#--> [ ["A", "B"], ["F"], ["I", "J"] ]
+? @@( o1.Sections( [ [3,5], [7,8] ] ) )
+#--> [ [ "C", "D", "E" ], [ "G", "H" ] ]
 
-? o1.FindAntiSections( :Of = [ [3,5], [7,8] ] )
-#--> [ [1, 2], [6, 6], [9, 10] ]
+? @@( o1.AntiSections( :Of = [ [3,5], [7,8] ] ) )
+#--> [ [ "A", "B" ], [ "F" ], [ "I", "J" ] ]
 
-? o1.SectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
+? @@( o1.FindAntiSections( :Of = [ [3,5], [7,8] ] ) )
+#--> [ [ 1, 2 ], [ 6, 6 ], [ 9, 10 ] ]
+
+? @@( o1.SectionsAndAntiSections( :Of = [ [3,5], [7,8] ] ) )
 #--> [ [ "A", "B" ], [ "C", "D", "E" ], [ "F" ], [ "G", "H" ], [ "I", "J" ] ]
 
-? o1.FindAsSectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
+? @@( o1.FindAsSectionsAndAntiSections( :Of = [ [3,5], [7,8] ] ) )
 #--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
+proff()
+# Executed in 0.13 second(s)
+
 /*----------------
+
+pron()
 
 o1 = new stzString("ABCDEFGHIJ")
-? o1.Sections( [ [3,5], [7,8] ] )
+? @@( o1.Sections( [ [3,5], [7,8] ] ) )
 #--> [ "CDE", "GH" ]
 
-? o1.AntiSections( :Of = [ [3,5], [7,8] ] )
+? @@( o1.AntiSections( :Of = [ [3,5], [7,8] ] ) )
 #--> [ "AB", "F", "IJ"]
 
-? o1.FindAntiSections( :Of = [ [3,5], [7,8] ] )
+? @@( o1.FindAntiSections( :Of = [ [3,5], [7,8] ] ) )
 #--> [ [1, 2], [6, 6], [9, 10] ]
 
-? o1.SectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
+? @@( o1.SectionsAndAntiSections( :Of = [ [3,5], [7,8] ] ) )
 #--> [ "AB", "CDE", "F", "GH", "IJ"]
 
-? o1.FindAsSectionsAndAntiSections( :Of = [ [3,5], [7,8] ] )
+? @@( o1.FindAsSectionsAndAntiSections( :Of = [ [3,5], [7,8] ] ) )
 #--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
-/*=================
-
-? SectionToRange([3, 4]) #--> [3, 2]
-? RangeToSection([3, 2]) #--> [3, 4]
-
-? SectionsToRanges([ [3, 4], [8, 10] ]) #--> [ [3, 2], [8, 3] ]
-? RangesToSections([ [3, 2], [8, 3] ])  #--> [ [3, 4], [8, 10] ]
+proff()
+# Executed in 0.15 second(s)
 
 /*=================
+
+pron()
+
+? @@( SectionToRange([3, 4]) )
+#--> [3, 2]
+
+? @@( RangeToSection([3, 2]) )
+#--> [3, 4]
+
+? @@( SectionsToRanges([ [3, 4], [8, 10] ]) )
+#--> [ [3, 2], [8, 3] ]
+
+? @@( RangesToSections([ [3, 2], [8, 3] ]) )
+#--> [ [3, 4], [8, 10] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*=================
+
+pron()
 
 o1 = new stzList([ [ "ONE", "TWO" ], [ "THREE", "FOUR" ], [ "FIVE", "SIX" ] ])
-? o1.IsListOfLists()		#--> TRUE
-? o1.IsListOfPairs()		#--> TRUE
-? o1.IsListOfPairsOfStrings()	#--> TRUE
+? o1.IsListOfLists()
+#--> TRUE
+
+? o1.IsListOfPairs()
+#--> TRUE
+
+? o1.IsListOfPairsOfStrings()
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
 
 /*----------------
 
+pron()
+
 o1 = new stzList([ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ])
-? o1.IsListOfLists()		#--> TRUE
-? o1.IsListOfPairs()		#--> TRUE
-? o1.IsListOfPairsOfNumbers()	#--> TRUE
+? o1.IsListOfLists()
+#--> TRUE
+
+? o1.IsListOfPairs()
+#--> TRUE
+
+? o1.IsListOfPairsOfNumbers()
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
 
 /*=================
 
-o1 = new stzString("AB♥CD♥EF♥GH")
-? o1.Split("♥") #--> [ "AA", "CD", "EF", "GH" ]
+pron()
 
-? o1.SplitAfter("♥")
+o1 = new stzString("AB♥CD♥EF♥GH")
+
+? @@( o1.Split("♥") )
+#--> [ "AA", "CD", "EF", "GH" ]
+
+? @@( o1.SplitAfter("♥") )
+#--> [ "AB♥", "CD♥", "EF♥", "GH" ]
+
+? @@( o1.SplitBefore("♥") )
+#--> [ "AB", "♥CD", "♥EF", "♥GH" ]
+
+proff()
+# Executed in 0.07 second(s)
 
 /*----------------
 
+pron()
+
 o1 = new stzString("AB♥♥C♥♥D♥♥E")
-? o1.SplitToPartsOfNCharsXT(2, :ExcludeRemaining = TRUE)
-#--> [ "AB", "♥♥", "C♥", "♥D", "♥♥" ]
 
 ? o1.SplitToPartsOfNChars(2)
 #--> [ "AB", "♥♥", "C♥", "♥D", "♥♥", "E" ]
 
-? o1.SplitToPartsOfNCharsXT(2, :ExcludeRemaining = TRUE)
+? o1.SplitToPartsOfExactlyNChars(2) # OR SplitToPartsOfNCHarsXT(2)
 #--> [ "AB", "♥♥", "C♥", "♥D", "♥♥" ]
 
-/*----------------
+proff()
+# Executed in 0.06 second(s)
 
 /*=================
 
+pron()
+
 o1 = new stzString("ABCDE")
 ? @@( o1.SubStrings() )
-#--> [ "A", "B", "C", "D", "E", "AB", "CD", "ABC", "ABCD", "ABCDE" ]
+#--> [
+#	"A", "AB", "ABC", "ABCD", "ABCDE", "B",
+#	"BC", "BCD", "BCDE", "C", "CD", "CDE",
+#	"D", "DE", "E"
+# ]
+
+proff()
+# Executed in 0.17 second(s)
 
 /*================ WORKING WITH BOUNDS
 
-o1 = new stzString("<<word>> and {{word}}")
-? o1.BoundsOf( "word", :UpToNChars = 2 )
-#--> [ [ "<<", ">>" ], [ "{{", "}}" ] ]
+pron()
+
+o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
+? @@( o1.FindSubStringBoundsAsSections("word") )
+#--> [ [ 1, 3 ], [ 8, 10 ], [ 13, 15 ], [ 20, 22 ], [ 28, 30 ], [ 35, 37 ] ]
+
+? @@( o1.FindSubStringBounds("word") )
+#--> [ 1, 8, 13, 20, 28, 35 ]
+
+proff()
+
+/*------------------
+*/
+pron()
+
+o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
+
+# Bounds of the entire string
+
+? @@( o1.FindStringBoundsAsSections() )
+
+# Bounds of a particular substring inside the string
+
+? @@( o1.FindBoundsAsSections(:Of = "word") ) + NL
+#--> [ [ 1, 3 ], [ 8, 10 ], [ 13, 15 ], [ 20, 22 ], [ 28, 30 ], [ 35, 37 ] ]
+
+? @@( o1.FindFirstBoundsAsSections(:Of = "word") ) + NL
+#--> [ [ 1, 3 ], [ 13, 15 ], [ 28, 30 ] ]
+
+? @@( o1.FindFirstBounds(:Of = "word") ) + NL
+#--> [ 1, 13, 28 ]
+
+proff()
+
+/*------------------
+
+pron()
+
+o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
+
+? @@( o1.FindSubStringSecondBoundsAsSections(:of = "word") )
+
+? @@( o1.FindSubStringSecondBounds(:of = "word") )
+
+proff()
+
+/*================
+
+pron()
+
+o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
+
+# Finding the bounds of "word" up to 3 chars
+
+? @@( o1.FindSubStringBoundsUpToNCharsAsSections(3, "word") )
+#--> [ [ 1, 3 ], [ 8, 10 ], [ 13, 15 ], [ 20, 22 ], [ 28, 30 ], [ 35, 37 ] ]
+
+	o1.FindBoundsAsSectionsXT( :Of = "word", :UpToNChars = 3 )
+
+? @@( o1.FindSubStringBoundsUpToNChars(3, "word") )
+#--> [ 1, 8, 13, 20, 28, 35 ]
+
+	o1.FindBoundsXT( :Of = "word", :UpToNChars = 3 )
+
+# Finding the first bounds of "word" up to 3 chars
+
+? @@( o1.FindSubStringFirstBoundsUpToNCharsAsSections(3, "word") )
+#--> [ [ 1, 3 ], [ 13, 15 ], [ 28, 30 ] ]
+
+	o1.FindFirstBoundsAsSectionsXT( :Of = :Word, :UpToNChars = 3)
+
+? @@( o1.FindSubStringFirstBoundsUpToNChars(3, "word") )
+#--> [ 1, 13, 28 ]
+
+	o1.FindFirstBoundsXT( :Of = :Word, :UpToNChars = 3)
+
+# Finding the seconds bounds of "word" up to 3 chars
+
+? @@( o1.FindSubStringSecondBoundsUpToNCharsAsSections(3, "word") )
+#--> [ [ 8, 10 ], [ 20, 22 ], [ 35, 37 ] ]
+
+	o1.FindSecondBoundsAsSectionsXT( :Of = :Word, :UpToNChars = 3)
+
+? @@( o1.FindSubStringSecondBoundsUpToNChars(3, "word") )
+#--> [ 8, 20, 35 ]
+
+	o1.FindSecondBoundsXT( :Of = :Word, :UpToNChars = 3)
+
+# Finding the left bounds of "word" up to 3 chars
+
+? @@( o1.FindSubStringLeftBoundsUpToNCharsAsSections(3, "word") )
+#--> [ [ 8, 10 ], [ 20, 22 ], [ 35, 37 ] ]
+
+	o1.FindLeftBoundsAsSectionsXT( :Of = Word, :UpToNChars = 3 )
+
+? @@( o1.FindSubStringLeftBoundsUpToNChars(3, "word") )
+#--> [ 1, 13, 28 ]
+
+	o1.FindLeftBoundsXT( :Of = Word, :UpToNChars = 3 )
+
+# Finding the right bounds of "word" up to 3 chars
+
+? @@( o1.FindSubStringRightBoundsUpToNCharsAsSections(3, "word") )
+#--> [ [ 8, 10 ], [ 20, 22 ], [ 35, 37 ] ]
+
+	o1.FindRightBoundsAsSectionsXT( :Of = Word, :UpToNChars = 3 )
+
+? @@( o1.FindSubStringRightBoundsUpToNChars(3, "word") )
+#--> [ 1, 13, 28 ]
+
+	o1.FindRightBoundsXT( :Of = Word, :UpToNChars = 3 )
+
+proff()
+# Executed in 0.34 second(s)
+
+/*------------------
+
+pron()
+
+o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
+
+# Getting the bounds of the substring "word" up to 3 chars
+
+? @@( o1.SubStringBoundsUpToNChars(3, "word") )
+#--> [ "<<<", ">>>", "(((", ")))", "{{{", "}}}" ]
+
+	o1.BoundsXT( :Of = "word", :UpToNChars = 3 )
+
+# Getting the first bounds of "word" up to 3 chars
+
+? @@( o1.SubStringFirstBoundsUpToNChars(3, "word") )
+#--> [ "<<<", "(((", "{{{" ]
+
+	o1.FirstBoundsXT( :Of = "word", :UpToNChars = 3 )
+
+# Getting the seconds bounds of "word" up to 3 chars
+
+? @@( o1.SubStringSecondBoundsUpToNChars(3, "word") )
+#--> [ ">>>", ")))", "}}}" ]
+
+	o1.SecondBoundsXT( :Of = "word", :UpToNChars = 3 )
+
+# Getting the left bounds of "word" up to 3 chars
+
+? @@( o1.SubStringLeftBoundsUpToNChars(3, "word") )
+#--> [ "<<<", "(((", "{{{" ]
+
+	o1.LeftBoundsXT( :Of = "word", :UpToNChars = 3 )
+
+# Getting the right bounds of "word" up to 3 chars
+
+? @@( o1.SubStringRightBoundsUpToNChars(3, "word") )
+#--> [ ">>>", ")))", "}}}" ]
+
+	o1.EightBoundsXT( :Of = "word", :UpToNChars = 3 )
+
+proff()
+# Executed in 0.20 second(s)
+
+/*=================
+
+pron()
+
+o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
+
+//? o1.BoundsOfXT( "word", :UpToNChars = 2 )
+
+proff()
 
 /*----------------
 
@@ -453,14 +571,28 @@ opjn
 */
 
 /*----------------
-*/
-? QQ(["abc","cdef","opjn"]).ToString() // QQ() generates a stzListOfStrings object
 
+pron()
+
+? @@( Q(["abc","cdef","opjn"]).ToString() ) # Q() creates a stzList object
 /*-->
 abc
 cdef
 opjn
 */
+
+# Same thing can be done wit stzListOfStrings
+
+? @@( QQ(["abc","cdef","opjn"]).ToString() ) // QQ() generates a stzListOfStrings object
+/*-->
+abc
+cdef
+opjn
+*/
+
+proff()
+# Executed in 0.05 second(s)
+
 
 /*=================
 

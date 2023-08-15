@@ -1,5 +1,159 @@
 load "stzlib.ring"
 
+/*========= Replace and DeepReplace
+
+pron()
+
+o1 = new stzList([
+	"me",
+	"other",
+	[ "other", "me", [ "me" ], "other" ],
+	"other",
+	"me"
+])
+
+o1.Replace("me", :By = "you")
+? @@( o1.Content() ) + NL
+#--> [
+#	"you",
+#	"other",
+#	[ "other", "me", [ "me" ], "other" ],
+#	"other",
+#	"you"
+#    ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzList([
+	"me",
+	"other",
+	[ "other", "me", [ "me" ], "other" ],
+	"other",
+	"me"
+])
+
+o1.DeepReplace("me", :By = "you")
+? @@( o1.Content() )
+#--> [
+#	"you",
+#	"other",
+#	[ "other", "you", [ "you" ], "other" ],
+#	"other"
+#    ]
+
+proff()
+
+/*==============
+
+pron()
+
+o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
+
+o1.SortBy('len(@item)')
+? o1.Content()
+#--> [ "a", "ab", "abc", "abcd", "abcde" ]
+
+proff()
+# Executed in 0.28 second(s)
+
+/*==============
+
+pron()
+
+o1 = new stzList(1:1_500_000)
+
+o1.ShowShort()
+#--> [ 1, 2, 3, " ... ", 1499998, 1499999, 1500000 ]
+
+proff()
+# Executed in 1.71 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList(1:18)
+
+o1.Show()
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 ]
+
+o1.ShowShort()
+#--> [ 1, 2, 3, " ... ", 16, 17, 18 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------------------
+
+pron()
+
+o1 = new stzList(1:180_000)
+
+o1.ShowShortUsing("***")
+#--> [ 1, 2, 3, "***", 179998, 179999, 180000 ]
+
+o1.ShowShortN(2)
+#--> [ 1, 2, "...", 179999, 180000 ]
+
+o1.ShowShortNUsing(2, "***")
+#--> [ 1, 2, "***", 179999, 180000 ]
+
+? @@( o1.Shortened() )
+#--> [ 1, 2, 3, "...", 179998, 179999, 180000 ]
+
+? @@( o1.ShortenedN(2) )
+#--> [ 1, 2, "...", 179999, 180000 ]
+
+? @@( o1.ShortenedXT(0, 2, "{...}") )
+#--> [ 1, 2, "{...}", 179999, 180000 ]
+
+proff()
+# Executed in 0.76 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzList(1:180_000)
+
+o1.Shorten()
+? @@( o1.Content() )
+#--> [ 1, 2, 3, "...", 179998, 179999, 180000 ]
+
+proff()
+# Executed in 0.09 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzList(1:180_000)
+
+o1.ShortenN(2)
+? @@( o1.Content() )
+#--> [ 1, 2, "...", 179999, 180000 ]
+
+proff()
+# Executed in 0.13 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzList(1:180_000)
+
+o1.ShortenNUsing(2, "{}")
+? @@( o1.Content() )
+#--> [ 1, 2, "{}", 179999, 180000 ]
+
+proff()
+# Executed in 0.09 second(s)
+
 /*=======
 
 pron()
@@ -739,12 +893,6 @@ o1 = new stzList([ 14, 10, 14, 14, 20 ])
 
 proff()
 # Executed in 0.05 second(s)
-
-/*-----------------
-
-o1 = new stzString([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])
-#!--> Should return an error!
-# Incorrect param! You must provide a list of strings.
 
 /*-----------------
 

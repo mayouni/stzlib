@@ -128,8 +128,8 @@ class stzListOfPairs from stzList
 	 #  FINDING POSITIONS OF A GIVEN PAIR IN THE LIST  #
 	#-------------------------------------------------#
 
-	def FindPair(aPair)
-		return This.ToStzList().FindItem(paPair)
+	def FindPair(paPair)
+		return This.FindItem(paPair)
 
 	  #------------------------------------------------------------------#
 	 #  FINDING POSITIONS OF A VALUE IN THE LIST OF FIRST/SECOND ITEMS  #
@@ -357,7 +357,7 @@ class stzListOfPairs from stzList
 		aSorted = This.SortedInAscending()
 		cSorted = StzListQ(aSorted).ToCode()
 		
-		bResult = This.ToStzList().ToCodeQ().IsEqualTo(cSorted)
+		bResult = This.ToCodeQ().IsEqualTo(cSorted)
 
 		return bResult
 
@@ -380,26 +380,22 @@ class stzListOfPairs from stzList
 		aContent = This.Content()
 		nLen = This.NumberOfPairs()
 
-		# Sort each pair in asscending
-		#--> [ [4, 7], [1, 3], [8, 9] ]	: Note the [3, 1] became [1, 3]
-		
+		# Sort each pair in desscending
+
 		for i = 1 to nLen
-			aContent[i] = Q(aContent[i]).SortedInAscending()
+			aContent[i] = Q(aContent[i]).SortedInDescending()
 		next
 
 		# Take the list of the first items of each pair
-		#--> [ 4, 1, 8 ]
 
 		aFirstItems = This.FirstItems()
 
 		# Sort them in descending
-		#--> [ 8, 4, 1 ]
 
 		aFirstItemsSorted = Q(aFirstItems).SortedInDescending()
 		nLenSorted = len(aFirstItemsSorted)
 
 		# Rearrange the pairs accrodingly
-		#--> [  [8, 9], [4, 7], [1, 3] ]
 
 		for i = 1 to nLenSorted
 			n = Q(aFirstItems).FindFirst(aFirstItemsSorted[i])
@@ -424,7 +420,7 @@ class stzListOfPairs from stzList
 		aSorted = This.SortedInDescending()
 		cSorted = StzListQ(aSorted).ToCode()
 		
-		bResult = This.ToStzList().ToCodeQ().IsEqualTo(cSorted)
+		bResult = This.ToCodeQ().IsEqualTo(cSorted)
 
 		return bResult
 
@@ -598,7 +594,7 @@ class stzListOfPairs from stzList
 		bResult = FALSE
 
 		If This.IsListOfSections() and
-		   This.ToStzList().MergeQ().IsSortedInAscending()
+		   This.MergeQ().IsSortedInAscending()
 
 				bResult = TRUE
 
