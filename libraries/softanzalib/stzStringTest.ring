@@ -1,5 +1,64 @@
 load "stzlib.ring"
 
+/*==================
+
+pron()
+
+? Q("1234567890987654321").ShortenedN(2)
+#--> 12...21
+		
+? Q("1234567890987654321").ShortenedXT(0, 2, " {...} ")
+#--> 12 {...} 21
+
+proff()
+# Executed in 0.03 second(s)
+
+/*--------------
+
+pron()
+
+? Q("1234567890987654321").Shortened()
+#--> 123...321
+
+? Q("1234567890987654321").ShortenedN(5)
+#--> 12345...54321
+
+? Q("1234567890987654321").ShortenedXT(0, 3, " ... ")
+#--> 123 ... 321
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzString("1234567890987654321")
+o1.Shorten()
+? o1.Content()
+#--> 123...321
+
+o1 = new stzString("1234567890987654321")
+o1.ShortenN(5)
+? o1.Content()
+#--> 12345...54321
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-------------
+
+pron()
+
+? Q("1234567890987654321").ShortenedUsing(" {...} ")
+#--> 123 {...} 321
+
+? Q("1234567890987654321").ShortenedNUsing(5, " {...} ")
+#--> 12345 {...} 54321
+
+proff()
+# Executed in 0.03 second(s)
+
 /*=============
 
 pron()
@@ -2011,24 +2070,6 @@ o1 = new stzString("Math: 18, Geo: 16, :Physics: 17.80")
 
 proff()
 # Executed in 0.17 second(s)
-
-/*------------
-
-StartProfiler()
-
-o1 = new stzString([
-	"I__",
-	"♥",
-	Q("_").Repeated(3),
-	'{ Q("ring").Uppercased() }',
-	"!"
-])
-
-? o1.Content()
-#--> <<__♥___RING___>>
-
-StopProfiler()
-# Executed in 0.02 second(s)
 
 /*-----------
 

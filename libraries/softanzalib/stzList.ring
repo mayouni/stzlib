@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------------#
-# 		    SOFTANZA LIBRARY (V1.0) - StzItem			    #
-#		An accelerative library for Ring applications		    #
+# 		   SOFTANZA LIBRARY (V1.0) - StzItem			    #
+#	An accelerative library for Ring applications, and more!	    #
 #---------------------------------------------------------------------------#
 #									    #
 # 	Description	: The core class for managing lists in Softanza     #
@@ -20029,91 +20029,62 @@ class stzList from stzObject
 	#====================#
 
 	def Show()
-		if This.IsHashList()
-			StzHashListQ( This.List() ).Show()
-
-		but This.IsListOfHashLists()
-			StzListOfHashListsQ( This.List() ).Show()
-
-		other
-			? @@( This.Content() )
-		ok
+		? @@( This.Content() )
 
 	def ShowShort()
-		? @@( This.ToShortForm() )
+		? @@( This.Shortened() )
 
-		def ShowShortForm()
+		def ShowShortCopy()
 			This.ShowShort()
 
-	def ShowShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
-		? @@( This.ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart) )
+	def ShowShortXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
+		? @@( This.ShortenedXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart) )
 
-		def ShowShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
-			This.ShowShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		def ShowShortenedXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
+			This.ShowShortXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
 
 	def ShowShortN(n)
-		? @@( This.ToShortFormN(n) )
-
-		def ShowShortFormN(n)
-			This.ShowShortN(n)
+		? @@( This.ShortenedN(n) )
 
 	def ShowShortUsing(pcMiddlePart)
-		? @@( This.ToShortFormUsing(pcMiddlePart) )
-
-		def ShowShortFormUsing(pcMiddlePart)
-			This.ShowShortUsing(pcMiddlePart)
+		? @@( This.ShortenedUsing(pcMiddlePart) )
 
 	def ShowShortNUsing(n, pcMiddlePart)
-		? @@( This.ToShortFormNUsing(n, pcMiddlePart) )
-
-		def ShowShortFormNUsing(n, pcMiddlePart)
-			This.ShowShortNUsing(n, pcMiddlePart)
+		? @@( This.ShortenedNUsing(n, pcMiddlePart) )
 
 	  #------------------------------------------#
-	 #   GETTING A SHORTENED FORM OF THE LSIST  #
+	 #   GETTING A SHORTENED COPY OF THE LIST  #
 	#==========================================#
 
-	def ToShortForm()
-		return This.ToShortFormXT(10, 3, "...")
-
-		def ToShort()
-			return This.ToShortForm()
+	def ToShort()
+		return This.ToShortXT(10, 3, "...")
 
 	  #---------------------------------------------------------------------#
-	 #   GETTING A SHORTENED FORM OF THE LIST WITH N CHARS FROM EACH SIDE  #
+	 #   GETTING A SHORTENED COPY OF THE LIST WITH N ITEMS FROM EACH SIDE  #
 	#---------------------------------------------------------------------#
 
-	def ToShortFormN(n)
-		return This.ToShortFormXT(10, n, "...")
-
-		def ToShortN(n)
-			return This.ToShortFormN(n)
+	def ToShortN(n)
+		return This.ToShortXT(10, n, "...")
 
 	  #-------------------------------------------------------------------#
-	 #   GETTING A SHORTENED FORM OF THE LIST USiNG A GIVEN MIDDLE PART  #
+	 #   GETTING A SHORTENED COPY OF THE LIST USiNG A GIVEN MIDDLE PART  #
 	#-------------------------------------------------------------------#
 
-	def ToShortFormUsing(pcMiddlePart)
-		return This.ToShortFormXT(10, 3, pcMiddlePart)
+	def ToShortUsing(pcMiddlePart)
+		return This.ToShortXT(10, 3, pcMiddlePart)
 
-		def ToShortUsing(pcMiddlePart)
-			return This.ToShortFormUsing(pcMiddlePart)
+	  #------------------------------------------------------------------------------------------------#
+	 #   GETTING A SHORTENED COPY OF THE LIST USING N ITEMS FROM EACH SIDE AND THE GIVEN MIDDLE PART  #
+	#------------------------------------------------------------------------------------------------#
 
-	  #-----------------------------------------------------------------------------------#
-	 #   GETTING A SHORTENED FORM OF THE STRING USING N CHARS AND THE GIVEN MIDDLE PART  #
-	#-----------------------------------------------------------------------------------#
-
-	def ToShortFormNUsing(n, pcMiddlePart)
-		return This.ToShortFormXT(10, n, pcMiddlePart)
-
-		def ToShortNUsing(n, pcMiddlePart)
-			return This.ToShortFormNUsing(n, pcMiddlePart)
+	def ToShortNUsing(n, pcMiddlePart)
+		return This.ToShortXT(10, n, pcMiddlePart)
 
 	  #----------------------------------------------------#
-	 #  GETTING A SHORTENED FORM OF THE LIST -- EXTENDED  #
+	 #  GETTING A SHORTENED COPY OF THE LIST -- EXTENDED  #
 	#----------------------------------------------------#
 
-	def ToShortFormXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
+	def ToShortXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
 		# nMinListSize : the minimum size to start shortening
 		# --> if the size of the list is less than this value,
 		#     the list will not be shortened (returned as is)
@@ -20128,10 +20099,10 @@ class stzList from stzObject
 		? Q([ "1", "2", "3", "4", "5", "6", "7", "8", "9"]).Shortened()
 		#--> '[ "1", "2", "3", "...", "7", "8", "9" ]'
 		
-		? Q("1234567890987654321").ShortenedN(2)
+		? Q([ "1", "2", "3", "4", "5", "6", "7", "8", "9"]).ShortenedN(2)
 		#--> '[ "1", "2", "...", "8", "9" ]'
 		
-		? Q("1234567890987654321").ShortenedXT(0, 2, "{...}")
+		? Q([ "1", "2", "3", "4", "5", "6", "7", "8", "9"]).ShortenedXT(0, 2, "{...}")
 		#--> '[ "1", "2", "{...}", "8", "9" ]'
 
 		*/
@@ -20159,7 +20130,7 @@ class stzList from stzObject
 		ok
 
 		if n1 = 0 or n2 = 0
-			StzRaise("Incorrect value! n1 and n2 must be different of zero.")
+			StzRaise("Incorrect value! The number of items to show must be different of zero..")
 		ok
 
 		# Doing the job
@@ -20176,9 +20147,6 @@ class stzList from stzObject
 
 		return aResult
 
-		def ToShortXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
-			return This.ToShortFormXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
-
 	  #-----------------------#
 	 #  SHORTENING THE LIST  #
 	#=======================#
@@ -20191,16 +20159,15 @@ class stzList from stzObject
 			return This
 
 	def Shortened()
-? "hi"
-		cResult = This.ToShortFormXT(10, 3, "...")
+		cResult = This.ToShortXT(10, 3, "...")
 		return cResult
 
-	  #-----------------------------------------------#
-	 #  SHORTENING THE LIST TO N ITEMS IN EACH SIDE  #
-	#-----------------------------------------------#
+	  #------------------------------------------------#
+	 #  SHORTENING THE LIST TO N ITEMS FROM EACH SIDE #
+	#------------------------------------------------#
 
 	def ShortenN(n)
-		cShort = This.SortenedN(n)
+		cShort = This.ShortenedXT(10, n, "...")
 		This.UpdateWith(cShort)
 
 		#< @FunctionFluentForm
@@ -20273,12 +20240,12 @@ class stzList from stzObject
 
 		#>
 
-	  #---------------------------------------#
-	 #  SHORTENING THE STRING USING N CHARS  #
-	#--------------------------------------#
+	  #---------------------------------------------------------------#
+	 #  SHORTENING THE LIST USING THE GIVEN STRING AS A MIDDLE ITEM  #
+	#---------------------------------------------------------------#
 
 	def ShortenUsing(pcMiddlePart)
-		cShort = This.ToShortenedUsing(pcMiddlePart)
+		cShort = This.ShortenedXT(10, 3, pcMiddlePart)
 		This.UpdateWith(cShort)
 
 		def ShortenUsingQ(pcMiddlePart)
@@ -20289,12 +20256,12 @@ class stzList from stzObject
 		cResult = This.Copy().ShortenUsingQ(pcMiddlePart).Content()
 		return cResult
 
-	  #-----------------------------------------------------------------#
-	 #  SHORTENING THE STRING USING N CHARS AND THE GIVEN MIDDLE PART  #
-	#-----------------------------------------------------------------#
+	  #------------------------------------------------------------------------------#
+	 #  SHORTENING THE LIST USING N ITEMS FROM EACH SIDE AND THE GIVEN MIDDLE PART  #
+	#------------------------------------------------------------------------------#
 
 	def ShortenNUsing(n, pcMiddlePart)
-		cShort = This.ToShortenedNUsing(n, pcMiddlePart)
+		cShort = This.ToShortNUsing(n, pcMiddlePart)
 		This.UpdateWith(cShort)
 
 		#< @FunctionFluentForm
@@ -20345,7 +20312,7 @@ class stzList from stzObject
 		#>
 
 	def ShortenedNUsing(n, pcMiddlePart)
-		cResult = This.Copy().ShortenNUsingQ().Content()
+		cResult = This.Copy().ShortenNUsingQ(n, pcMiddlePart).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -20367,20 +20334,20 @@ class stzList from stzObject
 
 		#>
 
-	  #-------------------------------------#
-	 #  SHORTENING THE STRING -- EXTENDED  #
-	#-------------------------------------#
+	  #-----------------------------------#
+	 #  SHORTENING THE LIST -- EXTENDED  #
+	#-----------------------------------#
 
-	def ShortenXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
-		cShort = This.ToShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+	def ShortenXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
+		cShort = This.ToShortXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
 		This.UpdateWith(cShort)
 
-		def ShortenXTQ(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
-			This.ShortenXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		def ShortenXTQ(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
+			This.ShortenXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
 			return This
 
-	def ShortenedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
-		cResult = This.Copy().ShortenXTQ(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart).Content()
+	def ShortenedXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
+		cResult = This.Copy().ShortenXTQ(nMinListSize, pNumberOfItemsToShow, pcMiddlePart).Content()
 		return cResult
 
 	  #======================================#
@@ -20455,52 +20422,6 @@ class stzList from stzObject
 
 			return anResult
 		ok
-
-/*
-		aContent = This.Content()
-		nLen = len(aContent)
-		oItem = Q(pItem)
-		cItem = oItem.ToCode()
-		anResult = []
-
-		if isNumber(pItem) or isString(pItem)
-
-			for i = 1 to nLen
-
-				if ( isNumber(aContent[i]) or isString(aContent[i]) )
-					if oItem.IsEqualToCS(aContent[i], pCaseSensitive)
-						anResult + i
-					ok
-
-				but isList(aContent[i])
-					if cItem = @@(aContent[i])
-						anResult + i
-					ok
-					
-				else // isObject(aConten[i])
-					# ToDo; Do nothing (unsupported feature)
-				ok
-			next
-
-		but isList(pItem)
-			for i = 1 to nLen
-				if isList(aContent[i]) and
-				   oItem.IsEqualToCS(aContent[i], pCaseSensitive)
-
-					anResult + i
-				ok
-			next
-
-		else // isObject(pItem)
-			# ToDo; Do nothing (unsupported feature)
-
-			if This.ContainsNoObjects()
-				return []
-			ok
-		ok
-
-		return anResult
-*/
 
 		#< @FunctionFluentForm
 

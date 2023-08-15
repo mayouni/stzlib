@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------#
-# 		    SOFTANZA LIBRARY (V1.0) - STZSTRING			  #
-#		An accelerative library for Ring applications		  #
+# 		   SOFTANZA LIBRARY (V1.0) - STZSTRING			  #
+#	An accelerative library for Ring applications, and more!	  #
 #-------------------------------------------------------------------------#
 #									  #
 # 	Description	: The core class for managing Unicode strings     #
@@ -461,63 +461,8 @@ class stzString from stzObject
 		but IsQString(pcStr)
 			@oQString = pcStr
 
-/*		but isList(pcStr)
-
-			if StzListQ(pcStr).IsListOfNumbers()
-				StzRaise("Incorrect param! You must provide a list of strings.")
-			ok
-
-			# This case is added to facilitate the creation of
-			# large strings to test them against stzString methods
-
-			# EXAMPLE
-			/*
-			Create a string:
-				- beginning by the substring "__♥",
-				- and then containining 100_000 "_" chars
-				- and then containing [ "♥", "_", "_", "♥" ] concatenated,
-				- ...
-				- and finanally containg the substring "anycode"
-				  dynamically evaluated to become "ANYCODE"
-
-			o1 = new stzString([
-				[ "_", "_", "♥" ],
-				[ 100_000, "_" ],
-				[ "♥", "_", "_", "♥" ],
-				[ 50_000, "_"],
-				[ "♥", "_", "_", "♥"],
-				[ 10, "_" ],
-				'{ Q("anycode").Uppercased() }'
-			])
-		
-
-			aTempList = pcStr
-			nLen = len(aTempList)
-
-			cResult = ""
-			
-			for i = 1 to nLen
-				item = aTempList[i]
-			
-				if isString(item)
-
-					if NOT Q(item).IsBoundedBy(["{", "}"])
-						cResult += item
-					else
-						item = Q(item).TrimQ().BoundsRemoved(["{","}"])
-						cCode = 'cTempStr = (' + item + ')'
-						eval(cCode)
-						cResult += cTempStr
-					ok
-			
-				ok
-			next
-
-			@oQString = new QString2()
-			@oQString.append(cResult)
-*/
 		else
-			stzRaise("Can't create the stzString object! You must provide a string, a QString, or a list.")
+			stzRaise("Can't create the stzString object! You must provide a string, a QString.")
 		ok
 
 	  #==========================#
@@ -7886,9 +7831,33 @@ class stzString from stzObject
 		def BoundsUpToNChars(pcSubStr, pnUpToNChars)
 			return This.BoundsOfCS(pcSubStr, panUpToNChars, :CaseSensitive = TRUE)
 	
+	  #------------------------------------------------------------------------------#
+	 #  FINDING THE TWO BOUNDS (IF EVER) OF THE STRING BY RETURNING THEIR SECTIONS  #
+	#==============================================================================#
+
+	def FindBoundsAsSectionsCS(pCaseSensitive)
+
+		acResult = [
+			This.FindLeadingCharsAsSectionCS(pCaseSensitive),
+			This.FindTrailingCharsAsSectionCS(pCaseSensitive)
+		]
+
+		return acResult
+
+		def FindStringBoundsAsSectionsCS(pCaseSensitive)
+			return This.FindBoundsAsSectionsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBoundsAsSections()
+		return This.FindBoundsAsSectionsCS(:CaseSensitive = TRUE)
+
+		def FindStringBoundsAsSections()
+			return This.FindBoundsAsSections()
+
 	  #--------------------------------------------------#
 	 #  GETTING THE TWO BOUNDS (IF EVER) OF THE STRING  #
-	#==================================================#
+	#--------------------------------------------------#
 
 	def BoundsCS(pCaseSensitive)
 		/* EXAMPLE 1
@@ -7979,22 +7948,19 @@ class stzString from stzObject
 		return This.RightBoundCS(:CaseSensitive = TRUE)
 
 	  #---------------------------------------------------------#
-	 #  GETTING THE BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
+	 #  FINDING THE BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
 	#=========================================================#
 
-	def BoundsOfCS(pcSubStr, pCaseSensitive)
-		/* EXAMPLE 1
-
-		o1 = new stzString("Hello <<Ring>>, the beautiful ((Ring))!")
-		? o1.BoundsOf("Ring")
-		#--> [ ["<<", ">>"], [ "((", "))" ] ]
-
-		*/
+	def FindBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
 
 		# Getting the list if chars and sections of pcSubStr
 
+		nLenStr = This.NumberOfChars()
+		if nLenStr = 0
+			return []
+		ok
+
 		acChars = This.Chars()
-		nLenStr = len(acChars)
 
 		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 		nLen = len(aSections)
@@ -8019,49 +7985,394 @@ class stzString from stzObject
 		aResult = []
 
 		for i = 1 to nLen
-			acBounds = []
-
-			#--
 
 			n1 = aSections[i][1]
 			c = acChars[n1-1]
 
-			cBound1 = c
-
 			for j = n1 - 2 to 1 step - 1
 				if acChars[j] != c
 					exit
-				else
-					cBound1 += c
 				ok
 			next
 
-			acBounds + cBound1
+			aResult + [ j + 1, n1 - 1 ]
 
 			#--
 
 			n1 = aSections[i][2]
 			c = acChars[n1+1]
 
-			cBound2 = c
-
 			for j = n1 + 2 to nLenStr
 				if acChars[j] != c
 					exit
-				else
-					cBound2 += c
 				ok
 			next
 
-			acBounds + cBound2
-
-			#--
-
-			aResult + acBounds
+			aResult + [ n1 + 1, j - 1 ]
 
 		next
 
 		return aResult
+
+		def FindSubStringBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBoundsOfAsSections(pcSubStr)
+		return This.FindBoundsOfAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringBoundsAsSections(pcSubStr)
+			return This.FindBoundsOfAsSections(pcSubStr)
+
+	  #---------------------------------------------------------#
+	 #  FINDING THE BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
+	#---------------------------------------------------------#
+
+	def FindBoundsOfCS(pcSubStr, pCaseSensitive)
+		aSections = This.FindBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+
+		return anResult
+
+		def FindSubStringBoundsCS(pcSubStr, pCaseSensitive)
+			return This.FindBoundsOfCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBoundsOf(pcSubStr)
+		return This.FindBoundsOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringBounds(pcSubStr)
+			return This.FindBoundsOf(pcSubStr)
+
+	  #---------------------------------------------------------------------------#
+	 #  FINDING THE FIRST BOUNDS AS SECTIONS OF A GIVEN SUBSTRING IN THE STRING  #
+	#---------------------------------------------------------------------------#
+
+	def FindFirstBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		# Getting the list if chars and sections of pcSubStr
+
+		nLenStr = This.NumberOfChars()
+		if nLenStr = 0
+			return []
+		ok
+
+		acChars = This.Chars()
+
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		nLen = len(aSections)
+		if nLen = 0
+			return []
+		ok
+
+		# Removing extreme cases
+
+		if aSections[1][1] = 1
+			ring_del(aSections, 1)
+			nLen--
+		ok
+
+		if aSections[nLen][2] = nLenStr
+			ring_del(aSections, nLen)
+			nLen--
+		ok
+
+		# Doing the job
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			n1 = aSections[i][1]
+			c = acChars[n1-1]
+
+			for j = n1 - 2 to 1 step - 1
+				if acChars[j] != c
+					exit
+				ok
+			next
+
+			aResult + [ j + 1, n1 - 1 ]
+
+		next
+
+		return aResult
+
+		def FindSubStringFirstBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindFirstBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstBoundsOfAsSections(pcSubStr)
+		return This.FindFirstBoundsOfAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringFirstBoundsAsSections(pcSubStr)
+			return This.FindFirstBoundsOfAsSections(pcSubStr)
+
+		def FindFirstBoundsAsSections(pcSubStr)
+			return This.FindFirstBoundsOfAsSections(pcSubStr)
+
+	  #--------------------------------------------------------------------------#
+	 #  FINDING THE LAST BOUNDS AS SECTIONS OF A GIVEN SUBSTRING IN THE STRING  #
+	#--------------------------------------------------------------------------#
+
+	def FindLastBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		# Getting the list if chars and sections of pcSubStr
+
+		nLenStr = This.NumberOfChars()
+		if nLenStr = 0
+			return []
+		ok
+
+		acChars = This.Chars()
+
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		nLen = len(aSections)
+		if nLen = 0
+			return []
+		ok
+
+		# Removing extreme cases
+
+		if aSections[1][1] = 1
+			ring_del(aSections, 1)
+			nLen--
+		ok
+
+		if aSections[nLen][2] = nLenStr
+			ring_del(aSections, nLen)
+			nLen--
+		ok
+
+		# Doing the job
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			n1 = aSections[i][2]
+			c = acChars[n1+1]
+
+			for j = n1 + 2 to nLenStr
+				if acChars[j] != c
+					exit
+				ok
+			next
+
+			aResult + [ n1 + 1, j - 1 ]
+
+		next
+
+		return aResult
+
+		def FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindLastBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindLastBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastBoundsOfAsSections(pcSubStr)
+		return This.FindLastBoundsOfAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringLastBoundsAsSections(pcSubStr)
+			return This.FindLastBoundsOfAsSections(pcSubStr)
+
+		def FindLastBoundsAsSections(pcSubStr)
+			return This.FindLastBoundsOfAsSections(pcSubStr)
+
+	  #--------------------------------------------------------------------------#
+	 #  FINDING THE LEFT BOUNDS AS SECTIONS OF A GIVEN SUBSTRING IN THE STRING  #
+	#--------------------------------------------------------------------------#
+
+	def FindLeftBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.FindFirstBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		else
+			return This.FindLastBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		ok
+
+		def FindSubStringLeftBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindLeftBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindLeftBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindLeftBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLeftBoundsOfAsSections(pcSubStr)
+		return This.FindLeftBoundsOfAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringLeftBoundsAsSections(pcSubStr)
+			return This.FindLeftBoundsOfAsSections(pcSubStr)
+
+		def FindLeftBoundsAsSections(pcSubStr)
+			return This.FindLeftBoundsOfAsSections(pcSubStr)
+
+	  #---------------------------------------------------------------------------#
+	 #  FINDING THE RIGHT BOUNDS AS SECTIONS OF A GIVEN SUBSTRING IN THE STRING  #
+	#---------------------------------------------------------------------------#
+
+	def FindRightBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.FindLastBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		else
+			return This.FindFirstBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		ok
+
+		def FindSubStringRightBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindRightBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindRightBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindRightBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRightBoundsOfAsSections(pcSubStr)
+		return This.FindRightBoundsOfAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringRightBoundsAsSections(pcSubStr)
+			return This.FindRightBoundsOfAsSections(pcSubStr)
+
+		def FindRightBoundsAsSections(pcSubStr)
+			return This.FindRightBoundsOfAsSections(pcSubStr)
+
+	  #---------------------------------------------------------------#
+	 #  FINDING THE FIRST BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
+	#---------------------------------------------------------------#
+
+	def FindFirstBoundsOfCS(pcSubStr, pCaseSensitive)
+
+		aSections = This.FindFirstBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+
+		return anResult
+
+		def FindSubStringFirstBoundsCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstBoundsOfCS(pcSubStr, pCaseSensitive)
+
+		def FindFirstBoundsCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstBoundsOfCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def FindFirstBoundsOf(pcSubStr)
+		return This.FindFirstBoundsOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringFirstBounds(pcSubStr)
+			return This.FindFirstBoundsOf(pcSubStr)
+
+		def FindFirstBounds(pcSubStr)
+			return This.FindFirstBoundsOf(pcSubStr)
+
+	  #--------------------------------------------------------------#
+	 #  FINDING THE LAST BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
+	#--------------------------------------------------------------#
+
+	def FindLastBoundsOfCS(pcSubStr, pCaseSensitive)
+		aSections = This.FindLastBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+
+		return anResult
+
+		def FindSubStringLastBoundsCS(pcSubStr, pCaseSensitive)
+			return This.FindLastBoundsOfCS(pcSubStr, pCaseSensitive)
+
+		def FindLastBoundsCS(pcSubStr, pCaseSensitive)
+			return This.FindLastBoundsOfCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def FindLastBoundsOf(pcSubStr)
+		return This.FindLastBoundsOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringLastBounds(pcSubStr)
+			return This.FindLastBoundsOf(pcSubStr)
+
+		def FindLastBounds(pcSubStr)
+			return This.FindLastBoundsOf(pcSubStr)
+
+	  #--------------------------------------------------------------#
+	 #  FINDING THE LEFT BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
+	#--------------------------------------------------------------#
+
+	def FindLeftBoundsOfCS(pcSubStr, pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.FindFirstBoundsOfCS(pcSubStr, pCaseSensitive)
+		else
+			return This.FindLastBoundsOfCS(pcSubStr, pCaseSensitive)
+		ok
+
+		def FindSubStringLeftBoundsCS(pcSubStr, pCaseSensitive)
+			return This.FindLeftBoundsOfCS(pcSubStr, pCaseSensitive)
+
+		def FindLeftBoundsCS(pcSubStr, pCaseSensitive)
+			return This.FindLeftBoundsOfCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def FindLeftBoundsOf(pcSubStr)
+		return This.FindLeftBoundsOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringLeftBounds(pcSubStr)
+			return This.FindLeftBoundsOf(pcSubStr)
+
+		def FindLeftBounds(pcSubStr)
+			return This.FindLeftBoundsOf(pcSubStr)
+
+	  #---------------------------------------------------------------#
+	 #  FINDING THE RIGHT BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
+	#---------------------------------------------------------------#
+
+	def FindRightBoundsOfCS(pcSubStr, pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.FindLastBoundsOfCS(pcSubStr, pCaseSensitive)
+		else
+			return This.FindFirstBoundsOfCS(pcSubStr, pCaseSensitive)
+		ok
+
+		def FindSubStringRightBoundsCS(pcSubStr, pCaseSensitive)
+			return This.FindRightBoundsOfCS(pcSubStr, pCaseSensitive)
+
+		def FindRightBoundsCS(pcSubStr, pCaseSensitive)
+			return This.FindRightBoundsOfCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def FindRightBoundsOf(pcSubStr)
+		return This.FindRightBoundsOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def FindSubStringRightBounds(pcSubStr)
+			return This.FindRightBoundsOf(pcSubStr)
+
+		def FindRightBounds(pcSubStr)
+			return This.FindRightBoundsOf(pcSubStr)
+
+	  #---------------------------------------------------------#
+	 #  GETTING THE BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
+	#=========================================================#
+
+	def BoundsOfCS(pcSubStr, pCaseSensitive)
+		/* EXAMPLE 1
+
+		o1 = new stzString("Hello <<Ring>>, the beautiful ((Ring))!")
+		? o1.BoundsOf("Ring")
+		#--> [ ["<<", ">>"], [ "((", "))" ] ]
+
+		*/
+
+		aSections = This.FindBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		acResult = This.Sections(aSections)
+
+		return acResult
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -8073,7 +8384,10 @@ class stzString from stzObject
 	#-------------------------------------------------------------#
 
 	def FirstBoundsOfCS(pcSubStr, pCaseSensitive)
-		acResult = QR( This.BoundsOfCS(pcSubStr, pCaseSensitive), :stzListOfPairs ).FirstItems()
+
+		aSections = This.FindSubStringFirstBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+		acResult = This.Sections(aSections)
+
 		return acResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -8086,7 +8400,10 @@ class stzString from stzObject
 	#------------------------------------------------------------#
 
 	def LastBoundsOfCS(pcSubStr, pCaseSensitive)
-		acResult = QR( This.BoundsOfCS(pcSubStr, pCaseSensitive), :stzListOfPairs ).SecondItems()
+
+		aSections = This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+		acResult = This.Sections(aSections)
+
 		return acResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -8127,6 +8444,957 @@ class stzString from stzObject
 
 	def RightBoundsOf(pcSubStr)
 		return This.RightBoundsOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+////////////////////////////////////////////
+	  #-------------------------------------------------------------------------------------#
+	 #  FINDING THE BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#=====================================================================================#
+
+	def FindBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		# Getting the list if chars and sections of pcSubStr
+
+		nLenStr = This.NumberOfChars()
+		if nLenStr = 0
+			return []
+		ok
+
+		acChars = This.Chars()
+
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		nLen = len(aSections)
+		if nLen = 0
+			return []
+		ok
+
+		# Removing extreme cases
+
+		if aSections[1][1] <= n
+			ring_del(aSections, 1)
+			nLen--
+		ok
+
+		if aSections[nLen][2] > nLenStr - n
+			ring_del(aSections, nLen)
+			nLen--
+		ok
+
+		nLen = len(aSections)
+		aResult = []
+
+		for i = 1 to nLen
+
+			n1 = aSections[i][1] - n
+			n2 = n1 + n - 1
+
+			aResult + [ n1, n2 ]
+
+			#--
+
+			n1 = aSections[i][2] + 1
+			n2 = n1 + n - 1
+
+			aResult + [ n1, n2 ]
+			
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBoundsUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindBoundsOfNAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringBoundsNAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBoundsOfUpToNCharsAsSections(n, pcSubStr)
+		return This.FindBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBoundsUpToNCharsAsSections(n, pcSubStr)
+			return This.FindBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindBoundsOfNAsSections(n, pcSubStr)
+			return This.FindBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindSubStringBoundsNAsSections(n, pcSubStr)
+			return This.FindBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		#>
+
+	  #-------------------------------------------------------------------------------------------#
+	 #  FINDING THE FIRST BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#-------------------------------------------------------------------------------------------#
+
+	def FindFirstBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		# Getting the list if chars and sections of pcSubStr
+
+		nLenStr = This.NumberOfChars()
+		if nLenStr = 0
+			return []
+		ok
+
+		acChars = This.Chars()
+
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		nLen = len(aSections)
+		if nLen = 0
+			return []
+		ok
+
+		# Removing extreme cases
+
+		if aSections[1][1] <= n
+			ring_del(aSections, 1)
+			nLen--
+		ok
+
+		if aSections[nLen][2] > nLenStr - n
+			ring_del(aSections, nLen)
+			nLen--
+		ok
+
+		nLen = len(aSections)
+		aResult = []
+
+		for i = 1 to nLen
+
+			n1 = aSections[i][1] - n
+			n2 = n1 + n - 1
+
+			aResult + [ n1, n2 ]
+			
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindFirstBoundsOfSubStringUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringFirstBoundsUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindFirstBoundsOfNAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringFirstBoundsNAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstBoundsOfUpToNCharsAsSections(n, pcSubStr)
+		return This.FindFirstBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindFirstBoundsOfSubStringUpToNCharsAsSections(n, pcSubStr)
+			return This.FindFirstBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr)
+
+		def FindSubStringFirstBoundsUpToNCharsAsSections(n, pcSubStr)
+			return This.FindFirstBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindFirstBoundsOfNAsSections(n, pcSubStr)
+			return This.FindFirstBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindSubStringFirstBoundsNAsSections(n, pcSubStr)
+			return This.FindFirstBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		#>
+
+	  #--------------------------------------------------------------------------------------------#
+	 #  FINDING THE SECOND BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#--------------------------------------------------------------------------------------------#
+
+	def FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		# Getting the list if chars and sections of pcSubStr
+
+		nLenStr = This.NumberOfChars()
+		if nLenStr = 0
+			return []
+		ok
+
+		acChars = This.Chars()
+
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		nLen = len(aSections)
+		if nLen = 0
+			return []
+		ok
+
+		# Removing extreme cases
+
+		if aSections[1][1] <= n
+			ring_del(aSections, 1)
+			nLen--
+		ok
+
+		if aSections[nLen][2] > nLenStr - n
+			ring_del(aSections, nLen)
+			nLen--
+		ok
+
+		nLen = len(aSections)
+		aResult = []
+
+		for i = 1 to nLen
+
+			n1 = aSections[i][2] + 1
+			n2 = n1 + n - 1
+
+			aResult + [ n1, n2 ]
+			
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindSecondBoundsOfSubStringUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringSecondBoundsUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSecondBoundsOfNAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringSecondBoundsNAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		#--
+
+		def FindLastBoundsOfSubStringUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindLastBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringLastBoundsUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindLastBoundsOfNAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringLastBoundsNAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSecondBoundsOfUpToNCharsAsSections(n, pcSubStr)
+		return This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindSecondBoundsOfSubStringUpToNCharsAsSections(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindSubStringSecondBoundsUpToNCharsAsSections(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindSecondBoundsOfNAsSections(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindSubStringSecondBoundsNAsSections(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		#--
+
+		def FindLastBoundsOfSubStringUpToNCharsAsSections(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr)
+
+		def FindLastBoundsOfUpToNCharsAsSections(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindSubStringLastBoundsUpToNCharsAsSections(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindLastBoundsOfNAsSections(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindSubStringLastBoundsNAsSections(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		#>
+
+	  #------------------------------------------------------------------------------------------#
+	 #  FINDING THE LEFT BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#------------------------------------------------------------------------------------------#
+
+	def FindLeftBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		if This.IsLeftToRight()
+			return This.FindSubStringFirstBoundsUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		else
+			return This.FindSubStringSecondBoundsUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def FindLeftBoundsOfSubStringUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLeftBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringLeftBoundsUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLeftBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindLeftBoundsOfNAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLeftBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringLeftBoundsNAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLeftBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLeftBoundsOfUpToNCharsAsSections(n, pcSubStr)
+		return This.FindLeftBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindLeftBoundsOfSubStringUpToNCharsAsSections(n, pcSubStr)
+			return This.FindLeftBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindSubStringLeftBoundsUpToNCharsAsSections(n, pcSubStr)
+			return This.FindLeftBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindLeftBoundsOfNAsSections(n, pcSubStr)
+			return This.FindLeftBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindSubStringLeftBoundsNAsSections(n, pcSubStr)
+			return This.FindLeftBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		#>
+
+	  #-------------------------------------------------------------------------------------------#
+	 #  FINDING THE RIGHT BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#-------------------------------------------------------------------------------------------#
+
+	def FindRightBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		if This.IsLeftToRight()
+			return This.FindSubStringSecondBoundsUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		else
+			return This.FindSubStringFirstBoundsUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def FindRightBoundsOfSubStringUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindRightBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringRightBoundsUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindRightBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindRightBoundsOfNAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindRightBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringRightBoundsNAsSectionsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindRightBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRightBoundsOfUpToNCharsAsSections(n, pcSubStr)
+		return This.FindRightBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindRightBoundsOfSubStringUpToNCharsAsSections(n, pcSubStr)
+			return This.FindRightBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindSubStringRightBoundsUpToNCharsAsSections(n, pcSubStr)
+			return This.FindRightBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindRightBoundsOfNAsSections(n, pcSubStr)
+			return This.FindRightBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		def FindSubStringRightBoundsNAsSections(n, pcSubStr)
+			return This.FindRightBoundsOfUpToNCharsAsSections(n, pcSubStr)
+
+		#>
+
+	   #----------------------------------------------------------------------#
+	  #  FINDING THE BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS  #
+	 #  FROM EACH SIDE AND RETURNING THEIR POSITIONS AS SECTIONS            #
+	#======================================================================#
+
+	def FindBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		aSections = This.FindBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindBoundsOfNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringBoundsNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBoundsOfUpToNChars(n, pcSubStr)
+		return This.FindBoundsOfUpToNCharsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBoundsUpToNChars(n, pcSubStr)
+			return This.FindBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindBoundsOfN(n, pcSubStr)
+			return This.FindBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindSubStringBoundsN(n, pcSubStr)
+			return This.FindBoundsOfUpToNChars(n, pcSubStr)
+
+		#>
+
+	  #-------------------------------------------------------------------------------------------#
+	 #  FINDING THE FIRST BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#-------------------------------------------------------------------------------------------#
+
+	def FindFirstBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+		aSections = This.FindFirstBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+
+		return anResult
+
+
+		#< @FunctionAlternativeForms
+
+		def FindFirstBoundsOfSubStringUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringFirstBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindFirstBoundsOfNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringFirstBoundsNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindFirstBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstBoundsOfUpToNChars(n, pcSubStr)
+		return This.FindFirstBoundsOfUpToNCharsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindFirstBoundsOfSubStringUpToNChars(n, pcSubStr)
+			return This.FindFirstBoundsOfUpToNCharsCS(n, pcSubStr)
+
+		def FindSubStringFirstBoundsUpToNChars(n, pcSubStr)
+			return This.FindFirstBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindFirstBoundsOfN(n, pcSubStr)
+			return This.FindFirstBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindSubStringFirstBoundsN(n, pcSubStr)
+			return This.FindFirstBoundsOfUpToNChars(n, pcSubStr)
+
+		#>
+
+	  #--------------------------------------------------------------------------------------------#
+	 #  FINDING THE SECOND BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#--------------------------------------------------------------------------------------------#
+
+	def FindSecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+		aSections = This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindSecondBoundsOfSubStringUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringSecondBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSecondBoundsOfNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringSecondBoundsNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		#--
+
+		def FindLastBoundsOfSubStringUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindLastBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringLastBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindLastBoundsOfNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringLastBoundsNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindSecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSecondBoundsOfUpToNChars(n, pcSubStr)
+		return This.FindSecondBoundsOfUpToNCharsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindSecondBoundsOfSubStringUpToNChars(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindSubStringSecondBoundsUpToNChars(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindSecondBoundsOfN(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindSubStringSecondBoundsN(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNChars(n, pcSubStr)
+
+		#--
+
+		def FindLastBoundsOfSubStringUpToNChars(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNCharsCS(n, pcSubStr)
+
+		def FindLastBoundsOfUpToNChars(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindSubStringLastBoundsUpToNChars(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindLastBoundsOfN(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindSubStringLastBoundsN(n, pcSubStr)
+			return This.FindSecondBoundsOfUpToNChars(n, pcSubStr)
+
+		#>
+
+	  #------------------------------------------------------------------------------------------#
+	 #  FINDING THE LEFT BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#------------------------------------------------------------------------------------------#
+
+	def FindLeftBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		if This.IsLeftToRight()
+			return This.FindSubStringFirstBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		else
+			return This.FindSubStringSecondBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def FindLeftBoundsOfSubStringUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLeftBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringLeftBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLeftBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindLeftBoundsOfNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLeftBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringLeftBoundsNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindLeftBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLeftBoundsOfUpToNChars(n, pcSubStr)
+		return This.FindLeftBoundsOfUpToNCharsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindLeftBoundsOfSubStringUpToNChars(n, pcSubStr)
+			return This.FindLeftBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindSubStringLeftBoundsUpToNChars(n, pcSubStr)
+			return This.FindLeftBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindLeftBoundsOfN(n, pcSubStr)
+			return This.FindLeftBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindSubStringLeftBoundsN(n, pcSubStr)
+			return This.FindLeftBoundsOfUpToNChars(n, pcSubStr)
+
+		#>
+
+	  #-------------------------------------------------------------------------------------------#
+	 #  FINDING THE RIGHT BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#-------------------------------------------------------------------------------------------#
+
+	def FindRightBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		if This.IsLeftToRight()
+			return This.FindSubStringSecondBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		else
+			return This.FindSubStringFirstBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def FindRightBoundsOfSubStringUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindRightBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringRightBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FindRightBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindRightBoundsOfNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindRightBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringRightBoundsNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindRightBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRightBoundsOfUpToNChars(n, pcSubStr)
+		return This.FindRightBoundsOfUpToNCharsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindRightBoundsOfSubStringUpToNChars(n, pcSubStr)
+			return This.FindRightBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindSubStringRightBoundsUpToNChars(n, pcSubStr)
+			return This.FindRightBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindRightBoundsOfN(n, pcSubStr)
+			return This.FindRightBoundsOfUpToNChars(n, pcSubStr)
+
+		def FindSubStringRightBoundsN(n, pcSubStr)
+			return This.FindRightBoundsOfUpToNChars(n, pcSubStr)
+
+		#>
+
+	   #----------------------------------------------------------------------#
+	  #  GETTING THE BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS  #
+	 #  FROM EACH SIDE AND RETURNING THEIR POSITIONS AS SECTIONS            #
+	#======================================================================#
+
+	def BoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		aSections = This.FindBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+		acResult = This.Sections(aSections)
+
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def SubStringBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.BoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def BoundsOfNCS(n, pcSubStr, pCaseSensitive)
+			return This.BoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringBoundsNCS(n, pcSubStr, pCaseSensitive)
+			return This.BoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BoundsOfUpToNChars(n, pcSubStr)
+		return This.BoundsOfUpToNCharsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SubStringBoundsUpToNChars(n, pcSubStr)
+			return This.BoundsOfUpToNChars(n, pcSubStr)
+
+		def BoundsOfN(n, pcSubStr)
+			return This.BoundsOfUpToNChars(n, pcSubStr)
+
+		def SubStringBoundsN(n, pcSubStr)
+			return This.BoundsOfUpToNChars(n, pcSubStr)
+
+		#>
+
+	  #-------------------------------------------------------------------------------------------#
+	 #  GETTING THE FIRST BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#-------------------------------------------------------------------------------------------#
+
+	def FirstBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+		aSections = This.FindFirstBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+		acResult = This.Sections(aSections)
+
+		return acResult
+
+
+		#< @FunctionAlternativeForms
+
+		def FirstBoundsOfSubStringUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FirstBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringFirstBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.FirstBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def FirstBoundsOfNCS(n, pcSubStr, pCaseSensitive)
+			return This.FFirstBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringFirstBoundsNCS(n, pcSubStr, pCaseSensitive)
+			return This.FirstBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FirstBoundsOfUpToNChars(n, pcSubStr)
+		return This.FirstBoundsOfUpToNCharsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FirstBoundsOfSubStringUpToNChars(n, pcSubStr)
+			return This.FirstBoundsOfUpToNCharsCS(n, pcSubStr)
+
+		def SubStringFirstBoundsUpToNChars(n, pcSubStr)
+			return This.FirstBoundsOfUpToNChars(n, pcSubStr)
+
+		def FirstBoundsOfN(n, pcSubStr)
+			return This.FirstBoundsOfUpToNChars(n, pcSubStr)
+
+		def SubStringFirstBoundsN(n, pcSubStr)
+			return This.FirstBoundsOfUpToNChars(n, pcSubStr)
+
+		#>
+
+	  #--------------------------------------------------------------------------------------------#
+	 #  GETTING THE SECOND BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#--------------------------------------------------------------------------------------------#
+
+	def SecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+		aSections = This.FindSecondBoundsOfUpToNCharsAsSectionsCS(n, pcSubStr, pCaseSensitive)
+		acResult = This.Sections(aSections)
+
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def SecondBoundsOfSubStringUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.SecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringSecondBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.SecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def SecondBoundsOfNCS(n, pcSubStr, pCaseSensitive)
+			return This.SecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringSecondBoundsNCS(n, pcSubStr, pCaseSensitive)
+			return This.SecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		#--
+
+		def LastBoundsOfSubStringUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.SecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def LastBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.SecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringLastBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.SecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def LastBoundsOfNCS(n, pcSubStr, pCaseSensitive)
+			return This.SecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringLastBoundsNCS(n, pcSubStr, pCaseSensitive)
+			return This.SecondBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SecondBoundsOfUpToNChars(n, pcSubStr)
+		return This.SecondBoundsOfUpToNCharsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SecondBoundsOfSubStringUpToNChars(n, pcSubStr)
+			return This.SecondBoundsOfUpToNChars(n, pcSubStr)
+
+		def SubStringSecondBoundsUpToNChars(n, pcSubStr)
+			return This.SecondBoundsOfUpToNChars(n, pcSubStr)
+
+		def SecondBoundsOfN(n, pcSubStr)
+			return This.SecondBoundsOfUpToNChars(n, pcSubStr)
+
+		def SubStringSecondBoundsN(n, pcSubStr)
+			return This.SecondBoundsOfUpToNChars(n, pcSubStr)
+
+		#--
+
+		def LastBoundsOfSubStringUpToNChars(n, pcSubStr)
+			return This.SecondBoundsOfUpToNCharsCS(n, pcSubStr)
+
+		def LastBoundsOfUpToNChars(n, pcSubStr)
+			return This.SecondBoundsOfUpToNChars(n, pcSubStr)
+
+		def SubStringLastBoundsUpToNChars(n, pcSubStr)
+			return This.SecondBoundsOfUpToNChars(n, pcSubStr)
+
+		def LastBoundsOfN(n, pcSubStr)
+			return This.SecondBoundsOfUpToNChars(n, pcSubStr)
+
+		def SubStringLastBoundsN(n, pcSubStr)
+			return This.SecondBoundsOfUpToNChars(n, pcSubStr)
+
+		#>
+
+	  #------------------------------------------------------------------------------------------#
+	 #  GETTING THE LEFT BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#------------------------------------------------------------------------------------------#
+
+	def LeftBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		if This.IsLeftToRight()
+			return This.SubStringFirstBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		else
+			return This.SubStringSecondBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def LeftBoundsOfSubStringUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.LeftBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringLeftBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.LeftBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def LeftBoundsOfNCS(n, pcSubStr, pCaseSensitive)
+			return This.LeftBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringLeftBoundsNCS(n, pcSubStr, pCaseSensitive)
+			return This.LeftBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LeftBoundsOfUpToNChars(n, pcSubStr)
+		return This.LeftBoundsOfUpToNCharsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def LeftBoundsOfSubStringUpToNChars(n, pcSubStr)
+			return This.LeftBoundsOfUpToNChars(n, pcSubStr)
+
+		def SubStringLeftBoundsUpToNChars(n, pcSubStr)
+			return This.LeftBoundsOfUpToNChars(n, pcSubStr)
+
+		def LeftBoundsOfN(n, pcSubStr)
+			return This.LeftBoundsOfUpToNChars(n, pcSubStr)
+
+		def SubStringLeftBoundsN(n, pcSubStr)
+			return This.LeftBoundsOfUpToNChars(n, pcSubStr)
+
+		#>
+
+	  #-------------------------------------------------------------------------------------------#
+	 #  GETTING THE RIGHT BOUNDS OF A GIVEN SUBSTRING IN THE STRING UPTO N CHARS FROM EACH SIDE  #
+	#-------------------------------------------------------------------------------------------#
+
+	def RightBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		if This.IsLeftToRight()
+			return This.SubStringSecondBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		else
+			return This.SubStringFirstBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def RightBoundsOfSubStringUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.RightBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringRightBoundsUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+			return This.RightBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def RightBoundsOfNCS(n, pcSubStr, pCaseSensitive)
+			return This.RightBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringRightBoundsNCS(n, pcSubStr, pCaseSensitive)
+			return This.RightBoundsOfUpToNCharsCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RightBoundsOfUpToNChars(n, pcSubStr)
+		return This.RightBoundsOfUpToNCharsCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def RightBoundsOfSubStringUpToNChars(n, pcSubStr)
+			return This.RightBoundsOfUpToNChars(n, pcSubStr)
+
+		def SubStringRightBoundsUpToNChars(n, pcSubStr)
+			return This.RightBoundsOfUpToNChars(n, pcSubStr)
+
+		def RightBoundsOfN(n, pcSubStr)
+			return This.RightBoundsOfUpToNChars(n, pcSubStr)
+
+		def SubStringRightBoundsN(n, pcSubStr)
+			return This.RightBoundsOfUpToNChars(n, pcSubStr)
+
+		#>
+
 
 	  #============================================#
 	 #     REMOVING BOTH BOUNDS FROM THE STRING   #
@@ -9138,7 +10406,7 @@ class stzString from stzObject
 
 	def NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
 		if This.HasRepeatedLeadingCharsCS(pCaseSensitive)
-			return StzStringQ( This.RepeatedLeadingCharsCS(pCaseSensitive) ).NumberOfChars()
+			return StzStringQ( This.RepeatedLeadingCharsAsStringCS(pCaseSensitive) ).NumberOfChars()
 		else
 			return 0
 		ok
@@ -9673,7 +10941,140 @@ class stzString from stzObject
 		def TrailingCharIs(c)
 			return This.RepeatedTrailingCharIs(c)
 	
-	  #=====================================#
+	  #-----------------------------------------------#
+	 #  FINDING POSITIONS OF REPEATED LEADING CHARS  # 
+	#===============================================#
+
+	def FindRepeatedLeadingCharsCS(pCaseSensitive)
+
+		nResult = 0
+		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+		if n > 0
+			nResult = 1
+		ok
+		
+		return nResult
+
+		def FindLeadingCharsCS(pCaseSensitive)
+			return This.FindRepeatedLeadingCharsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRepeatedLeadingChars()
+		return This.FindRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
+
+		def FindLeadingChars()
+			return This.FindRepeatedLeadingChars()
+
+	  #-----------------------------------------------------------------------------#
+	 #  FINDING POSITIONS OF REPEATED LEADING CHARS AND RETURNING THEM AS SECTION  # 
+	#-----------------------------------------------------------------------------#
+
+	def FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
+
+		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+		anResult = [ 1, n ]
+
+		return anResult
+
+		def FindLeadingCharsAsSectionCS(pCaseSensitive)
+			return This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRepeatedLeadingCharsAsSection()
+		return This.FindRepeatedLeadingCharsAsSectionCS(:CaseSensitive = TRUE)
+
+		def FindLeadingCharsAsSection()
+			return This.FindRepeatedLeadingCharsAsSection()
+
+	  #-------------------------------------------------------------#
+	 #  GETTING REPEATED LEADING CHARS ALONG WITH THEIR POSITIONS  #
+	#-------------------------------------------------------------#
+
+	def RepeatedLeadingCharsZCS(pCaseSensitive)
+		aResult = [
+			This.RepeatedLeadingCharsCS(pCaseSensitive),
+			This.FindRepeatedLeadingCharsCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedLeadingCharsAndTheirPositionCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsZCS(pCaseSensitive)
+
+		def LeadingCharsAndTheirPositionCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsZCS(pCaseSensitive)
+
+		def LeadingCharsZCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsZCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepatedLeadingCharsZ()
+		return This.RepeatedLeadingCharsZCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedLeadingCharsAndTheirPosition()
+			return This.RepeatedLeadingCharsZ()
+
+		def LeadingCharsAndTheirPosition()
+			return This.RepeatedLeadingCharsZ()
+
+		def LeadingCharsZ()
+			return This.RepeatedLeadingCharsZ()
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #  GETTING REPEATED LEADING CHARS ALONG WITH THEIR SECTION  #
+	#-----------------------------------------------------------#
+
+	def RepeatedLeadingCharsZZCS(pCaseSensitive)
+		aResult = [
+			This.RepeatedLeadingCharsCS(pCaseSensitive),
+			This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedLeadingCharsAndTheirSectionCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsZZCS(pCaseSensitive)
+
+		def LeadingCharsAndTheirSectionCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsZZCS(pCaseSensitive)
+
+		def LeadingCharsZZCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsZZCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepatedLeadingCharsZZ()
+		return This.RepeatedLeadingCharsZZCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedLeadingCharsAndTheirSection()
+			return This.RepeatedLeadingCharsZZ()
+
+		def LeadingCharsAndTheirSection()
+			return This.RepeatedLeadingCharsZZ()
+
+		def LeadingCharsZZ()
+			return This.RepeatedLeadingCharsZZ()
+
+		#>
+
+	  #-------------------------------------#
 	 #   REMOVING REPEATED LEADING CHARS   #
 	#=====================================#
 
@@ -9744,56 +11145,142 @@ class stzString from stzObject
 			return This.RepeatedLeadingCharsRemoved()
 
 	  #------------------------------------------------#
-	 #  FINDING POSITIONS OF REPEATED TRAILING CHARS  # TODO
+	 #  FINDING POSITIONS OF REPEATED TRAILING CHARS  # 
 	#================================================#
 
 	def FindRepeatedTrailingCharsCS(pCaseSensitive)
-		StzRaise("Unavailable in this version of the library!")
+
+		n = This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+		nLen = This.NumberOfChars()
+
+		nResult = nLen - n + 1
+
+		return nResult
+
+		def FindTrailingCharsCS(pCaseSensitive)
+			return This.FindRepeatedTrailingCharsCS(pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedTrailingChars()
 		return This.FindRepeatedTrailingCharsCS(:CaseSensitive = TRUE)
 
-	  #--------------------------------------------------------------#
-	 #  GETTING REPEATED TRAILING CHARS ALONG WITH THEIR POSITIONS  # TODO
-	#--------------------------------------------------------------#
+		def FindTrailingChars()
+			return This.FindRepeatedTrailingChars()
+
+	  #------------------------------------------------------------------------------#
+	 #  FINDING POSITIONS OF REPEATED TRAILING CHARS AND RETURNING THEM AS SECTION  # 
+	#------------------------------------------------------------------------------#
+
+	def FindRepeatedTrailingCharsAsSectionCS(pCaseSensitive)
+
+		n = This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+		nLen = This.NumberOfChars()
+
+		anResult = [ nLen - n + 1, nLen ]
+
+		return anResult
+
+		def FindTrailingCharsAsSectionCS(pCaseSensitive)
+			return This.FindRepeatedTrailingCharsAsSectionCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRepeatedTrailingCharsAsSection()
+		return This.FindRepeatedTrailingCharsAsSectionCS(:CaseSensitive = TRUE)
+
+		def FindTrailingCharsAsSection()
+			return This.FindRepeatedTrailingCharsAsSection()
+
+	  #-------------------------------------------------------------#
+	 #  GETTING REPEATED TRAILING CHARS ALONG WITH THEIR POSITION  #
+	#-------------------------------------------------------------#
 
 	def RepeatedTrailingCharsZCS(pCaseSensitive)
-		StzRaise("Unavailable in this version of the library!")
+		aResult = [
+			This.RepeatedTrailingCharsCS(pCaseSensitive),
+			This.FindRepeatedTrailingCharsCS(pCaseSensitive)
+		]
 
-		def RepeatedTrailingCharsAndTheirPositionsCS(pCaseSensitive)
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedTrailingCharsAndTheirPositionCS(pCaseSensitive)
 			return This.RepeatedTrailingCharsZCS(pCaseSensitive)
+
+		def TrailingCharsAndTheirPositionCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsZCS(pCaseSensitive)
+
+		def TrailingCharsZCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsZCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepatedTrailingCharsZ()
 		return This.RepeatedTrailingCharsZCS(:CaseSensitive = TRUE)
 
-		def RepeatedTrailingCharsAndTheirPositions()
-			return This.RepatedTrailingCharsZ()
+		#< @FunctionAlternativeForms
 
-	  #-------------------------------------------------------------#
-	 #  GETTING REPEATED TRAILING CHARS ALONG WITH THEIR SECTIONS  # TODO
-	#-------------------------------------------------------------#
+		def RepeatedTrailingCharsAndTheirPosition()
+			return This.RepeatedTrailingCharsZ()
+
+		def TrailingCharsAndTheirPosition()
+			return This.RepeatedTrailingCharsZ()
+
+		def TrailingCharsZ()
+			return This.RepeatedTrailingCharsZ()
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  GETTING REPEATED TRAILING CHARS ALONG WITH THEIR SECTION  #
+	#------------------------------------------------------------#
 
 	def RepeatedTrailingCharsZZCS(pCaseSensitive)
-		StzRaise("Unavailable in this version of the library!")
+		aResult = [
+			This.RepeatedTrailingCharsCS(pCaseSensitive),
+			This.FindRepeatedTrailingCharsAsSectionCS(pCaseSensitive)
+		]
 
-		def RepeatedTrailingCharsAndTheirSectionsCS(pCaseSensitive)
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedTrailingCharsAndTheirSectionCS(pCaseSensitive)
 			return This.RepeatedTrailingCharsZZCS(pCaseSensitive)
+
+		def TrailingCharsAndTheirSectionCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsZZCS(pCaseSensitive)
+
+		def TrailingCharsZZCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsZZCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RepeatedTrailingCharsZZ()
+	def RepatedTrailingCharsZZ()
 		return This.RepeatedTrailingCharsZZCS(:CaseSensitive = TRUE)
 
-		def RepeatedTrailingCharsAndTheirSections()
+		#< @FunctionAlternativeForms
+
+		def RepeatedTrailingCharsAndTheirSection()
 			return This.RepeatedTrailingCharsZZ()
+
+		def TrailingCharsAndTheirSection()
+			return This.RepeatedTrailingCharsZZ()
+
+		def TrailingCharsZZ()
+			return This.RepeatedTrailingCharsZZ()
+
+		#>
 
 	  #--------------------------------------#
 	 #   REMOVING REPEATED TRAILING CHARS   #
-	#--------------------------------------#
+	#======================================#
 
 	def RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 		if This.HasRepeatedTrailingCharsCS(pCaseSensitive)
@@ -9860,79 +11347,336 @@ class stzString from stzObject
 
 		def TrailingCharsRemoved()
 			return This.RepeatedTrailingCharsRemoved()
-	
+
+////////////////////////////////////////////////////////////////////////////////	
+
 	  #------------------------------------------------------------#
-	 #  FINDING POSITIONS OF REPEATED LEADING AND TRAILING CHARS  # TODO
+	 #  FINDING POSITIONS OF REPEATED LEADING AND TRAILING CHARS  # 
 	#============================================================#
 
 	def FindRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
-		StzRaise("Unavailable in this version of the library!")
 
-		def FindRepeatedTrailingAndLeadingChars(pCaseSensitive)
-			return This.FindRepeatedLeadingAndTrailingChars(pCaseSensitive)
+		# Computing the position of leading part (0 if inexistant, 1 otherwise)
+
+		n1 = 0
+		if This.containsRepeatedLeadingCharsCS(pCaseSensitive)
+			n1 = 1
+		ok
+
+		# Computing the position of trailing part
+
+		n2 = 0
+		n = This.NumberOfTrailingCharsCS(pCaseSensitive)
+		if n > 0
+			n2 = This.NumberOfChars() - n + 1
+		ok
+		
+		anResult = [ n1, n2 ]
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindLeadingAndTrailingCharsCS(pCaseSensitive)
+			return This.FindRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedLeadingAndTrailingChars()
 		return This.FindRepeatedLeadingAndTrailingCharsCS(:CaseSensitive = TRUE)
 
-	  #-------------------------------------------------------------------------#
-	 #  GETTING REPEATED LEADING AND Trailing CHARS ALONG WITH THEIR POSITIONS  # TODO
-	#-------------------------------------------------------------------------#
+		#< @FunctionAlternativeForms
+
+		def FindLeadingAndTrailingChars()
+			return This.FindRepeatedLeadingAndTrailingChars()
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  FINDING POSITIONS OF REPEATED TRAILING AND LEADING CHARS  # 
+	#============================================================#
+
+	def FindRepeatedTrailingAndLeadingCharsCS(pCaseSensitive)
+
+		# Computing the position of trailing part
+
+		n2 = 0
+		n = This.NumberOfTrailingCharsCS(pCaseSensitive)
+		if n > 0
+			n2 = This.NumberOfCharsCS(pCaseSensitive) - n + 1
+		ok
+
+		# Computing the position of leading part (0 if inexistant, 1 otherwise)
+
+		n1 = 0
+		if This.containsRepeatedLeadingCharsCS(pCaseSensitive)
+			n1 = 1
+		ok
+		
+		anResult = [ n2, n1 ]
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindTrailingAndLeadingCharsCS(pCaseSensitive)
+			return This.FindRepeatedTrailingAndLeadingCharsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRepeatedTrailingAndLeadingChars()
+		return This.FindRepeatedTrailingAndLeadingCharsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindTrailingAndLeadingChars()
+			return This.FindRepeatedTrailingAndLeadingChars()
+
+		#>
+
+	  #------------------------------------------------------------------------------------------#
+	 #  FINDING REPEATED LEADING AND TRAILING CHARS AND RETURNING THEIR POSITIONS AS SECTIONS  # 
+	#-----------------------------------------------------------------------------------------#
+
+	def FindRepeatedLeadingAndTrailingCharsAsSectionsCS(pCaseSensitive)
+
+		# Computing the position of leading section ([0, 0] if inexistant)
+
+		nLead1 = 0
+		nLead2 = 0
+		if This.ContainsRepeatedLeadingCharsCS(pCaseSensitive)
+			nLead1 = 1
+			nLead1 = This.NumberOfLeadingCharsCS(pCaseSensitive)
+		ok
+
+		# Computing the position of leading section ([0, 0] if inexistant)
+
+		nTrail1 = 0
+		nTrail2 = 0
+
+		n = This.NumberOfTrailingCharsCS(pCaseSensitive)
+
+		if n > 0
+			nLen = This.NumberOfCharsCS(pCaseSensitive)
+			nTrail1 = nLen - n + 1
+			nTrail2 = nLen
+		ok
+		
+		# Composing the result
+
+		aResult = [ [ nLead1, nLead2], [ nTrail1, nTrail2] ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindLeadingAndTrailingCharsAsSectionsCS(pCaseSensitive)
+			return This.FindRepeatedLeadingAndTrailingCharsAsSectionsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRepeatedLeadingAndTrailingCharsAsSections()
+		return This.FindRepeatedLeadingAndTrailingCharsAsSectionsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindLeadingAndTrailingCharsAsSections()
+			return This.FindRepeatedLeadingAndTrailingCharsAsSections()
+
+		#>
+
+	  #------------------------------------------------------------------------------------------#
+	 #  FINDING REPEATED TRAILING AND LEADING CHARS AND RETURNING THEIR POSITIONS AS SECTIONS  # 
+	#-----------------------------------------------------------------------------------------#
+
+	def FindRepeatedTrailingAndLeadingCharsAsSectionsCS(pCaseSensitive)
+
+		# Computing the position of leading section ([0, 0] if inexistant)
+
+		nTrail1 = 0
+		nTrail2 = 0
+
+		n = This.NumberOfTrailingCharsCS(pCaseSensitive)
+
+		if n > 0
+			nLen = This.NumberOfCharsCS(pCaseSensitive)
+			nTrail1 = nLen - n + 1
+			nTrail2 = nLen
+		ok
+
+		# Computing the position of leading section ([0, 0] if inexistant)
+
+		nLead1 = 0
+		nLead2 = 0
+		if This.ContainsRepeatedLeadingCharsCS(pCaseSensitive)
+			nLead1 = 1
+			nLead1 = This.NumberOfLeadingCharsCS(pCaseSensitive)
+		ok
+		
+		# Composing the result
+
+		aResult = [ [ nTrail1, nTrail2], [ nLead1, nLead2] ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindTrailingAndLeadingCharsAsSectionsCS(pCaseSensitive)
+			return This.FindRepeatedTrailingAndLeadingCharsAsSectionsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRepeatedTrailingAndLeadingCharsAsSections()
+		return This.FindRepeatedTrailingAndLeadingCharsAsSectionsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindTrailingAndLeadingCharsAsSections()
+			return This.FindRepeatedTrailingAndLeadingCharsAsSections()
+
+		#>
+
+	  #--------------------------------------------------------------------------#
+	 #  GETTING REPEATED LEADING AND TRAILING CHARS ALONG WITH THEIR POSITIONS  #
+	#--------------------------------------------------------------------------#
 
 	def RepeatedLeadingAndTrailingCharsZCS(pCaseSensitive)
-		StzRaise("Unavailable in this version of the library!")
+		aResult = [
+			This.RepeatedLeadingAndTrailingCharsCS(pCaseSensitive),
+			This.FindRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
 
 		def RepeatedLeadingAndTrailingCharsAndTheirPositionsCS(pCaseSensitive)
 			return This.RepeatedLeadingAndTrailingCharsZCS(pCaseSensitive)
 
-		def RepeatedTrailingCharsAndLeadingZCS(pCaseSensitive)
+		def LeadingAndTrailingCharsAndTheirPositionsCS(pCaseSensitive)
 			return This.RepeatedLeadingAndTrailingCharsZCS(pCaseSensitive)
 
-		def RepeatedTrailingAndLeadingCharsAndTheirPositionsCS(pCaseSensitive)
+		def LeadingAndTrailingCharsZCS(pCaseSensitive)
 			return This.RepeatedLeadingAndTrailingCharsZCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepatedLeadingAndTrailingCharsZ()
 		return This.RepeatedLeadingAndTrailingCharsZCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def RepeatedLeadingAndTrailingCharsAndTheirPositions()
-			return This.RepatedLeadingAndTrailingCharsZ()
+			return This.RepeatedLeadingAndTrailingCharsZ()
 
-	  #----------------------------------------------------------------#
-	 #  GETTING REPEATED LEADING AND CHARS ALONG WITH THEIR SECTIONS  # TODO
-	#----------------------------------------------------------------#
+		def LeadingAndTrailingCharsAndTheirPositions()
+			return This.RepeatedLeadingAndTrailingCharsZ()
 
-	def RepeatedLeadingAndTrailingCharsZZCS(pCaseSensitive)
-		StzRaise("Unavailable in this version of the library!")
+		def LeadingAndTrailingCharsZ()
+			return This.RepeatedLeadingAndTrailingCharsZ()
 
-		def RepeatedLeadingAndTrailingCharsAndTheirSectionsCS(pCaseSensitive)
-			return This.RepeatedLeadingAndTrailingCharsZZCS(pCaseSensitive)
+		#>
 
-		def RepeatedTrailingAndLeadingCharsZZCS(pCaseSensitive)
-			return This.RepeatedLeadingAndTrailingCharsZZCS(pCaseSensitive)
+	  #--------------------------------------------------------------------------#
+	 #  GETTING REPEATED TRAILING AND LEADING CHARS ALONG WITH THEIR POSITIONS  #
+	#--------------------------------------------------------------------------#
 
-		def RepeatedTrailingAndLeadingCharsAndTheirSectionsCS(pCaseSensitive)
-			return This.RepeatedLeadingAndTrailingCharsZZCS(pCaseSensitive)
+	def RepeatedTrailingAndLeadingCharsZCS(pCaseSensitive)
+		aResult = [
+			This.RepeatedTrailingAndLeadingCharsCS(pCaseSensitive),
+			This.FindRepeatedTrailingAndLeadingCharsCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedTrailingAndLeadingCharsAndTheirPositionsCS(pCaseSensitive)
+			return This.RepeatedTrailingAndLeadingCharsZCS(pCaseSensitive)
+
+		def TrailingAndLeadingCharsAndTheirPositionsCS(pCaseSensitive)
+			return This.RepeatedTrailingAndLeadingCharsZCS(pCaseSensitive)
+
+		def TrailingAndLeadingCharsZCS(pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingCharsZCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RepeatedLeadingAndTrailingCharsZZ()
-		return This.RepeatedLeadingAndTrailingCharsZZCS(:CaseSensitive = TRUE)
+	def RepatedTrailingAndLeadingCharsZ()
+		return This.RepeatedTrailingAndLeadingCharsZCS(:CaseSensitive = TRUE)
 
-		def RepeatedLeadingAndTrailingCharsAndTheirSections()
-			return This.RepeatedLeadingAndTrailingCharsZZ()
+		#< @FunctionAlternativeForms
 
-		def RepeatedTrailingAndLeadingCharsZZ()
-			return This.RepeatedLeadingAndTrailingCharsZZ()
+		def RepeatedTrailingAndLeadingCharsAndTheirPositions()
+			return This.RepeatedTrailingAndLeadingCharsZ()
+
+		def TrailingAndLeadingCharsAndTheirPositions()
+			return This.RepeatedTrailingAndLeadingCharsZ()
+
+		def TrailingAndLeadingCharsZ()
+			return This.RepeatedTrailingAndLeadingCharsZ()
+
+		#>
+
+	  #-------------------------------------------------------------------------#
+	 #  GETTING REPEATED TRAILING AND LEADING CHARS ALONG WITH THEIR SECTIONS  #
+	#-------------------------------------------------------------------------#
+
+	def RepeatedTrailingAndLeadingCharsZZCS(pCaseSensitive)
+		aResult = [
+			This.RepeatedTrailingAndLeadingCharsCS(pCaseSensitive),
+			This.FindRepeatedTrailingAndLeadingCharsAsSectionsCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedTrailingAndLeadingCharsAndTheirSectionsCS(pCaseSensitive)
+			return This.RepeatedTrailingAndLeadingCharsZZCS(pCaseSensitive)
+
+		def TrailingAndLeadingCharsAndTheirSectionsCS(pCaseSensitive)
+			return This.RepeatedTrailingAndLeadingCharsZZCS(pCaseSensitive)
+
+		def TrailingAndLeadingCharsZZCS(pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingCharsZZCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepatedTrailingAndLeadingCharsZZ()
+		return This.RepeatedTrailingAndLeadingCharsZZCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def RepeatedTrailingAndLeadingCharsAndTheirSections()
-			return This.RepeatedLeadingAndTrailingCharsZZ()
+			return This.RepeatedTrailingAndLeadingCharsZZ()
 
+		def TrailingAndLeadingCharsAndTheirSections()
+			return This.RepeatedTrailingAndLeadingCharsZZ()
+
+		def TrailingAndLeadingCharsZZ()
+			return This.RepeatedTrailingAndLeadingCharsZZ()
+
+		#>
+
+//////////////////////////////////////////////////////////////////
 	  #--------------------------------------------------#
 	 #   REMOVING REPEATED LEADING AND TRAILING CHARS   #
-	#--------------------------------------------------#
+	#==================================================#
 
 	def RemoveRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
 		if This.HasRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
@@ -10183,57 +11927,9 @@ class stzString from stzObject
 
 		#>
 
-	  #-----------------------------------------------#
-	 #  FINDING POSITIONS OF REPEATED LEADING CHARS  # TODO
-	#===============================================#
-
-	def FindRepeatedLeadingCharsCS(pCaseSensitive)
-		StzRaise("Unavailable in this version of the library!")
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindRepeatedLeadingChars()
-		return This.FindRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
-
-	  #-------------------------------------------------------------#
-	 #  GETTING REPEATED LEADING CHARS ALONG WITH THEIR POSITIONS  # TODO
-	#-------------------------------------------------------------#
-
-	def RepeatedLeadingCharsZCS(pCaseSensitive)
-		StzRaise("Unavailable in this version of the library!")
-
-		def RepeatedLeadingCharsAndTheirPositionsCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsZCS(pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RepatedLeadingCharsZ()
-		return This.RepeatedLeadingCharsZCS(:CaseSensitive = TRUE)
-
-		def RepeatedLeadingCharsAndTheirPositions()
-			return This.RepatedLeadingCharsZ()
-
-	  #------------------------------------------------------------#
-	 #  GETTING REPEATED LEADING CHARS ALONG WITH THEIR SECTIONS  # TODO
-	#------------------------------------------------------------#
-
-	def RepeatedLeadingCharsZZCS(pCaseSensitive)
-		StzRaise("Unavailable in this version of the library!")
-
-		def RepeatedLeadingCharsAndTheirSectionsCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsZZCS(pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RepeatedLeadingCharsZZ()
-		return This.RepeatedLeadingCharsZZCS(:CaseSensitive = TRUE)
-
-		def RepeatedLeadingCharsAndTheirSections()
-			return This.RepeatedLeadingCharsZZ()
-
 	  #--------------------------------------------#
 	 #   REMOVING A GIVEN REPEATED LEADING CHAR   #
-	#--------------------------------------------#
+	#============================================#
 
 	def RemoveThisRepeatedLeadingCharCS(c, pCaseSensitive)
 		if This.RepeatedLeadingCharQ().IsEqualToCS(c, pCaseSensitive)
@@ -24496,7 +26192,7 @@ def ReplaceIBS()
 
 		ok
 
-		anResult = This.FindSubStringBetweenAsSectionCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)[n]
+		anResult = This.FindSubStringBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)[n]
 
 		return anResult
 
@@ -43639,104 +45335,59 @@ def ReplaceIBS()
 		? @@( This.Content() )
 
 	def ShowShort()
-		? This.ToShortForm()
+		? @@( This.Shortened() )
 
-		def ShowShortForm()
+		def ShowShortCopy()
 			This.ShowShort()
 
 	def ShowShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
-		? This.ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		? @@( This.ShortenedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart) )
 
-		def ShowShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		def ShowShortenedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 			This.ShowShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 
 	def ShowShortN(n)
-		? This.ToShortFormN(n)
-
-		def ShowShortFormN(n)
-			This.ShowShortN(n)
+		? @@( This.ShortenedN(n) )
 
 	def ShowShortUsing(pcMiddlePart)
-		? This.ToShortFormUsing(pcMiddlePart)
-
-		def ShowShortFormUsing(pcMiddlePart)
-			This.ShowShortUsing(pcMiddlePart)
+		? @@( This.ShortenedUsing(pcMiddlePart) )
 
 	def ShowShortNUsing(n, pcMiddlePart)
-		? This.ToShortFormNUsing(n, pcMiddlePart)
-
-		def ShowShortFormNUsing(n, pcMiddlePart)
-			This.ShowShortNUsing(n, pcMiddlePart)
+		? @@( This.ShortenedNUsing(n, pcMiddlePart) )
 
 	  #-------------------------------------------#
-	 #   GETTING A SHORTENED FORM OF THE STRING  #
+	 #   GETTING A SHORTENED COPY OF THE STRING  #
 	#===========================================#
 
-	def ToShortForm()
-		return This.ToShortFormXT(10, 3, " ... ")
-
-		def Shortened()
-			return This.ToShortForm()
-
-		def Shortned()
-			return This.ToShortForm()
-
-		def ToShort()
-			return This.ToShortForm()
+	def ToShort()
+		return This.ToShortXT(10, 3, " (...) ")
 
 	  #-----------------------------------------------------------------------#
-	 #   GETTING A SHORTENED FORM OF THE STRING UPTO N CHARS FROM EACH SIDE  #
+	 #   GETTING A SHORTENED COPY OF THE STRING WITH N ITEMS FROM EACH SIDE  #
 	#-----------------------------------------------------------------------#
 
-	def ToShortFormN(n)
-		return This.ToShortFormXT(10, n, " ... ")
-
-		def ShortenedN(n)
-			return This.ToShortFormN(n)
-
-		def ShortnedN(n)
-			return This.ToShortFormN(n)
-
-		def ToShortN(n)
-			return This.ToShortFormN(n)
+	def ToShortN(n)
+		return This.ToShortXT(10, n, " (...) ")
 
 	  #---------------------------------------------------------------------#
-	 #   GETTING A SHORTENED FORM OF THE STRING USiNG A GIVEN MIDDLE PART  #
+	 #   GETTING A SHORTENED COPY OF THE STRING USiNG A GIVEN MIDDLE PART  #
 	#---------------------------------------------------------------------#
 
-	def ToShortFormUsing(pcMiddlePart)
-		return This.ToShortFormXT(10, 3, pcMiddlePart)
+	def ToShortUsing(pcMiddlePart)
+		return This.ToShortXT(10, 3, pcMiddlePart)
 
-		def ShortenedUsing(pcMiddlePart)
-			return This.ToShortFormUsing(pcMiddlePart)
+	  #--------------------------------------------------------------------------------------------------#
+	 #   GETTING A SHORTENED COPY OF THE STRING USING N CHARS FROM EACH SIDE AND THE GIVEN MIDDLE PART  #
+	#--------------------------------------------------------------------------------------------------#
 
-		def ShortnedUsing(pcMiddlePart)
-			return This.ToShortFormUsing(pcMiddlePart)
-
-		def ToShortUsing(pcMiddlePart)
-			return This.ToShortFormUsing(pcMiddlePart)
-
-	  #-----------------------------------------------------------------------------------#
-	 #   GETTING A SHORTENED FORM OF THE STRING USING N CHARS AND THE GIVEN MIDDLE PART  #
-	#-----------------------------------------------------------------------------------#
-
-	def ToShortFormNUsing(n, pcMiddlePart)
-		return This.ToShortFormXT(10, n, pcMiddlePart)
-
-		def ShortenedNUsing(n, pcMiddlePart)
-			return This.ToShortFormNUsing(n, pcMiddlePart)
-
-		def ShortnedNUsing(n, pcMiddlePart)
-			return This.ToShortFormNUsing(n, pcMiddlePart)
-
-		def ToShortNUsing(n, pcMiddlePart)
-			return This.ToShortFormNUsing(n, pcMiddlePart)
+	def ToShortNUsing(n, pcMiddlePart)
+		return This.ToShortXT(10, n, pcMiddlePart)
 
 	  #------------------------------------------------------#
-	 #  GETTING A SHORTENED FORM OF THE STRING -- EXTENDED  #
+	 #  GETTING A SHORTENED COPY OF THE STRING -- EXTENDED  #
 	#------------------------------------------------------#
 
-	def ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+	def ToShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 		# nMinStrSize : the minimum size to start shprtening
 		# --> if the size of the string is less than this value,
 		#     the string will not be shortened (returned as is)
@@ -43759,7 +45410,7 @@ def ReplaceIBS()
 
 		*/
 
-		nLen = This.NumberOfChars()
+		nLen = This.NumberOfItems()
 		if nLen < nMinStrSize
 			This.Show()
 			return
@@ -43781,73 +45432,209 @@ def ReplaceIBS()
 
 		ok
 
+		if n1 = 0 or n2 = 0
+			StzRaise("Incorrect value! The number of chars to show must be different of zero.")
+		ok
+
 		# Doing the job
 
 		cPart1 = This.Section(1, n1)
 		cPart2 = This.Section(nLen - n2 + 1, nLen)
+
 		cResult = cPart1 + pcMiddlePart + cPart2
 
 		return cResult
-
-		def ShortenedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
-			return This.ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
-
-		def ShortnedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
-			return This.ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
-
-		def ToShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
-			return This.ToShortFormXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 
 	  #-------------------------#
 	 #  SHORTENING THE STRING  #
 	#=========================#
 
 	def Shorten()
-		This.ShortenXT(10, 3, " ... ")
+		This.ShortenXT(10, 3, "...")
 
 		def ShortenQ()
 			This.Shorten()
 			return This
 
-	  #---------------------------------------#
-	 #  SHORTENING THE STRING USING N CHARS  #
-	#--------------------------------------#
+	def Shortened()
+		cResult = This.ToShortXT(10, 3, "...")
+		return cResult
+
+	  #---------------------------------------------------#
+	 #  SHORTENING THE STRING TO N CHARS FROM EACH SIDE  #
+	#---------------------------------------------------#
 
 	def ShortenN(n)
-		cShort = This.SortenedN(n)
+		cShort = This.ShortenedXT(10, n, "...")
 		This.UpdateWith(cShort)
+
+		#< @FunctionFluentForm
 
 		def ShortenNQ(n)
 			This.ShortenN(n)
 			return This
 
-	  #---------------------------------------#
-	 #  SHORTENING THE STRING USING N CHARS  #
-	#--------------------------------------#
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ShortenToN(n)
+			This.ShortenN(n)
+
+			def ShortenToNQ(n)
+				This.ShortenToN(n)
+				return This
+
+		def ShortenToNChars(n)
+			This.ShortenN(n)
+
+			def ShortenToNICharsQ(n)
+				This.ShortenToNChars(n)
+				return This
+
+		def ShortenToNCharsInEachSide(n)
+			This.ShortenN(n)
+
+			def ShortenToNCharsInEachSideQ(n)
+				This.ShortenToNCharsInEachSide(n)
+				return This
+
+		def ShortenToNCharsFromEachSide(n)
+			This.ShortenN(n)
+
+			def ShortenToNCharsFromEachSideQ(n)
+				This.ShortenToNCharsFromEachSide(n)
+				return This
+
+		def ShortenToNCharsAtEachSide(n)
+			This.ShortenN(n)
+
+			def ShortenToNCharsAtEachSideQ(n)
+				This.ShortenToNCharsAtEachSide(n)
+				return This
+
+		#>
+
+	def ShortenedN(n)
+		cResult = This.Copy().ShortenNQ(n).Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def ShortenedToN(n)
+			return This.ShortenedN(n)
+
+		def ShortenedToNChars(n)
+			return This.ShortenedN(n)
+
+		def ShortenedToNCharsInEachSide(n)
+			return This.ShortenedN(n)
+
+		def ShortenedToNCharsFromEachSide(n)
+			return This.ShortenedN(n)
+
+		def ShortenedToNICharsAtEachSide(n)
+			return This.ShortenedN(n)
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  SHORTENING THE STRING USING THE GIVEN STRING AS A MIDDLE PART  #
+	#-----------------------------------------------------------------#
 
 	def ShortenUsing(pcMiddlePart)
-		cShort = This.ToShortenedUsing(pcMiddlePart)
+		cShort = This.ShortenedXT(10, 3, pcMiddlePart)
 		This.UpdateWith(cShort)
 
 		def ShortenUsingQ(pcMiddlePart)
 			This.ShortenUsing(pcMiddlePart)
 			return This
 
-	  #-----------------------------------------------------------------#
-	 #  SHORTENING THE STRING USING N CHARS AND THE GIVEN MIDDLE PART  #
-	#-----------------------------------------------------------------#
+	def ShortenedUsing(pcMiddlePart)
+		cResult = This.Copy().ShortenUsingQ(pcMiddlePart).Content()
+		return cResult
+
+	  #------------------------------------------------------------------------------#
+	 #  SHORTENING THE STRING USING N CHARS FROM EACH SIDE AND THE GIVEN MIDDLE PART  #
+	#------------------------------------------------------------------------------#
 
 	def ShortenNUsing(n, pcMiddlePart)
-		cShort = This.ToShortenedNUsing(n, pcMiddlePart)
+		cShort = This.ToShortNUsing(n, pcMiddlePart)
 		This.UpdateWith(cShort)
+
+		#< @FunctionFluentForm
 
 		def ShortenNUsingQ(n, pcMiddlePart)
 			This.ShortenNUsing(n, pcMiddlePart)
 			return This
 
-	  #-------------------------------------#
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ShortenToNUsing(n, pcMiddlePart)
+			This.ShortenNUsing(n, pcMiddlePart)
+
+			def ShortenToNUsingQ(n, pcMiddlePart)
+				This.ShortenToNUsing(n, pcMiddlePart)
+				return This
+
+		def ShortenToNCharsUsing(n, pcMiddlePart)
+			This.ShortenNUsing(n, pcMiddlePart)
+
+			def ShortenToNCharsUsingQ(n, pcMiddlePart)
+				This.ShortenToNCharsUsing(n, pcMiddlePart)
+				return This
+
+		def ShortenToNCharsInEachSideUsing(n, pcMiddlePart)
+			This.ShortenNUsing(n, pcMiddlePart)
+
+			def ShortenToNCharsInEachSideUsingQ(n, pcMiddlePart)
+				This.ShortenToNCharsInEachSideUsing(n, pcMiddlePart)
+				return This
+
+		def ShortenToNCharsFromEachSideUsing(n, pcMiddlePart)
+			This.ShortenNUsing(n, pcMiddlePart)
+
+			def ShortenToNCharsFromEachSideUsingQ(n, pcMiddlePart)
+				This.ShortenToNCharsFromEachSideUsing(n, pcMiddlePart)
+				return This
+
+		def ShortenToNCharsAtEachSideUsing(n, pcMiddlePart)
+			This.ShortenNUsing(n, pcMiddlePart)
+
+			def ShortenToNCharsAtEachSideUsingQ(n, pcMiddlePart)
+				This.ShortenToNCharsAtEachSideUsing(n, pcMiddlePart)
+				return This
+
+		#>
+
+	def ShortenedNUsing(n, pcMiddlePart)
+		cResult = This.Copy().ShortenNUsingQ(n, pcMiddlePart).Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def ShortenedToNUsing(n, pcMiddlePart)
+			return This.ShortenedNUsing(n, pcMiddlePart)
+
+		def ShortenedToNCharsUsing(n, pcMiddlePart)
+			return This.ShortenedNUsing(n, pcMiddlePart)
+
+		def ShortenedToNCharsInEachSideUsing(n, pcMiddlePart)
+			return This.ShortenedNUsing(n, pcMiddlePart)
+
+		def ShortenedToNCharsFromEachSideUsing(n, pcMiddlePart)
+			return This.ShortenedNUsing(n, pcMiddlePart)
+
+		def ShortenedToNCharsAtEachSideUsing(n, pcMiddlePart)
+			return This.ShortenedNUsing(n, pcMiddlePart)
+
+		#>
+
+	  #-----------------------------------#
 	 #  SHORTENING THE STRING -- EXTENDED  #
-	#-------------------------------------#
+	#-----------------------------------#
 
 	def ShortenXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 		cShort = This.ToShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
@@ -43856,6 +45643,10 @@ def ReplaceIBS()
 		def ShortenXTQ(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 			This.ShortenXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 			return This
+
+	def ShortenedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+		cResult = This.Copy().ShortenXTQ(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart).Content()
+		return cResult
 
 	  #===========#
 	 #   MISC.   #
