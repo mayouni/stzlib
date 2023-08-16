@@ -35327,9 +35327,13 @@ def ReplaceIBS()
 			This.RemoveNumbers()
 			return This
 
-	  #----------------------------------------------------#
+	def NumbersRemoved()
+		cResult = This.Copy().RemoveNumbersQ().Content()
+		return cResult
+
+	  #====================================================#
 	 #     REMOVING THE NTH OCCURRENCE OF A SUBSTRING     #
-	#----------------------------------------------------#
+	#====================================================#
 
 	def RemoveNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
 		if isList(n)
@@ -35347,12 +35351,35 @@ def ReplaceIBS()
 		
 		#>
 
+		#< @FunctionAlternativeForm
+
 		def RemoveNthCS(n, pcSubStr, pCaseSensitive)
 			This.RemoveNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
 
 			def RemoveNthCSQ(n, pcSubStr, pCaseSensitive)
 				This.RemoveNthCS(n, pcSubStr, pCaseSensitive)
 				return This
+
+		#>
+
+	def NthOccurrenceOfSubStringRemovedCS(n, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveNthOccurrenceCSQ(n, pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def NthOccurrenceRemovedCS(n, pcSubStr, pCaseSensitive)
+			return This.NthOccurrenceOfSubStringRemovedCS(n, pcSubStr, pCaseSensitive)
+
+		def NthRemovedCS(n, pcSubStr, pCaseSensitive)
+			return This.NthOccurrenceOfSubStringRemovedCS(n, pcSubStr, pCaseSensitive)
+
+		def SubStringNthOccurrenceRemovedCS(n, pcSubStr, pCaseSensitive)
+			return This.NthOccurrenceOfSubStringRemovedCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNthOccurrence(n, pcSubStr)
 		This.RemoveNthOccurrenceCS(n, pcSubStr, :Casesensitive = TRUE)
@@ -35365,12 +35392,33 @@ def ReplaceIBS()
 	
 		#>
 
+		#< @FunctionAlternativeForm
+
 		def RemoveNth(n, pcSubStr)
 			This.RemoveNthOccurrence(n, pcSubStr)
 
 			def RemoveNthQ(n, pcSubStr)
 				This.RemoveNth(n, pcSubStr)
 				return This
+
+		#>
+
+	def NthOccurrenceOfSubStringRemoved(n, pcSubStr)
+		cResult = This.Copy().RemoveNthOccurrenceQ(n, pcSubStr).Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def NthOccurrenceRemoved(n, pcSubStr)
+			return This.NthOccurrenceOfSubStringRemoved(n, pcSubStr)
+
+		def NthRemoved(n, pcSubStr)
+			return This.NthOccurrenceOfSubStringRemoved(n, pcSubStr)
+
+		def SubStringNthOccurrenceRemoved(n, pcSubStr)
+			return This.NthOccurrenceOfSubStringRemoved(n, pcSubStr)
+
+		#>
 
 	  #------------------------------------------------#
 	 #    REMOVING FIRST OCCURRENCE OF A SUBSTRING    #
@@ -35404,6 +35452,9 @@ def ReplaceIBS()
 		def FirstRemovedCS(pcSubStr, pCaseSensitive)
 			return This.FirstOccurrenceRemovedCS(pcSubStr, pCaseSensitive)
 
+		def SubStringFirstOccurrenceRemovedCS(pcSubStr, pCaseSensitive)
+			return This.FirstOccurrenceRemovedCS(pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFirstOccurrence(pcSubStr)
@@ -35432,6 +35483,9 @@ def ReplaceIBS()
 		return This.Copy().RemoveFirstOccurrenceQ(pcSubStr).Content()
 
 		def FirstRemoved(pcSubStr)
+			return This.FirstOccurrenceRemoved(pcSubStr)
+
+		def SubStringFirstOccurrenceRemoved(pcSubStr)
 			return This.FirstOccurrenceRemoved(pcSubStr)
 
 	  #--------------------------------------------------#
@@ -35466,6 +35520,9 @@ def ReplaceIBS()
 		def LastRemovedCS(pcSubStr, pCaseSensitive)
 			return This.FirstOccurrenceRemovedCS(pcSubStr, pCaseSensitive)
 
+		def SubStringLastOccurrenceRemovedCS(pcSubStr, pCaseSensitive)
+			return This.FirstOccurrenceRemovedCS(pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveLastOccurrence(pcSubStr)
@@ -35496,6 +35553,9 @@ def ReplaceIBS()
 		def LastRemoved(pcSubStr)
 			return This.FirstOccurrenceRemoved(pcSubStr)
 
+		def SubStringLastOccurrenceRemoved(pcSubStr)
+			return This.FirstOccurrenceRemoved(pcSubStr)
+
 	   #----------------------------------------------------#
 	  #    REMOVING NEXT NTH OCCURRENCE OF A SUBSTRING    # 
 	 #    STARTING AT A GIVEN POSITION                    #
@@ -35523,6 +35583,8 @@ def ReplaceIBS()
 		cResult = cPart1 + cPart2
 		This.Update( cResult )
 
+		#< @FunctionAlternativeForms
+
 		def RemoveNextNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive)
 			This.RemoveNextNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 			return This
@@ -35534,8 +35596,21 @@ def ReplaceIBS()
 				This.RemoveNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 				return This
 
+		#>
+
+	def NextNthOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
+		cResult = This.Copy().RemoveNextNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive).Content()
+		return cResult
+
+		def NthNextOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.NextNthOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
+
+	#-- WIHTOUT CASESENSITIVITY
+
 	def RemoveNextNthOccurrence(n, pcSubStr, nStart, pcNewSubStr)
 		This.RemoveNextNthOccurrenceCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def RemoveNextNthOccurrenceQ(n, pcSubStr, nStart, pcNewSubStr)
 			This.RemoveNextNthOccurrence(n, pcSubStr, nStart, pcNewSubStr)
@@ -35546,6 +35621,15 @@ def ReplaceIBS()
 
 			def RemoveNthNextOccurrenceQ(n, pcSubStr, nStart, pcNewSubStr)
 				return This.RemoveNthNextOccurrence(n, pcSubStr, nStart, pcNewSubStr)
+
+		#>
+
+	def NextNthOccurrenceRemoved(n, pcSubStr, nStart)
+		cResult = This.Copy().RemoveNextNthOccurrenceQ(n, pcSubStr, nStart, pCaseSensitive).Content()
+		return cResult
+
+		def NthNextOccurrenceRemoved(n, pcSubStr, nStart)
+			return This.NextNthOccurrenceRemoved(n, pcSubStr, nStart, pCaseSensitive)
 
 	   #------------------------------------------------#
 	  #    REMOVING NEXT OCCURRENCE OF A SUBSTRING    # 
@@ -35559,6 +35643,12 @@ def ReplaceIBS()
 			This.RemoveNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 			return This
 
+	def NextOccurrenceRemovedCS(pcSubStr, nStart, pCaseSensitive)
+		cResult = This.Copy().RemoveNextOccurrenceCSQ(pcSubStr, nStart, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def RemoveNextOccurrence(pcSubStr, nStart, pcNewSubStr)
 		This.RemoveNextNthOccurrenceCS(1, pcSubStr, nStart, :CaseSensitive = TRUE)
 
@@ -35566,10 +35656,14 @@ def ReplaceIBS()
 			This.RemoveNextOccurrence(pcSubStr, nStart, pcNewSubStr)
 			return This
 
-	   #--------------------------------------------------------#
+	def NextOccurrenceRemoved(pcSubStr, nStart)
+		cResult = This.Copy().RemoveNextOccurrenceQ(pcSubStr, nStart).Content()
+		return cResult
+
+	   #-------------------------------------------------------#
 	  #    REMOVING PREVIOUS NTH OCCURRENCE OF A SUBSTRING    # 
-	 #    STARTING AT A GIVEN POSITION                        #
-	#--------------------------------------------------------#
+	 #    STARTING AT A GIVEN POSITION                       #
+	#-------------------------------------------------------#
 
 	def RemovePreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 		
@@ -35594,9 +35688,15 @@ def ReplaceIBS()
 		cResult = cPart1 + cPart2
 		This.Update( cResult )
 
+		#< @FunctionFluentForm
+
 		def RemovePreviousNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive)
 			This.RemovePreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def RemoveNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 			This.RemovePreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
@@ -35605,12 +35705,29 @@ def ReplaceIBS()
 				This.RemoveNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 				return This
 
+		#>
+
+	def PreviousNthOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
+		cResult = This.Copy().RemovePreviousNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive).Content()
+		return cResult
+
+		def NthPreviousOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.PreviousNthOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def RemovePreviousNthOccurrence(n, pcSubStr, nStart, pcNewSubStr)
 		This.RemovePreviousNthOccurrenceCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
 
 		def RemovePreviousNthOccurrenceQ(n, pcSubStr, nStart, pcNewSubStr)
 			This.RemovePreviousNthOccurrence(n, pcSubStr, nStart, pcNewSubStr)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def RemoveNthPreviousOccurrence(n, pcSubStr, nStart, pcNewSubStr)
 			This.RemovePreviousNthOccurrence(n, pcSubStr, nStart, pcNewSubStr)
@@ -35618,6 +35735,15 @@ def ReplaceIBS()
 			def RemoveNthPreviousOccurrenceQ(n, pcSubStr, nStart, pcNewSubStr)
 				This.RemoveNthPreviousOccurrence(n, pcSubStr, nStart, pcNewSubStr)
 				return This
+
+		#>
+
+	def PreviousNthOccurrenceRemoved(n, pcSubStr, nStart)
+		cResult = This.Copy().RemovePreviousNthOccurrenceQ(n, pcSubStr, nStart).Content()
+		return cResult
+
+		def NthPreviousOccurrenceRemoved(n, pcSubStr, nStart)
+			return This.PreviousNthOccurrenceRemoved(n, pcSubStr, nStart)
 
 	   #----------------------------------------------------#
 	  #    REMOVING PREVIOUS OCCURRENCE OF A SUBSTRING     # 
@@ -35631,12 +35757,22 @@ def ReplaceIBS()
 			This.RemovePreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 			return This
 
+	def PreviousOccurrenceRemovedCS(pcSubStr, nStart, pCaseSensitive)
+		cResult = This.Copy().RemovePreviousOccurrenceCSQ(pcSubStr, nStart, pCaseSensitive).Content()
+		return cResult
+
+	#-- WIHTOUT CASESENSITIVITY
+
 	def RemovePreviousOccurrence(pcSubStr, nStart, pcNewSubStr)
 		This.RemovePreviousNthOccurrenceCS(1, pcSubStr, nStart, :CaseSensitive = TRUE)
 
 		def RemovePreviousOccurrenceQ(pcSubStr, nStart, pcNewSubStr)
 			This.RemovePreviousOccurrence(pcSubStr, nStart, pcNewSubStr)
 			return This
+
+	def PreviousOccurrenceRemoved(pcSubStr, nStart)
+		cResult = This.Copy().RemovePreviousOccurrenceQ(pcSubStr, nStart).Content()
+		return cResult
 
 	  #-----------------------------------------------#
 	 #    REMOVING LEFT OCCURRENCE OF A SUBSTRING    # 
@@ -35655,7 +35791,11 @@ def ReplaceIBS()
 			This.RemoveLeftOccurrenceCS(pcSubStr, pCaseSensitive)
 			return This
 
-	#---
+	def LeftOccurrenceRemovedCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveLeftOccurrenceCSQ(pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WIHTOUT CASESENSITIVITY
 
 	def RemoveLeftOccurrence(pcSubStr)
 		This.RemoveLeftOccurrenceCS(pcSubStr, :CaseSensitive = FALSE)
@@ -35663,6 +35803,10 @@ def ReplaceIBS()
 		def RemoveLeftOccurrenceQ(pcSubStr)
 			This.RemoveLeftOccurrence(pcSubStr)
 			return This
+
+	def LeftOccurrenceRemoved(pcSubStr)
+		cResult = This.Copy().RemoveLeftOccurrenceQ(pcSubStr).Content()
+		return cResult
 
 	  #---------------------------------------------#
 	 #    REMOVING RIGHT OCCURRENCE OF SUBSTRING   # 
@@ -35682,12 +35826,22 @@ def ReplaceIBS()
 			This.RemoveRightOccurrenceCS(pcSubStr, pCaseSensitive)
 			return This
 
+	def RightOccurrenceRemovedCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveRightOccurrenceCSQ(pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WIHTOUT CASESENSITIVITY
+
 	def RemoveRightOccurrence(pcSubStr)
 		This.RemoveRightOccurrenceCS(pcSubStr, :CaseSensitive = TRUE)
 
 		def RemoveRightOccurrenceQ(pcSubStr)
 			This.RemoveRightOccurrence(pcSubStr)
 			return This
+
+	def RightOccurrenceRemoved(pcSubStr)
+		cResult = This.Copy().RemoveRightOccurrenceQ(pcSubStr).Content()
+		return cResult
 
 	  #-------------------------------------#
 	 #   REMOVING A SUBSTRING FROM LEFT    #
@@ -35928,7 +36082,6 @@ def ReplaceIBS()
 
 		def StartRemoved(pcSubStr)
 			return This.RemovedFromStart(pcSubStr)
-
 
 	  #-----------------------------------#
 	 #   REMOVING A SUBSTRING FROM END   #
