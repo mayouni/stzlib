@@ -7694,6 +7694,10 @@ class stzString from stzObject
 	 #  GETTING BOUNDS OF A SUBSTRING UP TO N CHARS  #
 	#===============================================#
 
+def FindBoundsXTCS(pcSubStr, panUpToNChars, pCaseSensitive)
+
+def FindBoundsAsSectionsXTCS(pcSubStr, panUpToNChars, pCaseSensitive)
+
 	def BoundsXTCS(pcSubStr, panUpToNChars, pCaseSensitive)
 		/* EXAMPLES
 
@@ -7831,6 +7835,153 @@ class stzString from stzObject
 		def BoundsUpToNChars(pcSubStr, pnUpToNChars)
 			return This.BoundsOfCS(pcSubStr, panUpToNChars, :CaseSensitive = TRUE)
 	
+def BoundXTZCS(pcSubStr, puToNChars, pCaseSensitive)
+
+def BoundXTZZCS(pcSubStr, puToNChars, pCaseSensitive)
+
+	  #-----------------------------------------------------#
+	 #  GETTING FIRST BOUNDS OF A SUBSTRING UP TO N CHARS  #
+	#-----------------------------------------------------#
+
+def FindFirstBoundsXTCS(pcSubStr, pnUpToNChars, pCaseSensitive)
+
+def FindFirstBoundsAsSectionsXTCS(pcSubStr, pnUpToNChars, pCaseSensitive)
+
+	def FirstBoundsXTCS(pcSubStr, pnUpToNChars, pCaseSensitive)
+		acResult = QR( This.BoundsXTCS(pcSubSTr, pnUpToNChars, pCaseSensitive), :stzListOfPairs).FirstItems()
+		return acResult
+
+		#< @FunctionAlternativeForm
+
+		def FirstBoundsUpToNCharsCS(pcSubStr, panUpToNChars, pCaseSensitive)
+			if NOT ( isString(pcSubStr) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
+			return This.FirstBoundsXTCS(pcSubStr, panUpToNChars, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FirstBoundsXT(pcSubStr, pnUpToNChars, pCaseSensitive)
+		return This.FirstBoundsXTCS(pcSubStr, pnUpToNChars, :CaseSensitive = TRUE)
+
+def FirstBoundsXTZCS(pcSubStr, pnUptoNChars, pCaseSensitive)
+
+def FirstBoundsXTZZCS(pcSubStr, pnUptoNChars, pCaseSensitive)
+
+	  #----------------------------------------------------#
+	 #  GETTING LAST BOUNDS OF A SUBSTRING UP TO N CHARS  #
+	#----------------------------------------------------#
+
+def FindLAstBoundsXTCS(pcSubStr, pnUpToNChars, pCaseSensitive)
+
+def FindLastBoundsAsSectionsXTCS(pcSubStr, pnUpToNChars, pCaseSensitive)
+
+	def LastBoundsXTCS(pcSubStr, pnUpToNChars, pCaseSensitive)
+		acResult = QR( This.BoundsXTCS(pcSubSTr, pnUpToNChars, pCaseSensitive), :stzListOfPairs).SecondItems()
+		return acResult
+
+		#< @FunctionAlternativeForm
+
+		def LastBoundsUpToNCharsCS(pcSubStr, panUpToNChars, pCaseSensitive)
+			if NOT ( isString(pcSubStr) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
+			return This.LastBoundsXTCS(pcSubStr, panUpToNChars, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LastBoundsXT(pcSubStr, pnUpToNChars, pCaseSensitive)
+		return This.LastBoundsXTCS(pcSubStr, pnUpToNChars, :CaseSensitive = TRUE)
+
+def LastBoundsXTZCS(pcSubStr, pnUptoNChars, pCaseSensitive)
+
+def LastBoundsXTZZCS(pcSubStr, pnUptoNChars, pCaseSensitive)
+
+	  #----------------------------------------------------#
+	 #  GETTING LEFT BOUNDS OF A SUBSTRING UP TO N CHARS  #
+	#----------------------------------------------------#
+
+def FindLeftBoundsXTCS(pcSubStr, pnUpToNChars, pCaseSensitive)
+
+def FindLeftBoundsAsSectionsXTCS(pcSubStr, pnUpToNChars, pCaseSensitive)
+
+	def LeftBoundsXTCS(pcSubStr, pnUpToNChars, pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.FirstBoundsXT(pcSubStr, pnUpToNChars, pCaseSensitive)
+
+		else
+			return This.LastBoundsXT(pcSubStr, pnUpToNChars, pCaseSensitive)
+		ok
+
+		#< @FunctionAlternativeForm
+
+		def LeftBoundsUpToNCharsCS(pcSubStr, pnUnToNChars, pCaseSensitive)
+			if NOT ( isString(pcSubStr) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
+			return This.LeftBoundsXTCS(pcSubStr, panUpToNChars, pCaseSensitive)
+		
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LeftBoundsXT(pcSubStr, pnUpToNChars)
+		return This.LeftBoundsXTCS(pcSubStr, pnUpToNChars, :CaseSensitive = TRUE)
+
+		def LeftBoundsUpToNChars(pcSubStr, pnUnToNChars)
+			return This.LeftBoundsUpToNChars(pcSubStr, pnUnToNChars)
+
+def LeftBoundsXTZCS(pcSubStr, pnUptoNChars, pCaseSensitive)
+
+def LeftBoundsXTZZCS(pcSubStr, pnUptoNChars, pCaseSensitive)
+
+	  #-----------------------------------------------------#
+	 #  GETTING RINGT BOUNDS OF A SUBSTRING UP TO N CHARS  #
+	#-----------------------------------------------------#
+
+def FindRightBoundsXTCS(pcSubStr, pnUpToNChars, pCaseSensitive)
+
+def FindRightBoundsAsSectionsXTCS(pcSubStr, pnUpToNChars, pCaseSensitive)
+
+	def RightBoundsXTCS(pcSubStr, pnUpToNChars, pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.LastBoundsXT(pcSubStr, pnUpToNChars, pCaseSensitive)
+
+		else
+			return This.FirstBoundsXT(pcSubStr, pnUpToNChars, pCaseSensitive)
+		ok
+
+		#< @FunctionAlternativeForm
+
+		def RightBoundsUpToNCharsCS(pcSubStr, pnUnToNChars, pCaseSensitive)
+			if NOT ( isString(pcSubStr) or ( isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam() ) )
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
+			return This.RightBoundsXTCS(pcSubStr, panUpToNChars, pCaseSensitive)
+		
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def rightBoundsXT(pcSubStr, pnUpToNChars)
+		return This.RightBoundsXTCS(pcSubStr, pnUpToNChars, :CaseSensitive = TRUE)
+
+		def RightBoundsUpToNChars(pcSubStr, pnUnToNChars)
+			return This.RightBoundsUpToNChars(pcSubStr, pnUnToNChars)
+
+def RightBoundsXTZCS(pcSubStr, pnUptoNChars, pCaseSensitive)
+
+def RightBoundsXTZZCS(pcSubStr, pnUptoNChars, pCaseSensitive)
+
+
 	  #=============================================================================#
 	 #  FINDING THE TWO BOUNDS (IF ANY) OF THE STRING BY RETURNING THEIR SECTIONS  #
 	#=============================================================================#
@@ -7844,16 +7995,42 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def FindStringBoundsAsSectionsCS(pCaseSensitive)
 			return This.FindBoundsAsSectionsCS(pCaseSensitive)
+
+		def FindFirstAndLastBoundsAsSectionsCS(pCaseSensitive)
+			return This.FindBoundsAsSectionsCS(pCaseSensitive)
+
+		def FindFirstAndLastStringBoundsAsSectionsCS(pCaseSensitive)
+			return This.FindBoundsAsSectionsCS(pCaseSensitive)
+
+		def FindStringFirstAndLastBoundsAsSectionsCS(pCaseSensitive)
+			return This.FindBoundsAsSectionsCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindBoundsAsSections()
 		return This.FindBoundsAsSectionsCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def FindStringBoundsAsSections()
 			return This.FindBoundsAsSections()
+
+		def FindFirstAndLastBoundsAsSections()
+			return This.FindBoundsAsSections()
+
+		def FindFirstAndLastStringBoundsAsSections()
+			return This.FindBoundsAsSections()
+
+		def FindStringFirstAndLastBoundsAsSections()
+			return This.FindBoundsAsSections()
+
+		#>
 
 	  #-------------------------------------------------#
 	 #  FINDING THE TWO BOUNDS (IF ANY) OF THE STRING  #
@@ -7868,16 +8045,42 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def FindStringBoundsCS(pCaseSensitive)
 			return This.FindBoundsCS(pCaseSensitive)
+
+		def FindFirstAndLastBoundsCS(pCaseSensitive)
+			return This.FindBoundsCS(pCaseSensitive)
+
+		def FindFirstAndLastStringBoundsCS(pCaseSensitive)
+			return This.FindBoundsCS(pCaseSensitive)
+
+		def FindStringFirstAndLastBoundsCS(pCaseSensitive)
+			return This.FindBoundsCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindBounds()
 		return This.FindBoundsCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def FindStringBounds()
 			return This.FindBounds()
+
+		def FindFirstAndLastBounds()
+			return This.FindBounds()
+
+		def FindFirstAndLastStringBounds()
+			return This.FindBounds()
+
+		def FindStringFirstAndLastBounds()
+			return This.FindBounds()
+
+		#>
 
 	  #-------------------------------------------------#
 	 #  GETTING THE TWO BOUNDS (IF ANY) OF THE STRING  #
