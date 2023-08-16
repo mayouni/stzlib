@@ -3,7 +3,7 @@ load "stzlib.ring"
 
 
 /*========= SWAPPING TWO SECTIONS
-*/
+
 pron()
 
 o1 = new stzString(">>>word<<<")
@@ -12,7 +12,19 @@ o1.SwapSections([1, 3], [8, 10]) # or o1.SwapSections([8, 10], [1, 3])
 #--> <<<word>>>
 
 proff()
+# Executed in 0.06 second(s)
 
+/*----------
+*/
+pron()
+
+o1 = new stzList([ ">", ">", ">", "w", "o", "r", "d", "<", "<", "<" ])
+o1.SwapSections([1, 3], [8, 10]) # or o1.SwapSections([8, 10], [1, 3])
+? @@( o1.Content() )
+#--> [ "<", "<", "<", "w", "o", "r", "d", ">", ">", ">" ]
+
+proff()
+# Executed in 0.06 second(s)
 
 /*=========
 

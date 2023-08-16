@@ -5381,6 +5381,50 @@ class stzList from stzObject
 
 		def SectionsRemoved(paSections)
 
+	  #----------------------------------------#
+	 #    SWAPPING TWO SECTIONS OF THE LIST   # 
+	#----------------------------------------#
+
+	def SwapSections( panSection1, panSection2 )
+		if isList(panSection2) and Q(panSection2).IsWithOrAndNamedParams()
+			panSection2 = panSection2[2]
+		ok
+
+		if NOT BothArePairsOfNumbers(panSection1, panSection2)
+			StzRaise("Incorrect param type! panSection1 and panSection2 must be both pairs of number.")
+		ok
+
+		aSorted = QR([ panSection1, panSection2 ], :stzListOfPairs).Sorted()
+
+		anFirstSection = []
+		anLastSection  = []
+
+		if Q(aSorted[1]).IsEqualTo(panSection1)
+			anFirstSection = panSection1
+			anLastSection  = panSection2
+
+		else
+			anFirstSection = panSection2
+			anLastSection  = panSection1
+		ok
+
+		aResult = ListsMerge([
+			This.Section(anLastSection[1], anLastSection[2]),
+			This.Section(anFirstSection[2] + 1, anLastSection[1] - 1),
+			This.Section(anFirstSection[1], anFirstSection[2])
+		])
+
+		This.UpdateWith(aResult)
+
+
+		def SwapSectionsQ(panSection1, panSection2)
+			This.SwapSections(panSection1, panSection2)
+			return This
+
+	def SectionsSwapped(panSection1, panSection2)
+		cResult = This.Copy().SwapSectionsQ(panSection1, panSection2)
+		return cResult
+
 	  #------------------------------------#
 	 #   REMOVING ALL ITEMS IN THE LIST   #
 	#------------------------------------#
