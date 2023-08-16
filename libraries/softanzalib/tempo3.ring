@@ -15,7 +15,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzList([ ">", ">", ">", "w", "o", "r", "d", "<", "<", "<" ])
@@ -389,27 +389,73 @@ o1 = new stzString("<<<word>>>")
 proff()
 
 /*------------------
-*/
+
 pron()
 
 o1 = new stzString("<<<word>>>")
 
 ? o1.LeftBound()
-#--> 
+#--> <<<
 
-? @@( o1.FindLeftBound() )
-#--> 
+? o1.FindLeftBound()
+#--> 1
 
 ? @@( o1.FindLeftBoundAsSection() )
-#--> 
+#--> [ 1, 3 ]
 
 ? @@( o1.LeftBoundZ() )
-#--> 
+#--> [ "<<<", 1 ]
 
-? @@( o1.LeftBoundZZ() )
-#--> 
+? @@( o1.LeftBoundZZ() ) + NL
+#--> [ "<<<", [ 1, 3 ] ]
 
-? @@( o1.FindRightAndLeftBounds() )
+#--
+
+? o1.RightBound()
+#--> >>>
+
+? o1.FindRightBound()
+#--> 8
+
+? @@( o1.FindRightBoundAsSection() )
+#--> [ 8, 10 ]
+
+? @@( o1.RightBoundZ() )
+#--> [ ">>>", 8 ]
+
+? @@( o1.RightBoundZZ() ) + NL
+#--> [ ">>>", [ 8, 10 ] ]
+
+proff()
+# Executed in 0.35 second(s)
+
+/*------------------
+*/
+pron()
+
+o1 = new stzString("<<<word>>>")
+
+
+? @@( o1.FindBounds() ) # Same as o1.FindFirstAndLastBounds()
+
+	? o1.FindLastAndFirstBounds()
+
+? @@( o1.FindBoundsAsSections() )
+
+	? o1.FindLastAndFirstBoundsAsSections()
+
+? @@( o1.Bounds() )
+
+	? o1.LastAndFirstBounds()
+
+? @@( o1.BoundsZ() )
+
+	? o1.LastAndFirstBoundsZ()
+
+? @@( o1.BoundsZZ() )
+
+	? o1.LastAndFirstBoundsZZ()
+
 
 proff()
 # Executed in 0.13 second(s)
