@@ -7905,10 +7905,79 @@ class stzString from stzObject
 
 		return acResult
 
+		def StringBoundsCS(pCaseSensitive)
+			return This.BoundsCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def Bounds()
 		return This.BoundsCS(:CaseSensitive = TRUE)
+
+		def StringBounds()
+			return This.Bounds()
+
+	  #-----------------------------------------#
+	 #  FINDING THE FIRST BOUND OF THE STRING  #
+	#=========================================#
+
+	def FindFirstBoundCS(pCaseSensitive)
+		n = This.NumberOfLeadingCharsCS(pCaseSensitive)
+		if n > 0
+			return 1
+		else
+			return 0
+		ok
+
+		def FindStringFirstBoundCS(pCaseSensitive)
+			return This.FindFirstBoundCS(pCaseSensitive)
+
+		def FindFirstStringBoundCS(pCaseSensitive)
+			return This.FindFirstBoundCS(pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstBound()
+		return This.FindFirstBoundCS(:CaseSensitive = TRUE)
+
+		def FindStringFirstBound()
+			return This.FindFirstBound()
+
+		def FindFirstStringBound()
+			return This.FindFirstBound()
+
+	  #-------------------------------------------------------------------------------#
+	 #  FINDING THE FIRST BOUND OF THE STRING AND RETURNING ITS POSITION AS SECTION  #
+	#-------------------------------------------------------------------------------#
+
+	def FindFirstBoundAsSectionCS(pCaseSensitive)
+
+		anResult = []
+
+		n = This.NumberOfLeadingCharsCS(pCaseSensitive)
+		if n > 0
+			anResult + 1 + n
+		ok
+
+		return anResult
+
+		def FindStringFirstBoundAsSectionCS(pCaseSensitive)
+			return This.FindFirstBoundAsSectionCS(pCaseSensitive)
+
+		def FindFirstStringBoundAsSectionCS(pCaseSensitive)
+			return This.FindFirstBoundAsSectionCS(pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstBoundAsSection()
+		return This.FindFirstBoundAsSectionCS(:CaseSensitive = TRUE)
+
+		def FindStringFirstBoundAsSection()
+			return This.FindFirstBoundAsSection()
+
+		def FindFirstStringBoundAsSection()
+			return This.FindFirstBoundAsSection()
 
 	  #-----------------------------------------#
 	 #  GETTING THE FIRST BOUND OF THE STRING  #
@@ -7923,6 +7992,116 @@ class stzString from stzObject
 	def FirstBound()
 		return This.FirstBoundCS(:CaseSensitive = TRUE)
 
+	  #-----------------------------------------------------------------#
+	 #  GETTING THE FIRST BOUND OF THE STRING ALONG WITH ITS POSITION  #
+	#-----------------------------------------------------------------#
+
+	def FirstBoundZCS(pCaseSensitive)
+		aResult = [
+			This.FirstBoundCS(pCaseSensitive),
+			This.FindFirstBoundCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		def FirstBoundAndItsPositionCS(pCaseSensitive)
+			return This.FirstBoundZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FirstBoundZ()
+		return This.FirstBoundZCS(:CaseSensitive = TRUE)
+
+		def FirstBoundAndItsPosition()
+			return This.FirstBoundZ()
+
+	  #----------------------------------------------------------------#
+	 #  GETTING THE FIRST BOUND OF THE STRING ALONG WITH ITS SECTION  #
+	#----------------------------------------------------------------#
+
+	def FirstBoundZZCS(pCaseSensitive)
+		aResult = [
+			This.FirstBoundCS(pCaseSensitive),
+			This.FindFirstBoundAsSectionCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		def FirstBoundAndItsSectionCS(pCaseSensitive)
+			return THis.FirstBoundZZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FirstBoundZZ()
+		return This.FirstBoundZZCS(:CaseSensitive = TRUE)
+
+		def FirstBoundAndItsSection()
+			return THis.FirstBoundZZ()
+
+	  #----------------------------------------#
+	 #  FINDING THE LAST BOUND OF THE STRING  #
+	#========================================#
+
+	def FindLastBoundCS(pCaseSensitive)
+		n = This.NumberOfTrailingCharsCS(pCaseSensitive)
+		if n > 0
+			return This.NumberOfChars() - n + 1
+		else
+			return 0
+		ok
+
+		def FindStringLastBoundCS(pCaseSensitive)
+			return This.FindLastBoundCS(pCaseSensitive)
+
+		def FindLastStringBoundCS(pCaseSensitive)
+			return This.FindLastBoundCS(pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastBound()
+		return This.FindLastBoundCS(:CaseSensitive = TRUE)
+
+		def FindStringLastBound()
+			return This.FindLastBound()
+
+		def FindLastStringBound()
+			return This.FindLastBound()
+
+	  #------------------------------------------------------------------------------#
+	 #  FINDING THE LAST BOUND OF THE STRING AND RETURNING ITS POSITION AS SECTION  #
+	#------------------------------------------------------------------------------#
+
+	def FindLastBoundAsSectionCS(pCaseSensitive)
+
+		anResult = []
+
+		n = This.NumberOfTrailingCharsCS(pCaseSensitive)
+		if n > 0
+			nLen = This.NumberOfChars()
+			anResult + (nLen - n + 1) + nLen
+		ok
+
+		return anResult
+
+		def FindStringLastBoundAsSectionCS(pCaseSensitive)
+			return This.FindLastBoundAsSectionCS(pCaseSensitive)
+
+		def FindLastStringBoundAsSectionCS(pCaseSensitive)
+			return This.FindLastBoundAsSectionCS(pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastBoundAsSection()
+		return This.FindLastBoundAsSectionCS(:CaseSensitive = TRUE)
+
+		def FindStringLastBoundAsSection()
+			return This.FindLastBoundAsSection()
+
+		def FindLastStringBoundAsSection()
+			return This.FindLastBoundAsSection()
+
 	  #----------------------------------------#
 	 #  GETTING THE LAST BOUND OF THE STRING  #
 	#----------------------------------------#
@@ -7936,6 +8115,112 @@ class stzString from stzObject
 	def LastBound()
 		return This.LastBoundCS(:CaseSensitive = TRUE)
 
+	  #----------------------------------------------------------------#
+	 #  GETTING THE LAST BOUND OF THE STRING ALONG WITH ITS POSITION  #
+	#----------------------------------------------------------------#
+
+	def LastBoundZCS(pCaseSensitive)
+		aResult = [
+			This.LastBoundCS(pCaseSensitive),
+			This.FindLastBoundCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		def LastBoundAndItsPositionCS(pCaseSensitive)
+			return This.LastBoundZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LastBoundZ()
+		return This.LastBoundZCS(:CaseSensitive = TRUE)
+
+		def LastBoundAndItsPosition()
+			return This.LastBoundZ()
+
+	  #---------------------------------------------------------------#
+	 #  GETTING THE LAST BOUND OF THE STRING ALONG WITH ITS SECTION  #
+	#---------------------------------------------------------------#
+
+	def LastBoundZZCS(pCaseSensitive)
+		aResult = [
+			This.LastBoundCS(pCaseSensitive),
+			This.FindLastBoundAsSectionCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		def LastBoundAndItsSectionCS(pCaseSensitive)
+			return THis.LastBoundZZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LastBoundZZ()
+		return This.LastBoundZZCS(:CaseSensitive = TRUE)
+
+		def LastBoundAndItsSection()
+			return THis.LastBoundZZ()
+
+	  #----------------------------------------#
+	 #  FINDING THE LEFT BOUND OF THE STRING  #
+	#========================================#
+
+	def FindLeftBoundCS(pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.FindFirstBoundCS(pCaseSensitive)
+
+		else # case IsRightToLeft()
+			return This.FindLastBoundCS(pCaseSensitive)
+		ok
+
+		def FindStringLeftBoundCS(pCaseSensitive)
+			return This.FindLeftBoundCS(pCaseSensitive)
+
+		def FindLeftStringBoundCS(pCaseSensitive)
+			return This.FindLeftBoundCS(pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLeftBound()
+		return This.FindLeftBoundCS(:CaseSensitive = TRUE)
+
+		def FindStringLeftBound()
+			return This.FindLeftBound()
+
+		def FindLeftStringBound()
+			return This.FindLeftBound()
+
+	  #------------------------------------------------------------------------------#
+	 #  FINDING THE LEFT BOUND OF THE STRING AND RETURNING ITS POSITION AS SECTION  #
+	#------------------------------------------------------------------------------#
+
+	def FindLeftBoundAsSectionCS(pCaseSensitive)
+
+		if This.IsLeftToRight()
+			return This.FindFirstBoundAsSectionCS(pCaseSensitive)
+
+		else # case IsRightToLeft()
+			return This.FindLastBoundAsSectionCS(pCaseSensitive)
+		ok
+
+		def FindStringLeftBoundAsSectionCS(pCaseSensitive)
+			return This.FindLeftBoundAsSectionCS(pCaseSensitive)
+
+		def FindLeftStringBoundAsSectionCS(pCaseSensitive)
+			return This.FindLeftBoundAsSectionCS(pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLeftBoundAsSection()
+		return This.FindLeftBoundAsSectionCS(:CaseSensitive = TRUE)
+
+		def FindStringLeftBoundAsSection()
+			return This.FindLeftBoundAsSection()
+
+		def FindLeftStringBoundAsSection()
+			return This.FindLeftBoundAsSection()
 
 	  #----------------------------------------#
 	 #  GETTING THE LEFT BOUND OF THE STRING  #
@@ -7943,16 +8228,125 @@ class stzString from stzObject
 
 	def LeftBoundCS(pCaseSensitive)
 		if This.IsLeftToRight()
-			return This.FirstBoundCS(pCaseSensitive)
+			return This.BoundsCS(pCaseSensitive)[1]
 
 		else # case IsRightToLeft()
-			return This.LastBoundCS(pCaseSensitive)
+			return This.BoundsCS(pCaseSensitive)[2]
 		ok
 
-	#-- WITHOUT CASESENSITIVE
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def LeftBound()
 		return This.LeftBoundCS(:CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------------#
+	 #  GETTING THE LEFT BOUND OF THE STRING ALONG WITH ITS POSITION  #
+	#----------------------------------------------------------------#
+
+	def LeftBoundZCS(pCaseSensitive)
+		aResult = [
+			This.LeftBoundCS(pCaseSensitive),
+			This.FindLeftBoundCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		def LeftBoundAndItsPositionCS(pCaseSensitive)
+			return This.LeftBoundZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LeftBoundZ()
+		return This.LeftBoundZCS(:CaseSensitive = TRUE)
+
+		def LeftBoundAndItsPosition()
+			return This.LeftBoundZ()
+
+	  #---------------------------------------------------------------#
+	 #  GETTING THE LEFT BOUND OF THE STRING ALONG WITH ITS SECTION  #
+	#---------------------------------------------------------------#
+
+	def LeftBoundZZCS(pCaseSensitive)
+
+		aResult = [
+			This.LeftBoundCS(pCaseSensitive),
+			This.FindLeftBoundAsSectionCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		def LeftBoundAndItsSectionCS(pCaseSensitive)
+			return THis.LeftBoundZZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LeftBoundZZ()
+		return This.LeftBoundZZCS(:CaseSensitive = TRUE)
+
+		def LeftBoundAndItsSection()
+			return THis.LeftBoundZZ()
+
+	  #-----------------------------------------#
+	 #  FINDING THE RIGHT BOUND OF THE STRING  #
+	#=========================================#
+
+	def FindRightBoundCS(pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.FindLastBoundCS(pCaseSensitive)
+
+		else # case IsRightToRight()
+			return This.FindFirstBoundCS(pCaseSensitive)
+		ok
+
+		def FindStringRightBoundCS(pCaseSensitive)
+			return This.FindRightBoundCS(pCaseSensitive)
+
+		def FindRightStringBoundCS(pCaseSensitive)
+			return This.FindRightBoundCS(pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRightBound()
+		return This.FindRightBoundCS(:CaseSensitive = TRUE)
+
+		def FindStringRightBound()
+			return This.FindRightBound()
+
+		def FindRightStringBound()
+			return This.FindRightBound()
+
+	  #-------------------------------------------------------------------------------#
+	 #  FINDING THE RIGHT BOUND OF THE STRING AND RETURNING ITS POSITION AS SECTION  #
+	#-------------------------------------------------------------------------------#
+
+	def FindRightBoundAsSectionCS(pCaseSensitive)
+
+		if This.IsLeftToRight()
+			return This.FindLastBoundAsSectionCS(pCaseSensitive)
+
+		else # case IsRightToRight()
+			return This.FindFirstBoundAsSectionCS(pCaseSensitive)
+		ok
+
+		def FindStringRightBoundAsSectionCS(pCaseSensitive)
+			return This.FindRightBoundAsSectionCS(pCaseSensitive)
+
+		def FindRightStringBoundAsSectionCS(pCaseSensitive)
+			return This.FindRightBoundAsSectionCS(pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRightBoundAsSection()
+		return This.FindRightBoundAsSectionCS(:CaseSensitive = TRUE)
+
+		def FindStringRightBoundAsSection()
+			return This.FindRightBoundAsSection()
+
+		def FindRightStringBoundAsSection()
+			return This.FindRightBoundAsSection()
 
 	  #-----------------------------------------#
 	 #  GETTING THE RIGHT BOUND OF THE STRING  #
@@ -7960,18 +8354,64 @@ class stzString from stzObject
 
 	def RightBoundCS(pCaseSensitive)
 		if This.IsLeftToRight()
-			return This.LastBoundCS(pCaseSensitive)
+			return This.BoundsCS(pCaseSensitive)[2]
 
-		else # case IsRightToLeft()
-			return This.FirstBoundCS(pCaseSensitive)
+		else # case IsRightToRight()
+			return This.BoundsCS(pCaseSensitive)[1]
 		ok
 
-	#-- WITHOUT CASESENSITIVE
+	#-- WITHOUT CASESENSITIVITY
 
 	def RightBound()
 		return This.RightBoundCS(:CaseSensitive = TRUE)
 
-	  #---------------------------------------------------------#
+	  #-----------------------------------------------------------------#
+	 #  GETTING THE RIGHT BOUND OF THE STRING ALONG WITH ITS POSITION  #
+	#-----------------------------------------------------------------#
+
+	def RightBoundZCS(pCaseSensitive)
+		aResult = [
+			This.RightBoundCS(pCaseSensitive),
+			This.FindRightBoundCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		def RightBoundAndItsPositionCS(pCaseSensitive)
+			return This.RightBoundZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RightBoundZ()
+		return This.RightBoundZCS(:CaseSensitive = TRUE)
+
+		def RightBoundAndItsPosition()
+			return This.RightBoundZ()
+
+	  #----------------------------------------------------------------#
+	 #  GETTING THE RIGHT BOUND OF THE STRING ALONG WITH ITS SECTION  #
+	#----------------------------------------------------------------#
+
+	def RightBoundZZCS(pCaseSensitive)
+		aResult = [
+			This.RightBoundCS(pCaseSensitive),
+			This.FindRightBoundAsSectionCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		def RightBoundAndItsSectionCS(pCaseSensitive)
+			return THis.RightBoundZZCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RightBoundZZ()
+		return This.RightBoundZZCS(:CaseSensitive = TRUE)
+
+		def RightBoundAndItsSection()
+			return THis.RightBoundZZ()
+
+	  #=========================================================#
 	 #  FINDING THE BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
 	#=========================================================#
 
