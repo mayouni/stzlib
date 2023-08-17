@@ -8032,9 +8032,123 @@ def RightBoundsXTZZCS(pcSubStr, pnUptoNChars, pCaseSensitive)
 
 		#>
 
+	  #-------------------------------------------------------------------------------------#
+	 #  FINDING LAST AND FIRST BOUBDS (IF ANY) OF THE STRING AND RETURNING THEIR SECTIONS  #
+	#-------------------------------------------------------------------------------------#
+
+	def FindLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
+
+		aResult = [
+			This.FindTrailingCharsAsSectionCS(pCaseSensitive),
+			This.FindLeadingCharsAsSectionCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindStringLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
+			return This.FindLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastAndFirstBoundsAsSections()
+		return This.FindLastAndFirstBoundsAsSectionsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindStringLastAndFirstBoundsAsSections()
+			return This.FindLastAndFirstBoundsAsSections()
+
+		#>
+
+	  #-------------------------------------------------------------------------------------#
+	 #  FINDING LEFT AND RIGHT BOUBDS (IF ANY) OF THE STRING AND RETURNING THEIR SECTIONS  #
+	#-------------------------------------------------------------------------------------#
+
+	def FindLeftAndRightBoundsAsSectionsCS(pCaseSensitive)
+
+		a1 = []
+		a2 = []
+
+		if This.IsLeftToRight()
+			a1 = This.FindLeadingCharsAsSectionCS(pCaseSensitive)
+			a2 = This.FindTrailingCharsAsSectionCS(pCaseSensitive)
+
+		else
+			a1 = This.FindTrailingCharsAsSectionCS(pCaseSensitive)
+			a2 = This.FindLeadingCharsAsSectionCS(pCaseSensitive)
+
+		ok
+
+		aResult = [ a1, a2 ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindStringLeftAndRightBoundsAsSectionsCS(pCaseSensitive)
+			return This.FindLeftAndRightBoundsAsSectionsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLeftAndRightBoundsAsSections()
+		return This.FindLeftAndRightBoundsAsSectionsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindStringLeftAndRightBoundsAsSections()
+			return This.FindLeftAndRightBoundsAsSections()
+
+		#>
+
+	  #-------------------------------------------------------------------------------------#
+	 #  FINDING RIGHT AND LEFT BOUBDS (IF ANY) OF THE STRING AND RETURNING THEIR SECTIONS  #
+	#-------------------------------------------------------------------------------------#
+
+	def FindRightAndLeftBoundsAsSectionsCS(pCaseSensitive)
+
+		a1 = []
+		a2 = []
+
+		if This.IsLeftToRight()
+			a1 = This.FindTrailingCharsAsSectionCS(pCaseSensitive)
+			a2 = This.FindLeadingCharsAsSectionCS(pCaseSensitive)
+
+		else
+			a1 = This.FindLeadingCharsAsSectionCS(pCaseSensitive)
+			a2 = This.FindTrailingCharsAsSectionCS(pCaseSensitive)
+		ok
+
+		aResult = [ a1, a2 ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindStringRightAndLeftBoundsAsSectionsCS(pCaseSensitive)
+			return This.FindRightAndLeftBoundsAsSectionsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRightAndLeftBoundsAsSections()
+		return This.FindRightAndLeftBoundsAsSectionsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindStringRightAndLeftBoundsAsSections()
+			return This.FindRightAndLeftBoundsAsSections()
+
+		#>
 	  #-------------------------------------------------#
 	 #  FINDING THE TWO BOUNDS (IF ANY) OF THE STRING  #
-	#-------------------------------------------------#
+	#=================================================#
 
 	def FindBoundsCS(pCaseSensitive)
 
@@ -8082,9 +8196,100 @@ def RightBoundsXTZZCS(pcSubStr, pnUptoNChars, pCaseSensitive)
 
 		#>
 
+	  #--------------------------------------------------------#
+	 #  FINDING LAST AND FIRST BOUNDS (IF ANY) OF THE STRING  #
+	#--------------------------------------------------------#
+
+	def FindLastAndFirstBoundsCS(pCaseSensitive)
+
+		aResult = [
+			This.FindTrailingCharsCS(pCaseSensitive),
+			This.FindLeadingCharsCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		def FindStringLastAndFirstBoundsCS(pCaseSensitive)
+			return This.FindLastAndFirstBoundsCS(pCaseSensitive)
+
+	#--
+
+	def FindLastAndFirstBounds()
+		return This.FindLastAndFirstBoundsCS(:CaseSensitive = TRUE)
+
+		def FindStringLastAndFirstBounds()
+			return This.FindLastAndFirstBounds()
+
+	  #--------------------------------------------------------#
+	 #  FINDING LEFT AND RIGHT BOUNDS (IF ANY) OF THE STRING  #
+	#--------------------------------------------------------#
+
+	def FindLeftAndRightBoundsCS(pCaseSensitive)
+
+		a1 = []
+		a2 = []
+
+		if This.IsLeftToRight()
+			a1 = This.FindTrailingCharsCS(pCaseSensitive)
+			a2 = This.FindLeadingCharsCS(pCaseSensitive)
+
+		else
+			a1 = This.FindLeadingCharsCS(pCaseSensitive)
+			a2 = This.This.FindTrailingCharsCS(pCaseSensitive)
+		ok
+
+		aResult = [ a1, a2 ]
+
+		return aResult
+
+		def FindStringLeftAndRightBoundsCS(pCaseSensitive)
+			return This.FindLeftAndRightBoundsCS(pCaseSensitive)
+
+	#--
+
+	def FindLeftAndRightBounds()
+		return This.FindLeftAndRightBoundsCS(:CaseSensitive = TRUE)
+
+		def FindStringLeftAndRightBounds()
+			return This.FindLeftAndRightBounds()
+
+	  #--------------------------------------------------------#
+	 #  FINDING RIGHT AND LEFT BOUNDS (IF ANY) OF THE STRING  #
+	#--------------------------------------------------------#
+
+	def FindRightAndLeftBoundsCS(pCaseSensitive)
+
+		a1 = []
+		a2 = []
+
+		if This.IsLeftToRight()
+			a1 = This.FindLeadingCharsCS(pCaseSensitive)
+			a2 = This.FindTrailingCharsCS(pCaseSensitive)
+
+		else
+			a1 = This.This.FindTrailingCharsCS(pCaseSensitive)
+			a2 = This.FindLeadingCharsCS(pCaseSensitive)
+			
+		ok
+
+		aResult = [ a1, a2 ]
+
+		return aResult
+
+		def FindStringRightAndLeftBoundsCS(pCaseSensitive)
+			return This.FindRightAndLeftBoundsCS(pCaseSensitive)
+
+	#--
+
+	def FindRightAndLeftBounds()
+		return This.FindRightAndLeftBoundsCS(:CaseSensitive = TRUE)
+
+		def FindStringRightAndLeftBounds()
+			return This.FindRightAndLeftBounds()
+
 	  #-------------------------------------------------#
 	 #  GETTING THE TWO BOUNDS (IF ANY) OF THE STRING  #
-	#-------------------------------------------------#
+	#=================================================#
 
 	def BoundsCS(pCaseSensitive)
 		/* EXAMPLE 1
@@ -8108,16 +8313,548 @@ def RightBoundsXTZZCS(pcSubStr, pnUptoNChars, pCaseSensitive)
 
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def StringBoundsCS(pCaseSensitive)
 			return This.BoundsCS(pCaseSensitive)
+
+		def FirstAndLastBoundsCS(pCaseSensitive)
+			return This.BoundsCS(pCaseSensitive)
+
+		def StringFirstAndLastBoundsCS(pCaseSensitive)
+			return This.BoundsCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def Bounds()
 		return This.BoundsCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def StringBounds()
 			return This.Bounds()
+
+		def FirstAndLastBounds()
+			return This.Bounds()
+
+		def StringFirstAndLastBounds()
+			return This.Bounds()
+
+		#>
+
+	  #--------------------------------------------------------#
+	 #  GETTING LAST AND FIRST BOUNDS (IF ANY) OF THE STRING  #
+	#--------------------------------------------------------#
+
+	def LastAndFirstBoundsCS(pCaseSensitive)
+		acResult = [
+			This.LastBoundCS(pCaseSensitive),
+			This.FirstBoundCS(pCaseSensitive)
+		]
+
+		return acResult
+
+		def StringLastAndFirstBoundsCS(pCaseSensitive)
+			return This.LastAndFirstBoundsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LastAndFirstBounds()
+		return This.LastAndFirstBoundsCS(:CaseSensitive = TRUE)
+
+		def StringLastAndFirstBounds()
+			return This.LastAndFirstBounds()
+
+	  #--------------------------------------------------------#
+	 #  GETTING LEFT AND RIGHT BOUNDS (IF ANY) OF THE STRING  #
+	#--------------------------------------------------------#
+
+	def LeftAndRightBoundsCS(pCaseSensitive)
+		a1 = []
+		a2 = []
+
+		if This.IsLeftToRight()
+			a1 = This.FirstBoundCS(pCaseSensitive)
+			a2 = This.LastBoundCS(pCaseSensitive)
+
+		else
+			a1 = This.LastBoundCS(pCaseSensitive)
+			a2 = Thus.FirstBoundCS(pCaseSensitive)
+
+		ok
+
+		acResult = [ a1, a2 ]
+
+		return acResult
+
+		def StringLeftAndRightBoundsCS(pCaseSensitive)
+			return This.LeftAndRightBoundsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LeftAndRightBounds()
+		return This.LeftAndRightBoundsCS(:CaseSensitive = TRUE)
+
+		def StringLeftAndRightBounds()
+			return This.LeftAndRightBoundsCS()
+
+	  #--------------------------------------------------------#
+	 #  GETTING RIGHT AND LEFT BOUNDS (IF ANY) OF THE STRING  #
+	#--------------------------------------------------------#
+
+	def RightAndLEftBoundsCS(pCaseSensitive)
+		a1 = []
+		a2 = []
+
+		if This.IsLeftToRight()
+			a1 = This.LastBoundCS(pCaseSensitive)
+			a2 = This.FirstBoundCS(pCaseSensitive)
+
+		else
+			a1 = This.FirstBoundCS(pCaseSensitive)
+			a2 = Thus.LastBoundCS(pCaseSensitive)
+
+		ok
+
+		acResult = [ a1, a2 ]
+
+		return acResult
+
+		def StringRightAndLeftBoundsCS(pCaseSensitive)
+			return This.RightAndLeftBoundsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RightAndLeftBounds()
+		return This.RightAndLeftBoundsCS(:CaseSensitive = TRUE)
+
+		def StringRightAndLeftBounds()
+			return This.RightAndLeftBoundsCS()
+
+	  #------------------------------------------------------------------------#
+	 #  GETTING THE BOUNDS OF THE STRING (IF ANY) ALONG WITH THEIR POSITIONS  #
+vvv	#========================================================================#
+
+	def BoundsZCS(pCaseSensitive)
+
+		aResult = Association([
+			This.BoundsCS(pCaseSensitive),
+			This.FindBoundsCS(pCaseSensitive)
+		])
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def BoundsAndTheirPositionsCS(pCaseSensitive)
+			return This.BoundsZCS(pCaseSensitive)
+
+		def StringBoundsZCS(pCaseSensitive)
+			return This.BoundsZCS(pCaseSensitive)
+
+		def StringBoundsAndTheirPositionsCS(pCaseSensitive)
+			return This.BoundsZCS(pCaseSensitive)
+
+		#--
+
+		def FirstAndLastBoundsZCS(pCaseSensitive)
+			return This.BoundsZCS(pCaseSensitive)
+
+		def FirstAndLastBoundsAndTheirPositionsCS(pCaseSensitive)
+			return This.BoundsZCS(pCaseSensitive)
+
+		def StringFirstAndLastBoundsZCS(pCaseSensitive)
+			return This.BoundsZCS(pCaseSensitive)
+
+		def StringFirstAndLastBoundsAndTheirPositionsCS(pCaseSensitive)
+			return This.BoundsZCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BoundsZ()
+		return This.BoundsZCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def BoundsAndTheirPositions()
+			return This.BoundsZ()
+
+		def StringBoundsZ()
+			return This.BoundsZ()
+
+		def StringBoundsAndTheirPositions()
+			return This.BoundsZ()
+
+		#--
+
+		def FirstAndLastBoundsZ()
+			return This.BoundsZ()
+
+		def FirstAndLastBoundsAndTheirPositions()
+			return This.BoundsZ()
+
+		def StringFirstAndLastBoundsZ()
+			return This.BoundsZ()
+
+		def StringFirstAndLastBoundsAndTheirPositions()
+			return This.BoundsZ()
+
+		#>
+
+	  #-----------------------------------------------------------------------#
+	 #  GETTING THE BOUNDS OF THE STRING (IF ANY) ALONG WITH THEIR SECTIONS  #
+	#-----------------------------------------------------------------------#
+
+	def BoundsZZCS(pCaseSensitive)
+
+		aResult = Association([
+			This.BoundsCS(pCaseSensitive),
+			This.FindBoundsAsSectionsCS(pCaseSensitive)
+		])
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def BoundsAndTheirSectionsCS(pCaseSensitive)
+			return This.BoundsZZCS(pCaseSensitive)
+
+		def StringBoundsZZCS(pCaseSensitive)
+			return This.BoundsZZCS(pCaseSensitive)
+
+		def StringBoundsAndTheirSectionsCS(pCaseSensitive)
+			return This.BoundsZZCS(pCaseSensitive)
+
+		#--
+
+		def FirstAndLastBoundsZZCS(pCaseSensitive)
+			return This.BoundsZZCS(pCaseSensitive)
+
+		def FirstAndLastBoundsAndThierSectionsCS(pCaseSensitive)
+			return This.BoundsZZCS(pCaseSensitive)
+
+		def StringFirstAndLastBoundsZZCS(pCaseSensitive)
+			return This.BoundszZCS(pCaseSensitive)
+
+		def StringFirstAndLastBoundsAndTheirSectionsCS(pCaseSensitive)
+			return This.BoundsZZCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BoundsZZ()
+		return This.BoundsZZCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def BoundsAndTheirSections()
+			return This.BoundsZZ()
+
+		def StringBoundsZZ()
+			return This.BoundsZZ()
+
+		def StringBoundsAndTheirSrctions()
+			return This.BoundsZZ()
+
+		#--
+
+		def FirstAndLastBoundsZZ()
+			return This.BoundsZZ()
+
+		def FirstAndLastBoundsAndThierSections()
+			return This.BoundsZZ()
+
+		def StringFirstAndLastBoundsZZ()
+			return This.BoundsZZ()
+
+		def StringFirstAndLastBoundsAndTheirSections()
+			return This.BoundsZZ()
+
+		#>
+
+	  #-----------------------------------------------------------------------------------#
+	 #  GETTING LAST AND FIRST BOUNDS OF THE STRING (IF ANY) ALONG WITH THEIR POSITIONS  #
+	#-----------------------------------------------------------------------------------#
+
+	def LastAndFirstBoundsZCS(pCaseSensitive)
+
+		aLast = [
+			This.LastBoundCS(pCaseSensitive),
+			This.FindLastBoundCS(pCaseSensitive)
+		]
+
+		aFirst = [
+			This.FirstBoundCS(pCaseSensitive),
+			This.FindFirstBoundCS(pCaseSensitive)
+		]
+
+		aResult = [ aLast, aFirst ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def LastAndFirstBoundsAndTheirPositionsCS(pCaseSensitive)
+			return This.LastAndFirstBoundsZCS(pCaseSensitive)
+
+		def StringLastAndFirstBoundsZCS(pCaseSensitive)
+			return This.LastAndFirstBoundsZCS(pCaseSensitive)
+
+		def StringLastAndFirstBoundsAndTheirPositionsCS(pCaseSensitive)
+			return This.LastAndFirstBoundsZCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LastAndFirstBoundsZ()
+		return This.LastAndFirstBoundsZCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def LastAndFirstBoundsAndTheirPositions()
+			return This.LastAndFirstBoundsZ()
+
+		def StringLastAndFirstBoundsZ(pCaseSensitive)
+			return This.LastAndFirstBoundsZ(pCaseSensitive)
+
+		def StringLastAndFirstBoundsAndTheirPositions()
+			return This.LastAndFirstBoundsZ()
+
+		#>
+
+	  #----------------------------------------------------------------------------------#
+	 #  GETTING LAST AND FIRST BOUNDS OF THE STRING (IF ANY) ALONG WITH THEIR SECTIONS  #
+	#----------------------------------------------------------------------------------#
+
+	def LastAndFirstBoundsZZCS(pCaseSensitive)
+
+		aLast = [
+			This.LastBoundCS(pCaseSensitive),
+			This.FindLastBoundAsSectionCS(pCaseSensitive)
+		]
+
+		aFirst = [
+			This.FirstBoundCS(pCaseSensitive),
+			This.FindFirstBoundAsSectionCS(pCaseSensitive)
+		]
+
+		aResult = [ aLast, aFirst ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def LastAndFirstBoundsAndTheirSectionsCS(pCaseSensitive)
+			return This.LastAndFirstBoundsZZCS(pCaseSensitive)
+
+		def StringLastAndFirstBoundsZZCS(pCaseSensitive)
+			return This.LastAndFirstBoundsZZCS(pCaseSensitive)
+
+		def StringLastAndFirstBoundsAndTheirSectionsCS(pCaseSensitive)
+			return This.LastAndFirstBoundsZZCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LastAndFirstBoundsZZ()
+		return This.LastAndFirstBoundsZZCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def LastAndFirstBoundsAndTheirSections()
+			return This.LastAndFirstBoundsZZ()
+
+		def StringLastAndFirstBoundsZZ()
+			return This.LastAndFirstBoundsZZ()
+
+		def StringLastAndFirstBoundsAndTheirSections()
+			return This.LastAndFirstBoundsZZ()
+
+		#>
+
+	  #-----------------------------------------------------------------------------------#
+	 #  GETTING LEFT AND RIGHT BOUNDS OF THE STRING (IF ANY) ALONG WITH THEIR POSITIONS  #
+	#-----------------------------------------------------------------------------------#
+
+	def LeftAndRightBoundsZCS(pCaseSensitive)
+
+		if This.IsLeftToRight()
+			return This.FirstAndLastBoundsZCS(pCaseSensitive)
+
+		else
+			return This.LastAndFirstBoundsZCS(pCaseSensitive)
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def LeftAndRightBoundsAndTheirPositionsCS(pCaseSensitive)
+			return This.LeftAndRightBoundsZCS(pCaseSensitive)
+
+		def StringLeftAndRightBoundsZCS(pCaseSensitive)
+			return This.LeftAndRightBoundsZCS(pCaseSensitive)
+
+		def StringLeftAndRightBoundsAndTheirPositionsCS(pCaseSensitive)
+			return This.LeftAndRightBoundsZCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LeftAndRightBoundsZ()
+		return This.LeftAndrightBoundsZCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def LeftAndRightBoundsAndTheirPositions()
+			return This.LeftAndRightBoundsZ()
+
+		def StringLeftAndRightBoundsZ()
+			return This.LeftAndRightBoundsZ()
+
+		def StringLeftAndRightBoundsAndTheirPositions()
+			return This.LeftAndRightBoundsZ()
+
+		#>
+
+	  #----------------------------------------------------------------------------------#
+	 #  GETTING LEFT AND RIGHT BOUNDS OF THE STRING (IF ANY) ALONG WITH THEIR SECTIONS  #
+	#----------------------------------------------------------------------------------#
+
+	def LeftAndRightBoundsZZCS(pCaseSensitive)
+
+		if This.IsLeftToRight()
+			return This.FirstAndLastBoundsZZCS(pCaseSensitive)
+
+		else
+			return This.LastAndFirstBoundsZZCS(pCaseSensitive)
+		ok
+
+
+		#< @FunctionAlternativeForms
+
+		def LeftAndRightBoundsAndTheirSectionsCS(pCaseSensitive)
+			return This.LeftAndRightBoundsZZCS(pCaseSensitive)
+
+		def StringLeftAndRightBoundsZZCS(pCaseSensitive)
+			return This.LeftAndRightBoundsZZCS(pCaseSensitive)
+
+		def StringLeftAndRightBoundsAndTheirSectionsCS(pCaseSensitive)
+			return This.LeftAndRightBoundsZZCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LeftAndRightBoundsZZ()
+		return This.LeftAndRightBoundsZZCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def LeftAndRightBoundsAndTheirSections()
+			return This.LeftAndRightBoundsZZ()
+
+		def StringLeftAndrightBoundsZZ()
+			return This.LeftAndRightBoundsZZ()
+
+		def StringLeftAndRightBoundsAndTheirSections()
+			return This.LeftAndRightBoundsZZ(pCaseSensitive)
+
+		#>
+
+	  #-----------------------------------------------------------------------------------#
+	 #  GETTING RIGHT AND LEFT BOUNDS OF THE STRING (IF ANY) ALONG WITH THEIR POSITIONS  #
+	#-----------------------------------------------------------------------------------#
+
+	def RightAndLeftBoundsZCS(pCaseSensitive)
+
+		if This.IsLeftToRight()
+			return This.LastAndFirstBoundsZCS(pCaseSensitive)
+
+		else
+			return This.FirstAndLastBoundsZCS(pCaseSensitive)
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def RightAndLeftBoundsAndTheirPositionsCS(pCaseSensitive)
+		return This.RightAndLeftBoundsZCS(pCaseSensitive)
+
+		def StringRightAndLeftBoundsZCS(pCaseSensitive)
+			return This.RightAndLeftBoundsZCS(pCaseSensitive)
+
+		def StringRightAndLeftBoundsAndTheirPositionsCS(pCaseSensitive)
+			return This.RightAndLeftBoundsZCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RightAndLeftBoundsZ()
+		return This.RightAndLeftBoundsZCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def RightAndLeftBoundsAndTheirPositions()
+			return This.RightAndLeftBoundsZ()
+
+		def StringRightAndLeftBoundsZ()
+			return This.RightAndLeftBoundsZ()
+
+		def StringRightAndLeftBoundsAndTheirPositions()
+			return This.RightAndLeftBoundsZ()
+
+		#>
+
+	  #----------------------------------------------------------------------------------#
+	 #  GETTING RIGHT AND LEFT BOUNDS OF THE STRING (IF ANY) ALONG WITH THEIR SECTIONS  #
+	#----------------------------------------------------------------------------------#
+
+	def RightAndLeftBoundsZZCS(pCaseSensitive)
+
+		if This.IsLeftToRight()
+			return This.LastAndFirstBoundsZZCS(pCaseSensitive)
+
+		else
+			return This.FirstAndLastBoundsZZCS(pCaseSensitive)
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def RightAndLeftBoundsAndTheirSectionsCS(pCaseSensitive)
+		return This.RightAndLeftBoundsZZCS(pCaseSensitive)
+
+		def StringRightAndLeftBoundsZZCS(pCaseSensitive)
+			return This.RightAndLeftBoundsZZCS(pCaseSensitive)
+
+		def StringRightAndLeftBoundsAndTheirSectionsCS(pCaseSensitive)
+			return This.RightAndLeftBoundsZZCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RightAndLeftBoundsZZ()
+		return This.RightAndLeftBoundsZZCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def RightAndLeftBoundsAndTheirSections()
+		return This.RightAndLeftBoundsZZ()
+
+		def StringRightAndLeftBoundsZZ()
+			return This.RightAndLeftBoundsZZ()
+
+		def StringRightAndLeftBoundsAndTheirSections()
+			return This.RightAndLeftBoundsZZ()
+
+		#>
 
 	  #-----------------------------------------#
 	 #  FINDING THE FIRST BOUND OF THE STRING  #

@@ -430,35 +430,72 @@ proff()
 # Executed in 0.35 second(s)
 
 /*------------------
+
+pron()
+
+o1 = new stzString("<<<word>>>")
+
+? @@( o1.FindBounds() ) # Same as o1.FindFirstAndLastBounds()
+			# You can also use Riht and Left instead of First and Last
+#--> [ 1, 8 ]
+
+	? @@( o1.FindLastAndFirstBounds() )
+	#--> [ 8, 1 ]
+
+? @@( o1.FindBoundsAsSections() ) # Same as o1.FindFirstAndLastBoundsSasSections()
+#--> [ [ 1, 3 ], [ 8, 10 ] ]
+
+	? @@( o1.FindLastAndFirstBoundsAsSections() )
+	#--> [ [ 8, 10 ], [ 1, 3 ] ]
+
+proff()
+
+/*------------------
 */
 pron()
 
 o1 = new stzString("<<<word>>>")
 
-
-? @@( o1.FindBounds() ) # Same as o1.FindFirstAndLastBounds()
-
-	? o1.FindLastAndFirstBounds()
-
-? @@( o1.FindBoundsAsSections() )
-
-	? o1.FindLastAndFirstBoundsAsSections()
-
 ? @@( o1.Bounds() )
+#--> [ "<<<", ">>>" ]
 
-	? o1.LastAndFirstBounds()
+	? @@( o1.FirstAndLastBounds() )
+	#--> [ "<<<", ">>>" ]
+
+	? @@( o1.LastAndFirstBounds() ) + NL
+	#--> [ ">>>", "<<<" ]
+
+#--
 
 ? @@( o1.BoundsZ() )
+#--> [ [ "<<<", 1 ], [ ">>>", 8 ] ]
 
-	? o1.LastAndFirstBoundsZ()
+	? @@( o1.FirstAndLastBoundsZ() )
+	#--> [ [ "<<<", 1 ], [ ">>>", 8 ] ]
+
+	? @@( o1.LastAndFirstBoundsZ() ) + NL
+	#--> [ [ ">>>", 8 ], [ "<<<", 1 ] ]
+
+#--
 
 ? @@( o1.BoundsZZ() )
+#--> .BoundZ
 
-	? o1.LastAndFirstBoundsZZ()
+	? @@( o1.FirstAndLastBoundsZZ() )
+	#--> .BoundZ
+
+	? @@( o1.LastAndFirstBoundsZZ() )
+	#--> [ [ ">>>", [ 8, 10 ] ], [ "<<<", [ 1, 3 ] ] ]
 
 
 proff()
 # Executed in 0.13 second(s)
+
+/*--------------
+
+SwapBounds() # SwapStringBounds()
+
+SwapBoundsOf() # SwapSubStringBounds()
 
 /*================ WORKING WITH BOUNDS INSIDE THE STRING
 
