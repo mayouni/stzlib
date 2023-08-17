@@ -8856,6 +8856,65 @@ vvv	#========================================================================#
 
 		#>
 
+	  #-------------------------------------#
+	 #  SWAPPING BOUNDS OF THE THE STRING  #
+	#=====================================#
+
+	def SwapBoundsCS(pCaseSensitive)
+		aSections = This.FindBoundsAsSectionsCS(pCaseSensitive)
+		This.SwapSections( aSections[1], aSections[2] )
+
+		#< @FunctionFluentForm
+
+		def SwapBoundsCSQ(pCaseSensitive)
+			This.SwapBoundsCS(pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SwapStringBoundsCS(pCaseSensitive)
+			This.SwapBoundsCS(pCaseSensitive)
+
+			def SwapStringBoundsCSQ(pCaseSensitive)
+				This.SwapStringBoundsCS(pCaseSensitive)
+				return This
+
+		#>
+
+	def BoundsSwappedCS(pCaseSensitive)
+		cResult = This.Copy(). SwapBoundsCSQ(pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SwapBounds()
+		return This.SwapBoundsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def SwapBoundsQ()
+			This.SwapBounds()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SwapStringBounds()
+			This.SwapBounds()
+
+			def SwapStringBoundsQ()
+				This.SwapStringBounds()
+				return This
+
+		#>
+
+	def BoundsSwapped()
+		cResult = This.Copy(). SwapBoundsQ().Content()
+		return cResult	
+
 	  #-----------------------------------------#
 	 #  FINDING THE FIRST BOUND OF THE STRING  #
 	#=========================================#
