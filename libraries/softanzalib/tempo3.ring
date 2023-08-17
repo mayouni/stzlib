@@ -451,7 +451,7 @@ o1 = new stzString("<<<word>>>")
 proff()
 
 /*------------------
-*/
+
 pron()
 
 o1 = new stzString("<<<word>>>")
@@ -492,6 +492,15 @@ proff()
 # Executed in 0.13 second(s)
 
 /*--------------
+*/
+pron()
+
+o1 = new stzString(">>word<<")
+o1.SwapBounds()
+? o1.Content()
+#--> <<word>>
+
+proff()
 
 SwapBounds() # SwapStringBounds()
 
