@@ -5532,7 +5532,7 @@ STOP()
 o1 = new stzList([ "{", "A", "B", "C", "}" ])
 ? o1.IsBoundedBy([ "{", "}" ]) #--> TRUE
 
-o1.RemoveBounds([ "{", "}" ])
+o1.RemoveTheseBounds("{", "}")
 ? o1.Content() #--> [ "A", "B", "C" ]
 
 /*-----------------------
@@ -5544,7 +5544,7 @@ o1 = new stzList([ "{", "<", "A", "B", "C", ">", "}" ])
 /*-----------------------
 
 o1 = new stzList([ "{", "A", "B", "C", "}" ])
-? o1.BoundsRemoved([ "{", "}" ]) #--> [ "A", "B", "C" ]
+? o1.BoundsRemoved("{", "}") #--> [ "A", "B", "C" ]
 
 /*-----------------------
 

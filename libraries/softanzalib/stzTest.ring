@@ -21,7 +21,7 @@ class stzTest
 
 	def Run()
 		cCode = Q( This.Code() ).
-			TrimQ().RemoveBoundsQ(["{","}"]).
+			TrimQ().RemoveTheseBoundsQ("{","}").
 			ReplaceQ("?", "@Output = ").
 			Content()
 

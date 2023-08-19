@@ -1,6 +1,36 @@
 load "stzlib.ring"
 
+/*---------
+*/
 
+pron()
+
+o1 = new stzString("<<<word>>>")
+/*
+? @@( o1.StringBounds() ) # Or simply Bounds()
+#--> [ "<<<", ">>>" ]
+
+? @@( o1.StringBoundsZZ() ) # Or simply BoundsZZ()
+#--> [ [ "<<<", [ 1, 3 ] ], [ ">>>", [ 8, 10 ] ] ]
+
+? @@( o1.FindStringBoundsAsSections() ) # Or Simply FindBoundsAsSections()
+#--> [ [ 1, 3 ], [ 8, 10 ] ]
+*/
+#--
+
+? @@( o1.FindTheseBoundsAsSections("***", "***") )
+#--> []
+
+? @@( o1.FindTheseBoundsAsSections("<<<", "***") )
+#--> [ [ 1, 3 ] ]
+
+? @@( o1.FindTheseBoundsAsSections("***", ">>>") )
+#--> [ [ 8, 10 ] ]
+
+? @@( o1.FindTheseBoundsAsSections("<<<", ">>>") )
+#--> [ [ 1, 3 ], [ 8, 10 ] ]
+
+proff()
 
 /*========= SWAPPING TWO SECTIONS
 

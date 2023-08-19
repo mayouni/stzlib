@@ -6236,14 +6236,14 @@ proff()
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
-o1.RemoveBoundsOfSubString(["<<", ">>"], "word")
+o1.RemoveTheseBoundsOfSubString("<<", ">>", "word") # Or RemoveSubStringBounds()
 ? o1.Content() + NL
 #--> "bla bla word bla bla word bla word"
 
 # or, more naturally, you can say:
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
-o1.RemoveBoundsXT(["<<", ">>"], :OfSubString = "word")
+o1.RemoveTheseBoundsXT(["<<", ">>"], :OfSubString = "word")
 ? o1.Content()
 #--> "bla bla word bla bla word bla word"
 
@@ -6504,7 +6504,7 @@ o1 = new stzString("<<word>>")
 ? o1.IsBoundedBy(["<<", ">>"])
 #--> TRUE
 
-o1.RemoveBounds(["<<",">>"])
+o1.RemoveTheseBounds("<<",">>")
 ? o1.Content()
 #--> word
 
@@ -8908,7 +8908,7 @@ o1 = new stzString("<script>func return :done<script/>")
 ? o1.IsBoundedBy(["<script>", :And = "<script/>"])
 #--> TRUE
 
-o1.RemoveBounds(["<script>", "<script/>"])
+o1.RemoveTheseBounds("<script>", "<script/>")
 ? o1.Content()
 #--> "func return :done"
 
