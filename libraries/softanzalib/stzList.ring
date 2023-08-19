@@ -2411,10 +2411,12 @@ class stzList from stzObject
 
 			if Q(pNewItem[1]).LastChar() = "@"
 				
-				cCode = 'pNewtItem = ' + Q(pNewItem[2]).
-								RemoveSpacesQ().
-								RemoveBoundsQ(["{","}"]).
-								Content()
+				cCode = 'pNewtItem = ' +
+					Q(pNewItem[2]).
+					RemoveSpacesQ().
+					RemoveBoundsQ("{","}").
+					Content()
+
 				eval(cCode)
 			else
 				pNewItem = pNewItem[2]
@@ -5840,19 +5842,19 @@ class stzList from stzObject
 	 #     REMOVING BOUNDS     #
 	#-------------------------#
 
-	def RemoveBoundsCS(paBounds, pCaseSensitive)
-		if This.IsBoundedByCS(paBounds, pCaseSensitive)
+	def RemoveBoundsCS(pBound1, pBound2, pCaseSensitive)
+		if This.IsBoundedByCS([ pBound1, pBound2], pCaseSensitive)
 			This.RemoveFirstItem()
 			This.RemoveLastItem()
 		ok
 
-		def RemoveBoundsCSQ(paBounds, pCaseSensitive)
-			This.RemoveBoundsCS(paBounds, pCaseSensitive)
+		def RemoveBoundsCSQ(pBound1, pBound2, pCaseSensitive)
+			This.RemoveTheseBoundsCS(pBound1, pBound2, pCaseSensitive)
 			return This
 
-	def BoundsRemovedCS(paBounds, pCaseSensitive)
+	def BoundsRemovedCS(pBound1, pBound2, pCaseSensitive)
 
-		aResult = This.Copy().RemoveBoundsCSQ(paBounds, pCaseSensitive).Content()
+		aResult = This.Copy().RemoveTheseBoundsCSQ(pBound1, pBound2, pCaseSensitive).Content()
 		return aResult
 
 		/* WARNING: Subtle bug in Ring (Show to Mahmoud)
@@ -5860,7 +5862,7 @@ class stzList from stzObject
 		In the function above, if we write the expression that returns
 		the result directly after the keyword 'return', like this:
 
-		return This.Copy().RemoveBoundsQ([pItem1, pItem2]).Content()
+		return This.Copy().RemoveTheseBoundsQ(pItem1, pItem2).Content()
 
 		Then nothing is returned, altough the result should be a list!
 
@@ -5873,16 +5875,16 @@ class stzList from stzObject
 		
 	#-- WIHTOUT CASESENSITIVITY
 
-	def RemoveBounds(paBounds)
-		This.RemoveBoundsCS(paBounds, :CaseSensitive = TRUE)
+	def RemoveBounds(pBound1, pBound2)
+		This.RemoveTheseBoundsCS(pBound1, pBound2, :CaseSensitive = TRUE)
 
-		def RemoveBoundsQ(paBounds)
-			This.RemoveBounds(paBounds)
+		def RemoveBoundsQ(pBound1, pBound2)
+			This.RemoveTheseBounds(pBound1, pBound2)
 			return This
 
-	def BoundsRemoved(paBounds)
+	def BoundsRemoved(pBound1, pBound2)
 
-		aResult = This.Copy().RemoveBoundsQ(paBounds).Content()
+		aResult = This.Copy().RemoveTheseBoundsQ(pBound1, pBound2).Content()
 		return aResult
 
 	  #------------------------------#
@@ -5892,7 +5894,7 @@ class stzList from stzObject
 	def RemoveManyBoundsCS(paPairsOfBounds, pCaseSensitive)
 		nLen = len(paPairsOfBounds)
 		for i = 1 to nLen
-			This.RemoveBoundsCS(paPairsOfBounds[i], pCaseSensitive)
+			This.RemoveTheseBoundsCS(paPairsOfBounds[i][1], paPairsOfBounds[i][2], pCaseSensitive)
 		next
 
 		def RemoveManyBoundsCSQ(paPairsOfBounds, pCaseSensitive)
@@ -9570,7 +9572,7 @@ class stzList from stzObject
 
 		pcCode = Q(pcCondition).
 			 TrimQ().
-			 RemoveBoundsQ([ "{", "}" ]).
+			 RemoveBoundsQ("{", "}").
 			 Content()
 
 		cCode = "bOk = ( " + pcCode + " )"
@@ -10200,7 +10202,7 @@ class stzList from stzObject
 
 		pcCode = Q(pcCode).
 			 TrimQ().
-			 RemoveBoundsQ([ "{", "}" ]).
+			 RemoveBoundsQ("{", "}").
 			 ReplaceCSQ("@list", "This.Content()", :CS = FALSE).
 			 Content()
 
@@ -36649,7 +36651,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		cCondition = Q(pcCondition).
 				TrimQ().
-				RemoveBoundsQ(["{","}"]).
+				RemoveBoundsQ("{","}").
 				ReplaceManyCSQ([ "@list", "@pair" ], "This", :CS = FALSE).
 				Content()
 

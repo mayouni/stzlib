@@ -43,7 +43,7 @@ func IsConstraint(pObject, pcConstraint)
 	if isString(pcConstraint)
 		@ = pObject
 
-		cConstraint = StzStringQ(pcConstraint).RemoveBoundsQ(["{","}"]).RemoveFirstBoundQ(NL).Simplified()
+		cConstraint = StzStringQ(pcConstraint).RemoveTheseBoundsQ("{","}").RemoveFirstBoundQ(NL).Simplified()
 		if cConstraint = ""
 			StzRaise("Constraint can't be empty!")
 		ok

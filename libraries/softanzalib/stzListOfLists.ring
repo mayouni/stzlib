@@ -256,7 +256,7 @@ class stzListOfLists from stzList
 
 	def ListsW(pcCondition)
 
-		cCondition = StzStringQ(pcCondition).RemoveBoundsQ(["{","}"]).Simplified()
+		cCondition = StzStringQ(pcCondition).RemoveTheseBoundsQ("{", "}").Simplified()
 		aResult = []
 
 		aListOfLists = This.ListOfLists()
@@ -301,7 +301,7 @@ class stzListOfLists from stzList
 
 	def PositionsW(pcCondition)
 
-		cCondition = StzStringQ(pcCondition).RemoveBoundsQ(["{","}"]).Simplified()
+		cCondition = StzStringQ(pcCondition).RemoveTheseBoundsQ("{", "}").Simplified()
 		aResult = []
 
 		aListOfLists = This.ListOfLists()
