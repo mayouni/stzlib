@@ -2,20 +2,19 @@ load "stzlib.ring"
 
 /*---------
 */
-
 pron()
 
 o1 = new stzString("<<<word>>>")
-/*
+
 ? @@( o1.StringBounds() ) # Or simply Bounds()
 #--> [ "<<<", ">>>" ]
 
 ? @@( o1.StringBoundsZZ() ) # Or simply BoundsZZ()
 #--> [ [ "<<<", [ 1, 3 ] ], [ ">>>", [ 8, 10 ] ] ]
 
-? @@( o1.FindStringBoundsAsSections() ) # Or Simply FindBoundsAsSections()
+? @@( o1.FindStringBoundsAsSections() )  + NL # Or Simply FindBoundsAsSections()
 #--> [ [ 1, 3 ], [ 8, 10 ] ]
-*/
+
 #--
 
 ? @@( o1.FindTheseBoundsAsSections("***", "***") )
@@ -27,9 +26,61 @@ o1 = new stzString("<<<word>>>")
 ? @@( o1.FindTheseBoundsAsSections("***", ">>>") )
 #--> [ [ 8, 10 ] ]
 
-? @@( o1.FindTheseBoundsAsSections("<<<", ">>>") )
+? @@( o1.FindTheseBoundsAsSections("<<<", ">>>") ) + NL
 #--> [ [ 1, 3 ], [ 8, 10 ] ]
 
+#--
+
+? @@( o1.FindTheseBounds("***", "***") )
+#--> []
+
+? @@( o1.FindTheseBounds("<<<", "***") )
+#--> [ [ 1, 3 ] ]
+
+? @@( o1.FindTheseBounds("***", ">>>") )
+#--> [ [ 8, 10 ] ]
+
+? @@( o1.FindTheseBounds("<<<", ">>>") ) + NL
+
+#--
+
+? @@( o1.TheseBoundsZ("***", "***") )
+#--> []
+
+? @@( o1.TheseBoundsZ("<<<", "***") )
+#--> [ [ "<<<", 1 ] ]
+
+? @@( o1.TheseBoundsZ("***", ">>>") )
+#--> [ [ ">>>", 8 ] ]
+
+? @@( o1.TheseBoundsZ("<<<", ">>>") ) + NL
+#--> [ [ "<<<", 1 ], [ ">>>", 8 ] ]
+
+#--
+
+? @@( o1.TheseBoundsZZ("***", "***") )
+#--> []
+
+? @@( o1.TheseBoundsZZ("<<<", "***") )
+#--> [ [ "<<<", [ 1, 3 ] ] ]
+
+? @@( o1.TheseBoundsZZ("***", ">>>") )
+#--> [ [ ">>>", [ 8, 10 ] ] ]
+
+? @@( o1.TheseBoundsZZ("<<<", ">>>") ) + NL
+#--> [ [ "<<<", [ 1, 3 ] ], [ ">>>", [ 8, 10 ] ] ]
+
+
+proff()
+# Executed in 1.82 second(s)
+
+/*---------
+*/
+
+pron()
+
+o1 = new stzString("<<<word>>>")
+o1.RemoveTheseBounds("***", "***")
 proff()
 
 /*========= SWAPPING TWO SECTIONS

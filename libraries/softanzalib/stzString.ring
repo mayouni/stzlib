@@ -9191,19 +9191,120 @@ class stzString from stzObject
 	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) OF THE THE STRING  #
 	#-----------------------------------------------------------#
 
-	def FindTheseStringBoundsCS()
+	  #----------------------------------------------------------------------------------------#
+	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) IN THE THE STRING AND RETURNING THEIR SECTIONS  #
+	#========================================================================================#
+
+	def FindTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+
+		aBounds = This.StringBoundsZCS(pCaseSensitive)
+
+		nLen = len(aBounds)
+		if nLen = 0
+			return []
+		ok
+
+		aResult = []
+
+		cBound1 = aBounds[1][1]
+		if StzStringQ(cBound1).IsEqualToCS(pcBound1, pCaseSensitive)
+			aResult + aBounds[1][2]
+		ok
+
+		cBound2 = aBounds[2][1]
+		if StzStringQ(cBound2).IsEqualToCS(pcBound2, pCaseSensitive)
+			aResult + aBounds[2][2]
+		ok
+
+		return aResult
+
+		def FindTheseBoundsAsCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindTheseStringBounds(pcBound1, pcBound2)
+		return This.FindTheseStringBoundsCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
+
+		def FindTheseBounds(pcBound1, pcBound2)
+			return This.FindTheseStringBounds(pcBound1, pcBound2)
 
 	  #---------------------------------------------------------------------------------#
 	 #  GETTING THE GIVEN TWO BOUNDS (IF ANY) OF THE THE STRING ALONG THEIR POSITIONS  #
 	#---------------------------------------------------------------------------------#
 
-	def TheseStringBoundsZCS()
+	def TheseStringBoundsZCS(pcBound1, pcBound2, pCaseSensitive)
+
+		aBounds = This.StringBoundsZCS(pCaseSensitive)
+
+		nLen = len(aBounds)
+		if nLen = 0
+			return []
+		ok
+
+		aResult = []
+
+		cBound1 = aBounds[1][1]
+		if StzStringQ(cBound1).IsEqualToCS(pcBound1, pCaseSensitive)
+			aResult + aBounds[1]
+		ok
+
+		cBound2 = aBounds[2][1]
+		if StzStringQ(cBound2).IsEqualToCS(pcBound2, pCaseSensitive)
+			aResult +aBounds[2]
+		ok
+
+		return aResult
+
+		def TheseBoundsZCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.TheseStringBoundsZCS(pcBound1, pcBound2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def TheseStringBoundsZ(pcBound1, pcBound2)
+		return This.TheseStringBoundsZCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
+
+		def TheseBoundsZ(pcBound1, pcBound2)
+			return This.TheseStringBoundsZ(pcBound1, pcBound2)
 
 	  #--------------------------------------------------------------------------------#
 	 #  GETTING THE GIVEN TWO BOUNDS (IF ANY) OF THE THE STRING ALONG THEIR SECTIONS  #
 	#--------------------------------------------------------------------------------#
 
-	def TheseStringBoundsZZCS()
+	def TheseStringBoundsZZCS(pcBound1, pcBound2, pCaseSensitive)
+
+		aBounds = This.StringBoundsZZCS(pCaseSensitive)
+
+		nLen = len(aBounds)
+		if nLen = 0
+			return []
+		ok
+
+		aResult = []
+
+		cBound1 = aBounds[1][1]
+		if StzStringQ(cBound1).IsEqualToCS(pcBound1, pCaseSensitive)
+			aResult + aBounds[1]
+		ok
+
+		cBound2 = aBounds[2][1]
+		if StzStringQ(cBound2).IsEqualToCS(pcBound2, pCaseSensitive)
+			aResult + aBounds[2]
+		ok
+
+		return aResult
+
+		def TheseBoundsZZCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.TheseStringBoundsZZCS(pcBound1, pcBound2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def TheseStringBoundsZZ(pcBound1, pcBound2)
+		return This.TheseStringBoundsZZCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
+
+		def TheseBoundsZZ(pcBound1, pcBound2)
+			return This.TheseStringBoundsZZ(pcBound1, pcBound2)
+
 
 	  #------------------------------------------------------------#
 	 #  REMOVING THE GIVEN TWO BOUNDS (IF ANY) IN THE THE STRING  #
