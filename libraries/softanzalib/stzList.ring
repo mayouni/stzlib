@@ -5301,43 +5301,71 @@ class stzList from stzObject
 
 		# Checking params correctness
 
-		if isList(n1) and
-			( Q(n1).IsFromNamedParam() or Q(n1).IsFromNamedParam()  or
-			  Q(n1).IsFromPositionNamedParam() )
+		if CheckParams() = TRUE
+			if isList(n1) and
+				( Q(n1).IsFromNamedParam() or Q(n1).IsFromNamedParam()  or
+				  Q(n1).IsFromPositionNamedParam() )
+	
+				n1 = n1[2]
+			ok
+	
+			if isList(n2) and ( Q(n2).IsToNamedParam() or Q(n2).IsToPositionNamedParam() )
+				n2 = n2[2]
+			ok
+	
+			if isString(n1) and
+				( Q(n1).IsOneOfThese([
+					:First, :FirstPosition,
+					:FirstItem, :FirstItem ]) )
+	
+				n1 = 1
+			ok
+	
+			if isString(n2) and
+				( Q(n2).IsOneOfThese([
+					:Last, :LastPosition,
+					:LastItem, :LastItem ]) )
+	 
+				n2 = This.NumberOfItems()
+			ok
+	
+			if NOT ( isNumber(n1) and isNumber(n2) )
+				StzRaise("Incorrect param type! n1 and n2 must be numbers.")
+			ok
 
-			n1 = n1[2]
-		ok
+			if n1 = 0 or n2 = 0
+				StzRaise("Incorrect param value! n1 and n2 must be different of zero.")
+			ok
 
-		if isList(n2) and ( Q(n2).IsToNamedParam() or Q(n2).IsToPositionNamedParam() )
-			n2 = n2[2]
-		ok
-
-		if isString(n1) and
-			( Q(n1).IsOneOfThese([
-				:First, :FirstPosition,
-				:FirstItem, :FirstItem ]) )
-
-			n1 = 1
-		ok
-
-		if isString(n2) and
-			( Q(n2).IsOneOfThese([
-				:Last, :LastPosition,
-				:LastItem, :LastItem ]) )
- 
-			n2 = This.NumberOfItems()
-		ok
-
-		if NOT ( isNumber(n1) and isNumber(n2) )
-			StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
 		# Doing the job
 
 		nLen = This.NumberOfItems()
+
+		aPart1 = []
+		if n1 > 1
+			aPart1 = 1 : (n1 - 1)
+		ok
+
+		if n2 > nLen
+			n2 = nLen
+		ok
+
+		aPart2 = (n2 + 1) : nLen
+		nLenPart2 = len(aPart2)
+
+		anPos = aPart1
+		for i = 1 to nLenPart2
+			anPos + aPart2[i]
+		next
+
+		This.UpdateWith( This.ItemsAtPositions(anPos) )
+
+/*
 		aResult = This.SectionQ(1, n1 - 1).ExtendedWith( This.Section(n2 + 1, nLen) )
 		This.UpdateWith(aResult)
-
+*/
 		#< @FunctionFluentForm
 
 		def RemoveSectionQ(n1, n2)
@@ -5356,19 +5384,34 @@ class stzList from stzObject
 
 	def RemoveManySections(paSections)
 
-		if NOT ( isList(paSections) and
-			 Q(paSections).IsListOfPairs() and
-			 Q(paSections).MergeQ().AllItemsAreNumbers() )
-
-			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+		if isList(paSections)
+			oSections = new stzList(paSections)
+			anPos = oSections.FindAll([])
+			oSections.RemoveItemsAtPositions(anPos)
+			paSections = oSections.Content()
+			
 		ok
 
-		anPositions = StzListOfPairsQ(paSections).
-				ExpandedIfPairsOfNumbersQ().
-				MergeQ().RemoveDuplicatesQ().Content()
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 
+			stzRaise([
+				:Where = "stzList > RemoveManySections(paSections)",
+				:What  = "Can't remove many sections from the string.",
+				:Why   = "The value is you provided (paSections) is not a list of pairs of numbers."
+			])
 
-		This.RemoveItemsAtPositions(anPositions)
+		ok
+
+		nLen = len(paSections)
+		if nLen = 0
+			return
+		ok
+
+		aSorted = QR(paSections, :stzListOfPairs).Sorted()
+
+		for i = nLen to 1 step -1
+			This.RemoveSection(aSorted[i][1], aSorted[i][2])
+		next
 
 		def RemoveManySectionsQ(paSections)
 			This.RemoveManySections(paSections)
