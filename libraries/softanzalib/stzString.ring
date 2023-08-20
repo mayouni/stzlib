@@ -13,7 +13,7 @@
 	TODO Add:
 	QStringRef methods
 
-	Also: use QStringView for read-only operations, and QByteArray for
+	TODO: use QStringView for read-only operations, and QByteArray for
 	UT8-only string
 	#--> Better performance.
 
@@ -7870,6 +7870,29 @@ class stzString from stzObject
 			return This.FindRightAndLeftBoundsAsSections()
 
 		#>
+
+	  #--------------------------------------------------#
+	 #  CHECKING IF THE STRING IS BOUNDED (HAS BOUNDS)  #
+	#==================================================#
+
+	def IsBoundedCS(pCaseSensitive)
+		if len(This.BoundsCS(pCaseSensitive)) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def HasBoundsCS(pCaseSensitive)
+			return This.HasBoundsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsBounded()
+		return This.IsBoundedCS(:CaseSensitive = TRUE)
+
+		def HasBounds()
+			return This.IsBounded()
+
 	  #-------------------------------------------------#
 	 #  FINDING THE TWO BOUNDS (IF ANY) OF THE STRING  #
 	#=================================================#
@@ -8030,10 +8053,15 @@ class stzString from stzObject
 
 		*/
 
-		acResult = [
-			This.LeadingCharsAsStringCS(pCaseSensitive),
-			This.TrailingCharsAsStringCS(pCaseSensitive)
-		]
+		acResult = []
+
+		if This.ContainsLeadingAndTrailingCharsCS(pCaseSensitive)
+
+			acResult = [
+				This.LeadingCharsAsStringCS(pCaseSensitive),
+				This.TrailingCharsAsStringCS(pCaseSensitive)
+			]
+		ok
 
 		return acResult
 
@@ -9081,8 +9109,10 @@ class stzString from stzObject
 
 	def RemoveStringBoundsCS(pCaseSensitive)
 
-		aSections = This.FindStringBoundsAsSectionsCS(pCaseSensitive)
-		This.RemoveSections(aSections)
+		if This.IsBoundedCS(pCaseSensitive)
+			aSections = This.FindStringBoundsAsSectionsCS(pCaseSensitive)
+			This.RemoveSections(aSections)
+		ok
 
 		#< @FunctionFluentForm
 
@@ -9101,6 +9131,70 @@ class stzString from stzObject
 				This.RemoveBoundsCS(pCaseSensitive)
 				return This
 
+		#--
+
+		def RemoveStringFirstAndLastBoundsCS(pCaseSensitive)
+			This.RemoveStringBoundsCS(pCaseSensitive)
+
+			def RemoveStringFirstAndLastBoundsCSQ(pCaseSensitive)
+				This.RemoveStringFirstAndLastBoundsCS(pCaseSensitive)
+				return This
+
+		def RemoveFirstAndLastBoundsCS(pCaseSensitive)
+			This.RemoveStringBoundsCS(pCaseSensitive)
+
+			def RemoveFirstAndLastBoundsCSQ(pCaseSensitive)
+				This.RemoveFirstAndLastBoundsCS(pCaseSensitive)
+				return This
+
+		#--
+
+		def RemoveStringLastAndFirstBoundsCS(pCaseSensitive)
+			This.RemoveStringBoundsCS(pCaseSensitive)
+
+			def RemoveStringLastAndFirstBoundsCSQ(pCaseSensitive)
+				This.RemoveStringLastAndFirstBoundsCS(pCaseSensitive)
+				return This
+
+		def RemoveLastAndFirstBoundsCS(pCaseSensitive)
+			This.RemoveStringBoundsCS(pCaseSensitive)
+
+			def RemoveLastAndFirstBoundsCSQ(pCaseSensitive)
+				This.RemoveLastAndFirstBoundsCS(pCaseSensitive)
+				return This
+
+		#--
+
+		def RemoveStringLeftAndRightBoundsCS(pCaseSensitive)
+			This.RemoveStringBoundsCS(pCaseSensitive)
+
+			def RemoveStringLeftAndRightBoundsCSQ(pCaseSensitive)
+				This.RemoveStringLeftAndRightBoundsCS(pCaseSensitive)
+				return This
+
+		def RemoveLeftAndRightBoundsCS(pCaseSensitive)
+			This.RemoveStringBoundsCS(pCaseSensitive)
+
+			def RemoveLeftAndRightBoundsCSQ(pCaseSensitive)
+				This.RemoveLeftAndRightBoundsCS(pCaseSensitive)
+				return This
+
+		#--
+
+		def RemoveStringRightAndLeftBoundsCS(pCaseSensitive)
+			This.RemoveStringBoundsCS(pCaseSensitive)
+
+			def RemoveStringRightAndLeftBoundsCSQ(pCaseSensitive)
+				This.RemoveStringRightAndLeftBoundsCS(pCaseSensitive)
+				return This
+
+		def RemoveRightAndLeftBoundsCS(pCaseSensitive)
+			This.RemoveStringBoundsCS(pCaseSensitive)
+
+			def RemoveRightAndLeftBoundsCSQ(pCaseSensitive)
+				This.RemoveRightAndLeftBoundsCS(pCaseSensitive)
+				return This
+
 		#>
 
 	def StringBoundsRemovedCS(pCaseSensitive)
@@ -9110,6 +9204,38 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def BoundsRemovedCS(pCaseSensitive)
+			return This.StringBoundsRemovedCS(pCaseSensitive)
+
+		#--
+
+		def StringFirstAndLastBoundsRemovedCS(pCaseSensitive)
+			return This.StringBoundsRemovedCS(pCaseSensitive)
+
+		def FirstAndLastBoundsRemovedCS(pCaseSensitive)
+			return This.StringBoundsRemovedCS(pCaseSensitive)
+
+		#--
+
+		def StringLastAndFirstBoundsRemovedCS(pCaseSensitive)
+			return This.StringBoundsRemovedCS(pCaseSensitive)
+
+		def LastAndFirstBoundsRemovedCS(pCaseSensitive)
+			return This.StringBoundsRemovedCS(pCaseSensitive)
+
+		#--
+
+		def StringLeftAndRightBoundsRemovedCS(pCaseSensitive)
+			return This.StringBoundsRemovedCS(pCaseSensitive)
+
+		def LeftAndRightBoundsRemovedCS(pCaseSensitive)
+			return This.StringBoundsRemovedCS(pCaseSensitive)
+
+		#--
+
+		def StringRightAndLeftBoundsRemovedCS(pCaseSensitive)
+			return This.StringBoundsRemovedCS(pCaseSensitive)
+
+		def RightAndLeftBoundsRemovedCS(pCaseSensitive)
 			return This.StringBoundsRemovedCS(pCaseSensitive)
 
 		#>
@@ -9136,6 +9262,70 @@ class stzString from stzObject
 				This.RemoveBounds()
 				return This
 
+		#--
+
+		def RemoveStringFirstAndLastBounds()
+			This.RemoveStringBounds()
+
+			def RemoveStringFirstAndLastBoundsQ()
+				This.RemoveStringFirstAndLastBounds()
+				return This
+
+		def RemoveFirstAndLastBounds()
+			This.RemoveStringBounds()
+
+			def RemoveFirstAndLastBoundsQ()
+				This.RemoveFirstAndLastBounds()
+				return This
+
+		#--
+
+		def RemoveStringLastAndFirstBounds()
+			This.RemoveStringBounds()
+
+			def RemoveStringLastAndFirstBoundsQ()
+				This.RemoveStringLastAndFirstBounds()
+				return This
+
+		def RemoveLastAndFirstBounds()
+			This.RemoveStringBounds()
+
+			def RemoveLastAndFirstBoundsQ()
+				This.RemoveLastAndFirstBounds()
+				return This
+
+		#--
+
+		def RemoveStringLeftAndRightBounds()
+			This.RemoveStringBounds()
+
+			def RemoveStringLeftAndRightBoundsQ()
+				This.RemoveStringLeftAndRightBounds()
+				return This
+
+		def RemoveLeftAndRightBounds()
+			This.RemoveStringBounds()
+
+			def RemoveLeftAndRightBoundsQ()
+				This.RemoveLeftAndRightBounds()
+				return This
+
+		#--
+
+		def RemoveStringRightAndLeftBounds()
+			This.RemoveStringBounds()
+
+			def RemoveStringRightAndLeftBoundsQ()
+				This.RemoveStringRightAndLeftBounds()
+				return This
+
+		def RemoveRightAndLeftBounds()
+			This.RemoveStringBounds()
+
+			def RemoveRightAndLeftBoundsQ()
+				This.RemoveRightAndLeftBounds()
+				return This
+
 		#>
 
 	def StringBoundsRemoved()
@@ -9144,10 +9334,307 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def BoundsRemoved()
+		def BoundsRemoved(pCaseSensitive)
 			return This.StringBoundsRemoved()
 
+		#--
+
+		def StringFirstAndLastBoundsRemoved()
+			return This.StringBoundsRemoved()
+
+		def FirstAndLastBoundsRemoved()
+			return This.StringBoundsRemoved()
+
+		#--
+
+		def StringLastAndFirstBoundsRemoved()
+			return This.StringBoundsRemoved()
+
+		def LastAndFirstBoundsRemoved()
+			return This.StringBoundsRemoved()
+
+		#--
+
+		def StringLeftAndRightBoundsRemoved()
+			return This.StringBoundsRemoved()
+
+		def LeftAndRightBoundsRemoved()
+			return This.StringBoundsRemoved()
+
+		#--
+
+		def StringRightAndLeftBoundsRemoved()
+			return This.StringBoundsRemovedCS()
+
+		def RightAndLeftBoundsRemoved()
+			return This.StringBoundsRemovedCS()
+
+
 		#>
+
+	  #--------------------------------------#
+	 #  REMOVING LEFT BOUND OF THE STRING   #
+	#======================================#
+
+	def RemoveStringLeftBoundCS(pCaseSensitive)
+	
+		cBounds = This.LeftBoundCS(pCaseSensitive)
+		This.RemoveFromLeftCS(cBounds, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def RemoveStringLeftBoundCSQ(pCaseSensitive)
+			This.RemoveStringLeftBoundCS(pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveLeftBoundCS(pCaseSensitive)
+			This.RemoveStringLeftBoundCS(pCaseSensitive)
+
+			def RemoveLeftBoundCSQ(pCaseSensitive)
+				This.RemoveLeftBoundCS(pCaseSensitive)
+				return This
+
+		#>
+
+	def StringLeftBoundRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveSubStringLeftBoundCSQ(pCaseSensitive).Content()
+		return cResult
+
+		def LeftBoundRemovedCS(pCaseSensitive)
+			return This.StringLeftBoundRemovedCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveStringLeftBound()
+		This.RemoveStringLeftBoundCS(:CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RemoveStringLeftBoundQ()
+			This.RemoveStringLeftBound()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveLeftBound()
+			This.RemoveStringLeftBound()
+
+			def RemoveLeftBoundQ()
+				This.RemoveLeftBound()
+				return This
+
+		#>
+
+	def StringLeftBoundRemoved()
+		cResult = This.Copy().RemoveStringLeftBoundQ().Content()
+		return cResult
+
+		def LeftBoundRemoved()
+			return This.StringLeftBoundRemoved()
+
+	  #---------------------------------------#
+	 #  REMOVING RIGHT BOUND OF THE STRING   #
+	#---------------------------------------#
+
+	def RemoveStringRightBoundCS(pCaseSensitive)
+	
+		cBounds = This.RightBoundCS(pCaseSensitive)
+		This.RemoveFromRightCS(cBounds, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def RemoveStringRightBoundCSQ(pCaseSensitive)
+			This.RemoveStringRightBoundCS(pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveRightBoundCS(pCaseSensitive)
+			This.RemoveStringRightBoundCS(pCaseSensitive)
+
+			def RemoveRightBoundCSQ(pCaseSensitive)
+				This.RemoveRightBoundCS(pCaseSensitive)
+				return This
+
+		#>
+
+	def StringRightBoundRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveSubStringRightBoundCSQ(pCaseSensitive).Content()
+		return cResult
+
+		def RightBoundRemovedCS(pCaseSensitive)
+			return This.StringRightBoundRemovedCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveStringRightBound()
+		This.RemoveStringRightBoundCS(:CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RemoveStringRightBoundQ()
+			This.RemoveStringRightBound()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveRightBound()
+			This.RemoveStringRightBound()
+
+			def RemoveRightBoundQ()
+				This.RemoveRightBound()
+				return This
+
+		#>
+
+	def StringRightBoundRemoved()
+		cResult = This.Copy().RemoveSubStringRightBoundQ().Content()
+		return cResult
+
+		def RightBoundRemoved()
+			return This.StringRightBoundRemoved()
+
+	  #---------------------------------------#
+	 #  REMOVING FIRST BOUND OF THE STRING   #
+	#---------------------------------------#
+
+	def RemoveStringFirstBoundCS(pCaseSensitive)
+	
+		cBounds = This.FirstBoundCS(pCaseSensitive)
+		This.RemoveFromStartCS(cBounds, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def RemoveStringFirstBoundCSQ(pCaseSensitive)
+			This.RemoveStringFirstBoundCS(pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveFirstBoundCS(pCaseSensitive)
+			This.RemoveStringFirstBoundCS(pCaseSensitive)
+
+			def RemoveFirstBoundCSQ(pCaseSensitive)
+				This.RemoveFirstBoundCS(pCaseSensitive)
+				return This
+
+		#>
+
+	def StringFirstBoundRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveSubStringFirstBoundCSQ(pCaseSensitive).Content()
+		return cResult
+
+		def FirstBoundRemovedCS(pCaseSensitive)
+			return This.StringFirstBoundRemovedCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveStringFirstBound()
+		This.RemoveStringFirstBoundCS(:CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RemoveStringFirstBoundQ()
+			This.RemoveStringFirstBound()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveFirstBound()
+			This.RemoveStringFirstBound()
+
+			def RemoveFirstBoundQ()
+				This.RemoveFirstBound()
+				return This
+
+		#>
+
+	def StringFirstBoundRemoved()
+		cResult = This.Copy().RemoveSubStringFirstBoundQ().Content()
+		return cResult
+
+		def FirstBoundRemoved()
+			return This.StringFirstBoundRemoved()
+
+	  #--------------------------------------#
+	 #  REMOVING LAST BOUND OF THE STRING   #
+	#--------------------------------------#
+
+	def RemoveStringLastBoundCS(pCaseSensitive)
+	
+		cBounds = This.LastBoundCS(pCaseSensitive)
+		This.RemoveFromEndCS(cBounds, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def RemoveStringLastBoundCSQ(pCaseSensitive)
+			This.RemoveStringLastBoundCS(pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveLastBoundCS(pCaseSensitive)
+			This.RemoveStringLastBoundCS(pCaseSensitive)
+
+			def RemoveLastBoundCSQ(pCaseSensitive)
+				This.RemoveLastBoundCS(pCaseSensitive)
+				return This
+
+		#>
+
+	def StringLastBoundRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveSubStringLastBoundCSQ(pCaseSensitive).Content()
+		return cResult
+
+		def LastBoundRemovedCS(pCaseSensitive)
+			return This.StringLastBoundRemovedCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveStringLastBound()
+		This.RemoveStringLastBoundCS(:CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RemoveStringLastBoundQ()
+			This.RemoveStringLastBound()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveLastBound()
+			This.RemoveStringLastBound()
+
+			def RemoveLastBoundQ()
+				This.RemoveLastBound()
+				return This
+
+		#>
+
+	def StringLastBoundRemoved()
+		cResult = This.Copy().RemoveSubStringLastBoundQ().Content()
+		return cResult
+
+		def LastBoundRemoved()
+			return This.StringLastBoundRemoved()
 
 	  #----------------------------------------------------------------------------------------#
 	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) IN THE THE STRING AND RETURNING THEIR SECTIONS  #
@@ -9541,6 +10028,35 @@ class stzString from stzObject
 
 		def FindBoundsOf(pcSubStr)
 			return This.FindSubStringBounds(pcSubStr)
+
+	  #---------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS BOUNDS OF A GIVEN SUBSTRING  #
+	#---------------------------------------------------------------#
+
+	def ContainsBoundsOfCS(pcSubStr, pCaseSensitive)
+		if len( This.BoundsOfCS(pcSubStr, pCaseSensitive) ) > 0
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def SubStringIsBoundedCS(pcSubStr, pCaseSensitive)
+			return This.ContainsBoundsOfCS(pcSubStr, pCaseSensitive)
+
+		def SubStringHasBoundsCS(pcSubStr, pCaseSensitive)
+			return This.ContainsBoundsOfCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsBoundsOf(pcSubStr)
+		return This.ContainsBoundsOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def SubStringIsBounded(pcSubStr)
+			return This.ContainsBoundsOf(pcSubStr)
+
+		def SubStringHasBounds(pcSubStr)
+			return This.ContainsBoundsOf(pcSubStr)
 
 	  #---------------------------------------------------------------------------#
 	 #  FINDING THE FIRST BOUNDS AS SECTIONS OF A GIVEN SUBSTRING IN THE STRING  #
@@ -10109,11 +10625,11 @@ class stzString from stzObject
 		acResult = This.Copy().RemoveBetweenIBQ(pcBound1, pcBound2).Content()
 		return acResult
 
-	  #=============================================#
-	 #     REMOVING LEFT BOUND FROM THE STRING     #
-	#=============================================#
+	  #============================================================#
+	 #     REMOVING LEFT BOUND OF A SUBSTRING FROM THE STRING     #
+	#============================================================#
 
-	def RemoveLeftBoundCS(pcSubStr, pCaseSensitive)
+	def RemoveSubStringLeftBoundCS(pcSubStr, pCaseSensitive)
 	
 		nLenSubStr = StzStringQ( pcSubStr).NumberOfChars()
 	
@@ -10123,36 +10639,36 @@ class stzString from stzObject
 	
 		#< @FunctionFluentForm
 
-		def RemoveLeftBoundCSQ(pcSubStr, pCaseSensitive)
-			This.RemoveLeftBoundCS(pcSubStr, pCaseSensitive)
+		def RemoveSubStringLeftBoundCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLeftBoundCS(pcSubStr, pCaseSensitive)
 			return This
 		#>
 
-	def LeftBoundRemovedCS(pcSubStr, pCaseSensitive)
-		cResult = This.Copy().RemoveLeftBoundCSQ(pcSubStr, pCaseSensitive).Content()
+	def SubStringLeftBoundRemovedCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveSubStringLeftBoundCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveLeftBound(pcSubStr)
-		This.RemoveLeftBoundCS(pcSubStr, :CaseSensitive = TRUE)
+	def RemoveSubStringLeftBound(pcSubStr)
+		This.RemoveSubStringLeftBoundCS(pcSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def RemoveLeftBoundQ(pcSubStr)
-			This.RemoveLeftBound(pcSubStr)
+		def RemoveSubStringLeftBoundQ(pcSubStr)
+			This.RemoveSubStringLeftBound(pcSubStr)
 			return This
 		#>
 
-	def LeftBoundRemoved(pcSubStr)
-		cResult = This.Copy().RemoveLeftBoundQ(pcSubStr).Content()
+	def SubStringLeftBoundRemoved(pcSubStr)
+		cResult = This.Copy().RemoveSubStringLeftBoundQ(pcSubStr).Content()
 		return cResult
 
 	  #--------------------------------------------#
 	 #    REMOVING RIGHT BOUND FROM THE STRING    #
 	#--------------------------------------------#
 
-	def RemoveRightBoundCS(pcSubStr, pCaseSensitive)
+	def RemoveSubStringRightBoundCS(pcSubStr, pCaseSensitive)
 	
 		nLenSubStr = StzStringQ( pcSubStr).NumberOfChars()
 	
@@ -10162,126 +10678,126 @@ class stzString from stzObject
 	
 		#< @FunctionFluentForm
 
-		def RemoveRightBoundCSQ(pcSubStr, pCaseSensitive)
-			This.RemoveRightBoundCS(pcSubStr, pCaseSensitive)
+		def RemoveSubStringRightBoundCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringRightBoundCS(pcSubStr, pCaseSensitive)
 			return This
 	
 		#>
 
-	def RightBoundRemovedCS(pcSubStr, pCaseSensitive)
-		cResult = This.Copy().RemoveRightBoundCSQ(pcSubStr, pCaseSensitive).Content()
+	def SubStringRightBoundRemovedCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveSubStringRightBoundCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveRightBound(pcSubStr)
-		This.RemoveRightBoundCS(pcSubStr, :CaseSensitive = TRUE)
+	def RemoveSubStringRightBound(pcSubStr)
+		This.RemoveSubStringRightBoundCS(pcSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def RemoveRightBoundQ(pcSubStr)
-			This.RemoveRightBound(pcSubStr)
+		def RemoveSubStringRightBoundQ(pcSubStr)
+			This.RemoveSubStringRightBound(pcSubStr)
 			return This
 
 		#>
 
-	def RightBoundRemoved(pcSubStr)
-		cResult = This.Copy().RemoveRightBoundQ(pcSubStr).Content()
+	def RightSubStringBoundRemoved(pcSubStr)
+		cResult = This.Copy().RemoveSubStringRightBoundQ(pcSubStr).Content()
 		return cResult
 
 	  #-------------------------------------------#
 	 #   REMOVING FIRST BOUND FROM THE STRING    #
 	#-------------------------------------------#
 
-	def RemoveFirstBoundCS(pcSubStr, pCaseSensitive)
+	def RemoveSubStringFirstBoundCS(pcSubStr, pCaseSensitive)
 	
 		if This.IsLeftToRight()
-			This.RemoveLeftBoundCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLeftBoundCS(pcSubStr, pCaseSensitive)
 	
 		else
-				# It IsRightToTeft() than...
-				This.RemoveRightBoundCS(pcSubStr, pCaseSensitive)
+			# It IsRightToTeft() than...
+			This.RemoveSubStringRightBoundCS(pcSubStr, pCaseSensitive)
 				
 		ok
 	
 		#< @FunctionFluentForm
 	
-		def RemoveFirstBoundCSQ(pcSubStr, pCaseSensitive)
-			This.RemoveFirstBoundCS(pcSubStr, pCaseSensitive)
+		def RemoveSubStringFirstBoundCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringFirstBoundCS(pcSubStr, pCaseSensitive)
 			return This
 	
 		#>
 
-	def FirstBoundRemovedCS(pcSubStr, pCaseSensitive)
-		cResult = This.Copy().RemoveFirstBoundCSQ(pcSubStr, pCaseSensitive).Content()
+	def SubStringFirstBoundRemovedCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveSubStringFirstBoundCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveFirstBound(pcSubStr)
-		This.RemoveFirstBoundCS(pcSubStr, :CaseSensitive = TRUE)
+	def RemoveSubStringFirstBound(pcSubStr)
+		This.RemoveSubStringFirstBoundCS(pcSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def RemoveFirstBoundQ(pcSubStr)
-			This.RemoveFirstBound(pcSubStr)
+		def RemoveSubStringFirstBoundQ(pcSubStr)
+			This.RemoveSubStringFirstBound(pcSubStr)
 			return This
 
 		#>
 
-	def FirstBoundRemoved(pcSubStr)
-		cResult = This.Copy().RemoveFirstBoundQ(pcSubStr).Content()
+	def SubStringFirstBoundRemoved(pcSubStr)
+		cResult = This.Copy().RemoveSubStringFirstBoundQ(pcSubStr).Content()
 		return cResult
 
 	  #-----------------------------------------#
 	 #   REMOVING LAST BOUND FROM THE STRING   #
 	#-----------------------------------------#
 
-	def RemoveLastBoundCS(pcSubStr, pCaseSensitive)
+	def RemoveSubStringLastBoundCS(pcSubStr, pCaseSensitive)
 	
 		if This.IsLeftToRight()
-			This.RemoveRightBoundsCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringRightBoundsCS(pcSubStr, pCaseSensitive)
 	
 		else
 			# It IsRightToTeft() then...
-			This.RemoveLeftBoundsCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLeftBoundsCS(pcSubStr, pCaseSensitive)
 				
 		ok
 	
 		#< @FunctionFluentForm
 
-		def RemoveLastBoundCSQ(pcSubStr, pCaseSensitive)
-			This.RemoveLastBoundCS(pcSubStr, pCaseSensitive)
+		def RemoveSubStringLastBoundCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLastBoundCS(pcSubStr, pCaseSensitive)
 			return This
 
 		#>
 
-	def LastBoundRemovedCS(pcSubStr, pCaseSensitive)
-		cResult = This.Copy().RemoveLastBoundCSQ(pcSubStr, pCaseSensitive).Content()
+	def SubStringLastBoundRemovedCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveSubStringLastBoundCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveLastBound(pcSubStr)
-		This.RemoveLastBoundCS(pcSubStr, :CaseSensitive = TRUE)
+	def RemoveSubStringLastBound(pcSubStr)
+		This.RemoveSubStringLastBoundCS(pcSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def RemoveLastBoundQ(pcSubStr)
-			This.RemoveFirstBound(pcSubStr)
+		def RemoveSubStringLastBoundQ(pcSubStr)
+			This.RemoveSubStringFirstBound(pcSubStr)
 			return This
 	
 		#>
 
-	def LastBoundRemoved(pcSubStr)
-		cResult = This.Copy().RemoveLastBoundQ(pcSubStr).Content()
+	def SubStringLastBoundRemoved(pcSubStr)
+		cResult = This.Copy().RemoveSubStringLastBoundQ(pcSubStr).Content()
 		return cResult
 
 	  #------------------------------------------------------#
 	 #   CHECKING OF THE STRING CONTAINS THE GIVEN BOUNDS   #
 	#------------------------------------------------------#
 
-	def ContainsBoundsCS(pacBounds, pCaseSensitive)
+	def ContainsTheseBoundsCS(pacBounds, pCaseSensitive)
 		if NOT ( isList(pacBounds) and Q(pacBounds).IsAPairOfStrings() )
 			StzRaise("Incorrect param type! pacBounds must be a pair of strings.")
 		ok
@@ -10301,16 +10817,11 @@ class stzString from stzObject
 			return FALSE
 		ok
 
-		def ContainsTheseBoundsCS(pacBounds, pCaseSensitive)
-			return This.ContainsBoundsCS(pacBounds, pCaseSensitive)
-
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsBounds(pacBounds)
-		return This.ContainsBoundsCS(pacBounds, :CaseSensitive = TRUE)
+	def ContainsTheseBounds(pacBounds)
+		return This.ContainsTheseBoundsCS(pacBounds, :CaseSensitive = TRUE)
 
-		def ContainsTheseBounds(pacBounds)
-			return This.ContainsBounds(pacBounds)
 
 	  #------------------------------------------------------------------------#
 	 #   ADDING BOUNDS TO THE OCCURRENCES OF A SUBSTRING INSIDE THE STRING    #
@@ -10340,9 +10851,22 @@ class stzString from stzObject
 			ok
 		next
 
+		#< @FunctionFluentForm
+
 		def AddBoundsToSubStringCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def AddTheseBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+			def AddTheseBoundsToSubStringCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+				This.AddTheseBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+				return This
 
 		def BoundSubStringWithCS(pcSubStr,  pcBound1, pcBound2, pCaseSensitive)
 			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
@@ -10351,21 +10875,38 @@ class stzString from stzObject
 				This.BoundSubStringWithCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 				return This
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
 		This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
 
-		def AddBoundsToSubStringQ(pcSubStr, pcBound1, pcBound2)
-			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
+		#< @FunctionFluentForm
+
+		def AddBoundsToSubStringQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			return This
 
-		def BoundSubStringWith(pcSubStr, pcBound1, pcBound2)
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def AddTheseBoundsToSubString(pcSubStr, pcBound1, pcBound2)
+			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
+
+			def AddTheseBoundsToSubStringQ(pcSubStr, pcBound1, pcBound2)
+				This.AddTheseBoundsToSubString(pcSubStr, pcBound1, pcBound2)
+				return This
+
+		def BoundSubStringWith(pcSubStr,  pcBound1, pcBound2)
 			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
 
 			def BoundSubStringWithQ(pcSubStr, pcBound1, pcBound2)
 				This.BoundSubStringWith(pcSubStr, pcBound1, pcBound2)
 				return This
+
+		#>
 
 	  #---------------------------------------------------------#
 	 #   ADDING BOUNDS TO MANYS SUBSTRINGS AT THE SAME TIME    #
@@ -30250,7 +30791,7 @@ def ReplaceIBS()
 	#-----------------------------------------------------------------------#
 
 	def ContainsAnyBoundedByCS(pacBounds, pCaseSensitive)
-		return This.ContainsBoundsCS(pacBounds, pCaseSensitive)
+		return This.ContainsTheseBoundsCS(pacBounds, pCaseSensitive)
 
 		def ContainsAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 			if isList(pcBound1) and Q(pcBound1).IsSubStringNamedParam()
