@@ -10781,7 +10781,13 @@ class stzString from stzObject
 	#--------------------------------------------------------------#
 
 	def NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
-		nResult = This.LeadingCharsCSQ(pCaseSensitive).NumberOfChars()
+
+		nResult = 0
+
+		if This.ContainsLeadingCharsCS(pCaseSensitive)
+			nResult = This.LeadingCharsCSQ(pCaseSensitive).NumberOfChars()
+		ok
+
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -11344,6 +11350,10 @@ class stzString from stzObject
 	def FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
 
 		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+		if n = 0
+			return []
+		ok
+
 		anResult = [ 1, n ]
 
 		return anResult
@@ -11522,8 +11532,11 @@ class stzString from stzObject
 	def FindRepeatedTrailingCharsCS(pCaseSensitive)
 
 		n = This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-		nLen = This.NumberOfChars()
+		if n = 0
+			return 0
+		ok
 
+		nLen = This.NumberOfChars()
 		nResult = nLen - n + 1
 
 		return nResult
@@ -11546,8 +11559,12 @@ class stzString from stzObject
 	def FindRepeatedTrailingCharsAsSectionCS(pCaseSensitive)
 
 		n = This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-		nLen = This.NumberOfChars()
 
+		if n = 0
+			return []
+		ok
+
+		nLen = This.NumberOfChars()
 		anResult = [ nLen - n + 1, nLen ]
 
 		return anResult
@@ -34965,17 +34982,8 @@ def ReplaceIBS()
 	 #    REMOVING MANY SECTIONS OF CHARS AT THE SAME TIME   # 
 	#-------------------------------------------------------#
 
-	def RemoveManySections(paListOfSections)
-
-		if NOT ( isList(paListOfSections) and Q(paListOfSections).IsListOfPairsOfNumbers() )
-			stzRaise([
-				:Where = "stzString > RemoveManySections(paListOfSections)",
-				:What  = "Can't remove many sections from the string.",
-				:Why   = "The value is you provided (paListOfSections) is not a list of pairs of numbers."
-			])
-		ok
-
-		/* EXAMPLE
+	def RemoveManySections(paSections)
+ 		/* EXAMPLE
 		
 		o1 = new stzString("**word1***word2**word3***")
 		? o1.Sections([ [1,2], [8, 10], [16, 17], [23, 25] ])
@@ -34989,29 +34997,23 @@ def ReplaceIBS()
 
 		*/
 
-		# For each section, remove the section, and then adjust the positions
-		# inside the other sections that come after it, to reflect the
-		# changed content of the string
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			stzRaise([
+				:Where = "stzString > RemoveManySections(paSections)",
+				:What  = "Can't remove many sections from the string.",
+				:Why   = "The value is you provided (paSections) is not a list of pairs of numbers."
+			])
+		ok
 
-		n = 0
-		nNumberOfSections = len(paListOfSections)
-		
-		for aSection in paListOfSections
-			nNumberOfCharsInSection = aSection[2] - aSection[1] + 1
-			n++
-			# Remove the section
-			This.RemoveSection(aSection[1], aSection[2])
+		nLen = len(paSections)
+		if nLen = 0
+			return
+		ok
 
-			# Adjust the positions of the remaing sections
-			for i = n + 1 to nNumberOfSections
-				# If this section comes to the right of the section
-				# removed, then adjust the positions
-				if paListOfSections[i][1] > aSection[2]
-						paListOfSections[i][1] -= nNumberOfCharsInSection
-						paListOfSections[i][2] -= nNumberOfCharsInSection
-				ok
-			next
+		aSorted = QR(paSections, :stzListOfPairs).Sorted()
 
+		for i = nLen to 1 step -1
+			This.RemoveSection(aSorted[i][1], aSorted[i][2])
 		next
 
 		def RemoveManySectionsQ(paListOfSections)
