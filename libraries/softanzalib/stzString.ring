@@ -35070,36 +35070,56 @@ def ReplaceIBS()
 	 #    REMOVING MANY RANGES OF CHARS AT THE SAME TIME   # 
 	#-----------------------------------------------------#
 
-	def RemoveManyRanges(paListOfRanges)
+	def RemoveManyRanges(paRanges) # Todo: use for loop instead of for/in
+
+		if NOT ( isList(paRanges) and Q(paRanges).IsListOfPairsOfNumbers() )
+
+			stzRaise([
+				:Where = "stzString > RemoveManyRanges(paRanges)",
+				:What  = "Can't remove many sections from the string.",
+				:Why   = "The value is you provided (paRanges) is not a list of pairs of numbers."
+			])
+
+		ok
+
+		if isList(paRanges)
+			oSections = new stzList(paRanges)
+			anPos = oSections.FindAll([])
+			oSections.RemoveItemsAtPositions(anPos)
+			paRanges = oSections.Content()
+			
+		ok
 
 		# Tranform ranges to sections and then use RemoveManySections()
 
+		nLen = len(paRanges)
 		aSections = []
-		for aRange in paListOfRanges
-			n1 = aRange[1]
-			n2 = aRange[1] + aRange[2] - 1
+
+		for i = 1 to nLen
+			n1 = paRanges[i][1]
+			n2 = paRanges[i][1] + paRanges[i][2] - 1
 
 			aSections + [ n1, n2 ]
 		next
 		
 		This.RemoveManySections(aSections)
 
-		def RemoveManyRangesQ(paListOfRanges)
-			This.RemoveManySections(paListOfRanges)
+		def RemoveManyRangesQ(paRanges)
+			This.RemoveManySections(paRanges)
 
-		def RemoveRanges(paListOfRanges)
-			This.RemoveManyRanges(paListOfRanges)
+		def RemoveRanges(paRanges)
+			This.RemoveManyRanges(paRanges)
 
-			def RemoveRangesQ(paListOfRanges)
-				This.RemoveRanges(paListOfRanges)
+			def RemoveRangesQ(paRanges)
+				This.RemoveRanges(paRanges)
 				return This
 
-	def ManyRangesRemoved(paListOfRanges)
-		cResult = This.Copy().RemoveManyRangesQ(paListOfRanges).Content()
+	def ManyRangesRemoved(paRanges)
+		cResult = This.Copy().RemoveManyRangesQ(paRanges).Content()
 		return This
 
-		def RangedRemoved(paListOfRanges)
-			return This.ManyRangesRemoved(paListOfRanges)
+		def RangedRemoved(paRanges)
+			return This.ManyRangesRemoved(paRanges)
 
 	  #-------------------------------------------------------------#
 	 #    REMOVING SECTIONS OF CHARS VERIFYING A GIVEN CONDITION   # 
