@@ -122,7 +122,7 @@ class stzCCode
 
 		cCode = StzStringQ(This.Code()).
 			TrimQ().
-			RemoveBoundsQ("{","}").
+			RemoveTheseBoundsQ("{","}").
 
 			ReplaceAllQ("(", :By = "( ").
 			ReplaceAllQ(")", :By = " )").

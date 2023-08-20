@@ -2414,7 +2414,7 @@ class stzList from stzObject
 				cCode = 'pNewtItem = ' +
 					Q(pNewItem[2]).
 					RemoveSpacesQ().
-					RemoveBoundsQ("{","}").
+					RemoveTheseBoundsQ("{","}").
 					Content()
 
 				eval(cCode)
@@ -5842,17 +5842,17 @@ class stzList from stzObject
 	 #     REMOVING BOUNDS     #
 	#-------------------------#
 
-	def RemoveBoundsCS(pBound1, pBound2, pCaseSensitive)
+	def RemoveTheseBoundsCS(pBound1, pBound2, pCaseSensitive)
 		if This.IsBoundedByCS([ pBound1, pBound2], pCaseSensitive)
 			This.RemoveFirstItem()
 			This.RemoveLastItem()
 		ok
 
-		def RemoveBoundsCSQ(pBound1, pBound2, pCaseSensitive)
+		def RemoveTheseBoundsCSQ(pBound1, pBound2, pCaseSensitive)
 			This.RemoveTheseBoundsCS(pBound1, pBound2, pCaseSensitive)
 			return This
 
-	def BoundsRemovedCS(pBound1, pBound2, pCaseSensitive)
+	def TheseBoundsRemovedCS(pBound1, pBound2, pCaseSensitive)
 
 		aResult = This.Copy().RemoveTheseBoundsCSQ(pBound1, pBound2, pCaseSensitive).Content()
 		return aResult
@@ -5875,14 +5875,14 @@ class stzList from stzObject
 		
 	#-- WIHTOUT CASESENSITIVITY
 
-	def RemoveBounds(pBound1, pBound2)
+	def RemoveTheseBounds(pBound1, pBound2)
 		This.RemoveTheseBoundsCS(pBound1, pBound2, :CaseSensitive = TRUE)
 
-		def RemoveBoundsQ(pBound1, pBound2)
+		def RemoveTheseBoundsQ(pBound1, pBound2)
 			This.RemoveTheseBounds(pBound1, pBound2)
 			return This
 
-	def BoundsRemoved(pBound1, pBound2)
+	def TheseBoundsRemoved(pBound1, pBound2)
 
 		aResult = This.Copy().RemoveTheseBoundsQ(pBound1, pBound2).Content()
 		return aResult
@@ -9572,7 +9572,7 @@ class stzList from stzObject
 
 		pcCode = Q(pcCondition).
 			 TrimQ().
-			 RemoveBoundsQ("{", "}").
+			 RemoveTheseBoundsQ("{", "}").
 			 Content()
 
 		cCode = "bOk = ( " + pcCode + " )"
@@ -10202,7 +10202,7 @@ class stzList from stzObject
 
 		pcCode = Q(pcCode).
 			 TrimQ().
-			 RemoveBoundsQ("{", "}").
+			 RemoveTheseBoundsQ("{", "}").
 			 ReplaceCSQ("@list", "This.Content()", :CS = FALSE).
 			 Content()
 
@@ -36651,7 +36651,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		cCondition = Q(pcCondition).
 				TrimQ().
-				RemoveBoundsQ("{","}").
+				RemoveTheseBoundsQ("{","}").
 				ReplaceManyCSQ([ "@list", "@pair" ], "This", :CS = FALSE).
 				Content()
 

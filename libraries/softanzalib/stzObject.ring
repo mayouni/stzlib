@@ -1673,7 +1673,7 @@ class stzObject
 		ok
 		
 		cCode = Q(pcCode).
-			RemoveBoundsQ('"').
+			RemoveTheseBoundsQ('"').
 			RemoveThisFirstCharQ("{").
 			RemoveThisLastCharQ("}").
 			Trimmed()

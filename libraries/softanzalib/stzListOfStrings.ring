@@ -11833,7 +11833,7 @@ class stzListOfStrings from stzList
 
 		if bDynamic
 			cDynamicExpr = StzStringQ(pcNewSubStr).TrimQ().
-					RemoveBoundsQ("{","}").Content()
+					RemoveTheseBoundsQ("{","}").Content()
 		ok
 
 		# Doing the job
@@ -14480,31 +14480,21 @@ stop()
 	 #     REMOVING BOUNDING STRINGS      #
 	#------------------------------------#
 
-	def RemoveBoundsCS(pcFirstStr, pcLastStr, pCaseSensitive)
+	def RemoveTheseBoundsCS(pcFirstStr, pcLastStr, pCaseSensitive)
 		if This.IsBoundedByCS(pcFirstStr, pcLastStr, pCaseSensitive)
 			This.RemoveFirstString()
 			This.RemoveLastString()
 		ok
 
-		def RemoveBoundsCSQ(pcFirstStr, pcLastStr, pCaseSensitive)
+		#< @FunctionFluentForm
+
+		def RemoveTheseBoundsCSQ(pcFirstStr, pcLastStr, pCaseSensitive)
 			This.RemoveTheseBoundsCS(pcFirstStr, pcLastStr, pCaseSensitive)
 			return This
 
-		#--
+		#>
 
-		def RemoveBoundingStringsCS(pcFirstStr, pcLastStr, pCaseSensitive)
-			This.RemoveTheseBoundsCS(pcFirstStr, pcLastStr, pCaseSensitive)
-
-			def RemoveBoundingStringsCSQ(pcFirstStr, pcLastStr, pCaseSensitive)
-				This.RemoveBoundingStringsCS(pcFirstStr, pcLastStr, pCaseSensitive)
-				return This
-
-		def RemoveTheseBoundingStringsCS(pcFirstStr, pcLastStr, pCaseSensitive)
-			This.RemoveTheseBoundsCS(pcFirstStr, pcLastStr, pCaseSensitive)
-
-			def RemoveTheseBoundingStringsCSQ(pcFirstStr, pcLastStr, pCaseSensitive)
-				This.RemoveTheseBoundingStringsCS(pcFirstStr, pcLastStr, pCaseSensitive)
-				return This
+		#< @FunctionAlternativeForms
 
 		def RemoveTheseFirstAndLastStringsCS(pcFirstStr, pcLastStr, pCaseSensitive)
 			This.RemoveTheseBoundsCS(pcFirstStr, pcLastStr, pCaseSensitive)
@@ -14522,20 +14512,6 @@ stop()
 
 		#--
 
-		def RemoveBoundingStringItemsCS(pcFirstStr, pcLastStr, pCaseSensitive)
-			This.RemoveTheseBoundsCS(pcFirstStr, pcLastStr, pCaseSensitive)
-
-			def RemoveBoundingStringItemsCSQ(pcFirstStr, pcLastStr, pCaseSensitive)
-				This.RemoveBoundingStringItemsCS(pcFirstStr, pcLastStr, pCaseSensitive)
-				return This
-
-		def RemoveTheseBoundingStringItemsCS(pcFirstStr, pcLastStr, pCaseSensitive)
-			This.RemoveTheseBoundsCS(pcFirstStr, pcLastStr, pCaseSensitive)
-
-			def RemoveTheseBoundingStringItemsCSQ(pcFirstStr, pcLastStr, pCaseSensitive)
-				This.RemoveTheseBoundingStringItemsCS(pcFirstStr, pcLastStr, pCaseSensitive)
-				return This
-
 		def RemoveTheseFirstAndLastStringItemsCS(pcFirstStr, pcLastStr, pCaseSensitive)
 			This.RemoveTheseBoundsCS(pcFirstStr, pcLastStr, pCaseSensitive)
 
@@ -14550,66 +14526,46 @@ stop()
 				This.RemoveTheseLastAndFirstStringItemsCS(pcFirstStr, pcLastStr, pCaseSensitive)
 				return This
 
-	def BoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
+		#>
+
+	def TheseBoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
 
 		aResult = This.Copy().
-			  RemoveBoundsCSQ(pcString1, pcString2, pCaseSensitive).
+			  RemoveTheseBoundsCSQ(pcString1, pcString2, pCaseSensitive).
 			  Content()
 
 		return aResult
 
 		#< @FunctionAlternativeForms
-
-		def BoundingStringsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
-			return This.BoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
-
-		def TheseBoundingStringsRemoveCS(pcFirstStr, pcLastStr, pCaseSensitive)
-			return This.BoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
-
-		def BoundingStringItemsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
-			return This.BoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
-
-		def TheseBoundingStringItemsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
-			return This.BoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
 		
 		def TheseFirstAndLastStringsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
-			return This.BoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
+			return This.TheseBoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
 
 		def TheseLastAndFirstStringsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
-			return This.BoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
+			return This.TheseBoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
 
 		def TheseFirstAndLastStringItemsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
-			return This.BoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
+			return This.TheseBoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
 
 		def TheseLastAndFirstStringItemsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
-			return This.BoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
+			return This.TheseBoundsRemovedCS(pcFirstStr, pcLastStr, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveBounds(pcFirstStr, pcLastStr)
+	def RemoveTheseBounds(pcFirstStr, pcLastStr)
 		This.RemoveTheseBoundsCS(pcFirstStr, pcLastStr, :CaseSensitive = TRUE)
 
-		def RemoveBoundsQ(pcFirstStr, pcLastStr)
+		#< @FunctionFluentForm
+
+		def RemoveTheseBoundsQ(pcFirstStr, pcLastStr)
 			This.RemoveTheseBounds(pcFirstStr, pcLastStr)
 			return This
 
-		#--
+		#>
 
-		def RemoveBoundingStrings(pcFirstStr, pcLastStr)
-			This.RemoveTheseBounds(pcFirstStr, pcLastStr)
-
-			def RemoveBoundingStringsQ(pcFirstStr, pcLastStr)
-				This.RemoveBoundingStrings(pcFirstStr, pcLastStr)
-				return This
-
-		def RemoveTheseBoundingStrings(pcFirstStr, pcLastStr)
-			This.RemoveTheseBounds(pcFirstStr, pcLastStr)
-
-			def RemoveTheseBoundingStringsQ(pcFirstStr, pcLastStr)
-				This.RemoveTheseBoundingStrings(pcFirstStr, pcLastStr)
-				return This
+		#< @FunctionAlternativeForms
 
 		def RemoveTheseFirstAndLastStrings(pcFirstStr, pcLastStr)
 			This.RemoveTheseBounds(pcFirstStr, pcLastStr)
@@ -14627,20 +14583,6 @@ stop()
 
 		#--
 
-		def RemoveBoundingStringItems(pcFirstStr, pcLastStr)
-			This.RemoveTheseBounds(pcFirstStr, pcLastStr)
-
-			def RemoveBoundingStringItemsQ(pcFirstStr, pcLastStr)
-				This.RemoveBoundingStringItems(pcFirstStr, pcLastStr)
-				return This
-
-		def RemoveTheseBoundingStringItems(pcFirstStr, pcLastStr)
-			This.RemoveTheseBounds(pcFirstStr, pcLastStr)
-
-			def RemoveTheseBoundingStringItemsQ(pcFirstStr, pcLastStr)
-				This.RemoveTheseBoundingStringItems(pcFirstStr, pcLastStr)
-				return This
-
 		def RemoveTheseFirstAndLastStringItems(pcFirstStr, pcLastStr)
 			This.RemoveTheseBounds(pcFirstStr, pcLastStr)
 
@@ -14655,36 +14597,26 @@ stop()
 				This.RemoveTheseLastAndFirstStringItems(pcFirstStr, pcLastStr)
 				return This
 
+		#>
+
 	def BoundsRemoved(pcFirstStr, pcLastStr)
 
 		aResult = This.Copy().RemoveTheseBoundsQ(pcString1, pcString2).Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
-
-		def BoundingStringsRemoved(pcFirstStr, pcLastStr)
-			return This.BoundsRemovedCS(pcFirstStr, pcLastStr)
-
-		def TheseBoundingStringsRemove(pcFirstStr, pcLastStr)
-			return This.BoundsRemoved(pcFirstStr, pcLastStr)
-
-		def BoundingStringItemsRemoved(pcFirstStr, pcLastStr)
-			return This.BoundsRemoved(pcFirstStr, pcLastStr)
-
-		def TheseBoundingStringItemsRemoved(pcFirstStr, pcLastStr)
-			return This.BoundsRemoved(pcFirstStr, pcLastStr)
 		
 		def TheseFirstAndLastStringsRemoved(pcFirstStr, pcLastStr)
-			return This.BoundsRemoved(pcFirstStr, pcLastStr)
+			return This.TheseBoundsRemoved(pcFirstStr, pcLastStr)
 
 		def TheseLastAndFirstStringsRemoved(pcFirstStr, pcLastStr)
-			return This.BoundsRemoved(pcFirstStr, pcLastStr)
+			return This.TheseBoundsRemoved(pcFirstStr, pcLastStr)
 
 		def TheseFirstAndLastStringItemsRemoved(pcFirstStr, pcLastStr)
-			return This.BoundsRemoved(pcFirstStr, pcLastStr)
+			return This.TheseBoundsRemoved(pcFirstStr, pcLastStr)
 
 		def TheseLastAndFirstStringItemsRemoved(pcFirstStr, pcLastStr)
-			return This.BoundsRemoved(pcFirstStr, pcLastStr)
+			return This.TheseBoundsRemoved(pcFirstStr, pcLastStr)
 
 		#>
 
@@ -14707,23 +14639,6 @@ stop()
 
 		#>
 
-		#< @FunctionAlternativeForms
-
-		def RemoveManyBoundingStringsCS(pacPairsOfBounds, pCaseSensitive)
-			This.RemoveManyBoundsCS(pacPairsOfBounds, pCaseSensitive)
-
-			def RemoveManyBoundingStringsCSQ(pacPairsOfBounds, pCaseSensitive)
-				This.RemoveManyBoundingStringsCS(pacPairsOfBounds, pCaseSensitive)
-				return This
-
-		def RemoveManyBoundingStringItemsCS(pacPairsOfBounds, pCaseSensitive)
-			This.RemoveManyBoundsCS(pacPairsOfBounds, pCaseSensitive)
-
-			def RemoveManyBoundingStringItemsCSQ(pacPairsOfBounds, pCaseSensitive)
-				This.RemoveManyBoundingStringItemsCS(pacPairsOfBounds, pCaseSensitive)
-				return This
-
-		#>
 			
 	def ManyBoundsRemovedCS(pacPairsOfBounds, pCaseSensitive)
 
@@ -14733,12 +14648,6 @@ stop()
 
 		return aResult
 
-		def ManyBoundingStringsRemovedCS(pacPairsOfBounds, pCaseSensitive)
-			return This.ManyBoundsRemovedCS(pacPairsOfBounds, pCaseSensitive)
-
-
-		def ManyBoundingStringItemsRemovedCS(pacPairsOfBounds, pCaseSensitive)
-			return This.ManyBoundsRemovedCS(pacPairsOfBounds, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -14753,23 +14662,6 @@ stop()
 
 		#>
 
-		#< @FunctionAlternativeForms
-
-		def RemoveManyBoundingStrings(pacPairsOfBounds)
-			This.RemoveManyBounds(pacPairsOfBounds)
-
-			def RemoveManyBoundingStringsQ(pacPairsOfBounds)
-				This.RemoveManyBoundingStrings(pacPairsOfBounds)
-				return This
-
-		def RemoveManyBoundingStringItems(pacPairsOfBounds)
-			This.RemoveManyBounds(pacPairsOfBounds)
-
-			def RemoveManyBoundingStringItemsQ(pacPairsOfBounds)
-				This.RemoveManyBoundingStringItems(pacPairsOfBounds)
-				return This
-
-		#>
 			
 	def ManyBoundsRemoved(pacPairsOfBounds)
 
@@ -14779,12 +14671,6 @@ stop()
 
 		return aResult
 
-		def ManyBoundingStringsRemoved(pacPairsOfBounds)
-			return This.ManyBoundsRemoved(pacPairsOfBounds)
-
-
-		def ManyBoundingStringItemsRemoved(pacPairsOfBounds)
-			return This.ManyBoundsRemoved(pacPairsOfBounds)
 
 	  #======================================================#
 	 #    REMOVING BLANK-SPACES STRINGS (MADE OF SPACES)    #
