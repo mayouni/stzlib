@@ -180,7 +180,6 @@ proff()
 
 /*---------
 
-*/
 pron()
 
 o1 = new stzString("<<<word")
@@ -193,13 +192,26 @@ proff()
 
 /*---------
 
-*/
 pron()
 
 o1 = new stzString("word>>>")
-o1.RemoveBounds()
+? @@( o1.Bounds() )
+#--> []
+
+? o1.ContainsBounds() # Or ? o1.IsBounded()
+#--> FALSE
+
+proff()
+# Executed in 0.04 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzString("word>>>")
+o1.RemoveBounds() # Has no effect because the string is not bounded
 ? o1.Content()
-#--> <<<word>>>
+#--> word>>>
 proff()
 # Executed in 0.03 second(s)
 
@@ -217,10 +229,36 @@ o1.RemoveTheseBounds("<<<", "***") # Remove only the first bound
 ? o1.Content()
 #--> word>>>
 
-o1.RemoveBounds()
+o1.RemoveBounds() # Has no effect because the string is no longer bounded
+#--> word>>>
 ? o1.Content()
 
 proff()
+# Executed in 0.33 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzString("<<<word>>>")
+o1.RemoveFirstBound()
+? o1.Content()
+#--> word>>>
+
+proff()
+# Executed in 0.09 second(s)
+
+/*--------
+*/
+pron()
+
+o1 = new stzString("<<<word>>>")
+o1.RemoveLastBound()
+? o1.Content()
+#--> <<<word
+
+proff()
+# Executed in 0.09 second(s)
 
 /*========= SWAPPING TWO SECTIONS
 
