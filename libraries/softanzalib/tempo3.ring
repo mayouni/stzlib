@@ -97,7 +97,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*---------
-*/
+
 pron()
 
 o1 = new stzString("word>>>")
@@ -111,6 +111,31 @@ proff()
 # Executed in 0.04 second(s)
 
 /*---------
+
+pron()
+
+o1 = new stzList([ [ ], [ 5, 7 ] ])
+? o1.IsListOfPairsOfNumbers()
+#--> FALSE
+
+proff()
+
+
+/*---------
+
+*/
+pron()
+
+o1 = new stzString("word>>>")
+o1.RemoveSections([ [ ], [ 5, 7 ] ])
+? o1.Content()
+#--> word
+
+proff()
+# Executed in 0.04 second(s)
+
+/*---------
+
 */
 pron()
 

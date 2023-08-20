@@ -62,7 +62,7 @@ class stzListInString from stzString
 				aResult + [
 
 					oStzStr.RemoveTheseBoundsQ('"', '"').
-						RemoveBoundsQ("'", "'").Content(),
+						RemoveTheseBoundsQ("'", "'").Content(),
 
 					:IsValue,
 					:IsString
@@ -78,7 +78,7 @@ class stzListInString from stzString
 			else
 				# The item is a variable name
 				cVarName = oStzStr.RemoveTheseBoundsQ('"', '"').
-						RemoveBoundsQ("'", "'").
+						RemoveTheseBoundsQ("'", "'").
 						Content()
 
 				cCode = 'cType = lower(type(' + cVarName + '))'
@@ -122,7 +122,7 @@ class stzListInString from stzString
 	
 				# The item is a variable name
 				cVarName = oStzStr.RemoveTheseBoundsQ('"', '"').
-						RemoveBoundsQ("'", "'").
+						RemoveTheseBoundsQ("'", "'").
 						Content()
 
 				cCode = 'cType = lower(type(' + cVarName + '))'

@@ -34997,12 +34997,22 @@ def ReplaceIBS()
 
 		*/
 
+		if isList(paSections)
+			oSections = new stzList(paSections)
+			anPos = oSections.FindAll([])
+			oSections.RemoveItemsAtPositions(anPos)
+			paSections = oSections.Content()
+			
+		ok
+
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+
 			stzRaise([
 				:Where = "stzString > RemoveManySections(paSections)",
 				:What  = "Can't remove many sections from the string.",
 				:Why   = "The value is you provided (paSections) is not a list of pairs of numbers."
 			])
+
 		ok
 
 		nLen = len(paSections)
@@ -43033,7 +43043,7 @@ def ReplaceIBS()
 			@i = nCurrentPosition
 
 			cCondition = StzStringQ(pcCondition[2]).TrimQ().
-					RemoveBoundsQ("{","}").Content()
+					RemoveTheseBoundsQ("{","}").Content()
 
 			cCode = "if " + cCondition + NL +
 				TAB + "exit" + NL +
@@ -43436,7 +43446,7 @@ def ReplaceIBS()
 				TODO : replace with this when Split() is finished.
 
 				acMembers = This.TrimQ().
-						RemoveBoundsQ("[","]").
+						RemoveTheeBoundsQ("[","]").
 						SplitQ(",").
 						FirstAndLastItems()
 				*/
