@@ -5343,29 +5343,31 @@ class stzList from stzObject
 
 		nLen = This.NumberOfItems()
 
-		aPart1 = []
+		anPart1 = []
 		if n1 > 1
-			aPart1 = 1 : (n1 - 1)
+			anPart1 = 1 : (n1 - 1)
 		ok
 
 		if n2 > nLen
 			n2 = nLen
 		ok
 
-		aPart2 = (n2 + 1) : nLen
-		nLenPart2 = len(aPart2)
+		anPart2 = []
+		if n2 = nLen
+			anPart2 = [ ]
+		else
+			anPart2 = (n2 + 1) : nLen
+		ok
 
-		anPos = aPart1
+		nLenPart2 = len(anPart2)
+
+		anPos = anPart1
 		for i = 1 to nLenPart2
-			anPos + aPart2[i]
+			anPos + anPart2[i]
 		next
 
 		This.UpdateWith( This.ItemsAtPositions(anPos) )
 
-/*
-		aResult = This.SectionQ(1, n1 - 1).ExtendedWith( This.Section(n2 + 1, nLen) )
-		This.UpdateWith(aResult)
-*/
 		#< @FunctionFluentForm
 
 		def RemoveSectionQ(n1, n2)
