@@ -130,7 +130,7 @@ proff()
 #--> [ 1, 2, 999_997, 999_998, 1_000_000 ]
 
 /*---------
-*/
+
 pron()
 
 o1 = new stzList( 1 : 1_000_000 )
@@ -143,20 +143,31 @@ proff()
 
 /*---------
 
-*/
 pron()
 
 o1 = new stzList([ "w", "o", "r", "d", ">", ">", ">" ])
 o1.RemoveSection(1, 4)
-//o1.RemoveSections([ [ ], [ 5, 7 ] ])
 ? @@( o1.Content() )
 #--> [ ">", ">", ">" ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*---------
 
-*/
+pron()
+
+o1 = new stzList([ "<", "<", "w", "o", "r", "d", ">", ">", ">" ])
+
+o1.RemoveSections([ [ 1, 2 ], [ 7, 9 ] ])
+? @@( o1.Content() )
+#--> [ "w", "o", "r", "d" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*---------
+
 pron()
 
 o1 = new stzString("word>>>")
@@ -165,7 +176,20 @@ o1.RemoveSections([ [ ], [ 5, 7 ] ])
 #--> word
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.05 second(s)
+
+/*---------
+
+*/
+pron()
+
+o1 = new stzString("<<<word")
+o1.RemoveSections([ [ 1, 3 ], [ ] ])
+? o1.Content()
+#--> word
+
+proff()
+# Executed in 0.05 second(s)
 
 /*---------
 
