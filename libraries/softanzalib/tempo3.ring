@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*---------
-*/
+
 pron()
 
 o1 = new stzString("<<<word>>>")
@@ -74,13 +74,70 @@ o1 = new stzString("<<<word>>>")
 proff()
 # Executed in 1.82 second(s)
 
-/*---------
-*/
+/*============
 
 pron()
 
 o1 = new stzString("<<<word>>>")
-o1.RemoveTheseBounds("***", "***")
+o1.RemoveSections([ [8,10], [1,3] ])
+? o1.Content()
+#--> word
+proff()
+# Executed in 0.06 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzString("<<<word>>>")
+o1.RemoveSections([])
+? o1.Content()
+#--> <<<word>>>
+proff()
+# Executed in 0.03 second(s)
+
+/*---------
+*/
+pron()
+
+o1 = new stzString("word>>>")
+? o1.FindLeadingChars()
+#--> 0
+
+? @@( o1.FindLeadingCharsAsSection() )
+#--> [ ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*---------
+*/
+pron()
+
+o1 = new stzString("word>>>")
+o1.RemoveBounds()
+? o1.Content()
+#--> <<<word>>>
+proff()
+# Executed in 0.03 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzString("<<<word>>>")
+
+o1.RemoveTheseBounds("***", "***") # Nothiong happens
+? o1.Content()
+#--> <<<word>>>
+
+o1.RemoveTheseBounds("<<<", "***") # Remove only the first bound
+? o1.Content()
+#--> word>>>
+
+o1.RemoveBounds()
+? o1.Content()
+
 proff()
 
 /*========= SWAPPING TWO SECTIONS
