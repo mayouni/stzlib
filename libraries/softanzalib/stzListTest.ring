@@ -4949,7 +4949,7 @@ StopProfiler()
 #	- the ...W(pcCondition) form, which is more performant, but less expressive
 #	- the ...WXT(pcCondition) form, which is less performant, but more expressive
 
-# In the first form, you can only use the the @item, @string, ... and the @i keywords.
+# In the first form, you can only use the @item, @string, ... and the @i keywords.
 # While in the second, you can use keywords sutch as @NextItem, @PreviousItem, and others.
 
 # You can always express these additional keywords, while option for the more performant
