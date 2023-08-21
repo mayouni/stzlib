@@ -7595,6 +7595,9 @@ class stzString from stzObject
 			return FALSE
 		ok
 
+		def IsSecondBoundOfCS(pcOtherStr, pCaseSensitive)
+			return This.IsLastBoundOfCS(pcOtherStr, pCaseSensitive)
+
 	def IsLeftBoundOfCS(pcOtherStr, pCaseSensitive)
 		if Q(pcOtherStr).LeftBoundsCS().IsEqualToCS(This.String(), pCaseSensitive)
 			return TRUE
@@ -7727,12 +7730,21 @@ class stzString from stzObject
 		def FindFirstAndLastBoundsAsSectionsCS(pCaseSensitive)
 			return This.FindBoundsAsSectionsCS(pCaseSensitive)
 
+			def FindFirstAndSecondoundsAsSectionsCS(pCaseSensitive)
+				return This.FindBoundsAsSectionsCS(pCaseSensitive)
+	
 		def FindFirstAndLastStringBoundsAsSectionsCS(pCaseSensitive)
 			return This.FindBoundsAsSectionsCS(pCaseSensitive)
 
+			def FindFirstAndSecondStringBoundsAsSectionsCS(pCaseSensitive)
+				return This.FindBoundsAsSectionsCS(pCaseSensitive)
+	
 		def FindStringFirstAndLastBoundsAsSectionsCS(pCaseSensitive)
 			return This.FindBoundsAsSectionsCS(pCaseSensitive)
 
+			def FindStringFirstAndSecondBoundsAsSectionsCS(pCaseSensitive)
+				return This.FindBoundsAsSectionsCS(pCaseSensitive)
+	
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -7748,12 +7760,21 @@ class stzString from stzObject
 		def FindFirstAndLastBoundsAsSections()
 			return This.FindBoundsAsSections()
 
+			def FindFirstAndSecondBoundsAsSections()
+				return This.FindBoundsAsSections()
+	
 		def FindFirstAndLastStringBoundsAsSections()
 			return This.FindBoundsAsSections()
 
+			def FindFirstAndSecondStringBoundsAsSections()
+				return This.FindBoundsAsSections()
+	
 		def FindStringFirstAndLastBoundsAsSections()
 			return This.FindBoundsAsSections()
 
+			def FindStringFirstAndSecondBoundsAsSections()
+				return This.FindBoundsAsSections()
+	
 		#>
 
 	  #-------------------------------------------------------------------------------------#
@@ -7771,7 +7792,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def FindSecondAndFirstBoundsAsSectionsCS(pCaseSensitive)
+			return This.FindLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
+
 		def FindStringLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
+			return This.FindLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
+
+		def FindStringSecondAndFirstBoundsAsSectionsCS(pCaseSensitive)
 			return This.FindLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
 
 		#>
@@ -7783,7 +7810,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def FindSecondAndFirstBoundsAsSections()
+			return This.FindLastAndFirstBoundsAsSections()
+
 		def FindStringLastAndFirstBoundsAsSections()
+			return This.FindLastAndFirstBoundsAsSections()
+
+		def FindStringSecondAndFirstBoundsAsSections()
 			return This.FindLastAndFirstBoundsAsSections()
 
 		#>
@@ -7914,12 +7947,21 @@ class stzString from stzObject
 		def FindFirstAndLastBoundsCS(pCaseSensitive)
 			return This.FindBoundsCS(pCaseSensitive)
 
+			def FindFirstAndSecondBoundsCS(pCaseSensitive)
+				return This.FindBoundsCS(pCaseSensitive)
+	
 		def FindFirstAndLastStringBoundsCS(pCaseSensitive)
 			return This.FindBoundsCS(pCaseSensitive)
 
+			def FindFirstAndSecondStringBoundsCS(pCaseSensitive)
+				return This.FindBoundsCS(pCaseSensitive)
+	
 		def FindStringFirstAndLastBoundsCS(pCaseSensitive)
 			return This.FindBoundsCS(pCaseSensitive)
 
+			def FindStringFirstAndSecondBoundsCS(pCaseSensitive)
+				return This.FindBoundsCS(pCaseSensitive)
+	
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -7935,11 +7977,20 @@ class stzString from stzObject
 		def FindFirstAndLastBounds()
 			return This.FindBounds()
 
+			def FindFirstAndSecondBounds()
+				return This.FindBounds()
+	
 		def FindFirstAndLastStringBounds()
 			return This.FindBounds()
 
+			def FindFirstAndSecondStringBounds()
+				return This.FindBounds()
+	
 		def FindStringFirstAndLastBounds()
 			return This.FindBounds()
+
+			def FindStringFirstAndSecondBounds()
+				return This.FindBounds()
 
 		#>
 
@@ -7956,16 +8007,36 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def FindSecondAndFirstBoundsCS(pCaseSensitive)
+			return This.FindLastAndFirstBoundsCS(pCaseSensitive)
+
 		def FindStringLastAndFirstBoundsCS(pCaseSensitive)
 			return This.FindLastAndFirstBoundsCS(pCaseSensitive)
 
-	#--
+		def FindStringSecondAndFirstBoundsCS(pCaseSensitive)
+			return This.FindLastAndFirstBoundsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastAndFirstBounds()
 		return This.FindLastAndFirstBoundsCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindSecondAndFirstBounds()
+			return This.FindLastAndFirstBounds()
+
 		def FindStringLastAndFirstBounds()
 			return This.FindLastAndFirstBounds()
+
+		def FindStringSecondAndFirstBounds()
+			return This.FindLastAndFirstBounds()
+
+		#>
 
 	  #--------------------------------------------------------#
 	 #  FINDING LEFT AND RIGHT BOUNDS (IF ANY) OF THE STRING  #
@@ -8108,16 +8179,36 @@ class stzString from stzObject
 
 		return acResult
 
+		#< @FunctionAlternatoveForms
+
+		def SecondAndFirstBoundsCS(pCaseSensitive)
+			return This.LastAndFirstBoundsCS(pCaseSensitive)
+
 		def StringLastAndFirstBoundsCS(pCaseSensitive)
 			return This.LastAndFirstBoundsCS(pCaseSensitive)
+
+		def StringSecondAndFirstBoundsCS(pCaseSensitive)
+			return This.LastAndFirstBoundsCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastAndFirstBounds()
 		return This.LastAndFirstBoundsCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternatoveForms
+
+		def SecondAndFirstBounds()
+			return This.LastAndFirstBounds()
+
 		def StringLastAndFirstBounds()
 			return This.LastAndFirstBounds()
+
+		def StringSecondAndFirstBounds()
+			return This.LastAndFirstBounds()
+
+		#>
 
 	  #--------------------------------------------------------#
 	 #  GETTING LEFT AND RIGHT BOUNDS (IF ANY) OF THE STRING  #
@@ -8156,7 +8247,7 @@ class stzString from stzObject
 	 #  GETTING RIGHT AND LEFT BOUNDS (IF ANY) OF THE STRING  #
 	#--------------------------------------------------------#
 
-	def RightAndLEftBoundsCS(pCaseSensitive)
+	def RightAndLeftBoundsCS(pCaseSensitive)
 		a1 = []
 		a2 = []
 
@@ -8351,15 +8442,27 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def SecondAndFirstBoundsZCS(pCaseSensitive)
+			return This.LastAndFirstBoundsZCS(pCaseSensitive)
+
 		def LastAndFirstBoundsAndTheirPositionsCS(pCaseSensitive)
 			return This.LastAndFirstBoundsZCS(pCaseSensitive)
 
+			def SecondAndFirstBoundsAndTheirPositionsCS(pCaseSensitive)
+				return This.LastAndFirstBoundsZCS(pCaseSensitive)
+	
 		def StringLastAndFirstBoundsZCS(pCaseSensitive)
 			return This.LastAndFirstBoundsZCS(pCaseSensitive)
 
+			def StringSecondAndFirstBoundsZCS(pCaseSensitive)
+				return This.LastAndFirstBoundsZCS(pCaseSensitive)
+	
 		def StringLastAndFirstBoundsAndTheirPositionsCS(pCaseSensitive)
 			return This.LastAndFirstBoundsZCS(pCaseSensitive)
 
+			def StringSecondAndFirstBoundsAndTheirPositionsCS(pCaseSensitive)
+				return This.LastAndFirstBoundsZCS(pCaseSensitive)
+	
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -8369,15 +8472,27 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def SecondAndFirstBoundsZ()
+			return This.LastAndFirstBoundsZ()
+
 		def LastAndFirstBoundsAndTheirPositions()
 			return This.LastAndFirstBoundsZ()
 
-		def StringLastAndFirstBoundsZ(pCaseSensitive)
-			return This.LastAndFirstBoundsZ(pCaseSensitive)
+			def SecondAndFirstBoundsAndTheirPositions()
+				return This.LastAndFirstBoundsZ()
+	
+		def StringLastAndFirstBoundsZ()
+			return This.LastAndFirstBoundsZ()
 
+			def StringSecondAndFirstBoundsZ()
+				return This.LastAndFirstBoundsZ()
+	
 		def StringLastAndFirstBoundsAndTheirPositions()
 			return This.LastAndFirstBoundsZ()
 
+			def StringSecondAndFirstBoundsAndTheirPositions()
+				return This.LastAndFirstBoundsZ()
+	
 		#>
 
 	  #----------------------------------------------------------------------------------#
@@ -8402,15 +8517,27 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def SecondAndFirstBoundsZZCS(pCaseSensitive)
+			return This.LastAndFirstBoundsZZCS(pCaseSensitive)
+
 		def LastAndFirstBoundsAndTheirSectionsCS(pCaseSensitive)
 			return This.LastAndFirstBoundsZZCS(pCaseSensitive)
 
+			def SecondAndFirstBoundsAndTheirSectionsCS(pCaseSensitive)
+				return This.LastAndFirstBoundsZZCS(pCaseSensitive)
+	
 		def StringLastAndFirstBoundsZZCS(pCaseSensitive)
 			return This.LastAndFirstBoundsZZCS(pCaseSensitive)
 
+			def StringSecondAndFirstBoundsZZCS(pCaseSensitive)
+				return This.LastAndFirstBoundsZZCS(pCaseSensitive)
+	
 		def StringLastAndFirstBoundsAndTheirSectionsCS(pCaseSensitive)
 			return This.LastAndFirstBoundsZZCS(pCaseSensitive)
 
+			def StringSecondAndFirstBoundsAndTheirSectionsCS(pCaseSensitive)
+				return This.LastAndFirstBoundsZZCS(pCaseSensitive)
+	
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -8420,14 +8547,26 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def SecondAndFirstBoundsZZ()
+			return This.LastAndFirstBoundsZZ()
+
 		def LastAndFirstBoundsAndTheirSections()
 			return This.LastAndFirstBoundsZZ()
 
+			def SecondAndFirstBoundsAndTheirSections()
+				return This.LastAndFirstBoundsZZ()
+	
 		def StringLastAndFirstBoundsZZ()
 			return This.LastAndFirstBoundsZZ()
 
+			def StringSecondAndFirstBoundsZZ()
+				return This.LastAndFirstBoundsZZ()
+	
 		def StringLastAndFirstBoundsAndTheirSections()
 			return This.LastAndFirstBoundsZZ()
+
+			def StringSecondAndFirstBoundsAndTheirSections()
+				return This.LastAndFirstBoundsZZ()
 
 		#>
 
@@ -8623,19 +8762,12 @@ class stzString from stzObject
 		def FindStringFirstBoundCS(pCaseSensitive)
 			return This.FindFirstBoundCS(pCaseSensitive)
 
-		def FindFirstStringBoundCS(pCaseSensitive)
-			return This.FindFirstBoundCS(pCaseSensitive)
-
-
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstBound()
 		return This.FindFirstBoundCS(:CaseSensitive = TRUE)
 
 		def FindStringFirstBound()
-			return This.FindFirstBound()
-
-		def FindFirstStringBound()
 			return This.FindFirstBound()
 
 	  #-------------------------------------------------------------------------------#
@@ -8656,19 +8788,12 @@ class stzString from stzObject
 		def FindStringFirstBoundAsSectionCS(pCaseSensitive)
 			return This.FindFirstBoundAsSectionCS(pCaseSensitive)
 
-		def FindFirstStringBoundAsSectionCS(pCaseSensitive)
-			return This.FindFirstBoundAsSectionCS(pCaseSensitive)
-
-
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstBoundAsSection()
 		return This.FindFirstBoundAsSectionCS(:CaseSensitive = TRUE)
 
 		def FindStringFirstBoundAsSection()
-			return This.FindFirstBoundAsSection()
-
-		def FindFirstStringBoundAsSection()
 			return This.FindFirstBoundAsSection()
 
 	  #-----------------------------------------#
@@ -8679,10 +8804,16 @@ class stzString from stzObject
 		cResult = This.BoundsCS(pCaseSensitive)[1]
 		return cResult
 
+		def StringFirstBoundCS(pCaseSensitive)
+			return This.FirstBoundCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstBound()
 		return This.FirstBoundCS(:CaseSensitive = TRUE)
+
+		def StringFirstBound()
+			return This.FirstBound()
 
 	  #-----------------------------------------------------------------#
 	 #  GETTING THE FIRST BOUND OF THE STRING ALONG WITH ITS POSITION  #
@@ -8696,16 +8827,36 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def FirstBoundAndItsPositionCS(pCaseSensitive)
 			return This.FirstBoundZCS(pCaseSensitive)
+
+		def StringFirstBoundZCS(pCaseSensitive)
+			return This.FirstBoundZCS(pCaseSensitive)
+
+		def StringFirstBoundAndItsPositionCS(pCaseSensitive)
+			return This.FirstBoundZCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstBoundZ()
 		return This.FirstBoundZCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def FirstBoundAndItsPosition()
 			return This.FirstBoundZ()
+
+		def StringFirstBoundZ()
+			return This.FirstBoundZ()
+
+		def StringFirstBoundAndItsPosition()
+			return This.FirstBoundZ()
+
+		#>
 
 	  #----------------------------------------------------------------#
 	 #  GETTING THE FIRST BOUND OF THE STRING ALONG WITH ITS SECTION  #
@@ -8719,16 +8870,36 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def FirstBoundAndItsSectionCS(pCaseSensitive)
 			return THis.FirstBoundZZCS(pCaseSensitive)
+
+		def StringFirstBoundZZCS(pCaseSensitive)
+			return THis.FirstBoundZZCS(pCaseSensitive)
+
+		def StringFirstBoundAndItsSectionCS(pCaseSensitive)
+			return THis.FirstBoundZZCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstBoundZZ()
 		return This.FirstBoundZZCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def FirstBoundAndItsSection()
+			return This.FirstBoundZZ()
+
+		def StringFirstBoundZZ()
 			return THis.FirstBoundZZ()
+
+		def StringFirstBoundAndItsSection()
+			return THis.FirstBoundZZ()
+
+		#>
 
 	  #----------------------------------------#
 	 #  FINDING THE LAST BOUND OF THE STRING  #
@@ -8742,23 +8913,36 @@ class stzString from stzObject
 			return 0
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def FindStringLastBoundCS(pCaseSensitive)
 			return This.FindLastBoundCS(pCaseSensitive)
 
-		def FindLastStringBoundCS(pCaseSensitive)
+		def FindSecondBoundCS(pCaseSensitive)
 			return This.FindLastBoundCS(pCaseSensitive)
 
+		def FindStringSecondBoundCS(pCaseSensitive)
+			return This.FindLastBoundCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastBound()
 		return This.FindLastBoundCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def FindStringLastBound()
 			return This.FindLastBound()
 
-		def FindLastStringBound()
+		def FindSecondBound()
 			return This.FindLastBound()
+
+		def FindStringSecondBound()
+			return This.FindLastBound()
+
+		#>
 
 	  #------------------------------------------------------------------------------#
 	 #  FINDING THE LAST BOUND OF THE STRING AND RETURNING ITS POSITION AS SECTION  #
@@ -8776,23 +8960,36 @@ class stzString from stzObject
 
 		return anResult
 
+		#< @FunctionAlternativeForms
+
 		def FindStringLastBoundAsSectionCS(pCaseSensitive)
 			return This.FindLastBoundAsSectionCS(pCaseSensitive)
 
-		def FindLastStringBoundAsSectionCS(pCaseSensitive)
+		def FindSecondBoundAsSectionCS(pCaseSensitive)
 			return This.FindLastBoundAsSectionCS(pCaseSensitive)
 
+		def FindStringSecondBoundAsSectionCS(pCaseSensitive)
+			return This.FindLastBoundAsSectionCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastBoundAsSection()
 		return This.FindLastBoundAsSectionCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def FindStringLastBoundAsSection()
 			return This.FindLastBoundAsSection()
 
-		def FindLastStringBoundAsSection()
+		def FindSecondBoundAsSection()
 			return This.FindLastBoundAsSection()
+
+		def FindStringSecondBoundAsSection()
+			return This.FindLastBoundAsSection()
+
+		#>
 
 	  #----------------------------------------#
 	 #  GETTING THE LAST BOUND OF THE STRING  #
@@ -8802,10 +8999,36 @@ class stzString from stzObject
 		cResult = This.BoundsCS(pCaseSensitive)[2]
 		return cResult
 
+		#< @FunctionAlternativeForms
+
+		def StringLastBoundsCS(pCaseSensitive)
+			return This.LastBoundCS(pCaseSensitive)
+
+		def SecondBoundCS(pCaseSensitive)
+			return This.LastBoundCS(pCaseSensitive)
+
+		def StringSecondBoundsCS(pCaseSensitive)
+			return This.LastBoundCS(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastBound()
 		return This.LastBoundCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def StringLastBounds()
+			return This.LastBound()
+
+		def SecondBound()
+			return This.LastBound()
+
+		def StringSecondBounds()
+			return This.LastBound()
+
+		#>
 
 	  #----------------------------------------------------------------#
 	 #  GETTING THE LAST BOUND OF THE STRING ALONG WITH ITS POSITION  #
@@ -8819,16 +9042,36 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def SecondBoundZCS(pCaseSensitive)
+			return This.LastBoundZCS(pCaseSensitive)
+
 		def LastBoundAndItsPositionCS(pCaseSensitive)
 			return This.LastBoundZCS(pCaseSensitive)
+
+		def SecondBoundAndItsPositionCS(pCaseSensitive)
+			return This.LastBoundZCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastBoundZ()
 		return This.LastBoundZCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def SecondBoundZ()
+			return This.LastBoundZ()
+
 		def LastBoundAndItsPosition()
 			return This.LastBoundZ()
+
+		def SecondBoundAndItsPosition()
+			return This.LastBoundZ()
+
+		#>
 
 	  #---------------------------------------------------------------#
 	 #  GETTING THE LAST BOUND OF THE STRING ALONG WITH ITS SECTION  #
@@ -8842,16 +9085,36 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def SecondBoundZZCS(pCaseSensitive)
+			return This.LastBoundZZCS(pCaseSensitive)
+
 		def LastBoundAndItsSectionCS(pCaseSensitive)
-			return THis.LastBoundZZCS(pCaseSensitive)
+			return This.LastBoundZZCS(pCaseSensitive)
+
+		def SecondBoundAndItsSectionCS(pCaseSensitive)
+			return This.LastBoundZZCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastBoundZZ()
 		return This.LastBoundZZCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def SecondBoundZZ()
+			return This.LastBoundZZ()
+
 		def LastBoundAndItsSection()
-			return THis.LastBoundZZ()
+			return This.LastBoundZZ()
+
+		def SecondBoundAndItsSection()
+			return This.LastBoundZZ()
+
+		#>
 
 	  #----------------------------------------#
 	 #  FINDING THE LEFT BOUND OF THE STRING  #
@@ -8865,10 +9128,8 @@ class stzString from stzObject
 			return This.FindLastBoundCS(pCaseSensitive)
 		ok
 
-		def FindStringLeftBoundCS(pCaseSensitive)
-			return This.FindLeftBoundCS(pCaseSensitive)
 
-		def FindLeftStringBoundCS(pCaseSensitive)
+		def FindStringLeftBoundCS(pCaseSensitive)
 			return This.FindLeftBoundCS(pCaseSensitive)
 
 
@@ -8877,10 +9138,8 @@ class stzString from stzObject
 	def FindLeftBound()
 		return This.FindLeftBoundCS(:CaseSensitive = TRUE)
 
-		def FindStringLeftBound()
-			return This.FindLeftBound()
 
-		def FindLeftStringBound()
+		def FindStringLeftBound()
 			return This.FindLeftBound()
 
 	  #------------------------------------------------------------------------------#
@@ -8896,22 +9155,17 @@ class stzString from stzObject
 			return This.FindLastBoundAsSectionCS(pCaseSensitive)
 		ok
 
+
 		def FindStringLeftBoundAsSectionCS(pCaseSensitive)
 			return This.FindLeftBoundAsSectionCS(pCaseSensitive)
-
-		def FindLeftStringBoundAsSectionCS(pCaseSensitive)
-			return This.FindLeftBoundAsSectionCS(pCaseSensitive)
-
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLeftBoundAsSection()
 		return This.FindLeftBoundAsSectionCS(:CaseSensitive = TRUE)
 
-		def FindStringLeftBoundAsSection()
-			return This.FindLeftBoundAsSection()
 
-		def FindLeftStringBoundAsSection()
+		def FindStringLeftBoundAsSection()
 			return This.FindLeftBoundAsSection()
 
 	  #----------------------------------------#
@@ -8927,10 +9181,16 @@ class stzString from stzObject
 		ok
 
 
+		def StringLeftBoundCS(pCaseSensitive)
+			return This.LeftBoundCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def LeftBound()
 		return This.LeftBoundCS(:CaseSensitive = TRUE)
+
+		def StringLeftBound()
+			return This.LeftBound()
 
 	  #----------------------------------------------------------------#
 	 #  GETTING THE LEFT BOUND OF THE STRING ALONG WITH ITS POSITION  #
@@ -8944,16 +9204,36 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def LeftBoundAndItsPositionCS(pCaseSensitive)
 			return This.LeftBoundZCS(pCaseSensitive)
+
+		def StringLeftBoundZCS(pCaseSensitive)
+			return This.LeftBoundZCS(pCaseSensitive)
+
+		def StringLeftBoundAbdItsPositionCS(pCaseSensitive)
+			return This.LeftBoundZCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def LeftBoundZ()
 		return This.LeftBoundZCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def LeftBoundAndItsPosition()
 			return This.LeftBoundZ()
+
+		def StringLeftBoundZ()
+			return This.LeftBoundZ()
+
+		def StringLeftBoundAbdItsPosition()
+			return This.LeftBoundZ()
+
+		#>
 
 	  #---------------------------------------------------------------#
 	 #  GETTING THE LEFT BOUND OF THE STRING ALONG WITH ITS SECTION  #
@@ -8968,16 +9248,36 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def LeftBoundAndItsSectionCS(pCaseSensitive)
-			return THis.LeftBoundZZCS(pCaseSensitive)
+			return This.LeftBoundZZCS(pCaseSensitive)
+
+		def StringLeftBoundZZCS(pCaseSensitive)
+			return This.LeftBoundZZCS(pCaseSensitive)
+
+		def StringLeftBoundAbdItsSectionCS(pCaseSensitive)
+			return This.LeftBoundZZCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def LeftBoundZZ()
 		return This.LeftBoundZZCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def LeftBoundAndItsSection()
-			return THis.LeftBoundZZ()
+			return This.LeftBoundZZ()
+
+		def StringLeftBoundZZ()
+			return This.LeftBoundZZ()
+
+		def StringLeftBoundAbdItsSection()
+			return This.LeftBoundZZ()
+
+		#>
 
 	  #-----------------------------------------#
 	 #  FINDING THE RIGHT BOUND OF THE STRING  #
@@ -8991,12 +9291,9 @@ class stzString from stzObject
 			return This.FindFirstBoundCS(pCaseSensitive)
 		ok
 
+
 		def FindStringRightBoundCS(pCaseSensitive)
 			return This.FindRightBoundCS(pCaseSensitive)
-
-		def FindRightStringBoundCS(pCaseSensitive)
-			return This.FindRightBoundCS(pCaseSensitive)
-
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -9004,9 +9301,6 @@ class stzString from stzObject
 		return This.FindRightBoundCS(:CaseSensitive = TRUE)
 
 		def FindStringRightBound()
-			return This.FindRightBound()
-
-		def FindRightStringBound()
 			return This.FindRightBound()
 
 	  #-------------------------------------------------------------------------------#
@@ -9022,10 +9316,8 @@ class stzString from stzObject
 			return This.FindFirstBoundAsSectionCS(pCaseSensitive)
 		ok
 
-		def FindStringRightBoundAsSectionCS(pCaseSensitive)
-			return This.FindRightBoundAsSectionCS(pCaseSensitive)
 
-		def FindRightStringBoundAsSectionCS(pCaseSensitive)
+		def FindStringRightBoundAsSectionCS(pCaseSensitive)
 			return This.FindRightBoundAsSectionCS(pCaseSensitive)
 
 
@@ -9034,10 +9326,8 @@ class stzString from stzObject
 	def FindRightBoundAsSection()
 		return This.FindRightBoundAsSectionCS(:CaseSensitive = TRUE)
 
-		def FindStringRightBoundAsSection()
-			return This.FindRightBoundAsSection()
 
-		def FindRightStringBoundAsSection()
+		def FindStringRightBoundAsSection()
 			return This.FindRightBoundAsSection()
 
 	  #-----------------------------------------#
@@ -9052,10 +9342,16 @@ class stzString from stzObject
 			return This.BoundsCS(pCaseSensitive)[1]
 		ok
 
+		def StringRightBoundCS(pCaseSensitive)
+			return This.RightBoundCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def RightBound()
 		return This.RightBoundCS(:CaseSensitive = TRUE)
+
+		def StringRightBound()
+			return This.RightBound()
 
 	  #-----------------------------------------------------------------#
 	 #  GETTING THE RIGHT BOUND OF THE STRING ALONG WITH ITS POSITION  #
@@ -9069,16 +9365,36 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def RightBoundAndItsPositionCS(pCaseSensitive)
 			return This.RightBoundZCS(pCaseSensitive)
+
+		def StringRightBoundZCS(pCaseSensitive)
+			return This.RightBoundZCS(pCaseSensitive)
+
+		def StringRightBoundAndItsPositionCS(pCaseSensitive)
+			return This.RightBoundZCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RightBoundZ()
 		return This.RightBoundZCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def RightBoundAndItsPosition()
 			return This.RightBoundZ()
+
+		def StringRightBoundZ()
+			return This.RightBoundZ()
+
+		def StringRightBoundAndItsPosition()
+			return This.RightBoundZ()
+
+		#>
 
 	  #----------------------------------------------------------------#
 	 #  GETTING THE RIGHT BOUND OF THE STRING ALONG WITH ITS SECTION  #
@@ -9092,16 +9408,36 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def RightBoundAndItsSectionCS(pCaseSensitive)
-			return THis.RightBoundZZCS(pCaseSensitive)
+			return This.RightBoundZZCS(pCaseSensitive)
+
+		def StringRightBoundZZCS(pCaseSensitive)
+			return This.RightBoundZZCS(pCaseSensitive)
+
+		def StringRightBoundAndItsSectionCS(pCaseSensitive)
+			return This.RightBoundZZCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RightBoundZZ()
 		return This.RightBoundZZCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def RightBoundAndItsSection()
-			return THis.RightBoundZZ()
+			return This.RightBoundZZ()
+
+		def StringRightBoundZZ()
+			return This.RightBoundZZ()
+
+		def StringRightBoundAndItsSection()
+			return This.RightBoundZZ()
+
+		#>
 
 	  #-------------------------------------#
 	 #  REMOVING BOUNDS OF THE THE STRING  #
@@ -9130,7 +9466,7 @@ class stzString from stzObject
 			def RemoveBoundsCSQ(pCaseSensitive)
 				This.RemoveBoundsCS(pCaseSensitive)
 				return This
-
+	
 		#--
 
 		def RemoveStringFirstAndLastBoundsCS(pCaseSensitive)
@@ -9140,11 +9476,27 @@ class stzString from stzObject
 				This.RemoveStringFirstAndLastBoundsCS(pCaseSensitive)
 				return This
 
+		def RemoveStringFirstAndSecondBoundsCS(pCaseSensitive)
+			This.RemoveStringBoundsCS(pCaseSensitive)
+
+			def RemoveStringFirstAndSecondBoundsCSQ(pCaseSensitive)
+				This.RemoveStringFirstAndLastBoundsCS(pCaseSensitive)
+				return This
+
+		#--
+
 		def RemoveFirstAndLastBoundsCS(pCaseSensitive)
 			This.RemoveStringBoundsCS(pCaseSensitive)
 
 			def RemoveFirstAndLastBoundsCSQ(pCaseSensitive)
 				This.RemoveFirstAndLastBoundsCS(pCaseSensitive)
+				return This
+
+		def RemoveFirstAndSecondBoundsCS(pCaseSensitive)
+			This.RemoveStringBoundsCS(pCaseSensitive)
+
+			def RemoveFirstAndSecondBoundsCSQ(pCaseSensitive)
+				This.RemoveFirstAndSecondBoundsCS(pCaseSensitive)
 				return This
 
 		#--
@@ -9156,11 +9508,27 @@ class stzString from stzObject
 				This.RemoveStringLastAndFirstBoundsCS(pCaseSensitive)
 				return This
 
+		def RemoveStringSecondAndFirstBoundsCS(pCaseSensitive)
+			This.RemoveStringBoundsCS(pCaseSensitive)
+
+			def RemoveStringSecondAndFirstBoundsCSQ(pCaseSensitive)
+				This.RemoveStringSecondAndFirstBoundsCS(pCaseSensitive)
+				return This
+
+		#--
+
 		def RemoveLastAndFirstBoundsCS(pCaseSensitive)
 			This.RemoveStringBoundsCS(pCaseSensitive)
 
 			def RemoveLastAndFirstBoundsCSQ(pCaseSensitive)
 				This.RemoveLastAndFirstBoundsCS(pCaseSensitive)
+				return This
+
+		def RemoveSecondAndFirstBoundsCS(pCaseSensitive)
+			This.RemoveStringBoundsCS(pCaseSensitive)
+
+			def RemoveSecondAndFirstBoundsCSQ(pCaseSensitive)
+				This.RemoveSecondAndFirstBoundsCS(pCaseSensitive)
 				return This
 
 		#--
@@ -9171,6 +9539,8 @@ class stzString from stzObject
 			def RemoveStringLeftAndRightBoundsCSQ(pCaseSensitive)
 				This.RemoveStringLeftAndRightBoundsCS(pCaseSensitive)
 				return This
+
+		#--
 
 		def RemoveLeftAndRightBoundsCS(pCaseSensitive)
 			This.RemoveStringBoundsCS(pCaseSensitive)
@@ -9187,6 +9557,8 @@ class stzString from stzObject
 			def RemoveStringRightAndLeftBoundsCSQ(pCaseSensitive)
 				This.RemoveStringRightAndLeftBoundsCS(pCaseSensitive)
 				return This
+
+		#--
 
 		def RemoveRightAndLeftBoundsCS(pCaseSensitive)
 			This.RemoveStringBoundsCS(pCaseSensitive)
@@ -9214,12 +9586,25 @@ class stzString from stzObject
 		def FirstAndLastBoundsRemovedCS(pCaseSensitive)
 			return This.StringBoundsRemovedCS(pCaseSensitive)
 
+		def StringFirstAndSecondBoundsRemovedCS(pCaseSensitive)
+			return This.StringBoundsRemovedCS(pCaseSensitive)
+
+		def FirstAndSecondBoundsRemovedCS(pCaseSensitive)
+			return This.StringBoundsRemovedCS(pCaseSensitive)
+
+
 		#--
 
 		def StringLastAndFirstBoundsRemovedCS(pCaseSensitive)
 			return This.StringBoundsRemovedCS(pCaseSensitive)
 
 		def LastAndFirstBoundsRemovedCS(pCaseSensitive)
+			return This.StringBoundsRemovedCS(pCaseSensitive)
+
+		def StringSecondAndFirstBoundsRemovedCS(pCaseSensitive)
+			return This.StringBoundsRemovedCS(pCaseSensitive)
+
+		def SecondAndFirstBoundsRemovedCS(pCaseSensitive)
 			return This.StringBoundsRemovedCS(pCaseSensitive)
 
 		#--
@@ -9261,7 +9646,7 @@ class stzString from stzObject
 			def RemoveBoundsQ()
 				This.RemoveBounds()
 				return This
-
+	
 		#--
 
 		def RemoveStringFirstAndLastBounds()
@@ -9271,11 +9656,27 @@ class stzString from stzObject
 				This.RemoveStringFirstAndLastBounds()
 				return This
 
+		def RemoveStringFirstAndSecondBounds()
+			This.RemoveStringBounds()
+
+			def RemoveStringFirstAndSecondBoundsQ()
+				This.RemoveStringFirstAndLastBounds()
+				return This
+
+		#--
+
 		def RemoveFirstAndLastBounds()
 			This.RemoveStringBounds()
 
 			def RemoveFirstAndLastBoundsQ()
 				This.RemoveFirstAndLastBounds()
+				return This
+
+		def RemoveFirstAndSecondBounds()
+			This.RemoveStringBounds()
+
+			def RemoveFirstAndSecondBoundsQ()
+				This.RemoveFirstAndSecondBounds()
 				return This
 
 		#--
@@ -9287,11 +9688,27 @@ class stzString from stzObject
 				This.RemoveStringLastAndFirstBounds()
 				return This
 
+		def RemoveStringSecondAndFirstBounds()
+			This.RemoveStringBounds()
+
+			def RemoveStringSecondAndFirstBoundsQ()
+				This.RemoveStringSecondAndFirstBounds()
+				return This
+
+		#--
+
 		def RemoveLastAndFirstBounds()
 			This.RemoveStringBounds()
 
 			def RemoveLastAndFirstBoundsQ()
 				This.RemoveLastAndFirstBounds()
+				return This
+
+		def RemoveSecondAndFirstBounds()
+			This.RemoveStringBounds()
+
+			def RemoveSecondAndFirstBoundsQ()
+				This.RemoveSecondAndFirstBounds()
 				return This
 
 		#--
@@ -9302,6 +9719,8 @@ class stzString from stzObject
 			def RemoveStringLeftAndRightBoundsQ()
 				This.RemoveStringLeftAndRightBounds()
 				return This
+
+		#--
 
 		def RemoveLeftAndRightBounds()
 			This.RemoveStringBounds()
@@ -9319,6 +9738,8 @@ class stzString from stzObject
 				This.RemoveStringRightAndLeftBounds()
 				return This
 
+		#--
+
 		def RemoveRightAndLeftBounds()
 			This.RemoveStringBounds()
 
@@ -9334,7 +9755,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def BoundsRemoved(pCaseSensitive)
+		def BoundsRemoved()
 			return This.StringBoundsRemoved()
 
 		#--
@@ -9345,12 +9766,25 @@ class stzString from stzObject
 		def FirstAndLastBoundsRemoved()
 			return This.StringBoundsRemoved()
 
+		def StringFirstAndSecondBoundsRemoved()
+			return This.StringBoundsRemoved()
+
+		def FirstAndSecondBoundsRemoved()
+			return This.StringBoundsRemoved()
+
+
 		#--
 
 		def StringLastAndFirstBoundsRemoved()
 			return This.StringBoundsRemoved()
 
 		def LastAndFirstBoundsRemoved()
+			return This.StringBoundsRemoved()
+
+		def StringSecondAndFirstBoundsRemoved()
+			return This.StringBoundsRemoved()
+
+		def SecondAndFirstBoundsRemoved()
 			return This.StringBoundsRemoved()
 
 		#--
@@ -9364,11 +9798,10 @@ class stzString from stzObject
 		#--
 
 		def StringRightAndLeftBoundsRemoved()
-			return This.StringBoundsRemovedCS()
+			return This.StringBoundsRemoved()
 
 		def RightAndLeftBoundsRemoved()
-			return This.StringBoundsRemovedCS()
-
+			return This.StringBoundsRemoved()
 
 		#>
 
@@ -9596,14 +10029,39 @@ class stzString from stzObject
 				This.RemoveLastBoundCS(pCaseSensitive)
 				return This
 
+
+		def RemoveStringSecondBoundCS(pCaseSensitive)
+			This.RemoveStringLastBoundCS(pCaseSensitive)
+
+			def RemoveStringSecondBoundCSQ(pCaseSensitive)
+				This.RemoveStringSecondBoundCS(pCaseSensitive)
+				return This
+
+		def RemoveSecondBoundCS(pCaseSensitive)
+			This.RemoveStringLastBoundCS(pCaseSensitive)
+
+			def RemoveSecondBoundCSQ(pCaseSensitive)
+				This.RemoveSecondBoundCS(pCaseSensitive)
+				return This
+
 		#>
 
 	def StringLastBoundRemovedCS(pCaseSensitive)
 		cResult = This.Copy().RemoveSubStringLastBoundCSQ(pCaseSensitive).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def LastBoundRemovedCS(pCaseSensitive)
 			return This.StringLastBoundRemovedCS(pCaseSensitive)
+
+		def StringSecondBoundRemovedCS(pCaseSensitive)
+			return This.StringLastBoundRemovedCS(pCaseSensitive)
+
+		def SecondBoundRemovedCS(pCaseSensitive)
+			return This.StringLastBoundRemovedCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -9627,14 +10085,39 @@ class stzString from stzObject
 				This.RemoveLastBound()
 				return This
 
+
+		def RemoveStringSecondBound()
+			This.RemoveStringLastBound()
+
+			def RemoveStringSecondBoundQ()
+				This.RemoveStringSecondBound()
+				return This
+
+		def RemoveSecondBound()
+			This.RemoveStringLastBound()
+
+			def RemoveSecondBoundQ()
+				This.RemoveSecondBound()
+				return This
+
 		#>
 
 	def StringLastBoundRemoved()
 		cResult = This.Copy().RemoveSubStringLastBoundQ().Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def LastBoundRemoved()
 			return This.StringLastBoundRemoved()
+
+		def StringSecondBoundRemoved()
+			return This.StringLastBoundRemoved()
+
+		def SecondBoundRemoved()
+			return This.StringLastBoundRemoved()
+
+		#>
 
 	  #----------------------------------------------------------------------------------------#
 	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) IN THE THE STRING AND RETURNING THEIR SECTIONS  #
@@ -9673,10 +10156,6 @@ class stzString from stzObject
 
 		def FindTheseBoundsAsSections(pcBound1, pcBound2)
 			return This.FindTheseStringBoundsAsSections(pcBound1, pcBound2)
-
-	  #-----------------------------------------------------------#
-	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) OF THE THE STRING  #
-	#-----------------------------------------------------------#
 
 	  #----------------------------------------------------------------------------------------#
 	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) IN THE THE STRING AND RETURNING THEIR SECTIONS  #
@@ -10198,6 +10677,17 @@ class stzString from stzObject
 		def FindLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSubStringSecondBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindSecondBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindSecondBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -10211,6 +10701,17 @@ class stzString from stzObject
 			return This.FindSubStringLastBoundsAsSections(pcSubStr)
 
 		def FindLastBoundsAsSections(pcSubStr)
+			return This.FindSubStringLastBoundsAsSections(pcSubStr)
+
+		#--
+
+		def FindSubStringSecondBoundsAsSections(pcSubStr)
+			return This.FindSubStringLastBoundsAsSections(pcSubStr)
+
+		def FindSecondBoundsOfAsSections(pcSubStr)
+			return This.FindSubStringLastBoundsAsSections(pcSubStr)
+
+		def FindSecondBoundsAsSections(pcSubStr)
 			return This.FindSubStringLastBoundsAsSections(pcSubStr)
 
 		#>
@@ -10343,6 +10844,17 @@ class stzString from stzObject
 		def FindLastBoundsCS(pcSubStr, pCaseSensitive)
 			return This.FindSubStringLastBoundsCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSubStringSecondBoundsCS(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FindSecondBoundsOfCS(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FindSecondBoundsCS(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVE
@@ -10356,6 +10868,17 @@ class stzString from stzObject
 			return This.FindSubStringLastBounds(pcSubStr)
 
 		def FindLastBounds(pcSubStr)
+			return This.FindSubStringLastBounds(pcSubStr)
+
+		#--
+
+		def FindSubStringSecondBounds(pcSubStr)
+			return This.FindSubStringLastBounds(pcSubStr)
+
+		def FindSecondBoundsOf(pcSubStr)
+			return This.FindSubStringLastBounds(pcSubStr)
+
+		def FindSecondBounds(pcSubStr)
 			return This.FindSubStringLastBounds(pcSubStr)
 
 		#>
@@ -10450,16 +10973,52 @@ class stzString from stzObject
 
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def BoundsOfCS(pcsubStr, pCaseSensitive)
 			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
+
+		#--
+
+		def SubStringFirstAndLastBoundsCS(pcSubStr, pCaseSensitive)
+			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
+
+		def SubStringFirstAndSecondBoundsCS(pcSubStr, pCaseSensitive)
+			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FirstAndLastBoundsOfCS(pcSubStr, pCaseSensitive)
+			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FirstAndSecondBoundsOfCS(pcSubStr, pCaseSensitive)
+			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringBounds(pcSubstr)
 		return This.SubStringBoundsCS(pcSubstr, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def BoundsOf(pcsubStr)
 			return This.SubStringBounds(pcSubStr)
+
+		#--
+
+		def SubStringFirstAndLastBounds(pcSubStr)
+			return This.SubStringBounds(pcSubStr)
+
+		def SubStringFirstAndSecondBounds(pcSubStr)
+			return This.SubStringBounds(pcSubStr)
+
+		def FirstAndLastBoundsOf(pcSubStr)
+			return This.SubStringBounds(pcSubStr)
+
+		def FirstAndSecondBoundsOf(pcSubStr)
+			return This.SubStringBounds(pcSubStr)
+
+		#>
 
 	  #-------------------------------------------------------------#
 	 #  GETTING THE FIRST BOUNDS OF A SUBSTRING INSIDE THE STRING  #
@@ -10494,16 +11053,36 @@ class stzString from stzObject
 
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def LastBoundsOfCS(pcSubStr, pCaseSensitive)
 			return This.SubStringLastBoundsCS(pcSubStr, pCaseSensitive)
+
+		def SubStringSecondBoundsCS(pcSubStr, pCaseSensitive)
+			return This.SubStringLastBoundsCS(pcSubStr, pCaseSensitive)
+
+		def SecondBoundsOfCS(pcSubStr, pCaseSensitive)
+			return This.SubStringLastBoundsCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringLastBounds(pcSubStr)
 		return This.SubStringLastBoundsCS(pcSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def LastBoundsOf(pcSubStr)
 			return This.SubStringLastBounds(pcSubStr)
+
+		def SubStringSecondBounds(pcSubStr)
+			return This.SubStringLastBounds(pcSubStr)
+
+		def SecondBoundsOf(pcSubStr)
+			return This.SubStringLastBounds(pcSubStr)
+
+		#>
 
 	  #--------------------------------------------------------------#
 	 #  GETTING THE LEFT BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
@@ -10644,9 +11223,44 @@ class stzString from stzObject
 			return This
 		#>
 
+
+		#< @FunctionAlternativeForms
+
+		def RemoveLeftBoundOfCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLeftBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveLeftBoundOfCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveLeftBoundOfCS(pcSubStr, pCaseSensitive)
+				return This
+
+		#--
+
+		def RemoveEachSubStringLeftBoundCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLeftBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveEachSubStringLeftBoundCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveEachSubStringLeftBoundCS(pcSubStr, pCaseSensitive)
+				return This
+
+		def RemoveEachLeftBoundOfCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLeftBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveEachLeftBoundOfCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveEachLeftBoundOfCS(pcSubStr, pCaseSensitive)
+				return This
+
+		#>
+
 	def SubStringLeftBoundRemovedCS(pcSubStr, pCaseSensitive)
 		cResult = This.Copy().RemoveSubStringLeftBoundCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def EachSubStringLeftBoundRemovedCS(pcSubStr, pCaseSensitive)
+			return This.SubStringLeftBoundRemovedCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -10660,9 +11274,43 @@ class stzString from stzObject
 			return This
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def RemoveLeftBoundOf(pcSubStr)
+			This.RemoveSubStringLeftBound(pcSubStr)
+
+			def RemoveLeftBoundOfQ(pcSubStr)
+				This.RemoveLeftBoundOf(pcSubStr)
+				return This
+
+		#--
+
+		def RemoveEachSubStringLeftBound(pcSubStr)
+			This.RemoveSubStringLeftBound(pcSubStr)
+
+			def RemoveEachSubStringLeftBoundQ(pcSubStr)
+				This.RemoveEachSubStringLeftBound(pcSubStr)
+				return This
+
+		def RemoveEachLeftBoundOf(pcSubStr)
+			This.RemoveSubStringLeftBound(pcSubStr)
+
+			def RemoveEachLeftBoundOfQ(pcSubStr)
+				This.RemoveEachLeftBoundOf(pcSubStr)
+				return This
+
+		#>
+
 	def SubStringLeftBoundRemoved(pcSubStr)
 		cResult = This.Copy().RemoveSubStringLeftBoundQ(pcSubStr).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def EachSubStringLeftBoundRemoved(pcSubStr)
+			return This.SubStringLeftBoundRemoved(pcSubStr)
+
+		#>
 
 	  #--------------------------------------------#
 	 #    REMOVING RIGHT BOUND FROM THE STRING    #
@@ -10684,9 +11332,44 @@ class stzString from stzObject
 	
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def RemoveRightBoundOfCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringrightBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveRightBoundOfCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveRightBoundOfCS(pcSubStr, pCaseSensitive)
+				return This
+
+		#--
+
+		def RemoveEachSubStringRightBoundCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringRightBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveEachSubStringRightBoundCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveEachSubStringRightBoundCS(pcSubStr, pCaseSensitive)
+				return This
+
+		def RemoveEachRightBoundOfCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringRightBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveEachRightBoundOfCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveEachRightBoundOfCS(pcSubStr, pCaseSensitive)
+				return This
+
+		#>
+
 	def SubStringRightBoundRemovedCS(pcSubStr, pCaseSensitive)
 		cResult = This.Copy().RemoveSubStringRightBoundCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
+
+
+		#< @FunctionAlternativeForms
+
+		def EachSubStringRightBoundRemovedCS(pcSubStr, pCaseSensitive)
+			return This.SubStringRightBoundRemovedCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -10701,9 +11384,43 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def RemoveRightBoundOf(pcSubStr)
+			This.RemoveSubStringrightBound(pcSubStr)
+
+			def RemoveRightBoundOfQ(pcSubStr)
+				This.RemoveRightBoundOf(pcSubStr)
+				return This
+
+		#--
+
+		def RemoveEachSubStringRightBound(pcSubStr)
+			This.RemoveSubStringRightBound(pcSubStr)
+
+			def RemoveEachSubStringRightBoundQ(pcSubStr)
+				This.RemoveEachSubStringRightBound(pcSubStr)
+				return This
+
+		def RemoveEachRightBoundOf(pcSubStr)
+			This.RemoveSubStringRightBound(pcSubStr)
+
+			def RemoveEachRightBoundOfQ(pcSubStr)
+				This.RemoveEachRightBoundOf(pcSubStr)
+				return This
+
+		#>
+
 	def RightSubStringBoundRemoved(pcSubStr)
 		cResult = This.Copy().RemoveSubStringRightBoundQ(pcSubStr).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def EachSubStringRightBoundRemoved(pcSubStr)
+			return This.SubStringRightBoundRemoved(pcSubStr)
+
+		#>
 
 	  #-------------------------------------------#
 	 #   REMOVING FIRST BOUND FROM THE STRING    #
@@ -10728,9 +11445,43 @@ class stzString from stzObject
 	
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def RemoveFirstBoundOfCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringfirstBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveFirstBoundOfCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveFirstBoundOfCS(pcSubStr, pCaseSensitive)
+				return This
+
+		#--
+
+		def RemoveEachSubStringFirstBoundCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringFirstBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveEachSubStringFirstBoundCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveEachSubStringFirstBoundCS(pcSubStr, pCaseSensitive)
+				return This
+
+		def RemoveEachFirstBoundOfCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringfirstBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveEachFirstBoundOfCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveEachFirstBoundOfCS(pcSubStr, pCaseSensitive)
+				return This
+
+		#>
+
 	def SubStringFirstBoundRemovedCS(pcSubStr, pCaseSensitive)
 		cResult = This.Copy().RemoveSubStringFirstBoundCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def EachSubStringFirstBoundRemovedCS(pcSubStr, pCaseSensitive)
+			return This.SubStringFirstBoundRemovedCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -10743,15 +11494,48 @@ class stzString from stzObject
 			This.RemoveSubStringFirstBound(pcSubStr)
 			return This
 
+		#< @FunctionAlternativeForms
+
+		def RemoveFirstBoundOf(pcSubStr)
+			This.RemoveSubStringfirstBound(pcSubStr)
+
+			def RemoveFirstBoundOfQ(pcSubStr)
+				This.RemoveFirstBoundOf(pcSubStr)
+				return This
+
+		#--
+
+		def RemoveEachSubStringFirstBound(pcSubStr)
+			This.RemoveSubStringLastBound(pcSubStr)
+
+			def RemoveEachSubStringFirstBoundQ(pcSubStr)
+				This.RemoveEachSubStringFirstBound(pcSubStr)
+				return This
+
+		def RemoveEachFirstBoundOf(pcSubStr)
+			This.RemoveSubStringfirstBound(pcSubStr)
+
+			def RemoveEachFirstBoundOfQ(pcSubStr)
+				This.RemoveEachFirstBoundOf(pcSubStr)
+				return This
+
 		#>
+
 
 	def SubStringFirstBoundRemoved(pcSubStr)
 		cResult = This.Copy().RemoveSubStringFirstBoundQ(pcSubStr).Content()
 		return cResult
 
-	  #-----------------------------------------#
-	 #   REMOVING LAST BOUND FROM THE STRING   #
-	#-----------------------------------------#
+		#< @FunctionAlternativeForms
+
+		def EachSubStringFirstBoundRemoved(pcSubStr)
+			return This.SubStringFirstBoundRemoved(pcSubStr)
+
+		#>
+
+	  #-------------------------------------------------------------#
+	 #   REMOVING EACH LAST BOUND OF A SUBSTRING FROM THE STRING   #
+	#-------------------------------------------------------------#
 
 	def RemoveSubStringLastBoundCS(pcSubStr, pCaseSensitive)
 	
@@ -10772,9 +11556,77 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def RemoveLastBoundOfCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLastBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveLastBoundOfCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveLastBoundOfCS(pcSubStr, pCaseSensitive)
+				return This
+
+		def RemoveSecondBoundOfCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLastBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveSecondBoundOfCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveLastBoundOfCS(pcSubStr, pCaseSensitive)
+				return This
+
+		def RemoveSubStringSecondBoundCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLastBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveSubStringSecondBoundCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveSubStringSecondBoundCS(pcSubStr, pCaseSensitive)
+				return This
+
+		#--
+
+		def RemoveEachSubStringLastBoundCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLastBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveEachSubStringLastBoundCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveEachSubStringLastBoundCS(pcSubStr, pCaseSensitive)
+				return This
+
+		def RemoveEachLastBoundOfCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLastBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveEachLastBoundOfCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveEachLastBoundOfCS(pcSubStr, pCaseSensitive)
+				return This
+
+		def RemoveEachSecondBoundOfCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLastBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveEachSecondBoundOfCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveEachSecondBoundOfCS(pcSubStr, pCaseSensitive)
+				return This
+
+		def RemoveEachSubStringSecondBoundCS(pcSubStr, pCaseSensitive)
+			This.RemoveSubStringLastBoundCS(pcSubStr, pCaseSensitive)
+
+			def RemoveEachSubStringSecondBoundCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveEachSubStringSecondBoundCS(pcSubStr, pCaseSensitive)
+				return This
+
+		#>
+
 	def SubStringLastBoundRemovedCS(pcSubStr, pCaseSensitive)
 		cResult = This.Copy().RemoveSubStringLastBoundCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def EachSubStringLastBoundRemovedCS(pcSubStr, pCaseSensitive)
+			return This.SubStringLastBoundRemovedCS(pcSubStr, pCaseSensitive)
+
+		def SubStringSecondBoundRemovedCS(pcSubStr, pCaseSensitive)
+			return This.SubStringLastBoundRemovedCS(pcSubStr, pCaseSensitive)
+
+		def EachSubStringSecondBoundRemovedCS(pcSubStr, pCaseSensitive)
+			return This.SubStringLastBoundRemovedCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -10789,9 +11641,77 @@ class stzString from stzObject
 	
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def RemoveLastBoundOf(pcSubStr)
+			This.RemoveSubStringLastBound(pcSubStr)
+
+			def RemoveLastBoundOfQ(pcSubStr)
+				This.RemoveLastBoundOf(pcSubStr)
+				return This
+
+		def RemoveSecondBoundOf(pcSubStr)
+			This.RemoveSubStringLastBound(pcSubStr)
+
+			def RemoveSecondBoundOfQ(pcSubStr)
+				This.RemoveLastBoundOf(pcSubStr)
+				return This
+
+		def RemoveSubStringSecondBound(pcSubStr)
+			This.RemoveSubStringLastBound(pcSubStr)
+
+			def RemoveSubStringSecondBoundQ(pcSubStr)
+				This.RemoveSubStringSecondBound(pcSubStr)
+				return This
+
+		#--
+
+		def RemoveEachSubStringLastBound(pcSubStr)
+			This.RemoveSubStringLastBound(pcSubStr)
+
+			def RemoveEachSubStringLastBoundQ(pcSubStr)
+				This.RemoveEachSubStringLastBound(pcSubStr)
+				return This
+
+		def RemoveEachLastBoundOf(pcSubStr)
+			This.RemoveSubStringLastBound(pcSubStr)
+
+			def RemoveEachLastBoundOfQ(pcSubStr)
+				This.RemoveEachLastBoundOf(pcSubStr)
+				return This
+
+		def RemoveEachSecondBoundOf(pcSubStr)
+			This.RemoveSubStringLastBound(pcSubStr)
+
+			def RemoveEachSecondBoundOfQ(pcSubStr)
+				This.RemoveEachSecondBoundOf(pcSubStr)
+				return This
+
+		def RemoveEachSubStringSecondBound(pcSubStr)
+			This.RemoveSubStringLastBound(pcSubStr)
+
+			def RemoveEachSubStringSecondBoundQ(pcSubStr)
+				This.RemoveEachSubStringSecondBound(pcSubStr)
+				return This
+
+		#>
+
 	def SubStringLastBoundRemoved(pcSubStr)
 		cResult = This.Copy().RemoveSubStringLastBoundQ(pcSubStr).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def EachSubStringLastBoundRemoved(pcSubStr)
+			return This.SubStringLastBoundRemoved(pcSubStr)
+
+		def SubStringSecondBoundRemoved(pcSubStr)
+			return This.SubStringLastBoundRemoved(pcSubStr)
+
+		def EachSubStringSecondBoundRemoved(pcSubStr)
+			return This.SubStringLastBoundRemoved(pcSubStr)
+
+		#>
 
 	  #------------------------------------------------------#
 	 #   CHECKING OF THE STRING CONTAINS THE GIVEN BOUNDS   #
