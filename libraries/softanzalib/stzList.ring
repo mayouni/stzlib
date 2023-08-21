@@ -28714,6 +28714,18 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def IsSubStringOrStringONamedParams()
 			return This.IsStringOrSubStringNamedParam()
 
+	#--
+
+	def IsOfOrOfSubStringNamedParam()
+		if This.IsOfNamedParam() or This.IsOfSubStringNamedParam()
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsOfSubStringOrOfNamedParam()
+			return This.IsOfOrOfSubStringNamedParam()
 
 	#--
 

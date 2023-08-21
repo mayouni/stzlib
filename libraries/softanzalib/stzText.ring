@@ -2191,9 +2191,9 @@ class stzText from stzString
 		def FrequenciesOfTheseWords(pacWords)
 			return This.TheseWordsFrequencies(pacWords)
 
-	  #-----------------------------------------------------------------------------#
-	 #   GETTING THE THE PROVIDED WORDS ALONG WITH THEIR FREQUENCIES IN THE TEXT   #
-	#-----------------------------------------------------------------------------#
+	  #-------------------------------------------------------------------------#
+	 #   GETTING THE PROVIDED WORDS ALONG WITH THEIR FREQUENCIES IN THE TEXT   #
+	#-------------------------------------------------------------------------#
 
 	def TheseWordsAndTheirFrequencies(pacWords)
 		aResult = []

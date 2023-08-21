@@ -499,9 +499,9 @@ class stzListOfPairs from stzList
 		def ItemsSwapped()
 			return This.Swapped()
 
-	  #-----------------------------------------#
-	 #   REVERSING THE THE PAIRS OF THE LIST   #
-	#-----------------------------------------#
+	  #-------------------------------------#
+	 #   REVERSING THE PAIRS OF THE LIST   #
+	#-------------------------------------#
 
 	def ReversePairs()	
 

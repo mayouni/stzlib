@@ -249,17 +249,66 @@ proff()
 # Executed in 0.09 second(s)
 
 /*--------
-*/
+
 pron()
 
 o1 = new stzString("<<<word>>>")
-o1.RemoveLastBound()
+o1.RemoveLastBound() # Or o1.RemovesecondBound()
 ? o1.Content()
 #--> <<<word
 
 proff()
 # Executed in 0.09 second(s)
 
+/*--------
+
+pron()
+
+o1 = new stzString("<<<word>>> <<word>> <word>")
+
+? @@( o1.FirstBounds(:Of = "word") )
+#--> [ "<<<", "<<", "<" ]
+
+? @@( o1.SecondBounds(:Of = "word") )
+#--> [ ">>>", ">>", ">" ]
+
+proff()
+# Executed in 0.09 second(s)
+
+/*=======
+
+pron()
+
+o1 = new stzString("<<<word>>> <<word>> <word>")
+
+o1.RemoveBoundsOf("word")
+? o1.Content()
+#--> word word word
+
+/*
+o1.RemoveFirstBounds(:of = "word")
+o1.RemoveLastBounds(:of = "word")
+*/
+proff()
+# Executed in 0.09 second(s)
+
+/*---------
+
+*/
+pron()
+
+o1 = new stzString("<<<word>>> <<word>> <word>")
+
+o1.RemoveBoundsOf("word")
+? o1.Content()
+#--> word word word
+
+/*
+o1.RemoveFirstBounds(:of = "word")
+o1.RemoveLastBounds(:of = "word")
+*/
+proff()
+# Executed in 0.09 second(s)
 /*========= SWAPPING TWO SECTIONS
 
 pron()
