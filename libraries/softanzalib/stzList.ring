@@ -25030,7 +25030,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	#------------------------------------#
 	
 	def SplitToPartsOfNItems(n)
-		oSplitter = new stzSplitter(This.List())
+		oSplitter = new stzSplitter(This.NumberOfItems())
 		aSplitted = oSplitter.SplitToPartsOfNItems(n)
 
 		if isString(aSplitted) and aSplitted = NULL
@@ -25062,6 +25062,9 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		#< @FunctionFluentForm
 
+		def SplitToPartsOfNItemsQ(n)
+			return This.SplitToPartsOfNItemsQR(n, :stzList)
+
 		def SplitToPartsOfNItemsQR(n, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
@@ -25087,9 +25090,6 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 				StzRaise("Unsupported return type!")
 			off
 
-
-		def SplitToPartsOfNItemsQ(n)
-			return This.SplitToPartsOfNItemsQR(n, :stzList)
 	
 		#< @FunctionAlternativeForms
 
@@ -25143,6 +25143,63 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 				ok
 
 				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
+
+		#--
+
+		def SplitToListsOfNItems(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitToListsOfN(n)
+			return This.SplitToPartsOfNItems(n)
+
+			#< @FunctionFluentForm
+
+			def SplitToListsOfNQ(n)
+				return This.SplitToListsOfNItemsQR(n, :stzList)
+	
+			def SplitToListsOfNQR(n, pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				return This.SplitToListsOfNItemsQR(n, pcReturnType)
+
+			#>
+
+		def SplitToListsOf(n)
+			return This.SplitToPartsOfNItems(n)
+
+			#< @FunctionFluentForm
+
+			def SplitToListsOfQ(n)
+				return This.SplitToListsOfNItemsQR(n, :stzList)
+	
+			def SplitToListsOfQR(n, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				return This.SplitToListsOfNItemsQR(n, pcReturnType)
+
+			#>
+
+		def SplitToLists(n)
+			if isList(n) and StzListQ(n).IsOfNamedParam()
+				n = n[2]
+			ok
+
+			return This.SplitToPartsOf(n)
+
+			def SplitToListsQ(n)
+				return This.SplitToListsQR(n, :stzList)
+	
+			def SplitToListsQR(n, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				return This.SplitToListsOfNItemsQR(n, pcReturnType)
+
 		#>
 
 	  #-----------------------------------#
@@ -28724,8 +28781,15 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return FALSE
 		ok
 
+		def IsOfOrOfSubStringNamedParams()
+			return This.IsOfOrOfSubStringNamedParam()
+
 		def IsOfSubStringOrOfNamedParam()
 			return This.IsOfOrOfSubStringNamedParam()
+
+		def IsOfSubStringOrOfNamedParams()
+			return This.IsOfOrOfSubStringNamedParam()
+
 
 	#--
 

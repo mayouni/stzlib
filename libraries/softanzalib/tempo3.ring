@@ -1,6 +1,32 @@
 load "stzlib.ring"
 
-/*---------
+
+/*--------
+
+pron()
+
+o1 = new stzList(1:8)
+? @@( o1.SplitToListsOfNItems(2) )
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ] ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzList([ [ 1, 3 ], [ 8, 10 ], [ 12, 13 ], [ 18, 19 ], [ 21, 21 ], [ 26, 26 ] ])
+? @@( o1.SplitToListsOfNItems(2) )
+#--> [ 
+#	[ [ 1, 3 ], [ 8, 10 ] ],
+#	[ [ 12, 13 ], [ 18, 19 ] ],
+#	[ [ 21, 21 ], [ 26, 26 ] ]
+# ]
+
+proff()
+
+/*========
 
 pron()
 
@@ -285,30 +311,55 @@ o1.RemoveBoundsOf("word")
 ? o1.Content()
 #--> word word word
 
-/*
-o1.RemoveFirstBounds(:of = "word")
-o1.RemoveLastBounds(:of = "word")
-*/
 proff()
 # Executed in 0.09 second(s)
 
 /*---------
 
-*/
 pron()
 
 o1 = new stzString("<<<word>>> <<word>> <word>")
 
-o1.RemoveBoundsOf("word")
-? o1.Content()
-#--> word word word
+o1.RemoveFirstBounds(:Of = "word") # Or o1.RemoveLeftBounds(:Of = "word")
+#--> word>>> word>> word>
 
-/*
-o1.RemoveFirstBounds(:of = "word")
-o1.RemoveLastBounds(:of = "word")
-*/
+? o1.Content()
+
+
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.08 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzString("<<<word>>> <<word>> <word>")
+
+o1.RemoveLastBounds(:Of = "word") # Or o1.RemoveRightBounds(:Of = "word")
+? o1.Content()
+#--> <<<word <<word <word
+
+proff()
+# Executed in 0.08 second(s)
+
+/*---------
+*/
+pron()
+
+# [ 
+#	[ [ 1, 3 ], [ 8, 10 ] ],
+#	[ [ 12, 13 ], [ 18, 19 ] ],
+#	[ [ 21, 21 ], [ 26, 26 ] ]
+# ]
+
+o1 = new stzString(">>>word<<< >>word<< >word<")
+o1.SwapSections([ 1, 3 ], [ 8, 10 ])
+
+//o1.SwapBoundsOf("word")
+? o1.Content()
+
+proff()
+
 /*========= SWAPPING TWO SECTIONS
 
 pron()
