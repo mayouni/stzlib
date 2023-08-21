@@ -38,13 +38,14 @@ class stzSplitter from stzListOfNumbers
 
 			@nNumberOfPositions = n
 
-		but isList(n) and Q(n).IsListOfNumbers() and
-		    Q(n).IsContiguous() and n[1] = 1
+		but isString(n)
+			@nNumberOfPositions = Q(n).NumberOfChars()
 
-			@nNumberOfPositions = len(n)
+		but isList(n)
+			@nNumberOfPositions = Q(n).NumberOfItems()
 
 		else
-			StzRaise("Incorrect param type! n must be a number.")
+			StzRaise("Incorrect param type! n must be a number or string or list.")
 		ok
 
 	def NumberOfPositions()
