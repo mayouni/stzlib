@@ -938,22 +938,69 @@ proff()
 # Executed in 0.07 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 		
-? o1.SubStringIsBoundedBy("♥♥", "aa") #--> TRUE
+? o1.SubStringIsBoundedBy("♥♥", "aa")
 #--> TRUE
 
-? o1.SubStringIsBoundedBy("♥♥", "bb") #--> TRUE
+? o1.SubStringIsBoundedBy("♥♥", "bb")
 #--> TRUE
 	
-? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] ) #--> TRUE
+? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] )
 #--> TRUE
 
 proff()
 # Executed in 0.16 second(s)
+
+/*================
+*/
+# PErsonal note :This sample has been porposed by Teeba (my daughther). She helped me
+# identify the [] case and solve it.
+
+pron()
+#			vv
+o1 = new stzList([ 957, [], [ 1:3, 4:5, 9:12 ], "Hussein", ["Haneen"] ])
+o1.Pairify()
+? @@( o1.Content() )
+#--> [
+#	[ 957, "" ],
+#	[ "", "" ],
+#	[ [ 1, 2, 3 ], [ 4, 5 ] ],
+#	[ "Hussein", "" ],
+#	[ "Haneen", "" ]
+# ]
+
+proff()
+
+/*----------------
+*/
+pron()
+
+o1 = new stzList([ [ "<<", ">>" ], "__", [ "--", "--", "--" ] ])
+o1.Pairify() # transform all items to pairs
+? @@( o1.Content() )
+#--> [
+#	[ "<<", ">>" ],
+#	[ "__", "__" ],
+#	[ "--", "--" ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+/*----------------
+*/
+pron()
+
+o1 = new stzString("<<word>> and __word__")
+
+? o1.SubStringIsBoundedBy("word", ["<<", ">>"])
+#--> TRUE
+
+? o1.SubStringIsBoundedBy("word", [ ["<<", ">>"], "__" ])
+proff()
 
 /*----------------
 */

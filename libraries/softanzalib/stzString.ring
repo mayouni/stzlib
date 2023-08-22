@@ -46167,7 +46167,7 @@ def ReplaceIBS()
 			def ToListInStringInNormalFormQ()
 				return new stzString( This.ToListInStringInNormalForm() )
 
-	def ToListInstring()
+	def ToListInString()
 		return This.ToListInNormalForm()
 
 		def ToListInStringQ()
@@ -46294,7 +46294,7 @@ def ReplaceIBS()
 
 		def ToListQ()
 			return new stzList( This.ToList() )
-
+		
   	  #==========================================================#
 	 #   CHECKING IF ALL THE STRINGS VERIFY A GIVEN CONDITION   #
 	#==========================================================#

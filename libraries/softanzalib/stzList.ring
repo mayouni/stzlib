@@ -36841,3 +36841,47 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	def NumberOfPairs()
 		return len(This.Pairs())
+
+	  #--------------------------------------------------------#
+	 #  PAIRIFYING THE LIST BY TRANFORMING EACH ITEM TO PAIR  #
+	#--------------------------------------------------------#
+
+	def Pairify()
+		
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			aPair = []
+
+			if isList(aContent[i])
+
+				nLenTemp = len(aContent[i])
+				if nLenTemp = 0
+					aPair + NULL + NULL
+
+				but nLenTemp = 1
+					aPair + aContent[i][1] + NULL
+
+				but nLenTemp = 2
+					aPair = aContent[i]
+
+				else
+					aPair + aContent[i][1] + aContent[i][2]
+				ok
+			
+			else
+				aPair + aContent[i] + NULL
+			ok
+
+			aResult + aPair
+		next
+
+		This.UpdateWith(aResult)
+
+		
+
+			 
