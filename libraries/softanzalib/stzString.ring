@@ -7370,9 +7370,17 @@ class stzString from stzObject
 		ok
 
 		nCharsBefore = paHarvest[1]
+		if nCharsBefore > aSection[1] - 1
+			nCharsBefore = aSection[1] - 1
+		ok
+
 		nCharsAfter  = paHarvest[2]
+		if nCharsAfter > This.NumberOfChars() - aSection[2]
+			nCharsAfter = This.NumberOfChars() - aSection[2]
+		ok
 
 		anSectionBefore = [0, 0]
+
 		if nCharsBefore != 0
 			anSectionBefore[1] = (aSection[1] - nCharsBefore)
 			anSectionBefore[2] = (aSection[1] - 1)
@@ -7664,16 +7672,21 @@ class stzString from stzObject
 	
 	def SubStringIsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
-		/* EXAMPLE
+		/* EXAMPLES
 
 		o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 		
 		? o1.SubStringIsBoundedBy("♥♥", "aa") #--> TRUE
+
 		? o1.SubStringIsBoundedBy("♥♥", "bb") #--> TRUE
 		
 		? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] ) #--> TRUE
-		? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE		*/
+
+		? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE
+		*/
 	
+		
+
 		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
 
 			aTemp = []
@@ -7692,16 +7705,8 @@ class stzString from stzObject
 		bResult = FALSE
 		nLen = len(pacBounds)
 
-
-		for i = 1 to nLen
-			acPair = pacBounds[i]
-			anUpToNChars = [ Q(acPair[1]).NumberOfChars(),
-					 Q(acPair[2]).NumberOfChars() ]
-
-			acBounds = This.BoundsXTCS( :Of = pcSubStr, anUpToNChars, pCaseSensitive)
-
-			bResult = Q(pacBounds).AllItemsExistIn(acBounds)
-		next
+		acBounds = This.BoundsOfCS( pcSubStr, pCaseSensitive)
+		bResult = Q(pacBounds).AllItemsExistIn(acBounds)
 
 		return bResult
 		
@@ -10485,11 +10490,11 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindSubStringBoundsAsSections()
+	def FindSubStringBoundsAsSections(pcSubStr)
 		return This.FindSubStringBoundsAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
 
-		def FindBoundsOfAsSections()
-			return This.FindSubStringBoundsAsSections()
+		def FindBoundsOfAsSections(pcSubStr)
+			return This.FindSubStringBoundsAsSections(pcSubStr)
 
 	  #---------------------------------------------------------#
 	 #  FINDING THE BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
@@ -10607,16 +10612,16 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindSubStringFirstBoundsAsSections()
+	def FindSubStringFirstBoundsAsSections(pcSubStr)
 		return This.FindFirstBoundsOfAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindFirstBoundsOfAsSections()
-			return This.FindSubStringFirstBoundsAsSections()
+		def FindFirstBoundsOfAsSections(pcSubStr)
+			return This.FindSubStringFirstBoundsAsSections(pcSubStr)
 
-		def FindFirstBoundsAsSections()
-			return This.FindSubStringFirstBoundsAsSections()
+		def FindFirstBoundsAsSections(pcSubStr)
+			return This.FindSubStringFirstBoundsAsSections(pcSubStr)
 
 		#>
 
@@ -10977,24 +10982,72 @@ class stzString from stzObject
 
 		return acResult
 
+		#< @FunctionFluentForms
+
+		def SubStringBoundsCSQ(pcSubStr, pCaseSensitive)
+			return This.SubStringBoundsCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+		def SubStringBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.SubStringBoundsCS(pcSubStr, pCaseSensitive))
+
+			on :stzListOfStrings
+				return new stzListOfStrings(This.SubStringBoundsCS(pcSubStr, pCaseSensitive))
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
 		#< @FunctionAlternativeForms
 
-		def BoundsOfCS(pcsubStr, pCaseSensitive)
+		def BoundsOfCS(pcSubStr, pCaseSensitive)
 			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
 
+			def BoundsOfCSQ(pcSubStr, pCaseSensitive)
+				return This.BoundsOfCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+			def BoundsOfCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 		#--
 
 		def SubStringFirstAndLastBoundsCS(pcSubStr, pCaseSensitive)
 			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
 
+			def SubStringFirstAndLastBoundsCSQ(pcSubStr, pCaseSensitive)
+				return This.BoundsOfCSQ(pcSubStr, pCaseSensitive)
+
+			def SubStringFirstAndLastBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
 		def SubStringFirstAndSecondBoundsCS(pcSubStr, pCaseSensitive)
 			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
+
+			def SubStringFirstAndSecondBoundsCSQ(pcSubStr, pCaseSensitive)
+				return This.BoundsOfCSQ(pcSubStr, pCaseSensitive)
+
+			def SubStringFirstAndSecondBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def FirstAndLastBoundsOfCS(pcSubStr, pCaseSensitive)
 			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
 
+			def FirstAndLastBoundsOfCSQ(pcSubStr, pCaseSensitive)
+				return This.BoundsOfCSQ(pcSubStr, pCaseSensitive)
+
+			def FirstAndLastBoundsOfCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
 		def FirstAndSecondBoundsOfCS(pcSubStr, pCaseSensitive)
 			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
+
+			def FirstAndSecondBoundsOfCSQ(pcSubStr, pCaseSensitive)
+				return This.BoundsOfCSQ(pcSubStr, pCaseSensitive)
+
+			def FirstAndSecondBoundsOfCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -11005,22 +11058,52 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def BoundsOf(pcsubStr)
+		def BoundsOf(pcSubStr)
 			return This.SubStringBounds(pcSubStr)
+
+			def BoundsOfQ(pcSubStr)
+				return This.BoundsOfCSQ(pcSubStr, :CaseSensitive = TRUE)
+
+			def BoundsOfQR(pcSubStr, pcReturnType)
+				return This.BoundsOfCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
 
 		#--
 
 		def SubStringFirstAndLastBounds(pcSubStr)
 			return This.SubStringBounds(pcSubStr)
 
+			def SubStringFirstAndLastBoundsQ(pcSubStr)
+				return This.BoundsOfQ(pcSubStr)
+
+			def SubStringFirstAndLastBoundsQR(pcSubStr, pcReturnType)
+				return This.BoundsOfQR(pcSubStr, pcReturnType)
+
 		def SubStringFirstAndSecondBounds(pcSubStr)
 			return This.SubStringBounds(pcSubStr)
+
+			def SubStringFirstAndSecondBoundsQ(pcSubStr)
+				return This.BoundsOfQ(pcSubStr)
+
+			def SubStringFirstAndSecondBoundsQR(pcSubStr, pcReturnType)
+				return This.BoundsOfQR(pcSubStr, pcReturnType)
 
 		def FirstAndLastBoundsOf(pcSubStr)
 			return This.SubStringBounds(pcSubStr)
 
+			def FirstAndLastBoundsOfQ(pcSubStr)
+				return This.BoundsOfQ(pcSubStr)
+
+			def FirstAndLastBoundsOfQR(pcSubStr, pcReturnType)
+				return This.BoundsOfQR(pcSubStr, pcReturnType)
+
 		def FirstAndSecondBoundsOf(pcSubStr)
 			return This.SubStringBounds(pcSubStr)
+
+			def FirstAndSecondBoundsOfQ(pcSubStr)
+				return This.BoundsOfQ(pcSubStr)
+
+			def FirstAndSecondBoundsOfQR(pcSubStr, pcReturnType)
+				return This.BoundsOfQR(pcSubStr, pcReturnType)
 
 		#>
 
@@ -11602,7 +11685,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringLeftBoundsRemovedCS(pCaseSensitive)
-		cResult = This.Copy().RemoveSubSubStringLeftBoundsCSQ(pCaseSensitive).Content()
+		cResult = This.Copy().RemoveSubStringLeftBoundsCSQ(pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -11698,7 +11781,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringRightBoundsRemovedCS(pCaseSensitive)
-		cResult = This.Copy().RemoveSubSubStringRightBoundsCSQ(pCaseSensitive).Content()
+		cResult = This.Copy().RemoveSubStringRightBoundsCSQ(pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -11794,7 +11877,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringFirstBoundsRemovedCS(pCaseSensitive)
-		cResult = This.Copy().RemoveSubSubStringFirstBoundsCSQ(pCaseSensitive).Content()
+		cResult = This.Copy().RemoveSubStringFirstBoundsCSQ(pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -11890,7 +11973,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringLastBoundsRemovedCS(pCaseSensitive)
-		cResult = This.Copy().RemoveSubSubStringLastBoundsCSQ(pCaseSensitive).Content()
+		cResult = This.Copy().RemoveSubStringLastBoundsCSQ(pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -11951,12 +12034,11 @@ class stzString from stzObject
 	 #  SWAPPING BOUNDS OF A GIVEN SUBSTRING  #
 	#========================================#
 
-	def SwapSubSubStringBoundsCS(pcSubStr, pCaseSensitive)
+	def SwapSubStringBoundsCS(pcSubStr, pCaseSensitive)
 
 		aSections = This.FindSubStringBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 		aPairsOfSections = Q(aSections).SplitToListsOfNItems(2)
 		nLen = len(aPairsOfSections)
-? @@(aPairsOfSections)
 
 		for i = 1 to nLen
 			This.SwapSections(aPairsOfSections[i][1], aPairsOfSections[i][2])
@@ -11964,8 +12046,8 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def SwapSubSubStringBoundsCSQ(pcSubStr, pCaseSensitive)
-			This.SwapSubSubStringBoundsCS(pcSubStr, pCaseSensitive)
+		def SwapSubStringBoundsCSQ(pcSubStr, pCaseSensitive)
+			This.SwapSubStringBoundsCS(pcSubStr, pCaseSensitive)
 			return This
 
 		#>
@@ -11973,7 +12055,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def SwapBoundsOfCS(pcSubStr, pCaseSensitive)
-			This.SwapSubSubStringBoundsCS(pcSubStr, pCaseSensitive)
+			This.SwapSubStringBoundsCS(pcSubStr, pCaseSensitive)
 
 			def SwapBoundsOfCSQ(pcSubStr, pCaseSensitive)
 				This.SwapBoundsOfCS(pcSubStr, pCaseSensitive)
@@ -11982,14 +12064,14 @@ class stzString from stzObject
 		#--
 
 		def SwapSubStringFirstAndLastBoundsCS(pcSubStr, pCaseSensitive)
-			This.SwapSubSubStringBoundsCS(pcSubStr, pCaseSensitive)
+			This.SwapSubStringBoundsCS(pcSubStr, pCaseSensitive)
 
 			def SwapSubStringFirstAndLastBoundsCSQ(pcSubStr, pCaseSensitive)
 				This.SwapSubStringFirstAndLastBoundsCS(pcSubStr, pCaseSensitive)
 				return This
 
 		def SwapSubStringLastAndFirstBoundsCS(pcSubStr, pCaseSensitive)
-			This.SwapSubSubStringBoundsCS(pcSubStr, pCaseSensitive)
+			This.SwapSubStringBoundsCS(pcSubStr, pCaseSensitive)
 
 			def SwapSubStringLastAndFirstBoundsCSQ(pcSubStr, pCaseSensitive)
 				This.SwapSubStringLastAndFirstBoundsCS(pcSubStr, pCaseSensitive)
@@ -11998,14 +12080,14 @@ class stzString from stzObject
 		#--
 
 		def SwapFirstAndLastBoundsOfCS(pcSubStr, pCaseSensitive)
-			This.SwapSubSubStringBoundsCS(pcSubStr, pCaseSensitive)
+			This.SwapSubStringBoundsCS(pcSubStr, pCaseSensitive)
 
 			def SwapFirstAndLastBoundsOfCSQ(pcSubStr, pCaseSensitive)
 				This.SwapFirstAndLastBoundsOfCS(pcSubStr, pCaseSensitive)
 				return This
 
 		def SwapLastAndFirstBoundsOfCS(pcSubStr, pCaseSensitive)
-			This.SwapSubSubStringBoundsCS(pcSubStr, pCaseSensitive)
+			This.SwapSubStringBoundsCS(pcSubStr, pCaseSensitive)
 
 			def SwapLastAndFirstBoundsOfCSQ(pcSubStr, pCaseSensitive)
 				This.SwapLastAndFirstBoundsOfCS(pcSubStr, pCaseSensitive)
@@ -12014,7 +12096,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringBoundsSwappedCS(pcSubStr, pCaseSensitive)
-		cResult = This.Copy().SwapSubSubStringBoundsCSQ(pcSubStr, pCaseSensitive).Content()
+		cResult = This.Copy().SwapSubStringBoundsCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -12042,13 +12124,13 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SwapSubSubStringBounds(pcSubStr)
-		return This.SubStringBoundsSwappedCS(pcSubStr, :CaseSensitive = TRUE)
+	def SwapSubStringBounds(pcSubStr)
+		This.SwapSubStringBoundsCS(pcSubStr, :CaseSensitive = TRUE)
 	
 		#< @FunctionFluentForm
 
-		def SwapSubSubStringBoundsQ(pcSubStr)
-			This.SwapSubSubStringBounds(pcSubStr)
+		def SwapSubStringBoundsQ(pcSubStr)
+			This.SwapSubStringBounds(pcSubStr)
 			return This
 
 		#>
@@ -12056,7 +12138,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def SwapBoundsOf(pcSubStr)
-			This.SwapSubSubStringBounds(pcSubStr)
+			This.SwapSubStringBounds(pcSubStr)
 
 			def SwapBoundsOfQ(pcSubStr)
 				This.SwapBoundsOf(pcSubStr)
@@ -12065,14 +12147,14 @@ class stzString from stzObject
 		#--
 
 		def SwapSubStringFirstAndLastBounds(pcSubStr)
-			This.SwapSubSubStringBounds(pcSubStr)
+			This.SwapSubStringBounds(pcSubStr)
 
 			def SwapSubStringFirstAndLastBoundsQ(pcSubStr)
 				This.SwapSubStringFirstAndLastBounds(pcSubStr)
 				return This
 
 		def SwapSubStringLastAndFirstBounds(pcSubStr)
-			This.SwapSubSubStringBounds(pcSubStr)
+			This.SwapSubStringBounds(pcSubStr)
 
 			def SwapSubStringLastAndFirstBoundsQ(pcSubStr)
 				This.SwapSubStringLastAndFirstBounds(pcSubStr)
@@ -12081,14 +12163,14 @@ class stzString from stzObject
 		#--
 
 		def SwapFirstAndLastBoundsOf(pcSubStr)
-			This.SwapSubSubStringBounds(pcSubStr)
+			This.SwapSubStringBounds(pcSubStr)
 
 			def SwapFirstAndLastBoundsOfQ(pcSubStr)
 				This.SwapFirstAndLastBoundsOf(pcSubStr)
 				return This
 
 		def SwapLastAndFirstBoundsOf(pcSubStr)
-			This.SwapSubSubStringBounds(pcSubStr)
+			This.SwapSubStringBounds(pcSubStr)
 
 			def SwapLastAndFirstBoundsOfQ(pcSubStr)
 				This.SwapLastAndFirstBoundsOf(pcSubStr)
@@ -12097,7 +12179,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringBoundsSwapped(pcSubStr)
-		cResult = This.Copy().SwapSubSubStringBoundsQ(pcSubStr).Content()
+		cResult = This.Copy().SwapSubStringBoundsQ(pcSubStr).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -17264,10 +17346,12 @@ class stzString from stzObject
 	def SectionsAndAntiSectionsXT(paSections)
 
 		aSectionsAntiSections = This.FindAsSectionsAndAntiSections(paSections)
+		nLen = len(aSectionsAntiSections)
 
 		aResult = []
 
-		for aSection in aSectionsAntiSections
+		for i = 1 to nLen
+			aSection = aSectionsAntiSections[i]
 			aResult + [ This.Section(aSection[1], aSection[2]), aSection ]
 		next
 
@@ -38109,41 +38193,22 @@ def ReplaceIBS()
 	#==========================================#
 
 	def SwapSections( panSection1, panSection2 )
-		if isList(panSection2) and Q(panSection2).IsWithOrAndNamedParams()
-			panSection2 = panSection2[2]
+
+		if CheckParam() = TRUE
+			if isList(panSection2) and Q(panSection2).IsWithOrAndNamedParams()
+				panSection2 = panSection2[2]
+			ok
+	
+			if NOT BothArePairsOfNumbers(panSection1, panSection2)
+				StzRaise("Incorrect param type! panSection1 and panSection2 must be both pairs of number.")
+			ok
 		ok
 
-		if NOT BothArePairsOfNumbers(panSection1, panSection2)
-			StzRaise("Incorrect param type! panSection1 and panSection2 must be both pairs of number.")
-		ok
+		cSection1 = This.Section(panSection1[1], panSection1[2])
+		cSection2 = This.Section(panSection2[1], panSection2[2])
 
-		aSorted = QR([ panSection1, panSection2 ], :stzListOfPairs).Sorted()
-
-		anFirstSection = []
-		anLastSection  = []
-
-		if Q(aSorted[1]).IsEqualTo(panSection1)
-			anFirstSection = panSection1
-			anLastSection  = panSection2
-
-		else
-			anFirstSection = panSection2
-			anLastSection  = panSection1
-		ok
-
-		# Composing the result
-
-		cResult = This.Section(anLastSection[1], anLastSection[2]) +
-			  This.Section(anFirstSection[2] + 1, anLastSection[1] - 1) +
-			  This.Section(anFirstSection[1], anFirstSection[2])
-
-		nLen = This.NumberOfChars()
-
-		if anLastSection[2] < nLen
-			  cResult += This.Section(anLastSection[2] + 1, nLen)
-		ok
-
-		This.UpdateWith(cResult)
+		This.ReplaceSection(panSection1[1], panSection1[2], cSection2)
+		This.ReplaceSection(panSection2[1], panSection2[2], cSection1)
 
 
 		def SwapSectionsQ(panSection1, panSection2)
@@ -38152,6 +38217,38 @@ def ReplaceIBS()
 
 	def SectionsSwapped(panSection1, panSection2)
 		cResult = This.Copy().SwapSectionsQ(panSection1, panSection2)
+		return cResult
+
+	  #-----------------------------------#
+	 #  SWAPPING MANY PAIRS OF SECTIONS  #
+	#-----------------------------------#
+
+	def SwapManyPairsOfSections(paPairsOfSections)
+		if CheckParam() = TRUE
+			if NOT ( isList(paPairsOfSections) and Q(paPairsOfSections).IsListOfPairsOfSections() )
+				StzRaise("Incorrect param type! paPairsOfSections must be a list of pairs of sections, each section being a pair of numbers.")
+			ok
+		ok
+
+		nLen = len(paPairsOfSections)
+
+		for i = 1 to nLen
+			This.SwapSections(paPairsOfSections[i][1], paPairsOfSections[i][2])
+		next
+
+		def SwapManyPairsOfSectionsQ(paPairsOfSections)
+			This.SwapManyPairsOfSections(paPairsOfSections)
+			return This
+
+		def SwapPairsOfSections(paPairsOfSections)
+			This.SwapManyPairsOfSections(paPairsOfSections)
+
+			def SwapPairsOfSectionsQ(paPairsOfSections)
+				This.SwapPairsOfSections(paPairsOfSections)
+				return This
+
+	def ManyPairsOfSectionsSwapped(paPairsOfSections)
+		cResult = This.Copy().SwapManyPairsOfSectionsQ(paPairsOfSections).Content()
 		return cResult
 
 	  #========================================#

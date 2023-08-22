@@ -5741,69 +5741,13 @@ class stzList from stzObject
 	def ExtractPrevious(item, pnStartingAt)
 		return This.ExtractPreviousCS(item, pnStartingAt, :CaseSensitive = TRUE)
 
-	  #============================================#
-	 #  BOUNDS OF AN ITEM UP TO N NEIGHBOR ITEMS  #
-	#============================================#
-
-	def BoundsOfCS(pItem, pnUpToNItems, pCaseSensitive)
-		if isList(pnUpToNItems) and
-		   Q(pnUpToNItems).IsOneOfTheseNamedParams([
-			:UpTo, :UpToN, :UpToNItems
-		   ])
-			pnUpToNItems = pnUpToNItems[2]
-		ok
-		
-		# { o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ]) }
-		# { o1.BoundsOf("*", :UpToNItems = 2) }
-
-		anPos = ListsMerge([ [0], This.FindAllCS(pItem, pCaseSensitive), [This.NumberOfItems()] ])
-		#--> [0, 3, 7, 9]
-		nLen = len(anPos)
-		if NOT nLen > 2
-			return [] # No bounds
-		ok
-
-		aResult = []
-
-		for i = 2 to nLen - 1
-
-			nCurrentPos  = anPos[i]
-			nPreviousPos = anPos[i-1]
-			nNextPos     = anPos[i+1]
-
-			bHasLetfBound  = FALSE
-			if (nCurrentPos - pnUpToNItems) >= nPreviousPos
-				bHasLeftBound = TRUE
-			ok
-
-			bHasRightBound = FALSE
-			if (nCurrentPos + pnUpToNItems) <= nNextPos
-				bHasRightBound = TRUE
-			ok
-
-
-			if bHasLeftBound and bHasRightBound
-				aLeftSection  = This.Section( (nCurrentPos - pnUpToNItems), (nCurrentPos - 1) )
-				aRightSection = This.Section( (nCurrentPos + 1), (nCurrentPos + pnUpToNItems) )
-
-				if len(aLeftSection) > 0 and len(aRightSection) > 0
-					aResult + [ aLeftSection, aRightSection ]
-				ok
-			ok
-		next
-
-		return aResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def BoundsOf(pItem, pnUpToNItems)
-		return This.BoundsOfCS(pItem, pnUpToNItems, :CaseSensitive = TRUE)
-
-	  #-----------------------------------------------------------------------------------#
+	  #===================================================================================#
 	 #  CHECKING IF THE 2 ITEMS OF THE LIST ARE BOUNDS OF A SUBSTRING IN A GIVEN STRING  #
-	#-----------------------------------------------------------------------------------#
+	#===================================================================================#
 
-	def AreBoundsOfCS(pItem, pIn, pCaseSensitive)
+	def AreBoundsOfCS(pcSubStr, pIn, pCaseSensitive)
+		# Supports only strings in pIn
+		# TODO: lists will be also supported
 
 		/* EXAMPLE 1
 
@@ -5819,30 +5763,32 @@ class stzList from stzObject
 
 		*/
 
-		if NOT ( This.IsPair() or This.IsListOfPairs() )
-			StzRaise("Can't check bounds! List must be a pair or a list of pairs.")
-		ok
+		# Checking the params
 
-		if isList(pIn) and Q(pIn).IsInNamedParam()
-			pIn = pIn[2]
-		ok
+		if CheckParams() = TRUE
 
-		anUpToNChars = []
-		if This.IsPair() and NOT This.IsListOfPairs()
-			anUpToNChars = [ len(This[1]), len(This[2]) ]
-			aThis = [ This.Content() ]
-
-		else
-			for aPair in This.Content()
-				anUpToNChars + [ len(aPair[1]), len(aPair[2]) ]
-			next
-			aThis = This.Content()
-		ok
-
-		aBounds = Q(pIn).BoundsOfCS(pItem, anUpToNChars, pCaseSensitive)
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
 	
-		bResult = Q(aThis).AllItemsExistInCS(aBounds, pCaseSensitive)
-		return bResult
+			if NOT ( This.IsPair() or This.IsListOfPairs() )
+				StzRaise("Can't check bounds! List must be a pair or a list of pairs.")
+			ok
+	
+			if isList(pIn) and Q(pIn).IsInNamedParam()
+				pIn = pIn[2]
+			ok
+	
+			if NOT isString(pIn)
+				StzRaise("Incorrect param type! pIn must be a string.")
+			ok
+
+		ok
+
+		# Doing the job
+
+		nResult = StzStringQ(pIn).SubStringIsBoundedByCS(pIn, This.List(), pCaseSensitive)
+		return nResult
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -6469,6 +6415,12 @@ class stzList from stzObject
 		def IsAPairOfNumbers()
 			return This.IsPairOfNumbers()
 
+		def IsSection()
+			return This.IsPairOfNumbers()
+
+		def IsASection()
+			return This.IsPairOfNumbers()
+
 	def IsListOfPairsOfNumbers()
 
 		bResult = TRUE
@@ -6482,8 +6434,51 @@ class stzList from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
 		def IsAListOfPairsOfNumbers()
 			return This.IsListOfPairsOfNumbers()
+
+		def IsListOfSections()
+			return This.IsListOfPairsOfNumbers()
+
+		def IsAListOfSections()
+			return This.IsListOfPairsOfNumbers()
+
+		#>
+
+	def IsPairOfSections()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if isList(aContent[1]) and
+		   isList(aContent[2]) and
+		   Q(aContent[1]).IsPairOfNumbers() and
+		   Q(aContent[2]).IsPairOfNumbers()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsListOfPairsOfSections()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT (isList(aContent[i]) and Q(aContent[i]).IsPairOfSections())
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def IsAListOfPairsOfSections()
+			return This.IsListOfPairsOfSections
 
 	def IsPairOfLists()
 		return This.IsPair() and This.IsListOfLists()

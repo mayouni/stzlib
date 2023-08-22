@@ -342,24 +342,6 @@ o1.RemoveLastBounds(:Of = "word") # Or o1.RemoveRightBounds(:Of = "word")
 proff()
 # Executed in 0.08 second(s)
 
-/*---------
-*/
-pron()
-
-# [ 
-#	[ [ 1, 3 ], [ 8, 10 ] ],
-#	[ [ 12, 13 ], [ 18, 19 ] ],
-#	[ [ 21, 21 ], [ 26, 26 ] ]
-# ]
-
-o1 = new stzString(">>>word<<< >>word<< >word<")
-o1.SwapSections([ 1, 3 ], [ 8, 10 ])
-
-//o1.SwapBoundsOf("word")
-? o1.Content()
-
-proff()
-
 /*========= SWAPPING TWO SECTIONS
 
 pron()
@@ -383,6 +365,37 @@ o1.SwapSections([1, 3], [8, 10]) # or o1.SwapSections([8, 10], [1, 3])
 
 proff()
 # Executed in 0.06 second(s)
+
+/*---------
+
+pron()
+#                   12345678901234567
+o1 = new stzString("...>>>word<<<....")
+
+? o1.Section(4, 6)
+#--> >>>
+
+? o1.Section(11, 13)
+#--> <<<
+
+o1.SwapSections([4, 6], [11, 13])
+? o1.Content()
+#--> ...<<<word>>>....
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzString(">>>word<<< >>word<< >word<")
+o1.SwapBoundsOf("word")
+? o1.Content()
+#--> <<<word>>> <<word>> <word>
+
+proff()
+# Executed in 0.07 second(s)
 
 /*=========
 
@@ -850,7 +863,7 @@ proff()
 # Executed in 0.13 second(s)
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzString(">>word<<")
@@ -859,10 +872,7 @@ o1.SwapBounds()
 #--> <<word>>
 
 proff()
-
-SwapBounds() # SwapStringBounds()
-
-SwapBoundsOf() # SwapSubStringBounds()
+# Executed in 0.07 second(s)
 
 /*================ WORKING WITH BOUNDS INSIDE THE STRING
 
@@ -879,29 +889,28 @@ proff()
 
 /*------------------
 
-*/
 pron()
 
 o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
 
 # Bounds of the entire string
 
-? @@( o1.FindStringBoundsAsSections() )
-#--> [ [ 1, 0 ], [ 38, 37 ] ]
+? @@( o1.FindStringBoundsAsSections() ) + NL
+#--> [ [ 1, 3 ], [ 35, 37 ] ]
 
-//? @@( o1.FindBoundsAsSections
 # Bounds of a particular substring inside the string
 
-? @@( o1.FindSubStringBoundsAsSections(:Of = "word") ) + NL
+? @@( o1.FindSubStringBoundsAsSections("word") ) + NL
 #--> [ [ 1, 3 ], [ 8, 10 ], [ 13, 15 ], [ 20, 22 ], [ 28, 30 ], [ 35, 37 ] ]
 
-? @@( o1.FindFirstBoundsAsSections(:Of = "word") ) + NL
+? @@( o1.FindFirstBoundsOfAsSections("word") ) + NL
 #--> [ [ 1, 3 ], [ 13, 15 ], [ 28, 30 ] ]
 
-? @@( o1.FindFirstBounds(:Of = "word") ) + NL
+? @@( o1.FindFirstBoundsOf("word") ) + NL
 #--> [ 1, 13, 28 ]
 
 proff()
+# Executed in 0.18 second(s)
 
 /*------------------
 
@@ -909,152 +918,62 @@ pron()
 
 o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
 
-? @@( o1.FindSubStringSecondBoundsAsSections(:of = "word") )
-
-? @@( o1.FindSubStringSecondBounds(:of = "word") )
-
-proff()
-
-/*================
-
-pron()
-
-o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
-
-# Finding the bounds of "word" up to 3 chars
-
-? @@( o1.FindSubStringBoundsUpToNCharsAsSections(3, "word") )
-#--> [ [ 1, 3 ], [ 8, 10 ], [ 13, 15 ], [ 20, 22 ], [ 28, 30 ], [ 35, 37 ] ]
-
-	o1.FindBoundsAsSectionsXT( :Of = "word", :UpToNChars = 3 )
-
-? @@( o1.FindSubStringBoundsUpToNChars(3, "word") )
-#--> [ 1, 8, 13, 20, 28, 35 ]
-
-	o1.FindBoundsXT( :Of = "word", :UpToNChars = 3 )
-
-# Finding the first bounds of "word" up to 3 chars
-
-? @@( o1.FindSubStringFirstBoundsUpToNCharsAsSections(3, "word") )
-#--> [ [ 1, 3 ], [ 13, 15 ], [ 28, 30 ] ]
-
-	o1.FindFirstBoundsAsSectionsXT( :Of = :Word, :UpToNChars = 3)
-
-? @@( o1.FindSubStringFirstBoundsUpToNChars(3, "word") )
-#--> [ 1, 13, 28 ]
-
-	o1.FindFirstBoundsXT( :Of = :Word, :UpToNChars = 3)
-
-# Finding the seconds bounds of "word" up to 3 chars
-
-? @@( o1.FindSubStringSecondBoundsUpToNCharsAsSections(3, "word") )
+? @@( o1.FindSubStringSecondBoundsAsSections("word") )
 #--> [ [ 8, 10 ], [ 20, 22 ], [ 35, 37 ] ]
 
-	o1.FindSecondBoundsAsSectionsXT( :Of = :Word, :UpToNChars = 3)
-
-? @@( o1.FindSubStringSecondBoundsUpToNChars(3, "word") )
+? @@( o1.FindSubStringSecondBounds("word") )
 #--> [ 8, 20, 35 ]
 
-	o1.FindSecondBoundsXT( :Of = :Word, :UpToNChars = 3)
-
-# Finding the left bounds of "word" up to 3 chars
-
-? @@( o1.FindSubStringLeftBoundsUpToNCharsAsSections(3, "word") )
-#--> [ [ 8, 10 ], [ 20, 22 ], [ 35, 37 ] ]
-
-	o1.FindLeftBoundsAsSectionsXT( :Of = Word, :UpToNChars = 3 )
-
-? @@( o1.FindSubStringLeftBoundsUpToNChars(3, "word") )
-#--> [ 1, 13, 28 ]
-
-	o1.FindLeftBoundsXT( :Of = Word, :UpToNChars = 3 )
-
-# Finding the right bounds of "word" up to 3 chars
-
-? @@( o1.FindSubStringRightBoundsUpToNCharsAsSections(3, "word") )
-#--> [ [ 8, 10 ], [ 20, 22 ], [ 35, 37 ] ]
-
-	o1.FindRightBoundsAsSectionsXT( :Of = Word, :UpToNChars = 3 )
-
-? @@( o1.FindSubStringRightBoundsUpToNChars(3, "word") )
-#--> [ 1, 13, 28 ]
-
-	o1.FindRightBoundsXT( :Of = Word, :UpToNChars = 3 )
-
 proff()
-# Executed in 0.34 second(s)
-
-/*------------------
-
+/*----------------
+*/
 pron()
 
-o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
+o1 = new stzString("123♥^♥789")
 
-# Getting the bounds of the substring "word" up to 3 chars
-
-? @@( o1.SubStringBoundsUpToNChars(3, "word") )
-#--> [ "<<<", ">>>", "(((", ")))", "{{{", "}}}" ]
-
-	o1.BoundsXT( :Of = "word", :UpToNChars = 3 )
-
-# Getting the first bounds of "word" up to 3 chars
-
-? @@( o1.SubStringFirstBoundsUpToNChars(3, "word") )
-#--> [ "<<<", "(((", "{{{" ]
-
-	o1.FirstBoundsXT( :Of = "word", :UpToNChars = 3 )
-
-# Getting the seconds bounds of "word" up to 3 chars
-
-? @@( o1.SubStringSecondBoundsUpToNChars(3, "word") )
-#--> [ ">>>", ")))", "}}}" ]
-
-	o1.SecondBoundsXT( :Of = "word", :UpToNChars = 3 )
-
-# Getting the left bounds of "word" up to 3 chars
-
-? @@( o1.SubStringLeftBoundsUpToNChars(3, "word") )
-#--> [ "<<<", "(((", "{{{" ]
-
-	o1.LeftBoundsXT( :Of = "word", :UpToNChars = 3 )
-
-# Getting the right bounds of "word" up to 3 chars
-
-? @@( o1.SubStringRightBoundsUpToNChars(3, "word") )
-#--> [ ">>>", ")))", "}}}" ]
-
-	o1.EightBoundsXT( :Of = "word", :UpToNChars = 3 )
+? o1.Sit( :OnSection = [4, 6], :AndYield = [ 20, 30 ] )
+#--> [ "123", "789" ]
 
 proff()
-# Executed in 0.20 second(s)
 
-/*=================
+/*----------------
 
+/*
+? @@( o1.BoundsOfQ("♥♥").SplitToListsOfNItems(2) )
+
+? o1.SubStringIsBoundedBy("♥♥", "aa") #--> TRUE
+/*
+		? o1.SubStringIsBoundedBy("♥♥", "bb") #--> TRUE
+		
+		? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] ) #--> TRUE
+
+		? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE
+*/
+proff()
+
+/*----------------
+*/
 pron()
 
-o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
+	o1 = new stzList([ "<<", ">>" ])
+	? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
+	#--> TRUE
 
-//? o1.BoundsOfXT( "word", :UpToNChars = 2 )
+
+	o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
+	? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
+	#--> TRUE
 
 proff()
-
 /*----------------
-
-o1 = new stzString("<<word>>> and {{word}}}")
-? o1.BoundsOf( "word", :UpToNChars = [ 2, 3 ] )
-#--> [ [ "<<", ">>" ], [ "{{", "}}" ] ]
-
-/*----------------
-
-o1 = new stzString("<<word>>> and  {word}}")
-? o1.BoundsOf( "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ] )
-#--> [ [ "<<", ">>>" ], [ "{", "}}" ] ]
-
-/*----------------
+*/
+pron()
 
 o1 = new stzList([ "<<", ">>" ])
 ? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
 #--> TRUE
+
+proff()
 
 /*----------------
 
@@ -1118,7 +1037,7 @@ opjn
 */
 
 /*----------------
-
+*/
 pron()
 
 ? @@( Q(["abc","cdef","opjn"]).ToString() ) # Q() creates a stzList object

@@ -14456,26 +14456,6 @@ stop()
 		def IsBoundedByTheseTwoStringItems(pacBounds)
 			return This.IsBoundedBy(pacBounds)
 
-	  #-------------------------------------------------------------------------------#
-	 #  CHECKING IF THE LIST IS MADE OF 2 STRINGS THAT ARE BOUNDS OF A GIVEN STRING  #
-	#-------------------------------------------------------------------------------#
-
-	def AreBoundsOfCS(pcStr, pIn, pnUpToNChars, pCaseSensitive)
-		/* EXAMPLE
-
-		o1 = new stzListOfStrings([ [ "aa", "aa" ], [ "bb", "bb" ] ])
-		? o1.AreBoundsOf("word", :In = "aaWORDbb and bbWORDbb", :UpToNChars = 2)
-		#--> TRUE
-
-		*/
-
-		// TODO
-
-	#-- WITHOUT CASESNESITIVITY
-
-	def AreBoundsOf(pcStr, pIn, pnUpToNChars)
-		return  This.AreBoundsOfCS(pcStr, pIn, pnUpToNChars, :CS = TRUE)
-
 	  #------------------------------------#
 	 #     REMOVING BOUNDING STRINGS      #
 	#------------------------------------#
