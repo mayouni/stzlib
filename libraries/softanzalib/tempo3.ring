@@ -957,6 +957,18 @@ proff()
 
 /*================
 */
+pron()
+
+o1 = new stzList([ 1, "hi", [], NULL ])
+o1.Listify()
+? @@( o1.Content() )
+#--> [ [ 1 ], [ "hi" ], [ ], [ "" ] ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------------
+
 # PErsonal note :This sample has been porposed by Teeba (my daughther). She helped me
 # identify the [] case and solve it.
 
@@ -976,7 +988,7 @@ o1.Pairify()
 proff()
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzList([ [ "<<", ">>" ], "__", [ "--", "--", "--" ] ])
@@ -990,7 +1002,8 @@ o1.Pairify() # transform all items to pairs
 
 proff()
 # Executed in 0.03 second(s)
-/*----------------
+
+/*==============
 */
 pron()
 

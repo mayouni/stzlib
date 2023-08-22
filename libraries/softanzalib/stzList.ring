@@ -36882,6 +36882,45 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		This.UpdateWith(aResult)
 
-		
+		def PairifyQ()
+			This.Pairify()
+			return This
 
+	def Pairified()
+		aResult = This.Copy().PairifyQ().Content()
+		return aResult
+
+	  #--------------------------------------------------------#
+	 #  LISTIFYING THE LIST BY TRANFORMING EACH ITEM TO LIST  #
+	#--------------------------------------------------------#
+
+	def Listify()
+		
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			aList = []
+
+			if isList(aContent[i])
+				aList = aContent[i]
+
+			else
+				aList + aContent[i]
+			ok
+
+			aResult + aList
+		next
+
+		This.UpdateWith(aResult)
 			 
+		def ListifyQ()
+			This.Listify()
+			return This
+
+	def Listified()
+		aResult = This.Copy().ListifyQ().Content()
+		return aResult
