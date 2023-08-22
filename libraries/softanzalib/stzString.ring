@@ -7670,6 +7670,10 @@ class stzString from stzObject
 	 #  IDENTIFYING BOUNDS OF A SUBSTRING  #
 	#-------------------------------------#
 	
+def SubStringIsBoundedByManyCS(pacSubStr, pacPairsOfBounds, pCaseSensitive)
+	# ? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE
+
+
 	def SubStringIsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
 		/* EXAMPLES
@@ -7682,31 +7686,41 @@ class stzString from stzObject
 		
 		? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] ) #--> TRUE
 
-		? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE
 		*/
+
+		if CheckParams() = TRUE
+			if isString(pacBounds)
+				aTemp = [ pacBounds, pacBounds]
+				pacBounds = aTemp
 	
-		
-
-		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-
-			aTemp = []
-			aTemp + pacBounds
-			pacBounds = aTemp
-
-		but isString(pacBounds)
-			aTemp = [ [ pacBounds, pacBounds ] ]
-			pacBounds = aTemp
+			ok
+	
+			if NOT ( isList(pacBounds) and Q(pacBounds).IsPairOfStrings() )
+				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
+			ok
 		ok
 
-		if NOT ( isList(pacBounds) and Q(pacBounds).AllItemsArePairsOfStrings() )
-			StzRaise("Incorrect param type! pacBounds must be lists of pairs of strings.")
-		ok
+		# Doing the job
+
+		nLen1 = Q(pacBounds[1]).NumberOfChars()
+		nLen2 = Q(pacBounds[2]).NumberOfChars()
+
+		aSections = This.FindSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+		nLen = len(aSections)
 
 		bResult = FALSE
-		nLen = len(pacBounds)
 
-		acBounds = This.BoundsOfCS( pcSubStr, pCaseSensitive)
-		bResult = Q(pacBounds).AllItemsExistIn(acBounds)
+		for i = 1 to nLen
+
+			acEffectiveBounds = This.Sit( :OnSection = aSections[i], :AndYield = [ nLen1, nLen2 ])
+
+			if Q(acEffectiveBounds[1]).IsEqualToCS(pacBounds[1], pCaseSensitive) and
+			   Q(acEffectiveBounds[2]).IsEqualToCS(pacBounds[2], pCaseSensitive)
+
+				bResult = TRUE
+				exit
+			ok
+		next
 
 		return bResult
 		

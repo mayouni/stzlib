@@ -925,8 +925,8 @@ o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
 #--> [ 8, 20, 35 ]
 
 proff()
-/*----------------
-*/
+/*=============
+
 pron()
 
 o1 = new stzString("123♥^♥789")
@@ -935,21 +935,25 @@ o1 = new stzString("123♥^♥789")
 #--> [ "123", "789" ]
 
 proff()
+# Executed in 0.07 second(s)
 
 /*----------------
-
-/*
-? @@( o1.BoundsOfQ("♥♥").SplitToListsOfNItems(2) )
-
-? o1.SubStringIsBoundedBy("♥♥", "aa") #--> TRUE
-/*
-		? o1.SubStringIsBoundedBy("♥♥", "bb") #--> TRUE
-		
-		? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] ) #--> TRUE
-
-		? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE
 */
+pron()
+
+o1 = new stzString("aa♥♥aaa bb♥♥bbb")
+		
+? o1.SubStringIsBoundedBy("♥♥", "aa") #--> TRUE
+#--> TRUE
+
+? o1.SubStringIsBoundedBy("♥♥", "bb") #--> TRUE
+#--> TRUE
+	
+? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] ) #--> TRUE
+#--> TRUE
+
 proff()
+# Executed in 0.16 second(s)
 
 /*----------------
 */
