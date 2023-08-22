@@ -956,7 +956,41 @@ proff()
 # Executed in 0.16 second(s)
 
 /*================
-*/
+
+pron()
+
+o1 = new stzList([ Q(4), Q("Ring"), Q(1:3) ])
+? @@( o1.StzTypes() )
+#--> [ "stznumber", "stzstring", "stzlist" ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzList([ 6, "hi!", 1:3 ])
+o1.Objectify()
+? @@( o1.StzTypes() )
+#--> [ "stznumber", "stzstring", "stzlist" ]
+
+proff()
+
+/*---------------
+
+pron()
+
+o1 = new stzList([ 5, "12", 1:3, "Ring" ])
+o1.Numberify()
+? @@(o1.Content())
+#--> [ 5, 12, 3, 4 ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*---------------
+
 pron()
 
 o1 = new stzList([ 1, "hi", [], NULL ])
@@ -969,7 +1003,7 @@ proff()
 
 /*---------------
 
-# PErsonal note :This sample has been porposed by Teeba (my daughther). She helped me
+# Personal note :This sample has been porposed by Teeba (my daughther). She helped me
 # identify the [] case and solve it.
 
 pron()
@@ -986,9 +1020,10 @@ o1.Pairify()
 # ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*----------------
-
+*/
 pron()
 
 o1 = new stzList([ [ "<<", ">>" ], "__", [ "--", "--", "--" ] ])
@@ -1001,7 +1036,7 @@ o1.Pairify() # transform all items to pairs
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*==============
 */
