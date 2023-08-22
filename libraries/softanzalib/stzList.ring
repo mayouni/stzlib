@@ -26238,30 +26238,42 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	def IsStzList()
 		return TRUE
 
-	def stzType()
+	def StzType()
 		return :stzList
 
-	# Deeling with the items of the list
+
+	  #----------------------------------------------#
+	 #  GETTING THE TYPES OF EACH ITEM IN THE LIST  #
+	#----------------------------------------------#
 
 	def Types()
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		aResult = []
-		for item in This.List()
-			aResult + Q(item).Type()
+		for i = 1 to nLen
+			aResult + ring_type(aContent[i])
 		next
+
 		return aResult
 
 	def TypesXT()
 		aResult = This.ListQ().AssociatedWith( This.Types() )
 		return aResult
 
-	def UniqueTypes() # TODO: Review it for performance!
+	def UniqueTypes()
+
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		aResult = []
-		for item in This.List()
-			if NOT StzListQ(aResult).Contains( ring_type(item) )
-				aResult + ring_type(item)
+
+		for i = 1 to nLen
+			if ring_find(aResult, ring_type(aContent[i])) = 0
+				aResult + ring_type(aContent[i])
 			ok
 		next
+
 		return aResult
 
 		def TypesU()
@@ -26269,6 +26281,51 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		def TypesWithoutDuplication()
 			return This.UniqueTypes()
+
+	  #-------------------------------------------------------#
+	 #  GETTING THE SOFTANZA TYPES OF EACH ITEM IN THE LIST  #
+	#-------------------------------------------------------#
+	# For non softanza objects a NULL is returned
+
+	def StzTypes()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+		for i = 1 to nLen
+			if isObject(aContent[i]) and aContent[i].IsStzObject()
+				aResult + aContent[i].StzType()
+			else
+				aResult + NULL
+			ok
+		next
+
+		return aResult
+
+	def StzTypesXT()
+		aResult = This.ListQ().AssociatedWith( This.StzTypes() )
+		return aResult
+
+	def UniqueStzTypes()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if ring_find(aResult, Q(aContent[i]).StzType()) = 0
+				aResult + Q(aContent[i]).StzType()
+			ok
+		next
+
+		return aResult
+
+		def StzTypesU()
+			return This.UniqueStzTypes()
+
+		def StzTypesWithoutDuplication()
+			return This.StzUniqueTypes()
 
 	  #-------------------------------------------------------------#
 	 #  CHECKING IF THE LIST STARTS WITH A GIVEN SUBLIST OF ITEMS  #
@@ -26722,7 +26779,6 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		def ToListOfStringifiedItems()
 			return This.Stringified()
-
 
 	  #---------------------------------------------------------------------------------------#
 	 #  STRINGIFYING ITEMS AND REPLACING A SUBSTRING BY AN OTHER IN EACH STRING -- EXTENDED  #
@@ -36924,3 +36980,96 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	def Listified()
 		aResult = This.Copy().ListifyQ().Content()
 		return aResult
+
+	  #------------------------------------------------------------#
+	 #  NUMBERIFYING THE LIST BY TRANFORMING EACH ITEM TO NUMBER  #
+	#------------------------------------------------------------#
+
+	def Numberify()
+		
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			n = 0
+
+			if isNumber(aContent[i])
+				n = aContent[i]
+
+			but isString(aContent[i])
+
+				if Q(aContent[i]).IsNumberInString()
+					n = (0+ aContent[i])
+
+				else
+					n = Q(aContent[i]).NumberOfChars()
+				ok
+
+			but isList(aContent[i])
+				n = len(aContent[i])
+
+			but isObject(aContent[i]) and Q(aContent[i]).IsStzNumber()
+				aList + aContent[i].NumericValue()
+
+			ok
+
+			aResult + n
+		next
+
+		This.UpdateWith(aResult)
+			 
+		def NumberifyQ()
+			This.Numberify()
+			return This
+
+		def Numbrify()
+			This.Numberify()
+
+			def NumbrifyQ()
+				This.Numbrify()
+				return This
+
+	def Numberified()
+		aResult = This.Copy().NumberifyQ().Content()
+		return aResult
+
+		def Numbrified()
+			return This.Numberified()
+
+	  #----------------------------------------------------------------#
+	 #  OBJECTIFYING THE LIST BY TRANFORMING EACH ITEM TO STZ OBJECT  #
+	#----------------------------------------------------------------#
+
+	def Objectify()
+		
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + Q(aContent[i])
+		next
+
+		This.UpdateWith(aResult)
+
+		def ObjectifyQ()
+			This.Objectify()
+			return This
+
+		def Softanzify()
+			This.Objectify()
+
+			def SoftanzifyQ()
+				This.Softanzify()
+				return This
+
+	def Objectified()
+		aResult = This.Copy().ObjectifyQ().Content()
+		return aResult
+
+		def Softanzified()
+			return This.Objecified()
