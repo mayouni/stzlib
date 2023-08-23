@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------#
+#f-------------------------------------------------------------------------#
 # 		   SOFTANZA LIBRARY (V1.0) - STZSTRING			  #
 #	An accelerative library for Ring applications, and more!	  #
 #-------------------------------------------------------------------------#
@@ -7666,13 +7666,9 @@ class stzString from stzObject
 		def StringBoundedBy(pacBounds)
 			return This.StringWithBoundsAdded(pacBounds)
 
-	  #-------------------------------------#
-	 #  IDENTIFYING BOUNDS OF A SUBSTRING  #
-	#-------------------------------------#
-	
-def SubStringIsBoundedByManyCS(pacSubStr, pacPairsOfBounds, pCaseSensitive)
-	# ? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE
-
+	  #--------------------------------------------------------------------#
+	 #  CHECKING IF A GIVEN SUBSTRING IS BOUNDED BY TWO OTHER SUBSTRINGS  #
+	#--------------------------------------------------------------------#
 
 	def SubStringIsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
@@ -7689,13 +7685,17 @@ def SubStringIsBoundedByManyCS(pacSubStr, pacPairsOfBounds, pCaseSensitive)
 		*/
 
 		if CheckParams() = TRUE
-			if isString(pacBounds)
-				aTemp = [ pacBounds, pacBounds]
+			if isList(pacBounds)
+				if len(pacBounds) != 2
+					pacBounds = Q(pacBounds).Pairified()
+				ok
+
+			but isString(pacBounds)
+				aTemp = []
+				aTemp  + pacBounds + pacBounds
 				pacBounds = aTemp
 	
-			ok
-	
-			if NOT ( isList(pacBounds) and Q(pacBounds).IsPairOfStrings() )
+			else
 				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 			ok
 		ok
@@ -7727,6 +7727,38 @@ def SubStringIsBoundedByManyCS(pacSubStr, pacPairsOfBounds, pCaseSensitive)
 
 	def SubStringIsBoundedBy(pcSubStr, pacBounds)
 		return This.SubStringIsBoundedByCS(pcSubStr, pacBounds, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------------------------#
+	 #  CHECKING IF A GIVEN SUBSTRING IS BOUNDED BY MANY PAIRS OF SUBSTRINGS  #
+	#------------------------------------------------------------------------#
+	
+	def SubStringIsBoundedByManyCS(pcSubStr, pacPairsOfBounds, pCaseSensitive)
+		/* EXAMPLE
+
+		? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE
+
+		*/
+
+		if NOT isList(pacPairsOfBounds)
+			StzRaise("Incorrect param type! pacPairsOfBounds must be a list.")
+		ok
+
+		bResult = TRUE
+		
+		nLen = len(pacPairsOfBounds)
+		for i = 1 to nLen
+			if NOT This.SubStringIsBoundedByCS(pcSubStr, pacPairsOfBounds[i], pCaseSensitive)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringIsBoundedByMany(pacSubStr, pacPairsOfBounds)
+		return This.SubStringIsBoundedByManyCS(pacSubStr, pacPairsOfBounds, :CaseSensitive = TRUE)
 
 	  #=============================================================================#
 	 #  FINDING THE TWO BOUNDS (IF ANY) OF THE STRING BY RETURNING THEIR SECTIONS  #
