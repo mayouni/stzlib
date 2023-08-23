@@ -1023,7 +1023,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzList([ [ "<<", ">>" ], "__", [ "--", "--", "--" ] ])
@@ -1038,6 +1038,41 @@ o1.Pairify() # transform all items to pairs
 proff()
 # Executed in 0.02 second(s)
 
+/*--------------
+
+pron()
+
+o1 = new stzList(["<<", ">>"])
+o1.Pairify()
+#--> [ [ "<<", "" ], [ ">>", "" ] ]
+
+? @@( o1.Content() )
+
+proff()
+# Executed in 0.03 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzList([ ["<<", ">>"] ])
+o1.Pairify()
+#--> [ [ "<<", "" ], [ ">>", "" ] ]
+
+? @@( o1.Content() )
+#--> [ [ "<<", ">>" ] ]
+
+proff()
+
+/*--------------
+
+pron()
+
+? @@( Q([ ["<<", ">>"], "__" ]).Pairified() )
+#--> [ [ "<<", ">>" ], [ "__", "" ] ]
+
+proff()
+
 /*==============
 */
 pron()
@@ -1047,7 +1082,14 @@ o1 = new stzString("<<word>> and __word__")
 ? o1.SubStringIsBoundedBy("word", ["<<", ">>"])
 #--> TRUE
 
-? o1.SubStringIsBoundedBy("word", [ ["<<", ">>"], "__" ])
+? o1.SubStringIsBoundedBy("word", "__")
+#--> TRUE
+
+? o1.SubStringIsBoundedByMany("word", [ ["<<", ">>"], "__" ])
+#-->
+
+? o1.SubString( :IsBoundedBy, ["<<", ">>"] )
+
 proff()
 
 /*----------------
