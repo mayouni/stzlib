@@ -1,5 +1,6 @@
 load "stzlib.ring"
 
+
 #=========== TODO: Review string comparaision logic in stzString
 /*
 pron()
@@ -294,10 +295,80 @@ pron()
 	print( v(:y) )	#--> 20
 	print( v(:z) )	#--> 30
 
+proff()
+# Executed in 0.06 second(s)
 
+/*--------------
+
+pron()
+
+vr(:value) '=' vl("foo") 
+print( v(:value) )
+#--> foo
+
+SetV(:value = "bar")
+? v(:value)
+
+proff()
+# Executed in 0.05 second(s)
+
+/*--------------
+*/
+
+pron()
+
+? @@( tempval() )
+#--> NULL
+
+vr(:name) '=' vl("mansour")
+
+? v(:name)
+#--> mansour
+
+? @@( tempval() )
+#--> mansour
+
+setV(:name = "cherihen")
+? v(:name)
+#--> cherihen
+
+? @@( tempval() )
+#--> cherihen
+
+? @@( oldval() )
+#--> "mansour"
 
 proff()
 
+/*--------------
+*/
+
+pron()
+
+? @@( ">> " + tempval() )
+
+# In Pyhthon we can write:
+'
+something = true // or false
+value = "foo" if something else "bar"
+'
+
+# Let's reproduce it in Ring with Softanza
+
+something = true
+vr(:value) '=' vl("foos") //_if(something) //_else("bar")
+
+? @@( ">> " + tempval() )
+? ( "!> " + @@( _oldvar ) )
+
+print( v(:value) )
+
+SetV(:value = "emm")
+? v(:value)
+? @@( ">> " + tempval() )
+? ( "!> " + @@( _oldvar ) )
+
+proff()
 
 /*--------------
 

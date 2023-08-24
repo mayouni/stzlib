@@ -23,6 +23,12 @@ None = NULL
 
 func Vr(pacVars)
 
+	if NOT isList(pacVars)
+		aTemp = []
+		aTemp + pacVars
+		pacVars = aTemp
+	ok
+
 	if NOT ( isList(pacVars) and Q(pacVars).IsListOfStrings() )
 		StzRaise("Incorrect param type! pacVars must be a list of strings.")
 	ok
@@ -44,25 +50,47 @@ func Vr(pacVars)
 		ok
 	next
 
+func oldVar()
+	return _oldVar
+
+func oldVarname()
+	if len(oldVar()) = 0
+		return []
+	else
+		oldvar()[1]
+	ok
+
+func oldVal()
+
+	if len(oldvar()) = 0
+		return ""
+	else
+		return oldvar()[2]
+	ok
 
 func Vl(paVals)
-	if len(_aTempVars) = 0
+
+	# Checking the paVals param
+
+	if len(_aTempVars) = 0 or (isList(paVals) and len(paVals) = 0)
 		return
 	ok
 
-	if isString(paVals)
-		oHash = new stzHashList(_aTempVars)
-		n = oHash.FindKey(paVals)
-		if n > 0
-			return _aTempVars[n][2]
-		else
-			return
-		ok
+	if NOT isList(paVals)
+		aTemp = []
+		aTemp + paVals
+		paVals = aTemp
 	ok
 
 	if NOT isList(paVals)
 		StzRaise("Incorrect param type! pacVals must be a list of strings.")
 	ok
+
+	# Taking a copy of the current temp var
+
+	_oldVar = _Var
+
+	# Doing the job
 
 	nLen = Min([ len(_aTempVars), len(paVals) ])
 
@@ -78,6 +106,10 @@ func Vl(paVals)
 			_aVars + [ _aTempVars[i][1], paVals[i] ]
 		ok
 	next
+
+	# Memorizing the last variable/value processed
+
+	_var = [ _aTempVars[nLen], paVals[nLen] ]
 
 # Python...	: range(3) 		--> [0, 1, 2]
 # Pythin..	: range(-3, 4, 2)	--> [-3, -1, 1, 3 ]
