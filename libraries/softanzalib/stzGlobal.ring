@@ -18,7 +18,10 @@ Programming, by Heart! By: M.Ayouni╭
  ///  GLOBALS VARIABLES  ///
 ///////////////////////////
 
-_aVars = []
+_var = []	# Current temp var and its value
+_oldVar = []	# A copy of the temp var before it is changed
+
+_aVars = []	# the list of all temp vars and their values
 
 _bParamCheck = TRUE # Activates the "# Checking params region" in softanza functions
 		     #--> Set it to FALSE if the functions are used inside large loops
@@ -390,6 +393,23 @@ int = new IntObject
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
 
+func TempVar()
+	if len(_var) = 0
+		return []
+	else
+		return _var[1]
+	ok
+
+func TempVal()
+	if len(_var) = 0
+		return NULL
+	else
+		return _var[2]
+	ok
+
+func TempVarVal()
+	return _var
+
 func V(p)
 	if isList(p) and Q(p).IsHashList()
 		SetV(p)
@@ -398,6 +418,7 @@ func V(p)
 		return ReadManyV(p)
 
 	else
+
 		return ReadV(p)
 	ok
 
@@ -408,9 +429,28 @@ func V(p)
 		return V(p)
 
 func SetV(paVarNamesAndTheirValues)
+	if isList(paVarNamesAndTheirValues) and
+	   len(paVarNamesAndTheirValues) = 2 and
+	   isString(paVarNamesAndTheirValues[1])
+
+		aTemp = []
+		aTemp + paVarNamesAndTheirValues
+		paVarNamesAndTheirValues = aTemp
+	ok
+
 	if NOT ( isList(paVarNamesAndTheirValues) and Q(paVarNamesAndTheirValues).IsHashList() )
 		StzRaise("Incorrect param type! paVarNamesAndTheirValues must be a hashlist.")
 	ok
+
+	# Memorizing the current var
+
+	if len(_aVars) = 0
+		_oldVar = []
+	else
+		_oldVar = _aVars[ len(_aVars) ]
+	ok
+
+	# Setting the new var
 
 	nLen = len(paVarNamesAndTheirValues)
 	oHash = new stzHashList(_aVars)
@@ -423,6 +463,11 @@ func SetV(paVarNamesAndTheirValues)
 			_aVars[n] = paVarNamesAndTheirValues[i]
 		ok
 	next
+
+	# The new var is the temp var
+
+	_var = _aVars[len(_aVars)]
+
 
 func ReadV(p)
 	oHash = new stzHashList(_aVars)
