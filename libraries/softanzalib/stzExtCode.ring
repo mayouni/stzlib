@@ -12,13 +12,126 @@
  ///  VARIABLES  ///
 ///////////////////
 
-console = new console
+
 _aTempVars = []
+_aVars = []	# the list of all temp vars and their values
+
+_bVarReset = FALSE
+_var = []	# Current temp var and its value
+_oldVar = []	# A copy of the temp var before it is changed
+
+console = new console
 None = NULL
 
   ///////////////////
  ///  FUNCTIONS  ///
 ///////////////////
+
+func TempVar()
+	if len(_var) = 0
+		return []
+	else
+		return _var[1]
+	ok
+
+	def TempVarName()
+		return TempVar()
+
+func TempVal()
+	if len(_var) = 0
+		return NULL
+	else
+		return _var[2]
+	ok
+
+
+func TempVarVal()
+	return _var
+
+func V(p)
+	if isList(p) and Q(p).IsHashList()
+		SetV(p)
+
+	but isList(p) and Q(p).IsListOfStrings()
+		return ReadManyV(p)
+
+	else
+
+		return ReadV(p)
+	ok
+
+	func VrVl(p)
+		return V(p)
+
+	func VarVal(p)
+		return V(p)
+
+func SetV(paVarNamesAndTheirValues)
+	if isList(paVarNamesAndTheirValues) and
+	   len(paVarNamesAndTheirValues) = 2 and
+	   isString(paVarNamesAndTheirValues[1])
+
+		aTemp = []
+		aTemp + paVarNamesAndTheirValues
+		paVarNamesAndTheirValues = aTemp
+	ok
+
+	if NOT ( isList(paVarNamesAndTheirValues) and Q(paVarNamesAndTheirValues).IsHashList() )
+		StzRaise("Incorrect param type! paVarNamesAndTheirValues must be a hashlist.")
+	ok
+
+	# Memorizing the current var
+
+	if len(_aVars) = 0
+		_oldVar = []
+	else
+		_oldVar = _aVars[ len(_aVars) ]
+	ok
+
+	# Setting the new var
+
+	nLen = len(paVarNamesAndTheirValues)
+	oHash = new stzHashList(_aVars)
+
+	for i = 1 to nLen
+		n = oHash.FindKey(paVarNamesAndTheirValues[i][1])
+		if n = 0
+			_aVars + paVarNamesAndTheirValues[i]
+		else
+			_aVars[n] = paVarNamesAndTheirValues[i]
+		ok
+	next
+
+	# The new var is the temp var
+
+	_var = _aVars[len(_aVars)]
+
+
+func ReadV(p)
+	oHash = new stzHashList(_aVars)
+	n = oHash.FindKey(p)
+	return _aVars[n][2]
+
+func ReadManyV(paVars)
+	nLen = len(paVars)
+
+	aResult = []
+	for i = 1 to nLen
+		aResult + ReadV(paVars[i])
+	next
+
+	return aResult
+
+func DataVars()
+	nLen = len(_aVars)
+	aResult = []
+	for i = 1 to nLen
+		aResult + _aVars[i]
+	next
+	return aResult
+
+func DataVarsXT()
+	return _aVars
 
 
 func Vr(pacVars)
@@ -109,12 +222,45 @@ func Vl(paVals)
 
 	# Memorizing the last variable/value processed
 
-	_var = [ _aTempVars[nLen], paVals[nLen] ]
+	_var = [ _aTempVars[nLen][1], paVals[nLen] ]
 
-# Python...	: range(3) 		--> [0, 1, 2]
-# Pythin..	: range(-3, 4, 2)	--> [-3, -1, 1, 3 ]
-# JS/PHP/...	: range(1, 3) 		--> [1, 2, 3]
+	if oldval() = ""
+		_oldVar = _var
+	ok
+
+func _if(pExpressionOrBoolean)
+	_bVarReset = FALSE
+	bTemp = TRUE
+
+	if isString(pExpressionOrBoolean)
+		cCode = 'bTemp = (' + pExpressionOrBoolean + ')'
+		eval(cCode)
+
+	but IsBoolean(pExpressionOrBoolean)
+		bTemp = pExpressionOrBoolean
+	ok
+
+	if bTemp = FALSE
+		_bVarReset = TRUE
+	ok
+
+func _else(value)
+
+	if _bVarReset = TRUE
+		setV([ tempvarname(), value ])
+	ok
+
+
+	
+
+	
+		
+
 func range(p)
+	# Python...	: range(3) 		--> [0, 1, 2]
+	# Pythin..	: range(-3, 4, 2)	--> [-3, -1, 1, 3 ]
+	# JS/PHP/...	: range(1, 3) 		--> [1, 2, 3]
+
 	aResult = []
 	if isNumber(p)
 		# Example: range(3) #--> [ 0, 1, 2 ]

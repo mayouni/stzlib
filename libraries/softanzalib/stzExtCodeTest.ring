@@ -313,11 +313,12 @@ proff()
 # Executed in 0.05 second(s)
 
 /*--------------
-*/
 
 pron()
 
 ? @@( tempval() )
+#--> NULL
+? @@( oldval() )
 #--> NULL
 
 vr(:name) '=' vl("mansour")
@@ -325,18 +326,22 @@ vr(:name) '=' vl("mansour")
 ? v(:name)
 #--> mansour
 
-? @@( tempval() )
-#--> mansour
-
+	? @@( tempval() )
+	#--> mansour
+	? @@( oldval() )
+	#--> NULL
+	
 setV(:name = "cherihen")
 ? v(:name)
 #--> cherihen
 
-? @@( tempval() )
-#--> cherihen
+	? @@( tempval() )
+	#--> cherihen
+	? @@( oldval() )
+	#--> "mansour"
 
-? @@( oldval() )
-#--> "mansour"
+? ">>"
+? @@( tempvarname() ) # same as tempvar()
 
 proff()
 
@@ -345,8 +350,6 @@ proff()
 
 pron()
 
-? @@( ">> " + tempval() )
-
 # In Pyhthon we can write:
 '
 something = true // or false
@@ -354,21 +357,18 @@ value = "foo" if something else "bar"
 '
 
 # Let's reproduce it in Ring with Softanza
+bSomething = TRUE
+vr(:value) '=' vl("foo") _if(bSomething) _else("bar")
+? @@( v(:value) )
+#--> foo
 
-something = true
-vr(:value) '=' vl("foos") //_if(something) //_else("bar")
-
-? @@( ">> " + tempval() )
-? ( "!> " + @@( _oldvar ) )
-
-print( v(:value) )
-
-SetV(:value = "emm")
-? v(:value)
-? @@( ">> " + tempval() )
-? ( "!> " + @@( _oldvar ) )
+bSomething = FALSE
+vr(:value) '=' vl("foo") _if(bSomething) _else("bar")
+? @@( v(:value) )
+#--> bar
 
 proff()
+# Executed in 0.06 second(s)
 
 /*--------------
 
