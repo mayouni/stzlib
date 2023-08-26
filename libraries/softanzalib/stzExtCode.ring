@@ -27,6 +27,23 @@ None = NULL
  ///  FUNCTIONS  ///
 ///////////////////
 
+func TempVars()
+	aResult = QR( _aVars, :stzHashList).Keys()
+	return aResult
+
+	func TempVarsNames()
+		return TempVars()
+
+func TempVals()
+	aResult = QR( _aVars, :stzHashList).Values()
+	return aResult
+
+func TempVarsVals()
+	return _aVars
+
+	func TempVarsXT()
+		return TempVarsVals()
+
 func TempVar()
 	if len(_var) = 0
 		return []
@@ -47,6 +64,9 @@ func TempVal()
 
 func TempVarVal()
 	return _var
+
+	func TempVarXT()
+		return TempVarVal()
 
 func V(p)
 	if isList(p) and Q(p).IsHashList()
@@ -110,7 +130,11 @@ func SetV(paVarNamesAndTheirValues)
 func ReadV(p)
 	oHash = new stzHashList(_aVars)
 	n = oHash.FindKey(p)
-	return _aVars[n][2]
+	if n = 0
+		StzRaise("Undefined named variable!")
+	else
+		return _aVars[n][2]
+	ok
 
 func ReadManyV(paVars)
 	nLen = len(paVars)
@@ -135,15 +159,16 @@ func DataVarsXT()
 
 
 func Vr(pacVars)
+	if NOT (isString(pacVars) or (isList(pacVars) and Q(pacVars).IsListOfStrings()) )
+		StzRaise("Incorrect param type! pcVars must be a string or a list of strings.")
+	ok
 
-	if NOT isList(pacVars)
+	if isString(pacVars)
 		aTemp = []
 		aTemp + pacVars
 		pacVars = aTemp
-	ok
 
-	if NOT ( isList(pacVars) and Q(pacVars).IsListOfStrings() )
-		StzRaise("Incorrect param type! pacVars must be a list of strings.")
+		bOneVar = TRUE
 	ok
 
 	_aTempVars = []
@@ -204,6 +229,7 @@ func Vl(paVals)
 	_oldVar = _Var
 
 	# Doing the job
+
 
 	nLen = Min([ len(_aTempVars), len(paVals) ])
 

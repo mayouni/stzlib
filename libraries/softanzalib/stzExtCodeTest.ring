@@ -269,6 +269,12 @@ V([ :x = 10, :y = 20, :z = 30 ])
 ? v([ :x, :y, :z ])
 #--> [ 10, 20, 30 ]
 
+? v([ :x, :z ])
+#--> [ 10, 30 ]
+
+? v([ :x, :x, :z, :y ])
+#--> [ 10, 10, 30, 20 ]
+
 proff()
 # Executed in 0.05 second(s)
 
@@ -302,12 +308,92 @@ proff()
 
 pron()
 
+Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen", "Teeba" ])
+? v(:name2)
+#--> Teeba
+
+proff()
+# Executed in 0.05 second(s)
+
+/*--------------
+
+pron()
+
+Vr([ :name1, :name2, :name3 ]) '=' Vl([ "Hussein", "Haneen" ])
+? @@( TempVarsXT() )
+#--> [ :name1 = "Hussein", :name2 = "Haneen", :name3 = "" ])
+
+? @@( v(:name3) )
+#--> NULL
+
+proff()
+# Executed in 0.05 second(s)
+
+/*--------------
+
+pron()
+
+Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen" ])
+? v(:name)
+#--> ERR: ndefined named variable!
+
+proff()
+
+/*--------------
+
+pron()
+
+Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen" ])
+? v([ :name1, :name2, :name7 ])
+#--> ERR: ndefined named variable!
+
+proff()
+
+/*--------------
+
+pron()
+
+Vr([ :name, :notes, :age ]) '=' Vl([ "Mansour", [10, 12, 15], 47 ])
+? @@( v(:notes) )
+#--> [ 10, 12, 15 ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*--------------
+
+pron()
+
+Vr([ :names ]) '=' Vl([ [ "Hussein", "Haneen", "Teebah" ] ])
+? @@( v(:names) )
+#--> [ "Hussein", "Haneen", "Teebah" ]
+
+proff()
+
+/*--------------
+
+*/
+pron()
+
+bPositive = TRUE
+
+Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(NOT bPositive) _else([-1, -2, -3])
+
+? @@( v([ :x, :y, :z ]) )
+
+proff()
+
+/*--------------
+
+pron()
+
 vr(:value) '=' vl("foo") 
 print( v(:value) )
 #--> foo
 
 SetV(:value = "bar")
 ? v(:value)
+#--> bar
 
 proff()
 # Executed in 0.05 second(s)
@@ -351,16 +437,28 @@ proff()
 pron()
 
 # In Pyhthon we can write:
-'
-something = true // or false
-value = "foo" if something else "bar"
-'
+	'
+	something = true // or false
+	value = "foo" if something else "bar"
+	'
 
-# Let's reproduce it in Ring with Softanza
+# In pure Ring, its equivalent is:
+	something = true // or false
+	
+	if something = true
+		value = "foo"
+	else
+		value = "bar"
+	ok
+
+# But what if we write it, the Pyhton-way, in Ring, using Softanza?
+
 bSomething = TRUE
 vr(:value) '=' vl("foo") _if(bSomething) _else("bar")
 ? @@( v(:value) )
 #--> foo
+
+# And if you turn bSomething to FALSE:
 
 bSomething = FALSE
 vr(:value) '=' vl("foo") _if(bSomething) _else("bar")
