@@ -1755,6 +1755,142 @@ class stzString from stzObject
 	def IsUppercaseOfInLocale(pcStr, pLocale)
 		return This.UppercasedInLocale(pLocale) = pcStr
 
+	  #-----------------------------------------#
+	 #  UPPERCASING A SUBSTRING IN THE STRING  #
+	#=========================================#
+
+	def UppercaseSubStringCS(pcSubStr, pCaseSensitive)
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		This.UppercaseSections(aSections)
+
+		def UppercaseSubStringCSQ(pcSubStr, pCaseSensitive)
+			This.UppercaseSubString(pcStr, pCaseSensitive)
+			return This
+
+	def SubStringUppercasedCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().UppercaseSubStringCS(pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+		def SubStringToUppercaseCS(pcSubStr, pCaseSensitive)
+			return This.SubStringUppercasedCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def UppercaseSubString(pcSubStr)
+		This.UppercaseSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def UppercaseSubStringQ(pcSubStr)
+			This.UppercaseSubStringCSQ(pcSubStr, :CaseSensitive = TRUE)
+
+	def SubStringUppercased(pcSubStr)
+		cResult = This.Copy().UppercaseSubStringQ(pcStr).Content()
+		return cResult
+
+		def SubStringToUppercase(pcSubStr)
+			return This.SubStringUppercased(pcSubStr)
+
+	  #-----------------------------------------------------------#
+	 #  UPPERCASING A SUBSTRING IN THE STRING IN A GIVEN LOCALE  #
+	#-----------------------------------------------------------#
+
+	def UppercaseSubStringInLocalCS(pcSubStr, pLocale, pCaseSensitive)
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		This.UppercaseSectionsInLocale(aSections, pLocale)
+
+		def UppercaseSubStringInLocaleCSQ(pcSubStr, pLocale, pCaseSensitive)
+			This.UppercaseSubStringInLocale(pcStr, pLocale, pCaseSensitive)
+			return This
+
+	def SubStringUppercasedInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
+		cResult = This.Copy().UppercaseSubStrinInLocalegCS(pcSubStr, pLocale, pCaseSensitive).Content()
+		return cResult
+
+		def SubStringToUppercaseInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
+			return This.SubStringUppercasedInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def UppercaseSubStringInLocale(pcSubStr, pLocale)
+		This.UppercaseSubStringInLocaleCS(pcSubStr, pLocale, :CaseSensitive = TRUE)
+
+		def UppercaseSubStringInLocaleQ(pcSubStr, pLocale)
+			This.UppercaseSubStringInLocaleCSQ(pcSubStr, pLocale, :CaseSensitive = TRUE)
+
+	def SubStringUppercasedInLocale(pcSubStr, pLocale)
+		cResult = This.Copy().UppercaseSubStringInLocaleQ(pcStr, pLocale).Content()
+		return cResult
+
+		def SubStringToUppercaseInLocale(pcSubStr, pLocale)
+			return This.SubStringUppercasedInLocale(pcSubStr, pLocale)
+
+	  #-----------------------------------------#
+	 #  LOWERCASING A SUBSTRING IN THE STRING  #
+	#=========================================#
+
+	def LowercaseSubStringCS(pcSubStr, pCaseSensitive)
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		This.LowercaseSections(aSections)
+
+		def LowercaseSubStringCSQ(pcSubStr, pCaseSensitive)
+			This.LowercaseSubString(pcStr, pCaseSensitive)
+			return This
+
+	def SubStringLowercasedCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().LowercaseSubStringCS(pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+		def SubStringToLowercaseCS(pcSubStr, pCaseSensitive)
+			return This.SubStringLowercasedCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LowercaseSubString(pcSubStr)
+		This.LowercaseSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def LowercaseSubStringQ(pcSubStr)
+			This.LowercaseSubStringCSQ(pcSubStr, :CaseSensitive = TRUE)
+
+	def SubStringLowercased(pcSubStr)
+		cResult = This.Copy().LowercaseSubStringQ(pcStr).Content()
+		return cResult
+
+		def SubStringToLowercase(pcSubStr)
+			return This.SubStringLowercased(pcSubStr)
+
+	  #-----------------------------------------------------------#
+	 #  LOWERCASING A SUBSTRING IN THE STRING IN A GIVEN LOCALE  #
+	#-----------------------------------------------------------#
+
+	def LowercaseSubStringInLocalCS(pcSubStr, pLocale, pCaseSensitive)
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		This.LowercaseSectionsInLocale(aSections, pLocale)
+
+		def LowercaseSubStringInLocaleCSQ(pcSubStr, pLocale, pCaseSensitive)
+			This.LowercaseSubStringInLocale(pcStr, pLocale, pCaseSensitive)
+			return This
+
+	def SubStringLowercasedInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
+		cResult = This.Copy().LowercaseSubStrinInLocalegCS(pcSubStr, pLocale, pCaseSensitive).Content()
+		return cResult
+
+		def SubStringToLowercaseInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
+			return This.SubStringLowercasedInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LowercaseSubStringInLocale(pcSubStr, pLocale)
+		This.LowercaseSubStringInLocaleCS(pcSubStr, pLocale, :CaseSensitive = TRUE)
+
+		def LowercaseSubStringInLocaleQ(pcSubStr, pLocale)
+			This.LowercaseSubStringInLocaleCSQ(pcSubStr, pLocale, :CaseSensitive = TRUE)
+
+	def SubStringLowercasedInLocale(pcSubStr, pLocale)
+		cResult = This.Copy().LowercaseSubStringInLocaleQ(pcStr, pLocale).Content()
+		return cResult
+
+		def SubStringToLowercaseInLocale(pcSubStr, pLocale)
+			return This.SubStringLowercasedInLocale(pcSubStr, pLocale)
+
 	  #================================#
 	 #     CAPITALIZING THE STRING    #
 	#================================#

@@ -1088,7 +1088,7 @@ o1 = new stzString("<<word>> and __word__")
 ? o1.SubStringIsBoundedByMany("word", [ ["<<", ">>"], "__" ])
 #--> TRUE
 
-? o1.SubString( :IsBoundedBy, ["<<", ">>"] )
+? o1.SubStringQ( "word" ).IsBoundedBy(["<<", ">>"])
 
 proff()
 

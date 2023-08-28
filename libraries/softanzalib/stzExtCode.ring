@@ -159,16 +159,8 @@ func DataVarsXT()
 
 
 func Vr(pacVars)
-	if NOT (isString(pacVars) or (isList(pacVars) and Q(pacVars).IsListOfStrings()) )
-		StzRaise("Incorrect param type! pcVars must be a string or a list of strings.")
-	ok
-
-	if isString(pacVars)
-		aTemp = []
-		aTemp + pacVars
-		pacVars = aTemp
-
-		bOneVar = TRUE
+	if NOT ( isList(pacVars) and Q(pacVars).IsListOfStrings() )
+		StzRaise("Incorrect param type! pcVars must be a list of strings.")
 	ok
 
 	_aTempVars = []
@@ -212,12 +204,6 @@ func Vl(paVals)
 
 	if len(_aTempVars) = 0 or (isList(paVals) and len(paVals) = 0)
 		return
-	ok
-
-	if NOT isList(paVals)
-		aTemp = []
-		aTemp + paVals
-		paVals = aTemp
 	ok
 
 	if NOT isList(paVals)
@@ -272,8 +258,23 @@ func _if(pExpressionOrBoolean)
 
 func _else(value)
 
+	aValues = []
+
+	if NOT isList(value)
+		aTemp = []
+		aTemp + value
+		value = aTemp
+	ok
+
+	aValues = value
+
+	nLen = len(aValues)
+	acTempVarsNames = TempVarsNames()
+
 	if _bVarReset = TRUE
-		setV([ tempvarname(), value ])
+		for i = 1 to nLen
+			setV([ acTempVarsNames[i], aValues[i] ])
+		next
 	ok
 
 
@@ -371,14 +372,14 @@ func print(str)
 		print(str)
 
 func $(str) // C#
-	return Interpoltate(@@(str)) // Ring (SoftanzaLib)
+	return Interpoltate(str) // Ring (SoftanzaLib)
 	# NOTE the method we used here is misspelled. Normally we
 	# should write it correctly as "Interpolate(str)". But I left
 	# as is to show how Softanza can be permissive to spelling
 	# errors when you are under time pressure in writing code ;)
 
 	func f(str) // Python
-		return Interpoltate(@@(str))
+		return Interpoltate(str)
 
 
   /////////////////
