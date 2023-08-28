@@ -9164,7 +9164,7 @@ o1 = new stzString("All our software versions must be updated!")
 nPosition = o1.PositionAfter("versions")
 
 # Inserting the list of string using extended configuration
-o1.InsertListOfSubstringsXT(
+o1.InsertSubstringsXT(
 	nPosition,
 
 	[ "V1", "V2", "V3", "V4", "V5" ], 

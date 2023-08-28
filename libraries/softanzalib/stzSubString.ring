@@ -175,10 +175,30 @@ class stzSubString
 
 	#--
 
-	def Lowercased()
+	def LowercasedCS(pCaseSensitive)
+		cResult = This.StringQ().LowercaseSubStringCSQ(This.SubString(), pCaseSensitive).Content()
+		return cResult
 
-	def Inserted()
+	def Lowerercased()
+		return This.LowercasedCS(:CaseSensitive = TRUE)
+
+	#--
+
+	def InsertedXT(paOptions)
+		/*
+		o1 = new stzString("99999999999")
+		o1.SubStringQ("_").InsertedXT([ :After, :EachNChars = 3, :Going = :Backward ])
+		? o1.Content()
+		#--> 99_999_999_999
+		*/
+
+		cResult = This.StringQ().InsertXTQ( This.SubString(), paOptions ).Content()
+		return cResult
+
+	#--
 
 	def InstertedBefore()
 
 	def InsertedAfter()
+
+	def InsertedAtPositions()
