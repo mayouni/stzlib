@@ -238,15 +238,25 @@ proff()
 
 pron()
 
-bestlang = "Ring"
+# f-strings are a feature in Python for interpolating string
+# content, by dynmalically evaluation variables inside it:
 
-print( f("My best language is {bestlang}!") )
-#--> My best language is Ring!
+	'
+	bestlang = "Python"
+	print(f"My best language is {bestlang}!")
+	#--> My best language is Python!
+	'
+
+# the same syntax can be used in Ring with Softanza like this:
+
+	bestlang = "Ring"
+	print( f("My best language is {bestlang}!") )
+	#--> My best language is Ring!
 
 proff()
 # Executed in 0.08 second(s)
 
-/*----------------
+/*================
 
 pron()
 
@@ -254,6 +264,10 @@ pron()
 # values to them in one line like this:
 
 V([ :x = 10, :y = 20, :z = 30 ])
+
+# The same thing can be done like this:
+
+Vr([ :x, :y, :z ]) '=' Vl([ 10, 20, 30 ])
 
 # Then, you can get the values by calling the variables
 # using their names like this:
@@ -353,8 +367,8 @@ proff()
 
 pron()
 
-Vr([ :name, :notes, :age ]) '=' Vl([ "Mansour", [10, 12, 15], 47 ])
-? @@( v(:notes) )
+Vr([ :name, :grades, :age ]) '=' Vl([ "Mansour", [10, 12, 15], 47 ])
+? @@( v(:grades) )
 #--> [ 10, 12, 15 ]
 
 proff()
@@ -372,34 +386,6 @@ proff()
 
 /*--------------
 
-*/
-pron()
-
-bPositive = TRUE
-
-Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(NOT bPositive) _else([-1, -2, -3])
-
-? @@( v([ :x, :y, :z ]) )
-
-proff()
-
-/*--------------
-
-pron()
-
-vr(:value) '=' vl("foo") 
-print( v(:value) )
-#--> foo
-
-SetV(:value = "bar")
-? v(:value)
-#--> bar
-
-proff()
-# Executed in 0.05 second(s)
-
-/*--------------
-
 pron()
 
 ? @@( tempval() )
@@ -407,7 +393,7 @@ pron()
 ? @@( oldval() )
 #--> NULL
 
-vr(:name) '=' vl("mansour")
+vr([ :name ]) '=' vl([ "mansour" ])
 
 ? v(:name)
 #--> mansour
@@ -415,7 +401,7 @@ vr(:name) '=' vl("mansour")
 	? @@( tempval() )
 	#--> mansour
 	? @@( oldval() )
-	#--> NULL
+	#--> mansour
 	
 setV(:name = "cherihen")
 ? v(:name)
@@ -426,13 +412,12 @@ setV(:name = "cherihen")
 	? @@( oldval() )
 	#--> "mansour"
 
-? ">>"
 ? @@( tempvarname() ) # same as tempvar()
+#--> name
 
 proff()
 
 /*--------------
-*/
 
 pron()
 
@@ -442,7 +427,7 @@ pron()
 	value = "foo" if something else "bar"
 	'
 
-# In pure Ring, its equivalent is:
+# As you might imagine, its equivalent in pure Ring is:
 	something = true // or false
 	
 	if something = true
@@ -452,23 +437,75 @@ pron()
 	ok
 
 # But what if we write it, the Pyhton-way, in Ring, using Softanza?
+# To to that, we just need to decorate the Python code with vr(), vl(),
+# _if() and _else() functions:
 
 bSomething = TRUE
-vr(:value) '=' vl("foo") _if(bSomething) _else("bar")
-? @@( v(:value) )
+vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
+? v(:value)
 #--> foo
 
-# And if you turn bSomething to FALSE:
+# And if we turn bSomething to FALSE:
 
 bSomething = FALSE
-vr(:value) '=' vl("foo") _if(bSomething) _else("bar")
-? @@( v(:value) )
+vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
+? v(:value)
 #--> bar
 
 proff()
 # Executed in 0.06 second(s)
 
 /*--------------
+
+pron()
+
+bPositive = TRUE
+Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
+? @@( v([ :x, :y, :z ]) )
+#--> [ 1, 2, 3 ]
+
+bPositive = FALSE
+Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
+? @@( v([ :x, :y, :z ]) )
+#--> [ -1, -2, -3 ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*--------------
+*/
+pron()
+
+bPositive = FALSE
+V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10 ])
+
+? v([:x, :y])
+#--> [ -10, 20 ]
+
+proff()
+
+/*--------------
+*/
+pron()
+
+bPositive = FALSE
+V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10, -20 ])
+
+? v([:x, :y])
+#--> [ -10, -20 ]
+
+proff()
+
+/*--------------
+*/
+pron()
+
+bPositive = TRUE
+Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
+? @@( v([ :x, :y, :z ]) )
+#--> [ 1, 2, 3 ]
+
+/*===============
 
 # I asked Bard (Google AI) about a code in Python that returns the
 # uppercase strings from a given list of strings...

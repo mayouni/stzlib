@@ -29040,6 +29040,210 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 			return FALSE
 		ok
 
+	#--
+
+	def IsInStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InString )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsInOrInStringNamedParam()
+		if This.IsInNamedParam() or This.IsInStringNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInStringOrInNamedParam()
+			return This.IsInOrInStringNamedParam()
+
+		def IsInOrInStringNamedParams()
+			return This.IsInOrInStringNamedParam()
+
+		def IsInStringOrInNamedParams()
+			return This.IsInOrInStringNamedParam()
+
+	def IsInNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InNumber )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsInOrInNumberNamedParam()
+		if This.IsInNamedParam() or This.IsInNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInNumberOrInNamedParam()
+			return This.IsInOrInNumberNamedParam()
+
+		def IsInOrInNumberNamedParams()
+			return This.IsInOrInNumberNamedParam()
+
+		def IsInNumberOrInNamedParams()
+			return This.IsInOrInNumberNamedParam()
+
+	def IsInListNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InList )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsInOrInListNamedParam()
+		if This.IsInNamedParam() or This.IsInListNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInListOrInNamedParam()
+			return This.IsInOrInListNamedParam()
+
+		def IsInOrInListNamedParams()
+			return This.IsInOrInListNamedParam()
+
+		def IsInListOrInNamedParams()
+			return This.IsInOrInListNamedParam()
+
+	def IsInObjectNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InObject )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsInOrInObjectNamedParam()
+		if This.IsInNamedParam() or This.IsInObjectNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInObjectOrInNamedParam()
+			return This.IsInOrInObjectNamedParam()
+
+		def IsInOrInObjectNamedParams()
+			return This.IsInOrInObjectNamedParam()
+
+		def IsInObjectOrInNamedParams()
+			return This.IsInOrInObjectNamedParam()
+
+	#--
+
+	def IsOfOrOfStringNamedParam()
+		if This.IsOfNamedParam() or This.IsOfStringNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsOfStringOrOfNamedParam()
+			return This.IsOfOrOfStringNamedParam()
+
+		def IsOfOrOfStringNamedParams()
+			return This.IsOfOrOfStringNamedParam()
+
+		def IsOfStringOrOfNamedParams()
+			return This.IsOfOrOfStringNamedParam()
+
+	def IsOfNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InNumber )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOfOrOfNumberNamedParam()
+		if This.IsOfNamedParam() or This.IsOfNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsOfNumberOrOfNamedParam()
+			return This.IsOfOrOfNumberNamedParam()
+
+		def IsOfOrOfNumberNamedParams()
+			return This.IsOfOrOfNumberNamedParam()
+
+		def IsOfNumberOrOfNamedParams()
+			return This.IsOfOrOfNumberNamedParam()
+
+	def IsOfListNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InList )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOfOrOfListNamedParam()
+		if This.IsOfNamedParam() or This.IsOfListNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsOfListOrOfNamedParam()
+			return This.IsOfOrOfListNamedParam()
+
+		def IsOfOrOfListNamedParams()
+			return This.IsOfOrOfListNamedParam()
+
+		def IsOfListOrOfNamedParams()
+			return This.IsOfOrOfListNamedParam()
+
+	def IsOfObjectNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :InObject )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOfOrOfObjectNamedParam()
+		if This.IsOfNamedParam() or This.IsOfObjectNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsOfObjectOrOfNamedParam()
+			return This.IsOfOrOfObjectNamedParam()
+
+		def IsOfOrOfObjectNamedParams()
+			return This.IsOfOrOfObjectNamedParam()
+
+		def IsOfObjectOrOfNamedParams()
+			return This.IsOfOrOfObjectNamedParam()
+
+	#--
+
 	def IsInSideNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and
