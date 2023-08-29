@@ -36,15 +36,6 @@ func TheLetter(c)
 		return FALSE
 	ok
 
-func The(pcThing)
-	/* Example:
-		? The('Letter("G")')	--> "G"		_("G").IsA(:Letter)._
-		? The('Letter("*")')	--> FALSE	_("*").IsA(:Letter)._
-		? The('Number(5)')	--> 5		_(5).IsA(:Number)._
-		? The('List([]')	--> []		_([]).IsA(:List)._
-	*/
-
-
 
 class stzChainOfTruth from stzObject
 	# This attribute holds the value provided by the user between ()

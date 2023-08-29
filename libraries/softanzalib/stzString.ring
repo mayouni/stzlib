@@ -13131,11 +13131,52 @@ class stzString from stzObject
 				This.AddTheseBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 				return This
 
+		def AddSubStringBoundsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			if isList(pcSubStr) and Q(pcSubStr).IsToOrToSubStringNamedParam()
+				pcSubStr = pcSubStr[2]
+			ok
+
+			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+			def AddSubStringBoundsCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+				This.AddSubStringBoundsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+				return This
+
+		def BoundSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			if isList(pcBound1) and Q(pcBound1).IsWithOrByOrUsingNamedParam()
+				pcBound1 = pcBound1[2]
+			ok
+
+			if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
+				pcBound2 = pcBound2[2]
+			ok
+
+			This.BoundSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This
+
+			def BoundSubStringCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+				This.BoundSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+				return This
+
 		def BoundSubStringWithCS(pcSubStr,  pcBound1, pcBound2, pCaseSensitive)
 			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 			def BoundSubStringWithCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 				This.BoundSubStringWithCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+				return This
+
+		def BoundSubStringByCS(pcSubStr,  pcBound1, pcBound2, pCaseSensitive)
+			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+			def BoundSubStringByCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+				This.BoundSubStringByCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+				return This
+
+		def BoundSubStringUsingCS(pcSubStr,  pcBound1, pcBound2, pCaseSensitive)
+			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+			def BoundSubStringUsingCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+				This.BoundSubStringUsingCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 				return This
 
 		#>
@@ -13162,11 +13203,48 @@ class stzString from stzObject
 				This.AddTheseBoundsToSubString(pcSubStr, pcBound1, pcBound2)
 				return This
 
-		def BoundSubStringWith(pcSubStr,  pcBound1, pcBound2)
+		def AddSubStringBounds(pcSubStr, pcBound1, pcBound2)
+			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
+
+			def AddSubStringBoundsQ(pcSubStr, pcBound1, pcBound2)
+				This.AddSubStringBounds(pcSubStr, pcBound1, pcBound2)
+				return This
+
+		def BoundSubString(pcSubStr, pcBound1, pcBound2)
+			if isList(pcBound1) and Q(pcBound1).IsWithOrByOrUsingNamedParam()
+				pcBound1 = pcBound1[2]
+			ok
+
+			if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
+				pcBound2 = pcBound2[2]
+			ok
+
+			This.BoundSubString(pcSubStr, pcBound1, pcBound2)
+			return This
+
+			def BoundSubStringQ(pcSubStr, pcBound1, pcBound2)
+				This.BoundSubString(pcSubStr, pcBound1, pcBound2)
+				return This
+
+		def BoundSubStringWith(pcSubStr, pcBound1, pcBound2)
 			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
 
 			def BoundSubStringWithQ(pcSubStr, pcBound1, pcBound2)
 				This.BoundSubStringWith(pcSubStr, pcBound1, pcBound2)
+				return This
+
+		def BoundSubStringBy(pcSubStr, pcBound1, pcBound2)
+			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
+
+			def BoundSubStringByQ(pcSubStr, pcBound1, pcBound2)
+				This.BoundSubStringBy(pcSubStr, pcBound1, pcBound2)
+				return This
+
+		def BoundSubStringUsing(pcSubStr, pcBound1, pcBound2)
+			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
+
+			def BoundSubStringUsingQ(pcSubStr, pcBound1, pcBound2)
+				This.BoundSubStringUsing(pcSubStr, pcBound1, pcBound2)
 				return This
 
 		#>
@@ -50220,20 +50298,37 @@ def ReplaceIBS()
                
 	def SubStringCS(pcSubStr, pCaseSensitive)
 		if This.ContainsCS(pcSubStr, pCaseSensitive)
-			return NULL
-		else
 			return pcSubStr
+		else
+			return NULL
 		ok
 
 		def SubStringCSQ(pcSubStr, pCaseSensitive)
 			return new stzSubStringCS(pcSubStr, This.String(), pCaseSensitive)
 
 	def SubString(pcSubStr)
-		return This.SubString(pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringCS(pcSubStr, :CaseSensitive = TRUE)
 
 		def SubStringQ(pcSubStr)
 			return new stzSubString(pcSubStr, This.String())
 
+	#--
+
+	def SubStringInCS(pcStr, pCaseSensitive)
+		if THis.ExistsInCS(pcStr, pCaseSensitive)
+			return This.Content()
+		else
+			return NULL
+		ok
+
+		def SubStringInCSQ(pcStr, pCaseSensitive)
+			return new stzSubStringCS(This.Content(), pcStr, pCaseSensitive)
+
+	def SubStringIn(pcStr)
+		return This.SubStringInCS(pcStr, :CaseSensitive = TRUE)
+
+		def SubStringInQ(pcStr)
+			return new stzSubString(This.Content(), pcStr)
 
 			                                
                  ///////////////////////////////////////////////
