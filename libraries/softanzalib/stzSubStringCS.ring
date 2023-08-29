@@ -43,6 +43,12 @@ class stzSubStringCS
 
 	#--
 
+	def NumberOfChars()
+		return This.SubStringQ().NumberOfChars()
+
+		def Size()
+			return This.NumberOfChars()
+
 	def NumberOfOccurrenceCS(pCaseSensitive)
 		nResult = This.StringQ().NumberOfOccurrenceCS(This.SubString(), pCaseSensitive)
 
@@ -196,7 +202,7 @@ class stzSubStringCS
 		cResult = This.StringQ().LowercaseSubStringCSQ(This.SubString(), pCaseSensitive).Content()
 		return cResult
 
-	def Lowerercased()
+	def Lowercased()
 		return This.LowercasedCS(:CaseSensitive = TRUE)
 
 	#--
