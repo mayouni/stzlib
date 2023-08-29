@@ -1790,7 +1790,7 @@ class stzString from stzObject
 
 		for i = 1 to nLen
 			cUpper = This.SectionQ(anSections[i][1], anSections[i][2]).Uppercased()
-			This.UppercaseSection(anSections[i][1], anSections[i][2], cUpper)
+			This.ReplaceSection(anSections[i][1], anSections[i][2], cUpper)
 		next
 
 		def UppercaseSesctionsQ(anSections)
@@ -1850,7 +1850,7 @@ class stzString from stzObject
 
 		for i = 1 to nLen
 			cLower = This.SectionQ(anSections[i][1], anSections[i][2]).Lowercased()
-			This.LowercaseSection(anSections[i][1], anSections[i][2], cLower)
+			This.ReplaceSection(anSections[i][1], anSections[i][2], cLower)
 		next
 
 		def LowercaseSesctionsQ(anSections)
@@ -1952,7 +1952,7 @@ class stzString from stzObject
 		This.LowercaseSections(aSections)
 
 		def LowercaseSubStringCSQ(pcSubStr, pCaseSensitive)
-			This.LowercaseSubString(pcStr, pCaseSensitive)
+			This.LowercaseSubStringCS(pcSubStr, pCaseSensitive)
 			return This
 
 	def SubStringLowercasedCS(pcSubStr, pCaseSensitive)
