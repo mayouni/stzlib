@@ -1,4 +1,4 @@
-#f-------------------------------------------------------------------------#
+#-------------------------------------------------------------------------#
 # 		   SOFTANZA LIBRARY (V1.0) - STZSTRING			  #
 #	An accelerative library for Ring applications, and more!	  #
 #-------------------------------------------------------------------------#
@@ -1755,6 +1755,126 @@ class stzString from stzObject
 	def IsUppercaseOfInLocale(pcStr, pLocale)
 		return This.UppercasedInLocale(pLocale) = pcStr
 
+	  #---------------------------------------#
+	 #  UPPERCASING A SECTION IN THE STRING  #
+	#=======================================#
+
+	def UppercaseSection(n1, n2)
+		cUpper = This.SectionQ(n1, n2).Uppercased()
+		This.ReplaceSection(n1, n2, cUpper)
+
+		def UppercaseSectionQ(n1, n2)
+			This.UppercaseSection(n1, n2)
+			return This
+
+	#-- WITH LOCALE SENSISITIVITY
+
+	def UppercaseSectionInLocale(n1, n2, pLocale)
+		cUpper = This.SectionQ(n1, n2).UppercasedInLocale(pLocale)
+		This.ReplaceSection(n1, n2, cUpper)
+
+		def UppercaseSectionInLocaleQ(n1, n2, pLocale)
+			This.UppercaseSection(n1, n2)
+			return This
+
+	  #-------------------------------------------#
+	 #  UPPERCASING MANY SECTIONS IN THE STRING  # TODO: Check for performance!
+	#-------------------------------------------#
+
+	def UppercaseSections(anSections)
+		if NOT (isList(anSections) and Q(anSections).IsListOfPairsOfNumbers())
+			StzRaise("Incorrect param type: anSections must be a list of pairs of numbers.")
+		ok
+
+		nLen = len(anSections)
+
+		for i = 1 to nLen
+			cUpper = This.SectionQ(anSections[i][1], anSections[i][2]).Uppercased()
+			This.UppercaseSection(anSections[i][1], anSections[i][2], cUpper)
+		next
+
+		def UppercaseSesctionsQ(anSections)
+			This.UppercaseSections(anSections)
+			return This
+
+	#-- WITH LOCALE SENSITIVITY
+
+	def UppercaseSectionsInLocale(anSections, pLocale)
+		if NOT (isList(anSections) and Q(anSections).IsListOfPairsOfNumbers())
+			StzRaise("Incorrect param type: anSections must be a list of pairs of numbers.")
+		ok
+
+		nLen = len(anSections)
+
+		for i = 1 to nLen
+			cUpper = This.SectionQ(anSections[i][1], anSections[i][2]).UppercasedInLocale(pLocale)
+			This.UppercaseSection(anSections[i][1], anSections[i][2], cUpper)
+		next
+
+		def UppercaseSesctionsInLocaleQ(anSections)
+			This.UppercaseSectionsInLocale(anSections)
+			return This
+
+	  #---------------------------------------#
+	 #  LOWERCASING A SECTION IN THE STRING  #
+	#=======================================#
+
+	def LowercaseSection(n1, n2)
+		cLower = This.SectionQ(n1, n2).Lowercased()
+		This.ReplaceSection(n1, n2, cLower)
+
+		def LowercaseSectionQ(n1, n2)
+			This.LowercaseSection(n1, n2)
+			return This
+
+	#-- WITH LOCALE SENSISITIVITY
+
+	def LowercaseSectionInLocale(n1, n2, pLocale)
+		cLower = This.SectionQ(n1, n2).LowercasedInLocale(pLocale)
+		This.ReplaceSection(n1, n2, cLower)
+
+		def LowercaseSectionInLocaleInLocaleQ(n1, n2, pLocale)
+			This.LowercaseSectionInLocale(n1, n2, pLocale)
+			return This
+
+	  #-------------------------------------------#
+	 #  LOWERCASING MANY SECTIONS IN THE STRING  # TODO: Check for performance!
+	#-------------------------------------------#
+
+	def LowercaseSections(anSections)
+		if NOT (isList(anSections) and Q(anSections).IsListOfPairsOfNumbers())
+			StzRaise("Incorrect param type: anSections must be a list of pairs of numbers.")
+		ok
+
+		nLen = len(anSections)
+
+		for i = 1 to nLen
+			cLower = This.SectionQ(anSections[i][1], anSections[i][2]).Lowercased()
+			This.LowercaseSection(anSections[i][1], anSections[i][2], cLower)
+		next
+
+		def LowercaseSesctionsQ(anSections)
+			This.LowercaseSections(anSections)
+			return This
+
+	#-- WITH LOCALE SENSITIVITY
+
+	def LowercaseSectionsInLocale(anSections, pLocale)
+		if NOT (isList(anSections) and Q(anSections).IsListOfPairsOfNumbers())
+			StzRaise("Incorrect param type: anSections must be a list of pairs of numbers.")
+		ok
+
+		nLen = len(anSections)
+
+		for i = 1 to nLen
+			cLower = This.SectionQ(anSections[i][1], anSections[i][2]).LowercasedInLocale(pLocale)
+			This.LowercaseSection(anSections[i][1], anSections[i][2], cLower)
+		next
+
+		def LowercaseSesctionsInLocaleQ(anSections, pLocale)
+			This.LowercaseSectionsInLocale(anSections, pLocale)
+			return This
+
 	  #-----------------------------------------#
 	 #  UPPERCASING A SUBSTRING IN THE STRING  #
 	#=========================================#
@@ -1764,7 +1884,7 @@ class stzString from stzObject
 		This.UppercaseSections(aSections)
 
 		def UppercaseSubStringCSQ(pcSubStr, pCaseSensitive)
-			This.UppercaseSubString(pcStr, pCaseSensitive)
+			This.UppercaseSubStringCS(pcSubStr, pCaseSensitive)
 			return This
 
 	def SubStringUppercasedCS(pcSubStr, pCaseSensitive)
@@ -2826,40 +2946,6 @@ class stzString from stzObject
 
 		def HowManyUniqueSubStringsOfNChars(n)
 			return This.NumberOfUniqueSubStringsOfNChars(n)
-
-	  #=================================================#
-	 #  SUBSTRING USED IN NEAR-NATURAL LANGUAGE STYLE  #
-	#=================================================#
-
-	def SubStringCS(pcSubStr, paOption, pCaseSensitive)
-		/*
-		o1 = new stzString("blabla .♥. blabla")
-		? o1.SubString("♥", :IsBoundedBy = ".")
-		#--> TRUE
-		*/
-
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcSubStr must be a string.")
-		ok
-
-		if NOT isList(paOption)
-			StzRaise("Incorrect param type! paOption must be a list.")
-		ok
-
-		if Q(paOption).IsIsBoundedByNamedParam() # Yes! IsIs... and not only Is :)
-			pBounds = paOption[2]
-
-			return This.SubStringIsBoundedByCS(pcSubStr, pBounds, pCaseSensitive)
-
-		# TODO: support other cases
-
-		ok
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def SubString(pcSubStr, paOption)
-		return This.SubStringCS(pcSubStr, paOption, :CaseSensitive = TRUE)
-		
 
 	  #=================#
 	 #      LINES      #
@@ -17672,9 +17758,9 @@ class stzString from stzObject
 		def RangesOtherThan(paRanges)
 			return This.AntiRanges()
 
-	  #========================#
-	 #  INSERTING SUBSTRINGS  # TODO / INCOMPLETE
-	#========================#
+	  #====================================#
+	 #  INSERTING SUBSTRINGS -- EXTENDED  # TODO / ADD OTHER FORMS
+	#====================================#
 
 	def InsertXT(pcSubStr, paOptions)
 		/*
@@ -17725,10 +17811,20 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def InsertSubStringXT(pcSubStr, paOptions)
+			This.InsertXT(pcSubStr, paOptions)
+
+			def InsertSubStringXTQ(pcSubStr, paOptions)
+				This.InsertSubStringXT(pcSubStr, paOptions)
+				return This
+
+		#>
+
 	def SubStringInsertedXT(pcSubStr, paOptions)
 		cResult = This.Copy().InsertXTQ(pcSubStr, paOptions).Content()
 		return cResult
-
 
 	  #------------------------------------------------#
 	 #    INSERTING A SUBSTRING BEFORE EACH N CHARS   #
@@ -17740,6 +17836,13 @@ class stzString from stzObject
 		def InsertBeforeEachNCharsQ(n, pcSubStr)
 			This.InsertBeforeEachNChars(n, pcSubStr)
 			return This
+
+		def InsertSubStringBeforeEachNChars(n, pcSubStr)
+			This.InsertBeforeEachNChars(n, pcSubStr)
+
+			def InsertSubStringBeforeEachNCharsQ(n, pcSubStr)
+				This.InsertSubStringBeforeEachNChars(n, pcSubStr)
+				return This
 
 	def SubStringInsertedBeforeEachNChars(n, pcSubStr)
 		cResult = This.Copy().InsertBeforeEachNCharsQ(n, pcSubStr).Content()
@@ -17755,6 +17858,13 @@ class stzString from stzObject
 		def InsertBeforeEachNCharsXTQ(n, pcSubStr, pcDirection)
 			This.InsertBeforeEachNCharsXT(n, pcSubStr, pcDirection)
 			return This
+
+		def InsertSubStringBeforeEachNCharsXT(n, pcSubStr, pcDirection)
+			This.InsertBeforeEachNCharsXT(n, pcSubStr, pcDirection)
+
+			def InsertSubStringBeforeEachNCharsXTQ(n, pcSubStr, pcDirection)
+				This.InsertSubStringBeforeEachNCharsXT(n, pcSubStr, pcDirection)
+				return This
 
 	def SubStringInsertedBeforeEachNCharsXT(n, pcSubStr, pcDirection)
 		cResult = This.Copy().InsertBeforeEachNCharsXTQ(n, pcSubStr, pcDirection).Content()
@@ -17812,6 +17922,7 @@ class stzString from stzObject
 		cResult = This.Copy().InsetSubStringQ(pcSubStr, pWhere).Content()
 		return cResult
 
+
 	  #----------------------------------------------------#
 	 #    INSERTING A SUBSTRING BEFORE A GIVEN POSITION   #
 	#----------------------------------------------------#
@@ -17825,7 +17936,22 @@ class stzString from stzObject
 		- or, before the occurrence of a given substring
 	*/
 	 
-	def InsertBefore(nPos, pcSubStr)
+	def InsertBeforeCS(nPos, pcSubStr, pCaseSensitive)
+		if isString(nPos)
+			This.InsertSubstringBeforeSubStringCS(nPos, pcSubStr, pCaseSensitive)
+			return
+
+		but isList(nPos) and Q(nPos).IsListOfStrings()
+			This.InsertSubStringsBeforeSubStringCS(nPos, pCSubStr, pCaseSensitive)
+			return
+
+		but isList(nPos) and Q(nPos).IsListOfNumbers()
+			This.InsertSubStringBeforePositions(nPos, pcSubStr)
+			return
+		ok
+
+		# else
+
 		if isList(nPos) and Q(nPos).IsPositionNamedParam()
 			nPos = nPos[2]
 		ok
@@ -17846,8 +17972,8 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 		
-		def InsertBeforeQ(nPos, pcSubStr)
-			This.InsertBefore(nPos, pcSubStr)
+		def InsertBeforeCSQ(nPos, pcSubStr, pCaseSensitive, pCaseSensitive)
+			This.InsertBeforeCS(nPos, pcSubStr, pCaseSensitive)
 			return This
 
 		#>
@@ -17866,12 +17992,43 @@ class stzString from stzObject
 
 			def InsertAtQ(nPos, pcSubStr)
 				This.InsertAt(nPos, pcSubStr)
+				return This
 
 		def InsertAtPosition(nPos, pcSubStr)
 			This.InsertBefore(nPos, pcSubStr)
 
 			def InsertAtPosiitonQ(nPos, pcSubStr)
 				This.InsertAt(nPos, pcSubStr)
+				return This
+
+		#--
+
+		def InsertSubStringBeforeCS(nPos, pcSubStr, pCaseSensitive)
+			This.InsertBeforeCS(nPos, pcSubStr, pCaseSensitive)
+
+			def InsertSubStringBeforeCSQ(nPos, pcSubStr, pCaseSensitive)
+				return This
+
+		def InserSubStringtBeforePosition(nPos, pcSubStr)
+			This.InsertBefore(nPos, pcSubStr)
+
+			def InsertSubStringBeforePositionQ(nPos, pcSubStr)
+				This.InsertBeforePosition(nPos, pcSubStr)
+				return This
+
+		def InsertSubStringAt(nPos, pcSubStr)
+			This.InsertBefore(nPos, pcSubStr)
+
+			def InsertSubStringAtQ(nPos, pcSubStr)
+				This.InsertSubStringAt(nPos, pcSubStr)
+				return This
+
+		def InsertSubStringAtPosition(nPos, pcSubStr)
+			This.InsertBefore(nPos, pcSubStr)
+
+			def InsertSubStringAtPosiitonQ(nPos, pcSubStr)
+				This.InsertSubStringAt(nPos, pcSubStr)
+				return This
 
 		#>
 
@@ -17898,8 +18055,8 @@ class stzString from stzObject
 	#--------------------------------------------------------#
 
 	def InsertBeforeW(pcCondition, pcSubStr)
-		anPositions = This.FindCharsW(pcCondition)
-		This.InsertBeforeManyPositions( anPositions, pcSubStr )
+		anPositions = This.FindW(pcCondition)
+		This.InsertBeforePositions( anPositions, pcSubStr )
 
 		#< @FunctionFluentForm
 
@@ -17923,6 +18080,13 @@ class stzString from stzObject
 
 			def InsertAtWQ(pcCondition, pcSubStr)
 				This.InsertAtW(pcCondition, pcSubStr)
+				return This
+
+		def InsertSubstringAtW(pcCondition, pcSubStr)
+			This.InsertBefore(pcCondition, pcSubStr)
+
+			def InsertSubstringAtWQ(pcCondition, pcSubStr)
+				This.InsertSubStringAtW(pcCondition, pcSubStr)
 				return This
 
 		#>
@@ -17964,6 +18128,20 @@ class stzString from stzObject
 
 			def InsertAfterePositionQ(nPos, pcSubStr)
 				This.InsertAfterPosition(nPos, pcSubStr)
+				return This
+
+		def InsertSubStringAfter(nPos, pcSubStr)
+			This.InsertAfter(nPos, pcSubStr)
+
+			def InsertSubStringAfterQ(nPos, pcSubStr)
+				This.InsertSubStringAfter(nPos, pcSubStr)
+				return This
+
+		def InsertSubStringAfterPosition(nPos, pcSubStr)
+			This.InsertAfter(nPos, pcSubStr)
+
+			def InsertSubStringAfterPositionQ(nPos, pcSubStr)
+				This.InsertSubStringAfterPosition(nPos, pcSubStr)
 				return This
 
 		#>
@@ -18020,6 +18198,13 @@ class stzString from stzObject
 				This.InsertAfterEveryNChars(n, pcSubStr)
 				return This
 	
+		def InsertSubStringBeforeEveryNChars(n, pcSubStr)
+			This.InsertEveryNChars(n, pcSubStr)
+
+			def InsertSubStringBeforeEveryNCharsQ(n, pcSubStr)
+				This.InsertSubStringBeforeEveryNChars(n, pcSubStr)
+				return This
+
 		def InsertSubStringEveryNChars(n, pcSubStr)
 			This.InsertEveryNChars(n, pcSubStr)
 
@@ -18089,8 +18274,8 @@ class stzString from stzObject
 	#--------------------------------------------------------#
 
 	def InsertAfterW( pcCondition, pcSubStr )
-		anPositions = This.FindCharsW(pcCondition)
-		This.InsertAfterManyPositions( anPositions, pcSubStr )
+		anPositions = This.FindW(pcCondition)
+		This.InsertAfterPositions( anPositions, pcSubStr )
 
 		#< @FunctionFluentForm
 
@@ -18109,6 +18294,20 @@ class stzString from stzObject
 				This.InsertAfterWhere( pcCondition, pcSubStr )
 				return This
 
+		def InsertSubStringAfterW( pcCondition, pcSubStr )
+			This.InsertAfterW( pcCondition, pcSubStr )
+
+			def InsertSubStringAfterWQ(pcCondition, pcSubStr)
+				This.InsertSubStringAfterW( pcCondition, pcSubStr )
+				return This
+
+		def InsertSubStringAfterWhere( pcCondition, pcSubStr )
+			This.InsertAfterW( pcCondition, pcSubStr )
+
+			def InsertSubStringAfterWhereQ(pcCondition, pcSubStr)
+				This.InsertSubStringAfterWhere( pcCondition, pcSubStr )
+				return This
+
 		#>
 
 	def SubStringInsertedAfterW(pcCondition, pcSubStr)
@@ -18122,7 +18321,7 @@ class stzString from stzObject
 	 #   INSERTING A SUBSTRING AFTER MANY POSITIONS   #
 	#------------------------------------------------#
 
-	 def InsertAfterThesePositions(panPositions, pcSubStr)
+	 def InsertAfterPositions(panPositions, pcSubStr)
 		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
 
 			stzRaise("Incorrect param! paPositions must be a list of numbers.")
@@ -18141,8 +18340,8 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def InsertAfterThesePositionsQ(panPositions, pcSubStr)
-			This.InsertAfterThesePositions(panPositions, pcSubStr)
+		def InsertAfterPositionsQ(panPositions, pcSubStr)
+			This.InsertAfterPositions(panPositions, pcSubStr)
 			return This
 
 		#>
@@ -18150,17 +18349,40 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def InsertAfterManyPositions(panPositions, pcSubstr)
-			This.InsertAfterThesePositions(panPositions, pcSubStr)
+			This.InsertAfterPositions(panPositions, pcSubStr)
 
 			def InsertAfterManyPositionsQ(panPositions, pcSubstr)
 				This.InsertAfterManyPositions(panPositions, pcSubstr)
 				return This
 
-		def InsertAfterPositions(panPositions, pcSubstr)
-			This.InsertAfterThesePositions(panPositions, pcSubStr)
+		def InsertAfterThesePositions(panPositions, pcSubstr)
+			This.InsertAfterPositions(panPositions, pcSubStr)
 
-			def InsertAfterPositionsQ(panPositions, pcSubstr)
-				This.InsertAfterPositions(panPositions, pcSubstr)
+			def InsertAfterThesePositionsQ(panPositions, pcSubstr)
+				This.InsertAfterThesePositions(panPositions, pcSubstr)
+				return This
+
+		#--
+
+		def InsertSubStringAfterPositions(panPositions, pcSubStr)
+			This.InsertAfterPositions(panPositions, pcSubStr)
+
+			def InsertSubStringAfterPositionsQ(panPositions, pcSubStr)
+				This.InsertSubStringAfterPositions(panPositions, pcSubStr)
+				return This
+
+		def InsertSubStringAfterManyPositions(panPositions, pcSubstr)
+			This.InsertAfterPositions(panPositions, pcSubStr)
+
+			def InsertSubStringAfterManyPositionsQ(panPositions, pcSubstr)
+				This.InsertSubStringAfterManyPositions(panPositions, pcSubstr)
+				return This
+
+		def InsertSubStringAfterThesePositions(panPositions, pcSubstr)
+			This.InsertAfterPositions(panPositions, pcSubStr)
+
+			def InsertSubStringAfterThesePositionsQ(panPositions, pcSubstr)
+				This.InsertSubStringAfterThesePositions(panPositions, pcSubstr)
 				return This
 
 		#>
@@ -18179,7 +18401,7 @@ class stzString from stzObject
 	 #   INSERTING A SUBSTRING BEFORE MANY POSITIONS   #
 	#-------------------------------------------------#
 
-	 def InsertBeforeThesePositions(panPositions, pcSubStr)
+	 def InsertBeforePositions(panPositions, pcSubStr)
 
 		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
 
@@ -18195,8 +18417,8 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def InsertBeforeThesePositionsQ(panPositions, pcSubStr)
-			This.InsertBeforeThesePositions(panPositions, pcSubStr)
+		def InsertBeforePositionsQ(panPositions, pcSubStr)
+			This.InsertBeforePositions(panPositions, pcSubStr)
 			return This
 
 		#>
@@ -18204,11 +18426,34 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def InsertBeforeManyPositions(panPositions, pcSubStr)
-			This.InsertBeforeThesePositions(panPositions, pcSubStr)
+			This.InsertBeforePositions(panPositions, pcSubStr)
 
-		def InsertBeforePositions(panPositions, pcSubStr)
-			This.InsertBeforeThesePositions(panPositions, pcSubStr)
+		def InsertBeforeThesePositions(panPositions, pcSubStr)
+			This.InsertBeforePositions(panPositions, pcSubStr)
 			
+		#--
+
+		def InsertSubStringBeforePositions(panPositions, pcSubStr)
+			This.InsertBeforePositions(panPositions, pcSubStr)
+
+			def InsertSubStringBeforePositionsQ(panPositions, pcSubStr)
+				This.InsertSubStringBeforePositions(panPositions, pcSubStr)
+				return This
+
+		def InsertSubStringBeforeManyPositions(panPositions, pcSubstr)
+			This.InsertBeforePositions(panPositions, pcSubStr)
+
+			def InsertSubStringBeforeManyPositionsQ(panPositions, pcSubstr)
+				This.InsertSubStringBeforeManyPositions(panPositions, pcSubstr)
+				return This
+
+		def InsertSubStringBeforeThesePositions(panPositions, pcSubstr)
+			This.InsertBeforePositions(panPositions, pcSubStr)
+
+			def InsertSubStringBeforeThesePositionsQ(panPositions, pcSubstr)
+				This.InsertSubStringBeforeThesePositions(panPositions, pcSubstr)
+				return This
+
 		#>
 
 	def SubStringInsertedBeforeThesePositions(anPositions, pcSubStr)
@@ -18253,19 +18498,54 @@ class stzString from stzObject
 		def InsertBeforeEachOccurrenceOfSubstringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertBeforeSubstringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 
+			def InsertBeforeEachOccurrenceOfSubstringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertBeforeEachOccurrenceOfSubstringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
 		def InsertBeforeEachOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertBeforeSubstringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertBeforeEachOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertBeforeEachOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+					return This
+
+		#--
+
+		def InsertSubStringBeforeSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertBeforeSubstringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringBeforeSubStringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringBeforeSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		def InsertSubStringBeforeEachOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertBeforeSubstringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringBeforeEachOccurrenceOfSubStringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringBeforeEachOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		def InsertSubStringBeforeEachOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertBeforeSubstringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringBeforeEachOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringBeforeEachOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
 
 		#>
 
 	def SubStringInsertedBeforeSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		cResult = This.Copy().InsertBeforeSubstringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 
+		#< @FunctionAlternativeForms
+
 		def SubStringInsertedBeforeEachOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This.SubStringInsertedBeforeSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 
 		def SubStringInsertedBeforeEachOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This.SubStringInsertedBeforeSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WIHTOUT CASESENSITIVITY
 
@@ -18288,16 +18568,43 @@ class stzString from stzObject
 		def InsertBeforeEachOccurrence(pcSubStr, pcNewSubStr)
 			This.InsertBeforeSubstring(pcSubStr, pcNewSubStr)
 
+		#--
+
+		def InsertSubStringBeforeSubString(pcSubStr, pcNewSubStr)
+			This.InsertBeforeSubstring(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringBeforeSubStringQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringBeforeSubString(pcSubStr, pcNewSubStr)
+				return This
+
+		def InsertSubStringBeforeEachOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+			This.InsertBeforeSubstring(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringBeforeEachOccurrenceOfSubStringQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringBeforeEachOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+				return This
+
+		def InsertSubStringBeforeEachOccurrence(pcSubStr, pcNewSubStr)
+			This.InsertBeforeSubstring(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringBeforeEachOccurrenceQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringBeforeEachOccurrence(pcSubStr, pcNewSubStr)
+				return This
+
 		#>
 
 	def SubStringInsertedBeforeSubString(pcSubStr, pcNewSubStr)
 		cResult = This.Copy().InsertBeforeSubstringQ(pcSubStr, pcNewSubStr).Content()
+
+		#< @FunctionAlternativeForms
 
 		def SubStringInsertedBeforeEachOccurrenceOfSubString(pcSubStr, pcNewSubStr)
 			return This.SubStringInsertedBeforeSubString(pcSubStr, pcNewSubStr)
 
 		def SubStringInsertedBeforeEachOccurrence(pcSubStr, pcNewSubStr)
 			return This.SubStringInsertedBeforeSubString(pcSubStr, pcNewSubStr)
+
+		#>
 
 	   #-----------------------------------------------#
 	  #    INSERTING A NEW SUBSTRING BEFORE NTH       #
@@ -18307,26 +18614,84 @@ class stzString from stzObject
 	def InsertBeforeNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 		This.InsertBeforePosition( This.FindNthOccurrenceCS(n, pcSubStr, pCaseSensitive), pcNewSubStr )
 
+		#< @FunctionFluentForm
+
 		def InsertBeforeNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertBeforeNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
+		#>
+
+		#< @functionAlternativeForms
+
+		def InsertSubStringBeforeNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertBeforeNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringBeforeNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringBeforeNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		def InsertSubStringBeforeNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertBeforeNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringBeforeNthOccurrenceOfSubStringCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringBeforeNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		#>
+
 	def SubStringInsertedBeforeNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 		cResult = This.Copy().InsertBeforeNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 		return cResult
+
+		#< @FunctionAlternativeForm
+
+		def SubStringInsertedBeforeNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.SubStringInsertedBeforeNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertBeforeNthOccurrence(n, pcSubStr, pcNewSubStr)
 		This.InsertBeforeNthOccurrenceCS(n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
 		def InsertBeforeNthOccurrenceQ(n, pcSubStr, pcNewSubStr)
 			This.InsertBeforeNthOccurrence(n, pcSubStr, pcNewSubStr)
 			return This
 
+		#>
+
+		#< @functionAlternativeForms
+
+		def InsertSubStringBeforeNthOccurrence(n, pcSubStr, pcNewSubStr)
+			This.InsertBeforeNthOccurrence(n, pcSubStr, pcNewSubStr)
+
+			def InsertSubStringBeforeNthOccurrenceQ(n, pcSubStr, pcNewSubStr)
+				This.InsertSubStringBeforeNthOccurrence(n, pcSubStr, pcNewSubStr)
+				return This
+
+		def InsertSubStringBeforeNthOccurrenceOfSubString(n, pcSubStr, pcNewSubStr)
+			This.InsertBeforeNthOccurrence(n, pcSubStr, pcNewSubStr)
+
+			def InsertSubStringBeforeNthOccurrenceOfSubStringQ(n, pcSubStr, pcNewSubStr)
+				This.InsertSubStringBeforeNthOccurrenceOfSubString(n, pcSubStr, pcNewSubStr)
+				return This
+
+		#>
+
 	def SubStringInsertedBeforeNthOccurrence(n, pcSubStr, pcNewSubStr)
 		cResult = This.Copy().InsertBeforeNthOccurrenceQ(n, pcSubStr, pcNewSubStr).Content()
 		return cResult
+
+		#< @FunctionAlternativeForm
+
+		def SubStringInsertedBeforeNthOccurrenceOfSubString(n, pcSubStr, pcNewSubStr)
+			return This.SubStringInsertedBeforeNthOccurrence(n, pcSubStr, pcNewSubStr)
+
+		#>
 
 	   #-----------------------------------------------#
 	  #    INSERTING A NEW SUBSTRING BEFORE FIRST     #
@@ -18336,26 +18701,54 @@ class stzString from stzObject
 	def InsertBeforeFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		This.InsertBeforePosition( This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive), pcNewSubStr )
 
-		def InsertBeforeFirstOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.InsertBeforeFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-			return This
+		#< @FunctionAlternativeForm
 
-	def SubStringInsertedBeforeFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-		cResult = This.Copy().InsertBeforeFirstOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
-		return cResult
+		def SubStringInsertedBeforeFirstOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.SubStringInsertedBeforeFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertBeforeFirstOccurrence(pcSubStr, pcNewSubStr)
 		This.InsertBeforeFirstOccurrenceCS(pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
 		def InsertBeforeFirstOccurrenceQ(pcSubStr, pcNewSubStr)
 			This.InsertBeforeFirstOccurrence(pcSubStr, pcNewSubStr)
 			return This
 
+		#>
+
+		#< @functionAlternativeForms
+
+		def InsertSubStringBeforeFirstOccurrence(pcSubStr, pcNewSubStr)
+			This.InsertBeforeFirstOccurrence(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringBeforeFirstOccurrenceQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringBeforeFirstOccurrence(pcSubStr, pcNewSubStr)
+				return This
+
+		def InsertSubStringBeforeFirstOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+			This.InsertBeforeFirstOccurrence(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringBeforeFirstOccurrenceOfSubStringQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringBeforeFirstOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+				return This
+
+		#>
+
 	def SubStringInsertedBeforeFirstOccurrence(pcSubStr, pcNewSubStr)
 		cResult = This.Copy().InsertBeforeFirstOccurrenceQ(pcSubStr, pcNewSubStr).Content()
 		return cResult
+
+		#< @FunctionAlternativeForm
+
+		def SubStringInsertedBeforeFirstOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+			return This.SubStringInsertedBeforeFirstOccurrence(pcSubStr, pcNewSubStr)
+
+		#>
 
 	   #----------------------------------------------#
 	  #    INSERTING A NEW SUBSTRING BEFORE LAST     #
@@ -18365,26 +18758,55 @@ class stzString from stzObject
 	def InsertBeforeLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		This.InsertBeforePosition( This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive), pcNewSubStr )
 
-		def InsertBeforeLastOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.InsertBeforeLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-			return This
 
-	def SubStringInsertedBeforeLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-		cResult = This.Copy().InsertBeforeLastOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
-		return cResult
+		#< @FunctionAlternativeForm
+
+		def SubStringInsertedBeforeLastOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.SubStringInsertedBeforeLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertBeforeLastOccurrence(pcSubStr, pcNewSubStr)
 		This.InsertBeforeLastOccurrenceCS(pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
 		def InsertBeforeLastOccurrenceQ(pcSubStr, pcNewSubStr)
 			This.InsertBeforeLastOccurrence(pcSubStr, pcNewSubStr)
 			return This
 
+		#>
+
+		#< @functionAlternativeForms
+
+		def InsertSubStringBeforeLastOccurrence(pcSubStr, pcNewSubStr)
+			This.InsertBeforeLastOccurrence(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringBeforeLastOccurrenceQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringBeforeLastOccurrence(pcSubStr, pcNewSubStr)
+				return This
+
+		def InsertSubStringBeforeLastOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+			This.InsertBeforeLastOccurrence(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringBeforeLastOccurrenceOfSubStringQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringBeforeLastOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+				return This
+
+		#>
+
 	def SubStringInsertedBeforeLastOccurrence(pcSubStr, pcNewSubStr)
 		cResult = This.Copy().InsertBeforeLastOccurrenceQ(pcSubStr, pcNewSubStr).Content()
 		return cResult
+
+		#< @FunctionAlternativeForm
+
+		def SubStringInsertedBeforeLastOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+			return This.SubStringInsertedBeforeLastOccurrence(pcSubStr, pcNewSubStr)
+
+		#>
 
 	  #----------------------------------------------------------------------------#
 	 #  INSERTING A NEW SUBSTRING AFTER EACH OCCURRENCE OF AN EXISTANT SUBSTRING  #
@@ -18416,10 +18838,35 @@ class stzString from stzObject
 		def InsertAfterEachOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertAfterSubstringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 
+		#--
+
+		def InsertSubStringAfterSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterSubstringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringAfterSubStringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringAfterSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		def InsertSubStringAfterEachOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterSubstringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringAfterEachOccurrenceOfSubStringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringAfterEachOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		def InsertSubStringAfterEachOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterSubstringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringAfterEachOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringAfterEachOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
 		#>
 
 	def SubStringInsertedAfterSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		cResult = This.Copy().InsertAfterSubstringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
+
+		#< @FunctionAlternativeForms
 
 		def SubStringInsertedAfterEachOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This.SubStringInsertedAfterSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -18427,6 +18874,7 @@ class stzString from stzObject
 		def SubStringInsertedAfterEachOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This.SubStringInsertedAfterSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 	
+		#>
 
 	#-- WIHTOUT CASESENSITIVITY
 
@@ -18449,10 +18897,35 @@ class stzString from stzObject
 		def InsertAfterEachOccurrence(pcSubStr, pcNewSubStr)
 			This.InsertAfterSubstring(pcSubStr, pcNewSubStr)
 
+		#--
+
+		def InsertSubStringAfterSubString(pcSubStr, pcNewSubStr)
+			This.InsertAfterSubstring(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringAfterSubStringQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringAfterSubString(pcSubStr, pcNewSubStr)
+				return This
+
+		def InsertSubStringAfterEachOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+			This.InsertAfterSubstring(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringAfterEachOccurrenceOfSubStringQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringAfterEachOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+				return This
+
+		def InsertSubStringAfterEachOccurrence(pcSubStr, pcNewSubStr)
+			This.InsertAfterSubstring(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringAfterEachOccurrenceQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringAfterEachOccurrence(pcSubStr, pcNewSubStr)
+				return This
+
 		#>
 
 	def SubStringInsertedAfterSubString(pcSubStr, pcNewSubStr)
 		cResult = This.Copy().InsertAfterSubstringQ(pcSubStr, pcNewSubStr).Content()
+
+		#< @FunctionAlternativeForms
 
 		def SubStringInsertedAfterEachOccurrenceOfSubString(pcSubStr, pcNewSubStr)
 			return This.SubStringInsertedAfterSubString(pcSubStr, pcNewSubStr)
@@ -18460,34 +18933,86 @@ class stzString from stzObject
 		def SubStringInsertedAfterEachOccurrence(pcSubStr, pcNewSubStr)
 			return This.SubStringInsertedAfterSubString(pcSubStr, pcNewSubStr)
 
-	   #-----------------------------------------------#
-	  #    INSERTING A NEW SUBSTRING AFTER NTH       #
-	 #    OCCURRENCE OF AN EXISTANT SUBSTRING        #
-	#-----------------------------------------------#
+		#>
+
+	   #----------------------------------------------#
+	  #    INSERTING A NEW SUBSTRING AFTER THE NTH   #
+	 #    OCCURRENCE OF AN EXISTANT SUBSTRING       #
+	#----------------------------------------------#
 
 	def InsertAfterNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 		This.InsertAfterPosition( This.FindNthOccurrenceCS(n, pcSubStr, pCaseSensitive), pcNewSubStr )
+
+		#< @FunctionFluentForm
 
 		def InsertAfterNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertAfterNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def InsertSubStringAfterNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringAfterNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringAfterNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		def InsertSubStringAfterNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringAfterNthOccurrenceOfSubStringCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringAfterNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		#>
+
 	def SubStringInsertedAfterNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 		cResult = This.Copy().InsertAfterNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 		return cResult
+
+		def SubStringInsertedAfterNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.SubStringInsertedAfterNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertAfterNthOccurrence(n, pcSubStr, pcNewSubStr)
 		This.InsertAfterNthOccurrenceCS(n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
 		def InsertAfterNthOccurrenceQ(n, pcSubStr, pcNewSubStr)
 			This.InsertAfterNthOccurrence(n, pcSubStr, pcNewSubStr)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def InsertSubStringAfterNthOccurrence(n, pcSubStr, pcNewSubStr)
+			This.InsertAfterNthOccurrence(n, pcSubStr, pcNewSubStr)
+
+			def InsertSubStringAfterNthOccurrenceQ(n, pcSubStr, pcNewSubStr)
+				This.InsertSubStringAfterNthOccurrence(n, pcSubStr, pcNewSubStr)
+				return This
+
+		def InsertSubStringAfterNthOccurrenceOfSubString(n, pcSubStr, pcNewSubStr)
+			This.InsertAfterNthOccurrence(n, pcSubStr, pcNewSubStr)
+
+			def InsertSubStringAfterNthOccurrenceOfSubStringQ(n, pcSubStr, pcNewSubStr)
+				This.InsertSubStringAfterNthOccurrenceOfSubString(n, pcSubStr, pcNewSubStr)
+				return This
+
+		#>
+
 	def SubStringInsertedAfterNthOccurrence(n, pcSubStr, pcNewSubStr)
 		cResult = This.Copy().InsertAfterNthOccurrenceQ(n, pcSubStr, pcNewSubStr).Content()
 		return cResult
+
+		def SubStringInsertedAfterNthOccurrenceOfSubString(n, pcSubStr, pcNewSubStr)
+			return This.SubStringInsertedAfterNthOccurrence(n, pcSubStr, pcNewSubStr)
 
 	   #-----------------------------------------------#
 	  #    INSERTING A NEW SUBSTRING AFTER FIRST     #
@@ -18497,26 +19022,76 @@ class stzString from stzObject
 	def InsertAfterFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		This.InsertAfterPosition( This.FindFirstOccurrenceCS(pcSubStr, pCaseSensitive), pcNewSubStr )
 
+		#< @FunctionFluentForm
+
 		def InsertAfterFirstOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertAfterFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def InsertSubStringAfterFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringAfterFirstOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringAfterFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		def InsertSubStringAfterFirstOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringAfterFirstOccurrenceOfSubStringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringAfterFirstOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		#>
+
 	def SubStringInsertedAfterFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		cResult = This.Copy().InsertAfterFirstOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 		return cResult
+
+		def SubStringInsertedAfterFirstOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.SubStringInsertedAfterFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertAfterFirstOccurrence(pcSubStr, pcNewSubStr)
 		This.InsertAfterFirstOccurrenceCS(pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
 		def InsertAfterFirstOccurrenceQ(pcSubStr, pcNewSubStr)
 			This.InsertAfterFirstOccurrence(pcSubStr, pcNewSubStr)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def InsertSubStringAfterFirstOccurrence(pcSubStr, pcNewSubStr)
+			This.InsertAfterFirstOccurrence(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringAfterFirstOccurrenceQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringAfterFirstOccurrence(pcSubStr, pcNewSubStr)
+				return This
+
+		def InsertSubStringAfterFirstOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+			This.InsertAfterFirstOccurrence(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringAfterFirstOccurrenceOfSubStringQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringAfterFirstOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+				return This
+
+		#>
+
 	def SubStringInsertedAfterFirstOccurrence(pcSubStr, pcNewSubStr)
 		cResult = This.Copy().InsertAfterFirstOccurrenceQ(pcSubStr, pcNewSubStr).Content()
 		return cResult
+
+		def SubStringInsertedAfterFirstOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+			return This.SubStringInsertedAfterFirstOccurrence(pcSubStr, pcNewSubStr)
 
 	   #----------------------------------------------#
 	  #    INSERTING A NEW SUBSTRING AFTER LAST     #
@@ -18526,26 +19101,76 @@ class stzString from stzObject
 	def InsertAfterLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		This.InsertAfterPosition( This.FindLastOccurrenceCS(pcSubStr, pCaseSensitive), pcNewSubStr )
 
+		#< @FunctionFluentForm
+
 		def InsertAfterLastOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertAfterLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def InsertSubStringAfterLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringAfterLastOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringAfterLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		def InsertSubStringAfterLastOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def InsertSubStringAfterLastOccurrenceOfSubStringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.InsertSubStringAfterLastOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
+
+		#>
+
 	def SubStringInsertedAfterLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		cResult = This.Copy().InsertAfterLastOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 		return cResult
+
+		def SubStringInsertedAfterLastOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.SubStringInsertedAfterLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertAfterLastOccurrence(pcSubStr, pcNewSubStr)
 		This.InsertAfterLastOccurrenceCS(pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
 		def InsertAfterLastOccurrenceQ(pcSubStr, pcNewSubStr)
 			This.InsertAfterLastOccurrence(pcSubStr, pcNewSubStr)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def InsertSubStringAfterLastOccurrence(pcSubStr, pcNewSubStr)
+			This.InsertAfterLastOccurrence(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringAfterLastOccurrenceQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringAfterLastOccurrence(pcSubStr, pcNewSubStr)
+				return This
+
+		def InsertSubStringAfterLastOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+			This.InsertAfterLastOccurrence(pcSubStr, pcNewSubStr)
+
+			def InsertSubStringAfterLastOccurrenceOfSubStringQ(pcSubStr, pcNewSubStr)
+				This.InsertSubStringAfterLastOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+				return This
+
+		#>
+
 	def SubStringInsertedAfterLastOccurrence(pcSubStr, pcNewSubStr)
 		cResult = This.Copy().InsertAfterLastOccurrenceQ(pcSubStr, pcNewSubStr).Content()
 		return cResult
+
+		def SubStringInsertedAfterLastOccurrenceOfSubString(pcSubStr, pcNewSubStr)
+			return This.SubStringInsertedAfterLastOccurrence(pcSubStr, pcNewSubStr)
 
 	   #-----------------------------------------------------#
 	  #  INSERTING MANY SUBSTRINGS AT A GIVEN POSITION      #
@@ -18754,7 +19379,7 @@ class stzString from stzObject
 	#=======================================================================#
 
 	def InsertSubstrings(nPos, aSubStr)
-		This.InsertListOfSubstrings( nPos, aSubStr, [:Default] )
+		This.InsertSubstringsXT( nPos, aSubStr, [:Default] )
 	
 		#< @FunctionFluentForm
 		
@@ -20840,9 +21465,9 @@ def ReplaceIBS()
 	 #     REPLACING ALL CHARS WITH A SUBSTRING UNDER A GIVEN CONDITION   #
 	#--------------------------------------------------------------------#
 
-	def ReplaceAllCharsW(pcCondition, pcNewSubStr)
+	def ReplaceCharsW(pcCondition, pcNewSubStr)
 		#< @MotherFunctions:
-		#	This.FindAllCharsW()  > @RingBased
+		#	This.FindCharsW()  > @RingBased
 		#	This.ReplaceSection() > @QtBased
 		#>
 
@@ -20873,49 +21498,54 @@ def ReplaceIBS()
 		# Doing the job
 
 		anPositions = This.FindCharsW(pcCondition)
-
 		This.ReplaceCharsAtPositions(anPositions, pcNewSubStr)
 
 
 		#< @FunctionFluentForm
 
-		def ReplaceAllCharsWQ(pCondition, pcNewSubStr)
-			This.ReplaceAllCharsWhere(pCondition, pcNewSubStr)
+		def ReplaceCharsWQ(pCondition, pcNewSubStr)
+			This.ReplaceCharsWhere(pCondition, pcNewSubStr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceAllWhere(pCondition, pcNewSubStr)
-			This.ReplaceAllCharsW(pCondition, pcNewSubStr)
-
-			def ReplaceAllWhereQ(pCondition, pcNewSubStr)
-				This.ReplaceAllWhere(pCondition, pcNewSubStr)
-				return This
-
-		def ReplaceAllCharsWhere(pCondition, pcNewSubStr)
-			This.ReplaceAllCharsW(pCondition, pcNewSubStr)
-
-			def ReplaceAllCharsWhereQ(pCondition, pcNewSubStr)
-				This.ReplaceAllCharsWhere(pCondition, pcNewSubStr)
-				return This
-
-		def ReplaceCharsW(pCondition, pcNewSubStr)
-			This.ReplaceAllCharsW(pCondition, pcNewSubStr)
-
-			def ReplaceCharsWQ(pCondition, pcNewSubStr)
-				This.ReplaceCharsW(pCondition, pcNewSubStr)
-				return This
-
 		def ReplaceCharsWhere(pCondition, pcNewSubStr)
-			This.ReplaceAllCharsW(pCondition, pcNewSubStr)
+			This.ReplaceCharsW(pCondition, pcNewSubStr)
 
 			def ReplaceCharsWhereQ(pCondition, pcNewSubStr)
 				This.ReplaceCharsWhere(pCondition, pcNewSubStr)
 				return This
 
 		#>
+
+	def CharsReplacedW(pcCondition, pcNewSubStr)
+		cResult = This.Copy().ReplaceCharsWQ(pcCondition, pcSubStr).Content()
+		return cResult
+
+	  #-------------------------------------------------------------------------------#
+	 #  REPLACING ALL SUSBSTRINGS OBEYING TO A GIVEN CONDITION BY A GIVEN SUBSTRING  #
+	#-------------------------------------------------------------------------------#
+
+	def ReplaceSubStringsW(pcCondition, pcNewSubStr)
+		aSections = This.FindSubStringsAsSectionsW(pcCondition, pcNewSubStr)
+		This.ReplaceSections(aSections, pcNewSubStr)
+
+		def ReplaceSubStringsWQ(pcCondition, pcNewSubStr)
+			This.ReplaceSubStringsW(pcCondition, pcNewSubStr)
+			return This
+
+		def ReplaceSubStringsWhere(pcCondition, pcNewSubStr)
+			This.ReplaceSubStringsW(pcCondition, pcNewSubStr)
+
+			def ReplaceSubStringsWhereQ(pcCondition, pcNewSubStr)
+				This.ReplaceSubStringsWhere(pcCondition, pcNewSubStr)
+				return This
+
+	def SubStringsReplacedW(pcCondition, pcNewSubStr)
+		cResult = This.Copy().ReplaceSubStringsWQ(pcCondition, pcNewSubStr).Content()
+		return cResult
 
 	  #----------------------------------------------------#
 	 #     REPLACING THE NTH OCCURRENCE OF A SUBSTRING    #
@@ -25597,6 +26227,31 @@ def ReplaceIBS()
 			return anPos
 		ok
 
+	def FindAsSectionsW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCpndition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		oCondition = new stzString(pcCondition)
+
+		if oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
+			StzRaise("Incorrect syntax! pcCondition must contain either @char ir @substring but not both.")
+		ok
+
+		if oCondition.ContainsCS("@substring", :CS = FALSE)
+			anPos = This.FindSubStringsAsSectionsW(pcCondition)
+			return anPos
+
+		else
+
+			anPos = This.FindCharsAsSectionsW(pcCondition)
+			return anPos
+		ok
+
 	  #------------------------------------------------------------#
 	 #  FINDING OCCURRENCES OF CHARS VERIFYING A GIVEN CONDITION  #
 	#------------------------------------------------------------#
@@ -25622,6 +26277,19 @@ def ReplaceIBS()
 		next
 
 		return anResult
+
+	def FindCharsAsSectionsW(pcCondition)
+
+		anPos = This.FindCharsW(pcCondition)
+		nLen = len(anPos)
+		
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ anPos[i], anPos[i] ]
+		next
+
+		return aResult
 
 	   #------------------------------------------------------------------#
 	  #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
@@ -49548,7 +50216,26 @@ def ReplaceIBS()
 		def ToStzCCodeQ()
 			return This.ToStzCCode()
   
-                                                              
+	#==
+               
+	def SubStringCS(pcSubStr, pCaseSensitive)
+		if This.ContainsCS(pcSubStr, pCaseSensitive)
+			return NULL
+		else
+			return pcSubStr
+		ok
+
+		def SubStringCSQ(pcSubStr, pCaseSensitive)
+			return new stzSubStringCS(pcSubStr, This.String(), pCaseSensitive)
+
+	def SubString(pcSubStr)
+		return This.SubString(pcSubStr, :CaseSensitive = TRUE)
+
+		def SubStringQ(pcSubStr)
+			return new stzSubString(pcSubStr, This.String())
+
+
+			                                
                  ///////////////////////////////////////////////
                 //                              ///////////////
       ///////////      ALTERNATIVE FORMS       /////////////

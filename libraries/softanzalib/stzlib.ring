@@ -42,6 +42,7 @@ load "stzSplitter.ring"
 load "stzMultiString.ring"
 load "stzMultilingualString.ring"
 load "stzMultilingualStringError.ring"
+load "stzSubStringcs.ring"
 load "stzSubString.ring"
 
 load "stzStopWords.ring"
