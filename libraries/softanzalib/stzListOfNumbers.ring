@@ -142,6 +142,66 @@ func MultiplicationsYieldingN_WithoutCommutation(n)
 
 	return aResult
 
+func NumbersXT(n1, n2)
+	if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :Between, :From ])
+		n1 = n1[2]
+	ok
+
+	if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :And, :To ])
+		n2 = n2[2]
+	ok
+
+	if NOT BothAreNumbers(n1, n2)
+		StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
+	ok
+
+	anResult = n1 : n2
+	return anResult
+
+	func NumbersBetweenXT(n1, n2)
+		return NumbersXT(n1, n2)
+	
+	func NumbersIB(n1, n2)
+		returnNumbersXT(n1, n2)
+	
+	func NumbersBetweenIB(n1, n2)
+		return NumbersXT(n1, n2)
+
+func Numbers(n1, n2)
+	if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :Between, :From ])
+		n1 = n1[2]
+	ok
+
+	if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :And, :To ])
+		n2 = n2[2]
+	ok
+
+	if NOT BothAreNumbers(n1, n2)
+		StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
+	ok
+
+	anResult = []
+
+	if n1 = n2
+		anResult + n1
+
+	but n1 < n2
+		for i = 1 to n2
+			aResult + i
+		next
+
+	else
+		for i = 1 to n2 step -1
+			aResult + i
+		next
+	ok
+
+	return anResult
+
+	func NumbersBetween(nMin, nMax)
+		return Numbers(nMin, nMax)
+	
+
   ////////////////
  ///  CLASS   ///
 ////////////////

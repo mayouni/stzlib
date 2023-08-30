@@ -6248,7 +6248,7 @@ class stzListOfStrings from stzList
 	 #   FINDING MANY SUBSTRINGS AT THE SAME TIME     #
 	#------------------------------------------------#
 
-	def FindSubStringsCS(pacSubStr, pCaseSensitive)
+	def FindTheseSubStringsCS(pacSubStr, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzListOfStrings([
@@ -6290,51 +6290,39 @@ class stzListOfStrings from stzList
 
 		#< @FunctionFluentForm
 
-		def FindSubStringsCSQ(pacSubStr, pCaseSensitive)
-			return new stzList( This.FindSubStringsCS(pacSubStr, pCaseSensitive) )
+		def FindTheseSubStringsCSQ(pacSubStr, pCaseSensitive)
+			return new stzList( This.FindTheseSubStringsCS(pacSubStr, pCaseSensitive) )
 
 		#>
 
 		#< @FunctionAlternativeForms
 
 		def FindManySubStringsCS(pacStr, pCaseSensitive)
-			return This.FindSubStringsCS(pacStr, pCaseSensitive)
+			return This.FindTheseSubStringsCS(pacStr, pCaseSensitive)
 
 			def FindManySubStringsCSQ(pacStr, pCaseSensitive)
 				return new stzList( This.FindManySubStringsCS(pacStr, pCaseSensitive) )
-
-		def FindTheseSubStringsCS(pacStr, pCaseSensitive)
-			return This.FindSubStringsCS(pacStr, pCaseSensitive)
-
-			def FindTheseSubStringsCSQ(pacStr, pCaseSensitive)
-				return new stzList( This.FindTheseSubStringsCS(pacStr, pCaseSensitive) )
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindSubStrings(pacStr)
-		return This.FindSubStringsCS(pacStr, :CaseSensitive = TRUE)
+	def FindtheseSubStrings(pacStr)
+		return This.FindTheseSubStringsCS(pacStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def FindSubStringsQ(pacStr)
-			return new stzList( This.FindsubStrings(pacStr) )
+		def FindTheseSubStringsQ(pacStr)
+			return new stzList( This.FindTheseSubStrings(pacStr) )
 
 		#>
 
 		#< @FunctionAlternativeForms
 
 		def FindManySubStrings(pacStr)
-			return This.FindSubStrings(pacStr)
+			return This.FindTheseSubStrings(pacStr)
 
 			def FindManySubStringsQ(pacStr)
-				return new stzList( This.FindSubStrings(pacStr) )
-
-		def FindTheseSubStrings(pacStr)
-			return This.FindSubStrings(pacStr)
-
-			def FindTheseSubStringsQ(pacStr)
 				return new stzList( This.FindTheseSubStrings(pacStr) )
 
 		#>
@@ -6343,7 +6331,7 @@ class stzListOfStrings from stzList
 	 #   FINDING MANY SUBSTRINGS AT THE SAME TIME -- EXTENDED    #
 	#-----------------------------------------------------------#
 
-	def FindSubStringsXTCS(pacSubStr, pCaseSensitive)
+	def FindTheseSubStringsXTCS(pacSubStr, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzListOfStrings([
@@ -6355,7 +6343,7 @@ class stzListOfStrings from stzList
 			"Mabrooka"
 		])
 
-		? o1.FindSubStringsXT([ "name", "mabrooka"])
+		? o1.FindTheseSubStringsXT([ "name", "mabrooka"])
 		#-->
 		#  [
 		#	# "name" is found here
@@ -6382,51 +6370,39 @@ class stzListOfStrings from stzList
 
 		#< @FunctionFluentForm
 
-		def FindSubStringsXTCSQ(pacSubStr, pCaseSensitive)
-			return new stzList( This.FindSubStringsXTCS(pacSubStr, pCaseSensitive) )
+		def FindTheseSubStringsXTCSQ(pacSubStr, pCaseSensitive)
+			return new stzList( This.FindTheseSubStringsXTCS(pacSubStr, pCaseSensitive) )
 
 		#>
 
 		#< @FunctionAlternativeForms
 
 		def FindManySubStringsXTCS(pacStr, pCaseSensitive)
-			return This.FindSubStringsXTCS(pacStr, pCaseSensitive)
+			return This.FindTheseSubStringsXTCS(pacStr, pCaseSensitive)
 
 			def FindManySubStringsXTCSQ(pacStr, pCaseSensitive)
 				return new stzList( This.FindManySubStringsXTCS(pacStr, pCaseSensitive) )
-
-		def FindTheseSubStringsXTCS(pacStr, pCaseSensitive)
-			return This.FindSubStringsXTCS(pacStr, pCaseSensitive)
-
-			def FindTheseSubStringsXTCSQ(pacStr, pCaseSensitive)
-				return new stzList( This.FindTheseSubStringsXTCS(pacStr, pCaseSensitive) )
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindSubStringsXT(pacSubStr)
-		return This.FindSubStringsXTCS(pacSubStr, :CaseSensitive = TRUE)
+	def FindTheseSubStringsXT(pacSubStr)
+		return This.FindTheseSubStringsXTCS(pacSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def FindSubStringsXTQ(pacSubStr)
-			return new stzList( This.FindSubStringsXT(pacSubStr) )
+		def FindTheseSubStringsXTQ(pacSubStr)
+			return new stzList( This.FindTheseSubStringsXT(pacSubStr) )
 
 		#>
 
 		#< @FunctionAlternativeForms
 
 		def FindManySubStringsXT(pacStr)
-			return This.FindSubStringsXT(pacStr)
+			return This.FindTheseSubStringsXT(pacStr)
 
 			def FindManySubStringsXTQ(pacStr)
-				return new stzList( This.FindSubStringsXT(pacStr) )
-
-		def FindTheseSubStringsXT(pacStr)
-			return This.FindSubStringsXT(pacStr)
-
-			def FindTheseSubStringsXTQ(pacStr)
 				return new stzList( This.FindTheseSubStringsXT(pacStr) )
 
 		#>
