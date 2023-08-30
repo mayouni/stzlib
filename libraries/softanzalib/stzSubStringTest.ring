@@ -17,18 +17,91 @@ Show( v[@1, @2] )
 
 @2.Show()
 
-/*-----
+/*=============
+
+pron()
+
+? Q("ring").InQ("I LOVE ring LANGUAGE!" ).Uppercased()
+#--> I LOVE THE RING LANGUAGE!
+
+? Q("ring").SubStringInQ("I LOVE ring LANGUAGE!" ).Uppercased()
+#--> I LOVE THE RING LANGUAGE!
+
+? The("ring").SubStringInQ("I LOVE ring LANGUAGE!" ).Uppercased()
+#--> I LOVE THE RING LANGUAGE!
+
+? TheQ("ring").SubStringInQ("I LOVE ring LANGUAGE!" ).Uppercased()
+#--> I LOVE THE RING LANGUAGE!
+
+? Q("ring").SubstringQ( :In = "I LOVE ring LANGUAGE!" ).Uppercased()
+#--> I LOVE THE RING LANGUAGE!
+
+? TheQ("ring").SubStringQ( :In = "I LOVE ring LANGUAGE!" ).Uppercased()
+#--> I LOVE THE RING LANGUAGE!
+
+? The("ring").SubStringQ( :In = "I LOVE ring LANGUAGE!" ).Uppercased()
+#--> I LOVE THE RING LANGUAGE!
+
+? SubStringQ("ring").InQ("I LOVE ring LANGUAGE!").Uppercased()
+#--> I LOVE THE RING LANGUAGE!
+
+? TheSubStringQ("ring").InQ("I LOVE ring LANGUAGE!").Uppercased()
+#--> I LOVE THE RING LANGUAGE!
+
+? SubStringQ([ "ring", :In = "I LOVE ring LANGUAGE!" ]).Uppercased()
+#--> I LOVE THE RING LANGUAGE!
+
+? TheSubStringQ([ "ring", :In = "I LOVE ring LANGUAGE!" ]).Uppercased()
+#--> I LOVE THE RING LANGUAGE!
+
+proff()
+# Executed in 0.16 second(s)
+
+/*------------
 */
 pron()
 
-? Q("ring").SubStringInQ("I LOVE THE ring LANGUAGE!").Uppercased()
-#--> I LOVE THE RING LANGUAGE!
+? Q("I love Ring").Words()
+#--> [ "I", "love", "Ring" ]
+
+? Q("I love Ring").SubStringIsAWord("Ring")
+#--> TRUE
+
+proff()
+
+/*------------
+*/
+pron()
 
 ? The("PYTHON").SubStringInQ("ring PYTHON ruby").Lowercased()
 #--> ring python ruby
 
+? TheSubString([ "Ring", :In = "I love Ring language!" ]).BoundedBy(3Hearts())
+#--> I love ♥♥♥Ring♥♥♥ language!
+
+? TheSubString("Ring").InQ("I love Ring language!").BoundedBy(3Hearts())
+#--> I love ♥♥♥Ring♥♥♥ language!
+
+? TheWord("love").InQ("I love Ring").ReplacedBy(AHeart())
+#--> I ♥ Ring
+
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.80 second(s)
+
+/*-----
+
+? AChar( :In = "softanza" ).Uppercased()
+? SomeChars( :In = "softanza" ).Uppercased()
+
+? ASubString( :In = "softanza" ).Uppercased() + NL
+#--> softaNZA
+
+? SomeSubStrings( :In = "SOFTANZA" ).Lowercased()
+#--> SOFTAnza
+
+
+proff()
+# Executed in 0.80 second(s)
 
 /*-----
 */

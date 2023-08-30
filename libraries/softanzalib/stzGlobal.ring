@@ -1765,6 +1765,9 @@ func Q(p)
 	func The(p)
 		return Q(p)
 
+	func TheQ(p)
+		return Q(p)
+
 func QR(p, pcType)
 	if NOT isString(pcType)
 		StzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")

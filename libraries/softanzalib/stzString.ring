@@ -1767,6 +1767,10 @@ class stzString from stzObject
 			This.UppercaseSection(n1, n2)
 			return This
 
+	def SectionUppercased(n1, n2)
+		cResult = This.Copy().UppercaseSectionQ(n1, n2).Content()
+		return cResult
+
 	#-- WITH LOCALE SENSISITIVITY
 
 	def UppercaseSectionInLocale(n1, n2, pLocale)
@@ -1776,6 +1780,10 @@ class stzString from stzObject
 		def UppercaseSectionInLocaleQ(n1, n2, pLocale)
 			This.UppercaseSection(n1, n2)
 			return This
+
+	def SectionUppercasedInLocale(n1, n2, pLocale)
+		cResult = This.Copy().UppercaseSectionInLocaleQ(n1, n2, pLocale).Content()
+		return cResult
 
 	  #-------------------------------------------#
 	 #  UPPERCASING MANY SECTIONS IN THE STRING  # TODO: Check for performance!
@@ -1793,9 +1801,13 @@ class stzString from stzObject
 			This.ReplaceSection(anSections[i][1], anSections[i][2], cUpper)
 		next
 
-		def UppercaseSesctionsQ(anSections)
+		def UppercaseSectionsQ(anSections)
 			This.UppercaseSections(anSections)
 			return This
+
+	def SectionsUppercased(anSections)
+		cResult = This.Copy().UppercaseSectionsQ(anSections).Content()
+		return cResult
 
 	#-- WITH LOCALE SENSITIVITY
 
@@ -1811,9 +1823,13 @@ class stzString from stzObject
 			This.UppercaseSection(anSections[i][1], anSections[i][2], cUpper)
 		next
 
-		def UppercaseSesctionsInLocaleQ(anSections)
+		def UppercaseSectionsInLocaleQ(anSections)
 			This.UppercaseSectionsInLocale(anSections)
 			return This
+
+	def SectionsUppercasedInLocale(anSections, pLocale)
+		cResult = This.Copy().UppercaseSectionsInLocaleQ(anSections, pLocale).Content()
+		return cResult
 
 	  #---------------------------------------#
 	 #  LOWERCASING A SECTION IN THE STRING  #
@@ -1827,6 +1843,10 @@ class stzString from stzObject
 			This.LowercaseSection(n1, n2)
 			return This
 
+	def SectionLowercased(n1, n2)
+		cResult = This.Copy().LowercaseSectionQ(n1, n2).Content()
+		return cResult
+
 	#-- WITH LOCALE SENSISITIVITY
 
 	def LowercaseSectionInLocale(n1, n2, pLocale)
@@ -1837,43 +1857,55 @@ class stzString from stzObject
 			This.LowercaseSectionInLocale(n1, n2, pLocale)
 			return This
 
+	def SectionLowercasedInLocale(n1, n2, pLocale)
+		cResult = This.Copy().LowercaseSectionInLocaleQ(n1, n2, pLocale).Content()
+		return cResult
+
 	  #-------------------------------------------#
 	 #  LOWERCASING MANY SECTIONS IN THE STRING  # TODO: Check for performance!
 	#-------------------------------------------#
 
-	def LowercaseSections(anSections)
-		if NOT (isList(anSections) and Q(anSections).IsListOfPairsOfNumbers())
-			StzRaise("Incorrect param type: anSections must be a list of pairs of numbers.")
+	def LowercaseSections(paSections)
+		if NOT (isList(paSections) and Q(paSections).IsListOfPairsOfNumbers())
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
-		nLen = len(anSections)
+		nLen = len(paSections)
 
 		for i = 1 to nLen
-			cLower = This.SectionQ(anSections[i][1], anSections[i][2]).Lowercased()
-			This.ReplaceSection(anSections[i][1], anSections[i][2], cLower)
+			cLower = This.SectionQ(paSections[i][1], paSections[i][2]).Lowercased()
+			This.ReplaceSection(paSections[i][1], paSections[i][2], cLower)
 		next
 
-		def LowercaseSesctionsQ(anSections)
-			This.LowercaseSections(anSections)
+		def LowercaseSectionsQ(paSections)
+			This.LowercaseSections(paSections)
 			return This
+
+	def SectionsLowercased(paSections)
+		cResult = This.Copy().LowercaseSectionsQ(paSections).Content()
+		return cResult
 
 	#-- WITH LOCALE SENSITIVITY
 
-	def LowercaseSectionsInLocale(anSections, pLocale)
-		if NOT (isList(anSections) and Q(anSections).IsListOfPairsOfNumbers())
-			StzRaise("Incorrect param type: anSections must be a list of pairs of numbers.")
+	def LowercaseSectionsInLocale(paSections, pLocale)
+		if NOT (isList(paSections) and Q(paSections).IsListOfPairsOfNumbers())
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
-		nLen = len(anSections)
+		nLen = len(paSections)
 
 		for i = 1 to nLen
-			cLower = This.SectionQ(anSections[i][1], anSections[i][2]).LowercasedInLocale(pLocale)
-			This.LowercaseSection(anSections[i][1], anSections[i][2], cLower)
+			cLower = This.SectionQ(paSections[i][1], paSections[i][2]).LowercasedInLocale(pLocale)
+			This.LowercaseSection(paSections[i][1], paSections[i][2], cLower)
 		next
 
-		def LowercaseSesctionsInLocaleQ(anSections, pLocale)
-			This.LowercaseSectionsInLocale(anSections, pLocale)
+		def LowercaseSectionsInLocaleQ(paSections, pLocale)
+			This.LowercaseSectionsInLocale(paSections, pLocale)
 			return This
+
+	def SectionsLowercasedInLocale(paSections, pLocale)
+		cResult = This.Copy().LowercaseSectionsQ(paSections).Content()
+		return cResult
 
 	  #-----------------------------------------#
 	 #  UPPERCASING A SUBSTRING IN THE STRING  #
@@ -2716,6 +2748,9 @@ class stzString from stzObject
 		def PositionsOfAllPossibleSubStringsCS(pCaseSensitive)
 			return This.FindSubStringsCS(pCaseSensitive)
 
+		def SubStringsPositionsCS(pCaseSensitive)
+			return This.FindSubStringsCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -2739,6 +2774,88 @@ class stzString from stzObject
 
 		def PositionsOfAllPossibleSubStrings()
 			return This.FindSubStrings()
+
+		def SubStringsPositions()
+			return This.FindSubStrings()
+
+		#>
+
+	   #----------------------------------------------------------#
+	  #   FINDING ALL THE POSSIBLE SUBSTRINGS IN THE STRING AND  #
+	 #   RETURNING THEIR POSITIONS AS SECTTIONS                 #
+	#----------------------------------------------------------#
+
+	def FindSubStringsAsSectionsCS(pCaseSensitive)
+		if This.IsEmpty()
+			return []
+		ok
+
+		acSubStrings = This.UniqueSubStringsCS(pCaseSensitive)
+		nLen = len(acSubStrings)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + This.FindSubStringAsSectionCS( acSubStrings[i], pCaseSensitive )
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllSubStringsAsSectionsCS(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
+		def FindAllPossibleSubStringsAsSectionsCS(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
+		def PositionsOfSubStringsAsSectionsCS(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
+		def PositionsOfAllSubStringsAsSectionsCS(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
+		def PositionsOfAllPossibleSubStringsAsSectionsCS(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
+		#--
+
+		def SubStringsAsSectionsCS(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
+		def SubStringsSectionsCS(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStringsAsSections(pCaseSensitive)
+		return This.FindSubStringsAsSectionsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllSubStringsAsSections()
+			return This.FindSubStringsAsSections()
+
+		def FindAllPossibleSubStringsAsSections()
+			return This.FindSubStringsAsSections()
+
+		def PositionsOfSubStringsAsSections()
+			return This.FindSubStringsAsSections()
+
+		def PositionsOfAllSubStringsAsSections()
+			return This.FindSubStringsAsSections()
+
+		def PositionsOfAllPossibleSubStringsAsSections()
+			return This.FindSubStringsAsSections()
+
+		#--
+
+		def SubStringsAsSections()
+			return This.FindSubStringsAsSections()
+
+		def SubStringsSections()
+			return This.FindSubStringsAsSections()
 
 		#>
 
@@ -13142,43 +13259,57 @@ class stzString from stzObject
 				This.AddSubStringBoundsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 				return This
 
-		def BoundSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-			if isList(pcBound1) and Q(pcBound1).IsWithOrByOrUsingNamedParam()
-				pcBound1 = pcBound1[2]
+		#-- NOTE: The semantics change here, as we use the verbal form "Bound"
+		#-- and not the plural form "Bounds" as it is the case above. Hence,
+		#-- the user expects to provide either one bound or two, at his will:
+
+		def BoundSubStringCS(pcSubStr, pacBounds, pCaseSensitive)
+			if isList(pacBounds) and Q(pacBounds).IsWithOrByOrUsingNamedParam()
+				pacBounds = pacBounds[2]
 			ok
 
-			if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
-				pcBound2 = pcBound2[2]
+			cBound1 = ""
+			cBound2 = ""
+
+			if isString(pacBounds)
+				cBound1 = pacBounds
+				cBound2 = pacBounds
+
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				cBound1 = pacBounds[1]
+				cBound2 = pacBounds[2]
+
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 			ok
 
-			This.BoundSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-			return This
+			This.AddBoundsToSubStringCS(pcSubStr, cBound1, cBound2, pCaseSensitive)
 
-			def BoundSubStringCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-				This.BoundSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+			def BoundSubStringCSQ(pcSubStr, pacBounds, pCaseSensitive)
+				This.BoundSubStringCS(pcSubStr, pacBounds, pCaseSensitive)
 				return This
 
-		def BoundSubStringWithCS(pcSubStr,  pcBound1, pcBound2, pCaseSensitive)
-			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		def BoundSubStringWithCS(pcSubStr, pacBounds, pCaseSensitive)
+			This.BoundSubStringCS(pcSubStr, pacBounds, pCaseSensitive)
 
-			def BoundSubStringWithCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-				This.BoundSubStringWithCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			def BoundSubStringWithCSQ(pcSubStr, pacBounds, pCaseSensitive)
+				This.BoundSubStringWithCS(pcSubStr, pacBounds, pCaseSensitive)
 				return This
 
-		def BoundSubStringByCS(pcSubStr,  pcBound1, pcBound2, pCaseSensitive)
-			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		def BoundSubStringByCS(pcSubStr, pacBounds, pCaseSensitive)
+			This.BoundSubStringCS(pcSubStr, pacBounds, pCaseSensitive)
 
-			def BoundSubStringByCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-				This.BoundSubStringByCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			def BoundSubStringByCSQ(pcSubStr, pacBounds, pCaseSensitive)
+				This.BoundSubStringByCS(pcSubStr, pacBounds, pCaseSensitive)
 				return This
 
-		def BoundSubStringUsingCS(pcSubStr,  pcBound1, pcBound2, pCaseSensitive)
-			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		def BoundSubStringUsingCS(pcSubStr, pacBounds, pCaseSensitive)
+			This.BoundSubStringCS(pcSubStr, pacBounds, pCaseSensitive)
 
-			def BoundSubStringUsingCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-				This.BoundSubStringUsingCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			def BoundSubStringUsingCSQ(pcSubStr, pacBounds, pCaseSensitive)
+				This.BoundSubStringUsingCS(pcSubStr, pacBounds, pCaseSensitive)
 				return This
-
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -13210,41 +13341,36 @@ class stzString from stzObject
 				This.AddSubStringBounds(pcSubStr, pcBound1, pcBound2)
 				return This
 
-		def BoundSubString(pcSubStr, pcBound1, pcBound2)
-			if isList(pcBound1) and Q(pcBound1).IsWithOrByOrUsingNamedParam()
-				pcBound1 = pcBound1[2]
-			ok
+		#-- NOTE: The semantics change here, as we use the verbal form "Bound"
+		#-- and not the plural form "Bounds" as it is the case above. Hence,
+		#-- the user expects to provide either one bound or two, at his will:
 
-			if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
-				pcBound2 = pcBound2[2]
-			ok
+		def BoundSubString(pcSubStr, pacBounds)
+			This.BoundSubStringCS(pcSubStr, pacBounds, :CaseSensitive = TRUE)
 
-			This.BoundSubString(pcSubStr, pcBound1, pcBound2)
-			return This
-
-			def BoundSubStringQ(pcSubStr, pcBound1, pcBound2)
-				This.BoundSubString(pcSubStr, pcBound1, pcBound2)
+			def BoundSubStringQ(pcSubStr, pacBounds)
+				This.BoundSubString(pcSubStr, pacBounds)
 				return This
 
-		def BoundSubStringWith(pcSubStr, pcBound1, pcBound2)
-			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
+		def BoundSubStringWith(pcSubStr, pacBounds)
+			This.BoundSubString(pcSubStr, pacBounds)
 
-			def BoundSubStringWithQ(pcSubStr, pcBound1, pcBound2)
-				This.BoundSubStringWith(pcSubStr, pcBound1, pcBound2)
+			def BoundSubStringWithQ(pcSubStr, pacBounds)
+				This.BoundSubStringWith(pcSubStr, pacBounds)
 				return This
 
-		def BoundSubStringBy(pcSubStr, pcBound1, pcBound2)
-			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
+		def BoundSubStringBy(pcSubStr, pacBounds)
+			This.BoundSubString(pcSubStr, pacBounds)
 
-			def BoundSubStringByQ(pcSubStr, pcBound1, pcBound2)
-				This.BoundSubStringBy(pcSubStr, pcBound1, pcBound2)
+			def BoundSubStringByQ(pcSubStr, pacBounds)
+				This.BoundSubStringBy(pcSubStr, pacBounds)
 				return This
 
-		def BoundSubStringUsing(pcSubStr, pcBound1, pcBound2)
-			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
+		def BoundSubStringUsing(pcSubStr, pacBounds)
+			This.BoundSubString(pcSubStr, pacBounds)
 
-			def BoundSubStringUsingQ(pcSubStr, pcBound1, pcBound2)
-				This.BoundSubStringUsing(pcSubStr, pcBound1, pcBound2)
+			def BoundSubStringUsingQ(pcSubStr, pacBounds)
+				This.BoundSubStringUsing(pcSubStr, pacBounds)
 				return This
 
 		#>
@@ -18110,8 +18236,8 @@ class stzString from stzObject
 
 		#>
 
-	def SubStringInsertedBefore(nPos, pcSubStr)
-		cResult = This.Copy().InsertBeforeQ(nPos, pcSubStr).Content()
+	def SubStringInsertedBeforeCS(nPos, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertBeforeCSQ(nPos, pcSubStr, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -18126,6 +18252,26 @@ class stzString from stzObject
 			This.SubStringInsertedBefore(nPos, pcSubStr)
 
 		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertBefore(nPos, pcSubStr)
+		This.InsertBeforeCS(nPos, pcSubStr, :CaseSensitive = TRUE)
+
+		def InsertBeforeQ(nPos, pcSubStr)
+			This.InsertBefore(nPos, pcSubStr)
+			return This
+
+		def InsertSubStringBefore(nPos, pcSubStr)
+			This.InsertSubStringBeforeCS(nPos, pcSubStr, :CaseSensitive = TRUE)
+
+			def InsertSubStringBeforeQ(nPos, pcSubStr)
+				This.InsertSubStringBefore(nPos, pcSubStr)
+				return This
+
+	def SubStringInsertedBefore(nPos, pcSubStr)
+		cResult = This.Copy().InsertBeforeQ(nPos, pcSubStr).Content()
+		return cResult
 
 	   #--------------------------------------------------------#
 	  #    INSERTING A SUBSTRING BEFORE A POSITION DEFINED     #
@@ -21607,7 +21753,7 @@ def ReplaceIBS()
 	#-------------------------------------------------------------------------------#
 
 	def ReplaceSubStringsW(pcCondition, pcNewSubStr)
-		aSections = This.FindSubStringsAsSectionsW(pcCondition, pcNewSubStr)
+		aSections = This.FindSubStringsAsSectionsW(pcCondition)
 		This.ReplaceSections(aSections, pcNewSubStr)
 
 		def ReplaceSubStringsWQ(pcCondition, pcNewSubStr)
@@ -22927,6 +23073,9 @@ def ReplaceIBS()
 		def FindAsSectionCS(pcSubStr, pCaseSensitive)
 			return This.FindFirstAsSectionCS(pcSubStr, pCaseSensitive)
 
+		def FindSubStringAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstAsSectionCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -22937,6 +23086,9 @@ def ReplaceIBS()
 		#< @FunctionAlternativeForm
 
 		def FindAsSection(pcSubStr)
+			return This.FindFirstAsSection(pcSubStr)
+
+		def FindSubStringAsSection(pcSubStr)
 			return This.FindFirstAsSection(pcSubStr)
 
 		#>
@@ -26334,6 +26486,8 @@ def ReplaceIBS()
 	 #  FINDING OCCURRENCES OF CHARS VERIFYING A GIVEN CONDITION  #
 	#------------------------------------------------------------#
 
+	# TODO: Add ..Where() alternative to all ..W() functions
+
 	def FindCharsW(pcCondition)
 		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
 			pcCondition = pcCondition[2]
@@ -26356,6 +26510,35 @@ def ReplaceIBS()
 
 		return anResult
 
+		#< @FunctionFluentForms
+
+		def FindCharsWQ(pcCondition)
+			return This.FindCharsWQR(pcCondition, :stzList)
+
+		def FindCharsWQR(pcCondition, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindCharsW(pcCondition) )
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FindCharsW(pcCondition) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def FindCharsWhere(pcCondition)
+			return This.FindCharsW(pcCondition)
+
+			def FindCharsWhereQ(pcCondition)
+				return This.FindCharsWhereQR(pcCondition, :stzList)
+	
+			def FindCharsWhereQR(pcCondition, pcReturnType)
+				return This.FindCharsWQR(pcCondition, pcReturnType)
+		#>
+
 	def FindCharsAsSectionsW(pcCondition)
 
 		anPos = This.FindCharsW(pcCondition)
@@ -26368,6 +26551,9 @@ def ReplaceIBS()
 		next
 
 		return aResult
+
+		def FindCharsAsSectionsWhere(pcCondition)
+			return This.FindCharsAsSectionsW(pcCondition)
 
 	   #------------------------------------------------------------------#
 	  #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
@@ -39230,7 +39416,7 @@ def ReplaceIBS()
 			ok
 		ok
 
-		anPositions = This.FindAllCharsWhereQ( pcCondition ).SortedInDescending()
+		anPositions = This.FindCharsWhereQ( pcCondition ).SortedInDescending()
 
 		for for n in anPositions
 			This.RemoveCharAtPosition(n)
@@ -50202,6 +50388,89 @@ def ReplaceIBS()
 		cResult = This.Copy().ShortenXTQ(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart).Content()
 		return cResult
 
+	  #-------------------------------------------#
+	 #  GETTING THE LIST OF WORDS IN THE STRING  #
+	#-------------------------------------------#
+
+	# NOTE: stzString has a limites understanding of what a word is.
+	# In fact, it just a substring bounded by two spaces (or one space
+	# if it is at the start or the end of the substring.
+
+	# To get a more appealling meaning of Word(), use stzText instead.
+
+	def WordsCS(pCaseSensitive)
+		acResult = This.SplitCS(" ", pCaseSensitive)
+		return acResult
+
+		def WordsCSQ(pCaseSensitive)
+			return WordsCSQR(pCaseSensitive, :stzList)
+
+		def WordsCSQR(pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.WordsCS(pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.WordsCS(pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Words()
+		return This.WordsCS(:CaseSensitive = TRUE)
+
+		def WordsQ()
+			return This.WordsQR(:stzList)
+
+		def WordsQR(pcReturnType)
+			return This.WordsCSQR(:CaseSensitive = TRUE, pcReturnType)
+
+	  #------------------------------------------------------------------------#
+	 #  CHECKING IF THE GIVEN SUSBSTRING CORRESPONDS TO A WORD OF THE STRING  #
+	#------------------------------------------------------------------------#
+
+	def SubStringIsWordCS(pcSubStr, pCaseSensitive) # TODO: Check for performance!
+		bResult = This.WordsCSQ(pCaseSensitive).ContainsCS(pcSubStr, pCaseSensitive)
+		return bResult
+
+		#< @FunctionAlternativeForm
+
+		def SubStringIsAWordCS(pcSubStr, pCaseSensitive)
+			return This.SubStringIsWordCS(pcSubStr, pCaseSensitive)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def SubSgtringIsWordCS(pcSubStr, pCaseSensitive)
+			return This.SubStringIsWord(pcSubStr, pCaseSensitive)
+
+		# TODO: Generalise this misspelled form to all functions
+		# containing SubString in their names
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringIsWord(pcSubStr)
+		return This.SubStringIsWordCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SubStringIsAWord(pcSubStr)
+			return SubStringIsWord(pcSubStr)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def SubSgtringIsWord(pcSubStr)
+			return This.SubStringIsWord(pcSubStr)
+
+		#>
+
+
 	  #===========#
 	 #   MISC.   #
 	#===========#
@@ -50297,6 +50566,10 @@ def ReplaceIBS()
 	#==
                
 	def SubStringCS(pcSubStr, pCaseSensitive)
+		if isList(pcSubStr) and Q(pcSubStr).IsInOrInStringNamedParam()
+			return This.SubStringInCS(pcSubStr[2], pCaseSensitive)
+		ok
+
 		if This.ContainsCS(pcSubStr, pCaseSensitive)
 			return pcSubStr
 		else
@@ -50304,13 +50577,17 @@ def ReplaceIBS()
 		ok
 
 		def SubStringCSQ(pcSubStr, pCaseSensitive)
+			if isList(pcSubStr) and Q(pcSubStr).IsInOrInStringNamedParam()
+				return This.SubStringInCSQ(pcSubStr[2], pCaseSensitive)
+			ok
+	
 			return new stzSubStringCS(pcSubStr, This.String(), pCaseSensitive)
 
 	def SubString(pcSubStr)
 		return This.SubStringCS(pcSubStr, :CaseSensitive = TRUE)
 
 		def SubStringQ(pcSubStr)
-			return new stzSubString(pcSubStr, This.String())
+			return This.SubStringCSQ(pcSubStr, :CaseSensitive = TRUE)
 
 	#--
 
@@ -50324,11 +50601,23 @@ def ReplaceIBS()
 		def SubStringInCSQ(pcStr, pCaseSensitive)
 			return new stzSubStringCS(This.Content(), pcStr, pCaseSensitive)
 
+		def InCS(pcStr, pCaseSensitive)
+			return SubStringInCS(pcStr, pCaseSensitive)
+
+			def InCSQ(pcStr, pCaseSensitive)
+				return SubStringInCSQ(pcStr, pCaseSensitive)
+
 	def SubStringIn(pcStr)
 		return This.SubStringInCS(pcStr, :CaseSensitive = TRUE)
 
 		def SubStringInQ(pcStr)
 			return new stzSubString(This.Content(), pcStr)
+
+		def _In(pcStr)
+			return SubStringIn(pcStr)
+
+			def InQ(pcStr)
+				return SubStringInQ(pcStr)
 
 			                                
                  ///////////////////////////////////////////////
@@ -50692,16 +50981,10 @@ def ReplaceIBS()
 	 #  ALTERNATIVES OF FindManyAsSections()  #
 	#----------------------------------------#
 
-	def FindSubStringsAsSectionsCS(pacSubStr, pCaseSensitive)
-		return This.FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
-
 	def FindTheseSubStringsAsSectionsCS(pacSubStr, pCaseSensitive)
 		return This.FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
-
-	def FindSubStringsAsSections(pacSubStr)
-		return This.FindManyAsSections(pacSubStr)
 
 	def FindTheseSubStringsAsSections(pacSubStr)
 		return This.FindManyAsSections(pacSubStr)
