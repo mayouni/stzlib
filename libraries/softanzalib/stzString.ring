@@ -35540,20 +35540,7 @@ def ReplaceIBS()
 	 #   SPLITTING THE STRING   #
 	#==========================#
 
-	/* GENERAL NOTE:
-
-	There are many forms of splitting in Softanza:
-		- splitting AT one or many positions (or one or many substrings)
-		- splitting BEFORE one or many positions (or one or many substrings)
-		- splitting AFTER one or more positions (or one or many substrings)
-		- splitting to n parts (or equal n parts)
-		- splitting to parts of n chars (or exactly n chars)
-		- splitting at, before, or after a condition is verified on a char,
-		  substring, or a char position or substring position
-
-	*/
-
-	def SplitCS(pSubStrOrPos, pCaseSensitive)
+	def SplitXTCS(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
 		ok
@@ -35568,88 +35555,130 @@ def ReplaceIBS()
 		but isNumber(pSubStrOrPos)
 			return This.SplitAtPosition(pSubStrOrPos)
 
+		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+			return This.SplitAtPositions(pSubStrOrPos)
+
+		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+			return This.SplitAtSection(pSubStrOrPos[1], pSubStrOrPos[2])
+
+		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+			return This.SplitAsSections(pSubStrOrPos)
+
 		but isList(pSubStrOrPos)
 
-			#-- Split ( :At = ...) or Split( :Using = ... )
+			oParam = Q(pSubStrOrPos)
 
-			if Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :At, :Using ])
+			#-- SPLITTING AT / USING
+
+			if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
 				return This.SplitAtCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+			but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
 				return This.SplitAtPosition(pSubStrOrPos[2])
 	
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+			but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
 				return This.SplitAtPositions(pSubStrOrPos[2])
 
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AtSubString, :AtThisSubString ]) 
+			but oParam.IsOneOfTheseNamedParams([
+						:AtSubString, :AtThisSubString,
+						:UsingSubString, :UsingThisSubString ]) 
+
 				return This.SplitAtSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AtSubStrings, :AtTheseSubStrings ]) 
+			but oParam.IsOneOfTheseNamedParams([
+						:AtSubStrings, :AtTheseSubStrings,
+						:UsingSubStrings, :UsingTheseSubStrings ]) 
+
 				return This.SplitAtSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+			but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
 				return This.SplitAtSection(pSubStrOrPos[2])
 		
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+			but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
 				return This.SplitAtSections(pSubStrOrPos[2])
 
-			#-- Split ( :Before = ...)
+			#-- SPLITTING BEFORE
 
-			but Q(pSubStrOrPos).IsBeforeNamedParam()
+			but oParam.IsBeforeNamedParam()
 				return This.SplitBeforeCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+			but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
 				return This.SplitBeforePosition(pSubStrOrPos[2])
 	
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+			but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
 				return This.SplitBeforePositions(pSubStrOrPos[2])
 
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :BeforeSubString, :BeforeThisSubString ]) 
+			but oParam.IsOneOfTheseNamedParams([ :BeforeSubString, :BeforeThisSubString ]) 
 				return This.SplitBeforeSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
+			but oParam.IsOneOfTheseNamedParams([ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
 				return This.SplitBeforeSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+			but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
 				return This.SplitBeforeSection(pSubStrOrPos[2])
 		
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+			but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
 				return This.SplitBeforeSections(pSubStrOrPos[2])
 
-			#-- Split ( :After = ...)
+			#-- SPLITTING AFTER
 
-			but Q(pSubStrOrPos).IsAfterNamedParam()
+			but oParam.IsAfterNamedParam()
 				return This.SplitAfterCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+			but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
 				return This.SplitAfterPosition(pSubStrOrPos[2])
 	
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+			but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
 				return This.SplitAfterPositions(pSubStrOrPos[2])
 
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AfterSubString, :AfterThisSubString ]) 
+			but oParam.IsOneOfTheseNamedParams([ :AfterSubString, :AfterThisSubString ]) 
 				return This.SplitAfterSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AfterSubStrings, :AfterTheseSubStrings ]) 
+			but oParam.IsOneOfTheseNamedParams([ :AfterSubStrings, :AfterTheseSubStrings ]) 
 				return This.SplitAfterSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+			but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
 				return This.SplitAfterSection(pSubStrOrPos[2])
 		
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+			but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
 				return This.SplitAfterSections(pSubStrOrPos[2])
 
-			#-- Providing numbers, strings, or pairs of numbers,
-			#   directly without named params
+			# SPLITTING BETWEEN
 
-			but Q(pSubStrOrPos).IsListOfNumbers()
-				return This.SplitAtPositions(pSubStrOrPos)
+			but oParam.IsBetweenNamedParam() and
+				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
+				
+				if isList(pcSubStrOrPos[2]) and Q(pcSubStrOrPos[2]).IsAndNamedParam()
+					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
+				ok
 
-			but Q(pSubStrOrPos).IsListOfStrings()
-				return This.SplitAtSubStrings(pSubStrOrPos)
+				return This.SplitBetweenCS(pcSubStrOrPos[1], pcSubStrOrPos[2], pCaseSensitive)
 
-			but Q(pSubStrOrPos).IsListOfPairsOfNumbers()
-				return This.SplitAtSections(pSubStrOrPos)
+			but oParam.IsBetweenPositionsNamedParam()
+				return This.SplitBetweenPositions(pcSubStrOrPos[1], pcSubStrOrPos[2])
+
+			but oParam.IsBetweenSubStringsNamedParam()
+				return This.SplitBetweenSubStringsCS(pcSubStrOrPos[1], pcSubStrOrPos[2], pCaseSensitive)
+
+			# SPLITTING TO PARTS
+
+			but oParam.IsToNPartsNamedParam()
+				return This.SplitToNParts(pcSubStrOrPos[2])
+
+			but oParam.IsToPartsOfNCharsNamedParam()
+				return This.SplitToPartsOfNChars(pcSubStrOrPos[2])
+
+			# SPLITTING WHERE
+
+			but oParam.IsWhereOrAtWhereNamedParam()
+				return This.SplitAtW(pcSubStrOrPos[2])
+
+			but oParam.IsBeforeWhereNamedParam()
+				return This.SplitBeforeW(pcSubStrOrPos[2])
+
+			but oParam.IsAfterWhereNamedParam()
+				return This.SplitAfterW(pcSubStrOrPos[2])
+
 			ok
 		else
 			StzRaise("Incorrect param type! pSubStrOrPos must be position(s), string(s), or section(s).")
@@ -35657,31 +35686,31 @@ def ReplaceIBS()
 
 		#< @FunctionFluentForm
 
-		def SplitCSQ(pSubStrOrPos, pCaseSensitive)
-			return This.SplitCSQR(pSubStrOrPos, pCaseSensitive, :stzList)
+		def SplitXTCSQ(pSubStrOrPos, pCaseSensitive)
+			return This.SplitXTCSQR(pSubStrOrPos, pCaseSensitive, :stzList)
 
-		def SplitCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitXTCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SplitCS(pSubStrOrPos, pCaseSensitive) )
+				return new stzList( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitCS(pSubStrOrPos, pCaseSensitive) )
+				return new stzListOfStrings( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
 
 			on :stzListOfChars
-				return new stzListOfChars( This.SplitCS(pSubStrOrPos, pCaseSensitive) )
+				return new stzListOfChars( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SplitCS(pSubStrOrPos, pCaseSensitive) )
+				return new stzListOfNumbers( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.SplitCS(pSubStrOrPos, pCaseSensitive) )
+				return new stzListOfLists( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.SplitCS(pSubStrOrPos, pCaseSensitive) )
+				return new stzListOfPairs( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
 
 			on :stzListOfObjects
-				return new stzListOfObjects( This.SplitCS(pSubStrOrPos, pCaseSensitive) )
+				return new stzListOfObjects( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
 
 			other
 				StzRaise("Unsupported param type!")
@@ -35689,41 +35718,41 @@ def ReplaceIBS()
 
 		#>
 
-	def SplittedCS(pSubStrOrPos, pCaseSensitive)
-		return This.SplitCS(pSubStrOrPos, pCaseSensitive)
+	def SplittedXTCS(pSubStrOrPos, pCaseSensitive)
+		return This.SplitXTCS(pSubStrOrPos, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def Split(pSubStrOrPos)
-		return This.SplitCS(pSubStrOrPos, :CaseSensitive = TRUE)
+	def SplitXT(pSubStrOrPos)
+		return This.SplitXTCS(pSubStrOrPos, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def SplitQ(pSubStrOrPos)
-			return This.SplitQR(pSubStrOrPos, :stzList)
+		def SplitXTQ(pSubStrOrPos)
+			return This.SplitXTQR(pSubStrOrPos, :stzList)
 
-		def SplitQR(pSubStrOrPos, pcReturnType)
+		def SplitXTQR(pSubStrOrPos, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.Split(pSubStrOrPos) )
+				return new stzList( This.SplitXT(pSubStrOrPos) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.Split(pSubStrOrPos) )
+				return new stzListOfStrings( This.SplitXT(pSubStrOrPos) )
 
 			on :stzListOfChars
 				return new stzListOfChars( This.Split(pSubStrOrPos) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Split(pSubStrOrPos) )
+				return new stzListOfNumbers( This.SplitXT(pSubStrOrPos) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.Split(pSubStrOrPos) )
+				return new stzListOfLists( This.SplitXT(pSubStrOrPos) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.Split(pSubStrOrPos) )
+				return new stzListOfPairs( This.SplitXT(pSubStrOrPos) )
 
 			on :stzListOfObjects
-				return new stzListOfObjects( This.Split(pSubStrOrPos) )
+				return new stzListOfObjects( This.SplitXT(pSubStrOrPos) )
 
 			other
 				StzRaise("Unsupported param type!")
@@ -35731,53 +35760,56 @@ def ReplaceIBS()
 
 		#>
 
-	def Splitted(pSubStrOrPos)
-		return This.Split(pSubStrOrPos)
+	def SplittedXT(pSubStrOrPos)
+		return This.SplitXT(pSubStrOrPos)
 
 	  #-----------------------------------------------#
 	 #   SPLITTING AT A GIVEN SUBSTRING OR POSITION  #
 	#-----------------------------------------------#
 
 	def SplitAtCS(pSubStrOrPos, pCaseSensitive)
+		if This.IsEmpty()
+			return []
+		ok
+
 		if isString(pSubStrOrPos)
 			return This.SplitAtSubStringCS(pSubStrOrPos, pCaseSensitive)
 
 		but isNumber(pSubStrOrPos)
 			return This.SplitAtPosition(pSubStrOrPos)
 
+		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+			return This.SplitAtPositions(pSubStrOrPos)
+
+		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+			return This.SplitAtSection(pSubStrOrPos[1], pSubStrOrPos[2])
+
+		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+			return This.SplitAsSections(pSubStrOrPos)
+
 		but isList(pSubStrOrPos)
+
+			oParam = Q(pSubStrOrPos)
 
 			#-- Case when named params are provided
 
-			if Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
 				return This.SplitAtPosition(pSubStrOrPos[2])
 	
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
 				return This.SplitAtPositions(pSubStrOrPos[2])
 
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
 				return This.SplitAtSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
 				return This.SplitAtSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
 				return This.SplitAtSection(pSubStrOrPos[2])
 		
-			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
 				return This.SplitAtSections(pSubStrOrPos[2])
-
-			#-- Providing numbers, strings, or pairs of numbers,
-			#   directly without named params
-
-			but Q(pSubStrOrPos).IsListOfNumbers()
-				return This.SplitAtPositions(pSubStrOrPos)
-
-			but Q(pSubStrOrPos).IsListOfStrings()
-				return This.SplitAtSubStrings(pSubStrOrPos)
-
-			but Q(pSubStrOrPos).IsListOfPairsOfNumbers()
-				return This.SplitAtSections(pSubStrOrPos)
 
 			ok
 		else
@@ -35837,6 +35869,10 @@ def ReplaceIBS()
 	#-----------------------------------#
 
 	def SplitAtPosition(n)
+		if This.IsEmpty()
+			return []
+		ok
+
 		if NOT isNumber(n)
 			StzRaise("Incorrect pram type! n must be a number.")
 		ok
@@ -35854,6 +35890,9 @@ def ReplaceIBS()
 	#---------------------------------#
 
 	def SplitAtPositions(anPos)
+		if This.IsEmpty()
+			return []
+		ok
 
 		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
@@ -35892,6 +35931,10 @@ def ReplaceIBS()
 	#------------------------------------#
 
 	def SplitAtSubStringCS(pcSubStr, pCaseSensitive)
+		if This.IsEmpty()
+			return []
+		ok
+
 		if NOT isString(pcSubStr)
 			StzRaise("Incorrect param type! pcsubStr must be a string.")
 		ok
@@ -35907,22 +35950,42 @@ def ReplaceIBS()
 		acResult = QStringListToList( QStringObject().split(pcSubStr, 0, pCaseSensitive) )
 		return acResult
 
+
+		def SplitCS(pcSubStr, pCaseSensitive)
+			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+				pcSubStr = pcSubstr[2]
+			ok
+
+			Treturn his.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
+
 	def SplittedAtSubStringCS(pcSubStr, pCaseSensitive)
 		return This.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
+
+		def SplittedCS(pcSubStr, pCaseSensitive)
+			return This.SplittedAtSubStringCS(pcSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAtSubString(pcSubStr)
 		return This.SplitAtSubStringCS(pcSubStr, :CaseSensitive = TRUE)
 
+		def Split(pcSubStr)
+			return This.SplitCS(pcSubStr, :CaseSensitive = TRUE)
+
 	def SplittedAtSubString(pcSubStr)
 		return This.SplitAtSubString(pcSubStr)
+
+		def Splitted(pcSubStr)
+			return This.SplittedCS(pcSubStr, :CaseSensitive = TRUE)
 
 	  #-----------------------------------#
 	 #   SPLITTING AT GIVEN SUBSTRINGS   #
 	#-----------------------------------#
 
 	def SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
+		if This.IsEmpty()
+			return []
+		ok
 
 		anPos = This.FindCS(pacSubStr, pCaseSensitive)
 
@@ -35985,12 +36048,15 @@ def ReplaceIBS()
 	#----------------------------------#
 
 	def SplitAtSection(paSection)
+		if This.IsEmpty()
+			return []
+		ok
 
 		if NOT ( isList(paSection) and Q(paSection).IsPairOfNumbers() )
 			StzRaise("Incorrect param type! paSection must be a pair of numbers.")
 		ok
 
-		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
+xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 		acResult = This.Sections( aSections )
 
 		return acResult
@@ -36003,6 +36069,10 @@ def ReplaceIBS()
 	#--------------------------------#
 
 	def SplitAtSections(paSections)
+		if This.IsEmpty()
+			return []
+		ok
+
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
 		ok
@@ -36020,11 +36090,27 @@ def ReplaceIBS()
 	#----------------------------------------------------#
 
 	def SplitBeforeCS(pSubStrOrPos, pCaseSensitive)
+		if This.IsEmpty()
+			return []
+		ok
+
 		if isString(pSubStrOrPos)
 			return This.SplitBeforeSubStringCS(pSubStrOrPos, pCaseSensitive)
 
+		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfStrings()
+			return This.SplitBeforeSubStringsCS(pSubStrOrPos, pCaseSensitive)
+
 		but isNumber(pSubStrOrPos)
 			return This.SplitBeforePosition(pSubStrOrPos)
+
+		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+			return This.SplitBeforePositions(pSubStrOrPos)
+
+		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+			return This.SplitBeforeSection(pSubStrOrPos[1], pSubStrOrPos[2])
+
+		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+			return This.SplitBeforeSections(pSubStrOrPos[1], pSubStrOrPos[2])
 
 		but isList(pSubStrOrPos)
 
@@ -36047,19 +36133,6 @@ def ReplaceIBS()
 		
 			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
 				return This.SplitBeforeSections(pSubStrOrPos[2])
-
-			#-- Providing numbers, strings, or pairs of numbers,
-			#   directly without named params
-
-			but Q(pSubStrOrPos).IsListOfNumbers()
-				return This.SplitBeforePositions(pSubStrOrPos)
-
-			but Q(pSubStrOrPos).IsListOfStrings()
-				return This.SplitBeforeSubStrings(pSubStrOrPos)
-
-			but Q(pSubStrOrPos).IsListOfPairsOfNumbers()
-				return This.SplitBeforeSections(pSubStrOrPos)
-
 
 			ok
 		else
@@ -36119,6 +36192,9 @@ def ReplaceIBS()
 	#---------------------------------------#
 
 	def SplitBeforePosition(n)
+		if This.IsEmpty()
+			return []
+		ok
 
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
@@ -36137,6 +36213,10 @@ def ReplaceIBS()
 	#-------------------------------------#
 
 	def SplitBeforePositions(anPos)
+		if This.IsEmpty()
+			return []
+		ok
+
 		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
@@ -36154,6 +36234,10 @@ def ReplaceIBS()
 	#----------------------------------------#
 
 	def SplitBeforeSubStringCS(pcSubStr, pCaseSensitive)
+		if This.IsEmpty()
+			return []
+		ok
+
 		if NOT isString(pcSubStr)
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
@@ -36180,6 +36264,10 @@ def ReplaceIBS()
 	#--------------------------------------#
 
 	def SplitBeforeSubStringsCS(pacSubStr, pCaseSensitive)
+		if This.IsEmpty()
+			return []
+		ok
+
 		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
@@ -36206,6 +36294,9 @@ def ReplaceIBS()
 	#--------------------------------------#
 
 	def SplitBeforeSection(paSection)
+		if This.IsEmpty()
+			return []
+		ok
 
 		if NOT ( isList(paSection) and Q(paSection).IsPairOfNumbers() )
 			StzRaise("Incorrect param type! paSection must be a pair of numbers.")
@@ -36495,6 +36586,10 @@ def ReplaceIBS()
 	def SplittedBetween(pBound1, pBound2)
 		return This.SplitBetweenCS(pBound1, pBound2, :CaseSensitive = TRUE)
 
+def SplitBetweenPositions()
+
+def SplitBetweenSubStrings()
+
 	  #----------------------------#
 	 #    SPLITTING TO N PARTS    #
 	#----------------------------#
@@ -36700,7 +36795,7 @@ def ReplaceIBS()
 			oaSep = new stzList(pcSep)
 
 			if oaSep.IsAtOrUsingNamedParam()
-
+				
 			but oaSep.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ])
 
 			but oaSep.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ])
@@ -50388,9 +50483,9 @@ def ReplaceIBS()
 		cResult = This.Copy().ShortenXTQ(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart).Content()
 		return cResult
 
-	  #-------------------------------------------#
+	  #===========================================#
 	 #  GETTING THE LIST OF WORDS IN THE STRING  #
-	#-------------------------------------------#
+	#===========================================#
 
 	# NOTE: stzString has a limites understanding of what a word is.
 	# In fact, it just a substring bounded by two spaces (or one space
@@ -50470,6 +50565,140 @@ def ReplaceIBS()
 
 		#>
 
+	  #-------------------------------------------------------------------------#
+	 #  CHECKING IF THE GIVEN SUSBSTRINGS CORRESPOND TO A WORDS OF THE STRING  #
+	#-------------------------------------------------------------------------#
+
+	def SubStringsAreWordsCS(acSubStr, pCaseSensitive) # TODO: check for performance!
+
+		if CheckParams() = TRUE
+			if NOT (isList(acSubStr) and Q(acSubStr).IsLIstOfStrings())
+				StzRaise("Incorrect param type! acSubStr must be a list pf strings.")
+			ok
+		ok
+
+		bResult = TRUE
+
+		nLen = len(acSubStr)
+		for i = 1 to nLen
+			if NOT This.SubStringIsWordCS(acSubStr[i], pCaseSensitive)
+				bResult = FALSE
+				exit
+			ok
+
+		next
+
+		return bResult
+		
+		
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsAreWords(acSubStr)
+		return This.SubStringsAreWordsCS(acSubStr, :CaseSensitive = TRUE)
+
+	  #-----------------------------------#
+	 #  FINDING THE WORDS IN THE STRING  #
+	#===================================#
+
+	def FindWordsCS(pCaseSensitive)
+
+		acSplittedZ = This.SplitCSZ(" ", pCaseSensitive)
+		anResult = QR(acSplittedZ, :stzListOfPairs).SecondItems()
+
+		return anResult
+
+		def PositionsOfWordsCS(pCaseSensitive)
+			return This.FindWordsCS(pCaseSensitive)
+
+		def WordsPositionsCS(pCaseSensitive)
+			return This.FindWordsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindWords()
+		return This.FindWordsCS(:CaseSensitive = TRUE)
+
+		def PositionsOfWords()
+			return This.FindWords()
+
+		def WordsPositions()
+			return This.FindWords()
+
+	  #-----------------------------------------------------------------------------#
+	 #  FINDING THE WORDS IN THE STRING AND RETURNING THEIR POSITIONS AS SECTIONS  #
+	#-----------------------------------------------------------------------------#
+
+	def FindWordsAsSectionsCS(pCaseSensitive)
+
+		acSplittedZZ = This.SplitCSZZ(" ", pCaseSensitive)
+		aResult = QR(acSplittedZZ, :stzListOfPairs).SecondItems()
+
+		return aResult
+
+		def SectionsOfWordsCS(pCaseSensitive)
+			return This.FindWordsAsSectionsCS(pCaseSensitive)
+
+		def WordsSectionsCS(pCaseSensitive)
+			return This.FindWordsAsSectionsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindWordsAsSections()
+		return This.FindWordsAsSectionsCS(:CaseSensitive = TRUE)
+
+		def SectionsOfWords()
+			return This.FindWordsAsSections()
+
+		def WordsSections()
+			return This.FindWordsAsSections()
+
+	  #--------------------------------------------------------------#
+	 #  GETTING THE WORDS IN THE STRING ALONG WITH THEIR POSITIONS  #
+	#--------------------------------------------------------------#
+
+	def WordsCSZ(pCaseSensitive)
+
+		aResult = Assoction([
+			This.WordsCS(pCaseSensitive),
+			This.FindWordsCS(pCaseSensitive)
+		])
+
+		return aResult
+
+		def WordsAndTheirPositionsCS(pCaseSensitive)
+			return This.WordsCSZ(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def WordsZ()
+		return This.WordsCSZ(:CaseSensitive = TRUE)
+
+		def WordsAndTheirPositions()
+			return This.WordsZ()
+
+	  #-------------------------------------------------------------#
+	 #  GETTING THE WORDS IN THE STRING ALONG WITH THEIR SECTIONS  #
+	#-------------------------------------------------------------#
+
+	def WordsCSZZ(pCaseSensitive)
+
+		aResult = Assoction([
+			This.WordsCS(pCaseSensitive),
+			This.FindWordsAsSectionsCS(pCaseSensitive)
+		])
+
+		return aResult
+
+		def WordsAndTheirSectionsCS(pCaseSensitive)
+			return This.WordsCSZZ(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def WordsZZ()
+		return This.WordsCSZZ(:CaseSensitive = TRUE)
+
+		def WordsAndTheirSections()
+			return This.WordsZZ()
 
 	  #===========#
 	 #   MISC.   #

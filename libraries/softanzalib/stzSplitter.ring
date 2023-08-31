@@ -144,13 +144,13 @@ class stzSplitter from stzListOfNumbers
 				#--
 
 				but cTemp = :AtSection or cTemp = :AtThisSection
-					return This.SplitAtSection(p[2])
+					return This.SplitAtSection(p[2][1], p[2][2])
 
 				but cTemp = :BeforeSection or cTemp = :BeforeThisSection
-					return This.SplitBeforeSection(p[2])
+					return This.SplitBeforeSection(p[2][1], p[2][2])
 
 				but cTemp = :AfterSection or cTemp = :AfterThisSection
-					return This.SplitAfterSection(p[2])
+					return This.SplitAfterSection(p[2][1], p[2][2])
 
 				#--
 
@@ -201,7 +201,7 @@ class stzSplitter from stzListOfNumbers
 				return This.SplitAtPositions(p[2])
 
 			but Q(p).IsOneOfTheseNamedParams([ :Section, :ThisSection ])
-				return This.SplitAtSection(p[2])
+				return This.SplitAtSection(p[2][1], p[2][2])
 
 			but Q(p).IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
 				return This.SplitAtSections(p[2])
@@ -419,6 +419,24 @@ class stzSplitter from stzListOfNumbers
 	#=================================#
 
 	def SplitAtSection(panSection)
+		/* EXAMPLE
+
+		o1 = new stzSplitter(1:8)
+		? o1.SplitAtSection([3,5])
+
+		# 1..2..3..4..5..8
+		#       ^-----^
+
+		#--> [ [1,2], [6,8] ]
+
+		# If you want to include the bounds of the sections
+		# in the result, use the ...IB() extension like this:
+
+		? o1.SplitAtSection([3,5])
+		#--> [ [1,3], [5,8] ]
+
+		*/
+
 		if NOT ( isList(panSection) and Q(panSection).IsPairOfNumbers() )
 			StzRaise("Incorrect param type! panSection must be a pair of numbers.")
 		ok
@@ -444,6 +462,16 @@ class stzSplitter from stzListOfNumbers
 
 		return aResult
 
+	def SplitAtSectionIB(panSection)
+		if NOT ( isList(panSection) and Q(panSection).IsPairOfNumbers() )
+			StzRaise("Incorrect param type! panSection must be a pair of numbers.")
+		ok
+
+		n1 = panSection[1] + 1
+		n2 = panSection[2] - 1
+
+		return This.SplitAtSection(n1, n2)
+
 	  #------------------------------#
 	 #  SPLITTING AT MANY SECTIONS  #
 	#------------------------------#
@@ -452,12 +480,18 @@ class stzSplitter from stzListOfNumbers
 		/* EXAMPLE
 
 		o1 = new stzSplitter(1:10)
-		o1.Split( :AtSections = [ [3,5], [8,9] ] )
+		? o1.SplitAtSections([ [3,5], [8,9] ])
 
 		# 1..2..3..4..5..6..7..8..9..10
 		#       ^-----^        ^--^
 
 		#--> [ [1,2], [6,7], [10,10] ]
+
+		# If you want to include the bounds of the sections
+		# in the result, use the ...IB() extension like this:
+
+		? o1.SplitAtSectionsIB([ [3,5], [8,9] ])
+		#--> [ [1,3], [5,8], [9,10] ]
 
 		*/
 
@@ -468,7 +502,7 @@ class stzSplitter from stzListOfNumbers
 		if isList(paSections) and len(paSections) = 1 and
 		   isList(paSections[1]) and Q(paSections[1]).IsPairOfNumbers()
 
-			return This.SplitAtSection(paSections[1])
+			return This.SplitAtSection(paSections[1][1], paSections[1][2])
 		ok
 
 
@@ -500,6 +534,22 @@ class stzSplitter from stzListOfNumbers
 		def SplitAtManySections(paSections)
 			return This.SplitAtSections(paSections)
 
+	def SplitAtSectionsIB(paSections)
+		if NOT ( isList(paSections) and len(paSections) > 0 and Q(paSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! paSections must be a non empty list of pairs of numbers.")
+		ok
+
+		nLen = len(paSections)
+		aTempSections = []
+
+		for i = 1 to nLen
+			n1 = paSections[i][1] + 1
+			n2 = paSections[i][2] - 1
+			aTempSections + [ n1, n2 ]
+		next
+
+		return This.SplitAtSections(aTempSections)
+			
 	  #=====================================#
 	 #  SPLITTING BEFORE A GIVEN SECTION   #
 	#=====================================#
