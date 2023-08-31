@@ -1,11 +1,16 @@
 
+
+  #-------------#
+ #  FUNCTIONS  #
+#-------------#
+
 func StzSubStringCSQ( pcSubStr, pcStr, pCaseSensitive )
 	return new stzSubStringCS( pcSubStr, pcStr, pCaseSensitive )
 
 func StzSubStringQ( pcSubStr, pcStr )
 	return new stzSubString(  pcSubStr, pcStr )
 
-#--
+#== SubString
 
 func SubStringCSQ(pcSubStr, pCaseSensitive)
 
@@ -96,9 +101,106 @@ func SomeSubStringsCS(pcStr, pCaseSensitive)
 func SomeSubStrings(pcStr)
 	return SomeSubStringsCS(pcStr, :CaseSensitive = TRUE)
 
+#== Word
+
+func WordCSQ(pcSubStr, pCaseSensitive)
+
+	if isList(pcSubStr) and Q(pcSubStr).IsPair() and
+	   isString(pcSubStr[1]) and Q(pcSubStr[2]).IsInOrInStringNamedParam()
+
+		return WordInCSQ(pcSubStr[1], pcSubStr[2][2], pCaseSensitive)
+	ok
+
+	return new stzString(pcSubStr)
+
+	func WordCS(pcSubStr, pCaseSensitive)
+		return WordCSQ(pcSubStr, pCaseSensitive)
+
+	func TheWordCSQ(pcSubStr, pCaseSensitive)
+		return WordCSQ(pcSubStr, pCaseSensitive)
+
+func WordQ(pcSubStr)
+	return WordCSQ(pcSubStr, :CaseSensitive)
+
+	func Word(pcSubStr)
+
+	func TheWordQ(pcSubStr)
+		return WordQ(pcSubStr)
+
+	func TheWord(pcSubStr)
+		return WordQ(pcSubStr)
+
+func TheWordInCSQ( pcSubstr, pcInStr, pCaseSensitive )
+	if isList(pcInStr) and Q(pcInStr).IsInOrInStringNamedParam()
+		pcInStr = pcInStr[2]
+	ok
+
+	if NOT Q(pcInStr).SubStringIsWordCS(pcSubStr, pCaseSensitive)
+		StzRaise("Incorrect type! pcSubStr must be a word in the string pcInStr.")
+	ok
+
+	return new stzSubStringCS( pcSubStr, pcInStr, pCaseSensitive )
+
+	func WordInCSQ(pcSubstr, pcInStr, pCaseSensitive)
+		return TheWordInCSQ( pcSubstr, pcInStr, pCaseSensitive )
+
+	func WordInCS(pcSubStr, pcInStr, pCaseSensitive)
+		return TheWordInCSQ( pcSubstr, pcInStr, pCaseSensitive )
+
+	func TheWordInCS(pcSubStr, pcInStr, pCaseSensitive)
+		return TheWordInCSQ( pcSubstr, pcInStr, pCaseSensitive )
+
+func TheWordInQ( pcSubstr, pcInStr )
+	return TheWordInCSQ(pcSubStr, pcInStr, :CaseSensitive)
+
+	func WordInQ(pcSubStr, pcInStr)
+		return TheWordInQ( pcSubstr, pcInStr )
+
+	func WordIn(pcSubStr, pcInStr)
+		return TheWordInQ( pcSubstr, pcInStr )
+
+	func TheWordIn(pcSubStr, pcInStr)
+		return TheWordInQ( pcSubstr, pcInStr )
+
 #--
 
+func AWordCS(pcStr, pCaseSensitive)
+	if isList(pcStr) and Q(pcStr).IsInOrInStringNamedParam()
+		pcStr = pcStr[2]
+	ok
 
+	acSubStr = Q(pcStr).WordsCS(pCaseSensitive)
+	nLen = len(acSubStr)
+	n = ANumberBetween(1, nLen)
+	oResult = new stzSubStringCS(acSubStr[n], pcStr, pCaseSensitive)
+	return oResult
+
+func AWord(pcStr)
+	return AWordCS(pcStr, :CaseSensitive = TRUE)
+
+#--
+
+func SomeWordsCS(pcStr, pCaseSensitive)
+	if isList(pcStr) and Q(pcStr).IsInOrInStringNamedParam()
+		pcStr = pcStr[2]
+	ok
+
+	aSections = Q(pcStr).WordsAsSectionsCS(pCaseSensitive)
+	nLen = len(aSections)
+	anRandom = 3NumbersBetween(1, nLen)
+
+	aSections = Q(aSections).ItemsAtPositions(anRandom)
+	oResult = new stzListOfSubStringsCS(aSections, pcStr, pCaseSensitive)
+	return oResult
+
+func SomeWords(pcStr)
+	return SomeWordsCS(pcStr, :CaseSensitive = TRUE)
+
+
+
+  #-----------#
+ #  CLASSES  #
+#-----------#
 
 class stzListOfSubstringsCS
 	@acSubStr
