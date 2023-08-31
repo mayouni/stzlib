@@ -35538,7 +35538,7 @@ def ReplaceIBS()
 
 	  #==========================#
 	 #   SPLITTING THE STRING   #
-	#==========================#
+vvv	#==========================#
 
 	def SplitXTCS(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
@@ -35700,18 +35700,6 @@ def ReplaceIBS()
 			on :stzListOfChars
 				return new stzListOfChars( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
 
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
-
-			on :stzListOfObjects
-				return new stzListOfObjects( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
-
 			other
 				StzRaise("Unsupported param type!")
 			off
@@ -35742,18 +35730,6 @@ def ReplaceIBS()
 			on :stzListOfChars
 				return new stzListOfChars( This.Split(pSubStrOrPos) )
 
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SplitXT(pSubStrOrPos) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitXT(pSubStrOrPos) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.SplitXT(pSubStrOrPos) )
-
-			on :stzListOfObjects
-				return new stzListOfObjects( This.SplitXT(pSubStrOrPos) )
-
 			other
 				StzRaise("Unsupported param type!")
 			off
@@ -35765,7 +35741,7 @@ def ReplaceIBS()
 
 	  #-----------------------------------------------#
 	 #   SPLITTING AT A GIVEN SUBSTRING OR POSITION  #
-	#-----------------------------------------------#
+	#===============================================#
 
 	def SplitAtCS(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
@@ -35832,18 +35808,6 @@ def ReplaceIBS()
 			on :stzListOfChars
 				return new stzListOfChars( This.SplitAtCS(pSubStrOrPos, pCaseSensitive) )
 
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SplitAtCS(pSubStrOrPos, pCaseSensitive) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitAtCS(pSubStrOrPos, pCaseSensitive) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.SplitAtCS(pSubStrOrPos, pCaseSensitive) )
-
-			on :stzListOfObjects
-				return new stzListOfObjects( This.SplitAtCS(pSubStrOrPos, pCaseSensitive) )
-
 			other
 				StzRaise("Unsupported param type!")
 			off
@@ -35866,7 +35830,7 @@ def ReplaceIBS()
 
 	  #-----------------------------------#
 	 #   SPLITTING AT A GIVEN POSITION   #
-	#-----------------------------------#
+	#===================================#
 
 	def SplitAtPosition(n)
 		if This.IsEmpty()
@@ -35881,6 +35845,28 @@ def ReplaceIBS()
 		acResult = This.Sections(aSections)
 
 		return acResult
+
+		#< @FunctionFluentForm
+
+		def SplitAtPositionQ(n)
+			return This.SplitAtPositionQR(n, :stzList)
+
+		def SplitAtPositionQR(n, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtPosition(n) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtPosition(n) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitAtPosition(n) )
+
+			other
+				StzRaise("Unsupported param type!")
+			off
+
+		#>
 
 	def SplittedAtPosition(n)
 		return This.SplitAtPositions(n)
@@ -35903,13 +35889,47 @@ def ReplaceIBS()
 
 		return acResult
 
+		#< @FunctionFluentForm
+
+		def SplitAtPositionsQ(anPos)
+			return This.SplitAtPositionsQR(anPos, :stzList)
+
+		def SplitAtPositionsQR(anPos, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtPositions(anPos) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtPositions(anPos) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitAtPositions(anPos) )
+
+			other
+				StzRaise("Unsupported param type!")
+			off
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def SplitAtThesePositions(anPos)
 			return This.SplitAtPositions(anPos)
 
+			def SplitAtThesePositionsQ(anPos)
+				return This.SplitAtThesePositionsQR(anPos, :stzList)
+	
+			def SplitAtThesePositionsQR(anPos, pcReturnType)
+				return This.SplitAtPositionsQR(anPos, pcReturnType)
+
 		def SplitAtManyPositions(anPos)
 			return This.SplitAtPositions(anPos)
+
+			def SplitAtManyPositionsQ(anPos)
+				return This.SplitAtManyPositionsQR(anPos, :stzList)
+	
+			def SplitAtManyPositionsQR(anPos, pcReturnType)
+				return This.SplitAtPositionsQR(anPos, pcReturnType)
 
 		#>
 
@@ -35928,7 +35948,7 @@ def ReplaceIBS()
 
 	  #------------------------------------#
 	 #   SPLITTING AT A GIVEN SUBSTRING   #
-	#------------------------------------#
+	#====================================#
 
 	def SplitAtSubStringCS(pcSubStr, pCaseSensitive)
 		if This.IsEmpty()
@@ -35950,13 +35970,44 @@ def ReplaceIBS()
 		acResult = QStringListToList( QStringObject().split(pcSubStr, 0, pCaseSensitive) )
 		return acResult
 
+		#< @FunctionFluentForm
+
+		def SplitAtSubStringCSQ(pcSubStr, pCaseSensitive)
+			return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+		def SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtSubStringCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtSubStringCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitAtSubStringCS(pcSubStr, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported param type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def SplitCS(pcSubStr, pCaseSensitive)
 			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
-			Treturn his.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
+			return his.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
+
+			def SplitCSQ(pcSubStr, pCaseSensitive)
+				return This.SplitCSQR(pcSubStr, pCaseSensitive, :stzList)
+	
+			def SplitCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		#>
 
 	def SplittedAtSubStringCS(pcSubStr, pCaseSensitive)
 		return This.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
@@ -35969,14 +36020,32 @@ def ReplaceIBS()
 	def SplitAtSubString(pcSubStr)
 		return This.SplitAtSubStringCS(pcSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
+		def SplitAtSubStringQ(pcSubStr)
+			return This.SplitAtSubStringQR(pcSubStr, :stzList)
+
+		def SplitAtSubStringQR(pcSubStr, pcReturnType)
+			return This.SplitAtSubStringCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def Split(pcSubStr)
-			return This.SplitCS(pcSubStr, :CaseSensitive = TRUE)
+			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+				pcSubStr = pcSubstr[2]
+			ok
 
-	def SplittedAtSubString(pcSubStr)
-		return This.SplitAtSubString(pcSubStr)
+			return his.SplitAtSubString(pcSubStr)
 
-		def Splitted(pcSubStr)
-			return This.SplittedCS(pcSubStr, :CaseSensitive = TRUE)
+			def SplitQ(pcSubStr)
+				return This.SplitQR(pcSubStr, :stzList)
+	
+			def SplitQR(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringQR(pcSubStr, pcReturnType)
+
+		#>
 
 	  #-----------------------------------#
 	 #   SPLITTING AT GIVEN SUBSTRINGS   #
@@ -35992,13 +36061,47 @@ def ReplaceIBS()
 		acResult = This.SplitAtPositions(anPos)
 		return acResult
 
+		#< @FunctionFluentForm
+
+		def SplitAtSubStringsCSQ(pcSubStr, pCaseSensitive)
+			return This.SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+		def SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtSubStringsCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtSubStringsCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitAtSubStringsCS(pcSubStr, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported param type!")
+			off
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def SplitAtTheseSubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
 
+			def SplitAtTheseSubStringsCSQ(pcSubStr, pCaseSensitive)
+				return This.SplitAtTheseSubStringsCSQR(pcSubStr, pCaseSensitive, :stzList)
+	
+			def SplitAtTheseSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
 		def SplitAtManySubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
+
+			def SplitAtManySubStringsCSQ(pcSubStr, pCaseSensitive)
+				return This.SplitAtManySubStringsCSQR(pcSubStr, pCaseSensitive, :stzList)
+	
+			def SplitAtManySubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -36020,13 +36123,35 @@ def ReplaceIBS()
 	def SplitAtSubStrings(pacSubStr)
 		return This.SplitAtSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionFluentForm
+
+		def SplitAtSubStringsQ(pcSubStr, pCaseSensitive)
+			return This.SplitAtSubStringsQR(pcSubStr, pCaseSensitive, :stzList)
+
+		def SplitAtSubStringsQR(pcSubStr, pCaseSensitive, pcReturnType)
+			return This.SplitAtSubStringsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def SplitAtTheseSubStrings(pacSubStr)
 			return This.SplitAtSubStrings(pacSubStr)
 
+			def SplitAtTheseSubStringsQ(pcSubStr, pCaseSensitive)
+				return This.SplitAtTheseSubStringsQR(pcSubStr, pCaseSensitive, :stzList)
+	
+			def SplitAtTheseSubStringsQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+	
 		def SplitAtManySubStrings(pacSubStr)
 			return This.SplitAtSubStrings(pacSubStr)
+
+			def SplitAtManySubStringsQ(pcSubStr, pCaseSensitive)
+				return This.SplitAtManySubStringsQR(pcSubStr, pCaseSensitive, :stzList)
+	
+			def SplitAtManySubStringsQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
 
 		#>
 
@@ -36045,24 +36170,75 @@ def ReplaceIBS()
 
 	  #----------------------------------#
 	 #   SPLITTING AT A GIVEN SECTION   #
-	#----------------------------------#
+	#==================================#
 
-	def SplitAtSection(paSection)
+	def SplitAtSection(n1, n2)
 		if This.IsEmpty()
 			return []
 		ok
 
-		if NOT ( isList(paSection) and Q(paSection).IsPairOfNumbers() )
-			StzRaise("Incorrect param type! paSection must be a pair of numbers.")
-		ok
-
-xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
+		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(n1, n2)
 		acResult = This.Sections( aSections )
 
 		return acResult
 
-	def SplittedAtSection(paSection)
-		return This.SplitAtSection(paSection)
+		#< @FunctionFluentForms
+
+		def SplitAtSectionQ(n1, n2)
+			return This.SplitAtSectionQR(n1, n2, pcReturnType)
+
+		def SplitAtSectionQR(n1, n2, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtSection(n1, n2) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtSection(n1, n2) )
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitAtSection(n1, n2) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def SplittedAtSection(n1, n2)
+		return This.SplitAtSection(n1, n2)
+
+	  #-----------------------------------------------------#
+	 #   SPLITTING AT A GIVEN SECTION -- INCLUDING BOUNDS  #
+	#-----------------------------------------------------#
+
+	def SplitAtSectionIB(n1, n2)
+		if This.IsEmpty()
+			return []
+		ok
+
+		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSectionIB(n1, n2)
+		acResult = This.Sections( aSections )
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAtSectionIBQ(n1, n2)
+			return This.SplitAtSectionIBQR(n1, n2, pcReturnType)
+
+		def SplitAtSectionIBQR(n1, n2, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtSectionIB(n1, n2) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtSectionIB(n1, n2) )
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitAtSectionIB(n1, n2) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def SplittedAtSectionIB(n1, n2)
+		return This.SplitAtSectionIB(n1, n2)
 
 	  #--------------------------------#
 	 #   SPLITTING AT MANY SECTIONS   #
@@ -36081,6 +36257,25 @@ xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 		acResult = This.AntiSections( paSections )
 
 		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAtSectionsQ(n1, n2)
+			return This.SplitAtSectionsQR(n1, n2, pcReturnType)
+
+		def SplitAtSectionsQR(n1, n2, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtSections(n1, n2) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtSections(n1, n2) )
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitAtSections(n1, n2) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
 
 	def SplittedAtSections(paSections)
 		return This.SplitAtSections(paSections)
@@ -36139,7 +36334,7 @@ xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 			StzRaise("Incorrect param type! pSubStrOrPos must be position(s), string(s), or section(s).")
 		ok
 
-		#< @FunctionFluentForm
+		#< @FunctionFluentForms
 
 		def SplitBeforeCSQ(pSubStrOrPos, pCaseSensitive)
 			return This.SplitBeforeCSQR(pSubStrOrPos, pCaseSensitive, :stzList)
@@ -36154,18 +36349,6 @@ xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 
 			on :stzListOfChars
 				return new stzListOfChars( This.SplitBeforeCS(pSubStrOrPos, pCaseSensitive) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SplitBeforeCS(pSubStrOrPos, pCaseSensitive) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitBeforeCS(pSubStrOrPos, pCaseSensitive) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.SplitBeforeCS(pSubStrOrPos, pCaseSensitive) )
-
-			on :stzListOfObjects
-				return new stzListOfObjects( This.SplitBeforeCS(pSubStrOrPos, pCaseSensitive) )
 
 			other
 				StzRaise("Unsupported param type!")
@@ -36205,6 +36388,28 @@ xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 
 		return acResult
 
+		#< @FunctionFluentForms
+
+		def SplitBeforePositionQ(n)
+			return This.SplitBeforePositionQR(n, :stzList)
+
+		def SplitBeforePositionQR(n, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitBeforePosition(n) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitBeforePosition(n) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitBeforePosition(n) )
+
+			other
+				StzRaise("Unsupported param type!")
+			off
+
+		#>
+
 	def SplittedBeforePosition(n)
 		return This.SplitBeforePosition(n)
 
@@ -36225,6 +36430,28 @@ xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 		acResult = This.Sections( aSections )
 
 		return acResult			
+
+		#< @FunctionFluentForms
+
+		def SplitBeforePositionsQ(anPos)
+			return This.SplitBeforePositionsQR(anPos, :stzList)
+
+		def SplitBeforePositionsQR(anPos, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitBeforePositions(anPos) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitBeforePositions(anPos) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitBeforePositions(anPos) )
+
+			other
+				StzRaise("Unsupported param type!")
+			off
+
+		#>
 
 	def SplittedBeforePositions(anPos)
 		return This.SplitBeforePositions(anPos)
@@ -36248,6 +36475,28 @@ xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 
 		return acResult
 
+		#< @FunctionFluentForms
+
+		def SplitBeforeSubStringCSQ(pcSubStr, pCaseSensitive)
+			return This.SplitBeforeSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+
+		def SplitBeforeSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitBeforeSubStringCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitBeforeSubStringCS(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitBeforeSubStringCS(pcSubStr, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported param type!")
+			off
+
+		#>
+
 	def SplittedBeforeSubStringCS(pcSubStr, pCaseSensitive)
 		return This.SplitBeforeSubStringCS(pcSubStr, pCaseSensitive)
 
@@ -36255,6 +36504,28 @@ xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 
 	def SplitBeforeSubString(pcSubStr)
 		return This.SplitBeforeSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitBeforeSubStringQ(pcSubStr)
+			return This.SplitBeforeSubStringQR(pcSubStr, :stzList)
+
+		def SplitBeforeSubStringQR(pcSubStr, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitBeforeSubString(pcSubStr) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitBeforeSubString(pcSubStr) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitBeforeSubString(pcSubStr) )
+
+			other
+				StzRaise("Unsupported param type!")
+			off
+
+		#>
 
 	def SplittedBeforeSubString(pcSubStr)
 		return This.SplitBeforeSubString(pcSubStr)
@@ -36278,6 +36549,28 @@ xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 
 		return acResult
 
+		#< @FunctionFluentForms
+
+		def SplitBeforeSubStringsCSQ(pacSubStr, pCaseSensitive)
+			return This.SplitBeforeSubStringsCSQR(pacSubStr, pCaseSensitive, :stzList)
+
+		def SplitBeforeSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitBeforeSubStringsCS(pacSubStr, pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitBeforeSubStringsCS(pacSubStr, pCaseSensitive) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitBeforeSubStringsCS(pacSubStr, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported param type!")
+			off
+
+		#>
+
 	def SplittedBeforeSubStringsCS(pacSubStr, pCaseSensitive)
 		return This.SplitBeforeSubStringsCS(pacSubStr, pCaseSensitive)
 
@@ -36286,6 +36579,28 @@ xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 	def SplitBeforeSubStrings(pacSubStr)
 		return This.SplitBeforeSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
 	
+		#< @FunctionFluentForms
+
+		def SplitBeforeSubStringsQ(pacSubStr)
+			return This.SplitBeforeSubStringsQR(pacSubStr, :stzList)
+
+		def SplitBeforeSubStringsQR(pacSubStr, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitBeforeSubStrings(pacSubStr) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitBeforeSubStrings(pacSubStr) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitBeforeSubStringsCS(pacSubStr) )
+
+			other
+				StzRaise("Unsupported param type!")
+			off
+
+		#>
+
 	def SplittedBeforeSubStrings(pacSubStr)
 		return This.SplitBeforeSubStrings(pacSubStr)
 
@@ -36307,6 +36622,7 @@ xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 
 		return acResult
 
+..Q()
 	def SplittedBeforeSection(paSection)
 		return This.SplitBeforeSection(paSection)
 
@@ -36550,7 +36866,7 @@ xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 
 	  #-------------------------------------------------#
 	 #  SPLITTING BETWEEN TWO POSITIONS OR SUBSTRINGS  #
-	#-------------------------------------------------#
+	#=================================================#
 
 	def SplitBetweenCS(pBound1, pBound2, pCaseSensitive)
 		if NOT ( BothAreStringsOrNumbers(pBound1, pBound2) )
@@ -36586,13 +36902,51 @@ xxx		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSection(paSection)
 	def SplittedBetween(pBound1, pBound2)
 		return This.SplitBetweenCS(pBound1, pBound2, :CaseSensitive = TRUE)
 
-def SplitBetweenPositions()
+	  #------------------------------------#
+	 #  SPLITTING BETWEEN TWO POSITIONS   #
+	#------------------------------------#
 
-def SplitBetweenSubStrings()
+	def SplitBetweenPositions(n1, n2)
+		This.SplitAtSection(n1, n2)
 
+		def SplitBetweenPositionsQ(n1, n2)
+			This.SplitBetweenPositions(n1, n2)
+			return This
+
+	def SplittedBetweenPositions(n1, n2)
+		acResult = This.Copy().SplitBetweenPositionsQ(n1, n2).Content()
+		return acResult
+
+	  #------------------------------------#
+	 #  SPLITTING BETWEEN TWO SUBSTRINGS  #
+	#------------------------------------#
+
+	def SplitBetweenSubStringsCS(pacSubStr, pCaseSensitive)
+		aSections = This.FindAsSections(pacSubStr, pCaseSensitive)
+		acResult = This.SplitBetweenSections(aSections)
+		return acResult
+
+		def SplitBetweenSubStringsCSQ(pacSubStr, pCaseSensitive)
+			This.SplitBetweenSubStringsCS(pacSubStr, pCaseSensitive)
+			return This
+
+	def SplittedBetweenSubStringsCS(pacSubStr, pCaseSensitive)
+		acResult = This.Copy().SplitBetweenSubStringsCSQ(pacSubStr, pCaseSensitive).Content()
+		return acResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitBetweenSubStrings(pacSubStr)
+		return This.SplitBetweenSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+
+	def SplittedBetweenSubStrings(pacSubStr)
+		return This.SplittedBetweenSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+
+Add ...IB()
+Add ...Q()
 	  #----------------------------#
 	 #    SPLITTING TO N PARTS    #
-	#----------------------------#
+	#============================#
 
 	def SplitToNParts(n)
 		aSections = StzSplitterQ( This.NumberOfChars() ).
