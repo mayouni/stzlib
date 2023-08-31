@@ -418,7 +418,7 @@ class stzSplitter from stzListOfNumbers
 	 #  SPLITTING AT A GIVEN SECTION   #
 	#=================================#
 
-	def SplitAtSection(panSection)
+	def SplitAtSection(n1, n2)
 		/* EXAMPLE
 
 		o1 = new stzSplitter(1:8)
@@ -437,12 +437,9 @@ class stzSplitter from stzListOfNumbers
 
 		*/
 
-		if NOT ( isList(panSection) and Q(panSection).IsPairOfNumbers() )
-			StzRaise("Incorrect param type! panSection must be a pair of numbers.")
+		if NOT BothAreNumbers(n1, n2)
+			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
-
-		n1 = panSection[1]
-		n2 = panSection[2]
 
 		nLen = This.NumberOfPositions()
 		if NOT ( Q(n1).IsBetween(1, nLen) and Q(n2).IsBetween(1, nLen) )
@@ -462,15 +459,50 @@ class stzSplitter from stzListOfNumbers
 
 		return aResult
 
-	def SplitAtSectionIB(panSection)
-		if NOT ( isList(panSection) and Q(panSection).IsPairOfNumbers() )
-			StzRaise("Incorrect param type! panSection must be a pair of numbers.")
+		#< @FunnctionAlternativeForms
+
+		def SplitAtThisSection(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplitBetween(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplitBetweenPositions(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplitBetweenThesePositions(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplitBetweenManyPositions(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		#>
+
+	def SplitAtSectionIB(n1, n2)
+		if NOT BothAreNumbers(n1, n2)
+			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
-		n1 = panSection[1] + 1
-		n2 = panSection[2] - 1
+		return This.SplitAtSection(n1++, n2--)
 
-		return This.SplitAtSection(n1, n2)
+		#< @FunnctionAlternativeForms
+
+		def SplitAtThisSectionIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplitBetweenIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplitBetweenPositionsIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplitBetweenThesePositionsIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplitBetweenManyPositionsIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		#>
 
 	  #------------------------------#
 	 #  SPLITTING AT MANY SECTIONS  #
@@ -513,26 +545,40 @@ class stzSplitter from stzListOfNumbers
 
 		for i = len(aSections) to 1 step -1
 			aSplits = StzSplitterQ(aSectionToBeSplitted).SplitAtSection( aSections[i] )
+			nLenSplits = len(aSplits)
 
 			aSectionToBeSplitted = aSplits[1][1] : aSplits[1][2]
-			
-			for aSection in aSplits
-				aResult + aSection
+
+			for j = 1 to nLenSplits
+				aResult + aSplits[j]
 			next
 
 		next
 
-		del(aResult, 1)
+		ring_del(aResult, 1)
 
 		aResult = QR(aResult, :stzListOfPairs).SortedInAscending()
 
 		return aResult
 
+		#< @FunnctionAlternativeForms
+
 		def SplitAtTheseSections(paSections)
+			return This.SplitAtSections(paSections)
+
+		def SplitBetweenSections(paSections)
+			return This.SplitAtSections(paSections)
+
+		def SplitBetweenTheseSections(paSections)
 			return This.SplitAtSections(paSections)
 
 		def SplitAtManySections(paSections)
 			return This.SplitAtSections(paSections)
+
+		def SplitBetweenManySections(paSections)
+			return This.SplitAtSections(paSections)
+
+		#>
 
 	def SplitAtSectionsIB(paSections)
 		if NOT ( isList(paSections) and len(paSections) > 0 and Q(paSections).IsListOfPairsOfNumbers() )
@@ -550,17 +596,57 @@ class stzSplitter from stzListOfNumbers
 
 		return This.SplitAtSections(aTempSections)
 			
+		#< @FunnctionAlternativeForms
+
+		def SplitAtTheseSectionsIB(paSections)
+			return This.SplitAtSectionsIB(paSections)
+
+		def SplitBetweenSectionsIB(paSections)
+			return This.SplitAtSectionsIB(paSections)
+
+		def SplitBetweenTheseSectionsIB(paSections)
+			return This.SplitAtSectionsIB(paSections)
+
+		def SplitAtManySectionsIB(paSections)
+			return This.SplitAtSectionsIB(paSections)
+
+		def SplitBetweenManySectionsIB(paSections)
+			return This.SplitAtSectionsIB(paSections)
+
+		#>
+
 	  #=====================================#
 	 #  SPLITTING BEFORE A GIVEN SECTION   #
 	#=====================================#
 
-	def SplitBeforeSection(panSection)
+	def SplitBeforeSection(n1, n2)
 
-		if NOT ( isList(panSection) and Q(panSection).IsPairOfNumbers() )
-			StzRaie("Incorrect pram type! panSection must be a pair of numbers.")
+		if NOT BothAreNumbers(n1, n2)
+			StzRaise("Incorrect pram type! panSection must be a pair of numbers.")
 		ok
 
-		return This.SplitBeforePosition(panSection[1])
+		return This.SplitBeforePosition(n1)
+
+		#< @FunnctionAlternativeForm
+
+		def SplitBeforeThisSection(n1, n2)
+			return This.SplitBeforeSection(n1, n2)
+
+		#>
+
+	def SplitBeforeSectionIB(n1, n2)
+		if NOT BothAreNumbers(n1, n2)
+			StzRaise("Incorrect pram type! panSection must be a pair of numbers.")
+		ok
+
+		return This.SplitBeforeSection(n1++)
+
+		#< @FunnctionAlternativeForm
+
+		def SplitBeforeThisSectionIB(n1, n2)
+			return This.SplitBeforeSectionIB(n1, n2)
+
+		#>
 
 	  #----------------------------------#
 	 #  SPLITTING BEFORE MANY SECTIONS  #
@@ -574,23 +660,65 @@ class stzSplitter from stzListOfNumbers
 		anPos = StzListOfPairsQ(paSections).FirstItems()
 		return This.SplitBeforePositions(anPos)
 
+		#< @FunctionAlternativeForms
+
 		def SplitBeforeTheseSections(paSections)
 			return This.SplitBeforeSections(paSections)
 
 		def SplitBeforeManySections(paSections)
 			return This.SplitBeforeSections(paSections)
 
-	  #=====================================#
-	 #  SPLITTING AFTER A GIVEN SECTION   #
-	#=====================================#
+		#>
 
-	def SplitAfterSection(panSection)
-
-		if NOT ( isList(panSection) and Q(panSection).IsPairOfNumbers() )
-			StzRaie("Incorrect pram type! panSection must be a pair of numbers.")
+	def SplitBeforeSectionsIB(paSections)
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
-		return This.SplitAfterPosition(panSection[2])
+		anPos = StzListOfPairsQ(paSections).FirstItems()
+		nLen = len(anPos)
+
+		anTempPos = []
+		for i = 1 to nLen
+			anTempPos + (anPos[i] + 1)
+		next
+
+		return This.SplitBeforePositions(anTempPos)
+
+		#< @FunctionAlternativeForms
+
+		def SplitBeforeTheseSectionsIB(paSections)
+			return This.SplitBeforeSectionsIB(paSections)
+
+		def SplitBeforeManySectionsIB(paSections)
+			return This.SplitBeforeSectionsIB(paSections)
+
+		#>
+
+	  #====================================#
+	 #  SPLITTING AFTER A GIVEN SECTION   #
+	#====================================#
+
+	def SplitAfterSection(n1, n2)
+
+		if NOT BothArNumbers(n1, n2)
+			StzRaise("Incorrect pram type! n1 and n2 must be both numbers.")
+		ok
+
+		return This.SplitAfterPosition(n2)
+
+		def SplitAfterThisSection(n1, n2)
+			return This.SplitAfterSection(n1, n2)
+
+	def SplitAfterSectionIB(n1, n2)
+		if NOT BothArNumbers(n1, n2)
+			StzRaise("Incorrect pram type! n1 and n2 must be both numbers.")
+		ok
+
+		return This.SplitAfterPosition(n2--)
+
+		def SplitAfterThisSectionIB(n1, n2)
+			return This.SplitAfterSectionIB(n1, n2)
 
 	  #---------------------------------#
 	 #  SPLITTING AFTER MANY SECTIONS  #
@@ -604,11 +732,40 @@ class stzSplitter from stzListOfNumbers
 		anPos = StzListOfPairsQ(paSections).SecondItems()
 		return This.SplitAfterPositions(anPos)
 
+		#< @FunctionAlternativeForms
+
 		def SplitAfterTheseSections(paSections)
 			return This.SplitAfterSections(paSections)
 
 		def SplitAfterManySections(paSections)
 			return This.SplitAfterSections(paSections)
+
+		#>
+
+	def SplitAfterSectionsIB(paSections)
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+		ok
+
+		anPos = StzListOfPairsQ(paSections).SecondItems()
+		nLen = len(anPos)
+
+		anTempPos = []
+		for i = 1 to nLen
+			anTempPos + (anPos[i] - 1)
+		next
+
+		return This.SplitAfterPositions(anTempPos)
+
+		#< @FunctionAlternativeForms
+
+		def SplitAfterTheseSectionsIB(paSections)
+			return This.SplitAfterSectionsIB(paSections)
+
+		def SplitAfterManySectionsIB(paSections)
+			return This.SplitAfterSectionsIB(paSections)
+
+		#>
 
 	  #===================================#
 	 #   SPLITTING TO PARTS OF N ITEMS   #
