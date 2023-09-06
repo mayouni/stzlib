@@ -826,7 +826,7 @@ o1 = new stzListOfStrings([
 	"Mabrooka"
 ])
 
-? @@( o1.FindManySubstringsXTCS([ "name", "nice" ], :CaseSensitive = TRUE) )
+? @@( o1.FindManySubstringsCSXT([ "name", "nice" ], :CaseSensitive = TRUE) )
 #--> [
 #	[ "name" , [ [ 1, 13 ], [ 3, 6 ], [ 3, 21 ] ] ],
 #	[ "nice" , [ [ 3, 16 ] ] ]
@@ -1440,7 +1440,7 @@ o1 = new stzListOfStrings([
 #--> [ 2, 3, 5, 6, 8, 9, 12, 13 ]
 # Executed in 0.47 second(s)
 
-? @@( o1.DuplicatesZCS(FALSE) ) # Or DuplicatesAndTheirPositions()
+? @@( o1.DuplicatesCSZ(FALSE) ) # Or DuplicatesAndTheirPositions()
 #--> [
 #	[ "tunis",  [ 2, 3, 5, 6, 8, 9, 13 ] ],
 #	[ "regueb", [ 12 ] ]
@@ -1499,7 +1499,7 @@ o1 = new stzListOfStrings([
 #--> [ 1, 2, 3, 5, 6, 8, 9, 13, 10, 12 ]
 # Executed in 0.50 second(s)
 
-? @@( o1.DuplicatedStringsZCS(FALSE) )
+? @@( o1.DuplicatedStringsCSZ(FALSE) )
 #--> [
 #	[ "tunis",  [ 1, 2, 3, 5, 6, 8, 9, 13 ] ],
 #	[ "regueb", [ 10, 12 ] ]
@@ -1517,7 +1517,7 @@ o1 = new stzListOfStrings([
 #--> [ 1, 2, 3, 5, 6, 8, 9 ]
 # Executed in 0.35 second(s)
 
-? @@( o1.DuplicatedStringsZCS(TRUE) )
+? @@( o1.DuplicatedStringsCSZ(TRUE) )
 #--> [ [ "tunis", [ 1, 2, 3, 5, 6, 8, 9 ] ] ]
 # Executed in 0.35 second(s)
 
@@ -1610,7 +1610,7 @@ o1 = new stzListOfStrings([ "one", "ONE", "two", "TWO" ])
 #--> [ "one", "ONE", "two", "TWO" ]
 # Executed in 0.12 second(s)
 
-? @@( o1.NonDuplicatedStringsZCS(TRUE) ) # Or NonDuplicatedStringsAndTheirPositionsCS()
+? @@( o1.NonDuplicatedStringsCSZ(TRUE) ) # Or NonDuplicatedStringsAndTheirPositionsCS()
 #--> [
 #	[ "one", 1 ],
 #	[ "ONE", 2 ],

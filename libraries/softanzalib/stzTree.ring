@@ -186,4 +186,18 @@ class stzTree from stzList
 		// TODO
 
 	def show()
+		/* TODO: Generate a formatted string like this
+
+		app
+		├── api ............... data routes
+		│    └── index.mjs
+		├── browser ........... Web Components
+		│    └── index.mjs
+		├── elements .......... Custom Elements
+		│    └── my-header.mjs
+		└── pages ............. HTML file-based routing
+			└── index.html
+
+		*/
+
 		? @@( This.Content() )

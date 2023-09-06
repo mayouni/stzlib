@@ -1089,8 +1089,10 @@ o1 = new stzString("<<word>> and __word__")
 #--> TRUE
 
 ? o1.SubStringQ( "word" ).IsBoundedBy(["<<", ">>"])
+#--> TRUE
 
 proff()
+# Executed in 0.27 second(s)
 
 /*----------------
 */

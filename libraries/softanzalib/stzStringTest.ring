@@ -5793,7 +5793,7 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? o1.NthXT(2, "word", :Between = ["<<", ">>"])
 #--> 43
 
-? o1.NthXTCS(2, "WORD", :Between = ["<<", ">>"], :CS = FALSE)
+? o1.NthCSXT(2, "WORD", :Between = ["<<", ">>"], :CS = FALSE)
 #--> 43
 
 ? o1.NthSectionXT(2, "word", :Between = ["<<", ">>"])
@@ -7012,7 +7012,7 @@ o1 = new stzString("My name is Mansour. What's your name please?")
 ? @@( o1.FindMany( [ "name", "your", "please" ] ) )
 #--> [ [ 4, 33 ], [ 28 ], [ 38 ] ]
 
-? @@( o1.FindManyXTCS( [ "name", "your", "please" ], :CS = TRUE ) )
+? @@( o1.FindManyCSXT( [ "name", "your", "please" ], :CS = TRUE ) )
 #--> [ "name" = [ 4, 33 ], "your" = [ 28 ], "please" = [ 38 ] ]
 
 o1 = new stzString("My name is Mansour. What's your name please?")

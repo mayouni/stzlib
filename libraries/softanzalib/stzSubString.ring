@@ -197,7 +197,6 @@ func SomeWords(pcStr)
 	return SomeWordsCS(pcStr, :CaseSensitive = TRUE)
 
 
-
   #-----------#
  #  CLASSES  #
 #-----------#
@@ -383,7 +382,7 @@ class stzSubStringCS
 
 	#--
 
-	def OccurrencesXTCS(anOccurrences, pCaseSensitive)
+	def OccurrencesCSXT(anOccurrences, pCaseSensitive)
 		if NOT (isList(anOccurrences) and Q(anOccurrences).IsListOfNumbers())
 			StzRaise("Incorrect param type! anOccurrences must be a list of numbers.")
 		ok
@@ -403,10 +402,10 @@ class stzSubStringCS
 			return new stzOccurrencesCS(anOccurrences, This.SubString(), This.String(), pCaseSensitive)
 
 	def OccurrencesXT(anOccurrences)
-		return This.OccurrencesXTCS(anOccurrences, :CaseSensitive = TRUE)
+		return This.OccurrencesCSXT(anOccurrences, :CaseSensitive = TRUE)
 
 		def OccurrencesXTQ(anOccurrences)
-			return This.OccurrencesXTCSQ(anOccurrences, :CaseSensitive = TRUE)
+			return This.OccurrencesCSXTQ(anOccurrences, :CaseSensitive = TRUE)
 
 	#--
 
@@ -434,7 +433,7 @@ class stzSubStringCS
 	#--
 
 	def IsBoundedByCS(pacBounds, pCaseSensitive)
-		bResult = This.StringQ().ContainsSubStringBoundedByCSQ(This.SubString(), pacBounds, pCaseSensitive).Content()
+		bResult = This.StringQ().ContainsSubStringBoundedByCS(This.SubString(), pacBounds, pCaseSensitive)
 		return bResult
 
 	def IsBoundedBy(pacBounds)
@@ -488,6 +487,31 @@ class stzSubStringCS
 	def Removed()
 		return This.RemovedCS(:CaseSensitive = TRUE)
 
+	#--
+
+	def IsLowercased()
+		if This.SubStringQ().IsLowercased() and
+		   This.StringQ().Contains(This.SubString())
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInLowercase()
+			return This.IsLowercased()
+
+	def IsUppercased()
+		if This.SubStringQ().IsUppercased() and
+		   This.StringQ().Contains(This.SubString())
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInUppercase()
+			return This.IsUppercased()
 	#--
 
 	def UppercasedCS(pCaseSensitive)
@@ -599,7 +623,7 @@ class stzSubStringCS
 			return This.InsertedBeforeSubStrings(pacSubStrings)
 
 	def InsertedBeforeW(pcCondition)
-		cResult = This.String().InsertBeforeWQ(pcCondition, This.SubString()).Content()
+		cResult = This.StringQ().InsertBeforeWQ(pcCondition, This.SubString()).Content()
 		return cResult
 
 		def InsertedAtW(pcCondition)
@@ -652,5 +676,5 @@ class stzSubStringCS
 			return This.InsertedAfterSubStrings(pacSubStrings)
 
 	def InsertedAfterW(pcCondition)
-		cResult = This.String().InsertBeforeWQ(pcCondition, This.SubString()).Content()
+		cResult = This.StringQ().InsertBeforeWQ(pcCondition, This.SubString()).Content()
 		return cResult

@@ -47,11 +47,10 @@ o1 = new stzString("*2*45*78*0*")
 	# the occurences:   ^ ^  ^  ^
 	#--> [2, 4, 7, 10]
 
-# Then you can use FindAnySplittedBy() function and
+# Then you can use FindSplitsBy() function and
 # pass the "*" char as a parameter like this:
 
-? @@( o1.AnySplittedBy("*"))
-? @@( o1.FindAnySplittedBy("*") )
+? @@( o1.FindSplitsBy("*"))
 #--> [ 2, 4, 7, 10 ]
 
 ? @@( o1.SeparatedBy("*") )

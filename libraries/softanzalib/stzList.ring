@@ -2097,11 +2097,11 @@ class stzList from stzObject
 			This.ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
 			return This
 
-		def ReplaceNextCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+		def ReplaceNext(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
 			This.ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
 
-			def ReplaceNextCSQ(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
-				This.ReplaceNextCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+			def ReplaceNextQ(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
+				This.ReplaceNext(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
 				return This
 
 	def NextOccurrencesReplacedCSQ(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
@@ -4368,11 +4368,11 @@ class stzList from stzObject
 			This.RemoveNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitiy)
 			return This
 
-		def RemoveNextCS(pItem, pnStartingAt, pCaseSensitive)
+		def RemoveNext(pItem, pnStartingAt, pCaseSensitive)
 			This.RemoveNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
-			def RemoveNextCSQ(pItem, pnStartingAt, pCaseSensitive)
-				This.RemoveNextCS(pItem, pnStartingAt, pCaseSensitive)
+			def RemoveNextQ(pItem, pnStartingAt, pCaseSensitive)
+				This.RemoveNext(pItem, pnStartingAt, pCaseSensitive)
 				return This
 
 	def NextOccurrenceRemovedCS(pItem, pnStartingAt, pCaseSensitive)
@@ -5711,18 +5711,18 @@ class stzList from stzObject
 	 #  EXTRACTING NEXT ITEM STARTING AT A GIVEN POSITION  #
 	#-----------------------------------------------------#
 
-	def ExtractNextCS(pItem, pnStartingAt, pCaseSensitive)
-		if This.FindNextCS(pItem, pnStartingAt, pCaseSensitive) = 0
+	def ExtractNext(pItem, pnStartingAt, pCaseSensitive)
+		if This.FindNext(pItem, pnStartingAt, pCaseSensitive) = 0
 			StzRaise("Can't extract! pItem does not exist at the specified position.")
 		ok
 
-		This.RemoveNextCS(pItem, pnStartingAt, pCaseSensitive)
+		This.RemoveNext(pItem, pnStartingAt, pCaseSensitive)
 		return pItem
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractNext(item, pnStartingAt)
-		return This.ExtractNextCS(item, pnStartingAt, :CaseSensitive = TRUE)
+		return This.ExtractNext(item, pnStartingAt, :CaseSensitive = TRUE)
 
 	  #---------------------------------------------------------#
 	 #  EXTRACTING PREVIOUS ITEM STARTING AT A GIVEN POSITION  #
@@ -16035,7 +16035,7 @@ class stzList from stzObject
 			return TRUE
 		ok
 
-		nFindAfter = This.FindNextCS(pItem, :StartingAt = nFirstPos, pCaseSensitive)
+		nFindAfter = This.FindNext(pItem, :StartingAt = nFirstPos, pCaseSensitive)
 		if nFindAfter != 0
 			return TRUE
 		ok
@@ -16704,7 +16704,7 @@ class stzList from stzObject
 	 #  GETTING DUPLICATES AND THEIR POSITIONS  #
 	#------------------------------------------#
 
-	def DuplicatesZCS(pCaseSensitive)
+	def DuplicatesCSZ(pCaseSensitive)
 
 		# Checking params
 
@@ -16831,26 +16831,26 @@ class stzList from stzObject
 		#< @FunctionAlternativeForm
 
 		def DuplicatesAndTheirPositionsCS(pCaseSensitive)
-			return This.DuplicatesZCS(pCaseSensitive)
+			return This.DuplicatesCSZ(pCaseSensitive)
 
 		def DuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-			return This.DuplicatesZCS(pCaseSensitive)
+			return This.DuplicatesCSZ(pCaseSensitive)
 
-		def DuplicatedItemsZCS(pCaseSensitive)
-			return This.DuplicatesZCS(pCaseSensitive)
+		def DuplicatedItemsCSZ(pCaseSensitive)
+			return This.DuplicatesCSZ(pCaseSensitive)
 
 		def DuplicationsAndTheirPositionsCS(pCaseSensitive)
-			return This.DuplicatesZCS(pCaseSensitive)
+			return This.DuplicatesCSZ(pCaseSensitive)
 
-		def DuplicationsZCS(pCaseSensitive)
-			return This.DuplicatesZCS(pCaseSensitive)
+		def DuplicationsCSZ(pCaseSensitive)
+			return This.DuplicatesCSZ(pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesZ()
-		return This.DuplicatesZCS(:CaseSensitive = TRUE)
+		return This.DuplicatesCSZ(:CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -17028,7 +17028,7 @@ class stzList from stzObject
 	#------------------------------------------------------#
 	# Positions of first duplicates are also returned
 
-	def DuplicatesXTZCS(pCaseSensitive)
+	def DuplicatesCSXTZ(pCaseSensitive)
 
 		# Checking params
 
@@ -17150,27 +17150,27 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def DuplicatesAndTheirPositionsXTCS(pCaseSensitive)
-			return This.DuplicatesXTZCS(pCaseSensitive)
+		def DuplicatesAndTheirPositionsCSXT(pCaseSensitive)
+			return This.DuplicatesCSXTZ(pCaseSensitive)
 
-		def DuplicatedItemsAndTheirPositionsXTCS(pCaseSensitive)
-			return This.DuplicatesXTZCS(pCaseSensitive)
+		def DuplicatedItemsAndTheirPositionsCSXT(pCaseSensitive)
+			return This.DuplicatesCSXTZ(pCaseSensitive)
 
-		def DuplicatedItemsXTZCS(pCaseSensitive)
-			return This.DuplicatesXTZCS(pCaseSensitive)
+		def DuplicatedItemsCSXTZ(pCaseSensitive)
+			return This.DuplicatesCSXTZ(pCaseSensitive)
 
-		def DuplicationsAndTheirPositionsXTCS(pCaseSensitive)
-			return This.DuplicatesZCS(pCaseSensitive)
+		def DuplicationsAndTheirPositionsCSXT(pCaseSensitive)
+			return This.DuplicatesCSZ(pCaseSensitive)
 
-		def DuplicationsXTZCS(pCaseSensitive)
-			return This.DuplicatesXTZCS(pCaseSensitive)
+		def DuplicationsCSXTZ(pCaseSensitive)
+			return This.DuplicatesCSXTZ(pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesXTZ()
-		return This.DuplicatesXTZCS(:CaseSensitive = TRUE)
+		return This.DuplicatesCSXTZ(:CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -17198,7 +17198,7 @@ class stzList from stzObject
 	# Hence, the first occurrences of those items are not returned.
 	# To return them, use this eXTended version of the function
 
-	def FindDuplicatesXTCS(pCaseSensitive)
+	def FindDuplicatesCSXT(pCaseSensitive)
 
 		# Checking params
 
@@ -17316,21 +17316,21 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindDuplicationsXTCS(pCaseSensitive)
-			return This.FindDuplicatesXTCS(pCaseSensitive)
+		def FindDuplicationsCSXT(pCaseSensitive)
+			return This.FindDuplicatesCSXT(pCaseSensitive)
 
-		def FindDuplicationXTCS(pCaseSensitive)
-			return This.FindDuplicatesXTCS(pCaseSensitive)
+		def FindDuplicationCSXT(pCaseSensitive)
+			return This.FindDuplicatesCSXT(pCaseSensitive)
 
-		def FindDuplicatedItemsXTCS(pCaseSensitive)
-			return This.FindDuplicatesXTCS(pCaseSensitive)
+		def FindDuplicatedItemsCSXT(pCaseSensitive)
+			return This.FindDuplicatesCSXT(pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesXT()
-		return This.FindDuplicatesXTCS(:CaseSensitive = TRUE)
+		return This.FindDuplicatesCSXT(:CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17770,7 +17770,7 @@ class stzList from stzObject
 
 	def ContainsNonDuplicatedItemsCS(pCaseSensitive)
 		
-		anPos = This.FindDuplicatesXTCS(pCaseSensitive)
+		anPos = This.FindDuplicatesCSXT(pCaseSensitive)
 		nLenPos = len(anPos)
 
 		nLen = This.NumberOfItems()
@@ -18272,19 +18272,19 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NonDuplicatedItemsZCS(pCaseSensitive)
+		def NonDuplicatedItemsCSZ(pCaseSensitive)
 			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
 
 		def UndiplicatedItemsAndTheirPositionsCS(pCaseSensitive)
 			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
 
-		def UndiplicatedItemsZCS(pCaseSensitive)
+		def UndiplicatedItemsCSZ(pCaseSensitive)
 			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
 
 		def NonDuplicatesAndTheirPositionsCS(pCaseSensitive)
 			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
 
-		def NonDuplicatesZCS(pCaseSensitive)
+		def NonDuplicatesCSZ(pCaseSensitive)
 			return This.NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
 
 		#>
@@ -21137,7 +21137,7 @@ class stzList from stzObject
 	 #   FINDING THE OCCURRENCES OF MANY ITEMS IN THE LIST -- EXTENDED  #
 	#------------------------------------------------------------------#
 	
-	def FindManyXTCS(paItems, pCaseSensitive)
+	def FindManyCSXT(paItems, pCaseSensitive)
 		/*
 		o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 		? o1.FindManyXT([ :one, :two, :four ])
@@ -21154,15 +21154,15 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def FindManyXTCSQ(paItems)
-			return new stzList( This.FindManyXTCS(paItems, pCaseSensitive) )
+		def FindManyCSXTQ(paItems)
+			return new stzList( This.FindManyCSXT(paItems, pCaseSensitive) )
 
 		#
 
 	#-- CASESENSITIVITY
 
 	def FindManyXT(paItems)
-		return This.FindManyXTCS(paItems, :CaseSensitive = TRUE)
+		return This.FindManyCSXT(paItems, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -21896,7 +21896,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 		def FindNextNthCS( n, pItem, nStart, pCaseSensitive )
 			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
 
-		def FindNthNextCS( n, pItem, nStart, pCaseSensitive )
+		def FindNthNext( n, pItem, nStart, pCaseSensitive )
 			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
 
 		#>
@@ -22074,7 +22074,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		#< @FunctionAlternativeForms
 
-		def FindNextCS( pItem, nStart, pCaseSensitive )
+		def FindNext( pItem, nStart, pCaseSensitive )
 			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
 
 		def NextOccurrenceCS( pItem, nStart, pCaseSensitive )
@@ -25641,7 +25641,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	 #   GETIING MANY SECTIONS (OR SLICES) -- EXTENDED   #
 	#---------------------------------------------------#
 
-	def SectionsXTCS(pItem1, pItem2, pCaseSensitive)
+	def SectionsCSXT(pItem1, pItem2, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzList([ "T", "A", "Y", "O", "U", "B", "T", "A" ])
@@ -25679,7 +25679,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	#-- WTHOUT CASESENSITIVITY
 
 	def SectionsXT(pItem1, pItem2)
-		return This.SectionsXTCS(pItem1, pItem2, :CaseSensitive = TRUE)
+		return This.SectionsCSXT(pItem1, pItem2, :CaseSensitive = TRUE)
 
 	   #--------------------------------------------------------------#
 	  #   FINDING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS AND   #
@@ -26786,7 +26786,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	# This extented version returns along the stringified items, the list of positions of
 	# the items beeing affected by the replacement operation
 
-	def StringifyAndReplaceXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+	def StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
 		#< QtBased | Uses QString2() #>
 
 		# NOTE: General note on performance of code written here in SoftanzaLib
@@ -26901,31 +26901,31 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		#< @FunctionFluentForm
 
-		def StringifyAndReplaceXTCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive)
-			This.StringifyAndReplaceXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		def StringifyAndReplaceCSXTQ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			This.StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
 			return This
 
-		def StringifyAndReplaceXTCSQR(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
+		def StringifyAndReplaceCSXTQR(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
-				return new stzListOfstrings( This.StringifiedAndReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive) )
+				return new stzListOfstrings( This.StringifiedAndReplacedCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive) )
 			other
 				StzRaise("Unsupported return type!")
 			off
 
 		#>
 
-	def StringifiedAndReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
-		acResult = This.Copy().StringifyAndReplaceXTCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()
+	def StringifiedAndReplacedCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		acResult = This.Copy().StringifyAndReplaceCSXTQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()
 		return acResult
 
-		def ItemsStringifiedAndReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
-			return This.StringifiedAndCommaReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		def ItemsStringifiedAndReplacedCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.StringifiedAndCommaReplacedCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyAndReplaceXT(pcSubStr, pcOtherSubStr)
-		This.StringifyAndReplaceXTCS(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+		This.StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -26957,7 +26957,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	def StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
 		#< QtBased | Uses QString2() #>
 
-		aResult = This.Copy().StringifyAndReplaceXTCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()[1]
+		aResult = This.Copy().StringifyAndReplaceCSXTQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()[1]
 		This.Update(aResult)
 
 		#< @FunctionFluentForm
@@ -27017,7 +27017,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	# A special function used internally by Softanza to boost its performance
 
-	def StringifyLowercaseAndReplaceXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+	def StringifyLowercaseAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
 		#< QtBased | Uses QString2() #>
 
 		# Resolving params
@@ -27128,31 +27128,31 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 		#< @FunctionFluentForm
 
-		def StringifyLowercaseAndReplaceXTCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive)
-			This.StringifyLowercaseAndReplaceXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		def StringifyLowercaseAndReplaceCSXTQ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			This.StringifyLowercaseAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
 			return This
 
-		def StringifyLowercaseAndReplaceXTCSQR(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
+		def StringifyLowercaseAndReplaceCSXTQR(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
-				return new stzListOfstrings( This.StringifiedLowercasedAndReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive) )
+				return new stzListOfstrings( This.StringifiedLowercasedAndReplacedCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive) )
 			other
 				StzRaise("Unsupported return type!")
 			off
 
 		#>
 
-	def StringifiedLowercasedAndReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
-		acResult = This.Copy().StringifyLowercaseAndReplaceXTCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()
+	def StringifiedLowercasedAndReplacedCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		acResult = This.Copy().StringifyLowercaseAndReplaceCSXTQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()
 		return acResult
 
-		def ItemsStringifiedLowercasedAndReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
-			return This.StringifiedLowercasedAndCommaReplacedXTCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		def ItemsStringifiedLowercasedAndReplacedCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.StringifiedLowercasedAndCommaReplacedCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyLowercaseAndReplaceXT(pcSubStr, pcOtherSubStr)
-		This.StringifyLowercaseAndReplaceXTCS(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+		This.StringifyLowercaseAndReplaceCSXT(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
@@ -27185,7 +27185,7 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 	def StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
 		#< QtBased | Uses QString2() #>
 
-		aResult = This.Copy().StringifyLowercaseAndReplaceXTCSQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()[1]
+		aResult = This.Copy().StringifyLowercaseAndReplaceCSXTQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()[1]
 		This.Update(aResult)
 		
 		#< @FunctionFluentForm
@@ -37895,13 +37895,13 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	#-- IB/EXTENDED FORM
 
-	def AnItemBetweenIBCS(pMin, pMax, pCaseSensitive)
+	def AnItemBetweenCSIB(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
 	#-- IBZ/EXTENDED FORM
 
-	def AnItemBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+	def AnItemBetweenCSIBZ(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
@@ -37919,11 +37919,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	#---------------
 
-	def AnItemNotBetweenIBCS(pMin, pMax, pCaseSensitive)
+	def AnItemNotBetweenCSIB(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	def AnItemNotBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+	def AnItemNotBetweenCSIBZ(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
@@ -37941,11 +37941,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	#---------------
 
-	def AnItemBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+	def AnItemBetweenManyCSIB(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	def AnItemBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+	def AnItemBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
@@ -37963,11 +37963,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	#---------------
 
-	def AnItemNotBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+	def AnItemNotBetweenManyCSIB(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	def AnItemNotBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+	def AnItemNotBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
@@ -37985,11 +37985,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	#---------------
 
-	def NItemsBetweenIBCS(pMin, pMax, pCaseSensitive)
+	def NItemsBetweenCSIB(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	def NItemsBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+	def NItemsBetweenCSIBZ(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
@@ -38007,11 +38007,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	#---------------
 
-	def SomeItemsBetweenIBCS(pMin, pMax, pCaseSensitive)
+	def SomeItemsBetweenCSIB(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	def SomeItemsBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+	def SomeItemsBetweenCSIBZ(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
@@ -38029,11 +38029,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	#---------------
 
-	def NItemsNotBetweenIBCS(pMin, pMax, pCaseSensitive)
+	def NItemsNotBetweenCSIB(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	def NItemsNotBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+	def NItemsNotBetweenCSIBZ(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
@@ -38051,11 +38051,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	#---------------
 
-	def SomeItemsNotBetweenIBCS(pMin, pMax, pCaseSensitive)
+	def SomeItemsNotBetweenCSIB(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	def SomeItemsNotBetweenIBCSZ(pMin, pMax, pCaseSensitive)
+	def SomeItemsNotBetweenCSIBZ(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
@@ -38073,11 +38073,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	#---------------
 
-	def NItemsBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+	def NItemsBetweenManyCSIB(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	def NItemsBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+	def NItemsBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
@@ -38095,11 +38095,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	#---------------
 
-	def SomeItemsBetweenManyIBCS(pMin, pMax, pCaseSensitivity)
+	def SomeItemsBetweenManyCSIB(pMin, pMax, pCaseSensitivity)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	def SomeItemsBetweenManyIBCSZ(pMin, pMax, pCaseSensitivity)
+	def SomeItemsBetweenManyCSIBZ(pMin, pMax, pCaseSensitivity)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
@@ -38117,11 +38117,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	#---------------
 
-	def NItemsNotBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+	def NItemsNotBetweenManyCSIB(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	def NItemsNotBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+	def NItemsNotBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
@@ -38139,11 +38139,11 @@ This.Section(pnStartingAt + 1, This.NumberOfItems())
 
 	#---------------
 
-	def SomeItemsNotBetweenManyIBCS(pMin, pMax, pCaseSensitive)
+	def SomeItemsNotBetweenManyCSIB(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
-	def SomeItemsNotBetweenManyIBCSZ(pMin, pMax, pCaseSensitive)
+	def SomeItemsNotBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
