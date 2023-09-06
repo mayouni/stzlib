@@ -18,6 +18,29 @@ Show( v[@1, @2] )
 @2.Show()
 
 /*=============
+*/
+//? Q("Ring").InQ("I love RING!").IsInUppercase()
+#--> TRUE
+ 
+? The("PYTHON").SubStringInQ("ring PYTHON ruby").Lowercased()
+#--> ring python ruby
+ 
+? SubStringQ("Ring").InQ("Python Ring Ruby").BoundedBy(2Hearts())
+#--> Python ♥♥Ring♥♥ Ruby
+ 
+? TheWord("love").InQ("I love Ring!").ReplacedBy(AHeart())
+#--> I ♥ Ring!
+ 
+? Only("human").InQ([ "THE", "human", "LIFE" ]).IsInLowercase()
+#--> TRUE
+ 
+? Q("human").InQ([ "THE", "human", "LIFE" ]).Uppercased()
+#--> [ "THE", "HUMAN", "LIFE" ]
+
+? ItemsQ(["THE", "LIFE"]).InListQ([ "THE", "human", "LIFE" ]).AreBothInUppercase()
+#--> TRUE 
+
+/*-------------
 
 pron()
 
@@ -70,8 +93,14 @@ pron()
 proff()
 
 /*------------
-*/
+
 pron()
+
+? Q("human").InQ("THE human LIFE").IsInLowercase()
+#--> TRUE
+
+? Q("HUMAN").InQ("the HUMAN life").IsInUppercase()
+#--> TRUE
 
 ? The("PYTHON").SubStringInQ("ring PYTHON ruby").Lowercased()
 #--> ring python ruby
@@ -87,6 +116,27 @@ pron()
 
 proff()
 # Executed in 0.80 second(s)
+
+/*-----
+*/
+/*------------
+*/
+pron()
+
+? Only("human").InQ([ "THE", "human", "LIFE" ]).IsInLowercase()
+#--> TRUE
+
+? Q("human").InQ([ "THE", "human", "LIFE" ]).Uppercased()
+#--> [ "THE", "HUMAN", "LIFE" ]
+
+? Only("human").InQ([ "THE", "human", "LIFE" ]).IsInLowercase() # stzOnlyItem.ring
+#--> TRUE
+
+? Every(:String).InQ([ 10, "human", 20, "human", 30, "HUMAN" ]).IsInLowercase() # stzEveryItem.ring
+
+? Every(:Number).InQ([ 10, "human", 20, "human", 30, "HUMAN" ]).IsMultipleOf(10) # stzEveryItem.ring
+
+proff()
 
 /*-----
 

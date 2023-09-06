@@ -22,7 +22,7 @@
 	the object self-protection mechanism want't let him do so:
 
 		StzStringQ("hello!") {
-			EnforceConstraint('{ @.IsUpperrcase }')
+			EnforceConstraint('{ @.IsUppercase }')
 
 			# Try to break the law:
 			Update(:With = "HELLO!")

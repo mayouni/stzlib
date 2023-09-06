@@ -1824,7 +1824,7 @@ Class stzTable
 	 #  CELL FUNTCTION - EXTENDED  #
 	#-----------------------------#
 
-	def CellXTCS(pCellCol, pCellRow, pExpr, pValueORSubValue, pCaseSensitive)
+	def CellCSXT(pCellCol, pCellRow, pExpr, pValueORSubValue, pCaseSensitive)
 		/*
 		o1 = new stzTable([
 			[ :NAME,	:AGE ],
@@ -1855,7 +1855,7 @@ Class stzTable
 		StzRaise("Insuppported syntax!")
 
 	def CellXT(pCellCol, pCellRow, pExpr, pValueORSubValue)
-		return This.CellXTCS(pCellCol, pCellRow, pExpr, pValueORSubValue, :CaseSensitive = TRUE)
+		return This.CellCSXT(pCellCol, pCellRow, pExpr, pValueORSubValue, :CaseSensitive = TRUE)
 
 	  #----------------------------------------------------------------------------#
 	 #  GETIING GIVEN CELLS VALUES BY THEIR POSITIONS (COLUMN, ROW) IN THE TABLE  #
@@ -3273,7 +3273,7 @@ Class stzTable
 	 #  IN THE GIVEN CELL(S) OR COL(S) OR ROW(S)                        #
 	#------------------------------------------------------------------#
 
-	def NumberOfOccurrenceXTCS(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
+	def NumberOfOccurrenceCSXT(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzTable([
@@ -3319,18 +3319,18 @@ Class stzTable
 
 		#< @FunctionAlternativeForms
 
-		def NumberOfOccurrencesXTCS(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
-			return This.NumberOfOccurrenceXTCS(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
+		def NumberOfOccurrencesCSXT(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceCSXT(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
 
-		def CountXTCS(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
-			return This.NumberOfOccurrenceXTCS(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
+		def CountCSXT(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceCSXT(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceXT(pInCellsOrColOrRow, pValueOrSubValue)
-		return This.NumberOfOccurrenceXTCS(pInCellsOrColOrRow, pValueOrSubValue, :CaseSensitive = TRUE)
+		return This.NumberOfOccurrenceCSXT(pInCellsOrColOrRow, pValueOrSubValue, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 

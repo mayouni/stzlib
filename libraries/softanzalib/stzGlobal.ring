@@ -1,4 +1,7 @@
 
+# TODO: general - study the cmpatibility of softanza comments
+# with JSDoc (https://jsdoc.app/)
+#--> Create a generator of a static web site documentation
 
 _cSoftanzaLogo =
 '

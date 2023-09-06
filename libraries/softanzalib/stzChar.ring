@@ -10,6 +10,7 @@
 #---------------------------------------------------------------------------#
 
 /*
+
 From Qt documentation:
 
 So isNumber() will check if the given QChar is part of the unicode
@@ -18,9 +19,9 @@ other", whereas Ⅱ (roman numeral two) is classified as
 "Number, letter".
 
 "½" is a character. It is a number, but it is not a digit.
-*/
 
-/*
+-------------
+
 From Stackoverflow
 shorturl.at/cezFU
 
@@ -36,14 +37,20 @@ Binary    Hex          Comments
 
 So the quick answer is: it takes 1 to 4 bytes, depending on the first
 one which will indicate how many bytes it'll take up.
-*/
 
-/*
+-------------
+
 General note:
+
 A the Char level, SoftanzaLib uses the term Digit and not Number
 except when this is required to refer to a standard unicode feature
 or 'unavoidable' Qt feature.
+
+
 */
+
+# TODO: Add ZeroWithChars()
+#--> [\u200B\u200C\u200D\u200E\u200F\uFEFF]
 
 
   /////////////////////
