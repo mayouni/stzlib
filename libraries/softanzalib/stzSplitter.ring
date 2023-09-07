@@ -182,6 +182,8 @@ class stzSplitter from stzListOfNumbers
 	 #    SPLITTING AT    #
 	#====================#
 
+# Add SplitXT()
+
 	def SplitAt(p)
 
 		if isNumber(p)
@@ -254,6 +256,25 @@ class stzSplitter from stzListOfNumbers
 
 		def SplitAtManyPositions(panPositions)
 			return This.SplitAtPositions(panPositions)
+
+	  #--------------------------------------------#
+	 #  SPLITTING AT A GIVEN SECTION OR SECTIONS  #
+	#--------------------------------------------#
+
+	def SplitAtSection(n1, n2)
+		return This.SplitBetweenPositions(n1, n2)
+
+		def SplitAtThisSection(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+	def SplitAtSectionIB(n1, n2)
+		return This.SplitBetweenPositionsIB(n1, n2)
+
+	def SplitAtSections(panSections)
+		return This.AntiSections(panSections)
+	
+	def SplitAtSectionsIB(panSections)
+		return This.AntiSectionsIB(panSections)
 
 	  #========================#
 	 #    SPLITTING BEFORE    #

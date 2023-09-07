@@ -37026,7 +37026,7 @@ def ReplaceIBS()
 			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
 		ok
 
-		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBeforeSectionIB(paSections)
+		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBeforeSectionsIB(paSections)
 		acResult = This.Sections( aSections )
 
 		return acResult
@@ -39970,19 +39970,19 @@ def ReplaceIBS()
 
 		#>
 
-	  #------------------------------------------------------------#
-	 #   FINDING SPLITS TO PARTS OF N CHARS -- INCLUDING BOUNDS   #
-	#------------------------------------------------------------#
+	  #----------------------------------------------------#
+	 #   FINDING SPLITS TO PARTS OF N CHARS -- EXTENDED   #
+	#----------------------------------------------------#
 	# The remaing part (if any) less then n chars is also returned
 
-	def FindSplitsToPartsOfNCharsIB(n)
+	def FindSplitsToPartsOfNCharsXT(n)
 		anResult = StzSplitterQ( This.NumberOfChars() ).
-				FindSplitsToPartsOfNPositionsIB(n)
+				FindSplitsToPartsOfNPositionsXT(n)
 
 		return anResult
 
-		def FindSplitsToPartsOfNCharsIBZ(n)
-			return This.FindSplitsToPartsOfNCharsIB(n)
+		def FindSplitsToPartsOfNCharsXTZ(n)
+			return This.FindSplitsToPartsOfNCharsXT(n)
 
 	  #-------------------------------------------#
 	 #   FINDING SPLITS UNDER A GIVEN CONDTION   #
@@ -41616,21 +41616,21 @@ def ReplaceIBS()
 
 		#>
 
-	  #--------------------------------------------------------------------------#
-	 #   FINDING SPLITS (AS SECTIONS) TO PARTS OF N CHARS -- INCLUDING BOUNDS   #
-	#--------------------------------------------------------------------------#
+	  #------------------------------------------------------------------#
+	 #   FINDING SPLITS (AS SECTIONS) TO PARTS OF N CHARS -- EXTENDED   #
+	#------------------------------------------------------------------#
 	# The remaing part (if any) less then n chars is also returned
 
-	def FindSplitsToPartsOfNCharsIBZZ(n)
+	def FindSplitsToPartsOfNCharsXTZZ(n)
 		aResult = StzSplitterQ( This.NumberOfChars() ).
-				FindSplitsToPartsOfNPositionsIBZZ(n)
+				FindSplitsToPartsOfNPositionsXTZZ(n)
 
 		return aResult
 
 		#< @FunctionAlternativeForm
 
-		def FindSplitsToPartsOfNCharsAsSectionsIB(n)
-			return This.FindSplitsToPartsOfNCharsIBZZ(n)
+		def FindSplitsToPartsOfNCharsAsSectionsXT(n)
+			return This.FindSplitsToPartsOfNCharsXTZZ(n)
 
 		#>
 
@@ -43274,19 +43274,19 @@ def ReplaceIBS()
 
 		#>
 
-	  #---------------------------------------------------------------#
-	 #   FINDING NTH SPLIT TO PARTS OF N CHARS -- INCLUDING BOUNDS   #
-	#---------------------------------------------------------------#
+	  #-------------------------------------------------------#
+	 #   FINDING NTH SPLIT TO PARTS OF N CHARS -- EXTENDED   #
+	#-------------------------------------------------------#
 	# The remaing part (if any) less then n chars is also returned
 
-	def FindNthSplitToPartsOfNCharsIB(n, nPos)
+	def FindNthSplitToPartsOfNCharsXT(n, nPos)
 		nResult = StzSplitterQ( This.NumberOfChars() ).
-				FindNthSplitToPartsOfNPositionsIB(n, nPos)
+				FindNthSplitToPartsOfNPositionsXT(n, nPos)
 
 		return nResult
 
-		def FindNthSplitToPartsOfNCharsIBZ(n, nPos)
-			return This.FindNthSplitToPartsOfNCharsIB(n, nPos)
+		def FindNthSplitToPartsOfNCharsXTZ(n, nPos)
+			return This.FindNthSplitToPartsOfNCharsXT(n, nPos)
 
 	  #----------------------------------------------#
 	 #   FINDING NTH SPLIT UNDER A GIVEN CONDTION   #
@@ -46602,19 +46602,19 @@ def ReplaceIBS()
 
 		#>
 
-	  #-----------------------------------------------------------------#
-	 #   FINDING FIRST SPLIT TO PARTS OF N CHARS -- INCLUDING BOUNDS   #
-	#-----------------------------------------------------------------#
+	  #---------------------------------------------------------#
+	 #   FINDING FIRST SPLIT TO PARTS OF N CHARS -- EXTENDED   #
+	#---------------------------------------------------------#
 	# The remaing part (if any) less then n chars is also returned
 
-	def FindFirstSplitToPartsOfNCharsIB(nPos)
+	def FindFirstSplitToPartsOfNCharsXT(nPos)
 		nResult = StzSplitterQ( This.NumberOfChars() ).
-				FindFirstSplitToPartsOfNPositionsIB(nPos)
+				FindFirstSplitToPartsOfNPositionsXT(nPos)
 
 		return nResult
 
-		def FindFirstSplitToPartsOfNCharsIBZ(nPos)
-			return This.FindFirstSplitToPartsOfNCharsIB(nPos)
+		def FindFirstSplitToPartsOfNCharsXTZ(nPos)
+			return This.FindFirstSplitToPartsOfNCharsXT(nPos)
 
 	  #------------------------------------------------#
 	 #   FINDING FIRST SPLIT UNDER A GIVEN CONDTION   #
@@ -49935,15 +49935,16 @@ def ReplaceIBS()
 	#----------------------------------------------------------------#
 	# The remaing part (if any) less then n chars is also returned
 
-	def FindLastSplitToPartsOfNCharsIB(nPos)
+	def FindLastSplitToPartsOfNCharsXT(nPos)
 		nResult = StzSplitterQ( This.NumberOfChars() ).
-				FindLastSplitToPartsOfNPositionsIB(nPos)
+				FindLastSplitToPartsOfNPositionsXT(nPos)
 
 		return nResult
 
-		def FindLastSplitToPartsOfNCharsIBZ(nPos)
-			return This.FindLastSplitToPartsOfNCharsIB(nPos)
+		def FindLastSplitToPartsOfNCharsXTZ(nPos)
+			return This.FindLastSplitToPartsOfNCharsXT(nPos)
 
++ def FindLastSplitToPartsOfNCHarsWTZZ(nPos)
 	  #-----------------------------------------------#
 	 #   FINDING LAST SPLIT UNDER A GIVEN CONDTION   #
 	#===============================================#
