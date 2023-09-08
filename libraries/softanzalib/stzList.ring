@@ -26488,19 +26488,22 @@ class stzList from stzObject
 	#===================================#
 
 	def Range(pnStart, pnRange)
+
 		# Chacking params
 
-		if isString(pnStart)
-			if pnStart = :First or pnStart = :FirstChar
-				pnStart = 1
-
-			but pnStart = :Last or pnStart = :LastChar
-				pnStart = This.NumberOfItems()
+		if CheckParams()
+			if isString(pnStart)
+				if pnStart = :First or pnStart = :FirstChar
+					pnStart = 1
+	
+				but pnStart = :Last or pnStart = :LastChar
+					pnStart = This.NumberOfItems()
+				ok
 			ok
-		ok
-
-		if NOT Q([pnStart, pnRange]).BothAreNumbers()
-			StzRaise("Incorrect param type! pnStart and pnRange must be both numbers.")
+	
+			if NOT Q([pnStart, pnRange]).BothAreNumbers()
+				StzRaise("Incorrect param type! pnStart and pnRange must be both numbers.")
+			ok
 		ok
 
 		# Doing the job
@@ -26617,6 +26620,49 @@ class stzList from stzObject
 
 			def AllRangesIncludingQ(paRanges)
 				return new stzList( This.AllRangesIncluding(paRanges) )
+	
+		#>
+
+	  #---------------------------------------------------------------------------#
+	 #   GETIING THE ANTI-RANGES OF A GIVEN SET OF SECTIONS -- INCLUDING BOUNDS  #
+	#---------------------------------------------------------------------------#
+
+	def AntiRangesIB(paRanges)
+		aSections = RangesToSections(paRanges)
+		aResult = This.AntiSectionsIB(aSections)
+
+		return aResult
+
+		def RangesOtherThanIB(paRanges)
+			return This.AntiRangesIB()
+
+		#< @FunctionFluentForm
+
+		def AntiRangesIBQ(paRanges)
+			return new stzList( This.AntiRangesIB(paRanges) )
+
+		#>
+
+	def RangesAndAntiRangesIB(paRanges)
+		aSections = SectionsToRanges(paRanges)
+		aResult = This.SectionsAndAntiSectionsIB(aSections)
+		
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def RangesAndAntiRangesIBQ(paRanges)
+			return new stzList( This.RangesAndAntiRangesIB(paRanges) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AllRangesIncludingIB(paRanges)
+			return This.RangesAndAntiRangesIB(paRanges)
+
+			def AllRangesIncludingIBQ(paRanges)
+				return new stzList( This.AllRangesIncludingIB(paRanges) )
 	
 		#>
 
