@@ -5706,6 +5706,7 @@ class stzList from stzObject
 
 		def FirstItemPopped()
 			return This.ExtractFirstItem()
+
 	  #----------------------------#
 	 #  EXTRACTING THE LAST ITEM  #
 	#----------------------------#
@@ -22308,7 +22309,7 @@ class stzList from stzObject
 		def FindNextNthCS( n, pItem, nStart, pCaseSensitive )
 			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
 
-		def FindNthNext( n, pItem, nStart, pCaseSensitive )
+		def FindNthNextCS( n, pItem, nStart, pCaseSensitive )
 			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
 
 		#>
@@ -22486,7 +22487,7 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindNext( pItem, nStart, pCaseSensitive )
+		def FindNextCS( pItem, nStart, pCaseSensitive )
 			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
 
 		def NextOccurrenceCS( pItem, nStart, pCaseSensitive )
@@ -25990,7 +25991,7 @@ class stzList from stzObject
 			def SectionBetweenPositionsQ(n1, n2)
 				return This.SectionQ(n1, n2)
 
-			def SectionBetweenPositionsQ(n1, n2, pcReturnType)
+			def SectionBetweenPositionsQR(n1, n2, pcReturnType)
 				return This.SectionQ(n1, n2, pcReturnType)
 
 		#>
@@ -26097,11 +26098,12 @@ class stzList from stzObject
 	def FindAntiSections(paSections)
 		/* EXAMPLE
 		o1 = new stzList("A":"J")
-		? o1.AntiSections( :Of = [ [3,5], [7,8] ])
-		#--> [ ["A", "B"], ["F"], ["I", "J"] ]
 
 		? o1.FindAntiSections( :Of = [ [3,5], [7,8] ])
 		#--> [ [1, 2], [6, 6], [9, 10] ]
+
+		? o1.AntiSections( :Of = [ [3,5], [7,8] ])
+		#--> [ ["A", "B"], ["F"], ["I", "J"] ]
 
 		*/
 
@@ -26206,8 +26208,10 @@ class stzList from stzObject
 
 	def FindAsSectionsAndAntiSections(paSections)
 		aAntiSections = This.FindAntiSections(paSections)
+		nLen = len(aAntiSections)
 
-		for aList in aAntiSections
+		for i = 1 to nLen
+			aList = aAntiSections[i]
 			if len(aList) = 1
 				aList + aList[1]
 
@@ -26219,8 +26223,10 @@ class stzList from stzObject
 		next
 
 		aAllSections = aAntiSections
-		for aPair in paSections
-				aAllSections + aPair
+		nLen = len(aAllSections)
+
+		for i = 1 to nLen
+				aAllSections + aAllSections[i]
 		next
 
 		aAllSections = StzListOfPairsQ(aAllSections).SortedInAscending()
@@ -26279,9 +26285,207 @@ class stzList from stzObject
 	
 		#>
 
-	  #-----------------------------------#
+	   #--------------------------------------------------------------#
+	  #   FINDING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS AND   #
+	 #   RETURNING THEM AS PAIRS OF NUMBERS  -- INCLUDING BOUNDS    #
+	#--------------------------------------------------------------#
+
+	def FindAntiSectionsIB(paSections)
+		/* EXAMPLE
+		o1 = new stzList("A":"J")
+
+		? o1.FindAntiSections( :Of = [ [3,5], [7,8] ])
+		#--> [ [1, 3], [5, 7], [8, 10] ]
+
+
+		*/
+
+		if CheckParams()
+			if isList(paSections) and Q(paSections).IsOfNamedParam()
+				paSections = paSections[2]
+			ok
+	
+			if isList(paSections) and len(paSections) = 0
+				return []
+			ok
+	
+			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+				StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		# Doing the job
+
+		aSorted = StzListOfPairsQ(paSections).SortedInAscending()
+	
+		nLen = len(aSorted)
+
+		aAntiSectionsIB = []
+		n1 = 1
+
+		i = 0
+		bLastPair = FALSE
+
+		for i = 1 to nLen
+
+			if i = nLen
+				bLastPair = TRUE
+			ok
+
+			aPair = aSorted[i]
+
+			if aPair[1] > n1
+				n2 =  aPair[1]
+				aAntiSectionsIB + [ n1, n2 ]
+			ok
+
+			if NOT bLastPair
+				n1 = aPair[2]
+			ok
+		next
+
+		nLast = aSorted[ nLen ][2]
+		nLenList = This.NumberOfItems()
+
+		if nLast < nLenList
+			aAntiSectionsIB + [ nLast, nLenList ]
+		ok
+
+		aResult = aAntiSectionsIB
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def FindAntiSectionsIBQ(paSections)
+			return This.FindAntiSectionsIBQR(paSections, :stzList)
+
+		def FindAntiSectionsIBQR(paSections, pcReturnType)
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindAntiSectionsIB(paSections) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.FindAntiSectionsIB(paSections) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.FindAntiSectionsIB(paSections) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		def AntiSectionsAsPairsOfNumbersIB(paSections)
+			return This.FindAntiSectionsIB(paSections)
+
+	def AntiSectionsIB(paSections)
+		aResult = This.Sections( This.FindAntiSectionsIB(paSections) )
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def AntiSectionsIBQ(paSections)
+			return new stzList( This.AntiSectionsIB(paSections) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SectionsOtherThanIB(paSections)
+			return This.AntiSectionsIB(paSections)
+
+			def SectionsOtherThanIBQ(paSections)
+				return This.AntiSectionsIBQ(paSections)
+
+		#>
+
+	def FindAsSectionsAndAntiSectionsIB(paSections)
+		aAntiSectionsIB = This.FindAntiSectionsIB(paSections)
+		nLen = len(aAntiSectionsIB)
+
+		for i = 1 to nLen
+			aList = aAntiSectionsIB[i]
+			if len(aList) = 1
+				aList + aList[1]
+
+			but len(aList) > 2
+				n1 = aList[1]
+				n2 = aList[len(aList)]
+				aList = [n1, n2]
+			ok
+		next
+
+		aAllSectionsIB = aAntiSectionsIB
+		nLen = len(aAllSectionsIB)
+
+		for i = 1 to nLen
+				aAllSections + aAllSectionsIB[i]
+		next
+
+		aAllSectionsIB = StzListOfPairsQ(aAllSectionsIB).SortedInAscending()
+
+		aResult = aAllSectionsIB
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def FindAsSectionsAndAntiSectionsIBQ(paSections)
+			return This.FindAsSectionsAndAntiSectionsIBQR(paSections, :stzList)
+
+		def FindAsSectionsAndAntiSectionsIBQR(paSections, pcReturnType)
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param type! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FindAsSectionsAndAntiSectionsIB(paSections) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.FindAsSectionsAndAntiSectionsIB(paSections) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.FindAsSectionsAndAntiSectionssIB(paSections) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		def SectionsAndAntiSectionsAsPairsOfNumbersIB(paSections)
+			return This.FindAsSectionsAndAntiSectionsIB(paSections)
+
+	def SectionsAndAntiSectionsIB(paSections)
+		aAllSectionsIB = This.FindAsSectionsAndAntiSectionsIB(paSections)
+		aResult = This.Sections(aAllSectionsIB)
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def SectionsAndAntiSectionsIBQ(paSections)
+			return new stzList( This.SectionsAntiSectionsIB(paSections) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AllSectionsIncludingIB(paSections)
+			return This.SectionsAndAntiSectionsIB(paSections)
+
+			def AllSectionsIncludingIBQ(paSections)
+				return new stzList( This.AllSectionsIncludingIB(paSections) )
+	
+		#>
+
+	  #===================================#
 	 #    GETTING A RANGE OF THE LIST    #
-	#-----------------------------------#
+	#===================================#
 
 	def Range(pnStart, pnRange)
 		# Chacking params
