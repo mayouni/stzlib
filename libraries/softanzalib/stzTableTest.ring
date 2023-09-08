@@ -1568,7 +1568,7 @@ o1 = new stzTable([
 ? o1.Col(:First)
 #--> [ "001", "002", "003" ]
 
-? o1.Col(:Last)
+? o1.Col(:Last) # Works when CheckParams() = TRUE, otherwise use LastCol()
 #--> [ 12499.20, 10890.10, 12740.30 ]
 
 proff()
@@ -1589,7 +1589,7 @@ o1 = new stzTable([
 ? o1.Row(:First)
 #--> [ "001", "Salem", 12499.20 ]
 
-? o1.Row(:Last)
+? o1.Row(:Last) # Works when CheckParams() = TRUE, otherwise use LAstRow()
 #--> [ "003", "Sonia", 12740.30 ]
 
 proff()

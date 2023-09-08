@@ -4675,7 +4675,7 @@ class stzString from stzObject
 			return This.FindFirstMarquer()
 
 	def FindLastMarquer()
-			return This.FindNthMarquer(:Last)
+			return This.FindNthMarquer(This.NumberOfMarquers())
 
 		def LastMarquerOccurrence()
 			return This.FindLastMarquer()
@@ -26268,36 +26268,38 @@ def ReplaceIBS()
 
 		# Resolving the n1 and n2 params
 
-		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
-			n1 = n1[2]
-		ok
-
-		if isString(n1)
-			if Q(n1).IsOneOfThese([ :First, :FirstChar ])
-				n1 = 1
-			but Q(n1).IsOneOfThese([ :Last, :LastChar ])
-				n1 = This.NumberOfChars()
+		if CheckParams()
+			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
+				n1 = n1[2]
 			ok
-		ok
-
-		if NOT isNumber(n1)
-			StzRaise("Incorrect param type! n1 must be a number.")
-		ok
-
-		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToPositionOf ])
-			n2 = n2[2]
-		ok
-
-		if isString(n2)
-			if Q(n2).IsOneOfThese([ :Last, :LastChar ])
-				n2 = This.NumberOfChars()
-			but Q(n1).IsOneOfThese([ :First, :FirstChar ])
-				n2 = 1
+	
+			if isString(n1)
+				if Q(n1).IsOneOfThese([ :First, :FirstChar ])
+					n1 = 1
+				but Q(n1).IsOneOfThese([ :Last, :LastChar ])
+					n1 = This.NumberOfChars()
+				ok
 			ok
-		ok
-
-		if NOT isNumber(n2)
-			StzRaise("Incorrect param type! n2 must be a number.")
+	
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+	
+			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToPositionOf ])
+				n2 = n2[2]
+			ok
+	
+			if isString(n2)
+				if Q(n2).IsOneOfThese([ :Last, :LastChar ])
+					n2 = This.NumberOfChars()
+				but Q(n1).IsOneOfThese([ :First, :FirstChar ])
+					n2 = 1
+				ok
+			ok
+	
+			if NOT isNumber(n2)
+				StzRaise("Incorrect param type! n2 must be a number.")
+			ok
 		ok
 
 		# Doing the job
@@ -26314,17 +26316,31 @@ def ReplaceIBS()
 
 		return anResult
 
+		#< @FunctionAlternativeForm
+
+		def FindInSectionCSZ(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInSection(pcSubStr, n1, n2)
 		return This.FindInSectionCS(pcSubStr, n1, n2, :CaseSensitive = TRUE)
 		
+		#< @FunctionAlternativeForm
+
+		def FindInSectionZ(pcSubStr, n1, n2)
+			return This.FindInSection(pcSubStr, n1, n2)
+
+		#>
+
 	   #----------------------------------------------------------#
 	  #  FINDING OCCURRENCES OF A SIUBSTRING IN A GIVEN SECTION  #
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS               #
 	#----------------------------------------------------------#
 
-	def FindInSectionAsSectionsCS(pcSubStr, n1, n2, pCaseSensitive)
+	def FindInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
 		if NOT isString(pcSubStr)
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
@@ -26345,37 +26361,74 @@ def ReplaceIBS()
 
 		return aResult
 	
+		#< @FunctionAlternativeForm
+
+		def FindInSectionAsSectionsCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindInSectionAsSections(pcSubStr, n1, n2)
+	def FindInSectionZZ(pcSubStr, n1, n2)
 		return This.FindInSectionAsSectionsCS(pcSubStr, n1, n2, :CaseSensitive = TRUE)
 
-	  #-------------------------------------------------------------#
-	 #  FINDING OCCURRENCES OF A SUBSTRING IN SOME GIVEN SECTIONS  #
-	#-------------------------------------------------------------#
+		#< @FunctionAlternativeForm
+
+		def FindInSectionAsSections(pcSubStr, n1, n2)
+			return This.FindInSectionZZ(pcSubStr, n1, n2)
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #  FINDING OCCURRENCES OF A SUBSTRING IN MANY SECTIONS  #
+	#-------------------------------------------------------#
 
 	def FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		anResult = StzListOfPairsQ( This.FindInSectionsAsSectionsCS(pcSubStr, paSections, pCaseSensitive) ).FirstItems()
 		return anResult
 
+		#< @FunctionAlternativeForms
+
 		def FindInManySectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return This.FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		#--
+
+		def FindInSectionsCSZ(pcSubStr, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def FindInManySectionsCSZ(pcSubStr, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInSections(pcSubStr, paSections)
 		return This.FindInSectionsCS(pcSubStr, paSections, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def FindInManySections(pcSubStr, paSections)
 			return This.FindInSections(pcSubStr, paSections)
 
-	   #----------------------------------------------------------------------#
-	  #  FINDING OCCURRENCES OF A SUBSTRING IN SOME GIVEN SECTION SECTIONS   #
-	 #  AND RETURNING THEIR POSITIONS AS SECTIONS                           #
-	#----------------------------------------------------------------------#
+		#--
 
-	def FindInSectionsAsSectionsCS(pcSubStr, paSections, pCaseSensitive)
+		def FindInSectionsZ(pcSubStr, paSections)
+			return This.FindInSections(pcSubStr, paSections)
+
+		def FindInManySectionsZ(pcSubStr, paSections)
+			return This.FindInSections(pcSubStr, paSections)
+
+		#>
+
+	   #--------------------------------------------------------#
+	  #  FINDING OCCURRENCES OF A SUBSTRING IN MANY SECTIONS   #
+	 #  AND RETURNING THEIR POSITIONS AS SECTIONS             #
+	#--------------------------------------------------------#
+
+	def FindInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
 		if NOT isString(pcSubStr)
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
@@ -26398,16 +26451,251 @@ def ReplaceIBS()
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def FindInSectionsAsSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.FindInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+
+		def FindInManySectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+			return This.FindInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+
 		def FindInManySectionsAsSectionsCS(pcSubStr, paSections, pCaseSensitive)
-			return This.FindInSectionsAsSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.FindInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindInSectionsAsSections(pcSubStr, paSections)
-		return This.FindInSectionsAsSectionsCS(pcSubStr, paSections, :CaseSensitive = TRUE)
+	def FindInSectionsZZ(pcSubStr, paSections)
+		return This.FindInSectionsCSZZ(pcSubStr, paSections, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindInSectionsAsSections(pcSubStr, paSections)
+			return This.FindInSectionsZZ(pcSubStr, paSections)
+
+		def FindInManySectionsZZ(pcSubStr, paSections)
+			return This.FindInSectionsZZ(pcSubStr, paSections)
 
 		def FindInManySectionsAsSections(pcSubStr, paSections)
-			return This.FindInManySectionsAsSections(pcSubStr, paSections)
+			return This.FindInSectionsZZ(pcSubStr, paSections)
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF A SUBSTRING IN A GIVEN SECTION  #
+	#============================================================#
+
+	def FindNthInSectionCS(n, pcSubStr, n1, n2, pCaseSensitive)
+
+		# Resolving the n1 and n2 params
+
+		if CheckParams()
+			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
+				n1 = n1[2]
+			ok
+	
+			if isString(n1)
+				if Q(n1).IsOneOfThese([ :First, :FirstChar ])
+					n1 = 1
+				but Q(n1).IsOneOfThese([ :Last, :LastChar ])
+					n1 = This.NumberOfChars()
+				ok
+			ok
+	
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+	
+			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToPositionOf ])
+				n2 = n2[2]
+			ok
+	
+			if isString(n2)
+				if Q(n2).IsOneOfThese([ :Last, :LastChar ])
+					n2 = This.NumberOfChars()
+				but Q(n1).IsOneOfThese([ :First, :FirstChar ])
+					n2 = 1
+				ok
+			ok
+	
+			if NOT isNumber(n2)
+				StzRaise("Incorrect param type! n2 must be a number.")
+			ok
+		ok
+
+		# Doing the job
+
+		nPos = This.SectionQ(n1, n2).FindNthCS(n, pcSubStr, pCaseSensitive)
+		nResult = n1 + nPos - 1
+
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindNthInSectionCSZ(n, pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindNthInSectionCS(n, pcSubStr, n1, n2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthInSection(n, pcSubStr, n1, n2)
+		return This.FindNthInSectionCS(n, pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		
+		#< @FunctionAlternativeForm
+
+		def FindNthInSectionZ(n, pcSubStr, n1, n2)
+			return This.FindNthInSection(n, pcSubStr, n1, n2)
+
+		#>
+
+	   #-------------------------------------------------------------#
+	  #  FINDING NTH OCCURRENCE OF A SIUBSTRING IN A GIVEN SECTION  #
+	 #  AND RETURNING ITS POSITION AS SECTIONS                     #
+	#-------------------------------------------------------------#
+
+	def FindNthInSectionCSZZ(n, pcSubStr, n1, n2, pCaseSensitive)
+		if CheckParams()
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+		ok
+
+		nPos = This.FindNthInSectionCS(n, pcSubStr, n1, n2, pCaseSensitive)
+		nLenSubStr = Q(pcSubStr).NumberOfChars()
+		anResult = [nPos, nPos + nLenSubStr - 1]
+		
+		return anResult
+	
+		#< @FunctionAlternativeForm
+
+		def FindNthInSectionAsSectionCS(n, pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindNthInSectionCSZZ(n, pcSubStr, n1, n2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthInSectionZZ(n, pcSubStr, n1, n2)
+		return This.FindNthInSectionCSZZ(n, pcSubStr, n1, n2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def FindNthInSectionAsSection(n, pcSubStr, n1, n2)
+			return This.FindNthInSectionZZ(n, pcSubStr, n1, n2)
+
+		#>
+
+	  #----------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF A SUBSTRING IN MANY SECTIONS  #
+	#----------------------------------------------------------#
+
+	def FindNthInSectionsCS(n, pcSubStr, paSections, pCaseSensitive)
+		nResult = This.FindNthInSectionsCSZZ(n, pcSubStr, paSections, pCaseSensitive)[1]
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def FindInManySectionsCS(n, pcSubStr, paSections, pCaseSensitive)
+			return This.FindNthInSectionsCS(n, pcSubStr, paSections, pCaseSensitive)
+
+		#--
+
+		def FindNthInSectionsCSZ(n, pcSubStr, paSections, pCaseSensitive)
+			return This.FindNthInSectionsCS(n, pcSubStr, paSections, pCaseSensitive)
+
+		def FindNthInManySectionsCSZ(n, pcSubStr, paSections, pCaseSensitive)
+			return This.FindNthInSectionsCS(n, pcSubStr, paSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthInSections(n, pcSubStr, paSections)
+		return This.FindNthInSectionsCS(n, pcSubStr, paSections, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNthInManySections(n, pcSubStr, paSections)
+			return This.FindNthInSections(n, pcSubStr, paSections)
+
+		#--
+
+		def FindNthInSectionsZ(n, pcSubStr, paSections)
+			return This.FindNthInSections(n, pcSubStr, paSections)
+
+		def FindNthInManySectionsZ(n, pcSubStr, paSections)
+			return This.FindNthInSections(n, pcSubStr, paSections)
+
+		#>
+
+	   #-----------------------------------------------------------#
+	  #  FINDING NTH OCCURRENCE OF A SUBSTRING IN MANY SECTIONS   #
+	 #  AND RETURNING THEIR POSITIONS AS SECTIONS                #
+	#-----------------------------------------------------------#
+
+	def FindNthInSectionsCSZZ(n, pcSubStr, paSections, pCaseSensitive)
+		if CheckParams()
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
+			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		nLenSubStr = Q(pcSubStr).NumberOfChars()
+		nLen = len(paSections)
+		aResult = []
+		nCounter = 0
+
+		for i = 1 to nLen
+			anPos = This.FindInSectionCS(pcSubStr, paSections[i][1], paSections[i][2], pCaseSensitive)
+			nLenPos = len(anPos)
+			for j = 1 to nLenPos
+				nCounter++
+				if nCounter = n
+					aResult = [ anPos[j], (anPos[j] + nLenSubStr - 1) ]
+					exit
+				ok
+			next
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNthInSectionsAsSectionCS(n, pcSubStr, paSections, pCaseSensitive)
+			return This.FindNthInSectionsCSZZ(n, pcSubStr, paSections, pCaseSensitive)
+
+		def FindNthInManySectionsCSZZ(n, pcSubStr, paSections, pCaseSensitive)
+			return This.FindNthInSectionsCSZZ(n, pcSubStr, paSections, pCaseSensitive)
+
+		def FindNthInManySectionsAsSectionCS(n, pcSubStr, paSections, pCaseSensitive)
+			return This.FindNthInSectionsCSZZ(n, pcSubStr, paSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthInSectionsZZ(n, pcSubStr, paSections)
+		return This.FindNthInSectionsCSZZ(n, pcSubStr, paSections, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNthInSectionsAsSection(n, pcSubStr, paSections)
+			return This.FindNthInSectionsZZ(pcSubStr, paSections)
+
+		def FindNthInManySectionsZZ(n, pcSubStr, paSections)
+			return This.FindNthInSectionsZZ(n, pcSubStr, paSections)
+
+		def FindNthInManySectionsAsSection(n, pcSubStr, paSections)
+			return This.FindNthInSectionsZZ(n, pcSubStr, paSections)
+
+		#>
+
 
 	   #===========================================================================#
 	  #  FINDING ALL OCCURRENCES OF A SUBSTRING, STARTING FROM A GIVEN POSITION,  #
@@ -27658,7 +27946,8 @@ def ReplaceIBS()
 	#----------------------------------------------------#
 
 	def OccursForTheLastTimeCS(pIn, pnAt, pCaseSensitive)
-		return This.OccursForTheNthTimeCS(:Last, pIn, pnAt, pCaseSensitive)
+		nLast = Q(pIn).FindLastCS(This.Content(), pCaseSensitive)
+		return This.OccursForTheNthTimeCS(nLast, pIn, pnAt, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -28280,10 +28569,12 @@ def ReplaceIBS()
 	#--------------------------------------------------------#
 
 	def FindNthBetweenCS(n, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		if n = :First or n = :FirstSubString
-			n = 1
-		but n = :Last or n = :LastSubString
-			n = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		if CheckParams()
+			if n = :First or n = :FirstSubString
+				n = 1
+			but n = :Last or n = :LastSubString
+				n = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			ok
 		ok
 
 		anPositions = This.FindBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
@@ -28325,7 +28616,8 @@ def ReplaceIBS()
 	#----------------------------------------------------------#
 
 	def FindLastBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		nResult = This.FindNthBetweenCS(:Last, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		aSection = This.FindBetweenCSZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		nResult = This.FindLastInSectionCS(pcSubStr, aSection)
 		return nResult
 
 		def FindLastSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
@@ -56036,33 +56328,69 @@ def ReplaceIBS()
 
 	def ExtractCS(pcSubStr, pCaseSensitive)
 		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
-			StzRaise("Can't extract the substring! It does not exist in the string.")
+			StzRaise("Can't extract the substring It does not exist in the string.")
 		ok
 
 		This.RemoveCS(pcSubStr, pCaseSensitive)
 		return pcSubStr
+
+		def PopCS(pcSubStr, pCaseSensitive)
+			return This.ExtractCS(pcSubStr, pCaseSensitive)
+
+	def SubStringExtractedCS(pcSubStr, pCaseSensitive)
+		return This.ExtractCS(pcSubStr, pCaseSensitive)
+
+		def SubStringPoppedCS(pcSubStr, pCaseSensitive)
+			return This.SubStringExtractedCS(pcSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def Extract(pcSubStr)
 		return This.ExtractCS(pcSubStr, :CaseSensitive = TRUE)
 
+		def Pop(pcSubStr)
+			return This.Extract(pcSubStr)
+
+	def SubStringExtracted(pcSubStr)
+		return This.Extract(pcSubStr)
+
+		def SubStringPopped(pcSubStr)
+			return This.SubStringExtracted(pcSubStr)
+
 	  #----------------------------------------------#
 	 #  EXTRACTING MANY SUBSTRINGS FROM THE STRING  #
 	#----------------------------------------------#
 
-	def ExtractManyCS(pacSubStrings, pCaseSensitive)
-		if NOT This.ContainsManyCS(pacSubStrings, pCaseSensitive)
-			StzRaise("Can't extract the substrings! Items in pacSubStrings do not exist in the list.")
+	def ExtractManyCS(paSubStrings, pCaseSensitive)
+		if NOT This.ContainsManyCS(paSubStrings, pCaseSensitive)
+			StzRaise("Can't extract the substrings! SubStrings in paSubStrings do not exist in the string.")
 		ok
 
-		This.RemoveManyCS(pacSubStrings, pCaseSensitive)
-		return pacSubStrings
+		This.RemoveManyCS(paSubStrings, pCaseSensitive)
+		return paSubStrings
+
+		def PopManyCS(paSubStrings, pCaseSensitive)
+			return This.ExtractManyCS(paSubStrings, pCaseSensitive)
+
+	def ManySubStringsExtractedCS(paSubStrings, pCaseSensitive)
+		return This.ExtractManyCS(paSubStrings, pCaseSensitive)
+
+		def ManySubStringsPoppedCS(paSubStrings, pCaseSensitive)
+			return This.ExtractManyCS(paSubStrings, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ExtractMany(pacSubStrings)
-		return This.ExtractManyCS(pacSubStrings, :pCaseSensitive = TRUE)
+	def ExtractMany(paSubStrings)
+		return This.ExtractManyCS(paSubStrings, :pCaseSensitive = TRUE)
+
+		def PopMany(paSubStrings)
+			return This.ExtractMany(paSubStrings)
+
+	def ManySubStringsExtracted(paSubStrings)
+		return This.ExtractMany(paSubStrings)
+
+		def ManySubStringsPopped(paSubStrings)
+			return This.ExtractMany(paSubStrings)
 
 	  #-------------------------------------------------#
 	 #  EXTRACTING ALL THE SUBSTRINGS FROM THE STRING  #
@@ -56073,26 +56401,71 @@ def ReplaceIBS()
 		This.Clear()
 		return aResult
 
+		def PopAll()
+			return This.ExtractAll()
+
+	def AllStringExtracted()
+		return This.ExtractAll()
+
+		def AllStringPopped()
+			return This.ExtractAll()
+
 	  #---------------------------#
 	 #  EXTRACTING THE NTH CHAR  #
 	#---------------------------#
 
 	def ExtractAt(n)
-		if isString(n) and ( n = :Last or n = :LastChar )
-			n = This.NumberOfItems()
+		if isString(n) and ( n = :Last or n = :LastSubString )
+			n = This.NumberOfSubStrings()
 		ok
 
-		if NOT isNumber(n) and Q(n).IsBetween(1, This.NumberOfItems())
+		if NOT isNumber(n) and Q(n).IsBetween(1, This.NumberOfSubStrings())
 			StzRaise("Can't extract! n outside of range.")
 		ok
 
-		cTempChar = This.CharAt(n)
+		TempcSubStr = This.SubStringAt(n)
 
 		This.RemoveAt(n)
 
-		return cTempChar
+		return TempcSubStr
+
+		#< @FunctionAlternativeForms
 
 		def ExtractNthChar(n)
+			return This.ExtractAt(n)
+
+		def ExtractCharAtPosition(n)
+			return This.ExtractAt(n)
+
+		def ExtractCharAt(n)
+			return This.ExtractAt(n)
+
+		#--
+
+		def PopAt(n)
+			return This.ExtractAt(n)
+
+		def PopNthChar(n)
+			return This.ExtractAt(n)
+
+		def PopCharAtPosition(n)
+			return This.ExtractAt(n)
+
+		def PopCharAt(n)
+			return This.ExtractAt(n)
+
+		#>
+
+	def NthCharExtracted(n)
+		return This.ExtractAt(n)
+
+		def NthCharPopped(n)
+			return This.ExtractAt(n)
+
+		def ExtractedAt(n)
+			return This.ExtractAt(n)
+
+		def PoppedAt(n)
 			return This.ExtractAt(n)
 
 	  #-----------------------------#
@@ -56102,12 +56475,30 @@ def ReplaceIBS()
 	def ExtractFirstChar()
 		return This.ExtractAt(1)
  
+		def PopFirstChar()
+			return This.ExtractFirstChar()
+
+	def FirstCharExtracted()
+		return This.ExtractCharSubString()
+
+		def FirstCharPopped()
+			return This.ExtractFirstChar()
+
 	  #----------------------------#
 	 #  EXTRACTING THE LAST CHAR  #
 	#----------------------------#
 
 	def ExtractLastChar()
-		return This.ExtractAt(:LastChar)
+		return This.ExtractAt(This.NumberOfChars())
+
+		def PopLastChar()
+			return This.ExtractLastChar()
+
+	def LastCharExtracted()
+		return This.ExtractLastChar()
+
+		def LastCharPopped()
+			return This.ExtractLastChar()
 
 	  #------------------------------------------------#
 	 #  EXTRACTING THE NTH OCCURRENCE OF A SUBSTRING  #
@@ -56118,10 +56509,26 @@ def ReplaceIBS()
 			This.RemoveNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
 			return pcSubStr
 		else
-			StzRaise("Can't extract! The string does not contain n occurrences of pcSubStr.")
+			StzRaise("Can't extract! The list does not contain n occurrences of pcSubStr.")
 		ok
 
+		#< @FunctionAlternativeFroms
+
 		def ExtractNthCS(n, pcSubStr, pCaseSensitive)
+			return This.ExtractNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+
+		def PopNthCS(n, pcSubStr, pCaseSensitive)
+			return This.ExtractNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+
+		def PopNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+			return This.ExtractNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	def NthOccurrenceExtractedCS(n, pcSubStr, pCaseSensitive)
+		return This.ExtractNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+
+		def NthOccurrencePoppedCS(n, pcSubStr, pCaseSensitive)
 			return This.ExtractNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -56129,7 +56536,23 @@ def ReplaceIBS()
 	def ExtractNthOccurrence(n, pcSubStr)
 		return This.ExtractNthOccurrenceCS(n, pcSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeFroms
+
 		def ExtractNth(n, pcSubStr)
+			return This.ExtractNthOccurrence(n, pcSubStr)
+
+		def PopNth(n, pcSubStr)
+			return This.ExtractNthOccurrence(n, pcSubStr)
+
+		def PopNthOccurrence(n, pcSubStr)
+			return This.ExtractNthOccurrence(n, pcSubStr)
+
+		#>
+
+	def NthOccurrenceExtracted(n, pcSubStr)
+		return This.ExtractNthOccurrence(n, pcSubStr)
+
+		def NthOccurrencePopped(n, pcSubStr)
 			return This.ExtractNthOccurrence(n, pcSubStr)
 
 	  #--------------------------------------------------#
@@ -56139,71 +56562,210 @@ def ReplaceIBS()
 	def ExtractFirstCS(pcSubStr, pCaseSensitive)
 		return This.ExtractNthOccurrenceCS(1, pcSubStr, pCaseSensitive)
 
+		#< @FunctionAlternativeForms
+
+		def PopFirstCS(pcSubStr, pCaseSensitive)
+			return This.ExtractFirstCS(pcSubStr, pCaseSensitive)
+
+		def ExtractFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This.ExtractFirstCS(pcSubStr, pCaseSensitive)
+
+		def PopFirstOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This.ExtractFirstCS(pcSubStr, pCaseSensitive)
+
+		#>
+
+	def FirstOccurrenceExtractedCS(pcSubStr, pCaseSensitive)
+		return This.ExtractFirstCS(pcSubStr, pCaseSensitive)
+
+		def FirstOccurrencePoppedCS(pcSubStr, pCaseSensitive)
+			return This.ExtractFirstCS(pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractFirst(pcSubStr)
 		return This.ExtractFirstCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def PopFirst(pcSubStr)
+			return This.ExtractFirst(pcSubStr)
+
+		def ExtractFirstOccurrence(pcSubStr)
+			return This.ExtractFirst(pcSubStr)
+
+		def PopFirstOccurrence(pcSubStr)
+			return This.ExtractFirst(pcSubStr)
+
+		#>
+
+	def FirstOccurrenceExtracted(pcSubStr)
+		return This.ExtractFirst(pcSubStr)
+
+		def FirstOccurrencePopped(pcSubStr)
+			return This.ExtractFirst(pcSubStr)
 
 	  #-------------------------------------------------#
 	 #  EXTRACTING THE LAST OCCURRENCE OF A SUBSTRING  #
 	#-------------------------------------------------#
 
 	def ExtractLastCS(pcSubStr, pCaseSensitive)
-		return This.ExtractNthOccurrenceCS(:Last, pcSubStr, pCaseSensitive)
+		return This.ExtractNthOccurrenceCS(This.NumberOfChars(), pcSubStr, pCaseSensitive)
+
+		#< @FunctionAlternativeForms
+
+		def PopLastCS(pcSubStr, pCaseSensitive)
+			return This.ExtractLastCS(pcSubStr, pCaseSensitive)
+
+		def ExtractLastOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This.ExtractLastCS(pcSubStr, pCaseSensitive)
+
+		def PopLastOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This.ExtractLastCS(pcSubStr, pCaseSensitive)
+
+		#>
+
+	def LastOccurrenceExtractedCS(pcSubStr, pCaseSensitive)
+		return This.ExtractLastCS(pcSubStr, pCaseSensitive)
+
+		def LastOccurrencePoppedCS(pcSubStr, pCaseSensitive)
+			return This.ExtractLastCS(pcSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractLast(pcSubStr)
 		return This.ExtractLastCS(pcSubStr, :CaseSensitive = TRUE)
 
-	  #-----------------------------------------------------------#
-	 #  EXTRACTING CHARS/SUBSTRINGS VERIFYING A GIVEN CONDITION  #
-	#-----------------------------------------------------------#
+		#< @FunctionAlternativeForms
+
+		def PopLast(pcSubStr)
+			return This.ExtractLast(pcSubStr)
+
+		def ExtractLastOccurrence(pcSubStr)
+			return This.ExtractLast(pcSubStr)
+
+		def PopLastOccurrence(pcSubStr)
+			return This.ExtractLast(pcSubStr)
+
+		#>
+
+	def LastOccurrenceExtracted(pcSubStr)
+		return This.ExtractLast(pcSubStr)
+
+		def LastOccurrencePopped(pcSubStr)
+			return This.ExtractLast(pcSubStr)
+
+	  #------------------------------------------------#
+	 #  EXTRACTING CHARS VERIFYING A GIVEN CONDITION  #
+	#------------------------------------------------#
+
+	def ExtractCharsW(pcCondition)
+		acResult = This.CharsW(pcCondition)
+		if len(acResult) = 0
+			StzRaise("Can't extract! The condition returns no values at all.")
+		ok
+
+		This.RemoveCharsW(pcCondition)
+		return acResult
+
+		def PopCharsW(pcCondition)
+			return This.ExtractCharsW(pcCondition)
+
+	def CharsExtractedW(pcCondition)
+		return This.ExtractCharsW(pcCondition)
+
+		def CharsPoppedW(pcCondition)
+			return This.CharsExtractedW(pcCondition)
+
+	  #-----------------------------------------------------#
+	 #  EXTRACTING SUBSTRINGS VERIFYING A GIVEN CONDITION  #
+	#-----------------------------------------------------#
+
+	def ExtractSubStringsW(pcCondition)
+		acResult = This.SubStringsW(pcCondition)
+		if len(acResult) = 0
+			StzRaise("Can't extract! The condition returns no values at all.")
+		ok
+
+		This.RemoveSubStringsW(pcCondition)
+		return aResult
+
+		def PopSubStringsW(pcCondition)
+			return This.ExtractSubStringsW(pcCondition)
+
+	def SubStringsExtractedW(pcCondition)
+		return This.ExtractSubStringsW(pcCondition)
+
+		def SubStringsPoppedW(pcCondition)
+			return This.SubStringsExtractedW(pcCondition)
+
+	  #--------------------------------------------------------------#
+	 #  EXTRACTING CHARS OR SUBSTRINGS VERIFYING A GIVEN CONDITION  #
+	#--------------------------------------------------------------#
 
 	def ExtractW(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
+		if CheckParams()
+			if NOT isString(pcCondition)
+				SteRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+
+			if NOT Q(pcCondition).ContainsEitherCS( "@char", :Or = "@substring", :CS = FALSE)
+				StzRaise("Incorrect condition! pcCondition must contain either @char or @substring keywords.")
+			ok
 		ok
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
-			StzRaise("Can't proceed! pcCondition must contain either @char or @substring keywords, but not both.")
-		ok
-
-		if Q(pcCondition).ConytainsCS("@substring", :CS = FALSE)
-			aResult = This.SubStringsW(pcCondition)
-
+		acResult = []
+		if Q(pcCondition).ContainsCS("@char", :CS = FALSE)
+			acResult = This.CharsW(pcCondition)
 		else
-			aResult = This.CharsW(pcCondition)
+			acResult = This.SubStringsW(pcCondition)
 		ok
 
-		if len(aResult) = 0
+		if len(acResult) = 0
 			StzRaise("Can't extract! The condition returns no values at all.")
 		ok
 
 		This.RemoveW(pcCondition)
-		return aResult
+		return acResult
+
+		def PopW(pcCondition)
+			return This.ExtractW(pcCondition)
 
 	  #----------------------------------------#
 	 #  EXTRACTING A SECTION FROM THE STRING  #
 	#----------------------------------------#
 
 	def ExtractSection(n1, n2)
-		if NOT BothAreNumbers(n1, n2) and
-		   Q(n1).IsBetween(1, This.NumberOfItems()) and
-		   Q(n2).IsBetween(1, This.NumberOfItems())
 
-			StzRaise("Can't extract! The section is outside the list.")
+		if CheckParams()
+			if NOT Q([n1, n2]).BothAreNumbers() and
+		   	Q(n1).IsBetween(1, This.NumberOfSubStrings()) and
+		   	Q(n2).IsBetween(1, This.NumberOfSubStrings())
+
+				StzRaise("Can't extract! The section is outside the string.")
+			ok
 		ok
 
 		aResult = This.Section(n1, n2)
 		This.RemoveSection(n1, n2)
 		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def PopSection(n1, n2)
+			return This.ExtractSection(n1, n2)
+
+		#>
+
+	def SectionExtracted(n1, n2)
+		return This.ExtractSection(n1, n2)
+
+		#< @FunctionAlternativeForm
+
+		def SectionPopped(n1, n2)
+			return This.SectionExtracted(n1, n2)
+
+		#>
 
 	  #--------------------------------------#
 	 #  EXTRACTING A RANGE FROM THE STRING  #
@@ -56212,11 +56774,21 @@ def ReplaceIBS()
 	def ExtractRange(nStart, nRange)
 		return This.ExtractSection(nStart, nStart + nRange - 1)
 
-	  #-----------------------------------------------------#
+		def PopRange(nStart, nRange)
+			return This.ExtractRange(nStart, nRange)
+
+	def RangeExtracted(nStart, nRange)
+		return This.ExtractRange(nStart, nRange)
+
+		def RangePopped(nStart, nRange)
+			return This.RangeExtracted(nStart, nRange)
+
+	  #----------------------------------------------------------#
 	 #  EXTRACTING NEXT SUBSTRING STARTING AT A GIVEN POSITION  #
-	#-----------------------------------------------------#
+	#----------------------------------------------------------#
 
 	def ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	
 		if This.FindNext(pcSubStr, pnStartingAt, pCaseSensitive) = 0
 			StzRaise("Can't extract! pcSubStr does not exist at the specified position.")
 		ok
@@ -56224,28 +56796,199 @@ def ReplaceIBS()
 		This.RemoveNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		return pcSubStr
 
+		#< @FunctionAlternativeForms
+
+		def ExtractNextOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PopNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PopNextOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def ExtractNextOccurrenceSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PopNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PopNextOccurrenceSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
+
+	def NextOccurrenceExtractedCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#< @FunctionAlternativeForms
+
+		def NextOccurrenceExtractedSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	
+		def NextOccurrencePoppedCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	
+		def NextOccurrencePoppedSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
-	def ExtractNext(item, pnStartingAt)
-		return This.ExtractNextCS(item, pnStartingAt, :CaseSensitive = TRUE)
+	def ExtractNext(substring, pnStartingAt)
+		return This.ExtractNext(substring, pnStartingAt, :CaseSensitive = TRUE)
 
-	  #---------------------------------------------------------#
+		#< @FunctionAlternativeForms
+
+		def ExtractNextOccurrence(pcSubStr, pnStartingAt)
+			return This.ExtractNext(pcSubStr, pnStartingAt)
+
+		def PopNext(pcSubStr, pnStartingAt)
+			return This.ExtractNext(pcSubStr, pnStartingAt)
+
+		def PopNextOccurrence(pcSubStr, pnStartingAt)
+			return This.ExtractNext(pcSubStr, pnStartingAt)
+
+		#--
+
+		def ExtractNextS(pcSubStr, pnStartingAt)
+			return This.ExtractNext(pcSubStr, pnStartingAt)
+
+		def ExtractNextOccurrenceS(pcSubStr, pnStartingAt)
+			return This.ExtractNext(pcSubStr, pnStartingAt)
+
+		def PopNextS(pcSubStr, pnStartingAt)
+			return This.ExtractNext(pcSubStr, pnStartingAt)
+
+		def PopNextOccurrenceS(pcSubStr, pnStartingAt)
+			return This.ExtractNext(pcSubStr, pnStartingAt)
+
+		#>
+
+	def NextOccurrenceExtracted(pcSubStr, pnStartingAt)
+		return This.ExtractNext(pcSubStr, pnStartingAt)
+
+		#< @FunctionAlternativeForms
+
+		def NextOccurrenceExtractedS(pcSubStr, pnStartingAt)
+			return This.ExtractNext(pcSubStr, pnStartingAt)
+	
+		def NextOccurrencePopped(pcSubStr, pnStartingAt)
+			return This.ExtractNext(pcSubStr, pnStartingAt)
+	
+		def NextOccurrencePoppedS(pcSubStr, pnStartingAt)
+			return This.ExtractNext(pcSubStr, pnStartingAt)
+
+		#>
+
+	  #--------------------------------------------------------------#
 	 #  EXTRACTING PREVIOUS SUBSTRING STARTING AT A GIVEN POSITION  #
-	#---------------------------------------------------------#
+	#--------------------------------------------------------------#
 
-	def ExtractPreviousCS(item, pnStartingAt, pCaseSensitive)
-		if This.FindPreviousCS(item, pnStartingAt, pCaseSensitive) = 0
+	def ExtractPreviousCS(substring, pnStartingAt, pCaseSensitive)
+		if This.FindPreviousCS(substring, pnStartingAt, pCaseSensitive) = 0
 			StzRaise("Can't extract! pcSubStr does not exist at the specified position.")
 		ok
 
-		This.RemovePreviousCS(item, pnStartingAt, pCaseSensitive)
-		return item
+		This.RemovePreviousCS(substring, pnStartingAt, pCaseSensitive)
+		return substring
+
+		#< @FunctionAlternativeForms
+
+		def ExtractPreviousOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PopPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PopPreviousOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def ExtractPreviousSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def ExtractPreviousOccurrenceSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PopPreviousSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PopPreviousOccurrenceSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
+
+	def PreviousOccurrenceExtractedCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#< @FunctionAlternativeForms
+
+		def PreviousOccurrenceExtractedSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	
+		def PreviousOccurrencePoppedCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	
+		def PreviousOccurrencePoppedSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ExtractPrevious(item, pnStartingAt)
-		return This.ExtractPreviousCS(item, pnStartingAt, :CaseSensitive = TRUE)
+	def ExtractPrevious(substring, pnStartingAt)
+		return This.ExtractPreviousCS(substring, pnStartingAt, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def ExtractPreviousOccurrence(pcSubStr, pnStartingAt)
+			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+
+		def PopPrevious(pcSubStr, pnStartingAt)
+			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+
+		def PopPreviousOccurrence(pcSubStr, pnStartingAt)
+			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+
+		#--
+
+		def ExtractPreviousS(pcSubStr, pnStartingAt)
+			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+
+		def ExtractPreviousOccurrenceS(pcSubStr, pnStartingAt)
+			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+
+		def PopPreviousS(pcSubStr, pnStartingAt)
+			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+
+		def PopPreviousOccurrenceS(pcSubStr, pnStartingAt)
+			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+
+		#>
+
+	def PreviousOccurrenceExtracted(pcSubStr, pnStartingAt)
+		return This.ExtractPrevious(pcSubStr, pnStartingAt)
+
+		#< @FunctionAlternativeForms
+
+		def PreviousOccurrenceExtractedS(pcSubStr, pnStartingAt)
+			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+	
+		def PreviousOccurrencePopped(pcSubStr, pnStartingAt)
+			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+	
+		def PreviousOccurrencePoppedS(pcSubStr, pnStartingAt)
+			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+
+		#>
 	
 	  #==========================================================#
 	 #   SIMPLIFYING THE STRING BY REMOVING DUPLICATED SPACES   #
@@ -64615,7 +65358,7 @@ def ReplaceIBS()
 	#-----------------------------------------------------#
 
 	def LastNumber(n)
-		return This.NthNumber(:Last)
+		return This.NthNumber(This.NumberOfNumbers())
 
 	  #==========================================#
 	 #  NUMBERS COMING AFTER A GIVEN SUBSTRING  #

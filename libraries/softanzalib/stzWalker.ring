@@ -291,17 +291,19 @@ class stzWalker from stzList
 		*/
 
 	def NthStep(n)
-		if isString(n)
-			if Q(n) = :First
-				n = 1
-
-			but Q(:Last)
-				n = This.NumberOfSteps()
+		if CheckParams()
+			if isString(n)
+				if Q(n) = :First
+					n = 1
+	
+				but Q(:Last)
+					n = This.NumberOfSteps()
+				ok
 			ok
-		ok
-
-		if NOT ( isNumber(n) and n <= This.NumberOfSteps() )
-			StzRaise("Incorrect param!")
+	
+			if NOT ( isNumber(n) and n <= This.NumberOfSteps() )
+				StzRaise("Incorrect param!")
+			ok
 		ok
 
 		return This.Steps()[n]

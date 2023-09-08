@@ -830,7 +830,7 @@ class stzListOfStrings from stzList
 	#--
 
 	def LastStringItem()
-		return This.NthStringItem(:Last)
+		return This.NthStringItem(This.NumberOfStrings())
 
 		def LastStringItemQ()
 			return new stzString( This.LastStringItem() )
