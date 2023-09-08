@@ -65,124 +65,132 @@ class stzSplitter from stzListOfNumbers
 	 #    SPLITTING : THE GENERIC FUNCTION    #
 	#========================================#
 
-	def Split(p)
-	
-		if isList(p)
+	def SplitXT(p)
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
 
-			if len(p) = 2 and
-			   isString(p[1]) and
-			   Q(p[1]).IsOneOfTheseCS([
+		oParam = Q(p)
 
-				:At, :AtPosition, :AtThisPosition,
-				:AtPositions, :AtThesePositions, :AtManyPositions,
+		if oParam.IsListOfNumbers()
+			return This.SplitAtPositions(p)
+		
+		#== AtPosition(s)
 
-				:Before, :BeforePosition, :BeforeThisPosition,
-				:BeforePositions, :BeforeThesePositions, :BeforeManyPositions,
+		but oParam.IsAtNamedParam()
+			return This.SplitAtPosition(p)
 
-				:After, :AfterPosition, :AfterThisPosition,
-				:AfterPositions, :AfterThesePositions, :AfterManyPositions,
+		but oParam.IsAtOrAtThisPositionNamedParam()
+			return This.SplitAtPosition(p)
 
-				:ToPartsOfNItems, :ToPartsOfExactlyNItems,
-				:ToNParts,
+		but oParam.IsOneOfTheseNamedParams([
+			:AtPositions, :AtThesePositions, :AtManyPositions ])
 
-				:AtSection, :AtThisSection,
-				:BeforeSection, :BeforeThisSection,
-				:AfterSection, :AfterThisSection,
+			return This.SplitAtPositions(p)
 
-				:AtSections, :BeforeSections, :AfterSections,
-				:AtTheseSections, :BeforeTheseSections, :AfterTheseSections,
-				:AtManySections, :BeforeManySections, :AfterManySections
+		#-- BeforePosition(s)
 
-			   ], :CS = FALSE)
-	
-				cTemp = Q(p[1]).Lowercased()
+		but oParam.IsOneOfTheseNamedParams([
+			:Before, :BeforePosition, :BeforeThisPosition ])
 
-				#--
+			return This.SplitAtPosition(p)
 
-				if cTemp = :At
-					return This.SplitAt(p[2])
-				
-				but cTemp = :AtPosition or cTemp = :AtThisPosition
-					return This.SplitAtPosition(p[2])
+		but oParam.IsOneOfTheseNamedParams([
+			:BeforePositions, :BeforeThesePositions, :BeforeManyPositions ])
 
-				but Q(cTemp).IsOneOfThese([ :AtPositions, :AtThesePositions, :AtManyPositions ])
-					return This.SplitAtPositions(p[2])
+			return This.SplitBeforePositions(p)
 
-				#--
+		#-- AfterPosition(s)
 
-				but cTemp = :Before
-					return This.SplitBefore(p[2])
-				
-				but cTemp = :BeforePosition or cTemp = :BeforeThisPosition
-					return This.SplitBeforePosition(p[2])
+		but oParam.IsOneOfTheseNamedParams([
+			:After, :AfterPosition, :AfterThisPosition ])
 
-				but Q(cTemp).IsOneOfThese([ :BeforePositions, :BeforeThesePositions, :BeforeManyPositions ])
-					return This.SplitBeforePositions(p[2])
+			return This.SplitAfterPosition(p)
 
-				#--
+		but oParam.IsOneOfTheseNamedParams([
+			:AfterPositions, :AfterThesePositions, :AfterManyPositions ])
 
-				but cTemp = :After
-					return This.SplitAfter(p[2])
-				
-				but cTemp = :BeforePosition or cTemp = :BeforeThisPosition
-					return This.SplitAfterPosition(p[2])
+			return This.SplitAfterPositions(p)
 
-				but Q(cTemp).IsOneOfThese([ :BeforePositions, :BeforeThesePositions, :BeforeManyPositions ])
-					return This.SplitAfterPositions(p[2])
+		#== AtSection(s)
 
-				#--
+		but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ])
+			return This.SplitAtSection(p)
 
-				but cTemp = :ToPartsOfNItems
-					return This.SplitToPartsOfNItems(p[2])
+		but oParam.IsOneOfTheseNamedParams([
+			:AtSections, :AtTheseSections, :AtManySections ])
 
-				but cTemp = :ToPartsOfExactlyNItems
-					return This.SplitToPartsOfExactlyNItems(p[2])
-	
-				but cTemp = :ToNParts
-					return This.SplitToNParts(p[2])
+			return This.SplitAtSections(p)
 
-				#--
+		#-- BeforeSection(s)
 
-				but cTemp = :AtSection or cTemp = :AtThisSection
-					return This.SplitAtSection(p[2][1], p[2][2])
+		but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ])
+			return This.SplitBeforeSection(p)
 
-				but cTemp = :BeforeSection or cTemp = :BeforeThisSection
-					return This.SplitBeforeSection(p[2][1], p[2][2])
+		but oParam.IsOneOfTheseNamedParams([
+			:BeforeSections, :BeforeTheseSections, :BeforeManySections ])
 
-				but cTemp = :AfterSection or cTemp = :AfterThisSection
-					return This.SplitAfterSection(p[2][1], p[2][2])
+			return This.SplitBeforeSections(p)
 
-				#--
+		#-- AfterSection(s)
 
-				but Q(cTemp).IsOneOfThese([ :AtSections, :AtTheseSections, :AtManySections ])
-					return This.SplitAtSections(p[2])
+		but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ])
+			return This.SplitAfterSection(p)
 
-				but Q(cTemp).IsOneOfThese([ :BeforeSections, :BeforeTheseSections, :BeforeManySections ])
-					return This.SplitBeforeSections(p[2])
+		but oParam.IsOneOfTheseNamedParams([
+			:AfterSections, :AfterTheseSections, :AfterManySections ])
 
-				but Q(cTemp).IsOneOfThese([ :AfterSections, :AfterTheseSections, :AfterManySections ])
-					return This.SplitAfterSections(p[2])
+			return This.SplitAfterSections(p)
 
-				ok
-			else
+		#== AtSection(s)IB
 
-				if Q(p).IsListOfNumbers()
-					return This.SplitAtPositions(p)
-				else
-					StzRaise("Incorrect param type! p must be a number or list of numbers.")
-				ok
-			ok
-			
+		but oParam.IsOneOfTheseNamedParams([ :AtSectionIB, :AtThisSectionIB ])
+			return This.SplitAtSectionIB(p)
+
+		but oParam.IsOneOfTheseNamedParams([
+			:AtSectionsIB, :AtTheseSectionsIB, :AtManySectionsIB ])
+
+			return This.SplitAtSectionsIB(p)
+
+		#-- BeforeSection(s)IB
+
+		but oParam.IsOneOfTheseNamedParams([ :BeforeSectionIB, :BeforeThisSectionIB ])
+			return This.SplitBeforeSectionIB(p)
+
+		but oParam.IsOneOfTheseNamedParams([
+			:BeforeSectionsIB, :BeforeTheseSectionsIB, :BeforeManySectionsIB ])
+
+			return This.SplitBeforeSectionsIB(p)
+
+		#-- AfterSection(s)IB
+
+		but oParam.IsOneOfTheseNamedParams([ :AfterSectionIB, :AfterThisSectionIB ])
+
+			return This.SplitAfterSectionIB(p)
+
+		but oParam.IsOneOfTheseNamedParams([
+			:AfterSectionsIB, :AfterTheseSectionsIB, :AfterManySectionsIB ])
+
+			return This.SplitAfterSectionsIB(p)
+
+		#== Misc.
+
+		but oParam.IsThisNamedParam(:ToPartsOfNItems)
+			return This.SplitToPartsOfNItems(p)
+
+		but oParam.IsthisNamedParam(:ToPartsOfExactlyNItems)
+			return This.SplitToPartsOfExactlyNItems(p)
+
+		but oParam.IsThisNamedParam(:ToNParts)
+			return This.SplitToNParts(p)
+
 		else
-
-			return This.SplitAt(p)
+			StzRaise("Unsupported syntax!")
 		ok
 
 	  #====================#
 	 #    SPLITTING AT    #
 	#====================#
-
-# Add SplitXT()
 
 	def SplitAt(p)
 
@@ -190,23 +198,31 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitAtPosition(p)
 
 		but isList(p)
-			if Q(p).IsListOfNumbers()
+			oParam = Q(p)
+			if oParam.IsListOfNumbers()
 				return This.SplitAtPositions(p)
 
-			but Q(p).IsListOfPairsOfNumbers()
+			but oParam.IsListOfPairsOfNumbers()
 				return This.SplitAtSections(p)
 
-			but Q(p).IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			but oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
 				return This.SplitAtPosition(p[2])
 
-			but Q(p).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
+			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
 				return This.SplitAtPositions(p[2])
 
-			but Q(p).IsOneOfTheseNamedParams([ :Section, :ThisSection ])
+			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ])
 				return This.SplitAtSection(p[2][1], p[2][2])
 
-			but Q(p).IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
+			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ])
+				return This.SplitAtSectionIB(p[2][1], p[2][2])
+
+			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
 				return This.SplitAtSections(p[2])
+
+			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ])
+				return This.SplitAtSectionsIB(p[2])
+
 			ok
 		else
 			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
@@ -257,52 +273,41 @@ class stzSplitter from stzListOfNumbers
 		def SplitAtManyPositions(panPositions)
 			return This.SplitAtPositions(panPositions)
 
-	  #--------------------------------------------#
-	 #  SPLITTING AT A GIVEN SECTION OR SECTIONS  #
-	#--------------------------------------------#
-
-	def SplitAtSection(n1, n2)
-		return This.SplitBetweenPositions(n1, n2)
-
-		def SplitAtThisSection(n1, n2)
-			return This.SplitAtSection(n1, n2)
-
-	def SplitAtSectionIB(n1, n2)
-		return This.SplitBetweenPositionsIB(n1, n2)
-
-	def SplitAtSections(panSections)
-		return This.AntiSections(panSections)
-	
-	def SplitAtSectionsIB(panSections)
-		return This.AntiSectionsIB(panSections)
-
 	  #========================#
 	 #    SPLITTING BEFORE    #
 	#========================#
 
 	def SplitBefore(p)
-
+	
 		if isNumber(p)
 			return This.SplitBeforePosition(p)
 
 		but isList(p)
-			if Q(p).IsListOfNumbers()
+			oParam = Q(p)
+			if oParam.IsListOfNumbers()
 				return This.SplitBeforePositions(p)
 
-			but Q(p).IsListOfPairsOfNumbers()
+			but oParam.IsListOfPairsOfNumbers()
 				return This.SplitBeforeSections(p)
 
-			but Q(p).IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			but oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
 				return This.SplitBeforePosition(p[2])
 
-			but Q(p).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
+			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
 				return This.SplitBeforePositions(p[2])
 
-			but Q(p).IsOneOfTheseNamedParams([ :Section, :ThisSection ])
+			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ])
 				return This.SplitBeforeSection(p[2])
+
+			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ])
+				return This.SplitBeforeSectionIB(p[2])
 
 			but Q(p).IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
 				return This.SplitBeforeSections(p[2])
+
+			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ])
+				return This.SplitBeforeSectionsIB(p[2])
+
 			ok
 		else
 			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
@@ -378,23 +383,31 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitAfterPosition(p)
 
 		but isList(p)
-			if Q(p).IsListOfNumbers()
+			oParam = Q(p)
+			if oParam.IsListOfNumbers()
 				return This.SplitAfterPositions(p)
 
-			but Q(p).IsListOfPairsOfNumbers()
+			but oParam.IsListOfPairsOfNumbers()
 				return This.SplitAfterSections(p)
 
-			but Q(p).IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			but oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
 				return This.SplitAfterPosition(p[2])
 
-			but Q(p).IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
+			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
 				return This.SplitAfterPositions(p[2])
 
-			but Q(p).IsOneOfTheseNamedParams([ :Section, :ThisSection ])
+			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ])
 				return This.SplitAfterSection(p[2])
 
-			but Q(p).IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
+			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ])
+				return This.SplitAfterSectionIB(p[2])
+
+			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
 				return This.SplitAfterSections(p[2])
+
+			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ])
+				return This.SplitAfterSectionsIB(p[2])
+
 			ok
 		else
 			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
