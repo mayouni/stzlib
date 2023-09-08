@@ -26255,7 +26255,7 @@ def ReplaceIBS()
 		def FindSZZQ(pcSubStr, pnStartingAt)
 			return This.FindSZZQR(pcSubStr, pnStartingAt, :stzList)
 		
-		def FindsSZZQR(pcSubStr, pnStartingAt, pcReturnType)
+		def FindSZZQR(pcSubStr, pnStartingAt, pcReturnType)
 				return This.FindSCSZZQR(pcSubStr, pnStartingAt, :CaseSensitive = TRUE, pcReturnType)
 
 		#>
@@ -26263,7 +26263,7 @@ def ReplaceIBS()
 	  #==========================================================#
 	 #  FINDING OCCURRENCES OF A SIUBSTRING IN A GIVEN SECTION  #
 	#==========================================================#
-
+	
 	def FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
 
 		# Resolving the n1 and n2 params
@@ -26304,6 +26304,10 @@ def ReplaceIBS()
 
 		# Doing the job
 
+		if This.IsEmpty() or pcSubStr = NULL
+			return 0
+		ok
+
 		anPos = This.SectionQ(n1, n2).FindCS(pcSubStr, pCaseSensitive)
 		nLen = len(anPos)
 
@@ -26321,6 +26325,23 @@ def ReplaceIBS()
 		def FindInSectionCSZ(pcSubStr, n1, n2, pCaseSensitive)
 			return This.FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
 
+		def FindSubStringInSectionCSZ(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+
+		#--
+
+		def FindSSCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+
+		def FindSSCSZ(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+
+		def FindSubStringSSCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+
+		def FindSubStringSSCSZ(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -26331,6 +26352,23 @@ def ReplaceIBS()
 		#< @FunctionAlternativeForm
 
 		def FindInSectionZ(pcSubStr, n1, n2)
+			return This.FindInSection(pcSubStr, n1, n2)
+
+		def FindSubStringInSectionZ(pcSubStr, n1, n2)
+			return This.FindInSection(pcSubStr, n1, n2)
+
+		#--
+
+		def FindSS(pcSubStr, n1, n2)
+			return This.FindInSection(pcSubStr, n1, n2)
+
+		def FindSSZ(pcSubStr, n1, n2)
+			return This.FindInSection(pcSubStr, n1, n2)
+
+		def FindSubStringSS(pcSubStr, n1, n2)
+			return This.FindInSection(pcSubStr, n1, n2)
+
+		def FindSubStringSSZ(pcSubStr, n1, n2)
 			return This.FindInSection(pcSubStr, n1, n2)
 
 		#>
@@ -26348,6 +26386,9 @@ def ReplaceIBS()
 		ok
 
 		nLenSubStr = Q(pcSubStr).NumberOfChars()
+		if nLenSubStr = 0
+			return []
+		ok
 
 		anPos = This.FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
 		nLen = len(anPos)
@@ -26369,6 +26410,26 @@ def ReplaceIBS()
 		def FindInSectionAsSectionsCS(pcSubStr, n1, n2, pCaseSensitive)
 			return This.FindInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
 
+		def FindSubStringInSectionAsSectionsCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+
+		def FindSubStringInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+
+		#--
+
+		def FindSSCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+
+		def FindAsSectionsSSCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+
+		def FindSubStringAsSectionsSSCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+
+		def FindSubStringSSCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -26379,6 +26440,26 @@ def ReplaceIBS()
 		#< @FunctionAlternativeForm
 
 		def FindInSectionAsSections(pcSubStr, n1, n2)
+			return This.FindInSectionZZ(pcSubStr, n1, n2)
+
+		def FindSubStringInSectionAsSections(pcSubStr, n1, n2)
+			return This.FindInSectionZZ(pcSubStr, n1, n2)
+
+		def FindSubStringInSectionZZ(pcSubStr, n1, n2)
+			return This.FindInSectionZZ(pcSubStr, n1, n2)
+
+		#--
+
+		def FindSSZZ(pcSubStr, n1, n2)
+			return This.FindInSectionZZ(pcSubStr, n1, n2)
+
+		def FindAsSectionsSS(pcSubStr, n1, n2)
+			return This.FindInSectionZZ(pcSubStr, n1, n2)
+
+		def FindSubStringAsSectionsSS(pcSubStr, n1, n2)
+			return This.FindInSectionZZ(pcSubStr, n1, n2)
+
+		def FindSubStringSSZZ(pcSubStr, n1, n2)
 			return This.FindInSectionZZ(pcSubStr, n1, n2)
 
 		#>
@@ -28971,6 +29052,10 @@ def ReplaceIBS()
 		#--> [ [11, 14], [28, 31], [41, 44] ]
 		*/
 
+		if BothAreNumbers(pcBound1, pcBound2)
+			return This.FindInSectionCSZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		ok
+
 		# Getting all the occurrences of pcSubStr in the string
 
 		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
@@ -29044,6 +29129,20 @@ def ReplaceIBS()
 		def FindSubStringBoundedByAsSectionsCS(pcSubStr, pacBounds, pCaseSensitive)
 			return This.FindBoundedByAsSectionsCS(pcSubStr, pacBounds, pCaseSensitive)
 
+		#--
+
+		def FindBetweenCSZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindBetweenAsSectionsCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+
+		def FindSubStringBetweenCSZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindBetweenAsSectionsCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+
+		def FindBoundedByCSZZ(pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindBetweenAsSectionsCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+
+		def FindSubStringBoundedByCSZZ(pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindBoundedByAsSectionsCS(pcSubStr, pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -29076,6 +29175,20 @@ def ReplaceIBS()
 
 		def FindSubStringBoundedByAsSections(pcSubStr, pacBounds)
 			return This.FindBoundedByAsSectionsCS(pcSubStr, pacBounds, :CaseSensitive = TRUE)
+
+		#--
+
+		def FindBetweenZZ(pcSubStr, pcBound1, pcbound2)
+			return This.FindBetweenAsSections(pcSubStr, pcBound1, pcbound2)
+
+		def FindSubStringBetweenZZ(pcSubStr, pcBound1, pcbound2)
+			return This.FindBetweenAsSections(pcSubStr, pcBound1, pcbound2)
+
+		def FindBoundedByZZ(pcSubStr, pacBounds)
+			return This.FindBetweenAsSections(pcSubStr, pcBound1, pcbound2)
+
+		def FindSubStringBoundedByZZ(pcSubStr, pacBounds)
+			return This.FindBoundedByAsSections(pcSubStr, pacBounds)
 
 		#>
 
@@ -29125,10 +29238,16 @@ def ReplaceIBS()
 
 		return aResult
 
+		def FindInBetweenCSZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.FindInBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInBetweenAsSections(pcSubStr, pcBound1, pcBound2)
 		return This.FindInBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
+
+		def FindInBetweenZZ(pcSubStr, pcBound1, pcBound2)
+			return This.FindInBetweenAsSections(pcSubStr, pcBound1, pcBound2)
 
 	  #-----------------------------------------------------------------------------------------#
 	 #  FINDING SUBSTRINGS IN-BETWEEN (INSIDE THE SUBSTRINGS BOUNDED BY) TWO GIVEN SUBSTRINGS  #
@@ -29143,10 +29262,16 @@ def ReplaceIBS()
 
 		return aResult
 
+		def FindInBetweenCSZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.FindInBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInBetween(pcSubStr, pcBound1, pcBound2)
 		return This.FindInBetweenCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
+
+		def FindInBetweenZ(pcSubStr, pcBound1, pcBound2)
+			return This.FindInBetween(pcSubStr, pcBound1, pcBound2)
 
 	  #====================================================================#
 	 #  NUMBER OF OCCURRENCE OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
