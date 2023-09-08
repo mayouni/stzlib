@@ -26335,15 +26335,18 @@ def ReplaceIBS()
 
 		#>
 
-	   #----------------------------------------------------------#
-	  #  FINDING OCCURRENCES OF A SIUBSTRING IN A GIVEN SECTION  #
-	 #  AND RETURNING THEIR POSITIONS AS SECTIONS               #
-	#----------------------------------------------------------#
+	   #---------------------------------------------------------#
+	  #  FINDING OCCURRENCES OF A SUBSTRING IN A GIVEN SECTION  #
+	 #  AND RETURNING THEIR POSITIONS AS SECTIONS              #
+	#---------------------------------------------------------#
 
 	def FindInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcSubStr must be a string.")
+		if CheckParams()
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
 		ok
+
 		nLenSubStr = Q(pcSubStr).NumberOfChars()
 
 		anPos = This.FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
@@ -26385,7 +26388,7 @@ def ReplaceIBS()
 	#-------------------------------------------------------#
 
 	def FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
-		anResult = StzListOfPairsQ( This.FindInSectionsAsSectionsCS(pcSubStr, paSections, pCaseSensitive) ).FirstItems()
+		anResult = StzListOfPairsQ( This.FindInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive) ).FirstItems()
 		return anResult
 
 		#< @FunctionAlternativeForms
@@ -26425,16 +26428,18 @@ def ReplaceIBS()
 
 	   #--------------------------------------------------------#
 	  #  FINDING OCCURRENCES OF A SUBSTRING IN MANY SECTIONS   #
-	 #  AND RETURNING THEIR POSITIONS AS SECTIONS             #
+	 #  AND RETURNING ITS POSITION AS A SECTION               #
 	#--------------------------------------------------------#
 
 	def FindInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcSubStr must be a string.")
-		ok
+		if CheckParams()
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
 		ok
 
 		nLenSubStr = Q(pcSubStr).NumberOfChars()
@@ -26550,10 +26555,10 @@ def ReplaceIBS()
 
 		#>
 
-	   #-------------------------------------------------------------#
-	  #  FINDING NTH OCCURRENCE OF A SIUBSTRING IN A GIVEN SECTION  #
-	 #  AND RETURNING ITS POSITION AS SECTIONS                     #
-	#-------------------------------------------------------------#
+	   #------------------------------------------------------------#
+	  #  FINDING NTH OCCURRENCE OF A SUBSTRING IN A GIVEN SECTION  #
+	 #  AND RETURNING ITS POSITION AS A SECTION                   #
+	#------------------------------------------------------------#
 
 	def FindNthInSectionCSZZ(n, pcSubStr, n1, n2, pCaseSensitive)
 		if CheckParams()
@@ -26597,7 +26602,7 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
-		def FindInManySectionsCS(n, pcSubStr, paSections, pCaseSensitive)
+		def FindNthInManySectionsCS(n, pcSubStr, paSections, pCaseSensitive)
 			return This.FindNthInSectionsCS(n, pcSubStr, paSections, pCaseSensitive)
 
 		#--
@@ -26632,7 +26637,7 @@ def ReplaceIBS()
 
 	   #-----------------------------------------------------------#
 	  #  FINDING NTH OCCURRENCE OF A SUBSTRING IN MANY SECTIONS   #
-	 #  AND RETURNING THEIR POSITIONS AS SECTIONS                #
+	 #  AND RETURNING ITS POSITION AS A SECTION                  #
 	#-----------------------------------------------------------#
 
 	def FindNthInSectionsCSZZ(n, pcSubStr, paSections, pCaseSensitive)
@@ -26696,6 +26701,325 @@ def ReplaceIBS()
 
 		#>
 
+	  #--------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING IN A GIVEN SECTION  #
+	#==============================================================#
+
+	def FindFirstInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+		nResult = This.FindNthInSectionCS(1, pcSubStr, n1, n2, pCaseSensitive)
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindFirstInSectionCSZ(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindFirstInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstInSection(pcSubStr, n1, n2)
+		return This.FindFirstInSectionCS(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		
+		#< @FunctionAlternativeForm
+
+		def FindFirstInSectionZ(pcSubStr, n1, n2)
+			return This.FindFirstInSection(pcSubStr, n1, n2)
+
+		#>
+
+	   #--------------------------------------------------------------#
+	  #  FINDING FIRST OCCURRENCE OF A SUBSTRING IN A GIVEN SECTION  #
+	 #  AND RETURNING ITS POSITION AS A SECTION                     #
+	#--------------------------------------------------------------#
+
+	def FindFirstInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+		aResult = This.FindNthInSectionCSZZ(1, pcSubStr, n1, n2, pCaseSensitive)
+		return aResult
+	
+		#< @FunctionAlternativeForm
+
+		def FindFirstInSectionAsSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindFirstInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstInSectionZZ(pcSubStr, n1, n2)
+		return This.FindFirstInSectionCSZZ(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def FindFirstInSectionAsSection(pcSubStr, n1, n2)
+			return This.FindFirstInSectionZZ(pcSubStr, n1, n2)
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING IN MANY SECTIONS  #
+	#------------------------------------------------------------#
+
+	def FindFirstInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		nResult = 0
+		if len(aSections) > 0
+			aSections = QR(paSections, :stzListOfPairs).Sorted()
+			nResult = This.FindFirstInSectionCS(aSections[1], pCasSensitive)
+		ok
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def FindFirstInManySectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		#--
+
+		def FindFirstInSectionsCSZ(pcSubStr, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def FindFirstInManySectionsCSZ(pcSubStr, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstInSections(pcSubStr, paSections)
+		return This.FindFirstInSectionsCS(pcSubStr, paSections, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindFirstInManySections(pcSubStr, paSections)
+			return This.FindFirstInSections(pcSubStr, paSections)
+
+		#--
+
+		def FindFirstInSectionsZ(pcSubStr, paSections)
+			return This.FindFirstInSections(pcSubStr, paSections)
+
+		def FindFirstInManySectionsZ(pcSubStr, paSections)
+			return This.FindFirstInSections(pcSubStr, paSections)
+
+		#>
+
+	   #-----------------------------------------------------------#
+	  #  FINDING NTH OCCURRENCE OF A SUBSTRING IN MANY SECTIONS   #
+	 #  AND RETURNING ITS POSITION AS A SECTION                  #
+	#-----------------------------------------------------------#
+
+	def FindFirstInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		aResult = []
+		if len(aSections) > 0
+			aSections = QR(paSections, :stzListOfPairs).Sorted()
+			aResult = This.FindFirstInSectionCSZZ(aSections[1], pCasSensitive)
+		ok
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindFirstInSectionsAsSectionCS(pcSubStr, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+
+		def FindFirstInManySectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+
+		def FindFirstInManySectionsAsSectionCS(pcSubStr, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstInSectionsZZ(pcSubStr, paSections)
+		return This.FindFirstInSectionsCSZZ(pcSubStr, paSections, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindFirstInSectionsAsSection(pcSubStr, paSections)
+			return This.FindFirstInSectionsZZ(pcSubStr, paSections)
+
+		def FindFirstInManySectionsZZ(pcSubStr, paSections)
+			return This.FindFirstInSectionsZZ(pcSubStr, paSections)
+
+		def FindFirstInManySectionsAsSection(pcSubStr, paSections)
+			return This.FindFirstInSectionsZZ(pcSubStr, paSections)
+
+		#>
+
+	  #-------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A SUBSTRING IN A GIVEN SECTION  #
+	#=============================================================#
+
+	def FindLastInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+		nResult = This.FindNthInSectionCS(1, pcSubStr, n1, n2, pCaseSensitive)
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindLastInSectionCSZ(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindLastInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastInSection(pcSubStr, n1, n2)
+		return This.FindLastInSectionCS(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		
+		#< @FunctionAlternativeForm
+
+		def FindLastInSectionZ(pcSubStr, n1, n2)
+			return This.FindLastInSection(pcSubStr, n1, n2)
+
+		#>
+
+	   #-------------------------------------------------------------#
+	  #  FINDING LAST OCCURRENCE OF A SUBSTRING IN A GIVEN SECTION  #
+	 #  AND RETURNING ITS POSITION AS A SECTION                    #
+	#-------------------------------------------------------------#
+
+	def FindLastInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+		aResult = This.FindNthInSectionCSZZ(1, pcSubStr, n1, n2, pCaseSensitive)
+		return aResult
+	
+		#< @FunctionAlternativeForm
+
+		def FindLastInSectionAsSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindLastInSectionCSZZ(pcSubStr, n1, n2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastInSectionZZ(pcSubStr, n1, n2)
+		return This.FindLastInSectionCSZZ(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def FindLastInSectionAsSection(pcSubStr, n1, n2)
+			return This.FindLastInSectionZZ(pcSubStr, n1, n2)
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A SUBSTRING IN MANY SECTIONS  #
+	#-----------------------------------------------------------#
+
+	def FindLastInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		nResult = 0
+		if len(aSections) > 0
+			aSections = QR(paSections, :stzListOfPairs).Sorted()
+			nResult = This.FindLastInSectionCS(aSections[1], pCasSensitive)
+		ok
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def FindLastInManySectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.FindLastInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		#--
+
+		def FindLastInSectionsCSZ(pcSubStr, paSections, pCaseSensitive)
+			return This.FindLastInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def FindLastInManySectionsCSZ(pcSubStr, paSections, pCaseSensitive)
+			return This.FindLastInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastInSections(pcSubStr, paSections)
+		return This.FindLastInSectionsCS(pcSubStr, paSections, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindLastInManySections(pcSubStr, paSections)
+			return This.FindLastInSections(pcSubStr, paSections)
+
+		#--
+
+		def FindLastInSectionsZ(pcSubStr, paSections)
+			return This.FindLastInSections(pcSubStr, paSections)
+
+		def FindLastInManySectionsZ(pcSubStr, paSections)
+			return This.FindLastInSections(pcSubStr, paSections)
+
+		#>
+
+	   #-----------------------------------------------------------#
+	  #  FINDING LAST OCCURRENCE OF A SUBSTRING IN MANY SECTIONS  #
+	 #  AND RETURNING ITS POSITION AS A SECTION                  #
+	#-----------------------------------------------------------#
+
+	def FindLastInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		aResult = []
+		if len(aSections) > 0
+			aSections = QR(paSections, :stzListOfPairs).Sorted()
+			aResult = This.FindLastInSectionCSZZ(aSections[1], pCasSensitive)
+		ok
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindLastInSectionsAsSectionCS(pcSubStr, paSections, pCaseSensitive)
+			return This.FindLastInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+
+		def FindLastInManySectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+			return This.FindLastInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+
+		def FindLastInManySectionsAsSectionCS(pcSubStr, paSections, pCaseSensitive)
+			return This.FindLastInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastInSectionsZZ(pcSubStr, paSections)
+		return This.FindLastInSectionsCSZZ(pcSubStr, paSections, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindLastInSectionsAsSection(pcSubStr, paSections)
+			return This.FindLastInSectionsZZ(pcSubStr, paSections)
+
+		def FindLastInManySectionsZZ(pcSubStr, paSections)
+			return This.FindLastInSectionsZZ(pcSubStr, paSections)
+
+		def FindLastInManySectionsAsSection(pcSubStr, paSections)
+			return This.FindLastInSectionsZZ(pcSubStr, paSections)
+
+		#>
 
 	   #===========================================================================#
 	  #  FINDING ALL OCCURRENCES OF A SUBSTRING, STARTING FROM A GIVEN POSITION,  #
