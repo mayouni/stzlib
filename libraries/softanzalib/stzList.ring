@@ -27272,6 +27272,434 @@ class stzList from stzObject
 		def FindNthOccurrenceOfGreatest(n)
 			return This.FindNthLargestItem(n)
 
+	  #=====================================================#
+	 #  FINDING OCCURRENCES OF AN ITEM IN A GIVEN SECTION  #
+	#=====================================================#
+
+	def FindInSectionCS(pItem, n1, n2, pCaseSensitive)
+
+		# Resolving the n1 and n2 params
+
+		if CheckParams()
+			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
+				n1 = n1[2]
+			ok
+	
+			if isString(n1)
+				if Q(n1).IsOneOfThese([ :First, :FirstItem ])
+					n1 = 1
+				but Q(n1).IsOneOfThese([ :Last, :LastItem ])
+					n1 = This.NumberOfItems()
+				ok
+			ok
+	
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+	
+			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToPositionOf ])
+				n2 = n2[2]
+			ok
+	
+			if isString(n2)
+				if Q(n2).IsOneOfThese([ :Last, :LastItem ])
+					n2 = This.NumberOfItems()
+				but Q(n1).IsOneOfThese([ :First, :FirstItem ])
+					n2 = 1
+				ok
+			ok
+	
+			if NOT isNumber(n2)
+				StzRaise("Incorrect param type! n2 must be a number.")
+			ok
+		ok
+
+		# Doing the job
+
+		anPos = This.SectionQ(n1, n2).FindCS(pItem, pCaseSensitive)
+		nLen = len(anPos)
+
+		n1 = Min([ n1, n2 ])
+
+		anResult = []
+		for i = 1 to nLen
+			anResult + (anPos[i] + (n1 - 1))
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindInSectionCSZ(pItem, n1, n2, pCaseSensitive)
+			return This.FindInSectionCS(pItem, n1, n2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInSection(pItem, n1, n2)
+		return This.FindInSectionCS(pItem, n1, n2, :CaseSensitive = TRUE)
+		
+		#< @FunctionAlternativeForm
+
+		def FindInSectionZ(pItem, n1, n2)
+			return This.FindInSection(pItem, n1, n2)
+
+		#>
+
+	  #---------------------------------------------------#
+	 #  FINDING OCCURRENCES OF AN ITEM IN MANY SECTIONS  #
+	#---------------------------------------------------#
+
+	def FindInSectionsCS(pItem, paSections, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		nLen = len(paSections)
+		aResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindInSectionCS(pItem, paSections[i][1], paSections[i][2], pCaseSensitive)
+			nLenPos = len(anPos)
+			for j = 1 to nLenPos
+				aResult + anPos[j]
+			next
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindInManySectionsCS(pItem, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		#--
+
+		def FindInSectionsCSZ(pItem, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def FindInManySectionsCSZ(pItem, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindInSections(pItem, paSections)
+		return This.FindInSectionsCS(pItem, paSections, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindInManySections(pItem, paSections)
+			return This.FindInSections(pItem, paSections)
+
+		#--
+
+		def FindInSectionsZ(pItem, paSections)
+			return This.FindInSections(pItem, paSections)
+
+		def FindInManySectionsZ(pItem, paSections)
+			return This.FindInSections(pItem, paSections)
+
+		#>
+
+	  #--------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF AN ITEM IN A GIVEN SECTION  #
+	#========================================================#
+
+	def FindNthInSectionCS(n, pItem, n1, n2, pCaseSensitive)
+
+		# Resolving the n1 and n2 params
+
+		if CheckParams()
+			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
+				n1 = n1[2]
+			ok
+	
+			if isString(n1)
+				if Q(n1).IsOneOfThese([ :First, :FirstItem ])
+					n1 = 1
+				but Q(n1).IsOneOfThese([ :Last, :LastItem ])
+					n1 = This.NumberOfItems()
+				ok
+			ok
+	
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+	
+			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToPositionOf ])
+				n2 = n2[2]
+			ok
+	
+			if isString(n2)
+				if Q(n2).IsOneOfThese([ :Last, :LastItem ])
+					n2 = This.NumberOfItems()
+				but Q(n1).IsOneOfThese([ :First, :FirstItem ])
+					n2 = 1
+				ok
+			ok
+	
+			if NOT isNumber(n2)
+				StzRaise("Incorrect param type! n2 must be a number.")
+			ok
+		ok
+
+		# Doing the job
+
+		nPos = This.SectionQ(n1, n2).FindNthCS(n, pItem, pCaseSensitive)
+		nResult = n1 + nPos - 1
+
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindNthInSectionCSZ(n, pItem, n1, n2, pCaseSensitive)
+			return This.FindNthInSectionCS(n, pItem, n1, n2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthInSection(n, pItem, n1, n2)
+		return This.FindNthInSectionCS(n, pItem, n1, n2, :CaseSensitive = TRUE)
+		
+		#< @FunctionAlternativeForm
+
+		def FindNthInSectionZ(n, pItem, n1, n2)
+			return This.FindNthInSection(n, pItem, n1, n2)
+
+		#>
+
+	  #------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF AN ITEM IN MANY SECTIONS  #
+	#------------------------------------------------------#
+
+	def FindNthInSectionsCS(n, pItem, paSections, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		nLen = len(paSections)
+		nResult = 0
+		nCounter = 0
+
+		for i = 1 to nLen
+			anPos = This.FindInSectionCS(pItem, paSections[i][1], paSections[i][2], pCaseSensitive)
+			nLenPos = len(anPos)
+			for j = 1 to nLenPos
+				nCounter++
+				if nCounter = n
+					nResult = anPos[j]
+					exit
+				ok
+			next
+		next
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNthInManySectionsCS(n, pItem, paSections, pCaseSensitive)
+			return This.FindNthInSectionsCS(n, pItem, paSections, pCaseSensitive)
+
+		#--
+
+		def FindNthInSectionsCSZ(n, pItem, paSections, pCaseSensitive)
+			return This.FindNthInSectionsCS(n, pItem, paSections, pCaseSensitive)
+
+		def FindNthInManySectionsCSZ(n, pItem, paSections, pCaseSensitive)
+			return This.FindNthInSectionsCS(n, pItem, paSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthInSections(n, pItem, paSections)
+		return This.FindNthInSectionsCS(n, pItem, paSections, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNthInManySections(n, pItem, paSections)
+			return This.FindNthInSections(n, pItem, paSections)
+
+		#--
+
+		def FindNthInSectionsZ(n, pItem, paSections)
+			return This.FindNthInSections(n, pItem, paSections)
+
+		def FindNthInManySectionsZ(n, pItem, paSections)
+			return This.FindNthInSections(n, pItem, paSections)
+
+		#>
+
+	  #----------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF AN ITEM IN A GIVEN SECTION  #
+	#==========================================================#
+
+	def FindFirstInSectionCS(pItem, n1, n2, pCaseSensitive)
+		nResult = This.FindNthInSectionCS(1, pItem, n1, n2, pCaseSensitive)
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindFirstInSectionCSZ(pItem, n1, n2, pCaseSensitive)
+			return This.FindFirstInSectionCS(pItem, n1, n2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstInSection(pItem, n1, n2)
+		return This.FindFirstInSectionCS(pItem, n1, n2, :CaseSensitive = TRUE)
+		
+		#< @FunctionAlternativeForm
+
+		def FindFirstInSectionZ(pItem, n1, n2)
+			return This.FindFirstInSection(pItem, n1, n2)
+
+		#>
+
+	  #--------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF AN ITEM IN MANY SECTIONS  #
+	#--------------------------------------------------------#
+
+	def FindFirstInSectionsCS(pItem, paSections, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		nResult = 0
+		if len(aSections) > 0
+			aSections = QR(paSections, :stzListOfPairs).Sorted()
+			nResult = This.FindFirstInSectionCS(aSections[1], pCasSensitive)
+		ok
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def FindFirstInManySectionsCS(pItem, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		#--
+
+		def FindFirstInSectionsCSZ(pItem, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def FindFirstInManySectionsCSZ(pItem, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstInSections(pItem, paSections)
+		return This.FindFirstInSectionsCS(pItem, paSections, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindFirstInManySections(pItem, paSections)
+			return This.FindFirstInSections(pItem, paSections)
+
+		#--
+
+		def FindFirstInSectionsZ(pItem, paSections)
+			return This.FindFirstInSections(pItem, paSections)
+
+		def FindFirstInManySectionsZ(pItem, paSections)
+			return This.FindFirstInSections(pItem, paSections)
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF AN ITEM IN A GIVEN SECTION  #
+	#=========================================================#
+
+	def FindLastInSectionCS(pItem, n1, n2, pCaseSensitive)
+		nResult = This.FindNthInSectionCS(1, pItem, n1, n2, pCaseSensitive)
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindLastInSectionCSZ(pItem, n1, n2, pCaseSensitive)
+			return This.FindLastInSectionCS(pItem, n1, n2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastInSection(pItem, n1, n2)
+		return This.FindLastInSectionCS(pItem, n1, n2, :CaseSensitive = TRUE)
+		
+		#< @FunctionAlternativeForm
+
+		def FindLastInSectionZ(pItem, n1, n2)
+			return This.FindLastInSection(pItem, n1, n2)
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF AN ITEM IN MANY SECTIONS  #
+	#-------------------------------------------------------#
+
+	def FindLastInSectionsCS(pItem, paSections, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		nResult = 0
+		if len(aSections) > 0
+			aSections = QR(paSections, :stzListOfPairs).Sorted()
+			nResult = This.FindLastInSectionCS(aSections[1], pCasSensitive)
+		ok
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def FindLastInManySectionsCS(pItem, paSections, pCaseSensitive)
+			return This.FindLastInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		#--
+
+		def FindLastInSectionsCSZ(pItem, paSections, pCaseSensitive)
+			return This.FindLastInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def FindLastInManySectionsCSZ(pItem, paSections, pCaseSensitive)
+			return This.FindLastInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastInSections(pItem, paSections)
+		return This.FindLastInSectionsCS(pItem, paSections, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindLastInManySections(pItem, paSections)
+			return This.FindLastInSections(pItem, paSections)
+
+		#--
+
+		def FindLastInSectionsZ(pItem, paSections)
+			return This.FindLastInSections(pItem, paSections)
+
+		def FindLastInManySectionsZ(pItem, paSections)
+			return This.FindLastInSections(pItem, paSections)
+
+		#>
+
 	  #======================================================#
 	 #  GETTING NTH SMALLEST AND LARGEST ITEMS IN THE LIST  #
 	#======================================================#
@@ -27316,9 +27744,9 @@ class stzList from stzObject
 		def FindNthGreatest(n)
 			return This.FindNthLargestItem(n)
 
-	  #-----------------------------------------------------------#
+	  #===========================================================#
 	 #  CHECKING IF THE LIST CONTAINS JUST STRINGS IN UPPERCASE  #
-	#-----------------------------------------------------------#
+	#===========================================================#
 
 	def IsUppercase()
 		if This.IsListOfStrings() and
