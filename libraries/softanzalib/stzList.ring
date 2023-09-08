@@ -3116,7 +3116,7 @@ class stzList from stzObject
 	#-----------------------------#
 
 	def ReplaceLastItem(pOtherItem)
-		This.ReplaceNthItem(:LastItem, pOtherItem)
+		This.ReplaceNthItem(This.NumberOfItems(), pOtherItem)
 
 		def ReplaceLastItemQ(pOtherItem)
 			This.ReplaceLastItem(pOtherItem)
@@ -5624,14 +5624,49 @@ class stzList from stzObject
 		This.Clear()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def ExtractList()
+			return This.ExtractAll()
+
+		def ExtractAllList()
+			return This.ExtractAll()
+
+		#--
+
 		def PopAll()
 			return This.ExtractAll()
+
+		def PopList()
+			return This.ExtractAll()
+
+		def PopAllList()
+			return This.ExtractAll()
+
+		#>
 
 	def AllItemsExtracted()
 		return This.ExtractAll()
 
+		#< @FunctionAlternativeForms
+
+		def ListExtracted()
+			return This.ExtractAll()
+
+		def AllListExtracted()
+			return This.ExtractAll()
+
+		#--
+
 		def AllItemsPopped()
 			return This.ExtractAll()
+
+		def ListPopped()
+			return This.ExtractAll()
+
+		def AllListPopped()
+			return This.ExtractAll()
+		#>
 
 	  #---------------------------#
 	 #  EXTRACTING THE NTH ITEM  #
@@ -5712,7 +5747,13 @@ class stzList from stzObject
 	#----------------------------#
 
 	def ExtractLastItem()
-		return This.ExtractAt(:Last)
+		return This.ExtractAt(This.NumberOfItems())
+		# TODO: the line above was:
+		# return This.ExtractAt(:Last)
+		# but since CheckParams() is used in ExtractAt(),
+		# the special value :Last will not be recognosed.
+		# That's why I changed it to its actual value NumberOfItems()
+		#--> Do the same all over the library!
 
 		def PopLastItem()
 			return This.ExtractLastItem()
@@ -5828,12 +5869,13 @@ class stzList from stzObject
 		def FirstOccurrencePopped(pItem)
 			return This.ExtractFirst(pItem)
 
-	  #----------------------------------------------#
+	  #---------------------------------------------#
 	 #  EXTRACTING THE LAST OCCURRENCE OF AN ITEM  #
-	#----------------------------------------------#
+	#---------------------------------------------#
 
 	def ExtractLastCS(pItem, pCaseSensitive)
-		return This.ExtractNthOccurrenceCS(:Last, pItem, pCaseSensitive)
+		nLast = This.NumberOfOcurrencesCS(pItem, pCaseSensitive)
+		return This.ExtractNthOccurrenceCS(nLast, pItem, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
@@ -22861,8 +22903,9 @@ class stzList from stzObject
 	 #  FINDING LAST ITEM VERIFYING A GIVEN CONDITION  #
 	#-------------------------------------------------#
 
-	def FindLastW(pcCondition)
-		return FindNthW(:LastOccurrence, pcCondition)
+	def FindLastW(pcCondition) # TODO: Check for performance
+		nLastW = This.NumberOfOccurrencesW(pcCondition)
+		return FindNthW(nLastW , pcCondition)
 
 		def FindLastItemW(pcCondition)
 			return This.FindLastW(pcCondition)
@@ -22951,8 +22994,9 @@ class stzList from stzObject
 	 #  FINDING LAST ITEM VERIFYING A GIVEN CONDITION -- EXTENDED  #
 	#-------------------------------------------------------------#
 
-	def FindLastWXT(pcCondition)
-		return FindNthWXT(:LastOccurrence, pcCondition)
+	def FindLastWXT(pcCondition) # TODO: Check for performance
+		n = This.NumberOfItemsW(pcCondition)
+		return FindNthWXT(n, pcCondition)
 
 		def FindLastItemWXT(pcCondition)
 			return This.FindLastWXT(pcCondition)
@@ -27191,11 +27235,13 @@ class stzList from stzObject
 	#--------------------------------------------------------------------#
 
 	def FindNthOccurrenceOfSmallestItem(n)
-		if isString(n)
-			if Q(n).IsEither(:First, :Or = :FirstItem)
-				n = 1
-			but Q(n).IsEither(:Last, :Or = :LastItem)
-				n = This.NumberOfOccurrencesOfSmallestItem()
+		if CheckParams()
+			if isString(n)
+				if Q(n).IsEither(:First, :Or = :FirstItem)
+					n = 1
+				but Q(n).IsEither(:Last, :Or = :LastItem)
+					n = This.NumberOfOccurrencesOfSmallestItem()
+				ok
 			ok
 		ok
 
@@ -27205,11 +27251,13 @@ class stzList from stzObject
 			return This.FindNthSmallestItem(n)
 
 	def FindNthOccurrenceOfLargestItem(n)
-		if isString(n)
-			if Q(n).IsEither(:First, :Or = :FirstItem)
-				n = 1
-			but Q(n).IsEither(:Last, :Or = :LastItem)
-				n = This.NumberOfOccurrencesOfLargestItem()
+		if CheckParams()
+			if isString(n)
+				if Q(n).IsEither(:First, :Or = :FirstItem)
+					n = 1
+				but Q(n).IsEither(:Last, :Or = :LastItem)
+					n = This.NumberOfOccurrencesOfLargestItem()
+				ok
 			ok
 		ok
 

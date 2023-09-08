@@ -932,7 +932,7 @@ Class stzTable
 	#=======================================#
 
 	def LastColName()
-		return This.NthColName(:Last)
+		return This.NthColName(This.NumberOfCols())
 
 		def LastColumnName()
 			return This.LastColName()
@@ -942,7 +942,7 @@ Class stzTable
 	#-----------------------------------------------------#
 
 	def LastCol()
-		return This.NthCol(:Last)
+		return This.NthCol(This.NumberOfCols())
 
 		def LastColumn()
 			return This.LastCol()
@@ -958,7 +958,7 @@ Class stzTable
 	#--------------------------------------------------------------------------#
 
 	def LastColXT()
-		return This.NthCOlXT(:Last)
+		return This.NthCOlXT(This.NumberOfCols())
 
 		def LastColumnXT()
 			return This.LastColXT()
@@ -1390,10 +1390,10 @@ Class stzTable
 	#----------------------#
 
 	def LastRowXT()
-		return This.NthRowXT(:Last)
+		return This.NthRowXT(This.NumberOfRows())
 
 	def LastRow()
-		return This.NthRow(:Last)
+		return This.NthRow(This.NumberOfRows())
 
 	  #--------------------------------#
 	 #   GETTING THE NUMBER OF ROWS   #

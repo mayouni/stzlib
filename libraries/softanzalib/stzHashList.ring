@@ -351,7 +351,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.NthValueQ(1)
 	
 	def LastValue()
-		return This.NthValue(:Last)
+		return This.NthValue(This.NumberOfValues())
 
 		def LastValueQ()
 			return Q( This.LastValue() )
@@ -420,7 +420,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return This.LastPair(n)
 
 		def LastPairQ()
-			return This.NthPairQ(:Last)
+			return This.NthPairQ(This.NumberOfPairs())
 
 	def KeyInPair(paPair)
 		if isList(paPair) and ListIsPairAndKeyIsString(paPair) and
@@ -812,7 +812,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This
 
 	def ReplaceLastKey(pcNewKey)
-		This.ReplaceNthKey(:Last, pcNewKey)
+		This.ReplaceNthKey(This.NumberOfKeys(), pcNewKey)
 
 		def ReplaceLastKeyQ(pcNewKey)
 			This.ReplaceLastKey(pcNewKey)
@@ -951,7 +951,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return This.FindFirstOccurrenceOfValue(pValue) 
 
 	def FindLastOccurrenceOfValue(pValue)
-		return This.FindNthOccurrenceOfValue(:Last, pValue)
+		return This.FindNthOccurrenceOfValue(This.NumberOfValues(), pValue)
 
 		def FindLastValue(pValue)
 			return This.FindLastOccurrenceOfValue(pValue) 
@@ -1069,7 +1069,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return This.FindNthValueInList(1, pValue)
 
 	def FindLastOccurrenceOfValueInList(pValue)
-		return This.FindNthOccurrenceOfValueInList(:Last, pValue)
+		return This.FindNthOccurrenceOfValueInList(This.NumberOfValues(), pValue)
 
 	def FindKeysByValueInList(pValue)
 		anPos = This.FindValueInList(pValue)

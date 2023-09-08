@@ -204,7 +204,8 @@ o1.RemoveThisFirstItemCS("b", :CS = FALSE)
 ? @@( o1.Content() )
 #--> [ "C", "D", "E" ]
 
-o1.RemoveNthItem(:Last)
+o1.RemoveNthItem(:Last) # ChekParams() should be turned ON for :Last to be recognised
+			# Otherwise, use o1.RemoveNthItem(o1.NumberOfItems())
 ? @@( o1.Content() )
 #--> [ "C", "D" ]
 

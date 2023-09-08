@@ -4069,7 +4069,9 @@ o1.RemoveThisFirstCharCS("a", :CS = FALSE)
 ? o1.Content()
 #--> BC_DE_
 
-o1.RemoveNthChar(:Last)
+o1.RemoveNthChar(:Last) # Works when ChekParams() = TRUE (the default)
+			# Otherwise use o1.RemoveLastChar() or
+			# o1.RemoveNthChar(o1.NumberOfChars())
 ? o1.Content()
 #--> BC_DE
 
