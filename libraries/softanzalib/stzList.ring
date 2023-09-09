@@ -15449,11 +15449,55 @@ class stzList from stzObject
 				return This.Item(pValue)
 
 			but isString(pValue)
-				// Revturns a reversed copy of the list
-				if pValue = "::-1" # Used for compatibility wirh external Ring code
-					return This.Reversed()
+				oStr = new stzString(pValue)
 			
-				but StzStringQ(pValue).TrimQ().IsBoundedBy([ "{", "}" ])
+				if oStr.NumberOfOccurrenceQ(":").IsEither(1, 2) and
+				    oStr.Copy().RemoveQ(":").IsNumberInString()
+
+					/* EXAMPLES
+
+					? Q(1:5)['::-1']
+					#--> [ 5, 4, 3, 2, 1 ]
+
+					? Q(1:10)['2:8:2']
+					#--> [ 2, 4, 6, 8 ]
+
+					*/
+
+					acNumbers = oStr.SplitAt(":")
+					nLen = len(acNumbers)
+
+					n1 = 1
+					if acNumbers[1] != NULL
+						n1 = 0+ acNumbers[1]
+					ok
+
+					n2 = This.NumberOfItems()
+					if acNumbers[2] != NULL
+						n2 = 0+ acNumbers[2]
+					ok
+
+					nStep = 1
+					if nLen = 3
+						nStep = 0+ acNumbers[3]
+					ok
+
+					aContent = This.Content()
+					aResult = []
+
+					if nStep < 0
+						nTemp = n1
+						n1 = n2
+						n2 = nTemp
+					ok
+
+					for i = n1 to n2 step nStep
+						aResult + aContent[i]
+					next
+
+					return aResult
+
+				but oStr.TrimQ().IsBoundedBy([ "{", "}" ])
 
 					pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved([ "{", "}" ])
 					anResult = []

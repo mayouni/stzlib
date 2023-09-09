@@ -1,35 +1,102 @@
 load "stzlib.ring"
 
+/*---------
 
-#=========== TODO: Review string comparaision logic in stzString
-/*
 pron()
 
-? Q("sam") < "samira"
-#--> TRUE
+n = 12
+sign = (n>0) -> "positive" : "negative"
 
-? Q("samira") > "ira"
-#--> TRUE
-
-? Q("qam") = "sam"
-#--> FALSE
-
-? Q("QAM") = "qam"
-#--> FALSE
+? sign
 
 proff()
-# Executed in 0.06 second(s)
+
+/*===========
+
+# Exploring the possibility of using named vars to make it
+" possible finding objects by name inside a list!
+
+pron()
+
+vr(:obj) '<~' vl(5)
+? v(:obj)
+
+proff()
+
+/*======
+
+pron()
+
+? @@( Q("::2").splitat(":") )
+#--> [ NULL, NULL, "2" ]
+
+proff()
 
 /*==== Using a Python code inside Ring ===
 
+
 pron()
+
+# Reversing a list, the Python way
+
+? Q(1:5)['::-1']
+#--> [ 5, 4, 3, 2, 1 ]
+
+# Getting a part of the list (from 2 to 8) with a step of 2
+
+? Q(1:10)['2:8:2']
+#--> [ 2, 4, 6, 8 ]
+
+proff()
+
+/*------------
+
+pron()
+
+'
+range(1, 5)[::-1]
+#--> [ 4, 3, 2, 1 ]
+'
 
 # Reversing a list, the Python-way:
 
-? Q(1:5)['::-1']
-#--> [5, 4, 3, 1]
+? range1Q([ 1, 5 ])['::-1']
+#--> [ 4, 3, 2, 1 ]
 
 proff()
+
+/*--------------
+*/
+pron()
+
+# Used to suppoprt external code from 0-based languages
+
+? range0(3)
+#--> [0, 1, 2]
+
+? range0([ 1, 3 ]) 
+#--> [1, 2]
+
+? range0([ 2, 8, 3 ])
+#--> [2, 5]
+
+# Used in Ring 1-based lists
+
+? range1(3)
+#--> [1, 2, 3]
+
+? range1([ 1, 3 ]) 
+#--> [1, 2, 3]
+
+? range1([ 2, 8, 3 ])
+#--> [2, 5, 8]
+
+# Special accessor (python-like), used here to reverse the list
+
+? range1(':5:-1')
+
+proff()
+
 
 /*--------------
 
@@ -457,10 +524,10 @@ proff()
 # Executed in 0.06 second(s)
 
 /*--------------
-*/
+
 pron()
 
-# Ternary operator in C
+# Ternary operator in C-style languages (C, C#, Java, Javascript, PHP...)
 # variable = (condition) ? value1 : value2;
 
 '
@@ -497,7 +564,7 @@ proff()
 # Executed in 0.12 second(s)
 
 /*--------------
-*/
+
 pron()
 
 bPositive = FALSE
@@ -509,7 +576,7 @@ V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10 ])
 proff()
 
 /*--------------
-*/
+
 pron()
 
 bPositive = FALSE
@@ -521,13 +588,16 @@ V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10, -20 ])
 proff()
 
 /*--------------
-*/
+
 pron()
 
 bPositive = TRUE
 Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 ? @@( v([ :x, :y, :z ]) )
 #--> [ 1, 2, 3 ]
+
+proff()
+# Executed in 0.07 second(s)
 
 /*===============
 
