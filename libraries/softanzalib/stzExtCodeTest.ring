@@ -417,11 +417,11 @@ setV(:name = "cherihen")
 
 proff()
 
-/*--------------
+/*============ TERNARY OPERATOR
 
 pron()
 
-# In Pyhthon we can write:
+# In Python we can use ternary operator like this:
 	'
 	something = true // or false
 	value = "foo" if something else "bar"
@@ -437,6 +437,7 @@ pron()
 	ok
 
 # But what if we write it, the Pyhton-way, in Ring, using Softanza?
+
 # To to that, we just need to decorate the Python code with vr(), vl(),
 # _if() and _else() functions:
 
@@ -456,6 +457,29 @@ proff()
 # Executed in 0.06 second(s)
 
 /*--------------
+*/
+pron()
+
+# Ternary operator in C
+# variable = (condition) ? value1 : value2;
+
+'
+	n = -12;
+	sign = (n > 0) ? "postive" : "negative";
+	printf(sign);
+	#--> negative
+'
+
+# The same syntax in Ring (with Softanza)
+
+	n = -12;
+	vr(:sign) '=' b(n > 0) '?' bv("positive", "negative");
+	printf( v(:sign) );
+	#--> negative
+
+proff()
+
+/*============
 
 pron()
 
