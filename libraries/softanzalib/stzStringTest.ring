@@ -10034,3 +10034,22 @@ o1 = new stzString("ABTCADNBBABEFACCC")
 #  "T" :  --^----.------.-^ (2)
 #  "V" :  -------^------^-- (2)
 #  "X" :  ----------------- (0)
+
+/*=========== TODO: Review string comparaision logic in stzString
+
+pron()
+
+? Q("sam") < "samira"
+#--> TRUE
+
+? Q("samira") > "ira"
+#--> TRUE
+
+? Q("qam") = "sam"
+#--> FALSE
+
+? Q("QAM") = "qam"
+#--> FALSE
+
+proff()
+# Executed in 0.06 second(s)

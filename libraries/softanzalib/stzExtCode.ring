@@ -64,7 +64,6 @@ func TempVal()
 		return _var[2]
 	ok
 
-
 func TempVarVal()
 	return _var
 
@@ -217,7 +216,9 @@ func Vl(paVals)
 	ok
 
 	if NOT isList(paVals)
-		StzRaise("Incorrect param type! pacVals must be a list of strings.")
+		aTemp = []
+		aTemp + paVals
+		paVals = aTemp
 	ok
 
 	# Taking a copy of the current temp var
@@ -300,14 +301,11 @@ func bv(val1, val2)
 		_aVars[nLen][2] = val1
 	else
 		_aVars[nLen][2] = val2
-	ok
+	ok	
 
-	
-		
-
-func range(p)
+func range0(p)
 	# Python...	: range(3) 		--> [0, 1, 2]
-	# Pythin..	: range(-3, 4, 2)	--> [-3, -1, 1, 3 ]
+	# Python..	: range(-3, 4, 2)	--> [-3, -1, 1, 3 ]
 	# JS/PHP/...	: range(1, 3) 		--> [1, 2, 3]
 
 	aResult = []
@@ -338,39 +336,34 @@ func range(p)
 
 	return aResult
 
+	def range0Q(p)
+		return new stzList(range(p))
+
+	def range(p)
+		return range0(p)
+
+		return rangeQ(p)
+			return range0Q(p)
+
 func range1(p)
 	aResult = []
 	if isNumber(p)
-		# Example: range(3) #--> [ 0, 1, 2 ]
+		# Example: range1(3) #--> [ 1, 2, 3 ]
 		aResult = 1 : p
 
 	but isList(p)
 		if Q(p).IsListOfNumbers()
 			if len(p) = 3
-				# 			v step
-				# Example: range(-3, 4, 2) #--> [ -3, -1, 1, 3 ]
+				#                      step
+				# 			 v
+				# Example: range1(-3, 4, 2) #--> [ -3, -1, 1, 3 ]
 				aResult = []
-	
-				if p[1] >= 0
-					p[1]++
-				ok
-
-				if p[2] >= 0
-					p[2]--
-				ok
 
 				for i = p[1] to p[2] step p[3]
 					aResult + i
 				next
 	
 			but len(p) = 2
-				if p[1] >= 0
-					p[1]++
-				ok
-
-				if p[2] >= 0
-					p[2]--
-				ok
 
 				# Example: range(1, 5) #--> [1, 2, 3, 4 ]
 				aResult = p[1] : p[2]
@@ -383,6 +376,9 @@ func range1(p)
 	ok
 
 	return aResult
+
+	def range1Q(p)
+		return new stzList(range1(p))
 
 func print(str)
 	? str
