@@ -23,6 +23,9 @@ _oldVar = []	# A copy of the temp var before it is changed
 console = new console
 None = NULL
 
+_b = false 	# Used for ternary operators in C
+_bv = null	# Idem
+
   ///////////////////
  ///  FUNCTIONS  ///
 ///////////////////
@@ -159,6 +162,13 @@ func DataVarsXT()
 
 
 func Vr(pacVars)
+
+	if isString(pacVars)
+		aTemp = []
+		aTemp + pacVars
+		pacVars = aTemp
+	ok
+
 	if NOT ( isList(pacVars) and Q(pacVars).IsListOfStrings() )
 		StzRaise("Incorrect param type! pcVars must be a list of strings.")
 	ok
@@ -240,6 +250,8 @@ func Vl(paVals)
 		_oldVar = _var
 	ok
 
+# Used for ternary operator in Python
+
 func _if(pExpressionOrBoolean)
 	_bVarReset = FALSE
 	bTemp = TRUE
@@ -277,8 +289,18 @@ func _else(value)
 		next
 	ok
 
+# Used for ternary operator in C
 
-	
+func b(e)
+	_b = e
+
+func bv(val1, val2)
+	nLen = len(_aVars)
+	if _b = true
+		_aVars[nLen][2] = val1
+	else
+		_aVars[nLen][2] = val2
+	ok
 
 	
 		
@@ -369,6 +391,12 @@ func print(str)
 		print(str)
 
 	func WriteLine(str)
+		print(str)
+
+	func println(str)
+		print(str)
+
+	func printf(str)
 		print(str)
 
 func $(str) // C#
