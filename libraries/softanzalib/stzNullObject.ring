@@ -34,3 +34,21 @@ class stzNullObject from stzObject
 
 	def Content()
 		return @cContent
+
+	def Where(pcCondition)
+		return NULL
+
+		def W(pcCondition)
+			return NULL
+
+	def IsEqualToCSQ(p, pCaseSensitie)
+		return This
+
+		def IsEqualToQ(p)
+			return This
+
+	def IsEqualToCS(p, pCaseSensitive)
+		return FALSE
+
+		def ISEqualTo(p)
+			return FALSE

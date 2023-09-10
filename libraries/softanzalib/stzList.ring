@@ -3761,8 +3761,15 @@ class stzList from stzObject
 	#=========================================================#
 
 	def RemoveAllCS(pItem, pCaseSensitive)
-		if isList(pItem) and Q(pItem).IsOfNamedParam()
-			pItem = pItem[2]
+		if CheckParams()
+			if isList(pItem)
+				This.RemoveManyCS(pcSubStr, pCaseSensitive)
+				return
+			ok
+
+			if isList(pItem) and Q(pItem).IsOfNamedParam()
+				pItem = pItem[2]
+			ok
 		ok
 
 		anPositions = This.FindAllCS(pItem, pCaseSensitive)

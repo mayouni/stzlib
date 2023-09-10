@@ -53481,6 +53481,18 @@ def ReplaceIBS()
 	#==============================#
 
 	def RemoveCS(pSubStr, pCaseSensitive)
+		if CheckParams()
+			if isList(pcSubStr)
+				if Q(pcSubStr).IsListOfStrings()
+					This.RemoveManyCS(pcSubStr, pCaseSensitive)
+
+				but Q(pcSubStr).IsListOfNumbers()
+					This.ReloveCharsAtPositions(pcSubStr)
+				ok
+				return
+			ok
+		ok
+
 		This.ReplaceCS(pSubstr, "", pCaseSensitive)
 
 		def RemoveCSQ(pSubStr, pCaseSensitive)

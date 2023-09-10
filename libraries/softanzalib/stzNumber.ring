@@ -1505,13 +1505,28 @@ class stzNumber from stzObject
 	  #-------------------#
 	 #    COMPARAISON    #
         #-------------------#
-		
+	
 	def IsEqualToCS(pOtherNumber, pCaseSensitive)
 		return This.IsEqualTo(pOtherNumber)
 
 	def IsEqualTo(pOtherNumber)
+
+		# A check made to enable some external code
+		# In Ring context use IsEqualToQ()
+
+		if isObject(pOtherNumber)
+
+			if This.Content() = pOtherNumber.Content()
+				return pOtherNumber
+			else
+				return FALSE
+			ok
+		ok
+
+		# Doing the job
+
 		if NOT ( isNumber(pOtherNumber) or
-			 (isString(pOtherNumber) and _(pOtherNumber).@.RepresentsNumberInString()) )
+			 (isString(pOtherNumber) and Q(pOtherNumber).RepresentsNumberInString()) )
 
 			return FALSE
 		ok
@@ -1522,8 +1537,36 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionFluentForm
+
+		def IsEqualToQ(pOtherNumber)
+
+			bResult = FALSE
+
+			if isNumber(pOtherNumber) or
+			   ( isString(pOtherNumber) and Q(pOtherNumber).IsNumberInString() )
+
+				bResult = ( This.NumericValue() = 0+ pOtherNumber )
+				
+			ok
+
+			if bResult = TRUE
+				return This
+			else
+				return new stzFalsObject
+			ok
+
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def IsEqualWith(pOtherNumber)
 			return This.IsEqualTo(pOtherNumber)
+
+			def IsEqualWithQ(pOtherNumber)
+				return This.IsEqualToQ(pOtherNumber)
+
+		#>
 
 		#< @FunctionNegativeForm
 
