@@ -1,5 +1,46 @@
 load "stzlib.ring"
 
+/*---------- Multiple eqality check
+
+*/ 
+pron()
+
+# Multiple equality check is possible in many languages sutch as
+# Python, Javascript, Java, C, to site a few. In all cases it
+# takes the form :
+'
+value1 == value2 == value3
+'
+
+# Now, this is possible also in Ring:
+
+? Q(3+3) = Q(2+4) = Q(9-3) = 6
+#--> TRUE
+
+# In the background, Softanza enables this by overloading
+# the "=" operator on a pipe of softanza objects. In the
+# current case, they are stzNumber objects:
+
+? Q(3+3).IsEqualToQ(2+4).IsEqualToQ(9-3).IsEqualTo(6)
+#--> TRUE
+
+# Let's experiment with the FALSE output:
+
+? Q(3+3) = Q(2+444) = Q(9-3) = 6
+#--> FALSE
+
+# Internally, the implementation of the FALSE case
+# required the use of a special stzFalseObject.
+
+# While it is not necessary to undersdant it inorder
+# to use the syntax shown in this sample, one would gain
+# more clarity when it does...
+
+# TODO: Explain the use of stzFalseObject to enable
+# managing the FALSE case in multiple eqality check.
+
+proff()
+
 /*---------
 
 pron()
@@ -67,6 +108,63 @@ proff()
 
 /*--------------
 */
+# NOTE: examples borrowed from this article:
+# https://note.nkmk.me/en/python-range-usage
+
+pron()
+/*
+# range(n) : 0 <= x < n	--> n not included!
+
+	? range0(3)
+	#--> [ 0, 1, 2 ]
+
+	? @@( range0(-3) ) + NL
+	#--> []
+
+# range(n1, n2): n1 <= x < n2
+
+	? range0([ 3, 10 ])
+	#--> [ 3, 4, 5, 6, 7, 8, 9 ]
+	
+	? @@( range0([ 10, 3 ]) ) + NL
+	#--> []
+	
+	? range0([ -3, 3 ])
+	#--> [-3, -2, -1, 0, 1, 2]
+	
+	? @@( range0([ 3, -3 ]) )
+	#--> []
+	
+	? range0Q([0, 3]) = range0(3)
+	#--> TRUE
+*/
+# range(n1, n2, step): n1 <= x < n2 (increasing by step)
+
+	? range0([ 3, 10, 2 ])
+	#--> [ 3, 5, 7, 9 ]
+
+	? @@( range0([ 10, 3, 2 ]) ) + NL
+	#--> []
+
+	? range0([ 10, 3, -2 ])
+	#--> [ 10, 8, 6, 4 ]
+
+	? @@( range0([ 3, 10, -2 ]) )
+	#--> []
+
+# range(start, stop, 1) is equivalent to range(start, stop)
+
+	? range0Q([ 3, 10, 1 ]) = range0([ 3, 10 ])
+	#--> TRUE
+
+# range(0, stop, 1) is equivalent to range(0, stop) and range(stop)
+
+	? range0Q([ 0, 10, 1 ]) = range0Q([ 0, 10 ]) = range0(10)
+
+proff()
+
+/*--------------
+
 pron()
 
 # Used to suppoprt external code from 0-based languages
@@ -94,6 +192,10 @@ pron()
 # Special accessor (python-like), used here to reverse the list
 
 ? range1(':5:-1')
+#--> [ 5, 4, 3, 2, 1 ]
+
+? range0(':5:-1')
+#--> [ 4, 3, 2, 1, 0 ]
 
 proff()
 

@@ -310,24 +310,96 @@ func range0(p)
 
 	aResult = []
 	if isNumber(p)
-		# Example: range(3) #--> [ 0, 1, 2 ]
-		aResult = 0 : (p - 1)
+		# range(n) : 0 <= x < n	--> n not included!
+
+		# Example 1 : range(3)  #--> [ 0, 1, 2 ]
+		# Example 2 : range(-3) #--> []
+
+		if p > 0	
+			aResult = 0 : (p - 1)
+		ok
 
 	but isList(p)
 		if Q(p).IsListOfNumbers()
-			if len(p) = 3
-				# Example: range(-3, 3+1, 2) #--> [ -3, -1, 1, 3 ]
+
+			# range(n1, n2): n1 <= x < n2
+			#--> n1 included, but n2 not included!
+			if len(p) = 2
+				# Example 1: range(1, 5) #--> [1, 2, 3, 4 ]
+				# Example 2 : range(5, 1) #--> []
+
+				if p[1] < p[2]
+					aResult = p[1] : (p[2]-1)
+				ok
+
+			# range(n1, n2, step): n1 <= x < n2 (increasing by step)
+			but len(p) = 3
+
+				# Example: range(-3, 3, 2) #--> [ -3, -1, 1 ]
 				aResult = []
 	
-				for i = p[1] to p[2]-1 step p[3]
-					aResult + i
-				next
-	
-			but len(p) = 2
-				# Example: range(1, 5) #--> [1, 2, 3, 4 ]
-				aResult = p[1] : (p[2]-1)
+				if p[1] < p[2] and p[3] > 0
+					for i = p[1] to p[2]-1 step p[3]
+						aResult + i
+					next
+
+				but p[1] > p[2] and p[3] < 0
+
+					for i = p[1] to p[2]+1 step p[3]
+						aResult + i
+					next
+				ok
 			
 			ok
+		ok
+
+	but isString(p)
+
+		oStr = new stzString(p)
+
+		if oStr.NumberOfOccurrenceQ(":").IsEither(1, 2) and
+		oStr.Copy().RemoveManyQ([":", "-"]).IsNumberInString()
+
+			/* EXAMPLES
+	
+			? range0(':5:-1')
+			#--> [ 4, 3, 2, 1, 0 ]
+	
+			? range0('2:8:2')
+			#--> [ 3, 5, 7 ]
+	
+			*/
+	
+			acNumbers = oStr.SplitAt(":")
+			nLen = len(acNumbers)
+	
+			if acNumbers[2] = NULL
+				StzRaise("Incorrect syntax! The second parameter must not be empty.")
+			ok
+	
+			n1 = 0
+			if acNumbers[1] != NULL
+				n1 = 0+ acNumbers[1] + 1
+			ok
+	
+			n2 = 0+ acNumbers[2] - 1
+	
+			nStep = 1
+			if nLen = 3
+				nStep = 0+ acNumbers[3]
+			ok
+	
+			aResult = []
+	
+			if nStep < 0
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+	
+			for i = n1 to n2 step nStep
+				aResult + i
+			next
 		ok
 
 	else
@@ -371,6 +443,54 @@ func range1(p)
 			ok
 		ok
 
+	but isString(p)
+
+		oStr = new stzString(p)
+
+		if oStr.NumberOfOccurrenceQ(":").IsEither(1, 2) and
+		oStr.Copy().RemoveManyQ([":", "-"]).IsNumberInString()
+
+			/* EXAMPLES
+	
+			? range1(':5:-1')
+			#--> [ 5, 4, 3, 2, 1 ]
+	
+			? range1('2:8:2')
+			#--> [ 2, 4, 6, 8 ]
+	
+			*/
+	
+			acNumbers = oStr.SplitAt(":")
+			nLen = len(acNumbers)
+	
+			if acNumbers[2] = NULL
+				StzRaise("Incorrect syntax! The second parameter must not be empty.")
+			ok
+	
+			n1 = 1
+			if acNumbers[1] != NULL
+				n1 = 0+ acNumbers[1]
+			ok
+	
+			n2 = 0+ acNumbers[2]
+	
+			nStep = 1
+			if nLen = 3
+				nStep = 0+ acNumbers[3]
+			ok
+	
+			aResult = []
+	
+			if nStep < 0
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+	
+			for i = n1 to n2 step nStep
+				aResult + i
+			next
+		ok
 	else
 		StzRaise("Unsupported syntax!")
 	ok
