@@ -28055,6 +28055,67 @@ class stzList from stzObject
 
 		return anResult
 
+		def FindThisObject(p)
+			return This.FindObject(p)
+
+	def FindTheseObjects(paObjects)
+		if CheckParams() = TRUE
+			if NOT isList(paObjects)
+				StzRaise("Incorrect param type! paObjects must be a list.")
+			ok
+	
+		ok
+
+		nLen = len(paObjects)
+		anResult = []
+
+		for i = 1 to nLen
+			if IsStringOrObject(paObjects[i])
+				anPos = This.FindObject(paObjects[i])
+				nLenPos = len(anPos)
+				for j = 1 to nLenPos
+					anResult + anPos[j]
+				next
+			ok
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+			
+	def ObjectsZ()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		acSeen = []
+		for i = 1 to nLen	
+			if NOT isObject(aContent[i])
+				i++
+			ok
+
+			cName = :NoName
+
+			if ObjectIsStzObject(aContent[i])
+				cName = aContent[i].ObjectName()
+			ok
+
+			if ring_find(acSeen, cName)
+				loop
+			ok
+
+			anPos = This.FindObject(cName)
+			aResult + [ cName, anPos ]
+			acSeen + cName
+
+		next
+
+		return aResult
+
+		def ObjectsAndTheirPositions()
+			return This.Objects()
+
 	  #===========================================================#
 	 #  CHECKING IF THE LIST CONTAINS JUST STRINGS IN UPPERCASE  #
 	#===========================================================#

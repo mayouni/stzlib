@@ -456,8 +456,12 @@ class stzString from stzObject
 		but IsQString(pcStr)
 			@oQString = pcStr
 
+		but isList(pcStr) and Q(pcStr).IsPairOfStrings() # Named string
+			@cObjectName = pcStr[1]
+			@oQString = new QString2()
+			@oQString.append(pcStr[2])
 		else
-			stzRaise("Can't create the stzString object! You must provide a string, a QString.")
+			stzRaise("Can't create the stzString object! You must provide a string, a QString, or a pair of string (for named strings).")
 		ok
 
 	  #==========================#
@@ -1292,54 +1296,6 @@ class stzString from stzObject
 			ok
 		ok
 
-/*
-		if isString(n) and n = :String
-
-			# Case 1: o1.ExtendXT( :String, :With = "DE")
-			if isList(pWith) and Q(pWith).IsWithOrByOrUsingNamedParam()
-				This.ExtendWith(pWith[2])
-				return
-
-			# Case 2: o1.ExtendXT( :String, :ToPosition = 5 )
-			but isList(pWith) and Q(pWith).IsToOrToPositionNamedParam()
-				This.ExtendToPosition(pWith[2])
-				return
-
-			ok
-
-		but isList(n) and Q(n).IsToOrToPositionNamedParam()
-
-			if Q(pWith).IsWithOrUsingNamedParam() 
-
-				# Case 3: o1.ExtendXT( :ToPosition = 5, :With = :CharsRepeadted )
-				if isString(pWith[2]) and
-				   ( pWith[2] = :CharsRepeated or pWith[2] = :RepeatingChars )
-
-					This.ExtendToPositionWithCharsRepeadted(n[2])
-					return
-	
-				# Case 4: o1.ExtendXT( :ToPosition = 5, :With = "*" )
-				else
-					This.ExtendToPositionWith(n[2], pWith[2])
-					return
-				ok
-
-			but isString(pWith) and
-			    ( pWith = :ByRepeatingChars or pWith = :WithCharsRepeated )
-
-				This.ExtendToPositionWithCharsRepeadted(n)
-				return
-
-			# Case 5: o1.ExtendXT( :ToPostion = 5, :WithCharsIn = [ "D", "E" ])
-			but Q(pWith).IsWithCharsInNamedParam()
-				This.ExtendToPositionWithCharsIn(n[2], pWith[2])
-				return
-
-			ok
-		ok
-
-		StzRaise("Unsupported syntax!")
-*/
 		#< @FunctionFluentForm
 	
 		def ExtendXTQ(n, pWith)
