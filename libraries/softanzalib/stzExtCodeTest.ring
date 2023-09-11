@@ -1,21 +1,78 @@
 load "stzlib.ring"
 
+/*------------
+
 pron()
 
-greeting = new stzString("hi")
-? greeting.ObjectName()
+o1 = new stzString(:nation = "Niger")
+? o1.ObjectName()
+#--> nation
+
+o1.RenameIt(:country)
+? o1.ObjectName()
+#--> country
+
+proff()
+
+/*------------
+*/
+pron()
+
+# By default, a softanza object is created with no name
+# (actually, with a name called :noname)
+
+greeting = new stzString("Hi!")
+//? greeting.ObjectName()
 #--> noname
 
-greeting.SetObjectNameTo(:greeting)
-? greeting.ObjectName() + NL
+# You can name the object afterward, like this:
+greeting.NameIt(:greeting) # Or SetObjectName(:greeting
+# and than you can read the name:
+? greeting.ObjectName()
 #--> greeting
 
-o1 = new stzList([ "one", greeting, 12, greeting, Q("two"), 10 ])
+# Or you can create the named object explicitly, like this:
+hello = new stzString(:hello = "Hello Ring!")
+# and than you can read the name:
+? hello.ObjectName() + NL
+#--> hello
+
+# A third way, is to use Vr() and Vl() small functions, like this:
+# ...
+
+# In all case, we have now objects that we can refer to by their static
+# names we gave them in our code. And so, we can find them inside a list!
+
+o1 = new stzList([ "one", greeting, 12, greeting, Q("two"), hello, 10 , Q(10) ])
 ? @@( o1.FindObjects() )
-#--> [ 2, 4, 5 ]
+#--> [ 2, 4, 5, 6, 8 ]
 
 ? @@( o1.FindObject(:greeting) )
 #--> [ 2, 4 ]
+
+? @@( o1.FindObject(:hello) )
+#--> [ 2, 4 ]
+
+? @@( o1.ObjectsZ() ) # Or ObjectsAndTheirPositions()
+#--> [
+#	[ "greeting", [ 2, 4 ] ],
+#	[ "noname",   [ 5, 8 ] ],
+#	[ "hello",    [ 6 ]    ]
+# ]
+
+? @@( o1.FindTheseObjects([ :noname, :hello ]) ) + NL
+#--> [ 5, 6, 8 ]
+
+? @@( o1.TheseObjectsZ([ :noname, :hello ]) )
+
+#--
+
+o1.FindStzObjects()
+
+#--
+
+o1.FindQObjects()
+
 
 proff()
 
