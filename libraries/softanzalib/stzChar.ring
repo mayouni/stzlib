@@ -327,6 +327,17 @@ func LastLetterOf(pcStr)
 	func LastLetterIn(pcStr)
 		return LastLetterOf(pcStr)
 
+#--
+
+func NumberOfLatinLetters()
+	return 52
+
+func NumberOfArabicLetters()
+	return 28
+
+func NumberOfChineseLetters()
+	return 20000
+
   /////////////////
  ///   CLASS   ///
 /////////////////

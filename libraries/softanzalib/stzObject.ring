@@ -644,6 +644,8 @@ func PluralOfStzClassName(cClass)
 
 	return StzClassesXT()[cClass]
 
+	#< @FunctionAlternativeForms
+
 	func PluralOfStzType(cClass)
 		return PluralOfStzClassName(cClass)
 
@@ -670,6 +672,8 @@ func PluralOfStzClassName(cClass)
 	func PluralOfThisStzType(cClass)
 		return PluralOfStzClassName(cClass)
 
+	#>
+
 func PluralToStzType(cPlural)
 
 	oHash = new stzHashList( StzTypesXT() )
@@ -677,11 +681,15 @@ func PluralToStzType(cPlural)
 	cResult = oHash.NthKey(n)
 	return cResult
 
+	#< @FunctionAlternativeForms
+
 	func PluraltoStzClass(cPlural)
 		return PluralToStzType(cPlural)
 
 	func PluraltoStzClassName(cPlural)
 		return PluralToStzType(cPlural)
+
+	#>
 
 func IsStzobject(pObject)
 	if isObject(pObject) and _(classname(pObject)).Q.ExistsIn( StzTypes() )
@@ -980,6 +988,8 @@ class stzObject
 	@oObject
 	@cObjectVarName
 
+	@cObjectName = :NoName
+
 	def init(pObject)
 
 		# Creating an object from an existing object
@@ -1012,6 +1022,67 @@ class stzObject
 
 		def ObjectQ()
 			return new stzObject( This )
+
+	def ObjectName()
+		return @cObjectName
+
+		def ObjectNameQ()
+			return new stzString( This.ObjectName() )
+
+	def IsUnnamed()
+		if This.ObjectName() = :NoName
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsUnnamedObject()
+			return This.IsUnnamed()
+
+		def HasNoName()
+			return This.IsUnnamed()
+
+		def IsNotNamed()
+			return This.IsUnnamed()
+
+		def IsNotNamedObject()
+			return This.IsUnnamed()
+
+		def IsAnUnnamedObject()
+			return This.IsUnnamed()
+
+		def IsNotANamedObject()
+			return This.IsUnnamed()
+
+		#>
+
+	def IsNamed()
+		return NOT This.IsUnnamed()
+
+		#< @FunctionAlternativeForms
+
+		def IsNamedObject()
+			return This.IsUnnamed()
+
+		def HasName()
+			return This.IsUnnamed()
+
+		def HasAName()
+			return This.IsUnnamed()
+
+		def IsANamedObject()
+			return This.IsUnnamed()
+
+		#>
+
+	def SetObjectNameTo(pcObjectName)
+		if NOT isString(pcObjectName)
+			StzRaise("Incorrect param type! pcObjectName must be a string.")
+		ok
+
+		@cObjectName = pcObjectName
 
 	def Copy()
 		return new stzObject( This )

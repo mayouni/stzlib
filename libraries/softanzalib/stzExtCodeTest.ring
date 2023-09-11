@@ -1,7 +1,50 @@
 load "stzlib.ring"
 
-/*======= Multiple eqality check
+pron()
+
+greeting = new stzString("hi")
+? greeting.ObjectName()
+#--> noname
+
+greeting.SetObjectNameTo(:greeting)
+? greeting.ObjectName() + NL
+#--> greeting
+
+o1 = new stzList([ "one", greeting, 12, greeting, Q("two"), 10 ])
+? @@( o1.FindObjects() )
+#--> [ 2, 4, 5 ]
+
+? @@( o1.FindObject(:greeting) )
+#--> [ 2, 4 ]
+
+proff()
+
+/*=========== TODO
 */
+pron()
+# Exploring the possibility of using named vars to make it
+# possible finding objects by name inside a list!
+
+//VrVl( [ :my_name = Q("Mansour"), :my_age = "67" ] )
+
+
+Vr([ :my_name, :my_age ]) '<~' Vl([ Q("Mansour"), Q(67) ])
+? v(:my_name).ObjectName()
+
+proff()
+
+/*------------
+
+pron()
+
+Vr( "a" : "z" ) '<~' Vl( 1 : NumberOfLatinLetters() )
+? v(:t)
+#--> 20
+
+proff()
+
+/*======= Multiple eqality check
+
 pron()
 
 ? Q(3+3) = Q(2+4) = Q(9-3) = 6
@@ -53,18 +96,6 @@ value1 == value2 == value3
 
 # TODO: Explain the use of stzFalseObject to enable
 # managing the FALSE case in multiple eqality check.
-
-proff()
-
-/*===========
-
-# Exploring the possibility of using named vars to make it
-" possible finding objects by name inside a list!
-
-pron()
-
-vr(:obj) '<~' vl(5)
-? v(:obj)
 
 proff()
 
