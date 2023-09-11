@@ -4529,6 +4529,147 @@ class stzListOfStrings from stzList
 			def NthNextOccurrenceOfThisStringPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
+		#--
+
+		def FindNextNthOccurrenceOfStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def FindNextNthOccurrenceOfStringSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def FindNthNextOccurrenceOfStringItemSCS(n, pcStrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def FindNthNextOccurrenceOfStringSCS(n, pcStrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def FindNextNthSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def FindNthNextSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def FindNextNthOccurrenceSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def FindNthNextOccurrenceSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+	
+		def FindNextNthStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def FindNthNextStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+	
+		def FindNextNthStringSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def FindNthNextStringSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+	
+		def FindNextNthOccurrenceOfThisStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def FindNthNextOccurrenceOfThisStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+	
+		def FindNextNthOccurrenceOfThisStringSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def FindNthNextOccurrenceOfThisStringSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+	
+		def PositionsOfNextNthStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def PositionsOfNthNextStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+	
+		def NextNthStringItemPositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextStringItemPositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def PositionsOfNextNthStringSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+	
+		def NextNthStringPositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextStringPositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def PositionsOfNextNthSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def PositionsOfNthNextSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+	
+		def NextNthPositionssCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextPositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def PositionsOfNextNthOccurrenceSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def PositionsOfNthNextOccurrenceSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+	
+		def NextNthOccurrencePositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextOccurrencePositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def PositionsOfNextNthOccurrenceOfStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def PositionsOfNthNextOccurrenceOfStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def NextNthOccurrenceOfStringItemPosistionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextOccurrenceOfStringItemPositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def PositionsOfNextNthOccurrenceOfStringSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def PositionsOfNthNextOccurrenceOfStringSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+		
+		def NextNthOccurrenceOfStringPositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def PositionsOfNextNthOccurrenceOfThisStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def PositionsOfNthNextOccurrenceOfThisStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def NextNthOccurrenceOfThisStringItemPositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextOccurrenceOfThisStringItemPositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def PositionsOfNextNthOccurrenceOfThisStringSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def PositionsOfNthNextOccurrenceOfThisStringSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+		def NextNthOccurrenceOfThisStringPositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
+			def NthNextOccurrenceOfThisStringPositionsSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+
 		#>
 
 	#--- WITHOUT CASESENSITIVITY
@@ -4680,6 +4821,7 @@ class stzListOfStrings from stzList
 			def NthNextOccurrenceOfThisStringPositions(n, pcStrItem, pnStartingAt)
 				return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 		
+	
 		#>
 
 	  #-------------------------------------------------------------------------#

@@ -1,13 +1,28 @@
 load "stzlib.ring"
 
-/*---------- Multiple eqality check
-
-*/ 
+/*======= Multiple eqality check
+*/
 pron()
 
-# Multiple equality check is possible in many languages sutch as
-# Python, Javascript, Java, C, to site a few. In all cases it
-# takes the form :
+? Q(3+3) = Q(2+4) = Q(9-3) = 6
+#--> TRUE
+
+? Q("r"+"ing") = Q("ri"+"ng") = Q("rin"+"g") = "ring"
+#--> TRUE
+
+? Q(["♥", "♥"]+"♥") = Q(["♥"]+"♥"+"♥") = ["♥","♥", "♥"]
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-------
+
+pron()
+
+# Multiple equality checks are possible in many languages
+# such as Python, Javascript, Java, C, to name a few.
+# In all cases it takes the form :
 '
 value1 == value2 == value3
 '
@@ -38,17 +53,6 @@ value1 == value2 == value3
 
 # TODO: Explain the use of stzFalseObject to enable
 # managing the FALSE case in multiple eqality check.
-
-proff()
-
-/*---------
-
-pron()
-
-n = 12
-sign = (n>0) -> "positive" : "negative"
-
-? sign
 
 proff()
 
@@ -106,13 +110,13 @@ range(1, 5)[::-1]
 
 proff()
 
-/*--------------
+/*============
 */
 # NOTE: examples borrowed from this article:
 # https://note.nkmk.me/en/python-range-usage
 
 pron()
-/*
+
 # range(n) : 0 <= x < n	--> n not included!
 
 	? range0(3)
@@ -137,7 +141,7 @@ pron()
 	
 	? range0Q([0, 3]) = range0(3)
 	#--> TRUE
-*/
+
 # range(n1, n2, step): n1 <= x < n2 (increasing by step)
 
 	? range0([ 3, 10, 2 ])

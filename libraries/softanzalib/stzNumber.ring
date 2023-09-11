@@ -1516,7 +1516,9 @@ class stzNumber from stzObject
 
 		if isObject(pOtherNumber)
 
-			if This.Content() = pOtherNumber.Content()
+			if ( isNumber(pOtherNumber.Content()) or isString(pOtherNumber.Content()) ) and
+			   This.NumericValue() = 0+ pOtherNumber.Content()
+
 				return pOtherNumber
 			else
 				return FALSE

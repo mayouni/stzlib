@@ -12561,6 +12561,27 @@ class stzList from stzObject
 			3. same content
 		*/
 
+		# A check made to enable some external code
+		# In Ring context use IsEqualToQ()
+
+		if isObject(paOtherList)
+
+			content = paOtherList.Content()
+
+			if isList(content) and
+		  	   len(content) = len(This.List()) and
+		  	   This.HasSameContentAsCS(content, pCaseSensitive)
+
+				return paOtherList
+			else
+				return FALSE
+			ok
+		ok
+
+		if NOT isList(paOtherList)
+			return FALSE
+		ok
+
 		# Doublechecking for potential performance gain
 
 		if This.NumberOfItems() != len(paOtherList)
@@ -12575,6 +12596,25 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		#< @FunctionFluentForm
+
+		def IsEqualToCSQ(paOtherList)
+
+			bResult = FALSE
+
+			if isList(paOtherList)
+				bResult = This.IsEqualToCS(paOtherList, pCaseSensitive)
+				
+			ok
+
+			if bResult = TRUE
+				return This
+			else
+				return new stzFalsObject
+			ok
+
+		#>
 
 		#< @FunctionAlternativeForms
 
@@ -12595,6 +12635,9 @@ class stzList from stzObject
 	def IsEqualTo(paOtherList)
 		return This.IsEqualToCS(paOtherList, :CaseSensitive = TRUE)
 
+		def IsEqualToQ(paOtherList)
+			return This.IsEqualToCSQ(paOtherList, :CaseSensitive = TRUE)
+
 		#< @FunctionAlternativeForms
 
 		def IsEqual(paOtherList)
@@ -12603,6 +12646,13 @@ class stzList from stzObject
 			ok
 
 			return This.IsEqualTo(paOtherList)
+
+			def IsEqualQ(paOtherList)
+				return This.IsEqualToQ(paOtherList)
+
+		#>
+
+		#< @FunctionNegativeForm
 
 		def IsNotEqualTo(paOtherList)
 			return NOT This.IsEqualTo(paOtherList)
@@ -22405,6 +22455,26 @@ class stzList from stzObject
 		def FindNthNextCS( n, pItem, nStart, pCaseSensitive )
 			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
 
+		#--
+
+		def FindNthNextOccurrenceSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindNextNthOccurrenceSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def NthNextOccurrenceSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def NextNthOccurrenceSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindNextNthSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindNthNextSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -22429,6 +22499,26 @@ class stzList from stzObject
 		def FindNthNext( n, pItem, nStart )
 			return This.FindNthNextOccurrence( n, pItem, nStart )
 
+		#--
+
+		def FindNthNextOccurrenceS( n, pItem, nStart )
+			return This.FindNthNextOccurrence( n, pItem, nStart )
+
+		def FindNextNthOccurrenceS( n, pItem, nStart )
+			return This.FindNthNextOccurrence( n, pItem, nStart )
+
+		def NthNextOccurrenceS( n, pItem, nStart )
+			return This.FindNthNextOccurrence( n, pItem, nStart )
+
+		def NextNthOccurrenceS( n, pItem, nStart )
+			return This.FindNthNextOccurrence( n, pItem, nStart )
+
+		def FindNextNthS( n, pItem, nStart )
+			return This.FindNthNextOccurrence( n, pItem, nStart )
+
+		def FindNthNextS( n, pItem, nStart )
+			return This.FindNthNextOccurrence( n, pItem, nStart )
+
 		#>
 
 	   #-----------------------------------------------------#
@@ -22448,7 +22538,7 @@ class stzList from stzObject
 			nStart = nStart[2]
 		ok
 
-	# Resolving params
+		# Resolving params
 
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
 			pItem = pItem[2]
@@ -22521,6 +22611,26 @@ class stzList from stzObject
 		def FindNthPreviousCS( n, pItem, nStart, pCaseSensitive )
 			return This.FindNthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
 
+		#--
+
+		def FindNthPreviousOccurrenceSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindPreviousNthOccurrenceSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+	
+		def PreviousNthOccurrenceSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+	
+		def NthPreviousOccurrenceSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindPreviousNthSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindNthPreviousSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthPreviousOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -22544,6 +22654,27 @@ class stzList from stzObject
 
 		def FindNthPrevious( n, pItem, nStart )
 			return This.FindNthPreviousOccurrence( n, pItem, nStart )
+
+		#--
+
+		def FindNthPreviousOccurrenceS( n, pItem, nStart )
+			return This.FindNthPreviousOccurrence( n, pItem, nStart )
+
+		def FindPreviousNthOccurrenceS( n, pItem, nStart )
+			return This.FindNthPreviousOccurrence( n, pItem, nStart )
+	
+		def PreviousNthOccurrenceS( n, pItem, nStart )
+			return This.FindNthPreviousOccurrence( n, pItem, nStart )
+	
+		def NthPreviousOccurrenceS( n, pItem, nStart )
+			return This.FindNthPreviousOccurrence( n, pItem, nStart )
+
+		def FindPreviousNthS( n, pItem, nStart )
+			return This.FindNthPreviousOccurrence( n, pItem, nStart )
+
+		def FindNthPreviousS( n, pItem, nStart )
+			return This.FindNthPreviousOccurrence( n, pItem, nStart )
+
 
 		#>
 
@@ -22586,6 +22717,18 @@ class stzList from stzObject
 		def NextOccurrenceCS( pItem, nStart, pCaseSensitive )
 			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
 
+		#--
+
+		# Here I use _ to distinguish the function with FindNextOccurrencesCS(panPos,CS)
+		def FindNextOccurrence_SCS(pItem, nStart, pCaseSensitive)
+			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+		def FindNextSCS( pItem, nStart, pCaseSensitive )
+			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+		def NextOccurrence_SCS( pItem, nStart, pCaseSensitive )
+			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -22600,6 +22743,18 @@ class stzList from stzObject
 			return This.FindNextOccurrence(pItem, nStart)
 
 		def NextOccurrence( pItem, nStart )
+			return This.FindNextOccurrence(pItem, nStart)
+
+		#--
+
+		# Here I use _ to distinguish the function with FindNextOccurrences(panPos)
+		def FindNextOccurrence_S(pItem, nStart)
+			return This.FindNextOccurrence(pItem, nStart)
+
+		def FindNextS( pItem, nStart )
+			return This.FindNextOccurrence(pItem, nStart)
+
+		def NextOccurrence_S( pItem, nStart )
 			return This.FindNextOccurrence(pItem, nStart)
 
 		#>
@@ -22633,6 +22788,7 @@ class stzList from stzObject
 
 		return nResult
 
+		#< @FunctionAlternativeForms
 
 		def FindPreviousCS( pItem, nStart, pCaseSensitive )
 			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
@@ -22640,16 +22796,44 @@ class stzList from stzObject
 		def PreviousOccurrenceCS( pItem, nStart, pCaseSensitive )
 			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
 
+		#--
+
+		def FindPreviousOccurrence_SCS(pItem, nStart, pCaseSensitive)
+			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+		def FindPreviousSCS( pItem, nStart, pCaseSensitive )
+			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+		def PreviousOccurrence_SCS( pItem, nStart, pCaseSensitive )
+			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindPreviousOccurrence(pItem, nStart)
 		return This.FindPreviousOccurrenceCS(pItem, nStart, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def FindPrevious( pItem, nStart )
 			return This.FindPreviousOccurrence(pItem, nStart)
 
 		def PreviousOccurrence( pItem, nStart )
 			return This.FindPreviousOccurrence(pItem, nStart)
+
+		#--
+
+		def FindPreviousOccurrence_S(pItem, nStart)
+			return This.FindPreviousOccurrence(pItem, nStart)
+
+		def FindPreviousS( pItem, nStart )
+			return This.FindPreviousOccurrence(pItem, nStart)
+
+		def PreviousOccurrence_S( pItem, nStart )
+			return This.FindPreviousOccurrence(pItem, nStart)
+
+		#>
 
 	   #-----------------------------------------#
 	  #   FINDING NEXT OCCURRENCES OF AN ITEM   #
@@ -22693,6 +22877,14 @@ class stzList from stzObject
 		def NextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
 
+		#--
+
+		def FindNextOccurrencesSCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
+
+		def NextOccurrencesSCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
+
 		#>
 		
 	#-- WITHOUT CASESENSITIVITY
@@ -22703,6 +22895,14 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def NextOccurrences(pItem, pnStartingAt)
+			return This.FindNextOccurrences(pItem, pnStartingAt)
+
+		#--
+
+		def FindNextOccurrencesS(pItem, pnStartingAt)
+			return This.FindNextOccurrences(pItem, pnStartingAt)
+
+		def NextOccurrencesS(pItem, pnStartingAt)
 			return This.FindNextOccurrences(pItem, pnStartingAt)
 
 		#>
@@ -22740,8 +22940,22 @@ class stzList from stzObject
 		
 		return anPositions
 
+		#< @FunctionAlternativeForm
+
+		def FindPreviousOccurrencesSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
+
 	def FindPreviousOccurrences(pcSubStr, pnStartingAt)
 		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def FindPreviousOccurrencesS(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
+
+		#>
 
 	  #===================================================#
 	 #   FINDING ALL ITEMS VERIFYING A GIVEN CONDITION   #

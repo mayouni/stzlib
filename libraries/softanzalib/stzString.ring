@@ -4818,6 +4818,8 @@ class stzString from stzObject
 		
 		return nPos
 
+		#< @FunctionAlternativeForms
+
 		def FindNextNthMarquer(n, pnStartingAt)
 			return This.FindNthNextMarquer(n, pnStartingAt)
 
@@ -4838,6 +4840,34 @@ class stzString from stzObject
 
 		def PositionOfNextNthMarquer(n, pnStartingAt)
 			return This.FindNthNextMarquer(n, pnStartingAt)
+
+		#--
+
+		def FindNthNextMarquerS(n, pnStartingAt)
+			return This.FindNthNextMarquer(n, pnStartingAt)
+
+		def FindNextNthMarquerS(n, pnStartingAt)
+			return This.FindNthNextMarquer(n, pnStartingAt)
+
+		def NextNthMarquerOccurrenceS(n, pnStartingAt)
+			return This.FindNthNextMarquer(n, pnStartingAt)
+
+		def NthNextMarquerOccurrenceS(n, pnStartingAt)
+			return This.FindNthNextMarquer(n, pnStartingAt)		
+
+		def NthNextMarquerPositionS(n, pnStartingAt)
+			return This.FindNthNextMarquer(n, pnStartingAt)
+
+		def PositionOfNthNextMarquerS(n, pnStartingAt)
+			return This.FindNthNextMarquer(n, pnStartingAt)
+
+		def NextNthMarquerPositionS(n, pnStartingAt)
+			return This.FindNthNextMarquer(n, pnStartingAt)
+
+		def PositionOfNextNthMarquerS(n, pnStartingAt)
+			return This.FindNthNextMarquer(n, pnStartingAt)
+
+		#>
 
 	  #-------------------------------------------------#
 	 #    NTH NEXT MARQUER, ALONG WITH ITS POSITION    #
@@ -4883,7 +4913,18 @@ class stzString from stzObject
 			def NextNthMarquerAndItsPositionQR(n, pnStartingAt, pcReturnType)
 				return This.NextNthMarquerAndItsPositionQ(n, pnStartingAt)
 
-		def NextNthMarquerDZ(n, pnStartingAt)
+		def NextNthMarque(n, pnStartingAt)
+			return This.NextNthMarquerAndItsPosition(n, pnStartingAt)
+
+		#--
+
+		def NthNextMarquerAndItsPositionS(n, pnStartingAt)
+			return This.NthNextMarquerAndItsPosition(n, pnStartingAt)
+
+		def NextNthMarquerAndItsPositionS(n, pnStartingAt)
+			return This.NthNextMarquerAndItsPosition(n, pnStartingAt)
+
+		def NextNthMarquerSZ(n, pnStartingAt)
 			return This.NextNthMarquerAndItsPosition(n, pnStartingAt)
 
 		#>
@@ -4895,6 +4936,8 @@ class stzString from stzObject
 	def FindNextMarquer(pnStartingAt)
 		return This.FindNthNextMarquer(1, pnStartingAt)
 
+		#< @FunctionAlternativeForms
+
 		def NextMarquerPosition(pnStartingAt)
 			return This.FindNextMarquer(pnStartingAt)
 
@@ -4904,8 +4947,21 @@ class stzString from stzObject
 		def NextMarquerOccurrence(pnStartingAt)
 			return This.FindNextMarquer(pnStartingAt)
 
-		def FindNextMarquerD(pnStartingAt)
+		#--
+
+		def FindNextMarquerS(pnStartingAt)
 			return This.FindNextMarquer(pnStartingAt)
+
+		def NextMarquerPositionS(pnStartingAt)
+			return This.FindNextMarquer(pnStartingAt)
+
+		def PositionOfNextMarquerS(pnStartingAt)
+			return This.FindNextMarquer(pnStartingAt)
+
+		def NextMarquerOccurrenceS(pnStartingAt)
+			return This.FindNextMarquer(pnStartingAt)
+
+		#>
 
 	  #---------------------------------------------------------#
 	 #    GETTING NEXT MARQUER STARTING AT A GIVEN POSITION    #
@@ -4914,11 +4970,23 @@ class stzString from stzObject
 	def NextMarquer(pnStartingAt)
 		return This.NthNextMarquer(1, pnStartingAt)
 
+		#< @FunctionFluentForm
+
 		def NextMarquerQ(pnStartingAt)
 			return new stzString( This.NextMarquer(pnStartingAt) )
 
-		def NextMarquerD(pnStartingAt)
+		#>
+
+		#< @FunctionAlternativeForm
+
+		# Here we use _ to avoid confusion with NextMarquers()
+		def NextMarquer_S(pnStartingAt)
 			return This.NextMarquer(pnStartingAt)
+
+			def NextMarquer_SQ(pnStartingAt)
+				return new stzString( This.NextMarquer_S(pnStartingAt) )
+
+		#>
 
 	  #--------------------------------------------------------------------------#
 	 #    GETTING NEXT MARQUER AND ITS POSITION STARTING AT A GIVEN POSITION    #
@@ -4931,8 +4999,14 @@ class stzString from stzObject
 		aResult = [ cMarquer, nPosition ]
 		return aResult
 
+		#< @FunctionFluentForm
+
 		def NextMarquerAndItsPositionQ(pnStartingAt)
 			return new stzString( This.NextMarquerAndItsPosition(pnStartingAt) )
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def NextMarquerAndItsOccurrence(pnStartingAt)
 			return This.NextMarquerAndItsPosition(pnStartingAt)
@@ -4940,11 +5014,18 @@ class stzString from stzObject
 			def NextMarquerAndItsOccurrenceQ(pnStartingAt)
 				return new stzString( This.NextMarquerAndItsOccurrence(pnStartingAt) )
 
-		def NextMarquerDZ(pnStartingAt)
-			return This.NextMarquerAndItsPosition(pnStartingAt)
-
 		def NextMarquerZ(pnStartingAt)
 			return This.NextMarquerAndItsPosition(pnStartingAt)
+
+		#--
+
+		def NextMarquerAndItsOccurrenceS(pnStartingAt)
+			return This.NextMarquerAndItsPosition(pnStartingAt)
+
+		def NextMarquerSZ(pnStartingAt)
+			return This.NextMarquerAndItsPosition(pnStartingAt)
+
+		#>
 
 	  #---------------------------------#
 	 #    GETTING PREVIOUS MARQUERS    #
@@ -4998,13 +5079,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def PreviousMarquersD(pnStartingAt)
+		def PreviousMarquersS(pnStartingAt)
 			return This.PreviousMarquers(pnStartingAt)
 
-			def PreviousMarquersDQ()
+			def PreviousMarquersSQ()
 				return This.PreviousMarquersQ()
 
-			def PreviousMarquersDQR(pnStartingAt, pcReturnType)
+			def PreviousMarquersSQR(pnStartingAt, pcReturnType)
 				return This.PreviousMarquersQR(pnstartingAt, pcReturnType)
 
 		#>
@@ -5018,14 +5099,30 @@ class stzString from stzObject
 
 		return This.MarquerByPosition(nPos)
 		
+		#< @FunctionFluentForm
+
 		def NthPreviousMarquerQ(n, pnStartingAt)
 			return new stzString( This.NthPreviousMarquer(n, pnStartingAt) )
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def PreviousNthMarquer(n, pnStartingAt)
 			return This.NthPreviousMarquer(n, pnStartingAt)
 
 			def PreviousNthMarquerQ(n, pnStartingAt)
 				return new stzString( This.PreviousNthMarquer(n, pnStartingAt) )
+
+		#--
+
+		def NthPreviousMarquerS(n, pnStartingAt)
+			return This.NthPreviousMarquer(n, pnStartingAt)
+
+		def PreviousNthMarquerS(n, pnStartingAt)
+			return This.PreviousNthMarquer(n, pnStartingAt)
+
+		#>
 
 	  #------------------------------------#
 	 #    FINDING NTH PREVIOUS MARQUER    #
@@ -5086,6 +5183,32 @@ class stzString from stzObject
 		def PositionOfPreviousNthMarquer(n, pnStartingAt)
 			return This.FindNthPreviousMarquer(n, pnStartingAt)
 
+		#--
+
+		def FindNthPreviousMarquerS(n, pnStartingAt)
+			return This.FindNthPreviousMarquer(n, pnStartingAt)
+
+		def FindPreviousNthMarquerS(n, pnStartingAt)
+			return This.FindNthPreviousMarquer(n, pnStartingAt)
+
+		def PreviousNthMarquerOccurrenceS(n, pnStartingAt)
+			return This.FindNthPreviousMarquer(n, pnStartingAt)
+
+		def NthPreviousMarquerOccurrenceS(n, pnStartingAt)
+			return This.FindNthPreviousMarquer(n, pnStartingAt)		
+
+		def NthPreviousMarquerPositionS(n, pnStartingAt)
+			return This.FindNthPreviousMarquer(n, pnStartingAt)
+
+		def PositionOfNthPreviousMarquerS(n, pnStartingAt)
+			return This.FindNthPreviousMarquer(n, pnStartingAt)
+
+		def PreviousNthMarquerPositionS(n, pnStartingAt)
+			return This.FindNthPreviousMarquer(n, pnStartingAt)
+
+		def PositionOfPreviousNthMarquerS(n, pnStartingAt)
+			return This.FindNthPreviousMarquer(n, pnStartingAt)
+
 		#>
 
 	  #-------------------------------------------------------------------------#
@@ -5126,19 +5249,26 @@ class stzString from stzObject
 		def PreviousNthMarquerAndItsPosition(n, pnStartingAt)
 			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
 
-		def NthPreviousMarquerAndItsPositionD(n, pnStartingAt)
-			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
-
 		def NthPreviousMarquerZ(n, pnStartingAt)
 			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
-
 
 		def PreviousNthMarquerZ(n, pnstartingAt)
 			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
 
-		def PreviousNthMarquerZD(n, pnstartingAt)
+		#--
+
+		def NthPreviousMarquerAndItsPositionS(n, pnStartingAt)
 			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
- 
+
+		def PreviousNthMarquerAndItsPositionS(n, pnStartingAt)
+			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
+
+		def NthPreviousMarquerSZ(n, pnStartingAt)
+			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
+
+		def PreviousNthMarquerSZ(n, pnstartingAt)
+			return This.NthPreviousMarquerAndItsPosition(n, pnStartingAt)
+
 		#>
 
 	  #------------------------------#
@@ -5147,6 +5277,8 @@ class stzString from stzObject
 
 	def FindPreviousMarquer(pnStartingAt)
 		return This.FindNthPreviousMarquer(1, pnStartingAt)
+
+		#< @FunctionAlternativeForms
 
 		def PreviousMarquerPosition(pnStartingAt)
 			return This.FindPreviousMarquer(pnStartingAt)
@@ -5157,6 +5289,22 @@ class stzString from stzObject
 		def PreviousMarquerOccurrence(pnStartingAt)
 			return This.FindPreviousMarquer(pnStartingAt)
 
+		#--
+
+		def FindPreviousMarquerS(pnStartingAt)
+			return This.FindPreviousMarquer(pnStartingAt)
+
+		def PreviousMarquerPositionS(pnStartingAt)
+			return This.FindPreviousMarquer(pnStartingAt)
+
+		def PositionOfPreviousMarquerS(pnStartingAt)
+			return This.FindPreviousMarquer(pnStartingAt)
+
+		def PreviousMarquerOccurrenceS(pnStartingAt)
+			return This.FindPreviousMarquer(pnStartingAt)
+
+		#>
+
 	  #------------------------------#
 	 #   GETTING PREVIOUS MARQUER   #
 	#==============================#
@@ -5164,8 +5312,19 @@ class stzString from stzObject
 	def PreviousMarquer(pnStartingAt)
 		return This.NthPreviousMarquer(1, pnStartingAt)
 
+		#< @FunctionFluentForm
+
 		def PreviousMarquerQ(pnStartingAt)
 			return new stzString( This.PreviousMarquer(pnStartingAt) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PreviousMarquer_S(pnStartingAt)
+			return This.PreviousMarquer(pnStartingAt)
+
+		#>
 
 	  #--------------------------------------------------------------------#
 	 #   FINDING PREVIOUS MARQUER ALONG WITH ITS POSITION -- Z/Extension  #
@@ -5193,29 +5352,22 @@ class stzString from stzObject
 			def PreviousMarquerAndItsOccurrenceQ(pnStartingAt)
 				return new stzString( This.PreviousMarquerAndItsOccurrence(pnStartingAt) )
 
-		def PreviousMarquerAndItsPositionD(pnStartingAt)
-			return This.PreviousMarquerAndItsPosition(pnStartingAt)
-
-			def PreviousMarquerAndItsPositionDQ(pnStartingAt)
-				return This.PreviousMarquerAndItsPositionQ(pnStartingAt)
-
-		def PreviousMarquerAndItsOccurrenceD(pnStartingAt)
-			return This.PreviousMarquerAndItsPosition(pnStartingAt)
-
-			def PreviousMarquerAndItsOccurrenceDQ(pnStartingAt)
-				return This.PreviousMarquerAndItsPositionQ(pnStartingAt)
-
 		def PreviousMarquerZ(pnStartingAt)
 			return This.PreviousMarquerAndItsPosition(pnStartingAt)
 
 			def PreviousMarquerZQ(pnStartingAt)
 				return This.PreviousMarquerAndItsPositionQ(pnStartingAt)
 
-		def PreviousMarquerDZ(pnStartingAt)
+		#--
+
+		def PreviousMarquerAndItsPositionS(pnStartingAt)
 			return This.PreviousMarquerAndItsPosition(pnStartingAt)
 
-			def PreviousMarquerDZQ(pnStartingAt)
-				return This.PreviousMarquerAndItsPositionQ(pnStartingAt)
+		def PreviousMarquerAndItsOccurrenceS(pnStartingAt)
+			return This.PreviousMarquerAndItsPosition(pnStartingAt)
+
+		def PreviousMarquerSZ(pnStartingAt)
+			return This.PreviousMarquerAndItsPosition(pnStartingAt)
 
 		#>
 
@@ -25512,11 +25664,24 @@ def ReplaceIBS()
 
 		return nResult
 		
+		#< @FunctionAlternativeForm
+
+		def FindNextSCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNext(pcSubStr, nStart)
 		return This.FindNext(pcSubStr, nStart, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def FindNextS(pcSubStr, nStart)
+			return This.FindNext(pcSubStr, nStart)
+
+		#>
 
 	   #-----------------------------------------------------#
 	  #      FINDING PREVIOUS OCCURRENCE OF A SUBSTRING     #
@@ -25541,11 +25706,25 @@ def ReplaceIBS()
 		nResult = This.SectionQ(1, pnStartingAt - 1).FindLastCS(pcSubStr, pCaseSensitive)
 		return nResult
 
+		#< @FunctionAlternativeForm
+
+		def FindPreviousSCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindPrevious(pcSubStr, nStart)
 		return This.FindPreviousCS(pcSubStr, nStart, :CaseSensitive = TRUE)
 	
+		#< @FunctionAlternativeForm
+
+		def FindPreviousS(pcSubStr, nStart)
+			return This.FindPrevious(pcSubStr, nStart)
+
+		#>
+
 	  #-------------------------------------------------#
 	 #      FINDING ALL OCCURRENCES OF A SUBSTRING     #
 	#=================================================#
@@ -53153,6 +53332,19 @@ def ReplaceIBS()
 	#===============================================#
 
 	def IsEqualToCS(pcOtherStr, pCaseSensitive)
+		# A check made to enable some external code
+		# In Ring context use IsEqualToQ()
+
+		if isObject(pcOtherStr)
+
+			if isString(pcOtherStr.Content()) and
+			   This.Content() = pcOtherStr.Content()
+
+				return pcOtherStr
+			else
+				return FALSE
+			ok
+		ok
 
 		if NOT isString(pcOtherStr)
 			return FALSE
@@ -53198,8 +53390,30 @@ def ReplaceIBS()
 			return This.Lowercased() = StzStringQ(pcOtherStr).Lowercased()
 		ok
 		
+		#< @FunctionFluentForm
+
+		def IsEqualToCSQ(pcOtherStr)
+
+			bResult = FALSE
+
+			if isString(pcOtherStr)
+				bResult = This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+				
+			ok
+
+			if bResult = TRUE
+				return This
+			else
+				return new stzFalsObject
+			ok
+
+		#>
+
 		def IsEqualWithCS(pcOtherStr, pCaseSensitive)
 			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+
+			def IsEqualWithCSQ(pcOtherStr, pCaseSensitive)
+				return This.IsEqualToCSQ(pcOtherStr)
 
 		#< @FunctionNegativeForm
 
@@ -53225,8 +53439,14 @@ def ReplaceIBS()
 	def IsEqualTo(pcOtherStr)
 		return This.IsEqualToCS(pcOtherStr, :CaseSensitive = TRUE)
 
+		def IsEqualToQ(pcOtherStr)
+			return This.IsEqualToCS(pcOther, :CaseSensitive = TRUE)
+
 		def IsEqualWith(pcOtherStr)
 			return This.IsEqualTo(pcOtherStr)
+
+			def IsEqualWithQ(pcOtherStr)
+				return This.IsEqualToQ(pcOtherStr)
 
 		#< @FunctionNegativeForm
 
@@ -67450,9 +67670,6 @@ def ReplaceIBS()
 
 	def FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 		return This.FindNext(pcSubStr, nStart, pCaseSensitive)
-
-	def FindNextSCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNext(pcSubStr, nStart, pCaseSensitive)
 	
 	def FindNextFirstCS(pcSubStr, nStart, pCaseSensitive)
 		return This.FindNext(pcSubStr, nStart, pCaseSensitive)
@@ -67479,9 +67696,6 @@ def ReplaceIBS()
 
 	def FindNextOccurrence(pcSubStr, nStart)
 		return This.FindNext(pcSubStr, nStart)
-
-	def FindNextS(pcSubStr, nStart)
-		return This.FindNext(pcSubStr, nStart)
 	
 	def FindNextFirst(pcSubStr, nStart)
 		return This.FindNext(pcSubStr, nStart)
@@ -67503,9 +67717,6 @@ def ReplaceIBS()
 	#----------------------------------#
 
 	def FindPreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
-
-	def FindPreviousSCS(pcSubStr, nStart, pCaseSensitive)
 		return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def FindPreviousFirstCS(pcSubStr, nStart, pCaseSensitive)
@@ -67532,9 +67743,6 @@ def ReplaceIBS()
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindPreviousOccurrence(pcSubStr, nStart)
-		return This.FindPrevious(pcSubStr, nStart)
-
-	def FindPreviousS(pcSubStr, nStart)
 		return This.FindPrevious(pcSubStr, nStart)
 	
 	def FindPreviousFirst(pcSubStr, nStart)
