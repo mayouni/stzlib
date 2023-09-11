@@ -1,4 +1,11 @@
 load "stzlib.ring"
+/*========= Finding objects
+*/
+pron()
+
+
+
+proff()
 
 /*========= Replace and DeepReplace
 

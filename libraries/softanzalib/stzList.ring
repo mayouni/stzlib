@@ -28009,6 +28009,52 @@ class stzList from stzObject
 		def FindNthGreatest(n)
 			return This.FindNthLargestItem(n)
 
+	  #-------------------------------#
+	 #  FINDING OBJECTS IN THE LIST  #
+	#===============================#
+
+	def FindObjects()
+		
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def FindObject(p) # pass an object or an object name in string
+
+		cObjectName = :NoName
+		if isObject(p)
+			cObjectName = p.ObjectName()
+		but isString(p)
+			cObjectName = p
+		else
+			StzRaise("Incorrect param type! p must be an object or a string containing an object varname.")
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i]) and
+			   aContent[i].ObjectName() = cObjectName
+
+				anResult + i
+				
+			ok
+		next
+
+		return anResult
+
 	  #===========================================================#
 	 #  CHECKING IF THE LIST CONTAINS JUST STRINGS IN UPPERCASE  #
 	#===========================================================#
@@ -28096,7 +28142,7 @@ class stzList from stzObject
 				cResult += ( ComputableForm(aContent[i]) + ", ")
 
 			else // isObject(pValue[i])
-				cResult += "{obj}, "
+				cResult += pValue[i].ObjectName()
 			ok
 
 		next

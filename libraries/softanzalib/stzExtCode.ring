@@ -215,6 +215,8 @@ func Vl(paVals)
 		return
 	ok
 
+	# In case one value is provided (not a list), make it a list
+
 	if NOT isList(paVals)
 		aTemp = []
 		aTemp + paVals
@@ -227,7 +229,6 @@ func Vl(paVals)
 
 	# Doing the job
 
-
 	nLen = Min([ len(_aTempVars), len(paVals) ])
 
 	oHash = new stzHashList(_aVars)
@@ -235,11 +236,20 @@ func Vl(paVals)
 	for i = 1 to nLen
 
 		_aTempVars[i][2] = paVals[i]
-		n = oHash.FindKey(_aTempVars[i][1]) // ring_find(_aVars, _aTempVars[i][1])
+		n = oHash.FindKey(_aTempVars[i][1])
+// ring_find(_aVars, _aTempVars[i][1])
 		if n > 0
 			_aVars[n][2] = paVals[i]
+			if IsStzObject(paVals[i])
+? "emm"
+? @@( _aVars[n] )
+				paVals[i].SetObjectNameTo(_aVars[n][1])
+			ok
 		else
 			_aVars + [ _aTempVars[i][1], paVals[i] ]
+			if IsStzObject(paVals[i])
+				paVals[i].SetObjectNameTo(_aTempVars[i][1])
+			ok
 		ok
 	next
 

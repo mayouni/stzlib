@@ -1477,7 +1477,7 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 				cResult += ( ComputableForm(aContent[i]) + ", ")
 
 			else // isObject(pValue[i])
-				cResult += "{obj}, "
+				cResult += pValue[i].ObjectName()
 			ok
 
 		next
