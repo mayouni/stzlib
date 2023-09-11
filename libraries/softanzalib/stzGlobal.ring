@@ -843,7 +843,7 @@ func StzFind(pThing, paIn)
 func IsNumberOrString(p)
 	if isNumber(p) or isString(p)
 		return TRUE
-		else
+	else
 		return FALSE
 	ok
 
@@ -853,7 +853,7 @@ func IsNumberOrString(p)
 func IsNumberOrList(p)
 	if isNumber(p) or isList(p)
 		return TRUE
-		else
+	else
 		return FALSE
 	ok
 
@@ -863,7 +863,7 @@ func IsNumberOrList(p)
 func IsNumberOrObject(p)
 	if isNumber(p) or isObject(p)
 		return TRUE
-		else
+	else
 		return FALSE
 	ok
 
@@ -883,7 +883,7 @@ func IsStringOrList(p)
 func IsStringOrObject(p)
 	if isString(p) or isObject(p)
 		return TRUE
-		else
+	else
 		return FALSE
 	ok
 
@@ -893,7 +893,7 @@ func IsStringOrObject(p)
 func IsListOrObject(p)
 	if isList(p) or isObject(p)
 		return TRUE
-		else
+	else
 		return FALSE
 	ok
 
