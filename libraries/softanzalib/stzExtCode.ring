@@ -237,18 +237,17 @@ func Vl(paVals)
 
 		_aTempVars[i][2] = paVals[i]
 		n = oHash.FindKey(_aTempVars[i][1])
-// ring_find(_aVars, _aTempVars[i][1])
+
 		if n > 0
 			_aVars[n][2] = paVals[i]
-			if IsStzObject(paVals[i])
-? "emm"
-? @@( _aVars[n] )
-				paVals[i].SetObjectNameTo(_aVars[n][1])
+			if ObjectIsStzObject(paVals[i])
+
+				paVals[i].SetObjectVarNameTo(_aVars[n][1])
 			ok
 		else
 			_aVars + [ _aTempVars[i][1], paVals[i] ]
-			if IsStzObject(paVals[i])
-				paVals[i].SetObjectNameTo(_aTempVars[i][1])
+			if ObjectIsStzObject(paVals[i])
+				paVals[i].SetObjectVarNameTo(_aTempVars[i][1])
 			ok
 		ok
 	next

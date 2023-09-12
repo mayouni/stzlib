@@ -56,6 +56,9 @@ Support all the features of NumPy
 func StzListOfNumbersQ(paListOfNumbers)
 	return new stzListOfNumbers(paListOfNumbers)
 
+	func StzNumbersQ(paList)
+		return StzListOfNumbersQ(paListOfNumbers)
+
 func LN(p)
 	if isList(p)
 		return StzListQ(p).OnlyNumbers()
@@ -205,6 +208,8 @@ func Numbers(n1, n2)
   ////////////////
  ///  CLASS   ///
 ////////////////
+
+class stzNumbers from stzListOfNumbers
 
 class stzListOfNumbers from stzList
 	@anContent

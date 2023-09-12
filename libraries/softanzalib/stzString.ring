@@ -457,7 +457,7 @@ class stzString from stzObject
 			@oQString = pcStr
 
 		but isList(pcStr) and Q(pcStr).IsPairOfStrings() # Named string
-			@cObjectName = pcStr[1]
+			@cObjectVarName = pcStr[1] # Inherited from stzObject
 			@oQString = new QString2()
 			@oQString.append(pcStr[2])
 		else
@@ -33796,7 +33796,7 @@ def ReplaceIBS()
 	#========================================#
 
 	def VizFindChar(c)
-		if IsStzChar(c)
+		if ObjectIsStzChar(c)
 			c = c.Content()
 		ok
 
@@ -58592,7 +58592,7 @@ def ReplaceIBS()
 	#---------------------------------------------------------#
 
 	def ContainsSubstringInTheMiddle(pcSubStr)
-		if IsStzString(pcSubStr)
+		if ObjectIsStzString(pcSubStr)
 			pcSubStr = pcSubStr.Content()
 		ok
 

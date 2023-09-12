@@ -79,7 +79,7 @@
 
 
 	Also, this class is useful to make several operations on objects
-	that are required by the SoftanzaLib framework.
+	that are required by the SoftanzaLib.
 
 	Planned features of the stzObject class include the following:
 
@@ -99,12 +99,13 @@
 	=> Gives us an idea of the object scope using Scope()
 	=> Gives us an idea of the object interactions with external code
 
-	- we can persist the state of the object at a given time, or many times, in a string
+	- we can serialize the state of the object at a given time, or many times, in a string
 	or text file or binary file or database
 
 	- we can tell it to be instanciated only once using bIsSingleton = TRUE
 
 	- we can define its job in the program by defining its type using cObjectJob
+
 	=> cObjectJob  = :Worker	Performs a task and returs a result
 	=> 		 :Observer	Observes the execution of other objects
 	=> 		 :Presenter	Presents outputs to the user depending on its platform
@@ -116,11 +117,12 @@
 	=> 		 :Calculator	Performs various calculations
 	=> 		 :Translator	Translates texts between languages
 	=> 		 :Parser	Parses a string
-	=>		 :Painter
-	=>		 :Charter
-	=>		 :Timer
+	=>		 :Painter	...
+	=>		 :Charter	...
+	=>		 :Timer		...
+	=>		 ...
 
-	- we can use any of its methods to be called on ...
+
 */
 
   ///////////////////
@@ -701,6 +703,25 @@ func IsStzObject(pObject)
 	func ObjectIsStzObject(pObject)
 		return IsStzObject(pObject)
 
+func IsNamedObject(pObject)
+	if isObject(pObject) and
+	   Q( attributes(pObject) ).ContainsCS( "@objectvarname", :CS = FALSE ) and
+	   Q( methods(pObject) ).ContainsCS( "objectvarname", :CS = FALSE )
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+	func ObjectIsNamedObject(pObject)
+		return IsNamedObject(pObject)
+
+func IsUnnamedObject(pObject)
+	return NOT IsNamedObject(pObject)
+
+	func ObjectIsUnnamedObject()
+		return IsUnnamedObject(pObject)
 
 /* NOTE: The following section of code is generated with
 	 stzCodeGenerators and then pasted here
@@ -1132,11 +1153,17 @@ class stzObject
 		def ObjectQ()
 			return new stzObject( This )
 
-	def ObjectName()
-		return @cObjectName
+	def ObjectVarName()
+		return @cObjectVarName
 
-		def ObjectNameQ()
+		def ObjectVarNameQ()
 			return new stzString( This.ObjectName() )
+
+		def VarName()
+			return This.ObjectVarName()
+
+		def ObjectName()
+			return This.ObjectVarName()
 
 	def IsUnnamed()
 		if This.ObjectName() = :NoName
@@ -1220,16 +1247,22 @@ class stzObject
 			ok
 
 			This.SetObjectNameTo(pcObjectName)
+
+		#--
+
+		def SetObjectVarNameTo(pcObjectName)
+			This.SetObjectNameTo(pcObjectName)
+
+		def SetObjectVarNameAs(pcObjectName)
+			This.SetObjectNameTo(pcObjectName)
+
+		def SetObjectVarName(pcObjectName)
+			This.SetObjectName(pcObjectName)
+
 		#>
 
 	def Copy()
 		return new stzObject( This )
-
-	def ObjectVarName()
-		return @cObjectVarName
-
-		def VarName()
-			return This.ObjectVarName()
 
 	def ObjectClassName() # Depricated, use ClassName()
 		return classname(This)

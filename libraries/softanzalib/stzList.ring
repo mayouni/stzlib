@@ -1,5 +1,5 @@
 #---------------------------------------------------------------------------#
-# 		   SOFTANZA LIBRARY (V1.0) - StzItem			    #
+# 		   SOFTANZA LIBRARY (V1.0) - STZLIST			    #
 #	An accelerative library for Ring applications, and more!	    #
 #---------------------------------------------------------------------------#
 #									    #
@@ -16686,7 +16686,9 @@ class stzList from stzObject
 		ok
 
 		
-		n = 1 # Used tou cout object in the list and then composing names for them
+		n = 1 # Used tou cout unnamed objects in the list and then
+		      # composing names for them
+
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
@@ -16713,11 +16715,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -16741,9 +16744,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 					
 				ok
 	
@@ -16873,11 +16879,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -16901,10 +16908,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok					
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -17000,11 +17009,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -17028,10 +17038,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok					
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -17309,13 +17321,14 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 				ok
-	
+
 				# Memorising the stringified items so we can used them later
 	
 				acStr + cItem
@@ -17337,10 +17350,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok					
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -17487,13 +17502,14 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 				ok
-	
+
 				# Memorising the stringified items so we can used them later
 	
 				acStr + cItem
@@ -17515,9 +17531,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 					
 				ok
 	
@@ -17633,11 +17652,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -17661,10 +17681,13 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
+
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -17803,13 +17826,14 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 				ok
-	
+
 				# Memorising the stringified items so we can used them later
 	
 				acStr + cItem
@@ -17831,10 +17855,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok					
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -17954,13 +17980,14 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 				ok
-	
+
 				# Memorising the stringified items so we can used them later
 	
 				acStr + cItem
@@ -17982,10 +18009,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok					
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -18117,13 +18146,14 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 				ok
-	
+
 				# Memorising the stringified items so we can used them later
 	
 				acStr + cItem
@@ -18145,9 +18175,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 					
 				ok
 	
@@ -18477,11 +18510,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -18505,9 +18539,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 					
 				ok
 	
@@ -18714,11 +18751,13 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
-					# WARNING: It's impossible to get the name of the object
-					# by code (should be requested from Mahmoud in future Ring)
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
+
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -18742,9 +18781,12 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					n++
-					cObjectName = "{obj#" + n + "}"
-					cItem = cObjectName
+					if ObjectIsStzObject(aContent[i])
+						cItem = aContent[i].ObjectVarName()
+					else
+						n++
+						cItem = :@UnnamedObject + n
+					ok
 					
 				ok
 	
@@ -28030,11 +28072,11 @@ class stzList from stzObject
 
 	def FindObject(p) # pass an object or an object name in string
 
-		cObjectName = :NoName
+		cObjectVarName = :NoName
 		if isObject(p)
-			cObjectName = p.ObjectName()
+			cObjectVarName = p.ObjectVarName()
 		but isString(p)
-			cObjectName = p
+			cObjectVarName = p
 		else
 			StzRaise("Incorrect param type! p must be an object or a string containing an object varname.")
 		ok
@@ -28046,7 +28088,7 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 			if isObject(aContent[i]) and
-			   aContent[i].ObjectName() = cObjectName
+			   aContent[i].ObjectVarName() = cObjectName
 
 				anResult + i
 				
@@ -28098,7 +28140,7 @@ class stzList from stzObject
 			cName = :NoName
 
 			if ObjectIsStzObject(aContent[i])
-				cName = aContent[i].ObjectName()
+				cName = aContent[i].ObjectVarName()
 			ok
 
 			if ring_find(acSeen, cName)
@@ -28177,6 +28219,7 @@ class stzList from stzObject
 		ok
 
 		cResult = "[ "
+		n = 1 # Used to compose anonymous names for unnamed objects
 
 		for i = 1 to nLen
 			if isNumber(aContent[i])
@@ -28202,8 +28245,14 @@ class stzList from stzObject
 			but isList(aContent[i])
 				cResult += ( ComputableForm(aContent[i]) + ", ")
 
-			else // isObject(pValue[i])
-				cResult += pValue[i].ObjectName()
+			but isObject(aContent[i])
+				if ObjectIsStzObject(aContent[i])
+					cResult += aContent[i].ObjectVarName()
+				else
+					n++
+					cResult += :@UnnamedObject + n
+				ok
+
 			ok
 
 		next
@@ -28246,13 +28295,12 @@ class stzList from stzObject
 				cItem = @@(item)
 
 			but isObject(item)
-
-				n++
-				cObjectName = "{obj#" + n + "}"
-				cItem = cObjectName
-
-				# WARNING: It's impossible to get the name of the object
-				# by code (should be requested from Mahmoud in future Ring)
+				if ObjectIsStzObject(item)
+					cItem = item.ObjectVarName()
+				else
+					n++
+					cItem = :@UnnamedObject + n
+				ok
 			ok
 
 			acResult + cItem
@@ -28291,6 +28339,7 @@ class stzList from stzObject
 	#---------------------------------------------------------------------------------------#
 	# This extented version returns along the stringified items, the list of positions of
 	# the items beeing affected by the replacement operation
+	#--> Used internally to boost performance
 
 	def StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
 		#< QtBased | Uses QString2() #>
@@ -28390,13 +28439,12 @@ class stzList from stzObject
 				ok
 
 			but isObject(item)
-
-				n++
-				cObjectName = "{obj#" + n + "}"
-				cItem = cObjectName
-
-				# WARNING: It's impossible to get the name of the object
-				# by code (should be requested from Mahmoud in future Ring)
+				if ObjectIsStzObject(item)
+					cItem = item.ObjectVarName()
+				else
+					n++
+					cItem = :@UnnamedObject + n
+				ok
 			ok
 
 			acResult + cItem
@@ -28616,12 +28664,12 @@ class stzList from stzObject
 
 			but isObject(item)
 
-				n++
-				cObjectName = "{obj#" + n + "}"
-				cItem = cObjectName
-
-				# WARNING: It's impossible to get the name of the object
-				# by code (should be requested from Mahmoud in future Ring)
+				if ObjectIsStzObject(item)
+					cItem = item.ObjectVarName()
+				else
+					n++
+					cItem = :@UnnamedObject + n
+				ok
 			ok
 
 			oQLocale = new QLocale("C")
