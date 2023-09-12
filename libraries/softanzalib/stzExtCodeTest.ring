@@ -5,11 +5,11 @@ load "stzlib.ring"
 pron()
 
 o1 = new stzString(:nation = "Niger")
-? o1.ObjectName()
+? o1.ObjectVarName()
 #--> nation
 
 o1.RenameIt(:country)
-? o1.ObjectName()
+? o1.ObjectVarName()
 #--> country
 
 proff()
@@ -22,19 +22,19 @@ pron()
 # (actually, with a name called :noname)
 
 greeting = new stzString("Hi!")
-//? greeting.ObjectName()
+//? greeting.ObjectVarName() # Or VarName()
 #--> noname
 
 # You can name the object afterward, like this:
-greeting.NameIt(:greeting) # Or SetObjectName(:greeting
+greeting.SetObjectVarName(:greeting) # Or SetObjectVarName(:greeting)
 # and than you can read the name:
-? greeting.ObjectName()
+? greeting.VarName()
 #--> greeting
 
 # Or you can create the named object explicitly, like this:
 hello = new stzString(:hello = "Hello Ring!")
 # and than you can read the name:
-? hello.ObjectName() + NL
+? hello.VarName() + NL
 #--> hello
 
 # A third way, is to use Vr() and Vl() small functions, like this:
@@ -73,6 +73,21 @@ o1.FindStzObjects()
 
 o1.FindQObjects()
 
+#--
+
+o1.FindUnnamedObjects()
+
+#--
+
+o1.FindNonStzObjects()
+
+#--
+
+o1.FindNamedObjects()
+
+#--
+
+o1.ObjectsVarNames()
 
 proff()
 
@@ -86,7 +101,7 @@ pron()
 
 
 Vr([ :my_name, :my_age ]) '<~' Vl([ Q("Mansour"), Q(67) ])
-? v(:my_name).ObjectName()
+? v(:my_name).VarName()
 
 proff()
 

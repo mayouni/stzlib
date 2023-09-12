@@ -16,6 +16,9 @@
 func StzListOfStringsQ(paList)
 	return new stzListOfStrings(paList)
 
+	func StzStringsQ(paList)
+		return StzListOfStrings(paList)
+
 func LS(p)
 	if isList(p)
 		return StzListOfNumbersQ(p).OnlyStrings()
@@ -122,6 +125,8 @@ func ListOfStrings(paList)
   /////////////////
  ///   CLASS   ///
 /////////////////
+
+class stzStrings from stzListOfStrings
 
 class stzListOfStrings from stzList
 	

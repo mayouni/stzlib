@@ -1138,7 +1138,7 @@ func BothAreStzObjects(p1, p2)
 		p2 = p2[2]
 	ok
 
-	if IsStzObject(p1) and IsStzObject(p2)
+	if ObjectIsStzObject(p1) and IsStzObject(p2)
 		return TRUE
 	else
 		return FALSE
@@ -1353,6 +1353,7 @@ func ComputableShortFormXT(paList, p)
 	ok
 
 	cResult = "[ "
+	n1 # Used to compose names for unnamed objects
 
 	for i = 1 to nLen
 		if isNumber(aContent[i])
@@ -1377,8 +1378,13 @@ func ComputableShortFormXT(paList, p)
 		but isList(aContent[i])
 			cResult += ( ComputableForm(aContent[i]) + ", ")
 
-		else // isObject(pValue[i])
-			cResult += "{obj}, "
+		but isObject(aContent[i])
+			if ObjectIsStzObject(aContent[i])
+				cResult += aContent[i].ObjectVarName()
+			else
+				n++
+				cResult += :@UnnamedObject + n
+			ok
 		ok
 
 	next
@@ -1476,8 +1482,12 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 			but isList(aContent[i])
 				cResult += ( ComputableForm(aContent[i]) + ", ")
 
-			else // isObject(pValue[i])
-				cResult += pValue[i].ObjectName()
+			but isObject(aContent[i])
+				if ObjectIsStzObject(aContent[i])
+					cResult += aContent[i].ObjectVarName()
+				else
+					cResult += :@UnnamedObject + n
+				ok
 			ok
 
 		next

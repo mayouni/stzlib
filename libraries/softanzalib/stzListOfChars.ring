@@ -18,6 +18,8 @@ _cHilightChar = "•"
 func StzListOfCharsQ(p)
 	return new stzListOfChars(p)
 
+	func StzCharsQ(p)
+		return StzListOfCharsQ(p)
 	
 func LC(p)
 	if isList(p)
@@ -100,6 +102,8 @@ func ListOfLetters(paList)
   /////////////////
  ///   CLASS   ///
 /////////////////
+
+class stzChars from stzListOfChars
 
 class stzListOfChars from stzListOfStrings
 	@aContent = []

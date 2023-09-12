@@ -19,7 +19,6 @@ load "stzDecimalToBinary.ring"
 load "stzDecimalToBinaryError.ring"
 
 load "stzListOfNumbers.ring"
-load "stzNumbers.ring"
 
 load "stzRandom.ring"
 
@@ -45,7 +44,6 @@ load "stzStopWords.ring"
 load "stzStopWordsData.ring"
 
 load "stzListOfStrings.ring"
-load "stzStrings.ring"
 
 load "stzListOfStringsError.ring"
 load "stzListInString.ring"
@@ -62,7 +60,6 @@ load "stzCharData.ring"
 load "stzUnicodeNames.ring"
 
 load "stzListOfChars.ring"
-load "stzChars.ring"
 load "stzListOfCharsError.ring"
 
 load "stzList.ring"
