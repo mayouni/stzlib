@@ -16716,7 +16716,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -16745,7 +16745,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -16880,7 +16880,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -16909,7 +16909,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -17010,7 +17010,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -17039,7 +17039,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -17322,7 +17322,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -17351,7 +17351,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -17503,7 +17503,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -17532,7 +17532,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -17653,7 +17653,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -17682,7 +17682,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -17827,7 +17827,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -17856,7 +17856,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -17981,7 +17981,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -18010,7 +18010,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -18147,7 +18147,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -18176,7 +18176,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -18511,7 +18511,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -18540,7 +18540,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -18752,7 +18752,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -18782,7 +18782,7 @@ class stzList from stzObject
 					
 				but isObject(aContent[i])
 					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].ObjectVarName()
+						cItem = aContent[i].VarName()
 					else
 						n++
 						cItem = :@UnnamedObject + n
@@ -28070,11 +28070,45 @@ class stzList from stzObject
 
 		return anResult
 
+	def FindNamedObjects()
+				aContent = This.Content()
+		nLen = len(acontent)
+		anResult = []
+
+		for i = 1 to nLen
+			if NOT isObject(aContent[i])
+				loop
+			ok
+
+			if ObjectVarName(aContent[i]) != :@NoName
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def FindUnnamedObjects()
+		aContent = This.Content()
+		nLen = len(acontent)
+		anResult = []
+
+		for i = 1 to nLen
+			if NOT isObject(aContent[i])
+				loop
+			ok
+
+			if ObjectVarName(aContent[i]) = :@NoName
+				anResult + i
+			ok
+		next
+
+		return anResult
+
 	def FindObject(p) # pass an object or an object name in string
 
-		cObjectVarName = :NoName
+		cObjectVarName = :@NoName
 		if isObject(p)
-			cObjectVarName = p.ObjectVarName()
+			cObjectVarName = p.VarName()
 		but isString(p)
 			cObjectVarName = p
 		else
@@ -28088,7 +28122,7 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 			if isObject(aContent[i]) and
-			   aContent[i].ObjectVarName() = cObjectName
+			   aContent[i].VarName() = cObjectVarName
 
 				anResult + i
 				
@@ -28137,10 +28171,10 @@ class stzList from stzObject
 				i++
 			ok
 
-			cName = :NoName
+			cName = :@NoName
 
 			if ObjectIsStzObject(aContent[i])
-				cName = aContent[i].ObjectVarName()
+				cName = aContent[i].VarName()
 			ok
 
 			if ring_find(acSeen, cName)
@@ -28157,6 +28191,38 @@ class stzList from stzObject
 
 		def ObjectsAndTheirPositions()
 			return This.Objects()
+
+	def TheseObjectsZ(paObjects)
+
+		if CheckParams() = TRUE
+			if NOT ( isList(paObjects) and Q(paObjects).EachItemIsEither(:AString, :Or = :Object) )
+				StzRaise("Incorrect param type! paObjects must be a list of strings and objects.")
+			ok
+	
+		ok
+
+		# Doing the job
+
+		nLen = len(paObjects)
+		aResult = []
+		acSeen = []
+
+		for i = 1 to nLen
+			if isObject(paObjects[i])
+				cName = ObjectVarName(paObjects[i])
+			else
+				cName = paObjects[i]
+			ok
+
+			if ring_find(acSeen, cName) = 0
+				anPos = This.FindObject(cName)
+				aResult + [ cName, anPos ]
+				acSeen + cName
+			ok
+		next
+
+
+		return aResult
 
 	  #===========================================================#
 	 #  CHECKING IF THE LIST CONTAINS JUST STRINGS IN UPPERCASE  #
@@ -28247,7 +28313,7 @@ class stzList from stzObject
 
 			but isObject(aContent[i])
 				if ObjectIsStzObject(aContent[i])
-					cResult += aContent[i].ObjectVarName()
+					cResult += aContent[i].VarName()
 				else
 					n++
 					cResult += :@UnnamedObject + n
@@ -28296,7 +28362,7 @@ class stzList from stzObject
 
 			but isObject(item)
 				if ObjectIsStzObject(item)
-					cItem = item.ObjectVarName()
+					cItem = item.VarName()
 				else
 					n++
 					cItem = :@UnnamedObject + n
@@ -28440,7 +28506,7 @@ class stzList from stzObject
 
 			but isObject(item)
 				if ObjectIsStzObject(item)
-					cItem = item.ObjectVarName()
+					cItem = item.VarName()
 				else
 					n++
 					cItem = :@UnnamedObject + n
@@ -28665,7 +28731,7 @@ class stzList from stzObject
 			but isObject(item)
 
 				if ObjectIsStzObject(item)
-					cItem = item.ObjectVarName()
+					cItem = item.VarName()
 				else
 					n++
 					cItem = :@UnnamedObject + n
@@ -28862,6 +28928,142 @@ class stzList from stzObject
 		def ContainsConditionalCode()
 			return This.ContainsCCode()
 
+	  #====================================================#
+	 #      CHECKING IF EACH ITEM IS EITHER ... OR ...    #
+	#====================================================#
+
+	def AllItemsAreEither(p1, p2, p3)
+
+		/* EXAMPLE
+
+		SYNTAX 1
+
+		o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
+		? o1.EachItemIsEitherA( :Number, :Or, :String )
+		#--> TRUE
+
+		SYNTAX 2
+
+		o1 = new stzList([ 6, -2, 9, 5, -10 ])
+		? o1.EachItemIsEither(:Positive, :Or = :Negative, :Number )
+		#--> TRUE
+
+		*/
+
+		# Checking params
+
+		cSyntax = ""
+
+		if isString(p2) and Q(p2).IsEither(:Or, :OrA)
+			cSyntax = "1"
+
+		but isList(p2) and Q(p2).IsOneOfTheseNamedParams([ :Or, :OrA ])
+			p2 = p2[2]
+			cSyntax = "2"
+		ok
+
+		if cSyntax = ""
+			StzRaise("Insupported syntax!")
+		ok
+
+		if NOT ( isString(p1) and isString(p2) and isString(p3) )
+			StzRaise("Incorrect param types! p1, p2, and p3 must be all strings.")
+		ok
+
+		# Composing the conditional expression
+
+		if cSyntax = "1"
+
+			cCode = 'bOk = ( Q(aContent[@i]).IsA' + p1 + '() or' + NL +
+				'Q(aContent[@i]).IsA' + p3 + '() )'
+
+		but cSyntax = "2"
+
+			if NOT This.AllItemsAre(p3)
+				return FALSE
+			ok
+	
+			cCode = 'bOk = ( Stz' + p3 + 'Q(aContent[@i]).Is' + p1 + '() ) or' + NL +
+			        '( Stz' + p3 + 'Q(aContent[@i]).Is' + p2 + '() )'
+	
+		ok
+
+		# Doing the job
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for @i = 1 to nLen
+
+			eval(cCode)
+
+			if NOT bOk
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ItemsAreEither(p1, p2, p2)
+			return This.AllItemsAreEither(p1, p2, p3)
+
+		def EachItemIsEither(p1, p2, p3)
+			return This.AllItemsAreEither(p1, p2, p3)
+
+		def EachItemIsEitherA(p1, p2, p3)
+			return This.AllItemsAreEither(p1, p2, p3)
+
+		def EachItemIsEitherAn(p1, p2, p3)
+			return This.AllItemsAreEither(p1, p2, p3)
+
+		def ItemsHaveEither(p1, p2, p3)
+			return This.AllItemsAreEither(p1, p2)
+
+		def AllItemsHaveEither(p1, p2, p3)
+			return This.AllItemsAreEither(p1, p2, p3)
+
+		#>
+
+	def AllItemsAreEitherXT(p1, p2, p3, paEvalDirection)
+		if isList(p2) and Q(p2).IsANamedParam()
+			p2 = p2[2]
+		ok
+
+		if This.AllItemsAreXT([p1, p3], paEvalDirection) or
+		   This.AllItemsAreXT([p2, p3], paEvalDirection)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def ItemsAreEitherXT(p1, p2, p3, paEvalDirection)
+			return This.AllItemsAreEitherXT(p1, p2, p3, paEvalDirection)
+
+		def EachItemIsEitherXT(p1, p2, p3, paEvalDirection)
+			return This.AllItemsAreEitherXT(p1, p2, p3, paEvalDirection)
+
+		def EachItemIsEitherAXT(p1, p2, p3, paEvalDirection)
+			return This.AllItemsAreEitherXT(p1, p2, p3, paEvalDirection)
+
+		def EachItemIsEitherAnXT(p1, p2, p3, paEvalDirection)
+			return This.AllItemsAreEitherXT(p1, p2, p3, paEvalDirection)
+
+		def ItemsHaveEitherXT(p1, p2, p3, paEvalDirection)
+			return This.AllItemsAreEitherXT(p1, p2, p3, paEvalDirection)
+
+		def AllItemsHaveEitherXT(p1, p2, p3, paEvalDirection)
+			return This.AllItemsAreEitherXT(p1, p2, p3, paEvalDirection)
+
+		#>
+
 	  #----------------------------------------#
 	 #      CHECKING IF ALL ITEMS ARE ...     #
 	#----------------------------------------#
@@ -28973,6 +29175,7 @@ class stzList from stzObject
 			nLen = len(aItems)
 
 			for i = 1 to nLen
+
 				if NOT Q(aItems[i]).IsEqualTo(p)
 					bResult = FALSE
 					exit
@@ -29100,15 +29303,31 @@ class stzList from stzObject
 			return bResult
 		ok
 
-		def ItemsAreXT(pacDescriptors, paEvalDirection)
+		#< @FunctionAlternativeForms
+
+		def ItemsAreXT(p, paEvalDirection)
 			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
 
-		def EachItemIsXT(pDescriptor, paEvalDirection)
-			return This.AllItemsAreXT(pDescriptor, paEvalDirection)
+		def EachItemIsXT(p, paEvalDirection)
+			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
 
-	  #--------------------------------#
+		def EachItemIsAXT(p, paEvalDirection)
+			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
+
+		def EachItemIsAnXT(p, paEvalDirection)
+			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
+
+		def ItemsHaveXT(p, paEvalDirection)
+			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
+
+		def AllItemsHaveXT(p, paEvalDirection)
+			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
+
+		#>
+
+	  #================================#
 	 #    USUED FOR NATURAL-CODING    #
-	#--------------------------------#
+	#================================#
 
 	def IsAString()
 		return FALSE
@@ -30226,27 +30445,74 @@ class stzList from stzObject
 		ok
 
 
+	#--
+
 	def IsStartingAtNamedParam()
 		if This.NumberOfItems() = 2 and
-
-		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
-					:StartingAt, :StartingAtPosition,
-					:StartingAtOccurrence, :StartAt,
-					:StartAtPosition, :StartAtOccurrence ]) )
+		   ( isString(This[1]) and  This[1] = :StartingAt )
 
 			return TRUE
 
 		else
 			return FALSE
 		ok
+
+	def IsStartingAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :StartingAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStartingAtOccurrenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :StartingAtOccurrence )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStartAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :StartAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStartAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :StartAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStartAtOccurrenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :StartAtOccurrence )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+
+	#--
 
 	def IsStoppingAtNamedParam()
 		if This.NumberOfItems() = 2 and
-
-		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
-					:StoppingAt, :StoppingAtPosition,
-					:StoppingAtOccurrence, :StopAt,
-					:StopAtPosition, :StopAtOccurrence ]) )
+		   ( isString(This[1]) and  This[1] = :StoppingAt )
 
 			return TRUE
 
@@ -30254,9 +30520,61 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsStoppingAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :StoppingAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStoppingAtOccurrenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :StoppingAtOccurrence )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStopAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :StopAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStopAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :StopAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStopAtOccurrenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :StopAtOccurrence )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
 	def IsInStringNNamedParam()
 		if This.NumberOfItems() = 2 and
-
+vvv
 		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
 					:InStringAt, :InStringItemAt,
 					:inStringAtPosition, :InStringItemAtPosition,
@@ -33004,6 +33322,8 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	#--
+
 	def IsOrNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Or )
@@ -33013,6 +33333,28 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	def IsOrANamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :OrA )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsOrAnNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :OrAn )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
 
 	def IsNorNamedParam()
 		if This.NumberOfItems() = 2 and

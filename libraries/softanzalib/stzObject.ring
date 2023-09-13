@@ -13,31 +13,6 @@
 	# TODO: All the common features are not abstructed yet. Some of them
 	# are duplicated due to semantic differences between classes.
 
-	a stzObject is created:
-		- by providing an exiting Ring object or,
-		- by litterally providing the variable name
-		  of that object (as a string)
-
-	In the first case, stzObject augments the ring object by some features.
-
-	In the second case, it is required that the variable name of that
-	object is provided to the constructor of the class, in a string, like this:
-
-		oPerson = new Person { name = "Kim" }
-	
-		oStzObj = new stzObject(:oPerson)
-	
-		class Person name
-
-	The main feature you get by crating a stzObject using its variable name
-	is that the object becomes "aware" of its name in the runtime,
-	which is impossible with Ring (there is no sutch objectName(obj) function,
-	only the name of the class can be provided by className(obj)).
-
-	Hence, you can say:
-
-		? oStzObj.ObjectName()	#--> "oPerson"
-
 	All the meta data provided by Ring to objects are provided by this class:
 
 		o1 = new Person { name = "Ali" age = 32 job = "Developer" }
@@ -146,6 +121,34 @@ func StzObjectClassName()
 
 func IsNotObject(pObject)
 	return NOT isObject(pObject)
+
+func ObjectVarName(pObject)
+	
+	if NOT isObject(pObject)
+		StzRaise("Incorrect param type! pObject must be an object.")
+	ok
+
+	cResult = :@NoName
+	if ObjectIsStzObject(pObject)
+		cResult = pObject.VarName()
+	ok
+
+	return cResult
+
+	func ObjectName(pObject) # Note the difference with classname(pObject)
+		return ObjectVarName(pObject)
+
+func ObjectIsNamed(pObject)
+	if ObjectVarName(pObject) != :@NoName
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func ObjectIsUnnamed(pObject)
+	return NOT ObjectIsNamed(pObject)
+
+#--
 
 func RingQtClasses()
 	# TODO: Update it
@@ -1116,9 +1119,8 @@ func ObjectToList(cObjectVarName)
 
 class stzObject
 	@oObject
-	@cObjectVarName
 
-	@cObjectName = :NoName
+	@cVarName = :@NoName
 
 	def init(pObject)
 
@@ -1135,7 +1137,7 @@ class stzObject
 				StzRaise("Can't create a stzObject from the provided string! The string must be a valid object name.")
 			ok
 
-			@cObjectVarName = pObject
+			@cVarName = pObject
 
 			cCode = "@oObject = " + pObject
 			eval(cCode)
@@ -1153,20 +1155,14 @@ class stzObject
 		def ObjectQ()
 			return new stzObject( This )
 
-	def ObjectVarName()
-		return @cObjectVarName
+	def VarName()
+		return @cVarName
 
-		def ObjectVarNameQ()
-			return new stzString( This.ObjectName() )
-
-		def VarName()
-			return This.ObjectVarName()
-
-		def ObjectName()
-			return This.ObjectVarName()
+		def VarNameQ()
+			return new stzString( This.VarName() )
 
 	def IsUnnamed()
-		if This.ObjectName() = :NoName
+		if This.VarName() = :@NoName
 			return TRUE
 		else
 			return FALSE
@@ -1213,51 +1209,19 @@ class stzObject
 
 		#>
 
-	def SetObjectNameTo(pcObjectName)
-		if NOT isString(pcObjectName)
-			StzRaise("Incorrect param type! pcObjectName must be a string.")
+	def SetVarName(pcVarName)
+		if isList(pcVarName) and Q(pcVarName).IsToOrAsNamedParams()
+			pcVarName = pcVarName[2]
 		ok
 
-		@cObjectName = pcObjectName
+		if NOT isString(pcVarName)
+			StzRaise("Incorrect param type! pcVarName must be a string.")
+		ok
+
+		@cVarName = pcVarName
 
 		#< @FunctionAlternativeForms
 
-		def NameIt(pcObjectName)
-			if isList(pcObjectName) and Q(pcObjectName).IsAsNamedParam()
-				pcObjectName = pcObjectName[2]
-			ok
-
-			This.SetObjectNameTo(pcObjectName)
-
-			def RenameIt(pcObjectName)
-				This.NameIt(pcObjectName)
-
-		def NameItAs(pcObjectName)
-			This.SetObjectNameTo(pcObjectName)
-
-			def RenameItAs(pcObjectName)
-				This.NameItAs(pcObjectName)
-
-		def SetObjectNameAs(pcObjectName)
-			This.SetObjectNameTo(pcObjectName)
-
-		def SetObjectName(pcObjectName)
-			if isList(pcObjectName).IsOneOfTheseNamedParams([ :As, :To ])
-				pcObjectName = pcObjectName[2]
-			ok
-
-			This.SetObjectNameTo(pcObjectName)
-
-		#--
-
-		def SetObjectVarNameTo(pcObjectName)
-			This.SetObjectNameTo(pcObjectName)
-
-		def SetObjectVarNameAs(pcObjectName)
-			This.SetObjectNameTo(pcObjectName)
-
-		def SetObjectVarName(pcObjectName)
-			This.SetObjectName(pcObjectName)
 
 		#>
 

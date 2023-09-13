@@ -457,7 +457,7 @@ class stzString from stzObject
 			@oQString = pcStr
 
 		but isList(pcStr) and Q(pcStr).IsPairOfStrings() # Named string
-			@cObjectVarName = pcStr[1] # Inherited from stzObject
+			@cVarName = pcStr[1] # Inherited from stzObject
 			@oQString = new QString2()
 			@oQString.append(pcStr[2])
 		else
@@ -8332,6 +8332,13 @@ class stzString from stzObject
 			bResult = This.IsBoundedByInCS(acBounds, pIn, pCaseSensitive)
 
 			return bResult
+
+		def IsBoundedByInCSIB(pacBounds, pIn, pCaseSensitive)
+			return This.IsBoundedByInCS(pacBounds, pIn, pCaseSensitive)
+
+		def IsBetweenInCSIB(pacBounds, pIn, pCaseSensitive)
+			return This.IsBetweenInCSIB(pacBounds, pIn, pCaseSensitive)
+
 		#>
 
 
@@ -8346,6 +8353,12 @@ class stzString from stzObject
 			return This.IsBoundedByIn(pacBounds, pIn)
 
 		def IsBetweenIB(pacBounds, pIn)
+			return This.IsBetweenCSIB(pacBounds, pIn, :CaseSensitive = TRUE)
+
+		def IsBoundedByInIB(pacBounds, pIn)
+			return This.IsBoundedByIn(pacBounds, pIn)
+
+		def IsBetweenInIB(pacBounds, pIn)
 			return This.IsBetweenCSIB(pacBounds, pIn, :CaseSensitive = TRUE)
 
 		#>
@@ -8544,6 +8557,346 @@ class stzString from stzObject
 
 	def SubStringIsBoundedByMany(pacSubStr, pacPairsOfBounds)
 		return This.SubStringIsBoundedByManyCS(pacSubStr, pacPairsOfBounds, :CaseSensitive = TRUE)
+
+	  #=====================================================================================#
+	 #  CHECKING IF A SUBSTRING COMES BEFORE AN OTHER SUBSTRING OR POSITION IN THE STRING  #
+	#=====================================================================================#
+
+	def SubStringIsBeforeCS(pcSubStr, p, pCaseSensitive)
+
+		if NOT isString(pcSubStr)
+			stzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		if isList(p)
+			oParam = Q(p)
+			if oParam.IsPositionNamedParam()
+				return This.SubStringIsBeforePositionCS(pcSubStr, p[2], pCaseSensitive)
+
+			but oParam.IsSubStringNamedParam()
+				return This.SubStringIsBeforeSubStringCS(pcSubStr, p[2], pCaseSensitive)
+			ok
+		ok
+
+		if isNumber(p)
+			return This.SubStringIsBeforePositionCS(pcSubStr, p, pCaseSensitive)
+		but isString(p)
+			return This.SubStringIsBeforeSubStringCS(pcSubStr, p, pCaseSensitive)
+		else
+			StzRaise("Incorrect param! p must be a number or a string.")
+		ok
+
+		#< @FunctionAlternativeForm
+
+		def SubStringComesBeforeCS(pcSubStr, p, pCaseSensitive)
+			return This.SubStringIsBeforeCS(pcSubStr, p)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringIsBefore(pcSubStr, p)
+		return This.SubStringIsBeforeCS(pcSubStr, p, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def SubStringComesBefore(pcSubStr, p)
+			return This.SubStringIsBefore(pcSubStr, p)
+
+		#>
+
+	  #-------------------------------------------------------------------------#
+	 #  CHECKING IF THE SUBSTRING COMES BEFORE A GIVEN POSITION IN THE STRING  #
+	#-------------------------------------------------------------------------#
+
+	def SubStringIsBeforePositionCS(pcSubStr, n, pCaseSensitive)
+		nPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
+		if nPos < n
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def SubStringComesBeforePositionCS(pcSubStr, n, pCaseSensitive)
+			return This.SubStringIsBeforePositionCS(pcSubStr, n, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringIsBeforePosition(pcSubStr, n)
+		return This.SubStringIsBeforePositionCS(pcSubStr, n, :CaseSensitive = TRUE)
+
+		def SubStringComesBeforePosition(pcSubStr, n)
+			return This.SubStringIsBeforePosition(pcSubStr, n)
+
+	  #---------------------------------------------------------------------------#
+	 #  CHECKING IF THE SUBSTRING COMES BEFORE AN OTHER SUBSTRING IN THE STRING  #
+	#---------------------------------------------------------------------------#
+
+	def SubStringIsBeforeSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		nPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
+		nOtherPos = This.FindFirstCS(pcOtherSubStr, pCaseSensitive)
+
+		if nPos < nOtherPos
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def SubStringComesBeforeSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.SubStringIsBeforeSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringIsBeforeSubString(pcSubStr, pcOtherSubStr)
+		return This.SubStringIsBeforeSubStringCS(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+
+		def SubStringComesBeforeSubString(pcSubStr, pcOtherSubStr)
+			return This.SubStringIsBeforeSubString(pcSubStr, pcOtherSubStr)
+
+	  #------------------------------------------------------------------------------------#
+	 #  CHECKING IF A SUBSTRING COMES AFTER AN OTHER SUBSTRING OR POSITION IN THE STRING  #
+	#====================================================================================#
+
+	def SubStringIsAfterCS(pcSubStr, p, pCaseSensitive)
+
+		if NOT isString(pcSubStr)
+			stzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		if isList(p)
+			oParam = Q(p)
+			if oParam.IsPositionNamedParam()
+				return This.SubStringIsAfterPositionCS(pcSubStr, p[2], pCaseSensitive)
+
+			but oParam.IsSubStringNamedParam()
+				return This.SubStringIsAfterSubStringCS(pcSubStr, p[2], pCaseSensitive)
+			ok
+		ok
+
+		if isNumber(p)
+			return This.SubStringIsAfterPositionCS(pcSubStr, p, pCaseSensitive)
+
+		but isString(p)
+			return This.SubStringIsAfterSubStringCS(pcSubStr, p, pCaseSensitive)
+
+		else
+			StzRaise("Incorrect param! p must be a number or a string.")
+		ok
+
+		#< @FunctionAlternativeForm
+
+		def SubStringComesAfterCS(pcSubStr, p, pCaseSensitive)
+			return This.SubStringIsAfterCS(pcSubStr, p)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringIsAfter(pcSubStr, p)
+		return This.SubStringIsAfterCS(pcSubStr, p, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def SubStringComesAfter(pcSubStr, p)
+			return This.SubStringIsAfter(pcSubStr, p)
+
+		#>
+
+	  #-------------------------------------------------------------------------#
+	 #  CHECKING IF THE SUBSTRING COMES BEFORE A GIVEN POSITION IN THE STRING  #
+	#-------------------------------------------------------------------------#
+
+	def SubStringIsAfterPositionCS(pcSubStr, n, pCaseSensitive)
+		nPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
+		if nPos > n
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def SubStringComesAfterPositionCS(pcSubStr, n, pCaseSensitive)
+			return This.SubStringIsAfterPositionCS(pcSubStr, n, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringIsAfterPosition(pcSubStr, n)
+		return This.SubStringIsAfterPositionCS(pcSubStr, n, :CaseSensitive = TRUE)
+
+		def SubStringComesAfterPosition(pcSubStr, n)
+			return This.SubStringIsAfterPosition(pcSubStr, n)
+
+	  #---------------------------------------------------------------------------#
+	 #  CHECKING IF THE SUBSTRING COMES BEFORE AN OTHER SUBSTRING IN THE STRING  #
+	#---------------------------------------------------------------------------#
+
+	def SubStringIsAfterSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		nPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
+		nOtherPos = This.FindFirstCS(pcOtherSubStr, pCaseSensitive)
+
+		if nPos > nOtherPos
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def SubStringComesAfterSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.SubStringIsAfterSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringIsAfterSubString(pcSubStr, pcOtherSubStr)
+		return This.SubStringIsAfterSubStringCS(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+
+		def SubStringComesAfterSubString(pcSubStr, pcOtherSubStr)
+			return This.SubStringIsAfterSubString(pcSubStr, pcOtherSubStr)
+
+	  #---------------------------------------------------------------------------------------------#
+	 #  CHECKING IF A SUBSTRING COMES BETWEEN TWO OTHER SUBSTRINGS OR POSITIONS INSIDE THE STRING  #
+	#=============================================================================================#
+
+	def SubStringIsBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+
+		if NOT isString(pcSubStr)
+			stzRaise("Incorrect param! pcSubStr must be a string.")
+		ok
+
+		if isList(p1)
+			oP1 = Q(p1)
+			if oP1.IsPositionsNamedParam()
+				if isList(p2) and Q(p2).IsAndNamedParam()
+					p2 = p2[2]
+				ok
+
+				return This.SubStringIsBetweenPositionsCS(pcSubStr, p1[2], p2, pCaseSensitive)
+
+			but oP1.IsSubStringsNamedParam()
+				if isList(p2) and Q(p2).IsAndNamedParam()
+					p2 = p2[2]
+				ok
+
+				return This.SubStringIsBetweenSubStringsCS(pcSubStr, p1, p2, pCaseSensitive)
+			ok
+		ok
+
+		if BothAreNumbers(p1, p2)
+			return This.SubStringIsBetweenPositionsCS(pcSubStr, p1, p2, pCaseSensitive)
+
+		but BothAreStrings(p1, p2)
+			return This.SubStringIsBetweenSubStringsCS(pcSubStr, p1, p2, pCaseSensitive)
+
+		else
+			StzRaise("Incorrect params types! p1 and p2 must be both numbers or both strings.")
+
+		ok
+
+		#< @FunctionAlternativeForm
+
+		def SubStringComesBetweenCS(pcSubStr, p1, p2, p1, pCaseSensitive)
+			return This.SubStringIsBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringIsBetween(pcSubStr, p1, p2)
+		return This.SubStringIsBetweenCS(pcSubStr, p1, p2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def SubStringComesBetween(pcSubStr, p1, p2)
+			return This.SubStringIsBetween(pcSubStr, p1, p2)
+
+		#>
+
+	  #-------------------------------------------------------------------------#
+	 #  CHECKING IF THE SUBSTRING COMES BEFORE A GIVEN POSITION IN THE STRING  #
+	#-------------------------------------------------------------------------#
+
+	def SubStringIsBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
+
+		bResult = This.SectionQ(n1, n2).ContainsCS(pcSubStr, pCaseSensitive)
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def SubStringComesBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.SubStringIsBetweenPositionsCS(pcSubStr, n1, n2, p2CaseSensitive)
+
+		def SubStringComesInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.SubStringIsBetweenPositionsCS(pcSubStr, n1, n2, p2CaseSensitive)
+
+		def SubStringComesInsideSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.SubStringIsBetweenPositionsCS(pcSubStr, n1, n2, p2CaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringIsBetweenPositions(pcSubStr, n1, n2)
+		return This.SubStringIsBetweenPositionsCS(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SubStringComesBetweenPositions(pcSubStr, n1, n2)
+			return This.SubStringIsBetweenPositions(pcSubStr, n1, n2)
+
+		def SubStringComesInSection(pcSubStr, n1, n2)
+			return This.SubStringIsBetweenPositions(pcSubStr, n1, n2)
+
+		def SubStringComesInsideSection(pcSubStr, n1, n2)
+			return This.SubStringIsBetweenPositions(pcSubStr, n1, n2)
+
+		#>
+
+	  #---------------------------------------------------------------------------#
+	 #  CHECKING IF THE SUBSTRING COMES BEFORE AN OTHER SUBSTRING IN THE STRING  #
+	#---------------------------------------------------------------------------#
+
+	def SubStringIsBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("---♥♥...**---")
+		
+		? o1.SubStringComesBetween("...", "♥♥", "**")
+		#--> TRUE
+		
+		? o1.SubStringComesBetween("...", "**", "♥♥")
+		#--> TRUE
+
+		*/
+
+		if CheckParams()
+			if isList(pcSubStr1) and Q(pcSubStr1).IsSubStringsNamedParam()
+				pcSubStr1 = pcSubStr1[2]
+			ok
+	
+			if isList(pcSubStr2) and Q(pcSubStr2).IsAndNamedParam()
+				pcSubStr2 = pcSubStr2[2]
+			ok
+		ok
+
+		n1 = This.FindFirstCS(pcSubStr1, pCaseSensitive)
+		n2 = This.FindLastCS(pcSubStr2, pCaseSensitive)
+		bOk1 = This.SectionQ(n1, n2).ContainsCS(pcSubStr, pCaseSensitive)
+
+		n1 = This.FindFirstCS(pcSubStr2, pCaseSensitive)
+		n2 = This.FindLastCS(pcSubStr1, pCaseSensitive)
+		bOk2 = This.SectionQ(n1, n2).ContainsCS(pcSubStr, pCaseSensitive)
+
+		bResult = bOk1 or bOk2
+
+		return bResult
+
+		def SubStringComesBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, p2CaseSensitive)
+			return This.SubStringIsBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, p2CaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringIsBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
+		return This.SubStringIsBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+		def SubStringComesBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
+			return This.SubStringIsBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
 
 	  #=============================================================================#
 	 #  FINDING THE TWO BOUNDS (IF ANY) OF THE STRING BY RETURNING THEIR SECTIONS  #

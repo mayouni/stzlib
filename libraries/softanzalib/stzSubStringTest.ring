@@ -1,5 +1,50 @@
 load "stzlib.ring"
 
+/*=====
+*/
+pron()
+
+? SubStringQ([ "♥♥", :In = "--♥♥--**--" ]).ComesBeforeSubString("**")
+#--> TRUE
+
+? SubStringQ("♥♥").InQ("--♥♥--**--").ComesBeforeSubString("**")
+#--> TRUE
+
+? Q("--♥♥--**--").SubStringQ("♥♥").ComesBeforeSubString("**")
+#--> TRUE
+
+#--
+
+? SubStringQ([ "**", :In = "--♥♥--**--" ]).ComesAfterSubString("♥♥")
+#--> TRUE
+
+? SubStringQ("**").InQ("--♥♥--**--").ComesAfterSubString("♥♥")
+#--> TRUE
+
+? Q("--♥♥--**--").SubStringQ("**").ComesAfterSubString("♥♥")
+#--> TRUE
+
+#--
+
+? SubStringQ("--").InQ("--♥♥--**--").ComesBetween("♥♥", :And = "**")
+#--> TRUE
+
+? SubStringQ("--").InQ("--♥♥--**--").ComesBetween("**", :And = "♥♥")
+#--> TRUE
+
+? SubStringQ([ "--", :In = "--♥♥--**--" ]).ComesBetweenSubStrings("♥♥", :And = "**")
+#--> TRUE
+
+? SubStringQ([ "--", :In = "--♥♥--**--" ]).ComesBetweenSubStrings("**", :And = "♥♥")
+#--> TRUE
+
+? Q("--♥♥--**--").SubStringQ("--").ComesbetweenSubStrings("♥♥", :And = "**")
+#--> TRUE
+
+proff()
+
+#---
+
 /*==== TODO
 
 ? @.UppercaseSubString("ring").In("I LOVE THE ring LANGUAGE!")
@@ -117,8 +162,6 @@ pron()
 proff()
 # Executed in 0.80 second(s)
 
-/*-----
-*/
 /*------------
 */
 pron()

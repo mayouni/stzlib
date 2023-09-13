@@ -3673,7 +3673,7 @@ o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 ? Stz(:Text, :Attributes)
 #--> [
 #	"@oobject",
-#	"@cobjectvarname",
+#	"@cVarName",
 #	"@oqstring",
 #	"@@aconstraints",
 #	"@clanguage"

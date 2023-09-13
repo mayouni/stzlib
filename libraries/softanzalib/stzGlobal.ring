@@ -391,7 +391,6 @@ int = new IntObject
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
 
-
 func ForEach(p, pIn)
 	/* EXAMPLES
 
@@ -593,10 +592,7 @@ func ParamChecking()
 
 	#>
 
-#---
-
-func NamedObjects()
-	return StzHashListQ(@).Keys()
+#--
 
 func StzKeywords()
 	return _acStzCCKeywords
@@ -1149,12 +1145,12 @@ func BothAreStzObjects(p1, p2)
 
 # ARE TWO OBJECTS THE SAME?
 
-func AreSameObject(pcObjectName1, pcObjectName2) # TODO
-	if isList(pcObjectName2) and Q(pcObjectName2).IsAndNamedParam()
-		pcObjectName2 = pcObjectName2[2]
+func AreSameObject(pcVarName1, pcVarName2) # TODO
+	if isList(pcVarName2) and Q(pcVarName2).IsAndNamedParam()
+		pcVarName2 = pcVarName2[2]
 	ok
 
-	return StzObjectQ(pcObjectName1).IsEqualTo( pcObjectName2 )
+	return StzObjectQ(pcVarName1).IsEqualTo( pcVarName2 )
 
 # REPEATING A THING N TIME
 
@@ -1380,7 +1376,7 @@ func ComputableShortFormXT(paList, p)
 
 		but isObject(aContent[i])
 			if ObjectIsStzObject(aContent[i])
-				cResult += aContent[i].ObjectVarName()
+				cResult += aContent[i].VarName()
 			else
 				n++
 				cResult += :@UnnamedObject + n
@@ -1484,7 +1480,7 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 
 			but isObject(aContent[i])
 				if ObjectIsStzObject(aContent[i])
-					cResult += aContent[i].ObjectVarName()
+					cResult += aContent[i].VarName()
 				else
 					cResult += :@UnnamedObject + n
 				ok

@@ -135,5 +135,3 @@ load "stzExtCode.ring"
 load "stzNullObject.ring"
 load "stzFalseObject.ring"
 load "stzNullObject.ring"
-
-load "stzNamedString.ring"
