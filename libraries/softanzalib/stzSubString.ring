@@ -31,7 +31,7 @@ func SubStringCSQ(pcSubStr, pCaseSensitive)
 func SubStringQ(pcSubStr)
 	return SubStringCSQ(pcSubStr, :CaseSensitive)
 
-	# NOTE: can nor add SubString() because it is seems to be reserved by Ring!
+	# NOTE: can not add SubString() because it is seems to be reserved by Ring!
 
 	func TheSubStringQ(pcSubStr)
 		return SubStringQ(pcSubStr)
@@ -441,15 +441,6 @@ class stzSubStringCS
 
 	#--
 
-	def IsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
-		bResult = This.StringQ().ContainsSubStringBetweenCSQ(This.SubString(), pcBound1, pcBound2, pCaseSensitive).Content()
-		return bResult
-
-	def IsBetween(pcBound1, pcBound2)
-		return This.IsBetweenCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
-
-	#--
-
 	def BoundedByCS(pacBounds, pCaseSensitive)
 		bResult = This.StringQ().BoundSubStringByCSQ(This.SubString(), pacBounds, pCaseSensitive).Content()
 		return bResult
@@ -678,3 +669,140 @@ class stzSubStringCS
 	def InsertedAfterW(pcCondition)
 		cResult = This.StringQ().InsertBeforeWQ(pcCondition, This.SubString()).Content()
 		return cResult
+
+	#==
+
+	def IsBeforeCS(p, pCaseSensitive)
+		bResult = This.StringQ().SubStringIsBeforeCS( This.SubString(), p, pCaseSensitive )
+		return bResult
+
+		def ComesBeforeCS(p, pCaseSensitive)
+			return This.IsBeforeCS(p, pCaseSensitive)
+
+	def IsBefore(p)
+		return This.IsBeforeCS(p, :CaseSensitive = TRUE)
+
+		def ComesBefore(p)
+			return This.IsBefore(p)
+
+	#--
+
+	def IsBeforePositionCS(n, pCaseSensitive)
+		bResult = This.StringQ().SubStringIsBeforePositionCS( This.SubString(), p, pCaseSensitive )
+		return bResult
+
+		def ComesBeforePositionCS(n, pCaseSensitive)
+			return This.IsBeforePositionCS(n, pCaseSensitive)
+
+	def IsBeforePosition(n)
+		return This.IsBeforePositionCS(n, :CaseSensitive = TRUE)
+
+		def ComesBeforePosition(n)
+			return This.IsBeforePosition(n)
+
+	#--
+
+	def IsBeforeSubStringCS(pcSubStr, pCaseSensitive)
+		bResult = This.StringQ().SubStringIsBeforeSubStringCS( This.SubString(), pcSubStr, pCaseSensitive )
+		return bResult
+
+		def ComesBeforeSubStringCS(pcSubStr, pCaseSensitive)
+			return This.IsBeforeSubStringCS(pcSubStr, pCaseSensitive)
+
+	def IsBeforeSubString(pcSubStr)
+		return This.IsBeforeSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def ComesBeforeSubString(pcSubStr)
+			return This.IsBeforeSubString(pcSubStr)
+
+	#==
+
+	def IsAfterCS(p, pCaseSensitive)
+		bResult = This.StringQ().SubStringIsAfterCS( This.SubString(), p, pCaseSensitive )
+		return bResult
+
+		def ComesAfterCS(p, pCaseSensitive)
+			return This.IsAfterCS(p, pCaseSensitive)
+
+	def IsAfter(p)
+		return This.IsAfterCS(p, :CaseSensitive = TRUE)
+
+		def ComesAfter(p)
+			return This.IsAfter(p)
+
+	#--
+
+	def IsAfterPositionCS(n, pCaseSensitive)
+		bResult = This.StringQ().SubStringIsAfterPositionCS( This.SubString(), p, pCaseSensitive )
+		return bResult
+
+		def ComesAfterPositionCS(n, pCaseSensitive)
+			return This.IsAfterPositionCS(n, pCaseSensitive)
+
+	def IsAfterPosition(n)
+		return This.IsAfterPositionCS(n, :CaseSensitive = TRUE)
+
+		def ComesAfterPosition(n)
+			return This.IsAfterPosition(n)
+
+	#--
+
+	def IsAfterSubStringCS(pcSubStr, pCaseSensitive)
+		bResult = This.StringQ().SubStringIsAfterSubStringCS( This.SubString(), pcSubStr, pCaseSensitive )
+		return bResult
+
+		def ComesAfterSubStringCS(pcSubStr, pCaseSensitive)
+			return This.IsAfterSubStringCS(pcSubStr, pCaseSensitive)
+
+	def IsAfterSubString(pcSubStr)
+		return This.IsAfterSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def ComesAfterSubString(pcSubStr)
+			return This.IsAfterSubString(pcSubStr)
+
+	#==
+
+	def ComesBetweenCS(p1, p2, pCaseSensitive)
+		return This.IsBetweenCS(p1, p2, pCaseSensitive)
+
+	def ComesBetween(p1, p2)
+			return This.IsBetween(p1, p2)
+
+	#--
+
+	def IsBetweenPositionsCS(n1, n2, pCaseSensitive)
+		bResult = This.StringQ().SubStringIsBetweenPositionsCS( This.SubString(), n1, n2, pCaseSensitive )
+		return bResult
+
+		def ComesBetweenPositionsCS(n1, n2, pCaseSensitive)
+			return This.IsBetweenPositionsCS(n1, n2, pCaseSensitive)
+
+	def IsBetweenPositions(n1, n2)
+		return This.IsBetweenPositionsCS(n1, n2, :CaseSensitive = TRUE)
+
+		def ComesBetweenPositions(n1, n2)
+			return This.IsBetweenPositions(n1, n2)
+
+	#--
+
+	def IsBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+		bResult = This.StringQ().SubStringIsBetweenCS(This.SubString(), pcBound1, pcBound2, pCaseSensitive)
+		return bResult
+
+	def IsBetween(pcBound1, pcBound2)
+		return This.IsBetweenCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
+
+	#--
+
+	def IsBetweenSubStringsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		bResult = This.StringQ().SubStringIsBetweenSubStringsCS( This.SubString(), pcSubStr1, pcSubStr2, pCaseSensitive )
+		return bResult
+
+		def ComesBetweenSubStringCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.IsBetweenSubStringsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	def IsBetweenSubStrings(pcSubStr1, pcSubStr2)
+		return This.IsBetweenSubStringsCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+		def ComesBetweenSubStrings(pcSubStr1, pcSubStr2)
+			return This.IsBetweenSubStrings(pcSubStr1, pcSubStr2)

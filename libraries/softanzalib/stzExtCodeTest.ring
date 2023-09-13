@@ -1,15 +1,91 @@
 load "stzlib.ring"
 
+/*----------
+
+pron()
+
+o1 = new stzList([ 2, 4, 8 ])
+? o1.EachItemIsA(:Number)
+#--> TRUE
+? o1.EachItemIsA([ :Positive, :Even, :Number ]) # ItemsAreEither, AllItemsAreEither...
+#--> TRUE
+
+proff()
+
+/*----------
+*/
+pron()
+
+o1 = new stzList([ 6, -2, 9, 5, -10 ])
+? o1.EachItemIsEitherA(:Positive, :Or = :Negative, :Number )
+#--> TRUE
+
+o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
+
+? o1.EachItemIsEitherA( :Number, :Or, :String )
+#--> TRUE
+
+? o1.EachItemIsEitherA([ :Negative, :Even, :Number ], :Or, [ :Lowercase, :Latin, :String ])
+
+? o1.EachItemIsEitherA([ :Negative, :Even, :Number ], :Or, :String )
+
+? o1.EachItemIsEitherA( :Number, :Or, [ :Lowercase, :Latin, :String ])
+
+/*
+o1 = new stzList([ 120, "1250", 54, "452" ])
+? o1.EachItemIsEither( :Number, :Or = :NumberInString )
+
+o1 = new stzList([ 2, 4, 8, "-129", 10, "-100.45" ])
+? o1.EachItemIsEither([ :Positive, :Even, :Number ], :Or = [ :Negative, :NumberInString ] )
+*/
+
+proff()
+
+/*===== ObjectName() and ClassName()
+
+pron()
+
+o1 = new stzString(:nation = "Niger")
+
+? ClassName(o1)
+#--> stzstring
+
+? ObjectIsNamed(o1)
+#--> TRUE
+
+? ObjectName(o1)
+#--> nation
+
+#----
+
+o1 = new stzString("Niger")
+
+? ObjectIsNamed(o1)
+#--> FALSE
+
+? ObjectName(o1)
+#--> @noname
+
+# TODO: Reflect...
+# Does any normal object (not necessarilty a stzObject) containing an
+# @cVarName attribute and an ObjectVarName() method should be
+# considered as potentially named ?
+
+# In fact, the actual implementation ignores those objects completely
+# and assign a @noname to them --> they are considered UnnamedObject!
+
+proff()
+
 /*------------
 
 pron()
 
 o1 = new stzString(:nation = "Niger")
-? o1.ObjectVarName()
+? o1.VarName()
 #--> nation
 
 o1.RenameIt(:country)
-? o1.ObjectVarName()
+? o1.VarName()
 #--> country
 
 proff()
@@ -19,19 +95,21 @@ proff()
 pron()
 
 # By default, a softanza object is created with no name
-# (actually, with a name called :noname)
+# (actually, with a name called :@noname)
 
 greeting = new stzString("Hi!")
-//? greeting.ObjectVarName() # Or VarName()
-#--> noname
+? greeting.VarName()
+#--> @noname
 
 # You can name the object afterward, like this:
-greeting.SetObjectVarName(:greeting) # Or SetObjectVarName(:greeting)
+greeting.SetVarName(:greeting)
 # and than you can read the name:
 ? greeting.VarName()
 #--> greeting
 
-# Or you can create the named object explicitly, like this:
+# Or you can create the named object in the same time as the object
+# it self, by providing a hashlist like this:
+
 hello = new stzString(:hello = "Hello Ring!")
 # and than you can read the name:
 ? hello.VarName() + NL
@@ -40,31 +118,42 @@ hello = new stzString(:hello = "Hello Ring!")
 # A third way, is to use Vr() and Vl() small functions, like this:
 # ...
 
-# In all case, we have now objects that we can refer to by their static
+# In all cases, we have now objects that we can refer to by their static
 # names we gave them in our code. And so, we can find them inside a list!
 
 o1 = new stzList([ "one", greeting, 12, greeting, Q("two"), hello, 10 , Q(10) ])
+
 ? @@( o1.FindObjects() )
 #--> [ 2, 4, 5, 6, 8 ]
 
-? @@( o1.FindObject(:greeting) )
-#--> [ 2, 4 ]
-
-? @@( o1.FindObject(:hello) )
-#--> [ 2, 4 ]
-
-? @@( o1.ObjectsZ() ) # Or ObjectsAndTheirPositions()
+? @@( o1.ObjectsZ() ) + NL # Or ObjectsAndTheirPositions()
 #--> [
 #	[ "greeting", [ 2, 4 ] ],
-#	[ "noname",   [ 5, 8 ] ],
+#	[ "@noname",  [ 5, 8 ] ],
 #	[ "hello",    [ 6 ]    ]
 # ]
 
-? @@( o1.FindTheseObjects([ :noname, :hello ]) ) + NL
+? @@( o1.FindObject(greeting) )
+#--> [ 2, 4 ]
+
+? @@( o1.FindObject(hello) )
+#--> [ 6 ]
+
+? @@( o1.FindNamedObjects() )
+#--> [ 2, 4, 6 ]
+
+? @@( o1.FindUnnamedObjects() )
+#--> [ 5, 8 ]
+
+? @@( o1.FindTheseObjects([ greeting, hello ]) )
+#--> [ 2, 4, 6 ]
+
+? @@( o1.FindTheseObjects([ :@noname, hello ]) ) + NL
 #--> [ 5, 6, 8 ]
 
-? @@( o1.TheseObjectsZ([ :noname, :hello ]) )
+? @@( o1.TheseObjectsZ([ :@noname, hello ]) )
 
+/*
 #--
 
 o1.FindStzObjects()
@@ -89,6 +178,10 @@ o1.FindNamedObjects()
 
 o1.ObjectsVarNames()
 
+o1.NamedObjects() # Or OnlyNamedObjects()
+? o1.UnnamedObjects()
+
+*/
 proff()
 
 /*=========== TODO

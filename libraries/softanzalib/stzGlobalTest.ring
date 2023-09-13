@@ -641,7 +641,7 @@ StopProfiler()
 # You can also say: ? StzNumberClass()
 
 ? @@(Stz(:Number, :Attributes))
-#--> [ "@oobject", "@cobjectvarname", "@cnumber" ]
+#--> [ "@oobject", "@cVarName", "@cnumber" ]
 # You can also say: ? StzNumberAttributes()
 
 ? Stz(:Number, :Methods)
@@ -707,7 +707,7 @@ o1 = new stzString("blablabla")
 ? Stz(:Char, :Methods)		#--> [ ... ]
 
 # or if you want to have the attributes:
-? Stz(:String, :Attributes) 	#--> [ :@oObject, :@cObjectVarName, :@oQChar ]
+? Stz(:String, :Attributes) 	#--> [ :@oObject, :@cVarName, :@oQChar ]
 
 # You can even make a filter on the list of methods to return only those
 # that verify a given condition:
