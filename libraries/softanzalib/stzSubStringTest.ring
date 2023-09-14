@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*=====
-*/
+
 pron()
 
 ? SubStringQ([ "♥♥", :In = "--♥♥--**--" ]).ComesBeforeSubString("**")
@@ -46,7 +46,7 @@ proff()
 #---
 
 /*==== TODO
-
+*/
 ? @.UppercaseSubString("ring").In("I LOVE THE ring LANGUAGE!")
 #--> I LOVE THE RING LANGUAGE!
 

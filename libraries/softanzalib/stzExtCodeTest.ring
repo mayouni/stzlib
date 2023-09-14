@@ -1,23 +1,50 @@
 load "stzlib.ring"
 
-pron()
-
-# In PHP we say:
-
+# In PHP we use indirection to dynamically
+# call the name of a variable, like this:
 '
 	$job = "programmer"
 	$var = "job"
-	echo($$var)
-'
 
-# In Ring, we also say:
+	echo($var) 
+	#--> job
+	echo($$var)
+	#--> programmer
+'
+# In Ring, with SoftanzaLib, we write quite
+# the same code:
 
 	$(:job = "programmer")
 	$(:var = "job")
-	echo( $$(:var) )
 
-func $(p)
-	Vr(p)
+	echo( $(:var) )
+	#--> job
+	echo( $$(:var) )
+	#--> programmer
+
+
+/*
+
+# And we can also say:
+
+	Vr(:job) '=' Vl("programmer")
+	Vr(:var) '=' Vl("job")
+
+	echo( v(:var) )
+	#--> job
+	echo( vv(:var) )
+	#--> programmer
+
+# And we can also say:
+
+	Vr(:job) '=' Vl("programmer")
+	Vr(:var) '=' Vl("job")
+
+	echo( v(:var) )
+	#--> job
+	echo( v(v(:var)) )
+	#--> programmer
+*/
 proff()
 
 /*----------
