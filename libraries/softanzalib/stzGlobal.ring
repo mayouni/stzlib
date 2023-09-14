@@ -1414,7 +1414,7 @@ func ComputableShortFormXT(paList, p)
 			return new stzString(@@SFXT(paList, p))
 	#>
 	
-func ComputableForm(pValue) # TODO: case of object --> return its name
+func ComputableForm(pValue)
 
 	if isNumber(pValue)
 		return ""+ pValue
@@ -1487,6 +1487,11 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 
 		cResult = oQStr.mid(0, oQStr.count())
 		return cResult
+
+	but isObject(pValue)
+		cResult = ObjectVarName(pValue)
+		return cResult
+
 	ok
 
 	#< @FunctionFluentForm
