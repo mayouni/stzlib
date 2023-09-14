@@ -73,7 +73,12 @@ func TempVarVal()
 		return TempVarVal()
 
 func V(p)
-	if isList(p) and Q(p).IsHashList()
+	if isList(p) and Q(p).IsPair()
+		aTemp = []
+		aTemp + p
+		SetV(aTemp)
+
+	but isList(p) and Q(p).IsHashList()
 		SetV(p)
 
 	but isList(p) and Q(p).IsListOfStrings()
@@ -538,15 +543,37 @@ func print(str)
 	func printf(str)
 		print(str)
 
-func $(str) // C#
-	return Interpoltate(str) // Ring (SoftanzaLib)
-	# NOTE the method we used here is misspelled. Normally we
-	# should write it correctly as "Interpolate(str)". But I left
-	# as is to show how Softanza can be permissive to spelling
-	# errors when you are under time pressure in writing code ;)
+func $$(cVarName)
+	if isString(cVarName)
+		return v(v(cVarName))
+	else
+		StzRaise("Syntax error!")
+	ok
 
-	func f(str) // Python
-		return Interpoltate(str)
+	func vv(cVarName)
+		return v(v(cVarName))
+
+func $(str) // C#
+	if isList(str) and ( Q(str).IsPair() or Q(str).IsHashList() )
+		VrVl(str)
+
+	but isString(str) and Q(str).ContainsSubStringsBoundedBy([ "{", "}" ])
+		return Interpoltate(str) // Ring (SoftanzaLib)
+
+		# NOTE the method we used here is misspelled. Normally we
+		# should write it correctly as "Interpolate(str)". But I left
+		# as is to show how Softanza can be permissive to spelling
+		# errors when you are under time pressure in writing code ;)
+	
+	else
+		return v(str)
+	ok
+
+func f(str) // Python
+	return Interpoltate(str)
+
+func exec(cCode) // Python
+	eval(cCode)
 
   /////////////////
  ///  CLASSES  ///

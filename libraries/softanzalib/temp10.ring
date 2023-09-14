@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
-/*------------- TODO: fix errors of @@() with objects
-*/
+/*-------------
+
 pron()
 
 ? @@( StzNullObjectQ() )
@@ -16,7 +16,7 @@ pron()
 proff()
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzList([ 1, 1:5, "hi!", StzNullObjectQ(), [ "a", "b" ] ])
@@ -97,7 +97,7 @@ o1 = new stzList([ 1, 2, [ "a", "b" ], 4, [ "c", "d"], [ "a", "b" ] ])
 
 proff()
 
-/*-------------
+/*=============
 
 pron()
 
@@ -112,7 +112,7 @@ o1 = new stzString("---♥♥...**---")
 proff()
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzString("123♥♥678**123♥♥678")
@@ -200,4 +200,4 @@ o1 = new stzString("123♥♥678♥♥123♥♥678")
 #--> [ [ 9, 10 ], [ 14, 15 ] ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.08 second(s)
