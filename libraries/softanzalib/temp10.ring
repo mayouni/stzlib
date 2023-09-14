@@ -5,7 +5,7 @@ load "stzlib.ring"
 pron()
 
 ? @@( StzNullObjectQ() )
-#--> NULL
+#--> @noname
 
 ? @@([ StzNullObjectQ() ])
 #--> [ @noname ]
