@@ -1,6 +1,49 @@
 load "stzlib.ring"
 
 /*-------------
+pron()
+
+? Q(['alone']).IsSingle()
+#--> TRUE
+
+o1 = new stzList([ 1, ['alone1'], 2, ['alone2'], 3, ['alone3'])
+? o1.FindSingles()
+
+? o1.Singles()
+
+? @@( o1.SinglesZ() )
+
+proff()
+
+/*-------------
+*/
+
+pron()
+
+o1 = new stzList([ 1, 2, [ "a", "b" ], 4, [ "c", "d"], [ "a", "b" ] ])
+? o1.ContainsPairs()
+#--> TRUE
+
+//? o1.FindThem()
+
+? @@( o1.FindPairs() )
+#--> [ 3, 5, 6 ]
+
+? @@( o1.Pairs() )
+#--> [ [ "a", "b" ], [ "c", "d" ], [ "a", "b" ] ]
+
+? @@( o1.PairsU() )
+#--> [ [ "a", "b" ], [ "c", "d" ] ]
+
+? @@( o1.PairsZ() )
+#--> [
+#	[ [ "a", "b" ], [ 3, 6 ] ],
+#	[ [ "c", "d" ], [ 5 ] ]
+# ]
+
+proff()
+
+/*-------------
 
 pron()
 

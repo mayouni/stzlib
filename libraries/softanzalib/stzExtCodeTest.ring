@@ -1,5 +1,52 @@
 load "stzlib.ring"
 
+pron()
+
+# In PHP we say:
+
+'
+	$job = "programmer"
+	$var = "job"
+	echo($$var)
+'
+
+# In Ring, we also say:
+
+	$(:job = "programmer")
+	$(:var = "job")
+	echo( $$(:var) )
+
+func $(p)
+	Vr(p)
+proff()
+
+/*----------
+
+pron()
+
+# In Raku (Perl) language we write:
+"
+	rand = 0.7;
+	say rand < 0.5 ?? 'Yes' !! 'No';
+	#--> No
+"
+
+# In Ring with Softanza we also write:
+
+	rand = 0.7;
+	say { b(rand < 0.5) '??' bt('Yes') '!!' bf('No') };
+
+proff()
+
+/*----------
+
+pron()
+	n = -12;
+	vr(:sign) '=' b(n > 0) '??' bt("positive") '!!' bf("negative");
+	printf( v(:sign) );
+	#--> negative
+proff()
+
 /*----------
 
 pron()
@@ -12,8 +59,8 @@ o1 = new stzList([ 2, 4, 8 ])
 
 proff()
 
-/*----------
-*/
+/*----------///////////////
+
 pron()
 
 o1 = new stzList([ 6, -2, 9, 5, -10 ])
@@ -31,13 +78,12 @@ o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
 
 ? o1.EachItemIsEitherA( :Number, :Or, [ :Lowercase, :Latin, :String ])
 
-/*
+
 o1 = new stzList([ 120, "1250", 54, "452" ])
-? o1.EachItemIsEither( :Number, :Or = :NumberInString )
+//? o1.EachItemIsEither( :Number, :Or = :NumberInString )
 
 o1 = new stzList([ 2, 4, 8, "-129", 10, "-100.45" ])
-? o1.EachItemIsEither([ :Positive, :Even, :Number ], :Or = [ :Negative, :NumberInString ] )
-*/
+// o1.EachItemIsEither([ :Positive, :Even, :Number ], :Or = [ :Negative, :NumberInString ] )
 
 proff()
 
@@ -142,8 +188,12 @@ o1 = new stzList([ "one", greeting, 12, greeting, Q("two"), hello, 10 , Q(10) ])
 ? @@( o1.FindNamedObjects() )
 #--> [ 2, 4, 6 ]
 
+	? @@( o1.NamedObjectsZ() )
+
 ? @@( o1.FindUnnamedObjects() )
 #--> [ 5, 8 ]
+
+	? @@( o1.UnnamedObjects() )
 
 ? @@( o1.FindTheseObjects([ greeting, hello ]) )
 #--> [ 2, 4, 6 ]
@@ -152,6 +202,10 @@ o1 = new stzList([ "one", greeting, 12, greeting, Q("two"), hello, 10 , Q(10) ])
 #--> [ 5, 6, 8 ]
 
 ? @@( o1.TheseObjectsZ([ :@noname, hello ]) )
+#--> [
+#	[ "@noname", [ 5, 8 ] ],
+#	[ "hello", [ 6 ] ]
+# ]
 
 /*
 #--
@@ -164,15 +218,10 @@ o1.FindQObjects()
 
 #--
 
-o1.FindUnnamedObjects()
 
 #--
 
 o1.FindNonStzObjects()
-
-#--
-
-o1.FindNamedObjects()
 
 #--
 
@@ -826,7 +875,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*--------------
-
+*/
 pron()
 
 # Ternary operator in C-style languages (C, C#, Java, Javascript, PHP...)

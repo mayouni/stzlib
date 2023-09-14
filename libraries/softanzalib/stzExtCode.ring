@@ -26,6 +26,8 @@ None = NULL
 _b = false 	# Used for ternary operators in C
 _bv = null	# Idem
 
+say = new say	# Raku / Perl language
+
   ///////////////////
  ///  FUNCTIONS  ///
 ///////////////////
@@ -312,6 +314,18 @@ func bv(val1, val2)
 		_aVars[nLen][2] = val2
 	ok	
 
+func bt(val)
+	nLen = len(_aVars)
+	if _b = true
+		_aVars[nLen][2] = val
+	ok
+
+func bf(val)
+	nLen = len(_aVars)
+	if _b = false
+		_aVars[nLen][2] = val
+	ok
+
 func range0(p)
 	# Python...	: range(3) 		--> [0, 1, 2]
 	# Python..	: range(-3, 4, 2)	--> [-3, -1, 1, 3 ]
@@ -534,10 +548,15 @@ func $(str) // C#
 	func f(str) // Python
 		return Interpoltate(str)
 
-
   /////////////////
  ///  CLASSES  ///
 /////////////////
+
+class say # Raku / Perl
+	vr(:say)
+
+	def braceend()
+		? v(:say)
 
 class IntObject // C#
 	MinValue

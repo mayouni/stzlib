@@ -1625,6 +1625,20 @@ class stzObject
 			/* ... */
 		ok
 
+	#--
+
+	def IsAnObject()
+		return TRUE
+
+	def IsANumber()
+		return FALSE
+
+	def IsAString()
+		return FALSE
+
+	def IsAList()
+		return FALSE
+	
 	  #======================================#
 	 #  REPEATING THE OBJECT VALUE N TIMES  #
 	#======================================#
@@ -2426,4 +2440,11 @@ class stzObject
 		else
 			# An error message is returned:
 			#--> Error (R13) : Object is required 
+		ok
+
+	def IsSingle()
+		if This.IsAList() and This.Size() = 1
+			return TRUE
+		else
+			return FALSE
 		ok

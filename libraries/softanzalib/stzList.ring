@@ -28195,7 +28195,7 @@ class stzList from stzObject
 	def TheseObjectsZ(paObjects)
 
 		if CheckParams() = TRUE
-			if NOT ( isList(paObjects) and Q(paObjects).EachItemIsEither(:AString, :Or = :Object) )
+			if NOT ( isList(paObjects) and Q(paObjects).EachItemIsEitherA(:String, :Or, :Object) )
 				StzRaise("Incorrect param type! paObjects must be a list of strings and objects.")
 			ok
 	
@@ -28973,6 +28973,12 @@ class stzList from stzObject
 		# Composing the conditional expression
 
 		if cSyntax = "1"
+			if p1 = :Object
+				p1 = "n" + p1
+			ok
+			if p3 = :Object
+				p3 = "n" + p3
+			ok
 
 			cCode = 'bOk = ( Q(aContent[@i]).IsA' + p1 + '() or' + NL +
 				'Q(aContent[@i]).IsA' + p3 + '() )'
@@ -28983,10 +28989,18 @@ class stzList from stzObject
 				return FALSE
 			ok
 	
-			cCode = 'bOk = ( Stz' + p3 + 'Q(aContent[@i]).Is' + p1 + '() ) or' + NL +
-			        '( Stz' + p3 + 'Q(aContent[@i]).Is' + p2 + '() )'
+			if p1 = :Object
+				p1 = "n" + p1
+			ok
+			if p2 = :Object
+				p2 = "n" + p2
+			ok
+
+			cCode = 'bOk = ( Stz' + p3 + 'Q(aContent[@i]).IsA' + p1 + '() ) or' + NL +
+			        '( Stz' + p3 + 'Q(aContent[@i]).IsA' + p2 + '() )'
 	
 		ok
+
 
 		# Doing the job
 
@@ -40878,8 +40892,42 @@ vvv
 		return len(This.Letters())
 
 	  #-----------------------------------------#
-	 #  GETTING THE LIST OF PAIRS IN THE LIST  #
+	 #  GETTING THE LIST OF PAIRS IN THE LIST  # TODO: Add case sensitivity
 	#-----------------------------------------#
+
+	def ContainsPairs()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = FALSE
+
+		for i = 1 to nLen
+			item = aContent[i]
+			if isList(item) and Q(item).IsPair()
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def NumberOfPairs()
+		return len(This.Pairs())
+
+	def FindPairs()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			item = aContent[i]
+			if isList(item) and Q(item).IsPair()
+				anResult + i
+			ok
+		next
+
+		return anResult
 
 	def Pairs()
 		aContent = This.Content()
@@ -40896,8 +40944,56 @@ vvv
 
 		return aResult
 
-	def NumberOfPairs()
-		return len(This.Pairs())
+	def PairsU()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+		acSeen = []
+
+		for i = 1 to nLen
+
+			item = aContent[i]
+
+			if NOT (isList(item) and Q(item).IsPair())
+				loop
+			ok
+
+			cItem = @@(item)
+
+			if ring_find(acSeen, cItem) = 0
+				aResult + item
+				acSeen + cItem
+			ok
+	
+		next
+
+		return aResult
+
+	def PairsZ()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+		acSeen = []
+
+		for i = 1 to nLen
+
+			item = acontent[i]
+
+			if NOT (isList(item) and Q(item).IsPair())
+				loop
+			ok
+
+			if ring_find(acSeen, @@(item)) = 0
+				anPos = This.Find(aContent[i])
+				aResult + [ item, anPos ]
+				acSeen + @@(item)
+			ok
+	
+		next
+
+		return aResult
 
 	  #--------------------------------------------------------#
 	 #  PAIRIFYING THE LIST BY TRANFORMING EACH ITEM TO PAIR  #
