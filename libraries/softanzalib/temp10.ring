@@ -1,17 +1,17 @@
 load "stzlib.ring"
 
 /*------------- TODO: fix errors of @@() with objects
-
+*/
 pron()
 
 ? @@( StzNullObjectQ() )
-#!--> NULL
+#--> NULL
 
 ? @@([ StzNullObjectQ() ])
-#!--> [ @nona ]
+#--> [ @noname ]
 
-? @@([ 1:3, StzNullObjectQ(), "a":"b" ])
-#!--> [ [ 1, 2, 3 ], @noname[ "a", "b" ] ]
+? @@([ 1:3, StzNullObjectQ(), "a":"b", StzFalseObjectQ() ])
+#!--> [ [ 1, 2, 3 ], @noname, [ "a", "b" ], @noname ]
 
 proff()
 
@@ -20,8 +20,6 @@ proff()
 pron()
 
 o1 = new stzList([ 1, 1:5, "hi!", StzNullObjectQ(), [ "a", "b" ] ])
-
-? o1.NListified(3)[4]
 
 ? @@( o1.NListified(3) )
 #--> [

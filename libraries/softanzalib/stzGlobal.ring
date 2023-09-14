@@ -1349,7 +1349,6 @@ func ComputableShortFormXT(paList, p)
 	ok
 
 	cResult = "[ "
-	n1 # Used to compose names for unnamed objects
 
 	for i = 1 to nLen
 		if isNumber(aContent[i])
@@ -1375,12 +1374,8 @@ func ComputableShortFormXT(paList, p)
 			cResult += ( ComputableForm(aContent[i]) + ", ")
 
 		but isObject(aContent[i])
-			if ObjectIsStzObject(aContent[i])
-				cResult += aContent[i].VarName()
-			else
-				n++
-				cResult += :@UnnamedObject + n
-			ok
+			cResult += ObjectVarName(aContent[i]) + ", "
+	
 		ok
 
 	next
@@ -1479,11 +1474,8 @@ func ComputableForm(pValue) # TODO: case of object --> return its name
 				cResult += ( ComputableForm(aContent[i]) + ", ")
 
 			but isObject(aContent[i])
-				if ObjectIsStzObject(aContent[i])
-					cResult += aContent[i].VarName()
-				else
-					cResult += :@UnnamedObject + n
-				ok
+				cResult += ObjectVarName(aContent[i]) + ", "
+
 			ok
 
 		next
