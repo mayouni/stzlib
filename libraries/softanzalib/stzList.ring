@@ -16685,10 +16685,6 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		
-		n = 1 # Used tou cout unnamed objects in the list and then
-		      # composing names for them
-
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
@@ -16715,12 +16711,8 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
+
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -16744,12 +16736,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
 					
 				ok
 	
@@ -16851,8 +16838,6 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		
-		n = 1 # Used tou cout object in the list and then composing names for them
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
@@ -16879,12 +16864,8 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
+
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -16908,12 +16889,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok					
+					cItem = ObjectVarName(aContent[i])			
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -16981,8 +16957,6 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		
-		n = 1 # Used tou cout object in the list and then composing names for them
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
@@ -16991,7 +16965,6 @@ class stzList from stzObject
 		# We start by stringifying the list (casting all the items in to strings)
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
-
 
 		if pCaseSensitive = TRUE
 
@@ -17009,12 +16982,8 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
+
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -17038,12 +17007,8 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok					
+					cItem = ObjectVarName(aContent[i])
+				
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -17295,7 +17260,6 @@ class stzList from stzObject
 		ok
 
 		acSeen = []
-		n = 1 # Used tou cout object in the list and then composing names for them
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
@@ -17321,12 +17285,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -17350,12 +17309,8 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok					
+					cItem = ObjectVarName(aContent[i])
+			
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -17476,7 +17431,6 @@ class stzList from stzObject
 		ok
 
 		acSeen = []
-		n = 1 # Used tou cout object in the list and then composing names for them
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
@@ -17502,12 +17456,8 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
+
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -17531,12 +17481,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
 					
 				ok
 	
@@ -17626,7 +17571,6 @@ class stzList from stzObject
 		ok
 
 		acSeen = []
-		n = 1 # Used tou cout object in the list and then composing names for them
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
@@ -17652,12 +17596,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -17681,12 +17620,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
 
 				ok
 	
@@ -17800,7 +17734,6 @@ class stzList from stzObject
 		ok
 
 		acSeen = []
-		n = 1 # Used tou cout object in the list and then composing names for them
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
@@ -17826,12 +17759,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -17855,12 +17783,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok					
+					cItem = ObjectVarName(aContent[i])				
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -17954,7 +17877,6 @@ class stzList from stzObject
 		ok
 
 		acSeen = []
-		n = 1 # Used tou cout object in the list and then composing names for them
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
@@ -17980,12 +17902,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -18009,12 +17926,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok					
+					cItem = ObjectVarName(aContent[i])				
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -18120,7 +18032,6 @@ class stzList from stzObject
 		ok
 
 		acSeen = []
-		n = 1 # Used tou cout object in the list and then composing names for them
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
@@ -18146,12 +18057,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -18175,13 +18081,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
-					
+					cItem = ObjectVarName(aContent[i])
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -18483,7 +18383,6 @@ class stzList from stzObject
 		ok
 
 		
-		n = 1 # Used tou cout object in the list and then composing names for them
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
@@ -18510,12 +18409,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -18539,12 +18433,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
 					
 				ok
 	
@@ -18723,8 +18612,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		
-		n = 1 # Used tou cout object in the list and then composing names for them
+
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
@@ -18751,12 +18639,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
 
 				ok
 
@@ -18781,12 +18664,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					if ObjectIsStzObject(aContent[i])
-						cItem = aContent[i].VarName()
-					else
-						n++
-						cItem = :@UnnamedObject + n
-					ok
+					cItem = ObjectVarName(aContent[i])
 					
 				ok
 	
@@ -28285,7 +28163,6 @@ class stzList from stzObject
 		ok
 
 		cResult = "[ "
-		n = 1 # Used to compose anonymous names for unnamed objects
 
 		for i = 1 to nLen
 			if isNumber(aContent[i])
@@ -28312,12 +28189,7 @@ class stzList from stzObject
 				cResult += ( ComputableForm(aContent[i]) + ", ")
 
 			but isObject(aContent[i])
-				if ObjectIsStzObject(aContent[i])
-					cResult += aContent[i].VarName()
-				else
-					n++
-					cResult += :@UnnamedObject + n
-				ok
+				cResult += ObjectVarName(aContent[i]) + ", "
 
 			ok
 
@@ -28347,7 +28219,6 @@ class stzList from stzObject
 
 		acResult = []
 		cItem = ""
-		n = 0 # Used to count the objects contained in the list
 
 		for i = 1 to nLen
 			item = aContent[i]
@@ -28361,12 +28232,7 @@ class stzList from stzObject
 				cItem = @@(item)
 
 			but isObject(item)
-				if ObjectIsStzObject(item)
-					cItem = item.VarName()
-				else
-					n++
-					cItem = :@UnnamedObject + n
-				ok
+				cItem = ObjectVarName(aContent[i])
 			ok
 
 			acResult + cItem
@@ -28451,7 +28317,6 @@ class stzList from stzObject
 		cExtension = Q("_").RepeatedNTImes( ( Q(pcOtherSubStr).NumberOfChars() * 2 ) )
 
 		cItem = ""
-		n = 0 # Used to count the objects contained in the list
 
 		for i = 1 to nLen
 			item = aContent[i]
@@ -28505,12 +28370,7 @@ class stzList from stzObject
 				ok
 
 			but isObject(item)
-				if ObjectIsStzObject(item)
-					cItem = item.VarName()
-				else
-					n++
-					cItem = :@UnnamedObject + n
-				ok
+				cItem = ObjectVarName(aContent[i])
 			ok
 
 			acResult + cItem
@@ -28675,8 +28535,6 @@ class stzList from stzObject
 		
 		cItem = ""
 
-		n = 0 # Used to count the objects contained in the list
-
 		for i = 1 to nLen
 			item = aContent[i]
 			if isNumber(item)
@@ -28729,13 +28587,7 @@ class stzList from stzObject
 				ok
 
 			but isObject(item)
-
-				if ObjectIsStzObject(item)
-					cItem = item.VarName()
-				else
-					n++
-					cItem = :@UnnamedObject + n
-				ok
+				cItem = ObjectVarName(aContent[i])
 			ok
 
 			oQLocale = new QLocale("C")
