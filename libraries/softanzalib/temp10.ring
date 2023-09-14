@@ -1,22 +1,72 @@
 load "stzlib.ring"
 
-/*-------------
+/*------------- TODO: fix errors of @@() with objects
+
 pron()
 
-? Q(['alone']).IsSingle()
-#--> TRUE
+? @@( StzNullObjectQ() )
+#!--> NULL
 
-o1 = new stzList([ 1, ['alone1'], 2, ['alone2'], 3, ['alone3'])
-? o1.FindSingles()
+? @@([ StzNullObjectQ() ])
+#!--> [ @nona ]
 
-? o1.Singles()
-
-? @@( o1.SinglesZ() )
+? @@([ 1:3, StzNullObjectQ(), "a":"b" ])
+#!--> [ [ 1, 2, 3 ], @noname[ "a", "b" ] ]
 
 proff()
 
 /*-------------
 */
+pron()
+
+o1 = new stzList([ 1, 1:5, "hi!", StzNullObjectQ(), [ "a", "b" ] ])
+
+? o1.NListified(3)[4]
+
+? @@( o1.NListified(3) )
+#--> [
+#	[ 1, NULL, NULL ],
+#	[ 1, 2, 3 ],
+#	[ "hi!", NULL, NULL ],
+#	[ @noname, NULL, NULL ],
+#	[ "a", "b", NULL ]
+# ]
+
+proff()
+
+/*-------------
+
+pron()
+
+? Q(['alone']).IsSingle()
+#--> TRUE
+
+o1 = new stzList([ 1, ['alone1'], 3, ['alone2'], 5, ['alone2'], 7:9 ])
+
+? o1.ContainsSingles()
+#--> TRUE
+
+? @@( o1.FindSingles() )
+#--> [ 2, 4, 6 ]
+
+? @@( o1.Singles() )
+#--> [ [ "alone1" ], [ "alone2" ], [ "alone2" ] ]
+
+? @@( o1.SinglesU() )
+#--> [ [ "alone1" ], [ "alone2" ] ]
+
+? @@( o1.SinglesZ() ) + NL
+#--> [
+#	[ [ "alone1" ], [ 2 ] ],
+#	[ [ "alone2" ], [ 4, 6 ] ]
+# ]
+
+? @@( o1.Singlified() )
+#--> [ [ 1 ], [ "alone1" ], [ 3 ], [ "alone2" ], [ 5 ], [ "alone2" ], [ 7 ] ]
+
+proff()
+
+/*-------------
 
 pron()
 
@@ -35,10 +85,16 @@ o1 = new stzList([ 1, 2, [ "a", "b" ], 4, [ "c", "d"], [ "a", "b" ] ])
 ? @@( o1.PairsU() )
 #--> [ [ "a", "b" ], [ "c", "d" ] ]
 
-? @@( o1.PairsZ() )
+? @@( o1.PairsZ() ) + NL
 #--> [
 #	[ [ "a", "b" ], [ 3, 6 ] ],
 #	[ [ "c", "d" ], [ 5 ] ]
+# ]
+
+? @@( o1.Pairified() )
+#--> [
+#	[ 1, NULL ], [ 2, NULL ], [ "a", "b" ],
+#	[ 4, NULL ], [ "c", "d" ], [ "a", "b" ]
 # ]
 
 proff()

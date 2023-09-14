@@ -40891,9 +40891,9 @@ vvv
 	def NumberOfLetters()
 		return len(This.Letters())
 
-	  #-----------------------------------------#
+	  #=========================================#
 	 #  GETTING THE LIST OF PAIRS IN THE LIST  # TODO: Add case sensitivity
-	#-----------------------------------------#
+	#=========================================#
 
 	def ContainsPairs()
 		aContent = This.Content()
@@ -41043,9 +41043,155 @@ vvv
 		aResult = This.Copy().PairifyQ().Content()
 		return aResult
 
-	  #--------------------------------------------------------#
+	  #===========================================#
+	 #  GETTING THE LIST OF SINGLES IN THE LIST  # TODO: Add case sensitivity
+	#===========================================#
+
+	def ContainsSingles()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = FALSE
+
+		for i = 1 to nLen
+			item = aContent[i]
+			if isList(item) and Q(item).IsSingle()
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def NumberOfSingles()
+		return len(This.Singles())
+
+	def FindSingles()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			item = aContent[i]
+			if isList(item) and Q(item).IsSingle()
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def Singles()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			item = aContent[i]
+			if isList(item) and Q(item).IsSingle()
+				aResult + item
+			ok
+		next
+
+		return aResult
+
+	def SinglesU()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+		acSeen = []
+
+		for i = 1 to nLen
+
+			item = aContent[i]
+
+			if NOT (isList(item) and Q(item).IsSingle())
+				loop
+			ok
+
+			cItem = @@(item)
+
+			if ring_find(acSeen, cItem) = 0
+				aResult + item
+				acSeen + cItem
+			ok
+	
+		next
+
+		return aResult
+
+	def SinglesZ()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+		acSeen = []
+
+		for i = 1 to nLen
+
+			item = acontent[i]
+
+			if NOT (isList(item) and Q(item).IsSingle())
+				loop
+			ok
+
+			if ring_find(acSeen, @@(item)) = 0
+				anPos = This.Find(aContent[i])
+				aResult + [ item, anPos ]
+				acSeen + @@(item)
+			ok
+	
+		next
+
+		return aResult
+
+	  #-----------------------------------------------------------#
+	 #  SINGLIFYING THE LIST BY TRANFORMING EACH ITEM TO SINGLE  #
+	#-----------------------------------------------------------#
+
+	def Singlify()
+		
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			aSingle = []
+
+			if isList(aContent[i])
+
+				nLenTemp = len(aContent[i])
+				if nLenTemp = 0
+					aSingle + NULL
+
+				else
+					aSingle + aContent[i][1]
+				ok
+			
+			else
+				aSingle + aContent[i]
+			ok
+
+			aResult + aSingle
+		next
+
+		This.UpdateWith(aResult)
+
+		def SinglifyQ()
+			This.Singlify()
+			return This
+
+	def Singlified()
+		aResult = This.Copy().SinglifyQ().Content()
+		return aResult
+
+	  #========================================================#
 	 #  LISTIFYING THE LIST BY TRANFORMING EACH ITEM TO LIST  #
-	#--------------------------------------------------------#
+	#========================================================#
 
 	def Listify()
 		
@@ -41078,9 +41224,67 @@ vvv
 		aResult = This.Copy().ListifyQ().Content()
 		return aResult
 
-	  #------------------------------------------------------------#
+	  #-------------------------------------------------------------#
+	 #  LISTIYING THE ITEMS OF THE LIST BY SIZING THEM TO N ITEMS  #
+	#-------------------------------------------------------------#
+
+	def NListify(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			aList = []
+
+			if NOT isList(aContent[i])
+				aList + aContent[i]
+				if n > 1
+					for j = 1 to n-1
+						aList + NULL
+					next
+				ok
+			else
+
+				nLenList = len(aContent[i])
+
+				if n = nLenList
+					aList = aContent[i]
+
+				but n > nLenList
+					aList = aContent[i]
+					for j = 1 to n - nLenList
+						aList + NULL
+					next
+
+				but n < nLenList
+					for j = 1 to n
+						aList + aContent[i][j]
+					next
+				ok
+						
+			ok
+
+			aResult + aList
+		next
+
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def NListifyQ(n)
+			This.NListify(n)
+			return This
+
+		#>
+
+	def NListified(n)
+		aResult = This.Copy().NListifyQ(n).Content()
+		return aResult
+	  #============================================================#
 	 #  NUMBERIFYING THE LIST BY TRANFORMING EACH ITEM TO NUMBER  #
-	#------------------------------------------------------------#
+	#============================================================#
 
 	def Numberify()
 		
