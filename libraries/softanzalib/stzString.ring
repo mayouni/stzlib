@@ -3105,21 +3105,21 @@ class stzString from stzObject
 		def FindAllPossibleSubStringsAsSectionsCS(pCaseSensitive)
 			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
 
-		def PositionsOfSubStringsAsSectionsCS(pCaseSensitive)
-			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
-
-		def PositionsOfAllSubStringsAsSectionsCS(pCaseSensitive)
-			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
-
-		def PositionsOfAllPossibleSubStringsAsSectionsCS(pCaseSensitive)
-			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
-
-		#--
-
 		def SubStringsAsSectionsCS(pCaseSensitive)
 			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
 
 		def SubStringsSectionsCS(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
+		#--
+
+		def FindAllSubStringsCSZZ(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
+		def FindAllPossibleSubStringsCSZZ(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
+		def FindSubStringsCSZZ(pCaseSensitive)
 			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
 
 		#>
@@ -3137,21 +3137,21 @@ class stzString from stzObject
 		def FindAllPossibleSubStringsAsSections()
 			return This.FindSubStringsAsSections()
 
-		def PositionsOfSubStringsAsSections()
-			return This.FindSubStringsAsSections()
-
-		def PositionsOfAllSubStringsAsSections()
-			return This.FindSubStringsAsSections()
-
-		def PositionsOfAllPossibleSubStringsAsSections()
-			return This.FindSubStringsAsSections()
-
-		#--
-
 		def SubStringsAsSections()
 			return This.FindSubStringsAsSections()
 
 		def SubStringsSections()
+			return This.FindSubStringsAsSections()
+
+		#--
+
+		def FindAllSubStringsZZ()
+			return This.FindSubStringsAsSections()
+
+		def FindAllPossibleSubStringsZZ()
+			return This.FindSubStringsAsSections()
+
+		def FindSubStringsZZ()
 			return This.FindSubStringsAsSections()
 
 		#>
@@ -3711,12 +3711,12 @@ class stzString from stzObject
 	 #   MFINDING ARQUERS POSITIONS  #
 	#===============================#
 
-	def MarquersPositions()
+	def FindMarquers()
 		/* Example:
 
 		StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 		
-			? MarquersPositions()
+			? FindMarquers()
 			#--> [ 12, 25, 44, 66 ]
 		
 		}
@@ -3738,48 +3738,16 @@ class stzString from stzObject
 
 		return aResult
 
-		#< @FunctionFluentForm
-
-		def MarquersPositionsQ()
-			return This.MarquersPositionsQR(:stzListOfNumbers)
-
-		def MarquersPositionsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers(This.MarquersPositions())
-
-			on :stzList
-				return new stzList(This.MarquersPositions())
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-		#>
-
 		#< @FunctionAlternativeForm
 
+		def FindMarquersZ()
+			return This.FindMarquers()
+
 		def MarquersOccurrences()
-			return This.MarquersPositions()
+			return This.FindMarquers()
 
-			def MarquersOccurrencesQ()
-				return This.MarquersOccurrencesQR(:stzListOfNumbers)
-	
-			def MarquersOccurrencesQR(pcReturnType)
-				return This.MarquersPositionsQR(pcReturnType)
-
-		def FindMarquers()
-			return This.MarquersPositions()
-
-			def FindMarquersQ()
-				return This.FindMarquersQR(:stzListOfNumbers)
-	
-			def FindMarquersQR(pcReturnType)
-				return This.MarquersPositionsQR(pcReturnType)
+		def MarquersPositions()
+			return This.FindMarquers()
 
 		#>
 
@@ -3801,66 +3769,19 @@ class stzString from stzObject
 		aResult = StzPairOfListsQ( This.Marquers(), This.MarquersPositions() ).AssociateQ().Content()
 		return aResult
 
-		#< @FunctionFluentForm
-
-		def MarquersAndPositionsQ()
-			return This.MarquersAndPositionsQR(:stzList)
-
-		def MarquersAndPositionsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.MarquersAndPositions() )
-
-			on :stzHashList
-				return new stzHashList( This.MarquersAndPositions() )
-
-			other
-				stzRaise("Unsupported returned type!")
-			off
-
-		#>
-
 		#< @FunctionAlternativeForms
 
 		def MarquersAndTheirPositions()
 			return This.MarquersAndPositions()
 
-			def MarquersAndTheirPositionsQ()
-				return This.MarquersAndPositionsQ()
-
-			def MarquersAndTheirPositionsQR(pcReturnType)
-				return This.MarquersAndPositionsQR(pcReturnType)
-
 		def MarquersAndOccurrences()
 			return This.MarquersAndPositions()
-
-			def MarquersAndOccurrencesQ()
-				return This.MarquersAndPositionsQ()
-
-			def MarquersAndOccurrencesQR(pcReturnType)
-				return This.MarquersAndPositionsQR(pcReturnType)
 
 		def MarquersAndTheirOccurrences()
 			return This.MarquersAndPositions()
 
-			def MarquersAndTheirOccurrencesQ()
-				return This.MarquersAndPositionsQ()
-
-			def MarquersAndTheirOccurrencesQR(pcReturnType)
-				return This.MarquersAndPositionsQR(pcReturnType)
-
 		def MarquersZ()
 			return This.MarquersAndPositions()
-
-			def MarquersZQ()
-				return This.MarquersAndPositionsQR(:stzList)
-
-			def MarquersZQR(pcReturnType)
-				return This.MarquersAndPositionsQR(pcReturntype)
 
 		#>
 
@@ -3890,93 +3811,20 @@ class stzString from stzObject
 
 		return aResult
 		
-		#< @FunctionFluentForm
-
-		def UniqueMarquersAndPositionsQ()
-			return This.UniqueMarquersAndPositionsQR(:stzList)
-
-		def UniqueMarquersAndPositionsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.UniqueMarquersAndPositions() )
-
-			on :stzHashList
-				return new stzHashList( This.UniqueMarquersAndPositions() )
-
-			other
-				stzRaise("Unsupported returned type!")
-			off
-
-		#>
 
 		#< @FunctionAlternativeForms
 
 		def UniqueMarquersAndTheirPositions()
 			return This.UniqueMarquersAndPositions()
 
-			def UniqueMarquersAndTheirPositionsQ()
-				return This.UniqueMarquersAndPositionsQ()
-
-			def UniqueMarquersAndTheirPositionsQR(pcReturnType)
-				return This.UniqueMarquersAndPositionsQR(pcReturnType)
-
 		def UniqueMarquersAndOccurrences()
-			return This.UniqueMarquersAndPositions()
-
-			def UniqueMarquersAndOccurrencesQ()
-				return This.UniqueMarquersAndPositionsQ()
-
-			def UniqueMarquersAndOccurrencesQR(pcReturnType)
-				return This.UniqueMarquersAndPositionsQR(pcReturnType)
+			return This.MarquersAndPositions()
 
 		def UniqueMarquersAndTheirOccurrences()
 			return This.UniqueMarquersAndPositions()
 
-			def UniqueMarquersAndTheirOccurrencesQ()
-				return This.UniqueMarquersAndPositionsQ()
-
-			def UniqueMarquersAndTheirOccurrencesQR(pcReturnType)
-				return This.UniqueMarquersAndPositionsQR(pcReturnType)
-
-		def UniqueMarquersZ()
-			return This.UniqueMarquersAndPositions()
-
-			def UniqueMarquersZQ()
-				return This.UniqueMarquersAndPositionsQR(:stzList)
-
-			def UniqueMarquersZQR(pcReturnType)
-				return This.UniqueMarquersAndPositionsQR(pcReturntype)
-
-		def MarquersZU()
-			return This.UniqueMarquersAndPositions()
-
-			def MarquersZUQ()
-				return This.UniqueMarquersAndPositionsQR(:stzList)
-
-			def MarquersZUQR(pcReturnType)
-				return This.UniqueMarquersAndPositionsQR(pcReturntype)
-
 		def MarquersUZ()
 			return This.UniqueMarquersAndPositions()
-
-			def MarquersUZQ()
-				return This.UniqueMarquersAndPositionsQR(:stzList)
-
-			def MarquersUZQR(pcReturnType)
-				return This.UniqueMarquersAndPositionsQR(pcReturntype)
-
-		def MarquersWithoutDuplicationZ()
-			return This.UniqueMarquersAndPositions()
-
-			def MarquersWithoutDuplicationZQ()
-				return This.MarquersWithoutDuplicationQR(:stzList)
-
-			def MarquersWithoutDuplicationZQR(pcReturnType)
-				return This.MarquersUZQR(pcReturnType)
 
 		#>
 
@@ -4081,18 +3929,18 @@ class stzString from stzObject
 	 #   FINDING MARQUERS AS SECTIONS   #
 	#==================================#
 
-	def MarquersSections()
+	def FindMarquersZZ()
 		/* Example:
 
 		StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 		
-			? MarquersPositions()
+			? FindMarquersZZ()
 			#--> [  [12, 13], [ 25, 26],  [44, 45], [66, 67]  ]
 		
 		}
 		*/
 
-		anStartPos  = This.MarquersPositions()
+		anStartPos  = This.FindMarquers()
 		anNbOfChars = This.MarquersNumbersOfChars()
 
 		aResult = []
@@ -4104,39 +3952,14 @@ class stzString from stzObject
 		return aResult
 
 
-		#< @FunctionFluentForm
-
-		def MarquersSectionsQ()
-			return new stzList( This.MarquersSections() )
-
-		def MarquersSectionsQR(pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.MarquersSections() )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.MarquersSections() )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.MarquersSections() )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		#< @FunctionAlternativeForm >
+		#< @FunctionAlternativeForm
 
 		def FindMarquersAsSections()
-			return This.MarquersSections()
+			return This.FindMarquersZZ()
 
-			def FindMarquersAsSectionsQ()
-				return This.MarquersSectionsQ()
-
-			def FindMarquersAsSectionsQR(pcReturnType)
-				return This.MarquersSectionsQR(pcReturnType)
-
+		def MarquersSections()
+			return This.FindMarquersZZ()
+		
 		#>
 
 	  #------------------------------------------------#
@@ -5600,27 +5423,39 @@ class stzString from stzObject
 		anResult = Q(anPos).ToSet()
 		return anResult
 
+		def FindDuplicatesCSZ(pCaseSensitive)
+			return This.FindDuplicatesCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicates()
 		return This.FindDuplicatesCS(:CaseSensitive = TRUE)
+
+		def FindDuplicatesZ()
+			return This.FindDuplicates()
 
 	  #----------------------------------#
 	 #  FINDING DUPLICATES -- EXTENDED  #
 	#----------------------------------#
 
 	# This extended form keeps the positions even if they are duplicated
-	# For example :
-	# 	
+	# TODO: Illistrate it with an example.
+
 	def FindDuplicatesCSXT(pCaseSensitive)
 		aSections = This.FindDuplicatesAsSectionsCS(pCaseSensitive)
 		anResult = QR(aSections, :stzListOfPairs).FirstItems()
 		return anResult
 
+		def FindDuplicatesCSXTZ(pCaseSensitive)
+			return This.FindDuplicatesCSXT(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesXT()
 		return This.FindDuplicatesCSXT(:CaseSensitive = TRUE)
+
+		def FindDuplicatesXTZ()
+			return This.FindDuplicatesXT()
 
 	  #----------------------------------#
 	 #  FINDING DUPLICATES AS SECTIONS  #
@@ -5645,10 +5480,24 @@ class stzString from stzObject
 		aResult = QR(aResult, :stzListOfPairs).Sorted()
 		return aResult
 
+		#< @FunctionAlternativeForm
+
+		def FindDuplicatesCSZZ(pCaseSensitive)
+			return This.FindDuplicatesAsSectionsCS(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesAsSections()
 		return This.FindDuplicatesAsSectionsCS(:CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def FindDuplicatesZZ()
+			return This.FindDuplicatesAsSections()
+
+		#>
 
 	  #--------------#
 	 #  DUPLICATES  #
@@ -5772,8 +5621,7 @@ class stzString from stzObject
 
 		return aResult
 		
-
-		def PositionsOfDuplicatesOfSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+		def FindDuplicatesOfSubStringCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -5781,7 +5629,7 @@ class stzString from stzObject
 	def FindDuplicatesOfSubStringAsSections(pcSubStr)
 		return This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
 
-		def PositionsOfDuplicatesOfSubStringAsSections(pcSubStr)
+		def FindDuplicatesOfSubStringZZ(pcSubStr)
 			return This.FindDuplicatesOfSubStringAsSections(pcSubStr)
 
 	  #-------------------------------------------#
@@ -8933,7 +8781,33 @@ class stzString from stzObject
 
 			def FindStringFirstAndSecondBoundsAsSectionsCS(pCaseSensitive)
 				return This.FindBoundsAsSectionsCS(pCaseSensitive)
+
+		#--
+
+		def FindBoundsCSZZ(pCaseSensitive)
+			return This.FindBoundsAsSectionsCS(pCaseSensitive)
+
+		def FindStringBoundsCSZZ(pCaseSensitive)
+			return This.FindBoundsAsSectionsCS(pCaseSensitive)
+
+		def FindFirstAndLastBoundsCSZZ(pCaseSensitive)
+			return This.FindBoundsAsSectionsCS(pCaseSensitive)
+
+			def FindFirstAndSecondoundsCSZZ(pCaseSensitive)
+				return This.FindBoundsAsSectionsCS(pCaseSensitive)
 	
+		def FindFirstAndLastStringBoundsCSZZ(pCaseSensitive)
+			return This.FindBoundsAsSectionsCS(pCaseSensitive)
+
+			def FindFirstAndSecondStringBoundsCSZZ(pCaseSensitive)
+				return This.FindBoundsAsSectionsCS(pCaseSensitive)
+	
+		def FindStringFirstAndLastBoundsCSZZ(pCaseSensitive)
+			return This.FindBoundsAsSectionsCS(pCaseSensitive)
+
+			def FindStringFirstAndSecondBoundsCSZZ(pCaseSensitive)
+				return This.FindBoundsAsSectionsCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -8963,7 +8837,33 @@ class stzString from stzObject
 
 			def FindStringFirstAndSecondBoundsAsSections()
 				return This.FindBoundsAsSections()
+
+		#--
+
+		def FindBoundsZZ()
+			return This.FindBoundsAsSections()
+
+		def FindStringBoundsZZ()
+			return This.FindBoundsAsSections()
+
+		def FindFirstAndLastBoundsZZ()
+			return This.FindBoundsAsSections()
+
+			def FindFirstAndSecondoundsZZ()
+				return This.FindBoundsAsSections()
 	
+		def FindFirstAndLastStringBoundsZZ()
+			return This.FindBoundsAsSections()
+
+			def FindFirstAndSecondStringBoundsZZ()
+				return This.FindBoundsAsSections()
+	
+		def FindStringFirstAndLastBoundsZZ()
+			return This.FindBoundsAsSections()
+
+			def FindStringFirstAndSecondBoundsZZ()
+				return This.FindBoundsAsSections()
+
 		#>
 
 	  #-------------------------------------------------------------------------------------#
@@ -8990,6 +8890,20 @@ class stzString from stzObject
 		def FindStringSecondAndFirstBoundsAsSectionsCS(pCaseSensitive)
 			return This.FindLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
 
+		#--
+
+		def FindLastAndFirstBoundsCSZZ(pCaseSensitive)
+			return This.FindLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
+
+		def FindSecondAndFirstBoundsCSZZ(pCaseSensitive)
+			return This.FindLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
+
+		def FindStringLastAndFirstBoundsCSZZ(pCaseSensitive)
+			return This.FindLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
+
+		def FindStringSecondAndFirstBoundsCSZZ(pCaseSensitive)
+			return This.FindLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -9006,6 +8920,20 @@ class stzString from stzObject
 			return This.FindLastAndFirstBoundsAsSections()
 
 		def FindStringSecondAndFirstBoundsAsSections()
+			return This.FindLastAndFirstBoundsAsSections()
+
+		#--
+
+		def FindLastAndFirstBoundsZZ()
+			return This.FindLastAndFirstBoundsAsSections()
+
+		def FindSecondAndFirstBoundsZZ()
+			return This.FindLastAndFirstBoundsAsSections()
+
+		def FindStringLastAndFirstBoundsZZ()
+			return This.FindLastAndFirstBoundsAsSections()
+
+		def FindStringSecondAndFirstBoundsZZ()
 			return This.FindLastAndFirstBoundsAsSections()
 
 		#>
@@ -9038,6 +8966,14 @@ class stzString from stzObject
 		def FindStringLeftAndRightBoundsAsSectionsCS(pCaseSensitive)
 			return This.FindLeftAndRightBoundsAsSectionsCS(pCaseSensitive)
 
+		#--
+
+		def FindLeftAndRightBoundsCSZZ(pCaseSensitive)
+			return This.FindLeftAndRightBoundsAsSectionsCS(pCaseSensitive)
+
+		def FindStringLeftAndRightBoundsCSZZ(pCaseSensitive)
+			return This.FindLeftAndRightBoundsAsSectionsCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -9048,6 +8984,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindStringLeftAndRightBoundsAsSections()
+			return This.FindLeftAndRightBoundsAsSections()
+
+		#--
+
+		def FindLeftAndRightBoundsZZ()
+			return This.FindLeftAndRightBoundsAsSections()
+
+		def FindStringLeftAndRightBoundsZZ()
 			return This.FindLeftAndRightBoundsAsSections()
 
 		#>
@@ -9079,6 +9023,14 @@ class stzString from stzObject
 		def FindStringRightAndLeftBoundsAsSectionsCS(pCaseSensitive)
 			return This.FindRightAndLeftBoundsAsSectionsCS(pCaseSensitive)
 
+		#--
+
+		def FindRightAndLeftBoundsCSZZ(pCaseSensitive)
+			return This.FindRightAndLeftBoundsAsSectionsCS(pCaseSensitive)
+
+		def FindStringRightAndLeftBoundsCSZZ(pCaseSensitive)
+			return This.FindRightAndLeftBoundsAsSectionsCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -9089,6 +9041,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindStringRightAndLeftBoundsAsSections()
+			return This.FindRightAndLeftBoundsAsSections()
+
+		#--
+
+		def FindRightAndLeftBoundsZZ()
+			return This.FindRightAndLeftBoundsAsSections()
+
+		def FindStringRightAndLeftBoundsZZ()
 			return This.FindRightAndLeftBoundsAsSections()
 
 		#>
@@ -9980,16 +9940,40 @@ class stzString from stzObject
 
 		return anResult
 
+		#< @FunctionAlternativeForms
+
 		def FindStringFirstBoundAsSectionCS(pCaseSensitive)
 			return This.FindFirstBoundAsSectionCS(pCaseSensitive)
+
+		#--
+
+		def FindFirstBoundCSZZ(pCaseSensitive)
+			return This.FindFirstBoundAsSectionCS(pCaseSensitive)
+
+		def FindStringFirstBoundCSZZ(pCaseSensitive)
+			return This.FindFirstBoundAsSectionCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstBoundAsSection()
 		return This.FindFirstBoundAsSectionCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def FindStringFirstBoundAsSection()
 			return This.FindFirstBoundAsSection()
+
+		#--
+
+		def FindFirstBoundZZ()
+			return This.FindFirstBoundAsSection()
+
+		def FindStringFirstBoundZZ()
+			return This.FindFirstBoundAsSection()
+
+		#>
 
 	  #-----------------------------------------#
 	 #  GETTING THE FIRST BOUND OF THE STRING  #
@@ -10166,6 +10150,20 @@ class stzString from stzObject
 		def FindStringSecondBoundAsSectionCS(pCaseSensitive)
 			return This.FindLastBoundAsSectionCS(pCaseSensitive)
 
+		#--
+
+		def FindLastBoundCSZZ(pCaseSensitive)
+			return This.FindLastBoundAsSectionCS(pCaseSensitive)
+
+		def FindStringLastBoundCSZZ(pCaseSensitive)
+			return This.FindLastBoundAsSectionCS(pCaseSensitive)
+
+		def FindSecondBoundCSZZ(pCaseSensitive)
+			return This.FindLastBoundAsSectionCS(pCaseSensitive)
+
+		def FindStringSecondBoundCSZZ(pCaseSensitive)
+			return This.FindLastBoundAsSectionCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -10182,6 +10180,20 @@ class stzString from stzObject
 			return This.FindLastBoundAsSection()
 
 		def FindStringSecondBoundAsSection()
+			return This.FindLastBoundAsSection()
+
+		#--
+
+		def FindLastBoundZZ()
+			return This.FindLastBoundAsSection()
+
+		def FindStringLastBoundZZ()
+			return This.FindLastBoundAsSection()
+
+		def FindSecondBoundZZ()
+			return This.FindLastBoundAsSection()
+
+		def FindStringSecondBoundZZ()
 			return This.FindLastBoundAsSection()
 
 		#>
@@ -10323,19 +10335,36 @@ class stzString from stzObject
 			return This.FindLastBoundCS(pCaseSensitive)
 		ok
 
+		#< @FunctionAlternativeForms
+
+		def FindLeftBoundCSZ(pCaseSensitive)
+			return This.FindLeftBoundCS(pCaseSensitive)
 
 		def FindStringLeftBoundCS(pCaseSensitive)
 			return This.FindLeftBoundCS(pCaseSensitive)
 
+		def FindStringLeftBoundCSZ(pCaseSensitive)
+			return This.FindLeftBoundCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLeftBound()
 		return This.FindLeftBoundCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindLeftBoundZ()
+			return This.FindLeftBound()
 
 		def FindStringLeftBound()
 			return This.FindLeftBound()
+
+		def FindStringLeftBoundZ()
+			return This.FindLeftBound()
+
+		#>
 
 	  #------------------------------------------------------------------------------#
 	 #  FINDING THE LEFT BOUND OF THE STRING AND RETURNING ITS POSITION AS SECTION  #
@@ -10350,18 +10379,40 @@ class stzString from stzObject
 			return This.FindLastBoundAsSectionCS(pCaseSensitive)
 		ok
 
+		#< @FunctionAlternativeForms
 
 		def FindStringLeftBoundAsSectionCS(pCaseSensitive)
 			return This.FindLeftBoundAsSectionCS(pCaseSensitive)
+
+		#--
+
+		def FindLeftBoundCSZZ(pCaseSensitive)
+			return This.FindLeftBoundAsSectionCS(pCaseSensitive)
+
+		def FindStringLeftBoundCSZZ(pCaseSensitive)
+			return This.FindLeftBoundAsSectionCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLeftBoundAsSection()
 		return This.FindLeftBoundAsSectionCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
 
 		def FindStringLeftBoundAsSection()
 			return This.FindLeftBoundAsSection()
+
+		#--
+
+		def FindLeftBoundZZ()
+			return This.FindLeftBoundAsSection()
+
+		def FindStringLeftBoundZZ()
+			return This.FindLeftBoundAsSection()
+
+		#>
 
 	  #----------------------------------------#
 	 #  GETTING THE LEFT BOUND OF THE STRING  #
@@ -10486,17 +10537,36 @@ class stzString from stzObject
 			return This.FindFirstBoundCS(pCaseSensitive)
 		ok
 
+		#< @FunctionAlternativeForms
+
+		def FindRightBoundCSZ(pCaseSensitive)
+			return This.FindRightBoundCS(pCaseSensitive)
 
 		def FindStringRightBoundCS(pCaseSensitive)
 			return This.FindRightBoundCS(pCaseSensitive)
+
+		def FindStringRightBoundCSZ(pCaseSensitive)
+			return This.FindRightBoundCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRightBound()
 		return This.FindRightBoundCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindRightBoundZ()
+			return This.FindRightBound()
+
 		def FindStringRightBound()
 			return This.FindRightBound()
+
+		def FindStringRightBoundZ()
+			return This.FindRightBound()
+
+		#>
 
 	  #-------------------------------------------------------------------------------#
 	 #  FINDING THE RIGHT BOUND OF THE STRING AND RETURNING ITS POSITION AS SECTION  #
@@ -10511,19 +10581,36 @@ class stzString from stzObject
 			return This.FindFirstBoundAsSectionCS(pCaseSensitive)
 		ok
 
+		#< @FunctionAlternativeForms
+
+		def FindRightBoundCSZZ(pCaseSensitive)
+			return This.FindRightBoundAsSectionCS(pCaseSensitive)
 
 		def FindStringRightBoundAsSectionCS(pCaseSensitive)
 			return This.FindRightBoundAsSectionCS(pCaseSensitive)
 
+		def FindStringRightBoundCSZZ(pCaseSensitive)
+			return This.FindRightBoundAsSectionCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRightBoundAsSection()
 		return This.FindRightBoundAsSectionCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindRightBoundZZ()
+			return This.FindRightBoundAsSection()
 
 		def FindStringRightBoundAsSection()
 			return This.FindRightBoundAsSection()
+
+		def FindStringRightBoundZZ()
+			return This.FindRightBoundAsSection()
+
+		#>
 
 	  #-----------------------------------------#
 	 #  GETTING THE RIGHT BOUND OF THE STRING  #
@@ -11339,16 +11426,36 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def FindTheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
+
 		def FindTheseBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
 			return This.FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def FindTheseBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseStringBoundsAsSections(pcBound1, pcBound2)
 		return This.FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindTheseStringBoundsZZ(pcBound1, pcBound2)
+			return This.FindTheseStringBoundsAsSections(pcBound1, pcBound2)
+
 		def FindTheseBoundsAsSections(pcBound1, pcBound2)
 			return This.FindTheseStringBoundsAsSections(pcBound1, pcBound2)
+
+		def FindTheseBoundsZZ(pcBound1, pcBound2)
+			return This.FindTheseStringBoundsAsSections(pcBound1, pcBound2)
+
+		#>
 
 	  #------------------------------------------------------------------------------------#
 	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) IN THE STRING AND RETURNING THEIR SECTIONS  #
@@ -11377,16 +11484,36 @@ class stzString from stzObject
 
 		return aResult
 
-		def FindTheseBoundsAsCS(pcBound1, pcBound2, pCaseSensitive)
+		#< @FunctionAlternativeForms
+
+		def FindTheseStringBoundsCSZ(pcBound1, pcBound2, pCaseSensitive)
 			return This.FindTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def FindTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def FindTheseBoundsCSZ(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseStringBounds(pcBound1, pcBound2)
 		return This.FindTheseStringBoundsCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindTheseStringBoundsZ(pcBound1, pcBound2)
+			return This.FindTheseStringBounds(pcBound1, pcBound2)
+
 		def FindTheseBounds(pcBound1, pcBound2)
 			return This.FindTheseStringBounds(pcBound1, pcBound2)
+
+		def FindTheseBoundsZ(pcBound1, pcBound2)
+			return This.FindTheseStringBounds(pcBound1, pcBound2)
+
+		#>
 
 	  #-----------------------------------------------------------------------------#
 	 #  GETTING THE GIVEN TWO BOUNDS (IF ANY) OF THE STRING ALONG THEIR POSITIONS  #
@@ -11669,16 +11796,36 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBoundsCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
 		def FindBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindSubStringBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindBoundsOfCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringBoundsAsSections(pcSubStr)
 		return This.FindSubStringBoundsAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBoundsZZ(pcSubStr)
+			return This.FindSubStringBoundsAsSections(pcSubStr)
+
 		def FindBoundsOfAsSections(pcSubStr)
 			return This.FindSubStringBoundsAsSections(pcSubStr)
+
+		def FindBoundsOfZZ(pcSubStr)
+			return This.FindSubStringBoundsAsSections(pcSubStr)
+
+		#>
 
 	  #---------------------------------------------------------#
 	 #  FINDING THE BOUNDS OF A GIVEN SUBSTRING IN THE STRING  #
@@ -11690,16 +11837,36 @@ class stzString from stzObject
 
 		return anResult
 
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBoundsCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringBoundsCS(pcSubStr, pCaseSensitive)
+
 		def FindBoundsOfCS(pcSubStr, pCaseSensitive)
 			return This.FindSubStringBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FindBoundsOfCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringBoundsCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringBounds(pcSubStr)
 		return This.FindSubStringBoundsCS(pcSubStr, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBoundsZ(pcSubStr)
+			return This.FindSubStringBounds(pcSubStr)
+
 		def FindBoundsOf(pcSubStr)
 			return This.FindSubStringBounds(pcSubStr)
+
+		def FindBoundsOfZ(pcSubStr)
+			return This.FindSubStringBounds(pcSubStr)
+
+		#>
 
 	  #---------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS BOUNDS OF A GIVEN SUBSTRING  #
@@ -11792,6 +11959,17 @@ class stzString from stzObject
 		def FindFirstBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindSubStringFirstBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSubStringFirstBoundsCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringFirstBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindFirstBoundsOfCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringFirstBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindFirstBoundsCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringFirstBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -11805,6 +11983,17 @@ class stzString from stzObject
 			return This.FindSubStringFirstBoundsAsSections(pcSubStr)
 
 		def FindFirstBoundsAsSections(pcSubStr)
+			return This.FindSubStringFirstBoundsAsSections(pcSubStr)
+
+		#--
+
+		def FindSubStringFirstBoundsZZ(pcSubStr)
+			return This.FindSubStringFirstBoundsSections(pcSubStr)
+
+		def FindFirstBoundsOfZZ(pcSubStr)
+			return This.FindSubStringFirstBoundsAsSections(pcSubStr)
+
+		def FindFirstBoundsZZ(pcSubStr)
 			return This.FindSubStringFirstBoundsAsSections(pcSubStr)
 
 		#>
@@ -11881,6 +12070,28 @@ class stzString from stzObject
 		def FindSecondBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 
+		#==
+
+		def FindSubStringLastBoundsCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindLastBoundsOfCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindLastBoundsCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		#--
+
+		def FindSubStringSecondBoundsCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindSecondBoundsOfCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindSecondBoundsCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -11907,6 +12118,28 @@ class stzString from stzObject
 		def FindSecondBoundsAsSections(pcSubStr)
 			return This.FindSubStringLastBoundsAsSections(pcSubStr)
 
+		#==
+
+		def FindSubStringLastBoundsZZ(pcSubStr)
+			return This.FindSubStringLastBounds(pcSubStr)
+
+		def FindLastBoundsOfZZ(pcSubStr)
+			return This.FindSubStringLastBoundsAsSections(pcSubStr)
+
+		def FindLastBoundsZZ(pcSubStr)
+			return This.FindSubStringLastBoundsAsSections(pcSubStr)
+
+		#--
+
+		def FindSubStringSecondBoundsZZ(pcSubStr)
+			return This.FindSubStringLastBoundsAsSections(pcSubStr)
+
+		def FindSecondBoundsOfZZ(pcSubStr)
+			return This.FindSubStringLastBoundsAsSections(pcSubStr)
+
+		def FindSecondBoundsZZ(pcSubStr)
+			return This.FindSubStringLastBoundsAsSections(pcSubStr)
+
 		#>
 
 	  #--------------------------------------------------------------------------#
@@ -11929,6 +12162,17 @@ class stzString from stzObject
 		def FindLeftBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindSubStringLeftBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSubStringLeftBoundsCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLeftBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindLeftBoundsOfAsSectionsCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLeftBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindLeftBoundsAsSectionsCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLeftBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -11942,6 +12186,17 @@ class stzString from stzObject
 			return This.FindSubStringLeftBoundsAsSections(pcSubStr)
 
 		def FindLeftBoundsAsSections(pcSubStr)
+			return This.FindSubStringLeftBoundsAsSections(pcSubStr)
+
+		#--
+
+		def FindSubStringLeftBoundsZZ(pcSubStr)
+			return This.FindSubStringLeftBoundsAsSections(pcSubStr)
+
+		def FindLeftBoundsOfAsSectionsZZ(pcSubStr)
+			return This.FindSubStringLeftBoundsAsSections(pcSubStr)
+
+		def FindLeftBoundsAsSectionsZZ(pcSubStr)
 			return This.FindSubStringLeftBoundsAsSections(pcSubStr)
 
 		#>
@@ -11966,6 +12221,17 @@ class stzString from stzObject
 		def FindRightBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindSubStringRightBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSubStringRightBoundsCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringRightBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindRightBoundsOfCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringRightBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindRightBoundsCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringRightBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -11980,6 +12246,17 @@ class stzString from stzObject
 
 		def FindRightBoundsAsSections(pcSubStr)
 			return This.FindSubStringRightBoundsAsSections(pcSubStr)
+
+		#--
+
+		def FindSubStringRightBoundsZZ(pcSubStr)
+			return This.FindSubStringRightBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindRightBoundsOfZZ(pcSubStr)
+			return This.FindSubStringRightBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindRightBoundsZZ(pcSubStr)
+			return This.FindSubStringRightBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 
 		#>
 
@@ -12002,6 +12279,17 @@ class stzString from stzObject
 		def FindFirstBoundsCS(pcSubStr, pCaseSensitive)
 			return This.FindSubStringFirstBoundsCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSubStringFirstBoundsCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringFirstBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FindFirstBoundsOfCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringFirstBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FindFirstBoundsCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringFirstBoundsCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVE
@@ -12015,6 +12303,17 @@ class stzString from stzObject
 			return This.FindSubStringFirstBounds(pcSubStr)
 
 		def FindFirstBounds(pcSubStr)
+			return This.FindSubStringFirstBounds(pcSubStr)
+
+		#--
+
+		def FindSubStringFirstBoundsZ(pcSubStr)
+			return This.FindSubStringFirstBounds(pcSubStr)
+
+		def FindFirstBoundsOfZ(pcSubStr)
+			return This.FindSubStringFirstBounds(pcSubStr)
+
+		def FindFirstBoundsZ(pcSubStr)
 			return This.FindSubStringFirstBounds(pcSubStr)
 
 		#>
@@ -12048,6 +12347,25 @@ class stzString from stzObject
 		def FindSecondBoundsCS(pcSubStr, pCaseSensitive)
 			return This.FindSubStringLastBoundsCS(pcSubStr, pCaseSensitive)
 
+		#==
+
+		def FindLastBoundsOfCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FindLastBoundsCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsCS(pcSubStr, pCaseSensitive)
+
+		#--
+
+		def FindSubStringSecondBoundsCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FindSecondBoundsOfCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FindSecondBoundsCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLastBoundsCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVE
@@ -12074,6 +12392,25 @@ class stzString from stzObject
 		def FindSecondBounds(pcSubStr)
 			return This.FindSubStringLastBounds(pcSubStr)
 
+		#==
+
+		def FindLastBoundsOfZ(pcSubStr)
+			return This.FindSubStringLastBounds(pcSubStr)
+
+		def FindLastBoundsZ(pcSubStr)
+			return This.FindSubStringLastBounds(pcSubStr)
+
+		#--
+
+		def FindSubStringSecondBoundsZ(pcSubStr)
+			return This.FindSubStringLastBounds(pcSubStr)
+
+		def FindSecondBoundsOfZ(pcSubStr)
+			return This.FindSubStringLastBounds(pcSubStr)
+
+		def FindSecondBoundsZ(pcSubStr)
+			return This.FindSubStringLastBounds(pcSubStr)
+
 		#>
 
 	  #--------------------------------------------------------------#
@@ -12095,6 +12432,17 @@ class stzString from stzObject
 		def FindLeftBoundsCS(pcSubStr, pCaseSensitive)
 			return This.FindSubStringLeftBoundsCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSubStringLeftBoundsCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLeftBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FindLeftBoundsOfCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLeftBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FindLeftBoundsCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringLeftBoundsCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVE
@@ -12108,6 +12456,17 @@ class stzString from stzObject
 			return This.FindSubStringLeftBounds(pcSubStr)
 
 		def FindLeftBounds(pcSubStr)
+			return This.FindSubStringLeftBounds(pcSubStr)
+
+		#--
+
+		def FindSubStringLeftBoundsZ(pcSubStr)
+			return This.FindSubStringLeftBounds(pcSubStr)
+
+		def FindLeftBoundsOfZ(pcSubStr)
+			return This.FindSubStringLeftBounds(pcSubStr)
+
+		def FindLeftBoundsZ(pcSubStr)
 			return This.FindSubStringLeftBounds(pcSubStr)
 
 		#>
@@ -12131,6 +12490,17 @@ class stzString from stzObject
 		def FindRightBoundsCS(pcSubStr, pCaseSensitive)
 			return This.FindSubStringRightBoundsCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSubStringRightBoundsCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringRightBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FindRightBoundsOfCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringRightBoundsCS(pcSubStr, pCaseSensitive)
+
+		def FindRightBoundsCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringRightBoundsCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVE
@@ -12144,6 +12514,17 @@ class stzString from stzObject
 			return This.FindSubStringRightBounds(pcSubStr)
 
 		def FindRightBounds(pcSubStr)
+			return This.FindSubStringRightBounds(pcSubStr)
+
+		#--
+
+		def FindSubStringRightBoundsZ(pcSubStr)
+			return This.FindSubStringRightBounds(pcSubStr)
+
+		def FindRightBoundsOfZ(pcSubStr)
+			return This.FindSubStringRightBounds(pcSubStr)
+
+		def FindRightBoundsZ(pcSubStr)
 			return This.FindSubStringRightBounds(pcSubStr)
 
 		#>
@@ -12302,6 +12683,8 @@ class stzString from stzObject
 
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def FirstBoundsOfCS(pcSubStr, pCaseSensitive)
 			return This.SubStringFirstBoundsCS(pcSubStr, pCaseSensitive)
 
@@ -12312,16 +12695,22 @@ class stzString from stzObject
 
 			return This.SubStringFirstBoundsCS(pcSubStr, pCaseSensitive)
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringFirstBounds(pcSubStr)
 		return This.SubStringFirstBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def FirstBoundsOf(pcSubStr)
 			return This.SubStringFirstBounds(pcSubStr)
 
 		def FirstBounds(pcSubStr)
 			return This.FirstBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#>
 
 	  #------------------------------------------------------------#
 	 #  GETTING THE LAST BOUNDS OF A SUBSTRING INSIDE THE STRING  #
@@ -15139,16 +15528,30 @@ class stzString from stzObject
 		
 		return nResult
 
+		#< @FunctionALternativeForm
+
 		def FindLeadingCharsCS(pCaseSensitive)
 			return This.FindRepeatedLeadingCharsCS(pCaseSensitive)
+
+		def FindLeadingCharsCSZ(pCaseSensitive)
+			return This.FindRepeatedLeadingCharsCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedLeadingChars()
 		return This.FindRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
 
+		#< @FunctionALternativeForm
+
 		def FindLeadingChars()
 			return This.FindRepeatedLeadingChars()
+
+		def FindLeadingCharsZ()
+			return This.FindRepeatedLeadingChars()
+
+		#>
 
 	  #-----------------------------------------------------------------------------#
 	 #  FINDING POSITIONS OF REPEATED LEADING CHARS AND RETURNING THEM AS SECTION  # 
@@ -15165,16 +15568,30 @@ class stzString from stzObject
 
 		return anResult
 
+		#< @FunctionAlternativeForms
+
+		def FindLeadingCharsCSZZ(pCaseSensitive)
+			return This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
+
 		def FindLeadingCharsAsSectionCS(pCaseSensitive)
 			return This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedLeadingCharsAsSection()
 		return This.FindRepeatedLeadingCharsAsSectionCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindLeadingCharsZZ()
+			return This.FindRepeatedLeadingCharsAsSection()
+
 		def FindLeadingCharsAsSection()
 			return This.FindRepeatedLeadingCharsAsSection()
+
+		#>
 
 	  #-------------------------------------------------------------#
 	 #  GETTING REPEATED LEADING CHARS ALONG WITH THEIR POSITIONS  #
@@ -15348,16 +15765,36 @@ class stzString from stzObject
 
 		return nResult
 
+		#< @FunctionAlternativeForms
+
+		def FindRepeatedTrailingCharsCSZ(pCaseSensitive)
+			return This.FindRepeatedTrailingCharsCS(pCaseSensitive)
+
 		def FindTrailingCharsCS(pCaseSensitive)
 			return This.FindRepeatedTrailingCharsCS(pCaseSensitive)
+
+		def FindTrailingCharsCSZ(pCaseSensitive)
+			return This.FindRepeatedTrailingCharsCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedTrailingChars()
 		return This.FindRepeatedTrailingCharsCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindRepeatedTrailingCharsZ()
+			return This.FindRepeatedTrailingChars()
+
 		def FindTrailingChars()
 			return This.FindRepeatedTrailingChars()
+
+		def FindTrailingCharsZ()
+			return This.FindRepeatedTrailingChars()
+
+		#>
 
 	  #------------------------------------------------------------------------------#
 	 #  FINDING POSITIONS OF REPEATED TRAILING CHARS AND RETURNING THEM AS SECTION  # 
@@ -15376,16 +15813,36 @@ class stzString from stzObject
 
 		return anResult
 
+		#< @FunctionAlternativeForms
+
+		def FindRepeatedTrailingCharsCSZZ(pCaseSensitive)
+			return This.FindRepeatedTrailingCharsAsSectionCS(pCaseSensitive)
+
 		def FindTrailingCharsAsSectionCS(pCaseSensitive)
 			return This.FindRepeatedTrailingCharsAsSectionCS(pCaseSensitive)
+
+		def FindTrailingCharsCSZZ(pCaseSensitive)
+			return This.FindRepeatedTrailingCharsAsSectionCS(pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedTrailingCharsAsSection()
 		return This.FindRepeatedTrailingCharsAsSectionCS(:CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindRepeatedTrailingCharsZZ()
+			return This.FindRepeatedTrailingCharsAsSection()
+
 		def FindTrailingCharsAsSection()
 			return This.FindRepeatedTrailingCharsAsSection()
+
+		def FindTrailingCharsZZ()
+			return This.FindRepeatedTrailingCharsAsSection()
+
+		#>
 
 	  #-------------------------------------------------------------#
 	 #  GETTING REPEATED TRAILING CHARS ALONG WITH THEIR POSITION  #
@@ -15541,9 +15998,7 @@ class stzString from stzObject
 			return This.RepeatedTrailingCharsRemoved()
 
 		def TrailingCharsRemoved()
-			return This.RepeatedTrailingCharsRemoved()
-
-////////////////////////////////////////////////////////////////////////////////	
+			return This.RepeatedTrailingCharsRemoved()	
 
 	  #------------------------------------------------------------#
 	 #  FINDING POSITIONS OF REPEATED LEADING AND TRAILING CHARS  # 
@@ -15572,7 +16027,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def FindRepeatedLeadingAndTrailingCharsCSZ(pCaseSensitive)
+			return This.FindRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+
 		def FindLeadingAndTrailingCharsCS(pCaseSensitive)
+			return This.FindRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
+
+		def FindLeadingAndTrailingCharsCSZ(pCaseSensitive)
 			return This.FindRepeatedLeadingAndTrailingCharsCS(pCaseSensitive)
 
 		#>
@@ -15584,7 +16045,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def FindRepeatedLeadingAndTrailingCharsZ()
+			return This.FindRepeatedLeadingAndTrailingChars()
+
 		def FindLeadingAndTrailingChars()
+			return This.FindRepeatedLeadingAndTrailingChars()
+
+		def FindLeadingAndTrailingCharsZ()
 			return This.FindRepeatedLeadingAndTrailingChars()
 
 		#>
@@ -15616,7 +16083,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def FindRepeatedTrailingAndLeadingCharsCSZ(pCaseSensitive)
+			return This.FindRepeatedTrailingAndLeadingCharsCS(pCaseSensitive)
+
 		def FindTrailingAndLeadingCharsCS(pCaseSensitive)
+			return This.FindRepeatedTrailingAndLeadingCharsCS(pCaseSensitive)
+
+		def FindTrailingAndLeadingCharsCSZ(pCaseSensitive)
 			return This.FindRepeatedTrailingAndLeadingCharsCS(pCaseSensitive)
 
 		#>
@@ -15628,7 +16101,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def FindRepeatedTrailingAndLeadingCharsZ()
+			return This.FindRepeatedTrailingAndLeadingChars()
+
 		def FindTrailingAndLeadingChars()
+			return This.FindRepeatedTrailingAndLeadingChars()
+
+		def FindTrailingAndLeadingCharsZ()
 			return This.FindRepeatedTrailingAndLeadingChars()
 
 		#>
@@ -15669,7 +16148,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def FindRepeatedLeadingAndTrailingCharsCSZZ(pCaseSensitive)
+			return This.FindRepeatedLeadingAndTrailingCharsAsSectionsCS(pCaseSensitive)
+
 		def FindLeadingAndTrailingCharsAsSectionsCS(pCaseSensitive)
+			return This.FindRepeatedLeadingAndTrailingCharsAsSectionsCS(pCaseSensitive)
+
+		def FindLeadingAndTrailingCharsCSZZ(pCaseSensitive)
 			return This.FindRepeatedLeadingAndTrailingCharsAsSectionsCS(pCaseSensitive)
 
 		#>
@@ -15681,11 +16166,17 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def FindRepeatedLeadingAndTrailingCharsZZ()
+			return This.FindRepeatedLeadingAndTrailingCharsAsSections()
+
 		def FindLeadingAndTrailingCharsAsSections()
 			return This.FindRepeatedLeadingAndTrailingCharsAsSections()
 
-		#>
+		def FindLeadingAndTrailingCharsZZ()
+			return This.FindRepeatedLeadingAndTrailingCharsAsSections()
 
+		#>
+vvv
 	  #------------------------------------------------------------------------------------------#
 	 #  FINDING REPEATED TRAILING AND LEADING CHARS AND RETURNING THEIR POSITIONS AS SECTIONS  # 
 	#-----------------------------------------------------------------------------------------#
@@ -26142,7 +26633,12 @@ def ReplaceIBS()
 			off
 		#>
 
-		#< @FunctionAlternativeForms : See bottom of file #>
+		#< @FunctionAlternativeForms : See others in bottom of file
+
+		def FindCSZ(pcSubStr, pCaseSensitive)
+			return This.FindCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -26159,14 +26655,18 @@ def ReplaceIBS()
 
 		#>
 
-		#< @FunctionAlternativeForms : See bottom of file #>
+		#< @FunctionAlternativeForms : See others in bottom of file
 
-	  #---------------------------------------------------------------------------------------#
-	 #  FINDING ALL OCCURRENCES OF A SUBSTRING -- RETURNING THE SUBSTRING AND ITS POSITIONS  #
-	#=======================================================================================#
+		def FindZ(pcSubStr)
+			return This.Find(pcSubStr)
 
-	def FindCSZ(pcSubStr, pCaseSensitive)
+		#>
 
+	  #-------------------------------------------#
+	 #  GETTING THE SUBSTRING AND ITS POSITIONS  #
+	#===========================================#
+
+	def SubStringCSZ(pcSubStr, pCaseSensitive)
 		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
@@ -26183,55 +26683,16 @@ def ReplaceIBS()
 		return aResult
 		
 
-		#< @FunctionFluentForm
-
-		def FindAllOccurrencesCSZQ(pcSubStr, pCaseSensitive)
-				return This.FindAllOccurrencesCSZQR(pcSubStr, pCaseSensitive, :stzList)
-			
-		def FindAllOccurrencesCSZQR(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindCSZ(pcSubStr, pCaseSensitive) )
-	
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindACSZ(pcSubStr, pCaseSensitive) )
-	
-			on :stzPair
-				return new stzPair( This.FindCSZ(pcSubStr, pCaseSensitive) )
-	
-			on :stzPairOfNumbers
-				return new stzPairOfNumbers( This.FindCSZ(pcSubStr, pCaseSensitive) )
-	
-			other
-				stzRaise("Unsupported return type!")
-			off
-		#>
-
-
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindZ(pcSubStr)
-		return This.FindCSZ(pcSubStr, :CaseSensitive = TRUE)
+	def SubStringZ(pcSubStr)
+		return This.SubStringCSZ(pcSubStr, :CaseSensitive = TRUE)
 
-		#< @FunctionFluentForm
+	  #------------------------------------------#
+	 #  GETTING THE SUBSTRING AND ITS SECTIONS  #
+	#------------------------------------------#
 
-		def FindZQ(pcSubStr)
-			return This.FindZQR(pcSubStr, :stzList)
-		
-		def FindZQR(pcSubStr, pcReturnType)
-				return This.FindCSZQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
-
-		#>
-
-	  #-------------------------------------------------------------------------------------#
-	 # FINDING ALL OCCURRENCES OF A SUBSTRING -- RETURNING THE SUBSTRING AND ITS SECTIONS  #
-	#-------------------------------------------------------------------------------------#
-
-	def FindCSZZ(pcSubStr, pCaseSensitive)
+	def SubStringCSZZ(pcSubStr, pCaseSensitive)
 
 		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
@@ -26248,53 +26709,14 @@ def ReplaceIBS()
 		aResult = [ pcSubStr, This.FindAsSectionsCS(pcSubStr, pCaseSensitive) ]
 		return aResult
 		
-
-		#< @FunctionFluentForm
-
-		def FindCSZZQ(pcSubStr, pCaseSensitive)
-				return This.FindCSZZQR(pcSubStr, pCaseSensitive, :stzList)
-			
-		def FindCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindCSZZ(pcSubStr, pCaseSensitive) )
-	
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindCSZZ(pcSubStr, pCaseSensitive) )
-	
-			on :stzPair
-				return new stzPair( This.FindCSZZ(pcSubStr, pCaseSensitive) )
-	
-			on :stzPairOfNumbers
-				return new stzPairOfNumbers( This.FindCSZZ(pcSubStr, pCaseSensitive) )
-	
-			other
-				stzRaise("Unsupported return type!")
-			off
-		#>
-
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindZZ(pcSubStr)
-		return This.FindCSZZ(pcSubStr, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def FindZZQ(pcSubStr)
-			return This.FindZZQR(pcSubStr, :stzList)
-		
-		def FindZZQR(pcSubStr, pcReturnType)
-				return This.FindsCSZZQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
-
-		#>
+	def SubStringZZ(pcSubStr)
+		return This.SubStringCSZZ(pcSubStr, :CaseSensitive = TRUE)
 
 	  #--------------------------------------------------#
 	 #  FINDING POSITIONS OF ANTI-PARTS OF A SUBSTRING  #
-	#--------------------------------------------------#
+	#==================================================#
 
 	def AntiFindCS(pcSubStr, pCaseSensitive)
 		return QR( This.AntiFindAsSectionsCS(pcSubStr, pCaseSensitive), :stzListOfPairs ).FirstItems()

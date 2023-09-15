@@ -1,11 +1,13 @@
 load "stzlib.ring"
 
+/*-----------
+
 pron()
 
-# Dynamic construction of varibale names
+# Dynamic construction of variable names
 
-# Softanza makes it possible the construction of
-# variable names in a dynamic way.
+# Softanza makes it possible to contruct variable
+# names in a dynamic way.
 
 # This can be helful when you have a large number
 # of variables that obey to the same naming pattern
@@ -75,9 +77,11 @@ for i = 1 to 10 { ? @@(vxt( 'name' + i )) }
 #    [ "name10", 100 ]
 
 proff()
-# Executed in 0.35 second(s)
+# Executed in 0.37 second(s)
 
-/*======== TODO
+/*========
+
+pron()
 
 # In PHP we use indirection to dynamically
 # call the name of a variable, like this:
@@ -111,7 +115,7 @@ proff()
 	echo( vv(:var) )
 	#--> programmer
 
-# And we can also say:
+# Or even say:
 
 	Vr(:job) '=' Vl("programmer")
 	Vr(:var) '=' Vl("job")
@@ -122,7 +126,7 @@ proff()
 	#--> programmer
 
 proff()
-# Executed in 7.18 second(s)
+# Executed in 0.11 second(s)
 
 /*========
 
@@ -139,6 +143,7 @@ pron()
 
 	rand = 0.7;
 	say { b(rand < 0.5) '??' bt('Yes') '!!' bf('No') };
+	#--> No
 
 proff()
 
@@ -146,10 +151,11 @@ proff()
 
 pron()
 	n = -12;
-	vr(:sign) '=' b(n > 0) '??' bt("positive") '!!' bf("negative");
+	vr(:sign) '=' b(n > 0) '?' bt("positive") '!!' bf("negative");
 	printf( v(:sign) );
 	#--> negative
 proff()
+# Executed in 0.03 second(s)
 
 /*----------
 
@@ -162,15 +168,16 @@ o1 = new stzList([ 2, 4, 8 ])
 #--> TRUE
 
 proff()
+# Executed in 0.09 second(s)
 
 /*----------///////////////
-
+*/
 pron()
 
 o1 = new stzList([ 6, -2, 9, 5, -10 ])
 ? o1.EachItemIsEitherA(:Positive, :Or = :Negative, :Number )
 #--> TRUE
-
+/*
 o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
 
 ? o1.EachItemIsEitherA( :Number, :Or, :String )
@@ -188,7 +195,7 @@ o1 = new stzList([ 120, "1250", 54, "452" ])
 
 o1 = new stzList([ 2, 4, 8, "-129", 10, "-100.45" ])
 // o1.EachItemIsEither([ :Positive, :Even, :Number ], :Or = [ :Negative, :NumberInString ] )
-
+*/
 proff()
 
 /*===== ObjectName() and ClassName()
@@ -995,7 +1002,7 @@ pron()
 # The same syntax in Ring (with Softanza)
 
 	n = -12;
-	vr(:sign) '=' b(n > 0) '?' bv("positive", "negative");
+	vr(:sign) '=' b(n > 0) '?' bt("positive") ':' bf("negative");
 	printf( v(:sign) );
 	#--> negative
 

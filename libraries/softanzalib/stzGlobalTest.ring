@@ -313,7 +313,7 @@ proff()
 #--> Executed in 0.02 second(s)
 
 /*---------------- Showing the short form of a long list
-*/
+
 pron()
 
 ? @@( "A" : "Z" ) + NL
@@ -345,8 +345,18 @@ pron()
 ? @@SXT(1:50, [2, 3]) + NL
 #--> [ 1, 2, "...", 48, 49, 50 ]
 
-Q(1:10).ShowShort()
+proff()
+#--> Executed in 0.10 second(s)
+
+/*----------
+
+? Q(1:10).ShowShort()
 #--> [ 1, 2, 3, "...", 8, 9, 10 ]
+
+? Q(1:10).ShowShortN(3)
+
+? Q(1:10).ShowShortXT([2, 3])
+#--> [ 1, 2, "...", 8, 9, 10 ]
 
 proff()
 
@@ -383,27 +393,51 @@ proff()
 # Executed in 0.04 second(s)
 
 /*------------
-*/
+
 pron()
 
 o1 = new stzString("...emm...eh..emm...eh")
 
-//? o1.Find([ "emm", "eh" ])
+? @@( o1.FindMany([ "emm", "eh" ]) )
 #--> [4, 10, 14, 20 ]
 
 ? @@(o1.FindManyAsSections([ "emm", "eh" ]))
-#--> [ [4, 6], [4, 6], [4, 6], [4, 6] ]
+#--> [ [ 4, 6 ], [ 10, 11 ], [ 14, 16 ], [ 20, 21 ] ]
+
+# Many is used here for clarity, and you can avoid it,
+# and let Softanza understant that the provided param
+# is a list of strings. Hance, Find() calls FindMany()
+# in the bkackground:
+
+? @@( o1.Find([ "emm", "eh" ]) )
+#--> [4, 10, 14, 20 ]
+
+? @@(o1.FindAsSections([ "emm", "eh" ]))
+#--> [ [ 4, 6 ], [ 10, 11 ], [ 14, 16 ], [ 20, 21 ] ]
+
 
 proff()
 
 /*------------
-
+*/
 pron()
 
 o1 = new stzString("...|---|....|--|..--")
 ? @@( o1.Find("--") )
+#--> [ 5, 6, 14, 19 ]
 
-? @@( o1.FindAsSection("--") )
+? @@( o1.FindAsSections("--") )
+#--> [ [ 5, 6 ], [ 6, 7 ], [ 14, 15 ], [ 19, 20 ] ]
+
+? @@( o1.FindAsSection("--") ) # Section without "s"! --> same as FindFirstAsSection()
+#--| [ 5, 6 ]
+
+# You can use the ..Z() and ..ZZ() extensions:
+
+? @@( o1.FindZ("--") )
+
+? @@( o1.FindZZ("--") )
+
 /*
 ? o1.BoundedBy("|")
 ? @@( o1.FindAsSections([ "---", "--" ]) )
