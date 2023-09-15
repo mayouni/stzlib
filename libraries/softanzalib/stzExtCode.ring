@@ -39,6 +39,9 @@ func TempVars()
 	func TempVarsNames()
 		return TempVars()
 
+	func TempVarNames()
+		return TempVars()
+
 func TempVals()
 	aResult = QR( _aVars, :stzHashList).Values()
 	return aResult
@@ -48,6 +51,7 @@ func TempVarsVals()
 
 	func TempVarsXT()
 		return TempVarsVals()
+
 
 func TempVar()
 	if len(_var) = 0
@@ -95,6 +99,20 @@ func V(p)
 	func VarVal(p)
 		return V(p)
 
+func vxt(cVarName)
+	if NOT isString(cVarName)
+		StzString("Incorrect param type! cVarName must be a string.")
+	ok
+
+	cVarName = Q(cVarName).Lowercased()
+
+	if NOT ring_find(TempVarNames(), cVarName)
+		StzRaise("Variable name does not exist!")
+	ok
+
+	aResult = [ cVarName, v(cVarName) ]
+	return aResult
+	
 func SetV(paVarNamesAndTheirValues)
 	if isList(paVarNamesAndTheirValues) and
 	   len(paVarNamesAndTheirValues) = 2 and
