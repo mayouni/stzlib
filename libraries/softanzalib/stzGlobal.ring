@@ -384,9 +384,6 @@ _acStzCCKeywords = [
 		:@NextObject
 	]
 
-# Instantiating a global int object to be used with external code
-int = new IntObject
-
   //////////////////////////
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
@@ -1273,13 +1270,6 @@ func ShowHL(pValue)
 	func ShowAsHL(pValue)
 		ShowHL(pValue)
 
-
-func ShowShort(paList)
-	? ShortForm(paList)
-
-func ShowShotXT(paList, p)
-	? ShortFormXT(paList, p)
-
 func ComputableShortForm(paList)
 	return ComputableShortFormXT(paList, 3)
 
@@ -1290,19 +1280,36 @@ func ComputableShortForm(paList)
 		return ComputableShortForm(paList)
 
 		func @@SFQ(paList)
-			return new stzString(@@SF(paList))
+			return ComputableShortFormQ(paList)
 
 	func @@S(paList)
 		return ComputableShortForm(paList)
 
 		func @@SQ(paList)
-			return new stzString(@@S(paList))
+			return ComputableShortFormQ(paList)
 
 	func ShortForm(paList)
 		return ComputableShortForm(paList)
 
 		func ShortFormQ(paList)
-			return new stzString(ShortForm(paList))
+			return ComputableShortFormQ(paList)
+
+	func ShowShort(paList)
+		return ComputableShortForm(paList)
+
+		func ShowShortQ(paList)
+			return ComputableShortFormQ(paList)
+
+
+func @@SN(paList, n)
+	if NOT isNumber(n)
+		StzRaise("Incorrect param type! n must be a number.")
+	ok
+
+	return @@SXT(paList, n)
+
+	func ShowShortN(paList, n)
+		return @@SN(paList, n)
 
 func ComputableShortFormXT(paList, p)
 
@@ -1400,6 +1407,12 @@ func ComputableShortFormXT(paList, p)
 
 		func ShortFormXTQ(paList, p)
 			return new stzString(ShortFormXT(paList, p))
+
+	func ShowShortXT(paList, p)
+		return ComputableShortFormXT(paList, p)
+
+		func ShowShortXTQ(paList, p)
+			return ShortFormXTQ(paList, p)
 
 	func @@SFXT(paList, p)
 		return ComputableShortFormXT(paList, p)

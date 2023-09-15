@@ -20595,19 +20595,19 @@ class stzList from stzObject
 		? @@( This.Content() )
 
 	def ShowShort()
-		? @@( This.Shortened() )
+		? @@S( This.Content() )
 
 		def ShowShortCopy()
 			This.ShowShort()
 
-	def ShowShortXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
-		? @@( This.ShortenedXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart) )
+	def ShowShortXT(p)
+		? @@SXT( This.Content(), p)
 
-		def ShowShortenedXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
-			This.ShowShortXT(nMinListSize, pNumberOfItemsToShow, pcMiddlePart)
+		def ShowShortenedXT(p)
+			This.ShowShortXT(p)
 
 	def ShowShortN(n)
-		? @@( This.ShortenedN(n) )
+		? @@SN( This.Content(), n )
 
 	def ShowShortUsing(pcMiddlePart)
 		? @@( This.ShortenedUsing(pcMiddlePart) )

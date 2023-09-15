@@ -28,6 +28,8 @@ _bv = null	# Idem
 
 say = new say	# Raku / Perl language
 
+int = new IntObject
+
   ///////////////////
  ///  FUNCTIONS  ///
 ///////////////////
