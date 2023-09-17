@@ -2945,7 +2945,7 @@ o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
 ? o1.FindLast("♥♥♥")
 #--> 22
 
-? o1.FindLasteAsSection("♥♥♥") 	# Note that the function is misspelled (there is an
+? o1.FindLastAsSection("♥♥♥") 	# Note that the function is misspelled (there is an
 #--> [22, 24]			# erronous "e" after "Last", but Softanza lets it go!
 
 ? o1.FindLastZ("♥♥♥")

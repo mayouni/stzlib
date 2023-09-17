@@ -2926,7 +2926,7 @@ class stzString from stzObject
 
 		return acResult
 
-		def SubStringsUCS(pCaseSensitive)
+		def SubStringsCSU(pCaseSensitive)
 			return This.UniqueSubStringsCS(pCaseSensitive)
 
 		def SubStringsWithoutDuplicationCS(pCaseSensitive)
@@ -2952,7 +2952,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NumberOfSubStringsUCS(pCaseSensitive)
+		def NumberOfSubStringsCSU(pCaseSensitive)
 			return This.NumberOfUniqueSubStringsCS(pCaseSensitive)
 
 		def HowManyUniqueSubstringsCS(pCaseSensitive)
@@ -2961,10 +2961,10 @@ class stzString from stzObject
 		def HowManyUniqueSubstringCS(pCaseSensitive)
 			return This.NumberOfUniqueSubStringsCS(pCaseSensitive)
 
-		def HowManySubStringsUCS(pCaseSensitive)
+		def HowManySubStringsCSU(pCaseSensitive)
 			return This.NumberOfUniqueSubStringsCS(pCaseSensitive)
 
-		def HowManySubStringUCS(pCaseSensitive)
+		def HowManySubStringCSU(pCaseSensitive)
 			return This.NumberOfUniqueSubStringsCS(pCaseSensitive)
 
 		#--
@@ -3013,76 +3013,103 @@ class stzString from stzObject
 	 #  POSITIONS OF ALL THE POSSIBLE SUBSTRINGS IN THE STRING  #
 	#----------------------------------------------------------#
 
-	def FindSubStringsCS(pCaseSensitive)
+	def FindAllSubStringsCS(pCaseSensitive)
 		if This.IsEmpty()
 			return []
 		ok
 
 		acSubStrings = This.UniqueSubStringsCS(pCaseSensitive)
 		nLen = len(acSubStrings)
-		anResult = []
 
+		anResult = []
+		
 		for i = 1 to nLen
-			anResult + This.FindSubStringCS( acSubStrings[i], pCaseSensitive )
+			anPos = This.FindSubStringCS( acSubStrings[i], pCaseSensitive )
+			for j = 1 to len(anPos)
+				anResult + anPos[j]
+			next
 		next
 
+		anResult = ring_sort(anResult)
 		return anResult
 
 		#< @FunctionAlternativeForms
 
-		def FindAllSubStringsCS(pCaseSensitive)
-			return This.FindSubStringsCS(pCaseSensitive)
-
 		def FindAllPossibleSubStringsCS(pCaseSensitive)
-			return This.FindSubStringsCS(pCaseSensitive)
-
-		def PositionsOfSubStringsCS(pCaseSensitive)
-			return This.FindSubStringsCS(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
 
 		def PositionsOfAllSubStringsCS(pCaseSensitive)
-			return This.FindSubStringsCS(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
 
 		def PositionsOfAllPossibleSubStringsCS(pCaseSensitive)
-			return This.FindSubStringsCS(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
 
-		def SubStringsPositionsCS(pCaseSensitive)
-			return This.FindSubStringsCS(pCaseSensitive)
+		def AllSubStringsPositionsCS(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		#--
+
+		def FindAllSubStringsCSZ(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		def FindAllPossibleSubStringsCSZ(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		def PositionsOfAllSubStringsCSZ(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		def PositionsOfAllPossibleSubStringsCSZ(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		def AllSubStringsPositionsCSZ(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindSubStrings(pCaseSensitive)
+	def FindAllSubStrings(pCaseSensitive)
 		return This.FindSubStringsCS(:CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindAllSubStrings()
-			return This.FindSubStrings()
-
 		def FindAllPossibleSubStrings()
-			return This.FindSubStrings()
-
-		def PositionsOfSubStrings()
-			return This.FindSubStrings()
+			return This.FindAllSubStrings()
 
 		def PositionsOfAllSubStrings()
-			return This.FindSubStrings()
+			return This.FindAllSubStrings()
 
 		def PositionsOfAllPossibleSubStrings()
-			return This.FindSubStrings()
+			return This.FindAllSubStrings()
 
-		def SubStringsPositions()
-			return This.FindSubStrings()
+		def AllSubStringsPositions()
+			return This.FindAllSubStrings()
+
+		#--
+
+		def FindAllSubStringsZ()
+			return This.FindAllSubStrings()
+
+		def FindAllPossibleSubStringsZ()
+			return This.FindAllSubStrings()
+
+		def PositionsOfAllSubStringsZ()
+			return This.FindAllSubStrings()
+
+		def PositionsOfAllPossibleSubStringsZ()
+			return This.FindAllSubStrings()
+
+		def AllSubStringsPositionsZ()
+			return This.FindAllSubStrings()
 
 		#>
 
-	   #----------------------------------------------------------#
-	  #   FINDING ALL THE POSSIBLE SUBSTRINGS IN THE STRING AND  #
-	 #   RETURNING THEIR POSITIONS AS SECTTIONS                 #
-	#----------------------------------------------------------#
+	   #------------------------------------------------------------#
+	  #   FINDING ALL THE POSITIONS OF ALLPOSSIBLE SUBSTRINGS IN   #
+	 #   THE STRING AND RETURNING THEM AS SECTIONS                #
+	#------------------------------------------------------------#
 
-	def FindSubStringsAsSectionsCS(pCaseSensitive)
+	def FindAllSubStringsAsSectionsCS(pCaseSensitive)
 		if This.IsEmpty()
 			return []
 		ok
@@ -3099,27 +3126,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindAllSubStringsAsSectionsCS(pCaseSensitive)
+		def FindAllSubStringsCSZZ(pCaseSensitive)
 			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
 
 		def FindAllPossibleSubStringsAsSectionsCS(pCaseSensitive)
 			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
 
-		def SubStringsAsSectionsCS(pCaseSensitive)
-			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
-
-		def SubStringsSectionsCS(pCaseSensitive)
-			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
-
-		#--
-
-		def FindAllSubStringsCSZZ(pCaseSensitive)
-			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
-
 		def FindAllPossibleSubStringsCSZZ(pCaseSensitive)
-			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
-
-		def FindSubStringsCSZZ(pCaseSensitive)
 			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
 
 		#>
@@ -3131,27 +3144,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindAllSubStringsAsSections()
+		def FindAllSubStringsZZ()
 			return This.FindSubStringsAsSections()
 
 		def FindAllPossibleSubStringsAsSections()
 			return This.FindSubStringsAsSections()
 
-		def SubStringsAsSections()
-			return This.FindSubStringsAsSections()
-
-		def SubStringsSections()
-			return This.FindSubStringsAsSections()
-
-		#--
-
-		def FindAllSubStringsZZ()
-			return This.FindSubStringsAsSections()
-
 		def FindAllPossibleSubStringsZZ()
-			return This.FindSubStringsAsSections()
-
-		def FindSubStringsZZ()
 			return This.FindSubStringsAsSections()
 
 		#>
@@ -3160,7 +3159,7 @@ class stzString from stzObject
 	 #  ALL POSSIBLE SUBSTRINGS AND THEIR POSITIONS  #
 	#-----------------------------------------------#
 
-	def SubStringsCSZ(pCaseSensitive)
+	def AllSubStringsCSZ(pCaseSensitive)
 	
 		acSubStrings = This.UniqueSubStringsCS(pCaseSensitive)
 		aResult = []
@@ -3175,26 +3174,32 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def SubStringsAndTheirPositionsCS(pCaseSensitive)
-			return This.SubStringsCSZ(pCaseSensitive)
-
 		def AllSubStringsAndTheirPositionsCS(pCaseSensitive)
-			return This.SubStringsCSZ(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		def AllPossibleSubStringsCSZ(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		def AllPossibleSubStringsAndTheirPositionsCS(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsZ()
-		return This.SubStringsCSZ(:CaseSensitive = TRUE)
+	def AllSubStringsZ()
+		return This.AllSubStringsCSZ(:CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def SubStringsAndTheirPositions()
-			return This.SubStringsZ()
-
 		def AllSubStringsAndTheirPositions()
-			return This.SubStringsZ()
+			return This.AllSubStringsZ()
+
+		def AllPossibleSubStringsZ()
+			return This.AllSubStringsZ()
+
+		def AllPossibleSubStringsAndTheirPositions()
+			return This.AllSubStringsZ()
 
 		#>
 
@@ -3202,7 +3207,7 @@ class stzString from stzObject
 	 #  ALL POSSIBLE SUBSTRINGS AND THEIR SECTIONS  #
 	#----------------------------------------------#
 
-	def SubStringsCSZZ(pCaseSensitive)
+	def AllSubStringsCSZZ(pCaseSensitive)
 		acSubStrings = This.UniqueSubStringsCS(pCaseSensitive)
 		aResult = []
 
@@ -3216,26 +3221,32 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def SubStringsAndTheirSectionsCS(pCaseSensitive)
-			return This.SubStringsCSZZ(pCaseSensitive)
-
 		def AllSubStringsAndTheirSectionsCS(pCaseSensitive)
-			return This.SubStringsCSZZ(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		def AllPossibleSubStringsCSZZ(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		def AllPossibleSubStringsAndTheirSectionsCS(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsZZ()
+	def AllSubStringsZZ()
 		return This.SubStringsCSZZ(:CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def SubStringsAndTheirSections()
-			return This.SubStringsZZ()
-
 		def AllSubStringsAndTheirSections()
-			return This.SubStringsZZ()
+			return This.AllSubStringsZZ()
+
+		def AllPossibleSubStringsZZ()
+			return This.AllSubStringsZZ()
+
+		def AllPossibleSubStringsAndTheirSections()
+			return This.AllSubStringsZZ()
 
 		#>
 
@@ -3299,22 +3310,52 @@ class stzString from stzObject
 		acResult = Q(acSubStrings).DuplicatesRemovedCS(pCaseSensitive)
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def UniqueSubStringsMadeOfNCharsCS(n, pCaseSensitive)
 			return This.UniqueSubStringsOfNCharsCS(n, pCaseSensitive)
 
 		def SubStringsWithoutDuplicationMadeOfNCharsCS(n, pCaseSensitive)
 			return This.UniqueSubStringsOfNCharsCS(n, pCaseSensitive)
 
+		#--
+
+		def SubStringsOfNCharsCSU(n, pCaseSensitive)
+			return This.UniqueSubStringsOfNCharsCS(n, pCaseSensitive)
+
+		def SubStringsMadeOfNCharsCSU(n, pCaseSensitive)
+			return This.UniqueSubStringsOfNCharsCS(n, pCaseSensitive)
+
+		def WithoutDuplicationMadeOfNCharsCSU(n, pCaseSensitive)
+			return This.UniqueSubStringsOfNCharsCS(n, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESITIVITY
 
 	def UniqueSubStringsOfNChars(n)
 		return This.UniqueSubStringsOfNCharsCS(n, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def UniqueSubStringsMadeOfNChars(n)
 			return This.UniqueSubStringsOfNChars(n)
 
 		def SubStringsWithoutDuplicationMadeOfNChars(n)
 			return This.UniqueSubStringsOfNChars(n)
+
+		#--
+
+		def SubStringsOfNCharsU(n)
+			return This.UniqueSubStringsOfNChars(n)
+
+		def SubStringsMadeOfNCharsU(n)
+			return This.UniqueSubStringsOfNChars(n)
+
+		def WithoutDuplicationMadeOfNCharsU(n)
+			return This.UniqueSubStringsOfNChars(n)
+
+		#>
 
 	  #----------------------------------------------------#
 	 #  GETTING THE NUMBER OF SUBSTRINGS MADE OF N CHARS  #
@@ -3341,22 +3382,52 @@ class stzString from stzObject
 	def NumberOfUniqueSubStringsOfNCharsCS(n, pCaseSensitive)
 		return len( This.UniqueSubStringsOfNCharsCS(n, pCaseSensitive) )
 
+		#< @FunctionAlternativeForms
+
 		def NumberOfUniqueSubStringsMadeOfNCharsCS(n, pCaseSensitive)
 			return This.NumberOfUniqueSubStringsOfNCharsCS(n, pCaseSensitive)
 	
 		def HowManyUniqueSubStringsOfNCharsCS(n, pCaseSensitive)
 			return This.NumberOfUniqueSubStringsOfNCharsCS(n, pCaseSensitive)
 
+		#--
+
+		def NumberOfSubStringsOfNCharsCSU(n, pCaseSensitive)
+			return This.NumberOfUniqueSubStringsOfNCharsCS(n, pCaseSensitive)
+
+		def NumberOfSubStringsMadeOfNCharsCSU(n, pCaseSensitive)
+			return This.NumberOfUniqueSubStringsOfNCharsCS(n, pCaseSensitive)
+	
+		def HowManySubStringsOfNCharsCSU(n, pCaseSensitive)
+			return This.NumberOfUniqueSubStringsOfNCharsCS(n, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfUniqueSubStringsOfNChars(n)
 		return This.NumberOfUniqueSubStringsOfNCharsCS(n, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def NumberOfUniqueSubStringsMadeOfNChars(n)
 			return This.NumberOfUniqueSubStringsOfNChars(n)
-
+	
 		def HowManyUniqueSubStringsOfNChars(n)
 			return This.NumberOfUniqueSubStringsOfNChars(n)
+
+		#--
+
+		def NumberOfSubStringsOfNCharsU(n)
+			return This.NumberOfUniqueSubStringsOfNChars(n)
+
+		def NumberOfSubStringsMadeOfNCharsU(n)
+			return This.NumberOfUniqueSubStringsOfNChars(n)
+	
+		def HowManySubStringsOfNCharsCU(n)
+			return This.NumberOfUniqueSubStringsOfNChars(n)
+
+		#>
 
 	  #=================#
 	 #      LINES      #
@@ -16176,7 +16247,7 @@ class stzString from stzObject
 			return This.FindRepeatedLeadingAndTrailingCharsAsSections()
 
 		#>
-vvv
+
 	  #------------------------------------------------------------------------------------------#
 	 #  FINDING REPEATED TRAILING AND LEADING CHARS AND RETURNING THEIR POSITIONS AS SECTIONS  # 
 	#-----------------------------------------------------------------------------------------#
@@ -16213,7 +16284,13 @@ vvv
 
 		#< @FunctionAlternativeForms
 
+		def FindRepeatedTrailingAndLeadingCharsCSZZ(pCaseSensitive)
+			return This.FindRepeatedTrailingAndLeadingCharsAsSectionsCS(pCaseSensitive)
+
 		def FindTrailingAndLeadingCharsAsSectionsCS(pCaseSensitive)
+			return This.FindRepeatedTrailingAndLeadingCharsAsSectionsCS(pCaseSensitive)
+
+		def FindTrailingAndLeadingCharsAsSectionsCSZZ(pCaseSensitive)
 			return This.FindRepeatedTrailingAndLeadingCharsAsSectionsCS(pCaseSensitive)
 
 		#>
@@ -16225,7 +16302,13 @@ vvv
 
 		#< @FunctionAlternativeForms
 
+		def FindRepeatedTrailingAndLeadingCharsZZ()
+			return This.FindRepeatedTrailingAndLeadingCharsAsSections()
+
 		def FindTrailingAndLeadingCharsAsSections()
+			return This.FindRepeatedTrailingAndLeadingCharsAsSections()
+
+		def FindTrailingAndLeadingCharsAsSectionsZZ()
 			return This.FindRepeatedTrailingAndLeadingCharsAsSections()
 
 		#>
@@ -16469,10 +16552,16 @@ vvv
 	def FindRepeatedCharsCS(pCaseSensitive)
 		StzRaise("Unavailable in this version of the library!")
 
+		def FindRepeatedCharsCSZ(pCaseSensitive)
+			return This.FindRepeatedCharsCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedChars()
 		return This.FindRepeatedCharsCS(:CaseSensitive = TRUE)
+
+		def FindRepeatedCharsZ()
+			return This.FindRepeatedChars()
 
 	  #-----------------------------------------------------#
 	 #  GETTING REPEATED CHARS ALONG WITH THEIR POSITIONS  # TODO
@@ -18886,14 +18975,27 @@ vvv
 
 		return aResult
 
+		#< @FunctionFluentForm
+
 		def FindAntiSectionsQ(paSections)
 			return new stzList( This.FindAntiSections(paSections) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindAntiSectionsZZ(paSections)
+			return This.FindAntiSections(paSections)
+
+			def FindAntiSectionsZZQ(paSections)
+				return This.FindAntiSectionsQ(paSections)
 
 		def AntiSectionsAsPairsOfNumbers(paSections)
 			return This.FindAntiSections(paSections)
 
 			def AntiSectionsAsPairsOfNumbersQ(paSections)
-				return This.AntiSectionsAsPairsOfNumbers(paSections)
+				return This.FindAntiSectionsQ(paSections)
+		#>
 
 	  #----------------------------------------------------------#
 	 #   GETIING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS   #
@@ -19027,29 +19129,10 @@ vvv
 
 		return aResult
 
-		#< @FunctionFluentForm
+		#< @FunctionAlternativeForm
 
-		def FindAsSectionsAndAntiSectionsQ(paSections)
-			return This.FindAsSectionsAndAntiSectionsQR(paSections, :stzList)
-
-		def FindAsSectionsAndAntiSectionsQR(paSections, pcReturnType)
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindAsSectionsAndAntiSections(paSections) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.FindAsSectionsAndAntiSections(paSections) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.FindAsSectionsAndAntiSections(paSections) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
+		def FindAsSectionsAndAntiSectionsZZ(paSections)
+			return This.FindAsSectionsAndAntiSections(paSections)
 
 		#>
 
@@ -22474,6 +22557,7 @@ def ReplaceIBS()
 
 		return anResult
 
+		#< @FunctionAlternativeForms
 
 		def FindSubStringsMadeOfCS(pcSubStr, pCaseSensitive)
 			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
@@ -22490,10 +22574,33 @@ def ReplaceIBS()
 		def PositionsOfubStringsMadeOfCS(pcSubStr, pCaseSensitive)
 			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindMadeOfCSZ(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def FindSubStringsMadeOfCSZ(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def FindOccurrencesOfSubStringsMadeOfCSZ(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def FindAllSubStringsMadeOfCSZ(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def FindAllOccurrencesOfSubStringsMadeOfCSZ(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+
+		def PositionsOfubStringsMadeOfCSZ(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfCS(pcSubStr, pCaseSensitive)
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindMadeOf(pcSubStr)
 		return This.FindMadeOfCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def FindSubStringsMadeOf(pcSubStr)
 			return This.FindMadeOf(pcSubStr)
@@ -22509,6 +22616,27 @@ def ReplaceIBS()
 
 		def PositionsOfubStringsMadeOf(pcSubStr)
 			return This.FindMadeOf(pcSubStr)
+
+		#--
+
+		def FindMadeOfZ(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def FindSubStringsMadeOfZ(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def FindOccurrencesOfSubStringsMadeOfZ(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def FindAllSubStringsMadeOfZ(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def FindAllOccurrencesOfSubStringsMadeOfZ(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+
+		def PositionsOfubStringsMadeOfZ(pcSubStr)
+			return This.FindMadeOf(pcSubStr)
+		#>
 
 	  #------------------------------------------------#
 	 #  FINDING SUBSTRINGS MADE OF A GIVEN SUBSTRING  #
@@ -22576,22 +22704,52 @@ def ReplaceIBS()
 		
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def FindSubStringsMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
 
 		def PositionsOfSubStringsMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindMadeOfCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindSubStringsMadeOfCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def PositionsOfSubStringsMadeOfCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		#>
+
 	#--  WITHOUT CASESENSITIVITY
 
 	def FindMadeOfAsSections(pcSubStr)
 		return This.FindMadeOfAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def FindSubStringsMadeOfAsSections(pcSubStr)
 			return This.FindMadeOfAsSections(pcSubStr)
 
 		def PositionsOfSubStringsMadeOfAsSections(pcSubStr)
 			return This.FindMadeOfAsSections(pcSubStr)
+
+		#--
+
+		def FindMadeOfZZ(pcSubStr)
+			return This.FindMadeOfAsSections(pcSubStr)
+
+		def FindSubStringsMadeOfZZ(pcSubStr)
+			return This.FindMadeOfAsSections(pcSubStr)
+
+		def PositionsOfSubStringsMadeOfZZ(pcSubStr)
+			return This.FindMadeOfAsSections(pcSubStr)
+
+		#>
 
 	  #=============================================================================#
 	 #  YIELDING CHARS STARTING AT A GIVEN POSITION UNTIL A CONDITION IS VERIFIED  #
@@ -24319,10 +24477,24 @@ def ReplaceIBS()
 
 		return nResult
 
+		#< @FunctionAlternativeForm
+
+		def FindNthCSZ(n, pcSubStr, pCaseSensitive)
+			return This.FindNthCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNth(n, pcSubstr)
 		return This.FindNthCS(n, pcSubstr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def FindNthZ(n, pcSubStr)
+			return This.FindNth(n, pcSubStr)
+
+		#>
 
 	  #===============================================================================#
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING AND RETURNING THE POSITION AS SECTION  #
@@ -24335,10 +24507,52 @@ def ReplaceIBS()
 		anResult = [ nPos, (nPos + Q(pcSubStr).NumberOfChars() - 1) ]
 		return anResult
 
+		#< @FunctionAlternativeForms
+
+		def FindNthOccurrenceOfSubStringAsSectionCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthAsSectionCS(n, pcSubStr, pCaseSensitive)
+
+		def FindNthOccurrenceAsSectionCS(n, pcSubStr, pCaseSensitive)
+			return This.FindNthAsSectionCS(n, pcSubStr, pCaseSensitive)
+
+		#--
+
+		def FindNthCSZZ(n, pcSubStr, pCaseSensitive)
+			return This.FindNthAsSectionCS(n, pcSubStr, pCaseSensitive)
+
+		def FindNthOccurrenceOfSubStringCSZZ(n, pcSubStr, pCaseSensitive)
+			return This.FindNthAsSectionCS(n, pcSubStr, pCaseSensitive)
+
+		def FindNthOccurrenceCSZZ(n, pcSubStr, pCaseSensitive)
+			return This.FindNthAsSectionCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthAsSection(n, pcSubStr)
 		return This.FindNthAsSectionCS(n, pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNthOccurrenceOfSubStringAsSection(n, pcSubStr)
+			return This.FindNthAsSection(n, pcSubStr)
+
+		def FindNthOccurrenceAsSection(n, pcSubStr)
+			return This.FindNthAsSection(n, pcSubStr)
+
+		#--
+
+		def FindNthZZ(n, pcSubStr)
+			return This.FindNthAsSection(n, pcSubStr)
+
+		def FindNthOccurrenceOfSubStringZZ(n, pcSubStr)
+			return This.FindNthAsSection(n, pcSubStr)
+
+		def FindNthOccurrenceZZ(n, pcSubStr)
+			return This.FindNthAsSection(n, pcSubStr)
+
+		#>
 
 	  #-------------------------------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING AND RETURNING THE RESULT AS SECTION  #
@@ -24365,6 +24579,17 @@ def ReplaceIBS()
 		def FindSubStringAsSectionCS(pcSubStr, pCaseSensitive)
 			return This.FindFirstAsSectionCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindFirstCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindFirstAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def FindCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindFirstAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def FindSubStringCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindFirstAsSectionCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -24379,6 +24604,17 @@ def ReplaceIBS()
 
 		def FindSubStringAsSection(pcSubStr)
 			return This.FindFirstAsSection(pcSubStr)
+
+		#--
+
+		def FindFirstZZ(pcSubStr)
+			return This.FindFirstAsSectionCS(pcSubStr)
+
+		def FindZZ(pcSubStr)
+			return This.FindFirstAsSectionCS(pcSubStr)
+
+		def FindSubStringZZ(pcSubStr)
+			return This.FindFirstAsSectionCS(pcSubStr)
 
 		#>
 
@@ -24399,6 +24635,27 @@ def ReplaceIBS()
 
 		return anResult
 
+		#< @FunctionAlternativeForm
+
+		def FindLastSubStringAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def FindLastOccurrenceOfSubStringAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindLastAsSectionCS(pcSubStr, pCaseSensitive)
+
+		#--
+
+		def FindLastCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindLastAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def FindLastSubStringCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindLastAsSectionCS(pcSubStr, pCaseSensitive)
+
+		def FindLastOccurrenceOfSubStringCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindLastAsSectionCS(pcSubStr, pCaseSensitive)
+
+		#>
+
 		#< @FunctionMisspelledForm
 
 		def FindLasteAsSectionCS(pcSubStr, pCaseSensitive)
@@ -24409,7 +24666,28 @@ def ReplaceIBS()
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastAsSection(pcSubStr)
-		return This.FindLasteAsSectionCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindLastAsSectionCS(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def FindLastSubStringAsSection(pcSubStr)
+			return This.FindLastAsSection(pcSubStr)
+
+		def FindLastOccurrenceOfSubStringAsSection(pcSubStr)
+			return This.FindLastAsSection(pcSubStr)
+
+		#--
+
+		def FindLastZZ(pcSubStr)
+			return This.FindLastAsSection(pcSubStr)
+
+		def FindLastSubStringZZ(pcSubStr)
+			return This.FindLastAsSection(pcSubStr)
+
+		def FindLastOccurrenceOfSubStringZZ(pcSubStr)
+			return This.FindLastAsSection(pcSubStr)
+
+		#>
 
 		#< @FunctionMisspelledForm
 
@@ -24418,7 +24696,7 @@ def ReplaceIBS()
 
 		#>
 
-	  #============================================#
+vvv	  #============================================#
 	 #  FINDING THE ANTI-SECTIONS OF A SUBSTRING  #
 	#============================================#
 
@@ -24626,46 +24904,34 @@ def ReplaceIBS()
 		return This.FindLastAsSectionSCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
 
 	  #=======================================================#
-	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- Z-EXTENDED  #
+	 #  GETTING NTH OCCURRENCE OF A SUBSTRING -- Z-EXTENDED  #
 	#=======================================================#
 
-	def FindNthCSZ(n, pcSubStr, pCaseSensitive)
+	def NthCSZ(n, pcSubStr, pCaseSensitive)
 		anPos = This.FindNthCS(n, pcSubStr, pCaseSensitive)
 		aResult = [ pcSubStr, anPos ]
 
 		return aResult
 
-		def NthCSZ(n, pcSubStr, pCaseSensitive)
-			return This.FindNthCSZ(n, pcSubStr, pCaseSensitive)
-
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindNthZ(n, pcSubStr)
-		return This.FindNthCSZ(n, pcSubStr, :CaseSensitive = TRUE)
+	def NthZ(n, pcSubStr)
+		return This.NthCSZ(n, pcSubStr, :CaseSensitive = TRUE)
 
-		def NthZ(n, pcSubStr)
-			return This.FindNthZ(n, pcSubStr)
+	  #--------------------------------------------------------#
+	 #  GETTING NTH OCCURRENCE OF A SUBSTRING -- ZZ-EXTENDED  #
+	#--------------------------------------------------------#
 
-	  #----------------------------------------------------------#
-	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- ZZ-EXTENDED  #
-	#----------------------------------------------------------#
-
-	def FindNthCSZZ(n, pcSubStr, pCaseSensitive)
+	def NthCSZZ(n, pcSubStr, pCaseSensitive)
 		aSection = This.FindNthAsSectionCS(n, pcSubStr, pCaseSensitive)
 		aResult = [ pcSubStr, aSection ]
 
 		return aResult
 
-		def NthCSZZ(n, pcSubStr, pCaseSensitive)
-			return This.FindNthCSZZ(n, pcSubStr, pCaseSensitive)
-
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindNthZZ(n, pcSubStr)
+	def NthZZ(n, pcSubStr)
 		return This.FindNthCSZZ(n, pcSubStr, :CaseSensitive = TRUE)
-
-		def NthZZ(n, pcSubStr)
-			return This.FindNthZZ(n, pcSubStr)
 
 	  #=======================================================================#
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING STARTING AT A GIVEN POSITION   #
@@ -25471,7 +25737,7 @@ def ReplaceIBS()
 	#----------------------------------------------------------#
 	# TODO: Add other alternatives
 
-	def FindFirstCSZZ(pcSubStr, pCaseSensitive)
+	def FirstCSZZ(pcSubStr, pCaseSensitive)
 		aSection = This.FindFirstAsSectionCS(pcSubStr, pCaseSensitive)
 		aResult = [ pcSubStr, aSection ]
 
@@ -25479,18 +25745,28 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
-		def FirstCSZZ(pcSubStr, pCaseSensitive)
-			return This.FindFirstCSZZ(pcSubStr, pCaseSensitive)
+		def FirstOccurrenceCSZZ(pcSubStr, pCaseSensitive)
+			return This.FirstCSZZ(pcSubStr, pCaseSensitive)
+
+		def FirstOccurrenceOfSubStringCSZZ(pcSubStr, pCaseSensitive)
+			return This.FirstCSZZ(pcSubStr, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindFirstZZ(pcSubStr)
+	def FirstZZ(pcSubStr)
 		return This.FindFirstCSZZ(pcSubStr, :CaseSensitive = TRUE)
 
-		def FirstZZ(pcSubStr)
-			return This.FindFirstZZ(pcSubStr)
+		#< @FunctionAlternativeForms
+
+		def FirstOccurrenceZZ(pcSubStr)
+			return This.FirstZZ(pcSubStr)
+
+		def FirstOccurrenceOfSubStringZZ(pcSubStr)
+			return This.FirstCSZZ(pcSubStr, pCaseSensitive)
+
+		#>
 
 	  #-------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- D-EXTENDED  #
@@ -25671,16 +25947,10 @@ def ReplaceIBS()
 	def FindLastDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
 		return This.FindNthDCSZZ(:LastOccurrence, pcSubStr, pcDirection, pCaseSensitive)
 
-		def LastDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
-			return This.FindLastDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
-
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastDZZ(pcSubStr, pcDirection)
 		return This.FindLastDCSZZ(pcSubStr, pcDirection, :CaseSensitive = TRUE)
-
-		def LastDZZ(pcSubStr, pcDirection)
-			return This.FindLastDZZ(pcSubStr, pcDirection)
 
 	  #=================================================#
 	 #      FINDING LAST OCCURRENCE OF A SUBSTRING     #
@@ -25710,21 +25980,12 @@ def ReplaceIBS()
 		nResult = This.FindNthCS(n, pcsubStr, pCaseSensitive)
 		return nResult
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 	
 		def FindLastOccurrenceCS(pcSubstr, pCaseSensitive)
 			return This.FindLastCS(pcSubStr, pCaseSensitive)
 
-		def LastOccurrenceCS(pcSubStr, pCaseSensitive)
-			return This.FindLastCS(pcSubStr, pCaseSensitive)
-
 		def FindLastSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindLastCS(pcSubStr, pCaseSensitive)
-
-		def LastSubStringCS(pcSubStr, pCaseSensitive)
-			return This.FindLastCS(pcSubStr, pCaseSensitive)
-			
-		def LastCS(pcSubStr, pCaseSensitive)
 			return This.FindLastCS(pcSubStr, pCaseSensitive)
 
 		#--
@@ -25744,6 +26005,34 @@ def ReplaceIBS()
 		def LastSubStringPositionCS(pcSubStr, pCaseSensitive)
 			return This.FindLastCS(pcSubStr, pCaseSensitive)
 
+		#==
+
+		def FindLastCSZ(pcSubStr, pCaseSensitive)
+			return This.FindLastCS(pcSubStr, pCaseSensitive)
+
+		def FindLastOccurrenceCSZ(pcSubstr, pCaseSensitive)
+			return This.FindLastCS(pcSubStr, pCaseSensitive)
+
+		def FindLastSubStringCSZ(pcSubStr, pCaseSensitive)
+			return This.FindLastCS(pcSubStr, pCaseSensitive)
+
+		#--
+
+		def PositionOfLastOccurrenceCSZ(pcSubStr, pCaseSensitive)
+			return This.FindLastCS(pcSubStr, pCaseSensitive)
+
+		def LastOccurrencePositionCSZ(pcSubStr, pCaseSensitive)
+			return This.FindLastCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfLastCSZ(pcSubStr, pCaseSensitive)
+			return This.FindLastCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfLastSubStringCSZ(pcSubStr, pCaseSensitive)
+			return This.FindLastCS(pcSubStr, pCaseSensitive)
+
+		def LastSubStringPositionCSZ(pcSubStr, pCaseSensitive)
+			return This.FindLastCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	def FindLast(pcSubStr)
@@ -25758,12 +26047,6 @@ def ReplaceIBS()
 			return This.FindLast(pcSubStr)
 
 		def FindLastSubString(pcSubStr)
-			return This.FindLast(pcSubStr)
-
-		def LastSubString(pcSubStr)
-			return This.FindLast(pcSubStr)
-
-		def Last(pcSubStr)
 			return This.FindLast(pcSubStr)
 
 		#--
@@ -25783,49 +26066,117 @@ def ReplaceIBS()
 		def LastSubStringPosition(pcSubStr)
 			return This.FindLast(pcSubStr)
 
+		#==
+
+		def FindLastZ(pcSubStr)
+			return This.FindLast(pcSubStr)
+
+		def FindLastOccurrenceZ(pcSubstr)
+			return This.FindLast(pcSubStr)
+
+		def FindLastSubStringZ(pcSubStr)
+			return This.FindLast(pcSubStr)
+
+		#--
+
+		def PositionOfLastOccurrenceZ(pcSubStr)
+			return This.FindLast(pcSubStr)
+
+		def LastOccurrencePositionZ(pcSubStr)
+			return This.FindLast(pcSubStr)
+
+		def PositionOfLastZ(pcSubStr)
+			return This.FindLast(pcSubStr)
+
+		def PositionOfLastSubStringZ(pcSubStr)
+			return This.FindLast(pcSubStr)
+
+		def LastSubStringPositionZ(pcSubStr)
+			return This.FindLast(pcSubStr)
+
 		#>
 
 	  #--------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A SUBSTRING -- Z-EXTENDED  #
 	#--------------------------------------------------------#
 
-	def FindLastCSZ(pcSubStr, pCaseSensitive)
+	def LastCSZ(pcSubStr, pCaseSensitive)
 		anPos = This.FindLastCS(pcSubStr, pCaseSensitive)
 		aResult = [ pcSubStr, anPos ]
 
 		return aResult
 
-		def LastCSZ(pcSubStr, pCaseSensitive)
-			return This.FindLastCSZ(pcSubStr, pCaseSensitive)
+		#< @FunctionAlternativeForm
+
+		def LastSubStringCSZ(pcSubStr, pCaseSensitive)
+			return This.LastCSZ(pcSubStr, pCaseSensitive)
+
+		def LastOccurrenceCSZ(pcSubStr, pCaseSensitive)
+			return This.LastCSZ(pcSubStr, pCaseSensitive)
+
+		def LastOccurrenceOfSubStringCSZ(pcSubStr, pCaseSensitive)
+			return This.LastCSZ(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindLastZ(pcSubStr)
+	def LastZ(pcSubStr)
 		return This.FindLastCSZ(pcSubStr, :CaseSensitive = TRUE)
 
-		def LastZ(pcSubStr)
-			return This.FindLastZ(pcSubStr)
+		#< @FunctionAlternativeForm
+
+		def LastSubStringZ(pcSubStr)
+			return This.LastZ(pcSubStr)
+
+		def LastOccurrenceZ(pcSubStr)
+			return This.LastZ(pcSubStr)
+
+		def LastOccurrenceOfSubStringZ(pcSubStr)
+			return This.LastZ(pcSubStr)
+
+		#>
 
 	  #---------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A SUBSTRING -- ZZ-EXTENDED  #
 	#---------------------------------------------------------#
 
-	def FindLastCSZZ(pcSubStr, pCaseSensitive)
+	def LastCSZZ(pcSubStr, pCaseSensitive)
 		aSection = This.FindLastAsSectionCS(pcSubStr, pCaseSensitive)
 		aResult = [ pcSubStr, aSection ]
 
 		return aResult
 
-		def LastCSZZ(pcSubStr, pCaseSensitive)
-			return This.FindLastCSZZ(pcSubStr, pCaseSensitive)
+		#< @FunctionAlternativeForm
+
+		def LastSubStringCSZZ(pcSubStr, pCaseSensitive)
+			return This.LastCSZZ(pcSubStr, pCaseSensitive)
+
+		def LastOccurrenceCSZz(pcSubStr, pCaseSensitive)
+			return This.LastCSZZ(pcSubStr, pCaseSensitive)
+
+		def LastOccurrenceOfSubStringCSZZ(pcSubStr, pCaseSensitive)
+			return This.LastCSZZ(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindLastZZ(pcSubStr)
-		return This.FindLastCSZZ(pcSubStr, :CaseSensitive = TRUE)
+	def LastZZ(pcSubStr)
+		return This.LastCSZZ(pcSubStr, :CaseSensitive = TRUE)
 
-		def LastZZ(pcSubStr)
-			return This.FindLastZZ(pcSubStr)
+		#< @FunctionAlternativeForm
+
+		def LastSubStringZZ(pcSubStr)
+			return This.LastZZ(pcSubStr)
+
+		def LastOccurrenceZz(pcSubStr)
+			return This.LastZZ(pcSubStr)
+
+		def LastOccurrenceOfSubStringZZ(pcSubStr)
+			return This.LastZZ(pcSubStr, pCaseSensitive)
+
+		#>
 
 	  #====================================================================#
 	 #   FINDING THE POSITIONS OF SOME OCCURRENCES OF A GIVEN SUBSTRING   #
@@ -25865,7 +26216,13 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
+		def FindTheseOccurrencesCSZ(panOccurr, pcSubStr, pCaseSensitive)
+			return This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+
 		def FindOccurrencesCSXT(panOccurr, pcSubStr, pCaseSensitive)
+			return This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+
+		def FindOccurrencesCSXTZ(panOccurr, pcSubStr, pCaseSensitive)
 			return This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
 
 		#>
@@ -25877,7 +26234,13 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
+		def FindTheseOccurrencesZ(panOccurr, pcSubStr)
+			return This.FindTheseOccurrences(panOccurr, pcSubStr)
+
 		def FindOccurrencesXT(panOccurr, pcSubStr)
+			return This.FindTheseOccurrences(panOccurr, pcSubStr)
+
+		def FindOccurrencesXTZ(panOccurr, pcSubStr)
 			return This.FindTheseOccurrences(panOccurr, pcSubStr)
 
 		#>
@@ -25903,7 +26266,13 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
+		def FindTheseOccurrencesCSZZ(panOccurr, pcSubStr, pCaseSensitive)
+			return This.FindTheseOccurrencesAsSectionsCS(panOccurr, pcSubStr, pCaseSensitive)
+
 		def FindOccurrencesAsSectionsCSXT(panOccurr, pcSubStr, pCaseSensitive)
+			return This.FindTheseOccurrencesAsSectionsCS(panOccurr, pcSubStr, pCaseSensitive)
+
+		def FindOccurrencesCSXTZZ(panOccurr, pcSubStr, pCaseSensitive)
 			return This.FindTheseOccurrencesAsSectionsCS(panOccurr, pcSubStr, pCaseSensitive)
 
 		#>
@@ -25915,7 +26284,13 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
+		def FindTheseOccurrencesZZ(panOccurr, pcSubStr)
+			return This.FindTheseOccurrencesAsSections(panOccurr, pcSubStr)
+
 		def FindOccurrencesAsSectionsXT(panOccurr, pcSubStr)
+			return This.FindTheseOccurrencesAsSections(panOccurr, pcSubStr)
+
+		def FindOccurrencesXTZZ(panOccurr, pcSubStr)
 			return This.FindTheseOccurrencesAsSections(panOccurr, pcSubStr)
 
 		#>
@@ -25971,7 +26346,13 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
+		def FindTheseOccurrencesSDCSZ(panOccurr, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindTheseOccurrencesSDCS(panOccurr, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
 		def FindOccurrencesSDCSXT(panOccurr, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindTheseOccurrencesSDCS(panOccurr, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def FindOccurrencesSDCSXTZ(panOccurr, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 			return This.FindTheseOccurrencesSDCS(panOccurr, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
 		#>
@@ -25983,7 +26364,13 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
+		def FindTheseOccurrencesSDZ(panOccurr, pcSubStr, pnStartingAt, pcDirection)
+			return This.FindTheseOccurrencesSD(panOccurr, pcSubStr, pnStartingAt, pcDirection)
+
 		def FindOccurrencesSDXT(panOccurr, pcSubStr, pnStartingAt, pcDirection)
+			return This.FindTheseOccurrencesSD(panOccurr, pcSubStr, pnStartingAt, pcDirection)
+
+		def FindOccurrencesSDXTZ(panOccurr, pcSubStr, pnStartingAt, pcDirection)
 			return This.FindTheseOccurrencesSD(panOccurr, pcSubStr, pnStartingAt, pcDirection)
 
 		#>
@@ -26010,7 +26397,13 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
+		def FindTheseOccurrencesSDCSZZ(panOccurr, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindTheseOccurrencesAsSectionsSDCS(panOccurr, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
 		def FindOccurrencesAsSectionsSDCSXT(panOccurr, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindTheseOccurrencesAsSectionsSDCS(panOccurr, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def FindOccurrencesSDCSXTZZ(panOccurr, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 			return This.FindTheseOccurrencesAsSectionsSDCS(panOccurr, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
 		#>
@@ -26022,7 +26415,13 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
+		def FindTheseOccurrencesSDZZ(panOccurr, pcSubStr, pnStartingAt, pcDirection)
+			return This.FindTheseOccurrencesAsSectionsSD(panOccurr, pcSubStr, pnStartingAt, pcDirection)
+
 		def FindOccurrencesAsSectionsSDXT(panOccurr, pcSubStr, pnStartingAt, pcDirection)
+			return This.FindTheseOccurrencesAsSectionsSD(panOccurr, pcSubStr, pnStartingAt, pcDirection)
+
+		def FindOccurrencesSDXTZZ(panOccurr, pcSubStr, pnStartingAt, pcDirection)
 			return This.FindTheseOccurrencesAsSectionsSD(panOccurr, pcSubStr, pnStartingAt, pcDirection)
 
 		#>
@@ -26033,8 +26432,8 @@ def ReplaceIBS()
 	#==========================================================#
 
 	def FindTheseOccurrencesSCS(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
-		aResult = This.FindTheseOccurrencesSDCS(panOccurr, pcSubStr, pnStartingAt, :Forward, pCaseSensitive)
-		return aResult
+		anResult = This.FindTheseOccurrencesSDCS(panOccurr, pcSubStr, pnStartingAt, :Forward, pCaseSensitive)
+		return anResult
 
 		#< @FunctionAlternativeForms
 
@@ -26042,6 +26441,17 @@ def ReplaceIBS()
 			return This.FindTheseOccurrencesSCS(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
 
 		def FindOccurrencesSCSXT(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindTheseOccurrencesSCS(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FindTheseOccurrencesSCSZ(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindTheseOccurrencesSCS(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FindOccurrencesXTSCSZ(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindTheseOccurrencesSCS(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FindOccurrencesSCSXTZ(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindTheseOccurrencesSCS(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
@@ -26059,6 +26469,17 @@ def ReplaceIBS()
 		def FindOccurrencesSXT(panOccurr, pcSubStr, pnStartingAt)
 			return This.FindTheseOccurrencesS(panOccurr, pcSubStr, pnStartingAt)
 
+		#--
+
+		def FindTheseOccurrencesSZ(panOccurr, pcSubStr, pnStartingAt)
+			return This.FindTheseOccurrencesS(panOccurr, pcSubStr, pnStartingAt)
+
+		def FindOccurrencesXTSZ(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindTheseOccurrencesS(panOccurr, pcSubStr, pnStartingAt)
+
+		def FindOccurrencesSXTZ(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindTheseOccurrencesS(panOccurr, pcSubStr, pnStartingAt)
+
 		#>
 
 	   #-----------------------------------------------------------------------------#
@@ -26071,10 +26492,52 @@ def ReplaceIBS()
 		aResult = This.FindTheseOccurrencesAsSectionsSDCS(panOccurr, pcSubStr, pnStartingAt, :Forward, pCaseSensitive)
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def FindOccurrencesAsSectionsXTSCS(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindTheseOccurrencesAsSectionsSCS(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FindOccurrencesAsSectionsSCSXT(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindTheseOccurrencesAsSectionsSCS(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FindTheseOccurrencesSCSZZ(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindTheseOccurrencesAsSectionsSCS(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FindOccurrencesXTSCSZZ(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindTheseOccurrencesAsSectionsSCS(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def FindOccurrencesSCSXTZZ(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindTheseOccurrencesAsSectionsSCS(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrencesAsSectionsS(panOccurr, pcSubStr, pnStartingAt)
 		return This.FindTheseOccurrencesAsSectionsSCS(panOccurr, pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindOccurrencesAsSectionsXTS(panOccurr, pcSubStr, pnStartingAt)
+			return This.FindTheseOccurrencesAsSectionsS(panOccurr, pcSubStr, pnStartingAt)
+
+		def FindOccurrencesAsSectionsSXT(panOccurr, pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindTheseOccurrencesAsSectionsS(panOccurr, pcSubStr, pnStartingAt)
+
+		#--
+
+		def FindTheseOccurrencesSZZ(panOccurr, pcSubStr, pnStartingAt)
+			return This.FindTheseOccurrencesAsSectionsS(panOccurr, pcSubStr, pnStartingAt)
+
+		def FindOccurrencesXTSZZ(panOccurr, pcSubStr, pnStartingAt)
+			return This.FindTheseOccurrencesAsSectionsS(panOccurr, pcSubStr, pnStartingAt)
+
+		def FindOccurrencesSXTZZ(panOccurr, pcSubStr, pnStartingAt)
+			return This.FindTheseOccurrencesAsSectionsS(panOccurr, pcSubStr, pnStartingAt)
+
+		#>
 
 	   #==========================================================#
 	  #   FINDING THE POSITIONS OF SOME OCCURRENCES OF A GIVEN   #
@@ -26114,14 +26577,21 @@ def ReplaceIBS()
 		return anResult
 
 
+		def FindTheseOccurrencesDCSZ(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindTheseOccurrencesDCS(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
+
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrencesD(panOccurr, pcSubStr, pcDirection)
 		return This.FindTheseOccurrencesDCS(panOccurr, pcSubStr, pcDirection, :CaseSensitive = TRUE)
 
+		def FindTheseOccurrencesDZ(panOccurr, pcSubStr, pcDirection)
+			return This.FindTheseOccurrencesD(panOccurr, pcSubStr, pcDirection)
+
 	   #-----------------------------------------------------------------------------#
 	  #   FINDING THE POSITIONS OF SOME OCCURRENCES OF A GIVEN SUBSTRING GOING IN   #
-	 #   A GIVEN DIRECTION AND RETURNING THOSE POSITIONS  AS SECTIONS              #
+	 #   A GIVEN DIRECTION AND RETURNING THOSE POSITIONS AS SECTIONS               #
 	#-----------------------------------------------------------------------------#
 
 	def FindTheseOccurrencesAsSectionsDCS(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
@@ -26146,7 +26616,13 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForms
 
+		def FindTheseOccurrencesDCSZZ(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindTheseOccurrencesAsSectionsDCS(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
+
 		def FindOccurrencesAsSectionsDCSXT(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindTheseOccurrencesAsSectionsDCS(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
+
+		def FindOccurrencesDCSXTZZ(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
 			return This.FindTheseOccurrencesAsSectionsDCS(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
 
 		#>
@@ -26156,12 +26632,19 @@ def ReplaceIBS()
 	def FindTheseOccurrencesAsSectionsD(panOccurr, pcSubStr, pcDirection)
 		return This.FindTheseOccurrencesAsSectionsDCS(panOccurr, pcSubStr, pcDirection, :CaseSensitive = TRUE)
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
+
+		def FindTheseOccurrencesDZZ(panOccurr, pcSubStr, pcDirection)
+			return This.FindTheseOccurrencesAsSectionsD(panOccurr, pcSubStr, pcDirection)
 
 		def FindOccurrencesAsSectionsDXT(panOccurr, pcSubStr, pcDirection)
 			return This.FindTheseOccurrencesAsSectionsD(panOccurr, pcSubStr, pcDirection)
 
+		def FindOccurrencesDXTZZ(panOccurr, pcSubStr, pcDirection)
+			return This.FindTheseOccurrencesAsSectionsD(panOccurr, pcSubStr, pcDirection)
+
 		#>
+
 
 	   #=============================================#
 	  #   FINDING NEXT OCCURRENCES OF A SUBSTRING   #
@@ -26188,11 +26671,17 @@ def ReplaceIBS()
 
 		return anResult
 		
+		def FindAllNextCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindAllNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllNext(pcSubStr, pnStartingAt)
 		aResult = This.FindAllNext(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
 		return aResult
+
+		def FindAllNextZ(pcSubStr, pnStartingAt)
+			return This.FindAllNext(pcSubStr, pnStartingAt)
 
 	   #-------------------------------------------------#
 	  #   FINDING PREVIOUS OCCURRENCES OF A SUBSTRING   #
@@ -26213,11 +26702,17 @@ def ReplaceIBS()
 		
 		return anPositions
 
+		def FindAllPreviousCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindAllPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllPrevious(pcSubStr, pnStartingAt)
 		aResult = This.FindAllPreviousCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
 		return aResult
+
+		def FindAllPreviousZ(pcSubStr, pnStartingAt)
+			return This.FindAllPrevious(pcSubStr, pnStartingAt)
 
 	   #=====================================================#
 	  #      FINDING NTH NEXT OCCURRENCE OF A SUBSTRING     #
@@ -26281,8 +26776,16 @@ def ReplaceIBS()
 
 		return nResult
 
+		def FindNthNextCSZ(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthNextCS(n, pcSubStr, nStart, pCaseSensitive)
+
+	#-- WYHOUT CASESENSITIVITY
+
 	def FindNthNext(n, pcSubStr, nStart)
 		return This.FindNthNext(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+
+		def FindNthNextZ(n, pcSubStr, nStart)
+			return This.FindNthNext(n, pcSubStr, nStart)
 
 	  #--------------------------------------------------------------------------------------#
 	 #  FINFING NTH NEXT OCCURRENCE OF A SUBSTRING AND RETURNING ITS POSITION AS A SECTION  #
@@ -26295,11 +26798,25 @@ def ReplaceIBS()
 	
 		return aResult
 	
+		#< @FunctionAlternativeForm
+
+		def FindNthNextCSZZ(n, pcSubStr, nStart, pCaseSensitive )
+			return This.FindNthNextAsSectionCS(n, pcSubStr, nStart, pCaseSensitive )
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 	
 	def FindNthNextAsSection(n, pcSubStr, nStart )
 		return This.FindNthNextAsSectionCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
 	
+		#< @FunctionAlternativeForm
+
+		def FindNthNextZZ(n, pcSubStr, nStart )
+			return This.FindNthNextAsSection(n, pcSubStr, nStart)
+
+		#>
+
 	   #=========================================================#
 	  #      FINDING NTH PREVIOUS OCCURRENCE OF A SUBSTRING     #
 	 #      STARTING AT A GIVEN POSITION                       #
@@ -26396,8 +26913,15 @@ def ReplaceIBS()
 
 		return 0
 
+
+		def FindNthPreviousCSZ(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
+
 	def FindNthPrevious(n, pcSubStr, nStart)
 		return This.FindNthPreviousCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+
+		def FindNthPreviousZ(n, pcSubStr, nStart)
+			return This.FindNthPrevious(n, pcSubStr, nStart)
 
 	  #------------------------------------------------------------------------------------------#
 	 #  FINFING NTH PREVIOUS OCCURRENCE OF A SUBSTRING AND RETURNING ITS POSITION AS A SECTION  #
@@ -26410,10 +26934,16 @@ def ReplaceIBS()
 	
 		return aResult
 	
+		def FindNthPreviousCSZZ(n, pcSubStr, nStart, pCaseSensitive )
+			return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive )
+
 	#-- WITHOUT CASESENSITIVITY
 	
 	def FindNthPreviousAsSection(n, pcSubStr, nStart )
 		return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+
+		def FindNthPreviousZZ(n, pcSubStr, nStart )
+			return This.FindNthPreviousAsSection(n, pcSubStr, nStart )
 
 	   #-------------------------------------------------#
 	  #      FINDING NEXT OCCURRENCE OF A SUBSTRING     #
@@ -26466,9 +26996,14 @@ def ReplaceIBS()
 		
 		#< @FunctionAlternativeForm
 
+		def FindNextCSZ(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+
 		def FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
 
+		def FindNextSCSZ(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -26478,7 +27013,13 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
+		def FindNextZ(pcSubStr, nStart)
+			return This.FindNext(pcSubStr, nStart)
+
 		def FindNextS(pcSubStr, nStart)
+			return This.FindNext(pcSubStr, nStart)
+
+		def FindNextSZ(pcSubStr, nStart)
 			return This.FindNext(pcSubStr, nStart)
 
 		#>
@@ -26508,7 +27049,13 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
+		def FindPreviousCSZ(pcSubStr, nStart, pCaseSensitive)
+			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
+
 		def FindPreviousSCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
+
+		def FindPreviousSCSZ(pcSubStr, nStart, pCaseSensitive)
 			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 
 		#>
@@ -26520,7 +27067,13 @@ def ReplaceIBS()
 	
 		#< @FunctionAlternativeForm
 
+		def FindPreviousZ(pcSubStr, nStart)
+			return This.FindPrevious(pcSubStr, nStart)
+
 		def FindPreviousS(pcSubStr, nStart)
+			return This.FindPrevious(pcSubStr, nStart)
+
+		def FindPreviousSZ(pcSubStr, nStart)
 			return This.FindPrevious(pcSubStr, nStart)
 
 		#>
@@ -26534,48 +27087,51 @@ def ReplaceIBS()
 
 		# Resolving the pcSubStr param
 
-		if isList(pcSubStr) and Q(pcSubStr).IsListOfStrings()
-			return This.FindManyCS(pcSubStr, pCaseSensitive)
-		ok
+		if CheckParams()
 
-		if isList(pcSubStr) and
-			( Q(pcSubStr).IsOfNamedParam() or
-			  Q(pcSubStr).IsOfSubStringNamedParam() )
-
-			pcSubStr = pcSubStr[2]
-		ok
-
-		if NOT isString(pcSubStr)
-			stzRaise("Incorrect param type! pcSubStr must be a string.")
-		ok
-
-		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
-			return []
-		ok
-
-		# Resolving pCaseSensitive
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if isString(pCaseSensitive)
-			if Q(pCaseSensitive).IsOneOfThese([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
-
-				pCaseSensitive = TRUE
-			
-			but Q(pCaseSensitive).IsOneOfThese([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
-
-				pCaseSensitive = FALSE
+			if isList(pcSubStr) and Q(pcSubStr).IsListOfStrings()
+				return This.FindManyCS(pcSubStr, pCaseSensitive)
 			ok
-
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+	
+			if isList(pcSubStr) and
+				( Q(pcSubStr).IsOfNamedParam() or
+				  Q(pcSubStr).IsOfSubStringNamedParam() )
+	
+				pcSubStr = pcSubStr[2]
+			ok
+	
+			if NOT isString(pcSubStr)
+				stzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+	
+			if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+				return []
+			ok
+	
+			# Resolving pCaseSensitive
+	
+			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+				pCaseSensitive = pCaseSensitive[2]
+			ok
+	
+			if isString(pCaseSensitive)
+				if Q(pCaseSensitive).IsOneOfThese([
+					:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+	
+					pCaseSensitive = TRUE
+				
+				but Q(pCaseSensitive).IsOneOfThese([
+					:CaseInSensitive, :NotCaseSensitive, :NotCS,
+					:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+	
+					pCaseSensitive = FALSE
+				ok
+	
+			ok
+	
+			if NOT IsBoolean(pCaseSensitive)
+				stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+			ok
 		ok
 
 		# Doing the job
@@ -26721,17 +27277,23 @@ def ReplaceIBS()
 	def AntiFindCS(pcSubStr, pCaseSensitive)
 		return QR( This.AntiFindAsSectionsCS(pcSubStr, pCaseSensitive), :stzListOfPairs ).FirstItems()
 
+		def AntiFindCSZ(pcSubStr, pCaseSensitive)
+			return This.AntiFindCS(pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
-	def AntiFind(pcsubStr)
+	def AntiFind(pcSubStr)
 		return This.AntiFindCS(pcSubStr, :CaseSensitive = TRUE)
+
+		def AntiFindZ(pcSubStr)
+			return This.AntiFind(pcSubStr)
 
 	  #===============================================================#
 	 #  FINDING ALL OCCURRENCES OF A SUBSTRING IN A GIVEN DIRECTION  #
 	#===============================================================#
 
 	def FindDCS(pcSubStr, pcDirection, pCaseSensitive)
-	
+		
 		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
@@ -26790,6 +27352,17 @@ def ReplaceIBS()
 		def FindAllOccurrencesDCS(pcSubStr, pcDirection, pCaseSensitive)
 			return This.FindDCS(pcSubStr, pcDirection, pCaseSensitive)
 
+		#--
+
+		def FindDCSZ(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindDCS(pcSubStr, pcDirection, pCaseSensitive)
+
+		def FindOccurrencesDCSZ(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindDCS(pcSubStr, pcDirection, pCaseSensitive)
+
+		def FindAllOccurrencesDCSZ(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindDCS(pcSubStr, pcDirection, pCaseSensitive)
+
 		#>
  
 	#-- WITHOUT CASESENSITIVITY
@@ -26815,14 +27388,25 @@ def ReplaceIBS()
 		def FindAllOccurrencesD(pcSubStr, pcDirection)
 			return This.FindD(pcSubStr, pcDirection)
 
+		#--
+
+		def FindDZ(pcSubStr, pcDirection)
+			return This.FindD(pcSubStr, pcDirection)
+
+		def FindOccurrencesDZ(pcSubStr, pcDirection)
+			return This.FindD(pcSubStr, pcDirection)
+
+		def FindAllOccurrencesDZ(pcSubStr, pcDirection)
+			return This.FindD(pcSubStr, pcDirection)
+
 		#>
 
 	   #-----------------------------------------------------------------------#
-	  #  FINDING ALL OCCURRENCES OF A SUBSTRING, GOING IN A GIVEN DIRECTION,  #
+	  #  GETTING ALL OCCURRENCES OF A SUBSTRING, GOING IN A GIVEN DIRECTION,  #
 	 #  AND RETURNING THE SUBSTRING AND ITS POSITIONS                        #
 	#-----------------------------------------------------------------------#
 
-	def FindDCSZ(pcSubStr, pcDirection, pCaseSensitive)
+	def SubStringDCSZ(pcSubStr, pcDirection, pCaseSensitive)
 
 		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
@@ -26838,26 +27422,26 @@ def ReplaceIBS()
 
 		#< @FunctionFluentForm
 
-		def FindDCSZQ(pcSubStr, pcDirection, pCaseSensitive)
-				return This.FindDCSZQR(pcSubStr, pcDirection, pCaseSensitive, :stzList)
+		def SubStringDCSZQ(pcSubStr, pcDirection, pCaseSensitive)
+				return This.SubStringDCSZQR(pcSubStr, pcDirection, pCaseSensitive, :stzList)
 			
-		def FindDCSZQR(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
+		def SubStringDCSZQR(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.FindDCSZ(pcSubStr, pcDirection, pCaseSensitive) )
+				return new stzList( This.SubStringDCSZ(pcSubStr, pcDirection, pCaseSensitive) )
 	
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDCSZ(pcSubStr, pcDirection, pCaseSensitive) )
+				return new stzListOfNumbers( This.SubStringDCSZ(pcSubStr, pcDirection, pCaseSensitive) )
 	
 			on :stzPair
-				return new stzPair( This.FindDCSZ(pcSubStr, pcDirection, pCaseSensitive) )
+				return new stzPair( This.SubStringDCSZ(pcSubStr, pcDirection, pCaseSensitive) )
 	
 			on :stzPairOfNumbers
-				return new stzPairOfNumbers( This.FindDCSZ(pcSubStr, pcDirection, pCaseSensitive) )
+				return new stzPairOfNumbers( This.SubStringDCSZ(pcSubStr, pcDirection, pCaseSensitive) )
 	
 			other
 				stzRaise("Unsupported return type!")
@@ -26866,25 +27450,25 @@ def ReplaceIBS()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindDZ(pcSubStr, pcDirection)
-		return This.FindDCSZ(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+	def SubStringDZ(pcSubStr, pcDirection)
+		return This.SubStringDCSZ(pcSubStr, pcDirection, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def FindDZQ(pcSubStr, pcDirection)
-			return This.FindDZQR(pcSubStr, pcDirection, :stzList)
+		def SubStringDZQ(pcSubStr, pcDirection)
+			return This.SubStringDZQR(pcSubStr, pcDirection, :stzList)
 		
-		def FindDZQR(pcSubStr, pcDirection, pcReturnType)
-				return This.FindDCSZQR(pcSubStr, pcDirection, :CaseSensitive = TRUE, pcReturnType)
+		def SubStringDZQR(pcSubStr, pcDirection, pcReturnType)
+				return This.SubStringDCSZQR(pcSubStr, pcDirection, :CaseSensitive = TRUE, pcReturnType)
 
 		#>
 
 	   #-----------------------------------------------------------------------#
-	  #  FINDING ALL OCCURRENCES OF A SUBSTRING, GOING IN A GIVEN DIRECTION,  #
+	  #  GETTING ALL OCCURRENCES OF A SUBSTRING, GOING IN A GIVEN DIRECTION,  #
 	 #  AND RETURNING THE SUBSTRING AND ITS POSITIONS AS SECTIONS            #
 	#-----------------------------------------------------------------------#
 
-	def FindDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
+	def SubStringDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
 
 		# Checking params
 
@@ -26923,26 +27507,26 @@ def ReplaceIBS()
 
 		#< @FunctionFluentForm
 
-		def FindDCSZZQ(pcSubStr, pcDirection, pCaseSensitive)
-				return This.FindDCSZZQR(pcSubStr, pcDirection, pCaseSensitive, :stzList)
+		def SubStringDCSZZQ(pcSubStr, pcDirection, pCaseSensitive)
+				return This.SubStringDCSZZQR(pcSubStr, pcDirection, pCaseSensitive, :stzList)
 			
-		def FindDCSZZQR(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
+		def SubStringDCSZZQR(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.FindDCSZZ(pcSubStr, pcDirection, pCaseSensitive) )
+				return new stzList( This.SubStringDCSZZ(pcSubStr, pcDirection, pCaseSensitive) )
 	
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindDCSZZ(pcSubStr, pcDirection, pCaseSensitive) )
+				return new stzListOfNumbers( This.SubStringDCSZZ(pcSubStr, pcDirection, pCaseSensitive) )
 	
 			on :stzPair
-				return new stzPair( This.FindDCSZZ(pcSubStr, pcDirection, pCaseSensitive) )
+				return new stzPair( This.SubStringDCSZZ(pcSubStr, pcDirection, pCaseSensitive) )
 	
 			on :stzPairOfNumbers
-				return new stzPairOfNumbers( This.FindDCSZZ(pcSubStr, pcDirection, pCaseSensitive) )
+				return new stzPairOfNumbers( This.SubStringDCSZZ(pcSubStr, pcDirection, pCaseSensitive) )
 	
 			other
 				stzRaise("Unsupported return type!")
@@ -26951,16 +27535,16 @@ def ReplaceIBS()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindDZZ(pcSubStr, pcDirection)
+	def SubStringDZZ(pcSubStr, pcDirection)
 		return This.FindDCSZZ(pcSubStr, pcDirection, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def FindDZZQ(pcSubStr, pcDirection)
-			return This.FindDZZQR(pcSubStr, pcDirection, :stzList)
+		def SubStringDZZQ(pcSubStr, pcDirection)
+			return This.SubStringDZZQR(pcSubStr, pcDirection, :stzList)
 		
-		def FindDZZQR(pcSubStr, pcDirection, pcReturnType)
-				return This.FindDCSZZQR(pcSubStr, pcDirection, :CaseSensitive = TRUE, pcReturnType)
+		def SubStringDZZQR(pcSubStr, pcDirection, pcReturnType)
+				return This.SubStringDCSZZQR(pcSubStr, pcDirection, :CaseSensitive = TRUE, pcReturnType)
 
 		#>
 
@@ -26968,39 +27552,46 @@ def ReplaceIBS()
 	 #  FINDING ALL OCCURRENCES OF A SUBSTRING STARTING FROM A GIVEN POSITION  #
 	#=========================================================================#
 
+	/* TODO
+	the ..S() extension here must also mean :StoppingAt
+	*/
+
 	def FindSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		# Checking pnStartingAt param
 
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if pnStartingAt = :First or pnStartingAt = :FirstChar
-				pnStartingAt = 1
-
-			but pnStartingAt = :Last or pnStartingAt = :LastChar
-				pnStartingAt = This.NumberOfChars()
-
+		if CheckParams()
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
 			ok
-		ok
-
-		if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
-			StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
+	
+			if isString(pnStartingAt)
+				if pnStartingAt = :First or pnStartingAt = :FirstChar
+					pnStartingAt = 1
+	
+				but pnStartingAt = :Last or pnStartingAt = :LastChar
+					pnStartingAt = This.NumberOfChars()
+	
+				ok
+			ok
+	
+			if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
+				StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
+			ok
 		ok
 
 		# Doing the job
 
-		anPos = This.SectionQ(pnStartingAt, :LastChar).FindCS(pcSubStr, pCaseSensitive)
+		nLen = This.NumberOfChars()
+		anPos = This.SectionQ(pnStartingAt, nLen).FindCS(pcSubStr, pCaseSensitive)
 
-		aResult = []
+		anResult = []
 
 		if Len(anPos) > 0
-			aResult = StzListOfNumbersQ(anPos).AddedToEach(pnStartingAt - 1)
+			anResult = StzListOfNumbersQ(anPos).AddedToEach(pnStartingAt - 1)
 		ok
 
-		return aResult
+		return anResult
 
 
 		#< @FunctionFluentForm
@@ -27031,6 +27622,13 @@ def ReplaceIBS()
 			off
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def FindSCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindS(pcSubStr, pnStartingAt)
@@ -27046,12 +27644,19 @@ def ReplaceIBS()
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def FindSZ(pcSubStr, pnStartingAt)
+			return This.FindS(pcSubStr, pnStartingAt)
+
+		#>
+
 	   #-------------------------------------------------------------------------#
-	  #  FINDING ALL OCCURRENCES OF A SUBSTRING, STARTING AT A GIVEN POSITION,  #
+	  #  GETTING ALL OCCURRENCES OF A SUBSTRING, STARTING AT A GIVEN POSITION,  #
 	 #  AND RETURNING THE SUBSTRING AND ITS POSITIONS                          #
 	#-------------------------------------------------------------------------#
 
-	def FindSCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
+	def SubStringSCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
@@ -27068,7 +27673,7 @@ def ReplaceIBS()
 		#< @FunctionFluentForm
 
 		def FindSCSZQ(pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindSCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
+				return This.SubStringSCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
 		def FindSCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
@@ -27077,16 +27682,16 @@ def ReplaceIBS()
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.FindSCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzList( This.SubStringSCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindSCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzListOfNumbers( This.SubStringSCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPair
-				return new stzPair( This.FindSCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzPair( This.SubStringSCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPairOfNumbers
-				return new stzPairOfNumbers( This.FindSCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzPairOfNumbers( This.SubStringSCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			other
 				stzRaise("Unsupported return type!")
@@ -27095,32 +27700,33 @@ def ReplaceIBS()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindSZ(pcSubStr, pnStartingAt)
-		return This.FindSCSZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+	def SubStringSZ(pcSubStr, pnStartingAt)
+		return This.SubStringSCSZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def FindSZQ(pcSubStr, pnStartingAt)
-			return This.FindSZQR(pcSubStr, pnStartingAt, :stzList)
+		def SubStringSZQ(pcSubStr, pnStartingAt)
+			return This.SubStringSZQR(pcSubStr, pnStartingAt, :stzList)
 		
-		def FindSZQR(pcSubStr, pnStartingAt, pcReturnType)
-				return This.FindSCSZQR(pcSubStr, pnStartingAt, :CaseSensitive = TRUE, pcReturnType)
+		def SubStringSZQR(pcSubStr, pnStartingAt, pcReturnType)
+				return This.SubStringSCSZQR(pcSubStr, pnStartingAt, :CaseSensitive = TRUE, pcReturnType)
 
 		#>
 
 	   #-------------------------------------------------------------------------#
-	  #  FINDING ALL OCCURRENCES OF A SUBSTRING, STARTING AT A GIVEN POSITION,  #
+	  #  GETTING ALL OCCURRENCES OF A SUBSTRING, STARTING AT A GIVEN POSITION,  #
 	 #  AND RETURNING THE SUBSTRING AND ITS POSITIONS AS SECTIONS              #
 	#-------------------------------------------------------------------------#
 
-	def FindSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
-
-		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
-			pcSubStr = pcSubStr[2]
-		ok
-
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcSubStr must be a string.")
+	def SubStringSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+		if CheckParams()
+			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+				pcSubStr = pcSubStr[2]
+			ok
+	
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
 		ok
 
 		aResult = [ pcSubStr, This.FindAsSectionsSCS(pcSubStr, pnStartingAt, pCaseSensitive) ]
@@ -27129,26 +27735,26 @@ def ReplaceIBS()
 
 		#< @FunctionFluentForm
 
-		def FindSCSZZQ(pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindSCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
+		def SubStringSCSZZQ(pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.SubStringSCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
-		def FindSCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
+		def SubStringSCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.FindSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzList( This.SubStringSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzListOfNumbers( This.SubStringSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPair
-				return new stzPair( This.FindSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzPair( This.SubStringSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPairOfNumbers
-				return new stzPairOfNumbers( This.FindSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzPairOfNumbers( This.SubStringSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			other
 				stzRaise("Unsupported return type!")
@@ -27157,16 +27763,16 @@ def ReplaceIBS()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindSZZ(pcSubStr, pnStartingAt)
-		return This.FindSCSZZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+	def SubStringSZZ(pcSubStr, pnStartingAt)
+		return This.SubStringSCSZZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def FindSZZQ(pcSubStr, pnStartingAt)
-			return This.FindSZZQR(pcSubStr, pnStartingAt, :stzList)
+		def SubStringSZZQ(pcSubStr, pnStartingAt)
+			return This.SubStringSZZQR(pcSubStr, pnStartingAt, :stzList)
 		
-		def FindSZZQR(pcSubStr, pnStartingAt, pcReturnType)
-				return This.FindSCSZZQR(pcSubStr, pnStartingAt, :CaseSensitive = TRUE, pcReturnType)
+		def SubStringSZZQR(pcSubStr, pnStartingAt, pcReturnType)
+				return This.SubStringSCSZZQR(pcSubStr, pnStartingAt, :CaseSensitive = TRUE, pcReturnType)
 
 		#>
 
@@ -30332,9 +30938,9 @@ def ReplaceIBS()
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	#======================================================#
 
-	def FindAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+	def FindBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 
-		aSections = This.FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
+		aSections = This.FindBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
 		aResult = StzListOfPairsQ(aSections).FirstItems()
 
 		return aResult
@@ -30342,12 +30948,12 @@ def ReplaceIBS()
 		#< @FunctionAlterativeForms
 		# NOTE: see other alternatives in bottom of file
 
-		def FindAnyBoundedByCS(pacBounds, pCaseSensitive)
+		def FindBoundedByCS(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
-				return This.FindAnyBetweenCS(pacBounds, pacBounds, pCaseSensitive)
+				return This.FindBetweenCS(pacBounds, pacBounds, pCaseSensitive)
 
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.FindAnyBetweenCS(pacBounds[1], pacBounds[2], pCaseSensitive)
+				return This.FindBetweenCS(pacBounds[1], pacBounds[2], pCaseSensitive)
 
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
@@ -30357,14 +30963,14 @@ def ReplaceIBS()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAnyBetween(pcBound1, pcBound2)
-		return This.FindAnyBetweenCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
+	def FindBetween(pcBound1, pcBound2)
+		return This.FindBetweenCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
 
 		#< @FunctionAlterativeForms
 		# NOTE: see other alternatives in bottom of file
 
-		def FindAnyBoundedBy(pacBounds)
-			return This.FindAnyBoundedByCS(pacBounds, :CaseSensitive = TRUE)
+		def FindBoundedBy(pacBounds)
+			return This.FindBoundedByCS(pacBounds, :CaseSensitive = TRUE)
 
 		#>
 
@@ -30372,25 +30978,14 @@ def ReplaceIBS()
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- S/EXTENDED  #
 	#====================================================================#
 
-	def FindAnyBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-		aSections = This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+	def FindBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		aSections = This.FindBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		anResult = StzListOfPairsQ(aSections).FirstItems()
 		return anResult
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		def FindAnySubStringsBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		def FindSubStringBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		#--
-
-		def FindAnyBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
+		def FindBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
 			if isString(pacBounds)
 				return This.FindBetweenSCS(pcBounds, pcBounds, pnStartingAt, pCaseSensitive)
 
@@ -30401,48 +30996,21 @@ def ReplaceIBS()
 				StzRaise("Incorrect param ttpe! pacBounds must be a string or pair of strings.")
 			ok
 
-		def FindAnySubStringsBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
-
-		def FindAnySubStringBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
-
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAnyBetweenS(pcBound1, pcBound2, pnStartingAt)
-		return This.FindAnyBetweenSCS(pcBound1, pcBound2, pnStartingAt, :CaseSensitive = TRUE)
+	def FindBetweenS(pcBound1, pcBound2, pnStartingAt)
+		return This.FindBetweenSCS(pcBound1, pcBound2, pnStartingAt, :CaseSensitive = TRUE)
 
-		#< @FunctionAlternativeForm
-
-		def FindSubStringsBetweenS(pcBound1, pcBound2, pnStartingAt)
-			return This.FindAnyBetweenS(pcBound1, pcBound2, pnStartingAt)
-
-		def FindAnySubStringsBetweenS(pcBound1, pcBound2, pnStartingAt)
-			return This.FindAnyBetweenS(pcBound1, pcBound2, pnStartingAt)
-
-		def FindSubStringBetweenS(pcBound1, pcBound2, pnStartingAt)
-			return This.FindAnyBetweenS(pcBound1, pcBound2, pnStartingAt)
-
-		#--
-
-		def FindAnyBoundedByS(pacBounds, pnStartingAt)
-			return This.FindAnyBoundedBySCS(pacBounds, pnStartingAt, :CaseSensitive = TRUE)
-
-		def FindAnySubStringsBoundedByS(pacBounds, pnStartingAt)
-			return This.FindAnyBoundedByS(pacBounds, pnStartingAt)
-
-		def FindAnySubStringBoundedByS(pacBounds, pnStartingAt)
-			return This.FindAnyBoundedByS(pacBounds, pnStartingAt)
-
-		#>
+		def FindBoundedByS(pacBounds, pnStartingAt, pCaseSensitive)
+			return This.FindBetweenSFindBoundedBySCS(pacBounds, pnStartingAt, :CaseSensitive = TRUE)
 
 	  #--------------------------------------------------------------------#
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- S/EXTENDED  #
 	#====================================================================#
 
-	def FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartOrStopOrSection, pCaseSensitive)
+	def FindBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartOrStopOrSection, pCaseSensitive)
 
 		# Checking the pnStartOrStopOrSection param
 
@@ -30499,33 +31067,24 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		def FindAnySubStringsBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		def FindSubStringBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		#--
-
-		def FindAnyBoundedByAsSectionsSCS(pacBounds, pnStartingAt, pCaseSensitive)
+		def FindBoundedByAsSectionsSCS(pacBounds, pnStartingAt, pCaseSensitive)
 			if isString(pacBounds)
 				return This.FindBetweenAsSectionsSCS(pcBounds, pcBounds, pnStartingAt, pCaseSensitive)
 
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.FindBetweenSCS(pcBounds[1], pcBounds[2], pnStartingAt, pCaseSensitive)
+				return This.FindBetweenAsSectionsSCS(pcBounds[1], pcBounds[2], pnStartingAt, pCaseSensitive)
 
 			else
 				StzRaise("Incorrect param ttpe! pacBounds must be a string or pair of strings.")
 			ok
 
-		def FindAnySubStringsBoundedByAsSectionsSCS(pacBounds, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBoundedByAsSectionsSCS(pacBounds, pnStartingAt, pCaseSensitive)
+		#--
 
-		def FindAnySubStringBoundedByAsSectionsSCS(pacBounds, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBoundedByAsSectionsSCS(pacBounds, pnStartingAt, pCaseSensitive)
+		def FindBetweenSCSZZ(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+			return This.FindBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+
+		def FindBoundedBySCSZZ(pacBounds, pnStartingAt, pCaseSensitive)
+			return This.FindBoundedByAsSectionsSCS(pacBounds, pnStartingAt, pCaseSensitive)
 
 		#>
 
@@ -30536,25 +31095,16 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenAsSectionsS(pcBound1, pcBound2, pnStartingAt)
-			return This.FindAnyBetweenAsSectionsS(pcBound1, pcBound2, pnStartingAt)
-
-		def FindAnySubStringsBetweenAsSectionsS(pcBound1, pcBound2, pnStartingAt)
-			return This.FindAnyBetweenAsSectionsS(pcBound1, pcBound2, pnStartingAt)
-
-		def FindSubStringBetweenAsSectionsS(pcBound1, pcBound2, pnStartingAt)
-			return This.FindAnyBetweenAsSectionsS(pcBound1, pcBound2, pnStartingAt)
+		def FindBoundedByAsSectionsS(pacBounds, pnStartingAt)
+			return This.FindBoundedByAsSectionsSCS(pacBounds, pnStartingAt, :CaseSensitive = TRUE)
 
 		#--
 
-		def FindAnyBoundedByAsSectionsS(pacBounds, pnStartingAt)
-			return This.FindAnyBoundedByAsSectionsSCS(pacBounds, pnStartingAt, :CaseSensitive = TRUE)
+		def FindBetweenSZZ(pcBound1, pcBound2, pnStartingAt)
+			return This.FindBetweenAsSectionsS(pcBound1, pcBound2, pnStartingAt)
 
-		def FindAnySubStringsBoundedByAsSectionsS(pacBounds, pnStartingAt)
-			return This.FindAnyBoundedByAsSectionsS(pacBounds, pnStartingAt)
-
-		def FindAnySubStringBoundedByAsSectionsS(pacBounds, pnStartingAt)
-			return This.FindAnyBoundedByAsSectionsS(pacBounds, pnStartingAt)
+		def FindBoundedBySZZ(pacBounds, pnStartingAt)
+			return This.FindBoundedByAsSectionsS(pacBounds, pnStartingAt)
 
 		#>
 
@@ -30564,61 +31114,35 @@ def ReplaceIBS()
 
 	def BetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
-		aSections = This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)		
+		aSections = This.FindBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)		
 		aResult = This.Sections(aSections)
 
 		return aResult
 
-		#< @FunctionFluentForm
-
-		def AnyBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.BetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
 		def SubStringsBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 			return This.BetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		def AnySubStringsBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.BetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		def SubStringBetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.BetweenSCS(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def BetweenS(pcBound1, pcBound2, pnStartingAt)
 		return This.BetweenSCS(pcBound1, pcBound2, pnStartingAt, :CaseSensitive = TRUE)
 
-		#< @FunctionFluentForm
-
-		def AnyBetweenS(pcBound1, pcBound2, pnStartingAt)
-			return This.BetweenS(pcBound1, pcBound2, pnStartingAt)
-
 		def SubStringsBetweenS(pcBound1, pcBound2, pnStartingAt)
 			return This.BetweenS(pcBound1, pcBound2, pnStartingAt)
-
-		def AnySubStringsBetweenS(pcBound1, pcBound2, pnStartingAt)
-			return This.BetweenS(pcBound1, pcBound2, pnStartingAt)
-
-		def SubStringBetweenS(pcBound1, pcBound2, pnStartingAt)
-			return This.BetweenS(pcBound1, pcBound2, pnStartingAt)
-
-		#>
 
 	  #----------------------------------------------------------------------#
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- SIB/EXTENDED  #
 	#======================================================================#
 
-	def FindAnyBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+	def FindBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzString("...<<***>>...<<***>>...")
 
-		? o1.FindAnyBetween("<<", ">>")
+		? o1.FindBetween("<<", ">>")
 		#--> [ 6, 16 ]
 
-		? o1.FindAnyBetweenSIB("<<", ">>", :StartingAt = 10)
+		? o1.FindBetweenSIB("<<", ">>", :StartingAt = 10)
 		#--> [ 16 ]
 
 		*/
@@ -30649,7 +31173,7 @@ def ReplaceIBS()
 		ok
 
 		anPos = This.SectionQ(pnStartingAt, nStoppingAt).
-			FindAnyBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
+			FindBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
 
 		nLen = len(anPos)
 		for i = 1 to nLen
@@ -30660,18 +31184,7 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		def FindAnySubStringsBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		def FindSubStringBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		#--
-
-		def FindAnyBoundedBySCSIB(pacBounds, pnStartingAt, pCaseSensitive)
+		def FindBoundedBySCSIB(pacBounds, pnStartingAt, pCaseSensitive)
 			if isString(pacBounds)
 				return This.FindBetweenSCSIB(pcBounds, pcBounds, pnStartingAt, pCaseSensitive)
 
@@ -30682,40 +31195,17 @@ def ReplaceIBS()
 				StzRaise("Incorrect param ttpe! pacBounds must be a string or pair of strings.")
 			ok
 
-		def FindAnySubStringsBoundedBySCSIB(pacBounds, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBoundedBySCSIB(pacBounds, pnStartingAt, pCaseSensitive)
-
-		def FindAnySubStringBoundedBySCSIB(pacBounds, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBoundedBySCSIB(pacBounds, pnStartingAt, pCaseSensitive)
-
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAnyBetweenSIB(pcBound1, pcBound2, pnStartingAt)
+	def FindBetweenSIB(pcBound1, pcBound2, pnStartingAt)
 		return This.FindAnyBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenSIB(pcBound1, pcBound2, pnStartingAt)
-			return This.FindAnyBetweenSIB(pcBound1, pcBound2, pnStartingAt)
-
-		def FindAnySubStringsBetweenSIB(pcBound1, pcBound2, pnStartingAt)
-			return This.FindAnyBetweenSIB(pcBound1, pcBound2, pnStartingAt)
-
-		def FindSubStringBetweenSIB(pcBound1, pcBound2, pnStartingAt)
-			return This.FindAnyBetweenSIB(pcBound1, pcBound2, pnStartingAt)
-
-		#--
-
-		def FindAnyBoundedBySIB(pacBounds, pnStartingAt)
-			return This.FindAnyBoundedBySCSIB(pacBounds, pnStartingAt, :CaseSensitive = TRUE)
-
-		def FindAnySubStringsBoundedBySIB(pacBounds, pnStartingAt)
-			return This.FindAnyBoundedBySIB(pacBounds, pnStartingAt)
-
-		def FindAnySubStringBoundedBySIB(pacBounds, pnStartingAt)
-			return This.FindAnyBoundedBySIB(pacBounds, pnStartingAt)
+		def FindBoundedBySIB(pacBounds, pnStartingAt)
+			return This.FindBoundedBySCSIB(pacBounds, pnStartingAt, :CaseSensitive = TRUE)
 
 		#>
 
@@ -30723,7 +31213,7 @@ def ReplaceIBS()
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- SIB/EXTENDED  #
 	#======================================================================#
 
-	def FindAnyBetweenAsSectionsSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+	def FindBetweenAsSectionsSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
 		nStoppingAt = 0
 
@@ -30751,7 +31241,7 @@ def ReplaceIBS()
 		ok
 
 		aSections = This.SectionQ(pnStartingAt, nStoppingAt).
-				FindAnyBetweenAsSectionsCSIB(pcBound1, pcBound2, pCaseSensitive)
+				FindBetweenAsSectionsCSIB(pcBound1, pcBound2, pCaseSensitive)
 
 		nLen = len(aSections)
 		for i = 1 to nLen
@@ -30763,18 +31253,12 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenAsSectionsSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		def FindAnySubStringsBetweenAsSectionsSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		def FindSubStringBetweenAsSectionsSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		def FindBetweenSCSIBZZ(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+			return This.FindBetweenAsSectionsSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
 		#--
 
-		def FindAnyBoundedByAsSectionsSCSIB(pacBounds, pnStartingAt, pCaseSensitive)
+		def FindBoundedByAsSectionsSCSIB(pacBounds, pnStartingAt, pCaseSensitive)
 			if isString(pacBounds)
 				return This.FindBetweenAsSectionsSCSIB(pcBounds, pcBounds, pnStartingAt, pCaseSensitive)
 
@@ -30785,40 +31269,28 @@ def ReplaceIBS()
 				StzRaise("Incorrect param ttpe! pacBounds must be a string or pair of strings.")
 			ok
 
-		def FindAnySubStringsBoundedByAsSectionsSCSIB(pacBounds, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBoundedByAsSectionsSCSIB(pacBounds, pnStartingAt, pCaseSensitive)
-
-		def FindAnySubStringBoundedByAsSectionsSCSIB(pacBounds, pnStartingAt, pCaseSensitive)
-			return This.FindAnyBoundedByAsSectionsSCSIB(pacBounds, pnStartingAt, pCaseSensitive)
+		def FindBoundedBySCSIBZZ(pacBounds, pnStartingAt, pCaseSensitive)
+			return This.FindBoundedByAsSectionsSCSIB(pacBounds, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAnyBetweenAsSectionsSIB(pcBound1, pcBound2, pnStartingAt)
-		return This.FindAnyBetweenAsSectionsSCSIB(pcBound1, pcBound2, pnStartingAt, :CaseSensitive = TRUE)
+	def FindBetweenAsSectionsSIB(pcBound1, pcBound2, pnStartingAt)
+		return This.FindBetweenAsSectionsSCSIB(pcBound1, pcBound2, pnStartingAt, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenAsSectionsSIB(pcBound1, pcBound2, pnStartingAt)
-			return This.FindAnyBetweenAsSectionsSIB(pcBound1, pcBound2, pnStartingAt)
-
-		def FindAnySubStringsBetweenAsSectionsSIB(pcBound1, pcBound2, pnStartingAt)
-			return This.FindAnyBetweenAsSectionsSIB(pcBound1, pcBound2, pnStartingAt)
-
-		def FindSubStringBetweenAsSectionsSIB(pcBound1, pcBound2, pnStartingAt)
-			return This.FindAnyBetweenAsSectionsSIB(pcBound1, pcBound2, pnStartingAt)
+		def FindBetweenSIBZZ(pcBound1, pcBound2, pnStartingAt)
+			return This.FindBetweenAsSectionsSIB(pcBound1, pcBound2, pnStartingAt)
 
 		#--
 
-		def FindAnyBoundedByAsSectionsSIB(pacBounds, pnStartingAt)
-			return This.FindAnyBoundedByAsSectionsSCSIB(pacBounds, pnStartingAt, :CaseSensitive = TRUE)
+		def FindBoundedByAsSectionsSIB(pacBounds, pnStartingAt)
+			return This.FindBoundedByAsSectionsSIB(pacBounds, pnStartingAt)
 
-		def FindAnySubStringsBoundedByAsSectionsSIB(pacBounds, pnStartingAt)
-			return This.FindAnyBoundedByAsSectionsSIB(pacBounds, pnStartingAt)
-
-		def FindAnySubStringBoundedByAsSectionsSIB(pacBounds, pnStartingAt)
-			return This.FindAnyBoundedByAsSectionsSIB(pacBounds, pnStartingAt)
+		def FindBoundedBySIBZZ(pacBounds, pnStartingAt)
+			return This.FindBoundedByAsSectionsSIB(pacBounds, pnStartingAt)
 
 		#>
 
@@ -30832,79 +31304,42 @@ def ReplaceIBS()
 
 		return acResult
 
-		#< @FunctionFluentForm
-
-		def AnyBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.BetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
 		def SubStringsBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 			return This.BetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		def AnySubStringsBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.BetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		def SubStringBetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-			return This.BetweenSCSIB(pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-
-		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def BetweenSIB(pcBound1, pcBound2, pnStartingAt)
 		return This.BetweenSCSIB(pcBound1, pcBound2, pnStartingAt, :CaseSensitive = TRUE)
 
-		#< @FunctionFluentForm
-
-		def AnyBetweenSIB(pcBound1, pcBound2, pnStartingAt)
-			return This.BetweenSIB(pcBound1, pcBound2, pnStartingAt)
-
 		def SubStringsBetweenSIB(pcBound1, pcBound2, pnStartingAt)
 			return This.BetweenSIB(pcBound1, pcBound2, pnStartingAt)
-
-		def AnySubStringsBetweenSIB(pcBound1, pcBound2, pnStartingAt)
-			return This.BetweenSIB(pcBound1, pcBound2, pnStartingAt)
-
-		def SubStringBetweenSIB(pcBound1, pcBound2, pnStartingAt)
-			return This.BetweenSIB(pcBound1, pcBound2, pnStartingAt)
-
-		#>
 
   	  #---------------------------------------------------------------------#
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- SD/EXTENDED  #
 	#=====================================================================#
 
-	def FindAnyBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+	def FindBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzString("...<<***>>...<<***>>...")
 
-		? o1.FindAnyBetween("<<", ">>")
+		? o1.FindBetween("<<", ">>")
 		#--> [ 6, 16 ]
 
-		? o1.FindAnyBetweenSD("<<", ">>", :StartingAt = 10)
+		? o1.FindBetweenSD("<<", ">>", :StartingAt = 10)
 		#--> [ 16 ]
 
 		*/
 
-		aSections = This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		aSections = This.FindBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 		anResult  = QR(aSections, :stzListOfPairs).FirstItems()
 
 		return anResult
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		def FindAnySubStringsBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		def FindSubStringBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		#--
-
-		def FindAnyBoundedBySDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		def FindBoundedBySDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
 				return This.FindBetweenSDCS(pcBounds, pcBounds, pnStartingAt, pcDirection, pCaseSensitive)
 
@@ -30915,40 +31350,17 @@ def ReplaceIBS()
 				StzRaise("Incorrect param ttpe! pacBounds must be a string or pair of strings.")
 			ok
 
-		def FindAnySubStringsBoundedBySDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBoundedBySDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-
-		def FindAnySubStringBoundedBySDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBoundedBySDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAnyBetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
+	def FindBetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
 		return This.FindAnyBetweenSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.FindAnyBetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-
-		def FindAnySubStringsBetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.FindAnyBetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-
-		def FindSubStringBetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.FindAnyBetweenSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-
-		#--
-
-		def FindAnyBoundedBySD(pacBounds, pnStartingAt, pcDirection)
+		def FindBoundedBySD(pacBounds, pnStartingAt, pcDirection)
 			return This.FindAnyBoundedBySDCS(pacBounds, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
-
-		def FindAnySubStringsBoundedBySD(pacBounds, pnStartingAt, pcDirection)
-			return This.FindAnyBoundedBySD(pacBounds, pnStartingAt, pcDirection)
-
-		def FindAnySubStringBoundedBySD(pacBounds, pnStartingAt, pcDirection)
-			return This.FindAnyBoundedBySD(pacBounds, pnStartingAt, pcDirection)
 
 		#>
 
@@ -30956,7 +31368,7 @@ def ReplaceIBS()
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- SD/EXTENDED  #
 	#=====================================================================#
 
-	def FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartOrStopOrSection, pcDirection, pCaseSensitive)
+	def FindBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartOrStopOrSection, pcDirection, pCaseSensitive)
 		
 		# Resolving the pcDirection param
 
@@ -30974,7 +31386,7 @@ def ReplaceIBS()
 
 		# Doing the job
 
-		aResult = This.FindAnyBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartOrStopOrSection, pCaseSensitive)
+		aResult = This.FindBetweenAsSectionsSCS(pcBound1, pcBound2, pnStartOrStopOrSection, pCaseSensitive)
 		if pcDirection = :Backward
 			aResult = Q(aResult).Reversed()
 		ok
@@ -30984,18 +31396,7 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		def FindAnySubStringsBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		def FindSubStringBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		#--
-
-		def FindAnyBoundedByAsSectionsSDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		def FindBoundedByAsSectionsSDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
 				return This.FindBetweenAsSectionsSDCS(pcBounds, pcBounds, pnStartingAt, pcDirection, pCaseSensitive)
 
@@ -31006,40 +31407,33 @@ def ReplaceIBS()
 				StzRaise("Incorrect param ttpe! pacBounds must be a string or pair of strings.")
 			ok
 
-		def FindAnySubStringsBoundedByAsSectionsSDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBoundedByAsSectionsSDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		#--
 
-		def FindAnySubStringBoundedByAsSectionsSDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBoundedByAsSectionsSDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		def FindBetweenSDCSZZ(pcBound1, pcBound2, pnStartOrStopOrSection, pcDirection, pCaseSensitive)
+			return This.FindBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartOrStopOrSection, pcDirection, pCaseSensitive)
+
+		def FindBoundedBySDCSZZ(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindBoundedByAsSectionsSDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAnyBetweenAsSectionsSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-		return This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+	def FindBetweenAsSectionsSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
+		return This.FindBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenAsSectionsSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.FindAnyBetweenAsSectionsSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-
-		def FindAnySubStringsBetweenAsSectionsSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.FindAnyBetweenAsSectionsSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-
-		def FindSubStringBetweenAsSectionsSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.FindAnyBetweenAsSectionsSD(pcBound1, pcBound2, pnStartingAt, pcDirection)
+		def FindBoundedByAsSectionsSD(pacBounds, pnStartingAt, pcDirection)
+			return This.FindBoundedByAsSectionsSDCS(pacBounds, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
 
 		#--
 
-		def FindAnyBoundedByAsSectionsSD(pacBounds, pnStartingAt, pcDirection)
-			return This.FindAnyBoundedByAsSectionsSDCS(pacBounds, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		def FindBetweenSDZZ(pcBound1, pcBound2, pnStartOrStopOrSection, pcDirection)
+			return This.FindBetweenAsSectionsSD(pcBound1, pcBound2, pnStartOrStopOrSection, pcDirection)
 
-		def FindAnySubStringsBoundedByAsSectionsSD(pacBounds, pnStartingAt, pcDirection)
-			return This.FindAnyBoundedByAsSectionsSD(pacBounds, pnStartingAt, pcDirection)
-
-		def FindAnySubStringBoundedByAsSectionsSD(pacBounds, pnStartingAt, pcDirection)
-			return This.FindAnyBoundedByAsSectionsSD(pacBounds, pnStartingAt, pcDirection)
+		def FindBoundedBySDZZ(pacBounds, pnStartingAt, pcDirection)
+			return This.FindBoundedByAsSectionsSD(pacBounds, pnStartingAt, pcDirection)
 
 		#>
 
@@ -31049,23 +31443,28 @@ def ReplaceIBS()
 
 	def BetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
 
-		aSections = This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
+		aSections = This.FindBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
 		acResult  = This.Sections(aSections)
 
 		return acResult
 
 		#< @FunctionFluentForm
 
-		def AnyBetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
-			return This.BetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
+		def BoundedBySDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenSDCS(pcBounds, pcBounds, pnStartingAt, pcDirection, pCaseSensitive)
+
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenSDCS(pcBounds[1], pcBounds[2], pnStartingAt, pcDirection, pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param ttpe! pacBounds must be a string or pair of strings.")
+			ok
+
+		def SubStringsBoundedBySDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.BoundedBySDCS(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 
 		def SubStringsBetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
-			return This.BetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
-
-		def AnySubStringsBetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
-			return This.BetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
-
-		def SubStringBetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
 			return This.BetweenSDCS(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection, pCaseSensitive)
 
 		#>
@@ -31077,16 +31476,13 @@ def ReplaceIBS()
 
 		#< @FunctionFluentForm
 
-		def AnyBetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
-			return This.BetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
+		def BoundedBySD(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.BoundedBySDCS(pacBounds, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+		def SubStringsBoundedBySD(pacBounds, pnStartingAt, pcDirection)
+			return This.BoundedBySD(pacBounds, pnStartingAt, pcDirection)
 
 		def SubStringsBetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
-			return This.BetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
-
-		def AnySubStringsBetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
-			return This.BetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
-
-		def SubStringBetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
 			return This.BetweenSD(pcBound1, pcBound2, pnStartingOrStoppingAt, pcDirection)
 
 		#>
@@ -31095,7 +31491,7 @@ def ReplaceIBS()
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- SDIB/EXTENDED  #
 	#=======================================================================#
 
-	def FindAnyBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+	def FindBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 		aSections = This.FindAnyBetweenAsSectionsSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 		anResult  = QR(aSections, :stzListOfPairs).FirstItems()
 
@@ -31103,18 +31499,7 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		def FindAnySubStringsBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		def FindSubStringBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		#--
-
-		def FindAnyBoundedBySDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		def FindBoundedBySDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
 				return This.FindBetweenSDCSIB(pcBounds, pcBounds, pnStartingAt, pcDirection, pCaseSensitive)
 
@@ -31125,40 +31510,17 @@ def ReplaceIBS()
 				StzRaise("Incorrect param ttpe! pacBounds must be a string or pair of strings.")
 			ok
 
-		def FindAnySubStringsBoundedBySDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBoundedBySDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-
-		def FindAnySubStringBoundedBySDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBoundedBySDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAnyBetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
+	def FindBetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
 		return This.FindAnyBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.FindAnyBetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-
-		def FindAnySubStringsBetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.FindAnyBetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-
-		def FindSubStringBetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.FindAnyBetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-
-		#--
-
-		def FindAnyBoundedBySDIB(pacBounds, pnStartingAt, pcDirection)
+		def FindBoundedBySDIB(pacBounds, pnStartingAt, pcDirection)
 			return This.FindAnyBoundedBySDCSIB(pacBounds, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
-
-		def FindAnySubStringsBoundedBySDIB(pacBounds, pnStartingAt, pcDirection)
-			return This.FindAnyBoundedBySDIB(pacBounds, pnStartingAt, pcDirection)
-
-		def FindAnySubStringBoundedBySDIB(pacBounds, pnStartingAt, pcDirection)
-			return This.FindAnyBoundedBySDIB(pacBounds, pnStartingAt, pcDirection)
 
 		#>
 
@@ -31166,9 +31528,9 @@ def ReplaceIBS()
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- SDIB/EXTENDED  #
 	#=======================================================================#
 
-	def FindAnyBetweenAsSectionsSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+	def FindBetweenAsSectionsSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
-		aSections    = This.FindAnyBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		aSections    = This.FindBetweenAsSectionsSDCS(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 		nLenSections = len(aSections)
 
 		if isList(pcBound1) and Q(pcBound1).IsSubStringNamedParam()
@@ -31191,18 +31553,7 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenAsSectionsSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		def FindAnySubStringsBetweenAsSectionsSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		def FindSubStringBetweenAsSectionsSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		#--
-
-		def FindAnyBoundedByAsSectionsSDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		def FindBoundedByAsSectionsSDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
 				return This.FindBetweenAsSectionsSDCSIB(pcBounds, pcBounds, pnStartingAt, pcDirection, pCaseSensitive)
 
@@ -31213,11 +31564,13 @@ def ReplaceIBS()
 				StzRaise("Incorrect param ttpe! pacBounds must be a string or pair of strings.")
 			ok
 
-		def FindAnySubStringsBoundedByAsSectionsSDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBoundedByAsSectionsSDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		#--
 
-		def FindAnySubStringBoundedByAsSectionsSDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.FindAnyBoundedByAsSectionsSDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		def FindBetweenSDCSIBZZ(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindBetweenAsSectionsSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def FindBoundedBySDCSIBZZ(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.FindBoundedByAsSectionsSDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 
 		#>
 
@@ -31228,25 +31581,16 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringsBetweenAsSectionsSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.FindAnyBetweenAsSectionsSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-
-		def FindAnySubStringsBetweenAsSectionsSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.FindAnyBetweenAsSectionsSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-
-		def FindSubStringBetweenAsSectionsSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.FindAnyBetweenAsSectionsSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
+		def FindBoundedByAsSectionsSDIB(pacBounds, pnStartingAt, pcDirection)
+			return This.FindBoundedByAsSectionsSDIB(pacBounds, pnStartingAt, pcDirection)
 
 		#--
 
-		def FindAnyBoundedByAsSectionsSDIB(pacBounds, pnStartingAt, pcDirection)
-			return This.FindAnyBoundedByAsSectionsSDCSIB(pacBounds, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		def FindBetweenSDIBZZ(pcBound1, pcBound2, pnStartingAt, pcDirection)
+			return This.FindBetweenAsSectionsSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
 
-		def FindAnySubStringsBoundedByAsSectionsSDIB(pacBounds, pnStartingAt, pcDirection)
-			return This.FindAnyBoundedByAsSectionsSDIB(pacBounds, pnStartingAt, pcDirection)
-
-		def FindAnySubStringBoundedByAsSectionsSDIB(pacBounds, pnStartingAt, pcDirection)
-			return This.FindAnyBoundedByAsSectionsSDIB(pacBounds, pnStartingAt, pcDirection)
+		def FindBoundedBySDIBZZ(pacBounds, pnStartingAt, pcDirection)
+			return This.FindBoundedByAsSectionsSDIB(pacBounds, pnStartingAt, pcDirection)
 
 		#>
 
@@ -31255,23 +31599,30 @@ def ReplaceIBS()
 	#============================================================#
 
 	def BetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-		aSections = This.FindAnyBetweenAsSectionsSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		aSections = This.FindBetweenAsSectionsSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 		acResult  = This.Sections(aSections)
 
 		return acResult
 
 		#< @FunctionFluentForm
 
-		def AnyBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.BetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		def BoundedBySDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenSDCSIB(pcBounds, pcBounds, pnStartingAt, pcDirection, pCaseSensitive)
+
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenSDCSIB(pcBounds[1], pcBounds[2], pnStartingAt, pcDirection, pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param ttpe! pacBounds must be a string or pair of strings.")
+			ok
+
+		#--
+
+		def SubStringsBoundedBySDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.BoundedBySDCSIB(pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 
 		def SubStringsBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.BetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		def AnySubStringsBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-			return This.BetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
-
-		def SubStringBetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 			return This.BetweenSDCSIB(pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
 		#>
@@ -31283,16 +31634,15 @@ def ReplaceIBS()
 
 		#< @FunctionFluentForm
 
-		def AnyBetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.BetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
+		def BoundedBySDIB(pacBounds, pnStartingAt, pcDirection)
+			return This.BoundedBySDCSIB(pacBounds, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+		#--
+
+		def SubStringsBoundedBySDIB(pacBounds, pnStartingAt, pcDirection)
+			return This.BetweenSDIB(pacBounds, pnStartingAt, pcDirection)
 
 		def SubStringsBetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.BetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-
-		def AnySubStringsBetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-			return This.BetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
-
-		def SubStringBetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
 			return This.BetweenSDIB(pcBound1, pcBound2, pnStartingAt, pcDirection)
 
 		#>
@@ -31302,7 +31652,7 @@ def ReplaceIBS()
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS           #
 	#======================================================#
 
-	def FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
+	def FindBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
 
 		# Checking the pcBound1 and pcBound2 params
 
@@ -31373,29 +31723,24 @@ def ReplaceIBS()
 		#< @FunctionAlternativeForms
 		# NOTE: Reorganise! some alternatives are in bottom of file
 
-		def FindAnySubStringBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-
-		def FindAnySubStringsBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-			return This.FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-
-
-		def FindAnyBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+		def FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
-				return This.FindAnyBetweenAsSectionsCS(pacBounds, pacBounds, pCaseSensitive)
+				return This.FindBetweenAsSectionsCS(pacBounds, pacBounds, pCaseSensitive)
 
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.FindAnyBetweenAsSectionsCS(pacBounds[1], pacBounds[2], pCaseSensitive)
+				return This.FindBetweenAsSectionsCS(pacBounds[1], pacBounds[2], pCaseSensitive)
 
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 
-		def FindAnySubStringBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
-			return This.FindAnyBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+		#--
 
-		def FindAnySubStringsBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
-			return This.FindAnyBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+		def FindBetweenCSZZ(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def FindBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -31407,20 +31752,17 @@ def ReplaceIBS()
 		#< @FunctionAlternativeForms
 		# NOTE: Reorganise! some alternatives are in bottom of file
 
-		def FindAnySubStringBetweenAsSections(pcBound1, pcBound2)
-			return This.FindAnyBetweenAsSections(pcBound1, pcBound2)
+		def FindBoundedByAsSections(pacBounds, pCaseSensitive)
+			return This.FindBoundedByAsSectionsCS(pacBounds, :CaseSensitive = TRUE)
 
-		def FindAnySubStringsBetweenAsSections(pcBound1, pcBound2)
-			return This.FindAnyBetweenAsSections(pcBound1, pcBound2)
+		#--
 
-		def FindAnyBoundedByAsSections(pacBounds)
-			return This.FindAnyBoundedByAsSectionsCS(pacBounds, :CaseSensitive = TRUE)
+		def FindBetweenZZ(pcBound1, pcBound2)
+			return This.FindBetweenAsSections(pcBound1, pcBound2)
 
-		def FindAnySubStringBoundedByAsSections(pacBounds)
-			return This.FindAnyBoundedByAsSections(pacBounds)
+		def FindBoundedByZZ(pacBounds)
+			return This.FindBoundedByAsSections(pacBounds)
 
-		def FindAnySubStringsBoundedByAsSections(pacBounds)
-			return This.FindAnyBoundedByAsSections(pacBounds)
 
 		#>
 
@@ -31429,18 +31771,18 @@ def ReplaceIBS()
 	 #  AND RETURNING THEIR POSITIONS -- D/EXTENDED           #
 	#========================================================#
 	
-	def FindAnyBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	def FindBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 		anResult = QR( This.FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive), :stzListOfPairs).FirstItems()
 		return anResult
 	
 		#< @FunctionAlternativeForm
 	
-		def FindAnyBoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
+		def FindBoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
 				return This.FindAnyBetweenDCS(pacBounds, pacBounds, pcDirection, pCaseSensitive)
 	
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.FindAnyBetweenDCS(pacBound[1], pacBound[2], pcDirection, pCaseSensitive)
+				return This.FindBetweenDCS(pacBound[1], pacBound[2], pcDirection, pCaseSensitive)
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
@@ -31449,7 +31791,7 @@ def ReplaceIBS()
 	
 	#-- WITHOOUT CASESENSITIVITY
 	
-	def FindAnyBetweenD(pcBound1, pcBound2, pcDirection)
+	def FindBetweenD(pcBound1, pcBound2, pcDirection)
 		return This.FindAnyBetweenDCS(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
 	
 		#< @FunctionAlternativeForm
@@ -31464,7 +31806,7 @@ def ReplaceIBS()
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS -- D/EXTENDED  #
 	#===========================================================#
 
-	def FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	def FindBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
 		# Checking pcDirection param
 
@@ -31491,9 +31833,9 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 	
-		def FindAnyBoundedByAsSectionsDCS(pacBounds, pcDirection, pCaseSensitive)
+		def FindBoundedByAsSectionsDCS(pacBounds, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
-				return This.FindAnyBetweenAsSectionsDCS(pacBounds, pacBounds, pcDirection, pCaseSensitive)
+				return This.FindBetweenAsSectionsDCS(pacBounds, pacBounds, pcDirection, pCaseSensitive)
 	
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
 				return This.FindAnyBetweenAsSectionsDCS(pacBound[1], pacBound[2], pcDirection, pCaseSensitive)
@@ -31501,110 +31843,92 @@ def ReplaceIBS()
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 	
+		#--
+
+		def FindBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+			return This.FindBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
+		def FindBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
+			return This.FindBoundedByAsSectionsDCS(pacBounds, pcDirection, pCaseSensitive)
+
 		#>
 	
 	#-- WITHOOUT CASESENSITIVITY
 	
-	def FindAnyBetweenAsSectionsD(pcBound1, pcBound2, pcDirection)
-		return This.FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
+	def FindBetweenAsSectionsD(pcBound1, pcBound2, pcDirection)
+		return This.FindBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
 	
 		#< @FunctionAlternativeForm
 	
-		def FindAnyBoundedByAsSectionsD(pacBounds, pcDirection)
+		def FindBoundedByAsSectionsD(pacBounds, pcDirection)
 			return This.FindAnyBoundedByAsSectionsDCS(pacBounds, pcDirection, :CaseSensitive = TRUE)
 	
+		#--
+
+		def FindBetweenDZZ(pcBound1, pcBound2, pcDirection)
+			return This.FindBetweenAsSectionsD(pcBound1, pcBound2, pcDirection)
+
+		def FindBoundedByDZZ(pacBounds, pcDirection)
+			return This.FindBoundedByAsSectionsD(pacBounds, pcDirection)
+
 		#>
 	
 	  #---------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- D/EXTENDED  #
 	#=========================================================#
 	
-	def AnyBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		aSections = This.FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	def BetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		aSections = This.FindBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 		acResult  = This.Sections(aSections)
 		return acResult
 	
 		#< @FunctionAlternativeForms
-	
-		def BetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
+		
 		def SubStringsBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		def AnySubStringsBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		def AnySubStringBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
+			return This.BetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		
 		#--
 	
-		def AnyBoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
-			aSections = This.FindAnyBoundedByAsSectionsDCS(pacBounds, pcDirection, pCaseSensitive)
+		def BoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
+			aSections = This.FindBoundedByAsSectionsDCS(pacBounds, pcDirection, pCaseSensitive)
 			acResult  = This.Sections(aSections)
 			return acResult
-	
-		def BoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
-	
+		
 		def SubStringsBoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
-	
-		def AnySubStringsBoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
-	
-		def AnySubStringBoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
-	
+			return This.BoundedByDCS(pacBounds, pcDirection, pCaseSensitive)
+		
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
 	
-	def AnyBetweenD(pcBound1, pcBound2, pcDirection)
+	def BetweenD(pcBound1, pcBound2, pcDirection)
 		return This.AnyBetweenDCS(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
 	
 		#< @FunctionAlternativeForms
 	
-		def BetweenD(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenD(pcBound1, pcBound2, pcDirection)
-	
 		def SubStringsBetweenD(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenD(pcBound1, pcBound2, pcDirection)
-	
-		def AnySubStringsBetweenD(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenD(pcBound1, pcBound2, pcDirection)
-	
-		def AnySubStringBetweenD(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenD(pcBound1, pcBound2, pcDirection)
-	
+			return This.BetweenD(pcBound1, pcBound2, pcDirection)
+		
 		#--
 	
-		def AnyBoundedByD(pacBounds, pcDirection)
-			return This.AnyBoundedByDCS(pacBounds, pcDirection, :CaseSensitive = TRUE)
-	
 		def BoundedByD(pacBounds, pcDirection)
-			return This.AnyBoundedByD(pacBounds, pcDirection)
-	
+			aSections = This.FindBoundedByAsSectionsD(pacBounds, pcDirection)
+			acResult  = This.Sections(aSections)
+			return acResult
+		
 		def SubStringsBoundedByD(pacBounds, pcDirection)
-			return This.AnyBoundedByDC(pacBounds, pcDirection)
-	
-		def AnySubStringsBoundedByD(pacBounds, pcDirection)
-			return This.AnyBoundedByD(pacBounds, pcDirection)
-	
-		def AnySubStringBoundedByD(pacBounds, pcDirection)
-			return This.AnyBoundedByD(pacBounds, pcDirection)
-	
+			return This.BoundedByD(pacBounds, pcDirection)
+		
 		#>
 	
 	  #----------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- DZ/EXTENDED  #
 	#==========================================================#
 	
-	def AnyBetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	def BetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
-		acBetween   = This.AnyBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		anPositions = This.FindAnyBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		acBetween   = This.BetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		anPositions = This.FindBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
 		acResult = Association([ acBetween, anPositions ])
 
@@ -31612,91 +31936,51 @@ def ReplaceIBS()
 	
 		#< @FunctionAlternativeForms
 	
-		def BetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		
 		def SubStringsBetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.AnyBetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
-		def AnySubStringsBetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		
-		def AnySubStringBetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		#--
-	
-		def AnyBoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
+		def BoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
-				return This.AnyBetweenDCSZ(pacBounds, pacBounds, pcDirection, pCaseSensitive)
+				return This.BetweenDCSZ(pacBounds, pacBounds, pcDirection, pCaseSensitive)
 	
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.AnyBetweenDCSZ(pacBounds[1], pacBounds[2], pcDirection, pCaseSensitive)
+				return This.BetweenDCSZ(pacBounds[1], pacBounds[2], pcDirection, pCaseSensitive)
 
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
-
-		def BoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
 		
 		def SubStringsBoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
-		
-		def AnySubStringsBoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
-		
-		def AnySubStringBoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
-		
+			return This.BoundedByDCSZ(pacBounds, pcDirection, pCaseSensitive)
+				
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
 	
-	def AnyBetweenDZ(pcBound1, pcBound2, pcDirection)
+	def BetweenDZ(pcBound1, pcBound2, pcDirection)
 		return This.AnyBetweenDCSZ(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
 	
 		#< @FunctionAlternativeForms
 	
-		def BetweenDZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDZ(pcBound1, pcBound2, pcDirection)
-	
 		def SubStringsBetweenDZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDZ(pcBound1, pcBound2, pcDirection)
-	
-		def AnySubStringsBetweenDZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDZ(pcBound1, pcBound2, pcDirection)
-	
-		def AnySubStringBetweenDZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDZ(pcBound1, pcBound2, pcDirection)
-	
-		#--
-	
-		def AnyBoundedByDZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDCSZ(pacBounds, pcDirection, :CaseSensitive = TRUE)
+			return This.BetweenDZ(pcBound1, pcBound2, pcDirection)
 	
 		def BoundedByDZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDZ(pacBounds, pcDirection)
-	
+			return This.BoundedByDCSZ(pacBounds, pcDirection, :CaseSensitive = TRUE)
+		
 		def SubStringsBoundedByDZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDZ(pacBounds, pcDirection)
-	
-		def AnySubStringsBoundedByDZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDZ(pacBounds, pcDirection)
-	
-		def AnySubStringBoundedByDZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDZ(pacBounds, pcDirection)
-	
+			return This.BoundedByDZ(pacBounds, pcDirection)
+		
 		#>
 
 	  #-----------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- DZZ/EXTENDED  #
 	#===========================================================#
 	
-	def AnyBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	def BetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
-		acBetween = This.AnyBetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		aSections = This.FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		acBetween = This.BetweenDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		aSections = This.FindBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
 		acResult = Association([ acBetween, aSections ])
 
@@ -31704,80 +31988,40 @@ def ReplaceIBS()
 	
 		#< @FunctionAlternativeForms
 	
-		def BetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		
 		def SubStringsBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+			return This.BetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 		
-		def AnySubStringsBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		def AnySubStringBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		#--
-	
-		def AnyBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
+		def BoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
-				return This.AnyBetweenDCSZZ(pacBounds, pacBounds, pcDirection, pCaseSensitive)
+				return This.BetweenDCSZZ(pacBounds, pacBounds, pcDirection, pCaseSensitive)
 	
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.AnyBetweenDCSZZ(pacBounds[1], pacBounds[2], pcDirection, pCaseSensitive)
+				return This.BetweenDCSZZ(pacBounds[1], pacBounds[2], pcDirection, pCaseSensitive)
 
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 
-		def BoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
-	
 		def SubStringsBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
-	
-		def AnySubStringsBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
-	
-		def AnySubStringBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
+			return This.BoundedByDCSZZ(pacBounds, pcDirection, pCaseSensitive)
 	
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
 	
-	def AnyBetweenDZZ(pcBound1, pcBound2, pcDirection)
+	def BetweenDZZ(pcBound1, pcBound2, pcDirection)
 		return This.AnyBetweenDCSZZ(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
 	
 		#< @FunctionAlternativeForms
 	
-		def BetweenDZZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDZZ(pcBound1, pcBound2, pcDirection)
-	
 		def SubStringsBetweenDZZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDZZ(pcBound1, pcBound2, pcDirection)
-	
-		def AnySubStringsBetweenDZZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDZZ(pcBound1, pcBound2, pcDirection)
-	
-		def AnySubStringBetweenDZZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDZZ(pcBound1, pcBound2, pcDirection)
-	
-		#--
-	
-		def AnyBoundedByDZZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDCSZZ(pacBounds, pcDirection, :CaseSensitive = TRUE)
-	
+			return This.BetweenDZZ(pcBound1, pcBound2, pcDirection)
+		
 		def BoundedByDZZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDZZ(pacBounds, pcDirection)
-	
+			return This.BoundedByDCSZZ(pacBounds, pcDirection, :CaseSensitive = TRUE)
+
 		def SubStringsBoundedByDZZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDZZ(pacBounds, pcDirection)
-	
-		def AnySubStringsBoundedByDZZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDZZ(pacBounds, pcDirection)
-	
-		def AnySubStringBoundedByDZZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDZZ(pacBounds, pcDirection)
+			return This.BoundedByDZZ(pacBounds, pcDirection)
 	
 		#>
 
@@ -31786,18 +32030,18 @@ def ReplaceIBS()
 	 #  AND RETURNING THEIR POSITIONS -- DIB/EXTENDED         #
 	#========================================================#
 	
-	def FindAnyBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		anResult = QR( This.FindAnyBetweenAsSectionsDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive), :stzListOfPairs).FirstItems()
+	def FindBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		anResult = QR( This.FindBetweenAsSectionsDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive), :stzListOfPairs).FirstItems()
 		return anResult
 	
 		#< @FunctionAlternativeForm
 	
-		def FindAnyBoundedByDCSIB(pacBounds, pcDirection, pCaseSensitive)
+		def FindBoundedByDCSIB(pacBounds, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
-				return This.FindAnyBetweenDCSIB(pacBounds, pacBounds, pcDirection, pCaseSensitive)
+				return This.FindBetweenDCSIB(pacBounds, pacBounds, pcDirection, pCaseSensitive)
 	
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.FindAnyBetweenDCSIB(pacBound[1], pacBound[2], pcDirection, pCaseSensitive)
+				return This.FindBetweenDCSIB(pacBound[1], pacBound[2], pcDirection, pCaseSensitive)
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
@@ -31806,13 +32050,13 @@ def ReplaceIBS()
 	
 	#-- WITHOOUT CASESENSITIVITY
 	
-	def FindAnyBetweenDIB(pcBound1, pcBound2, pcDirection)
+	def FindBetweenDIB(pcBound1, pcBound2, pcDirection)
 		return This.FindAnyBetweenDCSIB(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
 	
 		#< @FunctionAlternativeForm
 	
-		def FindAnyBoundedByDIB(pacBounds, pcDirection)
-			return This.FindAnyBoundedByDCSIB(pacBounds, pcDirection, :CaseSensitive = TRUE)
+		def FindBoundedByDIB(pacBounds, pcDirection)
+			return This.FindBoundedByDCSIB(pacBounds, pcDirection, :CaseSensitive = TRUE)
 	
 		#>
 	
@@ -31821,7 +32065,7 @@ def ReplaceIBS()
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS -- DIB/EXTENDED  #
 	#=============================================================#
 
-	def FindAnyBetweenAsSectionsDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	def FindBetweenAsSectionsDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
 		if NOT isString(pcBound1)
 			StzRaise("Incorrect param type! pcBound1 must be a string.")
@@ -31838,7 +32082,7 @@ def ReplaceIBS()
 		nLenBound1 = Q(pcBound1).NumberOfChars()
 		nLenBound2 = Q(pcBound2).NumberOfChars()
 
-		aSections = This.FindAnyBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		aSections = This.FindBetweenAsSectionsDCS(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 		nLenSections = len(aSections)
 
 		for i = 1 to nLenSections
@@ -31850,313 +32094,179 @@ def ReplaceIBS()
 	
 		#< @FunctionAlternativeForm
 
-		def FindAnyBoundedByAsSectionsDCSIB(pacBounds, pcDirection, pCaseSensitive)
+		def FindBoundedByAsSectionsDCSIB(pacBounds, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
-				return This.FindAnyBetweenAsSectionsDCSIB(pacBounds, pacBounds, pcDirection, pCaseSensitive)
+				return This.FindBetweenAsSectionsDCSIB(pacBounds, pacBounds, pcDirection, pCaseSensitive)
 	
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.FindAnyBetweenAsSectionsDCSIB(pacBound[1], pacBound[2], pcDirection, pCaseSensitive)
+				return This.FindBetweenAsSectionsDCSIB(pacBound[1], pacBound[2], pcDirection, pCaseSensitive)
 	
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 	
+		#--
+
+		def FindBetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+			return This.FindBetweenAsSectionsDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
+		def FindBoundedByAsSectionsDCSIB(pacBounds, pcDirection, pCaseSensitive)
+			return This.FindBoundedByAsSectionsDCSIB(pacBounds, pcDirection, pCaseSensitive)
+
 		#>
 	
 	#-- WITHOOUT CASESENSITIVITY
 	
-	def FindAnyBetweenAsSectionsDIB(pcBound1, pcBound2, pcDirection)
-		return This.FindAnyBetweenAsSectionsDCSIB(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
+	def FindBetweenAsSectionsDIB(pcBound1, pcBound2, pcDirection)
+		return This.FindBetweenAsSectionsDCSIB(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
 	
 		#< @FunctionAlternativeForm
 	
-		def FindAnyBoundedByAsSectionsDIB(pacBounds, pcDirection)
-			return This.FindAnyBoundedByAsSectionsDCSIB(pacBounds, pcDirection, :CaseSensitive = TRUE)
+		def FindBoundedByAsSectionsDIB(pacBounds, pcDirection)
+			return This.FindBoundedByAsSectionsDCSIB(pacBounds, pcDirection, :CaseSensitive = TRUE)
 	
+		#--
+
+		def FindBetweenDIBZZ(pcBound1, pcBound2, pcDirection)
+			return This.FindBetweenAsSectionsDIB(pcBound1, pcBound2, pcDirection)
+
+		def FindBoundedByAsSectionsDIB(pacBounds, pcDirection)
+			return This.FindBoundedByAsSectionsDIB(pacBounds, pcDirection)
+
 		#>
 	
 	  #-----------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- DIB/EXTENDED  #
 	#===========================================================#
 	
-	def AnyBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	def BetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
-		aSections = This.FindAnyBetweenAsSectionsDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		aSections = This.FindBetweenAsSectionsDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 		acResult  = This.Sections(aSections)
 		return acResult
 	
 		#< @FunctionAlternativeForms
-	
-		def BetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		def SubStringsBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		def AnySubStringsBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		def AnySubStringBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		#--
-	
-		def AnyBoundedByDCSIB(pacBounds, pcDirection, pCaseSensitive)
+		
+		def BoundedByDCSIB(pacBounds, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
 	
-				return This.AnyBetweenDCSIB(pacBounds, pacBounds, pcDirection, pCaseSensitive)
+				return This.BetweenDCSIB(pacBounds, pacBounds, pcDirection, pCaseSensitive)
 	
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
 	
-				return This.AnyBetweenDCSIB(pacBounds[1], pacBounds[2], pcDirection, pCaseSensitive)
+				return This.BetweenDCSIB(pacBounds[1], pacBounds[2], pcDirection, pCaseSensitive)
 	
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 			ok
-	
-		def BoundedByDCSIB(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSIB(pacBounds, pcDirection, pCaseSensitive)
-	
-		def SubStringsBoundedByDCSIB(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSIB(pacBounds, pcDirection, pCaseSensitive)
-	
-		def AnySubStringsBoundedByDCSIB(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSIB(pacBounds, pcDirection, pCaseSensitive)
-	
-		def AnySubStringBoundedByDCSIB(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSIB(pacBounds, pcDirection, pCaseSensitive)
-	
+		
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
 	
-	def AnyBetweenDIB(pcBound1, pcBound2, pcDirection)
-		return This.AnyBetweenDCSIB(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
+	def BetweenDIB(pcBound1, pcBound2, pcDirection)
+		return This.BetweenDCSIB(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
 	
 		#< @FunctionAlternativeForms
 	
-		def BetweenDIB(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDIB(pcBound1, pcBound2, pcDirection)
-	
-		def SubStringsBetweenDIB(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDIB(pcBound1, pcBound2, pcDirection)
-	
-		def AnySubStringsBetweenDIB(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDIB(pcBound1, pcBound2, pcDirection)
-	
-		def AnySubStringBetweenDIB(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDIB(pcBound1, pcBound2, pcDirection)
-	
-		#--
-	
-		def AnyBoundedByDIB(pacBounds, pcDirection)
-			return This.AnyBoundedByDCSIB(pacBounds, pcDirection, :CaseSensitive = TRUE)
-	
 		def BoundedByDIB(pacBounds, pcDirection)
-			return This.AnyBoundedByDIB(pacBounds, pcDirection)
+			return This.BoundedByDCSIB(pacBounds, pcDirection, :CaseSensitive = TRUE)
 	
-		def SubStringsBoundedByDIB(pacBounds, pcDirection)
-			return This.AnyBoundedByDC(pacBounds, pcDirection)
-	
-		def AnySubStringsBoundedByDIB(pacBounds, pcDirection)
-			return This.AnyBoundedByDIB(pacBounds, pcDirection)
-	
-		def AnySubStringBoundedByDIB(pacBounds, pcDirection)
-			return This.AnyBoundedByDIB(pacBounds, pcDirection)
+		#>
 	
 	  #------------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- DIBZ/EXTENDED  #
 	#============================================================#
 	
-	def AnyBetweenDCSIBZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	def BetweenDCSIBZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
-		acBetween  = This.AnyBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		aPositions = This.FindAnyBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		acBetween  = This.BetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		aPositions = This.FindBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 		aResult    = Association([ acBetween, aPositions ])
 
 		return aResult
 	
 		#< @FunctionAlternativeForms
 	
-		def BetweenDCSIBZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSIBZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		def SubStringsBetweenDCSIBZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSIBZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		def AnySubStringsBetweenDCSIBZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSIBZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		def AnySubStringBetweenDCSIBZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSIBZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		#--
-	
-		def AnyBoundedByDCSIBZ(pacBounds, pcDirection, pCaseSensitive)
+		def BoundedByDCSIBZ(pacBounds, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
 	
-				return This.AnyBetweenDCSIBZ(pacBounds, pacBounds, pcDirection, pCaseSensitive)
+				return This.BetweenDCSIBZ(pacBounds, pacBounds, pcDirection, pCaseSensitive)
 	
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
 	
-				return This.AnyBetweenDCSIBZ(pacBounds[1], pacBounds[2], pcDirection, pCaseSensitive)
+				return This.BetweenDCSIBZ(pacBounds[1], pacBounds[2], pcDirection, pCaseSensitive)
 	
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 			ok
-
-		def BoundedByDCSIBZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSIBZ(pacBounds, pcDirection, pCaseSensitive)
-	
-		def SubStringsBoundedByDCSIBZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSIBZ(pacBounds, pcDirection, pCaseSensitive)
-	
-		def AnySubStringsBoundedByDCSIBZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSIBZ(pacBounds, pcDirection, pCaseSensitive)
-	
-		def AnySubStringBoundedByDCSIBZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSIBZ(pacBounds, pcDirection, pCaseSensitive)
 	
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
 	
-	def AnyBetweenDIBZ(pcBound1, pcBound2, pcDirection)
-		return This.AnyBetweenDCSIBZ(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
+	def BetweenDIBZ(pcBound1, pcBound2, pcDirection)
+		return This.BetweenDCSIBZ(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
 	
 		#< @FunctionAlternativeForms
 	
-		def BetweenDIBZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDIBZ(pcBound1, pcBound2, pcDirection)
-	
-		def SubStringsBetweenDIBZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDIBZ(pcBound1, pcBound2, pcDirection)
-	
-		def AnySubStringsBetweenDIBZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDIBZ(pcBound1, pcBound2, pcDirection)
-	
-		def AnySubStringBetweenDIBZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDIBZ(pcBound1, pcBound2, pcDirection)
-	
-		#--
-	
-		def AnyBoundedByDIBZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDCSIBZ(pacBounds, pcDirection, :CaseSensitive = TRUE)
-	
 		def BoundedByDIBZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDIBZ(pacBounds, pcDirection)
+			return This.BoundedByDCSIBZ(pacBounds, pcDirection, :CaseSensitive = TRUE)
 	
-		def SubStringsBoundedByDIBZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDIBZ(pacBounds, pcDirection)
-	
-		def AnySubStringsBoundedByDIBZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDIBZ(pacBounds, pcDirection)
-	
-		def AnySubStringBoundedByDIBZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDIBZ(pacBounds, pcDirection)
+		#>
 
 	  #-------------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- DIBZZ/EXTENDED  #
 	#=============================================================#
 	
-	def AnyBetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+	def BetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
-		acBetween = This.AnyBetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		aSections = This.FindAnyBetweenAsSectionsDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		acBetween = This.BetweenDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		aSections = This.FindBetweenAsSectionsDCSIB(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 		aResult   = Association([ acBetween, aSections ])
 
 		return aResult
 	
 		#< @FunctionAlternativeForms
-
-		def BetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
 	
-		def SubStringsBetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		def AnySubStringsBetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		def AnySubStringBetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.AnyBetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, pCaseSensitive)
-	
-		#--
-	
-		def AnyBoundedByDCSIBZZ(pacBounds, pcDirection, pCaseSensitive)
+		def BoundedByDCSIBZZ(pacBounds, pcDirection, pCaseSensitive)
 			if isString(pacBounds)
 	
-				return This.AnyBetweenDCSIBZZ(pacBounds, pacBounds, pcDirection, pCaseSensitive)
+				return This.BetweenDCSIBZZ(pacBounds, pacBounds, pcDirection, pCaseSensitive)
 	
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
 	
-				return This.AnyBetweenDCSIBZZ(pacBounds[1], pacBounds[2], pcDirection, pCaseSensitive)
+				return This.BetweenDCSIBZZ(pacBounds[1], pacBounds[2], pcDirection, pCaseSensitive)
 	
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 			ok
-
-		def BoundedByDCSIBZZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSIBZZ(pacBounds, pcDirection, pCaseSensitive)
-
-		def SubStringsBoundedByDCSIBZZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSIBZZ(pacBounds, pcDirection, pCaseSensitive)
-	
-		def AnySubStringsBoundedByDCSIBZZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSIBZZ(pacBounds, pcDirection, pCaseSensitive)
-	
-		def AnySubStringBoundedByDCSIBZZ(pacBounds, pcDirection, pCaseSensitive)
-			return This.AnyBoundedByDCSIBZZ(pacBounds, pcDirection, pCaseSensitive)
 	
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
 	
-	def AnyBetweenDIBZZ(pcBound1, pcBound2, pcDirection)
-		return This.AnyBetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
+	def BetweenDIBZZ(pcBound1, pcBound2, pcDirection)
+		return This.BetweenDCSIBZZ(pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
 	
 		#< @FunctionAlternativeForms
 	
-		def BetweenDIBZZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDIBZZ(pcBound1, pcBound2, pcDirection)
-	
-		def SubStringsBetweenDIBZZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDIBZZ(pcBound1, pcBound2, pcDirection)
-	
-		def AnySubStringsBetweenDIBZZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDIBZZ(pcBound1, pcBound2, pcDirection)
-	
-		def AnySubStringBetweenDIBZZ(pcBound1, pcBound2, pcDirection)
-			return This.AnyBetweenDIBZZ(pcBound1, pcBound2, pcDirection)
-	
-		#--
-	
-		def AnyBoundedByDIBZZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDCSIBZZ(pacBounds, pcDirection, :CaseSensitive = TRUE)
-	
 		def BoundedByDIBZZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDIBZZ(pacBounds, pcDirection)
+			return This.BoundedByDCSIBZZ(pacBounds, pcDirection, :CaseSensitive = TRUE)
 	
-		def SubStringsBoundedByDIBZZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDIBZZ(pacBounds, pcDirection)
-	
-		def AnySubStringsBoundedByDIBZZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDIBZZ(pacBounds, pcDirection)
-	
-		def AnySubStringBoundedByDIBZZ(pacBounds, pcDirection)
-			return This.AnyBoundedByDIBZZ(pacBounds, pcDirection)
+		#>
 
 	  #---------------------------------------------------------------------#
 	 #  FINDING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- IB/EXTENDED  #
 	#=====================================================================#
 	#--> Bounds are also considered in the result
 
-	def FindAnyBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
+	def FindBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
 		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
 			pcBound2 = pcBound2[2]
 		ok
 
-		anPositions = This.FindAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+		anPositions = This.FindBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 
 		nNumberOfPositions = len(anPositions)
 		nLenBound1 = StzStringQ(pcBound1).NumberOfChars()
@@ -32171,10 +32281,10 @@ def ReplaceIBS()
 
 		def FindAnyBoundedByCSIB(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
-				return This.FindAnyBetweenCSIB(pacBounds, pacBounds, pCaseSensitive)
+				return This.FindBetweenCSIB(pacBounds, pacBounds, pCaseSensitive)
 
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.FindAnyBetweenCSIB(pacBounds[1], pacBounds[2], pCaseSensitive)
+				return This.FindBetweenCSIB(pacBounds[1], pacBounds[2], pCaseSensitive)
 
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
@@ -32184,12 +32294,12 @@ def ReplaceIBS()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAnyBetweenIB(pcBound1, pcBound2)
-		return This.FindAnyBetweenCSIB(pcBound1, pcBound2, :CaseSensitive = TRUE)
+	def FindBetweenIB(pcBound1, pcBound2)
+		return This.FindBetweenCSIB(pcBound1, pcBound2, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def FindAnyBoundedByIB(pacBounds)
+		def FindBoundedByIB(pacBounds)
 			return This.FindAnyBoundedByCSIB(pacBounds, :CaseSensitive = TRUE)
 
 		#>
@@ -32199,9 +32309,9 @@ def ReplaceIBS()
 	#===================================================================================#
 	#--> Bounds are also considered in the result
 
-	def FindAnyBetweenAsSectionsCSIB(pcBound1, pcBound2, pCaseSensitive)
+	def FindBetweenAsSectionsCSIB(pcBound1, pcBound2, pCaseSensitive)
 
-		aSections = This.FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
+		aSections = This.FindBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
 
 		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
 			pcBound2 = pcBound2[2]
@@ -32217,10 +32327,10 @@ def ReplaceIBS()
 
 		return aSections
 
-		#< @FunctionAlternatives
+		#< @FunctionAlternativeFroms
 		# NOTE: see other alternatives in bottom of file
 
-		def FindAnyBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
+		def FindBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
 				return This.FindAnyBetweenAsSectionsCSIB(pacBounds, pacBounds, pCaseSensitive)
 
@@ -32231,85 +32341,122 @@ def ReplaceIBS()
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 
+		#--
+
+		def FindBetweenCSIBZZ(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindBetweenAsSectionsCSIB(pcBound1, pcBound2, pCaseSensitive)
+
+		def FindBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+			return This.FindBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAnyBetweenAsSectionsIB(pcBound1, pcBound2)
-		return This.FindAnyBetweenAsSectionsCSIB(pcBound1, pcBound2, :CaseSensitive = TRUE)
+	def FindBetweenAsSectionsIB(pcBound1, pcBound2)
+		return This.FindBetweenAsSectionsCSIB(pcBound1, pcBound2, :CaseSensitive = TRUE)
 
-		#< @FunctionAlternatives
+		#< @FunctionAlternativeForms
 		# NOTE: see other alternatives in bottom of file
 
-		def FindAnyBoundedByAsSectionsIB(pacBounds)
-			return This.FindAnyBoundedByAsSectionsCSIB(pacBounds, :CaseSensitive = TRUE)
+		def FindBoundedByAsSectionsIB(pacBounds)
+			return This.FindBoundedByAsSectionsCSIB(pacBounds, :CaseSensitive = TRUE)
+
+		#--
+
+		def FindBetweenIBZZ(pcBound1, pcBound2)
+			return This.FindBetweenAsSectionsIB(pcBound1, pcBound2)
+
+		def FindBoundedByIBZZ(pacBounds)
+			return This.FindBoundedByAsSectionsIB(pacBounds)
 
 		#>
 
-	  #-----------------------------------------------------------------------------------#
-	 #  FINDING NTH OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
-	#===================================================================================#
+	   #---------------------------------------------------------------------------#
+	  #   FINDING THE NTH OCCURRENCE OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
+	 #  AND RETURNING THE RESULT AS SECTIONS (ZZ/EXTENSION --> SECTIONS)         #
+	#===========================================================================#
 
-	def FindNthBetweenAsSectionCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+	#   A visual hint to remember function names:
+	# 
+	#   If the name of the function contains the word "SubString",
+	#   than there is a "pcSubStr" param to be provided.
+	# 
+	#              .--------SubStr--------.
+	#              |                      |
+	#          .---^---.              .---v---.
+vvv	def FindNthSubStringBetweenCSZZ(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		/* EXAMPLE
 		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-		? o1.FindNthBetweenAsSection(2, "word", "<<", ">>")
-
-		(we used here the simple form of the function)
-
+		? o1.FindNthSubStringBetweenZZ(2, "word", "<<", ">>")
 		#--> [ 28, 31 ]
 		*/
 
-		# Getting all the occurrences of pcSubStr in the string
+		if CheckParams()
+		# Resolving the params : A global option.
 
-		if n = :First or n = :FirstSection
-			n = 1
+		# --> Turn it off if the function is used on a loop with a large
+		# list. In this case, no aid is provided by Softanza to enable
+		# the use of named params. And you should give the correct params
+		# as expected and as it is defined in the variable naming convention.
 
-		but n = :Last or n = :LastSection
-			n = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-
+			if n = :First or n = :FirstSection
+				n = 1
+	
+			but n = :Last or n = :LastSection
+				n = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+	
+			ok
 		ok
 
-		anResult = This.FindSubStringBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)[n]
+		# Doing the job
+
+		aResult = This.FindBetweenCSZZ(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)[n]
+		# Todo: check for performance on large lists
 
 		return anResult
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
-		def FindNthSubStringBetweenAsSectionCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
-			return This.FindNthBetweenAsSectionCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
-
-		def FindNthBoundedByAsSectionCS(n, pcSubStr, pacBounds, pCaseSensitive)
+		def FindNthSubStringBoundedByCSZZ(n, pcSubStr, pacBounds, pCaseSensitive)
 			if isString(pacBounds)
-				return This.FindNthBetweenAsSectionCSIB(n, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+				return This.FindNthSubStringBetweenCSZZ(n, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.FindNthBetweenAsSectionCSIB(n, pcSubStr, pcBound[1], pcBound[2], pCaseSensitive)
+				return This.FindNthSubStringBetweenCSZZ(n, pcSubStr, pcBound[1], pcBound[2], pCaseSensitive)
 
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 
+
+		#--
+
+		def FindNthSubStringBetweenAsSectionCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindNthSubStringBetweenCSZZ(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+
 		def FindNthSubStringBoundedByAsSectionCS(n, pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindNthBoundedByAsSectionCS(pacBounds, pCaseSensitive)
+			return This.FindNthSubStringBetweenCSZZ(pacBounds, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindNthBetweenAsSection(n, pcSubStr, pcBound1, pcbound2)
-		return This.FindNthBetweenAsSectionCS(n, pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
+	def FindNthSubStringBetweenZZ(n, pcSubStr, pcBound1, pcbound2)
+		return This.FindNthSubStringBetweenCSZZ(n, pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
+
+		def FindNthSubStringBoundedByZZ(n, pcSubStr, pacBounds)
+			return This.FindNthSubStringBoundedByCSZZ(n, pcSubStr, pacBounds, :CaseSensitive = TRUE)
+
+		#--
 
 		def FindNthSubStringBetweenAsSection(n, pcSubStr, pcBound1, pcbound2)
-			return This.FindNthBetweenAsSection(n, pcSubStr, pcBound1, pcbound2)
+			return This.FindNthSubStringBetweenZZ(n, pcSubStr, pcBound1, pcbound2)
 
-		def FindNthBoundedByAsSection(n, pcSubStr, pacBounds)
-			return This.FindNthBoundedByAsSectionCS(n, pcSubStr, pacBounds, :CaseSensitive = TRUE)
-
-		def FindNthSubStringBoundedByAsSection(n, pcsubStr, pacBounds)
-			return This.FindNthBoundedByAsSection(n, pcSubStr, pacBounds)
+		def FindNthSubStringBoundedByAsSection(n, pcSubStr, pacBounds)
+			return This.FindNthSubStringBetweenZZ(pacBounds)
 
 		#>
 
@@ -32317,47 +32464,48 @@ def ReplaceIBS()
 	 #   FINDING FIRST OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS   #
 	#=======================================================================================#
 
-	def FindFirstBetweenAsSectionCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+	def FindFirstSubStringBetweenCSZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		/* EXAMPLE
 		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-		? o1.FindFirstBetweenAsSection("word", "<<", ">>")
-
-		(we used here the simple form of the function)
-
+		? o1.FindFirstSubStringBetweenZZ("word", "<<", ">>")
 		#--> [ 10, 13 ]
 		*/
 
-		nResult = This.FindNthBetweenAsSectionCS(1, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		return nResult
+		aResult = This.FindNthSubStringBetweenCSZZ(1, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		return aResult
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
+
+		def FindFirstSubStringBoundedByCSZZ(pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindNthSubStringBoundedByCSZZ(1, pcSubStr, pacBounds, pCaseSensitive)
+
+		#--
 
 		def FindFirstSubStringBetweenAsSectionCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
-			return This.FindFirstBetweenAsSectionCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
-
-		def FindFirstBoundedByAsSectionCS(pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindNthBoundedByAsSectionCS(1, pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindFirstSubStringBetweenCSZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 
 		def FindFirstSubStringBoundedByAsSectionCS(pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindFirstBoundedByAsSectionCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindFirstSubStringBoundedByCSZZ(pcSubStr, pacBounds, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindFirstBetweenAsSection(pcSubStr, pcBound1, pcbound2)
-		return This.FindFirstBetweenAsSectionCS(pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
+	def FindFirstSubStringBetweenZZ(pcSubStr, pcBound1, pcbound2)
+		return This.FindFirstSubStringBetweenCSZZ(pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
+
+		def FindFirstSubStringBoundedByZZ(pcSubStr, pacBounds)
+			return This.FindNthSubStringBoundedByCSZZ(1, pcSubStr, pacBounds, :CaseSensitive = TRUE)
+
+		#--
 
 		def FindFirstSubStringBetweenAsSection(pcSubStr, pcBound1, pcbound2)
-			return This.FindFirstBetweenAsSection(pcSubStr, pcBound1, pcbound2)
-
-		def FindFirstBoundedByAsSection(pcSubStr, pacBounds)
-			return This.FindNthBoundedByAsSection(1, pcSubStr, pacBounds)
+			return This.FindFirstSubStringBetweenZZ(pcSubStr, pcBound1, pcbound2)
 
 		def FindFirstSubStringBoundedByAsSection(pcSubStr, pacBounds)
-			return This.FindFirstBoundedByAsSection(pcSubStr, pacBounds)
+			return This.FindFirstSubStringBoundedByZZ(pcSubStr, pacBounds)
 
 		#>
 
@@ -32365,62 +32513,62 @@ def ReplaceIBS()
 	 #   FINDING LAST OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS   #
 	#======================================================================================#
 
-	def FindLastBetweenAsSectionCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+	def FindLastSubStringBetweenCSZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		/* EXAMPLE
 		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-		? o1.FindLastBetweenAsSections("word", "<<", ">>")
-
-		(we used here the simple form of the function)
-
+		? o1.FindLastSubStringBetweenZZ("word", "<<", ">>")
 		#--> [ 27, 32 ]
 		*/
 
-		nResult = This.FindNthBetweenAsSectionCS(:Last, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		return nResult
+		nLast = This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+		aResult = This.FindNthSubStringBetweenCSZZ(nLast, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		return aResult
 
 		#< @FunctionAlternativeForm
 
-		def FindLastSubStringBetweenAsSectionCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
-			return This.FindLastBetweenAsSectionCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+		def FindLastSubStringBoundedByCSZZ(pcSubStr, pacBounds, pCaseSensitive)
+			nLast = This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This.FindNthSubStringBoundedByCSZZ(nLast, pcSubStr, pacBounds, pCaseSensitive)
 
-		def FindLastBoundedByAsSectionCS(pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindNthBoundedByAsSectionCS(:Last, pcSubStr, pacBounds, pCaseSensitive)
+		#--
+
+		def FindLastSubStringBetweenAsSectionCS(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindLastSubStringBetweenCSZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 
 		def FindLastSubStringBoundedByAsSectionCS(pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindLastBoundedByAsSectionCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindLastBoundedByZZCS(pcSubStr, pacBounds, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindLastBetweenAsSection(pcSubStr, pcBound1, pcbound2)
-		return This.FindLastBetweenAsSectionCS(pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
+	def FindLastBetweenZZ(pcSubStr, pcBound1, pcbound2)
+		return This.FindLastBetweenCSZZ(pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def FindLastSubStringBetweenAsSection(pcSubStr, pcBound1, pcbound2)
-			return This.FindLasttBetweenAsSection(pcSubStr, pcBound1, pcbound2)
+		def FindLastSubStringBoundedByZZ(pcSubStr, pacBounds)
+			return This.FindLastSubStringBoundedByCSZZ(pcSubStr, pacBounds, :CaseSensitive = TRUE)
 
-		def FindLastBoundedByAsSection(pcSubStr, pacBounds)
-			return This.FindNthBoundedByAsSection(:Last, pcSubStr, pacBounds)
+		#--
+
+		def FindLastSubStringBetweenAsSection(pcSubStr, pcBound1, pcbound2)
+			return This.FindLastSubStringBetweenZZ(pcSubStr, pcBound1, pcbound2)
 
 		def FindLastSubStringBoundedByAsSection(pcSubStr, pacBounds)
-			return This.FindLastBoundedByAsSection(pcSubStr, pacBounds)
+			return This.FindLastBoundedByZZ(pcSubStr, pacBounds)
 
 		#>
 
 	  #--------------------------------------------------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- IB/EXTENDED  #
 	#==================================================================================================#
-	# Bounds are considered in the result. Otherwise use FindNthAsSections() instead (without ..IB())
+	# Bounds are considered in the result. Otherwise use FindNthZZ() instead (without ..IB())
 
-	def FindNthBetweenAsSectionCSIB(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+	def FindNthSubStringBetweenCSIBZZ(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		/* EXAMPLE
 		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-		? o1.FindNthBetweenAsSectionIB(2, "word", "<<", ">>")
-
-		(we used here the simple form of the function)
-
+		? o1.FindNthSubStringBetweenIBZZ(2, "word", "<<", ">>")
 		#--> [ 26, 33 ]
 		*/
 
@@ -32432,55 +32580,57 @@ def ReplaceIBS()
 			StzRaise("Incorrect param types! pcBound1 and pcBound2 must both be strings.")
 		ok
 
-		aSections = This.FindNthBetweenAsSectionsCS(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+		aSection = This.FindNthSubStringBetweenCSZZ(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		nLen = len(aSections)
 
 		nLen1 = Q(pcBound1).NumberOfChars()
 		nLen2 = Q(pcBound2).NumberOfChars()
 
-		for i = 1 to nLen
-			aSections[i][1] -= nLen1
-			aSections[i][2] += nLen2
-		next
+		aSection[1] -= nLen1
+		aSection[2] += nLen2
 
-		return aSections
+		return aSection
 
 		#< @FunctionAlternativeForms
 
-		def FindNthSubStringBetweenAsSectionCSIB(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
-			return This.FindNthBetweenAsSectionCSIB(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
-
-		def FindNthBoundedByAsSectionCSIB(n, pcSubStr, pacBounds, pCaseSensitive)
+		def FindNthSubStringBoundedByCSIBZZ(n, pcSubStr, pacBounds, pCaseSensitive)
 			if isString(pacBounds)
-				return This.FindNthBetweenAsSectionCSIB(n, pcSubStr, pacBounds, pacBounds, pCaseSensitive)
+				return This.FindNthSubStringBetweenCSIBZZ(n, pcSubStr, pacBounds, pacBounds, pCaseSensitive)
 
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.FindNthBetweenAsSectionCSIB(n, pcSubStr, pacBounds, pacBounds, pCaseSensitive)
+				return This.FindNthSubStringBetweenCSIBZZ(n, pcSubStr, pacBounds, pacBounds, pCaseSensitive)
 
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 
+		#--
+
+		def FindNthSubStringBetweenAsSectionCSIB(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindNthSubStringBetweenCSIBZZ(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+
 		def FindNthSubStringBoundedByAsSectionCSIB(n, pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindNthBoundedByAsSectionCSIB(n, pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindNthSubStringBoundedByCSIBZZ(n, pcSubStr, pacBounds, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindNthBetweenAsSectionIB(n, pcSubStr, pcBound1, pcbound2)
-		return This.FindNthBetweenAsSectionCSIB(n, pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
+	def FindNthSubStringBetweenIBZZ(n, pcSubStr, pcBound1, pcbound2)
+		return This.FindNthBetweenCSIBZZ(n, pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindNthSubStringBetweenAsSectionIB(n, pcSubStr, pcBound1, pcbound2)
-			return This.FindNthBetweenAsSectionIB(n, pcSubStr, pcBound1, pcbound2)
+		def FindNthSubStringBoundedByIBZZ(n, pcSubStr, pacBounds)
+			return This.FindNthSubStringBoundedByCSIBZZ(n, pcSubStr, pacBounds, :CaseSensitive = TRUE)
 
-		def FindNthBoundedByAsSectionIB(n, pcSubStr, pacBounds)
-			return This.FindNthBoundedByAsSectionCSIB(n, pcSubStr, pacBounds, :CaseSensitive = TRUE)
+		#--
+
+		def FindNthSubStringBetweenAsSectionIB(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindNthSubStringBetweenIBZZ(n, pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 
 		def FindNthSubStringBoundedByAsSectionIB(n, pcSubStr, pacBounds)
-			return This.FindNthBoundedByAsSectionIB(n, pcSubStr, pacBounds)
+			return This.FindNthSubStringBoundedByIBZZ(n, pcSubStr, pacBounds)
 
 		#>
 
@@ -32488,45 +32638,48 @@ def ReplaceIBS()
 	 # FINDING FIRST OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- IB/EXTENDED  #
 	#===================================================================================================#
 
-	def FindFirstBetweenAsSectionCSIB(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+	def FindFirstSubStringBetweenCSIBZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		/* EXAMPLE
 		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-		? o1.FindFirstBetweenAsSectionIB("word", "<<", ">>")
-
+		? o1.FindFirstSubStringBetweenIBZZ("word", "<<", ">>")
 		#--> [ 9, 16 ]
 		*/
 
-		nResult = This.FindNthBetweenAsSectionCSIB(1, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		return nResult
+		aResult = This.FindNthBetweenCSIBZZ(1, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def FindFirstSubStringBetweenAsSectionCSIB(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
-			return This.FindFirstBetweenAsSectionCSIB(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+		def FindFirstSubStringBoundedByCSIBZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindNthSubStringBoundedByCSIBZZ(1, pcSubStr, pacBounds, pCaseSensitive)
 
-		def FindFirstBoundedByAsSectionCSIB(pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindNthBoundedByAsSectionCSIB(1, pcSubStr, pacBounds, :CaseSensitive = TRUE)
+		#--
+
+		def FindFirstSubStringBetweenAsSectionCSIB(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindFirstSubStringBetweenCSIBZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 
 		def FindFirstSubStringBoundedByAsSectionCSIB(pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindFirstBoundedByAsSectionCSIB(pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindFirstSubStringBoundedByCSIBZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstBetweenAsSectionIB(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
-		return This.FindFirstBetweenAsSectionIB(pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
+		return This.FindFirstBetweenAsSectionCSIB(pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindFirstSubStringBetweenAsSectionIB(pcSubStr, pcBound1, pcbound2)
-			return This.FindFirstBetweenAsSectionIB(pcSubStr, pcBound1, pcbound2)
+		def FindFirstSubStringBoundedByIBZZ(pcSubStr, pcBound1, pcbound2)
+			return This.FindNthSubStringBoundedByIBZZ(1, pcSubStr, pacBounds)
 
-		def FindFirstBoundedByAsSectionIB(pcSubStr, pacBounds)
-			return This.FindFirstBoundedByAsSectionCSIB(pcSubStr, pacBounds, :CaseSensitive = TRUE)
+		#--
+
+		def FindFirstSubStringBetweenAsSectionIB(pcSubStr, pcBound1, pcbound2)
+			return This.FindFirstSubStringBetweenIBZZ(pcSubStr, pcBound1, pcbound2)
 
 		def FindFirstSubStringBoundedByAsSectionIB(pcSubStr, pacBounds)
-			return This.FindFirstBoundedByAsSectionIB(pcSubStr, pacBounds)
+			return This.FindFirstSubStringBoundedByIBZZ(pcSubStr, pacBounds)
 
 		#>
 
@@ -32534,216 +32687,99 @@ def ReplaceIBS()
 	 #  FINDING LAST OCCURRENCE (AS SECTION) OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	#====================================================================================#
 
-	def FindLastBetweenAsSectionsCSIB(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+	def FindLastBetweenCSIBZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 		/* EXAMPLE
 		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-		? o1.FindLastBetweenAsSectionsIB("word", "<<", ">>")
-
+		? o1.FindLastSubStringBetweenIBZZ("word", "<<", ">>")
 		#--> [ 41, 48 ]
 		*/
 
-		nResult = This.FindNthBetweenAsSectionsCSIB(:Last, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		return nResult
+		nLast = This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+		aResult = This.FindNthSubStringBetweenCSIBZZ(nLast, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		return aResult
 
 		#< @FunctionAlternativeForms
+
+		def FindLastSubStringBoundedByCSIBZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			nLast = This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This.FindNthSubStringBoundedByCSIBZZ(nLast, pcSubStr, pacBounds, pCaseSensitive)
+
+		#--
 
 		def FindLastSubStringBetweenAsSectionCSIB(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
-			return This.FindLastBetweenAsSectionCSIB(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+			return This.FindLastSubStringBetweenCSIBZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 
-		def FindLastBoundedByAsSectionCSIB(pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindNthBoundedByAsSectionCSIB(:Last, pcSubStr, pacBounds, :CaseSensitive = TRUE)
-
-		def FindFLastSubStringBoundedByAsSectionCSIB(pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindLastBoundedByAsSectionCSIB(pcSubStr, pacBounds, pCaseSensitive)
+		def FindLastSubStringBoundedByAsSectionCSIB(pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindLastSubStringBoundedByCSIBZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindLastBetweenAsSectionsIB(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
-		return This.FindLastBetweenAsSectionsIB(pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
+	def FindLastBetweenIBZZ(pcSubStr, pcBound1, pcbound2, pCaseSensitive)
+		return This.FindLastBetweenCSIBZZ(pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindLastSubStringBetweenAsSectionIB(pcSubStr, pcBound1, pcbound2)
-			return This.FindLastBetweenAsSectionIB(pcSubStr, pcBound1, pcbound2)
+		def FindLastSubStringBoundedByIBZZ(pcSubStr, pcBound1, pcbound2)
+			return This.FindLastSubStringBoundedByCSIBZZ(pcSubStr, pcBound1, pcbound2, :CaseSensitive = TRUE)
 
-		def FindLastBoundedByAsSectionIB(pcSubStr, pacBounds)
-			return This.FindLastBoundedByAsSectionCSIB(pcSubStr, pacBounds, :CaseSensitive = TRUE)
+		#--
+
+		def FindLastSubStringBetweenAsSectionIB(pcSubStr, pcBound1, pcbound2)
+			return This.FindLastSubStringBetweenIBZZ(pcSubStr, pcBound1, pcbound2)
 
 		def FindLastSubStringBoundedByAsSectionIB(pcSubStr, pacBounds)
-			return This.FindLastBoundedByAsSectionIB(pcSubStr, pacBounds)
+			return This.FindLastSubStringBoundedByIBZZ(pcSubStr, pcBound1, pcbound2)
 
 		#>
-
-	  #==============================================================#
-	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION  #
-	#==============================================================#
-	# Distance is given by the number of chars inbetween
-	# the starting and target positions are not included
-	# To include them, use ...XT() form of the function
-
-	def DistanceToCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		nResult = This.DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive) - 2
-		return nResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def DistanceTo(pcSubStr, pnStartingAt)
-		return This.DistanceToCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
-
-	  #--------------------------------------------------------------------------#
-	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION -- EXTENDED  #
-	#--------------------------------------------------------------------------#
-
-	def DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
-
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if NOT isNumber(pnStartingAt)
-			StzRaise("Incorrect param type! pnStartingAt must be a number.")
-		ok
-
-		n1 = pnStartingAt
-		n2 = 0
-
-		if isString(pcSubStr)
-			n2 = This.FindNext(pcSubStr, pnStartingAt, pCaseSensitive)
-		
-		but isNumber(pcSubStr)
-			n1 = pcSubStr
-
-		but isList(pcSubStr)
-			if Q(pcSubStr).IsNextNamedParam()
-				pcSubStr = pcSubStr[2]
-
-				if NOT isString(pcSubStr)
-					StzRaise("Incorrect syntax! You must provide a string after :Next = ...")
-				ok
-
-				n2 = This.FindNext(pcSubStr, pnStartingAt + 1, pCaseSensitive)
-
-			but Q(pcSubStr).IsNthNextNamedParam()
-
-				if isList(pcSubStr) and
-				   Q(pcSubStr).IsPair() and
-
-				   isString(pcSubStr[1]) and
-				   Q(pcSubStr[1]).IsOneOfThese([ :NextNth, :NthNext ]) and
-
-				   isList(pcSubStr[2]) and Q(pcSubStr[2]).IsPair()
-				   isNumber(pcSubStr[2][1]) and isString(pcSubStr[2][2])
-
-					n2 = This.FindNextNthCS(pcSubStr[2][1], pcSubStr[2][2], pnStartingAt, pCaseSensitive)
-			
-				ok
-
-			but Q(pcSubStr).IsPreviousNamedParam()
-				pcSubStr = pcSubStr[2]
-
-				if NOT isString(pcSubStr)
-					StzRaise("Incorrect syntax! You must provide a string after :Next = ...")
-				ok
-
-				n2 = n1
-				n1 = This.FindPreviousCS(pcSubStr, pnStartingAt - 1, pCaseSensitive)
-
-			but Q(pcSubStr).IsNthPreviousNamedParam()
-
-				if isList(pcSubStr) and
-				   Q(pcSubStr).IsPair() and
-
-				   isString(pcSubStr[1]) and
-				   Q(pcSubStr[1]).IsOneOfThese([ :PreviousNth, :NthPrevious ]) and
-
-				   isList(pcSubStr[2]) and Q(pcSubStr[2]).IsPair()
-				   isNumber(pcSubStr[2][1]) and isString(pcSubStr[2][2])
-
-					n2 = n1
-					n1 = This.FindPreviousNthCS(pcSubStr[2][1], pcSubStr[2][2], pnStartingAt, pCaseSensitive)
-
-				ok
-
-			ok
-
-		ok
-
-		nResult = n2 - n1 + 1
-
-		return nResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def DistanceToXT(pcSubStr, pnStartingAt)
-		return This.DistanceToCSXT(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
 
 	  #==============================================================#
 	 #   SUBSTRING(S) ENCLOSED BETWEEN TWO SUBSTRINGS OR POSITIONS  # 
 	#==============================================================#
 
 	def BetweenCS(p1, p2, pCaseSensitive)
-		aSections = This.FindAnyBetweenAsSectionsCS(p1, p2, pCaseSensitive)
-		acResult = This.Sections(aSections)
+		if isList(p1) and Q(p1).IsOneOfTheseNamedParams([ :SubString, :Position, :SubStrings, :Positions ])
+			p1 = p1[2]
+		ok
 
-		return acResult
+		if isList(p2) and Q(p2).IsOneOfTheseNamedParams([ :And, :AndSubString, :AndPosition ])
+			p1 = p1[2]
+		ok
 
-		#< @FunctionFluentForms
+		if BothAreNumbers(p1, p2)
+			return This.Section(p1, p2)
 
-		def BetweenCSQ(p1, p2, pCaseSensitive)
-			return Q( This.BetweenCS(p1, p2, pCaseSensitive) )
+		but BothAreStrings(p1, p2)
+			return this.BetweenSubStringsCS(p1, p2, pCaseSensitive)
 
-		def BetweenCSQR(p1, p2, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
+		else
+			StzRaise("Incorrect param's types! p1 and p2 must be both numbers or both strings.")
 
-			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsStzClassNames() )
-				StzRaise("Incorrect param! pcReturnType must be a string containing a Softanza class name.")
-			ok
+		ok
 
-			Between = This.BetweenCS(p1, p2, pCaseSensitive)
+		#< @FunctionAlternativeFrom
 
-			if isString(Between)
-				if pcReturnType = :stzString
-					return new stzString(Between)
-				else
-					StzRaise("Can't return a stzString! Because the data is a list.")
-				ok
+		def BoundedByCS(paBounds, pCaseSensitive)
+			if isString(paBounds)
+				return This.BetweenCS(paBounds, paBounds, pCaseSensitive)
 
-			but isList(Between)
-				switch pcReturnType
-				on :stzList
-					return new stzList(Between)
+			but isList(paBounds) and Q(paBounds).IsPairOfStrings()
+				return This.BetweenCS(pacBounds[1], pacBounds[2], pCaseSensitive)
 
-				on :stzListOfStrings
-					return new stzListOfStrings(Between)
-
-				other
-					StzRaise("Unsupported return type!")
-				off
-
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 
 		#>
-
-		# See alternatives in bottom of file including BoundedBy()
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def Between(p1, p2)
 		return This.BetweenCS(p1, p2, :CaseSensitive = TRUE)
 
-		#< @FunctionFluentForms
-
-		def BetweenQ(p1, p2)
-			return Q( This.Between(p1, p2) )
-
-		def BetweenQR(p1, p2, pcReturnType)
-			return This.BetweenCSQR(p1, p2, :CaseSensitive = TRUE, pcReturnType)
-
-		#>
+		def BoundedBy(paBounds)
+			return This.BoundedByCS(paBounds, :CaseSensitive = TRUE)
 
 	  #------------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- Z/EXTENDED  #
@@ -32757,14 +32793,11 @@ def ReplaceIBS()
 			return [ between, This.FindCS(between, pCaseSensitive) ]
 		
 		else
-			return This.SubStringsBetweenCSZ(p1, p2, pCaseSensitive) 
+			return This.BetweenSubStringsCSZ(p1, p2, pCaseSensitive) 
 		ok
 		
 		#< @FunctionAlternativeForm
 
-		def AnyBetweenCSZ(p1, p2, pCaseSensitive)
-			return This.BetweenCSZ(p1, p2, pCaseSensitive)
-	
 		def BoundedByCSZ(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
 				return This.BetweenCSZ(pacBounds, pacBounds, pCaseSensitive)
@@ -32775,9 +32808,6 @@ def ReplaceIBS()
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 			ok
-
-		def AnyBoundedByCSZ(pacBounds, pCaseSensitive)
-			return This.BoundedByCSZ(pacBounds, pCaseSensitive)
 		
 		#>
 
@@ -32788,14 +32818,8 @@ def ReplaceIBS()
  
 		#< @FunctionAlternativeForm
 
-		def AnyBetweenZ(p1, p2)
-			return This.BetweenZ(p1, p2)
-
 		def BoundedByZ(pacBounds)
 			return This.BoundedByCSZ(pacBounds, :CaseSensitive = TRUE)
-
-		def AnyBoundedByZ(pacBounds)
-			return This.BoundedByZ(pacBounds)
 
 		#>
 
@@ -32803,55 +32827,55 @@ def ReplaceIBS()
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- ZZ/EXTENDED  #
 	#==========================================================#
 
-	def SubStringsBetweenCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def BetweenSubStringsCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
-		aSections = This.FindAnyBetweenAsSectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		aSections = This.FindBetweenAsSectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		acSubStr  = This.Sections(aSections)
 
 		aResult = Association([ acSubStr, aSections ])
 
 		return aResult
 
-		#< @FunctionFluentForm
+		#< @FunctionAlternativeForm
 
-		def SubStringsBetweenCSZZQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubStringsBetweenCSZZQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
+		def BoundedBySubStringsCSZZ(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenSubStringsCSZZ(pacBounds, pacBounds, pCaseSensitive)
 
-		def SubStringsBetweenCSZZQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+			but isList(pacBounds) and Q(pacBounds).IsListOfStrings()
+				return This.BetweenSubStringsCSZZ(pacBounds[1], pacBounds[2], pCaseSensitive)
 
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SubStringsBetweenCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive) )
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
+			ok
 
-			on :stzListOfPairs
-				return new stzListOfPairs( This.SubStringsBetweenCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive) )
+		#--
 
-			other
-				StzRaise( "Unsupported return type!")
-			off
+		def BetweenSubStringsAsSectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.BetweenSubStringsCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def BoundedBySubStringsAsSectionsCS(pacBounds, pCaseSensitive)
+			return This.BoundedBySubStringsCSZZ(pacBounds, pCaseSensitive)
 
 		#>
 
-		#< @FunctionAlternativeForms
-
-		# TODO: Add ...AndTheirSections() alternatives to all ...ZZ() functions
-		# TODO: Add ...AndTheirPositions() alternatives to all ...Z() functions
-
-		def SubStringsBetweenAndTheirSectionsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubStringsBetweenCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenZZ(pcSubStr1, pcSubStr2)
-		return This.SubStringsBetweenCSZZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def BetweenSubStringsZZ(pcSubStr1, pcSubStr2)
+		return This.BetweenSubStringsCSZZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
-		#< @FunctionFluentForm
+		#< @FunctionAlternativeForm
 
-		def subStringsBetweenZZQ(pcSubStr1, pcSubStr2)
-			return This.SubStringsBetweenCSZZQ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+		def BoundedBySubStringsZZ(pacBounds)
+			return This.BoundedBySubStringsCSZZ(pacBounds, :CaseSensitive = TRUE)
 
-		def SubStringsBetweenZZQR(pcSubStr1, pcSubStr2, pcReturnType)
-			return This.SubStringsBetweenCSZZQR(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE, pcReturnType)
+		#--
+
+		def BetweenSubStringsAsSections(pcSubStr1, pcSubStr2)
+			return This.BetweenSubStringsZZ(pcSubStr1, pcSubStr2)
+
+		def BoundedBySubStringsAsSections(pacBounds)
+			return This.BoundedBySubStringsZZ(pacBounds)
 
 		#>
 
@@ -32859,8 +32883,8 @@ def ReplaceIBS()
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS -- Z/EXTENDED  #
 	#=========================================================#
 
-	def SubStringsBetweenCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-		aBetweenZZ = This.SubStringsBetweenCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def BetweenSubStringsCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+		aBetweenZZ = This.BetweenSubStringsCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
 		nLen = len(aBetweenZZ)
 
 		aResult = []
@@ -32872,26 +32896,28 @@ def ReplaceIBS()
 
 		#< @FunctionAlternativeForm
 
-		def AnySubStringsBetweenCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubStringsBetweenCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-		
+		def BoundedBySubStringsCSZ(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenSubStringsCSZ(pacBounds, pacBounds, pCaseSensitive)
+
+			but isList(pacBounds) and Q(pacBounds).IsListOfStrings()
+				return This.BetweenSubStringsCSZ(pacBounds[1], pacBounds[2], pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
+			ok
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenZ( pcSubStr1, pcSubStr2 )
-		return This.SubStringsBetweenCSZ( pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def BetweenSubStringsZ( pcSubStr1, pcSubStr2 )
+		return This.SubStringsBetweenCSZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def SubStringsBetweenAndTheirPositions( pcSubStr1, pcSubStr2 )
-			return This.SubStringsBetweenZ( pcSubStr1, pcSubStr2 )
-
-		def AnySubStringsBetweenZ(pcSubStr1, pcSubStr2)
-			return This.SubStringsBetweenZ(pcSubStr1, pcSubStr2)
-		
-		def AnySubStringsBetweenAndTheirPositions(pcSubStr1, pcSubStr2)
-			return This.SubStringsBetweenZ(pcSubStr1, pcSubStr2)
+		def BoundedBySubStringsZ(pacBounds, pCaseSensitive)
+			return This.BoundedBySubStringsCSZ(pacBounds, :CaseSensitive = TRUE)
 
 		#>
 
@@ -32911,9 +32937,6 @@ def ReplaceIBS()
 		ok
 		
 		#< @FunctionAlternativeForm
-
-		def AnyBetweenCSZZ(p1, p2, pCaseSensitive)
-			return This.BetweenCSZZ(p1, p2, pCaseSensitive)
 		
 		def BoundedByCSZZ(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
@@ -32926,7 +32949,12 @@ def ReplaceIBS()
 				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 			ok
 
-		def AnyBoundedByCSZZ(pacBounds, pCaseSensitive)
+		#--
+
+		def BetweenAsSectionsCS(p1, p2, pCaseSensitive)
+			return This.BetweenCSZZ(p1, p2, pCaseSensitive)
+
+		def BoundedByAsSectionsCS(pacBounds, pCaseSensitive)
 			return This.BoundedByCSZZ(pacBounds, pCaseSensitive)
 
 		#>
@@ -32937,14 +32965,16 @@ def ReplaceIBS()
 		return This.BetweenCSZZ(p1, p2, :CaseSensitive = TRUE)
  
 		#< @FunctionAlternativeForm
-
-		def AnyBetweenZZ(p1, p2)
-			return This.BetweenZZ(p1, p2)
 		
 		def BoundedByZZ(pacBounds)
 			return This.BoundedByCSZZ(pacBounds, :CaseSensitive = TRUE)
 
-		def AnyBoundedByZZ(pacBounds)
+		#--
+
+		def BetweenAsSections(p1, p2)
+			return This.BetweenZZ(p1, p2)
+
+		def BoundedByAsSections(pacBounds)
 			return This.BoundedByZZ(pacBounds)
 
 		#>
@@ -32953,8 +32983,8 @@ def ReplaceIBS()
 	 #  SUBSTRINGS BETWEEN TWO OTHER SUBSTRINGS #
 	#==========================================#
 
-	def SubStringsBetweenCS( pcSubStr1, pcSubStr2, pCaseSensitive )
-		aBetweenZZ = This.SubStringsBetweenCSZZ( pcSubStr1, pcSubStr2, pCaseSensitive )
+	def BetweenSubStringsCS( pcSubStr1, pcSubStr2, pCaseSensitive )
+		aBetweenZZ = This.BetweenSubStringsCSZZ( pcSubStr1, pcSubStr2, pCaseSensitive )
 		nLen = len(aBetweenZZ)
 
 		aResult = []
@@ -32965,40 +32995,31 @@ def ReplaceIBS()
 
 		return aResult
 
-		#< @FunctionFluentForm
-
-		def SubStringsBetweenCSQ( pcSubStr1, pcSubStr2, pCaseSensitive )
-			return This.SubStringsBetweenCSQR( pcSubStr1, pcSubStr2, pCaseSensitive, :stzList )
-
-		def SubStringsBetweenCSQR( pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType )
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SubStringsBetweenCS( pcSubStr1, pcSubStr2, pCaseSensitive ) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SubStringsBetweenCS( pcSubStr1, pcSubStr2, pCaseSensitive ) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
 		#< @FunctionAlternativeForms
 
-		// See them in bottom of file
+		def BoundedBySubStringsCS(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenSubStringsCS(pacBounds, pacBounds, pCaseSensitive)
 
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenSubStringsCS(pacBounds[1], pacBounds[2], pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			ok
+		
 		#>
 		
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetween( pcSubStr1, pcSubStr2 )
-		return This.SubStringsBetweenCS( pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def BetweenSubStrings(pcSubStr1, pcSubStr2)
+		return This.SubStringsBetweenCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		// See them in bottom of file
-
+		def BoundedBySubStrings(pacBounds, pCaseSensitive)
+			return This.BoundedBySubStringsCS(pacBounds, :CaseSensitive = TRUE)
+		
 		#>
 
 	  #------------------------------------------------------------------------------#
@@ -33018,52 +33039,26 @@ def ReplaceIBS()
 			return This.Section(p1, p2)
 
 		but BothAreStrings(p1, p2)
-			return this.SubStringsBetweenCSIB(p1, p2, pCaseSensitive)
+			return this.BetweenSubStringsCSIB(p1, p2, pCaseSensitive)
 
 		else
 			StzRaise("Incorrect param's types! p1 and p2 must be both numbers or both strings.")
 
 		ok
 
-		#< @FunctionFluentForm
+		#< @FunctionAlternativeForms
+	
+		def BoundedByCSIB(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenCSIB(pacBounds, pacBounds, pCaseSensitive)
 
-		def BetweenCSIBQ(p1, p2, pCaseSensitive)
-			Between = This.BetweenCSIB(p1, p2, pCaseSensitive)
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenCSIB(pacBounds[1], pacBounds[2], pCaseSensitive)
 
-			if isString(Between)
-				return new stzString(Between)
-
-			but isList(Between)
-				return new stzList(Between)
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
-
-		def BetweenCSIBQR(p1, p2, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsStzClassName() )
-
-				StzRaise("Incorrect param type! pcReturnType must be a string " +
-					 "containing a Softanza class name.")
-			ok
-
-			Between = This.BetweenCSIB(p1, p2, pCaseSensitive)
-
-			if isString(Between)
-				return new stzString(Between)
-
-			but isList(Between)
-				switch pcReturnType
-				on :stzList
-					return new stzList(Between)
-				on :stzListOfStrings
-					return new stzListOfStrings(Between)
-				other
-					StzRaise("Unsupported return type!")
-				off
-			ok
-
+		
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -33071,44 +33066,38 @@ def ReplaceIBS()
 	def BetweenIB(p1, p2)
 		return This.BetweenCSIB(p1, p2, :CaseSensitive = TRUE)
 
-		#< @FunctionFluentForm
-
-		def BetweenIBQ(p1, p2)
-			return This.BetweenCSIBQ(p1, p2, :CaseSensitive = TRUE)
-
-		def BetweenIBQR(p1, p2, pcReturnType)
-			return This.BetweenCSIBQR(p1, p2, :CaseSensitive = TRUE, pcReturnType)
+		#< @FunctionAlternativeForms
+	
+		def BoundedByIBZ(pacBounds)
+			return This.BoundedByIBZZ(pacBounds)
+			
 		#>
 
 	  #-----------------------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO SUBSTRINGS (OR POSITIONS) -- IB/Z() EXTENDED  #
-	#=======================================================================#
+	#-----------------------------------------------------------------------#
 
 	def BetweenCSIBZ(p1, p2, pCaseSensitive)
 	
 		acBetweenIBU = This.BetweenCSIB(p1, p2, pCaseSensitive)
-		anPositions  = This.FindAnyBetweenCSIB(p1, p2, pCaseSensitive)
+		anPositions  = This.FindBetweenCSIB(p1, p2, pCaseSensitive)
 
 		aResult = Association([ acBetweenIBU,  anPositions ])
 		return aResult
 	
 		#< @FunctionAlternativeForms
 	
-		def AnyBetweenCSIBZ(p1, p2, pCaseSensitive)
-			return This.BetweenCSIBZ(p1, p2, pCaseSensitive)
-	
 		def BoundedByCSIBZ(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
 				return This.BetweenCSIBZ(pacBounds, pacBounds, pCaseSensitive)
+
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.BetweenIBUCSZ(pacBounds[1], pacBounds[2], pCaseSensitive)
+				return This.BetweenCSIBZ(pacBounds[1], pacBounds[2], pCaseSensitive)
+
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
-	
-		def AnyBoundedByCSIBZ(pacBounds, pCaseSensitive)
-			return This.BoundedByCSIBZ(pacBounds, pCaseSensitive)
-
+		
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
@@ -33118,15 +33107,9 @@ def ReplaceIBS()
 	
 		#< @FunctionAlternativeForms
 	
-		def AnyBetweenIBZ(p1, p2)
-			return This.BetweenIBZ(p1, p2)
-	
 		def BoundedByIBZ(pacBounds)
 			return This.BoundedByCSIBZ(pacBounds, :CaseSensitive = TRUE)
-	
-		def AnyBoundedByIBZ(pacBounds)
-			return This.BoundedByIBZ(pacBounds)
-	
+			
 		#>
 		
 	  #------------------------------------------------------------------------#
@@ -33136,16 +33119,13 @@ def ReplaceIBS()
 	def BetweenCSIBZZ(p1, p2, pCaseSensitive)
 	
 		acBetweenIB = This.BetweenCSIB(p1, p2, pCaseSensitive)
-		anSections  = This.FindAnyBetweenAsSectionsCSIB(p1, p2, pCaseSensitive)
+		aSections  = This.FindBetweenCSIBZZ(p1, p2, pCaseSensitive)
 
-		aResult = Association([ acBetweenIB, anSections ])
+		aResult = Association([ acBetweenIB, aSections ])
 		return aResult
 	
 		#< @FunctionAlternativeForms
 	
-		def AnyBetweenCSIBZZ(p1, p2, pCaseSensitive)
-			return This.BetweenCSIBZZ(p1, p2, pCaseSensitive)
-
 		def BoundedByCSIBZZ(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
 				return This.BetweenCSIBZZ(pacBounds, pacBounds, pCaseSensitive)
@@ -33156,10 +33136,15 @@ def ReplaceIBS()
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
-	
-		def AnyBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+		
+		#--
+
+		def BetweenAsSectionsCSIB(p1, p2, pCaseSensitive)
+			return This.BetweenCSIBZZ(p1, p2, pCaseSensitive)
+
+		def BoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
 			return This.BoundedByCSIBZZ(pacBounds, pCaseSensitive)
-	
+
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
@@ -33169,197 +33154,173 @@ def ReplaceIBS()
 	
 		#< @FunctionAlternativeForms
 	
-		def AnyBetweenIBZZ(p1, p2)
-			return This.BetweenIBZZ(p1, p2)
-	
 		def BoundedByIBZZ(pacBounds)
 			return This.BoundedByCSIBZZ(pacBounds, :CaseSensitive = TRUE)
-	
-		def AnyBoundedByIBZZ(pacBounds)
+		
+		#--
+
+		def BetweenAsSectionsIB(p1, p2)
+			return This.BetweenIBZZ(p1, p2)
+
+		def BoundedByAsSectionsIB(pacBounds)
 			return This.BoundedByIBZZ(pacBounds)
-	
+
 		#>
 
 	  #----------------------------------------------------------------------#
 	 #   SUBSTRINGS ENCLOSED BETWEEN TWO OTHER SUBSTRINGS  -- IB/EXTENDED   # 
-	#======================================================================#
+	#----------------------------------------------------------------------#
 	# Bounds are considered in the results
 
-	def SubstringsBetweenCSIB(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def BetweenSubStringsCSIB(pcSubStr1, pcSubStr2, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
-		? o1.SubstringsBetweenIB("<<", ">>")
+		? o1.BetweenSubStringsIB("<<", ">>")
 
 		#--> [ "<<word1>>", "<<word2>>" ]
 		*/
 
-		aSections = This.FindAnyBetweenAsSectionsCSIB(pcSubStr1, pcSubStr2, pCaseSensitive)
+		aSections = This.FindBetweenCSIB(pcSubStr1, pcSubStr2, pCaseSensitive)
 		acResult = This.Sections(aSections)
 
 		return acResult
 
-		#< @FunctionFluentForm
+		#< @FunctionAlternativeForms
+	
+		def BoundedBySubStringsCSIB(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenSubStringsCSIB(pacBounds, pacBounds, pCaseSensitive)
 
-		def SubstringsBetweenCSIBQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubstringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenSubStringsCSIB(pacBounds[1], pacBounds[2], pCaseSensitive)
 
-		def SubstringsBetweenCSIBQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
+		
+		#--
 
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SubstringsBetweenCSIB(pcSubStr1, pcSubStr2, pCaseSensitive) )
+		def BetweenSubStringsAsSectionsCSIB(p1, p2, pCaseSensitive)
+			return This.BetweenSubStringsCSIB(p1, p2, pCaseSensitive)
 
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SubstringsBetweenCSIB(pcSubStr1, pcSubStr2, pCaseSensitive) )
+		def BoundedBySubStringsAsSectionsCSIB(pacBounds, pCaseSensitive)
+			return This.BoundedBySubStringsCSIB(pacBounds, pCaseSensitive)
 
-			other
-				stzRaise("Unsupported return type!")
-			off
-			
 		#>
+
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubstringsBetweenIB(pcSubStr1, pcSubStr2)
-		return This.SubstringsBetweenCSIB(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def BetweenSubStringsIB(pcSubStr1, pcSubStr2)
+		return This.BetweenSubStringsCSIB(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
-		#< @FunctionFluentForm
+		#< @FunctionAlternativeForms
+	
+		def BoundedBySubstringsIB(pacBounds)
+			return This.BoundedBySubStringsCSIB(pacBounds, :CaseSensitive = TRUE)
+		
+		#--
 
-		def SubstringsBetweenIBQ(pcSubStr1, pcSubStr2)
-			return This.SubstringsBetweenIBQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
+		def BetweenSubStringsAsSectionsIB(p1, p2)
+			return This.BetweenSubStringsIB(p1, p2)
 
-		def SubstringsBetweenIBQR(pcSubStr1, pcSubStr2, pcReturnType)
-			return This.SubStringsBetweenCSIBQR(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE, pcReturnType)
+		def BoundedBySubStringsAsSectionsIB(pacBounds)
+			return This.BoundedBySubStringsIB(pacBounds)
 
 		#>
 
 	  #--------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO SUBSTRINGS -- IB/Z() EXTENDED  #
-	#========================================================#
+	#--------------------------------------------------------#
 
-	def SubStringsBetweenCSIBZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def BetweenSubStringsCSIBZ(pcSubStr1, pcSubStr2, pCaseSensitive)
 	
-		acBetweenIB = This.SubStringsBetweenCSIB(pcSubStr1, pcSubStr2, pCaseSensitive)
-		anPositions = This.FindBetweenCSIB(pcSubStr1, pcSubStr2, pCaseSensitive)
+		acBetweenIB = This.BetweenSubStringsCSIB(pcSubStr1, pcSubStr2, pCaseSensitive)
+		anPositions = This.FindSubStringsBetweenCSIB(pcSubStr1, pcSubStr2, pCaseSensitive)
 		aResult = Association([ acBetweenIB, anPositions ])
 	
 		return aResult
 	
 		#< @FunctionAlternativeForms
 	
-		def AnySubStringBetweenCSIBZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.BetweenCSIBZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-
-		def AnySubStringsBetweenCSIBZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.BetweenCSIBZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-		
-		def SubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
+		def BoundedBySubStringsCSIBZ(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
-				return This.SubStringsBetweenCSIBZ(pacBounds, pacBounds, pCaseSensitive)
+				return This.BetweenSubStringsCSIBZ(pacBounds, pacBounds, pCaseSensitive)
 
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.SubstringsBetweenCSIBZ(pacBounds[1], pacBounds[2], pCaseSensitive)
+				return This.BetweenSubStringsCSIBZ(pacBounds[1], pacBounds[2], pCaseSensitive)
 
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
-	
-		def AnySybStringBoundedByCSIBZ(pacBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
-
-		def AnySybStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
-	
+		
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
 	
-	def SubStringsBetweenIBZ(pcSubStr1, pcSubStr2)
+	def BetweenSubStringsIBZ(pcSubStr1, pcSubStr2)
 		return This.SubStringsBetweenCSIBZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 	
 		#< @FunctionAlternativeForms
 	
-		def AnySubStringBetweenIBZ(pcSubStr1, pcSubStr2)
-			return This.SubStringsBetweenIBZ(pcSubStr1, pcSubStr2)
-	
-		def AnySubStringsBetweenIBZ(pcSubStr1, pcSubStr2)
-			return This.SubStringsBetweenIBZ(pcSubStr1, pcSubStr2)
+		def BoundedBySubStringsIBZ(pacBounds)
+			return This.BoundedBySubStringsCSIBZ(pacBounds, :CaseSensitive = TRUE)
 
-		def SubStringsBoundedByIBZ(pacBounds)
-			return This.SubstringsBoundedByCSIBZ(pacBounds, :CaseSensitive = TRUE)
-	
-		def AnySubStringBoundedByIBZ(pacBounds)
-			return This.SubStringsBoundedByIBZ(pacBounds)
-
-		def AnySubStringsBoundedByIBZ(pacBounds)
-			return This.SubStringsBoundedByIBZ(pacBounds)
-	
 		#>
 		
 	  #---------------------------------------------------------#
 	 #  SUBSTRINGS BETWEEN TWO SUBSTRINGS -- IB/ZZ() EXTENDED  #
-	#=========================================================#
+	#--------------------------------------------------------#
 
-	def SubStringsBetweenCSIBZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def BetweenSubStringsCSIBZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
 	
-		acBetweenIB = This.SubStringsBetweenCSIB(pcSubStr1, pcSubStr2, pCaseSensitive)
-		anSections  = This.FindBetweenAsSectionsCSIB(pcSubStr1, pcSubStr2, pCaseSensitive)
-		aResult = Association( :Of = acBetweenIB, :And = anPositions )
+		acBetweenIB = This.BetweenSubStringsCSIB(pcSubStr1, pcSubStr2, pCaseSensitive)
+		anSections  = This.FindSubstringsBetweenCSIBZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+		aResult = Association([ acBetweenIB, anPositions ])
 	
 		return aResult
 	
 		#< @FunctionAlternativeForms
-	
-		def AnySubStringBetweenCSIBZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubStringsBetweenCSIBZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-	
-		def AnySubStringsBetweenCSIBZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubStringsBetweenCSIBZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-	
-		def SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+			
+		def BoundedBySubStringsCSIBZZ(pacBounds, pCaseSensitive)
 			if isString(pacBounds)
-				return This.SubstringsBetweenCSIBZZ(pacBounds, pacBounds, pCaseSensitive)
+				return This.BetweenSubStringsCSIBZZ(pacBounds, pacBounds, pCaseSensitive)
 
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				return This.SubStringsBetweenCSIBZZ(pacBounds[1], pacBounds[2], pCaseSensitive)
+				return This.BetweenSubStringsCSIBZZ(pacBounds[1], pacBounds[2], pCaseSensitive)
 
 			else
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 	
-		def AnySubstringBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+		#--
 
-		def AnySubstringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+		def BetweenSubStringsAsSectionsCSIB(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.BetweenSubStringsCSIBZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def BoundedBySubStringsAsSectionsCSIB(pacBounds, pCaseSensitive)
+			return This.BoundedBySubStringsCSIBZZ(pacBounds, pCaseSensitive)
 
 		#>
 	
 	#-- WITHOUT CASESENSITIVITY
 	
-	def SubstringsBetweenIBZZ(pcSubStr1, pcSubStr2)
-		return This.SubStringsBetweenCSIBZZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def BetweenSubStringsIBZZ(pcSubStr1, pcSubStr2)
+		return This.BetweenSubStringsCSIBZZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 	
 		#< @FunctionAlternativeForms
 	
-		def AnySubStringBetweenIBZZ(pcSubStr1, pcSubStr2)
-			return This.SubStringsBetweenIBZZ(pcSubStr1, pcSubStr2)
+		def BoundedBySubStringsIBZZ(pacBounds)
+			return This.BoundedBySubStringsCSIBZZ(pacBounds, :CaseSensitive = TRUE)
 
-		def AnySubStringsBetweenIBZZ(pcSubStr1, pcSubStr2)
-			return This.SubStringsBetweenIBZZ(pcSubStr1, pcSubStr2)
+		#--
 
-		def SubstringsBoundedByIBZZ(pacBounds)
-			return This.subStringsBoundedByCSIBZZ(pacBounds, :CaseSensitive = TRUE)
-	
-		def AnySubStringBoundedByIBZZ(pacBounds)
-			return This.SubStringsBoundedByIBZZ(pacBounds)
-	
-		def AnySubStringsBoundedByIBZZ(pacBounds)
-			return This.SubStringsBoundedByIBZZ(pacBounds)
+		def BetweenSubStringsAsSectionsIB(pcSubStr1, pcSubStr2)
+			return This.BetweenSubStringsIBZZ(pcSubStr1, pcSubStr2)
+
+		def BoundedBySubStringsAsSectionsIB(pacBounds)
+			return This.BoundedBySubStringsIBZZ(pacBounds)
 
 		#>
 
@@ -33367,7 +33328,7 @@ def ReplaceIBS()
 	 #  UNIQUE SUBSTRING(S) ENCLOSED BETWEEN TWO OTHER SUBSTRINGS (OR POSITIONS)  # 
 	#============================================================================#
 
-	def BetweenUCS(p1, p2, pCaseSensitive)
+	def BetweenCSU(p1, p2, pCaseSensitive)
 		if isList(p1) and Q(p1).IsOneOfTheseNamedParams([ :SubString, :Position, :SubStrings, :Positions ])
 			p1 = p1[2]
 		ok
@@ -33380,7 +33341,7 @@ def ReplaceIBS()
 			return This.Section(p1, p2)
 
 		but BothAreStrings(p1, p2)
-			acResult = This.BetweenCSQ(p1, p2, pCaseSensitive).DupplicatesRemoved()
+			acResult = Q( This.BetweenCS(p1, p2, pCaseSensitive) ).DupplicatesRemoved()
 			return acResult
 
 		else
@@ -33388,57 +33349,18 @@ def ReplaceIBS()
 
 		ok
 
-		#< @FunctionFluentForm
-
-		def BetweenUCSQ(p1, p2, pCaseSensitive)
-			Between = This.BetweenCS(p1, p2, pCaseSensitive)
-
-			if isString(Between)
-				return new stzString(Between)
-
-			but isList(Between)
-				return new stzList(Between)
-			ok
-
-		def BetweenUCSQR(p1, p2, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsStzClassName() )
-
-				StzRaise("Incorrect param type! pcReturnType must be a string " +
-					 "containing a Softanza class name.")
-			ok
-
-			Between = This.BetweenCS(p1, p2, pCaseSensitive)
-
-			if isString(Between)
-				return new stzString(Between)
-
-			but isList(Between)
-				switch pcReturnType
-				on :stzList
-					return new stzList(Between)
-				on :stzListOfStrings
-					return new stzListOfStrings(Between)
-				other
-					StzRaise("Unsupported return type!")
-				off
-			ok
-
-		#>
-
 		#< @FunctionAlternativeForm
 
-		def AnyBetweenUCS(p1, p2, pCaseSensitive)
-			return This.BetweenUCS(p1, p2, pCaseSensitive)
+		def BoundedByCSU(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenCSU(pacBounds, pacBounds, pCaseSensitive)
 
-		def AnyBetweenUCSQ(p1, p2, pCaseSensitive)
-			return This.BetweenUCSQ(p1, p2, pCaseSensitive)
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenCSU(pacBounds[1], pacBounds[2], pCaseSensitive)
 
-		def AnyBetweenUCSQR(p1, p2, pCaseSensitive, pcReturType)
-			return This.BetweenUCSQR(p1, p2, pCaseSensitive, pcReturType)
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			ok
 
 		#>
 
@@ -33447,90 +33369,47 @@ def ReplaceIBS()
 	def BetweenU(p1, p2)
 		return This.BetweenUCS(p1, p2, :CaseSensitive = TRUE)
 
-		#< @FunctionFluentForm
-
-		def BetweenUQ(p1, p2)
-			return This.BetweenUCSQ(p1, p2, :CaseSensitive = TRUE)
-
-		def BetweenUQR(p1, p2, pcReturnType)
-			return This.BetweenUCSQR(p1, p2, :CaseSensitive = TRUE, pcReturnType)
-		#>
-
 		#< @FunctionAlternativeForm
 
-		def AnyBetweenU(p1, p2)
-			return This.BetweenU(p1, p2)
-
-		def AnyBetweenUQ(p1, p2)
-			return This.BetweenUQ(p1, p2)
-
-		def AnyBetweenUQR(p1, p2)
-			return This.BetweenUQR(p1, p2)
-
+		def BoundedByU(pacBounds)
+			return This.BoundedByCSU(pacBounds, :CaseSensitive = TRUE)
 		#>
 
 	  #--------------------------------------------------------------------------#
 	 #  UNIQUE SUBSTRINGS ENCLOSED BETWEEN TWO OTHER SUBSTRINGS (OR POSITIONS)  #
-	#==========================================================================#
+	#--------------------------------------------------------------------------#
 
-	def SubstringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		acResult = This.SubStringsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive).
+	def BetweenSubstringsCSU(pcSubStr1, pcSubStr2, pCaseSensitive)
+		acResult = Q( This.BetweenSubstringsCS(pcSubStr1, pcSubStr2, pCaseSensitive) ).
 				DuplicatesRemoved()
 
 		return acResult
 
-		#< @FunctionFluentForm
-
-		def SubstringsBetweenUCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubstringsBetweenUCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
-
-		def SubstringsBetweenUCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-			acResult = This.SubstringsBetweenCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType).
-				DuplicatesRemoved()
-
-			return acResult
-
-		#>
 
 		#< @FunctionAlternativeForm
 
-		def AnySubStringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubStringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		def BoundedBySybStringsCSU(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenSubstringsCSU(pacBounds, pacBounds, pCaseSensitive)
 
-		def AnySubStringsBetweenUCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubStringsBetweenUCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenSubstringsCSU(pacBounds[1], pacBounds[2], pCaseSensitive)
 
-		def AnySubStringsBetweenUCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturType)
-			return This.SubStringsBetweenUCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturType)
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			ok
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubstringsBetweenU(pcSubStr1, pcSubStr2)
+	def SubStringsBetweenU(pcSubStr1, pcSubStr2)
 		return This.SubstringsBetweenUCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def SubstringsBetweenUQ(pcSubStr1, pcSubStr2)
-			return This.SubstringsBetweenUQR(pcSubStr1, pcSubStr2, :stzList)
-
-		def SubstringsBetweenUQR(pcSubStr1, pcSubStr2, pcReturnType)
-			return This.SubstringsBetweenICSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-
-		#>
-
 
 		#< @FunctionAlternativeForm
 
-		def AnySubStringsBetweenU(pcSubStr1, pcSubStr2)
-			return This.SubStringsBetweenU(pcSubStr1, pcSubStr2)
-
-		def AnySubStringsBetweenUQ(pcSubStr1, pcSubStr2)
-			return This.SubStringsBetweenUQ(pcSubStr1, pcSubStr2)
-
-		def AnySubStringsBetweenUQR(pcSubStr1, pcSubStr2, pcReturType)
-			return This.SubStringsBetweenUCQR(pcSubStr1, pcSubStr2, pcReturType)
+		def BoundedBySybStringsU(pacBounds)
+			return This.BoundedBySybStringsCSU(pacBounds, :CaseSensitive = TRUE)
 
 		#>
 
@@ -33538,7 +33417,8 @@ def ReplaceIBS()
 	 #  UNIQUE SUBSTRING(S) ENCLOSED BETWEEN TWO OTHER SUBSTRINGS (OR POSITIONS) -- IB/Extended  # 
 	#===========================================================================================#
 
-	def BetweenIBUCS(p1, p2, pCaseSensitive)
+	def BetweenCSIBU(p1, p2, pCaseSensitive)
+
 		if isList(p1) and Q(p1).IsOneOfTheseNamedParams([ :SubString, :Position, :SubStrings, :Positions ])
 			p1 = p1[2]
 		ok
@@ -33551,7 +33431,7 @@ def ReplaceIBS()
 			return This.Section(p1, p2)
 
 		but BothAreStrings(p1, p2)
-			acResult = This.BetweenCSIBQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+			acResult = Q( This.BetweenCSIB(p1, p2, pCaseSensitive) ).DuplicatesRemoved()
 			return acResult
 
 		else
@@ -33559,148 +33439,67 @@ def ReplaceIBS()
 
 		ok
 
-		#< @FunctionFluentForm
-
-		def BetweenIBUCSQ(p1, p2, pCaseSensitive)
-			Between = This.BetweenIBUCS(p1, p2, pCaseSensitive)
-
-			if isString(Between)
-				return new stzString(Between)
-
-			but isList(Between)
-				return new stzList(Between)
-			ok
-
-		def BetweenIBUCSQR(p1, p2, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsStzClassName() )
-
-				StzRaise("Incorrect param type! pcReturnType must be a string " +
-					 "containing a Softanza class name.")
-			ok
-
-			Between = This.BetweenIBUCS(p1, p2, pCaseSensitive)
-
-			if isString(Between)
-				return new stzString(Between)
-
-			but isList(Between)
-				switch pcReturnType
-				on :stzList
-					return new stzList(Between)
-				on :stzListOfStrings
-					return new stzListOfStrings(Between)
-				other
-					StzRaise("Unsupported return type!")
-				off
-			ok
-
-		#>
-
 		#< @FunctionAlternativeForm
 
-		def AnyBetweenIBUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.BetweenIBUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		def BoundedByCSU(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenCSIBU(pacBounds, pacBounds, pCaseSensitive)
 
-		def AnyBetweenIBUCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.BetweenIBUCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenCSIBU(pacBounds[1], pacBounds[2], pCaseSensitive)
 
-		def AnyBetweenIBUCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-			return This.BetweenIBUCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			ok
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def BetweenIBU(p1, p2)
-		return This.BetweenIBUCS(p1, p2, :CaseSensitive = TRUE)
-
-		#< @FunctionFluentForm
-
-		def BetweenIBUQ(p1, p2)
-			return This.BetweenIBUCSQ(p1, p2, :CaseSensitive = TRUE)
-
-		def BetweenIBUQR(p1, p2, pcReturnType)
-			return This.BetweenIBUCSQR(p1, p2, :CaseSensitive = TRUE, pcReturnType)
-		#>
+		return This.BetweenCSIBU(p1, p2, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def AnyBetweenIBU(pcSubStr1, pcSubStr2)
-			return This.BetweenIBU(pcSubStr1, pcSubStr2)
-
-		def AnyBetweenIBUQ(pcSubStr1, pcSubStr2)
-			return This.BetweenIBUQ(pcSubStr1, pcSubStr2)
-
-		def AnyBetweenIBUQR(pcSubStr1, pcSubStr2, pcReturnType)
-			return This.BetweenIBUQR(pcSubStr1, pcSubStr2, pcReturnType)
+		def BoundedByU(pacBounds, pCaseSensitive)
+			return This.BoundedByCSU(pacBounds, :CaseSensitive = TRUE)
 
 		#>
 
 	  #-----------------------------------------------------------------------------#
 	 #   UNIQUE SUBSTRINGS ENCLOSED BETWEEN TWO OTHER SUBSTRINGS  -- IB/EXTENDED   # 
-	#=============================================================================#
+	#-----------------------------------------------------------------------------#
 
-	def SubstringsBetweenIBUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def BetweenSubStringsCSIBU(pcSubStr1, pcSubStr2, pCaseSensitive)
 		acResult = This.SubStringsBetweenCSIBQ(pcSubStr1, pcSubStr2, pCaseSensitive).
 				DuplicatesRemoved()
 
 		return acResult
 
-		#< @FunctionFluentForm
+		#< @FunctionAlternativeForms
 
-		def SubstringsBetweenIBUCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubstringsBetweenIBUCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
+		def BoundedBySubStringsCSIBU(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenSubStringsCSIBU(pacBounds, pacBounds, pCaseSensitive)
 
-		def SubstringsBetweenIBUCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-			acResult = This.SubstringsBetweenCSIBQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType).
-				DuplicatesRemoved()
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenSubStringsCSIBU(pacBounds[1], pacBounds[2], pCaseSensitive)
 
-			return acResult
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def AnySubstringsBetweenIBUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubstringsBetweenIBUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-
-		def AnySubstringsBetweenIBUCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubstringsBetweenIBUCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-
-		def AnySubstringsBetweenIBUCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-			return This.SubstringsBetweenIBUCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			ok
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubstringsBetweenIBU(pcSubStr1, pcSubStr2)
-		return This.SubstringsBetweenIBUCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def BetweenSubstringsIBU(pcSubStr1, pcSubStr2)
+		return This.BetweenSubStringsIBUCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
-		#< @FunctionFluentForm
+		#< @FunctionAlternativeForms
 
-		def SubstringsBetweenIBUQ(pcSubStr1, pcSubStr2)
-			return This.SubstringsBetweenIBUQR(pcSubStr1, pcSubStr2, :stzList)
-
-		def SubstringsBetweenIBUQR(pcSubStr1, pcSubStr2, pcReturnType)
-			return This.SubstringsBetweenIBUSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def AnySubstringsBetweenIBU(pcSubStr1, pcSubStr2)
-			return This.SubstringsBetweenIBU(pcSubStr1, pcSubStr2)
-
-		def AnySubstringsBetweenIBUQ(pcSubStr1, pcSubStr2)
-			return This.SubstringsBetweenIBUQ(pcSubStr1, pcSubStr2)
-
-		def AnySubstringsBetweenIBUQR(pcSubStr1, pcSubStr2, pcReturnType)
-			return This.SubstringsBetweenIBUQR(pcSubStr1, pcSubStr2, pcReturnType)
+		def BoundedBySubStringsIBU(pacBounds)
+			return This.BoundedBySubStringsCSIBU(pacBounds, :CaseSensitive = TRUE)
 
 		#>
 
@@ -33709,8 +33508,8 @@ def ReplaceIBS()
 	#===================================================================#
 	# TODO: add FluentForms and AlternativeForms
 
-	def BetweenUCSZ(p1, p2, pCaseSensitive)
-		acBetween = This.BetweenUCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+	def BetweenCSUZ(p1, p2, pCaseSensitive)
+		acBetween = Q( This.BetweenCS(p1, p2, pCaseSensitive) ).DuplicatesRemoved()
 		nLen = len(acBetween)
 	
 		aResult = []
@@ -33721,62 +33520,158 @@ def ReplaceIBS()
 	
 		return aResult
 	
+		#< @FunctionAlternativeForm
+
+		def BoundedByCSUZ(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenCSUZ(pacBounds, pacBounds, pCaseSensitive)
+
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenCSUZ(pacBounds[1], pacBounds[2], pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			ok
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def BetweenUZ(p1, p2, pCaseSensitive)
-		return BetweenUCSZ(p1, p2, :CaseSensitive = TRUE)
+		return BetweenCSUZ(p1, p2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def BoundedByUZ(pacBounds)
+			return This.BoundedByCSUZ(pacBounds, :CaseSensitive = TRUE)
+
+		#>
 
 	  #------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- UZ/EXTENDED  #
-	#============================================================#
+	#------------------------------------------------------------#
 
-	def SubStringsBetweenUCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def BetweenSubStringsCSUZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+		if NOT BothAreStrings(pcSubStr1, pcSubStr2)
+			StzRaise("Incorrect params types! pcSubStr1 and pcSubStr2 must both be strings.")
+		ok
+
 		return This.BetweenUCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		#< @FunctionAlternativeForm
+
+		def BoundedBySubStringsCSUZ(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenSubStringsCSUZ(pacBounds, pacBounds, pCaseSensitive)
+
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenSubStringsCSUZ(pacBounds[1], pacBounds[2], pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			ok
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenUZ(pcSubStr1, pcSubStr2)
-		return This.SubStringsBetweenUCSZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def BetweenSubStringsUZ(pcSubStr1, pcSubStr2)
+		return This.SubStringsBetweenCSUZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def BoundedBySubStringsUZ(pacBounds)
+			return This.BoundedBySubStringsCSUZ(pacBounds, :CaseSensitive = TRUE)
+
+		#>
 
 	  #--------------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- UZZ/EXTENDED  #
 	#====================================================================#
 
-	def BetweenUCSZZ(p1, p2, pCaseSensitive)
-		acBetween = This.BetweenUCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+	def BetweenCSUZZ(p1, p2, pCaseSensitive)
+		acBetween = Q( This.BetweenCS(p1, p2, pCaseSensitive) ).DuplicatesRemoved()
 		nLen = len(acBetween)
 	
 		aResult = []
 		for i = 1 to nLen
-			aSections = This.FindBetweenAsSectionsCS(acBetween[i], p1, p2, pCaseSensitive)
+			aSections = This.FindSubStringBetweenCSZZ(acBetween[i], p1, p2, pCaseSensitive)
 			aResult + [ acBetween[i], aSections ]
 		next i
 	
 		return aResult
 	
+		#< @FunctionAlternativeForm
+
+		def BoundedByCSUZZ(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenCSUZZ(pacBounds, pacBounds, pCaseSensitive)
+
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenCSUZZ(pacBounds[1], pacBounds[2], pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			ok
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def BetweenUZZ(p1, p2)
-		return BetweenUCSZZ(p1, p2, :CaseSensitive = TRUE)
+		return BetweenCSUZZ(p1, p2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def BoundedByUZZ(pacBounds)
+			return This.BoundedByCSUZZ(pacBounds, :CaseSensitive = TRUE)
+
+		#>
 
 	  #-------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- UZZ/EXTENDED  #
-	#=============================================================#
+	#-------------------------------------------------------------#
 
-	def SubStringsBetweenUCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-		return This.BetweenUCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def BetweenSubStringsCSUZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+		if NOT BothAreStrings(pcSubStr1, pcSubStr2)
+			StzRaise("Incorrect params types! pcSubStr1 and pcSubStr2 must both be strings.")
+		ok
+
+		return This.BetweenCSUZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		#< @FunctionAlternativeForm
+
+		def BoundedBySubStringsCSUZZ(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenSubStringsCSUZZ(pacBounds, pacBounds, pCaseSensitive)
+
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenSubStringsCSUZZ(pacBounds[1], pacBounds[2], pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			ok
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenUZZ(pcSubStr1, pcSubStr2)
-		return This.SubStringsBetweenUCSZZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def BetweenSubStringsUZZ(pcSubStr1, pcSubStr2)
+		return This.BetweenSubStringsCSUZZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def BoundedBySubStringsUZZ(pacBounds)
+			return This.BoundedBySubStringsCSUZZ(pacBounds, :CaseSensitive = TRUE)
+
+		#>
 
 	  #---------------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- IBUZ/EXTENDED  #
 	#=====================================================================#
 
-	def BetweenIBUCSZ(p1, p2, pCaseSensitive)
-		acBetween = This.BetweenCSIBQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+	def BetweenCSIBUZ(p1, p2, pCaseSensitive)
+		acBetween = Q( This.BetweenCSIB(p1, p2, pCaseSensitive) ).DuplicatesRemoved()
 		nLen = len(acBetween)
 	
 		aResult = []
@@ -33786,29 +33681,73 @@ def ReplaceIBS()
 		next i
 	
 		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def BoundedByCSIBUZ(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenCSIBUZ(pacBounds, pacBounds, pCaseSensitive)
+
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenCSIBUZ(pacBounds[1], pacBounds[2], pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			ok
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def BetweenIBUZ(p1, p2)
 		return This.BetweenIBUCSZ(p1, p2, :CaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForm
+
+		def BoundedByIBUZ(pacBounds, pCaseSensitive)
+			return This.BoundedByCSIBUZ(pacBounds, :CaseSensitive = TRUE)
+
+		#>
+
 	  #--------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- IBUZ/EXTENDED  #
-	#==============================================================#
+	#--------------------------------------------------------------#
 
-	def SubStringsBetweenIBUCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-		return This.BetweenIBUCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def BetweenSubStringsCSIBUZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.BetweenCSIBUZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		#< @FunctionAlternativeForm
+
+		def BoundedBySubStringsCSIBUZ(pacBounds, pCaseSensitive)
+			if isString(pacBounds)
+				return This.BetweenSubStringsCSIBUZ(pacBounds, pacBounds, pCaseSensitive)
+
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.BetweenSubStringsCSIBUZ(pacBounds[1], pacBounds[2], pCaseSensitive)
+
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			ok
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenIBUZ(pcSubStr1, pcSubStr2)
-		return This.SubStringsBetweenIBUCSZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def BetweenSubstringsIBUZ(pcSubStr1, pcSubStr2)
+		return This.BetweenSubStringsCSIBUZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def BoundedBySubStringsIBUZ(pacBounds)
+			return This.BoundedBySubStringsCSIBUZ(pacBounds, :CaseSensitive = TRUE)
+
+		#>
 
 	  #----------------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- IBUZZ/EXTENDED  #
 	#======================================================================#
 
-	def BetweenIBUCSZZ(p1, p2, pCaseSensitive)
+	def BetweenCSIBUZZ(p1, p2, pCaseSensitive)
 		acBetween = This.BetweenCSIBQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
 		nLen = len(acBetween)
 	
@@ -33820,29 +33759,41 @@ def ReplaceIBS()
 	
 		return aResult
 
+		def SubStringsBetweenCSIBUZZ(p1, p2, pCaseSensitive)
+			return This.BetweenCSIBUZZ(p1, p2, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def BetweenIBUZZ(p1, p2)
-		return This.BetweenIBUCSZZ(p1, p2, :CaseSensitive = TRUE)
+		return This.BetweenCSIBUZZ(p1, p2, :CaseSensitive = TRUE)
+
+		def SubStringsBetweenIBUZZ(p1, p2)
+			return This.BetweenIBUZZ(p1, p2)
 
 	  #---------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- IBUZZ/EXTENDED  #
-	#===============================================================#
+	#---------------------------------------------------------------#
 
-	def SubStringsBetweenIBUCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-		return This.BetweenIBUCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def BetweenSubStringsCSIBUZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.BetweenCSIBUZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def SubStringsBetweenSubStringsCSIBUZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.BetweenSubStringsCSIBUZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenIBUZZ(pcSubStr1, pcSubStr2)
-		return This.SubStringsBetweenIBUCSZZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def BetweenSubStringsIBUZZ(pcSubStr1, pcSubStr2)
+		return This.BetweenSubStringsIBUCSZZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
 
-	  #--------------------------------------------------------------------#
-	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SUZ/EXTENDED  #
-	#====================================================================#
+		def SubStringsBetweenSubStringsIBUZZ(pcSubStr1, pcSubStr2)
+			return This.BetweenSubStringsIBUZZ(pcSubStr1, pcSubStr2)
 
-	def BetweenSUCSZ(p1, p2, pCaseSensitive)
-		acBetween = This.BetweenSCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+	  #-------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- UZ/EXTENDED  #
+	#===================================================================#
+
+	def BetweenCSUZ(p1, p2, pCaseSensitive)
+		acBetween = This.BetweenCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
 		nLen = len(acBetween)
 	
 		aResult = []
@@ -33853,29 +33804,43 @@ def ReplaceIBS()
 	
 		return aResult
 
-	#-- WITHOUT CASESENSITIVITY
-
-	def BetweenSUZ(p1, p2)
-		return This.BetweenSUCSZ(p1, p2, :CaseSensitive = TRUE)
-
-	  #-------------------------------------------------------------#
-	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- SUZ/EXTENDED  #
-	#=============================================================#
-
-	def SubStringsBetweenSUCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-		return This.BetweenSUCSZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+		def SubStringsBetweenCSUZ(p1, p2, pCaseSensitive)
+			return This.BetweenCSUZ(p1, p2, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenSUZ(pcSubStr1, pcSubStr2)
-		return This.SubStringsBetweenSUCSZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def BetweenUZ(p1, p2)
+		return This.BetweenCSUZ(p1, p2, :CaseSensitive = TRUE)
 
-	  #---------------------------------------------------------------------#
-	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SUZZ/EXTENDED  #
-	#=====================================================================#
+		def SubStringsBetweenUZ(p1, p2)
+			return This.BetweenUZ(p1, p2)
 
-	def BetweenSUCSZZ(p1, p2, pCaseSensitive)
-		acBetween = This.BetweenSCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
+	   #-----------------------------------------------------#
+	  #  UNIQUE SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS   #
+	 #  ALO?G WITH THEIR POSITIONS -- UZ/EXTENDED          #
+	#-----------------------------------------------------#
+
+	def BetweenSubStringsCSUZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.BetweenCSUZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def SubStringsBetweenSubStringsCSUZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.BetweenSubStringsCSUZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenSubStringsUZ(pcSubStr1, pcSubStr2)
+		return This.BetweenSubStringsCSUZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+		def SubStringsBetweenSubStringsUZ(pcSubStr1, pcSubStr2)
+			return This.BetweenSubStringsUZ(pcSubStr1, pcSubStr2)
+
+	   #------------------------------------------------------------#
+	  #  UNIQUE SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS   #
+	 #  ALONG WITH THEIR POSITIONS -- UZZ/EXTENDED                #
+	#============================================================#
+
+	def BetweenCSUZZ(p1, p2, pCaseSensitive)
+		acBetween = This.BetweenCSQ(p1, p2, pCaseSensitive).DuplicatesRemoved()
 		nLen = len(acBetween)
 	
 		aResult = []
@@ -33886,29 +33851,41 @@ def ReplaceIBS()
 	
 		return aResult
 
-	#-- WITHOUT CASESENSITIVITY
-
-	def BetweenSUZZ(p1, p2)
-		return This.BetweenSUCSZZ(p1, p2, :CaseSensitive = TRUE)
-
-	  #--------------------------------------------------------------#
-	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- SUZZ/EXTENDED  #
-	#==============================================================#
-
-	def SubStringsBetweenSUCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
-		return This.BetweenSUCSZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+		def SubStringsBetweenCSUZZ(p1, p2, pCaseSensitive)
+			return This.BetweenCSUZZ(p1, p2, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenSUZZ(pcSubStr1, pcSubStr2)
-		return This.SubStringsBetweenSUCSZZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+	def BetweenUZZ(p1, p2)
+		return This.BetweenUCSZZ(p1, p2, :CaseSensitive = TRUE)
 
-	  #---------------------------------------------------------------------#
-	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SDUZ/EXTENDED  #
-	#=====================================================================#
+		def SubStringsBetweenUZZ(p1, p2)
+			return This.BetweenUZZ(p1, p2)
 
-	def BetweenSDUCSZ(p1, p2, pnStartingAt, pCaseSensitive)
-		acBetween = This.BetweenSDCSQ(p1, p2, pnStartingAt, pCaseSensitive).DuplicatesRemoved()
+	  #--------------------------------------------------------------------#
+	 #  UNIQUE SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- UZZ/EXTENDED  #
+	#--------------------------------------------------------------------#
+
+	def BetweenSubStringsCSUZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.BetweenCSUZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def SubStringsBetweenSubStringsCSUZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.BetweenSubStringsCSUZZ(pcSubStr1, pcSubStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenSubStringsUZZ(pcSubStr1, pcSubStr2)
+		return This.BetweenSubStringsCSUZZ(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+
+		def SubStringsBetweenSubStringsUZZ(pcSubStr1, pcSubStr2)
+			return This.BetweenSubStringsUZZ(pcSubStr1, pcSubStr2)
+
+	  #--------------------------------------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS STARTING AT A GIVEN POSITION -- SUZ/EXTENDED  #
+	#==================================================================================================#
+
+	def BetweenSCSUZ(p1, p2, pnStartingAt, pCaseSensitive)
+		acBetween = This.BetweenSCSQ(p1, p2, pnStartingAt, pCaseSensitive).DuplicatesRemoved()
 		nLen = len(acBetween)
 	
 		aResult = []
@@ -33919,28 +33896,42 @@ def ReplaceIBS()
 	
 		return aResult
 
-	#-- WITHOUT CASESENSITIVITY
-
-	def BetweenSDUZ(p1, p2)
-		return This.BetweenSDUCSZ(p1, p2, pnStartingAt, :CaseSensitive = TRUE)
-
-	  #--------------------------------------------------------------#
-	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- SDUZ/EXTENDED  #
-	#==============================================================#
-
-	def SubStringsBetweenSDUCSZ(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
-		return This.BetweenSDUCSZ(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+		def SubStringsBetweenSCSUZ(p1, p2, pnStartingAt, pCaseSensitive)
+			return This.BetweenSCSUZ(p1, p2, pnStartingAt, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenSDUZ(pcSubStr1, pcSubStr2, pnStartingAt)
-		return This.SubStringsBetweenSDUCSZ(pcSubStr1, pcSubStr2, pnStartingAt, :CaseSensitive = TRUE)
+	def BetweenSUZ(p1, p2)
+		return This.BetweenSCSUZ(p1, p2, pnStartingAt, :CaseSensitive = TRUE)
 
-	  #----------------------------------------------------------------------#
-	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SDUZZ/EXTENDED  #
-	#======================================================================#
+		def SubStringsBetweenSUZ(p1, p2)
+			return This.BetweenSUZ(p1, p2)
 
-	def BetweenSDUCSZZ(p1, p2, pnStartingAt, pCaseSensitive)
+	   #---------------------------------------------------------------------------#
+	  #  UNIQUE SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS                  #
+	 #  STARTING AT A GIVEN POSITION ALONG WITH THEIR POSITIONS -- SUZ/EXTENDED  #
+	#---------------------------------------------------------------------------#
+
+	def BetweenSubStringsSCSUZ(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+		return This.BetweenSCSUZ(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+
+		def SubStringsBetweenSubStringsSCSUZ(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+			return This.BetweenSubStringsSCSUZ(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenSubStringsSUZ(pcSubStr1, pcSubStr2, pnStartingAt)
+		return This.BetweenSubStringsSCSUZ(pcSubStr1, pcSubStr2, pnStartingAt, :CaseSensitive = TRUE)
+
+		def SubStringsBetweenSubStringsSUZ(pcSubStr1, pcSubStr2, pnStartingAt)
+			return This.BetweenSubStringsSUZ(pcSubStr1, pcSubStr2, pnStartingAt)
+
+	   #---------------------------------------------------------------------------#
+	  #  UNIQUE SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS                  #
+	 #  STARTING AT A GIVEN POSITION ALONG WITH THEIR SECTIONS -- SUZZ/EXTENDED  #
+	#===========================================================================#
+
+	def BetweenSCSUZZ(p1, p2, pnStartingAt, pCaseSensitive)
 		acBetween = This.BetweenSCSQ(p1, p2, pnStartingAt, pCaseSensitive).DuplicatesRemoved()
 		nLen = len(acBetween)
 	
@@ -33952,28 +33943,42 @@ def ReplaceIBS()
 	
 		return aResult
 
-	#-- WITHOUT CASESENSITIVITY
-
-	def BetweenSDUZZ(p1, p2, pnStartingAt)
-		return This.BetweenSDUCSZZ(p1, p2, pnStartingAt, :CaseSensitive = TRUE)
-
-	  #---------------------------------------------------------------#
-	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- SDUZZ/EXTENDED  #
-	#===============================================================#
-
-	def SubStringsBetweenSDUCSZZ(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
-		return This.BetweenSDUCSZZ(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+		def SubStringsBetweenSCSUZZ(p1, p2, pnStartingAt, pCaseSensitive)
+			return This.BetweenSCSUZZ(p1, p2, pnStartingAt, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenSDUZZ(pcSubStr1, pcSubStr2, pnStartingAt)
-		return This.SubStringsBetweenSDUCSZZ(pcSubStr1, pcSubStr2, pnStartingAt, :CaseSensitive = TRUE)
+	def BetweenSUZZ(p1, p2, pnStartingAt)
+		return This.BetweenSCSUZZ(p1, p2, pnStartingAt, :CaseSensitive = TRUE)
 
-	  #-----------------------------------------------------------------------#
-	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SDIBUZ/EXTENDED  #
-	#=======================================================================#
+		def SubStringsBetweenSUZZ(p1, p2, pnStartingAt)
+			return This.BetweenSUZZ(p1, p2, pnStartingAt)
 
-	def BetweenSDIBUCSZ(p1, p2, pnStartingAt, pcDirection, pCaseSensitive)
+	  #---------------------------------------------------------------------------#
+	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS STARTING AT A GIVEN POSITION   #
+	 #  ALONG WITH THEIR SECTIONS -- SUZZ/EXTENDED                              #
+	#---------------------------------------------------------------------------#
+
+	def BetweenSubStringsSCSUZZ(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+		return This.BetweenSCSUZZ(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+
+		def SubStringsBetweenSubStringsSCSUZZ(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+			return This.BetweenSubStringsSCSUZZ(pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBetweenSUZZ(pcSubStr1, pcSubStr2, pnStartingAt)
+		return This.BetweenSubStringsSCSUZZ(pcSubStr1, pcSubStr2, pnStartingAt, :CaseSensitive = TRUE)
+
+		def SubStringsBetweenSubStringsSUZZ(pcSubStr1, pcSubStr2, pnStartingAt)
+			return This.SubStringsBetweenSUZZ(pcSubStr1, pcSubStr2, pnStartingAt)
+
+	   #------------------------------------------------------------------------------#
+	  #  UNIQUE SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS                     #
+	 #  STARTING AT A GIVEN POSITION ALONG WITH THEIR POSITIONS -- SDIBUZ/EXTENDED  #
+	#==============================================================================#
+
+	def BetweenSDCSIBUZ(p1, p2, pnStartingAt, pcDirection, pCaseSensitive)
 		acBetween = This.BetweenSDCSIBQ(p1, p2, pnStartingAt, pcDirection, pcCaseSensitive).DuplicatesRemoved()
 		nLen = len(acBetween)
 	
@@ -33985,22 +33990,34 @@ def ReplaceIBS()
 	
 		return aResult
 
+		def SubStringsBetweenSDCSIBUZ(p1, p2, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.BetweenSDCSIBUZ(p1, p2, pnStartingAt, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def BetweenSDIBUZ(p1, p2)
-		return This.BetweenSDIBUCSZ(p1, p2, pnStartingAt, :CaseSensitive = TRUE)
+		return This.BetweenSDCSIBUZ(p1, p2, pnStartingAt, :CaseSensitive = TRUE)
+
+		def SubStringsBetweenSDIBUZ(p1, p2)
+			return This.BetweenSDIBUZ(p1, p2)
 
 	  #----------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- SDIBUZ/EXTENDED  #
-	#================================================================#
+	#----------------------------------------------------------------#
 
-	def SubStringsBetweenSDIBUCSZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, pCaseSensitive)
+	def BetweenSubStringsSDIBUCSZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, pCaseSensitive)
 		return This.BetweenSDIBUCSZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def SubStringsBetweenSubStringsSDIBUCSZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.BetweenSubStringsSDIBUCSZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenSDIBUZ(pcSubStr1, pcSubStr2, pcDirection, pnStartingAt)
-		return This.SubStringsBetweenSDIBUCSZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+	def BetweenSubStringsSDIBUZ(pcSubStr1, pcSubStr2, pcDirection, pnStartingAt)
+		return This.BetweenSubStringsSDIBUCSZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+		def SubStringsBetweenSubStringsSDIBUZ(pcSubStr1, pcSubStr2, pcDirection, pnStartingAt)
+			return This.BetweenSubStringsSDIBUZ(pcSubStr1, pcSubStr2, pcDirection, pnStartingAt)
 
 	  #------------------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO POSITIONS OR SUBSTRINGS -- SDIBUZZ/EXTENDED  #
@@ -34018,22 +34035,34 @@ def ReplaceIBS()
 	
 		return aResult
 
+		def SubStringsBetweenSDIBUCSZZ(p1, p2, pnStartingAt, pcDirection, pCaseSensitive)
+			return This.BetweenSDIBUCSZZ(p1, p2, pnStartingAt, pcDirection, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def BetweenSDIBUZZ(p1, p2, pnStartingAt, pcDirection)
 		return This.BetweenSDIBUCSZZ(p1, p2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
 
+		def SubStringsBetweenSDIBUZZ(p1, p2, pnStartingAt, pcDirection)
+			return This.BetweenSDIBUZZ(p1, p2, pnStartingAt, pcDirection)
+
 	  #-----------------------------------------------------------------#
 	 #  SUBSTRING(S) BETWEEN TWO GIVEN SUBSTRINGS -- SDIBUZZ/EXTENDED  #
-	#=================================================================#
+	#-----------------------------------------------------------------#
 
-	def SubStringsBetweenSDIBUCSZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirectionpCaseSensitive)
+	def BetweenSubStringsSDIBUCSZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirectionpCaseSensitive)
 		return This.BetweenSDIBUCSZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, pCaseSensitive)
+
+		def SubStringsBetweenSubStringsSDIBUCSZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirectionpCaseSensitive)
+			return This.BetweenSubStringsSDIBUCSZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirectionpCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBetweenSDIBUZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection)
-		return This.SubStringsBetweenSDIBUCSZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+	def BetweenSubStringsSDIBUZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection)
+		return This.BetweenSubStringsSDIBUCSZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+
+		def SubStringsBetweenSubStringsSDIBUZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection)
+			return This.BetweenSubStringsSDIBUZZ(pcSubStr1, pcSubStr2, pnStartingAt, pcDirection)
 
 #---------------------------
 
@@ -34850,6 +34879,109 @@ def ReplaceIBS()
 			oStzListOfChars = new stzListOfChars(This.String())
 			return oStzListOfChars.BoxedXT(paOptions)
 	*/
+
+	  #==============================================================#
+	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION  #
+	#==============================================================#
+	# Distance is given by the number of chars inbetween
+	# the starting and target positions are not included
+	# To include them, use ...XT() form of the function
+
+	def DistanceToCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		nResult = This.DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive) - 2
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DistanceTo(pcSubStr, pnStartingAt)
+		return This.DistanceToCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+
+	  #--------------------------------------------------------------------------#
+	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION -- EXTENDED  #
+	#--------------------------------------------------------------------------#
+
+	def DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
+		if NOT isNumber(pnStartingAt)
+			StzRaise("Incorrect param type! pnStartingAt must be a number.")
+		ok
+
+		n1 = pnStartingAt
+		n2 = 0
+
+		if isString(pcSubStr)
+			n2 = This.FindNext(pcSubStr, pnStartingAt, pCaseSensitive)
+		
+		but isNumber(pcSubStr)
+			n1 = pcSubStr
+
+		but isList(pcSubStr)
+			if Q(pcSubStr).IsNextNamedParam()
+				pcSubStr = pcSubStr[2]
+
+				if NOT isString(pcSubStr)
+					StzRaise("Incorrect syntax! You must provide a string after :Next = ...")
+				ok
+
+				n2 = This.FindNext(pcSubStr, pnStartingAt + 1, pCaseSensitive)
+
+			but Q(pcSubStr).IsNthNextNamedParam()
+
+				if isList(pcSubStr) and
+				   Q(pcSubStr).IsPair() and
+
+				   isString(pcSubStr[1]) and
+				   Q(pcSubStr[1]).IsOneOfThese([ :NextNth, :NthNext ]) and
+
+				   isList(pcSubStr[2]) and Q(pcSubStr[2]).IsPair()
+				   isNumber(pcSubStr[2][1]) and isString(pcSubStr[2][2])
+
+					n2 = This.FindNextNthCS(pcSubStr[2][1], pcSubStr[2][2], pnStartingAt, pCaseSensitive)
+			
+				ok
+
+			but Q(pcSubStr).IsPreviousNamedParam()
+				pcSubStr = pcSubStr[2]
+
+				if NOT isString(pcSubStr)
+					StzRaise("Incorrect syntax! You must provide a string after :Next = ...")
+				ok
+
+				n2 = n1
+				n1 = This.FindPreviousCS(pcSubStr, pnStartingAt - 1, pCaseSensitive)
+
+			but Q(pcSubStr).IsNthPreviousNamedParam()
+
+				if isList(pcSubStr) and
+				   Q(pcSubStr).IsPair() and
+
+				   isString(pcSubStr[1]) and
+				   Q(pcSubStr[1]).IsOneOfThese([ :PreviousNth, :NthPrevious ]) and
+
+				   isList(pcSubStr[2]) and Q(pcSubStr[2]).IsPair()
+				   isNumber(pcSubStr[2][1]) and isString(pcSubStr[2][2])
+
+					n2 = n1
+					n1 = This.FindPreviousNthCS(pcSubStr[2][1], pcSubStr[2][2], pnStartingAt, pCaseSensitive)
+
+				ok
+
+			ok
+
+		ok
+
+		nResult = n2 - n1 + 1
+
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DistanceToXT(pcSubStr, pnStartingAt)
+		return This.DistanceToCSXT(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
 
 	  #======================================#
 	 #   CONTAINMENT OF A GIVEN SUBSTRING   #
