@@ -7488,8 +7488,10 @@ class stzList from stzObject
 	*/
 
 	def ContainsOnlyNumbers()
+
 		bResult = TRUE
 		nLen = This.NumberOfItems()
+
 		aContent = This.Content()
 
 		for i = 1 to nLen
@@ -7500,6 +7502,7 @@ class stzList from stzObject
 			ok
 
 		next
+
 		return bResult
 
 		def ItemsAreAllNumbers()
@@ -26139,13 +26142,10 @@ class stzList from stzObject
 			# 	? Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]).
 			# 		Section(:From = "F", :To = "A") #--> [ "F", "T", "A" ]
 	
-			return This.SectionsBetweenItems(n1, n2)
-	
-			# Params must be numbers
-	
 			if NOT ( isNumber(n1) and isNumber(n2) )
-				StzRaise("Incorrect params! n1 and n2 must be numbers.")
+				return This.SectionsBetweenItems(n1, n2)
 			ok
+
 		ok
 
 		# Doing the job (issuming n1 and n2 are numbers)

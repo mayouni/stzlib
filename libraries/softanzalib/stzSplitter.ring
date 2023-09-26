@@ -888,6 +888,156 @@ class stzSplitter from stzListOfNumbers
 
 		return aResult
 
+	  #===============================================#
+	 #  SPLITTING AROUND POSITION(S) OR SECTTION(s)  #
+	#===============================================#
+
+	def SplitAround(p)
+		if isNumber(p)
+			return This.SplitAroundPosition(p)
+		ok
+
+		if isList(p)
+			oParam = Q(p)
+			if oParam.IsPairOfNumbers()
+				return This.SplitAroundSection(p)
+
+			but oParam.IsListOfNumbers()
+				return This.SplitAroundPositions(p)
+
+			but oParam.IsListOfPairsOfNumbers()
+				return This.SplitOverSections(p)
+			ok
+		else
+			StzRaise("Incorrect param type! p must be a number or pair of numbers or list of numbers.")
+
+		ok
+
+	def SplitAroundIB(n)
+		if isNumber(p)
+			return This.SplitAroundPositionIB(p)
+		ok
+
+		if isList(p)
+			oParam = Q(p)
+			if oParam.IsPairOfNumbers()
+				return This.SplitAroundSectionIB(p)
+
+			but oParam.IsListOfNumbers()
+				return This.SplitAroundPositionsIB(p)
+
+			but oParam.IsListOfPairsOfNumbers()
+				return This.SplitOverSectionsIB(p)
+			ok
+		else
+			StzRaise("Incorrect param type! p must be a number or pair of numbers or list of numbers.")
+
+		ok
+
+	  #-------------------------------#
+	 #  SPLITTING AROUND A POSITION  #
+	#===============================#
+
+	def SplitAroundPosition(n)
+
+		# Checking the param
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		# Doing the job
+
+		nLen = This.Size()
+
+		# Managing extreme cases
+
+		if nLen = 0 or (nLen = 1 and n = 1)
+			return []
+
+		but NOT ( 1 <= n and n <= This.Size() )
+			return This.Content()
+
+		but n = 1 and nLen > 1
+			return 2 : nLen
+
+		but n = nLen
+			return 1 : nLen-1
+		ok
+
+		# Managing the normal case
+
+		aSection1 = 1 : (n-1)
+		aSection2 = (n+1) : nLen
+
+		aResult = [ aSection1, aSection2 ]
+		return aResult
+
+	def SplitAroundPositionIB(n)
+		aResult = This.SplitAroundPosition(n)
+		aResult[1][2]++
+		aResult[2][1]--
+		return aResult
+
+	  #------------------------------#
+	 #  SPLITTING AROUND POSITIONS  #
+	#------------------------------#
+
+	def SplitAroundPositions(panPos)
+		# TODO
+		StzRaise("Not yet implemented!")
+
+	def SplitAroundPositionsIB(panPos)
+		aResult = This.SplitAroundPositions(panPos)
+
+		nLen = len(aResult)
+		for i = 1 to nLen
+			aResult[i][2]++
+			aResult[i][1]--
+		next
+
+		return aResult
+
+	  #------------------------------#
+	 #  SPLITTING AROUND A SECTION  #
+	#------------------------------#
+
+	def SplitAroundSection(n1, n2)
+		# TODO
+		StzRaise("Not yet implemented!")
+
+	def SplitAroundSectionIB(n1, n2)
+		aResult = This.SplitAroundSection(n1, n2)
+
+		nLen = len(aResult)
+		for i = 1 to nLen
+			aResult[i][2]++
+			aResult[i][1]--
+		next
+
+		return aResult
+		
+	  #-----------------------------#
+	 #  SPLITTING AROUND SECTIONS  #
+	#-----------------------------#
+
+	def SplitAroundSections(panSections)
+		# TODO
+		StzRaise("Not yet implemented!")
+
+	def SplitAroundSectionsIB(panSections)
+		aResult = This.SplitAroundSections(panSections)
+
+		nLen = len(aResult)
+		for i = 1 to nLen
+			aResult[i][2]++
+			aResult[i][1]--
+		next
+
+		return aResult
+
 	  #=======================================================#
 	 #   Utility functions used by the other methods above   #
 	#=======================================================#

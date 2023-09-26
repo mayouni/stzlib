@@ -1,5 +1,32 @@
 load "stzlib.ring"
 
+Function FindAnyBetween(pcStr, pcBound1, pcBound2):
+    Initialize startIndex1 to -1
+    Initialize startIndex2 to -1
+
+    Find the first occurrence of pcBound1 in pcStr and store its index in startIndex1
+    Find the first occurrence of pcBound2 in pcStr and store its index in startIndex2
+
+    If startIndex1 is not found or startIndex2 is not found:
+        Return an empty string or an appropriate error message indicating that one or both boundaries were not found
+
+    If startIndex1 > startIndex2:
+        Swap startIndex1 and startIndex2
+
+    If startIndex1 equals startIndex2:
+        Return an empty string since the boundaries are the same
+
+    Extract the substring between startIndex1 and startIndex2 (excluding the boundaries)
+    Return the extracted substring
+
+Example Usage:
+pcStr = "This is a sample text. Start Here. End Here. Another text."
+pcBound1 = "Start Here."
+pcBound2 = "End Here."
+result = FindAnyBetween(pcStr, pcBound1, pcBound2)
+Print(result)  # This will print " Start Here. "
+
+
 /*-------------
 
 pron()
