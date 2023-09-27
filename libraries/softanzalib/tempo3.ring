@@ -713,7 +713,7 @@ o1 = new stzString("ABCDE")
 proff()
 # Executed in 0.17 second(s)
 
-/*================ WORKING WITH BOUNDS OF THE STRING
+/*================ LEADING AND TRAILING CHARS
 
 pron()
 
@@ -725,7 +725,7 @@ o1 = new stzString("<<<word>>>")
 ? o1.NumberOfLeadingChars()
 #--> 3
 
-? o1.LeadingCharsAsString() + NL
+? o1.LeadingChars() + NL
 #--> "<<<"
 
 #--
@@ -736,13 +736,13 @@ o1 = new stzString("<<<word>>>")
 ? o1.NumberOfTrailingChars()
 #--> 3
 
-? o1.TrailingCharsAsString()
+? o1.TrailingChars()
 #--> ">>>"
 
 proff()
 # Executed in 0.12 second(s)
 
-/*------------------
+/*================ WORKING WITH BOUNDS OF THE STRING
 
 pron()
 

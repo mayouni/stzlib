@@ -125,16 +125,14 @@ class stzListOfChars from stzListOfStrings
 			@aContent = pValue
 
 		but isString(pValue)
-			try
-				aTempList = StzStringQ(pValue).ToList()
-				if NOT Q(aTempList).IsListOfChars()
-					StzRaise("Can't proceed. The list you provided does not correspond to a list of chars.")
-				ok
 
-				@aContent = aTempList
-			catch
-				StzRaise("Can't transform the string to a list!")
-			done
+			oStr = StzStringQ(pValue)
+			nLen = oStr.NumberOfChars()
+
+			@aContent = []
+			for i = 1 to nLen
+				@aContent + oStr.Char(i)
+			next
 
 		else
 			StzRaise(stzListOfCharsError(:CanNotCreateListOfChars))

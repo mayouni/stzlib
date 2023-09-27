@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*------
+
 # Using Section() (or Slice()) to get a part of a list
 
 aList = 1:20
@@ -12,4 +14,17 @@ aList = 1:20
 ? Q(1:20).Slice(4, :Last)
 #--> 4:20
 
+/*---------
+*/
 
+Q("PROGRAMMING") {
+
+   ? Boxed()
+
+   ? BoxedRound()
+
+   ? BoxEachChar()
+
+   ? BoxEachCharRound()
+
+}
