@@ -19382,7 +19382,7 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 		
-		def InsertBeforeCSQ(nPos, pcSubStr, pCaseSensitive, pCaseSensitive)
+		def InsertBeforeCSQ(nPos, pcSubStr, pCaseSensitive)
 			This.InsertBeforeCS(nPos, pcSubStr, pCaseSensitive)
 			return This
 
@@ -50942,7 +50942,7 @@ ici	# TODO: Add other alternatives
 			This.RemoveAllCS(cSubstr, pCaseSensitive)
 		next
 
-		def RemoveManyCSQ(pacSubStr, pCaseSensitive, pCaseSensitive)
+		def RemoveManyCSQ(pacSubStr, pCaseSensitive)
 			This.RemoveManyCS(pacSubStr, pCaseSensitive)
 			return This
 
