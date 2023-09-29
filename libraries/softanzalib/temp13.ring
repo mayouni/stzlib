@@ -6,6 +6,37 @@
 
 	def ContainsSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		/* ... */
+		aSections = This.FindSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		nLen = len(aSections)
+		nLenBound1 = Q(pcBound1).NumberOfChars()
+		nLenBound2 = Q(pcBound2).NumberOfChars()
+
+		bResult = TRUE
+
+		cBound1 = pcBound1
+		cBound2 = pcBound2
+
+		if IsCaseSensitive(pCaseSensitive) # TODO: Add this function
+			cBound1 = Q(pcBound1).Lowercased()
+			cBound2 = Q(pcBound2).Lowercased()
+		ok
+
+		for i = 1 to nLen
+			
+			acBounds = This.OccuppySectionAndYield(aSections[i], [ nLenBound1, nLenBound2 ])
+
+			if Q(acBounds[1]).IsEqualToCS(pcBound1) and
+			   Q(acBounds[2]).IsEqualToCS(pcBound2)
+
+				bResult = TRUE
+				exit
+
+			ok
+
+		next
+
+		return bResult
 
 		#< @FunctionAlternativeForms
 
