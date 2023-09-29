@@ -13,14 +13,14 @@
 	TODO Add:
 	QStringRef methods
 
-	TODO: use QStringView for read-only operations, and QByteArray for
-	UT8-only string
+	TODO: use QStringView for read-only operations, and QByteArray
+	for UT8-only string
 	#--> Better performance.
 
 	Todo:
 	Get inspiration from the pyhthon ftfy library to add Unicode text
 	cleansing in Softanza
-	link: https://ftfy.readthedocs.io/en/latest/fixes.html
+	link: https://ftfy.readthedocs.io
 */
 
   /////////////////////
@@ -7984,18 +7984,19 @@ class stzString from stzObject
 		#>
 
 	  #=====================================================================#
-	 #  GETTING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER  #
+	 #  FINDING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER  #
 	#=====================================================================#
 
-	def SectionBounds(n1, n2, nCharsBefore, nCharsAfter)
-		/* EXAMPLE
+	def FindSectionBoundsZZ(n1, n2, nCharsBefore, nCharsAfter)
+		if CheckParams()
+			if NOT BothAreNumbers(n1, n2)
+				StzRaise("Incorrect params types! Both n1 and n2 must be numbers.")
+			ok
 
-		o1 = new stzString("what a <<nice>>> day!")
-
-		o1.SectionBounds(10, 13, 2, 3)
-		#--> [ "<<", ">>>" ]
-
-		*/
+			if NOT BothAreNumbers(nCharsBefore, nCharsAfter)
+				StzRaise("Incorrect params types! Both nCharsBefore and nCharsAfter must be numbers.")
+			ok
+		ok
 
 		if nCharsBefore > n1
 			nCharsBefore = n1 - 1
@@ -8019,12 +8020,155 @@ class stzString from stzObject
 			anSectionAfter[1] = (n2 + 1)
 			anSectionAfter[2] = (n2 + nCharsAfter)
 		ok
+
+		aResult = [ anSectionBefore, anSectionAfter ]
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def FindSectionBoundsAsSections(n1, n2, nCharsBefore, nCharsAfter)
+			return This.FindSectionBoundsZZ(n1, n2, nCharsBefore, nCharsAfter)
+
+		#>
+
+	def FindSectionBounds(n1, n2, nCharsBefore, nCharsAfter)
+
+		anResult = QR(
+			This.FindSectionBoundsZZ(n1, n2, nCharsBefore, nCharsAfter),
+			:stzListOfPairs
+		).FirstItems()
+
+		return anResult
+
+		def FindSectionBoundsZ(n1, n2, nCharsBefore, nCharsAfter)
+			return This.FindSectionBounds(n1, n2, nCharsBefore, nCharsAfter)
+
+	def FindSectionBoundsIB(n1, n2, nCharsBefore, nCharsAfter)
+		anResult = QR(
+			This.FindSectionBoundsIBZZ(n1, n2, nCharsBefore, nCharsAfter),
+			:stzListOfPairs
+		).FirstItems()
+
+		return anResult
+
+		def FindSectionBoundsIBZ(n1, n2, nCharsBefore, nCharsAfter)
+			return This.FindSectionBoundsIB(n1, n2, nCharsBefore, nCharsAfter)
 			
-		acResult = This.Sections([ anSectionBefore, anSectionAfter ])
+	  #---------------------------------------------------------------------------------------#
+	 #  FINDING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER, INCLUDING BOUNDS  #
+	#=======================================================================================#
+
+	def FindSectionBoundsIBZZ(n1, n2, nCharsBefore, nCharsAfter)
+		aSections = This.FindSectionBoundsZZ(n1, n2, nCharsBefore, nCharsAfter)
+
+		aSections[1][1]++
+		aSections[1][2]++
+
+		aSections[2][1]--
+		aSections[2][2]--
+
+		return aSections
+
+	  #---------------------------------------------------------------------#
+	 #  GETTING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER  #
+	#=====================================================================#
+
+	def SectionBounds(n1, n2, nCharsBefore, nCharsAfter)
+		/* EXAMPLE
+
+		o1 = new stzString("what a <<nice>>> day!")
+
+		o1.SectionBounds(10, 13, 2, 3)
+		#--> [ "<<", ">>>" ]
+
+		*/
+
+		aSections = This.FindSectionBoundsZZ(n1, n2, nCharsBefore, nCharsAfter)
+		acResult = This.Sections(aSections)
 
 		return acResult
 
-	# A more expressive, but less performant, alternative
+	  #---------------------------------------------------------------------------------------#
+	 #  GETTING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER, INCLUDING BOUNDS  #
+	#=======================================================================================#
+
+	def SectionBoundsIB(n1, n2, nCharsBefore, nCharsAfter)
+		aSections = This.FindSectionBoundsIBZZ(n1, n2, nCharsBefore, nCharsAfter)
+		return This.Sections(aSections)
+
+	  #-------------------------------------------------------------------------------------------------#
+	 #  GETTING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER, ALONG WITH THEIR POSITIONS  #
+	#=================================================================================================#
+
+	def SectionBoundsZ(n1, n2, nCharBefore, nCharsAfter) # TODO: check for performance
+
+		acBounds = This.SectionBounds(n1, n2, nCharBefore, nCharsAfter)
+		anPos = This.FindSectionBounds(n1, n2, nCharBefore, nCharsAfter)
+
+		aResult = Associattion([ acBounds, anPos ])
+		# NOTE: We've used a misspelled form of Association()
+		# function (a one more "t"), but Softanza tolerates it!
+
+		return aResult
+
+		def SectionBoundsAndTheirPositions(n1, n2, nCharBefore, nCharsAfter)
+			return This.SectionBoundsZ(n1, n2, nCharBefore, nCharsAfter)
+
+	  #-------------------------------------------------------------------------------------------------#
+	 #  GETTING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER, ALONG WITH THEIR POSITIONS  #
+	#=================================================================================================#
+
+	def SectionBoundsZZ(n1, n2, nCharBefore, nCharsAfter) # TODO: check for performance
+
+		acBounds = This.SectionBounds(n1, n2, nCharBefore, nCharsAfter)
+		anPos = This.FindSectionBoundsZZ(n1, n2, nCharBefore, nCharsAfter)
+
+		aResult = Association([ acBounds, anPos ])
+
+		return aResult
+
+		def SectionBoundsAndTheirSections(n1, n2, nCharBefore, nCharsAfter)
+			return This.SectionBoundsZZ(n1, n2, nCharBefore, nCharsAfter)
+
+	   #----------------------------------------------------------------------#
+	  #  GETTING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER,  #
+	 #  INCLDUING BOUNDS, ALONG WITH THEIR POSITIONS                        #
+	#======================================================================#
+
+	def SectionBoundsIBZ(n1, n2, nCharBefore, nCharsAfter) # TODO: check for performance
+
+		acBounds = This.SectionBoundsIB(n1, n2, nCharBefore, nCharsAfter)
+		anPos = This.FindSectionBoundsIB(n1, n2, nCharBefore, nCharsAfter)
+
+		aResult = Association([ acBounds, anPos ])
+
+		return aResult
+
+		def SectionBoundsAndTheirPositionsIB(n1, n2, nCharBefore, nCharsAfter)
+			return This.SectionBoundsIBZ(n1, n2, nCharBefore, nCharsAfter)
+
+	   #----------------------------------------------------------------------#
+	  #  GETTING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER,  #
+	 #  INCLDUING BOUNDS, ALONG WITH THEIR SECTIONS                         #
+	#======================================================================#
+
+	def SectionBoundsIBZZ(n1, n2, nCharBefore, nCharsAfter) # TODO: check for performance
+
+		acBounds  = This.SectionBoundsIB(n1, n2, nCharBefore, nCharsAfter)
+		aSections = This.FindSectionBoundsIBZZ(n1, n2, nCharBefore, nCharsAfter)
+
+		aResult = Association([ acBounds, aSections ])
+		return aResult
+
+		def SectionBoundsAndTheirSectionsIB(n1, n2, nCharBefore, nCharsAfter)
+			return This.SectionBoundsIBZZ(n1, n2, nCharBefore, nCharsAfter)
+
+	  #---------------------------------------------------------------------------------------#
+	 #  FINDING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER, INCLUDING BOUNDS  #
+	#=======================================================================================#
+
+	# A more expressive, but less performant, alternative to SectionsBounds()
 
 	def Sit(paPositionOrSection, paHarvest)
 		/* EXAMPLE
@@ -8203,45 +8347,49 @@ class stzString from stzObject
 
 		o1 = new stzString("what a <<nice>>> and [[happy]]] day!")
 
-		o1.SectionBounds([ [10, 13], [24, 28] ], 2, 3)
+		o1.SectionsBounds([ [10, 13], [24, 28] ], 2, 3)
 		#--> [ ["<<", ">>>"], ["[[", "]]]"] ]
 
 		*/
 
 		if CheckParams()
-			if NOT (isList(paSections) and Q(paSections).IsPairOfNumbers())
-				StzRaise("Incorrect param type! paSections must be a pair of numbers.")
+			if NOT (isList(paSections) and Q(paSections).IsListOfPairsOfNumbers())
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
 
-		if nCharsBefore > n1
-			nCharsBefore = n1 - 1
-		ok
-
-		nLen = This.NumberOfChars()
-
-		if nCharsAfter > nLen - n2
-			nCharsAfter = nLen - n2
-		ok
-
-		anSectionBefore = [0, 0]
-
-		if nCharsBefore != 0
-			anSectionBefore[1] = (n1 - nCharsBefore)
-			anSectionBefore[2] = (n1 - 1)
-		ok
-
-		anSectionAfter = [0, 0]
-		if anSectionAfter != 0
-			anSectionAfter[1] = (n2 + 1)
-			anSectionAfter[2] = (n2 + nCharsAfter)
-		ok
-			
 		acResult = []
 
-		nLen = len(paSections)
+		nLenSections = len(paSections)
 
-		for i = 1 to nLen
+		for i = 1 to nLenSections
+
+			n1 = paSections[i][1]
+			n2 = paSections[i][2]
+
+			if nCharsBefore > n1
+				nCharsBefore = n1 - 1
+			ok
+	
+			nLenStr = This.NumberOfChars()
+	
+			if nCharsAfter > nLenStr - n2
+				nCharsAfter = nLenStr - n2
+			ok
+	
+			anSectionBefore = [0, 0]
+	
+			if nCharsBefore != 0
+				anSectionBefore[1] = (n1 - nCharsBefore)
+				anSectionBefore[2] = (n1 - 1)
+			ok
+	
+			anSectionAfter = [0, 0]
+			if anSectionAfter != 0
+				anSectionAfter[1] = (n2 + 1)
+				anSectionAfter[2] = (n2 + nCharsAfter)
+			ok
+				
 			acResult + This.Sections([ anSectionBefore, anSectionAfter ])
 		next
 
