@@ -82,6 +82,13 @@ func Association(paLists)
 	aResult = StzListOfListsQ(paLists).Associated()
 	return aResult
 
+	#< @FunctionMisspelledForm
+
+	def Associattion(paLists)
+		return Association(paLists)
+
+	#>
+
 func CommonItemsCS(paLists, pCaseSensitive)
 	aResult = StzListOfListsQ(paLists).CommonItemsCS(pCaseSensitive)
 	return aResult
