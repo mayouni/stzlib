@@ -7983,10 +7983,49 @@ class stzString from stzObject
 
 		#>
 
-	   #==================================================#
-	  #  SITTING ON A GIVEN POSITION (OR SECTION) AND    #
-	 #  THEN HARVESTING N CHARS BEORE AND N CHARS LEFT  #
-	#==================================================#
+	   #===================================================#
+	  #  SITTING ON A GIVEN POSITION (OR SECTION) AND     #
+	 #  THEN HARVESTING N CHARS BEORE AND N CHARS AFTER  #
+	#===================================================#
+
+	def SectionBounds(n1, n2, nCharsBefore, nCharsAfter)
+		/* EXAMPLE
+
+		o1 = new stzString("what a <<nice>>> day!")
+
+		o1.SectionBounds(10, 13, 2, 3)
+		#--> [ "<<", ">>>" ]
+
+		*/
+
+		if nCharsBefore > n1
+			nCharsBefore = n1 - 1
+		ok
+
+		nLen = This.NumberOfChars()
+
+		if nCharsAfter > nLen - n2
+			nCharsAfter = nLen - n2
+		ok
+
+		anSectionBefore = [0, 0]
+
+		if nCharsBefore != 0
+			anSectionBefore[1] = (n1 - nCharsBefore)
+			anSectionBefore[2] = (n1 - 1)
+		ok
+
+		anSectionAfter = [0, 0]
+		if anSectionAfter != 0
+			anSectionAfter[1] = (n2 + 1)
+			anSectionAfter[2] = (n2 + nCharsAfter)
+		ok
+			
+		acResult = This.Sections([ anSectionBefore, anSectionAfter ])
+
+		return acResult
+
+	# A more expressive, but less performant, alternative
 
 	def Sit(paPositionOrSection, paHarvest)
 		/* EXAMPLE
@@ -8002,76 +8041,84 @@ class stzString from stzObject
 
 		*/
 
-		if isList(paPositionOrSection) and
-			Q(paPositionOrSection).IsOneOfTheseNamedParams([
-				:On, :OnPosition, :OnSection,
-				:Position, :Section
-			])
+		# Checking params
 
-			paPositionOrSection = paPositionOrSection[2]
-		ok
+		if CheckParams()
 
-		if isNumber(paPositionOrSection)
-
-			aTemp = []
-			aTemp + paPositionOrSection
-			aTemp + paPositionOrSection
-
-			paPositionOrSection = aTemp
-		ok
-
-		if NOT ( isList(paPositionOrSection) and
-			 Q(paPositionOrSection).IsPairOfNumbers() )
-
-			stzRaise("Incorrect param! paPositionOrSection must be a position (number) or a section (pair of numbers).")
-		ok
-
-		aSection = paPositionOrSection
-		bReturnSections = FALSE
-
-		if isList(paHarvest) and
-		   Q(paHarvest).IsOneOfTheseNamedParams([
-
-				:Harvest, :AndHarvest,
-				:AndThenHarvest, :ThenHarvest,
-
-				:Yield, :AndYield,
-				:AndThenYield, :ThenYield,
-
-				:HarvestSection, :AndHarvestSection,
-				:AndThenHarvestSection, :ThenHarvestSection,
-
-				:YieldSection, :AndYieldSection,
-				:AndThenYieldSection, :ThenYieldSection,
-
-				:HarvestSections, :AndHarvestSections,
-				:AndThenHarvestSections, :ThenHarvestSections,
-
-				:YieldSections, :AndYieldSections,
-				:AndThenYieldSections, :ThenYieldSections ])
-
-			if Q(paHarvest[1]).ContainsCS(:Section, :CS = FALSE)
-				bReturnSections = TRUE
+			if isList(paPositionOrSection) and
+				Q(paPositionOrSection).IsOneOfTheseNamedParams([
+					:On, :OnPosition, :OnSection,
+					:Position, :Section
+				])
+	
+				paPositionOrSection = paPositionOrSection[2]
 			ok
-
-			paHarvest = paHarvest[2]
+	
+			if isNumber(paPositionOrSection)
+	
+				aTemp = []
+				aTemp + paPositionOrSection
+				aTemp + paPositionOrSection
+	
+				paPositionOrSection = aTemp
+			ok
+	
+			if NOT ( isList(paPositionOrSection) and
+				 Q(paPositionOrSection).IsPairOfNumbers() )
+	
+				stzRaise("Incorrect param! paPositionOrSection must be a position (number) or a section (pair of numbers).")
+			ok
+	
+			aSection = paPositionOrSection
+			bReturnSections = FALSE
+	
+			if isList(paHarvest) and
+			   Q(paHarvest).IsOneOfTheseNamedParams([
+	
+					:Harvest, :AndHarvest,
+					:AndThenHarvest, :ThenHarvest,
+	
+					:Yield, :AndYield,
+					:AndThenYield, :ThenYield,
+	
+					:HarvestSection, :AndHarvestSection,
+					:AndThenHarvestSection, :ThenHarvestSection,
+	
+					:YieldSection, :AndYieldSection,
+					:AndThenYieldSection, :ThenYieldSection,
+	
+					:HarvestSections, :AndHarvestSections,
+					:AndThenHarvestSections, :ThenHarvestSections,
+	
+					:YieldSections, :AndYieldSections,
+					:AndThenYieldSections, :ThenYieldSections ])
+	
+				if Q(paHarvest[1]).ContainsCS(:Section, :CS = FALSE)
+					bReturnSections = TRUE
+				ok
+	
+				paHarvest = paHarvest[2]
+			ok
+	
+			if NOT len(paHarvest) = 2
+				stzRaise("Incorrect param! paHarvest must be a list of 2 items.")
+			ok
+	
+			if isList(paHarvest[1]) and Q(paHarvest[1]).IsNCharsBeforeNamedParam()
+				paHarvest[1] = paHarvest[1][2]
+			ok
+	
+			if isList(paHarvest[2]) and Q(paHarvest[2]).IsNCharsAfterNamedParam()
+				paHarvest[2] = paHarvest[2][2]
+			ok
+	
+			if NOT BothAreNumbers(paHarvest[1], paHarvest[2])
+				stzRaise("Incorrect param! paHarvest must be a pair of numbers.")
+			ok
+	
 		ok
 
-		if NOT len(paHarvest) = 2
-			stzRaise("Incorrect param! paHarvest must be a list of 2 items.")
-		ok
-
-		if isList(paHarvest[1]) and Q(paHarvest[1]).IsNCharsBeforeNamedParam()
-			paHarvest[1] = paHarvest[1][2]
-		ok
-
-		if isList(paHarvest[2]) and Q(paHarvest[2]).IsNCharsAfterNamedParam()
-			paHarvest[2] = paHarvest[2][2]
-		ok
-
-		if NOT BothAreNumbers(paHarvest[1], paHarvest[2])
-			stzRaise("Incorrect param! paHarvest must be a pair of numbers.")
-		ok
+		#-- Doing the job
 
 		nCharsBefore = paHarvest[1]
 		if nCharsBefore > aSection[1] - 1
@@ -8105,11 +8152,48 @@ class stzString from stzObject
 
 		return aResult
 
-		def Settle(paPositionOrSection, paHervest)
-			return Sit(paPositionOrSection, paHervest)
+		#< @FunctionAlternativeForms
 
-		def Enclose(paSection, paHervest)
-			return Sit(paSection, paHervest)
+		def Settle(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
+		def Enclose(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
+		def Occuppy(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
+		#>
+
+	# TODO: Add these alternatives
+
+	def SitOnSection(n1, n2, paHarvest)
+		StzRaise("Todo!")
+
+		#< @FunctionAlternativeForms
+
+		def SitOnSectionAndYield(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		def SitOnSectionAndHarvest(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		#>
+
+	def SitAndYield(paPositionOrSection, paHarvest)
+		StzRaise("Todo!")
+
+		def SitAndHarvest(paPositionOrSection, paHarvest)
+			return This.SitAndYield()
+
+	def SitOnPosition(n, paHarvest)
+		StzRaise("Todo!")
+
+	def SitOnPositionAndYield(n, paHarvest)
+		StzRaise("Todo!")
+
+		def SitOnPositionAndHarvest(n, paHarvest)
+			return This.SitOnPositionAndYield(n, paHarvest)
 
 	  #==============================#
 	 #     BOUNDS OF THE STRING     #
