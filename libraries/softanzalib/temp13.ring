@@ -5,7 +5,9 @@
 	#============================================================================#
 
 	def ContainsSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		
+
+		# Checking params
+
 		if CheckParams()
 			if NOT BothAreStrings(pcBound1, pcBound2)
 				StzRaise("Incorrect params types! pcBound1 and pcBound2 must be both strings.")
@@ -23,19 +25,18 @@
 		# Looping over the sections and checking wether their bounds
 		# correspond to pcBound1 and pcBound2
 
-		bResult = TRUE
+		bResult = FALSE
 
 		cBound1 = pcBound1
 		cBound2 = pcBound2
 
-		if IsCaseSensitive(pCaseSensitive) # TODO: Add this function
+		if IsCaseSensitive(pCaseSensitive)
 			cBound1 = Q(pcBound1).Lowercased()
 			cBound2 = Q(pcBound2).Lowercased()
 		ok
 
 		for i = 1 to nLen
 			
-			//acBounds = This.OccuppySectionAndYield(aSections[i], [ nLenBound1, nLenBound2 ])
 			acBounds = This.SectionBounds(aSections[1], aSections[2], nLenBound1, nLenBound2)
 
 			if acBounds[1] = cBound1 and acBounds[2] = cBound2

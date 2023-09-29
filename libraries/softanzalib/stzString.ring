@@ -7983,10 +7983,9 @@ class stzString from stzObject
 
 		#>
 
-	   #===================================================#
-	  #  SITTING ON A GIVEN POSITION (OR SECTION) AND     #
-	 #  THEN HARVESTING N CHARS BEORE AND N CHARS AFTER  #
-	#===================================================#
+	  #=====================================================================#
+	 #  GETTING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER  #
+	#=====================================================================#
 
 	def SectionBounds(n1, n2, nCharsBefore, nCharsAfter)
 		/* EXAMPLE
@@ -8194,6 +8193,70 @@ class stzString from stzObject
 
 		def SitOnPositionAndHarvest(n, paHarvest)
 			return This.SitOnPositionAndYield(n, paHarvest)
+
+	  #-------------------------------------------------------------------------#
+	 #  GETTING THE BOUNDS OF MANY SECTIONS, N CHARS BEFORE AND N CHARS AFTER  # 
+	#-------------------------------------------------------------------------#
+
+	def SectionsBounds(paSections, nCharsBefore, nCharsAfter)
+		/* EXAMPLE
+
+		o1 = new stzString("what a <<nice>>> and [[happy]]] day!")
+
+		o1.SectionBounds([ [10, 13], [24, 28] ], 2, 3)
+		#--> [ ["<<", ">>>"], ["[[", "]]]"] ]
+
+		*/
+
+		if CheckParams()
+			if NOT (isList(paSections) and Q(paSections).IsPairOfNumbers())
+				StzRaise("Incorrect param type! paSections must be a pair of numbers.")
+			ok
+		ok
+
+		if nCharsBefore > n1
+			nCharsBefore = n1 - 1
+		ok
+
+		nLen = This.NumberOfChars()
+
+		if nCharsAfter > nLen - n2
+			nCharsAfter = nLen - n2
+		ok
+
+		anSectionBefore = [0, 0]
+
+		if nCharsBefore != 0
+			anSectionBefore[1] = (n1 - nCharsBefore)
+			anSectionBefore[2] = (n1 - 1)
+		ok
+
+		anSectionAfter = [0, 0]
+		if anSectionAfter != 0
+			anSectionAfter[1] = (n2 + 1)
+			anSectionAfter[2] = (n2 + nCharsAfter)
+		ok
+			
+		acResult = []
+
+		nLen = len(paSections)
+
+		for i = 1 to nLen
+			acResult + This.Sections([ anSectionBefore, anSectionAfter ])
+		next
+
+		return acResult
+
+		#< @FunctionAlternativeForm
+
+		def ManySectionsBounds(paSections, nCharsBefore, nCharsAfter)
+			return This.SectionsBounds(paSections, nCharsBefore, nCharsAfter)
+
+		#>
+
+	  #---------------------------------------------------------------------------------------#
+	 #  GETTING THE BOUNDS OF MANY SECTIONS, RESPECTIVELY, N CHARS BEFORE AND N CHARS AFTER  # 
+	#---------------------------------------------------------------------------------------#
 
 	  #==============================#
 	 #     BOUNDS OF THE STRING     #
