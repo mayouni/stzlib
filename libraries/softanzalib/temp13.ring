@@ -1,16 +1,27 @@
 
 
-	  #===========================================================================#
+	  #============================================================================#
 	 #  CHECKING IF THE STRING CONTAINS A SBISTRING BETWEEN TWO OTHER SUBSTRINGS  #
-	#===========================================================================#
+	#============================================================================#
 
 	def ContainsSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		/* ... */
+		
+		if CheckParams()
+			if NOT BothAreStrings(pcBound1, pcBound2)
+				StzRaise("Incorrect params types! pcBound1 and pcBound2 must be both strings.")
+			ok
+		ok
+
+		# Finding the substring as sections
+
 		aSections = This.FindSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
 
 		nLen = len(aSections)
 		nLenBound1 = Q(pcBound1).NumberOfChars()
 		nLenBound2 = Q(pcBound2).NumberOfChars()
+
+		# Looping over the sections and checking wether their bounds
+		# correspond to pcBound1 and pcBound2
 
 		bResult = TRUE
 
@@ -24,10 +35,10 @@
 
 		for i = 1 to nLen
 			
-			acBounds = This.OccuppySectionAndYield(aSections[i], [ nLenBound1, nLenBound2 ])
+			//acBounds = This.OccuppySectionAndYield(aSections[i], [ nLenBound1, nLenBound2 ])
+			acBounds = This.SectionBounds(aSections[1], aSections[2], nLenBound1, nLenBound2)
 
-			if Q(acBounds[1]).IsEqualToCS(pcBound1) and
-			   Q(acBounds[2]).IsEqualToCS(pcBound2)
+			if acBounds[1] = cBound1 and acBounds[2] = cBound2
 
 				bResult = TRUE
 				exit
