@@ -591,6 +591,18 @@ func ParamChecking()
 
 #--
 
+func IsCaseSensitive(p)
+	bResult = FALSE
+
+	if (isNumber(p) and p = 1) or
+	   (isList(p) and Q(p).IsCaseSensitiveNamedParam() and p[2] = 1)
+
+		bResult = TRUE
+	ok
+
+	return bResult
+#--
+
 func StzKeywords()
 	return _acStzCCKeywords
 
