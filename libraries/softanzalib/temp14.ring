@@ -17,7 +17,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*--------
-*/
+
 pron()
 
 o1 = new stzString("what a <<nice>>> day!")
@@ -44,19 +44,7 @@ o1 = new stzString("what a <<nice>>> day!")
 #--> [ [ "<<", [ 8, 9 ] ], [ ">>>", [ 14, 16 ] ] ]
 
 proff()
-
-/*--------
-
-pron()
-
-o1 = new stzString("what a <<nice>>> and [[happy]]] day!")
-
-? o1.SectionsBounds([ [10, 13], [24, 28] ], 2, 3)
-#--> [ ["<<", ">>>"], ["[[", "]]]"] ]
-
-? o1.SectionsBoundsIB(
-proff()
-# Executed in 0.04 second(s)
+# Executed in 0.21 second(s)
 
 /*=======
 
