@@ -57699,6 +57699,29 @@ ici	# TODO: Add other alternatives
 	 #    NUMBER IN STRING    #
 	#========================#
 
+	def IsADigitInString()
+		bResult = FALSE
+
+		if This.IsANumberInString()
+
+			n = 0+ This.Content()
+			if 0 <= n and n <= 9
+				bResult = TRUE
+			ok
+
+		ok
+
+		return bResult
+
+		def IsDigitInString()
+			return This.IsADigitInString()
+
+		def RepresentsADigit()
+			return This.IsADigitInString()
+
+		def RepresentsDigit()
+			return This.IsADigitInString()
+
 	def RepresentsDecimalNumber()
 		return This.RepresentsNumberInDecimalForm()
 

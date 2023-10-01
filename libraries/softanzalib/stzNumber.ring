@@ -116,6 +116,9 @@ func StzNumberClass()
 	func StzNumberClassName()
 		return StzNumberClass()
 
+func Digits()
+	return 0:9
+
 func N(p)
 	if isNumber(p)
 		return p
@@ -1109,6 +1112,18 @@ class stzNumber from stzObject
 			return This.Updated(paNewList)
 
 		#>
+
+	  #-----------------------------------#
+	 #  CHECKING IF THE NUMBER IS DIGIT  #
+	#-----------------------------------#
+
+	def IsADigit()
+		n = This.NumericValue()
+		if 0 <= n and n <= 9
+			return TRUE
+		else
+			return FALSE
+		ok
 
 	  #---------------------------------------------------------#
 	 #   CHECKING IF THE NUMBER IS MULTIPLE OF A GIVEN NUMBER  #
