@@ -3432,10 +3432,29 @@
 	   #----------------------------------------------------#
 	  #  FINDING NTH OCCURRENCE OF A SUBSTRING BOUNDED BY  #
 	 #  TWO OTHER SUBSTRINGS GOING IN A GIVEN DIRECTION   #
-ici	#====================================================#
+	#====================================================#
 
 	def FindNthSubStringBetweenDCS(n, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		/* ... */
+
+		if CheckParams()
+			if isList(pcDirection) and Q(pcDirection).IsOneOfThese([ :Going, :Direction ])
+				pcDirection = pcDirection[2]
+			ok
+
+			if NOT isString(pcDirection) and (pcDirection = :Forward or pcDirection = :Backward)
+				StzRaise("Incorrect param! pcDirection must be a string equal to :Forward or :Backward.")
+			ok
+		ok
+
+		if pcDirection = :Forward
+			return This.FindNextNthSubStringBetweenSCS(n, pcSubStr, pcBound1, pcBound2, 1, pCaseSensitive)
+
+		else // pcDirection = :Backward
+			nLast = This.NumberOfChars()
+			return This.FindPreviousNthSubStringBetweenSCS(n, pcSubStr, pcBound1, pcBound2, nLast, pCaseSensitive)
+
+		ok
+
 
 		#< @FunctionAlternativeForms
 
@@ -3466,12 +3485,6 @@ ici	#====================================================#
 		def NthSubStringBoundedByDCS(n, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
 			return This.FindNthSubStringBoundedByDCS(n, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
 
-		def NthSubStringBetweenDCSZ(n, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.FindNthSubStringBetweenDCS(n, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
-
-		def NthSubStringBoundedByDCSZ(n, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
-			return This.FindNthSubStringBoundedByDCS(n, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
-
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3500,21 +3513,47 @@ ici	#====================================================#
 		def NthSubStringBoundedByD(n, pcSubStr, pacBounds, pcDirection)
 			return This.FindNthSubStringBoundedByD(n, pcSubStr, pacBounds, pcDirection)
 
-		def NthSubStringBetweenDZ(n, pcSubStr, pcBound1, pcBound2, pcDirection)
-			return This.FindNthSubStringBetweenD(n, pcSubStr, pcBound1, pcBound2, pcDirection)
-
-		def NthSubStringBoundedByDZ(n, pcSubStr, pacBounds, pcDirection)
-			return This.FindNthSubStringBoundedByD(n, pcSubStr, pacBounds, pcDirection)
-
 		#>
+
+	  #--------------------------------------------------------------------------------------------------------#
+	 #  GETTING THE SUBSTRING AND ITS NTH OCCURRENCE BETWEEN TWO GIVEN SUBSTRINGS GOING IN A GIVEN DIRECTION  #
+	#--------------------------------------------------------------------------------------------------------#
+
+	def NthSubStringBetweenDCSZ(n, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
+
+		aResult = [ pcSubStr, This.FindNthSubStringBetweenDCSZ(n, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive) ]
+		return aResult
+
+		def NthSubStringBoundedByDCSZ(n, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
+			if isString(pacBounds)
+				return This.NthSubStringBetweenDCSZ(n, pcSubStr, pacBounds, pacBounds, pcDirection, pCaseSensitive)
+
+			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+				return This.NthSubStringBetweenDCSZ(n, pcSubStr, pacBounds[1], pacBounds[2], pcDirection, pCaseSensitive)
+				
+			else
+				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+
+			ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NthSubStringBetweenDZ(n, pcSubStr, pcBound1, pcBound2, pcDirection)
+		return This.NthSubStringBetweenDCSZ(n, pcSubStr, pcBound1, pcBound2, pcDirection, :CaseSensitive = TRUE)
 
 	   #-------------------------------------------------------------------------#
 	  #  FINDING NTH OCCURRENCE OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
 	 #  GOING INA GIVEN DIRECTION AND RETURNING POSITIONS AS SECTIONS          #
-	#-------------------------------------------------------------------------#
+	#=========================================================================#
 
 	def FindNthSubStringBetweenDCSZZ(n, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
-		/* ... */
+
+		nPos = This.FindNthSubStringBetweenDC(n, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		nLenBound1 = Q(pcBound1).NumberOfChars()
+
+		nResult = nPos - nLenBound1 + 1
+
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -3539,12 +3578,6 @@ ici	#====================================================#
 			return This.FindNthSubStringBoundedByDCSZZ(n, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
 
 		#==
-
-		def NthSubStringBetweenDCSZZ(n, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
-			return This.FindNthSubStringBetweenDCSZZ(n, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
-
-		def NthSubStringBoundedByDCSZZ(n, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
-			return This.FindNthSubStringBoundedByDCSZZ(n, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
 
 		def NthSubStringBetweenAsSectionsDCS(n, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
 			return This.FindNthSubStringBetweenDCSZZ(n, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
@@ -3574,12 +3607,6 @@ ici	#====================================================#
 
 		#==
 
-		def NthSubStringBetweenDZZ(n, pcSubStr, pcBound1, pcBound2, pcDirection)
-			return This.FindNthSubStringBetweenDZZ(n, pcSubStr, pcBound1, pcBound2, pcDirection)
-
-		def NthSubStringBoundedByDZZ(n, pcSubStr, pacBounds, pcDirection)
-			return This.FindNthSubStringBoundedByDZZ(n, pcSubStr, pacBounds, pcDirection)
-
 		def NthSubStringBetweenAsSectionsD(n, pcSubStr, pcBound1, pcBound2, pcDirection)
 			return This.FindNthSubStringBetweenDZZ(n, pcSubStr, pcBound1, pcBound2, pcDirection)
 
@@ -3588,10 +3615,15 @@ ici	#====================================================#
 
 		#>
 
+	  #-----------------------------------------------------------------------------------------------------------------------#
+	 #  GETTING THE SUBSTRING AND ITS NTH OCCURRENCE (AS SECTION) BETWEEN TWO OTHER SUBSTRINGS GOINING IN A GIVEN DIRECTION  #
+	#-----------------------------------------------------------------------------------------------------------------------#
+
+	
 	   #--------------------------------------------------------------#
 	  #  FINDING NTH OCCURRENCE OF A SUBSTRING BOUNDED BY TWO OTHER  #
 	 #  SUBSTRINGS GOING IN A GIVEN DIRECTION AND INCLUDING BOUNDS  #
-	#--------------------------------------------------------------#
+	#==============================================================#
 
 	def FindNthSubStringBetweenDCSIB(n, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
 		/* ... */
