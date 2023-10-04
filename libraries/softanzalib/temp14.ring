@@ -1,5 +1,35 @@
 load "stzlib.ring"
 
+
+/*-----
+
+pron()
+
+# Hi Irwin, Softanza made this for you:
+
+Q("Thank you Irwin Rodriguez!") {
+
+	# Your name is uppercased
+	UppercaseSubString("Irwin")
+
+	# Then it's decoraded with hearts
+	AddXT( 2Hearts(), :Around = "IRWIN" )
+
+	# And finally it's nicely boxed
+	? BoxedRound()
+
+	# Thank you for your trust!
+}
+
+#--> ╭────────────────────────────────╮
+#    │ Thank you ♥♥IRWIN♥♥ Rodriguez! │
+#    ╰────────────────────────────────╯
+
+proff()
+#--> Executed in 0.14 second(s)
+
+/*--------
+
 pron()
 
 ? Digits()
