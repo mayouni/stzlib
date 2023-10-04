@@ -1,3 +1,19 @@
+Mahmoud Fayed (Ring designer)
+-----------------------------
+
+"I felt that the library is working like a Magic :D"
+In reaction to this:
+https://bit.ly/3wiI61G
+
+"Examples look very natural and easy to follow"
+In reaction to this:
+https://bit.ly/3LbJVC0
+
+"SoftanzaLib is based on interesting design & huge efforts.
+I am sure it will be useful to the community in developing many applications."
+
+I am happy that this library is developed with love and passion.
+Softanza is a piece of art :D 
 
 Outnull:
 -------------
@@ -13,20 +29,6 @@ https://bit.ly/3MRTs2e
 
 "Exciting.
 Ring is a powerful and fun language, and your Softanza library is a great contribution."
-
-Mahmoud Fayed (Ring designer)
------------------------------
-
-"I felt that the library is working like a Magic :D"
-In reaction to this:
-https://bit.ly/3wiI61G
-
-"Examples look very natural and easy to follow"
-In reaction to this:
-https://bit.ly/3LbJVC0
-
-"SoftanzaLib is based on interesting design & huge efforts.
-I am sure it will be useful to the community in developing many applications."
 
 Bert Meriani
 ------------
@@ -49,4 +51,9 @@ Softanza looks powerful and attractive in design!
 Dave Venus
 ----------
 Your library sounds amazing!
+
+
+Irwin Rodriguez
+---------------
+Keep it up Mansour! We're all waiting for the Softanza release!
 
