@@ -19708,22 +19708,36 @@ class stzList from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
 		def ItemsExistInCS(paOtherList, pCaseSensitive)
 			return This.EachItemExistsInCS(paOtherList, pCaseSensitive)
 
 		def AllItemsExistInCS(paOtherList, pCaseSensitive)
 			return This.EachItemExistsIn(paOtherList, pCaseSensitive)
 
+		def EachExistsInCS(paOtherList, pCaseSensitive)
+			return This.EachItemExistsInCS(paOtherList, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVI
 
 	def EachItemExistsIn(paOtherList)
 		return This.EachItemExistsInCS(paOtherList, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def ItemsExistIn(paOtherList)
 			return This.EachItemExistsIn(paOtherList)
 
 		def AllItemsExistIn(paOtherList)
 			return This.EachItemExistsIn(paOtherList)
+
+		def EachExistsIn(paOtherList)
+			return This.EachItemExistsIn(paOtherList)
+
+		#>
 
 	  #------------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS ONE OF THE ITEMS OF A GIVEN LIST  #
@@ -19782,6 +19796,13 @@ class stzList from stzObject
 		def ContainsAllCS(paItems, pCaseSensitive)
 			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
 
+		def ContaisTheseCS(paSetOfItems, pCaseSensitive)
+			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+
+		def ContaisAllTheseCS(paSetOfItems, pCaseSensitive)
+			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+
+
 		#>
 
 		#< @FunctionNagationForm
@@ -19812,6 +19833,13 @@ class stzList from stzObject
 
 		def ContainsAll(paItems)
 			return This.ContainsMany(paSetOfItems)
+
+		def ContaisThese(paSetOfItems)
+			return This.ContainsMany(paSetOfItems)
+
+		def ContaisAllThese(paSetOfItems)
+			return This.ContainsMany(paSetOfItems)
+
 
 		#>
 
@@ -20143,6 +20171,81 @@ class stzList from stzObject
 
 	def ContainsLessThen(n, pItem)
 		return This.ContainsLessThen(n, pItem)
+
+	  #--------------------------------------------------#
+	 #  ِCHECKING IF EACH ITEM CONTAINS THE GIVEN VALUE  #
+	#--------------------------------------------------#
+
+	def EachContainsCS(pItem, pCaseSensitive)
+
+		/* EXAMPLES
+
+		EXAMPLE 1
+
+		o1 = new stzList([ "ee♥ee", "b♥bbb", "ccc♥", "♥♥" ])
+		? o1.EachContains("♥")
+		#--> TRUE
+		
+		EXAMPLE 2
+
+		o1 = new stzList([ ["ee","♥","ee"], ["♥", "bb"], "ccc♥", "♥♥" ])
+		? o1.EachContains("♥")
+		#--> TRUE
+		
+		EXAMPLE 3
+
+		o1 = new stzList([ "a♥a" ])
+		? o1.EachContains("♥")
+		#--> TRUE
+		
+		EXAMPLE 4
+
+		o1 = new stzList([ 0, "a♥a" ])
+		? o1.EachContains("♥")
+		#--> FALSE
+
+		*/
+
+
+		bResult = TRUE
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		for i = 1 to nLen
+
+			if NOT ( isList(aContent[i]) or isString(aContent[i]) )
+				bResult = FALSE
+				exit
+
+			else
+				bResult = Q(aContent[i]).ContainsCS(pItem, pCaseSensitive)
+				if bResult = FALSE
+					exit
+				ok
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForm
+
+		def EachItemContainsCS(pItem, pCaseSensitive)
+			return This.EachContainsCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def EachContains(pItem)
+		return This.EachContainsCS(pItem, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def EachItemContains(pItem)
+			return This.EachContains(pItem)
+
+		#>
 
 	  #-----------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS NUMBERS  #

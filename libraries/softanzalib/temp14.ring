@@ -1,5 +1,25 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzList([ "ee♥ee", "b♥bbb", "ccc♥", "♥♥" ])
+? o1.EachContains("♥")
+#--> TRUE
+
+o1 = new stzList([ ["ee","♥","ee"], ["♥", "bb"], "ccc♥", "♥♥" ])
+? o1.EachContains("♥")
+#--> TRUE
+
+o1 = new stzList([ "a♥a" ])
+? o1.EachContains("♥")
+#--> TRUE
+
+o1 = new stzList([ 0, "a♥a" ])
+? o1.EachContains("♥")
+#--> FALSE
+
+proff()
+
 
 /*-----
 

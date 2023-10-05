@@ -32346,7 +32346,7 @@ ici	# TODO: Add other alternatives
 
 	  #----------------------------------------------#
 	 #    CONTAINING ONE OF THE GIVEN SUBSTRINGS    #
-	#----------------------------------------------#
+	#==============================================#
 
 	def ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
 		bResult = FALSE
@@ -32474,9 +32474,193 @@ ici	# TODO: Add other alternatives
 	def ContainsBoth(pcStr1, pcStr2)
 		return This.ContainsBothCS(pcStr1, pcStr2, :CaseSensitive = TRUE)
 	
-	  #-----------------------------------------------------------------------#
+	  #---------------------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING (OR MANY SUBSTRINGS) IN A GIVEN SECTION  #
+	#=============================================================================================#
+
+	def ContainsInSectionCS(p, n1, n2, pCaseSensitive)
+
+		# Ckecking params
+
+		if CheckParams()
+			if NOT ( isString() or ( isList(p) and Q(p).IsListOfStrings() ) )
+				StzRaise("Incorrect param type! p must be a string or list of strings.")
+			ok
+		ok
+
+		# Doing the job
+
+		if isString(p)
+			return This.ContainsSubStringInSectionCS(p, n1, n2, pCaseSensitive)
+
+		else
+			return This.ContainsManySubStringsInSectionCS(p, n1, n2, pCaseSensitive)
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsInSection(p, n1, n2)
+		return This.ContainsInSectionCS(p, n1, n2, :CaseSensitive = TRUE)
+
+	  #------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING IN A GIVEN SECTION  #
+	#------------------------------------------------------------------------#
+
+	def ContainsSubStringInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+		bResult = This.SectionQ(n1, n2).ContainsSubStringCS(pcSubStr, pCaseSensitive)
+		return bResult
+
+	#-- WITHOUT CASESENSITIVE
+
+	def ContainsSubStringInSection(pcSubStr, n1, n2)
+		return This.ContainsSubStringInSectionCS(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS THE GIVEN SUBSTRINGS IN A GIVEN SECTION  #
+	#---------------------------------------------------------------------------#
+
+	def ContainsSubStringsInSectionCS(pacSubStr, n1, n2, pCaseSensitive)
+		bResult = This.Section(n1, n2).ContainsManyCS(pacSubStr, pCaseSensitive)
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ContainsManySubStringsInSetionCS(pacSubStr, n1, n2, pCaseSensitive)
+			return This.ContainsSubStringsInSectionCS(pacSubStr, n1, n2, pCaseSensitive)
+
+		def ContainsManyInSetionCS(pacSubStr, n1, n2, pCaseSensitive)
+			return This.ContainsSubStringsInSectionCS(pacSubStr, n1, n2, pCaseSensitive)
+
+		def ContainsTheseSubStringsInSetionCS(pacSubStr, n1, n2, pCaseSensitive)
+			return This.ContainsSubStringsInSectionCS(pacSubStr, n1, n2, pCaseSensitive)
+
+		def ContainsAllTheseSubStringsInSetionCS(pacSubStr, n1, n2, pCaseSensitive)
+			return This.ContainsSubStringsInSectionCS(pacSubStr, n1, n2, pCaseSensitive)
+
+		def ContainsEachOfTheseSubStringsInSetionCS(pacSubStr, n1, n2, pCaseSensitive)
+			return This.ContainsSubStringsInSectionCS(pacSubStr, n1, n2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVE
+
+	def ContainsSubStringsInSection(pacSubStr, n1, n2)
+		return This.ContainsSubStringsInSectionCS(pacSubStr, n1, n2, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ContainsManySubStringsInSetion(pacSubStr, n1, n2)
+			return This.ContainsSubStringsInSection(pacSubStr, n1, n2)
+
+		def ContainsManyInSetion(pacSubStr, n1, n2)
+			return This.ContainsSubStringsInSection(pacSubStr, n1, n2)
+
+		def ContainsTheseSubStringsInSetion(pacSubStr, n1, n2)
+			return This.ContainsSubStringsInSection(pacSubStr, n1, n2)
+
+		def ContainsAllTheseSubStringsInSetion(pacSubStr, n1, n2)
+			return This.ContainsSubStringsInSection(pacSubStr, n1, n2)
+
+		def ContainsEachOfTheseSubStringsInSetion(pacSubStr, n1, n2)
+			return This.ContainsSubStringsInSection(pacSubStr, n1, n2)
+
+		#>
+
+	  #-------------------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING (OR MANY SUBSTRINGS) IN MANY SECTIONS  #
+	#===========================================================================================#
+
+	def ContainsInSectionsCS(p, panSections, pCaseSensitive)
+
+		# Ckecking params
+
+		if CheckParams()
+			if NOT ( isString() or ( isList(p) and Q(p).IsListOfStrings() ) )
+				StzRaise("Incorrect param type! p must be a string or list of strings.")
+			ok
+		ok
+
+		# Doing the job
+
+		if isString(p)
+			return This.ContainsSubStringInSectionsCS(p, panSections, pCaseSensitive)
+
+		else
+			return This.ContainsManySubStringsInSectionsCS(p, panSections, pCaseSensitive)
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsInSections(p, panSections)
+		return This.ContainsInSectionsCS(p, panSections, :CaseSensitive = TRUE)
+
+	  #----------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING IN MANY SECTIONS  #
+	#----------------------------------------------------------------------#
+
+	def ContainsSubStringInSectionsCS(pcSubStr, panSections, pCaseSensitive)
+		bResult = This.SectionsQ(panSections).EachContainsCS(pcSubStr, pCaseSensitive)
+		return bResult
+
+	#-- WITHOUT CASESENSITIVE
+
+	def ContainsSubStringInSections(pcSubStr, panSections)
+		return This.ContainsSubStringInSectionsCS(pcSubStr, panSections, :CaseSensitive = TRUE)
+
+	  #---------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS THE GIVEN SUBSTRINGS IN MANY SECTIONS  #
+	#---------------------------------------------------------------------------#
+
+	def ContainsSubStringsInSectionsCS(pacSubStr, panSections, pCaseSensitive)
+		bResult = This.Section(panSections).ContainsManyCS(pacSubStr, pCaseSensitive)
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ContainsManySubStringsInSetionsCS(pacSubStr, panSections, pCaseSensitive)
+			return This.ContainsSubStringsInSectionsCS(pacSubStr, panSections, pCaseSensitive)
+
+		def ContainsManyInSetionsCS(pacSubStr, panSections, pCaseSensitive)
+			return This.ContainsSubStringsInSectionsCS(pacSubStr, panSections, pCaseSensitive)
+
+		def ContainsTheseSubStringsInSetionsCS(pacSubStr, panSections, pCaseSensitive)
+			return This.ContainsSubStringsInSectionsCS(pacSubStr, panSections, pCaseSensitive)
+
+		def ContainsAllTheseSubStringsInSetionsCS(pacSubStr, panSections, pCaseSensitive)
+			return This.ContainsSubStringsInSectionsCS(pacSubStr, panSections, pCaseSensitive)
+
+		def ContainsEachOfTheseSubStringsInSetionsCS(pacSubStr, panSections, pCaseSensitive)
+			return This.ContainsSubStringsInSectionsCS(pacSubStr, panSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVE
+
+	def ContainsSubStringsInSections(pcSubStr, panSections)
+		return This.ContainsSubStringsInSectionsCS(pcSubStr, panSections, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ContainsManySubStringsInSetions(pacSubStr, panSections)
+			return This.ContainsSubStringsInSections(pacSubStr, panSections)
+
+		def ContainsManyInSetions(pacSubStr, panSections)
+			return This.ContainsSubStringsInSections(pacSubStr, panSections)
+
+		def ContainsTheseSubStringsInSetions(pacSubStr, panSections)
+			return This.ContainsSubStringsInSections(pacSubStr, panSections)
+
+		def ContainsAllTheseSubStringsInSetions(pacSubStr, panSections)
+			return This.ContainsSubStringsInSections(pacSubStr, panSections)
+
+		def ContainsEachOfTheseSubStringsInSetions(pacSubStr, panSections)
+			return This.ContainsSubStringsInSections(pacSubStr, panSections)
+
+		#>
+
+	  #=======================================================================#
 	 #  NUMBER OF OCCURRENCE OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
-	#-----------------------------------------------------------------------#
+	#=======================================================================#
 
 	def NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
 		/* EXAMPLE
@@ -33118,6 +33302,8 @@ ici	# TODO: Add other alternatives
 	  #----------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS EACH OF THE GIVEN SUBSTRINGS  #
 	#----------------------------------------------------------------#
+
+	# TODO : Unify alternative namings with ContainsMay() in stzList
 
 	def ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
 		bResult = TRUE
