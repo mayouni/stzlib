@@ -205,6 +205,11 @@
 
 		#< @FunctionAlternativeForms
 
+		def NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt)
+			return This.NumberOfSubStringBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+		#--
+
 		def NumberOfOccurrenceBoundedBySCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 			if isString(pacBounds)
 				return This.NumberOfSubStringBetweenSCS(pcSubStr, pacBounds, pacBounds, pnStartingAt, pCaseSensitive)
@@ -5911,10 +5916,10 @@
 	   #-------------------------------------------------------#
 	  #  FINDING LAST OCCURRENCE OF A SUBSTRING BOUNDED BY    #
 	 #  TWO OTHER SUBSTRINGS AND RETURNING THEM AS SECTIONS  #
-	#=======================================================#
+vvv	#=======================================================#
 
 	def FindLastSubStringBetweenCSZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		nLast = This.NumberOfOccurrenceBrtweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.FindNthSubStringBetweenCSZZ(nLast, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -5973,6 +5978,7 @@
 	#--------------------------------------------------------------------------------------------#
 
 	def LastSubStringBetweenCSZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.NthSubStringBetweenCSZZ(nLast, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6015,6 +6021,7 @@
 	#============================================================================================#
 
 	def FindLastSubStringBetweenCSIB(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.FindNthSubStringBetweenCSIB(nLast, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6094,6 +6101,7 @@
 	#-------------------------------------------------------------------------#
 
 	def FindLastSubStringBetweenCSIBZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.FindNthSubStringBetweenCSIBZZ(nLast, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6155,6 +6163,7 @@
 	#-------------------------------------------------------------------------------------------------------------#
 
 	def LastSubStringBetweenCSIBZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.NthSubStringBetweenCSIBZZ(nLast, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6198,6 +6207,7 @@
 	#======================================================#
 
 	def FindLastSubStringBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.FindNthSubStringBetweenSCS(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionalternativeForms
@@ -6256,6 +6266,7 @@
 	#-------------------------------------------------------------------------------#
 
 	def LastSubStringBetweenSCSZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.NthSubStringBetweenSCSZ(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
 		def LastSubStringBoundedBySCSZ(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
@@ -6275,6 +6286,7 @@
 	#===========================================================================#
 
 	def FindLastSubStringBetweenSCSZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.FindNthSubStringBetweenSCSZZ(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6334,6 +6346,7 @@
 	#-----------------------------------------------------------------------#
 
 	def LastSubStringBetweenSCSZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.NthSubStringBetweenSCSZZ(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6377,6 +6390,7 @@
 	#================================================================#
 
 	def FindLastSubStringBetweenSCSIB(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.FindNthSubStringBetweenSCSIB(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6436,6 +6450,7 @@
 	#-------------------------------------------------------------------------------#
 
 	def LastSubStringBetweenSCSIBZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.NthSubStringBetweenSCSIBZ(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
 		def LastSubStringBoundedBySCSIBZ(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
@@ -6455,6 +6470,7 @@
 	#=====================================================================================#
 
 	def FindLastSubStringBetweenSCSIBZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.FindNthSubStringBetweenSCSIBZZ(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6514,6 +6530,7 @@
 	#-----------------------------------------------------------------------#
 
 	def LastSubStringBetweenSCSIBZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.NthSubStringBetweenSCSIBZZ(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6557,6 +6574,7 @@
 	#======================================================#
 
 	def FindLastSubStringBetweenDCS(pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.FindNthSubStringBetweenDCS(nLast, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6616,6 +6634,7 @@
 	#-------------------------------------------------------------------------------#
 
 	def LastSubStringBetweenDCSZ(pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.NthSubStringBetweenDCSZ(nLast, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
 		def LastSubStringBoundedByDCSZ(pcSubStr, pacBounds, pcDirection, pCaseSensitive)
@@ -6635,6 +6654,7 @@
 	#===========================================================================#
 
 	def FindLastSubStringBetweenDCSZZ(pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.FindNthSubStringBetweenDCSZZ(nLast, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6694,6 +6714,7 @@
 	#---------------------------------------------------------------------------#
 
 	def LastSubStringBetweenDCSZZ(pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.NthSubStringBetweenDCSZZ(nLast, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6737,6 +6758,7 @@
 	#================================================================#
 
 	def FindLastSubStringBetweenDCSIB(pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.FindNthSubStringBetweenDCSIB(nLast, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6796,6 +6818,7 @@
 	#-------------------------------------------------------------------------------#
 
 	def LastSubStringBetweenDCSIBZ(pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.NthSubStringBetweenDCSIBZ(nLast, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
 		def LastSubStringBoundedByDCSIBZ(pcSubStr, pacBounds, pcDirection, pCaseSensitive)
@@ -6815,6 +6838,7 @@
 	#=================================================================================#
 
 	def FindLastSubStringBetweenDCSIBZZ(pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.FindNthSubStringBetweenDCSIBZZ(nLast, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6874,6 +6898,7 @@
 	#----------------------------------------------------------------------------------#
 
 	def LastSubStringBetweenDCSIBZZ(pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.NthSubStringBetweenDCSIBZZ(nLast, pcSubStr, pcBound1, pcBound2, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6917,6 +6942,7 @@
 	#===========================================================================#
 
 	def FindLastSubStringBetweenSDCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.FindNthSubStringBetweenSDCS(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -6977,6 +7003,7 @@
 	#----------------------------------------------------------------------------#
 
 	def LastSubStringBetweenSDCSZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.NthSubStringBetweenSDCSZ(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -7005,6 +7032,7 @@
 	#========================================================================================#
 
 	def FindLastSubStringBetweenSDCSZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.FindLastSubStringBetweenSDCSZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
 
@@ -7049,6 +7077,7 @@
 	#---------------------------------------------------------------------------------#
 
 	def LastSubStringBetweenSDCSZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.NthSubStringBetweenSDCSZZ(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -7092,6 +7121,7 @@
 	#=====================================================================================#
 
 	def FindLastSubStringBetweenSDCSIB(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.FindNthSubStringBetweenSDCSIB(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -7151,6 +7181,7 @@
 	#-------------------------------------------------------------------------------------------#
 
 	def LastSubStringBetweenSDCSIBZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.NthSubStringBetweenSDCSIBZ(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
 		def LastSubStringBoundedBySDCSIBZ(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
@@ -7170,6 +7201,7 @@
 	#================================================================================================#
 
 	def FindLastSubStringBetweenSDCSIBZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.FindNthSubStringBetweenSDCSIBZZ(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -7198,6 +7230,7 @@
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSubStringBetweenSDIBZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.FindLastSubStringBetweenSDCSIBZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
@@ -7230,6 +7263,7 @@
 	#--------------------------------------------------------------------------------#
 
 	def LastSubStringBetweenSDCSIBZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 		return This.NthSubStringBetweenSDCSIBZZ(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
