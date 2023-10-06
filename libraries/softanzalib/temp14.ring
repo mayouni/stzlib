@@ -1,5 +1,22 @@
 load "stzlib.ring"
 
+/*-----
+*/
+pron()
+
+o1 = new stzString("123♥♥678♥♥1234♥♥789")
+
+? o1.ContainsXT( "♥", :InSection = [3, 10] )
+#-- TRUE
+
+? o1.ContainsXT( "♥", :InSections = [ [3,10], [8,12], [14,19] ] )
+#--> TRUE
+
+proff()
+# Executed in 0.10 second(s)
+
+/*-----
+*/
 pron()
 
 o1 = new stzString("123♥♥678♥♥1234♥♥789")
@@ -11,6 +28,7 @@ o1 = new stzString("123♥♥678♥♥1234♥♥789")
 #--> TRUE
 
 proff()
+# Executed in 0.04 second(s)
 
 /*-----
 
