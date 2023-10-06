@@ -26434,7 +26434,7 @@ def ReplaceIBS()
 	  #-------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- D-EXTENDED  #
 	#-------------------------------------------------------#
-ici	# TODO: Add other alternatives
+	# TODO: Add other alternatives
 
 	def FindNthDCS(n, pcSubStr, pcDirection, pCaseSensitive)
 		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
@@ -32612,7 +32612,7 @@ ici	# TODO: Add other alternatives
 	#---------------------------------------------------------------------------#
 
 	def ContainsSubStringsInSectionsCS(pacSubStr, panSections, pCaseSensitive)
-		bResult = This.Section(panSections).ContainsManyCS(pacSubStr, pCaseSensitive)
+		bResult = This.SectionsQ(panSections).EachContainsTheseCS(pacSubStr, pCaseSensitive)
 		return bResult
 
 		#< @FunctionAlternativeForms
