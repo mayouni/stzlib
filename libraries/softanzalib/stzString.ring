@@ -31721,7 +31721,7 @@ def ReplaceIBS()
 		#< @FunctionAlternativeForm
 
 		def ContainsSubStringCS(pcSubStr, pCaseSensitive)
-			return This.ContainsCS(cSubStr, pCaseSensitive)
+			return This.ContainsCS(pcSubStr, pCaseSensitive)
 		#>
 
 		#< @FunctionNegativeForm
@@ -32334,6 +32334,24 @@ def ReplaceIBS()
 
 			return This.ContainsAfter(p1, :SubString = p2[2])
 
+		# ? Q("123♥5678").ContainsXT( "♥", :InSection = [3, 5] )
+		but ( isString(p1) or
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
+		    ) and
+
+		    isList(p2) and Q(p2).IsInSectionNamedParam()
+
+			return This.ContainsInSection(p1, p2[2])
+
+		# ? Q("123♥56♥890♥234").Contains( "♥", :InSections = [ [3,5], [6,8], [10,12] ] )
+		but ( isString(p1) or
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
+		    ) and
+
+		    isList(p2) and Q(p2).IsInSectionsNamedParam()
+
+			return This.ContainsInSections(p1, p2[2])
+
 		else
 
 			StzRaise("Unsupported syntax")
@@ -32483,7 +32501,7 @@ def ReplaceIBS()
 		# Ckecking params
 
 		if CheckParams()
-			if NOT ( isString() or ( isList(p) and Q(p).IsListOfStrings() ) )
+			if NOT ( isString(p) or ( isList(p) and Q(p).IsListOfStrings() ) )
 				StzRaise("Incorrect param type! p must be a string or list of strings.")
 			ok
 		ok
@@ -32575,7 +32593,7 @@ def ReplaceIBS()
 		# Ckecking params
 
 		if CheckParams()
-			if NOT ( isString() or ( isList(p) and Q(p).IsListOfStrings() ) )
+			if NOT ( isString(p) or ( isList(p) and Q(p).IsListOfStrings() ) )
 				StzRaise("Incorrect param type! p must be a string or list of strings.")
 			ok
 		ok

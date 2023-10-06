@@ -2,6 +2,20 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzString("123♥♥678♥♥1234♥♥789")
+
+? o1.ContainsInSection("♥", 3, 10)
+#--> TRUE
+
+? o1.ContainsInSections("♥", [ [3,10], [8,12], [14,19] ])
+#--> TRUE
+
+proff()
+
+/*-----
+
+pron()
+
 ? Q([ "a", "♥", "*" ]).ContainsThese([ "♥", "*"])
 #--> TRUE
 
