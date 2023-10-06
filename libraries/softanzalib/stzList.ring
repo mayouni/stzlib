@@ -19762,16 +19762,18 @@ class stzList from stzObject
 	 #  CHECKING IF THE LIST CONTAINS EACH OF THE PROVIDED ITEMS  #
 	#------------------------------------------------------------#
 
-	def ContainsManyCS(paSetOfItems, pCaseSensitive)
+	def ContainsManyCS(paItems, pCaseSensitive)
 		
-		if NOT isList(paSetOfItems)
-			StzRaise("Incorrect param type! You must provide a list.")
+		if NOT isList(paItems)
+			StzRaise("Incorrect param type! paItems must be a list.")
 		ok
 
 		bResult = TRUE
+		aContent = This.Content()
+		nLen = len(aContent)
 
-		for item in paSetOfItems
-			if This.ContainsNoCS(item, pCaseSensitive)
+		for i = 1 to nLen
+			if NOT This.ContainsCS(aContent[i], pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -19785,6 +19787,9 @@ class stzList from stzObject
 			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
 
 		def IsMadeOfTheseCS(paSetOfItems, pCaseSensitive)
+			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+
+		def ContainsTheseCS(paSetOfItems, pCaseSensitive)
 			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
 
 		def ContainsEachCS(paSetOfItems, pCaseSensitive)
@@ -19823,6 +19828,9 @@ class stzList from stzObject
 			return This.ContainsMany(paSetOfItems)
 
 		def IsMadeOfThese(paSetOfItems)
+			return This.ContainsMany(paSetOfItems)
+
+		def ContainsThese(paSetOfItems)
 			return This.ContainsMany(paSetOfItems)
 
 		def ContainsEach()
@@ -20247,9 +20255,75 @@ class stzList from stzObject
 
 		#>
 
+	  #---------------------------------------------------#
+	 #  ِCHECKING IF EACH ITEM CONTAINS THE GIVEN STRING  #
+	#---------------------------------------------------#
+
+	def EachContainsTheseCS(paItems, pCaseSensitive)
+
+		bResult = TRUE
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		for i = 1 to nLen
+
+			if NOT ( isList(aContent[i]) or isString(aContent[i]) )
+				bResult = FALSE
+				exit
+
+			else
+
+				bResult = Q(aContent[i]).ContainsTheseCS(paItems, pCaseSensitive)
+				if bResult = FALSE
+					exit
+				ok
+			ok
+
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForm
+
+		def EachItemContainsTheseCS(paItems, pCaseSensitive)
+			return This.EachContainsTheseCS(paItems, pCaseSensitive)
+
+		def EachItemContainsAllTheseCS(paItems, pCaseSensitive)
+			return This.EachContainsTheseCS(paItems, pCaseSensitive)
+
+		def EachItemContainsAllOfTheseCS(paItems, pCaseSensitive)
+			return This.EachContainsTheseCS(paItems, pCaseSensitive)
+
+		def EachContainsManyCS(paItems, pCaseSensitive)
+			return This.EachContainsTheseCS(paItems, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def EachContainsThese(paItems)
+		return This.EachContainsTheseCS(paItems, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def EachItemContainsThese(paItems)
+			return This.EachContainsThese(paItems)
+
+		def EachItemContainsAllThese(paItems)
+			return This.EachContainsThese(paItems)
+
+		def EachItemContainsAllOfThese(paItems)
+			return This.EachContainsThese(paItems)
+
+		def EachContainsMany(paItems)
+			return This.EachContainsThese(paItems)
+
+		#>
+
 	  #-----------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS NUMBERS  #
-	#-----------------------------------------#
+	#=========================================#
 
 	def ContainsNumbers()
 		bResult = FALSE

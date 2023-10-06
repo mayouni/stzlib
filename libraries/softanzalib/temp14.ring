@@ -2,6 +2,19 @@ load "stzlib.ring"
 
 pron()
 
+? Q([ "a", "♥", "*" ]).ContainsThese([ "♥", "*"])
+#--> TRUE
+
+o1 = new stzList([ [ "a", "♥", "*" ], [ "♥", "*"], [ "a", "b", "♥", "*" ] ])
+? o1.EachContainsThese([ "♥", "*" ])
+#--> TRUE
+
+proff()
+
+/*-----
+
+pron()
+
 o1 = new stzList([ "ee♥ee", "b♥bbb", "ccc♥", "♥♥" ])
 ? o1.EachContains("♥")
 #--> TRUE
