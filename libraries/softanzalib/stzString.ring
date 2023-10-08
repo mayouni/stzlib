@@ -60760,12 +60760,36 @@ def ReplaceIBS()
 				This.ReverseOrder()
 				return This
 
+		#--
+
+		def InverseCharsOrder()
+			return This.ReverseCharsOrder()
+
+		def Inverse()
+			This.InversecharsOrder()
+
+			def InverseQ()
+				This.Inverse()
+				return This
+
+		def InverseChars()
+			This.InversecharsOrder()
+
+			def InverseCharsQ()
+				This.InverseChars()
+				return This
+
+		def InverseOrder()
+			This.InversecharsOrder()
+
+			def InverseOrderQ()
+				This.InverseOrder()
+				return This
 		#>
 
 	def CharsOrderReversed()
 		cResult = This.Copy().ReverseCharsOrderQ().Content()
 		return cResult
-
 
 		#< @FunctionAlternativeForm
 
@@ -60776,6 +60800,20 @@ def ReplaceIBS()
 			return This.CharsOrderReversed()
 
 		def OrderReversed()
+			return This.CharsOrderReversed()
+
+		#--
+
+		def CharsOrderInversed()
+			return This.CharsOrderReversed()
+
+		def Inversed()
+			return This.CharsOrderReversed()
+
+		def CharsInversed()
+			return This.CharsOrderReversed()
+
+		def OrderInverses()
 			return This.CharsOrderReversed()
 
 		#>
@@ -60845,6 +60883,22 @@ def ReplaceIBS()
 				This.TurnChars()
 				return This
 
+		#--
+
+		def Revert()
+			This.Invert()
+
+			def RevertQ()
+				This.Revert()
+				return This
+
+		def RevertChars()
+			This.Invert()
+
+			def RevertCharsQ()
+				This.RevertChars()
+				return This
+
 		#>
 
 	def Inverted()
@@ -60859,6 +60913,14 @@ def ReplaceIBS()
 			return This.Inverted()
 
 		def CharsTurned()
+			return This.Inverted()
+
+		#--
+
+		def Reverted()
+			return This.Inverted()
+
+		def CharsReverted()
 			return This.Inverted()
 
 		#>
@@ -60887,7 +60949,15 @@ def ReplaceIBS()
 		def IsTurned()
 			return This.IsInverted()
 
-		def CharsAreturned()
+		def CharsAreTurned()
+			return This.IsInverted()
+
+		#--
+
+		def IsReversed()
+			return This.IsInverted()
+
+		def CharsAreReversed()
 			return This.IsInverted()
 
 		#>
