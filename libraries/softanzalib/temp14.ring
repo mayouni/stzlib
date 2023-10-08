@@ -1,7 +1,38 @@
 load "stzlib.ring"
 
-/*-----
+pron()
+
+? Q("ƎℲI⅂").IsTurned()
+/*
+# First, this is your name, nicely printed in a rounded box
+
+? Q("GARY").EachCharBoxedRound()
+#--> ╭───┬───┬───┬───╮
+#    │ G │ A │ R │ Y │
+#    ╰───┴───┴───┴───╯
+
+# Now, look to these two examples and try to tell me what
+# the difference between Inverse() and Invert() in Softanza:
+
+? Q("GARY").Inversed() # Inverses the order of chars
+#--> YRAG
+
+? Q("GARY").Inverted() # Turns the chars down
+#--> ⅁ⱯR⅄
+
+# Feels a bit confusing? I understand, and I provide you
+# with more clarity using these alternatives:
+
+? Q("GARY").CharsOrderInversed()
+#--> YRAG
+
+? Q("GARY").CharsTurnedDown()
+#--> ⅁ⱯR⅄
 */
+proff()
+
+/*-----
+
 pron()
 
 o1 = new stzString("123♥♥678♥♥1234♥♥789")
