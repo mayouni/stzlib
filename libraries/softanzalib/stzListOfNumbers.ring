@@ -1140,6 +1140,23 @@ class stzListOfNumbers from stzList
 		def NearestNumberToXT(n, pcBeforeOrAfter)
 			return This.NearestXT(n, pcBeforeOrAfter)
 
+		#==
+
+		def ClosestXT(n, pcBeforeOrAfter)
+			return This.NearestXT(n, pcBeforeOrAfter)
+
+		def ClosestToXT(n, pcBeforeOrAfter)
+			return This.NearestXT(n, pcBeforeOrAfter)
+
+		#--
+
+		def ClosestNumberXT(n, pcBeforeOrAfter)
+			return This.NearestXT(n, pcBeforeOrAfter)
+
+		def ClosestNumberToXT(n, pcBeforeOrAfter)
+			return This.NearestXT(n, pcBeforeOrAfter)
+
+
 		#>
 
 		#< @FunctionMisspelledForm
@@ -1409,19 +1426,9 @@ class stzListOfNumbers from stzList
 			return nNearest
 		ok
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def NearestTo(n)
-			return This.Nearest(n)
-
-		#>
-
-		#< @FunctionMisspelledForm
-
-		def Nearst(n)
-			return This.Nearest(n)
-
-		def NearstTo(n)
 			return This.Nearest(n)
 
 		#--
@@ -1435,8 +1442,35 @@ class stzListOfNumbers from stzList
 		def NearstNumberTo(n)
 			return This.Nearest(n)
 
+		#==
+
+		def Closest(n)
+			return This.Nearest()
+
+		#--
+
+		def ClosestTo(n)
+			return This.Nearest(n)
+
+		#--
+
+		def ClosestNumber(n)
+			return This.Nearest(n)
+
+		def ClosestNumberTo(n)
+			return This.Nearest(n)
+
 		#>
 
+		#< @MisspelledForms
+
+		def NearstTo(n)
+			return This.Nearest(n)
+
+		def Nearst(n)
+			return This.Nearest(n)
+
+		#>
 	  #---------------------------------------------------#
 	 #   FARTHEST NUMBER IN THE LIST TO A GIVEN NUMBER   #
 	#---------------------------------------------------#
@@ -1615,15 +1649,6 @@ class stzListOfNumbers from stzList
 		def NeighborsOf(n)
 			return This.Neighbors(n)
 
-		def NearestNeighbors(n)
-			return This.Neighbors(n)
-
-		def NearestNeighborsOf(n)
-			return This.Neighbors(n)
-
-		def NearestNeighborsTo(n)
-			return This.Neighbors(n)
-
 		def NNeighbors(n)
 			return This.Neighbors(n)
 
@@ -1633,13 +1658,32 @@ class stzListOfNumbers from stzList
 		def NNeighborsTo(n)
 			return This.Neighbors(n)
 
-
 		#--
 
 		def NeighboringNumbers(n)
 			return This.Neighbors(n)
 
 		def NeighboringNumbersOf(n)
+			return This.Neighbors(n)
+
+		def NNeighboringNumbers(n)
+			return This.Neighbors(n)
+
+		def NNeighboringNumbersOf(n)
+			return This.Neighbors(n)
+
+		def NNeighboringNumbersTo(n)
+			return This.Neighbors(n)
+
+		#==
+
+		def NearestNeighbors(n)
+			return This.Neighbors(n)
+
+		def NearestNeighborsOf(n)
+			return This.Neighbors(n)
+
+		def NearestNeighborsTo(n)
 			return This.Neighbors(n)
 
 		def NearestNeighboringNumbers(n)
@@ -1651,13 +1695,24 @@ class stzListOfNumbers from stzList
 		def NearestNeighboringNumbersTo(n)
 			return This.Neighbors(n)
 
-		def NNeighboringNumbers(n)
+		#--
+
+		def ClosesestNeighbors(n)
 			return This.Neighbors(n)
 
-		def NNeighboringNumbersOf(n)
+		def ClosestNeighborsOf(n)
 			return This.Neighbors(n)
 
-		def NNeighboringNumbersTo(n)
+		def ClosestNeighborsTo(n)
+			return This.Neighbors(n)
+
+		def ClosestNeighboringNumbers(n)
+			return This.Neighbors(n)
+
+		def ClosestNeighboringNumbersOf(n)
+			return This.Neighbors(n)
+
+		def ClosestNeighboringNumbersTo(n)
 			return This.Neighbors(n)
 
 		#>
