@@ -61,3 +61,6 @@ Gary Chike
 ----------
 That is awesome Mansour! 🚀
 
+Softanza appears to be very useful for this type of problem. Thank you!
+(for dynmaic string interpolation using Interpolate())
+

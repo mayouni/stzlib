@@ -29630,9 +29630,13 @@ def ReplaceIBS()
 	 #  GETTING NUMBER OF OCCURRENCES OF A SUBSTRING IN THE GIVEN SECTIONS  #
 	#----------------------------------------------------------------------#
 
-	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+# TODO: Add
+#	FindNearest("hi", :To = "emm")
+#	FindNearest("hi", :ToPositio = 10)
 
-		nResult = len( This.FindSubStringInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		nResult = len( This.FindSubStringInSectionsCS(pcSubStr, paSections, pCaseSensitive) )
 		return nResult
 
 		#< @FunctionalternativeForms

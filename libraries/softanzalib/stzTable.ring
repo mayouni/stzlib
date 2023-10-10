@@ -18,7 +18,7 @@ TODO: Get insipration of realworld use cases and features from this article
 describing the difference between NumPy and Pandas (Pyhthon ecosystem):
 https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-pandas-c31fa921a43
 
-#TODO (Future): use Apache Arrow as a C++ backend for stzTable
+#TODO (Future): use Apache Arrow as a C++ backend for stzLargeTable
 # https://arrow.apache.org/
 
 	Apache Arrow is a software development platform for
@@ -38,6 +38,7 @@ https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-
 
 # TODO: Add support of Excel functions
 
+# TODO: Add Paging feature
 */
 
 func StzTableQ(paTable)
