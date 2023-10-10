@@ -171,7 +171,7 @@ proff()
 # Executed in 0.09 second(s)
 
 /*----------///////////////
-*/
+
 pron()
 
 o1 = new stzList([ 6, -2, 9, 5, -10 ])
@@ -195,7 +195,7 @@ o1 = new stzList([ 120, "1250", 54, "452" ])
 
 o1 = new stzList([ 2, 4, 8, "-129", 10, "-100.45" ])
 // o1.EachItemIsEither([ :Positive, :Even, :Number ], :Or = [ :Negative, :NumberInString ] )
-*/
+
 proff()
 
 /*===== ObjectName() and ClassName()
@@ -248,7 +248,7 @@ o1.RenameIt(:country)
 proff()
 
 /*------------
-*/
+
 pron()
 
 # By default, a softanza object is created with no name
@@ -341,11 +341,11 @@ o1.ObjectsVarNames()
 o1.NamedObjects() # Or OnlyNamedObjects()
 ? o1.UnnamedObjects()
 
-*/
+
 proff()
 
 /*=========== TODO
-*/
+
 pron()
 # Exploring the possibility of using named vars to make it
 # possible finding objects by name inside a list!
@@ -467,7 +467,7 @@ range(1, 5)[::-1]
 proff()
 
 /*============
-*/
+
 # NOTE: examples borrowed from this article:
 # https://note.nkmk.me/en/python-range-usage
 
@@ -986,7 +986,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*--------------
-*/
+
 pron()
 
 # Ternary operator in C-style languages (C, C#, Java, Javascript, PHP...)
@@ -1131,7 +1131,7 @@ StopProfiler()
 # Executed in 0.04 second(s)
 
 /*==== Using a C# code inside Ring  #===
-
+*/
 StartProfiler()
 
 	# This is a C# code showing string interpolation:

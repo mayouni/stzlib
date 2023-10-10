@@ -29533,8 +29533,8 @@ def ReplaceIBS()
 
 	  #-------------------------------------------------------#
 	 #  FINDING OCCURRENCES OF A SUBSTRING IN MANY SECTIONS  #
-	#-------------------------------------------------------#
-
+	#=======================================================#
+	
 	def FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		anResult = StzListOfPairsQ( This.FindInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive) ).FirstItems()
 		return anResult
@@ -29562,6 +29562,20 @@ def ReplaceIBS()
 			return This.FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		def FindSubStringInManySectionsCSZ(pcSubStr, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		#--
+
+		def FindInTheseSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def FindSubStringInTheseSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def FindInTheseSectionsCSZ(pcSubStr, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def FindSubStringInTheseSectionsCSZ(pcSubStr, paSections, pCaseSensitive)
 			return This.FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		#>
@@ -29596,12 +29610,72 @@ def ReplaceIBS()
 		def FindSubStringInManySectionsZ(pcSubStr, paSections)
 			return This.FindInSections(pcSubStr, paSections)
 
+		#--
+
+		def FindInTheseSections(pcSubStr, paSections)
+			return This.FindInSections(pcSubStr, paSections)
+
+		def FindSubStringInTheseSections(pcSubStr, paSections)
+			return This.FindInSections(pcSubStr, paSections)
+
+		def FindInTheseSectionsZ(pcSubStr, paSections)
+			return This.FindInSections(pcSubStr, paSections)
+
+		def FindSubStringInTheseSectionsZ(pcSubStr, paSections)
+			return This.FindInSections(pcSubStr, paSections)
+
 		#>
+
+	  #----------------------------------------------------------------------#
+	 #  GETTING NUMBER OF OCCURRENCES OF A SUBSTRING IN THE GIVEN SECTIONS  #
+	#----------------------------------------------------------------------#
+
+	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		nResult = len( This.FindSubStringInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+		return nResult
+
+		#< @FunctionalternativeForms
+
+		def NumberOfOccurrenceOfSubStringInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def NumberOfOccurrencesInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def NumberOfOccurrenceInTheseSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def NumberOfOccurrencesInTheseSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def NumberOfOccurrenceOfSubStringInTheseSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def NumberOfOccurrencesOfSubStringInTheseSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def HowManyOccurrenceInSections(pcSubStr, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def HowManyOccurrencesInSections(pcSubStr, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def HowManyOccurrenceOfSubStringInSections(pcSubStr, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def HowManyOccurrencesOfSubStringInSections(pcSubStr, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
 
 	   #--------------------------------------------------------#
 	  #  FINDING OCCURRENCES OF A SUBSTRING IN MANY SECTIONS   #
 	 #  AND RETURNING ITS POSITION AS A SECTION               #
-	#--------------------------------------------------------#
+	#========================================================#
 
 	def FindInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
 		if CheckParams()
