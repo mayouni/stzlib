@@ -830,7 +830,7 @@ Diacritics
 	_aTurnableCharsXT = _aInvertibleCharsXT
 
 	# WARNING: Makes it possilbe to check if a char is turnable
-	# in uncide using the IsTurnable() function.
+	# in uncode using the IsTurnable() function.
 
 	# But what we do here is that we use the same data as
 	# "INVERTIBLE" chars (see _aInvertibleCharsXT) above,

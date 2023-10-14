@@ -34672,6 +34672,9 @@ func MaxUnicode()
 	func LastUnicode()
 		return MaxUnicode()
 
+	func MaxUnicodeNumber()
+		return MaxUnicode()
+
 func NumberOfUnicodeChars()
 	return _nNumberOfUnicodeChars
 

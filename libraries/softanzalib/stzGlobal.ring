@@ -1228,20 +1228,29 @@ func StzLen(p)
 
 func Unicode(p)
 
-	if isString(p) and StringIsChar(p)
+	if CheckParams()
+
+		if isString(p) and StringIsChar(p)
+			return CharUnicode(p)
+	
+		but isString(p)
+			return StringUnicodes(p)
+	
+		but isList(p) and ListIsListOfChars(p)
+			return CharsUnicodes(p)
+	
+		but isList(p) and ListIsListOfStrings(p)
+			return StringsUnicodes(p)
+
+		but isNumber(p)
+			return CharQ(p).Content()
+
+		else
+			StzRaise("Incorrect param type!")
+		ok
+
+	else // Assuming p is a char
 		return CharUnicode(p)
-
-	but isString(p)
-		return StringUnicodes(p)
-
-	but isList(p) and ListIsListOfChars(p)
-		return CharsUnicodes(p)
-
-	but isList(p) and ListIsListOfStrings(p)
-		return StringsUnicodes(p)
-
-	else
-		StzRaise("Incorrect param type!")
 	ok
 
 	#< @FunctionAlternativeForm

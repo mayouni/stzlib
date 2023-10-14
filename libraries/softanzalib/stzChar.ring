@@ -64,6 +64,14 @@ func StzCharQ(p)
 	func CQ(p)
 		return StzCharQ(p)
 
+func UnicodeChar(n)
+	nMax = MaxUnicodeNumber()
+	if NOT ( isNumber(n) and n <= nMax )
+		StzRaise("Incorrect param type! p must be a number less then " + nMax + "!")
+	ok
+
+	return StzCharQ(n).Content()
+
 func StzCharMethods()
 	return Stz(:Char, :Methods)
 
@@ -187,51 +195,57 @@ func CharIsLineSeparator(c)
 func RemoveDiacritic(pcChar)
 	return StzCharQ(pcChar).DiacriticRemoved()
 
-func ACharOtherThen(pcChar)
+func ACharOtherThan(pcChar)
 
 	nUnicode = Unicode(pcChar)
-	n = StzListOfNumbersQ( 1: NumberOfUnicodeChars()).ANumberOtherThen(nUnicode)
+	n = StzListOfNumbersQ( 1: NumberOfUnicodeChars()).ANumberOtherThan(nUnicode)
 
 	cResult = StzCharQ(n).Content()
 	return cResult
 
 	#< @FunctionAlternativeForms
 
-	def ACharDifferentThen(pcChar)
-		return ACharOtherThen(pcChar)
+	def ACharDifferentThan(pcChar)
+		return ACharOtherThan(pcChar)
 
 	def ACharDifferentFrom(pcChar)
-		return ACharOtherThen(pcChar)
+		return ACharOtherThan(pcChar)
 
 	#--
 
-	def CharOtherThen(pcChar)
-		return ACharOtherThen(pcChar)
+	def CharOtherThan(pcChar)
+		return ACharOtherThan(pcChar)
 
-	def CharDifferentThen(pcChar)
-		return ACharOtherThen(pcChar)
+	def CharDifferentThan(pcChar)
+		return ACharOtherThan(pcChar)
 
 	def CharDifferentFrom(pcChar)
-		return ACharOtherThen(pcChar)
+		return ACharOtherThan(pcChar)
 
 	#--
 
-	def AnyCharOtherThen(pcChar)
-		return ACharOtherThen(pcChar)
+	def AnyCharOtherThan(pcChar)
+		return ACharOtherThan(pcChar)
 
-	def AnyCharDifferentThen(pcChar)
-		return ACharOtherThen(pcChar)
+	def AnyCharDifferentThan(pcChar)
+		return ACharOtherThan(pcChar)
 
 	def AnyCharDifferentFrom(pcChar)
-		return ACharOtherThen(pcChar)
+		return ACharOtherThan(pcChar)
 
 	#>
 
 func LastUnicodeChar()
 	return StzCharQ( NumberOfUnicodeChars() ).Content()
 
+	func LastCharInUnicode()
+		return LastUnicodeChar()
+
 func FirstUnicodeChar()
 	return StzCharQ( 1 ).Content()
+
+	func FirstCharInUnicode()
+		return FirstUnicodeChar()
 
 #---- Functions used for natural-coding
 # TODO: generate all the possible functions based on stzChar methods
@@ -2513,13 +2527,13 @@ class stzChar from stzObject
 		cResult = This.Copy().RemoveDiacriticQ().Content()
 		return cResult
 
-	  #-------------------#
-	 #   TURNING CHARS   #
-	#-------------------#	
+	  #======================================#
+	 #   CHECKING IF THE CHAR IS TURNABLE   #
+	#======================================#	
 
 	/* WARNING:
 
-	   In Unciode sense, turning a char my be different then inverting it..
+	   In Unciode sense, turning a char may be different then inverting it..
 	   Both my be different then reversing, reverting, or rotating it!
 	   --> Read this discussion:
 	       https://unicode.org/faq/casemap_charprop.html#16
@@ -2541,48 +2555,45 @@ class stzChar from stzObject
 		# TODO: We suppose that turning is same as inverting but this could
 		# change in the future to cope with their exact meaning in Unicode!
 
-	def Turn()
-
-		if This.IsTurnable()
-
-			for aPair in TurnableCharsXT()
-				if aPair[1] = This.Content()
-					This.Update( aPair[2] )
-
-				but aPair[2] = This.Content()
-					This.Update( aPair[1] )
-				ok
-			next
-
-		ok
-
-		def TurnQ()
-			This.Turn()
-			return This
-
-	def Turned()
-		cResult = This.Copy().TurnQ().Content()
-		return cResult
-
-	#--
+	  #----------------------#
+	 #  INVERTING THE CHAR  #
+	#----------------------#
 
 	def Invert()
-		if This.IsInvertible()
 
-			for aPair in InvertibleCharsXT()
-				if aPair[1] = This.Content()
-					This.Update( aPair[2] )
+		cChar = This.Char()
+		oPairs = new stzListOfPairs( InvertibleCharsXT() )
 
-				but aPair[2] = This.Content()
-					This.Update( aPair[1] )
-				ok
-			next
+		#--
 
+		anPos = oPairs.FindInFirstItems(cChar)
+		if len(anPos) > 0
+			n = anPos[1]
+			if n > 0
+				This.UpdateWith( oPairs.SecondItems()[n] )
+				return
+			ok
 		ok
+
+		#--
+
+		anPos = oPairs.FindInSecondItems(cChar)
+		if len(anPos)
+			n = anPos[1]
+			if n > 0
+				This.UpdateWith( oPairs.FirstItems()[n] )
+			ok
+		ok
+
+		#< @FunctionFluentForm
 
 		def InvertQ()
 			This.Invert()
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def Inverse()
 			This.Invert()
@@ -2605,9 +2616,20 @@ class stzChar from stzObject
 				This.Revert()
 				return This
 
+		def Turn()
+			This.Invert()
+
+			def TurnQ()
+				This.Revert()
+				return This
+
+		#>
+
 	def Inverted()
 		cResult = This.Copy().InvertQ().Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def Inversed()
 			return This.Inverted()
@@ -2618,9 +2640,14 @@ class stzChar from stzObject
 		def Reverted()
 			return This.Inverted()
 
-	  #--------------------#
+		def Turned()
+			return This.Inverted()
+
+		#>
+
+	  #====================#
 	 #   NATURAL-CODING   #
-	#--------------------#
+	#====================#
 
 	def IsChar()
 		return TRUE

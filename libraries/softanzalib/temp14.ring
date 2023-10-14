@@ -1,10 +1,31 @@
 load "stzlib.ring"
 
+
+
+/*--------
+
 cName = "Gary"
 
 ? $("It's been a real pleasure meeting you, {cName}!") # Or Interpolate()
 #--> It's been a real pleasure meeting you, Gary!
 
+/*--------
+*/
+
+# TODO: Add TurnUp, TurnDown, Turn, IsTurnedUp, IsTurnedDown
+# here in stzChar then in stzString
+
+pron()
+
+o1 = new stzChar("M")
+? o1.Reverted()
+#--> Ɯ
+
+o1 = new stzChar("Ɯ")
+? o1.Reverted()
+#--> M
+
+proff()
 
 /*--------
 
@@ -36,7 +57,7 @@ pron()
 
 ? Q("GARY").CharsTurnedDown()
 #--> ⅁ⱯR⅄
-*/
+
 proff()
 
 /*-----
@@ -55,7 +76,7 @@ proff()
 # Executed in 0.10 second(s)
 
 /*-----
-*/
+
 pron()
 
 o1 = new stzString("123♥♥678♥♥1234♥♥789")

@@ -48503,7 +48503,6 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def FindLastSplitToPartsOfNCharsXTZ(nPos)
 			return This.FindLastSplitToPartsOfNCharsXT(nPos)
 
-+ def FindLastSplitToPartsOfNCHarsWTZZ(nPos)
 	  #-----------------------------------------------#
 	 #   FINDING LAST SPLIT UNDER A GIVEN CONDTION   #
 	#===============================================#
@@ -60863,6 +60862,33 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			def InverseOrderQ()
 				This.InverseOrder()
 				return This
+
+		#--
+
+		def InvertCharsOrder()
+			return This.ReverseCharsOrder()
+
+		def Invert()
+			This.InversecharsOrder()
+
+			def InvertQ()
+				This.Invert()
+				return This
+
+		def InvertChars()
+			This.InversecharsOrder()
+
+			def InvertCharsQ()
+				This.InvertChars()
+				return This
+
+		def InvertOrder()
+			This.InversecharsOrder()
+
+			def InvertOrderQ()
+				This.InvertOrder()
+				return This
+
 		#>
 
 	def CharsOrderReversed()
@@ -60891,29 +60917,33 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def CharsInversed()
 			return This.CharsOrderReversed()
 
-		def OrderInverses()
+		def OrderInversed()
+			return This.CharsOrderReversed()
+
+		#--
+
+		def CharsOrderInverted()
+			return This.CharsOrderReversed()
+
+		def Inverted()
+			return This.CharsOrderReversed()
+
+		def CharsInverted()
+			return This.CharsOrderReversed()
+
+		def OrderInverted()
 			return This.CharsOrderReversed()
 
 		#>
 
-	  #-----------------------------------------------------------#
-	 #   INVERTING CHARS OF THE STRING (IF POSSIBLE IN UNICODE)  #
-	#-----------------------------------------------------------#
+	  #---------------------------------------------------------#
+	 #   TUENING CHARS OF THE STRING (IF POSSIBLE IN UNICODE)  #
+	#=========================================================#
 
-	# Inverting (or turning) chars and strings
-	# NOTE: In the meantime, Softanza uses Invert()
-	# and Turn() as alternatives, but this should
-	# change in the future to cope with their exact
-	# meaning in Unicode!
-
-	# NOTE: This is different from REVERSE() that Softanza
-	# uses conforming to its Ring meaning (reversing the order
-	# of the chars). See examples below to see how...
-
-	def Invert()
+	def TurnDown()
 		/*
 		Example:
-		? StzStringQ("LIFE").Turned()
+		? StzStringQ("LIFE").TurnedDown()
 		#--> ƎℲI⅂
 		*/
 
@@ -60924,82 +60954,39 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		ok
 
 		cResult = ""
+		nLen = This.NumberOfChars()
 
-		for i = 1 to This.NumberOfChars()
-			cResult += StzCharQ( This.NthChar(i) ).Inverted()
+		for i = 1 to nLen
+			cResult += StzCharQ( This.NthChar(i) ).TurnedDown()
 		next
 
 		This.Update( cResult )
 
 		#< @FunctionFluentForm
 
-		def InvertQ()
-			This.Invert()
+		def TurnDownQ()
+			This.TurnDown()
 			return This
-
-		def InvertChars()
-			This.Invert()
-
-			def InvertCharsQ()
-				This.InvertChars()
-				return This
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def Turn()
-			This.Invert()
+		def TurnCharsDown()
+			This.TurnDown()
 
-			def TurnQ()
-				This.Turn()
-				return This
-
-		def TurnChars()
-			This.Invert()
-
-			def TurnCharsQ()
-				This.TurnChars()
-				return This
-
-		#--
-
-		def Revert()
-			This.Invert()
-
-			def RevertQ()
-				This.Revert()
-				return This
-
-		def RevertChars()
-			This.Invert()
-
-			def RevertCharsQ()
-				This.RevertChars()
+			def TurnCharsDownQ()
+				This.TurnCharsDown()
 				return This
 
 		#>
 
-	def Inverted()
-		return This.Copy().InvertQ().Content()
+	def TurnedDown()
+		return This.Copy().TurnDownQ().Content()
 
 		#< @FunctionAlternativeForms
 
-		def CharsInverted()
-			return This.Inverted()
-
-		def Turned()
-			return This.Inverted()
-
-		def CharsTurned()
-			return This.Inverted()
-
-		#--
-
-		def Reverted()
-			return This.Inverted()
-
-		def CharsReverted()
-			return This.Inverted()
+		def CharsTurnedDown()
+			return This.TurnedDown()
 
 		#>
 
