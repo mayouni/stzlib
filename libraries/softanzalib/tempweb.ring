@@ -1,3 +1,8 @@
 #!ring -cgi
+load "weblib.ring"
+import System.Web
 
-See "content-type: text/html"
+new Page {
+
+	HTML('<h1>Welcome to Ring</>')
+}

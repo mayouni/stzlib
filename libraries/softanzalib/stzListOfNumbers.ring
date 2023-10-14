@@ -3276,7 +3276,7 @@ class stzListOfNumbers from stzList
 
 		#--
 	
-		def ANumberDifferentThen(pcChar)
+		def ANumberDifferentThan(pcChar)
 			return This.AnyNumberBeforeOrAfter(pcChar)
 	
 		def ANumberDifferentFrom(pcChar)
@@ -3379,7 +3379,7 @@ class stzListOfNumbers from stzList
 
 		#--
 	
-		def ANumberDifferentThenZ(pcChar)
+		def ANumberDifferentThanZ(pcChar)
 			return This.AnyNumberBeforeOrAfterZ(pcChar)
 	
 		def ANumberDifferentFromZ(pcChar)

@@ -3,6 +3,7 @@ load "stzlib.ring"
 /*======== Desabling param checking to enhance performance
 # TODO: Generalize this feature to all Softanza functions
 
+
 # Softanza functions do a lot of work in checking params correctness.
 # You can see it by yourself by reading any function code.
 # But this comes with a performance cost, especially when you use
@@ -34,7 +35,7 @@ proff()
 
 # A lot.
 
-# What if we desable the params cheks and see what gain we could obtain:
+# What if we disable the params cheks and see what gain we could obtain:
 
 CheckParamOff()
 
@@ -76,18 +77,27 @@ pron()
 # The Ring for loop is quick! Hence it loops 500
 # thousand times in a fraction of second:
 
-for i = 1 to 500_000
+for i = 1 to 5_000_000
 	// Do nothing
 next
-# Executed in 0.06 second(s)
 
+proff()
+# Executed in 0.44 second(s)
+
+/*-----
+*/
+pron()
 # Contrariwise, this Ring for/in loop takes too long to complete:
 
-# for n in 1:500_000
-#	// Do nothing
-# next
+for n in 1:500_000
+	// Do nothing
+next
 
-# The ForEach alternative, brought Softanza, solves the For/in
+proff()
+
+/*----
+
+# The ForEach alternative, by Softanza, solves the For/in
 # weakness and performs the same loop in less than 2 seconds!
 
 ForEach( :number, :in = 1 : 500_000 ) {

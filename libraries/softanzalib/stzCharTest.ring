@@ -1,8 +1,37 @@
 load "stzlib.ring"
 
+/*-----
+
 pron()
 
-? ACharOtherThen("䛂")
+? MaxUnicodeNumber()
+#--> 1114112
+
+? UnicodeChar(1114113)
+#--> ERR: Incorrect param type! p must be a number less then 1114112!
+
+/*------------------ !! Check error (not always, run it many times!)
+
+? NumberOfUnicodeChars()
+#--> 149186
+
+? UnicodeChar(149186)
+#--> "䛂"
+
+? LastUnicodeChar()
+#--> "䛂"
+
+/*------------------ !! Check error (not always, run it many times!)
+*/
+pron()
+
+? ACharOtherThan("y")
+
+//? ACharOtherThan("䛂")
+#--> "≜"
+#--> "㎍"
+#--> "⟶"
+#--> "ਭ"
 
 proff()
 
