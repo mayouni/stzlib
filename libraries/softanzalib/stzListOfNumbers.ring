@@ -88,6 +88,9 @@ func LN(p)
 		func LoNQ(p)
 			return LNQ(p)
 
+func NumbersUnicodes(anNumbers)
+	return StzListOfNumbersQ(anNumbers).Unicodes()
+
 func Min(panNumbers)
 
 	if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
@@ -2174,25 +2177,11 @@ class stzListOfNumbers from stzList
 		anResult = This.Copy().CumulateQ().Content()
 		return anResult
 
-	  #-----------------#
-	 #     UNICODE     #
-	#-----------------#
+	  #-------------------------------------------------------------#
+	 #  GETTING ONLY UNICODE NUMBERS AMONG THE NUMBER IN THE LIST  #
+	#-------------------------------------------------------------#
 
-	# Gets the unicode numbers contained in the list
-
-	# Don't be confused with StzListOfChars().Unicodes() that
-	# returns the unicodes of all the chars in the list.
-
-	#--> If you need to get the unicodes of all the numbers here
-	# in the list of numbers, then you should cast it to a
-	# stzListOfChars object and then use Unicodes() on it:
-
-	#     This.ToStzListOfChars(...).Unicodes()
-
-	# to avoid sutch confusion, it is better to use the aternative
-	# name OnlyUnicodes()
-
-	def Unicodes()
+	def OnlyUnicodes()
 		anContent = This.Content()
 		nLen = len(anContent)
 
@@ -2208,46 +2197,28 @@ class stzListOfNumbers from stzList
 
 		return aResult
 
-		def UnicodesQ()
-			return This.UnicodesQR(:stzList)
+		#< @FunctionFluentForm
 
-		def UnicodesQR(pcReturnType)
+		def OnlyUnicodesQ()
+			return This.CumulateQR(:stzList)
+
+		def OnlyUnicodesQR(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
-
+	
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.Unicodes() )
-
+				return new stzList( This.OnlyUnicodes() )
+	
 			on :stzListOfNumbers
-				return new stzList( This.Unicodes() )
-
+				return new stzList( This.OnlyUnicodes() )
+	
 			other
 				StzRaise("Unsupported return type!")
 			off
 
-		def OnlyUnicodes()
-			return This.OnlyUnicodes()
-
-			def OnlyUnicodesQ()
-				return This.CumulateQR(:stzList)
-
-			def OnlyUnicodesQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.OnlyUnicodes() )
-	
-				on :stzListOfNumbers
-					return new stzList( This.OnlyUnicodes() )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+		#>
 
 	  #========================================#
 	 #     ADDING A NUMBER TO EACH NUMBER     #

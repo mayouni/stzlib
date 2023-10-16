@@ -504,11 +504,15 @@ class stzChar from stzObject
 	def Name()
 
 		cHex = DecimalToHex( This.Unicode() )
-		return StzUnicodeDataQ().CharNameByHexCode(cHex)
-	
+		cResult = StzUnicodeDataQ().CharNameByHexCode(cHex)
+		return cResult
+
 		#< @FunctionAlternativeForm
 
 		def UnicodeName()
+			return This.Name()
+
+		def NameInUnicode()
 			return This.Name()
 
 		#>	
@@ -2642,6 +2646,36 @@ class stzChar from stzObject
 
 		def Turned()
 			return This.Inverted()
+
+		#>
+
+	  #------------------------------------#
+	 #  CHECKING IF THE CHAR IS REVERTED  #
+	#------------------------------------#
+
+	def IsInverted()
+		cChar = This.Content()
+		n = ring_find(InvertedChars(), cChar)
+
+		if n > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsInversed()
+			return This.IsInverted()
+
+		def IsReversed()
+			return This.IsInverted()
+
+		def IsReverted()
+			return This.IsInverted()
+
+		def IsTurned()
+			return This.IsInverted()
 
 		#>
 

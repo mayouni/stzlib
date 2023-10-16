@@ -1056,6 +1056,23 @@ class stzNumber from stzObject
 	def StringValue()
 		return @cNumber
 
+	  #------------------------------------#
+	 #  CHECKING IF THE NUMBER IS A CHAR  #
+	#------------------------------------#
+
+	def IsChar()
+
+		if This.IsDigit()
+			return TRUE
+
+		else
+			return FALSE
+
+		ok
+
+		def IsAChar()
+			return IsChar()
+
 	  #----------------------------#
 	 #   CHECKING IF THE NUMBER   #
 	#----------------------------#
@@ -1113,6 +1130,25 @@ class stzNumber from stzObject
 
 		#>
 
+	  #--------------------------------------------------#
+	 #  GETTING THE UNICODE (CODE POINT) OF THE NUMBER  #
+	#--------------------------------------------------#
+
+	def Unicode()
+		n = This.NumericValue()
+		if 0 <= n and n <= 9
+			return StzCharQ(This.Number()).Unicode()
+
+		else
+			return This.Unicodes()
+
+		ok
+
+	def Unicodes()
+		acChars = This.StringValueQ().ToChars()
+		anResult = StzListOfCharsQ(acChars).Unicodes()
+		return anResult
+
 	  #-----------------------------------#
 	 #  CHECKING IF THE NUMBER IS DIGIT  #
 	#-----------------------------------#
@@ -1124,6 +1160,9 @@ class stzNumber from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsDigit()
+			return This.IsADigit()
 
 	  #---------------------------------------------------------#
 	 #   CHECKING IF THE NUMBER IS MULTIPLE OF A GIVEN NUMBER  #

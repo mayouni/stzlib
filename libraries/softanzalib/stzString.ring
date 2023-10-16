@@ -57413,9 +57413,9 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def ToNumberFormattedQ(cFormat)
 			return new stzNumber( This.ToNumberFormatted() )
 
-	  #------------------------------------------------#
+	  #================================================#
 	 #    UNICODE CODES OF THE CHARS OF THE STRING    #
-	#------------------------------------------------#
+	#================================================#
 
 	// The following method is mainly used by stzChar class to
 	// create a characrer object from text
@@ -57429,6 +57429,17 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		the actual decimal unicode of the Char
 		*/
 
+		#< @FunctionAlternativeForms
+
+		def UnicodeOfNthChar(n)
+			return This.UnicodeOfCharN(n)
+
+		def NthCharUnicode(n)
+			return This.UnicodeOfCharN(n)
+
+		#>
+
+
 	// Returns a list of unicodes of all the Chars in the string
 	def Unicodes()
 		aResult = []
@@ -57437,6 +57448,11 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		next
 
 		return aResult
+
+		#< @FunctionFluentForms
+
+		def UnicodesQ()
+			return This.UnicodesQR(:stzList)
 
 		def UnicodesQR(pcReturnType)
 			if isList(pcReturnType) and
@@ -57463,6 +57479,8 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			other
 				stzRaise("Unsupported return type!")
 			off
+
+		#>
 
 	def Unicode()
 		if This.NumberOfChars() = 1
@@ -57508,46 +57526,62 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def CharsPerUnicode()
 			return This.UnicodesAndChars()
 
-	  #-------------------#
-	 #    CHARS NAMES    #
-	#-------------------#
+	  #-------------------------------------#
+	 #   GETTING CHARS NAME (IN UNICODE)   #
+	#-------------------------------------#
 
 	def CharsNames()
+
+		acChars = This.Chars()
+		nLen = len(acChars)
+
 		acResult = []
-		nLen = This.NumberOfChars()
 
 		for i = 1 to nLen
-			acResult + This.CharQ(i).Name()
+			acResult + StzCharQ(acChars[i]).Name()
 		next
 
 		return acResult
+
+		#< @FunctionFleuntForms
+
+		def CharNamesQ()
+			return This.CharNamesQR(:stzList)
 
 		def CharNamesQR(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
-			if pcReturnType = :stzList
+			switch pcReturnType
+			on :stzList
 				return new stzList(This.CharNames())
 
-			pcReturnType = :stzListOfStrings
+			on :stzListOfStrings
 				return new stzListOfString(This.CharNames())
 
 			else
 				stzRaise("Unsupported return type!")
-			ok
+			off
 
-		def CharNamesQ()
-			return This.CharNamesQR(:stzListOfStrings)
+		#>
 
-		def CharsAndTheirNames()
-			return This.CharsNames()
+	  #--------------------------------------------------#
+	 #  GETTING THE NAME OF THE STRING IF IT IS A CHAR  #
+	#--------------------------------------------------#
+	# If the string contains more then 1 char, only the first is processed
 
 	def CharName()
-		return This.CharsNames()[1]
+		if NOT This.IsEmpty()
+			return This.CharsNames()[1]
+		ok
 
 		def CharNameQ()
 			return new stzString(This.CharName())
+
+		def Name()
+			return CharName()
+
 
 	  #===============================#
 	 #    MULTINGUAL & LOCLAE INFO   #

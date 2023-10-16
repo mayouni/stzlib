@@ -139,8 +139,6 @@ func ListIsListOfLists(paList)
 func ListIsListOfSets(paList)
 	return StzListQ(paList).IsListOfSets()
 
-
-
 func ListIsListOfLetters(paList)
 	return StzListQ(paList).IsListOfLetters()
 
@@ -152,6 +150,9 @@ func ListIsListOfZerosAndOnes(paList)
 
 func ListIsLocaleList(paList)
 	return StzListQ(paList).IsLocaleList()
+
+func ListUnicodes(paList)
+	return StzListQ(paList).Unicodes()
 
 func CallMethod( pcMethod, paOnObjects )
 
@@ -6673,12 +6674,14 @@ class stzList from stzObject
 		ok
 
 		bResult = TRUE
-		nLen = This.NumberOfItems()
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			item = This.ItemAt(i)
 
-			if NOT (isString(item) and Q(item).IsChar())
+			item = aContent[i]
+			if NOT ( (isString(item) or isNumber(item))  and Q(item).IsAChar())
+
 				bResult = FALSE
 				exit
 			ok
@@ -38964,6 +38967,66 @@ vvv
 		else
 			return FALSE
 		ok
+
+	  #===========================================#
+	 #  GETTING THE UNICODES CODES OF EACH ITEM  #
+	#===========================================#
+
+	def Unicodes()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i])
+				i++
+			ok
+
+			aResult + Q(aContent[i]).Unicode()
+		next
+
+		return aResult
+
+		def Unicode()
+			return This.Unicodes()
+
+	  #-----------------------------------------------------------#
+	 #  GETTING THE NAMES (IN UNICODE) OF THE CHARS IN THE LIST  #
+	#-----------------------------------------------------------#
+
+	def Names()
+		acChars = This.Chars()
+		nLen = len(acChars)
+
+		acResult = []
+
+		for i = 1 to nLen
+			acResult + StzCharQ(acChars[i]).Name()
+		next
+
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def NamesInUnicode()
+			return This.Names()
+
+		def UnicodeNames()
+			return This.Names()
+
+		#--
+
+		def CharsNames()
+			return This.Names()
+
+		def CharsNamesInUnicode()
+			return This.Names()
+
+		def UnicodeCharsNames()
+			return This.Names()
+
+		#>
 
 	  #===========#
 	 #   MISC.   #

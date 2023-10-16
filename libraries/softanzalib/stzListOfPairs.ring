@@ -467,12 +467,10 @@ class stzListOfPairs from stzList
 	#-------------------------------------------------#
 		
 	def Swap()
-		aResult = []
-		for aPair in This.ListOfPairs()
-			temp = aPair[1]
-			aPair[1] = aPair[2]
-			aPair[2] = temp
-		next
+		
+		oPairs = StzListOfPairsQ()
+		aResult = Association([ oPairs.SecondItems(), oPairs.FirstItems() ])
+		This.UpdateWith(aResult)
 
 		def SwapQ()
 			This.Swap()

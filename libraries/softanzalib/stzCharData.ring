@@ -750,9 +750,30 @@ Diacritics
 	 #   INVERTIBLE, TURNED, CIRCLED, AND INVISIBLE CHARS    #
 	#-------------------------------------------------------#
 
+	# NOTE: Unicode distinsguishes between:
+	# 	- a turned char
+	# 	- an inverted char
+	# 	- a reversed char
+	# 	- a rotated char
+	# 	- an inversed char
+	# 
+	#--> You can read about them here:
+	#     https://unicode.org/faq/casemap_charprop.html#16
+	# 
+	# But this is semantically confusing! That's why Softanza
+	# has a different opinion to gain clarity and peace of mind, so:
+	# 
+	# Rule: All these terms are equivalent : turned, inverted, reversed,
+	# inverted, and reverted. And they all mean that the char is turned up
+	# or down (the only two options I find them useful in the mean time).
+	# 
+	# Of course, this may be changed in the future, to cope with the
+	# UNICODE standard and benefit from all its features. 
+	
+
 	# Invertible chars
 
-	_anInvertibleUnicodes = [
+	_anInvertibleCharsUnicodes = [
 		36, 38, 40, 41, 42, 44, 45, 46, 47, 48, 50, 51, 54,
 		57, 59, 60, 61, 62, 65, 69, 70, 71, 73, 75, 76, 77,
 		79, 83, 84, 86, 88, 89, 92, 97, 101, 103, 104, 105,
@@ -804,12 +825,9 @@ Diacritics
 
 	# Turned chars : TODO - Solve confusion with invertible chars!
 
-	_anTurnedNumbersUnicodes = [ 8586, 8587 ]
+	_anTurnableNumbersUnicodes = [2, 3]
 
-	_aTurnedNumbersXT = [
-		:TurnedTwo = 8586,
-		:TurnedThree = 8587
-	]
+	_anTurnedNumbersUnicodes = [ 8586, 8587 ]
 
 	_anTurnedCharsUnicodes = [
 		397,398,412,477,581,592,594,613,623,624,633,634,
@@ -839,7 +857,6 @@ Diacritics
 	# TODO: Check this and fix it accordingly
 	#--> Read this to understand the problem:
 	#     https://unicode.org/faq/casemap_charprop.html#16
-
 
 
 	# Circled Chars
@@ -1938,73 +1955,261 @@ Diacritics
 			return aResult
 		ok
 
+	# Turnable numbers
+
+	func NumberOfTurnableNumbersUnicodes()
+		nResult = len(TurnableNumbersUnicodes())
+		return nResult
+
+		func HowManyTurnableNumbersUnicodes()
+			return NumberOfTurnableNumbersUnicodes()
+
+	func TurnableNumbersUnicodes()
+		return _anTurnableNumbersUnicodes
+
+		func ReversibleNumbersUnicodes()
+			return TurnableNumbersUnicodes()
+
+		func InvertibleNumberUnicodes()
+			return TurnableNumbersUnicodes()
+
+		func InversibleNumbersUnicodes()
+			return TurnableNumbersUnicodes()
+		
+	func TurnableNumbersUnicodesXT()
+		aResult = Association([ TurnableNumbersUnicodes(), turnableNumbers() ])
+
+	func TurnableNumbers()
+		return Unicodes(_anTurnableNumbersUnicodes)
+
+		func ReversibleNumbers()
+			return TurnableNumbers()
+
+		func InvertibleNumbers()
+			return TurnableNumbers()
+
+		func InversibleNumbers()
+			return TurnableNumbers()
+
+	func TurnableNumbersXT()
+		return Association([ TurnableNumbers(), TurnedNumbers() ])
+
+		func ReversibleNumbersXT()
+			return TurnableNumbersXT()
+
+		func InvertibleNumbersXT()
+			return TurnableNumbersXT()
+
+		func InversibleNumbersXT()
+			return TurnableNumbersXT()
+
+	func TurnableNumbersAndTheirUnicodes()
+		return Association([ TurnableNumbers(), TurnableNumbersUnicodes() ])
+
+
 	# Turned numbers
+
+	func NumberOfTurnedNumbersUnicodes()
+		nResult = len(TurnedNumbersUnicodes())
+		return nResult
+
+		func HowManyTurnedNumbersUnicodes()
+			return NumberOfTurnedNumbersUnicodes()
 
 	func TurnedNumbersUnicodes()
 		return _anTurnedNumbersUnicodes
 
-		func TurnableNumbersUnicodes()
-			return TurnedNumbersUnicodes()
-	
 	func TurnedNumbers()
 		return UnicodesToChars( TurnedNumbersUnicodes() )
 
-		func TurnableNumbers()
-			return TurnedNumbers()
-	
 	func TurnedNumbersXT()
-		return _aTurnedNumbersXT
+		aResult = Association([ TurnedNumbers(), TurnableNumbers() ])
+		return aResult
 
-		func TurnableNumbersXT()
-			return TurnedNumbersXT()
-	
-	#-- Turned chars (Turned or Turnable, it's the same!)
+	func TurnedNumbersAndTheirUnicodes()
+		return Association([ TurnedNumbers(), TurnedNumbersUnicodes() ])
+
+	#-- Turnable chars
+
+	func NumberOfTurnableUnicodes()
+		nResult = len(TurnableUnicodes())
+		return nResult
+
+		func HowManyTurnableUnicodes()
+			return NumberOfTurnableUnicodes()
+
+	func TurnableUnicodes()
+		return _anInvertibleCharsUnicodes
+
+		#< @FunctionAlternativeForms
+
+		func TurnableCharsUnicodes()
+			return TurnableUnicodes()
+
+		func ReversibleUnicodes()
+			return TurnableUnicodes()
+
+		func ReversibleCharsUnicodes()
+			return TurnableUnicodes()
+
+		func InversibleUnicodes()
+			return TurnableUnicodes()
+
+		func InversibleCharsUnicodes()
+			return TurnableUnicodes()
+
+		func RevertibleUnicodes()
+			return TurnableUnicodes()
+
+		func RevertibleCharsUnicodes()
+			return TurnableUnicodes()
+
+		func InvertibleUnicodes()
+			return TurnableUnicodes()
+
+		func InvertibleCharsUnicodes()
+			return TurnableUnicodes()
+
+		#>
+
+	func TurnableUnicodesXT()
+		aResult = Association([ TurnableUnicodes(), TurnableChars() ])
+		return aResult
+
+	func NumberOfTurnableChars()
+		nResult = len(TurnableChars())
+		return nResult
+
+		func HowManyTurnableChars()
+			return NumberOfTurnableChars()
+
+	func TurnableChars()
+		return UnicodesToChars( TurnableUnicodes() )
+
+		#< @FunctionAlternativeForms
+
+		func ReversibleChars()
+			return TurnableChars()
+
+		func InversibleChars()
+			return TurnableChars()
+
+		func RevertibleChars()
+			return TurnableChars()
+
+		func InvertibleChars()
+			return TurnableChars()
+
+		#>
+
+	func TurnableCharsXT()
+		return _aTurnableCharsXT
+
+		#< @FunctionAlternativeForms
+
+		func ReversibleCharsXT()
+			return TurnableCharsXT()
+
+		func InversibleCharsXT()
+			return TurnableCharsXT()
+
+		func RevertibleCharsXT()
+			return TurnableCharsXT()
+
+		func InvertibleCharsXT()
+			return TurnableCharsXT()
+
+		#>
+
+	#-- Turnable chars
+
+	func NumberOfTurnedUnicodes()
+		nResult = len(TurnedUnicodes())
+		return nResult
+
+		func HowManyTurnedUnicodes()
+			return NumberOfTurnedUnicodes()
 
 	func TurnedUnicodes()
 		return _anTurnedCharsUnicodes
-	
+
+		#< @FunctionAlternativeForms
+
 		func TurnedCharsUnicodes()
 			return TurnedUnicodes()
 
-		func TurnableUnicodes()
+		func ReversedUnicodes()
 			return TurnedUnicodes()
 
-		func TurnableCharsUnicodes()
+		func ReversedCharsUnicodes()
 			return TurnedUnicodes()
+
+		func InversedUnicodes()
+			return TurnedUnicodes()
+
+		func InversedCharsUnicodes()
+			return TurnedUnicodes()
+
+		func RevertedUnicodes()
+			return TurnedUnicodes()
+
+		func RevertedCharsUnicodes()
+			return TurnedUnicodes()
+
+		func InvertedUnicodes()
+			return TurnedUnicodes()
+
+		func InvertedCharsUnicodes()
+			return TurnedUnicodes()
+
+		#>
+
+	func NumberOfTurnedChars()
+		nResult = len(TurnedChars())
+		return nResult
+
+		func HowManyTurnedChars()
+			return NumberOfTurnedChars()
 
 	func TurnedChars()
 		return UnicodesToChars( TurnedUnicodes() )
 
-		func TurnableChars()
+		#< @FunctionAlternativeForms
+
+		func ReversedChars()
 			return TurnedChars()
 
-	func TurnedCharsXT()
-		return _aTurnableCharsXT
+		func InversedChars()
+			return TurnedChars()
 
-		func TurnableCharsXT()
-			return TurnedCharsXT()
-
-	
-	# Invertible chars
-
-	func InvertibleUnicodes() # Invertible or Inverted: it's the same!
-		return _anInvertibleUnicodes
-
-		func InvertedUnicodes()
-			return InvertibleUnicodes()
-	
-	func InvertibleChars()
-		return UnicodesToChars( InvertibleUnicodes() )
+		func RevertedChars()
+			return TurnedChars()
 
 		func InvertedChars()
-			return InvertibleChars()
-	
-	func InvertibleCharsXT()
-		return _aInvertibleCharsXT
+			return TurnedChars()
+
+		#>
+
+	func TurnedCharsXT()
+		oPairs = StzListOfPairsQ(_aInvertibleCharsXT)
+		aResult = Association([ oPairs.SecondItems(), oPairs.FirstItems() ])
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		func ReversedCharsXT()
+			return TurnedCharsXT()
+
+		func InversedCharsXT()
+			return TurnedCharsXT()
+
+		func RevertedCharsXT()
+			return TurnedCharsXT()
 
 		func InvertedCharsXT()
-			return InvertibleCharsXT()
+			return TurnedCharsXT()
 
+		#>
 
 	# Punctuation
 
