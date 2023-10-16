@@ -1236,29 +1236,26 @@ func Unicode(p)
 		but isString(p)
 			return StringUnicodes(p)
 	
-		but isList(p) and ListIsListOfChars(p)
-			return CharsUnicodes(p)
-	
-		but isList(p) and ListIsListOfStrings(p)
-			return StringsUnicodes(p)
-
-		but isNumber(p)
-			return CharQ(p).Content()
-
-		else
-			StzRaise("Incorrect param type!")
 		ok
 
-	else // Assuming p is a char
-		return CharUnicode(p)
 	ok
 
-	#< @FunctionAlternativeForm
+	# Assumes p is a char
 
-	func Unicodes(p)
-		return Unicode(p)
+	return CharUnicode(p)
 
-	#>
+
+func Unicodes(p)
+
+	if CheckParams()
+		if isString(p)
+			return StringUnicodes(p)
+		ok
+	ok
+
+	# Assumes p is a list of items
+
+	return ListUnicodes(p)
 
 func Scripts(paListStr)
 	return StzListOfStringsQ(paListStr).Scripts()

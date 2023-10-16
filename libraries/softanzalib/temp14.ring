@@ -9,11 +9,105 @@ cName = "Gary"
 ? $("It's been a real pleasure meeting you, {cName}!") # Or Interpolate()
 #--> It's been a real pleasure meeting you, Gary!
 
-/*--------
-*/
+/*=====
+
+pron()
+
+? Q([ "a", "b", "c" ]).IsListOfChars()
+#--> TRUE
+
+? Q([ 1, 2, 3 ]).IsListOfChars()
+#--> TRUE
+
+proff()
+
+/*------
+
+pron()
+
+? Q(1:3).Unicodes()
+#--> [1, 2, 3]
+
+? Unicodes([2, 3])
+#--> [2, 3]
+
+? Unicodes([ "a", "b", "c" ])
+#--> [97, 98, 99]
+
+? @@( Unicodes([ "How", "are", "you?" ]) )
+#--> [ [ 72, 111, 119 ], [ 97, 114, 101 ], [ 121, 111, 117, 63 ] ]
+
+? @@( Unicodes([ "A", "HI", [ 1, 2 ] ]) )
+#--> [ 65, [ 72, 73 ], [ 1, 2 ] ]
+
+? @@( Unicodes([ "a", [ 1, ["b","c"], 2], "d" ]) )
+#--> [ 97, [ 1, [ 98, 99 ], 2 ], 100 ]
+
+? @@( Unicodes([ "a", [ 1, ["b", [ "ring" ] ], 2 ], "d" ]) )
+#--> [ 97, [ 1, [ 98, [ [ 114, 105, 110, 103 ] ] ], 2 ], 100 ]
+
+
+proff()
+
+/*========
 
 # TODO: Add TurnUp, TurnDown, Turn, IsTurnedUp, IsTurnedDown
 # here in stzChar then in stzString
+
+*/
+pron()
+/*
+#-- TURNABLE NUMBERS
+
+? @@(TurnableNumbers())
+#--> [ 2, 3 ]
+
+? @@(TurnableNumbersUnicodes())
+#--> [ 2, 3 ]
+
+? @@(TurnableNumbersXT()) # NOTE: Font in Notepad may not show the turned numbers
+#--> [ [ 2, "↊" ], [ 3, "↋" ] ]
+
+#-- TURNED NUMBERS
+
+? @@(TurnedNumbersUnicodes())
+#--> [ 8586, 8587 ]
+
+? @@(TurnedNumbers()) # NOTE: Idem
+#--> [ "↊", "↋" ]
+
+? @@( Q([ "↊", "↋" ]).Names() )
+#--> [ "TURNED DIGIT TWO", "TURNED DIGIT THREE" ]
+
+? @@(TurnedNumbersXT()) # Or TurnedNumberAndTheirUnicodes()
+#--> [ [ "↊", 8586 ], [ "↋", 8587 ] ]
+*/
+#-- TURNABLE CHARS
+
+//? HowManyTurnableChars() + NL
+//? @@( TurnableChars() ) + NL
+
+//? HowManyTurnableUnicodes() + NL
+//? @@( TurnableUnicodes() )
+
+? @@S( TurnableUnicodesXT()) # Or ShowShort()
+#--> [
+#	[ 36, "$" ], [ 38, "&" ], [ 40, "(" ], "...",
+#	[ 43843, "ꭃ" ], [ 43856, "ꭐ" ], [ 43857, "ꭑ" ] ]
+# ]
+
+
+
+//? @@( TurnableAndTurnedChars() )
+#-- TURNED CHARS
+
+//TurnedUnicodes()
+//TurnedChars()
+//TurnedCharsXT()
+
+proff()
+
+/*-------
 
 pron()
 
@@ -27,8 +121,30 @@ o1 = new stzChar("Ɯ")
 
 proff()
 
-/*--------
+/*---
 
+pron()
+
+o1 = new stzChar("Ɯ")
+? o1.IsTurned()
+#--> TRUE
+
+? o1.IsTurnable()
+#--> TRUE
+
+#--
+
+o1 = new stzChar("M")
+? o1.IsTurned()
+#--> FALSE
+
+? o1.IsTurnable()
+#--> TRUE
+
+proff()
+
+/*=====
+*/
 pron()
 
 ? Q("ƎℲI⅂").IsTurned()

@@ -279,6 +279,66 @@ class stzListOfChars from stzListOfStrings
 		next
 		return aResult
 
+	  #---------------------------------------------#
+	 #   GETTING THE (UNICODE) NAMES OF THE CHARS  #
+	#---------------------------------------------#
+
+	def Names()
+		acContent = This.Content()
+		nLen = len(acContent)
+
+		acResult = []
+
+		for i = 1 to nLen
+			acResult + StzCharQ(acContent[i]).Name()
+		next
+
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def NamesInUnicode()
+			return This.Names()
+
+		def UnicodeNames()
+			return This.Names()
+
+		#>
+
+	def NamesAndTheirUnicodes()
+		aResult = Association([ This.Names(), This.Unicodes() ])
+		return aResult
+
+		def NamesXT()
+			return This.NamesAndTheirUnicodes()
+
+	def CharsAndTheirUnicodes()
+		aResult = Association([ This.Chars(), This.Unicodes() ])
+		return aResult
+
+	def CharsAndTheirNames()
+		aResult = Association([ This.Chars(), This.Names() ])
+
+		def CharsXT()
+			return This.CharsAndTheirNames()
+
+	def CharsAndTheirNamesAndTheirUnicodes()
+		aResult = Assocciation([
+			This.Chars(), This.Names(), This.Unicodes()
+		])
+
+		return aResult
+
+		def CharsXTT()
+			return This.CharsAndTheirNamesAndTheirUnicodes()
+
+	def CharsAndTheirUnicodesAndTheirNames()
+		aResult = Assocciation([
+			This.Chars(), This.Unicodes(), This.Names()
+		])
+
+		return aResult
+
 	  #---------------------------------------#
 	 #    CONCATENATING CHARS IN A STRING    #
 	#---------------------------------------#
@@ -547,15 +607,19 @@ class stzListOfChars from stzListOfStrings
 			StzRaise(stzListOfCharsError(:CanNotBoxTheListOfChars))
 		ok
 
-	  #-----------------#
-	 #     UNICODES    #
-	#-----------------#
+	  #--------------------------------------------------#
+	 #  GETTING THE UNICODE (CODE NUMBER) OF EACH CHAR  #
+	#==================================================#
 
 	def Unicodes()
+		
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		aResult = []
 
-		for char in This.ListOfChars()
-			aResult + StzCharQ(char).Unicode()
+		for i = 1 to nLen
+			aResult + Unicode(aContent[i])
 		next
 
 		return aResult

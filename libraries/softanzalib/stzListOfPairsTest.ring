@@ -126,7 +126,7 @@ o1 = new stzListOfPairs([
 o1.MergeContiguous()
 ? o1.Content()
 #--> [ [1, 4], [6, 10], [12, 15] ]
-*/
+
 StopProfiler()
 
 /*-----------------
@@ -192,12 +192,17 @@ o1 = new stzListOfPairs([ ["A", "B"], ["C", "♥"], ["E", "F"] ])
 ? o1.ContainsInAnyPair("♥") # TRUE
 
 /*------
+*/
+pron()
 
 o1 = new stzListOfPairs([
 	[ 18, 22 ], [ 8, 12], [ 3, 5]
 ])
 
-? @@( o1.Swapped() ) #--> [ [ 22, 18 ], [ 12, 8 ], [ 5, 3 ] ]
+? @@( o1.Swapped() )
+#--> [ [ 22, 18 ], [ 12, 8 ], [ 5, 3 ] ]
+
+proff()
 
 /*------
 

@@ -194,7 +194,9 @@ _aLocaleCountriesXT = [
 	[ "162",	:Oman, 				"OM", 			"OMN", 			"+968", 	:arabic, 		:Omani_rial, 				"Baisa", 		100,		"🇴🇲"		],
 	[ "163",	:Pakistan, 			"PK", 			"PAK", 			"+92", 		:punjabi, 		:Pakistani_rupee, 			"Paisa", 		100,		"🇵🇰"		],
 	[ "164", 	:Palau, 			"PW", 			"PLW", 			"+680", 	:palauan, 		:United_States_dollar, 			"Cent", 		100,		"🇵🇼"		],
-	[ "165", 	:Palestine, 			"PS", 			"PSE", 			"+970", 	:arabic, 		:Israeli_new_shekel, 			"Agora", 		100,		"🇵🇸"		], # Called in unicode :Palestinian_Territories, but for Softanza, it's Palestine!
+	[ "165", 	:Palestine, 			"PS", 			"PSE", 			"+970", 	:arabic, 		:Israeli_new_shekel, 			"Agora", 		100,		"🇵🇸"		],
+	# Called in unicode :Palestinian_Territories, but for Softanza, it's Palestine!
+
 	[ "166", 	:Panama, 			"PA", 			"PAN", 			"+507", 	:spanish, 		:Panamanian_balboa, 			"Centésimo", 		100,		"🇵🇦"		],
 	[ "167", 	:Papua_New_Guinea, 		"PG", 			"PNG", 			"+675", 	:tok_pisin, 		:Papua_New_Guinean_kina, 		"Toea", 		100,		"🇵🇬"		],
 	[ "168", 	:Paraguay, 			"PY", 			"PRY", 			"+595", 	:spanish, 		:Paraguayan_guarani, 			"Céntimo", 		100,		"🇵🇾"		],
