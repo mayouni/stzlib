@@ -1,6 +1,70 @@
 load "stzlib.ring"
 
+/*---------
 
+pron()
+
+? HexPrefix()
+#--> Ox
+
+? Q( HexPrefix() + '066E').RepresentsNumberInHexForm()
+#--> TRUE
+
+? Q('U+066E').RepresentsNumberInUnicodeHexForm()
+#--> TRUE
+
+proff()
+
+/*---------
+*/
+pron()
+
+/*
+U+066E ARABIC LETTER DOTLESS BEH
+U+066F ARABIC LETTER DOTLESS QAF
+U+06A1 ARABIC LETTER DOTLESS FEH
+U+06BA ARABIC LETTER NOON GHUNNA
+
+TODO Add these functions:
+
+? ArabicDottlessLetters()
+
+? ArabicDottlessLettersUnicodes()
+
+? ArabicDottlessLettersAndTheirUnicodes()
+
+? ArabicDottlessLettersXT() # ArabicDotllessAnsTheirDottlessLetters()
+? ArabicDottedAndTheirDottlessLetters()
+*/
+
+StzCharQ('U+066E') {
+	? Content() 	#--> ٮ
+	? Name()	#--> ARABIC LETTER DOTLESS BEH
+	? Unicode()	#--> 1646
+}
+
+StzCharQ('U+066F') {
+	? Content() 	#--> ٯ
+	? Name()	#--> ARABIC LETTER DOTLESS QAF
+	? Unicode()	#--> 1647
+}
+
+StzCharQ('U+06A1') {
+	? Content() 	#--> ڡ
+	? Name()	#--> ARABIC LETTER DOTLESS FEH
+	? Unicode()	#--> 1697
+}
+
+StzCharQ('U+06BA') {
+	? Content() 	#--> ں
+	? Name()	#--> ARABIC LETTER DOTLESS NOON GHUNNA
+	? Unicode()	#--> 1722
+}
+
+#--> ARABIC LETTER DOTLESS BEH
+
+
+proff()
 
 /*--------
 

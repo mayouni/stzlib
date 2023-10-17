@@ -51340,12 +51340,12 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 	def RemoveCS(pSubStr, pCaseSensitive)
 		if CheckParams()
-			if isList(pcSubStr)
-				if Q(pcSubStr).IsListOfStrings()
-					This.RemoveManyCS(pcSubStr, pCaseSensitive)
+			if isList(pSubStr)
+				if Q(pSubStr).IsListOfStrings()
+					This.RemoveManyCS(pSubStr, pCaseSensitive)
 
-				but Q(pcSubStr).IsListOfNumbers()
-					This.ReloveCharsAtPositions(pcSubStr)
+				but Q(pSubStr).IsListOfNumbers()
+					This.ReloveCharsAtPositions(pSubStr)
 				ok
 				return
 			ok
@@ -58666,17 +58666,19 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return This.RepresentsNumberInHexForm()
 
 	def RepresentsNumberInUnicodeHexForm()
-		if NOT This.LeftNCharsQ(2).Uppercased() = "U+"
-			return FALSE
-		ok
-	
-		if This.IsEqualToOneOfTheseCS("U", "U+")
+
+		nLen = This.NumberOfChars()
+		if NOT nLen > 2
 			return FALSE
 		ok
 
-		cNumber = This.LeftNCharsRemoved(2)
+		if NOT This.SectionQ(1, 2).Uppercased() = "U+"
+			return FALSE
+		ok
 	
-		if IsHexNumber( HexPrefix() + cNumber )
+		cNumber = This.Section(3, nLen)
+	
+		if StzStringQ( HexPrefix() + cNumber ).RepresentsNumberInHexForm()
 			return TRUE
 		else
 			return FALSE

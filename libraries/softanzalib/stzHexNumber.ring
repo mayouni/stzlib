@@ -87,7 +87,7 @@ class stzHexNumber from stzObject
 			@cHexNumber = oHexNumber.Content()
 
 		but StringRepresentsNumberInUnicodeHexForm(pNumber)
-			@cHexNumber = StzStringQ(@cHexNumber).RemoveCSQ( "U+", :CS = FALSE ).Content()
+			@cHexNumber = StzStringQ(pNumber).RemoveCSQ( "U+", :CS = FALSE ).Content()
 
 		else
 			StzRaise(stzHexNumberError(:CanNotCreateHexNumber))
@@ -107,6 +107,7 @@ class stzHexNumber from stzObject
 
 
 	def IntegerPart()
+
 		oStzStr = new stzString(This.HexNumber())
 
 		if oStzStr.Contains(".")
@@ -134,6 +135,8 @@ class stzHexNumber from stzObject
 
 	def ToDecimalForm()
 		# Converting the integer part of the hex number to decimal
+
+
 
 		cIntegerPart = dec( This.IntegerPart() ) // TODO: fix error here!
 
