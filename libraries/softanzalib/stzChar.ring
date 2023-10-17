@@ -365,16 +365,17 @@ class stzChar from stzObject
 				StzRaise("Can't create char from empty string!")
 			ok
 
-			if StzStringQ(pChar).NumberOfChars() = 1
+			oStr = StzStringQ(pChar)
+			if oStr.NumberOfChars() = 1
 				nUnicode = StzStringQ(pChar).UnicodeOfCharN(1)
 				@oQChar = new QChar(nUnicode)
 
-			but StzStringQ(pChar).RepresentsNumberInHexForm() or
-			    StzStringQ(pChar).RepresentsNumberInUnicodeHexForm()
+			but oStr.RepresentsNumberInHexForm() or
+			    oStr.RepresentsNumberInUnicodeHexForm()
 				nUnicode = StzHexNumberQ(pChar).ToDecimal()
 				@oQChar = new QChar(nUnicode)
 
-			but StringIsCharName(pChar)
+			but oStr.IsCharName(pChar)
 				nUnicode = StzUnicodeDataQ().CharUnicodeByName(pChar)
 				@oQChar = new QChar(nUnicode)
 
