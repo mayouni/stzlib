@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-/*---------
+/*-----
 
 pron()
 
@@ -16,17 +16,35 @@ pron()
 proff()
 
 /*---------
+
+pron()
+
+? TQ("משמש").Script()
+#--> hebrew
+
+
+proff()
+
+/*----------
 */
 
+pron()
+
+? StzCharQ("ڢ").HexUnicode()
+#--> U+06A2
+
+? QQ('U+06A2').Content() #--> ڢ
+
+proff()
+
+/*----------
+*/
 pron()
 
 ? QQ('U+0649').Content() #--> ى
 
 ? Q('U+0649').IsHexUnicode()
 #--> TRUE
-
-//? StzCharQ("ڢ").HexUnicode()
-
 
 StzCharQ('U+0649') {
 	? Content() 	#--> ى
