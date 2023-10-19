@@ -86,7 +86,17 @@ func StzCharClass()
 
 func IsAsciiChar(c)
 	return StzCharQ(c).IsAscii()
-		
+	
+func UnicodeToHexUnicode(n)
+	oChar = new stzChar(n)
+	cResult = oChar.HexUnicode()
+	return cResult
+
+func HexUnicodeToUnicode(cHex)
+	oChar = new stzChar(cHex)
+	nResult = oChar.Unicode()
+	return nResult
+
 func CharToUnicode(c)
 	return StzCharQ(c).Unicode()
 
@@ -501,6 +511,23 @@ class stzChar from stzObject
 
 	def UnicodeAsString()
 		return "" + This.Unicode()
+
+	def HexUnicode()
+		# NOTE: Based on a proposal from ChatGPT
+
+		nDecUnicode = This.Unicode()
+		acHexDigits = "0123456789ABCDEF"
+		cResult = ""
+	
+		for i = 1 to 4
+			nDigit = 0+ Q(nDecUnicode % 16).IntegerPart() + 1
+			cResult = acHexDigits[nDigit] + cResult
+			nDecUnicode = nDecUnicode / 16
+	   	next
+	
+		cResult = "U+" + cResult
+
+		return cResult
 
 	def Name()
 
