@@ -1847,14 +1847,16 @@ func QQ(p)
 
 	if isString(p)
 
-		if Q(p).IsNumberInString()
+		oParam = Q(p)
+
+		if oParam.IsNumberInString()
 			return new stzNumber(p)
 
-		but Q(p).IsListInString() # TODO: check Q(' "A" : "C" ').IsListInString()
+		but oParam.IsListInString() # TODO: check Q(' "A" : "C" ').IsListInString()
 			return new stzList(p)
 			# TODO: check new stzList("[1, 2, 3]")
 
-		but Q(p).IsChar()
+		but oParam.IsChar() or oParam.IsHexUnicode()
 			return new stzChar(p)
 
 		else
@@ -1865,6 +1867,7 @@ func QQ(p)
 	but isList(p)
 
 		oQTemp = Q(p)
+
 		if oQTemp.IsListOfNumbers()
 			return new stzListOfNumbers(p)
 

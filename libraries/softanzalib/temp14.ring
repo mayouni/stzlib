@@ -18,9 +18,14 @@ proff()
 /*---------
 */
 
-? Q('U+0649').IsHexUnicode()
+pron()
 
-? StzCharQ("ڢ").HexUnicode()
+? QQ('U+0649').Content() #--> ى
+
+? Q('U+0649').IsHexUnicode()
+#--> TRUE
+
+//? StzCharQ("ڢ").HexUnicode()
 
 
 StzCharQ('U+0649') {
@@ -28,6 +33,8 @@ StzCharQ('U+0649') {
 	? Name()	#--> ARABIC LETTER ALEF MAKSURA
 	? Unicode()	#--> 1609
 } ? ""
+
+proff()
 
 /*---------
 
