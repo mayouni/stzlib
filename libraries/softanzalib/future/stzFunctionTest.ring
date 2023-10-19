@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-/*
+
 f = new stzFunction {
 	cName	= "Saluate"
 	aParam	= [:pcToSomeone]
@@ -14,4 +14,4 @@ f = new stzFunction {
 
 	// CheckParamValidityFrom( pTemplate )		
 }
-*/
+

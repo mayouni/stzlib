@@ -58014,159 +58014,6 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	 #    NUMBER IN STRING    #
 	#========================#
 
-	def IsADigitInString()
-		bResult = FALSE
-
-		if This.IsANumberInString()
-
-			n = 0+ This.Content()
-			if 0 <= n and n <= 9
-				bResult = TRUE
-			ok
-
-		ok
-
-		return bResult
-
-		def IsDigitInString()
-			return This.IsADigitInString()
-
-		def RepresentsADigit()
-			return This.IsADigitInString()
-
-		def RepresentsDigit()
-			return This.IsADigitInString()
-
-	def RepresentsDecimalNumber()
-		return This.RepresentsNumberInDecimalForm()
-
-		def IsNumberInString()
-			return This.RepresentsDecimalNumber()
-
-		def IsANumberInString()
-			return This.RepresentsDecimalNumber()
-
-		def IsNumberInAString()
-			return This.RepresentsDecimalNumber()
-
-		def IsANumberInAString()
-			return This.RepresentsDecimalNumber()
-
-		def RepresentsADecimalNumber()
-			return This.RepresentsDecimalNumber()
-
-		def IsDecimalNumberInString()
-			return This.RepresentsDecimalNumber()
-
-		def IsDecimalNumberInAString()
-			return This.RepresentsDecimalNumber()
-
-		def IsADecimalNumberInString()
-			return This.RepresentsDecimalNumber()
-
-		def IsADecimalNumberInAString()
-			return This.RepresentsDecimalNumber()
-
-	def RepresentsBinaryNumber()
-		oCopy = This.RemoveSpacesQ()
-
-		if oCopy.RepresentsNumberInBinaryForm()
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-		def RepresentsABinaryNumber()
-			return This.RepresentsBinaryNumber()
-
-		def IsBinaryNumberInString()
-			return This.RepresentsBinaryNumber()
-
-		def IsBinaryNumberInAString()
-			return This.RepresentsBinaryNumber()
-
-		def IsABinaryNumberInString()
-			return This.RepresentsBinaryNumber()
-
-		def IsABinaryNumberInAString()
-			return This.RepresentsBinaryNumber()
-
-	def RepresentsOctalNumber()
-		oCopy = This.RemoveSpacesQ()
-
-		if oCopy.RepresentsNumberInOctalForm()
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-		def RepresentsAnOctalNumber()
-			return This.RepresentsOctalNumber()
-
-		def IsOctalNumberInString()
-			return This.RepresentsOctalNumber()
-
-		def IsOctalNumberInAString()
-			return This.RepresentsOctalNumber()
-
-		def IsAnOctalNumberInString()
-			return This.RepresentsOctalNumber()
-
-		def IsAnOctalNumberInAString()
-			return This.RepresentsOctalNumber()
-
-	def RepresentsHexNumber()
-		oCopy = This.RemoveSpacesQ()
-
-		if oCopy.RepresentsNumberInHexForm()
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-		def RepresentsAHexNumber()
-			return This.RepresentsHexNumber()
-
-		def IsHexNumberInString()
-			return This.RepresentsHexNumber()
-
-		def IsHexNumberInAString()
-			return This.RepresentsHexNumber()
-
-		def IsAHexNumberInString()
-			return This.RepresentsHexNumber()
-
-		def IsAHexNumberInAString()
-			return This.RepresentsHexNumber()
-
-	def RepresentsScientificNotationNumber()
-		oCopy = This.RemoveSpacesQ()
-
-		if oCopy.RepresentsNumberInScientificNotation()
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-		def RepresentsAScientificNumber()
-			return This.RepresentsScientificNumber()
-
-		def IsScientificNumberInString()
-			return This.RepresentsScientificNumber()
-
-		def IsScientificNumberInAString()
-			return This.RepresentsScientificNumber()
-
-		def IsAScientificNumberInString()
-			return This.RepresentsScientificNumber()
-
-		def IsAScientificNumberInAString()
-			return This.RepresentsScientificNumber()
-
 	def NumberForm()
 		if NOT This.RepresentsNumber()
 			return :NotNumber
@@ -58188,6 +58035,39 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				return :ScientificNotation
 			ok
 		ok
+
+	def RepresentsDigit()
+		bResult = FALSE
+
+		if This.IsANumberInString()
+
+			n = 0+ This.Content()
+			if 0 <= n and n <= 9
+				bResult = TRUE
+			ok
+
+		ok
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def RepresentsADigit()
+			return This.RepresentsDigit()
+
+		def IsDigit()
+			return This.RepresentsDigit()
+
+		def IsADigit()
+			return This.RepresentsDigit()
+
+		def IsDigitInString()
+			return This.RepresentsDigit()
+
+		def IsADigitInString()
+			return This.RepresentsDigit()
+
+		#>
 
 	def RepresentsNumber()
 
@@ -58214,17 +58094,17 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def RepresentsNumberInString()
 			return This.RepresentsNumber()
 
-		def RepresentsNumberInAString()
-			return This.RepresentsNumber()
-
 		def RepresentsANumberInString()
 			return This.RepresentsNumber()
 
-		def RepresentsANumberInAString()
+		def IsNumberInString()
+			return This.RepresentsNumber()
+
+		def IsANumberInString()
 			return This.RepresentsNumber()
 
 		#>
-	
+
 	def RepresentsSignedNumber()
 		if This.RepresentsNumber() and
 		   (This.FirstChar() = "+" or This.FirstChar() = "-")
@@ -58234,8 +58114,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsASignedNumber()
 			return This.RepresentsSignedNumber()
+
+		def IsSignedNumber()
+			return This.RepresentsSignedNumber()
+
+		def IsASignedNumber()
+			return This.RepresentsSignedNumber()
+
+		def IsSignedNumberInString()
+			return This.RepresentsSignedNumber()
+
+		def IsASignedNumberInString()
+			return This.RepresentsSignedNumber()
+
+		#>
 
 	def RepresentsUnsignedNumber()
 		if This.RepresentsNumber() and
@@ -58246,8 +58142,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsAnUnsignedNumber()
-			return This.RepresentsUnsignedNumber()		
+			return This.RepresentsUnsignedNumber()	
+
+		def IsUnsignedNumber()
+			return This.RepresentsUnsignedNumber()
+
+		def IsAnUnsignedNumber()
+			return This.RepresentsUnsignedNumber()
+
+		def IsUnsignedNumberInString()
+			return This.RepresentsUnsignedNumber()
+
+		def IsAnUnsignedNumberInString()
+			return This.RepresentsUnsignedNumber()
+
+		#>
 
 	def RepresentsCalculableNumber() 
 
@@ -58270,8 +58182,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		  MinCalculableNumber() and MaxCalculableNumber()
 		*/
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsACalculableNumber() 
-			return This.RepresentsCalculableNumber() 
+			return This.RepresentsCalculableNumber()
+
+		def IsCalculableNumber()
+			return This.RepresentsCalculableNumber()
+
+		def IsACalculableNumber()
+			return This.RepresentsCalculableNumber()
+
+		def IsCalculableNumberInString()
+			return This.RepresentsCalculableNumber()
+
+		def IsACalculableNumberInString()
+			return This.RepresentsCalculableNumber()
+
+		#>
 
 	def RepresentsInteger()
 		if This.RepresentsNumber() and This.ContainsNo(".")
@@ -58280,8 +58208,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsAnInteger()
 			return This.RepresentsInteger()
+
+		def IsInteger()
+			return This.RepresentsInteger()
+
+		def IsAnInteger()
+			return This.RepresentsInteger()
+
+		def IsIntegerInString()
+			return This.RepresentsInteger()
+
+		def IsAnIntegerInString()
+			return This.RepresentsInteger()
+
+		#>
 
 	def RepresentsSignedInteger()
 		if This.RepresentsInteger() and
@@ -58292,8 +58236,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsASignedInteger()
 			return This.RepresentsSignedInteger()
+
+		def IsSignedInteger()
+			return This.RepresentsSignedInteger()
+
+		def IsASignedInteger()
+			return This.RepresentsSignedInteger()
+
+		def IsSignedIntegerInString()
+			return This.RepresentsSignedInteger()
+
+		def IsASignedIntegerInString()
+			return This.RepresentsSignedInteger()
+
+		#>
 
 	def RepresentsUnsignedInteger()
 		if This.RepresentsInteger() and
@@ -58304,8 +58264,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsAnUnsignedInteger()
 			return This.RepresentsUnsignedInteger()
+
+		def IsUnsignedInteger()
+			return This.RepresentsUnsignedInteger()
+
+		def IsAnUnsignedInteger()
+			return This.RepresentsUnsignedInteger()
+
+		def IsUnsignedIntegerInString()
+			return This.RepresentsUnsignedInteger()
+
+		def IsAnUnsignedIntegerInString()
+			return This.RepresentsUnsignedInteger()
+
+		#>
 
 	def RepresentsCalculableInteger()
 
@@ -58339,8 +58315,25 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsACalculableInteger()
 			return This.RepresentsCalculableInteger()
+
+		def IsCalculableInteger()
+			return This.RepresentsCalculableInteger()
+
+		def IsACalculableInteger()
+			return This.RepresentsCalculableInteger()
+
+		def IsCalculableIntegerInString()
+			return This.RepresentsCalculableInteger()
+
+		def IsACalculableIntegerInString()
+			return This.RepresentsCalculableInteger()
+
+
+		#>
 
 	def RepresentsRealNumber()
 		if This.RepresentsNumber() and This.Contains(".")
@@ -58349,8 +58342,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsARealNumber()
 			return This.RepresentsRealNumber()		
+
+		def IsRealNumber()
+			return This.RepresentsRealNumber()		
+
+		def IsARealNumber()
+			return This.RepresentsRealNumber()		
+
+		def IsRealNumberInString()
+			return This.RepresentsRealNumber()		
+
+		def IsARealNumberInString()
+			return This.RepresentsRealNumber()		
+
+		#>
 
 	def RepresentsSignedRealNumber()
 		if This.RepresentsRealNumber() and
@@ -58361,8 +58370,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsASignedRealNumber()
 			return This.RepresentsSignedRealNumber()		
+
+		def IsSignedRealNumber()
+			return This.RepresentsSignedRealNumber()		
+
+		def IsASignedRealNumber()
+			return This.RepresentsSignedRealNumber()		
+
+		def IsSignedRealNumberInString()
+			return This.RepresentsSignedRealNumber()		
+
+		def IsASignedRealNumberInString()
+			return This.RepresentsSignedRealNumber()		
+
+		#>
 
 	def RepresentsUnsignedRealNumber()
 		if This.RepresentsRealNumber() and
@@ -58373,8 +58398,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsAnUnsignedRealNumber()
 			return This.RepresentsUnsignedRealNumber()		
+
+		def IsUnsignedRealNumber()
+			return This.RepresentsUnsignedRealNumber()		
+
+		def IsAnUnsignedRealNumber()
+			return This.RepresentsUnsignedRealNumber()		
+
+		def IsUnsignedRealNumberInString()
+			return This.RepresentsUnsignedRealNumber()		
+
+		def IsAnUnsignedRealNumberInString()
+			return This.RepresentsUnsignedRealNumber()		
+
+		#>
 
 	def RepresentsCalculableRealNumber()
 		
@@ -58421,8 +58462,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsACalculableRealNumber()
 			return This.RepresentsCalculableRealNumber()
+
+		def IsCalculableRealNumber()
+			return This.RepresentsCalculableRealNumber()
+
+		def IsACalculableRealNumber()
+			return This.RepresentsCalculableRealNumber()
+
+		def IsCalculableRealNumberInString()
+			return This.RepresentsCalculableRealNumber()
+
+		def IsACalculableRealNumberInString()
+			return This.RepresentsCalculableRealNumber()
+
+		#>
 
 	def RepresentsNumberInDecimalForm()
 
@@ -58486,8 +58543,32 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		return TRUE
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsANumberInDecimalForm()
 			return This.RepresentsNumberInDecimalForm()
+
+		def IsDecimalNumber()
+			return This.RepresentsNumberInDecimalForm()
+
+		def IsADecimalNumber()
+			return This.RepresentsNumberInDecimalForm()
+
+		def IsDecimalNumberInString()
+			return This.RepresentsNumberInDecimalForm()
+
+		def IsADecimalNumberInString()
+			return This.RepresentsNumberInDecimalForm()
+
+		#--
+
+		def RepresentsDecimalNumber()
+			return This.RepresentsNumberInDecimalForm()
+
+		def RepresentsADecimalNumber()
+			return This.RepresentsNumberInDecimalForm()
+
+		#>
 
 	// Checks if the string corresponds to a binary number started by the
 	// prefix defined in BinaryNumberPrefix() and composed of 0s and 1s
@@ -58575,8 +58656,32 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		return TRUE
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsANumberInBinaryForm()
 			return This.RepresentsNumberInBinaryForm()
+
+		def IsBinaryNumber()
+			return This.RepresentsNumberInBinaryForm()
+
+		def IsABinaryNumber()
+			return This.RepresentsNumberInBinaryForm()
+
+		def IsBinaryNumberInString()
+			return This.RepresentsNumberInBinaryForm()
+
+		def IsABinaryNumberInString()
+			return This.RepresentsNumberInBinaryForm()
+
+		#--
+
+		def RepresentsBinayNumber()
+			return This.RepresentsNumberInBinaryForm()
+
+		def RepresentsABinaryNumber()
+			return This.RepresentsNumberInBinaryForm()
+
+		#>
 
 	// Checks if the string corresponds to a hex number form
 	def RepresentsNumberInHexForm()
@@ -58662,8 +58767,32 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		return TRUE
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsANumberInHexForm()
 			return This.RepresentsNumberInHexForm()
+
+		def IsHexNumber()
+			return This.RepresentsNumberInHexForm()
+
+		def IsAHexNumber()
+			return This.RepresentsNumberInHexForm()
+
+		def IsHexNumberInString()
+			return This.RepresentsNumberInHexForm()
+
+		def IsAHexNumberInString()
+			return This.RepresentsNumberInHexForm()
+
+		#--
+
+		def RepresentsHexNumber()
+			return This.RepresentsNumberInHexForm()
+
+		def RepresentsAHexNumber()
+			return This.RepresentsNumberInHexForm()
+
+		#>
 
 	def RepresentsNumberInUnicodeHexForm()
 
@@ -58684,8 +58813,32 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsANumberInUnicodeHexForm()
 			return This.RepresentsNumberInUnicodeHexForm()
+
+		def IsHexUnicode()
+			return This.RepresentsNumberInUnicodeHexForm()
+
+		def IsAHexUnicode()
+			return This.RepresentsNumberInUnicodeHexForm()
+
+		def IsHexUnicodeInString()
+			return This.RepresentsNumberInUnicodeHexForm()
+
+		def IsAHexUnicodeInString()
+			return This.RepresentsNumberInUnicodeHexForm()
+
+		#--
+
+		def RepresentsHexUnicode()
+			return This.RepresentsNumberInUnicodeHexForm()
+
+		def RepresentsAHexUnicode()
+			return This.RepresentsNumberInUnicodeHexForm()
+
+		#>
 
 	// Checks if the string corresponds to an octal number
 	def RepresentsNumberInOctalForm()
@@ -58771,15 +58924,92 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		return TRUE
 
-		def RepresentsANumberInOctalForm()
+		#< @FunctionAlternativeForms
+
+		def RepresentsANumberInUnicodeOctalForm()
 			return This.RepresentsNumberInOctalForm()
+
+		def IsOctalUnicode()
+			return This.RepresentsNumberInOctalForm()
+
+		def IsAnOctalUnicode()
+			return This.RepresentsNumberInOctalForm()
+
+		def IsOctalUnicodeInString()
+			return This.RepresentsNumberInOctalForm()
+
+		def IsAnOctalUnicodeInString()
+			return This.RepresentsNumberInOctalForm()
+
+		#--
+
+		def RepresentsOctalNumber()
+			return This.RepresentsNumberInOctalForm()
+
+		def RepresentsAnOctalNumber()
+			return This.RepresentsNumberInOctalForm()
+
+
+		#>
 
 	def RepresentsNumberInScientificNotation()
 		// TODO
 		StzRaise("Unsupported feature yet!")
 
+		#< @FunctionAlternativeForms
+
 		def RepresentsANumberInScientificNotation()
 			return This.RepresentsNumberInScientificNotation()
+
+		def IsScientificNotation()
+			return This.RepresentsNumberInScientificNotation()
+
+		def IsAScientificNotation()
+			return This.RepresentsNumberInScientificNotation()
+
+		def IsScientificNotationInString()
+			return This.RepresentsNumberInScientificNotation()
+
+		def IsAnScientificNotationInString()
+			return This.RepresentsNumberInScientificNotation()
+
+		#--
+
+		def RepresentsScientificNotation()
+			return This.RepresentsNumberInScientificNotation()
+
+		def RepresentsAScientificNotation()
+			return This.RepresentsNumberInScientificNotation()
+
+		#==
+
+		def RepresentsNumberInScientificForm()
+			return This.RepresentsNumberInScientificNotation()
+
+		def RepresentsANumberInScientificForm()
+			return This.RepresentsNumberInScientificNotation()
+
+		def IsScientificForm()
+			return This.RepresentsNumberInScientificNotation()
+
+		def IsAScientificForm()
+			return This.RepresentsNumberInScientificNotation()
+
+		def IsScientificFormInString()
+			return This.RepresentsNumberInScientificNotation()
+
+		def IsAnScientificFormInString()
+			return This.RepresentsNumberInScientificNotation()
+
+		#--
+
+		def RepresentsScientificForm()
+			return This.RepresentsNumberInScientificNotation()
+
+		def RepresentsAScientificForm()
+			return This.RepresentsNumberInScientificNotation()
+
+		#>
 
 	def IsNumberFraction() # of the form "1/2" or "۱/٢" or "Ⅰ/Ⅱ" or
 					  # even "一/二" (in mandarin numerals)
@@ -58795,6 +59025,8 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			ok
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def IsANumberFraction()
 			return This.IsNumberFraction()
 
@@ -58803,6 +59035,8 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		def IsANumberFractionInString()
 			return This.IsNumberFraction()
+
+		#>
 
 	  #==============#
 	 #    CHARS     #
