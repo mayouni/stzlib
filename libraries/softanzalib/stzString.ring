@@ -58076,8 +58076,8 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		if oCopy.RepresentsNumberInDecimalForm() or
 		   oCopy.RepresentsNumberInBinaryForm() or
 		   oCopy.RepresentsNumberInOctalForm() or
-		   oCopy.RepresentsNumberInHexForm() or
-		   oCopy.RepresentsNumberInScientificNotation()
+		   oCopy.RepresentsNumberInHexForm() //or
+		   //oCopy.RepresentsNumberInScientificNotation()
 			
 			return TRUE
 
