@@ -61,6 +61,13 @@ Diacritics
 	Arabic diacritics
 	Greek diacritics (TODO)
 	Hebrew diacritics (TODO)
+
+DOTTLESS LETTERS
+	Arabic dottles letters
+	Latin dottless letters
+	Mathematical dottless letters (TODO)
+	Any others (TODO)
+
 */
 
   ////////////////////////
@@ -356,21 +363,6 @@ Diacritics
 		[ "13", :Other_NotAssigned ]
 	]
 	
-	# Unicode blocks: TODO
-
-	_aUnicodeBlocksXT = [
-
-	]
-
-	# Unicode versions
-
-	_acUnicodeVersions = [
-		"1.1", "2.0", "2.1.2", "3.0", "3.1", "3.2", "4.0",
-		"4.1", "5.0", "5.1", "5.2", "6.0", "6.1", "6.2",
-		"6.3", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0",
-		"12.1", "13.0"
-	]
-
 	  #-----------------#
 	 #   PUNCTUATION   #
 	#-----------------#
@@ -497,10 +489,14 @@ Diacritics
 		_anArabicUnicodes + item
 	next
 
-	# Arabic Rasm chars (TODO)
+	# Arabic Rasm letters (classic caligraphy without dots)
 
 		# List of arabic letters without dots:
 		# https://en.wikipedia.org/wiki/Rasm
+
+		# Read about the lacking support in Unicode of
+		# rasm not dotter letters for classic arabic calugraphy
+		# https://unicode.org/L2/L2014/14109-inline-chars.pdf
 
 		# Equivalent in hebrew of the arabic 7araket:
 		# https://en.wikipedia.org/wiki/Niqqud
@@ -509,10 +505,13 @@ Diacritics
 		# https://en.wikipedia.org/wiki/Dagesh
 
 	_anArabicRasmUnicodes = [
-
+		1609, 1575, 1581, 1583, 1585,
+		1587, 1589, 1591, 1593, 1605,
+		1607, 1608, 1646, 1647, 1697,
+		1705, 1722
 	]
 
-	_aArabicRasmCharsXT = [
+	_anArabicDottlessUnicodes = [
 
 	]
 	
@@ -606,6 +605,10 @@ Diacritics
 	for item in _anLatinExtendedEUnicodes
 		_anLatinUnicodes + item
 	next
+
+	_aLatinDotlessUnicodes = []
+
+	_aLatinDotlessUnicodesXT = []
 
 	  #--------------------#
 	 #   NUMBERS STAFF    #

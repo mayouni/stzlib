@@ -1,3 +1,11 @@
+/* NOTE: About closures in Ring (by Mahmoud)
+
+In Ring what we have is anoymous functions (not closure)
+I.e. the function doesn't capture the variables in the outside scope. 
+
+You have to pass the variables as parameters to the function OR use the global scope
+
+*/
 
 func StzFunctionQ()
 	return new stzFunction()
@@ -85,7 +93,7 @@ class stzFunction from stzObject
 	def Signature()
 		cResult = cName + "("
 	
-		for i=1 to len(aParam)
+		for i = 1 to len(aParam)
 			cResult += aParam[i]
 			if i < len(aParam)
 				cResult += ", "
@@ -108,7 +116,7 @@ class stzFunction from stzObject
 	def CallingCodeFor(paValue)
 		cResult = cName + "("
 	
-		for i=1 to len(paValue)
+		for i = 1 to len(paValue)
 			if isString(paValue[i]) { cResult += '"' }
 			cResult += paValue[i]
 			if isString(paValue[i]) { cResult += '"' }
