@@ -35,6 +35,12 @@ pron()
 
 ? QQ('U+06A2').Content() #--> ڢ
 
+? HexUnicodeToUnicode('U+06A2')
+#-->
+
+? UnicodeToHexUnicode(1698)
+#--> U+06A2
+
 proff()
 
 /*----------
