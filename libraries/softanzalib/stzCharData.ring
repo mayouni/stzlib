@@ -489,7 +489,8 @@ DOTTLESS LETTERS
 		_anArabicUnicodes + item
 	next
 
-	# Arabic Rasm letters (classic caligraphy without dots)
+	# Arabic Dottless letters
+	# (classic caligraphy without dots, called also Rasm script)
 
 		# List of arabic letters without dots:
 		# https://en.wikipedia.org/wiki/Rasm
@@ -504,17 +505,56 @@ DOTTLESS LETTERS
 		# Equivalent in hebrew of the arabic tinkeet and shaddah :
 		# https://en.wikipedia.org/wiki/Dagesh
 
-	_anArabicRasmUnicodes = [
+	_anArabicDottlessUnicodes = [
 		1609, 1575, 1581, 1583, 1585,
 		1587, 1589, 1591, 1593, 1605,
 		1607, 1608, 1646, 1647, 1697,
 		1705, 1722
 	]
 
-	_anArabicDottlessUnicodes = [
-
-	]
+	_aArabicDotlessCharsXT = [
+	[ "ى", "ى" ],
+	[ "ي", "ى" ],
 	
+	[ "ح", "ح" ],
+	[ "ج", "ح" ],
+	[ "خ", "ح" ],
+
+	[ "د", "د" ],
+	[ "ذ", "د" ],
+
+	[ "ر", "ر" ],
+	[ "ز", "ر" ],
+
+	[ "س", "س" ],
+	[ "ش", "س" ],
+
+	[ "ص", "ص" ],
+	[ "ض", "ص" ],
+
+	[ "ط", "ط" ],
+	[ "ظ", "ط" ],
+
+	[ "ک", "ک" ],
+	[ "ك", "ک" ],
+
+	[ "ع", "ع" ],
+	[ "غ", "ع" ],
+
+	[ "ٮ", "ٮ" ],
+	[ "ب", "ٮ" ],
+
+	[ "ٯ","ٯ" ],
+	[ "ق","ٯ" ],
+
+	[ "ڡ","ڡ" ],
+	[ "ف","ڡ" ],
+
+	[ "ں","ں" ],
+	[ "ن","ں" ]
+
+]
+
 	# Arabic Hamzahs
 
 	_nArabicHamzahWasliahMadhmoumahUnicode = 1649
@@ -606,9 +646,17 @@ DOTTLESS LETTERS
 		_anLatinUnicodes + item
 	next
 
-	_aLatinDotlessUnicodes = []
+	# Dottless chars
 
-	_aLatinDotlessUnicodesXT = []
+	_aLatinDotlessUnicodes = [  ]
+
+	_aLatinDotlessUnicodesXT = [
+		[ "ı", "ı" ],
+		[ "i", "ı" ],
+
+		[ "ȷ", "ȷ" ],
+		[ "j", "ȷ" ]
+	]
 
 	  #--------------------#
 	 #   NUMBERS STAFF    #
@@ -1895,6 +1943,25 @@ DOTTLESS LETTERS
 
 	func WordBoundingChars()
 		return _acWordBoundingChars
+
+	# Dottless chars
+
+	func ArabicDottlessUnicodes()
+		return _anArabicDottlessUnicodes
+	
+	func ArabicDottlessChars()
+		acResult = UnicodesToChars(_anArabicDottlessUnicodes)
+		return acResult
+	
+	func ArabicDottlessCharsXT()
+		return _aArabicDotlessCharsXT
+	
+	func Dottless(pcStr)
+		cResult = StzStringQ(pcStr).Dottless()
+		return cResult
+
+		func WithoutDots(pcStr)
+			return Dottless(pcStr)
 
 	# Diacritics
 

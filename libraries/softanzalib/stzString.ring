@@ -57417,29 +57417,6 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	 #    UNICODE CODES OF THE CHARS OF THE STRING    #
 	#================================================#
 
-	// The following method is mainly used by stzChar class to
-	// create a characrer object from text
-	def UnicodeOfCharN(n)
-		oTempQStr = new QString2()
-		oTempQStr.append(This[n])
-		return oTempQStr.unicode().unicode()
-		/*
-		The first unicode() on QString returns a QChar,
-		while the seconde unicode() on this QChar returns
-		the actual decimal unicode of the Char
-		*/
-
-		#< @FunctionAlternativeForms
-
-		def UnicodeOfNthChar(n)
-			return This.UnicodeOfCharN(n)
-
-		def NthCharUnicode(n)
-			return This.UnicodeOfCharN(n)
-
-		#>
-
-
 	// Returns a list of unicodes of all the Chars in the string
 	def Unicodes()
 		aResult = []
@@ -57481,6 +57458,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			off
 
 		#>
+
 
 	def Unicode()
 		if This.NumberOfChars() = 1
@@ -57525,6 +57503,133 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	
 		def CharsPerUnicode()
 			return This.UnicodesAndChars()
+
+	// The following method is mainly used by stzChar class to
+	// create a characrer object from text
+	def UnicodeOfCharN(n)
+		oTempQStr = new QString2()
+		oTempQStr.append(This[n])
+		return oTempQStr.unicode().unicode()
+		/*
+		The first unicode() on QString returns a QChar,
+		while the seconde unicode() on this QChar returns
+		the actual decimal unicode of the Char
+		*/
+
+		#< @FunctionAlternativeForms
+
+		def UnicodeOfNthChar(n)
+			return This.UnicodeOfCharN(n)
+
+		def NthCharUnicode(n)
+			return This.UnicodeOfCharN(n)
+
+		#>
+
+	  #-------------------------------------------------#
+	 #   HEXUNICODE CODES OF THE CHARS OF THE STRING   #
+	#-------------------------------------------------#
+
+	// Returns a list of hexunicodes of all the Chars in the string
+	def HexUnicodes()
+		acResult = []
+		for i = 1 to This.NumberOfChars()
+			acResult + This.HexUnicodeOfCharN(i)
+		next
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def HexUnicodesQ()
+			return This.HexUnicodesQR(:stzList)
+
+		def HexUnicodesQR(pcReturnType)
+			if isList(pcReturnType) and
+			   Q(pcReturnType).IsReturnedAsNamedParam()
+
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT 	( isString(pcReturnType) and
+				  Q(pcReturnType).IsStzClassName()
+				)
+
+				stzRaise("Incorrect param type! pcReturnType must " +
+					 "be a string containin a Softanza class name.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.HexUnicodes() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.HexUnicodes() )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+
+	def HexUnicode()
+		if This.NumberOfChars() = 1
+			return This.HexUnicodeOfCharN(1)
+
+		else
+			return This.HexUnicodes()
+		ok
+
+	def CharsAndHexUnicodes()
+		aResult = []
+		nLen = This.NumberOfChars()
+
+		for i = 1 to nLen
+			aResult + [ This.Char(i), This.HexUnicodeOfCharN(i) ]
+		next
+
+		return aResult
+
+		def CharsAndTheirHexUnicodes()
+			return This.CharsAndHexUnicodes()
+
+		def HexUnicodesPerChar()
+			return This.CharsAndHexUnicodes()
+
+	def HexUnicodesAndChars()
+		aResult = []
+		nLen = This.NumberOfChars()
+
+		for i = 1 to nLen
+			aResult + [ This.HexUnicodeOfCharN(i), This.Char(i) ]
+		next
+
+		return aResult
+
+		def HexUnicodesAndTheirChars()
+			return This.HexUnicodesAndChars()
+
+		def HexUnicodesXT()
+			return This.HexUnicodesAndChars()
+
+	
+		def CharsPerHexUnicode()
+			return This.HexUnicodesAndChars()
+
+	def HexUnicodeOfCharN(n)
+		cResult = StzCharQ(This.Char(n)).HexUnicode()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def HexUnicodeOfNthChar(n)
+			return This.HexUnicodeOfCharN(n)
+
+		def NthCharHexUnicode(n)
+			return This.HexUnicodeOfCharN(n)
+
+		#>
 
 	  #-------------------------------------#
 	 #   GETTING CHARS NAME (IN UNICODE)   #
