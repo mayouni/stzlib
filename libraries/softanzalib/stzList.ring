@@ -38991,6 +38991,25 @@ vvv
 		def Unicode()
 			return This.Unicodes()
 
+	def HexUnicodes()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i])
+				i++
+			ok
+
+			aResult + Q(aContent[i]).HexUnicode()
+		next
+
+		return aResult
+
+		def HexUnicode()
+			return This.HexUnicodes()
+
 	  #-----------------------------------------------------------#
 	 #  GETTING THE NAMES (IN UNICODE) OF THE CHARS IN THE LIST  #
 	#-----------------------------------------------------------#

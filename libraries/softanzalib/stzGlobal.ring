@@ -1227,35 +1227,58 @@ func StzLen(p)
 	ok
 
 func Unicode(p)
+	if isString(p)
+		nResult = StzStringQ(p).Unicode()
+		return nResult
 
-	if CheckParams()
+	but isList(p)
+		anResult = StzList(p).Unicode()
+		return anResult
 
-		if isString(p) and StringIsChar(p)
-			return CharUnicode(p)
-	
-		but isString(p)
-			return StringUnicodes(p)
-	
-		ok
-
+	else
+		StzRaise("Incorrect param type! p must be either a string or list.")
 	ok
 
-	# Assumes p is a char
+func HexUnicode(p)
+	if isString(p)
+		nResult = StzStringQ(p).HexUnicode()
+		return nResult
 
-	return CharUnicode(p)
+	but isList(p)
+		anResult = StzList(p).HexUnicode()
+		return anResult
 
+	else
+		StzRaise("Incorrect param type! p must be either a string or list.")
+	ok
 
 func Unicodes(p)
 
-	if CheckParams()
-		if isString(p)
-			return StringUnicodes(p)
-		ok
+	if isString(p)
+		anResult = StzStringQ(p).Unicodes()
+		return anResult
+
+	but isList(p)
+		anResult = StzListQ(p).Unicodes()
+		return anResult
+
+	else
+		StzRaise("Incorrect param type! p must be either a string or list.")
 	ok
 
-	# Assumes p is a list of items
+func HexUnicodes(p)
 
-	return ListUnicodes(p)
+	if isString(p)
+		anResult = StzStringQ(p).HexUnicodes()
+		return anResult
+
+	but isList(p)
+		anResult = StzListQ(p).HexUnicodes()
+		return anResult
+
+	else
+		StzRaise("Incorrect param type! p must be either a string or list.")
+	ok
 
 func Scripts(paListStr)
 	return StzListOfStringsQ(paListStr).Scripts()

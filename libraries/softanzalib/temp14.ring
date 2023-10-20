@@ -26,43 +26,63 @@ pron()
 proff()
 
 /*----------
-*/
 
 pron()
 
-? StzCharQ("ڢ").HexUnicode()
-#--> U+06A2
-
-? QQ('U+06A2').Content() #--> ڢ
-
-? HexUnicodeToUnicode('U+06A2')
-#-->
-
-? UnicodeToHexUnicode(1698)
-#--> U+06A2
+? Q('U+0649').IsHexUnicode() 	#--> TRUE
+? StzCharQ("ڢ").HexUnicode() 	#--> U+06A2
+? QQ('U+0649').Content() 	#--> ى
+? QQ('U+06A2').Content() 	#--> ڢ
+? HexUnicodeToUnicode('U+06A2')	#--> 1698
+? UnicodeToHexUnicode(1698)	#--> U+06A2
 
 proff()
+# Executed in 1.20 second(s)
 
-/*----------
+/*---------
 */
+
 pron()
+/*
+? Q("ı").Unicode()
+#--> 305
 
-? QQ('U+0649').Content() #--> ى
+? Q("ȷ").Unicode()
+#--> 567
 
-? Q('U+0649').IsHexUnicode()
-#--> TRUE
+? Q("abc").Unicodes()
+#--> [ 97, 98, 99 ]
 
-StzCharQ('U+0649') {
-	? Content() 	#--> ى
-	? Name()	#--> ARABIC LETTER ALEF MAKSURA
-	? Unicode()	#--> 1609
-} ? ""
+? Q([ "a", "b", "c" ]).Unicodes()
+#--> [ 97, 98, 99 ]
+
+? Q("a").HexUnicode()
+#--> U+0061
+
+? Q("abc").HexUnicodes()
+#--> [ 'U+0061', 'U+0062', 'U+0063' ]
+
+? Q([ "a", "b", "c" ]).HexUnicodes()
+#--> [ 'U+0061', 'U+0062', 'U+0063' ]
+*/
+? @@( Q([ "a", "bcd", "e" ]).Unicodes() )
+#--> [ 97, [ 98, 99, 100 ], 101 ]
+
+? @@( Q([ "a", "bcd", "e" ]).HexUnicodes() )
+#--> [ "U+0061", [ "U+0062", "U+0063", "U+0064" ], "U+0065" ]
+
+? Unicodes("abc")
+#--> #--> [ 97, 98, 99 ]
+
+? HexUnicodes("abc")
+#--> [ 'U+0061', 'U+0062', 'U+0063' ]
 
 proff()
 
 /*---------
 
 pron()
+
 
 StzCharQ('U+0649') {
 	? Content() 	#--> ى
