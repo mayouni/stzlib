@@ -30697,6 +30697,22 @@ vvv
 			return FALSE
 		ok
 
+	def IsFromOrOfNamedParam()
+		if This.IsFromNamedParam() or This.IsOfNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsFromOrOfNamedParams()
+			return This.IsFromOrOfNamedParam()
+
+		def IsOfOrFromNamedParam()
+			return This.IsFromOrOfNamedParam()
+
+		def IsOfOrFromNamedParams()
+			return This.IsFromOrOfNamedParam()
+
 	def IsValueNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :Value )
@@ -39057,6 +39073,23 @@ vvv
 		ok
 
 		return new stzListOfChars( This.Content() )
+
+	func ToListOfStzChars()
+		if NOT This.IsListOfChars()
+			StzRaise("Can't cast the list into a stzListOfChars!")
+		ok
+
+		acChars = This.Content()
+		nLen = len(acChars)
+
+		aResult = []
+
+		for i = 1 to nLen
+			oChar = new stzChar(acChars[i])
+			aResult + oChar
+		next
+
+		return aResult
 
 	def FirstAndLastItems()
 		aResult = [ This.FirstItem(), This.LastItem() ]

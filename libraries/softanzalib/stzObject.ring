@@ -1646,8 +1646,14 @@ class stzObject
 	def Repeat(n)
 		return This.RepeatXT(:InList, n)
 
+		#< @FunctionFluentForm
+
 		def RepeatQ(n)
 			return This.RepeatXTQ(:InList, n)
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def RepeatNTimes(n)
 			return This.Repeat(n)
@@ -1655,12 +1661,99 @@ class stzObject
 			def RepeatNTimesQ(n)
 				return This.RepeatQ(n)
 
+		def Reproduce(n)
+			return This.Repeat(n)
+
+			def ReproduceQ(n)
+				This.Reproduce(n)
+				return This
+
+		def ReproduceNTimes(n)
+			return This.Repeat(n)
+
+			def ReproduceNTimesQ(n)
+				This.ReproduceNTimes(n)
+				return This
+
+		def CopyNTimes(n)
+			return This.Repeat(n)
+
+			def CopyNTimesQ(n)
+				This.CopyNTimes(n)
+				return This
+
+		#>
+
+	#--
+
 	def Repeated(n)
 		aResult = This.Copy().RepeatQ(n).Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def RepeatedNTimes(n)
 			return This.Repeated(n)
+
+		def Reproduced(n)
+			return This.Repeated(n)
+
+		def ReproducedNTimes(n)
+			return This.Repeated(n)
+
+		def Copied(n)
+			return This.Repeated(n)
+
+		def CopiedNTimes(n)
+			return This.Repeated(n)
+
+		#>
+
+	  #--------------------------------------#
+	 #  REPEATING THE OBJECT VALUE 3 TIMES  #
+	#--------------------------------------#
+
+	def Repeat3Times()
+		This.RepeatNTimes(3)
+
+		#< @FunctionFluentForm
+
+		def Repeat3TimesQ()
+			This.Repeat3Times()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def Reproduce3Times()
+			This.Repeat3Times()
+
+			def Reproduce3TimesQ()
+				This.Reproduce3Times()
+				return This
+
+		def Copy3Times()
+			This.Repeat3Times()
+
+			def Copy3TimesQ()
+				This.Copy3Times()
+				return This
+
+		#>
+
+	def Repeated3Times()
+		return This.Copy().Repeat3TimesQ().Content()
+
+		#< @FunctionAlternativeForms
+
+		def Reproduced3Times()
+			return This.Repeated3Times()
+
+		def Copied3Times()
+			return This.Repeated3Times()
+
+		#>
 
 	  #-------------------------------------------------------------------#
 	 #  REPEATING THE OBJECT VALUE IN A GIVEN CONTAINER OF A GIVEN SIZE  #
@@ -1673,7 +1766,6 @@ class stzObject
 			return RepeatNTimesXT(pnSize, pIn)
 	
 	def RepeatXT(pIn, pnSize)
-
 		/* EXAMPLE
 		o1 = new stzNumber(5)
 		o1.RepeatXT( :InA = :List, :OfSize = 2 )

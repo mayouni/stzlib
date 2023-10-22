@@ -1280,7 +1280,7 @@ func HexUnicodes(p)
 		StzRaise("Incorrect param type! p must be either a string or list.")
 	ok
 
-func Scripts(paListStr)
+func ScriptsOf(paListStr)
 	return StzListOfStringsQ(paListStr).Scripts()
 
 func Show(pValue)

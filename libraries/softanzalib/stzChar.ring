@@ -356,11 +356,24 @@ func LastLetterOf(pcStr)
 func NumberOfLatinLetters()
 	return 52
 
+	func HowManyLatinLetters()
+		return NumberOfLatinLetters()
+
 func NumberOfArabicLetters()
 	return 28
 
+	func HowManyArabicLetters()
+		return NumberOfArabicLetters()
+
 func NumberOfChineseLetters()
 	return 20000
+
+	func HowManyChineseLetters()
+		return NumberOfChineseLetters()
+
+# TODO: add simular functions to all other languages
+
+
 
   /////////////////
  ///   CLASS   ///

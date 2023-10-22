@@ -434,6 +434,25 @@ func Interpolate(pcStr)
 
 	#>
 
+func NCopies(n, p)
+	if isList(p) and Q(p).IsFromOrOfNamedParam()
+		p = p[2]
+	ok
+
+	return Q(p).CopiedNTimes(n)
+
+	func 2Copies(p)
+		return NCopies(2, p)
+	
+	func 3Copies(p)
+		return NCopies(3, p)
+
+	func 4Copies(p)
+		return NCopies(4, p)
+
+	func 5Copies(p)
+		return NCopies(3, p)
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -49590,7 +49609,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
 				return This.FindLastSplitAfterSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
-		
+
 			but Q(pSubStrOrPos).IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
 				return This.FindLastSplitAfterSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
@@ -57688,6 +57707,65 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return CharName()
 
 
+	  #-----------------------------------#
+	 #  REMOVING DOTS ON DOTTED LETTERS  #
+	#-----------------------------------#
+
+	def RemoveDots()
+		# TODO: Needs a better data stracture to deal with some special cases
+
+		acChars = This.Chars()
+		anLettersPos = This.FindLetters()
+		nLen = len(anLettersPos)
+
+		for i = 1 to nLen
+			n = anLettersPos[i]
+
+			cDotless = DotlessLettersXT()[ acChars[n] ]
+
+			if cDotless != ""
+				This.ReplaceNthChar(n, cDotless)
+			ok
+		next
+
+		#< @FunctionFluentForm
+
+		def RemoveDotsQ()
+			This.RemoveDots()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveDotsOnLetters()
+			This.RemoveDots()
+
+			def RemoveDotsOnLettersQ()
+				This.RemoveDotsQ()
+
+		#>
+
+	def DotsRemoved()
+		cResult = This.Copy().RemoveDotsQ().Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def DotsOnLettersRemoved()
+			return This.DotsRemoved()
+
+		def WithoutDots()
+			return This.DotsRemoved()
+
+		def WithoutDotsOnLetters()
+			return This.DotsRemoved()
+
+		def Dotless()
+			return This.DotsRemoved()
+
+		#>
+
 	  #===============================#
 	 #    MULTINGUAL & LOCLAE INFO   #
 	#===============================#
@@ -60330,9 +60408,25 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	 #   ِGETTING THE LIST OF LETTERS IN THE STRING   #
 	#-----------------------------------------------#
 
+	def FindLetters()
+		aoChars = This.CharsQ().ToListOfStzChars()
+		nLen = len(aoChars)
+		anResult = []
+		
+		for i = 1 to nLen
+			if aoChars[i].IsALetter()
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+		def FindLettersZ()
+			return This.FindLetters()
+
 	def Letters()
-		aoChars = This.CharsQ().ToListOfStzStrings()
-		nLen = len(acChars)
+		aoChars = This.CharsQ().ToListOfStzChars()
+		nLen = len(aoChars)
 		aResult = []
 		
 		for i = 1 to nLen
@@ -60358,6 +60452,22 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			on :stzListOfChars
 				return new stzListOfChars( This.Letters() )
 			off
+
+	def LettersZ()
+		aResult = []
+		aoChars = This.CharsQ().ToListOfStzStrings()
+		nLen = len(acChars)
+		anResult = []
+		
+		for i = 1 to nLen
+			if aoChars[i].IsALetter()
+				anResult + [ aoChars[i].Content(), i ]
+			ok
+		next
+
+		return aResult
+
+		def LettersAndTheirPositions()
 
 	  #----------------------------------------------------------------------#
 	 #   ِGETTING THE LIST OF LETTERS IN THE STRING  -- WITHOUT DUPLICATION  #
@@ -61796,6 +61906,26 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				This.Repeat(n)
 				return This
 
+		def Reproduce(n)
+			This.RepeatNTimes(n)
+
+			def ReproduceQ(n)
+				This.Reproduce(n)
+				return This
+
+		def ReproduceNTimes(n)
+			This.RepeatNTimes(n)
+
+			def ReproduceNTimesQ(n)
+				This.ReproduceNTimes(n)
+				return This
+
+		def CopyNTimes(n)
+			This.RepeatNTimes(n)
+
+			def copyNTimesQ(n)
+				This.copyNTimes(n)
+				return This
 		#>
 
 
@@ -61804,8 +61934,72 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	def RepeatedNTimes(n)
 		return This.Copy().RepeatNTimesQ(n).Content()
 
+		#< @FunctionAlternativeForms
+
 		def Repeated(n)
 			return This.RepeatedNTimes(n)
+
+		def ReproducedNTimes(n)
+			return This.RepeatedNTimes(n)
+
+		def Reproduced(n)
+			return This.RepeatedNTimes(n)
+
+		def CopiedNTimes(n)
+			return This.RepeatedNTimes(n)
+
+		def Copied(n)
+			return This.RepeatedNTimes(n)
+
+		#>
+
+	  #---------------------------------#
+	 #  REPEATING THE STRING N TIMES   #
+	#---------------------------------#
+
+	def Repeat3Times()
+		This.RepeatNTimes(3)
+
+		#< @FunctionFluentForms
+
+		def Repeat3TimesQ()
+			This.Repeat3Times()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def Reproduce3Times()
+			This.Repeat3Times()
+
+			def Reproduce3TimesQ()
+				This.Reproduce3Times()
+				return This
+
+		def Copy3Times()
+			This.Repeat3Times()
+
+			def Copy3TimesQ()
+				This.Copy3Times()
+				return This
+
+		#>
+
+	# RETURNING THE OUTPUT DATA
+
+	def Repeated3Times()
+		return This.Copy().Repeat3TimesQ().Content()
+
+		#< @FunctionAlternativeForms
+
+		def Reproduced3Times()
+			return This.Repeated3Times()
+
+		def Copied3Times()
+			return This.Repeated3Times()
+
+		#>
 
 	  #====================================================#
 	 #     COMPRESSING THE STRING WITH A BINARY SCHEMA    #

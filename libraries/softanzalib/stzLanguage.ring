@@ -5,7 +5,8 @@ _aLocaleLanguagesXT = [
 	#  QtNumber 	Name 			ShortAbbreviation 	LongAbbreviation 	DefaultCountry
 
 	[ "1", 		:c, 			"c", 			"c", 			NULL 				],
-	[ "2", 		:abkhazian, 		"ab", 			"abk", 			:abkhazia			], # Note that Abkhazia is not figuring in the official ISO list od countries
+	[ "2", 		:abkhazian, 		"ab", 			"abk", 			:abkhazia			],
+	# Note that Abkhazia is not figuring in the official ISO list of countries
 	[ "3", 		:oromo, 		"om", 			"orm", 			:ethiopia 			],
 	[ "4", 		:afar, 			"aa", 			"aar", 			:ethiopia			],
 	[ "5", 		:afrikaans, 		"af", 			"afr", 			:south_africa 			],
@@ -355,6 +356,12 @@ func LocaleLanguages()
 
 	func Languages()
 		return LocaleLanguages()
+
+func NumberOfLanguages()
+	return len(_aLocaleLanguagesXT)
+
+	func HowManyLanguages()
+		return NumberOfLanguages()
 
 func LocaleLanguageNumbers()
 	aResult = []

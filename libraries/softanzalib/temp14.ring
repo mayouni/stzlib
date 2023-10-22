@@ -40,10 +40,9 @@ proff()
 # Executed in 1.20 second(s)
 
 /*---------
-*/
 
 pron()
-/*
+
 ? Q("ı").Unicode()
 #--> 305
 
@@ -64,7 +63,7 @@ pron()
 
 ? Q([ "a", "b", "c" ]).HexUnicodes()
 #--> [ 'U+0061', 'U+0062', 'U+0063' ]
-*/
+
 ? @@( Q([ "a", "bcd", "e" ]).Unicodes() )
 #--> [ 97, [ 98, 99, 100 ], 101 ]
 
@@ -78,11 +77,95 @@ pron()
 #--> [ 'U+0061', 'U+0062', 'U+0063' ]
 
 proff()
+# Executed in 0.33 second(s)
 
 /*---------
 
 pron()
 
+? Q("♥").RepeatedNTimes(3)
+#--> ♥♥♥
+
+? Q("♥").Repeated3Times()
+#--> ♥♥♥
+
+? NCopies(3, "♥")
+#--> ♥♥♥
+
+? 3Copies(:of="♥")
+#--> ♥♥♥
+
+proff()
+
+/*---------
+
+pron()
+
+# TODO: Those two functions must be unified
+#--> Read the TODO in stzScripts.ring
+
+? len( LocaleScripts() )
+#--> 141
+
+? len( UnicodeScripts() )
+#--> 157
+
+proff()
+
+/*---------
+*/
+pron()
+
+? Dotless("alitalia extrême extèrieur aéorô ûltrâ")
+#--> alıtalıa extreme exterıeur aeoro ultra
+
+? Dotless("مشمش وخوخ وزيتون")	#--> مسمس وحوح ورٮٮوٮ
+
+
+proff()
+
+/*---------
+
+pron()
+
+? Dotless("فلسطين الأبيّة") 		#--> ٯلسطٮں الأٮٮّه
+? Dotless("عاشت المقاومة") 		#--> عاسٮ المٯاومه
+? Dotless("تونس معك يا غزّة")		#--> ٮوٮس معک ٮا عرّه
+? Dotless("جمعية الخيرات")		#--> حمعٮه الحٮراٮ
+? Dotless("أفديك بروحي يا قدس") 	#--> أٯدٮک ٮروحٮ ٮا ٯدس
+? Dotless("مشمش وخوخ وزيتون")		#--> مسمس وحوح ورٮٮوٮ
+
+# TODO: the implementation needs some enhancements/
+
+proff()
+
+/*---------
+
+pron()
+
+? @@( ArabicDotlessUnicodes() ) + NL
+#--> [
+#	1609, 1575, 1581, 1583, 1585,
+#	1587, 1589, 1591, 1593, 1605,
+#	1607, 1608, 1646, 1647, 1697,
+#	1705, 1722
+# ]
+
+? @@( ArabicDotlessLetters() ) + NL
+#--> [ "ى", "ا", "ح", "د", "ر", "س", "ص", "ط", "ع", "م", "ه", "و", "ٮ", "ٯ", "ڡ", "ک", "ں" ]
+
+? @@( LatinDotlessUnicodes() ) + NL
+#--> [ 305, 567 ]
+
+? @@( LatinDotlessLetters() )
+#--> [ "ı", "ȷ" ]
+
+proff()
+# Executed in 0.74 second(s)
+
+/*---------
+
+pron()
 
 StzCharQ('U+0649') {
 	? Content() 	#--> ى
@@ -186,32 +269,69 @@ StzCharQ('U+06BA') {
 	? Unicode()	#--> 1722
 }
 
-/*-----
+proff()
+# Executed in 6.96 second(s)
+
+/*----- Arabic dotless letters
 */
 
 pron()
 
+? @@( ArabicDotlessLetters() ) + NL
+#--> [ "ى", "ا", "ح", "د", "ر", "س", "ص", "ط", "ع", "م", "ه", "و", "ٮ", "ٯ", "ڡ", "ک", "ں" ]
 
+? @@( ArabicDotlessUnicodes() ) + NL
+#--> [ 1609, 1575, 1581, 1583, 1585, 1587, 1589, 1591, 1593, 1605, 1607, 1608, 1646, 1647, 1697, 1705, 1722 ]
 
-func DotlessForm(pStrOrChar)
-	cResult = oStr.DottlessForm()
-	return cResult
+? @@( ArabicDotlessLettersAndTheirUnicodes() ) + NL
+#--> [ [ "ى", 1609 ], [ "ا", 1575 ], [ "ح", 1581 ], [ "د", 1583 ], [ "ر", 1585 ], [ "س", 1587 ], [ "ص", 1589 ], [ "ط", 1591 ], [ "ع", 1593 ], [ "م", 1605 ], [ "ه", 1607 ], [ "و", 1608 ], [ "ٮ", 1646 ], [ "ٯ", 1647 ], [ "ڡ", 1697 ], [ "ک", 1705 ], [ "ں", 1722 ] ]
 
-/*
-? ArabicDottlessLetters()
-
-? ArabicDottlessLettersUnicodes()
-
-? ArabicDottlessLettersAndTheirUnicodes()
-
-? ArabicDottlessLettersXT() # ArabicDotllessAnsTheirDottlessLetters()
-? ArabicDottedAndTheirDottlessLetters()
-
-*/
+? @@( ArabicDotlessLettersXT() )
+#--> [ [ "ى", "ى" ], [ "ي", "ٮ" ], [ "ح", "ح" ], [ "خ", "ح" ], [ "ج", "ح" ], [ "د", "د" ], [ "ذ", "د" ], [ "ر", "ر" ], [ "ز", "ر" ], [ "س", "س" ], [ "ش", "س" ], [ "ص", "ص" ], [ "ض", "ص" ], [ "ط", "ط" ], [ "ظ", "ط" ], [ "ک", "ک" ], [ "ك", "ک" ], [ "ع", "ع" ], [ "غ", "ع" ], [ "ٮ", "ٮ" ], [ "ب", "ٮ" ], [ "ت", "ٮ" ], [ "ث", "ٮ" ], [ "ٯ", "ٯ" ], [ "ق", "ٯ" ], [ "ف", "ٯ" ], [ "ں", "ں" ], [ "ن", "ں" ], [ "ه", "ه" ], [ "ة", "ه" ] ]
 
 proff()
+# Executed in 0.12 second(s)
 
-/*--------
+/*----- Latin dotless letters
+
+pron() 
+
+? @@( LatinDotlessLetters() ) + NL
+#--> [ "ı", "ȷ" ]
+
+? @@( LatinDotlessUnicodes() ) + NL
+#--> [ 305, 567 ]
+
+? @@( LatinDotlessLettersAndTheirUnicodes() ) + NL
+#--> [ [ "ı", 305 ], [ "ȷ", 567 ] ]
+
+? @@( LatinDotlessLettersXT() ) + NL
+#--> [ [ "ı", "ı" ], [ "i", "ı" ], [ "ȷ", "ȷ" ], [ "j", "ȷ" ] ]
+
+pron()
+# Executed in 0.08 second(s)
+
+/*----- Dotless letters
+*/
+
+pron() 
+
+? @@( DotlessLetters() ) + NL
+#--> [ "ى", "ا", "ح", "د", "ر", "س", "ص", "ط", "ع", "م", "ه", "و", "ٮ", "ٯ", "ڡ", "ک", "ں", "ı", "ȷ" ]
+
+? @@( DotlessUnicodes() ) + NL
+#--> [ 1609, 1575, 1581, 1583, 1585, 1587, 1589, 1591, 1593, 1605, 1607, 1608, 1646, 1647, 1697, 1705, 1722, 305, 567 ]
+
+? @@( DotlessLettersAndTheirUnicodes() ) + NL
+#--> [ [ "ى", 1609 ], [ "ا", 1575 ], [ "ح", 1581 ], [ "د", 1583 ], [ "ر", 1585 ], [ "س", 1587 ], [ "ص", 1589 ], [ "ط", 1591 ], [ "ع", 1593 ], [ "م", 1605 ], [ "ه", 1607 ], [ "و", 1608 ], [ "ٮ", 1646 ], [ "ٯ", 1647 ], [ "ڡ", 1697 ], [ "ک", 1705 ], [ "ں", 1722 ], [ "ı", 305 ], [ "ȷ", 567 ] ]
+
+? @@( DotlessLettersXT() ) + NL
+#--> [ [ "ى", "ى" ], [ "ي", "ٮ" ], [ "ح", "ح" ], [ "خ", "ح" ], [ "ج", "ح" ], [ "د", "د" ], [ "ذ", "د" ], [ "ر", "ر" ], [ "ز", "ر" ], [ "س", "س" ], [ "ش", "س" ], [ "ص", "ص" ], [ "ض", "ص" ], [ "ط", "ط" ], [ "ظ", "ط" ], [ "ک", "ک" ], [ "ك", "ک" ], [ "ع", "ع" ], [ "غ", "ع" ], [ "ٮ", "ٮ" ], [ "ب", "ٮ" ], [ "ت", "ٮ" ], [ "ث", "ٮ" ], [ "ٯ", "ٯ" ], [ "ق", "ٯ" ], [ "ف", "ٯ" ], [ "ں", "ں" ], [ "ن", "ں" ], [ "ه", "ه" ], [ "ة", "ه" ], [ "ı", "ı" ], [ "i", "ı" ], [ "ȷ", "ȷ" ], [ "j", "ȷ" ] ]
+
+proff()
+# Executed in 0.14 second(s)
+
+/*======
 
 cName = "Gary"
 
