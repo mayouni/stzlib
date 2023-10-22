@@ -112,8 +112,8 @@ pron()
 
 proff()
 
-/*---------
-*/
+/*==============
+
 pron()
 
 ? Dotless("alitalia extrême extèrieur aéorô ûltrâ")
@@ -273,7 +273,6 @@ proff()
 # Executed in 6.96 second(s)
 
 /*----- Arabic dotless letters
-*/
 
 pron()
 
@@ -312,7 +311,6 @@ pron()
 # Executed in 0.08 second(s)
 
 /*----- Dotless letters
-*/
 
 pron() 
 
@@ -385,32 +383,32 @@ proff()
 
 */
 pron()
-/*
+
 #-- TURNABLE NUMBERS
 
 ? @@(TurnableNumbers())
 #--> [ 2, 3 ]
 
-? @@(TurnableNumbersUnicodes())
+// @@(TurnableNumbersUnicodes())
 #--> [ 2, 3 ]
 
-? @@(TurnableNumbersXT()) # NOTE: Font in Notepad may not show the turned numbers
+//? @@(TurnableNumbersXT()) # NOTE: Font in Notepad may not show the turned numbers
 #--> [ [ 2, "↊" ], [ 3, "↋" ] ]
 
 #-- TURNED NUMBERS
 
-? @@(TurnedNumbersUnicodes())
+//? @@(TurnedNumbersUnicodes())
 #--> [ 8586, 8587 ]
 
-? @@(TurnedNumbers()) # NOTE: Idem
+//? @@(TurnedNumbers()) # NOTE: Idem
 #--> [ "↊", "↋" ]
 
-? @@( Q([ "↊", "↋" ]).Names() )
+//? @@( Q([ "↊", "↋" ]).Names() )
 #--> [ "TURNED DIGIT TWO", "TURNED DIGIT THREE" ]
 
-? @@(TurnedNumbersXT()) # Or TurnedNumberAndTheirUnicodes()
+//? @@(TurnedNumbersXT()) # Or TurnedNumberAndTheirUnicodes()
 #--> [ [ "↊", 8586 ], [ "↋", 8587 ] ]
-*/
+
 #-- TURNABLE CHARS
 
 //? HowManyTurnableChars() + NL

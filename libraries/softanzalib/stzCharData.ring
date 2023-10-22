@@ -2141,6 +2141,9 @@ ici	func UnicodeScriptsXT()
 		func HowManyTurnableNumbersUnicodes()
 			return NumberOfTurnableNumbersUnicodes()
 
+		func HowManyTurnableNumbersUnicode()
+			return NumberOfTurnableNumbersUnicodes()
+
 	func TurnableNumbersUnicodes()
 		return _anTurnableNumbersUnicodes
 
@@ -2193,6 +2196,9 @@ ici	func UnicodeScriptsXT()
 		func HowManyTurnedNumbersUnicodes()
 			return NumberOfTurnedNumbersUnicodes()
 
+		func HowManyTurnedNumbersUnicode()
+			return NumberOfTurnedNumbersUnicodes()
+
 	func TurnedNumbersUnicodes()
 		return _anTurnedNumbersUnicodes
 
@@ -2213,6 +2219,9 @@ ici	func UnicodeScriptsXT()
 		return nResult
 
 		func HowManyTurnableUnicodes()
+			return NumberOfTurnableUnicodes()
+
+		func HowManyTurnableUnicode()
 			return NumberOfTurnableUnicodes()
 
 	func TurnableUnicodes()
@@ -2258,6 +2267,9 @@ ici	func UnicodeScriptsXT()
 		return nResult
 
 		func HowManyTurnableChars()
+			return NumberOfTurnableChars()
+
+		func HowManyTurnableChar()
 			return NumberOfTurnableChars()
 
 	func TurnableChars()
@@ -2307,6 +2319,9 @@ ici	func UnicodeScriptsXT()
 		func HowManyTurnedUnicodes()
 			return NumberOfTurnedUnicodes()
 
+		func HowManyTurnedUnicode()
+			return NumberOfTurnedUnicodes()
+
 	func TurnedUnicodes()
 		return _anTurnedCharsUnicodes
 
@@ -2346,6 +2361,9 @@ ici	func UnicodeScriptsXT()
 		return nResult
 
 		func HowManyTurnedChars()
+			return NumberOfTurnedChars()
+
+		func HowManyTurnedChar()
 			return NumberOfTurnedChars()
 
 	func TurnedChars()
@@ -2410,7 +2428,13 @@ ici	func UnicodeScriptsXT()
 
 		func NumberOfGeneralPunctuations()
 			return NumberOfGeneralPunctuationChars()
-	
+
+		func HowManyGeneralPunctuationChars()
+			return NumberOfGeneralPunctuationChars()
+
+		func HowManyGeneralPunctuationChar()
+			return NumberOfGeneralPunctuationChars()
+
 	func SupplementalPunctuationUnicodes()
 		return _anSupplementalPunctuationCodes
 	
@@ -2430,6 +2454,12 @@ ici	func UnicodeScriptsXT()
 		return len( SupplementalPunctuationUnicodes() )
 
 		func NumberOfSupplementalPunctuations()
+			return NumberOfSupplementalPunctuationChars()
+
+		func HowManyupplementalPunctuationChars()
+			return NumberOfSupplementalPunctuationChars()
+
+		func HowManyupplementalPunctuationChar()
 			return NumberOfSupplementalPunctuationChars()
 
 	func PunctuationUnicodes()
@@ -2458,6 +2488,17 @@ ici	func UnicodeScriptsXT()
 		func NumberOfPunctuations()
 			return NumberOfPunctuationChars()
 
+		func HowManyPunctuationChars()
+			return NumberOfPunctuationChars()
+
+		func HowManyPunctuationChar()
+			return NumberOfPunctuationChars()
+
+		func HowManyPunctuations()
+			return NumberOfPunctuationChars()
+
+		func HowManyPunctuation()
+			return NumberOfPunctuationChars()
 
 	# Arabic staff
 
@@ -2526,6 +2567,12 @@ ici	func UnicodeScriptsXT()
 
 	func NumberOfCharsInUnicode()
 		return _nNumberOfCharsInUnicode
+
+		func HowManyCharsInUnicode()
+			return NumberOfCharsInUnicode()
+
+		func HowManyCharInUnicode()
+			return NumberOfCharsInUnicode()
 
 	  #---------------------#
 	 #  SOME USEFUL CHARS  #

@@ -108,6 +108,24 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		def NumberOfValues()
 			return This.NumberOfPairs()
 
+		def HowManyPairs()
+			return This.NumberOfPairs()
+
+		def HowManyPair()
+			return This.NumberOfPairs()
+
+		def HowManyKeys()
+			return This.NumberOfPairs()
+
+		def HowManyKey()
+			return This.NumberOfPairs()
+
+		def HowManyValues()
+			return This.NumberOfPairs()
+
+		def HowManyValue()
+			return This.NumberOfPairs()
+
 	def Pairs()
 		return Content()
 
@@ -466,11 +484,17 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		def NumberOfOccurrencesOfValue(pValue)
 			return This.NumberOfOccurrenceOfValue(pValue)
 
-		def NumberOfOccurrenceOfValueQ(pValue)
-			return new stzNumber(This.NumberOfOccurrenceOfValue(pValue))
-	
-		def NumberOfOccurrencesOfValueQ(pValue)
-			return NumberOfOccurrenceOfValueQ(pValue)
+			def NumberOfOccurrenceOfValueQ(pValue)
+				return new stzNumber(This.NumberOfOccurrenceOfValue(pValue))
+		
+			def NumberOfOccurrencesOfValueQ(pValue)
+				return NumberOfOccurrenceOfValueQ(pValue)
+
+		def HowManyOccurrenceOfValue(pValue)
+			return This.NumberOfOccurrenceOfValue(pValue)
+
+		def HowManyOccurrencesOfValue(pValue)
+			return This.NumberOfOccurrenceOfValue(pValue)
 
 	def UniqueValues()
 		aResult = This.ValuesQ().DuplicatesRemoved()
@@ -1082,6 +1106,12 @@ class stzHashList from stzObject # Also called stzAssociativeList
 	def NumberOfKeysByValueInList() ###
 		return len( This.FindKeysByValueInList(pValue) )
 
+		def HowManyKeysByValueInList()
+			return This.NumberOfKeysByValueInList()
+
+		def HowManyKeyByValueInList()
+			return This.NumberOfKeysByValueInList()
+
 	def FindFirstKeyByValueInList(pValue)
 
 		if This.ContainsValueInList(pValue)
@@ -1185,6 +1215,18 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return len( This.CLasses() )
 
 		def NumberOfCategories()
+			return This.NumberOfClasses()
+
+		def HowManyClasses()
+			return This.NumberOfClasses()
+
+		def HowManyClasse()
+			return This.NumberOfClasses()
+
+		def HowMayCategories()
+			return This.NumberOfClasses()
+
+		def HowManyCategory()
 			return This.NumberOfClasses()
 
 	def Classify()
@@ -1352,6 +1394,12 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return len( This.CLassesInList() )
 
 		def NumberOfCategoriesInList()
+			return This.NumberOfClassesInList()
+
+		def HowManyClassesInList()
+			return This.NumberOfClassesInList()
+
+		def HowManyClassInList()
 			return This.NumberOfClassesInList()
 
 	def ClassifyInList()
