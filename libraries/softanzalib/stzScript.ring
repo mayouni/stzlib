@@ -6,6 +6,20 @@ _aLocaleScriptsXT = [
 
 	NOTE: we include here only the languages included in Qt Unicode
 	--> that we can use to define a locale
+
+	TODO: It seems there is a duplication of data about scripts in two files:
+		- here in stzScript.ring, and
+		- in stzCharData
+
+		By consequence, two sets of functions exits:
+		- LocaleScripts() in this files (stzScript.ring), and
+		- UnicodeScripts() in stzCharData.ring
+
+		==> Unify this, and use only the data and function in this file!
+
+	NOTE: Read this resource about number of letters per alphabets
+	https://wordfinderx.com/blog/languages-ranked-by-letters-in-alphabet/
+
 	*/
 	#     1		    2				3		      4
 	#  QtNumber 	ScriptName 		ScriptAbbreviation 	DefaultLanguage
@@ -194,6 +208,9 @@ func LocaleScripts()
 	next
 
 	return aResult
+
+	def Scripts()
+ 		return LocaleScripts()
 
 func StzScriptQ(pcScriptIdentifier)
 	return new stzScript(pcScriptIdentifier)

@@ -62,10 +62,11 @@ Diacritics
 	Greek diacritics (TODO)
 	Hebrew diacritics (TODO)
 
-DOTTLESS LETTERS
+Dotless LETTERS
 	Arabic dottles letters
-	Latin dottless letters
-	Mathematical dottless letters (TODO)
+	Latin Dotless letters
+
+	Mathematical Dotless letters (TODO)
 	Any others (TODO)
 
 */
@@ -489,7 +490,7 @@ DOTTLESS LETTERS
 		_anArabicUnicodes + item
 	next
 
-	# Arabic Dottless letters
+	# Arabic Dotless letters
 	# (classic caligraphy without dots, called also Rasm script)
 
 		# List of arabic letters without dots:
@@ -505,53 +506,63 @@ DOTTLESS LETTERS
 		# Equivalent in hebrew of the arabic tinkeet and shaddah :
 		# https://en.wikipedia.org/wiki/Dagesh
 
-	_anArabicDottlessUnicodes = [
+	_anArabicDotlessUnicodes = [
 		1609, 1575, 1581, 1583, 1585,
 		1587, 1589, 1591, 1593, 1605,
 		1607, 1608, 1646, 1647, 1697,
 		1705, 1722
 	]
 
-	_aArabicDotlessCharsXT = [
-	[ "ى", "ى" ],
-	[ "ي", "ى" ],
 	
-	[ "ح", "ح" ],
-	[ "ج", "ح" ],
-	[ "خ", "ح" ],
+	_aArabicDotlessCharsXT = [
 
-	[ "د", "د" ],
-	[ "ذ", "د" ],
+	# TODO: Wa may need a better data structure
+	# to manage some special Dotless letters
+	# like ٯ in the word مٯاومه
 
-	[ "ر", "ر" ],
-	[ "ز", "ر" ],
+	[ "ى" , "ى" ],
+	[ "ي" , "ٮ" ],
 
-	[ "س", "س" ],
-	[ "ش", "س" ],
+	[ "ح" , "ح" ],
+[ "خ" , "ح" ],
+[ "ج" , "ح" ],
 
-	[ "ص", "ص" ],
-	[ "ض", "ص" ],
+	[ "د" , "د" ],
+	[ "ذ" , "د" ],
 
-	[ "ط", "ط" ],
-	[ "ظ", "ط" ],
+	[ "ر" , "ر" ],
+	[ "ز" , "ر" ],
 
-	[ "ک", "ک" ],
-	[ "ك", "ک" ],
+	[ "س" , "س" ],
+	[ "ش" , "س" ],
 
-	[ "ع", "ع" ],
-	[ "غ", "ع" ],
+	[ "ص" , "ص" ],
+	[ "ض" , "ص" ],
 
-	[ "ٮ", "ٮ" ],
-	[ "ب", "ٮ" ],
+	[ "ط" , "ط" ],
+	[ "ظ" , "ط" ],
 
-	[ "ٯ","ٯ" ],
-	[ "ق","ٯ" ],
+	[ "ک" , "ک" ],
+	[ "ك" , "ک" ],
 
-	[ "ڡ","ڡ" ],
-	[ "ف","ڡ" ],
+	[ "ع" , "ع" ],
+	[ "غ" , "ع" ],
 
-	[ "ں","ں" ],
-	[ "ن","ں" ]
+	[ "ٮ" , "ٮ" ],
+	[ "ب" , "ٮ" ],
+[ "ت" , "ٮ" ],
+[ "ث" , "ٮ" ],
+
+	[ "ٯ" ,"ٯ" ],
+	[ "ق" ,"ٯ" ],
+[ "ف" ,"ٯ" ],
+
+	
+[ "ں" ,"ں" ],
+[ "ن" ,"ں" ],
+
+[ "ه", "ه" ],
+[ "ة", "ه" ]
 
 ]
 
@@ -646,16 +657,32 @@ DOTTLESS LETTERS
 		_anLatinUnicodes + item
 	next
 
-	# Dottless chars
+	# Dotless chars
 
-	_aLatinDotlessUnicodes = [  ]
+	_anLatinDotlessUnicodes = [ 97, 101, 111, 117, 305, 567 ]
+	# TODO: Add unicodes of uppercased "a", "e", "o", and "u"
 
-	_aLatinDotlessUnicodesXT = [
+	_aLatinDotlessLettersXT = [
 		[ "ı", "ı" ],
 		[ "i", "ı" ],
+		[ "î", "ı" ],
 
 		[ "ȷ", "ȷ" ],
-		[ "j", "ȷ" ]
+		[ "j", "ȷ" ],
+
+		[ "à", "a" ],
+		[ "â", "a" ],
+
+		[ "é", "e" ],
+		[ "è", "e" ],
+		[ "ê", "e" ],
+
+		[ "ô", "o" ],
+
+		[ "ù", "u" ],
+		[ "û", "u"]
+
+		# TODO: # TODO: Add unicodes of uppercased "a", "e", "o", and "u"
 	]
 
 	  #--------------------#
@@ -1440,6 +1467,15 @@ DOTTLESS LETTERS
 		_aDiacricizedCharsXT + item
 	next
 
+	  #----------------------------------#
+	 #  NUMBER OF LETTERS PER LANGAUGE  #
+	#----------------------------------#
+
+	_aNumberOfLettersPerLanguage = []
+
+
+
+
   /////////////////////
  ///   FUNCTIONS   ///
 /////////////////////
@@ -1885,7 +1921,7 @@ DOTTLESS LETTERS
 	func HexChars()
 		return _acHexChars
 
-	func UnicodeScriptsXT()
+ici	func UnicodeScriptsXT()
 		return _aUnicodeScriptsXT
 
 	func UnicodeScripts()
@@ -1944,24 +1980,96 @@ DOTTLESS LETTERS
 	func WordBoundingChars()
 		return _acWordBoundingChars
 
-	# Dottless chars
+	# Dotless letters
 
-	func ArabicDottlessUnicodes()
-		return _anArabicDottlessUnicodes
-	
-	func ArabicDottlessChars()
-		acResult = UnicodesToChars(_anArabicDottlessUnicodes)
+	func ArabicDotlessUnicodes()
+		return _anArabicDotlessUnicodes
+
+		func ArabicDotlessLettersUnicodes()
+			return _anArabicDotlessUnicodes
+
+	func ArabicDotlessLetters()
+		acResult = UnicodesToChars(_anArabicDotlessUnicodes)
 		return acResult
 	
-	func ArabicDottlessCharsXT()
+	func ArabicDotlessLettersXT()
 		return _aArabicDotlessCharsXT
+
+	func ArabicDotlessLettersAndTheirUnicodes()
+		aResult = Association([ ArabicDotlessLetters(), ArabicDotlessUnicodes() ])
+		return aResult
+
+	func ArabicDotlessUnicodesAndTheirLetters()
+		aResult = Association([ ArabicDotlessUnicodes(), ArabicDotlessLetters() ])
+		return aResult
+
+	#--
+
+	func LatinDotlessUnicodes()
+		return _anLatinDotlessUnicodes
+
+		func LatinDotlessLettersUnicodes()
+			return _anLatinDotlessUnicodes
+
+	func LatinDotlessLetters()
+		acResult = UnicodesToChars(LatinDotlessUnicodes())
+		return acResult
 	
-	func Dottless(pcStr)
-		cResult = StzStringQ(pcStr).Dottless()
+	func LatinDotlessLettersXT()
+		return _aLatinDotlessLettersXT
+
+	func LatinDotlessLettersAndTheirUnicodes()
+		aResult = Association([ LatinDotlessLetters(), LatinDotlessUnicodes() ])
+		return aResult
+
+	func LatinDotlessUnicodesAndTheirLetters()
+		aResult = Association([ LatinDotlessUnicodes(), LatinDotlessLetters() ])
+		return aResult
+
+	#--
+
+	func DotlessUnicodes()
+		anResult = ArabicDotlessUnicodes()
+		anLatin = LatinDotlessUnicodes()
+		nLen = len(anLatin)
+
+		for i = 1 to nLen
+			anResult + anLatin[i]
+		next
+
+		return anResult
+
+	func DotlessLetters()
+		acResult = UnicodesToChars(DotlessUnicodes())
+		return acResult
+
+	func DotlessLettersXT()
+		aResult = ArabicDotlessLettersXT()
+		aLatin = LatinDotlessLettersXT()
+		nLen = len(aLatin)
+
+		for i = 1 to nLen
+			aResult + aLatin[i]
+		next
+
+		return aResult
+
+	func DotlessLettersAndTheirUnicodes()
+		aResult = Association([ DotlessLetters(), DotlessUnicodes() ])
+		return aResult
+
+	func DotlessUnicodesAndTheirLetters()
+		aResult = Association([ DotlessUnicodes(), DotlessLetters() ])
+		return aResult
+
+	#--
+
+	func Dotless(pcStr)
+		cResult = StzStringQ(pcStr).Dotless()
 		return cResult
 
 		func WithoutDots(pcStr)
-			return Dottless(pcStr)
+			return Dotless(pcStr)
 
 	# Diacritics
 
@@ -1995,7 +2103,6 @@ DOTTLESS LETTERS
 
 	func ArabicDiacriticsXT()
 		return _aArabicDiacriticsXT
-
 
 	func DiacriticsUnicodes()
 		return _anDiacriticsUnicodes
