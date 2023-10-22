@@ -69,7 +69,13 @@ class stzTurboList
 
 	def NumberOfItems()
 		return @nNumberOfItems
-		
+
+		def HowManyItems()
+			return @nNumberOfItems
+
+		def HowManyItem()
+			return @nNumberOfItems
+
 	def Item(n)
 		return @aItems[n]
 
@@ -80,6 +86,15 @@ class stzTurboList
 	def NumberOfOccurrence(pItem)
 		n = Q(@aItems).FindFirst(pItem)
 		return @aNumberOfOccurrence[n]
+
+		def NumberOfOccurrences(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def HowManyOccurrence(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def HowManyOccurrences(pItem)
+			return This.NumberOfOccurrence(pItem)
 
 	def FindNth(n, pItem)
 		nPos = Q(@aItems).FindFirst(pItem)

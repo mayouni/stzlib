@@ -247,17 +247,47 @@ class stzGrid from stzObject
 	def NumberOfVLines()
 		return @nNumberOfVLines
 
+		def HowManyVlines()
+			return This.NumberOfVLines()
+
+		def HowManyVLine()
+			return This.NumberOfVLines()
+
 	def NumberOfHLines()
 		return @nNumberOfHLines
+
+		def HowManyHlines()
+			return This.NumberOfHLines()
+
+		def HowManyHLine()
+			return This.NumberOfHLines()
 
 	def NumberOfNodes()
 		return This.NumberOfVLines() * This.NumberOfHLines()
 
+		def HowManyNodes()
+			return This.NumberOfNodes()
+
+		def HowManyNode()
+			return This.NumberOfNodes()
+
 	def NumberOfNodesPerHLine()
 		return This.NumberOfVLines()
 
+		def HowManyNodesPerHLine()
+			return This.NumberOfNodesPerHLine()
+
+		def HowManyNodePerHLine()
+			return This.NumberOfNodesPerHLine()
+
 	def NumberOfNodesPerVLine()
 		return This.NumberOfHLines()
+
+		def HowManyNodesPerVLine()
+			return This.NumberOfNodesPerVLine()
+
+		def HowManyNodePerVLine()
+			return This.NumberOfNodesPerVLine()
 
 	def HasNVLines(n)
 		if This.NumberOfVlines() = n

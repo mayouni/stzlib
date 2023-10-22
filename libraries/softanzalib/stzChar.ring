@@ -603,6 +603,11 @@ class stzChar from stzObject
 			StzRaise(stzCharError(:CanNotGuessNumberOfBytes))
 		ok
 
+		def HowManyBytes()
+			return This.NumberOfBytes()
+
+		def HowManyByte()
+			return This.NumberOfBytes()
 
 	def Bytes()
 		// TODO: Review it and test it!

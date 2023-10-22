@@ -2298,6 +2298,18 @@ class stzForEachObjectOld
 		def NumbersOfVarNames()
 			return This.NumberOfVars()
 
+		def HowManyVars()
+			return This.NumberOfVars()
+
+		def HowManyVar()
+			return This.NumberOfVars()
+
+		def HowManyVarNames()
+			return This.NumberOfVars()
+
+		def HowManyVarName()
+			return This.NumberOfVars()
+
 	def Values()
 		return @aValues
 
@@ -2305,6 +2317,18 @@ class stzForEachObjectOld
 		return len(@aValues)
 
 		def NumberOfValues()
+			return This.NumberOfIterations()
+
+		def HowManyIterations()
+			return This.NumberOfIterations()
+
+		def HowManyIteration()
+			return This.NumberOfIterations()
+
+		def HowManyValues()
+			return This.NumberOfIterations()
+
+		def HowManyValue()
 			return This.NumberOfIterations()
 
 	def @(pcCode)
