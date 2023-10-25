@@ -17,6 +17,11 @@ Programming, by Heart! By: M.Ayouni╭
   ╰╯
 '
 
+# TODO: Add these alternatives to NumberOf...() functions, allover the library:
+#	- HowMany...() : in singular and plural forms, exp: HowManyItem() and HowManyItems()
+#	- Count...()
+# NB: Many have been added! Check those that haven't.
+
   ///////////////////////////
  ///  GLOBALS VARIABLES  ///
 ///////////////////////////

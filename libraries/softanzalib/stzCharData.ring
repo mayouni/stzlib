@@ -1574,7 +1574,7 @@ Dotless LETTERS
 	func ArabicDigits()
 		return "0":"9"
 
-		def ArabicNumbers()
+		func ArabicNumbers()
 			return ArabicDigits()
 
 	func IndianDigits()
@@ -1588,7 +1588,7 @@ Dotless LETTERS
 			"۹", "٩"
 			]
 
-		def IndianNumbers()
+		func IndianNumbers()
 			return IndianDigits()
 
 		/*
@@ -1871,7 +1871,7 @@ Dotless LETTERS
 		func CircledNumbers()
 			return CircledDigits()
 
-	def CircledDigitsAndUnicodes()
+	func CircledDigitsAndUnicodes()
 		oTempList = new stzList(CircledDigits())
 		aResult = oTempList.AssociatedWith( CircledDigitUnicodes() )
 		return aResult
@@ -1921,7 +1921,7 @@ Dotless LETTERS
 	func HexChars()
 		return _acHexChars
 
-ici	func UnicodeScriptsXT()
+	func UnicodeScriptsXT()
 		return _aUnicodeScriptsXT
 
 	func UnicodeScripts()
@@ -2157,7 +2157,12 @@ ici	func UnicodeScriptsXT()
 			return TurnableNumbersUnicodes()
 		
 	func TurnableNumbersUnicodesXT()
-		aResult = Association([ TurnableNumbersUnicodes(), turnableNumbers() ])
+		aResult = Association([ TurnableNumbersUnicodes(), TurnableNumbers() ])
+		return aResult
+
+	func TurnableNumbersAndTheirUnicodes()
+		aResult = Association([ TurnableNumbers(), TuranbleUnicodes() ])
+		return aResult
 
 	func TurnableNumbers()
 		return Unicodes(_anTurnableNumbersUnicodes)
@@ -2182,10 +2187,6 @@ ici	func UnicodeScriptsXT()
 
 		func InversibleNumbersXT()
 			return TurnableNumbersXT()
-
-	func TurnableNumbersAndTheirUnicodes()
-		return Association([ TurnableNumbers(), TurnableNumbersUnicodes() ])
-
 
 	# Turned numbers
 
@@ -2310,6 +2311,10 @@ ici	func UnicodeScriptsXT()
 
 		#>
 
+	func TurnableCharsAndTheirUnciodes()
+		aResult = Association([ TurnableChars(), TurnableUnicodes() ])
+		return aResult
+
 	#-- Turnable chars
 
 	func NumberOfTurnedUnicodes()
@@ -2405,6 +2410,10 @@ ici	func UnicodeScriptsXT()
 			return TurnedCharsXT()
 
 		#>
+
+	func TurnableCharsAndtheirUnicodes()
+		aResult = Association([ TurnableChars(), TurnableUnicodes() ])
+		return aResult
 
 	# Punctuation
 

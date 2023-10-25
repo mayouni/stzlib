@@ -376,46 +376,56 @@ pron()
 
 proff()
 
-/*========
+/*======== TURNABLE NUMBERS
 
 # TODO: Add TurnUp, TurnDown, Turn, IsTurnedUp, IsTurnedDown
 # here in stzChar then in stzString
 
-*/
 pron()
-
-#-- TURNABLE NUMBERS
 
 ? @@(TurnableNumbers())
 #--> [ 2, 3 ]
 
-// @@(TurnableNumbersUnicodes())
+? @@(TurnableNumbersUnicodes())
 #--> [ 2, 3 ]
 
-//? @@(TurnableNumbersXT()) # NOTE: Font in Notepad may not show the turned numbers
+? @@(TurnableNumbersXT()) # NOTE: Font in Notepad may not show the turned numbers
 #--> [ [ 2, "↊" ], [ 3, "↋" ] ]
 
-#-- TURNED NUMBERS
+proff()
+# Executed in 0.11 second(s)
 
-//? @@(TurnedNumbersUnicodes())
+/*------ TURNED NUMBERS
+
+pron()
+
+? @@(TurnedNumbersUnicodes())
 #--> [ 8586, 8587 ]
 
-//? @@(TurnedNumbers()) # NOTE: Idem
+? @@(TurnedNumbers()) # NOTE: Idem
 #--> [ "↊", "↋" ]
 
-//? @@( Q([ "↊", "↋" ]).Names() )
+? @@( Q([ "↊", "↋" ]).Names() )
 #--> [ "TURNED DIGIT TWO", "TURNED DIGIT THREE" ]
 
-//? @@(TurnedNumbersXT()) # Or TurnedNumberAndTheirUnicodes()
+? @@(TurnedNumbersXT()) # Or TurnedNumberAndTheirUnicodes()
 #--> [ [ "↊", 8586 ], [ "↋", 8587 ] ]
 
-#-- TURNABLE CHARS
+proff()
+# Executed in 0.51 second(s)
 
-//? HowManyTurnableChars() + NL
-//? @@( TurnableChars() ) + NL
+/*------- TURNABLE CHARS
+*/
+pron()
 
-//? HowManyTurnableUnicodes() + NL
-//? @@( TurnableUnicodes() )
+? HowManyTurnableChars()
+#--> 141
+
+? @@S( TurnableChars() ) + NL
+#--> [ "$", "&", "(", "...", "ꭃ", "ꭐ", "ꭑ" ]
+
+? @@S( TurnableUnicodes() ) + NL
+#--> [ 36, 38, 40, "...", 43843, 43856, 43857 ]
 
 ? @@S( TurnableUnicodesXT()) # Or ShowShort()
 #--> [
@@ -423,9 +433,17 @@ pron()
 #	[ 43843, "ꭃ" ], [ 43856, "ꭐ" ], [ 43857, "ꭑ" ] ]
 # ]
 
+? @@S(TurnableCharsXT()) + NL
+#--> [ [ "δ", "ƍ" ], [ "Ɑ", "Ɒ" ], [ "ɑ", "ɒ" ], "...", [ "~", "~" ], [ "$", "$" ], [ "€", "€" ] ]
 
+? @@S( TurnableCharsAndTheirUnicodes() )
+#--> [ [ "$", 36 ], [ "&", 38 ], [ "(", 40 ], "...", [ "ꭃ", 43843 ], [ "ꭐ", 43856 ], [ "ꭑ", 43857 ] ]
 
-//? @@( TurnableAndTurnedChars() )
+proff()
+# Executed in 0.30 second(s)
+
+/*-----
+
 #-- TURNED CHARS
 
 //TurnedUnicodes()

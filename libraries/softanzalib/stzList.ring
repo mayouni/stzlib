@@ -41112,6 +41112,12 @@ vvv
 	def NumberOfSingles()
 		return len(This.Singles())
 
+		def HowManySingles()
+			return This.NumberOfSingles()
+
+		def HowManySingle()
+			return This.NumberOfSingles()
+
 	def FindSingles()
 		aContent = This.Content()
 		nLen = len(aContent)
