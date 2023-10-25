@@ -164,14 +164,38 @@ class stzItemCS
 	def NumberOfItems()
 		return This.ItemQ().NumberOfItems()
 
+		#< @FunctionAlternativeForms
+
 		def Size()
 			return This.NumberOfItems()
+
+		def HowManyItmes()
+			return This.NumberOfItems()
+
+		def HowManyItem()
+			return This.NumberOfItems()
+
+		#>
+
+	#--
 
 	def NumberOfOccurrenceCS(pCaseSensitive)
 		nResult = This.ListQ().NumberOfOccurrenceCS(This.Item(), pCaseSensitive)
 
+		def NumberOfOccurrencesCS(pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pCaseSensitive)
+
+		def HowManyOccurrenceCS(pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pCaseSensitive)
+
 	def NumberOfOccurrence()
 		return This.NumberOfOccurrenceCS(:CaseSensitive = TRUE)
+
+		def NumberOfOccurrences()
+			return This.NumberOfOccurrence()
+
+		def HowManyOccurrence()
+			return This.NumberOfOccurrence()
 
 	#--
 
