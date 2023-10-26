@@ -263,7 +263,7 @@ class stzCCode
 		# a priority over performance, then you can use them and call
 		# the extended version of the function insetead: ExecutableSectionXT()
 
-		acSubStrings = This.CodeQ().Between("[","]")
+		acSubStrings = This.CodeQ().SubStringsBetween("[","]")
 		nLenSubStr = len(acSubStrings)
 
 		acNumbersAfter = []
@@ -328,14 +328,13 @@ class stzCCode
 		return anResult
 
 	def ExecutableSectionXT()
-		# A less performant version with less chekcs.
-		# Only This[ @i + ... ] like syntaw is possible.
+		# A less performant version with more chekcs.
 
 		# Use it when you want to be more expressive
 		# in your conditional code and use @NextItem,
-		# @PreviousItem and alike keywords, instead
-		# of This[@i+1] and This[@i-1], @EachItem,
-		# @EachItemQ and etc.
+		# @PreviousItem, @EachItem, @EachItemQ, and
+		# alike keywords, instead beeing restricted
+		# to using only This[@i+1], This[@i-1], etc.
 
 		# In this case, there is a performance tax
 		# you should pay for. Hence, if you need to
