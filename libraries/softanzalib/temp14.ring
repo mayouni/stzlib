@@ -4,6 +4,27 @@ load "stzlib.ring"
 
 pron()
 
+? Q("I").Unicode()
+#--> 73
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----
+
+pron()
+
+a = Q("abc").ToListOfStzChars()
+? a[2].StzType()
+#--> stzchar
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-----
+
+pron()
+
 ? HexPrefix()
 #--> Ox
 
@@ -415,7 +436,7 @@ proff()
 # Executed in 0.51 second(s)
 
 /*------- TURNABLE CHARS
-*/
+
 pron()
 
 ? HowManyTurnableChars()
@@ -442,17 +463,7 @@ pron()
 proff()
 # Executed in 0.30 second(s)
 
-/*-----
-
-#-- TURNED CHARS
-
-//TurnedUnicodes()
-//TurnedChars()
-//TurnedCharsXT()
-
-proff()
-
-/*-------
+/*=====
 
 pron()
 
@@ -465,6 +476,7 @@ o1 = new stzChar("Ɯ")
 #--> M
 
 proff()
+# Executed in 0.08 second(s)
 
 /*---
 
@@ -477,6 +489,9 @@ o1 = new stzChar("Ɯ")
 ? o1.IsTurnable()
 #--> TRUE
 
+? o1.Turned()
+#--> M
+
 #--
 
 o1 = new stzChar("M")
@@ -486,14 +501,50 @@ o1 = new stzChar("M")
 ? o1.IsTurnable()
 #--> TRUE
 
+? o1.Turned()
+#--> Ɯ
+
 proff()
+# Executed in 0.22 second(s)
 
 /*=====
+
+pron()
+
+? QQ("Ǝ").IsTurned()
+#--> TRUE
+
+? QQ("Ⅎ").IsTurned()
+#--> TRUE
+
+? QQ("I").IsTurned()
+#--> TRUE
+
+? QQ("⅂").IsTurned()
+#--> TRUE
+
+? Q("ƎℲI⅂").IsTurned()
+#--> TRUE
+
+? Q("ƎℲI⅂").Turned()
+#--> LIFE
+
+? Q("LIFE").Turned()
+#--> ƎℲI⅂
+
+? Q("LIFE").CharsTurned()
+#--> ⅂IℲƎ
+
+? Q("⅂IℲƎ").CharsTurned()
+#--> LIFE
+
+proff()
+# Executed in 2.07 second(s)
+
+/*-----------
 */
 pron()
 
-? Q("ƎℲI⅂").IsTurned()
-/*
 # First, this is your name, nicely printed in a rounded box
 
 ? Q("GARY").EachCharBoxedRound()
@@ -501,23 +552,11 @@ pron()
 #    │ G │ A │ R │ Y │
 #    ╰───┴───┴───┴───╯
 
-# Now, look to these two examples and try to tell me what
-# the difference between Inverse() and Invert() in Softanza:
-
 ? Q("GARY").Inversed() # Inverses the order of chars
 #--> YRAG
 
-? Q("GARY").Inverted() # Turns the chars down
-#--> ⅁ⱯR⅄
-
-# Feels a bit confusing? I understand, and I provide you
-# with more clarity using these alternatives:
-
-? Q("GARY").CharsOrderInversed()
-#--> YRAG
-
-? Q("GARY").CharsTurnedDown()
-#--> ⅁ⱯR⅄
+? Q("GARY").Turned() # Turns the chars down
+#--> ⅄RⱯ⅁
 
 proff()
 

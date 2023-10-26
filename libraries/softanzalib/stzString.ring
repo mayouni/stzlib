@@ -59303,14 +59303,18 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		#>
 			
 	def ToListOfStzChars()
+		acChars = This.Chars()
+		nLen = len(acChars)
+
 		aResult = []
-		nLen = This.NumberOfChars()
 
 		for i = 1 to nLen
-		# Warning: Note that using 'for in' yields erronous
-		# result for strings coded on more then 1 byte
-			aResult + This.CharQ(i)
+			# Warning: Note that using 'for in' yields erronous
+			# result for strings coded on more then 1 byte
+
+			aResult + new stzChar(acChars[i])
 		next
+
 		return aResult
 
 		#< @FunctionFluentForm
@@ -61425,10 +61429,10 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	 #   TUENING CHARS OF THE STRING (IF POSSIBLE IN UNICODE)  #
 	#=========================================================#
 
-	def TurnDown()
+	def Turnchars()
 		/*
 		Example:
-		? StzStringQ("LIFE").TurnedDown()
+		? StzStringQ("LIFE").CharsTurned()
 		#--> ƎℲI⅂
 		*/
 
@@ -61442,36 +61446,59 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		nLen = This.NumberOfChars()
 
 		for i = 1 to nLen
-			cResult += StzCharQ( This.NthChar(i) ).TurnedDown()
+			cResult += StzCharQ( This.NthChar(i) ).Turned()
 		next
 
-		This.Update( cResult )
+		This.UpdateWith(cResult)
 
 		#< @FunctionFluentForm
 
-		def TurnDownQ()
-			This.TurnDown()
+		def TurnCharsQ()
+			This.TurnChars()
 			return This
 		#>
 
-		#< @FunctionAlternativeForm
+	def CharsTurned()
+		return This.Copy().TurnCharsQ().Content()
 
-		def TurnCharsDown()
-			This.TurnDown()
+	  #----------------------#
+	 #  TURNING THE STRING  #
+	#----------------------#
 
-			def TurnCharsDownQ()
-				This.TurnCharsDown()
-				return This
+	def Turn()
+		cResult = This.TurnCharsQ().Reversed()
+		This.UpdateWith(cResult)
 
-		#>
+		def TurnQ()
+			This.Turn()
+			return This
 
-	def TurnedDown()
-		return This.Copy().TurnDownQ().Content()
+	def Turned()
+		cResult = This.Copy().TurnQ().Content()
+		return cResult
+
+	  #----------------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS A REVERSED COPY OF AN OTHER STRING  #
+	#----------------------------------------------------------------#
+
+	def IsAReversedCopyOf(pcOtherStr)
+
+		if This.Reversed() = pcOtherStr
+			return TRUE
+		else
+			return FALSE
+		ok
 
 		#< @FunctionAlternativeForms
 
-		def CharsTurnedDown()
-			return This.TurnedDown()
+		def IsReversedCopyOf(pcOtherStr)
+			return This.IsAReversedCopyOf(pcOtherStr)
+
+		def IsAnInversedCopyOf(pcOtherStr)
+			return This.IsAReversedCopyOf(pcOtherStr)
+
+		def IsInvertedCopyOf(pcOtherStr)
+			return This.IsAReversedCopyOf(pcOtherStr)
 
 		#>
 
@@ -61479,11 +61506,16 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	 #  CHECKING IF THE STRING IS MADE OF INVERTED (TURNED) CHARS  #
 	#-------------------------------------------------------------#
 
-	def IsInverted()
+	def IsTurned()
+
+		aoChars = This.ToListOfStzChars()
+		nLen = len(aoChars)
+
 		bResult = TRUE
 
-		for c in This.String()
-			if NOT StzCharQ(c).IsInverted()
+
+		for i = 1 to nLen
+			if NOT aoChars[i].IsTurned()
 				bResult = FALSE
 				exit
 			ok
@@ -61493,22 +61525,11 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
-		def CharsAreInverted()
-			return This.IsInverted()
-
-		def IsTurned()
-			return This.IsInverted()
-
 		def CharsAreTurned()
-			return This.IsInverted()
+			return This.IsTurned()
 
-		#--
-
-		def IsReversed()
-			return This.IsInverted()
-
-		def CharsAreReversed()
-			return This.IsInverted()
+		def AllCharsAreTurned()
+			return This.IsTurned()
 
 		#>
 
