@@ -6,13 +6,13 @@ pron()
 
 oStr = new stzString("Welcome to the Ring programming language")
 ? oStr.SectionCS(:From = "RING", :To = :LastChar, :CaseSensitive = FALSE))
-# Ring programming language
+#--> Ring programming language
 
 proff()
 # Executed in 0.06 second(s)
 
 /*-----------
-*/
+
 pron()
 
 oStr = new stzString("Welcome to the Ring programming language")
@@ -36,8 +36,10 @@ pron()
 #	--> Finding a substring
 #	--> Getting the substring starting at a given position
 #	--> Getting the substring made of n given chars starting at a given position
-#	--> Replacing a sbstring by an other substring
+#	--> Replacing a sbstring by an other substring (with or without casesensitivity)
 
+# We are going to perform all these actions, using substr() and then Softanza,
+# side by side, so you can make sense of the expressiveness of the library...
 
 # Finding a substring
 
@@ -77,25 +79,47 @@ pron()
 	#--> Ring
 
 	# In Softanza we say:
+
 	oStr = new stzString("Welcome to the Ring programming language")
 	? oStr.Range("Ring", 4)
 	#--> Ring
 
 # Replacing a sbstring by an other substring
 
-	cStr = "Welcome to the New programming language"
-	? substr(cStr,"New","Ring") # Replaces New with Ring
-	#--> Welcome to the Ring programming language
-	
-	cStr = "Welcome to the New programming language"
-	? substr(cStr,"NEW", "Ring", 0)
-	#--> Welcome to the New programming language
-	
-	cStr = "Welcome to the New programming language"
-	? substr(cStr, "NEW", "Ring", 1)
+	cStr = "Welcome to Python programming language"
+	? substr(cStr, "Python", "Ring") # Replaces 'Python' with 'Ring'
 	#--> Welcome to the Ring programming language
 
+	# In Softanza we say:
+	oStr = new stzString("Welcome to Python programming language")
+	oStr.Replace("Python", :With = "Ring")
+	? oStr.Content()
+	#--> Welcome to Ring programming language
+
+# Replacing a sbstring by an other substring with Case Sensitivity
+
+	cStr = "Welcome to the Python programming language"
+	? substr(cStr,"PYTHON", "Ring", 0) # WARNING: This is should be 1 and not 0!
+	#--> Welcome to the Python programming language
+	
+	cStr = "Welcome to the Python programming language"
+	? substr(cStr, "PYTHON", "Ring", 1) # WARNING: This is should be 0 and not 1!
+	#--> Welcome to the Ring programming language
+
+	# In Softanza we say:
+
+	oStr = new stzString("Welcome to Python programming language")
+	oStr.ReplaceCS("PYTHON", :With = "Ring", :CaseSensitive = FALSE)
+	? oStr.Content()
+	#--> Welcome to Ring programming language
+
+	oStr = new stzString("Welcome to Python programming language")
+	oStr.ReplaceCS("PYTHON", :With = "Ring", :CaseSensitive = TRUE)
+	? oStr.Content()
+	#--> Welcome to Python programming language
+	
 proff()
+# Executed in 0.11 second(s)
 
 /*---------
 # Performance of QString2 is astonisshing!
