@@ -1587,9 +1587,9 @@ class stzListOfLists from stzList
 	def LastOccurrenceOfEntry(pEntry)
 		return NthOccurrenceOfEntry(This.NumberOfOccurrenceOfEntry(pEntry), pEntry)
 
-	  #------------------#
+	  #==================#
 	 #   CONTAINMENT    #
-	#------------------#
+	#==================#
 
 	def ContainsItem(pItem)
 		bResult = FALSE
@@ -1618,45 +1618,6 @@ class stzListOfLists from stzList
 			ok
 		next
 		return aResult
-
-	  #----------------------------------------------#
-	 #  GETTING A MERGED COPY OF THE LIST OF LISTS  #
-	#----------------------------------------------#
-
-	def Merge()
-		StzRaise("Can't merge the list of lists! Instead you can return a merged copy of it using Merged()")
-
-		def MergeQ()
-			StzRaise("Can't merge the list of lists! Instead you can return a merged copy of it using Merged()")
-
-	def Merged()
-		
-		aResult = []
-
-		aContent = This.Lists()
-		nLen = This.NumberOfLists()
-
-		for i = 1 to nLen
-			nLenList = len(aContent[i])
-			for j = 1 to nLenList
-		   		aResult + aContent[i][j]
-			next
-		next
-		
-		return aResult
-
-	  #----------------------------------------#
-	 #  GETTING A FLATTENED COPY OF THE LIST  #
-	#----------------------------------------#
-
-	def Flatten()
-		StzRaise("Can't flatten the list of lists! Instead you can return a flattend copy of it using Flattened()")
-
-		def FlattenQ()
-			StzRaise("Can't flatten the list of lists! Instead you can return a flattend copy of it using Flattened()")
-
-	def Flattened()
-		return This.ToStzList().Flattened()
 
 	  #------------------------------------------------#
 	 #  CHECKING IF A GIVEN ITEM EXISTS IN ALL LISTS  #
@@ -1719,9 +1680,48 @@ class stzListOfLists from stzList
 
 		#>
 
-	  #-----------------------------------------------------------#
+	  #==============================================#
+	 #  GETTING A MERGED COPY OF THE LIST OF LISTS  #
+	#==============================================#
+
+	def Merge()
+		StzRaise("Can't merge the list of lists! Instead you can return a merged copy of it using Merged()")
+
+		def MergeQ()
+			StzRaise("Can't merge the list of lists! Instead you can return a merged copy of it using Merged()")
+
+	def Merged()
+		
+		aResult = []
+
+		aContent = This.Lists()
+		nLen = This.NumberOfLists()
+
+		for i = 1 to nLen
+			nLenList = len(aContent[i])
+			for j = 1 to nLenList
+		   		aResult + aContent[i][j]
+			next
+		next
+		
+		return aResult
+
+	  #----------------------------------------#
+	 #  GETTING A FLATTENED COPY OF THE LIST  #
+	#----------------------------------------#
+
+	def Flatten()
+		StzRaise("Can't flatten the list of lists! Instead you can return a flattend copy of it using Flattened()")
+
+		def FlattenQ()
+			StzRaise("Can't flatten the list of lists! Instead you can return a flattend copy of it using Flattened()")
+
+	def Flattened()
+		return This.ToStzList().Flattened()
+
+	  #===========================================================#
 	 #  CHECKING IF THE SIZE OF EACH ITEM EQUALS A GIVEN NUMBER  #
-	#-----------------------------------------------------------#
+	#===========================================================#
 
 	def SizeOfEachListIs(n)
 		aContent = This.Content()
@@ -1834,9 +1834,9 @@ class stzListOfLists from stzList
 
 		#>
 
-	  #--------------------------------------#
+	  #======================================#
 	 #  COMMON ITEMS BETWEEN ALL THE LISTS  #
-	#--------------------------------------#
+	#======================================#
 
 	def CommonItemsCS(pCaseSensitive)
 
@@ -1870,9 +1870,9 @@ class stzListOfLists from stzList
 		def Intersection()
 			return This.CommonItems()
 
-	  #---------------------#
+	  #=====================#
 	 #   TO OTHER TYPES    #
-	#---------------------#
+	#=====================#
 
 	def ToStzList()
 		return new stzList( This.Content() )
@@ -1896,9 +1896,40 @@ class stzListOfLists from stzList
 			return new stzListOfStrings( This.Content() )
 		ok
 
-	  #-----------#
+	  #=============================#
+	 #  SORTING THE LIST OF LISTS  #
+	#=============================#
+
+	def Sort()
+		SortBy(1)
+
+	def Sorted()
+		return This.SortedBy(1)				
+
+	  #-----------------------------------------------#
+	 #  SORTING THE LIST OF LISTS BY A GIVEN COLUMN  #
+	#-----------------------------------------------#
+
+	def SortBy(n)
+		This.UpdateBy(This.SortedBy(n))
+
+	def SortedBy(n)
+		if This.IsEmpty()
+			return
+		ok
+
+		aShrinked = This.Shrinked()
+		nLen = len(ashrinked[1])
+		if nLen = 0
+			return
+		ok
+
+		aSorted = ring_sortXT(aShrinked, n)
+		return aSorted
+
+	  #===========#
 	 #   MISC.   #
-	#-----------#
+	#===========#
 		
 	def stzType()
 		return :stzListOfLists

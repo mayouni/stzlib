@@ -23,7 +23,6 @@ proff()
 # Executed in 0.06 second(s)
 
 /*-----------
-*/
 
 pron()
 
@@ -122,9 +121,11 @@ proff()
 # Executed in 0.11 second(s)
 
 /*---------
-# Performance of QString2 is astonisshing!
+
+# Performance of stzString (using QString2 in background) is astonishing!
 
 
+# Ket's compose a large string
 
 str = "1|2|1|__*__|[ 10* 11* 12 ]|B|2|1|__*__|A*|3|__*__|B|[ 10* 11* 12 ]|B|"
 
@@ -139,14 +140,45 @@ str += "|1|2|1|__*__|[ 10* 11* 12 ]|B|2|1|__*__|A*|3|__*__|B|[ 10* 11* 12 ]|B|"
 o1 = new stzString(str)
 ? @@(o1.FindThisBoundedBy("1", "|"))
 
+# TODO: Try to compose the string by pushing the first part in the middle or a the end,
+# and if stzString is still as performant!
+
 proff()
 # Executed in 0.15 second(s)
 
 /*--------- TODO: review sort in stztable (I may use this Ring native solution)
 
-aList = [ ["mahmoud",15000] , ["ahmed", 14000 ] , ["samir", 16000 ] , ["mohammed", 12000 ] , ["ibrahim",11000 ] ]
-aList2 = sort(aList,1)
-see aList2
+pron()
+
+aList = [ ["mahmoud", 15000] , ["ahmed", 14000 ] , ["samir", 16000 ] , ["mohammed", 12000 ] , ["ibrahim",11000 ] ]
+
+aSorted = sort(aList, 1)
+? @@(aSorted) + NL
+#--> [ [ "ahmed", 14000 ], [ "ibrahim", 11000 ], [ "mahmoud", 15000 ], [ "mohammed", 12000 ], [ "samir", 16000 ] ]
+
+aSorted = sort(aList, 2)
+? @@(aSorted)
+#--> [ [ "ibrahim", 11000 ], [ "mohammed", 12000 ], [ "ahmed", 14000 ], [ "mahmoud", 15000 ], [ "samir", 16000 ] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------
+*/
+
+pron()
+
+aList = [ ["mahmoud", 15000] , ["ahmed", 14000 ] , ["samir", 16000 ] , ["mohammed", 12000 ] , ["ibrahim",11000 ] ]
+
+o1 = new stzListOfPairs(aList) # Or stzListOfLists() if you want
+
+? @@( o1.Sorted() ) + NL
+#--> [ [ "ahmed", 14000 ], [ "ibrahim", 11000 ], [ "mahmoud", 15000 ], [ "mohammed", 12000 ], [ "samir", 16000 ] ]
+
+? @@( o1.SortedBy(2) )
+#--> [ [ "ibrahim", 11000 ], [ "mohammed", 12000 ], [ "ahmed", 14000 ], [ "mahmoud", 15000 ], [ "samir", 16000 ] ]
+
+proff()
 
 /*---------
 
