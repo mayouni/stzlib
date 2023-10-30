@@ -21644,6 +21644,7 @@ class stzList from stzObject
 		   Q(pITem).IsNumberOrString() and
 		   pCaseSensitive = TRUE
 
+			nLen = This.NumberOfItems()
 			n = ring_find( ring_reverse(This.List()), pItem )
 
 			if n > 0
@@ -22230,8 +22231,8 @@ class stzList from stzObject
 		]
 		*/
 
-		oListStr = new stzString( @@( Q(This.Content()) ) )
-		cItem = @@( Q(pItem).FirstAndLastCharsRemoved() )
+		oListStr = new stzString( @@(This.Content()) )
+		cItem = @@(pItem)
 
 		anPos = oListStr.FindCS(cItem, pCaseSensitive) #--> [21, 52]
 		nLenPos = len(anPos)

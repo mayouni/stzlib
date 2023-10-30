@@ -1,5 +1,45 @@
 load "stzlib.ring"
 
+/*==============
+
+pron()
+
+for i = 1 to 3
+	Vr([ :x, :y, :z ]) '=' Vl([ i, 2*i, 3*i ])
+next
+
+
+? @@( v([ :x, :y, :z ]) )
+#--> [ 3, 6, 9 ]
+
+? @@( VarVal([ :x, :y, :z ]) ) # Or VrVl()
+#--> [ [ "x", 3 ], [ "y", 6 ], [ "z", 9 ] ]
+
+proff()
+# Executed in 0.11 second(s)
+
+/*-------------
+
+pron()
+
+Vr([ :x, :y, :z ]) '=' Vl([ -1, 0, 1 ])
+? v([ :x, :y, :z ])
+#--> [ -1, 0, 1 ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-------------
+
+pron()
+
+Vr([ :x, :y, :z ]) '=' Vl([ 10, 20, 30 ])
+? v([ :x, :y, :z ])
+#--> [ 10, 20, 30 ]
+
+proff()
+# Executed in 0.06 second(s)
+
 /*-----------
 
 pron()

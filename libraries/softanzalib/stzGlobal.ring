@@ -1291,9 +1291,6 @@ func ScriptsOf(paListStr)
 func Show(pValue)
 	? ComputableForm(pValue)
 
-	func ShowQ(pValue)
-		return new stzString( Show(pValue) )
-
 func ShowHL(pValue)
 	if NOT (isList(pValue) and Q(pValue).IsHashList())
 		StzRaise("Incorrect param type! pValue must be a hashlist.")
@@ -1340,12 +1337,8 @@ func ComputableShortForm(paList)
 		func ShortFormQ(paList)
 			return ComputableShortFormQ(paList)
 
-	func ShowShort(paList)
-		return ComputableShortForm(paList)
-
-		func ShowShortQ(paList)
-			return ComputableShortFormQ(paList)
-
+func ShowShort(paList)
+	? ComputableShortForm(paList)
 
 func @@SN(paList, n)
 	if NOT isNumber(n)
@@ -1354,8 +1347,8 @@ func @@SN(paList, n)
 
 	return @@SXT(paList, n)
 
-	func ShowShortN(paList, n)
-		return @@SN(paList, n)
+func ShowShortN(paList, n)
+	? @@SN(paList, n)
 
 func ComputableShortFormXT(paList, p)
 
@@ -1454,12 +1447,6 @@ func ComputableShortFormXT(paList, p)
 		func ShortFormXTQ(paList, p)
 			return new stzString(ShortFormXT(paList, p))
 
-	func ShowShortXT(paList, p)
-		return ComputableShortFormXT(paList, p)
-
-		func ShowShortXTQ(paList, p)
-			return ShortFormXTQ(paList, p)
-
 	func @@SFXT(paList, p)
 		return ComputableShortFormXT(paList, p)
 
@@ -1473,6 +1460,9 @@ func ComputableShortFormXT(paList, p)
 			return new stzString(@@SFXT(paList, p))
 	#>
 	
+func ShowShortXT(paList, p)
+	? ComputableShortFormXT(paList, p)
+
 func ComputableForm(pValue)
 
 	if isNumber(pValue)

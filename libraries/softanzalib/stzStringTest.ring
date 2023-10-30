@@ -1,5 +1,587 @@
 load "stzlib.ring"
 
+
+/*========
+
+pron()
+
+o1 = new stzString("okay one pepsi two three ")
+
+# Declaring a condition in a string
+
+cMyConditionIsVerified = '
+	Q(This[@i]).ContainsAnyOfThese( Q("vwto").Chars() )
+'
+
+# Using the condition to find the words verifying it (using FindW())
+# after the string is splitted (using Split())
+
+? o1.SplitQ(" ").FindWhere(cMyConditionIsVerified) # Or .FindW() for short!
+#--> [ 1, 2, 4, 5 ]
+
+# Getting the words themselves using ItemsW()
+
+? o1.SplitQ(" ").ItemsWhere(cMyConditionIsVerified)
+#--> [ "okay", "one", "two", "three" ]
+
+# In general, any function in Softanza, like Find() and Items() here,
+# can be used as they are, or exented with the W() letter, so we can
+# instruct them to their job upon a given condition.
+
+proff()
+# Executed in 0.24 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzString("okay one pepsi two three ")
+? o1.SplitQ(" ").FindWXT(' Q(@item).ContainsAnyOfThese( Q("vwto").Chars() ) ')
+
+proff()
+# Executed in 0.58 second(s)
+
+/*=======
+
+pron()
+
+o1 = new stzString("ABC")
+o1.ExtendTo(5)
+o1.Show()
+#--> "ABC  "
+
+proff()
+# Executed in 0.03 second(s)
+
+/*=============
+
+str = "ring"
+for i = 1 to 10000
+	str += "ring"
+next
+
+pron()
+
+oQStr = new QString2()
+oQStr.append(str)
+
+c1 = oQStr.mid(0, 1)
+? c1
+#--> "r"
+
+c2 = oQStr.mid(oQStr.count()-1, 1)
+? c2
+#--> "g"
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+/*==============
+
+pron()
+
+? Q(["A", "B", "C", "D", "E"])[-3]
+#--> "C"
+
+proff()
+# Executed in 0.03 second(s)
+
+/*========
+
+pron()
+
+o1 = new stzString("..<<Hi>>..<<Ring!>>..")
+? @@( o1.FindAnyBetweenAsSections("<<", ">>") )
+#--> [ [ 5, 6 ], [ 13, 17 ] ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*-----------
+
+pron()
+
+o1 = new stzString("..<<Hi>>..<<Ring!>>..")
+
+? @@(o1.FindAnyBetweenAsSectionsS("<<", ">>", 3))
+#--> [ [ 5, 6 ], [ 13, 17 ] ]
+
+? @@(o1.FindAnyBetweenAsSectionsS("<<", ">>", 8))
+#--> [ [ 13, 17 ] ]
+
+proff()
+# Executed in 0.10 second(s)
+
+/*-----------
+
+pron()
+
+#                     3    8   3
+o1 = new stzString("**aa***aa**aa***")
+
+? @@(o1.FindAnyBetweenAsSections("aa", "aa"))
+#--> [ [ 5, 7 ], [ 10, 11 ] ]
+
+proff()
+# Executed in 0.08 second(s)
+
+/*-----------
+
+pron()
+
+#                       5 7  01    
+o1 = new stzString("**aa***aa**aa***")
+
+? @@(o1.FindAnyBetweenAsSectionsS("aa", "aa", :startingat = 2))
+#--> [ [ 5, 7 ], [ 10, 11 ] ]
+
+proff()
+
+/*=============
+
+pron()
+
+o1 = new stzString("---♥♥...**---")
+
+? o1.SubStringComesBetween("...", "♥♥", "**")
+#--> TRUE
+
+? o1.SubStringComesBetween("...", "**", "♥♥")
+#--> TRUE
+
+proff()
+# Executed in 0.05 second(s)
+
+/*=========
+
+pron()
+
+o1 = new stzString("123♥♥678**123♥♥678")
+
+? o1.SubStringComesBefore("♥♥", :Position = 6)
+#--> TRUE
+
+? o1.SubStringComesBeforePosition("♥♥", 6)
+#--> TRUE
+
+? o1.SubStringComesBefore("♥♥", :SubString = "**")
+#--> TRUE
+
+? o1.SubStringComesBeforeSubString("♥♥", "**")
+#--> TRUE
+
+#--
+
+? o1.SubStringComesAfter("♥♥", :Position = 3)
+#--> TRUE
+
+? o1.SubStringComesAfterPosition("♥♥", 3)
+#--> TRUE
+
+? o1.SubStringComesAfter("**", :SubString = "♥♥")
+#--> TRUE
+
+? o1.SubStringComesAfterSubString("**", "♥♥")
+#--> TRUE
+
+#--
+
+? o1.SubStringComesBetween("♥♥", :Positions = 3, :And = 6)
+#--> TRUE
+
+? o1.SubStringComesBetweenPositions("♥♥", 3, 6)
+#--> TRUE
+
+? o1.SubStringComesBetween("678", :SubStrings = "♥♥", :And = "**")
+#--> TRUE
+
+? o1.SubStringComesBetweenSubStrings("678", "**", "♥♥")
+#--> TRUE
+
+#--
+
+? SubStringQ([ "♥♥", :In = "--♥♥--**--" ]).ComesBeforeSubString("**")
+#--> TRUE
+
+? SubStringQ("♥♥").InQ("--♥♥--**--").ComesBeforeSubString("**")
+#--> TRUE
+
+? Q("--♥♥--**--").SubStringQ("♥♥").ComesBeforeSubString("**")
+#--> TRUE
+
+proff()
+# Executed in 0.12 second(s)
+
+/*-----
+
+pron()
+
+o1 = new stzString("")
+
+? o1.FindSSZ("", -1, 0)
+#--> 0
+
+? @@( o1.FindSSZZ("", -1, 0) )
+#-->  []
+
+proff()
+
+/*-----
+
+pron()
+
+o1 = new stzString("123♥♥678♥♥123♥♥678")
+? @@( o1.FindSSZZ("♥♥", 7, 17) )
+#--> [ [ 9, 10 ], [ 14, 15 ] ]
+
+? @@( o1.FindInSectionZZ("♥♥", 7, 17) )
+#--> [ [ 9, 10 ], [ 14, 15 ] ]
+
+? @@( o1.FindBetweenZZ("♥♥", 7, 17) )
+#--> [ [ 9, 10 ], [ 14, 15 ] ]
+
+proff()
+# Executed in 0.08 second(s)
+
+/*===========
+
+pron()
+
+? @@( Digits() )
+#--> [0, 1, 2, 3, 4, 5, 6, 7, 8 , 9 ]
+
+? Q(5).IsADigit() # In this case, Q() transforms 5 to a stzNumber object
+#--> TRUE
+
+? Q("3").IsADigitInString() # In this case, Q() transforms 5 to a stzString object
+#--> TRUE
+
+? Q("").IsADigitInString() # Idem
+#--> FALSE
+
+? Q("125").IsADigitInString() # Idem
+#--> FALSE
+
+? QQ("3").IsADigit() #  In this case, QQ() transforms "3" to a stzChar object
+#--> TRUE
+
+proff()
+# Executed in 0.13 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzString("what a <<nice>>> day!")
+
+? o1.Sit(
+	:OnSection = [10, 13],
+	:Harvest = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
+)
+
+#--> [ "<<", ">>>" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzString("what a <<nice>>> day!")
+? o1.SectionBounds(10, 13, 2, 3)
+#--> [ "<<", ">>>" ]
+
+? o1.SectionBoundsIB(9, 14, 2, 3)
+#--> [ "<<", ">>>" ]
+
+#--
+
+? @@( o1.SectionBoundsZ(10, 13, 2, 3) )
+#--> [ [ "<<", 8 ], [ ">>>", 14 ] ]
+
+? @@( o1.SectionBoundsZZ(10, 13, 2, 3) )
+#--> [ [ "<<", [ 8, 9 ] ], [ ">>>", [ 14, 16 ] ] ]
+
+#--
+
+? @@( o1.SectionBoundsIBZ(9, 14, 2, 3) )
+#--> [ [ "<<", 8 ], [ ">>>", 14 ] ]
+
+? @@( o1.SectionBoundsIBZZ(9, 14, 2, 3) )
+#--> [ [ "<<", [ 8, 9 ] ], [ ">>>", [ 14, 16 ] ] ]
+
+proff()
+# Executed in 0.21 second(s)
+
+/*=======
+
+# Using Section() (or Slice()) to get a part of a list
+
+aList = 1:20
+
+# Verbose form:
+? ShowShort( Q(aList).Section(:FromPosition = 4, :To = :LastItem) )
+#--> [ 4, 5, 6, "...", 18, 19, 20 ]
+
+# Short form:
+? ShowShort( Q(1:20).Slice(4, :Last) )
+#--> [ 4, 5, 6, "...", 18, 19, 20 ]
+
+/*======
+
+Q("PROGRAMMING") {
+
+   ? Boxed()
+
+   ? BoxedRound()
+
+   ? BoxEachChar()
+
+   ? BoxEachCharRound()
+
+}
+
+#-->
+# ┌─────────────┐
+# │ PROGRAMMING │
+# └─────────────┘
+# ╭─────────────╮
+# │ PROGRAMMING │
+# ╰─────────────╯
+# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+# │ P │ R │ O │ G │ R │ A │ M │ M │ I │ N │ G │
+# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
+# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
+# │ P │ R │ O │ G │ R │ A │ M │ M │ I │ N │ G │
+# ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+
+/*-----
+
+pron()
+
+# Hi Irwin, Softanza made this for you:
+
+Q("Thank you Irwin Rodriguez!") {
+
+	# Your name is uppercased
+	UppercaseSubString("Irwin")
+
+	# Then it's decoraded with hearts
+	AddXT( 2Hearts(), :Around = "IRWIN" )
+
+	# And finally it's nicely boxed
+	? BoxedRound()
+
+	# Thank you for your trust!
+}
+
+#--> ╭────────────────────────────────╮
+#    │ Thank you ♥♥IRWIN♥♥ Rodriguez! │
+#    ╰────────────────────────────────╯
+
+proff()
+#--> Executed in 0.14 second(s)
+
+/*====
+
+pron()
+
+o1 = new stzString("123♥♥678♥♥1234♥♥789")
+
+? o1.ContainsXT( "♥", :InSection = [3, 10] )
+#-- TRUE
+
+? o1.ContainsXT( "♥", :InSections = [ [3,10], [8,12], [14,19] ] )
+#--> TRUE
+
+proff()
+# Executed in 0.10 second(s)
+
+/*-----
+
+pron()
+
+o1 = new stzString("123♥♥678♥♥1234♥♥789")
+
+? o1.ContainsInSection("♥", 3, 10)
+#--> TRUE
+
+? o1.ContainsInSections("♥", [ [3,10], [8,12], [14,19] ])
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s)
+
+/*==================
+
+pron()
+
+? Q("I").Unicode()
+#--> 73
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----
+
+pron()
+
+a = Q("abc").ToListOfStzChars()
+? a[2].StzType()
+#--> stzchar
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-----
+
+pron()
+
+? HexPrefix()
+#--> Ox
+
+? Q( HexPrefix() + '066E').RepresentsNumberInHexForm()
+#--> TRUE
+
+? Q('U+066E').RepresentsNumberInUnicodeHexForm()
+#--> TRUE
+
+proff()
+
+/*---------
+
+pron()
+
+? TQ("משמש").Script()
+#--> hebrew
+
+
+proff()
+
+/*----------
+
+pron()
+
+? Q('U+0649').IsHexUnicode() 	#--> TRUE
+? StzCharQ("ڢ").HexUnicode() 	#--> U+06A2
+? QQ('U+0649').Content() 	#--> ى
+? QQ('U+06A2').Content() 	#--> ڢ
+? HexUnicodeToUnicode('U+06A2')	#--> 1698
+? UnicodeToHexUnicode(1698)	#--> U+06A2
+
+proff()
+# Executed in 1.20 second(s)
+
+/*---------
+
+pron()
+
+? Q("ı").Unicode()
+#--> 305
+
+? Q("ȷ").Unicode()
+#--> 567
+
+? Q("abc").Unicodes()
+#--> [ 97, 98, 99 ]
+
+? Q([ "a", "b", "c" ]).Unicodes()
+#--> [ 97, 98, 99 ]
+
+? Q("a").HexUnicode()
+#--> U+0061
+
+? Q("abc").HexUnicodes()
+#--> [ 'U+0061', 'U+0062', 'U+0063' ]
+
+? Q([ "a", "b", "c" ]).HexUnicodes()
+#--> [ 'U+0061', 'U+0062', 'U+0063' ]
+
+? @@( Q([ "a", "bcd", "e" ]).Unicodes() )
+#--> [ 97, [ 98, 99, 100 ], 101 ]
+
+? @@( Q([ "a", "bcd", "e" ]).HexUnicodes() )
+#--> [ "U+0061", [ "U+0062", "U+0063", "U+0064" ], "U+0065" ]
+
+? Unicodes("abc")
+#--> #--> [ 97, 98, 99 ]
+
+? HexUnicodes("abc")
+#--> [ 'U+0061', 'U+0062', 'U+0063' ]
+
+proff()
+# Executed in 0.33 second(s)
+
+/*===========
+
+cName = "Gary"
+
+? $("It's been a real pleasure meeting you, {cName}!") # Or Interpolate()
+#--> It's been a real pleasure meeting you, Gary!
+
+/*===========
+
+pron()
+
+? Q("♥").RepeatedNTimes(3)
+#--> ♥♥♥
+
+? Q("♥").Repeated3Times()
+#--> ♥♥♥
+
+? NCopies(3, "♥")
+#--> ♥♥♥
+
+? 3Copies(:of="♥")
+#--> ♥♥♥
+
+proff()
+
+/*---------
+
+pron()
+
+# TODO: Those two functions must be unified
+#--> Read the TODO in stzScripts.ring
+
+? len( LocaleScripts() )
+#--> 141
+
+? len( UnicodeScripts() )
+#--> 157
+
+proff()
+
+/*==============
+
+pron()
+
+? Dotless("alitalia extrême extèrieur aéorô ûltrâ")
+#--> alıtalıa extreme exterıeur aeoro ultra
+
+? Dotless("مشمش وخوخ وزيتون")	#--> مسمس وحوح ورٮٮوٮ
+
+
+proff()
+
+/*---------
+
+pron()
+
+? Dotless("فلسطين الأبيّة") 		#--> ٯلسطٮں الأٮٮّه
+? Dotless("عاشت المقاومة") 		#--> عاسٮ المٯاومه
+? Dotless("تونس معك يا غزّة")		#--> ٮوٮس معک ٮا عرّه
+? Dotless("جمعية الخيرات")		#--> حمعٮه الحٮراٮ
+? Dotless("أفديك بروحي يا قدس") 	#--> أٯدٮک ٮروحٮ ٮا ٯدس
+? Dotless("مشمش وخوخ وزيتون")		#--> مسمس وحوح ورٮٮوٮ
+
+# TODO: the implementation needs some enhancements/
+
+proff()
+
+
 /*==================
 
 pron()
@@ -6630,19 +7212,19 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 StzStringQ('') {
 
 	FromURL("https://ring-lang.github.io/doc1.16/qt.html")
-	ShowShort()
+	Show()
 
 }
 #--> Shows the page content as Text/HTML
 
 proff()
-# Executed in 1.84 second(s)
+# Executed in 2.63 second(s)
 
 
 /*-----------------

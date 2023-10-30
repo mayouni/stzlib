@@ -1,4 +1,449 @@
 load "stzlib.ring"
+
+/*===========
+
+pron()
+
+o1 = new stzList("A" : "E")
+? o1.ItemsAtPositions([2, 3])
+#--> [ "B", "C" ]
+
+proff()
+#--> Executed in 0.03 second(s)
+
+/*===========
+
+pron()
+
+aLargeList = []
+for i = 1 to 1_000
+	aLargeList + "R_ING"
+next
+
+o1 = new stzList(aLargeList)
+o1.StringifyLowercaseAndReplace("_", "♥")
+
+? o1.FirstNItems(3)
+#--> [ "r♥ing", "r♥ing", "r♥ing" ]
+
+? o1.LastNItems(3)
+#--> [ "r♥ing", "r♥ing", "r♥ing" ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ "--_--", [ 12, "--_--", 10], "--_--", 9 ])
+o1.StringifyAndReplaceXT("_", "♥") # Used by internal staff in Softanza
+? @@( o1.Content() )
+#--> [
+#	[ "--♥--", "[ 12, "--♥--", 10 ]", "--♥--", "9" ],
+#	[ 1, 3 ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ "--_--", [ 12, "--_--", 10], "--_--", 9 ])
+o1.StringifyAndReplace("_", "♥")
+? @@( o1.Content() )
+#--> [ "--_--", [ 12, "--_--", 10 ], "--_--", 9 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------
+
+pron()
+
+aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
+for i = 1 to 1_000_000
+	aLargeList + "ring"
+next
+
+o1 = new stzList(aLargeList)
+o1.StringifyAndReplaceXT("_", "*")
+? o1.Content()[2]
+#--> [1, 3]
+
+proff()
+#   1_000 items	--> Executed in 0.08 second(s)
+#  10_000 items	--> Executed in 0.50 second(s)
+# 100_000 items	--> Executed in 4.83 second(s)
+# 1_000_000 its --> Executed in 114.89 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ 1, "r_INg", 2, "R_ng", 3, "R_ING" ])
+o1.StringifyLowercaseAndReplaceXT("_", :With = AHeart())
+o1.Show()
+#--> [ [ "1", "r♥ing", "2", "r♥ng", "3", "r♥ing" ], [ 2, 4, 6 ] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ 1, "r_INg", 2, "R_ng", 3, "R_ING" ])
+o1.StringifyLowercaseAndReplace("_", :With = AHeart())
+o1.Show()
+#--> [ "1", "r♥ing", "2", "r♥ng", "3", "r♥ing" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------
+
+pron()
+
+aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
+for i = 1 to 1_000
+	aLargeList + "_--_"
+next
+
+o1 = new stzList(aLargeList)
+o1.StringifyAndReplace("_", "♥")
+
+? o1.FirstNItems(5)
+#--> [ "--♥--", '[ 12, "--♥--", 10 ]', "--♥--", "9", "♥--♥" ]
+
+? o1.LastNItems(3)
+#--> [ "♥--♥" ], "♥--♥" ], "♥--♥" ]
+
+proff()
+# Executed in 0.09 second(s)
+
+/*-------------
+
+pron()
+
+aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
+for i = 1 to 10_000
+	aLargeList + "ring"
+next
+aLargeList + "--_--" + "--_--"
+
+o1 = new stzList(aLargeList)
+o1.StringifyAndReplaceXT("_", "♥")
+? o1.Content()[2]
+#--> [1, 3, 1005, 1006]
+
+proff()
+# Executed in 0.50 second(s)
+
+/*------------- PERFORMANCE TIP
+
+pron()
+
+# TODO: General note on performance
+# For all loops on large data (tens of thousands of times and more)
+# don't relay on stzString services, but use Qt directly instead!
+
+oQStr = new QString2()
+oQStr.append("I talk in Ring language!")
+
+? oQStr.contains("ring", FALSE)
+#--> TRUE
+
+oQStr.replace_2("ring", "RING", FALSE)
+? oQStr.mid(0, oQStr.count())
+#--> I talk in RING language!
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------------- PERFORMANCE TIP
+
+pron()
+
+# ComputableForm() function, abreviated with @@(), is not intended to
+# be used inside large loops like this:
+
+aList = ["_", "_", "♥"]
+
+for i = 1 to 100_000
+	@@(aList)
+next
+#--> Takes more then 20 seconds!
+
+# Instead, you shoud do this:
+
+cList = @@(aList)
+for i = 1 to 100_000
+	cList
+next
+# Takes only 0.05 seconds!
+#--> 400 times more performant.
+
+proff()
+# Executed in 21.3657 second(s)
+
+/*-------------
+
+pron()
+
+# In this example, the large list contains +160K items...
+
+	aLargeList = ["_", "_", "♥"]
+	for i = 1 to 100_000
+		aLargeList + "_"
+	next
+	
+	aLargeList + "♥" + "_" + "_" + "♥"
+	
+	for i = 1 to 50_000
+		aLargeList + "_"
+	next i
+	
+	aLargeList + "♥" + "_" + "_" + "♥"
+	
+
+	# ElapseTime: 0.08s
+
+	o1 = new stzList(aLargeList)
+
+	# ElapsedTime: 0.11
+
+	o1.StringifyAndReplace("♥", :With = "*")
+
+	# ElapsedTime: 12.83s
+
+	o1.LastNItems(40_000)
+	#--> [ "*", "_", "_", "*" ]
+
+proff()
+# Executed in 12.80 second(s)
+
+/*==============
+
+StartProfiler()
+
+o1 = new stzList([ "1", "🌞", "1", [ "2", "♥", "2", "🌞"], "1", [ "2", ["3", "🌞"] ] ])
+
+? o1.DeepContains("🌞")
+#--> TRUE
+
+? @@( o1.DeepFind("🌞") )
+#--> [ [ 1, 2 ], [ 2, 4 ], [ 3, 2 ] ]
+# 🌞 exists in level 1 at position 2, in level 2 at position 4, and in level 3 at position 2.
+
+StopProfiler()
+# Executed in 0.08 second(s)
+
+/*============
+
+pron()
+
+o1 = new stzlist(1:120_000)
+
+? o1.FindNext(3, :StartingAt = 10)
+#--> 0
+
+? o1.FindNext(10, :StartingAt = 10)
+#--> 0
+
+? o1.FindNext(11, :StartingAt = 10)
+#--> 11
+
+? o1.FindNext(100_000, :StartingAt = 70_000)
+#--> 100_000
+
+#--
+
+? o1.FindPrevious(10, :StartingAt = 5)
+#--> 0
+
+? o1.FindPrevious(10, :StartingAt = 10)
+#--> 0
+
+? o1.FindPrevious(7, :StartingAt = 10)
+#--> 7
+
+? o1.FindPrevious(110_000, :StartingAt = 112_000)
+#--> 110000
+
+proff()
+# Executed in 0.52 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzlist(1:120_000)
+ShowShort( o1.Stringified() )
+#--> [ "1", "2", "3", "...", "119998", "119999", "120000" ]
+
+proff()
+# Executed in 1.12 second(s)
+
+/*==========
+
+pron()
+
+o1 = new stzList([ 1, 1:5, "hi!", StzNullObjectQ(), [ "a", "b" ] ])
+
+? @@( o1.NListified(3) )
+#--> [
+#	[ 1, NULL, NULL ],
+#	[ 1, 2, 3 ],
+#	[ "hi!", NULL, NULL ],
+#	[ @noname, NULL, NULL ],
+#	[ "a", "b", NULL ]
+# ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*------------- SINGLES AND SINGLIFIED
+
+pron()
+
+? Q(['alone']).IsSingle()
+#--> TRUE
+
+o1 = new stzList([ 1, ['alone1'], 3, ['alone2'], 5, ['alone2'], 7:9 ])
+
+? o1.ContainsSingles()
+#--> TRUE
+
+? @@( o1.FindSingles() )
+#--> [ 2, 4, 6 ]
+
+? @@( o1.Singles() )
+#--> [ [ "alone1" ], [ "alone2" ], [ "alone2" ] ]
+
+? @@( o1.SinglesU() )
+#--> [ [ "alone1" ], [ "alone2" ] ]
+
+? @@( o1.SinglesZ() ) + NL
+#--> [
+#	[ [ "alone1" ], [ 2 ] ],
+#	[ [ "alone2" ], [ 4, 6 ] ]
+# ]
+
+? @@( o1.Singlified() )
+#--> [ [ 1 ], [ "alone1" ], [ 3 ], [ "alone2" ], [ 5 ], [ "alone2" ], [ 7 ] ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ 1, 2, [ "a", "b" ], 4, [ "c", "d"], [ "a", "b" ] ])
+? o1.ContainsPairs()
+#--> TRUE
+
+? @@( o1.FindPairs() )
+#--> [ 3, 5, 6 ]
+
+? @@( o1.Pairs() )
+#--> [ [ "a", "b" ], [ "c", "d" ], [ "a", "b" ] ]
+
+? @@( o1.PairsU() )
+#--> [ [ "a", "b" ], [ "c", "d" ] ]
+
+? @@( o1.PairsZ() ) + NL
+#--> [
+#	[ [ "a", "b" ], [ 3, 6 ] ],
+#	[ [ "c", "d" ], [ 5 ] ]
+# ]
+
+? @@( o1.Pairified() )
+#--> [
+#	[ 1, NULL ], [ 2, NULL ], [ "a", "b" ],
+#	[ 4, NULL ], [ "c", "d" ], [ "a", "b" ]
+# ]
+
+proff()
+
+/*-----------
+
+pron()
+
+? Q([ "a", "♥", "*" ]).ContainsThese([ "♥", "*"])
+#--> TRUE
+
+o1 = new stzList([ [ "a", "♥", "*" ], [ "♥", "*"], [ "a", "b", "♥", "*" ] ])
+? o1.EachContainsThese([ "♥", "*" ])
+#--> TRUE
+
+proff()
+
+/*-----
+*/
+pron()
+
+o1 = new stzList([ "ee♥ee", "b♥bbb", "ccc♥", "♥♥" ])
+? o1.EachContains("♥")
+#--> TRUE
+
+o1 = new stzList([ ["ee","♥","ee"], ["♥", "bb"], "ccc♥", "♥♥" ])
+? o1.EachContains("♥")
+#--> TRUE
+
+o1 = new stzList([ "a♥a" ])
+? o1.EachContains("♥")
+#--> TRUE
+
+o1 = new stzList([ 0, "a♥a" ])
+? o1.EachContains("♥")
+#--> FALSE
+
+proff()
+
+/*=====
+
+pron()
+
+? Q([ "a", "b", "c" ]).IsListOfChars()
+#--> TRUE
+
+? Q([ 1, 2, 3 ]).IsListOfChars()
+#--> TRUE
+
+proff()
+
+/*=====
+
+pron()
+
+? Q(1:3).Unicodes()
+#--> [1, 2, 3]
+
+? Unicodes([2, 3])
+#--> [2, 3]
+
+? Unicodes([ "a", "b", "c" ])
+#--> [97, 98, 99]
+
+? @@( Unicodes([ "How", "are", "you?" ]) )
+#--> [ [ 72, 111, 119 ], [ 97, 114, 101 ], [ 121, 111, 117, 63 ] ]
+
+? @@( Unicodes([ "A", "HI", [ 1, 2 ] ]) )
+#--> [ 65, [ 72, 73 ], [ 1, 2 ] ]
+
+? @@( Unicodes([ "a", [ 1, ["b","c"], 2], "d" ]) )
+#--> [ 97, [ 1, [ 98, 99 ], 2 ], 100 ]
+
+? @@( Unicodes([ "a", [ 1, ["b", [ "ring" ] ], 2 ], "d" ]) )
+#--> [ 97, [ 1, [ 98, [ [ 114, 105, 110, 103 ] ] ], 2 ], 100 ]
+
+
+proff()
+
 /*========= Finding objects
 */
 pron()
