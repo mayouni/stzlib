@@ -18,7 +18,7 @@
 	#--> Better performance.
 
 	Todo:
-	Get inspiration from the pyhthon ftfy library to add Unicode text
+	Get inspiration from the python ftfy library to add Unicode text
 	cleansing in Softanza
 	link: https://ftfy.readthedocs.io
 */
@@ -18748,55 +18748,61 @@ class stzString from stzObject
 	 #   GETTING A SECTION (OR SLICE) OF THE STRING -- EXTENDED  #
 	#----------------------------------------------------------#
 
-	def SectionXT(n1, n2)
-		aResult = [ This.Section(n1, n2), [n1, n2] ]
+	def SectionCSXT(n1, n2, pCaseSensitive)
+		aResult = [ This.SectionCS(n1, n2, pCaseSensitive), [n1, n2] ]
 		return aResult
 
+		def SliceCSXT(n1, n2, pCaseSensitive)
+			return This.SecrionCS(n1, n2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def SectionXT(n1, n2)
+		return This.SectionCSXT(n1, n2, :CaseSensitive = TRUE)
+
 		def SliceXT(n1, n2)
-			return This.Secrion(n1, n2)
+			return SectionXT(n1, n2)
 
 	  #-----------------------------------#
 	 #   GETTING A RANGE OF THE STRING   #
 	#-----------------------------------#
 
 	// Returns a subset of the string starting from nStart and ranging over nRange Chars
-	def Range(nStartPos, nRange)
-		
-		# Chacking params
+	def RangeCS(nStartPos, nRange, pCaseSensitive)
 
-		if isString(nStartPos)
-			if nStartPos = :First or nStartPos = :FirstChar
-				nStartPos = 1
-
-			but nStartPos = :Last or nStartPos = :LastChar
-				nStartPos = This.NumberOfChars()
+		if CheckParams()
+			if NOT isNumber(nRange)
+				StzRaise("Incorrect param type! nRange must be a number.")
 			ok
-		ok
-
-		if NOT BothAreNumbers(nStartPos, nRange)
-			StzRaise("Incorrect param type! nStartPos and nRange must be both numbers.")
+		
+			if isNumber(nStartPos)
+	
+				if nStartPos < 0
+					nStartPos = This.NumberOfChars() + nStartPos + 1
+				ok
+		
+				if nStartPos = 0 or nRange = 0
+					return NULL
+				ok
+			ok
 		ok
 
 		# Doing the job
 
-		if nStartPos < 0
-			nStartPos = This.NumberOfChars() + nStartPos + 1
-		ok
-
-		if nStartPos = 0 or nRange = 0
-			return NULL
-		ok
-
 		cResult = ""
 
 		if nRange > 0
-			cResult = This.Section( nStartPos, nStartPos + nRange -1 )
+			if CheckParams() and isString(nStartPos)
+				nStartPos = This.FindFirstCS(nStartPos, pCaseSensitive)
+			ok
+
+			cResult = This.SectionCS( nStartPos, nStartPos + nRange -1, pCaseSensitive )
 
 		else
 			n1 = nStartPos + nRange + 1
 
 			if n1 > 0
-				cResult = This.Section( n1, nStartPos )
+				cResult = This.SectionCS( n1, nStartPos, pCaseSensitive )
 			ok	
 		ok
 
@@ -18804,14 +18810,14 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def RangeQ(nStartPos, nRange)
-			return new stzString( This.Range(nStartPos, nRange) )
+		def RangeCSQ(nStartPos, nRange, pCaseSensitive)
+			return new stzString( This.RangeCS(nStartPos, nRange, pCaseSensitive) )
 	
 		#>
 
 		#< @FunctionNamedParamForm
 
-		def nmdRange(paParams)
+		def nmdRangeCS(paParams, pCaseSensitive)
 			
 			// Default values
 			nStartPos = 1
@@ -18827,7 +18833,7 @@ class stzString from stzObject
 					nRange = paParams[ :Range ]
 				ok
 
-				return This.Range(nStartPos, nRange)
+				return This.RangeCS(nStartPos, nRange, pCaseSensitive)
 			else
 				stzRaise("Incorrect params!")
 			ok
@@ -18836,12 +18842,12 @@ class stzString from stzObject
 
 		#< @FunctionInfoForm
 
-		def infRange()
+		def infRangeCS(pCaseSensitive)
 			return [
-				:Syntax = "Range(pnstart, pnRange)",
+				:Syntax = "Range(pnstart, pnRange, pCaseSensitive)",
 				:Description = "Returns pnRange chars starting at pnStart position",
 				:ReturnType = "STRING",
-				:NumberOfParams = 2,
+				:NumberOfParams = 3,
 				:Params = [
 					[
 						:Param = "pnStart",
@@ -18854,6 +18860,12 @@ class stzString from stzObject
 						:Type = "NUMBER",
 						:Description = "Number of chars of the range",
 						:Default = This.NumberOfChars()
+					],
+					[
+						:Param = "pCaseSensitive",
+						:Type = "BOOLEAN",
+						:Description = "If the first param is a string, apply or not case sensitivity",
+						:Default = TRUE
 					]
 				]
 			]
@@ -18861,36 +18873,36 @@ class stzString from stzObject
 
 		#< @FunctionDefaultForm
 
-		def dftRange()
-			return This.nmdRange([ :Start = 1, :Range = This.NumberOfChars() ])
+		def dftRangeCS(pCaseSensitive)
+			return This.nmdRangeCS([ :Start = 1, :Range = This.NumberOfChars(), pCaseSensitive ])
 
 		#>
 
 		#< @FunctionExampleForm
 
-		def expRange()
-			return 	'StzStringQ("Ring programming language").Range(6, 11)' + NL +
-				'--> "programming"'
+		def expRangeCS(pCaseSensitive)
+			return 	'StzStringQ("The Ring programming language").RangeCS("ring", 11, :CS = FALSE)' + NL +
+				'--> "Ring programming"'
 
 		#>
 
 		#< @FunctionRandomForm
 
-		def rndRange()
+		def rndRangeCS(pCaseSensitive)
 			nStart = random( This.NumberOfChars() )
 			nRange = random( This.NumberOfChars() - nStart )
 
-			return 	'This.Range(' + nStart + ', ' + nRange + ')' + NL +
-				'--> ' + This.Range(nStart, nRange)
+			return 	'This.RangeCS(' + nStart + ', ' + nRange + ', ' + pCaseSensitive + ')' + NL +
+				'--> ' + This.RangeCS(nStart, nRange, pCaseSensitive)
 
 		#>
 
 		#< @FunctionTestForm
 
-		def tstRange()
-			nCases = This.tstRangeXT()[ :NumberOfTestCases ]
-			nSucceeded = This.tstRangeXT()[ :NumberOfSuccessfulCases ]
-			nFailed = This.tstRangeXT()[ :NumberOfFailedCases ]
+		def tstRangeCS(pCaseSensitive)
+			nCases = This.tstRangeCSXT(pCaseSensitive)[ :NumberOfTestCases ]
+			nSucceeded = This.tstRangeCSXT(pCaseSensitive)[ :NumberOfSuccessfulCases ]
+			nFailed = This.tstRangeCSXT(pCaseSensitive)[ :NumberOfFailedCases ]
 
 
 			if nCases = 0
@@ -18904,7 +18916,7 @@ class stzString from stzObject
 				return "FAILED! (" + nFailed + "/" + nCases + ")"
 			ok
 
-		def tstRangeXT()
+		def tstRangeCSXT(pCaseSensitive)
 			aTestCases = [
 			['StzStringQ("Ringorialand").Range(9, 4)' , 'land'],
 			['StzStringQ("Ringorialand").Range(1, 4)' , 'Ring'],
@@ -18947,16 +18959,79 @@ class stzString from stzObject
 
 		#>
 
-	  #--------------------------------------------#
-	 #  GETTING A RANGEOF THE STRING -- EXTENDED  #
-	#--------------------------------------------#
+	#-- WTIHOUT CASESENSITIVITY
 
-	def RangeXT(nStartPos, nRange)
-		aResult = [ This.Range(nStartPos, nRange), [nStartPos, nRange] ]
+	def Range(nStartPos, nRange)
+		return This.RangeCS(nStartPos, nRange, :CaseSensitive = TRUE)
+
+		#< @FunctionFluentForm
+
+		def RangeQ(nStartPos, nRange)
+			return new stzString( This.Range(nStartPos, nRange) )
+	
+		#>
+
+		#< @FunctionNamedParamForm
+
+		def nmdRange(paParams)
+			return This.nmdRangeCS(paParams, :CaseSensitive = TRUE)
+
+		#>
+
+		#< @FunctionInfoForm
+
+		def infRange()
+			return This.infRangeCS(:CaseSensitive = TRUE)
+
+		#>
+
+		#< @FunctionDefaultForm
+
+		def dftRange()
+			return This.dftRangeCS(:CaseSensitive = TRUE)
+
+
+		#>
+
+		#< @FunctionExampleForm
+
+		def expRange()
+			return This.expRangeCS(:CaseSensitive = TRUE)
+
+		#>
+
+		#< @FunctionRandomForm
+
+		def rndRange()
+			return This.rndRangeCS(:CaseSensitive = TRUE)
+
+		#>
+
+		#< @FunctionTestForm
+
+		def tstRange()
+			return This.tstRangeCS(:CaseSensitive = TRUE)
+
+		def tstRangeXT()
+			return This.tstRangeCSXT(:CaseSensitive = TRUE)
+
+		#>
+
+	  #---------------------------------------------#
+	 #  GETTING A RANGE OF THE STRING -- EXTENDED  #
+	#---------------------------------------------#
+
+	def RangeCSXT(nStartPos, nRange, pCaseSensitive)
+		aResult = [ This.RangeCS(nStartPos, nRange, pCaseSensitive), [nStartPos, nRange] ]
 		return aResult
 
+	#-- WITHOUT CASESENSITIVITY
+
+	def RangeXT(nStartPos, nRange)
+		return This.RangeCSXT(nStartPos, nRange, :CaseSensitive = TRUE)
+
 	  #---------------------------------------#
-	 #   GETIING MANY SECTIONS (OR SLICES)   #
+	 #   GETIING MANY SECTIONS (OR SLICES)   # TODO: Add CaseSensitivity
 	#---------------------------------------#
 
 	def Sections(paSections)
