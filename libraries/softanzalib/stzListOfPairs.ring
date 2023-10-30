@@ -56,7 +56,7 @@ func ListThatHasLessNumberOfItems(paList1, paList2)
 		return paList2
 	ok
 
-class stzListOfPairs from stzList
+class stzListOfPairs from stzListOfLists
 	@aContent = []
 
 	def init(paLists)

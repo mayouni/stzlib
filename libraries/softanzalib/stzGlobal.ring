@@ -757,6 +757,9 @@ func ring_reverse(paList)
 func ring_sort(paList)
 	return sort(paList)
 
+func ring_sortXT(paList, n)
+	return sort(paList, n)
+
 func ring_methods(obj)
 	return methods(obj)
 
