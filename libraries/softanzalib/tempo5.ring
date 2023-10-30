@@ -1,32 +1,102 @@
 load "stzlib.ring"
 
+/*-----------
+
+pron()
+
+oStr = new stzString("Welcome to the Ring programming language")
+? oStr.SectionCS(:From = "RING", :To = :LastChar, :CaseSensitive = FALSE))
+# Ring programming language
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-----------
+*/
+pron()
+
+oStr = new stzString("Welcome to the Ring programming language")
+? oStr.Section(:From = "Ring", :To = "language")
+# Ring programming language
+
+proff()
+# Executed in 0.06 second(s)
 
 /*-----------
 */
 
+pron()
+
 # Softanza make programming in Ring more expressive.
+
 # To showcase this, let's consider how substr() function
-# is used in string, and how Softanza enhances it.
+# is used in Ring, and how Softanza offers a better way.
 
-	Find substring
-	Get substring from position to end
-	Get Number of characters from position
-	Transform Substring To Another Substring
+# In Ring, the substr() function does many things:
+#	--> Finding a substring
+#	--> Getting the substring starting at a given position
+#	--> Getting the substring made of n given chars starting at a given position
+#	--> Replacing a sbstring by an other substring
 
-cStr = "Welcome to the Ring programming language"
-see substr(cStr,"Ring")         # print 16
 
-cStr = "Welcome to the Ring programming language"
-nPos = substr(cStr,"Ring")      # nPos = 16
-see substr(cStr,nPos)           # print Ring programming language()
+# Finding a substring
 
-cStr = "Welcome to the Ring programming language"
-nPos = substr(cStr,"Ring")      # nPos = 16
-see substr(cStr,nPos,4)         # print Ring
+	cStr = "Welcome to the Ring programming language"
+	? substr(cStr,"Ring")
+	#--> 16
 
-cStr = "Welcome to the New programming language"
-see substr(cStr,"New","Ring") + nl  # print Welcome to the Ring programming language
-see substr(cStr,"new","Ring",1)+ nl # print Welcome to the Ring programming language()
+	# In Softanza we say:
+
+	oStr = new stzString("Welcome to the Ring programming language")
+	? oStr.FindFirst("Ring")
+	#--> 16
+
+	# NOTE : Find(cSubStr) returns all the occurrences of cSubStr
+
+	? oStr.Find("Ring") # equivalent to FindAll("Ring")
+	#--> [ 16 ]
+
+# Getting the substring starting at a given position
+
+	cStr = "Welcome to the Ring programming language"
+	nPos = substr(cStr, "Ring") # gives 16
+	? substr(cStr, nPos)
+	#--> Ring programming language
+
+	# In Softanza we say:
+
+	oStr = new stzString("Welcome to the Ring programming language")
+	? oStr.Section(:From = "RING", :To = :LastChar) # Or simply Section("Ring", :End)
+	#--> Ring programming language
+
+# Getting the substring made of n given chars starting at a given position
+
+	cStr = "Welcome to the Ring programming language"
+	nPos = substr(cStr,"Ring") # Gives nPos = 16
+	? substr(cStr, nPos, 4)
+	#--> Ring
+
+	# In Softanza we say:
+	oStr = new stzString("Welcome to the Ring programming language")
+	? oStr.Range("Ring", 4)
+	#--> Ring
+
+# Replacing a sbstring by an other substring
+
+	cStr = "Welcome to the New programming language"
+	? substr(cStr,"New","Ring") # Replaces New with Ring
+	#--> Welcome to the Ring programming language
+	
+	cStr = "Welcome to the New programming language"
+	? substr(cStr,"NEW", "Ring", 0)
+	#--> Welcome to the New programming language
+	
+	cStr = "Welcome to the New programming language"
+	? substr(cStr, "NEW", "Ring", 1)
+	#--> Welcome to the Ring programming language
+
+proff()
+
 /*---------
 # Performance of QString2 is astonisshing!
 

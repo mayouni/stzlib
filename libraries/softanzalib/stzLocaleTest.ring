@@ -1,5 +1,15 @@
 load "stzlib.ring"
 
+/*-------------
+
+pron()
+
+oQLocale = new QLocale("C")
+? oQLocale.toLower("RING")
+#--> "ring"
+
+proff()
+# Executed in 0.03 second(s)
 
 /*---------------
 
@@ -132,7 +142,8 @@ oQLocale = new QLocale("cmn-CN")
 ? StzLocaleQ([ :Script = :Latin, :Country = :Russia ]).Abbreviation()
 
 /*----------------------
-*/
+
+pron()
 
 StzLocaleQ([ :Country = :Iran ]) {
 	? Abbreviation()			 #--> fa_IR
@@ -145,6 +156,9 @@ StzLocaleQ([ :Country = :Iran ]) {
 	? NthDayOfWeekSymbol(1)			 #--> S
 	? NativeNthDayOfWeekSymbol(1)		 #--> د
 }
+
+proff()
+# Executed in 0.07 second(s)
 
 /*----------------------
 
@@ -248,19 +262,22 @@ StzLocaleQ([ :Script = :Latin, :Country = :Russia ]) {
 
 /*-----------------------
 
-? NamesOfDaysIn(:Japanese)
+? NamesOfDaysIn(:Japanese)  # Or ...In(:Japan)
 #--> [ "日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日" ]
 
 /*-----------------------
 
-? NamesOfMonthsIn(:Japanese)
+pron()
+
+? NamesOfMonthsIn(:Japanese) # Or ...In(:Japan)
 #--> [ "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月" ]
 
+proff()
+# Executed in 0.08 second(s)
+
 /*----------------------- ///// TEST: returns english names!
-*/
 
-//? NamesOfDaysIn(:China)
-
+? NamesOfDaysIn(:Chinese)
 
 /*-----------------------
 
@@ -299,14 +316,35 @@ o1 = new stzLocale("ar-TN")
 ? StzLocaleQ([ :Country = :Tunisia ]).Abbreviation()	#--> ar_TN
 
 
-/*-------------//// functional error ////
-*/
+/*-------------//// functional error //// (Is it an error really?)
+
+pron()
+
 StzLocaleQ([ :Language = :French ]) {
 	? Country()
+	#--> france
 
 	? ToTitlecase("in search of lost time")
-	
+	#--> In search of lost time
 }
+
+proff()
+# Executed in 0.78 second(s)
+
+/*-------------//// TODO: Check error ////
+*/
+pron()
+
+StzLocaleQ([ :Language = :English ]) {
+	? Country()
+	#--> united_states
+
+	? ToTitlecase("in search of lost time")
+	#--> In search of lost time
+}
+
+proff()
+# Executed in 0.78 second(s)
 
 /*-------------//// functional error ////
 

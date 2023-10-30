@@ -2127,7 +2127,7 @@ class stzListOfStrings from stzList
 		acContent = This.Content()
 		nLen = len(acContent)
 
-		cCode = 'value = ' + Q(pcExpr).BoundsRemoved([ "{", "}" ])
+		cCode = 'value = ' + Q(pcExpr).TheseBoundsRemoved("{", "}")
 		aValues = []
 		
 		for @i = 1 to nLen

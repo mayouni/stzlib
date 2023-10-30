@@ -131,12 +131,14 @@ o1 = new stzString("__3__6__9__")
 
 /*==================
 */
+pron()
+
 o1 = new stzList([ "a", "abcde", "abc", "ab", "b", "abcd" ])
 
-o1.SortInAscendingUsing('len(@item)')
+o1.SortInAscendingBy('len(@item)')
 ? o1.Content()
 
-
+proff()
 
 /*------------------
 

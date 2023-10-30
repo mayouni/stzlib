@@ -95,11 +95,12 @@ func V(p)
 		return ReadV(p)
 	ok
 
-	func VrVl(p)
-		return V(p)
+func VrVl(p)
+	aResult = Association([ p, v(p) ])
+	return aResult
 
 	func VarVal(p)
-		return V(p)
+		return VrVl(p)
 
 func vxt(cVarName)
 	if NOT isString(cVarName)

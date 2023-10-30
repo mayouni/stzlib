@@ -215,32 +215,32 @@ func ACharOtherThan(pcChar)
 
 	#< @FunctionAlternativeForms
 
-	def ACharDifferentThan(pcChar)
+	func ACharDifferentThan(pcChar)
 		return ACharOtherThan(pcChar)
 
-	def ACharDifferentFrom(pcChar)
-		return ACharOtherThan(pcChar)
-
-	#--
-
-	def CharOtherThan(pcChar)
-		return ACharOtherThan(pcChar)
-
-	def CharDifferentThan(pcChar)
-		return ACharOtherThan(pcChar)
-
-	def CharDifferentFrom(pcChar)
+	func ACharDifferentFrom(pcChar)
 		return ACharOtherThan(pcChar)
 
 	#--
 
-	def AnyCharOtherThan(pcChar)
+	func CharOtherThan(pcChar)
 		return ACharOtherThan(pcChar)
 
-	def AnyCharDifferentThan(pcChar)
+	func CharDifferentThan(pcChar)
 		return ACharOtherThan(pcChar)
 
-	def AnyCharDifferentFrom(pcChar)
+	func CharDifferentFrom(pcChar)
+		return ACharOtherThan(pcChar)
+
+	#--
+
+	func AnyCharOtherThan(pcChar)
+		return ACharOtherThan(pcChar)
+
+	func AnyCharDifferentThan(pcChar)
+		return ACharOtherThan(pcChar)
+
+	func AnyCharDifferentFrom(pcChar)
 		return ACharOtherThan(pcChar)
 
 	#>
@@ -395,6 +395,7 @@ class stzChar from stzObject
 
 			but oStr.RepresentsNumberInHexForm() or
 			    oStr.RepresentsNumberInUnicodeHexForm()
+? "ça va"
 				nUnicode = StzHexNumberQ(pChar).ToDecimal()
 				@oQChar = new QChar(nUnicode)
 

@@ -18541,144 +18541,153 @@ class stzString from stzObject
 	 #   GETTING A SECTION (OR SLICE) OF THE STRING   #
 	#------------------------------------------------#
 
-	// Returns a subset of the string between n1 and n2 positions
-	def Section(n1, n2)
+	def SectionCS(n1, n2, pCaseSensitive)
 
-		# Managing the use of :From and :To named params
+		nLen = This.NumberOfChars()
 
-		if isList(n1) and
-		   StzListQ(n1).IsOneOfTheseNamedParams([
-				:From, :FromPosition,
-				:StartingAt, :StartingAtPosition
-				])
+		if CheckParams()
 
-			n1 = n1[2]
-		ok
-
-		if isList(n2) and
-		   StzListQ(n2).IsOneOfTheseNamedParams([
-				:To, :ToPosition,
-				:Until, :UntilPosition,
-				:UpTo, :UpToPosition
-				])
-
-			n2 = n2[2]
-		ok
-
-		# Managing the use of :NthToFirst named param
-
-		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
-					:NthToFirst, :NthToFirstChar ])
-
-			n1 = n1[2] + 1
-		ok
-
-		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
-					:NthToFirst, :NthToFirstChar ])
-
-			n2 = n2[2] + 1
-		ok
-
-		# Managing the use of :NthToLast named param
-
-		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
-					:NthToLast, :NthToLastChar ])
-
-			n1 = This.NumberOfChars() - n1[2]
-		ok
-
-		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
-					:NthToLast, :NthToLastChar ])
-
-			n2 = This.NumberOfChars() - n2[2]
-
-		but isList(n2) and Q(n2).IsStoppingAtNamedParam()
-
-			n2 = n2[2]
-		ok
-
-		# Managing the case of :First and :Last keywords
-
-		if isString(n1)
-			if Q(n1).IsOneOfThese([ :First, :FirstChar ])
-				n1 = 1
-
-			but Q(n1).IsOneOfThese([ :Last, :LastChar ])
-				n1 = This.NumberOfChars()
-
-			but n1 = :@
-				n1 = n2
-			ok
-		ok
+			# Managing the use of :From and :To named params
 	
-		if isString(n2)
-			if Q(n2).IsOneOfThese([ :Last, :LastChar, :EndOfString ])
-				n2 = This.NumberOfChars()
-
-			but Q(n2).IsOneOfThese([ :First, :FirstChar ])
-				n2 = 1
-
-			but n2 = :@
-				n2 = n1
+			if isList(n1) and
+			   StzListQ(n1).IsOneOfTheseNamedParams([
+					:From, :FromPosition,
+					:StartingAt, :StartingAtPosition
+					])
+	
+				n1 = n1[2]
 			ok
-		ok
+	
+			if isList(n2) and
+			   StzListQ(n2).IsOneOfTheseNamedParams([
+					:To, :ToPosition,
+					:Until, :UntilPosition,
+					:UpTo, :UpToPosition
+					])
+	
+				n2 = n2[2]
+			ok
+	
+			# Managing the use of :NthToFirst named param
+	
+			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+						:NthToFirst, :NthToFirstChar ])
+	
+				n1 = n1[2] + 1
+			ok
+	
+			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+						:NthToFirst, :NthToFirstChar ])
+	
+				n2 = n2[2] + 1
+			ok
+	
+			# Managing the use of :NthToLast named param
+	
+			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+						:NthToLast, :NthToLastChar ])
+	
+				n1 = nLen - n1[2]
+			ok
+	
+			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+						:NthToLast, :NthToLastChar ])
+	
+				n2 = nLen - n2[2]
+	
+			but isList(n2) and Q(n2).IsStoppingAtNamedParam()
+	
+				n2 = n2[2]
+			ok
+	
+			# Managing the case of :First and :Last keywords
+	
+			if isString(n1)
+				if Q(n1).IsOneOfThese([
+					:First, :FirstChar,
+					:FromFirst, :FromFirstChar
+				])
 
-		if n1 = :@ and n2 = :@
-			n1 = 1
-			n2 = This.NumberOfChars()
-		ok
+					n1 = 1
+	
+				but Q(n1).IsOneOfThese([
+					:Last, :LastChar,
+					:ToLast, :ToLastChar
+				])
 
-		if n1 < 0
-			n1 = This.NumberOfItems() + n1 + 1
-		ok
+					n1 = nLen
+	
+				but n1 = :@
+					n1 = n2
 
-		if n2 < 0
-			n2 = This.NumberOfItems() + n2 + 1
-		ok
+				else
+					n1 = This.FindFirstCS(n1, pCaseSensitive)
+				ok
+			ok
+		
+			if isString(n2)
+				if Q(n2).IsOneOfThese([
+					:End, :Last, :LastChar, :EndOfString,
+					:ToEnd, :ToLast, :ToLastChar, :ToEndOfString
+				])
 
-		# If the params are not numbers, so find them and take their positions
-		# EXAMPLE: ? Q("SOFTANZA").Section(:From = "F", :To = "A") #--> "FTA"
+					n2 = nLen
+	
+				but Q(n2).IsOneOfThese([
+					:First, :FirstChar,
+					:FromFirst, :FromFirstChar
+				])
 
-		if isString(n1)
-			n1 = This.FindFirst(n1)
-		ok
+					n2 = 1
+	
+				but n2 = :@
+					n2 = n1
 
-		if NOT isNumber(n1)
-			n1 = This.FindFirst(n1)
-		ok
+				else
+					nLen2 = StzStringQ(n2).NumberOfChars()
+					n2 = This.FindLastCS(n2, pCaseSensitive) + nLen2 - 1
+				ok
+			ok
 
-		# Managing the case of :EndOfSentence, :EndOfLine, and :EndOfWord keywords
+			if n1 = :@ and n2 = :@
+				n1 = 1
+				n2 = nLen
+			ok
+	
+			if n1 < 0
+				n1 = nLen + n1 + 1
+			ok
+	
+			if n2 < 0
+				n2 = nLen + n2 + 1
+			ok
+	
+			# Managing the case of :EndOfSentence, :EndOfLine, and :EndOfWord keywords
+	
+			if n1 > 0 and n2 = :EndOfSentence
+				return This.ToStzText().ForwardToEndOfSentence( :StartingAt = n1 )
+			ok
+	
+			if n1 > 0 and n2 = :EndOfLine
+				return This.ForwardToEndOfLine( :StartingAt = n1 )
+			ok
+	
+			if n1 > 0 and n2 = :EndOfWord # TODO: should move to stzText?
+				return This.ToStzText().ForwardToEndOfWord( :StartingAt = n1 )
+			ok
 
-		if n1 > 0 and n2 = :EndOfSentence
-			return This.ToStzText().ForwardToEndOfSentence( :StartingAt = n1 )
-		ok
+			# Params must be numbers
+	
+			if NOT BothAreNumbers(n1, n2)
+				stzRaise("Incorrect params! n1 and n2 must be numbers.")
+			ok
 
-		if n1 > 0 and n2 = :EndOfLine
-			return This.ForwardToEndOfLine( :StartingAt = n1 )
-		ok
-
-		if n1 > 0 and n2 = :EndOfWord # TODO: should move to stzText?
-			return This.ToStzText().ForwardToEndOfWord( :StartingAt = n1 )
-		ok
-
-		if isString(n2)
-			n2 = This.FindFirst(n2)
-		ok
-
-		if NOT isNumber(n2)
-			n2 = This.FindFirst(n2)
-		ok
-
-		# Params must be numbers
-
-		if NOT BothAreNumbers(n1, n2)
-			stzRaise("Incorrect params! n1 and n2 must be numbers.")
 		ok
 
 		# Managing out of range params
 
-		if NOT 	( Q(n1).IsBetween(1, this.NumberOfChars()) and
-			  Q(n2).IsBetween(1, this.NumberOfChars())
+		if NOT 	( Q(n1).IsBetween(1, nLen) and
+			  Q(n2).IsBetween(1, nLen)
 			)
 			
 			return NULL
@@ -18703,23 +18712,37 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def SectionQ(n1, n2)
-			return new stzString( This.Section(n1, n2) )
+		def SectionCSQ(n1, n2, pCaseSensitive)
+			return new stzString( This.SectionCS(n1, n2, pCaseSensitive) )
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def Slice(n1, n2)
-			return This.Section(n1, n2)
+		def SliceCS(n1, n2, pCaseSensitive)
+			return This.SectionCS(n1, n2, pCaseSensitive)
 
 			#< @FunctionFluentForm
 
-			def SliceQ(n1, n2)
-				return This.SectionQ(n1, n2)
+			def SliceCSQ(n1, n2, pCaseSensitive)
+				return This.SectionCSQ(n1, n2, pCaseSensitive)
 
 			#>
 		#>	
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Section(n1, n2)
+		return This.SectionCS(n1, n2, :CaseSensitive = TRUE)
+
+		def SectionQ(n1, n2)
+			return new stzString(This.Section(n1, n2))
+
+		def Slice(n1, n2)
+			return This.Section(n1, n2)
+
+			def SliceQ(n1, n2)
+				return new stzString(This.Slice(n1, n2))
 
 	  #----------------------------------------------------------#
 	 #   GETTING A SECTION (OR SLICE) OF THE STRING -- EXTENDED  #
@@ -27545,7 +27568,7 @@ def ReplaceIBS()
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNext(pcSubStr, nStart)
-		return This.FindNext(pcSubStr, nStart, :CaseSensitive = TRUE)
+		return This.FindNextCS(pcSubStr, nStart, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -66206,28 +66229,28 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	#------------------------------#
 
 	def FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNext(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def FindNextFirstCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNext(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
 	
-	def FindFirstNext(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNext(pcSubStr, nStart, pCaseSensitive)
+	def FindFirstNextCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def PositionOfNextFirstCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNext(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
 	
-	def PositionOfFirstNext(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNext(pcSubStr, nStart, pCaseSensitive)
+	def PositionOfFirstNextCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def NextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNext(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def NextFirstOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNext(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
 
 	def FirstNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNext(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
 	
 	#-- WITHOUT CASESENSITIVITY
 
@@ -66237,9 +66260,15 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	def FindNextFirst(pcSubStr, nStart)
 		return This.FindNext(pcSubStr, nStart)
 	
+	def FindFirstNext(pcSubStr, nStart)
+		return This.FindNext(pcSubStr, nStart)
+	
 	def PositionOfNextFirst(pcSubStr, nStart)
 		return This.FindNext(pcSubStr, nStart)
-		
+	
+	def PositionOfFirstNext(pcSubStr, nStart)
+		return This.FindNext(pcSubStr, nStart)
+	
 	def NextOccurrence(pcSubStr, nStart)
 		return This.FindNext(pcSubStr, nStart)
 	

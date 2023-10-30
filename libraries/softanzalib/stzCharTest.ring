@@ -1,5 +1,358 @@
 load "stzlib.ring"
 
+/*======== TURNABLE NUMBERS
+
+# TODO: Add TurnUp, TurnDown, Turn, IsTurnedUp, IsTurnedDown
+# here in stzChar then in stzString
+
+pron()
+
+? @@(TurnableNumbers())
+#--> [ 2, 3 ]
+
+? @@(TurnableNumbersUnicodes())
+#--> [ 2, 3 ]
+
+? @@(TurnableNumbersXT()) # NOTE: Font in Notepad may not show the turned numbers
+#--> [ [ 2, "↊" ], [ 3, "↋" ] ]
+
+proff()
+# Executed in 0.11 second(s)
+
+/*------ TURNED NUMBERS
+
+pron()
+
+? @@(TurnedNumbersUnicodes())
+#--> [ 8586, 8587 ]
+
+? @@(TurnedNumbers()) # NOTE: Idem
+#--> [ "↊", "↋" ]
+
+? @@( Q([ "↊", "↋" ]).Names() )
+#--> [ "TURNED DIGIT TWO", "TURNED DIGIT THREE" ]
+
+? @@(TurnedNumbersXT()) # Or TurnedNumberAndTheirUnicodes()
+#--> [ [ "↊", 8586 ], [ "↋", 8587 ] ]
+
+proff()
+# Executed in 0.51 second(s)
+
+/*------- TURNABLE CHARS
+
+pron()
+
+? HowManyTurnableChars()
+#--> 141
+
+? @@S( TurnableChars() ) + NL
+#--> [ "$", "&", "(", "...", "ꭃ", "ꭐ", "ꭑ" ]
+
+? @@S( TurnableUnicodes() ) + NL
+#--> [ 36, 38, 40, "...", 43843, 43856, 43857 ]
+
+? @@S( TurnableUnicodesXT()) # Or ShowShort()
+#--> [
+#	[ 36, "$" ], [ 38, "&" ], [ 40, "(" ], "...",
+#	[ 43843, "ꭃ" ], [ 43856, "ꭐ" ], [ 43857, "ꭑ" ] ]
+# ]
+
+? @@S(TurnableCharsXT()) + NL
+#--> [ [ "δ", "ƍ" ], [ "Ɑ", "Ɒ" ], [ "ɑ", "ɒ" ], "...", [ "~", "~" ], [ "$", "$" ], [ "€", "€" ] ]
+
+? @@S( TurnableCharsAndTheirUnicodes() )
+#--> [ [ "$", 36 ], [ "&", 38 ], [ "(", 40 ], "...", [ "ꭃ", 43843 ], [ "ꭐ", 43856 ], [ "ꭑ", 43857 ] ]
+
+proff()
+# Executed in 0.30 second(s)
+
+/*=====
+
+pron()
+
+o1 = new stzChar("M")
+? o1.Reverted()
+#--> Ɯ
+
+o1 = new stzChar("Ɯ")
+? o1.Reverted()
+#--> M
+
+proff()
+# Executed in 0.08 second(s)
+
+/*---
+
+pron()
+
+o1 = new stzChar("Ɯ")
+? o1.IsTurned()
+#--> TRUE
+
+? o1.IsTurnable()
+#--> TRUE
+
+? o1.Turned()
+#--> M
+
+#--
+
+o1 = new stzChar("M")
+? o1.IsTurned()
+#--> FALSE
+
+? o1.IsTurnable()
+#--> TRUE
+
+? o1.Turned()
+#--> Ɯ
+
+proff()
+# Executed in 0.22 second(s)
+
+/*=====
+
+pron()
+
+? QQ("Ǝ").IsTurned()
+#--> TRUE
+
+? QQ("Ⅎ").IsTurned()
+#--> TRUE
+
+? QQ("I").IsTurned()
+#--> TRUE
+
+? QQ("⅂").IsTurned()
+#--> TRUE
+
+? Q("ƎℲI⅂").IsTurned()
+#--> TRUE
+
+? Q("ƎℲI⅂").Turned()
+#--> LIFE
+
+? Q("LIFE").Turned()
+#--> ƎℲI⅂
+
+? Q("LIFE").CharsTurned()
+#--> ⅂IℲƎ
+
+? Q("⅂IℲƎ").CharsTurned()
+#--> LIFE
+
+proff()
+# Executed in 2.07 second(s)
+
+/*-----------
+
+pron()
+
+# First, this is your name, nicely printed in a rounded box
+
+? Q("GARY").EachCharBoxedRound()
+#--> ╭───┬───┬───┬───╮
+#    │ G │ A │ R │ Y │
+#    ╰───┴───┴───┴───╯
+
+? Q("GARY").Inversed() # Inverses the order of chars
+#--> YRAG
+
+? Q("GARY").Turned() # Turns the chars down
+#--> ⅄RⱯ⅁
+
+proff()
+
+/*---------
+
+pron()
+
+? @@( ArabicDotlessUnicodes() ) + NL
+#--> [
+#	1609, 1575, 1581, 1583, 1585,
+#	1587, 1589, 1591, 1593, 1605,
+#	1607, 1608, 1646, 1647, 1697,
+#	1705, 1722
+# ]
+
+? @@( ArabicDotlessLetters() ) + NL
+#--> [ "ى", "ا", "ح", "د", "ر", "س", "ص", "ط", "ع", "م", "ه", "و", "ٮ", "ٯ", "ڡ", "ک", "ں" ]
+
+? @@( LatinDotlessUnicodes() ) + NL
+#--> [ 305, 567 ]
+
+? @@( LatinDotlessLetters() )
+#--> [ "ı", "ȷ" ]
+
+proff()
+# Executed in 0.74 second(s)
+
+/*---------
+
+pron()
+
+StzCharQ('U+0649') {
+	? Content() 	#--> ى
+	? Name()	#--> ARABIC LETTER ALEF MAKSURA
+	? Unicode()	#--> 1609
+} ? ""
+
+StzCharQ('U+062D') {
+	? Content() 	#--> ح
+	? Name()	#--> ARABIC LETTER HAH
+	? Unicode()	#--> 1581
+} ? ""
+
+StzCharQ('U+062F') {
+	? Content() 	#--> د
+	? Name()	#--> ARABIC LETTER DAL
+	? Unicode()	#--> 1583
+} ? ""
+
+StzCharQ('U+0631') {
+	? Content() 	#--> ر
+	? Name()	#--> ARABIC LETTER REH
+	? Unicode()	#--> 1585
+} ? ""
+
+StzCharQ('U+0633') {
+	? Content() 	#--> س
+	? Name()	#--> ARABIC LETTER SEEN
+	? Unicode()	#--> 1587
+} ? ""
+
+StzCharQ('U+0635') {
+	? Content() 	#--> ص
+	? Name()	#--> ARABIC LETTER SAD
+	? Unicode()	#--> 1589
+} ? ""
+
+StzCharQ('U+0637') {
+	? Content() 	#--> ط
+	? Name()	#--> ARABIC LETTER TAH
+	? Unicode()	#--> 1591
+} ? ""
+
+StzCharQ('U+06A9') {
+	? Content() 	#--> ک
+	? Name()	#--> ARABIC LETTER KEHEH
+	? Unicode()	#--> 1705
+} ? ""
+
+StzCharQ('U+0645') {
+	? Content() 	#--> م
+	? Name()	#--> ARABIC LETTER MEEM
+	? Unicode()	#--> 1605
+} ? ""
+
+StzCharQ('U+0647') {
+	? Content() 	#--> ه
+	? Name()	#--> ARABIC LETTER HEH
+	? Unicode()	#--> 1607
+} ? ""
+
+StzCharQ('U+0648') {
+	? Content() 	#--> و
+	? Name()	#--> ARABIC LETTER WAW
+	? Unicode()	#--> 1608
+} ? ""
+
+StzCharQ('U+0639') {
+	? Content() 	#--> ع
+	? Name()	#--> ARABIC LETTER AIN
+	? Unicode()	#--> 1593
+} ? ""
+
+StzCharQ('U+0627') {
+	? Content() 	#--> ا
+	? Name()	#--> ARABIC LETTER ALEF
+	? Unicode()	#--> 1575
+} ? ""
+
+StzCharQ('U+066E') {
+	? Content() 	#--> ٮ
+	? Name()	#--> ARABIC LETTER DOTLESS BEH
+	? Unicode()	#--> 1646
+} ? ""
+
+StzCharQ('U+066F') {
+	? Content() 	#--> ٯ
+	? Name()	#--> ARABIC LETTER DOTLESS QAF
+	? Unicode()	#--> 1647
+} ? ""
+
+StzCharQ('U+06A1') {
+	? Content() 	#--> ڡ
+	? Name()	#--> ARABIC LETTER DOTLESS FEH
+	? Unicode()	#--> 1697
+} ? ""
+
+StzCharQ('U+06BA') {
+	? Content() 	#--> ں
+	? Name()	#--> ARABIC LETTER DOTLESS NOON GHUNNA
+	? Unicode()	#--> 1722
+}
+
+proff()
+# Executed in 6.96 second(s)
+
+/*----- Arabic dotless letters
+
+pron()
+
+? @@( ArabicDotlessLetters() ) + NL
+#--> [ "ى", "ا", "ح", "د", "ر", "س", "ص", "ط", "ع", "م", "ه", "و", "ٮ", "ٯ", "ڡ", "ک", "ں" ]
+
+? @@( ArabicDotlessUnicodes() ) + NL
+#--> [ 1609, 1575, 1581, 1583, 1585, 1587, 1589, 1591, 1593, 1605, 1607, 1608, 1646, 1647, 1697, 1705, 1722 ]
+
+? @@( ArabicDotlessLettersAndTheirUnicodes() ) + NL
+#--> [ [ "ى", 1609 ], [ "ا", 1575 ], [ "ح", 1581 ], [ "د", 1583 ], [ "ر", 1585 ], [ "س", 1587 ], [ "ص", 1589 ], [ "ط", 1591 ], [ "ع", 1593 ], [ "م", 1605 ], [ "ه", 1607 ], [ "و", 1608 ], [ "ٮ", 1646 ], [ "ٯ", 1647 ], [ "ڡ", 1697 ], [ "ک", 1705 ], [ "ں", 1722 ] ]
+
+? @@( ArabicDotlessLettersXT() )
+#--> [ [ "ى", "ى" ], [ "ي", "ٮ" ], [ "ح", "ح" ], [ "خ", "ح" ], [ "ج", "ح" ], [ "د", "د" ], [ "ذ", "د" ], [ "ر", "ر" ], [ "ز", "ر" ], [ "س", "س" ], [ "ش", "س" ], [ "ص", "ص" ], [ "ض", "ص" ], [ "ط", "ط" ], [ "ظ", "ط" ], [ "ک", "ک" ], [ "ك", "ک" ], [ "ع", "ع" ], [ "غ", "ع" ], [ "ٮ", "ٮ" ], [ "ب", "ٮ" ], [ "ت", "ٮ" ], [ "ث", "ٮ" ], [ "ٯ", "ٯ" ], [ "ق", "ٯ" ], [ "ف", "ٯ" ], [ "ں", "ں" ], [ "ن", "ں" ], [ "ه", "ه" ], [ "ة", "ه" ] ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*----- Latin dotless letters
+
+pron() 
+
+? @@( LatinDotlessLetters() ) + NL
+#--> [ "ı", "ȷ" ]
+
+? @@( LatinDotlessUnicodes() ) + NL
+#--> [ 305, 567 ]
+
+? @@( LatinDotlessLettersAndTheirUnicodes() ) + NL
+#--> [ [ "ı", 305 ], [ "ȷ", 567 ] ]
+
+? @@( LatinDotlessLettersXT() ) + NL
+#--> [ [ "ı", "ı" ], [ "i", "ı" ], [ "ȷ", "ȷ" ], [ "j", "ȷ" ] ]
+
+pron()
+# Executed in 0.08 second(s)
+
+/*----- Dotless letters
+
+pron() 
+
+? @@( DotlessLetters() ) + NL
+#--> [ "ى", "ا", "ح", "د", "ر", "س", "ص", "ط", "ع", "م", "ه", "و", "ٮ", "ٯ", "ڡ", "ک", "ں", "ı", "ȷ" ]
+
+? @@( DotlessUnicodes() ) + NL
+#--> [ 1609, 1575, 1581, 1583, 1585, 1587, 1589, 1591, 1593, 1605, 1607, 1608, 1646, 1647, 1697, 1705, 1722, 305, 567 ]
+
+? @@( DotlessLettersAndTheirUnicodes() ) + NL
+#--> [ [ "ى", 1609 ], [ "ا", 1575 ], [ "ح", 1581 ], [ "د", 1583 ], [ "ر", 1585 ], [ "س", 1587 ], [ "ص", 1589 ], [ "ط", 1591 ], [ "ع", 1593 ], [ "م", 1605 ], [ "ه", 1607 ], [ "و", 1608 ], [ "ٮ", 1646 ], [ "ٯ", 1647 ], [ "ڡ", 1697 ], [ "ک", 1705 ], [ "ں", 1722 ], [ "ı", 305 ], [ "ȷ", 567 ] ]
+
+? @@( DotlessLettersXT() ) + NL
+#--> [ [ "ى", "ى" ], [ "ي", "ٮ" ], [ "ح", "ح" ], [ "خ", "ح" ], [ "ج", "ح" ], [ "د", "د" ], [ "ذ", "د" ], [ "ر", "ر" ], [ "ز", "ر" ], [ "س", "س" ], [ "ش", "س" ], [ "ص", "ص" ], [ "ض", "ص" ], [ "ط", "ط" ], [ "ظ", "ط" ], [ "ک", "ک" ], [ "ك", "ک" ], [ "ع", "ع" ], [ "غ", "ع" ], [ "ٮ", "ٮ" ], [ "ب", "ٮ" ], [ "ت", "ٮ" ], [ "ث", "ٮ" ], [ "ٯ", "ٯ" ], [ "ق", "ٯ" ], [ "ف", "ٯ" ], [ "ں", "ں" ], [ "ن", "ں" ], [ "ه", "ه" ], [ "ة", "ه" ], [ "ı", "ı" ], [ "i", "ı" ], [ "ȷ", "ȷ" ], [ "j", "ȷ" ] ]
+
+proff()
+# Executed in 0.14 second(s)
+
 /*-----
 
 pron()

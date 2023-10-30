@@ -1,5 +1,21 @@
 load "stzlib.ring"
 
+/*==============
+
+pron()
+
+? @@( StzNullObjectQ() )
+#--> @noname
+
+? @@([ StzNullObjectQ() ])
+#--> [ @noname ]
+
+? @@([ 1:3, StzNullObjectQ(), "a":"b", StzFalseObjectQ() ])
+#!--> [ [ 1, 2, 3 ], @noname, [ "a", "b" ], @noname ]
+
+proff()
+# Executed in 0.09 second(s)
+
 /*==================
 
 pron()
@@ -8,6 +24,7 @@ pron()
 ? Abs(-5)  #--> 5	Softanza function
 
 proff()
+# Executed in 0.03 second(s)
 
 /*------------------
 
@@ -17,9 +34,10 @@ pron()
 #--> "5.23456"
 
 proff()
+# Executed in 0.17 second(s)
 
 /*==================
-
+*/
 pron()
 
 # There is a difference in Softanza between IsEither() and IsEitherA().
@@ -40,7 +58,7 @@ o1 = new stzString("ring")
 proff()
 # Executed in 0.06 second(s)
 
-/*================== TONumber() and ToNumberW()
+/*================== ToNumber() and ToNumberW()
 
 pron()
 
