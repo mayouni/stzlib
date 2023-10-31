@@ -1,5 +1,29 @@
 load "stzlib.ring"
 
+/*-------------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", "B" ],
+	[ "C", "D", "I", "♥" ],
+	[ "G", "H", "R" ],
+	[ "J", "K", "I", "N", "G" ]
+])
+
+? @@(o1.FindExtraItems()) + NL
+#--> [
+#	[ 1, [ ] ],
+#	[ 2, [ 3, 4 ] ],
+#	[ 3, [ 3 ] ],
+#	[ 4, [ 3, 4, 5, 6 ] ]
+# ]
+
+? @@( o1.ExtraItems() )
+#--> [ [ ], [ "I", "♥" ], [ "R" ], [ "I", "N", "G" ] ]
+
+proff()
+
 /*=============
 
 pron()
@@ -311,7 +335,9 @@ o1 = new stzLists([ # or stzListOfLists()
 	[ "I" ]
 ])
 
-o1.ShrinkToWith(3, AHeart())
+//o1.ShrinkToWith(3, AHeart())
+
+o1.AdjustXT(:To = 3, :Using = AHeart())
 o1.Show()
 #--> [
 #	[ "A", "B", "♥" ],

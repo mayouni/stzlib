@@ -160,21 +160,12 @@ class stzListOfLists from stzList
 
 		def UpdateWith(paList)
 			This.Update(paList)
-
-			def UpdateWithQ(paList)
-				return This.UpdateQ(paList)
 	
 		def UpdateBy(paList)
 			This.Update(paList)
 
-			def UpdateByQ(paList)
-				return This.UpdateQ(paList)
-
 		def UpdateUsing(paList)
 			This.Update(paList)
-
-			def UpdateUsingQ(paList)
-				return This.UpdateQ(paList)
 
 		#>
 
@@ -202,6 +193,12 @@ class stzListOfLists from stzList
 		@aContent + paList
 
 	def AddMany(paListOfLists)
+		if CheckParams()
+			if NOT ( isList(paListOfLists) and Q(paListOfLists).IsListOfLists() )
+				StzRaise("Incorrect param type! paListOfLists must be a list of lists.")
+			ok
+		ok
+
 		nLen = len(paListOfLists)
 		for i = 1 to nLen
 			@aContent + paListOfLists[i]
@@ -212,21 +209,26 @@ class stzListOfLists from stzList
 	#---------------#
 
 	def NthList(n)
-		if isString(n)
-			if n = :First or n = :FirstList
-				n = 1
+		if CheckParams()
 
-			but n = :First or n = :FirstList
-				n = This.NumberOfLists()
-
+			if isString(n)
+				if n = :First or n = :FirstList
+					n = 1
+	
+				but n = :First or n = :FirstList
+					n = This.NumberOfLists()
+	
+				ok
 			ok
+	
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
 		ok
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		return This.ListOfLists()[n]
+		aResult = This.Content()[n]
+		return aResult
 
 		#< @FunctionFluentForm
 		
@@ -347,17 +349,19 @@ class stzListOfLists from stzList
 			#>
 		#>
 
-	  #-------------------------------------------#
-	 #   SIZES, AND SMALLEST AND BIGGEST SIZES   #
-	#-------------------------------------------#
+	  #------------------------------------------#
+	 #   GETTING THE SIZES OF THE INNER LISTS   #
+	#------------------------------------------#
 
 	def Sizes()
-		aResult = []
-		aListOfLists = This.ListOfLists()
-		nLen = len(aListOfLists)
+		
+		aContent = This.ListOfLists()
+		nLen = len(aContent)
+
+		anResult = []
 
 		for i = 1 to nLen
-			aResult + len(aListOfLists[i])
+			aResult + len(aContent[i])
 		next
 
 		return aResult
@@ -367,10 +371,21 @@ class stzListOfLists from stzList
 	#-----------------------------------------------#
 
 	def ListsHaveSameNumberOfItems()
+	
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			StzRaise("Can't check inner lists! Because the list is empty.")
+
+		but nLen = 1
+			return TRUE
+		ok
+
 		bResult = TRUE
-		
-		for i = 2 to This.NumberOfLists()
-			if len( This.NthList(i) ) != len( This.NthList(i-1) )
+
+		for i = 2 to nLen
+			if len( aContent ) != len( aContent[i-1] )
 				bResult = FALSE
 				exit
 			ok
@@ -419,71 +434,38 @@ class stzListOfLists from stzList
 		def AllListsHaveSameNumberOfItems()
 			return This.ListsHaveSameNumberOfItems()
 
+		#--
+
+		def Is2DList()
+			return This.ListsHaveSameNumberOfItems()
+
+		def IsA2DList()
+			return This.ListsHaveSameNumberOfItems()
+
+		def IsGrid()
+			return This.ListsHaveSameNumberOfItems()
+
+		def IsAGrid()
+			return This.ListsHaveSameNumberOfItems()
+
 		#>
 
-	  #--------------------------------#
-	 #   SMALLEST AND BIGGEST LISTS   #
-	#--------------------------------#
-
-	def SmallestLists()
-
-		nLen = This.NumberOfLists()
-		nSmallestSize = This.SmallestSize()
-
-		aResult = []
-
-		for i = 1 to nLen
-			nLenList = This.SizeOfList(i)
-
-			if nLenList = nSmallestSize
-				aResult + This.NthList(i)
-				# WARNING: You can't say List(i) because
-				# the class inherits stzList that contains
-				# the same fuction!
-			ok
-		next
-
-		return aResult
-
-	# TODO: adds "big", "great", and "large" as alternatives al over the library
-	def BiggestLists()
-		aListOfLists = This.Content()
-		nLen = len(aListOfLists)
-		nBiggestSize = This.BiggestSize()
-
-		aResult = []
-
-		for i = 1 to nLen
-			aList = aListOfLists[i]
-			nLenList = len(aList)
-
-			if nLenList = nBiggestSize
-				aResult + aList
-			ok
-		next
-
-		return aResult
-
-		def GreatestLists()
-			return This.BiggestLists()
-
-		def LargestLists()
-			return This.BiggestLists()
+	  #--------------------#
+	 #   SMALLEST LISTS   #
+	#--------------------#
 
 	def FindSmallestLists()
 
-		aListOfLists = This.Content()
+		aContent = This.Content()
 		nLen = len(aListOfLists)
 
-		aResult = []
-		nSmallestSize = This.SmallestSize()
+		anResult = []
+		nMin = This.SmallestSize()
 
 		for i = 1 to nLen
-			aList = aListOfLists[i]
-			nLenList = len(aList)
 
-			if nLenList = nSmallestSize
-				aResult + i
+			if len(aContent[i]) = nMin
+				anResult + i
 			ok
 
 		next
@@ -505,8 +487,29 @@ class stzListOfLists from stzList
 		def MinListsPositions()
 			return This.FindSmallestLists()
 
+	def SmallestLists()
+		aResult = This.ItemsAtPositions( This.FindSmallestLists() )
+		return aResult
+
+	  #-------------------#
+	 #   BIGGEST LISTS   #
+	#-------------------#
+
 	def FindBiggestLists()
-		return This.PositionsW('{ len(@list) = This.BiggestSize() }')
+
+		aContent = This.Content()
+		nLen = len(aContent)
+		nMax = This.BiggestSize()
+
+		anResult = []
+
+		for i = 1 to nLen
+			if len(aContent[i]) = nMax
+				anResult + i
+			ok
+		next
+
+		return anResult
 
 		def FindMaxLists()
 			return This.FindBiggestLists()
@@ -545,30 +548,60 @@ class stzListOfLists from stzList
 		def LargestListsPositions()
 			return This.FindBiggestLists()
 
+	# TODO: adds "big", "great", and "large" as alternatives all over the library
+	def BiggestLists()
+		anPos = This.FindBiggestLists()
+		aResult = This.ItemsAtPositions(anPos)
+		return aResult
+
+		def GreatestLists()
+			return This.BiggestLists()
+
+		def LargestLists()
+			return This.BiggestLists()
+
 	  #---------------------#
 	 #   LISTS OF SIZE N   #
 	#---------------------#
 
+	def FindListsOfSizeN(n)
+		
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if len(aContent[i]) = n
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindListsOfSize(n)
+			return This.FindListsOfSizeN(n)
+
+		def PositionsOfListsOfSizeN(n)
+			return This.FindListsOfSizeN(n)
+
+		def PositionsOfListsOfSize(n)
+			return This.FindListsOfSizeN(n)
+
+		#>
+
 	def ListsOfSizeN(n)
-		return This.ListsW('{ len(@list) = ' + n + ' }')
+
+		anPos = This.FindListsOfSizeN(n)
+		aResult = This.ItemsAtPositions(anPos)
+		return aResult
 
 		#< @FunctionAlternativeForm
 
 		def ListsOfSize(n)
 			return This.ListsOfSizeN(n)
-
-		#>
-
-	def PositionsOfListsOfSizeN(n)
-		return This.PositionsW('{ len(@list) = ' + n + ' }')
-
-		#< @FunctionAlternativeForm
-
-		def ListsOfSizeNPositions(n)
-			return This.PositionsOfListsOfSizeN(n)
-
-		def PositionsOfListsOfSize(n)
-			return This.PositionsOfListsOfSizeN(n)
 
 		#>
 
@@ -837,30 +870,24 @@ class stzListOfLists from stzList
 	def Extend()
 		This.ExtendTo( This.SizeOfLargestList() )
 
-		#< @FunctionFluentForm
-
-		def ExtendQ()
-			This.Extend()
-			return This
-
-		#>
-
 		#< @FunctionAlternativeForm
 
 		def ExtendEachList()
 			This.Extend()
 
-			def ExtendEachListQ()
-				This.ExtendEachList()
-				return This
+		def Adjust()
+			This.Extend()
 
 		#>
 
 	def Extended()
-		aResult = This.Copy().ExtendQ().Content()
+		aResult = Q( This.Copy().Extend() ).Content()
 		return aResult
 
 		def EachListExtended()
+			return This.Extended()
+
+		def Adjusted()
 			return This.Extended()
 
 	  #----------------------------------------------------------------#
@@ -870,27 +897,15 @@ class stzListOfLists from stzList
 	def ExtendXT(pItem)
 		This.ExtendToXT( This.SizeOfLargestList(), pItem )
 
-		#< @FunctionFluentForm
-
-		def ExtendXTQ(pItem)
-			This.ExtendXT(pItem)
-			return This
-
-		#>
-
 		#< @FunctionAlternativeForm
 
 		def ExtendEachListXT(pItem)
 			This.ExtendXT(pItem)
 
-			def ExtendEachListXTQ(pItem)
-				This.ExtendEachListXT(pItem)
-				return This
-
 		#>
 
 	def ExtendedXT(pItem)
-		aResult = This.Copy().ExtendXTQ(pItem).Content()
+		aResult = Q( This.Copy().ExtendXT(pItem) ).Content()
 		return aResult
 
 		def EachListExtendedXT(pItem)
@@ -903,14 +918,6 @@ class stzListOfLists from stzList
 	def ExtendTo(n)
 		This.ExtendToXT(n, NULL)
 
-		#< @FunctionFluentForm
-
-		def ExtendToQ(n)
-			This.ExtendTo(n)
-			return This
-
-		#>
-
 		#< @FunctionAlternativeForm
 
 		def ExtendToPosition(n)
@@ -920,15 +927,11 @@ class stzListOfLists from stzList
 
 			This.ExtendTo(n)
 
-
-			def ExtendToPositionQ(n)
-				This.ExtendToPositionQ(n)
-				return This
 		#>
 
 
 	def ExtendedTo(n)
-		aResult = This.Copy().ExtendToQ(n).Content()
+		aResult = Q( This.Copy().ExtendTo(n) ).Content()
 		return aResult
 
 		def ExtendedToPosition(n)
@@ -980,27 +983,15 @@ class stzListOfLists from stzList
 
 		next
 
-		#< @FunctionFluentForm
-
-		def ExtendToXTQ(n, pItem)
-			This.ExtendToXT(n, pItem)
-			return This
-
-		#>
-
 		#< @FunctionAlternativeForm
 
 		def ExtendToPositionXT(n, pItem)
 			This.ExtendToXT(n, pItem)
 
-			def ExtendToPositionXTQ(n, pItem)
-				This.ExtendToPositionXT(n, pItem)
-				return This
-
 		#>
 
 	def ExtendedToXT(n, pItem)
-		aResult = This.Copy().ExtendToQ(n).Content()
+		aResult = Q( This.Copy().ExtendTo(n) ).Content()
 		return aResult
 
 		def ExtendedToPositionXT(n, pItem)
@@ -1028,20 +1019,8 @@ class stzListOfLists from stzList
 
 		#< @FunctionAlternativeForm
 
-		def ExtendToByRepeatingItemsQ(n)
-			This.ExtendedToByRepeatingItems(n)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
 		def ExtendToWithItemsRepeated(n)
 			This.ExtendedToByRepeatingItems(n)
-
-			def ExtendedToWithItemsRepeatedQ(n)
-				This.ExtendedToWithItemsRepeated(n)
-				return This
 
 		#>
 
@@ -1053,34 +1032,18 @@ class stzListOfLists from stzList
 	def ExtendByRepeatingItems()
 		This.ExtendToByRepeatingItems( This.SizeOfLargestList() )
 
-		#< @FunctionFluentForm
-
-		def ExtendByRepeatingItemsQ()
-			This.ExtendToByRepeatingItems()
-			return This
-
-		#>
-
 		#< @FunctionAlternativeForms
 
 		def ExtendWithItemsRepeated()
 			This.ExtendByRepeatingItems()
 
-			def ExtendWithItemsRepeatedQ()
-				This.ExtendWithItemsRepeated()
-				return This
-
 		def ExtendByItemsRepeated()
 			This.ExtendByRepeatingItems()
-
-			def ExtendByItemsRepeatedQ()
-				This.ExtendByItemsRepeated()
-				return This
 
 		#>
 
 	def ExtendedByRepeatingItems()
-		aResult = This.Copy().ExtendByRepeatingItemsQ().Content()
+		aResult = Q( This.Copy().ExtendByRepeatingItems() ).Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -1109,18 +1072,11 @@ class stzListOfLists from stzList
 
 		This.UpdateWith(aResult)
 
-		def ExtendToWithItemsInQ(n, paItems)
-			This.ExtendToWithItemsIn(n, paItems)
-			return This
-
 		def ExtendToUsingItemsIn(n, paItems)
 			This.ExtendToWithItemsIn(n, paItems)
 
-			def ExtendToUsingItemsInQ(n, paItems)
-				This.ExtendToUsingItemsIn(n, paItems)
-
 	def ExtendedToWithItemsIn(n, paItems)
-		aResult = This.Copy().ExtendToWithItemsInQ(n, paItems).Content()
+		aResult = Q( This.Copy().ExtendToWithItemsIn(n, paItems) ).Content()
 		return aResult
 
 		def ExtendedToUsingItemsIn(n, paItems)
@@ -1133,19 +1089,11 @@ class stzListOfLists from stzList
 	def ExtendWithItemsIn(paItems)
 		This.ExtendToWithItemsIn( This.SizeOfLargestList(), paItems)
 
-		def ExtendWithItemsInQ(paItems)
-			This.ExtendWithItemsIn(paItems)
-			return This
-
 		def ExtendUsingItemsIn(paItems)
 			This.ExtendWithItemsIn(paItems)
 
-			def ExtendUsingItemsInQ(paItems)
-				This.ExtendUsingItemsIn(paItems)
-				return This
-
 	def ExtendedWithItemsIn(paItems)
-		aResult = This.Copy().ExtendWithItemsInQ(paItems).Content()
+		aResult = Q( This.Copy().ExtendWithItemsIn(paItems) ).Content()
 		return aResult
 
 		def ExtendedUsingItemsIn(paItems)
@@ -1158,12 +1106,8 @@ class stzListOfLists from stzList
 	def Shrink()
 		This.ShrinkTo( This.SizeOfSmallestList() )
 
-		def ShrinkQ()
-			This.Shrink()
-			return This
-
 	def Shrinked()
-		aResult = This.Copy().ShrinkQ().Content()
+		aResult = Q( This.Copy().Shrink() ).Content()
 		return aResult
 
 	  #------------------------------------------------------------------#
@@ -1187,27 +1131,21 @@ class stzListOfLists from stzList
 
 		next
 
-		#< @FunctionFluentForm
-
-		def ShrinkToQ(n)
-			This.ShrinkTo(n)
-			return This
-
-		#>
-
 		#< @FunctionAlternativeForm
 
 		def ShrinkToPosition(n)
 			This.ShrinkTo(n)
 
-			def ShrinkToPositionQ(n)
-				This.ShrinkToPosition(n)
-				return This
+		def AdjustTo(n)
+			This.ShrinkTo(n)
+
+		def AdjustToPosition(n)
+			This.ShrinkTo(n)
 
 		#>
 
 	def ShrinkedTo(n)
-		aResult = This.Copy().ShrinkToQ(n).Content()
+		aResult = Q( This.Copy().ShrinkTo(n) ).Content()
 		return aResult
 
 		def ShrinkedToPosition(n)
@@ -1216,6 +1154,12 @@ class stzListOfLists from stzList
 			ok
 
 			return This.ShrinkedTo(n)
+
+		def AdjustedTo(n)
+			This.ShrinkedTo(n)
+
+		def AdjustedToPosition(n)
+			This.ShrinkedTo(n)
 
 	  #--------------------------------------------------------------------------------------#
 	 #  SHRINKING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION USING A GIVEN VALUE  #
@@ -1254,28 +1198,32 @@ class stzListOfLists from stzList
 
 		This.UpdateWith(aResult)
 
-
-		def ShrinkToWithQ(n, pWith)
-			This.ShrinkToWith(n, pWith)
-			return This
+		#< @FunctionAlternativeForms
 
 		def ShrinkToUsing(n, pUsing)
 			This.ShrinkToWith(n, pWith)
 
-			def ShrinkToUsingQ(n, pUsing)
-				This.ShrinkToUsing(n, pUsing)
-				return This
-
 		def ShrinkToBy(n, pBy)
 			This.ShrinkToWith(n, pWith)
 
-			def ShrinkToByQ(n, pUsing)
-				This.ShrinkToBy(n, pUsing)
-				return This
+		#--
+
+		def AdjustToWith(n, pWith)
+			This.ShrinkToWith(n, pWith)
+
+		def AdjustToUsing(n, pWith)
+			This.ShrinkToWith(n, pWith)
+
+		def AdjustToBy(n, pBy)
+			This.ShrinkToWith(n, pWith)
+
+		#>
 
 	def ShrinkedToWith(n, pWith)
-		aResult = This.Copy().ShrinkToWithQ(n, pWith).Content()
+		aResult = Q( This.Copy().ShrinkToWith(n, pWith) ).Content()
 		return aResult
+
+		#< @FunctionAlternativeForms
 
 		def ShrinkedToUsing(n, pUsing)
 			return This.ShrinkedToWith(n, pWith)
@@ -1283,7 +1231,49 @@ class stzListOfLists from stzList
 		def ShrinkedToBy(n, pBy)
 			return This.ShrinkedToWith(n, pWith)
 
-	  #========================================#
+		#--
+
+		def AdjustedToWith(n, pWith)
+			This.ShrinkedToWith(n, pWith)
+
+		def AdjustedToUsing(n, pWith)
+			This.ShrinkedToWith(n, pWith)
+
+		def AdjustedToBy(n, pBy)
+			This.ShrinkedToWith(n, pWith)
+
+		#>
+
+	  #-----------------------------------------------------------------------------#
+	 #  ADJUSTING THE LIST OF LISTS TO A GIVEN NUMBER OF ITEMS USING A GIVEN ITEM  #
+	#-----------------------------------------------------------------------------#
+
+	def AdjustXT(n, pWith)
+	
+		if CheckParams()
+	
+			if isList(n) and Q(n).IsToNamedParam()
+				n = n[2]
+			ok
+		
+			if isList(pWith) and Q(pWith).IsOneOfThese([ :With, :By, :Using ])
+				pWith = pWith[2]
+			ok
+		ok
+	
+		This.AdjustToUsing(n, pWith)
+
+		def ShrinkXT(n, pWith)
+			This.AdjustXT(n, pWith)
+
+	def AdjustedXT(n, pWith)
+		aResult = Q( This.Copy().AdjustXT(n, pWith) ).Content()
+		return aResult
+
+		def ShrinkedXT(n, pWith)
+			return This.AdjustedXT(n, pWith)
+
+ici	  #========================================#
 	 #   ASSOCIATING THE LISTS ITEM BY ITEM   #
 	#========================================#
 
@@ -1926,6 +1916,58 @@ class stzListOfLists from stzList
 
 		aSorted = ring_sortXT(aShrinked, n)
 		return aSorted
+
+	  #=====================================================#
+	 #  GETTING EXTRA-ITEMS (ITEMS THAT ARE NOT SHRINKED)  #
+	#=====================================================#
+
+	def ExtraItems()
+
+		aContent = This.Content()
+
+		aPos = This.FindExtraItems()
+		nLen = len(aPos)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aItems = []
+			nLenItems = len(aPos[i][2])
+
+			for j = 1 to nLenItems
+				aItems + aContent[i][aPos[i][2][j]]
+			next
+
+			aResult + aItems
+		next
+
+		return aResult
+
+	  #-----------------------------------------------------#
+	 #  FINDING EXTRA-ITEMS (ITEMS THAT ARE NOT SHRINKED)  #
+	#-----------------------------------------------------#
+
+	def FindExtraItems()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		nMin = This.SmallestSize()
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			anPos = []
+
+			nLenList = len(aContent[i])
+			if nLenList > nMin
+				anPos = (nMin + 1) : nLenList
+			ok
+
+			aResult + [ i, anPos ]
+		next
+
+		return aResult
 
 	  #===========#
 	 #   MISC.   #
