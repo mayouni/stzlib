@@ -3,14 +3,17 @@
 #		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
 #									    #
-# 	Description	: The core class for managing lists of lists        #
-#	Version		: V1.0 (2020-2023)				    #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
+# 	Description : The class for managing lists of lists (2DLists)       #
+#	Version	    : V1.0 (2020-2023)				            #
+#	Author	    : Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
 #---------------------------------------------------------------------------#
 
 func StzListOfListsQ(paList)
 	return new stzListOfLists(paList)
+
+	func Stz2DList(paList)
+		return StzListOfListsQ(paList)
 
 func LL(p)
 	if isList(p)
@@ -102,6 +105,10 @@ func CommonItems(paLists)
 	func Intersection(paLists)
 		return CommonItems(paLists)
 
+
+
+class stz2DList from stzListOfLists
+
 class stzListOfLists from stzList
 
 	@aContent = []
@@ -126,6 +133,9 @@ class stzListOfLists from stzList
 
 	def ListOfLists()
 		return This.Content()
+
+		def 2Dlist()
+			return This.Content()
 
 	def Copy()
 		oCopy = new stzListOfLists( This.Content() )
@@ -203,6 +213,9 @@ class stzListOfLists from stzList
 		for i = 1 to nLen
 			@aContent + paListOfLists[i]
 		next
+
+		def AddManyLists(paListOfLists)
+			This.AddMany(paListOfLists)
 
 	  #---------------#
 	 #   NTH LIST    #
@@ -946,26 +959,28 @@ class stzListOfLists from stzList
 	#------------------------------------------------------------------------------------#
 
 	def ExtendToXT(n, pItem)
-		if isList(n) and Q(n).IsPositionNamedParam()
-			n = n[2]
-		ok
-
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		if isList(pItem) and Q(pItem).IsUsingOrWithOrByNamedParam()
-			pItem = pItem[2]
-		ok
-
-		if isString(pItem) and
-		    	Q(pItem).IsOneOfThese([
-				:ItemsRepeated, :RepeatingItems,
-				:RepeatedItems, :ByRepeatingItems
-			])
-
-			This.ExtendToByRepeatingItems(n)
-			return
+		if CheckParams()
+			if isList(n) and Q(n).IsPositionNamedParam()
+				n = n[2]
+			ok
+	
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+	
+			if isList(pItem) and Q(pItem).IsUsingOrWithOrByNamedParam()
+				pItem = pItem[2]
+			ok
+	
+			if isString(pItem) and
+			    	Q(pItem).IsOneOfThese([
+					:ItemsRepeated, :RepeatingItems,
+					:RepeatedItems, :ByRepeatingItems
+				])
+	
+				This.ExtendToByRepeatingItems(n)
+				return
+			ok
 		ok
 
 		# Doing the job
@@ -1166,12 +1181,21 @@ class stzListOfLists from stzList
 	#--------------------------------------------------------------------------------------#
 
 	def ShrinkToWith(n, pWith)
-		if isList(n) and Q(n).IsToOrToPosition(n)
-			n = n[2]
-		ok
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
+		if CheckParams()
+
+			if isList(n) and Q(n).IsToOrToPosition(n)
+				n = n[2]
+			ok
+	
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+	
+			if isList(pWith) and Q(pWith).IsWithOrByOrUsingNamedParam()
+				pWith = pWith[2]
+			ok
+
 		ok
 
 		aContent = This.Content()
@@ -1273,17 +1297,22 @@ class stzListOfLists from stzList
 		def ShrinkedXT(n, pWith)
 			return This.AdjustedXT(n, pWith)
 
-ici	  #========================================#
+	  #========================================#
 	 #   ASSOCIATING THE LISTS ITEM BY ITEM   #
 	#========================================#
 
 	def Associate()
-		if This.IsEmpty() or This.NumberOfLists() = 1
-			StzRaise("Can't proceed! The list must contain at least 2 lists.")
-		ok
 
-		if This.AllItemsAreEmptyLists()
-			StzRaise("Can't associate empty lists!")
+		if CheckParams()
+	
+			if This.IsEmpty() or This.NumberOfLists() = 1
+				StzRaise("Can't proceed! The list must contain at least 2 lists.")
+			ok
+	
+			if This.AllItemsAreEmptyLists()
+				StzRaise("Can't associate empty lists!")
+			ok
+	
 		ok
 
 		This.Extend()
@@ -1331,26 +1360,16 @@ ici	  #========================================#
 
 		This.Update( aResult )
 
-		def ReverseListsQ()
-			This.ReverseLists()
-			return This
-
 		def ReverseItems()
 			This.ReverseLists()
 
-			def ReverseItemsQ()
-				This.ReverseItems()
-				return This
 
 		def Reverse()
 			This.ReverseLists()
 
-			def ReverseQ()
-				This.Reverse()
-				return This
 
 	def ReversedLists()
-		aResult = This.Copy().ReverseListsQ().Content()
+		aResult = Q( This.Copy().ReverseLists() ).Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -1390,7 +1409,7 @@ ici	  #========================================#
 				return This
 
 	def ItemsInListsReversed()
-		aResult = This.Copy().ReverseItemsInListsQ().Content()
+		aResult = Q( This.Copy().ReverseItemsInLists() ).Content()
 		return aResult
 
 		def ListsContentReversed()
@@ -1565,6 +1584,12 @@ ici	  #========================================#
 		def NumberOfOccurrencesOfEntry(pEntry)
 			return This.NumberOfOccurrenceOfEntry(pEntry)
 
+		def HowManyEntry()
+			return len(o1.IndexOn(:Position)[pEntry])
+
+		def HowManyEntries()
+			return len(o1.IndexOn(:Position)[pEntry])
+
 	def NthOccurrenceOfEntry(n, pEntry)
 		return o1.IndexOn(:Position)[pEntry][n]
 
@@ -1577,18 +1602,18 @@ ici	  #========================================#
 	def LastOccurrenceOfEntry(pEntry)
 		return NthOccurrenceOfEntry(This.NumberOfOccurrenceOfEntry(pEntry), pEntry)
 
-	  #==================#
-	 #   CONTAINMENT    #
-	#==================#
+	  #========================================================#
+	 #   CHECKING IF THE LIST OF LISTS CONTAINS A GIVEN ITEM  #
+	#========================================================#
 
-	def ContainsItem(pItem)
+	def ContainsItemCS(pItem, pCaseSensitive)
 		bResult = FALSE
 		aListOfLists = This.ListOfLists()
 		nLen = len(aListOfLists)
 
 		for i = 1 to nLen
 			oStzList = new stzList( aListOfLists[i] )
-			if oStzList.Contains(pItem)
+			if oStzList.ContainsCS(pItem, pCaseSensitive)
 				bResult = TRUE
 				exit
 			ok
@@ -1596,18 +1621,32 @@ ici	  #========================================#
 
 		return bResult
 
-	def ListsContainingItem(pItem)
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsItem(pItem)
+		return This.ContainsItemCS(pItem, :CaseSensitive)
+
+	  #---------------------------------------------#
+	 #  GETTING THE LISTS CONTAINING A GIVEN ITEM  #
+	#---------------------------------------------#
+
+	def ListsContainingItemCS(pItem, pCaseSensitive)
 		aResult = []
 		aListOfLists = This.ListOfLists()
 		nLen = len(aListOfLists)
 
 		for i = 1 to nLen
 			oStzList = new stzList(aListOfLists[i])
-			if oStzList.Contains(pItem)
-				aResult + list
+			if oStzList.ContainsCS(pItem, pCaseSensitive)
+				aResult + aListOfLists[i]
 			ok
 		next
 		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ListsContainingItem(pItem)
+		return This.ListsContainingItemCS(pItem, :CaseSensitive = TRUE)
 
 	  #------------------------------------------------#
 	 #  CHECKING IF A GIVEN ITEM EXISTS IN ALL LISTS  #
@@ -1707,7 +1746,7 @@ ici	  #========================================#
 			StzRaise("Can't flatten the list of lists! Instead you can return a flattend copy of it using Flattened()")
 
 	def Flattened()
-		return This.ToStzList().Flattened()
+		return This.Flattened() # Inherited from stzList
 
 	  #===========================================================#
 	 #  CHECKING IF THE SIZE OF EACH ITEM EQUALS A GIVEN NUMBER  #
@@ -1860,38 +1899,12 @@ ici	  #========================================#
 		def Intersection()
 			return This.CommonItems()
 
-	  #=====================#
-	 #   TO OTHER TYPES    #
-	#=====================#
-
-	def ToStzList()
-		return new stzList( This.Content() )
-
-	def ToStzListQ()
-		return new stzList( This.Content() )
-
-	def ToListOfStrings()
-		aResult = []
-		aListOfLists = This.ListOfLists()
-		nLen = len(aListOfLists)
-
-		for i = 1 to nLen 
-			aResult + @@( aListOfLists[i] ) # @@ --> ComputableForm( list )
-		next
-
-		return aResult
-
-	def ToStzListOfStrings()
-		if This.IsListOfStrings()
-			return new stzListOfStrings( This.Content() )
-		ok
-
 	  #=============================#
 	 #  SORTING THE LIST OF LISTS  #
 	#=============================#
 
 	def Sort()
-		SortBy(1)
+		This.SortBy(1)
 
 	def Sorted()
 		return This.SortedBy(1)				
@@ -1917,9 +1930,10 @@ ici	  #========================================#
 		aSorted = ring_sortXT(aShrinked, n)
 		return aSorted
 
-	  #=====================================================#
-	 #  GETTING EXTRA-ITEMS (ITEMS THAT ARE NOT SHRINKED)  #
-	#=====================================================#
+	  #======================================================================#
+	 #  GETTING EXTRA-ITEMS BASED ON LISTS HAVING SMALLEST NUMBER OF ITEMS  #
+	#======================================================================#
+	# The logical inverse of Shrinked()
 
 	def ExtraItems()
 
@@ -1943,9 +1957,9 @@ ici	  #========================================#
 
 		return aResult
 
-	  #-----------------------------------------------------#
-	 #  FINDING EXTRA-ITEMS (ITEMS THAT ARE NOT SHRINKED)  #
-	#-----------------------------------------------------#
+	  #----------------------------------------------------------------------#
+	 #  GETTING EXTRA-ITEMS BASED ON LISTS HAVING SMALLEST NUMBER OF ITEMS  #
+	#----------------------------------------------------------------------#
 
 	def FindExtraItems()
 		aContent = This.Content()
@@ -1969,9 +1983,9 @@ ici	  #========================================#
 
 		return aResult
 
-	  #===========#
-	 #   MISC.   #
-	#===========#
+	  #==================================================#
+	 #  TRANSFORMING THE LIST OF LISTS TO OTHER FORMS   #
+	#==================================================#
 		
 	def stzType()
 		return :stzListOfLists
@@ -2027,3 +2041,25 @@ ici	  #========================================#
 	
 			def ToListInStringSFQ()
 				return new stzString( This.ToListInStringSF() )
+
+	def ToStzList() # NOTE: normally, we don't need it since stzList is the mother class
+		return new stzList( This.Content() )
+
+	def ToStzListQ()
+		return new stzList( This.Content() )
+
+	def ToListOfStrings() # TODO: Do we need it? compare with stzList.Stringified()
+		aResult = []
+		aListOfLists = This.ListOfLists()
+		nLen = len(aListOfLists)
+
+		for i = 1 to nLen 
+			aResult + @@( aListOfLists[i] ) # @@ --> ComputableForm( list )
+		next
+
+		return aResult
+
+	def ToStzListOfStrings()
+		if This.IsListOfStrings()
+			return new stzListOfStrings( This.Content() )
+		ok

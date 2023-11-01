@@ -335,8 +335,6 @@ o1 = new stzLists([ # or stzListOfLists()
 	[ "I" ]
 ])
 
-//o1.ShrinkToWith(3, AHeart())
-
 o1.AdjustXT(:To = 3, :Using = AHeart())
 o1.Show()
 #--> [
