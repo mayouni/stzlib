@@ -517,6 +517,12 @@ class stzListOfLists from stzList
 		aResult = This.ItemsAtPositions( This.FindSmallestLists() )
 		return aResult
 
+	#--
+
+	def SmallestListsZ()
+		aResult = Association([ This.SmallestLists(), This.FindSmallestLists() ])
+		return aResult
+
 	  #-------------------#
 	 #   BIGGEST LISTS   #
 	#-------------------#
@@ -536,6 +542,8 @@ class stzListOfLists from stzList
 		next
 
 		return anResult
+
+		#< @FunctionAlternativeForms
 
 		def FindMaxLists()
 			return This.FindBiggestLists()
@@ -574,17 +582,45 @@ class stzListOfLists from stzList
 		def LargestListsPositions()
 			return This.FindBiggestLists()
 
+		#>
+
 	# TODO: adds "big", "great", and "large" as alternatives all over the library
 	def BiggestLists()
 		anPos = This.FindBiggestLists()
 		aResult = This.ItemsAtPositions(anPos)
 		return aResult
 
+		#< @FuntionAlternativeForms
+
 		def GreatestLists()
 			return This.BiggestLists()
 
 		def LargestLists()
 			return This.BiggestLists()
+
+		#>
+
+	def BiggestListsZ()
+		aResult = Association([ This.BiggestLists(), This.FindBiggestLists() ])
+		return aResult
+
+		#< @FuntionAlternativeForms
+
+		def GreatestListsZ()
+			return This.BiggestListsZ()
+
+		def LargestListsZ()
+			return This.BiggestListsZ()
+
+		#--
+
+		def BiggestListsAndTheirPositions()
+			return This.BiggestListsZ()
+
+		def LargestListsAndTheirPositions()
+			return This.BiggestListsZ()
+
+		#>
 
 	  #---------------------#
 	 #   LISTS OF SIZE N   #
@@ -780,6 +816,16 @@ class stzListOfLists from stzList
 		def Smallest()
 			return This.SmallestList()
 
+	def SmallestListZ()
+		aResult = [ This.SmallestList(), This.FindSmallestList() ]
+		return aResult
+
+		def SmallestZ()
+			return This.SmallestListZ()
+
+		def SmallestListAndItsPosition()
+			return This.SmallestListZ()
+
 	  #-------------------------#
 	 #  SIZE OF SMALLEST LIST  #
 	#-------------------------#
@@ -848,6 +894,37 @@ class stzListOfLists from stzList
 
 		def Biggest()
 			return This.LargestList()
+
+	def LargestListZ()
+		aResult = [ This.LargestList(), This.FindLargestList() ]
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def BiggestListZ()
+			return This.LargestListZ()
+
+		def LargestZ()
+			return This.LargestListZ()
+
+		def BiggestZ()
+			return This.LargestListZ()
+
+		#--
+
+		def LargestListAndItsPosition()
+			return This.LargestListZ()
+
+		def BiggestListAndItsPosition()
+			return This.LargestListZ()
+
+		def LargestAndItsPosition()
+			return This.LargestListZ()
+
+		def BiggestAndItsPosition()
+			return This.LargestListZ()
+
+		#>
 
 	  #------------------------#
 	 #  SIZE OF LARGEST LIST  #
@@ -1158,8 +1235,29 @@ class stzListOfLists from stzList
 	#================================#
 
 	def Shrink()
-
 		This.ShrinkTo( This.SizeOfSmallestList() )
+
+		#< @FunctionAlternativeForms
+
+		def AdjustToSmallest()
+			This.Shrink()
+
+		def AdjustToSmallestSize()
+			This.Shrink()
+
+		def AdjustToSmallestList()
+			This.Shrink()
+
+		def AdjustToMin()
+			This.Shrink()
+
+		def AdjustToMinSize()
+			This.Shrink()
+
+		def AdjustToMinList()
+			This.Shrink()
+
+		#>
 
 	def Shrinked()
 		oCopy = This.Copy()
@@ -1167,7 +1265,29 @@ class stzListOfLists from stzList
 		aResult = oCopy.Content()
 		return aResult
 
-ici	  #------------------------------------------------------------------#
+		#< @FunctionAlternativeForms
+
+		def AdjustedToSmallest()
+			This.Shrinked()
+
+		def AdjustedToSmallestSize()
+			This.Shrinked()
+
+		def AdjustedToSmallestList()
+			This.Shrinked()
+
+		def AdjustedToMin()
+			This.Shrinked()
+
+		def AdjustedToMinSize()
+			This.Shrinked()
+
+		def AdjustedToMinList()
+			This.Shrinked()
+
+		#>
+
+	  #------------------------------------------------------------------#
 	 #  SHRINKING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION  #
 	#------------------------------------------------------------------#
 

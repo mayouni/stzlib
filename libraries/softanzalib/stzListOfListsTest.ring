@@ -348,7 +348,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*=================
-*/
+
 pron()
 
 o1 = new stz2DList([	# Or stzListOfLists()
@@ -368,6 +368,7 @@ o1 = new stz2DList([	# Or stzListOfLists()
 # ]
 
 proff()
+# Executed in 0.07 second(s)
 
 /*=================
 
@@ -399,7 +400,7 @@ o1.ExtendTo(4)
 #--> TRUE
 
 proff()
-#--> Executed in 0.03 second(s)
+#--> Executed in 0.05 second(s)
 
 /*---------------
 
@@ -427,6 +428,7 @@ o1.ExtendToXT(4, :Using = AHeart())
 #--> TRUE
 
 proff()
+# Executed in 0.06 second(s)
 
 /*---------------
 
@@ -459,6 +461,7 @@ o1.ExtendToXT(3, :Using = AHeart())
 #--> FALSE
 
 proff()
+# Executed in 0.06 second(s)
 
 /*---------------
 
@@ -491,6 +494,8 @@ o1.ExtendToXT(5, :Using = AHeart())
 #--> TRUE
 
 proff()
+# Executed in 0.06 second(s)
+
 /*==================
 
 pron()
@@ -521,19 +526,22 @@ proff()
 #--> Executed in 0.03 second(s)
 
 /*-------------------
-
+*/
 pron()
 
 o1 = new stzLists([ 1:2, 1:5, 1:3, 1:5 ])
 
-? o1.FindLargestLists()
+? @@( o1.FindLargestLists() ) + NL
 #--> [2, 4]
 
-? @@( o1.LargestLists() )
+? @@( o1.LargestLists() ) + NL
 #--> [ [ 1, 2, 3, 4, 5 ], [ 1, 2, 3, 4, 5 ] ]
 
+? @@( o1.LargestListsZ() )
+# [ [ [ 1, 2, 3, 4, 5 ], 2 ], [ [ 1, 2, 3, 4, 5 ], 4 ] ]
+
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.07 second(s)
 
 /*-------------------
 
