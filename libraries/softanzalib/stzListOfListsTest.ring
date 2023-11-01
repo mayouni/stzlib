@@ -326,7 +326,7 @@ proff()
 # Executed in 0.12 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzLists([ # or stzListOfLists()
@@ -336,6 +336,7 @@ o1 = new stzLists([ # or stzListOfLists()
 ])
 
 o1.AdjustXT(:To = 3, :Using = AHeart())
+
 o1.Show()
 #--> [
 #	[ "A", "B", "♥" ],
@@ -347,10 +348,32 @@ proff()
 # Executed in 0.06 second(s)
 
 /*=================
+*/
+pron()
+
+o1 = new stz2DList([	# Or stzListOfLists()
+	[ "A", "B" ],
+	[ "C", "D", "E", "F"],
+	[ "I" ]
+])
+
+? @@( o1.Shrinked() ) + NL
+#--> [ [ "A" ], [ "C" ], [ "I" ] ]
+
+? @@( o1.Extended() )
+#--> [
+#	[ "A", "B", "", "" ],
+#	[ "C", "D", "E", "F" ],
+#	[ "I", "", "", "" ]
+# ]
+
+proff()
+
+/*=================
 
 pron()
 
-# You can extend a list of lists to any number of itemslike this:
+# You can extend a list of lists to any number of items like this:
 
 o1 = new stzLists([
 	[ "A", "B" ],
