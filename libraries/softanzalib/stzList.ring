@@ -701,7 +701,15 @@ class stzList from stzObject
 
 		def LastItemQ()
 			return Q(This.LastItem())
-		
+
+	def FirstAndLastItems()
+		aResult = [ This.FirstItem(), This.LastItem() ]
+		return aResult
+
+	def LastAndFirstItems()
+		aResult = [ This.LastItem(), FirstItem() ]
+		return aResult
+
 	def CentralPosition()
 		oTemp = new stzNumber( (This.NumberOfItems()/2) )
 		n = oTemp.IntegerPartValue()
@@ -39064,9 +39072,9 @@ vvv
 
 		#>
 
-	  #===========#
-	 #   MISC.   #
-	#===========#
+	  #==========================================#
+	 #  TRANSFORMING THE LIST TO AN OTHER FORM  #
+	#==========================================#
 
 	def ToStzListOfChars()
 		if NOT This.IsListOfChars()
@@ -39092,20 +39100,28 @@ vvv
 
 		return aResult
 
-	def FirstAndLastItems()
-		aResult = [ This.FirstItem(), This.LastItem() ]
-		return aResult
-
-	def LastAndFirstItems()
-		aResult = [ This.LastItem(), FirstItem() ]
-		return aResult
-
+	  #========================================================#
+	 #  TRANSFORMING THE LIST TO RING CODE (COMPUTABLE FORM)  #
+	#========================================================#
+ 
 	def ToListInStringInShortForm()
 		cResult = This.ToCodeQ().ToListInShortForm()
 		return cResult
 
 		def ToListInShortForm()
 			return This.ToListInStringInShortForm()
+
+		def ToListInAStringInShortForm()
+			return This.ToListInStringInShortForm()
+
+	def ComputableForm()
+		return @@( This.Content() )
+
+		def ToListInString()
+			return ComputableForm()
+
+		def ToListInAString()
+			return ComputableForm()
 
 	  #=======================================#
 	 #  GETTING A RANDOM ITEM FROM THE LIST  #

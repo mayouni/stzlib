@@ -483,7 +483,7 @@ class stzListOfLists from stzList
 	def FindSmallestLists()
 
 		aContent = This.Content()
-		nLen = len(aListOfLists)
+		nLen = len(aContent)
 
 		anResult = []
 		nMin = This.SmallestSize()
@@ -496,7 +496,7 @@ class stzListOfLists from stzList
 
 		next
 
-		return aResult
+		return anResult
 
 		def FindMinLists()
 			return This.FindSmallestLists()
@@ -1906,7 +1906,7 @@ class stzListOfLists from stzList
 			StzRaise("Can't flatten the list of lists! Instead you can return a flattend copy of it using Flattened()")
 
 	def Flattened()
-		return This.Flattened() # Inherited from stzList
+		return This.ToStzList().Flattened()
 
 	  #===========================================================#
 	 #  CHECKING IF THE SIZE OF EACH ITEM EQUALS A GIVEN NUMBER  #
@@ -2191,15 +2191,10 @@ class stzListOfLists from stzList
 				return new stzString( This.ToListInNormalForm() )
 
 	def ToListInStringInShortForm()
-		acResult = []
-		aListOfLists = This.ListOfLists()
-		nLen = len(aListOfLists)
-
-		for i = 1 to len(aListOfLists)
-			acResult + StzListQ(aListOfLists[i]).ToListInStringInShortForm()
-		next
-
-		return acResult
+		cList = @@(This.Content())
+		oStr = new stzString(cList)
+		cResult = oStr.ToListInShortForm()
+		return cResult
 
 		def ToListInStringInShortFormQ()
 			return new stzString( This.ToListInStringInShortForm() )

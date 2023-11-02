@@ -526,7 +526,7 @@ proff()
 #--> Executed in 0.03 second(s)
 
 /*-------------------
-*/
+
 pron()
 
 o1 = new stzLists([ 1:2, 1:5, 1:3, 1:5 ])
@@ -549,14 +549,17 @@ pron()
 
 o1 = new stzLists([ 1:2, 1:5, 1:3, 1:2 ])
 
-? o1.FindSmallestLists()
+? @@( o1.FindSmallestLists() ) + NL
 #--> [1, 4]
 
-? @@( o1.SmallestLists() )
+? @@( o1.SmallestLists() ) + NL
 #--> [ [1, 2], [1, 2] ]
 
+? @@( o1.SmallestListsZ() )
+#--> [ [ [ 1, 2 ], 1 ], [ [ 1, 2 ], 4 ] ]
+
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.07 second(s)
 
 /*==================
 
@@ -602,9 +605,11 @@ o1 = new stzList([ "A":"C", "E":"D", "G": "Y" ])
 #--> TRUE
 
 proff()
-# Executed in 1.19 second(s)
+# Executed in 0.37 second(s)
 
 /*==================
+
+pron()
 
 o1 = new stzList([ "A", 1:3, "B", 4:7, 8:10 ])
 ? @@( o1.MergeQ().Content() )
@@ -618,21 +623,37 @@ o1 = new stzList([ "A", 1:3, "B", 4:7, [ "C", 99:100, "D" ], 8:10 ])
 ? @@( o1.FlattenQ().Content() )
 #--> [ "A", 1, 2, 3, "B", 4, 5, 6, 7, "C", 99, 100, "D", 8, 9, 10 ]
 
+proff()
+# Executed in 0.04 second(s)
+
 /*-----------------
 
+pron()
+
 o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
-? @@( o1.MergeQ().Content() )
-#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+
+//? @@( o1.MergeQ().Content() )
+#--> Error: Can't merge the list of lists! Instead
+# you can return a merged copy of it using Merged()
 
 o1 = new stzListOfLists([ 1:3, 4:7, 8:10, [ "A", 0:1, "B" ] ])
 ? @@( o1.Merged() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "A", [ 0, 1 ], "B" ]
 
+//? @@( o1.FlattenQ().Content() )
+#--> Error: Can't flatten the list of lists! Instead
+# you can return a flattened copy of it using Merged()
+
 o1 = new stzListOfLists([ 1:3, 4:7, 8:10, [ "A", 0:1, "B" ] ])
 ? @@( o1.Flattened() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "A", 0, 1, "B" ]
 
+proff()
+# Executed in 0.06 second(s)
+
 /*==================
+
+pron()
 
 o1 = new stzListOfLists([
 	1:2, 1:3, [9,9,9], 1:4, 1:5, [9,9,9], 1:7, 1:8, [9,9,9]
@@ -660,16 +681,42 @@ o1 = new stzListOfLists([
 ? o1.NFirstOccurrencesXT(2, :Of = [9,9,9], :StartingAt = 6)
 #--> [6, 9]
 
-? o1.LastNOccurrencesXT(2, :Of = [9,9,9], :StartingAt = 10)
-#--> [6, 9]
+? @@(o1.LastNOccurrencesXT(1, :Of = [9,9,9], :StartingAt = 9))
+#--> [9]
+
+proff()
+# Executed in 0.15 second(s)
 
 /*-----------
 
-? @@( StzListQ( 4:8 ).ToListInString() )
+pron()
+
+o1 = new stzString(" [4, 5, 6, 7, 8]")
+o1.Trim()
+? o1.content()
+o1.RemoveFirstAndLastChars()
+//o1.RemoveTheseBounds("[","]")
+? o1.Content()
+
+//? o1.ToListInShortForm()
+
+proff()
+
+
+/*-----------
+
+*/
+
+pron()
+
+? @@( StzListQ( 4:8 ).ToListInAString() )
 #--> "[ 4, 5, 6, 7, 8 ]"
 
-? @@( StzListQ( 4:8 ).ToListInStringInShortForm() )
+? @@( StzListQ( 4:8 ).ToListInAStringInShortForm() )
 #--> '4:8'
+
+proff()
+# Executed in 0.50 second(s)
 
 /*-----------
 
