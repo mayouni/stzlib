@@ -62361,9 +62361,9 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def IsContinuousListInShortForm()
 			return This.IsContiguousListInShortForm()
 
-	  #----------------------------------------------------------------#
-	 #   CPNVERTING CONTINUOUS LISTS BETWEEN NORMAL AND SHORT FORMS   #
-	#----------------------------------------------------------------#
+	  #------------------------------------------------------------#
+	 #  TRANSFORMING THE LIST INTO RING CODE IN SHORT FORM (_:_)  #
+	#------------------------------------------------------------#
 
 	def ToListInShortForm()
 	
@@ -62390,8 +62390,11 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 			if StzListQ(aTempList).IsContiguous()
 
-				This.TrimQ().RemoveTheseBoundsQ( "[","]" )
-				acMembers = QStringObject().split(",", 0, 0)
+				oCopy = This.Copy()
+				oCopy.Trim()
+				oCopy.RemoveFirstAndLastChars()
+
+				acMembers = oCopy.QStringObject().split(",", 0, 0)
 				acMembers = QStringListToList(acMembers)
 				acMembers = StzListQ(acMembers).FirstAndLastItems()
 
@@ -62425,6 +62428,10 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 			def ToListInStringInShortFormQ()
 				return new stzString( This.ToListInStringInShortForm() )
+
+	  #-----------------------------------------------------------------#
+	 #  TRANSFORMING THE LIST INTO RING CODE IN NORMAL FORM ([_,_,_])  #
+	#-----------------------------------------------------------------#
 
 	def ToListInNormalForm()
 
