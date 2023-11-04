@@ -1,5 +1,15 @@
 load "stzlib.ring"
 
+/*=========
+
+pron()
+
+? @@( Association([ :of = [ :one, :two, :three ], :with = [1, 2, 3] ]) )
+#--> [ [ "one", 1 ], [ "two", 2 ], [ "three", 3 ] ]
+
+proff()
+# Executed in 0.05 second(s)
+
 /*-------------
 
 pron()
@@ -688,17 +698,32 @@ proff()
 # Executed in 0.15 second(s)
 
 /*-----------
-
+*/
 pron()
 
-o1 = new stzString(" [4, 5, 6, 7, 8]")
-o1.Trim()
-? o1.content()
-o1.RemoveFirstAndLastChars()
+o1 = new stzString("[4, 5, 6, 7, 8]")
+/*
+? @@(o1.RepeatedLeadingChars())
+#--> ""
+
+? o1.ContainsLeadingAndTrailingChars()
+#--> FALSE
+
+? o1.FirstAndLastChars()
+#--> [ "[", "]" ]
+
+? o1.Bounds()
+#--> [ "[", "]" ]
+*/
+
+//? @@( o1.FindTheseBoundsAsSections("[[", "]") )
+#--> [ [ ], [ 1, 1 ] ]
+
+? o1.FindTheseBoundsAsSections("[", "]")
+#--> [ [ ], [ 1, 1 ] ]
+
 //o1.RemoveTheseBounds("[","]")
 ? o1.Content()
-
-//? o1.ToListInShortForm()
 
 proff()
 

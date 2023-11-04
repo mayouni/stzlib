@@ -1,5 +1,18 @@
 load "stzlib.ring"
 
+/*----------
+
+pron()
+
+? Q([ [], [] ]).AllItemsAreEmptyLists()
+#--> TRUE
+
+? @@( Association([ [], [] ]) )
+#--> Error: Can't associate empty lists!
+
+proff()
+
+
 /*===========
 
 pron()

@@ -1,97 +1,5 @@
 load "stzlib.ring"
 
-
-/*----------
-
-pron()
-
-? Q([ [], [] ]).AllItemsAreEmptyLists()
-#--> TRUE
-
-? @@( Association([ [], [] ]) )
-#--> Error: Can't associate empty lists!
-
-proff()
-
-/*=======
-
-pron()
-
-? Q(:stzPairOfNumbers).IsStzClassName()
-#--> TRUE
-
-proff()
-# Executed in 0.02 second(s)
-
-/*=========== TODO:ERROR
-*/
-pron()
-
-? StzCharQ("0x10481").Content() #--> TODO: ERR, should be "𐒁"
-#--> ҁ
-
-//? Q("Schöne Grüße").Length() # means "Kind Regards" in german
-#--> 12
-
-//? StzUnicodeDataQ().CharByName("OSMANYA LETTER BA")
-#--> 0x10481
-#--> 66689
-
-//? StzCharQ("ҁ").Name()
-#--> CYRILLIC SMALL LETTER KOPPA
-
-//? StzCharQ("𐒁") # TODO-ERROR
-#--> Can't create char object!
-
-//? Q("𐒁").CharName() # TODO-ERROR: correct it to be OSMANYA LETTER BA
-#--> QUESTION MARK
-
-//? StzCharQ("OSMANYA LETTER BA").Content()
-#--> ҁ
-
-proff()
-
-#------
-
-pron()
-
-? Smile()
-#--> 😆
-
-? Heart()
-#--> ♥
-
-? Flower()
-#--> ❀
-
-? Sun()
-#--> 🌞
-
-? Moon()
-#--> 🌔
-
-? Handshake()
-#--> 🤝
-
-? Dot()
-#--> •
-
-? Tick()
-#--> ✓
-
-proff()
-# Executed in 0.02 second(s)
-
-/*=========
-
-pron()
-
-? @@( Association([ :of = [ :one, :two, :three ], :with = [1, 2, 3] ]) )
-#--> [ [ "one", 1 ], [ "two", 2 ], [ "three", 3 ] ]
-
-proff()
-# Executed in 0.05 second(s)
-
 /*================
 
 pron()
@@ -155,13 +63,13 @@ o1 = new stzString("__♥♥♥__/♥♥♥\__♥♥♥__")
 StopProfiler()
 
 /*================
-
+*/
 StartProfiler()
 
 o1 = new stzString("__♥♥♥__/♥♥♥\__♥♥♥__")
 
-? o1.Enclose(
-	:Section = o1.FindNthAsSection(2, "♥♥♥"),
+? o1.Sit(
+	:InSection = o1.FindNthAsSection(2, "♥♥♥"),
 
 	:AndYield = [
 		:NCharsBefore = 3,
