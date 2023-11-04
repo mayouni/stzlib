@@ -63,7 +63,7 @@ o1 = new stzString("__♥♥♥__/♥♥♥\__♥♥♥__")
 StopProfiler()
 
 /*================
-*/
+
 StartProfiler()
 
 o1 = new stzString("__♥♥♥__/♥♥♥\__♥♥♥__")
@@ -124,7 +124,7 @@ StopProfiler()
 # Executed in 0.04 second(s)
 
 /*========== CHECKING CONTAINMENT
-
+*/
 StartProfiler()
 	
 	? Q("\__♥__/").Contains("♥")
