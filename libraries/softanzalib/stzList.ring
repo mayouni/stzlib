@@ -29528,6 +29528,18 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		def IsInPositionNamedParam()
+			if This.NumberOfItems() = 2 and
+			   ( isString(This[1]) and This[1] = :InPosition)
+	
+				return TRUE
+			else
+				return FALSE
+			ok
+	
+		// def IsAtPositionNamedParam() --> Exists below in the file
+
+
 	def IsOnPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :OnPositions)
@@ -29536,6 +29548,17 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsInPositionsNamedParam()
+			if This.NumberOfItems() = 2 and
+			   ( isString(This[1]) and This[1] = :InPositions)
+	
+				return TRUE
+			else
+				return FALSE
+			ok
+	
+		// def IsAtPositionsNamedParam() # Exists in the file below
 
 	def IsOnSectionNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -29546,6 +29569,11 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		// def IsInSectionNamedParam() # Exists in the file below
+	
+		// def IsAtSectionNamedParam() # Idem
+
+
 	def IsOnSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :OnSections)
@@ -29554,6 +29582,12 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		// def IsInSectionsNamedParam() # Exists in the file below
+	
+		// def IsAtSectionsNamedParam() # Idem
+
+	#--
 
 	def IsHarvestNamedParam()
 		if This.NumberOfItems() = 2 and
