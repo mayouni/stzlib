@@ -60817,8 +60817,12 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	#------------------------------------------------------------#
 
 	def IsMadeOfCS(acSubStr, pCaseSensitive)
-		IF NOT ( isList(acSubStr) and Q(acSubStr).IsListOfStrings() )
-			StzRaise("Incorrect param type! acSubStr must be a list of strings.")
+		if CheckParams()
+
+			IF NOT ( isList(acSubStr) and Q(acSubStr).IsListOfStrings() )
+				StzRaise("Incorrect param type! acSubStr must be a list of strings.")
+			ok
+
 		ok
 
 		oCopy = This.Copy()
@@ -60830,7 +60834,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				return FALSE
 			ok
 
-			oCopy.RemoveAllCS(cSubStr, pCaseSensitive)
+			oCopy.RemoveAllCS(acSubStr[i], pCaseSensitive)
 		next
 
 		if oCopy.IsEmpty()
