@@ -2638,9 +2638,18 @@ Dotless LETTERS
 		func ACheckMark()
 			return CheckMark()
 
-		func TheCheckMark()
+			func TheCheckMark()
+				return CheckMark()
+
+		func Check()
 			return CheckMark()
 
+			func ACheck()
+				return CheckMark()
+
+			func TheCheck()
+				return CheckMark()
+	
 		func Tick()
 			return CheckMark()
 

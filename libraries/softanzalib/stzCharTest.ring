@@ -1,5 +1,64 @@
 load "stzlib.ring"
 
+#------
+
+pron()
+
+? Smile()
+#--> 😆
+
+? Heart()
+#--> ♥
+
+? Flower()
+#--> ❀
+
+? Sun()
+#--> 🌞
+
+? Moon()
+#--> 🌔
+
+? Handshake()
+#--> 🤝
+
+? Dot()
+#--> •
+
+? Tick() # Or Check()
+#--> ✓
+
+proff()
+# Executed in 0.02 second(s)
+
+/*=========== TODO:ERROR
+
+pron()
+
+? StzCharQ("0x10481").Content() #--> TODO: ERR, should be "𐒁"
+#--> ҁ
+
+//? Q("Schöne Grüße").Length() # means "Kind Regards" in german
+#--> 12
+
+//? StzUnicodeDataQ().CharByName("OSMANYA LETTER BA")
+#--> 0x10481
+#--> 66689
+
+//? StzCharQ("ҁ").Name()
+#--> CYRILLIC SMALL LETTER KOPPA
+
+//? StzCharQ("𐒁") # TODO-ERROR
+#--> Can't create char object!
+
+//? Q("𐒁").CharName() # TODO-ERROR: correct it to be OSMANYA LETTER BA
+#--> QUESTION MARK
+
+//? StzCharQ("OSMANYA LETTER BA").Content()
+#--> ҁ
+
+proff()
+
 /*======== TURNABLE NUMBERS
 
 # TODO: Add TurnUp, TurnDown, Turn, IsTurnedUp, IsTurnedDown

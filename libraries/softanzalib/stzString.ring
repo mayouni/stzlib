@@ -8210,6 +8210,7 @@ class stzString from stzObject
 			if isList(paPositionOrSection) and
 				Q(paPositionOrSection).IsOneOfTheseNamedParams([
 					:On, :OnPosition, :OnSection,
+					:In, :InPosition, :InSection,
 					:Position, :Section
 				])
 	
@@ -8287,9 +8288,10 @@ class stzString from stzObject
 			nCharsBefore = aSection[1] - 1
 		ok
 
+		nLen = This.NumberOfChars()
 		nCharsAfter  = paHarvest[2]
-		if nCharsAfter > This.NumberOfChars() - aSection[2]
-			nCharsAfter = This.NumberOfChars() - aSection[2]
+		if nCharsAfter > nLen - aSection[2]
+			nCharsAfter = nLen - aSection[2]
 		ok
 
 		anSectionBefore = [0, 0]
@@ -8316,13 +8318,46 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def SitIn(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
+		def SitOn(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
 		def Settle(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
+		def SettleIn(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
+		def SettleOn(paPositionOrSection, paHervest)
 			return This.Sit(paPositionOrSection, paHervest)
 
 		def Enclose(paPositionOrSection, paHervest)
 			return This.Sit(paPositionOrSection, paHervest)
 
+		def EncloseIn(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
+		def EncloseOn(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
 		def Occuppy(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
+		def OccuppyIn(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
+		def OccuppyOn(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
+		def Stay(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
+		def StayIn(paPositionOrSection, paHervest)
+			return This.Sit(paPositionOrSection, paHervest)
+
+		def StayOn(paPositionOrSection, paHervest)
 			return This.Sit(paPositionOrSection, paHervest)
 
 		#>
@@ -8330,7 +8365,7 @@ class stzString from stzObject
 	# TODO: Add these alternatives
 
 	def SitOnSection(n1, n2, paHarvest)
-		StzRaise("Todo!")
+		return This.Sit([n1, n2], paHarvest)
 
 		#< @FunctionAlternativeForms
 
@@ -8340,22 +8375,142 @@ class stzString from stzObject
 		def SitOnSectionAndHarvest(n1, n2, paHarvest)
 			return This.SitOnSection(n1, n2, paHarvest)
 
+		#--
+
+		def SitInSection(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		def SitInSectionAndYield(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		def SitInSectionAndHarvest(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		#--
+
+		def StayInSection(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		def StayOnSectionAndHarvest(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		def StayInSectionAndYield(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		def StayInSectionAndHarvest(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		#--
+
+		def EncloseSection(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		def EncloseSectionAndHarvest(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		def EncoloseSectionAndYield(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		#--
+
+		def OccuppySection(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		def OccuppySectionAndHarvest(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
+		def OccuppySectionAndYield(n1, n2, paHarvest)
+			return This.SitOnSection(n1, n2, paHarvest)
+
 		#>
 
 	def SitAndYield(paPositionOrSection, paHarvest)
-		StzRaise("Todo!")
+		return This.Sit(paPositionOrSection, paHarvest)
+
+		#< @FunctionAlternatives
+
+		def StayAndYield(paPositionOrSection, paHarvest)
+			return This.SitAndYield()
+
+		def EncloseAndYield(paPositionOrSection, paHarvest)
+			return This.SitAndYield()
+
+		def OccuppyAndYield(paPositionOrSection, paHarvest)
+			return This.SitAndYield()
+
+		#--
 
 		def SitAndHarvest(paPositionOrSection, paHarvest)
 			return This.SitAndYield()
 
+		def StayAndHarvest(paPositionOrSection, paHarvest)
+			return This.SitAndYield()
+
+		def EncloseAndHarvest(paPositionOrSection, paHarvest)
+			return This.SitAndYield()
+
+		def OccuppyAndHarvest(paPositionOrSection, paHarvest)
+			return This.SitAndYield()
+
+		#>
+
 	def SitOnPosition(n, paHarvest)
-		StzRaise("Todo!")
+		return This.Sit(n, paHarvest)
+
+		def SitInPosition(n, paHarvest)
+			return This.SitOnPosition(n, paHarvest)
+
+		def SitAtPosition(n, paHarvest)
+			return This.SitOnPosition(n, paHarvest)
+
+		def StayInPosition(n, paHarvest)
+			return This.SitOnPosition(n, paHarvest)
+
+		def StayAtPosition(n, paHarvest)
+			return This.SitOnPosition(n, paHarvest)
+
+		def EnclosePosition(n, paHarvest)
+			return This.SitOnPosition(n, paHarvest)
+
+		def EncloseAtPosition(n, paHarvest)
+			return This.SitOnPosition(n, paHarvest)
+
 
 	def SitOnPositionAndYield(n, paHarvest)
-		StzRaise("Todo!")
+		return This.Sit(n, paHarvest)
 
-		def SitOnPositionAndHarvest(n, paHarvest)
+		#< @FunctionAlternativeForms
+
+		def SitInPositionAndYield(n, paHarvest)
 			return This.SitOnPositionAndYield(n, paHarvest)
+
+		def SitAtPositionAndYield(n, paHarvest)
+			return This.SitOnPositionAndYield(n, paHarvest)
+
+		def StayOnPositionAndYield(n, paHarvest)
+			return This.SitOnPositionAndYield(n, paHarvest)
+
+		def StayInPositionAndYield(n, paHarvest)
+			return This.SitOnPositionAndYield(n, paHarvest)
+
+		def StayAtPositionAndYield(n, paHarvest)
+			return This.SitOnPositionAndYield(n, paHarvest)
+
+		#--
+
+		def SitAtPositionAndHarvest(n, paHarvest)
+			return This.SitOnPositionAndYield(n, paHarvest)
+
+		def StayOnPositionAndHarvest(n, paHarvest)
+			return This.SitOnPositionAndYield(n, paHarvest)
+
+		def StayInPositionAndHaervest(n, paHarvest)
+			return This.SitOnPositionAndYield(n, paHarvest)
+
+		def StayAtPositionAndHarvest(n, paHarvest)
+			return This.SitOnPositionAndYield(n, paHarvest)
+
+		#>
 
 	  #-------------------------------------------------------------------------#
 	 #  GETTING THE BOUNDS OF MANY SECTIONS, N CHARS BEFORE AND N CHARS AFTER  # 
@@ -9137,12 +9292,23 @@ class stzString from stzObject
 
 	def FindBoundsAsSectionsCS(pCaseSensitive)
 
-		aResult = [
-			This.FindLeadingCharsAsSectionCS(pCaseSensitive),
-			This.FindTrailingCharsAsSectionCS(pCaseSensitive)
-		]
+		nLen = This.NumberOfChars()
+		if nLen = 0 or nLen = 1
+			return [ [], [] ]
+		ok
 
-		return aResult
+		aSection1 = [1, 1]
+		if This.HasLeadingCharsCS(pCaseSensitive)
+			aSection1 = This.FindLeadingCharsAsSectionCS(pCaseSensitive)
+		ok
+
+		aSection2 = [1, 1]
+		if This.HasTrailingCharsCS(pCaseSensitive)
+			aSection2 = This.FindTrailingCharsAsSectionCS(pCaseSensitive)
+		ok
+
+? @@( aSection1 )
+? @@( aSection2 )
 
 		#< @FunctionAlternativeForms
 
@@ -9672,6 +9838,10 @@ class stzString from stzObject
 				This.LeadingCharsCS(pCaseSensitive),
 				This.TrailingCharsCS(pCaseSensitive)
 			]
+
+		else
+
+			acResult = This.FirstAndLastChars()
 		ok
 
 		return acResult
@@ -11794,20 +11964,24 @@ class stzString from stzObject
 
 		nLen = len(aBounds)
 		if nLen = 0
-			return []
+			return [ [], [] ]
+		ok
+
+		aSection1 = []
+		cBound1 = aBounds[1][1]
+		if StzStringQ(cBound1).IsEqualToCS(pcBound1, pCaseSensitive)
+			aSection1 = aBounds[1][2]
+		ok
+
+		aSection1 = []
+		cBound2 = aBounds[2][1]
+		if StzStringQ(cBound2).IsEqualToCS(pcBound2, pCaseSensitive)
+			aSection2 = aBounds[2][2]
 		ok
 
 		aResult = []
-
-		cBound1 = aBounds[1][1]
-		if StzStringQ(cBound1).IsEqualToCS(pcBound1, pCaseSensitive)
-			aResult + aBounds[1][2]
-		ok
-
-		cBound2 = aBounds[2][1]
-		if StzStringQ(cBound2).IsEqualToCS(pcBound2, pCaseSensitive)
-			aResult + aBounds[2][2]
-		ok
+		aResult + aSection1
+		aResult + aSection2
 
 		return aResult
 
@@ -15045,12 +15219,14 @@ class stzString from stzObject
 			'exeeeeeTUNIS' 	--> ''
 		*/
 
-		if This.IsEmpty()
+		nLen = This.NumberOfCharsCS(pCaseSensitive)
+		if nLen = 0 or nLen = 1
 			return ""
 		ok
 
-		nLen = This.NumberOfCharsCS(pCaseSensitive)
-		# TODO: Check wether the ...CS() extension is needed here!
+		if This.Char(1) != This.Char(2)
+			return ""
+		ok
 
 		cResult = ""
 	
