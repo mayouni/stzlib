@@ -185,7 +185,7 @@ StopProfiler()
 /*----------
 */
 StartProfiler()
-/*
+
 	? Q("").ContainsXT(:Chars, []) # You can use NULL or FALSE instead of []
 	#--> FALSE
 	? Q("").ContainsXT([], :Chars) # You can use NULL or FALSE instead of []
@@ -203,20 +203,20 @@ StartProfiler()
 	#--> TRUE
 	? Q("__-♥-__").ContainsXT(:NoneOfTheseChars, ["A", "*", "B"])
 	#--> TRUE
-*/
+
 	? Q("__---_^_").ContainsXT(:CharsWhere, 'Q(This[@i]).IsEither("A", :Or = "^")' )
 	#--> TRUE
-/*	? Q("__---__").ContainsXT(:CharsW, 'Q(This[@i]).IsEither("_", :Or = "-")')
+	? Q("__---__").ContainsXT(:CharsW, 'Q(This[@i]).IsEither("_", :Or = "-")')
 	#--> TRUE
 	? Q("__---__").ContainsXT(:Chars, :Where = 'Q(This[@i]).IsEither("_", :Or = "-")')
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, Where('Q(This[@i]).IsEither("_", :Or = "-")'))
+	? Q("__---__").ContainsXT(:Chars, Where(' Q(This[@i]).IsEither("_", :Or = "-") ') )
 	#--> TRUE
 	? Q("__---__").ContainsXT(:Chars, W('Q(This[@i]).IsEither("_", :Or = "-")'))
 	#--> TRUE
-*/
+
 StopProfiler()
-# Executed in 0.58 second(s)
+# Executed in 1.18 second(s)
 
 /*------
 

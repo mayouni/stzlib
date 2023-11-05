@@ -1916,13 +1916,12 @@ func QQ(p)
 	ok
 
 func W(cCode)
-	if NOT isString(cCode)
-		StzRaise("Incorrect param type! cCode must be a string.")
-	ok
+	if CheckParams()
 
-	cCode = Q(cCode).Trimmed()
-	if NOT Q(cCode).IsBoundedBy(["{", "}"])
-		cCode = "{ " + cCode + " }"
+		if NOT isString(cCode)
+			StzRaise("Incorrect param type! cCode must be a string.")
+		ok
+
 	ok
 
 	aResult = [:Where, cCode]
