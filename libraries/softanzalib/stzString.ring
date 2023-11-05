@@ -9307,8 +9307,8 @@ class stzString from stzObject
 			aSection2 = This.FindTrailingCharsAsSectionCS(pCaseSensitive)
 		ok
 
-? @@( aSection1 )
-? @@( aSection2 )
+		aResult = [ aSection1, aSection2 ]
+		return aResult
 
 		#< @FunctionAlternativeForms
 
@@ -11973,16 +11973,13 @@ class stzString from stzObject
 			aSection1 = aBounds[1][2]
 		ok
 
-		aSection1 = []
+		aSection2 = []
 		cBound2 = aBounds[2][1]
 		if StzStringQ(cBound2).IsEqualToCS(pcBound2, pCaseSensitive)
 			aSection2 = aBounds[2][2]
 		ok
 
-		aResult = []
-		aResult + aSection1
-		aResult + aSection2
-
+		aResult = [aSection1, aSection2]
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -32207,12 +32204,12 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	def ContainsCharsW(pcCondition)
 		/* EXAMPLE
 
-		? Q("__---__").ContainsXT(:CharsWhere, '@charQ.IsEither("_", :Or = "-")')
+		? Q("__---__").ContainsXT(:CharsWhere, 'Q(This[@i]).IsEither("_", :Or = "-")')
 		#--> TRUE
 		*/
 
-		if (NOT isString(pcCondition)) or
-		   (isString(pcCondition) and Q(pcCondition).WithoutSpaces() = "")
+		if ( NOT isString(pcCondition)) or
+		   ( isString(pcCondition) and Q(pcCondition).WithoutSpaces() = "" )
 
 			return FALSE
 		ok
@@ -32564,14 +32561,14 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 			return This.ContainsNoneOfTheseSubStrings(p2)
 
-		# ? Q("__---__").ContainsXT(:CharsWhere, '@charQ.IsEither("_", :Or = "-")')
-		# ? Q("__---__").ContainsXT(:CharsW, '@charQ.IsEither("_", :Or = "-")')
+		# ? Q("__---__").ContainsXT(:CharsWhere, 'Q(This[@i]).IsEither("_", :Or = "-")')
+		# ? Q("__---__").ContainsXT(:CharsW, 'Q(This[@i]).IsEither("_", :Or = "-")')
 		but isString(p1) and (p1 = :CharsWhere or p1 = :CharsW) and isString(p2)
 			return This.ContainsCharsW(p2)
 		
-		# ? Q("__---__").ContainsXT(:Chars, :Where = '@charQ.IsEither("_", :Or = "-")')
-		# ? Q("__---__").ContainsXT(:Chars, Where('@charQ.IsEither("_", :Or = "-")'))
-		# ? Q("__---__").ContainsXT(:Chars, W('@charQ.IsEither("_", :Or = "-")'))
+		# ? Q("__---__").ContainsXT(:Chars, :Where = 'Q(This[@i]).IsEither("_", :Or = "-")')
+		# ? Q("__---__").ContainsXT(:Chars, Where('Q(This[@i]).IsEither("_", :Or = "-")'))
+		# ? Q("__---__").ContainsXT(:Chars, W('Q(This[@i]).IsEither("_", :Or = "-")'))
 		but isString(p1) and p1 = :Chars and
 		    isList(p2) and Q(p2).IsPairOfStrings() and p2[1] = :Where	
 

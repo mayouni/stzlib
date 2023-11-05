@@ -195,24 +195,24 @@ StartProfiler()
 	#--> TRUE
 	? Q("__-♥-__").ContainsXT(:TheseChars, ["♥", "-"])
 	#--> TRUE
-*/
+
 	? Q("__-♥-__").ContainsXT(:SomeOfTheseChars, ["_", "-", "_"])
 	#--> TRUE
-/*
+
 	? Q("__-♥-__").ContainsXT(:OneOfTheseChars, ["A", "♥", "B"])
 	#--> TRUE
 	? Q("__-♥-__").ContainsXT(:NoneOfTheseChars, ["A", "*", "B"])
 	#--> TRUE
-
-	? Q("__---_^_").ContainsXT(:CharsWhere, '@charQ.IsEither("A", :Or = "^")' )
+*/
+	? Q("__---_^_").ContainsXT(:CharsWhere, 'Q(This[@i]).IsEither("A", :Or = "^")' )
 	#--> TRUE
-	? Q("__---__").ContainsXT(:CharsW, '@charQ.IsEither("_", :Or = "-")')
+/*	? Q("__---__").ContainsXT(:CharsW, 'Q(This[@i]).IsEither("_", :Or = "-")')
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, :Where = '@charQ.IsEither("_", :Or = "-")')
+	? Q("__---__").ContainsXT(:Chars, :Where = 'Q(This[@i]).IsEither("_", :Or = "-")')
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, Where('@charQ.IsEither("_", :Or = "-")'))
+	? Q("__---__").ContainsXT(:Chars, Where('Q(This[@i]).IsEither("_", :Or = "-")'))
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, W('@charQ.IsEither("_", :Or = "-")'))
+	? Q("__---__").ContainsXT(:Chars, W('Q(This[@i]).IsEither("_", :Or = "-")'))
 	#--> TRUE
 */
 StopProfiler()
