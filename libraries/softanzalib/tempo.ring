@@ -124,7 +124,7 @@ StopProfiler()
 # Executed in 0.04 second(s)
 
 /*========== CHECKING CONTAINMENT
-*/
+
 StartProfiler()
 	
 	? Q("\__♥__/").Contains("♥")
@@ -183,9 +183,9 @@ StopProfiler()
 # Executed in 0.04 second(s)
 
 /*----------
-
+*/
 StartProfiler()
-
+/*
 	? Q("").ContainsXT(:Chars, []) # You can use NULL or FALSE instead of []
 	#--> FALSE
 	? Q("").ContainsXT([], :Chars) # You can use NULL or FALSE instead of []
@@ -195,10 +195,10 @@ StartProfiler()
 	#--> TRUE
 	? Q("__-♥-__").ContainsXT(:TheseChars, ["♥", "-"])
 	#--> TRUE
-
+*/
 	? Q("__-♥-__").ContainsXT(:SomeOfTheseChars, ["_", "-", "_"])
 	#--> TRUE
-
+/*
 	? Q("__-♥-__").ContainsXT(:OneOfTheseChars, ["A", "♥", "B"])
 	#--> TRUE
 	? Q("__-♥-__").ContainsXT(:NoneOfTheseChars, ["A", "*", "B"])
@@ -214,7 +214,7 @@ StartProfiler()
 	#--> TRUE
 	? Q("__---__").ContainsXT(:Chars, W('@charQ.IsEither("_", :Or = "-")'))
 	#--> TRUE
-
+*/
 StopProfiler()
 # Executed in 0.58 second(s)
 

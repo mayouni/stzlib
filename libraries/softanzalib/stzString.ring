@@ -26381,7 +26381,7 @@ def ReplaceIBS()
 			StzRaise("Incorrect param type! paOption must ne a pair starting with a string.")
 		ok
 
-		oOption = Q(paOtion)
+		oOption = Q(paOption)
 
 		if oOption.IsBoundedByNamedParam()
 			return This.FindNthBoundeByCS(n, pcSubStr, paOption[2], pCaseSensitive)
@@ -33532,7 +33532,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	#----------------------------------------------#
 
 	def ContainsOneOrMoreCS(pacSubStr, pCaseSensitive)
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfString() )
+		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -33551,11 +33551,17 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		next
 
 		return bResult
+
+		def ContainsSomeCS(pacSubstr, pCaseSensitive)
+			return This.ContainsOneOrMoreCS(pacSubStr, pCaseSensitive)
 		
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsOneOrMore(paSubStr)
 		return This.ContainsOneOrMoreCS(paSubStr, :CS = TRUE)
+
+		def ContainsSome(pacSubstr)
+			return This.ContainsOneOrMore(pacSubStr)
 
 	  #------------------------------------------------#
 	 #    CONTAINING N OCCURRENCES OF A SUBSTRING     #
@@ -33618,23 +33624,22 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return This.ContainsOneOccurrence(pcSubStr)
 
 		#>
-	  #----------------------------------------------------------------------------------#
-	 #  CHECKING IF THE STRING CONTAINS SOME (MORE THAN ONE OCCURRENCE) OF A SUBSTRING  #
-	#----------------------------------------------------------------------------------#
-
-	def ContainsSomeCS(pcSubstr, pCaseSensitive)
-		return This.ContainsMoreThanNOccurrencesCS(1, pcSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ContainsSome(pcSubstr)
-		return This.ContainsMoreThanOneOccurrenceCS(pcSubstr, :CaseSensitive = TRUE)
 			
 	  #--------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS MORE THAN N OCCURRENCES OF A SUBSTRING  #
 	#--------------------------------------------------------------------------#
 
 	def ContainsMoreThanNOccurrencesCS(n, pcSubstr, pCaseSensitive)
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n ust be a number.")
+			ok
+
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr ust be a string.")
+			ok
+		ok
 
 		bResult = FALSE
 
