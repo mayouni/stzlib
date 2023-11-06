@@ -2855,6 +2855,30 @@ class stzString from stzObject
 			return This.NumberOfSubStrings()
 
 		#>
+
+	  #==================================================#
+	 #  GETTING THE SUBSTRINGS CONTAINED IN THE STRING  # TODO
+	#==================================================#
+
+	# TODO: Rethink the SubStrings() function
+
+	# --> AllSubStrings()      : returns all possible substrings
+
+	# --> SubStrings()         : returns substrings infered from a default list of
+	# 			     separators and default set of classifiers (examples:
+	# 			     Case, Script, Language)
+
+	# --> SubStringsXT(pacSepOrClassifiers) : returns substrings with the given list of separators
+	
+	def SubStringsSeparaetdBy(paSep)
+		StzRaise("Unavailable feature!")
+
+	def SubStringsXT(p)
+		# SubstringsXT([]) # OR SubStringxXT(:All)
+		# SubStringsXT(:SeparatedBy = [ " ", ",", ";" ])
+
+		StzRaise("Unavailable feature!")
+
 	  #-------------------------------------------------------------#
 	 #  GETTING THE LIST OF ALL POSSIBLE SUBSTRINGS IN THE STRING  #
 	#-------------------------------------------------------------#
@@ -32604,15 +32628,15 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 			return This.ContainsNoneOfTheseSubStringsCS(p2, pCaseSensitive)
 
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsWhere, '@SubStringQ.IsUppercase()')
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, '@SubStringQ.IsUppercase()')
+		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsWhere, 'Q(@SubString).IsUppercase()')
+		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, 'Q(@SubString).IsUppercase()')
 		but isString(p1) and (p1 = :SubStringsWhere or p1 = :SubStringsW) and isString(p2)
 
 			return This.ContainsSubStringsW(p2)
 			
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, :Where = '@SubStringQ.IsUppercase()')
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, :Where('@SubStringQ.IsUppercase()') )
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, :W('@SubStringQ.IsUppercase()') )
+		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, :Where = 'Q(@SubString).IsUppercase()')
+		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, :Where('Q(@SubString).IsUppercase()') )
+		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, :W('Q(@SubString).IsUppercase()') )
 		but isString(p1) and p1 = :SubStringsW and
 		    isList(p2) and Q(p2).IsPairOfStrings() and p2[1] = :Where	
 
@@ -33995,12 +34019,12 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	 #   SPLITTING THE STRING -- XT/EXTENDED   #
 	#=========================================#
 
-# TODO
-# Add SplitAround(), SplitArundPosition(), SplitAroundPisitions(),
-# SplitAroundSubString(), SplitAroundSubStrings(),
-# SplitAroundSection(), SplitAroundSections()
-
-# Add ..IB() extensions to all those functions
+	# TODO
+	# Add SplitAround(), SplitAroundPosition(), SplitAroundPositions(),
+	# SplitAroundSubString(), SplitAroundSubStrings(),
+	# SplitAroundSection(), SplitAroundSections()
+	
+	# Add ..IB() extensions to all those functions
 
 	def SplitCSXT(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
@@ -34538,6 +34562,9 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
 			return This.SplitAtPositions(pSubStrOrPos)
 
+		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfStrings()
+			return This.SplitAtSubStrings(pSubStrOrPos)
+
 		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
 			return This.SplitAtSection(pSubStrOrPos[1], pSubStrOrPos[2])
 
@@ -34751,20 +34778,28 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	#====================================#
 
 	def SplitAtSubStringCS(pcSubStr, pCaseSensitive)
-		if This.IsEmpty()
-			return []
-		ok
+		if CheckParams()
 
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcsubStr must be a string.")
-		ok
+			if This.IsEmpty()
+				return []
+			ok
+	
+			if isList(pcSubStr) and Q(pcSubStr).IsListOfStrings()
+				return This.SplitAtSubStringsCS(pcSubStr, pCaseSensitive)
+			ok
+	
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcsubStr must be a string.")
+			ok
+	
+			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+				pCaseSensitive = pCaseSensitive[2]
+			ok
+	
+			if NOT IsBoolean(pCaseSensitive)
+				StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+			ok
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
 		acResult = QStringListToList( QStringObject().split(pcSubStr, 0, pCaseSensitive) )
@@ -34795,11 +34830,33 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		#< @FunctionAlternativeForms
 
 		def SplitCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
-				pcSubStr = pcSubstr[2]
+
+			bMany = FALSE
+
+			# Checking params
+
+			if CheckParams()
+
+				if isList(pcSubStr)
+					oParam = Q(pcSubStr)
+					if oParam.IsListOfStrings()
+						bMany = TRUE
+	
+					but oParam.IsAtOrAtSubStringNamedParam()
+						pcSubStr = pcSubstr[2]
+					ok
+				ok
+
 			ok
 
-			return This.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
+			# Doing the job
+
+			if bMany
+				return This.SplitAtSubStringsCS(pcSubStr, pCaseSensitive)
+
+			else
+				return This.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
+			ok
 
 			def SplitCSQ(pcSubStr, pCaseSensitive)
 				return This.SplitCSQR(pcSubStr, pCaseSensitive, :stzList)
@@ -34890,11 +34947,15 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	#-----------------------------------#
 
 	def SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
-		if This.IsEmpty()
-			return []
+		if CheckParams()
+
+			if This.IsEmpty()
+				return []
+			ok
+	
 		ok
 
-		anPos = This.FindCS(pacSubStr, pCaseSensitive)
+		anPos = This.FindManyCS(pacSubStr, pCaseSensitive)
 
 		acResult = This.SplitAtPositions(anPos)
 		return acResult
