@@ -1,6 +1,24 @@
 load "stzlib.ring"
 
 /*================
+*/
+pron()
+
+o1 = new stzString("---,---;---[---]---:---")
+
+? @@( o1.SplitAt([ ",", ";", "[", "]", ":" ]) ) + NL
+#--> [ "---", "---", "---", "---", "---", "---" ]
+
+? @@( o1.SplitBefore([ ",", ";", "[", "]", ":" ]) ) + NL
+#--> [ "---", ",---", ";---", "[---", "]---", ":---" ]
+
+? @@( o1.SplitAfter([ ",", ";", "[", "]", ":" ]) ) + NL
+#--> [ "---,", "---;", "---[", "---]", "---:", "---" ]
+
+proff()
+# Executed in 0.15 second(s)
+
+/*================
 
 pron()
 
@@ -183,7 +201,7 @@ StopProfiler()
 # Executed in 0.04 second(s)
 
 /*----------
-*/
+
 StartProfiler()
 
 	? Q("").ContainsXT(:Chars, []) # You can use NULL or FALSE instead of []
@@ -204,24 +222,28 @@ StartProfiler()
 	? Q("__-♥-__").ContainsXT(:NoneOfTheseChars, ["A", "*", "B"])
 	#--> TRUE
 
-	? Q("__---_^_").ContainsXT(:CharsWhere, 'Q(This[@i]).IsEither("A", :Or = "^")' )
+	? Q("__---_^_").ContainsXT(:CharsWhere, 'Q(@char).IsEither("A", :Or = "^")' )
 	#--> TRUE
-	? Q("__---__").ContainsXT(:CharsW, 'Q(This[@i]).IsEither("_", :Or = "-")')
+	? Q("__---__").ContainsXT(:CharsW, 'Q(@Char).IsEither("_", :Or = "-")')
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, :Where = 'Q(This[@i]).IsEither("_", :Or = "-")')
+	? Q("__---__").ContainsXT(:Chars, :Where = 'Q(@Char).IsEither("_", :Or = "-")')
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, Where(' Q(This[@i]).IsEither("_", :Or = "-") ') )
+	? Q("__---__").ContainsXT(:Chars, Where(' Q(@Char).IsEither("_", :Or = "-") ') )
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, W('Q(This[@i]).IsEither("_", :Or = "-")'))
+	? Q("__---__").ContainsXT(:Chars, W('Q(@Char).IsEither("_", :Or = "-")'))
 	#--> TRUE
 
+# NOTE: Conditional code will be quicker of you replace Q(@Char) with Q(This[@i])
+
 StopProfiler()
-# Executed in 1.18 second(s)
+# Executed in 9.14 second(s)
 
 /*------
 
 StartProfiler()
 	
+Pron()
+
 	? Q("_softanza_loves_ring_").ContainsXT(:SubStrings, ["softanza", "ring"])
 	#--> TRUE
 	? Q("_softanza_loves_ring_").ContainsXT(:TheseSubStrings, ["softanza", "ring"])
@@ -241,23 +263,30 @@ StartProfiler()
 	#--> TRUE
 	? Q("_softanza_loves_ring_").ContainsXT(:NoneOfThese, ["python", "php", "ruby"])
 	#--> TRUE
+Proff()
+# Executed in 0.08 second(s)
 
-	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsWhere, '@SubStringQ.IsUppercase()')
+/*------------ TODO: Check performance! Rethink the subStrings() design
+
+StartProfiler()
+
+	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsWhere, 'Q(@SubString).IsUppercase()')
 	#--> TRUE
-	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsW, '@SubStringQ.IsUppercase()')
+	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsW, 'Q(@SubString).IsUppercase()')
 	#--> TRUE
-	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsW, :Where = '@SubStringQ.IsUppercase()')
+	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsW, :Where = 'Q(@SubString).IsUppercase()')
 	#--> TRUE
-	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsW, Where('@SubStringQ.IsUppercase()') )
+	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsW, Where('Q(@SubString).IsUppercase()') )
 	#--> TRUE
-	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsW, W('@SubStringQ.IsUppercase()') )
+	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsW, W('Q(@SubString).IsUppercase()') )
 	#--> TRUE
 
 StopProfiler()
+# Executed in 144.36 second(s)
 
 /*======== USING ADDXT() - EXTENDED
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("Ring programmin guage.") {
 	
@@ -266,13 +295,13 @@ StopProfiler()
 		#--> Ring programming guage.
 	
 	}
-	
-	StopProfiler()
-	#--> Executed in 0.02 second(s)
+
+StopProfiler()
+#--> Executed in 0.04 second(s)
 	
 /*-----------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("__(♥__(♥__(♥__") {
 	
@@ -281,12 +310,12 @@ StopProfiler()
 		#--> __(♥)__(♥)__(♥)__
 	}
 	
-	StopProfiler()
-	# Executed in 0.02 second(s)
+StopProfiler()
+# Executed in 0.05 second(s)
 
 /*-----------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("__♥__(♥__♥__") {
 	
@@ -295,26 +324,26 @@ StopProfiler()
 		#--> __♥__(♥)__♥__
 	}
 	
-	StopProfiler()
-	# Executed in 0.03 second(s)
+StopProfiler()
+# Executed in 0.06 second(s)
 
 /*-----------------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("__(♥__♥__♥__") {
 	
 		AddXT( ")", :AfterFirst = "♥" ) # ... or :ToFirst
 		? Content()
-		#--> __♥__(♥)__♥__
+		#-->__(♥)__♥__♥__
 	}
 	
-	StopProfiler()
-	# Executed in 0.04 second(s)
+StopProfiler()
+# Executed in 0.07 second(s)
 	
 /*-----------------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("__♥__♥__(♥__") {
 	
@@ -323,12 +352,12 @@ StopProfiler()
 		#--> __♥__♥__(♥)__
 	}
 	
-	StopProfiler()
-	# Executed in 0.04 second(s)
+StopProfiler()
+# Executed in 0.04 second(s)
 
 /*===------------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("Ring programming guage.") {	
 		AddXT("lan", :Before = "guage")
@@ -336,12 +365,12 @@ StopProfiler()
 		#--> Ring programming language.
 	}
 	
-	StopProfiler()
-	# Executed in 0.04 second(s)
+StopProfiler()
+# Executed in 0.09 second(s)
 
 /*---------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("__♥)__♥)__♥)__") {
 	
@@ -350,12 +379,12 @@ StopProfiler()
 		#--> __(♥)__(♥)__(♥)__
 	}
 	
-	StopProfiler()
-	# Executed in 0.02 second(s)
+StopProfiler()
+# Executed in 0.09 second(s)
 
 /*---------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("__♥__♥)__♥__") {
 	
@@ -364,12 +393,12 @@ StopProfiler()
 		#--> __♥__(♥)__♥__
 	}
 	
-	StopProfiler()
-	# Executed in 0.05 second(s)
+StopProfiler()
+# Executed in 0.10 second(s)
 
 /*---------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("__♥)__♥__♥__") {
 	
@@ -378,12 +407,12 @@ StopProfiler()
 		#--> __(♥)__♥__♥__
 	}
 	
-	StopProfiler()
-	# Executed in 0.04 second(s)
+StopProfiler()
+# Executed in 0.10 second(s)
 
 /*---------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("__♥__♥__♥)__") {
 	
@@ -392,12 +421,12 @@ StopProfiler()
 		#--> __♥__♥__(♥)__
 	}
 	
-	StopProfiler()
-	# Executed in 0.05 second(s)
+StopProfiler()
+# Executed in 0.10 second(s)
 
 /*===------------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("__♥__♥__♥__") {
 	
@@ -406,12 +435,12 @@ StopProfiler()
 		#--> __ ♥ __ ♥ __ ♥ __
 	}
 	
-	StopProfiler()
-	# Executed in 0.06 second(s)
+StopProfiler()
+# Executed in 0.06 second(s)
 
 /*-----------------
-*/
-	StartProfiler()
+
+StartProfiler()
 	
 	Q("__♥__♥__♥__") {
 	
@@ -419,13 +448,13 @@ StopProfiler()
 		? Content()
 		#--> __/♥\__/♥\__/♥\__
 	}
-	# Executed in 0.06 second(s)
+	# Executed in 0.11 second(s)
 	
-	StopProfiler()
+StopProfiler()
 
 /*-----------------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("__♥__♥__♥__") {
 	
@@ -434,13 +463,13 @@ StopProfiler()
 		#--> __♥__/♥\__♥__
 	}
 	
-	StopProfiler()
-	# Executed in 0.06 second(s)
+StopProfiler()
+# Executed in 0.12 second(s)
 
 
 /*-----------------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("__♥__/♥\__/♥\__") {
 	
@@ -449,12 +478,12 @@ StopProfiler()
 		#--> __/♥\__/♥\__/♥\__
 	}
 	
-	StopProfiler()
-	# Executed in 0.06 second(s)
+StopProfiler()
+# Executed in 0.06 second(s)
 
 /*-----------------
 
-	StartProfiler()
+StartProfiler()
 	
 	Q("__/♥\__/♥\__♥__") {
 	
@@ -463,6 +492,6 @@ StopProfiler()
 		#--> __/♥\__/♥\__/♥\__
 	}
 	
-	StopProfiler()
-	# Executed in 0.07 second(s)
+StopProfiler()
+# Executed in 0.14 second(s)
 

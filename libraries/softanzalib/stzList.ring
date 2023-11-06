@@ -34035,6 +34035,22 @@ vvv
 			return FALSE
 		ok
 
+	def IsAtOrAtSubStringNamedParam()
+		if This.IsAtNamedParam() or This.IsAtSubStringNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IfAtSubStringOrAtNamedParam()
+			return This.IsAtOrAtSubStringNamedParam()
+
+		def IsAtOrAtSubStringNamedParams()
+			return This.IsAtOrAtSubStringNamedParam()
+
+		def IfAtSubStringOrAtNamedParams()
+			return This.IsAtOrAtSubStringNamedParam()
+
 	def IsAtThisSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This[1]) and  This[1] = :AtThisSubString )
