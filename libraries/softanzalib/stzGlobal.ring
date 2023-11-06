@@ -2053,6 +2053,7 @@ func eval@(pcExpr, paItems) # WARNING: if you change paItems name,
 	cCode = 'value = (' +
 		Q(cExpr).ReplaceCSQ("This", "paItems", :CS = FALSE).Content() +
 		')'
+? cCode
 
 	for @i = 1 to nLen
 		eval(cCode)
