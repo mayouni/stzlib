@@ -4,6 +4,15 @@ load "stzlib.ring"
 */
 pron()
 
+o1 = new stzString("mmmMMMaaAAAiii")
+? o1.Classify(:Using = 'Q(@char).Case()')
+
+proff()
+
+/*================
+
+pron()
+
 o1 = new stzString("---,---;---[---]---:---")
 
 ? @@( o1.SplitAt([ ",", ";", "[", "]", ":" ]) ) + NL
