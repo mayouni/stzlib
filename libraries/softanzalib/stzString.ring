@@ -50721,7 +50721,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		cCode = StzStringQ(pcPartionner).
 				SimplifyQ().
-				RemoveTheseBoundsQ(["{","}"]).
+				RemoveTheseBoundsQ("{","}").
 				ReplaceCSQ("@item", "@char", :CaseSensitive = FALSE).
 				Content()
 
@@ -50985,10 +50985,10 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		return aResult
 
 		def Classified(pcClassifier)
-			return This.PartsClassified()
+			return This.PartsClassified(pcClassifier)
 
 		def Classify(pcClassifier)
-			return This.PartsClassified()
+			return This.PartsClassified(pcClassifier)
 
 	  #-------------------------------------------------------------#
 	 #  GETTINING THE PARTS OF STRING VERIFYING A GIVEN CONDITION  # TODO
