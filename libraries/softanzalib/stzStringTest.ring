@@ -4704,17 +4704,17 @@ StopProfiler()
 #--> Executed in 0.28 second(s)
 
 /*----------------
-*/
+
 StartProfiler()
 
 o1 = new stzList([ "A", "B", "c", "d", "e", "F" , "G" ])
 
-o1.ReplaceSection(3, 5, :By@ = '{ @EachItemQ.Uppercased() }')
+o1.ReplaceSection(3, 5, :By@ = 'Q(@EachItem).Uppercased()')
 ? o1.Content()
 #--> [ "A", "B", "C", "D", "E", "F", "G" ]
 
 StopProfiler()
-#--> Executed in 0.011 second(s)
+#--> Executed in 0.26 second(s)
 
 /*===================
 
@@ -4729,7 +4729,7 @@ Q("Ring programmin language.") {
 }
 
 StopProfiler()
-#--> Executed in 0.02 second(s)
+#--> Executed in 0.04 second(s)
 
 /*-----------
 
@@ -9465,6 +9465,8 @@ o1 = new stzString("ring language is nice language")
 
 /*----------------
 
+pron()
+
 o1 = new stzString("<<script>>func return :done<<script>>")
 ? o1.RemoveAllQ("<<script>>").Content()
 #--> "func return :done"
@@ -9480,34 +9482,52 @@ o1.RemoveNFirstChars(10)
 ? o1.Content()
 #--> "func return :done"
 
+proff()
+# Executed in 0.04 second(s)
+
 /*----------------
+
+pron()
 
 o1 = new stzString("Softanza loves simplicity")
 ? o1.ReplaceFirstQ( o1.Section(10, :LastChar), "arrives!").Content()
 #--> "Softanza arrives!"
 
-/*----------------
+proff()
+# Executed in 0.04 second(s)
+
+/*---------------- TODO
+
+pron()
 
 o1 = new stzString("<script>func return :done<script/>")
 ? o1.IsBoundedBy(["<script>", :And = "<script/>"])
 #--> TRUE
 
-o1.RemoveTheseBounds("<script>", "<script/>")
+o1.RemoveTheseBounds("<script>", "<script/>") # TODO: Check this!
 ? o1.Content()
 #--> "func return :done"
 
+proff()
+# Executed in 0.14 second(s)
+
 /*----------------
 
-? StzStringQ("{nnnnn}").IsBoundedBy(["{","}"]) #--> TRUE
+pron()
+
+? StzStringQ("{nnnnn}").IsBoundedBy(["{","}"])
+#--> TRUE
 
 o1 = new stzString("بسم الله الرّحمن الرّحيم")
 ? o1.IsBoundedBy(["بسم", "الرّحيم"])
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
 
 /*---------------- TODO
-*/
-pron()
 
-? "hi"
+pron()
 
 o1 = new stzString("بسم الله الرّحمن الرّحيم")
 ? o1.FindTheseBounds("بسم", "الرّحيم")
