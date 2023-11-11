@@ -1158,8 +1158,34 @@ class stzObject
 	def VarName()
 		return @cVarName
 
+		#< @FunctionFluentForm
+
 		def VarNameQ()
 			return new stzString( This.VarName() )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ObjectName()
+			return This.VarName()
+
+			def ObjectNameQ()
+				return This.VarNameQ()
+
+		def Name()
+			return This.VarName()
+
+			def NameQ()
+				return This.VarNameQ()
+
+		def ObjectVarName()
+			return This.VarName()
+
+			def ObjectVarNameQ()
+				return This.VarNameQ()
+
+		#>
 
 	def IsUnnamed()
 		if This.VarName() = :@NoName
@@ -1222,6 +1248,20 @@ class stzObject
 
 		#< @FunctionAlternativeForms
 
+		def SetVarNameTo(pcVarName)
+			This.SetVarName(pcVarName)
+
+		def SetObjectVarName(pcVarName)
+			This.SetVarName(pcVarName)
+
+		def SetObjectVarNameTo(pcVarName)
+			This.SetVarName(pcVarName)
+
+		def SetObjectName(pcVarName)
+			This.SetVarName(pcVarName)
+
+		def SetName(pcVarName)
+			This.SetVarName(pcVarName)
 
 		#>
 

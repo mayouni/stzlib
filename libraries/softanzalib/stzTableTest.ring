@@ -1,5 +1,23 @@
 load "stzlib.ring"
 
+pron()
+
+# Special syntax to enable the SQL syntax in Ring
+
+o1 = new stzTable([])
+? ObjectIsStzObject(o1)
+#--> TRUE
+
+o1.@([
+	:COL2 = :INT,
+	:COL3 = VARCHAR(30)
+])
+
+o1.Show()
+#--> :COL1  :COL2  :COL3
+#    NULL   NULL   NULL
+
+proff()
 
 /*--------------
 

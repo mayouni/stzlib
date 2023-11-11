@@ -1,4 +1,5 @@
-# 		    SOFTANZA LIBRARY (V1.0) - STZHASHLIST			    #
+#---------------------------------------------------------------------------#
+# 		    SOFTANZA LIBRARY (V1.0) - STZHASHLIST		    #
 #		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
 #									    #

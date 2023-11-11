@@ -1,5 +1,103 @@
 load "stzlib.ring"
 
+
+/*==== SQL SUPPORT IN SOFTANZA EXTERNAL CODE
+*/
+pron()
+
+# SQL code to create a table with three columns
+
+'
+	CREATE TABLE persons (
+		id	SMALLINT,
+		name	VARCHAR(30),
+		score	SMALLINT,
+	);
+'
+
+# The Softanza code for creating the same table inside a stzTable object
+
+	CREATE_TABLE( :persons ) {
+
+		@([
+
+		:id    = SMALLINT, 	# NOTE: the SQL datatype is not managed yet
+		:name  = VARCHAR(30),
+		:score = SMALLINT
+
+		])
+
+	};
+
+	# At this level, and in the background, Softanza create a named stzTable object
+	# that we can call using the small function v() and check its structure:
+
+	v(:persons).Show()
+	#--> :ID    :NAME   :SCORE
+	#     NULL   NULL    NULL
+
+# SQL code to insert data into the table
+
+'
+	INSERT INTO persons ( id, name, score )
+
+	VALUES 	( 1, "Bob",  89 );
+		( 2, "Dan", 120 );
+		( 3, "Tim",  56 );
+'
+# Ring code to insert data in stzTable
+
+	INSERT_INTO( :persons, [ :id, :name, :score ] )
+
+	VALUES([
+		[ 1, 'Bob',  89 ],
+		[ 2, 'Dan', 120 ],
+		[ 3, 'Tim',  56 ]
+	]);
+
+	# Let's check the stzTable object again
+
+	? v(:persons).Show()
+	#--> :ID  :NAME  :SCORE
+	#      1    Bob      89
+	#      2    Dan     120
+	#      3    Tim      56
+
+	# Let's add a more one row
+
+	VALUES([
+		[ 4, 'Roy', 100 ]
+	])
+
+	v(:persons).Show()
+	#--> :ID  :NAME  :SCORE
+	#      1    Bob      89
+	#      2    Dan     120
+	#      3    Tim      56
+	#      4    Roy     100
+
+# SQL code to select data from the table
+
+'
+	SELECT name, score
+	FROM :persons
+	WHERE score > 80;
+'
+
+? "---" + NL
+
+# The sale selection in Ring code
+
+	SELECT([ :name, :score ])
+	FROM_( :persons )
+	WHERE_( 'score > 80' );
+
+? @@( _aSELECT_FROM_WHERE )
+
+# SQL code to sort the table by score
+
+proff()
+
 /*==============
 
 pron()
@@ -1171,7 +1269,7 @@ StopProfiler()
 # Executed in 0.04 second(s)
 
 /*==== Using a C# code inside Ring  #===
-*/
+
 StartProfiler()
 
 	# This is a C# code showing string interpolation:

@@ -1,0 +1,72 @@
+-- select age and country columns from customers table where the country is 'USA' 
+SELECT age, country
+FROM Customers
+WHERE country = 'USA';
+
+-- select all columns from Customers table with first name 'John'
+SELECT *
+FROM Customers
+WHERE first_name = 'John';
+
+-- select all columns from Customers table with age greater than 25
+SELECT *
+FROM Customers
+WHERE age > 25;
+
+-- select all columns from Customers table with last_name 'Doe' and country 'USA'
+SELECT *
+FROM Customers
+WHERE last_name = 'Doe' AND country = 'USA';
+
+-- returns new column named total_amount which is 
+-- 100 added to the amount field
+SELECT item, amount, amount+100 AS total_amount
+FROM Orders;
+
+-- returns new column named offer_price which is 
+-- 20 subtracted to the amount field
+SELECT item, amount, amount-20 AS offer_price
+FROM Orders;
+
+-- returns new column named total_amount  which is 
+-- 4 multiplied to the amount field
+SELECT item, amount, amount*4 AS total_amount
+FROM Orders;
+
+-- returns new column named half_amount which is 
+-- divided by 2 to the amount field
+SELECT item, amount, amount/2 AS half_amount
+FROM Orders;
+
+-- returns 1 which is remainder
+SELECT 10 % 3 AS result;
+
+-- returns records where customer_id is only 4
+SELECT order_id, item, amount
+FROM Orders
+WHERE customer_id = 4;
+
+-- returns records where amount is less than 400 (exclusive)
+SELECT order_id, item, amount
+FROM Orders
+WHERE amount < 400;
+
+-- returns records where amount is greater than 400 (exclusive)
+SELECT order_id, item, amount
+FROM Orders
+WHERE amount > 400;
+
+-- returns records where amount is less than or equal to 400
+SELECT order_id, item, amount
+FROM Orders
+WHERE amount <= 400;
+
+-- returns records where amount is greater than or equal to 400
+SELECT order_id, item, amount
+FROM Orders
+WHERE amount >= 400;
+
+-- returns records where amount is not equal to 400
+SELECT order_id, item, amount
+FROM Orders
+WHERE amount != 400;

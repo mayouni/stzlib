@@ -4,6 +4,15 @@ load "stzlib.ring"
 */
 pron()
 
+? Q(1:7) - [1, 2, 6, 7] # TODO: check it's the same for all the library
+#--> [ 3, 4, 5 ]
+
+proff()
+
+/*---------------
+
+pron()
+
 o1 = new stzListOfNumbers(1:5)
 ? o1.NumbersGreaterThan(3)
 #--> [4, 5]

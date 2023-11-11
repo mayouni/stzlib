@@ -1,5 +1,18 @@
 load "stzlib.ring"
 
+/*-------- TODO: erronous char name
+
+pron()
+
+? StzCharQ(63).Content()
+
+? Q("🔻").Unicode()
+
+? QQ("🔻").Name() # TODO: Correct this
+#!--> QUESTION MARK
+
+proff()
+
 /*================
 */
 pron()
