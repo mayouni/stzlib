@@ -39,12 +39,15 @@ https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-
 # TODO: Add support of Excel functions
 
 # TODO: Add Paging feature
+
+# TODO : Support SQL statements
+
 */
 
 func StzTableQ(paTable)
 	return new stzTable( paTable )
 
-Class stzTable
+Class stzTable from stzObject
 	@aTable = []
 
 	# Table content is stored as a hashlist where keys are col names
@@ -72,6 +75,7 @@ Class stzTable
 	
 		# Way 1: new stzTable([])
 		#--> Creates an empty table with just a column and a row
+		# TODO: Review this choice!
 
 		# Way 2: new stzTable([3, 4])
 		#--> Creates a tale of 3 columns and 4 rows, all cells are empty
@@ -8633,7 +8637,7 @@ Class stzTable
 	#======================#
 
 	def Update(paNewTable)
-		if isList(paNewTable) and Q(paNewTable).WithOrByOrUsingNamedParam()
+		if isList(paNewTable) and Q(paNewTable).IsWithOrByOrUsingNamedParam()
 			paNewTable = paNewTable[2]
 		ok
 
@@ -10627,3 +10631,41 @@ Class stzTable
 
 		def TheseRowsAsNumbers(paRows)
 			return This.TheseRowsToRowsNumbers(paRows)
+
+	  #=============================#
+	 #  USED BY SQL EXTERNAL CODE  #
+	#=============================#
+
+	def @(paColNames)
+		/*
+		@([
+
+		:id    = SMALLINT,
+		:name  = VARCHAR(30),
+		:score = SMALLINT
+
+		])
+		*/
+
+		if CheckParams()
+			if NOT ( isList(paColNames) and Q(paColNames).IsHasHListOrListOfStrings() )
+				StzRaise("Incorrect param type! paColNames must be a hashlist.")
+			ok
+		ok
+
+		nLen = len(paColNames)
+		acColNames = []
+
+		if Q(paColNames).IsListOfStrings()
+			for i = 1 to nLen
+				acColNames + [ paColNames[i], [NULL] ]
+			next
+
+		else // IsHashList()
+			for i = 1 to nLen
+				acColNames + [ paColNames[i][1], [NULL] ]
+			next
+		ok
+
+		This.AddCols(acColNames)
+		This.RemoveCol(1)

@@ -30,12 +30,29 @@ say = new say	# Raku / Perl language
 
 int = new IntObject
 
+# SQL statements
+
+_aINSERT_INTO_VALUES = []
+
+_aSELECT_FROM_WHERE = []
+
+SMALLINT = :SMALLINT
+TABLE = :TABLE
+
+
+
   ///////////////////
  ///  FUNCTIONS  ///
 ///////////////////
 
 func TempVars()
-	aResult = QR( _aVars, :stzHashList).Keys()
+
+	aResult = []
+	nLen = len(_aVars)
+	for i = 1 to nLen
+		aResult + _aVars[i][1]
+	next
+
 	return aResult
 
 	func TempVarsNames()
@@ -45,7 +62,12 @@ func TempVars()
 		return TempVars()
 
 func TempVals()
-	aResult = QR( _aVars, :stzHashList).Values()
+	aResult = []
+	nLen = len(_aVars)
+	for i = 1 to nLen
+		aResult + _aVars[i][2]
+	next
+
 	return aResult
 
 func TempVarsVals()
@@ -269,7 +291,6 @@ func Vl(paVals)
 		if n > 0
 			_aVars[n][2] = paVals[i]
 			if ObjectIsStzObject(paVals[i])
-
 				paVals[i].SetObjectVarNameTo(_aVars[n][1])
 			ok
 		else
@@ -306,6 +327,9 @@ func _if(pExpressionOrBoolean)
 		_bVarReset = TRUE
 	ok
 
+	func if_(pExpressionOrBoolean)
+		return _if(pExpressionOrBoolean)
+
 func _else(value)
 
 	aValues = []
@@ -326,6 +350,9 @@ func _else(value)
 			setV([ acTempVarsNames[i], aValues[i] ])
 		next
 	ok
+
+	func else_(value)
+		return _else(value)
 
 # Used for ternary operator in C
 
@@ -595,6 +622,138 @@ func f(str) // Python
 
 func exec(cCode) // Python
 	eval(cCode)
+
+# Used for SQL
+
+func VARCHAR(n)
+	# Does nothing now --> TODO (future)
+
+func CREATE_TABLE(pcName)
+
+	oTable = new stzTable([])
+	oTable.SetName(pcName)
+
+	Vr(pcName) '=' Vl(oTable)
+
+	return v(pcName)
+
+func INSERT_INTO(pcTableName, pacColNames)
+
+	/* EXAMPLE
+
+	INSERT_INTO( :persons, [ :id, :name, :score ] )
+
+	VALUES([
+		[ 1, 'Bob', 120 ],
+		[ 2, 'Dan',  89 ],
+		[ 3, 'Tim',  56 ]
+	]);
+
+	*/
+
+	if CheckParams()
+		if NOT isString(pcTableName)
+			StzRaise("Incorrect param type! pcTableName must be a string.")
+		ok
+
+		if NOT ring_find(TempVars(), pcTableName) > 0
+			StzRaise("Undefined named variable!")
+		ok
+
+		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+			StzRaise("Incorrect param type! pacColNames must be a list of string.")
+		ok
+
+	ok
+
+	_aINSERT_INTO_VALUES = [ pcTableName, pacColNames ]
+
+func VALUES(paValues)
+	if CheckParams()
+		if NOT ( isList(paValues) and Q(paValues).IsListOfLists() )
+			StzRaise("Incorrect param type! paValues must be a list of lists.")
+		ok
+	ok
+
+	_aINSERT_INTO_VALUES + paValues
+
+	cTableName = _aINSERT_INTO_VALUES[1]
+	oStzTable  = v(_aINSERT_INTO_VALUES[1])
+
+	nLen = len(paValues)
+
+	if nLen > 0
+
+		# Case 1 : stzTable contains no rows (other than the null
+		# 	   row 1 added by default when the object is created
+
+		if oStzTable.NumberOfRows() = 1 AND oStzTable.IsEmpty()
+
+			oStzTable.ReplaceRow(1, paValues[1])
+	
+			if nLen > 1
+				ring_remove(paValues, 1)
+				oStzTable.AddRows(paValues)
+			ok
+
+		else
+		# Case 2 : stzTable already contains data
+			oStzTable.AddRows(paValues)
+
+		ok
+	ok
+
+	_aVars[cTableName] = oStzTable
+
+func SELECT(pacColNames)
+
+	if CheckParams()
+
+		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+			StzRaise("Incorrect param type! pacColNames must be a list of string.")
+		ok
+
+	ok
+
+	_aSELECT_FROM_WHERE + pacColNames
+
+func FROM_(pcTableName)
+
+	if CheckParams()
+		if NOT isString(pcTableName)
+			
+		ok
+	ok
+
+	_aSELECT_FROM_WHERE + pcTableName
+
+	# TODO: Check if the pcTableName existe as a named variable
+	# and containing a stzTable object as a value
+
+	v(pcTableName).RemoveRowsOtherThan(_aSELECT_FROM_WHERE[1])
+
+
+	func _FROM(pcTableName)
+		return FROM_(pcTableName)
+
+	func _FROM_(pcTableName)
+		return FROM_(pcTableName)
+
+func WHERE_(pcCondition)
+
+	if CheckParams()
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+	ok
+
+	_aSELECT_FROM_WHERE + pcCondition
+
+	func _WHERE(pcCondition)
+		return WHERE_(pcCondition)
+
+	func _WHERE_(pcCondition)
+		return WHERE_(pcCondition)
 
   /////////////////
  ///  CLASSES  ///

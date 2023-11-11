@@ -3775,7 +3775,7 @@ class stzList from stzObject
 	def RemoveAllCS(pItem, pCaseSensitive)
 		if CheckParams()
 			if isList(pItem)
-				This.RemoveManyCS(pcSubStr, pCaseSensitive)
+				This.RemoveManyCS(pItem, pCaseSensitive)
 				return
 			ok
 
@@ -6600,6 +6600,16 @@ class stzList from stzObject
 			return This.AllItemsAreHashLists()
 
 		#>
+
+	def IsHashListOrListOfStrings()
+		if This.IsListOfStrings() or This.IsHashList()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsListOfStringsOrHashList()
+			return This.IsHashListOrListOfStrings()
 
 	def ItemsAreListsOfSameSize()
 		if This.NumberOfItems() = 0
@@ -16462,12 +16472,26 @@ class stzList from stzObject
 
 		#
 
-	  #-----------------------------------------#
-	 #  FINDING THE OCCURRENCES OF MANY ITEMS  #
-	#=========================================#
+	  #--------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES OF EACH ITEM CONTAINED IN THE LIST  #
+	#==============================================================#
 	# NOTE: for performance reason, the items are stringified.
 
-	def FindItemsCS(pCaseSensitive)
+	def FindItemsCS(pCaseSensitive) # TODO: Is it a kind of Index() ?
+		/* EXAMPLE
+
+		o1 = new stzList([ "Ab", "Im", "Ab", "Cf", "Fd", "Ab", "Cf" ])
+
+		? @@( o1.FindItems() ) # Or PositionsOfEachItem()
+
+		#--> [
+		#	[ "Ab", [ 1, 3, 6 ] ],
+		#	[ "Im", [ 2 ] ],
+		#	[ "Cf", [ 4, 7 ] ],
+		#	[ "Fd", [ 5 ] ]
+		# ]
+
+		*/
 
 		# Checking params
 
@@ -21790,6 +21814,16 @@ class stzList from stzObject
 
 		#
 
+		#< @FunctionAlternativeForms
+
+		def FindTheseItemsCS(paItems, pCaseSensitive)
+			return This.FindManyCS(paItems, pCaseSensitive)
+
+		def FindTheseCS(paItems, pCaseSensitive)
+			return This.FindManyCS(paItems, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindMany(paItems)
@@ -21802,6 +21836,16 @@ class stzList from stzObject
 
 		def FindManyQR(paItems, pcReturnType)
 			return This.FindManyCSQR(paItems, :CaseSensitive = TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindTheseItems(paItems)
+			return This.FindMany(paItems)
+
+		def FindThese(paItems)
+			return This.FindMany(paItems)
 
 		#>
 
@@ -21829,7 +21873,17 @@ class stzList from stzObject
 		def FindManyCSXTQ(paItems)
 			return new stzList( This.FindManyCSXT(paItems, pCaseSensitive) )
 
-		#
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindTheseItemsCSXT(paItems, pCaseSensitive)
+			return This.FindManyCSXT(paItems, pCaseSensitive)
+
+		def FindTheseCSXT(paItems, pCaseSensitive)
+			return This.FindManyCSXT(paItems, pCaseSensitive)
+
+		#>
 
 	#-- CASESENSITIVITY
 
@@ -21841,7 +21895,61 @@ class stzList from stzObject
 		def FindManyXTQ(paItems)
 			return new stzList( This.FindManyXT(paItems) )
 
-		#
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindTheseItemsXT(paItems)
+			return This.FindManyXT(paItems)
+
+		def FindTheseXT(paItems)
+			return This.FindManyXT(paItems)
+
+		#>
+
+	  #-------------------------------------------#
+	 #  FINDING ITEMS OTHER THAN THOSE PROVIDED  #
+	#-------------------------------------------#
+
+	def FindItemsOtherThanCS(paItems, pCaseSensitive)
+
+		anPos = This.FindTheseItemsCS(paItems, pCaseSensitive)
+
+		nLen = This.NumberOfItems()
+		anResult = Q( 1 : nLen) - anPos
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindItemsExceptCS(paItems, pCaseSensitive)
+			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+
+		def FindItemsOtherThanTheseCS(paItems, pCaseSensitive)
+			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+
+		def FindItemsExceptTheseCS(paItems, pCaseSensitive)
+			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+
+		#>
+
+	#-- WTIHOUT CASESENSITIVITY
+
+	def FindItemsOtherThan(paItems)
+		return This.FindItemsOtherThanCS(paItems, :CaseSensitive)
+
+		#< @FunctionAlternativeForms
+
+		def FindItemsExcept(paItems)
+			return This.FindItemsOtherThan(paItems)
+
+		def FindItemsOtherThanThese(paItems)
+			return This.FindItemsOtherThan(paItems)
+
+		def FindItemsExceptThese(paItems)
+			return This.FindItemsOtherThan(paItems)
+
+		#>
 
 	  #-------------------------------------------------------------------#
 	 #  FINDING ALL OCCURRENCES OF AN ITEM, EXCEPT THE FIRST OCCURRENCE  #
@@ -23562,6 +23670,12 @@ class stzList from stzObject
 		def AllItemsOutside(panPos)
 			return This.ItemsOutsidePositions(panPos)
 
+		def AllItemsAtPositionsOtherThan(panPos)
+			return This.ItemsOutsidePositions(panPos)
+
+			def AllItemsAtPositionsOtherThen(panPos)
+				return This.ItemsOutsidePositions(panPos)
+
 		#--
 
 		def AllItemsNotAtPositions(panPos)
@@ -23578,6 +23692,12 @@ class stzList from stzObject
 
 		def AllItemsNotAt(panPos)
 			return This.ItemsOutsidePositions(panPos)
+
+		def ItemsAtPositionsOtherThan(panPos)
+			return This.ItemsOutsidePositions(panPos)
+
+			def ItemsAtPositionsOtherThen(panPos)
+				return This.ItemsOutsidePositions(panPos)
 
 		#>
 

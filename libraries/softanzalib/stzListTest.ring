@@ -1,6 +1,17 @@
 load "stzlib.ring"
 
 /*----------
+*/
+pron()
+
+o1 = new stzList([ "♥", "A", "B", "C", "♥" ])
+? o1.FindItemsOtherThan([ "A", "B", "C" ])
+#--> [1, 5]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*----------
 
 pron()
 

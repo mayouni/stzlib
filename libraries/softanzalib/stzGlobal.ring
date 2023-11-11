@@ -826,6 +826,12 @@ func ring_right(str, n)
 func ring_del(paList, n)
 	del(paList, n)
 
+	func ring_remove(paList, n) # An alternative I added to the Ring semantics
+		del(paList, n)
+
+	func remove(paList, n)	    # Idem
+		del(paList, n)
+
 func ring_copy(p1, p2)
 	return copy(p1, p2)
 
@@ -1832,7 +1838,7 @@ func QR(p, pcType)
 	ok
 
 	if Q(pcType).IsStzClassName()
-		cCode = "oResult = new " + pcType + "(" + @@(p) + ")"
+		cCode = "oResult = new " + pcType + '(' + @@(p) + ')'
 
 		eval(cCode)
 
