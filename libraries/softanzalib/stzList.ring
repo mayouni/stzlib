@@ -28,6 +28,29 @@ func StzListClassName()
 	func StzListClass()
 		return "stzlist"
 
+func U(p)
+	/* EXAMPLE
+
+	? U([ "♥", 1, 2, 2, "♥", "♥", 3 ]) # Or Unique() or WithoutDuplicates()
+	#--> [ "♥", 1, 2, 3 ]
+	
+	*/
+
+	if CheckParams()
+		if NOT isList(p)
+			StzRaise("Incorrect param type!")
+		ok
+	ok
+
+	result = StzListQ(p).WithoutDuplicates()
+	return result
+
+	func WithoutDuplicates(p)
+		return U(p)
+
+	func Unique(p)
+		return U(p)
+
 func L(p)
 
 	if isList(p)
@@ -18987,6 +19010,9 @@ class stzList from stzObject
 			
 			def ItemsUQR(pcReturnType)
 				return This.ToSetQR(pcReturnType)
+
+		def WithoutDuplicates()
+			return This.DuplicatesRemoved()
 
 		def WithoutDuplication()
 			return This.DuplicatesRemoved()
