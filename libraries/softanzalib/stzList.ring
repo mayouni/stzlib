@@ -4075,6 +4075,79 @@ class stzList from stzObject
 
 		#>
 
+	  #--------------------------------------------#
+	 #  REMOVING ITEMS OTHER THAN THOSE PROVIDED  #
+	#--------------------------------------------#
+
+	def RemoveItemsOtherThanCS(paItems, pCaseSensitive)
+		anPos = This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+		This.RemoveItemsAtPositions(anPos)
+
+		#< @FunctionAlternativeForms
+
+		def RemoveItemsOtherThanTheseCS(paItems, pCaseSensitive)
+			return This.RemoveItemsOtherThanCS(paItems, pCaseSensitive)
+
+		#--
+
+		def RemoveItemsExceptCS(paItems, pCaseSensitive)
+			return This. RemoveItemsOtherThanCS(paItems, pCaseSensitive)
+
+		def RemoveItemsExceptTheseCS(paItems, pCaseSensitive)
+			return This.RemoveItemsOtherThanCS(paItems, pCaseSensitive)
+
+		#--
+
+		def RemoveAllExceptCS(paItems, pCaseSensitive)
+			return This.RemoveItemsOtherThanCS(paItems, pCaseSensitive)
+
+		def RemoveAllExceptTheseCS(paItems, pCaseSensitive)
+			return This.RemoveItemsOtherThanCS(paItems, pCaseSensitive)
+
+		#>
+
+	def ItemsOtherThanTheseRemovedCS(paItems, pCaseSensitive)
+		aResult = Q( This.Copy().RemoveItemsOtherThanCS(paItems, pCaseSensitive) ).Content()
+		return aResult
+
+		def ItemsRemovedExceptCS(paItems, pCaseSensitive)
+			return This.ItemsOtherThanTheseRemovedCS(paItems, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveItemsOtherThan(paItems)
+		return This.RemoveItemsOtherThanCS(paItems, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def RemoveItemsOtherThanThese(paItems)
+			return This.RemoveItemsOtherThan(paItems)
+
+		#--
+
+		def RemoveItemsExcept(paItems)
+			return This.RemoveItemsOtherThan(paItems)
+
+		def RemoveItemsExceptThese(paItems)
+			return This.RemoveItemsOtherThan(paItems)
+
+		#--
+
+		def RemoveAllExcept(paItems)
+			return This.RemoveItemsOtherThan(paItems)
+
+		def RemoveAllExceptThese(paItems)
+			return This. RemoveItemsOtherThan(paItems)
+
+		#>
+
+	def ItemsOtherThanTheseRemoved(paItems)
+		aResult = Q( This.Copy().RemoveItemsOtherThan(paItems) ).Content()
+		return aResult
+
+		def ItemsRemovedExcept(paItems)
+			return This.ItemsOtherThanTheseRemoved(paItems)
+
 	  #-------------------------------------------------#
 	 #   REMOVING THE NTH OCCURRENCE OF A GIVEN ITEM   #
 	#-------------------------------------------------#
@@ -21944,6 +22017,15 @@ class stzList from stzObject
 	#-------------------------------------------#
 
 	def FindItemsOtherThanCS(paItems, pCaseSensitive)
+		if CheckParams()
+
+			if NOT isList(paItems)
+				aTemp = []
+				aTemp + paItems
+				paItems = aTemp
+			ok
+
+		ok
 
 		anPos = This.FindTheseItemsCS(paItems, pCaseSensitive)
 
