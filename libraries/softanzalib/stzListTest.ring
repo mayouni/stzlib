@@ -4,6 +4,16 @@ load "stzlib.ring"
 */
 pron()
 
+? U([ "♥", 1, 2, 2, "♥", "♥", 3 ]) # Or Unique() or WithoutDuplicates()
+#--> [ "♥", 1, 2, 3 ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*----------
+
+pron()
+
 o1 = new stzList([ "♥", "A", "B", "C", "♥" ])
 ? o1.FindItemsOtherThan([ "A", "B", "C" ])
 #--> [1, 5]

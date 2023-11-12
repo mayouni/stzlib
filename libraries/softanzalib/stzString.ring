@@ -29283,16 +29283,16 @@ def ReplaceIBS()
 		anResult = This.FindTheseSubStringsCS(acChars, pCaseSensitive)
 		return anResult
 
-		def FindCharsCSZ(pCaseSensitive)
+		def FindTheseCharsCSZ(pCaseSensitive)
 			return This.FindCharsCS(pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindChars()
-		return This.FindCharsCS(:CaseSensitive = TRUE)
+	def FindTheseChars(pacChars)
+		return This.FindtheseCharsCS(pacChars, :CaseSensitive = TRUE)
 
-		def FindCharsZ()
-			return This.FindChars()
+		def FindTheseCharsZ(pacChars)
+			return This.FindChars(pacChars)
 
 	  #--------------------------------------------------------------#
 	 #  GETTING ALL CHARS IN THE STRING ALONG WITH THEIR POSITIONS  #
