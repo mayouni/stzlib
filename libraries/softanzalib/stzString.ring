@@ -29046,6 +29046,9 @@ def ReplaceIBS()
 		def FindManySubStringsCSZ(pacSubStr, pCaseSensitive)
 			return This.FindManyCS(pacSubStr, pCaseSensitive)
 
+		def FindTheseSubStringsCSZ(pacSubStr, pCaseSensitive)
+			return This.FindManyCS(pacSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -29081,7 +29084,10 @@ def ReplaceIBS()
 			return This.FindMany(pacSubStr)
 
 		def FindManySubStringsZ(pacSubStr)
-			return This.FindManyCS(pacSubStr)
+			return This.FindMany(pacSubStr)
+
+		def FindTheseSubStringsZ(pacSubStr)
+			return This.FindMany(pacSubStr)
 
 		#>
 
@@ -29123,6 +29129,9 @@ def ReplaceIBS()
 		def FindManySubStringsCSZZ(pacSubStr, pCaseSensitive)
 			return This.FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
 
+		def FindTheseSubStringsCSZZ(pacSubStr, pCaseSensitive)
+			return This.FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -29141,7 +29150,76 @@ def ReplaceIBS()
 		def FindManySubStringsZZ(pacSubStr)
 			return This.FindManyAsSections(pacSubStr)
 
+		def FindTheseSubStringsZZ(pacSubStr)
+			return This.FindManyAsSections(pacSubStr)
+
 		#>
+
+	  #----------------------------------------------------#
+	 #  GETTING THE GIVEN SUBSTRINGS AND THEIR POSITIONS  #
+	#----------------------------------------------------#
+
+	def TheseSubStringsCSZ(pacSubStr, pCaseSensitive)
+		if CheckParams()
+			if NOT (isList(pacSubStr) and Q(pacSubStr).IsListOfStrings())
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
+		ok
+
+		acSubStr = Q(pacSubStr).ToSet()
+		nLen = len(acSubStr)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ pacSubStr[i], This.FindCS(pacSubStr[i], pCaseSensitive) ]
+		next
+
+		return aResult
+
+		def TheseSubStringsAndTheirPositionsCS(pacSubStr, pCaseSensitive)
+			return This.TheseSubStringsCSZ(pacSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def TheseSubStringsZ(pacSubStr)
+		return This.TheseSubStringsCSZ(pacSubStr, :CaseSensitive = TRUE)
+
+		def TheseSubStringsAndTheirPositions(pacSubStr)
+			return This.TheseSubStringsZ(pacSubStr)
+
+	  #---------------------------------------------------#
+	 #  GETTING THE GIVEN SUBSTRINGS AND THEIR SECTIONS  #
+	#---------------------------------------------------#
+
+	def TheseSubStringsCSZZ(pacSubStr, pCaseSensitive)
+		if CheckParams()
+			if NOT (isList(pacSubStr) and Q(pacSubStr).IsListOfStrings())
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
+		ok
+
+		acSubStr = Q(pacSubStr).ToSet()
+		nLen = len(acSubStr)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ pacSubStr[i], This.FindCSZZ(pacSubStr[i], pCaseSensitive) ]
+		next
+
+		return aResult
+
+		def TheseSubStringsAndTheirSectionsCS(pacSubStr, pCaseSensitive)
+			return This.TheseSubStringsCSZZ(pacSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def TheseSubStringsZZ(pacSubStr)
+		return This.TheseSubStringsCSZZ(pacSubStr, :CaseSensitive = TRUE)
+
+		def TheseSubStringsAndTheirSections(pacSubStr)
+			return This.TheseSubStringsZZ(pacSubStr)
 
 	  #=====================================#
 	 #  FINDING THINGS, THE EXTENDED FORM  #
@@ -66500,54 +66578,6 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return This.FindAnySplittedByCSQR(pcSeparator, :CaseSensitive = TRUE, pcReturnType)				
 
 		#>
-
-	  #-------------------------------#
-	 #  ALTERNATIVES OF FindManyZ()  #
-	#-------------------------------#
-
-	def TheseSubStringsAndTheirPositionsCS(pacSubStr, pCaseSensitive)
-		return This.FindManyCSZ(pacSubStr, pCaseSensitive)
-
-		def TheseSubStringsAndTheirPositionsCSQ(pacSubStr, pCaseSensitive)
-			return This.FindManyCSZQ(pacSubStr, pCaseSensitive)
-
-		def TheseSubStringsAndTheirPositionsCSQR(pacSubStr, pcReturnType)
-			return This.FindManyCSZQR(pacSubStr, pCaseSensitive, pcReturnType)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def TheseSubStringsAndTheirPositions(pacSubStr)
-		return This.FindManyZ(pacSubStr)
-
-		def TheseSubStringsAndTheirPositionsQ(pacSubStr)
-			return This.FindManyZZQ(pacSubStr)
-
-		def TheseSubStringsAndTheirPositionsQR(pacSubStr, pcReturnType)
-			return This.FindManyZQR(pacSubStr, pcReturnType)
-
-	  #--------------------------------#
-	 #  ALTERNATIVES OF FindManyZZ()  #
-	#--------------------------------#
-
-	def TheseSubStringsAndTheirSectionsCS(pacSubStr, pCaseSensitive)
-		return This.FindManyCSZZ(pacSubStr, pCaseSensitive)
-
-		def TheseSubStringsAndTheirSectionsCSQ(pacSubStr, pCaseSensitive)
-			return This.FindManyCSZZQ(pacSubStr, pCaseSensitive)
-
-		def TheseSubStringsAndTheirSectionsCSQR(pacSubStr, pcReturnType)
-			return This.FindManyCSZZQR(pacSubStr, pCaseSensitive, pcReturnType)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def TheseSubStringsAndTheirSections(pacSubStr)
-		return This.FindManyZZ(pacSubStr)
-
-		def TheseSubStringsAndTheirSectionsQ(pacSubStr)
-			return This.FindManyZZQ(pacSubStr)
-
-		def TheseSubStringsAndTheirSectionsQR(pacSubStr, pcReturnType)
-			return This.FindManyZZQR(pacSubStr, pcReturnType)
 
 	  #------------------------------#
 	 #  ALTERNATIVES OF FindNext()  #

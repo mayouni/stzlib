@@ -5050,11 +5050,11 @@ o1 = new stzList([ "_", "♥", "_", "★", "_", "♥" ])
 #--> [ 2, 4, 6 ]
 
 o1 = new stzString("_♥_★_♥_")
-? @@( o1.FindManyXT([ "♥", "★" ]) )
+? @@( o1.TheseCharsZ([ "♥", "★" ]) )
 #--> [ [ "♥", [ 2, 6 ] ], [ "★", [ 4 ] ] ]
 
 o1 = new stzList([ "_", "♥", "_", "★", "_", "♥" ])
-? @@( o1.FindManyXT([ "♥", "★" ]) )
+? @@( o1.TheseCharsZ([ "♥", "★" ]) )
 #--> [ [ "♥", [ 2, 6 ] ], [ "★", [ 4 ] ] ]
 
 /*-----------------
@@ -7588,20 +7588,27 @@ o1 = new stzString("BCAADDEFAGTILNXV")
 ? Q("XVTNLIGFEDDCBAAA").SortingOrder()	#--> :Descending
 
 /*=======================
+*/
+
+pron()
 
 o1 = new stzString("My name is Mansour. What's your name please?")
-? @@( o1.FindManyCS( [ "name", "your", "please" ], :CS = TRUE ) )
-#--> [ [ 4, 33 ], [ 28 ], [ 38 ] ]
 
-? @@( o1.FindMany( [ "name", "your", "please" ] ) )
-#--> [ [ 4, 33 ], [ 28 ], [ 38 ] ]
+? @@( o1.FindManyCS( [ "name", "your", "please" ], :CS = TRUE ) ) + NL
+#--> [ 4, 28, 33, 38 ]
 
-? @@( o1.FindManyCSXT( [ "name", "your", "please" ], :CS = TRUE ) )
+? @@( o1.FindMany( [ "name", "your", "please" ] ) ) + NL
+#--> [ 4, 28, 33, 38 ]
+
+? @@( o1.TheseSubStringsCSZ( [ "name", "your", "please" ], :CS = TRUE ) ) + NL
 #--> [ "name" = [ 4, 33 ], "your" = [ 28 ], "please" = [ 38 ] ]
 
 o1 = new stzString("My name is Mansour. What's your name please?")
-? @@(o1.FindManyXT( [ "name", "nothing", "please" ] ))
-#--> [ [ "name", [ 4, 33 ] ], [ "nothing", [ ] ], [ "please", [ 38 ] ] ]
+? @@(o1.TheseSubStringsZZ( [ "name", "nothing", "please" ] ))
+#--> [ [ "name", [ [ 4, 7 ], [ 33, 36 ] ] ], [ "nothing", [ ] ], [ "please", [ [ 38, 43 ] ] ] ]
+
+proff()
+# Executed in 0.11 second(s)
 
 /*====================
 
