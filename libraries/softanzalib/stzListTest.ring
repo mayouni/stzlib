@@ -5171,9 +5171,17 @@ o1 - [ "b", "a", "c" , "q" ]
 
 /*=====================
 
+pron()
+
 o1 = new stzList([ "a", "b", "e", "a", "c", "v", "e" ])
-? o1.FindMany([ "a", "e" ])	#--> [ 1, 3, 4, 7 ]
-? o1.FindManyXT([ "a", "e" ])	#--> [ "a" = [ 1, 4 ], "e" = [ 3, 7 ] ]
+
+? o1.FindMany([ "a", "e" ])
+#--> [ 1, 3, 4, 7 ]
+
+? o1.TheseItemsZ([ "a", "e" ])
+#--> [ "a" = [ 1, 4 ], "e" = [ 3, 7 ] ]
+
+proff()
 
 /*-----------------------
 
@@ -5238,8 +5246,8 @@ o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 ? o1.FindMany([ :one, :five ])
 #--> [ 1, 2, 3, 5, 6 ]
 
-? @@(o1.FindManyXT([ :one, :five ]))
-#--> [ :one = [1, 3, 5], :five = [ ] ]
+? @@(o1.TheseItemsZ([ :one, :five ]))
+#--> [ :one = [ 1, 3, 5 ], :five = [] ]
 
 /*---------------------
 
@@ -5247,8 +5255,8 @@ o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 ? o1.FindMany([ :one, :two, :four ])
 #--> [ 1, 2, 3, 5, 6 ]
 
-? o1.FindManyXT([ :one, :two, :four ])
-#--> [ :one = [1, 3, 5], :two = [2], :four = [6] ]
+? o1.TheseItemsZ([ :one, :two, :four ])
+#--> [ :one = [ 1, 3, 5 ], :two = [ 2 ], :four = [ 6 ] ]
 
 /*---------------------
 

@@ -21852,59 +21852,65 @@ class stzList from stzObject
 	  #------------------------------------------------------------------#
 	 #   FINDING THE OCCURRENCES OF MANY ITEMS IN THE LIST -- EXTENDED  #
 	#------------------------------------------------------------------#
-	
-	def FindManyCSXT(paItems, pCaseSensitive)
+
+	def TheseItemsCSZ(paItems, pCaseSensitive)
 		/*
 		o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
-		? o1.FindManyXT([ :one, :two, :four ])
+		? o1.TheseItemsZZ([ :one, :two, :four ])
 		#--> [ :one = [1, 3, 5], :two = [2], :three = [6] ]
 		*/
 
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+		ok
+
+		nLen = len(paItems)
+
 		aResult = []
 
-		for item in paItems
-			aResult + [ item, This.FindAllCS(item, pCaseSensitive) ]
+		for i = 1 to nLen
+			aResult + [ paItems[i], This.FindAllCS(paItems[i], pCaseSensitive) ]
 		next
 
 		return aResult
 
 		#< @FunctionFluentForm
 
-		def FindManyCSXTQ(paItems)
-			return new stzList( This.FindManyCSXT(paItems, pCaseSensitive) )
+		def TheseItemsCSZQ(paItems, pCaseSensitive)
+			return new stzList( This.TheseItemsCSZ(paItems, pCaseSensitive) )
 
 		#>
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
 
-		def FindTheseItemsCSXT(paItems, pCaseSensitive)
-			return This.FindManyCSXT(paItems, pCaseSensitive)
+		def TheseItemsAndTheirPositionsCS(paItems, pCaseSensitive)
+			return This.TheseItemsCSZ(paItems, pCaseSensitive)
 
-		def FindTheseCSXT(paItems, pCaseSensitive)
-			return This.FindManyCSXT(paItems, pCaseSensitive)
-
+			def TheseItemsAndTheirPositionsCSQ(paItems, pCaseSensitive)
+				return This.TheseItemsCSZQ(paItems, pCaseSensitive)
 		#>
 
 	#-- CASESENSITIVITY
 
-	def FindManyXT(paItems)
-		return This.FindManyCSXT(paItems, :CaseSensitive = TRUE)
+	def TheseItemsZ(paItems)
+		return This.TheseItemsCSZ(paItems, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def FindManyXTQ(paItems)
-			return new stzList( This.FindManyXT(paItems) )
+		def TheseItemsZQ(paItems)
+			return new stzList( This.TheseItemsZ(paItems) )
 
 		#>
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
 
-		def FindTheseItemsXT(paItems)
-			return This.FindManyXT(paItems)
+		def TheseItemsAndTheirPositions(paItems)
+			return This.TheseItemsZ(paItems)
 
-		def FindTheseXT(paItems)
-			return This.FindManyXT(paItems)
-
+			def TheseItemsAndTheirPositionsQ(paItems)
+				return This.TheseItemsZQ(paItems)
 		#>
 
 	  #-------------------------------------------#
@@ -21931,6 +21937,12 @@ class stzList from stzObject
 		def FindItemsExceptTheseCS(paItems, pCaseSensitive)
 			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
 
+		def FindOtherThanTheseItemsCS(paItems, pCaseSensitive)
+			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+
+		def FindOtherThanTheseCS(paItems, pCaseSensitive)
+			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+
 		#>
 
 	#-- WTIHOUT CASESENSITIVITY
@@ -21947,6 +21959,12 @@ class stzList from stzObject
 			return This.FindItemsOtherThan(paItems)
 
 		def FindItemsExceptThese(paItems)
+			return This.FindItemsOtherThan(paItems)
+
+		def FindOtherThanTheseItems(paItems)
+			return This.FindItemsOtherThan(paItems)
+
+		def FindOtherThanThese(paItems)
 			return This.FindItemsOtherThan(paItems)
 
 		#>
