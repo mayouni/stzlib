@@ -29221,6 +29221,103 @@ def ReplaceIBS()
 		def TheseSubStringsAndTheirSections(pacSubStr)
 			return This.TheseSubStringsZZ(pacSubStr)
 
+	  #--------------------------------------------------------#
+	 #  FINDING THE POSITIONS OF ALL THE CHARS IN THE STRING  #
+	#========================================================#
+
+# Add U() function in stzGlobal.ring
+
+	def FindCharsCS(pCaseSensitive)
+		acChars  = This.CharsCSU(pCaseSensitive) # TODO: Add the method
+		anResult = This.FindTheseSubStringsCS(acChars, pCaseSensitive)
+		return anResult
+
+		def FindCharsCSZ(pCaseSensitive)
+			return This.FindCharsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindChars()
+		return This.FindCharsCS(:CaseSensitive = TRUE)
+
+		def FindCharsZ()
+			return This.FindChars()
+
+	  #--------------------------------------------------------------#
+	 #  GETTING ALL CHARS IN THE STRING ALONG WITH THEIR POSITIONS  #
+	#--------------------------------------------------------------#
+
+	def CharsCSZ(pCaseSensitive)
+
+		aResult = [
+			This.CharsCS(pCaseSensitive),
+			This.FindCharsCSZ(pCaseSensitive)
+		]
+
+		return aResult
+
+		def CharsAndTheirPositionsCS(pCaseSensitive)
+			return This.CharsCSZ(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def CharsZ()
+		return This.CharsCSZ(:CaseSensitive = TRUE)
+
+		def CharsAndTheirPositions()
+			return This.CharsZ()
+
+	  #--------------------------------------------#
+	 #  FINDING THE POSITIONS OF THE GIVEN CHARS  #
+	#============================================#
+
+	def FindTheseCharsCS(pacChars, pCaseSensitive)
+
+		if CheckParams()
+			if NOT ( isList(pacChars) and Q(pacChars).IsListOfChars() )
+				StzRaise("Incorrect param type! pacChars must be a list of chars.")
+			ok
+		ok
+
+		acChars  = U( pacChars ) # TODO: Add the method
+		anResult = This.FindTheseSubStringsCS(acChars, pCaseSensitive)
+		return anResult
+
+		def FindCharsCSZ(pCaseSensitive)
+			return This.FindCharsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindChars()
+		return This.FindCharsCS(:CaseSensitive = TRUE)
+
+		def FindCharsZ()
+			return This.FindChars()
+
+	  #--------------------------------------------------------------#
+	 #  GETTING ALL CHARS IN THE STRING ALONG WITH THEIR POSITIONS  #
+	#--------------------------------------------------------------#
+
+	def TheseCharsCSZ(pacChars, pCaseSensitive)
+
+		aResult = [
+			pacChars,
+			This.FindTheseCharsCSZ(pacChars, pCaseSensitive)
+		]
+
+		return aResult
+
+		def TheseCharsAndTheirPositionsCS(pacChars, pCaseSensitive)
+			return This.TheseCharsCSZ(pacChars, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def TheseCharsZ(pacChars)
+		return This.TheseCharsCSZ(pacChars, :CaseSensitive = TRUE)
+
+		def TheseCharsAndTheirPositions(pacChars)
+			return This.TheseCharsZ(pacChars)
+
 	  #=====================================#
 	 #  FINDING THINGS, THE EXTENDED FORM  #
 	#=====================================#
