@@ -3653,7 +3653,13 @@ class stzString from stzObject
 		def FindSubStringsOtherThanCSZ(pacSubStr, pCaseSensitive)
 			return This.FindSubStringsExceptCS(pacSubStr, pCaseSensitive)
 
+		def FindAllExceptCS(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
 		def FindExceptCS(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def FindAllButCS(pacSubStr, pCaseSensitive)
 			return This.FindSubStringsExceptCS(pacSubStr, pCaseSensitive)
 
 		#>
@@ -3675,6 +3681,12 @@ class stzString from stzObject
 			return This.FindSubStringsExcept(pacSubStr)
 
 		def FindExcept(pacSubStr)
+			return This.FindSubStringsExcept(pacSubStr)
+
+		def FindAllExcept(pacSubStr)
+			return This.FindSubStringsExcept(pacSubStr)
+
+		def FindAllBut(pacSubStr)
 			return This.FindSubStringsExcept(pacSubStr)
 
 		#>
@@ -3707,6 +3719,12 @@ class stzString from stzObject
 		def FindExceptCSZZ(pacSubStr, pCaseSensitive)
 			return This.FindSubStringsExceptAsSectionsCS(pacSubStr, pCaseSensitive)
 
+		def FindAllExceptCSZZ(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptAsSectionsCS(pacSubStr, pCaseSensitive)
+
+		def FindAllButCSZZ(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptAsSectionsCS(pacSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3729,6 +3747,12 @@ class stzString from stzObject
 			return This.FindSubStringsExceptAsSections(pacSubStr)
 
 		def FindExceptZZ(pacSubStr)
+			return This.FindSubStringsExceptAsSections(pacSubStr)
+
+		def FindAllExceptZZ(pacSubStr)
+			return This.FindSubStringsExceptAsSections(pacSubStr)
+
+		def FindAllButZZ(pacSubStr)
 			return This.FindSubStringsExceptAsSections(pacSubStr)
 
 		#>
