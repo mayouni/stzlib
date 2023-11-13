@@ -16,7 +16,7 @@ proff()
 # Executed in 0.10 second(s)
 
 /*--------
-*/
+
 pron()
 
 o1 = new stzString("--ring--&__softanza__")
@@ -29,6 +29,19 @@ o1 = new stzString("--ring--&__softanza__")
 
 proff()
 # Executed in 0.14 second(s)
+
+/*--------
+*/
+pron()
+
+o1 = new stzString("--Ring--&__Softanza__")
+o1.RemoveAllExcept([ "Ring", "&", "Softanza" ])
+? o1.Content()
+#--> Ring&Softanza
+
+proff()
+
+/*--------
 
 Add RemoveAllExcept() in stzString and stzList  + ...W()
 Add RemoveAllRowsExcept() and RemoveAllColsExcept() in stzTable + ...W()

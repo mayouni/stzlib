@@ -52561,6 +52561,73 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def SubstringsRemoved(pacSubStr)
 			return This. ManySubstringsRemoved(pacSubStr)
 
+	  #-------------------------------------------------#
+	 #  REMOVING ALL SUBSTRINGS EXCEPT THOSE PROVIDED  #
+	#=================================================#
+
+	def RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("--Ring--&__Softanza__")
+
+		o1.RemoveAllExcept([ "Ring", "&", "Softanza" ])
+		? o1.Content()
+		#--> Ring&Softanza
+
+		*/
+
+		aSections = This.FindSubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		#< @FunctionAlternativeForms
+
+		def RemoveSubStringsExceptCSZ(pacSubStr, pCaseSensitive)
+			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def RemoveSubStringsOtherThanCS(pacSubStr, pCaseSensitive)
+			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def RemoveSubStringsOtherThanCSZ(pacSubStr, pCaseSensitive)
+			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def RemoveAllExceptCS(pacSubStr, pCaseSensitive)
+			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def RemoveExceptCS(pacSubStr, pCaseSensitive)
+			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def RemoveAllButCS(pacSubStr, pCaseSensitive)
+			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveSubStringsExcept(pacSubStr)
+		This.RemoveSubStringsExceptCS(pacSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def RemoveSubStringsExceptZ(pacSubStr)
+			This.RemoveSubStringsExcept(pacSubStr)
+
+		def RemoveSubStringsOtherThan(pacSubStr)
+			This.RemoveSubStringsExcept(pacSubStr)
+
+		def RemoveSubStringsOtherThanZ(pacSubStr)
+			This.RemoveSubStringsExcept(pacSubStr)
+
+		def RemoveExcept(pacSubStr)
+			This.RemoveSubStringsExcept(pacSubStr)
+
+		def RemoveAllExcept(pacSubStr)
+			This.RemoveSubStringsExcept(pacSubStr)
+
+		def RemoveAllBut(pacSubStr)
+			This.RemoveSubStringsExcept(pacSubStr)
+
+		#>
+
 	  #========================================================================#
 	 #  REMOVING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	#========================================================================#
