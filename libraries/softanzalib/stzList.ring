@@ -22051,6 +22051,20 @@ class stzList from stzObject
 		def FindOtherThanTheseCS(paItems, pCaseSensitive)
 			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
 
+		#--
+
+		def FindAllExceptCS(paItems, pCaseSensitive)
+			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+
+		def FindAllExceptTheseCS(paItems, pCaseSensitive)
+			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+
+		def FindAllItemsExceptCS(paItems, pCaseSensitive)
+			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+
+		def FindAllItemsExceptTheseCS(paItems, pCaseSensitive)
+			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+
 		#>
 
 	#-- WTIHOUT CASESENSITIVITY
@@ -22073,6 +22087,20 @@ class stzList from stzObject
 			return This.FindItemsOtherThan(paItems)
 
 		def FindOtherThanThese(paItems)
+			return This.FindItemsOtherThan(paItems)
+
+		#--
+
+		def FindAllExcept(paItems)
+			return This.FindItemsOtherThan(paItems)
+
+		def FindAllExceptThese(paItems)
+			return This.FindItemsOtherThan(paItems)
+
+		def FindAllItemsExcept(paItems)
+			return This.FindItemsOtherThan(paItems)
+
+		def FindAllItemsExceptThese(paItems)
 			return This.FindItemsOtherThan(paItems)
 
 		#>

@@ -1,5 +1,34 @@
 load "stzlib.ring"
 
+/*========
+
+pron()
+
+o1 = new stzString("--ring--&--softanza--")
+
+? @@( o1.FindExceptZZ("--") )
+#--> [ [ 3, 6 ], [ 9, 9 ], [ 12, 19 ] ]
+
+? @@( o1.Except("--") ) # Or SubStringsOtherThan()
+#--> [ "ring", "&", "softanza" ]
+
+proff()
+# Executed in 0.10 second(s)
+
+/*--------
+*/
+pron()
+
+o1 = new stzString("--ring--&__softanza__")
+
+? @@( o1.FindExceptZZ([ "--", "__" ]) )
+#--> [ [ 3, 6 ], [ 9, 9 ], [ 12, 19 ] ]
+
+? @@( o1.Except([ "--", "__" ]) ) # Or SubStringsOtherThan()
+#--> [ "ring", "&", "softanza" ]
+
+proff()
+# Executed in 0.14 second(s)
 
 /*========
 

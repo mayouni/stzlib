@@ -3107,6 +3107,40 @@ class stzString from stzObject
 		def AllSubStringsPositionsCSZ(pCaseSensitive)
 			return This.FindAllSubStringsCS(pCaseSensitive)
 
+		#==
+
+		def FindSubStringsCS(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		def FindPossibleSubStringsCS(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		def PositionsOfSubStringsCS(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		def PositionsOfPossibleSubStringsCS(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		def SubStringsPositionsCS(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		#--
+
+		def FindSubStringsCSZ(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		def FindPossibleSubStringsCSZ(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		def PositionsOfSubStringsCSZ(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		def PositionsOfPossibleSubStringsCSZ(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
+		def SubStringsPositionsCSZ(pCaseSensitive)
+			return This.FindAllSubStringsCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3145,6 +3179,40 @@ class stzString from stzObject
 		def AllSubStringsPositionsZ()
 			return This.FindAllSubStrings()
 
+		#==
+
+		def FindSubStrings()
+			return This.FindAllSubStrings()
+
+		def FindPossibleSubStrings()
+			return This.FindAllSubStrings()
+
+		def PositionsOfSubStrings()
+			return This.FindAllSubStrings()
+
+		def PositionsOfPossibleSubStrings()
+			return This.FindAllSubStrings()
+
+		def SubStringsPositions()
+			return This.FindAllSubStrings()
+
+		#--
+
+		def FindSubStringsZ()
+			return This.FindAllSubStrings()
+
+		def FindPossibleSubStringsZ()
+			return This.FindAllSubStrings()
+
+		def PositionsOfSubStringsZ()
+			return This.FindAllSubStrings()
+
+		def PositionsOfPossibleSubStringsZ()
+			return This.FindAllSubStrings()
+
+		def SubStringsPositionsZ()
+			return This.FindAllSubStrings()
+
 		#>
 
 	   #------------------------------------------------------------#
@@ -3178,12 +3246,26 @@ class stzString from stzObject
 		def FindAllPossibleSubStringsCSZZ(pCaseSensitive)
 			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
 
+		#--
+
+		def FindSubStringsAsSectionsCS(pCaseSensitive)
+			return This.FindAllSubStringsAsSectionsCS(pCaseSensitive)
+
+		def FindSubStringsCSZZ(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
+		def FindPossibleSubStringsAsSectionsCS(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
+		def FindPossibleSubStringsCSZZ(pCaseSensitive)
+			return This.FindSubStringsAsSectionsCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindSubStringsAsSections(pCaseSensitive)
-		return This.FindSubStringsAsSectionsCS(:CaseSensitive = TRUE)
+	def FindAllSubStringsAsSections(pCaseSensitive)
+		return This.FindAllSubStringsAsSectionsCS(:CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3194,6 +3276,20 @@ class stzString from stzObject
 			return This.FindSubStringsAsSections()
 
 		def FindAllPossibleSubStringsZZ()
+			return This.FindSubStringsAsSections()
+
+		#--
+
+		def FindSubStringsAsSections()
+			return This.FindAllSubStringsAsSections()
+
+		def FindSubStringsZZ()
+			return This.FindSubStringsAsSections()
+
+		def FindPossibleSubStringsAsSections()
+			return This.FindSubStringsAsSections()
+
+		def FindPossibleSubStringsZZ()
 			return This.FindSubStringsAsSections()
 
 		#>
@@ -3226,6 +3322,20 @@ class stzString from stzObject
 		def AllPossibleSubStringsAndTheirPositionsCS(pCaseSensitive)
 			return This.AllSubStringsCSZ(pCaseSensitive)
 
+		#--
+
+		def SubStringsCSZ(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		def SubStringsAndTheirPositionsCS(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		def PossibleSubStringsCSZ(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		def PossibleSubStringsAndTheirPositionsCS(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3242,6 +3352,20 @@ class stzString from stzObject
 			return This.AllSubStringsZ()
 
 		def AllPossibleSubStringsAndTheirPositions()
+			return This.AllSubStringsZ()
+
+		#--
+
+		def SubStringsZ()
+			return This.AllSubStringsZ()
+
+		def SubStringsAndTheirPositions()
+			return This.AllSubStringsZ()
+
+		def PossibleSubStringsZ()
+			return This.AllSubStringsZ()
+
+		def PossibleSubStringsAndTheirPositions()
 			return This.AllSubStringsZ()
 
 		#>
@@ -3273,6 +3397,20 @@ class stzString from stzObject
 		def AllPossibleSubStringsAndTheirSectionsCS(pCaseSensitive)
 			return This.AllSubStringsCSZZ(pCaseSensitive)
 
+		#--
+
+		def SubStringsCSZZ(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		def SubStringsAndTheirSectionsCS(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		def PossibleSubStringsCSZZ(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		def PossibleSubStringsAndTheirSectionsCS(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3289,6 +3427,20 @@ class stzString from stzObject
 			return This.AllSubStringsZZ()
 
 		def AllPossibleSubStringsAndTheirSections()
+			return This.AllSubStringsZZ()
+
+		#--
+
+		def SubStringsZZ()
+			return This.AllSubStringsZZ()
+
+		def SubStringsAndTheirSections()
+			return This.AllSubStringsZZ()
+
+		def PossibleSubStringsZZ()
+			return This.AllSubStringsZZ()
+
+		def PossibleSubStringsAndTheirSections()
 			return This.AllSubStringsZZ()
 
 		#>
@@ -3469,6 +3621,287 @@ class stzString from stzObject
 	
 		def HowManySubStringsOfNCharsCU(n)
 			return This.NumberOfUniqueSubStringsOfNChars(n)
+
+		#>
+
+	  #------------------------------------------------#
+	 #  FINDING ALL SUBSTRINGS EXCEPT THOSE PROVIDED  #
+	#================================================#
+
+	def FindSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		aSections = This.FindAsSectionsCS(pacSubStr, pCaseSensitive)
+		aAntiSections = This.FindAntiSections(aSections)
+		nLen = len(aAntiSections)
+
+		anResult = []
+
+		for i = 1 to nLen
+			anResult + aAntiSections[1][1]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringsExceptCSZ(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def FindSubStringsOtherThanCS(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def FindSubStringsOtherThanCSZ(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def FindExceptCS(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStringsExcept(pacSubStr)
+		return This.FindSubStringsExceptCS(pacSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringsExceptZ(pacSubStr)
+			return This.FindSubStringsExcept(pacSubStr)
+
+		def FindSubStringsOtherThan(pacSubStr)
+			return This.FindSubStringsExcept(pacSubStr)
+
+		def FindSubStringsOtherThanZ(pacSubStr)
+			return This.FindSubStringsExcept(pacSubStr)
+
+		def FindExcept(pacSubStr)
+			return This.FindSubStringsExcept(pacSubStr)
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  FINDING (AS SECTIONS) ALL SUBSTRINGS EXCEPT THOSE PROVIDED  #
+	#==============================================================#
+
+	def FindSubStringsExceptAsSectionsCS(pacSubStr, pCaseSensitive)
+
+		aSections = This.FindAsSectionsCS(pacSubStr, pCaseSensitive)
+		aResult = This.FindAntiSections(aSections)
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptAsSectionsCS(pacSubStr, pCaseSensitive)
+
+		def FindSubStringsOtherThanAsSectionsCS(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptAsSectionsCS(pacSubStr, pCaseSensitive)
+
+		def FindSubStringsOtherThanCSZZ(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptAsSectionsCS(pacSubStr, pCaseSensitive)
+
+		def FindExceptAsSectionsCS(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptAsSectionsCS(pacSubStr, pCaseSensitive)
+
+		def FindExceptCSZZ(pacSubStr, pCaseSensitive)
+			return This.FindSubStringsExceptAsSectionsCS(pacSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStringsExceptAsSections(pacSubStr)
+		return This.FindSubStringsExceptAsSectionsCS(pacSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringsExceptZZ(pacSubStr)
+			return This.FindSubStringsExceptAsSections(pacSubStr)
+
+		def FindSubStringsOtherThanAsSections(pacSubStr)
+			return This.FindSubStringsExceptAsSections(pacSubStr)
+
+		def FindSubStringsOtherThanZZ(pacSubStr)
+			return This.FindSubStringsExceptAsSections(pacSubStr)
+
+		def FindExceptAsSections(pacSubStr)
+			return This.FindSubStringsExceptAsSections(pacSubStr)
+
+		def FindExceptZZ(pacSubStr)
+			return This.FindSubStringsExceptAsSections(pacSubStr)
+
+		#>
+
+	  #------------------------------------------------#
+	 #  GETTING ALL SUBSTRINGS EXCEPT THOSE PROVIDED  #
+	#================================================#
+
+	def SubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		aSections = This.FindSubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
+		acResult = This.Sections(aSections)
+
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def SubStringsExceptTheseCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def SubStringsOtherThanCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def SubStringsOtherThanTheseCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def ExceptCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def ExceptTheseCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def OtherThanCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def OtherThanTheseCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsExcept(pacSubStr)
+		return This.SubStringsExceptCS(pacSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SubStringsExceptThese(pacSubStr)
+			return This.SubStringsExcept(pacSubStr)
+
+		def SubStringsOtherThan(pacSubStr)
+			return This.SubStringsExcept(pacSubStr)
+
+		def SubStringsOtherThanThese(pacSubStr)
+			return This.SubStringsExcept(pacSubStr)
+
+		def Except(pacSubStr)
+			return This.SubStringsExcept(pacSubStr)
+
+		def ExceptThese(pacSubStr)
+			return This.SubStringsExcept(pacSubStr)
+
+		def OtherThan(pacSubStr)
+			return This.SubStringsExcept(pacSubStr)
+
+		def OtherThanThese(pacSubStr)
+			return This.SubStringsExcept(pacSubStr)
+
+		#>
+
+	  #---------------------------------------------------------------------------#
+	 #  GETTING ALL SUBSTRINGS EXCEPT THOSE PROVIDED ALONG WITH THEIR POSITIONS  #
+	#===========================================================================#
+
+	def SubStringsExceptCSZ(pacSubStr, pCaseSensitive)
+
+		aSections = This.FindSubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
+		acSubStr = This.Sections(aSections)
+
+		anPos = []
+		nLen = len(aSections)
+		for i = 1 to nLen
+			anPos + aSections[i][1]
+		next
+
+		aResult = Association([ acSubStr, anPos ])
+		return aResult
+
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def SubStringsAndTheirPositionsExceptCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCSZ(pacSubStr, pCaseSensitive)
+
+		def SubStringsOtherThanCSZ(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCSZ(pacSubStr, pCaseSensitive)
+
+		def SubStringsAndTheirPositionsOtherThanCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		def ExceptCSZ(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsExceptZ(pacSubStr)
+		return This.SubStringsExceptCSZ(pacSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SubStringsAndTheirPositionsExcept(pacSubStr)
+			return This.SubStringsExceptZ(pacSubStr)
+
+		def SubStringsOtherThanZ(pacSubStr)
+			return This.SubStringsExceptZ(pacSubStr)
+
+		def SubStringsAndTheirPositionsOtherThan(pacSubStr)
+			return This.SubStringsExcept(pacSubStr)
+
+		def ExceptZ(pacSubStr)
+			return This.SubStringsExcept(pacSubStr)
+
+		#>
+
+	  #--------------------------------------------------------------------------#
+	 #  GETTING ALL SUBSTRINGS EXCEPT THOSE PROVIDED ALONG WITH THEIR SECTIONS  #
+	#==========================================================================#
+
+	def SubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
+
+		aSections = This.FindSubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
+		acSubStr = This.Sections(aSections)
+
+		aResult = Assocation([ acSubStr, aSections ])
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SubStringsAndTheirSectionsExceptCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
+
+		def SubStringsOtherThanCSZZ(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
+
+		def SubStringsAndTheirSectionsOtherThanCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
+
+		def ExceptCSZZ(pacSubStr, pCaseSensitive)
+			return This.SubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsExceptZZ(pacSubStr)
+		return This.SubStringsExceptCSZZ(pacSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SubStringsAndTheirSectionsExcept(pacSubStr)
+			return This.SubStringsExceptZZ(pacSubStr)
+
+		def SubStringsOtherThanZZ(pacSubStr)
+			return This.SubStringsExceptZZ(pacSubStr)
+
+		def SubStringsAndTheirSectionsOtherThan(pacSubStr)
+			return This.SubStringsExceptZZ(pacSubStr)
+
+		def ExceptZZ(pacSubStr)
+			return This.SubStringsExceptZZ(pacSubStr)
 
 		#>
 
@@ -28487,7 +28920,7 @@ def ReplaceIBS()
 	 #  AND RETURNING THE SUBSTRING AND ITS POSITIONS                          #
 	#-------------------------------------------------------------------------#
 
-	def SubStringSCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
+	def SubString_SCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
@@ -28503,26 +28936,26 @@ def ReplaceIBS()
 
 		#< @FunctionFluentForm
 
-		def FindSCSZQ(pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.SubStringSCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
+		def SubString_SCSZQ(pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.SubString_SCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
-		def FindSCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
+		def SubString_SCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SubStringSCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzList( This.SubString_SCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SubStringSCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzListOfNumbers( This.SubString_SCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPair
-				return new stzPair( This.SubStringSCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzPair( This.SubString_SCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPairOfNumbers
-				return new stzPairOfNumbers( This.SubStringSCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzPairOfNumbers( This.SubString_SCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			other
 				stzRaise("Unsupported return type!")
@@ -28531,16 +28964,16 @@ def ReplaceIBS()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringSZ(pcSubStr, pnStartingAt)
-		return This.SubStringSCSZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+	def SubString_SZ(pcSubStr, pnStartingAt)
+		return This.SubString_SCSZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def SubStringSZQ(pcSubStr, pnStartingAt)
-			return This.SubStringSZQR(pcSubStr, pnStartingAt, :stzList)
+		def SubString_SZQ(pcSubStr, pnStartingAt)
+			return This.SubString_SZQR(pcSubStr, pnStartingAt, :stzList)
 		
-		def SubStringSZQR(pcSubStr, pnStartingAt, pcReturnType)
-				return This.SubStringSCSZQR(pcSubStr, pnStartingAt, :CaseSensitive = TRUE, pcReturnType)
+		def SubString_SZQR(pcSubStr, pnStartingAt, pcReturnType)
+				return This.SubString_SCSZQR(pcSubStr, pnStartingAt, :CaseSensitive = TRUE, pcReturnType)
 
 		#>
 
@@ -28549,7 +28982,7 @@ def ReplaceIBS()
 	 #  AND RETURNING THE SUBSTRING AND ITS POSITIONS AS SECTIONS              #
 	#-------------------------------------------------------------------------#
 
-	def SubStringSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+	def SubString_SCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
 		if CheckParams()
 			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
 				pcSubStr = pcSubStr[2]
@@ -28566,26 +28999,26 @@ def ReplaceIBS()
 
 		#< @FunctionFluentForm
 
-		def SubStringSCSZZQ(pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.SubStringSCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
+		def SubString_SCSZZQ(pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.SubString_SCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
-		def SubStringSCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
+		def SubString_SCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SubStringSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzList( This.SubString_SCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SubStringSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzListOfNumbers( This.SubString_SCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPair
-				return new stzPair( This.SubStringSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzPair( This.SubString_SCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPairOfNumbers
-				return new stzPairOfNumbers( This.SubStringSCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzPairOfNumbers( This.SubString_SCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			other
 				stzRaise("Unsupported return type!")
@@ -28594,16 +29027,16 @@ def ReplaceIBS()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringSZZ(pcSubStr, pnStartingAt)
-		return This.SubStringSCSZZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+	def SubString_SZZ(pcSubStr, pnStartingAt)
+		return This.SubString_SCSZZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
 
 		#< @FunctionFluentForm
 
-		def SubStringSZZQ(pcSubStr, pnStartingAt)
-			return This.SubStringSZZQR(pcSubStr, pnStartingAt, :stzList)
+		def SubString_SZZQ(pcSubStr, pnStartingAt)
+			return This.SubString_SZZQR(pcSubStr, pnStartingAt, :stzList)
 		
-		def SubStringSZZQR(pcSubStr, pnStartingAt, pcReturnType)
-				return This.SubStringSCSZZQR(pcSubStr, pnStartingAt, :CaseSensitive = TRUE, pcReturnType)
+		def SubString_SZZQR(pcSubStr, pnStartingAt, pcReturnType)
+				return This.SubString_SCSZZQR(pcSubStr, pnStartingAt, :CaseSensitive = TRUE, pcReturnType)
 
 		#>
 
@@ -64006,7 +64439,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				acSplitted = This.SplitW(pValue[2])
 				return acSplitted
 			
-			but isList(pValue) and Q(pValue).IsListOfSrtrings() # NOTE this is misspelled!
+			but isList(pValue) and Q(pValue).IsListOfStrings() # NOTE this is misspelled!
 				/* EXAMPLE
 				? @@( Q("RingRubyJava") / [ "Qute", "Nice", "Good" ] )
 				#--> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]	

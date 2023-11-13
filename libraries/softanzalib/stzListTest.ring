@@ -1,11 +1,11 @@
 load "stzlib.ring"
 
-/*----------
+/*=========
 
 pron()
 
 o1 = new stzList([ "♥", 1, 2, 2, "♥", "♥", 3 ])
-o1.RemoveItemsOtherThan("♥")
+o1.RemoveAllExcept("♥") # Or RemoveItemsOtherThan()
 
 ? @@( o1.Content() )
 #--> [ "♥", "♥", "♥" ]
@@ -14,7 +14,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzList([ "♥", 1, 2, 2, "★", 3, "🌞" ])
@@ -36,11 +36,11 @@ proff()
 # Executed in 0.04 second(s)
 
 /*----------
-
+*/
 pron()
 
 o1 = new stzList([ "♥", "A", "B", "C", "♥" ])
-? o1.FindItemsOtherThan([ "A", "B", "C" ])
+? o1.FindAllExcept([ "A", "B", "C" ]) # Or FindItemsOtherThan()
 #--> [1, 5]
 
 proff()
