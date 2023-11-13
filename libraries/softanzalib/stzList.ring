@@ -4104,6 +4104,9 @@ class stzList from stzObject
 		def RemoveAllExceptTheseCS(paItems, pCaseSensitive)
 			return This.RemoveItemsOtherThanCS(paItems, pCaseSensitive)
 
+		def RemoveAllButCS(paItems, pCaseSensitive)
+			return This.RemoveItemsOtherThanCS(paItems, pCaseSensitive)
+
 		#>
 
 	def ItemsOtherThanTheseRemovedCS(paItems, pCaseSensitive)
@@ -4111,6 +4114,9 @@ class stzList from stzObject
 		return aResult
 
 		def ItemsRemovedExceptCS(paItems, pCaseSensitive)
+			return This.ItemsOtherThanTheseRemovedCS(paItems, pCaseSensitive)
+
+		def AllRemovedButCS(paItems, pCaseSensitive)
 			return This.ItemsOtherThanTheseRemovedCS(paItems, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -4139,6 +4145,9 @@ class stzList from stzObject
 		def RemoveAllExceptThese(paItems)
 			return This. RemoveItemsOtherThan(paItems)
 
+		def RemoveAllBut(paItems)
+			return This.RemoveItemsOtherThan(paItems)
+
 		#>
 
 	def ItemsOtherThanTheseRemoved(paItems)
@@ -4146,6 +4155,9 @@ class stzList from stzObject
 		return aResult
 
 		def ItemsRemovedExcept(paItems)
+			return This.ItemsOtherThanTheseRemoved(paItems)
+
+		def AllRemovedBut(paItems)
 			return This.ItemsOtherThanTheseRemoved(paItems)
 
 	  #-------------------------------------------------#
@@ -22065,6 +22077,19 @@ class stzList from stzObject
 		def FindAllItemsExceptTheseCS(paItems, pCaseSensitive)
 			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
 
+		#--
+
+		def FindExceptCS(paItems, pCaseSensitive)
+			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+
+		def FindOtherThanCS(paItems, pCaseSensitive)
+			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+
+		#--
+
+		def FindAllButCS(paItems, pCaseSensitive)
+			return This.FindItemsOtherThanCS(paItems, pCaseSensitive)
+
 		#>
 
 	#-- WTIHOUT CASESENSITIVITY
@@ -22103,6 +22128,19 @@ class stzList from stzObject
 		def FindAllItemsExceptThese(paItems)
 			return This.FindItemsOtherThan(paItems)
 
+		#--
+
+		def FindExcept(paItems)
+			return This.FindItemsOtherThan(paItems)
+
+		def FindOtherThan(paItems)
+			return This.FindItemsOtherThan(paItems)
+
+		#--
+
+		def FindAllBut(paItems)
+			return This.FindItemsOtherThan(paItems)
+
 		#>
 
 	  #-------------------------------------------------------------------#
@@ -22132,11 +22170,11 @@ class stzList from stzObject
 			off
 
 		def FindAllExceptFirstCSQ(pItem, pCaseSensitive)
-			return This.FindAllExceptFirstCSQR(pItem, pCaseSensitive, :stzListOfNumbers)
+			return This.FindAllExceptFirstCSQR(pItem, pCaseSensitive, :stzList)
 
 		#
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def FindExceptFirstCS(pItem, pCaseSensitive)
 			return This.FindAllExceptFirstCS(pItem, pCaseSensitive)
@@ -22144,23 +22182,20 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptFirstCSQR(pItem, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindExceptFirstCS(pItem, pCaseSensitive) )
-
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindExceptFirstCS(pItem, pCaseSensitive) )
-				other
-					StzRaise("Unsupported return type!")
-				off
+				return This.FindAllExceptFirstCSQR(pItem, pcReturnType, pCaseSensitive)
 	
 			def FindExceptFirstCSQ(pItem, pCaseSensitive)
-				return This.FindAllExceptFirstCSQR(pItem, pCaseSenstive, :stzListOfNumbers)
+				return This.FindAllExceptFirstCSQR(pItem, pCaseSenstive, :stzList)
 	
+		def FindFirstExceptCS(pItem, pCaseSensitive)
+			return This.FindAllExceptFirstCS(pItem, pCaseSensitive)
+
+		def FindFirstButCS(pItem, pCaseSensitive)
+			return This.FindAllExceptFirstCS(pItem, pCaseSensitive)
+
+		def FindAllButFirstCS(pItem, pCaseSensitive)
+			return This.FindAllExceptFirstCS(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHoUT CASESENSITIVITY
@@ -22171,26 +22206,14 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindAllExceptFirstQR(pItem, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindAllExceptFirst(pItem) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindAllExceptFirst(pItem) )
-			other
-				StzRaise("Unsupported return type!")
-			off
+			return This.FindAllExceptFirstCSQR(pItem, pcReturnType, :CaseSensitive = TRUE)
 
 		def FindAllExceptFirstQ(pItem)
-			return This.FindAllExceptFirstQR(pItem, :stzListOfNumbers)
+			return This.FindAllExceptFirstQR(pItem, :stzList)
 
 		#
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def FindExceptFirst(pItem)
 			return This.FindAllExceptFirst(pItem)
@@ -22198,23 +22221,22 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptFirstQR(pItem, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindExceptFirst(pItem) )
-
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindExceptFirst(pItem) )
-				other
-					StzRaise("Unsupported return type!")
-				off
+				return This.FindExeptFirstCSQR(pItem, pcReturType, :CaseSensitive = TRUE)
 	
 			def FindExceptFirstQ(pItem)
-				return This.FindAllExceptFirstQR(pItem, :stzListOfNumbers)
+				return This.FindAllExceptFirstQR(pItem, :stzList)
 	
+			#>
+
+		def FindFirstExcept(pItem)
+			return This.FindAllExceptFirst(pItem)
+
+		def FindFirstBut(pItem)
+			return This.FindAllExceptFirst(pItem)
+
+		def FindAllButFirst(pItem)
+			return This.FindAllExceptFirst(pItem)
+
 		#>
 
 	  #------------------------------------------------------------------#
@@ -22243,11 +22265,11 @@ class stzList from stzObject
 			off
 
 		def FindAllExceptLastCSQ(pItem, pCaseSensitive)
-			return This.FindAllExceptLastCSQR(pItem, pCaseSensitive, :stzListOfNumbers)
+			return This.FindAllExceptLastCSQR(pItem, pCaseSensitive, :stzList)
 
 		#
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def FindExceptLastCS(pItem, pCaseSensitive)
 			return This.FindAllExceptLastCS(pItem, pCaseSensitive)
@@ -22255,25 +22277,22 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptLastCSQR(pItem, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindExceptLastCS(pItem, pCaseSensitive) )
-
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindExceptLastCS(pItem, pCaseSensitive) )
-
-				other
-					StzRaise("Unsupported param type!")
-				off
+				return This.FindAllExceptLastCSQR(pItem, pCaseSensitive, pcReturnType)
 	
 			def FindExceptLastCSQ(pItem)
-				return This.FindAllExceptLastQR(pItem, pCaseSensitive, :stzListOfNumbers)
+				return This.FindAllExceptLastQR(pItem, pCaseSensitive, :stzList)
 	
 			#>
+
+		def FindLastExceptCS(pItem, pCaseSensitive)
+			return This.FindAllExceptLastCS(pItem, pCaseSensitive)
+
+		def FindLastButCS(pItem, pCaseSensitive)
+			return This.FindAllExceptLastCS(pItem, pCaseSensitive)
+
+		def FindAllButLastCS(pItem, pCaseSensitive)
+			return This.FindAllExceptLastCS(pItem, pCaseSensitive)
+
 		#>
 		
 	#-- WITHOUT CASESENSITIVITY
@@ -22299,7 +22318,7 @@ class stzList from stzObject
 			off
 
 		def FindAllExceptLastQ(pItem)
-			return This.FindAllExceptLastQR(pItem, :stzListOfNumbers)
+			return This.FindAllExceptLastQR(pItem, :stzList)
 
 		#
 
@@ -22311,25 +22330,22 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptLastQR(pItem, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.FindExceptLast(pItem) )
-
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.FindExceptLast(pItem) )
-
-				other
-					StzRaise("Unsupported param type!")
-				off
+				return This.FindExceptLastCSQR(pItem, pcReturnType, :CaseSensitive = TRUE)
 	
 			def FindExceptLastQ(pItem)
 				return This.FindAllExceptLastQR(pItem, :stzListOfNumbers)
 	
 			#>
+
+		def FindLastExcept(pItem)
+			return This.FindAllExceptLast(pItem)
+
+		def FindLastBut(pItem)
+			return This.FindAllExceptLast(pItem)
+
+		def FindAllButLast(pItem)
+			return This.FindAllExceptLast(pItem)
+
 		#>
 
 	  #======================================================#

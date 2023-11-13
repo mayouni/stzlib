@@ -30,6 +30,9 @@ o1 = new stzString("--ring--&__softanza__")
 proff()
 # Executed in 0.14 second(s)
 
+Add RemoveAllExcept() in stzString and stzList  + ...W()
+Add RemoveAllRowsExcept() and RemoveAllColsExcept() in stzTable + ...W()
+
 /*========
 
 pron()
