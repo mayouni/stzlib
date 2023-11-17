@@ -1834,9 +1834,23 @@ class stzList from stzObject
 	#-------------------------------------------#
 
 	def ReplaceAllOccurrences(pItem, pNewItem)
-			
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
-			pItem = pItem[2]
+
+		if CheckParams()
+
+			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+				pItem = pItem[2]
+			ok
+	
+			if @BothAreLists(pItem, pNewItem)
+				This.ReplaceManyByMany(pItem, pNewItem)
+				return
+			ok
+
+			if isList(pNewItem)
+				This.ReplaceByMany(pNewItem)
+				return
+			ok
+
 		ok
 
 		anPositions = This.FindAll(pItem)
@@ -1895,6 +1909,9 @@ class stzList from stzObject
 	  #------------------------------------------------#
 	 #   REPLACING SOME OCCURRENCES OF A GIVEN ITEM   #
 	#------------------------------------------------#
+
+	# TODO: Add ReplaceTheseOccurrencesByMany()
+	#       and ReplaceTheseOccurrencesByManyXT()
 
 	def ReplaceTheseOccurrences(panOccurr, pItem, pNewItem)
 
@@ -1969,155 +1986,206 @@ class stzList from stzObject
 			return This.LastNOccurrencesReplaced(n, pItem, pNewItem)
 
 	  #---------------------------------------------#
-	 #    REPLACING MANY ITEMS AT THE SAME TIME    #
-	#---------------------------------------------#
+	 #    REPLACING MANY ITEMS AT THE SAME TIME    # TODO: Add case sensitivity
+	#=============================================#
 
-	def ReplaceManyItems(pacItems, pNewItem)
+	def ReplaceManyItems(paItems, pNewItem)
 
-		for item in pacItems
-			This.ReplaceAllOccurrences(item, pNewItem)
-		next
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+
+			if isList(pNewItem) and Q(pNewItem).IsWithOrByOrUsingNamedParam()
+				pNewItem = pNewItem[2]
+			ok
+
+			if isList(pNewItem)
+				This.ReplaceManyByMany(paItems, pNewItem)
+				return
+			ok
+		ok
+
+		anPos = This.FindMany(paItems)
+		This.ReplaceItemsAtPositions(anPos, pNewItem)
 
 		#< @FunctionFluentForm
 
-		def ReplaceManyItemsQ(pacItems, pNewItem)
-			This.ReplaceManyItems(pacItems, pNewItem)
+		def ReplaceManyItemsQ(paItems, pNewItem)
+			This.ReplaceManyItems(paItems, pNewItem)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceMany(pacItems, pNewItem)
-			This.ReplaceManyItems(pacItems, pNewItem)
+		def ReplaceMany(paItems, pNewItem)
+			This.ReplaceManyItems(paItems, pNewItem)
 
-			def ReplaceManyQ(pacItems, pNewItem)
-				This.ReplaceMany(pacItems, pNewItem)
+			def ReplaceManyQ(paItems, pNewItem)
+				This.ReplaceMany(paItems, pNewItem)
 				return This
 
-		def ReplaceAllOfThese(pacItems, pNewItem)
-			This.ReplaceManyItems(pacItems, pNewItem)
+		def ReplaceAllOfThese(paItems, pNewItem)
+			This.ReplaceManyItems(paItems, pNewItem)
 
-			def ReplaceAllOfTheseQ(pacItems, pNewItem)
-				This.ReplaceAllOfThese(pacItems, pNewItem)
+			def ReplaceAllOfTheseQ(paItems, pNewItem)
+				This.ReplaceAllOfThese(paItems, pNewItem)
 				return This
 
 		#--
 
-		def ReplaceTheseItems(pacItems, pNewItem)
-			This.ReplaceManyItems(pacItems, pNewItem)
+		def ReplaceTheseItems(paItems, pNewItem)
+			This.ReplaceManyItems(paItems, pNewItem)
 
-			def ReplaceTheseItemsQ(pacItems, pNewItem)
-				This.ReplaceTheseItems(pacItems, pNewItem)
+			def ReplaceTheseItemsQ(paItems, pNewItem)
+				This.ReplaceTheseItems(paItems, pNewItem)
 				return This
 
 		#>
 
-	def ManyItemsReplaced(pacItems, pNewItem)
+	def ManyItemsReplaced(paItems, pNewItem)
 
 		aResult  = This.Copy().
-				ReplaceTheseItemsQ(pacItems, pNewItem).
+				ReplaceTheseItemsQ(paItems, pNewItem).
 				Content()
 
 		return aResult
 
-		def TheseItemsReplaced(pacItems, pNewItem)
-			return This.ManyItemsReplaced(pacItems, pNewItem)
+		def TheseItemsReplaced(paItems, pNewItem)
+			return This.ManyItemsReplaced(paItems, pNewItem)
 	
-	  #------------------------------------------------------#
-	 #    REPLACING MANY ITEMS BY MANY OTHERS ONE BY ONE    #
-	#------------------------------------------------------#
+	  #--------------------------------------------------#
+	 #    REPLACING MANY ITEMS AT THE SAME TIME -- XT   # TODO: Add case sensitivity
+	#--------------------------------------------------#
 
-	def ReplaceManyByMany(pacItems, pacNewItems)
-		if NOT isList(pacItems)
-			StzRaise("Incorrect param! pacItems must be a list.")
-		ok
+	def ReplaceManyItemsXT(paItems, pNewItem)
 
-		if isList(pacNewItems) and Q(pacNewItems).IsWithOrByNamedParam()
-			pacNewItems = pacNewItems[2]
-		ok
-
-		if NOT isList(pacNewItems)
-			StzRaise("Incorrect param! pacNewItems must be a list.")
-		ok
-
-		i = 0
-		for item in pacItems
-
-			i++
-			cNewStr = NULL
-
-			if i <= len(pacNewItems)
-				cNewStr = pacNewItems[i]
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
 			ok
 
-			This.Replace(item, cNewStr)
+			if isList(pNewItem) and Q(pNewItem).IsWithOrByOrUsingNamedParam()
+				pNewItem = pNewItem[2]
+			ok
 
-		next
+			if isList(pNewItem)
+				This.ReplaceManyByManyXT(paItems, pNewItem)
+				return
+			ok
+		ok
 
-		def ReplaceManyByManyQ(pacItems, pacNewItems)
-			This.ReplaceManyByMany(pacItems, pacNewItems)
+		This.ReplaceManyItems(paItems, pNewItem)
+
+		#< @FunctionFluentForm
+
+		def ReplaceManyItemsXTQ(paItems, pNewItem)
+			This.ReplaceManyItemsXT(paItems, pNewItem)
 			return This
 
-		def ReplaceManyOneByOne(pacItems, pacNewItems)
-			This.ReplaceManyByMany(pacItems, pacNewItems)
+		#>
 
-			def ReplaceManyOneByOneQ(pacItems, pacNewItems)
-				This.ReplaceManyOneByOne(pacItems, pacNewItems)
+		#< @FunctionAlternativeForms
+
+		def ReplaceManyXT(paItems, pNewItem)
+			This.ReplaceManyItems(paItems, pNewItem)
+
+			def ReplaceManyXTQ(paItems, pNewItem)
+				This.ReplaceManyXT(paItems, pNewItem)
 				return This
 
-	  #------------------------------------#
-	 #   REPLACING AN ITEM BY ALTERNANCE  #
-	#------------------------------------#
+		def ReplaceAllOfTheseXT(paItems, pNewItem)
+			This.ReplaceManyItemsXT(paItems, pNewItem)
 
-	def ReplaceItemByAlternance(pItem, paOtherItems)
+			def ReplaceAllOfTheseXTQ(paItems, pNewItem)
+				This.ReplaceAllOfTheseXT(paItems, pNewItem)
+				return This
+
+		#--
+
+		def ReplaceTheseItemsXT(paItems, pNewItem)
+			This.ReplaceManyItemsXT(paItems, pNewItem)
+
+			def ReplaceTheseItemsXTQ(paItems, pNewItem)
+				This.ReplaceTheseItemsXT(paItems, pNewItem)
+				return This
+
+		#>
+
+	def ManyItemsReplacedXT(paItems, pNewItem)
+
+		aResult  = This.Copy().
+				ReplaceTheseItemsXTQ(paItems, pNewItem).
+				Content()
+
+		return aResult
+
+		def TheseItemsReplacedXT(paItems, pNewItem)
+			return This.ManyItemsReplacedXT(paItems, pNewItem)
+
+	  #------------------------------------------#
+	 #    REPLACING MANY ITEMS BY MANY OTHERS   #
+	#==========================================#
+
+	def ReplaceManyByMany(paItems, paNewItems)
+
+		if CheckParams()
+
+			if NOT isList(paItems)
+				StzRaise("Incorrect param! paNewItems must be a list.")
+			ok
+	
+		ok
+
+		anPos = This.FindMany(paItems)
+		This.ReplaceOccurrencesByMany(anPos, paNewItems)
+
+		#< @FunctionFluentForm
+
+		def ReplaceManyByManyQ(paItems, paNewItems)
+			This.ReplaceManyByMany(paItems, paNewItems)
+			return This
+
+		#>
+
+	def ManyReplacedByMany(paItems, pacNewItems)
+		aResult = This.Copy().ReplaceManyByManyQ(paItems, paNewItems).Content()
+		return aResult
+
+	  #-----------------------------------------------------#
+	 #    REPLACING MANY ITEMS BY MANY OTHERS -- EXTENDED  #
+	#-----------------------------------------------------#
+
+	def ReplaceManyByManyXT(paItems, paNewItems)
 		/*
 		StzListQ([ "A", "A", "A", "A", "A" ]) {
-			ReplaceItemByAlternance("A", :With = [ "#1", "#2" ])
+			ReplaceManyByManyXT("A", :With = [ "#1", "#2" ])
 			? Content()
 
 		}
 		#--> [ "#1", "#2", "#1", "#2", "#1" ]
 		*/
 
-		if isList(paOtherItems) and
-		   StzListQ(paOtherItems).IsWithOrByNamedParam()
-		
-			paOtherItems = paOtherItems[2]
-		ok
+		if CheckParams()
 
-		if NOT isList(paOtherItems)
-			StzRaise("Incorrect param type! paOtherItems must be a list.")
-		ok
-
-		anPositions = This.FindAll(pItem)
-
-		i = 0
-		for nPos in anPositions
-			i++
-			if i > len(paOtherItems)
-				i = 1
+			if NOT isList(paItems)
+				StzRaise("Incorrect param! paNewItems must be a list.")
 			ok
-			This.ReplaceItemAtPosition(nPos, paOtherItems[i])
-			
-		next
+	
+		ok
 
-		#< @FunctionFluentForm
+		anPos = This.FindMany(paItems)
+		This.ReplaceOccurrencesByManyXT(anPos, paNewItems)
 
-		def ReplaceItemByALternanceQ(pItem, paOtherItems)
-			This.ReplaceItemByALternance(pItem, paOtherItems)
+		def ReplaceManyByManyXTQ(paItems, paNewItems)
+			This.ReplaceManyByManyXT(paItems, paNewItems)
 			return This
 
-		#>
-
-	def ItemReplacedByAlternance(pItem, paOtherItems)
-
-		aResult  = This.Copy().
-				ReplaceItemByALternanceQ(pItem, paOtherItems).
-				Content()
-
+	def ManyReplacedByManyXT(paItems, pacNewItems)
+		aResult = This.Copy().ReplaceManyByManyXTQ(paItems, paNewItems).Content()
 		return aResult
-	
+
 	   #------------------------------------------------#
 	  #   REPLACING THE NEXT OCCURRENCES OF AN ITEM    #
          #   STARTING AT A GIVEN POSITION                 #
@@ -3329,9 +3397,115 @@ class stzList from stzObject
 		def ItemsAtThesePositionsRplacedWith(panPositions, pOtherItem)
 			return This.ItemsAtThesePositionsRplaced(panPositions, pOtherItem)
 
+	  #----------------------------------------------------------#
+	 #  REPLACING ITEMS AT GIVEN POSITIONS BY MANY OTHER ITEMS  # TODO: Add case sensitivity
+	#----------------------------------------------------------#
+
+	def ReplaceOccurrencesByMany(panPositions, paNewItems) # TODO: Add alternatives
+		/* EXAMPLE
+
+		o1 = new stzList([ "A", "B", "*", "D", "*",  "=" ])
+		o1.ReplaceOccurrencesByMany([ 3, 5, 6 ], ["C", "E", "F"])
+		? o1.Content()
+		#--> [ "A", "B", "C", "D", "E", "F" ])
+
+		*/
+
+		if CheckParams()
+
+			if NOT (isList(panPositions) and Q(panPositions).IsListOfNumbers())
+				StzRaise("Incorrect param type! panPositions must be a list of numbers.")
+			ok
+
+			if isList(paNewItems) and Q(paNewItems).IsWithOrByOrUsingNamedParam()
+				paNewItems = paNewItems[2]
+			ok
+
+		ok
+
+		nMin = Min([ len(panPositions), len(paNewItems), This.NumberOfItems() ])
+
+		for i = 1 to nMin
+			This.ReplaceAt(panPositions[i], paNewItems[i])
+		next
+
+		#< @FunctionFluentForm
+
+		def ReplaceOccurrencesByManyQ(panPositions, paNewItems)
+			This.ReplaceOccurrencesByMany(panPositions, paNewItems)
+			return This
+
+		#>
+
+	def OccurrencesReplacedByMany(panPositions, paNewItems)
+		aResult = This.Copy().ReplaceOccurrencesByManyQ(panPositions, paNewItems).Content()
+		return aResult
+
+	  #----------------------------------------------------------#
+	 #  REPLACING ITEMS AT GIVEN POSITIONS BY MANY OTHER ITEMS  # TODO: Add case sensitivity
+	#----------------------------------------------------------#
+
+	def ReplaceOccurrencesByManyXT(panPositions, paNewItems) # TODO: Add alternatives
+
+		/* EXAMPLE
+
+		o1 = new stzList([ "A", "B", "*", "*", "*",  "*" ])
+		o1.ReplaceOccurrencesByManyXT([ 3, 4, 5, 6 ], [ "#1", "#2" ])
+		? @@( o1.Content() )
+
+		*/
+
+		if CheckParams()
+
+			if NOT (isList(panPositions) and Q(panPositions).IsListOfNumbers())
+				StzRaise("Incorrect param type! panPositions must be a list of numbers.")
+			ok
+
+			if isList(paNewItems) and Q(paNewItems).IsWithOrByOrUsingNamedParam()
+				paNewItems = paNewItems[2]
+			ok
+
+		ok
+
+		nLenPos = len(panPositions)
+		nLenItems = len(paNewItems)
+
+		aNewItems = paNewItems
+
+		if nLenItems < nLenPos
+
+			j = 0
+
+			for i = (nLenItems + 1) to nLenPos
+
+				j++
+
+				if j > nLenItems
+					j = 1
+				ok
+
+				aNewItems + paNewItems[j]
+
+			next
+		ok
+
+		This.ReplaceOccurrencesByMany(panPositions, aNewItems)
+
+		#< @FunctionFluentForm
+
+		def ReplaceOccurrencesByManyXTQ(panPositions, paNewItems)
+			This.ReplaceOccurrencesByManyXT(panPositions, paNewItems)
+			return This
+
+		#>
+
+	def OccurrencesReplacedByManyXT(panPositions, paNewItems)
+		aResult = This.Copy().ReplaceOccurrencesByManyXTQ(panPositions, paNewItems).Content()
+		return aResult
+
 	  #---------------------------------------------------#
 	 #    REPLACING A SECTION OF ITEMS BY A GIVEN ITEM   #
-	#---------------------------------------------------#
+	#===================================================#
 
 	def ReplaceSection(n1, n2, pNewItem)
 		/* EXAMPLE 1

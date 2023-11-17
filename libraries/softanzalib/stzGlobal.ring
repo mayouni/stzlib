@@ -869,6 +869,17 @@ func IsNumberOrString(p)
 	func IsStringOrNumber(p)
 		return IsNumberOrString(p)
 
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.IsNumberOrString()
+
+	func @IsNumberOrString(p)
+		return IsNumberOrString(p)
+
+	func @IsStringOrNumber(p)
+		return IsNumberOrString(p)
+
+
 func IsNumberOrList(p)
 	if isNumber(p) or isList(p)
 		return TRUE
@@ -878,6 +889,16 @@ func IsNumberOrList(p)
 
 	func IsListOrNumber(p)
 		return This.IsNumberOrList(p)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.IsNumberOrList()
+
+	func @IsNumberOrList(p)
+		return IsNumberOrList(p)
+
+	func @IsListOrNumber(p)
+		return IsNumberOrList(p)
 
 func IsNumberOrObject(p)
 	if isNumber(p) or isObject(p)
@@ -889,6 +910,16 @@ func IsNumberOrObject(p)
 	func IsObjectOrNumber(p)
 		return This.IsNumberOrObject(p)
 
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.IsNumberOrString()
+
+	func @IsNumberOrSObject(p)
+		return IsNumberOrObject(p)
+
+	func @IsObjectOrNumber(p)
+		return IsNumberOrObject(p)
+
 func IsStringOrList(p)
 	if isString(p) or isList(p)
 		return TRUE
@@ -897,6 +928,16 @@ func IsStringOrList(p)
 	ok
 
 	def IsListOrString(p)
+		return IsStringOrList(p)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.IsStringOrList()
+
+	func @IsStringOrList(p)
+		return IsStringOrList(p)
+
+	func @IsListOrString(p)
 		return IsStringOrList(p)
 
 func IsStringOrObject(p)
@@ -909,12 +950,35 @@ func IsStringOrObject(p)
 	def IsObjectOrString(p)
 		return IsStringOrObject(p)
 
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.IsStringOrObject()
+
+	func @IsStringOrObject(p)
+		return IsStringOrObject(p)
+
+	func @IsObjectOrString(p)
+		return IsStringOrObject(p)
+
 func IsListOrObject(p)
 	if isList(p) or isObject(p)
 		return TRUE
 	else
 		return FALSE
 	ok
+
+	def IsObjectOrList(p)
+		return IsListOrObject(p)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.IsListOrObject()
+
+	func @IsListOrObject(p)
+		return IsListOrObject(p)
+
+	func @IsObjectOrList(p)
+		return IsListOrObject(p)
 
 func IsNumberOrStringOrList(p)
 	if isNumber(p) or isString(p) or isList(p)
@@ -936,6 +1000,28 @@ func IsNumberOrStringOrList(p)
 		return IsNumberOrStringOrList(p)
 
 	def IsListOrStringOrNumber(p)
+		return IsNumberOrStringOrList(p)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.IsNumberOrStringOrList()
+
+	def @IsNumberOrStringOrList(p)
+		return IsNumberOrStringOrList(p)
+
+	def @IsNumberOrListOrString(p)
+		return IsNumberOrStringOrList(p)
+
+	def @IsStringOrNumberOrList(p)
+		return IsNumberOrStringOrList(p)
+
+	def @IsStringOrListOrNumber(p)
+		return IsNumberOrStringOrList(p)
+
+	def @IsListOrNumberOrString(p)
+		return IsNumberOrStringOrList(p)
+
+	def @IsListOrStringOrNumber(p)
 		return IsNumberOrStringOrList(p)
 
 func ListOfListsOfStzTypes() # TODO: complete the list
@@ -965,6 +1051,17 @@ func BothAreNumbers(p1, p2)
 	func AreBothNumbers(p1, p2)
 		return BothAreNumbers(p1, p2)
 
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothAreNumbers()
+
+	func @BothAreNumbers(p1, p2)
+		return BothAreNumbers(p1, p2)
+
+	func @AreBothNumbers(p1, p2)
+		return BothAreNumbers(p1, p2)
+
+
 func BothArePairsOfNumbers(p1, p2)
 
 	if BothAreLists(p1, p2) and
@@ -975,6 +1072,20 @@ func BothArePairsOfNumbers(p1, p2)
 	else
 		return FALSE
 	ok
+
+	func AreBothPairsOfNumbers(p1, p2)
+		return BothArePairsOfNumbers(p1, p2)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothArePairsOfNumbers()
+
+	func @BothArePairsOfNumbers(p1, p2)
+		return BothArePairsOfNumbers(p1, p2)
+
+	func @AreBothPairsOfNumbers(p1, p2)
+		return BothArePairsOfNumbers(p1, p2)
+
 
 func BothArePairsOfStrings(p1, p2)
 
@@ -987,6 +1098,19 @@ func BothArePairsOfStrings(p1, p2)
 		return FALSE
 	ok
 
+	func AreBothPairsOfStrings(p1, p2)
+		return BothArePairsOfStrings(p1, p2)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothArePairsOfStrings()
+
+	func @BothArePairsOfStrings(p1, p2)
+		return BothArePairsOfStrings(p1, p2)
+
+	func @AreBothPairsOfStrings(p1, p2)
+		return BothArePairsOfStrings(p1, p2)
+
 func BothArePairsOfLists(p1, p2)
 
 	if BothAreLists(p1, p2) and
@@ -998,6 +1122,19 @@ func BothArePairsOfLists(p1, p2)
 		return FALSE
 	ok
 
+	func AreBothPairsOfLists(p1, p2)
+		return BothArePairsOfLists(p1, p2)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothArePairsOfLists()
+
+	func @BothArePairsOfLists(p1, p2)
+		return BothArePairsOfLists(p1, p2)
+
+	func @AreBothPairsOfLists(p1, p2)
+		return BothArePairsOfLists(p1, p2)
+
 func BothArePairsOfObjects(p1, p2)
 
 	if BothAreLists(p1, p2) and
@@ -1008,6 +1145,19 @@ func BothArePairsOfObjects(p1, p2)
 	else
 		return FALSE
 	ok
+
+	func AreBothPairsOfObjects(p1, p2)
+		return BothArePairsOfObjects(p1, p2)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothArePairsOfObjects()
+
+	func @BothArePairsOfObjects(p1, p2)
+		return BothArePairsOfObjects(p1, p2)
+
+	func @AreBothPairsOfObjects(p1, p2)
+		return BothArePairsOfObjects(p1, p2)
 
 func BothAreNumbersInStrings(p1, p2) # NOTE: hex and octal numbers are excluded
 	if isList(p2) and Q(p2).IsAndNamedParam()
@@ -1023,6 +1173,19 @@ func BothAreNumbersInStrings(p1, p2) # NOTE: hex and octal numbers are excluded
 	else
 		return FALSE
 	ok
+
+	func AreBothNumbersInStrings(p1, p2)
+		return BothAreNumbersInStrings(p1, p2)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothAreNumbersInStrings()
+
+	func @BothAreNumbersInStrings(p1, p2)
+		return BothAreNumbersInStrings(p1, p2)
+
+	func @AreBothNumbersInStrings(p1, p2)
+		return BothAreNumbersInStrings(p1, p2)
 
 func BothAreCharsInComputableForm(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
@@ -1045,6 +1208,18 @@ func BothAreCharsInComputableForm(p1, p2)
 
 	return bResult
 	
+	func AreBothCharsInComputableForm(p1, p2)
+		return BothAreCharsInComputableForm(p1, p2)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothAreNumbersInStrings()
+
+	func @BothAreCharsInComputableForm(p1, p2)
+		return BothAreCharsInComputableForm(p1, p2)
+
+	func @AreBothCharsInComputableForm(p1, p2)
+		return BothAreCharsInComputableForm(p1, p2)
 	 
 func BothAreStringsInComputableForm(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
@@ -1068,6 +1243,19 @@ func BothAreStringsInComputableForm(p1, p2)
 		return FALSE
 	ok
 
+	func AreBothStringsInComputableForm(p1, p2)
+		return BothAreStringsInComputableForm(p1, p2)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothAreStringsInComputableForm()
+
+	func @BothAreStringsInComputableForm(p1, p2)
+		return BothAreStringsInComputableForm(p1, p2)
+
+	func @AreBothStringsInComputableForm(p1, p2)
+		return BothAreStringsInComputableForm(p1, p2)
+
 func BothAreStzNumbers(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
@@ -1080,6 +1268,16 @@ func BothAreStzNumbers(p1, p2)
 	ok
 
 	func AreBothStzNumbers(p1, p2)
+		return BothAreStzNumbers(p1, p2)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothAreStzNumbers()
+
+	func @BothAreStzNumbers(p1, p2)
+		return BothAreStzNumbers(p1, p2)
+
+	func @AreBothStzNumbers(p1, p2)
 		return BothAreStzNumbers(p1, p2)
 
 func BothAreStrings(p1, p2)
@@ -1096,6 +1294,16 @@ func BothAreStrings(p1, p2)
 	func AreBothStrings(p1, p2)
 		return BothAreStrings(p1, p2)
 
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothAreStrings()
+
+	func @BothAreStrings(p1, p2)
+		return BothAreStrings(p1, p2)
+
+	func @AreBothStrings(p1, p2)
+		return BothAreStrings(p1, p2)
+
 func BothAreStzStrings(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
@@ -1109,6 +1317,16 @@ func BothAreStzStrings(p1, p2)
 
 	func AreBothStzStrings(p1, p2)
 		return BothAreStzStrings(p1, p2)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothAreStzStrings()
+
+	func @BothAreStzStrings(p1, p2)
+		return BothAreStzStrings(p1, p2)
+
+	func @AreBothStzStrings(p1, p2)
+		eturn BothAreStzStrings(p1, p2)
 
 func BothAreLists(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
@@ -1124,6 +1342,16 @@ func BothAreLists(p1, p2)
 	func AreBothLists(p1, p2)
 		return BothAreLists(p1, p2)
 
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothAreLists()
+
+	func @BothAreLists(p1, p2)
+		return BothAreLists(p1, p2)
+
+	func @AreBothLists(p1, p2)
+		eturn BothAreLists(p1, p2)
+
 func BothAreStzLists(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
@@ -1138,6 +1366,16 @@ func BothAreStzLists(p1, p2)
 	func AreBothStzLists()
 		return BothAreStzLists()
 
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothAreStzLists()
+
+	func @BothAreStzLists(p1, p2)
+		return BothAreStzLists(p1, p2)
+
+	func @AreBothStzLists(p1, p2)
+		return BothAreStzLists(p1, p2)
+
 func BothAreObjects(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
@@ -1150,6 +1388,16 @@ func BothAreObjects(p1, p2)
 	ok
 
 	func AreBothObjects(p1, p2)
+		return BothAreObjects(p1, p2)
+
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothAreObjects()
+
+	func @BothAreObjects(p1, p2)
+		return BothAreObjects(p1, p2)
+
+	func @AreBothObjects(p1, p2)
 		return BothAreObjects(p1, p2)
 
 func BothAreStzObjects(p1, p2)
@@ -1166,6 +1414,16 @@ func BothAreStzObjects(p1, p2)
 	func AreBothStzObjects(p1, p2)
 		return BothAreStzObjects(p1, p2)
 
+	#-- Alternatives added so the function can be called from
+	#-- inside an object that already contains a method of
+	#-- the same name obj.BothAreStzObjects()
+
+	func @BothAreStzObjects(p1, p2)
+		return BothAreStzObjects(p1, p2)
+
+	func @AreBothStzObjects(p1, p2)
+		return BothAreStzObjects(p1, p2)
+
 # ARE TWO OBJECTS THE SAME?
 
 func AreSameObject(pcVarName1, pcVarName2) # TODO
@@ -1175,53 +1433,109 @@ func AreSameObject(pcVarName1, pcVarName2) # TODO
 
 	return StzObjectQ(pcVarName1).IsEqualTo( pcVarName2 )
 
+	func @AreSameObject(pcVarName1, pcVarName2)
+		return AreSameObject(pcVarName1, pcVarName2)
+
 # REPEATING A THING N TIME
 
 func One(pThing)
 	return pThing
 
+	func @One(pThing)
+		return One(pThing)
+
 func Two(pThing)
 	return Q(pThing).RepeatedNTimes(2)
+
+	func @Two(pThing)
+		return Two(pThing)
 
 func Three(pThing)
 	return Q(pThing).RepeatedNTimes(3)
 
+	func @Three(pThing)
+		return Three(pThing)
+
 func Four(pThing)
 	return Q(pThing).RepeatedNTimes(4)
+
+	func @Four(pThing)
+		return Four(pThing)
 
 func Five(pThing)
 	return Q(pThing).RepeatedNTimes(5)
 
+	func @Five(pThing)
+		return Five(pThing)
+
 func Six(pThing)
 	return Q(pThing).RepeatedNTimes(6)
+
+	func @Six(pThing)
+		return Six(pThing)
 
 func Seven(pThing)
 	return Q(pThing).RepeatedNTimes(7)
 
+	func @Seven(pThing)
+		return Seven(pThing)
+
 func Eight(pThing)
 	return Q(pThing).RepeatedNTimes(8)
+
+	func @Eight(pThing)
+		return Eight(pThing)
 
 func Nine(pThing)
 	return Q(pThing).RepeatedNTimes(9)
 
+	func @Nine(pThing)
+		return Nine(pThing)
+
 func Ten(pThing)
 	return Q(pThing).RepeatedNTimes(10)
 
+	func @Ten(pThing)
+		return Ten(pThing)
+
 # OTHER STAFF
 
-func IsRingType(pcString)
-	return StzStringQ(pcString).LowercaseQ().ExistsIn( RingTypes() )
+func IsRingType(pcStr)
+	return StzStringQ(pcStr).LowercaseQ().ExistsIn( RingTypes() )
 
-func StringIsStzClassName(pcString)
-	return StzStringQ(pcString).IsStzClassName()
+	func @IsRingType(pcStr)
+		return IsRingType(pcStr)
+
+func StringIsStzClassName(pcStr)
+	return StzStringQ(pcStr).IsStzClassName()
+
+	func IsClassName(pcStr)
+		return StzStringQ(pcStr).IsStzClassName()
+
+	func @IsClassName(pcStr)
+		return StzStringQ(pcStr).IsStzClassName()
 
 func StringIsChar(pcStr)
 	oStzString = new stzString(pcStr)
 	return oStzString.IsChar()
 
+	func IsChar(pcStr)
+		oStzString = new stzString(pcStr)
+		return oStzString.IsChar()
+
+	func @IsChar(pcStr)
+		return IsChar(pcStr)
+
 func CharIsLetter(pcStr)
 	oStzChar = new stzChar(pcStr)
 	return oStzChar.IsLetter()
+
+	func IsLetter(pcStr)
+		oStzChar = new stzChar(pcStr)
+		return oStzChar.IsLetter()
+
+	func @IsLetter(pcStr)
+		return IsLetter(pcStr)
 
 func StzLen(p)
 	if isString(p)
@@ -1253,6 +1567,9 @@ func Unicode(p)
 		StzRaise("Incorrect param type! p must be either a string or list.")
 	ok
 
+	func @Unicode(p)
+		return Unicode(p)
+
 func HexUnicode(p)
 	if isString(p)
 		nResult = StzStringQ(p).HexUnicode()
@@ -1265,6 +1582,9 @@ func HexUnicode(p)
 	else
 		StzRaise("Incorrect param type! p must be either a string or list.")
 	ok
+
+	func @HexUnicode(p)
+		return HexUnicode(p)
 
 func Unicodes(p)
 
@@ -1280,6 +1600,9 @@ func Unicodes(p)
 		StzRaise("Incorrect param type! p must be either a string or list.")
 	ok
 
+	func @Unicodes(p)
+		return Unicodes(p)
+
 func HexUnicodes(p)
 
 	if isString(p)
@@ -1294,11 +1617,17 @@ func HexUnicodes(p)
 		StzRaise("Incorrect param type! p must be either a string or list.")
 	ok
 
+	func @HexUnicodes(p)
+		return HexUnicodes(p)
+
 func ScriptsOf(paListStr)
 	return StzListOfStringsQ(paListStr).Scripts()
 
 func Show(pValue)
 	? ComputableForm(pValue)
+
+	func @Show(pValue)
+		return Show(pValue)
 
 func ShowHL(pValue)
 	if NOT (isList(pValue) and Q(pValue).IsHashList())
