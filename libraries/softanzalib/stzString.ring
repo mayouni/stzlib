@@ -22963,10 +22963,9 @@ class stzString from stzObject
 	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	#-------------------------------------------------------------------------#
 
-"todo"
-
-def ReplaceBetweenS()
-def ReplaceIBS()
+# TODO: Add...
+#	def ReplaceBetweenS()
+#	def ReplaceIBS()
 	
 	def ReplaceBetweenCSIB(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
 
@@ -23387,6 +23386,73 @@ def ReplaceIBS()
 
 	def ReplaceXT(p1, p2, p3)
 		This.ReplaceCSXT(p1, p2, p3, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------------------------------#
+	 #  REPLACING ALL SUBSTRINGS EXCEPT THOSE PROVIDED BY A GIVEN SUBSTRING  #
+	#=======================================================================#
+
+	def ReplaceSubStringsExceptCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("--Ring--&__Softanza__")
+
+		o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], :With = AHeart() )
+		? o1.Content()
+		#--> Ring&Softanza
+
+		*/
+
+		aSections = This.FindSubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
+		This.ReplaceSections(aSections, pcNewSubStr)
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceSubStringsExceptCSZ(pacSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringsExceptCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceSubStringsOtherThanCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringsExceptCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceSubStringsOtherThanCSZ(pacSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringsExceptCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceAllExceptCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringsExceptCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceExceptCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringsExceptCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceAllButCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringsExceptCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceSubStringsExcept(pacSubStr, pcNewSubStr)
+		This.ReplaceSubStringsExceptCS(pacSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceSubStringsExceptZ(pacSubStr, pcNewSubStr)
+			This.ReplaceSubStringsExcept(pacSubStr, pcNewSubStr)
+
+		def ReplaceSubStringsOtherThan(pacSubStr, pcNewSubStr)
+			This.ReplaceSubStringsExcept(pacSubStr, pcNewSubStr)
+
+		def ReplaceSubStringsOtherThanZ(pacSubStr, pcNewSubStr)
+			This.ReplaceSubStringsExcept(pacSubStr, pcNewSubStr)
+
+		def ReplaceExcept(pacSubStr, pcNewSubStr)
+			This.ReplaceSubStringsExcept(pacSubStr, pcNewSubStr)
+
+		def ReplaceAllExcept(pacSubStr, pcNewSubStr)
+			This.ReplaceSubStringsExcept(pacSubStr, pcNewSubStr)
+
+		def ReplaceAllBut(pacSubStr, pcNewSubStr)
+			This.ReplaceSubStringsExcept(pacSubStr, pcNewSubStr)
+
+		#>
 
 	  #==============================================#
 	 #  SUBSTRINGS MADE OF A GIVEN OTHER SUBSTRING  #

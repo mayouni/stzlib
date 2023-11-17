@@ -1,5 +1,112 @@
 load "stzlib.ring"
 
+/*==========
+
+pron()
+
+o1 = new stzList([ "A", "B", "*", "D", "*",  "=" ])
+
+o1.ReplaceOccurrencesByMany([ 3, 5, 6 ], ["C", "E", "F"])
+
+? @@( o1.Content() )
+#--> [ "A", "B", "C", "D", "E", "F" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ "A", "B", "*", "*", "*",  "*" ])
+
+o1.ReplaceOccurrencesByManyXT([ 3, 4, 5, 6 ], [ "#1", "#2" ])
+
+? @@( o1.Content() )
+#--> [ "A", "B", "#1", "#2", "#1", "#2" ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzList([ "A", "B", "*", "D", "*",  "=" ])
+o1.ReplaceManyByMany([ "*", "=" ], :With = ["C", "E", "F"])
+? @@( o1.Content() )
+#--> [ "A", "B", "C", "D", "E", "F" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-----------
+
+pron()
+
+o1 = new stzList([ "A", "B", "3", "D", "5",  "6" ])
+o1.ReplaceManyByMany([ "3", "5", "6"], :With = ["C", "E", "F"])
+
+? @@( o1.Content() )
+#--> [ "A", "B", "C", "D", "E", "F" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzList([ "A", "B", "*", "_", "-",  "/" ])
+o1.ReplaceManyByManyXT([ "*", "_", "-",  "/" ], :With = ["A", "B"])
+
+? @@( o1.Content() )
+#--> [ "A", "B", "A", "B", "A", "B" ]
+
+proff()
+# Executed in 0.11 second(s)
+
+/*---------
+
+pron()
+
+StzListQ([ "#1", "#2", "*", "*", "*" ]) {
+	ReplaceManyByManyXT(["*"], [ "#1", "#2" ])
+	? @@( Content() )
+
+}
+#--> [ "#1", "#2", "#1", "#2", "#1" ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*---------
+
+pron()
+
+StzListQ([ "#1", "#2", "*", "_", "/" ]) {
+	ReplaceManyByManyXT(["*", "_", "/"], [ "#1", "#2" ])
+	? @@( Content() )
+
+}
+#--> [ "#1", "#2", "#1", "#2", "#1" ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*---------
+*/
+pron()
+
+StzListQ([ "A", "A", "A", "A", "A" ]) {
+	ReplaceManyByManyXT(["A"], [ "#1", "#2" ])
+	? Content()
+
+}
+#--> [ "#1", "#2", "#1", "#2", "#1" ]
+
+proff()
+
 /*=========
 
 pron()

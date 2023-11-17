@@ -31,13 +31,59 @@ proff()
 # Executed in 0.14 second(s)
 
 /*--------
-*/
+
 pron()
 
 o1 = new stzString("--Ring--&__Softanza__")
 o1.RemoveAllExcept([ "Ring", "&", "Softanza" ])
 ? o1.Content()
 #--> Ring&Softanza
+
+proff()
+
+/*--------
+
+pron()
+
+o1 = new stzString("--Ring--__Softanza__")
+o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], :With = AHeart())
+? o1.Content()
+#--> Ring&♥Ring♥Softanza♥
+
+proff()
+# Executed in 0.11 second(s)
+
+/*-------- TODO
+
+pron()
+
+o1 = new stzString("--Ring--Softanza--")
+
+o1.ReplaceWithMany("--", ["1", "2", "3"])
+? o1.Content()
+
+proff()
+
+/*-------- TODO
+
+pron()
+
+o1 = new stzString("--Ring__Softanza..")
+
+o1.ReplaceManyWithMany(["--", "__", ".."], ["1", "2", "3"])
+? o1.Content()
+
+proff()
+
+/*-------- # TODO
+*/
+pron()
+
+o1 = new stzString("--Ring--__Softanza__")
+
+o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], :With = [ "1", "2", "3"])
+? o1.Content()
+#--> 1Ring2Softanza3
 
 proff()
 
