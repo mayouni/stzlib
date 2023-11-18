@@ -48,7 +48,7 @@ func StzTableQ(paTable)
 	return new stzTable( paTable )
 
 Class stzTable from stzObject
-	@aTable = []
+	@aContent = []
 
 	# Table content is stored as a hashlist where keys are col names
 	# EXAMPLE:
@@ -96,7 +96,7 @@ Class stzTable from stzObject
 			next
 
 			for i = 1 to nCols
-				@aTable + [ "COL"+i, aRow ]
+				@aContent + [ "COL"+i, aRow ]
 			next
 
 			return
@@ -121,7 +121,7 @@ Class stzTable from stzObject
 
 			for i = 1 to nLen
 				cCol = paTable[1][i]
-				@aTable + [ cCol, [] ]
+				@aContent + [ cCol, [] ]
 			next
 			#--> [
 			# 	:ID       = [],
@@ -134,7 +134,7 @@ Class stzTable from stzObject
 				nLen = len(paTable[r])
 
 				for i = 1 to nLen
-					@aTable[i][2] + paTable[r][i]
+					@aContent[i][2] + paTable[r][i]
 				next
 			next
 
@@ -187,7 +187,7 @@ Class stzTable from stzObject
 		# 	2   Dania      Manager    50000
 		# 	3     Han       Doctor    62500
 
-			@aTable = paTable
+			@aContent = paTable
 
 		else
 			# If the param provided don't fit in any of the ways above
@@ -197,7 +197,7 @@ Class stzTable from stzObject
 		ok
 
 	def Content()
-		return @aTable
+		return @aContent
 
 		def Table()
 			return This.Content()
@@ -8608,7 +8608,7 @@ Class stzTable from stzObject
 		ok
 
 		for i = 1 to nLen
-			@aTable[i][2] + paRow[i]
+			@aContent[i][2] + paRow[i]
 		next
 
 	def AddRows(paRows)
@@ -8647,7 +8647,7 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! paNewTable must be a hashlist where values are lists of the same size.")
 		ok
 
-		@aTable = paNewTable
+		@aContent = paNewTable
 
 		#< @FunctionFluentForm
 
@@ -8811,8 +8811,18 @@ Class stzTable from stzObject
 	 #  REMOVING RAWS  #
 	#-----------------#
 
-	def RemoveRow(pnRow) // TODO
-		? @@(This.Content())
+	def RemoveRow(pnRow)
+		if CheckParams()
+			if NOT isNumber(pnRow)
+				StzRaise("Incorrect param type! pnRow must be a number.")
+			ok
+		ok
+
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			ring_remove(@aContent[i][2], pnRow)
+		next
 
 		def RemoveNthRow(pnRow)
 			This.EraseRow(pnRow)
@@ -8820,7 +8830,7 @@ Class stzTable from stzObject
 		def RemoveRowN(pnRow)
 			This.EraseRow(pnRow)
 
-	def RemoveRows(panRows) // TODO
+	def RemoveRows(panRows)
 		/* ... */
 
 	  #=====================#
@@ -9891,9 +9901,9 @@ Class stzTable from stzObject
 		# Doing the job
 
 		if pnFrom != pnTo
-			aCopy = @aTable[pnTo]
-			@aTable[pnTo] = @aTable[pnFrom]
-			@aTable[pnFrom] = aCopy
+			aCopy = @aContent[pnTo]
+			@aContent[pnTo] = @aContent[pnFrom]
+			@aContent[pnFrom] = aCopy
 		ok
 
 		#< @FunctionAlternativeForm
@@ -9921,8 +9931,8 @@ Class stzTable from stzObject
 		nCol1 = This.ColNumber(pCol1)
 		nCol2 = This.ColNumber(pCol2)
 
-		@aTable[nCol1][1] = cName2
-		@aTable[nCol2][1] = cName1
+		@aContent[nCol1][1] = cName2
+		@aContent[nCol2][1] = cName1
 
 		#< @FunctionAlternativeForm
 
@@ -10025,7 +10035,7 @@ Class stzTable from stzObject
 		ok
 
 		n = This.ColNumber(pCol)
-		@aTable[n][1] = pcNewColName
+		@aContent[n][1] = pcNewColName
 
 		#< @FunctionAlternativeForm
 
@@ -10072,7 +10082,17 @@ Class stzTable from stzObject
 		? This.ToStringXT(paOptions)
 
 	def ToString()
-		return This.ToStringXT([ :Separator = :Default, :Alignment = :Default ])
+		cResult = This.ToStringXT([
+			:Separator 	  = "   ",
+			:Alignment 	  = :Right,
+		
+			:UnderLineHeader  = TRUE,
+			:UnderLineChar 	  = "-",
+			:IntersectionChar = " ",
+		
+			:ShowRowNumbers   = FALSE
+		])
+		return cResult
 
 	def ToStringXT(paOptions)
 		/* EXAMPLE
@@ -10345,7 +10365,8 @@ Class stzTable from stzObject
 				ok
 			next
 
-			cString += (NL + cUnderline)
+			cString += (NL + cUnderLine)
+			
 		ok
 
 		# Constructing the rows

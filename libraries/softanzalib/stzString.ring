@@ -24711,7 +24711,7 @@ class stzString from stzObject
 			return This
 
 	def LastCharReplaced(pcSubStr)
-		return This.Copy().ReplaceFirstCharQ(pcSubStr).Contenr()
+		return This.Copy().ReplaceFirstCharQ(pcSubStr).Content()
 
 	  #------------------------------------------------------------#
 	 #  REPLACING NTH GIVEN CHAR (IF ANY) WITH A GIVEN SUBSTRING  #
