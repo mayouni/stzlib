@@ -8765,9 +8765,9 @@ Class stzTable from stzObject
 	def RenameLastCol(pcNewName)
 		This.RenameNthCol(:Last, pcNewName)
 
-	  #====================#
-	 #  REMOVING COLUMNS  #
-	#====================#
+	  #=====================#
+	 #  REMOVING A COLUMN  #
+	#=====================#
 
 	def RemoveColumn(pColNameOrNumber)
 		if This.NumberOfCols() = 1
@@ -8794,6 +8794,10 @@ Class stzTable from stzObject
 		def RemoveCol(pColNameOrNumber)
 			This.RemoveColumn(pColNameOrNumber)
 
+	  #------------------------------#
+	 #  REMOVING THE GIVEN COLUMNS  #
+	#------------------------------#
+
 	def RemoveColumns(paColNamesOrNumbers)
 		paColNamesOrNumbers = StzListQ(paColNamesOrNumbers).DuplicatesRemoved()
 
@@ -8807,9 +8811,9 @@ Class stzTable from stzObject
 		def RemoveCols(pColNamesOrNumbers)
 			This.RemoveColumns(pColNamesOrNumbers)
 
-	  #-----------------#
-	 #  REMOVING RAWS  #
-	#-----------------#
+	  #------------------------#
+	 #  REMOVING A GIVEN ROW  #
+	#========================#
 
 	def RemoveRow(pnRow)
 		if CheckParams()
@@ -8830,8 +8834,26 @@ Class stzTable from stzObject
 		def RemoveRowN(pnRow)
 			This.EraseRow(pnRow)
 
+	  #---------------------------#
+	 #  REMOVING THE GIVEN ROWS  #
+	#---------------------------#
+
 	def RemoveRows(panRows)
-		/* ... */
+		if CheckParams()
+			if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
+				StzRaise("Incorrect param type! panRows must be a list of numbers.")
+			ok
+		ok
+
+		nLen = len(@aContent)
+		anPos = ring_sort(panRows)
+		nLenPos = len(anPos)
+
+		for i = nLen to 1 step -1
+			for j = 1 to nLen
+				ring_remove(@aContent[j][2], anPos[i])
+			next
+		next
 
 	  #=====================#
 	 #  ERASING THE TABLE  #
