@@ -8812,7 +8812,7 @@ Class stzTable from stzObject
 	#-----------------#
 
 	def RemoveRow(pnRow) // TODO
-		/* ... */
+		? @@(This.Content())
 
 		def RemoveNthRow(pnRow)
 			This.EraseRow(pnRow)
@@ -10077,12 +10077,18 @@ Class stzTable from stzObject
 	def ToStringXT(paOptions)
 		/* EXAMPLE
 
-		? o1.toStringXT(:Separator = " | ", :Alignment = :Leftة :UnderLineHeader, :ShowRowNumbers)
+		? o1.toStringXT([
+			:Separator = " | ",
+			:Alignment = :Left,
+			:UnderLineHeader = TRUE,
+			:UnderLineChar = "-",
+			:ShowRowNumbers = TRUE
+		])
 
 		*/
 
 		# Accelerating access using just one option provided in a string
-		# inclunding when no option is provided at all --> ShowXT(NULL)
+		# inclunding when no option is provided at all --> ShowXT(NULL) or ShowXT([])
 
 		if isString(paOptions)
 			if isNull(paOptions)
@@ -10105,7 +10111,6 @@ Class stzTable from stzObject
 			    paOptions = :AddLineUnderColumnsNames
 
 				return This.ShowXT([ :UnderLineHeader = TRUE ])
-
 
 			but paOptions = :ShowRowNumbers or	# TODO: Add those named params
 			    paOptions = :AddRowNumbers or	# to ShowXT([ ... ])
@@ -10161,14 +10166,18 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param! paOptions must be either an empty list or a hashlist.")
 		ok
 
-		# Reading the options
+		# Setting the default options
 
-		cSeparator = "  "
+		cSeparator = " | "
 		cAlignment = :Right
-		bUnderlineHeader = FALSE
-		bShowRowNumbers = FALSE
+		
+		bUnderlineHeader = TRUE
+		cUnderLineChar = "-"
+		cIntersectionChar = "+"
 
-		#--
+		bShowRowNumbers = TRUE
+
+		# Reading the options provided by the user
 
 		pSeparator = aOptions[:Separator]
 
@@ -10178,6 +10187,9 @@ Class stzTable from stzObject
 			else
 				cSeparator = pSeparator
 			ok
+
+		but pSeparator = NULL
+			pSeparator = " | "
 		ok
 
 		#--
@@ -10192,36 +10204,66 @@ Class stzTable from stzObject
 			but pAlignment = :Default
 				cAlignment = :Right
 			ok
+
+		but pAlignment = NULL
+			pAlignment = :Right
 		ok
 
 		#--
 
-		pUnderlineHeader = aOptions[:UnderLineHeader]
+		pUnderLineHeader = aOptions[:UnderLineHeader]
 
-		if pUnderlineHeader != NULL and isNumber(pUnderlineHeader)
+		if isString(pUnderlineHeader) and pUnderLineHeader = NULL
+			bUnderLineHeader = FALSE
 
-			if pUnderlineHeader = TRUE
-				bUnderlineHeader = TRUE
+		but isNumber(pUnderLineHeader) and IsBoolean(pUnderLineHeader)
+			bUnderLineHeader = pUnderLineHeader
 
-			but pUnderlineHeader = FALSE
-				bUnderlineHeader = FALSE
-			ok
+		else
+			StzRaise("Incorrect param type! bUnderLineHeader must be a boolean.")
+		ok
 
+		#--
+
+		cUnderLineChar = aOptions[:UnderLineChar]
+
+		if NOT isString(cUnderLineChar)
+			StzRaise("Incorrect param type! You must provide a string in :UnderLineChar = ...")
+		ok
+
+		if cUnderLineChar = NULL
+			cUnderLineChar = "-"
+		ok
+
+		#--
+
+		cIntersectionChar = aOptions[:IntersectionChar]
+
+		if NOT isString(cUnderLineChar)
+			StzRaise("Incorrect param type! You must provide a string in :InterSectionChar = ...")
+		ok
+
+		if cInterSectionChar = NULL
+			cInterSectionChar = "+"
 		ok
 
 		#--
 
 		pShowRowNumbers = aOptions[:ShowRowNumbers]
 
-		if pShowRowNumbers != NULL and isNumber(pShowRowNumbers)
+		if isString(pShowRowNumbers) and pShowRowNumbers = NULL
+			bShowRowNumbers = FALSE
 
+		but isNumber(pShowRowNumbers)
 			if pShowRowNumbers = TRUE
 				bShowRowNumbers = TRUE
 
-			but pShowRowNumbers = FALSE
+			else pShowRowNumbers = FALSE
 				bShowRowNumbers = FALSE
 			ok
 
+		else
+			StzRaise("Incorrect param type! bShowRowNumbers must be TRUE or FALSE.")
 		ok
 
 		# Doing the job
@@ -10280,20 +10322,22 @@ Class stzTable from stzObject
 		# Underlining the header
 
 		cUnderLine = ""
+		oUnderLineChar = Q(cUnderlineChar)
 
-		if bUnderlineHeader
+		if bUnderLineHeader or
+		   ( isString(pUnderLineHeader) and pUnderLineHeader = NULL and cUnderLineChar != NULL)
 
-			cSep = Q("-").RepeatedNTimes( Q(cSeparator).NumberOfChars() )
-			cSep = Q(cSep).ReplaceMiddleCharQ(:With = "+").Content()
+			cSep = oUnderLineChar.RepeatedNTimes( Q(cSeparator).NumberOfChars() )
+			cSep = Q(cSep).ReplaceMiddleCharQ(cIntersectionChar).Content()
 
 			if bShowRowNumbers
-				cUnderLine = Q("-").
+				cUnderLine = oUnderLineChar.
 					     RepeatedNTimes( Q(acRowNumbersAdjusted[1]).NumberOfChars() ) + cSep
 
 			ok
 
 			for i = 1 to nLen
-				cUnderLine += Q("-").
+				cUnderLine += oUnderLineChar.
 				RepeatedNTimes( This.ColNameQ(i).NumberOfChars() + 1 )
 
 				if i < nLen
