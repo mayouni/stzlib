@@ -1,6 +1,81 @@
 load "stzlib.ring"
 
 /*==========
+*/
+pron()
+
+# In softanza there some useful functions that you can use from
+# every where, because they are defined at the global level (you
+# will find them either in stzGlobal.Ring or in each class file).
+
+# For example, if you want to check if a list contans two numbers,
+# you can say :
+
+? BothAreNumbers(5, -12)
+#--> TRUE
+
+# When it makes, those functions are also provided as methods
+# in a given class. So, BothAreNumbers() can also be used
+# inside a list to check that it contains two numbers,
+# like this:
+
+? Q([ 5, -12 ]).BothAreNumbers() # Q() elevates the list to a stzList object
+#--> TRUE
+
+# Note that the name of the function is the same, but it signature
+# is different. In fact, they are two different thins: the first one
+# (with the two numbers as parameters) is defined at the global scope,
+# and the second one (the method with the same name but without any
+# parameter) is defined at the object scope.
+
+# So, one you call it inside the object, Ring will execute the one
+# without parameters and ignores the one at the global scope.
+
+# Now, what happens, if you need to call the gloabl function inside
+# the object, like this:
+
+Q([ 5, -12 ]) { 		# We are inside a stzList object
+
+	? BothAreNumbers()	# This will work.
+	#--> TRUE
+
+	//? BothAreNumbers(9, -9)	# This will raise an error!
+	#--> ERROR: Calling function with extra number of parameters!
+}
+
+# You may say that you could solve this by creating an other stzList object
+# for the [9, -9] list and call the function on it, like this:
+
+Q([ 5, -12 ]) { 		# We are inside a stzList object
+
+	? BothAreNumbers()	# This will work.
+	#--> TRUE
+
+	? Q([ 9, -9 ]).BothAreNumbers()	# This will work!
+	#--> TRUE
+}
+
+# Which is correct! But Softanza want to avoid mental distruption (the
+# fact of thinking of an other object that you need to create inside
+# the object you are focusing on!), and provides you with a simple
+# and quick solution by the use of the @ wildcard:
+
+Q([ 5, -12 ]) { 		# We are inside a stzList object
+
+	? BothAreNumbers()	# This will work.
+	#--> TRUE
+
+	? @BothAreNumbers(9, -9)	# works, without beaking your train of thoughts!
+	#--> TRUE
+}
+
+# GENRAL RULE: Every time you have a global function in Softanza that also
+# available for a given object, and you need to call it from inside that
+# object, prefix its name with a @, and it will work.
+
+proff()
+
+/*==========
 
 pron()
 
@@ -95,7 +170,7 @@ proff()
 # Executed in 0.07 second(s)
 
 /*---------
-*/
+
 pron()
 
 StzListQ([ "A", "A", "A", "A", "A" ]) {
@@ -131,6 +206,7 @@ o1.RemoveAllExcept([ "♥", "★", "🌞" ]) # Or RemoveItemsOtherThan()
 #--> [ "♥", "★", "🌞" ]
 
 proff()
+# Executed in 0.04 second(s)
 
 /*----------
 
@@ -143,7 +219,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzList([ "♥", "A", "B", "C", "♥" ])
@@ -151,7 +227,7 @@ o1 = new stzList([ "♥", "A", "B", "C", "♥" ])
 #--> [1, 5]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s)
 
 /*----------
 
@@ -549,7 +625,7 @@ o1 = new stzList([ [ "a", "♥", "*" ], [ "♥", "*"], [ "a", "b", "♥", "*" ] 
 proff()
 
 /*-----
-*/
+
 pron()
 
 o1 = new stzList([ "ee♥ee", "b♥bbb", "ccc♥", "♥♥" ])
@@ -569,6 +645,7 @@ o1 = new stzList([ 0, "a♥a" ])
 #--> FALSE
 
 proff()
+# Executed in 0.04 second(s)
 
 /*=====
 
@@ -611,10 +688,10 @@ pron()
 proff()
 
 /*========= Finding objects
-*/
+
 pron()
 
-
+# TODO
 
 proff()
 
@@ -2776,11 +2853,12 @@ o1 = new stzList([ 1, "*", 10:12, "B", 2, 1, "*", "A", 3, "*", "B", 10:12, "B" ]
 proff()
 
 /*----------
-*/
+
 pron()
 
 aList = [ "A", "B", 1, "A", "A", 1, "C", 1:2, "D", "B", "E", '"1"', 1:2 ]
 o1 = new stzList(aList)
+
 ? @@( o1.DuplicatesZ() )
 #--> [
 #	[ "A", 		[ 4, 5 ] ],
@@ -2789,13 +2867,16 @@ o1 = new stzList(aList)
 #	[ [ 1, 2 ], 	[ 13 ]   ]
 # ]
 ? ""
-? @@( o1.DuplicatesXTZ() ) # TODO
+? @@( o1.DuplicatesXTZ() )
 #--> [
 #	[ "A", 		[ 1, 4, 5 ] ],
 #	[ "B", 		[ 2, 10 ]   ],
 #	[ 1, 		[ 3, 6 ]    ],
 #	[ "C",		[ 7 ]	    ],
-#	[ [ 1, 2 ], 	[ 9, 13 ]   ]
+#	[ [ 1, 2 ], 	[ 8, 13 ]   ],
+#	[ "D", 		[ 9 ] 	    ],
+#	[ "E", 		[ 11 ]      ],
+#	[ '"1"', 	[ 12 ] 	    ]
 # ]
 
 proff()
@@ -2845,7 +2926,7 @@ proff()
 # Executed in 10.70 second(s)
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzList([ "A", "B", "A", "A", "C", "D", "B", "E", "a" , "b"])
@@ -3273,7 +3354,7 @@ StartProfiler()
 StopProfiler()
 # Executed in 31.56 second(s)
 
-/*------------
+/*------------ TODO, Check performance
 
 */
 
@@ -3302,12 +3383,11 @@ StartProfiler()
 # Removing dupicates
 
 	o1 = new stzList(aLargeListOfStr)
-? o1.FindDuplicates()
-/*
-	o1.RemoveDuplicates()
-	? o1.Content()
-	#--> [ "_", "HI", "ME", "YOU" ]
-*/
+//? o1.FindDuplicates()
+
+	//o1.RemoveDuplicates()
+	//? o1.Content()
+
 StopProfiler()
 # Executed in 3.58 second(s)
 

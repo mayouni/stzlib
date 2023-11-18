@@ -81,7 +81,7 @@ pron()
 
 o1 = new stzString("--Ring--__Softanza__")
 
-o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], :With = [ "1", "2", "3"])
+o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], [ "1", "2", "3"])
 ? o1.Content()
 #--> 1Ring2Softanza3
 
