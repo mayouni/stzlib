@@ -1,7 +1,32 @@
 load "stzlib.ring"
 
-/*============ A Softanza narration showing one of the uses of the XT()
+/*=============
 */
+pron()
+
+o1 = new stzTable([
+	[ :COL1,    :COL2,    :COL3 ],
+	#----------------------------#
+	[ 10,	    100,      1000  ],
+	[ 20,	    200,      2000  ],
+	[ "*",	    "*",      "*"   ],
+	[ 30,	    300,      3000  ]
+])
+
+o1.RemoveRow(3)
+
+o1.Show()
+#--> :COL1   :COL2   :COL3
+#    ------ ------- ------
+#       10     100    1000
+#       20     200    2000
+#       30     300    3000
+
+proff()
+# Executed in 0.31 second(s)
+
+/*============ A Softanza narration showing one of the uses of the XT()
+
 pron()
 
 # You create a table with this structure:
@@ -18,12 +43,12 @@ o1 = new stzTable([
 # And you want to show it on screen:
 
 ? o1.Show() + NL
-#--> :COL1  :COL2  :COL3
-#    -------------------
-#       10    100   1000
-#       20    200   2000
-#       *      *      *
-#       30    300   3000
+#--> :COL1   :COL2   :COL3
+#    ------ ------- ------
+#       10     100    1000
+#       20     200    2000
+#        *       *       *
+#       30     300    3000
 
 # That's fine! But you may want a more elaborated formatting!
 # Use the XT() extension:
