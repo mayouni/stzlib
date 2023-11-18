@@ -76,7 +76,7 @@ o1.ReplaceManyWithMany(["--", "__", ".."], ["1", "2", "3"])
 proff()
 
 /*-------- # TODO
-*/
+
 pron()
 
 o1 = new stzString("--Ring--__Softanza__")
@@ -87,9 +87,10 @@ o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], [ "1", "2", "3"])
 
 proff()
 
-/*--------
+/*-------- TODO
+*/
 
-Add RemoveAllExcept() in stzString and stzList  + ...W()
+# DONE! Add RemoveAllExcept() in stzString and stzList  + ...W()
 Add RemoveAllRowsExcept() and RemoveAllColsExcept() in stzTable + ...W()
 
 /*========

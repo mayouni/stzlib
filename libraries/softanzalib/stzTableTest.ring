@@ -1,11 +1,88 @@
 load "stzlib.ring"
 
+/*============ A Softanza narration showing one of the uses of the XT()
+*/
+pron()
+
+# You create a table with this structure:
+
+o1 = new stzTable([
+	[ :COL1,    :COL2,    :COL3 ],
+	#----------------------------#
+	[ 10,	    100,      1000  ],
+	[ 20,	    200,      2000  ],
+	[ "*",	    "*",      "*"   ],
+	[ 30,	    300,      3000  ]
+])
+
+# And you want to show it on screen:
+
+? o1.Show() + NL
+#--> :COL1  :COL2  :COL3
+#    -------------------
+#       10    100   1000
+#       20    200   2000
+#       *      *      *
+#       30    300   3000
+
+# That's fine! But you may want a more elaborated formatting!
+# Use the XT() extension:
+
+? o1.ShowXT([]) + NL
+#--> :COL1 | :COL2 | :COL3
+#    ------+-------+------
+#       10 |   100 |  1000
+#       20 |   200 |  2000
+#        * |     * |     *
+#       30 |   300 |  3000
+
+# Satisfied? No? You can change the default options at your will...
+
+? o1.ShowXT([
+
+	:Separator 	  = " | ",
+	:Alignment 	  = :Center,
+
+	:UnderLineHeader  = TRUE,
+	:UnderLineChar 	  = "-",
+	:IntersectionChar = "+",
+
+	:ShowRowNumbers   = TRUE
+
+])
+#--> # | :COL1 | :COL2 | :COL3
+#    --+-------+-------+------
+#    1 |  10   |  100  | 1000 
+#    2 |  20   |  200  | 2000 
+#    3 |   *   |   *   |   *  
+#    4 |  30   |  300  | 3000 
+
+proff()
+# Executed in 1.09 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzTable([3, 4])
+? o1.Show()
+#--> 	:COL1  	:COL2  	:COL3
+#	NULL	NULL	NULL
+#	NULL	NULL	NULL
+#	NULL	NULL	NULL
+#	NULL	NULL	NULL
+
+proff()
+# Executed in 0.35 second(s)
+
+/*==========
+
 pron()
 
 # Special syntax to enable the SQL syntax in Ring
 
 o1 = new stzTable([])
-? ObjectIsStzObject(o1)
+? IsStzObject(o1)
 #--> TRUE
 
 o1.@([
