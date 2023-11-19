@@ -28,8 +28,6 @@ o1 = new stzTable([
 	[ 30,	    "*",      300,	"*"   ]
 ])
 
-
-/*
 #--
 
 ? o1.FindColByName(:COL3) + NL
@@ -52,20 +50,19 @@ o1 = new stzTable([
 
 ? o1.FindColByValue([ "*", "*", "*" ])
 #--> [ 2, 4 ]
-*/
 
 ? o1.FindColsByValue([
 	[ 100, 200, 300 ],
 	[ "*", "*", "*" ]
 ])
 #--> [ 2, 3, 4 ]
-/*
-? o1.FindRowsExcept([
-	[ 30, 300, 3000 ],
+
+? o1.FindColsByValueExcept([
+	[ 10, 20, 30 ],
 	[ "*", "*", "*" ]
 ])
-#--> [1, 2]
-*/
+#--> [ 3 ]
+
 proff()
 
 /*=============
