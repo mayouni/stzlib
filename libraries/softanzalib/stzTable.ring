@@ -670,7 +670,62 @@ Class stzTable from stzObject
 		def FindColumnByValue(paColData)
 			return This.FindColByValue(paColData)
 
+	  #----------------------------------#
+	 #  FINDING MANY COLUMNS BY VALUES  #
+	#----------------------------------#
 
+	def FindColsByValue(paManyColData)
+
+		if CheckParams()
+
+			if NOT ( isList(paManyColData) and Q(paManyColData).IsListOfLists() )
+				StzRaise("Incorrect param type! paManyColData must be a list of lists.")
+			ok
+
+		ok
+
+		paManyColData = U( paManyColData ) # Duplicates are removed
+
+		nLen = len(paManyColData)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindColByValue(paManyColData[i])
+			nLenPos = len(anPos)
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindColsByValues(paManyColData)
+			return This.FindColsByValue(paManyColData)
+
+		def FindColumnsByValue(paManyColData)
+			return This.FindColsByValue(paManyColData)
+
+		def FindColumnsByValues(paManyColData)
+			return This.FindColsByValue(paManyColData)
+
+		#==
+
+		def FindMAnyColsByValue(paManyColData)
+			return This.FindColsByValue(paManyColData)
+
+		def FindManyColsByValues(paManyColData)
+			return This.FindColsByValue(paManyColData)
+
+		def FindManyColumnsByValue(paManyColData)
+			return This.FindColsByValue(paManyColData)
+
+		def FindManyColumnsByValues(paManyColData)
+			return This.FindColsByValue(paManyColData)
+
+		#>
 
 	#----------
 
