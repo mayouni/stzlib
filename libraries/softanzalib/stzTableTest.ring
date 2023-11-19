@@ -30,18 +30,13 @@ o1 = new stzTable([
 
 
 /*
-? o1.FindColByValue([ 100, 200, 300 ])
-#--> [ 3 ]
-
-? o1.FindColByValue([ "*", "*", "*" ])
-#--> [ 2, 4 ]
+#--
 
 ? o1.FindColByName(:COL3) + NL
 #--> 3
 
 ? o1.FindColsByName([ :COL2, :COL4 ])
 #--> [ 2, 4 ]
-*/
 
 ? o1.FindColsByName([ :FirstCol, :LastCol ])
 #--> [ 1, 4 ]
@@ -49,13 +44,22 @@ o1 = new stzTable([
 ? o1.FindColsByName([ :FirstCol, :LastCol, :LastCol ])
 #--> [ 1, 4 ]
 
-/*
+
+#--
+
+? o1.FindColByValue([ 100, 200, 300 ])
+#--> [ 3 ]
+
+? o1.FindColByValue([ "*", "*", "*" ])
+#--> [ 2, 4 ]
+*/
+
 ? o1.FindColsByValue([
 	[ 100, 200, 300 ],
 	[ "*", "*", "*" ]
 ])
-#--> [ 3, 4, 5, 6 ]
-
+#--> [ 2, 3, 4 ]
+/*
 ? o1.FindRowsExcept([
 	[ 30, 300, 3000 ],
 	[ "*", "*", "*" ]
