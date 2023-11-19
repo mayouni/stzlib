@@ -17,7 +17,7 @@ proff()
 # Executed in 0.09 second(s)
 
 /*=============
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -154,7 +154,7 @@ proff()
 # Executed in 0.31 second(s)
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -1907,17 +1907,17 @@ o1 = new stzTable([
 	[ "006",   "so", 	14800.10  ]
 ])
 
-? @@( o1.FindInCol(:EMPLOYEE, "---") )
+? @@( o1.FindInCol(:EMPLOYEE, "---") ) + NL
 #--> [ ]
 
-? @@( o1.FindInCol(:EMPLOYEE, "So") )
+? @@( o1.FindInCol(:EMPLOYEE, "So") ) + NL
 #--> [ [ 2, 3 ] ]
 
-? @@( o1.FindInColCS(:EMPLOYEE, "So", :CS = FALSE) )
+? @@( o1.FindInColCS(:EMPLOYEE, "So", :CS = FALSE) ) + NL
 #--> [ [ 2, 3 ], [ 2, 6 ] ]
 
 
-? @@( o1.FindInCol(:EMPLOYEE, :SubValue = "So") )
+? @@( o1.FindInCol(:EMPLOYEE, :SubValue = "So") ) + NL
 #--> [
 #	[ [ 2, 2 ], [ 1 ] 	],
 #	[ [ 2, 3 ], [ 1 ] 	],
@@ -1934,7 +1934,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.62 second(s)
+# Executed in 0.55 second(s)
 
 /*===================
 
@@ -2870,7 +2870,7 @@ proff()
 # Executed in 0.51 second(s)
 
 /*=============
-
+*/
 pron()
 
 o1 = new stzTable([

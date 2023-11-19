@@ -595,7 +595,7 @@ Class stzTable from stzObject
 		def FindColumnByName(pcColName)
 			return This.FindColByName(pcColName)
 
-		def FidCol(pcColName)
+		def FindCol(pcColName)
 			return This.FindColByName(pcColName)
 
 		def FindColumn(pcColName)
@@ -679,15 +679,23 @@ Class stzTable from stzObject
 	 #  FINDING A COLUMN BY VALUE  #
 	#-----------------------------#
 
-	def FindColByValue(paColData)
+	def FindColByValueCS(paColData, pCaseSensitive)
 		if CheckParams()
 			if NOT isList(paColData)
 				StzRaise("Incorrect param type! paColData must be a list.")
 			ok
 		ok
 
-		anResult = This.ToStzHashList().FindValue(paColData)
+		anResult = This.ToStzHashList().FindValueCS(paColData, pCaseSensitive)
 		return anResult
+
+		def FindColumnByValueCS(paColData, pCaseSensitive)
+			return This.FindColByValueCS(paColData, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindColByValue(paColData)
+		return This.FindColByValueCS(paColData, :CaseSensitive = TRUE)
 
 		def FindColumnByValue(paColData)
 			return This.FindColByValue(paColData)
@@ -696,7 +704,7 @@ Class stzTable from stzObject
 	 #  FINDING MANY COLUMNS BY VALUES  #
 	#----------------------------------#
 
-	def FindColsByValue(paManyColData)
+	def FindColsByValueCS(paManyColData, pCaseSensitive)
 
 		if CheckParams()
 
@@ -712,7 +720,7 @@ Class stzTable from stzObject
 		anResult = []
 
 		for i = 1 to nLen
-			anPos = This.FindColByValue(paManyColData[i])
+			anPos = This.FindColByValueCS(paManyColData[i], pCaseSensitive)
 			nLenPos = len(anPos)
 			for j = 1 to nLenPos
 				anResult + anPos[j]
@@ -721,6 +729,38 @@ Class stzTable from stzObject
 
 		anResult = ring_sort(anResult)
 		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindColsByValuesCS(paManyColData, pCaseSensitive)
+			return This.FindColsByValueCS(paManyColData, pCaseSensitive)
+
+		def FindColumnsByValueCS(paManyColData, pCaseSensitive)
+			return This.FindColsByValueCS(paManyColData, pCaseSensitive)
+
+		def FindColumnsByValuesCS(paManyColData, pCaseSensitive)
+			return This.FindColsByValueCS(paManyColData, pCaseSensitive)
+
+		#==
+
+		def FindMAnyColsByValueCS(paManyColData, pCaseSensitive)
+			return This.FindColsByValueCS(paManyColData, pCaseSensitive)
+
+		def FindManyColsByValuesCS(paManyColData, pCaseSensitive)
+			return This.FindColsByValueCS(paManyColData, pCaseSensitive)
+
+		def FindManyColumnsByValueCS(paManyColData, pCaseSensitive)
+			return This.FindColsByValueCS(paManyColData, pCaseSensitive)
+
+		def FindManyColumnsByValuesCS(paManyColData, pCaseSensitive)
+			return This.FindColsByValueCS(paManyColData, pCaseSensitive)
+
+		#>
+
+	#-- WTIHOUT CASESENSITIVITY
+
+	def FindColsByValue(paManyColData)
+		return This.FindColsByValueCS(paManyColData, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -800,9 +840,33 @@ Class stzTable from stzObject
 	 #  FINING COLUMNS BY VALUE EXPET THOSE PROVIDED  #
 	#------------------------------------------------#
 
-	def FindColsByValueExcept(paCols)
-		anResult = Q(1:This.NumberOfCols()) - This.FindColsByValue(paCols)
+	def FindColsByValueExceptCS(paCols, pCaseSensitive)
+		anResult = Q(1:This.NumberOfCols()) - This.FindColsByValueCS(paCols, pCaseSensitive)
 		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllColsByValueExceptCS(paCols, pCaseSensitive)
+			return This.FindColsByValueExceptCS(paCols, pCaseSensitive)
+
+		def FindColsByValueOtherThanCS(paCols, pCaseSensitive)
+			return This.FindColsByValueExceptCS(paCols, pCaseSensitive)
+
+		def FindColumnsByValueExceptCS(paCols, pCaseSensitive)
+			return This.FindColsByValueExceptCS(paCols, pCaseSensitive)
+
+		def FindAllColumnsByValueExceptCS(paCols, pCaseSensitive)
+			return This.FindColumnsByValueExceptCS(paCols, pCaseSensitive)
+
+		def FindColumnsByValueOtherThanCS(paCols, pCaseSensitive)
+			return This.FindColumnsByValueExceptCS(paCols, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindColsByValueExcept(paCols)
+		return This.FindColsByValueExceptCS(paCols, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -827,27 +891,71 @@ Class stzTable from stzObject
 	 #  FINDING A ROW BY ITS VALUE  #
 	#==============================#
 
-	def FindRow(paRow)
-		anResult = Q(This.Rows()).FindAll(paRow)
+	def FindRowCS(paRow, pCaseSensitive)
+		anResult = Q(This.Rows()).FindAllCS(paRow, pCaseSensitive)
 		return anResult
 
-	def FindNthRow(paRow)
-		nPos = Q(This.Rows()).FindNth(parow)
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRow(paRow)
+		return This.FindRowCS(paRow, :CaseSensitive = TRUE)
+
+	  #----------------------------------#
+	 #  FINDINING NTH ROW BY ITS VALUE  #
+	#----------------------------------#
+
+	def FindNthRowCS(paRow, pCaseSensitive)
+		nPos = Q(This.Rows()).FindNthCS(parow, pCaseSensitive)
 		return nPos
+
+		def FindNthOccurrenceOfRowCS(paRow, pCaseSensitive)
+			return This.FindNthRowCS(paRow, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthRow(paRow)
+		return This.FindNthRowCS(paRow, :CaseSensitive = TRUE)
 
 		def FindNthOccurrenceOfRow(paRow)
 			return This.FindNthRow(paRow)
 
-	def FindRows(paRows)
-		anResult = Q(This.Rows()).FindMany(paRows)
+	  #----------------------------------------#
+	 #  FINDINING MANYS ROWS BY THEIR VALUES  #
+	#----------------------------------------#
+
+	def FindRowsCS(paRows, pCaseSensitive)
+		anResult = Q(This.Rows()).FindManyCS(paRows, pCaseSensitive)
 		return anResult
+
+		def FindManyRowsCS(paRows, pCaseSensitive)
+			return This.FindRowsCS(paRows, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRows(paRows)
+		returnThis.FindRowsCS(paRows, :CaseSensitive = TRUE)
 
 		def FindManyRows(paRows)
 			return This.FindRows(paRows)
 
-	def FindRowsExcept(paRows)
-		anResult = Q(1:This.NumberOfRows()) - This.FindRows(paRows)
+	  #--------------------------------------------#
+	 #  FINDINING ROWS OTHER THAN THOSE PROVIDED  #
+	#--------------------------------------------#
+
+	def FindRowsExceptCS(paRows, pCaseSensitive)
+		anResult = Q(1:This.NumberOfRows()) - This.FindRowsCS(paRows, pCaseSensitive)
 		return anResult
+
+		def FindAllRowsExceptCS(paRows, pCaseSensitive)
+			return This.FindRowsExceptCS(paRows, pCaseSensitive)
+
+		def FindRowsOtherThanCS(paRows, pCaseSensitive)
+			return This.FindRowsExceptCS(paRows, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRowsExcept(paRows)
+		return This.FindRowsExceptCS(paRows, :CaseSensitive = TRUE)
 
 		def FindAllRowsExcept(paRows)
 			return This.FindRowsExcept(paRows)
@@ -855,9 +963,9 @@ Class stzTable from stzObject
 		def FindRowsOtherThan(paRows)
 			return This.FindRowsExcept(paRows)
 
-	  #==============================================#
-	 #   GETTON A COLUMN DATA (IN A LIST OF CELLS)  #
-	#==============================================#
+	  #===============================================#
+	 #   GETTING A COLUMN DATA (IN A LIST OF CELLS)  #
+	#===============================================#
 
 	def Col(p)
 		if isString(p)
@@ -2099,6 +2207,8 @@ Class stzTable from stzObject
 
 		StzRaise("Insuppported syntax!")
 
+	#-- WITHOUT CASESENSITIVITY
+
 	def CellXT(pCellCol, pCellRow, pExpr, pValueORSubValue)
 		return This.CellCSXT(pCellCol, pCellRow, pExpr, pValueORSubValue, :CaseSensitive = TRUE)
 
@@ -2952,6 +3062,30 @@ Class stzTable from stzObject
 	
 		#>
 	
+	  #-----------------------------------#
+	 #  FINDING MANY CELLS IN THE TABLE  #
+	#-----------------------------------#
+
+	def FindCellsCS(paValues, pCaseSensitive) # TODO
+		StzRaise("TODO!")
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindCells(paValues)
+		return This.FindCellsCS(paValues, :CaseSensitive = TRUE)
+
+	  #-------------------------------------------#
+	 #  FINDING ALL CELLS EXCEPT THOSE PROVIDED  #
+	#-------------------------------------------#
+
+	def FindCellsExceptCS(paValues, pCaseSensitive) # TODO
+		StzRaise("TODO!")
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindCellsExcept(paValues)
+		return This.FindCellsExceptCS(paValues, :CaseSensitive = TRUE)
+
 	  #------------------------------------------------------#
 	 #  FINDING POSITIONS OF A GIVEN SUBVALUE IN THE TABLE  #
 	#------------------------------------------------------#
@@ -3010,6 +3144,30 @@ Class stzTable from stzObject
 			return This.FindSubValue(pSubValue)
 
 		#>
+
+	  #-------------------------------------------#
+	 #  FINFING MANY SUBVALUES INSIDE THE TABLE  #
+	#-------------------------------------------#
+
+	def FindSubValuesCS(paSubValues, pCaseSensitive) # TODO
+		StzRaise("TODO!")
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubValues(paSubValues)
+		return This.FindSubValuesCS(paSubValues, :CaseSensitive = TRUE)
+
+	  #-----------------------------------------------#
+	 #  FINFING ALL SUBVALUES EXCEPT THOSE PROVIDED  #
+	#-----------------------------------------------#
+
+	def FindSubValuesExceptCS(paSubValues, pCaseSensitive) # TODO
+		StzRaise("TODO!")
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubValuesExcept(paSubValues)
+		return This.FindSubValuesExceptCS(paSubValues, :CaseSensitive = TRUE)
 
 	  #---------------------------------------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN THE TABLE  #
@@ -3696,13 +3854,13 @@ Class stzTable from stzObject
 		def ContainsTheseRowsCS(paRows, pCaseSensitive)
 			return This.ContainsRowsCS(paRows, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
+	#-- WITHOUT CASESENSITIVITY
 
-		def ContainsRows(paRows)
-			return This.ContainsRowsCS(paRows, :CaseSensitive = TRUE)
+	def ContainsRows(paRows)
+		return This.ContainsRowsCS(paRows, :CaseSensitive = TRUE)
 
-			def ContainsTheseRows(paRows)
-				return This.ContainsRows(paRows)
+		def ContainsTheseRows(paRows)
+			return This.ContainsRows(paRows)
 
 	  #-------------------------------------------------#
 	 #  CHECKING IF THE TABLE CONTAINS A GIVEN COLUMN  #
@@ -3736,13 +3894,13 @@ Class stzTable from stzObject
 		def ContainsColumnCS(paCol, pCaseSensitive)
 			return This.ContainsColCS(paCol, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
+	#-- WITHOUT CASESENSITIVITY
 
-		def ContainsCol(paCol)
-			return This.ContainsColCS(paCol, :CaseSensitive = TRUE)
+	def ContainsCol(paCol)
+		return This.ContainsColCS(paCol, :CaseSensitive = TRUE)
 
-			def ContainsColumn(paCol)
-				return This.ContainsCol(paCol)
+		def ContainsColumn(paCol)
+			return This.ContainsCol(paCol)
 
 	  #----------------------------------------------------#
 	 #  CHECKING IF THE TABLE CONTAINS THE GIVEN COLUMNS  #
@@ -3787,19 +3945,19 @@ Class stzTable from stzObject
 		def ContainsTheseColumnsCS(paCols, pCaseSensitive)
 			return This.ContainsColsCS(paCols, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
+	#-- WITHOUT CASESENSITIVITY
 
-		def ContainsCols(paCols)
-			return This.ContainsColsCS(paCols, :CaseSensitive = TRUE)
+	def ContainsCols(paCols)
+		return This.ContainsColsCS(paCols, :CaseSensitive = TRUE)
 
-			def containsTheseCols(paCols)
-				return This.ContainsCols(paCols)
+		def containsTheseCols(paCols)
+			return This.ContainsCols(paCols)
 
-			def ContainsColumns(paCols)
-				return This.ContainsCols(paCol)
+		def ContainsColumns(paCols)
+			return This.ContainsCols(paCol)
 
-			def ContainsTheseColumns(paCols)
-				return This.ContainsCols(paCol)
+		def ContainsTheseColumns(paCols)
+			return This.ContainsCols(paCol)
 
 	  #----------------------------------------------------------------------#
 	 #  CHECKING IF THE TABLE CONTAINS CELLS THAT INCLUDE A GIVEN SUBVALUE  #
@@ -3815,8 +3973,8 @@ Class stzTable from stzObject
 
 		#-- WITHOUT CASESENSITIVITY
 
-		def ContainsSubValue(pSubValue)
-			return This.ContainsSubValueCS(pSubValue, :CaseSensitive = TRUE)
+	def ContainsSubValue(pSubValue)
+		return This.ContainsSubValueCS(pSubValue, :CaseSensitive = TRUE)
 
 
 	/// WORKING ON SOME CELLS //////////////////////////////////////////////////////////////////////////
@@ -3874,6 +4032,8 @@ Class stzTable from stzObject
 	def FindValueInCellCS(pCellCol, pCellRow, pValue, pCaseSensitive)
 		return This.FindInCellCS(pCellCol, pCellRow, :Value = pValue, pCaseSensitive)
 
+	#-- WITHOUT CASESENSITIVITY
+
 	def FindValueInCell(pCellCol, pCellRow, pValue)
 		return This.FindValueInCellCS(pCellCol, pCellRow, pValue, :CaseSensitive = TRUE)
 
@@ -3883,6 +4043,8 @@ Class stzTable from stzObject
 
 	def FindSubValueInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 		return This.FindInCellCS(pCellCol, pCellRow, :SubValue = pSubValue, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubValueInCell(pCellCol, pCellRow, pSubValue)
 		return This.FindSubValueInCellCS(pCellCol, pCellRow, pSubValue, :CaseSensitive = TRUE)
@@ -4064,7 +4226,11 @@ Class stzTable from stzObject
 
 			aCellPos  = aCellsXT[i][2]
 
-			if IsStringOrList(cellValue)
+			if @IsStringOrList(cellValue) # @ calls the global function
+						      # to avoid conflict with the
+						      # local one inherited from
+						      # stzList
+
 				if oCellValue.ContainsCS(pSubValue, pCaseSensitive)
 					aResult + [ aCellPos, oCellValue.FindAllCS(pSubValue, pCaseSensitive) ]
 				ok
