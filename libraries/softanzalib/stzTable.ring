@@ -605,11 +605,21 @@ Class stzTable from stzObject
 				StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 			ok
 
-			oColNames = new stzList(pacColNames)
-//			oColNames.ReplaceMany([:First, :FirstCol, :FirstColumn], This.FirstColName())
-//			oColNames.ReplaceMany([:Last, :LastCol, :LastColumn], This.LastColName())
+			nLen = len(pacColNames)
+			for i = 1 to nLen
+				if pacColNames[i] = :First 	 or
+				   pacColNames[i] = :FirstCol	 or
+				   pacColNames[i] = :FirstColumn
 
-			pacColNames = oColNames.Content()
+					pacColNames[i] = This.FirstColName()
+
+				but pacColNames[i] = :Last 	 or
+				    pacColNames[i] = :LastCol	 or
+				    pacColNames[i] = :LastColumn 
+
+					pacColNames[i] = This.LastColName()
+				ok
+			next
 
 		ok
 
