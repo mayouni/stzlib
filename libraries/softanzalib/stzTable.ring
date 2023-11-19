@@ -595,6 +595,12 @@ Class stzTable from stzObject
 		def FindColumnByName(pcColName)
 			return This.FindColByName(pcColName)
 
+		def FidCol(pcColName)
+			return This.FindColByName(pcColName)
+
+		def FindColumn(pcColName)
+			return This.FindColByName(pcColName)
+
 		#>
 
 	def FindColsByName(pacColNames)
@@ -649,6 +655,22 @@ Class stzTable from stzObject
 			return This.FindColsByName(pacColNames)
 
 		def FindManyColumnsByName(pacColNames)
+			return This.FindColsByName(pacColNames)
+
+		#==
+
+		def FindCols(pacColNames)
+			return This.FindColsByName(pacColNames)
+
+		def FindColumns(pacColNames)
+			return This.FindColsByName(pacColNames)
+
+		#--
+
+		def FindManyCols(pacColNames)
+			return This.FindColsByName(pacColNames)
+
+		def FindManyColumns(pacColNames)
 			return This.FindColsByName(pacColNames)
 
 		#>
@@ -727,24 +749,9 @@ Class stzTable from stzObject
 
 		#>
 
-	#----------
-
-	def FindCols(paCols)
-		anResult = Q(This.Cols()).FindMany(paCols)
-		return anResult
-
-		#< @FunctionAlternativeForms
-
-		def FindManyCols(paCols)
-			return This.FindCols(paCols)
-
-		def FindColumns(paCols)
-			return This.FindCols(paCols)
-
-		def FindManyColumns(paCols)
-			return This.FindCols(paCols)
-
-		#>
+	  #-----------------------------------------------#
+	 #  FINING COLUMNS BY NAME EXPET THOSE PROVIDED  #
+	#===============================================#
 
 	def FindColsExcept(paCols)
 		anResult = Q(1:This.NumberOfCols()) - This.FindCols(paCols)
@@ -767,11 +774,58 @@ Class stzTable from stzObject
 		def FindColumnsOtherThan(paCols)
 			return This.FindColumnsExcept(paCols)
 
+		#--
+
+		def FindColsByNameExcept(paCols)
+			return This.FindColsExcept(paCols)
+
+		def FindAllColsByNameExcept(paCols)
+			return This.FindColsExcept(paCols)
+
+		def FindColsByNameOtherThan(paCols)
+			return This.FindColsExcept(paCols)
+
+		def FindColumnsByNameExcept(paCols)
+			return This.FindColsExcept(paCols)
+
+		def FindAllColumnsByNameExcept(paCols)
+			return This.FindColumnsExcept(paCols)
+
+		def FindColumnsByNameOtherThan(paCols)
+			return This.FindColumnsExcept(paCols)
+
 		#>
 
-	  #------------------------------#
+	  #------------------------------------------------#
+	 #  FINING COLUMNS BY VALUE EXPET THOSE PROVIDED  #
+	#------------------------------------------------#
+
+	def FindColsByValueExcept(paCols)
+		anResult = Q(1:This.NumberOfCols()) - This.FindColsByValue(paCols)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllColsByValueExcept(paCols)
+			return This.FindColsByValueExcept(paCols)
+
+		def FindColsByValueOtherThan(paCols)
+			return This.FindColsByValueExcept(paCols)
+
+		def FindColumnsByValueExcept(paCols)
+			return This.FindColsByValueExcept(paCols)
+
+		def FindAllColumnsByValueExcept(paCols)
+			return This.FindColumnsByValueExcept(paCols)
+
+		def FindColumnsByValueOtherThan(paCols)
+			return This.FindColumnsByValueExcept(paCols)
+
+		#>
+
+	  #==============================#
 	 #  FINDING A ROW BY ITS VALUE  #
-	#------------------------------#
+	#==============================#
 
 	def FindRow(paRow)
 		anResult = Q(This.Rows()).FindAll(paRow)
