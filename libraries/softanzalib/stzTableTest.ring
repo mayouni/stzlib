@@ -1,6 +1,95 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzList([ "A", "B", "C", "D", "E" ])
+? @@( o1.FindMany([ "A", "B", "A", "B", "B" ]) )
+#--> [ 1, 2 ]
+
+o1.ReplaceManyByMany([ "A", "B", "A", "D", "E" ], :With = [ "1", "2"])
+? @@( o1.Content() )
+#--> [ "A", "*", "C", "*", "*" ]
+
+proff()
+# Executed in 0.05 second(s)
+
 /*=============
+*/
+pron()
+
+o1 = new stzTable([
+	[ :COL1,    :COL2,    :COL3,	:COL4 ],
+	#-------------------------------------#
+	[ 10,	    "*",      100,	"*"   ],
+	[ 20,	    "*",      200,	"*"   ],
+	[ 30,	    "*",      300,	"*"   ]
+])
+
+? o1.FindColByValue([ 100, 200, 300 ])
+#--> [ 3 ]
+
+? o1.FindColByValue([ "*", "*", "*" ])
+#--> [ 2, 4 ]
+
+? o1.FindColByName(:COL3)
+#--> 3
+
+? o1.FindColsByName([ :COL2, :COL4 ])
+#--> [ 2, 4 ]
+
+/*
+? o1.FindManyColsByValue([
+	[ 100, 200, 300 ],
+	[ "*", "*", "*" ]
+])
+#--> [ 3, 4, 5, 6 ]
+
+/*
+? o1.FindRowsExcept([
+	[ 30, 300, 3000 ],
+	[ "*", "*", "*" ]
+])
+#--> [1, 2]
+*/
+proff()
+
+/*=============
+
+pron()
+
+o1 = new stzTable([
+	[ :COL1,    :COL2,    :COL3 ],
+	#----------------------------#
+	[ 10,	    100,      1000  ],
+	[ 20,	    200,      2000  ],
+	[ "*",	    "*",      "*"   ],
+	[ 30,	    300,      3000  ],
+	[ "*",	    "*",      "*"   ],
+	[ "*",	    "*",      "*"   ]
+])
+
+? o1.FindRow([ 30, 300, 3000 ])
+#--> [ 4 ]
+
+? o1.FindRow([ "*", "*", "*" ])
+#--> [ 3, 5, 6 ]
+
+? o1.FindManyRows([
+	[ 30, 300, 3000 ],
+	[ "*", "*", "*" ]
+])
+#--> [ 3, 4, 5, 6 ]
+
+? o1.FindRowsExcept([
+	[ 30, 300, 3000 ],
+	[ "*", "*", "*" ]
+])
+#--> [1, 2]
+
+proff()
+# Executed in 0.39 second(s)
+
+/*-------------
 
 pron()
 
@@ -14,6 +103,33 @@ o1 = new stzTable([
 ])
 
 o1.RemoveRow(3)
+
+o1.Show()
+#--> :COL1   :COL2   :COL3
+#    ------ ------- ------
+#       10     100    1000
+#       20     200    2000
+#       30     300    3000
+
+proff()
+# Executed in 0.31 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzTable([
+	[ :COL1,    :COL2,    :COL3 ],
+	#----------------------------#
+	[ 10,	    100,      1000  ],
+	[ 20,	    200,      2000  ],
+	[ "*",	    "*",      "*"   ],
+	[ 30,	    300,      3000  ],
+	[ "*",	    "*",      "*"   ],
+	[ "*",	    "*",      "*"   ]
+])
+
+o1.RemoveRows([3, 5, 6])
 
 o1.Show()
 #--> :COL1   :COL2   :COL3
@@ -40,7 +156,7 @@ o1 = new stzTable([
 	[ "*",	    "*",      "*"   ]
 ])
 
-o1.RemoveRows([3, 5, 6])
+o1.RemoveAllRowsExcept([1, 2, 4]) # Or RemoveRowsOtherThan()
 
 o1.Show()
 #--> :COL1   :COL2   :COL3
@@ -50,7 +166,7 @@ o1.Show()
 #       30     300    3000
 
 proff()
-# Executed in 0.31 second(s)
+# # Executed in 0.31 second(s)
 
 /*============ A Softanza narration showing one of the uses of the XT()
 

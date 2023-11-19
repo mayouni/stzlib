@@ -22063,18 +22063,28 @@ class stzList from stzObject
 		#--> [ 1, 2, 3, 5, 6 ]
 		*/
 
-		aResult = []
-
-		for item in paItems
-			anPositions = This.FindAllCS(item, pCaseSensitive)
-			if len(anPositions) > 0
-				aResult + anPositions
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
 			ok
+		ok
+
+		aItems = Q(paItems).RemoveDuplicatesQ().Sorted()
+		nLen = len(aItems)
+
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindAllCS(aItems[i], pCaseSensitive)
+			nLenPos = len(anPos)
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
 		next
 
-		aResult = StzListQ(aResult).RemoveQ([]).FlattenQ().SortedInAscending()
+		anResult = ring_sort(anResult)
 
-		return aResult
+		return anResult
 
 		#< @FunctionFluentForm
 
