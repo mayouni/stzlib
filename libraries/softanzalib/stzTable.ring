@@ -568,32 +568,139 @@ Class stzTable from stzObject
 	 #  FINDING A COLUMN BY ITS NAME  #
 	#================================#
 
-	def FindCol(pcColName)
-		if NOT isString(pcColName)
-			StzRaise("Incorrect param type! pcColName must be a string.")
-		ok
+	def FindColByName(pcColName)
 
-		if Q(pcColName).IsOneOfThese([:First, :FirstCol, :FirstColumn])
-			pcColName = This.FirstColName()
+		if CheckParams()
 
-		but Q(pcColName).IsOneOfThese([:Last, :LastCol, :LastColumn])
-			pcColName = This.LastColName()
+			if NOT isString(pcColName)
+				StzRaise("Incorrect param type! pcColName must be a string.")
+			ok
+
+		
+			if Q(pcColName).IsOneOfThese([:First, :FirstCol, :FirstColumn])
+				pcColName = This.FirstColName()
+
+			but Q(pcColName).IsOneOfThese([:Last, :LastCol, :LastColumn])
+				pcColName = This.LastColName()
+			ok
+
 		ok
 
 		pcColName = Q(pcColName).Lowercased()
 		n = ring_find( This.Header(), pcColName)
 		return n
 
-		#< @FunctionAlternativeForms
-
-		def FindColumn(pcColName)
-			return This.FindCol(pcColName)
-
-		def FindColByName(pcColName)
-			return This.FindCol(pcColName)
+		#< @FunctionAlternativeForm
 
 		def FindColumnByName(pcColName)
-			return This.FindCol(pcColName)
+			return This.FindColByName(pcColName)
+
+		#>
+
+	def FindColsByName(pacColNames)
+
+		if CheckParams()
+
+			if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+				StzRaise("Incorrect param type! pacColNames must be a list of strings.")
+			ok
+
+			oColNames = new stzList(pacColNames)
+//			oColNames.ReplaceMany([:First, :FirstCol, :FirstColumn], This.FirstColName())
+//			oColNames.ReplaceMany([:Last, :LastCol, :LastColumn], This.LastColName())
+
+			pacColNames = oColNames.Content()
+
+		ok
+
+		anResult = Q( This.ColNames() ).FindMany(pacColNames)
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindColsByNames(pacColNames)
+			return This.FindColsByName(pacColNames)
+
+		def FindColumnsByNames(pacColNames)
+			return This.FindColsByName(pacColNames)
+
+		def FindColumnsByName(pacColNames)
+			return This.FindColsByName(pacColNames)
+
+		#--
+
+		def FindManyColsByName(pacColNames)
+			return This.FindColsByName(pacColNames)
+
+		def FindManyColsByNames(pacColNames)
+			return This.FindColsByName(pacColNames)
+
+		def FindManyColumnsByNames(pacColNames)
+			return This.FindColsByName(pacColNames)
+
+		def FindManyColumnsByName(pacColNames)
+			return This.FindColsByName(pacColNames)
+
+		#>
+
+	  #-----------------------------#
+	 #  FINDING A COLUMN BY VALUE  #
+	#-----------------------------#
+
+	def FindColByValue(paColData)
+		if CheckParams()
+			if NOT isList(paColData)
+				StzRaise("Incorrect param type! paColData must be a list.")
+			ok
+		ok
+
+		anResult = This.ToStzHashList().FindValue(paColData)
+		return anResult
+
+		def FindColumnByValue(paColData)
+			return This.FindColByValue(paColData)
+
+
+
+	#----------
+
+	def FindCols(paCols)
+		anResult = Q(This.Cols()).FindMany(paCols)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindManyCols(paCols)
+			return This.FindCols(paCols)
+
+		def FindColumns(paCols)
+			return This.FindCols(paCols)
+
+		def FindManyColumns(paCols)
+			return This.FindCols(paCols)
+
+		#>
+
+	def FindColsExcept(paCols)
+		anResult = Q(1:This.NumberOfCols()) - This.FindCols(paCols)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllColsExcept(paCols)
+			return This.FindColsExcept(paCols)
+
+		def FindColsOtherThan(paCols)
+			return This.FindColsExcept(paCols)
+
+		def FindColumnsExcept(paCols)
+			return This.FindColsExcept(paCols)
+
+		def FindAllColumnsExcept(paCols)
+			return This.FindColumnsExcept(paCols)
+
+		def FindColumnsOtherThan(paCols)
+			return This.FindColumnsExcept(paCols)
 
 		#>
 
@@ -602,11 +709,8 @@ Class stzTable from stzObject
 	#------------------------------#
 
 	def FindRow(paRow)
-		anPos = Q(This.Rows()).FindAll(paRow)
-		return anPos
-
-		def FindAllRows(paRow)
-			return This.FindRow(paRow)
+		anResult = Q(This.Rows()).FindAll(paRow)
+		return anResult
 
 	def FindNthRow(paRow)
 		nPos = Q(This.Rows()).FindNth(parow)
@@ -614,6 +718,23 @@ Class stzTable from stzObject
 
 		def FindNthOccurrenceOfRow(paRow)
 			return This.FindNthRow(paRow)
+
+	def FindRows(paRows)
+		anResult = Q(This.Rows()).FindMany(paRows)
+		return anResult
+
+		def FindManyRows(paRows)
+			return This.FindRows(paRows)
+
+	def FindRowsExcept(paRows)
+		anResult = Q(1:This.NumberOfRows()) - This.FindRows(paRows)
+		return anResult
+
+		def FindAllRowsExcept(paRows)
+			return This.FindRowsExcept(paRows)
+
+		def FindRowsOtherThan(paRows)
+			return This.FindRowsExcept(paRows)
 
 	  #==============================================#
 	 #   GETTON A COLUMN DATA (IN A LIST OF CELLS)  #
@@ -8854,6 +8975,36 @@ Class stzTable from stzObject
 				ring_remove(@aContent[j][2], anPos[i])
 			next
 		next
+
+	  #-----------------------------------------------#
+	 #  REMOVING ALL THE ROWS EXCEPT THOSE PROVIDED  #
+	#-----------------------------------------------#
+
+	def RemoveAllRowsExcept(panRows)
+		if CheckParams()
+			if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
+				StzRaise("Incorrect param type! panRows must be a list of numbers.")
+			ok
+		ok
+
+		anPos = Q(1:This.NumberOfRows()) - panRows
+		# Or we can write directly:
+		# anPos = FindRowsExcept(panRows)
+
+		This.RemoveRows(anPos)
+
+		#< @FunctionAlternativeForms
+
+		def RemoveRowsExcept(panRow)
+			This.RemoveAllRowsExcept(panRow)
+
+		def RemoveAllRowsOtherThan(panRow)
+			This.RemoveAllRowsExcept(panRow)
+
+		def RemoveRowsOtherThan(panRow)
+			This.RemoveAllRowsExcept(panRow)
+
+		#>
 
 	  #=====================#
 	 #  ERASING THE TABLE  #
