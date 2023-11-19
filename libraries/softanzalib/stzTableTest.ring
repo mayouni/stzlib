@@ -1,17 +1,20 @@
 load "stzlib.ring"
 
+
+/*------
+
 pron()
 
 o1 = new stzList([ "A", "B", "C", "D", "E" ])
 ? @@( o1.FindMany([ "A", "B", "A", "B", "B" ]) )
 #--> [ 1, 2 ]
 
-o1.ReplaceManyByMany([ "A", "B", "A", "D", "E" ], :With = [ "1", "2"])
+o1.ReplaceManyByManyXT([ "A", "B", "A", "D", "E" ], :With = [ "1", "2"])
 ? @@( o1.Content() )
-#--> [ "A", "*", "C", "*", "*" ]
+#--> [ "1", "2", "C", "1", "2" ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.09 second(s)
 
 /*=============
 */
@@ -25,26 +28,34 @@ o1 = new stzTable([
 	[ 30,	    "*",      300,	"*"   ]
 ])
 
+
+/*
 ? o1.FindColByValue([ 100, 200, 300 ])
 #--> [ 3 ]
 
 ? o1.FindColByValue([ "*", "*", "*" ])
 #--> [ 2, 4 ]
 
-? o1.FindColByName(:COL3)
+? o1.FindColByName(:COL3) + NL
 #--> 3
 
 ? o1.FindColsByName([ :COL2, :COL4 ])
 #--> [ 2, 4 ]
+*/
+
+? o1.FindColsByName([ :FirstCol, :LastCol ])
+#--> [ 1, 4 ]
+
+? o1.FindColsByName([ :FirstCol, :LastCol, :LastCol ])
+#--> [ 1, 4 ]
 
 /*
-? o1.FindManyColsByValue([
+? o1.FindColsByValue([
 	[ 100, 200, 300 ],
 	[ "*", "*", "*" ]
 ])
 #--> [ 3, 4, 5, 6 ]
 
-/*
 ? o1.FindRowsExcept([
 	[ 30, 300, 3000 ],
 	[ "*", "*", "*" ]
