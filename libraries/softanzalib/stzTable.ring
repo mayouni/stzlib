@@ -8476,12 +8476,24 @@ Class stzTable from stzObject
 	#==========================================================================#
 
 	def ReplaceCell(pCol, pnRow, pNewCellValue)
-		if isList(pNewCellValue) and Q(pNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
-			pNewCellValue = pNewCellValue[2]
+		if CheckParams()
+			if isList(pNewCellValue) and Q(pNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
+				pNewCellValue = pNewCellValue[2]
+			ok
 		ok
 
 		cCol = This.ColToName(pCol)
 		This.Table()[cCol][pnRow] = pNewCellValue
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceCellByPosition(pCol, pnRow, pNewCellValue)
+			This.ReplaceCell(pCol, pnRow, pNewCellValue)
+
+		def ReplaceByPositionCell(pCol, pnRow, pNewCellValue)
+			This.ReplaceCell(pCol, pnRow, pNewCellValue)
+
+		#>
 
 	  #---------------------------------------------------------------------------#
 	 #  REPLACING MANY CELLS, DEFINED BY THEIR POSITIONS, BY THE PROVIDED VALUE  #
@@ -8489,10 +8501,14 @@ Class stzTable from stzObject
 
 	def ReplaceCells(paCellsPos, paNewCellValue)
 
-		if isList(paNewCellValue) and Q(paNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
-			paNewCellValue = paNewCellValue[2]
-		ok
+		if ChekParams()
+
+			if isList(paNewCellValue) and Q(paNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
+				paNewCellValue = paNewCellValue[2]
+			ok
 	
+		ok
+
 		for i = 1 to len(paCellsPos)
 			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], paNewCellValue)
 		next
@@ -8551,6 +8567,146 @@ Class stzTable from stzObject
 		def ReplaceEveryCellOfThese(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		#== Adding ...ByPosition(s) to all alternatives
+
+		def ReplaceCellsByPosition(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceCellsByPositions(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceTheseCellsByPosition(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceTheseCellsByPositions(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceManyByPosition(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceManyByPositions(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+
+		def ReplaceEachOneByPosition(paCellsPos, paNewCellValue)
+			This.ReplaceEachOne(paCellsPos, paNewCellValue)
+
+		def ReplaceEachOneByPositions(paCellsPos, paNewCellValue)
+			This.ReplaceEachOne(paCellsPos, paNewCellValue)
+
+		def ReplaceEachCellByPosition(paCellsPos, paNewCellValue)
+			This.ReplaceEachCell(paCellsPos, paNewCellValue)
+
+		def ReplaceEachCellByPositions(paCellsPos, paNewCellValue)
+			This.ReplaceEachCell(paCellsPos, paNewCellValue)
+
+		def ReplaceEachOfTheseCellsByPosition(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceEachOfTheseCellsByPositions(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceEachCellOfTheseByPosition(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceEachCellOfTheseByPositions(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+
+		def ReplaceEveryOneByPosition(paCellsPos, paNewCellValue)
+			This.ReplaceEveryOne(paCellsPos, paNewCellValue)
+
+		def ReplaceEveryOneByPositions(paCellsPos, paNewCellValue)
+			This.ReplaceEveryOne(paCellsPos, paNewCellValue)
+
+		def ReplaceEveryCellByPosition(paCellsPos, paNewCellValue)
+			This.ReplaceEveryCell(paCellsPos, paNewCellValue)
+
+		def ReplaceEveryCellByPositions(paCellsPos, paNewCellValue)
+			This.ReplaceEveryCell(paCellsPos, paNewCellValue)
+
+		def ReplaceEveryOneOfTheseCellsByPosition(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceEveryOneOfTheseCellsByPositions(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceEveryCellOfTheseByPosition(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceEveryCellOfTheseByPositions(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		#--
+
+		def ReplaceByPositionCells(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionsCells(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionTheseCells(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionsTheseCells(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionMany(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionsMany(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+
+		def ReplaceByPositionEachOne(paCellsPos, paNewCellValue)
+			This.ReplaceEachOne(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionsEachOne(paCellsPos, paNewCellValue)
+			This.ReplaceEachOne(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionEachCell(paCellsPos, paNewCellValue)
+			This.ReplaceEachCell(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionsEachCell(paCellsPos, paNewCellValue)
+			This.ReplaceEachCell(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionEachOfTheseCells(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionsEachOfTheseCells(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionEachCellOfThese(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionsEachCellOfThese(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+
+		def ReplaceByPositionEveryOne(paCellsPos, paNewCellValue)
+			This.ReplaceEveryOne(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionsEveryOne(paCellsPos, paNewCellValue)
+			This.ReplaceEveryOne(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionEveryCell(paCellsPos, paNewCellValue)
+			This.ReplaceEveryCell(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionsEveryCell(paCellsPos, paNewCellValue)
+			This.ReplaceEveryCell(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionEveryOneOfTheseCells(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionsEveryOneOfTheseCells(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionEveryCellOfThese(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
+		def ReplaceByPositionsEveryCellOfThese(paCellsPos, paNewCellValue)
+			This.ReplaceCells(paCellsPos, paNewCellValue)
+
 		#>
 
 	  #-----------------------------------------------------------------------------#
@@ -8587,36 +8743,196 @@ Class stzTable from stzObject
 			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], aValues[i])
 		next
 
-		#< @FunctionAlternatives
+		#< @FunctionAlternativeForms
 
 		def ReplaceTheseCellsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
-		def ReplaceManyByMany(paCellsPos, paNewCellValue)
+		def ReplaceManyByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
 		#--
 
-		# TODO: Add the fellowing semantics to all simular functions in the library
+		def ReplaceEachOneByMany(paCellsPos, paNewValues)
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+				paCellsPos = paCellsPos[2]
+			ok
 
-		def ReplaceEachCellByMany(paCellsPos, paNewCellValue)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
-		def ReplaceEachOfTheseCellsByMany(paCellsPos, paNewCellValue)
+		def ReplaceEachCellByMany(paCellsPos, paNewValues)
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+				paCellsPos = paCellsPos[2]
+			ok
+
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
-		def ReplaceEachCellOfTheseByMany(paCellsPos, paNewCellValue)
+		def ReplaceEachOfTheseCellsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceEachCellOfTheseByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
 		#--
 
-		def ReplaceEveryCellByMany(paCellsPos, paNewCellValue)
+		def ReplaceEveryOneByMany(paCellsPos, paNewValues)
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseByMany([ :Of, :OfThese, :OfTheseCells ])
+				paCellsPos = paCellsPos[2]
+			ok
+
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
-		def ReplaceEveryOneOfTheseCellsByMany(paCellsPos, paNewCellValue)
+		def ReplaceEveryCellByMany(paCellsPos, paNewValues)
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+				paCellsPos = paCellsPos[2]
+			ok
+
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
-		def ReplaceEveryCellOfTheseByMany(paCellsPos, paNewCellValue)
+		def ReplaceEveryOneOfTheseCellsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceEveryCellOfTheseByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		#== Adding ...ByPosition(s) to all alternatives
+
+		def ReplaceCellsByPositionByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceCellsByPositionsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceTheseCellsByPositionByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceTheseCellsByPositionsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceManyByPositionByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceManyByPositionsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+
+		def ReplaceEachOneByPositionByMany(paCellsPos, paNewValues)
+			This.ReplaceEachOneByMany(paCellsPos, paNewValues)
+
+		def ReplaceEachOneByPositionsByMany(paCellsPos, paNewValues)
+			This.ReplaceEachOneByMany(paCellsPos, paNewValues)
+
+		def ReplaceEachCellByPositionByMany(paCellsPos, paNewValues)
+			This.ReplaceEachCellByMany(paCellsPos, paNewValues)
+
+		def ReplaceEachCellByPositionsByMany(paCellsPos, paNewValues)
+			This.ReplaceEachCellByMany(paCellsPos, paNewValues)
+
+		def ReplaceEachOfTheseCellsByPositionByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceEachOfTheseCellsByPositionsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceEachCellOfTheseByPositionByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceEachCellOfTheseByPositionsByMany(paCellsPos, paNewValues)
+			This.ReplaceCells(paCellsPos, paNewValues)
+
+
+		def ReplaceEveryOneByPositionByMany(paCellsPos, paNewValues)
+			This.ReplaceEveryOneByMany(paCellsPos, paNewValues)
+
+		def ReplaceEveryOneByPositionsByMany(paCellsPos, paNewValues)
+			This.ReplaceEveryOneByMany(paCellsPos, paNewValues)
+
+		def ReplaceEveryCellByPositionByMany(paCellsPos, paNewValues)
+			This.ReplaceEveryCellByMany(paCellsPos, paNewValues)
+
+		def ReplaceEveryCellByPositionsByMany(paCellsPos, paNewValues)
+			This.ReplaceEveryCellByMany(paCellsPos, paNewValues)
+
+		def ReplaceEveryOneOfTheseCellsByPositionByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceEveryOneOfTheseCellsByPositionsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceEveryCellOfTheseByPositionByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceEveryCellOfTheseByPositionsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		#--
+
+		def ReplaceByPositionCellsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsCellsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionTheseCellsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsTheseCellsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionManyByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsManyByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+
+		def ReplaceByPositionEachOneByMany(paCellsPos, paNewValues)
+			This.ReplaceEachOneByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEachOneByMany(paCellsPos, paNewValues)
+			This.ReplaceEachOneByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEachCellByMany(paCellsPos, paNewValues)
+			This.ReplaceEachCellByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEachCellByMany(paCellsPos, paNewValues)
+			This.ReplaceEachCellByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEachOfTheseCellsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEachOfTheseCellsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEachCellOfTheseByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEachCellOfTheseByMany(paCellsPos, paNewValues)
+			This.ReplaceCells(paCellsPos, paNewValues)
+
+
+		def ReplaceByPositionEveryOneByMany(paCellsPos, paNewValues)
+			This.ReplaceEveryOneByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEveryOneByMany(paCellsPos, paNewValues)
+			This.ReplaceEveryOneByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEveryCellByMany(paCellsPos, paNewValues)
+			This.ReplaceEveryCellByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEveryCellByMany(paCellsPos, paNewValues)
+			This.ReplaceEveryCellByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEveryOneOfTheseCellsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEveryOneOfTheseCellsByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEveryCellOfTheseByMany(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEveryCellOfTheseByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
 		#>
@@ -8647,32 +8963,319 @@ Class stzTable from stzObject
 		def ReplaceTheseCellsByManyXT(paCellsPos, paNewValues)
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
-		def ReplaceManyByManyXT(paCellsPos, paNewCellValue)
+		def ReplaceManyByManyXT(paCellsPos, paNewValues)
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		#--
 
-		def ReplaceEachCellByManyXT(paCellsPos, paNewCellValue)
+		def ReplaceEachOneByManyXT(paCellsPos, paNewValues)
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+				paCellsPos = paCellsPos[2]
+			ok
+
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
-		def ReplaceEachOfTheseCellsByManyXT(paCellsPos, paNewCellValue)
+		def ReplaceEachCellByManyXT(paCellsPos, paNewValues)
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+				paCellsPos = paCellsPos[2]
+			ok
+
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
-		def ReplaceEachCellOfTheseByManyXT(paCellsPos, paNewCellValue)
+		def ReplaceEachOfTheseCellsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEachCellOfTheseByManyXT(paCellsPos, paNewValues)
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		#--
 
-		def ReplaceEveryCellByManyXT(paCellsPos, paNewCellValue)
+		def ReplaceEveryOneByManyXT(paCellsPos, paNewValues)
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseByManyXT([ :Of, :OfThese, :OfTheseCells ])
+				paCellsPos = paCellsPos[2]
+			ok
+
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
-		def ReplaceEveryOneOfTheseCellsByManyXT(paCellsPos, paNewCellValue)
+		def ReplaceEveryCellByManyXT(paCellsPos, paNewValues)
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+				paCellsPos = paCellsPos[2]
+			ok
+
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
-		def ReplaceEveryCellOfTheseByManyXT(paCellsPos, paNewCellValue)
+		def ReplaceEveryOneOfTheseCellsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEveryCellOfTheseByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		#== Adding ...ByPosition(s) to all alternatives
+
+		def ReplaceCellsByPositionByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceCellsByPositionsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceTheseCellsByPositionByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceTheseCellsByPositionsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceManyByPositionByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceManyByPositionsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEachOneByPositionByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEachOneByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEachOneByPositionsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEachOneByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEachCellByPositionByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEachCellByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEachCellByPositionsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEachCellByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEachOfTheseCellsByPositionByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEachOfTheseCellsByPositionsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEachCellOfTheseByPositionByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEachCellOfTheseByPositionsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCells(paCellsPos, paNewValues)
+
+		def ReplaceEveryOneByPositionByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEveryOneByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEveryOneByPositionsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEveryOneByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEveryCellByPositionByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEveryCellByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEveryCellByPositionsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEveryCellByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEveryOneOfTheseCellsByPositionByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEveryOneOfTheseCellsByPositionsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEveryCellOfTheseByPositionByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceEveryCellOfTheseByPositionsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		#--
+
+		def ReplaceByPositionCellsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsCellsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionTheseCellsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplacePositionsTheseCellsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionManyByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplacePositionsManyByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEachOneByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEachOneByManyXT(paCellsPos, paNewValues)
+
+		def ReplacePositionsEachOneByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEachOneByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEachCellManyXT(paCellsPos, paNewValues)
+			This.ReplaceEachCellByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEachCellByPositionsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEachCellByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEachOfTheseCellsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEachOfTheseCellsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEachCellOfTheseByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEachCellOfTheseByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCells(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEveryOneByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEveryOneByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEveryOneByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEveryOneByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEveryCellByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEveryCellByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEveryCellByManyXT(paCellsPos, paNewValues)
+			This.ReplaceEveryCellByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEveryOneOfTheseCellsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEveryOneOfTheseCellsByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionEveryCellOfTheseByManyXT(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
+
+		def ReplaceByPositionsEveryCellOfTheseByManyXT(paCellsPos, paNewValues)
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		#>
+
+	  #-----------------------------------------------------------------#
+	 #  REPLACING OCCURRENCES OF A CELL (VALUE) BY THE PROVIDED VALUE  #
+	#=================================================================#
+
+	def ReplaceCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
+		aPos = This.FindCellCS(pCellValue, pCaseSensitive)
+		This.ReplaceCellsByPositions(aPos, pNewCellValue)
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceOccurrencesOfCellByValueCS(pCellValue, pNewCell, pCaseSensitive)
+			This.ReplaceCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
+
+		#--
+
+		def ReplaceByValueCellCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
+
+		def ReplaceByValueOccurrencesOfCellByCS(pCellValue, pNewCell, pCaseSensitive)
+			This.ReplaceCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIIVTY
+
+	def ReplaceCellByValue(pCellValue, pNewCellValue)
+		This.ReplaceCellByValueCS(pCellValue, pNewCellValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceOccurrencesOfCellByValue(pCellValue, pNewCell)
+			This.ReplaceCellByValue(pCellValue, pNewCellValue)
+
+		#--
+
+		def ReplaceByValueCell(pCellValue, pNewCellValue)
+			This.ReplaceCellByValue(pCellValue, pNewCellValue)
+
+		def ReplaceByValueOccurrencesOfCellBy(pCellValue, pNewCell)
+			This.ReplaceCellByValue(pCellValue, pNewCellValue)
+
+		#>
+
+	  #--------------------------------------------------------------------------------#
+	 #  REPLACING OCCURRENCES OF MANY CELLS, DEFINED BY VALUE, BY THE PROVIDED VALUE  #
+	#--------------------------------------------------------------------------------#
+
+	def ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, pCaseSensitive) # TODO
+		/* ... */
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceCellsByValueCS(paCellsValues, pNewCellValue, pCaseSensitive)
+			This.ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, pCaseSensitive)
+
+		#--
+
+		def ReplaceByValueManyCellsCS(paCellsValues, pNewCellValue, pCaseSensitive)
+			This.ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, pCaseSensitive)
+
+		def ReplaceByValueCellsCS(paCellsValues, pNewCellValue, pCaseSensitive)
+			This.ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
+		This.ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceCellsByValue(paCellsValues, pNewCellValue)
+			This.ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
+
+		#--
+
+		def ReplaceByValueManyCells(paCellsValues, pNewCellValue)
+			This.ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
+
+		def ReplaceByValueCells(paCellsValues, pNewCellValue)
+			This.ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
+
+		#>
+
+	  #--------------------------------------------------------------------------#
+	 #  REPLACING OCCURRENCES OF MANY CELLS, DEFINED BY VALUE, BY MANYS VALUES  #
+	#--------------------------------------------------------------------------#
+
+	def ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, pCaseSensitive) # TODO
+		/* ... */
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceCellsByValueByManyCS(paCellsValues, pNewCellValue, pCaseSensitive)
+			This.ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, pCaseSensitive)
+
+		#--
+
+		def ReplaceByValueManyCellsByManyCS(paCellsValues, pNewCellValue, pCaseSensitive)
+			This.ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, pCaseSensitive)
+
+		def ReplaceByValueCellsByManyCS(paCellsValues, pNewCellValue, pCaseSensitive)
+			This.ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
+		This.ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceCellsByValueByMany(paCellsValues, pNewCellValue)
+			This.ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
+
+		def ReplaceByValueManyCellsByMany(paCellsValues, pNewCellValue)
+			This.ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
+
+		def ReplaceByValueCellsByMany(paCellsValues, pNewCellValue)
+			This.ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
+
+		#>
+
+	  #-------------------------------------------------------------------------------------#
+	 #  REPLACING OCCURRENCES OF MANY CELLS, DEFINED BY VALUE, BY MANYS VALUES -- XT FORM  #
+	#-------------------------------------------------------------------------------------#
 
 	  #==============================#
 	 #  REPLACING CELLS IN COLUMNS  #
