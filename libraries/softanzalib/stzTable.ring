@@ -9277,6 +9277,42 @@ Class stzTable from stzObject
 	 #  REPLACING OCCURRENCES OF MANY CELLS, DEFINED BY VALUE, BY MANYS VALUES -- XT FORM  #
 	#-------------------------------------------------------------------------------------#
 
+	def ReplaceManyCellsByValueByManyCSXT(paCellsValues, pNewCellValue, pCaseSensitive) # TODO
+		/* ... */
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceCellsByValueByManyCSXT(paCellsValues, pNewCellValue, pCaseSensitive)
+			This.ReplaceManyCellsByValueByManyCSXT(paCellsValues, pNewCellValue, pCaseSensitive)
+
+		#--
+
+		def ReplaceByValueManyCellsByManyCSXT(paCellsValues, pNewCellValue, pCaseSensitive)
+			This.ReplaceManyCellsByValueByManyCSXT(paCellsValues, pNewCellValue, pCaseSensitive)
+
+		def ReplaceByValueCellsByManyCSXT(paCellsValues, pNewCellValue, pCaseSensitive)
+			This.ReplaceManyCellsByValueByManyCSXT(paCellsValues, pNewCellValue, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceManyCellsByValueByManyXT(paCellsValues, pNewCellValue)
+		This.ReplaceManyCellsByValueByManyCSXT(paCellsValues, pNewCellValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceCellsByValueByManyXT(paCellsValues, pNewCellValue)
+			This.ReplaceManyCellsByValueByManyXT(paCellsValues, pNewCellValue)
+
+		def ReplaceByValueManyCellsByManyXT(paCellsValues, pNewCellValue)
+			This.ReplaceManyCellsByValueByManyXT(paCellsValues, pNewCellValue)
+
+		def ReplaceByValueCellsByManyXT(paCellsValues, pNewCellValue)
+			This.ReplaceManyCellsByValueByManyXT(paCellsValues, pNewCellValue)
+
+		#>
+
 	  #==============================#
 	 #  REPLACING CELLS IN COLUMNS  #
 	#==============================#
@@ -9360,6 +9396,9 @@ Class stzTable from stzObject
 		def ReplaceAllColumsByMany(paCols, paNewCols)
 			This.ReplaceAllColsByMany(paCols, paNewCols)
 
+	# TODO : Add ReplaceAllColsByManyXT()
+	#--> When the new provided cols are all used --> restart from the first one
+
 	  #------------------------------------------------------------------------------------------------#
 	 #  REPLACING THE GIVEN COLUMNS WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS)  #
 	#------------------------------------------------------------------------------------------------#
@@ -9402,6 +9441,9 @@ Class stzTable from stzObject
 
 		#>
 
+	# TODO: Add ReplaceTheseColsByManyXT()
+	#--> When the new provided cols are all used --> restart from the first one
+
 	  #===========================#
 	 #  REPLACING CELLS IN ROWS  #
 	#===========================#
@@ -9443,6 +9485,9 @@ Class stzTable from stzObject
 		def ReplaceRows(paNewRows)
 			This.ReplaceAllRows(paNewRows)
 
+	# TODO: Add  ReplaceAllRowsXT(paNewRows)
+	#--> when all the provided rows are used --> restart from the 1st one
+
 	def ReplaceTheseRows(paRows, paNewRows)
 		if Q(paNewrows).IsOneOfTheseNamedParams([ :With, :By, :Using ])
 			paNewrows = paNewrows[2]
@@ -9450,6 +9495,9 @@ Class stzTable from stzObject
 
 		aCells = This.CellsInTheseRowsAsPositions(paRows)
 		This.ReplaceCells(aCells, paNewrows)
+
+	# TODO: Add  ReplaceThesesRowsXT()
+	#--> when all the provided rows are used --> restart from the 1st one
 
 	  #===================================================#
 	 #  REPLACING ALL OCCURRENCE OF A CELL IN THE TABLE  #
@@ -9461,25 +9509,25 @@ Class stzTable from stzObject
 
 		#< @FunctionAlternatives
 
-		def ReplaceAllOccurrencesOfCell(pCellValue, pNewCellValue, pCaseSensitive)
-			This.ReplaceCell(pCellValue, pNewCellValue, pCaseSensitive)
+		def ReplaceAllOccurrencesOfCellCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
 
-		def ReplaceEachOccurrenceOfCell(pCellValue, pNewCellValue, pCaseSensitive)
-			This.ReplaceCell(pCellValue, pNewCellValue, pCaseSensitive)
+		def ReplaceEachOccurrenceOfCellCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
 
-		def ReplaceEveryOccurrenceOfCell(pCellValue, pNewCellValue, pCaseSensitive)
-			This.ReplaceCell(pCellValue, pNewCellValue, pCaseSensitive)
+		def ReplaceEveryOccurrenceOfCellCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
 
 		#--
 
-		def ReplaceAllOccurrences(pCellValue, pNewCellValue, pCaseSensitive)
-			This.ReplaceCell(pCellValue, pNewCellValue, pCaseSensitive)
+		def ReplaceAllOccurrencesCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
 
-		def ReplaceEachOccurrence(pCellValue, pNewCellValue, pCaseSensitive)
-			This.ReplaceCell(pCellValue, pNewCellValue, pCaseSensitive)
+		def ReplaceEachOccurrenceCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
 
-		def ReplaceEveryOccurrence(pCellValue, pNewCellValue, pCaseSensitive)
-			This.ReplaceCell(pCellValue, pNewCellValue, pCaseSensitive)
+		def ReplaceEveryOccurrenceCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
 
 		#>
 
@@ -9487,6 +9535,30 @@ Class stzTable from stzObject
 
 	def ReplaceAll(pCellValue, pNewCellValue)
 		This.ReplaceAllCS(pCellValue, pNewCellValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternatives
+
+		def ReplaceAllOccurrencesOfCell(pCellValue, pNewCellValue)
+			This.ReplaceCell(pCellValue, pNewCellValue)
+
+		def ReplaceEachOccurrenceOfCell(pCellValue, pNewCellValue)
+			This.ReplaceCell(pCellValue, pNewCellValue)
+
+		def ReplaceEveryOccurrenceOfCell(pCellValue, pNewCellValue)
+			This.ReplaceCell(pCellValue, pNewCellValue)
+
+		#--
+
+		def ReplaceAllOccurrences(pCellValue, pNewCellValue)
+			This.ReplaceCell(pCellValue, pNewCellValue)
+
+		def ReplaceEachOccurrence(pCellValue, pNewCellValue)
+			This.ReplaceCell(pCellValue, pNewCellValue)
+
+		def ReplaceEveryOccurrence(pCellValue, pNewCellValue)
+			This.ReplaceCell(pCellValue, pNewCellValue)
+
+		#>
 
 	  #---------------------------------------------------#
 	 #  REPLACING NTH OCCURRENCE OF A CELL IN THE TABLE  #
@@ -9532,20 +9604,62 @@ Class stzTable from stzObject
 	def ReplaceInCellCS(pnCol, pnRow, pSubValue, pNewSubValue, pCaseSensitive) // TODO
 		/* ... */
 
+	def ReplaceInCell(pnCol, pnRow, pSubValue, pNewSubValue)
+		This.ReplaceInCellCS(pnCol, pnRow, pSubValue, pNewSubValue, :CaseSensitive = TRUE)
+
+	#--
+
 	def ReplaceInCellsCS(paCellsPos, pSubValue, pNewSubValue, pCaseSensitive) // TODO
 		/* ... */
+
+	def ReplaceInCells(paCellsPos, pSubValue, pNewSubValue)
+		This.ReplaceInCellsCS(paCellsPos, pSubValue, pNewSubValue, :CaseSensitive = TRUE)
+
+	#--
 
 	def ReplaceInCellsByManyCS(paCellsPos, pSubValues, pNewSubValue, pCaseSensitive) // TODO
 		/* ... */
 
+	def ReplaceInCellsByMany(paCellsPos, pSubValues, pNewSubValue)
+		This.ReplaceInCellsByManyCS(paCellsPos, pSubValues, pNewSubValue, :CaseSensitive = TRUE)
+
+	# Add ReplaceInCellsByManyXT() : if all repalaced restart at the 1st one
+
+	#--
+
 	def ReplaceInSectionCS(paCellPos1, paCellPos2,  pSubValue, pNewSubValue, pCaseSensitive) // TODO
 		/* ... */
+
+	def ReplaceInSection(paCellPos1, paCellPos2,  pSubValue, pNewSubValue)
+		This.ReplaceInSectionCS(paCellPos1, paCellPos2,  pSubValue, pNewSubValue, :CaseSensitive = TRUE)
+
+	#--
 
 	def ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, pCaseSensitive) // TODO
 		/* ... */
 
-	def ReplaceInSectionsCS()
+	def ReplaceInSectionByMany(paCellPos1, paCellPos2,  pSubValues, pNewSubValue)
+		This.ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, ;CaseSensitive = TRUE)
+
+	# Add ReplaceInSectionByManyXT() : if all replaced restart at the 1st one
+
+	#--
+
+	def ReplaceInSectionsCS(aSections, pSubValue, pCaseSensitive)
 		/* ... */
+
+	ReplaceInSections(aSections, pSubValue)
+		This.ReplaceInSectionsCS(aSections, pSubValue, :CaseSensitive = TRUE)
+
+	#--
+
+	def ReplaceInSectionsByManyCS(aSections, paSubValues, pCaseSensitive)
+		/* ... */
+
+	ReplaceInSectionsByMany(aSections, paSubValues)
+		This.ReplaceInSectionsByManyCS(aSections, paSubValues, :CaseSensitive = TRUE)
+
+	#-- Add ReplaceInSectionsByManyXT() : if all replaced restrat at 1st one
 
 	  #==================#
 	 #  ADDING COLUMNS  #
