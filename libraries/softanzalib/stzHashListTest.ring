@@ -1,7 +1,49 @@
 load "stzlib.ring"
 
+/*---------------- FINDING ITEMS INSIDE VALUES THAT ARE LISTS
+*/
+pron()
 
-/*----------------
+o1 = new stzHashList([
+	:One	= :NONE,
+	:Two  	= [ :is, :will, :can, :some, :can ],
+	:Three	= :NONE,
+	:Four	= [ :can, :will ],
+	:Five	= [ :will ]
+])
+
+? o1.FindItem(:can)
+#--> [ 2, 4 ]
+
+? @@( o1.FindItemXT(:can) ) + NL
+#--> [ [ 2, [ 3, 5 ] ], [ 4, [ 1 ] ] ]
+
+? @@( o1.FindTheseItems([ :can, :will ]) ) + NL
+#--> [ 2, 4, 5 ]
+
+? @@( o1.FindTheseItemsXT([ :can, :will ]) ) + NL
+#--> [
+#	[ 2, [ 2, 3, 5 ] ],
+#	[ 4, [ 1, 2 ] ],
+#	[ 5, [ 1 ] ]
+# ]
+
+? @@( o1.TheseItemsXT([ :can, :will ]) ) + NL
+#--> [
+#	[ :can,  [ 2, 4 ]    ],
+#	[ :will, [ 2, 4, 5 ] ]
+# ]
+
+? @@( o1.TheseItemsXTT([ :can, :will ]) )
+#--> [
+#	[ :can,  [ [2, [3,5] ], [ 4, [1] ]             ],
+#	[ :will, [ [2, [2]   ], [ 4, [2] ], [ 5, [1] ] ]
+# ]
+
+proff()
+# Executed in 0.12 second(s)
+
+/*=============
 
 o1 = new stzHashList([
 	:one 	= :red,
@@ -40,11 +82,6 @@ o1 = new stzHashList([
 o1.PerformOnKeys(' { @key += @i }')
 ? o1.Keys() #--> [ :on1, :two2, :three3 ]
 
-
-/*----------------
-
-SAME EXAMPLE ABOVE SHOULD WORK FOR ....INLIST() EXTENSION
-
 /*----------------
 
 # While working with stzHashLists, there may be a special need where you
@@ -65,19 +102,18 @@ SAME EXAMPLE ABOVE SHOULD WORK FOR ....INLIST() EXTENSION
 # That's because there is no sutch value equal to the string :nice in all
 # the three pairs of the hashlist.
 
-# In fact, these values are all of type list. So you want tho find one of them
+# In fact, these values are all of type list. So you want to find one of them
 # you should provide it as a hole list, like that:
 
 	? @@( o1.FindValue([ :is, :will, :can, :some ]) )	#--> [ 2 ]
 
-# Now, because finding directly a value (which is an item of a value of type list)
+# Now, because finding directly an item (which is an item of a value of type list)
 # is something that you will need in practice, in many data-driven applications,
-# Softanza proposes the extension ...InList() to all the functions related to
-# finding values in hashlists.
+# Softanza proposes the FindItem() function to do just that!
 
 # Hence, you can find :nice directly by saying:
 
-	? @@( o1.FindValueInList(:nice)	) #--> [ 1 ]
+	? @@( o1.FindItem(:nice) ) #--> [ 1 ]
 
 /*==================
 
