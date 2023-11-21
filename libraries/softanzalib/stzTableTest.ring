@@ -17,7 +17,7 @@ proff()
 # Executed in 0.09 second(s)
 
 /*=============
-
+*/
 pron()
 
 o1 = new stzTable([

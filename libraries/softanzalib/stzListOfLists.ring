@@ -107,6 +107,14 @@ func CommonItems(paLists)
 
 
 
+func StzListsQ(paList)
+	return new stzLists(paList)
+
+func Stz2DListQ(paList)
+	return new stz2DList(paList)
+
+class stzLists from stzListOfLists
+
 class stz2DList from stzListOfLists
 
 class stzListOfLists from stzList

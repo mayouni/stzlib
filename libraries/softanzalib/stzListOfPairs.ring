@@ -56,6 +56,11 @@ func ListThatHasLessNumberOfItems(paList1, paList2)
 		return paList2
 	ok
 
+func StzPairsQ(paList)
+	return new stzPairs(paList)
+
+class stzPairs from stzListOfPairs
+
 class stzListOfPairs from stzListOfLists
 	@aContent = []
 

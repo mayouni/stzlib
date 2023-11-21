@@ -1200,7 +1200,7 @@ func Sentiment(pcWord)
 		]
 	])
 
-	return oHashList.KeyByValueInList(pcWord)
+	return oHashList.KeyByItemInList(pcWord)
 
   #---------#
  #  MISC.  #

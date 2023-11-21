@@ -29,6 +29,11 @@ func ListIsPairAndKeyIsString(paPair)
 		return FALSE
 	ok
 
+func StzAssociativeListQ(paList)
+	return new stzAssociativeList(paList)
+
+class stzAssociativeList from stzHashList
+
 class stzHashList from stzObject # Also called stzAssociativeList
 	// Key-valye list where key is string
 	@aContent = []
@@ -924,20 +929,44 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			return FALSE
 		ok
 
-	  #---------------------#
-	 #    FINDING VALUE    #
-	#---------------------#
+	  #-----------------------------------------------------#
+	 #  CHECKING IF THE HASHLIST CONTAINS THE GIVEN VALUE  #
+	#-----------------------------------------------------#
 
-	def ContainsValue(pValue)
-		if len( This.FindValue(pValue) ) > 0
+	def ContainsValueCS(pValue, pCaseSensitive)
+		if len( This.FindValueCS(pValue, pCaseSensitive) ) > 0
 			return TRUE
 		else
 			return FALSE
 		ok
 
+	#-- WITHOUT CASESENSITIVE
+
+	def ContainsValue(pValue)
+		return This.ContainsValueCS(pValue, :CaseSensitive = TRUE)
+
+	  #---------------------#
+	 #   FINDING A VALUE   #
+	#---------------------#
+
+	def FindValueCS(pValue, pCaseSensitive)
+		anResult = ValuesQ().FindAllCS(pValue, pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllOccurrencesOfValueCS(pValue, pCaseSensitive)
+			return This.FindValueCS(pValue, pCaseSensitive)
+
+		def FindCS(pValue, pCaseSensitive)
+			return This.FindValueCS(pValue, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def FindValue(pValue)
-		aResult = ValuesQ().FindAll(pValue)
-		return aResult
+		return This.FindValueCS(pValue, :CaseSensitive = TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -949,15 +978,44 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		#>
 
-	def FindNthOccurrenceOfValue(n, pValue)
+	  #-------------------------------------------#
+	 #   FINDING THE NTH OCCURRENCE OF A VALUE   #
+	#-------------------------------------------#
 
-		if n = :First
-			n = 1
-		but n = :Last
-			n = This.NumberOfOccurreceOfValue(pValue)
+	def FindNthOccurrenceOfValueCS(n, pValue, pCaseSensitive)
+
+		if CheckParams()
+
+			if n = :First
+				n = 1
+			but n = :Last
+				n = This.NumberOfOccurreceOfValueCS(pValue, pCaseSensitive)
+			ok
+	
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
 		ok
 
-		return This.FindValue(pValue)[n]
+		return This.FindValueCS(pValue, pCaseSensitive)[n]
+
+		#< @FunctionAlternativeForms
+
+		def FindNthValueCS(n, pValue, pCaseSensitive)
+			return This.FindNthOccurrenceOfValueCS(n, pValue, pCaseSensitive)
+
+		def FindNthCS(n, pValue, pCaseSensitive)
+			return This.FindNthOccurrenceOfValueCS(n, pValue, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthOccurrenceOfValue(n, pValue)
+		return This.FindNthOccurrenceOfValueCS(n, pValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def FindNthValue(n, pValue)
 			return This.FindNthOccurrenceOfValue(n, pValue)
@@ -965,6 +1023,11 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		def FindNth(n, pValue)
 			return This.FindNthOccurrenceOfValue(n, pValue)
 
+		#>
+
+	  #---------------------------------------------#
+	 #   FINDING THE FIRST OCCURRENCE OF A VALUE   # TODO: Add case sensitivity
+	#---------------------------------------------#
 
 	def FindFirstOccurrenceOfValue(pValue) 
 		return This.FindNthValue(1, pValue)
@@ -975,6 +1038,10 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		def FindFirst(pValue)
 			return This.FindFirstOccurrenceOfValue(pValue) 
 
+	  #--------------------------------------------#
+	 #   FINDING THE LAST OCCURRENCE OF A VALUE   # TODO: Add case sensitivity
+	#--------------------------------------------#
+
 	def FindLastOccurrenceOfValue(pValue)
 		return This.FindNthOccurrenceOfValue(This.NumberOfValues(), pValue)
 
@@ -984,6 +1051,9 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		def FindLast(pValue)
 			return This.FindLastOccurrenceOfValue(pValue) 
 
+	  #---------------------------#
+	 #   FINDING KEYS BY VALUE   # TODO: Add case sensitivity
+	#---------------------------#
 
 	def FindKeysByValue(pValue)
 
@@ -999,6 +1069,21 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		next
 		return aResult
 
+	  #------------------------------#
+	 #   FINDING NTH KEY BY VALUE   # TODO: Add case sensitivity
+	#------------------------------#
+
+	def FindNthKeyByValue(pValue)
+		nResult = 0
+		if This.ContainsValue(pValue)
+			nResult = This.FindKeysByValue(pValue)[n]
+		ok
+		return nResult
+
+	  #--------------------------------#
+	 #   FINDING FIRST KEY BY VALUE   # TODO: Add case sensitivity
+	#--------------------------------#
+
 	def FindFirstKeyByValue(pValue)
 		nResult = 0
 		if This.ContainsValue(pValue)
@@ -1006,8 +1091,12 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		ok
 		return nResult
 
-	def FindKeyByValue(pValue)
-		return This.FindFirstKeyByValue(pValue)
+		def FindKeyByValue(pValue)
+			return This.FindFirstKeyByValue(pValue)
+
+	  #-------------------------------#
+	 #   FINDING LAST KEY BY VALUE   # TODO: Add case sensitivity
+	#-------------------------------#
 
 	def FindLastKeyByValue(pValue)
 		cResult = ""
@@ -1019,9 +1108,20 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		next i
 		return cResult
 
+	  #----------------------------------------------------#
+	 #   GETTING THE KEY CORRESPONDING TO A GIVEN VALUE   # TODO: Add case sensitivity
+	#----------------------------------------------------#
+
 	def KeyByValue(pValue)
 		n = This.FindKeyByValue(pValue)
 		return This.Key( n )
+
+	# TODO: should the result be a list of positions?
+	#       because a value can be hosted in more than one key...
+
+	  #-----------------------------------------------------#
+	 #   GETTING THE KEYS CORRESPONDING TO A GIVEN VALUE   # TODO: Add case sensitivity
+	#-----------------------------------------------------#
 
 	def KeysByValue(pValue)
 		anPos = This.FindKeysByValue()
@@ -1033,114 +1133,383 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		return aResult
 
-	  #----------------------------------#
-	 #   FINDING VALUE HOSTED IN LIST   #
-	#----------------------------------#
-	/* EXAMPLE
+	  #---------------------------------------------------------------------------#
+	 #   CHECHKING IF ONE VALUE (AT LEAST) IS A LIST CONTAINING THE GIVEN ITEM   #
+	#===========================================================================#
+	# TODO: Add case sensitivity
 
-	o1 = new stzHashList([
-		:Positive	= [ :happy, :nice, :glad, :can, :beatiful, :wanderful ],
-		:Neutral  	= [ :is, :will, :can, :some ],
-		:Negative	= [ :no, :not, :must, :difficult, :problem ]
-	])
+	# SEMANTIC NOTE: An "Item" in the context of stzHashList, refers to values that
+	# are lists, and those lists contain the item. See examples hereafter.
 
-	? o1.FindValueInList(:nice) #--> [ 1 ]
-	? o1.FindValueInList(:can)  #--> [ 1, 2 ]
-	*/
+	def ContainsItem(pItem)
+		/* EXAMPLE
+	
+		o1 = new stzHashList([
+			:Positive	= :NONE,
+			:Neutral  	= [ :is, :will, :can, :some ],
+			:Negative	= :NONE
+		])
+	
+		? o1.ContainsItem(:nice) #--> TRUE
+		*/
 
-	def ContainsValueInList(pValue)
-		if len( This.FindValueInList(pValue) ) > 0
-			return TRUE
-		else
-			return FALSE
-		ok
+		# See EXAMPLE in FindItemInList()
 
-	def FindValueInList(pValue)
+		aContent = This.Content()
+		nLen = len(aContent)
 
-		aResult = []
-		n = 0
-		for aPair in This.Content()
-			n++
-			if isList(aPair[2])
+		bResult = FALSE
 
-				oStzList = new stzList(aPair[2])
-				if oStzList.Contains(pValue)
-					aResult + n
+		for i = 1 to nLen
+
+			if isList(aContent[i][2])
+
+				oStzList = new stzList(aContent[i][2])
+				if oStzList.Contains(pItem)
+					bResult = TRUE
+					exit
 				ok
 			ok
 
 		next
+
+		return bResult
+
+		def ContainsSubValue(pItem)
+			return This.ContainsItem(pItem)
+
+		def ContainsInnerValue(pItem)
+			return This.ContainsItem(pItem)
+
+	  #-----------------------------------------------------------------------#
+	 #   WHEN THE VALUE IS A LIST, FINDING THE GIVEN ITEM INSIDE THAT TLIST  #
+	#=======================================================================#
+	# TODO: Add case sensitivity
+
+	def FindItem(pItem) # Returns the positions of the pairs
+		/* EXAMPLE
+	
+		o1 = new stzHashList([
+			:Positive	= [ :happy, :nice, :glad, :can, :beatiful, :wanderful ],
+			:Neutral  	= [ :is, :will, :can, :some ],
+			:Negative	= [ :no, :not, :must, :difficult, :problem ]
+		])
+	
+		? o1.FindItem(:nice) #--> [ 1 ]
+		? o1.FindItem(:can)  #--> [ 1, 2 ]
+		*/
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+
+			if isList(aContent[i][2])
+
+				oStzList = new stzList(aContent[i][2])
+				if oStzList.Contains(pItem)
+					anResult + i
+				ok
+			ok
+
+		next
+
+		return anResult
+
+
+	def FindItemXT(pItem)
+		# Returns positions of the pairs along with the positions
+		# of the item isnide each list
+
+		/* EXAMPLE
+
+		o1 = new stzHashList([
+			:One	= :NONE,
+			:Two  	= [ :is, :will, :can, :some, :can ],
+			:Three	= :NONE,
+			:Four	= [ :can, :will ],
+			:Five	= [ :will ]
+		])
+
+		? @@( o1.FindItemXT(:can) )
+		#--> [ [ 2, [ 3, 5 ] ], [ 4, [ 1 ] ] ]
+		*/
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			if isList(aContent[i][2])
+
+				oStzList = new stzList(aContent[i][2])
+				if oStzList.Contains(pItem)
+					aResult + [ i, oStzList.FindAll(pItem) ]
+				ok
+			ok
+
+		next
+
 		return aResult
 
-		#< @FunctionAlternativeForms
+	def FindTheseItems(paItems)
+		/* EXAMPLE
 
-		def FindAllOccurrencesOfValueInList(pValue)
-			return This.FindValueInList(pValue)
+		o1 = new stzHashList([
+			:One	= :NONE,
+			:Two  	= [ :is, :will, :can, :some, :can ],
+			:Three	= :NONE,
+			:Four	= [ :can, :will ],
+			:Five	= [ :will ]
+		])
 
-		#>
+		? o1.FindTheseItems([ :can, :will ])
+		#--> [ 2, 4, 5 ]
+		*/
 
-	def FindNthOccurrenceOfValueInList(n, pValue)
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+		ok
+
+		paItems = U(paItems) # Duplicates removed
+
+		nLen = len(paItems)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindItem(paItems[i])
+			nLenPos = len(anPos)
+			for j = 1 to nLenPos
+				if ring_find(anResult, anPos[j]) = 0
+					anResult + anPos[j]
+				ok
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def FindTheseItemsXT(paItems)
+		/* EXAMPLE
+
+		o1 = new stzHashList([
+			:One	= :NONE,
+			:Two  	= [ :is, :will, :can, :some, :can ],
+			:Three	= :NONE,
+			:Four	= [ :can, :will ],
+			:Five	= [ :will ]
+		])
+
+		? @@( o1.FindTheseItemsXT([ :can, :will ]) )
+		#--> [
+		#	[ 2, [ 2, 3, 5 ] ],
+		#	[ 4, [ 1, 2 ] ],
+		#	[ 5, [ 1 ] ]
+		# ]
+
+		*/
+
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+		ok
+
+		aContent = This.Content()
+
+		anPos   = This.FindTheseItems(paItems)
+		nLenPos = len(anPos)
+
+		aResult = []
+
+		for i = 1 to nLenPos
+
+			aResult + [
+				anPos[i],
+				Q(aContent[anPos[i]][2]).FindMany(paItems)
+			]
+
+		next
+
+		return aResult
+
+	def TheseItemsXT(paItems)
+		/* EXAMPLE
+
+		o1 = new stzHashList([
+			:One	= :NONE,
+			:Two  	= [ :is, :will, :can, :some, :can ],
+			:Three	= :NONE,
+			:Four	= [ :can, :will ],
+			:Five	= [ :will ]
+		])
+
+		? @@( o1.TheseItemsXT([ :can, :will ]) ) + NL
+		#--> [
+		#	[ :can,  [ 2, 4 ]    ],
+		#	[ :will, [ 2, 4, 5 ] ]
+		# ]
+		*/
+
+		if CheckParams()
+
+		ok
+
+		paItems = U(paItems) # Duplicates removed
+
+		nLen = len(paItems)
+		aResult = []
+
+		for i = 1 to nLen
+
+			aResult + [ paItems[i], This.FindItem(paItems[i]) ]
+
+		next
+
+		return aResult
+
+	def TheseItemsXTT(paItems)
+		/* EXAMPLE
+
+		o1 = new stzHashList([
+			:One	= :NONE,
+			:Two  	= [ :is, :will, :can, :some, :can ],
+			:Three	= :NONE,
+			:Four	= [ :can, :will ],
+			:Five	= [ :will ]
+		])
+
+		#--> [
+		#	[ :can,  [ [2, [3,5] ], [ 4, [1] ]             ],
+		#	[ :will, [ [2, [1]   ], [ 4, [2] ], [ 5, [1] ] ]
+		# ]
+		*/
+
+		if CheckParams()
+
+		ok
+
+		paItems = U(paItems) # Duplicates removed
+
+		nLen = len(paItems)
+		aResult = []
+
+		for i = 1 to nLen
+
+			aResult + [ paItems[i], This.FindItemXT(paItems[i]) ]
+
+		next
+
+		return aResult
+
+	  #-------------------------------------------------------------------------------------#
+	 #   WHEN THE VALUE IS A LIST, FINDING THE NTH OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
+	#-------------------------------------------------------------------------------------#
+	# TODO: Add case sensitivity
+
+	def FindNthItem(n, pItem)
 
 		if n = :First
 			n = 1
 		but n = :Last
-			n = This.NumberOfOccurreceOfValueInList(pValue)
+			n = This.NumberOfOccurreceOfItemInList(pItem)
 		ok
 
+		anPos = This.FindItel(pItem)
+		nLen = len(anPos)
 
-		return This.FindValueInList(pValue)[n]
+		nResult = 0
+		if nLen > 0
+			nResult = anPos[n]
+		ok
 
-	def FindFirstOccurrenceOfValueInList(pValue) 
-		return This.FindNthValueInList(1, pValue)
+		return nResult
 
-	def FindLastOccurrenceOfValueInList(pValue)
-		return This.FindNthOccurrenceOfValueInList(This.NumberOfValues(), pValue)
+		def FindNthOccurrenceOfItemInList(n, pItem)
+			return This.FindNthItem(n, pItem)
 
-	def FindKeysByValueInList(pValue)
-		anPos = This.FindValueInList(pValue)
+	  #---------------------------------------------------------------------------------------#
+	 #   WHEN THE VALUE IS A LIST, FINDING THE FIRST OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
+	#---------------------------------------------------------------------------------------#
+	# TODO: Add case sensitivity
+
+	def FindFirstItem(pItem)
+		return This.FindNthItem(1, pItem)
+
+		def FindFirstOccurrenceOfItemInList(pItem)
+			return This.FindFirstItem(pItem)
+
+	  #--------------------------------------------------------------------------------------#
+	 #   WHEN THE VALUE IS A LIST, FINDING THE LAST OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
+	#--------------------------------------------------------------------------------------#
+	# TODO: Add case sensitivity
+
+	def FindLastItem(pItem)
+		n = This.NumberOfOccurreceOfItemInList(pItem)
+		return This.FindNthItem(n, pItem)
+
+		def FindLastOccurrenceOfItemInList(pItem)
+			return This.FindLastItem(pItem)
+
+	  #----------------------------------------------------------------------#
+	 #  WHEN THE VALUES ARE LISTS, FINDING A GIVEN ITEM INSIDE THOSE LISTS  # 
+	#----------------------------------------------------------------------#
+	# TODO: Add case sensitivity
+
+	def FindKeysByItem(pItem)
+		anPos = This.FindItemInList(pItem)
 		anResult = []
 		for n in anPos
 			anResult + n
 		next
 		return anResult
 
-	def NumberOfKeysByValueInList() ###
-		return len( This.FindKeysByValueInList(pValue) )
+		def FindKeysByItemInList(pItem)
+			return This.FindKeysByItem(pItem)
 
-		def HowManyKeysByValueInList()
-			return This.NumberOfKeysByValueInList()
+	def NumberOfKeysByItemInList() ###
+		return len( This.FindKeysByItemInList(pValue) )
 
-		def HowManyKeyByValueInList()
-			return This.NumberOfKeysByValueInList()
+		def HowManyKeysByItemInList()
+			return This.NumberOfKeysByItemInList()
 
-	def FindFirstKeyByValueInList(pValue)
+		def HowManyKeyByItemInList()
+			return This.NumberOfKeysByItemInList()
 
-		if This.ContainsValueInList(pValue)
-			return This.FindKeysByValueInList(pValue)[1]
+	def FindFirstKeyByItemInList(pValue)
+
+		if This.ContainsItemInList(pValue)
+			return This.FindKeysByItemInList(pValue)[1]
 		else
 			return 0
 		ok
 
-	def FindKeyByValueInList(pValue)
-		return This.FindFirstKeyByValueInList(pValue)
+	def FindKeyByItemInList(pValue)
+		return This.FindFirstKeyByItemInList(pValue)
 
-	def FindLastKeyByValueInlist(pValue)
-		n = This.NumberOfKeysByValueInList()
+	def FindLastKeyByItemInList(pValue)
+		n = This.NumberOfKeysByItemInList()
 
-		if This.ContainsValueInList(pValue)
-			return This.FindKeysByValueInList(pValue)[n]
+		if This.ContainsItemInList(pValue)
+			return This.FindKeysByItemInList(pValue)[n]
 		else
 			return 0
 		ok
 
 
-	def KeyByValueInList(pValue)
-		n = This.FindKeyByValueInList(pValue)
+	def KeyByItemInList(pValue)
+		n = This.FindKeyByItemInList(pValue)
 
 		return This.Key( n )
 
-	def KeysByValueInList(pValue)
-		anPos = This.FindKeysByValueInList()
+	def KeysByItemInList(pValue)
+		anPos = This.FindKeysByItemInList()
 		aResult = []
 
 		for n in anPos
@@ -1479,7 +1848,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		#>
 
 	def KlassInList(pcClass)
-		aResult = This.KeysForValueInList(pcClass)
+		aResult = This.KeysForItemInList(pcClass)
 		return aResult
 
 		def KlassInListQR(pcClass, pcReturnType)

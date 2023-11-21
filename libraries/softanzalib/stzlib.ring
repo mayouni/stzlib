@@ -65,19 +65,15 @@ load "stzListOfCharsError.ring"
 load "stzList.ring"
 load "stzListError.ring"
 load "stzHashList.ring"
-load "stzAssociativeList.ring"
 
 load "stzListOfHashLists.ring"
-load "stzHashLists.ring"
 load "stzSet.ring"
 
 load "stzListOfLists.ring"
-load "stzLists.ring"
 
 load "stzSplitter.ring"
 
 load "stzListOfPairs.ring"
-load "stzPairs.ring"
 
 load "stzPair.ring"
 load "stzPairOfNumbers.ring"
