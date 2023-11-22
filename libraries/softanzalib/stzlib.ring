@@ -128,6 +128,7 @@ load "stzConstraintsData.ring"
 
 load "stzCCode.ring"
 load "stzExtCode.ring"
+
 load "stzNullObject.ring"
+load "stzTrueObject.ring"
 load "stzFalseObject.ring"
-load "stzNullObject.ring"

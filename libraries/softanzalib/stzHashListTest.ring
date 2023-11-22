@@ -1,7 +1,50 @@
 load "stzlib.ring"
 
-/*---------------- FINDING ITEMS INSIDE VALUES THAT ARE LISTS
+/*-------------
 */
+pron()
+
+? NullObject().Name()
+#--> @nullobjact
+
+? TrueObject().Name()
+#--> @trueobject
+
+? FalseObject().Name()
+#--> @falseobject
+
+? ObjectVarName( NullObject() )
+#--> @nullobject
+
+? ObjectVarName( TrueObject() )
+#--> @trueobject
+
+? ObjectVarName( FalseObject() )
+#--> @falseobject
+
+proff()
+#--> Executed in 0.03 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzHashList([
+	:One	= :can,
+	:Two  	= [ :is, :will, :can, :some, :can ],
+	:Three	= :NONE,
+	:Four	= [ :will, :not ],
+	:Five	= :can
+])
+
+? o1.FindValueOritem(:can) # called also FindVitem(:can)
+#--> [ 1, 2, 5 ]
+
+? o1.FindVitemXT(:can)
+#--> [ 1, [2, [3, 5]], 5 ]
+
+/*---------------- FINDING ITEMS INSIDE VALUES THAT ARE LISTS
+
 pron()
 
 o1 = new stzHashList([
@@ -40,6 +83,86 @@ o1 = new stzHashList([
 #	[ :will, [ [2, [2]   ], [ 4, [2] ], [ 5, [1] ] ]
 # ]
 
+proff()
+
+/*-----------
+*/
+
+pron()
+
+o1 = new stzHashList([
+	:Zero	= 0,
+	:One	= "One",
+	:Two  	= [ :is, :will, :can, :some, :can ],
+	:Three	= "Three",
+	:Four	= [ :can, :will ],
+	:Five	= [ :will ],
+	:Six	= 6,
+	:Seven	= 7,
+	:Ten	= NullObject(),
+	:Eleven	= TrueObject(),
+	:Twelve	= FalseObject()
+])
+
+? o1.FindLists()
+#--> [ 2, 4, 5 ]
+
+? @@( o1.Lists() ) + NL
+#--> [ [ "is", "will", "can", "some", "can" ], [ "can", "will" ], [ "will" ] ]
+
+#--
+
+? o1.FindNumbers()
+#--> [1, 8, 7]
+
+? o1.Numbers()
+#--> [ 0, 6, 7 ]
+
+#--
+
+? o1.FindStrings()
+#--> [2, 4]
+
+? o1.Strings()
+#--> [ "One", "Three" ]
+
+#--
+
+
+? o1.FindObjects()
+#--> [9, 10, 11]
+
+? @@( o1.Objects() )
+#--> 
+
+
+proff()
+
+/*-----------
+*/
+
+pron()
+
+o1 = new stzHashList([
+	:One	= :NONE,
+	:Two  	= [ :is, :will, :can, :some, :can ],
+	:Three	= :NONE,
+	:Four	= [ :can, :will ],
+	:Five	= [ :will ]
+])
+
+? o1.Items()
+
+/*
+
+? o1.FindItems() # All items
+
+? o1.FindItemsXT()
+
+? o1.ItemsXT()
+
+? o1.ItemsXTT()
+*/
 proff()
 # Executed in 0.12 second(s)
 

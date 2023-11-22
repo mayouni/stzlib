@@ -1408,6 +1408,126 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		return aResult
 
+	#--
+
+	def FindLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isList(aContent[i][2])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def Lists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if isList(aContent[i][2])
+				aResult + aContent[i][2]
+			ok
+		next
+
+		return aResult
+
+	#--
+
+	def FindNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isNumber(aContent[i][2])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def Numbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isNumber(aContent[i][2])
+				anResult + aContent[i][2]
+			ok
+		next
+
+		return anResult
+
+	#--
+
+	def FindStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isString(aContent[i][2])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def Strings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if isString(aContent[i][2])
+				aResult + aContent[i][2]
+			ok
+		next
+
+		return aResult
+
+	#--
+
+	def FindObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i][2])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def Objects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i][2])
+				aResult + aContent[i][2]
+			ok
+		next
+
+		return aResult
+
 	  #-------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE NTH OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
 	#-------------------------------------------------------------------------------------#

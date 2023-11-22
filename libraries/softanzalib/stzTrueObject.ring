@@ -3,7 +3,15 @@
 func StzTrueObjectQ()
 	return new stzTrueObject
 
-class stzTrueObject
+	func TrueObject()
+		return StzTrueObjectQ()
+
+class stzTrueObject from stzObject
+
+	@cVarName = :@trueobject
+
+	def Content()
+		return TRUE
 
 	def Where(pcCondition)
 		return FALSE
