@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*--------------
-*/
+
 pron()
 
 StzNamedHashListQ(:myhash = [ :x = 10, :y = 20 ]) {
@@ -43,7 +43,7 @@ pron()
 proff()
 #--> Executed in 0.03 second(s)
 
-/*-------------
+/*------------- TODO
 
 pron()
 
@@ -102,9 +102,9 @@ o1 = new stzHashList([
 # ]
 
 proff()
+# Executed in 0.14 second(s)
 
 /*-----------
-*/
 
 pron()
 
@@ -122,12 +122,12 @@ o1 = new stzHashList([
 	:Eleven	= TrueObject(),
 	:Twelve	= FalseObject(),
 
-	:Thirteen = new stzNamedNumber( :@number = 10),
-	:Forteen  = new stzNamedString( :@string = "Forteen"),
-	:Fifteen  = new stzNamedList( :@list = 1:3)
+	:Thirteen = StzNamedNumberQ( :@number = 10 ),
+	:Forteen  = StzNamedStringQ( :@string = "Forteen" ),
+	:Fifteen  = StzNamedListQ( :@list = 1:3 ),
+	:Sixtenn  = StzNamedHashListQ( :@hashlist = [ :x = 10, :y = 20 ])
 ])
 
-/*
 ? o1.FindLists()
 #--> [ 2, 4, 5 ]
 
@@ -158,39 +158,101 @@ o1 = new stzHashList([
 
 ? @@( o1.Objects() )
 #--> [ @nullobject, @trueobject, @falseobject ]
-*/
+
 #===
 
 ? o1.FindStzLists()
-#--> [ 2, 4, 5 ]
+#--> [ 14 ]
 
 ? @@( o1.StzLists() ) + NL
-#--> [ [ "is", "will", "can", "some", "can" ], [ "can", "will" ], [ "will" ] ]
+#--> [ @list ]
 
 #--
 
 ? o1.FindStzNumbers()
-#--> [1, 8, 7]
+#--> [ 12 ]
 
-? o1.StzNumbers()
-#--> [ 0, 6, 7 ]
+? @@( o1.StzNumbers() )
+#--> [ @number ]
 
 #--
 
 ? o1.FindStzStrings()
-#--> [2, 4]
+#--> [ 13 ]
 
-? o1.StzStrings()
-#--> [ "One", "Three" ]
+? @@( o1.StzStrings() )
+#--> [ @string ]
 
 #--
 
-
 ? o1.FindStzObjects()
-#--> [9, 10, 11, 12, 13, 14]
+#--> [ 9, 10, 11, 12, 13, 14, 15 ]
 
 ? @@( o1.StzObjects() )
-#--> [ @nullobject, @trueobject, @falseobject ]
+#--> [ @nullobject, @trueobject, @falseobject, @number, @string, @list, @hashlist  ]
+
+#--
+
+? o1.FindStzHashLists()
+#--> 15
+
+? @@( o1.StzHashLists() )
+#--> [ @hashlist ]
+
+proff()
+# Executed in 0.34 second(s)
+
+/*-----------
+*/
+pron()
+
+o1 = new stzHashList([
+	:Zero	= 0,
+	:One	= "One",
+	:Two  	= [ :is, :will, :can, :some, :can ],
+	:Three	= "Three",
+	:Four	= [ :can, :will ],
+	:Five	= [ :will ],
+	:Six	= 6,
+	:Seven	= 7,
+
+	:Ten	= NullObject(),
+	:Eleven	= TrueObject(),
+	:Twelve	= FalseObject(),
+
+	:Thirteen  = StzNamedNumberQ( :@number = 10 ),
+	:Forteen   = StzNamedStringQ( :@string = "Forteen" ),
+	:Fifteen   = StzNamedListQ( :@list = 1:3 ),
+	:Sixtenn   = StzNamedHashListQ( :@hashlist = [ :x = 10, :y = 20 ]),
+	:Seventeen = [ :will ]
+])
+/*
+? @@( o1.FindLists() ) + NL
+#--> [ 3, 5, 6, 16 ]
+
+? @@( o1.ListsZ() ) + NL
+#--> [
+#	[ [ "is", "will", "can", "some", "can" ], [ 3 ] ],
+#	[ [ "can", "will" ], [ 5 ] ],
+#	[ [ "will" ], [ 6, 16 ] ],
+
+# ]
+
+#--
+
+? @@( o1.FindList([ "will" ]) ) + NL
+#--> [ 6, 16 ]
+
+? @@( o1.ListZ([ "will" ]) )
+#--> [ [ "will" ], [ 6, 16 ] ]
+
+#--
+*/
+? @@( o1.FindTheseLists([ [ "can", "will" ], [ "will" ] ]) ) + NL
+#--> [ 5, 6, 16 ]
+
+? @@( o1.TheseListsZ([ [ "can", "will" ], [ "will" ] ]) )
+#--> [ [ [ "can", "will" ], [ 5 ] ], [ [ "will" ], [ 6, 16 ] ] ]
 
 proff()
 

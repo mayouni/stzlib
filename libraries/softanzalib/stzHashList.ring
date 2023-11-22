@@ -1425,7 +1425,10 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		return aResult
 
-	#--
+	  #-----------------------------------------#
+	 #  FINDING LISTS (VALUES THAT ARE LISTS)  #
+	#=========================================#
+	# TODO: Add case sensitivity
 
 	def FindLists()
 		aContent = This.Content()
@@ -1451,6 +1454,84 @@ class stzHashList from stzObject # Also called stzAssociativeList
 			if isList(aContent[i][2])
 				aResult + aContent[i][2]
 			ok
+		next
+
+		return aResult
+
+	def ListsZ()
+		aListsU = U( This.Lists() )
+		nLen = len(aListsU)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aListsU[i], This.FindList(aListsU[i]) ]
+		next
+
+		return aResult
+
+	def FindList(paList) # Add case sensitivity
+
+		if CheckParams()
+			if NOT isList(paList)
+				StzRaise("Incorrect param type! paList must be a list.")
+			ok
+		ok
+
+		anPos = Q(This.Lists()).Find(paList)
+		anResult = []
+		if len(anPos) > 0 
+			anResult = Q(This.FindLists()).ItemsAtPositions(anPos)
+		ok
+
+		return anResult
+
+	def ListZ(paList)
+		if CheckParams()
+			if NOT isList(paList) 
+				StzRaise("Incorrect param type! paList must be a list.")
+			ok
+		ok
+
+		anPos = This.FindList(paList)
+		aResult = [ paList, anPos ]	
+		return aResult
+
+	def FindTheseLists(paLists)
+		if CheckParams()
+			if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
+				StzRaise("Incorrect param type! paLists must be a list of lists.")
+			ok
+		ok
+
+		paLists = U(paLists) # Duplicates removed
+		nLen = len(paLists)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindList(paLists[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def TheseListsZ(paLists)
+		if CheckParams()
+			if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
+				StzRaise("Incorrect param type! paLists must be a list of lists.")
+			ok
+		ok
+
+		nLen = len(paLists)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ paLists[i], This.FindList(paLists[i]) ]
 		next
 
 		return aResult
@@ -1485,6 +1566,15 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		return anResult
 
+	def NumbersZ()
+		aResult = Association([ This.Numbers(), This.FindNumbers() ])
+
+	def FindNumber(n)
+		// TODO
+
+	def FindTheseNumbers(panNumbers)
+		// TODO
+
 	#--
 
 	def FindStrings()
@@ -1514,6 +1604,15 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		next
 
 		return aResult
+
+	def StringsZ()
+		aResult = Association([ This.Strings(), This.FindStrings() ])
+
+	def FindString(pcStr)
+		// TODO
+
+	def FindTheseStrings(pacStr)
+		// TODO
 
 	#--
 
@@ -1545,7 +1644,14 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		return aResult
 
-#--------------------
+	def ObjectsZ()
+		aResult = Association([ This.Objects(), This.FindObjects() ])
+
+	def FindObject(pObject)
+		// TODO
+
+	def FindTheseObjects(paObjects)
+		// TODO
 
 	#--
 
@@ -1577,6 +1683,54 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		return aResult
 
+	def StzListsZ()
+		aResult = Association([ This.StzLists(), This.FindStzLists() ])
+
+	def FindStzList(poStzList)
+		// TODO
+
+	def FindTheseStzLists(paStzLists)
+		// TODO
+
+	#--
+
+	def FindStzHashLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if @IsStzHashList(aContent[i][2])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def StzHashLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if @IsStzHashList(aContent[i][2])
+				aResult + aContent[i][2]
+			ok
+		next
+
+		return aResult
+
+	def StzHashListsZ()
+		aResult = Association([ This.StzHashLists(), This.FindStzHashLists() ])
+
+	def FindStzHashList(poStzHashList)
+		// TODO
+
+	def FindTheseStzHashLists(paStzHashLists)
+		// TODO
+
 	#--
 
 	def FindStzNumbers()
@@ -1606,6 +1760,15 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		next
 
 		return anResult
+
+	def StzNumbersZ()
+		aResult = Association([ This.StzNumbers(), This.FindStzNumbers() ])
+
+	def FindStzNumber(poStzNumber)
+		// TODO
+
+	def FindTheseStzNumbers(paStzNumbers)
+		// TODO
 
 	#--
 
@@ -1637,6 +1800,15 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		return aResult
 
+	def StzStringsZ()
+		aResult = Association([ This.StzStrings(), This.FindStzStrings() ])
+
+	def FindStzString(poStzString)
+		// TODO
+
+	def FindTheseStzStrings(paStzstrings)
+		// TODO
+
 	#--
 
 	def FindStzObjects()
@@ -1666,6 +1838,15 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		next
 
 		return aResult
+
+	def StzObjectsZ()
+		aResult = Association([ This.StzStrings(), This.FindStzObjects() ])
+
+	def FindStzObject(poStzObject)
+		// TODO
+
+	def FindTheseStzObjects(paStzObjects)
+		// TODO
 
 	  #-------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE NTH OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
