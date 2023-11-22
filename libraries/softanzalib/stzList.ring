@@ -16,6 +16,23 @@
 func StzListQ(paList)
 	return new stzList(paList)
 
+func StzNamedList(paNamed)
+	if CheckParams()
+		if NOT (isList(paNamed) and Q(paNamed).IsPairOfStringAndList())
+			StzRaise("Incorrect param type! paNamed must be a pair of string and list.")
+		ok
+	ok
+
+	oList = new stzList(paNamed[2])
+	oList.SetName(paNamed[1])
+	return oList
+
+	func StzNamedListQ(paNamed)
+		return StzNamedList(paNamed)
+
+	func StzNamedListXTQ(paNamed)
+		return StzNamedList(paNamed)
+
 func StzListMethods()
 	return Stz(:List, :Methods)
 

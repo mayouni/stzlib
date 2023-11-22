@@ -1,5 +1,21 @@
 load "stzlib.ring"
 
+/*--------------
+*/
+pron()
+
+StzNamedObjectQ(:myobj = TrueObject()) {
+
+	? Name()
+	#--> :myage
+
+	? StzType()
+	#--> :stznumber
+
+}
+
+# Executed in 0.03 second(s)
+
 /*==============
 
 pron()

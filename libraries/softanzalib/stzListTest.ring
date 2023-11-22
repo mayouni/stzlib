@@ -1,5 +1,25 @@
 load "stzlib.ring"
 
+/*-----------
+*/
+pron()
+
+StzNamedListQ(:langs = [ :Ring, :Ruby, :Python ]) {
+
+	? Name()
+	#--> :myage
+
+	? Content()
+	#--> [ :Ring, :Ruby, :Pyhton ]
+
+	? StzType()
+	#--> :stzlist
+
+}
+
+proff()
+# Executed in 0.03 second(s)
+
 /*========== A Softanza narration about one of the many uses of @
 
 pron()

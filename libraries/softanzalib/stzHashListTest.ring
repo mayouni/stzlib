@@ -1,7 +1,25 @@
 load "stzlib.ring"
 
-/*-------------
+/*--------------
 */
+pron()
+
+StzNamedHashListQ(:myhash = [ :x = 10, :y = 20 ]) {
+
+	? Name()
+	#--> :myhash
+
+	? StzType()
+	#--> :stzhashlist
+
+}
+
+proff()
+
+# Executed in 0.03 second(s)
+
+/*-------------
+
 pron()
 
 ? NullObject().Name()
@@ -99,11 +117,17 @@ o1 = new stzHashList([
 	:Five	= [ :will ],
 	:Six	= 6,
 	:Seven	= 7,
+
 	:Ten	= NullObject(),
 	:Eleven	= TrueObject(),
-	:Twelve	= FalseObject()
+	:Twelve	= FalseObject(),
+
+	:Thirteen = new stzNamedNumber( :@number = 10),
+	:Forteen  = new stzNamedString( :@string = "Forteen"),
+	:Fifteen  = new stzNamedList( :@list = 1:3)
 ])
 
+/*
 ? o1.FindLists()
 #--> [ 2, 4, 5 ]
 
@@ -130,11 +154,43 @@ o1 = new stzHashList([
 
 
 ? o1.FindObjects()
-#--> [9, 10, 11]
+#--> [9, 10, 11, 12, 13, 14]
 
 ? @@( o1.Objects() )
-#--> 
+#--> [ @nullobject, @trueobject, @falseobject ]
+*/
+#===
 
+? o1.FindStzLists()
+#--> [ 2, 4, 5 ]
+
+? @@( o1.StzLists() ) + NL
+#--> [ [ "is", "will", "can", "some", "can" ], [ "can", "will" ], [ "will" ] ]
+
+#--
+
+? o1.FindStzNumbers()
+#--> [1, 8, 7]
+
+? o1.StzNumbers()
+#--> [ 0, 6, 7 ]
+
+#--
+
+? o1.FindStzStrings()
+#--> [2, 4]
+
+? o1.StzStrings()
+#--> [ "One", "Three" ]
+
+#--
+
+
+? o1.FindStzObjects()
+#--> [9, 10, 11, 12, 13, 14]
+
+? @@( o1.StzObjects() )
+#--> [ @nullobject, @trueobject, @falseobject ]
 
 proff()
 

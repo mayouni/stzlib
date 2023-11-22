@@ -107,6 +107,23 @@
 func StzObjectQ(pObject)
 	return new stzObject(pObject)
 
+func StzNamedObject(paNamed)
+	if CheckParams()
+		if NOT (isList(paNamed) and Q(paNamed).IsPairOfStringAndObject())
+			StzRaise("Incorrect param type! paNamed must be a pair of string and object.")
+		ok
+	ok
+
+	oObject = Q(paNamed[2])
+	oObject.SetName(paNamed[1])
+	return oObject
+
+	func StzNamedObjectQ(paNamed)
+		return StzNamedObject(paNamed)
+
+	func StzNamedObjectXTQ(paNamed)
+		return StzNamedObject(paNamed)
+
 func StzObjectMethods()
 	return Stz(:Object, :Methods)
 
@@ -768,6 +785,9 @@ func IsStzChainOfValue(pObject)
 	func ObjectIsStzchainofvalue(pObject)
 		return IsStzchainofvalue(pObject)
 
+	func @IsStzChainOfValue(pObject)
+		return IsStzChainOfValue(pObject)
+
 func IsStzchainoftruth(pObject)
 	if isObject(pObject) and classname(pObject) = "stzchainoftruth"
 		return TRUE
@@ -776,6 +796,9 @@ func IsStzchainoftruth(pObject)
 	ok
 
 	func ObjectIsStzchainoftruth(pObject)
+		return IsStzchainoftruth(pObject)
+
+	func @IsStzchainoftruth(pObject)
 		return IsStzchainoftruth(pObject)
 
 func IsStzchainofcode(pObject)
@@ -788,6 +811,9 @@ func IsStzchainofcode(pObject)
 	func ObjectIsStzchainofcode(pObject)
 		return IsStzchainofcode(pObject)
 
+	func @IsStzchainofcode(pObject)
+		return IsStzchainofcode(pObject)
+
 func IsStztransform(pObject)
 	if isObject(pObject) and classname(pObject) = "stztransform"
 		return TRUE
@@ -796,6 +822,9 @@ func IsStztransform(pObject)
 	ok
 
 	func ObjectIsStztransform(pObject)
+		return IsStztransform(pObject)
+
+	func @IsStztransform(pObject)
 		return IsStztransform(pObject)
 
 func IsStznumber(pObject)
@@ -808,6 +837,9 @@ func IsStznumber(pObject)
 	func ObjectIsStznumber(pObject)
 		return IsStznumber(pObject)
 
+	func @IsStznumber(pObject)
+		return IsStznumber(pObject)
+
 func IsStzdecimaltobinary(pObject)
 	if isObject(pObject) and classname(pObject) = "stzdecimaltobinary"
 		return TRUE
@@ -816,6 +848,9 @@ func IsStzdecimaltobinary(pObject)
 	ok
 
 	func ObjectIsStzdecimaltobinary(pObject)
+		return IsStzdecimaltobinary(pObject)
+
+	func @IsStzdecimaltobinary(pObject)
 		return IsStzdecimaltobinary(pObject)
 
 func IsStzlistofnumbers(pObject)
@@ -828,6 +863,9 @@ func IsStzlistofnumbers(pObject)
 	func ObjectIsStzlistofnumbers(pObject)
 		return IsStzlistofnumbers(pObject)
 
+	func @IsStzlistofnumbers(pObject)
+		return IsStzlistofnumbers(pObject)
+
 func IsStzlistofunicodes(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistofunicodes"
 		return TRUE
@@ -836,6 +874,9 @@ func IsStzlistofunicodes(pObject)
 	ok
 
 	func ObjectIsStzlistofunicodes(pObject)
+		return IsStzlistofunicodes(pObject)
+
+	func @IsStzlistofunicodes(pObject)
 		return IsStzlistofunicodes(pObject)
 
 func IsStzbinarynumber(pObject)
@@ -848,6 +889,9 @@ func IsStzbinarynumber(pObject)
 	func ObjectIsStzbinarynumber(pObject)
 		return IsStzbinarynumber(pObject)
 
+	func @IsStzbinarynumber(pObject)
+		return IsStzbinarynumber(pObject)
+
 func IsStzhexnumber(pObject)
 	if isObject(pObject) and classname(pObject) = "stzhexnumber"
 		return TRUE
@@ -856,6 +900,9 @@ func IsStzhexnumber(pObject)
 	ok
 
 	func ObjectIsStzhexnumber(pObject)
+		return IsStzhexnumber(pObject)
+
+	func @IsStzhexnumber(pObject)
 		return IsStzhexnumber(pObject)
 
 func IsStzoctalnumber(pObject)
@@ -868,6 +915,9 @@ func IsStzoctalnumber(pObject)
 	func ObjectIsStzoctalnumber(pObject)
 		return IsStzoctalnumber(pObject)
 
+	func @IsStzoctalnumber(pObject)
+		return IsStzoctalnumber(pObject)
+
 func IsStzstring(pObject)
 	if isObject(pObject) and classname(pObject) = "stzstring"
 		return TRUE
@@ -876,6 +926,9 @@ func IsStzstring(pObject)
 	ok
 
 	func ObjectIsStzstring(pObject)
+		return IsStzstring(pObject)
+
+	func @IsStzstring(pObject)
 		return IsStzstring(pObject)
 
 func IsStzlistofstrings(pObject)
@@ -888,6 +941,9 @@ func IsStzlistofstrings(pObject)
 	func ObjectIsStzlistofstrings(pObject)
 		return IsStzlistofstrings(pObject)
 
+	func @IsStzlistofstrings(pObject)
+		return IsStzlistofstrings(pObject)
+
 func IsStzlistinstring(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistinstring"
 		return TRUE
@@ -896,6 +952,9 @@ func IsStzlistinstring(pObject)
 	ok
 
 	func ObjectIsStzlistinstring(pObject)
+		return IsStzlistinstring(pObject)
+
+	func @IsStzlistinstring(pObject)
 		return IsStzlistinstring(pObject)
 
 func IsStzlistofbytes(pObject)
@@ -908,6 +967,9 @@ func IsStzlistofbytes(pObject)
 	func ObjectIsStzlistofbytes(pObject)
 		return IsStzlistofbytes(pObject)
 
+	func @IsStzlistofbytes(pObject)
+		return IsStzlistofbytes(pObject)
+
 func IsStzmultilingualstring(pObject)
 	if isObject(pObject) and classname(pObject) = "stzmultilingualstring"
 		return TRUE
@@ -916,6 +978,9 @@ func IsStzmultilingualstring(pObject)
 	ok
 
 	func ObjectIsStzmultilingualstring(pObject)
+		return IsStzmultilingualstring(pObject)
+
+	func @IsStzmultilingualstring(pObject)
 		return IsStzmultilingualstring(pObject)
 
 func IsStzmultistring(pObject)
@@ -928,6 +993,9 @@ func IsStzmultistring(pObject)
 	func ObjectIsStzmultistring(pObject)
 		return IsStzmultistring(pObject)
 
+	func @IsStzmultistring(pObject)
+		return IsStzmultistring(pObject)
+
 func IsStzchar(pObject)
 	if isObject(pObject) and classname(pObject) = "stzchar"
 		return TRUE
@@ -936,6 +1004,9 @@ func IsStzchar(pObject)
 	ok
 
 	func ObjectIsIsStzchar(pObject)
+		return IsStzchar(pObject)
+
+	func @IsStzchar(pObject)
 		return IsStzchar(pObject)
 
 func IsStzlistofchars(pObject)
@@ -948,6 +1019,9 @@ func IsStzlistofchars(pObject)
 	func ObjectIsStzlistofchars(pObject)
 		return IsStzlistofchars(pObject)
 
+	func @IsStzlistofchars(pObject)
+		return IsStzlistofchars(pObject)
+
 func IsStzlist(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlist"
 		return TRUE
@@ -956,6 +1030,9 @@ func IsStzlist(pObject)
 	ok
 
 	func ObjectIsStzlist(pObject)
+		return IsStzlist(pObject)
+
+	func @IsStzlist(pObject)
 		return IsStzlist(pObject)
 
 func IsStzHashlist(pObject)
@@ -968,6 +1045,9 @@ func IsStzHashlist(pObject)
 	func ObjectIsStzHashlist(pObject)
 		return IsStzHashlist(pObject)
 
+	func @IsStzHashlist(pObject)
+		return IsStzHashlist(pObject)
+
 func IsStzassociativelist(pObject)
 	if isObject(pObject) and classname(pObject) = "stzassociativelist"
 		return TRUE
@@ -976,6 +1056,9 @@ func IsStzassociativelist(pObject)
 	ok
 
 	func ObjectIsStzassociativelist(pObject)
+		return IsStzassociativelist(pObject)
+
+	func @IsStzassociativelist(pObject)
 		return IsStzassociativelist(pObject)
 
 func IsStzlistofhashlists(pObject)
@@ -988,6 +1071,9 @@ func IsStzlistofhashlists(pObject)
 	func ObjectIsStzlistofhashlists(pObject)
 		return IsStzlistofhashlists(pObject)
 
+	func @IsStzlistofhashlists(pObject)
+		return IsStzlistofhashlists(pObject)
+
 func IsStzset(pObject)
 	if isObject(pObject) and classname(pObject) = "stzset"
 		return TRUE
@@ -996,6 +1082,9 @@ func IsStzset(pObject)
 	ok
 
 	func ObjectIsStzset(pObject)
+		return IsStzset(pObject)
+
+	func @IsStzset(pObject)
 		return IsStzset(pObject)
 
 func IsStzlistofsets(pObject)
@@ -1008,6 +1097,9 @@ func IsStzlistofsets(pObject)
 	func ObjectIsStzlistofsets(pObject)
 		return IsStzlistofsets(pObject)
 
+	func @IsStzlistofsets(pObject)
+		return IsStzlistofsets(pObject)
+
 func IsStzlistoflists(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistoflists"
 		return TRUE
@@ -1016,6 +1108,9 @@ func IsStzlistoflists(pObject)
 	ok
 
 	func ObjectIsStzlistoflists(pObject)
+		return IsStzlistoflists(pObject)
+
+	func @IsStzlistoflists(pObject)
 		return IsStzlistoflists(pObject)
 
 func IsStzlistofpairs(pObject)
@@ -1028,6 +1123,9 @@ func IsStzlistofpairs(pObject)
 	func ObjectIsStzlistofpairs(pObject)
 		return IsStzlistofpairs(pObject)
 
+	func @IsStzlistofpairs(pObject)
+		return IsStzlistofpairs(pObject)
+
 func IsStztree(pObject)
 	if isObject(pObject) and classname(pObject) = "stztree"
 		return TRUE
@@ -1036,6 +1134,9 @@ func IsStztree(pObject)
 	ok
 
 	func ObjectIsStztree(pObject)
+		return IsStztree(pObject)
+
+	func @IsStztree(pObject)
 		return IsStztree(pObject)
 
 func IsStzlistprovidedasstring(pObject)
@@ -1048,6 +1149,9 @@ func IsStzlistprovidedasstring(pObject)
 	func ObjectIsStzlistprovidedasstring(pObject)
 		return IsStzlistprovidedasstring(pObject)
 
+	func @IsStzlistprovidedasstring(pObject)
+		return IsStzlistprovidedasstring(pObject)
+
 func IsStzwalker(pObject)
 	if isObject(pObject) and classname(pObject) = "stzwalker"
 		return TRUE
@@ -1056,6 +1160,9 @@ func IsStzwalker(pObject)
 	ok
 
 	func ObjectIsStzwalker(pObject)
+		return IsStzwalker(pObject)
+
+	func @IsStzwalker(pObject)
 		return IsStzwalker(pObject)
 
 func IsStztable(pObject)
@@ -1068,6 +1175,9 @@ func IsStztable(pObject)
 	func ObjectIsStztable(pObject)
 		return IsStztable(pObject)
 
+	func @IsStztable(pObject)
+		return IsStztable(pObject)
+
 func IsStzlocale(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlocale"
 		return TRUE
@@ -1076,6 +1186,9 @@ func IsStzlocale(pObject)
 	ok
 
 	func ObjectIsStzlocale(pObject)
+		return IsStzlocale(pObject)
+
+	func @IsStzlocale(pObject)
 		return IsStzlocale(pObject)
 
 func IsStzconstraint(pObject)
@@ -1088,6 +1201,9 @@ func IsStzconstraint(pObject)
 	func ObjectIsStzconstraint(pObject)
 		return IsStzconstraint(pObject)
 
+	func @IsStzconstraint(pObject)
+		return IsStzconstraint(pObject)
+
 func IsStzgrid(pObject)
 	if isObject(pObject) and classname(pObject) = "stzgrid"
 		return TRUE
@@ -1098,14 +1214,121 @@ func IsStzgrid(pObject)
 	func ObjectIsStzgrid(pObject)
 		return IsStzgrid(pObject)
 
+	func @IsStzgrid(pObject)
+		return IsStzgrid(pObject)
+
+func IsStzNullObject(pObject)
+	if isObject(pObject) and classname(pObject) = "stznullobject"
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsNullObject(pObject)
+		return IsStzNullObject(pObject)
+
+	func ObjectIsStzNullObject(pObject)
+		return IsTzNullObject(pObject)
+
+	func ObjectIsNullObject(pObject)
+		return IsStzNullObject(pObject)
+
+	#--
+
+	func @IsStzNullObject(pObject)
+		return IsStzNullObject(pObject)
+
+	func @IsNullObject(pObject)
+		return IsStzNullObject(pObject)
+
+	#>
+
+func IsStzFalseObject(pObject)
+	if isObject(pObject) and classname(pObject) = "stzfalseobject"
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsFalseObject(pObject)
+		return IsStzFalseObject(pObject)
+
+	func ObjectIsStzFalseObject(pObject)
+		return IsStzFalseObject(pObject)
+
+	func ObjectIsFalseObject(pObject)
+		return IsStzFalseObject(pObject)
+
+	#--
+
+	func @IsStzFalseObject(pObject)
+		return IsStzFalseObject(pObject)
+
+	func @IsFalseObject(pObject)
+		return IsStzFalseObject(pObject)
+
+	#>
+
+func IsStzTrueObject(pObject)
+	if isObject(pObject) and classname(pObject) = "stzfalseobject"
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsTrueObject(pObject)
+		return IsStzTrueObject(pObject)
+
+	func ObjectIsStzTrueObject(pObject)
+		return IsStzTrueObject(pObject)
+
+	func ObjectIsTrueObject(pObject)
+		return IsStzTrueObject(pObject)
+
+	#--
+
+	func @IsStzTrueObject(pObject)
+		return IsStzTrueObject(pObject)
+
+	func @IsTrueObject(pObject)
+		return IsStzTrueObject(pObject)
+
+	#>
+
 #< @EndOfGenCode >
 
 func IsQObject(p)
 	return StzStringQ( classname(p) ).ExistsIn( RingQtClasses() )
 
-	#< @FunctionAlternativeForm
+	#< @FunctionAlternativeForms
 
 	func IsQtObject(p)
+		return IsQObject(p)
+
+	func ObjectIsQObject(p)
+		return IsQObject(p)
+
+	func ObjectisQtObject(p)
+		return IsQObject(p)
+
+	#--
+
+	func @IsQObject(p)
+		return IsQObject(p)
+
+	func @IsQtObject(p)
+		return IsQObject(p)
+
+	func @ObjectIsQObject(p)
+		return IsQObject(p)
+
+	func @ObjectisQtObject(p)
 		return IsQObject(p)
 
 	#>

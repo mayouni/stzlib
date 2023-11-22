@@ -22,6 +22,23 @@
 func StzHashListQ(paList)
 	return new stzHashList(paList)
 
+func StzNamedHashList(paNamed)
+	if CheckParams()
+		if NOT (isList(paNamed) and Q(paNamed).IsPair() and isString(paNamed[1]) and Q(paNamed[2]).IsHashList())
+			StzRaise("Incorrect param type! paNamed must be a pair of string and list of type stzHashList.")
+		ok
+	ok
+
+	oStzHashList = StzHashListQ(paNamed[2])
+	oStzHashList.SetName(paNamed[1])
+	return oStzHashList
+
+	func StzNamedHashListQ(paNamed)
+		return StzNamedHashList(paNamed)
+
+	func StzHashListXTQ(paNamed)
+		return StzNamedHashList(paNamed)
+
 func ListIsPairAndKeyIsString(paPair)
 	if isList(paPair) and Q(paPair).IsPairAndKeyIsString()
 		return TRUE
@@ -1528,6 +1545,128 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 		return aResult
 
+#--------------------
+
+	#--
+
+	def FindStzLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if @IsStzList(aContent[i][2])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def StzLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if @IsStzList(aContent[i][2])
+				aResult + aContent[i][2]
+			ok
+		next
+
+		return aResult
+
+	#--
+
+	def FindStzNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if @IsStzNumber(aContent[i][2])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def StzNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if @IsStzNumber(aContent[i][2])
+				anResult + aContent[i][2]
+			ok
+		next
+
+		return anResult
+
+	#--
+
+	def FindStzStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if @IsStzString(aContent[i][2])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def StzStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if @IsStzString(aContent[i][2])
+				aResult + aContent[i][2]
+			ok
+		next
+
+		return aResult
+
+	#--
+
+	def FindStzObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if @IsStzObject(aContent[i][2])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def StzObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if @IsStzObject(aContent[i][2])
+				aResult + aContent[i][2]
+			ok
+		next
+
+		return aResult
+
 	  #-------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE NTH OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
 	#-------------------------------------------------------------------------------------#
@@ -2021,6 +2160,9 @@ this: lefttoright
 	  #-----------#
 	 #   MISC.   #
 	#-----------#
+
+	def StzType()
+		return :stzHashList
 
 	def IsHashList() # required by stzChainOfTruth
 		return TRUE

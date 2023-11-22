@@ -30,6 +30,23 @@
 func StzStringQ(str)
 	return new stzString(str)
 
+func StzNamedString(paNamed)
+	if CheckParams()
+		if NOT (isList(paNamed) and Q(paNamed).IsPairOfStrings())
+			StzRaise("Incorrect param type! paNamed must be a pair of strings.")
+		ok
+	ok
+
+	oStr = new stzString(paNamed[2])
+	oStr.SetName(paNamed[1])
+	return ostr
+
+	func StzNamedStringQ(paNamed)
+		return StzNamedString(paNamed)
+
+	func StzNamedStringXTQ(paNamed)
+		return StzNamedString(paNamed)
+
 func StzStringMethods()
 	return Stz(:String, :Methods)
 
@@ -58804,9 +58821,6 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		def CharNameQ()
 			return new stzString(This.CharName())
-
-		def Name()
-			return CharName()
 
 
 	  #-----------------------------------#
