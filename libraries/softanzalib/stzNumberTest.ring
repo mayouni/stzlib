@@ -1,4 +1,25 @@
+
 load "stzlib.ring"
+
+/*================
+*/
+pron()
+
+StzNamedNumberQ(:myage = 47) {
+
+	? Name()
+	#--> :myage
+
+	? Content()
+	#--> 47
+
+	? StzType()
+	#--> :stznumber
+
+}
+
+proff()
+# Executed in 0.03 second(s)
 
 /*=================
 

@@ -9934,6 +9934,50 @@ Class stzTable from stzObject
 		def RemoveCols(pColNamesOrNumbers)
 			This.RemoveColumns(pColNamesOrNumbers)
 
+	  #--------------------------------------------------#
+	 #  REMOVING ALL THE COLUMNS EXCEPT THOSE PROVIDED  #
+	#--------------------------------------------------#
+
+	def RemoveAllColsExcept(paCols)
+		if CheckParams()
+			if NOT ( isList(paCols) and Q(paCols).IsListOfNumbersOrStrings() )
+				StzRaise("Incorrect param type! panRows must be a list of numbers or strings.")
+			ok
+		ok
+
+		anPos = Q(1:This.NumberOfcols()) - This.FindCols(paCols)
+		# Or we can write directly:
+		# anPos = FindColsExcept(paCols)
+
+		This.RemoveCols(anPos)
+
+		#< @FunctionAlternativeForms
+
+		def RemoveColsExcept(panRow)
+			This.RemoveAllColsExcept(panRow)
+
+		def RemoveAllColsOtherThan(panRow)
+			This.RemoveAllColsExcept(panRow)
+
+		def RemoveColsOtherThan(panRow)
+			This.RemoveAllColsExcept(panRow)
+
+		#--
+
+		def RemoveAllColumnsExcept(panRow)
+			This.RemoveAllColsExcept(panRow)
+
+		def RemoveColumnsExcept(panRow)
+			This.RemoveAllColsExcept(panRow)
+
+		def RemoveAllColumnsOtherThan(panRow)
+			This.RemoveAllColsExcept(panRow)
+
+		def RemoveColumnsOtherThan(panRow)
+			This.RemoveAllColsExcept(panRow)
+
+		#>
+
 	  #------------------------#
 	 #  REMOVING A GIVEN ROW  #
 	#========================#

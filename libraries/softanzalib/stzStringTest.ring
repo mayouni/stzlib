@@ -1,5 +1,22 @@
 load "stzlib.ring"
 
+pron()
+
+StzNamedStringQ(:myname = "Mansour") {
+
+	? Name()
+	#--> :myage
+
+	? Content()
+	#--> "Mansour"
+
+	? StzType()
+	#--> :stznumber
+
+}
+
+proff()
+
 /*========
 
 pron()
@@ -86,12 +103,6 @@ o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], [ "1", "2", "3"])
 #--> 1Ring2Softanza3
 
 proff()
-
-/*-------- TODO
-*/
-
-# DONE! Add RemoveAllExcept() in stzString and stzList  + ...W()
-Add RemoveAllRowsExcept() and RemoveAllColsExcept() in stzTable + ...W()
 
 /*========
 

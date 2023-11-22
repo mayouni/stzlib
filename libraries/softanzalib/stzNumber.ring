@@ -104,6 +104,21 @@
 func StzNumberQ(cNumber)
 	return new stzNumber(cNumber)
 
+func StzNamedNumber(paNamed)
+	if CheckParams()
+
+	ok
+
+	oNumber = new stzNumber(paNamed[2])
+	oNumber.SetName(paNamed[1])
+	return oNumber
+
+	func StzNamedNumberQ(paNamed)
+		return StzNamedNumber(paNamed)
+
+	func StzNamedNumberXTQ(paNamed)
+		return StzNamedNumber(paNamed)
+
 func StzNumberMethods()
 	return Stz(:Number, :Methods)
 
