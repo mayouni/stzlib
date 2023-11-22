@@ -543,7 +543,7 @@ func StzClasses()
 
 	return aResult
 
-	def StzTypes()
+	func StzTypes()
 		return StzClasses()
 
 func NumberOfStzClasses()
@@ -633,6 +633,8 @@ func StzClassesXT()
 		
 		[ :stzCCode, 			:stzCCodes		],
 		[ :stzNullObject,		:stzNullObjects		],
+		[ :stzFalseObject,		:stzFalsebjects		],
+		[ :stzTrueObject,		:stzTruebjects		],
 
 		[ :stzExtCode,			:stzExtCodes		]
 	]
@@ -697,6 +699,7 @@ func PluralToStzType(cPlural)
 	#>
 
 func IsStzObject(pObject)
+
 	if isObject(pObject) and Q(classname(pObject)).ExistsIn( StzTypes() )
 		return TRUE
 	else
@@ -704,6 +707,9 @@ func IsStzObject(pObject)
 	ok
 
 	func ObjectIsStzObject(pObject)
+		return IsStzObject(pObject)
+
+	func @IsStzObject(pObject)
 		return IsStzObject(pObject)
 
 func IsNamedObject(pObject)
@@ -720,11 +726,18 @@ func IsNamedObject(pObject)
 	func ObjectIsNamedObject(pObject)
 		return IsNamedObject(pObject)
 
+	func @IsNamedObject(pObject)
+		return IsNamedObject(pObject)
+
 func IsUnnamedObject(pObject)
 	return NOT IsNamedObject(pObject)
 
 	func ObjectIsUnnamedObject()
 		return IsUnnamedObject(pObject)
+
+	func @IsUnnamedObject(pObject)
+		return IsUnnamedObject(pObject)
+
 
 /* NOTE: The following section of code is generated with
 	 stzCodeGenerators and then pasted here
@@ -742,7 +755,10 @@ func IsStzNaturalCode(pObject)
 	func ObjectIsStzNaturalCode(pObject)
 		return IsStzNaturalCode(pObject)
 
-func IsStzchainofvalue(pObject)
+	func @IsStzNaturalCode(pObject)
+		return IsStzNaturalCode(pObject)
+
+func IsStzChainOfValue(pObject)
 	if isObject(pObject) and classname(pObject) = "stzchainofvalue"
 		return TRUE
 	else

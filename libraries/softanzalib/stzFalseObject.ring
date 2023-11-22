@@ -8,14 +8,21 @@
 func StzFalseObjectQ()
 	return new stzFalseObject
 
-#< @ClassAlternativeForms
+	func FalseObject()
+		return StzFalseObjectQ()
+
+#< @ClassMisspelledForms
 
 class stzFalsObject from stzFalseObject
 class stzFlaseObject from stzFalseObject
 
 #>
 
-class stzFalseObject
+class stzFalseObject from stzObject
+	@cVarName = :@falseobject
+
+	def Content()
+		return FALSE
 
 	def Where(pcCondition)
 		return FALSE

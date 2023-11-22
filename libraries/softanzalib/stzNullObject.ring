@@ -22,18 +22,22 @@ Here is an example:
 To avoid writing a class every time I have to make a sample like this,
 I made this stzNullObject class, so I can write just:
 
-	obj = new stzNullObject
+	obj = new stzNullObject # Or simply obj = NullObject()
 	? Q(obj).Type()	#--> :Object
 */
 
 func StzNullObjectQ()
 	return new stzNullObject
 
+	func NullObject()
+		return StzNullObjectQ()
+
 class stzNullObject from stzObject
-	@cContent = NULL
+	
+	@cVarName = :@nullobject
 
 	def Content()
-		return @cContent
+		return NULL
 
 	def Where(pcCondition)
 		return NULL
