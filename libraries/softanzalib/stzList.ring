@@ -24688,6 +24688,72 @@ class stzList from stzObject
 
 		#>
 
+	def FindNumber(paNumber) # Add case sensitivity
+
+		if CheckParams()
+			if NOT isNumber(paNumber)
+				StzRaise("Incorrect param type! paNumber must be a list.")
+			ok
+		ok
+
+		anPos = Q(This.Numbers()).Find(paNumber)
+		anResult = []
+		if len(anPos) > 0 
+			anResult = Q(This.FindNumbers()).ItemsAtPositions(anPos)
+		ok
+
+		return anResult
+
+	def NumberZ(paNumber)
+		if CheckParams()
+			if NOT isNumber(paNumber) 
+				StzRaise("Incorrect param type! paNumber must be a list.")
+			ok
+		ok
+
+		anPos = This.FindNumber(paNumber)
+		aResult = [ paNumber, anPos ]	
+		return aResult
+
+	def FindTheseNumbers(paNumbers)
+		if CheckParams()
+			if NOT ( isNumber(paNumbers) and Q(paNumbers).IsNumberOfNumbers() )
+				StzRaise("Incorrect param type! paNumbers must be a list of lists.")
+			ok
+		ok
+
+		paNumbers = U(paNumbers) # Duplicates removed
+		nLen = len(paNumbers)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindNumber(paNumbers[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def TheseNumbersZ(paNumbers)
+		if CheckParams()
+			if NOT ( isNumber(paNumbers) and Q(paNumbers).IsNumberOfNumbers() )
+				StzRaise("Incorrect param type! paNumbers must be a list of lists.")
+			ok
+		ok
+
+		nLen = len(paNumbers)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ paNumbers[i], This.FindNumber(paNumbers[i]) ]
+		next
+
+		return aResult
+
 	  #----------------------------------#
 	 #   REMOVING ITEMS OF TYPE NUMBER  #
 	#----------------------------------#
@@ -24946,6 +25012,72 @@ class stzList from stzObject
 				off
 
 		#>
+
+	def FindString(paString) # Add case sensitivity
+
+		if CheckParams()
+			if NOT isString(paString)
+				StzRaise("Incorrect param type! paString must be a list.")
+			ok
+		ok
+
+		anPos = Q(This.Strings()).Find(paString)
+		anResult = []
+		if len(anPos) > 0 
+			anResult = Q(This.FindStrings()).ItemsAtPositions(anPos)
+		ok
+
+		return anResult
+
+	def StringZ(paString)
+		if CheckParams()
+			if NOT isString(paString) 
+				StzRaise("Incorrect param type! paString must be a list.")
+			ok
+		ok
+
+		anPos = This.FindString(paString)
+		aResult = [ paString, anPos ]	
+		return aResult
+
+	def FindTheseStrings(paStrings)
+		if CheckParams()
+			if NOT ( isString(paStrings) and Q(paStrings).IsStringOfStrings() )
+				StzRaise("Incorrect param type! paStrings must be a list of lists.")
+			ok
+		ok
+
+		paStrings = U(paStrings) # Duplicates removed
+		nLen = len(paStrings)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindString(paStrings[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def TheseStringsZ(paStrings)
+		if CheckParams()
+			if NOT ( isString(paStrings) and Q(paStrings).IsStringOfStrings() )
+				StzRaise("Incorrect param type! paStrings must be a list of lists.")
+			ok
+		ok
+
+		nLen = len(paStrings)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ paStrings[i], This.FindString(paStrings[i]) ]
+		next
+
+		return aResult
 
 	  #-------------------------------------#
 	 #   REMOVING ITEMS WHICH ARE STRINGS  #
@@ -25511,6 +25643,72 @@ class stzList from stzObject
 		next
 		
 		return aResult		
+
+	def FindList(paList) # Add case sensitivity
+
+		if CheckParams()
+			if NOT isList(paList)
+				StzRaise("Incorrect param type! paList must be a list.")
+			ok
+		ok
+
+		anPos = Q(This.Lists()).Find(paList)
+		anResult = []
+		if len(anPos) > 0 
+			anResult = Q(This.FindLists()).ItemsAtPositions(anPos)
+		ok
+
+		return anResult
+
+	def ListZ(paList)
+		if CheckParams()
+			if NOT isList(paList) 
+				StzRaise("Incorrect param type! paList must be a list.")
+			ok
+		ok
+
+		anPos = This.FindList(paList)
+		aResult = [ paList, anPos ]	
+		return aResult
+
+	def FindTheseLists(paLists)
+		if CheckParams()
+			if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
+				StzRaise("Incorrect param type! paLists must be a list of lists.")
+			ok
+		ok
+
+		paLists = U(paLists) # Duplicates removed
+		nLen = len(paLists)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindList(paLists[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def TheseListsZ(paLists)
+		if CheckParams()
+			if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
+				StzRaise("Incorrect param type! paLists must be a list of lists.")
+			ok
+		ok
+
+		nLen = len(paLists)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ paLists[i], This.FindList(paLists[i]) ]
+		next
+
+		return aResult
 
 	  #--------------------------------------------#
 	 #  REMOVING THE LISTS CONTAINED IN THE LIST  #
@@ -28631,70 +28829,6 @@ class stzList from stzObject
 
 		return anResult
 
-	def FindNamedObjects()
-				aContent = This.Content()
-		nLen = len(acontent)
-		anResult = []
-
-		for i = 1 to nLen
-			if NOT isObject(aContent[i])
-				loop
-			ok
-
-			if ObjectVarName(aContent[i]) != :@NoName
-				anResult + i
-			ok
-		next
-
-		return anResult
-
-	def FindUnnamedObjects()
-		aContent = This.Content()
-		nLen = len(acontent)
-		anResult = []
-
-		for i = 1 to nLen
-			if NOT isObject(aContent[i])
-				loop
-			ok
-
-			if ObjectVarName(aContent[i]) = :@NoName
-				anResult + i
-			ok
-		next
-
-		return anResult
-
-	def FindObject(p) # pass an object or an object name in string
-
-		cObjectVarName = :@NoName
-		if isObject(p)
-			cObjectVarName = p.VarName()
-		but isString(p)
-			cObjectVarName = p
-		else
-			StzRaise("Incorrect param type! p must be an object or a string containing an object varname.")
-		ok
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		anResult = []
-
-		for i = 1 to nLen
-			if isObject(aContent[i]) and
-			   aContent[i].VarName() = cObjectVarName
-
-				anResult + i
-				
-			ok
-		next
-
-		return anResult
-
-		def FindThisObject(p)
-			return This.FindObject(p)
-
 	def FindTheseObjects(paObjects)
 		if CheckParams() = TRUE
 			if NOT isList(paObjects)
@@ -28784,6 +28918,85 @@ class stzList from stzObject
 
 
 		return aResult
+
+	def FindObject(p) # pass an object or an object name in string
+
+		cObjectVarName = :@NoName
+		if isObject(p)
+			cObjectVarName = p.VarName()
+		but isString(p)
+			cObjectVarName = p
+		else
+			StzRaise("Incorrect param type! p must be an object or a string containing an object varname.")
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i]) and
+			   aContent[i].VarName() = cObjectVarName
+
+				anResult + i
+				
+			ok
+		next
+
+		return anResult
+
+		def FindThisObject(p)
+			return This.FindObject(p)
+
+	def ObjectZ(paObject)
+		if CheckParams()
+			if NOT isObject(paObject) 
+				StzRaise("Incorrect param type! paObject must be a list.")
+			ok
+		ok
+
+		anPos = This.FindObject(paObject)
+		aResult = [ paObject, anPos ]	
+		return aResult
+
+	  #-----------------------------------------------#
+	 #  FINDING NAMED & UNNAMED OBJECTS IN THE LIST  #
+	#===============================================#
+
+	def FindNamedObjects()
+		aContent = This.Content()
+		nLen = len(acontent)
+		anResult = []
+
+		for i = 1 to nLen
+			if NOT isObject(aContent[i])
+				loop
+			ok
+
+			if ObjectVarName(aContent[i]) != :@NoName
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def FindUnnamedObjects()
+		aContent = This.Content()
+		nLen = len(acontent)
+		anResult = []
+
+		for i = 1 to nLen
+			if NOT isObject(aContent[i])
+				loop
+			ok
+
+			if ObjectVarName(aContent[i]) = :@NoName
+				anResult + i
+			ok
+		next
+
+		return anResult
 
 	  #===========================================================#
 	 #  CHECKING IF THE LIST CONTAINS JUST STRINGS IN UPPERCASE  #
