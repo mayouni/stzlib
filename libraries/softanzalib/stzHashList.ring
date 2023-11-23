@@ -1538,6 +1538,11 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	#--
 
+	  #---------------------------------------------#
+	 #  FINDING NUMBERS (VALUES THAT ARE NUMBERS)  #
+	#=============================================#
+	# TODO: Add case sensitivity
+
 	def FindNumbers()
 		aContent = This.Content()
 		nLen = len(aContent)
@@ -1556,26 +1561,98 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		anResult = []
+		aResult = []
 
 		for i = 1 to nLen
 			if isNumber(aContent[i][2])
-				anResult + aContent[i][2]
+				aResult + aContent[i][2]
 			ok
 		next
 
-		return anResult
+		return aResult
 
 	def NumbersZ()
-		aResult = Association([ This.Numbers(), This.FindNumbers() ])
+		aNumbersU = U( This.Numbers() )
+		nLen = len(aNumbersU)
 
-	def FindNumber(n)
-		// TODO
+		aResult = []
 
-	def FindTheseNumbers(panNumbers)
-		// TODO
+		for i = 1 to nLen
+			aResult + [ aNumbersU[i], This.FindNumber(aNumbersU[i]) ]
+		next
 
-	#--
+		return aResult
+
+	def FindNumber(paNumber) # Add case sensitivity
+
+		if CheckParams()
+			if NOT isNumber(paNumber)
+				StzRaise("Incorrect param type! paNumber must be a list.")
+			ok
+		ok
+
+		anPos = Q(This.Numbers()).Find(paNumber)
+		anResult = []
+		if len(anPos) > 0 
+			anResult = Q(This.FindNumbers()).ItemsAtPositions(anPos)
+		ok
+
+		return anResult
+
+	def NumberZ(paNumber)
+		if CheckParams()
+			if NOT isNumber(paNumber) 
+				StzRaise("Incorrect param type! paNumber must be a list.")
+			ok
+		ok
+
+		anPos = This.FindNumber(paNumber)
+		aResult = [ paNumber, anPos ]	
+		return aResult
+
+	def FindTheseNumbers(paNumbers)
+		if CheckParams()
+			if NOT ( isNumber(paNumbers) and Q(paNumbers).IsNumberOfNumbers() )
+				StzRaise("Incorrect param type! paNumbers must be a list of lists.")
+			ok
+		ok
+
+		paNumbers = U(paNumbers) # Duplicates removed
+		nLen = len(paNumbers)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindNumber(paNumbers[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def TheseNumbersZ(paNumbers)
+		if CheckParams()
+			if NOT ( isNumber(paNumbers) and Q(paNumbers).IsNumberOfNumbers() )
+				StzRaise("Incorrect param type! paNumbers must be a list of lists.")
+			ok
+		ok
+
+		nLen = len(paNumbers)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ paNumbers[i], This.FindNumber(paNumbers[i]) ]
+		next
+
+		return aResult
+
+	  #--------------------------------------------#
+	 #  FINDING STRINGS (VALUES THAT ARE STRING)  #
+	#============================================#
+	# TODO: Add case sensitivity
 
 	def FindStrings()
 		aContent = This.Content()
@@ -1606,15 +1683,87 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return aResult
 
 	def StringsZ()
-		aResult = Association([ This.Strings(), This.FindStrings() ])
+		aStringsU = U( This.Strings() )
+		nLen = len(aStringsU)
 
-	def FindString(pcStr)
-		// TODO
+		aResult = []
 
-	def FindTheseStrings(pacStr)
-		// TODO
+		for i = 1 to nLen
+			aResult + [ aStringsU[i], This.FindString(aStringsU[i]) ]
+		next
 
-	#--
+		return aResult
+
+	def FindString(paString) # Add case sensitivity
+
+		if CheckParams()
+			if NOT isString(paString)
+				StzRaise("Incorrect param type! paString must be a list.")
+			ok
+		ok
+
+		anPos = Q(This.Strings()).Find(paString)
+		anResult = []
+		if len(anPos) > 0 
+			anResult = Q(This.FindStrings()).ItemsAtPositions(anPos)
+		ok
+
+		return anResult
+
+	def StringZ(paString)
+		if CheckParams()
+			if NOT isString(paString) 
+				StzRaise("Incorrect param type! paString must be a list.")
+			ok
+		ok
+
+		anPos = This.FindString(paString)
+		aResult = [ paString, anPos ]	
+		return aResult
+
+	def FindTheseStrings(paStrings)
+		if CheckParams()
+			if NOT ( isString(paStrings) and Q(paStrings).IsStringOfStrings() )
+				StzRaise("Incorrect param type! paStrings must be a list of lists.")
+			ok
+		ok
+
+		paStrings = U(paStrings) # Duplicates removed
+		nLen = len(paStrings)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindString(paStrings[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def TheseStringsZ(paStrings)
+		if CheckParams()
+			if NOT ( isString(paStrings) and Q(paStrings).IsStringOfStrings() )
+				StzRaise("Incorrect param type! paStrings must be a list of lists.")
+			ok
+		ok
+
+		nLen = len(paStrings)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ paStrings[i], This.FindString(paStrings[i]) ]
+		next
+
+		return aResult
+
+	  #---------------------------------------------#
+	 #  FINDING OBJECTS (VALUES THAT ARE OBJECTS)  #
+	#=============================================#
+	# TODO: Add case sensitivity
 
 	def FindObjects()
 		aContent = This.Content()
@@ -1645,15 +1794,87 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return aResult
 
 	def ObjectsZ()
-		aResult = Association([ This.Objects(), This.FindObjects() ])
+		aObjectsU = U( This.Objects() )
+		nLen = len(aObjectsU)
 
-	def FindObject(pObject)
-		// TODO
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aObjectsU[i], This.FindObject(aObjectsU[i]) ]
+		next
+
+		return aResult
+
+	def FindObject(paObject) # Add case sensitivity
+
+		if CheckParams()
+			if NOT isObject(paObject)
+				StzRaise("Incorrect param type! paObject must be a list.")
+			ok
+		ok
+
+		anPos = Q(This.Objects()).Find(paObject)
+		anResult = []
+		if len(anPos) > 0 
+			anResult = Q(This.FindObjects()).ItemsAtPositions(anPos)
+		ok
+
+		return anResult
+
+	def ObjectZ(paObject)
+		if CheckParams()
+			if NOT isObject(paObject) 
+				StzRaise("Incorrect param type! paObject must be a list.")
+			ok
+		ok
+
+		anPos = This.FindObject(paObject)
+		aResult = [ paObject, anPos ]	
+		return aResult
 
 	def FindTheseObjects(paObjects)
-		// TODO
+		if CheckParams()
+			if NOT ( isObject(paObjects) and Q(paObjects).IsObjectOfObjects() )
+				StzRaise("Incorrect param type! paObjects must be a list of lists.")
+			ok
+		ok
 
-	#--
+		paObjects = U(paObjects) # Duplicates removed
+		nLen = len(paObjects)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindObject(paObjects[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def TheseObjectsZ(paObjects)
+		if CheckParams()
+			if NOT ( isObject(paObjects) and Q(paObjects).IsObjectOfObjects() )
+				StzRaise("Incorrect param type! paObjects must be a list of lists.")
+			ok
+		ok
+
+		nLen = len(paObjects)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ paObjects[i], This.FindObject(paObjects[i]) ]
+		next
+
+		return aResult
+
+	  #------------------------------------------------------#
+	 #  FINDING STZLISTS (VALUES THAT ARE STZLIST OBJECTS)  #
+	#======================================================#
+	# TODO: Add case sensitivity
 
 	def FindStzLists()
 		aContent = This.Content()
@@ -1684,15 +1905,87 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return aResult
 
 	def StzListsZ()
-		aResult = Association([ This.StzLists(), This.FindStzLists() ])
+		aStzListsU = U( This.StzLists() )
+		nLen = len(aStzListsU)
 
-	def FindStzList(poStzList)
-		// TODO
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aStzListsU[i], This.FindStzList(aStzListsU[i]) ]
+		next
+
+		return aResult
+
+	def FindStzList(paStzList) # Add case sensitivity
+
+		if CheckParams()
+			if NOT @IsStzList(paStzList)
+				StzRaise("Incorrect param type! paStzList must be a list.")
+			ok
+		ok
+
+		anPos = Q(This.StzLists()).Find(paStzList)
+		anResult = []
+		if len(anPos) > 0 
+			anResult = Q(This.FindStzLists()).ItemsAtPositions(anPos)
+		ok
+
+		return anResult
+
+	def StzListZ(paStzList)
+		if CheckParams()
+			if NOT isStzList(paStzList) 
+				StzRaise("Incorrect param type! paStzList must be a list.")
+			ok
+		ok
+
+		anPos = This.FindStzList(paStzList)
+		aResult = [ paStzList, anPos ]	
+		return aResult
 
 	def FindTheseStzLists(paStzLists)
-		// TODO
+		if CheckParams()
+			if NOT ( isStzList(paStzLists) and Q(paStzLists).IsStzListOfStzLists() )
+				StzRaise("Incorrect param type! paStzLists must be a list of lists.")
+			ok
+		ok
 
-	#--
+		paStzLists = U(paStzLists) # Duplicates removed
+		nLen = len(paStzLists)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindStzList(paStzLists[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def TheseStzListsZ(paStzLists)
+		if CheckParams()
+			if NOT ( isStzList(paStzLists) and Q(paStzLists).IsStzListOfStzLists() )
+				StzRaise("Incorrect param type! paStzLists must be a list of lists.")
+			ok
+		ok
+
+		nLen = len(paStzLists)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ paStzLists[i], This.FindStzList(paStzLists[i]) ]
+		next
+
+		return aResult
+
+	  #-------------------------------------------------------#
+	 #  FINDING STZHASHLISTS (VALUES THAT ARE STZHASHLISTS)  #
+	#=======================================================#
+	# TODO: Add case sensitivity
 
 	def FindStzHashLists()
 		aContent = This.Content()
@@ -1723,15 +2016,87 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return aResult
 
 	def StzHashListsZ()
-		aResult = Association([ This.StzHashLists(), This.FindStzHashLists() ])
+		aStzHashListsU = U( This.StzHashLists() )
+		nLen = len(aStzHashListsU)
 
-	def FindStzHashList(poStzHashList)
-		// TODO
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aStzHashListsU[i], This.FindStzHashList(aStzHashListsU[i]) ]
+		next
+
+		return aResult
+
+	def FindStzHashList(paStzHashList) # Add case sensitivity
+
+		if CheckParams()
+			if NOT @IsStzHashList(paStzHashList)
+				StzRaise("Incorrect param type! paStzHashList must be a list.")
+			ok
+		ok
+
+		anPos = Q(This.StzHashLists()).Find(paStzHashList)
+		anResult = []
+		if len(anPos) > 0 
+			anResult = Q(This.FindStzHashLists()).ItemsAtPositions(anPos)
+		ok
+
+		return anResult
+
+	def StzHashListZ(paStzHashList)
+		if CheckParams()
+			if NOT isStzHashList(paStzHashList) 
+				StzRaise("Incorrect param type! paStzHashList must be a list.")
+			ok
+		ok
+
+		anPos = This.FindStzHashList(paStzHashList)
+		aResult = [ paStzHashList, anPos ]	
+		return aResult
 
 	def FindTheseStzHashLists(paStzHashLists)
-		// TODO
+		if CheckParams()
+			if NOT ( isStzHashList(paStzHashLists) and Q(paStzHashLists).IsStzHashListOfStzHashLists() )
+				StzRaise("Incorrect param type! paStzHashLists must be a list of lists.")
+			ok
+		ok
 
-	#--
+		paStzHashLists = U(paStzHashLists) # Duplicates removed
+		nLen = len(paStzHashLists)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindStzHashList(paStzHashLists[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def TheseStzHashListsZ(paStzHashLists)
+		if CheckParams()
+			if NOT ( isStzHashList(paStzHashLists) and Q(paStzHashLists).IsStzHashListOfStzHashLists() )
+				StzRaise("Incorrect param type! paStzHashLists must be a list of lists.")
+			ok
+		ok
+
+		nLen = len(paStzHashLists)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ paStzHashLists[i], This.FindStzHashList(paStzHashLists[i]) ]
+		next
+
+		return aResult
+
+	  #---------------------------------------------------#
+	 #  FINDING STZNUMBERS (VALUES THAT ARE STZNUMBERS)  #
+	#===================================================#
+	# TODO: Add case sensitivity
 
 	def FindStzNumbers()
 		aContent = This.Content()
@@ -1751,26 +2116,98 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		anResult = []
+		aResult = []
 
 		for i = 1 to nLen
 			if @IsStzNumber(aContent[i][2])
-				anResult + aContent[i][2]
+				aResult + aContent[i][2]
 			ok
 		next
 
-		return anResult
+		return aResult
 
 	def StzNumbersZ()
-		aResult = Association([ This.StzNumbers(), This.FindStzNumbers() ])
+		aStzNumbersU = U( This.StzNumbers() )
+		nLen = len(aStzNumbersU)
 
-	def FindStzNumber(poStzNumber)
-		// TODO
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aStzNumbersU[i], This.FindStzNumber(aStzNumbersU[i]) ]
+		next
+
+		return aResult
+
+	def FindStzNumber(paStzNumber) # Add case sensitivity
+
+		if CheckParams()
+			if NOT @IsStzNumber(paStzNumber)
+				StzRaise("Incorrect param type! paStzNumber must be a list.")
+			ok
+		ok
+
+		anPos = Q(This.StzNumbers()).Find(paStzNumber)
+		anResult = []
+		if len(anPos) > 0 
+			anResult = Q(This.FindStzNumbers()).ItemsAtPositions(anPos)
+		ok
+
+		return anResult
+
+	def StzNumberZ(paStzNumber)
+		if CheckParams()
+			if NOT @IsStzNumber(paStzNumber) 
+				StzRaise("Incorrect param type! paStzNumber must be a list.")
+			ok
+		ok
+
+		anPos = This.FindStzNumber(paStzNumber)
+		aResult = [ paStzNumber, anPos ]	
+		return aResult
 
 	def FindTheseStzNumbers(paStzNumbers)
-		// TODO
+		if CheckParams()
+			if NOT ( @IsStzNumber(paStzNumbers) and Q(paStzNumbers).IsStzNumberOfStzNumbers() )
+				StzRaise("Incorrect param type! paStzNumbers must be a list of lists.")
+			ok
+		ok
 
-	#--
+		paStzNumbers = U(paStzNumbers) # Duplicates removed
+		nLen = len(paStzNumbers)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindStzNumber(paStzNumbers[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def TheseStzNumbersZ(paStzNumbers)
+		if CheckParams()
+			if NOT ( @IsStzNumber(paStzNumbers) and Q(paStzNumbers).IsStzNumberOfStzNumbers() )
+				StzRaise("Incorrect param type! paStzNumbers must be a list of lists.")
+			ok
+		ok
+
+		nLen = len(paStzNumbers)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ paStzNumbers[i], This.FindStzNumber(paStzNumbers[i]) ]
+		next
+
+		return aResult
+
+	  #---------------------------------------------------#
+	 #  FINDING STZSTRINGS (VALUES THAT ARE STZSTRINGS)  #
+	#===================================================#
+	# TODO: Add case sensitivity
 
 	def FindStzStrings()
 		aContent = This.Content()
@@ -1801,15 +2238,87 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return aResult
 
 	def StzStringsZ()
-		aResult = Association([ This.StzStrings(), This.FindStzStrings() ])
+		aStzStringsU = U( This.StzStrings() )
+		nLen = len(aStzStringsU)
 
-	def FindStzString(poStzString)
-		// TODO
+		aResult = []
 
-	def FindTheseStzStrings(paStzstrings)
-		// TODO
+		for i = 1 to nLen
+			aResult + [ aStzStringsU[i], This.FindStzString(aStzStringsU[i]) ]
+		next
 
-	#--
+		return aResult
+
+	def FindStzString(paStzString) # Add case sensitivity
+
+		if CheckParams()
+			if NOT @IsStzString(paStzString)
+				StzRaise("Incorrect param type! paStzString must be a list.")
+			ok
+		ok
+
+		anPos = Q(This.StzStrings()).Find(paStzString)
+		anResult = []
+		if len(anPos) > 0 
+			anResult = Q(This.FindStzStrings()).ItemsAtPositions(anPos)
+		ok
+
+		return anResult
+
+	def StzStringZ(paStzString)
+		if CheckParams()
+			if NOT @IsStzString(paStzString) 
+				StzRaise("Incorrect param type! paStzString must be a list.")
+			ok
+		ok
+
+		anPos = This.FindStzString(paStzString)
+		aResult = [ paStzString, anPos ]	
+		return aResult
+
+	def FindTheseStzStrings(paStzStrings)
+		if CheckParams()
+			if NOT ( @IsStzString(paStzStrings) and Q(paStzStrings).IsStzStringOfStzStrings() )
+				StzRaise("Incorrect param type! paStzStrings must be a list of lists.")
+			ok
+		ok
+
+		paStzStrings = U(paStzStrings) # Duplicates removed
+		nLen = len(paStzStrings)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindStzString(paStzStrings[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def TheseStzStringsZ(paStzStrings)
+		if CheckParams()
+			if NOT ( @IsStzString(paStzStrings) and Q(paStzStrings).IsStzStringOfStzStrings() )
+				StzRaise("Incorrect param type! paStzStrings must be a list of lists.")
+			ok
+		ok
+
+		nLen = len(paStzStrings)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ paStzStrings[i], This.FindStzString(paStzStrings[i]) ]
+		next
+
+		return aResult
+
+	  #---------------------------------------------------#
+	 #  FINDING STZOBJECTS (VALUES THAT ARE STZOBJECTS)  #
+	#===================================================#
+	# TODO: Add case sensitivity
 
 	def FindStzObjects()
 		aContent = This.Content()
@@ -1840,13 +2349,82 @@ class stzHashList from stzObject # Also called stzAssociativeList
 		return aResult
 
 	def StzObjectsZ()
-		aResult = Association([ This.StzStrings(), This.FindStzObjects() ])
+		aStzObjectsU = U( This.StzObjects() )
+		nLen = len(aStzObjectsU)
 
-	def FindStzObject(poStzObject)
-		// TODO
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aStzObjectsU[i], This.FindStzObject(aStzObjectsU[i]) ]
+		next
+
+		return aResult
+
+	def FindStzObject(paStzObject) # Add case sensitivity
+
+		if CheckParams()
+			if NOT @IsStzObject(paStzObject)
+				StzRaise("Incorrect param type! paStzObject must be a list.")
+			ok
+		ok
+
+		anPos = Q(This.StzObjects()).Find(paStzObject)
+		anResult = []
+		if len(anPos) > 0 
+			anResult = Q(This.FindStzObjects()).ItemsAtPositions(anPos)
+		ok
+
+		return anResult
+
+	def StzObjectZ(paStzObject)
+		if CheckParams()
+			if NOT @IsStzObject(paStzObject) 
+				StzRaise("Incorrect param type! paStzObject must be a list.")
+			ok
+		ok
+
+		anPos = This.FindStzObject(paStzObject)
+		aResult = [ paStzObject, anPos ]	
+		return aResult
 
 	def FindTheseStzObjects(paStzObjects)
-		// TODO
+		if CheckParams()
+			if NOT ( @IsStzObject(paStzObjects) and Q(paStzObjects).IsStzObjectOfStzObjects() )
+				StzRaise("Incorrect param type! paStzObjects must be a list of lists.")
+			ok
+		ok
+
+		paStzObjects = U(paStzObjects) # Duplicates removed
+		nLen = len(paStzObjects)
+		anResult = []
+
+		for i = 1 to nLen
+			anPos = This.FindStzObject(paStzObjects[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		anResult = ring_sort(anResult)
+		return anResult
+
+	def TheseStzObjectsZ(paStzObjects)
+		if CheckParams()
+			if NOT ( @IsStzObject(paStzObjects) and Q(paStzObjects).IsStzObjectOfStzObjects() )
+				StzRaise("Incorrect param type! paStzObjects must be a list of lists.")
+			ok
+		ok
+
+		nLen = len(paStzObjects)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ paStzObjects[i], This.FindStzObject(paStzObjects[i]) ]
+		next
+
+		return aResult
 
 	  #-------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE NTH OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
