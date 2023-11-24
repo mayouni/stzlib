@@ -7348,7 +7348,7 @@ class stzList from stzObject
 	def IsListOfStzObjects()
 		bResult = TRUE
 		for item in This.List()
-			if NOT IsStzObjet(item)
+			if NOT @IsStzObjet(item)
 				bREsult = FALSE
 				exit
 			ok
@@ -7368,7 +7368,7 @@ class stzList from stzObject
 	def IsListOfStzNumbers()
 		bResult = TRUE
 		for item in This.List()
-			if NOT IsStzNumber(item)
+			if NOT @IsStzNumber(item)
 				bResult = FALSE
 				exit
 			ok
@@ -7385,7 +7385,7 @@ class stzList from stzObject
 	def IsListOfStzStrings()
 		bResult = TRUE
 		for item in This.List()
-			if NOT IsStzString(item)
+			if NOT @IsStzString(item)
 				bREsult = FALSE
 				exit
 			ok
@@ -7405,7 +7405,7 @@ class stzList from stzObject
 	def IsListOfStzLists()
 		bResult = TRUE
 		for item in This.List()
-			if NOT IsStzList(item)
+			if NOT @IsStzList(item)
 				bREsult = FALSE
 				exit
 			ok
@@ -14738,7 +14738,7 @@ class stzList from stzObject
 		aResult = []
 		for item in Content()
 			if isNumber(item) or isString(item) or isList(item) or
-			   isStzNumber(item) or isStzString(item) or isStzList(item)
+			   @IsStzNumber(item) or @IsStzString(item) or @IsStzList(item)
 				aResult + item
 			ok
 		next
@@ -14756,7 +14756,7 @@ class stzList from stzObject
 		aResult = []
 		for item in Content()
 			if isNumber(item) or isString(item) or isList(item) or
-			   isStzNumber(item) or isStzString(item) or isStzList(item)
+			   @IsStzNumber(item) or @IsStzString(item) or @IsStzList(item)
 				// do nothing, skip!
 			else
 				aResult + item
@@ -17054,7 +17054,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 
 				ok
 
@@ -17079,7 +17079,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 					
 				ok
 	
@@ -17207,7 +17207,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 
 				ok
 
@@ -17232,7 +17232,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])			
+					cItem = @ObjectVarName(aContent[i])			
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -17325,7 +17325,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 
 				ok
 
@@ -17350,7 +17350,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 				
 				ok
 	
@@ -17628,7 +17628,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -17652,7 +17652,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 			
 				ok
 	
@@ -17799,7 +17799,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 
 				ok
 
@@ -17824,7 +17824,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 					
 				ok
 	
@@ -17939,7 +17939,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -17963,7 +17963,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 
 				ok
 	
@@ -18102,7 +18102,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -18126,7 +18126,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])				
+					cItem = @ObjectVarName(aContent[i])				
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -18245,7 +18245,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -18269,7 +18269,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])				
+					cItem = @ObjectVarName(aContent[i])				
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -18400,7 +18400,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -18424,7 +18424,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 				ok
 	
 				# Memorising the stringified items so we can used them later
@@ -18752,7 +18752,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 				ok
 
 				# Memorising the stringified items so we can used them later
@@ -18776,7 +18776,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 					
 				ok
 	
@@ -18982,7 +18982,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 
 				ok
 
@@ -19007,7 +19007,7 @@ class stzList from stzObject
 					cItem = @@(aContent[i])
 					
 				but isObject(aContent[i])
-					cItem = ObjectVarName(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
 					
 				ok
 	
@@ -25884,6 +25884,7 @@ class stzList from stzObject
 				other
 					StzRaise("Unsupported return type!")
 				off
+
 	  #------------------------------------#
 	 #  REMOVING NON LISTS FROM THE LIST  #
 	#------------------------------------#
@@ -28831,30 +28832,6 @@ class stzList from stzObject
 		next
 
 		return anResult
-
-	def FindTheseObjects(paObjects)
-		if CheckParams() = TRUE
-			if NOT isList(paObjects)
-				StzRaise("Incorrect param type! paObjects must be a list.")
-			ok
-	
-		ok
-
-		nLen = len(paObjects)
-		anResult = []
-
-		for i = 1 to nLen
-			if IsStringOrObject(paObjects[i])
-				anPos = This.FindObject(paObjects[i])
-				nLenPos = len(anPos)
-				for j = 1 to nLenPos
-					anResult + anPos[j]
-				next
-			ok
-		next
-
-		anResult = ring_sort(anResult)
-		return anResult
 			
 	def ObjectsZ()
 
@@ -28907,7 +28884,7 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 			if isObject(paObjects[i])
-				cName = ObjectVarName(paObjects[i])
+				cName = @ObjectVarName(paObjects[i])
 			else
 				cName = paObjects[i]
 			ok
@@ -28922,7 +28899,45 @@ class stzList from stzObject
 
 		return aResult
 
-	def FindObject(p) # pass an object or an object name in stri²ng
+	  #-----------------------------------------------#
+	 #  FINDING NAMED & UNNAMED OBJECTS IN THE LIST  #
+	#===============================================#
+
+	def FindNamedObjects()
+		aContent = This.Content()
+		nLen = len(acontent)
+		anResult = []
+
+		for i = 1 to nLen
+			if NOT isObject(aContent[i])
+				loop
+			ok
+
+			if @ObjectVarName(aContent[i]) != :@NoName
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def FindUnnamedObjects()
+		aContent = This.Content()
+		nLen = len(acontent)
+		anResult = []
+
+		for i = 1 to nLen
+			if NOT isObject(aContent[i])
+				loop
+			ok
+
+			if @ObjectVarName(aContent[i]) = :@NoName
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def FindNamedObject(p) # pass an object or an object name in string
 
 		cObjectVarName = :@NoName
 		if isObject(p)
@@ -28949,53 +28964,143 @@ class stzList from stzObject
 
 		return anResult
 
-		def FindThisObject(p)
-			return This.FindObject(p)
+		def FindThisNamedObject(p)
+			return This.FindNamedObject(p)
 
-	def ObjectZ(paObject)
+	def NamedObjectZ(paObject)
 		if CheckParams()
 			if NOT isObject(paObject) 
 				StzRaise("Incorrect param type! paObject must be a list.")
 			ok
 		ok
 
-		anPos = This.FindObject(paObject)
+		anPos = This.FindNamedObject(paObject)
 		aResult = [ paObject, anPos ]	
 		return aResult
 
-	  #-----------------------------------------------#
-	 #  FINDING NAMED & UNNAMED OBJECTS IN THE LIST  #
-	#===============================================#
+	  #----------------------#
+	 #  FINDING STZNUMBERS  #
+	#======================#
 
-	def FindNamedObjects()
+	def FindStzNumbers()
 		aContent = This.Content()
-		nLen = len(acontent)
+		nLen = len(aContent)
+
 		anResult = []
 
 		for i = 1 to nLen
-			if NOT isObject(aContent[i])
-				loop
-			ok
-
-			if ObjectVarName(aContent[i]) != :@NoName
+			if @IsStzNumber(aContent[i])
 				anResult + i
 			ok
 		next
 
 		return anResult
 
-	def FindUnnamedObjects()
+	def StzNumbers()
 		aContent = This.Content()
-		nLen = len(acontent)
+		nLen = len(aContent)
+
 		anResult = []
 
 		for i = 1 to nLen
-			if NOT isObject(aContent[i])
-				loop
+			if @IsStzNumber(aContent[i])
+				anResult + aContent[i]
 			ok
+		next
 
-			if ObjectVarName(aContent[i]) = :@NoName
+		return anResult
+
+	  #----------------------#
+	 #  FINDING STZSTRINGS  #
+	#======================#
+
+	def FindStzStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if @IsStzString(aContent[i])
 				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def StzStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if @IsStzString(aContent[i])
+				anResult + aContent[i]
+			ok
+		next
+
+		return anResult
+
+	  #---------------------#
+	 #  FINDING STZLISTSS  #
+	#=====================#
+
+	def FindStzLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if @IsStzList(aContent[i])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def StzLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if @IsStzList(aContent[i])
+				anResult + aContent[i]
+			ok
+		next
+
+		return anResult
+
+	  #----------------------#
+	 #  FINDING STZOBJECTS  #
+	#======================#
+
+	def FindStzObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if @IsStzObject(aContent[i])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def StzObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if @IsStzObject(aContent[i])
+				anResult + aContent[i]
 			ok
 		next
 
@@ -29088,7 +29193,7 @@ class stzList from stzObject
 				cResult += ( ComputableForm(aContent[i]) + ", ")
 
 			but isObject(aContent[i])
-				cResult += ObjectVarName(aContent[i]) + ", "
+				cResult += @ObjectVarName(aContent[i]) + ", "
 
 			ok
 
@@ -29131,7 +29236,7 @@ class stzList from stzObject
 				cItem = @@(item)
 
 			but isObject(item)
-				cItem = ObjectVarName(aContent[i])
+				cItem = @ObjectVarName(aContent[i])
 			ok
 
 			acResult + cItem
@@ -29269,7 +29374,7 @@ class stzList from stzObject
 				ok
 
 			but isObject(item)
-				cItem = ObjectVarName(aContent[i])
+				cItem = @ObjectVarName(aContent[i])
 			ok
 
 			acResult + cItem
@@ -29486,7 +29591,7 @@ class stzList from stzObject
 				ok
 
 			but isObject(item)
-				cItem = ObjectVarName(aContent[i])
+				cItem = @ObjectVarName(aContent[i])
 			ok
 
 			oQLocale = new QLocale("C")

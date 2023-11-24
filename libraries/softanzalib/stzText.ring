@@ -519,7 +519,7 @@ class stzText from stzString
 			@oQString = new QString2()
 			@oQString.append(pcStr)
 
-		but IsStzString(pcStr)
+		but @IsStzString(pcStr)
 			@oQString = pcStr.QStringObject()
 
 		else
