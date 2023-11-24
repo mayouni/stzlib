@@ -203,7 +203,7 @@ proff()
 # Executed in 0.34 second(s)
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzHashList([
@@ -226,7 +226,7 @@ o1 = new stzHashList([
 	:Sixtenn   = StzNamedHashListQ( :@hashlist = [ :x = 10, :y = 20 ]),
 	:Seventeen = [ :will ]
 ])
-/*
+
 ? @@( o1.FindLists() ) + NL
 #--> [ 3, 5, 6, 16 ]
 
@@ -247,7 +247,7 @@ o1 = new stzHashList([
 #--> [ [ "will" ], [ 6, 16 ] ]
 
 #--
-*/
+
 ? @@( o1.FindTheseLists([ [ "can", "will" ], [ "will" ] ]) ) + NL
 #--> [ 5, 6, 16 ]
 
@@ -255,9 +255,9 @@ o1 = new stzHashList([
 #--> [ [ [ "can", "will" ], [ 5 ] ], [ [ "will" ], [ 6, 16 ] ] ]
 
 proff()
+# Executed in 0.11 second(s)
 
 /*-----------
-*/
 
 pron()
 
@@ -269,9 +269,8 @@ o1 = new stzHashList([
 	:Five	= [ :will ]
 ])
 
-? o1.Items()
+//? o1.Items()
 
-/*
 
 ? o1.FindItems() # All items
 
@@ -280,9 +279,38 @@ o1 = new stzHashList([
 ? o1.ItemsXT()
 
 ? o1.ItemsXTT()
-*/
+
 proff()
 # Executed in 0.12 second(s)
+
+/*-----------
+*/
+
+pron()
+
+o1 = new stzHashList([
+	:one	= Q(1),
+	:two	= Q("2"),
+	:three	= Q(3),
+	:four	= Q(4),
+	:five	= Q("5"),
+	:six	= Q([6]),
+	:seven	= Q([7])
+])
+
+? @@( o1.FindStzNumbers() )
+#--> [ 1, 3, 4 ]
+
+? @@( o1.FindStzStrings() )
+#--> [ 2, 5 ]
+
+? @@( o1.FindStzLists() )
+#--> [ 6, 7 ]
+
+? @@( o1.FindStzObjects() )
+#--> [ 1, 2, 3, 4, 5, 6, 7 ]
+
+proff()
 
 /*=============
 
