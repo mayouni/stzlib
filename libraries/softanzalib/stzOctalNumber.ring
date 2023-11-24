@@ -46,6 +46,9 @@ class stzOctalNumber from stzString
 	def Content()
 		return @cOctalNumber
 
+		def Value()
+			return Content()
+
 	def WithPrefix()
 		return OctalPrefix() + This.Content()
 	

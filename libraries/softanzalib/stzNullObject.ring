@@ -39,6 +39,9 @@ class stzNullObject from stzObject
 	def Content()
 		return NULL
 
+		def Value()
+			return Content()
+
 	def Where(pcCondition)
 		return NULL
 

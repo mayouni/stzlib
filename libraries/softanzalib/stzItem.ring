@@ -150,6 +150,9 @@ class stzItemCS
 		def Content()
 			return This.Item()
 
+		def Value()
+			return Content()
+
 	def List()
 		return @aList
 

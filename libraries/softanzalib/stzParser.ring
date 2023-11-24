@@ -27,6 +27,9 @@ class stzParser from stzList
 	def Content()
 		return @aContent
 
+		def Value()
+			return Content()
+
 	def ParsedPositions()
 		return This.Content()
 
@@ -101,7 +104,7 @@ class stzParser from stzList
 			@nCurrentPosition = n
 		ok
 
-	def CurrentPosition()
+	def MoveToCurrentPosition()
 		return This.ParsedPositions()[ This.CurrentPosition() ]
 
 	def MoveToPosition(n)

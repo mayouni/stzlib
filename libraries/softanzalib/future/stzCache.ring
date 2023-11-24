@@ -81,6 +81,9 @@ class stzCache from stzObject
 	def Content()
 		return cCacheContent
 
+		def Value()
+			return This.Content()
+
 	func init(pcCacheName, pcStorageType)
 		cCacheName = pcCacheName
 		oCacheStorage = new stzCacheStorage("cache", pcCacheName, pcStorageType)

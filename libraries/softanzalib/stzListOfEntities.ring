@@ -17,6 +17,9 @@ class stzListOfEntities from stzList
 	def Content()
 		return @aListOfEntities
 
+		def Value()
+			return Content()
+
 	def ListOfEntities()
 		return This.Content()
 

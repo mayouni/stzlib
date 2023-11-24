@@ -24,6 +24,9 @@ class stzPairOfLists from stzPair
 		def PairOfLists()
 			return This.Content()
 
+		def Value()
+			return Content()
+
 	def FirstList()
 		return @aList1
 

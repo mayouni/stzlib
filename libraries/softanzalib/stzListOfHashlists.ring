@@ -22,6 +22,9 @@ class stzListOfHashLists from stzList
 	def Content()
 		return @aListOfHashLists
 
+		def Value()
+			return Content()
+
 	def ListOfHashLists()
 		return This.Content()
 

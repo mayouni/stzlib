@@ -61,6 +61,9 @@ class stzTurboList
 
 		return aResult
 
+		def Value()
+			return This.Content()
+
 	def @Items()
 		return @aItems
 

@@ -202,9 +202,13 @@ Class stzTable from stzObject
 		def Table()
 			return This.Content()
 
-		def TableQ()
-			return new stzList( This.Table() )
+			def TableQ()
+				return new stzList( This.Table() )
 
+		def Value()
+			return Content()
+
+	
 	def Copy()
 		oCopy = new stzTable(This.Content())
 		return oCopy

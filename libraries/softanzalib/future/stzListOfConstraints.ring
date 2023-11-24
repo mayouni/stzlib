@@ -62,6 +62,9 @@ class stzListOfConstraints from stzObject
 	def Content()
 		return @acConstraints
 
+		def Value()
+			return This.Content()
+
 	def Constraints()
 		return @acConstraints
 

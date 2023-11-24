@@ -132,12 +132,15 @@ class stzListOfLists from stzList
 			StzRaise("Can't create the stzListOfLists object!")
 		ok
 
-	  #--------------#
-	 #   GENERAL    #
-	#--------------#
+	  #-------------#
+	 #   GENERAL   #
+	#-------------#
 
 	def Content()
 		return @aContent
+
+		def Value()
+			return Content()
 
 	def ListOfLists()
 		return This.Content()

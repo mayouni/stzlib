@@ -1,4 +1,4 @@
-load "SoftanzaLib.ring"
+load "stzlib.ring"
 
 //d1 = new stzDate("28/12/2012")
 d1 = new stzDate("26-12-1738")

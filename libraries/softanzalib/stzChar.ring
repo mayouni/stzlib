@@ -395,7 +395,7 @@ class stzChar from stzObject
 
 			but oStr.RepresentsNumberInHexForm() or
 			    oStr.RepresentsNumberInUnicodeHexForm()
-? "ça va"
+
 				nUnicode = StzHexNumberQ(pChar).ToDecimal()
 				@oQChar = new QChar(nUnicode)
 

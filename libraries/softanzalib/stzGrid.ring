@@ -237,6 +237,9 @@ class stzGrid from stzObject
 	def Content()
 		return @aContent
 
+		def Value()
+			return Content()
+
 	def Size()
 		anResult = [ This.NumberOfHLines(), This.NumberOfVLines() ]
 		return anResult

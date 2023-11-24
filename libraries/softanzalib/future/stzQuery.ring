@@ -8,6 +8,9 @@ class stzQuery from stzObject
 	def Content()
 		return aData
 
+		def Value()
+			return This.Content()
+
 	def NumberOfItems()
 		return len(aData)
 

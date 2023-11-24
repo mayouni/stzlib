@@ -21,3 +21,6 @@ class stzBit from stzObject
 
 	def Content()
 		return nValue
+
+		def Value()
+			return This.Content()

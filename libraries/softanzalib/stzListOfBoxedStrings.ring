@@ -19,6 +19,9 @@ class stzListOfBoxedStrings from stzListOfStrings
 	def Content()
 		return @aListOfStrings
 
+		def Value()
+			return Content()
+
 	def ToStzListOfStrings()
 		return new stzListOfStrings(@aListOfBoxedStrings)
 

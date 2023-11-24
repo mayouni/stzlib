@@ -53,9 +53,12 @@ class stzEntity
 	def Content()
 		return @aEntity
 
-	def Entity()
-		return This.Content()
+		def Value()
+			return Content()
 
+		def Entity()
+			return This.Content()
+	
 	def Name()
 		return This.Content()[:name]
 

@@ -54,7 +54,7 @@ class stzBinaryNumber from stzObject
 		- FromDecimalForm("12500") method is used to create a binary number
 		  from the deciaml number of the form 12500
 
-		- FromHexaForm("x0E22") method is used to create a binary number
+		- FromHexForm("x0E22") method is used to create a binary number
 		  from the hexadecimal number of the form "x0E22"
 
 		- FromOctalForm("o2077") method is used to create a binary number
@@ -86,11 +86,16 @@ class stzBinaryNumber from stzObject
 	def Content()
 		return @cBinaryNumber
 
+		def Value()
+			return This.Content()
+
+		def BinaryNumber()
+			return Content()
+	
 	def WithPrefix()
 		return BinaryPrefix() + This.Content()
 
-	def BinaryNumber()
-		return Content()
+
 
  	  #-------------------------#
 	 #    BITWISE OPERATORS    #

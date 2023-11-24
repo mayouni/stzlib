@@ -179,6 +179,9 @@ class stzListOfStrings from stzList
 
 		return acResult
 
+		def Value()
+			return Content()
+
 		def StringItems()
 			return This.Content()
 

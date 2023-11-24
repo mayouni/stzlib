@@ -51,6 +51,9 @@ class stzDynamicList from stzObject
 			? cStr
 		next
 
+		def Value()
+			return This.Content()
+
 	def AddItem(pItem)
 		aContent + pItem
 
@@ -104,6 +107,9 @@ class stzActiveItem from stzObject
 
 	def Content()
 		return Content
+
+		def Value()
+			return This.Content()
 
 	def Type()
 		return ring_type(pItem)

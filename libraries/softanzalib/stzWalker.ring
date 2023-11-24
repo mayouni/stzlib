@@ -116,6 +116,9 @@ class stzWalker from stzList
 	def Content()
 		return @anWalkedPositions
 
+		def Value()
+			return Content()
+
 	def Name()
 		return @cName
 

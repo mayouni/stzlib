@@ -143,7 +143,10 @@ class stzListOfChars from stzListOfStrings
 
 		def ListOfChars()
 			return This.Content()
-		
+
+		def Value()
+			return Content()
+
 	def NumberOfChars()
 		return len(This.Content())
 

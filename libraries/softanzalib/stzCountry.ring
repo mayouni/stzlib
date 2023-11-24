@@ -421,6 +421,9 @@ class stzCountry
 	
 		def Content()
 			return This.Name()
+
+		def Value()
+			return Content()
 	
 	def NativeName()
 		return StzLocale([ :Country = This.Country() ]).CountryNativeName()

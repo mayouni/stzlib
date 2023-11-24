@@ -354,6 +354,9 @@ class stzLocale from stzObject
 	def Content()
 		return This.Abbreviation()
 
+		def Value()
+			return Content()
+
 	# A scpecific abbreviation notation for those who need it
 	/* Returns the dash-separated language, script and country
 	   (and possibly other BCP47 fields) of this locale as a string. */

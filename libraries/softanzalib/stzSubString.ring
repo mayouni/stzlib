@@ -330,6 +330,9 @@ class stzSubStringCS
 		def Content()
 			return This.SubString()
 
+		def Value()
+			return Content()
+
 	def String()
 		return @cStr
 

@@ -95,8 +95,9 @@ class stzHashList from stzObject # Also called stzAssociativeList
 				*/
 
 				# Lowercasing all the keys of the hashlist
-				for aItem in p
-					aItem[1] = StzStringQ(aItem[1]).Lowercased()
+				nLen = len(p)
+				for i = 1 to nLen
+					p[i][1] = StzStringQ(p[i][1]).Lowercased()
 				next
 
 				@aContent = p

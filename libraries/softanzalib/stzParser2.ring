@@ -29,6 +29,9 @@ class stzParser from stzList
 	def Content()
 		return aContent
 
+		def Value()
+			return Content()
+
 	  #-----------------#
 	 #     POSITION    #
 	#-----------------#

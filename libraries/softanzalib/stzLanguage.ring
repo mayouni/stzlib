@@ -435,6 +435,9 @@ class stzLanguage
 	def Content()
 		return @aLanguageInfo@[2]
 
+		def Value()
+			return Content()
+
 	def QtNumber()
 		return @aLanguageInfo@[1]
 

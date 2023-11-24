@@ -43,6 +43,9 @@ class stzListInString from stzString
 	def Content()
 		return This.List()
 
+		def Value()
+			return Content()
+
 	def ToStzList()
 		return new stzList( This.List() )
 

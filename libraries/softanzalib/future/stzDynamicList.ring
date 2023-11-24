@@ -118,6 +118,9 @@ class stzDynamicList from stzObject
 	def Content()
 		return aContent
 
+		def Value()
+			return This.Content()
+
 	def LastItem()
 		return Content()[ len(Content()) ]
 
@@ -163,6 +166,9 @@ class stzActiveItem from stzObject
 
 	def Content()
 		return Content
+
+		def Value()
+			return This.Content()
 
 	def SetPosition(n)
 

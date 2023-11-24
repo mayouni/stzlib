@@ -155,7 +155,10 @@ class stzListOfBytes from stzObject
 		next
 
 		return aResult
-	
+
+		def Value()
+			return Content()
+
 	def ListOfBytes()
 		return This.Content()
 
