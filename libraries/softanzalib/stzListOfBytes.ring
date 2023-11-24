@@ -47,7 +47,7 @@ func StzListOfBytesQ(p)
 	return new stzListOfBytes(p)
 
 func IsListOfBytes(p)
-	if isString(p) or IsStzString(p) or IsStzListOfBytes(p) or IsQByteArray(p)
+	if isString(p) or @IsStzString(p) or @IsStzListOfBytes(p) or @IsQByteArray(p)
 		return TRUE
 	else
 		return FALSE
@@ -63,6 +63,12 @@ func IsQByteArray(p)
 	func IsQByteArrayObject(p)
 		return IsQByteArray(p)
 
+	func @IsQByteArray(p)
+		return IsQByteArray(p)
+
+	func @IsQByteArrayObject(p)
+		return IsQByteArray(p)
+
 func ToQByteArray(p)
 	if IsListOfBytes(p)
 		if IsQByteArrayObject(p)
@@ -73,12 +79,12 @@ func ToQByteArray(p)
 			oQByteArray.append(p)
 			return oQByteArray
 
-		but IsStzString(p)
+		but @IsStzString(p)
 			oQByteArray = new QByteArray()
 			oQByteArray.append(p.Content())
 			return oQByteArray
 
-		but IsStzListOfBytes(p)
+		but @IsStzListOfBytes(p)
 			return p.QByteArrayObject()
 
 		ok

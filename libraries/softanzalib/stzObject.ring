@@ -139,6 +139,9 @@ func StzObjectClassName()
 func IsNotObject(pObject)
 	return NOT isObject(pObject)
 
+	func @IsNotObject(pObject)
+		return IsNotObject(pObject)
+
 func ObjectVarName(pObject)
 	
 	if NOT isObject(pObject)
@@ -155,6 +158,12 @@ func ObjectVarName(pObject)
 	func ObjectName(pObject) # Note the difference with classname(pObject)
 		return ObjectVarName(pObject)
 
+	func @ObjectVarName(pObject)
+		return ObjectVarName(pObject)
+
+	func @ObjectName(pObject)
+		return ObjectVarName(pObject)
+
 func ObjectIsNamed(pObject)
 	if ObjectVarName(pObject) != :@NoName
 		return TRUE
@@ -162,8 +171,14 @@ func ObjectIsNamed(pObject)
 		return FALSE
 	ok
 
+	func @ObjectIsNamed(pObject)
+		return ObjectIsNamed(pObject)
+
 func ObjectIsUnnamed(pObject)
 	return NOT ObjectIsNamed(pObject)
+
+	func @ObjectIsUnnamed(pObject)
+		return ObjectIsUnnamed(pObject)
 
 #--
 

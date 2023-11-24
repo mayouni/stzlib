@@ -1935,7 +1935,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def StzListZ(paStzList)
 		if CheckParams()
-			if NOT isStzList(paStzList) 
+			if NOT @IsStzList(paStzList) 
 				StzRaise("Incorrect param type! paStzList must be a list.")
 			ok
 		ok
@@ -1946,7 +1946,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def FindTheseStzLists(paStzLists)
 		if CheckParams()
-			if NOT ( isStzList(paStzLists) and Q(paStzLists).IsStzListOfStzLists() )
+			if NOT ( @IsStzList(paStzLists) and Q(paStzLists).IsStzListOfStzLists() )
 				StzRaise("Incorrect param type! paStzLists must be a list of lists.")
 			ok
 		ok
@@ -1969,7 +1969,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def TheseStzListsZ(paStzLists)
 		if CheckParams()
-			if NOT ( isStzList(paStzLists) and Q(paStzLists).IsStzListOfStzLists() )
+			if NOT ( @IsStzList(paStzLists) and Q(paStzLists).IsStzListOfStzLists() )
 				StzRaise("Incorrect param type! paStzLists must be a list of lists.")
 			ok
 		ok
@@ -2046,7 +2046,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def StzHashListZ(paStzHashList)
 		if CheckParams()
-			if NOT isStzHashList(paStzHashList) 
+			if NOT @IsStzHashList(paStzHashList) 
 				StzRaise("Incorrect param type! paStzHashList must be a list.")
 			ok
 		ok
@@ -2057,7 +2057,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def FindTheseStzHashLists(paStzHashLists)
 		if CheckParams()
-			if NOT ( isStzHashList(paStzHashLists) and Q(paStzHashLists).IsStzHashListOfStzHashLists() )
+			if NOT ( @IsStzHashList(paStzHashLists) and Q(paStzHashLists).IsStzHashListOfStzHashLists() )
 				StzRaise("Incorrect param type! paStzHashLists must be a list of lists.")
 			ok
 		ok
@@ -2080,7 +2080,7 @@ class stzHashList from stzObject # Also called stzAssociativeList
 
 	def TheseStzHashListsZ(paStzHashLists)
 		if CheckParams()
-			if NOT ( isStzHashList(paStzHashLists) and Q(paStzHashLists).IsStzHashListOfStzHashLists() )
+			if NOT ( @IsStzHashList(paStzHashLists) and Q(paStzHashLists).IsStzHashListOfStzHashLists() )
 				StzRaise("Incorrect param type! paStzHashLists must be a list of lists.")
 			ok
 		ok
