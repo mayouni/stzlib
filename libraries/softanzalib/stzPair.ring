@@ -20,6 +20,9 @@ class stzPair from stzList
 		def Pair()
 			return This.Content()
 
+		def Value()
+			return Content()
+
 	def Copy()
 		return new stzPair( This.Content() )
 

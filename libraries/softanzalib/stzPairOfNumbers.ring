@@ -75,6 +75,9 @@ class stzPairOfNumbers from stzPair
 		def PairOfNumber()
 			return This.Content()
 
+		def Value()
+			return Content()
+
 	def FirstNumber()
 		return This.Content()[1]
 

@@ -27,7 +27,7 @@ based on a subset of what is possible with RingQt (so we take advantage
 from its support of UNICODE file names among other features):
 UPDATE - Ring 1.16 supports UNICODE names for files!
 
-	:ReadOnly	Reads file content	    ->	Works only for existing files
+	:ReadOnly	Reads file content	    ->	Works only for existing files (TODO: why?!)
 	:WriteToEnd	Writes to the end of file   ->	If file do not exist, creates it
 	:EraseAndWrite	Erases the file and writes  ->	If file do not exist, creates it
 
@@ -113,8 +113,11 @@ class stzFile from stzObject
 			StzRaise(stzFileError(:CanNotReadFileContent))
 		ok
 
-	def Content()
-		return This.ReadAll()
+		def Content()
+			return This.ReadAll()
+
+		def Value()
+			return Content()
 
 	// Returns the entire file content as a list of bytes
 	def ReadAllAsListOfBytes()

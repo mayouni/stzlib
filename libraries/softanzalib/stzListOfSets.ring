@@ -16,6 +16,9 @@ class stzListOfSets from stzListOfLists
 	def Content()
 		return @aContent
 
+		def Value()
+			return Content()
+
 	def Sets()
 		return Content()
 

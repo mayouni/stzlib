@@ -43,6 +43,9 @@ class stzTime from stzObject
 	def Content()
 		return oQTime
 
+		def Value()
+			return Content()
+
 	def QTimeObject()
 		return oQTime
 

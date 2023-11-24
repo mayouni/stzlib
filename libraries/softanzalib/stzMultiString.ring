@@ -61,6 +61,9 @@ class stzMultiString
 		def Content()
 			return aContent
 
+		def Value()
+			return Content()
+
 		def Show()
 			oHashList.Show()
 

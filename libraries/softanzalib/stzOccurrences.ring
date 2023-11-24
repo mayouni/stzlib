@@ -26,6 +26,9 @@ class stzOccurrences
 		def Content()
 			return This.Occurrences()
 
+		def Value()
+			return Content()
+
 	def SubString()
 		return @cSubStr
 

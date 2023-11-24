@@ -21,6 +21,9 @@ class stzListOfNumbersList
 		def ListOfNumbersList()
 			return This.Content()
 
+		def Value()
+			return Content()
+
 	def NumberOfLists()
 		return len( This.ListOfNumbersList() )
 

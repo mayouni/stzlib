@@ -13,6 +13,9 @@ class stzTrueObject from stzObject
 	def Content()
 		return TRUE
 
+		def Value()
+			return Content()
+
 	def Where(pcCondition)
 		return FALSE
 

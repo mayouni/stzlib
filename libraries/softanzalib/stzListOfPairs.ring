@@ -76,6 +76,9 @@ class stzListOfPairs from stzListOfLists
 	def Content()
 		return @aContent
 
+		def Value()
+			return Content()
+
 	def Copy()
 		return new stzListOfPairs( This.Content() )
 

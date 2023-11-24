@@ -119,6 +119,9 @@ class stzCurrency
 	def Content()
 		return This.Currency()
 
+		def Value()
+			return Content()
+
 	def FractionalUnit()
 		return @aCurrencyInfo@[2]
 

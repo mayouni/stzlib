@@ -262,6 +262,9 @@ class stzScript
 		def Content()
 			return This.Script()
 
+		def Value()
+			return Content()
+
 	def QtNumber()
 		return @aScriptInfo@[1]
 

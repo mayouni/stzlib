@@ -18,6 +18,9 @@ class stzListOfNamedObjects from stzList
 	def Content()
 		return @aContent
 
+		def Value()
+			return Content()
+
 	def NamedObject(p)
 		if isString(p)
 			result = This.Content()[p]

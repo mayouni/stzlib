@@ -24,6 +24,9 @@ class stzFalseObject from stzObject
 	def Content()
 		return FALSE
 
+		def Value()
+			return Content()
+
 	def Where(pcCondition)
 		return FALSE
 

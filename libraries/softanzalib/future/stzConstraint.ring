@@ -80,6 +80,9 @@ class stzConstraint from stzObject
 	def Content()
 		return @cConstraint
 
+		def Value()
+			return This.Content()
+
 	def Constraint()
 		return This.Content()
 

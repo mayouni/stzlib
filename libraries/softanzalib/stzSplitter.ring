@@ -58,6 +58,9 @@ class stzSplitter from stzListOfNumbers
 		aResult = 1:This.NumberOfPositions()
 		return aResult
 
+		def Value()
+			return Content()
+
 	def Copy()
 		return new stzSplitter( 1: This.NumberOfPositions() )
 

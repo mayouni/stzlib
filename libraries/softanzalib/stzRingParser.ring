@@ -1,4 +1,4 @@
-//load "softanzalib.ring"
+//load "stzlib.ring"
 
 cMyCode =
 '
@@ -33,6 +33,9 @@ class stzRingParser
 
 	def Content()
 		return cRingCode
+
+		def Value()
+			return Content()
 
 	def ShowCode()
 		? cRingCode

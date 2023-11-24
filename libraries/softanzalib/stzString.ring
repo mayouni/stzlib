@@ -569,6 +569,10 @@ class stzString from stzObject
 			return This
 
 		#>
+
+		def Value()
+			return Content()
+
 	
 	def QStringObject()
 		return @oQString

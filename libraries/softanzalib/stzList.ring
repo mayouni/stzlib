@@ -640,6 +640,9 @@ class stzList from stzObject
 	def Content()
 		return @aContent
 
+		def Value()
+			return Content()
+
 	def List()
 		return Content()
 
@@ -28919,7 +28922,7 @@ class stzList from stzObject
 
 		return aResult
 
-	def FindObject(p) # pass an object or an object name in string
+	def FindObject(p) # pass an object or an object name in stri²ng
 
 		cObjectVarName = :@NoName
 		if isObject(p)

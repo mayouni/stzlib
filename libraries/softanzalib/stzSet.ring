@@ -35,6 +35,9 @@ class stzSet from stzList
 	def Content()
 		return @aContent
 
+		def Value()
+			return Content()
+
 	def Set()
 		return @aContent
 

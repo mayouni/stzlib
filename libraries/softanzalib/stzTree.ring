@@ -66,6 +66,9 @@ class stzTree from stzList
 	def Content()
 		return @aContent
 
+		def Value()
+			return Content()
+
 	def Copy()
 		return new stzTree( This.Content() )
 

@@ -96,6 +96,9 @@ class stzHexNumber from stzObject
 	def Content()
 		return @cHexNumber
 
+		def Value()
+			return Content()
+
 	def WithoutPrefix()
 		return This.Content()
 

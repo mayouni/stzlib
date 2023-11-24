@@ -111,6 +111,9 @@ class stzFile from stzObject
 			StzRaise( stzFileError(:CanNotLoadFileContent) )
 		done
 
+		def Value()
+			return This.Content()
+
 	def ReadLine()
 
 

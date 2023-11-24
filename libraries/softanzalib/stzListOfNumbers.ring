@@ -247,6 +247,9 @@ class stzListOfNumbers from stzList
 
 		return aResult
 
+		def Value()
+			return Content()
+
 	def ListOfNumbers()
 		return Content()
 
