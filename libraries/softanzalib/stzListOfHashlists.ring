@@ -25,6 +25,9 @@ class stzListOfHashLists from stzList
 		def Value()
 			return Content()
 
+	def Copy()
+		return new stzListOfHashLists(This.Content())
+
 	def ListOfHashLists()
 		return This.Content()
 

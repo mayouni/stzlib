@@ -242,7 +242,10 @@ class stzListOfStrings from stzList
 				other
 					StzRaise("Unsupported return type!")
 				off
-					
+			
+	def Copy()
+		return new stzListOfStrings( This.Content() )
+		
 	def StringsW(pcCondition)
 		return This.YieldW('This[@i]', pcCondition)
 
@@ -303,10 +306,6 @@ class stzListOfStrings from stzList
 
 		def StringsWithoutDuplicationW(pcCondition)
 			return This.UniqueStringsW(pcCondition)
-
-	def Copy()
-		oCopy = new stzListOfStrings( This.Content() )
-		return oCopy
 
 	  #--------------------------------------------------#
 	 #    GETTING THE NUMBER OF STRINGS IN THE LIST     #

@@ -1,6 +1,6 @@
 
 // TODO: Generalise this class in stzListOfLists
-// --> See work done in stzListOfNumbersList and complete it
+// --> See work done in stzListOfListsOfNumbers and complete it
 
 func StzPairOfListsQ(paList1, paList2)
 	return new stzPairOfLists(paList1, paList2)

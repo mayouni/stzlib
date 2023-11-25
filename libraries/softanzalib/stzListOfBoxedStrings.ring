@@ -22,6 +22,9 @@ class stzListOfBoxedStrings from stzListOfStrings
 		def Value()
 			return Content()
 
+	def Copy()
+		return new stzListOfBoxedStrings(This.Content())
+
 	def ToStzListOfStrings()
 		return new stzListOfStrings(@aListOfBoxedStrings)
 

@@ -6779,6 +6779,21 @@ class stzList from stzObject
 		def IsAnEvenList()
 			return This.IsEvenList()
 
+	def IsListOfGrids()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT Q(aContent[i]).IsGrid()
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
 	// TODO: Maybe we should design a stzListOfBits class...
 	def IsListOfBits()
 		if This.NumberOfItems() = 0
@@ -6809,10 +6824,31 @@ class stzList from stzObject
 			return This.IsListOfZerosAndOnes()
 
 	def IsGrid()
-		return This.AllItemsAre('{ isList(@item) and len(@item) = len(This[1]) }')
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen < 2
+			return FALSE
+		ok
+
+		if NOT This.AllItemsAreLists()
+			return FALSE
+		ok
+
+		nLen1 = len(aContent[1])
+		bResult = TRUE
+
+		for i = 2 to nLen
+			if len(aContent[i]) != nLen1
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
 
 		def IsAGrid()
-			return This
+			return This.IsGrid
 
 	def IsHashList()
 		/*

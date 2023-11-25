@@ -1,38 +1,46 @@
 
-func stzListOfNumbersListQ(paListOfNumbersList)
-	return new stzListOfNumbersList(paListOfNumbersList)
+func StzListOfListsOfNumbersQ(paListOfListsOfNumbers)
+	return new stzListOfListsOfNumbers(paListOfListsOfNumbers)
 
-class stzListOfNumbersList
+func StzListOfNumbersListsQ(paListOfListsOfNumbers)
+	return new stzListOfNumbersLists(paListOfListsOfNumbers)
+
+class stzListOfNumbersLists from stzListOfListsOfNumbers
+
+class stzListOfListsOfNumbers
 	@aContent
 
-	def init(paListOfNumbersList)
-		if isList(paListOfNumbersList) and
-		   StzListQ(paListOfNumbersList).IsListOfNumbersList()
+	def init(paListOfListsOfNumbers)
+		if isList(paListOfListsOfNumbers) and
+		   StzListQ(paListOfListsOfNumbers).IsListOfListsOfNumbers()
 			
-			@aContent = paListOfNumbersList
+			@aContent = paListOfListsOfNumbers
 
 		else
-			StzRaise("Can not create the stzListOfNumbersList object!")
+			StzRaise("Can not create the stzListOfListsOfNumbers object!")
 		ok
 
 	def Content()
 		return @aContent
 
-		def ListOfNumbersList()
+		def ListOfListsOfNumbers()
 			return This.Content()
 
 		def Value()
 			return Content()
 
+	def Copy()
+		return new stzListOfListsOfNumbers( This.Content() )
+
 	def NumberOfLists()
-		return len( This.ListOfNumbersList() )
+		return len( This.ListOfListsOfNumbers() )
 
 	def Complete()
 		This.CompeteWith(0)
 
 	def CompleteWith(n)
 		/* Example
-		o1 = new stzListOfNumbersListQ([
+		o1 = new stzListOfListsOfNumbersQ([
 			[ 3, 6, 2 ],
 			[ 2, 4 ],
 			[ 2, 1, 3, 5 ]
@@ -98,7 +106,7 @@ class stzListOfNumbersList
 	def AddOneToOne()
 		/* Example:
 
-		o1 = stzListOfNumbersListQ([
+		o1 = stzListOfListsOfNumbersQ([
 			[ 3, 6, 3 ],
 			[ 2, 1, 3 ],
 			[ 2, 0, 1 ]
@@ -114,7 +122,7 @@ class stzListOfNumbersList
 	def Associate() #TODO
 	/* Example:
 
-		o1 = new stzListOfNumbersList([
+		o1 = new stzListOfListsOfNumbers([
 			[ 3, 6, 3 ],
 			[ 2, 1, 3 ],
 			[ 2, 0, 1 ]
@@ -134,7 +142,7 @@ class stzListOfNumbersList
 	def Alternate() #TODO
 	/* Example:
 
-		o1 = stzListOfNumbersListQ([
+		o1 = stzListOfListsOfNumbersQ([
 			[ 3, 6, 3 ],
 			[ 2, 1, 3 ],
 			[ 2, 0, 1 ]

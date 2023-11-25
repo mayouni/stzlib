@@ -21,6 +21,9 @@ class stzListOfNamedObjects from stzList
 		def Value()
 			return Content()
 
+	def Copy()
+		return new stzListOfNamedObjects(This.Content())
+
 	def NamedObject(p)
 		if isString(p)
 			result = This.Content()[p]

@@ -46,6 +46,9 @@ class stzListInString from stzString
 		def Value()
 			return Content()
 
+	def Copy()
+		return new stzListInString( This.Content() )
+
 	def ToStzList()
 		return new stzList( This.List() )
 

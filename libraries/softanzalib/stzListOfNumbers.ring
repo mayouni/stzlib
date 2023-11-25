@@ -250,6 +250,9 @@ class stzListOfNumbers from stzList
 		def Value()
 			return Content()
 
+	def Copy()
+		return new stzListOfNumbers(This.Content())
+
 	def ListOfNumbers()
 		return Content()
 
@@ -304,10 +307,6 @@ class stzListOfNumbers from stzList
 			other
 				StzRaise("Unsupported return type!")
 			off
-
-	def Copy()
-		oCopy = new stzListOfNumbers( This.Content() )
-		return oCopy
 
 	def ToStzList()
 		return new stzList(This.Content())
