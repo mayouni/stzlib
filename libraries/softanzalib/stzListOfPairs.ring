@@ -311,6 +311,27 @@ class stzListOfPairs from stzListOfLists
 
 	def SortInAscending()
 
+		aStringified = Q(This.Content()).StringifyQ().sorted()
+		nLen = len(aStringified)
+
+		cCode = 'aResult = [ '
+
+		for i = 1 to nLen
+			cCode += aStringified[i]
+			if i < nLen
+				cCode += ", "
+			ok
+		next
+
+		cCode += ' ]'
+
+		eval(cCode)
+
+		This.Update(aResult)
+		
+
+
+/*
 		aResult = []
 
 		aContent = This.Content()
@@ -330,6 +351,7 @@ class stzListOfPairs from stzListOfLists
 		# Rearrange the pairs accrodingly
 		#--> [  [1, 3], [4, 7], [8, 9] ]
 
+
 		for i = 1 to nLenSorted
 			n = Q(aFirstItems).FindFirst(aFirstItemsSorted[i])
 			aResult + aContent[n]
@@ -337,7 +359,7 @@ class stzListOfPairs from stzListOfLists
 
 		# Update the list of pairs
 		This.UpdateWith(aResult)
-
+*/
 
 		def Sort()
 			This.SortInAscending()
