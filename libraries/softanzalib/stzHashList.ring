@@ -890,14 +890,24 @@ class stzHashList from stzList # Also called stzAssociativeList
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
 
-	  #-----------------#
-	 #     FINDING     #
-	#-----------------#
+	  #---------------------#
+	 #     FINDING KEYS    #
+	#---------------------#
+
+	def FindKeys(pacKeys)
+		aResult = This.KeysQ().FindMany(pacKeys)
+		return aResult
+
+		def FindTheseKeys(pacKeys)
+			return This.FindKeys(pacKeys)
 
 	def FindKey(pcKey)
 		if isString(pcKey)
 			return ring_find( Keys(), pcKey)
 		ok
+
+		def FindThisKey(pcKey)
+			return This.Key(pcKey)
 
 	def HasKey(pcKey)
 		if isString(pcKey) and This.FindKey(pcKey) > 0
@@ -921,6 +931,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		def ContainsKeys(pacKeys)
 			return This.HasKeys(pacKeys)
+
+	  #-----------------#
+	 #  FINDING PAIRS  #
+	#-----------------#
 
 	def FindPair(paPair)
 		if isList(paPair) and ListIsPairAndKeyIsString(paPair)
@@ -1997,12 +2011,46 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#--
 
 	def FindItems()
+		
+		aItems = This.Items()
+		nLen = len(aItems)
+
 		aIndex = This.Copy().ListifyQ().ValuesQR(:stzListOfLists).Index()
-		return aIndex
+
+		aResult = []
+		for i = 1 to nLen
+			aResult + aIndex[aItems[i]]
+		next
+
+		aResult = Q(aResult).MergeQ().ToStzListOfPairs().Sorted()
+
+		return aResult
 
 	def ItemsZ()
-		aList = This.Listified()
-		aResult = StzListOfListsQ(aList).Index()
+		
+		aIndex = This.Copy().ListifyQ().ValuesQR(:stzListOfLists).Index()
+
+		aItems = This.Items()
+		anPos = QR(aIndex, :stzHashList).FindTheseKeys(aItems)
+		nLen = len(anPos)
+
+		aResult = []
+		for i = 1 to nLen
+			aResult + aIndex[anPos[i]]
+		next
+
+		return aResult
+
+	def NumberOfItems()
+		return len(This.Items())
+
+	def ItemZ(pItem)
+		aResult = [ pItem, This.FindItem(pItem) ]
+		return aResult
+
+	def TheseItemsZ(paItems)
+		anPos = This.FindTheseItems(paItems)
+		aResult = Association([ paItems, anPos ])
 		return aResult
 
 	  #-------------------------------------------------------------------------------------#

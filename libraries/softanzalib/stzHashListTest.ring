@@ -284,16 +284,16 @@ pron()
 
 o1 = new stzHashList([
 	:One	= :NONE,
-		:Two  	= [ :is, :will, :can, :some, :can ],
+	:Two  	= [ :is, :will, :can, :some, :can ],
 	:Three	= :NONE,
 	:Four	= [ :can, :will ],
 	:Five	= [ :will ]
 ])
 
-? @@( o1.FindNonLists() ) + NL
+//? @@( o1.FindNonLists() ) + NL
 #--> [ 1, 3 ]
 
-? @@( o1.Listified() ) + NL
+//? @@( o1.Listified() ) + NL
 #--> [
 #	:One	= [ :NONE ],
 #	:Two  	= [ :is, :will, :can, :some, :can ],
@@ -305,16 +305,11 @@ o1 = new stzHashList([
 ? @@( o1.Items() ) + NL
 #--> [ "is", "will", "can", "some" ]
 
-? @@( o1.FindItems() ) # All items
+? @@( o1.FindItems() ) + NL
 #--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 2, 4 ] ]
 
-/*
-? o1.FindItemsXT()
+? @@( o1.ItemsZ() )
 
-? o1.ItemsXT()
-
-? o1.ItemsXTT()
-*/
 proff()
 # Executed in 0.12 second(s)
 
