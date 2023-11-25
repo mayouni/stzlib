@@ -13,7 +13,7 @@ o1 = new stzList([
 proff()
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzListOfPairs([
@@ -24,9 +24,10 @@ o1 = new stzListOfPairs([
 #--> [ [ 5, 3 ], [ 6, 1 ], [ 6, 3 ], [ 6, 9 ] ]
 
 proff()
+# Executed in 0.04 second(s)
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzListOfPairs([
@@ -37,6 +38,7 @@ o1 = new stzListOfPairs([
 #--> [ [ 2, 5 ], [ 3, 7 ], [ 4, 1 ], [ 6, 1 ] ]
 
 proff()
+# Executed in 0.05 second(s)
 
 /*-----------
 */
@@ -46,12 +48,13 @@ o1 = new stzListOfPairs([
 	[ 2, 1 ], [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 2, 4 ]
 ])
 
-? @@( o1.Sorted() )
+? @@( o1.SortedInDescending() )
+#--> [ [ 4, 1 ], [ 2, 5 ], [ 2, 4 ], [ 2, 3 ], [ 2, 1 ] ]
 
 proff()
+# Executed in 0.05 second(s)
 
-
-/*------------
+/*===========
 
 pron()
 

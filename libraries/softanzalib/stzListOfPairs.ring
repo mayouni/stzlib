@@ -329,38 +329,6 @@ class stzListOfPairs from stzListOfLists
 
 		This.Update(aResult)
 		
-
-
-/*
-		aResult = []
-
-		aContent = This.Content()
-		nLen = This.NumberOfPairs()
-
-		# Take the list of the first items of each pair
-		#--> [ 4, 1, 8 ]
-
-		aFirstItems = This.FirstItems()
-
-		# Sort them in asscending
-		#--> [ 1, 4, 8 ]
-
-		aFirstItemsSorted = Q(aFirstItems).SortedInAscending()
-		nLenSorted = len(aFirstItemsSorted)
-
-		# Rearrange the pairs accrodingly
-		#--> [  [1, 3], [4, 7], [8, 9] ]
-
-
-		for i = 1 to nLenSorted
-			n = Q(aFirstItems).FindFirst(aFirstItemsSorted[i])
-			aResult + aContent[n]
-		next
-
-		# Update the list of pairs
-		This.UpdateWith(aResult)
-*/
-
 		def Sort()
 			This.SortInAscending()
 
@@ -403,29 +371,23 @@ class stzListOfPairs from stzListOfLists
 
 		*/
 
-		aResult = []
+		aStringified = Q(This.Content()).StringifyQ().sortedInDescending()
+		nLen = len(aStringified)
 
-		aContent = This.Content()
-		nLen = This.NumberOfPairs()
+		cCode = 'aResult = [ '
 
-		# Take the list of the first items of each pair
-
-		aFirstItems = This.FirstItems()
-
-		# Sort them in descending
-
-		aFirstItemsSorted = Q(aFirstItems).SortedInDescending()
-		nLenSorted = len(aFirstItemsSorted)
-
-		# Rearrange the pairs accrodingly
-
-		for i = 1 to nLenSorted
-			n = Q(aFirstItems).FindFirst(aFirstItemsSorted[i])
-			aResult + aContent[n]
+		for i = 1 to nLen
+			cCode += aStringified[i]
+			if i < nLen
+				cCode += ", "
+			ok
 		next
 
-		# Update the list of pairs
-		This.UpdateWith(aResult)
+		cCode += ' ]'
+
+		eval(cCode)
+
+		This.Update(aResult)
 
 		def SortInDescendingQ()
 			This.SortInDescending()
