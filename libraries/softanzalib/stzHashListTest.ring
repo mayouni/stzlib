@@ -279,6 +279,33 @@ proff()
 # Executed in 0.09 second(s)
 
 /*-----------
+
+pron()
+
+o1 = new stzHashList([
+	:One	= :NONE,
+	:Two  	= [ :is, :will, :can, :some, :can ],
+	:Three	= :NONE,
+	:Four	= [ :can, :will ],
+	:Five	= [ :will ]
+])
+
+? @@( o1.FindNonLists() ) + NL
+#--> [ 1, 3 ]
+
+? @@( o1.Listified() )
+#--> [
+#	:One	= [ :NONE ],
+#	:Two  	= [ :is, :will, :can, :some, :can ],
+#	:Three	= [ :NONE ],
+#	:Four	= [ :can, :will ],
+#	:Five	= [ :will ]
+# ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-----------
 */
 pron()
 
@@ -290,18 +317,6 @@ o1 = new stzHashList([
 	:Five	= [ :will ]
 ])
 
-//? @@( o1.FindNonLists() ) + NL
-#--> [ 1, 3 ]
-
-//? @@( o1.Listified() ) + NL
-#--> [
-#	:One	= [ :NONE ],
-#	:Two  	= [ :is, :will, :can, :some, :can ],
-#	:Three	= [ :NONE ],
-#	:Four	= [ :can, :will ],
-#	:Five	= [ :will ]
-# ]
-
 ? @@( o1.Items() ) + NL
 #--> [ "is", "will", "can", "some" ]
 
@@ -309,6 +324,12 @@ o1 = new stzHashList([
 #--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 2, 4 ] ]
 
 ? @@( o1.ItemsZ() )
+#--> [
+#	[ "is", [ [ 2, 1 ] ] ],
+#	[ "will", [ [ 2, 2 ], [ 4, 2 ], [ 5, 1 ] ] ],
+#	[ "can", [ [ 2, 3 ], [ 2, 5 ], [ 4, 1 ] ] ],
+#	[ "some", [ [ 2, 4 ] ] ]
+# ]
 
 proff()
 # Executed in 0.12 second(s)
