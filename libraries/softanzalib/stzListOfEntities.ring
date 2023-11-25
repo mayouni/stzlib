@@ -20,6 +20,9 @@ class stzListOfEntities from stzList
 		def Value()
 			return Content()
 
+	def Copy()
+		return new stzListOfEntities(This.Content())
+
 	def ListOfEntities()
 		return This.Content()
 

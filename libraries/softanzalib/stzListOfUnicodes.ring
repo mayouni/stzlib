@@ -54,6 +54,9 @@ class stzListOfUnicodes from stzListOfNumbers
 		def Value()
 			return Content()
 
+	def Copy()
+		return new stzListOfUnicodes( This.Content() )
+
 	def Unicodes()
 		return This.Content()
 

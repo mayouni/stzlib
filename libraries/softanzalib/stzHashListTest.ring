@@ -257,34 +257,80 @@ o1 = new stzHashList([
 proff()
 # Executed in 0.11 second(s)
 
-/*-----------
+/*--------
 
+pron()
+
+o1 = new stzListOfLists([
+	[ :is, :will, :can, :some, :can ],
+	[ :can, :will ],
+	[ :will ]
+])
+
+? @@( o1.Index() )
+#--> [
+#	[ "is", 	[ [ 1, 1 ] ] ],
+#	[ "will", 	[ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ] ] ],
+#	[ "can", 	[ [ 1, 3 ], [ 1, 5 ], [ 2, 1 ] ] ],
+#	[ "some", 	[ [ 1, 4 ] ] ]
+# ]
+
+proff()
+# Executed in 0.09 second(s)
+
+/*-----------
+*/
+pron()
+
+o1 = new stzListOfPairs([
+	[ 2, 1 ], [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 2, 4 ]
+])
+
+? @@( o1.Sorted() )
+
+proff()
+
+/*-----------
+*/
 pron()
 
 o1 = new stzHashList([
 	:One	= :NONE,
-	:Two  	= [ :is, :will, :can, :some, :can ],
+		:Two  	= [ :is, :will, :can, :some, :can ],
 	:Three	= :NONE,
 	:Four	= [ :can, :will ],
 	:Five	= [ :will ]
 ])
 
-//? o1.Items()
+? @@( o1.FindNonLists() ) + NL
+#--> [ 1, 3 ]
 
+? @@( o1.Listified() ) + NL
+#--> [
+#	:One	= [ :NONE ],
+#	:Two  	= [ :is, :will, :can, :some, :can ],
+#	:Three	= [ :NONE ],
+#	:Four	= [ :can, :will ],
+#	:Five	= [ :will ]
+# ]
 
-? o1.FindItems() # All items
+? @@( o1.Items() ) + NL
+#--> [ "is", "will", "can", "some" ]
 
+? @@( o1.FindItems() ) # All items
+#--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 2, 4 ] ]
+
+/*
 ? o1.FindItemsXT()
 
 ? o1.ItemsXT()
 
 ? o1.ItemsXTT()
-
+*/
 proff()
 # Executed in 0.12 second(s)
 
 /*-----------
-*/
 
 pron()
 

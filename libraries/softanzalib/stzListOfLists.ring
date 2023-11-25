@@ -142,15 +142,14 @@ class stzListOfLists from stzList
 		def Value()
 			return Content()
 
+	def Copy()
+		return new stzListOflists(This.Content())
+
 	def ListOfLists()
 		return This.Content()
 
 		def 2Dlist()
 			return This.Content()
-
-	def Copy()
-		oCopy = new stzListOfLists( This.Content() )
-		return oCopy
 
 	def NumberOfLists()
 		return len(@aContent)
@@ -1593,6 +1592,24 @@ class stzListOfLists from stzList
 	def Index()
 		return This.IndexByPosition()
 
+		def IndexQ()
+			return This.IndexQR(:stzList)
+
+		def IndexQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Index() )
+
+			on :stzHashList
+				return new stzHashList( This.Index() )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.Index() )
+
+			other
+				StzRaise("Insupported return type!")
+			off
+
 	def Indexed()
 		return This.Index()
 
@@ -1604,6 +1621,24 @@ class stzListOfLists from stzList
 		def IndexOnPosition()
 			return This.IndexByPosition()
 
+		def IndexByPositionQ()
+			return This.IndexByPositionQR(:stzList)
+
+		def IndexByPositionQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.IndexByPosition() )
+
+			on :stzHashList
+				return new stzHashList( This.IndexByPosition() )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.IndexByPosition() )
+
+			other
+				StzRaise("Insupported return type!")
+			off
+
 	def IndexedByPosition()
 		return This.IndexByPosition()
 
@@ -1612,7 +1647,7 @@ class stzListOfLists from stzList
 
 	#--
 
-	def IndexNyNumberOfOccurrence()
+	def IndexByNumberOfOccurrence()
 		return This.IndexBy(:NumberOfOccurrence)
 
 		def IndexByNumberOfOccurrences()
@@ -1638,7 +1673,7 @@ class stzListOfLists from stzList
 
 	#--
 
-	def IndexBy(pcOn) # pcOn can be :NumberOfOccurrence(s) or :Position
+	def IndexBy(pcBy) # pcBy can be :NumberOfOccurrence(s) or :Position
 		/*
 		Problem:
 
@@ -1669,7 +1704,7 @@ class stzListOfLists from stzList
 
 		for i = 1 to nLen
 			oTempList = new stzList( aListOfLists[i] )
-			aIndexes + oTempList.IndexBy(pcOn)
+			aIndexes + oTempList.IndexBy(pcBy)
 		next
 		// aIndexes => [ [ :A = 2, :B = 1, :C = 1 ],
 		//		 [ :A = 2, :B = 1, :C = 1, :X = 1 ] ]	
@@ -1690,14 +1725,14 @@ class stzListOfLists from stzList
 				aIndex = aIndexes[v]
 				value = aIndex[key]
 				
-				if pcOn = :NumberOfOccurrence or pcOn = :NumberOfOccurrences
+				if pcBy = :NumberOfOccurrence or pcBy = :NumberOfOccurrences
 					if isString(value) and value = NULL
 						value = 0
 					ok
 
 					aValues + value
 
-				but pcOn = :Position
+				but pcBy = :Position
 					aPositions = value
 					/* aPositions = [ 1, 3 , 2 ]
 					   => [ (i,1) , (i,3) , (i,2) ]
@@ -1715,14 +1750,32 @@ class stzListOfLists from stzList
 
 		return aResult
 
-		def IndexOn(pcOn)
-			return This.IndexBy(pcOn)
+		def IndexOn(pcBy)
+			return This.IndexBy(pcBy)
 
-	def IndexedBy(pcOn)
-		return This.IndexBy(pcOn)
+		def IndexByQ()
+			return This.IndexByQR(:stzList)
 
-		def IndexedOn(pcOn)
-			return This.IndexedBy(pcOn)
+		def IndexByQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.IndexBy() )
+
+			on :stzHashList
+				return new stzHashList( This.IndexBy() )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.IndexBy() )
+
+			other
+				StzRaise("Insupported return type!")
+			off
+
+	def IndexedBy(pcBy)
+		return This.IndexBy(pcBy)
+
+		def IndexedOn(pcBy)
+			return This.IndexedBy(pcBy)
 
 	  #------------#
 	 #   ENTRY    #

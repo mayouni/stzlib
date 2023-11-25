@@ -17,6 +17,7 @@ func RangeToSection(paRange)
 
 func RangesToSections(panRanges)
 	anSections = []
+	# TODO: Replace for/in by for
 	for anRange in panRanges
 		anSections + RangeToSection(anRange)
 	next
@@ -35,6 +36,7 @@ func SectionToRange(panSection)
 
 func SectionsToRanges(paSections)
 	anRanges = []
+	# TODO: Replace for/in by for
 	for anSection in paSections
 		anRanges + SectionToRange(anSection)
 	next
@@ -303,9 +305,9 @@ class stzListOfPairs from stzListOfLists
 		aResult = This.Copy().ReplacePairQ(n, paNewPair).Content()
 		return aResult
 
-	  #------------------------------#
+	  #==============================#
 	 #  SORTING PAIRS IN ASCENDING  #
-	#------------------------------#
+	#==============================#
 
 	def SortInAscending()
 
@@ -313,13 +315,6 @@ class stzListOfPairs from stzListOfLists
 
 		aContent = This.Content()
 		nLen = This.NumberOfPairs()
-
-		# Sort each pair in asscending
-		#--> [ [4, 7], [1, 3], [8, 9] ]	: Note the [3, 1] became [1, 3]
-		
-		for i = 1 to nLen
-			aContent[i] = Q(aContent[i]).SortedInAscending()
-		next
 
 		# Take the list of the first items of each pair
 		#--> [ 4, 1, 8 ]
@@ -369,6 +364,9 @@ class stzListOfPairs from stzListOfLists
 
 		return bResult
 
+		def IsSorted()
+			return This.IsSortedInAscending()
+
 	  #-------------------------------#
 	 #  SORTING PAIRS IN DESCENDING  #
 	#-------------------------------#
@@ -387,12 +385,6 @@ class stzListOfPairs from stzListOfLists
 
 		aContent = This.Content()
 		nLen = This.NumberOfPairs()
-
-		# Sort each pair in desscending
-
-		for i = 1 to nLen
-			aContent[i] = Q(aContent[i]).SortedInDescending()
-		next
 
 		# Take the list of the first items of each pair
 
@@ -432,9 +424,92 @@ class stzListOfPairs from stzListOfLists
 
 		return bResult
 
-	  #------------------------------------------------------------------#
+	  #------------------------------#
+	 #  SORTING PAIRS IN ASCENDING  #
+	#------------------------------#
+
+	def SortItemsInAscending()
+
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			@aContent[i] = Q(@aContent[i]).SortedInAscending()
+		next
+
+		#< @FunctionAlternativeForms
+
+		def SortInsideInAscending()
+			This.SortItemsInAscending()
+
+		def SortInSideInPairsInAscending()
+			This.SortItemsInAscending()
+
+		def SortItemsInsideInAscending()
+			This.SortItemsInAscending()
+
+		def SortItemsInsidePairsInAscending()
+			This.SortItemsInAscending()
+
+		def SortItems()
+			This.SortItemsInAscending()
+
+		def SortInside()
+			This.SortItemsInAscending()
+
+		def SortItemsInside()
+			This.SortItemsInAscending()
+
+		def SortItemsInsidePairs()
+			This.SortItemsInAscending()
+
+		#>
+
+	def ItemsSortedInAsecending()
+		aResult = Q( This.Copy().SortItemsInAscending() ).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ItemsSorted()
+			return This.ItemsSortedInAsecending()
+
+		#>
+
+	  #-------------------------------#
+	 #  SORTING PAIRS IN DESCENDING  #
+	#-------------------------------#
+
+	def SortItemsInDescending()
+
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			@aContent[i] = Q(@aContent[i]).SortedInDescending()
+		next
+
+		#< @FunctionAlternativeForms
+
+		def SortInsideInDescending()
+			This.SortItemsInDescending()
+
+		def SortInSideInPairsInDescending()
+			This.SortItemsInDescending()
+
+		def SortItemsInsideInDescending()
+			This.SortItemsInDescending()
+
+		def SortItemsInsidePairsInDescending()
+			This.SortItemsInDescending()
+
+		#>
+
+	def ItemsSortedInDesecending()
+		aResult = Q( This.Copy().SortItemsInDescending() ).Content()
+		return aResult
+
+	  #==================================================================#
 	 #  RETRUNING AN EXPANDED LIST OF NUMBERS OUT OF THE LIST OF PAIRS  #
-	#------------------------------------------------------------------#
+	#==================================================================#
 
 	def ExpandedIfPairsOfNumbers()
 		aResult = []

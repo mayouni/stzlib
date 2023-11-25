@@ -24,9 +24,32 @@ proff()
 pron()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
-o1.SortInAscending()
+o1.Sort() # Or SortInAscending()
 ? @@(o1.Content())
-#--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 9 ] ]
+#--> [ [ 3, 1 ], [ 4, 7 ], [ 8, 9 ] ]
+
+proff()
+#--> Executed in 0.05 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzListOfPairs([ [ 1, 2 ], [ 4, 3 ], [ 6, 5 ] ])
+o1.SortInside()
+? @@( o1.Content() )
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ]
+
+proff()
+
+/*------------
+
+pron()
+
+o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+o1.SortInDescending()
+? @@(o1.Content())
+#--> [ [ 8, 9 ], [ 4, 7 ], [ 3, 1 ] ]
 
 proff()
 #--> Executed in 0.05 second(s)
@@ -36,14 +59,17 @@ proff()
 pron()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
-o1.SortInDescending()
+o1.SortInSideInDescending()
 ? @@(o1.Content())
-#--> [ [8, 9], [4, 7], [1,3] ]
+#--> [ [ 7, 4 ], [ 3, 1 ], [ 9, 8 ] ]
 
 proff()
-#--> Executed in 0.05 second(s)
+#--> Executed in 0.06 second(s)
 
-/*------------
+/*------
+
+
+/*======
 
 pron()
 

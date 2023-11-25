@@ -19,6 +19,9 @@ class stzListOfSets from stzListOfLists
 		def Value()
 			return Content()
 
+	def Copy()
+		return new stzListOfSets( This.Content() )
+
 	def Sets()
 		return Content()
 

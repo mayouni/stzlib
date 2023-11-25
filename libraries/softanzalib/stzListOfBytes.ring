@@ -134,7 +134,7 @@ func NumberInPointer(ptr)
 		StzRaise("Value you provided is not of type Pointer!")
 	ok
 
-class stzListOfBytes from stzObject
+class stzListOfBytes from stzList
 	
 	@oQByteArray
 
@@ -164,6 +164,9 @@ class stzListOfBytes from stzObject
 
 		def Value()
 			return Content()
+
+	def Copy()
+		return new stzListOfBytes(This.Content())
 
 	def ListOfBytes()
 		return This.Content()

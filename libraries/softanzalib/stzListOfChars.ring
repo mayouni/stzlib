@@ -147,6 +147,9 @@ class stzListOfChars from stzListOfStrings
 		def Value()
 			return Content()
 
+	def Copy()
+		return new stzListOfChars(This.Content())
+
 	def NumberOfChars()
 		return len(This.Content())
 
