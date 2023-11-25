@@ -282,18 +282,6 @@ proff()
 */
 pron()
 
-o1 = new stzListOfPairs([
-	[ 2, 1 ], [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 2, 4 ]
-])
-
-? @@( o1.Sorted() )
-
-proff()
-
-/*-----------
-*/
-pron()
-
 o1 = new stzHashList([
 	:One	= :NONE,
 		:Two  	= [ :is, :will, :can, :some, :can ],

@@ -1,5 +1,56 @@
 load "stzlib.ring"
 
+/*-----------
+
+pron()
+
+o1 = new stzList([
+	'[ 6, 1 ]', '[ 6, 3 ]', '[ 6, 9 ]', '[ 5, 3 ]'
+])
+
+? o1.Sorted()
+
+proff()
+
+/*-----------
+*/
+pron()
+
+o1 = new stzListOfPairs([
+	[ 6, 1 ], [ 6, 3 ], [ 6, 9 ], [ 5, 3 ]
+])
+
+? @@( o1.Sorted() )
+#--> [ [ 5, 3 ], [ 6, 1 ], [ 6, 3 ], [ 6, 9 ] ]
+
+proff()
+
+/*-----------
+*/
+pron()
+
+o1 = new stzListOfPairs([
+	[ 6, 1 ], [ 3, 7 ], [ 2, 5 ], [ 4, 1 ]
+])
+
+? @@( o1.Sorted() )
+#--> [ [ 2, 5 ], [ 3, 7 ], [ 4, 1 ], [ 6, 1 ] ]
+
+proff()
+
+/*-----------
+*/
+pron()
+
+o1 = new stzListOfPairs([
+	[ 2, 1 ], [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 2, 4 ]
+])
+
+? @@( o1.Sorted() )
+
+proff()
+
+
 /*------------
 
 pron()
@@ -218,7 +269,7 @@ o1 = new stzListOfPairs([ ["A", "B"], ["C", "♥"], ["E", "F"] ])
 ? o1.ContainsInAnyPair("♥") # TRUE
 
 /*------
-*/
+
 pron()
 
 o1 = new stzListOfPairs([
