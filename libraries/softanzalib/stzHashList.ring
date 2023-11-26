@@ -2050,86 +2050,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		aResult = This.Copy().ListifyQ().Content()
 		return aResult
 
-	  #---------------------------#
+	  #===========================#
 	 #     CLASSIFYING VALUES    #
-	#---------------------------#
-
-	def Classes()
-		acResult = []
-		aUniqueValues = This.UniqueValues()
-		nLen = len(aUniqueValues)
-
-		for i = 1 to nLen
-			acResult + Q(aUniqueValues[i]).Stringified()
-		next
-
-		return acResult
-
-		#< @FunctionFluentForm
-
-		def ClassesQ()
-			return This.ClassesQR(:stzList)
-
-		def ClassesQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Classes() )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.Classes() )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionAlternativeNames
-
-		def Categories()
-			return This.Classes()
-
-			def CategoriesQ()
-				return This.CategoriesQR(:stzList)
-
-			def CategoriesQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.Categories() )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.Categories() )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-	
-		#>
-
-	def NumberOfClasses()
-		return len( This.CLasses() )
-
-		def NumberOfCategories()
-			return This.NumberOfClasses()
-
-		def HowManyClasses()
-			return This.NumberOfClasses()
-
-		def HowManyClasse()
-			return This.NumberOfClasses()
-
-		def HowMayCategories()
-			return This.NumberOfClasses()
-
-		def HowManyCategory()
-			return This.NumberOfClasses()
+	#===========================#
 
 	def Classify()
 
@@ -2166,49 +2089,132 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def CategoriseQ()
-			return This.CategoriseQR(pcReturnType)
+		def Categorise()
+			return This.Classify()
 
-		def CategoriseQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
+			def CategoriseQ()
+				return This.ClassifyQ()
 	
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Categorise() )
+			def CategoriseQR(pcReturnType)
+				return This.ClassifyQR(pcReturnType)
 
-			on :stzHashList
-				return new stzHashList( This.Categorise() )
-	
-			other
-				StzRaise("Unsupported return type!")
-			off
+		def Categorize()
+			return This.Classify()
 
-		def CategorizeQ()
-			return This.CategorizeQR(pcReturnType)
+			def CategorizeQ()
+				return This.ClassifyQ()
 
-		def CategorizeQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-	
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Categorize() )
-
-			on :stzHashList
-				return new stzHashList( This.Categorize() )
-	
-			other
-				StzRaise("Unsupported return type!")
-			off
+			def CategorizeQR(pcReturnType)
+				return This.ClassifyQR(pcReturnType)
 						
 		#>
 
+	  #---------------------------------------------------------#
+	 #  GETTING THE NAMES OF KLASSES EXISTING IN THE HASHLIST  #
+	#---------------------------------------------------------#
+
+	def Classes()
+		acResult = []
+		aUniqueValues = This.UniqueValues()
+		nLen = len(aUniqueValues)
+
+		for i = 1 to nLen
+			acResult + Q(aUniqueValues[i]).Stringified()
+		next
+
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def ClassesQ()
+			return This.ClassesQR(:stzList)
+
+		def ClassesQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Classes() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Classes() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def Kalsses()
+			return This.Classes()
+
+			def KlassesQ()
+				return ClassesQ()
+
+			def KlassesQR(pcReturnType)
+				return ClassesQR(pcReturnType)
+
+		def Categories()
+			return This.Classes()
+
+			def CategoriesQ()
+				return ClassesQ()
+
+			def CategoriesQR(pcReturnType)
+				return ClassesQR(pcReturnType)
+	
+		#>
+
+	  #-------------------------------------------------------------#
+	 #  GETTING NUMBER OF KLASSES (OR CATEGORIES) IN THE HASHLIST  #
+	#-------------------------------------------------------------#
+
+	def NumberOfClasses()
+		return len( This.CLasses() )
+
+		def NumberOfKlasses()
+			return This.NumberOfClasses()
+
+		def NumberOfCategories()
+			return This.NumberOfClasses()
+
+		def HowManyClasses()
+			return This.NumberOfClasses()
+
+		def HowManyKlasses()
+			return This.NumberOfClasses()
+
+		def HowManyClass()
+			return This.NumberOfClasses()
+
+		def HowManyKlass()
+			return This.NumberOfClasses()
+
+		def HowMayCategories()
+			return This.NumberOfClasses()
+
+		def HowManyCategory()
+			return This.NumberOfClasses()
+
+	  #-----------------------------------------------#
+	 #  GETTING THE VALUES RELATED TO A GIVEN KLASS  #
+	#-----------------------------------------------#
+
 	def Klass(pcClass)
+		# NOTE: We can't use Class (with C) --> reserved by Ring
+		# --> To avoid any confusion, use Klass with K instead,
+		# or if you prefer, use Category.
+
 		aResult = This.KeysForValue(pcClass)
 		return aResult
+
+		#< @FunctionFluentForms
+
+		def KlassQ(pcClass)
+			return This.KlassQR(pClass, :stzList)
 
 		def KlassQR(pcClass, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -2226,12 +2232,48 @@ class stzHashList from stzList # Also called stzAssociativeList
 				StzRaise("Unsupported return type!")
 			off
 
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def Category(pcClass)
 			return This.Klass(pcClass)
 
-	  #---------------------------------------#
-	 #     CLASSIFYING VALUES INSIDE LISTS   #
-	#---------------------------------------#
+			def CategoryQ(pcClass)
+				return This.KlassQ(pcClass)
+
+			def CategoryQR(pcClass, pcReturnType)
+				return This.KlassQR(pcClass, pcREturnType)
+
+		def Categ(pcClass)
+			return This.Klass(pcClass)
+
+			def CategQ(pcClass)
+				return This.KlassQ(pcClass)
+
+			def CategQR(pcClass, pcReturnType)
+				return This.KlassQR(pcClass, pcREturnType)
+
+		# We can't use Class() as an alternative, because it is reserved by Ring
+		# But we can use it for the follwoing fluent forms:
+
+			def ClassQ(pcClass)
+				return This.KlassQ(pcClass)
+	
+			def ClassQR(pcClass, pcReturnType)
+				return This.KlassQR(pcClass, pcReturnType)
+
+		#>
+
+	  #-------------------------------#
+	 #  CALCULATING CLASS FREQUENCY  #
+	#-------------------------------#
+
+	
+
+	  #-------------------------------------#
+	 #   CLASSIFYING VALUES INSIDE LISTS   #
+	#=====================================#
 
 	def ClassesInList()
 		acResult = []
@@ -2266,36 +2308,59 @@ class stzHashList from stzList # Also called stzAssociativeList
 			off
 		#>
 
-		#< @FunctionAlternativeNames
+		#< @FunctionAlternativeForms
+
+		def KlassesInList()
+			return This.ClassesInList()
+
+			def KlassesInListQ()
+				return This.ClassesInListQ()
+
+			def KlassesInListQR(pcReturnType)
+				return This.CategoriesInListQR(pcReturnType)
 
 		def CategoriesInList()
 			return This.ClassesInList()
 
 			def CategoriesInListQ()
-				return This.CategoriesInListQR(:stzList)
+				return This.ClassesInListQ()
 
 			def CategoriesInListQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.CategoriesInList() )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.CategoriesInList() )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-	
+				return This.ClassesInListQR(pcReturnType)
+
+		def CategsInList()
+			return This.ClassesInList()
+
+			def CategsInListQ()
+				return This.ClassesInListQ()
+
+			def CategsInListQR(pcReturnType)
+				return This.ClassesInListQR(pcReturnType)
+
 		#>
+
+	  #-----------------------------------------#
+	 #  GETTING THE NUMBER OF KLASSES IN LIST  #
+	#-----------------------------------------#
 
 	def NumberOfClassesInList()
 		return len( This.CLassesInList() )
 
+		#< @FunctionAlternativeForms
+
+		def NumberOfKlassesInList()
+			return This.NumberOfClassesInList()
+
 		def NumberOfCategoriesInList()
+			return This.NumberOfClassesInList()
+
+		def NumberOfCategInList()
+			return This.NumberOfClassesInList()
+
+		def HowManyCategoriesInList()
+			return This.NumberOfClassesInList()
+
+		def HowManyCategInList()
 			return This.NumberOfClassesInList()
 
 		def HowManyClassesInList()
@@ -2304,13 +2369,26 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def HowManyClassInList()
 			return This.NumberOfClassesInList()
 
+		def HowManyKlassesInList()
+			return This.NumberOfClassesInList()
+
+		def HowManyKlassInList()
+			return This.NumberOfClassesInList()
+
+		#>
+
+	  #------------------------------#
+	 #  CLASSIFYING VALUES IN LIST  # TODO: Test and clarify!
+	#------------------------------#
+
 	def ClassifyInList()
 
 		aResult = []
 		aClasses = This.ClassesInList()
+		nLen = len(aClasses)
 
-		for cClass in aClasses
-			aResult + [ cClass, This.KeysForValue(value) ]
+		for i = 1 to nLen
+			aResult + [ aClasses[i], This.KeysForValue(aClasses[i]) ]
 		next
 
 		return aResult
@@ -2339,49 +2417,47 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def CategoriseInListQ()
-			return This.CategoriseInListQR(pcReturnType)
+		def CategoriseInList()
+			return This.ClassifyInListQ()
 
-		def CategoriseInListQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
+			def CategoriseInListQ()
+				return This.ClassifyInListQ()
 	
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.CategoriseInList() )
+			def CategoriseInListQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
 
-			on :stzHashList
-				return new stzHashList( This.CategoriseInList() )
+		def CategorizeInList()
+			return This.ClassifyInList()
+
+			def CategorizeInListQ()
+				return This.ClassifyInListQ()
 	
-			other
-				StzRaise("Unsupported return type!")
-			off
+			def CategorizeInListQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
 
-		def CategorizeInListQ()
-			return This.CategorizeInListQR(pcReturnType)
+		def KlassifyInList()
+			return This.ClassifyInList()
 
-		def CategorizeInListQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-	
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.CategorizeInList() )
+			def KlassifyInListQ()
+				return This.ClassifyInListQ()
 
-			on :stzHashList
-				return new stzHashList( This.CategorizeInList() )
-	
-			other
-				StzRaise("Unsupported return type!")
-			off
-						
+			def KlassifyInListQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
+
 		#>
+
+	  #-------------------------------------------------#
+	 #  GETTING THE VALUES RELATED TO A KLASS-IN-LIST  #
+	#-------------------------------------------------#
 
 	def KlassInList(pcClass)
 		aResult = This.KeysForItemInList(pcClass)
 		return aResult
+
+		#< @FunctionFluentForms
+
+		def KalssInListQ(pcClass)
+			return This.KlassInListQR(pcClass, :stzList)
 
 		def KlassInListQR(pcClass, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -2390,27 +2466,57 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 			switch pcReturnType
 			on :stzString	
-				return new stzString( This.KlassInList() )
+				return new stzString( This.KlassInList(pcClass) )
 
 			on :stzText
-				return new stzText( This.KlassInList() )
+				return new stzText( This.KlassInList(pcClass) )
 
 			other
 				StzRaise("Unsupported return type!")
 			off
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ClassInList(pcClass)
+			return This.KlassInList(pcClass)
+
+			def ClassInListQ(pcClass)
+				return This.KalssInListQ(pcClass)
+
+			def ClassInListQR(pcClass, pcReturnType)
+				return This.KalssInListQR(pcClass)
+
 		def CategoryInList(pcClass)
 			return This.KlassInList(pcClass)
 
-	  #---------------#
+			def CategoryInListQ(pcClass)
+				return This.KalssInListQ(pcClass)
+
+			def CategoryInListQR(pcClass, pcReturnType)
+				return This.KalssInListQR(pcClass)
+
+		def CategInList(pcClass)
+			return This.KlassInList(pcClass)
+
+			def CategInListQ(pcClass)
+				return This.KalssInListQ(pcClass)
+
+			def CategInListQR(pcClass, pcReturnType)
+				return This.KalssInListQR(pcClass)
+
+		#>
+
+	  #===============#
 	 #     QUERY     #
-	#---------------#
+	#===============#
 
 	// TODO: FindWhere(cCondition) --> See how this was made in stzList
 
-	  #--------------#
+	  #==============#
 	 #     SHOW     #
-	#--------------#
+	#==============#
 
 	def Show()
 		cStr = ""
