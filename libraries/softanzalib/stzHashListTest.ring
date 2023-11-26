@@ -62,7 +62,7 @@ o1 = new stzHashList([
 #--> [ 1, [2, [3, 5]], 5 ]
 
 /*---------------- FINDING ITEMS INSIDE VALUES THAT ARE LISTS
-
+*/
 pron()
 
 o1 = new stzHashList([
@@ -73,36 +73,23 @@ o1 = new stzHashList([
 	:Five	= [ :will ]
 ])
 
-? o1.FindItem(:can)
-#--> [ 2, 4 ]
-
-? @@( o1.FindItemXT(:can) ) + NL
+? @@( o1.FindItem(:can) ) + NL
 #--> [ [ 2, [ 3, 5 ] ], [ 4, [ 1 ] ] ]
 
+? @@( o1.ItemZ(:can) ) + NL
+#--> [ "can", [ [ 2, [ 3, 5 ] ], [ 4, [ 1 ] ] ] ]
+
 ? @@( o1.FindTheseItems([ :can, :will ]) ) + NL
-#--> [ 2, 4, 5 ]
+#--> [ [ 2, 2 ], [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 4, 2 ], [ 5, 1 ] ]
 
-? @@( o1.FindTheseItemsXT([ :can, :will ]) ) + NL
+? @@( o1.TheseItemsZ([ :can, :will ]) ) + NL
 #--> [
-#	[ 2, [ 2, 3, 5 ] ],
-#	[ 4, [ 1, 2 ] ],
-#	[ 5, [ 1 ] ]
-# ]
-
-? @@( o1.TheseItemsXT([ :can, :will ]) ) + NL
-#--> [
-#	[ :can,  [ 2, 4 ]    ],
-#	[ :will, [ 2, 4, 5 ] ]
-# ]
-
-? @@( o1.TheseItemsXTT([ :can, :will ]) )
-#--> [
-#	[ :can,  [ [2, [3,5] ], [ 4, [1] ]             ],
-#	[ :will, [ [2, [2]   ], [ 4, [2] ], [ 5, [1] ] ]
+#	[ "can",  [ [ 2, [ 3, 5 ] ], [ 4, [ 1 ] ] ] ],
+#	[ "will", [ [ 2, [ 2 ] ], [ 4, [ 2 ] ], [ 5, [ 1 ] ] ] ]
 # ]
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.15 second(s)
 
 /*-----------
 
@@ -330,6 +317,8 @@ o1 = new stzHashList([
 #	[ "can", [ [ 2, 3 ], [ 2, 5 ], [ 4, 1 ] ] ],
 #	[ "some", [ [ 2, 4 ] ] ]
 # ]
+
+
 
 proff()
 # Executed in 0.12 second(s)
