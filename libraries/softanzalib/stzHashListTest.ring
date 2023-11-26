@@ -347,6 +347,8 @@ proff()
 # second(s)
 
 /*=============
+
+/*=============
 */
 pron()
 
@@ -365,7 +367,13 @@ o1 = new stzHashList([
 ? o1.NumberOfClasses()	#--> 4
 ? o1.Klass(:white)	#--> [ :two, :three, :seven ]
 
-//? o1.KlassFreq()	#--> 3/8
+? o1.NumberOfValuesInClass(:white)
+#--> 3
+
+? o1.KlassFreq(:white)
+#--> 0.38
+
+? o1.ClassesInList()
 
 //? @@(o1.ClassesAndTheirFrequencies())	// same as ClassesXT()
 #--> [ :red = 3, :white = 2, :green = 2, :yello = 1 ]
@@ -392,6 +400,10 @@ o1.PerformOnKeys(' { @key += @i }')
 ? o1.Keys() #--> [ :on1, :two2, :three3 ]
 
 proff()
+
+/*----------------
+
+performOnValues()
 
 /*----------------
 

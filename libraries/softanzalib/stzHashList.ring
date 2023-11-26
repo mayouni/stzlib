@@ -220,6 +220,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return aResult
 
+		#< @FunctionFluentForms
+
 		def KeysForValueQ()
 			return This.KeysForValueQR(:stzList)
 
@@ -244,6 +246,21 @@ class stzHashList from stzList # Also called stzAssociativeList
 				StzRaise("Unsupported return type!")
 			off
 			
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def KeysForThisValue(pValue)
+			return This.KeysForValue(pValue)
+
+			def KeysForThisValueQ(pValue)
+				return This.KeysForValueQ(pValue)
+
+			def KeysForThisValueQR(pValue, pcReturnType)
+				return This.KeysForValueQ(pValue, pcReturnType)
+
+		#>
+
 	def Values()
 		aResult = []
 		for i = 1 to This.NumberOfPairs()
@@ -297,7 +314,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return aResult
 
-	def PerformOnKeys(pcCode)
+	def PerformOnKeys(pcCode) # TODO: Test and review using stzCCode interpolate()
 		/*
 		PerformOnKeys('@key += @i')
 		*/
@@ -320,7 +337,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.PerformOnKeys(pcCode)
 			return This
 
-	def PerformOnValues(pcCode)
+
+	def PerformOnValues(pcCode) #  # TODO: Test and review using stzCCode interpolate()
 		/*
 		PerformOnValues('@value += @i')
 		*/
@@ -476,6 +494,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def KeyInPairQ(paPair)
 			return new stzString( This.KeyInPair(paPair) )
 	
+		def KeyInThisPair(paPair)
+			return This.KeyInPair(paPair)
+
+			def KeyInThisPairQ(paPair)
+				return This.KeyInPairQ(paPair)
+
 	def ValueInPair(paPair)
 		if isList(paPair) and ListIsPairAndKeyIsString(paPair) and
 	           This.ContainsPair(paPair)
@@ -486,6 +510,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		def ValueInPairQ(paPair)
 			return Q( This.ValueInPair(paPair) )
+
+		def ValueInThisPair(paPair)
+			return This.ValueInPair(paPair)
+
+			def ValueInThisPairQ(paPair)
+				return This.ValueInPairQ(paPair)
 
 	def KeyInNthPair(n)
 		return This.NthPair(n)[1]
@@ -501,9 +531,45 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ValueByKey(pcKey)
 		return This.Content()[ pcKey ]
-	
+
+		#< @FunctionAlternativeForms
+
+		def ValueRelatedToKey(pcKey)
+			return This.ValueByKey(pcKey)
+
+		def ValueRelatedToThisKey(pcKey)
+			return This.ValueByKey(pcKey)
+
+		def ValueCorrespondingToKey(pcKey)
+			return This.ValueByKey(pcKey)
+
+		def ValueCorrespondingToThisKey(pcKey)
+			return This.ValueByKey(pcKey)
+
+		def ValueOnKey(pcKey)
+			return This.ValueByKey(pcKey)
+
+		def ValueOnThisKey(pcKey)
+			return This.ValueByKey(pcKey)
+
+		def ValueOfKey(pcKey)
+			return This.ValueByKey(pcKey)
+
+		def ValueOfThisKey(pcKey)
+			return This.ValueByKey(pcKey)
+
+		def ValueInKey(pcKey)
+			return This.ValueByKey(pcKey)
+
+		def ValueInThisKey(pcKey)
+			return This.ValueByKey(pcKey)
+
+		#>
+
 	def NumberOfOccurrenceOfValue(pValue)
 		return len(This.FindValue(pValue))
+
+		#< @FunctionAlternativeForms
 
 		def NumberOfOccurrencesOfValue(pValue)
 			return This.NumberOfOccurrenceOfValue(pValue)
@@ -520,6 +586,28 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def HowManyOccurrencesOfValue(pValue)
 			return This.NumberOfOccurrenceOfValue(pValue)
 
+		#--
+
+		def NumberOfOccurrenceOfThisValue(pValue)
+			return This.NumberOfOccurrenceOfValue(pValue)
+
+		def NumberOfOccurrencesOfThisValue(pValue)
+			return This.NumberOfOccurrenceOfValue(pValue)
+
+			def NumberOfOccurrenceOfThisValueQ(pValue)
+				return new stzNumber(This.NumberOfOccurrenceOfValue(pValue))
+		
+			def NumberOfOccurrencesOfThisValueQ(pValue)
+				return NumberOfOccurrenceOfValueQ(pValue)
+
+		def HowManyOccurrenceOfThisValue(pValue)
+			return This.NumberOfOccurrenceOfValue(pValue)
+
+		def HowManyOccurrencesOfThisValue(pValue)
+			return This.NumberOfOccurrenceOfValue(pValue)
+
+		#>
+
 	def UniqueValues()
 		aResult = This.ValuesQ().DuplicatesRemoved()
 		return aResult
@@ -533,6 +621,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def ValuesAtPositions(anPositions)
 		aResult = This.ValuesQ().ItemsAtPositions(anPositions)
 		return aResult
+
+		def ValuesAtThesePositions(anPositions)
+			return This.ValuesAtPositions(anPositions)
 
 	  #---------------------------#
 	 #   UPDATING THE HASHLIST   #
@@ -1789,6 +1880,25 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def FindThisItem(pItem)
+			return This.FindItem(pItem)
+
+		def FindItemInList(pItem)
+			return This.FindItem(pItem)
+
+		def FindThisItemInList(pItem)
+			return This.FindItem(pItem)
+
+		def FindItemInLists(pItem)
+			return This.FindItem(pItem)
+
+		def FindThisItemInLists(pItem)
+			return This.FindItem(pItem)
+
+		#>
+
 	def FindTheseItems(paItems)
 		/* EXAMPLE
 
@@ -1831,6 +1941,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		aResult = QR(aResult, :stzListOfPairs).Sorted()
 		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindTheseItemsInList(paItems)
+			return This.FindItems(paItems)
+
+		def FindTheseItemsInLists(paItems)
+			return This.FindItems(paItems)
+
+		#>
 
 	def TheseItemsZ(paItems)
 		/* EXAMPLE
@@ -1946,8 +2066,21 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def FindFirstItem(pItem)
 		return This.FindNthItem(1, pItem)
 
+		#< @FunctionAlternativeForms
+
+		def FindThisFirstItem(pItem)
+			return This.FindFirstItem(pItem)
+
+		def FindFirstOccurrenceOfThisItem(pItem)
+			return This.FindFirstItem(pItem)
+
 		def FindFirstOccurrenceOfItemInList(pItem)
 			return This.FindFirstItem(pItem)
+
+		def FindFirstOccurrenceOfThisItemInList(pItem)
+			return This.FindFirstItem(pItem)
+
+		#>
 
 	  #--------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE LAST OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
@@ -1958,8 +2091,21 @@ class stzHashList from stzList # Also called stzAssociativeList
 		n = This.NumberOfOccurreceOfItemInList(pItem)
 		return This.FindNthItem(n, pItem)
 
+		#< @FunctionAlternativeForms
+
+		def FindThislastItem(pItem)
+			return This.FindLastItem(pItem)
+
+		def FindLastOccurrenceOfThisItem(pItem)
+			return This.FindLastItem(pItem)
+
 		def FindLastOccurrenceOfItemInList(pItem)
 			return This.FindLastItem(pItem)
+
+		def FindLastOccurrenceOfThisItemInList(pItem)
+			return This.FindLastItem(pItem)
+
+		#>
 
 	  #----------------------------------------------------------------------#
 	 #  WHEN THE VALUES ARE LISTS, FINDING A GIVEN ITEM INSIDE THOSE LISTS  # 
@@ -1980,11 +2126,21 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def NumberOfKeysByItemInList() ###
 		return len( This.FindKeysByItemInList(pValue) )
 
+		#< @FunctionAlternativeForms
+
 		def HowManyKeysByItemInList()
 			return This.NumberOfKeysByItemInList()
 
 		def HowManyKeyByItemInList()
 			return This.NumberOfKeysByItemInList()
+
+		def NumberOfKeysByItem()
+			return This.NumberOfKeysByItemInList()
+
+		def HowManyKeysByItem()
+			return This.NumberOfKeysByItemInList()
+
+		#>
 
 	def FindFirstKeyByItemInList(pValue)
 
@@ -1994,8 +2150,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return 0
 		ok
 
+		def FindFirstKeyByItem(pValue)
+			return This.FindFirstKeyByItemInList(pValue)
+
 	def FindKeyByItemInList(pValue)
 		return This.FindFirstKeyByItemInList(pValue)
+
+		def FindKeyByItem(pValue)
+			return This.FindKeyByItemInList(pValue)
 
 	def FindLastKeyByItemInList(pValue)
 		n = This.NumberOfKeysByItemInList()
@@ -2006,11 +2168,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return 0
 		ok
 
+		def FindLastKeyByItem(pValue)
+			return This.FindLastKeyByItemInList(pValue)
 
 	def KeyByItemInList(pValue)
 		n = This.FindKeyByItemInList(pValue)
 
 		return This.Key( n )
+
+		def KeyByItem(pValue)
+			return This.KeyByItemInList(pValue)
 
 	def KeysByItemInList(pValue)
 		anPos = This.FindKeysByItemInList()
@@ -2021,6 +2188,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		next
 
 		return aResult
+
+		def KeysByItem(pValue)
+			return This.KeysByItem(pValue)
 
 	  #------------------------------------------------#
 	 #  LISTIFIYING (ALL THE VALUES IN) THE HASHLIST  #
@@ -2265,11 +2435,182 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#>
 
+	  #-------------------------------------------#
+	 #  GETTING THE NUMBER OF VALUES IN A KLASS  #
+	#-------------------------------------------#
+
+	def NumberOfValuesInClass(pcClass)
+		nResult = len( This.Klass(pcClass) )
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def HowManyValuesInClass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValueInClass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def ClassSize(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def SizeOfClass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def NumberOfValuesInKlass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValuesInKlass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValueInKlass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def KlassSize(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def SizeOfKlass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def NumberOfValuesInCategory(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValuesInCategory(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValueInCategory(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def CategorySize(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def SizeOfCategory(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def NumberOfValuesInCateg(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValuesInCateg(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValueInCateg(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def CategSize(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def SizeOfCateg(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		#-- Adding ...This...() to the all the names above
+
+		def HowManyValuesInThisClass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValueInThisClass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def SizeOfThisClass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def NumberOfValuesInThisKlass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValuesInThisKlass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValueInThisKlass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def SizeOfThisKlass(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def NumberOfValuesInThisCategory(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValuesInThisCategory(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValueInThisCategory(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def SizeOfThisCategory(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def NumberOfValuesInThisCateg(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValuesInThisCateg(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def HowManyValueInThisCateg(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		def SizeOfThisCateg(pcClass)
+			return This.NumberOfValuesInClass(pcClass)
+
+		#>
+
 	  #-------------------------------#
 	 #  CALCULATING CLASS FREQUENCY  #
 	#-------------------------------#
 
-	
+	def KlassFreq(pcClass)
+		nResult = This.NumberOfValuesInClass(pcClass) / This.NumberOfValues()
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def KlassFrequency(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def ClassFreq(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def ClassFrequency(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def CategoryFrequency(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def CategoryFreq(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def CategFrequency(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def CategFreq(pcClass)
+			return This.KlassFreq(pcClass)
+
+		#--
+
+		def FrequencyOfThisClass(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def FrequencyOfThisKlass(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def FrequencyOfThisCategory(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def FrequencyOfThisCateg(pcClass)
+			return This.KlassFreq(pcClass)
+
+		#--
+
+		def FreqOfThisClass(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def FreqOfThisKlass(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def FreqOfThisCategory(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def FreqOfThisCateg(pcClass)
+			return This.KlassFreq(pcClass)
+
+		#>
 
 	  #-------------------------------------#
 	 #   CLASSIFYING VALUES INSIDE LISTS   #
