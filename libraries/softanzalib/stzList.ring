@@ -26408,7 +26408,7 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionAlternativeNames
+		#< @FunctionAlternativeForms
 
 		def SplitUsingCS(pItem, pCaseSensitive)
 			This.SplitCS(pItem, pCaseSensitive)
@@ -26496,7 +26496,7 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionAlternativeNames
+		#< @FunctionAlternativeForms
 
 		def SplitUsing(pItem)
 			This.Split(pItem)
