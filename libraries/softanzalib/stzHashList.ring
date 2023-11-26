@@ -1755,43 +1755,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#=======================================================================#
 	# TODO: Add case sensitivity
 
-	def FindItem(pItem) # Returns the positions of the pairs
-		/* EXAMPLE
-	
-		o1 = new stzHashList([
-			:Positive	= [ :happy, :nice, :glad, :can, :beatiful, :wanderful ],
-			:Neutral  	= [ :is, :will, :can, :some ],
-			:Negative	= [ :no, :not, :must, :difficult, :problem ]
-		])
-	
-		? o1.FindItem(:nice) #--> [ 1 ]
-		? o1.FindItem(:can)  #--> [ 1, 2 ]
-		*/
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		anResult = []
-
-		for i = 1 to nLen
-
-			if isList(aContent[i][2])
-
-				oStzList = new stzList(aContent[i][2])
-				if oStzList.Contains(pItem)
-					anResult + i
-				ok
-			ok
-
-		next
-
-		return anResult
-
-
-	def FindItemXT(pItem)
-		# Returns positions of the pairs along with the positions
-		# of the item isnide each list
-
+	def FindItem(pItem)
 		/* EXAMPLE
 
 		o1 = new stzHashList([
@@ -1802,7 +1766,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			:Five	= [ :will ]
 		])
 
-		? @@( o1.FindItemXT(:can) )
+		? @@( o1.FindItem(:can) )
 		#--> [ [ 2, [ 3, 5 ] ], [ 4, [ 1 ] ] ]
 		*/
 
@@ -1836,46 +1800,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			:Five	= [ :will ]
 		])
 
-		? o1.FindTheseItems([ :can, :will ])
-		#--> [ 2, 4, 5 ]
-		*/
-
-		if CheckParams()
-			if NOT isList(paItems)
-				StzRaise("Incorrect param type! paItems must be a list.")
-			ok
-		ok
-
-		paItems = U(paItems) # Duplicates removed
-
-		nLen = len(paItems)
-		anResult = []
-
-		for i = 1 to nLen
-			anPos = This.FindItem(paItems[i])
-			nLenPos = len(anPos)
-			for j = 1 to nLenPos
-				if ring_find(anResult, anPos[j]) = 0
-					anResult + anPos[j]
-				ok
-			next
-		next
-
-		anResult = ring_sort(anResult)
-		return anResult
-
-	def FindTheseItemsXT(paItems)
-		/* EXAMPLE
-
-		o1 = new stzHashList([
-			:One	= :NONE,
-			:Two  	= [ :is, :will, :can, :some, :can ],
-			:Three	= :NONE,
-			:Four	= [ :can, :will ],
-			:Five	= [ :will ]
-		])
-
-		? @@( o1.FindTheseItemsXT([ :can, :will ]) )
+		? @@( o1.FindTheseItems([ :can, :will ]) )
 		#--> [
 		#	[ 2, [ 2, 3, 5 ] ],
 		#	[ 4, [ 1, 2 ] ],
@@ -1890,25 +1815,24 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		aContent = This.Content()
-
-		anPos   = This.FindTheseItems(paItems)
-		nLenPos = len(anPos)
+		aItemsZ = This.ItemsZ()
+		nLen = len(aItemsZ)
 
 		aResult = []
 
-		for i = 1 to nLenPos
-
-			aResult + [
-				anPos[i],
-				Q(aContent[anPos[i]][2]).FindMany(paItems)
-			]
-
+		for i = 1 to nLen
+			if Q(aItemsZ[i][1]).IsOneOfThese(paItems)
+				nLenPos = len(aItemsZ[i][2])
+				for j = 1 to nLenPos
+					aResult + aItemsZ[i][2][j]
+				next
+			ok
 		next
 
+		aResult = QR(aResult, :stzListOfPairs).Sorted()
 		return aResult
 
-	def TheseItemsXT(paItems)
+	def TheseItemsZ(paItems)
 		/* EXAMPLE
 
 		o1 = new stzHashList([
@@ -1919,15 +1843,17 @@ class stzHashList from stzList # Also called stzAssociativeList
 			:Five	= [ :will ]
 		])
 
-		? @@( o1.TheseItemsXT([ :can, :will ]) ) + NL
+		? o1.TheseItemsZ([ :can, :will ])
 		#--> [
-		#	[ :can,  [ 2, 4 ]    ],
-		#	[ :will, [ 2, 4, 5 ] ]
+		#	[ :can,  [ [2, [3,5] ], [ 4, [1] ]             ],
+		#	[ :will, [ [2, [1]   ], [ 4, [2] ], [ 5, [1] ] ]
 		# ]
 		*/
 
 		if CheckParams()
-
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
 		ok
 
 		paItems = U(paItems) # Duplicates removed
@@ -1943,72 +1869,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return aResult
 
-	def TheseItemsXTT(paItems)
-		/* EXAMPLE
-
-		o1 = new stzHashList([
-			:One	= :NONE,
-			:Two  	= [ :is, :will, :can, :some, :can ],
-			:Three	= :NONE,
-			:Four	= [ :can, :will ],
-			:Five	= [ :will ]
-		])
-
-		#--> [
-		#	[ :can,  [ [2, [3,5] ], [ 4, [1] ]             ],
-		#	[ :will, [ [2, [1]   ], [ 4, [2] ], [ 5, [1] ] ]
-		# ]
-		*/
-
-		if CheckParams()
-
-		ok
-
-		paItems = U(paItems) # Duplicates removed
-
-		nLen = len(paItems)
-		aResult = []
-
-		for i = 1 to nLen
-
-			aResult + [ paItems[i], This.FindItemXT(paItems[i]) ]
-
-		next
-
-		return aResult
-
 	def Items()
 
 		aResult = U( This.ValuesQ().OnlyListsQ().Merged() )
 		return aResult
-
-	#--
-
-	def Copy()
-		oCopy = new stzHashList(This.content())
-		return oCopy
-
-	def Listify()
-
-		nLen = len(@aContent)
-
-		for i = 1 to nLen
-			if NOT isList(@aContent[i][2])
-				aTempList = []
-				aTempList + @aContent[i][2]
-				@aContent[i][2] = aTempList
-			ok
-		next
-
-		def ListifyQ() # TODO: Ensure consistency in all library
-			This.Listify()
-			return This
-
-	def Listified()
-		aResult = This.Copy().ListifyQ().Content()
-		return aResult
-
-	#--
 
 	def FindItems()
 		
@@ -2046,11 +1910,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ItemZ(pItem)
 		aResult = [ pItem, This.FindItem(pItem) ]
-		return aResult
-
-	def TheseItemsZ(paItems)
-		anPos = This.FindTheseItems(paItems)
-		aResult = Association([ paItems, anPos ])
 		return aResult
 
 	  #-------------------------------------------------------------------------------------#
@@ -2161,6 +2020,34 @@ class stzHashList from stzList # Also called stzAssociativeList
 			aResult + This.Key(n)
 		next
 
+		return aResult
+
+	  #------------------------------------------------#
+	 #  LISTIFIYING (ALL THE VALUES IN) THE HASHLIST  #
+	#------------------------------------------------#
+
+	def Copy()
+		oCopy = new stzHashList(This.content())
+		return oCopy
+
+	def Listify()
+
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			if NOT isList(@aContent[i][2])
+				aTempList = []
+				aTempList + @aContent[i][2]
+				@aContent[i][2] = aTempList
+			ok
+		next
+
+		def ListifyQ() # TODO: Ensure consistency in all library
+			This.Listify()
+			return This
+
+	def Listified()
+		aResult = This.Copy().ListifyQ().Content()
 		return aResult
 
 	  #---------------------------#
