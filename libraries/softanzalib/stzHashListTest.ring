@@ -15,7 +15,6 @@ StzNamedHashListQ(:myhash = [ :x = 10, :y = 20 ]) {
 }
 
 proff()
-
 # Executed in 0.03 second(s)
 
 /*-------------
@@ -23,7 +22,7 @@ proff()
 pron()
 
 ? NullObject().Name()
-#--> @nullobjact
+#--> @nullobject
 
 ? TrueObject().Name()
 #--> @trueobject
@@ -41,7 +40,7 @@ pron()
 #--> @falseobject
 
 proff()
-#--> Executed in 0.03 second(s)
+#--> Executed in 0.06 second(s)
 
 /*------------- TODO
 
@@ -58,11 +57,8 @@ o1 = new stzHashList([
 ? o1.FindValueOritem(:can) # called also FindVitem(:can)
 #--> [ 1, 2, 5 ]
 
-? o1.FindVitemXT(:can)
-#--> [ 1, [2, [3, 5]], 5 ]
-
 /*---------------- FINDING ITEMS INSIDE VALUES THAT ARE LISTS
-*/
+
 pron()
 
 o1 = new stzHashList([
@@ -116,7 +112,7 @@ o1 = new stzHashList([
 ])
 
 ? o1.FindLists()
-#--> [ 2, 4, 5 ]
+#--> [ 3, 5, 6 ]
 
 ? @@( o1.Lists() ) + NL
 #--> [ [ "is", "will", "can", "some", "can" ], [ "can", "will" ], [ "will" ] ]
@@ -124,7 +120,7 @@ o1 = new stzHashList([
 #--
 
 ? o1.FindNumbers()
-#--> [1, 8, 7]
+#--> [1, 7, 8]
 
 ? o1.Numbers()
 #--> [ 0, 6, 7 ]
@@ -141,14 +137,14 @@ o1 = new stzHashList([
 
 
 ? o1.FindObjects()
-#--> [9, 10, 11, 12, 13, 14]
+#--> [9, 10, 11, 12, 13, 14, 15]
 
 ? @@( o1.Objects() )
-#--> [ @nullobject, @trueobject, @falseobject ]
+#--> [ @nullobject, @trueobject, @falseobject, @number, @string, @list, @hashlist ]
 
 #===
 
-? o1.FindStzLists()
+? @@( o1.FindStzLists() ) + NL
 #--> [ 14 ]
 
 ? @@( o1.StzLists() ) + NL
@@ -156,7 +152,7 @@ o1 = new stzHashList([
 
 #--
 
-? o1.FindStzNumbers()
+? @@( o1.FindStzNumbers() ) + NL
 #--> [ 12 ]
 
 ? @@( o1.StzNumbers() )
@@ -164,7 +160,7 @@ o1 = new stzHashList([
 
 #--
 
-? o1.FindStzStrings()
+? @@( o1.FindStzStrings() ) + NL
 #--> [ 13 ]
 
 ? @@( o1.StzStrings() )
@@ -172,7 +168,7 @@ o1 = new stzHashList([
 
 #--
 
-? o1.FindStzObjects()
+? @@( o1.FindStzObjects() )
 #--> [ 9, 10, 11, 12, 13, 14, 15 ]
 
 ? @@( o1.StzObjects() )
@@ -180,14 +176,14 @@ o1 = new stzHashList([
 
 #--
 
-? o1.FindStzHashLists()
-#--> 15
+? @@( o1.FindStzHashLists() )
+#--> [ 15 ]
 
 ? @@( o1.StzHashLists() )
 #--> [ @hashlist ]
 
 proff()
-# Executed in 0.34 second(s)
+# Executed in 0.26 second(s)
 
 /*-----------
 
@@ -293,7 +289,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzHashList([
@@ -308,7 +304,7 @@ o1 = new stzHashList([
 #--> [ "is", "will", "can", "some" ]
 
 ? @@( o1.FindItems() ) + NL
-#--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 2, 4 ] ]
+#--> [ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 2, 4 ], [ 2, 5 ], [ 4, 1 ], [ 4, 2 ], [ 5, 1 ] ]
 
 ? @@( o1.ItemsZ() )
 #--> [
@@ -318,10 +314,8 @@ o1 = new stzHashList([
 #	[ "some", [ [ 2, 4 ] ] ]
 # ]
 
-
-
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.16 second(s)
 
 /*-----------
 
@@ -350,8 +344,11 @@ o1 = new stzHashList([
 #--> [ 1, 2, 3, 4, 5, 6, 7 ]
 
 proff()
+# second(s)
 
 /*=============
+*/
+pron()
 
 o1 = new stzHashList([
 	:one 	= :red,
@@ -370,7 +367,7 @@ o1 = new stzHashList([
 
 //? o1.KlassFreq()	#--> 3/8
 
-# ? o1.ClassesAndTheirFrequencies	// same as ClassesXT()
+//? @@(o1.ClassesAndTheirFrequencies())	// same as ClassesXT()
 #--> [ :red = 3, :white = 2, :green = 2, :yello = 1 ]
 
 # ? o1.StrongestClass()	#--> :white
@@ -379,7 +376,11 @@ o1 = new stzHashList([
 # ? o1.Top3Classes()	#--> [ :white, :red, :green ]
 # ? o1.Top3ClassesXT()	#--> [ :white = 3, :red = 2, :red = 2 ]
 
+proff()
+
 /*----------------
+
+pron()
 
 o1 = new stzHashList([
 	:one 	= :red,
@@ -390,7 +391,11 @@ o1 = new stzHashList([
 o1.PerformOnKeys(' { @key += @i }')
 ? o1.Keys() #--> [ :on1, :two2, :three3 ]
 
+proff()
+
 /*----------------
+
+pron()
 
 # While working with stzHashLists, there may be a special need where you
 # want to find a given item inside values that are of type list.
@@ -398,7 +403,7 @@ o1.PerformOnKeys(' { @key += @i }')
 # Let's understand it by example:
 
 	o1 = new stzHashList([
-		:Positive	= [ :happy, :nice, :glad, :beatiful, :wanderful ],
+		:Positive	= [ :happy, :nice, :glad, :beautiful, :wanderful ],
 		:Neutral  	= [ :is, :will, :can, :some ],
 		:Negative	= [ :no, :not, :must, :difficult, :problem ]
 	])
@@ -423,7 +428,12 @@ o1.PerformOnKeys(' { @key += @i }')
 
 	? @@( o1.FindItem(:nice) ) #--> [ 1 ]
 
+proff()
+# Executed in 0.04 second(s)
+
 /*==================
+
+pron()
 
 o1 = new stzHashList([
 	:egypt		= :africa,
@@ -440,10 +450,7 @@ o1 = new stzHashList([
 	:argentina	= :america
 ])
 
-
-
-
-? @@( o1.Classify() )
+? @@( o1.Classify() ) + NL
 #--> [ 
 #	:africa 	= [ "egypt", "tunisia", "niger" 	],
 #	:asia 		= [ "saudi_arabia", "iraq", "japan" 	],
@@ -454,7 +461,12 @@ o1 = new stzHashList([
 ? @@( o1.Klass(:asia) )
 #--> [ "saudi_arabia", "iraq", "japan" ]
 
+proff()
+# Executed in 1.54 second(s)
+
 /*---------------
+
+pron()
 
 # The keys of a hashlist must be unique. Otherwise you won't be able to
 # create the hashlist objectS
@@ -462,7 +474,11 @@ o1 = new stzHashList([
 o1 = new stzHashList([ :name = "Brad", :job = "actor", :job = "singer" ])
 #--> Error message: The list you provided is not a hash list!
 
+proff()
+
 /*---------------
+
+pron()
 
 # You need to pay attention to the syntax you use in creating a stzHashlList
 # Hence, the follwing syntax is incorrect:
@@ -470,53 +486,107 @@ o1 = new stzHashList([ :name = "Brad", :job = "actor", :job = "singer" ])
 //o1 = new stzHashList( [ "one" = 1, "two" = 2 ] )
 //? o1.Keys() #--> ERROR: The list you provided is not a hash list!
 
-# In fact, the ( = value  ) syntax is allowed only if you use ( : ) like this:
+# In fact, the ( = value  ) syntax is allowed only if you use ':' like this:
 
 o1 = new stzHashList( [ :one = 1, :two = 2 ] )
 ? o1.Keys() #--> [ "one", "two" ]
 
 # Or, you can opt for an explicit syntax like this:
 
-o1 = new stzHashList( [ [ "one", 1], [ "two", 2] ] )
+o1 = new stzHashList( [ ["one", 1], [ "two", 2] ] )
 ? o1.Keys() #--> [ "one", "two" ]
 
-/*--------------- <<<<<<<<<<<< TODO: check this <<<<<<<<<<<<<<<
+proff()
 
-o1 = new stzHashList([ :math = 18, :stats = "good", :chemistry = 18, :history = [ 10, 15 ] ])
-//? o1.FindValue(18) #--> [ 1, 3 ] 
-//? o1.FindValue("good") #--> [ 2 ]	// TODO: CaseSensitivity
-? o1.FindValue([ 10, 15 ]) #--> ERROR
+/*--------------- 
+
+pron()
+
+o1 = new stzHashList([
+	:math = 18,
+	:stats = "good",
+	:chemistry = 18,
+	:history = [ 10, 15 ]
+])
+
+? @@( o1.FindValue(18) )
+#--> [ 1, 3 ] 
+
+? @@( o1.FindValue("good") )	// TODO: CaseSensitivity
+#--> [ 2 ]
+	
+? @@( o1.FindValue([ 10, 15 ]) )
+#--> [ 4 ]
+
+proff()
+# Executed in 0.04 second(s)
 
 /*---------------
 
+pron()
+
 o1 = new stzHashList([ :math = 18, :stats = 16, :history = 14 ])
-? o1.ValueByKey(:stats) #--> 16
-? o1[:stats]		#--> 16
+
+? o1.ValueByKey(:stats)
+#--> 16
+
+? o1[:stats]
+#--> 16
+
+proff()
+# Executed in 0.04 second(s)
 
 /*--------------
+
+pron()
 
 o1 = new stzHashList([ [ "NAME", "Mansour"] , [ "AGE" , 45 ] ])
-? o1.Content() # Keys are automatically lowercased
-#--> [ :name = "Mansour", :age = 45 ]
+? @@( o1.Content() ) # Keys are automatically lowercased
+#--> [ [ "name", "Mansour" ], [ "age", 45 ] ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*--------------
+
+pron()
 
 o1 = new stzHashList([ :name = "mansour", :age = 45, :job = "programmer" ])
-? o1.ContainsKeys([:name, :age, :job]) #--> TRUE
+
+? o1.ContainsKeys([:name, :age, :job])
+#--> TRUE
 
 o1.RemoveByKey(:age)
-? o1.Content() #--> [ :name = "mansour", :job = "programmer" ]
+? o1.Content()
+#--> [ :name = "mansour", :job = "programmer" ]
 
-? o1.RemovePairByKeyQ(:job).Content() #--> [ :name = "mansour" ]
+? o1.RemovePairByKeyQ(:job).Content()
+#--> [ :name = "mansour" ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*--------------
 
+pron()
+
 o1 = new stzHashList([ :name = "Hussein", :age = 1, :grandftaher = "Hussein" ])
-o1.RemoveAllPairsWithValue("Hussein")
+o1.RemovePairsByValue("Hussein")
 ? o1.Content() #--> [ :age = 1 ]
+
+proff()
+# Executed in 0.04 second(s)
 
 /*-------------
 
+pron()
+
 o1 = new stzHashList([ :name = "Hussein", :age = 1, :grandftaher = "Hussein" ])
-o1.AddPair( :mother = "Cherihen" )
+o1.AddPair( :grandmother = "Arem" )
 o1.Show()
+#--> 'name': "Hussein"
+#    'age': 1
+#    'grandftaher': "Hussein"
+#    'grandmother': "Arem"
+
+proff()

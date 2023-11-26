@@ -785,7 +785,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		next
 
 	def RemovePairsByValue(pValue)
-		aPos = This.FindAllValue(pValue)
+		aPos = This.FindValue(pValue)
 
 		aResult = StzListQ( This.HashList() ).RemoveItemsAtThesePositionsQ( aPos ).Content()
 		This.Update(aResult)
