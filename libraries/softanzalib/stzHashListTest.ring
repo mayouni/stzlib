@@ -42,6 +42,66 @@ pron()
 proff()
 #--> Executed in 0.06 second(s)
 
+/*==============
+
+pron()
+
+o1 = new stzHashList([
+	:one   = "here",
+	:two   = "and",
+	:three = "not",
+	:four  = "there"
+])
+
+# Finding some values
+
+? @@( o1.FindValues([ "here", "and", "there" ]) )
+#--> [ 1, 2, 4 ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzHashList([
+	:one   = [ "here" ],
+	:two   = [ "and" ],
+	:three = "not",
+	:four  = [ "there" ]
+])
+
+# Finding some values (you are not going to find them ;)
+
+? @@( o1.FindValues([ "here", "and", "there" ]) )
+#--> [ ]
+
+# There are no sutch values in the hashlist! In fact, they
+# are hosted as items inside values of type list. So, if you
+# need to find them, you can add the ..InLists() extension:
+
+? @@( o1.FindTheseInLists([ "here", "and", "there" ]) )
+#--> [ [ 1, 1 ], [ 2, 1 ], [ 4, 1 ] ]
+
+# Or you can use the Item semantic like this:
+
+? @@( o1.FindTheseItems([ "here", "and", "there" ]) )
+#--> [ [ 1, 1 ], [ 2, 1 ], [ 4, 1 ] ]
+
+# SEMANTIC NOTE: in the context of stzHashList, a VALUE is what
+# you have side by side with the key. And you can find the VALUES
+# using FindValues().
+#
+# When a VALUE is of type LIST, then you can find the ITEMS hosted
+# inside those lists using FindInLists() or directly FindItems().
+#
+# WARNING: when you use FindValues, ITEMS inside lists are not found.
+# And when you use FindInLists or FindItems then VALUES are not found.
+
+proff()
+# Executed in 0.18 second(s)
+
 /*------------- TODO
 
 pron()
@@ -86,6 +146,23 @@ o1 = new stzHashList([
 
 proff()
 # Executed in 0.15 second(s)
+
+/*-----------
+
+pron()
+
+o1 = new stzHashList([
+	:One	= :NONE,
+	:Two  	= [ :is, :will, :can, :some, :can ],
+	:Three	= :NONE,
+	:Four	= [ :can, :will, :will ],
+	:Five	= [ :will ]
+])
+
+? @@( o1.FindInLists(:will) )
+#--> [ [ 2, [ 2 ] ], [ 4, [ 2, 3 ] ], [ 5, [ 1 ] ] ]
+
+proff()
 
 /*-----------
 
@@ -347,8 +424,39 @@ proff()
 # second(s)
 
 /*=============
+*/
+pron()
 
-/*=============
+o1 = new stzHashList([
+	:one	= "will not be classified",
+	:two	= [ "will", "be", "classified" ],
+	:three	= [ "this", "one", "also", "will" , "be", "classsified" ],
+	:four	= "nor this will be classified",
+	:five	= [ "guess", "if", "this", "will", "be", "classified" ],
+	:six	= "and this",
+	:seven	= "and this" # TODO: use an object an test
+])
+
+? o1.HowManyKlassInLists()
+#--> 9
+
+? @@( o1.KlassifyItemsInLists() ) # Or KlassifyInLists()
+#--> [
+#	[ "will", 	 [ [ 2, [ 1 ] ], [ 3, [ 4 ] ], [ 5, [ 4 ] ] ] ],
+#	[ "be", 	 [ [ 2, [ 2 ] ], [ 3, [ 5 ] ], [ 5, [ 5 ] ] ] ],
+#	[ "classified",  [ [ 2, [ 3 ] ], [ 5, [ 6 ] ] ] ],
+#	[ "this", 	 [ [ 3, [ 1 ] ], [ 5, [ 3 ] ] ] ],
+#	[ "one", 	 [ [ 3, [ 2 ] ] ] ],
+#	[ "also", 	 [ [ 3, [ 3 ] ] ] ],
+#	[ "classsified", [ [ 3, [ 6 ] ] ] ],
+#	[ "guess", 	 [ [ 5, [ 1 ] ] ] ],
+#	[ "if", 	 [ [ 5, [ 2 ] ] ] ]
+# ]
+
+proff()
+# Executed in 0.10 second(s)
+
+/*-------------
 */
 pron()
 
@@ -373,7 +481,7 @@ o1 = new stzHashList([
 ? o1.KlassFreq(:white)
 #--> 0.38
 
-? o1.ClassesInList()
+? @@( o1.ClassesInList() )
 
 //? @@(o1.ClassesAndTheirFrequencies())	// same as ClassesXT()
 #--> [ :red = 3, :white = 2, :green = 2, :yello = 1 ]

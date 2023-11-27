@@ -58,9 +58,17 @@ func ListsMerge(paListOfLists)
 	func ListsMergeQ(paListOfLists)
 		return new stzList( ListsMerge(paListOfLists) )
 
+	func Merge(paListOfLists)
+		return ListsMerge(paListOfLists)
+
+	func @Merge(paListOfLists)
+		return ListsMerge(paListOfLists)
+
 func ListsFlatten(paListOfLists)
 	return StzListOfListsQ(paListOfLists).Flattened()
 
+	func @Flatten(paListOfLists)
+		return ListsFlatten(paListOfLists)
 
 func Association(paLists)
 	if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
