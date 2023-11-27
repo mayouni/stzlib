@@ -1101,6 +1101,52 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#>
 
+	  #-------------------------#
+	 #   FINDING MANY VALUES   #
+	#-------------------------#
+
+	def FindValuesCS(paValues, pCaseSensitive)
+
+		anResult = This.ValuesQ().FindManyCS(paValues, pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindManyCS(paValues, pCaseSensitive)
+			return This.FindValuesCS(paValues, pCaseSensitive)
+
+		def FindManyValuesCS(paValues, pCaseSensitive)
+			return This.FindValuesCS(paValues, pCaseSensitive)
+
+		def FindTheseValuesCS(paValues, pCaseSensitive)
+			return This.FindValuesCS(paValues, pCaseSensitive)
+
+		def FindTheseCS(paValues, pCaseSensitive)
+			return This.FindValuesCS(paValues, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindValues(paValues)
+		return This.FindValuesCS(paValues, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindMany(paValues)
+			return This.FindValues(paValues)
+
+		def FindManyValues(paValues)
+			return This.FindValues(paValues)
+
+		def FindTheseValues(paValues)
+			return This.FindValues(paValues)
+
+		def FindThese(paValues)
+			return This.FindValues(paValues)
+
+		#>
+
 	  #-------------------------------------------#
 	 #   FINDING THE NTH OCCURRENCE OF A VALUE   #
 	#-------------------------------------------#
@@ -1882,6 +1928,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
+		def FindInList(pItem)
+			return This.FindItem(pItem)
+
+		def FindInLists(pItem)
+			return This.FindItem(pItem)
+
 		def FindThisItem(pItem)
 			return This.FindItem(pItem)
 
@@ -1945,10 +1997,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionAlternativeForms
 
 		def FindTheseItemsInList(paItems)
-			return This.FindItems(paItems)
+			return This.FindTheseItems(paItems)
 
 		def FindTheseItemsInLists(paItems)
-			return This.FindItems(paItems)
+			return This.FindTheseItems(paItems)
+
+		def FindTheseInList(paItems)
+			return This.FindTheseItems(paItems)
+
+		def FindTheseInLists(paItems)
+			return This.FindTheseItems(paItems)
 
 		#>
 
@@ -1988,6 +2046,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		next
 
 		return aResult
+
+		def TheseItemsInListZ(paItems)
+			return This.TheseItemsZ(paItems)
+
+		def TheseItemsInListsZ(paItems)
+			return This.TheseItemsZ(paItems)
 
 	def Items()
 
@@ -2618,7 +2682,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ClassesInList()
 		acResult = []
-		aUniqueValues = This.UniqueValuesInList()
+		aUniqueValues = U( @Merge(This.Lists()) )
 		nLen = len(aUniqueValues)
 
 		for i = 1 to nLen
@@ -2678,6 +2742,38 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def CategsInListQR(pcReturnType)
 				return This.ClassesInListQR(pcReturnType)
 
+		#--
+
+		def ClassesInLists()
+			return This.ClassesInList()
+
+		def KlassesInLists()
+			return This.ClassesInList()
+
+			def KlassesInListsQ()
+				return This.ClassesInListQ()
+
+			def KlassesInListsQR(pcReturnType)
+				return This.CategoriesInListQR(pcReturnType)
+
+		def CategoriesInLists()
+			return This.ClassesInList()
+
+			def CategoriesInListsQ()
+				return This.ClassesInListQ()
+
+			def CategoriesInListsQR(pcReturnType)
+				return This.ClassesInListQR(pcReturnType)
+
+		def CategsInLists()
+			return This.ClassesInList()
+
+			def CategsInListsQ()
+				return This.ClassesInListQ()
+
+			def CategsInListsQR(pcReturnType)
+				return This.ClassesInListQR(pcReturnType)
+
 		#>
 
 	  #-----------------------------------------#
@@ -2716,6 +2812,38 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def HowManyKlassInList()
 			return This.NumberOfClassesInList()
 
+		#--
+
+		def NumberOfClassesInLists()
+			return This.NumberOfClassesInList()
+
+		def NumberOfKlassesInLists()
+			return This.NumberOfClassesInList()
+
+		def NumberOfCategoriesInLists()
+			return This.NumberOfClassesInList()
+
+		def NumberOfCategInLists()
+			return This.NumberOfClassesInList()
+
+		def HowManyCategoriesInLists()
+			return This.NumberOfClassesInList()
+
+		def HowManyCategInLists()
+			return This.NumberOfClassesInList()
+
+		def HowManyClassesInLists()
+			return This.NumberOfClassesInList()
+
+		def HowManyClassInLists()
+			return This.NumberOfClassesInList()
+
+		def HowManyKlassesInLists()
+			return This.NumberOfClassesInList()
+
+		def HowManyKlassInLists()
+			return This.NumberOfClassesInList()
+
 		#>
 
 	  #------------------------------#
@@ -2729,7 +2857,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		nLen = len(aClasses)
 
 		for i = 1 to nLen
-			aResult + [ aClasses[i], This.KeysForValue(aClasses[i]) ]
+			aResult + [ aClasses[i], This.FindItem(aClasses[i]) ]
 		next
 
 		return aResult
@@ -2783,6 +2911,120 @@ class stzHashList from stzList # Also called stzAssociativeList
 				return This.ClassifyInListQ()
 
 			def KlassifyInListQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
+
+		#--
+
+		def ClassifyInLists()
+			return This.ClassifyInList()
+
+			def ClassifyInListsQ()
+				return This.ClassifyInListQ()
+	
+			def ClassifyInListsQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
+
+		def CategoriseInLists()
+			return This.ClassifyInList()
+
+			def CategoriseInListsQ()
+				return This.ClassifyInListQ()
+	
+			def CategoriseInListsQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
+
+		def CategorizeInLists()
+			return This.ClassifyInLists()
+
+			def CategorizeInListsQ()
+				return This.ClassifyInListQ()
+	
+			def CategorizeInListsQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
+
+		def KlassifyInLists()
+			return This.ClassifyInList()
+
+			def KlassifyInListsQ()
+				return This.ClassifyInListQ()
+
+			def KlassifyInListsQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
+
+		#==
+
+		def ClassifyItemsInList()
+			return This.ClassifyInList()
+
+			def ClassifyItemsInListQ()
+				return This.ClassifyInList()
+
+			def ClassifyItemsInListQR(pcReturnType)
+				return This.ClassifyInListQT(pcReturnType)
+
+		def CategoriseItemsInList()
+			return This.ClassifyInListQ()
+
+			def CategoriseItemsInListQ()
+				return This.ClassifyInListQ()
+	
+			def CategoriseItemsInListQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
+
+		def CategorizeItemsInList()
+			return This.ClassifyInList()
+
+			def CategorizeItemsInListQ()
+				return This.ClassifyInListQ()
+	
+			def CategorizeItemsInListQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
+
+		def KlassifyItemsInList()
+			return This.ClassifyInList()
+
+			def KlassifyItemsInListQ()
+				return This.ClassifyInListQ()
+
+			def KlassifyItemsInListQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
+
+		#--
+
+		def ClassifyItemsInLists()
+			return This.ClassifyInList()
+
+			def ClassifyItemsInListsQ()
+				return This.ClassifyInListQ()
+	
+			def ClassifyItemsInListsQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
+
+		def CategoriseItemsInLists()
+			return This.ClassifyInList()
+
+			def CategoriseItemsInListsQ()
+				return This.ClassifyInListQ()
+	
+			def CategoriseItemsInListsQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
+
+		def CategorizeItemsInLists()
+			return This.ClassifyInLists()
+
+			def CategorizeItemsInListsQ()
+				return This.ClassifyInListQ()
+	
+			def CategorizeItemsInListsQR(pcReturnType)
+				return This.ClassifyInListQR(pcReturnType)
+
+		def KlassifyItemsInLists()
+			return This.ClassifyInList()
+
+			def KlassifyItemsInListsQ()
+				return This.ClassifyInListQ()
+
+			def KlassifyItemsInListsQR(pcReturnType)
 				return This.ClassifyInListQR(pcReturnType)
 
 		#>
@@ -2845,6 +3087,44 @@ class stzHashList from stzList # Also called stzAssociativeList
 				return This.KalssInListQ(pcClass)
 
 			def CategInListQR(pcClass, pcReturnType)
+				return This.KalssInListQR(pcClass)
+
+		#--
+
+		def KalssInLists(pcClass)
+			return This.KlassInList(pcClass)
+
+			def KalssInListsQ(pcClass)
+				return This.KalssInListQ(pcClass)
+
+			def KalssInListsQR(pcClass, pcReturnType)
+				return This.KalssInListQR(pcClass)
+
+		def ClassInLists(pcClass)
+			return This.KlassInList(pcClass)
+
+			def ClassInListsQ(pcClass)
+				return This.KalssInListQ(pcClass)
+
+			def ClassInListsQR(pcClass, pcReturnType)
+				return This.KalssInListQR(pcClass)
+
+		def CategoryInLists(pcClass)
+			return This.KlassInList(pcClass)
+
+			def CategoryInListsQ(pcClass)
+				return This.KalssInListQ(pcClass)
+
+			def CategoryInListsQR(pcClass, pcReturnType)
+				return This.KalssInListQR(pcClass)
+
+		def CategInLists(pcClass)
+			return This.KlassInList(pcClass)
+
+			def CategInListsQ(pcClass)
+				return This.KalssInListQ(pcClass)
+
+			def CategInListsQR(pcClass, pcReturnType)
 				return This.KalssInListQR(pcClass)
 
 		#>
