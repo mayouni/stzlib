@@ -528,8 +528,15 @@ o1 = new stzHashList([
 
 # Strongest and weakest classes
 
-? o1.StrongestClass()	#--> :white
-? o1.WeakestClass()	#--> :yellow
+? o1.StrongestKlass()
+#--> :yelllow
+
+? o1.StrongestKlassXT()
+
+? o1.WeakestKlass()
+#--> :yellow
+
+? o1.WeakestKlassXT()
 
 /*
 # ? o1.Top3Classes()	#--> [ :white, :red, :green ]
