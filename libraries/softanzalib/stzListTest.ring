@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*==========
-*/
+
 pron()
 
 o1 = new stzList([ Q("one"), Q(1), Q("two"), Q(2), Q("three"), Q(3), Q(1:2), NullObject() ])
@@ -262,7 +262,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzList([ "♥", "A", "B", "C", "♥" ])
@@ -3399,8 +3399,6 @@ StopProfiler()
 
 /*------------ TODO, Check performance
 
-*/
-
 StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
@@ -3971,9 +3969,10 @@ end
 
 StopProfiler()
 
-/*============
-*/
+/*============ TODO: check it:
+
 StartProfiler()
+
  #                  ...4.6...v...4.v.v..1.v..
 o1 = new stzString("---[ [===]---[=] ]--[=]--")
 #                   ...^.^...0...^.6.8..^.3..
@@ -4540,7 +4539,9 @@ o1 *= new stzList([ 0, 2, 0, 3, [1,2] ])
 ? o1.IsListOfNumbersAndPairsOfNumbers() #--> TRUE
 
 /*========= Deep finding items at any level : TODO
-*/
+
+pron()
+
 o1 = new stzList([
 	"you",
 	"other",
@@ -4550,8 +4551,8 @@ o1 = new stzList([
 ])
 
 ? o1.NumberOfLevels() #--> 3
-/* TODO
-? o1.DeepFind("you")
+
+? @@( o1.DeepFind("you") )
 #--> "you" is found in the following positions:
 # [
 #	[ "1",      [1, 5] ],
@@ -4559,6 +4560,8 @@ o1 = new stzList([
 #	[ "1.3.3",  [ 1  ] ],
 #	[ "1.5",    [ 1  ] ]
 # ]
+
+proff()
 
 /*========= Replace and DeepReplace
 
@@ -6848,14 +6851,45 @@ o1 = new stzList([ "a", "b", "c", "d", "e" ])
 o1 - [ "b", "c" ]
 ? o1.Content()
 
-/*--------------- TODO: Works only for strings --> Move it to stzListOfStrings
+/*==============
+*/
+pron()
 
 o1 = new stzList(["file1", "file2", "file3" ])
-o1 * ".ring"	#--> [ "file1.ring", "file2.ring", "file3.ring" ]
-//o1 + ".ring"	#--> [ "file1", "file2", "file3", ".ring" ]
-? o1.Content()
 
-/*---------------
+# The operators (*, +, /) when used with basic Ring types
+# (strings, numbers) return a new value without altering
+# the object in use (o1 in our case):
+
+? o1 * ".ring"
+#--> [ "file1.ring", "file2.ring", "file3.ring" ]
+
+? o1 + "file4"
+#--> [ "file1.ring", "file2.ring", "file3.ring", "file4" ]
+
+? @@( o1 / 3 ) + NL
+#--> [ [ "file1" ], [ "file2" ], [ "file3" ] ]
+
+# o1 content remained the same:
+
+? @@( o1.Content() )
+#--> [ "file1", "file2", "file3" ]
+
+# Now, we are going to use the same operators and let them
+# change the object itself. To do so, we use Q() like this:
+
+o1 * Q(".ring")
+? @@( o1.Content() ) + NL
+#--> [ "file1.ring", "file2.ring", "file3.ring" ]
+
+o1 / Q(3)
+? @@( o1.Content() )
+#--> [ [ "file1.ring" ], [ "file2.ring" ], [ "file3.ring" ] ]
+
+proff()
+
+/*===========
+
 
 o1 = new stzList([ "medianet", "st2i", "webgenetix", "equinoxes", "groupe-lsi",
 		   "prestige-concept", "sonibank", "keyrus", "whitecape",

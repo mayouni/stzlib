@@ -7,6 +7,11 @@ pron()
 ? Q(1:7) - [1, 2, 6, 7] # TODO: check it's the same for all the library
 #--> [ 3, 4, 5 ]
 
+? Q("Ringggg") - "ggg"
+
+//? Q("Ringgg") - Q("ggg")
+#--> A StzString object containg "Ring"
+
 proff()
 
 /*---------------

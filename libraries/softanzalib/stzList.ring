@@ -14781,16 +14781,12 @@ class stzList from stzObject
 		return aResult
 
 	def UnsortableItems()
-		/* Should be resolved by saying:
-			return (This - SortableItems()).Content()
+		aContent = This.Content()
+		nLen = len(aContent)
 
-		   but this yields an error (check it!)
-
-		  That's why, we used a more secure code, in anology to
-		  the code of SortableItems()
-		*/
 		aResult = []
-		for item in Content()
+		for i = 1 to nLen
+			item = aContent[i]
 			if isNumber(item) or isString(item) or isList(item) or
 			   @IsStzNumber(item) or @IsStzString(item) or @IsStzList(item)
 				// do nothing, skip!
@@ -15958,29 +15954,60 @@ class stzList from stzObject
 		but pcOp = "/" 
 
 			if isNumber(pValue)
-				return This.SplitToNParts(pValue)
+				return This.SplittedToNParts(pValue)
+
+			but @IsStzNumber(pValue)
+				This.SplitToNParts(pValue.NumericValue())
+				return This
 
 			but isList(pValue)
-				return This.DistributeOver(pValue)
+				return This.DistributedOver(pValue)
+
+			but @IsStzList(pValue)
+				This.DistributeOver(pValue.Content())
+				return This
 			ok
 
 		but pcOp = "-"
 			if isList(pValue)
-				This.RemoveMany(pValue)
+				aResult = This.Copy().RemoveManyQ(pValue).Content()
+				return aResult
 			
-			else	
-				anPositions = This.FindAll(pValue)
+			but @IsStzList(pValue)
+				This.RemoveMany(pValue.Content())
+				return This
+			
+			but @IsStzObject(pValue)	
+				anPositions = This.FindAll(pValue.Content())
 				This.RemoveItemsAtPositions(anPositions)
+
+			else
+				anPositions = This.FindAll(pValue)
+				aResult = This.Copy().RemoveItemsAtPositions(anPositions)
+				return aResult
 			ok
-			return This.Content()
 
 		but pcOp = "*"
-			This.MultiplyBy(pValue)
-			return This.Content()
+			if @IsStzObject(pValue)
+
+				This.MultiplyBy(pValue.Content())
+				return This
+
+			else
+				aResult = This.Copy().MultiplyByQ(pValue).Content()
+				return aResult
+			ok
 
 		but pcOp = "+"
-			This.AddItem(pValue)
-			return This.Content()
+
+			if @IsStzObject(pValue)
+				This.AddItem(pValue.Content())
+				return This
+
+			else
+				aResult = This.Copy().AddItemQ(pValue).Content()
+				return aResult
+			ok
 		ok
 
 	  #------------------------------#
@@ -26865,36 +26892,30 @@ class stzList from stzObject
 		#>
 
 	  #---------------------------#
-	 #    SPLITTING TO N PARTS   # TODO: Should be deleagted to stzSplitter
+	 #    SPLITTING TO N PARTS   #
 	#---------------------------#
 
 	def SplitToNParts(n)
-
-		if NOT isNumber(n)
-			StzRaisr("Incorrect param type! n must be a number.")
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
 		ok
 
-		nLen = This.NumberOfItems()
-
-		if n > nLen
-			StzRaise("Can't proceed! n must be smaller then list size.")
-		ok
-
-		if n = 1
-			return This.List()
-
-		ok
-	
-		aResult = This / n
-
-		return aResult
+		aSections = StzSplitterQ(1:n).SplitToNParts(n)
+		This.UpdateWith( This.Sections(aSections) )
 
 		#< @FunctionFluentForm
 
 		def SplitToNPartsQ(n)
-			return new stzList( This.SplitToNParts(n) )
+			This.SplitToNParts(n)
+			return This
 
 		#>
+
+	def SplittedToNParts(n)
+		aResult = This.Copy().SplitToNPartsQ(n).Content()
+		return aResult
 
 	  #-----------------------------------------------------------#
 	 #    SPLITTING BEFORE AN ITEM VERIFYING A GIVEN CONDITION   #

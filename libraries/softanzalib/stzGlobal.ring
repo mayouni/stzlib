@@ -2433,7 +2433,7 @@ func TodoXT(pcCurrentOrFuture)
 		# Misspelled variations
 		:Fture, :InFture, :FtureRelease, :InFtureRelease ])
 
-		StzRaisr("Incorrect param! pcCurrentOrFuture must be a string equal to :Current or :Future.")
+		StzRaise("Incorrect param! pcCurrentOrFuture must be a string equal to :Current or :Future.")
 	ok
 
 	if Q(pcCurrentOrFuture).IsOneOfThese([ :Future, :InFuture, :FutureRelase, :InFutureRelase ])

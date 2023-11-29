@@ -3542,6 +3542,518 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	  #-------------------------------------#
+	 #   GETTING THE N STRONGEST CLASSES   #
+	#=====================================#
+
+	def NStrongestClasses(n)
+		anPos = QR(This.ClassesFrequencies(), :stzListOfNumbers).FindNGreatestNumbers(n)
+		acResult = Q(This.Classes()).ItemsAtPositions(anPos)
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def NStrongestKlasses(n)
+			return This.NStrongestClasses(n)
+
+		def NStrongestCategories(n)
+			return This.NStrongestClasses(n)
+
+		def NStrongestCateg(n)
+			return This.NStrongestClasses(n)
+
+		def StrongestNClasses(n)
+			return This.NStrongestClasses(n)
+
+		def StrongestNKlasses(n)
+			return This.NStrongestClasses(n)
+
+		def StrongestNCategories(n)
+			return This.NStrongestClasses(n)
+
+		def StrongestNCateg(n)
+			return This.NStrongestClasses(n)
+
+		#>
+
+	def NStrongestClassesXT(n)
+
+//		anPos     = QR(This.ClassesFrequencies(), :stzListOfNumbers).FindNGreatestNumbers(n)
+
+		anPos = Q(This.ClassesFrequencies()).SortQ().LastNItemsQ(3).SortedInDescending()
+
+		acClasses = Q(This.Classes()).ItemsAtPositions(anPos)
+		anFreqs   = Q(This.ClassesFrequencies()).ItemsAtPositions(anPos)
+
+		aResult   = Association([ acClasses, anFreqs ])
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def NStrongestKlassesXT(n)
+			return This.NStrongestClassesXT(n)
+
+		def NStrongestCategoriesXT(n)
+			return This.NStrongestClassesXT(n)
+
+		def NStrongestCategXT(n)
+			return This.NStrongestClassesXT(n)
+
+		def StrongestNClassesXT(n)
+			return This.NStrongestClassesXT(n)
+
+		def StrongestNKlassesXT(n)
+			return This.NStrongestClassesXT(n)
+
+		def StrongestNCategoriesXT(n)
+			return This.NStrongestClassesXT(n)
+
+		def StrongestNCategXT(n)
+			return This.NStrongestClassesXT(n)
+
+		#--
+
+		def NStrongestKlassesAndTheirFrequencies(n)
+			return This.NStrongestClassesXT(n)
+
+		def NStrongestCategoriesAndTheirFrequencies(n)
+			return This.NStrongestClassesXT(n)
+
+		def NStrongestCategAndTheirFrequencies(n)
+			return This.NStrongestClassesXT(n)
+
+		def StrongestNClassesAndTheirFrequencies(n)
+			return This.NStrongestClassesXT(n)
+
+		def StrongestNKlassesAndTheirFrequencies(n)
+			return This.NStrongestClassesXT(n)
+
+		def StrongestNCategoriesAndTheirFrequencies(n)
+			return This.NStrongestClassesXT(n)
+
+		def StrongestNCategAndTheirFrequencies(n)
+			return This.NStrongestClassesXT(n)
+
+		#>
+
+	#--
+
+	def StrongestClass()
+		return This.StrongestNClasses(1)
+
+		#< @FunctionAlternativeForms
+
+		def StrongestKlass()
+			return This.StrongestClass()
+
+		def StrongestCategory()
+			return This.StrongestClass()
+
+		def StrongestCateg()
+			return This.StrongestClass()
+
+		def TopClass()
+			return This.StrongestClass()
+
+		def TopKlass()
+			return This.StrongestClass()
+
+		def TopCategory()
+			return This.StrongestClass()
+
+		def TopCateg()
+			return This.StrongestClass()
+
+		#>
+
+	def StrongestClassXT()
+		return This.StrongestNClassesXT(1)
+
+		#< @FunctionAlternativeForms
+
+		def StrongestKlassXT()
+			return This.StrongestClassXT()
+
+		def StrongestCategoryXT()
+			return This.StrongestClassXT()
+
+		def StrongestCategXT()
+			return This.StrongestClassXT()
+
+		def TopClassXT()
+			return This.StrongestClassXT()
+
+		def TopKlassXT()
+			return This.StrongestClassXT()
+
+		def TopCategoryXT()
+			return This.StrongestClassXT()
+
+		def TopCategXT()
+			return This.StrongestClassXT()
+
+		#--
+
+		def StrongestClassAndTheirFrequencies()
+			return This.StrongestClassXT()
+
+		def StrongestKlassAndTheirFrequencies()
+			return This.StrongestClassXT()
+
+		def StrongestCategoryAndTheirFrequencies()
+			return This.StrongestClassXT()
+
+		def StrongestCategAndTheirFrequencies()
+			return This.StrongestClassXT()
+
+		def TopClassAndTheirFrequencies()
+			return This.StrongestClassXT()
+
+		def TopKlassAndTheirFrequencies()
+			return This.StrongestClassXT()
+
+		def TopCategoryAndTheirFrequencies()
+			return This.StrongestClassXT()
+
+		def TopCategAndTheirFrequencies()
+			return This.StrongestClassXT()
+
+		#>
+
+	#--
+
+	def Top3Classes()
+		return This.StrongestNClasses(3)
+
+		#< @FunctionAlternativeForms
+
+		def 3StrongestKlasses(n)
+			return This.Top3Classes(n)
+
+		def 3StrongestCategories(n)
+			return This.Top3Classes(n)
+
+		def 3StrongestCateg(n)
+			return This.Top3Classes(n)
+
+		def Strongest3Classes()
+			return This.Top3Classes(n)
+
+		def Strongest3Klasses(n)
+			return This.Top3Classes(n)
+
+		def Strongest3Categories(n)
+			return This.Top3Classes(n)
+
+		def Strongest3Categ(n)
+			return This.Top3Classes(n)
+
+		#>
+
+	def Top3ClassesXT()
+		return This.StrongestNClassesXT(3)
+
+		#< @FunctionAlternativeForms
+
+		def 3StrongestKlassesXT(n)
+			return This.Top3ClassesXT(n)
+
+		def 3StrongestCategoriesXT(n)
+			return This.Top3ClassesXT(n)
+
+		def 3StrongestCategXT(n)
+			return This.Top3ClassesXT(n)
+
+		def Strongest3ClassesXT()
+			return This.Top3ClassesXT(n)
+
+		def Strongest3KlassesXT(n)
+			return This.Top3ClassesXT(n)
+
+		def Strongest3CategoriesXT(n)
+			return This.Top3ClassesXT(n)
+
+		def Strongest3CategXT(n)
+			return This.Top3ClassesXT(n)
+
+		#--
+
+		def Top3ClassesAndTheirFrequencies(n)
+			return This.Top3ClassesXT(n)
+
+		def 3StrongestKlassesAndTheirFrequencies(n)
+			return This.Top3ClassesXT(n)
+
+		def 3StrongestCategoriesAndTheirFrequencies(n)
+			return This.Top3ClassesXT(n)
+
+		def 3StrongestCategAndTheirFrequencies(n)
+			return This.Top3ClassesXT(n)
+
+		def Strongest3ClassesAndTheirFrequencies()
+			return This.Top3ClassesXT(n)
+
+		def Strongest3KlassesAndTheirFrequencies(n)
+			return This.Top3ClassesXT(n)
+
+		def Strongest3CategoriesAndTheirFrequencies(n)
+			return This.Top3ClassesXT(n)
+
+		def Strongest3CategAndTheirFrequencies(n)
+			return This.Top3ClassesXT(n)
+
+		#>
+
+	  #-----------------------------------#
+	 #   GETTING THE N WEAKEST CLASSES   #
+	#===================================#
+
+	def NWeakestClasses(n)
+		anPos = QR(This.ClassesFrequencies(), :stzListOfNumbers).FindNLowestNumbers(n)
+		acResult = Q(This.Classes()).ItemsAtPositions(anPos)
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def NWeakestKlasses(n)
+			return This.NWeakestClasses(n)
+
+		def NWeakestCategories(n)
+			return This.NWeakestClasses(n)
+
+		def NWeakestCateg(n)
+			return This.NWeakestClasses(n)
+
+		def WeakestNClasses(n)
+			return This.NWeakestClasses(n)
+
+		def WeakestNKlasses(n)
+			return This.NWeakestClasses(n)
+
+		def WeakestNCategories(n)
+			return This.NWeakestClasses(n)
+
+		def WeakestNCateg(n)
+			return This.NWeakestClasses(n)
+
+		#>
+
+	def NWeakestClassesXT(n)
+		anPos     = QR(This.ClassesFrequencies(), :stzListOfNumbers).FindNSmallestNumbers(n)
+
+		acClasses = Q(This.Classes()).ItemsAtPositions(anPos)
+		anFreqs   = Q(This.ClassesFrequencies()).ItemsAtPositions(anPos)
+
+		aResult   = Association([ acClasses, anFreqs ])
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def NWeakestKlassesXT(n)
+			return This.NWeakestClassesXT(n)
+
+		def NWeakestCategoriesXT(n)
+			return This.NWeakestClassesXT(n)
+
+		def NWeakestCategXT(n)
+			return This.NWeakestClassesXT(n)
+
+		def WeakestNClassesXT(n)
+			return This.NWeakestClassesXT(n)
+
+		def WeakestNKlassesXT(n)
+			return This.NWeakestClassesXT(n)
+
+		def WeakestNCategoriesXT(n)
+			return This.NWeakestClassesXT(n)
+
+		def WeakestNCategXT(n)
+			return This.NWeakestClassesXT(n)
+
+		#--
+
+		def NWeakestClassesAndTheirFrequencies(n)
+			return This.NWeakestClassesXT(n)
+
+		def WeakestNClassesAndTheirFrequencies(n)
+			return This.NWeakestClassesXT(n)
+
+		def NWeakestKlassesAndTheirFrequencies(n)
+			return This.NWeakestClassesXT(n)
+
+		def WeakestNKlassesAndTheirFrequencies(n)
+			return This.NWeakestClassesXT(n)
+
+		def NWeakestCategoriesAndTheirFrequencies(n)
+			return This.NWeakestClassesXT(n)
+
+		def WeakestNCategoriesAndTheirFrequencies(n)
+			return This.NWeakestClassesXT(n)
+
+		def NWeakestCategsAndTheirFrequencies(n)
+			return This.NWeakestClassesXT(n)
+
+		def WeakestNCategAndTheirFrequencies(n)
+			return This.NWeakestClassesXT(n)
+
+		#>
+
+	#--
+
+	def WeakestClass()
+		return This.WeakestNClasses(1)
+
+		#< @FunctionAlternativeForms
+
+		def WeakestKlass()
+			return This.WeakestClass()
+
+		def WeakestCategory()
+			return This.WeakestClass()
+
+		def WeakestCateg()
+			return This.WeakestClass()
+
+		def BottomClass()
+			return This.WeakestClass()
+
+		def BottomKlass()
+			return This.WeakestClass()
+
+		def BottomCategory()
+			return This.WeakestClass()
+
+		def BottomCateg()
+			return This.WeakestClass()
+
+		#>
+
+	def WeakestClassXT()
+		return This.WeakestNClassesXT(1)
+
+		#< @FunctionAlternativeForms
+
+		def WeakestKlassXT()
+			return This.WeakestClassXT()
+
+		def WeakestCategoryXT()
+			return This.WeakestClassXT()
+
+		def WeakestCategXT()
+			return This.WeakestClassXT()
+
+		def BottomClassXT()
+			return This.WeakestClassXT()
+
+		def BottomKlassXT()
+			return This.WeakestClassXT()
+
+		def BottomCategoryXT()
+			return This.WeakestClassXT()
+
+		def BottomCategXT()
+			return This.WeakestClassXT()
+
+		#--
+
+		def WeakestClassAndItsFrequency(n)
+			return This.WeakestClassXT(n)
+
+		def WeakestKlassAndItsFrequency(n)
+			return This.WeakestClassXT(n)
+
+		def WeakestCategoryAndItsFrequency(n)
+			return This.WeakestClassXT(n)
+
+		def WeakestCategAndItsFrequency(n)
+			return This.WeakestClassXT(n)
+
+		#>
+
+	#--
+
+	def Bottom3Classes()
+		return This.WeakestNClasses(3)
+
+		#< @FunctionAlternativeForms
+
+		def 3WeakestKlasses(n)
+			return This.Bottom3Classes(n)
+
+		def 3WeakestCategories(n)
+			return This.Bottom3Classes(n)
+
+		def 3WeakestCateg(n)
+			return This.Bottom3Classes(n)
+
+		def Weakest3Classes()
+			return This.Bottom3Classes(n)
+
+		def Weakest3Klasses(n)
+			return This.Bottom3Classes(n)
+
+		def Weakest3Categories(n)
+			return This.Bottom3Classes(n)
+
+		def Weakest3Categ(n)
+			return This.Bottom3Classes(n)
+
+		#>
+
+	def Bottom3ClassesXT()
+		return This.WeakestNClassesXT(3)
+
+		#< @FunctionAlternativeForms
+
+		def 3WeakestKlassesXT(n)
+			return This.Bottom3ClassesXT(n)
+
+		def 3WeakestCategoriesXT(n)
+			return This.Bottom3ClassesXT(n)
+
+		def 3WeakestCategXT(n)
+			return This.Bottom3ClassesXT(n)
+
+		def Weakest3ClassesXT()
+			return This.Bottom3ClassesXT(n)
+
+		def Weakest3KlassesXT(n)
+			return This.Bottom3ClassesXT(n)
+
+		def Weakest3CategoriesXT(n)
+			return This.Bottom3ClassesXT(n)
+
+		def Weakest3CategXT(n)
+			return This.Bottom3ClassesXT(n)
+
+		#--
+
+
+		def 3WeakestKlassesAndTheirFrequencies(n)
+			return This.Bottom3ClassesXT(n)
+
+		def 3WeakestCategoriesAndTheirFrequencies(n)
+			return This.Bottom3ClassesXT(n)
+
+		def 3WeakestCategAndTheirFrequencies(n)
+			return This.Bottom3ClassesXT(n)
+
+		def Weakest3ClassesAndTheirFrequencies()
+			return This.Bottom3ClassesXT(n)
+
+		def Weakest3KlassesAndTheirFrequencies(n)
+			return This.Bottom3ClassesXT(n)
+
+		def Weakest3CategoriesAndTheirFrequencies(n)
+			return This.Bottom3ClassesXT(n)
+
+		def Weakest3CategAndTheirFrequencies(n)
+			return This.Bottom3ClassesXT(n)
+
+		#>
+
+	  #-------------------------------------#
 	 #   CLASSIFYING VALUES INSIDE LISTS   #
 	#=====================================#
 
