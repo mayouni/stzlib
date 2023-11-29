@@ -1063,10 +1063,75 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
+		def ContainsThisValueCS(pValue, pCaseSensitive)
+			return This.ContainsValueCS(pValue, pCaseSensitive)
+
+		def ValueExistsCS(pValue, pCaseSensitive)
+			return This.ContainsValueCS(pValue, pCaseSensitive)
+
+		def ThisValueExistsCS(pValue, pCaseSensitive)
+			return This.ContainsValueCS(pValue, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVE
 
 	def ContainsValue(pValue)
 		return This.ContainsValueCS(pValue, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ContainsThisValue(pValue)
+			return This.ContainsValue(pValue)
+
+		def ValueExists(pValue)
+			return This.ContainsValue(pValue)
+
+		def ThisValueExists(pValue)
+			return This.ContainsValue(pValue)
+
+		#>
+
+	  #------------------------------------------------------#
+	 #  CHECKING IF THE HASHLIST CONTAINS THE GIVEN VALUES  #
+	#------------------------------------------------------#
+
+	def ContainsValuesCS(paValues, pCaseSensitive)
+		bResult = This.ValuesQ().ContainsManyCS(paValues, pCaseSensitive)
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ContainsTheseValuesCS(paValues, pCaseSensitive)
+			return This.ContainsValuesCS(pValue, pCaseSensitive)
+
+		def ValuesExistCS(paValues, pCaseSensitive)
+			return This.ContainsValuesCS(paValues, pCaseSensitive)
+
+		def TheseValueExistCS(paValues, pCaseSensitive)
+			return This.ContainsValuesCS(paValues, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVE
+
+	def ContainsValues(paValues)
+		return This.ContainsValuesCS(paValues, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ContainsTheseValues(paValues)
+			return This.ContainsValues(pValue)
+
+		def ValuesExist(paValues)
+			return This.ContainsValues(paValues)
+
+		def TheseValueExist(paValues)
+			return This.ContainsValues(paValues)
+
+		#>
 
 	  #---------------------#
 	 #   FINDING A VALUE   #
@@ -2382,7 +2447,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def Kalsses()
+		def Klasses()
 			return This.Classes()
 
 			def KlassesQ()
@@ -2400,6 +2465,133 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def CategoriesQR(pcReturnType)
 				return ClassesQR(pcReturnType)
 	
+		#>
+
+	  #-----------------------------------------------------#
+	 #  CHECKING IF THE HASHLIST CONTAINS THE GIVEN CLASS  #
+	#-----------------------------------------------------#
+
+	def ContainsClass(pcClass)
+		bResult = This.ContainsValueCS(pcClass, :CaseSensitive = FALSE)
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ClassExists(pcClass)
+			return This.ContainsClass(pcClass)
+
+		def ContainsThisClass(pcClass)
+			return This.ContainsClass(pcClass)
+
+		def ThisClassExists(pcClass)
+			return This.ContainsClass(pcClass)
+
+		#--
+
+		def ContainsKlass(pcClass)
+			return This.ContainsClass(pcClass)
+
+		def KlassExists(pcClass)
+			return This.ContainsClass(pcClass)
+
+		def ContainsThisKlass(pcClass)
+			return This.ContainsClass(pcClass)
+
+		def ThisKlassExists(pcClass)
+			return This.ContainsClass(pcClass)
+
+		#--
+
+		def ContainsCategory(pcClass)
+			return This.ContainsClass(pcClass)
+
+		def CategoryExists(pcClass)
+			return This.ContainsClass(pcClass)
+
+		def ContainsThisCategory(pcClass)
+			return This.ContainsClass(pcClass)
+
+		def ThisCategoryExists(pcClass)
+			return This.ContainsClass(pcClass)
+
+		def ContainsCateg(pcClass)
+			return This.ContainsClass(pcClass)
+
+		def CategExists(pcClass)
+			return This.ContainsClass(pcClass)
+
+		def ContainsThisCateg(pcClass)
+			return This.ContainsClass(pcClass)
+
+		def ThisCategExists(pcClass)
+			return This.ContainsClass(pcClass)
+		#>
+
+	  #-------------------------------------------------------#
+	 #  CHECKING IF THE HASHLIST CONTAINS THE GIVEN CLASSES  #
+	#-------------------------------------------------------#
+
+	def ContainsClasses(pacClasses)
+		bResult = This.ContainsValuesCS(pacClasses, :CaseSensitive = FALSE)
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ClassesExist(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def ContainsTheseClasses(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def TheseClassesExist(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		#--
+
+		def ContainsKlasses(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def KlassesExist(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def ContainsTheseKlasses(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def TheseKlassesExist(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		#--
+
+		def ContainsCategories(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def CategoriesExist(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def ContainsTheseCategories(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def TheseCategoriesExist(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def ContainsCategs(pacClasses)
+			return This.ContainsClass(pacClasses)
+
+		def CategsExist(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def ContainsTheseCateg(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def ContainsTheseCategs(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def TheseCategExist(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
+		def TheseCategsExist(pacClasses)
+			return This.ContainsClasses(pacClasses)
+
 		#>
 
 	  #-------------------------------------------------------------#
@@ -2496,6 +2688,30 @@ class stzHashList from stzList # Also called stzAssociativeList
 	
 			def ClassQR(pcClass, pcReturnType)
 				return This.KlassQR(pcClass, pcReturnType)
+
+		def ValuesInClass(pcClass)
+			return This.Klass(pcClass)
+
+		def ValuesInKlass(pcClass)
+			return This.Klass(pcClass)
+
+		def ClassValues(pcClass)
+			return This.Klass(pcClass)
+
+		def KlassValues(pcClass)
+			return This.Klass(pcClass)
+
+		def ContentOfClass(pcClass)
+			return This.Klass(pcClass)
+
+		def ContentOfKlass(pcClass)
+			return This.Klass(pcClass)
+
+		def ClassContent(pcClass)
+			return This.Klass(pcClass)
+
+		def KlassContent(pcClass)
+			return This.Klass(pcClass)
 
 		#>
 
@@ -2615,9 +2831,268 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#>
 
-	  #-------------------------------#
-	 #  CALCULATING CLASS FREQUENCY  #
-	#-------------------------------#
+	  #--------------------------------#
+	 #  GETIING SIZES OF ALL CLASSES  #
+	#--------------------------------#
+
+	def ClassesSizes()
+		acClasses = This.Classes()
+		nLen = len(acClasses)
+
+		anResult = []
+
+		for i = 1 to nLen
+			anResult + This.ClassSize(acClasses[i])
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def KlassesSizes()
+			return This.ClassesSizes()
+
+		#--
+
+		def CategoriesSizes()
+			return This.ClassesSizes()
+
+		def CategSizes()
+			return This.ClassesSizes()
+
+		def CategsSizes()
+			return This.ClassesSizes()
+
+		#--
+
+		def NumberOfValuesInAllClasses()
+			return This.ClassesSizes()
+
+		def NumberOfValuesInAllKlasses()
+			return This.ClassesSizes()
+
+		#>
+
+	def ClassesSizesXT()
+		acClasses = This.Classes()
+		nLen = len(acClasses)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ acClasses[i], This.ClassSize(acClasses[i]) ]
+		next
+
+		return aResult
+
+		def KlassesSizesXT()
+			return This.ClassesSizesXT()
+
+		#--
+
+		def CategoriesSizesXT()
+			return This.ClassesSizesXT()
+
+		def CategSizesXT()
+			return This.ClassesSizesXT()
+
+		def CategsSizesXT()
+			return This.ClassesSizesXT()
+
+		#--
+
+		def ClassesAndTheirSizes()
+			return This.ClassesSizesXT()
+
+		def KlassesAndTheirSizes()
+			return This.ClassesSizesXT()
+
+		#--
+
+		def CategoriesAndTheirSizes()
+			return This.ClassesSizesXT()
+
+		def CategAndTheirSizes()
+			return This.ClassesSizesXT()
+
+		def CategsAndTheirSizes()
+			return This.ClassesSizesXT()
+
+		#--
+
+		def NumberOfValuesInAllClassesXT()
+			return This.ClassesSizesXT()
+
+		def NumberOfValuesInAllKlassesXT()
+			return This.ClassesSizesXT()
+
+		#>
+
+	  #--------------------------------------#
+	 #  GETIING SIZES OF THE GIVEN CLASSES  #
+	#--------------------------------------#
+
+	def TheseClassesSizes(pacClasses)
+		if CheckParams()
+			if NOT (isList(pacClasses) and Q(pacClasses).IsListOfStrings())
+				StzRaise("Incorrect param type! pcClasses must be a list of strings.")
+			ok
+		ok
+
+		nLen = len(pacClasses)
+
+		anResult = []
+
+		for i = 1 to nLen
+			anResult + This.ClassSize(pacClasses[i])
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def TheseKlassesSizes(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def SizesOfTheseClasses(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def SizesOfTheseKlasses(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def SizesOfThesecategories(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def SizesOfTheseCategs(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def SizesOfTheseCateg(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		#--
+
+		def TheseCategoriesSizes(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def TheseCategsSizes(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		#--
+
+		def NumberOfValuesInTheseClasses(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def NumberOfValuesInTheseKlasses(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def NumbersOfValuesInTheseClasses(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def NumbersOfValuesInTheseKlasses(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def NumberOfValuesInTheseCategories(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def NumbersOfValuesInTheseCategories(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def NumberOfValuesInTheseCategs(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def NumbersOfValuesInTheseCategs(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def NumberOfValuesInTheseCateg(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		def NumbersOfValuesInTheseCateg(pacClasses)
+			return This.TheseClassesSizes(pacClasses)
+
+		#>
+
+	def TheseClassesSizesXT(pacClasses)
+		if CheckParams()
+			if NOT (isList(pacClasses) and Q(pacClasses).IsListOfStrings())
+				StzRaise("Incorrect param type! pcClasses must be a list of strings.")
+			ok
+		ok
+
+		nLen = len(pacClasses)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ pacClasses[i], This.ClassSize(pacClasses[i]) ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def TheseKlassesSizesXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def SizesOfTheseClassesXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def SizesOfTheseKlassesXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def SizesOfThesecategoriesXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def SizesOfTheseCategsXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def SizesOfTheseCategXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		#--
+
+		def TheseCategoriesSizesXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def TheseCategsSizesXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		#--
+
+		def NumberOfValuesInTheseClassesXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def NumberOfValuesInTheseKlassesXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def NumbersOfValuesInTheseClassesXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def NumbersOfValuesInTheseKlassesXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def NumberOfValuesInTheseCategoriesXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def NumbersOfValuesInTheseCategoriesXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def NumberOfValuesInTheseCategsXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def NumbersOfValuesInTheseCategsXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def NumberOfValuesInTheseCategXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		def NumbersOfValuesInTheseCategXT(pacClasses)
+			return This.TheseClassesSizesXT(pacClasses)
+
+		#>
+
+	  #--------------------------------------------#
+	 #  GETTING THE FREQUENCY OF THE GIVEN CLASS  #
+	#============================================#
 
 	def KlassFreq(pcClass)
 		nResult = This.NumberOfValuesInClass(pcClass) / This.NumberOfValues()
@@ -2673,6 +3148,396 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		def FreqOfThisCateg(pcClass)
 			return This.KlassFreq(pcClass)
+
+		#>
+
+	def KlassFreqXT(pcClass)
+		aResult = [ pcClass, This.ClassFreq(pcClass) ]
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ClassAndItsFrequency(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def KlassAndItsFrequency(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def ClassAndItsFreq(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def KlassAndItsFreq(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def ClassFrequencyXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def KlassFrequencyXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def ClassFreqXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+
+		#--
+
+		def CategoryAndItsFrequency(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def CategoryAndItsFreq(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def CategAndItsFrequency(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def CategAndItsFreq(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def CategoryFrequencyXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def CategoryFreqXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def CategFrequencyXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def CategFreqXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		#--
+
+		def FrequencyOfThisClassXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def FrequencyOfThisKlassXT(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def FrequencyOfThisCategoryXT(pcClass)
+			return This.KlassFreq(pcClass)
+
+		def FrequencyOfThisCategXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		#--
+
+		def FreqOfThisClassXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def FreqOfThisKlassXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def FreqOfThisCategoryXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		def FreqOfThisCategXT(pcClass)
+			return This.KlassFreqXT(pcClass)
+
+		#>
+
+	  #------------------------------------------#
+	 #  GETTING THE FREQUENCIES OF ALL CLASSES  #
+	#------------------------------------------#
+
+	def ClassesFrequencies()
+		acClasses = This.Classes()
+		nLen = len(acClasses)
+
+		anResult = []
+
+		for i = 1 to nLen
+			anResult + This.ClassFrequency(acClasses[i])
+		next
+
+		return anResult
+
+		def KlassesFrequencies()
+			return This.ClassesFrequencies()
+
+		def ClassesFreqs()
+			return This.ClassesFrequencies()
+
+		def ClassesFreq()
+			return This.ClassesFrequencies()
+
+		def KlassesFreqs()
+			return This.ClassesFrequencies()
+
+		def KlassesFreq()
+			return This.ClassesFrequencies()
+
+		#--
+
+		def CategoriesFrequencies()
+			return This.ClassesFrequencies()
+
+		def CategFrequencies()
+			return This.ClassesFrequencies()
+
+		def CategoriesFreqs()
+			return This.ClassesFrequencies()
+
+		def CategoriesFreq()
+			return This.ClassesFrequencies()
+
+		def CategsFrequencies()
+			return This.ClassesFrequencies()
+
+		def CategsFreqs()
+			return This.ClassesFrequencies()
+
+		#>
+
+	def ClassesFrequenciesXT()
+		acClasses = This.Classes()
+		nLen = len(acClasses)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ acClasses[i], This.ClassFrequency(acClasses[i]) ]
+		next
+
+		return aResult
+
+		def KlassesFrequenciesXT()
+			return This.ClassesFrequenciesXT()
+
+		def ClassesFreqsXT()
+			return This.ClassesFrequenciesXT()
+
+		def ClassesFreqXT()
+			return This.ClassesFrequenciesXT()
+
+		def KlassesFreqsXT()
+			return This.ClassesFrequenciesXT()
+
+		def KlassesFreqXT()
+			return This.ClassesFrequenciesXT()
+
+		#--
+
+		def CategoriesFrequenciesXT()
+			return This.ClassesFrequenciesXT()
+
+		def CategFrequenciesXT()
+			return This.ClassesFrequenciesXT()
+
+		def CategoriesFreqsXT()
+			return This.ClassesFrequenciesXT()
+
+		def CategoriesFreqXT()
+			return This.ClassesFrequenciesXT()
+
+		def CategsFrequenciesXT()
+			return This.ClassesFrequenciesXT()
+
+		def CategsFreqsXT()
+			return This.ClassesFrequenciesXT()
+
+		#--
+
+		def ClassesAndTheirFrequencies()
+			return This.ClassesFrequenciesXT()
+
+		def KlassesAndTheirFrequencies()
+			return This.ClassesFrequenciesXT()
+
+		def KlassesAndTheirFreq()
+			return This.ClassesFrequenciesXT()
+
+		def KlassesAndTheirFreqs()
+			return This.ClassesFrequenciesXT()
+
+		#--
+
+		def CategoriesAndTheirFrequencies()
+			return This.ClassesFrequenciesXT()
+
+		def CategoriesAndTheirFreq()
+			return This.ClassesFrequenciesXT()
+
+		def CategoriesAndTheirFreqs()
+			return This.ClassesFrequenciesXT()
+
+		def CategAndTheirFrequencies()
+			return This.ClassesFrequenciesXT()
+
+		def CategsAndTheirFrequencies()
+			return This.ClassesFrequenciesXT()
+
+		def CategAndTheirFreqs()
+			return This.ClassesFrequenciesXT()
+
+		def CategsAndTheirFreqs()
+			return This.ClassesFrequenciesXT()
+
+		#>
+
+	  #------------------------------------------------#
+	 #  GETTING THE FREQUENCIES OF THE GIVEN CLASSES  #
+	#------------------------------------------------#
+
+	def TheseClassesFrequencies(pacClasses)
+		if CheckParams()
+			if NOT (isList(pacClasses) and Q(pacClasses).IsListOfStrings())
+				StzRaise("Incorrect param type! pacClasses must be a list of strings.")
+			ok
+		ok
+
+		nLen = len(pacClasses)
+
+		anResult = []
+
+		for i = 1 to nLen
+			anResult + This.ClassFrequency(pacClasses[i])
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def TheseKlassesFrequencies(pacClasses)
+			return This.TheseClassesFrequencies(pacClasses)
+
+		def TheseClassesFreqs(pacClasses)
+			return This.TheseClassesFrequencies(pacClasses)
+
+		def TheseClassesFreq(pacClasses)
+			return This.TheseClassesFrequencies(pacClasses)
+
+		def TheseKlassesFreqs(pacClasses)
+			return This.TheseClassesFrequencies(pacClasses)
+
+		def TheseKlassesFreq(pacClasses)
+			return This.TheseClassesFrequencies(pacClasses)
+
+		#--
+
+		def TheseCategoriesFrequencies(pacClasses)
+			return This.TheseClassesFrequencies(pacClasses)
+
+		def TheseCategFrequencies(pacClasses)
+			return This.TheseClassesFrequencies(pacClasses)
+
+		def TheseCategoriesFreqs(pacClasses)
+			return This.TheseClassesFrequencies(pacClasses)
+
+		def TheseCategoriesFreq(pacClasses)
+			return This.TheseClassesFrequencies(pacClasses)
+
+		def TheseCategsFrequencies(pacClasses)
+			return This.TheseClassesFrequencies(pacClasses)
+
+		def TheseCategsFreqs(pacClasses)
+			return This.TheseClassesFrequencies(pacClasses)
+
+		#>
+
+	def TheseClassesFrequenciesXT(pacClasses)
+		if CheckParams()
+			if NOT (isList(pacClasses) and Q(pacClasses).IsListOfStrings())
+				StzRaise("Incorrect param type! pacClasses must be a list of strings.")
+			ok
+		ok
+
+		nLen = len(pacClasses)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ pacClasses[i], This.ClassFrequency(pacClasses[i]) ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def TheseKlassesFrequenciesXT(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseClassesFreqsXT(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseClassesFreqXT(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseKlassesFreqsXT(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseKlassesFreqXT(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		#--
+
+		def TheseCategoriesFrequenciesXT(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategFrequenciesXT(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategoriesFreqsXT(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategoriesFreqXT(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategsFrequenciesXT(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategsFreqsXT(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		#--
+
+		def TheseClassesAndTheirFrequencies(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseKlassesAndTheirFrequencies(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategoriesAndTheirFrequencies(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategsAndTheirFrequencies(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategAndTheirFrequencies(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		#--
+
+		def TheseClassesAndTheirFreqs(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseKlassesAndTheirFreqs(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategoriesAndTheirFreqs(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategsAndTheirFreqs(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategAndTheirFreqs(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		#--
+
+		def TheseClassesAndTheirFreq(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseKlassesAndTheirFreq(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategoriesAndTheirFreq(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategsAndTheirFreq(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
+
+		def TheseCategAndTheirFreq(pacClasses)
+			return This.TheseClassesFrequenciesXT(pacClasses)
 
 		#>
 

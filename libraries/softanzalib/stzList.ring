@@ -8438,7 +8438,7 @@ class stzList from stzObject
 	 #  CHECKING IF ALL ITEMS ARE STRINGS CONTAINING SOFTANZA CLASS NAMES  #
 	#---------------------------------------------------------------------#
 
-	def ContainsOnlyStzCalssNames()
+	def ContainsOnlyStzClassNames()
 		bResult = TRUE
 
 		if NOT This.IsListOfStrings()
@@ -8459,13 +8459,13 @@ class stzList from stzObject
 		return bResult
 
 		def AllItemsAreStzClassNames()
-			return This.ContainsOnlyStzCalssNames()
+			return This.ContainsOnlyStzClassNames()
 
 		def ItemsAreAllStzClassNames()
-			return This.ContainsOnlyStzCalssNames()
+			return This.ContainsOnlyStzClassNames()
 
 		def IsMadeOfStzClassNames()
-			return This.ContainsOnlyStzCalssNames()
+			return This.ContainsOnlyStzClassNames()
 
 	  #======================#
 	 #   MANAGING WALKERS   # TODO
