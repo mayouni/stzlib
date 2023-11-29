@@ -424,7 +424,7 @@ proff()
 # second(s)
 
 /*=============
-*/
+
 pron()
 
 o1 = new stzHashList([
@@ -470,27 +470,74 @@ o1 = new stzHashList([
 	:seven 	= :white,
 	:eight	= :yellow
 ])
+/*
+# Info about all classes available in the hash list
 
-? o1.Classes() 		#--> [ :red, :white, :green, :yellow ]
-? o1.NumberOfClasses()	#--> 4
-? o1.Klass(:white)	#--> [ :two, :three, :seven ]
+? o1.NumberOfKlasses()
+#--> 4
 
-? o1.NumberOfValuesInClass(:white)
+? @@( o1.Klasses() ) + NL
+#--> [ :red, :white, :green, :yellow ]
+
+? @@( o1.KlassesSizes() )
+#-->
+
+? @@( o1.KlassesSizesXT() )
+
+
+? @@( o1.KlassesFreqs() ) + NL
+#--> [ 0.25, 0.38, 0.25, 0.13 ]
+
+? @@( o1.KlassesFreqsXT() ) + NL
+#--> [ [ "red", 0.25 ], [ "white", 0.38 ], [ "green", 0.25 ], [ "yellow", 0.13 ] ]
+
+# Info about one class
+
+? o1.ContainsKlass(:white)
+#--> TRUE
+
+? o1.KlassSize(:white)
 #--> 3
+
+? @@( o1.Klass(:white) )
+#--> [ "two", "three", "seven" ]
 
 ? o1.KlassFreq(:white)
 #--> 0.38
 
-? @@( o1.ClassesInList() )
+? @@( o1.KlassFreqXT(:white) ) + NL
+#--> [ "white", 0.38 ]
 
-//? @@(o1.ClassesAndTheirFrequencies())	// same as ClassesXT()
-#--> [ :red = 3, :white = 2, :green = 2, :yello = 1 ]
+# Info about some classes
 
-# ? o1.StrongestClass()	#--> :white
-# ? o1.WeakestClass()	#--> :yellow
+? o1.ContainsTheseKlasses([ :white, :green ])
+#--> TRUE
 
+? @@( o1.TheseKlassesSizes([ :white, :green ]) )
+#--> [ 3, 2 ]
+
+? @@( o1.TheseKlassesSizesXT([ :white, :green ]) )
+#--> [ [ "white", 3 ], [ "green", 2 ] ]
+
+? @@( o1.TheseKlassesFreqs([ :white, :green ]) )
+#--> [ 0.38, 0.25 ]
+
+? @@( o1.TheseKlassesFreqsXT([ :white, :green ]) ) + NL
+#--> [ [ "white", 0.38 ], [ "green", 0.25 ] ]
+*/
+
+# Strongest and weakest classes
+
+? o1.StrongestClass()	#--> :white
+? o1.WeakestClass()	#--> :yellow
+
+/*
 # ? o1.Top3Classes()	#--> [ :white, :red, :green ]
 # ? o1.Top3ClassesXT()	#--> [ :white = 3, :red = 2, :red = 2 ]
+
+? o1.StrongestNClasses(2)
+? o1.WeakestNCLasses(2)
+*/
 
 proff()
 
