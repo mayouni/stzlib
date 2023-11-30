@@ -56,6 +56,6 @@ load "stzlib.ring"
 
 ? LoN([ "A", 12, "B", 14, "C", 20 ]) #--> [12, 14, 20]
 
-# Returning the list of strings contained in the list using LoN() abbreviation
+# Returning the list of strings contained in the list using LoS() abbreviation
 
 ? LoS([ "A", 12, "B", 14, "C", 20 ]) #--> ["A", "B", "C"]
