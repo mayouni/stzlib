@@ -1703,7 +1703,7 @@ class stzListOfLists from stzList
 
 			[ :A = [2,2] , :B = [1,2] , :C = [1,1] , :X = [0,1] ]
 
-			Note: we shloumd be able tp do it for any number of lists...
+			Note: we shloumd be able to do it for any number of lists...
 		*/
 
 		aIndexes = []

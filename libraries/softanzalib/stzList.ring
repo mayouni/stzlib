@@ -15973,12 +15973,12 @@ class stzList from stzObject
 				aResult = This.Copy().RemoveManyQ(pValue).Content()
 				return aResult
 			
-			but @IsStzList(pValue)
+			but @IsStzList(pValue) or @IsStzString(pValue)
 				This.RemoveMany(pValue.Content())
 				return This
 			
-			but @IsStzObject(pValue)	
-				anPositions = This.FindAll(pValue.Content())
+			but @IsStzNumber(pValue)	
+				anPositions = This.FindAll(pValue.NumericValue())
 				This.RemoveItemsAtPositions(anPositions)
 
 			else
@@ -15988,9 +15988,12 @@ class stzList from stzObject
 			ok
 
 		but pcOp = "*"
-			if @IsStzObject(pValue)
-
+			if @IsStzString(pValue) or @IsStzList(pValue)
 				This.MultiplyBy(pValue.Content())
+				return This
+
+			but @IsStzNumber(pValue)
+				This.MultiplyBy(pValue.NumericValue())
 				return This
 
 			else
@@ -16000,9 +16003,12 @@ class stzList from stzObject
 
 		but pcOp = "+"
 
-			if @IsStzObject(pValue)
+			if @IsStzString(pValue) or @IsStzList(pValue)
 				This.AddItem(pValue.Content())
 				return This
+
+			but @IsStzNumber(pValue)
+				This.AddItem(pValue.NumericValue())
 
 			else
 				aResult = This.Copy().AddItemQ(pValue).Content()

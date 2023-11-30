@@ -61764,12 +61764,22 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	 #   MULTIPLY BY   #	TODO: reclassify it with other calculations
 	#-----------------#
 
-	def Multiply(paByValue)
-		if isList(paByValue) and Q(paByValue).IsByNamedParam()
-			paByValue = paByValue[2]
+	def Multiply(pValue)
+		if isList(pValue) and Q(pValue).IsByNamedParam()
+			pValue = pValue[2]
 		ok
 
-		This.MultiplyBy(paByValue)
+		This.MultiplyBy(pValue)
+
+		def MultiplyQ(pValue)
+			This.Multiply(pValue)
+			return This
+
+	def Multiplied(pValue)
+		cResult = This.Copy().MultiplyQ(pValue).Content()
+		return cResult
+
+	#--
 
 	def MultiplyBy(pValue)
 		cResult = NULL
@@ -61791,19 +61801,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		
 		but ring_type(pValue) = "LIST"
 			aValue = pValue // just for expressivity
+			nLenValue = len(aValue)
+			nLen = This.NumberOfChars()
+
 			cResult = ""
 			cTemp = ""
 				
-			for i = 1 to This.NumberOfChars()
-				for v = 1 to len(aValue)
+			for i = 1 to nLen
+				
+				for v = 1 to nLenValue
 					cTemp = @oQString.mid(i-1,1) + aValue[v]
 					cResult += cTemp 
 				next
 										
-				if i != NumberOfChars() // avoiding adding space at the end
-					cResult += " "
-				ok
+				cResult += " "
+
 			next
+
+			cResult = StzString(cResult).RemovedFromEnd(" ")
 		ok
 
 		This.Update( cResult )
@@ -61816,6 +61831,10 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		#>
 
+	def MultipliedBy(pValue)
+		cResult = This.Copy().MultiplyByQ(pValue).Content()
+		return cResult
+	
 	  #========================================#
 	 #     BOXING THE STRING AND ITS CHARS    #
 	#========================================#
@@ -64575,7 +64594,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				return This.AppendedWith(pValue)
 
 			but @IsStzString(pValue)
-				This.Append(pValue)
+				This.AppendWith(pValue.Content())
 				return This
 		
 			but isList(pValue) and Q(pValue).IsListOfStrings()
@@ -64584,8 +64603,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				return cResult
 
 			but @IsStzListOfStrings(pValue)
-				cExtension = QR(pValue, :stzListOfStrings).Concatenated()
-				cResult = This.Content() + cExtension
+				cResult = This.Content() + pValue.Concatenated()
 				This.UpdateWith(cResult)
 				return This
 			ok
@@ -64593,10 +64611,15 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		// Multiply: string * n | string * string | string * list
 	
 		but pOp = "*"
-			if @IsStzString(pOp)
-				This.MultiplyBy(pValue)
+			if @IsStzString(pValue)
+				This.MultiplyBy(pValue.Content())
 				return This
 
+			but @IsStzNumber(pValue)
+				This.MultiplyBy(pValue.NumericValue())
+				return This
+
+			
 			else
 				return This.MultipliedBy(pValue)
 			ok
@@ -64630,14 +64653,14 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				return This.SplitToNParts(pValue)
 
 			but @IsStzNumber(pValue)
-				return Q(This.SplitToNParts(pValue))
+				return Q(This.SplitToNParts(pValue.NumericValue()))
 
 			but isList(pValue) and Q(pValue).IsListOfNumbers()
 				acSplitted = This.SplitAtPositions(pValue)
 				return acSplitted
 
 			but @IsStzList(pValue) and pValue.IsListOfNumbers()
-				acSplitted = This.SplitAtPositions(pValue)
+				acSplitted = This.SplitAtPositions(pValue.Content())
 				return Q(acSplitted)
 
 			but isList(pValue) and Q(pValue).IsPairOfStrings() and
@@ -64664,9 +64687,9 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				return aResult
 
 			but @IsStzList(pValue) and pValue.IsListOfStrings()
-				nLen = len(pValue)
+				nLen = len(pValue.Content())
 				acSplitted = This.SplitToNParts(nLen)
-				aResult = Association([ pValue, acSplitted ])
+				aResult = Association([ pValue.Content(), acSplitted ])
 				return Q(aResult)
 
 			but isList(pValue) and Q(pValue).IsHashList()
@@ -64700,7 +64723,8 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 					
 					n = 0
-					for i = 1 to len(aValuesExceptLast)
+					nLenTemp = len(aValuesExceptLast)
+					for i = 1 to nLenTemp
 						n += aValuesExceptLast[i]
 					next
 
@@ -64717,29 +64741,31 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 				# Making the share of the string based on the values provided
 
+				nLenValue = len(pValue)
 				aResult = []
 				n = 1
-				for aPair in pValue
-					
+				for i = 1 to nLen
+					aPair = pValue[i]
 					cShare = This.Range(n, aPair[2])
 					n += aPair[2]
 
 					aResult + [ aPair[1], cShare  ]
 				next
 
+				return aResult
+
 			but @IsStzList(pValue) and pValue.IsHashList()
 				acResult = This / pValue.Content()
 				return Q(acResult)
 			ok
-
-			return aResult
 					
 		// String % n : returns the rest of letters after dividing String / n
 
 		but pOp = "%"
-			cResult = NULL
 
-			if ring_type(pValue) = "NUMBER"	
+			if ring_type(pValue) = "NUMBER"
+
+				cResult = ""
 				aParts = []
 		
 				nParts = ceil( This.NumberOfChars() / pValue )
@@ -64761,23 +64787,22 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				return cResult
 
 			but @IsStzNumber(pValue)
-				cResult = This % pValue.Content()
-				return Q(cResult)
+				cResult = This % pValue.NumericValue()
+				This.UpdateWith(cResult)
+				return This
 			ok
-
-			return cResult
 		
 		// string - string | string - .25 | string - 3
 		but pOp = "-"
 			cResult = NULL
 						
-			if @IsStzString(pValue)
-				This.RemoveAllQ(pValue)
-				return This
-
-			but isString(pValue)
+			if isString(pValue)
 				cResult = This.Copy().RemoveAll(pValue)
 				return cResult
+
+			but @IsStzString(pValue)
+				This.RemoveAll(pValue.Content())
+				return This
 
 			but isNumber(pValue)
 				if pValue < This.NumberOfChars()
@@ -64793,7 +64818,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				return cResult
 
 			but @IsStzNumber(pValue)
-				cResult = This - pValue.Content()
+				cResult = This - pValue.NumericValue()
 				This.UpdateWith(cResult)
 				return This
 
@@ -64802,8 +64827,8 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				oCopy.RemoveMany(pValue)
 				return oCopy.Content()
 
-			but @IsListOfStrings(pValue)
-				This.RemoveMany(pValue)
+			but @IsStzListOfStrings(pValue)
+				This.RemoveMany(pValue.Content())
 				return This
 
 			but isList(pValue) and Q(pValue).IsListOfLists() and len(pValue) = 1 # TODO
@@ -64912,8 +64937,8 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 				ok
 
-			but StzListQ(pValue).IsListOfLists() and len(pValue) = 1
-				return Q( This - pValue )
+			but @IsListOfLists(pValue) and len(pValue) = 1
+				return Q( This - pValue.Content() )
 
 			ok
 		ok // --- End of operator overloading section

@@ -180,6 +180,8 @@ o1 = new stzListOfPairs(aList) # Or stzListOfLists() if you want
 
 proff()
 
+#--> Executed in 0.05 second(s)
+
 /*---------
 
 pron()
