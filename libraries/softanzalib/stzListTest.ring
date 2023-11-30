@@ -6852,14 +6852,16 @@ o1 - [ "b", "c" ]
 ? o1.Content()
 
 /*==============
-*/
+
 pron()
 
 o1 = new stzList(["file1", "file2", "file3" ])
 
 # The operators (*, +, /) when used with basic Ring types
 # (strings, numbers) return a new value without altering
-# the object in use (o1 in our case):
+# the object itself (o1 in our case).
+
+# Hence, if we say:
 
 ? o1 * ".ring"
 #--> [ "file1.ring", "file2.ring", "file3.ring" ]
@@ -6870,23 +6872,64 @@ o1 = new stzList(["file1", "file2", "file3" ])
 ? @@( o1 / 3 ) + NL
 #--> [ [ "file1" ], [ "file2" ], [ "file3" ] ]
 
-# o1 content remained the same:
+# o1 content remains the same:
 
-? @@( o1.Content() )
+? @@( o1.Content() ) + NL + NL + "---" + NL
 #--> [ "file1", "file2", "file3" ]
 
 # Now, we are going to use the same operators and let them
-# change the object itself. To do so, we use Q() like this:
+# change the object itself. To do so, we enclose the value
+# in a Q() small function (means that we want the result
+# to be the object itself after it is changed):
 
 o1 * Q(".ring")
 ? @@( o1.Content() ) + NL
 #--> [ "file1.ring", "file2.ring", "file3.ring" ]
 
-o1 / Q(3)
+o1 + Q("file4.ring")
+? @@( o1.Content() ) + NL
+#--> [ "file1.ring", "file2.ring", "file3.ring", "file4.ring" ]
+
+o1 / Q(2)
 ? @@( o1.Content() )
-#--> [ [ "file1.ring" ], [ "file2.ring" ], [ "file3.ring" ] ]
+#--> [ [ "file1.ring" ], [ "file2.ring" ] ]
 
 proff()
+# Executed in 0.08 second(s)
+
+/*-----------
+
+pron()
+
+o1 = new stzString("File")
+
+? o1 * 3 		# ~> Returns a new string and leaves o1 as is
+#--> FileFileFile
+
+? o1 + "File"		# ~> Idem
+#--> FileFile
+
+? @@( o1 / 4 )		# ~> Returns a list and leaves o1 as is
+#--> [ "F", "i", "l", "e" ]
+
+? o1.Content() + NL + NL + "---" + NL
+#--> File
+
+#--
+
+o1 * Q(3)		# ~> Returns he same stzString object (o1) modified
+? o1.Content()
+#--> FileFileFile
+
+o1 + Q("File") 		# ~> Idem
+? o1.Content() + NL
+#--> FileFileFileFile
+
+? ( o1 / Q(4) ).Uppercased() # ~> Returns a stzList object containing the 4 parts of the string
+#--> [ "FILE", "FILE", "FILE", "FILE" ])
+
+proff()
+# Executed in 0.12 second(s)
 
 /*===========
 
