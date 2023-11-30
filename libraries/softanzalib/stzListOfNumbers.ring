@@ -5881,22 +5881,41 @@ class stzListOfNumbers from stzList
 			return This.ToStzList().IsStrictlyEqualTo(value)
 		
 
-		but pcOp = "/" and ring_type(pValue) = "NUMBER"
-			// Divides the list on pValue sublists (a list of lists)
-			return This.ToStzList().SplitToNParts(pValue)
+		but pcOp = "/"
+
+			if ring_type(pValue) = "NUMBER"
+				// Divides the list on pValue sublists (a list of lists)
+				return This.ToStzList().SplitToNParts(pValue)
+
+			but @IsStzNumber(pValue)
+				return Q(This.ToStzList().SplitToNParts(pValue))
+			ok
 
 		but pcOp = "-"
 			if isNumber(pValue)
-				anTemp = This.ToStzList().RemoveNthQ( ring_find(This.ListOfStrings(), pValue) ).Content()
-				This.Update( anTemp )
+				anResult = This.ToStzList().RemoveNthQ( ring_find(This.ListOfStrings(), pValue) ).Content()
+				return anResult
 
+			but @IsNumber(pValue)
+				anResult = This.ToStzList().RemoveNthQ( ring_find(This.ListOfStrings(), pValue) ).Content()
+				This.Update( anResult )
+			
 			but isList(pValue) and Q(pValue).IsListofNumbers()
 				if len(pValue) > 0
 					oStzList = This.ToStzList()
 					anPositions = oStzList.FindMany(pValue)
 					oStzList.RemoveItemsAtPositions(anPositions)
-					anTemp = oStzList.Content()
-					This.Update( anTemp )
+					anResult = oStzList.Content()
+					return anResult
+				ok
+
+			but @IsStzList(pValue) and pValue.IsListOfNumbers()
+				if len(pValue.Content()) > 0
+					oStzList = This.ToStzList()
+					anPositions = oStzList.FindMany(pValue.Content())
+					oStzList.RemoveItemsAtPositions(anPositions)
+					anResult = oStzList.Content()
+					This.UpdateWith(anResult)
 				ok
 			ok
 

@@ -6840,10 +6840,83 @@ o1.ExcludeNumbersGreaterThan(3)
 ? o1.Content()
 
 /*----------------
+*/
+pron()
+
+o1 = new stzSplitter(1:3)
+? @@( o1.SplitToNParts(0) )
+#--> [ ]
+
+o1 = new stzList([ "A", "B", "C" ])
+? @@( o1.SplittedToNParts(0) )
+#--> [ ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+*/
+pron()
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
-o1 - []
-? o1.Content()
+
+? @@( o1 - [ "d", "e" ] ) # Returns a new list and leaves o1 unmodified
+#--> [ "a", "b", "c" ]
+? @@( o1.Content() )
+#--> [ "a", "b", "c", "d", "e" ]
+
+o1 - Q([ "c", "d", "e" ]) # Removes the list from o1 and returns o1 
+? @@( o1.Content() ) + NL + NL + "---" + NL
+#--> [ "a", "b" ]
+
+#--
+
+? @@( o1 * 2 ) # Returns a new list with the existing items duplicated and leaves o1 unmodified
+#--> [ "a", "b", "a", "b" ]
+? @@( o1.Content() )
+#--> [ "a", "b" ]
+
+o1 * Q(2) # Duplicates the list inside o1 and returns o1
+? @@( o1.Content() ) + NL + NL + "---" + NL
+#--> [ "a", "b", "a", "b" ]
+
+#--
+
+? @@( o1 / 2 ) # Returns the list splitted on two parts and leaves o1 unmodidied
+#--> [ [ "a", "b" ], [ "a", "b" ] ]
+? @@( o1.Content() )
+#--> [ "a", "b", "a", "b" ]
+
+o1 / Q(2) # Splits o1 on two parts and returns o1
+? @@( o1.Content() ) + NL + NL + "---" + NL
+#--> [ [ "a", "b" ], [ "a", "b" ] ]
+
+#--
+
+? @@( o1 + [ "a", "b" ] ) # Returns a new list by adding an other item ["a","b"] and leaves o1 unmodified
+#--> [ [ "a", "b" ], [ "a", "b" ], [ "a", "b" ] ]
+? @@( o1.Content() )
+#--> [ [ "a", "b" ], [ "a", "b" ] ]
+
+o1 + Q([ "a", "b" ]) # Adds an other item ["a","b"] to o1 and returns o1
+? @@( o1.Content() )  + NL + NL + "---" + NL
+#--> [ [ "a", "b" ], [ "a", "b" ], [ "a", "b" ] ]
+
+? "hi"
+? @@( o1 - [] )	 # Returns a new list but leaves the o1 list as is
+# [ ]
+
+//? o1.Content()
+#--> [ "a", "b", "c", "d", "e" ]
+
+/*
+o1 - Q([])
+? @@( o1.Content() )
+#--> [ "a", "b", "c", "d", "e" ]
+*/
+
+proff()
 
 /*---------------
 
