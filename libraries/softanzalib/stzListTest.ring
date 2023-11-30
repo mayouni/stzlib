@@ -6839,8 +6839,8 @@ o1 = new stzList(1:5)
 o1.ExcludeNumbersGreaterThan(3)
 ? o1.Content()
 
-/*----------------
-*/
+/*=================
+
 pron()
 
 o1 = new stzSplitter(1:3)
@@ -6854,9 +6854,8 @@ o1 = new stzList([ "A", "B", "C" ])
 proff()
 # Executed in 0.05 second(s)
 
-/*----------------
+/*===========
 
-*/
 pron()
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
@@ -6903,20 +6902,46 @@ o1 + Q([ "a", "b" ]) # Adds an other item ["a","b"] to o1 and returns o1
 ? @@( o1.Content() )  + NL + NL + "---" + NL
 #--> [ [ "a", "b" ], [ "a", "b" ], [ "a", "b" ] ]
 
-? "hi"
+#--
+
 ? @@( o1 - [] )	 # Returns a new list but leaves the o1 list as is
-# [ ]
+# [ [ "a", "b" ], [ "a", "b" ], [ "a", "b" ] ]
 
-//? o1.Content()
-#--> [ "a", "b", "c", "d", "e" ]
-
-/*
 o1 - Q([])
+? @@( o1.Content() ) + NL + NL + "---" + NL
+#--> [ [ "a", "b" ], [ "a", "b" ], [ "a", "b" ] ]
+
+#--
+
+o1 - Q([ [ "a", "b"], [ "a", "b"] ])
 ? @@( o1.Content() )
-#--> [ "a", "b", "c", "d", "e" ]
-*/
+
 
 proff()
+/*---------------
+*/
+pron()
+
+# Look at this list:
+
+o1 = new stzlist([ "a" , "b", "c", [ "a", "b", "c" ], "c" ])
+#				   --------^--------
+#				           |
+#				       (this one)
+#				           |
+# If we need to remove the item at position 4 containing [ "a", "b", "c" ], we say:
+
+? @@( o1 - [ "a", "b", "c" ] )
+#--> [ "a", "b", "c", "c" ]
+
+# But if we need to remove all the items equal to "a", "b", "c", and leave only the
+# list at position 4 containing [ "a", "b", "c" ], we use Many() like this:
+
+? @@( o1 - Many([ "a", "b", "c" ]) )
+#--> [ [ "a", "b", "c" ] ]
+
+proff()
+# Executed in 0.06 second(s)
 
 /*---------------
 

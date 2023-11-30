@@ -3991,11 +3991,6 @@ class stzList from stzObject
 
 	def RemoveAllCS(pItem, pCaseSensitive)
 		if CheckParams()
-			if isList(pItem)
-				This.RemoveManyCS(pItem, pCaseSensitive)
-				return
-			ok
-
 			if isList(pItem) and Q(pItem).IsOfNamedParam()
 				pItem = pItem[2]
 			ok
@@ -15975,11 +15970,24 @@ class stzList from stzObject
 
 		but pcOp = "-"
 			if isList(pValue)
-				aResult = This.Copy().ManyRemoved(pValue)
+
+				if _bMany
+					aResult = This.Copy().ManyRemoved(pValue)
+					_Many = FALSE # Resets the global flag
+				else
+					aResult = This.Copy().ItemRemoved(pValue)
+				ok
+
 				return aResult
 			
 			but @IsStzList(pValue) or @IsStzString(pValue)
-				This.RemoveMany(pValue.Content())
+				if _bMany
+					This.RemoveMany(pValue.Content())
+					_Many = FALSE  # Resets the global flag
+				else
+					This.RemoveItem(pValue.Content())
+				ok
+
 				return This
 			
 			but @IsStzNumber(pValue)	

@@ -26,6 +26,8 @@ Programming, by Heart! By: M.Ayouni╭
  ///  GLOBALS VARIABLES  ///
 ///////////////////////////
 
+_bMany = FALSE	# Used in case like this: Q(1:5) - Many(3:5) --> [1,2]
+
 _bParamCheck = TRUE # Activates the "# Checking params region" in softanza functions
 		     #--> Set it to FALSE if the functions are used inside large loops
 		     # so you can gain performance (the checks can then be made once,
@@ -392,6 +394,11 @@ _acStzCCKeywords = [
   //////////////////////////
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
+
+func Many(p)
+	_bMany = TRUE
+	return p
+	# Must be reset to FALSE everytime Many() is used.
 
 func ForEach(p, pIn)
 	/* EXAMPLES
