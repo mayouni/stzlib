@@ -6919,7 +6919,7 @@ o1 - Q([ [ "a", "b"], [ "a", "b"] ])
 
 proff()
 /*---------------
-*/
+
 pron()
 
 # Look at this list:
@@ -6945,11 +6945,49 @@ proff()
 
 /*---------------
 
-o1 = new stzList([ "a", "b", "c", "d", "e" ])
-o1 - [ "b", "c" ]
-? o1.Content()
+pron()
 
-/*==============
+# When you write this:
+
+o1 = new stzList([ "a", "b", "c", "d", "e" ])
+o1 - Many([ "b", "c" ])
+? @@( o1.Content() )
+#--> [ "a", "b", "c", "d", "e" ]
+
+# And you get the hole list as a result, it's correct. Why?
+
+# Because using (-) operator on o1 object does not modify the
+# object itself. It just calculates the opeartion and returns
+# tue result in a normal new list.
+
+# Check it by yourself by using ? command before the operation:
+? @@( o1 - Many([ "b", "c" ]) )
+#--> [ "a", "d", "e" ]
+
+# Again, the object itself has not been changed:
+? @@( o1.Content() ) + NL
+#--> [ "a", "b", "c", "d", "e" ]
+
+# Now, what if you need to make the opeation and update the
+# object in the same time? Easy!
+
+# Just use the Q() elevator to tell softanza that you want
+# the object to be changed and returned, like this:
+
+o1 - Q( Many(["b", "c"]) )
+#    ^
+#    |_ This Q() means that the (-) operation will be refelected
+#       on the object o1 itself. It means also that, after beeing
+#       changed, the object o1 is returned.
+
+# Now, check the object content:
+? @@( o1.Content() )
+#--> [ "a", "d", "e" ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*--------------
 
 pron()
 
@@ -6990,7 +7028,7 @@ o1 + Q("file4.ring")
 
 o1 / Q(2)
 ? @@( o1.Content() )
-#--> [ [ "file1.ring" ], [ "file2.ring" ] ]
+#--> [ [ "file1.ring", "file2.ring" ], [ "file3.ring", "file4.ring" ] ]
 
 proff()
 # Executed in 0.08 second(s)
@@ -7028,6 +7066,15 @@ o1 + Q("File") 		# ~> Idem
 
 proff()
 # Executed in 0.12 second(s)
+
+/*-----------
+*/
+pron()
+
+o1 = new stzNumber(12500)
+
+
+proff()
 
 /*===========
 

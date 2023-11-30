@@ -1,8 +1,9 @@
-# 			SOFTANZA LIBRARY (V1.0)
+#---------------------------------------------------------------------------#
+# 			SOFTANZA LIBRARY (V1.0)                             #
 #---------------------------------------------------------------------------#
 #									    #
 # 	Description	: The core class for managing softanza numbers      #
-#	Version		: V1.1.0.6 (March, 2022)			    #
+#	Version		: V1.1.0.6 (March, 2023)			    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
 #===========================================================================#
@@ -4305,9 +4306,9 @@ class stzNumber from stzObject
 	def ApplyLocale(pcLocale) // TODO
 		StzRaise("Unsupported feature in this version!")
 
-	  #------------------#
-	 #     OPERATORS    #
-	#------------------#
+	  #-----------------------------#
+	 #     OPERATORS OVERLOADING   #
+	#-----------------------------#
 
 	# TODO: Operators should carry same semantics in all classes...
 
@@ -4368,10 +4369,10 @@ class stzNumber from stzObject
 		but pOp = "<>" or pOp = "!"
 			return This.IsDifferentFrom(pValue)
 
-		but pOp = "++"
+		but pOp = "++" # TODO: check if it works! (++ is reserved by Ring)
 			return This.NextNumber()
 
-		but pOp = "--"
+		but pOp = "--" # TODO: check if it works! (-- is reserved by Ring)
 			return This.PreviousNumber()
 
 		but pOp = "[]"

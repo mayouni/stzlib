@@ -21,7 +21,7 @@ func StzListOfStringsQ(paList)
 
 func LS(p)
 	if isList(p)
-		return StzListOfNumbersQ(p).OnlyStrings()
+		return StzListOfStringsQ(p).OnlyStrings()
 
 	but isString(p) and Q(p).IsListInString()
 		aResult = Q(p).ToListQ().OnlyStrings()
