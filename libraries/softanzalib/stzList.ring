@@ -4157,6 +4157,11 @@ class stzList from stzObject
 	#------------------------------------------#
 
 	def RemoveManyCS(paItems, pCaseSensitive)
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+		ok
 
 		nLen = len(paItems)
 
@@ -15970,7 +15975,7 @@ class stzList from stzObject
 
 		but pcOp = "-"
 			if isList(pValue)
-				aResult = This.Copy().RemoveManyQ(pValue).Content()
+				aResult = This.Copy().ManyRemoved(pValue)
 				return aResult
 			
 			but @IsStzList(pValue) or @IsStzString(pValue)
@@ -26908,7 +26913,7 @@ class stzList from stzObject
 			ok
 		ok
 
-		aSections = StzSplitterQ(1:n).SplitToNParts(n)
+		aSections = StzSplitterQ(1:This.NumberOfItems()).SplitToNParts(n)
 		This.UpdateWith( This.Sections(aSections) )
 
 		#< @FunctionFluentForm

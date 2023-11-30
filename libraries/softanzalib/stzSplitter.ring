@@ -868,6 +868,15 @@ class stzSplitter from stzListOfNumbers
 	#----------------------------#
 
 	def SplitToNParts(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		if n = 0
+			return []
+		ok
 
 		nNumberOfPositions = This.NumberOfPositions()
 
