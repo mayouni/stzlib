@@ -1,5 +1,40 @@
-// Source: https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt
-/*
+#-------------------------------------------------------------------------#
+# 		   SOFTANZA LIBRARY (V1.0) - STZUNICODEDATA	          #
+# 	An accelerative library for Ring applications, and more!	  #
+#-------------------------------------------------------------------------#
+#									  #
+# 	Description : The class for managing Unicode data in Softanza     #
+#	Version	    : V1.0 (2020-2023)				          #
+#	Author	    : Mansour Ayouni (kalidianow@gmail.com)		  #
+#								          #
+#-------------------------------------------------------------------------#
+
+/* GENERAL NOTES
+
+	RATIONALE ! Why this class and related large file are necessary
+
+	The Unicode database is a large file provided by the Unicode foundation here:
+	https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt
+
+	Programming languages and frameworkks supporting Unicode have different
+	strategies in including this data. Some prefere not including it and
+	relying on its presence on the hosting OS where the application runs.
+
+	Qt, includes it internallay, which enables us to have most of the data
+	we need (via RingQt). This is nice but some features provided by Softanza
+	are not supported in Qt, like for example the fact of getting chars names,
+	or finding chars by their names (and not their Unicode codes).
+
+	That's why Softanza included the Unicode database.
+
+	In practice, Softanza will use RinQt for any available feature, otherwise
+	the stzUnicodeData own text file is used.
+
+	This file contains a class with the functions added specifically by
+	Softanza. The others can be found in stzChar.ring class.
+
+	DATA STRUCTURE OF THE UNICODE TEXT FILE
+
 	Fields separated by (details here http://www.unicode.org/L2/L1999/UnicodeData.html):
 
 	01. Code value
@@ -18,8 +53,10 @@
 	14. Lowercase mapping
 	15. Titlecase mapping
 
-TODO: understand and include this resource (if necessary):
-https://www.unicode.org/Public/UCD/latest/ucd/NameAliases.txt
+
+	TODO: understand and include this resource (if necessary):
+	https://www.unicode.org/Public/UCD/latest/ucd/NameAliases.txt
+
 */
 
 _nNumberOfUnicodeChars = 149_186
