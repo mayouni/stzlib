@@ -11,7 +11,7 @@
 
 /* GENERAL NOTES
 
-	RATIONALE ! Why this class and related large file are necessary
+	RATIONALE : Why this class and related large file are necessary
 	---------------------------------------------------------------
 
 	The Unicode database is a large file provided by the Unicode foundation here:

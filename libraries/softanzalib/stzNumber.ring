@@ -1089,60 +1089,60 @@ class stzNumber from stzObject
 		def IsAChar()
 			return IsChar()
 
-	  #----------------------------#
-	 #   CHECKING IF THE NUMBER   #
-	#----------------------------#
+	  #-------------------------#
+	 #   UPDATING THE NUMBER   #
+	#-------------------------#
 
 	def Update(pNumber)
-		if isList(cNewCode) and Q(cNewCode).IsWithOrByOrUsingNamedParam()
-			cNewCode = cNewCode[2]
+		if isList(pNumber) and Q(pNumber).IsWithOrByOrUsingNamedParam()
+			pNumber = pNumber[2]
 		ok
 
 		@cNumber = ""+ pNumber
 
 		#< @FunctionFluentForm
 
-		def UpdateQ(paNewList)
-			This.Update(paNewList)
+		def UpdateQ(pNumber)
+			This.Update(pNumber)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def UpdateWith(paNewList)
-			This.Update(paNewList)
+		def UpdateWith(pNumber)
+			This.Update(pNumber)
 
-			def UpdateWithQ(paNewList)
-				return This.UpdateQ(paNewList)
+			def UpdateWithQ(pNumber)
+				return This.UpdateQ(pNumber)
 	
-		def UpdateBy(paNewList)
-			This.Update(paNewList)
+		def UpdateBy(pNumber)
+			This.Update(pNumber)
 
-			def UpdateByQ(paNewList)
-				return This.UpdateQ(paNewList)
+			def UpdateByQ(pNumber)
+				return This.UpdateQ(pNumber)
 
-		def UpdateUsing(paNewList)
-			This.Update(paNewList)
+		def UpdateUsing(pNumber)
+			This.Update(pNumber)
 
-			def UpdateUsingQ(paNewList)
-				return This.UpdateQ(paNewList)
+			def UpdateUsingQ(pNumber)
+				return This.UpdateQ(pNumber)
 
 		#>
 
-	def Updated(paNewList)
-		return paNewList
+	def Updated(pNumber)
+		return pNumber
 
 		#< @FunctionAlternativeForms
 
-		def UpdatedWith(paNewList)
-			return This.Updated(paNewList)
+		def UpdatedWith(pNumber)
+			return This.Updated(pNumber)
 
-		def UpdatedBy(paNewList)
-			return This.Updated(paNewList)
+		def UpdatedBy(pNumber)
+			return This.Updated(pNumber)
 
-		def UpdatedUsing(paNewList)
-			return This.Updated(paNewList)
+		def UpdatedUsing(pNumber)
+			return This.Updated(pNumber)
 
 		#>
 
@@ -2320,7 +2320,15 @@ class stzNumber from stzObject
 			return This
 
 		#>
-	
+
+		#< @FunctionPassiveForm
+
+		def Added(pOtherNumber)
+			nResult = This.Copy().AddQ(pOtherNumber).NumericValue()
+			return nResult
+
+		#>
+
 	def AddMany(paOtherNumbers)
 		This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
@@ -2329,6 +2337,17 @@ class stzNumber from stzObject
 		def AddManyQ(paOtherNumbers)
 			This.AddMany(paOtherNumbers)
 			return This
+
+		#>
+
+		#< @FunctionPassiveForm
+
+		def AddedMany(pOtherNumbers)
+			nResult = This.Copy().AddManyQ(pOtherNumbers).NumbericValue()
+			return nResult
+
+		def ManyAdded(pOtherNumbers)
+			return This.AddedMany(pOtherNumbers)
 
 		#>
 	
@@ -2371,94 +2390,160 @@ class stzNumber from stzObject
 		#>
 
 	  #--------------------#
-	 #    SUBSTRACTION    #
+	 #    SubStructION    #
 	#--------------------#
 
-	def Substract(pOtherNumber)
+	def SubStruct(pOtherNumber)
 
 		This.Update( pvtCalculate("-", pOtherNumber ) )
 
 		#< @FunctionFluentForm
 
-		def SubstractQ(pOtherNumber)
-			This.Substract(pOtherNumber)
+		def SubStructQ(pOtherNumber)
+			This.SubStruct(pOtherNumber)
 			return This
 	
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms // TODO: Add them anywhere in the library
 
 		def Retrieve(pOtherNumber)
-			This.Substract(pOtherNumber)
-
-			#< @FunctionFluentForm
+			This.SubStruct(pOtherNumber)
 
 			def RetrieveQ(pOtherNumber)
 				This.Retrieve(pOtherNumber)
 				return This
 
-			#>
+		def Substract(pOtherNumber)
+			This.SubStruct(pOtherNumber)
+
+			def SubstractQ(pOtherNumber)
+				return This.RetrieveQ(pOtherNumber)
+
+		def Subtract(pOtherNumber)
+			This.SubStruct(pOtherNumber)
+
+			def SubtractQ(pOtherNumber)
+				return This.RetrieveQ(pOtherNumber)
+
+		def Subtruct(pOtherNumber)
+			This.SubStruct(pOtherNumber)
+
+			def SubtructQ(pOtherNumber)
+				return This.RetrieveQ(pOtherNumber)
+
 		#>
 
-	def SubstractMany(paOtherNumbers)
-		This.SubstractManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
+		#< @FunctionPassiveForm
+
+		def Substructed(pOtherNumber)
+			nResult = This.Copy().SubstructQ(pOtherNumber).NumericValue()
+			return nResult
+
+			def Retrieved(pOtherNumber)
+				return This.Substructed(pOtherNumber)
+
+		def Substracted(pOtherNumber)
+			return This.SubStructed(pOtherNumber)
+
+		def Subtracted(pOtherNumber)
+			return This.SubStructed(pOtherNumber)
+
+		def Subtructed(pOtherNumber)
+			return This.SubStructed(pOtherNumber)
+
+		#>
+
+	def SubStructMany(paOtherNumbers)
+		This.SubStructManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
 		#< @FunctionFluentForm
 
-		def SubstractManyQ(paOtherNumbers)
-			This.SubstractMany(paOtherNumbers)
+		def SubStructManyQ(paOtherNumbers)
+			This.SubStructMany(paOtherNumbers)
 			return This
-	
+
 		#>
 
-		#< @FunctionExtendedForm
+		#< @FunctionAlternativeForms
 
-		def SubstractManyXT(paOtherNumbers, paReturnIntermediateResults)
-	
-			bReturnIntermediateResults = FALSE
-			if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
-			   paReturnIntermediateResults[2] = TRUE
-	
-				bReturnIntermediateResults = TRUE
-			ok
-	
-			aIntermediateResults = []
-	
-			for nbr in paOtherNumbers
-				This.Substract(nbr)
-				aIntermediateResults + This.Content()
-			next
-	
-			if bReturnIntermediateResults
-				return aIntermediateResults
-			ok
+		def SubstractMany(pOtherNumbers)
+			This.SubStructMany(pOtherNumbers)
 
-			#< @FunctionFluentForm
+		def SubtractMany(pOtherNumbers)
+			This.SubStructMany(pOtherNumbers)
 
-			def SubstractManyXTQ(paOtherNumbers, paReturnIntermediateResults)
-				if paReturnIntermediateResults[1] = FALSE
-					This.SubstractManyXT(paOtherNumbers, paReturnIntermediateResults)
-					return This
+		def SubtructMany(pOtherNumbers)
+			This.SubStructMany(pOtherNumbers)
 
-				else
-					return stzListOfNumbers( This.SubstractManyXT(paOtherNumbers, paReturnIntermediateResults) )
-				ok
-
-			#>
 		#>
+
+		#< @FunctionPassiveForms
+
+		def SubstructedMany(pOtherNumbers)
+			nResult = This.Copy().SubStructManyQ(pOtherNumbers).Content()
+			return nResult
+
+		def SubstractedMany(pOtherNumber)
+			return This.SubStructedMany(pOtherNumbers)
+
+		def SubtractedMany(pOtherNumbers)
+			return This.SubStructedMany(pOtherNumbers)
+
+		def SubtructedMany(pOtherNumbers)
+			return This.SubStructedMany(pOtherNumbers)
+
+		#>
+
+
+	#--
+
+	def SubStructManyXT(paOtherNumbers, paReturnIntermediateResults)
+	
+		bReturnIntermediateResults = FALSE
+		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
+		   paReturnIntermediateResults[2] = TRUE
+
+			bReturnIntermediateResults = TRUE
+		ok
+	
+		aIntermediateResults = []
+	
+		for nbr in paOtherNumbers
+			This.SubStruct(nbr)
+			aIntermediateResults + This.Content()
+		next
+	
+		if bReturnIntermediateResults
+			return aIntermediateResults
+		ok
+
+		#< @FunctionFluentForm
+
+		def SubStructManyXTQ(paOtherNumbers, paReturnIntermediateResults)
+			if paReturnIntermediateResults[1] = FALSE
+				This.SubStructManyXT(paOtherNumbers, paReturnIntermediateResults)
+				return This
+
+			else
+				return stzListOfNumbers( This.SubStructManyXT(paOtherNumbers, paReturnIntermediateResults) )
+			ok
+
+		#>
+
 						
 	def RetrieveMany(paOtherNumbers)
-		This.SubstractMany(paOtherNumbers)
+		This.SubStructMany(paOtherNumbers)
 
 		def RetrieveManyQ(paOtherNumbers)
 			This.RetrieveMany(paOtherNumbers)
 			return This
 	
 		def RetrieveManyXT(paOtherNumbers, paReturnIntermediateResults)
-			return This.SubstractManyXT(paOtherNumbers, paReturnIntermediateResults)
+			return This.SubStructManyXT(paOtherNumbers, paReturnIntermediateResults)
 			
 			def RetrieveManyXTQ(paOtherNumbers, paReturnIntermediateResults)
-				return This.SubstractManyXTQ(paOtherNumbers, paReturnIntermediateResults)
+				return This.SubStructManyXTQ(paOtherNumbers, paReturnIntermediateResults)
   	
 	  #-------------------------------------------------#
 	 #    MULTIPLYING THE NUMBER BY AN OTHER NUMBER    #
@@ -2473,10 +2558,31 @@ class stzNumber from stzObject
 
 		This.Update( pvtCalculate("*", pOtherNumber ) )
 
+		#< @FunctionAlternativeForm
+
 		def MultiplyByQ(pOtherNumber)
 			This.MultiplyBy(pOtherNumber)
 			return This
 	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def Multiply(pOtherNumber)
+			if CheckParams()
+				if isList(pOtherNumber) and Q(pOtherNumber).IsByOrWithOrUsingNamedParam()
+					pOtherNumber = pOtherNumber[2]
+				ok
+			ok
+
+			This.MultiplyBy(pOtherNumber)
+
+			def Multiplied(pOtherNumber)
+				nResult = This.Copy().MultiplyByQ(pOtherNumber).NumericValue()
+				return nResult
+
+		#>
+
 	def MultipliedBy(pOtherNumber)
 		return This.Copy().MultiplyByQ(pOtherNumber).Content()
 
@@ -2498,6 +2604,10 @@ class stzNumber from stzObject
 	
 		#>
 	
+		def MultipliedByMany(paOtherNumbers)
+			nResult = This.Copy().MultiplyByManyQ(paOtherNumbers).NumericValue()
+			return nResult
+
 		#> @FunctionExtendedForm
 
 		def MultiplyByManyXT(paOtherNumbers, paReturnIntermediateResults)
@@ -2528,19 +2638,51 @@ class stzNumber from stzObject
 	 #    DIVISION    #
 	#----------------#
 
-	def Divide(paByDividor)
-		if isList(paByDividor) and Q(paByDividor).IsByNamedParam()
-			paByDividor = paByDividor[2]
+	def Divide(pOtherNumber)
+		if CheckParams()
+
+			if isList(pOtherNumber) and Q(pOtherNumber).IsByNamedParam()
+				paByDividor = paByDividor[2]
+			ok
+	
 		ok
 
-		return This.DivideBy(paDividor)
+		This.DivideBy(pOtherNumber)
+
+		#< @FunctionFluentForm
+
+		def DivideQ(pOtherNumber)
+			This.Divide(pOtherNumber)
+			return This
+
+		#>
+
+		#< @FunctionPassiveForm
+
+		def Divided(pOtherNumber)
+			nResult = This.Copy().DivideQ(pOtherNumber).NumericValue()
+			return nResult
+
+		#>
 
 	def DivideBy(pOtherNumber)
 		This.Update( pvtCalculate("/", pOtherNumber ) )
 
+		#< @FunctionFluentForm
+
 		def DivideByQ(pOtherNumber)
 			This.DivideBy(pOtherNumber)
 			return This
+
+		#>
+
+		#< @FunctionPassiveForm
+
+		def DividedBy(pOtherNumber)
+			nResult = This.Copy().DivideByQ(pOtherNumber).NumericValue()
+			return nResult
+
+		#>
 	
 	def DivideByMany(paOtherNumbers)
 		This.DivideByManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
@@ -2552,6 +2694,10 @@ class stzNumber from stzObject
 			return This
 	
 		#>
+
+		def DividedByMany(paOtherNumbers)
+			nResult = This.Copy().DivideByManyQ(paOtherNumbers).NumericValue()
+			return nResult
 
 		#< @FunctionExtendedForm
 
@@ -4315,14 +4461,21 @@ class stzNumber from stzObject
 	def operator (pOp, pValue)
 		if  pOp = "+"
 			if isString(pValue)
-				This.Add(pValue)
+				return This.Added(pValue)
 
 			but @IsStzString(pValue)
 				This.Add(pValue.Content())
 				return This
 
+			but isNumber(pValue)
+				return This.Added(""+pValue)
+
+			but @IsStzNumber(pValue)
+				This.Add(pValue.Content())
+				return This
+
 			but isList(pValue)
-				return This.AddMany(pValue)
+				return This.AddedMany(pValue)
 
 			but @IsStzList(pValue)
 				This.AddMany(pValue.Content())
@@ -4332,14 +4485,21 @@ class stzNumber from stzObject
 
 		but pOp = "-"
 			if isString(pValue)
-				This.SubStruct(pValue)
+				return This.SubStructed(pValue)
 
 			but @IsStzString(pValue)
 				This.SubStruct(pValue.Content())
 				return This
 
+			but isNumber(pValue)
+				return This.SubStructed(""+pValue)
+
+			but @IsStzNumber(pValue)
+				This.SubStruct(pValue.Content())
+				return This
+
 			but isList(pValue)
-				return This.SubStructMany(pValue)
+				return This.SubStructedMany(pValue)
 
 			but @IsStzList(pValue)
 				This.SubStructMany(pValue.Content())
@@ -4349,14 +4509,21 @@ class stzNumber from stzObject
 
 		but pOp = "*"
 			if isString(pValue)
-				This.MultiplyBy(pValue)
+				return This.MultipliedBy(pValue)
 
 			but @IsStzString(pValue)
 				This.MultiplyBy(pValue.Content())
 				return This
 
+			but isNumber(pValue)
+				return This.MultipliedBy(""+pValue)
+
+			but @IsStzNumber(pValue)
+				This.MultiplyBy(pValue.Content())
+				return This
+
 			but isList(pValue)
-				return This.MultiplyByMany(pValue)
+				return This.MultipliedByMany(pValue)
 
 			but @IsStzList(pValue)
 				This.MultiplyByMany(pValue.Content())
@@ -4366,23 +4533,40 @@ class stzNumber from stzObject
 
 		but pOp = "/"
 			if isString(pValue)
-				This.DivideBy(pValue)
+				return This.DividedBy(pValue)
 
 			but @IsStzString(pValue)
 				This.DivideBy(pValue.Content())
 				return This
 
+			but isNumber(pValue)
+				return This.DividedBy(""+pValue)
+
+			but @IsStzNumber(pValue)
+				This.DivideBy(pValue.Content())
+				return This
+
 			but isList(pValue)
-				return This.DivideByMany(pValue)
+				return This.dividedByMany(pValue)
 
 			but @IsStzList(pValue)
-				This.DivideByMany(pValue.Content())
-				return This
+				aResult = Q( This.DivideByMany(pValue.Content()) )
+				return aResult
 		
 			ok
 
 		but pOp = "^"
-			return This.Power(pValue)
+			if @IsStzNumber(pValue) or
+			   (@IsStzString(pValue) and Q(pValue).IsNumberInString())
+
+				
+				cPower = This.Power()
+				This.UpdateWith(cPower)
+
+			else
+
+				return This.Power(pValue)
+			ok
 
 		but pOp = "%"
 			return This.Modulo(pValue)

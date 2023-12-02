@@ -504,7 +504,7 @@ pron()
 
 o1 = new stzListOfNumbers([ 8, 10, 14 ])
 
-o1.SubStractManyOneByOne([ 6, 7, 7 ])
+o1.SubStructManyOneByOne([ 6, 7, 7 ])
 
 ? @@( o1.Content() )
 #--> [ 2, 3, 7 ]
@@ -522,7 +522,7 @@ StzListOfNumbersQ([ 2, 4, 8 , 10 , 12 ]) {
 	? @@( Content() )
 	#--> [ 10, 10, 10 , 10 , 10 ]
 
-	SubstractManyOneByOne([ 5, 5, 5, 5, 5 ])
+	SubStructManyOneByOne([ 5, 5, 5, 5, 5 ])
 	? @@( Content() )
 	#--> [ 5, 5, 5, 5, 5 ]
 
@@ -764,7 +764,7 @@ proff()
 /*-------------------
 
 o1 = new stzListOfNumbers([ 4, 14, 24, 34 ])
-o1.SubstractFromEachW( 10, :Where = '{ @number > 20 }' )
+o1.SubStructFromEachW( 10, :Where = '{ @number > 20 }' )
 ? @@(o1.Content()) #--> [ 4, 14, 14, 24 ]
 
 /*-------------------
@@ -796,7 +796,7 @@ o1.AddToEveryNumber(2)
 /*--------------
 
 o1 = new stzListOfNumbers(1:8)
-o1.SubstractFromEveryItem(2)
+o1.SubStructFromEveryItem(2)
 ? ListToCode( o1.Content() ) #--> [ -1, 0, 1, 2, 3, 4, 5, 6 ]
 
 /*---------------

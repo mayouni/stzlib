@@ -1,8 +1,106 @@
-
 load "stzlib.ring"
 
 /*================
+
+pron()
+
+o1 = new stzNumber(3200)
+
+? o1 + 3500
+#--> 3600
+
+? o1 + 300 + 500 + 200
+#--> 4200
+
+? o1 + [ 300, 500, 200 ]
+ #--> 4200
+
+proff()
+# Executed in 1.03 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzNumber(12500)
+
+? o1 - 12000
+#--> 500
+
+? o1 - 10000 - 2000 - 250
+#--> 250
+
+? o1 - [ 10000, 2000, 250 ]
+#--> 250
+
+proff()
+# Executed in 1.04 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzNumber(12)
+
+? o1 * 5
+#--> 60
+
+? o1 * 5 * 4 * 2
+#--> 480
+
+? o1 * [ 5, 4, 2 ]
+ #--> 480
+
+proff()
+# Executed in 0.83 second(s)
+
+/*-----------------
 */
+
+pron()
+
+o1 = new stzNumber(12)
+
+o1 * Q(5)
+? o1.NumericValue()
+#--> 60
+
+#--
+
+o1 = new stzNumber(12)
+o1 * Q(5 * 4 * 2)
+? o1.NumericValue()
+#--> 480
+
+#--
+
+o1 = new stzNumber(12)
+o1 * Q([ 5, 4, 2 ])
+? o1.NumericValue()
+ #--> 480
+
+proff()
+# Executed in 0.75 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzNumber(3000)
+
+? o1 / 20
+#--> 150
+
+? o1 / 20 / 15 / 2
+#--> 5
+
+? o1 / [ 20, 15, 2 ]
+ #--> 5
+
+proff()
+
+/*================
+
 pron()
 
 StzNamedNumberQ(:myage = 47) {
@@ -452,9 +550,9 @@ o1 = new stzNumber("12500")
 /*----------------------- /////
 
 o1 = new stzNumber(24)
-? o1.SubstractQ(12).Content()
+? o1.SubStructQ(12).Content()
 ? o1.AddManyXT([ "4.65775", "3", "2" ], :ReturnIntermediateResults = TRUE)
-//? o1.SubstractManyXT([ "12", "10.6532", "3" ], :ReturnIntermediateResults = TRUE )
+//? o1.SubStructManyXT([ "12", "10.6532", "3" ], :ReturnIntermediateResults = TRUE )
 //? o1.Content()
 /*
 ? o1.ToBinaryFormWithoutPrefix()
