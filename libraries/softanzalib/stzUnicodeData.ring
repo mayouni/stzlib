@@ -12,28 +12,33 @@
 /* GENERAL NOTES
 
 	RATIONALE ! Why this class and related large file are necessary
+	---------------------------------------------------------------
 
 	The Unicode database is a large file provided by the Unicode foundation here:
 	https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt
 
 	Programming languages and frameworkks supporting Unicode have different
-	strategies in including this data. Some prefere not including it and
-	relying on its presence on the hosting OS where the application runs.
+	strategies in including this data. Hence, some of them prefer not including
+	it and relying on its presence on the hosting OS where the application runs.
 
 	Qt, includes it internallay, which enables us to have most of the data
-	we need (via RingQt). This is nice but some features provided by Softanza
-	are not supported in Qt, like for example the fact of getting chars names,
-	or finding chars by their names (and not their Unicode codes).
+	we need (via RingQt). This is really helpful, and it's done, of course, with
+	a good performance.
 
-	That's why Softanza included the Unicode database.
+	Unfortunately, some features provided by Softanza are not supported in Qt,
+	like for example the fact of getting chars names, or finding chars by their
+	names (and not their Unicode codes).
 
-	In practice, Softanza will use RinQt for any available feature, otherwise
-	the stzUnicodeData own text file is used.
+	That's why Softanza included itw own copy of the Unicode database.
 
-	This file contains a class with the functions added specifically by
-	Softanza. The others can be found in stzChar.ring class.
+	In practice, Softanza will use RingQt for any available Unicode feature,
+	otherwise its own text file is used (called stzUnicodeData.txt).
+
+	The current file contains a class (stzUnicodeData) with the functions
+	added specifically by Softanza. The others can be found in stzChar.ring class.
 
 	DATA STRUCTURE OF THE UNICODE TEXT FILE
+	---------------------------------------
 
 	Fields separated by (details here http://www.unicode.org/L2/L1999/UnicodeData.html):
 
@@ -53,6 +58,8 @@
 	14. Lowercase mapping
 	15. Titlecase mapping
 
+	TODO (futute)
+	-------------
 
 	TODO: understand and include this resource (if necessary):
 	https://www.unicode.org/Public/UCD/latest/ucd/NameAliases.txt
