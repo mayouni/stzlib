@@ -360,7 +360,7 @@ load "stzlib.ring"
 	of strings,  as well as fast insertions and removals. Passing a list of
 	strings as value parameters is both fast and safe (from Qt documentation).
 
-	To create a QStringList in RinQt, you need to create the object and then
+	To create a QStringList in RingQt, you need to create the object and then
 	loop over it to populate it with list of strings, like this:
 
 */		oQStrList = new QStringList()	
