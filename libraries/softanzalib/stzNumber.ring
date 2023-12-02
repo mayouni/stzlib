@@ -4315,34 +4315,70 @@ class stzNumber from stzObject
 	def operator (pOp, pValue)
 		if  pOp = "+"
 			if isString(pValue)
-				return This.Add(pValue)
+				This.Add(pValue)
+
+			but @IsStzString(pValue)
+				This.Add(pValue.Content())
+				return This
 
 			but isList(pValue)
 				return This.AddMany(pValue)
+
+			but @IsStzList(pValue)
+				This.AddMany(pValue.Content())
+				return This
+		
 			ok
 
 		but pOp = "-"
 			if isString(pValue)
-				return This.Subtruct(pValue)
-				
+				This.SubStruct(pValue)
+
+			but @IsStzString(pValue)
+				This.SubStruct(pValue.Content())
+				return This
+
 			but isList(pValue)
-				return This.SubtructMany(pValue)
+				return This.SubStructMany(pValue)
+
+			but @IsStzList(pValue)
+				This.SubStructMany(pValue.Content())
+				return This
+		
 			ok
 
 		but pOp = "*"
 			if isString(pValue)
-				return This.MultiplyBy(pValue)
-	
+				This.MultiplyBy(pValue)
+
+			but @IsStzString(pValue)
+				This.MultiplyBy(pValue.Content())
+				return This
+
 			but isList(pValue)
 				return This.MultiplyByMany(pValue)
+
+			but @IsStzList(pValue)
+				This.MultiplyByMany(pValue.Content())
+				return This
+		
 			ok
 
 		but pOp = "/"
 			if isString(pValue)
-				return This.DivideBy(pValue)
+				This.DivideBy(pValue)
+
+			but @IsStzString(pValue)
+				This.DivideBy(pValue.Content())
+				return This
 
 			but isList(pValue)
 				return This.DivideByMany(pValue)
+
+			but @IsStzList(pValue)
+				This.DivideByMany(pValue.Content())
+				return This
+		
 			ok
 
 		but pOp = "^"

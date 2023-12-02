@@ -7073,6 +7073,7 @@ pron()
 
 o1 = new stzNumber(12500)
 
+? o1 - "500"
 
 proff()
 

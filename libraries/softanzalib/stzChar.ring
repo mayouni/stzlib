@@ -395,11 +395,10 @@ class stzChar from stzObject
 
 			but oStr.RepresentsNumberInHexForm() or
 			    oStr.RepresentsNumberInUnicodeHexForm()
-
 				nUnicode = StzHexNumberQ(pChar).ToDecimal()
 				@oQChar = new QChar(nUnicode)
 
-			but oStr.IsCharName(pChar)
+			but oStr.IsCharName()
 				nUnicode = StzUnicodeDataQ().CharUnicodeByName(pChar)
 				@oQChar = new QChar(nUnicode)
 
