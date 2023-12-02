@@ -1208,7 +1208,7 @@ func Sentiment(pcWord)
 /*---
 
 o1 = new stzListOfNumbers([ 5, 4, 3 ])
-o1.SubstractFromEach(1)
+o1.SubStructFromEach(1)
 ? o1.Content()
 
 /*----

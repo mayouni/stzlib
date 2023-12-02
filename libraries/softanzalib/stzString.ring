@@ -20929,7 +20929,7 @@ class stzString from stzObject
 			pcSubStr = pcSubStr[2]
 		ok
 
-		anPositions = StzListOfNumbersQ(panPositions).SubstractFromEachQ(1).Content()
+		anPositions = StzListOfNumbersQ(panPositions).SubStructFromEachQ(1).Content()
 		This.InsertAfterThesePositions(anPositions, pcSubStr)
 
 		#< @FunctionFluentForm
@@ -32569,7 +32569,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		anPositions = oString.FindAllCS( pcSubStr, :CS = bCaseSensitive )
 
 		anVizPositions = StzListOfNumbersQ(anPositions).
-				 SubstractFromEachQ(1).Content()
+				 SubStructFromEachQ(1).Content()
 
 		nLen = oString.NumberOfChars()
 

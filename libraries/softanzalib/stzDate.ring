@@ -163,6 +163,15 @@ class stzDate from stzObject
 		nDays = 0- pDays
 		return stzAddDays(nDays)
 	
+		def SubstractDays(pDay)
+			return This.SubstructDays( pDays )
+
+		def Subtract(pDay)
+			return This.SubstructDays( pDays )
+
+		def Subtruct(pDays)
+			return This.SubstructDays( pDays )
+
 	// Adding n months to the current date
 	def AddMonths(pMonths)
 		// If the number of months is zero then return the current date

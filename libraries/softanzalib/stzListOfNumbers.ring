@@ -2374,10 +2374,10 @@ class stzListOfNumbers from stzList
 		return anResult
 
 	  #------------------------------------------------#
-	 #     SUBSTRACTING A NUMBER FROM EACH NUMBER     #
+	 #     SubStructING A NUMBER FROM EACH NUMBER     #
 	#------------------------------------------------#
 
-	def SubstractFromEach(n)
+	def SubStructFromEach(n)
 		anContent = This.Content()
 		nLen = len(anContent)
 
@@ -2389,13 +2389,42 @@ class stzListOfNumbers from stzList
 
 		This.Update(anResult)
 
-		def SubstractFromEachQ(n)
-			This.SubstractFromEach(n)
-			return This
+		#< @FunctionFluentForm
 
-	def SubstractedFromEach(n)
-		anResult = This.Copy().SubstractFromEachQ(n).Content()
+		def SubStructFromEachQ(n)
+			This.SubStructFromEach(n)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SubstractFromEach(n)
+			This.SubStructFromEach(n)
+
+		def SubtractFromEach(n)
+			This.SubStructFromEach(n)
+
+		def SubtructFromEach(n)
+			This.SubStructFromEach(n)
+
+		#>
+
+	def SubStructedFromEach(n)
+		anResult = This.Copy().SubStructFromEachQ(n).Content()
 		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def SubstractedFromEach(n)
+			return This.SubStructFromEach(n)
+
+		def SubtractedFromEach(n)
+			return This.SubStructFromEach(n)
+
+		def SubtructedFromEach(n)
+			return This.SubStructFromEach(n)
+
+		#>
 
 	  #---------------------------------------------#
 	 #     MULTIPLYING EACH NUMBER BY A NUMBER     #
@@ -2482,10 +2511,10 @@ class stzListOfNumbers from stzList
 		return anResult
 
 	  #------------------------------------------#
-	 #   SUBSTRACTING MANY NUMBERS ONE BY ONE   #
+	 #   SubStructING MANY NUMBERS ONE BY ONE   #
 	#------------------------------------------#
 
-	def SubstractManyOneByOne(paNumbers)
+	def SubStructManyOneByOne(paNumbers)
 
 		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
@@ -2513,12 +2542,12 @@ class stzListOfNumbers from stzList
 
 		This.Update(anResult)
 
-		def SubstractManyOneByOneQ(paNumbers)
-			This.SubstractManyOneByOne(paNumbers)
+		def SubStructManyOneByOneQ(paNumbers)
+			This.SubStructManyOneByOne(paNumbers)
 			return This
 
-	def ManySubstractedOneByOne(paNumbers)
-		aResult = This.Copy().SubstractManyOneByOneQ(n).Content()
+	def ManySubStructedOneByOne(paNumbers)
+		aResult = This.Copy().SubStructManyOneByOneQ(n).Content()
 		return aResult
 
 	  #----------------------------------------------------------------------#
@@ -2664,18 +2693,18 @@ class stzListOfNumbers from stzList
 		return aResult
 
 	  #--------------------------------------------------------#
-	 #   SUBSTRACT NUMBER FROM EACH UNDER A GIVEN CONDITION   #
+	 #   SubStruct NUMBER FROM EACH UNDER A GIVEN CONDITION   #
 	#--------------------------------------------------------#
 
-	def SubstractFromEachW(n, pcCondition)
+	def SubStructFromEachW(n, pcCondition)
 		This.AddToEachW(-n, pcCondition)
 
-		def SubstractFromEachWQ(n)
-			This.SubstractFromEachW(n)
+		def SubStructFromEachWQ(n)
+			This.SubStructFromEachW(n)
 			return This
 
-	def SubstractedFromEachW(n)
-		aResult = This.Copy().SubstractFromEachWQ(n).Content()
+	def SubStructedFromEachW(n)
+		aResult = This.Copy().SubStructFromEachWQ(n).Content()
 		return aResult
 	
 	  #--------------------------------------------------------------------#
