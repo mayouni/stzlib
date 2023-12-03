@@ -57,7 +57,7 @@ load "stzChar.ring"
 load "stzCharError.ring"
 load "stzCharData.ring"
 
-load "stzUnicodeNames.ring"
+//load "stzUnicodeNames.ring"
 
 load "stzListOfChars.ring"
 load "stzListOfCharsError.ring"
