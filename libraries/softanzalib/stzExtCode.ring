@@ -727,10 +727,10 @@ func FROM_(pcTableName)
 
 	_aSELECT_FROM_WHERE + pcTableName
 
-	# TODO: Check if the pcTableName existe as a named variable
+	# TODO: Check if the pcTableName exists as a named variable
 	# and containing a stzTable object as a value
 
-	v(pcTableName).RemoveRowsOtherThan(_aSELECT_FROM_WHERE[1])
+	v(pcTableName).RemoveColsOtherThan(_aSELECT_FROM_WHERE[1])
 
 
 	func _FROM(pcTableName)
@@ -747,7 +747,41 @@ func WHERE_(pcCondition)
 		ok
 	ok
 
+	# Managing the info of the SQL query()
+
 	_aSELECT_FROM_WHERE + pcCondition
+
+	acColNames  = _aSELECT_FROM_WHERE[1]
+	cTableName = _aSELECT_FROM_WHERE[2]
+	cCondition  = _aSELECT_FROM_WHERE[3]
+
+	# Computing the condition (does not support complex conditions)
+
+	aRows = v(cTableName).Rows()
+	nLen = len(aRows)
+
+	acColNames = v(cTableName).ColNames()
+	nLenCols = len(acColNames)
+
+	for i = 1 to nLenCols
+
+		cColName = acColNames[i]
+		cCondition = Q(cCondition).ReplaceQ( cColName,  'v(cTableName).cell(:' + cColName + ', i)' ).Content()
+		cCode = 'bOk = ' + cCondition
+
+	next
+
+	anPos = []
+
+	for i = 1 to nLen
+		eval(cCode)
+
+		if NOT bOk
+			anPos + i
+		ok
+	next
+
+	v(cTableName).RemoveRows(anPos)
 
 	func _WHERE(pcCondition)
 		return WHERE_(pcCondition)

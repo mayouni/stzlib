@@ -17,7 +17,39 @@ proff()
 # Executed in 0.09 second(s)
 
 /*=============
-*/
+
+pron()
+
+o1 = new stzTable([
+	[ :name, :age, :score ],
+	[ "sam", 24,   10     ],
+	[ "dan", 36,   20     ],
+	[ "tom", 43,   30     ]
+])
+
+o1.Show()
+
+? o1.FindColsExcept([ :name, :score ])
+#--> :NAME   :AGE   :SCORE
+#    ------ ------ -------
+#    sam     24       10
+#    dan     36       20
+#    tom     43       30
+
+o1.RemoveCols([ 2 ])
+
+o1.Show()
+#--> :NAME   :SCORE
+#    ------ -------
+#    sam       10
+#    dan       20
+#    tom       30
+
+proff()
+# Executed in 0.72 second(s)
+
+/*=============
+
 pron()
 
 o1 = new stzTable([
@@ -27,8 +59,6 @@ o1 = new stzTable([
 	[ 20,	    "*",      200,	"*"   ],
 	[ 30,	    "*",      300,	"*"   ]
 ])
-
-#--
 
 ? o1.FindColByName(:COL3) + NL
 #--> 3
@@ -57,16 +87,17 @@ o1 = new stzTable([
 ])
 #--> [ 2, 3, 4 ]
 
-? o1.FindColsByValueExcept([
-	[ 10, 20, 30 ],
-	[ "*", "*", "*" ]
-])
+? @@( o1.FindColsByValueExcept([
+	[ "*", "*", "*" ],
+	[ 10, 20, 30 ]
+]) )
 #--> [ 3 ]
 
 proff()
+# Executed in 0.17 second(s)
 
 /*=============
-
+*/
 pron()
 
 o1 = new stzTable([

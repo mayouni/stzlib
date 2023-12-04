@@ -29,7 +29,7 @@ pron()
 
 	};
 
-	# At this level, and in the background, Softanza create a named stzTable object
+	# At this level, and in the background, Softanza creates a named stzTable object
 	# that we can call using the small function v() and check its structure:
 
 	v(:persons).Show()
@@ -45,7 +45,7 @@ pron()
 		( 2, "Dan", 120 );
 		( 3, "Tim",  56 );
 '
-# Ring code to insert data in stzTable
+# Ring code to insert data into the person stzTable object
 
 	INSERT_INTO( :persons, [ :id, :name, :score ] )
 
@@ -69,7 +69,7 @@ pron()
 		[ 4, 'Roy', 100 ]
 	])
 
-	v(:persons).Show()
+	? v(:persons).Show()
 	#--> :ID  :NAME  :SCORE
 	#      1    Bob      89
 	#      2    Dan     120
@@ -81,22 +81,25 @@ pron()
 '
 	SELECT name, score
 	FROM :persons
-	WHERE score > 80;
+	WHERE score > 99;
 '
 
-? "---" + NL
-
-# The sale selection in Ring code
+# The same selection in Ring code
 
 	SELECT([ :name, :score ])
 	FROM_( :persons )
-	WHERE_( 'score > 80' );
+	WHERE_( 'score > 100' ); # TODO: check WHERE_( 'name = "Dan"' );
 
-? @@( _aSELECT_FROM_WHERE )
+	v(:persons).Show()
+	#--> :NAME   :SCORE
+	#    ------ -------
+	#     Dan      120
+	#     Roy      100
 
 # SQL code to sort the table by score
 
 proff()
+# Executed in 1.39 second(s)
 
 /*==============
 
