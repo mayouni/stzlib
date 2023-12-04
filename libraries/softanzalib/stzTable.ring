@@ -299,9 +299,6 @@ Class stzTable from stzObject
 		def NumberOfCol()
 			return This.NumberOfColumns()
 
-		def Size()
-			return This.NumberOfColumns()
-
 	  #---------------------------------#
 	 #   GETTING THE LIST OF COULMNS   #
 	#---------------------------------#
@@ -798,7 +795,8 @@ Class stzTable from stzObject
 	#===============================================#
 
 	def FindColsExcept(paCols)
-		anResult = Q(1:This.NumberOfCols()) - This.FindCols(paCols)
+
+		anResult = Q(1:This.NumberOfCols()) - Many( This.FindCols(paCols) )
 		return anResult
 
 		#< @FunctionAlternativeForms
@@ -845,7 +843,10 @@ Class stzTable from stzObject
 	#------------------------------------------------#
 
 	def FindColsByValueExceptCS(paCols, pCaseSensitive)
-		anResult = Q(1:This.NumberOfCols()) - This.FindColsByValueCS(paCols, pCaseSensitive)
+
+		anResult = Q(1:This.NumberOfCols()) -
+			   Many( This.FindColsByValueCS(paCols, pCaseSensitive) )
+
 		return anResult
 
 		#< @FunctionAlternativeForms
@@ -937,7 +938,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRows(paRows)
-		returnThis.FindRowsCS(paRows, :CaseSensitive = TRUE)
+		return This.FindRowsCS(paRows, :CaseSensitive = TRUE)
 
 		def FindManyRows(paRows)
 			return This.FindRows(paRows)
@@ -947,7 +948,10 @@ Class stzTable from stzObject
 	#--------------------------------------------#
 
 	def FindRowsExceptCS(paRows, pCaseSensitive)
-		anResult = Q(1:This.NumberOfRows()) - This.FindRowsCS(paRows, pCaseSensitive)
+
+		anResult = Q(1:This.NumberOfRows()) -
+			   Many( This.FindRowsCS(paRows, pCaseSensitive) )
+
 		return anResult
 
 		def FindAllRowsExceptCS(paRows, pCaseSensitive)
@@ -1759,6 +1763,9 @@ Class stzTable from stzObject
 	def NumberOfRows()
 		nResult = len(This.Table()[1][2])
 		return nResult
+
+		def Size()
+			return NumberOfRows()
 
 	  #------------------------------#
 	 #   GETTING THE LIST OF ROWS   #
@@ -9949,10 +9956,7 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		anPos = Q(1:This.NumberOfcols()) - This.FindCols(paCols)
-		# Or we can write directly:
-		# anPos = FindColsExcept(paCols)
-
+		anPos = This.FindColsExcept(paCols)
 		This.RemoveCols(anPos)
 
 		#< @FunctionAlternativeForms
@@ -10031,15 +10035,14 @@ Class stzTable from stzObject
 	#-----------------------------------------------#
 
 	def RemoveAllRowsExcept(panRows)
+
 		if CheckParams()
 			if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
 				StzRaise("Incorrect param type! panRows must be a list of numbers.")
 			ok
 		ok
 
-		anPos = Q(1:This.NumberOfRows()) - panRows
-		# Or we can write directly:
-		# anPos = FindRowsExcept(panRows)
+		anPos = anPos = FindRowsExcept(panRows)
 
 		This.RemoveRows(anPos)
 
