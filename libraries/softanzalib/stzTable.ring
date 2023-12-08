@@ -795,6 +795,13 @@ Class stzTable from stzObject
 	#===============================================#
 
 	def FindColsExcept(paCols)
+		if CheckParams()
+			if NOT isList(paCols)
+				aTemp = []
+				aTemp + paCols
+				paCols = aTemp
+			ok
+		ok
 
 		anResult = Q(1:This.NumberOfCols()) - Many( This.FindCols(paCols) )
 		return anResult

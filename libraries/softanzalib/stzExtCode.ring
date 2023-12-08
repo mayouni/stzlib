@@ -39,7 +39,8 @@ _aSELECT_FROM_WHERE = []
 SMALLINT = :SMALLINT
 TABLE = :TABLE
 
-
+_oInitialTable = new stzTable([])
+_oIntermediateTable = new stzTable([])
 
   ///////////////////
  ///  FUNCTIONS  ///
@@ -628,6 +629,28 @@ func exec(cCode) // Python
 func VARCHAR(n)
 	# Does nothing now --> TODO (future)
 
+	#< @FunctionAlternativeForms
+
+	func _VARCHAR(n)
+		return VARCHAR(n)
+
+	func VARCHAR_(n)
+		return VARCHAR(n)
+
+	func _VARCHAR_(n)
+		return VARCHAR(n)
+
+	func @VARCHAR(n)
+		return VARCHAR(n)
+
+	func VARCHAR@(n)
+		return VARCHAR(n)
+
+	func @VARCHAR@(n)
+		return VARCHAR(n)
+
+	#>
+
 func CREATE_TABLE(pcName)
 
 	oTable = new stzTable([])
@@ -636,6 +659,28 @@ func CREATE_TABLE(pcName)
 	Vr(pcName) '=' Vl(oTable)
 
 	return v(pcName)
+
+	#< @FunctionAlternativeForms
+
+	func _CREATE_TABLE(pcName)
+		return CREATE_TABLE(pcName)
+
+	func CREATE_TABLE_(pcName)
+		return CREATE_TABLE(pcName)
+
+	func _CREATE_TABLE_(pcName)
+		return CREATE_TABLE(pcName)
+
+	func @CREATE_TABLE(pcName)
+		return CREATE_TABLE(pcName)
+
+	func CREATE_TABLE@(pcName)
+		return INSERT_INTO(pcName)
+
+	func @CREATE_TABLE@(pcName)
+		return CREATE_TABLE(pcName)
+
+	#>
 
 func INSERT_INTO(pcTableName, pacColNames)
 
@@ -667,6 +712,28 @@ func INSERT_INTO(pcTableName, pacColNames)
 	ok
 
 	_aINSERT_INTO_VALUES = [ pcTableName, pacColNames ]
+
+	#< @FunctionAlternativeForms
+
+	func _INSERT_INTO(pcTableName, pacColNames)
+		return INSERT_INTO(pcTableName, pacColNames)
+
+	func INSERT_INTO_(pcTableName, pacColNames)
+		return INSERT_INTO(pcTableName, pacColNames)
+
+	func _INSERT_INTO_(pcTableName, pacColNames)
+		return INSERT_INTO(pcTableName, pacColNames)
+
+	func @INSERT_INTO(pcTableName, pacColNames)
+		return INSERT_INTO(pcTableName, pacColNames)
+
+	func INSERT_INTO@(pcTableName, pacColNames)
+		return INSERT_INTO(pcTableName, pacColNames)
+
+	func @INSERT_INTO@(pcTableName, pacColNames)
+		return INSERT_INTO(pcTableName, pacColNames)
+
+	#>
 
 func VALUES(paValues)
 	if CheckParams()
@@ -705,11 +772,34 @@ func VALUES(paValues)
 
 	_aVars[cTableName] = oStzTable
 
+	#< @FunctionAlternativeForms
+
+	func _VALUES(paValues)
+		return VALUES(paValues)
+
+	func VALUES_(paValues)
+		return VALUES(paValues)
+
+	func _VALUES_(paValues)
+		return VALUES(paValues)
+
+	func @VALUES(paValues)
+		return VALUES(paValues)
+
+	func VALUES@(paValues)
+		return VALUES(paValues)
+
+	func @VALUES@(paValues)
+		return VALUES(paValues)
+
+	#>
+
 func SELECT(pacColNames)
 
 	if CheckParams()
 
-		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+		if NOT ( isString(pacColNames) or
+			( isList(pacColNames) and Q(pacColNames).IsListOfStrings() ) )
 			StzRaise("Incorrect param type! pacColNames must be a list of string.")
 		ok
 
@@ -717,21 +807,63 @@ func SELECT(pacColNames)
 
 	_aSELECT_FROM_WHERE + pacColNames
 
+	#< @FunctionAlternativeForms
+
+	func _SELECT(pacColNames)
+		return SELECT(pacColNames)
+
+	func SELECT_(pacColNames)
+		return SELECT(pacColNames)
+
+	func _SELECT_(pacColNames)
+		return SELECT(pacColNames)
+
+	func @SELECT(pacColNames)
+		return SELECT(pacColNames)
+
+	func SELECT@(pacColNames)
+		return SELECT(pacColNames)
+
+	func @SELECT@(pacColNames)
+		return SELECT(pacColNames)
+
+	#>
+
 func FROM_(pcTableName)
 
 	if CheckParams()
 		if NOT isString(pcTableName)
-			
+			StzRaise("Incorrect param type! pcTableName must be a string.")
+		ok
+
+		# Check if the pcTableName exists as a named variable
+		# and containing a stzTable object as a value
+
+		if isString(v(pcTableName)) and v(pcTableName) = NULL
+			StzRaise("Incorrect type! The stzTable object managed by the SQL statement is not defined as a global named variable.")
+		ok
+
+		if NOT @IsStzTable(v(pcTableName))
+			StzRaise("Incorrect param type! The named variable managed by the SQL statement is not a stzTable object.")
 		ok
 	ok
 
 	_aSELECT_FROM_WHERE + pcTableName
 
-	# TODO: Check if the pcTableName exists as a named variable
-	# and containing a stzTable object as a value
+	_oInitialTable = v(pcTableName)
+	_oIntermediateTable = _oInitialTable
 
-	v(pcTableName).RemoveColsOtherThan(_aSELECT_FROM_WHERE[1])
+	if isString(_aSELECT_FROM_WHERE[1]) and 
+	   _aSELECT_FROM_WHERE[1] = "*"
 
+		// do nothing
+	else
+
+		_oIntermediateTable.RemoveColsOtherThan(_aSELECT_FROM_WHERE[1])
+		return _oIntermediateTable
+	ok
+
+	#< @FunctionAlternativeForms
 
 	func _FROM(pcTableName)
 		return FROM_(pcTableName)
@@ -739,11 +871,26 @@ func FROM_(pcTableName)
 	func _FROM_(pcTableName)
 		return FROM_(pcTableName)
 
-func WHERE_(pcCondition)
+	func @FROM(pcTableName)
+		return FROM_(pcTableName)
+
+	func FROM@(pcTableName)
+		return FROM_(pcTableName)
+
+	func @FROM@(pcTableName)
+		return FROM_(pcTableName)
+
+	#>
+
+func WHERE_(pcCondition) # NOTE: Where() is used in an other place
 
 	if CheckParams()
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		if NOT Q(pcCondition).ContainsOneOfTheseCS(_oIntermediateTable.ColsNames(), :CS = FALSE)
+			StzRaise("Incorrect param type! The pcCondition must contain columns names of the stzTable object managed by the SQL statement.")
 		ok
 	ok
 
@@ -752,16 +899,19 @@ func WHERE_(pcCondition)
 	_aSELECT_FROM_WHERE + pcCondition
 
 	acColNames  = _aSELECT_FROM_WHERE[1]
+
 	cTableName = _aSELECT_FROM_WHERE[2]
 	cCondition  = _aSELECT_FROM_WHERE[3]
 
-	# Computing the condition (does not support complex conditions)
+	# Computing the condition (TODO: support complex conditions)
 
-	aRows = v(cTableName).Rows()
+	aRows = _oIntermediateTable.Rows()
 	nLen = len(aRows)
 
-	acColNames = v(cTableName).ColNames()
+	acColNames = _oIntermediateTable.ColNames()
 	nLenCols = len(acColNames)
+
+	# Resolving the condition
 
 	for i = 1 to nLenCols
 
@@ -770,6 +920,8 @@ func WHERE_(pcCondition)
 		cCode = 'bOk = ' + cCondition
 
 	next
+
+	# Applying the condition
 
 	anPos = []
 
@@ -781,7 +933,13 @@ func WHERE_(pcCondition)
 		ok
 	next
 
-	v(cTableName).RemoveRows(anPos)
+	_oIntermediateTable.RemoveRows(anPos)
+	_aVars[cTableName] = _oInitialTable
+
+	return _oIntermediateTable
+
+
+	#< @FunctionAlternativeForms
 
 	func _WHERE(pcCondition)
 		return WHERE_(pcCondition)
@@ -789,9 +947,80 @@ func WHERE_(pcCondition)
 	func _WHERE_(pcCondition)
 		return WHERE_(pcCondition)
 
+	func @WHERE(pcCondition)
+		return WHERE_(pcCondition)
+
+	func WHERE@(pcCondition)
+		return WHERE_(pcCondition)
+
+	func @WHERE@(pcCondition)
+		return WHERE_(pcCondition)
+
+	#>
+
+func WITH_(pcSQL)
+	/* EXAMPLE
+
+	WITH(:sql).AS([
+
+	SELECT([ :name, :score ]),
+	FROM_( :persons ),
+	WHERE_( 'score > 100' ) # TODO: check WHERE_( 'name = "Dan"' );
+
+	])
+
+	? v(:sql)
+
+	*/
+
+	return new WITH(pcSQL)
+
+	#< @FunctionAlternativeForms
+
+	func _WITH(pcSQL)
+		return WITH_(pcSQL)
+
+	func _WITH_(pcSQL)
+		return WITH_(pcSQL)
+
+	func @WITH(pcSQL)
+		return WITH_(pcSQL)
+
+	func @WITH@(pcSQL)
+		return WITH_(pcSQL)
+
+	#>
+
   /////////////////
  ///  CLASSES  ///
 /////////////////
+
+class WITH // used in supporting SQL semantics
+
+	cSQL
+
+	def init(pcSQL)
+		if CheckParams()
+			if NOT isString(pcSQL)
+				StzRaise("Incorrect param type! pcSQL must be a string.")
+			ok
+		ok
+
+		cSQL = pcSQL
+
+	def As(paParams)
+		if CheckParams()
+			if NOT ( isList(paParams) and
+				 len(paParams) > 0 and len(paParams) <= 3 )
+
+				StzRaise("Incorrect param type! paParams must be a list of 1 to 3 items.")
+			ok
+		ok
+
+		_aVars + [ cSQL, _oIntermediateTable.rows() ]
+		_aVars + [ cSQL + 'Data', _oIntermediateTable.rows() ]
+		_aVars + [ cSQL + 'Table', _oIntermediateTable ]
+		_aVars + [ cSQL + 'Object', _oIntermediateTable ]
 
 class say # Raku / Perl
 	vr(:say)
