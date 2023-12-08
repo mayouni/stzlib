@@ -17,11 +17,11 @@ pron()
 
 # The Softanza code for creating the same table inside a stzTable object
 
-	CREATE_TABLE( :persons ) {
+	@CREATE_TABLE( :persons ) {
 
 		@([
 
-		:id    = SMALLINT, 	# NOTE: the SQL datatype is not managed yet
+		:id    = SMALLINT, 	# TODO: SQL datatypes are not supported yet
 		:name  = VARCHAR(30),
 		:score = SMALLINT
 
@@ -29,8 +29,8 @@ pron()
 
 	};
 
-	# At this level, and in the background, Softanza creates a named stzTable object
-	# that we can call using the small function v() and check its structure:
+	# At this level, and in the background, Softanza creates a named stzTable
+	# oject we can call using the small function v() and check its structure:
 
 	v(:persons).Show()
 	#--> :ID    :NAME   :SCORE
@@ -47,9 +47,9 @@ pron()
 '
 # Ring code to insert data into the person stzTable object
 
-	INSERT_INTO( :persons, [ :id, :name, :score ] )
+	@INSERT_INTO( :persons, [ :id, :name, :score ] )
 
-	VALUES([
+	@VALUES([
 		[ 1, 'Bob',  89 ],
 		[ 2, 'Dan', 120 ],
 		[ 3, 'Tim',  56 ]
@@ -65,7 +65,7 @@ pron()
 
 	# Let's add a more one row
 
-	VALUES([
+	@VALUES([
 		[ 4, 'Roy', 100 ]
 	])
 
@@ -76,27 +76,64 @@ pron()
 	#      3    Tim      56
 	#      4    Roy     100
 
-# SQL code to select data from the table
+# SQL code to select data from the table in a query called sql
 
 '
+	WITH sql AS (
+
 	SELECT name, score
-	FROM :persons
-	WHERE score > 99;
+	FROM persons
+	WHERE score > 99
+
+	)
 '
 
-# The same selection in Ring code
+# The same think written in Ring code, where sql is a named variable
+# containing the list of data returned by the query
 
-	SELECT([ :name, :score ])
-	FROM_( :persons )
-	WHERE_( 'score > 100' ); # TODO: check WHERE_( 'name = "Dan"' );
+	@WITH(:sql).AS([
 
-	v(:persons).Show()
+	@SELECT([ :name, :score ]),
+	@FROM( :persons ),
+	@WHERE( 'score > 100' ) # TODO: check WHERE_( 'name = "Dan"' );
+
+	])
+
+	? v(:sql) # Or you can say ? v(:sqlData)
+	#--> [
+	# 	[ "Dan", 120 ],
+	# 	[ "Roy", 100 ]
+	# ]
+
+	# To get the stzTable object you can say:
+
+	? v(:sqlTable).Show() # Or ? v(:sqlObject)
 	#--> :NAME   :SCORE
 	#    ------ -------
 	#     Dan      120
 	#     Roy      100
 
 # SQL code to sort the table by score
+
+'
+	WITH sql AS (
+
+	SELECT * FROM persons
+	ORDER BY Name DESC; # or ASC
+
+	)
+'
+
+# In Ring with Softanza
+
+	@WITH(:sql).AS([
+
+	@SELECT('*'), @FROM(:persons),
+	@ORDER_BY([ :Name, :DESC ])
+
+	])
+
+	? v(:sqlTable).Show()
 
 proff()
 # Executed in 1.39 second(s)
