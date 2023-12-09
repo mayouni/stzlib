@@ -3,19 +3,7 @@
 # with JSDoc (https://jsdoc.app/)
 #--> Create a generator of a static web site documentation
 
-_cSoftanzaLogo =
-'
-╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
-┃╭━╮┃╭━╮┃╭━━┫╭╮╭╮┃╭━╮┃┃╰╮┃┣━━╮━┃╭━╮┃
-┃╰━━┫┃╱┃┃╰━━╋╯┃┃╰┫┃╱┃┃╭╮╰╯┃╱╭╯╭┫┃╱┃┃
-╰━━╮┃┃╱┃┃╭━━╯╱┃┃╱┃╰━╯┃┃╰╮┃┃╭╯╭╯┃╰━╯┃
-┃╰━╯┃╰━╯┃┃╱╱╱╱┃┃╱┃╭━╮┃┃╱┃┃┣╯━╰━┫╭━╮┃
-╰━━━┻━━━┻╯╱╱╱╱╰╯╱╰╯╱╰┻╯╱╰━┻━━━━┻╯╱╰━
-
-Programming, by Heart! By: M.Ayouni╭
-━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
-  ╰╯
-'
+_cSoftanzaLogo = '*'
 
 # TODO: Add these alternatives to NumberOf...() functions, allover the library:
 #	- HowMany...() : in singular and plural forms, exp: HowManyItem() and HowManyItems()
@@ -35,7 +23,7 @@ _bParamCheck = TRUE # Activates the "# Checking params region" in softanza funct
 
 		     # Use the SetParamCheckingTo(FALSE)
 
-_t0 = 0 # Used by StartProfiler() and StopProfiler() functions
+_time0 = 0 # Used by StartProfiler() and StopProfiler() functions
 
 _aRingTypes = [ :number, :string, :list, :object, :cobject ]
 
@@ -2281,10 +2269,10 @@ func STOP()
 	
 
 func StartTimer()
-	_t0 = clock()
+	_time0 = clock()
 
 func ResetTimer()
-	_t0 = 0
+	_time0 = 0
 
 func ElapsedTime()
 	return ElapsedTimeXT(:In = :Seconds)
@@ -2317,20 +2305,20 @@ func ElapsedTimeXT(pIn)
 */
 	switch pIn
 	on :Clocks
-		return clock() - _t0 + " clocks"
+		return clock() - _time0 + " clocks"
 
 	on :Seconds
-		nTime = ( clock() - _t0 ) / clockspersecond()
+		nTime = ( clock() - _time0 ) / clockspersecond()
 		cTime = "" + nTime
 		return cTime + " second(s)"
 
 	on :Minutes
-		nTime = ( clock() - _t0 ) / clockspersecond() / 60
+		nTime = ( clock() - _time0 ) / clockspersecond() / 60
 		cTime = "" + nTime
 		return cTime + " minute(s)"
 
 	on :Hours
-		nTime = ( clock() - _t0 ) / clockspersecond() / 3600
+		nTime = ( clock() - _time0 ) / clockspersecond() / 3600
 		cTime = "" + nTime
 		return cTime + " hour(s)"
 

@@ -1,12 +1,18 @@
+
 load "stdlib.ring"
-load "guilib.ring"
+
+
+t1 = clock()
+
+load "lightguilib.ring"
 load "sqlitelib.ring"
 load "tracelib.ring"
 load "internetlib.ring"
 load "typehints.ring"
 
-load "stzTest.ring"
 load "stzGlobal.ring"
+
+load "stzTest.ring"
 
 load "stzObject.ring"
 load "stzObjects.ring"
@@ -34,14 +40,14 @@ load "stzOctalNumberError.ring"
 
 load "stzString.ring"
 load "stzStringError.ring"
-load "stzMultiString.ring"
-load "stzMultiStringError.ring"
+//load "stzMultiString.ring"
+//load "stzMultiStringError.ring"
 load "stzSubString.ring"
 
 load "stzItem.ring"
 
-load "stzStopWords.ring"
-load "stzStopWordsData.ring"
+//load "stzStopWords.ring"
+//load "stzStopWordsData.ring"
 
 load "stzListOfStrings.ring"
 
@@ -56,8 +62,6 @@ load "stzListOfBytesError.ring"
 load "stzChar.ring"
 load "stzCharError.ring"
 load "stzCharData.ring"
-
-//load "stzUnicodeNames.ring"
 
 load "stzListOfChars.ring"
 load "stzListOfCharsError.ring"
@@ -90,8 +94,8 @@ load "stzTable.ring"
 
 load "stzLocaleData.ring"
 load "stzLocale.ring"
-
 load "stzLocaleError.ring"
+
 load "stzCountry.ring"
 load "stzCountryError.ring"
 load "stzLanguage.ring"
@@ -104,12 +108,13 @@ load "stzGrid.ring"
 load "stzGridError.ring"
 load "stzCounter.ring"
 load "stzCounterError.ring"
+
 load "stzDate.ring"
 load "stzTime.ring"
 load "stzFile.ring"
 load "stzFileError.ring"
 load "stzFolder.ring"
-load "stzRunTime.ring"
+//load "stzRunTime.ring"
 load "stzTextEncoding.ring"
 
 load "stzTextEncodingError.ring"
@@ -132,3 +137,5 @@ load "stzExtCode.ring"
 load "stzNullObject.ring"
 load "stzTrueObject.ring"
 load "stzFalseObject.ring"
+
+? (clock()-t1)/clockspersecond()
