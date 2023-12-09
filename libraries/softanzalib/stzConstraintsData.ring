@@ -1,4 +1,4 @@
-_aConstraints = [	# Todo: Provide a set of default constraints
+	_aConstraints = [	# Todo: Provide a set of default constraints
 			# and complete other stz types
 
 	  #--------------------------#
