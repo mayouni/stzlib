@@ -1,5 +1,26 @@
 load "stzlib.ring"
 
+/*==========
+*/
+pron()
+
+? L('"v1" : "v3" ')		# Equivalent to Q('"v1" : "v3" ').ToList()
+#--> [ "v1", "v2", "v3" ]
+
+? L("v1 v2 v3")
+#--> [ "v1", "v2", "v3" ]
+
+? L("niamey")
+#--> [ "n", "i", "a", "m", "e", "y" ]
+
+? LQ("niamey").Uppercased()
+#--> [ "N", "I", "A", "M", "E", "Y" ]
+
+proff()
+# Executed in 0.72 second(s)
+
+/*==========
+
 pron()
 
 ? Q(1:7) - 4:7
@@ -9,6 +30,7 @@ pron()
 #--> [ 1, 2, 3 ]
 
 proff()
+# Executed in 0.04 second(s)
 
 /*==========
 
