@@ -3,7 +3,17 @@
 # with JSDoc (https://jsdoc.app/)
 #--> Create a generator of a static web site documentation
 
-_cSoftanzaLogo = '*'
+_cSoftanzaLogo = '
+╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
+┃╭━╮┃╭━╮┃╭━━┫╭╮╭╮┃╭━╮┃┃╰╮┃┣━━╮━┃╭━╮┃
+┃╰━━┫┃╱┃┃╰━━╋╯┃┃╰┫┃╱┃┃╭╮╰╯┃╱╭╯╭┫┃╱┃┃
+╰━━╮┃┃╱┃┃╭━━╯╱┃┃╱┃╰━╯┃┃╰╮┃┃╭╯╭╯┃╰━╯┃
+┃╰━╯┃╰━╯┃┃╱╱╱╱┃┃╱┃╭━╮┃┃╱┃┃┣╯━╰━┫╭━╮┃
+╰━━━┻━━━┻╯╱╱╱╱╰╯╱╰╯╱╰┻╯╱╰━┻━━━━┻╯╱╰━
+
+Programming, by Heart! By: M.Ayouni╭
+━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
+  ╰╯'
 
 # TODO: Add these alternatives to NumberOf...() functions, allover the library:
 #	- HowMany...() : in singular and plural forms, exp: HowManyItem() and HowManyItems()

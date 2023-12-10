@@ -1,8 +1,7 @@
 
 load "stdlib.ring"
 
-
-t1 = clock()
+// t1 = clock()
 
 load "lightguilib.ring"
 load "sqlitelib.ring"
@@ -40,14 +39,14 @@ load "stzOctalNumberError.ring"
 
 load "stzString.ring"
 load "stzStringError.ring"
-//load "stzMultiString.ring"
-//load "stzMultiStringError.ring"
+load "stzMultiString.ring"
+load "stzMultiStringError.ring"
 load "stzSubString.ring"
 
 load "stzItem.ring"
 
-//load "stzStopWords.ring"
-//load "stzStopWordsData.ring"
+load "stzStopWords.ring"
+load "stzStopWordsData.ring"
 
 load "stzListOfStrings.ring"
 
@@ -114,7 +113,7 @@ load "stzTime.ring"
 load "stzFile.ring"
 load "stzFileError.ring"
 load "stzFolder.ring"
-//load "stzRunTime.ring"
+load "stzRunTime.ring"
 load "stzTextEncoding.ring"
 
 load "stzTextEncodingError.ring"
@@ -138,4 +137,5 @@ load "stzNullObject.ring"
 load "stzTrueObject.ring"
 load "stzFalseObject.ring"
 
-? (clock()-t1)/clockspersecond()
+// ? (clock()-t1)/clockspersecond()
+

@@ -1,14 +1,17 @@
+load "stzlib.ring"
+
 /*------------------------------------------------------------------------*/
 /*   This file contains test samples not classified in the test files     */
 /*   related to each Softanza class apart.                                */
 /*------------------------------------------------------------------------*/
 
 /*================= UNDERSTANDING THE ..ed() and ..Q() FUNCTION FORMS
-
+*/
+pron()
 # In softanza the ..ed() form returns the expected result
 # from the function without altering the object content:
 
-o1 = new stzList(' "♥1" : "♥3" ')
+o1 = new stzList(L(' "♥1" : "♥3" '))
 ? @@( o1.ItemsReversed() )
 #--> Returns [ "♥3", "♥2", "♥1" ]
 # But the object content itself is left as-is:
@@ -24,7 +27,7 @@ o1.Reverse() # The items are reversed but nothing is returned
 
 # If you want to alter the object and then return it to continue
 # working on it, then use the ...Q() form like this:
-o1 = new stzList(' "♥1" : "♥3" ')
+o1 = new stzList(L(' "♥1" : "♥3" '))
 ? o1.ReverseQ().ToStzListOfStrings().ConcatenatedUsing("~")
 # returns a string containing "♥3~♥2~♥1"
 
@@ -32,6 +35,9 @@ o1 = new stzList(' "♥1" : "♥3" ')
 # reversed and became [ "♥1", "♥2", "♥3" ]. Finally, the stzList object
 # is transformed to a stzListOfStrings object so it can be concatenated
 # and returned as a string containing "♥3~♥2~♥1".
+
+proff()
+# Executed in 0.94 second(s)
 
 /*-----------------------
 
