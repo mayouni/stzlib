@@ -2393,6 +2393,7 @@ class stzListOfNumbers from stzList
 
 		def SubStructFromEachQ(n)
 			This.SubStructFromEach(n)
+			return This
 
 		#>
 

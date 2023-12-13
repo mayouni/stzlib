@@ -8,21 +8,21 @@ class stzTest
 	@Function
 	@Description
 	@Code
-	@Result
+	@MustReturn
 	@Output
 
 	def init()
-		
+
 	def Code()
 		return @Code
 
-	def Result()
-		return @Result
+	def MustReturn()
+		return @MustReturn
 
 	def Run()
 		cCode = Q( This.Code() ).
 			TrimQ().RemoveTheseBoundsQ("{","}").
-			ReplaceQ("?", "@Output = ").
+			ReplaceQ("?", "@Output =").
 			Content()
 
 		eval(cCode)
@@ -31,7 +31,7 @@ class stzTest
 		return @Output
 
 	def Succeeded()
-		if Q(This.Output()).IsEqualTo(This.Result())
+		if Q(This.Output()).IsEqualTo(This.MustReturn())
 			return TRUE
 		else
 			return FALSE
@@ -49,32 +49,48 @@ class stzTest
 	def Check()
 		This.Run()
 
+		cRes = ""
+		if WithoutSapces(@Description) != NULL
+			cRes = @Description + " : "
+		ok
+
 		if This.Succeeded()
-			? :Succeeded
+			
+			cRes += "Succeeded"
 
 		else
-			? :Failed
+			cRes += "Failed"
 		ok
+
+		? cRes
 
 	def CheckxT()
 		This.Run()
 
+		cRes = ""
+
+		if WithoutSapces(@Description) != NULL
+		# NOTE: WithoutSapces() is misspelled but Softanza recognizes it!
+
+			cRes = @Description + " : " + NL
+		ok
+
 		if This.Succeeded()
 
-			cRes =  "Succeeded!" + NL +
-				"~~~~~~~~~~" + NL +
-				"Correcly returned: " + @@(@Output)
+			cRes +=	( "~> Succeeded!" + NL +
+				  "~~~~~~~~~~~~~" + NL +
+				  "Correctly returned: " + @@(@Output) )
 
 
 		else
-			cRes =  "Failed!" + NL +
-				"~~~~~~~" + NL +
-				"Must return : " + @@(@Result) + NL +
-				"But returned: " + @@(@Output)
+			cRes += ( "~> Failed!" + NL +
+				"~~~~~~~~~~" + NL +
+				"Must return : " + @@(@MustReturn) + NL +
+				"But returned: " + @@(@Output) )
 
 		ok
 
-		? cRes
+		? cRes + NL
 
 		def Explain()
 			? CheckXT()

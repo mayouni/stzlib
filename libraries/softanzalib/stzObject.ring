@@ -2834,3 +2834,12 @@ class stzObject
 		else
 			return FALSE
 		ok
+
+	def AndThen()
+		return This
+
+		def AndThenQ()
+			return This.AndThen()
+
+		def AndQ()
+			return This.AndThen()
