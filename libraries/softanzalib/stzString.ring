@@ -30,6 +30,11 @@
 func StzStringQ(str)
 	return new stzString(str)
 
+	#< @FunctionMisspelledForm
+
+	func StzSrtringQ(str)
+		return StzStringQ(str)
+
 func StzNamedString(paNamed)
 	if CheckParams()
 		if NOT (isList(paNamed) and Q(paNamed).IsPairOfStrings())
@@ -469,6 +474,25 @@ func NCopies(n, p)
 
 	func 5Copies(p)
 		return NCopies(3, p)
+
+func WithoutSpaces(pcStr)
+	cResult = StzSrtringQ(pcStr).WithoutSpaces()
+	# NOTE: StzSrtringQ() is misspelled but Softanza recognizes it!
+
+	return cResult
+
+	func @WithoutSpaces(pcStr)
+		return WithoutSpaces(pcStr)
+
+	#< @FunctionMisspelledForms
+
+	func WithoutSapces(pcStr)
+		return WithoutSpaces(pcStr)
+
+	func @WithoutSapces(pcStr)
+		return WithoutSpaces(pcStr)
+
+	#>
 
   /////////////////
  ///   CLASS   ///
@@ -56751,12 +56775,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				This.Spacify()
 				return This
 
+	#-- PASSIVE FORM : TODO - Add this title for each passive form in the library
+
 	def CharsSpacified()
 		cResult = This.Copy().SpacifyCharsQ().Content()
 		return cResult
 
 		def Spacified()
 			return This.CharsSpacified()
+
+		#--
+
+		def CharsSpacifiedQ()
+		# TODO : Add the fluent form of each passive form in the libraray
+			oResult = This.Copy().SpacifyCharsQ()
+			return oResult
+
+			def SpacifiedQ()
+				return This.CharsSpacifiedQ()
 
 	  #----------------------------------------------------------------#
 	 #   SPACIFYING THE CHARS OF THE STRING USING A GIVEN SEPARATOR   #
@@ -56789,6 +56825,12 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		def SpacifiedUsing(pcSep)
 			return CharsSpacifiedUsing(pcSep)
+
+		#--
+
+		def SpacifiedUsingQ(pcSep)
+			oResult = This.Copy().SpacifyCharsUsingQ(pcSep)
+			return oResult
 
 	  #--------------------------------------------------------------------------#
 	 #  SPACIFYING A GIVEN SUBSTRING INSIDE THE STRING USING A GIVEN SEPARATOR  #
@@ -64943,7 +64985,6 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			ok
 		ok // --- End of operator overloading section
 
-
 	  #=====================================================#
 	 #  METHODS USED FOR CAMPATIBILITY WITH EXTERNAL CODE  #
 	#=====================================================#
@@ -66987,7 +67028,18 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 	def ItemIn(paList)	
 		return This.ItemInCS(paList, :CaseSensitive = TRUE)
-                                
+
+	def AndThen()
+		return This
+
+		def AndThenQ()
+			return This.AndThen()
+
+		def AndQ()
+			return This.AndThen()
+
+
+	
                  ///////////////////////////////////////////////
                 //                              ///////////////
       ///////////      ALTERNATIVE FORMS       /////////////

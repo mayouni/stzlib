@@ -4925,3 +4925,12 @@ class stzNumber from stzObject
 
 		def StzClass()
 			return This.ClassName()
+
+	def AndThen()
+		return This
+
+		def AndThenQ()
+			return This.AndThen()
+
+		def AndQ()
+			return This.AndThen()

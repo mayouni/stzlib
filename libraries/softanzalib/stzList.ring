@@ -42381,3 +42381,12 @@ vvv
 
 		def Softanzified()
 			return This.Objecified()
+
+	def AndThen()
+		return This
+
+		def AndThenQ()
+			return This.AndThen()
+
+		def AndQ()
+			return This.AndThen()
