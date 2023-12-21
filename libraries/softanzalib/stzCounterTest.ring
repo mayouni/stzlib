@@ -1,5 +1,8 @@
 load "stzlib.ring"
 
+/*-----------
+*/
+pron()
 
 o1 = new stzCounter([
 	:StartAt = 1,
@@ -16,3 +19,43 @@ o1 = new stzCounter([
 
 ? o1.CountXT( :To = 13, :AndReturnNth = 12)
 #--> 2
+
+proff()
+
+/*------------
+
+pron()
+
+o1 = new stzCounter([
+	:StartAt = 1,
+	:WhenYouReach = 5,
+	:RestartAt = 1
+])
+
+? @@( o1.CountTo(9) )
+#--> [ 1, 2, 3, 4, 1, 2, 3, 4, 1 ]
+
+? o1.CountToXT(9, :ReturnNth = 7)
+#--> 3
+
+proff()
+# Executed in 0.05 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzCounter([
+	:StartAt = 1,
+	:WhenYouReach = 5,
+	:RestartAt = 2
+])
+
+? @@( o1.CountTo(9) )
+#--> [ 1, 2, 3, 4, 2, 3, 4, 2, 3 ]
+
+? o1.CountToXT(9, :ReturnNth = 7)
+#--> 4
+
+proff()
+# Executed in 0.04 second(s)

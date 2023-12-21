@@ -16,6 +16,7 @@ func StzCounterQ(paParams)
 class stzCounter from stzObject
 	@nStartAt = 1
 	@nAfterYouSkip = 0
+	@nWhenYouReach = 0
 	@nRestartAt = 0
 	@nStep = 1
 
@@ -33,7 +34,8 @@ class stzCounter from stzObject
 			ok
 	
 			if paParams[ :WhenYouReach ] != NULL
-				@nAfterYouSkip = paParams[ :WhenYouReach ] - 1
+
+				@nWhenYouReach = paParams[ :WhenYouReach ]
 			ok
 
 			if paParams[ :RestartAt ] != NULL
@@ -54,27 +56,55 @@ class stzCounter from stzObject
 		ok		
 
 	def Counting(nNumber)
-		if isList(nNumber) and Q(nNumber).IsToNamedParam()
-			nNumber = nNumber[2]
-		ok
-
-		if NOT isNumber(nNumber)
-			StzRaise("Incorrect param type! nNumber must be a number.")
+		if CheckParams()
+			if isList(nNumber) and Q(nNumber).IsToNamedParam()
+				nNumber = nNumber[2]
+			ok
+	
+			if NOT isNumber(nNumber)
+				StzRaise("Incorrect param type! nNumber must be a number.")
+			ok
 		ok
 
 		aResult = []
 		n =  @nStartAt
 
-		for i = @nStartAt to nNumber step @nStep
 
-			if i % (@nAfterYouSkip + 1) = 0
-				n = @nRestartAt
-			ok
+		if @nWhenYouReach != 0
 
-			aResult + n
-			n++
-		end
+			for i = @nStartAt to nNumber step @nStep
+	
+				if i = @nWhenYouReach
+					n = @nRestartAt
+				ok
+	
+				aResult + n
+				n++
+				if n = @nWhenYouReach
+					n = @nRestartAt
+				ok
+				
+			next
 
+		but @nAfterYouSkip != 0
+
+			for i = @nStartAt to nNumber step @nStep
+
+				if i % (@nAfterYouSkip + 1) = 0
+					n = @nRestartAt
+				ok
+
+				aResult + n
+				n++
+				if n = @nAfterYouSkip + 1
+					n = @nRestartAt
+				ok
+				
+			next
+
+		ok
+
+		
 		return aResult
 
 		#< @FunctionAlternativeForms
