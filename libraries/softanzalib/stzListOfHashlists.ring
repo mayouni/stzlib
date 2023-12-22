@@ -35,3 +35,10 @@ class stzListOfHashLists from stzList
 		for aHashList in This.ListOfHashLists()
 			StzHashListQ(aHashList).Show() ? ""
 		next
+
+		#< @FuntionMisspelledForm
+
+		def Shwo()
+			This.Show()
+
+		#>

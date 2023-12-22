@@ -21,7 +21,7 @@ Branch		Section of the Tree that can define a path:
 
 Leaf		Last element of the tree structure: there is no level below.
 
-myTree {
+myTree() {
 	Node1 {
 		Node1.1 {
 			Leaf1.1.1
@@ -204,3 +204,10 @@ class stzTree from stzList
 		*/
 
 		? @@( This.Content() )
+
+		#< @FuntionMisspelledForm
+
+		def Shwo()
+			This.Show()
+
+		#>

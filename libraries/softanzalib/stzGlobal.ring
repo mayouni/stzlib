@@ -1641,6 +1641,8 @@ func ShowHL(pValue)
 
 	? StzHashListQ(pValue).ToCode()
 
+	#< @FunctionAlternativeForms
+
 	func ShowHashList(pValue)
 		ShowHL(pValue)
 
@@ -1655,6 +1657,27 @@ func ShowHL(pValue)
 
 	func ShowAsHL(pValue)
 		ShowHL(pValue)
+
+	#>
+
+	#< @FunctionMisspelledForms
+
+	func ShwoHashList(pValue)
+		ShwoHL(pValue)
+
+	func ShwoAsHashList(pValue)
+		ShwoHL(pValue)
+
+	func ShwoHList(pValue)
+		ShwoHL(pValue)
+
+	func ShwoAsHList(pValue)
+		ShwoHL(pValue)
+
+	func ShwoAsHL(pValue)
+		ShwoHL(pValue)
+
+	#>
 
 func ComputableShortForm(paList)
 	return ComputableShortFormXT(paList, 3)
@@ -1683,6 +1706,13 @@ func ComputableShortForm(paList)
 func ShowShort(paList)
 	? ComputableShortForm(paList)
 
+	#< @FunctionMisspelledForm
+
+	func ShwoShort(paList)
+		ShowShort(paList)
+
+	#>
+
 func @@SN(paList, n)
 	if NOT isNumber(n)
 		StzRaise("Incorrect param type! n must be a number.")
@@ -1692,6 +1722,13 @@ func @@SN(paList, n)
 
 func ShowShortN(paList, n)
 	? @@SN(paList, n)
+
+	#< @FunctionMisspelledForm
+
+	func ShwoShortN(paList, n)
+		ShowShortN(paList, n)
+
+	#>
 
 func ComputableShortFormXT(paList, p)
 
@@ -1782,7 +1819,9 @@ func ComputableShortFormXT(paList, p)
 	func ComputableShortFormXTQ(paList, p)
 		return new stzString(ComputableShortFormXT(paList, p))
 
-	#< @FunctionAlternativeForm
+	#>
+
+	#< @FunctionAlternativeForms
 
 	func ShortFormXT(paList, p)
 		return ComputableShortFormXT(paList, p)
@@ -1805,6 +1844,13 @@ func ComputableShortFormXT(paList, p)
 	
 func ShowShortXT(paList, p)
 	? ComputableShortFormXT(paList, p)
+
+	#< @FunctionMisspelledForm
+
+	func ShwoShortFormXT(paList, p)
+		ShowShortXT(paList, p)
+
+	#>
 
 func ComputableForm(pValue)
 

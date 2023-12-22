@@ -2757,6 +2757,13 @@ class stzChar from stzObject
 	def Show()
 		? This.Content()
 
+		#< @FuntionMisspelledForm
+
+		def Shwo()
+			This.Show()
+
+		#>
+
 	def Methods()
 		return ring_methods(This)
 

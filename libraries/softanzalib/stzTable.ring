@@ -11311,8 +11311,22 @@ Class stzTable from stzObject
 	def Show()
 		? This.ToString()
 	
+		#< @FuntionMisspelledForm
+
+		def Shwo()
+			This.Show()
+
+		#>
+
 	def ShowXT(paOptions)
 		? This.ToStringXT(paOptions)
+
+		#< @FuntionMisspelledForm
+
+		def ShwoXT(paOptions)
+			This.ShowXT(paOptions)
+
+		#>
 
 	def ToString()
 		cResult = This.ToStringXT([

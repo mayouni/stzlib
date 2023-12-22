@@ -872,6 +872,13 @@ class stzGrid from stzObject
 		next
 		? cStr
 
+		#< @FuntionMisspelledForm
+
+		def ShwoHLine(n)
+			This.ShowHLine(n)
+
+		#>
+
 	def ShowVLine(n)
 		if n = :FirstOne
 			n = 1
@@ -893,6 +900,13 @@ class stzGrid from stzObject
 			ok
 		next
 		? cStr
+
+		#< @FuntionMisspelledForm
+
+		def ShwoVLine(n)
+			This.ShowVLine(n)
+
+		#>
 
 	def Show()
 		if @bShowRanks = TRUE
@@ -926,17 +940,54 @@ class stzGrid from stzObject
 		next
 		? ""
 		
+		#< @FuntionMisspelledForm
+
+		def Shwo()
+			This.Show()
+
+		#>
+
 	def ShowXT(paOptions) // TODO
 		# :ShowCenter, :ShowRanks
+
+		StzRaise("TODO")
+
+		#< @FuntionMisspelledForm
+
+		def ShwoXT(paOptions)
+			This.ShowXT(paOptions)
+
+		#>
 
 	def ShowRegion(paRegion)
 		// TODO
 
+		#< @FuntionMisspelledForm
+
+		def ShwoRegion(paRegion)
+			This.ShowRegion(paRegion)
+
+		#>
+
 	def ShowRegionStroke(paRegion)
 		// TODO
 
+		#< @FuntionMisspelledForm
+
+		def ShwoRegionStroke(paRegion)
+			This.ShowRegionStroke(paRegion)
+
+		#>
+
 	def ShowRegionCenter(paRegion)
 		// TODO
+
+		#< @FuntionMisspelledForm
+
+		def ShwoRegionCenter(paRegion)
+			This.ShowRegionCenter(paRegion)
+
+		#>
 
 	  #------------------#
 	 #     Sections     #
