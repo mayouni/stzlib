@@ -1,8 +1,24 @@
 load "stzlib.ring"
 
 
-/*==== SQL SUPPORT IN SOFTANZA EXTERNAL CODE
+/*------------
 */
+pron()
+
+o1 = new stzTable([
+	[ :NAME,   :SCORE ],
+	# ------ -------
+	[ "Bob",       89 ],
+	[ "Dan",      120 ],
+	[ "Roy",      100 ]
+])
+
+o1.Shwo() # Note this is a mispelled form of Show()
+
+proff()
+
+/*==== SQL SUPPORT IN SOFTANZA EXTERNAL CODE
+
 pron()
 
 # SQL code to create a table with three columns
@@ -32,7 +48,7 @@ pron()
 	# At this level, and in the background, Softanza creates a named stzTable
 	# oject we can call using the small function v() and check its structure:
 
-	v(:persons).Show()
+	v(:persons).Show() + NL
 	#--> :ID    :NAME   :SCORE
 	#     NULL   NULL    NULL
 
@@ -66,7 +82,8 @@ pron()
 	# Let's add a more one row
 
 	@VALUES([
-		[ 4, 'Roy', 100 ]
+		[ 4, 'Roy', 100 ],
+		[ 5, 'Sam', 78 ]
 	])
 
 	? v(:persons).Show()
@@ -75,6 +92,7 @@ pron()
 	#      2    Dan     120
 	#      3    Tim      56
 	#      4    Roy     100
+	#      5    Sam      78
 
 # SQL code to select data from the table in a query called sql
 
@@ -88,19 +106,20 @@ pron()
 	)
 '
 
-# The same think written in Ring code, where sql is a named variable
+# The same thing written in Ring code, where sql is a named variable
 # containing the list of data returned by the query
 
 	@WITH(:sql).AS([
 
 	@SELECT([ :name, :score ]),
 	@FROM( :persons ),
-	@WHERE( 'score > 100' ) # TODO: check WHERE_( 'name = "Dan"' );
+	@WHERE( 'score > 80' ) # TODO: check WHERE_( 'name = "Dan"' );
 
 	])
 
 	? v(:sql) # Or you can say ? v(:sqlData)
 	#--> [
+	# 	[ "Bob",  89 ],
 	# 	[ "Dan", 120 ],
 	# 	[ "Roy", 100 ]
 	# ]
@@ -110,6 +129,7 @@ pron()
 	? v(:sqlTable).Show() # Or ? v(:sqlObject)
 	#--> :NAME   :SCORE
 	#    ------ -------
+	#     Bob       89
 	#     Dan      120
 	#     Roy      100
 
@@ -129,7 +149,7 @@ pron()
 	@WITH(:sql).AS([
 
 	@SELECT('*'), @FROM(:persons),
-	@ORDER_BY([ :Name, :DESC ])
+	@ORDER_BY(:SCORE, :DESC)
 
 	])
 

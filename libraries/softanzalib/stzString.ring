@@ -66032,11 +66032,28 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	def Show()
 		? @@( This.Content() )
 
+		#< @FuntionMisspelledForm
+
+		def Shwo()
+			This.Show()
+
+		#>
+
 	def ShowShort()
 		? @@( This.Shortened() )
 
 		def ShowShortCopy()
 			This.ShowShort()
+
+		#< @FuntionMisspelledForm
+
+		def ShwoShort()
+			This.ShowShort()
+
+		def ShwoShortCopy()
+			This.ShowShort()
+
+		#>
 
 	def ShowShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 		? @@( This.ShortenedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart) )
@@ -66044,14 +66061,45 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def ShowShortenedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 			This.ShowShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
 
+		#< @FuntionMisspelledForm
+
+		def ShwoShortXT(nMinStrSize, oNumberOfCharsToShow, pcMiddlePart)
+			This.ShowShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+
+		def ShwoShortenedXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+			This.ShowShortXT(nMinStrSize, pNumberOfCharsToShow, pcMiddlePart)
+
+		#>
+
 	def ShowShortN(n)
 		? @@( This.ShortenedN(n) )
+
+		#< @FuntionMisspelledForm
+
+		def ShwoShortN(n)
+			This.ShowShortN(n)
+
+		#>
 
 	def ShowShortUsing(pcMiddlePart)
 		? @@( This.ShortenedUsing(pcMiddlePart) )
 
+		#< @FuntionMisspelledForm
+
+		def ShwoShortUsing(pcMiddlePart)
+			This.ShowShortUsing(pcMiddlePart)
+
+		#>
+
 	def ShowShortNUsing(n, pcMiddlePart)
 		? @@( This.ShortenedNUsing(n, pcMiddlePart) )
+
+		#< @FuntionMisspelledForm
+
+		def ShwoShortNUsing(n, pcMiddlePart)
+			This.ShowShortNUsing(n, pcMiddlePart)
+
+		#>
 
 	  #-------------------------------------------#
 	 #   GETTING A SHORTENED COPY OF THE STRING  #

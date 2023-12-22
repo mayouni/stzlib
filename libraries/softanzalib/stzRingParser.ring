@@ -40,6 +40,13 @@ class stzRingParser
 	def ShowCode()
 		? cRingCode
 
+		#< @FuntionMisspelledForm
+
+		def ShwoCode()
+			This.ShowCode()
+
+		#>
+
 	def Scan()
 		oSandBox = new stzSandBox(cRingCode)
 		oSandBox.Scan()

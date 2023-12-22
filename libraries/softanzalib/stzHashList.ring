@@ -4511,6 +4511,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#===============#
 
 	// TODO: FindWhere(cCondition) --> See how this was made in stzList
+	// TODO: Support SQL semantics and functions (see steExtCode)
 
 	  #==============#
 	 #     SHOW     #
@@ -4525,6 +4526,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		next
 		? cStr
+
+		#< @FuntionMisspelledForm
+
+		def Shwo()
+			This.Show()
+
+		#>
 
 		/* TODO
 		if you try it for [ :same = :LefToRight, :كلام = :RightToleft, :other = :LefToRight ]

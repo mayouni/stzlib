@@ -89,6 +89,13 @@ class stzDynamicList from stzObject
 			? cStr
 		next
 
+		#< @FunctionMisspelledForm
+
+		def Shwo()
+			This.Show()
+
+		#>
+
 	def AddItem(pItem)
 		aContent + pItem
 

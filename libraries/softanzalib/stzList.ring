@@ -21122,6 +21122,13 @@ class stzList from stzObject
 
 		StzRaise("Unsupported feature yet!")
 
+		#< @FuntionMisspelledForm
+
+		def ShwoStructure()
+			This.ShowStructure()
+
+		#>
+
 	  #---------------------------#
 	 #     LEVELS OF THE LIST    #
 	#===========================#
@@ -21199,11 +21206,28 @@ class stzList from stzObject
 	def Show()
 		? @@( This.Content() )
 
+		#< @FuntionMisspelledForm
+
+		def Shwo()
+			This.Show()
+
+		#>
+
 	def ShowShort()
 		? @@S( This.Content() )
 
 		def ShowShortCopy()
 			This.ShowShort()
+
+		#< @FuntionMisspelledForms
+
+		def ShwoShort()
+			This.ShowShort()
+
+		def ShwoShortCopy()
+			This.ShowShort()
+
+		#>
 
 	def ShowShortXT(p)
 		? @@SXT( This.Content(), p)
@@ -21211,18 +21235,49 @@ class stzList from stzObject
 		def ShowShortenedXT(p)
 			This.ShowShortXT(p)
 
+		#< @FuntionMisspelledForms
+
+		def ShwoShortXT(p)
+			This.ShowShortXT(p)
+
+		def ShwoShortenedXT(p)
+			This.ShowShortXT(p)
+
+		#>
+
 	def ShowShortN(n)
 		? @@SN( This.Content(), n )
+
+		#< @FuntionMisspelledForm
+
+		def ShwoShortN(n)
+			This.ShowShortN(n)
+
+		#>
 
 	def ShowShortUsing(pcMiddlePart)
 		? @@( This.ShortenedUsing(pcMiddlePart) )
 
+		#< @FuntionMisspelledForm
+
+		def ShwoShortUsing(pcMiddlePart)
+			This.ShowShortUsing(pcMiddlePart)
+
+		#>
+
 	def ShowShortNUsing(n, pcMiddlePart)
 		? @@( This.ShortenedNUsing(n, pcMiddlePart) )
 
-	  #------------------------------------------#
+		#< @FuntionMisspelledForm
+
+		def ShwoShortNUsing(n, pcMiddlePart)
+			This.ShowShortNUsing(n, pcMiddlePart)
+
+		#>
+
+	  #-----------------------------------------#
 	 #   GETTING A SHORTENED COPY OF THE LIST  #
-	#==========================================#
+	#=========================================#
 
 	def ToShort()
 		return This.ToShortXT(10, 3, "...")

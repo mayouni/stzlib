@@ -1,7 +1,7 @@
 # Set of functions and classes made to make it easy porting code
 # from external languages in Ring
 
-# The idea is to find a solution to a problem on the internet in other langauge,
+# The idea is to find a solution to a problem on the internet in other language,
 # paste the code in Ring, and do little changes to get a computable Ring code
 
 # See examples in stzExtLang.ring file
@@ -991,6 +991,40 @@ func WITH_(pcSQL)
 
 	#>
 
+func ORDER_BY(pcColName, pcSortOrder)
+	if CheckParams()
+		if NOT isString(pcColName)
+			StzRaise("Incorrect param type! pcColName must be a string.")
+		ok
+
+		if NOT ( isString(pcSortOrder) and Q(pcSortOrder).IsEither(:ASC, :DESC))
+			StzRaise("Incorrect param type! pcSortOrder must be a string equal to :ASC or :DESC.")
+		ok
+	ok
+
+	if pcSortOrder = :ASC
+		v(:sqlTable).SortInAscending(pcColName)
+	else
+		v(:sqlTable).SortedInDescending(pcColName)
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func _ORDER_BY(pcColName, pcSortOrder)
+		ORDER_BY(pcColName, pcSortOrder)
+
+	func ORDER_BY_(pcColName, pcSortOrder)
+		ORDER_BY(pcColName, pcSortOrder)
+
+	func _ORDER_BY_(pcColName, pcSortOrder)
+		ORDER_BY(pcColName, pcSortOrder)
+
+	func @ORDER_BY(pcColName, pcSortOrder)
+		ORDER_BY(pcColName, pcSortOrder)
+
+	func @ORDER_BY@(pcColName, pcSortOrder)
+		ORDER_BY(pcColName, pcSortOrder)
+
   /////////////////
  ///  CLASSES  ///
 /////////////////
@@ -1017,10 +1051,21 @@ class WITH // used in supporting SQL semantics
 			ok
 		ok
 
-		_aVars + [ cSQL, _oIntermediateTable.rows() ]
-		_aVars + [ cSQL + 'Data', _oIntermediateTable.rows() ]
-		_aVars + [ cSQL + 'Table', _oIntermediateTable ]
-		_aVars + [ cSQL + 'Object', _oIntermediateTable ]
+		n = StzHashListQ(_aVars).FindKey(cSQL)
+
+		if n = 0
+			_aVars + [ cSQL, _oIntermediateTable.rows() ]
+			_aVars + [ cSQL + 'Data', _oIntermediateTable.rows() ]
+			_aVars + [ cSQL + 'Table', _oIntermediateTable ]
+			_aVars + [ cSQL + 'Object', _oIntermediateTable ]
+	
+		else
+			_aVars[n] = [ cSQL, _oIntermediateTable.rows() ]
+			_aVars[n] = [ cSQL + 'Data', _oIntermediateTable.rows() ]
+			_aVars[n] = [ cSQL + 'Table', _oIntermediateTable ]
+			_aVars[n] = [ cSQL + 'Object', _oIntermediateTable ]
+
+		ok
 
 class say # Raku / Perl
 	vr(:say)

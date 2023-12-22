@@ -67,6 +67,13 @@ class stzMultiString
 		def Show()
 			oHashList.Show()
 
+			#< @FuntionMisspelledForm
+	
+			def Shwo()
+				This.Show()
+	
+			#>
+
 		def Languages()
 			return oHashList.Keys()
 
