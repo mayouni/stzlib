@@ -10811,32 +10811,54 @@ Class stzTable from stzObject
 
 		# Checking params
 
-		if isList(pCol) and Q(pCol).IsOneOfTheseNamedParams([ :By, :ByCol, :ByColumn ])
+		if CheckParams()
 
-			pCol = pCol[2]
+			if isList(pCol) and Q(pCol).
+				IsOneOfTheseNamedParams([ :By, :ByCol, :ByColumn ])
+	
+				pCol = pCol[2]
+			ok
+	
+			if NOT ( isNumber(pCol) or isString(pCol) )
+				StzRaise("Incorrect param type! pCol must be a number or string.")
+			ok
+	
+			if isNumber(pCol) and
+				NOT ( Q(pCol).IsBetween(1, This.NumberOfCol()) )
+
+				StzRaise("Incorrect param value! pCol must be a number between 1 and " + This.NumberOfCol() + ".")
+	
+			but isString(pCol) and NOT This.HasColName(pCol)
+				StzRaise("Incorrect param value! pCol must be a valid column name.")
+			ok
+	
+			if isList(pcDirection) and Q(pcdirection).IsInNamedParam()
+				pcDirection = pcDirection[2]
+			ok
+	
+			if NOT ( isString(pcDirection) and
+				 Q(pcDirection).IsOneOfThese([ :Ascending, :Descending, :InAscending, :InDescending ]) )
+	
+				StzRaise("Incorrect param! pcDirection must be :In = :Ascending or :In = :Descending.")
+			ok
+	
 		ok
 
-		if NOT ( isNumber(pCol) or isString(pCol) )
-			StzRaise("Incorrect param type! pCol must be a number or string.")
+		n = This.FindCol(pCol)
+
+		if This.RowQ(n).IsMadeOfNumbersOrStrings()
+
+			aResult = ring_sort2( This.Rows(), n )
+			if pcDirection = :InDescending
+				aResult = ring_reverse(aResult)
+			ok
+
+			This.ReplaceRows(aResult)
+
+		else
+
 		ok
-
-		if isNumber(pCol) and NOT ( Q(pCol).IsBetween(1, This.NumberOfCol()) )
-			StzRaise("Incorrect param value! pCol must be a number between 1 and " + This.NumberOfCol() + ".")
-
-		but isString(pCol) and NOT This.HasColName(pCol)
-			StzRaise("Incorrect param value! pCol must be a valid column name.")
-		ok
-
-		if isList(pcDirection) and Q(pcdirection).IsInNamedParam()
-			pcDirection = pcDirection[2]
-		ok
-
-		if NOT ( isString(pcDirection) and
-			 Q(pcDirection).IsOneOfThese([ :Ascending, :Descending, :InAscending, :InDescending ]) )
-
-			StzRaise("Incorrect param! pcDirection must be :In = :Ascending or :In = :Descending.")
-		ok
-
+/*
 		# STEP 1: Moving the column used in the sort at the first position
 		# while memorising its position (because we will move it back later)
 
@@ -10846,7 +10868,7 @@ Class stzTable from stzObject
 		# STEP 2: Turn the rows into a list of strings and sort them using
 		# the stzListOfStrings sorting service
 
-		ocRows = This.RowsQ().StringifyQ().ToStzListOfStrings()
+		ocRows = This.RowsQ()//.StringifyQ()//.ToStzListOfStrings()
 
 		if pcDirection = :Ascending or pcDirection = :InAscending
 			ocRows.SortInAscending()
@@ -10884,7 +10906,7 @@ Class stzTable from stzObject
 		# initial position in the table
 
 		This.MoveCol(1, :ToPosition = nInitialColPos)
-
+*/
 		#< @FunctionFluentForm
 
 		def SortXTQ(pCol, pcDirection)

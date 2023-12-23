@@ -762,6 +762,12 @@ func ring_reverse(paList)
 func ring_sort(paList)
 	return sort(paList)
 
+	func ring_sort1(paList)
+		return ring_sort(paList)
+
+func ring_sort2(paList, n)
+	return sort(paList, n)
+
 func ring_sortXT(paList, n)
 	return sort(paList, n)
 

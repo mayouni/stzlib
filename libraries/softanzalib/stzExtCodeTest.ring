@@ -1,19 +1,60 @@
 load "stzlib.ring"
 
+pron()
+
+Q([ 1, 2, "three", 4, "five" ]) {
+
+	? IsMadeOfNumbersOrStrings()
+	#--> TRUE
+
+	? IsMadeOfNumbersAndStrings()
+	#--> TRUE
+}
+
+Q([ 1, 2, 3, 4, 5 ]) {
+
+	? IsMadeOfNumbersOrStrings()
+	#--> TRUE
+
+	? IsMadeOfNumbersAndStrings()
+	#--> FALSE
+
+}
+
+#--> Executed in 0.04 second(s)
+
+proff()
+
+/*------------
+
+pron()
+
+? sort([
+	[ "Bob",       89 ],
+	[ "Dan",      120 ],
+	[ "Roy",      100 ]
+], 2)
+
+proff()
 
 /*------------
 */
 pron()
 
+//CheckParamsOff()
+
 o1 = new stzTable([
-	[ :NAME,   :SCORE ],
-	# ------ -------
-	[ "Bob",       89 ],
-	[ "Dan",      120 ],
-	[ "Roy",      100 ]
+
+	:NAME =  [ "Bob", "Dan", "Roy" ],
+	:SCORE = [ 89, 120, 100 ]
+
 ])
 
-o1.Shwo() # Note this is a mispelled form of Show()
+//o1.Shwo() + NL # Note this is a mispelled form of Show()
+
+o1.SortInAscending(:SCORE)
+
+? o1.Show()
 
 proff()
 
