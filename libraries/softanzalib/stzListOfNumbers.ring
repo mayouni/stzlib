@@ -774,7 +774,7 @@ class stzListOfNumbers from stzList
 
 		aSorted = This.Sorted()
 		nLen = len(aSorted)
-		nResult = aSorted[nLen]
+		nResult = aSorted[1]
 		return nResult
 
 		def MinQ(n)

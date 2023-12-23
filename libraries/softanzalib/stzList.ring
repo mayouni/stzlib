@@ -14901,27 +14901,60 @@ class stzList from stzObject
 			- only of numbers
 			- or only of strings.
 
-		In sofanza a list is sorted by applying 4 steps:
-			1- numbers are sorted first and put at the beginning
-			2- then strings are sorted and put after numbers
-			3- then lists are added after strings in
-			  their order of appearance
-			4- then objects are added after lists in
-			  their order of appearance
+		Softanza can do the same and more. Even heteregenous lists
+		made of numbers, strings, lists and objects can be sorted !
 
-			NOTE: 3 and 4 steps could change in the future when
-			Softanza becomes able to sort even lists  and objects!
+		If the list is made of numbers and/or strings, then
+		Ring native sort function is used.
+
+		Otherwise, the list may contain items that are lists
+		or objects, in addition to numbers and strings.
+
+		In this case, Sofanza makes the sort by applying 10 steps:
+
+		1- if the list contains stzNumbers they are numberified
+		2- If the list contains stzStrings they are stringified
+		3- if the list contains stzLists they are listified
+
+		4- numbers are sorted first and put at the beginning
+		5- stzNumbers are identified and set at their expected positions
+
+		6- then strings are sorted and put after numbers
+		5- stzStrings are identified and set at their expected positions
+
+		7- then lists are sorted and put after strings
+		8- stzLists are identified and set at their expected positions
+
+		9- then objects are sorted based on type of their content
+		   ~> if it is number, then the object is numberified and sorted
+		      within the number. If it is a string, then it is sorted
+		      within the strings, and so on.
+
+		10. Remaining objects, whose Content() type is not a Ring type
+		    (C or C++ object for example), are put at the end in the
+		    order of their appearance.
+
+		NOTE: In the mean time, stzObjects (and other objects) are
+		not sortable yet ~> FUTURE
+
 		*/
 
-		aNumbers = ring_sort( This.OnlyNumbers() )
+		aResult = []
 
-		aStrings = ring_sort( This.OnlyStrings() )
+		if This.IsMadeOfNumbersOrStrings()
+			aResult = ring_sort( This.Content() )
 
-		aLists = This.OnlyLists()
-
-		aObjects = This.OnlyObjects()
-
-		aResult = ListsMerge([ aNumbers, aStrings, aLists, aObjects ])
+		else
+			aNumbers = ring_sort( This.OnlyNumbers() )
+	
+			aStrings = ring_sort( This.OnlyStrings() )
+	
+			aLists = StzListOfListsQ( This.OnlyLists() ).Sorted()
+	
+			aObjects = This.OnlyObjects()
+	
+			aResult = ListsMerge([ aNumbers, aStrings, aLists, aObjects ])
+		ok
 
 		This.Update( aResult )
 

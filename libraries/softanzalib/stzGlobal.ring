@@ -768,8 +768,8 @@ func ring_sort(paList)
 func ring_sort2(paList, n)
 	return sort(paList, n)
 
-func ring_sortXT(paList, n)
-	return sort(paList, n)
+	func ring_sortXT(paList, n)
+		return sort(paList, n)
 
 func ring_methods(obj)
 	return methods(obj)
