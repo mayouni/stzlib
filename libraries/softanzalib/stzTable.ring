@@ -9484,7 +9484,8 @@ Class stzTable from stzObject
 		aRowCells = This.RowAsPositions(pnRow)
 		This.ReplaceCellsByMany(aRowCells, paNewRow)
 
-	# Replacing all the rows with the provided row
+	# Replacing all the rows with the provided rows
+
 	def ReplaceAllRows(paNewRows)
 		if isList(paNewRows) and
 		   Q(paNewRows).IsOneOfTheseNamedParams([ :With, :By, :Using ])
@@ -9495,10 +9496,14 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! paNewRows must be a list.")
 		ok
 
-		nLen = This.NumberOfRows()
+? @@(@aContent)
+? @@(paNewRows)
+		nLen = Min([ len(paNewRows), len(@aContent) ])
+
 		for i = 1 to nLen
-			This.ReplaceRow(i, paNewRows[i])
+			@aContent[i][2] = paNewRows[i]
 		next
+
 
 		def ReplaceRows(paNewRows)
 			This.ReplaceAllRows(paNewRows)
@@ -10852,7 +10857,7 @@ Class stzTable from stzObject
 			if pcDirection = :InDescending
 				aResult = ring_reverse(aResult)
 			ok
-
+? ElapsedTime()
 			This.ReplaceRows(aResult)
 
 		else

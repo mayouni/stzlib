@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*----------
+
 pron()
 
 Q([ 1, 2, "three", 4, "five" ]) {
@@ -34,6 +36,32 @@ pron()
 	[ "Dan",      120 ],
 	[ "Roy",      100 ]
 ], 2)
+
+proff()
+#--> Executed in 0.03 second(s)
+
+/*------------
+
+pron()
+
+? StzListOfListsQ([
+	[ "Bob",       89 ],
+	[ "Dan",      120 ],
+	[ "Roy",      100 ]
+]).SortedBy(2)
+
+proff()
+#--> Executed in 0.04 second(s)
+
+/*------------
+*/
+pron()
+
+? Min([2, 3])
+#--> 2
+
+? Max([2, 3])
+#--> 3
 
 proff()
 
