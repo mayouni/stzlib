@@ -13140,19 +13140,24 @@ class stzList from stzObject
 		def ItemsHaveSameOrder(paOtherList)
 			return This.ItemsHaveSameOrderAs(paOtherList)
 
-	  #------------------------------------------------------------#
+	  #==========================================================#
 	 #  CHECKING IF ALL THE ITEMS ARE EIGTHER NUMBERS OR ITEMS  #
-	#------------------------------------------------------------#
+	#==========================================================#
 
 	def AllItemsAreNumbersOrStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		bResult = TRUE
-		for item in This.List()
-			if NOT (isNumber(item) or isString(item))
+		for i = 1 to nLen
+			if NOT (isNumber(aContent[i]) or isString(aContent[i]))
 				bResult = FALSE
 				exit
 			ok
 		next
 		return bResult
+
+		#< @FunctionAlternativeForms
 
 		def ItemsAreNumbersOrStrings()
 			return This.AllItemsAreNumbersOrStrings()
@@ -13163,9 +13168,93 @@ class stzList from stzObject
 		def ItemsAreStringsOrNumbers()
 			return This.AllItemsAreNumbersOrStrings()
 
+		def IsMadeOfNumbersOrStrings()
+			return This.AllItemsAreNumbersOrStrings()
+
+		def IsMadeOfStringsOrNumbers()
+			return This.AllItemsAreNumbersOrStrings()
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  CHECKING IF THE LIST IS MADE OF A NUMBER AND A STRING  #
+	#---------------------------------------------------------#
+
+	def IsMadeOfANumberAndAString()
+		acContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen != 2
+			return FALSE
+		ok
+
+		if ( isNumber(acContent[1]) and isString(acContent[2]) ) OR
+		   ( isString(acContent[1]) and isNumber(acContent[2]) )
+
+			return TRUE
+
+		else
+
+			return FALSE
+		ok
+
+
+		def IsMadeOfAStringAndANumber()
+			return This.IsMadeOfANumberAndAString()
+
+	  #----------------------------------------------------------#
+	 #  CHECKING IF ALL THE ITEMS ARE EIGTHER NUMBERS OR ITEMS  #
+	#==========================================================#
+
+	def AllItemsAreNumbersAndStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bGotANumber = FALSE
+		bGotAString = FALSE
+
+		for i = 1 to nLen
+			if isNumber(aContent[i])
+				bGotANumber = TRUE
+			but isString(aContent[i])
+				bGotAString = TRUE
+			ok
+
+			if isNumber(aContent[i]) and bGotANumber
+				i++
+
+			but isString(aContent[i]) and bGotAString
+				i++
+			ok
+
+		next
+
+		bResult = bGotANumber AND bGotAString
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ItemsAreNumbersAndStrings()
+			return This.AllItemsAreNumbersAndStrings()
+
+		def AllItemsAndStringsOrNumbers()
+			return This.AllItemsAndNumbersAndStrings()
+
+		def ItemsAndStringsOrNumbers()
+			return This.AllItemsAndNumbersAndStrings()
+
+		def IsMadeOfNumbersAndStrings()
+			return This.AllItemsAreNumbersAndStrings()
+
+		def IsMadeOfStringsAndNumbers()
+			return This.AllItemsAreNumbersAndStrings()
+
+		#>
+
 	  #-------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS 2 NUMBERS  #
-	#-------------------------------------------#
+	#===========================================#
 
 	def BothAreNumbers()
 		if This.NumberOfItems() = 2 and
@@ -14771,13 +14860,20 @@ class stzList from stzObject
 		NB: This may change in the future and normal ring objects become sortable.
 
 		*/
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		aResult = []
-		for item in Content()
-			if isNumber(item) or isString(item) or isList(item) or
-			   @IsStzNumber(item) or @IsStzString(item) or @IsStzList(item)
-				aResult + item
+
+		for i = 1 to nLen
+
+			if isNumber(aContent[i]) or isString(aContent[i]) or isList(aContent[i]) or
+			   @IsStzNumber(aContent[i]) or @IsStzString(aContent[i]) or @IsStzList(aContent[i])
+				aResult + aContent[i]
 			ok
 		next
+
 		return aResult
 
 	def UnsortableItems()
@@ -14786,12 +14882,11 @@ class stzList from stzObject
 
 		aResult = []
 		for i = 1 to nLen
-			item = aContent[i]
-			if isNumber(item) or isString(item) or isList(item) or
-			   @IsStzNumber(item) or @IsStzString(item) or @IsStzList(item)
+			if isNumber(aContent[i]) or isString(aContent[i]) or isList(aContent[i]) or
+			   @IsStzNumber(aContent[i]) or @IsStzString(aContent[i]) or @IsStzList(aContent[i])
 				// do nothing, skip!
 			else
-				aResult + item
+				aResult + aContent[i]
 			ok
 		next
 		return aResult
@@ -14809,9 +14904,9 @@ class stzList from stzObject
 		In sofanza a list is sorted by applying 4 steps:
 			1- numbers are sorted first and put at the beginning
 			2- then strings are sorted and put after numbers
-			3- then lists are added after strings (if any) in
+			3- then lists are added after strings in
 			  their order of appearance
-			4- then objects are added after lists (if any) in
+			4- then objects are added after lists in
 			  their order of appearance
 
 			NOTE: 3 and 4 steps could change in the future when
@@ -15036,9 +15131,9 @@ class stzList from stzObject
 		def SortedInDescendingByQ(pcExpr)
 			return This.SortedInDescendingBy(pcExpr)
 
-	  #---------------------------------------#
+	  #=======================================#
 	 #     ASSOCIATE WITH AN ANOTHER LIST    #
-	#---------------------------------------#
+	#=======================================#
 
 	// Returns an Associative List (HashList) from the main list and an other list
 
