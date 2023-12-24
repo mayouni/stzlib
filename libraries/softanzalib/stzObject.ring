@@ -2843,3 +2843,31 @@ class stzObject
 
 		def AndQ()
 			return This.AndThen()
+
+	# Swapping the content of the stzObject with an other stzObject
+
+	def SwapWith(pOtherStzObject)
+
+		if CheckParams()
+
+			if NOT @IsStzObject(pOtherStzObject)
+				StzRaise("Incorrect param type! pOtherStzObject must be a stzObject.")
+			ok
+	
+		ok
+
+		oThis = This.Content()
+		oOther = pOtherStzObject.Content()
+
+		This.UpdateWith(oOther)
+		pOtherStzObject.UpdateWith(oThis)
+
+		def SwapWithQ(pOtherStzObject)
+			This.SwapWith(pOtherStzObject)
+			return This
+
+		def SwapContentWith(pOtherStzObject)
+			This.SwapWith(pOtherStzObject)
+
+			def SwapContentWithQ(pOtherStzObject)
+				return This.SwapWithQ(pOtherStzObject)

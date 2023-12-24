@@ -5,42 +5,90 @@ load "stzlib.ring"
 # https://doc.qt.io/qt-6/qbytearray.html()
 
 /*--------------------
-*/
+
+pron()
+
 o1 = new stzListOfBytes("で")
 ? o1.ToHex() 
-# Returns e381a7 #--> (\xE3 \x81 \xa7 in UTF-8 --> TODO)
+#--> e381a7
+
+# TODO --> (\xE3 \x81 \xa7 in UTF-8)
+
+proff()
+#--> Executed in 0.05 second(s)
 
 /*--------------------
 
-//o1 = new stzListOfBytes("مرحبا")
+pron()
+
 o1 = new stzListOfBytes("s㊱m")
-? o1.Bytes()
-? o1.BytesPerChar()
 
-? o1.Bytecodes()
-? o1.BytecodesPerChar()
+? @@( o1.Bytes() )
+#--> [ "s", "�", "�", "�", "m" ]
+
+? @@( o1.Bytecodes() )
+#--> [ 115, -29, -118, -79, 109 ]
+
+? @@( o1.BytesPerChar() )
+#--> [ [ "s", [ "s" ] ], [ "㊱", [ "�", "�", "�" ] ], [ "m", [ "m" ] ] ]
+
+? @@( o1.BytecodesPerChar() )
+#--> [ [ "s", [ 115 ] ], [ "㊱", [ -29, -118, -79 ] ], [ "m", [ 109 ] ] ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*--------------------
+
+pron()
+
+o1 = new stzListOfBytes("مرحبا")
+
+? @@( o1.Bytes() )
+#--> [ "�", "�", "�", "�", "�", "�", "�", "�", "�", "�" ]
+
+? @@( o1.Bytecodes() )
+#--> [ -39, -123, -40, -79, -40, -83, -40, -88, -40, -89 ]
+
+? @@( o1.BytesPerChar() )
+#--> [ [ "م", [ "�", "�" ] ], [ "ر", [ "�", "�" ] ], [ "ح", [ "�", "�" ] ], [ "ب", [ "�", "�" ] ], [ "ا", [ "�", "�" ] ] ]
+
+? @@( o1.BytecodesPerChar() )
+#--> [ [ "م", [ -39, -123 ] ], [ "ر", [ -40, -79 ] ], [ "ح", [ -40, -83 ] ], [ "ب", [ -40, -88 ] ], [ "ا", [ -40, -89 ] ] ]
+
+proff()
+# Executed in 0.05 second(s)
 
 /*-------------------
 
-//? o1.UnicodesQ() - 0
-? o1.Chars()
-? o1.Unicodes()
-? o1.UnicodesPerChar()
+pron()
+
+oQByteArray = new QByteArray()
+oQByteArray.append("RING")
+
+? @@( QByteArrayToListOfUnicodes(oQByteArray) ) + NL
+#--> [ 82, 73, 78, 71 ]
+
+? @@( QByteArrayToListOfChars(oQByteArray) ) + NL
+#--> [ "R", "I", "N", "G" ]
+
+? @@( QByteArrayToListOfUnicodesPerChar(oQByteArray) )
+#--> [ [ "R", [ "R" ] ], [ "I", [ "I" ] ], [ "N", [ "N" ] ], [ "G", [ "G" ] ] ]
+
+proff()
+#--> Executed in 0.06 second(s)
 
 /*-------------------
+*/
+pron()
 
-? QByteArrayToListOfUnicodes(oQByteArray)
-? QByteArrayToListOfChars(oQByteArray)
-? QByteArrayToListOfUnicodesPerChar(oQByteArray)
-
-/*-------------------
-*
 // Swapping strings using stzString
 
 o1 = new stzString("Python")
 o2 = new stzString("Ring")
 
 ? CallMethod("Content()", :On = [ :o1, :o2 ])
+#--> [ "Python", "Ring" ]
 
 o1.SwapWith(o2)
 
@@ -56,6 +104,8 @@ o2 = new stzListOfBytes("Old")
 o1.SwapWith(o2)
 
 ? CallMethod("ToString()", :On = [ :o1, :o2 ])
+
+proff()
 
 /*-------------------
 

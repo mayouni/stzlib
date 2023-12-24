@@ -54,7 +54,7 @@ proff()
 #--> Executed in 0.04 second(s)
 
 /*------------
-*/
+
 pron()
 
 ? Min([2, 3])
@@ -64,6 +64,7 @@ pron()
 #--> 3
 
 proff()
+#--> Executed in 0.07 second(s)
 
 /*------------
 */
@@ -84,10 +85,17 @@ o1.SortInAscending(:SCORE)
 
 ? o1.Show()
 
+#-->
+# :NAME   :SCORE
+# ------ -------
+#   Bob      Roy
+#    89      100
+
 proff()
+# Executed in 0.30 second(s)
 
 /*==== SQL SUPPORT IN SOFTANZA EXTERNAL CODE
-
+*/
 pron()
 
 # SQL code to create a table with three columns
@@ -225,7 +233,7 @@ pron()
 	? v(:sqlTable).Show()
 
 proff()
-# Executed in 1.39 second(s)
+# Executed in 2.07 second(s)
 
 /*==============
 
