@@ -4784,6 +4784,35 @@ class stzNumber from stzObject
 			return anResult
 		ok
 
+	# Swapping the content of the stzNumber with an other stzNumber
+
+	def SwapWith(pOtherStzNumber)
+
+		if CheckParams()
+
+			if NOT @IsStzNumber(pOtherStzNumber)
+				StzRaise("Incorrect param type! pOtherStzNumber must be a stzNumber object.")
+			ok
+	
+		ok
+
+		nThis = This.Content()
+		nOther = pOtherStzNumber.Content()
+
+		This.UpdateWith(nOther)
+		pOtherStzNumber.UpdateWith(nThis)
+
+
+		def SwapWithQ(pOtherStzNumber)
+			This.SwapWith(pOtherStzNumber)
+			return This
+
+		def SwapContentWith(pOtherStzNumber)
+			This.SwapWith(pOtherStzNumber)
+
+			def SwapContentWithQ(pOtherStzNumber)
+				return This.SwapWithQ(pOtherStzNumber)
+
 	  #-------------------------------------#
 	 #    INTERNAL KITCHEN OF THE CLASS    #
 	#-------------------------------------#

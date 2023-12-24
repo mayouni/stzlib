@@ -67086,8 +67086,35 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def AndQ()
 			return This.AndThen()
 
+	# Swapping the content of the stzString with an other stzString
 
+	def SwapWith(pOtherStzString)
+
+		if CheckParams()
+
+			if NOT @IsStzString(pOtherStzString)
+				StzRaise("Incorrect param type! pOtherStzString must be a stzString object.")
+			ok
 	
+		ok
+
+		cThis = This.Content()
+		cOther = pOtherStzString.Content()
+
+		This.UpdateWith(cOther)
+		pOtherStzString.UpdateWith(cThis)
+
+		def SwapWithQ(pOtherStzString)
+			This.SwapWith(pOtherStzString)
+			return This
+
+		def SwapContentWith(pOtherStzString)
+			This.SwapWith(pOtherStzString)
+
+			def SwapContentWithQ(pOtherStzString)
+				return This.SwapWithQ(pOtherStzString)
+
+
                  ///////////////////////////////////////////////
                 //                              ///////////////
       ///////////      ALTERNATIVE FORMS       /////////////

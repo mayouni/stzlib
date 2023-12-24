@@ -42573,3 +42573,32 @@ vvv
 
 		def AndQ()
 			return This.AndThen()
+
+	# Swapping the content of the stzList with an other stzList
+
+	def SwapWith(pOtherStzList)
+
+		if CheckParams()
+
+			if NOT @IsStzList(pOtherStzList)
+				StzRaise("Incorrect param type! pOtherStzList must be a stzList object.")
+			ok
+	
+		ok
+
+		aThis = This.Content()
+		aOther = pOtherStzList.Content()
+
+		This.UpdateWith(aOther)
+		pOtherStzList.UpdateWith(aThis)
+
+
+		def SwapWithQ(pOtherStzList)
+			This.SwapWith(pOtherStzList)
+			return This
+
+		def SwapContentWith(pOtherStzList)
+			This.SwapWith(pOtherStzList)
+
+			def SwapContentWithQ(pOtherStzList)
+				return This.SwapWithQ(pOtherStzList)

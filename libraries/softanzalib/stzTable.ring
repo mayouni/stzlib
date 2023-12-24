@@ -9496,8 +9496,7 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! paNewRows must be a list.")
 		ok
 
-? @@(@aContent)
-? @@(paNewRows)
+? ElapsedTime()
 		nLen = Min([ len(paNewRows), len(@aContent) ])
 
 		for i = 1 to nLen

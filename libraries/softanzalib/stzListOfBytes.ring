@@ -118,7 +118,7 @@ func QByteArrayToListOfChars(oQByteArray)
 
 func QByteArrayToListOfUnicodesPerChar(oQByteArray)
 	oListOfBytes = new stzListOfBytes(oQByteArray)
-	return oQByteArray.UnicodesPerChar()
+	return oListOfBytes.UnicodesPerChar()
 
 	func QByteArrayObjectToListOfUnicodesPerChar(oQByteArray)
 		return QByteArrayToListOfUnicodesPerChar(oQByteArray)
@@ -276,10 +276,16 @@ class stzListOfBytes from stzList
 		ok
 
 		return aResult
-		
+
 		def BytecodesQ()
 			return new stzList( This.Bytecodes() )
-	
+
+		def Unicodes()
+			return This.Bytecodes()
+
+			def UnicodesQ()
+				return This.BytescodesQ()
+
 	def Chars()
 		return This.ToStzString().Chars()
 
@@ -287,19 +293,28 @@ class stzListOfBytes from stzList
 			return new stzList( This.Chars() )
 	
 	def BytecodesPerChar()
+		aChars = This.Chars()
+		nLen = len(aChars)
+
 		aResult = []
 
-		for char in This.Chars()
-			aResult + [ char, StzListOfBytesQ(char).Bytecodes()]
+		for i = 1 to nLen
+			aResult + [ aChars[i], StzListOfBytesQ(aChars[i]).Bytecodes()]
 		next
 
 		return aResult
 
+		def UnicodesPerChar()
+			return This.BytesPerChar()
+
 	def BytesPerChar()
+		aChars = This.Chars()
+		nLen = len(aChars)
+
 		aResult = []
 
-		for char in This.Chars()
-			aResult + [ char, StzListOfBytesQ(char).Bytes()]
+		for i = 1 to nLen
+			aResult + [ aChars[i], StzListOfBytesQ(aChars[i]).Bytes()]
 		next
 
 		return aResult
@@ -376,9 +391,9 @@ class stzListOfBytes from stzList
 	def ReleaseUnusedMemory()
 		@oQByteArray.squeeze()
 
-	def Squeeze()
-		This.ReleaseUnusedMemory()
-
+		def Squeeze()
+			This.ReleaseUnusedMemory()
+	
 	// Sets the list of bytes to the printed value of a number in base nBase
 	// (nBase can be any number from 2 to 36)
 	def SetWithtNumberInBase(nNumber, nBase)
@@ -577,7 +592,7 @@ class stzListOfBytes from stzList
 	#---
 
 	// TODO: For the 2 following functions (Bits() and ToStzListOfBits)
-	// we need to write stzListOfBits class based on QTBitArray.
+	// we need to write stzListOfBits class based on QBitArray.
 	// Also, we need to manage the conversion between bits and bytes (and
 	// vice-versa). For that, read this: https://wiki.qt.io/Working_with_Raw_Data
 	def Bits()
@@ -602,18 +617,25 @@ class stzListOfBytes from stzList
 			return This
 
 	// Returns an UPPERcase copy of the list of bytes
-	def UPPERcase()
+	def UPPERcased()
 		return @oQByteArray.toUPPER().data()
 
 		def ToUppercase()
 			return This.Uppercased()
 
-	def ApplyUppercase()
+	def Uppercase()
 		This.Update( This.Uppercased() )
 
-		def ApplyUppercaseQ()
-			This.ApplyUppercase()
+		def UppercaseQ()
+			This.Uppercase()
 			return This
+
+		def ApplyUppercase()
+			This.Uppercase()
+
+			def ApplyUppercaseQ()
+				This.ApplyUppercase()
+				return This
 
 	// Returns a list of bytes that has whitespace removed from the both sides
 	def Trimmed()

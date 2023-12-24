@@ -1435,6 +1435,16 @@ func BothAreStzObjects(p1, p2)
 	func @AreBothStzObjects(p1, p2)
 		return BothAreStzObjects(p1, p2)
 
+func BothHaveSameStzType(p1, p2)
+
+	if BothAreObjects(p1, p2) and
+	   p1.StzType() = p2.StzType()
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
 # ARE TWO OBJECTS THE SAME?
 
 func AreSameObject(pcVarName1, pcVarName2) # TODO
