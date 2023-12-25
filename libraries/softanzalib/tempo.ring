@@ -1,5 +1,17 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzString("ABCAAB")
+
+? o1.CharsQ().WithoutDuplicates()
+
+? o1.CharsU()
+
+? U( o1.Chars() )
+
+proff()
+
 /*-------- TODO: erronous char name
 
 pron()
@@ -14,7 +26,7 @@ pron()
 proff()
 
 /*================
-*/
+*
 pron()
 
 o1 = new stzString("mmmMMMaaAAAiii")

@@ -644,7 +644,7 @@ class stzList from stzObject
 			return Content()
 
 	def List()
-		return Content()
+		return This.Content()
 
 		def ListQ() # Same as Copy()
 			return new stzList( This.List() )
@@ -5175,9 +5175,7 @@ class stzList from stzObject
 		# Doing the job
 
 		if n <= This.NumberOfItems()
-			aTempList = This.Content()
-			ring_del( aTempList, n )
-			This.Update(aTempList)
+			ring_del( @aContent, n )
 
 		ok
 
@@ -5443,6 +5441,7 @@ class stzList from stzObject
 	#=====================================================#
 
 	def RemoveItemsAtPositions(panPos)
+
 		if NOT isList(panPos)
 			StzRaise("Incorrect pram! panPos must be a list.")
 		ok
@@ -5452,11 +5451,10 @@ class stzList from stzObject
 			return
 		ok
 
-		anPosSorted = StzListQ(panPos).SortedInDescending()
+		anPosSorted = ring_sort(panPos)
 		
-		for i = 1 to nLen
-			This.RemoveItemAtPosition(anPosSorted[i])
-
+		for i = nLen to 1 step -1
+			ring_remove(@aContent, anPosSorted[i])
 		next
 
 		#< @FunctionFluentForm
@@ -14961,6 +14959,7 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def SortInAscendingQ()
+
 			This.SortInAscending()
 			return This
 
@@ -15013,7 +15012,8 @@ class stzList from stzObject
 	#-----------------------------------#
 
 	def SortInDescending()
- 		aResult = This.SortInAscendingQ().Content()
+
+ 		aResult = Q( This.SortInAscending() ).Content()
 		This.Update( ListReverse(aResult) )
 
 		#< @FunctionFluentForm

@@ -58770,11 +58770,35 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def CharsAndTheirUnicodes()
 			return This.CharsAndUnicodes()
 
 		def UnicodesPerChar()
 			return This.CharsAndUnicodes()
+
+		def UnicodePerChar()
+			return This.CharsAndUnicodes()
+
+		#>
+
+	def CharsAndUnicodesU()
+		aResult = U( This.CharsAndUnicodes() )
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def CharsAndTheirUnicodesU()
+			return This.CharsAndUnicodesU()
+
+		def UnicodesPerCharU()
+			return This.CharsAndUnicodesU()
+
+		def UnicodePerCharU()
+			return This.CharsAndUnicodesU()
+
+		#>
 
 	def UnicodesAndChars()
 		aResult = []
@@ -58786,15 +58810,41 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def UnicodesAndTheirChars()
 			return This.UnicodesAndChars()
 
 		def UnicodesXT()
 			return This.UnicodesAndChars()
 
-	
 		def CharsPerUnicode()
 			return This.UnicodesAndChars()
+
+		def CharPerUnicode()
+			return This.UnicodesAndChars()
+
+		#>
+
+	def UnicodesAndCharsU()
+		aResult = U( This.UnicodesAndChars() )
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def UnicodesAndTheirCharsU()
+			return This.UnicodesAndCharsU()
+
+		def UnicodesXTU()
+			return This.UnicodesAndCharsU()
+
+		def CharsPerUnicodeU()
+			return This.UnicodesAndCharsU()
+
+		def CharPerUnicodeU()
+			return This.UnicodesAndCharsU()
+
+		#>
 
 	// The following method is mainly used by stzChar class to
 	// create a characrer object from text
@@ -60575,6 +60625,16 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	
 		#>
 			
+
+	def CharsU()
+
+		acResult = U( This.Chars() )
+
+		return acResult
+
+	def NumberOfCharsU()
+		nResult = len( This.CharsU() )
+
 	def ToListOfStzChars()
 		acChars = This.Chars()
 		nLen = len(acChars)

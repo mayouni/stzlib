@@ -270,7 +270,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*-------------------
-*/
+
 pron()
 
 o1 = new stzChar("で")
@@ -294,9 +294,25 @@ proff()
 # Executed in 0.07 second(s)
 
 /*-------------------
+*/
+pron()
 
 o1 = new stzString("ssdsd")
-? o1.ToCharsUnicodes()
+
+? o1.CharsU()
+#--> [ "s", "d" ]
+
+? @@( o1.Unicodes() )
+#--> [ 115, 115, 100, 115, 100 ]
+
+? @@( o1.CharsAndUnicodes() ) # Same as o1.UnicodePerChar()
+#--> [ [ "s", 115 ], [ "s", 115 ], [ "d", 100 ], [ "s", 115 ], [ "d", 100 ] ]
+
+? @@( o1.CharsAndUnicodesU() ) # TODO
+#--> [ [ "s", 115 ], [ "d", 100 ] ]
+
+proff()
+# Executed in 0.06 second(s)
 
 /*-------------------
 
