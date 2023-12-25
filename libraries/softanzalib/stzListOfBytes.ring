@@ -199,6 +199,12 @@ class stzListOfBytes from stzList
 		def LeftNBytes(n)
 			return NLeftBytes(n)
 	
+	def 3LeftBytes()
+		return This.NLeftBytes(3)
+
+		def Left3Bytes()
+			return This.3LeftBytes()
+
 	// Returns the n right bytes as a string
 	def NRightBytes(n)
 		return @oQByteArray.right(n).data()
@@ -206,6 +212,12 @@ class stzListOfBytes from stzList
 		def RightNBytes(n)
 			return NRightBytes()
 	
+	def 3RightBytes()
+		return This.NRightBytes(3)
+
+		def Right3Bytes()
+			return This.3RightBytes()
+
 	// Clears the content of the list of bytes
 	def Clear()
 		@oQByteArray.clear()
@@ -528,10 +540,18 @@ class stzListOfBytes from stzList
 	// *** Returns a hex encoded string from the content of the list of bytes
 	// The hex encoding uses the numbers 0-9 and the letters a-f
 	def ToHex()
-		return @oQByteArray.toHex().data()
+		cResult = HexPrefix() + @oQByteArray.toHex().data()
+		return cResult
 
 		def ToHexQ()
 			return new stzString(This.ToHex())
+
+	def ToHexWithoutPrefix()
+		cResult = @oQByteArray.toHex().data()
+		return cResult
+
+		def ToHexWithoutPrefixQ()
+			return new stzString( This.ToHexWithoutPrefix() )
 
 	def FromHex(pcHexString)
 		oTempQByteArray = new QByteArray()
@@ -541,6 +561,188 @@ class stzListOfBytes from stzList
 
 		// Updating the main QByteArray object with the result
 		This.Update(cResult)
+
+	def ToUTF8()
+		cResult = This.ToStzString().ToUTF8()
+
+		return cResult
+
+	def Hexcodes()
+		aBytes = This.Bytes()
+		nLen = len(aBytes)
+
+		acResult = []
+
+		for i = 1 to nLen
+			cHex = StzListOfBytesQ(aBytes[i]).ToHex()
+			acResult + cHex
+		next
+
+		return acResult
+
+	def HexPerByte()
+		aBytes = This.Bytes()
+		nLen = len(aBytes)
+
+		aResult = []
+
+		for i = 1 to nLen
+			cHex = StzListOfBytesQ(aBytes[i]).ToHex()
+			aResult + [ aBytes[i], cHex ]
+		next
+
+		return aResult
+
+	def HexcodesWithoutPrefix()
+		aBytes = This.Bytes()
+		nLen = len(aBytes)
+
+		acResult = []
+
+		for i = 1 to nLen
+			cHex = StzListOfBytesQ(aBytes[i]).ToHexWithoutPrefix()
+			acResult + cHex
+		next
+
+		return acResult
+
+	def HexPerByteWithoutPrefix()
+		aBytes = This.Bytes()
+		nLen = len(aBytes)
+
+		aResult = []
+
+		for i = 1 to nLen
+			cHex = StzListOfBytesQ(aBytes[i]).ToHexWithoutPrefix()
+			aResult + [ aBytes[i], cHex ]
+		next
+
+		return aResult
+
+	def ToHexSeparated(pcSep)
+		if CheckParams()
+			if isList(pcSep) and Q(pcSep).IsByOrUsingOrWithNamedParam()
+				pcSep = pcSep[2]
+			ok
+
+			if NOT isString(pcSep)
+				StzRaise("Incorrect param type! pcSep must be a string.")
+			ok
+		ok
+
+		aHex = This.Hexcodes()
+		nLen = len(aHex)
+
+		cResult = ""
+
+		for i = 1 to nLen
+			cResult += aHex[i]
+			if i < nLen
+				cResult += pcSep
+			ok
+		next
+
+		return cResult
+
+		#< @FunctionAlternativeForm
+
+		def ToHexSeparatedBy(pcSep)
+			if CheckParams()
+				if NOT isString(pcSep)
+					StzRaise("Incorrect param type! pcSep must be a string.")
+				ok
+			ok
+
+			return This.ToHexSeparated(pcSep)
+
+		def ToHexSeparatedWith(pcSep)
+			if CheckParams()
+				if NOT isString(pcSep)
+					StzRaise("Incorrect param type! pcSep must be a string.")
+				ok
+			ok
+
+			return This.ToHexSeparated(pcSep)
+
+		def ToHexSeparatedUsing(pcSep)
+			if CheckParams()
+				if NOT isString(pcSep)
+					StzRaise("Incorrect param type! pcSep must be a string.")
+				ok
+			ok
+
+			return This.ToHexSeparated(pcSep)
+
+		#>
+
+	def ToHexSpacified()
+		return This.ToHexSeparatedBy(" ")
+
+	#--
+
+	def ToHexWithoutPrefixSeparated(pcSep)
+		if CheckParams()
+			if isList(pcSep) and Q(pcSep).IsByOrUsingOrWithNamedParam()
+				pcSep = pcSep[2]
+			ok
+
+			if NOT isString(pcSep)
+				StzRaise("Incorrect param type! pcSep must be a string.")
+			ok
+		ok
+
+		aHex = This.HexcodesWithoutPrefix()
+		nLen = len(aHex)
+
+		cResult = ""
+
+		for i = 1 to nLen
+			cResult += aHex[i]
+			if i < nLen
+				cResult += pcSep
+			ok
+		next
+
+		return cResult
+
+		#< @FunctionAlternativeForm
+
+		def ToHexWithoutPrefixSeparatedBy(pcSep)
+			if CheckParams()
+				if NOT isString(pcSep)
+					StzRaise("Incorrect param type! pcSep must be a string.")
+				ok
+			ok
+
+			return This.ToHexWithoutPrefixSeparated(pcSep)
+
+		def ToHexWithoutPrefixSeparatedWith(pcSep)
+			if CheckParams()
+				if NOT isString(pcSep)
+					StzRaise("Incorrect param type! pcSep must be a string.")
+				ok
+			ok
+
+			return This.ToHexWithoutPrefixSeparated(pcSep)
+
+		def ToHexWithoutPrefixSeparatedUsing(pcSep)
+			if CheckParams()
+				if NOT isString(pcSep)
+					StzRaise("Incorrect param type! pcSep must be a string.")
+				ok
+			ok
+
+			return This.ToHexWithoutPrefixSeparated(pcSep)
+
+		#>
+
+	def ToHexWithoutPrefixSpacified()
+		return This.ToHexWithoutPrefixSeparatedBy(" ")
+
+	def ToHexUTF8()
+		cResult = "\x" + This.ToHexWithoutPrefixSeparatedBy(" \x")
+		return cResult
+
 	#--
 
 	def Update(pcStr)

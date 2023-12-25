@@ -58546,18 +58546,26 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		--> {a fishy string?}
 		*/
 
+		StzRaise("Feature not implemented yet!")
+
+	  #-----------------------------#
+	 #  WORKING WITH THE HEX FORM  #
+	#=============================#
+
 	def ToHex()
-		return str2hex( This.String() )
+
+		cResult = HexPrefix() + str2hex( This.String() )
+		return cResult
 
 		def ToHexQ()
 			return new stzString( This.ToHex() )
 
-	def ToHexSpacified()
-		cHex = This.ToHex()
-		n = ceil( StzStringQ(cHex).NumberOfChars() / This.NumberOfBytes() )
-
-		cResult = StzStringQ(cHex).InsertAfterEveryNCharsQ(n, " ").Content()
+	def ToHexWithoutPrefix()
+		cResult = str2hex( This.String() )
 		return cResult
+
+		def ToHexWithoutPrefixQ()
+			return new stzString( This.ToHexWithoutPrefix() )
 
 	def FromHex(cHex)
 		@oQString = new QString2()
@@ -58567,7 +58575,107 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			This.FromHex(cHex)
 			return This
 
-	// Escapes HTML special Chars in the string
+	def Hexcodes()
+		acResult = This.ToStzListOfBytes().HexCodes()
+		return acResult
+
+	def HexPerByte()
+		aResult = This.ToStzListOfBytes().HexPerByte()
+
+		def HexcodePerByte()
+			return This.HexPerByte()
+
+	def HexcodesWithoutPrefix()
+		acResult = This.ToStzListOfBytes().HexCodesWithoutPrefix()
+		return acResult
+
+	def HexPerByteWithoutPrefix()
+		aResult = This.ToStzListOfBytes().HexPerByteWithoutPrefix()
+
+	def ToHexSeparated(pcSep)
+		cResult = This.ToStzListOfBytes().ToHexSeparated(pcSep)
+
+		#< @FunctionAlternativeForm
+
+		def ToHexSeparatedBy(pcSep)
+			if CheckParams()
+				if NOT isString(pcSep)
+					StzRaise("Incorrect param type! pcSep must be a string.")
+				ok
+			ok
+
+			return This.ToHexSeparated(pcSep)
+
+		def ToHexSeparatedWith(pcSep)
+			if CheckParams()
+				if NOT isString(pcSep)
+					StzRaise("Incorrect param type! pcSep must be a string.")
+				ok
+			ok
+
+			return This.ToHexSeparated(pcSep)
+
+		def ToHexSeparatedUsing(pcSep)
+			if CheckParams()
+				if NOT isString(pcSep)
+					StzRaise("Incorrect param type! pcSep must be a string.")
+				ok
+			ok
+
+			return This.ToHexSeparated(pcSep)
+
+		#>
+
+	def ToHexSpacified()
+		return This.ToHexSeparatedBy(" ")
+
+	#--
+
+	def ToHexWithoutPrefixSeparated(pcSep)
+		cResult = This.ToStzListOfBytes().ToHexWithoutPrefixSeparated(pcSep)
+
+		#< @FunctionAlternativeForm
+
+		def ToHexWithoutPrefixSeparatedBy(pcSep)
+			if CheckParams()
+				if NOT isString(pcSep)
+					StzRaise("Incorrect param type! pcSep must be a string.")
+				ok
+			ok
+
+			return This.ToHexWithoutPrefixSeparated(pcSep)
+
+		def ToHexWithoutPrefixSeparatedWith(pcSep)
+			if CheckParams()
+				if NOT isString(pcSep)
+					StzRaise("Incorrect param type! pcSep must be a string.")
+				ok
+			ok
+
+			return This.ToHexWithoutPrefixSeparated(pcSep)
+
+		def ToHexWithoutPrefixSeparatedUsing(pcSep)
+			if CheckParams()
+				if NOT isString(pcSep)
+					StzRaise("Incorrect param type! pcSep must be a string.")
+				ok
+			ok
+
+			return This.ToHexWithoutPrefixSeparated(pcSep)
+
+		#>
+
+	def ToHexWithoutPrefixSpacified()
+		return This.ToHexWithoutPrefixSeparatedBy(" ")
+
+	def ToHexUTF8()
+		cResult = This.ToStzListOfBytes().ToHexUTF8()
+		return cResult
+
+	  #---------------------------------------------#
+	 #  Escaping HTML special Chars in the string  #
+	#=============================================#
+
 	def EscapeHtml()
 		cResult = @oQString.toHtmlEscaped()
 
@@ -59416,7 +59524,8 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 	def RepresentsNumber()
 
-		oCopy = This.RemoveSpacesQ()
+		oCopy = This.Copy()
+		oCopy.RemoveSpaces()
 
 		if oCopy.RepresentsNumberInDecimalForm() or
 		   oCopy.RepresentsNumberInBinaryForm() or
@@ -59547,7 +59656,9 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		#>
 
 	def RepresentsInteger()
+
 		if This.RepresentsNumber() and This.ContainsNo(".")
+
 			return TRUE
 		else
 			return FALSE
