@@ -17,7 +17,7 @@ func OctalPrefix()
 	return _cOctalNumberPrefix
 
 	def OctalNumberPrefix()
-		return This.OctalPrefix()
+		return OctalPrefix()
 
 func SetOctalPrefix(cPrefix)
 	if StzListQ( OctalPrefixes() ).ContainsCS(cPrefix, :CaseSensitive = FALSE)

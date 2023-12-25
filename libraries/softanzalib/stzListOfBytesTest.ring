@@ -79,7 +79,7 @@ proff()
 #--> Executed in 0.06 second(s)
 
 /*-------------------
-*/
+
 pron()
 
 // Swapping strings using stzString
@@ -93,6 +93,7 @@ o2 = new stzString("Ring")
 o1.SwapWith(o2)
 
 ? CallMethod("Content()", :On = [ :o1, :o2 ])
+#--> [ "Ring", "Python" ]
 
 // Swapping strings using stzListOfBytes
 
@@ -106,41 +107,191 @@ o1.SwapWith(o2)
 ? CallMethod("ToString()", :On = [ :o1, :o2 ])
 
 proff()
+# Executed in 0.09 second(s)
 
 /*-------------------
+
+pron()
 
 o1 = new stzListOfBytes("mЖ丽")
 ? o1.NumberOfBytes()
-? o1.BytesToUnicodes()
+#--> 6
 
-? o1.NumberOfBytesPerChar()
+? @@( o1.BytesToUnicodes() )
+#--> [ 109, -48, -106, -28, -72, -67 ]
 
-? o1.NLeftBytes(3)
-? o1.NRightBytes(3)
+	# Same as
+
+	? @@( o1.Bytecodes() )
+	
+	# Same as
+
+	? @@( o1.Unicodes() )
+	
+? @@( o1.NumberOfBytesPerChar() )
+#--> [ [ "m", 1 ], [ "Ж", 2 ], [ "丽", 3 ] ]
+
+? o1.NLeftBytes(3) # Or 3LeftBytes()
+#--> mЖ
+
+? o1.NRightBytes(3) # Or 3RightBytes()
+#--> 丽
+
+proff()
+#--> Executed in 0.09 second(s)
 
 /*-------------------
+
+pron()
 
 o1 = new stzListOfBytes("mЖ丽")
 ? o1.Range(1, 1)
+#--> m
+
+? o1.Range(2, 2) # Same As o1.Section(2, 3)
+#--> Ж
+
+? o1.Section(4,:End)
+#--> 丽
+
+proff()
+#--> Executed in 0.04 second(s)
+
+/*======================
+
+pron()
+
+? Q("abc").ContainsNo(".")
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------------
+
+pron()
+
+? Q("12500.89").RepresentsNumber()
+#--> TRUE
+
+? Q("12500").RepresentsInteger()
+#--> TRUE
+
+proff()
+# Executed in 0.07 second(s)
 
 /*-------------------
+
+pron()
 
 o1 = new QChar(65)
-? hex(65) # 3067 in UTF-16
 
-# Code point to binary
-# 12391 -> binary
+? o1.Unicode()
+#--> 65
 
-# encode the binary into utf8 sequence of bytes
+? Q( o1.Unicode() ).ToBinary()
+#--> 0b1000001
 
-# convert the sequence back to hex
+? Q( o1.Unicode() ).ToHex()
+#--> 0x41
+
+? Q( o1.Unicode() ).ToOctal()
+#--> 0o101
+
+proff()
+#--> Executed in 0.17 second(s)
 
 /*-------------------
+
+pron()
 
 o1 = new QByteArray()
 o1.append("で")
-? o1.ToHex().data() # \xE3 \x81 \xa7 in UTF-8
+? o1.tohex().data() # \xE3 \x81 \xA7 in UTF-8
+#--> e381a7
 
+proff()
+
+/*-------------------
+
+pron()
+
+? str2hex("で") # A Ring function
+#--> e381a7
+
+proff()
+
+/*-------------------
+
+pron()
+
+o1 = new stzListOfBytes("で")
+
+? o1.ToHex()
+#--> 0xe381a7
+
+? o1.ToHexWithoutPrefix()
+#--> e381a7
+
+? o1.Hexcodes()
+#--> [ "0xe3", "0x81", "0xa7" ]
+
+? o1.HexcodesWithoutPrefix()
+#--> [ "e3", "81", "a7" ]
+
+? o1.ToHexUTF8()
+#--> \xe3 \x81 \xa7
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-------------------
+
+pron()
+
+o1 = new stzString("で")
+
+? o1.ToHex()
+#--> 0xe381a7
+
+? o1.ToHexWithoutPrefix()
+#--> e381a7
+
+? o1.Hexcodes()
+#--> [ "0xe3", "0x81", "0xa7" ]
+
+? o1.HexcodesWithoutPrefix()
+#--> [ "e3", "81", "a7" ]
+
+? o1.ToHexUTF8()
+#--> \xe3 \x81 \xa7
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-------------------
+*/
+pron()
+
+o1 = new stzChar("で")
+
+? o1.ToHex()
+#--> 0xe381a7
+
+? o1.ToHexWithoutPrefix()
+#--> e381a7
+
+? o1.Hexcodes()
+#--> [ "0xe3", "0x81", "0xa7" ]
+
+? o1.HexcodesWithoutPrefix()
+#--> [ "e3", "81", "a7" ]
+
+? o1.ToHexUTF8()
+#--> \xe3 \x81 \xa7
+
+proff()
+# Executed in 0.07 second(s)
 
 /*-------------------
 
