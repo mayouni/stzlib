@@ -19506,88 +19506,96 @@ class stzList from stzObject
 		def UniqueItems()
 			return This.DuplicatesRemoved()
 
+			#< @FunctionFluentForms
+
 			def UniqueItemsQ()
 				return This.ToSetQR(:stzList)
 			
 			def UniqueItemsQR(pcReturnType)
 				return This.ToSetQR(pcReturnType)
 
-		def ItemsU()
-			return This.DuplicatesRemoved()
+			#>
 
-			def ItemsUQ()
-				return This.ToSetQR(:stzList)
-			
-			def ItemsUQR(pcReturnType)
-				return This.ToSetQR(pcReturnType)
+			#< @FunctionAlternativeForm
+
+			def ItemsU()
+				return This.DuplicatesRemoved()
+	
+				def ItemsUQ()
+					return This.ToSetQR(:stzList)
+				
+				def ItemsUQR(pcReturnType)
+					return This.ToSetQR(pcReturnType)
+	
+			#>
 
 		def WithoutDuplicates()
 			return This.DuplicatesRemoved()
 
-		def WithoutDuplication()
-			return This.DuplicatesRemoved()
+			def WithoutDuplication()
+				return This.DuplicatesRemoved()
 
-			def WithoutDuplicationQ()
-				return This.ToSetQR(:stzList)
+				def WithoutDuplicationQ()
+					return This.ToSetQR(:stzList)
 
-			def WithoutDuplicationQR(pcReturnType)
-				return This.ToSetQR(pcReturnType)
+				def WithoutDuplicationQR(pcReturnType)
+					return This.ToSetQR(pcReturnType)
 
-		def WithoutDuplications()
-			return This.DuplicatesRemoved()
+			def WithoutDuplications()
+				return This.DuplicatesRemoved()
 
-			def WithoutDuplicationsQ()
-				return This.ToSetQR(:stzList)
+				def WithoutDuplicationsQ()
+					return This.ToSetQR(:stzList)
 
-			def WithoutDuplicationsQR(pcReturnType)
-				return This.ToSetQR(pcReturnType)
+				def WithoutDuplicationsQR(pcReturnType)
+					return This.ToSetQR(pcReturnType)
 
-		def ItemsWithoutDuplication()
-			return This.DuplicatesRemoved()
-
-			def ItemsWithoutDuplicationQ()
-				return This.ToSetQR(:stzList)
-
-			def ItemsWithoutDuplicationQR(pcReturnType)
-				return This.ToSetQR(pcReturnType)
-
-		def ItemsWithoutDuplications()
-			return This.DuplicatesRemoved()
-
-			def ItemsWithoutDuplicationsQ()
-				return This.ToSetQR(:stzList)
-
-			def ItemsWithoutDuplicationsQR(pcReturnType)
-				return This.ToSetQR(pcReturnType)
-
-		def DuplicatedItemsRemoved()
-			return This.DuplicatesRemoved()
-
-			def DuplicatedItemsRemovedQ()
-				return This.ToSetQR(:stzList)
-
-			def DuplicatesItemsRemovedQR(pcReturnType)
-				return This.ToSetQR(pcReturnType)
-
-		def DuplicationsRemoved()
-			return This.DuplicatesRemoved()
-
-			def DuplicationsRemovedQ()
-				return This.ToSetQR(:stzList)
-
-			def DuplicationsRemovedQR(pcReturnType)
-				return This.ToSetQR(pcReturnType)
-
-		def DuplicationRemoved()
-			return This.DuplicatesRemoved()
-
-			def DuplicationRemovedQ()
-				return This.ToSetQR(:stzList)
-
-			def DuplicationRemovedQR(pcReturnType)
-				return This.ToSetQR(pcReturnType)
-
-		#>
+			def ItemsWithoutDuplication()
+				return This.DuplicatesRemoved()
+	
+				def ItemsWithoutDuplicationQ()
+					return This.ToSetQR(:stzList)
+	
+				def ItemsWithoutDuplicationQR(pcReturnType)
+					return This.ToSetQR(pcReturnType)
+	
+			def ItemsWithoutDuplications()
+				return This.DuplicatesRemoved()
+	
+				def ItemsWithoutDuplicationsQ()
+					return This.ToSetQR(:stzList)
+	
+				def ItemsWithoutDuplicationsQR(pcReturnType)
+					return This.ToSetQR(pcReturnType)
+	
+			def DuplicatedItemsRemoved()
+				return This.DuplicatesRemoved()
+	
+				def DuplicatedItemsRemovedQ()
+					return This.ToSetQR(:stzList)
+	
+				def DuplicatesItemsRemovedQR(pcReturnType)
+					return This.ToSetQR(pcReturnType)
+	
+			def DuplicationsRemoved()
+				return This.DuplicatesRemoved()
+	
+				def DuplicationsRemovedQ()
+					return This.ToSetQR(:stzList)
+	
+				def DuplicationsRemovedQR(pcReturnType)
+					return This.ToSetQR(pcReturnType)
+	
+			def DuplicationRemoved()
+				return This.DuplicatesRemoved()
+	
+				def DuplicationRemovedQ()
+					return This.ToSetQR(:stzList)
+	
+				def DuplicationRemovedQR(pcReturnType)
+					return This.ToSetQR(pcReturnType)
+	
+			#>
 
   	  #-----------------------------------------#
 	 #   REMOVING DUPLICATES OF A GIVEN ITEM   #
