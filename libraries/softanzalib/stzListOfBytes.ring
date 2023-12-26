@@ -103,6 +103,14 @@ func QByteArrayToListOfUnicodes(oQByteArray)
 	func QByteArrayObjectToListOfUnicodes(oQByteArray)
 		return QByteArrayToListOfUnicodes(oQByteArray)
 
+	#--
+
+	func QByteArrayToListOfBytecodes(oQByteArray)
+		return QByteArrayToListOfUnicodes(oQByteArray)
+
+	func QByteArrayObjectToListOfBytecodes(oQByteArray)
+		return QByteArrayToListOfUnicodes(oQByteArray)
+
 func QByteArrayToListOfChars(oQByteArray)
 	/*
 	Can also be solved like this:
@@ -123,6 +131,13 @@ func QByteArrayToListOfUnicodesPerChar(oQByteArray)
 	func QByteArrayObjectToListOfUnicodesPerChar(oQByteArray)
 		return QByteArrayToListOfUnicodesPerChar(oQByteArray)
 	
+	#--
+
+	func QByteArrayToListOfBytecodesPerChar(oQByteArray)
+		return QByteArrayToListOfUnicodesPerChar(oQByteArray)
+
+	func QByteArrayObjectToListOfBytecodesPerChar(oQByteArray)
+		return QByteArrayToListOfUnicodesPerChar(oQByteArray)
 
 // The fellowing function is Used to retrive the numeric value hosted in
 // pointers returned by some Qt methods (made with the help of Ilir)
@@ -273,7 +288,7 @@ class stzListOfBytes from stzList
 		This.ReplaceNBytes(nBytesFromMainStr, nStartingAtPosition, nWithNBytes, pcFromSubstr)
 		return This
 
-	def UnicodeOfNthByte(n)
+	def UnicodeOfNthByte(n) # NOTE: Is it more accurate to talk of Bytecode rather then Unicode?
 		return @oQByteArray.at(n-1)
 
 		def UnicodeOfByteNumber(n)
@@ -282,6 +297,17 @@ class stzListOfBytes from stzList
 		def UnicodeOfByteN(n)
 			return This. UnicodeOfNthByte(n)
 
+		#--
+
+		def BytecodeOfNthByte(n)
+			return This.UnicodeOfNthByte(n)
+
+		def BytecodeOfByteNumber(n)
+			return This.UnicodeOfNthByte(n)
+
+		def BytecodeOfByteN(n)
+			return This. UnicodeOfNthByte(n)
+ 
 	def Bytecodes()
 		aResult = []
 
@@ -323,7 +349,7 @@ class stzListOfBytes from stzList
 		return aResult
 
 		def UnicodesPerChar()
-			return This.BytesPerChar()
+			return This.BytecodesPerChar()
 
 	def BytesPerChar()
 		aChars = This.Chars()
@@ -357,6 +383,13 @@ class stzListOfBytes from stzList
 
 		def BytesOfThisChar(pcChar)
 
+	def NumberOfBytesInCharNumber(n)
+		nResult = len( This.BytesOfCharNumber(n) )
+		return nResult
+
+		def NumberOfBytesInCharN(n)
+			return This.NumberOfBytesInCharNumber(n)
+
 	def BytesOfCharNumber(n)
 
 		if CheckParams()
@@ -385,16 +418,7 @@ class stzListOfBytes from stzList
 
 		def SizeInBytes()
 			return This.NumberOfBytes()
-
-	// Export the list of bytes as a list of unicode integers
-	// where each unicode corresponds to a byte in the list
-	def BytesToUnicodes()
-		aResult = []
-		for i = 1 to This.NumberOfBytes()
-			aResult + This.UnicodeOfNthByte(i)
-		next i
-		return aResult
-
+			
 	def NumberOfBytesPerChar() #--> stzString domain
 		/* Exp:
 			o1 = new stzListOfBytes("s㊱m")
