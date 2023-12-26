@@ -676,6 +676,27 @@ class stzList from stzObject
 		def HowManyItem()
 			return This.NumberOfItems()
 
+	def NumberOfItemsU()
+		return len( Q(This.Content()).WithoutDuplicates() )
+
+		def NumberOfItemsUQ()
+			return new stzNumber(This.NumberOfItemsU())
+
+		def SizeU()
+			return This.NumberOfItemsU()
+
+		def LengthU()
+			return This.NumberOfItemsU()
+
+		def CountItemsU()
+			return This.NumberOfItemsU()
+
+		def HowManyItemsU()
+			return This.NumberOfItemsU()
+	
+		def HowManyItemU()
+			return This.NumberOfItemsU()
+
 	def Items()
 		return This.Content()
 
