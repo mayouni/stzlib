@@ -294,7 +294,7 @@ proff()
 # Executed in 0.07 second(s)
 
 /*-------------------
-*/
+
 pron()
 
 o1 = new stzString("ssdsd")
@@ -312,18 +312,22 @@ o1 = new stzString("ssdsd")
 #--> [ [ "s", 115 ], [ "d", 100 ] ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.07 second(s) in Ring 1.18
+# Executed in 0.12 second(s) in Ring 1.17
 
 /*-------------------
+*/
+pron()
 
 o1 = new stzListOfBytes("s㊱m")
 
 o1 {
-	//? Unicode()
-	? UnicodeOfByte(6)
+	? NumberOfBytes() #--> 5
+	
+	? Unicodes() #--> [ 115, -29, -118, -79, 109 ]
+	? UnicodeOfByteN(5) #--> 109
 
-	//? NumberOfBytes()
-	//? NumberOfBytes()
+	
 
 	//? UnicodesOfBytes()
 	//? UnicodeOfByte(3)
@@ -334,8 +338,9 @@ o1 {
 
 	//? BytesPerChar()
 
-	? BytesOfCharNumer(n)
-	? BytesOfChar(pcCaract)
+
+	? BytesOfCharNumber(2)
+	? BytesOfChar("㊱")
 
 	# ? BitsPattern() // TODO
 
@@ -344,4 +349,4 @@ o1 {
 
 }
 
-
+proff()

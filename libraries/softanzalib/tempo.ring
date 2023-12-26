@@ -2,6 +2,20 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzList([ "A", "B", "A", "A", "B", "B", "C" ])
+
+? o1.NumberOfItemsU() # Or NumberOfUniqueItems()
+#--> 3
+
+? o1.ItemsU()
+#--> [ "A", "B", "C" ]
+
+proff()
+
+/*------------
+
+pron()
+
 o1 = new stzString("ABCAAB")
 
 ? o1.CharsQ().WithoutDuplicates()
@@ -11,6 +25,7 @@ o1 = new stzString("ABCAAB")
 ? U( o1.Chars() )
 
 proff()
+# Executed in 0.04 second(s)
 
 /*-------- TODO: erronous char name
 

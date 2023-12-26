@@ -276,6 +276,12 @@ class stzListOfBytes from stzList
 	def UnicodeOfNthByte(n)
 		return @oQByteArray.at(n-1)
 
+		def UnicodeOfByteNumber(n)
+			return This.UnicodeOfNthByte(n)
+
+		def UnicodeOfByteN(n)
+			return This. UnicodeOfNthByte(n)
+
 	def Bytecodes()
 		aResult = []
 
@@ -330,6 +336,46 @@ class stzListOfBytes from stzList
 		next
 
 		return aResult
+
+	def BytesOfChar(pcChar)
+		if CheckParams()
+			if NOT ( isString(pcChar) and @IsChar(pcChar) )
+				StzRaise("Incorrect param type! pcChar must be a char.")
+			ok
+		ok
+
+		aChars = This.Chars()
+		nLen = len(aChars)
+
+		aResult = []
+
+		if ring_find(aChars, pcChar) > 0
+			aResult = StzListOfBytesQ(pcChar).Bytes()
+		ok
+
+		return aResult
+
+		def BytesOfThisChar(pcChar)
+
+	def BytesOfCharNumber(n)
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		aChars = This.Chars()
+		nLen = len(aChars)
+
+		aResult = StzListOfBytesQ(aChars[n]).Bytes()
+		return aResult
+
+		def BytesOfNthChar(n)
+			return This.BytesOfCharNumber(n)
+
+		def BytesOfCharN(n)
+			return This.BytesOfCharNumber(n)
 
 	def NumberOfBytes()
 		return @oQByteArray.size()
