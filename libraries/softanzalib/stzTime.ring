@@ -89,5 +89,5 @@ class stzTime from stzObject
 	def Sleep(nSec)
 		StzSleep(nSec)
 
-		def Wait(nSec)
+		def Wait(nSec) # By Ilir
 			Sleep(nSec)

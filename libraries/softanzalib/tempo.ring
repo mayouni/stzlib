@@ -1,6 +1,50 @@
 load "stzlib.ring"
 
 /*------------
+*/
+pron()
+
+o1 = new stzString("Abc285XY&من")
+
+? o1.PartsAsSubstrings( :Using = 'Q(@char).IsLetter()' )
+#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
+
+? o1.PartsAsSubstrings( :Using = 'Q(@char).Orientation()' )
+#--> [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
+
+? o1.PartsAsSubstrings( :Using = 'Q(@char).IsUppercase()' )
+#--> [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
+
+? o1.PartsAsSubstrings(:Using = 'Q(@char).CharCase()' )
+#--> [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
+
+proff()
+# Executed in 0.57 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzString("abc")
+? o1.CharCase()
+#--> ERROR: Can't proceeed. You must provide a char.
+#    To get the case of a string, use StringCase().
+
+proff()
+
+/*------------
+
+pron()
+
+o1 = new stzString("Abc285XY&من")
+
+? o1.PartsAsSubstrings( :Using = 'Q(@char).IsLetter()' )
+#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
+
+proff()
+#--> Executed in 0.25 second(s)
+
+/*------------
 
 pron()
 
@@ -46,23 +90,15 @@ proff()
 */
 pron()
 
-load "threads.ring"
-
-sleep(3)
-? :done
-
-func sleep sec
-	ts = int2bytes(sec)+int2bytes(0)
-	thrd_sleep(varptr(:ts,"struct timespec"),nullpointer())
-
-/*================
-*/
-pron()
-
 o1 = new stzString("mmmMMMaaAAAiii")
-? o1.Classify(:Using = 'Q(@char).Case()')
+? @@( o1.Classify(:Using = 'Q(@char).CharCase()') )
+#--> [
+#	[ "lowercase", [ "mmm", "aa", "iii" ] ],
+#	[ "uppercase", [ "mmm", "aaa" ] ]
+# ]
 
 proff()
+# Executed in 0.42 second(s)
 
 /*================
 
