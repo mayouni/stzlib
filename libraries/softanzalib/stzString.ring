@@ -662,9 +662,12 @@ class stzString from stzObject
 	 #  IF THE STRING IS A CHAR, GETTING ITS CASE  #
 	#---------------------------------------------#
 
-	def CharCase()
+	def CharCase() # TODO: unable to use Case() as a name. See why?
 		if This.NumberOfChars() = 1
 			return This.StringCase()
+
+		else
+			StzRaise("Can't proceeed. You must provide a char. To get the case of a string, use StringCase().")
 		ok
 
 	  #---------------------------------------------------------------------#
@@ -51425,36 +51428,34 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 	def PartsAsSubstrings(pcPartionner)
 		/*
-		Example:
+		Examples:
 
 		o1 = new stzString("Abc285XY&من")
-
+		
 		? o1.PartsAsSubstrings( :Using = 'Q(@char).IsLetter()' )
-		--> Gives:
-		[ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
-
+		#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
+		
 		? o1.PartsAsSubstrings( :Using = 'Q(@char).Orientation()' )
-		--> Gives:
-		[ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
-
+		#--> [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
+		
 		? o1.PartsAsSubstrings( :Using = 'Q(@char).IsUppercase()' )
-		--> Gives:
-		[ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
-
+		#--> [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
+		
 		? o1.PartsAsSubstrings(:Using = 'Q(@char).CharCase()' )
-		--> Gives:
-		[ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
+		#--> [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
 
 		*/
 
+		if CheckParams()
 
-		if isList(pcPartionner) and
-		   StzListQ(pcPartionner).IsOneOfTheseNamedParams([ :Using, :By, :With ])
-
-			pcPartionner = pcPartionner[2]
-
-			if NOT isString(pcPartionner)
-				stzRaise("Incorrect param type!")
+			if isList(pcPartionner) and
+			   StzListQ(pcPartionner).IsOneOfTheseNamedParams([ :Using, :By, :With ])
+	
+				pcPartionner = pcPartionner[2]
+	
+				if NOT isString(pcPartionner)
+					stzRaise("Incorrect param type!")
+				ok
 			ok
 		ok
 
@@ -51468,7 +51469,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 				ReplaceCSQ("@item", "@char", :CaseSensitive = FALSE).
 				Content()
 
-		cCode = "cPartionner = ( '' + " + cCode + " )"
+		cCode = "cPartionner = ( " + cCode + " )"
 
 		if This.NumberOfChars() = 1
 			@char = This.FirstChar()
@@ -51483,6 +51484,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		@char = This.FirstChar()
 		@i = 1
+? ccode + NL
 		eval(cCode)
 		cPrevious = cPartionner
 
