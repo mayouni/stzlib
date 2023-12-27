@@ -137,5 +137,7 @@ load "stzNullObject.ring"
 load "stzTrueObject.ring"
 load "stzFalseObject.ring"
 
+load "threads.ring"
+
 // ? (clock()-t1)/clockspersecond()
 

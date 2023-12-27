@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*------------
+
 pron()
 
 o1 = new stzList([ "A", "B", "A", "A", "B", "B", "C" ])
@@ -41,7 +43,20 @@ pron()
 proff()
 
 /*================
-*
+*/
+pron()
+
+load "threads.ring"
+
+sleep(3)
+? :done
+
+func sleep sec
+	ts = int2bytes(sec)+int2bytes(0)
+	thrd_sleep(varptr(:ts,"struct timespec"),nullpointer())
+
+/*================
+*/
 pron()
 
 o1 = new stzString("mmmMMMaaAAAiii")

@@ -1,5 +1,13 @@
 _cDefaultTimeFormat = "hh:mm:ss"
 
+func StzSleep(nSec)
+	# Based on Ilir contribution on the Ring Group (https://shorturl.at/bhY12)
+	ts = int2bytes(nSec) + int2bytes(0)
+	thrd_sleep( varptr(:ts,"struct timespec"), nullpointer() )
+
+	func StzWait(nSec)
+		Sleep(nSec)
+
 func StzTimeQ(pTime)
 	return new stzTime(pTime)
 
@@ -30,16 +38,9 @@ func QTimeToString(oQTime, cFormat)
 class stzTime from stzObject
 	oQTime
 
-	def init(pTime)
-		if IsQTime(pTime)
-			oQTime  = pTime
-
-		but isString(pTime)
-			// TODO
-		else
-			StzRaise(stzTimeError(:CanNotCreateTimeObject))
-		ok
-
+	def init()
+		oQTime = new QTime()
+		
 	def Content()
 		return oQTime
 
@@ -48,6 +49,9 @@ class stzTime from stzObject
 
 	def QTimeObject()
 		return oQTime
+
+	def CurrentTime()
+		return oQTime.currentTime().tostring(_cDefaultTimeFormat)
 
 	def ToString(cFormat)
 		if cFormat = "" or cFormat = :Default
@@ -81,3 +85,9 @@ class stzTime from stzObject
 
 	def TimeStamp()
 		return date() + " " + time()
+
+	def Sleep(nSec)
+		StzSleep(nSec)
+
+		def Wait(nSec)
+			Sleep(nSec)
