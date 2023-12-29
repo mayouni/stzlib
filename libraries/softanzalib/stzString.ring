@@ -4604,6 +4604,19 @@ class stzString from stzObject
 		def MarquerByOccurrences(panPositions)
 			return This.MarquerByPositions(panPositions)
 
+	  #-------------------------------------------#
+	 #    GETTING MARQUERS BY THEIR POSITIONS    #
+	#===========================================#
+
+	def MarquersByPositions(panPositions)
+		oHash = new stzHashList( MarquersUZ() )
+		acResult = oHash.KeysByValues(panPositions)
+
+		return acResult
+
+		def MarquersByOccurrences(panPositions)
+			return This.MarquersByPositions(panPositions)
+
 	  #----------------------------------#
 	 #   FINDING MARQUERS AS SECTIONS   #
 	#==================================#

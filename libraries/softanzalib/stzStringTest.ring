@@ -7535,12 +7535,32 @@ proff()
 # Executed in 0.43 second(s) in Ring 1.17
 
 /*---------------------- 
-*/
+
 pron()
+
+? Q("ring").Contains("ring")
+#--> TRUE
+
+? Q("").Contains('')
+#--> TRUE
 
 ? Q([ 12, 66 ]).IsIncludedIn([ 12, 66 ])
 #--> TRUE
 
+? Q([]).Contains([])
+#--> FALSE
+
+? Q([ 1, [], 3 ]).Contains([])
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------------
+*/
+
+/*----------------------
+*/
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 /*
 	? @@( MarquersUZ() ) # Or simply UniqueMarquersAndTheirPositions()
@@ -7551,7 +7571,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 
 	? @@( FindMarquer("#7") )
 	#--> [ ]
-*/
+
 	? MarquerByPosition(66)
 	#--> #1
 
@@ -7559,8 +7579,9 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 	#--> #3
 
 	? MarquerByPositions([ 12, 66 ])
-	
-//	? MarquersByPositions([ 26, 44 ])
+	#--> #1
+*/
+	? MarquersByPositions([ 26, 44 ])
 
 }
 

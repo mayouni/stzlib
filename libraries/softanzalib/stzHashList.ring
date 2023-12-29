@@ -383,6 +383,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def KeyQ(n)
 			return new stzString(This.Key(n))
 	
+		def KeyAtPosition(n)
+			return This.Key(n)
+	
 	def NthValue(n)
 		if isString(n)
 			if n = :First or n = :FirstValue
@@ -403,6 +406,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 			def ValueQ(n)
 				return Q( This.Value(n) )
+
+		def ValueAtPosition(n)
+			return This.Value(n)
 
 	def FirstValue()
 		return This.NthValue(1)
@@ -1291,17 +1297,19 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindKeysByValue(pValue)
 
-		aResult = []
-		i = 0
+		aContent = This.HashList()
+		nLen = len(aContent)
 
-		for value in This.Values()
-			i++
+		anResult = []
+		
+		for i = 1 to nLen
 
-			if Q(value).IsEqualTo(pValue)
-				aResult + This.NthKey(i)
+			if Q(aContent[i][2]).Contains(pValue)
+				anResult + i
 			ok
 		next
-		return aResult
+
+		return anResult
 
 	  #------------------------------#
 	 #   FINDING NTH KEY BY VALUE   # TODO: Add case sensitivity
@@ -1358,14 +1366,42 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-----------------------------------------------------#
 
 	def KeysByValue(pValue)
-		anPos = This.FindKeysByValue()
-		aResult = []
+		anPos = This.FindKeysByValue(pValue)
+		acResult = This.KeysAtPositions(anPos)
 
-		for n in anPos
-			aResult + This.KeyByValue(n)
+		return acResult
+
+	  #---------------------------------------------------------#
+	 #  GETTING THE KEYS CORRESPONDING TO THE PROVIDED VALUES  #
+	#---------------------------------------------------------#
+
+	def KeysByValues(paValues)
+? "This ~> " + @@( This.Content() )
+? "Valu ~> " + @@( paValues )
+dfdf
+
+		nLen = len(paValues)
+
+		acKeys = []
+
+		for i = 1 to nLen
+			acKeys + This.KeysByValue(paValues[i])
 		next
 
-		return aResult
+		acResult = StzListQ(acKeys).MergeQ().WithoutDuplicates()
+
+		return acResult
+
+	  #----------------------------------------------#
+	 #  GETTING THE KEYS AT THE PROVIDED POSITIONS  #
+	#==============================================#
+
+	def KeysAtPositions(panPos)
+		acResult = This.KeysQ().ItemsAtPositions(panPos)
+		return acResult
+
+		def KeysAtThesePositions(panPos)
+			return This.KeysAtPositions(panPos)
 
 	  #-----------------------------------------#
 	 #  FINDING LISTS (VALUES THAT ARE LISTS)  #
