@@ -5003,7 +5003,7 @@ class stzString from stzObject
 
 	def ReplaceSubstringsWithMarquersCS(pacSubstrings, pCaseSensitive)
 
-		acSubStrings = StzListOfStringsQ(pacSubstrings).DuplicatesRemovedCS(pCaseSensitive)
+		acSubStrings = StzListQ(pacSubstrings).DuplicatesRemovedCS(pCaseSensitive)
 
 		acMarquers = []
 

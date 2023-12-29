@@ -7630,6 +7630,8 @@ StzStringQ("The first candidate is #3, the second is #1, while the third is #2!"
 }
 
 /*----------------------
+*/
+pron()
 
 o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
 o1.ReplaceSubstringsWithMarquersCS( [ "Ring", "Python", "Ruby", "PHP" ], :CS = TRUE )
@@ -7640,6 +7642,8 @@ o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
 o1.ReplaceSubstringsWithMarquersCS( [ "ring", "python", "ruby", "PHP" ], :CS = FALSE )
 ? o1.Content()
 #--> "#1 can be compared to #2, #3 and #4."
+
+proff()
 
 /*----------------------
 */
