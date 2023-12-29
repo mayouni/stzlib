@@ -7394,107 +7394,179 @@ o1.ReplaceSubStringAtPosition(19, "♥♥♥", :With = "Ring")
 
 /*====================== WORKING WITH MARQUERS
 
-? StzStringQ("My name is #.").ContainsMarquers()   #--> FALSE
-? StzStringQ("My name is #0.").ContainsMarquers()  #!--> FALSE --> TODO: Correct this!
-? StzStringQ("My name is #1.").ContainsMarquers()  #--> TRUE
-? StzStringQ("My name is #01.").ContainsMarquers() #--> FALSE
+pron()
+
+? StzStringQ("My name is #.").ContainsMarquers()
+#--> FALSE
+
+? StzStringQ("My name is #0.").ContainsMarquers()
+#!--> FALSE
+
+? StzStringQ("My name is #1.").ContainsMarquers()
+#--> TRUE
+
+? StzStringQ("My name is #01.").ContainsMarquers()
+#--> FALSE
+
+? Q("bla #0 bla bla #1 bla #2 blabla").Marquers()
+#--> [ "#1", "#1" ]
+
+proff()
+# Executed in 0.33 second(s) in Ring 1.18
+# Executed in 0.43 second(s) in Ring 1.17
 
 /*---------------------- 
 
+pron()
+
 StzStringQ("My name is #1, my age is #2, and my job is #3.") {
-	? Marquers() #--> #1, #2, #3
+	? Marquers()
+	#--> #1, #2, #3
 }
 
 StzStringQ("My name is #2, my age is #3, and my job is #1.") {
-	? Marquers() #--> #2, #3, #1
+	? Marquers()
+	#--> #2, #3, #1
 }
+
+proff()
+# Executed in 0.30 second(s)
 
 /*----------------------
 
+pron()
+
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? @@( Marquers() )
+	? @@( Marquers() ) + NL
 	#--> [ "#1", "#2", "#3", "#1" ]
 
-	? @@( MarquersPositions() ) # or FindMarquers()
-	#--> [   12,   25,   44,   66 ]
+	? @@( MarquersPositions() ) + NL # or FindMarquers()
+	#--> [ 12, 26, 44, 66 ]
 
-	? @@( MarquersAndPositions() )
-	#--> [ "#1" = 12, "#2" = 25 , "#3" = 44, "#1" = 66 ]
+	? @@( MarquersZ() ) + NL # Or MarquersAndPositions()
+	#--> [ [ "#1", 12 ], [ "#2", 26 ], [ "#3", 44 ], [ "#1", 66 ] ]
 
-	? @@( MarquersAndPositionsXT() )
-	#--> [ "#1" = [12, 66], "#2" = [26], "#3" = [44] ]
+	? @@( MarquersAndSections() ) + NL # Or MarquersAndSections()
+	#--> [ [ "#1", [ 12, 13 ] ], [ "#2", [ 26, 27 ] ], [ "#3", [ 44, 45 ] ], [ "#1", [ 66, 67 ] ] ]
 
 }
 
+proff()
+# Executed in 2.23 second(s) in Ring 1.18
+# Executed in 3.65 second(s) in Ring 1.17
+
 /*---------------------- 
+
+pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? NumberOfMarquers()		#--> 4
+	? NumberOfMarquers()
+	#--> 4
 
-	? FirstMarquer()		#--> #1
+	? FirstMarquer()
+	#--> #1
 
-	? FindFirstMarquer()		#--> 12
-	# You can also say:
-	# ? FirstMarquerOccurrence()
-	# ? FirstMarquerPosition()
+	? FindFirstMarquer()
+	#--> 12
+		# You can also say:
+		# ? FirstMarquerOccurrence()
+		# ? FirstMarquerPosition()
 
-	? LastMarquer()			#--> #1
+	? LastMarquer()
+	#--> #1
 	
-	? FindLastMarquer()		#--> 66
-	# You can also say:
-	# ? LastMarquerOccurrence()
-	# ? LastMarquerPosition()
+	? FindLastMarquer()
+	#--> 66
+		# You can also say:
+		# ? LastMarquerOccurrence()
+		# ? LastMarquerPosition()
 
 }
 
+proff()
+# Executed in 0.77 second(s) in Ring 1.18
+# Executed in 1.24 second(s) in Ring 1.17
+
 /*---------------------- 
+
+pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? NthMarquer(2)			#--> #2
+	? NthMarquer(2)
+	#--> #2
 
-	? FindNthMarquer(2)		#--> 26
-	# You can also say:
-	# ? NthMarquerOccurrence(2)
-	# ? NthMarquerPosition(2)
+	? FindNthMarquer(2)
+	#--> 26
+		# You can also say:
+		# ? NthMarquerOccurrence(2)
+		# ? NthMarquerPosition(2)
 }
 
-/*---------------------- 
-
-StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
-
-	? NextNthMarquer(2, :StartingAt = 14)		#--> #3
-	# Or you can say:
-	# ? NthNextMarquer(2, :StartingAt = 14)
-
-	? FindNextNthMarquer(2, :StartingAt = 14)	#--> 44
-	# Or you can say:
-	# ? NextNthMarquerOccurrence(2, :StartingAt = 14)
-	# ? NthNextMarquerOccurrence(2, :StartingAt = 14)
-	# ? NextNthMarquerPosition(2, :StartingAt = 14)
-	# ? NthNextMarquerPosition(2, :StartingAt = 14)
-
-}
+proff()
+# Executed in 0.22 second(s) in Ring 1.18
+# Executed in 0.29 second(s) in Ring 1.17
 
 /*---------------------- 
 
+pron()
+
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? @@( MarquersAndPositionsXT() )
-	#--> #--> [ "#1" = [12, 66], "#2" = [26], "#3" = [44] ]
-
-	? @@( FindMarquer("#1") ) #--> [ 12, 66]
-	# Or ? OccurrencesOfMarquer("#1")
+	? NextNthMarquer(2, :StartingAt = 14)
+	#--> #3
+		# Or you can say:
+		# ? NthNextMarquer(2, :StartingAt = 14)
 	
-
-	? @@( FindMarquer("#7") ) #--> []
-
-	? MarquerByPosition(66)	  #--> #1
-	? MarquerByPosition(44)   #--> #3
+	? FindNextNthMarquer(2, :StartingAt = 14)
+	#--> 44
+		# Or you can say:
+		# ? NextNthMarquerOccurrence(2, :StartingAt = 14)
+		# ? NthNextMarquerOccurrence(2, :StartingAt = 14)
+		# ? NextNthMarquerPosition(2, :StartingAt = 14)
+		# ? NthNextMarquerPosition(2, :StartingAt = 14)
 
 }
+
+proff()
+# Executed in 0.29 second(s) in Ring 1.18
+# Executed in 0.43 second(s) in Ring 1.17
+
+/*---------------------- 
+*/
+pron()
+
+? Q([ 12, 66 ]).IsIncludedIn([ 12, 66 ])
+#--> TRUE
+
+StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
+/*
+	? @@( MarquersUZ() ) # Or simply UniqueMarquersAndTheirPositions()
+	#--> [ [ "#1", [ 12, 66 ] ], [ "#2", [ 26 ] ], [ "#3", [ 44 ] ] ]
+
+	? @@( FindMarquer("#1") ) # Or ? OccurrencesOfMarquer("#1")
+	#--> [ 12, 66]
+
+	? @@( FindMarquer("#7") )
+	#--> [ ]
+*/
+	? MarquerByPosition(66)
+	#--> #1
+
+	? MarquerByPosition(44)
+	#--> #3
+
+	? MarquerByPositions([ 12, 66 ])
+	
+//	? MarquersByPositions([ 26, 44 ])
+
+}
+
+proff()
+# Executed in 1.59 second(s) in Ring 1.18
+
 
 /*---------------------- 
 

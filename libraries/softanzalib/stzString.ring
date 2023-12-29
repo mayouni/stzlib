@@ -4172,27 +4172,28 @@ class stzString from stzObject
 
 	def Marquers()
 		anPos = This.FindAll("#")
+		nLen = len(anPos)
 
-		if len(anPos) = 0
+		if nLen = 0
 			return []
 		ok
 
 		aResult = []
 
-		for n in anPos
+		for i = 1 to nLen
+			n = anPos[i]
 			n1 = n + 1
 			n2 = This.WalkForewardW( :StartingAt = n+1, :Until = '{ NOT StzStringQ(@char).RepresentsNumberInDecimalForm() }' )
+			# ~> TODO: Replace this with a normal static code (better performance)
 
 			if n1 != n2
 
 				cMarquer = This.SectionQ(n1, n2).OnlyNumbersQ().RemoveThisRepeatedLeadingCharQ("0").Content()
 
 				if cMarquer != ""
-					if cMarquer[1] = "0"
-						cMarquer = StzStringQ(cMarquer).Section(2, :LastChar)
+					if cMarquer[1] != "0"		
+						aResult + ("#" + cMarquer)
 					ok
-				
-					aResult + ("#" + cMarquer)
 				ok
 			ok
 			
@@ -4278,6 +4279,17 @@ class stzString from stzObject
 				return This.UniqueMarquersQR(pcReturnType)
 
 		#>
+
+	  #----------------------------------------------------------------#
+	 #  GETTING THE NUMBER OF UNIQUE MARQUERS ~> WITHOUT DUPLICATION  #
+	#----------------------------------------------------------------#
+
+	def NumberOfUniqueMarquers()
+		nResult = len( This.UniqueMarquers() )
+		return nResult
+
+		def NumberOfMarquersU()
+			return This.NumberOfUniqueMarquers()
 
 	  #------------------------------------------------#
 	 #  GETTING THE NUMBER OF MARQUERS IN THE STRING  #
@@ -4425,7 +4437,7 @@ class stzString from stzObject
 
 		for i = 1 to nLen
 			anPos = This.FindAll(acMarquers[i])
-			aResult + [ cMarquer, anPos ]
+			aResult + [ acMarquers[i], anPos ]
 		next
 
 		return aResult
@@ -4445,6 +4457,15 @@ class stzString from stzObject
 		def MarquersUZ()
 			return This.UniqueMarquersAndPositions()
 
+		def UniqueMarquersZ()
+			return This.UniqueMarquersAndPositions()
+
+		def MarquersAndPositionsU()
+			return This.UniqueMarquersAndPositions()
+
+		def MarquersAndTheirPositionsU()
+			return This.UniqueMarquersAndPositions()
+
 		#>
 
 	  #----------------------------#
@@ -4452,8 +4473,10 @@ class stzString from stzObject
 	#============================#
 
 	def OccurrencesOfMarquer(pcMarquer)
-		
-		aResult = This.MarquersAndTheirPositions()[pcMarquer]
+
+		aResult = This.UniqueMarquersAndTheirPositions()[pcMarquer]
+			# ~> Or you can simply say: This.MarquersZU()[pcMarquer]
+
 		if isString(aResult) and aResult = NULL
 			return []
 		else
@@ -4494,6 +4517,15 @@ class stzString from stzObject
 			def PositionsOfMarquerQR(pcMarquer, pcReturnType)
 				return This.OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
 
+		def PositionsOfThisMarquer(pcMarquer)
+			return This.OccurrencesOfMarquer(pcMarquer)
+
+			def PositionsOfThisMarquerQ(pcMarquer)
+				return This.OccurrencesOfMarquerQ(pcMarquer)
+	
+			def PositionsOfThisMarquerQR(pcMarquer, pcReturnType)
+				return This.OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
+
 		def MarquerPositions(pcMarquer)
 			return This.OccurrencesOfMarquer(pcMarquer)
 
@@ -4512,6 +4544,14 @@ class stzString from stzObject
 			def FindMarquerQR(pcMarquer, pcReturnType)
 				return This.OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
 
+		def FindThisMarquer(pcMarquer)
+			return This.OccurrencesOfMarquer(pcMarquer)
+
+			def FindThisMarquerQ(pcMarquer)
+				return This.OccurrencesOfMarquerQ(pcMarquer)
+	
+			def FindThisMarquerQR(pcMarquer, pcReturnType)
+				return This.OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
 
 			#>
 
@@ -4520,15 +4560,15 @@ class stzString from stzObject
 	#=====================================#
 
 	def MarquerByPosition(pnPosition)
-		aMarquers = This.MarquersAndTheirPositions()
+		aMarquers = This.MarquersAndTheirPositionsU()
 		nLen = len(aMarquers)
 
 		cResult = ""
 
 		for i = 1 to nLen
-			n = ring_find(aMarquers[2], pnPosition)
+			n = ring_find(aMarquers[i][2], pnPosition)
 			if n > 0
-				cResult = aMarquers[1]
+				cResult = aMarquers[i][1]
 				exit
 			ok
 		next
@@ -4543,6 +4583,26 @@ class stzString from stzObject
 
 			def MarquerByOccurrenceQ(pnPosition)
 				return new stzString( This.MarquerByOccurrence(pnPosition) )
+
+	  #-------------------------------------------#
+	 #    GETTING A MARQUER BY MANY POSITIONS    #
+	#===========================================#
+
+	def MarquerByPositions(panPositions)
+		cMarquer = This.MarquerByPosition(panPositions[1])
+		anPos = This.FindMarquer(cMarquer)
+
+		cResult = ""
+
+		if StzListQ(panPositions).IsIncludedIn(anPos)
+			cResult = cMarquer
+		ok
+
+		return cResult
+
+
+		def MarquerByOccurrences(panPositions)
+			return This.MarquerByPositions(panPositions)
 
 	  #----------------------------------#
 	 #   FINDING MARQUERS AS SECTIONS   #

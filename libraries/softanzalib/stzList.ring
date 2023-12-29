@@ -20226,7 +20226,7 @@ class stzList from stzObject
 
 		switch ring_type(p)
 		on "LIST"	
-			bResult = Q(p).ContainsCS( This.List(), pCaseSensitive )
+			bResult = Q(p).ContainsManyCS( This.List(), pCaseSensitive )
 
 		on "STRING"
 			cListStringified = This.Stringified()
