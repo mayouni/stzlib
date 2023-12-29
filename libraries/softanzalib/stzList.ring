@@ -15034,8 +15034,8 @@ class stzList from stzObject
 
 	def SortInDescending()
 
- 		aResult = Q( This.SortInAscending() ).Content()
-		This.Update( ListReverse(aResult) )
+		aResult = ring_reverse( ring_sort(This.Content()) )
+		This.Update( aResult )
 
 		#< @FunctionFluentForm
 

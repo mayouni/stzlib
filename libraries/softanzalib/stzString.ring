@@ -4385,7 +4385,7 @@ class stzString from stzObject
 		}
 		*/
 
-		aResult = StzPairOfListsQ( This.Marquers(), This.MarquersPositions() ).AssociateQ().Content()
+		aResult = Association([ This.Marquers(), This.MarquersPositions() ]).
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -4791,14 +4791,20 @@ class stzString from stzObject
 		acMarquers  = This.MarquersSortedInAscending()
 		anPositions = This.MarquersPositionsSortedInAscending()
 
-		aResult = StzPairOfListsQ( acMarquers, anPositions).Associate()
+		aResult = Association([ acMarquers, anPositions ])
 
 		return aResult
 
 		def MarquersSortedInAscendingAndTheirPositions()
 			return This.MarquersAndPositionsSortedInAscending()
 
-		def MarquersAndTheirPositionsSortedOInDescending()
+		def MarquersAndTheirPositionsSortedOInAscending()
+			return This.MarquersAndPositionsSortedInAscending()
+
+		def MarquersSortedZ()
+			return This.MarquersAndPositionsSortedInAscending()
+
+		def MarquersSortedInAscendingZ()
 			return This.MarquersAndPositionsSortedInAscending()
 
 	def MarquersAndPositionsSortedInDescending()
@@ -4813,6 +4819,9 @@ class stzString from stzObject
 			return This.MarquersAndPositionsSortedInDescending()
 
 		def MarquersAndTheirPositionsSortedInDescending()
+			return This.MarquersAndPositionsSortedInDescending()
+
+		def MarquersSortedInDescendingZ()
 			return This.MarquersAndPositionsSortedInDescending()
 
 	def MarquersAndSectionsSortedInAscending()
