@@ -4714,7 +4714,7 @@ class stzString from stzObject
 
 	def UniqueMarquersAndSections()
 
-		aMarquers = This.MarquersAndTheirPositions()
+		aMarquers = This.MarquersAndTheirSections()
 		nLen = len(aMarquers)
 
 		aResult = []
