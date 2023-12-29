@@ -7567,45 +7567,79 @@ StzStringQ("My name is #3, my age is #2, and my job is #1.") {
 }
 
 /*---------------------- 
+*/
+pron()
 
 StzStringQ("My name is #1, my age is #3, and my job is #2.") {	
 
-	? MarquersAreUnsorted()		#--> TRUE
-	? MarquersSortingOrder()	#--> :Unsorted
+	? MarquersAreUnsorted()
+	#--> TRUE
+
+	? MarquersSortingOrder()
+	#--> :Unsorted
 
 }
 
+proff()
+# Executed in 0.31 second(s) in Ring 1.18
+# Executed in 0.53 second(s) in Ring 1.17
+
 /* ----------------------
+*/
+pron()
 
 StzStringQ("The first candidate is #3, the second is #1, while the third is #2!") {	
-	? NumberOfMarquers()	#--> 3
-	? MarquersPositions()	#--> [ 24, 42, 65 ]
+	? NumberOfMarquers()
+	#--> 3
+	? MarquersPositions()
+	#--> [ 24, 42, 65 ]
 	
-	? FindNextNthMarquer(2, :startingat = 14) #--> 42
+	? FindNextNthMarquer(2, :StartingAt = 14)
+	#--> 42
 	
-	? MarquersPositionsSortedInAscending() #--> [ 24, 42, 65 ]
+	? MarquersPositionsSortedInAscending()
+	#--> [ 24, 42, 65 ]
 }
 
-/* ----------------------
+proff()
+# Executed in 0.50 second(s) in Ring 1.18
+# Executed in 0.79 second(s) in Ring 1.17
+
+/*----------------------
+*/
+pron()
 
 StzStringQ("The first candidate is #3, the second is #1, while the third is #2!") {
 
-	? Marquers() #--> [ "#3", "#1", "#2" ]
+	? Marquers()
+	#--> [ "#3", "#1", "#2" ]
 
-	? MarquersAndPositionsSortedInAscending()
+	? MarquersZ()
 	#--> [ [ "#1", 24 ], [ "#2", 42 ], [ "#3", 65 ] ]
 
-	? MarquersAndSectionsSortedInAscending()
+	? MarquersZZ()
 	#--> [ "#1" = [24, 25], "#2" = [42, 43], "#3" = [65, 66] ]
 }
 
+proff()
+# Executed in 1.36 second(s) in Ring 1.18
+# Executed in 2.22 second(s) in Ring 1.17
+
 /*---------------------- 
+*/
+pron()
 
 o1 = new stzString("My name is #2, may age is #1, and my job is #3.")
-? @@( o1.MarquersAndSectionsSortedInDescending() )
+? @@( o1.MarquersSortedInDescendingZZ() )
 #--> [ [ "#3", [ 12, 13 ] ], [ "#2", [ 27, 28 ] ], [ "#1", [ 45, 46 ] ] ]
 
+proff()
+# Executed in 0.27 second(s) in Ring 1.18
+# Executed in 0.41 second(s) in Ring 1.17
+
 /*---------------------- 
+
+pron()
 
 StzStringQ("My name is #1, my age is #3, and my job is #2. Again: my name is #1!") {	
 
@@ -7616,7 +7650,12 @@ StzStringQ("My name is #1, my age is #3, and my job is #2. Again: my name is #1!
 	#--> [ [ "#1", [ 12, 13 ] ], [ "#1", [ 26, 27 ] ], [ "#2", [ 44, 45 ] ], [ "#3", [ 66, 67 ] ] ]
 }
 
-/* ----------------------
+proff()
+# Executed in 0.66 second(s) in Ring 1.18
+
+/*----------------------
+
+pron()
 
 StzStringQ("The first candidate is #3, the second is #1, while the third is #2!") {
 
@@ -7629,8 +7668,12 @@ StzStringQ("The first candidate is #3, the second is #1, while the third is #2!"
 	#--> The first candidate is #3, the second is #2, while the third is #1!
 }
 
+proff()
+# Executed in 0.53 second(s) in Ring 1.18
+# Executed in 0.81 second(s) in Ring 1.17
+
 /*----------------------
-*/
+
 pron()
 
 o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
@@ -7644,6 +7687,7 @@ o1.ReplaceSubstringsWithMarquersCS( [ "ring", "python", "ruby", "PHP" ], :CS = F
 #--> "#1 can be compared to #2, #3 and #4."
 
 proff()
+# Executed in 0.04 second(s)
 
 /*----------------------
 */
