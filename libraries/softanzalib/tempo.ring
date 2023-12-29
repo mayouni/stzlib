@@ -2,6 +2,24 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzHashList([
+	[ "#1", [ 12, 66 ] ],
+	[ "#2", [ 26 ] ],
+	[ "#3", [ 44, 66 ] ]
+])
+
+? @@( o1.FindKeysByValue(66) )
+#--> [ 1, 3 ]
+
+? @@( o1.KeysByValue(66) )
+#--> [ "#1", "#3" ]
+
+proff()
+
+/*-----------------
+
+pron()
+
 o1 = new stzString("{{ring}}")
 ? o1.Bounds()
 
