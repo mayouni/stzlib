@@ -4839,6 +4839,13 @@ class stzString from stzObject
 		def MarquersSortedInAscendingAndTheirSections()
 			return This.MarquersAndSectionsSortedInAscending()
 
+		def MarquersSortedInAscendingZZ()
+			return This.MarquersAndSectionsSortedInAscending()
+
+		def MarquersSortedZZ()
+			return This.MarquersAndSectionsSortedInAscending()
+
+
 	def MarquersAndSectionsSortedInDescending()
 		acMarquers  = This.MarquersSortedInDescending()
 		nLenMarquers = len(acMarquers)
@@ -4862,6 +4869,10 @@ class stzString from stzObject
 
 		def MarquersSortedInDescendingAndTheirSections()
 			return This.MarquersAndSectionsSortedInDescending()
+
+		def MarquersSortedInDescendingZZ()
+			return This.MarquersAndSectionsSortedInDescending()
+
 
 	def SortMarquersInAscending()
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
@@ -4893,9 +4904,19 @@ class stzString from stzObject
 			This.SortMarquersInAscending()
 			return This
 
+		def SortMarquers()
+			This.SortMarquersInAscending()
+
+			def SortMarquersQ()
+				This.SortMarquers()
+				return This
+
 	def StringWithMaquersSortedInAscending()
 		cResult = This.Copy().SortMarquersInAscendingQ().Content()
 		return cResult
+
+		def StringWithMarquersSorted()
+			return This.StringWithMaquersSortedInAscending()
 
 	def SortMarquersInDescending()
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
@@ -4942,8 +4963,12 @@ class stzString from stzObject
 	#============================================#
 
 	def ReplaceMarquers(pacSubStrings)
-		if isList(pacSubStrings) and Q(pacSubStrings).IsWithOrByNamedParam()
-			pacSubStrings = pacSubStrings[2]
+		if CheckParams()
+
+			if isList(pacSubStrings) and Q(pacSubStrings).IsWithOrByNamedParam()
+				pacSubStrings = pacSubStrings[2]
+			ok
+
 		ok
 
 		aMarquersXT = This.MarquersAndSectionsSortedInAscending()
@@ -15917,7 +15942,7 @@ class stzString from stzObject
 		#< @FunctionFleuntForms
 
 		def RepeatedLeadingCharQ()
-			return This.RepeatedLeadingCharQR(:stzChar)
+			return This.RepeatedLeadingCharQR(:stzString)
 
 		def RepeatedLeadingCharQR(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
