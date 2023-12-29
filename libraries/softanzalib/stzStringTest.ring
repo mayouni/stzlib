@@ -7558,18 +7558,17 @@ proff()
 
 /*----------------------
 */
+pron()
 
-/*----------------------
-*/
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
-/*
+
 	? @@( MarquersUZ() ) # Or simply UniqueMarquersAndTheirPositions()
 	#--> [ [ "#1", [ 12, 66 ] ], [ "#2", [ 26 ] ], [ "#3", [ 44 ] ] ]
 
 	? @@( FindMarquer("#1") ) # Or ? OccurrencesOfMarquer("#1")
 	#--> [ 12, 66]
 
-	? @@( FindMarquer("#7") )
+	? @@( FindMarquer("#7") ) + NL
 	#--> [ ]
 
 	? MarquerByPosition(66)
@@ -7578,16 +7577,16 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 	? MarquerByPosition(44)
 	#--> #3
 
-	? MarquerByPositions([ 12, 66 ])
+	? MarquerByPositions([ 12, 66 ]) + NL
 	#--> #1
-*/
-	? MarquersByPositions([ 26, 44 ])
 
+	? MarquersByPositions([ 26, 44 ])
+	#--> [ #2, #3 ]
 }
 
 proff()
-# Executed in 1.59 second(s) in Ring 1.18
-
+# Executed in 1.26 second(s) in Ring 1.18
+# Executed in 2.05 second(s) in Ring 1.17
 
 /*---------------------- 
 
