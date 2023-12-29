@@ -1355,12 +1355,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#----------------------------------------------------#
 
 	def KeyByValue(pValue)
-		n = This.FindKeyByValue(pValue)
-		return This.Key( n )
+		acKeys = This.KeysByValue(pValue)
+		nLen = len(acKeys)
 
-	# TODO: should the result be a list of positions?
-	#       because a value can be hosted in more than one key...
+		if nLen = 0
+			return ""
+		ok
 
+		cResult = acKeys[1]
+		return cResult
+	
 	  #-----------------------------------------------------#
 	 #   GETTING THE KEYS CORRESPONDING TO A GIVEN VALUE   # TODO: Add case sensitivity
 	#-----------------------------------------------------#
@@ -1376,10 +1380,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#---------------------------------------------------------#
 
 	def KeysByValues(paValues)
-? "This ~> " + @@( This.Content() )
-? "Valu ~> " + @@( paValues )
-dfdf
-
 		nLen = len(paValues)
 
 		acKeys = []

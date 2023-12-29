@@ -14,6 +14,9 @@ o1 = new stzHashList([
 ? @@( o1.KeysByValue(66) )
 #--> [ "#1", "#3" ]
 
+? o1.KeyByValue(66)
+#--> #1
+
 proff()
 
 /*-----------------
