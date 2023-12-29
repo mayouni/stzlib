@@ -7557,7 +7557,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*----------------------
-*/
+
 pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
@@ -7590,41 +7590,92 @@ proff()
 
 /*---------------------- 
 
-StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
-	? PreviousMarquers(:StartingAt = 50 ) #--> [ "#1", "#2", "#3" ]
-	? NextMarquers(:StartingAt = 15)      #--> [ "#2", "#3", "#1" ]
-}
-
-/*---------------------- 
-
-StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
-	? PreviousNthMarquer(3, :StartingAt = 50) 		#--> #1
-	? PreviousNthMarquerPosition(3, :StartingAt = 50) 	#--> 12
-	? PreviousNthMarquerAndItsPosition(3, :StartingAt = 50) #--> [ "#1", 12 ]
-}
-/*---------------------- 
+pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? NthPreviousMarquerPosition(1, :StartingAt = 50)		#--> 44
-	? @@( PreviousMarquerAndItsPosition(:StartingAt = 50) )	#--> [ "#3", 44 ]
+	? PreviousMarquers(:StartingAt = 50 )
+	#--> [ "#1", "#2", "#3" ]
+
+	? NextMarquers(:StartingAt = 15)
+	#--> [ "#2", "#3", "#1" ]
 
 }
 
+proff()
+# Executed in 0.29 second(s) in Ring 1.18
+# Executed in 0.43 second(s) in Ring 1.17
+
 /*---------------------- 
 
+pron()
+
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
-	? @@( MarquersSections() ) + NL
+
+	? PreviousNthMarquer(3, :StartingAt = 50)
+	#--> #1
+
+	? PreviousNthMarquerPosition(3, :StartingAt = 50)
+	#--> 12
+
+	? PreviousNthMarquerAndItsPosition(3, :StartingAt = 50)
+	#--> [ "#1", 12 ]
+}
+
+proff()
+# Executed in 0.83 second(s) in Ring 1.18
+# Executed in 1.28 second(s) in Ring 1.17
+
+/*---------------------- 
+
+pron()
+
+StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
+
+	? FindNthPreviousMarquer(1, :StartingAt = 50)
+	#--> 44
+
+	? @@( PreviousMarquerZ(:StartingAt = 50) )
+	#--> [ "#3", 44 ]
+
+}
+
+proff()
+# Executed in 0.60 second(s) in Ring 1.18
+# Executed in 0.86 second(s) in Ring 1.17
+
+/*---------------------- 
+
+pron()
+
+StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
+
+	? @@( FindMarquersAsSections() ) + NL
 	#--> [ [ 12, 13 ], [ 26, 27 ], [ 44, 45 ], [ 66, 67 ] ]
 
-	? @@( MarquersAndSections() ) + NL
-	#--> [ [ "#1", [ 12, 13 ] ], [ "#2", [ 26, 27 ] ], [ "#3", [ 44, 45 ] ], [ "#1", [ 66, 67 ] ] ]
+	? @@( MarquersZZ() ) + NL
+	#--> [
+	# 	[ "#1", [ 12, 13 ] ],
+	# 	[ "#2", [ 26, 27 ] ],
+	# 	[ "#3", [ 44, 45 ] ],
+	# 	[ "#1", [ 66, 67 ] ]
+	# ]
 
-	? @@( MarquersAndSectionsXT() )
-	#--> [ [ "#1", [ [ 12, 13 ], [ 66, 67 ] ] ], [ "#2", [ [ 26, 27 ] ] ], [ "#3", [ [ 44, 45 ] ] ] ]
+	? @@( MarquersUZZ() )
+	#--> [
+	# 	[ "#1", [ [ 12, 13 ], [ 66, 67 ] ] ],
+	# 	[ "#2", [ [ 26, 27 ] ] ],
+	# 	[ "#3", [ [ 44, 45 ] ] ]
+	# ]
 }
 
+proff()
+# Executed in 4.65 second(s) in Ring 1.18
+# Executed in 7.74 second(s) in Ring 1.17
+
 /*---------------------- 
+*/
+pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3.") {	
 	? MarquersAreSortedInAscending() #--> TRUE
@@ -7633,6 +7684,10 @@ StzStringQ("My name is #1, my age is #2, and my job is #3.") {
 StzStringQ("My name is #2, my age is #1, and my job is #3.") {	
 	? MarquersAreSortedInAscending() #--> FALSE
 }
+
+proff()
+# Executed in 0.29 second(s) in Ring 1.18
+# Executed in 0.45 second(s) in Ring 1.17
 
 /*---------------------- 
 
