@@ -1,7 +1,25 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzString("{{ring}}")
+? o1.Bounds()
+
+? @@( o1.FindTheseBoundsAsSections("{{","}") )
+#--> [ [ 1, 2 ], [ 8, 8 ] ]
+
+? @@( o1.FindTheseBounds("{{", "}") )
+#--> [ 1, 8 ]
+
+o1.RemoveTheseBounds("{{","}")
+? o1.Content()
+#--> ring}
+
+proff()
+# Executed in 0.14
+
 /*------------
-*/
+
 pron()
 
 o1 = new stzString("Abc285XY&من")
