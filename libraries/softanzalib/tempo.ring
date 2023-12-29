@@ -16,7 +16,7 @@ o1.RemoveTheseBounds("{{","}")
 #--> ring}
 
 proff()
-# Executed in 0.14
+# Executed in 0.12
 
 /*------------
 
