@@ -9823,7 +9823,12 @@ class stzString from stzObject
 
 		nLen = This.NumberOfChars()
 		if nLen = 0 or nLen = 1
-			return [ [], [] ]
+			return [ [0,0], [0,0] ]
+		ok
+
+		if NOT This.HasLeadingAndTrailingChars()
+			aResult = [ [1, 1], [nLen, nLen] ]
+			return aResult
 		ok
 
 		aSection1 = [1, 1]
@@ -9952,6 +9957,16 @@ class stzString from stzObject
 
 	def FindLastAndFirstBoundsAsSectionsCS(pCaseSensitive)
 
+		nLen = This.NumberOfChars()
+		if nLen = 0 or nLen = 1
+			return [ [0,0], [0,0] ]
+		ok
+
+		if NOT This.HasLeadingAndTrailingChars()
+			aResult = [ [1, 1], [nLen, nLen] ]
+			return aResult
+		ok
+
 		aResult = [
 			This.FindTrailingCharsAsSectionCS(pCaseSensitive),
 			This.FindLeadingCharsAsSectionCS(pCaseSensitive)
@@ -10024,6 +10039,16 @@ class stzString from stzObject
 
 	def FindLeftAndRightBoundsAsSectionsCS(pCaseSensitive)
 
+		nLen = This.NumberOfChars()
+		if nLen = 0 or nLen = 1
+			return [ [0,0], [0,0] ]
+		ok
+
+		if NOT This.HasLeadingAndTrailingChars()
+			aResult = [ [1, 1], [nLen, nLen] ]
+			return aResult
+		ok
+
 		a1 = []
 		a2 = []
 
@@ -10081,6 +10106,16 @@ class stzString from stzObject
 	#-------------------------------------------------------------------------------------#
 
 	def FindRightAndLeftBoundsAsSectionsCS(pCaseSensitive)
+
+		nLen = This.NumberOfChars()
+		if nLen = 0 or nLen = 1
+			return [ [0,0] , [0,0] ]
+		ok
+
+		if NOT This.HasLeadingAndTrailingChars()
+			aResult = [ [1, 1], [nLen, nLen] ]
+			return aResult
+		ok
 
 		a1 = []
 		a2 = []
@@ -12489,26 +12524,19 @@ class stzString from stzObject
 
 	def FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
 
-		aBounds = This.StringBoundsCSZZ(pCaseSensitive)
+		nLen = This.NumberOfChars()
+		nLen1 = StzStringQ(pcBound1).NumberOfChars()
+		nLen2 = StzStringQ(pcBound2).NumberOfChars()
 
-		nLen = len(aBounds)
-		if nLen = 0
-			return [ [], [] ]
+		aResult = [ [0,0], [0,0] ]
+
+		if This.FirstNCharsAsStringQ(nLen1).IsEqualToCS(pcBound1, pCaseSensitive) AND
+		   This.LastNCharsAsStringQ(nLen2).IsEqualToCS(pcBound2, pCaseSensitive)
+
+			aResult = [ [1, nLen1], [(nLen - nLen2 + 1), nLen] ]
+
 		ok
 
-		aSection1 = []
-		cBound1 = aBounds[1][1]
-		if StzStringQ(cBound1).IsEqualToCS(pcBound1, pCaseSensitive)
-			aSection1 = aBounds[1][2]
-		ok
-
-		aSection2 = []
-		cBound2 = aBounds[2][1]
-		if StzStringQ(cBound2).IsEqualToCS(pcBound2, pCaseSensitive)
-			aSection2 = aBounds[2][2]
-		ok
-
-		aResult = [aSection1, aSection2]
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -12542,32 +12570,14 @@ class stzString from stzObject
 
 		#>
 
-	  #------------------------------------------------------------------------------------#
-	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) IN THE STRING AND RETURNING THEIR SECTIONS  #
-	#====================================================================================#
+	  #-------------------------------------------------------------------------------------#
+	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) IN THE STRING AND RETURNING THEIR POSITIONS  #
+	#=====================================================================================#
 
 	def FindTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
-
-		aBounds = This.StringBoundsCSZ(pCaseSensitive)
-
-		nLen = len(aBounds)
-		if nLen = 0
-			return []
-		ok
-
-		aResult = []
-
-		cBound1 = aBounds[1][1]
-		if StzStringQ(cBound1).IsEqualToCS(pcBound1, pCaseSensitive)
-			aResult + aBounds[1][2]
-		ok
-
-		cBound2 = aBounds[2][1]
-		if StzStringQ(cBound2).IsEqualToCS(pcBound2, pCaseSensitive)
-			aResult + aBounds[2][2]
-		ok
-
-		return aResult
+		aSectionsZZ = This.FindTheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
+		anResult = [ aSectionsZZ[1][1], aSectionsZZ[2][1] ]
+		return anResult
 
 		#< @FunctionAlternativeForms
 
@@ -51789,7 +51799,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		off
 
 	  #=====================================#
-	 #   SORTING THE CHARS OF THE STRING   #
+	 #   GETTING THE CHARS SORTING ORDER   #
 	#=====================================#
 
 	def CharsSortingOrder()
@@ -51809,6 +51819,10 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return This.CharsSortingOrder()
 			
 
+	  #---------------------------------------------------------------------------#
+	 #  CHECHKING IF THE STRING HAS SAME CHARS SORTING ORDER AS AN OTHER STRING  #
+	#---------------------------------------------------------------------------#
+
 	def HasSameCharsSortingOrderAs(pcOtherStr)
 
 		oTemp = new stzString(pcOtherStr)
@@ -51824,6 +51838,10 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def HasSameSortingOrderAs(pcOtherStr)
 			return This.HasSameCharsSortingOrderAs(pcOtherStr)
 
+	  #--------------------------------------------------#
+	 #  CHECKING OF THE CHARS OF THE STRING ARE SORTED  #
+	#--------------------------------------------------#
+
 	def CharsAreSorted()
 		if This.CharsAreSortedInAscending() or
 		   This.CharsAreSortedInDescending()
@@ -51834,6 +51852,10 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		def IsSorted()
 			return This.CharsAreSorted()
+
+	  #---------------------------------------------------------------#
+	 #  CHECKING IF THE CHARS OF THE STRING ARE SORTED IN ASCENDING  #
+	#---------------------------------------------------------------#
 
 	def CharsAreSortedInAscending()
 		/*
@@ -51856,6 +51878,10 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def IsSortedInAscending()
 			return This.CharsAreSortedInAscending()
 
+	  #----------------------------------------------------------------#
+	 #  CHECKING IF THE CHARS OF THE STRING ARE SORTED IN DESCENDING  #
+	#----------------------------------------------------------------#
+
 	def CharsAreSortedInDescending()
 		/*
 		The idea is to reverse the string, and check if its reversed
@@ -51872,15 +51898,34 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def IsSortedInDescending()
 			return This.CharsAreSortedInDescending()
 
+	  #------------------------------------------------#
+	 #  SORTING THE CHARS OF THE STRING IN ASCENDING  #
+	#------------------------------------------------#
+
 	def SortCharsInAscending()
 		
-		aResult = This.CharsQ().SortInAscendingQ().ToStzListOfStrings().Concatenated()
+		acChars = This.Chars()
+		nLen = len(acChars)
 
-		This.Update( aResult )
+		acChars = ring_sort(acChars)
+
+		cResult = ""
+
+		for i = 1 to nLen
+			cResult += acChars[i]
+		next
+
+		This.UpdateWith( cResult )
+
+		#< @FunctionFluentForm
 
 		def SortCharsInAscendingQ()
 			This.SortCharsInAscending()
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def SortInAscending()
 			This.SortCharsInAscending()
@@ -51888,7 +51933,23 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			def SortInAscendingQ()
 				This.SortInAscending()
 				return This
-			
+
+		def SortChars()
+			This.SortCharsInAscending()
+
+			def SortCharsQ()
+				return This.SortCharsInAscendingQ()
+
+		def Sort()
+			This.SortCharsInAscending()
+
+			def SortQ()
+				return This.SortCharsInAscendingQ()
+
+		#>
+
+	#--
+
 	def StringWithCharsSortedInAscending()
 		cResult = This.Copy().SortCharsInAscendingQ().Content()
 		return cResult
@@ -51899,15 +51960,40 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def Sorted()
 			return This.SortedInAscending()
 
-	def SortCharsInDescending()
-		aReversed = ListReverse( This.SortCharsInAscendingQ().Chars() )
-		cResult = StzListOfStringsQ(aReversed).Concatenated()
+		def CharSorted()
+			return This.SortedInAscending()
 
-		This.Update( cResult )
+		def CharsSortedInAscending()
+			return This.SortedInAscending()
+
+	  #-------------------------------------------------#
+	 #  SORTING THE CHARS OF THE STRING IN DESCENDING  #
+	#-------------------------------------------------#
+
+	def SortCharsInDescending()
+
+		acChars = This.Chars()
+		nLen = len(acChars)
+
+		acChars = ring_sort(acChars)
+
+		cResult = ""
+
+		for i = nLen to 1 step - 1
+			cResult += acChars[i]
+		next
+
+		This.UpdateWith( cResult )
+
+		#< @FunctionFluentForm
 
 		def SortCharsInDescendingQ()
 			This.SortCharsInDescending()
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def SortInDescending()
 			This.SortCharsInDescending()
@@ -51915,13 +52001,22 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			def SortInDescendingQ()
 				This.SortInDescending()
 				return This
-			
+
+		#>
+
+	#--
+
 	def StringWithCharsSortedInDescending()
-		cResult = This.Copy().SortCharsInDescendingQ().Content()
+		cResult = This.Copy().SortInDescendingQ().Content()
 		return cResult
 
 		def SortedInDescending()
-			return This.StringWithCharsSortedInDescending()
+			cResult = This.StringWithCharsSortedInDescending()
+			return cResult
+
+		def CharsSortedInDescending()
+			cResult = This.StringWithCharsSortedInDescending()
+			return cResult
 
 	  #============================================================#
 	 #     COMPARING THE STRING TO OTHER STRINGS USING UNICODE    #

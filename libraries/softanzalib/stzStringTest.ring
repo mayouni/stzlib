@@ -1,11 +1,13 @@
 load "stzlib.ring"
 
+/*-------
+
 pron()
 
 StzNamedStringQ(:myname = "Mansour") {
 
 	? Name()
-	#--> :myage
+	#--> :myname
 
 	? Content()
 	#--> "Mansour"
@@ -16,6 +18,7 @@ StzNamedStringQ(:myname = "Mansour") {
 }
 
 proff()
+#--> Executed in 0.04 second(s)
 
 /*========
 
@@ -7639,59 +7642,88 @@ o1.ReplaceSubstringsWithMarquersCS( [ "ring", "python", "ruby", "PHP" ], :CS = F
 #--> "#1 can be compared to #2, #3 and #4."
 
 /*----------------------
+*/
+StartProfiler()
 
-tartProfiler()
-
-	aMyChildren = [ "Teeba", "Haneen", "Hussein" ]
+	acMyKids = [ "Teeba", "Haneen", "Hussein" ]
 	
-	o1 = new stzString("My two children are #1, #2 and #3!")
+	o1 = new stzString("My three kids are #1, #2 and #3!")
 	
-	o1.ReplaceMarquers(:with = aMyChildren)
+	o1.ReplaceMarquers(:with = acMyKids)
 	? o1.Content() + NL
-	#--> My two children are Teeba, Haneen and Hussein!
+	#--> My three kids are Teeba, Haneen and Hussein!
 	
-	o1.ReplaceSubStringsWithMarquers(aMyChildren)
+	o1.ReplaceSubStringsWithMarquers(acMyKids)
 	? o1.Content() + NL
-	#--> My two children are #1, #2 and #3!
+	#--> My three kids are #1, #2 and #3!
 	
 	o1.SortMarquersInDescending()
 	? o1.Content() + NL
-	#--> My two children are #3, #2 and #1!
+	#--> My threz kids are #3, #2 and #1!
 	
-	o1.ReplaceMarquers(:With = aMyChildren)
+	o1.ReplaceMarquers(:With = acMyKids)
 	? o1.Content()
-	#--> My two children are Hussein, Haneen and Teeba!
+	#--> My three kids are Hussein, Haneen and Teeba!
 
 StopProfiler()
 
 /*=====================
 
-o1 = new stzString("BCAADDEFAGTILNXV")
+pron()
 
-? o1.SortedInAscending()	#--> AAABCDDEFGILNTVX
-? o1.IsSortedInAscending()	#--> FALSE
+StzStringQ("BCAADDEFAGTILNXV") {
 
-? o1.SortedInDescending()	#--> XVTNLIGFEDDCBAAA
-? o1.IsSortedInDescending()	#--> FALSE
+	? SortedInAscending()
+	#--> AAABCDDEFGILNTVX
+	
+	? IsSortedInAscending()
+	#--> FALSE
+	
+	? SortedInDescending()
+	#--> XVTNLIGFEDDCBAAA
+	
+	? IsSortedInDescending()
+	#--> FALSE
+	
+	? SortingOrder()
+	#--> :Unsorted
+	
+	Sort()
+	? Content()
+	#--> AAABCDDEFGILNTVX
+	
+	? SortingOrder()
+	#--> :ascending
+}
 
-? o1.SortingOrder()		#--> :Unsorted
+proff()
+# Executed in 0.21 second(s)
 
-/*----------------------
+/*-----------------------
 
-o1 = new stzString("BCAADDEFAGTILNXV")
-? o1.SortingOrder()	#--> :Unsorted
+pron()
 
-? o1.SortedInAscending() 	#--> AAABCDDEFGILNTVX
-? o1.SortedInDescending()	#--> XVTNLIGFEDDCBAAA
+Q("AAABCDDEFGILNTVX") {
+	IsSorted() 
+	#--> TRUE
 
-? Q("AAABCDDEFGILNTVX").IsSorted()	#--> TRUE
-? Q("AAABCDDEFGILNTVX").SortingOrder()	#--> :Ascending
+	? SortingOrder()
+	#--> :Ascending
+}
 
-? Q("XVTNLIGFEDDCBAAA").IsSorted()	#--> TRUE
-? Q("XVTNLIGFEDDCBAAA").SortingOrder()	#--> :Descending
+Q("XVTNLIGFEDDCBAAA") {
+	IsSorted()
+	#--> TRUE
+
+	SortingOrder()
+	#--> :Descending
+}
+
+proff()
+# Executed in 0.32 second(s) in Ring 1.18
+# Executed in 0.74 second(s) in Ring 1.17
 
 /*=======================
-*/
 
 pron()
 
@@ -7711,7 +7743,8 @@ o1 = new stzString("My name is Mansour. What's your name please?")
 #--> [ [ "name", [ [ 4, 7 ], [ 33, 36 ] ] ], [ "nothing", [ ] ], [ "please", [ [ 38, 43 ] ] ] ]
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.11 second(s) in Ring 1.17
+# Executed in 0.07 second(s) in Ring 0.07
 
 /*====================
 
@@ -8547,6 +8580,9 @@ StzStringQ("original text before hashing") {
 ? StzStringQ("RING and python").StringCase() #--> :hybridcase
 
 /*========== STRING PARTS ===========
+*/
+
+pron()
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 
@@ -8568,6 +8604,8 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 # 	[ "girl", "lowercase" ],
 # 	[ "!", NULL ]
 # ]
+
+proff()
 
 /*-----------------
 
