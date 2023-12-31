@@ -2340,7 +2340,7 @@ class stzString from stzObject
 		nLen = len(anPos)
 
 		for i = 1 to nLen
-			cCapChar = This.CharARQ(anPos[i]).Uppercased()
+			cCapChar = This.CharQ(anPos[i]).Uppercased()
 			This.ReplaceCharAtPosition(anPos[i], cCapChar)
 		next
 
@@ -4844,21 +4844,57 @@ class stzString from stzObject
 		bResult = StzListQ(This.Marquers()).ItemsAreSortedInDescending()
 		return bResult
 
+	#--
+
 	def MarquersSortedInAscending()
 		aResult = StzListQ(This.Marquers()).SortedInAscending()
 		return aResult
+
+		def MarquersSorted()
+			return This.MarquersSortedInAscending()
+	
+	def UniqueMarquersSortedInAscending()
+		aResult = StzListQ(This.UniqueMarquers()).SortedInAscending()
+		return aResult
+
+		def UniqueMarquersSorted()
+			return This.UniqueMarquersSortedInAscending()
+
+		def MarquersSortedInAscendingU()
+			return This.UniqueMarquersSortedInAscending()
+
+		def UniqueMarquersSortedU()
+			return This.UniqueMarquersSortedInAscending()
+
+	#--
 
 	def MarquersSortedInDescending()
 		aResult = StzListQ(This.Marquers()).SortedInDescending()
 		return aResult
 
+	def UniqueMarquersSortedInDescending()
+		aResult = StzListQ(This.UniqueMarquers()).SortedInDescending()
+		return aResult
+
+		def MarquersSortedInDescendingU()
+			return This.UniqueMarquersSortedInDescending()
+
+	#--
+
 	def MarquersPositionsSortedInAscending()
 		aResult = StzListQ(This.MarquersPositions()).SortedInAscending()
 		return aResult
 
+		def MarquersPositionsSorted()
+			return This.MarquersPositionsSortedInAscending()
+
+	#--
+
 	def MarquersPositionsSortedInDescending()
 		aResult = StzListQ(This.MarquersPositions()).SortedInDescending()
 		return aResult
+
+	#--
 
 	def MarquersAndPositionsSortedInAscending()
 		acMarquers  = This.MarquersSortedInAscending()
@@ -4871,7 +4907,7 @@ class stzString from stzObject
 		def MarquersSortedInAscendingAndTheirPositions()
 			return This.MarquersAndPositionsSortedInAscending()
 
-		def MarquersAndTheirPositionsSortedOInAscending()
+		def MarquersAndTheirPositionsSortedInAscending()
 			return This.MarquersAndPositionsSortedInAscending()
 
 		def MarquersSortedZ()
@@ -4879,6 +4915,54 @@ class stzString from stzObject
 
 		def MarquersSortedInAscendingZ()
 			return This.MarquersAndPositionsSortedInAscending()
+
+	def UniqueMarquersAndPositionsSortedInAscending()
+
+		aUniqueMarquers = This.UniqueMarquersSortedInAscending()
+		nLen = len(aUniqueMarquers)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aUniqueMarquers[i], This.FindAll(aUniqueMarquers[i]) ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def UniqueMarquersSortedInAscendingAndTheirPositions()
+			return This.UniqueMarquersAndPositionsSortedInAscending()
+
+		def UniqueMarquersAndTheirPositionsSortedInAscending()
+			return This.UniqueMarquersAndPositionsSortedInAscending()
+
+		def UniqueMarquersSortedZ()
+			return This.UniqueMarquersAndPositionsSortedInAscending()
+
+		def UniqueMarquersSortedInAscendingZ()
+			return This.UniqueMarquersAndPositionsSortedInAscending()
+
+		#--
+
+		def MarquersAndPositionsSortedInAscendingU()
+			return This.UniqueMarquersAndPositionsSortedInAscending()
+
+		def MarquersSortedInAscendingAndTheirPositionsU()
+			return This.UniqueMarquersAndPositionsSortedInAscending()
+
+		def MarquersAndTheirPositionsSortedInAscendingU()
+			return This.UniqueMarquersAndPositionsSortedInAscending()
+
+		def MarquersSortedZU()
+			return This.UniqueMarquersAndPositionsSortedInAscending()
+
+		def MarquersSortedInAscendingZU()
+			return This.UniqueMarquersAndPositionsSortedInAscending()
+
+		#>
+
+	#--
 
 	def MarquersAndPositionsSortedInDescending()
 		acMarquers  = This.MarquersSortedInDescending()
@@ -4896,6 +4980,49 @@ class stzString from stzObject
 
 		def MarquersSortedInDescendingZ()
 			return This.MarquersAndPositionsSortedInDescending()
+
+	def UniqueMarquersAndPositionsSortedInDescending()
+
+		aUniqueMarquers = This.UniqueMarquersSortedInDescending()
+		nLen = len(aUniqueMarquers)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aUniqueMarquers[i], This.FindAll(aUniqueMarquers[i]) ]
+		next
+
+		return aResult
+
+
+		#< @FunctionAlternativeForms
+
+		def UniqueMarquersSortedInDescendingAndTheirPositions()
+			return This.UniqueMarquersAndPositionsSortedInDescending()
+
+		def UniqueMarquersAndTheirPositionsSortedInDescending()
+			return This.UniqueMarquersAndPositionsSortedInDescending()
+
+		def UniqueMarquersSortedInDescendingZ()
+			return This.UniqueMarquersAndPositionsSortedInDescending()
+
+		#--
+
+		def MarquersAndPositionsSortedInDescendingU()
+			return This.UniqueMarquersAndPositionsSortedInDescending()
+
+		def MarquersSortedInDescendingAndTheirPositionsU()
+			return This.UniqueMarquersAndPositionsSortedInDescending()
+
+		def MarquersAndTheirPositionsSortedOInDescendingU()
+			return This.UniqueMarquersAndPositionsSortedInDescending()
+
+		def MarquersSortedInDescendingZU()
+			return This.UniqueMarquersAndPositionsSortedInDescending()
+
+		#>
+
+	#--
 
 	def MarquersAndSectionsSortedInAscending()
 		acMarquers  = This.MarquersSortedInAscending()
@@ -4918,6 +5045,8 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def MarquersSortedInAscendingAndTheirSections()
 			return This.MarquersAndSectionsSortedInAscending()
 
@@ -4927,6 +5056,53 @@ class stzString from stzObject
 		def MarquersSortedZZ()
 			return This.MarquersAndSectionsSortedInAscending()
 
+		#>
+
+	def UniqueMarquersAndSectionsSortedInAscending()
+
+		aUniqueMarquers = This.UniqueMarquersSortedInAscending()
+		nLen = len(aUniqueMarquers)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aUniqueMarquers[i], This.FindAsSections(aUniqueMarquers[i]) ]
+		next
+
+		return aResult
+
+
+		#< @FunctionAlternativeForms
+
+		def UniqueMarquersSortedInAscendingAndTheirSections()
+			return This.UniqueMarquersAndSecionsSortedInAscending()
+
+		def UniqueMarquersAndTheirSectionsSortedInAscending()
+			return This.UniqueMarquersAndSectionsSortedInAscending()
+
+		def UniqueMarquersSortedInAscendingZZ()
+			return This.UniqueMarquersAndSectionsSortedInAscending()
+
+		#--
+
+		def MarquersAndSectionsSortedInAscendingU()
+			return This.UniqueMarquersAndSectionsSortedInAscending()
+
+		def MarquersSortedInAscendingAndTheirSectionsU()
+			return This.UniqueMarquersAndSectionsSortedInAscending()
+
+		def MarquersAndTheirSectionsSortedOInAscendingU()
+			return This.UniqueMarquersAndSectionsSortedInAscending()
+
+		def MarquersSortedInAscendingZZU()
+			return This.UniqueMarquersAndSectionsSortedInAscending()
+
+		def MarquersSortedZZU()
+			return This.UniqueMarquersAndSectionsSortedInAscending()
+
+		#>
+
+	#--
 
 	def MarquersAndSectionsSortedInDescending()
 		acMarquers  = This.MarquersSortedInDescending()
@@ -4949,12 +5125,57 @@ class stzString from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def MarquersSortedInDescendingAndTheirSections()
 			return This.MarquersAndSectionsSortedInDescending()
 
 		def MarquersSortedInDescendingZZ()
 			return This.MarquersAndSectionsSortedInDescending()
 
+		#>
+
+	def UniqueMarquersAndSectionsSortedInDescending()
+
+		aUniqueMarquers = This.UniqueMarquersSortedInDescending()
+		nLen = len(aUniqueMarquers)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aUniqueMarquers[i], This.FindAsSections(aUniqueMarquers[i]) ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def UniqueMarquersSortedInDescendingAndTheirSections()
+			return This.UniqueMarquersAndSecionsSortedInDescending()
+
+		def UniqueMarquersAndTheirSectionsSortedInDescending()
+			return This.UniqueMarquersAndSectionsSortedInDescending()
+
+		def UniqueMarquersSortedInDescendingZZ()
+			return This.UniqueMarquersAndSectionsSortedInDescending()
+
+		#--
+
+		def MarquersAndSectionsSortedInDescendingU()
+			return This.UniqueMarquersAndSectionsSortedInDescending()
+
+		def MarquersSortedInDescendingAndTheirSectionsU()
+			return This.UniqueMarquersAndSectionsSortedInDescending()
+
+		def MarquersAndTheirSectionsSortedOInDescendingU()
+			return This.UniqueMarquersAndSectionsSortedInDescending()
+
+		def MarquersSortedInDescendingZZU()
+			return This.UniqueMarquersAndSectionsSortedInDescending()
+
+		#>
+
+	#--
 
 	def SortMarquersInAscending()
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
@@ -5080,7 +5301,7 @@ class stzString from stzObject
 		#>
 
 	  #------------------------------------------#
-	 #    REPLACING SUBSTRINGS WITH MARQUERS    # TODO: Test it!
+	 #    REPLACING SUBSTRINGS WITH MARQUERS    #
 	#==========================================#
 
 	def ReplaceSubstringsWithMarquersCS(pacSubstrings, pCaseSensitive)
@@ -5093,23 +5314,57 @@ class stzString from stzObject
 			acMarquers + ( "#" + i )
 		next
 
-		This.ReplaceManyByManyCS( acSubStrings, acMarquers, pCaseSensitive )
+		This.ReplaceManyByManyCS(acSubStrings, acMarquers, pCaseSensitive)
 
 		def ReplaceSubstringsWithMarquersCSQ(pacSubstrings, pCaseSensitive)
 			This.ReplaceSubstringsWithMarquersCS(pacSubstrings, pCaseSensitive)
 			return This
 
+		def MarkTheseSubStringsCS(pacSubStrings, pCaseSensitive)
+			This.ReplaceSubstringsWithMarquersCS(pacSubstrings, pCaseSensitive)
+
+			def MarkTheseSubStringsCSQ(acSubStrings, pCaseSensitive)
+				This.MarkTheseSubStringsCS(acSubStrings, pCaseSensitive)
+				return This
+
+		def MarkSubStringsCS(pacSubStrings, pCaseSensitive)
+			This.ReplaceSubstringsWithMarquersCS(pacSubstrings, pCaseSensitive)
+
+			def MarkSubStringsCSQ(pacSubStrings, pCaseSensitive)
+				This.MarkSubStringsCS(pacSubStrings, pCaseSensitive)
+				return This
+
 	def SubstringsReplacedWithMarquersCS(pacSubstrings, pCaseSensitive)
 		cResult = This.Copy().ReplaceSubstringsWithMarquersCSQ(pacSubstrings, pCaseSensitive).Content()
 		return cResult
+
+		def SubstringsMarquedCS(pacSubstrings, pCaseSensitive)
+			return This.SubstringsReplacedWithMarquersCS(pacSubstrings, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubstringsWithMarquers(pacSubstrings)
 		This.ReplaceSubstringsWithMarquersCS(pacSubstrings, :CaseSensitive = TRUE)
 
+		def MarkTheseSubStrings(pacSubStrings)
+			This.ReplaceSubstringsWithMarquers(pacSubstrings)
+
+			def MarkTheseSubStringsQ(pacSubStrings)
+				This.MarkTheseSubStrings(pacSubStrings)
+				return This
+
+		def MarkSubStrings(pacSubStrings)
+			This.ReplaceSubstringsWithMarquers(pacSubstrings)
+
+			def MarkSubStringsQ(pacSubStrings)
+				This.MarkSubStrings(pacSubStrings)
+				return This
+
 	def SubstringsReplacedWithMarquers(pacSubstrings)
 		return This.SubstringsReplacedWithMarquersCS(pacSubstrings, :CaseSensitive = TRUE)
+
+		def SubstringsMarqued(pacSubstrings)
+			return This.SubstringsReplacedWithMarquers(pacSubstrings)
 
 	  #------------------------#
 	 #    PARSING MARQUERS    #
@@ -6375,6 +6630,15 @@ class stzString from stzObject
 		cResult = This.Copy().RemoveDuplicatesCSQ(pCaseSensitive).Content()
 		return cResult
 
+		def WithoutDuplicatesCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		def WithoutDuplicationCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		def WithoutDuplicationsCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicates()
@@ -6387,6 +6651,15 @@ class stzString from stzObject
 	def DuplicatesRemoved()
 		aResult = This.Copy().RemoveDuplicatesQ().Content()
 		return aResult
+
+		def WithoutDuplicates()
+			return This.DuplicatesRemoved()
+
+		def WithoutDuplication()
+			return This.DuplicatesRemoved()
+
+		def WithoutDuplications()
+			return This.DuplicatesRemoved()
 
   	  #----------------------------------------------#
 	 #   REMOVING DUPLICATES OF A GIVEN SUBSTRING   #
@@ -28301,7 +28574,7 @@ class stzString from stzObject
 	#-- WYHOUT CASESENSITIVITY
 
 	def FindNthNext(n, pcSubStr, nStart)
-		return This.FindNthNext(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+		return This.FindNthNextCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
 
 		def FindNthNextZ(n, pcSubStr, nStart)
 			return This.FindNthNext(n, pcSubStr, nStart)
@@ -28474,40 +28747,56 @@ class stzString from stzObject
 	def FindNextCS(pcSubStr, nStart, pCaseSensitive)
 		#< QTBased | Uses: QString.IndexOf() >
 
-		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
-			nStart = nStart[2]
-		ok
+		if CheckParams()
 
-		if NOT isNumber(nStart)
-			StzRaise("Incorrect param type! nStart must be a number.")
-		ok
+			# Resolving pcSubStr param
 
-		# Resolving pCaseSensitive
+			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+				pcSubStr = pcSubStr[2]
+			ok
+	
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+	
+			# Resolving nStart param
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
+			if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
+				nStart = nStart[2]
+			ok
+	
+			if NOT isNumber(nStart)
+				StzRaise("Incorrect param type! nStart must be a number.")
+			ok
 
-		if isString(pCaseSensitive)
-			if Q(pCaseSensitive).IsOneOfThese([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+			# Resolving pCaseSensitive param
 
-				pCaseSensitive = TRUE
-			
-			but Q(pCaseSensitive).IsOneOfThese([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
-
-				pCaseSensitive = FALSE
+			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+				pCaseSensitive = pCaseSensitive[2]
+			ok
+	
+			if isString(pCaseSensitive)
+				if Q(pCaseSensitive).IsOneOfThese([
+					:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+	
+					pCaseSensitive = TRUE
+				
+				but Q(pCaseSensitive).IsOneOfThese([
+					:CaseInSensitive, :NotCaseSensitive, :NotCS,
+					:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+	
+					pCaseSensitive = FALSE
+				ok
+	
+			ok
+	
+			if NOT IsBoolean(pCaseSensitive)
+				stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 			ok
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
-		ok
-
-		# Doing the job
+		# Doing the job (Qt-side)
 
 		nResult = QStringObject().indexof(pcSubStr, nStart, pCaseSensitive) + 1
 
@@ -29397,18 +29686,22 @@ class stzString from stzObject
 
 	def FindW(pcCondition)
 
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCpndition[2]
-		ok
+		if CheckParams()
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCpndition[2]
+			ok
+	
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+
 		ok
 
 		oCondition = new stzString(pcCondition)
 
 		if oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
-			StzRaise("Incorrect syntax! pcCondition must contain either @char ir @substring but not both.")
+			StzRaise("Incorrect syntax! pcCondition must contain either @char or @substring but not both.")
 		ok
 
 		if oCondition.ContainsCS("@substring", :CS = FALSE)
@@ -29453,15 +29746,20 @@ class stzString from stzObject
 	# TODO: Add ..Where() alternative to all ..W() functions
 
 	def FindCharsW(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
+		if CheckParams()
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+
 		ok
 
 		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ')'
+
 		nLen = This.NumberOfChars()
 		anResult = []
 
@@ -53995,7 +54293,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			stzRaise("Incorrect param type! You must provide a string containing char")
 		ok
 
-		This.RemoveCharsW('@char = ' + @@(pcChar))
+		This.Remove(pcChar)
 
 		def RemoveCharQ(pcChar)
 			This.RemoveChar(pcChar)
@@ -57230,15 +57528,32 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 	def SpacifySubStringsUsingCS(pacSubStr, pcSep, pCaseSensitive)
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).isListOfStrings() )
-			stzRaise("Incorrect param! pacSubStr must be a list of strings.")
+		if CheckParams()
+
+			if NOT ( isList(pacSubStr) and Q(pacSubStr).isListOfStrings() )
+				stzRaise("Incorrect param! pacSubStr must be a list of strings.")
+			ok
+	
+	
+			if NOT ( isList(pacSubStr) and Q(pacSubStr).isListOfStrings() )
+				stzRaise("Incorrect param! pacSubStr must be a list of strings.")
+			ok
+
 		ok
 
+		acSubStr = StzListQ(pacSubStr).WithoutDuplicates()
+		nLen = len(acSubStr)
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).isListOfStrings() )
-			stzRaise("Incorrect param! pacSubStr must be a list of strings.")
-		ok
+		acNewSubStr = []
 
+		for i = 1 to nLen
+			acNewSubStr + ( pcSep + acSubStr[i] + pcSep )
+		next
+
+		This.ReplaceManyByManyCS(acSubStr, acNewSubStr, pCaseSensitive)
+		This.Trim()
+
+/*
 		# Removing duplicates from the provided substrings
 
 		pacSubStr = Q(pacSubStr).DuplicatesRemoved()
@@ -57284,7 +57599,7 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		next
 
 		This.SpacifySections(aSections)
-
+*/
 
 		#< @FunctionFluentForm
 
@@ -60415,7 +60730,8 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		# TODO: Replace for/in with for --> better performance
 		for cHexPrefix in HexPrefixes()
 			oCopy = This.Copy()
-			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
+			oCopy.RemoveFromLeft("-")
+			oCopy.RemoveFromLeft("+")
 
 			if oCopy.StartsWithCS(cHexPrefix, :CaseSensitive = FALSE)
 				bTemp = TRUE
@@ -60831,13 +61147,18 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			
 
 	def CharsU()
-
 		acResult = U( This.Chars() )
-
 		return acResult
+
+		def UniqueChars()
+			return This.CharsU()
 
 	def NumberOfCharsU()
 		nResult = len( This.CharsU() )
+		return nResult
+
+		def NumberOfUniqueChars()
+			return This.NumberOfCharsU()
 
 	def ToListOfStzChars()
 		acChars = This.Chars()
