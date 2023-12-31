@@ -7674,10 +7674,10 @@ proff()
 # Executed in 7.74 second(s) in Ring 1.17
 
 /*---------------------- 
-*/
+
 pron()
 
-StzStringQ("My name is #1, my age is #2, and my job is #3.") {	
+Q("My name is #1, my age is #2, and my job is #3.") {	
 	? MarquersAreSortedInAscending() #--> TRUE
 }
 
@@ -7691,30 +7691,52 @@ proff()
 
 /*---------------------- 
 
+pron()
+
 StzStringQ("My name is #3, my age is #2, and my job is #1.") {	
-	? MarquersAreSortedIndescending() #--> TRUE
+	? MarquersAreSortedIndescending()
+	#--> TRUE
 }
 
 StzStringQ("My name is #2, my age is #1, and my job is #3.") {	
-	? MarquersAreSortedInDescending() #--> FALSE
+	? MarquersAreSortedInDescending()
+	#--> FALSE
 }
 
-/*---------------------- 
+proff()
+# Executed in 0.29 second(s) in Ring 1.18
+
+
+pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3.") {	
-	? MarquersAreSorted()		#--> TRUE
-	? MarquersSortingOrder() 	#--> :Ascending
+	? MarquersAreSorted()
+	#--> TRUE
+
+	? MarquersSortingOrder()
+	#--> :Ascending
 }
 
+proff()
+# Executed in 0.31 second(s)
+
 /*---------------------- 
+
+pron()
 
 StzStringQ("My name is #3, my age is #2, and my job is #1.") {	
-	? MarquersAreSorted()		#--> TRUE
-	? MarquersSortingOrder() 	#--> :Descending
+	? MarquersAreSorted()
+	#--> TRUE
+
+	? MarquersSortingOrder()
+	#--> :Descending
 }
 
+proff()
+# Executed in 0.31 second(s)
+
 /*---------------------- 
-*/
+
 pron()
 
 StzStringQ("My name is #1, my age is #3, and my job is #2.") {	
@@ -7731,8 +7753,8 @@ proff()
 # Executed in 0.31 second(s) in Ring 1.18
 # Executed in 0.53 second(s) in Ring 1.17
 
-/* ----------------------
-*/
+/*----------------------
+
 pron()
 
 StzStringQ("The first candidate is #3, the second is #1, while the third is #2!") {	
@@ -7753,7 +7775,7 @@ proff()
 # Executed in 0.79 second(s) in Ring 1.17
 
 /*----------------------
-*/
+
 pron()
 
 StzStringQ("The first candidate is #3, the second is #1, while the third is #2!") {
@@ -7773,7 +7795,7 @@ proff()
 # Executed in 2.22 second(s) in Ring 1.17
 
 /*---------------------- 
-*/
+
 pron()
 
 o1 = new stzString("My name is #2, may age is #1, and my job is #3.")
@@ -7790,15 +7812,36 @@ pron()
 
 StzStringQ("My name is #1, my age is #3, and my job is #2. Again: my name is #1!") {	
 
-	? @@( MarquersAndPositionsSortedInAscending() )
+	? @@( MarquersSortedZ() ) + NL
 	#--> [ [ "#1", 12 ], [ "#1", 26 ], [ "#2", 44 ], [ "#3", 66 ] ]
 
-	? @@( MarquersAndSectionsSortedInAscending() )
+	? @@( MarquersSortedZZ() )
 	#--> [ [ "#1", [ 12, 13 ] ], [ "#1", [ 26, 27 ] ], [ "#2", [ 44, 45 ] ], [ "#3", [ 66, 67 ] ] ]
 }
 
 proff()
 # Executed in 0.66 second(s) in Ring 1.18
+
+/*---------------------- 
+
+pron()
+
+StzStringQ("My name is #1, my age is #3, and my job is #2. Again: my name is #1!") {	
+
+	? @@( MarquersSortedZU() ) + NL
+	#--> [ [ "#1", [ 12, 66 ] ], [ "#2", [ 44 ] ], [ "#3", [ 26 ] ] ]
+
+	? @@( MarquersSortedZZU() )
+	#--> [
+	# 	[ "#1", [ [ 12, 13 ], [ 66, 67 ] ] ],
+	# 	[ "#2", [ [ 44, 45 ] ] ],
+	# 	[ "#3", [ [ 26, 27 ] ] ]
+	# ]
+}
+
+proff()
+# Executed in 0.39 second(s) in Ring 1.18
+# Executed in 0.57 second(s) in Ring 1.17
 
 /*----------------------
 
@@ -7824,20 +7867,25 @@ proff()
 pron()
 
 o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
-o1.ReplaceSubstringsWithMarquersCS( [ "Ring", "Python", "Ruby", "PHP" ], :CS = TRUE )
+
+o1.MarkTheseSubStringsCS( [ "Ring", "Python", "Ruby", "PHP" ], :CS = TRUE )
+# Or ReplaceSubstringsWithMarquersCS
+
 ? o1.Content()
 #--> "#1 can be compared to #2, #3 and #4."
 
 o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
-o1.ReplaceSubstringsWithMarquersCS( [ "ring", "python", "ruby", "PHP" ], :CS = FALSE )
+o1.MarkSubStringsCS( [ "ring", "python", "ruby", "PHP" ], :CS = FALSE )
+# Or ReplaceSubstringsWithMarquersCS
+
 ? o1.Content()
 #--> "#1 can be compared to #2, #3 and #4."
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*----------------------
-*/
+
 StartProfiler()
 
 	acMyKids = [ "Teeba", "Haneen", "Hussein" ]
@@ -7943,23 +7991,30 @@ o1 = new stzString("My name is Mansour. What's your name please?")
 #--> [ [ "name", [ [ 4, 7 ], [ 33, 36 ] ] ], [ "nothing", [ ] ], [ "please", [ [ 38, 43 ] ] ] ]
 
 proff()
+# Executed in 0.07 second(s) in Ring 1.18
 # Executed in 0.11 second(s) in Ring 1.17
-# Executed in 0.07 second(s) in Ring 0.07
 
 /*====================
 
+pron()
+
 # The "A":"E" syntax is a beautiful feature of Ring:
 
-? "A" : "E"	#--> [ "A", "B", "C", "D", "E" ]
+? "A" : "E"
+#--> [ "A", "B", "C", "D", "E" ]
 
 # And it works backward also like this:
 
-? "E" : "A"	#--> [ "E", "D", "C", "B", "A" ]
+? "E" : "A"
+#--> [ "E", "D", "C", "B", "A" ]
 
 # Softanza reproduces it using UpTo() and DownTo() functions:
 
-? Q("A").UpTo("E")	#--> [ "A", "B", "C", "D", "E" ]
-? Q("E").DownTo("A")	#--> [ "E", "D", "C", "B", "A" ]
+? Q("A").UpTo("E")
+#--> [ "A", "B", "C", "D", "E" ]
+
+? Q("E").DownTo("A")
+#--> [ "E", "D", "C", "B", "A" ]
 
 # And extends it to cover any Unicode char not only ASCII chars
 # as it is the case for the Ring syntax:
@@ -7967,61 +8022,148 @@ proff()
 ? Q("ب").UpTo("ج") 	#--> [ "ب", "ة", "ت", "ث", "ج" ]
 ? Q("ج").DownTo("ب")	#--> [ "ج", "ث", "ت", "ة", "ب" ]
 
+proff()
+# Executed in 0.14 second(s) in Ring 1.18
+# Executed in 0.24 second(s) in Ring 1.17
+
 /*----------------------
 
+pron()
+
 o1 = new stzString("I Work For Afterward")
-? o1.RemoveCharQ(" ").Content() #--> IWorkForAfterward
+? o1.RemoveCharQ(" ").Content()
+#--> IWorkForAfterward
 
 # Or you can say it more naturally:
 ? Q("I Work For Afterward").CharRemoved(" ")
+
 # Or even more expressively:
 ? Q("I Work For Afterward").WithoutSpaces()
 # Or if you prefer:
 ? Q("I Work For Afterward").SpacesRemoved()
 
+proff()
+# Executed in 0.03 second(s)
+
 /*======================
 
-? StzStringQ("9876543210").Reversed()	#--> 0123456789
+pron()
+
+? Q("9876543210").Reversed()
+#--> 0123456789
+
+proff()
+# Executed in 0.04 second(s)
 
 /*----------------------
+
+pron()
 
 StzStringQ("73964532041") {
-	? SortedInAscending()	#--> 01233445679
-	? SortedInDescending()	#--> 97654433210
+
+	? SortedInAscending()
+	#--> 01233445679
+
+	? SortedInDescending()
+	#--> 97654433210
 }
+
+proff()
+# Executed in 0.04 second(s)
 
 /*----------------------
 
-? StzStringQ("01233445679").IsSortedInAscending()	#--> TRUE
-? StzStringQ("01233445679").IsSortedInDescending()	#--> FALSE
+pron()
+
+? Q("01233445679").IsSortedInAscending()
+#--> TRUE
+
+? Q("01233445679").IsSortedInDescending()
+#--> FALSE
+
+proff()
+# Executed in 0.08 second(s)
 
 /*======================
 
-? StzStringQ("Arc").IsAnagramOfCS("car", :CS = FALSE)	#--> TRUE
+pron()
+
+? StzStringQ("Arc").IsAnagramOfCS("car", :CS = FALSE)
+#--> TRUE
+
+proff()
+# Executed in 0.06 second(s)
 
 /*=====================
 
+pron()
+
+o1 = new stzString("IloveRingprogramminglanguage!")
+o1.SpacifySubStringsUsing( [ "love", "programming" ], " " )
+? o1.Content()
+#--> 
+proff()
+# Executed in 0.05 second(s)
+
+/*---------------------
+
+pron()
+
+? StzCCodeQ('@char = "I"').Transpiled()
+#--> This[@i]  = "I"
+
+proff()
+# Executed in 0.18 second(s)
+
+/*---------------------
+
+pron()
+
 o1 = new stzString("KALIDIA")
+? o1.FindW('@char = "I"')
+#--> [ 4, 6 ]
+
 o1.InsertBeforeW( '{ @char = "I" }', "*" )
 ? o1.Content() #--> KAL*ID*IA
 
+proff()
+# Executed in 0.42 second(s) in Ring 1.18
+# Executed in 0.52 second(s) in Ring 1.17
+
 /*----------------------
+
+pron()
 
 o1 = new stzString("KALIDIA")
 o1.InsertAfterW( '{ @char = "I" }', "*" )
 ? o1.Content() #--> KALI*DI*A
 
+proff()
+# Executed in 0.26 second(s) in Ring 1.18
+# Executed in 0.28 second(s) in Ring 1.17
+
 /*----------------------
 
+pron()
+
 StzStringQ("12500;NAME;10;0") {
-	? NextOccurrence( :Of = ";", :StartingAt = 1 ) 		#--> 6
-	? NextNthOccurrence( 2, :Of = ";", :StartingAt = 5) 	#--> 11
+
+	? NextOccurrence( :Of = ";", :StartingAt = 1 )
+	#--> 6
+
+	? NextNthOccurrence( 2, :Of = ";", :StartingAt = 5)
+	#--> 11
 }
+
+proff()
+# Executed in 0.05 second(s)
 
 /*=======================
 
+pron()
+
 # One of the design goals of Softanza is to be as consitent as possible
-# in managing Strings and Lists. In other terms, What works for one,
+# in managing Strings and Lists. In other terms, what works for one,
 # should work for the other, preserving the same semantics.
 
 # To show this, the following code that plays with leading and trailing
@@ -8029,38 +8171,62 @@ StzStringQ("12500;NAME;10;0") {
 
 StzStringQ( "***Ring++" ) {
 
-	? HasLeadingChars() #--> TRUE
-	? NumberOfLeadingChars() # 3
-	? @@( LeadingChars() ) #--> "***"
-	
-	? HasTrailingChars() #--> TRUE
-	? NumberOfTrailingChars() # 2
-	? @@( TrailingChars() ) #--> "++"
+	? HasLeadingChars()
+	#--> TRUE
 
-	ReplaceLeadingChars(:With = "+")
-	? Content() #--> "+++Ring++"
+	? NumberOfLeadingChars()
+	#--> 3
+
+	? @@( LeadingChars() )
+	#--> "***"
 	
-	ReplaceLeadingAndTrailingChars(:With = "*")
-	? Content() #--> "***Ring**"
+	? HasTrailingChars()
+	#--> TRUE
+
+	? NumberOfTrailingChars()
+	#--> 2
+
+	? @@( TrailingChars() )
+	#--> "++"
+
+	ReplaceEachLeadingChar(:With = "+")
+	? Content()
+	#--> "+++Ring++"
+	
+	//ReplaceLeadingAndTrailingChars(:With = "*")
+	ReplaceEachLeadingAndTrailingChar(:With = "*")
+	? Content()
+	#--> "***Ring**"
 }
 
 # works quiet the same with leading and trailing items items of this list:
 
 StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 
-	? HasLeadingItems() #--> TRUE
-	? NumberOfLeadingItems() # 3
-	? @@( LeadingItems() ) #--> [ "*", "*", "*" ]
+	? HasLeadingItems()
+	#--> TRUE
+
+	? NumberOfLeadingItems()
+	#--> 3
+
+	? @@( LeadingItems() )
+	#--> [ "*", "*", "*" ]
 	
-	? HasTrailingItems() #--> TRUE
-	? NumberOfTrailingItems() # 2
-	? @@( TrailingItems() ) #--> [ "+", "+" ]
+	? HasTrailingItems()
+	#--> TRUE
+
+	? NumberOfTrailingItems()
+	#--> 2
+	? @@( TrailingItems() )
+	#--> [ "+", "+" ]
 
 	ReplaceLeadingItems(:With = "+")
-	? @@( Content() ) #--> [ "+", "+", "+", "R", "i", "n", "g", "+", "+" ]
+	? @@( Content() )
+	#--> [ "+", "+", "+", "R", "i", "n", "g", "+", "+" ]
 	
 	ReplaceLeadingAndTrailingItems(:With = "*")
-	? @@( Content() ) #--> [ "*", "*", "*", "R", "i", "n", "g", "*", "*" ]
+	? @@( Content() )
+	#--> [ "*", "*", "*", "R", "i", "n", "g", "*", "*" ]
 }
 
 # Note that, as far as strings are concerned, this feature is sensitive to case,
@@ -8068,53 +8234,104 @@ StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 
 StzStringQ("eeEEeeTUNISeeEE") {
 
-	? NumberOfLeadingCharsCS(:CaseSensitive = FALSE)	#--> 6
-	? LeadingCharsCS(:CaseSensitive = FALSE)		#--> eeEEee
+	? NumberOfLeadingCharsCS(:CaseSensitive = FALSE)
+	#--> 6
 
-	? NumberOfLeadingCharsCS(:CaseSensitive = TRUE)		#--> 2
-	? LeadingCharsCS(:CaseSensitive = TRUE)			#--> ee
+	? LeadingCharsCS(:CaseSensitive = FALSE)
+	#--> eeEEee
 
-	? LeadingCharIsCS("E", :CaseSensitive = FALSE)	+ NL	#--> TRUE
+	? NumberOfLeadingCharsCS(:CaseSensitive = TRUE)
+	#--> 2
+
+	? LeadingCharsCS(:CaseSensitive = TRUE)
+	#--> ee
+
+	? LeadingCharIsCS("E", :CaseSensitive = FALSE)	+ NL
+	#--> TRUE
 
 	#--
 
-	? NumberOfTrailingCharsCS(:CaseSensitive = FALSE)	#--> 4
-	? TrailingCharsCS(:CaseSensitive = FALSE)		#--> EEee
+	? NumberOfTrailingCharsCS(:CaseSensitive = FALSE)
+	#--> 4
 
-	? NumberOfTrailingCharsCS(:CaseSensitive = TRUE)	#--> 2
-	? TrailingCharsCS(:CaseSensitive = TRUE)		#--> EE
+	? TrailingCharsCS(:CaseSensitive = FALSE)
+	#--> EEee
 
-	? LeadingCharIsCS("e", :CaseSensitive = FALSE)		#--> TRUE
+	? NumberOfTrailingCharsCS(:CaseSensitive = TRUE)
+	#--> 2
+
+	? TrailingCharsCS(:CaseSensitive = TRUE)
+	#--> EE
+
+	? LeadingCharIsCS("e", :CaseSensitive = FALSE)
+	#--> TRUE
 
 }
 
-# NOTE: Case sensitivity is supported in Lists with some functions. In the future
-# all functions wil be covered.
+proff()
+# Executed in 0.35 second(s) in Ring 1.18
+# Executed in 0.61 second(s) in Ring 1.17
+
+# NOTE: Case sensitivity is supported in Lists with some functions.
+# In the future, all functions wil be covered.
 
 /*=====================
 
+pron()
+
 o1 = new stzString( "----@@--@@-------@@----@@---")
+
 o1.ReplaceNextNthOccurrence(2, :Of = "@@", :StartingAt = 12, :With = "##")
-? o1.Content() #--> ----@@--@@-------@@----##---
+? o1.Content()
+#--> ----@@--@@-------@@----##---
+
+proff()
+# Executed in 0.07 second(s) in Ring 1.18
+# Executed in 0.05 second(s) in Ring 1.17
 
 /*----------------------
 
+pron()
+
 o1 = new stzString( "----@@--@@-------@@----@@---")
+
 o1.ReplacePreviousNthOccurrence(2, :Of = "@@", :StartingAt = 22, :With = "##")
-? o1.Content() #--> ----@@--##-------@@----@@---
+? o1.Content()
+#--> ----@@--##-------@@----@@---
+
+proff()
+# Executed in 0.07 second(s)
 
 /*======================
 
-? Q("DIGIT ZERO").IsCharName()			#--> TRUE
-? Q("LATIN CAPITAL LETTER O").IsCharName()	#--> TRUE
-? Q("JAVANESE PADA PISELEH").IsCharName()	#--> TRUE
+pron()
+
+? Q("DIGIT ZERO").IsCharName()
+#--> TRUE
+
+? Q("LATIN CAPITAL LETTER O").IsCharName()
+#--> TRUE
+
+? Q("JAVANESE PADA PISELEH").IsCharName()
+#--> TRUE
+
+proff()
+# Executed in 0.06 second(s)
 
 /*----------------------
 
-o1 = new stzString("ar_Arab_TN")
-? o1.IsLocaleAbbreviation() #--> TRUE
+pron()
 
-/*--------------------- TODO: Retest after completing Split and revising stzLocale
+o1 = new stzString("ar_Arab_TN")
+? o1.IsLocaleAbbreviation()
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
+
+/*--------------------- TODO: review some stzLocale outputs...
+
+pron()
 
 # The standard (ISO) form of a locale is <langauge>_<script>_<country> where:
 # 	-> <language> is an abbreviation of 2 or 3 lowercase letters
@@ -8131,15 +8348,18 @@ o1 = new stzString("ar_Arab_TN")
 #
 # All these forms are supported by Softanza, but not only them!
 #
-# In fact, both of these stadard forms return TRUE
+# In fact, both of these standard forms return TRUE
 
-? StzStringQ("ar_arab_tn").IsLocaleAbbreviation()	#--> TRUE
+? StzStringQ("ar_arab_tn").IsLocaleAbbreviation()
+#--> TRUE
 
-? StzStringQ("ar_TN").IsLocaleAbbreviation()		#--> TRUE
+? StzStringQ("ar_TN").IsLocaleAbbreviation()
+#--> TRUE
 # (as a side note, Softanza doesn't care of the case, so do not feel any pressure)
 
 # But this one also return TRUE
-? StzStringQ("Arab_TN").IsLocaleAbbreviation()		#--> TRUE
+? StzStringQ("Arab_TN").IsLocaleAbbreviation()
+#--> TRUE
 # Which corresponds to the non-standard form <script>_<country>.
 
 # And this is accepted by Softanza, because when you use it to create
@@ -8155,13 +8375,15 @@ o1 = new stzString("ar_Arab_TN")
 # trying to induce Softanza in error by providing sutch an abbreviation
 # form <scrip>_<language>:
 
-? StzStringQ("arab_ar").IsLocaleAbbreviation()	#--> FALSE
+? StzStringQ("arab_ar").IsLocaleAbbreviation()
+#--> FALSE
 
 # The point is that the first abbreviation is a script ("arab" -> arabic),
 # and that, conforming to the standard, the second one must be an abbreviation
 # of a country ("ar" -> :Argentina). Try this:
 
-? StzCountryQ("ar").Name()	#--> argentina
+? StzCountryQ("ar").Name()
+#--> argentina
 
 # And because :Argentina do not have arabic, neigher as a spoken language nor
 # a written script, then the returned result is FALSE!
@@ -8170,107 +8392,193 @@ o1 = new stzString("ar_Arab_TN")
 # where arabic script is (historically) used in writtan turkish and persian
 # languages, than the abbreviation is accepted to be well formed
 
-? StzStringQ("arab_tk").IsLocaleAbbreviation()	# !--> TRUE	TODO: Check it!
+? StzStringQ("arab_tk").IsLocaleAbbreviation()
+# !--> TRUE	TODO: Check it!
 
 # And, therefore, you can use it to create locale object:
 
-? StzLocaleQ("arab_tk").Abbreviation()		#--> ar_Arab_TK	TODO: Check it!
-? StzLocaleQ("ar_Arab_TK").CountryName()	# !--> :turkey NOT :Egypt
+? StzLocaleQ("arab_tk").Abbreviation()
+#--> ar_Arab_TK	TODO: Check it!
+
+? StzLocaleQ("ar_Arab_TK").CountryName()
+# !--> :turkey NOT :Egypt
+
+proff()
+# Executed in 0.14 second(s)
 
 /*=====================
 
+pron()
+
 o1 = new stzString("ritekode")
 
-? o1.IsEqualTo("ritekode")			#--> TRUE
-? o1.IsEqualToCS("RiteKode", :CS = FALSE)	#--> TRUE
-? o1.IsEqualToCS("RiteKode", :CS = TRUE)	#--> FALSE
+? o1.IsEqualTo("ritekode")
+#--> TRUE
+
+? o1.IsEqualToCS("RiteKode", :CS = FALSE)
+#--> TRUE
+
+? o1.IsEqualToCS("RiteKode", :CS = TRUE)
+#--> FALSE
+
+proff()
+# Executed in 0.05 second(s)
 
 /*--------------------
 
-? Q("date").IsLowercase() #--> TRUE
-? Q("date").IsLowercaseOf("DATE") #--> TRUE
+pron()
+
+? Q("date").IsLowercase()
+#--> TRUE
+
+? Q("date").IsLowercaseOf("DATE")
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
 
 /*--------------------
+
+pron()
 
 # Here we take an example of a greek word
 
-? TQ("Σίσυφος").Script()	#--> greek
-? Q("Σίσυφος").StringCase()	#--> capitalcase
-? Q("ΣΊΣΥΦΟΣ").StringCase()	#--> uppercase
-? Q("ΣΊΣΥΦΟΣ").Lowercased()	#--> σίσυφοσ
-? Q("σίσυφοσ").Uppercased()	#--> ΣΊΣΥΦΟΣ
-? Q("σίσυφοσ").Capitalcased()	#--> Σίσυφοσ
+? TQ("Σίσυφος").Script()
+#--> greek
 
-? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", :CS = FALSE)	#--> TRUE
-? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", :CS = TRUE)	#--> FALSE
+? Q("Σίσυφος").StringCase()
+#--> capitalcase
+
+? Q("ΣΊΣΥΦΟΣ").StringCase()
+#--> uppercase
+
+? Q("ΣΊΣΥΦΟΣ").Lowercased()
+#--> σίσυφοσ
+
+? Q("σίσυφοσ").Uppercased()
+#--> ΣΊΣΥΦΟΣ
+
+? Q("σίσυφοσ").Capitalcased()
+#--> Σίσυφοσ
+
+? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", :CS = FALSE)
+#--> TRUE
+
+? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", :CS = TRUE)
+#--> FALSE
+
+proff()
+# Executed in 0.11 second(s) in Ring 1.18
+# Executed in 0.21 second(s) in Ring 1.17
 
 /*--------------------
+
+pron()
 
 # Let's take this example of a turkish letter ı that should be
 # uppercased to İ and not I
 
-? TQ("ı").Script()	# latin (in fact this is a turk letter) (TQ --> stzText object)
-? Q("ı").StringCase()	# lowercase
-? Q("İ").StringCase()	# uppercase
+? TQ("ı").Script()
+#--> latin (in fact this is a turk letter) (TQ --> stzText object)
+
+? Q("ı").StringCase()
+#--> lowercase
+
+? Q("İ").StringCase()
+#--> uppercase
+
+proff()
+# Executed in 0.07 second(s)
 
 /*--------------------
 
+pron()
+
 # This sample shows a logical error in Qt unicode:
 
-? Q("ı").UppercasedInLocale("tr-TR")	# ERROR: --> I but !--> İ
+? Q("ı").UppercasedInLocale("tr-TR")	# ERROR: --> I but must be İ
 ? Q("İ").Lowercased()	# i
-? Q("İ").LowercasedInLocale("tr-TR")	# ERROR: --> i but !--> ı
+? Q("İ").LowercasedInLocale("tr-TR")	# ERROR: --> i but must be ı
 
 # In fact, this is a logical bug in Qt as demonstrated here:
 
 oQLocale = new QLocale("tr-TR")
-? oQLocale.toupper("ı") # ERROR: --> I but !--> İ
+? oQLocale.toupper("ı") # ERROR: --> I but must be İ
 
 # TODO: solve this by implementing the specialCasing of unicode as
 # described in this file:
 # http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 
+proff()
+# Executed in 0.07 second(s)
+
 /*--------------------
+
+pron()
 
 # Do you think "ê" and "ê" are the same?
 # If one should trust the visual shape of these two strings, then yes...
 # but, the truth, is that they are different.
 
 # In fact, both Ring and Softanza know it:
-? "ê" = "ê" 			#--> FALSE
-? Q("ê").IsEqualTo("ê")		#--> FALSE
+
+? "ê" = "ê"
+#--> FALSE
+
+? Q("ê").IsEqualTo("ê")
+#--> FALSE
 
 # and that's because ê is just one char:
-Q("ê") { ? NumberOfChars() ? Unicode() } #--> 1 char	Unicode: 234
+
+Q("ê") { ? NumberOfChars() ? Unicode() }
+#--> 1
+#--> 234
 
 # while ê are two chars:
-Q("ê") { ? NumberOfChars() ? Unicode() } #--> 2 chars	Unicodes: 101, 770
 
-# And we can do even better by getting the names of the chars in every string
-? Q("ê").CharName() #--> So "ê" contains one char called:
-		     #     'LATIN SMALL LETTER E WITH CIRCUMFLEX'
+Q("ê") { ? NumberOfChars() ? Unicode() }
+#--> 2
+#--> [101, 770]
 
-? Q("ê").CharsNames() 	#--> while "ê" contains two chars called:
-			#   [ 'LATIN SMALL LETTER E', 'COMBINING CIRCUMFLEX ACCENT' ]
+# And we can do even better by getting the names of the chars in every string.
+# So "ê" contains one char called :
+
+? Q("ê").CharName() 
+#--> LATIN SMALL LETTER E WITH CIRCUMFLEX
+
+# While "ê" contains two chars called:
+
+? Q("ê").CharsNames() 	
+#--> [ 'LATIN SMALL LETTER E', 'COMBINING CIRCUMFLEX ACCENT' ]
 
 # Combining characters is an advanced aspect of Unicode we are not going to delve
 # in now. For more details you can read these FAQs at the following link:
 # http://unicode.org/faq/char_combmark.html
 
+proff()
+# Executed in 0.36 second(s) in Ring 1.18
+# Executed in 0.75 second(s) in Ring 1.17
+
 /*-------------------- TODO: LOGICAL ERROR IN QT??
+
+pron()
 
 # Let's take the example of the german letter ß that
 # should be uppercased to SS
 
-? Q("ß").CharCase() # lowercase
-? Q("ß").Uppercased() #--> SS
+? Q("ß").CharCase()
+#--> lowercase
+
+? Q("ß").Uppercased()
+#--> SS
 
 # Which is nice, and we can check it for a hole word
-? StzStringQ("der fluß").Uppercased()	#--> DER FLUSS
+? StzStringQ("der fluß").Uppercased()
+#--> DER FLUSS
 
 # Now, if we check the other way around :
-? Q("SS").Lowercased() #--> ss
-
+? Q("SS").Lowercased()
+#--> ss
 
 # we don't get "ß", which is expected, because Softanza is running
 # at the default locale ("C" locale) and not the german locale.
@@ -8278,33 +8586,61 @@ Q("ê") { ? NumberOfChars() ? Unicode() } #--> 2 chars	Unicodes: 101, 770
 # Therefore, we need to tune the previous expression by sepecifying
 # the german locale ("ge-GE")
 
-? Q("SS").LowercasedInLocale("ge-GE") # !--> ß		LOGICAL ERROR IN QT --> ss
+? Q("SS").LowercasedInLocale("ge-GE")
+#--> ss (ERROR in QT: it should be ß)
+
+proff()
+# Executed in 0.08 second(s)
 
 /*--------------------
 
-? StzStringQ("der fluß").Uppercased()	#--> DER FLUSS
-? StzStringQ("der fluß").IsLowercase()	#--> TRUE
+pron()
+
+? StzStringQ("der fluß").Uppercased()
+#--> DER FLUSS
+
+? StzStringQ("der fluß").IsLowercase()
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
 
 /*-------------------- LOGICAL ERROR IN QT: Revist after fixing stzLocale
 
+pron()
+
 ? Q("DER FLUSS").LowercasedInLocale("de-DE")
-? Q("der fluß").IsLowercaseOfXT("DER FLUSS", :InLocale = "de-DE") # !--> TRUE
+#--> der fluss
+
+? Q("der fluß").IsLowercaseOfXT("DER FLUSS", :InLocale = "de-DE")
+#--> FALSE (but should be TRUE!)
+
+proff()
+# Executed in 0.05 second(s)
 
 /*--------------------
+*/
+pron()
 
 StzStringQ("in search of lost time") {
+
 	? TitlecasedInLocale("en-US")
 	#--> In Search Of Lost Time
+
 	? CapitalisedInLocale("en-US")
 	# !--> In Search Of Lost Time
 }
 
 StzStringQ("à la recherche du temps perdu") {
+
 	? TitlecasedInLocale("fr-FR")
 	#--> À la recherche du temps perdu
+
 	? CapitalisedInLocale("fr-FR")
 	# !--> À la Recherche du Temps Perdu
 }
+
+proff()
 
 /*--------------------
 

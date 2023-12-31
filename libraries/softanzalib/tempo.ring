@@ -2,6 +2,20 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzString("IbelieveinRingfutureandengageforit!")
+
+o1.SpacifyTheseSubStrings([
+	"believe", "in", "Ring", "future", "and", "engage", "for"
+])
+
+#--> I believe in Ring future and engage for it!
+
+proff()
+
+/*-----------------
+
+pron()
+
 o1 = new stzHashList([
 	[ "#1", [ 12, 66 ] ],
 	[ "#2", [ 26 ] ],

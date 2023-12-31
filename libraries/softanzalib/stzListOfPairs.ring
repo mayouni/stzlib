@@ -736,3 +736,23 @@ class stzListOfPairs from stzListOfLists
 		next
 */
 		
+
+	  #===================================================#
+	 #  CHECKING IF THE TWO VALUES ARE ANOGRAMS STRINGS  #
+	#===================================================#
+
+	def AreAnagramsCS(pCaseSensitive)
+
+		val1 = This.FirstValue()
+		val2 = This.SecondValue()
+
+		if @BothAreStrings(val1, val2) and
+		   Q(val1).IsAnagramOfCS(val2, pCaseSensitive)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def AreAnagrams()
+		return This.AreAnagramsCS(:CaseSensitive = TRUE)
