@@ -511,11 +511,11 @@ func SubstringsNotAllowedInEndOfWord()
 
 class stzText from stzString
 	@oQString
-
 	@cLanguage = DefaultLanguage()
 
 	def init(pcStr)
 		if isString(pcStr)
+			@cContent = pcStr
 			@oQString = new QString2()
 			@oQString.append(pcStr)
 
@@ -529,6 +529,9 @@ class stzText from stzString
 	  #----------------#
 	 #    GENERAL     #
 	#----------------#
+
+	def Content()
+		return QStringToString( @oQString )
 
 	def Text()
 		return This.Content()
@@ -1279,7 +1282,7 @@ class stzText from stzString
 
 			IsComposedWord()
 			ComposedWords()
-			NumberOfCo^mposedWords()
+			NumberOfComposedWords()
 			
 		And to consider or not them in word processing, add:
 
@@ -1292,11 +1295,20 @@ class stzText from stzString
 
 		# t0 = clock()
 
+		acResult = []
+
 		if WordsIdentificationMode() = :Strict
-			oWords = This.RemovePunctuationExceptQ( WordNonLetterChars() ).SimplifyQ().SplitQ(" ")
+
+			oCopy.RemovePunctuationExcept( WordNonLetterChars() )
+			oCopy.SimplifyQ()
+
+			acResult = oCopy.Split(" ")
 
 		but WordsIdentificationMode() = :Quick
-			oWords = This.RemovePunctuationsQ().SplitQ(" ")
+
+			oCopy.RemovePunctuations()
+			acResult = oCopy.Split(" ")
+
 		else
 			StzRaise("Unkowan word identification mode!")
 		ok
@@ -1304,12 +1316,10 @@ class stzText from stzString
 		# ? (clock() - t0) / clockspersecond()
 
 		if StopWordsStatus() = :MustBeRemoved
-			oWords - StopWordsIn( This.Language() )
+			acResult = Q(acResult) - StopWordsIn( This.Language() )
 		ok
 
-		aResult = oWords.Content()
-
-		return aResult
+		return acResult
 		
 		#< @FunctionFluentForm
 
@@ -1341,7 +1351,8 @@ class stzText from stzString
 	#-------------------------------------------------------#
 
 	def SetOfWords()
-		return This.WordsQR(:stzList).DuplicatesRemoved()
+		acResult = StzListQ( This.Words() ).DuplicatesRemoved()
+		return acResult
 
 		#< @FunctionFluentForm
 
@@ -1813,18 +1824,34 @@ class stzText from stzString
 		}
 
 		#--> [ 1, 10, 17, 26, 35, 44 ]
+
 		*/
 
-		aResult = []
+		acWordsU = This.UniqueWords()
+		nLen = len(acWordsU)
 
-		for cWord in This.UniqueWords()
-			aResult + [ cWord, This.FindAllCS(cWord, :CS = FALSE) ]
+		anResult = []
+
+		oTempStr = new stzString(This.Content())
+		oTempStr.Lowercased()
+		anResult = oTempStr.FindMany(acWordsU)
+
+		return anResult
+/*
+		for i = 1 to nLen
+
+			anPos = oTempStr.Find(acWordsU[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+
 		next
 
-		aResult = StzHashListQ( aResult ).ValuesQ().MergeQ().SortedInAscending()
-
-		return aResult
-
+		anResult = ring_sort(anResult)
+		return anResult
+*/
 		#< @FunctionFluentForm
 
 			def WordsPositionsQR(pcReturnType)

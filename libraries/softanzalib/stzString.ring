@@ -36025,6 +36025,26 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			def SplitCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 				return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
+		def SplitsCS(pcSubStr, pCaseSensitive)
+			return This.SplitCS(pcSubStr, pCaseSensitive)
+
+			def SplitsCSQ(pcSubStr, pCaseSensitive)
+				return This.SplitsCSQ(pcSubStr, pCaseSensitive)
+
+			def SplitsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		#--
+
+		def SplitsAtSubStringCS(pcSubStr, pCaseSensitive)
+			return This.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
+
+			def SplitsAtSubStringCSQ(pcSubStr, pCaseSensitive)
+				return This.SplitAtSubStringCSQ(pcSubStr, pCaseSensitive)
+
+			def SplitsAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
 		def SplitAtThisSubStringCS(pcSubStr, pCaseSensitive)
 			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
@@ -36032,10 +36052,19 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 			return This.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
 
-			def AtThisSubStringCSQ(pcSubStr, pCaseSensitive)
+			def SplitAtThisSubStringCSQ(pcSubStr, pCaseSensitive)
 				return This.AtThisSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
 	
-			def AtThisSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitAtThisSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		def SplitsAtThisSubStringCS(pcSubStr, pCaseSensitive)
+			return This.SplitAtThisSubStringCS(pcSubStr, pCaseSensitive)
+
+			def SplitsAtThisSubStringCSQ(pcSubStr, pCaseSensitive)
+				return This.SplitAtThisSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+	
+			def SplitsAtThisSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 				return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
@@ -36066,6 +36095,15 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
+		def SplitsAtSubString(pcSubStr)
+			return This.SplitAtSubString(pcSubStr)
+
+			def SplitsAtSubStringQ(pcSubStr)
+				return This.SplitAtSubStringQ(pcSubStr)
+
+			def SplitsAtSubStringQR(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringQR(pcSubStr, pcReturnType)
+
 		def Split(pcSubStr)
 			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
@@ -36078,6 +36116,15 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 	
 			def SplitQR(pcSubStr, pcReturnType)
 				return This.SplitAtSubStringQR(pcSubStr, pcReturnType)
+
+		def Splits(pcSubStr)
+			return This.Split(pcSubStr)
+
+			def SplitsQ(pcSubStr)
+				return This.SplitQ(pcSubStr)
+
+			def SplitsQR(pcSubStr, pcReturnType)
+				return This.SplitQR(pcSubStr, pcReturntype)
 
 		def SplitAtThisSubString(pcSubStr)
 			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
@@ -36092,6 +36139,15 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			def SplitAtThisSubStringQR(pcSubStr, pcReturnType)
 				return This.SplitAtSubStringCSQR(pcSubStr, pcReturnType)
 
+		def SplitsAtThisSubString(pcSubStr)
+			return This.SplitAtThisSubString(pcSubStr)
+
+			def SplitsAtThisSubStringQ(pcSubStr)
+				return This.SplitAtThisSubStringQ(pcSubStr)
+
+			def SplitsAtThisSubStringQR(pcSubStr, pcReturnType)
+				return This.SplitAtThisSubStringQ(pcSubStr, pcReturnType)
+
 		#>
 
 	def SplittedAtSubString(pcSubStr)
@@ -36103,9 +36159,94 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		def SplittedAtThisSubString(pcSubStr)
 			return This.SplittedAtSubString(pcSubStr)
 
+	  #---------------------------------------------#
+	 #  SPLITS AT A SUBSTRING AND THEIR POSITIONS  #
+	#---------------------------------------------#
+
+	def SplitAtSubStringCSZ(pcSubStr, pCaseSensitive)
+		acSplits = This.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
+		anPos = FinbSplitsAtSubStringCS(pcSubStr, pCaseSensitive)
+
+		aResult = Association([ acSplits, anPos ])
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+
+		def SplitsAtSubStringCSZ(pcSubStr, pCaseSensitive)
+			return This.SplitAtSubStringCSZ(pcSubStr, pCaseSensitive)
+
+		def SplitAtThisSubStringCSZ(pcSubStr, pCaseSensitive)
+			return This.SplitAtSubStringCSZ(pcSubStr, pCaseSensitive)
+
+		def SplitsAtThisSubStringCSZ(pcSubStr, pCaseSensitive)
+			return This.SplitAtSubStringCSZ(pcSubStr, pCaseSensitive)
+
+		#--
+
+		def SplitCSZ(pcSubStr, pCaseSensitive)
+			acSplits = This.SplitAtCS(pcSubStr, pCaseSensitive)
+			anPos = FindSplitsAtCS(pcSubStr, pCaseSensitive)
+
+			aResult = Association([ acSplits, anPos ])
+			return aResult
+	
+		def SplitsCSZ(pcSubStr, pCaseSensitive)
+			return This.SplitCSZ(pcSubStr, pCaseSensitive)
+
+		#>
+
+	def SplittedAtSubStringCSZ(pcSubStr, pCaseSensitive)
+		return This.SplitAtSubStringCSZ(pcSubStr, pCaseSensitive)
+
+		def SplittedAtThisSubStringCSZ(pcSubStr, pCaseSensitive)
+			return This.SplittedAtSubStringCSZ(pcSubStr, pCaseSensitive)
+
+		def SplittedCSZ(pcSubStr, pCaseSensitive)
+			return This.return This.SPlitCSZ(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAtSubStringZ(pcSubStr)
+		return This.SplitAtSubStringCSZ(pcSubStr, :CaseSensitive = TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SplitsAtSubStringZ(pcSubStr)
+			return This.SplitAtSubStringZ(pcSubStr)
+
+		def SplitAtThisSubStringZ(pcSubStr)
+			return This.SplitAtSubStringZ(pcSubStr)
+
+		def SplitsAtThisSubStringZ(pcSubStr)
+			return This.SplitAtSubStringZ(pcSubStr)
+
+		#--
+
+		def SplitZ(pcSubStr)
+			acSplits = This.SplitAt(pcSubStr)
+			anPos = FinbSplitsAt(pcSubStr)
+
+			aResult = Association([ acSplits, anPos ])
+			return aResult
+	
+		def SplitsZ(pcSubStr)
+			return This.SplitZ(pcSubStr)
+
+		#>
+
+	def SplittedAtSubStringZ(pcSubStr)
+		return This.SplitAtSubStringZ(pcSubStr)
+
+		def SplittedAtThisSubStringZ(pcSubStr)
+			return This.SplittedAtSubStringZ(pcSubStr)
+
+		def SplittedZ(pcSubStr)
+			return This.return This.SplitZ(pcSubStr)
+
 	  #-----------------------------------#
 	 #   SPLITTING AT GIVEN SUBSTRINGS   #
-	#-----------------------------------#
+	#===================================#
 
 	def SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
 		if CheckParams()

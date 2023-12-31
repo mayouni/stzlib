@@ -8618,6 +8618,29 @@ pron()
 proff()
 # Executed in 0.05 second(s)
 
+/*===================
+
+pron()
+
+o1 = new stzText("in search of lost time")
+? @@( o1.Words() )
+#--> [ "in", "search", "of", "lost", "time" ]
+
+proff()
+# Executed in 0.40 second(s) in Ring 1.18
+# Executed in 0.49 second(s) in Ring 1.17
+
+/*--------------------
+*/
+pron()
+
+o1 = new stzString("in search of lost time, all the time")
+? @@( o1.FindWords() )
+#--> [ 1, 4, 11, 14, 19, 24, 28, 32 ]
+
+proff()
+# Executed in 0.66 second(s) in Ring 1.17
+
 /*--------------------
 */
 pron()
