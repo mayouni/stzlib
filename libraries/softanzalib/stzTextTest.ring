@@ -1,13 +1,25 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzText("ring programming, best of programming!")
+? o1.FindAllCS("programming", :CS = FALSE)
+#--> [ 6, 27 ]
+
+proff()
+
 /*--------------- Chars() VS Letters()
-*/
+
+pron()
+
 str = "Пи++е́тو**שָׁ ب d ("
 ? @@( SQ(str).Chars() ) # Uses stzString
 #--> [ "П", "и", "+", "+", "е", "́", "т", "و", "*", "*", "ש", "ָ", "ׁ", " ", "ب", " ", "d", " ", "(" ]
 
 ? @@( TQ(str).Letters() ) # Uses stzText
 #--> [ "П", "и", "е", "т", "و", "ש", "ب", "d" ]
+
+proff()
 
 /*========================
 

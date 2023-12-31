@@ -191,6 +191,10 @@ class stzSplitter from stzListOfNumbers
 			StzRaise("Unsupported syntax!")
 		ok
 
+
+		def SplitsXT(p)
+			return This.SplitXT(p)
+
 	  #====================#
 	 #    SPLITTING AT    #
 	#====================#
@@ -231,6 +235,9 @@ class stzSplitter from stzListOfNumbers
 			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
 		ok
 
+		def SplitsAt(p)
+			return This.SplitAt(p)
+
 	  #-----------------------------------#
 	 #   SPLITTING AT A GIVEN POSITION   #
 	#-----------------------------------#
@@ -251,6 +258,9 @@ class stzSplitter from stzListOfNumbers
 
 		return aResult
 
+		def SplitsAtPosition(n)
+			return This.SplitAtPosition(n)
+
 	  #---------------------------------#
 	 #   SPLITTING AT MANY POSITIONS   #
 	#---------------------------------#
@@ -270,11 +280,26 @@ class stzSplitter from stzListOfNumbers
 
 		return aPairs
 
+		#< @FunctionAlternativeForms
+
 		def SplitAtThesePositions(panPositions)
 			return This.SplitAtPositions(panPositions)
 
 		def SplitAtManyPositions(panPositions)
 			return This.SplitAtPositions(panPositions)
+
+		#--
+
+		def SplitsAtPositions(panPositions)
+			return This.SplitAtPositions(panPositions)
+
+		def SplitsAtThesePositions(panPositions)
+			return This.SplitAtPositions(panPositions)
+
+		def SplitsAtManyPositions(panPositions)
+			return This.SplitAtPositions(panPositions)
+
+		#>
 
 	  #========================#
 	 #    SPLITTING BEFORE    #
@@ -316,6 +341,9 @@ class stzSplitter from stzListOfNumbers
 			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
 		ok
 
+		def SplitsBefore(p)
+			return This.SplitBefore(p)
+
 	  #---------------------------------#
 	 #   SPLITTING BEFORE A POSITION   #
 	#---------------------------------#
@@ -334,6 +362,9 @@ class stzSplitter from stzListOfNumbers
 		ok
 
 		return aResult
+
+		def SplitsBeforePosition(n)
+			return This.SplitBeforePosition(n)
 
 	  #-------------------------------------#
 	 #   SPLITTING BEFORE MANY POSITIONS   #
@@ -370,11 +401,26 @@ class stzSplitter from stzListOfNumbers
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def SplitBeforeThesePositions(panPositions)
 			return This.SplitBeforePositions(panPositions)
 
 		def SplitBeforeManyPositions(panPositions)
 			return This.SplitBeforePositions(panPositions)
+
+		#--
+
+		def SplitBeforePositions(panPositions)
+			return This.SplitsBeforePositions(panPositions)
+
+		def SplitsBeforeThesePositions(panPositions)
+			return This.SplitBeforePositions(panPositions)
+
+		def SplitsBeforeManyPositions(panPositions)
+			return This.SplitBeforePositions(panPositions)
+
+		#>
 
 	  #=======================#
 	 #    SPLITTING AFTER    #
@@ -416,6 +462,10 @@ class stzSplitter from stzListOfNumbers
 			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
 		ok
 
+
+		def SplitsAfter(p)
+			return This.SplitAfter(p)
+
 	  #--------------------------------------#
 	 #   SPLITTING AFTER A GIVEN POSITION   #
 	#--------------------------------------#
@@ -426,6 +476,9 @@ class stzSplitter from stzListOfNumbers
 		ok
 
 		return This.SplitBeforePosition(n+1)
+
+		def SplitsAfterPosition(n)
+			return This.SplitAfterPosition(n)
 
 	  #------------------------------------#
 	 #   SPLITTING AFTER MANY POSITIONS   #
@@ -445,11 +498,26 @@ class stzSplitter from stzListOfNumbers
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def SplitAfterThesePositions(panPositions)
 			return This.SplitAfterPositions(panPositions)
 
 		def SplitAfterManyPositions(panPositions)
 			return This.SplitAfterPositions(panPositions)
+
+		#--
+
+		def SplitsAfterPositions(panPositions)
+			return This.SplitAfterPositions(panPositions)
+
+		def SplitsAfterThesePositions(panPositions)
+			return This.SplitAfterPositions(panPositions)
+
+		def SplitsAfterManyPositions(panPositions)
+			return This.SplitAfterPositions(panPositions)
+
+		#>
 
 	  #=================================#
 	 #  SPLITTING AT A GIVEN SECTION   #
@@ -513,6 +581,26 @@ class stzSplitter from stzListOfNumbers
 		def SplitBetweenManyPositions(n1, n2)
 			return This.SplitAtSection(n1, n2)
 
+		#--
+
+		def SplitsAtSection(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplitsAtThisSection(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplitsBetween(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplitsBetweenPositions(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplitsBetweenThesePositions(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplitsBetweenManyPositions(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
 		#>
 
 	def SplitAtSectionIB(n1, n2)
@@ -537,6 +625,26 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitAtSectionIB(n1, n2)
 
 		def SplitBetweenManyPositionsIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		#--
+
+		def SplitsAtSectionIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplitsAtThisSectionIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplitsBetweenIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplitsBetweenPositionsIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplitsBetweenThesePositionsIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplitsBetweenManyPositionsIB(n1, n2)
 			return This.SplitAtSectionIB(n1, n2)
 
 		#>
@@ -615,6 +723,26 @@ class stzSplitter from stzListOfNumbers
 		def SplitBetweenManySections(paSections)
 			return This.SplitAtSections(paSections)
 
+		#--
+
+		def SplitsAtSections(paSections)
+			return This.SplitAtSections(paSections)
+
+		def SplitsAtTheseSections(paSections)
+			return This.SplitAtSections(paSections)
+
+		def SplitsBetweenSections(paSections)
+			return This.SplitAtSections(paSections)
+
+		def SplitsBetweenTheseSections(paSections)
+			return This.SplitAtSections(paSections)
+
+		def SplitsAtManySections(paSections)
+			return This.SplitAtSections(paSections)
+
+		def SplitsBetweenManySections(paSections)
+			return This.SplitAtSections(paSections)
+
 		#>
 
 	def SplitAtSectionsIB(paSections)
@@ -650,6 +778,26 @@ class stzSplitter from stzListOfNumbers
 		def SplitBetweenManySectionsIB(paSections)
 			return This.SplitAtSectionsIB(paSections)
 
+		#--
+
+		def SplitsAtSectionsIB(paSections)
+			return This.SplitAtSectionsIB(paSections)
+
+		def SplitsAtTheseSectionsIB(paSections)
+			return This.SplitAtSectionsIB(paSections)
+
+		def SplitsBetweenSectionsIB(paSections)
+			return This.SplitAtSectionsIB(paSections)
+
+		def SplitsBetweenTheseSectionsIB(paSections)
+			return This.SplitAtSectionsIB(paSections)
+
+		def SplitsAtManySectionsIB(paSections)
+			return This.SplitAtSectionsIB(paSections)
+
+		def SplitsBetweenManySectionsIB(paSections)
+			return This.SplitAtSectionsIB(paSections)
+
 		#>
 
 	  #=====================================#
@@ -669,6 +817,14 @@ class stzSplitter from stzListOfNumbers
 		def SplitBeforeThisSection(n1, n2)
 			return This.SplitBeforeSection(n1, n2)
 
+		#--
+
+		def SplitsBeforeSection(n1, n2)
+			return This.SplitBeforeSection(n1, n2)
+
+		def SplitsBeforeThisSection(n1, n2)
+			return This.SplitBeforeSection(n1, n2)
+
 		#>
 
 	def SplitBeforeSectionIB(n1, n2)
@@ -681,6 +837,14 @@ class stzSplitter from stzListOfNumbers
 		#< @FunnctionAlternativeForm
 
 		def SplitBeforeThisSectionIB(n1, n2)
+			return This.SplitBeforeSectionIB(n1, n2)
+
+		#--
+
+		def SplitsBeforeSectionIB(n1, n2)
+			return This.SplitBeforeSectionIB(n1, n2)
+
+		def SplitsBeforeThisSectionIB(n1, n2)
 			return This.SplitBeforeSectionIB(n1, n2)
 
 		#>
@@ -703,6 +867,17 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitBeforeSections(paSections)
 
 		def SplitBeforeManySections(paSections)
+			return This.SplitBeforeSections(paSections)
+
+		#--
+
+		def SplitsBeforeSections(paSections)
+			return This.SplitBeforeSections(paSections)
+
+		def SplitsBeforeTheseSections(paSections)
+			return This.SplitBeforeSections(paSections)
+
+		def SplitsBeforeManySections(paSections)
 			return This.SplitBeforeSections(paSections)
 
 		#>
@@ -730,6 +905,17 @@ class stzSplitter from stzListOfNumbers
 		def SplitBeforeManySectionsIB(paSections)
 			return This.SplitBeforeSectionsIB(paSections)
 
+		#--
+
+		def SplitsBeforeSectionsIB(paSections)
+			return This.SplitBeforeSectionsIB(paSections)
+
+		def SplitsBeforeTheseSectionsIB(paSections)
+			return This.SplitBeforeSectionsIB(paSections)
+
+		def SplitsBeforeManySectionsIB(paSections)
+			return This.SplitBeforeSectionsIB(paSections)
+	
 		#>
 
 	  #====================================#
@@ -744,8 +930,20 @@ class stzSplitter from stzListOfNumbers
 
 		return This.SplitAfterPosition(n2)
 
+		#< @FunctionAlternativeForms
+
 		def SplitAfterThisSection(n1, n2)
 			return This.SplitAfterSection(n1, n2)
+
+		#--
+
+		def SplitsAfterSection(n1, n2)
+			return This.SplitAfterSection(n1, n2)
+
+		def SplitsAfterThisSection(n1, n2)
+			return This.SplitAfterSection(n1, n2)
+
+		#>
 
 	def SplitAfterSectionIB(n1, n2)
 		if NOT BothArNumbers(n1, n2)
@@ -754,8 +952,20 @@ class stzSplitter from stzListOfNumbers
 
 		return This.SplitAfterPosition(n2--)
 
+		#< @FunctionAlternativeForms
+
 		def SplitAfterThisSectionIB(n1, n2)
 			return This.SplitAfterSectionIB(n1, n2)
+
+		#--
+
+		def SplitsAfterSectionIB(n1, n2)
+			return This.SplitAfterSectionIB(n1, n2)
+
+		def SplitsAfterThisSectionIB(n1, n2)
+			return This.SplitAfterSectionIB(n1, n2)
+
+		#>
 
 	  #---------------------------------#
 	 #  SPLITTING AFTER MANY SECTIONS  #
@@ -775,6 +985,17 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitAfterSections(paSections)
 
 		def SplitAfterManySections(paSections)
+			return This.SplitAfterSections(paSections)
+
+		#--
+
+		def SplitsAfterSections(paSections)
+			return This.SplitAfterSections(paSections)
+
+		def SplitsAfterTheseSections(paSections)
+			return This.SplitAfterSections(paSections)
+
+		def SplitsAfterManySections(paSections)
 			return This.SplitAfterSections(paSections)
 
 		#>
@@ -800,6 +1021,17 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitAfterSectionsIB(paSections)
 
 		def SplitAfterManySectionsIB(paSections)
+			return This.SplitAfterSectionsIB(paSections)
+
+		#--
+
+		def SplitsAfterSectionsIB(paSections)
+			return This.SplitAfterSectionsIB(paSections)
+
+		def SplitsAfterTheseSectionsIB(paSections)
+			return This.SplitAfterSectionsIB(paSections)
+
+		def SplitsAfterManySectionsIB(paSections)
 			return This.SplitAfterSectionsIB(paSections)
 
 		#>
@@ -842,6 +1074,20 @@ class stzSplitter from stzListOfNumbers
 		def SplitToPartsOfNPositions(n)
 			return This.SplitToPartsOfNItems(n)
 
+		#--
+
+		def SplitsToPartsOfNItems(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitsToPartsOfN(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitsToPartsOf(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitsToPartsOfNPositions(n)
+			return This.SplitToPartsOfNItems(n)
+
 		#>
 
 	  #---------------------------------------------#
@@ -860,8 +1106,20 @@ class stzSplitter from stzListOfNumbers
 
 		return aSections
 
+		#< @FunctionAlternativeForms
+
 		def SplitToPartsOfExactlyNPositions(n)
 			return This.SplitToPartsOfExactlyNItems(n)
+
+		#--
+
+		def SplitsToPartsOfExactlyNItems(n)
+			return This.SplitToPartsOfExactlyNItems(n)
+
+		def SplitsToPartsOfExactlyNPositions(n)
+			return This.SplitToPartsOfExactlyNItems(n)
+
+		#>
 
 	  #----------------------------#
 	 #    SPLITTING TO N PARTS    #
@@ -900,6 +1158,10 @@ class stzSplitter from stzListOfNumbers
 
 		return aResult
 
+
+		def SplitsToNParts(n)
+			return This.SplitToNParts(n)
+
 	  #===============================================#
 	 #  SPLITTING AROUND POSITION(S) OR SECTTION(s)  #
 	#===============================================#
@@ -925,6 +1187,9 @@ class stzSplitter from stzListOfNumbers
 
 		ok
 
+		def SplitsAround(p)
+			return This.SplitAround(p)
+
 	def SplitAroundIB(n)
 		if isNumber(p)
 			return This.SplitAroundPositionIB(p)
@@ -945,6 +1210,9 @@ class stzSplitter from stzListOfNumbers
 			StzRaise("Incorrect param type! p must be a number or pair of numbers or list of numbers.")
 
 		ok
+
+		def SplitsAroundIB(n)
+			return This.SplitAroundIB(n)
 
 	  #-------------------------------#
 	 #  SPLITTING AROUND A POSITION  #
@@ -987,11 +1255,17 @@ class stzSplitter from stzListOfNumbers
 		aResult = [ aSection1, aSection2 ]
 		return aResult
 
+		def SplitsAroundPosition(n)
+			return This.SplitAroundPosition(n)
+
 	def SplitAroundPositionIB(n)
 		aResult = This.SplitAroundPosition(n)
 		aResult[1][2]++
 		aResult[2][1]--
 		return aResult
+
+		def SplitsAroundPositionIB(n)
+			return This.SplitAroundPositionIB(n)
 
 	  #------------------------------#
 	 #  SPLITTING AROUND POSITIONS  #
@@ -1000,6 +1274,9 @@ class stzSplitter from stzListOfNumbers
 	def SplitAroundPositions(panPos)
 		# TODO
 		StzRaise("Not yet implemented!")
+
+		def SplitsAroundPositions(panPos)
+			return This.SplitAroundPositions(panPos)
 
 	def SplitAroundPositionsIB(panPos)
 		aResult = This.SplitAroundPositions(panPos)
@@ -1012,6 +1289,9 @@ class stzSplitter from stzListOfNumbers
 
 		return aResult
 
+		def SplitsAroundPositionsIB(panPos)
+			return This.SplitAroundPositionsIB(panPos)
+
 	  #------------------------------#
 	 #  SPLITTING AROUND A SECTION  #
 	#------------------------------#
@@ -1019,6 +1299,9 @@ class stzSplitter from stzListOfNumbers
 	def SplitAroundSection(n1, n2)
 		# TODO
 		StzRaise("Not yet implemented!")
+
+		def SplitsAroundSection(n1, n2)
+			return This.SplitAroundSection(n1, n2)
 
 	def SplitAroundSectionIB(n1, n2)
 		aResult = This.SplitAroundSection(n1, n2)
@@ -1031,6 +1314,9 @@ class stzSplitter from stzListOfNumbers
 
 		return aResult
 		
+		def SplitsAroundSectionIB(n1, n2)
+			return This.SplitAroundSectionIB(n1, n2)
+
 	  #-----------------------------#
 	 #  SPLITTING AROUND SECTIONS  #
 	#-----------------------------#
@@ -1038,6 +1324,9 @@ class stzSplitter from stzListOfNumbers
 	def SplitAroundSections(panSections)
 		# TODO
 		StzRaise("Not yet implemented!")
+
+		def SplitsAroundSections(panSections)
+			return This.SplitAroundSections(panSections)
 
 	def SplitAroundSectionsIB(panSections)
 		aResult = This.SplitAroundSections(panSections)
@@ -1049,6 +1338,9 @@ class stzSplitter from stzListOfNumbers
 		next
 
 		return aResult
+
+		def SplitsAroundSectionsIB(panSections)
+			return This.SplitAroundSectionsIB(panSections)
 
 	  #=======================================================#
 	 #   Utility functions used by the other methods above   #
