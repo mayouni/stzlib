@@ -411,7 +411,7 @@ class stzSplitter from stzListOfNumbers
 
 		#--
 
-		def SplitBeforePositions(panPositions)
+		def SplitsBeforePositions(panPositions)
 			return This.SplitsBeforePositions(panPositions)
 
 		def SplitsBeforeThesePositions(panPositions)
