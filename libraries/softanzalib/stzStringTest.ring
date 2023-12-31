@@ -8639,7 +8639,7 @@ o1 = new stzString("in search of lost time, all the time")
 #--> [ 1, 4, 11, 14, 19, 24, 28, 32 ]
 
 proff()
-# Executed in 0.66 second(s) in Ring 1.17
+# Executed in 0.08 second(s)
 
 /*--------------------
 */

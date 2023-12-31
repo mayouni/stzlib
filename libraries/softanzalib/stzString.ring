@@ -38968,21 +38968,24 @@ ici	def NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return []
 		ok
 
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcsubStr must be a string.")
+		if CheckParams()
+
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcsubStr must be a string.")
+			ok
+	
+			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+				pCaseSensitive = pCaseSensitive[2]
+			ok
+	
+			if NOT IsBoolean(pCaseSensitive)
+				StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+			ok
+
 		ok
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
-		ok
-
-		aSections = This.FindCS(pcSubStr, pCaseSensitive)
-		aResult = StzSplitterQ( This.NumberOfChars() ).FindSplitsAtSections(aSections)
-		return aResult
+		anResult = This.FindManyCS( This.SplitsAtSubStringCS(pcSubStr, pCaseSensitive), pCaseSensitive)
+		return anResult
 
 		#< @FunctionAlternativeForms
 
