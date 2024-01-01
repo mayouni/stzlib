@@ -2402,7 +2402,7 @@ Class stzTable from stzObject
 			return This.CellsAndTheirPositions()
 
 		def AllCellsAndPositions()
-			return This.return This.CellsAndTheirPositions()
+			return This.CellsAndTheirPositions()
 
 		#--
 
@@ -2410,7 +2410,7 @@ Class stzTable from stzObject
 			return This.CellsAndTheirPositions()
 
 		def AllCellsZ()
-			return This.return This.CellsAndTheirPositions()
+			return This.CellsAndTheirPositions()
 
 		#>
 

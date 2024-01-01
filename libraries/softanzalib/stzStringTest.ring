@@ -7430,10 +7430,12 @@ StzStringQ("My name is #2, my age is #3, and my job is #1.") {
 }
 
 proff()
-# Executed in 0.30 second(s)
+# Executed in 0.28 second(s) in Ring 1.19 (32 bits)
+# Executed in 0.30 second(s) in Ring 1.18
 
 /*----------------------
-
+@perf
+*/
 pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
@@ -7453,6 +7455,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
+# Executed in 1.81 second(s) in Ring 1.19 (32 bits)
 # Executed in 2.23 second(s) in Ring 1.18
 # Executed in 3.65 second(s) in Ring 1.17
 
@@ -7486,6 +7489,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
+# Executed in 0.69 second(s) on Ring 1.19 (32 bits)
 # Executed in 0.77 second(s) in Ring 1.18
 # Executed in 1.24 second(s) in Ring 1.17
 
@@ -7506,10 +7510,12 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
+# Executed in 0.20 second(s) in Ring 1.19 (32 bits)
 # Executed in 0.22 second(s) in Ring 1.18
 # Executed in 0.29 second(s) in Ring 1.17
 
 /*---------------------- 
+@perf
 
 pron()
 
@@ -7531,10 +7537,12 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
+# Executed in 0.28 second(s) in Ring 1.19 (32 bits)
 # Executed in 0.29 second(s) in Ring 1.18
 # Executed in 0.43 second(s) in Ring 1.17
 
 /*---------------------- 
+@perf
 
 pron()
 
@@ -7554,10 +7562,11 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.05 second(s) in Ring 1.19 (32 bits)
+# Executed in 0.03 second(s) in Ring 1.18
 
 /*----------------------
-
+*/
 pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
@@ -7585,6 +7594,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
+# Executed in 1.04 second(s) in Ring 1.19 (32 bits)
 # Executed in 1.26 second(s) in Ring 1.18
 # Executed in 2.05 second(s) in Ring 1.17
 
@@ -8631,6 +8641,34 @@ proff()
 # Executed in 0.49 second(s) in Ring 1.17
 
 /*--------------------
+*/
+pron()
+
+o1 = new stzString("...ONE...NONE...SONY...")
+? o1.NumberOfOccurrenceInSections("N", [ [3, 5], [9, 12], [16, 19] ])
+#--> 4
+
+proff()
+# Executed in 0.06 second(s)
+
+/*--------------------
+*/
+pron()
+
+o1 = new stzString("one;two;three;four;five")
+
+? @@( o1.Splits(";") ) + NL
+#--> [ "one", "two", "three", "four", "five" ]
+
+? @@( o1.SplitsZ(";") ) + NL
+#--> [ [ "one", 1 ], [ "two", 5 ], [ "three", 9 ], [ "four", 15 ], [ "five", 20 ] ]
+
+? @@( o1.SplitsZZ(";") )
+
+proff()
+
+/*--------------------
+
 */
 pron()
 
