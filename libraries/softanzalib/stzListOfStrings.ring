@@ -18622,7 +18622,7 @@ stop()
 			This.LeftAlignXT(pnWidth, pcChar)
 
 			def AlignToLeftXTQ(pnWidth, pcChar)
-				return This.return This.LeftAlignXTQ(pnWidth, pcChar)
+				return This.LeftAlignXTQ(pnWidth, pcChar)
 
 		#>
 
@@ -18636,7 +18636,7 @@ stop()
 			return This.LeftAlignedXT(pnWidth, pcChar)
 	
 		def AdjustedToLeftXT(pnWidth, pcChar)
-			return LeftAlignedXT(pnWidth, pcChar)
+			return This.LeftAlignedXT(pnWidth, pcChar)
 
 		#>
 
