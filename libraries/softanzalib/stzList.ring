@@ -22064,11 +22064,12 @@ class stzList from stzObject
 			return This.LastOccurrenceCS(pItem, pCaseSensitive)
 		ok
 
-		cItem = Q(pItem).Stringified()
+		cItem = @@(pItem)
 		acContent = This.Stringified()
 		nLen = len(acContent)
-? pCaseSensitive
-dfdf
+
+		# Managing case sensitivity
+
 		if pCaseSensitive = FALSE
 
 			cItem = lower(cItem)
@@ -22080,7 +22081,7 @@ dfdf
 			next
 		ok
 
-		
+		# Counting the occurrences
 
 		nOccurr = 0
 
