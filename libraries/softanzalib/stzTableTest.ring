@@ -2673,10 +2673,10 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? @@( o1.FindInSectionCS([1, 1], [3, 2], "red", :CS = TRUE) )
+? @@( o1.FindInSectionCS([1, 1], [3, 2], "red", TRUE) )
 #--> []
 
-? @@( o1.FindInSectionCS([1, 1], [3, 2], "Red", :CS = TRUE) )
+? @@( o1.FindInSectionCS([1, 1], [3, 2], "Red", TRUE) )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
 ? @@( o1.FindInSectionCS([1, 1], [3, 2], "red", :CS = FALSE) )

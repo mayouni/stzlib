@@ -30,7 +30,7 @@ func stzStringError(pcError)
 	on :IncorrectFormatOfCaseSensitiveParamList
 		cErrorMsg += "   What : Incorrect format of the Casesensitive option list" + NL
 		cErrorMsg += "   Why  : The parameter your provdided (pCaseSensitive) is not valid." + NL
-		cErrorMsg += "   Todo : Provide a valid option list (:CaseSensitive = TRUE, for example) and try again ;)"
+		cErrorMsg += "   Todo : Provide a valid option list (TRUE, for example) and try again ;)"
 
 	on :CanNotGeneratePossibleWordInstances
 		cErrorMsg += "   What : Can't generate the list of possible word instances" + NL

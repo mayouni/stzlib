@@ -111,7 +111,7 @@ o1 = new stzString("
 ")
 
 ? o1.ContainsSomeCS(Planets , :CS = FALSE) 	#--> TRUE
-? o1.ContainsSomeCS(Planets , :CS = TRUE) 	#--> FALSE
+? o1.ContainsSomeCS(Planets , TRUE) 	#--> FALSE
 
 ? @@( o1.FindManyXT(Planets, [ :CS = FALSE, :RemoveEmpty = FALSE ]) ) + NL
 #--> [
@@ -783,7 +783,7 @@ o1.SpacifyUsing("  ")
 /*---
 
 o1 = new stzString("aaaAAARing")
-o1.ReplaceThisRepeatedLeadingCharCS("a", :With = "o", :CaseSensitive = TRUE)
+o1.ReplaceThisRepeatedLeadingCharCS("a", :With = "o", TRUE)
 ? o1.Content() #--> oooAAARing
 
 /*---------- OK
@@ -798,7 +798,7 @@ o1 = new stzString("aaaAAARing")
 /*---------- OK
 
 o1 = new stzString("aaaAAAH RING!")
-o1.ReplaceLeadingCharsCS(:With = "O", :CS = TRUE)
+o1.ReplaceLeadingCharsCS(:With = "O", TRUE)
 ? o1.Content() #--> OOOAAAH RING!
 
 o1 = new stzString("aaaAAAH RING!")
@@ -808,7 +808,7 @@ o1.ReplaceLeadingCharsCS(:With = "O", :CS = FALSE)
 /*---------- OK
 
 o1 = new stzString("RINGaaaAAA")
-o1.ReplaceTrailingCharsCS( :With = "O", :CS = TRUE)
+o1.ReplaceTrailingCharsCS( :With = "O", TRUE)
 ? o1.Content()
 #--> "RINGaaaOOO"
 
@@ -820,14 +820,14 @@ o1.ReplaceTrailingCharsCS( :With = "O", :CS = FALSE)
 /*----------- OK
 
 o1 = new stzString("aaaAAARING!")
-o1.ReplaceThisLeadingCharCS( "a", :With = "O", :CS = TRUE)
+o1.ReplaceThisLeadingCharCS( "a", :With = "O", TRUE)
 ? o1.Content()
 #--> "OOOAAARING!"
 
 /*------------ OK
 
 o1 = new stzString("♥Ring♥AAAaaa")
-o1.RemoveThisTrailingCharCS("a", :CaseSensitive = TRUE)
+o1.RemoveThisTrailingCharCS("a", TRUE)
 ? o1.Content() #--> ♥Ring♥AAA
 
 o1 = new stzString("♥Ring♥AAAaaa")
@@ -837,7 +837,7 @@ o1.RemoveThisTrailingCharCS("a", :CaseSensitive = FALSE)
 /*----------- OK
 
 o1 = new stzString("aaaAAA♥Ring♥")
-o1.RemoveThisLeadingCharCS("a", :CaseSensitive = TRUE)
+o1.RemoveThisLeadingCharCS("a", TRUE)
 ? o1.Content() #--> AAA♥Ring♥
 
 o1 = new stzString("aaaAAA♥Ring♥")
@@ -847,7 +847,7 @@ o1.RemoveThisLeadingCharCS("a", :CaseSensitive = FALSE)
 /*----------- OK
 
 o1 = new stzString("aaaAAAI ♥ Ring!AAAaaa")
-o1.RemoveTheseLeadingAndTrailingCharsCS( "a", "a", :CS = TRUE)
+o1.RemoveTheseLeadingAndTrailingCharsCS( "a", "a", TRUE)
 ? o1.Content()
 #--> Gives: "AAAI ♥ Ring!AAA"
 
@@ -1238,7 +1238,7 @@ pron()
 
 o1 = new stzListOfStrings([ "Jameel", "Fedy", "Badr" ])
 ? o1.ContainsBothCS("JAMEEL", "BADR", :CS = FALSE) #--> TRUE
-? o1.ContainsBothCS("JAMEEL", "BADR", :CS = TRUE)  #--> FALSE
+? o1.ContainsBothCS("JAMEEL", "BADR", TRUE)  #--> FALSE
 
 o1 = new stzListOfNumbers([ 7, 17, 27 ])
 ? o1.AddedToEach(3) #--> [ 10, 20, 30 ]

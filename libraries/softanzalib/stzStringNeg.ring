@@ -40,17 +40,17 @@ class stzStringNeg
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNo(cSubStr)
-		return This.ContainsNoCS(cSubStr, :CaseSensitive = TRUE)
+		return This.ContainsNoCS(cSubStr, TRUE)
 
 	def ContainsNoneOfThese(pacSubStrings)
-		return This.ContainsNoneOfTheseCS(pacSubStrings, :CaseSensitive = TRUE)
+		return This.ContainsNoneOfTheseCS(pacSubStrings, TRUE)
 
 		def ContainsNoneOfTheseSubStrings(pacSubStrings)
-			return This.ContainsNoneOfTheseCS(pacSubStrings, :CaseSensitive = TRUE)
+			return This.ContainsNoneOfTheseCS(pacSubStrings, TRUE)
 	
 		def ContainsNoneOf(pacSubStrings)
-			return This.ContainsNoneOfTheseCS(pacSubStrings, :CaseSensitive = TRUE)
+			return This.ContainsNoneOfTheseCS(pacSubStrings, TRUE)
 	
 	def ContainsNeither(pcSubStr1, pcSubStr2)
-		return This.ContainsNeitherCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+		return This.ContainsNeitherCS(pcSubStr1, pcSubStr2, TRUE)
 	

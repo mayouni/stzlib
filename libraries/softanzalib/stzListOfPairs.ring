@@ -755,4 +755,4 @@ class stzListOfPairs from stzListOfLists
 		ok
 
 	def AreAnagrams()
-		return This.AreAnagramsCS(:CaseSensitive = TRUE)
+		return This.AreAnagramsCS(TRUE)

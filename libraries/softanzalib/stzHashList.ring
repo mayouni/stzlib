@@ -1085,7 +1085,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-- WITHOUT CASESENSITIVE
 
 	def ContainsValue(pValue)
-		return This.ContainsValueCS(pValue, :CaseSensitive = TRUE)
+		return This.ContainsValueCS(pValue, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -1124,7 +1124,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-- WITHOUT CASESENSITIVE
 
 	def ContainsValues(paValues)
-		return This.ContainsValuesCS(paValues, :CaseSensitive = TRUE)
+		return This.ContainsValuesCS(paValues, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -1160,7 +1160,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindValue(pValue)
-		return This.FindValueCS(pValue, :CaseSensitive = TRUE)
+		return This.FindValueCS(pValue, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -1200,7 +1200,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindValues(paValues)
-		return This.FindValuesCS(paValues, :CaseSensitive = TRUE)
+		return This.FindValuesCS(paValues, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -1253,7 +1253,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthOccurrenceOfValue(n, pValue)
-		return This.FindNthOccurrenceOfValueCS(n, pValue, :CaseSensitive = TRUE)
+		return This.FindNthOccurrenceOfValueCS(n, pValue, TRUE)
 
 		#< @FunctionAlternativeForms
 

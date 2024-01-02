@@ -2430,7 +2430,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstNOccurrences(n, pStrOrItem)
-		return This.FindFirstNOccurrencesCS(n, pStrOrItem, :CaseSensitive = TRUE)
+		return This.FindFirstNOccurrencesCS(n, pStrOrItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -2540,7 +2540,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstNOccurrencesXT(n, pcStr, pnStartingAt)
-		return This.FindFirstNOccurrencesCSXT(n, pcStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindFirstNOccurrencesCSXT(n, pcStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -2632,7 +2632,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastNOccurrences(n, pStrOrItem)
-		return This.FindLastNOccurrencesCS(n, pStrOrItem, :CaseSensitive = TRUE)
+		return This.FindLastNOccurrencesCS(n, pStrOrItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -2738,7 +2738,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastNOccurrencesXT(n, pcStr, pnStartingAt)
-		return This.FindLastNOccurrencesCSXT(n, pcStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindLastNOccurrencesCSXT(n, pcStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 

@@ -3306,7 +3306,7 @@ class stzText from stzString
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceWord(pcWord, pcNewWord)
-		This.ReplaceWordsCS(pcWord, pcNewWord, :CaseSensitive = TRUE)
+		This.ReplaceWordsCS(pcWord, pcNewWord, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -3530,7 +3530,7 @@ class stzText from stzString
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveAllWord(pcWord)
-		This.RemoveAllWordCS(pcWord, :CaseSensitive = TRUE)
+		This.RemoveAllWordCS(pcWord, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -3703,7 +3703,7 @@ class stzText from stzString
 		#>
 
 	def FindAllOccurrencesOfWord(pcWord)
-		return This.FindAllOccurrencesOfWordCS(pcWord, :CaseSensitive = TRUE)
+		return This.FindAllOccurrencesOfWordCS(pcWord, TRUE)
 	
 		#< @FunctionAlternativeForms
 

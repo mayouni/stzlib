@@ -768,7 +768,7 @@ o1 = new stzListOfStrings([
 # The following finds the hole string "name" (whatever case it has)
 # and sees if it exists AS AN ITEM of the list of strings
 
-? @@( o1.FindStringCS("name", :CS = TRUE) ) #--> [ ]
+? @@( o1.FindStringCS("name", TRUE) ) #--> [ ]
 
 # While the following analyses the strings themselves and finds
 # where they may include the SUBSTRING "name"
@@ -809,13 +809,13 @@ o1 = new stzListOfStrings([
 	"Mabrooka"
 ])
 
-? @@( o1.FindSubstringCS("name", :CaseSensitive = TRUE) ) + NL
+? @@( o1.FindSubstringCS("name", TRUE) ) + NL
 #--> [
 #	[ 1, [ 13    ] ],
 #	[ 3, [ 6, 21 ] ]
 #    ]
 
-? @@( o1.FindNthSubstringCS(2, "name", :CS = TRUE) )
+? @@( o1.FindNthSubstringCS(2, "name", TRUE) )
 #--> [ 3, 6 ]
 #--> The 2nd occurrenc of "name" in the list
 # of strings is in position 6 of the 3rd string.
@@ -831,7 +831,7 @@ o1 = new stzListOfStrings([
 	"Mabrooka"
 ])
 
-? @@( o1.FindManySubstringsCSXT([ "name", "nice" ], :CaseSensitive = TRUE) )
+? @@( o1.FindManySubstringsCSXT([ "name", "nice" ], TRUE) )
 #--> [
 #	[ "name" , [ [ 1, 13 ], [ 3, 6 ], [ 3, 21 ] ] ],
 #	[ "nice" , [ [ 3, 16 ] ] ]
@@ -1092,8 +1092,8 @@ proff()
 /*================
 
 o1 = new stzListOfStrings([ "tom", "sam", "dan" ])
-? o1.ContainsCS("sam", :CS = TRUE)	#--> TRUE
-? o1.ContainsCS("SAM", :CS = TRUE)	#--> FALSE
+? o1.ContainsCS("sam", TRUE)	#--> TRUE
+? o1.ContainsCS("SAM", TRUE)	#--> FALSE
 ? o1.ContainsCS("SAM", :CS = FALSE)	#--> TRUE
 
 /*================
@@ -1239,7 +1239,7 @@ o1 = new stzListOfStrings([
 	"lyria-systems", "noon-consulting", "ifes", "mourakiboun",
 	"ISIE", "HNEC", "HAICA", "kalidia", "triciti", "maxeam", "Ring" ])
 
-? o1.ContainsEachCS([ "IFES", "HAICA" ], :CS = TRUE )
+? o1.ContainsEachCS([ "IFES", "HAICA" ], TRUE )
 #--> FALSE (because 'ifes' is lowercase)
 
 ? o1.ContainsEach([ "Ring", "keyrus" ])
@@ -1283,7 +1283,7 @@ o1 = new stzListOfStrings([
 ? @@(o1.FindAll("tunis"))
 #--> [ 6, 7, 14 ]
 
-? @@(o1.FindAllCS("tunis", :CS = TRUE))
+? @@(o1.FindAllCS("tunis", TRUE))
 #--> [ 6, 7, 14 ]
 
 ? o1.FindAllCS("tunis", :cs = false)
@@ -1686,12 +1686,12 @@ o1 = new stzListOfStrings(  [ "Tunis", "gafsa", "tunis", "gabes", "tunis", "regu
 /*--------------
 
 o1 = new stzListOfStrings(  [ "Tunis", "gatufsa", "tunis", "gabes", "tunis", "regueb", "tuta", "regueb" ])
-? o1.FindNthOccurrenceCS(2, "tunis", :CS = TRUE) #--> 5
+? o1.FindNthOccurrenceCS(2, "tunis", TRUE) #--> 5
 
-? @@(o1.StringsContainingCS("tu", :CS = TRUE)) # Same as o1.FilterCS("tu", :CS = TRUE)
+? @@(o1.StringsContainingCS("tu", TRUE)) # Same as o1.FilterCS("tu", TRUE)
 #--> [ "gatufsa","tunis","tunis","tuta" ]
 
-? @@( o1.UniqueStringsContainingCS("tu", :CS = TRUE) )
+? @@( o1.UniqueStringsContainingCS("tu", TRUE) )
 #--> [ "gatufsa", "tunis", "tuta" ]
 
 /*--------------
